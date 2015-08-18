@@ -54,9 +54,11 @@ void getRange(TH1D* s, int imax, double frac,
       //		<< std::endl;
 
       if ( tsum>=entries*frac ) break;
-      
+
       sumn = tsum;
-      
+
+      lowerfrac = sumn/entries;
+            
       upperbin = _upperbin;
       lowerbin = _lowerbin;
 
@@ -64,7 +66,6 @@ void getRange(TH1D* s, int imax, double frac,
     }
 
     upperfrac = tsum/entries;
-    lowerfrac = sumn/entries;
   }
   
 }
@@ -220,8 +221,9 @@ double rmsFrac(TH1D* s, double frac, double mean) {
 
   //  std::cout << "rmsFrac() " << s->GetName() << "\tlower bin " << lowerbin << "\t upper bin " << upperbin << std::endl;
 
-  if ( upperbin!=lowerbin ) { 
-
+  //  if ( upperbin!=lowerbin ) { 
+  if ( true ) {  /// technically not correct, since the rms is not definid for only one bin - really need NARROWER BINS!! 
+ 
     std::vector<double> stats;
 
     //    std::cout << "rmsFrac() GetEntries " << s->GetName() << " " << GetEntries(s) << std::endl; 

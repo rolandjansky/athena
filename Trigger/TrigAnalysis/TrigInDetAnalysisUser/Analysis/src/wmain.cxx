@@ -6,7 +6,7 @@
 
 using namespace std;
 
-#include "TrigInDetAnalysis/TrackEvent.h"
+#include "TrigInDetAnalysis/TIDAEvent.h"
 
 #include <map>
 
@@ -17,7 +17,7 @@ int main()
 
 
   {
-    TrackEvent* h = new TrackEvent();
+    TIDA::Event* h = new TIDA::Event();
     
     std::cout << "\n\nconstructing ..." << std::endl;
 
@@ -25,7 +25,7 @@ int main()
     TTree *tree = new TTree("tree","tree");
 
     //  tree->Branch("Track","Int",&t,6400);
-    tree->Branch("TrackEvent", "TrackEvent",&h,6400, 1);
+    tree->Branch("TIDA::Event", "TIDA::Event",&h,6400, 1);
 
     std::string ars[3] = { "ars0", "ars1", "ars2" };
 
@@ -46,7 +46,7 @@ int main()
 
 	h->addChain( ars[j] );
 
-	TrackChain& tc = h->back();
+	TIDA::Chain& tc = h->back();
 	//	tc.addCombination();
 
 	//	TrackCombination& c = h->back().back();
@@ -71,7 +71,7 @@ int main()
 	
       }
 
-      cout << "TrackEvent " << *h << endl;
+      cout << "TIDA::Event " << *h << endl;
 
       tree->Fill();
       
@@ -89,19 +89,19 @@ int main()
   {
     std::cout << "\n\nreading ..." << std::endl;
 
-    TrackEvent* hh = new TrackEvent();
+    TIDA::Event* hh = new TIDA::Event();
 
     TFile f("tree.root");
     TTree *tree = (TTree*)f.Get("tree");
     
     //  tree->Branch("Track","Int",&t,6400);
-    tree->SetBranchAddress("TrackEvent", &hh );
+    tree->SetBranchAddress("TIDA::Event", &hh );
     
     for ( int i=0; i<tree->GetEntries() ; i++ ) {
     
       tree->GetEntry(i);
 
-      cout << "TrackEvent " << i << " " << *hh << endl;
+      cout << "TIDA::Event " << i << " " << *hh << endl;
       
     }
     

@@ -13,14 +13,18 @@
  **                   
  **
  **************************************************************************/ 
-
 #include <string>
 #include <algorithm>
 
 #include <stdio.h>
 
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "utils.h"
 #include "ReadCards.h"
+
+
 
 std::vector<std::string> ReadCards::mPath;
 
@@ -68,12 +72,32 @@ void ReadCards::Construct(const std::string& filename) {
     exit(0);      
   }
 
-  mFile.open(mFileName.c_str());
+
+  int pid = getpid();
+
+  char tfile[256];
+
+  if ( mFileName.find("/")==std::string::npos ) std::sprintf( tfile, ".readcards-%s-%d", mFileName.c_str(), pid );
+  else                                          std::sprintf( tfile, ".readcards-%d", pid );
+
+  char cmd[256];
+  std::sprintf( cmd, "cpp -P %s > %s", mFileName.c_str(), tfile );
+
+  std::system( cmd );
+
+  std::cout << "pid: " << pid << "  " << tfile << std::endl;
+
+  //  ReadCards inputdata(datafile);                                                                                                                  
+  //  mFile.open(mFileName.c_str());
+  mFile.open(tfile);
   cout << "ReadCards::Construct() opening " << mFileName << endl; 
   ReadParam();
   //  cout << "ReadCards::Construct() read  " 
   //       << mValues.size() << " entries" << endl; 
   mFile.close();
+
+  std::sprintf( cmd, "rm %s", tfile );
+  std::system( cmd );
 
   //  print();
 }
@@ -128,6 +152,8 @@ void ReadCards::clean() {
       }
     }
 
+#if 0
+    /// no longer allow # as a comment character 
     if ( (pos=line.find("#")) != std::string::npos ) {
 
       int quotecount = 0;
@@ -147,6 +173,7 @@ void ReadCards::clean() {
 	line = tmpline;
       }
     }
+#endif
 
     // removespace(line);
     
@@ -167,13 +194,15 @@ void ReadCards::clean() {
 void ReadCards::parse()
 {
 
+  //  std::string shafted;
+
   chopends(mString);
 
   while ( mString.size() ) {
     
     //    cout << "mString.size() " <<  mString.size() << endl;
 
-    if ( mString.size()<3 ) cout << "mString >" << mString << "<" << endl;
+    //    if ( mString.size()<3 ) cout << "mString >" << mString << "<" << endl;
 
     // break at semi colons that are not within "" pairs
 
@@ -200,10 +229,26 @@ void ReadCards::parse()
       pos = mString.find(";");
     }      
 
+    string input = choptoken(mString,"|"); // shafted = input;
+    string line  = input;   
 
-    string input = choptoken(mString,"|");
-    string line  = input;                 // copy the unparsed line
+    // copy the unparsed line
     line         = chop(line,"|");
+    
+    /// aha !!! cannot split on "=" in case they might be in a string !!.
+
+    int quotecount = 0;
+    bool found = true;
+
+    for ( size_t iq=0 ; iq<line.size() ; iq++ ) { 
+        found = true;    
+	if      ( line[iq]=='\"' ) quotecount++;
+	else if ( line[iq]=='"' )  quotecount++;
+	if ( line[iq]=='=' ) break;
+	found = false;    
+    }
+    if ( found && quotecount>0 )  error("syntax error in tag name : " + input + " quotes" ); 
+
     string sline = chop(line, "=");       // split at =
 
     // parse the line
@@ -241,16 +286,40 @@ void ReadCards::parse()
 
     //  string bra = chopfirst(s,"{");
     //  string ket = choplast(s,"}");
-    string bra = choptoken(line,"{");  
-    string ket = chomptoken(line,"}");
     
-    if ( bra.size()>1 ) error("syntax error before brace : " + input);  
-    if ( ket.size()>1 ) error("syntax error after brace : " + input);  
-    if ( bra.size()!=ket.size() )  error("mismatched braces :" + input);
+    quotecount = 0;
+
+    for ( size_t iq=0 ; iq<line.size() ; iq++ ) {
+        found = true;    
+	if      ( line[iq]=='\"' ) quotecount++;
+	else if ( line[iq]=='"' )  quotecount++;
+	if ( line[iq]=='{' ) break;
+        found = false;    
+    }
+    if ( found && quotecount>0 )  error("syntax error in tag name : " + input + " quotes" ); 
+    
+    string bra = "";
+    string ket = "";
+
+
+    if ( found ) { 
+      bra = choptoken(line,"{");  
+      ket = chomptoken(line,"}");
+    
+      if ( bra.size()>1 ) error("syntax error before brace : " + input);  
+      if ( ket.size()>1 ) error("syntax error after brace : " + input);  
+      if ( bra.size()!=ket.size() )  error("mismatched braces :" + input);
+    }      
+
 
     int nargs = 0;
 
+    bool _empty = true;
+    
     while ( line.size() ) {
+
+      _empty = false;
+
       // get rid of spaces at either end of line
       chopends(line);
       nargs++;
@@ -270,7 +339,7 @@ void ReadCards::parse()
       if ( qo.size()==1 ) { // ie if a quoted string
 	token = choptoken(line, "\"");  // chop to closing quote
 
-	//	cout << "token >" << token << "<" << endl;
+	// cout << "token >" << token << "<" << endl;
 
 	if ( token.size()== 0 ) error("sytax error, missing quote : " + input);
 	//	cout << "SIZE " << token.size() << "   " << token << endl;
@@ -302,19 +371,23 @@ void ReadCards::parse()
             
       values.push_back(token);
     }
+
+    if ( !_empty ) { 
     
-    // check the vector had braces
-    if ( bra.size()==0 && values.size()>1 ) error("missing braces : " + input);
-
-    // missing value
-    if ( values.size()==0 ) { 
-      std::cout << "\nmString " << mString << std::endl;  
-      error("tag with no value : " + input);
-    }  
-
-    // add the tag, value pairing
-
-    AddTag(tagname,values);
+      // check the vector had braces
+      if ( bra.size()==0 && values.size()>1 ) error("missing braces : " + input);
+      
+      // missing value
+      if ( values.size()==0 ) { 
+	//  std::cout << "shafted :" << shafted << ":" << std::endl; 
+	//      std::cout << "\nmString " << mString << std::endl;  
+	error("tag with no value : " + input);      
+      }  
+      
+      // add the tag, value pairing
+      
+      AddTag(tagname,values);
+    }
 
     chopends(mString);
   }

@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: PurityAnalysis.cxx 674692 2015-06-12 12:18:52Z smh $
+//   $Id: PurityAnalysis.cxx 688225 2015-08-07 20:12:06Z sutt $
 
 
 // #include "TrigInDetAnalysisExample/PurityAnalysis.h"
@@ -280,8 +280,8 @@ void duff(const std::string& label="") {
 
 /// fill all the histograms - matched histograms, efficiencies etc
 
-void PurityAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftracks,
-			     const std::vector<TrigInDetAnalysis::Track*>& testtracks,
+void PurityAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
+			     const std::vector<TIDA::Track*>& testtracks,
 			     TrackAssociator* matcher ) 
 {
   if ( m_print ) std::cout << "PurityAnalysis::execute() \t " << name() 
@@ -348,7 +348,7 @@ void PurityAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftr
 
     //    std::cout << "Fill h2 " << " " << h2m << " " << *reftracks[i] << std::endl; 
 
-    const TrigInDetAnalysis::Track* matchedreco = matcher->matched(reftracks[i]); 
+    const TIDA::Track* matchedreco = matcher->matched(reftracks[i]); 
     
     //    std::cout << "\t\tPurityAnalysis " << name() << "\t" << i << " " << *reftracks[i] << " -> ";        
 
@@ -524,7 +524,7 @@ void PurityAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftr
     double nstrawr = testtracks[i]->strawHits(); 
 
 
-    const TrigInDetAnalysis::Track* matchedref = matcher->revmatched(testtracks[i]); 
+    const TIDA::Track* matchedref = matcher->revmatched(testtracks[i]); 
 
     //    if ( matchedref )  std::cout << *matchedref << std::endl;
     //    else               std::cout << "NULL" << std::endl;     
@@ -579,7 +579,7 @@ void PurityAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftr
 
       if ( std::fabs( reftracks[i]->pT() ) > 1000 ) { 
 	std::cout << "\t dump " << *reftracks[i];
-	const TrigInDetAnalysis::Track* matchedreco = matcher->matched(reftracks[i]); 
+	const TIDA::Track* matchedreco = matcher->matched(reftracks[i]); 
 	if ( matchedreco ) std::cout << " <--> " << *matchedreco << std::endl;
 	else               std::cout << std::endl;
       }
@@ -587,7 +587,7 @@ void PurityAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftr
     }
 
     for ( int i=testtracks.size() ; i-- ; ) {     
-      const TrigInDetAnalysis::Track* matchedref = matcher->revmatched(testtracks[i]); 
+      const TIDA::Track* matchedref = matcher->revmatched(testtracks[i]); 
       if ( matchedref==0 ) std::cout << "\t\t\t\t\t " << *testtracks[i] << std::endl;      
     }
 

@@ -18,7 +18,7 @@
 #include "TFile.h"
 #include "TTree.h"
 
-#include "TrigInDetAnalysis/TrackEvent.h"
+#include "TrigInDetAnalysis/TIDAEvent.h"
 
 #include "utils.h"
 
@@ -66,7 +66,9 @@ int main(int argc, char** argv) {
 
   for ( unsigned i=0 ; i<files.size() ; i++ ) {
     
-    TFile finput( files[i].c_str() );
+    TFile* _finput = TFile::Open( files[i].c_str() );
+    TFile&  finput = *_finput;
+
     if (!finput.IsOpen()) {
       std::cerr << "Error: could not open output file" << std::endl;
       exit(-1);
@@ -95,8 +97,8 @@ int main(int argc, char** argv) {
     /// opening each with a TTree is faster than a chain
     TTree* data = (TTree*)finput.Get("tree");
     
-    TrackEvent* track_ev = new TrackEvent();
-    data->SetBranchAddress("TrackEvent",&track_ev);
+    TIDA::Event* track_ev = new TIDA::Event();
+    data->SetBranchAddress("TIDA::Event",&track_ev);
     //    data->AddFile( argv[i] );
     
     for (unsigned int i=0; i<data->GetEntries() ; i++ ) {

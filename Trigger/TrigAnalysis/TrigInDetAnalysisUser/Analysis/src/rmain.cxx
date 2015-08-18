@@ -16,12 +16,13 @@
 #include "TDirectory.h"
 
 #include "TrigInDetAnalysis/Track.h"
-#include "TrigInDetAnalysis/TrackEvent.h"
+#include "TrigInDetAnalysis/TIDAEvent.h"
 #include "TrigInDetAnalysis/TrackSelector.h"
 
 #include "TrigInDetAnalysisUtils/Associator_BestMatch.h"
 #include "Filters.h"
 #include "TrigInDetAnalysisExample/NtupleTrackSelector.h"
+#include "TrigInDetAnalysisExample/ChainString.h"
 #include "TrigInDetAnalysisUtils/Associator_TruthMatch.h"
 
 #include "TrigInDetAnalysis/Efficiency.h"
@@ -29,11 +30,15 @@
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
 
 
+#include "ReadCards.h"
+#include "utils.h"
+
+
 #include "ConfAnalysis.h"
 #include "PurityAnalysis.h"
 
-#include "ReadCards.h"
-#include "utils.h"
+#include "ConfVtxAnalysis.h"
+
 
 #include "lumiList.h"
 #include "dataset.h"
@@ -42,7 +47,7 @@
 
 #include "BinConfig.h"
 
-
+#include "zbeam.h"
 
 // useful function to return a string with the 
 // current date   
@@ -109,7 +114,8 @@ int GetChainAuthor(std::string chainName) {
 
 template<class T>
 std::ostream& operator<<(std::ostream& s, const std::vector<T>& v ) { 
-  for ( unsigned i=0 ; i<v.size() ; i++ ) s << "\t" << v[i] << std::endl;
+  if ( v.size()<5 ) for ( unsigned i=0 ; i<v.size() ; i++ ) s << "\t" << v[i];
+  else              for ( unsigned i=0 ; i<v.size() ; i++ ) s << "\n\t" << v[i];
   return s;
 }
 
@@ -154,7 +160,7 @@ struct event_list {
 };
 
 
-TrackEvent* event = 0;
+TIDA::Event* event = 0;
 
 
 
@@ -195,8 +201,24 @@ extern BinConfig cosmicBinConfig;
 
 // #define DATA
 
+
+bool contains( const std::string& s, const std::string& r ) { 
+  return s.find(r)!=std::string::npos;
+}
+
+template<typename T>
+std::vector<T*> pointers( std::vector<T>& v ) {
+  /// this is slow - all this copying
+  std::vector<T*> _v(v.size());
+  for ( unsigned i=0 ; i<v.size() ; i++ ) _v.push_back( &v[i] );
+  return _v;
+}
+
+
 int main(int argc, char** argv) 
 {
+
+  std::cout << "main() compiled " << __DATE__ << " " << __TIME__ << std::endl;
 
   //  ROOT::Cintex::Cintex::Enable();
 
@@ -272,8 +294,6 @@ int main(int argc, char** argv)
 
   std::cout << time_str() << std::endl;
 
-  
-
   ReadCards inputdata(datafile);
 
   inputdata.print();
@@ -322,6 +342,8 @@ int main(int argc, char** argv)
   int nsct = 6;
   int nbl = -1;
 
+  double chi2prob = 0;
+
   //int npix_rec = 1; // JK removed (unused)
   //int nsct_rec = -1;  // JK removed (unused)
 
@@ -349,6 +371,7 @@ int main(int argc, char** argv)
   if ( inputdata.isTagDefined("npix") ) npix = inputdata.GetValue("npix");
   if ( inputdata.isTagDefined("nsct") ) nsct = inputdata.GetValue("nsct");
   if ( inputdata.isTagDefined("nbl") )  nbl  = inputdata.GetValue("nbl");
+  if ( inputdata.isTagDefined("chi2prob") )  chi2prob  = inputdata.GetValue("chi2prob");
 
   /// only if not set from the command line
   if ( pdgId==0 && inputdata.isTagDefined("pdgId") ) pdgId = inputdata.GetValue("pdgId");
@@ -389,6 +412,19 @@ int main(int argc, char** argv)
       }
     }
   }
+
+  /// new code - can extract vtx name, pt, any extra options that we want, 
+  /// but also chop off everythiung after :post 
+
+  std::vector<ChainString> chainConfig;
+
+  for ( unsigned ic=0 ; ic<testChains.size() ; ic++ ) { 
+    chainConfig.push_back( ChainString( testChains[ic] ) );
+    testChains[ic] = ChainString::chop( testChains[ic], ":post" );  
+  }
+
+  /// now any additional config parameters for the chain are available
+  
 
   /// print soime debugging output
   //if ( inputdata.isTagDefined("printflag") )  printflag = ( inputdata.GetValue("printflag") ? 1 : 0 );  // JK removed (unused)
@@ -452,36 +488,45 @@ int main(int argc, char** argv)
   std::vector<double> beamTest;
   std::vector<double> beamRef;
 
-  if ( inputdata.isTagDefined("BeamTestx") )     beamTest.push_back(inputdata.GetValue("BeamTestx"));
-  if ( inputdata.isTagDefined("BeamTesty") )     beamTest.push_back(inputdata.GetValue("BeamTesty"));
 
-#if 0  
-  if ( beamTest.size()!=2 ) {
-    beamTest.clear();
-    beamTest.push_back(0);
-    beamTest.push_back(0);
+  bool correctBeamlineRef  = false;
+  bool correctBeamlineTest = false;
+
+  if ( inputdata.isTagDefined("CorrectBeamlineRef") )   correctBeamlineRef  = ( inputdata.GetValue("CorrectBeamlineRef") == 0 ? false : true );
+  if ( inputdata.isTagDefined("CorrectBeamlineTest") )  correctBeamlineTest = ( inputdata.GetValue("CorrectBeamlineTest") == 0 ? false : true );
+
+
+  if ( inputdata.isTagDefined("BeamTest") )     beamTest = inputdata.GetVector("BeamTest");
+  else { 
+    if ( inputdata.isTagDefined("BeamTestx") )  beamTest.push_back(inputdata.GetValue("BeamTestx"));
+    if ( inputdata.isTagDefined("BeamTesty") )  beamTest.push_back(inputdata.GetValue("BeamTesty"));
   }
-#endif
-
-
-  if ( inputdata.isTagDefined("BeamRefx") )    beamRef.push_back(inputdata.GetValue("BeamRefx"));
-  if ( inputdata.isTagDefined("BeamRefy") )    beamRef.push_back(inputdata.GetValue("BeamRefy"));
-
-#if 0
-  if ( beamRef.size()!=2 ) {
-    beamRef.clear();
-    beamRef.push_back(0);
-    beamRef.push_back(0);
-  }
-#endif
   
-  if ( ( beamTest.size()!=2 && beamTest.size()!=0 ) || 
-       ( beamRef.size()!=2  && beamRef.size()!=0  ) ) { 
+  
+  if ( inputdata.isTagDefined("BeamRef") )      beamRef = inputdata.GetVector("BeamRef");
+  else { 
+    if ( inputdata.isTagDefined("BeamRefx") )   beamRef.push_back(inputdata.GetValue("BeamRefx"));
+    if ( inputdata.isTagDefined("BeamRefy") )   beamRef.push_back(inputdata.GetValue("BeamRefy"));
+  }
+  
+
+
+  if ( ( beamTest.size()!=0 && beamTest.size()!=2 && beamTest.size()!=3 ) || 
+       (  beamRef.size()!=0 &&  beamRef.size()!=2 &&  beamRef.size()!=3 ) ) {
     std::cerr << "incorrectly specified beamline position" << std::endl;
     return (-1);
   }
+
+  if ( beamTest.size()>0 ) correctBeamlineTest = true;
+  if (  beamRef.size()>0 ) correctBeamlineRef  = true;
+
+  if ( correctBeamlineRef )  std::cout << "main() correcting beamline for reference tracks" << std::endl;
+  if ( correctBeamlineTest ) std::cout << "main() correcting beamline for test tracks"      << std::endl;
   
-  std::cout << "beamref " << beamRef << "\tbeamtest " << beamTest << std::endl;
+  
+
+  if ( beamRef.size()>0 )  std::cout << "beamref  " << beamRef   << std::endl;
+  if ( beamTest.size()>0 ) std::cout << "beamtest " << beamTest << std::endl;
 
   double a0v = 1000;
   double z0v = 2000;
@@ -511,6 +556,8 @@ int main(int argc, char** argv)
   if ( inputdata.isTagDefined("DebugPrintout") )  debugPrintout = ( inputdata.GetValue("DebugPrintout")==0 ? false : true );
 
 
+  bool monitorZBeam = false;
+  if ( inputdata.isTagDefined("MonitorinZBeam") )  monitorZBeam = ( inputdata.GetValue("MonitorZBeam")==0 ? false : true );
 
   ReadCards* binningConfig = &inputdata;
 
@@ -541,14 +588,18 @@ int main(int argc, char** argv)
 
   /// truth articles
 
-  Filter_Track filter_kine( eta, 1000,  zed, pT, -1, -1,   -1, -1,  -2, -2);
+  /// reminder: this is the *new* constructor - it now has too many parameters 
+  //  Filter_Track( double etaMax,  double d0Max,  double z0Max,   double  pTMin,
+  //                int  minPixelHits, int minSctHits, int minSiHits, int minBlayerHits,
+  //                int minStrawHits, int minTrHits, double prob=0 ) :
 
+  Filter_Track filter_kine( eta, 1000,  zed, pT, -1, -1,   -1, -1,  -2, -2);
 
   /// filters for true selection for efficiency
 
   Filter_Vertex filter_vertex(a0v, z0v);
 
-  Filter_Track filter_offline( eta, 1000,  2000, pT, npix, nsct, -1, nbl,  -2, -2);
+  Filter_Track filter_offline( eta, 1000,  2000, pT, npix, nsct, -1, nbl,  -2, -2, chi2prob ); /// include chi2 probability cut 
   Filter_etaPT filter_etaPT(eta,pT);
   //  Filter_True filter_passthrough;
   // use an actual filter requiring at least 1 silicon hit
@@ -602,7 +653,6 @@ int main(int argc, char** argv)
   Filter_Combined   filter_offtight( &filter_offkinetight, &filter_inout ); 
 
 
-
   /// track selectors so we can select multiple times with different 
   /// filters if we want (simpler then looping over vectors each time 
 
@@ -610,14 +660,14 @@ int main(int argc, char** argv)
   // NtupleTrackSelector  refTracks(&filter_off); 
   TrackFilter* refFilter;
   TrackFilter* truthFilter;
-  if      ( refChain=="Offline" )           refFilter = &filter_off;
-  else if ( refChain=="Electrons" )         refFilter = &filter_off;
-  else if ( refChain=="ElectronsMedium" )   refFilter = &filter_off;
-  else if ( refChain=="Muons" )             refFilter = &filter_muon;
-  else if ( refChain=="Taus" )              refFilter = &filter_off;
-  else if ( refChain=="Taus3" )             refFilter = &filter_off;
-  else if ( refChain=="Truth" && pdgId!=0 ) refFilter = &filter_truth;
-  else if ( refChain=="Truth" && pdgId==0 ) refFilter = &filter_off;
+  if      ( refChain=="Offline" )            refFilter = &filter_off;
+  else if ( contains(refChain,"Electrons") ) refFilter = &filter_off;
+  //  else if ( refChain=="ElectronsMedium" )    refFilter = &filter_off;
+  else if ( refChain=="Muons" )              refFilter = &filter_muon;
+  else if ( refChain=="Taus" )               refFilter = &filter_off;
+  else if ( refChain=="Taus3" )              refFilter = &filter_off;
+  else if ( refChain=="Truth" && pdgId!=0 )  refFilter = &filter_truth;
+  else if ( refChain=="Truth" && pdgId==0 )  refFilter = &filter_off;
   else { 
     std::cerr << "unknown reference chain defined" << std::endl;
     return (-1);
@@ -637,7 +687,6 @@ int main(int argc, char** argv)
 
   std::vector<std::string>& test_chains = testChains;
 
-
   /// create a map of the name to analysis string for selecting
   /// the correct analysis from the chain name
   //smh: TrackAnalysis is purely abstract, analysis will contain ConfAnalysis
@@ -653,7 +702,7 @@ int main(int argc, char** argv)
 
   std::cout << "booking " << test_chains.size() << " analyses" << std::endl;
   
-  for (unsigned int i=0; i < test_chains.size(); i++ ) {
+  for ( unsigned  i=0 ; i<test_chains.size() ; i++ ) {
 
     std::string chainname = test_chains[i];
 
@@ -661,19 +710,49 @@ int main(int argc, char** argv)
 
     chainnames.push_back(chainname);
 
-    ConfAnalysis* analy_conf = new ConfAnalysis(chainnames[0]);
+    //    std::cout << "chain name " << chainname << "\t:" << chainnames.back() << " : " << chainnames.size() << std::endl;
+
+    ConfAnalysis* analy_conf = new ConfAnalysis(chainnames.back());
     analy_conf->initialiseFirstEvent(initialiseFirstEvent);
+
+    std::string vtxTool = chainConfig[i].value("rvtx");
+
+    if ( vtxTool!="" ) { 
+      ConfVtxAnalysis* anal_confvtx = new ConfVtxAnalysis( vtxTool );
+      analy_conf->store().insert( anal_confvtx, "rvtx" );
+    }
+
     analy_conf->initialise();
     analy_conf->setprint(false);
+
+
     // analy_conf->setprint(true);
-    
+
+    /// hooray !! Set any additional aspects to the analysis up here
+    /// so should be able to set individual, chain related variables
+    /// eg set individual pt limits, different selection of reference
+    /// objects, whether to run a vertex analysis ...
+
+    /// When setting different pt cuts, then an additional track selector 
+    /// will need to be created, this can then be added to the 
+    /// TIDA::FeatireStore of the analysis, and retrieved each time 
+    /// it is required 
+
+    if ( chainConfig[i].values().size()>0 ) { 
+      //      std::cout << "chain:: " << chainname << "\t(" << chainConfig[i] << " " << chainConfig[i].values().size() << ")" << std::endl; 
+      for ( unsigned ik=chainConfig[i].values().size() ; ik-- ; ) { 
+	std::cout << "\t" << ik << "\tkey " << chainConfig[i].keys()[ik] << " " << chainConfig[i].values()[ik] << std::endl; 
+      }
+    }
+  
+
     //    for (unsigned int ic=0 ; ic<chainnames.size() ; ic++ )  analysis[chainnames[ic]] = analy_conf;
     
     analysis[chainname] = analy_conf;
 
     analyses.push_back(analy_conf);
 
-    std::cout << "analysis: " << chainname << "\t" << analy_conf 
+    std::cout << "analysis: " << chainname << "\t" << analy_conf  
 	      << "\n" 
 	      << "---------------------------------" 
 	      << "---------------------------------" 
@@ -681,6 +760,7 @@ int main(int argc, char** argv)
 
     if ( doPurity ) {
       PurityAnalysis* analp = new PurityAnalysis(chainnames[0]+"-purity"); 
+      std::cout << "purity " << (chainnames[0]+"-purity") << std::endl;
       analp->initialise();
       analp->setprint(false);
       // analp->setprint(true);
@@ -689,6 +769,8 @@ int main(int argc, char** argv)
     }
 
   }
+
+  std::cout << "main() finished looping" << std::endl;
 
   /// track selectors for efficiencies
 
@@ -881,9 +963,9 @@ int main(int argc, char** argv)
 
   TChain *data = new TChain("tree");
 
-  TrackEvent* track_ev = new TrackEvent();
+  TIDA::Event* track_ev = new TIDA::Event();
 
-  data->SetBranchAddress("TrackEvent",&track_ev);
+  data->SetBranchAddress("TIDA::Event",&track_ev);
 
 
 
@@ -920,15 +1002,19 @@ int main(int argc, char** argv)
   unsigned event_counter = 0;
 
 
-
-
   int maxtime = track_ev->time_stamp();
   int mintime = track_ev->time_stamp();
 
-
-
   //  int Nentries = data->GetEntries();
   
+  typedef std::pair<int,double> zpair; 
+  std::vector<zpair>  refz;
+  std::vector<zpair>  testz;
+
+  std::vector<double> beamline_ref;
+  std::vector<double> beamline_test;
+
+
   /// so we can specify the number of entries 
   /// we like, rather than run on all of them
   for (unsigned int i=0; i<Nentries ; i++ ) {
@@ -975,7 +1061,7 @@ int main(int argc, char** argv)
                 << "\tlb "     << track_ev->lumi_block() 
                 << "\tchains " << track_ev->chains().size()
                 << "\ttime "   << track_ev->time_stamp();
-      std::cout << "\t : processed " << i << " events so far (" << (100*i)/Nentries << "%)\t" << time_str() << std::endl;
+      std::cout << "\t : processed " << i << " events so far (" << int((1000*i)/Nentries)*0.1 << "%)\t" << time_str() << std::endl;
       //   std::cerr << "\tprocessed " << i << " events so far \t" << time_str() << std::endl;
     }
   
@@ -999,8 +1085,7 @@ int main(int argc, char** argv)
     
     Nvtx = 0;
 
-    const std::vector<TrackChain>& chains = track_ev->chains();
-
+    const std::vector<TIDA::Chain>& chains = track_ev->chains();
 
 
     dynamic_cast<Filter_Combined*>(truthFilter)->setRoi(0);
@@ -1018,16 +1103,19 @@ int main(int argc, char** argv)
     for (unsigned int ic=0 ; ic<chains.size() ; ic++ ) {
       if ( chains[ic].name()==refChain ) {
         offTracks.selectTracks( chains[ic].rois()[0].tracks() );
+	//extract beamline position values from rois
+	beamline_ref = chains[ic].rois()[0].user();
+	// std::cout << "beamline: " << chains[ic].name() << "  " << beamline_ref << std::endl;
 	break;
       }
     }
 
   
-    std::vector<TrackVertex> vertices;
+    std::vector<TIDA::Vertex> vertices;
     
     NvtxCount = 0;
 
-    const std::vector<TrackVertex>& mv = track_ev->vertices();
+    const std::vector<TIDA::Vertex>& mv = track_ev->vertices();
 
     int SumPtBest = -1;
     double highestSumPt = 0.0;
@@ -1044,7 +1132,7 @@ int main(int argc, char** argv)
       }
       double SumPt = 0.0;
       for (unsigned itr=0; itr<offTracks.tracks().size(); itr++){
-	TrigInDetAnalysis::Track* tr = offTracks.tracks().at(itr);
+	TIDA::Track* tr = offTracks.tracks().at(itr);
 	if(std::fabs(mv.at(iv).position()[2]-tr->z0())<1.5) SumPt += std::fabs(tr->pT());
       }
       if(SumPt>highestSumPt){
@@ -1056,7 +1144,7 @@ int main(int argc, char** argv)
     
     
     // all vertices *except* the best one
-    std::vector<TrackVertex> vvtx;
+    std::vector<TIDA::Vertex> vvtx;
     if ( vetoBestVertex ) { 
       for (unsigned int i=0 ; i<vertices.size() ; i++ ) { 
 	if ( good_vertex!=int(i) ) vvtx.push_back(vertices[i]);
@@ -1089,7 +1177,7 @@ int main(int argc, char** argv)
     /// but might be a useful check
     bool foundReference = false;
 
-    const TrackChain* refchain = 0;
+    const TIDA::Chain* refchain = 0;
 
     for (unsigned int ic=0 ; ic<chains.size() ; ic++ ) { 
       if ( chains[ic].name()==refChain ) { 
@@ -1125,7 +1213,7 @@ int main(int argc, char** argv)
 
     for (unsigned int ic=0 ; ic<track_ev->chains().size() ; ic++ ) { 
 
-      TrackChain& chain = track_ev->chains()[ic];
+      TIDA::Chain& chain = track_ev->chains()[ic];
 
       //      std::cout << ic << " chain " << chain.name() << " size " << chain.size() << std::endl;
 
@@ -1146,31 +1234,46 @@ int main(int argc, char** argv)
 	
 	//	std::cout << "\troi " << ir << std::endl;
 
-	TrackRoi& troi = chain.rois()[ir]; 
+	TIDA::Roi& troi = chain.rois()[ir]; 
         TIDARoiDescriptor roi( troi.roi() );
+
+
+	const std::vector<TIDA::Vertex>& vertices_test = troi.vertices();
+
 	
 	//extract beamline position values from rois
-	const std::vector<double>& beamline = chain.rois()[ir].user();
-
+	//	const std::vector<double>& beamline = chain.rois()[ir].user();
+	beamline_test = chain.rois()[ir].user();
 	
+	//	std::cout << "beamline: " << chain.name() << "  " << beamline_test << std::endl; 
+
 	//set values of track analysis to these so can access elsewhere
 	for ( int i=analyses.size() ; i-- ; ) {
+
           TrackAnalysis* analy_track = analyses[i];
-
-	  if ( beamTest.size()==2 ) analy_track->setBeamTest( beamTest[0], beamTest[1] );
-	  else { 
-	    if ( !inputdata.isTagDefined("BeamTest") && beamline.size()>=2) {
-	      analy_track->setBeamTest( beamline[0], beamline[1] );
+	  
+	  if ( correctBeamlineTest ) { 
+	    if      ( beamTest.size()==2 ) analy_track->setBeamTest( beamTest[0], beamTest[1] );
+	    //	    else if ( beamTest.size()==3 ) analy_track->setBeamTest( beamTest[0], beamTest[1], beamTest[2] );
+	    else { 
+	      if ( !inputdata.isTagDefined("BeamTest") ) {
+		if      ( beamline_test.size()==2 ) analy_track->setBeamTest( beamline_test[0], beamline_test[1] );
+		//		else if ( beamline_test.size()==3 ) analy_track->setBeamTest( beamline_test[0], beamline_test[1], beamline_test[2] );
+	      }
 	    }
 	  }
-
-	  if ( beamRef.size()==2 ) analy_track->setBeamRef( beamRef[0], beamRef[1] );
-	  else { 
-	    if ( !inputdata.isTagDefined("BeamRef") && beamline.size()>=2) {
-	      analy_track->setBeamRef(  beamline[0], beamline[1] );
+	  
+	  if ( correctBeamlineRef ) { 
+	    if      ( beamRef.size()==2 ) analy_track->setBeamRef( beamRef[0], beamRef[1] );
+	    //	    else if ( beamRef.size()==3 ) analy_track->setBeamRef( beamRef[0], beamRef[1], beamRef[2] );
+	    else { 
+	      if ( !inputdata.isTagDefined("BeamRef") ) { 
+		if      ( beamline_ref.size()==2 ) analy_track->setBeamRef( beamline_ref[0], beamline_ref[1] );
+		//		else if ( beamline_ref.size()==3 ) analy_track->setBeamRef( beamline_ref[0], beamline_ref[1], beamline_ref[2] );
+	      }
 	    }
 	  }
-
+	  
 	}
 	
 	testTracks.clear();
@@ -1178,7 +1281,7 @@ int main(int argc, char** argv)
 	testTracks.selectTracks( troi.tracks() );
 	
 	/// trigger tracks already restricted by roi 
-	std::vector<TrigInDetAnalysis::Track*> testp = testTracks.tracks();
+	std::vector<TIDA::Track*> testp = testTracks.tracks();
 	
 	/// here we set the roi for the filter so we can request only those tracks 
 	/// inside the roi 
@@ -1190,7 +1293,7 @@ int main(int argc, char** argv)
 	//	  std::cout << "filter with roi " << roi << std::endl; 
 	//	}	    
 	
-	const std::vector<TrigInDetAnalysis::Track*>&  refp  = refTracks.tracks( refFilter );
+	const std::vector<TIDA::Track*>&  refp  = refTracks.tracks( refFilter );
 	
 	//	if ( debugPrintout ) { 
 	//	  std::cout << "refp.size() " << refp.size() << " after roi filtering" << std::endl; 
@@ -1209,13 +1312,13 @@ int main(int argc, char** argv)
 	  
 	  /// get the truth particles ...
 	  if ( select_roi ) dynamic_cast<Filter_Combined*>(truthFilter)->setRoi(&roi);
-	  const std::vector<TrigInDetAnalysis::Track*>&  truth = truthTracks.tracks(truthFilter);
+	  const std::vector<TIDA::Track*>&  truth = truthTracks.tracks(truthFilter);
 
 	  /// dr match against current reference selection 
 	  truth_matcher->match( refp, truth );
 
 	  /// holder for reference with matches  
-	  std::vector<TrigInDetAnalysis::Track*>  _refp;
+	  std::vector<TIDA::Track*>  _refp;
 	  
 	  /// which truth tracks have a matching reference track ?
 	  for ( unsigned i=0 ; i<refp.size() ; i++ ) { 
@@ -1225,12 +1328,71 @@ int main(int argc, char** argv)
 	  _matcher->match( _refp, testp);
 	  analitr->second->execute( _refp, testp, _matcher );
 
+	  ConfVtxAnalysis* vtxanal = 0;
+	  analitr->second->store().find( vtxanal, "rvtx" );
+
+	  if ( vtxanal ) { 
+	    
+	    /// AAAAAARGH!!! because you cannot cast vector<T> to const vector<const T> 
+	    ///  we first need to copy the actual elements from the const vector, to a normal 
+	    ///  vector. This is because if we take the address of elements of a const vector<T>
+	    ///  they will by of type const T*, so we can only add them to a vector<const T*>
+	    ///  and all our functions are using const vector<T>&, so we would need to duplicate
+	    ///  all the functions to allow over riding with vector<T*> *and* vector<const T*> 
+	    ///  to get this nonsense to work
+	    
+	    std::vector<TIDA::Vertex> vtxcock = vertices;	    
+	    std::vector<TIDA::Vertex*> vtxp; // = pointers( vtxcock );
+
+	    vtxp.reserve( vtxcock.size() );
+	    for ( unsigned iv=0 ; iv<vtxcock.size() ; iv++ ) vtxp.push_back( &vtxcock[iv] );
+	    
+	    std::vector<TIDA::Vertex> vtxcock_test = vertices_test;
+	    std::vector<TIDA::Vertex*> vtxp_test; // = pointers( vtxcock_test );
+	    
+	    vtxp_test.reserve( vtxcock_test.size() );
+	    for ( unsigned iv=0 ; iv<vtxcock_test.size() ; iv++ ) vtxp_test.push_back( &vtxcock_test[iv] );
+	    
+	    vtxanal->execute( vtxp, vtxp_test );
+	  }
+
 	}
 	else {
+	  
+	  if ( monitorZBeam ) { 
+	    if ( beamline_ref.size()>2 && beamline_test.size()>2 ) { 
+	      refz.push_back(  zpair( lb, beamline_ref[2]) );
+	      testz.push_back( zpair( lb, beamline_test[2]) );
+	    }
+	  }
 
 	  _matcher->match( refp, testp);
 	  analitr->second->execute( refp, testp, _matcher );
-	
+
+	  ConfVtxAnalysis* vtxanal = 0;
+	  analitr->second->store().find( vtxanal, "rvtx" );
+
+#if 1
+	  if ( vtxanal ) { 
+
+	    std::vector<TIDA::Vertex> vtxcock = vertices;
+	    std::vector<TIDA::Vertex*> vtxp; // = pointers( vtxcock );
+	    vtxp.reserve( vtxcock.size() );
+	    for ( unsigned iv=0 ; iv<vtxcock.size() ; iv++ ) vtxp.push_back( &vtxcock[iv] );
+
+	    std::vector<TIDA::Vertex> vtxcock_test = vertices_test;	    
+	    std::vector<TIDA::Vertex*> vtxp_test; //  = pointers( vtxcock_test );
+	    vtxp_test.reserve( vtxcock_test.size() );
+	    for ( unsigned iv=0 ; iv<vtxcock_test.size() ; iv++ ) vtxp_test.push_back( &vtxcock_test[iv] );
+
+	    // std::cout << "vtx ref\t"  << vtxcock << std::endl; 
+	    // std::cout << "vtx test\t" << vtxcock_test << std::endl; 
+	    
+	    vtxanal->execute( vtxp, vtxp_test );
+	    
+	  }
+#endif
+
 	}
 
 	
@@ -1240,8 +1402,8 @@ int main(int argc, char** argv)
 	  std::cout << "ref tracks refp.size() "    << refp.size() << "\n" << refp  << std::endl;
 	  std::cout << "test tracks testp.size() " << testp.size() << "\n" << testp << std::endl;
 	  
-	  TrackAssociator::track_map::const_iterator titr = _matcher->TrackAssociator::matched().begin();
-	  TrackAssociator::track_map::const_iterator tend = _matcher->TrackAssociator::matched().end();
+	  TrackAssociator::map_type::const_iterator titr = _matcher->TrackAssociator::matched().begin();
+	  TrackAssociator::map_type::const_iterator tend = _matcher->TrackAssociator::matched().end();
 	  int im=0;
 	  std::cout << "track matches:\n";
 	  while (titr!=tend) { 
@@ -1270,12 +1432,12 @@ int main(int argc, char** argv)
 
 	if ( doPurity ) { 
 	  
-	  const std::vector<TrigInDetAnalysis::Track*>&  refpp = refPurityTracks.tracks( refFilter );
+	  const std::vector<TIDA::Track*>&  refpp = refPurityTracks.tracks( refFilter );
 
 	  testPurityTracks.clear();
 
 	  testPurityTracks.selectTracks( troi.tracks() );
-	  std::vector<TrigInDetAnalysis::Track*> testpp = testPurityTracks.tracks();
+	  std::vector<TIDA::Track*> testpp = testPurityTracks.tracks();
 
 	  _matcher->match(refpp, testpp); /// ???
 	    
@@ -1299,8 +1461,9 @@ int main(int argc, char** argv)
     }
   }
 
- 
   std::cout << "done " << time_str() << "\tprocessed " << event_counter << " events\ttimes " << mintime << " " << maxtime << std::endl;
+
+  if ( monitorZBeam ) zbeam _zbeam( refz, testz );
 
   foutdir->cd();
   
@@ -1310,8 +1473,10 @@ int main(int argc, char** argv)
   hcorr->Write();
 
   for ( int i=analyses.size() ; i-- ; ) { 
+
     // std::cout << "finalise analysis chain " << analyses[i]->name() << std::endl;
     analyses[i]->finalise();
+    
     delete analyses[i];
   }
   /// write out the histograms

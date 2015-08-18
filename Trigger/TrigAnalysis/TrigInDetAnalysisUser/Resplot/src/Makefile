@@ -87,6 +87,7 @@ TAR = tar
 
 
 OBJECTS  = $(OBJDIR)/main.o  
+COBJECTS = $(OBJDIR)/cock.o  
 ROBJECTS = $(OBJDIR)/rmain.o $(OBJDIR)/Resplot.o 
 
 LOBJECTS = $(OBJDIR)/Resplot.o  $(OBJDIR)/generate.o  \
@@ -110,6 +111,11 @@ exe : dirs res
 res : $(EXEDIR)/res
 $(EXEDIR)/res :   $(OBJECTS) lib
 	$(CXX) $(LDFLAGS) -o $@ $(OBJECTS) $(LIBS) $(LIBS)   $(GLIBS)
+
+
+cock : $(EXEDIR)/cock
+$(EXEDIR)/cock :   $(COBJECTS) lib
+	$(CXX) $(LDFLAGS) -o $@ $(COBJECTS) $(LIBS) $(LIBS)   $(GLIBS)
 
 
 # $(SRCDIR)/*Dict.cxx : $(SRCDIR)/Resplot.cxx  $(INCDIR)/Resplot.h

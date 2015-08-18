@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: PurityAnalysis.h 513206 2012-08-10 12:59:33Z sutt $
+//   $Id: PurityAnalysis.h 688225 2015-08-07 20:12:06Z sutt $
 
 
 #ifndef __PURITYANALYSIS_H
@@ -62,8 +62,8 @@ public:
 
   virtual void initialise();
 
-  virtual void execute(const std::vector<TrigInDetAnalysis::Track*>& reftracks,
-                       const std::vector<TrigInDetAnalysis::Track*>& testtracks,
+  virtual void execute(const std::vector<TIDA::Track*>& reftracks,
+                       const std::vector<TIDA::Track*>& testtracks,
                        TrackAssociator* matcher );
 
   virtual void finalise();

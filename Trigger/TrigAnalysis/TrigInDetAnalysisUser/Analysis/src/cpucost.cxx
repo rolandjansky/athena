@@ -234,7 +234,7 @@ int main(int argc, char** argv) {
 
       //      std::cout << "Directory: " << gDirectory->GetName() << std::endl;
 
-      TH1* testhist = (TH1*)ftest->Get(histname.c_str());
+      TH1F* testhist = (TH1F*)ftest->Get(histname.c_str());
       if (testhist == 0 ) {
         std::cerr << "main(): can not find hist " << histname << " in test file" << std::endl;
         continue;
@@ -242,7 +242,7 @@ int main(int argc, char** argv) {
       
       //      std::cout << "\n\nfound histname " << histname << std::endl;
 
-      TH1* refhist = (TH1*)fref->Get(histname.c_str());
+      TH1F* refhist = (TH1F*)fref->Get(histname.c_str());
   
       if (refhist == 0 ) {
         std::cerr << "main(): can not find hist " << histname << " in ref file" << std::endl;
