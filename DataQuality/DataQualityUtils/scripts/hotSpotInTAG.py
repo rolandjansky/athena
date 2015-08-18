@@ -1,12 +1,9 @@
 #!/usr/bin env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-# Author : Benjamin Trocme / Summer 2012
-# Make use of extractPath library to retrieve the correct castor path
-
 # Script to browse a TAG file and extract LBs for which at least N occurences of an object is found
 # in a region defined as noisy.
+# Uses the pathExtract library to extract the EOS path
 #Options:
 #  -h, --help            show this help message and exit
 #  -r RUN, --run=RUN     Run number
@@ -14,17 +11,19 @@
 #  -a AMI, --amiTag=AMI  ami Tag - Simply set x/f to choose express/bulk processing
 #  -e ETA, --eta=ETA     Eta of hot spot
 #  -p PHI, --phi=PHI     Phi of hot spot (or MET bump)
-#  -t THRESHOLD, --treshold=THRESHOLD Et/pt threshold (in MeV)
+#  -c THRESHOLD, --treshold=THRESHOLD Et/pt threshold (in MeV)
 #  -d DELTA, --delta=DELTA Distance to look around hot spot (or MET bump)
 #  -o OBJECT, --object=OBJECT TopoCluster/Jet/LoosePhoton/TauJet/MET
 #  -m MIN, --min=MIN     Min number of object in a LB
 #  -n, --noplot          Do not plot LB map
-# The -h does not work. I should move to argpars...
+# Author : Benjamin Trocme (LPSC Grenoble) / Summer 2012, updated in 2015
+
 
 import os, sys  
 import string
-import subprocess as sp
 from optparse import OptionParser
+import argparse
+
 
 #sys.path.append("/afs/cern.ch/user/t/trocme/public/libraries")
 import pathExtract         
@@ -69,7 +68,7 @@ def analyzeTree():
         h0map.Fill(iCE[1],iCE[2])
         if not (tree.LArFlags & 8):
           h0mapClean.Fill(iCE[1],iCE[2])
-      if not ((not options.larcleaning) and tree.LArFlags & 8): # Explicit cut LArEventInfo != ERROR to remove noise bursts is larcleaning is false
+      if not ((not args.larcleaning) and tree.LArFlags & 8): # Explicit cut LArEventInfo != ERROR to remove noise bursts is larcleaning is false
         if (fabs(iCE[1]-etaSpot)<deltaSpot and fabs(iCE[2]-phiSpot)<deltaSpot): # A candidate has been found in suspicious region - Explict cut LArEventInfo != ERROR to remove noise bursts
 #        if (fabs(iCE[1]-etaSpot)<deltaSpot and fabs(iCE[2]-phiSpot)<deltaSpot and not (tree.LArFlags & 8)): # A candidate has been found in suspicious region - Explict cut LArEventInfo != ERROR to remove noise bursts
           nbHitInHot[tree.LumiBlockN]=nbHitInHot[tree.LumiBlockN] + 1
@@ -81,33 +80,34 @@ def analyzeTree():
   
 
 # Main===========================================================================================================
-usage = 'usage: %prog [options] arg'
-parser = OptionParser(usage)
-parser.add_option('-r','--run',type='str',dest='run',default='',help='Run number',action='store')
-parser.add_option('-s','--stream',type='str',dest='streams',default='express',help='Data stream : express/CosmicCalo/JetTauEtmiss/Egamma',action='store')
-parser.add_option('-a','--amiTag',type='str',dest='ami',default='f',help='ami Tag - Simply set x/f to choose express/bulk processing',action='store')
-parser.add_option('-e','--eta',type='float',dest='eta',default='0.',help='Eta of hot spot',action='store')
-parser.add_option('-p','--phi',type='float',dest='phi',default='0.',help='Phi of hot spot (or MET bump)',action='store')
-parser.add_option('-t','--treshold',type='int',dest='threshold',default='1000',help='Et/pt threshold (in MeV)',action='store')
-parser.add_option('-d','--delta',type='float',dest='delta',default='0.1',help='Distance to look around hot spot (or MET bump)',action='store')
-parser.add_option('-o','--object',type='string',dest='object',default='TopoCluster',help='TopoCluster/Jet/LoosePhoton/TauJet/MET',action='store')
-parser.add_option('-m','--min',type='int',dest='min',default='5',help='Min number of object in a LB',action='store')
-parser.add_option('-n','--noplot',dest='noplot',help='Do not plot LB map',action='store_true')
-parser.add_option('-l','--larcleaning',dest='larcleaning',help='Ignore LAr cleaning to find hot spot',action='store_true')
+parser = argparse.ArgumentParser()
+parser.add_argument('-r','--run',type=int,dest='runNumber',default='267599',help="Run number",action='store')
+parser.add_argument('-s','--stream',dest='stream',default='express',help="Stream without prefix: express, CosmicCalo, Egamma...",action='store')
+parser.add_argument('-t','--tag',dest='tag',default='data15_13TeV',help="DAQ tag: data12_8TeV, data12_calocomm...",action='store')
+parser.add_argument('-a','--amiTag',dest='amiTag',default='x',help="First letter of AMI tag: x->express / f->bulk",action='store')
+parser.add_argument('-e','--eta',type=float,dest='etaSpot',default='0',help='Eta of hot spot',action='store')
+parser.add_argument('-p','--phi',type=float,dest='phiSpot',default='0.',help='Phi of hot spot (or MET bump)',action='store')
+parser.add_argument('-c','--cut',type=int,dest='thresholdE',default='1000',help='Et/pt threshold (in MeV)',action='store')
+parser.add_argument('-d','--delta',type=float,dest='deltaSpot',default='0.1',help='Distance to look around hot spot (or MET bump)',action='store')
+parser.add_argument('-o','--object',dest='objectType',default='TopoCluster',help='TopoCluster/Jet/LoosePhoton/TauJet/MET',action='store')
+parser.add_argument('-m','--min',type=int,dest='minInLB',default='5',help='Min number of object in a LB',action='store')
+parser.add_argument('-n','--noplot',dest='noplot',help='Do not plot LB map',action='store_true')
+parser.add_argument('-l','--larcleaning',dest='larcleaning',help='Ignore LAr cleaning to find hot spot',action='store_true')
+
+args = parser.parse_args()
 
 parser.print_help()
 
-usage = 'usage: %prog [options] arg'
-(options, args) = parser.parse_args()
-run = options.run
-stream = options.streams
-amiTag = options.ami
-etaSpot = options.eta
-phiSpot = options.phi
-deltaSpot = options.delta
-objectType = options.object
-minInLB = options.min
-thresholdE = options.threshold
+run = args.runNumber
+stream = args.stream
+tag = args.tag
+amiTag = args.amiTag
+etaSpot = args.etaSpot
+phiSpot = args.phiSpot
+thresholdE = args.thresholdE
+deltaSpot = args.deltaSpot
+objectType = args.objectType
+minInLB = args.minInLB
 
 if ("MET" in objectType):
   etaSpot=0
@@ -117,15 +117,13 @@ print '---------------------------------'
 print "Investigation on run "+str(run)+"/"+stream+" stream with ami TAG "+amiTag
 listOfFiles = pathExtract.returnEosTagPath(run,stream,amiTag)
 
-#listOfFiles=["root://eosatlas//eos/atlas/atlastier0/rucio/data15_comm/express_express/00265573/data15_comm.00265573.express_express.merge.TAG.f581_m1423_m1425/data15_comm.00265573.express_express.merge.TAG.f581_m1423_m1425._0001.1"]
-
 tree = TChain("POOLCollectionTree")
 
 for files in listOfFiles:
   tree.AddFile("root://eosatlas/%s"%(files))
+  print "I chained the file %s"%(files)
 
 entries = tree.GetEntries()
-#entries = 100
 
 nLB=2000
 nbHitInHot = [0] * nLB
@@ -139,16 +137,16 @@ if ("MET" in objectType):
   h0mapClean = TH1D("mapClean","General map of %s with MET > %d MeV - LArFlags != ERROR"%(objectType,thresholdE),64,-3.14,3.14)
 else:
   h0map = TH2D("map","General map of %s with Et/Pt > %d MeV"%(objectType,thresholdE),90,-4.5,4.5,64,-3.14,3.14)
-  h0mapClean = TH2D("mapClean","General map of %s with MET > %d MeV - LArFlags != ERROR"%(objectType,thresholdE),90,-4.5,4.5,64,-3.14,3.14)
+  h0mapClean = TH2D("mapClean","General map of %s with Et/Pt > %d MeV - LArFlags != ERROR"%(objectType,thresholdE),90,-4.5,4.5,64,-3.14,3.14)
 
 for jentry in xrange( entries ): # Loop on all events
-  if (jentry % 100000 == 0):
+  if (jentry % 10000 == 0):
     print "%d / %d evnt processed"%(jentry,entries)
   nb = tree.GetEntry( jentry )
   analyzeTree()     
 
 print "I have looked for LBs with at least %d %s in a region of %.2f around (%.2f,%.2f) and Et/Pt > %d MeV"%(minInLB,objectType,deltaSpot,etaSpot,phiSpot,thresholdE)
-if (options.larcleaning):
+if (args.larcleaning):
   print "WARNING : The LArCleaning for noise bursts (LArEventInfo != ERROR) has been DEACTIVATED!!!"
 else:
   print "The LArCleaning (LArEventInfo != ERROR) for noise bursts has been activated"
@@ -164,7 +162,7 @@ for i in range(nLB):
     if i>upperLB : upperLB = i
 
 
-if (options.larcleaning):
+if (args.larcleaning):
   suffix = "NO LArFlags cut"
 else:
   suffix = "LArFlags != ERROR"
@@ -203,13 +201,13 @@ else:
   h0mapClean.Draw("COLZ")
 
 # Plot individual map for each LB. Can be switched off with "-n"
-if (not options.noplot):
+if (not args.noplot):
   canvas = []
-  for i in range(min(len(nLB_offending),2)):
+  for i in range(min(len(nLB_offending),4)):
     canvas.append(TCanvas())
     iCurrent = len(canvas)-1
 
-    if (options.larcleaning):
+    if (args.larcleaning):
       cutC = "1" # Accept all events
     else:
       cutC = "!(LArFlags & 8)" # Reject events flagged with LArEventInfo::ERROR

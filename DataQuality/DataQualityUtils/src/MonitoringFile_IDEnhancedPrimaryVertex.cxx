@@ -29,7 +29,7 @@ namespace dqutils {
 // define helper methods here rather then in this central MonitoringFile.h "beast"
 void plotResolution(const TString& coordinate, const TString& versus);
 void plotEfficiency();
-double error_func( float  x, Double_t *par);
+double error_func( float  x, const Double_t *par);
 double scaleFactorFitFcn(double *x, double *par);
 std::vector<float> stableGaussianFit(TH1 * histo);
 
@@ -221,7 +221,7 @@ plotResolution(const TString& coordinate="Z", const TString& versus="Ntrk")
     maxFitRange = 20.;
   }
   TF1 *kgs_z_ntrk_fit;
-  Double_t *kgs_z_ntrk_fit_er;
+  const Double_t *kgs_z_ntrk_fit_er;
   int fitResKFactorMethod = 2; // set by hand for now
   if (fitResKFactorMethod == 1) {
     //Fit with a pol2
@@ -436,7 +436,7 @@ std::vector<float> stableGaussianFit(TH1 * histo)
   return results;
 }//end of stableGaussian Fit function
 
-double error_func( float  x, Double_t *par)
+double error_func( float  x, const Double_t *par)
 {
 //calculating the square of the propagated error on the fit values
   return  ( TMath::Power(par[0],2) +  x * TMath::Power(par[1],2) +   TMath::Power(x * par[2],2)) ;

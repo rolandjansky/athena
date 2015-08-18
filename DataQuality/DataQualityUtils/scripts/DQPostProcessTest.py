@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## *****************************************************************************
-VERSION = '$Id: DQPostProcessTest.py 514510 2012-08-22 16:02:43Z vogel $'
+VERSION = '$Id: DQPostProcessTest.py 686318 2015-07-29 14:47:05Z btong $'
 ## *****************************************************************************
 
 #import DataQualityUtils.DQHistogramMergeMod as mod
@@ -63,6 +63,7 @@ mf.HLTMuonPostProcess(outFile, isIncremental)
 mf.HLTTauPostProcess(outFile, isIncremental)
 mf.HLTMETPostProcess(outFile, isIncremental)
 mf.HLTJetPostProcess(outFile, isIncremental)
+mf.MuonTrackPostProcess(outFile, isIncremental)
 mf.MuonTrkPhys(outFile, isIncremental)
 mf.BJetTaggingPostProcess(outFile, isIncremental)
 mf.L1CaloPostProcess(outFile, isIncremental)
@@ -87,6 +88,7 @@ mf.HLTMuonPostProcess(outFile, isIncremental)
 mf.HLTTauPostProcess(outFile, isIncremental)
 mf.HLTMETPostProcess(outFile, isIncremental)
 mf.HLTJetPostProcess(outFile, isIncremental)
+mf.MuonTrackPostProcess(outFile, isIncremental)
 mf.MuonTrkPhys(outFile, isIncremental)
 mf.BJetTaggingPostProcess(outFile, isIncremental)
 mf.L1CaloPostProcess(outFile, isIncremental)
