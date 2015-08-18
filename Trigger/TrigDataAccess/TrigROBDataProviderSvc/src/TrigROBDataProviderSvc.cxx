@@ -23,10 +23,18 @@
 #include "GaudiKernel/IAlgContextSvc.h"
 #include "GaudiKernel/IAlgorithm.h"
 
+#include "StoreGate/StoreGateSvc.h"
+
 #include "CxxUtils/excepts.h"
 
 #include <iostream>
+#ifndef HAVE_NEW_IOSTREAMS
+#include <strstream>  /*gnu-specific*/
+typedef strstream __sstream;
+#else
 #include <sstream>
+typedef std::ostringstream __sstream;
+#endif
 #include <iomanip>
 #include <cassert> 
 #include <bitset> 
@@ -658,7 +666,7 @@ void TrigROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, con
 	  }
 	}
 	if(logLevel() <= MSG::DEBUG) {
-	  std::ostringstream ost;
+	  __sstream ost;
 	  ost << "      Number of scheduled ROB Ids = " << m_Det_Robs_for_retrieval.size() << "\n" ;
 	  unsigned int rob_counter = 1;
 	  for (std::map<uint32_t,int>::const_iterator map_it=m_Det_Robs_for_retrieval.begin(); map_it!=m_Det_Robs_for_retrieval.end(); ++map_it,++rob_counter){
@@ -671,6 +679,10 @@ void TrigROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, con
 		      << "      Lvl1 id                     = " << m_currentLvl1ID << "\n"
 		      << ost.str()
 		      << endreq;
+
+#ifndef HAVE_NEW_IOSTREAMS
+	  ost.freeze(false);
+#endif
 	}
       } // end if (!m_useROSmappingForROBRetrieval.value())
     }
@@ -1061,7 +1073,7 @@ std::string TrigROBDataProviderSvc::dumpROBcache() const {
   ONLINE_ROBMAP::const_iterator cache_end = m_online_robmap.end() ;
   int nrob = 0;
 
-  std::ostringstream ost;
+  __sstream ost;
   ost << " --- Dump of ROB cache ids --- total size = "
       << m_online_robmap.size() <<"\n";  
   for(; cache_it!=cache_end; ++cache_it){
@@ -1071,6 +1083,9 @@ std::string TrigROBDataProviderSvc::dumpROBcache() const {
 	<< std::dec << "  decimal: source id = " << (*cache_it).second.source_id() << "\n";
   }
   std::string ret(ost.str());
+#ifndef HAVE_NEW_IOSTREAMS
+  ost.freeze(false);
+#endif
   return ret;
 }
 
@@ -1180,11 +1195,14 @@ int TrigROBDataProviderSvc::collectCompleteEventData(const std::string callerNam
         << endreq;
   }
   if (logLevel() <= MSG::VERBOSE) {
-    std::ostringstream ost;
+    __sstream ost;
     unsigned int rob_counter = 1;
     for (std::vector<uint32_t>::const_iterator rob_it = retrievedRobIds.begin(); rob_it != retrievedRobIds.end(); ++rob_it,++rob_counter)
       ost << "       # = "<< std::setw(5) << rob_counter << " ROB id = 0x" << std::hex << *rob_it << std::dec << "\n" ;
     logStream() << MSG::VERBOSE << "\n" << ost.str() << endreq;
+#ifndef HAVE_NEW_IOSTREAMS
+    ost.freeze(false);
+#endif
   }
   
   // update event complete flag
@@ -1458,7 +1476,7 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
   }
 
   if(logLevel() <= MSG::DEBUG) {
-    std::ostringstream ost;
+    __sstream ost;
     unsigned int rob_counter = 1;
     for (std::vector<uint32_t>::const_iterator rob_it=retrievedRobIds.begin(); rob_it!=retrievedRobIds.end(); ++rob_it,++rob_counter)
       ost << "       # = "<< std::setw(5) << rob_counter << " ROB id = 0x" << std::hex << (*rob_it) << std::dec << "\n" ; 
@@ -1470,6 +1488,9 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
                 << "      Number of actually received ROB Ids                 = " << retrievedRobIds.size() << "\n"
 		<< ost.str()
 		<< endreq;
+#ifndef HAVE_NEW_IOSTREAMS
+    ost.freeze(false);
+#endif
   }
 
   if ( m_doMonitoring || p_robMonStruct ) {
