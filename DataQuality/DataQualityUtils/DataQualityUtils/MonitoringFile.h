@@ -188,6 +188,10 @@ namespace dqutils {
     static Double_t MuonTrkPhys_BWgaus(Double_t *x, Double_t *par);
     static Double_t MuonTrkPhys_fitFunctionS(Double_t *x, Double_t *par);
 
+    // For MuonTrackMonitoring
+    static void MuonTrackPostProcess(std::string inFileName, bool isIncremental = false);
+    static void MuonTrack_Main(std::string inFileName, TString dirname);
+
     //For Muon MDT
     static void  MDTPostProcess(std::string inFilename, bool isIncremental = false, int txtFileOutputType = 0, bool useOfflineTubeID = false, bool makePDF = false, bool doAllPDF = true);
     static void  MDTChamReAlign(std::string inFilename, std::string title="MDT");
@@ -351,6 +355,7 @@ namespace dqutils {
 				        int items, double threshold, int binSkip);
 
     // SCT
+    static void PixelPostProcess(std::string inFilename, bool isIncremental = false);
     static void SCTPostProcess(std::string inFilename, bool isIncremental = false);
  
     // Other helper methods

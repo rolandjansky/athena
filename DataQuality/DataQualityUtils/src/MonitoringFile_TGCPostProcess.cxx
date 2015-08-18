@@ -224,11 +224,10 @@ namespace dqutils {
 
           for(int binx=1; binx<=nbinx; binx++){
             for(int biny=1; biny<=nbiny; biny++){
-              if( ws==1 && binx>=6 && binx<=10 ) continue;//skip strip for layer2
-              if( ( binx==5 || binx==10 || binx==15 ||
-                    binx==21 || binx==27 || binx==33 || binx>=39 ) &&
+              if( ws==1 && (binx==2||binx==9||binx==16||binx==23||binx==34) ) continue;//skip strip for layer2
+              if( ( binx>=33 && binx<=43 ) &&
                   biny%2 == 0 )continue;// skip phi1,3 for forward region
-              if( ( binx ==40 || binx==42 ) &&
+              if( ( binx ==40 || binx==41 ) &&
                   ( biny ==19 || biny==35 || biny==43 ) ) continue;//skip phi9,17,21 for EI
 
               double num = hprof->GetBinContent(binx,biny);
@@ -484,11 +483,16 @@ namespace dqutils {
 
           for(int binx=1; binx<=nbinx; binx++){
             for(int biny=1; biny<=nbiny; biny++){
-              if( ( binx==5 || binx==10 || binx==15 ||
-                    binx==21 || binx==27 || binx==33 || binx>=39 ) &&
+              //if( ( binx==5 || binx==10 || binx==15 ||
+              //      binx==21 || binx==27 || binx==33 || binx>=39 ) &&
+              //    biny%2 == 0 )continue;// skip phi1,3 for forward region
+              //if( ( binx ==40 || binx==42 ) &&
+              //    ( biny ==18 || biny==34 || biny==42 ) ) continue;//skip phi9,17,21 for EI
+              if( ( binx>=33 && binx<=43 ) &&
                   biny%2 == 0 )continue;// skip phi1,3 for forward region
-              if( ( binx ==40 || binx==42 ) &&
-                  ( biny ==18 || biny==34 || biny==42 ) ) continue;//skip phi9,17,21 for EI
+              if( ( binx ==40 || binx==41 ) &&
+                  ( biny ==19 || biny==35 || biny==43 ) ) continue;//skip phi9,17,21 for EI
+
 
               double eff = heff->GetBinContent(binx,biny);
 	      double denom = 1;
@@ -946,15 +950,28 @@ namespace dqutils {
     int layer=0;
     int eta = etac;
     int st =0;
-    if      ( etac <= 4  ){ layer = 0; eta = 4  - etac; st = 42;}
-    else if ( etac <= 9  ){ layer = 1; eta = 9  - etac; st = 42;}
-    else if ( etac <= 14 ){ layer = 2; eta = 14 - etac; st = 42;}
-    else if ( etac <= 20 ){ layer = 3; eta = 20 - etac; st = 44;}
-    else if ( etac <= 26 ){ layer = 4; eta = 26 - etac; st = 44;}
-    else if ( etac <= 32 ){ layer = 5; eta = 32 - etac; st = 46;}
-    else if ( etac <= 38 ){ layer = 6; eta = 38 - etac; st = 46;}
-    else if ( etac <= 40 ){ layer = 7; eta = 40 - etac; st = 48;}
-    else if ( etac <= 42 ){ layer = 8; eta = 42 - etac; st = 48;}
+//    if      ( etac <= 4  ){ layer = 0; eta = 4  - etac; st = 42;}
+//    else if ( etac <= 9  ){ layer = 1; eta = 9  - etac; st = 42;}
+//    else if ( etac <= 14 ){ layer = 2; eta = 14 - etac; st = 42;}
+//    else if ( etac <= 20 ){ layer = 3; eta = 20 - etac; st = 44;}
+//    else if ( etac <= 26 ){ layer = 4; eta = 26 - etac; st = 44;}
+//    else if ( etac <= 32 ){ layer = 5; eta = 32 - etac; st = 46;}
+//    else if ( etac <= 38 ){ layer = 6; eta = 38 - etac; st = 46;}
+//    else if ( etac <= 40 ){ layer = 7; eta = 40 - etac; st = 48;}
+//    else if ( etac <= 42 ){ layer = 8; eta = 42 - etac; st = 48;}
+
+    int binx = etac+1;
+    if( binx%7>=1 && binx%7<=3 && binx<=28) {layer = (binx-1)%7; eta=4-(binx-1)/7; st = 42;} 
+    else if( binx%7>=4 && binx%7<=5 && binx<=28) {layer = (binx-1)%7; eta=5-(binx-1)/7; st = 44;} 
+    else if( (binx-1)%7>=5 && binx<=28) {layer = (binx-1)%7; eta=5-(binx-1)/7; st = 46;} 
+    else if( binx>28 && binx<=30) {layer = binx-28+3-1; eta=1; st = 44; }
+    else if( binx>30 && binx<=32) {layer = binx-28+3-1; eta=1; st = 46; }
+    else if( binx>32 && binx<=35) {layer = binx-32-1; eta=0; st = 42; }
+    else if( binx>35 && binx<=37) {layer = binx-32-1; eta=0; st = 44; }
+    else if( binx>37 && binx<=39) {layer = binx-32-1; eta=0; st = 46; }
+    else if( binx>39 && binx<=41) {layer = binx-32-1; eta=1; st = 48; }
+    else if( binx>41 && binx<=43) {layer = binx-34-1; eta=0; st = 48; }
+
     
     if( eta == 0 )st-=1;
 
