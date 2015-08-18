@@ -104,7 +104,7 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
       if ( trackInfo && trackInfo->GetReturnedToISF()==true ) {
         // make sure that the TruthBinding of the ISFParticle points to the newest
         // HepMC::GenParticle instance
-        HepMC::GenParticle *newGenPart = truth.primaryParticleAfterIncident(Barcode::fUndefinedBarcode, false);
+        HepMC::GenParticle *newGenPart = truth.parentParticleAfterIncident(Barcode::fUndefinedBarcode, false);
         ISF::ITruthBinding *newTruthBinding = new ISF::HepMC_TruthBinding(*newGenPart);
         parent->setTruthBinding( newTruthBinding );
         Barcode::ParticleBarcode newBarcode = newGenPart->barcode();

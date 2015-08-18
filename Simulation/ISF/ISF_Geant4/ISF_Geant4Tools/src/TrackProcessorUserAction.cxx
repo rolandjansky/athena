@@ -328,7 +328,7 @@ void iGeant4::TrackProcessorUserAction::SteppingAction(const G4Step* aStep)
                     " and is returned to ISF.");
 
       ISF::ISFParticle *parent = m_curISP;
-      m_curISP = returnParticleToISF(aTrack, parent, nextGeoID);
+      returnParticleToISF(aTrack, parent, nextGeoID);
     }
 
     //
@@ -603,7 +603,7 @@ iGeant4::TrackProcessorUserAction::newISFParticle(G4Track* aTrack,
 
 
 //________________________________________________________________________
-ISF::ISFParticle*
+void
 iGeant4::TrackProcessorUserAction::returnParticleToISF( G4Track *aTrack,
                                                         ISF::ISFParticle *parentISP,
                                                         AtlasDetDescr::AtlasRegion nextGeoID )
@@ -626,7 +626,7 @@ iGeant4::TrackProcessorUserAction::returnParticleToISF( G4Track *aTrack,
   // push the particle back to ISF
   m_particleBroker->push(newISP, parentISP);
 
-  return newISP;
+  return;
 }
 
 
