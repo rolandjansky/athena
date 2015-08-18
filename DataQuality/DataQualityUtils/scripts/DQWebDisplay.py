@@ -4,7 +4,7 @@
 # -*- coding: utf-8 -*-
 
 ## *****************************************************************************
-VERSION = '$Id: DQWebDisplay.py 686438 2015-07-30 09:42:40Z ponyisi $'
+VERSION = '$Id: DQWebDisplay.py 689658 2015-08-16 14:57:56Z ponyisi $'
 ## *****************************************************************************
 
 import os
@@ -45,17 +45,17 @@ def usage():
 
 if __name__ == "__main__":
   print len(sys.argv)
-  if len(sys.argv) < 4 or len(sys.argv) > 6:
+  if len(sys.argv) < 5 or len(sys.argv) > 7:
     usage()
     sys.exit(0)
   
   inputFile  = sys.argv[1] # data file
   runAccumulating = False
-  if len(sys.argv) in (5,6):
+  if len(sys.argv) in (6,7):
     if sys.argv[4] == "True" or sys.argv[4] == "1":
       runAccumulating = True
   
-  if len(sys.argv) == 6:
+  if len(sys.argv) == 7:
       print 'Setting condition', sys.argv[5]
       ROOT.gSystem.Load('libDataQualityInterfaces')
       ROOT.dqi.ConditionsSingleton.getInstance().setCondition(sys.argv[5])

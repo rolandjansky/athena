@@ -355,6 +355,7 @@ namespace dqutils {
 				        int items, double threshold, int binSkip);
 
     // SCT
+    static void PixelPostProcess(std::string inFilename, bool isIncremental = false);
     static void SCTPostProcess(std::string inFilename, bool isIncremental = false);
  
     // Other helper methods

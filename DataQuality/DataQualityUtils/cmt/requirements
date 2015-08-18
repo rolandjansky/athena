@@ -67,6 +67,7 @@ library  DataQualityUtils  $(lib_opts) "\
  ../src/MonitoringFile_HLTCaloPostProcess.cxx\
  ../src/MonitoringFile_HLTJetPostProcess.cxx\
  ../src/MonitoringFile_HLTMinBiasMonPostProcess.cxx\
+ ../src/MonitoringFile_PixelPostProcess.cxx\
  ../src/MonitoringFile_SCTPostProcess.cxx\
  ../src/MonitoringFile_MuonTrackPostProcess.cxx\
  ../src/MonitoringFile_MuonTrkPhys.cxx\
