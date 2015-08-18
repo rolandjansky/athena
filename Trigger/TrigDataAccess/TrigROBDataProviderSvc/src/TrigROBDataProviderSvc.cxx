@@ -41,6 +41,12 @@ typedef std::ostringstream __sstream;
 #include <TH1F.h>
 #include <TH2F.h>
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
+#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
+#else
+#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
+#endif
+
 // Constructor.
 TrigROBDataProviderSvc::TrigROBDataProviderSvc(const std::string& name, ISvcLocator* svcloc)
   :ROBDataProviderSvc(name,svcloc),
@@ -55,11 +61,15 @@ TrigROBDataProviderSvc::TrigROBDataProviderSvc(const std::string& name, ISvcLoca
    m_histProp_requestedROBsPerCall(Gaudi::Histo1DDef("RequestedROBsPerCall" ,0,300,50)),
    m_histProp_receivedROBsPerCall(Gaudi::Histo1DDef("ReceivedROBsPerCall" ,0,300,50)),
    m_histProp_timeROBretrieval(Gaudi::Histo1DDef("TimeForROBretrieval" ,0.,500.,50)),
+   m_histProp_retrievedROBsPerAlgo(Gaudi::Histo1DDef("RetrievedROBsPerAlgo" ,0.,1.,1)),
+   m_histProp_ROSRequest(Gaudi::Histo1DDef("ROSRequests" ,0.,1.,1)),
    m_hist_requestedROBsPerCall(0),
    m_hist_receivedROBsPerCall(0),
+   m_hist_retrievedROBsPerAlgo(0),
    m_hist_timeROBretrieval(0),
    m_hist_genericStatusForROB(0),
-   m_hist_specificStatusForROB(0)
+   m_hist_specificStatusForROB(0),
+   m_hist_ROSRequest(0)
 {
   declareProperty("ignoreROB", m_ignoreROB,"List of ROBs to ignore for retrieval");
   declareProperty("enabledROBs", m_enabledROBs,"List of enabled detector ROBs");
@@ -73,6 +83,7 @@ TrigROBDataProviderSvc::TrigROBDataProviderSvc(const std::string& name, ISvcLoca
   declareProperty("HistRequestedROBsPerCall", m_histProp_requestedROBsPerCall,"Number of ROBs requested");
   declareProperty("HistReceivedROBsPerCall", m_histProp_receivedROBsPerCall,"Number of ROBs received");
   declareProperty("HistTimeROBretrieval", m_histProp_timeROBretrieval,"Timing for ROB retrieval");
+  declareProperty("HistRetrievedROBsPerAlgo", m_histProp_retrievedROBsPerAlgo,"Number of ROB retrieval per Algo");
   declareProperty("ModuleIDGenericLArMetROB", m_genericLArMetModuleID=0xffff,"Generic module id for LAr MET ROB retrieval");  
   declareProperty("ModuleIDGenericTileMetROB", m_genericTileMetModuleID=0xffff,"Generic module id for Tile MET ROB retrieval");
   declareProperty("SeparateMETandDetROBRetrieval", m_separateMETandDetROBRetrieval=true,"Separate retrieval of MET and detector ROBs");
@@ -122,6 +133,8 @@ StatusCode TrigROBDataProviderSvc::initialize()
   // set message stream
   m_msg  = new MsgStream( msgSvc(), name() );
   
+  m_callerName = "UNKNOWN";
+
   IntegerProperty baseOutputLevel;
   baseOutputLevel.assign(ROBDataProviderSvc::getProperty("OutputLevel")) ;
   if (m_msg) m_msg->setLevel( baseOutputLevel.value() );
@@ -144,6 +157,71 @@ StatusCode TrigROBDataProviderSvc::initialize()
     }
   }
 
+  // intialize L1 ROBIds
+  m_l1_ROB_ids.reserve(49);   
+
+  m_l1_ROB_ids.push_back(0x910081);    // TDAQ_CALO_TOPO_PROC ROBs
+  m_l1_ROB_ids.push_back(0x910091);
+ 
+  // ROBs from ROIB
+  m_l1_ROB_ids.push_back(0x770001);  // CTP
+  m_l1_ROB_ids.push_back(0x760001);  // muCTPi
+  m_l1_ROB_ids.push_back(0x76000b);  // L1Muctpi_on_RDO
+
+  m_l1_ROB_ids.push_back(0x7300a8);  // Calo cluster RoI
+  m_l1_ROB_ids.push_back(0x7300a9);  // Calo cluster RoI
+  m_l1_ROB_ids.push_back(0x7300aa);  // Calo cluster RoI
+  m_l1_ROB_ids.push_back(0x7300ab);  // Calo cluster RoI
+  m_l1_ROB_ids.push_back(0x7500ac);  // Calo Jet/Energy RoI
+  m_l1_ROB_ids.push_back(0x7500ad);  // Calo Jet/Energy RoI
+
+  // ROBs from CPMSim/CPCMX -24
+  m_l1_ROB_ids.push_back(0x720008);  
+  m_l1_ROB_ids.push_back(0x720018);  
+  m_l1_ROB_ids.push_back(0x720028);  
+  m_l1_ROB_ids.push_back(0x720038);  
+  m_l1_ROB_ids.push_back(0x720009);  
+  m_l1_ROB_ids.push_back(0x720019);  
+  m_l1_ROB_ids.push_back(0x720029);  
+  m_l1_ROB_ids.push_back(0x720039);  
+  m_l1_ROB_ids.push_back(0x72000a);  
+  m_l1_ROB_ids.push_back(0x72001a);  
+  m_l1_ROB_ids.push_back(0x72002a);  
+  m_l1_ROB_ids.push_back(0x72003a);  
+  m_l1_ROB_ids.push_back(0x72000b);  
+  m_l1_ROB_ids.push_back(0x72001b);  
+  m_l1_ROB_ids.push_back(0x72002b);  
+  m_l1_ROB_ids.push_back(0x72003b);  
+  m_l1_ROB_ids.push_back(0x730088);  
+  m_l1_ROB_ids.push_back(0x730098);  
+  m_l1_ROB_ids.push_back(0x730089);  
+  m_l1_ROB_ids.push_back(0x730099);  
+  m_l1_ROB_ids.push_back(0x73008a);  
+  m_l1_ROB_ids.push_back(0x73009a);  
+  m_l1_ROB_ids.push_back(0x73008b);  
+  m_l1_ROB_ids.push_back(0x73009b);  
+
+  // ROBs from JEMJetSim/JEMEnergySim -12
+  m_l1_ROB_ids.push_back(0x74000c);  
+  m_l1_ROB_ids.push_back(0x74001c);  
+  m_l1_ROB_ids.push_back(0x74002c);  
+  m_l1_ROB_ids.push_back(0x74003c);  
+  m_l1_ROB_ids.push_back(0x74000d);  
+  m_l1_ROB_ids.push_back(0x74001d);  
+  m_l1_ROB_ids.push_back(0x74002d);  
+  m_l1_ROB_ids.push_back(0x74003d);  
+  m_l1_ROB_ids.push_back(0x75008c);  
+  m_l1_ROB_ids.push_back(0x75009c);  
+  m_l1_ROB_ids.push_back(0x75008d);  
+  m_l1_ROB_ids.push_back(0x75009d);  
+
+ // ROBs from DAQ
+  m_l1_ROB_ids.push_back(0x770000);  // CTP    DAQ
+  m_l1_ROB_ids.push_back(0x760000);  // muCTPi DAQ
+  // preload also L2 result, when available
+  m_l1_ROB_ids.push_back(0x7b0000);  // L2 HLT result
+
+ 
   // get the list of enabled ROBs from OKS
   bool robOKSconfigFound = false;
   bool robLArMetOKSconfigFound = false;
@@ -212,6 +290,8 @@ StatusCode TrigROBDataProviderSvc::initialize()
   logStream() << MSG::INFO << "        Hist:RequestedROBsPerCall         = " << m_histProp_requestedROBsPerCall << endreq; 
   logStream() << MSG::INFO << "        Hist:ReceivedROBsPerCall          = " << m_histProp_receivedROBsPerCall << endreq; 
   logStream() << MSG::INFO << "        Hist:TimeROBretrieval             = " << m_histProp_timeROBretrieval << endreq; 
+  logStream() << MSG::INFO << "        Hist:RetrievedROBsPerAlgo         = " << m_histProp_retrievedROBsPerAlgo << endreq; 
+  logStream() << MSG::INFO << "        Hist:ROSRequest                   = " << m_histProp_ROSRequest << endreq; 
   logStream() << MSG::INFO << " ---> Do detailed ROB monitoring          = " << m_doDetailedROBMonitoring << endreq;
   logStream() << MSG::INFO << " ---> SG name for ROB monitoring collect. = " << m_ROBDataMonitorCollection_SG_Name << endreq;
   logStream() << MSG::INFO << " ---> Read list of enabled ROBs from OKS  = " << m_readROBfromOKS << endreq;
@@ -268,7 +348,7 @@ StatusCode TrigROBDataProviderSvc::initialize()
     }
   }
 
-  logStream() << MSG::INFO << " ---> Use ROB/ROS mapping for ROB prefetching/retrieval = " << m_useROSmappingForROBRetrieval << endreq;
+  logStream() << MSG::INFO << " ---> Use ROB/ROS mapping for ROB prefetching/retrieval = " << m_useROSmappingForROBRetrieval  << endreq;
 
   if (m_ignoreROB.value().size() == 0) {
     logStream() << MSG::INFO << " ---> The list of ROBs to ignore has size = 0. No check will be performed " << endreq;
@@ -308,11 +388,7 @@ StatusCode TrigROBDataProviderSvc::initialize()
   incidentSvc.release().ignore();
 
   // Setup the StoreGateSvc
-  if( (m_storeGateSvc.retrieve()).isFailure() ) {
-    logStream() << MSG::ERROR << "Error retrieving StoreGateSvc "+m_storeGateSvc << endreq;
-    m_storeGateSvc.release().ignore();
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_storeGateSvc.retrieve() );
 
   return sc;
 }
@@ -448,7 +524,7 @@ void TrigROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, con
 
     // find missing ROB ids which should be retrieved  
     if(logLevel() <= MSG::DEBUG)
-      logStream() << MSG::DEBUG << " ---> addROBData: Number of ROB Ids requested : " << robIdsUnique.size() << endreq;
+      logStream() << MSG::DEBUG << " ---> addROBData for "<<m_callerName<<": Number of ROB Ids requested : " << robIdsUnique.size() << endreq;
 
     for(std::vector<uint32_t>::const_iterator it=robIdsUnique.begin(); it!=robIdsUnique.end(); ++it){
       uint32_t id = (*it);
@@ -469,7 +545,7 @@ void TrigROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, con
       ONLINE_ROBMAP::iterator map_it = m_online_robmap.find(id) ;
       if(map_it != m_online_robmap.end()) {
 	if(logLevel() <= MSG::DEBUG)
-	  logStream() << MSG::DEBUG << " ---> addROBData: Found   ROB Id : 0x" << MSG::hex << (*map_it).second.source_id() << MSG::dec
+	  logStream() << MSG::DEBUG << " ---> addROBData for "<<m_callerName<<": Found   ROB Id : 0x" << MSG::hex << (*map_it).second.source_id() << MSG::dec
 		      <<" in cache "<< endreq;
 	//* detailed monitoring
 	if ( p_robMonStruct ) {
@@ -492,7 +568,7 @@ void TrigROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, con
 	  std::find(m_ignoreROB.value().begin(), m_ignoreROB.value().end(),id);
 	if(rob_ignore_it != m_ignoreROB.value().end()) {
 	  if(logLevel() <= MSG::DEBUG)
-	    logStream() << MSG::DEBUG << " ---> addROBData: ROB Id : 0x" << MSG::hex << id << MSG::dec
+	    logStream() << MSG::DEBUG << " ---> addROBData for "<<m_callerName<<": ROB Id : 0x" << MSG::hex << id << MSG::dec
 			<< " will be not retrieved, since it is on the veto list."<< endreq;
 	  //* detailed monitoring
 	  if ( p_robMonStruct ) {
@@ -511,7 +587,7 @@ void TrigROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, con
 	  std::find(m_enabledROBs.value().begin(), m_enabledROBs.value().end(),id);
 	if(rob_enabled_it == m_enabledROBs.value().end()) {
 	  if(logLevel() <= MSG::DEBUG)
-	    logStream() << MSG::DEBUG << " ---> addROBData: ROB Id : 0x" << MSG::hex << id << MSG::dec
+	    logStream() << MSG::DEBUG << " ---> addROBData for "<<m_callerName<<": ROB Id : 0x" << MSG::hex << id << MSG::dec
 			<< " will be not retrieved, since it is not on the list of enabled ROBs."<< endreq;
 	  //* detailed monitoring
 	  if ( p_robMonStruct ) {
@@ -525,22 +601,22 @@ void TrigROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, con
       std::vector<uint32_t>::const_iterator rob_duplicate_it = std::find(vRobIds.begin(), vRobIds.end(),id);
       if(rob_duplicate_it != vRobIds.end()) {
 	if(logLevel() <= MSG::DEBUG)
-	  logStream() << MSG::DEBUG << " ---> addROBData: ROB Id : 0x" << MSG::hex << id << MSG::dec
+	  logStream() << MSG::DEBUG << " ---> addROBData for "<<m_callerName<<": ROB Id : 0x" << MSG::hex << id << MSG::dec
 		      << " found multiple times on list. Only one copy will be retrieved."<< endreq;
 	continue;
       }
 
       // in case a ROB-ROS mapping is used, check that the id is present in the ROB-ROS map
       if ( (m_useROSmappingForROBRetrieval.value()) && (m_rob_ros_map.value().find(id) == m_rob_ros_map.value().end()) ) {
-	logStream() << MSG::WARNING << " ---> addROBData: ROB Id : 0x" << MSG::hex << id << MSG::dec
+	logStream() << MSG::WARNING << " ---> addROBData for "<<m_callerName<<": ROB Id : 0x" << MSG::hex << id << MSG::dec
 		    <<" is not found in the ROB-ROS mapping. ROB can not be scheduled for retrieval. Check ROB-ROS mapping."
 		    << endreq;
 	continue;
       }
 
       // the ROB should be retrieved from the ROS
-      if (logLevel() <= MSG::DEBUG)
-	logStream() << MSG::DEBUG << " ---> addROBData: Request ROB Id : 0x" << MSG::hex << id << MSG::dec
+      if (logLevel() <= MSG::VERBOSE)
+	logStream() << MSG::VERBOSE << " ---> addROBData for "<<m_callerName<<": Request ROB Id : 0x" << MSG::hex << id << MSG::dec
 		    <<" from ROS "<< endreq;
       vRobIds.push_back( *it ) ;
       if ( (m_useROSmappingForROBRetrieval.value()) && (m_Det_Robs_for_retrieval.find(id)==m_Det_Robs_for_retrieval.end()) ) {
@@ -551,7 +627,7 @@ void TrigROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, con
     if (vRobIds.size() == 0) {
       if(logLevel() <= MSG::DEBUG)
 	logStream() << MSG::DEBUG 
-		    << " ---> addROBData: either all requested ROBs are found in cache for running mode ONLINE, \n"
+		    << " ---> addROBData for "<<m_callerName<<": either all requested ROBs are found in cache for running mode ONLINE, \n"
 		    << "      or input ROB Id list was empty, \n" 
 		    << "      or all requested ROBs were not retrieved due to the veto list.\n" 
 		    << "      Number of requested ROB Ids = " << robIdsUnique.size() << "\n"
@@ -581,19 +657,29 @@ void TrigROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, con
 	retrievedRobIds.reserve( vRobIds.size() );
 	addROBDataToCache(vRobIds, retrievedRobIds, p_robMonStruct);
       } else { // ROS/ROB mapping will be used, print the ROB ids for prefetching
+	//* detailed monitoring
+	if ( p_robMonStruct ) {
+	  for (std::map<uint32_t,int>::const_iterator map_it=m_Det_Robs_for_retrieval.begin(); map_it!=m_Det_Robs_for_retrieval.end(); ++map_it){
+	    uint32_t id =(*map_it).first;	      
+	    (p_robMonStruct->requested_ROBs)[id].rob_history = robmonitor::SCHEDULED;
+	    (p_robMonStruct->requested_ROBs)[id].rob_size    = 1;
+	  }
+	}
 	if(logLevel() <= MSG::DEBUG) {
 	  __sstream ost;
 	  ost << "      Number of scheduled ROB Ids = " << m_Det_Robs_for_retrieval.size() << "\n" ;
 	  unsigned int rob_counter = 1;
-	  for (std::map<uint32_t,int>::const_iterator map_it=m_Det_Robs_for_retrieval.begin(); map_it!=m_Det_Robs_for_retrieval.end(); ++map_it,++rob_counter)
+	  for (std::map<uint32_t,int>::const_iterator map_it=m_Det_Robs_for_retrieval.begin(); map_it!=m_Det_Robs_for_retrieval.end(); ++map_it,++rob_counter){
 	    ost << "       # = "<< std::setw(5) << rob_counter << " ROB id = 0x" << std::hex << (*map_it).first << std::dec 
-		<< " ROS id = 0x" << std::hex << (*map_it).second << std::dec << "\n"; 
+		<< " ROS id = 0x" << std::hex << (*map_it).second << std::dec << "\n"; 	  
+	  }
 
 	  logStream() << MSG::DEBUG 
-		      << " ---> addROBData: A ROB/ROS mapping is available the following ROB Ids are scheduled for retrieval in getROBData: \n"
+		      << " ---> addROBData for "<<m_callerName<<": A ROB/ROS mapping is available the following ROB Ids are scheduled for retrieval in getROBData: \n"
 		      << "      Lvl1 id                     = " << m_currentLvl1ID << "\n"
 		      << ost.str()
 		      << endreq;
+
 #ifndef HAVE_NEW_IOSTREAMS
 	  ost.freeze(false);
 #endif
@@ -602,7 +688,8 @@ void TrigROBDataProviderSvc::addROBData(const std::vector<uint32_t>& robIds, con
     }
 
     // add the ROB monitoring structure to the collection
-    if ( p_robMonCollection && p_robMonStruct ) p_robMonCollection->push_back( p_robMonStruct );
+    if ( p_robMonCollection && p_robMonStruct )       p_robMonCollection->push_back( p_robMonStruct );
+
   } // end online running   
   return;
 }
@@ -616,6 +703,7 @@ void TrigROBDataProviderSvc::setNextEvent(const std::vector<ROBF>& result)
   // clear the ROB map
   m_online_robmap.clear(); 
   m_currentLvl1ID = 0;
+
   // clear the maps used for prefetching
   m_Det_Robs_for_retrieval.clear();
 
@@ -738,26 +826,9 @@ void TrigROBDataProviderSvc::setNextEvent(const RawEvent* re)
   m_maskL2EFModuleID = ROBDataProviderSvc::m_maskL2EFModuleID; 
  
   if (m_simulateOnlineDataAccess.value()) {
-    std::vector<uint32_t>    l1_ROB_ids;
+    // now get L1 result
     std::vector<const ROBF*> l1_ROB_fragments;
-    l1_ROB_ids.reserve(11);
-    l1_ROB_fragments.reserve(11);
-    // ROBs from ROIB
-    l1_ROB_ids.push_back(0x770001);  // CTP
-    l1_ROB_ids.push_back(0x760001);  // muCTPi
-    l1_ROB_ids.push_back(0x7300a8);  // Calo cluster RoI
-    l1_ROB_ids.push_back(0x7300a9);  // Calo cluster RoI
-    l1_ROB_ids.push_back(0x7300aa);  // Calo cluster RoI
-    l1_ROB_ids.push_back(0x7300ab);  // Calo cluster RoI
-    l1_ROB_ids.push_back(0x7500ac);  // Calo Jet/Energy RoI
-    l1_ROB_ids.push_back(0x7500ad);  // Calo Jet/Energy RoI
-    // ROBs from DAQ
-    l1_ROB_ids.push_back(0x770000);  // CTP    DAQ
-    l1_ROB_ids.push_back(0x760000);  // muCTPi DAQ
-    // preload also L2 result, when available
-    l1_ROB_ids.push_back(0x7b0000);  // L2 HLT result
-
-    ROBDataProviderSvc::getROBData(l1_ROB_ids, l1_ROB_fragments);
+    ROBDataProviderSvc::getROBData(m_l1_ROB_ids, l1_ROB_fragments);
 
     std::vector<ROBF> l1_result;
     l1_result.reserve(l1_ROB_fragments.size());
@@ -887,7 +958,9 @@ void TrigROBDataProviderSvc::getROBData(const std::vector<uint32_t>& robIds, std
       }
 
       // add the ROB monitoring structure to the collection
-      if ( p_robMonCollection && p_robMonStruct ) p_robMonCollection->push_back( p_robMonStruct );
+      if ( p_robMonCollection && p_robMonStruct )	p_robMonCollection->push_back( p_robMonStruct );
+      //	std::cout <<(*p_robMonStruct)<<std::endl;
+
     } // end if (m_useROSmappingForROBRetrieval.value())
 
     //------------------------------------------------------------------
@@ -895,6 +968,7 @@ void TrigROBDataProviderSvc::getROBData(const std::vector<uint32_t>& robIds, std
     //------------------------------------------------------------------
     for(std::vector<uint32_t>::const_iterator it = robIdsUnique.begin(); it != robIdsUnique.end(); ++it){
       uint32_t id = (*it); 
+
       // mask off the module ID for L2 and EF result for Run 1 data
       if ( (eformat::helper::SourceIdentifier(id).module_id() != 0) &&
 	   (eformat::helper::SourceIdentifier(id).subdetector_id() == eformat::TDAQ_LVL2) ) {
@@ -907,11 +981,18 @@ void TrigROBDataProviderSvc::getROBData(const std::vector<uint32_t>& robIds, std
 		  (eformat::helper::SourceIdentifier(id).subdetector_id() == eformat::TDAQ_EVENT_FILTER) &&
 		  (m_maskL2EFModuleID) ) {
 	id = eformat::helper::SourceIdentifier(eformat::helper::SourceIdentifier(id).subdetector_id(),0).code();
+      } 
+
+      // exclude check on L1 ROBs
+      if (std::find(m_l1_ROB_ids.begin(), m_l1_ROB_ids.end(), id)!=m_l1_ROB_ids.end()) {
+	continue;
       }
+
       ONLINE_ROBMAP::iterator map_it = m_online_robmap.find(id) ;
       if(map_it != m_online_robmap.end()) {      
 	robFragments.push_back( &((*map_it).second) ); 
       } else {
+
 	if(logLevel() <= MSG::WARNING) {
 	  logStream()<<MSG::WARNING<<" ---> getROBData: Failed to find ROB for id 0x"
 		     <<MSG::hex<< id <<MSG::dec<<endreq;
@@ -924,15 +1005,11 @@ void TrigROBDataProviderSvc::getROBData(const std::vector<uint32_t>& robIds, std
 	  }
 
 	  // caller name of this method
-	  //std::string getROBData_caller_name("UNKNOWN");
 	  std::vector<IAlgorithm*> knownAlgs;
-	  //IAlgorithm* alg(0);
 	  if ( m_algContextSvc ) {
-	    // alg = m_algContextSvc->currentAlg();
-	    // getROBData_caller_name = (alg ? alg->name() : "<NONE>");
 	    knownAlgs = m_algContextSvc->algorithms();
 	  }
-	  logStream()<<MSG::WARNING<<"      getROBData was called by    : " <<  m_callerName << endreq;//getROBData_caller_name
+	  logStream()<<MSG::WARNING<<"      getROBData was called by    : " <<  m_callerName << endreq;
           // Print all known algorithms
 	  if(logLevel() <= MSG::DEBUG) {
 	    logStream()<<MSG::DEBUG<<"      getROBData known algorithms : \n" ;
@@ -1108,7 +1185,7 @@ int TrigROBDataProviderSvc::collectCompleteEventData(const std::string callerNam
   m_Det_Robs_for_retrieval.clear();
 
   // add the ROB monitoring structure to the collection
-  if ( p_robMonCollection && p_robMonStruct ) p_robMonCollection->push_back( p_robMonStruct );
+  if ( p_robMonCollection && p_robMonStruct )     p_robMonCollection->push_back( p_robMonStruct );
 
   if (logLevel() <= MSG::DEBUG) {
     logStream() << MSG::DEBUG
@@ -1149,7 +1226,7 @@ void TrigROBDataProviderSvc::setCallerName(std::string callerName)
     }
   }
   m_callerName=caller_name; 
-  // logStream() << MSG::DEBUG << "TrigROBDataProviderSvc::setCallerName    : " << m_callerName <<endreq;
+  //  logStream() << MSG::DEBUG << "TrigROBDataProviderSvc::setCallerName    : " << m_callerName <<endreq;
   return;
 }
 
@@ -1194,7 +1271,7 @@ void TrigROBDataProviderSvc::handle(const Incident& incident) {
 					  m_histProp_requestedROBsPerCall.value().lowEdge(), 
 					  m_histProp_requestedROBsPerCall.value().highEdge());
   if (m_hist_requestedROBsPerCall) {
-    m_hist_requestedROBsPerCall->SetBit(TH1::kCanRebin);
+    CAN_REBIN(m_hist_requestedROBsPerCall);
     if( rootHistSvc->regHist(path + m_hist_requestedROBsPerCall->GetName(), m_hist_requestedROBsPerCall).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_requestedROBsPerCall->GetName() << endreq;
     }
@@ -1207,7 +1284,7 @@ void TrigROBDataProviderSvc::handle(const Incident& incident) {
 					  m_histProp_receivedROBsPerCall.value().lowEdge(), 
 					  m_histProp_receivedROBsPerCall.value().highEdge());
   if (m_hist_receivedROBsPerCall) {
-    m_hist_receivedROBsPerCall->SetBit(TH1::kCanRebin);
+    CAN_REBIN(m_hist_receivedROBsPerCall);
     if( rootHistSvc->regHist(path + m_hist_receivedROBsPerCall->GetName(), m_hist_receivedROBsPerCall).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_receivedROBsPerCall->GetName() << endreq;
     }
@@ -1220,11 +1297,48 @@ void TrigROBDataProviderSvc::handle(const Incident& incident) {
 					  m_histProp_timeROBretrieval.value().lowEdge(), 
 					  m_histProp_timeROBretrieval.value().highEdge());
   if (m_hist_timeROBretrieval) {
-    m_hist_timeROBretrieval->SetBit(TH1::kCanRebin);
+    CAN_REBIN(m_hist_timeROBretrieval);
     if( rootHistSvc->regHist(path + m_hist_timeROBretrieval->GetName(), m_hist_timeROBretrieval).isFailure() ) {
       logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_timeROBretrieval->GetName() << endreq;
     }
   }
+
+ // *-- number of retrievd ROBs per Algo
+  m_hist_retrievedROBsPerAlgo  = new TH1F (m_histProp_retrievedROBsPerAlgo.value().title().c_str(),
+					  (m_histProp_retrievedROBsPerAlgo.value().title()+";number of retrieved ROBs").c_str(), 
+					  m_histProp_retrievedROBsPerAlgo.value().bins(), 
+					  m_histProp_retrievedROBsPerAlgo.value().lowEdge(), 
+					  m_histProp_retrievedROBsPerAlgo.value().highEdge());
+  if (m_hist_retrievedROBsPerAlgo) {
+    CAN_REBIN(m_hist_retrievedROBsPerAlgo);
+    if( rootHistSvc->regHist(path + m_hist_retrievedROBsPerAlgo->GetName(), m_hist_retrievedROBsPerAlgo).isFailure() ) {
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_retrievedROBsPerAlgo->GetName() << endreq;
+    }
+  }
+
+
+ // *-- number of ROS requests
+
+  m_hist_ROSRequest  = new TH2F (m_histProp_ROSRequest.value().title().c_str(),
+				 (m_histProp_ROSRequest.value().title()+";ROS id").c_str(), 
+				 m_histProp_ROSRequest.value().bins(), 
+				 m_histProp_ROSRequest.value().lowEdge(), 
+				 m_histProp_ROSRequest.value().highEdge(),
+				 n_bins_partEBSubDet,0.,(float) n_bins_partEBSubDet); 
+  if (m_hist_ROSRequest) {
+    uint32_t n_tmp_bin = 1;
+    for (eformat::helper::EnumClass<eformat::SubDetector>::const_iterator it_sub=eformat::helper::SubDetectorDictionary.begin();
+	 it_sub != eformat::helper::SubDetectorDictionary.end(); it_sub++ ) {
+      m_hist_ROSRequest->GetYaxis()->SetBinLabel( n_tmp_bin, (it_sub->second).c_str() );
+      n_tmp_bin++;
+    }
+
+    CAN_REBIN(m_hist_ROSRequest);
+    if( rootHistSvc->regHist(path + m_hist_ROSRequest->GetName(), m_hist_ROSRequest).isFailure() ) {
+      logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_ROSRequest->GetName() << endreq;
+    }
+  }
+
 
   // *-- Generic Status for ROBs per sub detector
   m_hist_genericStatusForROB = new TH2F ("GenericStatusForROBsFromSubDetectors",
@@ -1287,7 +1401,7 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
   retrievedRobIds.clear();
 
   if(logLevel() <= MSG::DEBUG)
-    logStream() << MSG::DEBUG << " ---> addROBDataToCache: Number of ROB Ids requested for retrieval : " << robIdsForRetrieval.size() 
+    logStream() << MSG::DEBUG << " ---> addROBDataToCache for "<<m_callerName<<": Number of ROB Ids requested for retrieval : " << robIdsForRetrieval.size() 
 		<< ", Lvl1 id = " << m_currentLvl1ID << endreq;
 
   // return if no ROBs are requested
@@ -1329,7 +1443,7 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
 	 (eformat::helper::SourceIdentifier(id).subdetector_id() != eformat::TDAQ_EVENT_FILTER)
 	 ) {
       if (std::find(vRobIds.begin(), vRobIds.end(), id) == vRobIds.end()) {
-	logStream() << MSG::ERROR << " ---> addROBDataToCache: Received ROB Id : 0x" << MSG::hex << id << MSG::dec
+	logStream() << MSG::ERROR << " ---> addROBDataToCache for "<<m_callerName<<": Received ROB Id : 0x" << MSG::hex << id << MSG::dec
 		    <<" from ROS is not on the list of requested ROB Ids."<< endreq;
       }
     }
@@ -1351,7 +1465,7 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
 	   (eformat::helper::SourceIdentifier(id).subdetector_id() != eformat::TDAQ_EVENT_FILTER)
 	   ) {
 	if (std::find(vMETRobIds.begin(), vMETRobIds.end(), id) == vMETRobIds.end()) {
-	  logStream() << MSG::ERROR << " ---> addROBDataToCache: Received MET ROB Id : 0x" << MSG::hex << id << MSG::dec
+	  logStream() << MSG::ERROR << " ---> addROBDataToCache for "<<m_callerName<<": Received MET ROB Id : 0x" << MSG::hex << id << MSG::dec
 		      <<" from ROS is not on the list of requested ROB Ids."<< endreq;
 	}
       }
@@ -1367,7 +1481,7 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
     for (std::vector<uint32_t>::const_iterator rob_it=retrievedRobIds.begin(); rob_it!=retrievedRobIds.end(); ++rob_it,++rob_counter)
       ost << "       # = "<< std::setw(5) << rob_counter << " ROB id = 0x" << std::hex << (*rob_it) << std::dec << "\n" ; 
     logStream() << MSG::DEBUG 
-		<< " ---> addROBDataToCache: The following ROB Ids were received from DataCollector : \n"
+		<< " ---> addROBDataToCache for "<<m_callerName<<": The following ROB Ids were received from DataCollector : \n"
 		<< "      Lvl1 id                                             = " << m_currentLvl1ID << "\n"
                 << "      Number of detector ROB Ids requested for retrieval  = " << vRobIds.size() << "\n"
                 << "      Number of MET ROB Ids requested for retrieval       = " << vMETRobIds.size() << "\n"
@@ -1414,14 +1528,23 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
     m_hist_receivedROBsPerCall->LabelsDeflate("X");
   }
 
+    //* fill monitoring histogram for ROB requests
+    if ( m_hist_retrievedROBsPerAlgo )  {     
+      scoped_lock_histogram lock;
+      m_hist_retrievedROBsPerAlgo->Fill(m_callerName.c_str(), vRobFragments.size());
+      m_hist_retrievedROBsPerAlgo->LabelsDeflate("X");
+    }
+
+
   // add ROBs to cache
   std::vector<const ROBF*>::const_iterator it_robf     = vRobFragments.begin();
   std::vector<const ROBF*>::const_iterator it_robf_end = vRobFragments.end();
+  std::vector <uint32_t> ROSRequest;
   for(; it_robf!=it_robf_end; ++it_robf) {
     uint32_t id = (*it_robf)->source_id() ;
     if (((*it_robf)->rod_ndata() == 0) && (m_removeEmptyROB)) { 
       if(logLevel() <= MSG::DEBUG) { 
-	logStream() << MSG::DEBUG << " ---> addROBDataToCache: Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
+	logStream() << MSG::DEBUG << " ---> addROBDataToCache for "<<m_callerName<<": Empty ROB Id = 0x" << MSG::hex << id << MSG::dec
 		    << " removed for L1 Id = " << m_currentLvl1ID << endreq;
       }
     } else if ( ROBDataProviderSvc::filterRobWithStatus(&*(*it_robf)) ) {
@@ -1429,7 +1552,7 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
 	const uint32_t* it_status;
 	(*it_robf)->status(it_status);
 	eformat::helper::Status tmpstatus( (*it_status) ) ;
-	logStream() << MSG::DEBUG << " ---> addROBDataToCache: ROB Id = 0x" << MSG::hex << id
+	logStream() << MSG::DEBUG << " ---> addROBDataToCache for "<<m_callerName<<": ROB Id = 0x" << MSG::hex << id
 		    << std::setfill( '0' )
 		    << " with Generic Status Code = 0x" << std::setw(4) << tmpstatus.generic()
 		    << " and Specific Status Code = 0x" << std::setw(4) << tmpstatus.specific()
@@ -1463,6 +1586,8 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
 					 m_map_GenericStatus[eformat::helper::Status(*it_status).generic()].c_str(),1.);
       }
     }
+  
+ 
 
     //* fill monitoring histogram for ROB specific status
     if ( ( m_hist_specificStatusForROB ) && ( (*it_robf)->nstatus() != 0 ) ) {
@@ -1490,6 +1615,22 @@ void TrigROBDataProviderSvc::addROBDataToCache(std::vector<uint32_t>& robIdsForR
 	}
       }
     } // end detailed monitoring
+
+
+    // ROS requests
+    std::map<uint32_t,int>::const_iterator it=m_Det_Robs_for_retrieval.find(id);
+    if (it != m_Det_Robs_for_retrieval.end()){
+      uint32_t ROSid=(*it).second;
+      if (find(ROSRequest.begin(), ROSRequest.end(),ROSid) == ROSRequest.end()){// new ROS id
+	if(m_hist_ROSRequest){
+	  scoped_lock_histogram lock;
+	  m_hist_ROSRequest->Fill( m_callerName.c_str(), eformat::helper::SourceIdentifier((*it_robf)->source_id()).human_detector().c_str(),1.);
+	  m_hist_ROSRequest->LabelsDeflate("X");
+	  logStream() << MSG::INFO << " ---> addROBDataToCache for "<<m_callerName<<": request to ROS 0x"<<std::hex<<ROSid<<std::dec <<" " <<eformat::helper::SourceIdentifier((*it_robf)->source_id()).human_detector().c_str()<< std::endl;
+	}
+	ROSRequest.push_back(ROSid);
+      }
+    }
   }   // end loop over retrieved fragments
   return;
 } // end void addROBDataToCache(...)

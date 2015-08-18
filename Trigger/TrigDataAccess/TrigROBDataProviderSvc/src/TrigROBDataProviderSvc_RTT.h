@@ -56,12 +56,12 @@ class TrigROBDataProviderSvc_RTT : public TrigROBDataProviderSvc,
 
   ~TrigROBDataProviderSvc_RTT(void){};
 
-  /// vector of Source ids  to be ignored for the ROB map clear
-  std::vector<uint32_t>    m_l1_ROB_ids;
-  
   StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 
   StatusCode initialize();
+
+  // fill histograms per event
+  void FillEvent();
 
   /// set the name of the program which uses the ROBDataProviderSvc
   void setCallerName(const std::string);
@@ -92,7 +92,7 @@ class TrigROBDataProviderSvc_RTT : public TrigROBDataProviderSvc,
   /// Optinonally the name of the caller of this method can be specified for cost monitoring
   int collectCompleteEventData(const std::string callerName="UNKNOWN") {return TrigROBDataProviderSvc::collectCompleteEventData(callerName);};
 
-  bool isMissingPrefetching()     { return m_missingPrefetchingPerEvent; };
+  bool isMissingPrefetching()     { return 0;};// m_missingPrefetchingPerEvent; };
 
   bool isPrefetchingAtAlgoLevel() { return m_enablePrefetchingAtAlgoLevel;};
 
@@ -108,17 +108,13 @@ class TrigROBDataProviderSvc_RTT : public TrigROBDataProviderSvc,
   typedef std::multimap<std::string, std::vector <uint32_t> > CALLER_ROBMAP;// map between each algo call and its ROBIds
   CALLER_ROBMAP m_caller_robmap; 
 
-  //  void robmapPartialClear(); //obsolete
-
-  // counter of missing prefetching per call
-  int   m_missingRequestedROBsPerCall;
-  bool  m_missingPrefetchingPerEvent;
-  int   m_missingRequestedROBsPerCall_pref;
-  bool  m_missingPrefetchingPerEvent_pref;
 
   // histogram prperties
   Histo1DProperty m_histProp_requestedROBsPerAlgo;
   Histo1DProperty m_histProp_requestPerAlgo;
+  Histo1DProperty m_histProp_callerPerEvent;
+  Histo1DProperty m_histProp_nocachedRequestedROBsPerAlgo;
+  Histo1DProperty m_histProp_nocachedRequestPerAlgo;
   Histo1DProperty m_histProp_declaredROBsPerAlgo;
   Histo1DProperty m_histProp_prefetchedROBsPerAlgo;
 
@@ -130,9 +126,23 @@ class TrigROBDataProviderSvc_RTT : public TrigROBDataProviderSvc,
   Histo1DProperty m_histProp_missingRequestPerAlgo_pref;
   Histo1DProperty m_histProp_missingRequestedROBsPerCall_pref;
 
+  Histo1DProperty m_histProp_missingRequestedROBsPerAlgoButCached;
+  Histo1DProperty m_histProp_missingRequestPerAlgoButCached;
+  Histo1DProperty m_histProp_missingRequestedROBsPerCallButCached;
+
+  Histo1DProperty m_histProp_missingRequestedROBsPerAlgoButCached_pref;
+  Histo1DProperty m_histProp_missingRequestPerAlgoButCached_pref;
+  Histo1DProperty m_histProp_missingRequestedROBsPerCallButCached_pref;
+
   //histograms
   TH1F* m_hist_requestedROBsPerAlgo;
+  TH2F* m_hist_requestedROBsPerCallPerAlgo;
   TH1F* m_hist_requestPerAlgo;
+  TH1F* m_hist_callerPerEvent;
+
+  TH1F* m_hist_nocachedRequestedROBsPerAlgo;
+  TH1F* m_hist_nocachedRequestPerAlgo;
+
   TH1F* m_hist_declaredROBsPerAlgo;
   TH1F* m_hist_prefetchedROBsPerAlgo;
 
@@ -146,8 +156,16 @@ class TrigROBDataProviderSvc_RTT : public TrigROBDataProviderSvc,
   TH1F* m_hist_missingRequestPerAlgo_pref;
   TH1F* m_hist_missingRequestedROBsPerCall_pref;
 
+  // histogrmas for missing declarations, but cached
+  TH1F* m_hist_missingRequestedROBsPerAlgoButCached;
+  TH1F* m_hist_missingRequestPerAlgoButCached;
+  TH1F* m_hist_missingRequestedROBsPerCallButCached;
+
+  //hitogrmas for missing declarations during prefetching, but cached
+  TH1F* m_hist_missingRequestedROBsPerAlgoButCached_pref;
+  TH1F* m_hist_missingRequestPerAlgoButCached_pref;
+  TH1F* m_hist_missingRequestedROBsPerCallButCached_pref;
+
  
-
-
 };
 #endif
