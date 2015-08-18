@@ -211,16 +211,17 @@ MapTokensByGuid::const_iterator retrieveTokens(bool useEI
 	// Ignore empty lines
 	if(i!=startpos) {
 	  std::string token(&(charbuf[startpos]),i-startpos);
+	  if(verbose) std::cout << "Read a line from the Event Index: \'" << token << "\'" << std::endl;
 	  // Trim the token
-	  token.erase(token.find_last_not_of(" \t")+1);
 	  token.erase(0,token.find_first_not_of(" \t"));
+	  size_t spacepos = token.find_last_not_of(" \t");
+	  if(spacepos!=std::string::npos) token.erase(spacepos+1);
 	  
 	  // Error handling
 	  // In certain cases (eg wrong URL) instead of the list of tokens, the server
-	  // returns a HTML, which has the word Error in its header and the word ERROR in the body
-	  if(token.find("Error")!=std::string::npos) {
-	    token.erase(0,sizeof("<title>")-1);
-	    token.erase(token.find("</title>"));
+	  // returns a HTML, which contains the word Error 
+	  if(token.find("Error")!=std::string::npos
+	     || token.find("ERROR")!=std::string::npos) {
 	    errorMessage.clear();
 	    errorMessage = "URL " + token;
 	    std::cerr << "ERROR: " << errorMessage << std::endl;
@@ -228,8 +229,10 @@ MapTokensByGuid::const_iterator retrieveTokens(bool useEI
 	    return retVal;
 	  }
 
-	  if(verbose) std::cout << "TOKEN : " << token << std::endl;
-	  newTokens.push_back(token);
+	  if(token.size()) {
+	    if(verbose) std::cout << "TOKEN : " << token << std::endl;
+	    newTokens.push_back(token);
+	  }
 	}
 	startpos = i+1;
       }

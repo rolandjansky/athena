@@ -23,8 +23,6 @@
 #include <iostream>
 
 #include <memory> 
-//#   define AUTO_PTR  std::unique_ptr
-#define AUTO_PTR  auto_ptr
 
 #define corENDL coral::MessageStream::endmsg
 
@@ -131,9 +129,9 @@ CollAppendBase::chkExistingDst(vector<bool>& existVec)
       // testing for collection existence
       try {
 	 bool readOnly( true );
-	 AUTO_PTR<pool::ICollection> dstCollection( m_collectionService->handle( m_dstinfo.name(i), m_dstinfo.type(i), m_dstinfo.connect(), readOnly ) );
+	 std::unique_ptr<pool::ICollection> dstCollection( m_collectionService->handle( m_dstinfo.name(i), m_dstinfo.type(i), m_dstinfo.connect(), readOnly ) );
 
-	 AUTO_PTR<pool::ICollectionQuery> dquery( dstCollection->newQuery() );
+	 std::unique_ptr<pool::ICollectionQuery> dquery( dstCollection->newQuery() );
 	 pool::ICollectionCursor& cursor = dquery->execute();
 	 if( !cursor.next() ) {
 	    m_log << coral::Info
@@ -438,7 +436,7 @@ CollAppendBase::copyData()
       m_srcCountVec.push_back(0);
 	 
       m_log << "Creating query for the source collection" <<  coral::MessageStream::endmsg;
-      AUTO_PTR<ICollectionQuery>  srcQuery( srcCollection->newQuery() );
+      std::unique_ptr<ICollectionQuery>  srcQuery( srcCollection->newQuery() );
       srcQuery->setRowCacheSize( 1000 );
       srcQuery->setCondition( m_queryinfo.query(sCollN) );
       if( m_queryinfo.queryOptions().size() ) {
