@@ -281,7 +281,7 @@ TH1D* smooth( TH1D* hin, bool sym ) {
 
 
 int Nevent_min = 0;
-int Nevent_max = 1000000;
+int Nevent_max = 5000;
 
 double _frac = 0.95;
 
@@ -298,6 +298,8 @@ experiment::experiment( TH1D* h, int Nexperiments, int fevents )
     
     mean.clear();
     rms.clear();
+
+    double fnscale = 1;
 
 #if 0
     std::cout << "mean "  << h->GetMean() << " +- " << h->GetMeanError() << " (" << findMean(h,0.95) << ")"
@@ -333,12 +335,25 @@ experiment::experiment( TH1D* h, int Nexperiments, int fevents )
 
     //    std::cout << "Nevents: " << Entries(h) << "\tweights: " << Nevents << " ( max " << Nevent_max << "  min " << Nevent_min << ")"; // << std::endl; 
 
+    /// NB: Here we need to keep track of the number of events in the 
+    ///     histogram. To correctly estimate the uncertainty on the rms, 
+    ///     we should use the same number of entries N, for each 
+    ///     pseudo-experiment but this can be computaionally very 
+    ///     expensive and time consuming, so we generate in this 
+    ///     case with fewer events, n, and estimate the uncertainty
+    ///     by scaling by sqrt( n/N )
+     
+    double _Nevents = Nevents; 
+
     if ( Nevents>Nevent_max ) { 
-      std::cout << "generate() " << h->GetName() << " requested " << Nevents << " using default max of " << Nevent_max << std::endl;
+      ///      std::cout << "generate() " << h->GetName() << " requested " << Nevents << " using default max of " << Nevent_max << std::endl;
       Nevents = Nevent_max;
     }
 
     if ( Nevents<Nevent_min ) Nevents = Nevent_min;
+
+    /// set the correct error scaling to the correct number of events
+    fnscale = std::sqrt( Nevents/_Nevents );
 
     //    std::cout << "\tusing: " << Nevents << std::endl;
 
@@ -415,10 +430,10 @@ experiment::experiment( TH1D* h, int Nexperiments, int fevents )
 #endif
     
     m_global_mean       = get_mean(mean);
-    m_global_mean_error = get_rms(mean);
+    m_global_mean_error = get_rms(mean)*fnscale;
     
     m_global_rms       = get_mean(rms);
-    m_global_rms_error = get_rms(rms);
+    m_global_rms_error = get_rms(rms)*fnscale;
     delete mg;
     
 

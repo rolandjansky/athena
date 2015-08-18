@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.h 679168 2015-06-29 21:40:21Z sutt $
+//   $Id: ConfAnalysis.h 689896 2015-08-18 08:15:28Z sutt $
 
 
 #ifndef __CONFANALYSIS_H
@@ -53,8 +53,8 @@ public:
   
   ConfAnalysis( const std::string& name ) : 
     TrackAnalysis( clean(name) ), Nreco(0), Nref(0), Nmatched(0), m_print(false), m_roi(0), 
-    m_initialised(false), m_initialiseFirstEvent(false)  {
-    std::cout << "ConfAnalysis::ConfAnalysis() " << TrackAnalysis::name() << std::endl;
+    m_initialised(false), m_initialiseFirstEvent(false), m_lfirst(true)  {
+    std::cout << "ConfAnalysis::ConfAnalysis() " << TrackAnalysis::name() << " ..." << std::endl;
   }  
 
   ~ConfAnalysis() {
@@ -71,13 +71,13 @@ public:
   virtual void initialise();
   virtual void initialiseInternal();
 
-  virtual void execute(const std::vector<TrigInDetAnalysis::Track*>& reftracks,
-                       const std::vector<TrigInDetAnalysis::Track*>& testtracks,
+  virtual void execute(const std::vector<TIDA::Track*>& reftracks,
+                       const std::vector<TIDA::Track*>& testtracks,
                        TrackAssociator* matcher );
 
 #if 0
-  virtual void execute(const std::vector<TrigInDetAnalysis::Track*>& reftracks,
-                       const std::vector<TrigInDetAnalysis::Track*>& testtracks,
+  virtual void execute(const std::vector<TIDA::Track*>& reftracks,
+                       const std::vector<TIDA::Track*>& testtracks,
                        TrackAssociator* matcher, 
 		       TIDARoiDescriptor* roi );
 #endif
@@ -160,6 +160,15 @@ private:
   Resplot* h2a0;
   Resplot* h2a0r;
 
+  Resplot* rChi2prob;
+  Resplot* rChi2;
+  Resplot* rChi2dof;
+
+
+  Resplot* rChi2prob_bad;
+  Resplot* rChi2_bad;
+  Resplot* rChi2dof_bad;
+
   //  TH2F* hnpix_v_sct;
   //  TH2F* hnpix_v_sct_rec;
   //  TH2F* hnpix_v_sct_match;
@@ -184,6 +193,14 @@ private:
   Resplot* rnpix_pt;
   Resplot* rnsct_pt;
   Resplot* rntrt_pt;
+
+  Resplot* rnpixh_pt;
+  Resplot* rnscth_pt;
+
+
+  Resplot* rnpix_pt_bad;
+  Resplot* rnsct_pt_bad;
+  Resplot* rntrt_pt_bad;
 
   Resplot* rnpix_eta_rec;
   Resplot* rnsct_eta_rec;
@@ -265,6 +282,8 @@ private:
 
   bool m_initialised;
   bool m_initialiseFirstEvent;
+
+  bool m_lfirst;
 
 };
 

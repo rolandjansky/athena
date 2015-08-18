@@ -38,9 +38,12 @@ ClassImp(Resplot)
 bool Resplot::mAddDirectoryStatus = true;
 bool Resplot::interpolate_flag = true;
 
-// bool Resplot::oldrms95   = false;
+/// use the new error estimates
 bool Resplot::oldrms95   = true;
+// bool Resplot::oldrms95   = false;
 bool Resplot::scalerms95 = true;
+
+Resplot::ERROR Resplot::ErrorSet = Resplot::OK;
 
 
 void binwidth(TH1D* h) { 
@@ -380,10 +383,11 @@ double NCounter(TH1D* h) {
 }
 
 
-
 // Get the offsets and resolutions overall and for each slice 
 int Resplot::Finalise(double a, double b, TF1* (*func)(TH1D* s, double a, double b)) {
   
+  ErrorSet = OK;
+
   //  std::cout << "Resplot::Finalise() Name " << Name() << "\tn_primary " << n_primary << std::endl;
 
   gStyle->SetOptFit(1111);
@@ -536,6 +540,17 @@ int Resplot::Finalise(double a, double b, TF1* (*func)(TH1D* s, double a, double
   if ( AddDirectoryStatus() ) SetDirectory(gDirectory);
   
   m_finalised = true;
+
+  if ( ErrorSet!=OK ) {  
+    if ( ErrorSet == HISTOWIDTH ) { 
+      std::cerr << __FUNCTION__ << " for " << m_name 
+		<< " :\tdistribution wider than histogram width " << std::endl;
+    }
+    if ( ErrorSet == BINWIDTH ) {
+      std::cerr << __FUNCTION__ << " for " << m_name 
+		<< " :\tbins too wide: cannot calculate rms95 " << std::endl;
+    }
+  }
 
   return 0;
 }
@@ -1418,6 +1433,8 @@ TF1* Resplot::FitNull95Obsolete(TH1D* s, double frac, bool useroot ) {
 
   unZeroErrors(s);
 
+  s->GetXaxis()->SetRange(1,s->GetNbinsX());
+
 #if 0
   std::cout << "FitNull95 " << s->GetName() 
 	    << " " << generate::GetEntries(s)   
@@ -1433,13 +1450,12 @@ TF1* Resplot::FitNull95Obsolete(TH1D* s, double frac, bool useroot ) {
   //  std::cout << __LINE__ << std::endl;
   
 
-  s->GetXaxis()->SetRange(1,s->GetNbinsX());
 
   //  std::cout << __LINE__ << " " << s->GetXaxis() << std::endl;
 
   /// this line causes a crash, even though s->GetXaxis() returns 
   /// the x axis ok
-  //  s->GetXaxis()->UnZoom();
+  // s->GetXaxis()->UnZoom();
 
   //  std::cout << __LINE__ << std::endl;
   
@@ -1471,6 +1487,12 @@ TF1* Resplot::FitNull95Obsolete(TH1D* s, double frac, bool useroot ) {
   double uppersum = 0; 
   double lowersum = 0; 
   
+  if ( sumn>entries*frac ) {
+    s->GetXaxis()->SetRange(1,s->GetNbinsX());
+    ErrorSet = BINWIDTH;
+    return f;
+  }
+
   if ( entries>0 ) {  
 
     int i=1;
@@ -1505,6 +1527,12 @@ TF1* Resplot::FitNull95Obsolete(TH1D* s, double frac, bool useroot ) {
     }
   }    
 
+  if ( uppersum==0 ) { 
+    s->GetXaxis()->SetRange(1,s->GetNbinsX());
+    ErrorSet = HISTOWIDTH;
+    return f;
+  } 
+
   //  std::cout << "FitNull95 " << s->GetName() << "\tlower bin " << lowerbin << "\t upper bin " << upperbin << std::endl;
 
   //  std::cout << "full rms " << s->GetRMS() << " +- " << s->GetRMSError() << "\t n=" << s->GetNbinsX() 
@@ -1513,7 +1541,8 @@ TF1* Resplot::FitNull95Obsolete(TH1D* s, double frac, bool useroot ) {
 
   //  std::cout << "upper " << upperbin << " " << lowerbin << " " << interpolate_flag << std::endl;
 
-  if ( upperbin!=lowerbin ) { 
+  //  if ( upperbin!=lowerbin ) { 
+  if ( true ) { // technically wrong - 95% contained in only 3 bins, so RMS of the "central" bin is not defined
 
     double llim = s->GetBinLowEdge(1);
     double ulim = s->GetBinLowEdge(s->GetNbinsX()+1);
@@ -1642,6 +1671,8 @@ TF1* Resplot::FitNull95Obsolete(TH1D* s, double frac, bool useroot ) {
     f->SetParError(2, 0);
     // std::cout << " 95% rms " << 0 << " +- " << 0 << "\t( " << lowerbin << " - " << upperbin << " )" << std::endl;
   }
+
+  s->GetXaxis()->SetRange(1,s->GetNbinsX());
 
   return f;
 }

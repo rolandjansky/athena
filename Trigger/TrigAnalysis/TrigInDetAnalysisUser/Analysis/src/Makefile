@@ -1,4 +1,3 @@
-
 # $Id: $
 ##########################################################################
 #
@@ -32,25 +31,26 @@ ifeq ($(CMTCONFIG),)
     # "PUT YOUR BASE DIRECTORY HERE"
     # ATLASBASE = $(TestArea)/Trigger/TrigAnalysis/
     # ATLASBASE = /tmp/sutt/new/Trigger/TrigAnalysis
-    ATLASBASE = $(ATLAS_TEST_AREA)/Trigger/TrigAnalysis
+    # ATLASBASE = $(ATLAS_TEST_AREA)/Trigger/TrigAnalysis
+    ATLASBASE = $(HOME)/atlas/TIDA
     # ATLASBASE = /tmp/sutt/duff/Trigger/TrigAnalysis
     # ATLASBASE = /tmp/sutt/tida/Trigger/TrigAnalysis/
 
     USEATHENALIBS = 0	
 
-    ifeq ($(USER),sutt)
+#    ifeq ($(USER),sutt)
        # sutt uses with_version_directory so need the versions
-       TID   = $(ATLASBASE)/TrigInDetAnalysis/TrigInDetAnalysis-01-01-27
-       TIDU  = $(ATLASBASE)/TrigInDetAnalysisUtils/TrigInDetAnalysisUtils-00-01-57
-       TIDE  = $(ATLASBASE)/TrigInDetAnalysisExample/TrigInDetAnalysisExample-00-03-07
+#       TID   = $(ATLASBASE)/TrigInDetAnalysis/TrigInDetAnalysis-01-01-27
+#       TIDU  = $(ATLASBASE)/TrigInDetAnalysisUtils/TrigInDetAnalysisUtils-00-01-57
+#       TIDE  = $(ATLASBASE)/TrigInDetAnalysisExample/TrigInDetAnalysisExample-00-03-07
 #      TIDUB = $(ATLASBASE)/TrigInDetAnalysisUser/TrigInDetAnalysisUser-00-01-11
-       TIDUB = ../..
-    else
+#       TIDUB = ../..
+#    else
        TID   = $(ATLASBASE)/TrigInDetAnalysis
        TIDU  = $(ATLASBASE)/TrigInDetAnalysisUtils
        TIDE  = $(ATLASBASE)/TrigInDetAnalysisExample
        TIDUB = $(ATLASBASE)/TrigInDetAnalysisUser
-    endif
+#    endif
 
     CXXFLAGS += -I$(TID) -I$(TIDU) -I$(TIDE) 	
 
@@ -121,8 +121,10 @@ CFLAGS   += -g -D_STANDALONE
 # -D_UPGRADE  -D__OLD
 
 
-CXXFLAGS += -I. -I$(HOME)/include $(ROOTCFLAGS) -Wno-deprecated -I$(TID) -I$(TIDU) -I$(TIDE) -Wall
+CXXFLAGS += -I. -I$(TID) -I$(TIDU) -I$(TIDE) $(ROOTCFLAGS) -Wno-deprecated   
 CXXFLAGS += -I$(TIDUB)/Resplot/src -I$(TIDUB)/Readcards/src
+CXXFLAGS += -I$(HOME)/include -Wall 
+
 # CXXFLAGS += $(BOOSTINC)
 
 # to get more output for debug compile code with: 
@@ -147,27 +149,35 @@ RM  = rm
 TAR = tar
 
 
-COBJECTS  = $(OBJDIR)/comparitor.o $(OBJDIR)/computils.o 
+COBJECTS  = $(OBJDIR)/comparitor.o $(OBJDIR)/computils.o $(OBJDIR)/AtlasStyle.o $(OBJDIR)/AtlasLabels.o 
 CCOBJECTS = $(OBJDIR)/cpucost.o $(OBJDIR)/computils.o 
 CHOBJECTS = $(OBJDIR)/chains.o 
 WOBJECTS  = $(OBJDIR)/wmain.o 
 SOBJECTS  = $(OBJDIR)/skim.o 
-ROBJECTS  = $(OBJDIR)/rmain.o  $(OBJDIR)/ConfAnalysis.o  $(OBJDIR)/PurityAnalysis.o 
-LOBJECTS  = $(OBJDIR)/TrackEvent.o \
+ROBJECTS  = \
+	$(OBJDIR)/rmain.o  \
+	$(OBJDIR)/ConfAnalysis.o  \
+	$(OBJDIR)/ConfVtxAnalysis.o  \
+	$(OBJDIR)/PurityAnalysis.o
+
+LOBJECTS  = \
+	$(OBJDIR)/TIDAEvent.o \
 	$(OBJDIR)/Track.o \
-	$(OBJDIR)/TrackVertex.o   \
-	$(OBJDIR)/TrackChain.o   \
-	$(OBJDIR)/TrackRoi.o   \
+	$(OBJDIR)/TIDAVertex.o   \
+	$(OBJDIR)/TIDAChain.o   \
+	$(OBJDIR)/TIDARoi.o   \
 	$(OBJDIR)/TIDARoiParameters.o  \
 	$(OBJDIR)/TIDARoiDescriptor.o  \
         $(OBJDIR)/TrackTrigObject.o \
+        $(OBJDIR)/ChainString.o \
         $(OBJDIR)/TrigInDetAnalysisDict.o
 
 
 
-DICTHEADERS = $(TID)/TrigInDetAnalysis/TrackEvent.h \
-	$(TID)/TrigInDetAnalysis/TrackChain.h \
-        $(TID)/TrigInDetAnalysis/TrackRoi.h \
+DICTHEADERS = \
+	$(TID)/TrigInDetAnalysis/TIDAEvent.h \
+	$(TID)/TrigInDetAnalysis/TIDAChain.h \
+        $(TID)/TrigInDetAnalysis/TIDARoi.h \
         $(TID)/TrigInDetAnalysis/TFileString.h \
         $(TID)/TrigInDetAnalysis/TIDARoiParameters.h \
         $(TID)/TrigInDetAnalysis/TIDARoiDescriptor.h \
@@ -180,7 +190,7 @@ DICTHEADERS = $(TID)/TrigInDetAnalysis/TrackEvent.h \
 .SUFFIXES : .cc .cxx .c
 
 
-LIBS += $(TIDLIB)
+LIBS += $(TIDLIB) 
 
 RLIBS += -L$(TIDUB)/Resplot/lib/$(ARCH_TYPE) -lResplot -L$(TIDUB)/Readcards/lib/$(ARCH_TYPE) -lReadcards 
 RLIBS += -L$(TIDUB)/Resplot/lib/$(ARCH_TYPE) -lResplot -L$(TIDUB)/Readcards/lib/$(ARCH_TYPE) -lReadcards 
@@ -190,7 +200,7 @@ RLIBS += -L$(TIDUB)/Resplot/lib/$(ARCH_TYPE) -lResplot -L$(TIDUB)/Readcards/lib/
 
 # build executable: link
 
-all : dirs resplot readcards rdict wdict reader comparitor cpucost chains
+all : dirs resplot readcards rdict wdict reader comparitor cpucost chains skim
 
 $(OBJDIR)/computils.o : $(SRCDIR)/computils.h 
 $(OBJDIR)/comparitor.o : $(SRCDIR)/computils.h 
@@ -236,7 +246,7 @@ $(EXEDIR)/chains : $(CHOBJECTS)  lib
 makeSmallRefFile : $(EXEDIR)/makeSmallRefFile
 $(EXEDIR)/makeSmallRefFile : $(OBJDIR)/makeSmallRefFile.o
 	$(CXX) $(LDFLAGS) -o $@ $(OBJDIR)/makeSmallRefFile.o  $(ROOTLIBS)
-# $(GLIBS)
+
 
 # compile
 # $(OBJDIR)/%.o : $(SRCDIR)/%.cxx 
@@ -308,6 +318,11 @@ archive :
 	cd ../.. ; tar -czf $(BASEDIR).tgz $(BASEDIR)/src $(BASEDIR)/config 
 
 install : all 
+	cp $(EXEDIR)/comparitor $(HOME)/bin
+	cp $(EXEDIR)/reader     $(HOME)/bin
+	cp $(EXEDIR)/rdict      $(HOME)/bin
+	cp $(EXEDIR)/skim       $(HOME)/bin
+	cp $(EXEDIR)/chains     $(HOME)/bin
 
 dirs :  $(LIBDIR)/.d $(OBJDIR)/.d $(EXEDIR)/.d
 

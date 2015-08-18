@@ -33,16 +33,26 @@
 
 #include "computils.h"
 
+
+bool Plots::watermark = true;
+
+
+
 void ATLASFORAPP_LABEL( double x, double  y, int color, double size ) 
 {
-  TLatex lat; //lat.SetTextAlign(12); lat.SetTextSize(tsize); 
-  lat.SetNDC();
-  lat.SetTextFont(72);
-  lat.SetTextColor(color);
-  lat.SetTextSize(size);
-  lat.DrawLatex(x,y,"ATLAS");
-  lat.SetTextFont(52);
-  lat.DrawLatex(x+0.13,y,"For Approval");
+  TLatex* lat  = new TLatex(); //lat.SetTextAlign(12); lat.SetTextSize(tsize); 
+  lat->SetNDC();
+  lat->SetTextFont(72);
+  lat->SetTextColor(color);
+  lat->SetTextSize(size);
+  lat->DrawLatex(x,y,"ATLAS");
+
+  TLatex* lat2 = new TLatex(); //lat.SetTextAlign(12); lat.SetTextSize(tsize);   
+  lat2->SetNDC();
+  lat2->SetTextFont(52);
+  lat2->SetTextColor(color);
+  lat2->SetTextSize(size);  // this 0.13 should really be calculated as a ratio of the width of the canvas
+  lat2->DrawLatex(x+0.13,y,"For Approval"); 
 }
 
 void myText( Double_t x, Double_t y, Color_t color, const std::string& text, Double_t tsize) {
@@ -62,8 +72,15 @@ std::string stime() {
 }
 
 
+/// contains a string
 bool contains( const std::string& s, const std::string& p) { 
   return (s.find(p)!=std::string::npos);
+}
+
+
+/// contains a string at the *beginning* of the string
+bool fcontains( const std::string& s, const std::string& p) { 
+  return (s.find(p)==0);
 }
 
 
@@ -87,6 +104,7 @@ std::string globbed( const std::string& s ) {
     ret.push_back( std::string(glob_result.gl_pathv[i]) );
   }
   globfree(&glob_result);
+
   
   if ( ret.empty() ) { 
     std::cerr << "no matching file: " << s << std::endl;
@@ -167,34 +185,51 @@ void contents( std::vector<std::string>&  keys, TDirectory* td,
 
 
 
-double realmax( TH1* h, bool include_error ) { 
+double realmax( TH1* h, bool include_error, double lo, double hi ) { 
   double rm = 0;
   if ( h->GetNbinsX()==0 )  return 0; 
 
-  rm = h->GetBinContent(1);
+  bool first = 0;
   if ( include_error ) rm += h->GetBinError(1);
 
-  for ( int i=2 ; i<=h->GetNbinsX() ; i++ ) { 
+  for ( int i=1 ; i<=h->GetNbinsX() ; i++ ) { 
+
+    if ( lo!=hi ) { 
+      double c = h->GetBinCenter(i);
+      if ( lo>c || hi<c ) continue;
+    }
+
     double re = h->GetBinContent(i);
     if ( include_error ) re += h->GetBinError(i);
-    if ( rm<re ) rm = re;
+    if ( first || rm<re ) { 
+      rm = re;
+      first = false;
+    }
   }
 
   return rm;
 }
 
 
-double realmin( TH1* h, bool include_error ) { 
-  double rm = 0;
+// double realmin( TH1* h, bool include_error, double lo, double hi ) { 
+double realmin( TH1* h, bool , double lo, double hi ) { 
+
   if ( h->GetNbinsX()==0 )  return 0; 
 
+  double rm = 0;
+
   bool first = true;
-  for ( int i=2 ; i<=h->GetNbinsX() ; i++ ) { 
+  for ( int i=1 ; i<=h->GetNbinsX() ; i++ ) { 
+
+    if ( lo!=hi ) { 
+      double c = h->GetBinCenter(i);
+      if ( lo>c || hi<c ) continue;
+    }
 
     double re = h->GetBinContent(i);
 
-    if ( re ) {
-      if ( include_error ) re -= h->GetBinError(i);
+    if ( re!=0 ) {
+      //      if ( include_error ) re -= h->GetBinError(i);
       if ( first || rm>re ) rm = re;
       first = false;
     } 
@@ -283,6 +318,8 @@ std::vector<int>  findxrange(TH1* h, bool symmetric ) {
     limits[0] = ilo;
     limits[1] = ihi;
   }
+
+  std::cout << "::xrange " << h->GetName() << "\t" << limits[0] << " " << limits[1] << std::endl;
 
   return limits; 
 

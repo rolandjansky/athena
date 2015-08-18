@@ -1,0 +1,8 @@
+// if these are not set, the beamline position will be                                                                                                                                           
+/// automatically set from the stored data                                                                                                                                                        
+
+// CorrectBeamlineRef  = 0;
+// CorrectBeamlineTest = 0;
+
+// BeamRef  = { 0, 0 };
+// BeamTest = { 0, 0 };

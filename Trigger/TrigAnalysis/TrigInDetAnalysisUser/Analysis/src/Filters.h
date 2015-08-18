@@ -7,7 +7,7 @@
 //  
 //   Copyright (C) 2012 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: Filters.h 672664 2015-06-05 10:27:54Z sutt $
+//   $Id: Filters.h 688225 2015-08-07 20:12:06Z sutt $
 
 
 #ifndef  FILTERS_H
@@ -23,7 +23,7 @@
 
 class Filter_True : public TrackFilter {  
 public:
-  bool select( const TrigInDetAnalysis::Track* , const TIDARoiDescriptor* =0 ) { return true; }
+  bool select( const TIDA::Track* , const TIDARoiDescriptor* =0 ) { return true; }
 }; 
 
 
@@ -33,7 +33,7 @@ public:
   Filter_Author(const int& author) : m_author(author) { } 
   void setAuthor(unsigned int author) { m_author = author; }
     
-  bool select( const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* =0 ) {
+  bool select( const TIDA::Track* t, const TIDARoiDescriptor* =0 ) {
     if ( t->author()>m_author ) return false;
     // if ( std::fabs(t->author())!=m_author ) return false;
     return true; 
@@ -53,7 +53,7 @@ public:
   
   Filter_pdgId(const unsigned int& pdgId) : m_pdgId(pdgId) { } 
     
-  bool select( const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* =0 ) {
+  bool select( const TIDA::Track* t, const TIDARoiDescriptor* =0 ) {
     //Author stores pdgId
     if (std::fabs(t->author())!=m_pdgId) return false;
     return true; 
@@ -73,7 +73,7 @@ public:
   Filter_Bound(const double &eta_max, const double &pT_min, const double &pT_max) : m_pT_max(pT_max),
 										    m_pT_min(pT_min), 
 										    m_eta_max(eta_max) {}
-  bool select ( const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* =0) {
+  bool select ( const TIDA::Track* t, const TIDARoiDescriptor* =0) {
     if (std::fabs(t->eta()) > m_eta_max) return false;
     if (std::fabs(t->pT()) > m_pT_max) return false;
     if (std::fabs(t->pT()) < m_pT_min) return false;
@@ -133,17 +133,17 @@ public:
     
   virtual ~Filter_Vertex() {   } 
     
-  void setVertex(const TrackVertex& v) { 
+  void setVertex(const TIDA::Vertex& v) { 
     m_v.clear();
     m_v.push_back(v);
   } 
     
-  void setVertex(const std::vector<TrackVertex>& vv) { 
+  void setVertex(const std::vector<TIDA::Vertex>& vv) { 
     m_v.clear();
     m_v = vv;
   } 
     
-  bool select( const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* =0 ) {
+  bool select( const TIDA::Track* t, const TIDARoiDescriptor* =0 ) {
     /// calculate z, d0 with respect 
     /// to vertex and then cut on them 
       
@@ -183,7 +183,7 @@ private:
   double m_d0Cut;
   double m_z0Cut;
     
-  std::vector<TrackVertex> m_v;
+  std::vector<TIDA::Vertex> m_v;
     
 }; 
 
@@ -198,7 +198,7 @@ public:
   void setRoi( TIDARoiDescriptor* r ) { m_roi = r; } 
 
 
-  bool contains( const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* r ) const { 
+  bool contains( const TIDA::Track* t, const TIDARoiDescriptor* r ) const { 
 
     if ( r==0 ) { 
       std::cerr << "Filter_Combined::contains() called with null roidescriptor" << std::endl;
@@ -230,7 +230,7 @@ public:
   }
 
 
-  bool select( const TrigInDetAnalysis::Track* t, const TIDARoiDescriptor* r=0 ) {
+  bool select( const TIDA::Track* t, const TIDARoiDescriptor* r=0 ) {
 
     if ( r!=0 ) m_roi = r;
     

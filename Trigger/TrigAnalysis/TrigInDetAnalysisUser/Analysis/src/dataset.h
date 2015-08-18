@@ -6,7 +6,7 @@
 //  
 //   Copyright (C) 2010 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: dataset.h 680395 2015-07-04 16:19:10Z sutt $
+//   $Id: dataset.h 680951 2015-07-07 11:36:39Z sutt $
 
 
 #ifndef __DATASET_H
@@ -23,6 +23,8 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+
+// #include <XrdPosix/XrdPosixXrootd.hh>
 
 class dataset : public std::vector<std::string> {
   

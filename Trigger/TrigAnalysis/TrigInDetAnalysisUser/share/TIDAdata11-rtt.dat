@@ -176,3 +176,6 @@ InitialiseFirstEvent = 1;
 outputFile = "data-output.root";
 DataFiles = { "TrkNtuple-0000.root"};
 //DataSets = {"./"}
+
+
+#include "TIDAbeam.dat"
