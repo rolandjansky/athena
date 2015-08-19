@@ -17,6 +17,13 @@
 #include "xAODEgamma/Photon.h"
 #include "xAODMuon/Muon.h"
 
+// namespace xAOD{
+//   class Muon;
+//   class Electron;
+//   class Photon;
+//   class TauJet;
+// }
+
 namespace CutsMETMaker{
    StatusCode accept(const xAOD::Muon* mu);
    StatusCode accept(const xAOD::Electron* mu);

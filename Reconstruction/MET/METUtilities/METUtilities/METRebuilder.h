@@ -37,7 +37,7 @@ namespace met {
   typedef ElementLink<xAOD::IParticleContainer> obj_link_t;
 
   class METRebuilder
-  : public asg::AsgTool,
+  : virtual public asg::AsgTool,
   virtual public IMETRebuilder
 
   {

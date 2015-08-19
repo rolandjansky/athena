@@ -5,27 +5,18 @@
 //Author: Russell Smith
 //Email : rsmith@cern.ch
 //Date  : February 2015
-#ifndef XAOD_ANALYSIS
-#include <cstdio>
-int main() {
-  std::cout << "Examples are only defined in the analysis release." << std::endl;
-  return 0;
-}
-#else
 
-#ifdef XAOD_STANDALONE
+//this will only run in RootCore
+#ifdef ROOTCORE
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/TStore.h"
-#else
-#include "POOLRootAccess/TEvent.h"
-#include "StoreGate/StoreGateSvc.h"
-#endif
 
 // FrameWork includes
-#include "AsgTools/MessageCheck.h"
-using namespace asg::msgUserCode;
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/ToolHandle.h"
+#include "AsgTools/AsgTool.h"
+#include "xAODBase/IParticleContainer.h"
+#include "xAODBase/IParticleHelpers.h"
 
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
@@ -38,131 +29,98 @@ using namespace asg::msgUserCode;
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTau/TauJetContainer.h"
-#include "xAODBase/IParticleHelpers.h"
 
-#include <memory>
-#undef NDEBUG
-#include <cassert>
+#include "assert.h"
 #include "TFile.h"
-#include "TSystem.h"
 
 #include "JetCalibTools/JetCalibrationTool.h"
 
-#include "METInterface/IMETSystematicsTool.h"
-#include "METInterface/IMETMaker.h"
+#include "METUtilities/METSystematicsTool.h"
+#include "METUtilities/METMaker.h"
+#include "METUtilities/CutsMETMaker.h"
 
 #include "PATInterfaces/SystematicRegistry.h"
 
-#include "xAODCore/tools/IOStats.h"
-#include "xAODCore/tools/ReadStats.h"
+static std::string jetType = "AntiKt4EMTopoJets";
 
-int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl;
-  // Initialize the application
-#ifdef XAOD_STANDALONE
+int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
+   // Initialize the application
   xAOD::Init() ;
+
   //enable status code failures
   CP::CorrectionCode::enableFailure();
   CP::SystematicCode::enableFailure();
   StatusCode::enableFailure();
   xAOD::TReturnCode::enableFailure();
-#else
-  IAppMgrUI* app = POOL::Init(); //important to do this first!
-#endif
-
-  TString fileName = gSystem->Getenv("ASG_TEST_FILE_MC");
-  std::string jetType = "AntiKt4EMTopo";
-  bool debug = false;
-  size_t evtmax = 100;
-  for (int i=0; i<argc; ++i) {
-    if (std::string(argv[i]) == "-filen" && i+1<argc) {
-      fileName = argv[i+1];
-    } else if (std::string(argv[i]) == "-jetcoll" && i+1<argc) {
-      jetType = argv[i+1];
-    } else if (std::string(argv[i]) == "-debug") {
-      debug = true;
-    }
-  }
 
   //this test file should work.  Feel free to contact me if there is a problem with the file.
+  TString const fileName = "/afs/cern.ch/work/r/rsmith/public/METUtilities_testfiles/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s1982_s1964_r6006_tid04628718_00/AOD.04628718._000158.pool.root.1";
   std::auto_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
   assert( ifile.get() );
 
-  // Create a TEvent object to read from file and a transient store in which to place items
-#ifdef XAOD_STANDALONE
-  std::unique_ptr<xAOD::TEvent> event(new xAOD::TEvent( TEvent::kClassAccess ) );
-  std::unique_ptr<xAOD::TStore store>(new xAOD::TStore());
-#else // Athena "Store" is the same StoreGate used by the TEvent
-  std::unique_ptr<POOL::TEvent> event(new POOL::TEvent( POOL::TEvent::kClassAccess ));
-  ServiceHandle<StoreGateSvc>& store = event->evtStore();
-#endif
-  ANA_CHECK( event->readFrom( ifile.get() ) );
+  // Create a TEvent object.
+  xAOD::TEvent * event = new xAOD::TEvent( xAOD::TEvent::kClassAccess );
+  assert( event->readFrom( ifile.get(), xAOD::TEvent::kClassAccess  ) );
+
+  // Create a transient object store. Needed for the tools.
+  xAOD::TStore store;
 
   // creation and set properties of the tools
   // if you need to set properties, you should do so before initialization
+  met::METSystematicsTool metSystTool("METSystematicsTool");
+  assert(metSystTool.setProperty("ConfigJetTrkFile","JetTrackSyst.config" ));//this is needed to do jet track systematics
+  assert(metSystTool.setProperty("JetColl"         ,jetType               ));//this should be the same type as you give to rebuildJetMet
+  //  metSystTool.msg().setLevel(MSG::VERBOSE);                              //If you want more messages, you can turn this up
 
-  asg::AnaToolHandle<IJetCalibrationTool> jetCalibrationTool;
-  ANA_CHECK( ASG_MAKE_ANA_TOOL( jetCalibrationTool, JetCalibrationTool ) );
-  jetCalibrationTool.setName("jetCalibTool");
-  ANA_CHECK( jetCalibrationTool.setProperty("JetCollection", jetType) );
-  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_MC15cRecommendation_May2016.config") );
-  ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence", "JetArea_Residual_EtaJES_GSC") );
-  ANA_CHECK( jetCalibrationTool.setProperty("IsData", false) );
-  ANA_CHECK( jetCalibrationTool.retrieve() );
+  met::METMaker metMaker("METMaker");
+  // metMaker.msg().setLevel(MSG::VERBOSE);//If you want more messages, you can turn this up
 
-  asg::AnaToolHandle<IMETSystematicsTool> metSystTool;
-  metSystTool.setTypeAndName("met::METSystematicsTool/metSystTool");
-  // ANA_CHECK( metSystTool.setProperty("UseDevArea"      ,true )); // To get the configs from GROUPDATA/dev/METUtilities
-  ANA_CHECK( metSystTool.retrieve() );
+  // std::string const  jetCalibName = ;
+  JetCalibrationTool jetCalibTool("JetCalibTool" );
 
-  asg::AnaToolHandle<IMETMaker> metMaker;
-  metMaker.setTypeAndName("met::METMaker/metMaker");
-  ANA_CHECK( metMaker.setProperty("DoMuonEloss", true) );
-  ANA_CHECK( metMaker.retrieve() );
+  if( (!metSystTool.initialize()) &&
+      (!metMaker.initialize())    &&
+      (!jetCalibTool.initialize())
+      ){
+    std::cout << "initialization of the met tools failed.  Exiting" << std::endl;
+    return 0;
+  }
 
-  for(size_t ievent = 0;  ievent < std::min(size_t(event->getEntries()), evtmax); ++ievent){
+  // output xAOD
+  TFile *outfile = new TFile("example_METUtilities.root", "RECREATE");
+  assert(event->writeTo(outfile));
+
+  for(Long64_t ievent = 0;  ievent < std::min(int(event->getEntries()), 100); ++ievent){
     if(ievent % 10 == 0) std::cout << "event number: " << ievent << std::endl;
-    ANA_CHECK( event->getEntry(ievent) >= 0 );
+    assert(    event->getEntry(ievent) >= 0 );
 
     //retrieve the original containers
-
-    //this contains all constituents not associated to a jet/misc term
     const xAOD::MissingETContainer* coreMet  = nullptr;
     std::string coreMetKey = "MET_Core_" + jetType;
-    ANA_CHECK( event->retrieve(coreMet, coreMetKey) );
-    if(debug) std::cout << "Using core MET " << coreMet << std::endl;
+    coreMetKey.erase(coreMetKey.length() - 4);//this removes the Jets from the end of the jetType
+    assert( event->retrieve(coreMet, coreMetKey) );
 
     const xAOD::ElectronContainer* electrons = nullptr;
-    ANA_CHECK( event->retrieve(electrons, "Electrons") );
+    assert( event->retrieve(electrons, "Electrons") );
 
     const xAOD::MuonContainer* muons = nullptr;
-    ANA_CHECK( event->retrieve(muons, "Muons") );
+    assert( event->retrieve(muons, "Muons") );
 
     const xAOD::PhotonContainer* photons = nullptr;
-    ANA_CHECK( event->retrieve(photons, "Photons"));
+    assert( event->retrieve(photons, "Photons"));
 
     const xAOD::TauJetContainer* taus = nullptr;
-    ANA_CHECK( event->retrieve(taus, "TauJets"));
+    assert( event->retrieve(taus, "TauJets"));
 
     //this should probably be a calibrated jet container.  See the METUtilities twiki for more info
-    const xAOD::JetContainer* uncalibJets = nullptr;
-    ANA_CHECK( event->retrieve(uncalibJets, jetType+"Jets"));//this retrieves and applies the correction
-    std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > calibJetsPair = xAOD::shallowCopyContainer( *uncalibJets );//make a shallow copy to calibrate
-    xAOD::JetContainer *& calibJets = calibJetsPair.first;//create a reference to the first element of the pair (i.e. the JetContainer)
-    for ( const auto& jet : *calibJets ) {
-      //Shallow copy is needed (see links below)
-      if(!jetCalibrationTool->applyCalibration(*jet))//apply the calibration
-	return 1;
-    }
-    if(!xAOD::setOriginalObjectLink(*uncalibJets, *calibJets)){//tell calib container what old container it matches
-      if(debug) std::cout << "Failed to set the original object links" << std::endl;
-      return 1;
-    }
-    ANA_CHECK( store->record(calibJets, "CalibJets") );
+    const xAOD::JetContainer* calibJets = nullptr;
+    assert( event->retrieve(calibJets, jetType));//this retrieves and applies the correction
 
     //retrieve the MET association map
     const xAOD::MissingETAssociationMap* metMap = nullptr;
     std::string metAssocKey = "METAssoc_" + jetType;
-    ANA_CHECK( event->retrieve(metMap, metAssocKey) );
+    metAssocKey.erase(metAssocKey.length() - 4 );//this removes the Jets from the end of the jetType
+    assert( event->retrieve(metMap, metAssocKey) );
 
     //get the set of recommended systematics
     const CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
@@ -172,125 +130,143 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
     //For each systematic, we create an output MissingET container
     for(CP::SystematicSet::const_iterator isys = recSysList.begin();
 	isys != recSysList.end();
-	++isys) {	// print the systematics on the first event
-      // When only using the METSystematicsTool, this will be the list of recommended systematics for that tool
-      if(ievent == 0) 
-	if(debug) std::cout << "Doing systematic : " << (*isys).name() << std::endl;
+	++isys)
+      {	// print the systematics on the first event
+	// When only using the METSystematicsTool, this will be the list of recommended systematics for that tool
+	if(ievent == 0) std::cout << "Doing systematic : " << (*isys).name() << std::endl;
 
-      // Create a MissingETContainer with its aux store for each systematic
-      xAOD::MissingETContainer*    newMetContainer    = new xAOD::MissingETContainer();
-      xAOD::MissingETAuxContainer* newMetAuxContainer = new xAOD::MissingETAuxContainer();
-      newMetContainer->setStore(newMetAuxContainer);
+	// Create a MissingETContainer with its aux store for each systematic
+	xAOD::MissingETContainer*    newMetContainer    = new xAOD::MissingETContainer();
+	xAOD::MissingETAuxContainer* newMetAuxContainer = new xAOD::MissingETAuxContainer();
+	newMetContainer->setStore(newMetAuxContainer);
 
-      // It is necessary to reset the selected objects before every MET calculation
-      metMap->resetObjSelectionFlags();
+	// It is necessary to reset the selected objects before every MET calculation
+	metMap->resetObjSelectionFlags();
 
-      //here we apply some basic cuts and rebuild the met at each step
-      //Electrons
-      ConstDataVector<xAOD::ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
-      for(const auto& el : *electrons) {
-	if(el->pt()>20e3 && el->eta()<2.47) metElectrons.push_back(el);
+	//here we apply some basic cuts and rebuild the met at each step
+	//Electrons
+	ConstDataVector<xAOD::ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
+	for(const auto& el : *electrons) {
+	  if(CutsMETMaker::accept(el)) metElectrons.push_back(el);
+	}
+	assert(metMaker.rebuildMET("RefEle",                   //name of metElectrons in metContainer
+				   xAOD::Type::Electron,       //telling the rebuilder that this is electron met
+				   newMetContainer,            //filling this met container
+				   metElectrons.asDataVector(),//using these metElectrons that accepted our cuts
+				   metMap)                     //and this association map
+	       );
+
+	//Photons
+	ConstDataVector<xAOD::PhotonContainer> metPhotons(SG::VIEW_ELEMENTS);
+	for(const auto& ph : *photons) {
+	  if(CutsMETMaker::accept(ph)) metPhotons.push_back(ph);
+	}
+	assert(metMaker.rebuildMET("RefPhoton",
+				   xAOD::Type::Photon,
+				   newMetContainer,
+				   metPhotons.asDataVector(),
+				   metMap)
+	       );
+
+	//Taus
+	ConstDataVector<xAOD::TauJetContainer> metTaus(SG::VIEW_ELEMENTS);
+	for(const auto& tau : *taus) {
+	  if(CutsMETMaker::accept(tau)) metTaus.push_back(tau);
+	}
+	assert(metMaker.rebuildMET("RefTau",
+				   xAOD::Type::Tau,
+				   newMetContainer,
+				   metTaus.asDataVector(),
+				   metMap)
+	       );
+
+	//Muons
+	ConstDataVector<xAOD::MuonContainer> metMuons(SG::VIEW_ELEMENTS);
+	for(const auto& mu : *muons) {
+	  if(CutsMETMaker::accept(mu)) metMuons.push_back(mu);
+	}
+	assert(metMaker.rebuildMET("RefMuon",
+				   xAOD::Type::Muon,
+				   newMetContainer,
+				   metMuons.asDataVector(),
+				   metMap)
+	       );
+
+	//Now time to rebuild jetMet and get the soft term
+	//This adds the necessary soft term for both CST and TST
+	//these functions create an xAODMissingET object with the given names inside the container
+	assert(  metMaker.rebuildJetMET("RefJet",        //name of jet met
+					"SoftClus",      //name of soft cluster term met
+					"PVSoftTrk",     //name of soft track term met
+					newMetContainer, //adding to this new met container
+					calibJets,       //using this jet collection to calculate jet met
+					coreMet,         //core met container
+					metMap,          //with this association map
+					false            //don't apply jet jvt cut
+					)
+		 );
+
+	// for rebuilding track MET
+	// assert(  metMaker.rebuildTrackMET("RefJetTrk",    //name of jet track met
+	// 				  "PVSoftTrk",	  //name of soft track term met
+	// 				  newMetContainer,//adding to this new met container
+	// 				  calibJets,	  //using this jet collection to calculate jet track met
+	// 				  coreMet,	  //core met container
+	// 				  metMap,	  //with this association map
+	// 				  false		  //don't apply jet jvt cut
+	// 				  )
+	// 	 );
+
+
+	//this is kind of annoying, but applySystematicVariation only takes a SystematicSet, but *isys is a SystematicVariation.
+	//We use the SystematicSet constructor which just takes a SystematicVariation
+	CP::SystematicSet iSysSet( (*isys).name());
+	//tell the tool that we are using this SystematicSet (of one SystematicVariation for now)
+	//after this call, when we use applyCorrection, the given met term will be adjusted with this systematic applied
+	assert(	metSystTool.applySystematicVariation(iSysSet) );
+
+	//get the soft cluster term, and applyCorrection
+	xAOD::MissingET * softClusMet = (*newMetContainer)["SoftClus"];
+	//std::cout << "Soft cluster met term met " << softClusMet->met() << std::endl;
+	assert( softClusMet != nullptr); //check we retrieved the clust term
+	assert( metSystTool.applyCorrection(*softClusMet) );
+
+	xAOD::MissingET * softTrkMet = (*newMetContainer)["PVSoftTrk"];
+	//std::cout << "Soft track met term met " << softTrkMet->met() << std::endl;
+	assert( softTrkMet != nullptr); //check we retrieved the soft trk
+	assert( metSystTool.applyCorrection(*softTrkMet) );
+
+	// when doing track MET
+	// xAOD::MissingET * jetTrkMet = (*newMetContainer)["RefJetTrk"];
+	// //std::cout << "Jet track met term met " << jetTrkMet->met() << std::endl;
+	// assert( jetTrkMet != nullptr);
+	// assert( metSystTool.applyCorrection(*jetTrkMet, metMap));//for jetTrkMet correction, we need the METAssociationMap
+
+	//this builds the final track or cluster met sums, using systematic varied container
+	//In the future, you will be able to run both of these on the same container to easily output CST and TST
+	assert( metMaker.buildMETSum("FinalTrk" , newMetContainer, MissingETBase::Source::Track ) );
+	//assert( metMaker.buildMETSum("FinalClus", newMetContainer, MissingETBase::Source::LCTopo) );
+
+	//we record the container to the store, with a systematic indicated name
+	assert(event->record( newMetContainer,    "FinalMETContainer_"    + iSysSet.name()      ));
+	assert(event->record( newMetAuxContainer, "FinalMETAuxContainer_" + iSysSet.name() + "."));
+
       }
-      ANA_CHECK( metMaker->rebuildMET("RefEle",                   //name of metElectrons in metContainer
-				 xAOD::Type::Electron,       //telling the rebuilder that this is electron met
-				 newMetContainer,            //filling this met container
-				 metElectrons.asDataVector(),//using these metElectrons that accepted our cuts
-				 metMap)                     //and this association map
-	     );
 
-      //Photons
-      ConstDataVector<xAOD::PhotonContainer> metPhotons(SG::VIEW_ELEMENTS);
-      for(const auto& ph : *photons) {
-	if(ph->pt()>20e3 && ph->eta()<2.47) metPhotons.push_back(ph);
-      }
-      ANA_CHECK( metMaker->rebuildMET("RefPhoton",
-				 xAOD::Type::Photon,
-				 newMetContainer,
-				 metPhotons.asDataVector(),
-				 metMap)
-	     );
-
-      //Taus
-      ConstDataVector<xAOD::TauJetContainer> metTaus(SG::VIEW_ELEMENTS);
-      for(const auto& tau : *taus) {
-	if(tau->pt()>20e3 && tau->eta()<2.5) metTaus.push_back(tau);
-      }
-      ANA_CHECK( metMaker->rebuildMET("RefTau",
-				 xAOD::Type::Tau,
-				 newMetContainer,
-				 metTaus.asDataVector(),
-				 metMap)
-	     );
-
-      //Muons
-      ConstDataVector<xAOD::MuonContainer> metMuons(SG::VIEW_ELEMENTS);
-      for(const auto& mu : *muons) {
-	if(mu->pt()>20e3 && mu->eta()<2.4) metMuons.push_back(mu);
-      }
-      ANA_CHECK( metMaker->rebuildMET("Muons",
-				 xAOD::Type::Muon,
-				 newMetContainer,
-				 metMuons.asDataVector(),
-				 metMap)
-	     );
-
-      //Now time to rebuild jetMet and get the soft term
-      //This adds the necessary soft term for both CST and TST
-      //these functions create an xAODMissingET object with the given names inside the container
-      ANA_CHECK( metMaker->rebuildJetMET("RefJet",        //name of jet met
-				     "SoftClus",      //name of soft cluster term met
-				     "PVSoftTrk",     //name of soft track term met
-				     newMetContainer, //adding to this new met container
-				     calibJets,       //using this jet collection to calculate jet met
-				     coreMet,         //core met container
-				     metMap,          //with this association map
-				      false            //don't apply jet jvt cut
-				     )
-	     );
-
-      //this is kind of annoying, but applySystematicVariation only takes a SystematicSet, but *isys is a SystematicVariation.
-      //We use the SystematicSet constructor which just takes a SystematicVariation
-      CP::SystematicSet iSysSet( (*isys).name());
-      //tell the tool that we are using this SystematicSet (of one SystematicVariation for now)
-      //after this call, when we use applyCorrection, the given met term will be adjusted with this systematic applied
-      ANA_CHECK( metSystTool->applySystematicVariation(iSysSet) );
-
-      //get the soft cluster term, and applyCorrection
-      xAOD::MissingET * softClusMet = (*newMetContainer)["SoftClus"];
-      if(debug) std::cout << "Soft cluster met term met " << softClusMet->met() << std::endl;
-      ANA_CHECK( softClusMet != nullptr); //check we retrieved the clust term
-      ANA_CHECK( metSystTool->applyCorrection(*softClusMet) );
-
-      xAOD::MissingET * softTrkMet = (*newMetContainer)["PVSoftTrk"];
-      if(debug) std::cout << "Soft track met term met " << softTrkMet->met() << std::endl;
-      ANA_CHECK( softTrkMet != nullptr); //check we retrieved the soft trk
-      ANA_CHECK( metSystTool->applyCorrection(*softTrkMet) );
-
-      //this builds the final track or cluster met sums, using systematic varied container
-      //In the future, you will be able to run both of these on the same container to easily output CST and TST
-      ANA_CHECK( metMaker->buildMETSum("FinalTrk" , newMetContainer, MissingETBase::Source::Track ) );
-      //ANA_CHECK( metMaker->buildMETSum("FinalClus", newMetContainer, MissingETBase::Source::LCTopo) );
-
-      //we record the container to the store, with a systematic indicated name
-      ANA_CHECK( store->record( newMetContainer,    "FinalMETContainer_" + iSysSet.name()      ));
-      ANA_CHECK( store->record( newMetAuxContainer, "FinalMETContainer_" + iSysSet.name() + "Aux."));
-    }
-
-#ifdef XAOD_STANDALONE
-    //fill the containers stored in the event
-    //to the output file and clear the transient store
-    ANA_CHECK( event->fill());
-    store->clear();
-#endif
+    //fill the containers stored in the store
+    //to the output file
+    assert(event->fill());
   }
 
-#ifndef XAOD_STANDALONE // POOL::TEvent should handle this when changing events
-  app->finalize();
-#endif
+  assert(event->finishWritingTo(outfile) );
+  outfile->Close();
 
-  xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
+  delete outfile;
+  delete event;
 
   return 0;
-}
+ }
+
+
 
 #endif

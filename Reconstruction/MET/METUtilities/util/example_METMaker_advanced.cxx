@@ -5,156 +5,117 @@
 //Author: Russell Smith
 //Email : rsmith@cern.ch
 //Date  : May 2015
-#ifndef XAOD_ANALYSIS
-int main() {
-  std::cout << "Examples are only defined in the analysis release." << std::endl;
-  return 0;
-}
-#else
 
-#ifdef XAOD_STANDALONE
+//this will only run in RootCore
+#ifdef ROOTCORE
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/TStore.h"
-#else
-#include "POOLRootAccess/TEvent.h"
-#include "StoreGate/StoreGateSvc.h"
-#endif
 
 // FrameWork includes
-#include "AsgTools/MessageCheck.h"
-using namespace asg::msgUserCode;
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/ToolHandle.h"
+#include "AsgTools/AsgTool.h"
+#include "xAODBase/IParticleContainer.h"
+#include "xAODBase/IParticleHelpers.h"
 
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODMissingET/MissingETContainer.h"
+#include "xAODMissingET/MissingETComposition.h"
 
+#include "xAODCore/ShallowAuxContainer.h"
 #include "xAODCore/ShallowCopy.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTau/TauJetContainer.h"
-#include "xAODBase/IParticleHelpers.h"
 
-#include <memory>
-#undef NDEBUG
-#include <cassert>
+#include "assert.h"
 #include "TFile.h"
-#include "TSystem.h"
 
 #include "JetCalibTools/JetCalibrationTool.h"
-
-#include "METInterface/IMETMaker.h"
+#include "METUtilities/METMaker.h"
 #include "METUtilities/CutsMETMaker.h"
-#include "METUtilities/METHelpers.h"
 
-#include "xAODCore/tools/IOStats.h"
-#include "xAODCore/tools/ReadStats.h"
+//#include "PATInterfaces/SystematicRegistry.h"
 
-int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl;
-#ifdef XAOD_STANDALONE
+static std::string jetType = "AntiKt4EMTopoJets";
+
+int main(){std::cout << __PRETTY_FUNCTION__ << std::endl;
+   // Initialize the application
+  xAOD::Init() ;
+
   //enable status code failures
-  //  CP::CorrectionCode::enableFailure();
+  CP::CorrectionCode::enableFailure();
   //  CP::SystematicCode::enableFailure();
   StatusCode::enableFailure();
   xAOD::TReturnCode::enableFailure();
-  xAOD::Init() ;
-#else
-  IAppMgrUI* app = POOL::Init(); //important to do this first!
-#endif
-
-  std::string jetType = "AntiKt4EMTopo";
-  TString fileName = gSystem->Getenv("ASG_TEST_FILE_MC");
-  size_t evtmax = 100;
-  bool debug(false);
-  for (int i=0; i<argc; ++i) {
-    if (std::string(argv[i]) == "-filen" && i+1<argc) {
-      fileName = argv[i+1];
-    } else if (std::string(argv[i]) == "-jetcoll" && i+1<argc) {
-      jetType = argv[i+1];
-    } else if (std::string(argv[i]) == "-evtmax" && i+1<argc) {
-      evtmax = atoi(argv[i+1]);
-    } else if (std::string(argv[i]) == "-debug") {
-      debug = true;
-    }
-  }
-
-  asg::AnaToolHandle<IJetCalibrationTool> jetCalibrationTool;
-  ANA_CHECK( ASG_MAKE_ANA_TOOL( jetCalibrationTool, JetCalibrationTool ) );
-  jetCalibrationTool.setName("jetCalibTool");
-  ANA_CHECK( jetCalibrationTool.setProperty("JetCollection", jetType) );
-  ANA_CHECK( jetCalibrationTool.setProperty("ConfigFile", "JES_MC15cRecommendation_May2016.config") );
-  ANA_CHECK( jetCalibrationTool.setProperty("CalibSequence", "JetArea_Residual_EtaJES_GSC") );
-  ANA_CHECK( jetCalibrationTool.setProperty("IsData", false) );
-  ANA_CHECK( jetCalibrationTool.retrieve() );
 
   //this test file should work.  Feel free to contact me if there is a problem with the file.
-  std::unique_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
+  TString const fileName = "/afs/cern.ch/work/r/rsmith/public/METUtilities_testfiles/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s1982_s1964_r6006_tid04628718_00/AOD.04628718._000158.pool.root.1";
+  std::auto_ptr< TFile > ifile( TFile::Open( fileName, "READ" ) );
   assert( ifile.get() );
 
-  // Create a TEvent object to read from file and a transient store in which to place items
-#ifdef XAOD_STANDALONE
-  std::unique_ptr<xAOD::TEvent> event(new xAOD::TEvent( xAOD::TEvent::kClassAccess ) );
-  std::unique_ptr<xAOD::TStore store>(new xAOD::TStore());
-#else // Athena "Store" is the same StoreGate used by the TEvent
-  std::unique_ptr<POOL::TEvent> event(new POOL::TEvent( POOL::TEvent::kClassAccess ));
-  ServiceHandle<StoreGateSvc>& store = event->evtStore();
-#endif
-  ANA_CHECK( event->readFrom( ifile.get() ) );
+  // Create a TEvent object.
+  xAOD::TEvent * event = new xAOD::TEvent( xAOD::TEvent::kClassAccess );
+  assert( event->readFrom( ifile.get(), xAOD::TEvent::kClassAccess  ) );
 
-  asg::AnaToolHandle<IMETMaker> metMaker;
-  metMaker.setTypeAndName("met::METMaker/metMaker");
-  ANA_CHECK( metMaker.setProperty("DoMuonEloss", true) );
-  ANA_CHECK( metMaker.retrieve() );
+  // Create a transient object store. Needed for the tools.
+  xAOD::TStore store;
+  met::METMaker metMaker("METMaker");
+  // metMaker.msg().setLevel(MSG::VERBOSE);//If you want more messages, you can turn this up
 
-  for(size_t ievent = 0;  ievent < std::min(size_t(event->getEntries()), evtmax); ++ievent){
+  // std::string const  jetCalibName = ;
+  JetCalibrationTool jetCalibTool("JetCalibTool" );
+
+  if( (!metMaker.initialize())    &&
+      (!jetCalibTool.initialize())
+      ){
+    std::cout << "initialization of the met tools failed.  Exiting" << std::endl;
+    return 0;
+  }
+
+  // output xAOD
+  TFile *outfile = new TFile("example_METUtilities_advanced.root", "RECREATE");
+  assert(event->writeTo(outfile));
+
+  for(Long64_t ievent = 0;  ievent < std::min(int(event->getEntries()), 100); ++ievent){
     if(ievent % 10 == 0) std::cout << "event number: " << ievent << std::endl;
-    ANA_CHECK( event->getEntry(ievent) >= 0 );
+    assert(    event->getEntry(ievent) >= 0 );
 
     //retrieve the original containers
     const xAOD::MissingETContainer* coreMet  = nullptr;
     std::string coreMetKey = "MET_Core_" + jetType;
-    ANA_CHECK( event->retrieve(coreMet, coreMetKey) );
-    if(debug) std::cout << "Using core MET " << coreMet << std::endl;
+    coreMetKey.erase(coreMetKey.length() - 4);//this removes the Jets from the end of the jetType
+    assert( event->retrieve(coreMet, coreMetKey) );
 
     //if you wanted to make a particle invisible to MET, i.e., remove the particle and
     //its clusters/tracks from the MET calculation, you can make a container of invisible particles
     //and then use selectIfNoOverlaps (below)
     //in this example, we will treat electrons as invisible
     const xAOD::ElectronContainer* invisibleElectrons = nullptr;
-    ANA_CHECK( event->retrieve(invisibleElectrons, "Electrons") );
+    assert( event->retrieve(invisibleElectrons, "Electrons") );
 
     const xAOD::MuonContainer* muons = nullptr;
-    ANA_CHECK( event->retrieve(muons, "Muons") );
+    assert( event->retrieve(muons, "Muons") );
 
     const xAOD::PhotonContainer* photons = nullptr;
-    ANA_CHECK( event->retrieve(photons, "Photons"));
+    assert( event->retrieve(photons, "Photons"));
 
     const xAOD::TauJetContainer* taus = nullptr;
-    ANA_CHECK( event->retrieve(taus, "TauJets"));
+    assert( event->retrieve(taus, "TauJets"));
+
 
     //this should probably be a calibrated jet container.  See the METUtilities twiki for more info
-    const xAOD::JetContainer* jets = nullptr;
-    ANA_CHECK( event->retrieve(jets, jetType+"Jets"));
-
-    std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > jets_shallowCopy = xAOD::shallowCopyContainer( *jets );
-    ANA_CHECK(store->record( jets_shallowCopy.first,  "CalibJets"    ));
-    ANA_CHECK(store->record( jets_shallowCopy.second, "CalibJetsAux."));
-    //this is a non-const copy of the jet collection that you can calibrate.
-    xAOD::JetContainer* calibJets = jets_shallowCopy.first;
-    xAOD::setOriginalObjectLink(*jets,*calibJets);
-    for ( const auto& jet : *calibJets ) {
-      //Shallow copy is needed (see links below)
-      if(!jetCalibrationTool->applyCalibration(*jet))//apply the calibration
-	return 1;
-    }
+    const xAOD::JetContainer* calibJets = nullptr;
+    assert( event->retrieve(calibJets, jetType));//this retrieves and applies the correction
 
     //retrieve the MET association map
     const xAOD::MissingETAssociationMap* metMap = nullptr;
     std::string metAssocKey = "METAssoc_" + jetType;
-    ANA_CHECK( event->retrieve(metMap, metAssocKey) );
+    metAssocKey.erase(metAssocKey.length() - 4 );//this removes the Jets from the end of the jetType
+    assert( event->retrieve(metMap, metAssocKey) );
     metMap->resetObjSelectionFlags();
 
     xAOD::MissingETContainer*    newMetContainer    = new xAOD::MissingETContainer();
@@ -175,7 +136,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
       }
       //this line will mark the electron as invisible if it passes the (inv) electron selection cut
       //this removes the particle and associated clusters from the jet and soft term calculations
-      ANA_CHECK( metMaker->markInvisible(metInvisibleElectrons.asDataVector(),metMap,newMetContainer) );
+      assert( metMaker.markInvisible(metInvisibleElectrons.asDataVector(),metMap) );
       // NOTE: Objects marked as invisible should not also be added as part
       // of another term! However, you can e.g. mark some electrons invisible
       // and compute RefEle with others.
@@ -186,7 +147,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     for(const auto& ph : *photons) {
       if(CutsMETMaker::accept(ph)) metPhotons.push_back(ph);
     }
-    ANA_CHECK(metMaker->rebuildMET("RefPhoton",
+    assert(metMaker.rebuildMET("RefPhoton",
 			       xAOD::Type::Photon,
 			       newMetContainer,
 			       metPhotons.asDataVector(),
@@ -197,7 +158,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     for(const auto& tau : *taus) {
       if(CutsMETMaker::accept(tau)) metTaus.push_back(tau);
     }
-    ANA_CHECK(metMaker->rebuildMET("RefTau",
+    assert(metMaker.rebuildMET("RefTau",
 			       xAOD::Type::Tau,
 			       newMetContainer,
 			       metTaus.asDataVector(),
@@ -207,21 +168,18 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
     //Muons
     ConstDataVector<xAOD::MuonContainer> metMuons(SG::VIEW_ELEMENTS);
     for(const auto& mu : *muons) {
-      //      if(CutsMETMaker::accept(mu)) metMuons.push_back(mu);
-      if(mu->muonType()==xAOD::Muon::Combined && mu->pt()>10e3) metMuons.push_back(mu);
+      if(CutsMETMaker::accept(mu)) metMuons.push_back(mu);
     }
-    ANA_CHECK(metMaker->rebuildMET("Muons",
+    assert(metMaker.rebuildMET("RefMuon",
 			       xAOD::Type::Muon,
 			       newMetContainer,
 			       metMuons.asDataVector(),
 			       metMap)
 	   );
     
-    met::addGhostMuonsToJets(*muons, *calibJets);
-
     //Now time to rebuild jetMet and get the soft term
     //these functions create an xAODMissingET object with the given names inside the container
-    ANA_CHECK( metMaker->rebuildJetMET("RefJet",        //name of jet met
+    assert(  metMaker.rebuildJetMET("RefJet",        //name of jet met
 				    "SoftClus",      //name of soft cluster term met
 				    "PVSoftTrk",     //name of soft track term met
 				    newMetContainer, //adding to this new met container
@@ -232,7 +190,7 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 				    )
 	     );
 
-    ANA_CHECK( metMaker->rebuildTrackMET("RefJetTrk",    //name of jet track met
+    assert(  metMaker.rebuildTrackMET("RefJetTrk",    //name of jet track met
 				      "PVSoftTrk",	  //name of soft track term met
 				      newMetContainer,//adding to this new met container
 				      calibJets,	  //using this jet collection to calculate jet track met
@@ -243,28 +201,31 @@ int main( int argc, char* argv[] ){std::cout << __PRETTY_FUNCTION__ << std::endl
 	     );
 
 
+    // //get the soft cluster term, and applyCorrection
+    // xAOD::MissingET * softClusMet = (*newMetContainer)["SoftClus"];
+    // xAOD::MissingET * softTrkMet = (*newMetContainer)["PVSoftTrk"];
+    // xAOD::MissingET * jetTrkMet = (*newMetContainer)["RefJetTrk"];
+
     //this builds the final track and cluster met sums, using systematic varied container
-    ANA_CHECK( metMaker->buildMETSum("FinalTrk" , newMetContainer, MissingETBase::Source::Track ) );
-    ANA_CHECK( metMaker->buildMETSum("FinalClus", newMetContainer, MissingETBase::Source::LCTopo) );
+    assert( metMaker.buildMETSum("FinalTrk" , newMetContainer, MissingETBase::Source::Track ) );
+    assert( metMaker.buildMETSum("FinalClus", newMetContainer, MissingETBase::Source::LCTopo) );
 
-    ANA_CHECK(store->record( newMetContainer,    "FinalMETContainer"    ));
-    ANA_CHECK(store->record( newMetAuxContainer, "FinalMETContainerAux."));
+    assert(event->record( newMetContainer,    "FinalMETContainer"    ));
+    assert(event->record( newMetAuxContainer, "FinalMETAuxContainer."));
 
-#ifdef XAOD_STANDALONE // POOL::TEvent should handle this when changing events
-    //fill the containers stored in the event
-    //to the output file and clear the transient store
-    ANA_CHECK(event->fill());
-    store->clear();
-#endif
+    //fill the containers stored in the store
+    //to the output file
+    assert(event->fill());
   }
 
-#ifndef XAOD_STANDALONE // POOL::TEvent should handle this when changing events
-  app->finalize();
-#endif
+  assert(event->finishWritingTo(outfile) );
+  outfile->Close();
 
-  xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
+  delete outfile;
+  delete event;
 
   return 0;
  }
+
 
 #endif
