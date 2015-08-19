@@ -114,7 +114,7 @@ TrigEMCluster::print ( MsgStream& log ) const {
 	log <<MSG::DEBUG<< "m_EnergyS : ";
         for ( int i = 0 ; i < MAXSIZE ; i++ )
                 log <<MSG::DEBUG<< energy((CaloSampling::CaloSample)i) << "; ";
-	log << endmsg;
+	log << endreq;
 }
 
 bool TrigEMCluster::isValid() const {
@@ -132,21 +132,11 @@ void TrigEMCluster::setRings(const RingerRingsContainer &ring_con, unsigned int 
 	}
 }
 
-void TrigEMCluster::setRings(const ElementLink<RingerRingsContainer>& ringsLink)
-{
-  m_rings = ringsLink;
-}
-
 const RingerRings *TrigEMCluster::rings() const {
 	if (m_rings.isValid()) {
 		return *m_rings;
 	}
 	return 0;
-}
-
-const ElementLink<RingerRingsContainer>& TrigEMCluster::ringsLink() const
-{
-  return m_rings;
 }
 
 // stream output

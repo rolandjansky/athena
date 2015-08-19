@@ -67,15 +67,3 @@ const TrigEMCluster * TrigRNNOutput::cluster() const {
   }
   return 0;
 }
-
-
-void TrigRNNOutput::setCluster(const ElementLink<TrigEMClusterContainer>& cluster)
-{
-  m_cluster = cluster;
-}
-
-
-const ElementLink<TrigEMClusterContainer>& TrigRNNOutput::clusterLink() const
-{
-  return m_cluster;
-}

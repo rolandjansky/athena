@@ -174,11 +174,11 @@ void TrigTauCluster::print ( MsgStream& log ) const
 /*	log <<MSG::DEBUG<< "m_EMenergyNarrow : ";
         for ( int i = 0 ; i < NUMEMSAMP ; i++ )
                 log <<MSG::DEBUG<< trigtauDetails->EMenergyNarrow(i) << "; ";
-	log << endmsg;
+	log << endreq;
 	log <<MSG::DEBUG<< "m_HADenergyNarrow : ";
         for ( int i = 0 ; i < NUMHADSAMP ; i++ )
                 log <<MSG::DEBUG<< trigtauDetails->HADenergyNarrow(i) << "; ";
-	log << endmsg; */
+	log << endreq; */
 }
 
 const TrigTauClusterDetails* TrigTauCluster::clusterDetails() const
@@ -192,18 +192,6 @@ const TrigTauClusterDetails* TrigTauCluster::clusterDetails() const
 		return NULL;
 	}
 }
-
-const ElementLink<TrigTauClusterDetailsContainer>&
-TrigTauCluster::clusterDetailsLink() const
-{
-  return m_clusterDetails;
-}
-
-void TrigTauCluster::setClusterDetails(const ElementLink<TrigTauClusterDetailsContainer>& clusterDetailsLink)
-{
-  m_clusterDetails = clusterDetailsLink;
-}
-
 
 bool operator== (const TrigTauCluster& clus1, const TrigTauCluster& clus2 )
 {

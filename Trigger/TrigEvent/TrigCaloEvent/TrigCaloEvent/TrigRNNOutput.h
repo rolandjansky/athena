@@ -56,9 +56,7 @@ public:
 
   bool isValid() const;
   void setCluster(const TrigEMClusterContainer &cluster_con, unsigned int cluster_idx);
-  void setCluster(const ElementLink<TrigEMClusterContainer>& cluster);
   const TrigEMCluster *cluster() const;
-  const ElementLink<TrigEMClusterContainer>& clusterLink() const;
 
  private:
   template <class T>

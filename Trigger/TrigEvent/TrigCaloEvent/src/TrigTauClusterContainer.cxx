@@ -36,7 +36,7 @@ TrigTauClusterContainer::print ( void ) const {
 void
 TrigTauClusterContainer::print ( MsgStream& log ) const {
 	log <<MSG::DEBUG<< "TrigTauClusterContainer with ";
-	log <<MSG::DEBUG<< size() << " TrigTauClusters" << endmsg;
+	log <<MSG::DEBUG<< size() << " TrigTauClusters" << endreq;
 	for ( TrigTauClusterContainer::const_iterator i = begin(); i!=end();i++)
 		(*i)->print(log);
 }

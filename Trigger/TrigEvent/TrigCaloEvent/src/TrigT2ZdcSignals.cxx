@@ -9,20 +9,9 @@ TrigT2ZdcSignals::TrigT2ZdcSignals(): m_triggerEnergies(TrigT2ZdcSignals::NUM_ZD
 				      m_triggerTimes(TrigT2ZdcSignals::NUM_ZDC,0) {
 }
 
-TrigT2ZdcSignals::TrigT2ZdcSignals(const std::vector<float>& triggerEnergies, 
-				   const std::vector<float>& triggerTimes)
-  : m_triggerEnergies(triggerEnergies),
-    m_triggerTimes(triggerTimes)
-{
-  m_triggerEnergies.resize(TrigT2ZdcSignals::NUM_ZDC,0.);
-  m_triggerTimes.resize(TrigT2ZdcSignals::NUM_ZDC,0);
-}
-
-TrigT2ZdcSignals::TrigT2ZdcSignals(std::vector<float>&& triggerEnergies, 
-				   std::vector<float>&& triggerTimes)
-  : m_triggerEnergies(std::move(triggerEnergies)),
-    m_triggerTimes(std::move(triggerTimes))
-{
+TrigT2ZdcSignals::TrigT2ZdcSignals(std::vector<float> triggerEnergies, 
+				   std::vector<float> triggerTimes): m_triggerEnergies(triggerEnergies),
+								     m_triggerTimes(triggerTimes) {
   m_triggerEnergies.resize(TrigT2ZdcSignals::NUM_ZDC,0.);
   m_triggerTimes.resize(TrigT2ZdcSignals::NUM_ZDC,0);
 }
@@ -63,7 +52,7 @@ void TrigT2ZdcSignals::print(MsgStream& log) const {
   for(;itr != itr_end; ++itr) {
     log << MSG::DEBUG << (*itr) << ",";
   }
-  log << MSG::DEBUG << "}" << endmsg;  
+  log << MSG::DEBUG << "}" << endreq;  
 
   itr = m_triggerTimes.begin();
   itr_end = m_triggerTimes.end();
@@ -71,7 +60,7 @@ void TrigT2ZdcSignals::print(MsgStream& log) const {
   for(;itr != itr_end; ++itr) {
     log << MSG::DEBUG << (*itr) << ",";
   }
-  log << MSG::DEBUG << "}" << endmsg;
+  log << MSG::DEBUG << "}" << endreq;
 }
 
 // Simple string conversion method.

@@ -154,8 +154,6 @@ public:
 
 	/** accessor to TrigTauClusterDetails* **/
 	const TrigTauClusterDetails* clusterDetails() const;
-	const ElementLink<TrigTauClusterDetailsContainer>& clusterDetailsLink() const;
-        void setClusterDetails (const ElementLink<TrigTauClusterDetailsContainer>& clusterDetailsLink);
 
 
 // internal variables must be private

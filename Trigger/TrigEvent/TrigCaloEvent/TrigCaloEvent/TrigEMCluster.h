@@ -123,8 +123,6 @@ public:
 	bool isValid() const;
 	void setRings(const RingerRingsContainer &ring_con, unsigned int ring_idx);
 	const RingerRings *rings() const;
-        void setRings(const ElementLink<RingerRingsContainer>& ringsLink);
-        const ElementLink<RingerRingsContainer>& ringsLink() const;
 
 
 // internal variables must be private

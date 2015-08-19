@@ -9,11 +9,9 @@ TrigT2MbtsBits::TrigT2MbtsBits(): m_triggerEnergies(TrigT2MbtsBits::NUM_MBTS,0.)
                                   m_triggerTimes(TrigT2MbtsBits::NUM_MBTS,0) {
 }
 
-TrigT2MbtsBits::TrigT2MbtsBits(const std::vector<float>& triggerEnergies, 
-                               const std::vector<float>& triggerTimes):
-  m_triggerEnergies(triggerEnergies),
-  m_triggerTimes(triggerTimes)
-{
+TrigT2MbtsBits::TrigT2MbtsBits(std::vector<float> triggerEnergies, 
+                               std::vector<float> triggerTimes): m_triggerEnergies(triggerEnergies),
+                                                                 m_triggerTimes(triggerTimes) {
   m_triggerEnergies.resize(TrigT2MbtsBits::NUM_MBTS,0.);
   m_triggerTimes.resize(TrigT2MbtsBits::NUM_MBTS,0);
 }
@@ -54,7 +52,7 @@ void TrigT2MbtsBits::print(MsgStream& log) const {
   for(;itr != itr_end; ++itr) {
     log << MSG::DEBUG << (*itr) << ",";
   }
-  log << MSG::DEBUG << "}" << endmsg;  
+  log << MSG::DEBUG << "}" << endreq;  
 
   itr = m_triggerTimes.begin();
   itr_end = m_triggerTimes.end();
@@ -62,7 +60,7 @@ void TrigT2MbtsBits::print(MsgStream& log) const {
   for(;itr != itr_end; ++itr) {
     log << MSG::DEBUG << (*itr) << ",";
   }
-  log << MSG::DEBUG << "}" << endmsg;
+  log << MSG::DEBUG << "}" << endreq;
 }
 
 // Simple string conversion method.
