@@ -328,7 +328,7 @@ StatusCode Herwigpp::genFinalize() {
   ATH_MSG_INFO("Herwig++ finalizing.");
   assert(m_hw);
   cout << "MetaData: generator = Herwig++ " << HWVERSION << endl;
-  cout << "MetaData: cross-section (nb) = " << m_hw->eventHandler()->integratedXSec()*m_xsscale/ThePEG::nanobarn << endl;
+  cout << std::scientific << std::setprecision(5) << "MetaData: cross-section (nb) = " << m_hw->eventHandler()->integratedXSec()*m_xsscale/ThePEG::nanobarn << endl;
   cout << "MetaData: PDF = " << m_pdfname_me << " (ME); " << m_pdfname_mpi << " (shower/MPI)" << endl;
   m_hw->finalize();
   ThePEG::Repository::cleanup();
