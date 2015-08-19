@@ -124,47 +124,40 @@ if 'DetFlags' not in dir():
 DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
 DetFlags.Truth_setOn()
 DetFlags.Forward_setOff() # Forward dets are off by default
-## TODO Move repeated syntax into a separate function
+
+## Configure Forward Detector DetFlags based on command-line options
+from AthenaCommon.DetFlags import DetFlags
 if hasattr(runArgs, "AFPOn"):
     if runArgs.AFPOn:
-        checkAFP = getattr(DetFlags, 'AFP_setOn', None)
-        if checkAFP is not None:
-            checkAFP()
-        else:
-            atlasG4log.warning( 'AFP Simulation is not supported in this release' )
-if hasattr(runArgs, "FwdRegionOn"):
-    if runArgs.FwdRegionOn:
-        checkFwdRegion = getattr(DetFlags, 'FwdRegion_setOn', None)
-        if checkFwdRegion is not None:
-            checkFwdRegion()
-        else:
-            atlasG4log.warning( 'FwdRegion Simulation is not supported in this release' )
-if hasattr(runArgs, "LucidOn"):
-    if runArgs.LucidOn:
-        DetFlags.Lucid_setOn()
+        DetFlags.AFP_setOn()
 if hasattr(runArgs, "ALFAOn"):
     if runArgs.ALFAOn:
         DetFlags.ALFA_setOn()
+if hasattr(runArgs, "FwdRegionOn"):
+    if runArgs.FwdRegionOn:
+        DetFlags.FwdRegion_setOn()
+if hasattr(runArgs, "LucidOn"):
+    if runArgs.LucidOn:
+        DetFlags.Lucid_setOn()
 if hasattr(runArgs, "ZDCOn"):
     if runArgs.ZDCOn:
         DetFlags.ZDC_setOn()
 
-if DetFlags.Forward_on():
-    checkFwdRegion = getattr(DetFlags, 'FwdRegion_on', None)
-    checkAFP = getattr(DetFlags, 'AFP_on', None)
+DetFlags.Print()
 
-    if (checkFwdRegion is not None and checkFwdRegion()) or DetFlags.ZDC_on() or DetFlags.ALFA_on() or (checkAFP is not None and checkAFP()):
+if DetFlags.Forward_on():
+    if DetFlags.FwdRegion_on() or DetFlags.ZDC_on() or DetFlags.ALFA_on() or DetFlags.AFP_on():
         ## Do not filter high eta particles
         if simFlags.EventFilter.statusOn:
             simFlags.EventFilter.get_Value()['EtaPhiFilters'] = False
         ## ForwardTransport is applied to particles hitting BeamPipe::SectionF46
         DetFlags.bpipe_setOn()
 
-    if checkFwdRegion is not None and checkFwdRegion():
+    if DetFlags.FwdRegion_on():
         # Do full simulation rather than beam transport
         simFlags.ForwardDetectors = 1
         atlasG4log.info( 'FwdRegion switched on, so will run Full Simulation of the Forward Region rather than Forward Transport.' )
-    elif DetFlags.ZDC_on() or DetFlags.ALFA_on() or (checkAFP is not None and checkAFP()):
+    elif DetFlags.ZDC_on() or DetFlags.ALFA_on() or DetFlags.AFP_on():
         ## Use the ForwardTransport package to do the beam transport
         atlasG4log.info( 'FwdRegion switched off, so will run Full Simulation of the Forward Region rather than Forward Transport.' )
         simFlags.ForwardDetectors = 2

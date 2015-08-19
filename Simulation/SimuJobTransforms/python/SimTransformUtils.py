@@ -56,7 +56,11 @@ def addSimulationSubstep(executorSet, overlayTransform = False):
                                    inData=['NULL','EVNT','EVNT_CAVERN','EVNT_COSMICS'],
                                    outData=['EVNT_CAVERNTR','EVNT_COSMICSTR','HITS','NULL'] )
     if overlayTransform:
-        SimExe.inData = [('EVNT', 'BS_SKIM')]
+        from PyJobTransforms.trfUtils import releaseIsOlderThan
+        if releaseIsOlderThan(20,3):
+            SimExe.inData = [('EVNT', 'BS_SKIM')]
+        else:
+            SimExe.inData = [('EVNT','TXT_EVENTID')]
         SimExe.outData = ['HITS']
         SimExe.inputDataTypeCountCheck = ['EVNT']
     executorSet.add(SimExe)
@@ -75,7 +79,7 @@ def addConfigurableSimSubstep(executorSet, confName, extraSkeleton, confSubStep,
 
 def addStandardHITSMergeSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'HITSMerge', substep="hitsmerge", skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
-                                              tryDropAndReload = False, ))
+                                              tryDropAndReload = False, inputDataTypeCountCheck = ['HITS']))
 
 def addAFII_HITSMergeSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'HITSMerge', substep="hitsmerge", skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
