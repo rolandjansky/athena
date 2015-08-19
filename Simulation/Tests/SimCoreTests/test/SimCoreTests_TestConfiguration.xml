@@ -867,10 +867,6 @@
                   <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
                   <noalarm />
                 </test>
-                <testToRemove>
-                  <jobGroupName>SimCoreTests:SimCoreRegressionTests</jobGroupName>
-                  <testidentifier>HITS_RegressionTestRunner</testidentifier>
-                </testToRemove>
               </jobTransform>
             </chainElement>
 
@@ -944,10 +940,6 @@
                 <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
                 <noalarm />
               </test>
-              <testToRemove>
-                <jobGroupName>SimCoreTests:SimCoreRegressionTests</jobGroupName>
-                <testidentifier>HITS_RegressionTestRunner</testidentifier>
-              </testToRemove>
             </jobTransform>
           </chainElement>
 
@@ -1033,10 +1025,6 @@
                 <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
                 <noalarm />
               </test>
-              <testToRemove>
-                <jobGroupName>SimCoreTests:SimCoreRegressionTests</jobGroupName>
-                <testidentifier>HITS_RegressionTestRunner</testidentifier>
-              </testToRemove>
             </jobTransform>
           </chainElement>
 
@@ -1165,10 +1153,6 @@
                   <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
                   <noalarm />
                 </test>
-                <testToRemove>
-                  <jobGroupName>SimCoreTests:SimCoreRegressionTests</jobGroupName>
-                  <testidentifier>HITS_RegressionTestRunner</testidentifier>
-                </testToRemove>
               </jobTransform>
             </chainElement>
 
@@ -1209,21 +1193,20 @@
                 <keepFilePattern>DCube-18.X.0/WriteCalHitsTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
                 <noalarm />
               </test>
-              <!--
-                 <test position="2">
-                   <modulename>RttLibraryTools</modulename>
-                   <testname>DiffPoolFilesRunner</testname>
-                   <testidentifier>WriteCalHitsTestHITSFileDiff</testidentifier>
-                   <arg>
-                     <argname>fileName</argname>
-                     <argvalue>test.HITS.pool.root</argvalue>
-                   </arg>
-                   <arg>
-                     <argname>refFileName</argname>
-                     <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/WriteCalHitsTest.HITS.pool.root</argvalue>
-                   </arg>
-                 </test>
-                 -->
+              <test position="2">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DiffPoolFilesRunner</testname>
+                <testidentifier>WriteCalHitsTestHITSFileDiff</testidentifier>
+                <arg>
+                  <argname>fileName</argname>
+                  <argvalue>test.HITS.pool.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>refFileName</argname>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/WriteCalHitsTest.HITS.pool.root</argvalue>
+                </arg>
+                <keepFilePattern>test.HITS.pool.root_WriteCalHitsTest.HITS.pool.root.diffPool</keepFilePattern>
+              </test>
             </jobTransform>
           </chainElement>
 
@@ -1257,10 +1240,6 @@
                 <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
                 <noalarm />
               </test>
-              <testToRemove>
-                <jobGroupName>SimCoreTests:SimCoreRegressionTests</jobGroupName>
-                <testidentifier>HITS_RegressionTestRunner</testidentifier>
-              </testToRemove>
             </jobTransform>
           </chainElement>
 
@@ -1279,11 +1258,7 @@
         <options>G4AtlasTests/test_G4AtlasGeo</options>
         <group>SimCoreTests:SimGeomTestJobs</group>
         <queue>short</queue>
-        <testToInvert> <!-- still failing as of March 2013 -->
-          <jobGroupName>SimCoreTests:SimGeomTestJobs</jobGroupName>
-          <testidentifier>DaughterOvershootGrepper</testidentifier>
-        </testToInvert>
-        <testToInvert> <!-- still failing as of March 2013 -->
+        <testToInvert> <!-- still failing as of August 2015 -->
           <jobGroupName>SimCoreTests:SimGeomTestJobs</jobGroupName>
           <testidentifier>SolidProblemGrepper</testidentifier>
         </testToInvert>
@@ -1311,24 +1286,6 @@
               <jobTransformCmd>sim_reg_test.py G4AtlasCosmic</jobTransformCmd>
               <group>SimCoreTests:SimCoreRegressionTests</group>
               <queue>short</queue>
-              <test position="1">
-                <modulename>RttLibraryTools</modulename>
-                <testname>DiffPoolFilesRunner</testname>
-                <testidentifier>G4AtlasCosmic_RegressionTest</testidentifier>
-                <arg>
-                  <argname>fileName</argname>
-                  <argvalue>today.hits.pool.root</argvalue>
-                </arg>
-                <arg>
-                  <argname>refFileName</argname>
-                  <argvalue>yesterday.hits.pool.root</argvalue>
-                </arg>
-                <keepFilePattern>today.hits.pool.root_yesterday.hits.pool.root.diffPool</keepFilePattern>
-              </test>
-              <testToRemove> <!-- NEED TO RENAME OUTPUT FILES IN G4AtlasApps/jobOptions.G4Cosmic.py -->
-                <jobGroupName>SimCoreTests:SimCoreRegressionTests</jobGroupName>
-                <testidentifier>HITS_RegressionTestRunner</testidentifier>
-              </testToRemove>
             </jobTransform>
           </chainElement>
 
