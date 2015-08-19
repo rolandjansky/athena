@@ -67,7 +67,7 @@ typesWithNamespace="xAOD::CaloCluster xAOD::CaloClusterContainer xAOD::CaloClust
                     xAOD::TrigEMCluster xAOD::TrigEMClusterContainer xAOD::TrigEMClusterAuxContainer \
                     xAOD::TrigRingerRings xAOD::TrigRingerRingsContainer xAOD::TrigRingerRingsAuxContainer\
                     xAOD::TrigRNNOutput xAOD::TrigRNNOutputContainer xAOD::TrigRNNOutputAuxContainer\
-                    xAOD::TrigT2MbtsBits xAOD::TrigT2MbtsBitsContainer xAOD::TrigT2MbtsBitsAuxContainer \
+		    xAOD::TrigT2ZdcSignals xAOD::TrigT2ZdcSignalsContainer xAOD::TrigT2ZdcSignalsAuxContainer\                   
 		    xAOD::TriggerTower xAOD::TriggerTowerContainer xAOD::TriggerTowerAuxContainer \
 		    xAOD::HIEventShape xAOD::HIEventShapeContainer xAOD::HIEventShapeAuxContainer " \
        files="-s=${xAODTrigCalo_root}/xAODTrigCalo TrigCaloCluster.h TrigCaloClusterContainer.h TrigCaloClusterAuxContainer.h \
@@ -76,6 +76,7 @@ typesWithNamespace="xAOD::CaloCluster xAOD::CaloClusterContainer xAOD::CaloClust
        -s=${xAODTrigRinger_root}/xAODTrigRinger TrigRingerRings.h TrigRingerRingsContainer.h TrigRingerRingsAuxContainer.h \
                                   TrigRNNOutput.h TrigRNNOutputContainer.h TrigRNNOutputAuxContainer.h \
        -s=${xAODTrigMinBias_root}/xAODTrigMinBias TrigT2MbtsBits.h TrigT2MbtsBitsContainer.h TrigT2MbtsBitsAuxContainer.h \
+                                  TrigT2ZdcSignals.h TrigT2ZdcSignalsContainer.h TrigT2ZdcSignalsAuxContainer.h \
        -s=${xAODCaloEvent_root}/xAODCaloEvent CaloCluster.h CaloClusterContainer.h CaloClusterAuxContainer.h \
        -s=${xAODHIEvent_root}/xAODHIEvent HIEventShape.h HIEventShapeContainer.h HIEventShapeAuxContainer.h" 
 

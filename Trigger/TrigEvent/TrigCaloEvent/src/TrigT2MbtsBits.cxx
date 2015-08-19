@@ -77,7 +77,7 @@ std::string str(const TrigT2MbtsBits& trigT2MbtsBits) {
   for(;itr != itr_end; ++itr) {
     sstream << (*itr) << ",";
   }
-  sstream << "}" << endreq;         
+  sstream << "}" << std::endl;
 
   counterValues = trigT2MbtsBits.triggerTimes();
   itr = counterValues.begin();

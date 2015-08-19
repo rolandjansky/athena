@@ -77,7 +77,7 @@ std::string str(const TrigT2ZdcSignals& trigT2ZdcSignals) {
   for(;itr != itr_end; ++itr) {
     sstream << (*itr) << ",";
   }
-  sstream << "}" << endreq;         
+  sstream << "}" << std::endl;
 
   counterValues = trigT2ZdcSignals.triggerTimes();
   itr = counterValues.begin();
