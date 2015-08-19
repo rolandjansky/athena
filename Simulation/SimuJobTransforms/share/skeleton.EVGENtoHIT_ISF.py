@@ -115,55 +115,64 @@ if hasattr(runArgs, "inputEVNT_CAVERNFile"):
 if hasattr(runArgs, "outputEVNT_CAVERNTRFile"):
     include('SimulationJobOptions/preInclude.G4WriteCavern.py')
 
-## Select detectors
-if 'DetFlags' not in dir():
-    ## If you configure one det flag, you're responsible for configuring them all!
-    from AthenaCommon.DetFlags import DetFlags
-    DetFlags.all_setOn()
-DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
-DetFlags.Truth_setOn()
-DetFlags.Forward_setOff() # Forward dets are off by default
-## TODO Move repeated syntax into a separate function
+from ISF_Config.ISF_jobProperties import ISF_Flags
+if jobproperties.Beam.beamType.get_Value() == 'cosmics':
+    ISF_Flags.Simulator.set_Value_and_Lock('CosmicsG4')
+elif hasattr(runArgs, 'simulator'):
+    ISF_Flags.Simulator.set_Value_and_Lock(runArgs.simulator)
+else:
+    ISF_Flags.Simulator.set_Value_and_Lock('MC12G4')
+
+try:
+    from ISF_Config import FlagSetters
+    FlagSetters.configureFlagsBase()
+## Check for any simulator-specific configuration
+    configureFlags = getattr(FlagSetters, ISF_Flags.Simulator.configFlagsMethodName(), None)
+    if configureFlags is not None:
+        configureFlags()
+except:
+    ## Select detectors
+    if 'DetFlags' not in dir():
+        ## If you configure one det flag, you're responsible for configuring them all!
+        from AthenaCommon.DetFlags import DetFlags
+        DetFlags.all_setOn()
+    DetFlags.LVL1_setOff() # LVL1 is not part of G4 sim
+    DetFlags.Truth_setOn()
+    DetFlags.Forward_setOff() # Forward dets are off by default
+
+## Configure Forward Detector DetFlags based on command-line options
+from AthenaCommon.DetFlags import DetFlags
 if hasattr(runArgs, "AFPOn"):
     if runArgs.AFPOn:
-        checkAFP = getattr(DetFlags, 'AFP_setOn', None)
-        if checkAFP is not None:
-            checkAFP()
-        else:
-            atlasG4log.warning( 'AFP Simulation is not supported in this release' )
-if hasattr(runArgs, "FwdRegionOn"):
-    if runArgs.FwdRegionOn:
-        checkFwdRegion = getattr(DetFlags, 'FwdRegion_setOn', None)
-        if checkFwdRegion is not None:
-            checkFwdRegion()
-        else:
-            atlasG4log.warning( 'FwdRegion Simulation is not supported in this release' )
-if hasattr(runArgs, "LucidOn"):
-    if runArgs.LucidOn:
-        DetFlags.Lucid_setOn()
+        DetFlags.AFP_setOn()
 if hasattr(runArgs, "ALFAOn"):
     if runArgs.ALFAOn:
         DetFlags.ALFA_setOn()
+if hasattr(runArgs, "FwdRegionOn"):
+    if runArgs.FwdRegionOn:
+        DetFlags.FwdRegion_setOn()
+if hasattr(runArgs, "LucidOn"):
+    if runArgs.LucidOn:
+        DetFlags.Lucid_setOn()
 if hasattr(runArgs, "ZDCOn"):
     if runArgs.ZDCOn:
         DetFlags.ZDC_setOn()
 
-if DetFlags.Forward_on():
-    checkFwdRegion = getattr(DetFlags, 'FwdRegion_on', None)
-    checkAFP = getattr(DetFlags, 'AFP_on', None)
+DetFlags.Print()
 
-    if (checkFwdRegion is not None and checkFwdRegion()) or DetFlags.ZDC_on() or DetFlags.ALFA_on() or (checkAFP is not None and checkAFP()):
+if DetFlags.Forward_on():
+    if DetFlags.FwdRegion_on() or DetFlags.ZDC_on() or DetFlags.ALFA_on() or DetFlags.AFP_on():
         ## Do not filter high eta particles
         if simFlags.EventFilter.statusOn:
             simFlags.EventFilter.get_Value()['EtaPhiFilters'] = False
         ## ForwardTransport is applied to particles hitting BeamPipe::SectionF46
         DetFlags.bpipe_setOn()
 
-    if checkFwdRegion is not None and checkFwdRegion():
+    if DetFlags.FwdRegion_on():
         # Do full simulation rather than beam transport
         simFlags.ForwardDetectors = 1
         atlasG4log.info( 'FwdRegion switched on, so will run Full Simulation of the Forward Region rather than Forward Transport.' )
-    elif DetFlags.ZDC_on() or DetFlags.ALFA_on() or (checkAFP is not None and checkAFP()):
+    elif DetFlags.ZDC_on() or DetFlags.ALFA_on() or DetFlags.AFP_on():
         ## Use the ForwardTransport package to do the beam transport
         atlasG4log.info( 'FwdRegion switched off, so will run Full Simulation of the Forward Region rather than Forward Transport.' )
         simFlags.ForwardDetectors = 2
@@ -185,7 +194,7 @@ simFlags.SeedsG4.set_Off()
 ## Set the Run Number (if required)
 if hasattr(runArgs,"DataRunNumber"):
     if runArgs.DataRunNumber>0:
-        atlasG4log.info( 'Overriding run number to be: %s ', runArgs.DataRunNumber )
+        atlasG4log.info( 'Overriding run number to be: %s ' % runArgs.DataRunNumber )
         simFlags.RunNumber=runArgs.DataRunNumber
 elif hasattr(runArgs,'jobNumber'):
     if runArgs.jobNumber>=0:
@@ -225,22 +234,26 @@ try:
 except:
     atlasG4log.warning('Could not add TimingAlg, no timing info will be written out.')
 
-from ISF_Config.ISF_jobProperties import ISF_Flags
-if jobproperties.Beam.beamType.get_Value() == 'cosmics':
-    ISF_Flags.Simulator = 'CosmicsG4'
-elif hasattr(runArgs, 'simulator'):
-    ISF_Flags.Simulator = runArgs.simulator
-else:
-    ISF_Flags.Simulator = 'MC12G4'
 if hasattr(runArgs, 'truthStrategy'):
     ISF_Flags.BarcodeService   = 'Barcode_' + runArgs.truthStrategy + 'BarcodeSvc'
     ISF_Flags.TruthService     = 'ISF_'     + runArgs.truthStrategy + 'TruthService'
     ISF_Flags.EntryLayerFilter = 'ISF_'     + runArgs.truthStrategy + 'EntryLayerFilter'
     ISF_Flags.TruthStrategy    = runArgs.truthStrategy
-    if 'MC12' == runArgs.truthStrategy or 'MC15a' == runArgs.truthStrategy:
-        simFlags.SimBarcodeOffset  = 200000 #MC12 setting
-    else:
-        simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
+    try:
+        from BarcodeServices.BarcodeServicesConfig import barcodeOffsetForTruthStrategy
+        simFlags.SimBarcodeOffset  = barcodeOffsetForTruthStrategy(runArgs.truthStrategy)
+    except RuntimeError:
+        if 'MC12' in runArgs.truthStrategy or 'MC15a' in runArgs.truthStrategy:
+            simFlags.SimBarcodeOffset  = 200000 #MC12 setting
+        else:
+            simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
+        atlasG4log.warning('Using unknown truth strategy '+str(runArgs.truthStrategy)+' guessing that barcode offset is '+str(simFlags.SimBarcodeOffset))
+    except ImportError:
+        # Temporary back-compatibility
+        if 'MC12' in runArgs.truthStrategy or 'MC15a' in runArgs.truthStrategy:
+            simFlags.SimBarcodeOffset  = 200000 #MC12 setting
+        else:
+            simFlags.SimBarcodeOffset  = 1000000 #MC15 setting
 else:
     ISF_Flags.BarcodeService   = 'Barcode_MC12BarcodeSvc'
     ISF_Flags.TruthService     = 'ISF_TruthService'
