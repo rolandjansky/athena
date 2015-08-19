@@ -77,10 +77,12 @@ jobproperties.Global.DataSource.set_Value_and_Lock( 'geant4' )
 
 if 'DetFlags' in dir():
     filterHitLog.warning("DetFlags already defined! This means DetFlags should have been fully configured already..")
+    #if you configure one detflag, you're responsible for configuring them all!
     DetFlags.Print()
 else :
-    #if you configure one detflag, you're responsible for configuring them all!
     from AthenaCommon.DetFlags import DetFlags
+    #hacks to reproduce the sub-set of DetFlags left on by RecExCond/AllDet_detDescr.py
+    DetFlags.simulate.all_setOff()
     DetFlags.Print()
 
 #--------------------------------------------------------------
