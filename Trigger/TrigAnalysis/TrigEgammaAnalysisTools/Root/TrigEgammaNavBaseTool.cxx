@@ -32,24 +32,29 @@ TrigEgammaNavBaseTool( const std::string& myname )
 : TrigEgammaAnalysisBaseTool(myname),
     m_dir(myname)
 {
-  declareProperty("Analysis",m_anatype="Analysis");
-  declareProperty("ElectronIsEMSelector"      , m_electronIsEMTool            );
-  declareProperty("ElectronLikelihoodTool"    , m_electronLHTool              );
-  declareProperty("TriggerList"               , m_trigInputList               );
-  declareProperty("PhotonPid"                 , m_photonPid = "Tight"         );
-  declareProperty("doUnconverted"             , m_doUnconverted=false         );
-  declareProperty("OfflineProbeIsolation"     , m_offProbeIsolation="Loose"   );
-  declareProperty("RemoveCrack"               , m_rmCrack=true                ); 
-  declareProperty("ForceProbeIsolation"       , m_forceProbeIsolation=false   );
-  declareProperty("ForcePidSelection"         , m_forcePidSelection=true      );
-  declareProperty("ForceEtThreshold"          , m_forceEtThr=true             ); 
-  declareProperty("ForceMCEnhancedBias"       , m_forceMCEnhancedBias=false   ); //new
+  declareProperty("MVACalibTool", m_MVACalibTool);
+  declareProperty("ApplyMVACalib", m_applyMVACalib=false);
+  declareProperty("ElectronIsEMSelector", m_electronIsEMTool);
+  declareProperty("ElectronLikelihoodTool", m_electronLHTool);
+  declareProperty("TrigDecisionTool", m_trigdec, "iTool to access the trigger decision");
+  declareProperty("TriggerList",m_trigInputList);
+  declareProperty("CategoryList",m_categories);
+  declareProperty("dR",m_dR=0.07); //new
+  declareProperty("RemoveCrack", m_rmCrack=true); //new
+  declareProperty("PhotonPid",m_photonPid = "Tight");
+  declareProperty("doUnconverted", m_doUnconverted=false);
+  declareProperty("OfflineProbeIsolation", m_offProbeIsolation="Loose");
+  declareProperty("ForceProbeIsolation", m_forceProbeIsolation=false);
+  declareProperty("ForcePidSelection", m_forcePidSelection=true);
+  m_PidToolMap["Tight"]=0;
+  m_PidToolMap["Medium"]=1;
+  m_PidToolMap["Loose"]=2;
 
   m_offElectrons=nullptr;
   m_offPhotons=nullptr;
-  m_eventInfo=nullptr;
-  m_truthContainer=nullptr;
   m_jets=nullptr;
+  // Maps should be static
+  // Make a wrapper function to set map and return value
     
 }
 
@@ -65,7 +70,6 @@ StatusCode TrigEgammaNavBaseTool::childExecute() {
 StatusCode TrigEgammaNavBaseTool::childFinalize() {
 
    ATH_MSG_VERBOSE( "child Finalize tool " << name() );
-   clearList();
 
    return StatusCode::SUCCESS;
 }
@@ -74,6 +78,10 @@ StatusCode TrigEgammaNavBaseTool::childFinalize() {
 StatusCode
 TrigEgammaNavBaseTool::childInitialize() {
     ATH_MSG_VERBOSE( "child Initialize tool " << name() );
+    if ( (m_trigdec.retrieve()).isFailure() ){
+        ATH_MSG_ERROR("Could not retrieve Trigger Decision Tool! Can't work");
+        return StatusCode::FAILURE;
+    }
     if ( (m_electronIsEMTool.retrieve()).isFailure() ){
         ATH_MSG_ERROR( "Could not retrieve Selector Tool! Can't work");
         return StatusCode::FAILURE;
@@ -81,6 +89,15 @@ TrigEgammaNavBaseTool::childInitialize() {
     if ( (m_electronLHTool.retrieve()).isFailure() ){
         ATH_MSG_ERROR( "Could not retrieve Selector Tool! Can't work");
         return StatusCode::FAILURE;
+    }
+    if( (m_MVACalibTool.retrieve()).isFailure()) {
+        ATH_MSG_ERROR("Failed to retrieve " << m_MVACalibTool);
+        m_applyMVACalib = false;
+        m_MVACalibTool = ToolHandle<IegammaMVATool>();
+        return StatusCode::FAILURE; 
+    }
+    else {
+        ATH_MSG_DEBUG("Retrieved tool " << m_MVACalibTool);   
     }
 
     return StatusCode::SUCCESS;
@@ -91,96 +108,80 @@ StatusCode TrigEgammaNavBaseTool::childBook() {
 }
 
 
-bool TrigEgammaNavBaseTool::EventWiseSelection( ){
-
+StatusCode TrigEgammaNavBaseTool::eventWiseSelection( ){
     // Check Size of Electron Container
     m_offElectrons = 0;
-    m_offPhotons = 0;
-    m_eventInfo=0;
-    m_truthContainer = 0;
-
-    if ( (m_storeGate->retrieve(m_eventInfo, "EventInfo")).isFailure() ){
-        ATH_MSG_WARNING("Failed to retrieve eventInfo ");
-        return false;
-    }
-   
-    if(m_storeGate->contains<xAOD::TruthParticleContainer>("egammaTruthParticles")){
-      if(m_storeGate->retrieve(m_truthContainer,"egammaTruthParticles").isFailure()){
-        ATH_MSG_WARNING("Could not retrieve xAOD::TruthParticleContainer 'egammaTruthParticles'");
-        return false;
-      }
-    }// protection
-
-    
     if ( (m_storeGate->retrieve(m_offElectrons,m_offElContKey)).isFailure() ){
-        ATH_MSG_WARNING("Failed to retrieve offline Electrons ");
-        return false; 
+        ATH_MSG_ERROR("Failed to retrieve offline Electrons ");
+        return StatusCode::FAILURE; 
     }
     
-    if ( (m_storeGate->retrieve(m_offPhotons,m_offPhContKey)).isFailure() ){
-        ATH_MSG_WARNING("Failed to retrieve offline Photons ");
-        return false; 
-    }
-
-
     for(const auto& eg : *m_offElectrons ){
-        ATH_MSG_DEBUG("ApplyElectronPid...");
-        if(ApplyElectronPid(eg,"Loose")) hist1(m_anatype+"_electrons")->AddBinContent(1);
-        if(ApplyElectronPid(eg,"Medium")) hist1(m_anatype+"_electrons")->AddBinContent(2);
-        if(ApplyElectronPid(eg,"Tight")) hist1(m_anatype+"_electrons")->AddBinContent(3); 
-        if(ApplyElectronPid(eg,"LHLoose")) hist1(m_anatype+"_electrons")->AddBinContent(4);
-        if(ApplyElectronPid(eg,"LHMedium")) hist1(m_anatype+"_electrons")->AddBinContent(5);
-        if(ApplyElectronPid(eg,"LHTight")) hist1(m_anatype+"_electrons")->AddBinContent(6); 
+        if(ApplyElectronPid(eg,"Loose")) hist1("electrons")->AddBinContent(1);
+        if(ApplyElectronPid(eg,"Medium")) hist1("electrons")->AddBinContent(2);
+        if(ApplyElectronPid(eg,"Tight")) hist1("electrons")->AddBinContent(3); 
+        if(ApplyElectronPid(eg,"LHLoose")) hist1("electrons")->AddBinContent(4);
+        if(ApplyElectronPid(eg,"LHMedium")) hist1("electrons")->AddBinContent(5);
+        if(ApplyElectronPid(eg,"LHTight")) hist1("electrons")->AddBinContent(6); 
     }
-   
-    //Calculate number of vertex 
-    TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex();   
 
-    return true; 
+    // Check Size of Electron Container
+    m_offPhotons = 0;
+    if ( (m_storeGate->retrieve(m_offPhotons,m_offPhContKey)).isFailure() ){
+        ATH_MSG_ERROR("Failed to retrieve offline Electrons ");
+        return StatusCode::FAILURE;
+    }
+
+    return StatusCode::SUCCESS;
 }
 
-StatusCode TrigEgammaNavBaseTool::executeNavigation( const TrigInfo info ){
+StatusCode TrigEgammaNavBaseTool::executeNavigation( std::string trigItem ){
 
   clearList();
   ATH_MSG_DEBUG("Apply navigation selection");
   
-  if(info.trigType == "electron") return executeElectronNavigation( info.trigName,info.trigThrHLT,info.trigPidType );
-  else if(info.trigType=="photon") return executePhotonNavigation( info.trigName,info.trigThrHLT);
+  std::string type="";
+  bool isL1=false;
+  float etthr=0;
+  float l1thr=0;
+  std::string l1type="";
+  std::string pidname="";
+  bool perf=false;
+  bool etcut=false;
+  parseTriggerName(trigItem,m_defaultProbePid,isL1,type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
+  std::string trigName="";
+  if(isL1) trigName= trigItem;
+  else trigName="HLT_"+trigItem;
+  if(type == "electron") return executeElectronNavigation( trigName,etthr,pidname );
+  else if(type=="photon") return executePhotonNavigation( trigName,etthr);
 
   ATH_MSG_DEBUG("BaseTool::TEs " << m_objTEList.size() << " found.");
   return StatusCode::SUCCESS;
 }
 
 bool TrigEgammaNavBaseTool::ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname){
-    
-    if (pidname == "Tight"){
-        const Root::TAccept& accept=m_electronIsEMTool[0]->accept(eg);
-        return static_cast<bool>(accept);
-    }
-    else if (pidname == "Medium"){
-        const Root::TAccept& accept=m_electronIsEMTool[1]->accept(eg);
-        return static_cast<bool>(accept);
-    }
-    else if (pidname == "Loose"){
-        const Root::TAccept& accept=m_electronIsEMTool[2]->accept(eg);
-        return static_cast<bool>(accept);
-    }
-    else if (pidname == "LHTight"){
-        const Root::TAccept& accept=m_electronLHTool[0]->accept(eg);
-        return static_cast<bool>(accept);
-    }
-    else if (pidname == "LHMedium"){
-        const Root::TAccept& accept=m_electronLHTool[1]->accept(eg);
-        return static_cast<bool>(accept);
-    }
-    else if (pidname == "LHLoose"){
-        const Root::TAccept& accept=m_electronLHTool[2]->accept(eg);
-        return static_cast<bool>(accept);
-    }
-    else ATH_MSG_DEBUG("No Pid tool, continue without PID");
-    return false;
+  ATH_MSG_DEBUG("Apply Pid " << pidname);
+  if (pidname == "Tight"){
+    return m_electronIsEMTool[0]->accept(eg);
+  }
+  else if (pidname == "Medium"){
+    return m_electronIsEMTool[1]->accept(eg);
+  }
+  else if (pidname == "Loose"){
+    return m_electronIsEMTool[2]->accept(eg);
+  }
+  else if (pidname == "LHTight"){
+    return m_electronLHTool[0]->accept(eg);
+  }
+  else if (pidname == "LHMedium"){
+    return m_electronLHTool[1]->accept(eg);
+  }
+  else if (pidname == "LHLoose"){
+    return m_electronLHTool[2]->accept(eg);
+  }
+  else ATH_MSG_DEBUG("No Pid tool, continue without PID");
+  return false;
 }
-
 
 StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigItem,float etthr,std::string pidname ){
 
@@ -188,9 +189,8 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
   ATH_MSG_DEBUG("Apply navigation selection "); 
 
 
-  const std::string decor="is"+pidname;
   for(const auto& eg : *m_offElectrons ){
-      const HLT::TriggerElement *te = nullptr;
+      const HLT::TriggerElement *te = NULL;
       if(!eg->trackParticle()){
           ATH_MSG_DEBUG("No track Particle");
           continue;
@@ -200,44 +200,28 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
           continue;
       }
 
-      if(m_forceEtThr){///default is true
+      if(m_forcePidSelection){
         if( !( getEt(eg)  > (etthr-5.)*1.e3) ) continue;
-      }
-
-      if(m_rmCrack){///default is true
-        if ( (fabs(eg->eta())>1.37 && fabs(eg->eta())<1.52) || fabs(eg->eta())>2.47 )  continue; 
-      }
-
-      if(m_forcePidSelection){///default is true
+        if ( (fabs(eg->eta())>1.37 && fabs(eg->eta())<1.52) || fabs(eg->eta())>2.47 )
+            continue; 
+        // if(!eg->passSelection(pidname)) continue;
+        // Rerun offline selection
         if(!ApplyElectronPid(eg,pidname)) continue;
-      }
-
-      if (m_forceProbeIsolation) {///default is false
-        if (!isIsolated(eg, m_offProbeIsolation))  continue;///default is Loose
-      }
-      
-      if(m_forceMCEnhancedBias){///default is false
-        if(m_truthContainer){//Monte Carlo
-          const xAOD::TruthParticle *mc=nullptr;
-          if( pdgid(eg,m_truthContainer,mc) != MonteCarlo::PDGID::EnhancedBias)  continue;
-        }else{//Data: if reproved by loose, its possible to be a background (not electron)
-          if(ApplyElectronPid(eg,"LHLoose"))  continue;
+        if (m_forceProbeIsolation) {
+            if (!isIsolated(eg, m_offProbeIsolation)) {
+                continue;
+            }
         }
       }
 
-      xAOD::Electron *el = new xAOD::Electron(*eg);
-      el->auxdecor<bool>(decor)=static_cast<bool>(true);
-      
-
-      if (match()->match(el, trigItem, te)){
-         std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,te);
-         m_objTEList.push_back(pair);
-      }
-      else {
-          std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,nullptr);
+      if ( m_matchTool->match(eg, trigItem, te)){
+          std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(eg,te);
           m_objTEList.push_back(pair);
       }
-
+      else {
+          std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(eg,NULL);
+          m_objTEList.push_back(pair);
+      }
   }
 
   ATH_MSG_DEBUG("BaseTool::Electron TEs " << m_objTEList.size() << " found.");
@@ -248,31 +232,28 @@ StatusCode TrigEgammaNavBaseTool::executePhotonNavigation( std::string trigItem,
 
   clearList();
   ATH_MSG_DEBUG("Apply navigation selection");
- 
-  const std::string decor="is"+m_photonPid;
+  
+
 
   for(const auto& eg : *m_offPhotons ){
-      const HLT::TriggerElement *te = nullptr;
+      const HLT::TriggerElement *te = NULL;
       if(!eg->caloCluster()){
           ATH_MSG_DEBUG("No caloCluster");
           continue;
       } 
       if( !(getCluster_et(eg) > (etthr-5.)*1.e3)) continue; //Take 2GeV above threshold
       if(!eg->passSelection(m_photonPid)) continue;
-      if(m_doUnconverted){
+      if(m_doUnconverted)
           if (eg->vertex()){
               ATH_MSG_DEBUG("Removing converted photons, continuing...");
               continue;
           }
-      }
-      xAOD::Photon *ph = new xAOD::Photon(*eg);
-      ph->auxdecor<bool>(decor)=static_cast<bool>(true);
-      if ( match()->match(ph, trigItem, te)){
-          std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,te);
+      if ( m_matchTool->match(eg, trigItem, te)){
+          std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(eg,te);
           m_objTEList.push_back(pair);
       }
       else {
-          std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(ph,nullptr);
+          std::pair< const xAOD::Photon*, const HLT::TriggerElement* > pair(eg,NULL);
           m_objTEList.push_back(pair);
       }
 

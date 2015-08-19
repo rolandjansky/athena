@@ -11,8 +11,6 @@
 
 #include "TrigEgammaAnalysisTools/TrigEgammaAnalysisBaseTool.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "xAODTruth/TruthParticle.h"
-#include "xAODTruth/TruthParticleContainer.h"
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
@@ -59,57 +57,45 @@ protected:
   /*! at least one chain should pass. e28_tight_iloose? */
   bool MinimalTriggerRequirement ();
   /*! Tag and Probe method called by derived classes */
-  void executeTandP(); 
-  /*! Match probes called by derived classes */
-  void matchObjects(const std::string trigItem); 
+  StatusCode executeTandP(const std::string trigItem); 
   /*! Tag Electron selection */
   bool isTagElectron(const xAOD::Electron *el);
   /*! Rerun offline selection */
-  bool ApplyElectronPid(const xAOD::Electron *eg,const std::string);
-  /*! Rerun offline selection */
-  void DressPid(const xAOD::Electron *eg);
+  bool ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname);
   /*! Probe selection */
-  bool isGoodProbeElectron(const xAOD::Electron *el);//,const std::string,const float,const std::string); 
+  bool isGoodProbeElectron(const xAOD::Electron *el,const std::string,const float,const std::string); 
   /*! Event-wise trigger selection */
   bool passedTrigger(const HLT::TriggerElement* obj); 
   /*! Clears list of probes after each trigger item per event */
   void clearProbeList(); 
-  /*! Clears list of matched probes after each trigger item per event */
-  void clearPairList();
-  /* Clears decorations offline objects */
-  void clearDecorations();
   /*! Return pseudo-lifetime of Jpsi */
   float GetPseudoLifetime(const xAOD::Electron*,const xAOD::Electron*);
   /*! Calculate the displacement of the Jpsi vertex w.r.t. the primary vertex in the transverse plane */
   double simple_lxy(int ,double, double, double , double , double , double , double, double );
-  /*! vector of electron probes */
-  std::vector<const xAOD::Electron*> m_probeElectrons;
-  /*! vector of photon probes */
-  std::vector<const xAOD::Photon*> m_probePhotons;
+  /*! Dual-use tool for MVA calibration */
+  ToolHandle<IegammaMVATool>  m_MVACalibTool; 
   /*! vector of offline electron probe and matched TE */
-  std::vector<std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> > m_pairObj;
+  std::vector<std::pair<const xAOD::Electron*,const HLT::TriggerElement*> > m_probeElectrons;
   /* vector of offline photon probe and matched TE */
-  //std::vector<std::pair<const xAOD::Photon*,const HLT::TriggerElement*> > m_probePhotons; 
+  std::vector<std::pair<const xAOD::Photon*,const HLT::TriggerElement*> > m_probePhotons; 
+  /* vector of offline TP pair mass */
+  std::vector<float> m_mee;
   /*! List of triggers from menu */
   std::vector<std::string> m_trigInputList;
  /*! List of trigger categories for MaM */
   std::vector<std::string> m_categories; 
   /*! List of triggers to study */
   std::vector<std::string> m_trigList; 
-  /*! Zee lower mass cut */
-  float m_ZeeMassMin;
-  /*! Zee upper mass cut */
-  float m_ZeeMassMax;
+  /*! To apply MVA calibration -- TBD */
+  bool m_applyMVACalib; 
+  /*! dR matching between TE and offline probe */
+  // float m_dR; // Done in matching tool
   /*! Remove crack region for Probe default True */
   bool m_rmCrack;
   /*! Directory name for each algorithm */
   std::string m_dir;
-  /*! Directory name for each algorithm */
-  std::string m_anatype;
   
   const xAOD::EventInfo* m_eventInfo;
-  const xAOD::TruthParticleContainer* m_truthContainer;
-
 
 private:
   // ToolHandles
@@ -131,6 +117,10 @@ private:
   const xAOD::JetContainer* m_jets;
   /* TP selection properties */
  
+  /*! Zee lower mass cut */
+  float m_ZeeMassMin;
+  /*! Zee upper mass cut */
+  float m_ZeeMassMax;
   /*! Not needed */
   // unsigned int m_isEMoffTag;
   /*! Define the PID for tag electron */
@@ -155,9 +145,6 @@ private:
   bool m_forceProbeIsolation;
   /*! Define isolation working point for Probe electron */
   std::string m_offProbeIsolation;
-  /*! skip trigger for offline Tag and Probe analysis */
-  bool m_skipTrigger;
-
 };
 
 #endif

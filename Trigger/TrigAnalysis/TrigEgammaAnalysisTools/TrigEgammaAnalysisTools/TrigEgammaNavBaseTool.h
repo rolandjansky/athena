@@ -12,8 +12,6 @@
 #include "TrigEgammaAnalysisTools/TrigEgammaAnalysisBaseTool.h"
 
 #include "xAODEventInfo/EventInfo.h"
-#include "xAODTruth/TruthParticle.h"
-#include "xAODTruth/TruthParticleContainer.h"
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
@@ -57,51 +55,56 @@ public:
   StatusCode childFinalize();
 protected:
   /*! EventWise Selection */
-  bool EventWiseSelection();
+  StatusCode eventWiseSelection();
   /*! navigation method called by derived classes */
-  StatusCode executeNavigation(const TrigInfo);
-
+  StatusCode executeNavigation(const std::string trigItem);
   /*! Tag Electron selection */
   bool passedTrigger(const HLT::TriggerElement* obj); 
   /*! Rerun offline selection */
   bool ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname);
   /*! Clears list of probes after each trigger item per event */
   void clearList(); 
+  /*! Dual-use tool for MVA calibration */
+  ToolHandle<IegammaMVATool>  m_MVACalibTool; 
   /*! vector of offline object and matched TE */
   std::vector<std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> > m_objTEList;
   /*! List of triggers from menu */
   std::vector<std::string> m_trigInputList;
   /*! List of trigger categories for MaM */
-  //std::vector<std::string> m_categories; 
+  std::vector<std::string> m_categories; 
   /*! List of triggers to study */
   std::vector<std::string> m_trigList; 
-  /*! Base Directory name for each algorithm */
-  std::string m_dir;
+  /*! To apply MVA calibration -- TBD */
+  bool m_applyMVACalib; 
+  /*! dR matching between TE and offline probe */
+  float m_dR;
+  /*! Remove crack region for Probe default True */
+  bool m_rmCrack;
   /*! Directory name for each algorithm */
-  std::string m_anatype;
+  std::string m_dir;
   /*! Photon pid word */
   std::string m_photonPid;
   /*! doUnconverted analysis */
   bool m_doUnconverted;
-
-  const xAOD::EventInfo* m_eventInfo;
-  const xAOD::TruthParticleContainer* m_truthContainer;
-
 private:
- 
+  
   /*! navigation method called by executeNavigation */
   StatusCode executeElectronNavigation(const std::string trigItem,float,std::string); 
   /*! navigation method called by executeNavigation */
   StatusCode executePhotonNavigation(const std::string trigItem,float); 
- 
-  // ToolHandles
-  // Offline ++ selectors
+// ToolHandles
+  //
+  //Offline ++ selectors
   // In python order will matter. Should always be tight, medium, loose
   // Order no longer important since using a map
   ///*! Offline isEM Selectors */
   ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool;
   /*! Offline LH Selectors */
   ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool; 
+
+  std::map< std::string, unsigned int > m_PidToolMap; /*! Pass a string to pick up correct selector */
+  //std::map< std::string, std::string > m_PidMap; /*! Map trigger pid to selector pid */ 
+  //
   /*! Event Wise offline ElectronContainer Access and end iterator */
   const xAOD::ElectronContainer* m_offElectrons;
   /*! Event Wise offline PhotonContainer Access and end iterator */
@@ -119,10 +122,6 @@ private:
   //std::map<std::string,std::string> m_triggerMap;
   /*! Define isolation working point for Probe electron */
   std::string m_offProbeIsolation;  
-  /* Define the pidname for data collection using experimentalSelection methods*/
-  std::string m_electronFilterType;
-  /* Define the pidname for data collection using experimentalSelection methods*/
-  std::string m_photonFilterType;
 
 protected:/// Protect type is used here becouse this can be access by inheritance. Some analysis
   ///will change this flags. make everything auto by protect access!
@@ -130,14 +129,6 @@ protected:/// Protect type is used here becouse this can be access by inheritanc
   bool m_forceProbeIsolation;
   /*! force pid and crack selection into electron navigation */
   bool m_forcePidSelection;
-  /* force experimentalSelection selection*/
-  bool m_forceMCEnhancedBias;
-  /* force et cluster cut*/
-  bool m_forceEtThr;
-   /*! Remove crack region for Probe default True */
-  bool m_rmCrack; 
-
-
 };
 
 #endif

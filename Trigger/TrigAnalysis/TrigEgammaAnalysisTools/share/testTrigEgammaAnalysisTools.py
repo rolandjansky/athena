@@ -12,14 +12,43 @@
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
+from InDetRecExample.InDetJobProperties import InDetFlags
+InDetFlags.doSecVertexFinder.set_Value_and_Lock(False)
 from AthenaCommon.AppMgr import ToolSvc
 
 import os
+
+# Use the parser
+import argparse
+#print 'Setup parser'
+parser = argparse.ArgumentParser()
+#parser.add_argument("--file", action="store",help="input file name")
+#parser.add_argument("--dirname", action="store",help="input directory")
+#parser.add_argument("--nev",default=-1,action=store,type=int,help="number of events to process")
+#parser.add_argument("--output",default="Validation",action=store,help="output file name")
+#parser.add_argument("--t0",default=False,action=store_true,help="run T0 monitoring")
+#parser.add_argument("--tagTrigger",default="e26_lhtight_iloose",action=store,help="Tag trigger to TP")
+#parser.add_argument("--useMCMenu",default=False,action=store_true,help="Use MC menu to generate trigger list")
+#parser.add_argument("--usePhysicsMenu",default=False,action=store_true,help="Use MC menu to generate trigger list")
 
 #print 'Set some variables for job'
 dirtouse = str()
 
 finallist=[]
+#print 'Now parser'
+#args = parser.parse_args()
+#print 'Now setup filelist'
+#finallist.append(args.file)
+#print 'Or set the directory'
+#dirtouse=args.dirname
+#nov=args.nev
+#while( dirtouse.endswith('/') ) :
+#    dirtouse= dirtouse.rstrip('/')
+#    listfiles=os.listdir(dirtouse)
+#    for ll in listfiles:
+#        finallist.append(dirtouse+'/'+ll)
+#outputName = args.output
+#tagItem = args.Tagtrigger
 
 if 'FILE' in dir() :
      finallist.append(FILE)
@@ -36,16 +65,23 @@ if 'NOV' in dir():
 else :
     nov=-1
 
-if 'RTT' in dir():
-    rttfile='root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/rtt/prod/rtt/'+RTT+'/x86_64-slc6-gcc49-opt/offline/TrigEgammaValidation/RDOtoAOD_MC_transform_Zee_25ns_pileup/AOD.Zee.25ns.pileup.pool.root'
-    finallist.append(rttfile)
+if 'OUTPUT' in dir():
+    outputName = OUTPUT
+elif 'DOTIER0' in dir():
+    outputName = ''
+elif 'DO50ns' in dir():
+    outputName = ''
+else:
+    outputName = 'Validation'
 
-if 'GRL' in dir():
-    grl=GRL
-
+if('TAG' in dir()):
+    tagItem = TAG 
+else: 
+    tagItem = 'e26_tight_iloose'
 
 athenaCommonFlags.FilesInput=finallist
 athenaCommonFlags.EvtMax=nov
+#athenaCommonFlags.EvtMax=-1
 rec.readAOD=True
 # switch off detectors
 rec.doForwardDet=False
@@ -56,62 +92,96 @@ rec.doEgamma=False
 rec.doTrigger = True; recAlgs.doTrigger=False # disable trigger (maybe necessary if detectors switched off)
 rec.doMuon=False
 rec.doMuonCombined=False
-rec.doWriteAOD=True
+rec.doWriteAOD=False
 rec.doWriteESD=False
 rec.doDPD=False
 rec.doTruth=False
 
+
 # autoconfiguration might trigger undesired feature
 rec.doESD.set_Value_and_Lock(False) # uncomment if do not run ESD making algorithms
 rec.doWriteESD.set_Value_and_Lock(False) # uncomment if do not write ESD
-rec.doAOD.set_Value_and_Lock(True) # uncomment if do not run AOD making algorithms
-rec.doWriteAOD.set_Value_and_Lock(True) # uncomment if do not write AOD
+rec.doAOD.set_Value_and_Lock(False) # uncomment if do not run AOD making algorithms
+rec.doWriteAOD.set_Value_and_Lock(False) # uncomment if do not write AOD
 rec.doWriteTAG.set_Value_and_Lock(False) # uncomment if do not write TAG
 
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
-MessageSvc.debugLimit = 20000000
-MessageSvc.infoLimit  = 20000000
+
 # TDT
 from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
 ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
 ToolSvc.TrigDecisionTool.TrigDecisionKey='xTrigDecision'
 
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
+# Set base path for monitoring/validation tools        
+basePath = '/HLT/Egamma/'
 
-# Use GRL selection 
-if 'GRL' in dir():
-    # Configure the goodrunslist selector tool
-    from GoodRunsLists.GoodRunsListsConf import *
-    ToolSvc += GoodRunsListSelectorTool() 
-    GoodRunsListSelectorTool.GoodRunsListVec = [grl]
-    GoodRunsListSelectorTool.OutputLevel = DEBUG
-    from AthenaCommon.AlgSequence import AlgSequence,AthSequencer
+if 'DOTIER0' in dir():
+    from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
-    seq = AthSequencer("AthFilterSeq")
-    from GoodRunsListsUser.GoodRunsListsUserConf import *
-    seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
-    seq.GRLTriggerAlg1.GoodRunsListArray = ['PHYS_StandardGRL_All_Good']        ## pick up correct name from inside xml file!
 
-from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
-topSequence += AthenaMonManager( "HLTMonManager")
-HLTMonManager = topSequence.HLTMonManager
+    from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
+    topSequence += AthenaMonManager( "HLTMonManager")
+    HLTMonManager = topSequence.HLTMonManager
 
-################ Mon Tools #################
-#Global HLTMonTool
+    ################ Mon Tools #################
 
-from TrigHLTMonitoring.TrigHLTMonitoringConf import HLTMonTool
-HLTMon = HLTMonTool(name               = 'HLTMon',
-               histoPathBase      = "HLT");
+    #Global HLTMonTool
 
-ToolSvc += HLTMon;
-HLTMonManager.AthenaMonTools += [ "HLTMonTool/HLTMon" ];
+    from TrigHLTMonitoring.TrigHLTMonitoringConf import HLTMonTool
+    HLTMon = HLTMonTool(name               = 'HLTMon',
+                   histoPathBase      = "HLT");
+
+
+    ToolSvc += HLTMon;
+    HLTMonManager.AthenaMonTools += [ "HLTMonTool/HLTMon" ];
     
-from TrigEgammaAnalysisTools import TrigEgammaMonToolConfig
-TrigEgammaMonToolConfig.TrigEgammaMonTool()
-HLTMonManager.AthenaMonTools += [ "TrigEgammaMonTool/HLTEgammaMon" ]
-HLTMonManager.FileKey = "GLOBAL"
+    from TrigEgammaAnalysisTools import TrigEgammaMonToolConfig
+    TrigEgammaMonToolConfig.TrigEgammaMonTool()
+    HLTMonManager.AthenaMonTools += [ "TrigEgammaMonTool" ]
+    HLTMonManager.FileKey = "GLOBAL"
+
+elif 'DO50ns' in dir():
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+
+    from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
+    topSequence += AthenaMonManager( "HLTMonManager")
+    HLTMonManager = topSequence.HLTMonManager
+
+    ################ Mon Tools #################
+
+    #Global HLTMonTool
+
+    from TrigHLTMonitoring.TrigHLTMonitoringConf import HLTMonTool
+    HLTMon = HLTMonTool(name               = 'HLTMon',
+                   histoPathBase      = "HLT");
 
 
+    ToolSvc += HLTMon;
+    HLTMonManager.AthenaMonTools += [ "HLTMonTool/HLTMon" ];
+    
+    from TrigEgammaAnalysisTools import TrigEgammaMonToolConfig50ns
+    TrigEgammaMonToolConfig50ns.TrigEgammaMonTool()
+    HLTMonManager.AthenaMonTools += [ "TrigEgammaMonTool" ]
+    HLTMonManager.FileKey = "GLOBAL"
+
+elif 'DOPHYSVAL' in dir():
+    from AthenaCommon.AlgSequence import AlgSequence
+    topSequence = AlgSequence()
+
+    from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
+    monMan= AthenaMonManager( "PhysValMonManager")
+    monMan.FileKey = "PhysVal"
+    topSequence += monMan
+
+    from GaudiSvc.GaudiSvcConf import THistSvc
+    ServiceMgr += THistSvc()
+    
+    ServiceMgr.THistSvc.Output += ["PhysVal DATAFILE='PhysVal.root' OPT='RECREATE'"]
+    from TrigEgammaAnalysisTools import TrigEgammaPhysValMonToolConfig
+    TrigEgammaPhysValMonToolConfig.TrigEgammaPhysValMonTool()
+    monMan.AthenaMonTools += [ "TrigEgammaPhysValMonTool" ]
+else:
+   print "No job configured, options DOPHYSVAL=True or DOTIER0=True" 
     
