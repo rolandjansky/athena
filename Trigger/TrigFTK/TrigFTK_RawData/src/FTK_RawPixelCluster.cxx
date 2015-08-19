@@ -12,7 +12,7 @@ using namespace std;
 FTK_RawPixelCluster::FTK_RawPixelCluster():
   m_word_a(0),
   m_word_b(0),
-  m_layer(-1),
+  m_layer(FTK_RawPixelCluster::missingLayer),
   m_barcode(0)
 {
   // nothing to do
@@ -54,7 +54,7 @@ void FTK_RawPixelCluster::setColWidth(unsigned int col_width){
 
 void FTK_RawPixelCluster::setColCoord(float col_coord){
 
-  if (m_layer == -1){
+  if (m_layer == FTK_RawPixelCluster::missingLayer){
     std::cout << "ERROR: You have not set the layer for this Pixel Cluster, col coord not set" << std::endl;
     return;
   }
@@ -98,7 +98,7 @@ void FTK_RawPixelCluster::setRowWidth(unsigned int row_width){
 
 void FTK_RawPixelCluster::setRowCoord(float row_coord){
 
-  if (m_layer == -1){
+  if (m_layer == FTK_RawPixelCluster::missingLayer){
     std::cout << "ERROR: You have not set the layer for this Pixel Cluster, row coord not set" << std::endl;
     return;
   }
@@ -167,13 +167,13 @@ float FTK_RawPixelCluster::getRowCoord() const {
 
 }
 
-int FTK_RawPixelCluster::getColWidth() const { 
+unsigned int FTK_RawPixelCluster::getColWidth() const { 
 
   uint32_t col = ((m_word_b << 3) >> 29);
   return (int)col;
 }
 
-int FTK_RawPixelCluster::getRowWidth() const { 
+unsigned int FTK_RawPixelCluster::getRowWidth() const { 
 
   float multiplier = 1.; // Range multiplier
   //float range_top  = 5.; 

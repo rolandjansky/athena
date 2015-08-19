@@ -12,9 +12,11 @@ class FTK_RawSCT_Cluster {
 private:
   uint32_t    m_word;
   int         m_layer; 
-  signed long m_barcode;
+  long int    m_barcode;
 
 public:
+
+  enum layerValues{missingLayer=255};
 
   FTK_RawSCT_Cluster(); 
   FTK_RawSCT_Cluster(int); 
@@ -29,13 +31,15 @@ public:
   void setModuleID(unsigned int module_id);
 
   uint32_t     getWord()     const { return m_word;}
-  int          getLayer()    const { return m_layer;}
-  signed long  getBarcode()  const { return m_barcode;}
+  unsigned int getLayer()    const { return m_layer;}
+  long int     getBarcode()  const { return m_barcode;}
   float        getHitCoord() const;
   unsigned int getHitWidth() const;
   unsigned int getModuleID() const;
 };
 
+
 CLASS_DEF( FTK_RawSCT_Cluster , 178057777 , 1 )
 
 #endif // TRIGFTK_RAWDATA_FTK_RAWSCT_CLUSTER_H
+
