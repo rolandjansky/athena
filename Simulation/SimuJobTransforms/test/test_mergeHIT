@@ -1,0 +1,44 @@
+#! /usr/bin/env bash
+
+## Any arguments will be added at the end.
+## They can be either options or named arguments, which will override the default arguments
+if [[ $# -ge 1 ]]; then
+   ARGS=$@
+else
+   ARGS=""
+fi
+
+if [[ x$TESTDATA == x ]]; then
+  echo "ERROR: TESTDATA not defined"
+  exit 1
+fi
+INPUTFILE=$TESTDATA/mu_E50_eta0-25_${GEOMETRY}.hits.pool.root
+FILENAME=`basename ${INPUTFILE}`
+FILEBASE=${FILENAME%.hits.pool.root}
+INPUTFILE2=${FILEBASE}.2.hits.pool.root
+cp $INPUTFILE $INPUTFILE2
+INPUTLIST=$INPUTFILE,$INPUTFILE2
+MERGEHITSFILE=${FILEBASE}.merged.hits.pool.root
+JOBCONFIG=NONE
+echo $INPUTLIST
+
+## TODO: Temporary hack until log files are found!
+touch temp1.log temp2.log
+INPUTLOGLIST=temp1.log,temp2.log
+
+TRF=HITSMerge_tf.py
+which $TRF
+if [[ $? -ne 0 ]]; then
+  echo "ERROR: $TRF not found"
+  exit 2
+fi
+cmd="$TRF\
+ --inputHITSFile=$INPUTLIST\
+ --inputLogsFile=$INPUTLOGLIST\
+ --outputHITS_MRGFile=$MERGEHITSFILE\
+ --maxEvents=20\
+ --skipEvents=0\
+ --geometryVersion=$GEOMETRY \
+ $ARGS"
+echo $cmd
+$cmd
