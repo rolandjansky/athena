@@ -55,8 +55,8 @@ default = ['e24_lhmedium_iloose_L1EM18VH',# Primary LH electron triggers
         'e26_lhtight_cutd0dphideta_iloose',
         'e26_lhtight_iloose_HLTCalo',
         'e26_lhtight_iloose_L2EFCalo',
-        'e24_lhtight_iloose_HLTCalo',
-        'e24_lhtight_iloose_L2EFCalo',
+        'e24_lhtight_iloose_HLTCalo_L1EM20VH',
+        'e24_lhtight_iloose_L2EFCalo_L1EM20VH',
         'e60_lhmedium_HLTCalo',
         'e60_lhmedium_L2EFCalo',
         'e60_lhmedium_nod0',
@@ -103,6 +103,11 @@ default = ['e24_lhmedium_iloose_L1EM18VH',# Primary LH electron triggers
         "e5_loose",
         'e24_medium_idperf_L1EM20VH',
         'e24_lhmedium_idperf_L1EM20VH',
+        'e25_etcut_L1EM15',
+        'e30_etcut_L1EM15',
+        'L1_EM18VH',
+        'L1_EM20VH',
+        'L1_EM20VHI',
        ]
 
 # ProbeList 1 - Low/mid pt supporting triggers
@@ -392,4 +397,11 @@ probeListPhotonTriggers = [
 	"g60_loose_L1EM15VH",
 	"g70_loose",
 	"g80_loose",
+]
+
+defaultJpsi=[
+         "e5_loose",
+         "e5_lhloose",
+         "e5_vloose",
+         "e5_lhvloose",
 ]

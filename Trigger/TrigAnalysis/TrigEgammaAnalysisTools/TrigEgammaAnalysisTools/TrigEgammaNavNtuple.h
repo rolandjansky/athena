@@ -42,14 +42,14 @@ class TrigEgammaNavNtuple : public TrigEgammaNavBaseTool,
     /* Create branches */
     void bookEventBranches( TTree *t );
     void bookElectronBranches( TTree *t );
-    void bookPhotonBranches( TTree *t );
+    //void bookPhotonBranches( TTree *t );
     void bookTriggerBranches( TTree *t );
     void bookMonteCarloBranches( TTree *t );
     
     /* uses InitBranch to connect the local variable and ttree pointer */
     void linkEventBranches( TTree *t);
     void linkElectronBranches( TTree *t);
-    void linkPhotonBranches( TTree *t);
+    //void linkPhotonBranches( TTree *t);
     void linkTriggerBranches( TTree *t);
     void linkMonteCarloBranches( TTree *t);    
     
@@ -58,7 +58,7 @@ class TrigEgammaNavNtuple : public TrigEgammaNavBaseTool,
     bool fillEvent        ( );
     bool fillMonteCarlo   ( const xAOD::Egamma        *eg );
     bool fillElectron     ( const xAOD::Electron      *el );
-    bool fillPhoton       ( const xAOD::Photon        *ph );
+    //bool fillPhoton       ( const xAOD::Photon        *ph );
     bool fillCaloRings    ( const xAOD::Electron      *el );
     bool fillTrigCaloRings( const xAOD::TrigEMCluster *emCluster );
     

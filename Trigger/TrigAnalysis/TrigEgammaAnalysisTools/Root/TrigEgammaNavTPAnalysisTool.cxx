@@ -15,7 +15,7 @@
  *      Produces trigger efficiency distributions at each trigger level
  **********************************************************************/
 #include "TrigEgammaAnalysisTools/TrigEgammaNavTPAnalysisTool.h"
-
+#include "TProfile.h"
 //**********************************************************************
 
 TrigEgammaNavTPAnalysisTool::
@@ -36,9 +36,9 @@ StatusCode TrigEgammaNavTPAnalysisTool::childInitialize(){
 }
 StatusCode TrigEgammaNavTPAnalysisTool::childBook(){
     ATH_MSG_DEBUG("Now configuring chains for analysis");
-    std::vector<std::string> selectElectronChains  = m_trigdec->getListOfTriggers("HLT_e.*");
+    std::vector<std::string> selectElectronChains  = m_trigdec->getListOfTriggers("HLT_e.*,L1_EM.*");
     for (int j = 0; j < (int) selectElectronChains.size(); j++) {
-        ATH_MSG_DEBUG("Electron trigger " << selectElectronChains[j]);
+        ATH_MSG_VERBOSE("Electron trigger " << selectElectronChains[j]);
     }
     std::vector<std::string> selectPhotonChains  = m_trigdec->getListOfTriggers("HLT_g.*");
 
@@ -70,11 +70,11 @@ StatusCode TrigEgammaNavTPAnalysisTool::childBook(){
     addHistogram(new TH1F("nProbesL2Calo", "Number of L2Calo Probes; Trigger ; Count", nTrigger, 0., nTrigger));
     addHistogram(new TH1F("nProbesEFCalo", "Number of EFCalo Probes; Trigger ; Count", nTrigger, 0., nTrigger));
     addHistogram(new TH1F("nProbesHLT", "Number of HLT Probes; Trigger ; Count", nTrigger, 0., nTrigger));
-    addHistogram(new TH1F("EffL1", "Average L1 Efficiency; Trigger ; #epsilon", nTrigger, 0., nTrigger));
-    addHistogram(new TH1F("EffL2", "Average L2 Efficiency; Trigger ; #epsilon", nTrigger, 0., nTrigger));
-    addHistogram(new TH1F("EffL2Calo", "Average L2Calo Efficiency; Trigger ; #epsilon", nTrigger, 0., nTrigger));
-    addHistogram(new TH1F("EffEFCalo", "Average EFCalo Efficiency; Trigger ; #epsilon", nTrigger, 0., nTrigger));
-    addHistogram(new TH1F("EffHLT", "Average HLT Efficiency; Trigger ; #epsilon", nTrigger, 0., nTrigger));
+    addHistogram(new TProfile("EffL1", "Average L1 Efficiency; Trigger ; #epsilon", nTrigger, 0., nTrigger));
+    addHistogram(new TProfile("EffL2", "Average L2 Efficiency; Trigger ; #epsilon", nTrigger, 0., nTrigger));
+    addHistogram(new TProfile("EffL2Calo", "Average L2Calo Efficiency; Trigger ; #epsilon", nTrigger, 0., nTrigger));
+    addHistogram(new TProfile("EffEFCalo", "Average EFCalo Efficiency; Trigger ; #epsilon", nTrigger, 0., nTrigger));
+    addHistogram(new TProfile("EffHLT", "Average HLT Efficiency; Trigger ; #epsilon", nTrigger, 0., nTrigger));
     
     setLabels(hist1("nProbes"),m_trigList);
     setLabels(hist1("nProbesL1"),m_trigList);
@@ -100,7 +100,7 @@ StatusCode TrigEgammaNavTPAnalysisTool::childBook(){
 }
 
 void TrigEgammaNavTPAnalysisTool::bookPerSignature(const std::string trigger){
-    ATH_MSG_DEBUG("Now booking histograms");
+    ATH_MSG_VERBOSE("Now booking histograms");
     std::string basePath = m_dir+"/"+trigger;
     addDirectory(basePath);
     addHistogram(new TH1F("ProbeCutCounter", "Number of Probes; Cut ; Count", 12, 0., 12));
@@ -128,6 +128,7 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
     hist1("CutCounter")->Fill("EventWise",1);
     for(unsigned int ilist = 0; ilist != m_trigList.size(); ilist++) {
         std::string probeTrigger = m_trigList.at(ilist);
+        const char * cprobeTrigger = m_trigList.at(ilist).c_str();
 
         std::string type="";
         bool isL1=false;
@@ -137,12 +138,22 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
         std::string pidname="";
         bool perf=false;
         bool etcut=false;
-        parseTriggerName(probeTrigger,"Loose",isL1,type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
+        parseTriggerName(probeTrigger,m_defaultProbePid,isL1,type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
         std::string basePath = m_dir+"/"+probeTrigger +"/Efficiency/" ;
+	
+        /*std::string trigname="";
+	if (isL1) {
+	  trigname = probeTrigger;
+	} else {
+	  trigname = "HLT_"+probeTrigger;
+	}*/
+        if(isL1) etthr=l1thr;
         cd(m_dir+"/"+probeTrigger);
         if ( executeTandP(probeTrigger).isFailure() )
             return StatusCode::FAILURE;
-        
+        // Fill online disrtiubtions for Zee reco events
+        if(m_probeElectrons.size() > 1)
+            distribution(m_dir+"/"+probeTrigger+"/Distributions/",probeTrigger,type);
         // Just for counting
         for(unsigned int i=0;i<m_probeElectrons.size();i++){
             const xAOD::Electron* offEl = m_probeElectrons[i].first;
@@ -160,13 +171,17 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
             inefficiency(m_dir+"/"+probeTrigger+"/Efficiency/HLT",runNumber,eventNumber,etthr,m_probeElectrons[i]); // Requires offline match
             resolution(m_dir+"/"+probeTrigger,m_probeElectrons[i]); // Requires offline match
             
+            // Fill the offline distributions for selected Zee probe electrons
+            fillShowerShapes(m_dir+"/"+probeTrigger+"/Distributions/Offline",offEl); // Fill Offline shower shapes
+            fillTracking(m_dir+"/"+probeTrigger+"/Distributions/Offline",offEl); // Fill HLT shower shapes
+            
             float avgmu=0.;
             if(m_lumiTool)
                 avgmu = m_lumiTool->lbAverageInteractionsPerCrossing();
 
             cd(m_dir+"/Counters");
             if(et > etthr + 1.0)
-                hist1("nProbes")->AddBinContent(ilist+1);
+                hist1("nProbes")->Fill(cprobeTrigger,1);
             if ( feat ) {
                 passedL1Calo=ancestorPassed<xAOD::EmTauRoI>(feat);
                 passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(feat);
@@ -174,18 +189,45 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
                 passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(feat);
                 passedEF = ancestorPassed<xAOD::ElectronContainer>(feat);
                 if(et > etthr + 1.0){
-                    if( passedL1Calo)
-                        hist1("nProbesL1")->AddBinContent(ilist+1);
-                    if( passedL2Calo )
-                        hist1("nProbesL2Calo")->AddBinContent(ilist+1);
-                    if( passedL2 )
-                        hist1("nProbesL2")->AddBinContent(ilist+1);
-                    if( passedEFCalo )
-                        hist1("nProbesEFCalo")->AddBinContent(ilist+1);
-                    if( passedEF )
-                        hist1("nProbesHLT")->AddBinContent(ilist+1);
+                    if( passedL1Calo){
+                        hist1("nProbesL1")->Fill(cprobeTrigger,1);
+                        hist1("EffL1")->Fill(cprobeTrigger,1);
+                    }
+                    else  hist1("EffL1")->Fill(cprobeTrigger,0);
+
+                    if( passedL2Calo ){
+                        hist1("nProbesL2Calo")->Fill(cprobeTrigger,1);
+                        hist1("EffL2Calo")->Fill(cprobeTrigger,1);
+                    }
+                    else  hist1("EffL2Calo")->Fill(cprobeTrigger,0);
+                    
+                    if( passedL2 ){
+                        hist1("nProbesL2")->Fill(cprobeTrigger,1);
+                        hist1("EffL2")->Fill(cprobeTrigger,1);
+                    }
+                    else  hist1("EffL2")->Fill(cprobeTrigger,0);
+                    
+                    if( passedEFCalo ){
+                        hist1("nProbesEFCalo")->Fill(cprobeTrigger,1);
+                        hist1("EffEFCalo")->Fill(cprobeTrigger,1);
+                    }
+                    else hist1("EffEFCalo")->Fill(cprobeTrigger,0);
+                    
+                    if( passedEF ){
+                        hist1("nProbesHLT")->Fill(cprobeTrigger,1);
+                        hist1("EffHLT")->Fill(cprobeTrigger,1);
+                    }
+                    else  hist1("EffHLT")->Fill(cprobeTrigger,0);
                 }
             } // Features
+            // Fill TProfile for no feature found (means no match)
+            else {
+                hist1("EffL1")->Fill(cprobeTrigger,0);
+                hist1("EffL2Calo")->Fill(cprobeTrigger,0);
+                hist1("EffL2")->Fill(cprobeTrigger,0);
+                hist1("EffEFCalo")->Fill(cprobeTrigger,0);
+                hist1("EffHLT")->Fill(cprobeTrigger,0);
+            }
             fillEfficiency(basePath+"L1Calo",passedL1Calo,etthr,et,eta,phi,avgmu,mass);
             fillEfficiency(basePath+"L2Calo",passedL2Calo,etthr,et,eta,phi,avgmu,mass);
             fillEfficiency(basePath+"L2",passedL2,etthr,et,eta,phi,avgmu,mass);
@@ -200,7 +242,7 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
 
 StatusCode TrigEgammaNavTPAnalysisTool::childFinalize()
 {
-    cd(m_dir+"/Counters");
+   /* cd(m_dir+"/Counters");
 
     hist1("nProbes")->Sumw2();
     
@@ -217,7 +259,7 @@ StatusCode TrigEgammaNavTPAnalysisTool::childFinalize()
     hist1("EffEFCalo")->Divide(hist1("nProbesEFCalo"),hist1("nProbes"),1,1,"b");
     
     hist1("nProbesHLT")->Sumw2();
-    hist1("EffHLT")->Divide(hist1("nProbesHLT"),hist1("nProbes"),1,1,"b");
+    hist1("EffHLT")->Divide(hist1("nProbesHLT"),hist1("nProbes"),1,1,"b");*/
 
     return StatusCode::SUCCESS;
 }

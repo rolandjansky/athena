@@ -17,6 +17,7 @@ TrigEgammaNavAnalysisTool::TrigEgammaNavAnalysisTool( const std::string& myname 
   m_trigEMClusters=nullptr;
   m_emTauRoI=nullptr;
   m_eventInfo=nullptr;
+  m_eventCounter=0;
 }
 
 StatusCode TrigEgammaNavAnalysisTool::childInitialize(){
@@ -29,14 +30,19 @@ StatusCode TrigEgammaNavAnalysisTool::childInitialize(){
 StatusCode TrigEgammaNavAnalysisTool::childBook(){
 
     ATH_MSG_DEBUG("Now configuring chains for analysis");
-    std::vector<std::string> selectElectronChains  = m_trigdec->getListOfTriggers("HLT_e.*");
+    std::vector<std::string> selectElectronChains  = m_trigdec->getListOfTriggers("HLT_e.*, L1_EM.*");
     for (int j = 0; j < (int) selectElectronChains.size(); j++) {
         ATH_MSG_DEBUG("Electron trigger " << selectElectronChains[j]);
     }
     std::vector<std::string> selectPhotonChains  = m_trigdec->getListOfTriggers("HLT_g.*");
 
     for (int i = 0; i < (int) m_trigInputList.size(); i++) {
-        std::string trigname = "HLT_"+m_trigInputList[i];
+        std::string trigname = "";
+        if (!boost::starts_with(m_trigInputList[i], "L1" )) {
+            trigname = "HLT_"+m_trigInputList[i];
+        } else {
+            trigname = m_trigInputList[i];
+        }
         for (int j = 0; j < (int) selectElectronChains.size(); j++) {
             size_t found = trigname.find(selectElectronChains[j]);
             if(found != std::string::npos) {
@@ -148,8 +154,9 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
         std::string pidname="";
         bool perf=false;
         bool etcut=false;
-        parseTriggerName(trigger,"Loose",isL1,type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
-        
+	parseTriggerName(trigger,m_defaultProbePid,isL1,type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
+
+        if(isL1) etthr=l1thr;
         if ( executeNavigation(trigger).isFailure() ){
             ATH_MSG_WARNING("executeNavigation Fails");
             return StatusCode::SUCCESS;
@@ -159,46 +166,14 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
             efficiency(m_dir+"/"+trigger+"/Efficiency/",etthr,m_objTEList[i]); // Requires offline match
             inefficiency(m_dir+"/"+trigger+"/Efficiency/HLT",runNumber,eventNumber,etthr,m_objTEList[i]); // Requires offline match
             resolution(m_dir+"/"+trigger,m_objTEList[i]); // Requires offline match
-        }
-       
-        // Retrieve FeatureContainer for a given trigger
-        ATH_MSG_DEBUG("Retrieve features for chain");
-        auto fc = (m_trigdec->features("HLT_"+trigger,TrigDefs::alsoDeactivateTEs));
-        auto initRois = fc.get<TrigRoiDescriptor>("initialRoI");
-        
-        ATH_MSG_DEBUG("Size of initialRoI" << initRois.size());
-        for(auto feat : initRois){
-            if(feat.te()==NULL) {
-                ATH_MSG_DEBUG("initial RoI feature NULL");
-                continue;
-            }
-            const TrigRoiDescriptor *roi = feat.cptr();
-            cd(basePath+"RoI");
-            hist1("roi_eta")->Fill(roi->eta());
-            hist1("roi_phi")->Fill(roi->phi());
-            ATH_MSG_DEBUG("ROI eta, phi" << roi->eta() << " " << roi->phi());
-            ATH_MSG_DEBUG("Retrievec L1 FC");
-            auto itEmTau = m_trigdec->ancestor<xAOD::EmTauRoI>(feat);
-            const xAOD::EmTauRoI *l1 = itEmTau.cptr();
-            if(l1==NULL) continue;
-            ATH_MSG_DEBUG("Retrieve L1 Object");
-            ATH_MSG_DEBUG("L1 eta, phi" << l1->eta() << " " << l1->phi() << " " << l1->eT()/1.e3);
-            fillL1Calo(basePath+"L1Calo",l1);
-        }
-        auto vec_clus = fc.get<xAOD::CaloClusterContainer>("TrigEFCaloCalibFex",TrigDefs::alsoDeactivateTEs);
-        ATH_MSG_DEBUG("EFCalo FC Size " << vec_clus.size());
-        for(auto feat : vec_clus){
-            if(feat.te()==NULL) continue;
-            const xAOD::CaloClusterContainer *cont = feat.cptr();
-            if(cont==NULL) continue;
-            ATH_MSG_DEBUG("Retrieved EF Calo Container");
-            for(const auto& clus : *cont){
-                if(clus==NULL) continue;
-                ATH_MSG_DEBUG("Retrieved EF Cluster "<<clus->eta() << clus->phi() << clus->e()/1.e3  );
-                
-                fillEFCalo(basePath+"EFCalo",clus);           
+            fillShowerShapes(m_dir+"/"+trigger+"/Distributions/Offline",m_objTEList[i].first); // Fill Offline shower shapes
+            if(xAOD::EgammaHelpers::isElectron(m_objTEList[i].first)) { // Fill offline tracking
+                const xAOD::Electron* elOff =static_cast<const xAOD::Electron*> (m_objTEList[i].first);
+                fillTracking(m_dir+"/"+trigger+"/Distributions/Offline",elOff);
             }
         }
+        // Fill distributions / trigger
+        distribution(basePath,trigger,type);
         
         ATH_MSG_DEBUG("End Chain Analysis ============================= " << trigger);
     } // End loop over trigger list

@@ -13,6 +13,36 @@ TrigEgammaNavNtuple::TrigEgammaNavNtuple( const std::string& myname ): TrigEgamm
   declareProperty("OfflineDirectoryPath",   m_offDir = "Offline/Egamma/Ntuple");
   ///Set base tool configuration
   m_forcePidSelection=false;
+  m_trig_L2_calo_rings=nullptr;
+  m_trig_L2_el_pt=nullptr;
+  m_trig_L2_el_eta=nullptr;
+  m_trig_L2_el_phi=nullptr;
+  m_trig_L2_el_charge=nullptr;
+  m_trig_L2_el_nTRTHits=nullptr;
+  m_trig_L2_el_rcore=nullptr;
+  m_trig_L2_el_eratio=nullptr;
+  m_trig_L2_el_ethad=nullptr;
+  m_trig_L2_el_f0=nullptr;
+  m_trig_L2_el_f1=nullptr;
+  m_trig_L2_el_f2=nullptr;
+  m_trig_L2_el_f3=nullptr;
+  m_trig_L2_el_etOverPt=nullptr;
+  m_trig_L2_el_trkClusDeta=nullptr;
+  m_trig_L2_el_trkClusDphi=nullptr;
+  m_mc_hasMC=false     ;
+  m_mc_pt=-999        ;
+  m_mc_eta=-999       ;
+  m_mc_phi=-999       ;
+  m_mc_isTop=false     ;
+  m_mc_isParton=false  ;
+  m_mc_isMeson=false   ;
+  m_mc_isQuark=false   ;
+  m_mc_isTau=false     ;
+  m_mc_isMuon=false    ;
+  m_mc_isPhoton=false  ;
+  m_mc_isElectron=false;
+  m_mc_hasZMother=false;
+  m_mc_hasWMother=false;
 }
 
 
@@ -59,7 +89,7 @@ StatusCode TrigEgammaNavNtuple::childBook(){
     TTree *t = new TTree( (trigItem).c_str(), "tree of trigger, egamma and monte carlo information");
     bookEventBranches( t );
     bookElectronBranches( t );
-    bookPhotonBranches( t );
+    //bookPhotonBranches( t );
     bookTriggerBranches( t );
     bookMonteCarloBranches( t );
     ATH_MSG_DEBUG("Already to attach the tree: " << trigItem);
@@ -77,7 +107,7 @@ StatusCode TrigEgammaNavNtuple::childBook(){
     TTree *t_ph = new TTree("photons", "tree of egamma and monte carlo information");
 
     bookEventBranches( t_ph );
-    bookPhotonBranches( t_ph );
+    //bookPhotonBranches( t_ph );
     bookMonteCarloBranches( t_ph );
     bookEventBranches( t_el );
     bookElectronBranches( t_el );
@@ -222,14 +252,14 @@ bool TrigEgammaNavNtuple::executeTrigEgammaDump(){
     TTree *t = tree( trigItem, m_dir);
     linkEventBranches(t); 
     linkElectronBranches(t);
-    linkPhotonBranches(t);
+    //linkPhotonBranches(t);
     linkTriggerBranches(t);
     linkMonteCarloBranches(t);
     ATH_MSG_DEBUG("ObjTEList size is: " << m_objTEList.size());
     for(unsigned int i = 0; i != m_objTEList.size(); ++i){
 
       const xAOD::Electron* el =static_cast<const xAOD::Electron*> (m_objTEList[i].first);
-      const xAOD::Photon*   ph =static_cast<const xAOD::Photon*>   (m_objTEList[i].first);
+      //const xAOD::Photon*   ph =static_cast<const xAOD::Photon*>   (m_objTEList[i].first);
       const HLT::TriggerElement *feat = m_objTEList[i].second;
       if(feat == NULL){
         ATH_MSG_WARNING("TriggerElement is NULL");
@@ -239,7 +269,7 @@ bool TrigEgammaNavNtuple::executeTrigEgammaDump(){
       clear();
       fillEvent();
       fillElectron( el );
-      fillPhoton( ph );
+      //fillPhoton( ph );
 
       if(!fillMonteCarlo( el ) ){
         ATH_MSG_WARNING("Cound not found any TruthParticle for this Electron");
@@ -416,9 +446,9 @@ bool TrigEgammaNavNtuple::fillElectron( const xAOD::Electron *el ){
 }
 
 
-bool TrigEgammaNavNtuple::fillPhoton( const xAOD::Photon *ph ){
+/*bool TrigEgammaNavNtuple::fillPhoton( const xAOD::Photon *ph ){
   return true;
-}
+}*/
 
 bool TrigEgammaNavNtuple::fillMonteCarlo(const xAOD::Egamma *eg){
 
@@ -607,8 +637,8 @@ void TrigEgammaNavNtuple::bookElectronBranches(TTree *t){
 }
 
 
-void TrigEgammaNavNtuple::bookPhotonBranches(TTree *t){
-}  
+/*void TrigEgammaNavNtuple::bookPhotonBranches(TTree *t){
+} */ 
   
 void TrigEgammaNavNtuple::bookMonteCarloBranches(TTree *t){
   // Monte Carlo
@@ -697,8 +727,8 @@ void TrigEgammaNavNtuple::linkElectronBranches( TTree *t ){
 }
 
 
-void TrigEgammaNavNtuple::linkPhotonBranches( TTree *t ){
-}
+/*void TrigEgammaNavNtuple::linkPhotonBranches( TTree *t ){
+}*/
 
 void TrigEgammaNavNtuple::linkTriggerBranches( TTree *t ){
 

@@ -65,7 +65,7 @@ StatusCode TrigEgammaNavTPNtuple::childBook(){
     TTree *t = new TTree( (trigItem).c_str(), "tree of Zee probes");
     bookEventBranches( t );
     bookElectronBranches( t );
-    bookPhotonBranches( t );
+    //bookPhotonBranches( t );
     bookTriggerBranches( t );
     bookMonteCarloBranches( t );
     addTree(t, m_dir);
@@ -238,9 +238,9 @@ bool TrigEgammaNavTPNtuple::fillEvent(){
 
 
 
-bool TrigEgammaNavTPNtuple::fillPhoton( const xAOD::Photon *ph ){
+/*bool TrigEgammaNavTPNtuple::fillPhoton( const xAOD::Photon *ph ){
   return true;
-}
+}*/
 
 
 bool TrigEgammaNavTPNtuple::fillElectron( const xAOD::Electron *el ){
@@ -459,8 +459,8 @@ void TrigEgammaNavTPNtuple::bookTriggerBranches(TTree *t){
 }
 
 
-void TrigEgammaNavTPNtuple::bookPhotonBranches(TTree *t){
-}
+/*void TrigEgammaNavTPNtuple::bookPhotonBranches(TTree *t){
+}*/
 
 void TrigEgammaNavTPNtuple::bookElectronBranches(TTree *t){
  
