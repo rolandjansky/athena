@@ -11,7 +11,7 @@ using namespace std;
 
 FTK_RawSCT_Cluster::FTK_RawSCT_Cluster() :
   m_word(0),
-  m_layer(-1),
+  m_layer(FTK_RawSCT_Cluster::missingLayer),
   m_barcode(0)
 {
   // nothing to do
@@ -38,66 +38,72 @@ FTK_RawSCT_Cluster::~FTK_RawSCT_Cluster()
 
 float FTK_RawSCT_Cluster::getHitCoord() const{
 
-  uint32_t hit = (m_word << 9) >> 21;
-  return (float)hit;
+  // TopBit 23 BottomBit 13  (11 bits) Max 2048 LeftShift 8 (=31-TopBit) RightShift 21 (=LeftShift+BottomBit)
 
-}
+  uint32_t hit = (m_word <<  8) >> 21; 
 
-unsigned int FTK_RawSCT_Cluster::getHitWidth() const{
-
-  unsigned int width = (m_word << 6) >> 29;
-  width = width - 1;
-  return width;
-
-}
-
-unsigned int FTK_RawSCT_Cluster::getModuleID() const{
-  
-  /// module id is bit 0->11 (12-bit) ///
-
-  uint32_t module_id = m_word << 20;
-  module_id = module_id >> 20;
-  return module_id;
+  return 0.5 * (float)hit;
 
 }
 
 void FTK_RawSCT_Cluster::setHitCoord( float hit_coord ){
 
-  /// Hit Coord is bits 12->22 (11-bit) ///
+  // TopBit 23 BottomBit 13  (11 bits) Max 2048 
 
-  float range_top  = 768.; // Axial is 768, stereo is 767.
-  float range_bot  = 0.;
+  uint32_t hit = uint32_t (hit_coord*2.);
 
-  uint32_t hit = 0;
-  if ( hit_coord > range_bot && hit_coord < range_top ){
-    hit = NINT(hit_coord);
-    hit = hit << 12;
+  if ( hit < 2048 ){
+    hit = hit << 13 ;
     m_word = (hit | m_word);
   }
   return;
 }
 
+unsigned int FTK_RawSCT_Cluster::getHitWidth() const{
+
+  // TopBit 26 BottomBit 24  (3 bits) Max 8 LeftShift 5 (=31-TopBit) RightShift 29 (=LeftShift+BottomBit)
+
+  unsigned int width = (m_word << 5) >> 29;
+  width = width + 1;
+  return width;
+
+}
+
 void FTK_RawSCT_Cluster::setHitWidth( unsigned int hit_width ){
 
-  float range_top  = 9.;
-  float range_bot  = 0.;
-  int   offset     = 1;
-  int   position   = 23;
+  // TopBit 26 BottomBit 24  (3 bits) Max 8
 
-  uint32_t width = 0;
+  uint32_t width = hit_width;
 
-  if(hit_width > range_bot && hit_width < range_top){
-    width = NINT( hit_width + offset);
-    width = width << position;
-    m_word = (width | m_word);
-  }
+  if(width > 8) width = 8;
+  width -=1;
+  width = width << 24;
+
+  m_word = (width | m_word);
+  
   return;
 
 }
+
+unsigned int FTK_RawSCT_Cluster::getModuleID() const{
+  
+  // TopBit 12 BottomBit 0  (13 bits) Max 8192 LeftShift 19 (=31-TopBit) RightShift 19 (=LeftShift+BottomBit)
+
+  uint32_t module_id = m_word << 19;
+  module_id = module_id >> 19;
+  return module_id;
+
+}
+
+
 void FTK_RawSCT_Cluster::setModuleID( unsigned int module_id ){
 
+  // TopBit 11 BottomBit 0  (13 bits) 
+
   uint32_t id = module_id;
-  m_word = (id | m_word);
+
+  if (id <  8192) m_word = (id | m_word);
+
   
   return;
 }
