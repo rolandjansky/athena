@@ -25,7 +25,7 @@ class Trig3Momentum{
   
  public:
   /** Default Constructor */
-  Trig3Momentum() : m_e(0.), m_eta(0.), m_phi(0.)
+  Trig3Momentum() : m_e(0.), m_eta(0.), m_phi(0.), m_inCone(false)
     , m_caloSample(CaloSampling::Unknown), m_time(0.){};
   /** Constructor with input parameters */
   Trig3Momentum( double Energy, double Eta, double Phi)
@@ -34,7 +34,7 @@ class Trig3Momentum{
   /** Constructor with input parameters */
   Trig3Momentum( double Energy, double Eta, double Phi
 	, CaloSampling::CaloSample s)
-              : m_e(Energy), m_eta(Eta), m_phi(Phi)
+              : m_e(Energy), m_eta(Eta), m_phi(Phi), m_inCone(false)
 	, m_caloSample(s), m_time(0.){};
   
   // Get methods

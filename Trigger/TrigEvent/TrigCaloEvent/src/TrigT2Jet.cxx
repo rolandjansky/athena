@@ -60,9 +60,9 @@ std::string str (const TrigT2Jet& a){
   std::sprintf(buff,"L2 Jet Eta   = %10.2f \n",    a.eta());   s += buff;
   std::sprintf(buff,"L2 Jet Phi   = %10.2f \n",    a.phi());   s += buff;
 
-  if(a.grid())
+  if(a.grid()) {
     std::sprintf(buff,"Grid Members = %4d\n", (int)a.grid()->size());  s += buff;
-
+  }
   // Cleaning:
   // propose to not implement this at the moment.
 /*  std::sprintf(buff,"L2 Jet nLeadingCells = %4d\n", a.nLeadingCells()) s+=buff;

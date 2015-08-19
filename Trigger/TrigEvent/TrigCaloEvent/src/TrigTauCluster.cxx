@@ -97,7 +97,8 @@ TrigTauCluster::TrigTauCluster(const TrigTauCluster* ttc) : TrigCaloCluster((Tri
 	m_EMRadius3S(ttc->EMRadius3S()),
 	m_CoreFrac(ttc->CoreFrac()),
 	m_EMFrac(ttc->EMFrac()),
-    m_HadRadius(ttc->HadRadius())
+	m_HadRadius(ttc->HadRadius()),
+        m_valid(false)
 {
 	//set ElementLink to cluster
 	if(m_clusterDetails.isValid())
@@ -124,7 +125,8 @@ TrigTauCluster::TrigTauCluster(const TrigTauCluster& ttc) : TrigCaloCluster((Tri
 	m_EMRadius3S(ttc.EMRadius3S()),
 	m_CoreFrac(ttc.CoreFrac()),
 	m_EMFrac(ttc.EMFrac()),
-    m_HadRadius(ttc.HadRadius())
+	m_HadRadius(ttc.HadRadius()),
+	m_valid(false)
 {	
 	//set ElementLink to cluster
 	if(m_clusterDetails.isValid())
