@@ -434,7 +434,7 @@ class G4AtlasEngine:
         """
         if 'init_Fields' not in self._InitList:
             G4AtlasEngine.log.debug(' G4AtlasEngine: _init_Fields: init magnetic fields ')
-            for mfd in G4AtlasEngine.Dict_Fields.keys():
+            for mfd in sorted(G4AtlasEngine.Dict_Fields.keys()):
                 mfd_obj = G4AtlasEngine.Dict_Fields.get(mfd)
                 mfd_obj._build()
             self._InitList.append('init_Fields')
@@ -1654,8 +1654,12 @@ class MagneticField:
             CtFieldHandler.setFieldValues(self.Name, self.Bx, self.By, self.Bz)
             self._Built = True
         elif self.Type == 'MapField':
-            G4AtlasEngine._ctrl.fldMenu.select(self.Name)
-            G4AtlasEngine._ctrl.fldMenu.fieldmap(self.MapFieldFileName)
+            # Check if this is the main detector field or not
+            from G4AtlasApps.SimFlags import simFlags
+            main_field = hasattr(simFlags, 'MagneticField') and (not simFlags.MagneticField.statusOn or simFlags.MagneticField() in self.Name)
+
+            if main_field: G4AtlasEngine._ctrl.fldMenu.select(self.Name)
+            if main_field: G4AtlasEngine._ctrl.fldMenu.fieldmap(self.MapFieldFileName)
             for volname in self.List_Volumes:
                 G4AtlasEngine._ctrl.fldMenu.assign(self.Name, self.Name, volname)
             for volname in self.DeltaIntersection.keys():
@@ -1667,7 +1671,7 @@ class MagneticField:
             for volname in self.MinimumEpsilonStep.keys():
                 G4AtlasEngine._ctrl.fldMenu.setMinimumEpsilonStep(volname, self.MinimumEpsilonStep.get(volname))
             G4AtlasEngine.log.debug(' MagneticField::set_G4FieldTrackParameters: set values')
-            G4AtlasEngine._ctrl.fldMenu.initialize()
+            if main_field: G4AtlasEngine._ctrl.fldMenu.initialize()
             G4AtlasEngine.log.debug(' MagneticField:_build: MapField ' + self.Name)
 
         ## Enable default stepper

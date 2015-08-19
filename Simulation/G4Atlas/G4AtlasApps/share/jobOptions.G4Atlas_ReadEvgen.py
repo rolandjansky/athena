@@ -22,7 +22,7 @@ jobproperties.Global.ConditionsTag = "OFLCOND-RUN12-SDR-21"
 ## AthenaCommon flags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolEvgenInput = ['/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/mu_E200_eta0-60-10000.evgen.pool.root']
-athenaCommonFlags.PoolHitsOutput = "atlasG4.hits.pool.root"
+athenaCommonFlags.PoolHitsOutput = "test.HITS.pool.root"
 athenaCommonFlags.EvtMax = 3
 
 ## Simulation flags
@@ -34,9 +34,9 @@ simFlags.load_atlas_flags()
 ## Use the default layout:
 simFlags.SimLayout.set_On()
 ## Set a specific layout tag:
-simFlags.SimLayout='ATLAS-R2-2015-02-01-00'
+simFlags.SimLayout='ATLAS-R2-2015-03-01-00'
 ## Set a specific non-officially-supported layout tag using the _VALIDATION suffix:
-#simFlags.SimLayout = 'ATLAS-R2-2015-02-01-00_VALIDATION'
+#simFlags.SimLayout = 'ATLAS-R2-2015-03-01-00_VALIDATION'
 ## Set a matching RunNumber for run-dependent conditions. See:
 ## https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/ConditionsRun1RunNumbers
 simFlags.RunNumber = 222510

@@ -23,33 +23,27 @@ class ForwardRegion(object):
     def add_field( self , step_limitation = None ):
 
         fieldVolumes = []
-        fieldVolumes += [ ['Q1', 'FwdRegion::LQXAA.1R1MagQ1'] ]
-        fieldVolumes += [ ['Q2', 'FwdRegion::LQXBA.2R1MagQ2a'] ]
-        fieldVolumes += [ ['Q2', 'FwdRegion::LQXBA.2R1MagQ2b'] ]
-        fieldVolumes += [ ['Q3', 'FwdRegion::LQXAG.3R1MagQ3'] ]
-        fieldVolumes += [ ['D1', 'FwdRegion::MBXW.A4R1MagD1a'] ]
-        fieldVolumes += [ ['D1', 'FwdRegion::MBXW.B4R1MagD1b'] ]
-        fieldVolumes += [ ['D1', 'FwdRegion::MBXW.C4R1MagD1c'] ]
-        fieldVolumes += [ ['D1', 'FwdRegion::MBXW.D4R1MagD1d'] ]
-        fieldVolumes += [ ['D1', 'FwdRegion::MBXW.E4R1MagD1e'] ]
-        fieldVolumes += [ ['D1', 'FwdRegion::MBXW.F4R1MagD1f'] ]
-        fieldVolumes += [ ['D2', 'FwdRegion::LBRCD.4R1MagD2'] ]
-        fieldVolumes += [ ['Q4', 'FwdRegion::LQYCH.4R1MagQ4'] ]
-        fieldVolumes += [ ['Q5', 'FwdRegion::LQNDC.5R1MagQ5'] ]
-        fieldVolumes += [ ['Q6', 'FwdRegion::LQNDD.6R1MagQ6'] ]
-        fieldVolumes += [ ['Q7', 'FwdRegion::LQNFD.7R1MagQ7a'] ]
-        fieldVolumes += [ ['Q7', 'FwdRegion::LQNFD.7R1MagQ7b'] ]
-        fieldVolumes += [ ['Q1HKick', 'FwdRegion::LQXAA.1R1MagQ1HKick'] ]
-        fieldVolumes += [ ['Q1VKick', 'FwdRegion::LQXAA.1R1MagQ1VKick'] ]
-        fieldVolumes += [ ['Q2HKick', 'FwdRegion::LQXBA.2R1MagQ2HKick'] ]
-        fieldVolumes += [ ['Q2VKick', 'FwdRegion::LQXBA.2R1MagQ2VKick'] ]
-        fieldVolumes += [ ['Q3HKick', 'FwdRegion::LQXAG.3R1MagQ3HKick'] ]
-        fieldVolumes += [ ['Q3VKick', 'FwdRegion::LQXAG.3R1MagQ3VKick'] ]
-        fieldVolumes += [ ['Q4VKickA', 'FwdRegion::LQYCH.4R1MagQ4VKickA'] ]
-        fieldVolumes += [ ['Q4HKick', 'FwdRegion::LQYCH.4R1MagQ4HKick'] ]
-        fieldVolumes += [ ['Q4VKickB', 'FwdRegion::LQYCH.4R1MagQ4VKickB'] ]
-        fieldVolumes += [ ['Q5HKick', 'FwdRegion::LQNDC.5R1MagQ5HKick'] ]
-        fieldVolumes += [ ['Q6VKick', 'FwdRegion::LQNDD.6R1MagQ6VKick'] ]
+        fieldVolumes += [ ['Q1', ['FwdRegion::LQXAA.1R1MagQ1'] ] ]
+        fieldVolumes += [ ['Q2', ['FwdRegion::LQXBA.2R1MagQ2a', 'FwdRegion::LQXBA.2R1MagQ2b'] ] ]
+        fieldVolumes += [ ['Q3', ['FwdRegion::LQXAG.3R1MagQ3'] ] ]
+        fieldVolumes += [ ['D1', [ 'FwdRegion::MBXW.A4R1MagD1a', 'FwdRegion::MBXW.B4R1MagD1b', 'FwdRegion::MBXW.C4R1MagD1c',\
+                                   'FwdRegion::MBXW.D4R1MagD1d', 'FwdRegion::MBXW.E4R1MagD1e', 'FwdRegion::MBXW.F4R1MagD1f'] ] ]
+        fieldVolumes += [ ['D2', ['FwdRegion::LBRCD.4R1MagD2'] ] ]
+        fieldVolumes += [ ['Q4', ['FwdRegion::LQYCH.4R1MagQ4'] ] ]
+        fieldVolumes += [ ['Q5', ['FwdRegion::LQNDC.5R1MagQ5'] ] ]
+        fieldVolumes += [ ['Q6', ['FwdRegion::LQNDD.6R1MagQ6'] ] ]
+        fieldVolumes += [ ['Q7', ['FwdRegion::LQNFD.7R1MagQ7a', 'FwdRegion::LQNFD.7R1MagQ7b'] ] ]
+        fieldVolumes += [ ['Q1HKick', ['FwdRegion::LQXAA.1R1MagQ1HKick'] ] ]
+        fieldVolumes += [ ['Q1VKick', ['FwdRegion::LQXAA.1R1MagQ1VKick'] ] ]
+        fieldVolumes += [ ['Q2HKick', ['FwdRegion::LQXBA.2R1MagQ2HKick'] ] ]
+        fieldVolumes += [ ['Q2VKick', ['FwdRegion::LQXBA.2R1MagQ2VKick'] ] ]
+        fieldVolumes += [ ['Q3HKick', ['FwdRegion::LQXAG.3R1MagQ3HKick'] ] ]
+        fieldVolumes += [ ['Q3VKick', ['FwdRegion::LQXAG.3R1MagQ3VKick'] ] ]
+        fieldVolumes += [ ['Q4VKickA', ['FwdRegion::LQYCH.4R1MagQ4VKickA'] ] ]
+        fieldVolumes += [ ['Q4HKick', ['FwdRegion::LQYCH.4R1MagQ4HKick'] ] ]
+        fieldVolumes += [ ['Q4VKickB', ['FwdRegion::LQYCH.4R1MagQ4VKickB'] ] ]
+        fieldVolumes += [ ['Q5HKick', ['FwdRegion::LQNDC.5R1MagQ5HKick'] ] ]
+        fieldVolumes += [ ['Q6VKick', ['FwdRegion::LQNDD.6R1MagQ6VKick'] ] ]
 
         epsMin = 1e-9
         epsMax = 1e-8
@@ -58,17 +52,20 @@ class ForwardRegion(object):
 
         for i in fieldVolumes:
             a_field = PyG4Atlas.MagneticField('ForwardRegionMgField',i[0],typefield='MapField')
-            a_field.add_Volume(i[1])
-            a_field.set_G4FieldTrackParameters('DeltaIntersection',  i[1], deltaIntersection)
-            a_field.set_G4FieldTrackParameters('DeltaOneStep',       i[1], deltaOneStep)
-            a_field.set_G4FieldTrackParameters('MaximumEpsilonStep', i[1], epsMax)
-            a_field.set_G4FieldTrackParameters('MinimumEpsilonStep', i[1], epsMin)
+            for v in i[1]:
+                a_field.add_Volume(v)
+                a_field.set_G4FieldTrackParameters('DeltaIntersection',  v, deltaIntersection)
+                a_field.set_G4FieldTrackParameters('DeltaOneStep',       v, deltaOneStep)
+                a_field.set_G4FieldTrackParameters('MaximumEpsilonStep', v, epsMax)
+                a_field.set_G4FieldTrackParameters('MinimumEpsilonStep', v, epsMin)
+
+                # limit step length
+                if step_limitation is not None:
+                    AtlasG4Eng.G4Eng._ctrl.geometryMenu.SetMaxStep(v, step_limitation)
+
             a_field.set_FieldMapFileName(i[0])
             AtlasG4Eng.G4Eng.menu_Field.add_Field(a_field)
 
-            # limit step length
-            if step_limitation is not None:
-                AtlasG4Eng.G4Eng._ctrl.geometryMenu.SetMaxStep(fieldVolumes[2*i+1], step_limitation)
         if step_limitation is not None:
             AtlasG4Eng.G4Eng._ctrl.geometryMenu.SetMaxStep('FwdRegion::ForwardRegionGeoModel', step_limitation)
 
@@ -113,8 +110,7 @@ class ForwardRegion(object):
             twiss_version = simFlags.TwissFileVersion()
 
             # Getting paths to the twiss files, momentum calculation; you can switch to local files
-            import re
-            import math
+            import re,math
             twiss_beam1 = os.path.join(twiss_path, twiss_energy, twiss_beta, twiss_nomreal, twiss_version, 'beam1.tfs')
             twiss_beam2 = os.path.join(twiss_path, twiss_energy, twiss_beta, twiss_nomreal, twiss_version, 'beam2.tfs')
             twiss_momentum =  math.sqrt(float(re.findall("\d+.\d+", twiss_energy)[0])**2 - (0.938e-3)**2)*1e3
@@ -122,14 +118,18 @@ class ForwardRegion(object):
             # Have to sort out twiss momentum based on file name
             tmp = twiss_beam1.split('TeV')[0]
             tmp_spot = len(tmp)
-            while True:
-                try:
-                    tmp_energy = float( tmp[tmp_spot:] )
-                    tmp_spot -= 1
-                except ValueError:
-                    twiss_energy = float( tmp[tmp_spot+1:] )
-                    break
-                pass
+            if simFlags.TwissEnergy.statusOn:
+                twiss_energy = '%1.1fTeV'%(simFlags.TwissEnergy()*0.000001)
+            else:
+                while True:
+                    try:
+                        tmp_energy = float( tmp[tmp_spot:] )
+                        tmp_spot -= 1
+                    except ValueError:
+                        twiss_energy = float( tmp[tmp_spot+1:] )
+                        break
+                    pass
+            import re,math
             twiss_momentum =  math.sqrt(float(re.findall("\d+.\d+", twiss_energy)[0])**2 - (0.938e-3)**2)*1e3
 
         # properties of the field set according to the optics settings above
