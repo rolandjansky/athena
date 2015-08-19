@@ -580,14 +580,23 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::next(IEvtSelector::Context& ctxt, int jump) const {
    if (jump > 0) {
-      for (int i = 0; i < jump; ++i) {
-         if (!next(ctxt).isSuccess()) {
-            return(StatusCode::FAILURE);
+      if ( m_NumEvents+jump != m_SkipEvents) {
+         // Save initial event count
+         unsigned int cntr = m_NumEvents;
+         // In case NumEvents increments multiple times in a single next call
+         while (m_NumEvents+1 <= cntr + jump) {
+            if (!next(ctxt).isSuccess()) {
+               return(StatusCode::FAILURE);
+            }
          }
       }
+      else ATH_MSG_DEBUG("Jump covered by skip event " << m_SkipEvents);
       return(StatusCode::SUCCESS);
    }
-   return(StatusCode::FAILURE);
+   else { 
+      ATH_MSG_WARNING("Called jump next with non-multiple jump");
+   }
+   return(StatusCode::SUCCESS);
 }
 //________________________________________________________________________________
 StatusCode EventSelectorByteStream::previous(IEvtSelector::Context& /*ctxt*/) const {
