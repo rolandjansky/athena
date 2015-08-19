@@ -19,7 +19,7 @@ globalflags.ConditionsTag = "OFLCOND-RUN12-SDR-21" # Probably want a different c
 
 ## AthenaCommon flags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.PoolHitsOutput = 'atlasG4.hits.pool.root'
+athenaCommonFlags.PoolHitsOutput = 'test.HITS.pool.root'
 athenaCommonFlags.EvtMax = 3
 
 ## Set beam type
@@ -34,7 +34,7 @@ simFlags.RandomSvc = 'AtDSFMTGenSvc'
 ## Use the default layout:
 simFlags.SimLayout.set_On()
 ## Set a specific layout tag:
-simFlags.SimLayout = 'ATLAS-R2-2015-02-01-00'
+simFlags.SimLayout = 'ATLAS-R2-2015-03-01-00'
 ## Set a matching RunNumber for run-dependent conditions. See:
 ## https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/ConditionsRun1RunNumbers
 simFlags.RunNumber = 222500

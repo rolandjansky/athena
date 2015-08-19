@@ -364,7 +364,7 @@ class SimLayout(JobProperty):
 
     statusOn = True
     allowedTypes = ['str']
-    StoredValue = 'ATLAS-R2-2015-02-01-00'
+    StoredValue = 'ATLAS-R2-2015-03-01-00'
     allowedValues = [
                      'ATLAS-GEO-16-00-00', # Default for MC10
                      'ATLAS-GEO-18-01-00', # Used in MC11a, MC11b, MC11c
@@ -381,6 +381,8 @@ class SimLayout(JobProperty):
                      'ATLAS-R1-2012-03-00-00', # Used in MC15a
                      'ATLAS-R2-2015-02-00-00', # Used in MC15a
                      'ATLAS-R2-2015-02-01-00', # Used in MC15a
+                     'ATLAS-R2-2015-03-00-00', # Used in MC15a
+                     'ATLAS-R2-2015-03-01-00', # Used in MC15a
                      'ctbh8_combined',
                      'ctbh8_photon',
                      'ctbh8_lar-material',

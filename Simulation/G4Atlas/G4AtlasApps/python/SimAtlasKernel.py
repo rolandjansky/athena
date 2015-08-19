@@ -219,22 +219,14 @@ class AtlasSimSkeleton(SimSkeleton):
             ## Additional material in the muon system
             from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
             AGDD2Geo = AGDDtoGeoSvc()
+            from AthenaCommon import CfgGetter
             if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders:
-                from MuonAGDD.MuonAGDDConf import MuonAGDDTool
-                MuonAGDDTool = MuonAGDDTool('MuonSpectrometer')
-                MuonAGDDTool.BuildNSW = False
-                ToolSvc += MuonAGDDTool
+                ToolSvc += CfgGetter.getPublicTool("MuonSpectrometer", checkType=True)
                 AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
             if hasattr(simFlags, 'SimulateNewSmallWheel'):
                 if simFlags.SimulateNewSmallWheel():
                     if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
-                        from MuonAGDD.MuonAGDDConf import NSWAGDDTool
-                        NSWAGDDTool = NSWAGDDTool('NewSmallWheel')
-                        NSWAGDDTool.Locked=False
-                        NSWAGDDTool.XMLFiles += ["stations.v1.69.xml"]
-                        NSWAGDDTool.Volumes += ["NewSmallWheel"]
-                        NSWAGDDTool.DefaultDetector="Muon"
-                        ToolSvc += NSWAGDDTool
+                        ToolSvc += CfgGetter.getPublicTool("NewSmallWheel", checkType=True)
                         AGDD2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]
             theApp.CreateSvc += ["AGDDtoGeoSvc"]
             ServiceMgr += AGDD2Geo
