@@ -65,7 +65,7 @@ Herwigpp::Herwigpp(const string& name, ISvcLocator* pSvcLocator) :
 {
   declareProperty("Commands", m_herwigCommandVector);
   declareProperty("RunName", m_runname="Atlas");
-  declareProperty("InFileDump", m_infiledump="herwigInfileDump.in");
+  declareProperty("InFileDump", m_infiledump="");
   declareProperty("CrossSectionScaleFactor", m_xsscale=1.0);
   declareProperty("doAlpgen",m_doAlpgen=false);
   declareProperty("useTwoLoopAlphas",m_useTwoLoopAlphas=true);
@@ -101,21 +101,7 @@ StatusCode Herwigpp::genInitialize() {
   char* env2 = getenv("CMTCONFIG");
   string reposearchpaths;
   if (env1 == 0 || env2 == 0) {
-     // Use everything from $DATAPATH and $LD_LIBRARY_PATH:
-     const char* datapath = getenv( "DATAPATH" );
-     reposearchpaths = datapath;
-     std::vector< std::string > datapaths;
-     boost::split( datapaths, datapath,
-                   boost::is_any_of( std::string( ":" ) ) );
-     for( const std::string& p : datapaths ) {
-        ThePEG::Repository::appendReadDir( p );
-     }
-     const char* ldpath = getenv( "LD_LIBRARY_PATH" );
-     std::vector< std::string > ldpaths;
-     boost::split( ldpaths, ldpath, boost::is_any_of( std::string( ":" ) ) );
-     for( const std::string& p : ldpaths ) {
-        ThePEG::DynamicLoader::appendPath( p );
-     }
+    ATH_MSG_WARNING("$CMTPATH or $CMTCONFIG variable not set: finding the ThePEG/H++ module directories will be difficult...");
   } else {
     vector<string> cmtpaths;
     boost::split(cmtpaths, env1, boost::is_any_of(string(":")));
@@ -231,7 +217,7 @@ StatusCode Herwigpp::genInitialize() {
   // MPI parameters
   const string repo_intrkt = ThePEG::Repository::exec("get /Herwig/Shower/Evolver:IntrinsicPtGaussian", std::cout);
   ATH_MSG_INFO("Intrinsic kT: " + repo_intrkt + " GeV/c");
-  const string repo_ptmatch = ThePEG::Repository::exec("get /Herwig/UnderlyingEvent/MPIHandler:pTmin0", std::cout);
+  const string repo_ptmatch = ThePEG::Repository::exec("get /Herwig/UnderlyingEvent/KtCut:MinKT", std::cout);
   ATH_MSG_INFO("MPI matching pT0: " + repo_ptmatch + " GeV/c");
   const string repo_invrad = ThePEG::Repository::exec("get /Herwig/UnderlyingEvent/MPIHandler:InvRadius", std::cout);
   ATH_MSG_INFO("Inverse hadron radius: " + repo_invrad + " GeV**2");

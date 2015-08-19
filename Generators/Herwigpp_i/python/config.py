@@ -15,11 +15,12 @@ set /Herwig/Shower/Evolver:IntrinsicPtGaussian %f*GeV
 
 ## Make PDF object
 def mkpdf_cmds(setname, localname):
-    """Create a named PDF as requested by arg e.g. pass 'MMHT2014lo68cl.LHpdf' for MMHT2014 LO,
+    """Create a named PDF as requested by arg e.g. pass 'MRST07lomod.LHgrid' for LO*,
     'MRSTMCal.LHgrid' to get MRST LO**, 'cteq6ll.LHpdf' to get the MC08 LO PDF, ..."""
     cmds = ""
     cmds += "## Create PDF set\n"
     cmds += "create ThePEG::LHAPDF /Herwig/Partons/%s ThePEGLHAPDF.so\n" % localname
+    cmds += "set /Herwig/Partons/%s:VerboseLevel 1\n" % localname
     cmds += "set /Herwig/Partons/%s:PDFName %s\n" % (localname, setname)
     cmds += "set /Herwig/Partons/%s:RemnantHandler /Herwig/Partons/HadronRemnants\n" % localname
     return cmds
@@ -44,11 +45,9 @@ def lo_pdf_cmds(lo_setname):
     """Set LO PDF as requested by arg, defaulting to current production PDF."""
     cmds = pdf_cmds(lo_setname, "LO")
     cmds += "\n"
-    cmds += "## Set PDF explicitly for MPI and shower.\n"
+    cmds += "## Set PDF explicitly for MPI.\n"
     cmds += "set /Herwig/Partons/MPIExtractor:FirstPDF  /Herwig/Partons/AtlasPDFsetLO\n"
     cmds += "set /Herwig/Partons/MPIExtractor:SecondPDF /Herwig/Partons/AtlasPDFsetLO\n"
-    cmds += "set /Herwig/Shower/ShowerHandler:PDFA /Herwig/Partons/AtlasPDFsetLO\n"
-    cmds += "set /Herwig/Shower/ShowerHandler:PDFB /Herwig/Partons/AtlasPDFsetLO\n"
     cmds += "\n"
     return cmds 
 
@@ -225,8 +224,6 @@ def ue_tune_cmds(tune_name):
         cmds = ue_cmds(3.91, 0.33, 2.30, 0.80, preco=0.49)
     elif tune_name == "UE-EE-5-LO**":
         cmds = ue_cmds(4.620, 0.314, 2.240, 0.860, preco=0.420)
-    elif tune_name == "H7-UE-MMHT":
-        cmds = ue_cmds(4.39, 0.366, 2.30, 0.798, preco=0.4276)
     else:
         raise Exception("Tune name '%s' unknown" % tune_name)
 
@@ -269,6 +266,12 @@ set /Herwig/Shower/KinematicsReconstructor:InitialInitialBoostOption LongTransBo
 
 create ThePEG::FixedCMSLuminosity /Herwig/Generators/FCMSLuminosity
 set /Herwig/EventHandlers/LHEHandler:LuminosityFunction /Herwig/Generators/FCMSLuminosity
+
+## According to H++ authors, without the following line the decay of heavy particles is
+## delayed until after the showering, which usually goes wrong somewhere.
+insert /Herwig/EventHandlers/LHEHandler:PreCascadeHandlers 0 /Herwig/NewPhysics/DecayHandler
+# Turn on QED radiation
+insert /Herwig/EventHandlers/LHEHandler:PostSubProcessHandlers[0] /Herwig/QEDRadiation/QEDRadiationHandler
 
 ## Set the PDF for the LHE reader.
 set /Herwig/EventHandlers/LHEReader:PDFA /Herwig/Partons/AtlasPDFset{pdfsubname}
@@ -510,8 +513,13 @@ cd /Herwig/EventHandlers
 ########################################################### 
 # A couple of commands from lhef_cmds which may be useful # 
 ########################################################### 
+## According to H++ authors, without the following line the decay of heavy particles is
+## delayed until after the showering, which usually goes wrong somewhere.
+insert /Herwig/EventHandlers/theLesHouchesHandler:PreCascadeHandlers 0 /Herwig/NewPhysics/DecayHandler
 #Include spin effects
 set /Herwig/EventHandlers/theLHReader:IncludeSpin Yes
+#Turn on QED radiation
+insert /Herwig/EventHandlers/theLesHouchesHandler:PostSubProcessHandlers[0] /Herwig/QEDRadiation/QEDRadiationHandler
 #Avoid error message about event handler not having a luminosity function - these lines should not influence results!
 #create ThePEG::LuminosityFunction /Herwig/Generators/LuminosityFunction
 #set /Herwig/EventHandlers/theLesHouchesHandler:LuminosityFunction /Herwig/Generators/LuminosityFunction
@@ -580,6 +588,11 @@ set /Herwig/Decays/DecayHandler:MaxLifeTime 10*mm
 set /Herwig/Cuts/JetKtCut:MinKT 20.0*GeV
 set /Herwig/Cuts/LeptonKtCut:MinKT 0.0*GeV
 
+## Set QED pT cutoffs to match PHOTOS
+# Enabled by default from H++ 2.4.0
+set /Herwig/QEDRadiation/QEDRadiationHandler:RadiationGenerator:FFDipole:MinimumEnergyRest 10.0*MeV
+set /Herwig/QEDRadiation/QEDRadiationHandler:RadiationGenerator:IFDipole:MinimumEnergyRest 10.0*MeV
+
 # Turn off intermediate photons inserted explicitly into the event record with an incorrect life length in the pi0 -> e+e-e+e- decay mode 
 # This is the default from H++ 2.6.1
 set /Herwig/Decays/PScalar4f:GenerateIntermediates 0
@@ -599,6 +612,9 @@ set /Herwig/Decays/PScalar4f:GenerateIntermediates 0
 ## To turn off hadronization, put this into your JO:
 #set /Herwig/EventHandlers/LHCHandler:HadronizationHandler NULL
 #set /Herwig/Analysis/Basics:CheckQuark No
+
+## To turn off QED radiation, put this into your JO:
+#erase /Herwig/EventHandlers/LHCHandler:PostSubProcessHandlers[0]
 
 ## To turn off decays, put this into your JO:
 #set /Herwig/EventHandlers/LHCHandler:DecayHandler NULL
@@ -689,6 +705,10 @@ def powheg_cmds():
 
 ## Set up Powheg truncated shower
 set /Herwig/Shower/Evolver:HardEmissionMode POWHEG
+
+## Use 2-loop alpha_s
+create Herwig::O2AlphaS /Herwig/AlphaQCD_O2
+set /Herwig/Generators/LHCGenerator:StandardModelParameters:QCD/RunningAlphaS /Herwig/AlphaQCD_O2
 
 """
 
