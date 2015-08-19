@@ -40,7 +40,7 @@ class TrigEgammaNavTPNtuple : public TrigEgammaNavTPBaseTool,
     /* Create branches */
     void bookEventBranches( TTree *t );
     void bookElectronBranches( TTree *t );
-    void bookPhotonBranches( TTree *t );
+    //void bookPhotonBranches( TTree *t );
     void bookTriggerBranches( TTree *t );
     void bookMonteCarloBranches( TTree *t );
 
@@ -56,7 +56,7 @@ class TrigEgammaNavTPNtuple : public TrigEgammaNavTPBaseTool,
     bool fillEvent        ( );
     bool fillMonteCarlo   ( const xAOD::Egamma        *eg );
     bool fillElectron     ( const xAOD::Electron      *el );
-    bool fillPhoton       ( const xAOD::Photon        *ph );
+    //bool fillPhoton       ( const xAOD::Photon        *ph );
     bool fillCaloRings    ( const xAOD::Electron      *el );
     bool fillTrigCaloRings( const xAOD::TrigEMCluster *emCluster );
  

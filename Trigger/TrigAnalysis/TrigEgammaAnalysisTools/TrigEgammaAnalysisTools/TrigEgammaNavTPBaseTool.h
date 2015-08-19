@@ -68,6 +68,10 @@ protected:
   bool passedTrigger(const HLT::TriggerElement* obj); 
   /*! Clears list of probes after each trigger item per event */
   void clearProbeList(); 
+  /*! Return pseudo-lifetime of Jpsi */
+  float GetPseudoLifetime(const xAOD::Electron*,const xAOD::Electron*);
+  /*! Calculate the displacement of the Jpsi vertex w.r.t. the primary vertex in the transverse plane */
+  double simple_lxy(int ,double, double, double , double , double , double , double, double );
   /*! Dual-use tool for MVA calibration */
   ToolHandle<IegammaMVATool>  m_MVACalibTool; 
   /*! vector of offline electron probe and matched TE */
@@ -85,12 +89,14 @@ protected:
   /*! To apply MVA calibration -- TBD */
   bool m_applyMVACalib; 
   /*! dR matching between TE and offline probe */
-  float m_dR;
+  // float m_dR; // Done in matching tool
   /*! Remove crack region for Probe default True */
   bool m_rmCrack;
   /*! Directory name for each algorithm */
   std::string m_dir;
-  // Additional monitoring function   
+  
+  const xAOD::EventInfo* m_eventInfo;
+
 private:
   // ToolHandles
   //
@@ -116,7 +122,7 @@ private:
   /*! Zee upper mass cut */
   float m_ZeeMassMax;
   /*! Not needed */
-  unsigned int m_isEMoffTag;
+  // unsigned int m_isEMoffTag;
   /*! Define the PID for tag electron */
   std::string m_offTagTightness;
   /*! define the Pid of Probe from the trigger name */ 
@@ -134,7 +140,7 @@ private:
   /*! Trigger for tag and event wise selection */
   std::vector<std::string> m_tagTrigList;
   /*! Apply nearby jet selection */
-  bool m_applyJetNearProbeSelection;
+  bool m_applyJetNearProbeSelection; 
   /*! force probe isolation */
   bool m_forceProbeIsolation;
   /*! Define isolation working point for Probe electron */

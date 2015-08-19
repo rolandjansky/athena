@@ -91,7 +91,7 @@ private:
   /*! navigation method called by executeNavigation */
   StatusCode executeElectronNavigation(const std::string trigItem,float,std::string); 
   /*! navigation method called by executeNavigation */
-  StatusCode executePhotonNavigation(const std::string trigItem,float,std::string); 
+  StatusCode executePhotonNavigation(const std::string trigItem,float); 
 // ToolHandles
   //
   //Offline ++ selectors

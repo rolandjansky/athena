@@ -19,6 +19,7 @@ TrigEgammaTDToolTest(const std::string& name,
     m_trigdec("Trig::TrigDecisionTool/TrigDecisionTool")
 {
     declareProperty("TrigEgammaMatchingTool",m_matchTool);
+    m_storeGate=nullptr;
 }
 
 //**********************************************************************

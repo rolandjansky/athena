@@ -39,6 +39,7 @@ TrigEgammaEmulationTool( const std::string& myname )
   m_caloClusters=nullptr;
   m_trigEMClusters=nullptr;
   m_emTauRoI=nullptr;
+  m_eventCounter=0;
 }
 
 //**********************************************************************
