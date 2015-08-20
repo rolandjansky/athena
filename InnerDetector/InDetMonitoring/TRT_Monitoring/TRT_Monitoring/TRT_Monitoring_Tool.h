@@ -200,6 +200,8 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   TProfile* m_hNTrksperLB_B;
   TProfile* m_hNHLHitsperLB_B;
 
+  TH1F_LW* m_hDriftTimeonTrkDist_B_Ar;//hDriftTimeonTrk
+  TH1F_LW* m_hTronTDist_B_Ar;//hTronT
   TH1F_LW* m_hHitWMap_B_Ar;
   TH1F_LW* m_hResidual_B_Ar;
   TH1F_LW* m_hTimeResidual_B_Ar;
@@ -225,6 +227,8 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   TProfile* m_hNTrksperLB_E[2];
   TProfile* m_hNHLHitsperLB_E[2];
 
+  TH1F_LW* m_hTronTDist_E_Ar[2];//hTronT
+  TH1F_LW* m_hDriftTimeonTrkDist_E_Ar[2];//hDriftTimeonTrk
   TH1F_LW* m_hHitWMap_E_Ar[2];
   TH1F_LW* m_hResidual_E_Ar[2];
   TH1F_LW* m_hTimeResidual_E_Ar[2];
@@ -495,6 +499,8 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   float TronTDistScale_B;
   float ResidualScale_B;
   float TimeResidualScale_B;
+  float DriftTimeonTrkDistScale_B_Ar;
+  float TronTDistScale_B_Ar;
   float ResidualScale_B_Ar;
   float TimeResidualScale_B_Ar;
   float nTrkvPhiScale_B;//obsolete
@@ -510,6 +516,8 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   float TronTDistScale_E[2];
   float ResidualScale_E[2];
   float TimeResidualScale_E[2];
+  float DriftTimeonTrkDistScale_E_Ar[2];
+  float TronTDistScale_E_Ar[2];
   float ResidualScale_E_Ar[2];
   float TimeResidualScale_E_Ar[2];
   float nTrkvPhiScale_E[2];//obsolete

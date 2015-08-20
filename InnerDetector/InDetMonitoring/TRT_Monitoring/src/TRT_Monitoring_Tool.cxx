@@ -37,6 +37,13 @@
 #include "LWHists/TH1D_LW.h"
 #include "LWHists/LWHist1D.h"
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
+#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
+#else
+#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
+#endif
+
+
 #include <sstream>
 #include <iomanip>
 #include <memory>
@@ -111,6 +118,8 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
   TronTDistScale_B(),
   ResidualScale_B(),
   TimeResidualScale_B(),
+  DriftTimeonTrkDistScale_B_Ar(),
+  TronTDistScale_B_Ar(),
   ResidualScale_B_Ar(),
   TimeResidualScale_B_Ar(),
   nTrkvPhiScale_B(),
@@ -122,6 +131,7 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
   TronTDistScale_E(),
   ResidualScale_E(),
   TimeResidualScale_E(),
+  DriftTimeonTrkDistScale_E_Ar(),
   ResidualScale_E_Ar(),
   TimeResidualScale_E_Ar(),
   nTrkvPhiScale_E(),
@@ -341,6 +351,8 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
   m_hResidual_B_Ar=0;
   m_hTimeResidual_B_Ar=0;
   m_hrtRelation_B_Ar = 0;
+  m_hDriftTimeonTrkDist_B_Ar = 0;
+  m_hTronTDist_B_Ar = 0;
 
   for (int iside=0; iside<2; iside++) {
     nTrksperLB_E[iside]=0;
@@ -372,6 +384,8 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
     m_hResidual_E_Ar[iside] = 0;
     m_hTimeResidual_E_Ar[iside] = 0;
     m_hrtRelation_E_Ar[iside] = 0;
+    m_hTronTDist_E_Ar[iside] = 0;
+    m_hDriftTimeonTrkDist_E_Ar[iside] = 0;
   }
 }
 
@@ -816,9 +830,9 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_RDOs(bool newLumiBlock, bool newRun)
         for (int iside=0; iside<2; iside++) { // iside=0(A-side), iside=1(C-side)
           const std::string regionTag = " (" + be_id[ibe] + side_id[iside] + ")";
           m_hChipBSErrorsVsLB[ibe][iside] = bookTProfile(rdoShiftSmryRebinned, "hChipBSErrorsVsLB_" + be_id[ibe] + side_id[iside], "Chip Bytestream Errors vs LB" + regionTag, maxLumiBlock + 1, -0.5, maxLumiBlock + 0.5, 0, 150.0, "Luminosity Block", "Fraction of Chips with Errors", scode);
-          m_hChipBSErrorsVsLB[ibe][iside]->SetBit(TH1::kCanRebin);
+          CAN_REBIN(m_hChipBSErrorsVsLB[ibe][iside]);
           m_hRobBSErrorsVsLB[ibe][iside] = bookTProfile(rdoShiftSmryRebinned, "hRobBSErrorsVsLB_" + be_id[ibe] + side_id[iside], "Rob Bytestream Errors vs LB" + regionTag, maxLumiBlock + 1, -0.5, maxLumiBlock + 0.5, 0, 150.0, "Luminosity Block", "Fraction of RODs with Errors", scode);
-          m_hRobBSErrorsVsLB[ibe][iside]->SetBit(TH1::kCanRebin);
+          CAN_REBIN(m_hRobBSErrorsVsLB[ibe][iside]);
         }
       }
 
@@ -837,7 +851,7 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_RDOs(bool newLumiBlock, bool newRun)
 	MonGroup rdoShiftTH1(this, "TRT/Shift/"+barrel_or_endcap[ibe], run, ManagedMonitorToolBase::MgmtAttr_t::ATTRIB_UNMANAGED,"","weightedEff");
 
         if (ibe == 0) {
-          m_hHitWMap_B    = bookTH1F_LW(rdoShiftTH1, "hHitWMap", "Leading Edge in Time Window: Straws" " (Barrel)", s_Straw_max[ibe], 0, s_Straw_max[ibe], "Straw Number in Stack", "Probability", scode);
+          m_hHitWMap_B    = bookTH1F_LW(rdoShiftTH1, "hHitWMap", "Leading Edge in Time Window: Xenon Straws" " (Barrel)", s_Straw_max[ibe], 0, s_Straw_max[ibe], "Straw Number in Stack", "Probability", scode);
 
           if (m_ArgonXenonSplitter) {
             m_hHitWMap_B_Ar = bookTH1F_LW(rdoShiftTH1, "hHitWMap_Ar", "Leading Edge in Time Window: Argon Straws (Barrel)", s_Straw_max[ibe], 0, s_Straw_max[ibe], "Straw Number in Stack", "Probability", scode);
@@ -845,8 +859,8 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_RDOs(bool newLumiBlock, bool newRun)
 
           m_hOccAll       = bookTH1F_LW(rdoShift, "hOccAll", "Occupancy per Event", 400, 0.0, 1.0, "Occupancy", "Events", scode);
         } else if (ibe == 1) {
-          m_hHitWMap_E[0] = bookTH1F_LW(rdoShiftTH1, "hHitWMap_A", "Leading Edge in Time Window: Straws" " (EA)", s_Straw_max[ibe], 0, s_Straw_max[ibe], "Straw Number in Stack", "Probability", scode);
-          m_hHitWMap_E[1] = bookTH1F_LW(rdoShiftTH1, "hHitWMap_C", "Leading Edge in Time Window: Straws" " (EC)", s_Straw_max[ibe], 0, s_Straw_max[ibe], "Straw Number in Stack", "Probability", scode);
+          m_hHitWMap_E[0] = bookTH1F_LW(rdoShiftTH1, "hHitWMap_A", "Leading Edge in Time Window: Xenon Straws" " (EA)", s_Straw_max[ibe], 0, s_Straw_max[ibe], "Straw Number in Stack", "Probability", scode);
+          m_hHitWMap_E[1] = bookTH1F_LW(rdoShiftTH1, "hHitWMap_C", "Leading Edge in Time Window: Xenon Straws" " (EC)", s_Straw_max[ibe], 0, s_Straw_max[ibe], "Straw Number in Stack", "Probability", scode);
 
           if (m_ArgonXenonSplitter) {
             m_hHitWMap_E_Ar[0] = bookTH1F_LW(rdoShiftTH1, "hHitWMap_Ar_A", "Leading Edge in Time Window: Argon Straws" " (EA)", s_Straw_max[ibe], 0, s_Straw_max[ibe], "Straw Number in Stack", "Probability", scode);
@@ -972,16 +986,16 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Efficiency(bool newLumiBlock, bool newR
     m_hefficiency_phi = bookTProfile_LW(trackShiftEff, "hEfficiency_phi", "Efficiency vs #phi", 50, -3.2, 3.2, 0, 1, "#phi (deg)", "Efficiency", scode);
     m_hefficiency_pt = bookTProfile_LW(trackShiftEff, "hEfficiency_pt", "Efficiency vs pT", 50, 0, 10, 0, 1, "pT (GeV)", "Efficiency", scode);
     m_hefficiency_z0 = bookTProfile_LW(trackShiftEff, "hEfficiency_z0", "Efficiency vs z0", 50, -200, 200, 0, 1, "z0", "Efficiency", scode);
-    m_hefficiencyBarrel_locR = bookTProfile_LW(trackShiftEff, "hEfficiencyBarrel_locR", "Efficiency vs Track-to-Wire Distance" " (Barrel)", 50, -2.5, 2.5, 0, 1, "Track-to-Wire Distance (mm)", "Efficiency", scode);
-    m_hefficiencyBarrel_locR_Ar = bookTProfile_LW(trackShiftEff, "hEfficiencyBarrel_locR_Ar", "Efficiency vs Track-to-Wire Distance for Argon straws" " (Barrel)", 50, -2.5, 2.5, 0, 1, "Track-to-Wire Distance (mm)", "Efficiency", scode);
+    m_hefficiencyBarrel_locR = bookTProfile_LW(trackShiftEff, "hEfficiencyBarrel_locR", "Efficiency vs Track-to-Wire Distance for Xenon Straws" " (Barrel)", 50, -2.5, 2.5, 0, 1, "Track-to-Wire Distance (mm)", "Efficiency", scode);
+    m_hefficiencyBarrel_locR_Ar = bookTProfile_LW(trackShiftEff, "hEfficiencyBarrel_locR_Ar", "Efficiency vs Track-to-Wire Distance for Argon Straws" " (Barrel)", 50, -2.5, 2.5, 0, 1, "Track-to-Wire Distance (mm)", "Efficiency", scode);
 
     m_hefficiencyMap[0] = bookTProfile_LW(trackShiftEff, "hEfficiencyBarrelMap", "Straw Efficiency Map" " (Barrel)", s_Straw_max[0], 0, s_Straw_max[0], 0, 1, "Straw Number", "Efficiency", scode);
     m_hefficiencyMap[1] = bookTProfile_LW(trackShiftEff, "hEfficiencyEndCapMap", "Straw Efficiency Map" " (Endcap)", s_Straw_max[1], 0, s_Straw_max[1], 0, 1, "Straw Number", "Efficiency", scode);
 
     for (int iside=0; iside<2; iside++) {
       const std::string regionTag = " (" + be_id[1]   + side_id[iside] + ")";
-      m_hefficiencyEndCap_locR[iside] = bookTProfile_LW(trackShiftEff, "hEfficiencyEndCap"+side_id[iside]+"_locR", "Efficiency vs Track-to-Wire Distance" + regionTag, 50, -2.5, 2.5, 0, 1, "Track-to-Wire Distance (mm)", "Efficiency", scode);
-      m_hefficiencyEndCap_locR_Ar[iside] = bookTProfile_LW(trackShiftEff, "hEfficiencyEndCap"+side_id[iside]+"_locR_Ar", "Efficiency vs Track-to-Wire Distance for Argon straws" + regionTag, 50, -2.5, 2.5, 0, 1, "Track-to-Wire Distance (mm)", "Efficiency", scode);
+      m_hefficiencyEndCap_locR[iside] = bookTProfile_LW(trackShiftEff, "hEfficiencyEndCap"+side_id[iside]+"_locR", "Efficiency vs Track-to-Wire Distance for Xenon Straws" + regionTag, 50, -2.5, 2.5, 0, 1, "Track-to-Wire Distance (mm)", "Efficiency", scode);
+      m_hefficiencyEndCap_locR_Ar[iside] = bookTProfile_LW(trackShiftEff, "hEfficiencyEndCap"+side_id[iside]+"_locR_Ar", "Efficiency vs Track-to-Wire Distance for Argon Straws" + regionTag, 50, -2.5, 2.5, 0, 1, "Track-to-Wire Distance (mm)", "Efficiency", scode);
     }
 
     for (int ibe=0; ibe<2; ibe++) {
@@ -1055,59 +1069,63 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
     MonGroup trackShift(this, "TRT/Shift/"+barrel_or_endcap[ibe],  run,ManagedMonitorToolBase::MgmtAttr_t::ATTRIB_UNMANAGED);
     MonGroup trackShiftRebinned(this, "TRT/Shift/"+barrel_or_endcap[ibe],  run, ManagedMonitorToolBase::MgmtAttr_t::ATTRIB_UNMANAGED,"","mergeRebinned");
     MonGroup trackShiftTH1(this, "TRT/Shift/"+barrel_or_endcap[ibe],  run, ManagedMonitorToolBase::MgmtAttr_t::ATTRIB_UNMANAGED,"","weightedEff");
-    MonGroup trackAging(this, "TRT/Aging/"+barrel_or_endcap[ibe], lumiBlock,ManagedMonitorToolBase::MgmtAttr_t::ATTRIB_UNMANAGED);
+    MonGroup trackAging(this, "TRT/Aging/"+barrel_or_endcap[ibe], lowStat,ManagedMonitorToolBase::MgmtAttr_t::ATTRIB_UNMANAGED);
 
     if (newRun && DoShift) {
       if (ibe==0) {
-        m_hEvtPhase             = bookTH1F_LW(trackShift, "hEvtPhase", "Event Phase Correction Factor", 30, -50, 100, "Event Phase (ns)", "Entries", scode);
+        m_hEvtPhase             = bookTH1F_LW(trackShift, "hEvtPhase", "Event Phase Correction Factor", 200, -50, 50, "Event Phase (ns)", "Entries", scode);
         m_hEvtPhaseVsTrig       = bookTH2F_LW(trackShift, "hEvtPhaseVsTrig", "Event Phase vs L1 Trigger Item", 300, -200, 100, 256, -0.5, 255.5,"Event Phase (ns)","L1 Trigger Item", scode);
 
         m_hEvtPhaseDetPhi_B     = bookTProfile_LW(trackShift, "hEvtPhaseDetPhi", "Event Phase vs #phi (2D)" + regionTag, m_nphi_bins, 0, 360, -50, 100., "#phi (deg)", "Event Phase from Tracks per Event", scode);
-        m_hrtRelation_B         = bookTH2F_LW(trackShift, "hrtRelation", "R(t) Relation" + regionTag, 30, -12.5, 81.25, 50, 0, 2.5, "Measured Leading Edge (ns)", "Track-to-Wire Distance (mm)", scode);
+        m_hrtRelation_B         = bookTH2F_LW(trackShift, "hrtRelation", "R(t) Relation for Xenon Straws" + regionTag, 30, -12.5, 81.25, 50, 0, 2.5, "Measured Leading Edge (ns)", "Track-to-Wire Distance (mm)", scode);
         m_hNumHoTDetPhi_B       = bookTProfile_LW(trackShift, "hNumHoTDetPhi", "Number of Hits per Track with " + distance + " mm Cut vs #phi" + regionTag, m_nphi_bins, 0., 360, 0, 150, "#phi (deg)", Form("Hits per Track, TRT Hits >= %d", m_minTRThits), scode);
-        m_hTronTDist_B          = bookTH1F_LW(trackShiftTH1, "hTronTDist", "Trailing Edge Distribution on Track" + regionTag, 26, -0.5, 80.75, "Trailing Edge (ns)", "Norm. Entries", scode);
-        m_hDriftTimeonTrkDist_B = bookTH1F_LW(trackShiftTH1, "hDriftTimeonTrkDist", "Drift Time Distribution on Track" + regionTag, 32, 0, 100., "Drift Time (ns)", "Norm. Entries", scode);
+        m_hTronTDist_B          = bookTH1F_LW(trackShiftTH1, "hTronTDist", "Trailing Edge Distribution on Track for Xenon Straws" + regionTag, 26, -0.5, 80.75, "Trailing Edge (ns)", "Norm. Entries", scode);
+        m_hDriftTimeonTrkDist_B = bookTH1F_LW(trackShiftTH1, "hDriftTimeonTrkDist", "Drift Time Distribution on Track for Xenon Straws" + regionTag, 32, 0, 100., "Drift Time (ns)", "Norm. Entries", scode);
         m_hNumTrksDetPhi_B      = bookTH1F_LW(trackShift, "hNumTrksDetPhi", "Number of Reconstructed Tracks vs #phi (2D)" + regionTag, 60, 0, 360, "#phi (deg)", "Number of Tracks", scode);
 
         if (m_ArgonXenonSplitter) {
+          m_hDriftTimeonTrkDist_B_Ar = bookTH1F_LW(trackShiftTH1, "hDriftTimeonTrkDist_Ar", "Drift Time Distribution on Track for Argon Straws" + regionTag, 32, 0, 100., "Drift Time (ns)", "Norm. Entries", scode);
+          m_hTronTDist_B_Ar     = bookTH1F_LW(trackShiftTH1, "hTronTDist_Ar", "Trailing Edge Distribution on Track for Argon Straws" + regionTag, 26, -0.5, 80.75, "Trailing Edge (ns)", "Norm. Entries", scode);
           m_hrtRelation_B_Ar    = bookTH2F_LW(trackShift, "hrtRelation_Ar", "R(t) Relation for Argon Straws" + regionTag, 30, -12.5, 81.25, 50, 0, 2.5, "Measured Leading Edge (ns)", "Track-to-Wire Distance (mm)", scode);
           m_hResidual_B_Ar      = bookTH1F_LW(trackShiftTH1, "hResidual_Ar", "Residuals for Argon Straws" + regionTag, 100, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
           m_hTimeResidual_B_Ar  = bookTH1F_LW(trackShiftTH1, "hTimeResidual_Ar", "Time Residuals for Argon Straws" + regionTag, 200, -20, 20, "Time Residual (ns)", "Norm. Entries", scode);
         }
 
-        m_hResidual_B           = bookTH1F_LW(trackShiftTH1, "hResidual", "Residuals for All Straws" + regionTag, 100, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
-        m_hTimeResidual_B       = bookTH1F_LW(trackShiftTH1, "hTimeResidual", "Time Residuals for All Straws" + regionTag, 200, -20, 20, "Time Residual (ns)", "Norm. Entries", scode);
+        m_hResidual_B           = bookTH1F_LW(trackShiftTH1, "hResidual", "Residuals for Xenon Straws" + regionTag, 100, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
+        m_hTimeResidual_B       = bookTH1F_LW(trackShiftTH1, "hTimeResidual", "Time Residuals for Xenon Straws" + regionTag, 200, -20, 20, "Time Residual (ns)", "Norm. Entries", scode);
         m_hWireToTrkPosition_B  = bookTH1F_LW(trackShiftTH1, "hWireToTrkPosition", "Track-to-Wire Distance" + regionTag, 100, -5., 5, "Track-to-Wire Distance (mm)", "Norm. Entries", scode);
         m_hNumSwLLWoT_B         = bookTH1F_LW(trackShiftTH1, "hNumSwLLWoT", "Number of Straws with Hits on Track in Time Window" + regionTag, 150, 0, 150, "Number of LL Hits per Track", "Norm. Entries", scode);
         m_hAvgTroTDetPhi_B      = bookTProfile_LW(trackShift, "hAvgTroTDetPhi", "Avg. Trailing Edge on Track vs #phi (2D)" + regionTag, m_nphi_bins, 0, 360, 0, 75., "#phi (deg)", "Trailing Edge (ns)", scode);
 
         m_hNTrksperLB_B         = bookTProfile(trackShiftRebinned, "hNTrksperLB", "Avg. Number of Reconstructed Tracks per Event" + regionTag, maxLumiblock, -0.5, maxLumiblock - 0.5, 0, 150.0, "Luminosity Block", "Number of Tracks", scode);
-        m_hNTrksperLB_B->SetBit(TH1::kCanRebin);
+        CAN_REBIN(m_hNTrksperLB_B);
         m_hNHitsperLB_B         = bookTProfile(trackShiftRebinned, "hNHitsperLB", "Avg. Occupancy" + regionTag, maxLumiblock, -0.5, maxLumiblock - 0.5, 0, 150.0, "Luminosity Block", "Occupancy", scode);
-        m_hNHitsperLB_B->SetBit(TH1::kCanRebin);
+        CAN_REBIN(m_hNHitsperLB_B);
         m_hNHLHitsperLB_B       = bookTProfile(trackShiftRebinned, "hNHLHitsperLB", "Avg. HL Occupancy" + regionTag, maxLumiblock, -0.5, maxLumiblock - 0.5, 0, 150.0, "Luminosity Block", "Occupancy", scode);
-        m_hNHLHitsperLB_B->SetBit(TH1::kCanRebin);
+        CAN_REBIN(m_hNHLHitsperLB_B);
 
 
         m_hHLhitOnTrack_B       = bookTH1F_LW(trackShiftTH1, "hHLhitOnTrack", "Number of HL Hits per Reconstructed Track" + regionTag, 50, 0, 50, "Number of HL Hits per Track", "Norm. Entries", scode);
         m_hHtoLRatioOnTrack_B   = bookTH1F_LW(trackShiftTH1, "hHtoLRatioOnTrack", "HL/LL Ratio per Reconstructed Track" + regionTag, 50, 0, 1, "HL/LL Ratio", "Norm. Entries", scode);
         m_hHitWonTMap_B         = bookTH1F_LW(trackShiftTH1, "hHitWonTMap", "Leading Edge in Time Window per Reconstructed Track" + regionTag, s_Straw_max[0], 0, s_Straw_max[0], "Straw Number", "Norm. Entries", scode);
-	m_hStrawEffDetPhi_B     = bookTProfile_LW(trackShift, "hStrawEffDetPhi", "Straw Efficiency on Track with " + distance + " mm Cut vs #phi(2D)" + regionTag, 32, 0, 32, 0, 1.2, "Stack", "Avg. Straw Efficiency", scode);
+        m_hStrawEffDetPhi_B     = bookTProfile_LW(trackShift, "hStrawEffDetPhi", "Straw Efficiency on Track with " + distance + " mm Cut vs #phi(2D)" + regionTag, 32, 0, 32, 0, 1.2, "Stack", "Avg. Straw Efficiency", scode);
 
       } else if (ibe==1) {
         for (int iside=0; iside<2; iside++) {
           const std::string regionTag    = " (" + be_id[ibe] + side_id[iside] + ")"; // hides variable in outer scope
           m_hEvtPhaseDetPhi_E[iside]     = bookTProfile_LW(trackShift, "hEvtPhaseDetPhi_"+side_id[iside], "Event Phase vs #phi (2D)" + regionTag, m_nphi_bins, 0, 360, -50, 100, "#phi (deg)", "Event Phase from Tracks per Event", scode);
-          m_hrtRelation_E[iside]         = bookTH2F_LW(trackShift, "hrtRelation_"+side_id[iside], "R(t) Relation" + regionTag, 30, -12.5, 81.25, 50, 0, 2.5, "Measured Leading Edge (ns)", "Track-to-Wire Distance (mm)", scode);
+          m_hrtRelation_E[iside]         = bookTH2F_LW(trackShift, "hrtRelation_"+side_id[iside], "R(t) Relation for Xenon Straws" + regionTag, 30, -12.5, 81.25, 50, 0, 2.5, "Measured Leading Edge (ns)", "Track-to-Wire Distance (mm)", scode);
           m_hNumHoTDetPhi_E[iside]       = bookTProfile_LW(trackShift, "hNumHoTDetPhi_"+side_id[iside], "Number of Hits per Track with " + distance + " mm Cut vs #phi" + regionTag, m_nphi_bins,0.,360,0,150, "#phi (deg)", Form("Hits per Track, TRT Hits> = %d", m_minTRThits),scode);
-          m_hTronTDist_E[iside]          = bookTH1F_LW(trackShiftTH1, "hTronTDist_"+side_id[iside], "Trailing Edge Distribution on Track" + regionTag, 26, -0.5, 80.75,  "Trailing Edge (ns)", "Norm. Entries", scode);
-          m_hDriftTimeonTrkDist_E[iside] = bookTH1F_LW(trackShiftTH1, "hDriftTimeonTrkDist_"+side_id[iside], "Drift Time Distribution on Track" + regionTag, 32, 0, 100, "Drift Time (ns)", "Norm. Entries", scode);
+          m_hTronTDist_E[iside]          = bookTH1F_LW(trackShiftTH1, "hTronTDist_"+side_id[iside], "Trailing Edge Distribution on Track for Xenon Straws" + regionTag, 26, -0.5, 80.75,  "Trailing Edge (ns)", "Norm. Entries", scode);
+          m_hDriftTimeonTrkDist_E[iside] = bookTH1F_LW(trackShiftTH1, "hDriftTimeonTrkDist_"+side_id[iside], "Drift Time Distribution on Track for Xenon Straws" + regionTag, 32, 0, 100, "Drift Time (ns)", "Norm. Entries", scode);
           m_hNumTrksDetPhi_E[iside]      = bookTH1F_LW(trackShift, "hNumTrksDetPhi_"+side_id[iside], "Number of Reconstructed Tracks vs #phi (2D)" + regionTag, 60, 0, 360, "#phi (deg)", "Number of Tracks", scode);
-          m_hResidual_E[iside]           = bookTH1F_LW(trackShiftTH1, "hResidual_"+side_id[iside], "Residuals for All Straws" + regionTag, 100, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
-          m_hTimeResidual_E[iside]       = bookTH1F_LW(trackShiftTH1, "hTimeResidual_"+side_id[iside], "Time Residuals for All Straws" + regionTag, 200, -20, 20, "Time Residual (ns)", "Norm. Entries", scode);
+          m_hResidual_E[iside]           = bookTH1F_LW(trackShiftTH1, "hResidual_"+side_id[iside], "Residuals for Xenon Straws" + regionTag, 100, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
+          m_hTimeResidual_E[iside]       = bookTH1F_LW(trackShiftTH1, "hTimeResidual_"+side_id[iside], "Time Residuals for Xenon Straws" + regionTag, 200, -20, 20, "Time Residual (ns)", "Norm. Entries", scode);
 
           if (m_ArgonXenonSplitter) {
+            m_hTronTDist_E_Ar[iside]     = bookTH1F_LW(trackShiftTH1, "hTronTDist_Ar_"+side_id[iside], "Trailing Edge Distribution on Track for Argon Straws" + regionTag, 26, -0.5, 80.75,  "Trailing Edge (ns)", "Norm. Entries", scode);
             m_hrtRelation_E_Ar[iside]    = bookTH2F_LW(trackShift, "hrtRelation_Ar_" + side_id[iside], "R(t) Relation for Argon Straws" + regionTag, 30, -12.5, 81.25, 50, 0, 2.5, "Measured Leading Edge (ns)", "Track-to-Wire Distance (mm)", scode);
+            m_hDriftTimeonTrkDist_E_Ar[iside] = bookTH1F_LW(trackShiftTH1, "hDriftTimeonTrkDist_Ar_"+side_id[iside], "Drift Time Distribution on Track for Argon Straws" + regionTag, 32, 0, 100, "Drift Time (ns)", "Norm. Entries", scode);
             m_hResidual_E_Ar[iside]      = bookTH1F_LW(trackShiftTH1, "hResidual_Ar_" + side_id[iside], "Residuals for Argon Straws" + regionTag, 100, -2.5, 2.5, "Hit-to-Track Distance (mm)", "Norm. Entries", scode);
             m_hTimeResidual_E_Ar[iside]  = bookTH1F_LW(trackShiftTH1, "hTimeResidual_Ar_" + side_id[iside], "Time Residuals for Argon Straws" + regionTag, 200, -20, 20, "Time Residual (ns)", "Norm. Entries", scode);
           }
@@ -1117,16 +1135,16 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
           m_hAvgTroTDetPhi_E[iside]      = bookTProfile_LW(trackShift, "hAvgTroTDetPhi_"+side_id[iside], "Avg. Trailing Edge on Track vs #phi (2D)" + regionTag, m_nphi_bins, 0, 360, 0, 75., "#phi (deg)", "Trailing Edge (ns)", scode);
 
           m_hNTrksperLB_E[iside]         = bookTProfile(trackShiftRebinned, "hNTrksperLB_"+side_id[iside], "Avg. Number of Reconstructed Tracks per Event" + regionTag, maxLumiblock, -0.5, maxLumiblock - 0.5, 0, 150.0, "Luminosity Block", "Number of Tracks", scode);
-          m_hNTrksperLB_E[iside]->SetBit(TH1::kCanRebin);
+          CAN_REBIN(m_hNTrksperLB_E[iside]);
           m_hNHitsperLB_E[iside]         = bookTProfile(trackShiftRebinned, "hNHitsperLB_"+side_id[iside], "Avg. Occupancy" + regionTag, maxLumiblock, -0.5, maxLumiblock - 0.5, 0, 150.0, "Luminosity Block", "Occupancy", scode);
-          m_hNHitsperLB_E[iside]->SetBit(TH1::kCanRebin);
+          CAN_REBIN(m_hNHitsperLB_E[iside]);
           m_hNHLHitsperLB_E[iside]       = bookTProfile(trackShiftRebinned, "hNHLHitsperLB_"+side_id[iside], "Avg. HL Occupancy" + regionTag, maxLumiblock, -0.5, maxLumiblock - 0.5, 0, 150.0, "Luminosity Block", "Occupancy", scode);
-          m_hNHLHitsperLB_E[iside]->SetBit(TH1::kCanRebin);
+          CAN_REBIN(m_hNHLHitsperLB_E[iside]);
 
           m_hHLhitOnTrack_E[iside]       = bookTH1F_LW(trackShiftTH1, "hHLhitOnTrack_"+side_id[iside], "Number of HL Hits per Reconstructed Track" + regionTag, 50, 0, 50, "Number of HL Hits per Track", "Norm. Entries", scode);
           m_hHtoLRatioOnTrack_E[iside]   = bookTH1F_LW(trackShiftTH1, "hHtoLRatioOnTrack_"+side_id[iside], "HL/LL Ratio per Reconstructed Track" + regionTag, 50, 0, 1.0, "HL/LL Ratio", "Norm. Entries", scode);
           m_hHitWonTMap_E[iside]         = bookTH1F_LW(trackShiftTH1, "hHitWonTMap_"+side_id[iside], "Leading Edge in Time Window per Reconstructed Track" + regionTag, s_Straw_max[1], 0, s_Straw_max[1], "Straw Number", "Norm. Entries", scode);
-	  m_hStrawEffDetPhi_E[iside]     = bookTProfile_LW(trackShift, "hStrawEffDetPhi_" + side_id[iside], "Straw Efficiency on Track with " + distance + " mm Cut vs #phi(2D)" + regionTag, 32, 0, 32, 0, 1.2, "Stack", "Avg. Straw Efficiency", scode);
+          m_hStrawEffDetPhi_E[iside]     = bookTProfile_LW(trackShift, "hStrawEffDetPhi_" + side_id[iside], "Straw Efficiency on Track with " + distance + " mm Cut vs #phi(2D)" + regionTag, 32, 0, 32, 0, 1.2, "Stack", "Avg. Straw Efficiency", scode);
         } //for (int iside=0; iside<2; iside++)
       } //else if (ibe==1)
       m_hHitsOnTrack_Scatter[ibe]      = bookTH2F_LW(trackShift, "m_hHitsOnTrack_Scatter", "Hits per Track in Time Window in Stacks" + regionTag, 720, -0.5, 720 - 0.5, 80, 0, 80, "Luminosity Block (mod 720)", "Number of Hits per Track in Stacks", scode);
@@ -1406,9 +1424,9 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
               scale_LWHist(m_hEvtPhase, 1./EventPhaseScale);
             }
             DriftTimeonTrkDistScale_B = m_hDriftTimeonTrkDist_B->GetEntries()*3.125;
-            if (DriftTimeonTrkDistScale_B > 0)
+            if (DriftTimeonTrkDistScale_B > 0) {
               scale_LWHist(m_hDriftTimeonTrkDist_B, 1./DriftTimeonTrkDistScale_B);
-
+            }
             HLhitOnTrackScale_B = m_hHLhitOnTrack_B->GetEntries();
             if (HLhitOnTrackScale_B > 0) {
               scale_LWHist(m_hHLhitOnTrack_B,1./HLhitOnTrackScale_B);
@@ -1438,11 +1456,19 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
               scale_LWHist(m_hTimeResidual_B, 1./TimeResidualScale_B);
             }
             if (m_ArgonXenonSplitter) {
-              ResidualScale_B_Ar = m_hResidual_B_Ar->GetEntries() * 0.05;
+              DriftTimeonTrkDistScale_B_Ar = m_hDriftTimeonTrkDist_B_Ar->GetEntries()*3.125;
+              if (DriftTimeonTrkDistScale_B_Ar > 0) {
+                scale_LWHist(m_hDriftTimeonTrkDist_B_Ar, 1./DriftTimeonTrkDistScale_B_Ar);
+              }
+              TronTDistScale_B_Ar=m_hTronTDist_B_Ar->GetEntries()*3.125;
+              if (TronTDistScale_B_Ar > 0) {
+                scale_LWHist(m_hTronTDist_B_Ar ,1./TronTDistScale_B_Ar);
+              }
+              ResidualScale_B_Ar = m_hResidual_B_Ar->GetEntries()*0.05;
               if (ResidualScale_B_Ar > 0) {
                 scale_LWHist(m_hResidual_B_Ar, 1. / ResidualScale_B_Ar);
               }
-              TimeResidualScale_B_Ar = m_hTimeResidual_B_Ar->GetEntries() * 0.2;
+              TimeResidualScale_B_Ar = m_hTimeResidual_B_Ar->GetEntries()*0.2;
               if (TimeResidualScale_B_Ar > 0) {
                 scale_LWHist(m_hTimeResidual_B_Ar, 1. / TimeResidualScale_B_Ar);
               }
@@ -1482,11 +1508,19 @@ StatusCode TRT_Monitoring_Tool::procHistograms()
                 scale_LWHist(m_hTimeResidual_E[iside], 1./TimeResidualScale_E[iside]);
               }
               if (m_ArgonXenonSplitter) {
-                ResidualScale_E_Ar[iside] = m_hResidual_E_Ar[iside]->GetEntries() * 0.05;
+                DriftTimeonTrkDistScale_E_Ar[iside] = m_hDriftTimeonTrkDist_E_Ar[iside]->GetEntries()*3.125;
+                if (DriftTimeonTrkDistScale_E_Ar[iside] > 0) {
+                  scale_LWHist(m_hDriftTimeonTrkDist_E_Ar[iside], 1./DriftTimeonTrkDistScale_E_Ar[iside]);
+                }
+                TronTDistScale_E_Ar[iside] = m_hTronTDist_E_Ar[iside]->GetEntries()*3.125;
+                if (TronTDistScale_E_Ar[iside] > 0) {
+                  scale_LWHist(m_hTronTDist_E_Ar[iside], 1./TronTDistScale_E_Ar[iside]);
+                }
+                ResidualScale_E_Ar[iside] = m_hResidual_E_Ar[iside]->GetEntries()*0.05;
                 if (ResidualScale_E_Ar[iside] > 0) {
                   scale_LWHist(m_hResidual_E_Ar[iside], 1. / ResidualScale_E_Ar[iside]);
                 }
-                TimeResidualScale_E_Ar[iside] = m_hTimeResidual_E_Ar[iside]->GetEntries() * 0.2;
+                TimeResidualScale_E_Ar[iside] = m_hTimeResidual_E_Ar[iside]->GetEntries()*0.2;
                 if (TimeResidualScale_E_Ar[iside] > 0) {
                   scale_LWHist(m_hTimeResidual_E_Ar[iside], 1. / TimeResidualScale_E_Ar[iside]);
                 }
@@ -1824,6 +1858,12 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
     DataVector<TRT_RDORawData>::const_iterator p_rdo;//pointer to trt rdo data vector
     // Loop over TRT RDOs
     for (p_rdo=TRT_Collection->begin(); p_rdo!=TRT_Collection->end(); ++p_rdo) {
+      int middleHTbit       = (*p_rdo)->getWord() & 0x00020000;
+      //0x00020000 = 0000 0000 0000 0000 0000 0010 0000 0000 0000 0000
+      int hitinvaliditygate = (*p_rdo)->getWord() & 0x000DFE80;
+      //0x000DFE80 = 0000 0000 0000 0000 0000 1101 1111 1110 1000 0000 //
+      bool is_middleHTbit_high   = (middleHTbit !=0);
+      bool is_anybininVgate_high = (hitinvaliditygate !=0);
       TRT_Identifier = (*p_rdo)->identify();
       if (DoMaskStraws && m_sumSvc->get_status(TRT_Identifier)) continue;
       int m_barrel_ec = m_pTRTHelper->barrel_ec(TRT_Identifier);
@@ -1980,7 +2020,7 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
 	  if (DoStraws) m_hHitHMapS[ibe][iphi_module]->Fill(m_strawNumber); //High Level: Straws
 	  if (DoChips) m_hHitHMapC[ibe][iphi_module]->Fill(m_chip-1);      //High Level: Chips
 
-	  if ((m_driftTimeBin<24) && !m_firstBinHigh && !m_lastBinHigh) {
+	  if (is_middleHTbit_high) {
 	    //m_hHitHWMapS[ibe][iphi_module]->Fill(strawNumber(m_straw,m_straw_layer,m_layer_or_wheel)); //HL in time window: Straws
 	    if (DoStraws) m_hHitHWMapS[ibe][iphi_module]->Fill(m_strawNumber); //HL in time window: Straws
 	    if (DoChips) m_hHitHWMapC[ibe][iphi_module]->Fill(m_chip-1);      //HL in time window: Chip
@@ -1991,11 +2031,10 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
 	  if (DoStraws) m_hHitAMapS[ibe][iphi_module]->Fill(m_strawNumber); //Any LL bit on: Straws
 	  if (DoChips) m_hHitAMapC[ibe][iphi_module]->Fill(m_chip-1);      //Any LL bit on: Chips
 	}
-
-	if ((m_driftTimeBin>0 || m_trailingEdge<23)&& !m_firstBinHigh && !m_lastBinHigh) {
+	if ( is_anybininVgate_high) {
 	  if (DoStraws) m_hHitAWMapS[ibe][iphi_module]->Fill(m_strawNumber); // LL in time window: Straws
 	  if (DoChips) m_hHitAWMapC[ibe][iphi_module]->Fill(m_chip-1);      // LL in time window: Chips
-	}//if  (m_driftTimeBin>0 && m_trailingEdge<23)
+	}//if ( is_anybininVgate_high) 
 
 	if (DoStraws) {
 	  m_hHitToTMapS[ibe][iphi_module]->Fill(m_strawNumber, m_timeOverThreshold); //Mean ToT (ns): Straws
@@ -2315,6 +2354,8 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
       scale_LWHist(m_hResidual_B, ResidualScale_B);
       scale_LWHist(m_hTimeResidual_B, TimeResidualScale_B);
       if (m_ArgonXenonSplitter) {
+        scale_LWHist(m_hDriftTimeonTrkDist_B_Ar, DriftTimeonTrkDistScale_B_Ar);
+        scale_LWHist(m_hTronTDist_B_Ar, TronTDistScale_B_Ar);
         scale_LWHist(m_hResidual_B_Ar, ResidualScale_B_Ar);
         scale_LWHist(m_hTimeResidual_B_Ar, TimeResidualScale_B_Ar);
       }
@@ -2327,8 +2368,12 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
         scale_LWHist(m_hTronTDist_E[iside], TronTDistScale_E[iside]);
         scale_LWHist(m_hResidual_E[iside], ResidualScale_E[iside]);
         scale_LWHist(m_hTimeResidual_E[iside], TimeResidualScale_E[iside]);
-        scale_LWHist(m_hResidual_E_Ar[iside], ResidualScale_E_Ar[iside]);
-        scale_LWHist(m_hTimeResidual_E_Ar[iside], TimeResidualScale_E_Ar[iside]);
+        if (m_ArgonXenonSplitter) {
+          scale_LWHist(m_hDriftTimeonTrkDist_E_Ar[iside], DriftTimeonTrkDistScale_E_Ar[iside]);
+          scale_LWHist(m_hTronTDist_E_Ar[iside], TronTDistScale_E_Ar[iside]);
+          scale_LWHist(m_hResidual_E_Ar[iside], ResidualScale_E_Ar[iside]);
+          scale_LWHist(m_hTimeResidual_E_Ar[iside], TimeResidualScale_E_Ar[iside]);
+        }
       }
     } //DoShift
   }//if online environment
@@ -2637,8 +2682,17 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
 	}
 
 	if (DoShift && DoStraws) {
-	  if (ibe==0) m_hDriftTimeonTrkDist_B->Fill(RawDriftCircle->rawDriftTime());
-	  else if (ibe==1) m_hDriftTimeonTrkDist_E[iside]->Fill(RawDriftCircle->rawDriftTime());
+	  if (ibe==0) {
+	    if (isArgonStraw)
+	      m_hDriftTimeonTrkDist_B_Ar->Fill(RawDriftCircle->rawDriftTime());
+	    else
+	      m_hDriftTimeonTrkDist_B->Fill(RawDriftCircle->rawDriftTime());
+	  } else if (ibe==1) {
+	    if (isArgonStraw)
+	      m_hDriftTimeonTrkDist_E_Ar[iside]->Fill(RawDriftCircle->rawDriftTime());
+	    else
+	      m_hDriftTimeonTrkDist_E[iside]->Fill(RawDriftCircle->rawDriftTime());
+	  }
 	}
 
 	float locR = aTrackParam->parameters()[Trk::driftRadius];
@@ -2718,10 +2772,16 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
 	  if (DoShift && DoStraws) {
 	    if (RawDriftCircle->driftTimeValid()) {
 	      if (ibe==0) {
-		m_hTronTDist_B->Fill(((m_trailingEdge+1)*3.125));
+	  if (isArgonStraw)
+	    m_hTronTDist_B_Ar->Fill(((m_trailingEdge+1)*3.125));
+	  else
+	    m_hTronTDist_B->Fill(((m_trailingEdge+1)*3.125));
 		m_hAvgTroTDetPhi_B->Fill(m_phi2D[ibe], ((m_trailingEdge+1)*3.125));
 	      } else if (ibe==1) {
-		m_hTronTDist_E[iside]->Fill(((m_trailingEdge+1)*3.125));
+	  if (isArgonStraw)
+	    m_hTronTDist_E_Ar[iside]->Fill(((m_trailingEdge+1)*3.125));
+	  else
+	    m_hTronTDist_E[iside]->Fill(((m_trailingEdge+1)*3.125));
 		m_hAvgTroTDetPhi_E[iside]->Fill(m_phi2D[ibe], ((m_trailingEdge+1)*3.125));
 	      }
 	    }
@@ -2997,7 +3057,24 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
           if (TimeResidualScale_B > 0) {
             scale_LWHist(m_hTimeResidual_B,1./TimeResidualScale_B);
           }
-
+          if (m_ArgonXenonSplitter) {
+            DriftTimeonTrkDistScale_B_Ar = m_hDriftTimeonTrkDist_B_Ar->GetEntries()*3.125;
+            if (DriftTimeonTrkDistScale_B_Ar > 0) {
+              scale_LWHist(m_hDriftTimeonTrkDist_B_Ar, 1./DriftTimeonTrkDistScale_B_Ar);
+            }
+            TronTDistScale_B_Ar=m_hTronTDist_B_Ar->GetEntries()*3.125;
+            if (TronTDistScale_B_Ar > 0) {
+              scale_LWHist(m_hTronTDist_B_Ar,1./TronTDistScale_B_Ar);
+            }
+            ResidualScale_B_Ar = m_hResidual_B_Ar->GetEntries()*0.05;
+            if (ResidualScale_B_Ar > 0) {
+              scale_LWHist(m_hResidual_B_Ar, 1. / ResidualScale_B_Ar);
+            }
+            TimeResidualScale_B_Ar = m_hTimeResidual_B_Ar->GetEntries()*0.2;
+            if (TimeResidualScale_B_Ar > 0) {
+              scale_LWHist(m_hTimeResidual_B_Ar,1./TimeResidualScale_B_Ar);
+            }
+          }
         } else if (ibe==1) { //endcap
           for (int iside=0; iside<2; iside++) {
             DriftTimeonTrkDistScale_E[iside] = m_hDriftTimeonTrkDist_E[iside]->GetEntries()*3.125;
@@ -3033,11 +3110,19 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Tracks()
               scale_LWHist(m_hTimeResidual_E[iside],1./TimeResidualScale_E[iside]);
             }
             if (m_ArgonXenonSplitter) {
-              ResidualScale_E_Ar[iside] = m_hResidual_E_Ar[iside]->GetEntries() * 0.05;
+              DriftTimeonTrkDistScale_E_Ar[iside] = m_hDriftTimeonTrkDist_E_Ar[iside]->GetEntries()*3.125;
+              if (DriftTimeonTrkDistScale_E_Ar[iside] > 0) {
+                scale_LWHist(m_hDriftTimeonTrkDist_E_Ar[iside], 1./DriftTimeonTrkDistScale_E_Ar[iside]);
+              }
+              TronTDistScale_E_Ar[iside]=m_hTronTDist_E_Ar[iside]->GetEntries()*3.125;
+              if (TronTDistScale_E_Ar[iside] > 0) {
+                scale_LWHist(m_hTronTDist_E_Ar[iside],1./TronTDistScale_E_Ar[iside]);
+              }
+              ResidualScale_E_Ar[iside] = m_hResidual_E_Ar[iside]->GetEntries()*0.05;
               if (ResidualScale_E_Ar[iside] > 0) {
                 scale_LWHist(m_hResidual_E_Ar[iside], 1. / ResidualScale_E_Ar[iside]);
               }
-              TimeResidualScale_E_Ar[iside] = m_hTimeResidual_E_Ar[iside]->GetEntries() * 0.2;
+              TimeResidualScale_E_Ar[iside] = m_hTimeResidual_E_Ar[iside]->GetEntries()*0.2;
               if (TimeResidualScale_E_Ar[iside] > 0) {
                 scale_LWHist(m_hTimeResidual_E_Ar[iside],1./TimeResidualScale_E_Ar[iside]);
               }
