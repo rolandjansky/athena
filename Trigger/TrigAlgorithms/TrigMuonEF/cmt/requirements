@@ -61,7 +61,6 @@ use TrigInDetEvent           	TrigInDetEvent-*            	Trigger/TrigEvent
 use TrigMuonToolInterfaces      TrigMuonToolInterfaces-*        Trigger/TrigTools
 use xAODTracking		xAODTracking-*			Event/xAOD
 use xAODMuon			xAODMuon-*			Event/xAOD
-use xAODTrigMuon          	xAODTrigMuon-*                  Event/xAOD
 use xAODCaloEvent		xAODCaloEvent-*			Event/xAOD
 use RecoToolInterfaces	       RecoToolInterfaces-*	       Reconstruction/RecoTools
 use CaloEvent                  CaloEvent-*                     Calorimeter
@@ -96,8 +95,6 @@ apply_pattern declare_python_modules files="TrigMuonEFConfig.py TrigMuonEFCosmic
 #-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 # to build in dbg mode this package while using an opt build uncomment the following 
-private
-use EventPrimitives		 EventPrimitives-*		Event
-
+#private
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"

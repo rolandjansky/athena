@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUONEF_IETTRKROIMAKER_H__
+#ifndef TRIGMUONEF_INDETTRKROIMAKER_H__
 #define TRIGMUONEF_INDETTRKROIMAKER_H__
 
 // ************************************************
@@ -14,11 +14,10 @@
 //
 // ************************************************
 
-#include "TrigInterfaces/Algo.h"
+#include "TrigInterfaces/AllTEAlgo.h"
 #include "TrigInDetEvent/TrigInDetTrack.h"
-#include "TrigInterfaces/FexAlgo.h"
 
-class InDetTrkRoiMaker : public HLT::FexAlgo {
+class InDetTrkRoiMaker : public HLT::AllTEAlgo {
 
  public:
 
@@ -33,7 +32,7 @@ class InDetTrkRoiMaker : public HLT::FexAlgo {
   HLT::ErrorCode hltInitialize();
 
   /// Execute for each event
-  HLT::ErrorCode hltExecute(const HLT::TriggerElement*, HLT::TriggerElement*);
+  HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >&,unsigned int);
   
   /// Finalize
   HLT::ErrorCode hltFinalize();
@@ -125,7 +124,6 @@ class InDetTrkRoiMaker : public HLT::FexAlgo {
   std::vector<double> m_dPhiTrkSel;
   std::vector<double> m_dRTrkSel;
   std::vector<double> m_logdRTrkSel;
-
 
 };//class InDetTrkRoiMaker
 
