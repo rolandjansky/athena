@@ -62,18 +62,12 @@ if primRPVLLDESDM.doKinkedTrack():
     include("LongLivedParticleDPDMaker/PhysDESDM_KinkedTrack.py")
     pass
 
-## Emerging jet search (contact James Beacham)
-if primRPVLLDESDM.doEmerging():
-    include("LongLivedParticleDPDMaker/PhysDESDM_Emerging.py")
-    pass
-
 ## Stopped R-hadron search (contact: Andy Haas)
 if primRPVLLDESDM.doStopped():
     include("LongLivedParticleDPDMaker/PhysDESDM_Stopped.py")
     pass
 
 ## Highly ionizing particles search (contact: Avishek Chatterjee)
-### Now has it's own stream.
 if primRPVLLDESDM.doHips():
     include("LongLivedParticleDPDMaker/PhysDESDM_Hips.py")
     pass

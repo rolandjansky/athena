@@ -22,8 +22,7 @@ DerivationFramework::DVMeffFilterTool::DVMeffFilterTool( const std::string& t,
   m_metSGKey("MET_Calo"),
   m_jetSGKey("AntiKt4LCTopoJets"),
   m_MeffCut(1000000.),
-  m_METoverMeffCutMin(0.3),
-  m_METoverMeffCutMax(0.7),
+  m_METoverMeffCut(0.3),
   m_jetPtCut(40000.),
   m_jetEtaCut(2.7),
   m_METCut(80000.)
@@ -33,8 +32,7 @@ DerivationFramework::DVMeffFilterTool::DVMeffFilterTool( const std::string& t,
     declareProperty("MeffCut", m_MeffCut);
     declareProperty("jetPtCut", m_jetPtCut);
     declareProperty("jetEtaCut", m_jetEtaCut);
-    declareProperty("METoverMeffCutMin", m_METoverMeffCutMin);
-    declareProperty("METoverMeffCutMax", m_METoverMeffCutMax);
+    declareProperty("METoverMeffCut", m_METoverMeffCut);
     declareProperty("METCut",m_METCut);
     declareProperty("JetContainerKey", m_jetSGKey);
   }
@@ -69,19 +67,19 @@ bool DerivationFramework::DVMeffFilterTool::eventPassesFilter() const
      const xAOD::MissingETContainer* metContainer(0);
      StatusCode sc=evtStore()->retrieve(metContainer,m_metSGKey);
      if( sc.isFailure()  ||  !metContainer ) {
-       msg(MSG::WARNING) << "No MET container found, will skip this event" << endmsg;
+       msg(MSG::WARNING) << "No MET container found, will skip this event" << endreq;
        return StatusCode::FAILURE;
      } 
-     ///     msg(MSG::INFO)<<"size of  MET container is "<<metContainer->size()<<endmsg;
+     ///  msg(MSG::INFO)<<"size of  MET container is "<<metContainer->size()<<endreq;
 
-     if (metContainer->size() >= 1) {
+     if (metContainer->size() ==1) {
        MET = metContainer->at(0)->met();
      }
   
      const xAOD::JetContainer* jetContainer(0);
      sc=evtStore()->retrieve(jetContainer,m_jetSGKey);
      if( sc.isFailure()  ||  !jetContainer ) {
-       msg(MSG::WARNING) << "No jet container found, will skip this event" << endmsg;
+       msg(MSG::WARNING) << "No jet container found, will skip this event" << endreq;
        return StatusCode::FAILURE;
      }
      for (unsigned int i=0; i< jetContainer->size(); ++i) { 
@@ -92,13 +90,12 @@ bool DerivationFramework::DVMeffFilterTool::eventPassesFilter() const
      
      Meff += MET;
      Meff += totalJetPT;
-
+     ///     msg(MSG::DEBUG)<<" MET "<< MET<< " totalJetPT "<<totalJetPT<<" Meff "<<Meff<<" ratio "<< MET/Meff <<endreq;
      
-     if ((Meff > m_MeffCut) || ((MET > m_METCut) && (MET/Meff > m_METoverMeffCutMin ) && (MET/Meff < m_METoverMeffCutMax)))  {   //// NOTE: OR of these two requirements
+     if ((Meff > m_MeffCut) || ((MET > m_METCut) && (MET/Meff > m_METoverMeffCut )))  {   //// NOTE: OR of these two requirements
        passesEvent=true;
        ++m_npass;
      }
-     /// msg(MSG::INFO)<<" MET "<< MET<< " totalJetPT "<<totalJetPT<<" Meff "<<Meff<<" ratio "<< MET/Meff <<" "<<passesEvent<<endmsg;
 
 
 

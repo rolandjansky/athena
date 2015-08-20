@@ -35,7 +35,6 @@ primRPVLLDESDM=jobproperties.PrimaryDPDFlags_RPVLLStream
 import DiLepFlags
 import DVFlags
 import KinkedTrackFlags
-import EmergingFlags
 import StoppedFlags
 import VH_DVFlags
 import QuirksFlags
@@ -69,13 +68,6 @@ class doKinkedTrack(JobProperty):
     pass
 primRPVLLDESDM.add_JobProperty(doKinkedTrack)
 
-class doEmerging(JobProperty):
-    statusOn=True
-    allowedTypes = ["bool"]
-    StoredValue=True # FIXME: Set True to turn this on
-    pass
-primRPVLLDESDM.add_JobProperty(doEmerging)
-    
 class doStopped(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
@@ -100,7 +92,7 @@ primRPVLLDESDM.add_JobProperty(doQuirks)
 class doHips(JobProperty):
     statusOn = True
     allowedTypes = ["bool"]
-    StoredValue = False
+    StoredValue = True
     pass
 primRPVLLDESDM.add_JobProperty(doHips)
 

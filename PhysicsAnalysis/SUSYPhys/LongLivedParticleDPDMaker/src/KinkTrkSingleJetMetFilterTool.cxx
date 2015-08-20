@@ -7,16 +7,8 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODEgamma/ElectronContainer.h"
-#include "xAODTracking/TrackParticleContainer.h"
 #include "FourMomUtils/P4Helpers.h"
 #include <vector>
-
-class sortJetContainer{
-public:
-  bool operator () (const xAOD::Jet *left, const xAOD::Jet *right) const{
-    return (left->pt() > right->pt());
-  }
-};
 
 /// Service Constructor
 DerivationFramework::KinkTrkSingleJetMetFilterTool::KinkTrkSingleJetMetFilterTool( const std::string& t,
@@ -27,7 +19,6 @@ DerivationFramework::KinkTrkSingleJetMetFilterTool::KinkTrkSingleJetMetFilterToo
   m_npass(0),
   m_passAll(false),
   m_LeptonVeto(false),
-  m_isolatedTrack(false),
   m_jetSGKey("AntiKt4LCTopoJets"),
   m_metSGKey("MET_RefFinal"),
   m_metTerm("Final"),
@@ -39,16 +30,13 @@ DerivationFramework::KinkTrkSingleJetMetFilterTool::KinkTrkSingleJetMetFilterToo
   m_metCut(-1),
   m_jetPtCuts(std::vector<float>()),
   m_jetEtaMax(3.2),
-  m_jetNumCut(1),
   m_jetMetDphiMin(-1),
-  m_jetMetPtMin(0.0),
   m_leptonPtCut(30.0),
   m_leptonEtaMax(2.5)
   {
     declareInterface<DerivationFramework::ISkimmingTool>(this);
     declareProperty("passAll", m_passAll); 
     declareProperty("LeptonVeto", m_LeptonVeto);
-    declareProperty("IsolatedTrack", m_isolatedTrack);
     declareProperty("JetContainerKey", m_jetSGKey);
     declareProperty("MetContainerKey", m_metSGKey);
     declareProperty("MetTerm", m_metTerm);
@@ -59,9 +47,7 @@ DerivationFramework::KinkTrkSingleJetMetFilterTool::KinkTrkSingleJetMetFilterToo
     declareProperty("MetCut", m_metCut);
     declareProperty("JetPtCuts", m_jetPtCuts);
     declareProperty("JetEtaMax", m_jetEtaMax);
-    declareProperty("JetNumCut", m_jetNumCut);
     declareProperty("JetMetDphiMin", m_jetMetDphiMin);
-    declareProperty("JetMetPtMin", m_jetMetPtMin);
     declareProperty("LeptonPtCut", m_leptonPtCut);
     declareProperty("LeptonEtaMax", m_leptonEtaMax);
   }
@@ -120,37 +106,20 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
   ATH_CHECK( evtStore()->retrieve(jetContainer, m_jetSGKey) );
   ATH_MSG_DEBUG("retrieved jet collection size "<< jetContainer->size());
 
-  std::vector<const xAOD::Jet *> sortedJetContainer;
-  for(xAOD::JetContainer::const_iterator jet = jetContainer->begin(); jet!= jetContainer->end(); jet++){
-    sortedJetContainer.push_back(*jet);
-  }
-
-  // leading jet pt > 120 GeV
-  // Good Jets pt > 50 GeV
-  // Pt cut size = 2
-  std::sort(sortedJetContainer.begin(), sortedJetContainer.end(), sortJetContainer());
-
-  int nJetRequired = 0;
+  bool passJet1(false);
   std::vector<const xAOD::Jet*> goodJets;
-  int nJet = sortedJetContainer.size();
-  //for (const auto jet: *jetContainer) {
-  for(int i=0;i<nJet;i++){
-    // search for good jets which are used for dphi calculation
-    if (sortedJetContainer.at(i)->pt() > m_jetMetPtMin && fabs(sortedJetContainer.at(i)->eta()) < m_jetEtaMax) {
-      goodJets.push_back(sortedJetContainer.at(i));
-    }
-    
-    // search for required jets
-    if(nJetRequired < m_jetNumCut){
-      if (sortedJetContainer.at(i)->pt() > m_jetPtCuts[nJetRequired] && fabs(sortedJetContainer.at(i)->eta()) < m_jetEtaMax){
-	nJetRequired++;
+  for (const auto jet: *jetContainer) {
+    for (unsigned int i=0; i<m_jetPtCuts.size(); i++) {
+      if (jet->pt() > m_jetPtCuts[i] && fabs(jet->eta()) < m_jetEtaMax) {
+        if (i==0) passJet1 = true; 
+        goodJets.push_back(jet);
+        break;
       }
     }
-  }// for jet
+  }
 
-  if(nJetRequired < m_jetNumCut) return acceptEvent;
+  if (!passJet1) return acceptEvent;
 
-  // dPhi > 1.0 cut
   float minDphi = 9999;
   for (unsigned int i=0; i<goodJets.size(); i++) {
     if (i >= m_jetPtCuts.size()) break;
@@ -160,7 +129,6 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
   }
   if (minDphi < m_jetMetDphiMin) return acceptEvent; 
   
-  // Lepton VETO
   if (m_LeptonVeto) {
     // Retrieve muon container	
     const xAOD::MuonContainer* muons(0);
@@ -203,83 +171,6 @@ bool DerivationFramework::KinkTrkSingleJetMetFilterTool::eventPassesFilter() con
     }
   }
 
-  // at least 1 isolated pixel tracklet OR standard track
-  if(m_isolatedTrack){
-    //if(true){
-    // Find IsolatedTracklet
-    bool passIsolatedTracklet = false;
-    const xAOD::TrackParticleContainer *pixelTrackletContainer=NULL;
-    ATH_CHECK( evtStore()->retrieve(pixelTrackletContainer, "InDetPixelPrdAssociationTrackParticles") );
-    
-    for(auto Tracklet : *pixelTrackletContainer){
-      passIsolatedTracklet = true;
-      for(unsigned int i=0;i<goodJets.size();i++){
-	double deltaPhi = (fabs(Tracklet->phi() - goodJets.at(i)->phi()) > M_PI) ? 2.0*M_PI-fabs(Tracklet->phi()-goodJets.at(i)->phi()) : fabs(Tracklet->phi()-goodJets.at(i)->phi());
-	double deltaEta = fabs(Tracklet->eta() - goodJets.at(i)->eta());
-	double deltaR = sqrt(deltaPhi*deltaPhi + deltaEta*deltaEta);
-
-	//if(P4Helpers::deltaR(Tracklet->p4(), goodJets.at(i)->eta(), goodJets.at(i)->phi()) < 0.3){
-	if(deltaR < 0.3){
-	  passIsolatedTracklet = false;
-	}
-      }// for goodJets
-      
-      if(passIsolatedTracklet)
-	break;
-    }// for Tracklet
-
-    if(passIsolatedTracklet==false){
-      //return acceptEvent; // std track OFF
-
-      bool passIsolatedStdTrack = false;
-      const xAOD::TrackParticleContainer *standardTrackContainer=NULL;
-      ATH_CHECK( evtStore()->retrieve(standardTrackContainer, "InDetTrackParticles") );
-      
-      for(auto StdTrack : *standardTrackContainer){
-	if(StdTrack->pt()/1000.0 < 20.0)
-	  continue;
-
-	passIsolatedStdTrack = true;
-
-	for(unsigned int i=0;i<goodJets.size();i++){
-	  double deltaPhi = (fabs(StdTrack->phi() - goodJets.at(i)->phi()) > M_PI) ? 2.0*M_PI-fabs(StdTrack->phi()-goodJets.at(i)->phi()) : fabs(StdTrack->phi()-goodJets.at(i)->phi());
-	  double deltaEta = fabs(StdTrack->eta() - goodJets.at(i)->eta());
-	  double deltaR = sqrt(deltaPhi*deltaPhi + deltaEta*deltaEta);
-	  //if(P4Helpers::deltaR(StdTrack->p4(), goodJets.at(i)->eta(), goodJets.at(i)->phi()) < 0.3){
-	  if(deltaR < 0.3){
-	    passIsolatedStdTrack = false;
-	  }
-	}// for goodJets
-	
-	if(passIsolatedStdTrack){
-	  double ptcone20 = 0.0;
-	  for(auto Track : *standardTrackContainer){
-	    if(Track->pt()/1000.0 < 0.4)
-	      continue;
-
-	    double deltaPhi = (fabs(StdTrack->phi() - Track->phi()) > M_PI) ? 2.0*M_PI-fabs(StdTrack->phi()-Track->phi()) : fabs(StdTrack->phi()-Track->phi());
-	    double deltaEta = fabs(StdTrack->eta() - Track->eta());
-	    double deltaR = sqrt(deltaPhi*deltaPhi + deltaEta*deltaEta);
-	    //if(P4Helpers::deltaR(StdTrack->p4(), Track->p4()) < 0.2)
-	    if(deltaR < 0.2)
-	      ptcone20 += Track->pt();
-	  }// for Track
-	  
-	  ptcone20 = (ptcone20 - StdTrack->pt())/StdTrack->pt();
-	  if(ptcone20 < 0.04){
-	    break;
-	  }else{
-	    passIsolatedStdTrack = false;
-	  }
-	}
-      }// for StdTrack
-
-      if(passIsolatedStdTrack==false)
-	return acceptEvent;
-    }// if there is no isolated pixel tracklet, find isolated standard track
-    
-  }// m_isolatedTracklet
-  
   acceptEvent = true;
   ++m_npass;
   return acceptEvent; 

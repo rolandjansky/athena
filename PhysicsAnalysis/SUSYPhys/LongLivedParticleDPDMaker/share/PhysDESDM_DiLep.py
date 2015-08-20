@@ -1,85 +1,172 @@
+# ##########################################################################################
+# Electron/photon/muon augmentation
+# Use the derivation framework tools directly
+# ##########################################################################################
+
+# Cache the container names (used throughout)
+photons   = primRPVLLDESDM.DiLep_containerFlags.photonCollectionName
+electrons = primRPVLLDESDM.DiLep_containerFlags.electronCollectionName
+muons     = primRPVLLDESDM.DiLep_containerFlags.muonCollectionName
+
+# Electron d0
+from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__RpvElectronD0Tool
+DiLepElectronD0 = DerivationFramework__RpvElectronD0Tool( name           = "DiLepElectronD0",
+                                                          CollectionName = electrons,
+                                                          SGPrefix       = "DiLep" + electrons,
+                                                        )
+ToolSvc += DiLepElectronD0
+
+# Muon d0
+from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__RpvMuonD0Tool
+DiLepMuonD0 = DerivationFramework__RpvMuonD0Tool( name           = "DiLepMuonD0",
+                                                  CollectionName = muons,
+                                                  SGPrefix       = "DiLep" + muons,
+                                                )
+ToolSvc += DiLepMuonD0
+
+# Muon IsMS
+from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__RpvMuonMSTool
+DiLepMuonMS = DerivationFramework__RpvMuonMSTool( name           = "DiLepMuonMS",
+                                                  CollectionName = muons,
+                                                  SGPrefix       = "DiLep" + muons,
+                                                )
+ToolSvc += DiLepMuonMS
+
+# PROBLEM! Classes I want to use are not available in AtlasProduction
+# For now, I copied the classes to this package
+
+# Photon IsEM
+# from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGammaPassSelectionWrapper
+from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__RpvEgammaIDTool
+DiLepPhotonSelection = DerivationFramework__RpvEgammaIDTool( name               = "DiLepPhotonSelection",
+                                                             SelectionVariables = ["Loose", "Tight"],
+                                                             CollectionName     = photons,
+                                                             SGPrefix           = "DiLep" + photons,
+                                                           )
+ToolSvc += DiLepPhotonSelection
+
+# Electron IsEM
+DiLepElectronSelection = DerivationFramework__RpvEgammaIDTool( name               = "DiLepElectronSelection",
+                                                               SelectionVariables = ["Loose", "Medium", "Tight"],
+                                                               CollectionName     = electrons,
+                                                               SGPrefix           = "DiLep" + electrons,
+                                                             )
+ToolSvc += DiLepElectronSelection
+
+# Kernel for the augmentation tools
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+topSequence += DerivationFramework__DerivationKernel( "RPVLLAugmentationKernel",
+                                                      AugmentationTools = [DiLepElectronD0, DiLepMuonD0, DiLepMuonMS, DiLepPhotonSelection, DiLepElectronSelection],
+                                                    )
+
+# ##########################################################################################
+# Selection algorithms setup
+# ##########################################################################################
+
+def EgammaSelectionString(flags, container, number = 1):
+    """Construct electron and photon selection string based on the flags provided (from DiLepFlags)
+    """
+
+    cutList = []
+    if flags.cutEtMin:  cutList.append('%s.pt > %s'          % (container, flags.cutEtMin))
+    if flags.cutEtaMax: cutList.append('abs(%s.eta) < %s'    % (container, flags.cutEtaMax))
+    if flags.cutd0Min:  cutList.append('abs(DiLep%sD0) > %s' % (container, flags.cutd0Min))
+    if flags.cutIsEM:   cutList.append('DiLep%s%s'           % (container, flags.cutIsEM))
+
+    cutString = 'count(' + ' && '.join(cutList) + ') > %i' % (number-1)
+    if flags.trigger: cutString = flags.trigger + ' && ' + cutString
+
+    print cutString
+    return cutString
+
+def MuonSelectionString(flags, container, number = 1):
+    """Construct muon selection string based on the flags provided (from DiLepFlags)
+    """
+
+    cutList_combined = []
+    if flags.cutEtMin:  cutList_combined.append('%s.pt > %s'          % (container, flags.cutEtMin))
+    if flags.cutEtaMax: cutList_combined.append('abs(%s.eta) < %s'    % (container, flags.cutEtaMax))
+    if flags.cutd0Min:  cutList_combined.append('abs(DiLep%sD0) > %s' % (container, flags.cutd0Min))
+    cutList_combined.append('DiLep%sisCombined == 1' % (container))
+
+    cutList_msonly = []
+    if flags.cutEtMin:  cutList_msonly.append('%s.pt > %s'       % (container, flags.cutEtMin))
+    if flags.cutEtaMax: cutList_msonly.append('abs(%s.eta) < %s' % (container, flags.cutEtaMax))
+    cutList_msonly.append('DiLep%sisCombined == 0' % (container))
+    cutList_msonly.append('DiLep%sisMS == 1'       % (container))
+
+    cutString = 'count((' + ' && '.join(cutList_combined) + ') || (' + ' && '.join(cutList_msonly) + ')) > %i' % (number-1)
+    if flags.trigger: cutString = flags.trigger + ' && ' + cutString
+
+    print cutString
+    return cutString
+
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool as skimtool
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel as kernel
-from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__DiLepFilters as filters
-from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__DiLepSkim as skim
 
 # ##########################################################################################
-# DiLep filter definitions
+# Single photon filter
 # ##########################################################################################
 
-# define cut values of the filters
-ToolSvc += filters( "DiLepFilters",
-                    
-                    SiPhTriggers  = primRPVLLDESDM.DiLep_FilterFlags.SiPhTriggers,
-                    DiPhTriggers  = primRPVLLDESDM.DiLep_FilterFlags.DiPhTriggers,
-                    SiMuTriggers  = primRPVLLDESDM.DiLep_FilterFlags.SiMuTriggers,
-                    
-                    ElEtaMax      = primRPVLLDESDM.DiLep_FilterFlags.ElEtaMax,
-                    PhEtaMax      = primRPVLLDESDM.DiLep_FilterFlags.PhEtaMax,
-                    MuEtaMax      = primRPVLLDESDM.DiLep_FilterFlags.MuEtaMax,
-                    MuBaEtaMax    = primRPVLLDESDM.DiLep_FilterFlags.MuBaEtaMax,
-                    
-                    ElD0Min       = primRPVLLDESDM.DiLep_FilterFlags.ElD0Min,
-                    MuD0Min       = primRPVLLDESDM.DiLep_FilterFlags.MuD0Min,
-                    
-                    SiElPtMin     = primRPVLLDESDM.DiLep_FilterFlags.SiElPtMin,
-                    SiPhPtMin     = primRPVLLDESDM.DiLep_FilterFlags.SiPhPtMin,
-                    SiPhXPtMin    = primRPVLLDESDM.DiLep_FilterFlags.SiPhXPtMin,
-                    SiMuPtMin     = primRPVLLDESDM.DiLep_FilterFlags.SiMuPtMin,
-                    DiElPtMin     = primRPVLLDESDM.DiLep_FilterFlags.DiElPtMin,
-                    DiPhPtMin     = primRPVLLDESDM.DiLep_FilterFlags.DiPhPtMin,
-                    DiElPhPtMin   = primRPVLLDESDM.DiLep_FilterFlags.DiElPhPtMin,
-                    DiLoElPhPtMin = primRPVLLDESDM.DiLep_FilterFlags.DiLoElPhPtMin
-                  )
-
-# ##########################################################################################
-# Single electron skim tool
-# ##########################################################################################
-
-DiLepSiElectronFilterTool = skim("RPVLL_DiLep_SiElectronSkim", Filter = 1)
-ToolSvc     += DiLepSiElectronFilterTool
-topSequence += kernel( "RPVLL_DiLep_SiElectronFilterKernel",
-                       SkimmingTools = [DiLepSiElectronFilterTool],
+DiLepSinglePhotonFilterTool = skimtool( name       = "DiLepSinglePhotonFilterTool",
+                                        expression = EgammaSelectionString(primRPVLLDESDM.DiLep_singlePhotonFilterFlags, photons, 1),
+                                      )
+ToolSvc     += DiLepSinglePhotonFilterTool
+topSequence += kernel( "RPVLL_DiLep_SinglePhotonFilterKernel",
+                       SkimmingTools = [DiLepSinglePhotonFilterTool],
                      )
-RPVLLfilterNames.extend(["RPVLL_DiLep_SiElectronFilterKernel"])
+RPVLLfilterNames.extend(["RPVLL_DiLep_SinglePhotonFilterKernel"])
 
 # ##########################################################################################
-# Single photon + X skim tool
+# Single photon + X filter
 # ##########################################################################################
 
-DiLepSiPhotonXFilterTool = skim("RPVLL_DiLep_SiPhotonXSkim", Filter = 2)
-ToolSvc     += DiLepSiPhotonXFilterTool
-topSequence += kernel( "RPVLL_DiLep_SiPhotonXFilterKernel",
-                       SkimmingTools = [DiLepSiPhotonXFilterTool],
+pString  = EgammaSelectionString(primRPVLLDESDM.DiLep_singlePhotonFilterFlags, photons, 1)
+apString = EgammaSelectionString(primRPVLLDESDM.DiLep_singlePhotonFilterFlags_addph, photons, 2) # 2 is not a bug! (double counting)
+aeString = EgammaSelectionString(primRPVLLDESDM.DiLep_singlePhotonFilterFlags_addel, electrons, 1)
+amString = MuonSelectionString(primRPVLLDESDM.DiLep_singlePhotonFilterFlags_addmu, muons, 1)
+DiLepSinglePhotonXFilterTool = skimtool( name       = "DiLepSinglePhotonXFilterTool",
+                                         expression = pString + ' && (' + apString + ' || ' + aeString + ' || ' + amString + ')',
+                                       )
+ToolSvc     += DiLepSinglePhotonXFilterTool
+topSequence += kernel( "RPVLL_DiLep_SinglePhotonXFilterKernel",
+                       SkimmingTools = [DiLepSinglePhotonXFilterTool],
                      )
-RPVLLfilterNames.extend(["RPVLL_DiLep_SiPhotonXFilterKernel"])
+RPVLLfilterNames.extend(["RPVLL_DiLep_SinglePhotonXFilterKernel"])
 
 # ##########################################################################################
-# Single muon skim tool
+# Single electron filter
 # ##########################################################################################
 
-DiLepSiMuonFilterTool = skim("RPVLL_DiLep_SiMuonSkim", Filter = 3)
-ToolSvc     += DiLepSiMuonFilterTool
-topSequence += kernel( "RPVLL_DiLep_SiMuonFilterKernel",
-                       SkimmingTools = [DiLepSiMuonFilterTool],
+DiLepSingleElectronFilterTool = skimtool( name       = "DiLepSingleElectronFilterTool",
+                                          expression = EgammaSelectionString(primRPVLLDESDM.DiLep_singleElectronFilterFlags, electrons, 1),
+                                        )
+ToolSvc     += DiLepSingleElectronFilterTool
+topSequence += kernel( "RPVLL_DiLep_SingleElectronFilterKernel",
+                       SkimmingTools = [DiLepSingleElectronFilterTool],
                      )
-RPVLLfilterNames.extend(["RPVLL_DiLep_SiMuonFilterKernel"])
+RPVLLfilterNames.extend(["RPVLL_DiLep_SingleElectronFilterKernel"])
 
 # ##########################################################################################
-# Di electron skim tool
+# Single muon filter
 # ##########################################################################################
 
-DiLepDiElectronFilterTool = skim("RPVLL_DiLep_DiElectronSkim", Filter = 4)
-ToolSvc     += DiLepDiElectronFilterTool
-topSequence += kernel( "RPVLL_DiLep_DiElectronFilterKernel",
-                       SkimmingTools = [DiLepDiElectronFilterTool],
+DiLepSingleMuonFilterTool = skimtool( name       = "DiLepSingleMuonFilterTool",
+                                      expression = MuonSelectionString(primRPVLLDESDM.DiLep_singleMuonFilterFlags, muons, 1),
+                                    )
+ToolSvc     += DiLepSingleMuonFilterTool
+topSequence += kernel( "RPVLL_DiLep_SingleMuonFilterKernel",
+                       SkimmingTools = [DiLepSingleMuonFilterTool],
                      )
-RPVLLfilterNames.extend(["RPVLL_DiLep_DiElectronFilterKernel"])
+RPVLLfilterNames.extend(["RPVLL_DiLep_SingleMuonFilterKernel"])
 
 # ##########################################################################################
-# Di photon skim tool
+# Double photon filter
 # ##########################################################################################
 
-DiLepDiPhotonFilterTool = skim("RPVLL_DiLep_DiPhotonSkim", Filter = 5)
+DiLepDiPhotonFilterTool = skimtool( name       = "DiLepDiPhotonFilterTool",
+                                    expression = EgammaSelectionString(primRPVLLDESDM.DiLep_diPhotonFilterFlags, photons, 2),
+                                  )
 ToolSvc     += DiLepDiPhotonFilterTool
 topSequence += kernel( "RPVLL_DiLep_DiPhotonFilterKernel",
                        SkimmingTools = [DiLepDiPhotonFilterTool],
@@ -87,19 +174,41 @@ topSequence += kernel( "RPVLL_DiLep_DiPhotonFilterKernel",
 RPVLLfilterNames.extend(["RPVLL_DiLep_DiPhotonFilterKernel"])
 
 # ##########################################################################################
-# Di electron+photon skim tools
+# Double electron filter
 # ##########################################################################################
 
-DiLepDiElPhFilterTool = skim("RPVLL_DiLep_DiElPhSkim", Filter = 6)
-ToolSvc     += DiLepDiElPhFilterTool
-topSequence += kernel( "RPVLL_DiLep_DiElPhFilterKernel",
-                       SkimmingTools = [DiLepDiElPhFilterTool],
+DiLepDiElectronFilterTool = skimtool( name       = "DiLepDiElectronFilterTool",
+                                      expression = EgammaSelectionString(primRPVLLDESDM.DiLep_diElectronFilterFlags, electrons, 2),
+                                    )
+ToolSvc     += DiLepDiElectronFilterTool
+topSequence += kernel( "RPVLL_DiLep_DiElectronFilterKernel",
+                       SkimmingTools = [DiLepDiElectronFilterTool],
                      )
-RPVLLfilterNames.extend(["RPVLL_DiLep_DiElPhFilterKernel"])
+RPVLLfilterNames.extend(["RPVLL_DiLep_DiElectronFilterKernel"])
 
-DiLepDiLoElPhFilterTool = skim("RPVLL_DiLep_DiLoElPhSkim", Filter = 7)
-ToolSvc     += DiLepDiLoElPhFilterTool
-topSequence += kernel( "RPVLL_DiLep_DiLoElPhFilterKernel",
-                       SkimmingTools = [DiLepDiLoElPhFilterTool],
+# ##########################################################################################
+# Double electron+photon filters
+# ##########################################################################################
+
+eString = EgammaSelectionString(primRPVLLDESDM.DiLep_diEgammaFilterFlags_electron, electrons, 1)
+gString = EgammaSelectionString(primRPVLLDESDM.DiLep_diEgammaFilterFlags_photon, photons, 1)
+DiLepDiEgammaFilterTool = skimtool( name       = "DiLepDiEgammaFilterTool",
+                                    expression = eString + ' && ' + gString,
+                                  )
+ToolSvc     += DiLepDiEgammaFilterTool
+topSequence += kernel( "RPVLL_DiLep_DiEgammaFilterKernel",
+                       SkimmingTools = [DiLepDiEgammaFilterTool],
                      )
-RPVLLfilterNames.extend(["RPVLL_DiLep_DiLoElPhFilterKernel"])
+RPVLLfilterNames.extend(["RPVLL_DiLep_DiEgammaFilterKernel"])
+
+eLString = EgammaSelectionString(primRPVLLDESDM.DiLep_diLooseEgammaFilterFlags_electron, electrons, 1)
+gLString = EgammaSelectionString(primRPVLLDESDM.DiLep_diLooseEgammaFilterFlags_photon, photons, 1)
+DiLepDiLooseEgammaFilterTool = skimtool( name       = "DiLepDiLooseEgammaFilterTool",
+                                         expression = eLString + ' && ' + gLString,
+                                       )
+ToolSvc     += DiLepDiLooseEgammaFilterTool
+topSequence += kernel( "RPVLL_DiLep_DiLooseEgammaFilterKernel",
+                       SkimmingTools = [DiLepDiLooseEgammaFilterTool],
+                     )
+RPVLLfilterNames.extend(["RPVLL_DiLep_DiLooseEgammaFilterKernel"])
+

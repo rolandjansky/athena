@@ -58,22 +58,22 @@ bool DerivationFramework::HVJetMETFilterTool::eventPassesFilter() const
      StatusCode sc=evtStore()->retrieve(metContainer,m_metSGKey);
      //     met = (*metContainer)[m_metTerm];
      if( sc.isFailure()  ||  !metContainer ) {
-       msg(MSG::WARNING) << "No MET container found, will skip this event" << endmsg;
+       msg(MSG::WARNING) << "No MET container found, will skip this event" << endreq;
        return StatusCode::FAILURE;
      } 
-     msg(MSG::DEBUG)<<"size of  MET container is "<<metContainer->size()<<endmsg;
+     msg(MSG::DEBUG)<<"size of  MET container is "<<metContainer->size()<<endreq;
 
      if (metContainer->size() !=0) {
 
        met = (*metContainer)[m_metTerm];
        if (!met) {
-	 msg(MSG::WARNING) << "Cannot retrieve MissingET term " << m_metTerm << " in " << m_metSGKey << endmsg;
+	 msg(MSG::WARNING) << "Cannot retrieve MissingET term " << m_metTerm << " in " << m_metSGKey << endreq;
 	 return StatusCode::FAILURE;
        }
  
        // double MET = metContainer->at(0)->met();
 
-       // msg(MSG::DEBUG) << "MET and phi are " << met->met() << " " << met->phi() <<endmsg;
+       // msg(MSG::DEBUG) << "MET and phi are " << met->met() << " " << met->phi() <<endreq;
 
        bool passesEvent= (met->met() > m_metCut) ;
        

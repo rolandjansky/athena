@@ -18,7 +18,7 @@ DerivationFramework::KinkTrkZeeTagTool::KinkTrkZeeTagTool(const std::string& t,
 							    const std::string& n,
 							    const IInterface* p):
   AthAlgTool(t, n, p),
-  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
+  m_trigDecisionTool("Trig::TrigDecisionTool"),
   m_trigMatchTool("TrigMatchTool/TrigMatchTool"),
   m_trigNames(std::vector<std::string>()),
   m_trigMatchDeltaR(0.1),
@@ -119,9 +119,6 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::addBranches() const
   std::string sgKey1(m_sgKeyPrefix+"DiEleMass");
   if (evtStore()->contains< float >(sgKey1)) {
     ATH_MSG_ERROR("StoreGate key " << sgKey1 << "already exists.");
-    // avoid mem leak
-    delete probeEleEt;
-    delete diEleMass;
     return StatusCode::FAILURE;
   }
   CHECK(evtStore()->record(diEleMass, sgKey1));
@@ -129,7 +126,6 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::addBranches() const
   std::string sgKey2(m_sgKeyPrefix+"ProbeEleEt");
   if (evtStore()->contains< float >(sgKey2)) {
     ATH_MSG_ERROR("StoreGate key " << sgKey2 << "already exists.");
-    delete probeEleEt; // avoid mem leak
     return StatusCode::FAILURE;
   }
   CHECK(evtStore()->record(probeEleEt, sgKey2));

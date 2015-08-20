@@ -18,7 +18,7 @@ DerivationFramework::KinkTrkZmumuTagTool::KinkTrkZmumuTagTool(const std::string&
 							    const std::string& n,
 							    const IInterface* p):
   AthAlgTool(t, n, p),
-  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
+  m_trigDecisionTool("Trig::TrigDecisionTool"),
   m_trigMatchTool("TrigMatchTool/TrigMatchTool"),
   m_trigNames(std::vector<std::string>()),
   m_trigMatchDeltaR(0.1),
@@ -124,17 +124,12 @@ StatusCode DerivationFramework::KinkTrkZmumuTagTool::addBranches() const
   // Writing to SG
   if (evtStore()->contains< float >(sgKey1)) {
     ATH_MSG_ERROR("StoreGate key " << sgKey1 << "already exists.");
-    // avoid mem leak
-    delete diMuonTrkMass;
-    delete probeMuPt;
     return StatusCode::FAILURE;
   }
   CHECK(evtStore()->record(diMuonTrkMass, sgKey1));
 
   if (evtStore()->contains< float >(sgKey2)) {
     ATH_MSG_ERROR("StoreGate key " << sgKey2 << "already exists.");
-    // avoid mem leak
-    delete probeMuPt;
     return StatusCode::FAILURE;
   }
   CHECK(evtStore()->record(probeMuPt, sgKey2));
