@@ -13,7 +13,7 @@
 #include "AthenaKernel/AlgorithmTimer.h"
 #include "TrigMonitorBase/TrigMonitorToolBase.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "TimeDivider.h"
+#include "TrigSteerMonitor/TimeDivider.h"
 
 
 
@@ -43,6 +43,7 @@ namespace HLT {
   class TrigSteer;
   class SteeringChain;
 }
+class StoreGateSvc;
 
 class TrigRateMoni : public TrigMonitorToolBase {
  public:
@@ -111,15 +112,18 @@ class TrigRateMoni : public TrigMonitorToolBase {
   std::map<const HLT::SteeringChain*, int> m_chains_map; 
   
 
-  TH2F* m_published{0}; //!< histogram which is published
-  TH2F* m_buffer{0};    //!< buffer to collect statistics
+  TH2F* m_published; //!< histogram which is published
+  TH2F* m_buffer;    //!< buffer to collect statistics
 
-  const HLT::TrigSteer* m_parentAlg{0};
+  MsgStream* m_log; 
+  unsigned int m_logLvl;
+  const HLT::TrigSteer* m_parentAlg;
+  ServiceHandle<StoreGateSvc> m_storeGate;
   std::vector<std::string> m_specialStreamSetProperties;// for undecoded specials
 
   enum ybins { input=0, prescale=1, raw=2, output=3, rerun=4, algoIn=5, passedrerun=6 };
 
-  Athena::AlgorithmTimer* m_timer{0};
+  Athena::AlgorithmTimer* m_timer;
   void callback();
   boost::mutex m_update_mutex;
   bool m_in_running;

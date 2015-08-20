@@ -1,0 +1,30 @@
+//----------------------------------------------------------------
+// Tool for Steer Monitoring
+//----------------------------------------------------------------
+
+ApplicationMgr.ExtSvc += { "HistogramSvc" };
+
+//use this for HBOOK Persistency
+ApplicationMgr.DLLs += { "HbookCnv" };
+ApplicationMgr.HistogramPersistency = "HBOOK";
+//HistogramPersistencySvc.OutputFile = "steermonitor.hbook";
+
+//use this for ROOT Persistency
+//ApplicationMgr.DLLs += { "RootHistCnv" };
+//ApplicationMgr.HistogramPersistency = "ROOT";
+//HistogramPersistencySvc.OutputFile = "steermonitor.root";
+
+ApplicationMgr.DLLs += { "TrigSteerMonitor" };
+
+StepController_L2.CounterTool.PrintToFile = true;
+StepController_L2.CounterTool.PrintoutFreq = 1;
+StepController_L2.CounterTool.FillHisto = true;
+StepController_L2.CounterTool.UniqueFileName = false;
+StepController_L2.CounterTool.OutputLevel = 2 ;
+
+StepController_EF.CounterTool.PrintToFile = true ;
+StepController_EF.CounterTool.PrintoutFreq = 1;
+StepController_EF.CounterTool.FillHisto = true;
+StepController_EF.CounterTool.UniqueFileName = false;
+StepController_EF.CounterTool.OutputLevel = 2 ;
+

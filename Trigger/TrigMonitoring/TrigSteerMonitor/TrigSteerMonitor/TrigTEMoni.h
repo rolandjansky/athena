@@ -14,7 +14,7 @@
  * @author Gordon Fischer        Gordon.Fischer@cern.ch
  *
  * File and Version Information:
- * $Id: TrigTEMoni.h 771932 2016-09-06 12:53:25Z fwinkl $
+ * $Id: TrigTEMoni.h,v 1.11 2008-10-16 20:21:15 tbold Exp $
  **********************************************************************************/
 
 
@@ -46,29 +46,55 @@ class TrigTEMoni: public TrigMonitorToolBase {
   virtual ~TrigTEMoni() {};
 
   virtual StatusCode initialize();
+  virtual StatusCode finalize();
 
   virtual StatusCode bookHists();
   virtual StatusCode bookHistograms( bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun );
   virtual StatusCode fillHists();
 
  private:
+  StoreGateSvc* m_storeGate;
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_lvl1ConfigSvc; //!< handle for the LVL1 configuration service
-  const HLT::TrigSteer* m_parentAlg{0}; // should give us pointer to TrigSteer topAlgorithm!!!
+  const HLT::TrigSteer* m_parentAlg; // should give us pointer to TrigSteer topAlgorithm!!!
   
-  TH1I *m_numberOfTEsHist{0};
-  TH1I *m_numberOfallTEsHist{0};
-  TH1I *m_numberOflvl1TEsHist{0};
-  TH1I *m_numberOfalllvl1TEsHist{0};
-  TH2I *m_numberOfTEsHist2d{0};
-  TH2I *m_numberOfallTEsHist2d{0};
-  TH2I *m_numberOflvl1TEsHist2d{0};
-  TH2I *m_numberOfalllvl1TEsHist2d{0};
+  //std::vector<TH1I*>  m_numberOfTEsHist;
+  TH1I  *m_numberOfTEsHist;
+  //  TH1I *m_numberOfTEsHist_runsummary;
+  TH1I  *m_numberOfallTEsHist;
+  //  TH1I *m_numberOfallTEsHist_runsummary;
+  
+  TH1I  *m_numberOflvl1TEsHist;
+  //  TH1I *m_numberOflvl1TEsHist_runsummary;
+  TH1I * m_numberOfalllvl1TEsHist;
+  //  TH1I *m_numberOfalllvl1TEsHist_runsummary;
 
+  TH2I *m_numberOfTEsHist2d;
+  //  TH2I *m_numberOfTEsHist2d_runsummary;
+  TH2I *m_numberOfallTEsHist2d;
+  //  TH2I *m_numberOfallTEsHist2d_runsummary;
+
+
+  TH2I *m_numberOflvl1TEsHist2d;
+  //  TH2I *m_numberOflvl1TEsHist2d_runsummary;
+  TH2I *m_numberOfalllvl1TEsHist2d;
+  //  TH2I *m_numberOfalllvl1TEsHist2d_runsummary;
+
+
+  //  unsigned m_reserveLumiHistos;
+  //  unsigned int m_bookedLumiHistos;
+  //  std::string m_histoPathexpert;
+  MsgStream* m_log;
+  unsigned int m_logLvl; //!< MsgStram level
   std::vector< unsigned int > m_configuredTETypes;
   std::vector< unsigned int > m_configuredlvl1TETypes;
+  //std::vector< unsigned int > m_configuredlvl1TETypes_from_lvl1config;
   std::map< unsigned int, unsigned int > m_labels; // TriggerElement ID -> bin  
   std::map<unsigned int,unsigned int> m_lvl1labels;//TriggerElement ID -> bin
+  //std::map<unsigned int,unsigned int> m_lvl1cclabels;//TriggerElement ID -> bin
+  
+  //  std::map<int,int > m_lumiBlockIndex;
   std::string m_trigLvl;
+
 };
 
 

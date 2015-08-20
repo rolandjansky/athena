@@ -14,15 +14,15 @@
  * @author Gordon Fischer        Gordon.Fischer@cern.ch
  *
  * File and Version Information:
- * $Id: TrigChainMoni.h 761301 2016-07-12 11:51:07Z fwinkl $
+ * $Id: TrigChainMoni.h,v 1.13 2009-02-17 08:05:45 tbold Exp $
  **********************************************************************************/
 
 
 #ifndef TRIGCHAINMONI_H
 #define TRIGCHAINMONI_H
 
+#include <vector>
 #include <string>
-#include <map>
 #include "TrigMonitorBase/TrigMonitorToolBase.h"
 #include "TrigMonitorBase/TrigLBNHist.h"
 
@@ -31,6 +31,7 @@ namespace HLT {
 }
 
 class TH1I;
+class StoreGateSvc;
 
 class TrigChainMoni: public TrigMonitorToolBase {
 
@@ -41,6 +42,8 @@ public:
    virtual ~TrigChainMoni();
 
    virtual StatusCode initialize();
+   virtual StatusCode finalize();
+   virtual StatusCode endRun();
    virtual StatusCode bookHists();
    virtual StatusCode bookHistograms( bool isNewEventsBlock, bool isNewLumiBlock, bool isNewRun );
    virtual StatusCode fillHists();
@@ -49,7 +52,11 @@ public:
    virtual StatusCode finalHists();
   
 private:
+   StoreGateSvc* m_storeGate; //!< storegate
+   MsgStream* m_log; 
+   unsigned int m_logLvl; //!< MsgStram level
    std::string m_histoPathshift;
+   //  unsigned int m_reserveLumiHistos;  // this is availabel in base class so not needed here
    const HLT::TrigSteer* m_parentAlg; // should give us pointer to TrigSteer topAlgorithm!!!
 
    // 1D histograms
@@ -63,6 +70,7 @@ private:
    TH1I *m_runChainsHist;
    TH1I *m_rerunChainsHist;
 
+   unsigned int binnr; //not used anymore
    std::map< unsigned int, unsigned int > m_binmap;
    std::string m_trigLvl;
    bool m_useLBHistos;

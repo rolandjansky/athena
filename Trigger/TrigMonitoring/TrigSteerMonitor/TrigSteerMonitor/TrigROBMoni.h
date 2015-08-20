@@ -10,7 +10,7 @@
  * @brief  ROB data access monitoring
  * @author Frank Winklmeier
  *
- * $Id: TrigROBMoni.h 761301 2016-07-12 11:51:07Z fwinkl $
+ * $Id: TrigROBMoni.h,v 1.1 2009-03-16 13:52:56 fwinkl Exp $
  */
 
 // STL includes
@@ -23,6 +23,7 @@
 #include "TrigDataAccessMonitoring/ROBDataMonitor.h"
 
 // Framework includes
+#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 // Forward declararations
@@ -30,6 +31,7 @@ namespace HLT {
   class TrigSteer;
 }
 
+class StoreGateSvc;
 class TH1;
 class TH2I;
 class TH2F;
@@ -144,6 +146,9 @@ public:
   
 private:
   
+  MsgStream m_log;
+  ServiceHandle<StoreGateSvc> m_storeGate;
+
   /// Pointer to steering (partent algo of this tool)
   const HLT::TrigSteer* m_steering;
 

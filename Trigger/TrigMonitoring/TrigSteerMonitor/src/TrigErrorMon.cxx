@@ -2,6 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
+
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ITHistSvc.h"
 
@@ -20,7 +24,7 @@
 #include <algorithm>
 #include <TH1I.h>
 #include <TH2I.h>
-#include "TrigErrorMon.h"
+#include "TrigSteerMonitor/TrigErrorMon.h"
 
 #include "TrigConfHLTData/HLTTriggerElement.h"
 #include <boost/algorithm/string.hpp>
@@ -30,25 +34,64 @@ using namespace HLT;
 
 TrigErrorMon::TrigErrorMon(const std::string & type, const std::string & name,
 			 const IInterface* parent)
-  :  TrigMonitorToolBase(type, name, parent)
-{
+  :  TrigMonitorToolBase(type, name, parent),
+     m_parentAlg(0),
+     m_histo_reason(0),
+     m_histo_action(0),
+     m_histo_steeringInternalReason(0),
+     m_histo2d_reason(0),
+     m_histo2d_action(0),
+     m_log(0),
+     m_logLvl(0),
+     m_trigLvl("") {
   declareInterface<IMonitorToolBase>(this);
   declareProperty("expertMode", m_expertMode=false, "If set to 'true' includes also errors when HLT::Action == CONTINUE and errors eta/phi");
+
+  // set up axis labels for TE_Errors_Slices histogram
+  m_te_names.push_back("L2tau");
+  m_te_names.push_back("L2trk");
+  m_te_names.push_back("L2_e");
+  m_te_names.push_back("L2_g");
+  m_te_names.push_back("L2_j");
+  m_te_names.push_back("L2_b");
+  m_te_names.push_back("L2_mu");
+  m_te_names.push_back("L2_xe");
+
+
+}
+
+
+/* ******************************** finalize ************************************** */
+StatusCode TrigErrorMon::finalize()
+{
+  delete m_log; m_log = 0;
+  return StatusCode::SUCCESS;
 }
 
 
 /* ******************************** initialize ************************************** */
 StatusCode TrigErrorMon::initialize()
 {
-  ATH_CHECK(TrigMonitorToolBase::initialize());
+  m_log = new MsgStream(msgSvc(), name());
+  m_logLvl = m_log->level();
 
+  if ( TrigMonitorToolBase::initialize().isFailure() ) {
+    if (m_logLvl <= MSG::ERROR) (*m_log) << MSG::ERROR << " Unable to initialize base class !"
+					 << endreq;
+    return StatusCode::FAILURE;
+  }
+  
   m_parentAlg = dynamic_cast<const HLT::TrigSteer*>(parent());
   if ( !m_parentAlg ) {
-    ATH_MSG_ERROR(" Unable to cast the parent algorithm to HLT::TrigSteer !");
+    if (m_logLvl <= MSG::ERROR)(*m_log) << MSG::ERROR << " Unable to cast the parent algorithm to HLT::TrigSteer !"
+	     << endreq;
     return StatusCode::FAILURE;
   }
 
   m_trigLvl = m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2 ? "L2" : m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::EF ? "EF" : "HLT" ;
+  
+  if (m_logLvl <= MSG::INFO)(*m_log) << MSG::INFO << "Finished initialize() of TrigErrorMon"
+	   << endreq;
   
   return StatusCode::SUCCESS;
 }
@@ -57,8 +100,12 @@ StatusCode TrigErrorMon::initialize()
 /* ******************************** bookHists  ************************************** */
 
 StatusCode TrigErrorMon::bookHists()
-{
-  ATH_CHECK(bookHistograms( false, false, true ));
+{ 
+  if ( bookHistograms( false, false, true ).isFailure() ) { 
+    if (m_logLvl <= MSG::ERROR)(*m_log) << MSG::ERROR << "Failure" << endreq;
+    return StatusCode::FAILURE;
+    
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -68,6 +115,11 @@ StatusCode TrigErrorMon::bookHists()
 /* ******************************** book Histograms ************************************* */
 StatusCode TrigErrorMon::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLumiBlock*/, bool /*isNewRun*/ )
 {
+  /*
+  if (m_logLvl <= MSG::DEBUG) {
+    (*m_log) << MSG::DEBUG << "bookHistograms" << endreq;
+  }
+  */
   TrigMonGroup expertHistograms( this, boost::replace_all_copy(name(), ".", "/" ), expert );
   
   //retrieve chain names from configuredChains
@@ -154,7 +206,7 @@ StatusCode TrigErrorMon::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNew
     string::size_type loc2=strErrorCode(ec).find_last_of(" ");
     //retrieve action, reason and steeringinternalreason code 
     if (loc1 ==std::string::npos  || loc1==loc2){
-      ATH_MSG_WARNING ("  can not identify Action, Reason and SteeringInternalReason from strErrorCode ");
+      if (m_logLvl <= MSG::WARNING)(*m_log)<<MSG::WARNING<<"  can not identify Action, Reason and SteeringInternalReason from strErrorCode "<<endreq;
     }else{
       actionName=sirName.substr(0,loc1);
       reasonName=sirName.substr(loc2);
@@ -195,24 +247,24 @@ StatusCode TrigErrorMon::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNew
 
   
   if ( expertHistograms.regHist((ITrigLBNHist*)m_histo_reason).isFailure())
-    msg() << MSG::WARNING << "Can't book "
-	     <<  m_histo_reason->GetName() << endmsg;
+    (*m_log) << MSG::WARNING << "Can't book "
+	     <<  m_histo_reason->GetName() << endreq;
 
   if ( expertHistograms.regHist((ITrigLBNHist*)m_histo_action).isFailure())
-    msg() << MSG::WARNING << "Can't book "
-	     << m_histo_action->GetName() << endmsg;
+    (*m_log) << MSG::WARNING << "Can't book "
+	     << m_histo_action->GetName() << endreq;
 
   if ( expertHistograms.regHist((ITrigLBNHist*)m_histo_steeringInternalReason).isFailure())
-    msg() << MSG::WARNING << "Can't book "
-	     << m_histo_steeringInternalReason->GetName() << endmsg;
+    (*m_log) << MSG::WARNING << "Can't book "
+	     << m_histo_steeringInternalReason->GetName() << endreq;
   
   if ( expertHistograms.regHist(m_histo2d_reason).isFailure())
-    msg() << MSG::WARNING << "Can't book "
-	     <<  m_histo2d_reason->GetName() << endmsg;
+    (*m_log) << MSG::WARNING << "Can't book "
+	     <<  m_histo2d_reason->GetName() << endreq;
   
   if ( expertHistograms.regHist(m_histo2d_action).isFailure())
-    msg() << MSG::WARNING << "Can't book "
-	     << m_histo2d_action->GetName() << endmsg;
+    (*m_log) << MSG::WARNING << "Can't book "
+	     << m_histo2d_action->GetName() << endreq;
 
 
   if ( ! m_expertMode )
@@ -224,11 +276,110 @@ StatusCode TrigErrorMon::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNew
   m_histo_te_errors_etaphi->GetXaxis()->SetTitle("#eta_{ROI}");
   m_histo_te_errors_etaphi->GetYaxis()->SetTitle("#varphi_{ROI} / rad");
 
+  // 
+  m_histo_te_errors_names = new TH1I("TE_Errors_Slices",
+      "Entries", m_te_names.size(), -0.5, m_te_names.size() - 0.5 );
+
+  vector<string>::const_iterator te_names_itr;
+  int bin;
+  for (bin = 1, te_names_itr = m_te_names.begin(); te_names_itr != m_te_names.end(); ++te_names_itr, ++bin ) {
+    m_histo_te_errors_names -> GetXaxis()->SetBinLabel( bin, (*te_names_itr).c_str());
+  }
+  
+  m_histo_tau_errors_etaphi = new TH2I("TE_Errors_tau", 
+      "#eta vs #varphi of tau TE errors", 51, -2.55, 2.55, 64, -M_PI*(1.-1./64.), M_PI*(1.+1./64.));
+  m_histo_tau_errors_etaphi->GetXaxis()->SetTitle("#eta_{ROI}");
+  m_histo_tau_errors_etaphi->GetYaxis()->SetTitle("#varphi_{ROI} / rad");
+
+  m_histo_trk_errors_etaphi = new TH2I("TE_Errors_trk", 
+      "#eta vs #varphi of track TE errors", 51, -2.55, 2.55, 64, -M_PI*(1.-1./64.), M_PI*(1.+1./64.));
+  m_histo_trk_errors_etaphi->GetXaxis()->SetTitle("#eta_{ROI}");
+  m_histo_trk_errors_etaphi->GetYaxis()->SetTitle("#varphi_{ROI} / rad");
+
+  m_histo_e_errors_etaphi = new TH2I("TE_Errors_e", 
+      "#eta vs #varphi of electron TE errors", 51, -2.55, 2.55, 64, -M_PI*(1.-1./64.), M_PI*(1.+1./64.));
+  m_histo_e_errors_etaphi->GetXaxis()->SetTitle("#eta_{ROI}");
+  m_histo_e_errors_etaphi->GetYaxis()->SetTitle("#varphi_{ROI} / rad");
+
+  m_histo_g_errors_etaphi = new TH2I("TE_Errors_g", 
+      "#eta vs #varphi of photon TE errors", 51, -2.55, 2.55, 64, -M_PI*(1.-1./64.), M_PI*(1.+1./64.));
+  m_histo_g_errors_etaphi->GetXaxis()->SetTitle("#eta_{ROI}");
+  m_histo_g_errors_etaphi->GetYaxis()->SetTitle("#varphi_{ROI} / rad");
+
+  m_histo_j_errors_etaphi = new TH2I("TE_Errors_j", 
+      "#eta vs #varphi of jet TE errors", 31, -3.1, 3.1, 32,  -M_PI*(1.-1./32.), M_PI*(1.+1./32.) );
+  m_histo_j_errors_etaphi->GetXaxis()->SetTitle("#eta_{ROI}");
+  m_histo_j_errors_etaphi->GetYaxis()->SetTitle("#varphi_{ROI} / rad");
+
+  m_histo_b_errors_etaphi = new TH2I("TE_Errors_b", 
+      "#eta vs #varphi of b tagged TE errors", 51, -2.55, 2.55, 64, -M_PI*(1.-1./64.), M_PI*(1.+1./64.));
+  m_histo_b_errors_etaphi->GetXaxis()->SetTitle("#eta_{ROI}");
+  m_histo_b_errors_etaphi->GetYaxis()->SetTitle("#varphi_{ROI} / rad");
+
+  m_histo_mu_errors_etaphi = new TH2I("TE_Errors_mu", 
+      "#eta vs #varphi of muon TE errors", 50, -2.5, 2.5, 64, -M_PI, M_PI);
+  m_histo_mu_errors_etaphi->GetXaxis()->SetTitle("#eta_{ROI}");
+  m_histo_mu_errors_etaphi->GetYaxis()->SetTitle("#varphi_{ROI} / rad");
+
+  m_histo_xe_errors_etaphi = new TH2I("TE_Errors_xe", 
+      "#eta vs #varphi of missing energy TE errors", 51, -2.55, 2.55, 64, -M_PI*(1.-1./64.), M_PI*(1.+1./64.));
+  m_histo_xe_errors_etaphi->GetXaxis()->SetTitle("#eta_{ROI}");
+  m_histo_xe_errors_etaphi->GetYaxis()->SetTitle("#varphi_{ROI} / rad");
+
+  
+
   if ( expertHistograms.regHist(m_histo_te_errors_etaphi).isFailure()) {
-    msg() << MSG::WARNING << "Can't book "
-	     <<  m_histo_te_errors_etaphi->GetName() << endmsg;
+    (*m_log) << MSG::WARNING << "Can't book "
+	     <<  m_histo_te_errors_etaphi->GetName() << endreq;
   }
 
+  if ( expertHistograms.regHist(m_histo_tau_errors_etaphi).isFailure()) {
+    (*m_log) << MSG::WARNING << "Can't book "
+	     <<  m_histo_tau_errors_etaphi->GetName() << endreq;
+  }
+
+  if ( expertHistograms.regHist(m_histo_trk_errors_etaphi).isFailure()) {
+    (*m_log) << MSG::WARNING << "Can't book "
+	     <<  m_histo_trk_errors_etaphi->GetName() << endreq;
+  }
+
+  if ( expertHistograms.regHist(m_histo_e_errors_etaphi).isFailure()) {
+    (*m_log) << MSG::WARNING << "Can't book "
+	     <<  m_histo_e_errors_etaphi->GetName() << endreq;
+  }
+
+  if ( expertHistograms.regHist(m_histo_g_errors_etaphi).isFailure()) {
+    (*m_log) << MSG::WARNING << "Can't book "
+	     <<  m_histo_g_errors_etaphi->GetName() << endreq;
+  }
+
+  if ( expertHistograms.regHist(m_histo_j_errors_etaphi).isFailure()) {
+    (*m_log) << MSG::WARNING << "Can't book "
+	     <<  m_histo_j_errors_etaphi->GetName() << endreq;
+  }
+
+  if ( expertHistograms.regHist(m_histo_b_errors_etaphi).isFailure()) {
+    (*m_log) << MSG::WARNING << "Can't book "
+	     <<  m_histo_b_errors_etaphi->GetName() << endreq;
+  }
+
+  if ( expertHistograms.regHist(m_histo_mu_errors_etaphi).isFailure()) {
+    (*m_log) << MSG::WARNING << "Can't book "
+	     <<  m_histo_mu_errors_etaphi->GetName() << endreq;
+  }
+
+  if ( expertHistograms.regHist(m_histo_xe_errors_etaphi).isFailure()) {
+    (*m_log) << MSG::WARNING << "Can't book "
+	     <<  m_histo_xe_errors_etaphi->GetName() << endreq;
+  }
+
+  if ( expertHistograms.regHist(m_histo_te_errors_names).isFailure()) {
+    (*m_log) << MSG::WARNING << "Can't book "
+	     <<  m_histo_te_errors_names->GetName() << endreq;
+  }
+
+  //if (m_logLvl <= MSG::DEBUG)   (*m_log) << MSG::DEBUG << "bookHists() done" << endreq;
+  
   return StatusCode::SUCCESS;
 }
 
@@ -249,7 +400,7 @@ StatusCode TrigErrorMon::fillHists()
   
   if( !m_histo_action || !m_histo_reason || !m_histo_steeringInternalReason 
       || !m_histo2d_reason || !m_histo2d_action ){
-    msg()<<MSG::WARNING<<" pointers to histograms not ok, dont Fill ! "<<endmsg;
+    (*m_log)<<MSG::WARNING<<" pointers to histograms not ok, dont Fill ! "<<endreq;
     return StatusCode::FAILURE;
   }
 
@@ -291,6 +442,8 @@ StatusCode TrigErrorMon::fillHists()
   for (te = TEs.begin(); te != TEs.end(); ++te) {
 
     // If TE contains errros fill histogram with eta and phi of this TE 
+    std::string label; 
+
     if ( (*te)->getErrorState() ) {
 
       // Get trigger ROI descriptor
@@ -310,6 +463,43 @@ StatusCode TrigErrorMon::fillHists()
         float phi = (*roiDescriptorIt)->phi();
 
         m_histo_te_errors_etaphi->Fill( eta, phi );
+
+        // get TE lable
+        TrigConf::HLTTriggerElement::getLabel ( (*te)->getId(), label );
+
+        if ( label.find("L2tau") !=  string::npos ) {
+          m_histo_tau_errors_etaphi->Fill( eta, phi );
+
+        } else if ( label.find("L2trk") !=  string::npos ) {
+          m_histo_trk_errors_etaphi->Fill( eta, phi );
+
+        } else if ( label.find("L2_e") !=  string::npos ) {
+          m_histo_e_errors_etaphi->Fill( eta, phi );
+
+        } else if ( label.find("L2_g") !=  string::npos ) {
+          m_histo_g_errors_etaphi->Fill( eta, phi );
+
+        } else if ( label.find("L2_j") !=  string::npos ) {
+          m_histo_j_errors_etaphi->Fill( eta, phi );
+
+        } else if ( label.find("L2_b") !=  string::npos ) {
+          m_histo_b_errors_etaphi->Fill( eta, phi );
+
+        } else if ( label.find("L2_mu") !=  string::npos ) {
+          m_histo_mu_errors_etaphi->Fill( eta, phi );
+
+        } else if ( label.find("L2_xe") !=  string::npos ) {
+          m_histo_xe_errors_etaphi->Fill( eta, phi );
+        }
+
+        vector<string>::const_iterator te_names_itr;
+        int bin;
+        for (bin = 0, te_names_itr = m_te_names.begin(); te_names_itr != m_te_names.end(); ++te_names_itr, ++bin ) {
+          if ( label.find( (*te_names_itr).c_str() ) !=  string::npos ) {
+            m_histo_te_errors_names ->Fill( bin );
+            break;
+          }
+        }
 
       }
     }

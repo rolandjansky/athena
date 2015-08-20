@@ -10,7 +10,7 @@
  *
  */
 
-#include "TrigOpMoni.h"
+#include "TrigSteerMonitor/TrigOpMoni.h"
 
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IIncidentSvc.h"
@@ -44,17 +44,26 @@ TrigOpMoni::TrigOpMoni(const std::string& type,
                        const std::string& name,
                        const IInterface* parent) :
    TrigMonitorToolBase(type, name, parent),
+   m_MagFieldHistFilled(false),
+   m_IOVDbHistFilled(false),
+   m_SubDetHistFilled(false),
+   m_log(msgSvc(), name),
+   m_StoreGateSvc("StoreGateSvc/StoreGateSvc",  name),
    m_JobOptionsSvc("JobOptionsSvc", name),
-   m_lumiTool("LuminosityTool"),
-   m_monGroup(this, boost::algorithm::replace_all_copy(name,".","/"), TrigMonitorToolBase::expert)
+   m_MagFieldSvc(0),   
+   m_IOVDbSvc(0),
+   m_monGroup(this, boost::algorithm::replace_all_copy(name,".","/"), TrigMonitorToolBase::expert),   
+   m_MagFieldHist(0),
+   m_iovChangeHist(0),
+   m_previousLB(0),
+   m_pEvent(0)
 {
+   declareProperty("StoreGateSvc",    m_StoreGateSvc,  "StoreGateSvc/StoreGateSvc");
    declareProperty("JobOptionsSvc",   m_JobOptionsSvc, "JobOptionsSvc");
    declareProperty("ReleaseDataFile", m_releaseData = "../ReleaseData",
                    "Path to ReleaseData file (relative to LD_LIBRARY_PATH entries");
    declareProperty("DetailedFolderHists", m_detailedHists = true,
                    "Detailed histograms for COOL folder updates during run");
-   declareProperty("LuminosityTool", m_lumiTool, "Luminosity tool");
-   declareProperty("MaxLumiblocks", m_maxLB = 3000, "Number of lumiblocks for histograms");
 }
 
 TrigOpMoni::~TrigOpMoni()
@@ -62,16 +71,31 @@ TrigOpMoni::~TrigOpMoni()
 }
 
 StatusCode TrigOpMoni::initialize()
-{
-  ATH_CHECK(m_JobOptionsSvc.retrieve());
+{   
+   if(m_StoreGateSvc.retrieve().isFailure())
+   {
+      m_log << MSG::ERROR << "Failed to retrieve StoreGateSvc" << endreq;
+      return StatusCode::FAILURE; 
+   }
 
-  // Register incident handlers 
-  ServiceHandle<IIncidentSvc> IncidSvc("IncidentSvc",name());  
-  ATH_CHECK(IncidSvc.retrieve());
-  ATH_CHECK(m_lumiTool.retrieve());
-  IncidSvc->addListener(this, "EndOfBeginRun", 0);
+   if((m_JobOptionsSvc.retrieve()).isFailure())
+   {
+      m_log << MSG::ERROR << "Could not find JobOptionsSvc object" << endreq;
+      return StatusCode::FAILURE; 
+   }
+
+   // Register incident handlers 
+   ServiceHandle<IIncidentSvc> IncidSvc("IncidentSvc",name()); 
+   
+   if(IncidSvc.retrieve().isFailure()) 
+     { 
+       m_log << MSG::ERROR << "Could not find IncidentSvc object" << endreq; 
+       return StatusCode::FAILURE; 
+     } 
+   
+   IncidSvc->addListener(this, "EndOfBeginRun", 0);
                 
-  return StatusCode::SUCCESS;
+   return StatusCode::SUCCESS;
 }
 
 
@@ -126,18 +150,11 @@ StatusCode TrigOpMoni::bookHists()
                            "Lumiblock difference between events;LB difference (!=0)",
                            16, -5.5, 10.5);
    
-   m_lumiHist = new TProfile("Luminosity", "Luminosity;Lumiblock;Luminosity [10^{33} cm^{-2}s^{-1}]",
-                             m_maxLB, 0, m_maxLB);
+   const int nHists = 4;
+   TH1* hist[nHists] = {m_generalHist, m_lbDiffHist, m_iovChangeHist, m_MagFieldHist};
+   for (int i=0; i<nHists; ++i) regHist(hist[i]);
 
-   m_muHist = new TProfile("Pileup", "Pileup;Lumiblock;Interactions per BX",
-                           m_maxLB, 0, m_maxLB);
-   
-   TH1* hist[] = {m_generalHist, m_lbDiffHist, m_iovChangeHist, m_MagFieldHist, 
-                  m_lumiHist, m_muHist};
-
-   for (TH1* h : hist) regHist(h);
-
-   // Release data can be filled immediately (and only once)
+   // Release data can be filled immediatelly (and only once)
    if (m_generalHist) FillReleaseData();
 
    return StatusCode::SUCCESS;
@@ -145,8 +162,8 @@ StatusCode TrigOpMoni::bookHists()
 
 StatusCode TrigOpMoni::fillHists()
 {
-  if (evtStore()->retrieve(m_pEvent).isFailure()) {
-    ATH_MSG_DEBUG("Could not find EventInfo object");
+  if (m_StoreGateSvc->retrieve(m_pEvent).isFailure()) {
+    m_log << MSG::DEBUG << "Could not find EventInfo object" << endreq;
     m_pEvent = 0;
   }
     
@@ -166,9 +183,6 @@ StatusCode TrigOpMoni::fillHists()
 
     // Fill IOV diff histogram
     FillIOVDbChangeHist();
-
-    // Fill lumi histogram
-    FillLumiHist();
 
     m_previousLB = m_pEvent->event_ID()->lumi_block();
   }
@@ -198,6 +212,7 @@ void TrigOpMoni::FillIOVDbHist()
   
    // create and fill histogram for IOVDb entries
   vector<string>             KeyList(m_IOVDbSvc->getKeyList());
+  vector<string>::iterator   KeyListIter;
   ostringstream              TmpStream;
   string                     FolderName;
   string                     Tag;
@@ -215,11 +230,11 @@ void TrigOpMoni::FillIOVDbHist()
   IOVDbReadTimeHist->SetYTitle("Update time [ms]");
   
   // fill histograms
-  for(const string& key : KeyList) {
+  for(KeyListIter = KeyList.begin(); KeyListIter != KeyList.end(); KeyListIter++) {
     
-    if(m_IOVDbSvc->getKeyInfo(key, FolderName, Tag, Range, Retrieved, bytesRead, readTime) && Retrieved) {
+    if(m_IOVDbSvc->getKeyInfo(*KeyListIter, FolderName, Tag, Range, Retrieved, bytesRead, readTime) && Retrieved) {
       
-      m_currentIOVs[key] = Range;
+      m_currentIOVs[*KeyListIter] = Range;
       
       IOVTime StartTime(Range.start());
       IOVTime StopTime(Range.stop());
@@ -303,7 +318,7 @@ bool TrigOpMoni::regHist(HTYPE*& hist, bool verbose)
   if (!hist) return false;
   if ( m_monGroup.regHist(hist).isFailure() ) {
     if (verbose) {
-      ATH_MSG_WARNING("Cannot register histogram " << hist->GetName());
+      m_log << MSG::WARNING << "Cannot register histogram " << hist->GetName() << endreq;
     }
     delete hist;
     hist = 0;
@@ -331,24 +346,25 @@ void TrigOpMoni::FillIOVDbChangeHist()
   float readTime;
 
   vector<string> keys(m_IOVDbSvc->getKeyList());
+  vector<string>::const_iterator k;
 
   // Loop over all keys known to IOVDbSvc
-  for(const string& k : keys) {
-    if ( not m_IOVDbSvc->getKeyInfo(k, folder, tag, iov, retrieved, bytesRead, readTime) )
+  for(k = keys.begin(); k != keys.end(); k++) {
+    if ( not m_IOVDbSvc->getKeyInfo(*k, folder, tag, iov, retrieved, bytesRead, readTime) )
       continue;
     if ( not retrieved ) continue;
 
-    map<string,IOVRange>::const_iterator curIOV = m_currentIOVs.find(k);
+    map<string,IOVRange>::const_iterator curIOV = m_currentIOVs.find(*k);
     if ( curIOV == m_currentIOVs.end() ) {
-      m_currentIOVs[k] = iov;
+      m_currentIOVs[*k] = iov;
       continue;
     }
     
     // Print IOV changes and fill histogram
     if ( iov != curIOV->second ) {
-      ATH_MSG_INFO("IOV of " << k << " changed from " << curIOV->second
-                    << " to " << iov
-                    << " on event: " << *m_pEvent->event_ID() );
+      m_log << MSG::INFO << "IOV of " << *k << " changed from " << curIOV->second
+            << " to " << iov
+            << " on event: " << *m_pEvent->event_ID() << endreq;
 
       if ( m_iovChangeHist ) {
         // Perform a locked fill and remove any empty bins to allow correct gathering
@@ -384,16 +400,11 @@ void TrigOpMoni::FillIOVDbChangeHist()
         h->second.total_bytes += bytesRead;
       }
       
-      m_currentIOVs[k] = iov;
+      m_currentIOVs[*k] = iov;
     }
   }
 }
 
-void TrigOpMoni::FillLumiHist()
-{
-  m_lumiHist->Fill(m_pEvent->event_ID()->lumi_block(), m_lumiTool->lbAverageLuminosity());
-  m_muHist->Fill(m_pEvent->event_ID()->lumi_block(), m_lumiTool->lbAverageInteractionsPerCrossing());
-}
 
 void TrigOpMoni::FillSubDetHist()
 {
@@ -415,50 +426,49 @@ void TrigOpMoni::FillSubDetHist()
       // create histogram
       if(!(SubDetHist = new TH2I))
       {
-         ATH_MSG_WARNING("Cannot create instance of class TH2I");
+         m_log << MSG::WARNING << "Cannot create instance of class TH2I" << endreq;
          m_SubDetHistFilled = true; // do not retry
          return;
       }
 
       // get event information
-      if(evtStore()->retrieve(Event).isFailure())
-         ATH_MSG_WARNING("Could not find EventInfo object");
+      if(m_StoreGateSvc->retrieve(Event).isFailure())
+         m_log << MSG::WARNING << "Could not find EventInfo object" << endreq;
 
       // get event ID
       else if(!(EventId = Event->event_ID()))
-         ATH_MSG_WARNING("Could not find EventID object");
+         m_log << MSG::WARNING << "Could not find EventID object" << endreq;
 
       // calculate subdetector mask
       else SubDetMask = ((uint64_t)EventId->detector_mask0())
             | (((uint64_t)EventId->detector_mask1()) << 32);
 
       // get list of enabled ROBs
-      if(!(ROBProperty = Gaudi::Utils::getProperty(m_JobOptionsSvc->getProperties("DataFlowConfig"), "DF_Enabled_ROB_IDs"))) {
-         msg(MSG::DEBUG) << "Could not find enabled ROB IDs: ";
+      if(!(ROBProperty = Gaudi::Utils::getProperty(
+         m_JobOptionsSvc->getProperties("DataFlowConfig"), "DF_Enabled_ROB_IDs")))
+      {
+         m_log << MSG::DEBUG << "Could not find enabled ROB IDs: ";
 
          if(!m_JobOptionsSvc->getProperties("DataFlowConfig"))
          {
-            msg() << "\"DataFlowConfig\" does not exist!" << endmsg;
+            m_log << "\"DataFlowConfig\" does not exist!" << endreq;
             m_SubDetHistFilled = true;
          }
 
-         else {
-            msg() << "\"DF_Enabled_ROB_IDs\" does not exist! Available properties are:" << endmsg;
+         else
+         {
+            m_log << "\"DF_Enabled_ROB_IDs\" does not exist! Available properties are:" << endreq;
 
             const vector<const Property* >* PropTmp = m_JobOptionsSvc->getProperties("DataFlowConfig");
 
-            for(unsigned int i = 0; i != PropTmp->size(); i++) {
-              msg() << MSG::DEBUG << (*PropTmp)[i]->name() << endmsg;
+            for(unsigned int i = 0; i != PropTmp->size(); i++)
+            {
+               m_log << MSG::DEBUG << (*PropTmp)[i]->name() << endreq;
             }
          }
       }
 
-      else {
-        if (!EnabledROBsArray.assign(*ROBProperty)) {
-          ATH_MSG_WARNING("Could not read DF_Enabled_ROB_IDs property");
-          m_SubDetHistFilled = true;
-        }
-      }
+      else EnabledROBsArray.assign(*ROBProperty);
 
       // decode subdetector masks
       eformat::helper::DetectorMask(SubDetMask).sub_detectors(SubDetOnIdList);
@@ -528,7 +538,6 @@ void TrigOpMoni::FillSubDetHist()
    }
 }
 
-
 // The release metadata file can be found in InstallArea/$CMTCONFIG/ReleaseData
 StatusCode TrigOpMoni::readReleaseData(const string& file, map<string,string>& result)
 {
@@ -552,7 +561,7 @@ void TrigOpMoni::FillReleaseData()
 {
   const char* ld_lib_path = getenv("LD_LIBRARY_PATH");
   if (ld_lib_path==0) {
-    ATH_MSG_WARNING("LD_LIBRARY_PATH is not defined. Will not fill release histogram." );
+    m_log << MSG::WARNING << "LD_LIBRARY_PATH is not defined. Will not fill release histogram." << endreq;
     return;
   }
 
@@ -560,8 +569,8 @@ void TrigOpMoni::FillReleaseData()
   list<DirSearchPath::path> file_list = DirSearchPath(ld_lib_path, ":").find_all(m_releaseData);
 
   if ( file_list.empty() ) {
-    ATH_MSG_WARNING("Could not find release metadata file " << m_releaseData      
-                    << " in LD_LIBRARY_PATH" );
+    m_log << MSG::WARNING << "Could not find release metadata file " << m_releaseData      
+          << " in LD_LIBRARY_PATH" << endreq;
     m_generalHist->Fill("Release ?", 1);
     return;
   }
@@ -574,7 +583,7 @@ void TrigOpMoni::FillReleaseData()
     // Read metadata file
     map<string, string> result;
     if ( readReleaseData(fit->string(), result).isFailure() ) {
-      ATH_MSG_WARNING("Could not read release metadata from " << *fit);
+      m_log << MSG::WARNING << "Could not read release metadata from " << *fit<< endreq;
       m_generalHist->Fill("Release ?", 1);    
       return;
     }
@@ -582,7 +591,7 @@ void TrigOpMoni::FillReleaseData()
     // Check format
     if ( result.find("project name")==result.end() ||
 	 result.find("release")==result.end() ) {
-      ATH_MSG_WARNING("Invalid release metadata format in " << *fit );
+      m_log << MSG::WARNING << "Invalid release metadata format in " << *fit << endreq;
       m_generalHist->Fill("Release ?", 1);    
       return;
     }

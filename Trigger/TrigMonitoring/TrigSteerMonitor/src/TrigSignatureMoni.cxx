@@ -3,36 +3,75 @@
 */
 
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Algorithm.h"
+#include "GaudiKernel/AlgTool.h"
+#include "GaudiKernel/ThreadGaudi.h"
+#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/Property.h"
 
-#include "TrigSignatureMoni.h"
+#include "TrigSteerMonitor/TrigSignatureMoni.h"
+
+#include "TrigConfInterfaces/ITrigConfigSvc.h"
 
 #include "TrigSteering/TrigSteer.h"
 #include "TrigSteering/SteeringChain.h"
+#include "TrigSteering/ResultBuilder.h"
 #include "TrigSteering/Signature.h"
-#include "TrigInterfaces/AlgoConfig.h"
 #include "TrigConfHLTData/HLTTriggerType.h"
 #include "TrigConfHLTData/HLTSignature.h"
 #include "TrigConfHLTData/HLTStreamTag.h"
 #include "TrigConfHLTData/HLTChainList.h"
 #include "TrigConfHLTData/HLTChain.h"
+#include "TrigInterfaces/AlgoConfig.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/TriggerInfo.h"
 
+#include "StoreGate/StoreGateSvc.h"
+
+#include <iostream>
+#include <sstream>
+#include <limits>
 #include <vector> 
-#include <set> 
 #include <algorithm>
 #include <TH1I.h>
 #include <TH2I.h>
 #include <map>
+#include <typeinfo>
+
 
 TrigSignatureMoni::TrigSignatureMoni(const std::string & type, const std::string & name,
 				     const IInterface* parent)
   :  TrigMonitorToolBase(type, name, parent),   
-     m_trigConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name)
+     m_log(0),
+     m_logLvl(0),  
+     m_trigConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
+     m_histoPathexpert(""),
+     m_parentAlg(0),
+     m_generalBlock(0),
+     m_streamBlock(0),
+     m_groupBlock(0),
+     m_chainBlock(0),
+     m_streamCorrel(0),
+     m_chainlengthHist(0),
+     m_lumiBlockNumDiffHist(0),
+     m_trigLvl(""),
+     m_highestLBN(0)
+  
 {
+  //  declareInterface<IMonitorToolBase>(this);
   declareProperty("HistoPathexpert", m_histoPathexpert = "/EXPERT/TrigSteering");
+  //  declareProperty("useLBHistos",m_useLBHistos=true);
+  //  declareProperty("ReserveLumiHistos", m_reserveLumiHistos = 10);
+  declareProperty("EventsPerLBHack",m_eventsPerLBHack=10000);
+}
+
+StatusCode TrigSignatureMoni::finalize()
+{
+  
+  delete m_log; m_log = 0;
+
+  return StatusCode::SUCCESS;
 }
 
 // Define helper classes for the signature acceptance histogram (and stream correlation plot)
@@ -40,6 +79,8 @@ TrigSignatureMoni::TrigSignatureMoni(const std::string & type, const std::string
 class BinBlock;
 template class std::vector<BinBlock*>;
 
+// This is needed since static variables get mixed between L2 and EF in athena
+// So define one for each level.
 struct staticVariables {
   int firstSigHistBin;
   std::string unknown;
@@ -57,33 +98,37 @@ struct staticVariables {
   unsigned int ptBin;
 };
 
+enum bb_triglevel {tl_L2, tl_EF, tl_HLT};
+
 
 class BinBlock {
   
 public:
-  virtual ~BinBlock() {}
-  int GetFirstBin() const {return m_firstBin;} // first bin of a block
-  const std::string& GetXLabel(int relBin){return m_XLabels[relBin];}
+  virtual ~BinBlock();
+  int GetFirstBin() {return m_firstBin;} // first bin of a block
+  const std::string &GetXLab(int relBin){return m_XLabels[relBin];}
 
-  static int GetFirstSigHistBin(){ return m_sv.firstSigHistBin;} // first bin of the signature hist
-  static int TotalBinCount() {return m_sv.totalBins;}
-  static int OverflowBin() { return m_sv.totalBins + 1;}
-  static const std::string& GetSigXAxisLabel(int bin); 
+  static int GetFirstSigHistBin(){ return m_sv[m_tl].firstSigHistBin;} // first bin of the signature hist
+  static int TotalBinCount() {return m_sv[m_tl].totalBins;}
+  static int OverflowBin() { return m_sv[m_tl].totalBins + 1;}
+  static const std::string &GetSigXAxisLabel(int bin); 
   static void FinalizeInitialization();
-  static void PrepareToBook();
+  //  static void PrintBlocks();
+  static void PrepareToBook(enum bb_triglevel tl);
+  static void SetLevel(enum bb_triglevel tl){ m_tl = tl; }
 
-  static const std::vector<std::string> &GetStepNames(){return m_sv.stepnames;}
-  static int GetNStepBins() {return m_sv.stepnames.size();}
-  static unsigned int GetMaxSteps(){return m_sv.maxSteps;} // max num of algorithm steps
-  static unsigned int GetInputBin(){return m_sv.inputBin;}
-  static unsigned int GetRawBin(){return m_sv.rawBin;}
-  static unsigned int GetPSBin(){ return m_sv.psBin;}
-  static unsigned int GetPTBin(){ return m_sv.ptBin;}
-  static unsigned int GetFirstAlgBin(){return m_sv.firstStepBin;}
-  static unsigned int GetRerunBin(){return m_sv.rerunBin;}
-  static unsigned int GetAlgoInBin(){return m_sv.algoInBin;}
-  static unsigned int GetErrorBin(){return m_sv.errorBin;}
-  unsigned int GetNBins() const {return m_NBins;}
+  static const std::vector<std::string> &GetStepNames(){return m_sv[m_tl].stepnames;}
+  static int GetNStepBins() {return m_sv[m_tl].stepnames.size();}
+  static unsigned int GetMaxSteps(){return m_sv[m_tl].maxSteps;} // max num of algorithm steps
+  static unsigned int GetInputBin(){return m_sv[m_tl].inputBin;}
+  static unsigned int GetRawBin(){return m_sv[m_tl].rawBin;}
+  static unsigned int GetPSBin(){ return m_sv[m_tl].psBin;}
+  static unsigned int GetPTBin(){ return m_sv[m_tl].ptBin;}
+  static unsigned int GetFirstAlgBin(){return m_sv[m_tl].firstStepBin;}
+  static unsigned int GetRerunBin(){return m_sv[m_tl].rerunBin;}
+  static unsigned int GetAlgoInBin(){return m_sv[m_tl].algoInBin;}
+  static unsigned int GetErrorBin(){return m_sv[m_tl].errorBin;}
+  unsigned int GetNBins() {return m_NBins;}
   virtual void PrintBlock() = 0;
 
 protected:
@@ -91,7 +136,8 @@ protected:
 
   BinBlock(BinBlock *, MsgStream *log);
 
-  static void SetMaxSteps(unsigned int max) {m_sv.maxSteps = max;}
+
+  static void SetMaxSteps(unsigned int max) {m_sv[m_tl].maxSteps = max;}
 
   std::map<int, std::string> m_XLabels;
   unsigned int m_NBins;
@@ -99,34 +145,40 @@ protected:
 
   MsgStream *m_log;
   
-  static struct staticVariables m_sv;
+  static enum bb_triglevel m_tl; // the trigger level
+  static struct staticVariables m_sv[3]; // one for each trigger level 
   
 private:
 };
 // storage for statics;
-struct staticVariables BinBlock::m_sv; 
+enum bb_triglevel BinBlock::m_tl;
+struct staticVariables BinBlock::m_sv[3]; 
 
 class GeneralBlock : public BinBlock { // General event columns
   
 public:
-  GeneralBlock(MsgStream *log) 
-    : BinBlock(this, log)
+  GeneralBlock(MsgStream *log) : BinBlock(this, log)
   {
     m_XLabels[0] = "total rate";
     m_XLabels[1] = "OR of active chains";
+    m_allBin =0;
+    m_orBin = 1;
     m_NBins = 2;
   }
-  int GetOrBin() const {return GetFirstSigHistBin() + m_firstBin + BINS::OR;}
-  int GetAllEvsBin() const {return GetFirstSigHistBin() + m_firstBin + BINS::ALL;}
+  ~GeneralBlock(){;}
+  int GetOrBin(){return GetFirstSigHistBin() + m_firstBin + m_orBin;}
+  int GetAllEvsBin(){return GetFirstSigHistBin() + m_firstBin + m_allBin;}
 
   void PrintBlock() {
-    (*m_log) << MSG::DEBUG << "**** General Block ****" << endmsg;
-    (*m_log) << MSG::DEBUG << "First bin: " << m_firstBin << ", Number of bins: " << m_NBins << endmsg;
-    (*m_log) << MSG::DEBUG << ", allBin: "  << BINS::ALL  << ", orBin: " << BINS::OR << endmsg;
+    (*m_log) << MSG::DEBUG << "**** General Block ****" << endreq;
+    (*m_log) << MSG::DEBUG << "First bin: " << m_firstBin << ", Number of bins: " << m_NBins << endreq;
+    (*m_log) << MSG::DEBUG << ", allBin: "  << m_allBin   << ", orBin: " << m_orBin << endreq;
   }
   
 private:
-  enum BINS {ALL=0,OR=1};
+
+  int m_allBin;
+  int m_orBin;
 };
 
 
@@ -135,7 +187,8 @@ class GroupBlock: public BinBlock { // columns for groups
   
 public:
   GroupBlock(const std::vector<const HLT::SteeringChain*>& configuredChains, MsgStream *log);
-  const std::set<int>& GetBinSet(unsigned int chainCounter) const;
+  ~GroupBlock(){;}
+  const std::set<int> &GetBinSet(unsigned int chainCounter);
   void SetMask(unsigned int chainCounter, unsigned int mask, std::map<int, unsigned int> &hitMap);
 
   virtual void PrintBlock();
@@ -150,8 +203,9 @@ class ChainBlock: public BinBlock { // columns for chains
   
 public:
   ChainBlock(const std::vector<const HLT::SteeringChain*>& configuredChains, MsgStream *log);
-  int GetSigHistValue(unsigned int chainCounter) const; // to be used by Fill for example
-  int GetSigHistBin(unsigned int chainCounter) const; // to be used by SetBinContent for example
+  ~ChainBlock(){;}
+  int GetSigHistValue(unsigned int chainCounter); // to be used by Fill for example
+  int GetSigHistBin(unsigned int chainCounter); // to be used by SetBinContent for example
 
   virtual void PrintBlock();
 
@@ -164,40 +218,171 @@ class StreamBlock : public BinBlock { // columns for streams
 public:
 
   StreamBlock(const TrigConf::HLTChainList* allChains,
-              std::set<std::string> &errorStreamNames, std::string trigLvl,
+              std::vector<std::string> &errorStreamNames, std::string trigLvl,
               MsgStream *log);
 
-  const std::set<int> &GetSigHistValueSet(unsigned int chainCounter) const;
-  int GetSigHistValue(const std::string& streamTag) const;
-  int GetCorrelHistBin(const std::string& streamTag) const;
-  int GetCatchAllBin() const {return m_catchAll;}
+  ~StreamBlock(){;}
+  const std::set<int> &GetSigHistValueSet(unsigned int chainCounter);
+  int GetSigHistValue(std::string streamTag);
+  int GetCorrelHistBin(std::string streamTag);
+  int GetCatchAllBin(){return m_catchAll;}
 
   void SetMask(unsigned int chainCounter, unsigned int mask, std::map<int, unsigned int> &hitMap);
+  static void extractErrorStreamNames( std::string errStreamString, 
+				       std::vector<std::string> &errorStreamNames );
 
   virtual void PrintBlock();  
 private:
 
-  void InsertStreams(bool isPhysType, const std::string& trgLvl,
+  void InsertStreams(bool isPhysType, std::string trgLvl,
                      const TrigConf::HLTChainList* allChains);
 
   std::map<std::string, int> m_str_tag_map; // mapping from tag name (name_type) to bin
   std::map<unsigned int, std::set<int> > m_ch_str_map; // mapping from chain counter to bin
-  std::set<int> m_notFound;
+  std::set<int> notFound;
   int m_catchAll;
 };
 
 
 TrigSignatureMoni::~TrigSignatureMoni()
 {
-  BinBlock::PrepareToBook();
+  enum bb_triglevel tl =  m_trigLvl == "L2" ? tl_L2 :  m_trigLvl == "EF" ? tl_EF : tl_HLT;
+  BinBlock::PrepareToBook(tl);
+
 }
 
-void findChainsInStreams(std::map<std::string, TH1I*>& histograms, const std::vector<const HLT::SteeringChain*>& config, const std::string& level) 
+bool TrigSignatureMoni::getDebugStreams(std::vector<std::string> &errorStreamNames)
 {
+  /* 
+     If this function fails for any reason, any debug streams which have been defined
+     in the ResultBuilder's job options will not be added to the histograms. That's
+     the only consequence. So I remove most warnings.
+  */
+
+  // Set up the job service
+  IJobOptionsSvc* jobOptionsSvc;
+  StatusCode sc;
+  
+  sc = service("JobOptionsSvc", jobOptionsSvc);
+
+  if(sc.isFailure()) {
+    if(m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << "Could not find JobOptionsSvc" << endreq;
+    return false;
+  }    
+    
+  IService* svc = dynamic_cast<IService*>(jobOptionsSvc);
+  if(svc != 0 ) {
+    if(m_logLvl <= MSG::INFO) (*m_log) << MSG::INFO << " TrigSignatureMoni " 
+				       << " is connected to JobOptionsSvc Service = "
+				       << svc->name() << endreq;
+  }
+  
+  //if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << " About to ask for properties of the ResultBuilder" 
+  //			      << endreq;
+  
+  const std::vector<const Property*> *rb_properties;
+  
+  try {
+    if(m_trigLvl == "L2")
+      rb_properties = jobOptionsSvc->getProperties("TrigSteer_L2.ResultBuilder");
+    else if (m_trigLvl == "EF")
+      rb_properties = jobOptionsSvc->getProperties("TrigSteer_EF.ResultBuilder");
+    else 
+      rb_properties = jobOptionsSvc->getProperties("TrigSteer_HLT.ResultBuilder");
+    //    if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG 
+    // << " Back from request for properties of the ResultBuilder" << endreq;
+  }
+  catch(...) {
+    if(m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << 
+      "Attempt to retrieve ResultBuilder properties provoked an exception." << endreq;
+    return false;
+  }
+  std::vector<const Property*>::const_iterator rb_it;
+  
+  if(rb_properties == 0) {
+    if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << 
+      "Unable to get the job properties of the ResultBuilder" << endreq;
+    return false;
+  }
+  
+  for(rb_it = rb_properties->begin(); rb_it != rb_properties->end(); rb_it++) {
+    
+    //std::cout << "MMMM property: " << (*rb_it)->name() << std::endl;
+    
+    if( (*rb_it)->name() == "DefaultStreamTagForErrors") {
+      
+      const StringProperty *sprop = dynamic_cast<const StringProperty*>( (*rb_it) );
+      
+      if(sprop == 0) {
+	//const StringArrayProperty *saprop = dynamic_cast<const StringArrayProperty*>( (*rb_it) );
+ 	if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << 
+	  "dynamic_cast of DefaultStreamTagForErrors property to StringProperty failed" << endreq;	
+	continue;
+      }		
+      
+      //if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << "value of DefaultStreamTagForErrors property: " 
+      //			     << sprop->value() << endreq;
+      
+      errorStreamNames.push_back( sprop->value() + "_debug");
+      
+    } else if( (*rb_it)->name() == "ErrorStreamTags") {
+      const StringProperty *sprop = dynamic_cast<const StringProperty*>( (*rb_it) );
+      // on lxplus tests and RTT, the cast works but online it is a StringArrayProperty
+      if(sprop != 0) {
+	
+	//std::cout << "MMMM found, sprop:" << sprop << std::endl;
+	
+	//if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << "value of ErrorStreamTags property: " 
+	//		       << sprop->value() << endreq;
+	StreamBlock::extractErrorStreamNames( sprop->value(), errorStreamNames );
+	
+      } else {
+ 	if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << 
+	  "dynamic_cast of ErrorStreamTags property to StringProperty failed" << endreq;	
+	
+	const StringArrayProperty *saprop = dynamic_cast<const StringArrayProperty*>( (*rb_it) );
+
+	if ( saprop != 0 ) {
+	  const std::vector<std::string>& theProps = saprop->value( );
+	  for ( std::vector<std::string>::const_iterator ip = theProps.begin();
+		  ip != theProps.end();  ip++ )  {
+
+	    // if(m_logLvl <= MSG::DEBUG) 
+	    //   (*m_log) << MSG::DEBUG << "array property value: " << *ip << endreq;
+
+	    StreamBlock::extractErrorStreamNames( *ip, errorStreamNames );
+	  }
+        } else {
+	  if(m_logLvl <= MSG::INFO) (*m_log) << MSG::DEBUG << 
+	    "dynamic_cast of ErrorStreamTags property to StringArrayProperty failed" << endreq;	
+	}
+      }
+    }    
+  }
+  
+
+  if(m_logLvl <= MSG::INFO) {
+    for(std::vector<std::string>::const_iterator it_name = errorStreamNames.begin(); 
+	it_name != errorStreamNames.end(); it_name++) {
+      (*m_log) << MSG::INFO << "adding error stream name: " << *it_name << endreq;
+    }
+  }
+  
+  // release JobOptionsSvc
+  //unsigned long mjcounter = jobOptionsSvc->release();
+  //  if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << mjcounter << " --> Release JobOptionsSvc Service" 
+  //			      << endreq;
+  
+  return true;
+}
+
+
+void findChainsInStreams(std::map<std::string, TH1I*>& histograms,   const std::vector<const HLT::SteeringChain*>& config, const std::string& level) {
   std::map<std::string, std::vector<std::string> > stream_to_chains; 
 
+  
   for ( const HLT::SteeringChain* chain : config ) {
-     for ( const HLT::StreamTag& stream : chain->getStreamTags()) {
+     for ( const HLT::StreamTag& stream :  chain->getStreamTags()) {
       stream_to_chains[stream.getStream()].push_back(chain->getChainName());
     }
   }  
@@ -214,75 +399,107 @@ void findChainsInStreams(std::map<std::string, TH1I*>& histograms, const std::ve
 
 }
 
-void fillChainsInStreams(std::map<std::string, TH1I*>& histograms, const std::vector<const HLT::SteeringChain*>& result) 
-{
-  for( const HLT::SteeringChain* chain : result ) {
-    if (chain->chainPassed()){
-      for( const HLT::StreamTag& stream :  chain->getStreamTags() ){
-        if ( ! stream.isPrescaled() ) {
-          histograms[stream.getStream()]->Fill(chain->getChainName().c_str(), 1.);
-        }
+void fillChainsInStreams(std::map<std::string, TH1I*>& histograms, const std::vector<const HLT::SteeringChain*>& result) {
+   for( const HLT::SteeringChain* chain : result ) {
+      if (chain->chainPassed()){
+         for( const HLT::StreamTag& stream :  chain->getStreamTags() ){
+            if ( ! stream.isPrescaled() ) {//fill
+               histograms[stream.getStream()]->Fill(chain->getChainName().c_str(), 1.);
+            }
+         }
       }
-    }
-  }
+   }
 }
   
 
 StatusCode TrigSignatureMoni::initialize()
 {
+
+  m_log = new MsgStream(msgSvc(), name());
+  m_logLvl = m_log->level();
+  
+  //if(m_logLvl <= MSG::DEBUG) (*m_log)<<MSG::DEBUG<<"MMMM intitialize "<<endreq;
+
+  //used for HACK for testing ... remove HACK NOW!  and also remove m_testLB, m_testLBev from header file
+  ////m_testLB=0; 
+  ////m_testLBev=0;
+  //HACK ends here 
   if ( TrigMonitorToolBase::initialize().isFailure() ) {
-    ATH_MSG_ERROR(" Unable to initialize base class !");
+    (*m_log) << MSG::ERROR << " Unable to initialize base class !"
+	     << endreq;
     return StatusCode::FAILURE;
   }
 
   m_parentAlg = dynamic_cast<const HLT::TrigSteer*>(parent());
   if ( !m_parentAlg ) {
-    ATH_MSG_ERROR("Unable to cast the parent algorithm to HLT::TrigSteer");
+    if(m_logLvl <= MSG::ERROR) (*m_log) << MSG::ERROR << " Unable to cast the parent algorithm to HLT::TrigSteer !"
+	     << endreq;
     return StatusCode::FAILURE;
   }
 
   m_trigLvl = m_parentAlg->getAlgoConfig()->getHLTLevel() == HLT::L2 ? "L2" : (m_parentAlg->getAlgoConfig()->getHLTLevel()==HLT::EF ? "EF" : "HLT");
 
-  //get access to ConfigService 
-  if (m_trigConfigSvc.empty()) {
-    ATH_MSG_ERROR("No TrigConfigSvc set in the jobOptions");
-    return StatusCode::FAILURE;
+  StatusCode sc = service("StoreGateSvc", m_storeGate);
+  if(sc.isFailure()) {
+    if(m_logLvl <= MSG::FATAL) (*m_log) << MSG::FATAL << "Unable to get pointer to StoreGate Service" << endreq;
+    return sc;
   }
   
-  ATH_CHECK( m_trigConfigSvc.retrieve() );
+  //get access to ConfigService 
+  if (m_trigConfigSvc.empty()) {
+    if(m_logLvl <= MSG::FATAL) (*m_log) << MSG::FATAL << "no TrigConfigSvc set in the jobOptions-> abort" << endreq;
+    return StatusCode::FAILURE;
+  }
+  //if(m_logLvl <= MSG::DEBUG) (*m_log) << MSG::DEBUG << "retrieving TrigConfigSvc." << endreq;
+  if ( m_trigConfigSvc.retrieve().isFailure() ) {
+    if(m_logLvl <= MSG::ERROR) (*m_log) << MSG::ERROR << "Failed to retreive  TrigConfigSvc: " << m_trigConfigSvc << endreq;
+    return StatusCode::FAILURE;
+  }
 
+  if(m_logLvl <= MSG::INFO) (*m_log) << MSG::INFO << "Finished initialize() of TrigSignatureMoni"
+	   << endreq;
   return StatusCode::SUCCESS;
 }
 
 StatusCode TrigSignatureMoni::bookHists()
 {
-  ATH_CHECK( bookHistograms( false, false, true ) );
+
+  if ( bookHistograms( false, false, true ).isFailure() ) {
+    if(m_logLvl <= MSG::ERROR) (*m_log) << MSG::ERROR << "Failure" << endreq;
+    return StatusCode::FAILURE;
+  }
   return StatusCode::SUCCESS;
 }
 
 		
 StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLumiBlock*/, bool /*isNewRun*/ )
 {
-  TrigMonGroup expertHistograms( this, m_parentAlg->name(), expert );
+  
+  //if(m_logLvl <= MSG::DEBUG)(*m_log)<<MSG::DEBUG<<"MMMM bookHistograms "<<endreq;
 
-  std::set<std::string> errorStreamNames;
-  for (const auto& s : m_parentAlg->getErrorStreamTags()) {
-    errorStreamNames.insert(s.name()+"_"+s.type());
-    ATH_MSG_INFO("adding error stream name: " << s.name()+"_"+s.type());
-  }
+  TrigMonGroup expertHistograms( this, m_parentAlg->name(), expert );
+  //TrigMonGroup shiftHistograms( this, m_parentAlg->name(), shift );
+  std::vector<std::string> errorStreamNames;
+
+  bool sc = getDebugStreams(errorStreamNames);
+  if(!sc) {
+    if(m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << 
+      "Any python-configured error streams will not appear in histograms" << endreq;
+  }    
 
   // Some preliminaries to setting up m_signatureAcceptanceHist...
 
   const TrigConf::HLTChainList *chainList = m_trigConfigSvc->chainList();
+  enum bb_triglevel tl = (m_trigLvl == "L2")? tl_L2 :  ((m_trigLvl == "EF")? tl_EF : tl_HLT);
 
-  BinBlock::PrepareToBook();
+  BinBlock::PrepareToBook(tl);
 
   std::vector<const HLT::SteeringChain*> configuredChains = m_parentAlg->getConfiguredChains();
 
-  m_generalBlock = new GeneralBlock(&msg());
-  m_streamBlock  = new StreamBlock(chainList, errorStreamNames, m_trigLvl, &msg());
-  m_groupBlock   = new GroupBlock(configuredChains, &msg());
-  m_chainBlock   = new ChainBlock(configuredChains, &msg());
+  m_generalBlock = new GeneralBlock(m_log);
+  m_streamBlock  = new StreamBlock(chainList, errorStreamNames, m_trigLvl, m_log);
+  m_groupBlock   = new GroupBlock(configuredChains, m_log);
+  m_chainBlock   = new ChainBlock(configuredChains, m_log);
   BinBlock::FinalizeInitialization();
 
   // Needed only for checking:
@@ -303,26 +520,56 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
   m_eventsPassingStepHist=0;
   m_totaleventsPassingStepHist=0;
   m_stepForEBHist=0;
+ 
     
+  //  if(m_logLvl <= MSG::DEBUG)(*m_log)<<MSG::DEBUG<<" found "<<m_streamBlock->GetNBins() <<" different stream tags "<<endreq;
+  //  if(m_logLvl <= MSG::DEBUG)(*m_log)<<MSG::DEBUG<<" found "<<m_groupBlock->GetNBins()  <<" different groups "<<endreq;
+  
+  // HISTOGRAM DEFINITONS
+
+  
   // Step For EventBuilding histogram  
  if(m_trigLvl == "HLT") {
    m_stepForEBHist = new TH1I("StepForEB", "Step at which EB is called  ", 60, -30., 30.);
    if ( expertHistograms.regHist(m_stepForEBHist).isFailure()){
-     ATH_MSG_WARNING("Can't book " << m_histoPathexpert+ m_stepForEBHist->GetName());
+     if (m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << "Can't book "
+					    << m_histoPathexpert+ m_stepForEBHist->GetName() << endreq;
    }
    m_stepForEBHist->GetYaxis()->SetTitle("Events");
    m_stepForEBHist->GetXaxis()->SetTitle("Step of Event Building");
+ 
+   // histogram for: Step separating L2EF 
+   // m_chainstepL2EFHist = new TH1I("ChainL2EFstep","Step at which L2/EF separation is set for chains",
+   // 				  BinBlock::TotalBinCount(), 
+   // 				  BinBlock::GetFirstSigHistBin()-0.5, 
+   // 				  BinBlock::GetFirstSigHistBin() + BinBlock::TotalBinCount()-0.5);
+  
+   // if ( expertHistograms.regHist(m_chainstepL2EFHist).isFailure()){
+   //   if (m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << "Can't book "
+   // 					    << m_histoPathexpert+ m_chainstepL2EFHist->GetName() << endreq;
+   // }
+   // m_chainstepL2EFHist->GetYaxis()->SetTitle("L2/EF separation step (first step configured after EB)");
+   // m_chainstepL2EFHist->GetXaxis()->SetTitle("chains");
+
  }
  
+
+ 
   // Chain length histogram
-  std::string title = "Length of Chains in  " + m_trigLvl;
-  m_chainlengthHist = new TH1I("ChainLength",title.c_str(),
-                               BinBlock::TotalBinCount(), 
-                               BinBlock::GetFirstSigHistBin()-0.5, 
-                               BinBlock::GetFirstSigHistBin() + BinBlock::TotalBinCount()-0.5);
+  TString htit;
+  std::string tmpstring  = "Length of Chains in  ";
+  tmpstring += m_trigLvl;
+  htit       = Form(tmpstring.c_str());
+  //tmpstring  = "chainLength_"+m_trigLvl;
+  
+  m_chainlengthHist = new TH1I("ChainLength",htit.Data(),
+			       BinBlock::TotalBinCount(), 
+			       BinBlock::GetFirstSigHistBin()-0.5, 
+			       BinBlock::GetFirstSigHistBin() + BinBlock::TotalBinCount()-0.5);
   
   if ( expertHistograms.regHist(m_chainlengthHist).isFailure()){
-    ATH_MSG_WARNING("Can't book "<< m_histoPathexpert+ m_chainlengthHist->GetName());
+    if (m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << "Can't book "
+					   << m_histoPathexpert+ m_chainlengthHist->GetName() << endreq;
   }
   m_chainlengthHist->GetYaxis()->SetTitle("Step (Step 0 is the Input!)");
   m_chainlengthHist->GetXaxis()->SetTitle("chains");
@@ -333,15 +580,17 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
 			      m_streamBlock->GetNBins(), 0, m_streamBlock->GetNBins(), 
 			      m_streamBlock->GetNBins(), 0, m_streamBlock->GetNBins());
     if(m_streamCorrel == 0) {
-      ATH_MSG_WARNING("Can't book "<< m_streamCorrel->GetName());
+      if (m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << "Can't book "
+					     << m_streamCorrel->GetName() << endreq;
     }
     
     for(unsigned int i = 0; i <  m_streamBlock->GetNBins(); i++) {
-      m_streamCorrel->GetXaxis()->SetBinLabel(i+1, m_streamBlock->GetXLabel(i).data());
-      m_streamCorrel->GetYaxis()->SetBinLabel(i+1, m_streamBlock->GetXLabel(i).data());
+      m_streamCorrel->GetXaxis()->SetBinLabel(i+1, m_streamBlock->GetXLab(i).data());
+      m_streamCorrel->GetYaxis()->SetBinLabel(i+1, m_streamBlock->GetXLab(i).data());
     }
     if ( expertHistograms.regHist(m_streamCorrel).isFailure()){
-      ATH_MSG_WARNING("Can't register "<< m_streamCorrel->GetName() << ", deleting");
+      if (m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << "Can't register "
+					     << m_streamCorrel->GetName() << ", deleting"  << endreq;
       delete m_streamCorrel;
       m_streamCorrel = 0;
     }
@@ -349,9 +598,9 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
   }
 
   // Signature acceptance histogram
-  title = "Raw acceptance of signatures in "+ m_trigLvl;
+  std::string tmpstring_title  = "Raw acceptance of signatures in "+ m_trigLvl;
   m_signatureAcceptanceHist = new
-    TrigLBNHist<TH2I>(TH2I("SignatureAcceptance",title.c_str(), 
+    TrigLBNHist<TH2I>(TH2I("SignatureAcceptance",tmpstring_title.c_str(), 
 			   BinBlock::TotalBinCount(), 
 			   BinBlock::GetFirstSigHistBin()-0.5, 
 			   BinBlock::GetFirstSigHistBin() + BinBlock::TotalBinCount()-0.5,
@@ -367,9 +616,59 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
     
 
   if ( expertHistograms.regHist((ITrigLBNHist*)m_signatureAcceptanceHist).isFailure()) {
-    ATH_MSG_WARNING("Can't book "<< m_signatureAcceptanceHist->GetName());
+    if (m_logLvl <= MSG::WARNING)(*m_log) << MSG::WARNING << "Can't book "
+					  << m_signatureAcceptanceHist->GetName() << endreq;
   }
   
+  /*
+  // Events passing step histogram
+  tmpstring_title  = "Number of events passing a step in "+ m_trigLvl;
+  
+  
+  m_eventsPassingStepHist=new TrigLBNHist<TH1I>(TH1I("EventsPassingStep",tmpstring_title.c_str(),
+  BinBlock::GetNStepBins()+1,
+  -0.5,
+  BinBlock::GetNStepBins() +0.5)
+  );
+  
+  m_eventsPassingStepHist->GetXaxis()->SetTitle("step");
+  m_eventsPassingStepHist->GetYaxis()->SetTitle("Number of successful events");
+  
+
+  if ( expertHistograms.regHist((ITrigLBNHist*)m_eventsPassingStepHist).isFailure()) {
+  if (m_logLvl <= MSG::WARNING)(*m_log) << MSG::WARNING << "Can't book "
+					  << m_eventsPassingStepHist->GetName() << endreq;
+					  }
+
+  
+  // Total events passing step histogram
+  tmpstring_title = "Number of total events passing a step in "+ m_trigLvl;
+
+  m_totaleventsPassingStepHist=new TrigLBNHist<TH1I>(TH1I("TotalEventsPassingStep",tmpstring_title.c_str(),
+							  BinBlock::GetNStepBins()+1,
+							  -0.5,
+							  BinBlock::GetNStepBins()+0.5 )
+						     );
+
+  m_totaleventsPassingStepHist->GetXaxis()->SetTitle("step");
+  m_totaleventsPassingStepHist->GetYaxis()->SetTitle("Number of total successful events");
+  
+  if ( expertHistograms.regHist((ITrigLBNHist*)m_totaleventsPassingStepHist).isFailure()) {
+    if (m_logLvl <= MSG::WARNING)(*m_log) << MSG::WARNING << "Can't book "
+					  << m_totaleventsPassingStepHist->GetName() << endreq;
+  }
+  */
+
+#ifdef _IF_LUMI_BLOCK_NUMBER_DIFF_HISTO_IS_WANTED_GET_RID_OF_THIS_IFDEF
+  m_lumiBlockNumDiffHist = new TH1I("LBNDiff", "Diff between current LumiBlockNum and highest seen(if nonzero)",
+				    20, 1, 21);
+			       
+  if ( expertHistograms.regHist(m_lumiBlockNumDiffHist).isFailure()){
+    if (m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << "Can't book "
+					   << m_histoPathexpert+ m_lumiBlockNumDiffHist->GetName() << endreq;
+  }
+#endif
+
   // chain length histo: fill 1d histogram with the length of each chain
   for ( const HLT::SteeringChain* chain : configuredChains ) {
     unsigned int chainCounter = chain->getChainCounter();
@@ -402,10 +701,13 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
     m_signatureAcceptanceHist->SetBinContent(m_groupBlock->GetFirstBin() + bin+1, step1+1, -1);
   
   findChainsInStreams(m_chainsInStream, configuredChains, m_trigLvl);
-  for ( const auto& s : m_chainsInStream ) { // (string,TH1I*)
-    s.second->GetXaxis()->LabelsOption("a");
-    if ( expertHistograms.regHist(s.second).isFailure()) {
-      ATH_MSG_WARNING("Failed to book stream histogram");
+  std::map<std::string,TH1I*>::const_iterator s;
+  for ( s = m_chainsInStream.begin(); s != m_chainsInStream.end(); ++s ) {
+    s->second->GetXaxis()->LabelsOption("a");
+    if ( expertHistograms.regHist(s->second).isFailure()) {
+      if(m_logLvl <= MSG::WARNING)(*m_log)<<MSG::WARNING << "Failed to book stream histogram" <<endreq;
+    } else {
+      //     if(m_logLvl <= MSG::DEBUG)(*m_log)<<MSG::DEBUG<<"Booked ChainsInStream histogram for stream: " << s->first <<endreq;
     }
   }
 
@@ -416,18 +718,54 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
 
 StatusCode TrigSignatureMoni::fillHists()
 {
+
+  //if(m_logLvl <= MSG::DEBUG)(*m_log)<<MSG::DEBUG<<"MMMM fillHists "<<endreq;
+
+
   if( ! m_signatureAcceptanceHist  ){
-    ATH_MSG_WARNING("Pointers to histograms not ok, dont Fill ! ");
+    if(m_logLvl <= MSG::WARNING)(*m_log)<<MSG::WARNING<<" pointers to histograms not ok, dont Fill ! "<<endreq;
     return StatusCode::FAILURE;  
   }
 
+  enum bb_triglevel tl =(m_trigLvl == "L2")? tl_L2 :  ((m_trigLvl == "EF")? tl_EF : tl_HLT);
+
+  BinBlock::SetLevel(tl);
+
   const EventInfo* constEventInfo(0);
-  StatusCode sc_cei =  evtStore()->retrieve(constEventInfo);
+  StatusCode sc_cei =  m_storeGate->retrieve(constEventInfo);
+
+  //TrigMonGroup expertHistograms( this, m_parentAlg->name(), expert );
 
   if(sc_cei.isFailure()){
-    ATH_MSG_WARNING("Can't get EventInfo object (for stream tags & Lumiblock number)");
+    if(m_logLvl <= MSG::WARNING)
+      (*m_log) << MSG::WARNING << "Can't get EventInfo object (for stream tags & Lumiblock number)" << endreq;
   }
 
+#ifdef _IF_LUMI_BLOCK_NUMBER_DIFF_HISTO_IS_WANTED_GET_RID_OF_THIS_IFDEF
+  //get lumiBlockNumber
+
+  unsigned int lumiBlockNumber=0;
+  unsigned int runNumber=0;
+
+  
+  if ( sc_cei.isSuccess && constEventInfo->event_ID()) {
+    lumiBlockNumber =  constEventInfo->event_ID()->lumi_block();
+    runNumber =  constEventInfo->event_ID()->run_number();
+  }else{
+    if (m_logLvl <= MSG::DEBUG)(*m_log) << MSG::DEBUG << 
+      " LBN not possible because missing event_ID " << endreq;}
+
+  m_highestLBN = (lumiBlockNumber > m_highestLBN)? lumiBlockNumber : m_highestLBN;
+  
+  int diff =  ((int) m_highestLBN) - ((int) lumiBlockNumber);
+  
+  if( diff > 0)
+    if(m_lumiBlockNumDiffHist != 0) m_lumiBlockNumDiffHist->Fill(diff);
+
+#endif
+
+  
+  
   const std::vector<const HLT::SteeringChain*>& activeChains = m_parentAlg->getActiveChains();
   unsigned int maxsuccessfulSteps=0;
   bool eventPassedRaw = false;
@@ -440,7 +778,9 @@ StatusCode TrigSignatureMoni::fillHists()
   std::map<int, unsigned int> groupHit;  // Hold a bit mask for each group hit
 
   //loop chains and fill x-bins for chains
-  for (const HLT::SteeringChain* ch : activeChains) {
+  for (std::vector<const HLT::SteeringChain*>::const_iterator chain = activeChains.begin();
+       chain != activeChains.end(); ++chain) {
+    const HLT::SteeringChain *ch = *chain;
     
     unsigned int chainCounter = (unsigned int)ch->getChainCounter();
     unsigned int bin = m_chainBlock->GetSigHistValue(chainCounter);
@@ -577,18 +917,33 @@ StatusCode TrigSignatureMoni::fillHists()
   if(eventHasError) {
     m_signatureAcceptanceHist->Fill( m_generalBlock->GetOrBin(),     BinBlock::GetErrorBin());
   }
-  for (unsigned int step=0; step <= BinBlock::GetMaxSteps() ;step++) {
+  for (unsigned int step=0; step <= BinBlock::GetMaxSteps() ;step++)
     if(step < maxsuccessfulSteps)
       m_signatureAcceptanceHist->Fill(m_generalBlock->GetOrBin(), BinBlock::GetFirstAlgBin() + step);
-  }
+  
 
   
   if(maxsuccessfulSteps > BinBlock::GetMaxSteps()){
-    ATH_MSG_ERROR("Something wrong? maxsuccessfulSteps "<<maxsuccessfulSteps<<" > m_sv.maxSteps "
-                  <<  BinBlock::GetMaxSteps() <<" ?");
+    if (m_logLvl <= MSG::ERROR)(*m_log) 
+      << MSG::ERROR 
+      << " something wrong? maxsuccessfulSteps "<<maxsuccessfulSteps<<" > m_sv[m_tl].maxSteps "
+      <<  BinBlock::GetMaxSteps() <<" ? "<<endreq;
   }
 
- 
+  /*
+  // fill the histogram with events passing each step, be careful, the chains have different length!
+  for (unsigned int step=0; step <= BinBlock::GetMaxSteps() ;step++) {
+  if(step <= maxsuccessfulSteps){
+  m_eventsPassingStepHist->Fill(step,1);
+  
+  m_totaleventsPassingStepHist->Fill(step,1);
+  
+  }else if(eventPassedRaw)
+  m_totaleventsPassingStepHist->Fill(step, 1);
+  }
+  */
+
+
   if(sc_cei) {
     //use EventInfo -> TriggerInfo-> Stream Tag  to get streams this event contributes to
     std::vector<TriggerInfo::StreamTag> streamTags = constEventInfo->trigger_info()->streamTags();
@@ -598,27 +953,28 @@ StatusCode TrigSignatureMoni::fillHists()
     
     // fill total out per stream including additional streamTag prescales
     
-    for(const TriggerInfo::StreamTag& st : streamTags) {
-      std::string streamKey = st.name()+"_"+st.type();
+    for(std::vector<TriggerInfo::StreamTag>::iterator iter=streamTags.begin(); iter != streamTags.end(); iter++){    
+      std::string streamKey = iter->name()+"_"+iter->type();
       
+      //streamKey = "nobodys_business"; // FOR TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       int binNo = m_streamBlock->GetSigHistValue(streamKey);
       if(binNo != m_streamBlock->GetCatchAllBin())
-        m_signatureAcceptanceHist->Fill( binNo, BinBlock::GetPTBin());
+	m_signatureAcceptanceHist->Fill( binNo, BinBlock::GetPTBin());
     }
     
     if(m_streamCorrel != 0) { // Fill the correlation histogram, EF only
       for(std::vector<TriggerInfo::StreamTag>::iterator iter=streamTags.begin(); iter != streamTags.end(); iter++){
-        std::string streamKey = iter->name()+"_"+iter->type();
-
-        int bin1 = m_streamBlock->GetCorrelHistBin(streamKey);
-        for(std::vector<TriggerInfo::StreamTag>::iterator it2=iter; it2 != streamTags.end(); it2++) {
-          int bin2 = m_streamBlock->GetCorrelHistBin(it2->name()+"_"+it2->type());
-          if(bin1 != m_streamBlock->GetCatchAllBin() && bin1 != m_streamBlock->GetCatchAllBin() ) {
-            m_streamCorrel->Fill(bin1,bin2);
-            if(bin1 != bin2)
-              m_streamCorrel->Fill(bin2,bin1);
-          }
-        }
+	std::string streamKey = iter->name()+"_"+iter->type();
+	//streamKey = "nobodys_business"; // FOR TESTING!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	int bin1 = m_streamBlock->GetCorrelHistBin(streamKey);
+	for(std::vector<TriggerInfo::StreamTag>::iterator it2=iter; it2 != streamTags.end(); it2++) {
+	  int bin2 = m_streamBlock->GetCorrelHistBin(it2->name()+"_"+it2->type());
+	  if(bin1 != m_streamBlock->GetCatchAllBin() && bin1 != m_streamBlock->GetCatchAllBin() ) {
+	    m_streamCorrel->Fill(bin1,bin2);
+	    if(bin1 != bin2)
+	      m_streamCorrel->Fill(bin2,bin1);
+	  }
+	}
       }
     }
   }
@@ -638,100 +994,124 @@ StatusCode TrigSignatureMoni::finalHists() {
 
 
 /**
+
+
    Implementation of BinBlock and inheriting classes
+
+
 **/
 
-BinBlock::BinBlock(BinBlock *binBlock, MsgStream *log): 
-  m_NBins(0), m_log(log)
+BinBlock::BinBlock(BinBlock *binBlock, MsgStream *log): m_NBins(0), m_log(log)
 {
 
-  m_sv.firstSigHistBin = -1; // for historical reasons!
-  m_sv.unknown = "unknown";
-  m_sv.totalBins = 0;
+  m_sv[m_tl].firstSigHistBin = -1; // for historical reasons!
+  m_sv[m_tl].unknown = "unknown";
+
+  std::vector<BinBlock*>::const_iterator bbit;
+  m_sv[m_tl].totalBins = 0;
   
-  for(const BinBlock* bb : m_sv.binBlocks) {
-    m_sv.totalBins += bb->GetNBins();
+  for(bbit = m_sv[m_tl].binBlocks.begin(); bbit != m_sv[m_tl].binBlocks.end(); bbit++) {
+    m_sv[m_tl].totalBins += (*bbit)->GetNBins();
   }
   
-  m_firstBin = m_sv.totalBins;
+  m_firstBin = m_sv[m_tl].totalBins;
   
-  m_sv.binBlocks.push_back(binBlock);
+  m_sv[m_tl].binBlocks.push_back(binBlock);
 
 }
 
-// This function is badly named. All it does is delete the binBlocks if they exist and clean up.
-void BinBlock::PrepareToBook()
+BinBlock::~BinBlock()
 {
-  for(BinBlock* bb : m_sv.binBlocks) {
-    delete bb;
+}
+
+// This function is badly named. All it does is delete the binBlocks if they exist and clean up.
+void BinBlock::PrepareToBook(enum bb_triglevel tl){
+
+  m_tl = tl;
+
+  std::vector<BinBlock*>::iterator bbit;
+  for(bbit = m_sv[m_tl].binBlocks.begin(); bbit != m_sv[m_tl].binBlocks.end(); bbit++){
+    delete *bbit;
   }
-  m_sv.binBlocks.clear();
-  m_sv.stepnames.clear();
+  m_sv[m_tl].binBlocks.clear();
+  m_sv[m_tl].stepnames.clear();
+
 }
 
 void BinBlock::FinalizeInitialization()
 {
-  m_sv.totalBins = 0;
 
-  for(const BinBlock* bb : m_sv.binBlocks) {
-    m_sv.totalBins += bb->GetNBins();
+  std::vector<BinBlock*>::const_iterator bbit;
+  m_sv[m_tl].totalBins = 0;
+
+  for(bbit = m_sv[m_tl].binBlocks.begin(); bbit != m_sv[m_tl].binBlocks.end(); bbit++) {
+    m_sv[m_tl].totalBins += (*bbit)->GetNBins();
   }
 
   // set the step name
-  m_sv.stepnames.push_back("errors");
-  m_sv.stepnames.push_back("input");
-  m_sv.stepnames.push_back("!PS rate");
-  m_sv.stepnames.push_back("algoIn");
+  m_sv[m_tl].stepnames.push_back("errors");
+  m_sv[m_tl].stepnames.push_back("input");
+  m_sv[m_tl].stepnames.push_back("!PS rate");
+  m_sv[m_tl].stepnames.push_back("algoIn");
   
 
   // give numbers to the steps
-  for (unsigned int i_step = 1; i_step <= m_sv.maxSteps; i_step++){
-    m_sv.stepnames.push_back("step "+std::to_string(i_step));
+  for (unsigned int i_step = 1; i_step <= m_sv[m_tl].maxSteps; i_step++){
+    std::string tmpstr(Form("step %i",i_step));
+    m_sv[m_tl].stepnames.push_back(tmpstr);
   }
 
-  m_sv.stepnames.push_back("raw rate");
-  m_sv.stepnames.push_back("total rate");
-  m_sv.stepnames.push_back("rerun rate");
+  m_sv[m_tl].stepnames.push_back("raw rate");
+  m_sv[m_tl].stepnames.push_back("total rate");
+  m_sv[m_tl].stepnames.push_back("rerun rate");
 
-  m_sv.errorBin     = 0;
-  m_sv.inputBin     = 1;
-  m_sv.psBin        = 2;
-  m_sv.algoInBin    = 3;
-  m_sv.firstStepBin = 4;
-  m_sv.rawBin   = m_sv.maxSteps + 4;
-  m_sv.ptBin    = m_sv.maxSteps + 5;
-  m_sv.rerunBin = m_sv.maxSteps + 6; 
+  m_sv[m_tl].errorBin     = 0;
+  m_sv[m_tl].inputBin     = 1;
+  m_sv[m_tl].psBin        = 2;
+  m_sv[m_tl].algoInBin    = 3;
+  m_sv[m_tl].firstStepBin = 4;
+  m_sv[m_tl].rawBin   = m_sv[m_tl].maxSteps + 4;
+  m_sv[m_tl].ptBin    = m_sv[m_tl].maxSteps + 5;
+  m_sv[m_tl].rerunBin = m_sv[m_tl].maxSteps + 6; 
 
 }
 
 
-const std::string& BinBlock::GetSigXAxisLabel(int bin)
+const std::string &BinBlock::GetSigXAxisLabel(int bin)
 {
-  for (BinBlock* bb : m_sv.binBlocks) {
-    int firstBin = bb->GetFirstBin();
-    if(bin >= firstBin && bin < firstBin + int(bb->GetNBins())) {
-      return bb->GetXLabel(bin - firstBin);
+  std::vector<BinBlock*>::const_iterator bbit;
+
+  for(bbit = m_sv[m_tl].binBlocks.begin(); bbit != m_sv[m_tl].binBlocks.end(); bbit++) {
+    int firstBin = (*bbit)->GetFirstBin();
+    if(bin >= firstBin && bin < firstBin + int((*bbit)->GetNBins())) {
+      return (*bbit)->GetXLab(bin - firstBin);
     }
   }
-  return m_sv.unknown;
+  return m_sv[m_tl].unknown;
 }
 
-GroupBlock::GroupBlock(const std::vector<const HLT::SteeringChain*>& configuredChains, MsgStream *log) 
-  : BinBlock(this, log)
+GroupBlock::GroupBlock(const std::vector<const HLT::SteeringChain*>& configuredChains, MsgStream *log) : BinBlock(this, log)
 {
 
+ 
   std::map<std::string, int> groupBinMap;
   m_NBins = 0;
 
+  std::vector<const HLT::SteeringChain*>::const_iterator cit;
+  
   // First populate groupBinMap with the group names
   // Done this way to ensure that groups are in alphabetical order in histo
+
   for ( const HLT::SteeringChain * chain : configuredChains ) {
-     for ( const std::string& group : chain->getConfigChain()->groups() )
+     for ( std::string group : chain->getConfigChain()->groups() )
         groupBinMap[group] = 0;
   }
 
   // Assign bins, set label
-  for ( auto group_bin : groupBinMap ) {
+  //  for(std::map<std::string, int>::iterator grit = groupBinMap.begin();
+  //      grit != groupBinMap.end(); grit++) {
+  typedef std::pair<std::string, int> groupBin_t;
+  for ( groupBin_t group_bin : groupBinMap) {
       m_XLabels[m_NBins] = "grp_" + group_bin.first;
       group_bin.second = GetFirstSigHistBin() + m_firstBin + m_NBins++;
   }
@@ -739,68 +1119,81 @@ GroupBlock::GroupBlock(const std::vector<const HLT::SteeringChain*>& configuredC
   // Now set the bin maps for each chain
   for ( const HLT::SteeringChain * chain : configuredChains ) {
     std::set<int> binNums;
-    for ( const std::string& group : chain->getConfigChain()->groups() )
+    for ( std::string group : chain->getConfigChain()->groups() )
        binNums.insert(groupBinMap[group]);
     
     m_ch_bin_map[ chain->getChainCounter() ] = binNums;      
   }
 }
 
-const std::set<int> &GroupBlock::GetBinSet(unsigned int chainCounter) const
+const std::set<int> &GroupBlock::GetBinSet(unsigned int chainCounter)
 {
-  const auto it = m_ch_bin_map.find(chainCounter);
-  if(it == m_ch_bin_map.end())
+  if(m_ch_bin_map.find(chainCounter) == m_ch_bin_map.end())
     return m_emptyList;
 
-  return it->second;
+  return m_ch_bin_map[chainCounter];
 }
 
 void GroupBlock::PrintBlock()
 {
+
+
   (*m_log) << MSG::DEBUG  << "Group Block " 
-	   << "First bin: " << m_firstBin << ", Number of bins: " << m_NBins << endmsg;
+	   << "First bin: " << m_firstBin << ", Number of bins: " << m_NBins << endreq;
 
   std::map<unsigned int, std::set<int> >::const_iterator mcbit;
   for(mcbit = m_ch_bin_map.begin(); mcbit != m_ch_bin_map.end(); mcbit++) {
     (*m_log) << MSG::DEBUG << "chain counter: " << mcbit->first << ", bins: ";
     for( std::set<int>::const_iterator si = (mcbit->second).begin(); si != (mcbit->second).end(); si++) 
       (*m_log) << MSG::DEBUG << (*si) << ", ";
-    (*m_log) << MSG::DEBUG << endmsg;
+    (*m_log) << MSG::DEBUG << endreq;
   }
 }
 
-void GroupBlock::SetMask(unsigned int chainCounter, unsigned int mask, std::map<int, unsigned int> &hitMap) 
-{
-  const std::set<int>& groups = GetBinSet(chainCounter);
+void GroupBlock::SetMask(unsigned int chainCounter, unsigned int mask, std::map<int, unsigned int> &hitMap) {
 
-  for(int hg : groups) {
-    auto it = hitMap.find(hg);
-    if(it == hitMap.end())
-      hitMap[hg] = 0;
-    else
-      it->second |= mask;
+  const std::set<int> groups = GetBinSet(chainCounter);
+
+  for(std::set<int>::iterator hgit = groups.begin(); hgit != groups.end(); hgit++) {
+
+    if(hitMap.find(*hgit) == hitMap.end())
+      hitMap[*hgit] = 0;
+
+    hitMap[*hgit] |= mask;
   }
 }
 
-ChainBlock::ChainBlock(const std::vector<const HLT::SteeringChain*>& configuredChains, MsgStream *log) 
-  : BinBlock(this, log)
+ChainBlock::ChainBlock(const std::vector<const HLT::SteeringChain*>& configuredChains, MsgStream *log) : BinBlock(this, log)
 {
   m_NBins = 0;
   unsigned int maxSteps = 0;
 
   // This is here to produce an alphabetically sorted list of chains (to address Savannah bug 79938
   std::map<std::string, unsigned int> chainname;
-  for (const HLT::SteeringChain* ch : configuredChains) {
-    chainname[ch->getChainName()]= ch->getChainCounter();
+  for (std::vector<const HLT::SteeringChain*>::const_iterator it = configuredChains.begin();
+       it != configuredChains.end(); ++it) {
+    chainname[(*it)->getChainName()]= (*it)->getChainCounter();
 
-    const std::vector<const HLT::Signature*>& signatures = ch->getSignatures();
+    const std::vector<const HLT::Signature*>& signatures = (*it)->getSignatures();
     // searching for the longest (max. steps) configured chain
     maxSteps = signatures.size() > maxSteps ? signatures.size() : maxSteps;
   }
   
-  for (const auto& kv : chainname) {  // (name,chainCounter)
-    m_XLabels[m_NBins] = kv.first + "_ChCo_" + std::to_string(kv.second);
-    m_ch_bin[kv.second] = GetFirstSigHistBin() + m_firstBin + m_NBins++;
+
+  //std::vector<const HLT::SteeringChain*>::const_iterator cit;
+  
+  //for(cit = configuredChains.begin(); cit != configuredChains.end(); cit++) {
+  for( std::map<std::string, unsigned int>::const_iterator it = chainname.begin(); it != chainname.end();
+       it++) {
+    unsigned int chainCounter = it->second;
+    
+    std::string namestring = it->first + "_ChCo_%i";
+    m_XLabels[m_NBins] = Form(namestring.c_str(),chainCounter);
+    m_ch_bin[chainCounter] = GetFirstSigHistBin() + m_firstBin + m_NBins++;
+
+    //const std::vector<const HLT::Signature*>& signatures = (*cit)->getSignatures();
+    // searching for the longest (max. steps) configured chain
+    //maxSteps = signatures.size() > maxSteps ? signatures.size() : maxSteps;
   }
   BinBlock::SetMaxSteps(maxSteps);
 }
@@ -809,31 +1202,29 @@ ChainBlock::ChainBlock(const std::vector<const HLT::SteeringChain*>& configuredC
 void ChainBlock::PrintBlock()
 {
   (*m_log) << MSG::DEBUG << "Chain Block " 
-	   << "First bin: " << m_firstBin << ", Number of bins: " << m_NBins << endmsg;
+	   << "First bin: " << m_firstBin << ", Number of bins: " << m_NBins << endreq;
 
   std::map<unsigned int, int>::const_iterator mcbit;
 
   for( mcbit = m_ch_bin.begin(); mcbit != m_ch_bin.end(); mcbit++) {
-    (*m_log) << MSG::DEBUG << mcbit->first << ": " << mcbit->second << "   " << endmsg;
+    (*m_log) << MSG::DEBUG << mcbit->first << ": " << mcbit->second << "   " << endreq;
   }
 
 }
 
-int ChainBlock::GetSigHistValue(unsigned int chainCounter) const
+int ChainBlock::GetSigHistValue(unsigned int chainCounter)
 {
-  const auto it = m_ch_bin.find(chainCounter);
-  if(it != m_ch_bin.end())
-    return it->second;
+  if(m_ch_bin.find(chainCounter) != m_ch_bin.end())
+    return m_ch_bin[chainCounter];
 
   return OverflowBin();
 
 }
 
-int ChainBlock::GetSigHistBin(unsigned int chainCounter) const
+int ChainBlock::GetSigHistBin(unsigned int chainCounter)
 {
-  const auto it = m_ch_bin.find(chainCounter);
-  if(it != m_ch_bin.end())
-    return it->second - GetFirstSigHistBin();
+  if(m_ch_bin.find(chainCounter) != m_ch_bin.end())
+    return m_ch_bin[chainCounter] - GetFirstSigHistBin();
 
   return OverflowBin();
   
@@ -841,7 +1232,7 @@ int ChainBlock::GetSigHistBin(unsigned int chainCounter) const
 
 
 StreamBlock::StreamBlock(const TrigConf::HLTChainList* allChains,
-			 std::set<std::string> &errorStreamNames, std::string trigLvl,
+			 std::vector<std::string> &errorStreamNames, std::string trigLvl,
 			 MsgStream *log) :
   BinBlock(this, log) {
   
@@ -860,9 +1251,10 @@ StreamBlock::StreamBlock(const TrigConf::HLTChainList* allChains,
   }
 
   // now the debug streams
-  for(const auto &s : errorStreamNames) {
-    m_XLabels[m_NBins] = "str_" + s;
-    m_str_tag_map[s] = m_NBins++;
+  std::vector<std::string>::const_iterator esnit;
+  for(esnit = errorStreamNames.begin(); esnit != errorStreamNames.end(); esnit++) {
+    m_XLabels[m_NBins] = "str_" + (*esnit);
+    m_str_tag_map[(*esnit)] = m_NBins++;
   }
 
   // now a catch-all         --- suppressed on request from Brian 7.4.2011
@@ -873,33 +1265,33 @@ StreamBlock::StreamBlock(const TrigConf::HLTChainList* allChains,
 
 
   if(m_log->level() <= MSG::DEBUG) {
-    (*log) << MSG::DEBUG << "************ stream tag to bin map *****************" << endmsg;
+    (*log) << MSG::DEBUG << "************ stream tag to bin map *****************" << endreq;
 
     std::map<std::string, int>::const_iterator stmit;
     for(stmit = m_str_tag_map.begin(); stmit != m_str_tag_map.end(); stmit++)
-      (*log) << MSG::DEBUG << (*stmit).first << ": " << (*stmit).second << endmsg;
+      (*log) << MSG::DEBUG << (*stmit).first << ": " << (*stmit).second << endreq;
     
-    (*log) << MSG::DEBUG << "*********** chain counter to bin map for streams ***************" << endmsg;
+    (*log) << MSG::DEBUG << "*********** chain counter to bin map for streams ***************" << endreq;
     std::map<unsigned int, std::set<int> >::const_iterator csmit;
     for(csmit = m_ch_str_map.begin(); csmit != m_ch_str_map.end(); csmit++) {
       (*log) << MSG::DEBUG << (*csmit).first << ": ";
       std::set<int>::iterator si;
       for(si = (*csmit).second.begin(); si != (*csmit).second.end(); si++)
 	(*log) << (*si) << "  ";
-      (*log) << endmsg;
+      (*log) << endreq;
     }
   }
 
 }
 
-void StreamBlock::InsertStreams(bool isPhysType, const std::string& trgLvl,
+void StreamBlock::InsertStreams(bool isPhysType, std::string trgLvl,
                                 const TrigConf::HLTChainList* allChains)
 {
   
   TrigConf::HLTChainList::const_iterator cit;
   
-  // First get the names of the streams into a local set (for ordering).
-  // Then use it to set up the m_str_tag_map, then set up the chain to stream map
+  // MM, 16.8.11  First get the names of the streams into a local set (for ordering).
+  //              Then use it to set up the m_str_tag_map, then set up the chain to stream map
 
   std::set<std::string> streamNames;
   for(cit = allChains->begin(); cit != allChains->end(); cit++) {
@@ -907,18 +1299,20 @@ void StreamBlock::InsertStreams(bool isPhysType, const std::string& trgLvl,
     if( (*cit)->level() != trgLvl)
       continue;
 
-    for(const TrigConf::HLTStreamTag* st : (*cit)->streams()) {
-       if( (isPhysType && st->type() == "physics") || (!isPhysType && st->type() != "physics")) {
-          const std::string namkey = st->stream()+"_"+st->type();
+    std::vector<TrigConf::HLTStreamTag*>::const_iterator stit;
+
+    for(stit = (*cit)->streams().begin(); stit !=(*cit)->streams().end();stit++ ) {
+       if( (isPhysType && (*stit)->type() == "physics") || (!isPhysType && (*stit)->type() != "physics")) {
+          const std::string namkey = (*stit)->stream()+"_"+(*stit)->type();
           streamNames.insert(namkey);
        }
     }
   }
 
   // Set up m_ch_str_map and the labels vector
-  for(const std::string& sn : streamNames) {
-    m_str_tag_map[ sn ] = m_NBins;
-    m_XLabels[m_NBins] = "str_" + sn;
+  for(std::set<std::string>::const_iterator snit = streamNames.begin(); snit != streamNames.end(); snit++) {
+    m_str_tag_map[ *snit ] = m_NBins;
+    m_XLabels[m_NBins] = "str_" + *snit;
     m_NBins++;
   }
 
@@ -928,17 +1322,19 @@ void StreamBlock::InsertStreams(bool isPhysType, const std::string& trgLvl,
      if( (*cit)->level() != trgLvl)
         continue;
 
-      for(const TrigConf::HLTStreamTag* st : (*cit)->streams()) {
-       if( (isPhysType && st->type() == "physics") || (!isPhysType && st->type() != "physics")) {
-         const std::string namkey = st->stream()+"_"+st->type();
-         if(m_str_tag_map.find(namkey) == m_str_tag_map.end()) {
-           m_ch_str_map.insert(std::pair<unsigned int, std::set<int> >((*cit)->chain_counter(), 
-                                                                       std::set<int>()));
-         }
-         m_ch_str_map[(*cit)->chain_counter()].insert( GetFirstSigHistBin() + 
-                                                       m_firstBin + 
-                                                       m_str_tag_map[namkey] );
-       }
+     std::vector<TrigConf::HLTStreamTag*>::const_iterator stit;
+
+     for(stit = (*cit)->streams().begin(); stit !=(*cit)->streams().end();stit++ ){
+        if( (isPhysType && (*stit)->type() == "physics") || (!isPhysType && (*stit)->type() != "physics")) {
+           const std::string namkey = (*stit)->stream()+"_"+(*stit)->type();
+           if(m_str_tag_map.find(namkey) == m_str_tag_map.end()) {
+              m_ch_str_map.insert(std::pair<unsigned int, std::set<int> >((*cit)->chain_counter(), 
+                                                                          std::set<int>()));
+           }
+           m_ch_str_map[(*cit)->chain_counter()].insert( GetFirstSigHistBin() + 
+                                                         m_firstBin + 
+                                                         m_str_tag_map[namkey] );
+        }
      }
   }
 }
@@ -946,58 +1342,107 @@ void StreamBlock::InsertStreams(bool isPhysType, const std::string& trgLvl,
 void StreamBlock::PrintBlock()
 {
   if(m_log->level() <= MSG::DEBUG) { 
-    (*m_log) << MSG::DEBUG  << "**** Stream Block ****" << endmsg
-             << "First bin: " << m_firstBin << ", Number of bins: " << m_NBins << endmsg;
-    (*m_log) << MSG::DEBUG  << "Stream tag to bin map " << endmsg;
+    (*m_log) << MSG::DEBUG  << "**** Stream Block ****" << endreq
+	     << "First bin: " << m_firstBin << ", Number of bins: " << m_NBins << endreq;
+    (*m_log) << MSG::DEBUG  << "Stream tag to bin map " << endreq;
     std::map<std::string, int>::iterator mstit;
     for(mstit = m_str_tag_map.begin(); mstit != m_str_tag_map.end(); mstit++) {
-      (*m_log) << MSG::DEBUG  << mstit->first << ": " << mstit->second << endmsg;
+      (*m_log) << MSG::DEBUG  << mstit->first << ": " << mstit->second << endreq;
     }
-    (*m_log) << MSG::DEBUG  << "Chain counter to bin map" << endmsg;
+    (*m_log) << MSG::DEBUG  << "Chain counter to bin map" << endreq;
     std::map<unsigned int, std::set<int> >::iterator mcsit;
     for(mcsit = m_ch_str_map.begin(); mcsit != m_ch_str_map.end(); mcsit++) {
       (*m_log) << MSG::DEBUG  << "chain counter " << mcsit->first << ": ";
-      for(int si : mcsit->second)
-        (*m_log) << MSG::DEBUG  << si << ", ";
-      (*m_log) << MSG::DEBUG  << endmsg;
+      for(std::set<int>::iterator si = mcsit->second.begin(); si != mcsit->second.end(); si++)
+	(*m_log) << MSG::DEBUG  << *si << ", ";
+      (*m_log) << MSG::DEBUG  << endreq;
     }
   }
 }
 
-const std::set<int> &StreamBlock::GetSigHistValueSet(unsigned int chainCounter) const
+void StreamBlock::extractErrorStreamNames( std::string errStreamString, 
+					   std::vector<std::string> &errorStreamNames )
 {
-  const auto it = m_ch_str_map.find(chainCounter);
-  if(it != m_ch_str_map.end())
-    return it->second;
+  /*
+    Parse the string returned by getProperties.  I don't understand
+    why but getProperties returns a string containing all error
+    streams rather than a vector of streams.
+  */
+
+  std::stringstream ss;
   
-  return m_notFound;
+  // assuming errStreamString looks something like:
+  //['ABORT_CHAIN ALGO_ERROR GAUDI_EXCEPTION: hltexceptions physics', 'ABORT_CHAIN ALGO_ERROR GAUDI_EXCEPTION: hltex2 physics']
+  
+  ss.str(errStreamString);
+  char c;
+
+  /* there are no brackets when the tag comes from a StringArrayProperty
+  if( (c = ss.get()) != '[') {
+    //(*m_log) << MSG::DEBUG << "MMMM I'm lost already" << std::endl;
+    return;
+  }
+  */
+  
+  while( (c = ss.get()) && ss.good() ) {
+    
+    if( c == '\'') {
+      const int bufSize = 100;
+      char charBuf[bufSize];
+
+      ss.getline(charBuf, bufSize, ':');
+      
+      ss.getline(charBuf, bufSize, '\'');
+
+      char *pBuf = charBuf;
+      for(int i = 0; i<bufSize-1 && charBuf[i] == ' '; i++) pBuf++;
+
+      for(int i = 0; i<bufSize - (pBuf-charBuf) && pBuf[i] != '\0'; i++) { // change space to underscore
+	pBuf[i] = (pBuf[i] == ' ')? '_' : pBuf[i];
+      }
+
+      errorStreamNames.push_back(pBuf);
+    }
+  }
+}
+
+
+const std::set<int> &StreamBlock::GetSigHistValueSet(unsigned int chainCounter){
+
+  if(m_ch_str_map.find(chainCounter) != m_ch_str_map.end())
+    return m_ch_str_map[chainCounter];
+  
+  return notFound;
      
 }
 
-int StreamBlock::GetSigHistValue(const std::string& streamTag) const
-{
-  const auto it = m_str_tag_map.find(streamTag);
-  if(it != m_str_tag_map.end())
-    return GetFirstSigHistBin() + m_firstBin + it->second;
+int StreamBlock::GetSigHistValue(std::string streamTag) {
+
+  if(m_str_tag_map.find(streamTag) != m_str_tag_map.end())
+    return GetFirstSigHistBin() + m_firstBin + m_str_tag_map[streamTag];
+
+  //return GetFirstSigHistBin() + m_firstBin + m_catchAll;
+  return m_catchAll;
+}
+
+int StreamBlock::GetCorrelHistBin(std::string streamTag) {
+  if(m_str_tag_map.find(streamTag) != m_str_tag_map.end())
+    return m_str_tag_map[streamTag];
 
   return m_catchAll;
 }
 
-int StreamBlock::GetCorrelHistBin(const std::string& streamTag) const
-{
-  const auto it = m_str_tag_map.find(streamTag);
-  if(it != m_str_tag_map.end())
-    return it->second;
 
-  return m_catchAll;
-}
+void StreamBlock::SetMask(unsigned int chainCounter, unsigned int mask, std::map<int, unsigned int> &hitMap) {
 
+  const std::set<int> streams = GetSigHistValueSet(chainCounter);
 
-void StreamBlock::SetMask(unsigned int chainCounter, unsigned int mask, std::map<int, unsigned int> &hitMap) 
-{
-  const std::set<int>& streams = GetSigHistValueSet(chainCounter);
-  for(int hs : streams) {
-    hitMap[hs] |= mask;     // this works because default value of new int entry is 0
+  for(std::set<int>::iterator hsit = streams.begin(); hsit != streams.end(); hsit++) {
+
+    if(hitMap.find(*hsit) == hitMap.end())
+      hitMap[*hsit] = 0;
+
+    hitMap[*hsit] |= mask;
   }
 }
     

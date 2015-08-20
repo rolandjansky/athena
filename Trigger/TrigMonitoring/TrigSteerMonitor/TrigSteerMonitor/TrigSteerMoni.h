@@ -13,7 +13,7 @@
  * @author Gordon Fischer        Gordon.Fischer@cern.ch
  *
  * File and Version Information:
- * $Id: TrigSteerMoni.h 761301 2016-07-12 11:51:07Z fwinkl $
+ * $Id: TrigSteerMoni.h,v 1.5 2007-07-03 10:20:37 risler Exp $
  **********************************************************************************/
 
 
@@ -41,25 +41,27 @@ class TrigSteerMoni: public MonitorToolBase {
     virtual ~TrigSteerMoni();
 
     StatusCode initialize();
+    StatusCode finalize();
 
     StatusCode bookHists();
     StatusCode fillHists();
 
  private:
 
+  MsgStream* m_log;
   std::string m_histoPath;
 
-  const HLT::TrigSteer* m_parentAlg{0}; // should give us pointer to TrigSteer topAlgorithm!!!
+  const HLT::TrigSteer* m_parentAlg; // should give us pointer to TrigSteer topAlgorithm!!!
 
   // 1D histograms
-  TH1F* m_chainAcceptanceHist{0}; // raw
-  TH1F* m_chainAcceptancePSHist{0}; // after Prescale
-  TH1F* m_chainAcceptancePTHist{0}; // after Passthrough
+  TH1F* m_chainAcceptanceHist; // raw
+  TH1F* m_chainAcceptancePSHist; // after Prescale
+  TH1F* m_chainAcceptancePTHist; // after Passthrough
 
   // 2D histograms
-  TH2F* m_signatureAcceptanceHist{0};
+  TH2F* m_signatureAcceptanceHist;
 
-  long int m_totalEvts{0};
+  long int m_totalEvts;
   std::string m_trigLvl;
 
 };
