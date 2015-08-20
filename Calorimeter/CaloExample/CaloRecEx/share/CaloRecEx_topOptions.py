@@ -29,15 +29,11 @@ rec.doTrigger=False
 rec.doAOD=False
 #doTruth=False
 
-recAlgs.doMuTag=False
-
-from JetRec.JetRecFlags import jetFlags
-jetFlags.Enabled=False
+# no jets,etc (depends on Tracks too)
+rec.doJetMissingETTag=False
 
 rec.CBNTAthenaAware=True
 
-# If tracking is off, this also needs to be off.
-rec.doEgamma = False
 
 
 #PoolRDOInput=[ "/afs/cern.ch/atlas/offline/data/testfile/q02initialprod.0001.H_2e2mu.q02dig_1004.etacut.0001_extract.pool.root" ]
