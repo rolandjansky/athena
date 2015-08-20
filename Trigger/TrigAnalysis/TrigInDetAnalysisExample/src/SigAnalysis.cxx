@@ -203,8 +203,8 @@ void SigAnalysis::finalise() {
 }
 
 
-void SigAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftracks,
-			  const std::vector<TrigInDetAnalysis::Track*>& testtracks,
+void SigAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
+			  const std::vector<TIDA::Track*>& testtracks,
 			  TrackAssociator* matcher ) 
 {
   if ( m_print ) std::cout << "SigAnalysis::execute() \t " << name() 
@@ -251,7 +251,7 @@ void SigAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrack
 
     h2->Fill( phit, d0t );
 
-    const TrigInDetAnalysis::Track* matchedreco = matcher->matched(reftracks[i]); 
+    const TIDA::Track* matchedreco = matcher->matched(reftracks[i]); 
     
     //    std::cout << "\t\tSigAnalysis " << name() << "\t" << i << " " << *reftracks[i] << " -> ";        
 
@@ -364,7 +364,7 @@ void SigAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrack
 
     if ( h2r ) h2r->Fill( phir, d0r );
 
-    const TrigInDetAnalysis::Track* matchedref = matcher->revmatched(testtracks[i]); 
+    const TIDA::Track* matchedref = matcher->revmatched(testtracks[i]); 
 
     //    if ( matchedref )  std::cout << *matchedref << std::endl;
     //    else               std::cout << "NULL" << std::endl;     
@@ -414,7 +414,7 @@ void SigAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrack
 
       if ( std::fabs( reftracks[i]->pT() ) > 1000 ) { 
 	std::cout << "\t dump " << *reftracks[i];
-	const TrigInDetAnalysis::Track* matchedreco = matcher->matched(reftracks[i]); 
+	const TIDA::Track* matchedreco = matcher->matched(reftracks[i]); 
 	if ( matchedreco ) std::cout << " <--> " << *matchedreco << std::endl;
 	else               std::cout << std::endl;
       }
@@ -422,7 +422,7 @@ void SigAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrack
     }
 
     for ( int i=testtracks.size() ; i-- ; ) {     
-      const TrigInDetAnalysis::Track* matchedref = matcher->revmatched(testtracks[i]); 
+      const TIDA::Track* matchedref = matcher->revmatched(testtracks[i]); 
       if ( matchedref==0 ) std::cout << "\t\t\t\t\t " << *testtracks[i] << std::endl;      
     }
 

@@ -8,8 +8,8 @@
 // #include "AthenaBaseComps/AthAlgorithm.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
-#include "TrigInDetAnalysis/TrackEvent.h"
-#include "TrigInDetAnalysis/TrackVertex.h"
+#include "TrigInDetAnalysis/TIDAEvent.h"
+#include "TrigInDetAnalysis/TIDAVertex.h"
 #include "TrigInDetAnalysisUtils/T_AnalysisConfig.h"
 
 #include "TrigInDetAnalysisExample/ChainString.h"
@@ -77,10 +77,11 @@ public:
 	   chainNames[i] != "Taus3"     &&
 	   chainNames[i] != "Bjets" )   { 
 	
-	//	std::cout << "chain[" << i << "] " << chainNames[i] << std::endl;
+	//	std::cout << "AnalysisConfig_Ntuple: chain[" << i << "] " << chainNames[i] << std::endl;
 	
 	m_chainNames.push_back( ChainString(chainNames[i]) );
 
+	
       }
 
       if ( chainNames[i]=="Offline" )   m_doOffline   = true;
@@ -97,7 +98,7 @@ public:
       if ( chainNames[i]=="Taus3" )     m_doTauThreeProng = true;
       if ( chainNames[i]=="Bjets" )     m_doBjets     = true;
     }
-    m_event = new TrackEvent();
+    m_event = new TIDA::Event();
     m_outputFileName=outputFileName;
   }
   
@@ -120,7 +121,7 @@ protected:
   IBeamCondSvc*  m_iOnlineBeamCondSvc;
   
 
-  TrackEvent*  m_event;
+  TIDA::Event*  m_event;
 
   TFile*      mFile;  
   TTree*      mTree;

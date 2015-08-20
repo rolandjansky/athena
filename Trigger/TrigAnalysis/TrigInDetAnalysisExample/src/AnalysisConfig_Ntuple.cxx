@@ -9,6 +9,8 @@
 // McParticleEvent includes
 #include <cstdio>
 
+#include <sys/time.h> 
+
 #include "McParticleEvent/TruthParticleContainer.h"
 #include "McParticleEvent/TruthParticleContainer.h"
 
@@ -59,8 +61,19 @@
 #include "TrkParticleCreator/TrackParticleCreatorTool.h"
 
 
+
+
 bool tida_first = true;
 
+
+
+std::string date() { 
+  time_t _t;
+  time(&_t);
+  std::string _mtime = ctime(&_t);
+  _mtime.erase( std::remove(_mtime.begin(), _mtime.end(), '\n'), _mtime.end() );
+  return _mtime;
+}
 
 
 //function to find true taus
@@ -104,7 +117,7 @@ const HepMC::GenParticle* fromParent( int pdg_id, const HepMC::GenParticle* p, b
 
 void AnalysisConfig_Ntuple::loop() {
 
-        m_provider->msg(MSG::INFO) << "[91;1m" << "AnalysisConfig_Ntuple::loop() for " << m_analysisInstanceName << " compiled " << __DATE__ << " " << __TIME__ << "[m" << endreq;
+  m_provider->msg(MSG::INFO) << "[91;1m" << "AnalysisConfig_Ntuple::loop() for " << m_analysisInstanceName << " compiled " << __DATE__ << " " << __TIME__ << "\t: " << date() << "[m" << endreq;
 
 	// get (offline) beam position
 	double xbeam = 0;
@@ -130,11 +143,17 @@ void AnalysisConfig_Ntuple::loop() {
 	  beamline.push_back(zbeam);
 	  m_provider->msg(MSG::INFO) << " beamline values : " << beamline[0] << "\t" << beamline[1]  << "\t" << beamline[2] << endreq;	
 	}
-	
+	else { 
+	  m_provider->msg(MSG::INFO) << " could not find BeamCondSvc " << endreq;
+	}
+
 	// get (online) beam position
 	double xbeam_online = 0;
 	double ybeam_online = 0;
 	double zbeam_online = 0;
+
+	std::vector<double> beamline_online;
+
 	if ( m_iOnlineBeamCondSvc ) {
 
 #ifdef EIGEN_GEOMETRY_MODULE_H	  
@@ -149,11 +168,17 @@ void AnalysisConfig_Ntuple::loop() {
 	  ybeam_online = vertex.y();
 	  zbeam_online = vertex.z();
 #endif
-	  
+	  beamline_online.push_back( xbeam_online );
+	  beamline_online.push_back( ybeam_online );
+	  beamline_online.push_back( zbeam_online );
+
 	  m_provider->msg(MSG::INFO) << " using online beam position" 
 				     << "\tx=" << xbeam_online 
 				     << "\ty=" << ybeam_online 
 				     << "\tz=" << zbeam_online << endreq; 
+	}
+	else { 
+	  m_provider->msg(MSG::INFO) << " could not find OnlineBeamCondSvc " << endreq;
 	}
 
 	m_provider->msg(MSG::INFO) << " offline beam position\tx=" << xbeam        << "\ty=" << ybeam        << "\tz=" << zbeam        << endreq; 
@@ -166,11 +191,12 @@ void AnalysisConfig_Ntuple::loop() {
 	std::vector<ChainString> chainNames;
 
 	if ( tida_first ) { 
+
 		std::vector<std::string> configuredChains  = (*m_tdt)->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
 
-		m_provider->msg(MSG::INFO) << "[91;1m" << configuredChains.size() << " Configured Chains" << "[m" << endreq;
+		m_provider->msg(MSG::DEBUG) << "[91;1m" << configuredChains.size() << " Configured Chains" << "[m" << endreq;
 		for ( unsigned i=0 ; i<configuredChains.size() ; i++ ) { 
-		  m_provider->msg(MSG::INFO) << "[91;1m" << "Chain " << configuredChains[i] << "   (ACN)[m" << endreq;
+		  m_provider->msg(MSG::DEBUG) << "[91;1m" << "Chain " << configuredChains[i] << "   (ACN)[m" << endreq;
 		  configuredHLTChains.insert( configuredChains[i] );
 		  
 		}
@@ -183,6 +209,8 @@ void AnalysisConfig_Ntuple::loop() {
 
 		std::vector<ChainString>::iterator chainitr = m_chainNames.begin();
 
+		//		std::cout << "SUTT number of chains " << m_chainNames.size() << std::endl; 
+
 		/// handle wildcard chain selection - but only the first time
 		while ( chainitr!=m_chainNames.end() ) {
 
@@ -191,7 +219,7 @@ void AnalysisConfig_Ntuple::loop() {
 		  /// get chain
 		  ChainString& chainName = (*chainitr);
 
-		  //		  std::cout << "chain name " << chainName << " (ChainString roi " << chainName.roi() << " ACN)" << std::endl;
+		  //		  std::cout << "chain name " << chainName << " (ChainString roi " << chainName.roi() << "\tvtx " << chainName.vtx() << " ACN)" << std::endl;
 
 		  /// check for wildcard ...
 		  //if ( chainName.head().find("*")!=std::string::npos ) { 
@@ -202,7 +230,7 @@ void AnalysisConfig_Ntuple::loop() {
 		    /// get matching chains
 		    std::vector<std::string> selectChains  = (*m_tdt)->getListOfTriggers( chainName.head() );
 
-		    //		    std::cout << "selected chains " << selectChains.size() << std::endl;
+		    //		    std::cout << "selected chains for " << chainName << " -> " << selectChains.size() << " chains" << std::endl;
 
 		    for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
  
@@ -211,6 +239,7 @@ void AnalysisConfig_Ntuple::loop() {
 		   
 		      if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element(); 
 		      if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
+		      if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
 		     
 		      if ( !chainName.passed() )    selectChains[iselected] += ";DTE";
 		     
@@ -251,7 +280,7 @@ void AnalysisConfig_Ntuple::loop() {
 
 	selectorTruth.setBeamline( xbeam, ybeam, zbeam ); 
 	selectorRef.setBeamline( xbeam, ybeam, zbeam ); 
-	selectorTest.setBeamline( xbeam, ybeam, zbeam ); 
+	selectorTest.setBeamline( xbeam_online, ybeam_online, zbeam_online ); 
 
 
 	selectorTruth.correctTracks( true );
@@ -259,7 +288,7 @@ void AnalysisConfig_Ntuple::loop() {
 	selectorTest.correctTracks( true );
 	
 
-	// clear the ntuple TrackEvent class
+	// clear the ntuple TIDA::Event class
 	m_event->clear();
 
 
@@ -285,7 +314,7 @@ void AnalysisConfig_Ntuple::loop() {
 		mu_val            = pEventInfo->averageInteractionsPerCrossing();
 	}
 
-	m_provider->msg(MSG::DEBUG) << "run "     << run_number 
+	m_provider->msg(MSG::INFO) << "run "     << run_number 
 		<< "\tevent " << event_number 
 		<< "\tlb "    << lumi_block << endreq;
 
@@ -313,11 +342,30 @@ void AnalysisConfig_Ntuple::loop() {
 	const Trig::ChainGroup* EFchain=(*m_tdt)->getChainGroup("EF_.*");
 	const Trig::ChainGroup* HLTchain=(*m_tdt)->getChainGroup("HLT_.*");
 
-	m_provider->msg(MSG::DEBUG) << "[91;1m" 
+	//	m_provider->msg(MSG::DEBUG) << "[91;1m" 
+	m_provider->msg(MSG::INFO) << "[91;1m" 
 		<< "L2 pass " << L2chain->isPassed()  << "\t" 
 		<< "EF pass " << EFchain->isPassed()  << "\t" 
 		<< "HLT pass " << HLTchain->isPassed() << "[m"
 		<< endreq;
+
+	
+	std::vector<std::string> _conf = (*m_tdt)->getListOfTriggers("HLT_.*");
+	
+	m_provider->msg(MSG::INFO) << endreq;
+	m_provider->msg(MSG::INFO) << "configured chains " << _conf.size() << endreq;
+
+#if 0
+	for ( unsigned ic=0 ; ic<_conf.size() ; ic++ ) { 
+	  bool p = (*m_tdt)->isPassed( _conf[ic] );
+	  
+	  if ( p ) m_provider->msg(MSG::INFO) << "[91;1m" << " Configured Chain " << _conf[ic] << " " << p << "[m" << endreq;
+	  else     m_provider->msg(MSG::INFO)               << " Configured Chain " << _conf[ic] << " " << p           << endreq;
+
+	}
+
+	m_provider->msg(MSG::INFO) << endreq;
+#endif
 
 	///////////////////////////////////////////////////////////////////////////////
 
@@ -336,10 +384,21 @@ void AnalysisConfig_Ntuple::loop() {
       
 
 	int passed_chains = 0;
+
+	m_provider->msg(MSG::INFO) << "Checking " << m_chainNames.size() << " chains" << endreq;
+	
+	if ( m_chainNames.empty() ) {
+	  m_provider->msg(MSG::WARNING) << "No chains to check" << endreq;
+	  //  return;
+	}
+
 	for ( unsigned ichain=0 ; ichain<m_chainNames.size() ; ichain++ ) {  
 		const std::string& chainName = m_chainNames[ichain].head();
 
 		// Only for trigger chains
+
+		//		m_provider->msg(MSG::INFO) << "\tchain " << chainName << endreq;
+		
 
 		if (chainName.find("L2")  == std::string::npos && 
 		    chainName.find("EF")  == std::string::npos && 
@@ -357,15 +416,15 @@ void AnalysisConfig_Ntuple::loop() {
 		if ( m_chainNames[ichain].roi()!=""  ) roistring += "\troi " + m_chainNames[ichain].roi();  
 
 
-		const Trig::ChainGroup* _chain=(*m_tdt)->getChainGroup(chainName);
-
-		
+		//		const Trig::ChainGroup* _chain=(*m_tdt)->getChainGroup(chainName);
 		//		m_provider->msg(MSG::INFO) << "Chain "  << chainName << "\troi " << roistring 
 		//					   << "\tpass " << _chain->isPassed() << "\tCH  FIXED" << endreq;
 
+		bool passPhysics = (*m_tdt)->isPassed(chainName); 
+
 		m_provider->msg(MSG::INFO) << "Chain "  << chainName << "\troi " << roistring 
 					   << "\tpres " << (*m_tdt)->getPrescale(chainName)
-					   << "\tpass physics  " << (*m_tdt)->isPassed(chainName) 
+					   << ( passPhysics ? "[91;1m" : "" ) << "\tpass physics  " <<  passPhysics << ( passPhysics ? "[m" : "" ) 
 					   << "\t: ( pass " << (*m_tdt)->isPassed(chainName, _decisiontype ) << "\tdec type " << _decisiontype << " ) " << endreq;
 
 
@@ -380,9 +439,10 @@ void AnalysisConfig_Ntuple::loop() {
 
 	/// bomb out if no chains passed and not told to keep all events  
 	if ( !analyse && !m_keepAllEvents ) { 
-		m_provider->msg(MSG::INFO) << "No chains passed unprescaled - not processing this event" << endreq; 
-		return;
+	  m_provider->msg(MSG::INFO) << "No chains passed unprescaled - not processing this event: " << run_number << " " << event_number << " " << lumi_block << endreq; 
+	  return;
 	}
+	
 
 	m_provider->msg(MSG::INFO) << "Chains passed " << passed_chains << endreq;
 
@@ -573,7 +633,7 @@ void AnalysisConfig_Ntuple::loop() {
 
 
 
-	// clear the ntuple TrackEvent class
+	// clear the ntuple TIDA::Event class
 	m_event->clear();
 
 
@@ -600,7 +660,7 @@ void AnalysisConfig_Ntuple::loop() {
 
 	/// get the offline vertices into our structure
 	
-	std::vector<TrackVertex> vertices;
+	std::vector<TIDA::Vertex> vertices;
 
 #ifndef XAODTRACKING_VERTEX_H
 	
@@ -612,7 +672,7 @@ void AnalysisConfig_Ntuple::loop() {
 	  VxContainer::const_iterator vtxitr = primaryVtxCollection->begin();
 	  for ( ; vtxitr != primaryVtxCollection->end(); ++vtxitr) {
 	    if ( (*vtxitr)->vxTrackAtVertex()->size()>0 ) {
-	      vertices.push_back( TrackVertex( (*vtxitr)->recVertex().position().x(),
+	      vertices.push_back( TIDA::Vertex( (*vtxitr)->recVertex().position().x(),
 					       (*vtxitr)->recVertex().position().y(),
 					       (*vtxitr)->recVertex().position().z(),
 #ifdef EIGEN_GEOMETRY_MODULE_H	  
@@ -639,18 +699,24 @@ void AnalysisConfig_Ntuple::loop() {
 #else
 
 
-	//	std::vector<TrackVertex> vertices;
+	//	std::vector<TIDA::Vertex> vertices;
+	
+	m_provider->msg(MSG::INFO) << "fetching AOD Primary vertex container" << endreq;
 
-	const xAOD::VertexContainer* xaodVtxCollection;
-	//	if ( m_provider->evtStore()->retrieve( xaodVtxCollection, "VxPrimaryCandidate").isFailure()) {
-	if ( m_provider->evtStore()->retrieve( xaodVtxCollection ).isFailure()) {
-	  m_provider->msg(MSG::WARNING) << "xAOD Primary vertex container not found" << endreq;
+	const xAOD::VertexContainer* xaodVtxCollection = 0;
+
+	if ( m_provider->evtStore()->retrieve( xaodVtxCollection, "PrimaryVertices" ).isFailure()) {
+	  m_provider->msg(MSG::WARNING) << "xAOD Primary vertex container not found with key " << "PrimaryVertices" <<  endreq;
 	}
-	else {
+	
+	if ( xaodVtxCollection!=0 ) { 
+	  
+	  m_provider->msg(MSG::INFO) << "xAOD Primary vertex container " << xaodVtxCollection->size() <<  " entries" << endreq;
+
 	  xAOD::VertexContainer::const_iterator vtxitr = xaodVtxCollection->begin();
-	  for ( ; vtxitr != xaodVtxCollection->end(); ++vtxitr) {
+	  for ( ; vtxitr != xaodVtxCollection->end(); vtxitr++ ) {
 	    if ( (*vtxitr)->nTrackParticles()>0 ) {
-	      vertices.push_back( TrackVertex( (*vtxitr)->x(),
+	      vertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
 					       (*vtxitr)->y(),
 					       (*vtxitr)->z(),
 					       /// variances
@@ -713,7 +779,20 @@ void AnalysisConfig_Ntuple::loop() {
 	  m_event->addChain( "Offline" );
 	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorRef.tracks());
-	  
+	
+	  if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
+	    std::vector<double> _beamline;
+	    _beamline.push_back( selectorRef.getBeamX() );
+	    _beamline.push_back( selectorRef.getBeamY() );
+	    _beamline.push_back( selectorRef.getBeamZ() );
+	    m_event->back().back().addUserData(_beamline);
+	  }
+	  else { 
+	    m_event->back().back().addUserData(beamline);
+	  }
+
+
+
 	  Noff = selectorRef.tracks().size();
 	  
 	  m_provider->msg(MSG::DEBUG) << "ref tracks.size() " << selectorRef.tracks().size() << endreq; 
@@ -769,6 +848,17 @@ void AnalysisConfig_Ntuple::loop() {
 	    m_event->back().addRoi(TIDARoiDescriptor(true));
 	    m_event->back().back().addTracks(selectorTest.tracks());
 	    
+	    if ( selectorTest.getBeamX()!=0 || selectorTest.getBeamY()!=0 || selectorTest.getBeamZ()!=0 ) { 
+	      std::vector<double> _beamline;
+	      _beamline.push_back( selectorTest.getBeamX() );
+	      _beamline.push_back( selectorTest.getBeamY() );
+	      _beamline.push_back( selectorTest.getBeamZ() );
+	      m_event->back().back().addUserData(_beamline);
+	    }
+	    else { 
+	      m_event->back().back().addUserData(beamline);
+	    }
+	    
 	    int Ntest = selectorTest.tracks().size();
 	    
 	    m_provider->msg(MSG::INFO) << "collection " << collectionname << "\ttest tracks.size() " << Ntest << endreq; 
@@ -777,58 +867,63 @@ void AnalysisConfig_Ntuple::loop() {
 	}	  
 
 
+	std::string ElectronRef[7] =  { 
+	  "Electrons", 
+	  "Electrons_TightCB", "Electrons_MediumCB", "Electrons_LooseCB",
+	  "Electrons_TightLH", "Electrons_MediumLH", "Electrons_LooseLH" };
+ 
+	bool ElectronTypes[7] = { 
+	  m_doElectrons, 
+	  m_doElectrons_tightCB,   m_doElectrons_mediumCB,   m_doElectrons_looseCB,  
+	  m_doElectrons_tightLH,   m_doElectrons_mediumLH,   m_doElectrons_looseLH };
 
-	/// get electrons
-	if (m_doElectrons)  { 
-	  Nel = processElectrons( selectorRef, 0 );
-	  m_event->addChain( "Electrons");
-	  m_event->back().addRoi(TIDARoiDescriptor(true));
-	  m_event->back().back().addTracks(selectorRef.tracks());
-	}
-	if (m_doElectrons_tightCB)  { 
-	  Nel = processElectrons( selectorRef, 1 );
-	  m_event->addChain( "Electrons_TightCB");
-	  m_event->back().addRoi(TIDARoiDescriptor(true));
-	  m_event->back().back().addTracks(selectorRef.tracks());
-	}
-	if (m_doElectrons_mediumCB)  { 
-	  Nel = processElectrons( selectorRef, 2 );
-	  m_event->addChain( "Electrons_MediumCB");
-	  m_event->back().addRoi(TIDARoiDescriptor(true));
-	  m_event->back().back().addTracks(selectorRef.tracks());
-	}
-	if (m_doElectrons_looseCB)  { 
-	  Nel = processElectrons( selectorRef, 3 );
-	  m_event->addChain( "Electrons_LooseCB");
-	  m_event->back().addRoi(TIDARoiDescriptor(true));
-	  m_event->back().back().addTracks(selectorRef.tracks());
-	}
-	if (m_doElectrons_tightLH)  { 
-	  Nel = processElectrons( selectorRef, 4 );
-	  m_event->addChain( "Electrons_TightLH");
-	  m_event->back().addRoi(TIDARoiDescriptor(true));
-	  m_event->back().back().addTracks(selectorRef.tracks());
-	}
-	if (m_doElectrons_mediumLH)  { 
-	  Nel = processElectrons( selectorRef, 5 );
-	  m_event->addChain( "Electrons_MediumLH");
-	  m_event->back().addRoi(TIDARoiDescriptor(true));
-	  m_event->back().back().addTracks(selectorRef.tracks());
-	}
-	if (m_doElectrons_looseLH)  { 
-	  Nel = processElectrons( selectorRef, 6 );
-	  m_event->addChain( "Electrons_LooseLH");
-	  m_event->back().addRoi(TIDARoiDescriptor(true));
-	  m_event->back().back().addTracks(selectorRef.tracks());
-	}
+	for ( int ielec=0 ; ielec<7 ; ielec++ ) {
+	  /// Fixme: not sure if this code is correct - it always adds selectorRef.tracks() 
+	  ///        so presumbably only ever *one* of the m_doElectrons can be set, otherwise 
+	  ///        something is messed up here
+	  ///        get electrons
+	  if ( ElectronTypes[ielec] ) {   
+	    Nel = processElectrons( selectorRef, ielec ); ///
+	    m_event->addChain( ElectronRef[ielec] );
+	    m_event->back().addRoi(TIDARoiDescriptor(true));
+	    m_event->back().back().addTracks(selectorRef.tracks());
+	    if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
+	      std::vector<double> _beamline;
+	      _beamline.push_back( selectorRef.getBeamX() );
+	      _beamline.push_back( selectorRef.getBeamY() );
+	      _beamline.push_back( selectorRef.getBeamZ() );
+	      m_event->back().back().addUserData(_beamline);
+	    }
+	    else { 	  
+	      m_event->back().back().addUserData(beamline);
+	    }
+	  }
+	}	  
+
 
 	/// get muons 
 	if ( m_doMuons ) { 
+	  
+	  m_provider->msg(MSG::INFO) << "fetching offline muons " << endreq; 
+
 	  Nmu   = processMuons( selectorRef );
+
+	  m_provider->msg(MSG::INFO) << "found " << Nmu << " offline muons " << endreq; 
+
 	  m_event->addChain("Muons");
 	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorRef.tracks());
-	  
+	  if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
+	      std::vector<double> _beamline;
+	      _beamline.push_back( selectorRef.getBeamX() );
+	      _beamline.push_back( selectorRef.getBeamY() );
+	      _beamline.push_back( selectorRef.getBeamZ() );
+	      m_event->back().back().addUserData(_beamline);
+	  }
+	  else { 	  
+	      m_event->back().back().addUserData(beamline);
+	  }
+
 	  m_provider->msg(MSG::DEBUG) << "ref muon tracks.size() " << selectorRef.tracks().size() << endreq; 
 	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << "  ref muon track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
 	}
@@ -840,6 +935,18 @@ void AnalysisConfig_Ntuple::loop() {
 	  m_event->addChain( "Taus" );
 	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorRef.tracks());
+	  if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
+              std::vector<double> _beamline;
+	      _beamline.push_back( selectorRef.getBeamX() );
+	      _beamline.push_back( selectorRef.getBeamY() );
+	      _beamline.push_back( selectorRef.getBeamZ() );
+	      m_event->back().back().addUserData(_beamline);
+	  }
+	  else { 	  
+	       m_event->back().back().addUserData(beamline);
+	  }
+
+
 	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << "  one prong ref tau track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
 	}
 
@@ -849,6 +956,17 @@ void AnalysisConfig_Ntuple::loop() {
  	  m_event->addChain( "Taus3" );
 	  m_event->back().addRoi(TIDARoiDescriptor(true));
 	  m_event->back().back().addTracks(selectorRef.tracks());
+	  if ( selectorRef.getBeamX()!=0 || selectorRef.getBeamY()!=0 || selectorRef.getBeamZ()!=0 ) { 
+	      std::vector<double> _beamline;
+	      _beamline.push_back( selectorRef.getBeamX() );
+	      _beamline.push_back( selectorRef.getBeamY() );
+	      _beamline.push_back( selectorRef.getBeamZ() );
+	      m_event->back().back().addUserData(_beamline);
+	  }
+	  else { 	  
+	      m_event->back().back().addUserData(beamline);
+	  }
+
     	  for ( int ii=selectorRef.tracks().size() ; ii-- ; ) m_provider->msg(MSG::INFO) << " 3 prong ref tau track " << ii << " " << *selectorRef.tracks()[ii] << endreq;  
     	}	  
 
@@ -882,8 +1000,8 @@ void AnalysisConfig_Ntuple::loop() {
 		
 		m_provider->msg(MSG::INFO) << "chain " << chainName 
 					   << "\tprescale " << (*m_tdt)->getPrescale(chainName)
-					   << "\tpass "     << (*m_tdt)->isPassed(chainName) 
-					   << "  (req dec " << (*m_tdt)->isPassed(chainName, _decisiontype )
+					   << "\tpass "     << (*m_tdt)->isPassed(chainName) << " physics " 
+					   << "  (req dec " << (*m_tdt)->isPassed(chainName, _decisiontype ) << " dec type " << _decisiontype << ")"
 					   << endreq;
 		
 
@@ -903,6 +1021,28 @@ void AnalysisConfig_Ntuple::loop() {
 		//                if ( m_chainNames[ichain].passed() ) decisiontype = TrigDefs::Physics;
                 if ( m_chainNames[ichain].passed() ) decisiontype = _decisiontype;
 		else                                 decisiontype = TrigDefs::alsoDeactivateTEs;
+
+#if 0
+		{
+		  std::cout << "SUTT DecisionType check" << std::endl;
+
+		  Trig::FeatureContainer f = (*m_tdt)->features( chainName, TrigDefs::alsoDeactivateTEs);
+		  //  Trig::FeatureContainer f = (*m_tdt)->features( chainName );
+		  Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()); 
+		  Trig::FeatureContainer::combination_const_iterator combEnd(f.getCombinations().end());
+		  
+
+		  Trig::FeatureContainer fp = (*m_tdt)->features( chainName, TrigDefs::Physics);
+		  //  Trig::FeatureContainer f = (*m_tdt)->features( chainName );
+		  Trig::FeatureContainer::combination_const_iterator combp(fp.getCombinations().begin()); 
+		  Trig::FeatureContainer::combination_const_iterator combEndp(fp.getCombinations().end());
+		  
+
+		  std::cout << "SUTT Chain " << chainName 
+			    << "\tNumber of conmbinations DTE: " << (combEnd-comb) << "\tPhysics: " << (combEndp-combp) << std::endl; 
+		}
+		std::cout << "decidion type " << decisiontype << std::endl;
+#endif
 
 
 		// Get chain combinations and loop on them
@@ -941,7 +1081,7 @@ void AnalysisConfig_Ntuple::loop() {
 
 		m_event->addChain( m_chainNames[ichain] );
 
-		TrackChain& chain = m_event->back();
+		TIDA::Chain& chain = m_event->back();
 
 
 		int icomb = 0;
@@ -966,19 +1106,12 @@ void AnalysisConfig_Ntuple::loop() {
 			/// check bjet roidescriptors ...
 			{
 			  std::string keys[5] = { "TrigJetRec", "TrigSplitJet", "TrigSuperRoi", "forID", "" };
-
+			  
 			  for ( unsigned iroi=0 ; iroi<5 ; iroi++ ) {  
 			    std::vector< Trig::Feature<TrigRoiDescriptor> > rois = comb->get<TrigRoiDescriptor>(keys[iroi]);
-			    
 			    m_provider->msg(MSG::INFO) << "\trois: " << keys[iroi] << "\tsize " << rois.size() << endreq; 
-
-			    for ( unsigned ij=0 ; ij<rois.size() ; ij++ ) { 
-			      m_provider->msg(MSG::INFO) << "\tRoi  " <<keys[iroi] << "\t" << *rois[ij].cptr() << endreq;
-			    } 
-
-			    for ( unsigned ij=0 ; ij<rois.size() ; ij++ ) { 
-			      m_provider->msg(MSG::INFO) << "\t\tRoi  " <<keys[iroi] << "\t" << *rois[ij].cptr() << endreq; 
-			    } 
+			    for ( unsigned ij=0 ; ij<rois.size() ; ij++ ) m_provider->msg(MSG::INFO) << "\tRoi  " <<keys[iroi] << "\t" << *rois[ij].cptr() << endreq;
+			    for ( unsigned ij=0 ; ij<rois.size() ; ij++ ) m_provider->msg(MSG::INFO) << "\t\tRoi  " <<keys[iroi] << "\t" << *rois[ij].cptr() << endreq; 
 			  }
 			}
 #endif
@@ -990,13 +1123,13 @@ void AnalysisConfig_Ntuple::loop() {
 
 			std::vector< Trig::Feature<TrigRoiDescriptor> > _rois;
 			
-			std::cout << "chain " << chainName << "\troi_name " << roi_name << std::endl;
+			//			std::cout << "chain " << chainName << "\troi_name " << roi_name << std::endl;
 
 			if ( roi_name!="" ) { 
 
 			  _rois = comb->get<TrigRoiDescriptor>(roi_name);
 
-			  std::cout << "roi_name " << roi_name << std::endl;
+			  //			  std::cout << "roi_name " << roi_name << std::endl;
 
 			  if ( _rois.size()>0 ) { 
 			    for ( unsigned ir=0 ; ir<_rois.size() ; ir++ ) m_provider->msg(MSG::INFO) << "\t\tRetrieved roi  " << roi_name << "\t" << *_rois[ir].cptr() << endreq; 
@@ -1006,7 +1139,8 @@ void AnalysisConfig_Ntuple::loop() {
 			  }
 			}
 			else { 
-			  _rois = comb->get<TrigRoiDescriptor>("forID"); 
+			  _rois = comb->get<TrigRoiDescriptor>("forID1"); 
+			  if ( _rois.empty() ) _rois = comb->get<TrigRoiDescriptor>("forID"); 
 			  if ( _rois.empty() ) _rois = comb->get<TrigRoiDescriptor>(""); 
 			  if ( _rois.empty() ) _rois = comb->get<TrigRoiDescriptor>("initialRoI"); 
 			}			  
@@ -1031,7 +1165,7 @@ void AnalysisConfig_Ntuple::loop() {
 
 			TIDARoiDescriptor* roiInfo = 0;
 			if( !_rois.empty() ) {
-			  
+		
 			  for (  unsigned itmp=0  ;  itmp<_rois.size()  ;  itmp++ ) {
 			    
 			    const TrigRoiDescriptor* roid = _rois[itmp].cptr();
@@ -1039,10 +1173,15 @@ void AnalysisConfig_Ntuple::loop() {
 			    m_provider->msg(MSG::INFO) << "\tchain " << chainName << " RoI descriptor " << itmp << " " << *roid << endreq;
 			    
 			    if ( itmp==0 ){
+
 			      TIDARoiDescriptor* roi_tmp = new TIDARoiDescriptor(TIDARoiDescriptorBuilder(*roid));
 			      
 			      //   m_provider->msg(MSG::INFO) << "using chain roi " << *roid << endreq;
 			      m_provider->msg(MSG::INFO) << "TIDARoi " << *roi_tmp << endreq;
+			      
+			      /// this should *never* be the case, and we should only run this 
+			      /// bit of code once the first time round the loop anyhow
+			      if ( roiInfo!=0 ) delete roiInfo;
 			      
 			      roiInfo = roi_tmp;
 			      //		if( chainName.find("_FS")!=std::string::npos && roiInfo->eta()==0 && roiInfo->phi()==0 ) {
@@ -1100,17 +1239,18 @@ void AnalysisConfig_Ntuple::loop() {
 
 			/// fetch vertices if available ...
 
-			std::vector<TrackVertex> tidavertices;	
+			std::vector<TIDA::Vertex> tidavertices;	
 
 #ifndef XAODTRACKING_VERTEX_H
 
 			/// what is this doing? Why is it just fetching but not assigning to anything ????? who write this?
-			// comb->get<TrigRoiDescriptor>("forID");
+			
+			m_provider->msg(MSG::INFO) << "\tNo VxContainer for chain " << chainName << " for key " << vtx_name << endreq;
 
 			std::vector< Trig::Feature<VxContainer> > trigvertices = comb->get<VxContainer>(vtx_name);
 
 			if ( trigvertices.empty() ) { 
-			  m_provider->msg(MSG::INFO) << "\tNo VxContainer for chain " << chainName << endreq;
+			  m_provider->msg(MSG::INFO) << "\tNo VxContainer for chain " << chainName << " for key " << vtx_name << endreq;
 			}
 			else {
 			  
@@ -1118,13 +1258,13 @@ void AnalysisConfig_Ntuple::loop() {
 			    
 			    const VxContainer* vert = trigvertices[iv].cptr();
 			    
-			    m_provider->msg(MSG::INFO) << "\t" << iv << "  VxContainer for " << chainName << " " << vert << endreq;
+			    m_provider->msg(MSG::INFO) << "\t" << iv << "  VxContainer for " << chainName << " " << vert << " " << vtx_name << endreq;
 
 			    VxContainer::const_iterator vtxitr = vert->begin();
 			  
 			    for ( ; vtxitr != vert->end(); ++vtxitr) {
 			      if ( (*vtxitr)->vxTrackAtVertex()->size()>0 ) {
-				tidavertices.push_back( TrackVertex( (*vtxitr)->recVertex().position().x(),
+				tidavertices.push_back( TIDA::Vertex( (*vtxitr)->recVertex().position().x(),
 								     (*vtxitr)->recVertex().position().y(),
 								     (*vtxitr)->recVertex().position().z(),
 #ifdef EIGEN_GEOMETRY_MODULE_H	  
@@ -1152,25 +1292,29 @@ void AnalysisConfig_Ntuple::loop() {
 			  
 #else			
 			/// now also add xAOD vertices
+			
+			m_provider->msg(MSG::INFO) << "\tFetch xAOD::VertexContainer for chain " << chainName << " with key " << vtx_name << endreq;
 
 			std::vector< Trig::Feature<xAOD::VertexContainer> > xaodtrigvertices = comb->get<xAOD::VertexContainer>(vtx_name);
 
 			if ( xaodtrigvertices.empty() ) { 
-			    m_provider->msg(MSG::INFO) << "\tNo xAOD::VertexContainer for chain " << chainName << endreq;
+			  m_provider->msg(MSG::WARNING) << "\tNo xAOD::VertexContainer for chain " << chainName << " for key " << vtx_name << endreq;
 			}
 			else {
+
+			    m_provider->msg(MSG::INFO) << "\txAOD::VertexContainer found with size  " << xaodtrigvertices.size() << "\t" << vtx_name << endreq;
 
 			    for (  unsigned iv=0  ;  iv<xaodtrigvertices.size()  ;  iv++ ) {
 			    
 			      const xAOD::VertexContainer* vert = xaodtrigvertices[iv].cptr();
 			    
-			      m_provider->msg(MSG::INFO) << "\t" << iv << "  xAOD VxContainer for " << chainName << " " << vert << endreq;
+			      m_provider->msg(MSG::INFO) << "\t" << iv << "  xAOD VxContainer for " << chainName << " " << vert << " key " << vtx_name << endreq;
 			      
 			      xAOD::VertexContainer::const_iterator vtxitr = vert->begin();
 			  
 			      for ( ; vtxitr != vert->end(); ++vtxitr) {
 				if ( (*vtxitr)->nTrackParticles()>0 ) {
-				  tidavertices.push_back( TrackVertex( (*vtxitr)->x(),
+				  tidavertices.push_back( TIDA::Vertex( (*vtxitr)->x(),
 								       (*vtxitr)->y(),
 								       (*vtxitr)->z(),
 								       /// variances
@@ -1189,7 +1333,7 @@ void AnalysisConfig_Ntuple::loop() {
 #endif
   
  
-			const std::vector<TrigInDetAnalysis::Track*>& testTracks = selectorTest.tracks();
+			const std::vector<TIDA::Track*>& testTracks = selectorTest.tracks();
 			m_provider->msg(MSG::DEBUG) << "\ttest tracks.size() " << testTracks.size() << endreq; 
 			for (unsigned int ii=0; ii < testTracks.size(); ii++) {
 				m_provider->msg(MSG::DEBUG) << "  test track " << ii << "for chain " << chainName + ":" + collectionName << " " << *testTracks[ii] << endreq;  
@@ -1200,7 +1344,7 @@ void AnalysisConfig_Ntuple::loop() {
 
 
 			if ( roiInfo == 0 ) { 
-			  //				chain.addRoi( *roiInfo );
+			  //		chain.addRoi( *roiInfo );
 			  //		chain.back().addTracks(testTracks);
 			  //		chain.back().addVertices(tidavertices);
 			  //		chain.back().addUserData(beamline);
@@ -1215,12 +1359,23 @@ void AnalysisConfig_Ntuple::loop() {
 			chain.addRoi( *roiInfo );
 			chain.back().addTracks(testTracks);
 			chain.back().addVertices(tidavertices);
-			chain.back().addUserData(beamline);
-			
+			chain.back().addUserData(beamline_online);
+			if ( selectorTest.getBeamX()!=0 || selectorTest.getBeamY()!=0 || selectorTest.getBeamZ()!=0 ) { 
+			  std::vector<double> _beamline;
+			  _beamline.push_back( selectorTest.getBeamX() );
+			  _beamline.push_back( selectorTest.getBeamY() );
+			  _beamline.push_back( selectorTest.getBeamZ() );
+			  chain.back().addUserData(_beamline);
+			}
+			else { 	  
+			  if ( beamline_online.size()>3 ) chain.back().addUserData(beamline_online);
+			}
+
 		     
 			//			m_provider->msg(MSG::INFO) << " done" << endreq;      
 
 			if ( roiInfo ) delete roiInfo;
+			roiInfo = 0;
 		}
 
 	}
@@ -1252,18 +1407,24 @@ void AnalysisConfig_Ntuple::book() {
 
 	m_iBeamCondSvc = 0;
 	if ( m_provider->service( "BeamCondSvc", m_iBeamCondSvc ).isFailure() )  { 
-		m_provider->msg(MSG::ERROR) << " failed to retrieve BeamCondSvc " << endreq;
+	  m_provider->msg(MSG::WARNING) << " failed to retrieve BeamCondSvc: " << "BeamCondSvc" << endreq;
+	}
+	else { 
+	  m_provider->msg(MSG::INFO) << " successfully retrieves BeamCondSvc: " << "BeamCondSvc" << endreq;
 	}
 
 	m_iOnlineBeamCondSvc = 0;
 	if ( m_provider->service( "InDetBeamSpotOnline", m_iOnlineBeamCondSvc ).isFailure() )  { 
-		m_provider->msg(MSG::ERROR) << " failed to retrieve Online BeamCondSvc" << endreq;
+	  m_provider->msg(MSG::WARNING) << " failed to retrieve Online BeamCondSvc " << "InDetBeamSpotOnline" << endreq;
+	}
+	else { 
+	  m_provider->msg(MSG::INFO) << " successfuly retrieved Online BeamCondSvc " << "InDetBeamSpotOnline" << endreq;
 	}
 
 	// get the TriggerDecisionTool
 
 	if( m_tdt->retrieve().isFailure() ) {
-		m_provider->msg(MSG::ERROR) << " Unable to retrieve the TrigDecisionTool: Please check job options file" << endreq;
+		m_provider->msg(MSG::FATAL) << " Unable to retrieve the TrigDecisionTool: Please check job options file" << endreq;
 		//    return StatusCode::FAILURE;
 		return;
 	}
@@ -1307,7 +1468,7 @@ void AnalysisConfig_Ntuple::book() {
 
 
 		mTree = new TTree("tree", "tree");
-		mTree->Branch( "TrackEvent", "TrackEvent", m_event, 6400, 1 );
+		mTree->Branch( "TIDA::Event", "TIDA::Event", m_event, 6400, 1 );
 
 		
 	}
@@ -1315,7 +1476,7 @@ void AnalysisConfig_Ntuple::book() {
 		/// update the ntple from the file  
 		mFile = new TFile( outputFileName.c_str(), "update");
 		mTree = (TTree *)mFile->Get("tree");
-		mTree->SetBranchAddress( "TrackEvent", &m_event );
+		mTree->SetBranchAddress( "TIDA::Event", &m_event );
 	}
 
 	mDir = gDirectory;

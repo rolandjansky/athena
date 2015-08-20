@@ -21,8 +21,8 @@ class Analysis_Tier0 : public TrackAnalysis {
   
   virtual void initialise();
   
-  virtual void execute(const std::vector<TrigInDetAnalysis::Track*>& referenceTracks,
-		       const std::vector<TrigInDetAnalysis::Track*>& testTracks,
+  virtual void execute(const std::vector<TIDA::Track*>& referenceTracks,
+		       const std::vector<TIDA::Track*>& testTracks,
 		       TrackAssociator* associator);
   
   virtual void finalise();
@@ -65,6 +65,7 @@ class Analysis_Tier0 : public TrackAnalysis {
   TProfile* h_nVtxeff;
 
   TProfile* h_pTres;
+  TProfile* h_ipTres;
   TProfile* h_etares;
   TProfile* h_phires;
   TProfile* h_d0res;
@@ -77,11 +78,17 @@ class Analysis_Tier0 : public TrackAnalysis {
   TProfile* h_nsctvseta;
   TProfile* h_nsctvsphi;
 
+  TProfile* h_ntrtvseta;
+  TProfile* h_ntrtvsphi;
+
   TProfile* h_npixvseta_rec;
   TProfile* h_npixvsphi_rec;
 
   TProfile* h_nsctvseta_rec;
   TProfile* h_nsctvsphi_rec;
+
+  TProfile* h_ntrtvseta_rec;
+  TProfile* h_ntrtvsphi_rec;
 
 
   TProfile* h_d0vsphi;
@@ -96,9 +103,15 @@ class Analysis_Tier0 : public TrackAnalysis {
   TH1D* h_trkd0;
   TH1D* h_trkz0;
 
+  TH1D* h_trkdd0;
+  TH1D* h_trkdz0;
+
+  TH1D* h_trkd0sig;
+
   TH1D* h_npix;
   TH1D* h_nsct;
   TH1D* h_nsihits;
+  TH1D* h_ntrt;
 
   TH1D* h_trkpT_rec;
   TH1D* h_trketa_rec;
@@ -106,16 +119,26 @@ class Analysis_Tier0 : public TrackAnalysis {
   TH1D* h_trkd0_rec;
   TH1D* h_trkz0_rec;
 
+  TH1D* h_trkdd0_rec;
+  TH1D* h_trkdz0_rec;
+
+  TH1D* h_trkd0sig_rec;
+
   TH1D* h_npix_rec;
   TH1D* h_nsct_rec;
   TH1D* h_nsihits_rec;
+  TH1D* h_ntrt_rec;
 
 
   TH1D* h_trkpT_residual;
+  TH1D* h_trkipT_residual;
   TH1D* h_trketa_residual;
   TH1D* h_trkphi_residual;
   TH1D* h_trkd0_residual;
   TH1D* h_trkz0_residual;
+
+  TH1D* h_trkdd0_residual;
+  TH1D* h_trkdz0_residual;
 
 
   // Efficiency plateau cuts

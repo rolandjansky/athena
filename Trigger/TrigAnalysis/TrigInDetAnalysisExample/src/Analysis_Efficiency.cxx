@@ -62,12 +62,12 @@ void Analysis_Efficiency::initialise() {
 
 
 
-void Analysis_Efficiency::execute(const std::vector<TrigInDetAnalysis::Track*>& referenceTracks,
-				  const std::vector<TrigInDetAnalysis::Track*>& /*testTracks*/,
+void Analysis_Efficiency::execute(const std::vector<TIDA::Track*>& referenceTracks,
+				  const std::vector<TIDA::Track*>& /*testTracks*/,
 				  TrackAssociator* associator) {
   
   // Loop over reference tracks
-  std::vector<TrigInDetAnalysis::Track*>::const_iterator reference, referenceEnd=referenceTracks.end();
+  std::vector<TIDA::Track*>::const_iterator reference, referenceEnd=referenceTracks.end();
   for(reference=referenceTracks.begin(); reference!=referenceEnd; reference++) {
     
     // Get reference parameters
@@ -90,7 +90,7 @@ void Analysis_Efficiency::execute(const std::vector<TrigInDetAnalysis::Track*>& 
     if(passesPT&&passesD0&&passesZ0&&passesEta) h_integralD->Fill(0.5);
     
     // Find matched tracks
-    const TrigInDetAnalysis::Track* test = associator->matched(*reference);
+    const TIDA::Track* test = associator->matched(*reference);
 
     // Fill histograms
     if(test ) {

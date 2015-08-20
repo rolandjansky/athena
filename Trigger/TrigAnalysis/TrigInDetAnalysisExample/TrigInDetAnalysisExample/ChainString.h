@@ -45,10 +45,21 @@ public:
 
   const bool&        passed()  const { return mpassed; }
 
-protected:
+
+  std::string value( const std::string& key ) { 
+    int i=find(key);
+    if ( i>=0 ) return mvalues[i];
+    return "";
+  }
+
+  const std::vector<std::string> values() const { return mvalues; }
+  const std::vector<std::string>   keys() const { return   mkeys; }
+
+
+public:   
 
   // chop tokens off the front of a string
-  std::string chop(std::string& s1, const std::string& s2) {
+  static std::string chop(std::string& s1, const std::string& s2) {
     std::string::size_type pos = s1.find(s2);
     std::string s3;
     if ( pos == std::string::npos ) {
@@ -62,9 +73,10 @@ protected:
     return s3;
   } 
   
+protected:
 
   // chomp tokens off the end of a string
-  std::string chomp(std::string& s1, const std::string& s2) {
+  static std::string chomp(std::string& s1, const std::string& s2) {
     std::string::size_type pos = s1.find(s2);
     std::string s3;
     if ( pos == std::string::npos ) return "";
@@ -76,10 +88,10 @@ protected:
   } 
 
   /// convert to upper case
-  char toupper( char c ) { return ( c>='a' && c<='z' ? c+'A'-'a' : c ); }
+  static char toupper( char c ) { return ( c>='a' && c<='z' ? c+'A'-'a' : c ); }
 
   /// convert to upper case
-  std::string toupper( const std::string& s ) { 
+  static std::string toupper( const std::string& s ) { 
     const char* c = s.c_str();
     char tmp[512];
     char* tp = tmp;
@@ -88,10 +100,10 @@ protected:
   }
 
   /// convert to lower case
-  char tolower( char c ) { return ( c>='A' && c<='Z' ? c-'A'+'a' : c ); }
+  static char tolower( char c ) { return ( c>='A' && c<='Z' ? c-'A'+'a' : c ); }
 
   /// convert to lower case
-  std::string tolower( const std::string& s ) { 
+  static std::string tolower( const std::string& s ) { 
     const char* c = s.c_str();
     char tmp[512];
     char* tp = tmp;
@@ -99,8 +111,15 @@ protected:
     return tmp;
   }
 
+protected:
+
   /// parse the full specification string
   void parse();
+
+  int find( const std::string& key ) { 
+    for ( int i=mkeys.size() ; i-- ; ) if ( key==mkeys[i] ) return i;
+    return -1;
+  }
 
 private:
 
@@ -112,6 +131,9 @@ private:
   std::string mvtx;
 
   bool        mpassed;
+
+  std::vector<std::string> mkeys;
+  std::vector<std::string> mvalues;
 
 };
 

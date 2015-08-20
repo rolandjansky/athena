@@ -48,15 +48,15 @@ void Analysis_Distribution::initialise() {
 
 
 
-void Analysis_Distribution::execute(const std::vector<TrigInDetAnalysis::Track*>& referenceTracks,
-					 const std::vector<TrigInDetAnalysis::Track*>& testTracks,
+void Analysis_Distribution::execute(const std::vector<TIDA::Track*>& referenceTracks,
+					 const std::vector<TIDA::Track*>& testTracks,
 				    TrackAssociator* /*associator*/) {
 
   
 
   // Loop over test tracks
-  std::vector<TrigInDetAnalysis::Track*>::const_iterator test, testEnd=testTracks.end();
-  std::vector<TrigInDetAnalysis::Track*>::const_iterator ref, refEnd=referenceTracks.end();
+  std::vector<TIDA::Track*>::const_iterator test, testEnd=testTracks.end();
+  std::vector<TIDA::Track*>::const_iterator ref, refEnd=referenceTracks.end();
   for(test=testTracks.begin(); test!=testEnd; test++) {
     
     // Get test parameters
