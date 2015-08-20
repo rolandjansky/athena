@@ -8,11 +8,11 @@ if jobproperties.eflowRecFlags.runTauMode == True:
     eflowTauSeeder = eflowTauSeeder()
     topSequence += eflowTauSeeder
 
-from eflowRec.eflowPreparationGetter import eflowPreparationGetter
-CaloObjectBuilderGetter = eflowPreparationGetter()
-
 from eflowRec.eflowCaloObjectBuilderGetter import eflowCaloObjectBuilderGetter
-ObjectBuilderToolsGetter = eflowCaloObjectBuilderGetter()
+CaloObjectBuilderGetter = eflowCaloObjectBuilderGetter()
+
+from eflowRec.eflowObjectBuilderToolsGetter import eflowObjectBuilderToolsGetter
+ObjectBuilderToolsGetter = eflowObjectBuilderToolsGetter()
 
 from eflowRec.eflowObjectBuilderGetter import eflowObjectBuilderGetter
 ObjectBuilderGetter = eflowObjectBuilderGetter()

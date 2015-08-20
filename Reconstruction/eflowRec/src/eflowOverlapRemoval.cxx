@@ -24,7 +24,7 @@
 #include "FourMomUtils/P4Helpers.h"
 
 eflowOverlapRemoval::eflowOverlapRemoval(const std::string& name,ISvcLocator* pSvcLocator): 
-  AthAlgorithm(name, pSvcLocator),
+  eflowBaseAlg(name, pSvcLocator),
   m_PFOName("JetETMissNeutralParticleFlowObjects"),
   m_storeGate(nullptr),  
   m_egammaContainerName("Photons"),
@@ -47,7 +47,7 @@ StatusCode eflowOverlapRemoval::initialize(){
     {
       msg(MSG::WARNING )
 	  << "Unable to retrieve pointer to StoreGateSvc"
-	  << endmsg;
+	  << endreq;
       return StatusCode::SUCCESS;
     }
 
@@ -66,7 +66,7 @@ StatusCode eflowOverlapRemoval::execute(){
   {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)
 	<<" no neutral PFO container"
-	<<endmsg; 
+	<<endreq; 
     return StatusCode::SUCCESS;
   }
 
@@ -75,7 +75,7 @@ StatusCode eflowOverlapRemoval::execute(){
   if (sc.isFailure() || !selectedElectrons){
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)
       << " No eflowRec selectedElectrons container found in TDS"
-				<< endmsg;
+				<< endreq;
   }
 
   const xAOD::EgammaContainer* egammaColl = 0;
@@ -83,7 +83,7 @@ StatusCode eflowOverlapRemoval::execute(){
     {
       msg(MSG::WARNING )<< "cannot allocate egamma Container with key "
 			<< m_egammaContainerName
-			<< endmsg;
+			<< endreq;
       
     } 
 
@@ -121,7 +121,7 @@ StatusCode eflowOverlapRemoval::execute(){
 
     }//if valid cluster pointer
     else {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get a pointer to a xAOD::CaloCluster" << endmsg;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get a pointer to a xAOD::CaloCluster" << endreq;
     }
   
 }//loop on eflowObjects
@@ -180,7 +180,7 @@ bool eflowOverlapRemoval::IsGammaOverlap(const xAOD::CaloCluster* fClus, const x
       bool passTight = false;
       bool gotID = pEgamma->passSelection(passTight,"Tight");
       if (!gotID) {
-        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get Photon ID " << endmsg;
+        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get Photon ID " << endreq;
         continue;
       }
       if (!passTight) continue;

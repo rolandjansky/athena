@@ -13,7 +13,7 @@
 #define EFLOWOBJECTBUILDER_H_
 
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "eflowRec/eflowBaseAlg.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include <cassert>
@@ -21,7 +21,7 @@
 class eflowBaseAlgTool;
 class StoreGateSvc;
 
-class eflowObjectBuilder : public AthAlgorithm {
+class eflowObjectBuilder : public eflowBaseAlg {
 
  public:
 

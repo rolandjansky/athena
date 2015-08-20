@@ -80,7 +80,7 @@ class useLeptons(JobProperty):
     StoredValue = True
 
 class storeLeptonCells(JobProperty):
-    """ Flag to toggle storage of lepton cells on/off - if on will put lepton cells in storegate in eflowPreparation
+    """ Flag to toggle storage of lepton cells on/off - if on will put lepton cells in storegate in eflowCaloObjectBuilder
     """
     statusOn = True
     allowedTypes = ['bool']
@@ -93,20 +93,6 @@ class useLCInput(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
-class useUpdated2015ChargedShowerSubtraction(JobProperty):
-    """ Flag to toggle use of 2015 charged shower subtraction - this disables the subtraction for tracks found to be in dense environments
-    """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = True
-
-class useAODReductionClusterMomentList(JobProperty):
-    """ Flag to toggle use of AOD reduction Task force reduced moment list
-    """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    
 # Defines the container for the eflowRec flags
 
 class eflowRecFlags(JobPropertyContainer):
@@ -117,7 +103,7 @@ class eflowRecFlags(JobPropertyContainer):
 # add the flags container to the top container 
 jobproperties.add_Container(eflowRecFlags)
 
-eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList]
+eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput]
 
 for i in eflowJobProperties :
     jobproperties.eflowRecFlags.add_JobProperty(i)

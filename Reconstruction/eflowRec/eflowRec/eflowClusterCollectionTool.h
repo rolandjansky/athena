@@ -20,7 +20,6 @@ CREATED:  May 2014
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "eflowRec/IEFlowClusterCollectionTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
-class eflowRecClusterContainer;
 
 class eflowClusterCollectionTool : virtual public IEFlowClusterCollectionTool, public AthAlgTool {
 
@@ -34,7 +33,6 @@ class eflowClusterCollectionTool : virtual public IEFlowClusterCollectionTool, p
 
   StatusCode initialize();
   xAOD::CaloClusterContainer* execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters);
-  eflowRecClusterContainer* retrieve(eflowCaloObjectContainer* theEflowCaloObjectContainer, bool useNonModifiedClusters);
   StatusCode finalize();
 
 };

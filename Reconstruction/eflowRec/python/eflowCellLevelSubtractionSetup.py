@@ -30,8 +30,4 @@ def setup_eflowCellLevelSubtraction(Configured, nameModifier, mlog):
 
         Configured.eflowCellEOverPTool=CellEOverPTool
 
-    from eflowRec.eflowRecFlags import jobproperties
-    if jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction == False:
-        Configured.useUpdated2015ChargedShowerSubtraction = False
-
     return True

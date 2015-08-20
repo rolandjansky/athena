@@ -16,7 +16,7 @@ Created: 10 October 2013
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODEgamma/EgammaContainer.h"
 //Athena
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "eflowRec/eflowBaseAlg.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -25,7 +25,7 @@ class StoreGateSvc;
 //C++
 #include <string>
 
-class eflowOverlapRemoval : public AthAlgorithm {
+class eflowOverlapRemoval : public eflowBaseAlg {
   
  public:
 
@@ -44,7 +44,7 @@ class eflowOverlapRemoval : public AthAlgorithm {
   StoreGateSvc* m_storeGate;
   
   std::string m_egammaContainerName;
-  /** Name of electron container built by eflowRec/eflowPreparation */
+  /** Name of electron container built by eflowRec/eflowCaloObjectBuilder */
   std::string m_eflowElectronContainerName;
 
    /*! \brief Property: reference cluster collection key */

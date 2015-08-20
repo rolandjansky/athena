@@ -214,9 +214,9 @@ bool eflowCellSubtractionFacilitator::subtractCaloCell(
 bool eflowCellSubtractionFacilitator::subtractReorderedCells(
     const std::vector<xAOD::CaloCluster*>& tracksClusters, double eSubtracted, const double eExpect,
     eflowCellList& reorderedCells) {
+  CellIt endCells = reorderedCells.end();
   CellIt itCellPosition = reorderedCells.begin();
-  CellIt endCellPosition = reorderedCells.end();
-  while (itCellPosition != endCellPosition) {
+  for (; itCellPosition != endCells; ++itCellPosition) {
     /* Loop cells */
     std::vector<std::pair<CaloCell*, int> >::iterator itEntry = itCellPosition->second.begin();
     std::vector<std::pair<CaloCell*, int> >::iterator endEntry = itCellPosition->second.end();
@@ -228,9 +228,7 @@ bool eflowCellSubtractionFacilitator::subtractReorderedCells(
       if (isFinished) return true;
     }
     /* Erase the CellPosition from the cell list */
-    CellIt tmp = itCellPosition;
-    itCellPosition++;
-    reorderedCells.deleteFromList(tmp);
+    reorderedCells.deleteFromList(itCellPosition);
   }
   return false;
 }

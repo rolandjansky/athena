@@ -14,8 +14,6 @@
 
 #include <iostream>
 #include <cassert>
-#include <map>
-#include <string>
 #include "GaudiKernel/ToolHandle.h"
 
 #include "CxxUtils/fpcompare.h"
@@ -47,7 +45,6 @@ public:
 
   ElementLink<xAOD::TrackParticleContainer> getTrackElemLink() const { return m_trackElemLink; }
   void addClusterMatch(eflowTrackClusterLink* clusterMatch) { m_clusterMatches.push_back(clusterMatch); }
-  void addAlternativeClusterMatch(eflowTrackClusterLink* clusterMatch, std::string key) { m_alternativeClusterMatches[key].push_back(clusterMatch); }
 
   eflowRingSubtractionManager& getCellSubtractionManager() { return m_ringSubtractionManager; }
 
@@ -55,8 +52,6 @@ public:
 
   const std::vector<eflowTrackClusterLink*>& getClusterMatches() const { return m_clusterMatches; }
   void clearClusterMatches() { m_clusterMatches.clear(); }
-
-  const std::vector<eflowTrackClusterLink*>* getAlternativeClusterMatches(std::string key) const;// { return m_alternativeClusterMatches.at(key); }
 
   bool hasBin() const { return m_hasBin; }
   void setHasBin(bool hasBin) { m_hasBin = hasBin; }
@@ -74,17 +69,12 @@ public:
     m_isSubtracted = true;
   }
 
+
   void setEExpect(double eExpect, double varEExpect){ m_eExpect = eExpect; m_varEExpect = varEExpect; }
   double getEExpect() const { return m_eExpect; }
   double getVarEExpect() const { return m_varEExpect; }
   int getTrackId() const { return m_trackId; }
   void setTrackId(int trackId) { m_trackId = trackId; }
-
-  bool isInDenseEnvironment() const { return m_isInDenseEnvironment;}
-  void setIsInDenseEnvironment() { m_isInDenseEnvironment = true; }
-  
-  void setpull15(double pull15){ m_pull15 = pull15; }
-  double getpull15() const { return m_pull15; }
 
 private:
 
@@ -92,12 +82,10 @@ private:
   ElementLink<xAOD::TrackParticleContainer> m_trackElemLink;
   const xAOD::TrackParticle* m_track;
   int m_type;
-  double m_pull15;
 
   double m_eExpect;
   double m_varEExpect;
 
-  bool m_isInDenseEnvironment;
   bool m_isSubtracted;
   bool m_hasBin;
 
@@ -106,7 +94,6 @@ private:
   eflowTrackCaloPoints* m_trackCaloPoints;
   eflowRingSubtractionManager m_ringSubtractionManager;
   std::vector<eflowTrackClusterLink*> m_clusterMatches;
-  std::map<std::string,std::vector<eflowTrackClusterLink*> > m_alternativeClusterMatches;
 
 public:
   class SortDescendingPt {

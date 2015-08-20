@@ -20,6 +20,8 @@ PURPOSE:  Loop over tracks and clusters to build calo objects, then
 
 #include "eflowRec/eflowBuilder.h"
 
+#include "eflowRec/eflowBaseAlg.h"
+
 // INCLUDE GAUDI HEADER FILES:
  
 #include "GaudiKernel/MsgStream.h"
@@ -37,7 +39,7 @@ PURPOSE:  Loop over tracks and clusters to build calo objects, then
 eflowBuilder::eflowBuilder(const std::string& name, 
 		       ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator), 
-  m_eflowPreparationAlgName("eflowPreparation/caloObjectBuilderAlg"),
+  m_eflowCaloObjectBuilderAlgName("eflowCaloObjectBuilder/caloObjectBuilderAlg"),
   m_eflowObjectBuilderAlgName("eflowObjectBuilder/objectBuilderAlg"),
   m_eflowQuantitiesAlgName("eflowQuantities/quantAlg")
 {
@@ -46,11 +48,11 @@ eflowBuilder::eflowBuilder(const std::string& name,
 // (declared in jobOptions file)
                             
   // Names of various sub-algorithms:
-  declareProperty("eflowPreparationAlgName", 
-		  m_eflowPreparationAlgName);
+  declareProperty("eflowCaloObjectBuilderAlgName", 
+		  m_eflowCaloObjectBuilderAlgName);
   declareProperty("eflowObjectBuilderAlgName", m_eflowObjectBuilderAlgName);
   declareProperty("eflowQuantitiesAlgName", m_eflowQuantitiesAlgName);
-  m_eflowPreparationAlg = 0;
+  m_eflowCaloObjectBuilderAlg = 0;
   m_eflowObjectBuilderAlg = 0;
   m_eflowQuantitiesAlg = 0;
 }
@@ -63,26 +65,29 @@ StatusCode eflowBuilder::initialize()
 
   Algorithm* pAlg;
   StatusCode sc;
+  MsgStream log( messageService(), name() );  
 
   // Get pointer to StoreGateSvc and cache:
 
   //////////////////////////////////////////////////////////////////
-  // Create the eflowPreparation Algorithm:
+  // Create the eflowCaloObjectBuilder Algorithm:
 
   std::string type, name;
 
-  ListItem caloObjectBuilderAlg(m_eflowPreparationAlgName);
+  ListItem caloObjectBuilderAlg(m_eflowCaloObjectBuilderAlgName);
   sc = createSubAlgorithm(caloObjectBuilderAlg.type(), 
 			  caloObjectBuilderAlg.name(), pAlg);
 
   if( sc.isFailure() ) 
   {
-    ATH_MSG_DEBUG( "Unable to create " << m_eflowPreparationAlgName );
-    m_eflowPreparationAlg = 0;
+    log << MSG::DEBUG
+	<< "Unable to create " << m_eflowCaloObjectBuilderAlgName
+	<< endreq;
+    m_eflowCaloObjectBuilderAlg = 0;
   } 
   else
   {
-    m_eflowPreparationAlg = dynamic_cast<AthAlgorithm*>(pAlg);
+    m_eflowCaloObjectBuilderAlg = dynamic_cast<eflowBaseAlg*>(pAlg);
   }
   
   //////////////////////////////////////////////////////////////////
@@ -93,12 +98,14 @@ StatusCode eflowBuilder::initialize()
 			  objectBuilderAlg.name(), pAlg);
   if( sc.isFailure() ) 
   {
-    ATH_MSG_DEBUG( "Unable to create " << m_eflowObjectBuilderAlgName );
+    log << MSG::DEBUG
+	<< "Unable to create " << m_eflowObjectBuilderAlgName
+	<< endreq;
     m_eflowObjectBuilderAlg = 0;
   } 
   else
   {
-    m_eflowObjectBuilderAlg = dynamic_cast<AthAlgorithm*>(pAlg);
+    m_eflowObjectBuilderAlg = dynamic_cast<eflowBaseAlg*>(pAlg);
   }
 
   //////////////////////////////////////////////////////////////////
@@ -108,20 +115,22 @@ StatusCode eflowBuilder::initialize()
   sc = createSubAlgorithm(quantAlg.type(), quantAlg.name(), pAlg);
   if( sc.isFailure() ) 
   {
-    ATH_MSG_DEBUG( "Unable to create " << m_eflowQuantitiesAlgName );
+    log << MSG::DEBUG
+	<< "Unable to create " << m_eflowQuantitiesAlgName
+	<< endreq;
     m_eflowQuantitiesAlg = 0;
   } 
   else
   {
-    m_eflowQuantitiesAlg = dynamic_cast<AthAlgorithm*>(pAlg);
+    m_eflowQuantitiesAlg = dynamic_cast<eflowBaseAlg*>(pAlg);
   }
 
 /////////////////////////////////////////////////////////////////
 
-  ATH_MSG_INFO( "Using the Algorithms:"  );
-  ATH_MSG_INFO(  m_eflowPreparationAlgName  );
-  ATH_MSG_INFO( m_eflowObjectBuilderAlgName  );
-  ATH_MSG_INFO( m_eflowQuantitiesAlgName  );
+    log << MSG::INFO << "Using the Algorithms:" << endreq;
+    log << MSG::INFO <<  m_eflowCaloObjectBuilderAlgName << endreq;
+    log << MSG::INFO << m_eflowObjectBuilderAlgName << endreq;
+    log << MSG::INFO << m_eflowQuantitiesAlgName << endreq;
 
 
   return sc;
@@ -144,13 +153,16 @@ StatusCode eflowBuilder::execute()
 
   StatusCode sc;
 
-  ATH_MSG_DEBUG( "Executing eflowBuilder"  );
+  MsgStream log( messageService(), name() );
+  log << MSG::DEBUG 
+      << "Executing eflowBuilder" 
+      << endreq;
 
   // Build Calorimeter Objects
 
-  if (m_eflowPreparationAlg)
+  if (m_eflowCaloObjectBuilderAlg)
     {
-      sc = m_eflowPreparationAlg->execute();
+      sc = m_eflowCaloObjectBuilderAlg->execute();
     }
 
   // Build Energy Flow Objects

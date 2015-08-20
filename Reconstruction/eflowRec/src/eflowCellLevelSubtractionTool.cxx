@@ -26,9 +26,11 @@ CREATED:  25th January, 2005
 #include "eflowRec/eflowLayerIntegrator.h"
 #include "eflowRec/PFTrackClusterMatchingTool.h"
 #include "eflowRec/cycle.h"
+#include "eflowRec/phicorr.h"
 #include "eflowRec/eflowRingSubtractionManager.h"
 #include "eflowRec/eflowCellSubtractionFacilitator.h"
 #include "eflowRec/eflowSubtractor.h"
+using namespace eflowSubtract;
 
 #include "CaloEvent/CaloCluster.h"
 
@@ -47,38 +49,27 @@ CREATED:  25th January, 2005
 #include <vector>
 
 
-using namespace eflowSubtract;
-
 eflowCellLevelSubtractionTool::eflowCellLevelSubtractionTool(const std::string& type,const std::string& name,const IInterface* parent) :
   AthAlgTool( type, name, parent),
   m_eflowCaloObjectContainer(0),
   m_eflowTrackContainer(0),
   m_eflowClusterContainer(0),
   m_matchingTool("PFTrackClusterMatchingTool/CalObjBldMatchingTool", this),
-  m_matchingToolForPull_015("PFTrackClusterMatchingTool/PFPullMatchingTool_015", this),
-  m_matchingToolForPull_02("PFTrackClusterMatchingTool/PFPullMatchingTool_02", this),
   m_binnedParameters(0),
   m_integrator(0),
   m_theEOverPTool("eflowCellEOverPTool",this),
-  //m_rCell(0.75),
+  m_rCell(0.75),
   m_subtractionSigmaCut(1.5),
   m_consistencySigmaCut(1.0),
   m_calcEOverP(false),
-  m_goldenModeString(""),
-  m_nMatchesInCellLevelSubtraction(1),
-  m_useUpdated2015ChargedShowerSubtraction(true)
-
+  m_goldenModeString("")
 { 
   declareProperty("PFTrackClusterMatchingTool", m_matchingTool, "The track-cluster matching tool");
-  declareProperty("PFTrackClusterMatchingTool_015", m_matchingToolForPull_015, "The 0.15 track-cluster matching tool to calculate the pull");
-  declareProperty("PFTrackClusterMatchingTool_02", m_matchingToolForPull_02, "The 0.2 track-cluster matching tool to calculate the pull");
   declareProperty("eflowCellEOverPTool", m_theEOverPTool, "Energy Flow E/P Values and Shower Paremeters Tool");
   declareProperty("SubtractionSigmaCut",m_subtractionSigmaCut);
   declareProperty("ConsistencySigmaCut",m_consistencySigmaCut);
   declareProperty("CalcEOverP",m_calcEOverP,"Whether to disable energy flow");
   declareProperty("goldenModeString",m_goldenModeString,"run in golden match mode only?");
-  declareProperty("nMatchesInCellLevelSubtraction",m_nMatchesInCellLevelSubtraction,"Number of clusters to match");
-  declareProperty("useUpdated2015ChargedShowerSubtraction",m_useUpdated2015ChargedShowerSubtraction,"Toggle whether to use updated 2015 charged shower subtraction, which disables the shower subtraction in high calorimeter energy density region");
 }
 
 eflowCellLevelSubtractionTool::~eflowCellLevelSubtractionTool() {
@@ -94,24 +85,15 @@ StatusCode eflowCellLevelSubtractionTool::initialize(){
   sc = service("ToolSvc", myToolSvc);
 
   if (m_matchingTool.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool" << endmsg;
+    msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool" << endreq;
   }
-
-  if (m_matchingToolForPull_015.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool_2" << endmsg;
-  }
-
-  if (m_matchingToolForPull_02.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool_2" << endmsg;
-  }
-
   m_integrator = new eflowLayerIntegrator(0.032, 1.0e-3, 3.0);
   m_binnedParameters = new eflowEEtaBinnedParameters();
 
   sc = m_theEOverPTool->execute(m_binnedParameters);
 
   if (sc.isFailure()) {
-    msg(MSG::WARNING) << "Could not execute eflowCellEOverPTool " << endmsg;
+    msg(MSG::WARNING) << "Could not execute eflowCellEOverPTool " << endreq;
     return StatusCode::SUCCESS;
   }
 
@@ -121,14 +103,14 @@ StatusCode eflowCellLevelSubtractionTool::initialize(){
 
 void eflowCellLevelSubtractionTool::execute(eflowCaloObjectContainer* theEflowCaloObjectContainer, eflowRecTrackContainer* recTrackContainer, eflowRecClusterContainer* recClusterContainer) {
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Executing eflowCellLevelSubtractionTool" << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Executing eflowCellLevelSubtractionTool" << endreq;
 
   m_eflowCaloObjectContainer = theEflowCaloObjectContainer;
   m_eflowTrackContainer = recTrackContainer;
   m_eflowClusterContainer = recClusterContainer;
 
   /* Add each track to its best matching cluster's eflowCaloObject */
-  matchAndCreateEflowCaloObj(m_nMatchesInCellLevelSubtraction);
+  matchAndCreateEflowCaloObj(1);
 
   int debug = 0;
   if (1 == debug) {
@@ -145,22 +127,7 @@ int eflowCellLevelSubtractionTool::matchAndCreateEflowCaloObj(int n) {
   unsigned int nTrack = m_eflowTrackContainer->size();
   for (unsigned int iTrack=0; iTrack<nTrack; ++iTrack) {
     eflowRecTrack *thisEfRecTrack = static_cast<eflowRecTrack*>(m_eflowTrackContainer->at(iTrack));
-
-     /* Add cluster matches needed for pull calculation*/
-    std::vector<eflowRecCluster*> bestClusters_015 = m_matchingToolForPull_015->doMatches(thisEfRecTrack, m_eflowClusterContainer, -1);
-    std::vector<eflowRecCluster*> bestClusters_02 = m_matchingToolForPull_02->doMatches(thisEfRecTrack, m_eflowClusterContainer, -1);
-
-    for (unsigned int imatch=0; imatch < bestClusters_015.size(); ++imatch) {
-      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack, bestClusters_015.at(imatch));
-      thisEfRecTrack->addAlternativeClusterMatch(trackClusterLink,"cone_015");    
-    }
-
-    for (unsigned int imatch=0; imatch < bestClusters_02.size(); ++imatch) {
-      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack, bestClusters_02.at(imatch));
-      thisEfRecTrack->addAlternativeClusterMatch(trackClusterLink,"cone_02");    
-    }
-
-    std::vector<eflowRecCluster*> bestClusters = m_matchingTool->doMatches(thisEfRecTrack, m_eflowClusterContainer, n);
+    std::vector<eflowRecCluster*> bestClusters = m_matchingTool->bestMatches(thisEfRecTrack, m_eflowClusterContainer, n);
     if (bestClusters.empty()) { continue; }
 
     /* Matched cluster: create TrackClusterLink and add it to both the track and the cluster (eflowCaloObject will be created later) */
@@ -169,21 +136,19 @@ int eflowCellLevelSubtractionTool::matchAndCreateEflowCaloObj(int n) {
     eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(thisEfRecTrack, bestClusters.at(imatch));
     thisEfRecTrack->addClusterMatch(trackClusterLink);
     bestClusters.at(imatch)->addTrackMatch(trackClusterLink);
-    
     }
-  
   }
 
   /* Create 3 types eflowCaloObjects: track-only, cluster-only, track-cluster-link */
   eflowCaloObjectMaker makeCaloObject;
   int nCaloObjects = makeCaloObject.makeTrkCluCaloObjects(m_eflowTrackContainer, m_eflowClusterContainer, m_eflowCaloObjectContainer);
-  msg(MSG::DEBUG)  << "eflowCellLevelSubtractionTool created total " << nCaloObjects << " CaloObjects." << endmsg;
+  msg(MSG::INFO)  << "eflowCellLevelSubtractionTool created total " << nCaloObjects << " CaloObjects." << endreq;
 
   /* integrate cells; determine FLI; eoverp */
   for (unsigned int iCalo=0; iCalo<m_eflowCaloObjectContainer->size(); ++iCalo) {
     eflowCaloObject *thisEflowCaloObject = static_cast<eflowCaloObject*>(m_eflowCaloObjectContainer->at(iCalo));
 
-    thisEflowCaloObject->simulateShower(m_integrator, m_binnedParameters, m_useUpdated2015ChargedShowerSubtraction);
+    thisEflowCaloObject->simulateShower(m_integrator, m_binnedParameters);
   }
 
   return nMatches;
@@ -213,7 +178,7 @@ void eflowCellLevelSubtractionTool::performSubtraction() {
                      runInGoldenMode())
         || (runInGoldenMode() && thisEflowCaloObject->nTracks() > 1)) {
       continue;
-    }    
+    }
 
     /* Do subtraction */
 
@@ -238,15 +203,12 @@ void eflowCellLevelSubtractionTool::performSubtraction() {
       const std::vector<eflowTrackClusterLink*>& matchedTrackList =
           thisEflowCaloObject->efRecLink();
 
-
       for (int iTrack = 0; iTrack < nTrackMatches; ++iTrack) {
         eflowRecTrack* efRecTrack = matchedTrackList[iTrack]->getTrack();
         /* Can't subtract without e/p */
         if (!efRecTrack->hasBin()) {
           continue;
         }
-
-	if (efRecTrack->isInDenseEnvironment()) continue;
 
         std::vector<eflowRecCluster*> matchedClusters;
         matchedClusters.clear();
@@ -275,7 +237,7 @@ void eflowCellLevelSubtractionTool::performSubtraction() {
 
     /* Flag tracks as subtracted */
     for (unsigned int iTrack = 0; iTrack < thisEflowCaloObject->nTracks(); ++iTrack) {
-      if (!thisEflowCaloObject->efRecTrack(iTrack)->isInDenseEnvironment()) thisEflowCaloObject->efRecTrack(iTrack)->setSubtracted();
+      thisEflowCaloObject->efRecTrack(iTrack)->setSubtracted();
     }
   }
 }
