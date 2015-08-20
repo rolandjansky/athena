@@ -70,7 +70,7 @@ private:
    TH1I *m_runChainsHist;
    TH1I *m_rerunChainsHist;
 
-   unsigned int binnr;
+   unsigned int binnr; //not used anymore
    std::map< unsigned int, unsigned int > m_binmap;
    std::string m_trigLvl;
    bool m_useLBHistos;

@@ -34,6 +34,7 @@ namespace HLT {
 class StoreGateSvc;
 class TH1;
 class TH2I;
+class TH2F;
 class TProfile;
 class TProfile2D;
 class TrigMonGroup;
@@ -167,7 +168,7 @@ private:
   HistSet<TH2I> m_hs_history_total;
   HistSet<TH2I> m_hs_history_event;
 
-  TProfile2D* m_h_shared_requests;
+  TH2F* m_h_shared_requests;
   
   /* Properties */
   bool m_detailedMonitoring;

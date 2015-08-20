@@ -291,7 +291,7 @@ StatusCode TrigRateMoni::bookHists() {
 
     // second pass to find mapping between chains and bins
   
-  m_buffer    = new TH2F("Buffer", "Buffer", nbins, 0., nbins, 6, 0., 6);
+  m_buffer    = new TH2F("Buffer", "Buffer", nbins, 0., nbins, 7, 0., 7);
   m_buffer->SetDirectory(0);
   
   TString name("Rate");
@@ -300,7 +300,7 @@ StatusCode TrigRateMoni::bookHists() {
   else
     name = Form("Rate%dm", m_duration/60);
   
-  m_published = new TH2F(name.Data(), "Rates", nbins, 0., nbins, 6, 0., 6);
+  m_published = new TH2F(name.Data(), "Rates", nbins, 0., nbins, 7, 0., 7);
 
   m_published->GetYaxis()->SetBinLabel(1, "input");
   m_published->GetYaxis()->SetBinLabel(2, "prescaled");
@@ -308,6 +308,7 @@ StatusCode TrigRateMoni::bookHists() {
   m_published->GetYaxis()->SetBinLabel(4, "output");
   m_published->GetYaxis()->SetBinLabel(5, "rerun");
   m_published->GetYaxis()->SetBinLabel(6, "algoIn");
+  m_published->GetYaxis()->SetBinLabel(7, "passedrerun");
   
 
   unsigned int bin = 1;
@@ -608,6 +609,26 @@ void TrigRateMoni::fillChainAndGroupBins() {
   }
 
   const std::vector<const HLT::SteeringChain*>& activeChains = m_parentAlg->getActiveChains();
+  
+  bool eventPassed = false;  
+  bool isPhysicsAccept = false;
+  for (std::vector<const HLT::SteeringChain*>::const_iterator chain = activeChains.begin();
+       chain != activeChains.end(); ++chain) {
+      // check whether the event is accepted
+     eventPassed = (*chain)->chainPassed() || eventPassed;
+     if ( (*chain)->chainPassed()){
+       for (auto chain_stream : (*chain)->getStreamTags()){
+	  if ( chain_stream.getType() == "physics" ){
+	    isPhysicsAccept=true;
+	    break;
+	  }
+	}
+     }
+     if (isPhysicsAccept) break;
+   }
+
+
+
   for (std::vector<const HLT::SteeringChain*>::const_iterator chain = activeChains.begin();
        chain != activeChains.end(); ++chain) {
     const HLT::SteeringChain* ch = *chain;
@@ -615,9 +636,10 @@ void TrigRateMoni::fillChainAndGroupBins() {
       if ( m_chains_map[ch] != 0 ) {	
 	float x = m_chains_map[ch] - 0.5;  
 
-	if (!ch->isResurrected() ){ 
+	if (!ch->isResurrected() ){ // not prescaled chains
+
 	  m_buffer->Fill(x, input);
-	
+	  
 	  if (! ch->isPrescaled() )
 	    m_buffer->Fill(x, prescale );
 	  
@@ -629,8 +651,13 @@ void TrigRateMoni::fillChainAndGroupBins() {
 	  
 	  if ( ch->chainPassedRaw() || ch->isPassedThrough() ) 
 	    m_buffer->Fill(x, output );
-	} else if ( ch->runInSecondPass()) {
+
+	} else if ( ch->runInSecondPass() && isPhysicsAccept) {// prescaled chains in rerun
+
 	  m_buffer->Fill(x, rerun);
+
+	  if ( ch->chainPassedRaw()) 
+	    m_buffer->Fill(x, passedrerun );
 	}
       } else {
 	// this actually an error 
