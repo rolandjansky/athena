@@ -7,8 +7,6 @@ author Jay Howarth <jhowarth@cern.ch> #Tag and Probe only
 # ===================================================================
 
 
-
-
 public
 
 use AtlasPolicy           	AtlasPolicy-*
@@ -25,10 +23,8 @@ use TrigHLTMonitoring	  	TrigHLTMonitoring-*	  	Trigger/TrigMonitoring
 use TrigDecisionTool      	TrigDecisionTool-*      	Trigger/TrigAnalysis
 # use TrigInDetAnalysis           TrigInDetAnalysis-*             Trigger/TrigAnalysis
 # use TrigInDetAnalysisUtils      TrigInDetAnalysisUtils-*        Trigger/TrigAnalysis
-use TrigInDetAnalysisExample    TrigInDetAnalysisExample-*      Trigger/TrigAnalysis
+# use TrigInDetAnalysisExample    TrigInDetAnalysisExample-*      Trigger/TrigAnalysis
 use TrigInDetEvent        	TrigInDetEvent-*        	Trigger/TrigEvent
-use TrigSteeringEvent     	TrigSteeringEvent-*     	Trigger/TrigEvent
-use TrigParticle          	TrigParticle-*          	Trigger/TrigEvent
 use TrigCaloEvent         	TrigCaloEvent-*         	Trigger/TrigEvent
 use TrigInDetToolInterfaces 	TrigInDetToolInterfaces-* 	Trigger/TrigTools
 
@@ -44,16 +40,20 @@ use egammaInterfaces      	egammaInterfaces-*      	Reconstruction/egamma
 
 private
 
+use TrigSteeringEvent     	TrigSteeringEvent-*     	Trigger/TrigEvent
+use TrigParticle          	TrigParticle-*          	Trigger/TrigEvent
+
+use EventInfo             	EventInfo-*             	Event
+
+# use TrkTrack              	TrkTrack-*              	Tracking/TrkEvent
+# use InDetBeamSpotService      InDetBeamSpotService-*          InnerDetector/InDetConditions
+
+
 apply_tag ROOTGraphicsLibs
 apply_tag ROOTMathLibs
 apply_tag ROOTBasicLibs
 apply_tag ROOTSTLDictLibs
 apply_tag ROOTTableLibs
-
-use EventInfo             	EventInfo-*             	Event
-use TrkTrack              	TrkTrack-*              	Tracking/TrkEvent
-
-# use InDetBeamSpotService      InDetBeamSpotService-*          InnerDetector/InDetConditions
 
 # =====================================================================
 
