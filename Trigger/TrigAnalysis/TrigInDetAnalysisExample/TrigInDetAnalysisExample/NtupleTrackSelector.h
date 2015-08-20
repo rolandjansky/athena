@@ -15,10 +15,10 @@ public:
   NtupleTrackSelector( TrackFilter* selector=0 ) : TrackSelector(selector) {  } 
 
   /// add single Track
-  void selectTrack( TrigInDetAnalysis::Track* track ) {     
+  void selectTrack( TIDA::Track* track ) {     
     // do the track extraction stuff here....
     if ( track ) { 
-      TrigInDetAnalysis::Track* t = new TrigInDetAnalysis::Track( *track );
+      TIDA::Track* t = new TIDA::Track( *track );
       if ( !addTrack( t ) ) delete t;;
       // addTrack( track );
     }
@@ -26,18 +26,18 @@ public:
 
 
   /// add a Track
-  void selectTrack( const TrigInDetAnalysis::Track& track ) {
+  void selectTrack( const TIDA::Track& track ) {
     // do the track extraction stuff here....
-    TrigInDetAnalysis::Track* t = new TrigInDetAnalysis::Track( track );
+    TIDA::Track* t = new TIDA::Track( track );
     if ( !addTrack( t ) ) delete t;
     //  addTrack( &track );
   }
 
   /// extract all the tracks from a vector of Tracks
-  void selectTracks( const std::vector<TrigInDetAnalysis::Track>& tracks ) {     
+  void selectTracks( const std::vector<TIDA::Track>& tracks ) {     
     // do the track extraction stuff here....
-    std::vector<TrigInDetAnalysis::Track>::const_iterator trackitr = tracks.begin();
-    std::vector<TrigInDetAnalysis::Track>::const_iterator trackend = tracks.end();
+    std::vector<TIDA::Track>::const_iterator trackitr = tracks.begin();
+    std::vector<TIDA::Track>::const_iterator trackend = tracks.end();
     while ( trackitr!=trackend ) { 
       selectTrack( *trackitr );
       trackitr++;
@@ -45,10 +45,10 @@ public:
   }
 
   /// extract all the tracks from a vector of Tracks pointers
-  void selectTracks( const std::vector<TrigInDetAnalysis::Track*>& tracks ) {     
+  void selectTracks( const std::vector<TIDA::Track*>& tracks ) {     
     // do the track extraction stuff here....
-    std::vector<TrigInDetAnalysis::Track*>::const_iterator trackitr = tracks.begin();
-    std::vector<TrigInDetAnalysis::Track*>::const_iterator trackend = tracks.end();
+    std::vector<TIDA::Track*>::const_iterator trackitr = tracks.begin();
+    std::vector<TIDA::Track*>::const_iterator trackend = tracks.end();
     while ( trackitr!=trackend ) { 
       //      selectTrack( *(*trackitr) );
       selectTrack( *trackitr );

@@ -82,12 +82,12 @@ void Analysis_Resolution::initialise() {
 
 
 
-void Analysis_Resolution::execute(const std::vector<TrigInDetAnalysis::Track*>& referenceTracks,
-				  const std::vector<TrigInDetAnalysis::Track*>& /*testTracks*/,
+void Analysis_Resolution::execute(const std::vector<TIDA::Track*>& referenceTracks,
+				  const std::vector<TIDA::Track*>& /*testTracks*/,
 				  TrackAssociator* associator) {
   
   // Loop over reference tracks
-  std::vector<TrigInDetAnalysis::Track*>::const_iterator reference, referenceEnd=referenceTracks.end();
+  std::vector<TIDA::Track*>::const_iterator reference, referenceEnd=referenceTracks.end();
   for(reference=referenceTracks.begin(); reference!=referenceEnd; reference++) {
     
     // Get reference parameters
@@ -103,7 +103,7 @@ void Analysis_Resolution::execute(const std::vector<TrigInDetAnalysis::Track*>& 
     if (fabs(referenceZ0)>m_z0Cut) continue;
 
     // Find matched tracks
-    const TrigInDetAnalysis::Track* test=0;
+    const TIDA::Track* test=0;
     test = associator->matched(*reference);
 
     // Fill histograms

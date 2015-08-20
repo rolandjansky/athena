@@ -76,8 +76,8 @@ void TrackEfficiency::initialise() {
 
 
 
-void TrackEfficiency::execute( const std::vector<TrigInDetAnalysis::Track*>& reftracks,
-			       const std::vector<TrigInDetAnalysis::Track*>& /*testtracks*/,
+void TrackEfficiency::execute( const std::vector<TIDA::Track*>& reftracks,
+			       const std::vector<TIDA::Track*>& /*testtracks*/,
 			       TrackAssociator* matcher ) 
 { 
   std::cout << "execute() " << name() << std::endl;
@@ -100,7 +100,7 @@ void TrackEfficiency::execute( const std::vector<TrigInDetAnalysis::Track*>& ref
     
      //      std::cout << i << " " << *reftracks[i] << std::endl;
     
-     const TrigInDetAnalysis::Track* matchedreco = matcher->matched(reftracks[i]); 
+     const TIDA::Track* matchedreco = matcher->matched(reftracks[i]); 
       
      std::cout << "\t\tSUTT Analysis " << name() << "\t" << i << " " << *reftracks[i] << " -> ";
   

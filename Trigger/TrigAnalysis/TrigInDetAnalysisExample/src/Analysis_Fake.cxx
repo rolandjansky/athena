@@ -62,13 +62,13 @@ void Analysis_Fake::initialise() {
 
 
 
-void Analysis_Fake::execute(const std::vector<TrigInDetAnalysis::Track*>& ,
-			    const std::vector<TrigInDetAnalysis::Track*>& testTracks,
+void Analysis_Fake::execute(const std::vector<TIDA::Track*>& ,
+			    const std::vector<TIDA::Track*>& testTracks,
 			    TrackAssociator* associator) {
   
   // Loop over reference tracks
-  // std::vector<TrigInDetAnalysis::Track*>::const_iterator reference, referenceEnd=referenceTracks.end();
-  std::vector<TrigInDetAnalysis::Track*>::const_iterator test, testEnd=testTracks.end();
+  // std::vector<TIDA::Track*>::const_iterator reference, referenceEnd=referenceTracks.end();
+  std::vector<TIDA::Track*>::const_iterator test, testEnd=testTracks.end();
   for(test=testTracks.begin(); test!=testEnd; test++) {
   
     
@@ -92,7 +92,7 @@ void Analysis_Fake::execute(const std::vector<TrigInDetAnalysis::Track*>& ,
     if(passesPT&&passesD0&&passesZ0&&passesEta) h_integralD->Fill(0.5);
     
     // Find matched tracks
-    const TrigInDetAnalysis::Track* ref = associator->revmatched(*test);
+    const TIDA::Track* ref = associator->revmatched(*test);
 
     // Fill histograms
     if(!ref) {

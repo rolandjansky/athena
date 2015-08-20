@@ -33,6 +33,8 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
      m_fileopen(false),
      m_first(true),
      m_useHighestPT(false),
+     m_runPurity(false),
+     m_shifterChains(1),
      m_sliceTag("")
 {
   msg(MSG::INFO) << "TrigTestBase::TrigTestBase() compiled: " << __DATE__ << " " << __TIME__ << endreq;
@@ -48,23 +50,29 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
   declareProperty( "trtHits",   m_trtHits   = -2 );
   declareProperty( "strawHits", m_strawHits = -2 );
 
-  declareProperty( "tauEtCutOffline",   m_tauEtCutOffline   = 0 );
+  declareProperty( "tauEtCutOffline",   m_tauEtCutOffline = 0 );
   declareProperty( "doTauThreeProng",   m_doTauThreeProng = false);
 
   declareProperty( "pTCutOffline",      m_pTCutOffline      = 2000 );
   declareProperty( "etaCutOffline",     m_etaCutOffline     = 2.5 );
   declareProperty( "d0CutOffline",      m_d0CutOffline      = 1000 );
   declareProperty( "z0CutOffline",      m_z0CutOffline      = 2000 );
-  declareProperty( "pixHitsOffline",    m_pixHitsOffline    =  1 ); // 1 <- old value
+  declareProperty( "pixHitsOffline",    m_pixHitsOffline    =  2 ); // 1 <- old value
   declareProperty( "sctHitsOffline",    m_sctHitsOffline    =  6 ); // 6 <- old value
   declareProperty( "siHitsOffline",     m_siHitsOffline     =  8 );
   declareProperty( "blayerHitsOffline", m_blayerHitsOffline = -1 );
-  declareProperty( "strawHitsOffline",  m_strawHitsOffline  = -2 );
-  declareProperty( "trtHitsOffline",    m_trtHitsOffline    = -2 );
 
-  declareProperty( "phiWidth", m_phiWidth = 0.1 );
-  declareProperty( "etaWidth", m_etaWidth = 0.1 );
-  declareProperty( "zedWidth", m_zedWidth = 168 );
+  declareProperty( "pixHolesOffline",   m_pixHolesOffline   =  20 ); // essentially no limit
+  declareProperty( "sctHolesOffline",   m_sctHolesOffline   =  20 ); // essentially no limit
+  declareProperty( "siHolesOffline",    m_siHolesOffline    =  2 );  // npix holes + nsi holes <= 2 
+
+  declareProperty( "trtHitsOffline",    m_trtHitsOffline    = -2 );
+  declareProperty( "strawHitsOffline",  m_strawHitsOffline  = -2 );
+
+
+  //  declareProperty( "phiWidth", m_phiWidth = 0.1 );
+  //  declareProperty( "etaWidth", m_etaWidth = 0.1 );
+  //  declareProperty( "zedWidth", m_zedWidth = 168 );
 
   declareProperty( "matchR",   m_matchR   = 0.1 );
   declareProperty( "matchPhi", m_matchPhi = 0.1 );
@@ -79,16 +87,16 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
   // declareProperty( "outputFileName", m_outputFileName = "TrkNtuple.root");
   declareProperty( "AnalysisConfig", m_analysis_config = "Ntuple");
 
-  declareProperty( "GenericFlag", m_genericFlag = true );
-
-  declareProperty( "InitialisePerRun", m_initialisePerRun = false );
-
   declareProperty( "SelectTruthPdgId", m_selectTruthPdgId = 0 );
 
-  declareProperty( "KeepAllEvents", m_keepAllEvents = false );
+  declareProperty( "InitialisePerRun", m_initialisePerRun = false );
+  declareProperty( "KeepAllEvents",    m_keepAllEvents = false );
+  declareProperty( "UseHighestPT",     m_useHighestPT = false );
+  declareProperty( "RunPurity",        m_runPurity = false );
+  declareProperty( "ShifterChains",    m_shifterChains = 1 );
 
-  declareProperty( "UseHighestPT", m_useHighestPT = false );
-
+  declareProperty( "GenericFlag", m_genericFlag = true );
+  
   msg(MSG::INFO) << "TrigTestBase::TrigTestBase() exiting " << gDirectory->GetName() << endreq;
 
   //  msg(MSG::INFO) << "TrigTestBase::TrigTestBase() returning: " << endreq;
@@ -162,7 +170,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
     // reference (offline) tracks...
     TrackFilter* filterRef = new Filter_Track( m_etaCutOffline,    m_d0CutOffline,   m_z0CutOffline,  m_pTCutOffline,
 					       m_pixHitsOffline,   m_sctHitsOffline, m_siHitsOffline, m_blayerHitsOffline,  
-					       m_strawHitsOffline, m_trtHitsOffline);
+					       m_strawHitsOffline, m_trtHitsOffline, 0, 20, 20, m_siHolesOffline );
 
     // test (trigger) tracks...
     //  TrackFilter* filterTest = new Filter_Track( m_etaCut, m_d0Cut, m_z0Cut, m_pTCut, -1, -1, -1, -1,  -2, -2 );
@@ -197,7 +205,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 
     
     /// keep counters of how many efid or ftf chains have been created
-    /// for shifter histograms, only want one chain of each
+    /// for shifter histograms, only want m_shifterMaxChains of each
     int shifter_efid      = 0;
     int shifter_ftf       = 0;
     int shifter_l2star    = 0;
@@ -266,7 +274,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	      if ( chainName.tail().find("_FTF")!=std::string::npos ) { 
 		/// FTF chain
 		shifter_ftf++;
-		if ( shifter_ftf>1 ) {
+		if ( shifter_ftf>m_shifterChains ) {
 		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
 		  continue;
 		}
@@ -274,7 +282,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	      else if ( chainName.tail().find("_IDTrig")!=std::string::npos || chainName.tail().find("CosmicsN_EFID")!=std::string::npos ) { 
 		/// EFID chain
 		shifter_efid++;
-		if ( shifter_efid>1 ) {
+		if ( shifter_efid>m_shifterChains ) {
 		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
 		  continue;
 		}
@@ -282,7 +290,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	      else if ( chainName.tail().find("_EFID")!=std::string::npos ) { 
 		/// EFID chain
 		shifter_efid_run1++;
-		if ( shifter_efid_run1>1 ) {
+		if ( shifter_efid_run1>m_shifterChains ) {
 		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
 		  continue;
 		}
@@ -290,7 +298,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	      else if ( chainName.tail().find("L2SiTrackFinder")!=std::string::npos ) { 
 		/// EFID chain
 		shifter_l2star++;
-		if ( shifter_l2star>1 ) {
+		if ( shifter_l2star>m_shifterChains ) {
 		  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << " excluded - Shifter chain already definied^[[m" << endreq;
 		  continue;
 		}
@@ -310,13 +318,22 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
       m_chainNames = chains;
 
       for (unsigned i=0; i<m_chainNames.size(); ++i) {
-        m_sequences.push_back( new AnalysisConfig_Tier0( m_sliceTag, // m_chainNames[i],
-							 m_chainNames[i], "", "",
-							 m_chainNames[i], "", "",
-							 &m_roiInfo,
-							 filterTest, filterRef,
-							 dR_matcher,
-							 new Analysis_Tier0( m_chainNames[i], m_pTCut, m_etaCut, m_d0Cut, m_z0Cut ) ) );
+
+	
+	
+
+	AnalysisConfig_Tier0* analysis =  new AnalysisConfig_Tier0( m_sliceTag, // m_chainNames[i],
+								    m_chainNames[i], "", "",
+								    m_chainNames[i], "", "",
+								    &m_roiInfo,
+								    filterTest, filterRef,
+								    dR_matcher,
+								    new Analysis_Tier0( m_chainNames[i], m_pTCut, m_etaCut, m_d0Cut, m_z0Cut ) );
+
+	analysis->setRunPurity(m_runPurity);
+      
+        m_sequences.push_back( analysis );
+
 
         msg(MSG::INFO)   << " ----- creating analysis " << m_sequences.back()->name() << " : " << m_chainNames[i] << " -----" << endreq;
 	

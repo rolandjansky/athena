@@ -32,8 +32,8 @@ public:
   
   virtual void initialise();
 
-  virtual void execute(const std::vector<TrigInDetAnalysis::Track*>& tracks1,
-		       const std::vector<TrigInDetAnalysis::Track*>& tracks2,
+  virtual void execute(const std::vector<TIDA::Track*>& tracks1,
+		       const std::vector<TIDA::Track*>& tracks2,
 		       TrackAssociator* matcher );
 
   virtual void finalise();

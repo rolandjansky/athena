@@ -22,7 +22,10 @@ ChainString::ChainString(const ChainString& s) :
   std::string(s), 
   mhead(s.mhead), mtail(s.mtail), mextra(s.mextra),
   melement(s.melement), mroi(s.mroi), 
-  mpassed(s.mpassed) {  
+  mvtx(s.mvtx),
+  mpassed(s.mpassed),
+  mkeys(s.mkeys),
+  mvalues(s.mvalues) {  
 
 }
 
@@ -34,7 +37,7 @@ void ChainString::parse() {
     
     std::vector<std::string> fields;
 
-    //    std::cout << "\nChainString::parse() " << _s << std::endl;
+    //    std::cout << "\nChainString::parse() [" << _s << "]" << std::endl;
     
     std::string pass = chomp(_s,";");
     if ( pass!="" ) mpassed = ( pass=="DTE" ? false : true );    
@@ -48,6 +51,14 @@ void ChainString::parse() {
     
     fields.push_back(_s);
 
+    for ( unsigned i=fields.size() ; i-- ; ) { 
+      if ( fields[i].find("=")!=std::string::npos ) { 
+	std::string _field = fields[i];
+	mkeys.push_back( chop( _field, "=" ) );
+	mvalues.push_back( _field );
+      }
+    }
+
     bool usetags   = false;
     //  bool useroitag = false;
     
@@ -57,7 +68,7 @@ void ChainString::parse() {
     std::string alt[5]    = { "key=",        "ind=",   "",    "",     ""     };
     bool        tagged[5] = {  false,         false,    false, false, false  };    
  
-    std::string* values[5] = { &mtail, &mextra, &melement, &mroi, &mvtx };
+    std::string* _values[5] = { &mtail, &mextra, &melement, &mroi, &mvtx };
 
     for ( unsigned i=1 ; i<fields.size() ; i++ ) {
       for ( unsigned itag=0 ; itag<5 ; itag++ ) { 
@@ -69,7 +80,7 @@ void ChainString::parse() {
 	if ( lowfield.find(tags[itag])==0 ) { 
 	  tagged[itag] = true;
 	  fields[i].erase( 0, tags[itag].size() );
-	  *values[itag] = fields[i];
+	  *_values[itag] = fields[i];
 	  if ( itag!=3 ) usetags   = true;
 	  //  else           useroitag = true; 
 	  break;
@@ -77,12 +88,11 @@ void ChainString::parse() {
 	else if ( alt[itag]!="" && lowfield.find(alt[itag])==0 ) {  
 	  tagged[itag] = true;
 	  fields[i].erase( 0, alt[itag].size() );
-	  *values[itag] = fields[i];
+	  *_values[itag] = fields[i];
 	  if ( itag!=3 ) usetags   = true;
 	  //  else           useroitag = true; 
 	  break;
 	}
-
 
       }
     }
@@ -94,7 +104,7 @@ void ChainString::parse() {
     if ( !usetags ) { 
       //      std::cout << "fields.size() " << fields.size() << std::endl;
       for ( unsigned i=0 ; i<5 ; i++ ) {
-	if ( fields.size()>i+1 ) *values[i] = fields[i+1];
+	if ( fields.size()>i+1 ) *_values[i] = fields[i+1];
       }
     }      
 
@@ -104,7 +114,7 @@ void ChainString::parse() {
     std::cout << "index :     " << mextra   << std::endl;
     std::cout << "te :        " << melement << std::endl;
     std::cout << "roi :       " << mroi     << std::endl;
-    std::cout << "vtx :       " << mroi     << std::endl;
+    std::cout << "vtx :       " << mvtx     << std::endl;
     std::cout << "pass :      " << mpassed  << std::endl;
 #endif   
     
@@ -112,7 +122,7 @@ void ChainString::parse() {
     /// to a root directory etc
 
     std::string raw = mhead;
-    for ( int i=0 ; i<5 ; i++ ) if ( *values[i]!="" ) raw += ":" + *values[i];
+    for ( int i=0 ; i<5 ; i++ ) if ( *_values[i]!="" ) raw += ":" + *_values[i];
     if ( !mpassed ) raw += ";DTE";
     *(std::string*)(this) = raw;
 

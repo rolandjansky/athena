@@ -1,5 +1,23 @@
 // emacs: this is -*- c++ -*-
-/** @file T_AnalysisConfig_Tier0.h */
+//
+//   @file    T_AnalysisConfig_Tier0.h        
+//
+//            baseclass template so that we can use in different contexts 
+//            in different ways in the monitoring 
+//
+//            NB: this will be configured to run *either* a standard 
+//                analysis, or a "purity" analysis. If a purity analysis, 
+//                the trigger tracks become the reference (with all the 
+//                selection) and the offline or truth the "test" tracks
+//                This would be a simple switch if the reference tracks
+//                were in the RoI, but they're not se we need to move the 
+//                RoI filtering to the test filter and *not* the reference 
+//                filter grrrrrr  
+//
+// 
+//   Copyright (C) 2014 M.Sutton (sutt@cern.ch)    
+//
+//   $Id: T_AnalysisConfig_Tier0.h  v0.0   Wed 28 Oct 2014 02:47:05 CET sutt $
 
 #ifndef TrigInDetAnalysisExample_T_AnalysisConfig_Tier0_H
 #define TrigInDetAnalysisExample_T_AnalysisConfig_Tier0_H
@@ -9,8 +27,8 @@
 // #include "AthenaBaseComps/AthAlgorithm.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
-#include "TrigInDetAnalysis/TrackEvent.h"
-#include "TrigInDetAnalysis/TrackVertex.h"
+#include "TrigInDetAnalysis/TIDAEvent.h"
+#include "TrigInDetAnalysis/TIDAVertex.h"
 #include "TrigInDetAnalysisUtils/T_AnalysisConfig.h"
 
 #include "TrigInDetAnalysisExample/Analysis_Tier0.h"
@@ -69,6 +87,29 @@
 
 
 template<typename T>
+void HighestPTOnly( std::vector<T*>& tracks ) { 
+
+  if ( tracks.size()>1 ) {
+    
+    std::vector<T*> tmp_tracks; 
+    
+    int ih = 0;
+    
+    for ( unsigned i=1 ; i<tracks.size() ; i++ ) { 
+      if ( std::fabs(tracks[i]->pT())>std::fabs(tracks[ih]->pT()) ) ih = i;
+    }
+    
+    tmp_tracks.push_back( tracks[ih] );
+    
+    tracks = tmp_tracks;
+  }
+}
+
+
+
+
+
+template<typename T>
 class T_AnalysisConfig_Tier0 : public T_AnalysisConfig<T> {
 
 public:
@@ -102,14 +143,19 @@ public:
     m_hasTruthMap(false),
     m_NRois(0),
     m_NRefTracks(0),
-    m_NTestTracks(0)
+    m_NTestTracks(0),
+    m_runPurity(false)
   {
-    m_event = new TrackEvent();
+    m_event = new TIDA::Event();
     m_chainNames.push_back(testChainName);
     m_testType = testType;
   }
 
   virtual ~T_AnalysisConfig_Tier0() { delete m_event; }
+
+  void setRunPurity( bool b ) { m_runPurity=b; }
+
+public:
 
   Analysis_Tier0* _analysis;
 
@@ -162,9 +208,16 @@ protected:
       }
     }
 
+
     static bool first = true;
 
+
+
     if ( first ) {
+
+      m_provider->msg(MSG::INFO) << " using beam position\tx=" << xbeam << "\ty=" << ybeam << endreq;
+
+
       std::vector<std::string> configuredChains  = (*(m_tdt))->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
 
       if(m_provider->msg().level() <= MSG::VERBOSE) {
@@ -245,8 +298,17 @@ protected:
 
     /// will need to add a vertex filter at some point probably
     // Filter_Combined filterRef (&filter_offline, &filter_vertex);
-    Filter_Combined filterRef(    m_filters[1][0], &filter);
-    Filter_Combined filterTest(   m_filters[0][0], &filter);
+
+    int iRefFilter  = 1;
+    int iTestFilter = 0;
+
+    if ( m_runPurity ) { 
+      iRefFilter  = 0;
+      iTestFilter = 1;
+    }
+    
+    Filter_Combined filterRef(   m_filters[iRefFilter][0],  &filter );
+    Filter_Combined filterTest(  m_filters[iTestFilter][0], &filter );
 
     TrigTrackSelector selectorTruth( &filter_truth );
     TrigTrackSelector selectorRef( &filterRef );
@@ -254,9 +316,13 @@ protected:
     TrigTrackSelector selectorTest( &filterTest );
     m_selectorTest = &selectorTest;
 
+    m_selectorRef->setBeamline(  xbeam, ybeam );
+  
+    //   m_selectorRef->setBeamline(  -0.693, -0.617 );
+
     /// now start everything going for this event properly ...
 
-    // clear the ntuple TrackEvent class
+    // clear the ntuple TIDA::Event class
     m_event->clear();
 
     /// (obviously) get the event info
@@ -292,7 +358,7 @@ protected:
     // std::cout << "run "     << run_number  << "\tevent " << event_number  << "\tlb "    << lumi_block << std::endl;
 
 
-    // clear the ntuple TrackEvent class
+    // clear the ntuple TIDA::Event class
     m_event->clear();
 
     m_event->run_number(run_number);
@@ -364,7 +430,7 @@ protected:
 
     /// get the offline vertices into our structure
 
-    std::vector<TrackVertex> vertices;
+    std::vector<TIDA::Vertex> vertices;
 
     const VxContainer* primaryVtxCollection;
 
@@ -378,7 +444,7 @@ protected:
           VxContainer::const_iterator vtxitr = primaryVtxCollection->begin();
           for ( ; vtxitr != primaryVtxCollection->end(); ++vtxitr) {
             if ( (*vtxitr)->vxTrackAtVertex()->size()>0 ) {
-              vertices.push_back( TrackVertex( (*vtxitr)->recVertex().position().x(),
+              vertices.push_back( TIDA::Vertex( (*vtxitr)->recVertex().position().x(),
                 (*vtxitr)->recVertex().position().y(),
                 (*vtxitr)->recVertex().position().z(),
                 0,0,0,
@@ -414,12 +480,12 @@ protected:
     /// now add the offline tracks and reco objects
 
     // int Noff = 0;
-    std::vector<TrigInDetAnalysis::Track*> offline_tracks;
-    std::vector<TrigInDetAnalysis::Track*> electron_tracks;
-    std::vector<TrigInDetAnalysis::Track*> muon_tracks;
+    std::vector<TIDA::Track*> offline_tracks;
+    std::vector<TIDA::Track*> electron_tracks;
+    std::vector<TIDA::Track*> muon_tracks;
 
-    std::vector<TrigInDetAnalysis::Track*> ref_tracks;
-    std::vector<TrigInDetAnalysis::Track*> test_tracks;
+    std::vector<TIDA::Track*> ref_tracks;
+    std::vector<TIDA::Track*> test_tracks;
 
     offline_tracks.clear();
     electron_tracks.clear();
@@ -504,7 +570,7 @@ protected:
 
       m_event->addChain( chainName );
 
-      TrackChain& chain = m_event->back();
+      TIDA::Chain& chain = m_event->back();
     
       for( ; c!=cEnd ; ++c ) {
 
@@ -605,7 +671,7 @@ protected:
         }
       
 
-        const std::vector<TrigInDetAnalysis::Track*>& testtracks = m_selectorTest->tracks();
+        const std::vector<TIDA::Track*>& testtracks = m_selectorTest->tracks();
 
         m_provider->msg(MSG::VERBOSE) << "test tracks.size() " << testtracks.size() << endreq;
 
@@ -633,7 +699,7 @@ protected:
 
         m_selectorRef->clear();
 
-        if ( this->filterOnRoi() ) filterRef.setRoi( &chain.rois().at(iroi).roi() );
+	if ( this->filterOnRoi() ) filterRef.setRoi( &chain.rois().at(iroi).roi() );
 	else                       filterRef.setRoi( 0 );
 
         test_tracks.clear();
@@ -850,51 +916,54 @@ protected:
         for ( unsigned itrk=0 ; itrk<chain.rois().at(iroi).tracks().size() ; itrk++ ) {
           test_tracks.push_back(&(chain.rois().at(iroi).tracks().at(itrk)));
         }
+	
 
 	//	std::cout << "sutt track multiplicities: offline " << offline_tracks.size() << "\ttest " << test_tracks.size() << std::endl;
 
         _analysis->setvertices( vertices.size() );  /// what is this for ???
-
-
-	if ( ref_tracks.size()>1 && this->getUseHighestPT() ) {
-
-	  if ( first && m_NRois==0 && m_provider->msg().level() <= MSG::INFO) {
-	    m_provider->msg(MSG::INFO) << m_provider->name() << " using highest pt reference track only " << this->getUseHighestPT() << endreq;
-	  }
-	  
-	  std::vector<TrigInDetAnalysis::Track*> tmp_tracks; 
-
-	  int ih = 0;
-	  
-	  for ( unsigned i=1 ; i<ref_tracks.size() ; i++ ) { 
-	    if ( std::fabs(ref_tracks[i]->pT())>std::fabs(ref_tracks[ih]->pT()) ) ih = i;
-	  }
-
-	  tmp_tracks.push_back( ref_tracks[ih] );
-	  
-	  ref_tracks = tmp_tracks;
+	
+	if ( first && m_NRois==0 && m_provider->msg().level() <= MSG::INFO) {
+	  m_provider->msg(MSG::INFO) << m_provider->name() << " using highest pt reference track only " << this->getUseHighestPT() << endreq;
 	}
 
-	/// stats book keeping 
-	m_NRois++;
-	m_NRefTracks  += ref_tracks.size();
-	m_NTestTracks += test_tracks.size();
+	/// if we want a purity, we need to swap round which tracks are the 
+	/// reference tracks and which the test tracks
 
-        /// match test and reference tracks
-        m_associator->match( ref_tracks, test_tracks );
+	if ( m_runPurity ) { 
 
-        // std::cout << " Chain " << chain << std::endl;
-        // std::cout << "\nref     tracks " << offline_tracks.size() << std::endl;
-        // std::cout << "\ntest    tracks " << test_tracks.size() << std::endl;
+	  if ( this->getUseHighestPT() ) HighestPTOnly( test_tracks );
 
-        _analysis->execute( ref_tracks, test_tracks, m_associator );
-	
+	  /// stats book keeping 
+	  m_NRois++;
+	  m_NRefTracks  += test_tracks.size();
+	  m_NTestTracks += ref_tracks.size();
+	  	  
+	  /// match test and reference tracks
+	  m_associator->match( test_tracks, ref_tracks );
+	  
+	  _analysis->execute( test_tracks, ref_tracks, m_associator );
+
+	}
+	else { 
+
+	  if ( this->getUseHighestPT() ) HighestPTOnly( ref_tracks );
+
+	  /// stats book keeping 
+	  m_NRois++;
+	  m_NRefTracks  += ref_tracks.size();
+	  m_NTestTracks += test_tracks.size();
+	  
+	  /// match test and reference tracks
+	  m_associator->match( ref_tracks, test_tracks );
+	  
+	  _analysis->execute( ref_tracks, test_tracks, m_associator );
+	}
+ 
 	if ( _analysis->debug() ) { 
 	  m_provider->msg(MSG::INFO) << "Missing track for " << m_chainNames[ichain]  
-				     << "\trun "   << run_number
-				     << "\tevent " << event_number
-				     << "\tlb "    << lumi_block << endreq;
-	  
+				     << "\trun "   << run_number 
+				     << "\tevent " << event_number 
+				     << "\tlb "    << lumi_block << endreq;     
 	}
 
       }
@@ -1134,12 +1203,13 @@ protected:
 
   }
 
+
 protected:
 
   IBeamCondSvc*  m_iBeamCondSvc;
   IBeamCondSvc*  m_iOnlineBeamCondSvc;
 
-  TrackEvent*  m_event;
+  TIDA::Event*  m_event;
 
   TFile*    mFile;
   TTree*    mTree;
@@ -1164,7 +1234,7 @@ protected:
   int m_NRefTracks;
   int m_NTestTracks;
 
-
+  bool m_runPurity;
 
 };
 

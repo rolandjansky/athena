@@ -87,18 +87,22 @@ protected:
   double  m_d0CutOffline;
   double  m_z0CutOffline;
 
-  int  m_siHitsOffline; // total number of si hits
+  int m_siHitsOffline; // total number of si hits
   int m_pixHitsOffline; // pixel hits
   int m_sctHitsOffline; // sct hits
   int m_blayerHitsOffline;
+
+  int m_pixHolesOffline; // pixel holes
+  int m_sctHolesOffline;  // sct holes
+  int m_siHolesOffline;   // total pix+sct holes
 
   int   m_trtHitsOffline; // high threshold hits
   int m_strawHitsOffline; // total number of straws
 
   // roi size
-  double m_phiWidth;
-  double m_etaWidth;
-  double m_zedWidth;
+  //  double m_phiWidth;
+  //  double m_etaWidth;
+  //  double m_zedWidth;
 
   // matching parameters
   double m_matchR;   // for DeltaR matcher
@@ -141,8 +145,16 @@ protected:
   /// is this the first event
   bool m_first; 
 
+  /// use only the highest pt tracks
   bool m_useHighestPT;
 
+  /// also run purity analyses
+  bool m_runPurity;
+
+  /// max number of shifter chains to use - must be < 2 at the moment
+  int m_shifterChains;
+
+  /// additional string for the histogram directory
   std::string  m_sliceTag;
 
 };

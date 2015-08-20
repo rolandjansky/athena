@@ -62,8 +62,8 @@ void TrackDistributions::initialise() {
 
 
 
-void TrackDistributions::execute( const std::vector<TrigInDetAnalysis::Track*>& /*reftracks*/,
-				  const std::vector<TrigInDetAnalysis::Track*>& testtracks,
+void TrackDistributions::execute( const std::vector<TIDA::Track*>& /*reftracks*/,
+				  const std::vector<TIDA::Track*>& testtracks,
 				  TrackAssociator* /*matcher*/ ) 
 { 
   std::cout << "execute() " << name() << std::endl;

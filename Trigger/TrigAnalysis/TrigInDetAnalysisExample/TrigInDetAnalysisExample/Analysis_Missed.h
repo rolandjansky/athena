@@ -20,8 +20,8 @@ class Analysis_Missed : public TrackAnalysis {
   
   virtual void initialise();
   
-  virtual void execute(const std::vector<TrigInDetAnalysis::Track*>& referenceTracks,
-		       const std::vector<TrigInDetAnalysis::Track*>& testTracks,
+  virtual void execute(const std::vector<TIDA::Track*>& referenceTracks,
+		       const std::vector<TIDA::Track*>& testTracks,
 		       TrackAssociator* associator);
   
   virtual void finalise();
