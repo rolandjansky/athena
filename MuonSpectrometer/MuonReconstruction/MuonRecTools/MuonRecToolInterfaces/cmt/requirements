@@ -9,9 +9,12 @@ use MuonRIO_OnTrack     MuonRIO_OnTrack-*      MuonSpectrometer/MuonReconstructi
 use MuonPrepRawData	MuonPrepRawData-*      MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use MuonPattern         MuonPattern-*          MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use MuonSegment         MuonSegment-*          MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonLayerEvent      MuonLayerEvent-*       MuonSpectrometer/MuonReconstruction/MuonRecEvent
+use MuonLayerHough      MuonLayerHough-*       MuonSpectrometer/MuonReconstruction/MuonRecUtils
 use MuonIdHelpers       MuonIdHelpers-*        MuonSpectrometer
 use GeoPrimitives       GeoPrimitives-*        DetectorDescription
 use EventPrimitives     EventPrimitives-*      Event
+use xAODTracking        xAODTracking-*         Event/xAOD
 
 # FIXME - once dependencies are cleaned up, the above should be removed. EJWM.
 use TrkTruthData        TrkTruthData-*          Tracking/TrkEvent
