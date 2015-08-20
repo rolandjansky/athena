@@ -68,6 +68,7 @@ class DV_MuonFilterFlags(JobProperty):
     allowedTypes=["bool"]
     StoredValue=True
     cutEtMin=60.0*Units.GeV
+    cutEtaMax=2.5
     triggers=["HLT_mu60_0eta105_msonly"]
     nPassed=1
     pass
@@ -77,8 +78,11 @@ class DV_PhotonFilterFlags(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue= True
-    cutEtMin=140.0*Units.GeV
+    cutEtMin=150.0*Units.GeV
+    cutEtaMax=2.5
+    cutIsEM="Loose"
     triggers=["HLT_g140_loose"]
+    prescale=1
     nPassed=1
     pass
 primRPVLLDESDM.add_JobProperty(DV_PhotonFilterFlags)
@@ -108,7 +112,7 @@ class DV_DoubleTracklessJetFilterFlags(JobProperty):
     statusOn=True
     allowedTypes=["bool"]
     StoredValue=True
-    cutEtMin=50.0*Units.GeV
+    cutEtMin=20.0*Units.GeV
     cutEtaMax=2.5
     cutSumPtTrkMax=5.0*Units.GeV
     pass
@@ -122,7 +126,7 @@ class DV_MeffFilterFlags(JobProperty):
     cutMEToverMeffMin=0.3   ## note that these two cuts are ORed in the code!
     cutJetPtMin=40.0*Units.GeV
     cutJetEtaMax=2.5
-    cutMETMin=80.0*Units.GeV
+    cutMETMin=100.0*Units.GeV
     pass
 primRPVLLDESDM.add_JobProperty(DV_MeffFilterFlags)
 

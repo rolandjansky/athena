@@ -22,10 +22,22 @@ def DVSelectionString(flags, container):
     """
 
     cutList = []
-    if flags.cutEtMin:  cutList.append('%s.pt > %s'%(container,flags.cutEtMin))
-
+    try:  
+        cutList.append('%s.pt > %s'%(container,flags.cutEtMin))
+        pass
+    except:
+        pass
+    try:
+        cutList.append('abs(%s.eta) < %s'%(container,flags.cutEtaMax))
+        pass
+    except:
+        pass
+    try:   
+        cutList.append("DV%s%s"%(container,flags.cutIsEM))
+        pass
+    except:
+        pass
     cutString = 'count(' + ' && '.join(cutList) + ') > %i'%(flags.nPassed-1)
-
     return cutString
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool as skimtool
@@ -55,6 +67,9 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 ############################################################
 ## Trackless jet filters
 ###########################################################
+
+
+
 from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__DVTracklessJetFilterTool
 
 DVSingleTracklessJetFilterTool = DerivationFramework__DVTracklessJetFilterTool( name = "DVSingleTracklessJetFilterTool",
@@ -76,20 +91,50 @@ DVDoubleTracklessJetFilterTool = DerivationFramework__DVTracklessJetFilterTool( 
 ToolSvc+=DVDoubleTracklessJetFilterTool
 
 ###### add a prescale tool - needs DerivationFrameworkTools-00-00-22 or later
+###### NOTE! Subtlety here - if we use the same instance of the PrescaleTool in more than one place, it's internal counter will increment for each instance in
+###### each event, which is not the desired behaviour.. (e.g. if we had a prescale of 3, and the same instance of the tool being used in 3 different filters, 
+###### the third one would always pass).  INSTEAD - use a different instance of PrescaleTool each time.
+
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
-DVPrescaleTool = DerivationFramework__PrescaleTool(name = "DVPrescaleTool",
+DVPrescaleToolForMultijet = DerivationFramework__PrescaleTool(name = "DVPrescaleToolForMultijet",
                                                    Prescale = primRPVLLDESDM.DV_PrescalerFlags.prescale
                                                    )
-ToolSvc+=DVPrescaleTool
+ToolSvc+=DVPrescaleToolForMultijet
 
-DVCombinedTracklessJetFilterTool = DerivationFramework__FilterCombinationOR( name = "DVCombinedTracklessJetFilterTool",
+DVCombinedTracklessJetFilterToolForMultijet = DerivationFramework__FilterCombinationOR( name = "DVCombinedTracklessJetFilterToolForMultijet",
                                                                              FilterList = [DVSingleTracklessJetFilterTool,
                                                                                            DVDoubleTracklessJetFilterTool,
-                                                                                           DVPrescaleTool],
-                                                                             OutputLevel=INFO
+                                                                                           DVPrescaleToolForMultijet],
+##                                                                             OutputLevel=DEBUG
                                                                              )
-ToolSvc+=DVCombinedTracklessJetFilterTool
+ToolSvc+=DVCombinedTracklessJetFilterToolForMultijet
+
+DVPrescaleToolForMET = DerivationFramework__PrescaleTool(name = "DVPrescaleToolForMET",
+                                                   Prescale = primRPVLLDESDM.DV_PrescalerFlags.prescale
+                                                   )
+ToolSvc+=DVPrescaleToolForMET
+
+DVCombinedTracklessJetFilterToolForMET = DerivationFramework__FilterCombinationOR( name = "DVCombinedTracklessJetFilterToolForMET",
+                                                                             FilterList = [DVSingleTracklessJetFilterTool,
+                                                                                           DVDoubleTracklessJetFilterTool,
+                                                                                           DVPrescaleToolForMET],
+##                                                                             OutputLevel=DEBUG
+                                                                             )
+ToolSvc+=DVCombinedTracklessJetFilterToolForMET
+
+DVPrescaleToolForPhoton = DerivationFramework__PrescaleTool(name = "DVPrescaleToolForPhoton",
+                                                   Prescale = primRPVLLDESDM.DV_PrescalerFlags.prescale
+                                                   )
+ToolSvc+=DVPrescaleToolForPhoton
+
+DVCombinedTracklessJetFilterToolForPhoton = DerivationFramework__FilterCombinationOR( name = "DVCombinedTracklessJetFilterToolForPhoton",
+                                                                             FilterList = [DVSingleTracklessJetFilterTool,
+                                                                                           DVDoubleTracklessJetFilterTool,
+                                                                                           DVPrescaleToolForPhoton],
+##                                                                             OutputLevel=DEBUG
+                                                                             )
+ToolSvc+=DVCombinedTracklessJetFilterToolForPhoton
 
 #======================================================================================================================================
 #######################################################################################################################################
@@ -131,7 +176,7 @@ ToolSvc+=DVMuonFilterTool
 
 DV_MuonFinalFilter = DerivationFramework__FilterCombinationAND( name = "DV_MuonFinalFilter",
                                                                 FilterList=[DVMuonFilterTool,DVMuonTriggerFilter],
-                                                                OutputLevel=INFO
+#                                                                OutputLevel=DEBUG
                                                                 )
 ToolSvc+=DV_MuonFinalFilter
 topSequence += kernel("RPVLL_DVMuonFilterKernel",
@@ -147,21 +192,59 @@ DVPhotonTriggerFilter = skimtool( name = "DVPhotonTriggerFilter",
                                 )
 ToolSvc += DVPhotonTriggerFilter
 
+# Photon IsEM
+
+from LongLivedParticleDPDMaker.LongLivedParticleDPDMakerConf import DerivationFramework__RpvEgammaIDTool
+DVPhotonSelection = DerivationFramework__RpvEgammaIDTool( name               = "DVPhotonSelection",
+                                                             SelectionVariables = ["Loose", "Tight"],
+                                                             CollectionName     =photonContainer ,
+                                                             SGPrefix           = "DV" + photonContainer,
+                                                           )
+ToolSvc += DVPhotonSelection
+topSequence += DerivationFramework__DerivationKernel( "DVPhotonAugmentationKernel",
+                                                      AugmentationTools = [DVPhotonSelection]
+                                                      )
+
+
+
 DVPhotonFilterTool = skimtool( name = "DVPhotonFilterTool",
                                expression = DVSelectionString(primRPVLLDESDM.DV_PhotonFilterFlags, photonContainer),
                                )
 ToolSvc += DVPhotonFilterTool
 DV_PhotonFinalFilter = DerivationFramework__FilterCombinationAND( name = "DV_PhotonFinalFilter",
                                                                   FilterList=[DVPhotonFilterTool,DVPhotonTriggerFilter],
-                                                                  OutputLevel=INFO
+##                                                                  OutputLevel=DEBUG
                                                                   )
 
 ToolSvc+=DV_PhotonFinalFilter
 
+DVPhotonPrescaleTool = DerivationFramework__PrescaleTool(name = "DVPhotonPrescaleTool",
+                                                         Prescale = primRPVLLDESDM.DV_PhotonFilterFlags.prescale
+                                                         )
+ToolSvc+=DVPhotonPrescaleTool
+
+DV_PrescaledPhotonFinalFilter = DerivationFramework__FilterCombinationAND(name="DV_PrescaledPhotonFinalFilter",
+                                                                     FilterList=[DV_PhotonFinalFilter,DVPhotonPrescaleTool])
+ToolSvc += DV_PrescaledPhotonFinalFilter
+
 topSequence += kernel( "RPVLL_DV_PhotonFilterKernel",
-                       SkimmingTools = [DV_PhotonFinalFilter]
+                       SkimmingTools = [DV_PrescaledPhotonFinalFilter]
                        )
 RPVLLfilterNames.extend(["RPVLL_DV_PhotonFilterKernel"])
+
+##########################################################################################################################################
+### Backup - photon+trackless jet - same combination as for multijets or MET - one hard trackless jets OR 2 soft OR prescaled passthrough.
+###########################################################################################################################################
+
+DV_PhotonPlusTracklessJetFilter = DerivationFramework__FilterCombinationAND(name="DV_PhotonPlusTracklessJetFilter",
+                                                                            FilterList=[DV_PhotonFinalFilter,DVCombinedTracklessJetFilterToolForPhoton]
+                                                                            )
+ToolSvc+= DV_PhotonPlusTracklessJetFilter
+
+topSequence += kernel( "RPVLL_DV_PhotonPlusTLJetFilterKernel",
+                       SkimmingTools = [DV_PhotonPlusTracklessJetFilter]
+                       )
+RPVLLfilterNames.extend(["RPVLL_DV_PhotonPlusTLJetFilterKernel"])
 
 
 ###########################################################################################
@@ -200,15 +283,15 @@ ToolSvc += DV7JetFilterTool
 
 DV_multiJet_offlineJetFilter = DerivationFramework__FilterCombinationOR( name = "DV_multiJet_offlineJetFilter",
                                                                         FilterList=[DV4JetFilterTool,DV5JetFilterTool,DV6JetFilterTool,DV7JetFilterTool],
-                                                                        OutputLevel=INFO
+##                                                                        OutputLevel=DEBUG
                                                                         )
 ToolSvc += DV_multiJet_offlineJetFilter
 
 
 
 DV_MultiJetFinalFilter = DerivationFramework__FilterCombinationAND( name = "DV_MultiJetFinalFilter",
-                                                                    FilterList=[DV_multiJet_offlineJetFilter,DVCombinedTracklessJetFilterTool,DVMultiJetTriggerFilter],
-                                                                    OutputLevel=INFO
+                                                                    FilterList=[DV_multiJet_offlineJetFilter,DVCombinedTracklessJetFilterToolForMultijet,DVMultiJetTriggerFilter],
+##                                                                    OutputLevel=DEBUG
                                                                         )
 ToolSvc+= DV_MultiJetFinalFilter
 
@@ -237,8 +320,8 @@ DVMETFilterTool = DerivationFramework__DVMissingETFilterTool(name = "DVMETFilter
 ToolSvc+=DVMETFilterTool
 
 DV_METFinalFilter = DerivationFramework__FilterCombinationAND( name = "DV_METFinalFilter",
-                                                               FilterList=[DVMETFilterTool,DVCombinedTracklessJetFilterTool,DVMETTriggerFilter],
-                                                               OutputLevel=INFO
+                                                               FilterList=[DVMETFilterTool,DVCombinedTracklessJetFilterToolForMET,DVMETTriggerFilter],
+##                                                               OutputLevel=DEBUG
                                                                )
 ToolSvc += DV_METFinalFilter
 
@@ -261,7 +344,7 @@ ToolSvc += DVMeffFilterTool
 
 DV_MeffFinalFilter = DerivationFramework__FilterCombinationAND( name = "DV_MEffFinalFilter",
                                                                FilterList=[DVMeffFilterTool,DVMETTriggerFilter],
-                                                               OutputLevel=INFO
+##                                                               OutputLevel=DEBUG
                                                                 )
 ToolSvc += DV_MeffFinalFilter
 
