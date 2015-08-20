@@ -181,6 +181,15 @@ StatusCode TrigCorMoni::bookHists()
     return StatusCode::SUCCESS;
   }
 
+  //
+  //default binning
+  char ctpid[11];
+  for (int ibin=1;ibin<=m_rejectL1->GetXaxis()->GetNbins(); ibin++) {
+    sprintf(ctpid,"CTPID-%d",ibin);
+    m_rejectL1->GetXaxis()->SetBinLabel(ibin, ctpid);
+    m_streamL1->GetXaxis()->SetBinLabel(ibin, ctpid);
+    m_acceptL1->GetXaxis()->SetBinLabel(ibin, ctpid);
+  }
 
   unsigned int idxstream = 0;
   for(std::set<std::string>::iterator sit = streams.begin(); sit != streams.end(); ++sit) {
@@ -224,6 +233,10 @@ StatusCode TrigCorMoni::bookHists()
     }
     */
   }
+
+      
+
+
 
   //
   // Make map from HLT chains to CTP ids

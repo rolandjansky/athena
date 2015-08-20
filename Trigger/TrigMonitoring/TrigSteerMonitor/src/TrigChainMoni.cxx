@@ -123,27 +123,6 @@ StatusCode TrigChainMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNe
   //book
   std::vector<const HLT::SteeringChain*> cc = m_parentAlg->getConfiguredChains();
   unsigned int totalNChains = cc.size();
-
-  std::map<std::string, unsigned int> chainname;
-
-  /*
-    MM, 29.7.11: I changed the way the binmap is made as well as the
-    way the names get into the labels to address Savannah bug 79938
-    which reported differences in histograms between xml and db
-    setups, apparently because the bin ordering had changed. A map is
-    used for the chainname array since the map is automatically sorted
-    on key (alphabetically since no comparator is explicitly defined).
-  */
-
-  for (const HLT::SteeringChain* chain : cc) {
-    chainname[chain->getChainName()] = chain->getChainCounter();
-  }
-  
-  binnr = 0;
-  for( std::map<std::string, unsigned int>::const_iterator it = chainname.begin(); it != chainname.end();
-       it++) {
-    m_binmap[ it->second ] = binnr++;
-  }
   
   //run summary  histos
   if(m_logLvl <= MSG::DEBUG) (*m_log)<<MSG::DEBUG<<" now book runsummary histos for: " << m_parentAlg->name() <<endreq;
@@ -211,16 +190,26 @@ StatusCode TrigChainMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNe
 	     << m_histoPathshift+ m_rerunChainsHist->GetName() << endreq;
   }
   
-  unsigned int tmpbin = 1;
-  for( std::map<std::string, unsigned int>::const_iterator it = chainname.begin(); it != chainname.end();
-       it++, tmpbin++) {
-    const std::string &chName = it->first;
-    m_chainAcceptanceHist   ->GetXaxis()->SetBinLabel(tmpbin,chName.c_str());
-    m_chainAcceptancePSHist ->GetXaxis()->SetBinLabel(tmpbin,chName.c_str());
-    m_chainAcceptancePTHist ->GetXaxis()->SetBinLabel(tmpbin,chName.c_str());
-    m_activeChainsHist      ->GetXaxis()->SetBinLabel(tmpbin,chName.c_str());
-    m_runChainsHist         ->GetXaxis()->SetBinLabel(tmpbin,chName.c_str());
-    m_rerunChainsHist       ->GetXaxis()->SetBinLabel(tmpbin,chName.c_str());
+
+  // setting labels
+  std::vector<std::pair<std::string,unsigned int>> labels;
+  labels.reserve(cc.size());
+  for (const HLT::SteeringChain* chain : cc) {
+    labels.push_back(std::make_pair(chain->getChainName(),chain->getChainCounter()));
+  }
+
+  //sorting labels:
+  std::sort(labels.begin(),labels.end(),[](const std::pair<std::string,unsigned int>&a, const std::pair<std::string,unsigned int>&b ){return a.first<b.first;});
+  unsigned int bin = 1;
+  for (auto& l: labels){    
+    m_chainAcceptanceHist   ->GetXaxis()->SetBinLabel(bin,l.first.c_str());
+    m_chainAcceptancePSHist ->GetXaxis()->SetBinLabel(bin,l.first.c_str());
+    m_chainAcceptancePTHist ->GetXaxis()->SetBinLabel(bin,l.first.c_str());
+    m_activeChainsHist      ->GetXaxis()->SetBinLabel(bin,l.first.c_str());
+    m_runChainsHist         ->GetXaxis()->SetBinLabel(bin,l.first.c_str());
+    m_rerunChainsHist       ->GetXaxis()->SetBinLabel(bin,l.first.c_str());
+    m_binmap[l.second]=bin;
+    bin++;
   }
   
   // m_useLBHistos = true; // MM debugging
@@ -252,30 +241,45 @@ StatusCode TrigChainMoni::fillHists()
   }
   
 
-  //fill histos 
 
+  // check if event passed:
   const std::vector<const HLT::SteeringChain*>& activeChains = m_parentAlg->getActiveChains();
 
+
+  bool eventPassed = false;  
+  bool isPhysicsAccept = false;
   for (std::vector<const HLT::SteeringChain*>::const_iterator chain = activeChains.begin();
        chain != activeChains.end(); ++chain) {
-    Int_t chaincounter = (Int_t)(*chain)->getChainCounter();
+      // check whether the event is accepted
+     eventPassed = (*chain)->chainPassed() || eventPassed;
+     if ( (*chain)->chainPassed()){
+       for (auto chain_stream : (*chain)->getStreamTags()){
+	  if ( chain_stream.getType() == "physics" ){
+	    isPhysicsAccept=true;
+	    break;
+	  }
+	}
+     }
+     if (isPhysicsAccept) break;
+   }
 
+
+
+
+  //fill histos 
+  for (std::vector<const HLT::SteeringChain*>::const_iterator chain = activeChains.begin();
+       chain != activeChains.end(); ++chain) {
     const HLT::SteeringChain* ch = *chain;
-
-    // fill the raw histogram
-    // m_binmap runs from 0 ... totalNChains -1 but binning starts with 1
-    // for the first chain --> fill m_binmap[chaincounter]+1 !
-
-    int bin = m_binmap[chaincounter]+1;
+    Int_t chaincounter = (Int_t)(*chain)->getChainCounter();
+    int bin = m_binmap[chaincounter];
 
     m_activeChainsHist->Fill(bin);
 
     if ( (ch->runInFirstPass() || ch->isPrescaled()) && !ch->runInSecondPass() ) 
       m_runChainsHist->Fill(bin);
 
-    if ( ch->runInSecondPass()) {
+    if ( ch->runInSecondPass()  && isPhysicsAccept) {// count times the chain rerun
       m_rerunChainsHist->Fill(bin);
-      continue;
     }    
     if ( ch->chainPassedRaw() ) {
       m_chainAcceptanceHist->Fill(bin);
@@ -307,13 +311,6 @@ StatusCode TrigChainMoni::finalHists()
     
   std::string   tmpstring = "REGTEST Print Statistics:  Number of accepted events per chain :  raw and after prescale, pass through ";
   if (m_logLvl <= MSG::INFO)(*m_log)<<MSG::INFO<<tmpstring<<endreq;
-  // sort histograms by labels (LabelsOption("a") fixes order of bins to be sorted alphabetically 
-  lock_histogram_operation<TH1I>(m_chainAcceptanceHist)->GetXaxis()->LabelsOption("a");
-  lock_histogram_operation<TH1I>(m_chainAcceptancePSHist)->GetXaxis()->LabelsOption("a");
-  lock_histogram_operation<TH1I>(m_chainAcceptancePTHist)->GetXaxis()->LabelsOption("a");
-  lock_histogram_operation<TH1I>(m_activeChainsHist)->GetXaxis()->LabelsOption("a");
-  lock_histogram_operation<TH1I>(m_runChainsHist)->GetXaxis()->LabelsOption("a");
-  lock_histogram_operation<TH1I>(m_rerunChainsHist)->GetXaxis()->LabelsOption("a");
   
   for(int i=1;i<=m_chainAcceptanceHist->GetNbinsX();i++){    
     /*

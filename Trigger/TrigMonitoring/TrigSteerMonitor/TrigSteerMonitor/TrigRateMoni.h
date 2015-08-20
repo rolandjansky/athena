@@ -121,7 +121,7 @@ class TrigRateMoni : public TrigMonitorToolBase {
   ServiceHandle<StoreGateSvc> m_storeGate;
   std::vector<std::string> m_specialStreamSetProperties;// for undecoded specials
 
-  enum ybins { input=0, prescale=1, raw=2, output=3, rerun=4, algoIn=5 };
+  enum ybins { input=0, prescale=1, raw=2, output=3, rerun=4, algoIn=5, passedrerun=6 };
 
   Athena::AlgorithmTimer* m_timer;
   void callback();

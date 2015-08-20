@@ -17,8 +17,6 @@
 #include "TrigSteeringEvent/Chain.h"
 
 // Framework includes
-//#include "StoreGate/DataHandle.h"
-//#include "StoreGate/SGIterator.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // ROOT includes
@@ -69,10 +67,12 @@ TrigROBMoni::TrigROBMoni(const std::string& type,
 
   // Bin assignment for ROB history
   m_ROBHistoryToBin[robmonitor::UNCLASSIFIED] = 1;
-  m_ROBHistoryToBin[robmonitor::RETRIEVED]    = 2;
-  m_ROBHistoryToBin[robmonitor::CACHED]       = 3;
-  m_ROBHistoryToBin[robmonitor::IGNORED]      = 4;
-  m_ROBHistoryToBin[robmonitor::DISABLED]     = 5;
+  m_ROBHistoryToBin[robmonitor::SCHEDULED]    = 2;
+  m_ROBHistoryToBin[robmonitor::RETRIEVED]    = 3;
+  m_ROBHistoryToBin[robmonitor::CACHED]       = 4;
+  m_ROBHistoryToBin[robmonitor::IGNORED]      = 5;
+  m_ROBHistoryToBin[robmonitor::DISABLED]     = 6;
+
 }
 
 TrigROBMoni::~TrigROBMoni()
@@ -115,8 +115,8 @@ StatusCode TrigROBMoni::initialize()
       eformat::helper::SourceIdentifier SID(static_cast<eformat::SubDetector>(sid), 0);
       const string detector = SID.human_detector();
       const string group = SID.human_group();
-      if (detector != "UNKNOWN") m_subDetNames[sid] = detector;
-      if (group != "UNKNOWN") m_subDetGroupNames[SID.subdetector_group()] = group;
+      if (detector.find("UNKNOWN")==std::string::npos) m_subDetNames[sid] = detector;
+      if (group.find("UNKNOWN") == std::string::npos) m_subDetGroupNames[SID.subdetector_group()] = group;
     }
   }
 
@@ -134,23 +134,36 @@ StatusCode TrigROBMoni::bookHists()
   vector<string> robHistory;
   robHistory.reserve(robmonitor::NUM_ROBHIST_CODES);
   robHistory.push_back("UNCLASSIFIED");
+  robHistory.push_back("SCHEDULED");
   robHistory.push_back("RETRIEVED");
   robHistory.push_back("CACHED");
   robHistory.push_back("IGNORED");
   robHistory.push_back("DISABLED");
+
     
   // Book histogram sets
-  m_hs_request_time.book(expertHists);
-  m_hs_request_size.book(expertHists);
-  m_hs_cached_fraction.book(expertHists);
-  m_hs_history_total.book(expertHists, &robHistory);
-  m_hs_history_event.book(expertHists, &robHistory, false);
+  StatusCode sc;
+  if (sc = m_hs_request_time.book(expertHists) != StatusCode::SUCCESS) 
+    m_log << MSG::ERROR << "Cannot book histogram Set " << m_hs_request_time.name  << endreq;
+    
+  if (sc = m_hs_request_size.book(expertHists)!= StatusCode::SUCCESS) 
+    m_log << MSG::ERROR << "Cannot book histogram Set " << m_hs_request_size.name  << endreq;
+
+  if (sc = m_hs_cached_fraction.book(expertHists)!= StatusCode::SUCCESS) 
+    m_log << MSG::ERROR << "Cannot book histogram Set " << m_hs_cached_fraction.name  << endreq;
+
+  if (sc = m_hs_history_total.book(expertHists, &robHistory)!= StatusCode::SUCCESS) 
+    m_log << MSG::ERROR << "Cannot book histogram Set " <<  m_hs_history_total.name  << endreq;
+
+  if (sc = m_hs_history_event.book(expertHists, &robHistory, false)!= StatusCode::SUCCESS) 
+    m_log << MSG::ERROR << "Cannot book histogram Set " <<  m_hs_history_event.name  << endreq;
+
 
   // Book additional histograms
-  m_h_shared_requests = new TProfile2D("SharedROBRequests_Algo",
-                                       "Fraction of shared ROB requests per event",
-                                       m_fexAlgos.size(), 0, m_fexAlgos.size(),
-                                       m_fexAlgos.size(), 0, m_fexAlgos.size());
+  m_h_shared_requests = new TH2F("SharedROBRequests_Algo",
+				 "Fraction of shared ROB requests per event",
+				 m_fexAlgos.size(), 0, m_fexAlgos.size(),
+				 m_fexAlgos.size(), 0, m_fexAlgos.size());
   
   vector<Algorithm*>::const_iterator a;
   int bin;
@@ -160,11 +173,9 @@ StatusCode TrigROBMoni::bookHists()
   }
 
   // Register histograms
-  const short nHists = 1;
-  TH1* regHists[nHists] = {m_h_shared_requests};
-  for ( int n = 0; n < nHists; ++n ) {
-    if ( expertHists.regHist(regHists[n]).isFailure() )
-      m_log << MSG::WARNING << "Cannot register histogram " << regHists[n]->GetName() << endreq;
+  if ( expertHists.regHist(m_h_shared_requests).isFailure() ){
+    m_log << MSG::ERROR << "Cannot register histogram " << m_h_shared_requests->GetName() << endreq;
+    return StatusCode::FAILURE;
   }
     
   return StatusCode::SUCCESS;
@@ -195,29 +206,38 @@ StatusCode TrigROBMoni::fillHists()
   map<string, set<uint32_t> > algoROBs;   // to calculate shared ROB fraction
   ROBDataMonitorCollection::const_iterator monIter; 
   map<const uint32_t,ROBDataStruct>::const_iterator robIter;
-  
+  string algo_name;
+
   for ( monIter = robMonColl->begin(); monIter != robMonColl->end(); ++monIter ) {
     ROBDataMonitorStruct& robMon = **monIter;
     
     for ( robIter = robMon.requested_ROBs.begin();
           robIter != robMon.requested_ROBs.end(); ++robIter ) {
+      algo_name = robMon.requestor_name;
+      if (algo_name.find("_pref")!=std::string::npos) algo_name.erase(algo_name.find("_pref"));//remove _pref
 
       const ROBDataStruct& rob = (*robIter).second;
-      algoROBs[robMon.requestor_name].insert(rob.rob_id);
+      algoROBs[algo_name].insert(rob.rob_id);
       
       // Fill request size
-      m_hs_request_size.fill(rob.rob_size, rob, robMon.requestor_name);
-      
+      if (m_hs_request_size.fill(rob.rob_size, rob, algo_name) != StatusCode::SUCCESS) 
+	m_log << MSG::ERROR << "Cannot fill histogram Set " <<  m_hs_request_size.name  << endreq;
+
       // Fill request time
-      m_hs_request_time.fill(robMon.elapsedTime(), rob, robMon.requestor_name);
+      if (m_hs_request_time.fill(robMon.elapsedTime(), rob, algo_name) != StatusCode::SUCCESS) 
+	m_log << MSG::ERROR << "Cannot fill histogram Set " <<  m_hs_request_time.name  << endreq;
       
       // Fill ROB history (need to fill with bin-1 since y-axis starts at 0 !)
-      m_hs_history_event.fill(m_ROBHistoryToBin[rob.rob_history]-1, rob, robMon.requestor_name);
+      if ( m_hs_history_event.fill(m_ROBHistoryToBin[rob.rob_history]-1, rob, algo_name)!= StatusCode::SUCCESS) 
+	m_log << MSG::ERROR << "Cannot fill histogram Set " << m_hs_history_event.name  << endreq;
+
+      // Fill ROB history (need to fill with bin-1 since y-axis starts at 0 !)
+      if ( m_hs_history_total.fill(m_ROBHistoryToBin[rob.rob_history]-1, rob, algo_name)!= StatusCode::SUCCESS) 
+	m_log << MSG::ERROR << "Cannot fill histogram Set " << m_hs_history_total.name  << endreq;
+
     }    
   }
 
-  m_hs_history_total.add(m_hs_history_event);
-  
   // Fill cached ROB fractions
   for ( short n = 0; n < m_hs_history_event.NHISTS; ++n ) {
     TH1* h = m_hs_history_event.hist[n];
@@ -239,9 +259,11 @@ StatusCode TrigROBMoni::fillHists()
       vector<uint32_t> shared( max(i1->second.size(),i2->second.size()) );
       iv = set_intersection(i1->second.begin(), i1->second.end(),
                             i2->second.begin(), i2->second.end(), shared.begin());
-
-      m_h_shared_requests->Fill(i1->first.c_str(), i2->first.c_str(),
-                                (double)(iv - shared.begin()) / i1->second.size());                       
+      if (i1->second.size() !=0){
+	m_h_shared_requests->Fill(i1->first.c_str(), i2->first.c_str(),
+				  (double)(iv - shared.begin()) / i1->second.size());                       
+      }
+      else m_log << MSG::WARNING << "Cannot fill m_h_shared_requests correctly" <<endreq;
     }
   }
   
@@ -278,13 +300,14 @@ StatusCode HistSet<HTYPE>::book(TrigMonitorToolBase::TrigMonGroup& monGroup,
    * Binning
    */
   if ( hist[SUBDET]->GetDimension()==1 ) {
-    hist[SUBDET]->SetBins(montool->m_subDetNames.size(),
-                     0, montool->m_subDetNames.size());
-  
-    hist[SDGROUP]->SetBins(montool->m_subDetGroupNames.size(),
-                          0, montool->m_subDetGroupNames.size());
-
-    hist[ALGO]->SetBins(montool->m_fexAlgos.size(), 0, montool->m_fexAlgos.size());
+    hist[SUBDET]->SetBins(montool->m_subDetNames.size(), 0, montool->m_subDetNames.size());
+    hist[SDGROUP]->SetBins(montool->m_subDetGroupNames.size(), 0, montool->m_subDetGroupNames.size());
+    hist[ALGO]->SetBins(1, 0, 1);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
+    hist[ALGO]->SetCanExtend(TH1::kAllAxes);
+#else
+    hist[ALGO]->SetBit(TH1::kCanRebin);
+#endif
   }
   else if ( hist[SUBDET]->GetDimension()==2 ) {
 
@@ -297,8 +320,12 @@ StatusCode HistSet<HTYPE>::book(TrigMonitorToolBase::TrigMonGroup& monGroup,
                           0, montool->m_subDetGroupNames.size(),
                           yBins, 0, yBins);
 
-    hist[ALGO]->SetBins(montool->m_fexAlgos.size(), 0, montool->m_fexAlgos.size(),
-                   yBins, 0, yBins);
+    hist[ALGO]->SetBins(1, 0, 1,yBins, 0, yBins);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
+    hist[ALGO]->SetCanExtend(TH2::kAllAxes);
+#else
+    hist[ALGO]->SetBit(TH2::kCanRebin);
+#endif    
 
     // Set y-labels if given
     if ( yLabels ) {
@@ -307,7 +334,8 @@ StatusCode HistSet<HTYPE>::book(TrigMonitorToolBase::TrigMonGroup& monGroup,
           hist[n]->GetYaxis()->SetBinLabel(i+1, (*yLabels)[i].c_str());        
       }
     }
-  }
+  } 
+  
   
   /*
    * Bin labels
@@ -325,12 +353,13 @@ StatusCode HistSet<HTYPE>::book(TrigMonitorToolBase::TrigMonGroup& monGroup,
     hist[SDGROUP]->GetXaxis()->SetBinLabel(bin, (*sdg).second.c_str());
   }
 
-  vector<Algorithm*>::const_iterator a;
-  for ( a = montool->m_fexAlgos.begin(), bin=1;
-        a != montool->m_fexAlgos.end(); ++a, ++bin ) {
-    hist[ALGO]->GetXaxis()->SetBinLabel(bin, (*a)->name().c_str());
-  }
+  //vector<Algorithm*>::const_iterator a;
+  //for ( a = montool->m_fexAlgos.begin(), bin=1;
+  //      a != montool->m_fexAlgos.end(); ++a, ++bin ) {
+  //  hist[ALGO]->GetXaxis()->SetBinLabel(bin, (*a)->name().c_str());
+  //}
     
+
   /*
    * Register and other common tasks
    */
@@ -357,13 +386,15 @@ StatusCode HistSet<HTYPE>::fill(double value, const robmonitor::ROBDataStruct& r
   if ( dim==1 ) {
     hist[SUBDET]->Fill(SID.human_detector().c_str(), value);
     hist[SDGROUP]->Fill(SID.human_group().c_str(), value);
-    hist[ALGO]->Fill(requester.c_str(), value);    
+    hist[ALGO]->Fill(requester.c_str(), value); 
+    hist[ALGO]->LabelsDeflate("X");   
   }
   else if ( dim==2 ) {
     const double w = 1;
     static_cast<TH2*>(hist[SUBDET])->Fill(SID.human_detector().c_str(), value, w);
     static_cast<TH2*>(hist[SDGROUP])->Fill(SID.human_group().c_str(), value, w);
     static_cast<TH2*>(hist[ALGO])->Fill(requester.c_str(), value, w);    
+    static_cast<TH2*>(hist[ALGO])->LabelsDeflate("X");    
   }
     
   return StatusCode::SUCCESS;
