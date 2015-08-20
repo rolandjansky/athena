@@ -34,6 +34,9 @@ namespace Muon {
     /** init truth */
     virtual void init() = 0;
 
+    /** get the associated barcode for the identifier, return -1 if the channel was not hit by a muon */
+    virtual int getBarcode( const Identifier& id ) = 0;
+
     /** add identifier */
     virtual void add( const Identifier& id, int level ) = 0;
 
@@ -44,7 +47,7 @@ namespace Muon {
     virtual void add( const Trk::Track& track, int level ) = 0;
 
     /** print summary */
-    virtual std::string printSummary() const = 0;
+    virtual std::string printSummary() = 0;
   };
   
   inline const InterfaceID& IMuonTruthSummaryTool::interfaceID()
