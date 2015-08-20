@@ -7,13 +7,18 @@ apply_tag ROOTGraphicsLibs
 
 end_private
 
-
 public
 
 use AtlasPolicy         AtlasPolicy-*
 use AtlasROOT           AtlasROOT-*           External
 use AtlasBoost          AtlasBoost-*          External
 use DQM_Core            DQM_Core-*            External
+
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Cint Hist RIO Tree)"
+
+# Specify the required dqm-common components (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(dqm-common)"
 
 macro_append ers_linkopts " $(tdaqc_linkopts) -lers "
 
@@ -22,6 +27,23 @@ macro_append Boost_linkopts " $(Boost_linkopts_system) $(Boost_linkopts_regex) $
 ##############################################################################
 #	library: DataQualityInterfaces
 ##############################################################################
+
+# Request cmake to generate the root dictionary and append the generated file to the library.
+# These lines are transparent to CMT.
+apply_pattern cmake_add_command command="athena_add_root_dictionary(DataQualityInterfacesDict ROOT_HEADERS  DataQualityInterfaces/MiniConfig.h\
+ DataQualityInterfaces/MiniConfigTreeNode.h\
+ DataQualityInterfaces/HanApp.h\
+ DataQualityInterfaces/HanConfig.h\
+ DataQualityInterfaces/HanConfigAlgLimit.h\
+ DataQualityInterfaces/HanConfigAlgPar.h\
+ DataQualityInterfaces/HanConfigParMap.h\
+ DataQualityInterfaces/HanConfigAssessor.h\
+ DataQualityInterfaces/HanConfigCompAlg.h\
+ DataQualityInterfaces/HanConfigGroup.h\
+ DataQualityInterfaces/HanConfigMetadata.h\
+ DataQualityInterfaces/ConditionsSingleton.h\
+ DataQualityInterfaces/LinkDef.h EXTERNAL_PACKAGES ROOT Boost dqm-common tdaq-common)"
+apply_pattern cmake_add_generated_files library=DataQualityInterfaces files=DataQualityInterfacesDict.cxx
 
 library  DataQualityInterfaces  $(lib_opts) "\
  ../src/HanAlgorithmConfig.cxx\
@@ -48,25 +70,30 @@ apply_pattern installed_library
 macro  DataQualityInterfaces_dependencies  "dqi_root_dictionary"
 
 action  dqi_root_dictionary  "( $(ROOTSYS)/bin/rootcint -f $(bin)DataQualityInterfacesRootDict.cxx -c $(includes)\ 
- ../DataQualityInterfaces/MiniConfig.h\
- ../DataQualityInterfaces/MiniConfigTreeNode.h\
- ../DataQualityInterfaces/HanApp.h\
- ../DataQualityInterfaces/HanConfig.h\
- ../DataQualityInterfaces/HanConfigAlgLimit.h\
- ../DataQualityInterfaces/HanConfigAlgPar.h\
- ../DataQualityInterfaces/HanConfigParMap.h\
- ../DataQualityInterfaces/HanConfigAssessor.h\
- ../DataQualityInterfaces/HanConfigCompAlg.h\
- ../DataQualityInterfaces/HanConfigGroup.h\
- ../DataQualityInterfaces/HanConfigMetadata.h\
- ../DataQualityInterfaces/ConditionsSingleton.h\
- ../DataQualityInterfaces/LinkDef.h )"
+ DataQualityInterfaces/MiniConfig.h\
+ DataQualityInterfaces/MiniConfigTreeNode.h\
+ DataQualityInterfaces/HanApp.h\
+ DataQualityInterfaces/HanConfig.h\
+ DataQualityInterfaces/HanConfigAlgLimit.h\
+ DataQualityInterfaces/HanConfigAlgPar.h\
+ DataQualityInterfaces/HanConfigParMap.h\
+ DataQualityInterfaces/HanConfigAssessor.h\
+ DataQualityInterfaces/HanConfigCompAlg.h\
+ DataQualityInterfaces/HanConfigGroup.h\
+ DataQualityInterfaces/HanConfigMetadata.h\
+ DataQualityInterfaces/ConditionsSingleton.h\
+ DataQualityInterfaces/LinkDef.h )"
 
 macro dqi_root_dictionary_dependencies " install_includes"
 
 #################
 # Persistency lib
 #################
+
+# Request cmake to generate the root dictionary and append the generated file to the library.
+# These lines are transparent to CMT.
+apply_pattern cmake_add_command command="athena_add_root_dictionary(dqm_persistencyDict ROOT_HEADERS DataQualityInterfaces/PAlgorithm.h DataQualityInterfaces/PMetadata.h DataQualityInterfaces/PParameter.h DataQualityInterfaces/PRegion.h DataQualityInterfaces/PResult.h DataQualityInterfaces/PFunctions.h DataQualityInterfaces/LinkDefdqmp.h EXTERNAL_PACKAGES ROOT Boost dqm-common tdaq-common)"
+apply_pattern cmake_add_generated_files library=dqm_persistency files=dqm_persistencyDict.cxx
 
 library  dqm_persistency  $(lib_opts) "\
  ../src/dqm_persistency_impl.cxx\
