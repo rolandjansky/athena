@@ -296,7 +296,8 @@ static PyObject *FTKTreeObject_ParseOutdir(FTKTreeObject* self)
 {
   // retrieve some global variable
   PyObject *verbose = PyObject_GetAttrString(mCFTKUtils,"verbose");
-  
+  PyObject *athena = PyObject_GetAttrString(mCFTKUtils,"athena");  
+
   /* scan of the output directory structure using python standard library
      trough the C API */
   PyObject *mglob = PyImport_ImportModule("glob");
@@ -426,7 +427,10 @@ static PyObject *FTKTreeObject_ParseOutdir(FTKTreeObject* self)
 
       // test the directory
       ostringstream tmppath;
-      tmppath << fullpath << "/merged/" << ireg << ends;
+      if (PyInt_AsLong(athena))
+	tmppath << fullpath << "/merged" << ends;
+      else
+	tmppath << fullpath << "/merged/" << ireg << ends;
       if (access(tmppath.str().c_str(),R_OK)) {
 	cout << "Region " << ireg << ": no merged roads" << endl;
 	Py_INCREF(Py_None);
@@ -434,7 +438,11 @@ static PyObject *FTKTreeObject_ParseOutdir(FTKTreeObject* self)
       }
       else {
 	unsigned int nfiles(0);
-	PyObject *flist = PyRun_String("glob(\"%s/merged/%d/ftkroads_*.root\" %(basedir,ireg))",Py_eval_input,dict,locals);
+	PyObject *flist;
+	if (PyInt_AsLong(athena))
+	  flist = PyRun_String("glob(\"%s/merged/*.roo*\" %(basedir))",Py_eval_input,dict,locals);
+	else
+	  flist = PyRun_String("glob(\"%s/merged/%d/ftkroads_*.root\" %(basedir,ireg))",Py_eval_input,dict,locals);
 	PyList_SetItem(self->mergedroads_files,ireg,flist);
 	nfiles = PyList_Size(flist);
 	cout << "Region " << ireg << ": " << nfiles << " merged roads files" << endl;
@@ -454,7 +462,11 @@ static PyObject *FTKTreeObject_ParseOutdir(FTKTreeObject* self)
 
   // look for merged tracks, with the addional global merge region
   ostringstream mtrackspath;
-  mtrackspath << fullpath << "/tracks_merge" << ends;
+  if (PyInt_AsLong(athena))
+    mtrackspath << fullpath << "/merged" << ends;
+  else
+    mtrackspath << fullpath << "/tracks_merge" << ends;
+
   if (!access(mtrackspath.str().c_str(),R_OK)) {
     for (int ireg=0;ireg!=self->nregions+1;++ireg) { // region loop
       PyObject *objreg = PyInt_FromLong(ireg);
@@ -463,7 +475,11 @@ static PyObject *FTKTreeObject_ParseOutdir(FTKTreeObject* self)
 
       // test the directory
       ostringstream tmppath;
-      tmppath << fullpath << "/tracks_merge/" << ireg << ends;
+      if (PyInt_AsLong(athena))
+	tmppath << fullpath << "/merged" << ends;
+      else
+	tmppath << fullpath << "/tracks_merge/" << ireg << ends;
+
       if (access(tmppath.str().c_str(),R_OK)) {
 	cout << "Region " << ireg << ": no merged tracks" << endl;
 	Py_INCREF(Py_None);
@@ -471,7 +487,11 @@ static PyObject *FTKTreeObject_ParseOutdir(FTKTreeObject* self)
       }
       else {
 	unsigned int nfiles(0);
-	PyObject *flist = PyRun_String("glob(\"%s/tracks_merge/%d/ftktracks_*.root\" %(basedir,ireg))",Py_eval_input,dict,locals);
+	PyObject *flist;
+	if (PyInt_AsLong(athena))
+	  flist = PyRun_String("glob(\"%s/merged/*.roo*\" %(basedir))",Py_eval_input,dict,locals);
+	else
+	  flist = PyRun_String("glob(\"%s/tracks_merge/%d/ftktracks_*.root\" %(basedir,ireg))",Py_eval_input,dict,locals);
 	PyList_SetItem(self->mergedtracks_files,ireg,flist);
 	nfiles = PyList_Size(flist);
 	cout << "Region " << ireg << ": " << nfiles << " merged tracks files" << endl;
@@ -493,6 +513,7 @@ static PyObject *FTKTreeObject_ParseOutdir(FTKTreeObject* self)
 
   // remove global variables
   Py_DECREF(verbose);
+  Py_DECREF(athena);
   
   Py_INCREF(Py_None);
   return Py_None;
@@ -1022,7 +1043,8 @@ static void FTKTreeObject_CheckConsistency(FTKTreeObject* self, TChain *chain, i
 static PyObject *FTKTreeObject_Connect(FTKTreeObject* self, PyObject *args)
 {
   PyObject *reconnect = Py_False;
-
+  PyObject *myathena = PyObject_GetAttrString(mCFTKUtils,"athena");
+  self->athena = myathena;
   if (! PyArg_ParseTuple(args, "|O", &reconnect))
     return NULL; 
 
@@ -1123,12 +1145,16 @@ static PyObject *FTKTreeObject_Connect(FTKTreeObject* self, PyObject *args)
 
       int nevents;
       FTKTreeObject_CheckConsistency(self,self->mergedroads_chain[ireg],nfiles,nevents);
-
-      for (int jreg=0;jreg!=self->nregions;++jreg) {
-	if (jreg!=ireg) continue;
-	self->mergedroads_chain[ireg]->SetBranchStatus(Form("FTKBank%d.",jreg),0);
+      if (self->athena) {
+	self->mergedroads_chain[ireg]->SetBranchAddress(Form("FTKMergedRoadsStream%d",ireg),&self->mergedroads_stream[ireg],&self->mergedroads_branch[ireg]);
       }
-      self->mergedroads_chain[ireg]->SetBranchAddress(Form("FTKBank%d.",ireg),&self->mergedroads_stream[ireg],&self->mergedroads_branch[ireg]);
+      else {
+	for (int jreg=0;jreg!=self->nregions;++jreg) {
+	  if (jreg!=ireg) continue;
+	  self->mergedroads_chain[ireg]->SetBranchStatus(Form("FTKBank%d.",jreg),0);
+	}
+	self->mergedroads_chain[ireg]->SetBranchAddress(Form("FTKBank%d.",ireg),&self->mergedroads_stream[ireg],&self->mergedroads_branch[ireg]);
+      }
 
       if (reconnect==Py_False) {
 	cout << "Connect Region " << ireg << ": " << nfiles << " merged road files, " << nevents << " events" << endl;
@@ -1157,8 +1183,13 @@ static PyObject *FTKTreeObject_Connect(FTKTreeObject* self, PyObject *args)
 
       int nevents;
       FTKTreeObject_CheckConsistency(self,self->mergedtracks_chain[ireg],nfiles,nevents);
-      
-      self->mergedtracks_chain[ireg]->SetBranchAddress("FTKBankMerged",&self->mergedtracks_stream[ireg],&self->mergedtracks_branch[ireg]);
+
+      if (self->athena) {
+	self->mergedtracks_chain[ireg]->SetBranchAddress(Form("FTKMergedTracksStream%d",ireg),&self->mergedtracks_stream[ireg],&self->mergedtracks_branch[ireg]);
+      }
+      else {
+	self->mergedtracks_chain[ireg]->SetBranchAddress("FTKBankMerged",&self->mergedtracks_stream[ireg],&self->mergedtracks_branch[ireg]);
+      }
 
       if (reconnect==Py_False) {
 	cout << "Connect Region " << ireg << ": " << nfiles << " merged track files, " << nevents << " events" << endl;
@@ -1169,45 +1200,48 @@ static PyObject *FTKTreeObject_Connect(FTKTreeObject* self, PyObject *args)
       self->mergedtracks_enabled[ireg] = false;
     }
   } // end region loop
-
+  
   // connect globally merged regions
-  if (PyList_GetItem(self->mergedtracks_files,self->nregions)!=Py_None) {
-    self->mergedtracks_chain[self->nregions] = new TChain("ftkdata");
-    self->mergedtracks_stream[self->nregions] = new FTKTrackStream();
-    
-    // Add the files to the chain
-    PyObject *iter = PyObject_GetIter(PyList_GetItem(self->mergedtracks_files,self->nregions));
-    int nfiles(0);
-    PyObject *item;
-    while (item = PyIter_Next(iter)) { // loop over the files
-      char *curfile = PyString_AsString(item);
-      nfiles += self->mergedtracks_chain[self->nregions]->Add(curfile);
-      Py_DECREF(item);
-    } // end loop over the files
-    Py_DECREF(iter);
-
-    int nevents;
-    FTKTreeObject_CheckConsistency(self,self->mergedtracks_chain[self->nregions],nfiles,nevents);
-
-    self->mergedtracks_chain[self->nregions]->SetBranchAddress("FTKBankMerged",&self->mergedtracks_stream[self->nregions],&self->mergedtracks_branch[self->nregions]);
-
-    if (reconnect==Py_False) {
-      cout << "Connect Region " << self->nregions << ": " << nfiles << " merged track files, " << nevents << " events" << endl;
-      self->mergedtracks_enabled[self->nregions] = true;
-    }    
-  }
+  if (self->athena)
+    PyList_SetItem(self->mergedtracks_files,self->nregions,Py_None);
   else {
-    self->mergedtracks_enabled[self->nregions] = false;
-  }
-
+    if (PyList_GetItem(self->mergedtracks_files,self->nregions)!=Py_None) {
+      self->mergedtracks_chain[self->nregions] = new TChain("ftkdata");
+      self->mergedtracks_stream[self->nregions] = new FTKTrackStream();
+      
+      // Add the files to the chain
+      PyObject *iter = PyObject_GetIter(PyList_GetItem(self->mergedtracks_files,self->nregions));
+      int nfiles(0);
+      PyObject *item;
+      while (item = PyIter_Next(iter)) { // loop over the files
+	char *curfile = PyString_AsString(item);
+	nfiles += self->mergedtracks_chain[self->nregions]->Add(curfile);
+	Py_DECREF(item);
+      } // end loop over the files
+      Py_DECREF(iter);
+      
+      int nevents;
+      FTKTreeObject_CheckConsistency(self,self->mergedtracks_chain[self->nregions],nfiles,nevents);
+      
+      self->mergedtracks_chain[self->nregions]->SetBranchAddress("FTKBankMerged",&self->mergedtracks_stream[self->nregions],&self->mergedtracks_branch[self->nregions]);
+      
+      if (reconnect==Py_False) {
+	cout << "Connect Region " << self->nregions << ": " << nfiles << " merged track files, " << nevents << " events" << endl;
+	self->mergedtracks_enabled[self->nregions] = true;
+      }    
+    }
+    else {
+      self->mergedtracks_enabled[self->nregions] = false;
+    }
+  }    
   if (reconnect==Py_False) {
     cout << "Number of events " << self->nEvents << endl;
   }
-
+  
   Py_DECREF(self->connected);
   Py_INCREF(Py_True);
   self->connected = Py_True;
-
+  
   Py_RETURN_NONE;
 }
 
@@ -2106,6 +2140,8 @@ PyMODINIT_FUNC initcftkutils(void)
     PyObject *modvar;
     modvar = PyInt_FromLong(0l);
     PyObject_SetAttrString(mCFTKUtils,"verbose",modvar);
+    Py_DECREF(modvar);
+    PyObject_SetAttrString(mCFTKUtils,"athena",modvar);
     Py_DECREF(modvar);
     modvar = PyFloat_FromDouble(-2.5);
     PyObject_SetAttrString(mCFTKUtils,"minEta",modvar);

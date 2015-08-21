@@ -13,7 +13,7 @@ using namespace std;
 ClassImp(FTKTrack)
 
 FTKTrack::FTKTrack() :
-   m_bankID(-1), m_roadID(-1), m_sectorID(-1), m_trackID(-1),
+   m_bankID(-1), m_roadID(-1), m_patternID(0), m_sectorID(-1), m_trackID(-1),
    m_combid(-1), m_extrid(-1),
    m_invpt(0), m_d0(0), m_rawd0(0) , m_phi(0), m_rawphi(0), m_z0(0), m_rawz0(0),
    m_ctheta(0), m_chi2(0), m_origchi2(0), 
@@ -23,7 +23,7 @@ FTKTrack::FTKTrack() :
    m_nplanes(0), m_hits(0x0),
    m_HF_rejected(0),m_HW_rejected(0),m_HW_track(-1),
    m_eventindex(-1), m_barcode(-1), m_barcode_frac(0.),
-   m_connindex(-1), m_patternID(0)
+   m_connindex(-1)
 {
    // nothing to do
 }
@@ -83,9 +83,9 @@ FTKTrack::FTKTrack(const FTKTrack &cpy) :
 
 
 FTKTrack::FTKTrack(const int &ncoords, const int &nplanes) :
-   m_bankID(-1), m_roadID(-1), m_sectorID(-1), m_trackID(-1),
+   m_bankID(-1), m_roadID(-1), m_patternID(0), m_sectorID(-1), m_trackID(-1),
    m_combid(-1), m_extrid(-1),
-   m_invpt(0), m_d0(0), m_phi(0), m_z0(0),
+   m_invpt(0), m_d0(0), m_rawd0(0), m_phi(0), m_rawphi(0), m_z0(0), m_rawz0(0),
    m_ctheta(0), m_chi2(0), m_origchi2(0), 
    m_invptfw(0), m_d0fw(0), m_phifw(0), m_z0fw(0), m_cthetafw(0), m_chi2fw(0),
    m_nmissing(0), 
@@ -93,7 +93,7 @@ FTKTrack::FTKTrack(const int &ncoords, const int &nplanes) :
    m_nplanes(nplanes),
    m_HF_rejected(0),m_HW_rejected(0),m_HW_track(-1),
    m_eventindex(-1), m_barcode(-1), m_barcode_frac(0.),
-   m_connindex(-1), m_patternID(0), m_rawd0(0), m_rawphi(0), m_rawz0(0)
+   m_connindex(-1) 
 {
   m_coord = new float[m_ncoords];
   for (int i=0;i<m_ncoords;++i) m_coord[i] = 0;

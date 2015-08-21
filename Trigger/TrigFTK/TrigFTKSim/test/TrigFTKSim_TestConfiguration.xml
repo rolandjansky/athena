@@ -1,31 +1,1314 @@
 <?xml version="1.0"?>
 <!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
-
 <unifiedTestConfiguration>
   <atn/>
   <kv/>
   <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
-	
     <rttContactPerson>Thor Taylor (pierre.thor.elliot.taylor@cern.ch)</rttContactPerson>
-    <mailto>pierre.thor.elliot.taylor@cern.ch</mailto>
-	
+    <mailto>pierre.thor.elliot.taylor@cern.ch, Noel.Dawe@cern.ch, jahreda@gmail.com</mailto>
     <jobList>
-      
-      <jobTransform userJobId="RunOneTower">
-        <jobTransformJobName>FTKSimTower1</jobTransformJobName>
-        <jobTransformCmd>RunATowerPU20 1</jobTransformCmd>
+      <chain>
+        <chainName>RunMulitpleTowers</chainName>
         
-        <group>FTKSimValidation</group>
-               
-      </jobTransform>
-      
+        <sequential>
+          <parallel>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower00">
+                <jobTransformJobName>FTKSimTower00</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 0</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower01">
+                <jobTransformJobName>FTKSimTower01</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 1</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower02">
+                <jobTransformJobName>FTKSimTower02</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 2</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower03">
+                <jobTransformJobName>FTKSimTower03</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 3</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower04">
+                <jobTransformJobName>FTKSimTower04</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 4</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower05">
+                <jobTransformJobName>FTKSimTower05</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 5</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower06">
+                <jobTransformJobName>FTKSimTower06</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 6</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower07">
+                <jobTransformJobName>FTKSimTower07</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 7</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower08">
+                <jobTransformJobName>FTKSimTower08</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 8</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower09">
+                <jobTransformJobName>FTKSimTower09</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 9</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower10">
+                <jobTransformJobName>FTKSimTower10</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 10</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower11">
+                <jobTransformJobName>FTKSimTower11</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 11</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower12">
+                <jobTransformJobName>FTKSimTower12</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 12</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower13">
+                <jobTransformJobName>FTKSimTower13</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 13</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower14">
+                <jobTransformJobName>FTKSimTower14</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 14</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower15">
+                <jobTransformJobName>FTKSimTower15</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 15</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower16">
+                <jobTransformJobName>FTKSimTower16</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 16</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower17">
+                <jobTransformJobName>FTKSimTower17</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 17</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower18">
+                <jobTransformJobName>FTKSimTower18</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 18</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower19">
+                <jobTransformJobName>FTKSimTower19</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 19</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower20">
+                <jobTransformJobName>FTKSimTower20</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 20</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower21">
+                <jobTransformJobName>FTKSimTower21</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 21</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower22">
+                <jobTransformJobName>FTKSimTower22</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 22</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower23">
+                <jobTransformJobName>FTKSimTower23</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 23</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower24">
+                <jobTransformJobName>FTKSimTower24</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 24</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower25">
+                <jobTransformJobName>FTKSimTower25</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 25</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower26">
+                <jobTransformJobName>FTKSimTower26</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 26</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower27">
+                <jobTransformJobName>FTKSimTower27</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 27</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower28">
+                <jobTransformJobName>FTKSimTower28</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 28</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower29">
+                <jobTransformJobName>FTKSimTower29</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 29</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower30">
+                <jobTransformJobName>FTKSimTower30</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 30</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower31">
+                <jobTransformJobName>FTKSimTower31</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 31</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower32">
+                <jobTransformJobName>FTKSimTower32</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 32</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower33">
+                <jobTransformJobName>FTKSimTower33</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 33</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower34">
+                <jobTransformJobName>FTKSimTower34</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 34</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower35">
+                <jobTransformJobName>FTKSimTower35</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 35</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower36">
+                <jobTransformJobName>FTKSimTower36</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 36</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower37">
+                <jobTransformJobName>FTKSimTower37</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 37</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower38">
+                <jobTransformJobName>FTKSimTower38</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 38</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower39">
+                <jobTransformJobName>FTKSimTower39</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 39</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower40">
+                <jobTransformJobName>FTKSimTower40</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 40</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower41">
+                <jobTransformJobName>FTKSimTower41</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 41</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower42">
+                <jobTransformJobName>FTKSimTower42</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 42</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower43">
+                <jobTransformJobName>FTKSimTower43</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 43</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower44">
+                <jobTransformJobName>FTKSimTower44</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 44</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower45">
+                <jobTransformJobName>FTKSimTower45</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 45</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower46">
+                <jobTransformJobName>FTKSimTower46</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 46</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower47">
+                <jobTransformJobName>FTKSimTower47</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 47</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower48">
+                <jobTransformJobName>FTKSimTower48</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 48</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower49">
+                <jobTransformJobName>FTKSimTower49</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 49</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower50">
+                <jobTransformJobName>FTKSimTower50</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 50</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower51">
+                <jobTransformJobName>FTKSimTower51</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 51</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower52">
+                <jobTransformJobName>FTKSimTower52</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 52</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower53">
+                <jobTransformJobName>FTKSimTower53</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 53</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower54">
+                <jobTransformJobName>FTKSimTower54</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 54</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower55">
+                <jobTransformJobName>FTKSimTower55</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 55</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower56">
+                <jobTransformJobName>FTKSimTower56</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 56</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower57">
+                <jobTransformJobName>FTKSimTower57</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 57</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower58">
+                <jobTransformJobName>FTKSimTower58</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 58</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower59">
+                <jobTransformJobName>FTKSimTower59</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 59</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower60">
+                <jobTransformJobName>FTKSimTower60</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 60</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower61">
+                <jobTransformJobName>FTKSimTower61</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 61</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower62">
+                <jobTransformJobName>FTKSimTower62</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 62</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="RunTower63">
+                <jobTransformJobName>FTKSimTower63</jobTransformJobName>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents 400 --inputNTUP_FTKIPFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{tower} --FTKSetupTag TDAQTDRv2 --firstEventFTK 0 --MergeRoads True  --ConstantsDir /cvmfs/atlas.cern.ch/repo/sw/database/GroupData/FTK/ --FitConstantsVersion ftk-note.v1.0 --PatternsVersion ftk-note.v1.0.1 --bankregion 63</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <queue>medium</queue>
+              </jobTransform> 
+              <chainfileout>tmp.NTUP_FTKTMP_{tower}</chainfileout>
+            </chainElement>
+            
+          </parallel>
+        
+          <chainElement>
+            <jobTransform userJobId="MergeTowers">
+              <jobTransformJobName>FTKSimMerge</jobTransformJobName>
+              <jobTransformCmd>TrigFTKTM64SM4Un_tf.py --maxEvents 400 --MergeRoads=True --UberFinalMerge=False --FTKSetupTag TDAQTDRv2 --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --inputNTUP_FTKTMP_{tower}File=tmp.NTUP_FTKTMP_{tower} --outputNTUP_FTKFile=tempout.root --inputNTUP_FTKIPFile=/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/InputNtuples/group.trig-daq.558989_005479.EXT0._00016.NTUP_FTKIP.root</jobTransformCmd>
+              <group>FTKSimValidation</group>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower00.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower01.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower02.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower03.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower04.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower05.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower06.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower07.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower08.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower09.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower10.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower11.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower12.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower13.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower14.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower15.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower16.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower17.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower18.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower19.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower20.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower21.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower22.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower23.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower24.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower25.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower26.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower27.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower28.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower29.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower30.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower31.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower32.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower33.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower34.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower35.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower36.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower37.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower38.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower39.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower40.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower41.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower42.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower43.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower44.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower45.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower46.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower47.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower48.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower49.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower50.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower51.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower52.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower53.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower54.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower55.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower56.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower57.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower58.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower59.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower60.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower61.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower62.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>tmp.NTUP_FTKTMP_{tower}</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTKTMP_tower63.root</datasetName>
+                </dataset_info>
+              </chaindataset_info>
+              
+              <queue>medium</queue>
+            </jobTransform>
+            <chainfileout>tempout.root</chainfileout>
+          </chainElement>
+            
+          <parallel>
+            <chainElement>
+              <jobTransform userJobId="ConsistencyCheck">
+                <jobTransformJobName>OutputConsistencyCheck</jobTransformJobName>
+                <jobTransformCmd>CompareFTKSimDirectories_RTT.py --RefFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTK.root --ChkFile tempout.root --PlotTowers</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>tempout.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTK.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
+                <queue>medium</queue>
+              </jobTransform>
+            </chainElement>
+            
+            <chainElement>
+              <jobTransform userJobId="EfficiencyPlots">
+                <jobTransformJobName>EfficiencyPlots</jobTransformJobName>
+                <jobTransformCmd>source $AtlasBaseDir/*/$AtlasVersion/Trigger/TrigFTK/TrigFTKSim/scripts/efficiency_plots_RTT.sh</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>tempout.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTK.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
+                <queue>medium</queue>
+              </jobTransform>
+            </chainElement>
+
+            <chainElement>
+              <jobTransform userJobId="Dataflow">
+                <jobTransformJobName>Dataflow</jobTransformJobName>
+                <jobTransformCmd>root -q -b -l '$AtlasBaseDir/*/$AtlasVersion/Trigger/TrigFTK/TrigFTKSim/standalone/plot_simple_dataflow.C("tempout.root",-1)'</jobTransformCmd>
+                <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>tempout.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/NTUP_FTK.root</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
+                <queue>medium</queue>
+              </jobTransform>
+            </chainElement>
+          </parallel>
+        
+        </sequential>
+      </chain>
     </jobList>
-    
     <jobGroups>
        <jobGroup name="FTKSimValidation" parent="Transform">
-	 <keepFilePattern info="Output Ntuple">NTUPFTKTMP_*.root</keepFilePattern>
+         <keepFilePattern info="Output Ntuples and plots">.root</keepFilePattern>
+	 <keepFilePattern info="extra log files">log.*</keepFilePattern>
+         <keepFilePattern info="Tower files">tmp.NTUP*</keepFilePattern>
+         <keepFilePattern info="dataflow output">output.txt</keepFilePattern>
+         <testToRemove>
+           <jobGroupName>RTT:Top</jobGroupName>
+           <testidentifier>CheckFileRunner0</testidentifier>
+         </testToRemove>
        </jobGroup>
     </jobGroups>
-    
   </rtt>
 </unifiedTestConfiguration>

@@ -16,10 +16,10 @@ else
     echo "Detected 32 bit environment"
 fi
 
-# Make sure dcache is present and export compiler flags
-echo "Trying to find libdcap shipped with athena:"
-export DCAPDIR=`cd $SITEROOT/sw/lcg/external/dcache_client/*/$CMTCONFIG/dcap/ && pwd`
-
+setupATLAS --quiet
+localSetupSFT dcache_client/2.47.6-1
+export DCAPDIR=$SFT_HOME_dcache_client/dcap
+echo "Trying to find libdcap for localSetupSFT dcache_client/2.47.6-1"
 DCAP_INCDIR="${DCAPDIR}/include"
 export DCAP_CXXFLAGS="-I${DCAP_INCDIR}"
 if [ ${uct3_64} -ne 1 ]; then
@@ -42,10 +42,14 @@ fi;
 
 # Make sure boost c++ is present and export compiler flags
 echo "Trying to find boost libraries shipped with athena:"
-export BOOSTDIR=`cd $SITEROOT/sw/lcg/external/Boost/*/$CMTCONFIG/ && pwd`
+localSetupSFT Boost/1.53.0_python2.7
+echo "Trying to find boost dir for localSetupSFT Boost/1.53.0_python2.7"
+export BOOSTDIR=$SFT_HOME_Boost
+export BOOST_INCDIR=$SFT_BOOST_INCLUDE
+echo "BOOSTDIR = "$BOOSTDIR
+echo "BOOST INCLUDE = "$SFT_BOOST_INCLUDE
 
-BOOST_INCDIR=`cd ${BOOSTDIR}/include/boost-*/ && pwd`
-export BOOST_CXXFLAGS="-I${BOOST_INCDIR}"
+export BOOST_CXXFLAGS="-I${BOOST_INCDIR} -I${BOOST_INCDIR}/.."
 export BOOST_VER=`echo ${BOOST_CXXFLAGS} | awk 'BEGIN{FS="-"}; { print $NF; }'`
 BOOST_LDDIR="${BOOSTDIR}/lib"
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${BOOST_LDDIR}
@@ -53,7 +57,7 @@ BOOST_IOLIB=`cd ${BOOST_LDDIR}; /bin/ls libboost_iostreams-gcc*-mt-1*.so | sed -
 BOOST_PRLIB=`cd ${BOOST_LDDIR}; /bin/ls libboost_program_options-gcc*-mt-1*.so | sed -e 's#.so##' -e 's#lib##'`
 BOOST_FSLIB=`cd ${BOOST_LDDIR}; /bin/ls libboost_filesystem-gcc*-mt-1*.so | sed -e 's#.so##' -e 's#lib##'`
 export BOOST_LDFLAGS="-L${BOOST_LDDIR} -l${BOOST_IOLIB} -l${BOOST_PRLIB} -l${BOOST_FSLIB}"
-if [ -s "${BOOST_INCDIR}/boost/iostreams/operations.hpp" -a -n "${BOOST_IOLIB}" -a -n "${BOOST_PRLIB}" -a -n "${BOOST_FSLIB}" ]; then
+if [ -s "${BOOST_INCDIR}/iostreams/operations.hpp" -a -n "${BOOST_IOLIB}" -a -n "${BOOST_PRLIB}" -a -n "${BOOST_FSLIB}" ]; then
     echo "Good, boost version ${BOOST_VER} is found:"
     echo "BOOST_CXXFLAGS = ${BOOST_CXXFLAGS}"
     echo "BOOST_LDFLAGS = ${BOOST_LDFLAGS}"
@@ -62,7 +66,14 @@ else
     if [ "$#" -gt "0" ]; then exit 2; fi;
 fi;
 
-export EIGENDIR=`cd $SITEROOT/AtlasCore/*/External/AtlasEigen/$CMTCONFIG/pkg-build-install-eigen/  && pwd`
+if [ "$SITEROOT" == "/afs/cern.ch" ]; then
+    # using a nightly under afs
+    export EIGENDIR=/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_0/External/AtlasEigen/$CMTCONFIG/pkg-build-install-eigen/
+else
+    # using a release (on CVMFS)
+    export EIGENDIR=`cd $SITEROOT/AtlasCore/*/External/AtlasEigen/$CMTCONFIG/pkg-build-install-eigen/  && pwd`
+fi
+
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${EIGENDIR}/Eigen
 export EIGEN_CXXFLAGS="-I${EIGENDIR}"
 
@@ -70,11 +81,9 @@ if [ -s "${EIGENDIR}/Eigen/LU" ]; then
 	echo "Found EIGENDIR = "$EIGENDIR
 else
 	echo "OOPS, cannot find eigen. Booo"
-    if [ "$#" -gt "0" ]; then exit 2; fi;	
+    if [ "$#" -gt "0" ]; then exit 2; fi;
 fi;
-
 
 # Alias to variables used in TrigFTKAna
 export TRIGFTKANA_BOOST_DIR=${BOOSTDIR}
 export TRIGFTKANA_DCAP_DIR=${DCAPDIR}
-

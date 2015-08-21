@@ -36,6 +36,8 @@ private:
   bool m_DumpModuleIDMap;
   bool m_DumpGlobalToLocalMap;
 
+  bool m_DumpIDMap;
+
   int m_IBLMode;
 };
 

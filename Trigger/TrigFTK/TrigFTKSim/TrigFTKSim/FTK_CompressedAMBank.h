@@ -27,6 +27,9 @@
 
 class FTKSSMap;
 class TSPMap;
+class FTKHitPattern;
+class FTKHitPatternCompare;
+class FTKPatternOneSector;
 
 //#include <boost/container/map.hpp>
 //#include <boost/container/vector.hpp>
@@ -43,7 +46,7 @@ class TSPMap;
 
 #ifdef OPTIMIZED_VECTORMAP
 // this map has a parallel linear stucture for fast loops
-//   using "const_ptr" rather than const_iterator
+//   using the type "const_ptr" rather than "const_iterator"
 template<class T> class VECTORMAP : public MAP<int,T> {
  public:
    VECTORMAP() : fData(0),fSize(0) { }
@@ -61,9 +64,14 @@ template<class T> class VECTORMAP : public MAP<int,T> {
       typename std::pair<const int,T> const **ptr;
    };
    int getMemoryEstimate(void) const {
-      return ((uint8_t const *)(this+1)-(uint8_t const *)this)+
-         (sizeof(typename std::pair<int, T>)+4*sizeof(void *))*
-         MAP<int,T>::size()+sizeof(void *)*fSize;
+      // size of the class
+      // data and four pointers (data,prev,next,child) per node
+      // plus array of pointers for fast access using "const_ptr"
+      return
+         ((uint8_t const *)(this+1)-(uint8_t const *)this)+
+         (sizeof(typename std::pair<int, T>)+4*sizeof(void *))
+         *MAP<int,T>::size()
+         +sizeof(void *)*fSize;
    }
    inline const_ptr beginPtr(void) const { return fData; }
    inline const_ptr endPtr(void) const { return fData+fSize; }
@@ -90,6 +98,14 @@ public:
    inline const_ptr beginPtr(void) const { return MAP<int,T>::begin(); }
    inline const_ptr endPtr(void) const {return MAP<int,T>::end(); }
    inline void pack() { }
+   int getMemoryEstimate(void) const {
+      // size of the class
+      // data plus four pointers (parent,prev,next,child) per node
+      return
+         ((uint8_t const *)(this+1)-(uint8_t const *)this)+
+         (sizeof(typename std::pair<int, T>)+
+          +4*sizeof(void *))*MAP<int,T>::size();
+   }
 };
 #endif
 
@@ -100,36 +116,31 @@ public:
    // set up pattern bank
    FTK_CompressedAMBank(int bankID,int subID,FTKSSMap *ssMap=0,
                         FTKSSMap *ssMapTSP=0,
+                        int hwmodeid_TSP=-1,int hwmodeid_DC=-1,
                         char const *name="FTK_CompressedAMBank");
    // set SS map (TSP)
    void setSSMapTSP(FTKSSMap *m_ssmap_tsp) { m_SSmapTSP=m_ssmap_tsp; }
    FTKSSMap *getSSMapTSP() const { return m_SSmapTSP; }
 
-   // convert cached file to sector ordered file (slow!)
-   int convertCachedBankFiles(std::vector<char const *> &cachedBanks,
-                              char const *sectorOrderedFile);
-
-   // read sector-ordered file (slow!)
-   int readSectorOrderedFile(char const *sectorOrderedFile);
-
    // write cached-bank file
-   int writeCachedBankFile(char const *cachedBankFile) const;
-  
-   // write binary file (fast but hardware-dependent!)
-   int writeBinaryFile(char const *binaryLookup) const;
+   int writePCachedBankFile(char const *cachedBankFile) const;
 
    // write root file (reasonaby fast)
-   int writeRootFile(char const *rootLoopup) const;
+   int writeCCachedBankFile(char const *cachedBankFile) const;
+  
+   // write binary file (fast but hardware-dependent)
+   //  do not use
+   int writeBinaryFile(char const *binaryLookup) const;
 
    // read binary file (fast but hardware dependent)
+   //  do not use
    int readBinaryFile(char const *rootLoopup);
-
-   // read root file (reasonably fast)
-   int readRootFile(char const *binaryLookup);
 
    // full comparison of two pattern banks
    int compare(FTK_CompressedAMBank const *bank) const;
 
+   // print head and tail of one sector of the pattern bank
+   void printSector(int sector,int npattern=10);
 
    // purely virtual methods from FTK_AMsimulation_base, to be implemented
    virtual const std::unordered_map<int,FTKSS>& getStrips(int plane);
@@ -140,7 +151,8 @@ public:
    virtual void setNPlanes(int nPlanes);
 
    // FTK_AMsimulation_base interface to load bank data
-   virtual int readROOTBank(const char*, int maxpatts=-1);
+   virtual int readROOTBank(const char*, int maxpatts);
+   virtual int readROOTBankCache(const char*);
    // set up wildcards here
    virtual void init();
 
@@ -164,8 +176,22 @@ public:
    }
    std::pair<int,int> const &getDCssid(int layer,int tspSSID);
 
+   // read root file (sector-ordered), split subregions
+   int readSectorOrderedBank(const char *name, int maxpatts,int nSub);
+
 protected:
-   // finalize memory structures after readin bank data from file
+   // read root file (pcache)
+   int readPCachedBank(TDirectory *pcache);
+
+   // read root file (Compressed cache)
+   int readCCachedBank(TDirectory *ccache);
+
+   // convert sector-ordered DC bank (in memory) to TSP-bank
+   void importDCpatterns
+      (int nLayer,int offsetSSID,int32_t *ssidData,
+       VECTOR<std::pair<int,int> > const &sectorPointer);
+
+   // finalize memory structures after reading bank data from file
    void readBankPostprocessing(const char *where);
 
    // hold pattern data for a given layer,SSID,sector (all patterns)
@@ -276,12 +302,22 @@ protected:
 
  private:
   //
+  // method to insert TSP patterns from one sector
+  typedef MAP<FTKHitPattern,uint64_t,FTKHitPatternCompare>
+     HitPatternMap_t;
+  void insertPatterns(int sector,FTKPatternOneSector const *patterns,
+                      int maxpatts,VECTOR< HitPatternMap_t > &dcPatterns,
+                      int &nDC,int &nTSP);
+  //
   // these methods are used to populate tables to translate
   //   tspSSID to dcSSID and back
   //   (this should be moved to another class?)
   int getTSPssidSlow(int layer,int ssid,int tspXY);
   int getDCssidSlow(int layer,int tspSSID);  
   void insertSSID(int layer,int tspSSID,int dcSSID);
+
+  int getHWModeSS_dc(void) const;
+  int getHWModeSS_tsp(void) const;
   //
   // table to convert SSID and tspXY offsets to a TSP SSID
   VECTOR<MAP<int,std::vector<int> > > m_DCtoTSP;
@@ -297,7 +333,11 @@ protected:
   VECTOR<VECTOR<int> > m_subSSmask;
   VECTOR<VECTOR<int> > m_dcMaskLookup;
   VECTOR<VECTOR<int> > m_hbMaskLookup;
-
+  // lookup-tables to get encoded (DC,HB) bits given the subindex of TSP wrt DC
+  VECTOR<VECTOR<uint64_t> > m_dcBitsLookup1;
+  // lookup table to calculate the encoded merged (DC,HB) bits
+  //   given two pairs of encoded (DC,HB) bits
+  VECTOR<VECTOR<uint64_t> > m_dcBitsLookup2;
   //
   // lookup-table to get the number of bits in a 16-bit word
   //    for example, m_nHit16[0x38]=3 because three bits ars set
@@ -312,6 +352,10 @@ protected:
   // FTK geometry maps
   //   TSP geometry (fine segmentation)
   FTKSSMap *m_SSmapTSP;
+
+  // steering to interpret SSID
+  int m_hwmodeIDtsp,m_hwmodeIDdc;
+
   //   map TSP to DC geometry (fine superstrip <-> coarse superstrip)
   TSPMap *m_TSPmap;
 };

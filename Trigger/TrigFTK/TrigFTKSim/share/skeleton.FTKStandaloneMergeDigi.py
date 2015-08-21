@@ -51,7 +51,6 @@ import sys
 
 FTKMerger = FTKMergerAlgo( "FTKMergerAlgo" , OutputLevel=DEBUG)
 FTKMerger.doMerging = True # this enables the behavior of the FTKMergerAlgo as FTK streams merger
-FTKMerger.GenerateRDO = True # this enables the creation of 
 
 runArgsMandatory =  ['NBanks', 'NSubRegions', 'pmap_path', 'loadHWConf_path']
 

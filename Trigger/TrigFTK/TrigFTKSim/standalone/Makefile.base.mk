@@ -10,7 +10,7 @@ else
         LIBS+=$(shell root-config --prefix=${ROOTSYS} --libs) $(BOOST_LDFLAGS) $(DCAP_LDFLAGS) -m64
 endif
 
-CXXFLAGS += -D__USE_XOPEN2K8 -std=c++11 
+CXXFLAGS += -D__USE_XOPEN2K8 -std=c++11 -Wno-unused-local-typedefs -I$(SITEROOT)/AtlasCore/$(AtlasVersion)/InstallArea/$(CMTCONFIG)/include
 
 # DICT_* are used to create an dynamic library with all the classes
 # used for the FTK simulation I/O
@@ -34,15 +34,14 @@ FTKSIM_OBJS =   tmp/tsp/FTKTSPBank.o tmp/tsp/TSPMap.o tmp/tsp/TSPLevel.o \
         tmp/FTK_RawInput.o tmp/FTK_RegionalRawInput.o tmp/FTKDataInput.o \
         tmp/FTKRegionMap.o tmp/FTKTrackFileOutput.o \
         tmp/FTKSector711DB.o \
-        tmp/FTKPMap.o tmp/FTKRegionMap.o tmp/FTKSectorMap.o \
-        tmp/FTKSSMap.o tmp/ftk_dcap.o \
+	tmp/ftkdefs.o tmp/FTKPMap.o tmp/FTKRegionMap.o tmp/FTKSectorMap.o \
+        tmp/FTKSSMap.o tmp/ftk_dcap.o tmp/ftkdefs.o \
         tmp/FTKCacheLookup.o \
         tmp/FTKLogging.o tmp/FTKSteering.o tmp/FTKRootFile.o tmp/FTKMergeRoot.o \
         tmp/FTKPatternBySector.o tmp/FTKPatternOneSector.o \
         tmp/FTKPatternWithCoverage.o tmp/tsp/FTKAMSplit.o \
-		tmp/FTK_CompressedAMBank.o tmp/FTK_AMsimulation_base.o \
-		tmp/FTKConstantBank.o tmp/TrackFitter.o tmp/TrackFitter711.o tmp/FTK_SingleTrackInput.o 
-
+	tmp/FTK_CompressedAMBank.o tmp/FTK_AMsimulation_base.o \
+	tmp/FTKConstantBank.o tmp/TrackFitter.o tmp/TrackFitter711.o tmp/FTK_SingleTrackInput.o 
 
 SECWALK_OBJS = sectorwalk.o common_fcn.o \
                 $(DICT_OBJS)
@@ -80,15 +79,20 @@ QF_OBJS = quick_fit.o \
 PM_OBJS = patmerge.o \
         $(DICT_OBJS)
 
+EFF_OBJS = efficiency.o \
+        $(DICT_OBJS)
+
 MSB_OBJS = makecompressedbank.o \
         $(DICT_OBJS)
 
 CFO_OBJS = compare_fitter_output.o \
         $(DICT_OBJS)
 
-PMR_OBJS = patmergeroot.o
+PMR_OBJS = patmergeroot.o \
+        $(DICT_OBJS)
 
-PMT_OBJS = patmergetest.o
+PMT_OBJS = patmergetest.o \
+        $(DICT_OBJS)
 
 PR_OBJS = patreduce.o \
         $(DICT_OBJS)
@@ -113,7 +117,7 @@ FTKLIB_OBJS = $(DICT_OBJS)
 all:  convert_lookup road_finder road_merger hit_filter \
         track_fitter track_fitter711 \
         track_merger tsp_bank_generator \
-        patmerge patmergeroot patmergetest quick_fit ftk_DCBankStat \
+        patmerge patmergeroot patmergetest quick_fit ftk_DCBankStat efficiency \
         libftk_classes.so libTrigFTKSim.a
 
 extra:  pattvolume ftkascii2root sectorwalk sectorfoam \
@@ -132,6 +136,11 @@ pattvolume: $(RF_OBJS) libTrigFTKSim.a
 	$(CXX) -o $@ $(RF_OBJS) $(LIBS) libTrigFTKSim.a
 pattvolume.clean:
 	rm -f $(RF_OBJS) pattvolume pattvolume.o pattvolume.d common_fcn.d
+
+efficiency: $(EFF_OBJS) libTrigFTKSim.a
+	$(CXX) -o $@ $(EFF_OBJS) $(LIBS) libTrigFTKSim.a
+efficiency.clean:
+	rm -f $(EFF_OBJS) efficiency efficiency.o efficiency.d common_fcn.d
 
 convert_lookup: $(CL_OBJS) libTrigFTKSim.a
 	$(CXX) -o $@ $(CL_OBJS) $(LIBS) libTrigFTKSim.a
@@ -238,11 +247,15 @@ ambankopt.clean :
 # ftkamsplit.clean :
 # 	rm -f $(SPLIT_OBJS) ftkamsplit
 
+# shortcut
+classes: libftk_classes.so
+
 libftk_classes.so: $(FTKLIB_OBJS)
 	$(CXX) -o $@ -shared $(FTKLIB_OBJS) -fPIC $(LIBS)
 	rlibmap -f -o $(@:.so=.rootmap) -l $@ -c TrigFTKSim/FTKSimLinkDef.h
+
 libftk_classes.so.clean:
-	rm -f $(FTKLIB_OBJS) libftk_classes.so libftk_classes.rootmap
+	rm -f $(FTKLIB_OBJS) libftk_classes.so libftk_classes.rootmap TrigFTKSim_Dic_rdict.pcm
 
 libTrigFTKSim.a: $(FTKSIM_OBJS)
 	-rm -f $@
@@ -253,7 +266,10 @@ libTrigFTKSim.a.clean:
 	rm -f $(FTKSIM_OBJS) libTrigFTKSim.a
 
 tmp/TrigFTKSim_Dic.C: $(DICT_HDRS)
-	rootcint -f $@ -c $^
+	rootcint -f $@ -c -p $^
+	@if [ -f tmp/TrigFTKSim_Dic_rdict.pcm ]; then \
+		mv tmp/TrigFTKSim_Dic_rdict.pcm .; \
+	fi
 
 tmp/tsp/%.o : src/tsp/%.cxx
 	$(CXX) -M -o $(@:.o=.d) $< $(CXXFLAGS) $(TSPCXXFLAGS) 
@@ -277,13 +293,13 @@ version:
 
 .PHONY : compact
 compact:
-	@rm -f $(DICT_OBJS) $(RF_OBJS) $(RM_OBJS) $(HF_OBJS) $(TF_OBJS) $(TF711_OBJS) $(TM_OBJS) $(QF_OBJS) $(PM_OBJS) $(FA2R_OBJS) $(TSP_OBJS) *.o *.d
+	@rm -f $(DICT_OBJS) $(RF_OBJS) $(RM_OBJS) $(HF_OBJS) $(TF_OBJS) $(TF711_OBJS) $(TM_OBJS) $(QF_OBJS) $(PM_OBJS) $(FA2R_OBJS) $(TSP_OBJS) $(EFF_OBJS) *.o *.d
 	@strip convert_lookup road_finder road_merger hit_filter track_fitter track_fitter711 \
 	track_merger quick_fit patmerge patmergeroot patmergetest
 
 .PHONY : clean
 
-clean : pattvolume.clean convert_lookup.clean road_finder.clean road_merger.clean hit_filter.clean \
+clean : pattvolume.clean efficiency.clean convert_lookup.clean road_finder.clean road_merger.clean hit_filter.clean \
         track_fitter.clean track_fitter711.clean \
         track_merger.clean tsp_bank_generator.clean \
         quick_fit.clean patmerge.clean patmergeroot.clean patmergetest.clean \

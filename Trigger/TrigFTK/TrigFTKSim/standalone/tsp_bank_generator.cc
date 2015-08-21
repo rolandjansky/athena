@@ -36,6 +36,10 @@ static FTKSSMap *ssmap_AM(0);
 static string bank_path;
 static string out_bank_path;
 
+// number of sub regions
+static int _iSub;
+static int _nSub;
+
 // Number of patterns to be read by this bank
 static int bank_maxpatts;
 // minimum coverage of the patterns to include in the TSP bank
@@ -82,6 +86,7 @@ int main(int argc, char *argv[]) {
 	FTKSetup::getFTKSetup().setHWModeSS(HWModeID);
 
 	TSPROOT::TSPROOTBankGenerator generator(&ftkset, ssmaps, bank_path, out_bank_path, rmap->getNPlanes(), bank_maxpatts, mincoverage);
+	generator.SetSubregion(_iSub,_nSub);
 	generator.SetRemoveTSP(RemoveTSP);
 	generator.generate();	  
 
@@ -108,18 +113,20 @@ int read_commands() {
 			string sval;
 			sline >> sval;
 			cout << prompt << key << " = " << sval << endl;
-
+			
 			// the map on unused layer skip the boundary check by default
 			ssmap_TSP = new FTKSSMap(rmap, sval.c_str(), false);
-		} else if (key == "NSUBREGIONS") {
-			int ival;
-			sline >> ival;
-			cout << "TODO" << endl;
-		} else if (key == "CUR_REGION") {
-			int ival;
-			sline >> ival;
-			cout << "TODO" << endl;
-		} else if (key == "ENCODE_SUBREGION") {
+                } else if (key == "CUR_REGION") {
+		        int ival;
+		        sline >> ival;
+		        cout << "TODO. CUR_REGION="<<ival << endl;
+                } else if (key == "NSUBREGIONS") {
+		        sline >> _nSub;
+		        cout << "NSUBREGIONS "<<_nSub << endl;
+		} else if (key == "CUR_SUBREGION") {
+		        sline >> _iSub;
+		        cout << "CUR_SUBREGION="<<_iSub << endl;
+                } else if (key == "ENCODE_SUBREGION") {
 			int ival;
 			sline >> ival;
 			cout << "TODO" << endl;

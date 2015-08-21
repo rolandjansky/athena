@@ -31,6 +31,8 @@ class FTKDetectorToolI : virtual public IAlgTool
   virtual void dumpModuleIDMap() = 0;
 
   virtual void dumpGlobalToLocalModuleMap() = 0;
+
+  virtual void dumpIDMap() = 0;
 };
 
 inline const InterfaceID& FTKDetectorToolI::interfaceID()

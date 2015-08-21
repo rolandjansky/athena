@@ -29,7 +29,7 @@ FTKFirmwareOutput
   
  private:
   void writeTrack( const FTKTrack& track , ofstream *stream ) {
-    (*stream) << track.getInvPt() << " " << track.getIP() << " " << track.getPhi() << " " << track.getZ0() << " " << track.getCotTheta() << " " << track.getChi2() << std::endl;
+    (*stream) << track.getHalfInvPt() << " " << track.getIP() << " " << track.getPhi() << " " << track.getZ0() << " " << track.getCotTheta() << " " << track.getChi2() << std::endl;
   }
   void writeConstants( FTKConstantBank *bank , int isec , ofstream *stream ) {
     for( int ipar = 0 ; ipar < bank->getNPars() ; ++ipar ) {

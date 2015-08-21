@@ -7,6 +7,7 @@
 #include "TrigFTKSim/FTKSetup.h"
 #include "TrigFTKSim/ftk_dcap.h"
 #include "TrigFTKSim/FTKPattern.h"
+#include "TrigFTKSim/FTKPatternBySector.h"
 using namespace ftk;
 
 #include <TFile.h>
@@ -148,6 +149,10 @@ void FTK_AMBank::end()
  */
 int FTK_AMBank::readBankInit()
 {
+   // the process counter
+   ipatt_step = (m_npatterns+9)/10;
+   if (!ipatt_step) ipatt_step = 1;
+
    // create the maps where the SS map used in the events are stored
    m_fired_ssmap = new unordered_map<int,FTKSS>[m_nplanes];
    m_fired_ss = new unordered_set<int>[m_nplanes];
@@ -459,10 +464,6 @@ int FTK_AMBank::readASCIIBank(const char *fname, int maxpatt)
 
    readBankInit();
    
-   // define the step
-   ipatt_step = (m_npatterns+9)/10;
-   if (!ipatt_step) ipatt_step = 1;
-
    cout << "Reading : [" << flush;
    for (int ipatt=0;ipatt<m_npatterns;++ipatt) { // loop over patterns
      int ival;
@@ -475,6 +476,7 @@ int FTK_AMBank::readASCIIBank(const char *fname, int maxpatt)
       else if (ipatt%ipatt_step==0) {
 	cout << ipatt/ipatt_step << flush;
       }
+      //cout<<ipatt<<" "; //hier
       for (int iplane=0;iplane<m_nplanes+1;++iplane) { // loop on the planes
 	 // the m_nplnes+1 element is the number of the sector
 	 // the other are the SS index
@@ -483,6 +485,7 @@ int FTK_AMBank::readASCIIBank(const char *fname, int maxpatt)
 	 // TODO: check if the SS should use the WC
 
 	 m_patterns[_SSPOS(ipatt,iplane)] = ival;
+	 //cout<<m_patterns[_SSPOS(ipatt,iplane)]<<" "; //hier
       } // end loop on the planes
 
       // number of events not used, temporary in npatt
@@ -490,6 +493,7 @@ int FTK_AMBank::readASCIIBank(const char *fname, int maxpatt)
       m_patternCoverage[ipatt] = ival;
       m_totalCoverage += ival;
      (*m_sectorCoverage)[m_patterns[_SSPOS(ipatt,m_nplanes)]] += m_patternCoverage[ipatt];
+     //cout<<ival<<" "<<endl;; //hier
 
       // check if there is an error during the file reading
       if (!pattfile) {
@@ -506,11 +510,184 @@ int FTK_AMBank::readASCIIBank(const char *fname, int maxpatt)
 }
 
 /** This method read the Pattern Bank file stored
-    in a ROOT file format. It returns the number of 
-    the read pattern, <0  if there was an error */
+    in a ROOT file.
+    The method decides, which format is provided.
+    and returns <0 if there was an error
+*/
 int FTK_AMBank::readROOTBank(const char *fname, int maxpatt)
 {
-  // try to open the input file using the ROOT wrapper,
+   cout << "Read ROOT file format bank: " << fname << endl;
+   TFile *file = TFile::Open(fname,"READ");
+   if (!file) { // error opening the file
+      cerr << "*** Error opening the file: " << fname << endl;
+      return -1;
+   }  
+   
+   //file->ls();
+
+   // loop over all keys:
+   for ( int i = 0 ; i <file->GetListOfKeys()->GetEntries(); i++ ) {
+      TString keyname = file->GetListOfKeys()->At(i)->GetName();
+      //cout<<"Info: FTK_AMBank::readROOTBank(). Found tree with name: "<<keyname<<endl;
+      if ( keyname=="AMPatterns") {
+	 cout<<"Found TTree 'AMPatterns'!"<<endl;
+	 return readROOTBankFTKPatternTree(file,"AMPatterns",maxpatt);
+      }
+      else if ( keyname=="Bank0" ) {
+	 cout<<"Found TTree 'Bank0'!"<<endl;
+	 return readROOTBankFTKPatternTree(file,"Bank0",maxpatt);
+      }
+      else if ( keyname.Contains("sector") && keyname.Contains("patterns") ) {
+	 cout<<"Found sector-ordered patterns!"<<endl;
+	 return readROOTBankSectorOrdered(file,maxpatt);
+      }
+   }
+   
+   cerr << "*** No TTree with patterns found in: " << fname << endl;
+   return -1; 
+}
+
+
+
+/** This method reads the sector-ordered Pattern Bank.
+    returns <0  if there was an error */
+int FTK_AMBank::readROOTBankSectorOrdered(const char *fname, int maxpatt)
+{
+   // try to open the input file using the ROOT wrapper,
+   // fname could contain protocol specfication at the begin
+   TFile *pattfile = TFile::Open(fname);
+   
+   if (!pattfile) { // error opening the file
+      cerr << "*** Error opening the file: " << fname << endl;
+      return -1;
+   }
+   return readROOTBankSectorOrdered(pattfile,maxpatt);
+}
+
+
+/** This method reads the sector-ordered Pattern Bank.
+    returns <0  if there was an error */
+int FTK_AMBank::readROOTBankSectorOrdered(TFile* pattfile, int maxpatt)
+{
+   cout<<"Info. FTK_AMBank::readROOTBankSectorOrdered(). Reading file: "<<pattfile->GetName()<<endl;
+
+   cout<<"\n\n\n *** Todo. The sector-ordered patterns need also information on the subregion! *** \n\n\n"<<endl;
+   int iSub=0;
+   int nSub=1;
+
+   FTKPatternBySectorReader* preader = new FTKPatternBySectorReader(*pattfile);
+   if(!preader) {
+      cerr<<"Error. Cannot read root-file pattern from: "<<pattfile->GetName()<<endl;
+      return -1;
+   }
+   m_npatterns = preader->GetNPatterns();
+   setNPlanes(preader->GetNLayers());
+
+   if (maxpatt<0 || m_npatterns<maxpatt) { 
+     // the limit is jus the number of the patterns in the bank
+     // value changed just to inform the user
+     maxpatt = m_npatterns;
+   }
+
+   cout << "Found # " << m_npatterns << " in a " << m_nplanes << " planes geometry (limited to " << maxpatt << " patterns)" << endl;
+
+   if (maxpatt<m_npatterns) {
+     // the number of pattern to read is limited by the user
+     m_npatterns = maxpatt;
+   }
+
+   // // the number of pattern to read is limited by the user
+   // if (maxpatt<m_npatterns)  m_npatterns = maxpatt;
+
+   readBankInit();
+   
+   FTKPatternBySectorReader::SectorSet_t sectorByCoverage;
+   preader->GetPatternByCoverage(sectorByCoverage,iSub,nSub); 
+   // long npatt = preader->GetPatternByCoverage(sectorByCoverage,iSub,nSub); 
+   // cout<< "Found # "<<npatt<<" patterns."<<endl;
+   
+   // loop over sectors recursively, convert to 'FTKPattern' and write into root-tree
+   int patternID = 0;
+   cout << "Reading : [" << flush;
+   while(sectorByCoverage.begin()!=sectorByCoverage.end() && patternID<m_npatterns ) {
+      if (patternID%ipatt_step==0) cout << patternID/ipatt_step << flush;
+      
+      FTKPatternBySectorReader::PatternTreeBySector_t::iterator oneSector=*sectorByCoverage.begin();
+      sectorByCoverage.erase(sectorByCoverage.begin()); // remove this sector temporarily
+      
+      FTKPatternRootTreeReader* tree=oneSector->second;
+      int sector=oneSector->first;
+      int coverage=tree->GetPattern().GetCoverage();
+      bool isNotEmpty=false;
+      do {
+	 // //showstats(m_patternID, m_npatterns);
+	 // inputpattern->setPatternID(m_patternID);
+	 // inputpattern->setSectorID(sector);
+	 // inputpattern->setCoverage(coverage);
+	 //cout<<patternID<<" "; //hier
+	 const FTKHitPattern& patternData = tree->GetPattern().GetHitPattern();
+	 for( int iplane=0 ; iplane<m_nplanes ; iplane++ ) {
+	    m_patterns[_SSPOS(patternID,iplane)] = patternData.GetHit(iplane); 
+	    //cout<<m_patterns[_SSPOS(patternID,iplane)]<<" "; //hier
+	 }
+	 m_patterns[_SSPOS(patternID,m_nplanes)] = sector;
+	 m_patternCoverage[patternID] = coverage;
+	 m_totalCoverage += coverage;
+	 (*m_sectorCoverage)[m_patterns[_SSPOS(patternID,m_nplanes)]] += m_patternCoverage[patternID];
+	 //cout<<sector<<" "<<coverage<<" "<<endl;; //hier
+
+	 patternID++; // increment the global pattern ID
+	 isNotEmpty = tree->ReadNextPattern();
+	 // if(!tree->ReadNextPattern()) {
+	 //    isEmpty=true;
+	 //    break;
+	 // }
+      } 
+      while(tree->GetPattern().GetCoverage()==coverage && isNotEmpty && patternID<m_npatterns);
+      // add sector again to (coveraged ordered) set 
+      if(isNotEmpty) {
+	 sectorByCoverage.insert(oneSector);
+      }	
+   } // end while(sectors)
+   cout << "]" << endl;
+  
+   cout<<patternID<<" patterns read successfully."<<endl;
+   
+   // delete preader;
+   // preader = NULL;
+   cout<<"preader deleted successfully."<<endl;
+     
+   
+   readBankInitEnd();
+
+   delete preader;
+
+   // return the number of the patterns in the bank
+   return m_npatterns;
+
+}
+
+
+/** This method reads the Pattern Bank stored in a Root-tree
+    named 'Bank0'. It returns the number of 
+    the read pattern, <0  if there was an error */
+int FTK_AMBank::readROOTBankBank0(const char *fname, int maxpatt) {
+   TFile *pattfile = TFile::Open(fname);
+   if (!pattfile) { // error opening the file
+      cerr << "*** Error opening the file: " << fname << endl;
+      return -1;
+   }
+   return readROOTBankFTKPatternTree(pattfile,"Bank0",maxpatt);
+}
+
+
+
+/** This method reads the Pattern Bank stored in a Root-tree
+    named AMPatterns. It returns the number of 
+    the read pattern, <0  if there was an error */
+int FTK_AMBank::readROOTBankAMPatterns(const char *fname, int maxpatt)
+{
+    // try to open the input file using the ROOT wrapper,
   // fname could contain protocol specfication at the begin
   TFile *pattfile = TFile::Open(fname);
 
@@ -518,12 +695,21 @@ int FTK_AMBank::readROOTBank(const char *fname, int maxpatt)
      cerr << "*** Error opening the file: " << fname << endl;
      return -1;
    }
+   return readROOTBankFTKPatternTree(pattfile,"AMPatterns",maxpatt);
+}
 
-   cout << "Read ROOT file format bank: " << fname << endl;
+
+/** This method read the Pattern Bank stored in a Root-tree
+    named AMPatterns. It returns the number of 
+    the read pattern, <0  if there was an error */
+int FTK_AMBank::readROOTBankFTKPatternTree(TFile* pattfile, TString treename, int maxpatt)
+{
+
+   cout << "Read ROOT file format bank: " << pattfile->GetName() << endl;
    // look for the main TTree containing the patterns
-   TTree *patttree = (TTree*) pattfile->Get("AMPatterns");
+   TTree *patttree = (TTree*) pattfile->Get(treename);
    if (!patttree) {
-     cerr << "*** AMPatterns doesn't exist in: " << fname << endl;
+     cerr << "*** AMPatterns doesn't exist in: " << pattfile->GetName() << endl;
      return -1;
    }
    
@@ -535,7 +721,14 @@ int FTK_AMBank::readROOTBank(const char *fname, int maxpatt)
 
    // create the connection with the list of the patterns
    FTKPattern *tmppatt = new FTKPattern();
-   patttree->SetBranchAddress("pattern",&tmppatt);
+   if ( patttree->FindBranch("pattern") )
+      patttree->SetBranchAddress("pattern",&tmppatt);
+   else if ( patttree->FindBranch("Pattern") )
+      patttree->SetBranchAddress("Pattern",&tmppatt);
+   else {
+     cerr << "*** Could not find branch 'pattern' or 'Pattern' in: " << pattfile->GetName() << endl;
+     return -1;
+   }
 
    // use the first pattern to extract generic information
    patttree->GetEntry(0);
@@ -556,27 +749,28 @@ int FTK_AMBank::readROOTBank(const char *fname, int maxpatt)
 
    readBankInit();
    
-   // define the step
-   ipatt_step = (m_npatterns+9)/10;
-   if (!ipatt_step) ipatt_step = 1;
-
    cout << "Reading : [" << flush;
    for (int ipatt=0;ipatt<m_npatterns;++ipatt) { // loop over patterns
      // move the TTree in the ipatt position
      patttree->GetEntry(ipatt);
 
+     //cout<<ipatt<<" "; //hier
      for (int iplane=0;iplane!=m_nplanes;++iplane) { // loop on the planes
        // get the SSID for this plane
        m_patterns[_SSPOS(ipatt,iplane)] = tmppatt->getSSID(iplane);
-     } // end loop on the planes
+       //cout<<m_patterns[_SSPOS(ipatt,iplane)]<<" "; //hier
+    } // end loop on the planes
 
      // the last position is the sectord ID
      m_patterns[_SSPOS(ipatt,m_nplanes)] = tmppatt->getSectorID();
+
 
      // read the pattern coverage
      m_patternCoverage[ipatt] = tmppatt->getCoverage();
      m_totalCoverage += m_patternCoverage[ipatt];
      (*m_sectorCoverage)[m_patterns[_SSPOS(ipatt,m_nplanes)]] += m_patternCoverage[ipatt];
+ 
+     //cout<<tmppatt->getSectorID()<<" "<<tmppatt->getCoverage()<<" "<<endl;; //hier
 
    } // end loop over patterns
    cout << "]" << endl;
@@ -585,6 +779,54 @@ int FTK_AMBank::readROOTBank(const char *fname, int maxpatt)
 
    // return the number of the patterns in the bank
    return m_npatterns;
+}
+
+
+/** Write the AM patterns to a root-file in the 'Bank0'-format */
+void FTK_AMBank::writeAMBank0(TFile* file,const std::string& TTreename, const std::string& TTreeTitle){
+   // prepare the writing
+   TDirectory* dir = gDirectory;
+   file->cd();
+   FTKPattern* inputpattern = new FTKPattern(m_nplanes);
+   TTree* bank = new TTree(TTreename.c_str(),TTreeTitle.c_str());
+   bank->Branch("Pattern",&inputpattern);
+   
+   for (int ipatt=0;ipatt<m_npatterns;++ipatt) { // loop over patterns
+      //int ival[m_npatterns];
+      //for (int iplane=0;iplane<m_nplanes+1;++iplane) { 
+      for (int iplane=0;iplane<m_nplanes;++iplane) { 
+	 // loop on the planes
+	 //    the m_nplnes+1 element is the number of the sector
+	 //    the other are the SS index
+	 int val =  m_patterns[_SSPOS(ipatt,iplane)];
+	 //ival[ipatt] = m_patterns[_SSPOS(ipatt,iplane)];
+	 inputpattern->setSSID(iplane,val);
+      }
+      int cov = m_patternCoverage[ipatt];
+      inputpattern->setCoverage(cov);
+      inputpattern->setPatternID(ipatt);
+      inputpattern->setSectorID(m_patterns[_SSPOS(ipatt,m_nplanes)]); // the last position [of m_patterns] is the sectord ID
+      // write the pattern
+      bank->Fill();
+   }
+
+   // Write patterns to disk
+   bank->Write();
+   //file->Write();
+   dir->cd();
+}
+
+
+/** Write the AM patterns to a 'recreated' root-file in the 'Bank0'-format */
+void FTK_AMBank::writeAMBank0(const std::string& filename,const std::string& TTreename, const std::string& TTreeTitle){
+
+   //FTKRootFile::Instance()->CreateRootFile(filename.c_str());
+   
+   TFile* file = TFile::Open(filename.c_str(),"recreate");
+   FTKSetup::PrintMessageFmt(ftk::info,"Output bank root-file created: %s\n",filename.c_str());
+
+   writeAMBank0(file, TTreename, TTreeTitle);
+   file->Close();
 }
 
 
@@ -863,18 +1105,22 @@ void FTK_AMBank::data_organizer() {
         FTKHit &curhit(*ihit);
 
         int ss(-1);
-       if (ftkset.getSectorsAsPatterns()) {
-         // Using a dummy pattern bank representing just the number of setors, the IDs are the module IDs, for historical reason called sector.
-         ss = curhit.getSector();
-       }
-       else if (FTKSetup::getFTKSetup().getHWModeSS()==0) {
-         //SS calculated assuming a global SS id
-         ss = getSSMap()->getSSGlobal(curhit);
-       }
-       else {
-         // SS calculated assuming a tower SS id, HW friendly, with a small number of bits
-         ss = getSSMap()->getSSTower(curhit,getBankID());
-       }
+        if (ftkset.getSectorsAsPatterns() && FTKSetup::getFTKSetup().getHWModeSS()==0) {
+          // Using a dummy pattern bank representing just the number of setors, the IDs are the module IDs, for historical reason called sector.
+          ss = curhit.getSector();
+        }
+        else if (ftkset.getSectorsAsPatterns() && FTKSetup::getFTKSetup().getHWModeSS()==2) {
+          // Using a dummy pattern bank representing just the number of sectors, the IDs are the module IDs identifier hash
+          ss = curhit.getIdentifierHash();
+        }
+        else if (FTKSetup::getFTKSetup().getHWModeSS()==0) {
+          //SS calculated assuming a global SS id
+          ss = getSSMap()->getSSGlobal(curhit);
+        }
+        else {
+          // SS calculated assuming a tower SS id, HW friendly, with a small number of bits
+          ss = getSSMap()->getSSTower(curhit,getBankID());
+        }
 
        //       cout<<"KAMA"<<endl;
        if(m_WCSS2[iplane] != 0x0 ){

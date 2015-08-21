@@ -24,14 +24,36 @@ def addTrigFTKSimOptions(parser,nsubregions=4):
                         
     # Cannot take maxEvents as an argument from addAthenaArguments() as it will have the wrong
     # default ('first', but we need 'all')    
-    parser.add_argument('--maxEvents', group='TrigFTKSim', type=trfArgClasses.argFactory(trfArgClasses.argSubstepInt, runarg=True, defaultSubstep='all'), 
+    parser.add_argument('--maxEvents', group='TrigFTKSim', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argSubstepInt, runarg=True, defaultSubstep='all'), 
                         nargs='+', metavar='substep:maxEvents',
                         help='Set maximum events for each processing step (default for this transform is to set for all substeps)')
 
-    parser.add_argument("--firstEvent", "--FirstEvent", group="TrigFTKSim",
-                        default=trfArgClasses.argInt(0, runarg=True),
-                        help="the number of the first event for processing",
+    parser.add_argument("--DuplicateGanged", group="TrigFTKSim",
+                        default=trfArgClasses.argInt(1, runarg=True),
+                        help="Duplicate ganged pixels so we don't lose efficiency",
                         type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True))
+
+    parser.add_argument("--GangedPatternReco", group="TrigFTKSim",
+                        default=trfArgClasses.argInt(0, runarg=True),
+                        help="Pattern recognition to partially remove duplication",
+                        type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True))
+
+    ### default here need to be 'all' since we have many steps
+    parser.add_argument("--firstEventFTK", "--FirstEventFTK", group="TrigFTKSim",
+                        help="the number of the first event to process, specifically for FTK",
+                        type=trfArgClasses.argFactory(trfArgClasses.argSubstepInt, runarg=True, defaultSubstep='all'))
+
+    ### default here need to be 'all' since we have many steps
+    parser.add_argument("--firstEvent", "--FirstEvent", group="TrigFTKSim",
+                        help="the number of the first event to process, specifically not for FTK",
+                        type=trfArgClasses.argFactory(trfArgClasses.argSubstepInt, runarg=True, defaultSubstep='all'))
+
+
+    ### default here need to be 'all' since we have many steps, though for RDO_FTK running we don't want them all (only r2e and r2eFTK)
+    parser.add_argument("--skipEvents", "--SkipEvents", nargs='+', group="TrigFTKSim",
+                        help="the number of events to skip, needed for RDO_FTK running",
+                        type=trfArgClasses.argFactory(trfArgClasses.argSubstepInt, runarg=True, defaultSubstep='all'))
 
     parser.add_argument('--postExec', type=trfArgClasses.argFactory(trfArgClasses.argSubstepList), nargs='+',
                         metavar='substep:POSTEXEC', group='TrigFTKSim',
@@ -101,6 +123,11 @@ def addTrigFTKSimRFOptions(parser):
     parser.add_argument('--TSPMinCoverage', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
                         help='TSPMinCoverage', group='TrigFTKRoadFinder')
 
+    parser.add_argument('--HWModeSS',type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+                         help="Set the SS format: 0 (def) offline, 1 HW-like used in Vertical Slice, 2 HW-like 2015", group="TrigFTKRoadFinder")
+    parser.add_argument('--ModuleLUTPath',type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+                         help="Global to Local module ID LUT used during the road finding stage", group="TrigFTKRoadFinder")
+    
     parser.add_argument('--DCMatchMethod',type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
                          help="Set the DC matching method", group="TrigFTKRoadFinder") 
     
@@ -205,6 +232,10 @@ def addTrigFTKSimMergeOptions(parser):
     parser.add_argument('--MergeRoads',
                         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='Merge roads', group='TrigFTKMerge')
+
+    parser.add_argument('--MergeRoadsDetailed',
+                        type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='Merge roads at Detailed level', group='TrigFTKMerge')
     return None
 
 if __name__ == '__main__':

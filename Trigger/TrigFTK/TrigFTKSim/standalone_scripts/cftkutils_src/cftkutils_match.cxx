@@ -25,9 +25,9 @@ PyObject* EffCal(FTKTrack *curtrack, double phi0, double eta, double z0, double 
 {
 
   double deltaR = sqrt(pow((curtrack->getPhi()-phi0),2)+pow((curtrack->getEta()-eta),2));
-  double deltaRp = sqrt(pow((curtrack->getInvPt()-curv),2));
-  double deltaRpt = sqrt(pow((1/(curtrack->getInvPt())-(1/curv)),2));
-  double deltaRptFrac = sqrt(pow((1/(curtrack->getInvPt())-(1/curv))*curv,2));
+  double deltaRp = sqrt(pow((curtrack->getHalfInvPt()-curv),2));
+  double deltaRpt = sqrt(pow((1/(curtrack->getHalfInvPt())-(1/curv)),2));
+  double deltaRptFrac = sqrt(pow((1/(curtrack->getHalfInvPt())-(1/curv))*curv,2));
   
 
   double cut = 3;
@@ -43,7 +43,7 @@ PyObject* EffCal(FTKTrack *curtrack, double phi0, double eta, double z0, double 
   double deltad0 = fabs(curtrack->getIP()-d0);
   double d0cut = 0.16;
   d0cut = d0cut*cut;
-  double deltaInvPt = fabs(curtrack->getInvPt()-curv);
+  double deltaInvPt = fabs(curtrack->getHalfInvPt()-curv);
   double InvPtcut = 0.0006;
   InvPtcut = InvPtcut*cut;
   
@@ -53,7 +53,7 @@ PyObject* EffCal(FTKTrack *curtrack, double phi0, double eta, double z0, double 
       
       PyObject *list = PyTuple_New(17);
       
-      PyTuple_SetItem(list, 0, PyFloat_FromDouble(curtrack->getInvPt()));
+      PyTuple_SetItem(list, 0, PyFloat_FromDouble(curtrack->getHalfInvPt()));
       PyTuple_SetItem(list, 1, PyFloat_FromDouble(curtrack->getPhi()));
       PyTuple_SetItem(list, 2, PyFloat_FromDouble(curtrack->getEta()));
       PyTuple_SetItem(list, 3, PyFloat_FromDouble(curtrack->getIP()));
@@ -83,7 +83,7 @@ PyObject* EffCal(FTKTrack *curtrack, double phi0, double eta, double z0, double 
       
       PyObject *list = PyTuple_New(17);
       
-      PyTuple_SetItem(list, 0, PyFloat_FromDouble(curtrack->getInvPt()));
+      PyTuple_SetItem(list, 0, PyFloat_FromDouble(curtrack->getHalfInvPt()));
       PyTuple_SetItem(list, 1, PyFloat_FromDouble(curtrack->getPhi()));
       PyTuple_SetItem(list, 2, PyFloat_FromDouble(curtrack->getEta()));
       PyTuple_SetItem(list, 3, PyFloat_FromDouble(curtrack->getIP()));
@@ -113,7 +113,7 @@ PyObject* EffCal(FTKTrack *curtrack, double phi0, double eta, double z0, double 
       
       PyObject *list = PyTuple_New(17);
       
-      PyTuple_SetItem(list, 0, PyFloat_FromDouble(curtrack->getInvPt()));
+      PyTuple_SetItem(list, 0, PyFloat_FromDouble(curtrack->getHalfInvPt()));
       PyTuple_SetItem(list, 1, PyFloat_FromDouble(curtrack->getPhi()));
       PyTuple_SetItem(list, 2, PyFloat_FromDouble(curtrack->getEta()));
       PyTuple_SetItem(list, 3, PyFloat_FromDouble(curtrack->getIP()));
@@ -622,9 +622,9 @@ PyObject* FakeCal(FTKTrack *curtrack, int mode, PyObject *args)
     float d0 = PyFloat_AsDouble(od0);
     
     double deltaR = sqrt(pow((curtrack->getPhi()-phi0),2)+pow((curtrack->getEta()-eta),2));
-    double deltaRp = sqrt(pow((curtrack->getInvPt()-curv),2));
-    double deltaRpt = sqrt(pow((1/(curtrack->getInvPt())-(1/curv)),2));
-    double deltaRptFrac = sqrt(pow((1/(curtrack->getInvPt())-(1/curv))*curv,2));
+    double deltaRp = sqrt(pow((curtrack->getHalfInvPt()-curv),2));
+    double deltaRpt = sqrt(pow((1/(curtrack->getHalfInvPt())-(1/curv)),2));
+    double deltaRptFrac = sqrt(pow((1/(curtrack->getHalfInvPt())-(1/curv))*curv,2));
 
     double cut = 3;
     double deltaphi = fabs(curtrack->getPhi()-phi0);
@@ -639,7 +639,7 @@ PyObject* FakeCal(FTKTrack *curtrack, int mode, PyObject *args)
     double deltad0 = fabs(curtrack->getIP()-d0);
     double d0cut = 0.16;
     d0cut = d0cut*cut;
-    double deltaInvPt = fabs(curtrack->getInvPt()-curv);
+    double deltaInvPt = fabs(curtrack->getHalfInvPt()-curv);
     double InvPtcut = 0.0006;
     InvPtcut = InvPtcut*cut;
   
@@ -736,7 +736,7 @@ PyObject* FakeCal(FTKTrack *curtrack, int mode, PyObject *args)
 
   PyObject *list = PyTuple_New(16);
   PyTuple_SetItem(list, 0, isfake);
-  PyTuple_SetItem(list, 1, PyFloat_FromDouble(curtrack->getInvPt()));
+  PyTuple_SetItem(list, 1, PyFloat_FromDouble(curtrack->getHalfInvPt()));
   PyTuple_SetItem(list, 2, PyFloat_FromDouble(curtrack->getPhi()));
   PyTuple_SetItem(list, 3, PyFloat_FromDouble(curtrack->getEta()));
   PyTuple_SetItem(list, 4, PyFloat_FromDouble(curtrack->getIP()));

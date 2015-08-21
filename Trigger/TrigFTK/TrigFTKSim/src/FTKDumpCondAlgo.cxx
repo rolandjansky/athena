@@ -26,11 +26,13 @@ FTKDumpCondAlgo::FTKDumpCondAlgo(const std::string& name, ISvcLocator* pSvcLocat
   m_DumpBadModules(false),
   m_DumpModuleIDMap(false),
   m_DumpGlobalToLocalMap(false),
+  m_DumpIDMap(false),
   m_IBLMode(1)
 {
   declareProperty("DumpBadModules", m_DumpBadModules, "If true enable dump of bad modules for FTK");
   declareProperty("DumpModuleIDMap", m_DumpModuleIDMap, "If true dumps the map of the modules in each tower");
   declareProperty("DumpGlobalToLocalMap",m_DumpGlobalToLocalMap, "True if you want to produce the Global-to-Local map");
+  declareProperty("DumpIDMap",m_DumpIDMap);
   declareProperty("IBLMode",m_IBLMode);
 }
 
@@ -86,6 +88,10 @@ StatusCode FTKDumpCondAlgo::execute() {
 
   if (m_DumpGlobalToLocalMap) {
 	  m_detectorTool->dumpGlobalToLocalModuleMap(); // Dump the map of the module of each tower
+  }
+
+  if (m_DumpIDMap) {
+    m_detectorTool->dumpIDMap();
   }
 
   return StatusCode::SUCCESS;

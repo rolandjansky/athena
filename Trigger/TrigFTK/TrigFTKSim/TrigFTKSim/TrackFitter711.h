@@ -53,15 +53,15 @@ protected:
   int m_nmiss_SCT; // used in ResolutionMode ONLY. To be used as a hardcoded value
   int m_n_tot_PXL; // used in ResolutionMode ONLY. To be used as a hardcoded value
   int m_resmode_bitmask; // used in ResolutionMode ONLY. To be used as a hardcoded value
-  TH1F** m_histores_hitcoord_SCT;
   TH2F** m_histores_hitcoord_PXL;
+  TH1F** m_histores_hitcoord_SCT;
 
   FTKSSMap *m_ssmap_incomplete; // ssmap to decompose original SS information
   FTKPlaneMap *m_pmap_incomplete; // the pmap definition for the incomplete roads
 
   FTKSSMap *m_ssmap_complete; // ssmap to evaluate the new SS
 
-  FTKConstantBank ***m_constant_incomplete; // constant banks 
+  FTKConstantBank ***m_constant_incomplete; // constant banks
 
   bool m_use_SectorDB; // true the fitter use the connection from 7L to 11L
 
@@ -109,7 +109,7 @@ protected:
   int m_nfitsI; // number of fits tryied in a road
   int m_nfits_majI; // number of majority fits
   int m_nfits_recI; // number of recoverd fits
-  int m_nfits_addrecI; 
+  int m_nfits_addrecI;
   int m_nfits_badI; // number of fits with a bad chi2
   int m_nfits_rejI; // number of fits rejected by HW
   int m_nfits_badmajI; // number of fits with a bad chi2
@@ -141,7 +141,7 @@ public:
 
   virtual void setNCoordsPlanes(int,int, int, int);
   virtual void setNCoordsPlanes(int,int);
-  
+
   int getNCoordsComplete() const { return m_ncoords; }
   int getNCoordsIncomplete() const { return m_ncoords_incomplete; }
 
@@ -154,7 +154,7 @@ public:
 
   void setUseSectorDB(bool flag) { m_use_SectorDB = flag; }
   bool getUseSectorDB() const { return m_use_SectorDB; }
-  
+
   void setUseMultipleConn(bool flag) { m_use_multiple_conn = flag; }
   bool getUseMultipleConn() const { return m_use_multiple_conn; }
 
@@ -170,8 +170,7 @@ public:
   int getExtraFits() const { return m_extrafits; }
 
   void setMaxMissingExtraPlanes(int max) { m_max_missing_extraplanes = max; }
-  const int& getMaxMissingExtraPlanes() const 
-    { return m_max_missing_extraplanes; }
+  const int& getMaxMissingExtraPlanes() const { return m_max_missing_extraplanes; }
 
   void setNNeighbours(int val) { m_nneighbours = val; }
   int getNNeighbours() const { return m_nneighbours; }
@@ -202,7 +201,7 @@ public:
 
 private:
   int m_debug_super_extrapolate;
-  int * m_section_of_exp_layers;
+  int *m_section_of_exp_layers;
   int m_baseHWflag;
   int m_region_for_superexp;
   int m_subreg_for_superexp;

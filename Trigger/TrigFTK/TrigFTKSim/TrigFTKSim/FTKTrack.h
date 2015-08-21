@@ -20,7 +20,7 @@ private:
   int m_combid; // Number of the combination within the road
   int m_extrid; // Number of the combination in the extrapolation
 
-  float m_invpt; // 1/(2*Pt)
+  float m_invpt; // 1/(2*Pt), aka this is really 0.5 * inverse of pt
   float m_d0; // impact paramter in the ATLAS reference system
   float m_rawd0; // impact parameter w.r.t. the training beam-spot position
   float m_phi; // phi of the track
@@ -80,8 +80,8 @@ public:
   const int& getCombinationID() const { return m_combid; }
   const int& getExtrapolationID() const { return m_extrid; }
   float getParameter(int, bool useraw=false) const;
-  const float& getInvPt() const { return m_invpt; }
-  float getPt() const { return .5/m_invpt; }
+  const float& getHalfInvPt() const { return m_invpt; } 
+  float getPt() const { return .5/m_invpt; } // 0.5 is to account for the fact that inv_pt is really 0.5/pt
   const float& getIP() const { return m_d0; }
   const float& getIPRaw() const { return m_rawd0; }
   const float& getPhi() const { return m_phi; }
@@ -128,7 +128,7 @@ public:
   void setCombinationID(int v) { m_combid = v; }
   void setExtrapolationID(int v) { m_extrid = v; }
   void setParameter(int,float, bool useraw=false);
-  void setInvPt(float v) { m_invpt = v; }
+  void setHalfInvPt(float v) { m_invpt = v; }
   void setIP(float v) { m_d0 = v; }
   void setIPRaw(float v) { m_rawd0 = v; }
   void setPhi(float v,bool ForceRange=true);
@@ -169,7 +169,7 @@ public:
 
   friend std::ostream& operator<<(std::ostream&,const FTKTrack&);  
 
-  ClassDef(FTKTrack,16)
+  ClassDef(FTKTrack,17)
 };
 
 #endif // TRIGFTKSIM_FTKTRACK_H

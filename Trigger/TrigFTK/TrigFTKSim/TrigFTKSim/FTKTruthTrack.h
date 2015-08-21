@@ -14,6 +14,8 @@ private:
   double m_x;
   double m_y;
   double m_z;
+  double m_d0;
+  double m_vtx_z;
   int m_q;
   double m_px;
   double m_py;
@@ -28,6 +30,8 @@ public:
   void setX(double v){m_x = v;}
   void setY(double v){m_y = v;}
   void setZ(double v){m_z = v;}
+  void setD0(double v){m_d0 = v;}
+  void setVtxZ(double v){m_vtx_z = v;}
   void setPX(double v){m_px = v;}
   void setPY(double v){m_py = v;}
   void setPZ(double v){m_pz = v;}
@@ -39,6 +43,8 @@ public:
   double getX() const { return m_x;}
   double getY() const { return m_y;}
   double getZ() const { return m_z;}
+  double getD0() const { return m_d0;}
+  double getVtxZ() const { return m_vtx_z;}
   double getPX() const { return m_px;}
   double getPY() const { return m_py;}
   double getPZ() const { return m_pz;}
@@ -51,7 +57,7 @@ public:
   int getBarcode() const { return m_barcode;}
   int getEventIndex() const { return m_evtindex; }
     
-  ClassDef(FTKTruthTrack,2)
+  ClassDef(FTKTruthTrack,3)
 };
 
 #endif // FTKTRUTHTRACK_H

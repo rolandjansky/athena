@@ -13,6 +13,7 @@
 #include "TrigFTKSim/FTKSetup.h"
 #include "TrigFTKSim/FTKSSMap.h"
 #include "TrigFTKSim/ftk_dcap.h"
+#include "TrigFTKSim/FTKPatternBySector.h"
 
 #include <TFile.h>
 #include <TTree.h>
@@ -44,9 +45,12 @@ public:
 
 	void generate() throw (TSPPatternReadException);
 	void showstats(int ipatt, int npatterns) const;
-
+        void writeSSMapsToFile();  //!< write maps to root file
 	void SetRemoveTSP(int remtsp) { m_RemoveTSP = remtsp; }
 	int GetRemoveTSP() const { return m_RemoveTSP; }
+        int GetCurrentSubregion() const { return m_iSub; }; //!< Get current subregion
+        int GetNSubregion() const { return m_nSub; }; //!< Get current subregion
+        void SetSubregion(int iSub, int nSub) {m_iSub = iSub; m_nSub=nSub; }; //!< Get current subregion
 private:
 
 	void readNextPattern(FTKPattern& pattern, int patternID) throw (TSPPatternReadException);
@@ -67,9 +71,14 @@ private:
 	TFile *m_bankfile;	
 
 	long m_patternID;
+        long m_npatterns;
+        int m_iSub; //!< current subregion
+        int m_nSub; //!< number of subregions
+        int m_nplanes;
 	std::stringstream m_patternStringID;
 	PatternMap m_patternMap;
 	std::vector<int> m_ssPattern;
+        FTKPatternBySectorReader* m_preader;
 };
 
 }

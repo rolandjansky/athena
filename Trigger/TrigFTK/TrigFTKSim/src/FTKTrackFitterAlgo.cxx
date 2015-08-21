@@ -338,11 +338,14 @@ StatusCode FTKTrackFitterAlgo::initialize(){
 
     //    TrackFitter711 *realTF = dynamic_cast<TrackFitter711*>(m_tfpobj);
 
-
     if (m_SSF_TFMode == 3)
       dynamic_cast<TrackFitter711*>(m_tfpobj)->setSuperExtrapolateMode(true);
+    else
+      dynamic_cast<TrackFitter711*>(m_tfpobj)->setSuperExtrapolateMode(false);
     if (m_save_1stStageTrks)
       dynamic_cast<TrackFitter711*>(m_tfpobj)->setSaveIncompleteTracks(true);
+    else
+      dynamic_cast<TrackFitter711*>(m_tfpobj)->setSaveIncompleteTracks(false);
 
     dynamic_cast<TrackFitter711*>(m_tfpobj)->setUseSectorDB(true);
     dynamic_cast<TrackFitter711*>(m_tfpobj)->setUseMultipleConn(m_SSF_multiconn);

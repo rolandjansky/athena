@@ -20,7 +20,7 @@ class TrackFitter {
 protected:
   int m_ncoords; // number of coordinates
   int m_nplanes; // number of used layers
-  
+
   int m_npars; // number of parameters
 
   float m_Chi2Cut; // Chi2 cut for complete tracks
@@ -66,12 +66,11 @@ protected:
   //int m_nsectors_fwo;
 
   int m_nregions; // number of regions
-  
+
   int m_nsubregions; // number of sub-regions
 
-
   FTKConstantBank ***m_constant; // constant banks
-  
+
   bool *m_goodRegion; // an array of flag to report which regions can really be simulated
 
   ftk::message_level m_noconstants_errlevel; // error level when not valid fit constants are found
@@ -121,7 +120,7 @@ public:
   int getNCoords() const { return m_ncoords; }
   int getNPlanes() const { return m_nplanes; }
 
-  void setNoConstantsErrorLevel(ftk::message_level lvl) 
+  void setNoConstantsErrorLevel(ftk::message_level lvl)
     { m_noconstants_errlevel = lvl; }
   ftk::message_level getNoConstatsErrorLevel() const
     { return m_noconstants_errlevel; }
@@ -157,7 +156,7 @@ public:
   void setDoMajority(unsigned int v) { m_do_majority = v; }
 
   int getFitRemoved() const { return m_fit_removed; }
-  void setFitRemoved(int v) { m_fit_removed = v; }  
+  void setFitRemoved(int v) { m_fit_removed = v; }
 
   int getKeepRejected() const { return m_keep_rejected; }
   void setKeepRejected(int v) { m_keep_rejected = v; }
@@ -195,7 +194,7 @@ public:
 
 
   int nextEvent();
-  
+
 };
 
 #endif // TRACKFITTER_H

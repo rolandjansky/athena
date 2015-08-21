@@ -10,6 +10,7 @@
 #include "FTKHit.h"
 #include "FTK_AMsimulation_base.h"
 
+#include <string>
 #include <set>
 #include <unordered_set>
 #include <cstdint>
@@ -146,6 +147,17 @@ public:
    virtual int readROOTBank(const char*, int maxpatts=-1);
   void setWildcardList(int plane, std::set<int> *deadSSset) 
   { m_WCSS[plane] = deadSSset;}
+
+   int readROOTBankAMPatterns(const char *fname, int maxpatt=-1);
+   int readROOTBankBank0(const char *fname, int maxpatt=-1);
+
+   int readROOTBankFTKPatternTree(TFile* file, TString treename, int maxpatt=-1);
+
+   int readROOTBankSectorOrdered(const char *fname, int maxpatt=-1);
+   int readROOTBankSectorOrdered(TFile* file, int maxpatt=-1);
+
+   void writeAMBank0(TFile* file,const std::string& TTreename="Bank0", const std::string& TTreeTitle="Level 0 pattern");
+   void writeAMBank0(const std::string& filename,const std::string& TTreename="Bank0", const std::string& TTreeTitle="Level 0 pattern");
 
 };
 #endif // FTK_AMBANK_H

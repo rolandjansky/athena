@@ -65,6 +65,8 @@ options_parser.add_option("-S","--savestate",dest="savestate",
 options_parser.add_option("-F","--fast-connect",dest="fastconnect",
                           default=False,action="store_true",
                           help="Get the number of entries from the first valid ntuple, skip many constintency checks")
+options_parser.add_option("-A","--athena-input",dest="athena",
+                         default=False,action="store_true")
 options_parser.add_option("-v","--verbose",dest="verbose",
                           help="Increment the verbosity level",default=0,
                           action="count")
@@ -89,6 +91,7 @@ if prog_options.batchMode:
 
 # synch the verbose level between the cftkutils module and the explorer script
 cftkutils.verbose = prog_options.verbose
+cftkutils.athena = prog_options.athena
 
 # define a default ROOT style
 style = ROOT.TStyle("FTKExplorerStyle","FTK Explorer default style")
@@ -544,7 +547,7 @@ class FTKExplorerCmd(cmd.Cmd) :
                          "maxZ0": FTKExplorerSet("maxZ0",120.,"Maximum fiducial eta value in the \"effcurve\" calculation",True,float),
                          "minZ0": FTKExplorerSet("minZ0",-120.,"Minimum fiducial eta value in the \"effcurve\" calculation",True,float),
                          "maxAbsCurv": FTKExplorerSet("maxAbsCurv",5e-3,"Minimum fiducial eta value in the \"efficiency\" calculation",True,float),
-                         "verbose": FTKExplorerSet("verbose",0,"Verbosity level",True,int),
+                         "athena": FTKExplorerSet("athena",0,"If true, use athena options",True,bool),
                          "UseIncomplete": FTKExplorerSet("UseIncomplete",0,"If True in efficiency plots the incomplete tracks are used",True,bool),
                          "useIBL": FTKExplorerSet("useIBL",1,"If 1 (aka True) layer-0 is IBL (default 1)",True,int),
                          "verbose": FTKExplorerSet("verbose",0,"Verbosity level",True,int)}
@@ -3937,7 +3940,10 @@ else :
                 print "Output directory %s skipped" % argument
                 print "error:", errmsg
     else:
-        dirlist = glob.glob(prog_options.indir+"/raw*")
+        if (prog_options.athena):
+          dirlist = glob.glob(prog_options.indir+"/ntuples/*")
+        else:
+          dirlist = glob.glob(prog_options.indir+"/raw*")
         if len(dirlist) == 0:
             try:
                 dirlist = glob.glob(prog_options.indir+"/*/raw*")

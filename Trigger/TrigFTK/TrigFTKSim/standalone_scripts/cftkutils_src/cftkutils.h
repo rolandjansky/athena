@@ -47,6 +47,8 @@ typedef struct {
   TBranch **mergedtracks_branch;
   FTKTrackStream **mergedtracks_stream;
 
+  bool athena;
+
   /* This is the list of absolute paths for the input  wrapper files */
   PyObject *inputfiles;
 

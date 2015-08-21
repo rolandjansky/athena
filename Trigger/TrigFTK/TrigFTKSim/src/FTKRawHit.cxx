@@ -24,14 +24,15 @@ FTKRawHit::FTKRawHit()
 }
 
 /* Special constructor for SCTtrk hits*/
-FTKRawHit::FTKRawHit(const FTKTrack* trk, int) : 
+FTKRawHit::FTKRawHit(const FTKTrack* trk, int) :
   TObject(), m_truth(0), m_channels()
 {
   reset();
   m_x = trk->getPhi();
   m_y = trk->getCotTheta();
-  m_z = trk->getInvPt();
+  m_z = trk->getHalfInvPt();
   m_hitType = ftk::SCTtrk;
+  m_moduleType = ftk::MODULETYPE_INVALID; // set to invalid until it is correctly set
   m_layer_disk = 0; // for the scttrk case
   // store information about 8L SCT road and track into unused variables:
   setBankID(trk->getBankID());
@@ -41,10 +42,11 @@ FTKRawHit::FTKRawHit(const FTKTrack* trk, int) :
   m_truth = new MultiTruth();
 }
 
-FTKRawHit::FTKRawHit(const FTKRawHit &cpy) :  
+FTKRawHit::FTKRawHit(const FTKRawHit &cpy) :
   TObject(cpy),
   m_x(cpy.m_x), m_y(cpy.m_y), m_z(cpy.m_z),
   m_hitType(cpy.m_hitType),
+  m_moduleType(cpy.m_moduleType),
   m_IdentifierHash(cpy.m_IdentifierHash),
   m_barrel_ec(cpy.m_barrel_ec),
   m_layer_disk(cpy.m_layer_disk),
@@ -83,6 +85,7 @@ FTKRawHit& FTKRawHit::operator=(const FTKRawHit &cpy)
     {
       m_x = cpy.m_x; m_y = cpy.m_y; m_z = cpy.m_z;
       m_hitType = cpy.m_hitType;
+      m_moduleType = cpy.m_moduleType;
       m_IdentifierHash = cpy.m_IdentifierHash;
       m_barrel_ec = cpy.m_barrel_ec;
       m_layer_disk = cpy.m_layer_disk;
@@ -113,6 +116,7 @@ void FTKRawHit::reset()
   m_y = 0.;
   m_z = 0.;
   m_hitType = 0;
+  m_moduleType = ftk::MODULETYPE_INVALID;
   m_IdentifierHash = 0;
   m_barrel_ec = 0;
   m_layer_disk = 0;
@@ -131,8 +135,8 @@ void FTKRawHit::reset()
   m_barcode_pt = 0.;
   m_parentage_mask = 0;
   m_hw_word = 0;
-  if( m_truth ) { 
-     delete m_truth; 
+  if( m_truth ) {
+     delete m_truth;
      m_truth = 0;
   }
   m_channels.clear();
@@ -148,7 +152,7 @@ ostream &operator<<(std::ostream& out,const FTKRawHit& hit)
 }
 
 istream& operator>>(istream &input, FTKRawHit &hit)
-{ 
+{
   int dummy;
 
   input >> hit.m_x >> hit.m_y >> hit.m_z;
@@ -164,7 +168,7 @@ istream& operator>>(istream &input, FTKRawHit &hit)
     // August 2009 format: remaing fields are event_index, barcode, highest pt, parentage mask.
     streampos position = input.tellg();
     input >> hit.m_barcode;
-    if( input ) { 
+    if( input ) {
       // is not an old format w/o geant truth info
       input >> hit.m_barcode_pt;
       // Check for August 2009
@@ -185,9 +189,9 @@ istream& operator>>(istream &input, FTKRawHit &hit)
       }
     }
   }
-  
+
     input >> hit.m_IdentifierHash;
-  
+
   // change the layer id according the FTK use
   hit.normalizeLayerID();
 
@@ -195,12 +199,13 @@ istream& operator>>(istream &input, FTKRawHit &hit)
 }
 
 
-istream& clusterP( istream &input , FTKRawHit &hit ) 
+istream& clusterP( istream &input , FTKRawHit &hit )
 {
   // added March, 2012
 
   input >> hit.m_x >> hit.m_y >> hit.m_z;
-  hit.m_hitType = ftk::PIXEL;
+  hit.setHitType(ftk::PIXEL);
+  hit.setModuleType(ftk::MODULETYPE_PIXEL);
   input >> hit.m_barrel_ec;
   input >> hit.m_layer_disk;
   input >> hit.m_phi_module >> hit.m_eta_module;
@@ -210,7 +215,7 @@ istream& clusterP( istream &input , FTKRawHit &hit )
   // The wrapper is filled with m_pi_side + dPhi, for example, so correct back...
   hit.m_dPhi -= hit.m_pi_side;
   hit.m_dEta -= hit.m_ei_strip;
-  
+
   input >> hit.m_phiWidth >> hit.m_etaWidth;
 
   input >> hit.m_n_strips;
@@ -263,7 +268,7 @@ istream& clusterC( istream &input , FTKRawHit &hit ) {
 }
 
 /** This function change the layer id, how it comes from the atlas numbering
-    method, from the id used in FTK pmap. This method update the 
+    method, from the id used in FTK pmap. This method update the
     m_layer_disk field for the SCT, doesn't affect the pixels
  */
 void FTKRawHit::normalizeLayerID()
@@ -281,7 +286,7 @@ void FTKRawHit::normalizeLayerID()
     else if(m_layer_disk==3 && m_pi_side == 0) m_layer_disk = 6;
     else if(m_layer_disk==3 && m_pi_side == 1) m_layer_disk = 7;
 
-  } 
+  }
   else {
     /* this is complicated. */
     /* First, figure out if we're on the inside or outside in z, and inner or outer ring */
@@ -290,24 +295,24 @@ void FTKRawHit::normalizeLayerID()
     if (m_eta_module > 0) inner_ring = 1;
     if ((m_eta_module == 0 || m_eta_module == 2) && m_pi_side == 1) outside = 1;
     if (m_eta_module == 1 && m_pi_side == 0) outside = 1;
-    
+
     /* disk 8 flipped: special case */
     if (m_layer_disk == 8 && m_pi_side == 1) outside = 0;
     if (m_layer_disk == 8 && m_pi_side == 0) outside = 1;
-    
+
     /* split the disks up by inner/outer, and by side */
     m_layer_disk = 4*m_layer_disk + 2*inner_ring + outside;
-    
+
     /* aaaaand fix eta index */
     if (inner_ring) m_eta_module = m_eta_module - 1;
-    
+
     if (FTKSetup::getFTKSetup().getVerbosity() > 3) {
       printf("Converted disk %d eta %d side %d to split disk %d eta %d\n",
-	     m_layer_disk, m_eta_module, m_pi_side, 
+	     m_layer_disk, m_eta_module, m_pi_side,
 	     m_layer_disk, m_eta_module);
     }
   }
- 
+
 }
 
 /** this function convert an hit in the format that has all
@@ -345,7 +350,7 @@ FTKHit FTKRawHit::getFTKHit(const FTKPlaneMap *pmap) const {
   reshit.setIdentifierHash(getIdentifierHash());
   reshit.setPlane(plane);
   reshit.setSector(sector);
-  reshit.setHwWord(m_hw_word); 
+  reshit.setHwWord(m_hw_word);
   switch (m_hitType) {
   case ftk::PIXEL:
     reshit.setEtaWidth(getEtaWidth());
@@ -405,7 +410,7 @@ FTKHit FTKRawHit::getFTKHit(const FTKPlaneMap *pmap) const {
 
 void FTKRawHit::setTruth(const MultiTruth& v)
 {
-  if(m_truth) { 
+  if(m_truth) {
     *m_truth = v;
   } else {
     m_truth = new MultiTruth(v);

@@ -27,8 +27,8 @@ FTKRoad::FTKRoad()
     m_ssid(0x0), m_hlid(0x0), m_hlidoff(0x0),
     m_SubSSMask(0x0),
     m_nsubroads(0),
-    m_hits(0), m_hits_mask(),
-    m_evtidx(0), m_barcode(0), m_frac(0), m_AMroad(0)
+    m_AMroad(0), m_hits(0), m_hits_mask(),
+    m_evtidx(0), m_barcode(0), m_frac(0)
 {
   m_subroads = new TClonesArray("FTKRoad",5);
 }
@@ -44,8 +44,8 @@ FTKRoad::FTKRoad(int uid, int bankid, int pattid, int nplanes,
     m_RW_rejected(0), m_RW_roadID(-1), m_RW_bankID(-1),
     m_nhits(nhits), m_bitmask(bitmask),
     m_nplanes(nplanes), m_hlidoff(0x0), m_nsubroads(0),
-    m_hits(nplanes), m_hits_mask(),
-    m_evtidx(0), m_barcode(0), m_frac(0), m_AMroad(0)
+    m_AMroad(0), m_hits(nplanes), m_hits_mask(),
+    m_evtidx(0), m_barcode(0), m_frac(0)
 {
   m_ssid = new int[m_nplanes];
   m_hlid = new int[m_nplanes];
@@ -71,10 +71,10 @@ FTKRoad::FTKRoad(const FTKRoad &copy) :
   m_nplanes(copy.m_nplanes),
   m_hlidoff(0x0),
   m_nsubroads(copy.m_nsubroads),
+  m_AMroad(0),
   m_hits(copy.m_hits), 
   m_hits_mask(copy.m_hits_mask),
-  m_evtidx(0), m_barcode(0), m_frac(0),
-  m_AMroad(0)
+  m_evtidx(0), m_barcode(0), m_frac(0)
 {
 
   m_ssid = new int[m_nplanes];

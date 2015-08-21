@@ -61,6 +61,8 @@ private:
   double m_ss_offset_fraction;
 
   int m_PixelClusteringMode; // clustering mode: 0 left edge, 1 center (also use ToT and correct for different lenght of pixels)
+  int m_DuplicateGanged; // duplicate ganged pixels to remove efficiency loss
+  int m_GangedPatternRecognition;  // pattern recognition to remove duplicates
   int m_SctClustering;       // SCT clustering: 0 disabled, 1 enabled
 
   bool m_SCTTrkMode;
@@ -151,7 +153,7 @@ private:
 
   bool m_AutoDisable; // possibility to avoid internal algorithm execution in particular confitions
 
-  int m_firstEvent; // first event to run over
+  int m_firstEventFTK; // first event to run over
 
 };
 

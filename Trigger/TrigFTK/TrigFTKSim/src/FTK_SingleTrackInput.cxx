@@ -369,7 +369,7 @@ void FTK_SingleTrackInput::DumpTrack(std::ostream& out) {
   //out.setf(ios_base::scientific);
   out << m_track.getPhi() << "\t" 
       << m_track.getCotTheta() << "\t"
-      << m_track.getInvPt();
+      << m_track.getHalfInvPt();
   out.precision(oldprec);
   //  out << "\t" << m_track.getChi2();
   out << std::endl;
@@ -378,5 +378,5 @@ void FTK_SingleTrackInput::DumpTrack(std::ostream& out) {
 
 /* Dumps track parameters into root file */
 void FTK_SingleTrackInput::DumpTrack(FTKTrackLookup& out) {
-  out.set(m_glob_event,m_track.getPhi(),m_track.getCotTheta(),m_track.getInvPt());
+  out.set(m_glob_event,m_track.getPhi(),m_track.getCotTheta(),m_track.getHalfInvPt());
 }

@@ -180,7 +180,7 @@ void FTK_SGTrackOutput::addTrack(int bank, const FTKTrack &track)
   athtrack->setSectorID(track.getSectorID());
   athtrack->setTrackID(track.getTrackID());
   // copy the helix parameters
-  athtrack->setInvPt(track.getInvPt());
+  athtrack->setHalfInvPt(track.getHalfInvPt());
   athtrack->setIP(track.getIP());
   athtrack->setPhi(track.getPhi());
   athtrack->setZ0(track.getZ0());
@@ -273,7 +273,7 @@ void FTK_SGTrackOutput::addTrackI(int bank, const FTKTrack &track)
   athtrack->setSectorID(track.getSectorID());
   athtrack->setTrackID(track.getTrackID());
   // copy the helix parameters
-  athtrack->setInvPt(track.getInvPt());
+  athtrack->setHalfInvPt(track.getHalfInvPt());
   athtrack->setIP(track.getIP());
   athtrack->setPhi(track.getPhi());
   athtrack->setZ0(track.getZ0());

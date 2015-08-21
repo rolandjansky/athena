@@ -9,6 +9,8 @@ FTKTruthTrack::FTKTruthTrack() :
   m_x(0.),
   m_y(0.),
   m_z(0.),
+  m_d0(0.),
+  m_vtx_z(0.),
   m_q(0),
   m_px(0.),
   m_py(0.),

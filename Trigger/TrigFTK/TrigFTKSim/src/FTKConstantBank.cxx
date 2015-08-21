@@ -7,13 +7,13 @@
 #include "TrigFTKSim/FTKTrack.h"
 #include "TrigFTKSim/ftk_dcap.h"
 
-//#include <TMatrixD.h>
-//#include <TVectorD.h>
+// #include <TMatrixD.h>
+// #include <TVectorD.h>
 #include <TMath.h>
 
 #include <iostream>
 #include <iomanip>
-#include <fstream>
+// #include <fstream>
 #include <string>
 #include <cassert>
 #include <cstdio>
@@ -44,6 +44,7 @@ FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
   m_invfit_consts(0x0),
   m_kernel_aux(0),
   m_kaverage_aux(0),
+  m_AUX(false),
   m_maj_invkk_aux(0), m_maj_invkk_pow(0)
 {
   //TODO: make possible to read constants in different formats
@@ -378,13 +379,14 @@ int FTKConstantBank::linfit(int secid, FTKTrack &track) const
 
 
   // control over chi-square value
-  if (track.getChi2()==0) {
-    /* in this case usual the constants for the sector are all
-       0, this condition is found when there are not enough
-       statistic to evaluate the constants */
-    printf("*** Chi2=0, contants set problem?\n");
-  }  
-  else {
+  // if (track.getChi2()==0) {
+  //   /* in this case usual the constants for the sector are all
+  //      0, this condition is found when there are not enough
+  //      statistic to evaluate the constants */
+  //   printf("*** Chi2=0, contants set problem?\n");
+  // }  
+  // else {
+  if (track.getChi2()!=0) {
     /* track from with some missing plane */
     linfit_pars_eval(secid,track);
   }
@@ -395,7 +397,7 @@ int FTKConstantBank::linfit(int secid, FTKTrack &track) const
       cout << setw(13) << track.getCoord(ic);
     cout << endl;
     cout << "\t\t\tReconstructed parameters\n\t\t\t" \
-	 << track.getInvPt() << ' ' << track.getIP() \
+	 << track.getHalfInvPt() << ' ' << track.getIP() \
 	 << ' ' << track.getPhi() << ' ' << track.getZ0() \
 	 << ' ' << track.getCotTheta() << endl;
     cout << "\t\t\tChi2 " << track.getChi2() << endl;
@@ -450,7 +452,7 @@ void FTKConstantBank::linfit_pars_eval(int secid, FTKTrack &trk) const
   }
   //cout << "secid: " << secid << endl; // cy debug
   //cout << "phi after corrgen: " << pars[2] << endl; //cy debug
-  trk.setInvPt(pars[0]);
+  trk.setHalfInvPt(pars[0]);
   trk.setIP(pars[1]);
   trk.setIPRaw(pars[1]);
   trk.setPhi(pars[2]); // angle is moved within -pi to +pi
@@ -652,7 +654,6 @@ int FTKConstantBank::missing_point_guess(FTKTrack &track, int secid, float *newc
       FTKSetup::PrintMessage(ftk::debg,"\n");
     }
 
-
    return nmissing;
   }
 
@@ -669,7 +670,7 @@ void FTKConstantBank::prepareInvConstants()
 
    for (int isec=0;isec!=m_nsectors;++isec) { // loop over the sectors
       Eigen::MatrixXd thisMatrix(m_ncoords,m_ncoords);
-      
+
       // first the parameters, by row
       for (int ip=0;ip!=m_npars;++ip) {
          for (int ix=0;ix!=m_ncoords;++ix) {
@@ -683,8 +684,12 @@ void FTKConstantBank::prepareInvConstants()
          }
       }
       
+      //Eigen::FullPivLU<Eigen::MatrixXd> lu(thisMatrix);
+      //cout<<"IsInvertible: "<<lu.isInvertible()<<endl;
+
       // Invert the matrix
-      m_invfit_consts->push_back(thisMatrix.inverse());
+      (*m_invfit_consts)[isec]= thisMatrix.inverse();
+
    } // end loop over the sectors
 }
 
@@ -713,9 +718,9 @@ int FTKConstantBank::invlinfit(int secid, FTKTrack &track, double *constr) const
   }
 
   // The raw hits are obtained multiplying the parameters to the inverted constants
-//  TVectorD rawhits = m_invfit_consts[secid]*pars;
+  //  TVectorD rawhits = m_invfit_consts[secid]*pars;
   Eigen::VectorXd rawhits = ((*m_invfit_consts)[secid])*pars;
-
+  
   // The raw hits are assigned to the original track
   for (int ix=0;ix!=m_ncoords;++ix) {
      track.setCoord(ix,rawhits(ix));
@@ -784,16 +789,17 @@ signed long long FTKConstantBank::aux_asr(signed long long input , int shift, in
   // deal with the sign separately
   unsigned long long shifted = abs(input);
 
-  // clear bits that will "go negative"
-  if (shift < 0) shifted &= ~(static_cast<long long>(pow(2, -shift)-1));
-
   // make the baseline shift
   if (shift > 0) shifted = (shifted << shift);
-  if (shift < 0) shifted = (shifted >> -shift);
+  if (shift < 0) {
+    // clear bits that will "go negative"
+    shifted &= ~((static_cast<long long>(1) << -shift) - 1);
+    shifted = (shifted >> -shift);
+  }
 
   // save bits within the width (subtracting one bit for sign)
-  signed long long output = shifted & (static_cast<long long>(pow(2, width-1)-1));
-  if (abs(output) != shifted) overflow = true;
+  signed long long output = shifted & ((static_cast<long long>(1) << (width-1))-1);
+  if (static_cast<unsigned long long>(llabs(output)) != shifted) overflow = true;
 
   // reinstate the sign.
   if (input < 0) output *= -1;
@@ -807,9 +813,6 @@ void FTKConstantBank::linfit_chisq_aux(int secid, FTKTrack &trk) const {
 
   long double chi2(0);
   long long chi2LL(0);
-
-  // fstream outfs;
-  // outfs.open("test.txt", fstream::out | fstream::app);
 
   bool ofl = false; // overflow
 
@@ -833,8 +836,7 @@ void FTKConstantBank::linfit_chisq_aux(int secid, FTKTrack &trk) const {
   }  
 
 
-  // outfs << "chi2: " << chi2 << " " << chi2LL << " " << aux_asr(chi2LL, 0, 48, ofl) << " " << chi2LL/pow(2., 2*EFF_SHIFT) << endl;
-  chi2LL = aux_asr(chi2LL, 0, 48, ofl);
+  chi2LL = aux_asr(chi2LL, 0, 45, ofl);
 
   // If there was a bit overflow, set the chi-square to some artificially large value so it fails the cut.
   // Otherwise, set to the caluclated value, scaled back to nominal units.
@@ -842,8 +844,6 @@ void FTKConstantBank::linfit_chisq_aux(int secid, FTKTrack &trk) const {
   trk.setChi2FW(chi2LL/pow(2., 2.*EFF_SHIFT));
   // float fchi2 = ofl ? 9999999. : static_cast<float>(chi2) / pow(2.0,26.0);
   trk.setChi2(chi2); // fchi2
-
-  // outfs.close();
 
 }
 
@@ -868,18 +868,18 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
   // Reject anything other than a *single* missing pixel or SCT hit.
   int npixcy = 6; // we have 6 pixel coords
   if (nmissing > 2) {
-    FTKSetup::PrintMessage(ftk::warn, "Cannot guess more than two coordinates.\n");
+    // FTKSetup::PrintMessage(ftk::warn, "Cannot guess more than two coordinates.\n");
     return 0;
   }
   if (nmissing == 2) { // 2 missing, must be consecutive pixel hits.
     if (m_missid[0] >= npixcy || m_missid[0]+1 != m_missid[1]) {
-      FTKSetup::PrintMessageFmt(ftk::warn, "Two guessed coordinates must be from the same pix hit: missing %d, %d.\n", m_missid[0], m_missid[1]);
+      // FTKSetup::PrintMessageFmt(ftk::warn, "Two guessed coordinates must be from the same pix hit: missing %d, %d.\n", m_missid[0], m_missid[1]);
       return 0;
     }
   }
   if (nmissing == 1) { // can't imagine how this would happen...
     if (m_missid[0] < npixcy) {
-      FTKSetup::PrintMessage(ftk::warn, "Single miss/drop must be in SCT - returning.\n");
+      // FTKSetup::PrintMessage(ftk::warn, "Single miss/drop must be in SCT - returning.\n");
       return 0;
     }
   }
@@ -895,7 +895,6 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
 
     for (int j = 0 ; j < m_ncoords ; ++j ) {
       if (m_coordsmask[j]) {
-
         // m_partials[i]   += m_kernel[secid][i][j] * track.getCoord(j);
         m_partialsLL[i] += m_kernel_aux[secid][i][j] * track.getAUXCoord(j); 
       }
@@ -904,6 +903,7 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
 
   if (ofl) {
     FTKSetup::PrintMessage(ftk::warn, "AUX-style TF calculation had an overflow!!!\n");
+    delete [] m_partialsLL;
     return 0; 
   }
 
@@ -913,7 +913,7 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
   for (int j = 0; j < nmissing; ++j) {
     for (int i = 0; i < m_nconstr; ++i ) {
       // t[j] -= m_kernel[secid][i][m_missid[j]] * m_partials[i];
-      tLL[j] -= m_kernel_aux[secid][i][m_missid[j]] * aux_asr(m_partialsLL[i], 0, 30, ofl);
+      tLL[j] -= m_kernel_aux[secid][i][m_missid[j]] * m_partialsLL[i];
     }
 
     tLL[j] = aux_asr(tLL[j], 0, 50, ofl);
@@ -939,7 +939,7 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
   if (nmissing == 1) {
 
     coords[m_missid[0]] = tLL[0] * m_maj_invkk_aux[secid][m_missid[0]][m_missid[0]]
-                          / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]]);
+                          / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]] - 1);
 
     // outfs << "finally coord0: " << newcoord[0] << "  " << coords[m_missid[0]] << endl;
 

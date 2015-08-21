@@ -20,6 +20,7 @@
 
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -29,6 +30,8 @@
 #include "TrkTruthData/TrackTruthCollection.h"
 #include "TrkTrackSummaryTool/TrackSummaryTool.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
+#include "TrkExInterfaces/IExtrapolator.h"
+#include "TrkParameters/TrackParameters.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
@@ -82,6 +85,9 @@ private:
 
   // job configuration 
   ToolHandle<Trk::ITruthToTrack>            m_truthToTrack; //!< tool to create track parameters from a gen particle
+
+  ToolHandle<Trk::IExtrapolator> m_extrapolator;
+  ServiceHandle<IBeamCondSvc> m_beamSpotSvc;
 
   std::string  	 m_pixelClustersName;
   std::string	 m_sctClustersName;

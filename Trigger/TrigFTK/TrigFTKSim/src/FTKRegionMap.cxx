@@ -11,6 +11,9 @@
 #include <cstdio>
 #include <iostream>
 #include <boost/foreach.hpp>
+#include <TTree.h>
+#include <TKey.h>
+
 using namespace std;
 using namespace ftk;
 
@@ -23,23 +26,32 @@ FTKRegionMapItem::FTKRegionMapItem() :
 
 
 FTKRegionMap::FTKRegionMap() :
-   m_isok(false), m_old_format(false), m_nregions(0), m_nregions_phi(0),
-   m_pmap(0), m_nplanes(0), m_sections(0), m_map(0)
+   m_isok(false), m_old_format(false), m_pmap(NULL), m_m_pmap(NULL),
+   m_nregions(0), m_nregions_phi(0),
+   m_nplanes(0), m_sections(0), m_map(0)
 {
   // nothing to do
 }
 
+const TString FTKRegionMap::s_dirname = "RegionMap";
 FTKRegionMap::~FTKRegionMap()
 {
    if (m_sections) delete m_sections;
    if (m_map) delete [] m_map;
+   if (m_m_pmap && m_m_pmap==m_pmap) {
+      delete m_pmap;
+      m_m_pmap = NULL;
+      m_pmap = NULL;
+   }
 }
+
 
 /** create a regions' map file from an ASCII file describing it */
 FTKRegionMap::FTKRegionMap(FTKPlaneMap *pmap, const char *path) :
-  m_isok(false), m_old_format(false), m_path(path), m_pmap(pmap), m_nregions(0), m_nregions_phi(0),
+  m_path(path), m_isok(false), m_old_format(false), m_pmap(pmap), m_nregions(0), m_nregions_phi(0),
   m_nplanes(0), m_sections(0x0), m_map(0x0)
 {
+  m_m_pmap = NULL;
   FTKSetup &ftkset = FTKSetup::getFTKSetup();
 
   FILE *infile = fopen(path,"r");
@@ -52,9 +64,6 @@ FTKRegionMap::FTKRegionMap(FTKPlaneMap *pmap, const char *path) :
   // redfined as a boolean true if the FTK verbosity level 
   // is greater than 1
   bool cmDebug = ftkset.getVerbosity()>1 ? true : false;
-
-  // to fix a macro definition
-  const int MAXPLANES(20);
 
   // most of the the code from original TrigFTKLib/src/lib/rmap_rd.c file
   char line[100];
@@ -114,15 +123,15 @@ FTKRegionMap::FTKRegionMap(FTKPlaneMap *pmap, const char *path) :
       // initialize variables not mandatory in all the formats supported by this routine
       isEC = 0; phi_tot=-1; eta_min=-1; eta_max=-1; eta_tot=-1;
       if (m_old_format) {
-	const int nread = sscanf(line, "%d %d %d %d %d %d", &type, &isEC, &layer, &phi_min, &phi_max, &phi_tot);
-	// compatibility: the old rmap file gives max_phi. Since numbering starts with 0, we need to increment by one
-	if (nread!=6) phi_tot=phi_max+1; else phi_tot+=1;
+         const int nread = sscanf(line, "%d %d %d %d %d %d", &type, &isEC, &layer, &phi_min, &phi_max, &phi_tot);
+         // compatibility: the old rmap file gives max_phi. Since numbering starts with 0, we need to increment by one
+         if (nread!=6) phi_tot=phi_max+1; else phi_tot+=1;
       } else {
-	sscanf(line, "%d %d %d %d %d %d %d %d %d", &type, &isEC, &layer, &phi_min, &phi_max, &phi_tot, &eta_min, &eta_max, &eta_tot);
+         sscanf(line, "%d %d %d %d %d %d %d %d %d", &type, &isEC, &layer, &phi_min, &phi_max, &phi_tot, &eta_min, &eta_max, &eta_tot);
       }
-
+      
       if (isEC && m_pmap->getRLayers() == m_pmap->getNPlanes()) {
-	FTKSetup::PrintMessage(sevr, "readRegionMap: New rmap file format but old m_pmap format\n");
+         FTKSetup::PrintMessage(sevr, "readRegionMap: New rmap file format but old m_pmap format\n");
       }
 
       // if the physical layer is used by the current pmap the information is read
@@ -139,22 +148,480 @@ FTKRegionMap::FTKRegionMap(FTKPlaneMap *pmap, const char *path) :
          // 		      i,plane,section,phi_min,phi_max,phi_tot,eta_min,eta_max,eta_tot);
       }
     } // end loop over the real layers
-    if(cmDebug>3) printf("\n");
+     //    if(cmDebug>3) printf("\n");
   } // end region loop
   if (cmDebug) FTKSetup::PrintMessage(debg,"\t\t...done\n");
   
 
   m_nplanes = m_pmap->getNPlanes();
 
-  if ((m_sections = (int *)calloc(MAXPLANES,sizeof(int))) == NULL)
+  if ((m_sections = (int *)calloc(ftk::MAXPLANES,sizeof(int))) == NULL)
     FTKSetup::PrintMessage(sevr,"m_pmap_rd: Allocation of rmap sections failed.");
-  for (j = 0; j < MAXPLANES; j++) m_sections[j] = m_pmap->getNSections(j);
+  for (j = 0; j < ftk::MAXPLANES; j++) m_sections[j] = m_pmap->getNSections(j);
 
   if (cmDebug) FTKSetup::PrintMessage(debg,"Done with readRegionMap\n\n");
   fclose(infile);
   
   m_isok = true;
 }
+
+FTKRegionMap::FTKRegionMap(TDirectory* file){
+   //! Read pmap class from root file
+   //! check validity also using GetIsOK()
+
+   //cout<<"Instantiate RegionMap from root file."<<endl;
+   TDirectory* thisdir = gDirectory;
+
+   m_isok = false;
+
+   if ( !file->cd(s_dirname) ) {
+      cerr << "Error in FTKRegionMap::FTKRegionMap. No RegionMap found in root-file. "<< endl;
+      return;
+   }
+
+   m_path = gDirectory->GetTitle();
+   //cout<<"PathName:        "<<m_path<<endl;
+
+   TTree* tConst        = (TTree*)gDirectory->Get("Constants");
+   TTree* tMap          = (TTree*)gDirectory->Get("Map");
+   TTree* tTowLoc       = (TTree*)gDirectory->Get("TowerGlobalToLocalMap");
+   TTree* tGlobToOffMap = (TTree*)gDirectory->Get("GlobalToOffMap");
+   
+   if ( !tConst || !tMap ) {
+      cerr << "Error in FTKRegionMap::FTKRegionMap. Could not find trees. "<< endl;
+      cerr << "  tree('Constants')     "<<tConst<<endl;
+      cerr << "  tree('Map')          "<<tMap<<endl;
+      m_old_format = false;
+      m_pmap = NULL;
+      m_m_pmap = NULL;
+      m_nregions = 0;
+      m_nregions_phi = 0;
+      m_nplanes = 0;
+      m_sections = 0;
+      m_map = 0;
+      return;
+   }
+
+   m_isok = true;
+
+   // constants:
+   int chksum, chksumLUT;
+   tConst->GetBranch("old_format")->SetAddress(&m_old_format);
+   tConst->GetBranch("nregions")->SetAddress(&m_nregions);
+   tConst->GetBranch("nregions_phi")->SetAddress(&m_nregions_phi);
+   tConst->GetBranch("nplanes")->SetAddress(&m_nplanes);
+   tConst->GetBranch("Checksum")->SetAddress(&chksum);
+   tConst->GetBranch("ChecksumLUT")->SetAddress(&chksumLUT);
+   tConst->GetEntry(0);
+   // cout<<"old_format       "<<m_old_format<<endl;   
+   // cout<<"nregions         "<<m_nregions<<endl;
+   // cout<<"nregions_phi     "<<m_nregions_phi<<endl;
+   // cout<<"nplanes          "<<m_nplanes<<endl;
+   
+   // PlaneMap
+   m_pmap = FTKPlaneMap::GetPMapFromRootFile(file);
+   m_m_pmap = m_pmap;
+   if ( !m_pmap->getIsOK() ) {
+      cerr<<"Error in FTKRegionMap::FTKRegionMap. Could not get valid plane map from file."<<endl;
+      m_isok = false;
+      return;
+   }
+
+   m_sections = new int[ftk::MAXPLANES];
+   for ( int i = 0 ; i<ftk::MAXPLANES ; i++ ) m_sections[i] = m_pmap->getNSections(i);
+
+
+   // FTKRegionMapItem***            m_map;
+   double phi_min, phi_max, phi_tot, eta_min, eta_max, eta_tot;
+   int ireg,iplane,isec;
+   tMap->GetBranch("ireg")->SetAddress(&ireg);
+   tMap->GetBranch("iplane")->SetAddress(&iplane);
+   tMap->GetBranch("isec")->SetAddress(&isec);
+   tMap->GetBranch("phi_min")->SetAddress(&phi_min);
+   tMap->GetBranch("phi_max")->SetAddress(&phi_max);
+   tMap->GetBranch("phi_tot")->SetAddress(&phi_tot);
+   tMap->GetBranch("eta_min")->SetAddress(&eta_min);
+   tMap->GetBranch("eta_max")->SetAddress(&eta_max);
+   tMap->GetBranch("eta_tot")->SetAddress(&eta_tot);
+   m_map = new FTKRegionMapItem**[m_nregions];
+   int nev=0;
+   for(int i = 0; i < m_nregions; ++i) {
+      tMap->GetEntry(nev++);
+      m_map[i] = new FTKRegionMapItem*[m_pmap->getNPlanes()];
+      for(int j = 0; j < m_pmap->getNPlanes(); ++j) {
+	 if ( j!= 0 ) tMap->GetEntry(nev++);
+	 m_map[i][j] = new FTKRegionMapItem[m_pmap->getNSections(j)];
+	 for(int n = 0; n<m_pmap->getNSections(j) ; n++ ) {
+	    if ( n!= 0 ) tMap->GetEntry(nev++);
+	    if ( i!= ireg || j!= iplane || n !=isec ) {
+	       cerr << "Error reading FTKRegionMap."<<endl;
+	       m_isok = false;
+	    }
+	    m_map[i][j][n] = FTKRegionMapItem(phi_min, phi_max, phi_tot, eta_min, eta_max, eta_tot);
+	 }
+      }
+   }
+
+
+   // lookup table for local module ID within a tower:
+   // init: tower_global_to_local_map_type m_tower_global_to_local_map;
+   if ( tTowLoc ) {
+      ULong64_t imtowerid,implane,imglobalid,localid;
+      tTowLoc->GetBranch("itowerid")->SetAddress(&imtowerid);
+      tTowLoc->GetBranch("iplane")->SetAddress(&implane);
+      tTowLoc->GetBranch("iglobalid")->SetAddress(&imglobalid);
+      tTowLoc->GetBranch("localid")->SetAddress(&localid);
+      for ( int n = 0 ; n<tTowLoc->GetEntries() ; n++ ) {
+	 tTowLoc->GetEntry(n);
+	 m_tower_global_to_local_map[imtowerid][implane][imglobalid] = localid;
+      }
+   }
+
+   // init: global_to_offline_map_type m_global_to_offline_map;
+   // conversion between global module IDs and offline
+   if ( tGlobToOffMap ) {
+      ULong64_t ig;
+      bool isPixel;
+      int barrelEC, layer, etamod, phimod;
+      tGlobToOffMap->GetBranch("iglobtooffmap")->SetAddress(&ig);
+      tGlobToOffMap->GetBranch("isPixel")->SetAddress(&isPixel);
+      tGlobToOffMap->GetBranch("barrelEC")->SetAddress(&barrelEC);
+      tGlobToOffMap->GetBranch("layer")->SetAddress(&layer);
+      tGlobToOffMap->GetBranch("etamod")->SetAddress(&etamod);
+      tGlobToOffMap->GetBranch("phimod")->SetAddress(&phimod);
+      for ( int n = 0 ; n<tGlobToOffMap->GetEntries() ; n++ ) {
+	 tGlobToOffMap->GetEntry(n);
+	 m_global_to_offline_map[ig] = FTKRegionMapOfflineId(isPixel, barrelEC, layer, etamod, phimod);
+      }
+   }
+      
+   // m_path = gDirectory->GetTitle();
+   // cout<<"PathName:        "<<m_path<<endl;
+
+   m_isok = m_isok && m_pmap->getIsOK();
+   thisdir->cd(); // go back
+
+   if ( chksum != CalcChecksum() ) {
+      cerr<<"FTKRegionMap::FTKRegionMap. Error. Checksum after reading is not consistent with Checksum stored in file."<<endl;
+      m_isok=false;
+   }
+   if ( chksumLUT != CalcChecksumLUT() ) {
+      cerr<<"FTKRegionMap::FTKRegionMap. Error. ChecksumLUT after reading is not consistent with Checksum stored in file."<<endl;
+      m_isok=false;
+   }
+
+
+}
+
+
+
+FTKRegionMap* FTKRegionMap::GetRMapFromRootFile(TDirectory* file){
+   //! Read regionmap class from root file
+   //! return NULL if reading failed.
+   //! check validity also using m_isok
+
+   TDirectory* thisdir = gDirectory;
+   FTKRegionMap* ret = new FTKRegionMap(file);
+
+   if ( !ret->getIsOK() ) {
+      cerr <<"FTKRegionMap::GetRMapFromRootFile. Error. RegionMap seems not to be ok (isok==false). Returning nullptr."<<endl;
+      delete ret;
+      return NULL;
+   }
+
+   thisdir->cd(); // go back
+   return  ret;
+}
+
+
+void FTKRegionMap::WriteMapToRootFile(TDirectory* dir){
+   //! Write RegionMap to root file
+   //! Readable again using FTKRegionMap(TDirectory* dir).
+
+   TDirectory* thisdir = gDirectory;
+   // check if RegionMap already exists
+   if ( dir->GetKey(s_dirname) ) {
+      if ( FTKRegionMap::GetChecksum(dir) == CalcChecksum()  ) {
+	 cout<<"Info. Identical RegionMap already written to disk. Skipping writing. (checksum: "<<CalcChecksum()<<")."<<endl;
+	 dir->ls();
+	 return;
+      }
+      else {
+	 cerr << "Error: [FTKRegionMap::WriteMapToRootFile] There is already a RegionMap in this file: " << dir->GetTitle() << endl;
+	 cerr << "                                          RegionMap title: "<<dir->GetKey(s_dirname)->GetTitle()<<endl;
+	 cerr << "       *** Skipping writing *** "<<endl;
+	 return;
+      }
+   }
+   if ( !m_isok ) {
+      cerr << "Error: [FTKRegionMap::WriteMapToRootFile] RegionMap is not properly initalized. m_isok= " << m_isok << endl;
+      cerr << "       *** Skipping writing *** "<<endl;
+      return;
+   }
+
+   // create new directory for RegionMap content
+   // std::string m_path; // configuration file path
+   TString title = getPath();
+   TObjArray* as = title.Tokenize("/");
+   TObjString* asend = (TObjString*)as->At(as->GetEntries()-1);
+   title = asend->GetString();
+   delete as;
+   TDirectory* rmapdir = dir->mkdir(s_dirname,title);
+   rmapdir->cd();
+
+   //cout<<"Writing constants."<<endl;
+   // bool m_old_format; // old_format = 8 regions; otherwise 64 towers
+   // int m_nregions;
+   // int m_nregions_phi;
+   // int m_nplanes;
+   TTree tConst("Constants","Constants");
+   tConst.Branch("old_format",&m_old_format,"old_format/O");
+   tConst.Branch("nregions",&m_nregions,"nregions/I");
+   tConst.Branch("nregions_phi",&m_nregions_phi,"nregions_phi/I");
+   tConst.Branch("nplanes",&m_nplanes,"nplanes/I");
+   int chksum = CalcChecksum();
+   int chksumLUT = CalcChecksumLUT();
+   tConst.Branch("Checksum",&chksum,"chksum/I");
+   tConst.Branch("ChecksumLUT",&chksumLUT,"chksumLUT/I");
+   tConst.Fill();
+
+   // FTKPlaneMap *m_pmap;
+   //cout<<"writing pmap file."<<endl;
+   m_pmap->WriteMapToRootFile(dir);
+   //m_pmap->WriteMapToRootFile(thisdir);
+
+   // int *m_sections;
+   //for (j = 0; j < MAXPLANES; j++) m_sections[j] = m_pmap->getNSections(j);
+   // -> Not necessary to write, since anyhow taken from pmap
+
+   //cout<<"writing m_map."<<endl;
+   // FTKRegionMapItem***            m_map;
+   double phi_min, phi_max, phi_tot, eta_min, eta_max, eta_tot;
+   //int ireg,iplane,isec;
+   TTree tMap("Map","Map");
+   int i,j,n;
+   tMap.Branch("ireg",&i,"ireg/I");
+   tMap.Branch("iplane",&j,"iplane/I");
+   tMap.Branch("isec",&n,"isec/I");
+   tMap.Branch("phi_min",&phi_min,"phi_min/D");
+   tMap.Branch("phi_max",&phi_max,"phi_max/D");
+   tMap.Branch("phi_tot",&phi_tot,"phi_tot/D");
+   tMap.Branch("eta_min",&eta_min,"eta_min/D");
+   tMap.Branch("eta_max",&eta_max,"eta_max/D");
+   tMap.Branch("eta_tot",&eta_tot,"eta_tot/D");
+   for(i = 0; i < m_nregions; ++i) {
+      for(j = 0; j < m_pmap->getNPlanes(); ++j) {
+	 for(n = 0; n<m_pmap->getNSections(j) ; n++ ) {
+	    phi_min = m_map[i][j][n].getPhiMin();	    
+	    phi_max = m_map[i][j][n].getPhiMax();
+	    phi_tot = m_map[i][j][n].getPhiTot();
+	    eta_min = m_map[i][j][n].getEtaMin();
+	    eta_max = m_map[i][j][n].getEtaMax();
+	    eta_tot = m_map[i][j][n].getEtaTot();
+	    //  std::set<unsigned int> m_global_module_ids;
+	    tMap.Fill();
+	 }
+      }
+   }
+   
+   // typedef std::map<unsigned int,unsigned int> global_to_local_map_type;
+   // typedef std::map<unsigned int,global_to_local_map_type> plane_global_to_local_map_type;
+   // typedef std::map<unsigned int, plane_global_to_local_map_type > tower_global_to_local_map_type;
+   // tower_global_to_local_map_type m_tower_global_to_local_map;
+
+   if ( m_tower_global_to_local_map.empty() ) 
+      cout<<"Info. FTKRegionMap::WriteMapToRootFile. m_tower_global_to_local_map is empty. Nothing to write."<<endl;
+   else {
+      ULong64_t imtowerid,implane,imglobalid,localid;
+      //unsigned int itowerid,iplane,iglobalid,localid;
+      TTree tTowLoc("TowerGlobalToLocalMap","TowerGlobalToLocalMap");
+      tTowLoc.Branch("itowerid",&imtowerid,"itowerid/l");
+      tTowLoc.Branch("iplane",&implane,"iplane/l");
+      tTowLoc.Branch("iglobalid",&imglobalid,"iglobalid/l");
+      tTowLoc.Branch("localid",&localid,"localid/l");
+      //- l : a 64 bit unsigned integer (ULong64_t)
+      //m_tower_global_to_local_map[towerid][plane][globalid] = localid;
+      for ( auto atower : m_tower_global_to_local_map ) {
+	 imtowerid = atower.first;
+	 //plane_global_to_local_map_type& imap = atower.second;
+	 for ( auto aplane : m_tower_global_to_local_map[imtowerid] ) {
+	    implane = aplane.first;
+	    for ( auto aglob : m_tower_global_to_local_map[imtowerid][implane] ) {
+	       imglobalid = aglob.first;
+	       localid = aglob.second;
+	       //cout<<"Writing m_tower_global_to_local_map:   imtowerid="<<imtowerid<<"\timplane="<<implane<<"\timglobalid="<<imglobalid<<"\tlocalid="<<localid<<endl;
+	       tTowLoc.Fill();
+	    }
+	 }
+      }
+   }
+   
+   // typedef std::map<unsigned int,FTKRegionMapOfflineId> global_to_offline_map_type;
+   // global_to_offline_map_type     m_global_to_offline_map;
+   if ( m_global_to_offline_map.empty() ) 
+      cout<<"Info. FTKRegionMap::WriteMapToRootFile. m_global_to_offline_map is empty. Nothing to write."<<endl;
+   else {
+      TTree tGlobToOffMap("GlobalToOffMap","GlobalToOffMap");
+      ULong64_t ig;
+      bool isPixel;
+      int barrelEC, layer, etamod, phimod;
+      tGlobToOffMap.Branch("iglobtooffmap",&ig,"iglobtooffmap/l");
+      tGlobToOffMap.Branch("isPixel",&isPixel,"isPixel/O");
+      tGlobToOffMap.Branch("barrelEC",&barrelEC,"barrelEC/I");
+      tGlobToOffMap.Branch("layer",&layer,"layer/I");
+      tGlobToOffMap.Branch("etamod",&etamod,"etamod/I");
+      tGlobToOffMap.Branch("phimod",&phimod,"phimod/I");
+      for ( auto agltooff : m_global_to_offline_map ) {
+	 ig = agltooff.first;
+	 isPixel = agltooff.second.getIsPixel();
+	 barrelEC = agltooff.second.getBarrelEC();
+	 layer = agltooff.second.getLayer();
+	 etamod = agltooff.second.getEtaMod();
+	 phimod = agltooff.second.getPhiMod();
+	 tGlobToOffMap.Fill();
+      }
+   }   
+
+   rmapdir->Write();
+   thisdir->cd();
+   // bool m_isok;
+}
+
+
+int FTKRegionMap::CalcChecksum() const {
+   // calculate checksum of map
+
+   vector<double> vec;
+   vec.push_back((double)m_old_format);
+   vec.push_back((double)m_nregions);
+   vec.push_back((double)m_nregions_phi);
+   vec.push_back((double)m_nplanes);
+   
+   // m_pmap;
+   int pmapchk = m_pmap->CalcChecksum();
+   vec.push_back((double)pmapchk);
+   
+   // m_map;
+   for(int i = 0; i < m_nregions; ++i) {
+      for(int j = 0; j < m_pmap->getNPlanes(); ++j) {
+	 for(int n = 0; n<m_pmap->getNSections(j) ; n++ ) {
+	    vec.push_back((double)m_map[i][j][n].getPhiMin());
+	    vec.push_back((double)m_map[i][j][n].getPhiMax());
+	    vec.push_back((double)m_map[i][j][n].getPhiTot());
+	    vec.push_back((double)m_map[i][j][n].getEtaMin());
+	    vec.push_back((double)m_map[i][j][n].getEtaMax());
+	    vec.push_back((double)m_map[i][j][n].getEtaTot());
+	 }
+      }
+   }
+
+   size_t size = sizeof(double) * vec.size();
+   int checksum = ftk::adler32chksum(&vec[0],size);
+   //cerr<<"\t\t\tRMAP::Checksum:  "<<checksum<<",\t pmap.checksum: "<<pmapchk<<endl;
+   return checksum;
+}
+
+int FTKRegionMap::CalcChecksumLUT() {
+   // calculate checksum of map
+
+   vector<double> vec;
+   if ( m_tower_global_to_local_map.empty() && m_global_to_offline_map.empty()) 
+      // No LUT defined yet.
+      return 0;
+   else {
+      ULong64_t imtowerid,implane;
+      //ULong64_t imtowerid,implane,imglobalid,localid;
+      //- l : a 64 bit unsigned integer (ULong64_t)
+      //m_tower_global_to_local_map[towerid][plane][globalid] = localid;
+      for ( const auto& atower : m_tower_global_to_local_map ) {
+	 imtowerid = atower.first;	 
+	 vec.push_back((double) imtowerid);
+	 //plane_global_to_local_map_type& imap = atower.second;
+	 for ( const auto& aplane : m_tower_global_to_local_map[imtowerid] ) {
+	    implane = aplane.first;
+	    vec.push_back((double)implane);
+	    for ( const auto& aglob : m_tower_global_to_local_map[imtowerid][implane] ) {
+	       vec.push_back((double)aglob.first);
+	       vec.push_back((double)aglob.second);
+	    }
+	 }
+      }
+   
+      // typedef std::map<unsigned int,FTKRegionMapOfflineId> global_to_offline_map_type;
+      // global_to_offline_map_type     m_global_to_offline_map;
+      // ULong64_t ig;
+      // bool isPixel;
+      // int barrelEC, layer, etamod, phimod;
+      for ( const auto& agltooff : m_global_to_offline_map ) {
+	 vec.push_back((double)agltooff.first);
+	 vec.push_back((double)agltooff.second.getIsPixel());
+	 vec.push_back((double)agltooff.second.getBarrelEC());
+	 vec.push_back((double)agltooff.second.getLayer());
+	 vec.push_back((double)agltooff.second.getEtaMod());
+	 vec.push_back((double)agltooff.second.getPhiMod());
+      }
+   }   
+
+   size_t size = sizeof(double) * vec.size();
+   int checksum = ftk::adler32chksum(&vec[0],size);
+   return checksum;
+}
+
+
+int FTKRegionMap::GetChecksum(TDirectory* file){
+   // get nplanes from root file
+   // if error: return -1
+   TDirectory* thisdir = gDirectory;
+
+   if ( !file->cd(s_dirname) ) {
+      cerr << "Error in FTKRegionMap::GetNPlanes. No RegionMap found in root-file. "<< endl;
+	 return -1;
+   } 
+
+   TTree* tConst = (TTree*)gDirectory->Get("Constants");
+   if ( !tConst ) {
+      cerr << "Error in FTKRegionMap::GetNPlanes. Could not find trees. "<< endl;
+      cerr << "  tree('Constants')       "<<tConst<<endl;
+	 return -1;
+   }
+
+   // constants:
+   int ret;
+   TBranch* br = tConst->GetBranch("Checksum");
+   br->SetAddress(&ret);
+   br->GetEntry(0);
+   thisdir->cd();
+   return ret;
+}
+
+
+int FTKRegionMap::GetChecksumLUT(TDirectory* file){
+   // get nplanes from root file
+   // if error: return -1
+   TDirectory* thisdir = gDirectory;
+
+   if ( !file->cd(s_dirname) ) {
+      cerr << "Error in FTKRegionMap::GetNPlanes. No RegionMap found in root-file. "<< endl;
+	 return -1;
+   } 
+
+   TTree* tConst = (TTree*)gDirectory->Get("Constants");
+   if ( !tConst ) {
+      cerr << "Error in FTKRegionMap::GetNPlanes. Could not find trees. "<< endl;
+      cerr << "  tree('Constants')       "<<tConst<<endl;
+	 return -1;
+   }
+
+   // constants:
+   int ret;
+   TBranch* br = tConst->GetBranch("ChecksumLUT");
+   br->SetAddress(&ret);
+   br->GetEntry(0);
+   thisdir->cd();
+   return ret;
+}
+
+
 
 // read module id LUT (defining global -> tower-local module IDs)
 void FTKRegionMap::loadModuleIDLUT(const char* path)
@@ -348,7 +815,7 @@ const FTKRegionMapItem &FTKRegionMap::getRegionMapItem(int ireg, int ipl, int is
 
 
 /** return the local module ID for a module, assuming a tower index */
-unsigned int FTKRegionMap::getLocalModuleID(const FTKHit &hit, unsigned int TowerID) const
+unsigned int FTKRegionMap::getLocalModuleID(const FTKHit &hit, unsigned int TowerID) 
 {
   int plane = hit.getPlane();
   int eta = hit.getEtaCode();
@@ -401,7 +868,7 @@ void FTKRegionMap::convertLocalID(unsigned int localID, int TowerID, int plane, 
   // get the tower extremes
   const int &phimin = m_map[TowerID][plane][section].getPhiMin();
   int phimax = m_map[TowerID][plane][section].getPhiMax();
-  //const int &etamin = m_map[TowerID][plane][section].getEtaMin();
+  const int &etamin = m_map[TowerID][plane][section].getEtaMin();
   //const int &etamax = m_map[TowerID][plane][section].getEtaMax();
 
   // adjust the phi boundaries
@@ -410,10 +877,39 @@ void FTKRegionMap::convertLocalID(unsigned int localID, int TowerID, int plane, 
 
  
   modphi = localID%nphi+phimin;
-  if (modphi>=phimax) modphi-=phimax;
-  modeta = localID/nphi+phimax;
+  // STS 150219: change >= to > , subtract nphi not phimax
+  //  if (modphi>=phimax) modphi-=phimax;
+  if (modphi>phimax) modphi-=nphi;
+  // STS 150218: do not add phimax but add etamin
+  //   modeta = localID/nphi+phimax;
+  modeta = localID/nphi+etamin;
+
+
+  int etamax = m_map[TowerID][plane][section].getEtaMax();
+
+  if((modphi<phimin)||(modphi>phimax)||(modeta<etamin)||(modeta>etamax)) {
+     std::cout<<"convertLocalID::convertLocalID: localID="
+              <<localID<<" nphi="<<nphi<<" phimin="
+              <<phimin<<" phi="<<modphi<<" phimax="<<phimax
+              <<" etamin="<<etamin<<" eta="<<modeta<<" etamax="<<etamax<<"\n";
+  }
 }
 
+unsigned int FTKRegionMap::getLocalID(int TowerID,int plane,int section,
+                                      int modphi,int modeta) const {
+  int phimin = m_map[TowerID][plane][section].getPhiMin();
+  int etamin = m_map[TowerID][plane][section].getEtaMin();
+  int etamax = m_map[TowerID][plane][section].getEtaMax();
+  int phimax = m_map[TowerID][plane][section].getPhiMax();
+  int nphi = phimax-phimin+1;
+  if (nphi<=0) nphi += m_map[TowerID][plane][section].getPhiTot();
+  if((modphi<phimin)||(modphi>phimax)||(modeta<etamin)||(modeta>etamax)) {
+     std::cout<<"FTKRegionMap::getLocalID: phimin="
+              <<phimin<<" phi="<<modphi<<" phimax="<<phimax
+              <<" etamin="<<etamin<<" eta="<<modeta<<" etamax="<<etamax<<"\n";
+  }
+  return (modeta-etamin)*nphi+(modphi-phimin);
+}
 
 //   (local id) == -1 => module is not in the tower
 int FTKRegionMap::getLocalId(const unsigned int& towerId,const unsigned int& planeId,const unsigned int& globalModuleId) const

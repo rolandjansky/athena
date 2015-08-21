@@ -124,6 +124,8 @@ public:
    static int ExtractSectorNumber(char const *treeName);
    static TString ConstructTreeName(int sector);
    TString const &GetTreeName(void) const { return fTreeName; }
+   void ReadCoverageOnly(bool suppressPatternRead); 
+   int GetSectorNumber(void) const { return fSector; }
 protected:
    bool LoadTree(TDirectory *dir);
    bool CreateTree(TDirectory *dir,int nLayer);
@@ -136,6 +138,7 @@ protected:
    Long64_t fNumReads;
    TTree *fTTree;
 private:
+   bool fDoReadPattern;
    FTKPatternWithCoverage *fPattern;
    int fSector;
    TString fTreeName;

@@ -40,7 +40,7 @@ FTKDetectorTool::FTKDetectorTool(const std::string &algname,const std::string &n
   m_rmap(0x0)
 {
   declareInterface<FTKDetectorToolI>(this);
-  
+
   declareProperty("DumpPath",                 m_dumppath);
   declareProperty("pixelClustersName",        m_pixelClustersName);
   declareProperty("SCT_ClustersName",         m_sctClustersName);
@@ -89,11 +89,11 @@ StatusCode FTKDetectorTool::initialize()
   if ( m_pixelCondSummarySvc.retrieve().isFailure() ) {
     m_log << MSG::FATAL << "Failed to retrieve tool " << m_pixelCondSummarySvc << endreq;
     return StatusCode::FAILURE;
-  } 
+  }
   if ( m_sctCondSummarySvc.retrieve().isFailure() ) {
     m_log << MSG::FATAL << "Failed to retrieve tool " << m_sctCondSummarySvc << endreq;
     return StatusCode::FAILURE;
-  } 
+  }
 
   m_log << MSG::INFO << "Read the logical layer definitions" << endreq;
   // Look for the main plane-map
@@ -133,8 +133,8 @@ void FTKDetectorTool::makeBadModuleMap(){
   if (!m_doBadModuleMap) return;
 
   // list of the dead module, using the ftkrawhit format
-  list<FTKRawHit> badmodule_rawlist;   
-  
+  list<FTKRawHit> badmodule_rawlist;
+
   // take the list of dead pixels
   for( InDetDD::SiDetectorElementCollection::const_iterator i=m_PIX_mgr->getDetectorElementBegin(), f=m_PIX_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
     const InDetDD::SiDetectorElement* sielement( *i );
@@ -143,8 +143,9 @@ void FTKDetectorTool::makeBadModuleMap(){
     const bool is_bad = !(m_pixelCondSummarySvc->isGood( idhash ));
     if(is_bad){
       FTKRawHit tmpmodraw;
-      
+
       tmpmodraw.setHitType(ftk::PIXEL);
+      tmpmodraw.setModuleType(ftk::MODULETYPE_PIXEL);
       tmpmodraw.setBarrelEC(m_pixelId->barrel_ec(id));
       tmpmodraw.setLayer(m_pixelId->layer_disk(id));
       tmpmodraw.setPhiModule(m_pixelId->phi_module(id));
@@ -153,11 +154,11 @@ void FTKDetectorTool::makeBadModuleMap(){
       tmpmodraw.setEtaStrip(m_pixelId->eta_index(id));
       tmpmodraw.setIdentifierHash(idhash);
       tmpmodraw.normalizeLayerID();
-      
-      badmodule_rawlist.push_back(tmpmodraw);      
+
+      badmodule_rawlist.push_back(tmpmodraw);
     }
   }
-  
+
   // take the list of the dead SCT modules
   for( InDetDD::SiDetectorElementCollection::const_iterator i=m_SCT_mgr->getDetectorElementBegin(), f=m_SCT_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
     const InDetDD::SiDetectorElement* sielement( *i );
@@ -166,8 +167,9 @@ void FTKDetectorTool::makeBadModuleMap(){
     const bool is_bad = !(m_sctCondSummarySvc->isGood( idhash ));
     if(is_bad){
       FTKRawHit tmpmodraw;
-      
+
       tmpmodraw.setHitType(ftk::SCT);
+      tmpmodraw.setModuleType(ftk::MODULETYPE_SCT);
       tmpmodraw.setBarrelEC(m_sctId->barrel_ec(id));
       tmpmodraw.setLayer(m_sctId->layer_disk(id));
       tmpmodraw.setPhiModule(m_sctId->phi_module(id));
@@ -176,14 +178,14 @@ void FTKDetectorTool::makeBadModuleMap(){
       tmpmodraw.setEtaStrip(m_sctId->strip(id));
       tmpmodraw.setIdentifierHash(idhash);
       tmpmodraw.normalizeLayerID();
-      
-      badmodule_rawlist.push_back(tmpmodraw);     
+
+      badmodule_rawlist.push_back(tmpmodraw);
     }
   }
-  
-  
+
+
   m_log << MSG::INFO << "Total number of dead modules find: " << badmodule_rawlist.size() << endl;
-  
+
   // prepare the map of the bad module, the size is equal to the map of used layers
   m_bad_module_map = new list<FTKHit>[m_pmap->getNPlanes()];
   /* convert the dead module list in he FTKHit format, taking into account
@@ -192,7 +194,7 @@ void FTKDetectorTool::makeBadModuleMap(){
   unsigned nbadmod_effective(0);
   for (;ibadmod!=badmodule_rawlist.end();++ibadmod) {
     const FTKRawHit &badmodraw = *ibadmod;
-    // the module in the unused layers are skipped 
+    // the module in the unused layers are skipped
     if (m_pmap->getMap(badmodraw.getHitType(),badmodraw.getBarrelEC()!=0,badmodraw.getLayer()).getPlane() != -1) {
       // the bad module is used by FTK
       FTKHit tmpmodhit = badmodraw.getFTKHit(m_pmap);
@@ -205,10 +207,10 @@ void FTKDetectorTool::makeBadModuleMap(){
 
 
 
-void FTKDetectorTool::dumpDeadModuleSummary()  
+void FTKDetectorTool::dumpDeadModuleSummary()
 {
   if (!m_doBadModuleMap) return;
- 
+
   ofstream mapfile_ATLAS_BadModuleMap(m_ATLAS_BadModuleMapPath.c_str());
   for( InDetDD::SiDetectorElementCollection::const_iterator i=m_PIX_mgr->getDetectorElementBegin(), f=m_PIX_mgr->getDetectorElementEnd(); i!=f; ++i ) {
     const InDetDD::SiDetectorElement* sielement( *i );
@@ -216,7 +218,7 @@ void FTKDetectorTool::dumpDeadModuleSummary()
     IdentifierHash idhash = sielement->identifyHash();
     const bool is_bad = !(m_pixelCondSummarySvc->isGood( idhash ));
     if(is_bad){
-      
+
       mapfile_ATLAS_BadModuleMap << "B\t"
 				 << 1  << '\t' // 1  pixel 0 sct
 				 << m_pixelId->barrel_ec(id) << '\t'
@@ -246,7 +248,7 @@ void FTKDetectorTool::dumpDeadModuleSummary()
     }
   }
   mapfile_ATLAS_BadModuleMap.close();
-  
+
   ofstream mapfile_FTK_BadModuleMap(m_FTK_BadModuleMapPath.c_str());
   for(int ip=0;ip!=m_pmap->getNPlanes();++ip){
     list<FTKHit> &layer_map = m_bad_module_map[ip];
@@ -308,6 +310,7 @@ void FTKDetectorTool::dumpGlobalToLocalModuleMap() {
     FTKRawHit tmpmodraw;
 
     tmpmodraw.setHitType(ftk::PIXEL);
+    tmpmodraw.setModuleType(ftk::MODULETYPE_PIXEL);
     tmpmodraw.setBarrelEC(m_pixelId->barrel_ec(id));
     tmpmodraw.setLayer(m_pixelId->layer_disk(id));
     tmpmodraw.setPhiModule(m_pixelId->phi_module(id));
@@ -329,6 +332,7 @@ void FTKDetectorTool::dumpGlobalToLocalModuleMap() {
     FTKRawHit tmpmodraw;
 
     tmpmodraw.setHitType(ftk::SCT);
+    tmpmodraw.setModuleType(ftk::MODULETYPE_SCT);
     tmpmodraw.setBarrelEC(m_sctId->barrel_ec(id));
     tmpmodraw.setLayer(m_sctId->layer_disk(id));
     tmpmodraw.setPhiModule(m_sctId->phi_module(id));
@@ -386,5 +390,57 @@ void FTKDetectorTool::dumpGlobalToLocalModuleMap() {
   // clear the memory
   for (int ireg=0;ireg!=nregions;++ireg) delete [] grouped_modules[ireg];
   delete [] grouped_modules;
+
+}
+
+
+void FTKDetectorTool::dumpIDMap()
+{
+  ofstream mapfile("mapfile.txt");
+
+  mapfile << "PXL\tSL\tBEC\tLD\tMPHI\tMETA\tPHIID\tETAID\tHASH\tX\tY\tZ\tSinT\tW\tL" << endl;
+
+  for( InDetDD::SiDetectorElementCollection::const_iterator i=m_PIX_mgr->getDetectorElementBegin(), f=m_PIX_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
+    const InDetDD::SiDetectorElement* sielement( *i );
+    Identifier id = sielement->identify();
+    IdentifierHash idhash = sielement->identifyHash();
+
+    mapfile << ftk::PIXEL << "\t" << 0 << "\t";
+    mapfile << m_pixelId->barrel_ec(id) << "\t";
+    mapfile << m_pixelId->layer_disk(id) << "\t";
+    mapfile << m_pixelId->phi_module(id) << "\t";
+    mapfile << m_pixelId->eta_module(id) << "\t";
+    mapfile << m_pixelId->phi_index(id) << "\t";
+    mapfile << m_pixelId->eta_index(id) << "\t";
+    mapfile << idhash << "\t";
+    Amg::Vector3D modcenter = sielement->center();
+    mapfile << modcenter[0] << "\t" << modcenter[1] << "\t" << modcenter[2] << "\t";
+    mapfile << sielement->sinTilt() << "\t";
+    mapfile << sielement->width() << "\t";
+    mapfile << sielement->length();
+    mapfile << endl;
+  }
+
+  // take the list of the dead SCT modules
+  for( InDetDD::SiDetectorElementCollection::const_iterator i=m_SCT_mgr->getDetectorElementBegin(), f=m_SCT_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
+    const InDetDD::SiDetectorElement* sielement( *i );
+    Identifier id = sielement->identify();
+    IdentifierHash idhash = sielement->identifyHash();
+
+    mapfile << ftk::SCT << "\t" << (sielement->isStereo() ? 1 : 0) << "\t";
+    mapfile << m_sctId->barrel_ec(id) << "\t";
+    mapfile << m_sctId->layer_disk(id) << "\t";
+    mapfile << m_sctId->phi_module(id) << "\t";
+    mapfile << m_sctId->eta_module(id) << "\t";
+    mapfile << m_sctId->side(id) << "\t";
+    mapfile << m_sctId->strip(id) << "\t";
+    mapfile << idhash << "\t";
+    Amg::Vector3D modcenter = sielement->center();
+    mapfile << modcenter[0] << "\t" << modcenter[1] << "\t" << modcenter[2] << "\t";
+    mapfile << sielement->sinTilt() << "\t";
+    mapfile << sielement->width() << "\t";
+    mapfile << sielement->length();
+    mapfile << endl;
+  }
 
 }

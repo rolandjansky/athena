@@ -51,9 +51,11 @@ using namespace std;
 
 FTK_SGHitInput::FTK_SGHitInput(const std::string& algname, const std::string &name, const IInterface *ifc) :
   AthAlgTool(algname,name,ifc),
-  FTKDataInput(), 
-  m_log( msgSvc() , name ), 
-  m_truthToTrack( "Trk::TruthToTrack/InDetTruthToTrack" ),  
+  FTKDataInput(),
+  m_log( msgSvc() , name ),
+  m_truthToTrack( "Trk::TruthToTrack/InDetTruthToTrack" ),
+  m_extrapolator( "Trk::Extrapolator/AtlasExtrapolator" ),
+  m_beamSpotSvc( "BeamCondSvc" , name ),
   m_pixelClustersName( "PixelClusters" ),
   m_sctClustersName( "SCT_Clusters" ),
   m_pixelSpacePointsName( "PixelSpacePoints" ),
@@ -79,8 +81,10 @@ FTK_SGHitInput::FTK_SGHitInput(const std::string& algname, const std::string &na
   declareProperty("dumpHitsOnTracks",         m_dumpHitsOnTracks);
   declareProperty("dumpSpacePoints",          m_dumpSpacePoints);
   declareProperty("dumpTruthIntersections",   m_dumpTruthIntersections);
-  declareProperty("tracksTruthName"         , m_tracksTruthName);  
+  declareProperty("tracksTruthName"         , m_tracksTruthName);
   declareProperty("TruthToTrackTool"        , m_truthToTrack);
+  declareProperty("Extrapolator"            , m_extrapolator);
+  declareProperty("BeamCondSvc"             , m_beamSpotSvc);
   declareProperty("useOfflineTrackSelectorTool" , m_useOfflineTrackSelectorTool);
   declareProperty("outputBeamSpotToWrapper"	, m_outputBeamSpotToWrapper);
   declareProperty("useSimpleCuts"		, m_useSimpleCuts);
@@ -96,7 +100,7 @@ FTK_SGHitInput::FTK_SGHitInput(const std::string& algname, const std::string &na
 StatusCode FTK_SGHitInput::initialize(){
 
   m_log << MSG::INFO << "FTK_SGHitInput::initialize()" << endreq;
-  
+
   if( service("StoreGateSvc", m_storeGate).isFailure() ) {
     m_log << MSG::FATAL << "StoreGate service not found" << endreq;
     return StatusCode::FAILURE;
@@ -107,6 +111,20 @@ StatusCode FTK_SGHitInput::initialize(){
     return StatusCode::FAILURE;
   } else {
     m_log << MSG::INFO << m_truthToTrack << " retrieved" << endreq;
+  }
+
+  if( m_extrapolator.retrieve().isFailure() ) {
+    m_log << MSG::FATAL << m_extrapolator << " extrapolator tool not found" << endreq;
+    return StatusCode::FAILURE;
+  } else {
+    m_log << MSG::INFO << m_extrapolator << " retrieved" << endreq;
+  }
+
+  if( m_beamSpotSvc.retrieve().isFailure() ) {
+    m_log << MSG::FATAL << m_beamSpotSvc << " beam spot service not found" << endreq;
+    return StatusCode::FAILURE;
+  } else {
+    m_log << MSG::INFO << m_beamSpotSvc << " retrieved" << endreq;
   }
 
   if( service("DetectorStore",m_detStore).isFailure() ) {
@@ -154,7 +172,7 @@ StatusCode FTK_SGHitInput::initialize(){
       params.block_size = 9;
       oflraw->push( boost::iostreams::bzip2_compressor(params) );
     }
-    oflraw->push( boost::iostreams::file_sink(m_outFileNameRawHits)); // open the file                    
+    oflraw->push( boost::iostreams::file_sink(m_outFileNameRawHits)); // open the file
   }
 
 
@@ -165,9 +183,9 @@ StatusCode FTK_SGHitInput::initialize(){
 StatusCode FTK_SGHitInput::finalize(){
   MsgStream log(msgSvc(), name());
   m_log << MSG::INFO << "finalized" << endreq;
-  
+
   if( m_idHelper ) { delete m_idHelper; }
-  
+
   return StatusCode::SUCCESS;
 }
 
@@ -175,7 +193,7 @@ StatusCode FTK_SGHitInput::finalize(){
 /** initilize for the input */
 int FTK_SGHitInput::init(bool*)
 {
-  // setup clustering 
+  // setup clustering
   initClustering();
   return 0;
 }
@@ -184,7 +202,7 @@ int FTK_SGHitInput::init(bool*)
 
 /** This function get from the SG the inner detector raw hits
     and prepares them for FTK simulation */
-int FTK_SGHitInput::readData() 
+int FTK_SGHitInput::readData()
 {
   int res(0); // result of the hit gathering
 
@@ -203,16 +221,16 @@ int FTK_SGHitInput::readData()
         << "   event " << eventID->event_number()
         << endreq;
 
-  //Filled to variable / start event  
+  //Filled to variable / start event
   setRunNumber(eventID->run_number());
   setEventNumber(eventID->event_number());
   if(m_dooutFileRawHits){
-    (*oflraw) << "R\t" << eventID->run_number()<<'\n';                    
+    (*oflraw) << "R\t" << eventID->run_number()<<'\n';
     (*oflraw) << "F\t" << eventID->event_number()<<'\n';
   }
-  
 
- 
+
+
   HitIndexMap hitIndexMap; // keep running index event-unique to each hit
   HitIndexMap pixelClusterIndexMap;
   // get pixel and sct cluster containers
@@ -247,12 +265,12 @@ int FTK_SGHitInput::readData()
 
 // dump silicon channels with geant matching information.
 void
-FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelClusterIndexMap ) // const cannot make variables push back to DataInput  
+FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelClusterIndexMap ) // const cannot make variables push back to DataInput
 {
   using namespace std;
   unsigned int hitIndex = 0u;
   unsigned int pixelClusterIndex=0;
-  const DataHandle<PixelRDO_Container> pixel_rdocontainer_iter;  
+  const DataHandle<PixelRDO_Container> pixel_rdocontainer_iter;
   const InDetSimDataCollection* pixelSimDataMap(0);
   const bool have_pixel_sdo = m_storeGate->retrieve(pixelSimDataMap, "PixelSDO_Map").isSuccess();
   if (!have_pixel_sdo) {
@@ -262,17 +280,17 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
     m_log << MSG::INFO << "Found Pixel SDO Map" << endreq;
   }
 
-  // push back the hit information  to DataInput for HitList , copy from RawInput.cxx  
+  // push back the hit information  to DataInput for HitList , copy from RawInput.cxx
   FTKRawHit tmpSGhit;
   //tmporary debug to output variables to text file for developer.
 
-  
+
   if( m_storeGate->retrieve(pixel_rdocontainer_iter, "PixelRDOs").isSuccess()  ) {
     pixel_rdocontainer_iter->clID(); // anything to dereference the DataHandle
     for( PixelRDO_Container::const_iterator iColl=pixel_rdocontainer_iter->begin(), fColl=pixel_rdocontainer_iter->end(); iColl!=fColl; ++iColl ) {
       const InDetRawDataCollection<PixelRDORawData>* pixel_rdoCollection(*iColl);
       if( !pixel_rdoCollection ) { continue; }
-      const int size = pixel_rdoCollection->size();     
+      const int size = pixel_rdoCollection->size();
       m_log << MSG::DEBUG << "Pixel InDetRawDataCollection found with " << size << " RDOs" << endreq;
       // loop on all RDOs
       for( DataVector<PixelRDORawData>::const_iterator iRDO=pixel_rdoCollection->begin(), fRDO=pixel_rdoCollection->end(); iRDO!=fRDO; ++iRDO ) {
@@ -282,7 +300,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         const InDetDD::SiLocalPosition localPos = sielement->localPositionOfCell(rdoId);
         const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(rdoId);
         const Amg::Vector3D gPos( sielement->globalPosition(localPos) );
-        // update map between pixel identifier and event-unique hit index. 
+        // update map between pixel identifier and event-unique hit index.
         // ganged pixels (nCells==2) get two entries.
         hitIndexMap[rdoId] = hitIndex;
         const int nCells = sielement->numberOfConnectedCells( sielement->cellIdOfPosition(rawPos) );
@@ -296,7 +314,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         const HepMC::GenParticle* best_parent = 0;
         ParentBitmask parent_mask;
         HepMcParticleLink::ExtendedBarCode best_extcode;
-        if( have_pixel_sdo && pixelSimDataMap ) { 
+        if( have_pixel_sdo && pixelSimDataMap ) {
           InDetSimDataCollection::const_iterator iter( pixelSimDataMap->find(rdoId) );
           // this might be the ganged pixel copy.
           if( nCells>1 && iter==pixelSimDataMap->end() ) {
@@ -343,7 +361,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
               //   while( !parents.empty() ) {
               //     const HepMC::GenParticle* p = parents.back().first;
               //     const unsigned int level = parents.back().second;
-              //     if( std::abs(p->pdg_id())==5 ) { 
+              //     if( std::abs(p->pdg_id())==5 ) {
               //       bcs_bjet.insert( HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex() ) );
               //       break;
               //     }
@@ -361,16 +379,16 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         } // end if pixel truth available
         ++hitIndex;
 
-	//output// 
+	//output//
 	if(m_dooutFileRawHits){ //bz2 file
-	  (*oflraw) << "S\t" 
+	  (*oflraw) << "S\t"
 		    << setw(14) << setprecision(10)
 		    << gPos.x() << '\t'
 		    << setw(14) << setprecision(10)
 		    << gPos.y() << '\t'
 		    << setw(14) << setprecision(10)
 		    << gPos.z() << '\t'
-		    << 1  << '\t' // 1  pixel 0 sct  
+		    << 1  << '\t' // 1  pixel 0 sct
 		    << m_pixelId->barrel_ec(rdoId) << '\t'
 		    << m_pixelId->layer_disk(rdoId) << '\t'
 		    << m_pixelId->phi_module(rdoId) << '\t'
@@ -384,15 +402,16 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
 		    << parent_mask.to_ulong() << '\t'
 		    << endl;
 	}
-	// push back the hit information  to DataInput for HitList , copy from RawInput.cxx 
+	// push back the hit information  to DataInput for HitList , copy from RawInput.cxx
 	tmpSGhit.reset();
 	tmpSGhit.setX(gPos.x());
 	tmpSGhit.setY(gPos.y());
 	tmpSGhit.setZ(gPos.z());
-	tmpSGhit.setHitType(1);
-        tmpSGhit.setIdentifierHash(sielement->identifyHash());
+	tmpSGhit.setHitType(ftk::PIXEL);
+  tmpSGhit.setModuleType(ftk::MODULETYPE_PIXEL);
+  tmpSGhit.setIdentifierHash(sielement->identifyHash());
 	tmpSGhit.setBarrelEC(m_pixelId->barrel_ec(rdoId));
-	tmpSGhit.setLayer( m_pixelId->layer_disk(rdoId)); 
+	tmpSGhit.setLayer( m_pixelId->layer_disk(rdoId));
 	tmpSGhit.setPhiModule(m_pixelId->phi_module(rdoId));
 	tmpSGhit.setEtaModule(m_pixelId->eta_module(rdoId));
 	tmpSGhit.setPhiSide(m_pixelId->phi_index(rdoId));
@@ -402,9 +421,10 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
 	tmpSGhit.setBarcode((long)(best_parent ? best_extcode.barcode() : std::numeric_limits<long>::max()));
 	tmpSGhit.setBarcodePt( static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) );
 	tmpSGhit.setParentageMask(parent_mask.to_ulong());
-	tmpSGhit.normalizeLayerID(); // Change layer info from atlas geo to FTK geo	
-        //cout << "DBGBC Pxl " << tmpSGhit.getEventIndex() << ", " << tmpSGhit.getBarcode() << endl;
-	m_original_hits.push_back(tmpSGhit);
+	tmpSGhit.normalizeLayerID(); // Change layer info from atlas geo to FTK geo
+    //cout << "DBGBC Pxl " << tmpSGhit.getEventIndex() << ", " << tmpSGhit.getBarcode() << endl;
+    if (abs(m_pixelId->barrel_ec(rdoId)) != 4) // JAAA skip diamonds!
+       m_original_hits.push_back(tmpSGhit);
       } // end for each RDO in the collection
     } // for each pixel RDO collection
     // dump all pixel RDO's and SDO's for debugging purposes
@@ -420,14 +440,14 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
           const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(rdoId);
           const Amg::Vector3D gPos( sielement->globalPosition(localPos) );
 	  if(m_dooutFileRawHits){
-	    (*oflraw) << "# S\t" 
+	    (*oflraw) << "# S\t"
 		      << setw(14) << setprecision(10)
 		      << gPos.x() << '\t'
 		      << setw(14) << setprecision(10)
 		      << gPos.y() << '\t'
 		      << setw(14) << setprecision(10)
 		      << gPos.z() << '\t'
-		      << 1  << '\t' // 1  pixel 0 sct  
+		      << 1  << '\t' // 1  pixel 0 sct
 		      << m_pixelId->barrel_ec(rdoId) << '\t'
 		      << m_pixelId->layer_disk(rdoId) << '\t'
 		      << m_pixelId->phi_module(rdoId) << '\t'
@@ -440,19 +460,19 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         } // end for each pixel RDO
       } // end for each pixel RDO collection
       // dump SDO's
-      if( have_pixel_sdo && pixelSimDataMap ) { 
+      if( have_pixel_sdo && pixelSimDataMap ) {
         for( InDetSimDataCollection::const_iterator i=pixelSimDataMap->begin(), f=pixelSimDataMap->end(); i!=f; ++i ) {
           const Identifier sdoId( i->first );
           const InDetSimData& sdo( i->second );
           const vector<InDetSimData::Deposit>& deposits( sdo.getdeposits() );
           (*oflraw) << "# s"
-                    << " " << m_pixelId->barrel_ec(sdoId) 
-                    << " " << m_pixelId->layer_disk(sdoId) 
-                    << " " << m_pixelId->phi_module(sdoId) 
-                    << " " << m_pixelId->eta_module(sdoId) 
-                    << " " << m_pixelId->phi_index(sdoId) 
-                    << " " << m_pixelId->eta_index(sdoId) 
-                    << " " << PixelSimHelper::isNoise( sdo ) 
+                    << " " << m_pixelId->barrel_ec(sdoId)
+                    << " " << m_pixelId->layer_disk(sdoId)
+                    << " " << m_pixelId->phi_module(sdoId)
+                    << " " << m_pixelId->eta_module(sdoId)
+                    << " " << m_pixelId->phi_index(sdoId)
+                    << " " << m_pixelId->eta_index(sdoId)
+                    << " " << PixelSimHelper::isNoise( sdo )
                     << " " << PixelSimHelper::isBelowThreshold( sdo )
                     << " " << PixelSimHelper::isDisabled( sdo )
                     << " " << PixelSimHelper::hasBadTOT( sdo )
@@ -461,7 +481,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
           for( vector<InDetSimData::Deposit>::const_iterator iDep=deposits.begin(), fDep=deposits.end(); iDep!=fDep; ++iDep ) {
             const HepMcParticleLink& particleLink( iDep->first );
             const InDetSimData::Deposit::second_type qdep( iDep->second ); // energy(charge) contributed by this particle
-            (*oflraw) << "# s q " << qdep << " " << particleLink.isValid() << " " 
+            (*oflraw) << "# s q " << qdep << " " << particleLink.isValid() << " "
                       << (particleLink.isValid() ? particleLink.eventIndex() : -1)
                       << (particleLink.isValid() ? particleLink.barcode() : -1)
                       << endl;
@@ -485,7 +505,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
     for( SCT_RDO_Container::const_iterator iColl=sct_rdocontainer_iter->begin(), fColl=sct_rdocontainer_iter->end(); iColl!=fColl; ++iColl ) {
       const InDetRawDataCollection<SCT_RDORawData>* SCT_Collection(*iColl);
       if( !SCT_Collection ) { continue; }
-      const int size = SCT_Collection->size();     
+      const int size = SCT_Collection->size();
       m_log << MSG::DEBUG << "SCT InDetRawDataCollection found with " << size << " RDOs" << endreq;
       for( DataVector<SCT_RDORawData>::const_iterator iRDO=SCT_Collection->begin(), fRDO=SCT_Collection->end(); iRDO!=fRDO; ++iRDO ) {
         const Identifier rdoId = (*iRDO)->identify();
@@ -493,7 +513,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(rdoId);
         const InDetDD::SCT_ModuleSideDesign& design = dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(sielement->design());
         const InDetDD::SiLocalPosition localPos = design.positionFromStrip((*iRDO)->getStrip());
-        const Amg::Vector3D gPos = sielement->globalPosition(localPos);	
+        const Amg::Vector3D gPos = sielement->globalPosition(localPos);
         hitIndexMap[rdoId] = hitIndex;
         ++hitIndex;
         // if there is simulation truth available, try to retrieve the
@@ -501,7 +521,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         const HepMC::GenParticle* best_parent = 0;
         ParentBitmask parent_mask;
         HepMcParticleLink::ExtendedBarCode best_extcode;
-        if( have_sct_sdo && sctSimDataMap ) { 
+        if( have_sct_sdo && sctSimDataMap ) {
           InDetSimDataCollection::const_iterator iter( sctSimDataMap->find(rdoId) );
           // if SDO found for this pixel, associate the particle
           if( iter!=sctSimDataMap->end() )  {
@@ -540,7 +560,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
               //   while( !parents.empty() ) {
               //     const HepMC::GenParticle* p = parents.back().first;
               //     const unsigned int level = parents.back().second;
-              //     if( std::abs(p->pdg_id())==5 ) { 
+              //     if( std::abs(p->pdg_id())==5 ) {
               //       bcs_bjet.insert( HepMcParticleLink::ExtendedBarCode( particleLink.barcode() , particleLink.eventIndex() ) );
               //       break;
               //     }
@@ -554,16 +574,16 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
               parent_mask |= construct_truth_bitmap( particle );
             } // end for each contributing particle
           } // end if truth found for this strip
-        } // end if sct truth available        
+        } // end if sct truth available
 	if(m_dooutFileRawHits){
-	  (*oflraw) << "S\t" 
+	  (*oflraw) << "S\t"
 		    << setw(14) << setprecision(10)
 		    << gPos.x() << '\t'
 		    << setw(14) << setprecision(10)
 		    << gPos.y() << '\t'
 		    << setw(14) << setprecision(10)
 		    << gPos.z() << '\t'
-		    << 0  << '\t' // 1  pixel 0 sct  
+		    << 0  << '\t' // 1  pixel 0 sct
 		    << m_sctId->barrel_ec(rdoId) << '\t'
 		    << m_sctId->layer_disk(rdoId) << '\t'
 		    << m_sctId->phi_module(rdoId) << '\t'
@@ -577,15 +597,16 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
 		    << parent_mask.to_ulong() << '\t'
 		    << '\n';
 	}
-	// push back the hit information  to DataInput for HitList , copy from RawInput.cxx  
+	// push back the hit information  to DataInput for HitList , copy from RawInput.cxx
 	tmpSGhit.reset();
 	tmpSGhit.setX(gPos.x());
 	tmpSGhit.setY(gPos.y());
 	tmpSGhit.setZ(gPos.z());
-	tmpSGhit.setHitType(0);
-        tmpSGhit.setIdentifierHash(sielement->identifyHash());
+	tmpSGhit.setHitType(ftk::SCT);
+  tmpSGhit.setModuleType(ftk::MODULETYPE_SCT);
+  tmpSGhit.setIdentifierHash(sielement->identifyHash());
 	tmpSGhit.setBarrelEC(m_sctId->barrel_ec(rdoId));
-	tmpSGhit.setLayer(m_sctId->layer_disk(rdoId)); 
+	tmpSGhit.setLayer(m_sctId->layer_disk(rdoId));
 	tmpSGhit.setPhiModule(m_sctId->phi_module(rdoId));
 	tmpSGhit.setEtaModule(m_sctId->eta_module(rdoId));
 	tmpSGhit.setPhiSide(m_sctId->side(rdoId));
@@ -601,29 +622,29 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
       } // end for each RDO in the strip collection
     } // end for each strip RDO collection
     // dump all RDO's and SDO's for a given event, for debugging purposes
-    if( false ) { 
+    if( false ) {
       // dump SCT RDO's
       for( SCT_RDO_Container::const_iterator iColl=sct_rdocontainer_iter->begin(), fColl=sct_rdocontainer_iter->end(); iColl!=fColl; ++iColl ) {
         const InDetRawDataCollection<SCT_RDORawData>* SCT_Collection(*iColl);
         if( !SCT_Collection ) { continue; }
-        const int size = SCT_Collection->size();     
+        const int size = SCT_Collection->size();
         m_log << MSG::DEBUG << "SCT InDetRawDataCollection found with " << size << " RDOs" << endreq;
         for( DataVector<SCT_RDORawData>::const_iterator iRDO=SCT_Collection->begin(), fRDO=SCT_Collection->end(); iRDO!=fRDO; ++iRDO ) {
           const Identifier rdoId = (*iRDO)->identify();
           const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(rdoId);
           const InDetDD::SCT_ModuleSideDesign& design = dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(sielement->design());
           const InDetDD::SiLocalPosition localPos = design.positionFromStrip((*iRDO)->getStrip());
-          const Amg::Vector3D gPos = sielement->globalPosition(localPos);	
-	 
+          const Amg::Vector3D gPos = sielement->globalPosition(localPos);
+
 	  if(m_dooutFileRawHits){
-	    (*oflraw) << "# S\t" 
+	    (*oflraw) << "# S\t"
 		      << setw(14) << setprecision(10)
 		      << gPos.x() << '\t'
 		      << setw(14) << setprecision(10)
 		      << gPos.y() << '\t'
 		      << setw(14) << setprecision(10)
 		      << gPos.z() << '\t'
-		      << 0  << '\t' // 1  pixel 0 sct  
+		      << 0  << '\t' // 1  pixel 0 sct
 		      << m_sctId->barrel_ec(rdoId) << '\t'
 		      << m_sctId->layer_disk(rdoId) << '\t'
 		      << m_sctId->phi_module(rdoId) << '\t'
@@ -636,19 +657,19 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         } // end for each SCT rdo
       }  // end for each SCT rdo collection
       // dump SCT SDO's
-      if( have_sct_sdo && sctSimDataMap ) { 
+      if( have_sct_sdo && sctSimDataMap ) {
         for( InDetSimDataCollection::const_iterator i=sctSimDataMap->begin(), f=sctSimDataMap->end(); i!=f; ++i ) {
           const Identifier sdoId( i->first );
-          const InDetSimData& sdo( i->second );          
+          const InDetSimData& sdo( i->second );
           const vector<InDetSimData::Deposit>& deposits( sdo.getdeposits() );
 	  if(m_dooutFileRawHits){
 	    (*oflraw) << "# s"
-		      << " " << m_sctId->barrel_ec(sdoId) 
-		      << " " << m_sctId->layer_disk(sdoId) 
-		      << " " << m_sctId->phi_module(sdoId) 
-		      << " " << m_sctId->eta_module(sdoId) 
-		      << " " << m_sctId->side(sdoId) 
-		      << " " << m_sctId->strip(sdoId) 
+		      << " " << m_sctId->barrel_ec(sdoId)
+		      << " " << m_sctId->layer_disk(sdoId)
+		      << " " << m_sctId->phi_module(sdoId)
+		      << " " << m_sctId->eta_module(sdoId)
+		      << " " << m_sctId->side(sdoId)
+		      << " " << m_sctId->strip(sdoId)
 		      << " " << SCT_SimHelper::isNoise( sdo )
 		      << " " << SCT_SimHelper::isBelowThreshold( sdo )
 		      << " " << SCT_SimHelper::isDisabled( sdo )
@@ -659,7 +680,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
             const HepMcParticleLink& particleLink( iDep->first );
             const InDetSimData::Deposit::second_type qdep( iDep->second ); // energy(charge) contributed by this particle
 	    if(m_dooutFileRawHits){
-	      (*oflraw) << "# s q " << qdep << " " << particleLink.isValid() << " " 
+	      (*oflraw) << "# s q " << qdep << " " << particleLink.isValid() << " "
 			<< (particleLink.isValid() ? particleLink.eventIndex() : -1)
 			<< (particleLink.isValid() ? particleLink.barcode() : -1)
 			<< endl;
@@ -674,25 +695,25 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
   m_pixelContainer->clID(); // anything to dereference the DataHandle
   for( InDet::SiClusterContainer::const_iterator iColl=m_pixelContainer->begin(), fColl=m_pixelContainer->end(); iColl!=fColl; ++iColl ) {
     const InDet::SiClusterCollection* pixelClusterCollection(*iColl);
-    if( !pixelClusterCollection ) { 
+    if( !pixelClusterCollection ) {
       m_log << MSG::DEBUG << "pixelClusterCollection not available!" << endreq;
-      continue; 
+      continue;
     }
-    const int size = pixelClusterCollection->size();     
+    const int size = pixelClusterCollection->size();
     m_log << MSG::DEBUG << "PixelClusterCollection found with " << size << " clusters" << endreq;
 
     for( DataVector<InDet::SiCluster>::const_iterator iCluster=pixelClusterCollection->begin(), fCluster=pixelClusterCollection->end(); iCluster!=fCluster; ++iCluster ) {
       Identifier theId = (*iCluster)->identify();
       const Amg::Vector3D gPos = (*iCluster)->globalPosition();
-      
+
       // if there is simulation truth available, try to retrieve the "most likely" barcode for this pixel cluster.
       const HepMC::GenParticle* best_parent = 0;
       ParentBitmask parent_mask;
       HepMcParticleLink::ExtendedBarCode best_extcode;
-      if( have_pixel_sdo && pixelSimDataMap ) { 
+      if( have_pixel_sdo && pixelSimDataMap ) {
         for( std::vector<Identifier>::const_iterator rdoIter = (*iCluster)->rdoList().begin();
              rdoIter != (*iCluster)->rdoList().end(); rdoIter++ ) {
-          const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(*rdoIter); 
+          const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(*rdoIter);
           assert( sielement);
           const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(*rdoIter);
           const int nCells = sielement->numberOfConnectedCells( sielement->cellIdOfPosition(rawPos) );
@@ -734,7 +755,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
       } // if we have pixel sdo's available
 
       if(m_dooutFileRawHits){
-	(*oflraw) << "P\t" 
+	(*oflraw) << "P\t"
 		  << setw(14) << setprecision(10)
 		  << gPos.x() << '\t'
 		  << setw(14) << setprecision(10)
@@ -779,7 +800,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
 
 
 }
- 
+
 const FTK_SGHitInput::ParentBitmask
 FTK_SGHitInput::construct_truth_bitmap( const HepMC::GenParticle* particle ) const
 {
@@ -806,7 +827,7 @@ FTK_SGHitInput::construct_truth_bitmap( const HepMC::GenParticle* particle ) con
 }
 
 void
-FTK_SGHitInput::read_truth_tracks() 
+FTK_SGHitInput::read_truth_tracks()
 {
   FTKTruthTrack tmpSGTrack;
 
@@ -827,7 +848,7 @@ FTK_SGHitInput::read_truth_tracks()
 
   // dump each truth track
 
-  for( unsigned int ievt=0, fevt=(SimTracks ? SimTracks->size() : 0u); ievt!=fevt; ++ievt ) {    
+  for( unsigned int ievt=0, fevt=(SimTracks ? SimTracks->size() : 0u); ievt!=fevt; ++ievt ) {
     const HepMC::GenEvent* genEvent = SimTracks->at( ievt );
     // retrieve the primary interaction vertex here. for now, use the dummy origin.
     HepGeom::Point3D<double>  primaryVtx(0.,0.,0.);
@@ -837,15 +858,15 @@ FTK_SGHitInput::read_truth_tracks()
       primaryVtx.set( genEvent->signal_process_vertex()->point3d().x(),
                       genEvent->signal_process_vertex()->point3d().y(),
                       genEvent->signal_process_vertex()->point3d().z() );
-      m_log << MSG::DEBUG <<"using signal process vertex for eventIndex " << ievt << ":" 
+      m_log << MSG::DEBUG <<"using signal process vertex for eventIndex " << ievt << ":"
             << primaryVtx.x() << "\t" << primaryVtx.y()  << "\t" << primaryVtx.z()
 			     <<endreq;
     }
-    
+
 
      for( HepMC::GenEvent::particle_const_iterator it=genEvent->particles_begin(), ft=genEvent->particles_end(); it!=ft; ++it ) {
-   
-              
+
+
        const HepMC::GenParticle* const particle( *it );
        const int pdgcode = particle->pdg_id();
        // reject generated particles without a production vertex.
@@ -853,7 +874,11 @@ FTK_SGHitInput::read_truth_tracks()
        // reject neutral or unstable particles
        const HepPDT::ParticleData* pd = m_particleDataTable->particle(abs(pdgcode));
        if( !pd ) { continue; }
-       const float charge = pd->charge();
+//       const float charge = pd->charge();
+///       const float charge = (pdgcode > 0) ? -1. : +1.;
+       float charge = pd->charge();
+       if (pdgcode < 0) charge *= -1.; // since we took absolute value above
+
        if( std::abs(charge)<0.5 ) { continue; }
        if( particle->status()%1000!=1 ) { continue; }
        // retrieve some particle kinematics
@@ -861,25 +886,47 @@ FTK_SGHitInput::read_truth_tracks()
        //const float genEta = particle->momentum().pseudoRapidity();
        // reject non-fiducial particles
        //if( (genPt*1000.) < m_minPt ) { continue; } // controled by TrigFTKBankGen
-       
-       //if( std::abs(genEta) > m_maxEta ) { continue; } controled by TrigFTKBankGen 
-	 // retrieve truth track parameters at perigee
-       boost::scoped_ptr<const Trk::TrackParameters> generatedTrackPerigee( m_truthToTrack->makePerigeeParameters(particle) );
-       const double m_track_truth_d0 = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::d0] : 999.;
-       const double m_track_truth_phi = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::phi0] : 999.;
-       const double m_track_truth_p = (generatedTrackPerigee && generatedTrackPerigee->parameters()[Trk::qOverP] != 0.) ? 
-	 generatedTrackPerigee->charge()/generatedTrackPerigee->parameters()[Trk::qOverP] : 10E7;
-       const double m_track_truth_x0 = generatedTrackPerigee ? generatedTrackPerigee->position().x() : 999.;
-       const double m_track_truth_y0 = generatedTrackPerigee ? generatedTrackPerigee->position().y() : 999.;
-      const double m_track_truth_z0 = generatedTrackPerigee ? generatedTrackPerigee->position().z() : 999.;
-      const double m_track_truth_q = generatedTrackPerigee ? generatedTrackPerigee->charge() : 0.;
-      const double m_track_truth_sinphi = generatedTrackPerigee ? std::sin(generatedTrackPerigee->parameters()[Trk::phi0]) : -1.;
-      const double m_track_truth_cosphi = generatedTrackPerigee ? std::cos(generatedTrackPerigee->parameters()[Trk::phi0]) : -1.;
-      const double m_track_truth_sintheta = generatedTrackPerigee ? std::sin(generatedTrackPerigee->parameters()[Trk::theta]) : -1.;
-      const double m_track_truth_costheta = generatedTrackPerigee ? std::cos(generatedTrackPerigee->parameters()[Trk::theta]) : -1.;
-      double truth_d0corr = m_track_truth_d0-( primaryVtx.y()*cos(m_track_truth_phi)-primaryVtx.x()*sin(m_track_truth_phi) );
-      double truth_zvertex = 0.;
-      
+
+       //if( std::abs(genEta) > m_maxEta ) { continue; } controled by TrigFTKBankGen
+
+       // new truth-to-track tool
+       const Amg::Vector3D momentum( particle->momentum().px(), particle->momentum().py(), particle->momentum().pz());
+       const Amg::Vector3D position( particle->production_vertex()->position().x(), particle->production_vertex()->position().y(), particle->production_vertex()->position().z());
+       const Trk::CurvilinearParameters cParameters( position, momentum, charge);
+       Trk::PerigeeSurface persf( m_beamSpotSvc->beamPos() );
+       const Trk::TrackParameters* tP = m_extrapolator->extrapolate(cParameters, persf, Trk::anyDirection, false);
+       const double m_track_truth_d0 = tP ? tP->parameters()[Trk::d0] : 999.;
+       const double m_track_truth_phi = tP ? tP->parameters()[Trk::phi] : 999.;
+       const double m_track_truth_p = (tP && fabs(tP->parameters()[Trk::qOverP]) > 1.e-8) ?
+          tP->charge()/tP->parameters()[Trk::qOverP] : 10E7;
+       const double m_track_truth_x0 = tP ? tP->position().x() : 999.;
+       const double m_track_truth_y0 = tP ? tP->position().y() : 999.;
+       //const double m_track_truth_z0 = tP ? tP->position().z() : 999.;
+       const double m_track_truth_z0 = tP ? tP->parameters()[Trk::z0] : 999.;
+       const double m_track_truth_q = tP ? tP->charge() : 0.;
+       const double m_track_truth_sinphi = tP ? std::sin(tP->parameters()[Trk::phi]) : -1.;
+       const double m_track_truth_cosphi = tP ? std::cos(tP->parameters()[Trk::phi]) : -1.;
+       const double m_track_truth_sintheta = tP ? std::sin(tP->parameters()[Trk::theta]) : -1.;
+       const double m_track_truth_costheta = tP ? std::cos(tP->parameters()[Trk::theta]) : -1.;
+       double truth_d0corr = m_track_truth_d0-( primaryVtx.y()*cos(m_track_truth_phi)-primaryVtx.x()*sin(m_track_truth_phi) );
+
+       // old truth-to-track tool: retrieve truth track parameters at perigee
+       // boost::scoped_ptr<const Trk::TrackParameters> generatedTrackPerigee( m_truthToTrack->makePerigeeParameters(particle) );
+       // const double m_track_truth_d0 = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::d0] : 999.;
+       // const double m_track_truth_phi = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::phi0] : 999.;
+       // const double m_track_truth_p = (generatedTrackPerigee && generatedTrackPerigee->parameters()[Trk::qOverP] != 0.) ?
+       //   generatedTrackPerigee->charge()/generatedTrackPerigee->parameters()[Trk::qOverP] : 10E7;
+       // const double m_track_truth_x0 = generatedTrackPerigee ? generatedTrackPerigee->position().x() : 999.;
+       // const double m_track_truth_y0 = generatedTrackPerigee ? generatedTrackPerigee->position().y() : 999.;
+       // const double m_track_truth_z0 = generatedTrackPerigee ? generatedTrackPerigee->position().z() : 999.;
+       // const double m_track_truth_q = generatedTrackPerigee ? generatedTrackPerigee->charge() : 0.;
+       // const double m_track_truth_sinphi = generatedTrackPerigee ? std::sin(generatedTrackPerigee->parameters()[Trk::phi0]) : -1.;
+       // const double m_track_truth_cosphi = generatedTrackPerigee ? std::cos(generatedTrackPerigee->parameters()[Trk::phi0]) : -1.;
+       // const double m_track_truth_sintheta = generatedTrackPerigee ? std::sin(generatedTrackPerigee->parameters()[Trk::theta]) : -1.;
+       // const double m_track_truth_costheta = generatedTrackPerigee ? std::cos(generatedTrackPerigee->parameters()[Trk::theta]) : -1.;
+       // double truth_d0corr = m_track_truth_d0-( primaryVtx.y()*cos(m_track_truth_phi)-primaryVtx.x()*sin(m_track_truth_phi) );
+       double truth_zvertex = 0.;
+
       if ( !m_useSimpleCuts ) {  // determine d0_corr based on beam position from BeamCondSvc
 	//toshi/// truth_d0corr = m_track_truth_d0-( m_beamCondSvc->beamPos().y()*cos(m_track_truth_phi)-m_beamCondSvc->beamPos().x()*sin(m_track_truth_phi) );
         //toshi//truth_zvertex = m_beamCondSvc->beamPos().z();
@@ -910,7 +957,7 @@ FTK_SGHitInput::read_truth_tracks()
           //flight_length = startVertex.distance( endVertex );
         }
       } else {
-        isPrimary = false; 
+        isPrimary = false;
       }
       isDetPaperCut=isPrimary;
       // print truth track info and geant matching for highest figure-of-merit track
@@ -921,7 +968,7 @@ FTK_SGHitInput::read_truth_tracks()
         TruthToRecoProbMap::const_iterator barcode=_ttrProbMap.find(extBarcode2);
         if( barcode!=_ttrProbMap.end() ) {
           vector<float> probs;
-          transform( _ttrProbMap.lower_bound(extBarcode2) , _ttrProbMap.upper_bound(extBarcode2) , back_inserter(probs) , 
+          transform( _ttrProbMap.lower_bound(extBarcode2) , _ttrProbMap.upper_bound(extBarcode2) , back_inserter(probs) ,
                      boost::bind(&TruthToRecoProbMap::value_type::second,_1) );
           vector<float>::const_iterator imax = max_element(probs.begin(),probs.end());
           assert( imax!=probs.end() );
@@ -937,6 +984,8 @@ FTK_SGHitInput::read_truth_tracks()
 		  << setw(14) << setprecision(10) << m_track_truth_x0 << '\t'
 		  << setw(14) << setprecision(10) << m_track_truth_y0 << '\t'
 		  << setw(14) << setprecision(10) << m_track_truth_z0 << '\t'
+                  << setw(14) << setprecision(10) << m_track_truth_d0 << '\t'
+		  << setw(14) << setprecision(10) << primaryVtx.z() << '\t'
 		  << (int)m_track_truth_q << '\t'
 		  << setw(14) << setprecision(10) << m_track_truth_p*(m_track_truth_cosphi*m_track_truth_sintheta) << '\t'
 		  << setw(14) << setprecision(10) << m_track_truth_p*(m_track_truth_sinphi*m_track_truth_sintheta) << '\t'
@@ -950,11 +999,13 @@ FTK_SGHitInput::read_truth_tracks()
 		  << isDetPaperCut << '\t'
 		  << resetiosflags(ios::scientific) << '\n';
       }
-      //get truth track info 
-      
+      //get truth track info
+
       tmpSGTrack.setX(m_track_truth_x0);
       tmpSGTrack.setY(m_track_truth_y0);
       tmpSGTrack.setZ(m_track_truth_z0);
+      tmpSGTrack.setD0(m_track_truth_d0);
+      tmpSGTrack.setVtxZ(primaryVtx.z());
       tmpSGTrack.setQ(m_track_truth_q);
       tmpSGTrack.setPX(m_track_truth_p*(m_track_truth_cosphi*m_track_truth_sintheta));
       tmpSGTrack.setPY(m_track_truth_p*(m_track_truth_sinphi*m_track_truth_sintheta));
@@ -964,7 +1015,7 @@ FTK_SGHitInput::read_truth_tracks()
       tmpSGTrack.setEventIndex(extBarcode2.eventIndex());
       m_truth_track.push_back(tmpSGTrack);
 
-            
+
       if( false && particle->production_vertex() && (particle->momentum().perp()/1000.)>10. &&
           particle->status()%1000==1 && std::abs(charge)>0.5 ) {
         using boost::format;

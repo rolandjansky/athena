@@ -2776,6 +2776,7 @@ class PatmergeJob(BaseJob):
         result.append('#FTKNOCHECK')
         patfile = self.PatternFile(True)%(self.Get('i'),self.Get('j'))
         if not os.path.exists(os.path.dirname(patfile)): os.makedirs(os.path.dirname(patfile))
+        patfile += '.root' # prevent patmergeroot from producing ascii files
         result.append('OUT_FILE %s'%patfile)
         result.append('#FTKCHECK')
         # single run files to be merged
@@ -3662,8 +3663,9 @@ class SimpleOptions(DicBase):
             else:
                 excFiles.append('TrigFTKAna.tar.bz2')
             if len(tar_args)>0:
+                print './make_tarball.sh '+' '.join(tar_args)
                 print 'Creating tarballs for:',' '.join([v for i,v in enumerate(tar_args) if i%2==0])
-                print 'Please wait...'
+                print 'Calling aboves command. Please wait...'
                 os.system('./make_tarball.sh '+' '.join(tar_args))
         # prepare to submit the jobs
         if self.Get('site')=='LOCAL':
@@ -3915,7 +3917,11 @@ class SimpleOptions(DicBase):
                                                     else :
                                                         job.infiles[fullds].append(fcache.find(ds,'sectors_raw_%sL*_%sM_reg%s_sub%s.patt'%(L,M,reg,isub)))
                                                 else:
-                                                    job.infiles[fullds].append(fcache.find(ds,'p*_raw_%sL*_%sM_reg%s_sub%s.patt'%(L,M,reg,isub)))
+                                                    # e.g. files for makeDC step
+                                                    if self.Get('PATMERGEROOT') and mode in ('makedc'):
+                                                        job.infiles[ds].append(fcache.find(ds,'p*_raw_%sL*_%sM_reg%s.patt.root'%(L,M,reg)))
+                                                    else:
+                                                        job.infiles[ds].append(fcache.find(ds,'p*_raw_%sL*_%sM_reg%s_sub%s.patt'%(L,M,reg,isub)))
                             # bootstrap from ftkDS (output of a prior FTK job)
                             # recall that this is needed because we usually run everything in two stages:
                             # * bank production is followed by bank merging
@@ -3994,6 +4000,8 @@ class SimpleOptions(DicBase):
             elif 'x86_64' in os.getenv("CMTCONFIG"):
                 prun_cmd.append(" --cmtConfig=x86_64-slc5-gcc43-opt")
                 print "USING 64 BIT SLC5 RELEASE"
+#                prun_cmd.append(" --cmtConfig=x86_64-slc6-gcc47-opt")
+#                print "USING 64 BIT SLC6 RELEASE"
             elif 'i686' in os.getenv("CMTCONFIG"):
                 prun_cmd.append(" --cmtConfig=i686-slc5-gcc43-opt")
                 print "USING 32 BIT RELEASE"

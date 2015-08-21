@@ -13,6 +13,9 @@
  */
 
 #include <iostream>
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include <TTree.h>
 #include <TLeaf.h>
 #include <TRegexp.h>
@@ -31,6 +34,7 @@ FTKPatternRootTreeReader::FTKPatternRootTreeReader
    fSector=sector;
    fTreeName=ConstructTreeName(sector);
    fPattern=0;
+   fDoReadPattern=true;
 }
 
 FTKPatternRootTreeReader::~FTKPatternRootTreeReader() {
@@ -85,6 +89,7 @@ bool FTKPatternRootTreeReader::LoadTree(TDirectory *dir) {
                   <<"pattern[NLAYER]/I and coverage/I\n";
             } else {
                fTTree=tree;
+               fTTree->SetBranchStatus("pattern",fDoReadPattern);
             }
          }
          r=(fTTree !=0);
@@ -97,6 +102,13 @@ bool FTKPatternRootTreeReader::LoadTree(TDirectory *dir) {
       Warning("LoadTree")<<"object \""<<fTreeName<<"\" is not a TTree\n";
    }
    return r;
+}
+
+void FTKPatternRootTreeReader::ReadCoverageOnly(bool noPatternRead) {
+   fDoReadPattern= !noPatternRead;
+   if(fTTree) {
+      fTTree->SetBranchStatus("pattern",fDoReadPattern);
+   }
 }
 
 bool FTKPatternRootTreeReader::CreateTree(TDirectory *dir,int nLayer) {
@@ -112,6 +124,7 @@ bool FTKPatternRootTreeReader::CreateTree(TDirectory *dir,int nLayer) {
    }
    dir->cd();
    fTTree=new TTree(fTreeName,fTreeName);
+   fDoReadPattern=true;
    if(fTTree) {
       // create branches
       fTTree->Branch("pattern",fPattern->GetHitPattern().GetAddress(),
@@ -218,7 +231,30 @@ bool FTKPatternRootTree::WritePattern(FTKPatternWithCoverage const &pattern) {
    // write one pattern
    fMustSave=true;
    SetPattern(pattern);
+   static int debug=0;
+   struct rusage r0,r1;
+   if(debug) {
+      getrusage(RUSAGE_SELF,&r0);
+      std::cout<<"WritePattern: sector="<<GetSectorNumber()
+               <<" nLayer="<<GetPattern().GetHitPattern().GetSize()
+          <<" numWrites="<<fNumWrites
+          <<" maxrss="<<r0.ru_maxrss
+          <<" ixrss="<<r0.ru_ixrss
+          <<" idrss="<<r0.ru_idrss
+          <<" isrss="<<r0.ru_isrss
+          <<" fTTree->Fill()\n";
+   }
    bool r=fTTree->Fill();
+   if(debug) {
+      getrusage(RUSAGE_SELF,&r1);
+      std::cout<<"  .... r="<<r
+          <<" maxrss +"<<r1.ru_maxrss-r0.ru_maxrss
+          <<" ixrss +"<<r1.ru_ixrss-r0.ru_ixrss
+          <<" idrss +"<<r1.ru_idrss-r0.ru_idrss
+          <<" isrss +"<<r1.ru_isrss-r0.ru_isrss
+          <<"\n";
+      debug--;
+   }
    if(r) fNumWrites++;
    return r;
 }
@@ -227,7 +263,29 @@ bool FTKPatternRootTree::WritePattern(FTKHitPattern const &hits,int coverage) {
    // write one pattern
    fMustSave=true;
    SetPattern(coverage,hits);
+   static int debug=0;
+   static struct rusage r0,r1;
+   if(debug) {
+      getrusage(RUSAGE_SELF,&r0);
+      std::cout<<"WritePattern: sector="<<GetSectorNumber()
+               <<" nLayer="<<GetPattern().GetHitPattern().GetSize()
+          <<" numWrites="<<fNumWrites
+          <<" maxrss="<<r0.ru_maxrss
+          <<" ixrss="<<r0.ru_ixrss
+          <<" idrss="<<r0.ru_idrss
+          <<" isrss="<<r0.ru_isrss
+          <<" fTTree->Fill()\n";
+   }
    bool r=fTTree->Fill();
+   if(debug) {
+      std::cout<<"  .... r="<<r
+          <<" maxrss +"<<r1.ru_maxrss-r0.ru_maxrss
+          <<" ixrss +"<<r1.ru_ixrss-r0.ru_ixrss
+          <<" idrss +"<<r1.ru_idrss-r0.ru_idrss
+          <<" isrss +"<<r1.ru_isrss-r0.ru_isrss
+          <<"\n";
+      debug--;
+   }
    if(r) fNumWrites++;
    return r;
 }
