@@ -34,8 +34,6 @@ TrackFitter::TrackFitter() :
   m_ncombs(0),
   m_nfits(0),
   m_nfits_maj(0),
-  m_nfits_maj_pix(0),
-  m_nfits_maj_SCT(0),
   m_nfits_rec(0),
   m_nfits_addrec(0),
   m_nfits_bad(0),
@@ -313,8 +311,6 @@ void TrackFitter::processor_init(int /*ibank*/)
     m_ncombs = 0;
     m_nfits = 0;
     m_nfits_maj = 0;
-    m_nfits_maj_pix = 0;
-    m_nfits_maj_SCT = 0;
     m_nfits_rec = 0;
     m_nfits_addrec = 0;
     m_nfits_bad = 0;
@@ -336,8 +332,6 @@ void TrackFitter::processor_end(int ibank)
   m_trackoutput->addNCombs(ibank,m_ncombs);
   m_trackoutput->addNFits(ibank,m_nfits);
   m_trackoutput->addNFitsMajority(ibank,m_nfits_maj);
-  m_trackoutput->addNFitsMajority_pix(ibank,m_nfits_maj_pix);
-  m_trackoutput->addNFitsMajority_SCT(ibank,m_nfits_maj_SCT);
   m_trackoutput->addNFitsRecovery(ibank,m_nfits_rec);
   m_trackoutput->addNAddFitsRecovery(ibank,m_nfits_addrec);
   m_trackoutput->addNFitsBad(ibank,m_nfits_bad);
@@ -416,8 +410,6 @@ void TrackFitter::processor(const FTKRoad &road) {
    // number of combinations
    int ncomb(1);
    int nmissing(m_ncoords);
-   bool missPix(false);
-   bool missSCT(false);
    unsigned int bitmask(0);
    for (int p=0;p<nplanes;++p) {
      int nhits = road.getNHits(p);
@@ -427,9 +419,6 @@ void TrackFitter::processor(const FTKRoad &road) {
        hitcnt[p]=-1;
        // set the fake hit in the empty layer
        newtrk.setFTKHit(p,FTKHit());
-       int iy = m_pmap->getDim(p,1); // use to determine if plane with no hits is PIX or SCT
-       if (iy == -1) missSCT = true; // SCT
-       else missPix = true; // Pix
      }
      else {
        // set the list iterators
@@ -560,20 +549,13 @@ void TrackFitter::processor(const FTKRoad &road) {
 	       citer--;
 	       m_nfits_maj--;
 	       m_nfits--;
-	       if (missSCT) m_nfits_maj_SCT--;
-	       if (missPix) m_nfits_maj_pix--;
 	     }
 	   }
 	 }
 
 	 // add one fit in the counters
 	 m_nfits++;
-	 if (nmissing>0) {
-	   m_nfits_maj++;
-	   if (missPix) m_nfits_maj_pix++;
-	   if (missSCT) m_nfits_maj_SCT++;
-	 }
-
+	 if (nmissing>0) m_nfits_maj++;
 
 	 /* Do the actual fit - see code in FTKConstantBank::linfit  */
 	 current_bank->linfit(sector,newtrk);

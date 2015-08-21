@@ -36,8 +36,6 @@ FTKDetectorTool::FTKDetectorTool(const std::string &algname,const std::string &n
   , m_pmap_path()
   , m_bad_module_map(0x0),
   m_global2local_path("global-to-local-map.moduleidmap"),
-  m_sram_path_pix("sram_lookup_pixel.txt"),
-  m_sram_path_sct("sram_lookup_sct.txt"),
   m_rmap_path(""),
   m_rmap(0x0)
 {
@@ -53,8 +51,6 @@ FTKDetectorTool::FTKDetectorTool(const std::string &algname,const std::string &n
   declareProperty("pmap_path",                m_pmap_path);
 
   declareProperty("GlobalToLocalMapPath",m_global2local_path);
-  declareProperty("SRAMPathPixel",m_sram_path_pix);
-  declareProperty("SRAMPathSCT",m_sram_path_sct);
   declareProperty("rmap_path",m_rmap_path);
 }
 
@@ -67,61 +63,61 @@ FTKDetectorTool::~FTKDetectorTool()
 StatusCode FTKDetectorTool::initialize()
 {
   if( service("StoreGateSvc", m_storeGate).isFailure() ) {
-    m_log << MSG::FATAL << "StoreGate service not found" << endmsg;
+    m_log << MSG::FATAL << "StoreGate service not found" << endreq;
     return StatusCode::FAILURE;
   }
   if( service("DetectorStore",m_detStore).isFailure() ) {
-    m_log << MSG::FATAL <<"DetectorStore service not found" << endmsg;
+    m_log << MSG::FATAL <<"DetectorStore service not found" << endreq;
     return StatusCode::FAILURE;
   }
   if( m_detStore->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
-    m_log << MSG::ERROR << "Unable to retrieve Pixel manager from DetectorStore" << endmsg;
+    m_log << MSG::ERROR << "Unable to retrieve Pixel manager from DetectorStore" << endreq;
     return StatusCode::FAILURE;
   }
   if( m_detStore->retrieve(m_pixelId, "PixelID").isFailure() ) {
-    m_log << MSG::ERROR << "Unable to retrieve Pixel helper from DetectorStore" << endmsg;
+    m_log << MSG::ERROR << "Unable to retrieve Pixel helper from DetectorStore" << endreq;
     return StatusCode::FAILURE;
   }
   if( m_detStore->retrieve(m_SCT_mgr, "SCT").isFailure() ) {
-    m_log << MSG::ERROR << "Unable to retrieve SCT manager from DetectorStore" << endmsg;
+    m_log << MSG::ERROR << "Unable to retrieve SCT manager from DetectorStore" << endreq;
     return StatusCode::FAILURE;
   }
   if( m_detStore->retrieve(m_sctId, "SCT_ID").isFailure() ) {
-    m_log << MSG::ERROR << "Unable to retrieve SCT helper from DetectorStore" << endmsg;
+    m_log << MSG::ERROR << "Unable to retrieve SCT helper from DetectorStore" << endreq;
     return StatusCode::FAILURE;
   }
   if ( m_pixelCondSummarySvc.retrieve().isFailure() ) {
-    m_log << MSG::FATAL << "Failed to retrieve tool " << m_pixelCondSummarySvc << endmsg;
+    m_log << MSG::FATAL << "Failed to retrieve tool " << m_pixelCondSummarySvc << endreq;
     return StatusCode::FAILURE;
   }
   if ( m_sctCondSummarySvc.retrieve().isFailure() ) {
-    m_log << MSG::FATAL << "Failed to retrieve tool " << m_sctCondSummarySvc << endmsg;
+    m_log << MSG::FATAL << "Failed to retrieve tool " << m_sctCondSummarySvc << endreq;
     return StatusCode::FAILURE;
   }
 
-  m_log << MSG::INFO << "Read the logical layer definitions" << endmsg;
+  m_log << MSG::INFO << "Read the logical layer definitions" << endreq;
   // Look for the main plane-map
   if (m_pmap_path.empty()) {
-    m_log << MSG::FATAL << "Main plane map definition missing" << endmsg;
+    m_log << MSG::FATAL << "Main plane map definition missing" << endreq;
     return StatusCode::FAILURE;
   }
   else {
     m_pmap = new FTKPlaneMap(m_pmap_path.c_str());
     if (!(*m_pmap)) {
-      m_log << MSG::FATAL << "Error using plane map: " << m_pmap_path << endmsg;
+      m_log << MSG::FATAL << "Error using plane map: " << m_pmap_path << endreq;
       return StatusCode::FAILURE;
     }
-    m_log << MSG::INFO << "Number of logical layers = " << m_pmap->getNPlanes() << endmsg;
+    m_log << MSG::INFO << "Number of logical layers = " << m_pmap->getNPlanes() << endreq;
   }
 
   if (m_rmap_path.empty()) {
-	  m_log << MSG::INFO << "Tower/Region map not set, module maps cannot be created" << endmsg;
+	  m_log << MSG::INFO << "Tower/Region map not set, module maps cannot be created" << endreq;
   }
   else {
-	  m_log << MSG::INFO << "Tower/Region map path: " << m_rmap_path << endmsg;
+	  m_log << MSG::INFO << "Tower/Region map path: " << m_rmap_path << endreq;
 	  m_rmap = new FTKRegionMap(m_pmap, m_rmap_path.c_str());
 	  if (!(*m_rmap)) {
-		m_log << MSG::FATAL << "Error creating region map from: " << m_rmap_path.c_str() << endmsg;
+		m_log << MSG::FATAL << "Error creating region map from: " << m_rmap_path.c_str() << endreq;
 		return StatusCode::FAILURE;
 	  }
   }
@@ -305,11 +301,7 @@ void FTKDetectorTool::dumpGlobalToLocalModuleMap() {
    */
   list<FTKRawHit> CompleteIDModuleList;
 
-  // To save the SRAM lookup into an output file
-  ofstream fout_pix(m_sram_path_pix);
-  ofstream fout_sct(m_sram_path_sct);
-  Int_t countForSRAM(0);
-
+  // take the list of dead pixels
   for( InDetDD::SiDetectorElementCollection::const_iterator i=m_PIX_mgr->getDetectorElementBegin(), f=m_PIX_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
@@ -328,16 +320,10 @@ void FTKDetectorTool::dumpGlobalToLocalModuleMap() {
     tmpmodraw.setIdentifierHash(idhash);
     tmpmodraw.normalizeLayerID();
 
-    if (abs(m_pixelId->barrel_ec(id)) != 4) { // remove diamond hits
-      fout_pix << m_pixelId->barrel_ec(id) << "\t" << m_pixelId->layer_disk(id) << "\t" << m_pixelId->phi_module(id) << "\t" << m_pixelId->eta_module(id) << "\t" << countForSRAM << endl;
-      countForSRAM++;
-    }
-
     CompleteIDModuleList.push_back(tmpmodraw);
   }
 
-  countForSRAM = 0;
-
+  // take the list of the dead SCT modules
   for( InDetDD::SiDetectorElementCollection::const_iterator i=m_SCT_mgr->getDetectorElementBegin(), f=m_SCT_mgr->getDetectorElementEnd() ; i!=f; ++i ) {
     const InDetDD::SiDetectorElement* sielement( *i );
     Identifier id = sielement->identify();
@@ -356,13 +342,8 @@ void FTKDetectorTool::dumpGlobalToLocalModuleMap() {
     tmpmodraw.setIdentifierHash(idhash);
     tmpmodraw.normalizeLayerID();
 
-    fout_sct << m_sctId->barrel_ec(id) << "\t" << m_sctId->layer_disk(id) << "\t" << m_sctId->phi_module(id) << "\t" << m_sctId->eta_module(id) << "\t" << countForSRAM << endl;
-    countForSRAM++;
-
     CompleteIDModuleList.push_back(tmpmodraw);
   }
-
-
 
   /* The modules are store by tower and by logical layer */
   int nregions(m_rmap->getNumRegions()); // get the number of towers
@@ -390,14 +371,14 @@ void FTKDetectorTool::dumpGlobalToLocalModuleMap() {
           }
       } // end loop over the regions
 
-      if (!hasOneRegion) m_log << MSG::WARNING << "The module with hash " << curmodhit.getIdentifierHash() << " and FTK ID (" << curmodhit.getPlane() << "," << curmodhit.getSector() << ") is not associated to a tower" << endmsg;
+      if (!hasOneRegion) m_log << MSG::WARNING << "The module with hash " << curmodhit.getIdentifierHash() << " and FTK ID (" << curmodhit.getPlane() << "," << curmodhit.getSector() << ") is not associated to a tower" << endreq;
   } // end loop over the modules
 
   // Save the map into the output file and print at screen a small message
   ofstream fout(m_global2local_path.c_str());
   for (int ireg=0;ireg!=nregions;++ireg) { // loop over the regions
       for (int ip=0;ip!=nplanes;++ip) { // loop over the regions
-          m_log << MSG::INFO << "Region " << ireg << ", layer" << ip << " has " << grouped_modules[ireg][ip].size() << " modules" << endmsg;
+          m_log << MSG::INFO << "Region " << ireg << ", layer" << ip << " has " << grouped_modules[ireg][ip].size() << " modules" << endreq;
           unsigned int modnumber(0);
           for (auto curhash: grouped_modules[ireg][ip]) {
               fout << ireg << '\t' << ip << '\t' << curhash << '\t' << modnumber++ << endl;
@@ -405,10 +386,6 @@ void FTKDetectorTool::dumpGlobalToLocalModuleMap() {
       }
   }
   fout.close();
-
-  // Close SRAM lookup tables
-  fout_pix.close();
-  fout_sct.close();
 
   // clear the memory
   for (int ireg=0;ireg!=nregions;++ireg) delete [] grouped_modules[ireg];

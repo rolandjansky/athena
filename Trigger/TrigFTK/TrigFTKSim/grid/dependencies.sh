@@ -1,10 +1,13 @@
 # This script sets BOOST_LDFLAGS,BOOST_CXXFLAGS,DCAP_LDFLAGS,DCAL_CXXFLAGS from athena environment
 # Note that you must have sourced athena setup.sh -tag=whatever, so that SITEROOT is defined!
+# VERIFIED TO WORK WITH ALL ATHENA VERSIONS BETWEEN 13.0.40 and 15.6.1
 
 # Make sure athena environment has been bootstrapped
 #uct3_64=0 # new uct3 installation not require any special treatment for uct3_64
 
 arch=`echo $CMTCONFIG | cut -d '-' -f 1`
+# Stefan, 2013/12/17, replace == by = otherwise script does not work with zsh
+### if [ "$arch" == "x86_64" ] ; then
 if [ "$arch" = "x86_64" ] ; then
     export uct3_64=1
     echo "Detected 64 bit environment"
@@ -13,13 +16,10 @@ else
     echo "Detected 32 bit environment"
 fi
 
-export ATLAS_LOCAL_ROOT_BASE=/cvmfs/atlas.cern.ch/repo/ATLASLocalRootBase
-alias setupATLAS='source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh'
 setupATLAS --quiet
-dcapVersion=releases/Grid/dcap/2.47.7-1-cdd28
-localSetupSFT $dcapVersion
-export DCAPDIR=$SFT_HOME_dcap
-echo "Trying to find libdcap for localSetupSFT ${dcapVersion}"
+localSetupSFT dcache_client/2.47.6-1
+export DCAPDIR=$SFT_HOME_dcache_client/dcap
+echo "Trying to find libdcap for localSetupSFT dcache_client/2.47.6-1"
 DCAP_INCDIR="${DCAPDIR}/include"
 export DCAP_CXXFLAGS="-I${DCAP_INCDIR}"
 if [ ${uct3_64} -ne 1 ]; then
@@ -42,9 +42,8 @@ fi;
 
 # Make sure boost c++ is present and export compiler flags
 echo "Trying to find boost libraries shipped with athena:"
-boostVersion=releases/Boost/1.55.0_python2.7-dcbb8
-localSetupSFT $boostVersion
-echo "Trying to find boost dir for localSetupSFT ${boostVersion}"
+localSetupSFT Boost/1.53.0_python2.7
+echo "Trying to find boost dir for localSetupSFT Boost/1.53.0_python2.7"
 export BOOSTDIR=$SFT_HOME_Boost
 export BOOST_INCDIR=$SFT_BOOST_INCLUDE
 echo "BOOSTDIR = "$BOOSTDIR
@@ -67,13 +66,13 @@ else
     if [ "$#" -gt "0" ]; then exit 2; fi;
 fi;
 
-#if [ "${SITEROOT}" == "/afs/cern.ch" ]; then
-#    # using a nightly under afs
-#    export EIGENDIR=/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_0/External/AtlasEigen/$CMTCONFIG/pkg-build-install-eigen/
-#else
-#    # using a release (on CVMFS)
-export EIGENDIR=`cd $SITEROOT/AtlasCore/*/External/AtlasEigen/$CMTCONFIG/pkg-build-install-eigen/  && pwd`
-###fi
+if [ "$SITEROOT" == "/afs/cern.ch" ]; then
+    # using a nightly under afs
+    export EIGENDIR=/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_0/External/AtlasEigen/$CMTCONFIG/pkg-build-install-eigen/
+else
+    # using a release (on CVMFS)
+    export EIGENDIR=`cd $SITEROOT/AtlasCore/*/External/AtlasEigen/$CMTCONFIG/pkg-build-install-eigen/  && pwd`
+fi
 
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${EIGENDIR}/Eigen
 export EIGEN_CXXFLAGS="-I${EIGENDIR}"

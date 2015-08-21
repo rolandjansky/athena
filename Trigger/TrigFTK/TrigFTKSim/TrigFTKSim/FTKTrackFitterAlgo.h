@@ -42,12 +42,6 @@ private:
   // enable the use of IBL
   int m_IBLMode;
 
-  bool m_fixEndcapL0; //fix for endcap L0 in clustering
-
-
-  // use ITk geometry
-  bool m_ITkMode;
-  
   // Number of regions/banks
   int m_nbanks;
   int m_nsubregions;
@@ -100,7 +94,7 @@ private:
   std::string m_pmapcomplete_path;
   FTKPlaneMap *m_pmap_unused;
   std::string m_pmapunused_path;
-  std::string m_modulelut2nd_path; // LUT to map global ID in local IDs for HWModeSS=2          
+
 
   std::vector<std::string> m_fitconstantspath;
   std::vector<std::string> m_fit711constantspath;
@@ -118,7 +112,7 @@ private:
   std::string m_ssmapunused_path;
 
   bool m_AutoDisable;
-  bool m_PrintSSBConstants;  
+  
 };
 
 #endif // FTKTrackFitterAlgo_h

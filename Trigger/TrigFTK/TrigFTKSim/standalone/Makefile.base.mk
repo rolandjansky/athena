@@ -1,23 +1,16 @@
 # this file should be included by the top level makefile
 
 ROOTCFLAGS+=$(shell root-config --cflags)
-CXXFLAGS+=-g -fPIC -Wall -DFTK_STANDALONE -I. $(ROOTCFLAGS) $(BOOST_CXXFLAGS) $(DCAP_CXXFLAGS) $(EIGEN_CXXFLAGS)
-LIBS+=-L$(shell root-config --libdir) $(shell root-config --prefix=${ROOTSYS} --libs) $(BOOST_LDFLAGS) $(DCAP_LDFLAGS)
 
 ifeq (i686,$(findstring i686,$(CMTCONFIG)))
-        CXXFLAGS+=-m32
-        LIBS+=-m32
+        CXXFLAGS+=-g  -fPIC -Wall -DFTK_STANDALONE -I. $(ROOTCFLAGS) $(BOOST_CXXFLAGS) $(DCAP_CXXFLAGS) $(EIGEN_CXXFLAGS) -m32
+        LIBS+=$(shell root-config --prefix=${ROOTSYS} --libs) $(BOOST_LDFLAGS) $(DCAP_LDFLAGS) -m32
 else
-        CXXFLAGS+=-m64
-        LIBS+=-m64
+        CXXFLAGS+=-g  -fPIC -Wall -DFTK_STANDALONE -I. $(ROOTCFLAGS) $(BOOST_CXXFLAGS) $(DCAP_CXXFLAGS)  $(EIGEN_CXXFLAGS) -m64
+        LIBS+=$(shell root-config --prefix=${ROOTSYS} --libs) $(BOOST_LDFLAGS) $(DCAP_LDFLAGS) -m64
 endif
 
-CXXFLAGS+=-D__USE_XOPEN2K8 -std=c++11 -Wno-unused-local-typedefs
-
-INSTALLAREA=$(SITEROOT)/AtlasCore/$(AtlasVersion)/InstallArea/$(CMTCONFIG)/include
-ifneq ("$(wildcard $(INSTALLAREA))","")
-CXXFLAGS+=-I$(INSTALLAREA)
-endif
+CXXFLAGS += -D__USE_XOPEN2K8 -std=c++11 -Wno-unused-local-typedefs -I$(SITEROOT)/AtlasCore/$(AtlasVersion)/InstallArea/$(CMTCONFIG)/include
 
 # DICT_* are used to create an dynamic library with all the classes
 # used for the FTK simulation I/O
@@ -34,7 +27,7 @@ DICT_OBJS = tmp/FTKRoad.o tmp/FTKHit.o tmp/FTKTrack.o \
         tmp/TrigFTKSim_Dic.o tmp/FTKSetup.o
 
 # FTKSIM_OBJ defines all the files used for an FTK static library
-FTKSIM_OBJS = tmp/tsp/FTKTSPBank.o tmp/tsp/TSPMap.o tmp/tsp/TSPLevel.o \
+FTKSIM_OBJS =   tmp/tsp/FTKTSPBank.o tmp/tsp/TSPMap.o tmp/tsp/TSPLevel.o \
         tmp/PatternBank.o tmp/RoadFinder.o \
         tmp/FTK_AMBank.o tmp/atlClustering.o tmp/FTKRoadFileOutput.o \
         tmp/FTKTrackInput.o tmp/FTKRoadFileInput.o \
@@ -89,16 +82,7 @@ PM_OBJS = patmerge.o \
 EFF_OBJS = efficiency.o \
         $(DICT_OBJS)
 
-DATAFLOW_OBJS = dataflow.o \
-        $(DICT_OBJS)
-
 MSB_OBJS = makecompressedbank.o \
-        $(DICT_OBJS)
-
-PBI_OBJS = patternbankinfo.o \
-        $(DICT_OBJS)
-
-PAB_OBJS = partitionbalancing.o \
         $(DICT_OBJS)
 
 CFO_OBJS = compare_fitter_output.o \
@@ -130,17 +114,14 @@ AMBOPT_OBJS = ambankopt.o $(DICT_OBJS)
 
 FTKLIB_OBJS = $(DICT_OBJS)
 
-
-##hit_filter 
-###patt2hits 
-all:  convert_lookup road_finder road_merger \
+all:  convert_lookup road_finder road_merger hit_filter \
         track_fitter track_fitter711 \
         track_merger tsp_bank_generator \
-        patmerge patmergeroot patmergetest quick_fit ftk_DCBankStat efficiency dataflow \
+        patmerge patmergeroot patmergetest quick_fit ftk_DCBankStat efficiency \
         libftk_classes.so libTrigFTKSim.a
 
 extra:  pattvolume ftkascii2root sectorwalk sectorfoam \
-        patreduce ambbankopt
+      patt2hits patreduce ambbankopt
 
 -include *.d
 -include tmp/*.d
@@ -160,11 +141,6 @@ efficiency: $(EFF_OBJS) libTrigFTKSim.a
 	$(CXX) -o $@ $(EFF_OBJS) $(LIBS) libTrigFTKSim.a
 efficiency.clean:
 	rm -f $(EFF_OBJS) efficiency efficiency.o efficiency.d common_fcn.d
-
-dataflow: $(DATAFLOW_OBJS) libTrigFTKSim.a
-	$(CXX) -o $@ $(DATAFLOW_OBJS) $(LIBS) libTrigFTKSim.a
-dataflow.clean:
-	rm -f $(DATAFLOW_OBJS) dataflow dataflow.o dataflow.d common_fcn.d
 
 convert_lookup: $(CL_OBJS) libTrigFTKSim.a
 	$(CXX) -o $@ $(CL_OBJS) $(LIBS) libTrigFTKSim.a
@@ -215,16 +191,6 @@ makecompressedbank: $(MSB_OBJS) libTrigFTKSim.a
 	$(CXX) -o $@ $(MSB_OBJS) $(LIBS) libTrigFTKSim.a
 makecompressedbank.clean:
 	rm -f $(MSB_OBJS) makecompressedbank makecompressedbank.o makecompressedbank.d
-
-patternbankinfo: $(PBI_OBJS) libTrigFTKSim.a
-	$(CXX) -o $@ $(PBI_OBJS) $(LIBS) libTrigFTKSim.a
-patternbankinfo.clean:
-	rm -f $(PBI_OBJS) patternbankinfo patternbankinfo.o patternbankinfo.d
-
-partitionbalancing: $(PAB_OBJS) libTrigFTKSim.a
-	$(CXX) -o $@ $(PAB_OBJS) $(LIBS) libTrigFTKSim.a
-partitionbalancing.clean:
-	rm -f $(PAB_OBJS) partitionbalancing partitionbalancing.o partitionbalancing.d
 
 compare_fitter_output: $(CFO_OBJS) libTrigFTKSim.a
 	$(CXX) -o $@ $(CFO_OBJS) $(LIBS) libTrigFTKSim.a
@@ -286,8 +252,7 @@ classes: libftk_classes.so
 
 libftk_classes.so: $(FTKLIB_OBJS)
 	$(CXX) -o $@ -shared $(FTKLIB_OBJS) -fPIC $(LIBS)
-	# TODO: update to ROOT6 with rootcling
-	-rlibmap -f -o $(@:.so=.rootmap) -l $@ -c TrigFTKSim/FTKSimLinkDef.h
+	rlibmap -f -o $(@:.so=.rootmap) -l $@ -c TrigFTKSim/FTKSimLinkDef.h
 
 libftk_classes.so.clean:
 	rm -f $(FTKLIB_OBJS) libftk_classes.so libftk_classes.rootmap TrigFTKSim_Dic_rdict.pcm
@@ -328,20 +293,19 @@ version:
 
 .PHONY : compact
 compact:
-	@rm -f $(DICT_OBJS) $(RF_OBJS) $(RM_OBJS) $(HF_OBJS) $(TF_OBJS) $(TF711_OBJS) $(TM_OBJS) $(QF_OBJS) $(PM_OBJS) $(FA2R_OBJS) $(TSP_OBJS) $(EFF_OBJS) $(DATAFLOW_OBJS) *.o *.d
+	@rm -f $(DICT_OBJS) $(RF_OBJS) $(RM_OBJS) $(HF_OBJS) $(TF_OBJS) $(TF711_OBJS) $(TM_OBJS) $(QF_OBJS) $(PM_OBJS) $(FA2R_OBJS) $(TSP_OBJS) $(EFF_OBJS) *.o *.d
 	@strip convert_lookup road_finder road_merger hit_filter track_fitter track_fitter711 \
 	track_merger quick_fit patmerge patmergeroot patmergetest
 
 .PHONY : clean
 
-clean : pattvolume.clean efficiency.clean dataflow.clean convert_lookup.clean road_finder.clean road_merger.clean hit_filter.clean \
+clean : pattvolume.clean efficiency.clean convert_lookup.clean road_finder.clean road_merger.clean hit_filter.clean \
         track_fitter.clean track_fitter711.clean \
         track_merger.clean tsp_bank_generator.clean \
         quick_fit.clean patmerge.clean patmergeroot.clean patmergetest.clean \
         sectorwalk.clean sectorfoam.clean \
         ftkascii2root.clean libftk_classes.so.clean libTrigFTKSim.a.clean \
-        ambankopt.clean makecompressedbank.clean patternbankinfo.clean \
-	partitionbalancing.clean compare_fitter_output.clean \
+        ambankopt.clean makecompressedbank.clean compare_fitter_output.clean \
         # ftkamsplit.clean \
         ftk_DCBankStat.clean
 	rm -f tmp/TrigFTKSim_Dic.C tmp/TrigFTKSim_Dic.h tmp/*.d tmp/tsp/*.d common_fcn.d common_fcn.o

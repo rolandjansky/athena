@@ -34,10 +34,10 @@ void FTK_SGTrackOutput::notValid(const char *method)
 StatusCode FTK_SGTrackOutput::initialize()
 {
 
-  m_log << MSG::INFO << "FTK_SGTrackOutput::initialize()" << endmsg;
+  m_log << MSG::INFO << "FTK_SGTrackOutput::initialize()" << endreq;
   
   if( service("StoreGateSvc", m_storeGate).isFailure() ) {
-    m_log << MSG::FATAL << "StoreGate service not found" << endmsg;
+    m_log << MSG::FATAL << "StoreGate service not found" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -47,7 +47,7 @@ StatusCode FTK_SGTrackOutput::initialize()
 
 StatusCode FTK_SGTrackOutput::finalize()
 {
-  m_log << MSG::INFO << "FTK_SGTrackOutput::finalize()" << endmsg;
+  m_log << MSG::INFO << "FTK_SGTrackOutput::finalize()" << endreq;
 
   if (m_tracks) delete [] m_tracks;
   if (m_TFstats) delete [] m_TFstats;
@@ -93,7 +93,7 @@ void FTK_SGTrackOutput::eventEnd()
 {
   for (int ibank=0;ibank!=m_nbanks;++ibank) { // bank loop
 
-    m_log << MSG::DEBUG << "Number of tracks region " << ibank <<": " << m_tracks[ibank]->size() << endmsg;
+    m_log << MSG::DEBUG << "Number of tracks region " << ibank <<": " << m_tracks[ibank]->size() << endreq;
 
     ostringstream track_contname;
     track_contname << "FTKTracks" << ibank << ends;
@@ -101,11 +101,11 @@ void FTK_SGTrackOutput::eventEnd()
     if ( sc.isFailure() ) {
       m_log << MSG::ERROR
 	    << "Could not register FTK track container data"
-	    << endmsg;
+	    << endreq;
       return;
     }
     else {
-      m_log << MSG::DEBUG << "Wrote FTK track container data class " << endmsg;
+      m_log << MSG::DEBUG << "Wrote FTK track container data class " << endreq;
     }
 
     ostringstream info_contname;
@@ -114,11 +114,11 @@ void FTK_SGTrackOutput::eventEnd()
     if ( sc.isFailure() ) {
       m_log << MSG::ERROR
 	    << "Could not register FTK track fitter data"
-	    << endmsg;
+	    << endreq;
       return;
     }
     else {
-      m_log << MSG::DEBUG << "Wrote FTK track fitter data class " << endmsg;
+      m_log << MSG::DEBUG << "Wrote FTK track fitter data class " << endreq;
     }
 
 
@@ -131,11 +131,11 @@ void FTK_SGTrackOutput::eventEnd()
     if ( sc.isFailure() ) {
       m_log << MSG::ERROR
 	    << "Could not register FTK track container data"
-	    << endmsg;
+	    << endreq;
       return;
     }
     else {
-      m_log << MSG::DEBUG << "Wrote FTK track container data class " << endmsg;
+      m_log << MSG::DEBUG << "Wrote FTK track container data class " << endreq;
     }
 
     ostringstream infoI_contname;
@@ -144,11 +144,11 @@ void FTK_SGTrackOutput::eventEnd()
     if ( sc.isFailure() ) {
       m_log << MSG::ERROR
 	    << "Could not register FTK track fitter data"
-	    << endmsg;
+	    << endreq;
       return;
     }
     else {
-      m_log << MSG::DEBUG << "Wrote FTK track fitter data class " << endmsg;
+      m_log << MSG::DEBUG << "Wrote FTK track fitter data class " << endreq;
     }
 
   } // end bank loop
@@ -216,30 +216,9 @@ void FTK_SGTrackOutput::addNFits(int ib, int v)
   m_TFstats[ib]->addNFits(v);
 }
 
-void FTK_SGTrackOutput::addNConnections(int ib, int v)
-{
-  m_TFstats[ib]->addNConnections(v);
-}
-
-
-void FTK_SGTrackOutput::addNExtrapolatedTracks(int ib, int v)
-{
-  m_TFstats[ib]->addNExtrapolatedTracks(v);
-}
-
 void FTK_SGTrackOutput::addNFitsMajority(int ib, int v)
 {
   m_TFstats[ib]->addNFitsMajority(v);
-}
-
-void FTK_SGTrackOutput::addNFitsMajority_SCT(int /*ib*/, int /*v*/)
-{
-   //m_TFstats[ib]->addNFitsMajority_SCT(v);
-}
-
-void FTK_SGTrackOutput::addNFitsMajority_pix(int /*ib*/, int /*v*/)
-{
-   //m_TFstats[ib]->addNFitsMajority_pix(v);
 }
 
 
@@ -333,14 +312,6 @@ void FTK_SGTrackOutput::addNFitsI(int ib, int v)
 void FTK_SGTrackOutput::addNFitsMajorityI(int ib, int v)
 {
   m_TFstatsI[ib]->addNFitsMajority(v);
-}
-void FTK_SGTrackOutput::addNFitsMajorityI_pix(int /*ib*/, int /*v*/)
-{
-   //m_TFstatsI[ib]->addNFitsMajority_pix(v);
-}
-void FTK_SGTrackOutput::addNFitsMajorityI_SCT(int /*ib*/, int /*v*/)
-{
-   //m_TFstatsI[ib]->addNFitsMajority_SCT(v);
 }
 
 

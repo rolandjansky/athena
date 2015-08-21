@@ -7,8 +7,6 @@
 #include <iostream>
 #include <iomanip>
 
-//#define VERBOSE_DEBUG
-
 using namespace std;
 
 /* class FTK_AMsimulation_base
@@ -33,8 +31,7 @@ FTK_AMsimulation_base::FTK_AMsimulation_base(int id, int subid) :
    m_nplanes(0),
    m_require_first(false), m_require_last(false),
    m_ssmap(0x0), m_ssmap_unused(0x0),
-   m_nao_nroads_am(0), m_nao_nroads_am_complete(0), m_nao_nroads_am_misspix(0), m_nao_nroads_am_misssct(0),
-   m_nao_nroads_rw(0),
+   m_nao_nroads_am(0), m_nao_nroads_rw(0),
    m_stat_totroads(0.),
    m_stat_nevents(0),
    m_nroads(0),
@@ -53,9 +50,6 @@ void FTK_AMsimulation_base::naoClear(void) {
    m_nao_nclus.clear();
    m_nao_nss.clear();
    m_nao_nroads_am = 0;
-   m_nao_nroads_am_complete = 0;
-   m_nao_nroads_am_misspix = 0;
-   m_nao_nroads_am_misssct = 0;
    m_nao_nroads_rw = 0;
 }
 
@@ -104,13 +98,8 @@ int FTK_AMsimulation_base::passHits(const vector<FTKHit> &hitlist)
   // check if  the number of patterns is 0
   if (!m_npatterns)
     return 0;
-#ifdef VERBOSE_DEBUG
-  std::cout<<"clear()\n";
-#endif
+
   clear();  
-#ifdef VERBOSE_DEBUG
-  std::cout<<"sort_hits()\n";
-#endif
   sort_hits(hitlist);
     
   //readout_hits();
@@ -121,35 +110,17 @@ int FTK_AMsimulation_base::passHits(const vector<FTKHit> &hitlist)
   FTKSetup &ftkset = FTKSetup::getFTKSetup();
   
   if (ftkset.getEnableFTKSim()) {
-#ifdef VERBOSE_DEBUG
-     std::cout<<"data_organizer()\n";
-#endif
       data_organizer();
-#ifdef VERBOSE_DEBUG
-      std::cout<<"am_in()\n";
-#endif
       am_in();
   }
-#ifdef VERBOSE_DEBUG
-  std::cout<<"am_output()\n";
-#endif
   am_output();
 
-  if (FTKSetup::getFTKSetup().getRoadWarrior()>0) {
-#ifdef VERBOSE_DEBUG
-     std::cout<<"road_warrior()\n";
-#endif
+  if (FTKSetup::getFTKSetup().getRoadWarrior()>0)
     road_warrior();
-  }
 
   addTotStat(getNRoads());
 
-#ifdef VERBOSE_DEBUG
-  std::cout<<"getNRoads()\n";
-#endif
-  int r=getNRoads();
-  // exit(0);
-  return r;
+  return getNRoads();
 }
 
 /**
@@ -165,7 +136,6 @@ int FTK_AMsimulation_base::passHitsUnused(const std::vector<FTKHit> &hitlist) {
   // clear the memory used to store the SS results
   m_usedssmap_ignored.clear();
 
-  int error=0;
   std::vector<FTKHit>::const_iterator ihit = hitlist.begin();
   for (;ihit!=hitlist.end();++ihit) { // hit loop
     // reference to the current hit
@@ -183,14 +153,10 @@ int FTK_AMsimulation_base::passHitsUnused(const std::vector<FTKHit> &hitlist) {
     // reference the map for this plane
     std::map<int,FTKSS> &ssmap= (*issmap).second;
     // identify the SS on the given plane
-    int ssid=-1;
-    try {
-       ssid= FTKSetup::getFTKSetup().getHWModeSS()==0 ?
-          getSSMapUnused()->getSSGlobal(tmphit) :
-          getSSMapUnused()->getSSTower(tmphit,getBankID());
-    } catch(FTKException &e) {
-       error++;
-    }
+    int ssid = FTKSetup::getFTKSetup().getHWModeSS()==0 ?
+       getSSMapUnused()->getSSGlobal(tmphit) :
+       getSSMapUnused()->getSSTower(tmphit,getBankID());
+    
     if (ssid<0) {
       // This means that hits had a recoverable issue and has to be skipped
       continue;
@@ -206,9 +172,6 @@ int FTK_AMsimulation_base::passHitsUnused(const std::vector<FTKHit> &hitlist) {
     FTKSS &ss = (*issitem).second;
     ss.addHit(tmphit);
   } // end hit loop
-  if(error) {
-     FTKSetup::PrintMessageFmt(ftk::warn,"FTK_AMsimulation_base::passHitsUnused number or errors=%d\n",error );
-  }
   return res;
 }
 
@@ -376,7 +339,7 @@ void FTK_AMsimulation_base::road_warrior() {
 
 #ifdef VERBOSE_DEBUG
   printf("%d ghosts found, %d roads left\n", totGhosts,
-         (int)m_roads.size());
+	 nroads);
 #endif
 }
 
@@ -431,7 +394,7 @@ void FTK_AMsimulation_base::printRoads(list<FTKRoad> const &roads,
             //(*iroad).second->Print();
             cout<<setw(6)<<road->getSectorID();
             for(int i=0;i<road->getNPlanes();i++) {
-               cout<<" "<<setw(5)<<road->getSSID(i);
+               cout<<setw(6)<<road->getSSID(i);
             }
             cout<<" ";
             for(int i=0;i<road->getNPlanes();i++) {

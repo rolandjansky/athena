@@ -33,11 +33,11 @@ TSPROOTBankGenerator::TSPROOTBankGenerator(const char *fname) :
    m_planes(0),
    m_mincoverage(0),
    m_patternID(0),
+   m_preader(NULL),
    m_npatterns(0),
    m_iSub(0),
    m_nSub(0),
-   m_nplanes(0),
-   m_preader(NULL)
+   m_nplanes(0)
 {
   m_bankfile = TFile::Open(fname);
 }
@@ -45,8 +45,8 @@ TSPROOTBankGenerator::TSPROOTBankGenerator(const char *fname) :
 
 TSPROOTBankGenerator::TSPROOTBankGenerator(FTKSetup* setup, const std::vector<FTKSSMap*>& ssMaps, const std::string& inputBank, const std::string& outBank, unsigned planes, int maxPatterns, int mincoverage) :
 
-   m_RemoveTSP(0), m_setup(setup), m_ssMaps(ssMaps), m_maxPatterns(maxPatterns), m_planes(planes),  m_mincoverage(mincoverage), m_patternID(0l),
-   m_iSub(0), m_nSub(0),m_preader(NULL)
+   m_RemoveTSP(0), m_setup(setup), m_ssMaps(ssMaps), m_maxPatterns(maxPatterns), m_planes(planes),  m_mincoverage(mincoverage), m_patternID(0l),m_preader(NULL),
+   m_iSub(0), m_nSub(0)
 {
  
   
@@ -63,12 +63,12 @@ TSPROOTBankGenerator::TSPROOTBankGenerator(FTKSetup* setup, const std::vector<FT
          FTKSetup::PrintMessageFmt(ftk::sevr, "Cannot read root-file from: %s\n", inputBank.c_str());
          throw;
       }
-      m_preader = new FTKPatternBySectorForestReader(*file);
+      m_preader = new FTKPatternBySectorReader(*file);
       if(!m_preader) {
          FTKSetup::PrintMessageFmt(ftk::sevr, "Cannot read root-file pattern from: %s\n", inputBank.c_str());
          throw;
       }
-      m_npatterns = m_preader->GetNPatternsTotal();
+      m_npatterns = m_preader->GetNPatterns();
       m_nplanes = m_preader->GetNLayers();
    }
    else {
@@ -114,30 +114,30 @@ void TSPROOTBankGenerator::generate() throw (TSPPatternReadException){
 
   // the first step is just the conversion of the original (ASCII or root) bank a TTree
   if ( m_preader ) {
-     long npatt = m_preader->GetNPatternsTotal();
+     FTKPatternBySectorReader::SectorSet_t sectorByCoverage;
+     long npatt = m_preader->GetPatternByCoverage(sectorByCoverage,m_iSub,m_nSub); 
 
      // update number of patterns (for the current subregion)
      m_npatterns = m_maxPatterns >= 0 ? m_maxPatterns : npatt;
   
      // loop over sectors recursively, convert to 'FTKPattern' and write into root-tree
-   // coverage loop
-   for(int coverage=m_preader->GetMaxCoverage();coverage;
-       coverage=m_preader->GetNextCoverage(coverage)) {
-      if(m_patternID>=m_npatterns) break;
-      // sector loop
-      for(int sector=m_preader->GetCoverageFirstSector(coverage);sector>=0;
-          sector=m_preader->GetCoverageNextSector(coverage,sector)) {
-      if(m_patternID>=m_npatterns) break;
-         if ( coverage < m_mincoverage ) break;
-         FTKPatternOneSector *data=m_preader->Read(sector,coverage);
-         // pattern loop
-         for(FTKPatternOneSector::Ptr_t i=data->Begin();i!=data->End();i++) {
-            if(m_patternID>=m_npatterns) break;
+     while(sectorByCoverage.begin()!=sectorByCoverage.end() && m_patternID<m_npatterns ) {
+	FTKPatternBySectorReader::PatternTreeBySector_t::iterator oneSector=*sectorByCoverage.begin();
+	sectorByCoverage.erase(sectorByCoverage.begin()); // remove this sector temporarily
+	
+	FTKPatternRootTreeReader* tree=oneSector->second;
+	int sector=oneSector->first;
+
+	int coverage=tree->GetPattern().GetCoverage();
+	if ( coverage < m_mincoverage ) break;
+
+	bool isNotEmpty=false;
+	do {
 	   showstats(m_patternID, m_npatterns);
 	   inputpattern->setPatternID(m_patternID);
 	   inputpattern->setSectorID(sector);
 	   inputpattern->setCoverage(coverage);
-	   const FTKHitPattern& patternData=data->GetHitPattern(i);
+	   const FTKHitPattern& patternData=tree->GetPattern().GetHitPattern();
 	   for(unsigned int iLayer=0;iLayer<patternData.GetSize();iLayer++) {
 	      inputpattern->setSSID(iLayer,patternData.GetHit(iLayer));
 	   }
@@ -146,18 +146,22 @@ void TSPROOTBankGenerator::generate() throw (TSPPatternReadException){
 	   bank0->Fill();
 	   m_patternID++; // increment the global pattern ID
 
+	   isNotEmpty = tree->ReadNextPattern();
 	   // if(!tree->ReadNextPattern()) {
 	   //    isEmpty=true;
 	   //    break;
 	   // }
-         } // end loop over patterns 
-         delete data;
-      } // end loop over sectors	
-   } // end loop over coverage
-   
-   delete m_preader;
-   m_preader = NULL;
-   m_npatterns = m_patternID;
+	} 
+	while(isNotEmpty && tree->GetPattern().GetCoverage()==coverage && m_patternID<m_npatterns);
+	// add sector again to (coveraged ordered) set 
+	if(isNotEmpty) {
+	   sectorByCoverage.insert(oneSector);
+	}	
+     } // end while(sectors)
+
+     delete m_preader;
+     m_preader = NULL;
+     m_npatterns = m_patternID;
   }
   else {
      for (int ipatt = 0; ipatt < m_npatterns; ++ipatt) {
@@ -238,7 +242,7 @@ void TSPROOTBankGenerator::generateChildren(int bankID, int planes) throw (TSPPa
                  int ssid = TSPpattern->getSSID(i);
                  
                  // Separate the phi and eta part TOFIX
-                 int ssoff = tspmap.getDim(i)==2 ? m_ssMaps[bankID - 1]->getPhiOffset(false,FTKSetup::getFTKSetup().getITkMode()) : m_ssMaps[bankID - 1]->getPhiOffset(true,FTKSetup::getFTKSetup().getITkMode());
+                 int ssoff = tspmap.getDim(i)==2 ? m_ssMaps[bankID - 1]->getPhiOffset(false) : m_ssMaps[bankID - 1]->getPhiOffset(true);
                  int ssid_eta = ssid % ssoff;
                  
                  int newssid(0);
@@ -247,17 +251,18 @@ void TSPROOTBankGenerator::generateChildren(int bankID, int planes) throw (TSPPa
                     const int &nbitsX = tspmap.getNBits(i,0);
                     const int &nbitsY = tspmap.getNBits(i,1);
                     
+                    int phioff;
                     int phimod;
                     int localX;
+                    int etaoff;
                     int etamod;
                     int localY;
-                    int section;
-                    m_ssMaps[bankID - 1]->decodeSSxy(ssid, i, section, phimod, localX,etamod, localY);
+                    m_ssMaps[bankID - 1]->decodeSS(ssid, i, 0, phioff, phimod, localX, etaoff, etamod, localY);
                     
                     int phiwidth = m_ssMaps[bankID]->getPhiWidthRounded(i);
-                    int phiss = m_ssMaps[bankID]->getMap(i, section, phimod).m_phiss;
+                    int phiss = m_ssMaps[bankID]->getMap(i, 0, 0).m_phiss;
                     int etawidth = m_ssMaps[bankID]->getEtaWidthRounded(i);
-                    int etass = m_ssMaps[bankID]->getMap(i, section, etamod).m_etass;
+                    int etass = m_ssMaps[bankID]->getMap(i, 0, 0).m_etass;
                     
                     newssid = (phiwidth * phimod + localX) / phiss * ssoff + (etawidth * etamod + localY) / etass;
                     
@@ -281,13 +286,13 @@ void TSPROOTBankGenerator::generateChildren(int bankID, int planes) throw (TSPPa
                  } else if ( tspmap.getDim(i)==1) { // SCT case
                     // get the number of bits used to codify the internal position
                     const int &nbitsX = tspmap.getNBits(i,0);
-                    int section;
+                    int phioff;
                     int phimod;
                     int localX;
                     int etaoff;
-                    m_ssMaps[bankID - 1]->decodeSSx(ssid, i, section, phimod, localX, etaoff);	      
+                    m_ssMaps[bankID - 1]->decodeSS(ssid, i, 0, phioff, phimod, localX, etaoff);	      
                     int phiwidth = m_ssMaps[bankID]->getPhiWidthRounded(i);
-                    int phiss = m_ssMaps[bankID]->getMap(i, section, phimod).m_phiss;
+                    int phiss = m_ssMaps[bankID]->getMap(i, 0, 0).m_phiss;
                     newssid = (phiwidth * phimod + localX) / phiss * ssoff + ssid_eta;	      
                     // Half plane bit
                     unsigned int bitlayerX = (localX % phiss)/(m_ssMaps[bankID-1]->getMap(i, 0, 0).m_phiss); // is 0 to (2^nbits-1)

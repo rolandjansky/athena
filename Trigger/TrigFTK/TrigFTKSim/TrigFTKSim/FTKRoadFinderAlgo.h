@@ -57,9 +57,6 @@ private:
   bool m_RestrictSctPairLayer; // restrict SCT layers in the transition region
 
   int m_IBLMode; // Enable the use of IBL
-  bool m_fixEndcapL0; //fix for endcap L0 in clustering
-
-  bool m_ITkMode; // Use ITk geometry
   
   double m_ss_offset_fraction;
 
@@ -90,19 +87,6 @@ private:
      the pattern bank can stop when the number is reached (1) or untill
      the number is not exceeded (2) */
   int m_setAMSize;
-
-  // decide splitting strategy for AM patterns with DC bits
-  // default=0: no splitting
-  // >0       : split AM patterns and optimize DC usage
-  int m_setAMSplit;
-
-  //max number of AM patterns after split, default=-1: no limits
-  int m_maxAMAfterSplit; 
-
-  //minimum threshold for DVol/DNPatt for split; default=0
-  int m_minDVolOverDNPatt;  
-
-
  // store the variable if the TSP bank cache has to be saved
   bool m_doMakeCache;
   // path of the output file
@@ -110,9 +94,6 @@ private:
 
   // save all found roads if >0
   int m_SaveAllRoads;
-
-  // store all ss not just in roads
-  bool m_StoreAllSS; 
 
   // Plane map pointer, to be set during the initialization
   FTKPlaneMap *m_pmap;
@@ -147,7 +128,6 @@ private:
   std::string m_badmap_path2;
 
   std::string m_modulelut_path; // LUT to map global ID in local IDs for HWModeSS=2
-  std::string m_modulelut2nd_path; // LUT to map global ID in local IDs for HWMo
 
   bool m_CachedBank;
   std::vector<std::string> m_patternbankpath;

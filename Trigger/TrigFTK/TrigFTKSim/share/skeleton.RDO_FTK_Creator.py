@@ -9,13 +9,7 @@ pmjp.PerfMonFlags.doSemiDetailedMonitoring = True
 from AthenaCommon.Logging import logging
 ftkLog = logging.getLogger('FTKRDOCreator')
 #ftkLog.propagate = False
-ftkLog.info( '********** STARTING FTKStandaloneMerge RDO_FTK **********' )
-
-from AthenaCommon.DetFlags import DetFlags
-DetFlags.makeRIO.pixel_setOn()
-DetFlags.makeRIO.SCT_setOn()
-DetFlags.detdescr.all_setOn()
-DetFlags.geometry.all_setOn()
+ftkLog.info( '********** STARTING FTKStandaloneMerge **********' )
 
 athenaCommonFlags.FilesInput = runArgs.inputRDOFile
 
@@ -24,24 +18,12 @@ if hasattr(runArgs,"maxEvents"):
     athenaCommonFlags.EvtMax = runArgs.maxEvents
 else:
     ftkLog.info("Running on all the events")
-    athenaCommonFlags.EvtMax = -1
-
-## Pre-exec
-if hasattr(runArgs,"preExec"):
-    ftkLog.info("transform pre-exec")
-    for cmd in runArgs.preExec:
-        ftkLog.info(cmd)
-        exec(cmd)
-
-## Pre-include
-if hasattr(runArgs,"preInclude"):
-    for fragment in runArgs.preInclude:
-        include(fragment)
+    athenaCommonFlags.EvtMax = -1 
 
 if hasattr(runArgs, "skipEvents"):
-    athenaCommonFlags.SkipEvents.set_Value_and_Lock(runArgs.skipEvents)
+  athenaCommonFlags.SkipEvents.set_Value_and_Lock(runArgs.skipEvents)
 elif hasattr(runArgs, "firstEvent"):
-    athenaCommonFlags.SkipEvents.set_Value_and_Lock(runArgs.firstEvent)
+  athenaCommonFlags.SkipEvents.set_Value_and_Lock(runArgs.firstEvent)
 
 inputNTUP_FTKFile = runArgs.inputNTUP_FTKFile
 
@@ -56,10 +38,12 @@ from PyJobTransforms.trfUtils import findFile
 import os.path
 
 FTK_RDO_CreatorAlgo.mergeTrackBName = "FTKMergedTracksStream"
+
 FTK_RDO_CreatorAlgo.mergedTrackPaths = inputNTUP_FTKFile
 
 from RecExConfig.RecFlags import rec
 rec.doCBNT.set_Value_and_Lock(False)
+#rec.doWriteRDO.set_Value_and_Lock(True)
 rec.doAOD.set_Value_and_Lock(False)
 rec.doWriteAOD.set_Value_and_Lock(False)
 rec.doWriteTAG.set_Value_and_Lock(False)
@@ -75,7 +59,10 @@ topSeq+=FTK_RDO_CreatorAlgo
 # main jobOption
 include ("RecExCommon/RecExCommon_topOptions.py")
 
+
+
 theApp.Dlls += [ "TrigFTKSim" ]
+
 
 #from AthenaCommon.AlgSequence import AlgSequence
 #topSeq = AlgSequence()
@@ -85,7 +72,7 @@ theApp.Dlls += [ "TrigFTKSim" ]
 
 OutName = "RDO.pool.root"
 if hasattr(runArgs, "outputRDO_FTKFile") :
-    OutName = runArgs.outputRDO_FTKFile
+    OutName = runArgs.outputRDO_FTKFile 
 
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 
@@ -93,24 +80,14 @@ from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 StreamRDO=MSMgr.GetStream("StreamRDO")
 StreamRDO.SetOutputFileName(OutName)
 StreamRDO.AddMetaDataItem(["IOVMetaDataContainer#*"])
-StreamRDO.AddItem( ["FTK_RawTrackContainer#*"] )
+StreamRDO.AddItem( ["FTK_RawTrackContainer#*"] ) 
 
 #from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 
 #StreamRDO = AthenaPoolOutputStream( "StreamRDO", OutName, True)
-#StreamRDO.ItemList+=["FTK_RawTrackContainer#*"]
+#StreamRDO.ItemList+=["FTK_RawTrackContainer#*"] 
 
 #from RecExConfig.ObjKeyStore import objKeyStore
 #objKeyStore.addStreamRDO("FTK_RawTrackContainer","FTK_RDO_Tracks")
 
 pmjp.PerfMonFlags.OutputFile = 'ntuple_RDOFTKCreator.pmon.gz'
-
-## Post-include
-if hasattr(runArgs,"postInclude"):
-    for fragment in runArgs.postInclude:
-        include(fragment)
-
-## Post-exec
-if hasattr(runArgs,"postExec"):
-    for cmd in runArgs.postExec:
-        exec(cmd)

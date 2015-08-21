@@ -47,14 +47,11 @@ class FTKRootFileChain;
 class FTKHitPattern {
 public:
    // store hit patterns
-   FTKHitPattern() { }
    FTKHitPattern(int nLayer) : fHits(nLayer) { }
    inline int GetHit(int i) const { return fHits[i]; }
    inline void SetHit(int layer, int data) { fHits[layer]=data; }
    inline int *GetAddress(void) { return &fHits[0]; }
    inline unsigned GetSize(void) const { return fHits.size(); }
-   inline void SetNLayer(int i) {fHits.resize(i);}
-   inline unsigned int GetNLayer() {return fHits.size();}
 protected:
    std::vector<int> fHits;
 };
@@ -62,7 +59,6 @@ protected:
 class FTKPatternWithCoverage {
 public:
    // store hit patterns and coverage
-   FTKPatternWithCoverage() { ;}
    FTKPatternWithCoverage(int nLayer) : fPattern(nLayer) { }
    inline int GetCoverage(void) const { return fCoverage; }
    inline FTKHitPattern const &GetHitPattern(void) const { return fPattern; }
@@ -73,8 +69,6 @@ public:
    inline void SetCoverage(int c) { fCoverage=c; }
    inline void SetHitPattern(FTKHitPattern const &p) { fPattern=p; }
    inline void SetHit(int layer,int data) { fPattern.SetHit(layer,data); }
-   inline void SetNLayer(int i) {fPattern.SetNLayer(i);}
-   inline unsigned int GetNLayer() {return fPattern.GetNLayer();}
 protected:
    FTKHitPattern fPattern;
    int fCoverage;
@@ -113,9 +107,6 @@ public:
 #endif
       return false; 
    }
-   virtual bool operator()(FTKPatternWithCoverage const &a,FTKPatternWithCoverage const &b) const {
-      return operator()(a.GetHitPattern(),b.GetHitPattern());
-   }
 };
 
 class FTKPatternRootTreeReader : public FTKLogging {
@@ -126,8 +117,7 @@ public:
    virtual Long64_t SeekBeg(Long64_t position);
    virtual bool ReadNextPattern(void)=0;
    virtual bool HasMorePatterns(void) const;
-   virtual void Suspend(void);
-   void Rewind(void); // can be used to reduce memory consuption (?)
+   inline void Rewind(void) { SeekBeg(0); }
    inline Long64_t GetNumberOfPatternsRead(void) const { return fNumReads; }
    inline FTKPatternWithCoverage const &GetPattern(void) const {
       return *fPattern; }
@@ -146,9 +136,7 @@ protected:
    }
    Long64_t fPatternNumber;
    Long64_t fNumReads;
-   Long64_t fLastNumPatterns;
-   TTree *fTTreePtr;
-   TDirectory *fLastReadDir;
+   TTree *fTTree;
 private:
    bool fDoReadPattern;
    FTKPatternWithCoverage *fPattern;

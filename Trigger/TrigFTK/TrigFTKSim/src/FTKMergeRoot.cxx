@@ -128,7 +128,7 @@ int FTKMergeRoot::DoMerge(int MinCoverage,int compression){
    }
 
    // Sector Reader
-   FTKPatternBySectorReader* input = FTKPatternBySectorReader::Factory(chain);
+   FTKPatternBySectorReader* input = new FTKPatternBySectorReader(chain);
    if(!input->GetNLayers()) { // sanity check
       Warning("DoMerge")<<"number of layers not set, cannot merge patterns!\n";
       delete input;
@@ -176,7 +176,7 @@ int FTKMergeRoot::DoMerge(int MinCoverage,int compression){
       } 
       Info("DoMerge")<<"merge patterns to root file "<<outFileName<<"\n";
       FTKPatternBySectorWriter* patternWriter =
-         FTKPatternBySectorWriter::Factory(*rootOutputFile);
+         new FTKPatternBySectorWriter(*rootOutputFile);
       patternWriter->AppendMergedPatterns(*input,MinCoverage);
       delete patternWriter; // write to disk
       patternWriter=0;
@@ -270,7 +270,7 @@ void FTKMergeRoot::DoTextImport(){
 		  <<"\" for writing imported patterns\n";
 	       return;
 	    } 
-	    patternWriter = FTKPatternBySectorWriter::Factory(*tmpFile);
+	    patternWriter = new FTKPatternBySectorWriter(*tmpFile);
 	 }
 	 
          Info("DoTextImport")
@@ -337,7 +337,7 @@ void FTKMergeRoot::DoTextExport(std::string const &TextOutFilename, int /*MinCov
 	 chain.AddFile(inputFileName);
       }
    }
-   FTKPatternBySectorReader* input = FTKPatternBySectorReader::Factory(chain);
+   FTKPatternBySectorReader* input = new FTKPatternBySectorReader(chain);
    if(!input) {
       Fatal("DoTextExport")<<"do not know where to read the pattern from\n";
       return;

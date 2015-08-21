@@ -59,6 +59,6 @@ public:
   int GC2IEEE(int, int);
   int getPosition(int, int);
 
-  int getHighResSSPart(FTKHit const&) const;
+  int getHighResSSPart(FTKHit&) const;
 };
 #endif // TSPMAP_H

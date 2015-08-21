@@ -190,14 +190,14 @@ FTKMergerAlgo::~FTKMergerAlgo()
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTKMergerAlgo::initialize(){
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "FTKMergerAlgo::initialize()" << endmsg;
+  log << MSG::INFO << "FTKMergerAlgo::initialize()" << endreq;
   
   if (m_MergeRoadsDetailed && !m_MergeRoads) {
-     log << MSG::WARNING << "FTKMergerAlgo: you have set MergeRoadsDetailed to true but not m_MergeRoads - will force MergeRoads to true" << endmsg;
+     log << MSG::WARNING << "FTKMergerAlgo: you have set MergeRoadsDetailed to true but not m_MergeRoads - will force MergeRoads to true" << endreq;
      m_MergeRoads = true;
   }
   if (m_MergeRoadsDetailed) {
-     log << MSG::WARNING << "FTKMergerAlgo: you have set MergeRoadsDetailed to true. Just be careful since this can sometimes crash due to memory issues, so it's not for the faint-hearted" << endmsg;
+     log << MSG::WARNING << "FTKMergerAlgo: you have set MergeRoadsDetailed to true. Just be careful since this can sometimes crash due to memory issues, so it's not for the faint-hearted" << endreq;
   }
 
   /*TODO: this part is required only if the FTKMerger algo is reading from SG (in conversion mode)
@@ -205,7 +205,7 @@ StatusCode FTKMergerAlgo::initialize(){
    */
   StatusCode scSG = service( "StoreGateSvc", m_StoreGate );
   if (scSG.isFailure()) {
-    log << MSG::FATAL << "Unable to retrieve StoreGate service" << endmsg;
+    log << MSG::FATAL << "Unable to retrieve StoreGate service" << endreq;
     return scSG;
   }
 
@@ -214,17 +214,17 @@ StatusCode FTKMergerAlgo::initialize(){
     // prepare the input from the FTK tracks, merged in an external simulation
     m_mergedtracks_chain = new TChain("ftkdata","Merged tracks chain");
     // add the file to the chain
-    log << MSG::INFO << "Loading " << m_ftktrack_paths_merged.size() << " files with FTK merged tracks" << endmsg;
+    log << MSG::INFO << "Loading " << m_ftktrack_paths_merged.size() << " files with FTK merged tracks" << endreq;
     vector<string>::const_iterator imtp = m_ftktrack_paths_merged.begin();
     for (;imtp!=m_ftktrack_paths_merged.end();++imtp) {
       Int_t addres = m_mergedtracks_chain->Add((*imtp).c_str());
-      log << MSG::DEBUG << "Added: " << *imtp << '[' << addres << ']' <<endmsg;
+      log << MSG::DEBUG << "Added: " << *imtp << '[' << addres << ']' <<endreq;
     }
     m_mergedtracks_stream = new FTKTrackStream();
     TBranch *mergedtracks_branch;
     Int_t res = m_mergedtracks_chain->SetBranchAddress(m_mergedtracks_bname.c_str(),&m_mergedtracks_stream,&mergedtracks_branch);
     if (res<0) {
-      log << MSG::FATAL << "Branch \"" << m_mergedtracks_bname << "\" with merged tracks not found" << endmsg;
+      log << MSG::FATAL << "Branch \"" << m_mergedtracks_bname << "\" with merged tracks not found" << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -253,48 +253,48 @@ StatusCode FTKMergerAlgo::initialize(){
           prevEventNumber = eventNumber;
         }
         else {
-          log << MSG::FATAL << "A duplicated event was found before the end of file, the error cannot be recoverd" << endmsg;
+          log << MSG::FATAL << "A duplicated event was found before the end of file, the error cannot be recoverd" << endreq;
           return StatusCode::FAILURE;
         }
       }
       else if (eventNumber==prevEventNumber) {
-        log << MSG::WARNING << "Event " << eventNumber << " found in the previous event, failure condition masked if this happens at the end of the file" << endmsg;
+        log << MSG::WARNING << "Event " << eventNumber << " found in the previous event, failure condition masked if this happens at the end of the file" << endreq;
         hasRepeatedEvents = true;
       }
       else {
         // Duplicate events are a condition error at the moment, this
         // can be fixed using a runNumber and eventNumber paier as key
-        log << MSG::FATAL << "Tracks for the current event (" << eventNumber << ") already exist. Duplication not allowed" << endmsg;
+        log << MSG::FATAL << "Tracks for the current event (" << eventNumber << ") already exist. Duplication not allowed" << endreq;
         return StatusCode::FAILURE;
       }
 
     }
 
-    log << MSG::DEBUG << "Tracks from " << m_trackVectorMap.size() << " events loaded"<<endmsg;
+    log << MSG::DEBUG << "Tracks from " << m_trackVectorMap.size() << " events loaded"<<endreq;
 
     /* This wroking mode interacts with the Detector objects, for
      * this reason generic identifiers are retrieved */
     StatusCode sc = service("DetectorStore", m_detStore);
     if ( sc.isFailure() ) { 
-      log << MSG::FATAL << "DetStore service not found" << endmsg; 
+      log << MSG::FATAL << "DetStore service not found" << endreq; 
       return StatusCode::FAILURE;
     }
 
     // Get the Track Converter Tool
     if (m_trackConverterTool.retrieve().isFailure() ) {
-      log << MSG::ERROR << "Failed to retrieve tool " << m_trackConverterTool << endmsg;
+      log << MSG::ERROR << "Failed to retrieve tool " << m_trackConverterTool << endreq;
       return StatusCode::FAILURE;
     }
 
     // Get the Uncertianty Tool
     if (m_uncertiantyTool.retrieve().isFailure() ) {
-      log << MSG::ERROR << "Failed to retrieve tool " << m_uncertiantyTool << endmsg;
+      log << MSG::ERROR << "Failed to retrieve tool " << m_uncertiantyTool << endreq;
       return StatusCode::FAILURE;
     }
 
     // Get the Track Sum Tool
     if (m_trackSumTool.retrieve().isFailure() ) {
-      log << MSG::ERROR << "Failed to retrieve tool " << m_trackSumTool << endmsg;
+      log << MSG::ERROR << "Failed to retrieve tool " << m_trackSumTool << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -303,23 +303,23 @@ StatusCode FTKMergerAlgo::initialize(){
     m_idHelper = new AtlasDetectorID;
     const IdDictManager* idDictMgr( 0 );
     if(m_detStore->retrieve(idDictMgr, "IdDict").isFailure() || !idDictMgr ) {
-      log << MSG::ERROR << "Could not get IdDictManager !" << endmsg;
+      log << MSG::ERROR << "Could not get IdDictManager !" << endreq;
       return StatusCode::FAILURE;
     }
     if( m_detStore->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
-      log << MSG::ERROR << "Unable to retrieve Pixel manager from DetectorStore" << endmsg;
+      log << MSG::ERROR << "Unable to retrieve Pixel manager from DetectorStore" << endreq;
       return StatusCode::FAILURE;
     }
     if (m_detStore->retrieve(m_pixel_id, "PixelID").isFailure()) {
-      log << MSG::FATAL << "Could not get Pixel ID helper" << endmsg;
+      log << MSG::FATAL << "Could not get Pixel ID helper" << endreq;
       return StatusCode::FAILURE;
     }
     if( m_detStore->retrieve(m_SCT_mgr, "SCT").isFailure() ) {
-      log << MSG::ERROR << "Unable to retrieve SCT manager from DetectorStore" << endmsg;
+      log << MSG::ERROR << "Unable to retrieve SCT manager from DetectorStore" << endreq;
       return StatusCode::FAILURE;
     }
     if (m_detStore->retrieve(m_sct_id, "SCT_ID").isFailure()) {
-      log << MSG::FATAL << "Could not get SCT ID helper" << endmsg;
+      log << MSG::FATAL << "Could not get SCT ID helper" << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -330,14 +330,14 @@ StatusCode FTKMergerAlgo::initialize(){
     m_FTKPxlCluContainer->addRef();
     sc = m_StoreGate->record(m_FTKPxlCluContainer,m_FTKPxlClu_CollName);
     if (sc.isFailure()) {
-      log << MSG::FATAL << "Error registering the FTK pixel container in the SG" << endmsg;
+      log << MSG::FATAL << "Error registering the FTK pixel container in the SG" << endreq;
       return StatusCode::FAILURE;
     }
     // Generic format link for the pixel clusters
     const InDet::SiClusterContainer *symSiContainerPxl(0x0);
     sc = m_StoreGate->symLink(m_FTKPxlCluContainer,symSiContainerPxl);
     if (sc.isFailure()) {
-      log << MSG::FATAL << "Error creating the sym-link to the Pixel clusters" << endmsg;
+      log << MSG::FATAL << "Error creating the sym-link to the Pixel clusters" << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -346,14 +346,14 @@ StatusCode FTKMergerAlgo::initialize(){
     m_FTKSCTCluContainer->addRef();
     sc = m_StoreGate->record(m_FTKSCTCluContainer,m_FTKSCTClu_CollName);
     if (sc.isFailure()) {
-      log << MSG::FATAL << "Error registering the FTK SCT container in the SG" << endmsg;
+      log << MSG::FATAL << "Error registering the FTK SCT container in the SG" << endreq;
       return StatusCode::FAILURE;
     }
     // Generic format link for the pixel clusters
     const InDet::SiClusterContainer *symSiContainerSCT(0x0);
     sc = m_StoreGate->symLink(m_FTKSCTCluContainer,symSiContainerSCT);
     if (sc.isFailure()) {
-      log << MSG::FATAL << "Error creating the sym-link to the SCT clusters" << endmsg;
+      log << MSG::FATAL << "Error creating the sym-link to the SCT clusters" << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -361,7 +361,7 @@ StatusCode FTKMergerAlgo::initialize(){
   else if (m_useStandalone && m_doMerging) {
     StatusCode sc = initStandaloneTracks();
     if (sc.isFailure()) {
-      log << MSG::FATAL << "Unable initialize merged tracks" << endmsg;
+      log << MSG::FATAL << "Unable initialize merged tracks" << endreq;
       return sc;
     }
   }
@@ -370,27 +370,27 @@ StatusCode FTKMergerAlgo::initialize(){
        make this task */
     if (!(service("PileUpMergeSvc", m_mergeSvc, true)).isSuccess() || 
 	0 == m_mergeSvc) {
-      log << MSG::ERROR << "Could not find PileUpMergeSvc" << endmsg;
+      log << MSG::ERROR << "Could not find PileUpMergeSvc" << endreq;
       return StatusCode::FAILURE;
     }
   }
   else {
     // The merger will assume the SG contains the results from NRegions and 1 sub-region
     if (m_nsubregions!=1) {
-      log << MSG::ERROR << "The current code supports only 1 sub-region" << endmsg;
+      log << MSG::ERROR << "The current code supports only 1 sub-region" << endreq;
       return StatusCode::FAILURE;
     }
   }
 
   // set the plane-map for the track merger
   if (m_pmap_path.empty()) {
-    log << MSG::FATAL << "No FTK plane-map file is set" << endmsg;
+    log << MSG::FATAL << "No FTK plane-map file is set" << endreq;
     return StatusCode::FAILURE;
   }
   else {
     m_pmap = new FTKPlaneMap(m_pmap_path.c_str());
     if (!(*m_pmap)) {
-      log << MSG::FATAL << "Error using plane map: " << m_pmap_path << endmsg;
+      log << MSG::FATAL << "Error using plane map: " << m_pmap_path << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -411,7 +411,7 @@ StatusCode FTKMergerAlgo::initialize(){
   // Set Hit Warrior configuration when using mergeSGContent//
   if (m_doMerging){
     if (m_HW_path.empty()) {
-      log << MSG::FATAL << "HWSDEV_FILE Nothing" << endmsg;
+      log << MSG::FATAL << "HWSDEV_FILE Nothing" << endreq;
       return StatusCode::FAILURE;
     }
     else {
@@ -422,11 +422,11 @@ StatusCode FTKMergerAlgo::initialize(){
       
       ifstream fin(m_HW_path.c_str());
       if (!fin) {   
-	log << MSG::FATAL << "HWSDEV_FILE Nothing" << endmsg;
+	log << MSG::FATAL << "HWSDEV_FILE Nothing" << endreq;
 	return StatusCode::FAILURE;
       }
       
-      log << MSG::INFO << "Load Hit Warrior Configuration" << endmsg;
+      log << MSG::INFO << "Load Hit Warrior Configuration" << endreq;
       
       string line;
       // first line represents version, not used now
@@ -446,21 +446,21 @@ StatusCode FTKMergerAlgo::initialize(){
 	fin >> pos >> fval;
 	m_HW_dev[pos] = fval;
       }
-      //log<< MSG::INFO << "DONE Load Hit Warrior Configuration" << endmsg;
     }
   }
+
   return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTKMergerAlgo::execute() {
    MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "FTKMergerAlgo::execute() start" << endmsg;
+   log << MSG::INFO << "FTKMergerAlgo::execute() start" << endreq;
 
    if (m_useStandalone && !m_doMerging) {
      StatusCode sc = convertMergedTracks();
      if (sc.isFailure()) {
-       log << MSG::FATAL << "Unable convert merged tracks" << endmsg;
+       log << MSG::FATAL << "Unable convert merged tracks" << endreq;
        return sc;
      }
    }
@@ -473,15 +473,12 @@ StatusCode FTKMergerAlgo::execute() {
                m_banks[ib]->naoSetNhitsTot(0);
                m_banks[ib]->naoSetNclusTot(0);
                m_banks[ib]->naoSetNroadsAM(0);
-               m_banks[ib]->naoSetNroadsAMComplete(0);
-               m_banks[ib]->naoSetNroadsAMMissPix(0);
-               m_banks[ib]->naoSetNroadsAMMissSCT(0);
                m_banks[ib]->naoSetNroadsMOD(0);
                m_banks[ib]->naoSetNclus(zerovec);
                m_banks[ib]->naoSetNss(zerovec);
                StatusCode sc = merge_roads(m_banks[ib],m_srbanks[ib], ib, m_nsubregions);
                if (sc.isFailure()) {
-                  log << MSG::FATAL << "Unable to merge roads" << endmsg;
+                  log << MSG::FATAL << "Unable to merge roads" << endreq;
                   return sc;
                }
            }
@@ -494,16 +491,13 @@ StatusCode FTKMergerAlgo::execute() {
          m_banks[m_nregions]->naoSetNhitsTot(0);
          m_banks[m_nregions]->naoSetNclusTot(0);
          m_banks[m_nregions]->naoSetNroadsAM(0);
-         m_banks[m_nregions]->naoSetNroadsAMComplete(0);
-         m_banks[m_nregions]->naoSetNroadsAMMissPix(0);
-         m_banks[m_nregions]->naoSetNroadsAMMissSCT(0);
          m_banks[m_nregions]->naoSetNroadsMOD(0);
          m_banks[m_nregions]->naoSetNclus(zerovec);
          m_banks[m_nregions]->naoSetNss(zerovec);
          for (unsigned int ib=0;ib<m_nregions;++ib) { // bank loop
             StatusCode sc = merge_roads(m_banks[m_nregions],m_srbanks[ib], ib, m_nsubregions);
             if (sc.isFailure()) {
-               log << MSG::FATAL << "Unable to merge roads" << endmsg;
+               log << MSG::FATAL << "Unable to merge roads" << endreq;
                return sc;
             }
          }
@@ -511,7 +505,7 @@ StatusCode FTKMergerAlgo::execute() {
 
      StatusCode sc = mergeStandaloneTracks();
      if (sc.isFailure()) {
-       log << MSG::FATAL << "Unable convert merged tracks" << endmsg;
+       log << MSG::FATAL << "Unable convert merged tracks" << endreq;
        return sc;
      }
 
@@ -519,24 +513,24 @@ StatusCode FTKMergerAlgo::execute() {
    else if (m_singleProces && m_doMerging) {
      StatusCode sc = mergeSGContent();
      if (sc.isFailure()) {
-       log << MSG::FATAL << "Unable merge the SG content" << endmsg;
+       log << MSG::FATAL << "Unable merge the SG content" << endreq;
        return sc;
      }
    }
    else if (!m_useStandalone && m_doMerging) {
      StatusCode sc = mergePoolFiles();
      if (sc.isFailure()) {
-       log << MSG::FATAL << "Unable merge the SG content from multiple POOL files" << endmsg;
+       log << MSG::FATAL << "Unable merge the SG content from multiple POOL files" << endreq;
        return sc;
      }
    }
    else {
-     log << MSG::ERROR << "Unmanaged merging/conversion combination" << endmsg;
+     log << MSG::ERROR << "Unmanaged merging/conversion combination" << endreq;
      return StatusCode::FAILURE;
    }
 
    
-   log << MSG::DEBUG << "FTKMergerAlgo::execute() end" << endmsg;
+   log << MSG::DEBUG << "FTKMergerAlgo::execute() end" << endreq;
    return StatusCode::SUCCESS;
 }
 
@@ -622,14 +616,14 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
       // associate the current file to the current (region,sub-region
       TFile *curfile  = TFile::Open(curfilepath.c_str());
       if (!curfile){
-         log << MSG::FATAL << " Error opening the file: " << curfilepath << endmsg;
+         log << MSG::FATAL << " Error opening the file: " << curfilepath << endreq;
          return StatusCode::FAILURE;
       }
       
       m_ftktrack_tomerge_file[regionID][subregID] = curfile;
       m_ftktrack_tomerge_tree[regionID][subregID] = (TTree*) curfile->Get("ftkdata");
       if (!m_ftktrack_tomerge_tree[regionID][subregID]) {
-         log << MSG::FATAL << "TTree \"ftkdata\" not found in the file: " << curfilepath << endmsg;
+         log << MSG::FATAL << "TTree \"ftkdata\" not found in the file: " << curfilepath << endreq;
          return StatusCode::FAILURE;
       }
       m_ftktrack_tomerge_stream[regionID][subregID] = new FTKTrackStream();
@@ -642,14 +636,14 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
 
       if (res<0) {
          // negative reeturn values are errors, no specific action taken, just exit
-         log << MSG::FATAL << "Error connecting branch: " << Form(m_ftrtrack_tomerge_bfname.c_str(),regionID) << endmsg;
+         log << MSG::FATAL << "Error connecting branch: " << Form(m_ftrtrack_tomerge_bfname.c_str(),regionID) << endreq;
          return StatusCode::FAILURE;
       }
       if (m_MergeRoads) {
          res = m_ftktrack_tomerge_tree[regionID][subregID]->SetBranchAddress(Form(m_ftkroad_tomerge_bfname.c_str(),regionID),&m_srbanks[regionID][subregID],&m_ftkroad_tomerge_branch[regionID][subregID]);
          if (res<0) {
             // negative eeturn values are errors, no specific action taken, just exit
-            log << MSG::FATAL << "Error connecting branch: " << Form(m_ftkroad_tomerge_bfname.c_str(),regionID) << endmsg;
+            log << MSG::FATAL << "Error connecting branch: " << Form(m_ftkroad_tomerge_bfname.c_str(),regionID) << endreq;
             return StatusCode::FAILURE;
          }
       }
@@ -658,7 +652,7 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
       //
       if (m_neventsUnmergedFiles==0) {
          m_neventsUnmergedFiles = m_ftktrack_tomerge_tree[regionID][subregID]->GetEntries();
-         log << MSG::DEBUG << "Setting nevents to " << m_neventsUnmergedFiles << " (with regionNum:" << regionID << " subregionNum: " << subregID << " ) " << endmsg;
+         log << MSG::DEBUG << "Setting nevents to " << m_neventsUnmergedFiles << " (with regionNum:" << regionID << " subregionNum: " << subregID << " ) " << endreq;
       }
       
     } // end file loop
@@ -710,27 +704,27 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
                  // 
                  // If not file doesnt exist try with only one digit
                  //
-                 log << MSG::VERBOSE << " Could not read " << thisPath << endmsg;
+                 log << MSG::VERBOSE << " Could not read " << thisPath << endreq;
                  thisPath = m_ftktrack_mergeInputPath + "/"+m_ftktrack_mergeFileRoot + Form("_reg%d_sub%d.root",regNum,subNum);
-                 log << MSG::VERBOSE << " Trying  " << thisPath << endmsg;
+                 log << MSG::VERBOSE << " Trying  " << thisPath << endreq;
                  
                  testStream.close();
                  testStream.open(thisPath.c_str());
                  
                  if(!testStream.good()){
-                    log << MSG::VERBOSE << thisPath << " also failed" << endmsg;
+                    log << MSG::VERBOSE << thisPath << " also failed" << endreq;
                     log << MSG::WARNING << " Could not read " << GetPathName(regNum,subNum)  
-                        << " or " << thisPath << endmsg;
+                        << " or " << thisPath << endreq;
                     
                     if(m_forceAllInput){
-                       log << MSG::FATAL << " Missing inputFile, " << thisPath << " Failing... " << endmsg;
+                       log << MSG::FATAL << " Missing inputFile, " << thisPath << " Failing... " << endreq;
                        return StatusCode::FAILURE;
                     }else{
-                       log << MSG::WARNING << " Missing inputFile, " << thisPath << " Skipping... " << endmsg;
+                       log << MSG::WARNING << " Missing inputFile, " << thisPath << " Skipping... " << endreq;
                        continue;
                     }
                  }else{
-                    log << MSG::VERBOSE << " InputFile, " << thisPath << " Found " << endmsg;
+                    log << MSG::VERBOSE << " InputFile, " << thisPath << " Found " << endreq;
                  }
               }
               testStream.close();
@@ -742,7 +736,7 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
            string merged_fname("merged_file.root");	
            
            if (thisPath.empty()) continue;
-           log << MSG::INFO << "Opening: " << thisPath << endmsg;
+           log << MSG::INFO << "Opening: " << thisPath << endreq;
            
            //
            //  Get the TFile and the TTree
@@ -750,7 +744,7 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
            m_ftktrack_tomerge_file[ireg][isub] = TFile::Open(thisPath.c_str());
            m_ftktrack_tomerge_tree[ireg][isub] = (TTree*) m_ftktrack_tomerge_file[ireg][isub]->Get("ftkdata");
            if (!m_ftktrack_tomerge_tree[ireg][isub]) {
-              log << MSG::ERROR << "*** Error: TTree in file \"" << thisPath << "\" not found" << endmsg;
+              log << MSG::ERROR << "*** Error: TTree in file \"" << thisPath << "\" not found" << endreq;
               return StatusCode::FAILURE;
            }
            
@@ -776,18 +770,16 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
               // Try to find branches named after teh region
            //
               if(m_ftktrack_tomerge_tree[ireg][isub]->FindBranch(Form("FTKTracksStream%d.",regNum))){
-                 log << MSG::VERBOSE << "Setting branch with region number: " << regNum << " ireg: " << ireg << " isub: " << isub << endmsg;
+                 log << MSG::VERBOSE << "Setting branch with region number: " << regNum << " ireg: " << ireg << " isub: " << isub << endreq;
                  m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress(Form("FTKTracksStream%d.",regNum),&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
                  
               //
               // If not, Try to find branches named after merging has been done
               //
                  
-              } else if (m_ftktrack_tomerge_tree[ireg][isub]->FindBranch(Form("FTKMergedTracksStream%d",regNum))) {
-                  log << MSG::VERBOSE << "Setting merged branch with region number: " << regNum << " ireg: " << ireg << " isub: " << isub << endmsg;
-                 m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress(Form("FTKMergedTracksStream%d",regNum),&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
-              } else {
-                 log << MSG::DEBUG << "Setting branch with name: FTKMergedTracksStream" << endmsg;
+              }
+              else{
+                 log << MSG::DEBUG << "Setting branch with name: FTKMergedTracksStream" << endreq;
                  m_ftktrack_tomerge_tree[ireg][isub]->SetBranchAddress("FTKMergedTracksStream",&m_ftktrack_tomerge_stream[ireg][isub],&m_ftktrack_tomerge_branch[ireg][isub]);
               }
 ///           } // from not used else
@@ -797,7 +789,7 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
            //
            if (m_neventsUnmergedFiles==0) {
               m_neventsUnmergedFiles = m_ftktrack_tomerge_tree[ireg][isub]->GetEntries();
-              log << MSG::DEBUG << "Setting nevents to " << m_neventsUnmergedFiles << " (with regionNum:" << regNum << " subregionNum: " << subNum << " ) " << endmsg;
+              log << MSG::DEBUG << "Setting nevents to " << m_neventsUnmergedFiles << " (with regionNum:" << regNum << " subregionNum: " << subNum << " ) " << endreq;
               merged_fname = gSystem->BaseName(thisPath.c_str());
            }
         }// subregions
@@ -919,13 +911,13 @@ StatusCode FTKMergerAlgo::initStandaloneTracks()
 StatusCode FTKMergerAlgo::mergeStandaloneTracks()
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::VERBOSE << "Merging event " << m_mergedtracks_iev << endmsg;
+  log << MSG::VERBOSE << "Merging event " << m_mergedtracks_iev << endreq;
   
   //
   // Check if there are events left to merge
   //
   if(m_neventsMerged > m_neventsUnmergedFiles){
-    log << MSG::INFO << "Merged all " << m_neventsUnmergedFiles << " events, nothing left to do." << endmsg;
+    log << MSG::INFO << "Merged all " << m_neventsUnmergedFiles << " events, nothing left to do." << endreq;
     return StatusCode::SUCCESS;    
   }
 
@@ -934,21 +926,21 @@ StatusCode FTKMergerAlgo::mergeStandaloneTracks()
   //  Set event index
   //
   const unsigned int &iev = m_neventsMerged;
-  bool found[96];
-  log << MSG::VERBOSE << "Getting entries " << endmsg;
+  bool found[64];
+  log << MSG::VERBOSE << "Getting entries " << endreq;
   for (  unsigned int ireg=0; ireg!=m_nregions;   ++ireg) {
      found[ireg] = false;
      for (unsigned int isub=0; isub!=m_nsubregions;  ++isub) {
         if(!m_ftktrack_tomerge_tree[ireg][isub]){
-           log << MSG::VERBOSE << "Tree does not exist. ireg: " << ireg << " isub: " << isub << " iev: " << iev << endmsg;
+           log << MSG::VERBOSE << "Tree does not exist. ireg: " << ireg << " isub: " << isub << " iev: " << iev << endreq;
            continue;
         }
         found[ireg] = true;
-        log << MSG::VERBOSE << "ireg: " << ireg << " isub: " << isub << " iev: " << iev << endmsg;
-        log << MSG::VERBOSE << m_ftktrack_tomerge_branch[ireg][isub] << endmsg;
+        log << MSG::VERBOSE << "ireg: " << ireg << " isub: " << isub << " iev: " << iev << endreq;
+        log << MSG::VERBOSE << m_ftktrack_tomerge_branch[ireg][isub] << endreq;
         m_ftktrack_tomerge_branch[ireg][isub]->GetEntry(iev);
      }
-     log << MSG::VERBOSE << "Got entries " << endmsg;
+     log << MSG::VERBOSE << "Got entries " << endreq;
      if (!found[ireg]) continue;
      // clear clones for this bank
      m_merged_bank[ireg]->clear();
@@ -988,24 +980,24 @@ StatusCode FTKMergerAlgo::mergeStandaloneTracks()
 StatusCode FTKMergerAlgo::finalizeStandaloneTracks()
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in finalizeStandaloneTracks() " << endmsg;
+  log << MSG::DEBUG << "in finalizeStandaloneTracks() " << endreq;
 
   //
   // write, close, and destroy the output file
   //
 
-  log << MSG::DEBUG << "writing output " << m_outputFile << " " << m_MergeRegion << " " << m_neventsUnmergedFiles << endmsg;
+  log << MSG::DEBUG << "writing output " << m_outputFile << " " << m_MergeRegion << " " << m_neventsUnmergedFiles << endreq;
   m_outputFile->Write();
-  log << MSG::DEBUG << "closing file " << endmsg;
+  log << MSG::DEBUG << "closing file " << endreq;
   m_outputFile->Close();
-  log << MSG::DEBUG << "deleting output " << endmsg;
+  log << MSG::DEBUG << "deleting output " << endreq;
   delete m_outputFile;
 
 
   //
   // close input files
   //
-  log << MSG::DEBUG << "Closing input " << endmsg;
+  log << MSG::DEBUG << "Closing input " << endreq;
   set<TFile*> already_deleted;
   for( unsigned int ireg=0; ireg!=m_nregions; ++ireg ) { 
     for( unsigned int isub=0;  isub!=m_nsubregions;  ++isub ) { 
@@ -1027,13 +1019,13 @@ StatusCode FTKMergerAlgo::finalizeStandaloneTracks()
   //
   // clean up other used memory;
   //
-  log << MSG::DEBUG << "Clean up memory " << endmsg;
+  log << MSG::DEBUG << "Clean up memory " << endreq;
   if( m_merged_bank ) {
     delete m_merged_bank; 
     m_merged_bank = 0; 
   }
      
-  log << MSG::DEBUG << "Clean up track stream " << endmsg;
+  log << MSG::DEBUG << "Clean up track stream " << endreq;
   for (unsigned int ireg=0;ireg!=m_nregions;++ireg) { // region loop
     for (unsigned int isub=0;isub!=m_nsubregions;++isub) { // subregion loop
       if( m_ftktrack_tomerge_stream[ireg][isub] ) { 
@@ -1043,7 +1035,7 @@ StatusCode FTKMergerAlgo::finalizeStandaloneTracks()
     }
   }
 
-  log << MSG::DEBUG << "Return success " << endmsg;
+  log << MSG::DEBUG << "Return success " << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -1054,7 +1046,7 @@ StatusCode FTKMergerAlgo::mergeSGContent()
   // Get information on the events
   const EventInfo* eventInfo(0);
   if( m_StoreGate->retrieve(eventInfo).isFailure() ) {
-    log << MSG::ERROR << "Could not retrieve event info" << endmsg;
+    log << MSG::ERROR << "Could not retrieve event info" << endreq;
     return StatusCode::FAILURE;
   }
   const EventID* eventID( eventInfo->event_ID() );
@@ -1062,7 +1054,7 @@ StatusCode FTKMergerAlgo::mergeSGContent()
   log << MSG::DEBUG
       << "entered execution for run " << eventID->run_number()
       << "   event " << eventID->event_number()
-      << endmsg;
+      << endreq;
 
   list<FTKAthTrack> SGMergedList; // list of merged tracks, std::list needed because HW may reject already included tracks
 
@@ -1070,22 +1062,17 @@ StatusCode FTKMergerAlgo::mergeSGContent()
     // compose the track container name
     ostringstream track_contname;
     track_contname << "FTKTracks" << ibank << ends;
+    const char *Ccontname = track_contname.str().c_str();
 
-    //    const char *Ccontname = track_contname.str().c_str();
-    //    if (m_StoreGate->contains<FTKAthTrackContainer>(Ccontname)) {
-
-    const std::string Ccontname=track_contname.str();
-    if (m_StoreGate->contains<FTKAthTrackContainer>(Ccontname.c_str())) {
-
-
+    if (m_StoreGate->contains<FTKAthTrackContainer>(Ccontname)) {
       const DataHandle<FTKAthTrackContainer> ftktracks_cont;
       StatusCode sc = m_StoreGate->retrieve(ftktracks_cont,Ccontname);
       if (!sc.isSuccess()) {
-	log << MSG::ERROR << "Could not get tracks in region " << ibank << endmsg;
+	log << MSG::ERROR << "Could not get tracks in region " << ibank << endreq;
 	return StatusCode::FAILURE;
       }
 
-      log << MSG::DEBUG << "Number of tracks for region " << ibank << " : " << ftktracks_cont->size() << endmsg;
+      log << MSG::DEBUG << "Number of tracks for region " << ibank << " : " << ftktracks_cont->size() << endreq;
 
       for (FTKAthTrackContainer::const_iterator itrack = ftktracks_cont->begin(); itrack != ftktracks_cont->end(); ++itrack) {
 
@@ -1141,7 +1128,7 @@ StatusCode FTKMergerAlgo::mergeSGContent()
       }
     }
     else {
-      log << MSG::DEBUG << "No tracks in region " << ibank  << endmsg;
+      log << MSG::DEBUG << "No tracks in region " << ibank  << endreq;
     }
   } // end banks loop
 
@@ -1151,22 +1138,22 @@ StatusCode FTKMergerAlgo::mergeSGContent()
   
   StatusCode sc = m_StoreGate->record(m_out_indettrack , m_out_indettrack_Name);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Failure registering FTK LVL2 collection" << endmsg;
+    log << MSG::FATAL << "Failure registering FTK LVL2 collection" << endreq;
     return StatusCode::FAILURE;
   }
   else {
-    log << MSG::DEBUG << "Setting FTK LVL2 Collection registered" << endmsg;
+    log << MSG::DEBUG << "Setting FTK LVL2 Collection registered" << endreq;
   }
 
   m_out_trktrack = new TrackCollection;
 
   StatusCode sc2 = m_StoreGate->record(m_out_trktrack , m_out_trktrack_Name);
   if (sc2.isFailure()) {
-    log << MSG::FATAL << "Failure registering FTK Trk::Track" << endmsg;
+    log << MSG::FATAL << "Failure registering FTK Trk::Track" << endreq;
     return StatusCode::FAILURE;
   }
   else {
-    log << MSG::DEBUG << "Setting FTK Trk::Track registered" << endmsg;
+    log << MSG::DEBUG << "Setting FTK Trk::Track registered" << endreq;
   }
 
 
@@ -1174,11 +1161,11 @@ StatusCode FTKMergerAlgo::mergeSGContent()
   m_out_trackPC = new Rec::TrackParticleContainer;
   StatusCode sc1 = m_StoreGate->record(m_out_trackPC , m_out_trackPC_Name);
   if (sc1.isFailure()) {
-    log << MSG::FATAL << "Failure registering FTK Track Particle collection" << endmsg;
+    log << MSG::FATAL << "Failure registering FTK Track Particle collection" << endreq;
     return StatusCode::FAILURE;
   }
   else {
-    log << MSG::DEBUG << "Setting FTK Track Particle Collection registered" << endmsg;
+    log << MSG::DEBUG << "Setting FTK Track Particle Collection registered" << endreq;
   }
   Rec::TrackParticle* aParticle(0);
 
@@ -1221,7 +1208,7 @@ StatusCode FTKMergerAlgo::mergeSGContent()
 	  nPixels += 1;
 	  break;
 	default:
-	  log << MSG::FATAL << "Unknown hit format" << endmsg;
+	  log << MSG::FATAL << "Unknown hit format" << endreq;
 	  return StatusCode::FAILURE;
 	}
       }
@@ -1288,11 +1275,11 @@ StatusCode FTKMergerAlgo::mergeSGContent()
 
   sc = m_StoreGate->record(SGFinalContainer,"FTKTracksFinal");
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Failure registering final FTK collection" << endmsg;
+    log << MSG::FATAL << "Failure registering final FTK collection" << endreq;
     return StatusCode::FAILURE;
   }
   else {
-    log << MSG::DEBUG << "Setting final FTK collection registered" << endmsg;
+    log << MSG::DEBUG << "Setting final FTK collection registered" << endreq;
   }
 
   
@@ -1358,7 +1345,7 @@ StatusCode FTKMergerAlgo::mergePoolFiles()
    // Get information on the events
    const EventInfo* eventInfo(0);
    if( m_StoreGate->retrieve(eventInfo).isFailure() ) {
-     log << MSG::ERROR << "Could not retrieve event info" << endmsg;
+     log << MSG::ERROR << "Could not retrieve event info" << endreq;
      return StatusCode::FAILURE;
    }
    const EventID* eventID( eventInfo->event_ID() );
@@ -1366,19 +1353,19 @@ StatusCode FTKMergerAlgo::mergePoolFiles()
    log << MSG::DEBUG
        << "entered execution for run " << eventID->run_number()
        << "   event " << eventID->event_number()
-       << endmsg;
+       << endreq;
 
   //Put all available ExampleClass with key "MyData" in alist
   typedef PileUpMergeSvc::TimedList<FTKAthTrackContainer>::type FTKAthTrackContainerList;
   FTKAthTrackContainerList unmerged_tracks;
 
   if (!(m_mergeSvc->retrieveSubEvtsData("FTKTracks0", unmerged_tracks).isSuccess())) {
-    log << MSG::ERROR << "Could not fill FTKTracks0" << endmsg;
+    log << MSG::ERROR << "Could not fill FTKTracks0" << endreq;
     return StatusCode::FAILURE;
   } else {
     log << MSG::INFO << unmerged_tracks.size() 
 	<< " ExampleClassList with key " << "FTKTracks0"
-	<< " found" << endmsg;
+	<< " found" << endreq;
   }
 
 
@@ -1397,7 +1384,7 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
   // Get information on the events
   const EventInfo* eventInfo(0);
   if( m_StoreGate->retrieve(eventInfo).isFailure() ) {
-    log << MSG::ERROR << "Could not retrieve event info" << endmsg;
+    log << MSG::ERROR << "Could not retrieve event info" << endreq;
     return StatusCode::FAILURE;
   }
   const EventID* eventID( eventInfo->event_ID() );
@@ -1406,7 +1393,7 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
   log << MSG::DEBUG
       << "entered execution for run " << eventID->run_number()
       << "   event " << eventNumber
-      << endmsg;
+      << endreq;
   
   //
   //  Get the primary vertex container
@@ -1414,26 +1401,26 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
   //   const VxContainer* primcontainer(0);
   //   bool primVtxExists = evtStore()->contains<VxContainer>(m_vxCandidatesPrimaryName);
   //   if(!primVtxExists){
-  //     log << MSG::INFO << "No VxContainer with key " << m_vxCandidatesPrimaryName << " found!" << endmsg;
+  //     log << MSG::INFO << "No VxContainer with key " << m_vxCandidatesPrimaryName << " found!" << endreq;
   //     cout << evtStore()->dump() << endl;;
   //   }
   
   // Extract the vector of tracks found by the FTK for the current event
   std::map<int, Long64_t >::iterator mapIt = m_trackVectorMap.find(eventNumber);
   if(mapIt == m_trackVectorMap.end()) {
-    log << MSG::ERROR << "No FTK tracks for event " << eventNumber << " found, possible mismatch between RDO and FTK files"<<endmsg;
+    log << MSG::ERROR << "No FTK tracks for event " << eventNumber << " found, possible mismatch between RDO and FTK files"<<endreq;
     return StatusCode::FAILURE;
   }
   
   //Have Tracks
   const Long64_t &FTKEntry = (*mapIt).second;
   if (m_mergedtracks_chain->GetEntry(FTKEntry)==-1) {
-   log << MSG::ERROR << "Error reading the FTK entry: " << FTKEntry <<endmsg;
+   log << MSG::ERROR << "Error reading the FTK entry: " << FTKEntry <<endreq;
     return StatusCode::FAILURE;
   }
  
   int ntracks_merged = m_mergedtracks_stream->getNTracks();
-  log << MSG::INFO << "Number of FTK tracks to merge in SG: " << ntracks_merged << endmsg;
+  log << MSG::INFO << "Number of FTK tracks to merge in SG: " << ntracks_merged << endreq;
  
   //
   // Do the InDetTrackCollection First
@@ -1448,42 +1435,42 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
       the SG, no delete call has to be raised */
    StatusCode sc = m_StoreGate->record(m_out_indettrack , m_out_indettrack_Name);
    if (sc.isFailure()) {
-     log << MSG::FATAL << "Failure registering FTK LVL2 collection" << endmsg;
+     log << MSG::FATAL << "Failure registering FTK LVL2 collection" << endreq;
      return StatusCode::FAILURE;
    }
    else {
-     log << MSG::DEBUG << "Setting FTK LVL2 Collection registered" << endmsg;
+     log << MSG::DEBUG << "Setting FTK LVL2 Collection registered" << endreq;
    }
 
    // registering the TRigInDetTrack collection for the refitted tracks
    m_out_indettrackconv = new TrigInDetTrackCollection;
    StatusCode SCidc = m_StoreGate->record(m_out_indettrackconv, m_out_indettrackconv_Name);
    if (SCidc.isFailure()) {
-     log << MSG::FATAL << "Failure registering FTK LVL2 converted collection" << endmsg;
+     log << MSG::FATAL << "Failure registering FTK LVL2 converted collection" << endreq;
      return StatusCode::FAILURE;
    }
     else {
-      log << MSG::DEBUG << "Setting FTK LVL2 converted Collection registered" << endmsg;
+      log << MSG::DEBUG << "Setting FTK LVL2 converted Collection registered" << endreq;
     }
 
    // create and register the collection for the converted  TrackParticle
    m_out_ftktrackconv = new TrackCollection;
    StatusCode sc3 = m_StoreGate->record(m_out_ftktrackconv , m_out_ftktrackconv_Name);
    if (sc3.isFailure()) {
-     log << MSG::FATAL << "Failure registering converted FTK Trk::Track" << endmsg;
+     log << MSG::FATAL << "Failure registering converted FTK Trk::Track" << endreq;
      return StatusCode::FAILURE;
    }
    else {
-     log << MSG::DEBUG << "Setting converted FTK Trk::Track registered" << endmsg;
+     log << MSG::DEBUG << "Setting converted FTK Trk::Track registered" << endreq;
    }
 
    m_out_ftktrackparticleconv = new Rec::TrackParticleContainer;
    StatusCode SCtpc = m_StoreGate->record(m_out_ftktrackparticleconv, m_out_ftktrackparticleconv_Name);
    if (SCtpc.isFailure()) {
-       log << MSG::FATAL << "Failure registering converted FTK TrackParticles" << endmsg;
+       log << MSG::FATAL << "Failure registering converted FTK TrackParticles" << endreq;
    }
    else {
-       log << MSG::DEBUG << "Setting converted FTK TrackParticle registered" << endmsg;
+       log << MSG::DEBUG << "Setting converted FTK TrackParticle registered" << endreq;
    }
    /* Prepare the registration of pixel clusters derived from the FTKHit */
    
@@ -1499,28 +1486,28 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
 
    sc = m_StoreGate->record(m_out_trktrack , m_out_trktrack_Name);
    if (sc.isFailure()) {
-     log << MSG::FATAL << "Failure registering FTK Trk::Track collection" << endmsg;
+     log << MSG::FATAL << "Failure registering FTK Trk::Track collection" << endreq;
      return StatusCode::FAILURE;
    }
    else {
-     log << MSG::DEBUG << "Setting FTK Trk::Track Collection registered" << endmsg;
+     log << MSG::DEBUG << "Setting FTK Trk::Track Collection registered" << endreq;
    }
 
 
    sc = m_StoreGate->record(m_out_trackPC , m_out_trackPC_Name);
    if (sc.isFailure()) {
-     log << MSG::FATAL << "Failure registering FTK TrackParticle collection" << endmsg;
+     log << MSG::FATAL << "Failure registering FTK TrackParticle collection" << endreq;
      return StatusCode::FAILURE;
    }
    else {
-     log << MSG::DEBUG << "Setting FTK TrackParticle Collection registered" << endmsg;
+     log << MSG::DEBUG << "Setting FTK TrackParticle Collection registered" << endreq;
    }
 
    // Check the FTK pixel container
    if (!m_StoreGate->contains<InDet::PixelClusterContainer>(m_FTKPxlClu_CollName)) {
       m_FTKPxlCluContainer->cleanup();
       if (m_StoreGate->record(m_FTKPxlCluContainer,m_FTKPxlClu_CollName,false).isFailure()) {
-        log << MSG::FATAL << "Error registering FTK pixel cluster instance" << endmsg;
+        log << MSG::FATAL << "Error registering FTK pixel cluster instance" << endreq;
         return StatusCode::FAILURE;
       }
    }
@@ -1529,7 +1516,7 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
     if (!m_StoreGate->contains<InDet::SCT_ClusterContainer>(m_FTKSCTClu_CollName)) {
       m_FTKSCTCluContainer->cleanup();
       if (m_StoreGate->record(m_FTKSCTCluContainer,m_FTKSCTClu_CollName,false).isFailure()) {
-        log << MSG::FATAL << "Error registering FTK SCT cluster instance" << endmsg;
+        log << MSG::FATAL << "Error registering FTK SCT cluster instance" << endreq;
         return StatusCode::FAILURE;
       }
    }
@@ -1585,7 +1572,7 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
      // call the conversion tool to connect SP to the TrigInDetTrack in order to
      StatusCode SHRes = m_trackConverterTool->addSiHitInfo(curtrk,trig_track);
      if (SHRes.isFailure()) {
-         log << MSG::FATAL << "Error adding SiHitInfo" << endmsg;
+         log << MSG::FATAL << "Error adding SiHitInfo" << endreq;
          return StatusCode::FAILURE;
      }
      //
@@ -1678,7 +1665,7 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
 						       m_FTKSCTCluContainer, m_out_ftktrackconv);
 
      if(result.isFailure()) {
-       log << MSG::DEBUG << "Track converter failure..." << endmsg;
+       log << MSG::DEBUG << "Track converter failure..." << endreq;
      }
 
      //
@@ -1730,7 +1717,7 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
 
      result = m_trackConverterTool->convert(m_out_ftktrackconv,m_out_indettrackconv);
      if (result.isFailure()) {
-       log << MSG::DEBUG << "Track convertion to TrigInDetTrack failure" << endmsg;
+       log << MSG::DEBUG << "Track convertion to TrigInDetTrack failure" << endreq;
      }
 
    /*
@@ -1767,7 +1754,7 @@ StatusCode FTKMergerAlgo::convertMergedTracks()
 StatusCode FTKMergerAlgo::finalizeCopyTruthTree() {
 
    MsgStream log(msgSvc(), name());
-   log << MSG::DEBUG << "about to copy truth tree " << endmsg;
+   log << MSG::DEBUG << "about to copy truth tree " << endreq;
 
    TChain *chain_truthtrack(0), *chain_evt(0);
    if (m_truthTrackTreeName != "") {
@@ -1814,15 +1801,15 @@ StatusCode FTKMergerAlgo::finalizeCopyTruthTree() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTKMergerAlgo::finalize() {
     MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "finalize()" << endmsg;
+    log << MSG::INFO << "finalize()" << endreq;
 
-    log << MSG::DEBUG << " truth tree = " << m_truthTrackTreeName << " and evtinfo tree = " << m_evtinfoTreeName << endmsg;
+    log << MSG::DEBUG << " truth tree = " << m_truthTrackTreeName << " and evtinfo tree = " << m_evtinfoTreeName << endreq;
 
     // Copy over the output truth trees, if required
     if (m_truthFileNames.size() > 0 && ((m_truthTrackTreeName != "") || (m_evtinfoTreeName != ""))) {
        StatusCode sc = finalizeCopyTruthTree();
        if (sc.isFailure()) {
-          log << MSG::FATAL << "Unable copy truth trees " <<  m_truthTrackTreeName << " and evtinfotree = " << m_evtinfoTreeName << endmsg;
+          log << MSG::FATAL << "Unable copy truth trees " <<  m_truthTrackTreeName << " and evtinfotree = " << m_evtinfoTreeName << endreq;
           return sc;
        }
     }
@@ -1831,10 +1818,10 @@ StatusCode FTKMergerAlgo::finalize() {
     //  Clean up output and input merged files 
     //
     if (m_useStandalone && m_doMerging) {
-      log << MSG::DEBUG << "finalize standalone tracks" << endmsg;
+      log << MSG::DEBUG << "finalize standalone tracks" << endreq;
       StatusCode sc = finalizeStandaloneTracks();
       if (sc.isFailure()) {
-	log << MSG::FATAL << "Unable finalize merged tracks" << endmsg;
+	log << MSG::FATAL << "Unable finalize merged tracks" << endreq;
 	return sc;
       }
     }
@@ -1846,10 +1833,10 @@ StatusCode FTKMergerAlgo::finalize() {
     }
 
     // cleanup the map containing the list of FTK tracks found in each event
-    log << MSG::DEBUG << "Dump Track map" << endmsg;
+    log << MSG::DEBUG << "Dump Track map" << endreq;
     m_trackVectorMap.clear();
 
-    log << MSG::DEBUG << "end Finalize() " << endmsg;
+    log << MSG::DEBUG << "end Finalize() " << endreq;
     return StatusCode::SUCCESS;
 }
 
@@ -1978,7 +1965,7 @@ Rec::TrackParticle* FTKMergerAlgo::createTrackParticle(const Trk::Track* track,
 
 
      // security check:
-     if (parameters.size() > 2) msg() << MSG::WARNING << "More than two additional track parameters to be stored in TrackParticle!" << endmsg;
+     if (parameters.size() > 2) msg() << MSG::WARNING << "More than two additional track parameters to be stored in TrackParticle!" << endreq;
    }   
 
    const Trk::FitQuality* fitQuality = new Trk::FitQuality( (*track->fitQuality()) );
@@ -2036,7 +2023,7 @@ Rec::TrackParticle* FTKMergerAlgo::createTrackParticle(const Trk::Track* track,
 
 
     // security check:
-    if (parameters.size() > 2) msg() << MSG::WARNING << "More than two additional track parameters to be stored in TrackParticle!" << endmsg;
+    if (parameters.size() > 2) msg() << MSG::WARNING << "More than two additional track parameters to be stored in TrackParticle!" << endreq;
   }   
 
   const Trk::FitQuality* fitQuality = new Trk::FitQuality( (*track->fitQuality()) );
@@ -2099,7 +2086,7 @@ list<FTKTrack>::iterator FTKMergerAlgo::removeTrack(list<FTKTrack> &tracks_list,
 void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream ***reg_tracks, int region)
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::VERBOSE << "In merged_tracks " << endmsg;
+  log << MSG::VERBOSE << "In merged_tracks " << endreq;
 
   list<FTKTrack> tracks_list;
   
@@ -2159,14 +2146,10 @@ void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream 
       if(!reg_tracks[ireg][isub]) continue;
       
       unsigned int ntracks = reg_tracks[ireg][isub]->getNTracks();
-
-      merged_tracks->addNExtrapolatedTracks(reg_tracks[ireg][isub]->getNExtrapolatedTracks());
-      merged_tracks->addNConnections(reg_tracks[ireg][isub]->getNConn());
+      
       merged_tracks->addNCombs(reg_tracks[ireg][isub]->getNCombs());
       merged_tracks->addNFits( reg_tracks[ireg][isub]->getNFits());
       merged_tracks->addNFitsMajority(reg_tracks[ireg][isub]->getNFitsMajority());
-      merged_tracks->addNFitsMajority_pix(reg_tracks[ireg][isub]->getNFitsMajority_pix());
-      merged_tracks->addNFitsMajority_SCT(reg_tracks[ireg][isub]->getNFitsMajority_SCT());
       merged_tracks->addNFitsRecovery(reg_tracks[ireg][isub]->getNFitsRecovery());
       merged_tracks->addNAddFitsRecovery(reg_tracks[ireg][isub]->getNAddFitsRecovery());
       merged_tracks->addNFitsBad(reg_tracks[ireg][isub]->getNFitsBad());
@@ -2179,8 +2162,6 @@ void FTKMergerAlgo::merge_tracks(FTKTrackStream* &merged_tracks, FTKTrackStream 
       merged_tracks->addNCombsI(reg_tracks[ireg][isub]->getNCombsI());
       merged_tracks->addNFitsI(reg_tracks[ireg][isub]->getNFitsI());
       merged_tracks->addNFitsMajorityI(reg_tracks[ireg][isub]->getNFitsMajorityI());
-      merged_tracks->addNFitsMajorityI_pix(reg_tracks[ireg][isub]->getNFitsMajorityI_pix());
-      merged_tracks->addNFitsMajorityI_SCT(reg_tracks[ireg][isub]->getNFitsMajorityI_SCT());
       merged_tracks->addNFitsRecoveryI(reg_tracks[ireg][isub]->getNFitsRecoveryI());
       merged_tracks->addNAddFitsRecoveryI(reg_tracks[ireg][isub]->getNAddFitsRecoveryI());
       merged_tracks->addNFitsBadI(reg_tracks[ireg][isub]->getNFitsBadI());
@@ -2324,7 +2305,7 @@ StatusCode FTKMergerAlgo::merge_roads(FTKRoadStream * &newbank,FTKRoadStream **o
 {
 
    MsgStream log(msgSvc(), name());
-   log << MSG::DEBUG << "FTKMergerAlgo::merge_roads" << endmsg;
+   log << MSG::DEBUG << "FTKMergerAlgo::merge_roads" << endreq;
 
 //first call get entry for all 
    for (unsigned int isr=0;isr!=nelements;++isr) { // subregions loop
@@ -2390,9 +2371,6 @@ StatusCode FTKMergerAlgo::merge_roads(FTKRoadStream * &newbank,FTKRoadStream **o
          found = true;
       }
       newbank->naoAddNroadsAM(oldbanks[isr]->naoGetNroadsAM());
-      newbank->naoAddNroadsAMComplete(oldbanks[isr]->naoGetNroadsAMComplete());
-      newbank->naoAddNroadsAMMissPix(oldbanks[isr]->naoGetNroadsAMMissPix());
-      newbank->naoAddNroadsAMMissSCT(oldbanks[isr]->naoGetNroadsAMMissSCT());
       newbank->naoAddNroadsMOD(oldbanks[isr]->naoGetNroadsMOD());
       int nroads = oldbanks[isr]->getNRoads();
       for (int iroad=0;iroad<nroads && m_MergeRoadsDetailed;++iroad) {

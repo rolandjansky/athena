@@ -575,12 +575,12 @@ int FTK_AMBank::readROOTBankSectorOrdered(TFile* pattfile, int maxpatt)
    int iSub=0;
    int nSub=1;
 
-   FTKPatternBySectorForestReader* preader = new FTKPatternBySectorForestReader(*pattfile);
+   FTKPatternBySectorReader* preader = new FTKPatternBySectorReader(*pattfile);
    if(!preader) {
       cerr<<"Error. Cannot read root-file pattern from: "<<pattfile->GetName()<<endl;
       return -1;
    }
-   m_npatterns = preader->GetNPatternsTotal();
+   m_npatterns = preader->GetNPatterns();
    setNPlanes(preader->GetNLayers());
 
    if (maxpatt<0 || m_npatterns<maxpatt) { 
@@ -601,46 +601,54 @@ int FTK_AMBank::readROOTBankSectorOrdered(TFile* pattfile, int maxpatt)
 
    readBankInit();
    
+   FTKPatternBySectorReader::SectorSet_t sectorByCoverage;
+   preader->GetPatternByCoverage(sectorByCoverage,iSub,nSub); 
+   // long npatt = preader->GetPatternByCoverage(sectorByCoverage,iSub,nSub); 
+   // cout<< "Found # "<<npatt<<" patterns."<<endl;
+   
    // loop over sectors recursively, convert to 'FTKPattern' and write into root-tree
    int patternID = 0;
    cout << "Reading : [" << flush;
-   preader->Rewind();
-   for(int coverage=preader->GetMaxCoverage();coverage;
-         coverage=preader->GetNextCoverage(coverage)) {
-      if(patternID>=m_npatterns) break;
-      for(int sector=preader->GetCoverageFirstSector(coverage);
-          sector>=0;sector=preader->GetCoverageNextSector(coverage,sector)) {
-         if((nSub>1)&&(sector%nSub!=iSub)) continue;
-         if(patternID>=m_npatterns) break;
-
-         if (patternID%ipatt_step==0) cout << patternID/ipatt_step << flush;
-
-         FTKPatternOneSector *data=preader->Read(sector,coverage);
-         for(FTKPatternOneSector::Ptr_t i=data->Begin();i!=data->End();i++) {
-            if(patternID>=m_npatterns) break;
-
-            // //showstats(m_patternID, m_npatterns);
-            // inputpattern->setPatternID(m_patternID);
-            // inputpattern->setSectorID(sector);
-            // inputpattern->setCoverage(coverage);
-            //cout<<patternID<<" "; //hier
-            const FTKHitPattern& patternData =data->GetHitPattern(i);
-
-            for( int iplane=0 ; iplane<m_nplanes ; iplane++ ) {
-               m_patterns[_SSPOS(patternID,iplane)] = patternData.GetHit(iplane); 
+   while(sectorByCoverage.begin()!=sectorByCoverage.end() && patternID<m_npatterns ) {
+      if (patternID%ipatt_step==0) cout << patternID/ipatt_step << flush;
+      
+      FTKPatternBySectorReader::PatternTreeBySector_t::iterator oneSector=*sectorByCoverage.begin();
+      sectorByCoverage.erase(sectorByCoverage.begin()); // remove this sector temporarily
+      
+      FTKPatternRootTreeReader* tree=oneSector->second;
+      int sector=oneSector->first;
+      int coverage=tree->GetPattern().GetCoverage();
+      bool isNotEmpty=false;
+      do {
+	 // //showstats(m_patternID, m_npatterns);
+	 // inputpattern->setPatternID(m_patternID);
+	 // inputpattern->setSectorID(sector);
+	 // inputpattern->setCoverage(coverage);
+	 //cout<<patternID<<" "; //hier
+	 const FTKHitPattern& patternData = tree->GetPattern().GetHitPattern();
+	 for( int iplane=0 ; iplane<m_nplanes ; iplane++ ) {
+	    m_patterns[_SSPOS(patternID,iplane)] = patternData.GetHit(iplane); 
 	    //cout<<m_patterns[_SSPOS(patternID,iplane)]<<" "; //hier
-            }
-            m_patterns[_SSPOS(patternID,m_nplanes)] = sector;
-            m_patternCoverage[patternID] = coverage;
-            m_totalCoverage += coverage;
-            (*m_sectorCoverage)[m_patterns[_SSPOS(patternID,m_nplanes)]] += m_patternCoverage[patternID];
+	 }
+	 m_patterns[_SSPOS(patternID,m_nplanes)] = sector;
+	 m_patternCoverage[patternID] = coverage;
+	 m_totalCoverage += coverage;
+	 (*m_sectorCoverage)[m_patterns[_SSPOS(patternID,m_nplanes)]] += m_patternCoverage[patternID];
 	 //cout<<sector<<" "<<coverage<<" "<<endl;; //hier
 
-            patternID++; // increment the global pattern ID
-         } // end for (patterns)
-         delete data;
-      } // end for(sector)
-   } // end for(coverage)
+	 patternID++; // increment the global pattern ID
+	 isNotEmpty = tree->ReadNextPattern();
+	 // if(!tree->ReadNextPattern()) {
+	 //    isEmpty=true;
+	 //    break;
+	 // }
+      } 
+      while(tree->GetPattern().GetCoverage()==coverage && isNotEmpty && patternID<m_npatterns);
+      // add sector again to (coveraged ordered) set 
+      if(isNotEmpty) {
+	 sectorByCoverage.insert(oneSector);
+      }	
+   } // end while(sectors)
    cout << "]" << endl;
   
    cout<<patternID<<" patterns read successfully."<<endl;
@@ -912,7 +920,7 @@ const std::list<FTKRoad>& FTK_AMBank::getRoads()
 {
   // FlagJT: moved ~half of this function to attach_SS() so that we
   // can take advantage of the KD Tree in road_warrior().
-  std::list<FTKRoad>::iterator iroad = m_roads.begin();
+   std::list<FTKRoad>::iterator iroad = m_roads.begin();
   for (;iroad!=m_roads.end();++iroad) {
     int pattID = iroad->getPatternID();
 
@@ -1159,7 +1167,7 @@ void FTK_AMBank::am_in() {
 #endif
 
   FTKSetup &ftkset = FTKSetup::getFTKSetup();
-  unsigned int match_threshold = m_nplanes-ftkset.getMaxMissingPlanes()-ftkset.getMaxMissingSctPairs();
+  unsigned int match_threshold = m_nplanes-ftkset.getMaxMissingPlanes()-FTKSetup::getFTKSetup().getMaxMissingSctPairs();
   m_fired_patts.clear();
 
   // send real hits into the SS
@@ -1207,7 +1215,7 @@ void FTK_AMBank::am_in() {
 
 void FTK_AMBank::am_in_minimal() {
   FTKSetup &ftkset = FTKSetup::getFTKSetup();
-  const unsigned int match_threshold = m_nplanes-ftkset.getMaxMissingPlanes()-ftkset.getMaxMissingSctPairs();
+  const unsigned int match_threshold = m_nplanes-ftkset.getMaxMissingPlanes()-FTKSetup::getFTKSetup().getMaxMissingSctPairs();
   m_fired_patts.clear();
 
   /* the bias is the criteria that means a road is matched, if remain >0, this is the initial value,
@@ -1263,11 +1271,11 @@ void FTK_AMBank::am_in_minimal() {
 
 void FTK_AMBank::am_in2() {
   FTKSetup &ftkset = FTKSetup::getFTKSetup();
-  unsigned int match_threshold = m_nplanes-ftkset.getMaxMissingPlanes()-ftkset.getMaxMissingSctPairs();
+  unsigned int match_threshold = m_nplanes-ftkset.getMaxMissingPlanes()-FTKSetup::getFTKSetup().getMaxMissingSctPairs();
   m_fired_patts.clear();
 
   unsigned int prematch_threshold = m_upperindex ? m_nplanes-m_lutsepplane : m_lutsepplane;
-  prematch_threshold -= ftkset.getMaxMissingPlanes()+ftkset.getMaxMissingSctPairs();
+  prematch_threshold -= ftkset.getMaxMissingPlanes()+FTKSetup::getFTKSetup().getMaxMissingSctPairs();
 
   vector<int> prefiredpatts;
   int startplane = m_upperindex ? m_lutsepplane : 0;
@@ -1371,7 +1379,6 @@ void FTK_AMBank::am_output() {
 
   clearNRoads();
   int iroads(0); //same as getNRroads(), but keeps total count of roads (even those in excess of MAXROADS)
-  const FTKPlaneMap *pmap = getSSMap()->getPlaneMap();
 
   vector<int>::iterator fpiter = m_fired_patts.begin();
   for (;fpiter!=m_fired_patts.end();++fpiter) {
@@ -1398,20 +1405,6 @@ void FTK_AMBank::am_output() {
       m_roads.push_front(FTKRoad(getNRoads()-1,getBankID()+100*getSubID(),
 				 ipatt,m_nplanes,
 				 nhit,getBitmask(ipatt)));
-      FTKRoad &road=* m_roads.begin();
-
-      // Want to count if we're missing hits
-      bool misspix(false), misssct(false);
-      for(int ip = 0; ip < getNPlanes(); ++ip) {
-	if (!road.hasHitOnLayer(ip)) {
-	  if (pmap->isSCT(ip)) misssct = true;
-	  else misspix = true;
-	}
-      }
-      if (misspix) countNRoads_misspix();
-      if (misssct) countNRoads_misssct();
-      if (!misspix && !misssct) countNRoads_complete();
-
     } else if ( nhit >= m_nplanes-MAX_MISSING_PLANES-MAX_MISSING_SCT_PAIRS ) {
       
       // check requirements on first or last layers
@@ -1450,20 +1443,6 @@ void FTK_AMBank::am_output() {
 	m_roads.push_front(FTKRoad(getNRoads()-1,getBankID()+100*getSubID(),
 				   ipatt,m_nplanes,
 				   nhit,getBitmask(ipatt))); 
-	FTKRoad &road=* m_roads.begin();
-		  
-	// Want to count if we're missing hits
-	bool misspix(false), misssct(false);
-	for(int ip = 0; ip < getNPlanes(); ++ip) {
-	  if (!road.hasHitOnLayer(ip)) {
-	    if (pmap->isSCT(ip)) misssct = true;
-	    else misspix = true;
-	  }
-	}
-	if (misspix) countNRoads_misspix();
-	if (misssct) countNRoads_misssct();
-	if (!misspix && !misssct) countNRoads_complete();
-	
       } // if allowed
     } // if checking for missing SCT pairs
     else {
@@ -1484,29 +1463,11 @@ void FTK_AMBank::am_output() {
 	m_roads.push_front(FTKRoad(getNRoads()-1,getBankID()+100*getSubID(),
 				   ipatt,m_nplanes,
 				   nhit,getBitmask(ipatt)));
-	FTKRoad &road=* m_roads.begin();
-
-	// Want to count if we're missing hits
-	bool misspix(false), misssct(false);
-	for(int ip = 0; ip < getNPlanes(); ++ip) {
-	  if (!road.hasHitOnLayer(ip)) {
-	    if (pmap->isSCT(ip)) misssct = true;
-	    else misspix = true;
-	  }
-	}
-	if (misspix) countNRoads_misspix();
-	if (misssct) countNRoads_misssct();
-	if (!misspix && !misssct) countNRoads_complete();
-
       }
     }
   }
 
   naoSetNroadsAM(getNRoads());
-  naoSetNroadsAMComplete(getNRoads_complete());
-  naoSetNroadsAMMissPix(getNRoads_misspix());
-  naoSetNroadsAMMissSCT(getNRoads_misssct());
-
   if(FTKSetup::getDBG()) {
     cout << "DBG: AM found " << m_roads.size() << " roads" << endl;
   }
@@ -1632,7 +1593,7 @@ int FTK_AMBank::informationMatch(FTKRoad *r1,FTKRoad *r2) {
       if ( condition1 && condition2 ) {
 	// here if the SS of the two patterns in this plane differs
 #ifdef VERBOSE_DEBUG
-	printf("\t\t\tSCT %d and %d (%u) differs\n",m_patterns[_SSPOS(patt1,i)],
+	printf("\t\t\tSCT %d and %d (%d) differs\n",m_patterns[_SSPOS(patt1,i)],
 	       m_patterns[_SSPOS(patt2,i)],bitmask2);
 #endif
 	nsame -= 1;

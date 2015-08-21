@@ -29,7 +29,6 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "EventInfo/EventInfo.h"
-#include "EventInfo/TriggerInfo.h"
 #include "EventInfo/EventID.h"
 #include "IdDictDetDescr/IdDictManager.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
@@ -65,7 +64,6 @@ FTK_SGHitInput::FTK_SGHitInput(const std::string& algname, const std::string &na
   m_minPt(.8*CLHEP::GeV),
   m_outFileNameRawHits( "ftksim_raw_hits.dat.bz2" ),
   m_readTruthTracks(false),
-  m_UseNominalOrigin(false),
   m_dooutFileRawHits(false),
   ofl(),
   oflraw()
@@ -93,7 +91,6 @@ FTK_SGHitInput::FTK_SGHitInput(const std::string& algname, const std::string &na
   declareProperty("logBeamSpotOutput"		, m_logBeamSpotOutput);
   declareProperty("DoOutFileRawHits"            , m_dooutFileRawHits);
   declareProperty("ReadTruthTracks", m_readTruthTracks);
-  declareProperty("UseNominalOrigin", m_UseNominalOrigin);
 }
 
 
@@ -102,42 +99,42 @@ FTK_SGHitInput::FTK_SGHitInput(const std::string& algname, const std::string &na
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTK_SGHitInput::initialize(){
 
-  m_log << MSG::INFO << "FTK_SGHitInput::initialize()" << endmsg;
+  m_log << MSG::INFO << "FTK_SGHitInput::initialize()" << endreq;
 
   if( service("StoreGateSvc", m_storeGate).isFailure() ) {
-    m_log << MSG::FATAL << "StoreGate service not found" << endmsg;
+    m_log << MSG::FATAL << "StoreGate service not found" << endreq;
     return StatusCode::FAILURE;
   }
 
   if( m_truthToTrack.retrieve().isFailure() ) {
-    m_log << MSG::FATAL << m_truthToTrack << " truth to track tool not found" << endmsg;
+    m_log << MSG::FATAL << m_truthToTrack << " truth to track tool not found" << endreq;
     return StatusCode::FAILURE;
   } else {
-    m_log << MSG::INFO << m_truthToTrack << " retrieved" << endmsg;
+    m_log << MSG::INFO << m_truthToTrack << " retrieved" << endreq;
   }
 
   if( m_extrapolator.retrieve().isFailure() ) {
-    m_log << MSG::FATAL << m_extrapolator << " extrapolator tool not found" << endmsg;
+    m_log << MSG::FATAL << m_extrapolator << " extrapolator tool not found" << endreq;
     return StatusCode::FAILURE;
   } else {
-    m_log << MSG::INFO << m_extrapolator << " retrieved" << endmsg;
+    m_log << MSG::INFO << m_extrapolator << " retrieved" << endreq;
   }
 
   if( m_beamSpotSvc.retrieve().isFailure() ) {
-    m_log << MSG::FATAL << m_beamSpotSvc << " beam spot service not found" << endmsg;
+    m_log << MSG::FATAL << m_beamSpotSvc << " beam spot service not found" << endreq;
     return StatusCode::FAILURE;
   } else {
-    m_log << MSG::INFO << m_beamSpotSvc << " retrieved" << endmsg;
+    m_log << MSG::INFO << m_beamSpotSvc << " retrieved" << endreq;
   }
 
   if( service("DetectorStore",m_detStore).isFailure() ) {
-    m_log << MSG::FATAL <<"DetectorStore service not found" << endmsg;
+    m_log << MSG::FATAL <<"DetectorStore service not found" << endreq;
     return StatusCode::FAILURE;
   }
 
   IPartPropSvc* partPropSvc = 0;
   if( service("PartPropSvc", partPropSvc, true).isFailure() ) {
-    m_log << MSG::FATAL << "particle properties service unavailable" << endmsg;
+    m_log << MSG::FATAL << "particle properties service unavailable" << endreq;
     return StatusCode::FAILURE;
   }
   m_particleDataTable = partPropSvc->PDT();
@@ -146,23 +143,23 @@ StatusCode FTK_SGHitInput::initialize(){
   m_idHelper = new AtlasDetectorID;
   const IdDictManager* idDictMgr( 0 );
   if( m_detStore->retrieve(idDictMgr, "IdDict").isFailure() || !idDictMgr ) {
-    m_log << MSG::ERROR << "Could not get IdDictManager !" << endmsg;
+    m_log << MSG::ERROR << "Could not get IdDictManager !" << endreq;
     return StatusCode::FAILURE;
   }
   if( m_detStore->retrieve(m_PIX_mgr, "Pixel").isFailure() ) {
-    m_log << MSG::ERROR << "Unable to retrieve Pixel manager from DetectorStore" << endmsg;
+    m_log << MSG::ERROR << "Unable to retrieve Pixel manager from DetectorStore" << endreq;
     return StatusCode::FAILURE;
   }
   if( m_detStore->retrieve(m_pixelId, "PixelID").isFailure() ) {
-    m_log << MSG::ERROR << "Unable to retrieve Pixel helper from DetectorStore" << endmsg;
+    m_log << MSG::ERROR << "Unable to retrieve Pixel helper from DetectorStore" << endreq;
     return StatusCode::FAILURE;
   }
   if( m_detStore->retrieve(m_SCT_mgr, "SCT").isFailure() ) {
-    m_log << MSG::ERROR << "Unable to retrieve SCT manager from DetectorStore" << endmsg;
+    m_log << MSG::ERROR << "Unable to retrieve SCT manager from DetectorStore" << endreq;
     return StatusCode::FAILURE;
   }
   if( m_detStore->retrieve(m_sctId, "SCT_ID").isFailure() ) {
-    m_log << MSG::ERROR << "Unable to retrieve SCT helper from DetectorStore" << endmsg;
+    m_log << MSG::ERROR << "Unable to retrieve SCT helper from DetectorStore" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -185,7 +182,7 @@ StatusCode FTK_SGHitInput::initialize(){
 
 StatusCode FTK_SGHitInput::finalize(){
   MsgStream log(msgSvc(), name());
-  m_log << MSG::INFO << "finalized" << endmsg;
+  m_log << MSG::INFO << "finalized" << endreq;
 
   if( m_idHelper ) { delete m_idHelper; }
 
@@ -204,7 +201,7 @@ int FTK_SGHitInput::init(bool*)
 
 
 /** This function get from the SG the inner detector raw hits
-  and prepares them for FTK simulation */
+    and prepares them for FTK simulation */
 int FTK_SGHitInput::readData()
 {
   int res(0); // result of the hit gathering
@@ -214,7 +211,7 @@ int FTK_SGHitInput::readData()
 
   const EventInfo* eventInfo(0);
   if( m_storeGate->retrieve(eventInfo).isFailure() ) {
-    m_log << MSG::ERROR << "Could not retrieve event info" << endmsg;
+    m_log << MSG::ERROR << "Could not retrieve event info" << endreq;
     return -1;
   }
   const EventID* eventID( eventInfo->event_ID() );
@@ -222,22 +219,11 @@ int FTK_SGHitInput::readData()
   m_log << MSG::INFO
         << "entered execution for run " << eventID->run_number()
         << "   event " << eventID->event_number()
-        << endmsg;
-
-  const TriggerInfo *triggerInfo(eventInfo->trigger_info());
+        << endreq;
 
   //Filled to variable / start event
   setRunNumber(eventID->run_number());
   setEventNumber(eventID->event_number());
-  setLB(eventID->lumi_block());
-  setBCID(eventID->bunch_crossing_id());
-  setaverageInteractionsPerCrossing(eventInfo->averageInteractionsPerCrossing());
-  setactualInteractionsPerCrossing(eventInfo->actualInteractionsPerCrossing());
-  setextendedLevel1ID(triggerInfo->extendedLevel1ID() );
-
-  setlevel1TriggerType(triggerInfo->level1TriggerType () );
-  setlevel1TriggerInfo(triggerInfo->level1TriggerInfo ());
-
   if(m_dooutFileRawHits){
     (*oflraw) << "R\t" << eventID->run_number()<<'\n';
     (*oflraw) << "F\t" << eventID->event_number()<<'\n';
@@ -249,21 +235,21 @@ int FTK_SGHitInput::readData()
   HitIndexMap pixelClusterIndexMap;
   // get pixel and sct cluster containers
   if( m_storeGate->retrieve(m_pixelContainer, m_pixelClustersName).isFailure() ) {
-    m_log << MSG::WARNING << "unable to retrieve the PixelCluster container " << m_pixelClustersName << endmsg;
+    m_log << MSG::WARNING << "unable to retrieve the PixelCluster container " << m_pixelClustersName << endreq;
   }
   if( m_storeGate->retrieve(m_sctContainer, m_sctClustersName).isFailure() ) {
-    m_log << MSG::WARNING << "unable to retrieve the SCT_Cluster container " << m_sctClustersName << endmsg;
+    m_log << MSG::WARNING << "unable to retrieve the SCT_Cluster container " << m_sctClustersName << endreq;
   }
 
 
   // dump raw silicon data
-  m_log << MSG::INFO << "Dump raw silicon data" << endmsg;
+  m_log << MSG::INFO << "Dump raw silicon data" << endreq;
   read_raw_silicon( hitIndexMap, pixelClusterIndexMap );
 
   // *** add other variables in the future (ex) SpacePoint etc... see Dump.cxx *** //
   // dump truth tracks
   if(m_readTruthTracks) {
-    m_log << MSG::INFO << "Dump truth tracks" << endmsg;
+    m_log << MSG::INFO << "Dump truth tracks" << endreq;
     m_truth_track.clear();
     read_truth_tracks();
   }
@@ -288,10 +274,10 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
   const InDetSimDataCollection* pixelSimDataMap(0);
   const bool have_pixel_sdo = m_storeGate->retrieve(pixelSimDataMap, "PixelSDO_Map").isSuccess();
   if (!have_pixel_sdo) {
-    m_log << MSG::WARNING << "Missing Pixel SDO Map" << endmsg;
+    m_log << MSG::WARNING << "Missing Pixel SDO Map" << endreq;
   }
   else {
-    m_log << MSG::INFO << "Found Pixel SDO Map" << endmsg;
+    m_log << MSG::INFO << "Found Pixel SDO Map" << endreq;
   }
 
   // push back the hit information  to DataInput for HitList , copy from RawInput.cxx
@@ -305,7 +291,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
       const InDetRawDataCollection<PixelRDORawData>* pixel_rdoCollection(*iColl);
       if( !pixel_rdoCollection ) { continue; }
       const int size = pixel_rdoCollection->size();
-      m_log << MSG::DEBUG << "Pixel InDetRawDataCollection found with " << size << " RDOs" << endmsg;
+      m_log << MSG::DEBUG << "Pixel InDetRawDataCollection found with " << size << " RDOs" << endreq;
       // loop on all RDOs
       for( DataVector<PixelRDORawData>::const_iterator iRDO=pixel_rdoCollection->begin(), fRDO=pixel_rdoCollection->end(); iRDO!=fRDO; ++iRDO ) {
         Identifier rdoId = (*iRDO)->identify();
@@ -393,63 +379,52 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         } // end if pixel truth available
         ++hitIndex;
 
-        //output//
-        if(m_dooutFileRawHits){ //bz2 file
-          (*oflraw) << "S\t"
-                    << setw(14) << setprecision(10)
-                    << gPos.x() << '\t'
-                    << setw(14) << setprecision(10)
-                    << gPos.y() << '\t'
-                    << setw(14) << setprecision(10)
-                    << gPos.z() << '\t'
-                    << 1  << '\t' // 1  pixel 0 sct
-                    << m_pixelId->barrel_ec(rdoId) << '\t'
-                    << m_pixelId->layer_disk(rdoId) << '\t'
-                    << m_pixelId->phi_module(rdoId) << '\t'
-                    << m_pixelId->eta_module(rdoId) << '\t'
-                    << m_pixelId->phi_index(rdoId) << '\t'
-                    << m_pixelId->eta_index(rdoId) << '\t'
-                    << (*iRDO)->getToT() << '\t'
-                    << (long)(best_parent ? best_extcode.eventIndex() : std::numeric_limits<long>::max()) << '\t'
-                    << (long)(best_parent ? best_extcode.barcode() : std::numeric_limits<long>::max()) << '\t'
-                    << setprecision(5) << static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) << '\t' // particle pt in MeV
-                    << parent_mask.to_ulong() << '\t'
-                    << endl;
-        }
-        // push back the hit information  to DataInput for HitList , copy from RawInput.cxx
-        tmpSGhit.reset();
-        tmpSGhit.setX(gPos.x());
-        tmpSGhit.setY(gPos.y());
-        tmpSGhit.setZ(gPos.z());
-        tmpSGhit.setHitType(ftk::PIXEL);
-
-	bool isIBL = (m_pixelId->barrel_ec(rdoId) == 0 && m_pixelId->layer_disk(rdoId) == 0) ? true : false;
-	bool isIBL3D = (isIBL && FTKSetup::getFTKSetup().getIBLMode() == 2 && 
-			(abs(m_pixelId->eta_module(rdoId)) >= 7)) ? true : false;
-
-	if (isIBL3D)
-	  tmpSGhit.setModuleType(ftk::MODULETYPE_IBL3D);
-	else if (isIBL)
-	  tmpSGhit.setModuleType(ftk::MODULETYPE_IBL_PLANAR);
-	else
-	  tmpSGhit.setModuleType(ftk::MODULETYPE_PIXEL);
-	
-        tmpSGhit.setIdentifierHash(sielement->identifyHash());
-        tmpSGhit.setBarrelEC(m_pixelId->barrel_ec(rdoId));
-        tmpSGhit.setLayer( m_pixelId->layer_disk(rdoId));
-        tmpSGhit.setPhiModule(m_pixelId->phi_module(rdoId));
-        tmpSGhit.setEtaModule(m_pixelId->eta_module(rdoId));
-        tmpSGhit.setPhiSide(m_pixelId->phi_index(rdoId));
-        tmpSGhit.setEtaStrip(m_pixelId->eta_index(rdoId));
-        tmpSGhit.setNStrips((*iRDO)->getToT());
-        tmpSGhit.setEventIndex((long)(best_parent ? best_extcode.eventIndex() : std::numeric_limits<long>::max()));
-        tmpSGhit.setBarcode((long)(best_parent ? best_extcode.barcode() : std::numeric_limits<long>::max()));
-        tmpSGhit.setBarcodePt( static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) );
-        tmpSGhit.setParentageMask(parent_mask.to_ulong());
-        tmpSGhit.normalizeLayerID(); // Change layer info from atlas geo to FTK geo
-        //cout << "DBGBC Pxl " << tmpSGhit.getEventIndex() << ", " << tmpSGhit.getBarcode() << endl;
-        if (abs(m_pixelId->barrel_ec(rdoId)) != 4) // JAAA skip diamonds!
-          m_original_hits.push_back(tmpSGhit);
+	//output//
+	if(m_dooutFileRawHits){ //bz2 file
+	  (*oflraw) << "S\t"
+		    << setw(14) << setprecision(10)
+		    << gPos.x() << '\t'
+		    << setw(14) << setprecision(10)
+		    << gPos.y() << '\t'
+		    << setw(14) << setprecision(10)
+		    << gPos.z() << '\t'
+		    << 1  << '\t' // 1  pixel 0 sct
+		    << m_pixelId->barrel_ec(rdoId) << '\t'
+		    << m_pixelId->layer_disk(rdoId) << '\t'
+		    << m_pixelId->phi_module(rdoId) << '\t'
+		    << m_pixelId->eta_module(rdoId) << '\t'
+		    << m_pixelId->phi_index(rdoId) << '\t'
+		    << m_pixelId->eta_index(rdoId) << '\t'
+		    << (*iRDO)->getToT() << '\t'
+		    << (long)(best_parent ? best_extcode.eventIndex() : std::numeric_limits<long>::max()) << '\t'
+		    << (long)(best_parent ? best_extcode.barcode() : std::numeric_limits<long>::max()) << '\t'
+		    << setprecision(5) << static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) << '\t' // particle pt in MeV
+		    << parent_mask.to_ulong() << '\t'
+		    << endl;
+	}
+	// push back the hit information  to DataInput for HitList , copy from RawInput.cxx
+	tmpSGhit.reset();
+	tmpSGhit.setX(gPos.x());
+	tmpSGhit.setY(gPos.y());
+	tmpSGhit.setZ(gPos.z());
+	tmpSGhit.setHitType(ftk::PIXEL);
+  tmpSGhit.setModuleType(ftk::MODULETYPE_PIXEL);
+  tmpSGhit.setIdentifierHash(sielement->identifyHash());
+	tmpSGhit.setBarrelEC(m_pixelId->barrel_ec(rdoId));
+	tmpSGhit.setLayer( m_pixelId->layer_disk(rdoId));
+	tmpSGhit.setPhiModule(m_pixelId->phi_module(rdoId));
+	tmpSGhit.setEtaModule(m_pixelId->eta_module(rdoId));
+	tmpSGhit.setPhiSide(m_pixelId->phi_index(rdoId));
+	tmpSGhit.setEtaStrip(m_pixelId->eta_index(rdoId));
+	tmpSGhit.setNStrips((*iRDO)->getToT());
+	tmpSGhit.setEventIndex((long)(best_parent ? best_extcode.eventIndex() : std::numeric_limits<long>::max()));
+	tmpSGhit.setBarcode((long)(best_parent ? best_extcode.barcode() : std::numeric_limits<long>::max()));
+	tmpSGhit.setBarcodePt( static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) );
+	tmpSGhit.setParentageMask(parent_mask.to_ulong());
+	tmpSGhit.normalizeLayerID(); // Change layer info from atlas geo to FTK geo
+    //cout << "DBGBC Pxl " << tmpSGhit.getEventIndex() << ", " << tmpSGhit.getBarcode() << endl;
+    if (abs(m_pixelId->barrel_ec(rdoId)) != 4) // JAAA skip diamonds!
+       m_original_hits.push_back(tmpSGhit);
       } // end for each RDO in the collection
     } // for each pixel RDO collection
     // dump all pixel RDO's and SDO's for debugging purposes
@@ -464,24 +439,24 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
           const InDetDD::SiLocalPosition localPos = sielement->localPositionOfCell(rdoId);
           const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(rdoId);
           const Amg::Vector3D gPos( sielement->globalPosition(localPos) );
-          if(m_dooutFileRawHits){
-            (*oflraw) << "# S\t"
-                      << setw(14) << setprecision(10)
-                      << gPos.x() << '\t'
-                      << setw(14) << setprecision(10)
-                      << gPos.y() << '\t'
-                      << setw(14) << setprecision(10)
-                      << gPos.z() << '\t'
-                      << 1  << '\t' // 1  pixel 0 sct
-                      << m_pixelId->barrel_ec(rdoId) << '\t'
-                      << m_pixelId->layer_disk(rdoId) << '\t'
-                      << m_pixelId->phi_module(rdoId) << '\t'
-                      << m_pixelId->eta_module(rdoId) << '\t'
-                      << m_pixelId->phi_index(rdoId) << '\t'
-                      << m_pixelId->eta_index(rdoId) << '\t'
-                      << (*iRDO)->getToT() << '\t'
-                      << endl;
-          }
+	  if(m_dooutFileRawHits){
+	    (*oflraw) << "# S\t"
+		      << setw(14) << setprecision(10)
+		      << gPos.x() << '\t'
+		      << setw(14) << setprecision(10)
+		      << gPos.y() << '\t'
+		      << setw(14) << setprecision(10)
+		      << gPos.z() << '\t'
+		      << 1  << '\t' // 1  pixel 0 sct
+		      << m_pixelId->barrel_ec(rdoId) << '\t'
+		      << m_pixelId->layer_disk(rdoId) << '\t'
+		      << m_pixelId->phi_module(rdoId) << '\t'
+		      << m_pixelId->eta_module(rdoId) << '\t'
+		      << m_pixelId->phi_index(rdoId) << '\t'
+		      << m_pixelId->eta_index(rdoId) << '\t'
+		      << (*iRDO)->getToT() << '\t'
+		      << endl;
+	  }
         } // end for each pixel RDO
       } // end for each pixel RDO collection
       // dump SDO's
@@ -518,10 +493,10 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
   const InDetSimDataCollection* sctSimDataMap(0);
   const bool have_sct_sdo = m_storeGate->retrieve(sctSimDataMap, "SCT_SDO_Map").isSuccess();
   if (!have_sct_sdo) {
-    m_log << MSG::WARNING << "Missing SCT SDO Map" << endmsg;
+      m_log << MSG::WARNING << "Missing SCT SDO Map" << endreq;
   }
   else {
-    m_log << MSG::INFO << "Found SCT SDO Map" << endmsg;
+      m_log << MSG::INFO << "Found SCT SDO Map" << endreq;
   }
 
   const DataHandle<SCT_RDO_Container> sct_rdocontainer_iter;
@@ -531,13 +506,13 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
       const InDetRawDataCollection<SCT_RDORawData>* SCT_Collection(*iColl);
       if( !SCT_Collection ) { continue; }
       const int size = SCT_Collection->size();
-      m_log << MSG::DEBUG << "SCT InDetRawDataCollection found with " << size << " RDOs" << endmsg;
+      m_log << MSG::DEBUG << "SCT InDetRawDataCollection found with " << size << " RDOs" << endreq;
       for( DataVector<SCT_RDORawData>::const_iterator iRDO=SCT_Collection->begin(), fRDO=SCT_Collection->end(); iRDO!=fRDO; ++iRDO ) {
         const Identifier rdoId = (*iRDO)->identify();
         // get the det element from the det element collection
         const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(rdoId);
         const InDetDD::SCT_ModuleSideDesign& design = dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(sielement->design());
-        const InDetDD::SiLocalPosition localPos = design.positionFromStrip(m_sctId->strip(rdoId));
+        const InDetDD::SiLocalPosition localPos = design.positionFromStrip((*iRDO)->getStrip());
         const Amg::Vector3D gPos = sielement->globalPosition(localPos);
         hitIndexMap[rdoId] = hitIndex;
         ++hitIndex;
@@ -600,50 +575,50 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
             } // end for each contributing particle
           } // end if truth found for this strip
         } // end if sct truth available
-        if(m_dooutFileRawHits){
-          (*oflraw) << "S\t"
-                    << setw(14) << setprecision(10)
-                    << gPos.x() << '\t'
-                    << setw(14) << setprecision(10)
-                    << gPos.y() << '\t'
-                    << setw(14) << setprecision(10)
-                    << gPos.z() << '\t'
-                    << 0  << '\t' // 1  pixel 0 sct
-                    << m_sctId->barrel_ec(rdoId) << '\t'
-                    << m_sctId->layer_disk(rdoId) << '\t'
-                    << m_sctId->phi_module(rdoId) << '\t'
-                    << m_sctId->eta_module(rdoId) << '\t'
-                    << m_sctId->side(rdoId) << '\t'
-                    << m_sctId->strip(rdoId) << '\t'
-                    << (*iRDO)->getGroupSize() << '\t'
-                    << (long)(best_parent ? best_extcode.eventIndex() : std::numeric_limits<long>::max()) << '\t'
-                    << (long)(best_parent ? best_extcode.barcode() : std::numeric_limits<long>::max()) << '\t'
-                    << setprecision(5) << static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) << '\t' // particle pt in MeV
-                    << parent_mask.to_ulong() << '\t'
-                    << '\n';
-        }
-        // push back the hit information  to DataInput for HitList , copy from RawInput.cxx
-        tmpSGhit.reset();
-        tmpSGhit.setX(gPos.x());
-        tmpSGhit.setY(gPos.y());
-        tmpSGhit.setZ(gPos.z());
-        tmpSGhit.setHitType(ftk::SCT);
-        tmpSGhit.setModuleType(ftk::MODULETYPE_SCT);
-        tmpSGhit.setIdentifierHash(sielement->identifyHash());
-        tmpSGhit.setBarrelEC(m_sctId->barrel_ec(rdoId));
-        tmpSGhit.setLayer(m_sctId->layer_disk(rdoId));
-        tmpSGhit.setPhiModule(m_sctId->phi_module(rdoId));
-        tmpSGhit.setEtaModule(m_sctId->eta_module(rdoId));
-        tmpSGhit.setPhiSide(m_sctId->side(rdoId));
-        tmpSGhit.setEtaStrip(m_sctId->strip(rdoId));
-        tmpSGhit.setNStrips((*iRDO)->getGroupSize());
-        tmpSGhit.setEventIndex((long)(best_parent ? best_extcode.eventIndex() : std::numeric_limits<long>::max()));
-        tmpSGhit.setBarcode((long)(best_parent ? best_extcode.barcode() : std::numeric_limits<long>::max()));
-        tmpSGhit.setBarcodePt( static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) );
-        tmpSGhit.setParentageMask(parent_mask.to_ulong());
-        tmpSGhit.normalizeLayerID();  // Change layer info from atlas geo to FTK geo
+	if(m_dooutFileRawHits){
+	  (*oflraw) << "S\t"
+		    << setw(14) << setprecision(10)
+		    << gPos.x() << '\t'
+		    << setw(14) << setprecision(10)
+		    << gPos.y() << '\t'
+		    << setw(14) << setprecision(10)
+		    << gPos.z() << '\t'
+		    << 0  << '\t' // 1  pixel 0 sct
+		    << m_sctId->barrel_ec(rdoId) << '\t'
+		    << m_sctId->layer_disk(rdoId) << '\t'
+		    << m_sctId->phi_module(rdoId) << '\t'
+		    << m_sctId->eta_module(rdoId) << '\t'
+		    << m_sctId->side(rdoId) << '\t'
+		    << m_sctId->strip(rdoId) << '\t'
+		    << (*iRDO)->getGroupSize() << '\t'
+		    << (long)(best_parent ? best_extcode.eventIndex() : std::numeric_limits<long>::max()) << '\t'
+		    << (long)(best_parent ? best_extcode.barcode() : std::numeric_limits<long>::max()) << '\t'
+		    << setprecision(5) << static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) << '\t' // particle pt in MeV
+		    << parent_mask.to_ulong() << '\t'
+		    << '\n';
+	}
+	// push back the hit information  to DataInput for HitList , copy from RawInput.cxx
+	tmpSGhit.reset();
+	tmpSGhit.setX(gPos.x());
+	tmpSGhit.setY(gPos.y());
+	tmpSGhit.setZ(gPos.z());
+	tmpSGhit.setHitType(ftk::SCT);
+  tmpSGhit.setModuleType(ftk::MODULETYPE_SCT);
+  tmpSGhit.setIdentifierHash(sielement->identifyHash());
+	tmpSGhit.setBarrelEC(m_sctId->barrel_ec(rdoId));
+	tmpSGhit.setLayer(m_sctId->layer_disk(rdoId));
+	tmpSGhit.setPhiModule(m_sctId->phi_module(rdoId));
+	tmpSGhit.setEtaModule(m_sctId->eta_module(rdoId));
+	tmpSGhit.setPhiSide(m_sctId->side(rdoId));
+	tmpSGhit.setEtaStrip(m_sctId->strip(rdoId));
+	tmpSGhit.setNStrips((*iRDO)->getGroupSize());
+	tmpSGhit.setEventIndex((long)(best_parent ? best_extcode.eventIndex() : std::numeric_limits<long>::max()));
+	tmpSGhit.setBarcode((long)(best_parent ? best_extcode.barcode() : std::numeric_limits<long>::max()));
+	tmpSGhit.setBarcodePt( static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) );
+	tmpSGhit.setParentageMask(parent_mask.to_ulong());
+	tmpSGhit.normalizeLayerID();  // Change layer info from atlas geo to FTK geo
         //cout << "DBGBC SCT " << tmpSGhit.getEventIndex() << ", " << tmpSGhit.getBarcode() << endl;
-        m_original_hits.push_back(tmpSGhit);
+	m_original_hits.push_back(tmpSGhit);
       } // end for each RDO in the strip collection
     } // end for each strip RDO collection
     // dump all RDO's and SDO's for a given event, for debugging purposes
@@ -653,32 +628,32 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
         const InDetRawDataCollection<SCT_RDORawData>* SCT_Collection(*iColl);
         if( !SCT_Collection ) { continue; }
         const int size = SCT_Collection->size();
-        m_log << MSG::DEBUG << "SCT InDetRawDataCollection found with " << size << " RDOs" << endmsg;
+        m_log << MSG::DEBUG << "SCT InDetRawDataCollection found with " << size << " RDOs" << endreq;
         for( DataVector<SCT_RDORawData>::const_iterator iRDO=SCT_Collection->begin(), fRDO=SCT_Collection->end(); iRDO!=fRDO; ++iRDO ) {
           const Identifier rdoId = (*iRDO)->identify();
           const InDetDD::SiDetectorElement* sielement = m_SCT_mgr->getDetectorElement(rdoId);
           const InDetDD::SCT_ModuleSideDesign& design = dynamic_cast<const InDetDD::SCT_ModuleSideDesign&>(sielement->design());
-          const InDetDD::SiLocalPosition localPos = design.positionFromStrip(m_sctId->strip(rdoId));
+          const InDetDD::SiLocalPosition localPos = design.positionFromStrip((*iRDO)->getStrip());
           const Amg::Vector3D gPos = sielement->globalPosition(localPos);
 
-          if(m_dooutFileRawHits){
-            (*oflraw) << "# S\t"
-                      << setw(14) << setprecision(10)
-                      << gPos.x() << '\t'
-                      << setw(14) << setprecision(10)
-                      << gPos.y() << '\t'
-                      << setw(14) << setprecision(10)
-                      << gPos.z() << '\t'
-                      << 0  << '\t' // 1  pixel 0 sct
-                      << m_sctId->barrel_ec(rdoId) << '\t'
-                      << m_sctId->layer_disk(rdoId) << '\t'
-                      << m_sctId->phi_module(rdoId) << '\t'
-                      << m_sctId->eta_module(rdoId) << '\t'
-                      << m_sctId->side(rdoId) << '\t'
-                      << m_sctId->strip(rdoId) << '\t'
-                      << (*iRDO)->getGroupSize() << '\t'
-                      << endl;
-          }
+	  if(m_dooutFileRawHits){
+	    (*oflraw) << "# S\t"
+		      << setw(14) << setprecision(10)
+		      << gPos.x() << '\t'
+		      << setw(14) << setprecision(10)
+		      << gPos.y() << '\t'
+		      << setw(14) << setprecision(10)
+		      << gPos.z() << '\t'
+		      << 0  << '\t' // 1  pixel 0 sct
+		      << m_sctId->barrel_ec(rdoId) << '\t'
+		      << m_sctId->layer_disk(rdoId) << '\t'
+		      << m_sctId->phi_module(rdoId) << '\t'
+		      << m_sctId->eta_module(rdoId) << '\t'
+		      << m_sctId->side(rdoId) << '\t'
+		      << m_sctId->strip(rdoId) << '\t'
+		      << (*iRDO)->getGroupSize() << '\t'
+		      << endl;
+	  }
         } // end for each SCT rdo
       }  // end for each SCT rdo collection
       // dump SCT SDO's
@@ -687,29 +662,29 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
           const Identifier sdoId( i->first );
           const InDetSimData& sdo( i->second );
           const vector<InDetSimData::Deposit>& deposits( sdo.getdeposits() );
-          if(m_dooutFileRawHits){
-            (*oflraw) << "# s"
-                      << " " << m_sctId->barrel_ec(sdoId)
-                      << " " << m_sctId->layer_disk(sdoId)
-                      << " " << m_sctId->phi_module(sdoId)
-                      << " " << m_sctId->eta_module(sdoId)
-                      << " " << m_sctId->side(sdoId)
-                      << " " << m_sctId->strip(sdoId)
-                      << " " << SCT_SimHelper::isNoise( sdo )
-                      << " " << SCT_SimHelper::isBelowThreshold( sdo )
-                      << " " << SCT_SimHelper::isDisabled( sdo )
-                      << " " << deposits.size()
-                      << endl;
-          }
-          for( vector<InDetSimData::Deposit>::const_iterator iDep=deposits.begin(), fDep=deposits.end(); iDep!=fDep; ++iDep ) {
+	  if(m_dooutFileRawHits){
+	    (*oflraw) << "# s"
+		      << " " << m_sctId->barrel_ec(sdoId)
+		      << " " << m_sctId->layer_disk(sdoId)
+		      << " " << m_sctId->phi_module(sdoId)
+		      << " " << m_sctId->eta_module(sdoId)
+		      << " " << m_sctId->side(sdoId)
+		      << " " << m_sctId->strip(sdoId)
+		      << " " << SCT_SimHelper::isNoise( sdo )
+		      << " " << SCT_SimHelper::isBelowThreshold( sdo )
+		      << " " << SCT_SimHelper::isDisabled( sdo )
+		      << " " << deposits.size()
+		      << endl;
+	  }
+	  for( vector<InDetSimData::Deposit>::const_iterator iDep=deposits.begin(), fDep=deposits.end(); iDep!=fDep; ++iDep ) {
             const HepMcParticleLink& particleLink( iDep->first );
             const InDetSimData::Deposit::second_type qdep( iDep->second ); // energy(charge) contributed by this particle
-            if(m_dooutFileRawHits){
-              (*oflraw) << "# s q " << qdep << " " << particleLink.isValid() << " "
-                        << (particleLink.isValid() ? particleLink.eventIndex() : -1)
-                        << (particleLink.isValid() ? particleLink.barcode() : -1)
-                        << endl;
-            }
+	    if(m_dooutFileRawHits){
+	      (*oflraw) << "# s q " << qdep << " " << particleLink.isValid() << " "
+			<< (particleLink.isValid() ? particleLink.eventIndex() : -1)
+			<< (particleLink.isValid() ? particleLink.barcode() : -1)
+			<< endl;
+	    }
           } // end for each deposit associated with this SDO
         } // end for each SCT SDO
       }  // end if SDO's available, dump them
@@ -721,11 +696,11 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
   for( InDet::SiClusterContainer::const_iterator iColl=m_pixelContainer->begin(), fColl=m_pixelContainer->end(); iColl!=fColl; ++iColl ) {
     const InDet::SiClusterCollection* pixelClusterCollection(*iColl);
     if( !pixelClusterCollection ) {
-      m_log << MSG::DEBUG << "pixelClusterCollection not available!" << endmsg;
+      m_log << MSG::DEBUG << "pixelClusterCollection not available!" << endreq;
       continue;
     }
     const int size = pixelClusterCollection->size();
-    m_log << MSG::DEBUG << "PixelClusterCollection found with " << size << " clusters" << endmsg;
+    m_log << MSG::DEBUG << "PixelClusterCollection found with " << size << " clusters" << endreq;
 
     for( DataVector<InDet::SiCluster>::const_iterator iCluster=pixelClusterCollection->begin(), fCluster=pixelClusterCollection->end(); iCluster!=fCluster; ++iCluster ) {
       Identifier theId = (*iCluster)->identify();
@@ -737,7 +712,7 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
       HepMcParticleLink::ExtendedBarCode best_extcode;
       if( have_pixel_sdo && pixelSimDataMap ) {
         for( std::vector<Identifier>::const_iterator rdoIter = (*iCluster)->rdoList().begin();
-            rdoIter != (*iCluster)->rdoList().end(); rdoIter++ ) {
+             rdoIter != (*iCluster)->rdoList().end(); rdoIter++ ) {
           const InDetDD::SiDetectorElement* sielement = m_PIX_mgr->getDetectorElement(*rdoIter);
           assert( sielement);
           const InDetDD::SiLocalPosition rawPos = sielement->rawLocalPositionOfCell(*rdoIter);
@@ -780,36 +755,36 @@ FTK_SGHitInput::read_raw_silicon( HitIndexMap& hitIndexMap, HitIndexMap& pixelCl
       } // if we have pixel sdo's available
 
       if(m_dooutFileRawHits){
-        (*oflraw) << "P\t"
-                  << setw(14) << setprecision(10)
-                  << gPos.x() << '\t'
-                  << setw(14) << setprecision(10)
-                  << gPos.y() << '\t'
-                  << setw(14) << setprecision(10)
-                  << gPos.z() << '\t'
-                  << m_pixelId->barrel_ec(theId) << '\t'
-                  << m_pixelId->layer_disk(theId) << '\t'
-                  << m_pixelId->phi_module(theId) << '\t'
-                  << m_pixelId->eta_module(theId) << '\t'
-                  << m_pixelId->phi_index(theId) << '\t'
-                  << m_pixelId->eta_index(theId) << '\t'
-                  // Cluster width:
-                  << (*iCluster)->width().colRow().x() << '\t' // width in phi?
-                  << (*iCluster)->width().colRow().y() << '\t' // width in eta?
-                  << (*iCluster)->rdoList().size() << '\t' // number of pixels in cluster
-                  // Cluster truth
-                  << (long)(best_parent ? best_extcode.eventIndex() : -1) << '\t'
-                  << (long)(best_parent ? best_extcode.barcode() : -1) << '\t'
-                  << setprecision(5) << static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) << '\t' // particle pt in MeV
-                  << parent_mask.to_ulong()
-                  << endl;
+	(*oflraw) << "P\t"
+		  << setw(14) << setprecision(10)
+		  << gPos.x() << '\t'
+		  << setw(14) << setprecision(10)
+		  << gPos.y() << '\t'
+		  << setw(14) << setprecision(10)
+		  << gPos.z() << '\t'
+		  << m_pixelId->barrel_ec(theId) << '\t'
+		  << m_pixelId->layer_disk(theId) << '\t'
+		  << m_pixelId->phi_module(theId) << '\t'
+		  << m_pixelId->eta_module(theId) << '\t'
+		  << m_pixelId->phi_index(theId) << '\t'
+		  << m_pixelId->eta_index(theId) << '\t'
+	  // Cluster width:
+		  << (*iCluster)->width().colRow().x() << '\t' // width in phi?
+		  << (*iCluster)->width().colRow().y() << '\t' // width in eta?
+		  << (*iCluster)->rdoList().size() << '\t' // number of pixels in cluster
+	  // Cluster truth
+		  << (long)(best_parent ? best_extcode.eventIndex() : -1) << '\t'
+		  << (long)(best_parent ? best_extcode.barcode() : -1) << '\t'
+		  << setprecision(5) << static_cast<unsigned long>(std::ceil(best_parent ? best_parent->momentum().perp() : 0.)) << '\t' // particle pt in MeV
+		  << parent_mask.to_ulong()
+		  << endl;
       }
       pixelClusterIndexMap[theId] = pixelClusterIndex;
       pixelClusterIndex++;
     } // End loop over pixel clusters
   } // End loop over pixel cluster collection
 
-  // dump the statistics
+    // dump the statistics
   // cout << boost::format("truth parent stats: nch = %|6d| %|6d| %|6d| %|6d| %|6d| fmt = %|5g| fmtp = %|5g| fmtp1 = %|5g| fmb = %|5g|")
   //   % nchannels
   //   % nchannels_single_barcodes
@@ -863,7 +838,7 @@ FTK_SGHitInput::read_truth_tracks()
     if( m_storeGate->retrieve(SimTracks,key).isFailure() ) {
       key = "";
       if( m_storeGate->retrieve(SimTracks,key).isFailure() ) {
-        m_log << MSG::DEBUG << "could not find the McEventCollection"<< endmsg;
+        m_log << MSG::DEBUG << "could not find the McEventCollection"<< endreq;
         return;
       }
     }
@@ -881,92 +856,82 @@ FTK_SGHitInput::read_truth_tracks()
     // if it exists, use it for the primary vertex.
     if( genEvent->signal_process_vertex() ) {
       primaryVtx.set( genEvent->signal_process_vertex()->point3d().x(),
-          genEvent->signal_process_vertex()->point3d().y(),
-          genEvent->signal_process_vertex()->point3d().z() );
+                      genEvent->signal_process_vertex()->point3d().y(),
+                      genEvent->signal_process_vertex()->point3d().z() );
       m_log << MSG::DEBUG <<"using signal process vertex for eventIndex " << ievt << ":"
             << primaryVtx.x() << "\t" << primaryVtx.y()  << "\t" << primaryVtx.z()
-            <<endmsg;
+			     <<endreq;
     }
 
 
-    for( HepMC::GenEvent::particle_const_iterator it=genEvent->particles_begin(), ft=genEvent->particles_end(); it!=ft; ++it ) {
+     for( HepMC::GenEvent::particle_const_iterator it=genEvent->particles_begin(), ft=genEvent->particles_end(); it!=ft; ++it ) {
 
 
-      const HepMC::GenParticle* const particle( *it );
-      const int pdgcode = particle->pdg_id();
-      // reject generated particles without a production vertex.
-      if( !particle->production_vertex() ) { continue; }
-      // reject neutral or unstable particles
-      const HepPDT::ParticleData* pd = m_particleDataTable->particle(abs(pdgcode));
-      if( !pd ) { continue; }
-      //       const float charge = pd->charge();
-      ///       const float charge = (pdgcode > 0) ? -1. : +1.;
-      float charge = pd->charge();
-      if (pdgcode < 0) charge *= -1.; // since we took absolute value above
+       const HepMC::GenParticle* const particle( *it );
+       const int pdgcode = particle->pdg_id();
+       // reject generated particles without a production vertex.
+       if( !particle->production_vertex() ) { continue; }
+       // reject neutral or unstable particles
+       const HepPDT::ParticleData* pd = m_particleDataTable->particle(abs(pdgcode));
+       if( !pd ) { continue; }
+//       const float charge = pd->charge();
+///       const float charge = (pdgcode > 0) ? -1. : +1.;
+       float charge = pd->charge();
+       if (pdgcode < 0) charge *= -1.; // since we took absolute value above
 
-      if( std::abs(charge)<0.5 ) { continue; }
-      if( particle->status()%1000!=1 ) { continue; }
-      // retrieve some particle kinematics
-      //const float genPt = particle->momentum().perp()/1000.; // convert to pt in GeV.
-      //const float genEta = particle->momentum().pseudoRapidity();
-      // reject non-fiducial particles
-      //if( (genPt*1000.) < m_minPt ) { continue; } // controled by TrigFTKBankGen
+       if( std::abs(charge)<0.5 ) { continue; }
+       if( particle->status()%1000!=1 ) { continue; }
+       // retrieve some particle kinematics
+       //const float genPt = particle->momentum().perp()/1000.; // convert to pt in GeV.
+       //const float genEta = particle->momentum().pseudoRapidity();
+       // reject non-fiducial particles
+       //if( (genPt*1000.) < m_minPt ) { continue; } // controled by TrigFTKBankGen
 
-      //if( std::abs(genEta) > m_maxEta ) { continue; } controled by TrigFTKBankGen
+       //if( std::abs(genEta) > m_maxEta ) { continue; } controled by TrigFTKBankGen
 
-      // new truth-to-track tool
-      const Amg::Vector3D momentum( particle->momentum().px(), particle->momentum().py(), particle->momentum().pz());
-      const Amg::Vector3D position( particle->production_vertex()->position().x(), particle->production_vertex()->position().y(), particle->production_vertex()->position().z());
-      const Trk::CurvilinearParameters cParameters( position, momentum, charge);
+       // new truth-to-track tool
+       const Amg::Vector3D momentum( particle->momentum().px(), particle->momentum().py(), particle->momentum().pz());
+       const Amg::Vector3D position( particle->production_vertex()->position().x(), particle->production_vertex()->position().y(), particle->production_vertex()->position().z());
+       const Trk::CurvilinearParameters cParameters( position, momentum, charge);
+       Trk::PerigeeSurface persf( m_beamSpotSvc->beamPos() );
+       const Trk::TrackParameters* tP = m_extrapolator->extrapolate(cParameters, persf, Trk::anyDirection, false);
+       const double m_track_truth_d0 = tP ? tP->parameters()[Trk::d0] : 999.;
+       const double m_track_truth_phi = tP ? tP->parameters()[Trk::phi] : 999.;
+       const double m_track_truth_p = (tP && fabs(tP->parameters()[Trk::qOverP]) > 1.e-8) ?
+          tP->charge()/tP->parameters()[Trk::qOverP] : 10E7;
+       const double m_track_truth_x0 = tP ? tP->position().x() : 999.;
+       const double m_track_truth_y0 = tP ? tP->position().y() : 999.;
+       //const double m_track_truth_z0 = tP ? tP->position().z() : 999.;
+       const double m_track_truth_z0 = tP ? tP->parameters()[Trk::z0] : 999.;
+       const double m_track_truth_q = tP ? tP->charge() : 0.;
+       const double m_track_truth_sinphi = tP ? std::sin(tP->parameters()[Trk::phi]) : -1.;
+       const double m_track_truth_cosphi = tP ? std::cos(tP->parameters()[Trk::phi]) : -1.;
+       const double m_track_truth_sintheta = tP ? std::sin(tP->parameters()[Trk::theta]) : -1.;
+       const double m_track_truth_costheta = tP ? std::cos(tP->parameters()[Trk::theta]) : -1.;
+       double truth_d0corr = m_track_truth_d0-( primaryVtx.y()*cos(m_track_truth_phi)-primaryVtx.x()*sin(m_track_truth_phi) );
 
-      Trk::PerigeeSurface persf;
-      if (m_UseNominalOrigin) {
-	Amg::Vector3D    origin(0,0,0);
-	persf = Trk::PerigeeSurface(origin);
-      }
-      else {
-	persf = m_beamSpotSvc->beamPos();
-      }
-
-      const Trk::TrackParameters* tP = m_extrapolator->extrapolate(cParameters, persf, Trk::anyDirection, false);
-
-      const double m_track_truth_d0 = tP ? tP->parameters()[Trk::d0] : 999.;
-      const double m_track_truth_phi = tP ? tP->parameters()[Trk::phi] : 999.;
-      const double m_track_truth_p = (tP && fabs(tP->parameters()[Trk::qOverP]) > 1.e-8) ?
-        tP->charge()/tP->parameters()[Trk::qOverP] : 10E7;
-      const double m_track_truth_x0 = tP ? tP->position().x() : 999.;
-      const double m_track_truth_y0 = tP ? tP->position().y() : 999.;
-      //const double m_track_truth_z0 = tP ? tP->position().z() : 999.;
-      const double m_track_truth_z0 = tP ? tP->parameters()[Trk::z0] : 999.;
-      const double m_track_truth_q = tP ? tP->charge() : 0.;
-      const double m_track_truth_sinphi = tP ? std::sin(tP->parameters()[Trk::phi]) : -1.;
-      const double m_track_truth_cosphi = tP ? std::cos(tP->parameters()[Trk::phi]) : -1.;
-      const double m_track_truth_sintheta = tP ? std::sin(tP->parameters()[Trk::theta]) : -1.;
-      const double m_track_truth_costheta = tP ? std::cos(tP->parameters()[Trk::theta]) : -1.;
-      double truth_d0corr = m_track_truth_d0-( primaryVtx.y()*cos(m_track_truth_phi)-primaryVtx.x()*sin(m_track_truth_phi) );
-
-      // old truth-to-track tool: retrieve truth track parameters at perigee
-      // boost::scoped_ptr<const Trk::TrackParameters> generatedTrackPerigee( m_truthToTrack->makePerigeeParameters(particle) );
-      // const double m_track_truth_d0 = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::d0] : 999.;
-      // const double m_track_truth_phi = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::phi0] : 999.;
-      // const double m_track_truth_p = (generatedTrackPerigee && generatedTrackPerigee->parameters()[Trk::qOverP] != 0.) ?
-      //   generatedTrackPerigee->charge()/generatedTrackPerigee->parameters()[Trk::qOverP] : 10E7;
-      // const double m_track_truth_x0 = generatedTrackPerigee ? generatedTrackPerigee->position().x() : 999.;
-      // const double m_track_truth_y0 = generatedTrackPerigee ? generatedTrackPerigee->position().y() : 999.;
-      // const double m_track_truth_z0 = generatedTrackPerigee ? generatedTrackPerigee->position().z() : 999.;
-      // const double m_track_truth_q = generatedTrackPerigee ? generatedTrackPerigee->charge() : 0.;
-      // const double m_track_truth_sinphi = generatedTrackPerigee ? std::sin(generatedTrackPerigee->parameters()[Trk::phi0]) : -1.;
-      // const double m_track_truth_cosphi = generatedTrackPerigee ? std::cos(generatedTrackPerigee->parameters()[Trk::phi0]) : -1.;
-      // const double m_track_truth_sintheta = generatedTrackPerigee ? std::sin(generatedTrackPerigee->parameters()[Trk::theta]) : -1.;
-      // const double m_track_truth_costheta = generatedTrackPerigee ? std::cos(generatedTrackPerigee->parameters()[Trk::theta]) : -1.;
-      // double truth_d0corr = m_track_truth_d0-( primaryVtx.y()*cos(m_track_truth_phi)-primaryVtx.x()*sin(m_track_truth_phi) );
-      double truth_zvertex = 0.;
+       // old truth-to-track tool: retrieve truth track parameters at perigee
+       // boost::scoped_ptr<const Trk::TrackParameters> generatedTrackPerigee( m_truthToTrack->makePerigeeParameters(particle) );
+       // const double m_track_truth_d0 = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::d0] : 999.;
+       // const double m_track_truth_phi = generatedTrackPerigee ? generatedTrackPerigee->parameters()[Trk::phi0] : 999.;
+       // const double m_track_truth_p = (generatedTrackPerigee && generatedTrackPerigee->parameters()[Trk::qOverP] != 0.) ?
+       //   generatedTrackPerigee->charge()/generatedTrackPerigee->parameters()[Trk::qOverP] : 10E7;
+       // const double m_track_truth_x0 = generatedTrackPerigee ? generatedTrackPerigee->position().x() : 999.;
+       // const double m_track_truth_y0 = generatedTrackPerigee ? generatedTrackPerigee->position().y() : 999.;
+       // const double m_track_truth_z0 = generatedTrackPerigee ? generatedTrackPerigee->position().z() : 999.;
+       // const double m_track_truth_q = generatedTrackPerigee ? generatedTrackPerigee->charge() : 0.;
+       // const double m_track_truth_sinphi = generatedTrackPerigee ? std::sin(generatedTrackPerigee->parameters()[Trk::phi0]) : -1.;
+       // const double m_track_truth_cosphi = generatedTrackPerigee ? std::cos(generatedTrackPerigee->parameters()[Trk::phi0]) : -1.;
+       // const double m_track_truth_sintheta = generatedTrackPerigee ? std::sin(generatedTrackPerigee->parameters()[Trk::theta]) : -1.;
+       // const double m_track_truth_costheta = generatedTrackPerigee ? std::cos(generatedTrackPerigee->parameters()[Trk::theta]) : -1.;
+       // double truth_d0corr = m_track_truth_d0-( primaryVtx.y()*cos(m_track_truth_phi)-primaryVtx.x()*sin(m_track_truth_phi) );
+       double truth_zvertex = 0.;
 
       if ( !m_useSimpleCuts ) {  // determine d0_corr based on beam position from BeamCondSvc
-        //toshi/// truth_d0corr = m_track_truth_d0-( m_beamCondSvc->beamPos().y()*cos(m_track_truth_phi)-m_beamCondSvc->beamPos().x()*sin(m_track_truth_phi) );
+	//toshi/// truth_d0corr = m_track_truth_d0-( m_beamCondSvc->beamPos().y()*cos(m_track_truth_phi)-m_beamCondSvc->beamPos().x()*sin(m_track_truth_phi) );
         //toshi//truth_zvertex = m_beamCondSvc->beamPos().z();
         if ( showd0corrSuccess ) {
-          m_log << MSG::DEBUG << "Beamspot from BeamCondSvc used to determine cuts in dump_truth()"<< endmsg;
+	  m_log << MSG::DEBUG << "Beamspot from BeamCondSvc used to determine cuts in dump_truth()"<< endreq;
           showd0corrSuccess = false;
         }
       }
@@ -978,13 +943,13 @@ FTK_SGHitInput::read_truth_tracks()
       if( particle->barcode()>100000 || particle->barcode()==0 ) { isPrimary=false;}
       isDetPaperCut=isPrimary;
       // debug line for production_vertex variable
-      if( false ) { m_log << MSG::DEBUG << "z correction -- bool particle->production_vertex() = " << particle->production_vertex()<< endmsg; }
+      if( false ) { m_log << MSG::DEBUG << "z correction -- bool particle->production_vertex() = " << particle->production_vertex()<< endreq; }
       //
       if( isPrimary && particle->production_vertex() ) {
         const HepGeom::Point3D<double> startVertex(particle->production_vertex()->point3d().x(), particle->production_vertex()->point3d().y(), particle->production_vertex()->point3d().z());
         if( std::abs(startVertex.z() - truth_zvertex)>100. ) { isPrimary=false;}
         // debug z vertex correction
-        if( false ) { m_log << MSG::DEBUG << "z correction -- startVertex.z() = " << startVertex.z() << " , truth_zvertex = "<< truth_zvertex<< endmsg; }
+        if( false ) { m_log << MSG::DEBUG << "z correction -- startVertex.z() = " << startVertex.z() << " , truth_zvertex = "<< truth_zvertex<< endreq; }
         //double flight_length = -1.;
         if( particle->end_vertex() ) {
           HepGeom::Point3D<double> endVertex(particle->end_vertex()->point3d().x(), particle->end_vertex()->point3d().y(), particle->end_vertex()->point3d().z());
@@ -1002,37 +967,37 @@ FTK_SGHitInput::read_truth_tracks()
       /*if( !_ttrProbMap.empty() ) {
         TruthToRecoProbMap::const_iterator barcode=_ttrProbMap.find(extBarcode2);
         if( barcode!=_ttrProbMap.end() ) {
-        vector<float> probs;
-        transform( _ttrProbMap.lower_bound(extBarcode2) , _ttrProbMap.upper_bound(extBarcode2) , back_inserter(probs) ,
-        boost::bind(&TruthToRecoProbMap::value_type::second,_1) );
-        vector<float>::const_iterator imax = max_element(probs.begin(),probs.end());
-        assert( imax!=probs.end() );
-        precmatch = *imax;
-        TruthToRecoTrackMap::const_iterator ibestrec = _ttrTrackMap.find( extBarcode2 );
-        assert( ibestrec!=_ttrTrackMap.end() );
-        irecmatch = ibestrec->second;
+          vector<float> probs;
+          transform( _ttrProbMap.lower_bound(extBarcode2) , _ttrProbMap.upper_bound(extBarcode2) , back_inserter(probs) ,
+                     boost::bind(&TruthToRecoProbMap::value_type::second,_1) );
+          vector<float>::const_iterator imax = max_element(probs.begin(),probs.end());
+          assert( imax!=probs.end() );
+          precmatch = *imax;
+          TruthToRecoTrackMap::const_iterator ibestrec = _ttrTrackMap.find( extBarcode2 );
+          assert( ibestrec!=_ttrTrackMap.end() );
+          irecmatch = ibestrec->second;
         }
-        }*///toshi  comment out
+	}*///toshi  comment out
       ParentBitmask parent_mask( construct_truth_bitmap( particle ) );
       if(m_dooutFileRawHits){
-        (*oflraw) << setiosflags(ios::scientific) << "T\t"
-                  << setw(14) << setprecision(10) << m_track_truth_x0 << '\t'
-                  << setw(14) << setprecision(10) << m_track_truth_y0 << '\t'
-                  << setw(14) << setprecision(10) << m_track_truth_z0 << '\t'
+	(*oflraw) << setiosflags(ios::scientific) << "T\t"
+		  << setw(14) << setprecision(10) << m_track_truth_x0 << '\t'
+		  << setw(14) << setprecision(10) << m_track_truth_y0 << '\t'
+		  << setw(14) << setprecision(10) << m_track_truth_z0 << '\t'
                   << setw(14) << setprecision(10) << m_track_truth_d0 << '\t'
-                  << setw(14) << setprecision(10) << primaryVtx.z() << '\t'
-                  << (int)m_track_truth_q << '\t'
-                  << setw(14) << setprecision(10) << m_track_truth_p*(m_track_truth_cosphi*m_track_truth_sintheta) << '\t'
-                  << setw(14) << setprecision(10) << m_track_truth_p*(m_track_truth_sinphi*m_track_truth_sintheta) << '\t'
-                  << setw(14) << setprecision(10) << m_track_truth_p*(m_track_truth_costheta) << '\t'
-                  << pdgcode << '\t'
-                  << setw(14) << (int)irecmatch << '\t'
-                  << setw(14) << setprecision(10) << precmatch << '\t'
-                  << extBarcode2.eventIndex() << '\t'
-                  << extBarcode2.barcode() << '\t'
-                  << parent_mask.to_ulong() << '\t'
-                  << isDetPaperCut << '\t'
-                  << resetiosflags(ios::scientific) << '\n';
+		  << setw(14) << setprecision(10) << primaryVtx.z() << '\t'
+		  << (int)m_track_truth_q << '\t'
+		  << setw(14) << setprecision(10) << m_track_truth_p*(m_track_truth_cosphi*m_track_truth_sintheta) << '\t'
+		  << setw(14) << setprecision(10) << m_track_truth_p*(m_track_truth_sinphi*m_track_truth_sintheta) << '\t'
+		  << setw(14) << setprecision(10) << m_track_truth_p*(m_track_truth_costheta) << '\t'
+		  << pdgcode << '\t'
+		  << setw(14) << (int)irecmatch << '\t'
+		  << setw(14) << setprecision(10) << precmatch << '\t'
+		  << extBarcode2.eventIndex() << '\t'
+		  << extBarcode2.barcode() << '\t'
+		  << parent_mask.to_ulong() << '\t'
+		  << isDetPaperCut << '\t'
+		  << resetiosflags(ios::scientific) << '\n';
       }
       //get truth track info
 

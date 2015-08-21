@@ -30,8 +30,7 @@ FTKPatternRootTreeReader::FTKPatternRootTreeReader
 (int sector,const char *name)  : FTKLogging(name) {
    fPatternNumber=0;
    fNumReads=0;
-   fTTreePtr=0;
-   fLastReadDir=0;
+   fTTree=0;
    fSector=sector;
    fTreeName=ConstructTreeName(sector);
    fPattern=0;
@@ -39,20 +38,18 @@ FTKPatternRootTreeReader::FTKPatternRootTreeReader
 }
 
 FTKPatternRootTreeReader::~FTKPatternRootTreeReader() {
-   if(fTTreePtr) delete fTTreePtr;
+   if(fTTree) delete fTTree;
    if(fPattern) delete fPattern;
 }
 
 bool FTKPatternRootTreeReader::LoadTree(TDirectory *dir) {
    bool r=false;
    TTree * tree=0;
-   if(!dir) dir=fLastReadDir;
-   fLastReadDir=dir;
    dir->GetObject(fTreeName,tree);
    if(tree) {
-      if(tree!=fTTreePtr) {
-         if(fTTreePtr) delete fTTreePtr;
-         fTTreePtr=0;
+      if(tree!=fTTree) {
+         if(fTTree) delete fTTree;
+         fTTree=0;
          TLeaf *leaf=tree->GetLeaf("pattern","pattern");
          int nLayer=0;
          if(leaf) {
@@ -91,18 +88,17 @@ bool FTKPatternRootTreeReader::LoadTree(TDirectory *dir) {
                   <<"tree \""<<fTreeName<<"\" does not have branches "
                   <<"pattern[NLAYER]/I and coverage/I\n";
             } else {
-               fTTreePtr=tree;
-               fTTreePtr->SetBranchStatus("pattern",fDoReadPattern);
-               fLastNumPatterns=fTTreePtr->GetEntries();
+               fTTree=tree;
+               fTTree->SetBranchStatus("pattern",fDoReadPattern);
             }
          }
-         r=(fTTreePtr !=0);
+         r=(fTTree !=0);
       } else {
          r=true;
       }
    } else {
-      if(fTTreePtr) delete fTTreePtr;
-      fTTreePtr=0;
+      if(fTTree) delete fTTree;
+      fTTree=0;
       Warning("LoadTree")<<"object \""<<fTreeName<<"\" is not a TTree\n";
    }
    return r;
@@ -110,8 +106,8 @@ bool FTKPatternRootTreeReader::LoadTree(TDirectory *dir) {
 
 void FTKPatternRootTreeReader::ReadCoverageOnly(bool noPatternRead) {
    fDoReadPattern= !noPatternRead;
-   if(fTTreePtr) {
-      fTTreePtr->SetBranchStatus("pattern",fDoReadPattern);
+   if(fTTree) {
+      fTTree->SetBranchStatus("pattern",fDoReadPattern);
    }
 }
 
@@ -127,20 +123,16 @@ bool FTKPatternRootTreeReader::CreateTree(TDirectory *dir,int nLayer) {
       fPattern=new FTKPatternWithCoverage(nLayer);
    }
    dir->cd();
-   if(fTTreePtr) {
-      Error("CreateTree")<<"TTree already existing\n";
-      delete fTTreePtr;
-   }
-   fTTreePtr=new TTree(fTreeName,fTreeName);
+   fTTree=new TTree(fTreeName,fTreeName);
    fDoReadPattern=true;
-   if(fTTreePtr) {
+   if(fTTree) {
       // create branches
-      fTTreePtr->Branch("pattern",fPattern->GetHitPattern().GetAddress(),
+      fTTree->Branch("pattern",fPattern->GetHitPattern().GetAddress(),
                      TString::Format("pattern[%d]/I",nLayer),32768);
-      fTTreePtr->Branch("coverage",fPattern->GetCoverageAddress(),
+      fTTree->Branch("coverage",fPattern->GetCoverageAddress(),
                      "coverage/I",4096);
    }
-   return fTTreePtr!=0;
+   return fTTree!=0;
 }
 
 TString FTKPatternRootTreeReader::ConstructTreeName(int sector) {
@@ -157,32 +149,6 @@ int FTKPatternRootTreeReader::ExtractSectorNumber(char const* treeName) {
       }
    }
    return r;
-}
-
-void FTKPatternRootTreeReader::Suspend(void) {
-   if(fTTreePtr) delete fTTreePtr;
-   fTTreePtr=0;
-}
-
-void FTKPatternRootTreeReader::Rewind(void) {
-   Suspend();
-   SeekBeg(0);
-}
-
-Long64_t FTKPatternRootTreeReader::SeekBeg(Long64_t position) {
-   if(position>=0) {
-      if(position>0) {
-         Long64_t n=GetNPatterns();
-         if(position>n) position=n;
-      }
-      fPatternNumber=position;
-   }
-   return fPatternNumber;
-}
-
-bool FTKPatternRootTreeReader::HasMorePatterns(void) const {
-   // check whether there are more patterns
-   return fPatternNumber<GetNPatterns();
 }
 
 //================== class FTKPatternRootChainReader =================
@@ -207,17 +173,17 @@ bool FTKPatternRootChainReader::ReadNextPattern(void) {
       if(fPatternNumber<fNumEntriesSummed[iFile]) break;
    }
    int fileMin=iFile ? fNumEntriesSummed[iFile-1] : 0;
-   if((fCurrentFile!=iFile)|| !fTTreePtr) {
-      if(fTTreePtr) delete fTTreePtr;
-      fTTreePtr=0;
+   if((fCurrentFile!=iFile)|| !fTTree) {
+      if(fTTree) delete fTTree;
+      fTTree=0;
       fCurrentFile=iFile;
       fChain.Open(fFileNames[fCurrentFile]);
       LoadTree(fChain.GetDirectory());
    }
    // read pattern
    bool r=false;
-   if(fTTreePtr) {
-      r=fTTreePtr->GetEntry(fPatternNumber-fileMin);
+   if(fTTree) {
+      r=fTTree->GetEntry(fPatternNumber-fileMin);
       fPatternNumber++;
    }
    if(r) fNumReads++;
@@ -250,15 +216,15 @@ FTKPatternRootTree::~FTKPatternRootTree() {
     // if(fMustSave && fTTree) {
     //    fTTree->AutoSave("SaveSelf"); //needed?
     // }
-    if(fMustSave && fTTreePtr) {
+    if(fMustSave && fTTree) {
        //cout<<"nentries: "<<fTTree->GetEntries()<<", name="<<fTTree->GetName()<<endl;
-       fTTreePtr->Write(0,TObject::kOverwrite);
+       fTTree->Write(0,TObject::kOverwrite);
     }
 }
 
 
 Long64_t FTKPatternRootTree::GetNPatterns(void) const {
-   return fLastNumPatterns;
+   return fTTree->GetEntries();
 }
 
 bool FTKPatternRootTree::WritePattern(FTKPatternWithCoverage const &pattern) {
@@ -278,7 +244,7 @@ bool FTKPatternRootTree::WritePattern(FTKPatternWithCoverage const &pattern) {
           <<" isrss="<<r0.ru_isrss
           <<" fTTree->Fill()\n";
    }
-   bool r=fTTreePtr->Fill();
+   bool r=fTTree->Fill();
    if(debug) {
       getrusage(RUSAGE_SELF,&r1);
       std::cout<<"  .... r="<<r
@@ -310,7 +276,7 @@ bool FTKPatternRootTree::WritePattern(FTKHitPattern const &hits,int coverage) {
           <<" isrss="<<r0.ru_isrss
           <<" fTTree->Fill()\n";
    }
-   bool r=fTTreePtr->Fill();
+   bool r=fTTree->Fill();
    if(debug) {
       std::cout<<"  .... r="<<r
           <<" maxrss +"<<r1.ru_maxrss-r0.ru_maxrss
@@ -328,8 +294,7 @@ bool FTKPatternRootTree::ReadNextPattern() {
    // read one pattern
    bool r=false;
    if(HasMorePatterns()) {
-      if(!fTTreePtr) LoadTree(0);
-      r=fTTreePtr->GetEntry(fPatternNumber);
+      r=fTTree->GetEntry(fPatternNumber);
       fPatternNumber++;
    }
    if(r) fNumReads++;
