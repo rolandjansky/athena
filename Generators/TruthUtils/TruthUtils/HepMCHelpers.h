@@ -72,8 +72,12 @@ namespace MC {
     if (apid == 12 || apid == 14 || apid == 16) return true;
     /// @todo Use MCUtils functions to make this more general, e.g. isStronglyInteracting || isEMInteracting (need to write these fns)
     if (p->status() % 1000 == 1) { //< Isn't this implied by isGenStable?
-      if (apid == 1000022 || apid == 1000024 || apid == 5100022) return true;
+      //      if (apid == 1000022 || apid == 1000024 || apid == 5100022) return true;
+      // remove chargino from list of nonIntercating for rel. 19, s not used in truth jet building
+      if (apid == 1000022 || apid == 5100022) return true;
       if (apid == 39 || apid == 1000039 || apid == 5000039) return true;
+      if (apid == 3000015) return true;
+      if (apid == 9000001 || apid == 9000002 || apid == 9000003 || apid == 9000004 || apid == 9000005 || apid == 9000006) return true;// exotic particles from monotop model - see ATLASSIM-2142
     }
     return false;
   }
