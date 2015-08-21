@@ -189,36 +189,39 @@ if l1caloRawMon:
         ToolSvc += L1CMMMonTool
         L1CaloMan.AthenaMonTools += [ L1CMMMonTool ]
     
-        if isData:
+        
+        # (amazurov): Disable JEPSimBSMon for RUN2 since we could not currently
+        # support it due to RUN2 changes. We can enable it later.
+        # if isData:
     
-            #--------------------- Transmission and Performance ------------------------------
-            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__JEPSimBSMon
-            JEPSimBSMonTool = LVL1__JEPSimBSMon("JEPSimBSMonTool",
-                JEPHitsTool = "LVL1::L1JEPHitsTools/L1JEPHitsTools_Mon",
-                JetTool = "LVL1::L1JetTools/L1JetTools_Mon",
-                JEPEtSumsTool = "LVL1::L1JEPEtSumsTools/L1JEPEtSumsTools_Mon",
-                )
-            ToolSvc += JEPSimBSMonTool
-            L1CaloMan.AthenaMonTools += [ JEPSimBSMonTool ]
-            #ToolSvc.JEPSimBSMonTool.OutputLevel = DEBUG
+        #     #--------------------- Transmission and Performance ------------------------------
+        #     from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__JEPSimBSMon
+        #     JEPSimBSMonTool = LVL1__JEPSimBSMon("JEPSimBSMonTool",
+        #         JEPHitsTool = "LVL1::L1JEPHitsTools/L1JEPHitsTools_Mon",
+        #         JetTool = "LVL1::L1JetTools/L1JetTools_Mon",
+        #         JEPEtSumsTool = "LVL1::L1JEPEtSumsTools/L1JEPEtSumsTools_Mon",
+        #         )
+        #     ToolSvc += JEPSimBSMonTool
+        #     L1CaloMan.AthenaMonTools += [ JEPSimBSMonTool ]
+        #     #ToolSvc.JEPSimBSMonTool.OutputLevel = DEBUG
     
-            from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1JEPHitsTools
-            L1JEPHitsTools = LVL1__L1JEPHitsTools("L1JEPHitsTools_Mon")
-            L1JEPHitsTools.LVL1ConfigSvc = triggerConfigService
-            ToolSvc += L1JEPHitsTools
-            from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1JetTools
-            L1JetTools = LVL1__L1JetTools("L1JetTools_Mon")
-            L1JetTools.LVL1ConfigSvc = triggerConfigService
-            ToolSvc += L1JetTools
-            from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1EtTools
-            L1EtTools = LVL1__L1EtTools("L1EtTools_Mon")
-            L1EtTools.LVL1ConfigSvc = triggerConfigService
-            ToolSvc += L1EtTools
-            from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1JEPEtSumsTools
-            L1JEPEtSumsTools = LVL1__L1JEPEtSumsTools("L1JEPEtSumsTools_Mon",
-                                                EtTool = "LVL1::L1EtTools/L1EtTools_Mon")
-            L1JEPEtSumsTools.LVL1ConfigSvc = triggerConfigService
-            ToolSvc += L1JEPEtSumsTools
+        #     from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1JEPHitsTools
+        #     L1JEPHitsTools = LVL1__L1JEPHitsTools("L1JEPHitsTools_Mon")
+        #     L1JEPHitsTools.LVL1ConfigSvc = triggerConfigService
+        #     ToolSvc += L1JEPHitsTools
+        #     from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1JetTools
+        #     L1JetTools = LVL1__L1JetTools("L1JetTools_Mon")
+        #     L1JetTools.LVL1ConfigSvc = triggerConfigService
+        #     ToolSvc += L1JetTools
+        #     from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1EtTools
+        #     L1EtTools = LVL1__L1EtTools("L1EtTools_Mon")
+        #     L1EtTools.LVL1ConfigSvc = triggerConfigService
+        #     ToolSvc += L1EtTools
+        #     from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1JEPEtSumsTools
+        #     L1JEPEtSumsTools = LVL1__L1JEPEtSumsTools("L1JEPEtSumsTools_Mon",
+        #                                         EtTool = "LVL1::L1EtTools/L1EtTools_Mon")
+        #     L1JEPEtSumsTools.LVL1ConfigSvc = triggerConfigService
+        #     ToolSvc += L1JEPEtSumsTools
     
         #=================================================================================
         #===================================== CP ========================================

@@ -32,7 +32,6 @@ class TH2F_LW;
 class TH2I_LW;
 class StatusCode;
 
-
 // ============================================================================
 namespace LVL1 {
 // ============================================================================
@@ -40,11 +39,6 @@ namespace LVL1 {
 // ============================================================================
   class ITrigT1CaloMonErrorTool;
   class TrigT1CaloLWHistogramTool;
-  class TriggerTower;
-  // class CPMTower;
-  // class CMXCPTob;
-  // class CMXCPHits;
-  class CPMTobRoI;
 // ============================================================================
 /** Monitoring of the Cluster Processor.
  *
@@ -186,7 +180,7 @@ private:
   // typedef DataVector<LVL1::CPMTower>     CpmTowerCollection;
   // typedef DataVector<LVL1::CMXCPTob>     CmxCpTobCollection;
   // typedef DataVector<LVL1::CMXCPHits>    CmxCpHitsCollection;
-  typedef DataVector<LVL1::CPMTobRoI>    CpmTobRoiCollection;
+  // typedef DataVector<LVL1::CPMTobRoI>    CpmTobRoiCollection;
 
   //typedef std::map<unsigned int, LVL1::TriggerTower*> TriggerTowerMap;
   typedef std::map<const unsigned int, const xAOD::TriggerTower*> TriggerTowerMap;

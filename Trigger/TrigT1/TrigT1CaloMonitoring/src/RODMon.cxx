@@ -26,7 +26,7 @@
 
 #include "AthenaMonitoring/AthenaMonManager.h"
 
-#include "TrigT1CaloEvent/RODHeader.h"
+#include "xAODTrigL1Calo/RODHeaderContainer.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
@@ -531,8 +531,8 @@ StatusCode RODMon::fillHistograms()
   if ( !corrupt ) {
 
     //Retrieve DAQ ROD Headers from SG
-    const RodHeaderCollection* rodTES = 0;
-    if (evtStore()->contains<RodHeaderCollection>(m_rodHeaderLocation)) {
+    const xAOD::RODHeaderContainer* rodTES = 0;
+    if (evtStore()->contains<xAOD::RODHeaderContainer>(m_rodHeaderLocation)) {
       sc = evtStore()->retrieve(rodTES, m_rodHeaderLocation);
     } else sc = StatusCode::FAILURE;
     if ( sc.isFailure()  ||  !rodTES ) {
@@ -541,8 +541,8 @@ StatusCode RODMon::fillHistograms()
     }
 
     //Retrieve CP RoIB ROD Headers from SG
-    const RodHeaderCollection* cpRoibTES = 0;
-    if (evtStore()->contains<RodHeaderCollection>(m_cpRoibRodHeaderLocation)) {
+    const xAOD::RODHeaderContainer* cpRoibTES = 0;
+    if (evtStore()->contains<xAOD::RODHeaderContainer>(m_cpRoibRodHeaderLocation)) {
       sc = evtStore()->retrieve(cpRoibTES, m_cpRoibRodHeaderLocation);
     } else sc = StatusCode::FAILURE;
     if ( sc.isFailure()  ||  !cpRoibTES ) {
@@ -551,8 +551,8 @@ StatusCode RODMon::fillHistograms()
     }
 
     //Retrieve JEP RoIB ROD Headers from SG
-    const RodHeaderCollection* jepRoibTES = 0;
-    if (evtStore()->contains<RodHeaderCollection>(m_jepRoibRodHeaderLocation)) {
+    const xAOD::RODHeaderContainer* jepRoibTES = 0;
+    if (evtStore()->contains<xAOD::RODHeaderContainer>(m_jepRoibRodHeaderLocation)) {
       sc = evtStore()->retrieve(jepRoibTES, m_jepRoibRodHeaderLocation);
     } else sc = StatusCode::FAILURE;
     if ( sc.isFailure()  ||  !jepRoibTES ) {
@@ -566,19 +566,19 @@ StatusCode RODMon::fillHistograms()
 
     std::vector<int> noFragmentFlags(80, 1);
     std::vector<int> noPayloadFlags(56, 1);
-    std::vector<const RodHeaderCollection*> cols;
+    std::vector<const xAOD::RODHeaderContainer*> cols;
     if (rodTES)     cols.push_back(rodTES);
     if (cpRoibTES)  cols.push_back(cpRoibTES);
     if (jepRoibTES) cols.push_back(jepRoibTES);
-    std::vector<const RodHeaderCollection*>::const_iterator colIter =
+    std::vector<const xAOD::RODHeaderContainer*>::const_iterator colIter =
       cols.begin();
-    std::vector<const RodHeaderCollection*>::const_iterator colIterEnd =
+    std::vector<const xAOD::RODHeaderContainer*>::const_iterator colIterEnd =
       cols.end();
     for (; colIter != colIterEnd; ++colIter) {
-      RodHeaderCollection::const_iterator iter    = (*colIter)->begin();
-      RodHeaderCollection::const_iterator iterEnd = (*colIter)->end();
+      xAOD::RODHeaderContainer::const_iterator iter    = (*colIter)->begin();
+      xAOD::RODHeaderContainer::const_iterator iterEnd = (*colIter)->end();
       for (; iter != iterEnd; ++iter) {
-        const LVL1::RODHeader* header = *iter;
+        const xAOD::RODHeader* header = *iter;
         const int crate = header->crate();
         const int slink = header->sLink();
         const int dataType = header->dataType();

@@ -177,7 +177,6 @@ private:
 		    NumberOfStatusBins, NoPayload = LimitedRoI,
 		    ROBStatusError = NumberOfStatusBins, UnpackingError };
 
-  typedef DataVector<LVL1::RODHeader> RodHeaderCollection;
   typedef std::vector<unsigned int>   ROBErrorCollection;
   typedef std::vector<int>            ErrorVector;
   

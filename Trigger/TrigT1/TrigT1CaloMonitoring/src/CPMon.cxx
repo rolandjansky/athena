@@ -35,8 +35,6 @@
 // ============================================================================
 // L1 objects
 // ============================================================================
-#include "TrigT1CaloEvent/CPMTobRoI.h"
-#include "TrigT1CaloEvent/TriggerTower.h"
 #include "TrigT1CaloUtils/CoordToHardware.h"
 #include "TrigT1CaloUtils/DataError.h"
 #include "TrigT1CaloUtils/TriggerTowerKey.h"
@@ -50,6 +48,7 @@
 #include "xAODTrigL1Calo/CPMTowerContainer.h"
 #include "xAODTrigL1Calo/CMXCPTobContainer.h"
 #include "xAODTrigL1Calo/CMXCPHitsContainer.h"
+#include "xAODTrigL1Calo/CPMTobRoIContainer.h"
 // ============================================================================
 
 
@@ -545,7 +544,7 @@ StatusCode CPMon::fillHistograms()
   }
 
   //Retrieve CPM TOB RoIs from SG
-  const CpmTobRoiCollection* cpmTobRoiTES = 0;
+  const xAOD::CPMTobRoIContainer* cpmTobRoiTES = 0;
   sc = evtStore()->retrieve( cpmTobRoiTES, m_cpmTobRoiLocation);
   if ( sc.isFailure()  ||  !cpmTobRoiTES ) {
     msg(MSG::DEBUG) << "No CPM TOB RoIs container found" << endreq;
@@ -656,7 +655,7 @@ StatusCode CPMon::fillHistograms()
           m_histTool->fillCPMEtaVsPhi(m_h_cpm_had_2d_etaPhi_tt_EtWeighted, eta, phi, had);
         }
         // Errors
-        uint8_t error = ct->emError();
+        uint32_t error = ct->emError();
         if (error) {
           const LVL1::DataError emError(error);
           if (emError.get(LVL1::DataError::Parity)) {
@@ -771,8 +770,8 @@ StatusCode CPMon::fillHistograms()
   std::vector<int> tobCount(vecSize);
   if (cpmTobRoiTES) {
     LVL1::CPRoIDecoder decoder;                                             //<<== Will change
-    CpmTobRoiCollection::const_iterator crIterator    = cpmTobRoiTES->begin();
-    CpmTobRoiCollection::const_iterator crIteratorEnd = cpmTobRoiTES->end();
+    xAOD::CPMTobRoIContainer::const_iterator crIterator    = cpmTobRoiTES->begin();
+    xAOD::CPMTobRoIContainer::const_iterator crIteratorEnd = cpmTobRoiTES->end();
     for (; crIterator != crIteratorEnd; ++crIterator) {
       const int type      = (*crIterator)->type();  // 0=EM, 1=Tau
       const int energy    = (*crIterator)->energy();
@@ -838,7 +837,7 @@ StatusCode CPMon::fillHistograms()
       const uint8_t location  = (*crIterator)->location();// 2 bits
       const uint8_t energy    = (*crIterator)->energy();
       const uint8_t isolation = (*crIterator)->isolation();
-      const uint8_t error     = (*crIterator)->error();
+      const uint32_t error     = (*crIterator)->error();
       const uint8_t x = crate * s_modules + cpm - 1;
       const uint8_t y = chip * 4 + location;
       if (energy) {
@@ -927,8 +926,8 @@ StatusCode CPMon::fillHistograms()
     xAOD::CMXCPHitsContainer::const_iterator cmIterator    = cmxCpHitsTES->begin();
     xAOD::CMXCPHitsContainer::const_iterator cmIteratorEnd = cmxCpHitsTES->end();
     for (; cmIterator != cmIteratorEnd; ++cmIterator) {
-      const uint8_t hits0 = (*cmIterator)->hits0();
-      const uint8_t hits1 = (*cmIterator)->hits1();
+      const uint32_t hits0 = (*cmIterator)->hits0();
+      const uint32_t hits1 = (*cmIterator)->hits1();
       const uint8_t crate  = (*cmIterator)->crate();
       const uint8_t cmx    = (*cmIterator)->cmx();
       const uint8_t source = (*cmIterator)->sourceComponent();
