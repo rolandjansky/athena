@@ -46,8 +46,7 @@ class EFMissingETFromJets : public EFMissingETBaseTool
 			       const xAOD::JetContainer *jets); 
 
   private:
-    float m_etacut;
-    float m_forward_ptcut, m_central_ptcut;
+    //bool m_saveuncalibrated;
     int  m_methelperposition;
 
 };

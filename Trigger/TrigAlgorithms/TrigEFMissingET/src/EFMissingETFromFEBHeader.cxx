@@ -618,8 +618,7 @@ StatusCode EFMissingETFromFEBHeader::addFullTileFebEnergyToHelper(TrigEFMissingE
   // Get the Tile part of the Calo info
   TileL2Container::const_iterator draw_it, draw_it_beg, draw_it_end;
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << MSG::DEBUG << "Tile part" << endreq;
-  StatusCode sc = m_data->LoadFullCollections(draw_it_beg, draw_it_end );
-  if (sc.isFailure()) return sc;
+  (m_data->LoadFullCollections(draw_it_beg, draw_it_end )).isFailure();
   draw_it = draw_it_beg;
   for(;draw_it!=draw_it_end;++draw_it){
     int targetComponent = 12; int sumComponent = 5;
