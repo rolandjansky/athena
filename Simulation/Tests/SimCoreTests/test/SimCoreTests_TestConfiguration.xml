@@ -5,13 +5,13 @@
     <mailto>atlas-simulation-testreports@cern.ch</mailto>
 
     <!--
-        don't forget to check the xml file with
-        python /afs/cern.ch/user/r/rtt/public/validateXML.py SimCoreTests_TestConfiguration.xml
+       don't forget to check the xml file with
+       python /afs/cern.ch/user/r/rtt/public/validateXML.py SimCoreTests_TestConfiguration.xml
 
-and to update the twiki page:
-https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
+       and to update the twiki page:
+       https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
-    -->
+      -->
 
     <jobList>
 
@@ -22,39 +22,40 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
       </classification>
 
       <chain>
-        <chainName>RegressionTest_AtlasGeom19Sim</chainName>
+        <chainName>RegressionTest_Atlas2012GeomSim</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
-            <jobTransform userJobId="AtlasGeom19Sim">
+            <jobTransform userJobId="Atlas2012GeomSim">
               <doc>Reading gen events, single particle</doc>
               <jobTransformJobName>AtlasGeom19</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/mu_E200_eta0-25.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-19-01-00_VALIDATION' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/mu_E200_eta0-25.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R1-2012-03-00-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '212272' --physicsList 'FTFP_BERT' --postInclude 'PyJobTransforms/UseFrontier.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
               <test position="1">
                 <modulename>RttLibraryTools</modulename>
                 <testname>DiffPoolFilesRunner</testname>
-                <testidentifier>AtlasGeom19Sim_HITSFileDiff</testidentifier>
+                <testidentifier>Atlas2012GeomSim_HITSFileDiff</testidentifier>
                 <arg>
                   <argname>fileName</argname>
                   <argvalue>test.HITS.pool.root</argvalue>
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/AtlasGeom19Sim.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/Atlas2012GeomSim.HITS.pool.root</argvalue>
                 </arg>
-                <keepFilePattern>test.HITS.pool.root_AtlasGeom19Sim.HITS.pool.root.diffPool</keepFilePattern>
+                <keepFilePattern>test.HITS.pool.root_Atlas2012GeomSim.HITS.pool.root.diffPool</keepFilePattern>
               </test>
             </jobTransform>
           </chainElement>
 
           <chainElement>
-            <jobTransform userJobId="AtlasGeom19Sim_Reg">
+            <jobTransform userJobId="Atlas2012GeomSim_Reg">
               <doc>Regression test between releases</doc>
-              <jobTransformJobName>AtlasGeom19Sim_Reg</jobTransformJobName>
-              <jobTransformCmd>sim_reg_test.py AtlasGeom19Sim</jobTransformCmd>
+              <jobTransformJobName>Atlas2012GeomSim_Reg</jobTransformJobName>
+              <jobTransformCmd>sim_reg_test.py Atlas2012GeomSim</jobTransformCmd>
               <group>SimCoreTests:SimCoreRegressionTests</group>
               <queue>short</queue>
             </jobTransform>
@@ -65,13 +66,14 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
       <chain>
         <chainName>RegressionTest_TTbarSim</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
             <jobTransform userJobId="TTbarSim">
               <doc>Reading gen events, full physics</doc>
               <jobTransformJobName>T1_McAtNlo_Jimmy</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '4' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --postInclude 'G4AtlasTests/postInclude.DCubeTest.py' --preExec 'simFlags.ReleaseGeoModel=False;'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '4' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --postInclude 'PyJobTransforms/UseFrontier.py' 'AtlasG4Tf:G4AtlasTests/postInclude.DCubeTest.py' --preExec 'AtlasG4Tf:simFlags.ReleaseGeoModel=False;'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -85,14 +87,10 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/TTbarSim.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/TTbarSim.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_TTbarSim.HITS.pool.root.diffPool</keepFilePattern>
               </test>
-              <testToInvert> <!-- still failing as of October 2013 -->
-                <jobGroupName>SimCoreTests:SimCoreJobTransformTests</jobGroupName>
-                <testidentifier>StrangePDGGrepper</testidentifier>
-              </testToInvert>
             </jobTransform>
           </chainElement>
 
@@ -111,13 +109,14 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
       <chain>
         <chainName>TimingTest_TTbarSim</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
             <jobTransform userJobId="TTbarSimTiming">
               <doc>Reading gen events, full physics, with timing information in output</doc>
               <jobTransformJobName>T1_McAtNlo_Jimmy</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --postInclude 'LArG4FastSimulation/LArG4FastSimulation_setupTimer_jobOptions.py'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --postInclude 'PyJobTransforms/UseFrontier.py' 'AtlasG4Tf:LArG4FastSimulation/LArG4FastSimulation_setupTimer_jobOptions.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>medium</queue>
@@ -128,21 +127,18 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>TTbarSimTiming_DCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>19.X.0/dcube_TTbarSimTiming.xml</argvalue>
+                  <argvalue>20.3.X/dcube_TTbarSimTiming.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>TTbarSimTiming.timing_histos.root</argvalue>
-                </arg>
-                <arg>
-                  <argname>localRefFile</argname>
-                  <argvalue>True</argvalue>
+                  <argvalue>20.3.X/TTbarSimTiming.timing_histos.root</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
                   <argvalue>timing_histos.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-timing_histos.root/timing_histos.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-20.3.X/timing_histos.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
 
             </jobTransform>
@@ -153,13 +149,14 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
       <chain>
         <chainName>RegressionTest_QgspBertChipsTest</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
             <jobTransform userJobId="QgspBertChipsTest">
               <doc>Reading gen events, full physics</doc>
               <jobTransformJobName>J2_jetjet-pythia6</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/J2_jetjet-pythia6-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '5' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'QGSP_BERT_CHIPS_VALIDATION'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/J2_jetjet-pythia6-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '5' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'QGSP_BERT_CHIPS_VALIDATION' --postInclude 'PyJobTransforms/UseFrontier.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>medium</queue>
@@ -173,7 +170,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/QgspBertChipsTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/QgspBertChipsTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_QgspBertChipsTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -197,13 +194,14 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
       <chain>
         <chainName>RegressionTest_NeutronCutTest</chainName>
+        <abortOnError />
         <sequential>
           <chainElement>
 
             <jobTransform userJobId="NeutronCutTest">
               <doc>Reading gen events, full physics</doc>
               <jobTransformJobName>A3_Ztautau-NeutronCut</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/A3_Ztautau_filter-pythia6-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '5' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --preInclude 'SimulationJobOptions/preInclude.G4SignalCavern.py'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/A3_Ztautau_filter-pythia6-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '5' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --preInclude 'SimulationJobOptions/preInclude.G4SignalCavern.py' --postInclude 'PyJobTransforms/UseFrontier.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>medium</queue>
@@ -217,14 +215,10 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/NeutronCutTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/NeutronCutTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_NeutronCutTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
-              <testToInvert> <!-- still failing as of October 2013 -->
-                <jobGroupName>SimCoreTests:SimCoreJobTransformTests</jobGroupName>
-                <testidentifier>StrangePDGGrepper</testidentifier>
-              </testToInvert>
             </jobTransform>
 
           </chainElement>
@@ -243,56 +237,14 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
 
       <chain>
-        <chainName>RegressionTest_FtfpBertTest</chainName>
-        <sequential>
-          <chainElement>
-            <jobTransform userJobId="FtfpBertTest">
-              <doc>Reading gen events, full physics</doc>
-              <jobTransformJobName>MinBiasFtfpBert</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/minbias_Inelastic-pythia8-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '5' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT'
-              </jobTransformCmd>
-              <group>SimCoreJobTransformTests</group>
-              <queue>short</queue>
-              <test position="1">
-                <modulename>RttLibraryTools</modulename>
-                <testname>DiffPoolFilesRunner</testname>
-                <testidentifier>FtfpBertTestHITSFileDiff</testidentifier>
-                <arg>
-                  <argname>fileName</argname>
-                  <argvalue>test.HITS.pool.root</argvalue>
-                </arg>
-                <arg>
-                  <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/FtfpBertTest.HITS.pool.root</argvalue>
-                </arg>
-                <keepFilePattern>test.HITS.pool.root_FtfpBertTest.HITS.pool.root.diffPool</keepFilePattern>
-              </test>
-            </jobTransform>
-
-          </chainElement>
-
-          <chainElement>
-            <jobTransform userJobId="FtfpBertTest_Reg">
-              <doc>Regression test between releases</doc>
-              <jobTransformJobName>FtfpBertTest_Reg</jobTransformJobName>
-              <jobTransformCmd>sim_reg_test.py FtfpBertTest</jobTransformCmd>
-              <group>SimCoreTests:SimCoreRegressionTests</group>
-              <queue>short</queue>
-            </jobTransform>
-
-          </chainElement>
-        </sequential>
-      </chain>
-
-
-      <chain>
         <chainName>RegressionTest_QgsBicTest</chainName>
+        <abortOnError />
         <sequential>
           <chainElement>
             <jobTransform userJobId="QgsBicTest">
               <doc>Reading gen events, full physics</doc>
               <jobTransformJobName>SusyQgsBic</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/susy_SU3-herwigpp-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '5' --skipEvents '0' --randomSeed '42' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'QGSP_BIC'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/susy_SU3-herwigpp-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '5' --skipEvents '0' --randomSeed '42' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'QGSP_BIC' --postInclude 'PyJobTransforms/UseFrontier.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>medium</queue>
@@ -306,7 +258,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/QgsBicTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/QgsBicTest.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_QgsBicTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -329,12 +281,13 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
       <chain>
         <chainName>RegressionTest_HeavyIonSim</chainName>
+        <abortOnError />
         <sequential>
           <chainElement>
             <jobTransform userJobId="HeavyIonSim">
               <doc>Reading gen events, lead ions peripheral simulation (low multiplicity)</doc>
               <jobTransformJobName>HeavyIons_Simulation</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/pbpb_Peripheral-hijing-5500.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '1' --skipEvents '4' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --postInclude 'SimulationJobOptions/postInclude.HijingPars.py'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/pbpb_Peripheral-hijing-5500.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '1' --skipEvents '4' --randomSeed '10' --geometryVersion 'ATLAS-R1-2012-03-00-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '210184' --physicsList 'FTFP_BERT' --postInclude 'PyJobTransforms/UseFrontier.py' 'AtlasG4Tf:SimulationJobOptions/postInclude.HijingPars.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -348,7 +301,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/HeavyIonSim.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/HeavyIonSim.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_HeavyIonSim.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -370,13 +323,14 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
       <chain>
         <chainName>RegressionTest_CavernBg_EVNT2TR</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
             <jobTransform userJobId="CavernBg_EVNT2TR">
               <doc>Reading min bias events, write cavern background track records</doc>
               <jobTransformJobName>CavernBg_EVNT2TR</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/minbias_Inelastic_low-pythia8-7000.evgen.pool.root' --outputHITSFile 'discard.HITS.pool.root' --outputEVNT_CAVERNTRFile 'cavbg.EVNT.pool.root' --maxEvents '2' --skipEvents '0' --randomSeed '5678' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'QGSP_BERT_HP'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/minbias_Inelastic_low-pythia8-7000.evgen.pool.root' --outputHITSFile 'discard.HITS.pool.root' --outputEVNT_CAVERNTRFile 'test.EVNT.pool.root' --maxEvents '2' --skipEvents '0' --randomSeed '5678' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'QGSP_BERT_HP' --postInclude 'PyJobTransforms/UseFrontier.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>medium</queue>
@@ -386,13 +340,13 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>CavernBg_EVNT2TR_EVNTFileDiff</testidentifier>
                 <arg>
                   <argname>fileName</argname>
-                  <argvalue>cavbg.EVNT.pool.root</argvalue>
+                  <argvalue>test.EVNT.pool.root</argvalue>
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/CavernBg.EVNT.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/CavernBg.EVNT.pool.root</argvalue>
                 </arg>
-                <keepFilePattern>cavbg.EVNT.pool.root_CavernBg.EVNT.pool.root.diffPool</keepFilePattern>
+                <keepFilePattern>test.EVNT.pool.root_CavernBg.EVNT.pool.root.diffPool</keepFilePattern>
               </test>
             </jobTransform>
           </chainElement>
@@ -431,13 +385,14 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
       <chain>
         <chainName>RegressionTest_CavernBg_TR2HITS</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
             <jobTransform userJobId="CavernBg_TR2HITS">
               <doc>Reading cavern background track record, creating cav bg hits.</doc>
               <jobTransformJobName>CavernBg_TR2HITS</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNT_CAVERNFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/cavernbg-pythia8-7000.evgen.pool.root' --outputHITSFile 'cavbg.HITS.pool.root' --maxEvents '5' --skipEvents '0' --randomSeed '8765' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'QGSP_BERT_HP'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNT_CAVERNFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/cavernbg-pythia8-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '5' --skipEvents '0' --randomSeed '8765' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'QGSP_BERT_HP' --postInclude 'PyJobTransforms/UseFrontier.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>medium</queue>
@@ -447,13 +402,13 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>CavernBg_HITSFileDiff</testidentifier>
                 <arg>
                   <argname>fileName</argname>
-                  <argvalue>cavbg.HITS.pool.root</argvalue>
+                  <argvalue>test.HITS.pool.root</argvalue>
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/CavernBg.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/CavernBg.HITS.pool.root</argvalue>
                 </arg>
-                <keepFilePattern>cavbg.HITS.pool.root_CavernBg.HITS.pool.root.diffPool</keepFilePattern>
+                <keepFilePattern>test.HITS.pool.root_CavernBg.HITS.pool.root.diffPool</keepFilePattern>
               </test>
             </jobTransform>
           </chainElement>
@@ -473,6 +428,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
       <chain>
         <chainName>RegressionTest_FrozenShowerFCalOnly</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
@@ -480,7 +436,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
               <doc>Testing basic frozen showers (FCal only)</doc>
               <jobTransformJobName>FrozenShowerFCalOnly</jobTransformJobName>
               <!-- setting environment variables needs syntax update -->
-              <jobTransformCmd>FSRELEASE=1.0.0 DATAPATH=$DATAPATH:/afs/cern.ch/atlas/software/FSreleases/DD0/FSRelease/1.0.0 AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/17.2.X/17.2.6.2/e_E50_eta34_49.EVNT.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents 10 --skipEvents 0 --randomSeed 10 --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --preInclude 'SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py'
+              <jobTransformCmd>FSRELEASE=1.0.0 DATAPATH=$DATAPATH:/afs/cern.ch/atlas/software/FSreleases/DD0/FSRelease/1.0.0 AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/17.2.X/17.2.6.2/e_E50_eta34_49.EVNT.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents 10 --skipEvents 0 --randomSeed 10 --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --preInclude 'SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' --postInclude 'PyJobTransforms/UseFrontier.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -494,7 +450,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/FrozenShowerFCalOnly.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/FrozenShowerFCalOnly.HITS.pool.root</argvalue>
                 </arg>
                 <keepFilePattern>test.HITS.pool.root_FrozenShowerFCalOnly.HITS.pool.root.diffPool</keepFilePattern>
               </test>
@@ -516,13 +472,14 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
       <chain>
         <chainName>RegressionTest_CosmicSimTR</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
             <jobTransform userJobId="CosmicSimTR">
               <doc>Running cosmic simulation transform from track records</doc>
               <jobTransformJobName>CosmicSimTR</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNT_COSMICSFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/Cosmics.TR.pool.root' --outputHITSFile 'testCosmics.HITS.pool.root' --maxEvents '-1' --randomSeed '1234' --geometryVersion 'ATLAS-R2-2015-01-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-01' --physicsList 'FTFP_BERT' --DataRunNumber '222222' --firstEvent '0' --beamType 'cosmics'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNT_COSMICSFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/Cosmics.TR.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '-1' --randomSeed '1234' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --DataRunNumber '222525' --firstEvent '0' --beamType 'cosmics' --postInclude 'PyJobTransforms/UseFrontier.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -532,13 +489,13 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>CosmicSimTR_HITSFileDiff</testidentifier>
                 <arg>
                   <argname>fileName</argname>
-                  <argvalue>testCosmics.HITS.pool.root</argvalue>
+                  <argvalue>test.HITS.pool.root</argvalue>
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/CosmicSimTR.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/CosmicSimTR.HITS.pool.root</argvalue>
                 </arg>
-                <keepFilePattern>testCosmics.HITS.pool.root_CosmicSimTR.HITS.pool.root.diffPool</keepFilePattern>
+                <keepFilePattern>test.HITS.pool.root_CosmicSimTR.HITS.pool.root.diffPool</keepFilePattern>
               </test>
             </jobTransform>
           </chainElement>
@@ -557,56 +514,15 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
       </chain>
 
       <chain>
-        <chainName>RegressionTest_SimCheckDBRel</chainName>
-        <sequential>
-
-          <chainElement>
-            <jobTransform userJobId="SimCheckDBRel">
-              <doc>Test simulation job transform with the most recent frozen DB Release</doc>
-              <jobTransformJobName>SimCheckDBRel</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/e_E50_eta0-25.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '3' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --DBRelease 'current'
-              </jobTransformCmd>
-              <group>SimCoreJobTransformTests</group>
-              <queue>short</queue>
-              <test position="1">
-                <modulename>RttLibraryTools</modulename>
-                <testname>DiffPoolFilesRunner</testname>
-                <testidentifier>SimCheckDBRel_HITSFileDiff</testidentifier>
-                <arg>
-                  <argname>fileName</argname>
-                  <argvalue>test.HITS.pool.root</argvalue>
-                </arg>
-                <arg>
-                  <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/SimCheckDBRel.HITS.pool.root</argvalue>
-                </arg>
-                <keepFilePattern>test.HITS.pool.root_SimCheckDBRel.HITS.pool.root.diffPool</keepFilePattern>
-              </test>
-            </jobTransform>
-          </chainElement>
-
-          <chainElement>
-            <jobTransform userJobId="SimCheckDBRel_Reg">
-              <doc>Regression test between releases</doc>
-              <jobTransformJobName>SimCheckDBRel_Reg</jobTransformJobName>
-              <jobTransformCmd>sim_reg_test.py SimCheckDBRel</jobTransformCmd>
-              <group>SimCoreTests:SimCoreRegressionTests</group>
-              <queue>short</queue>
-            </jobTransform>
-          </chainElement>
-
-        </sequential>
-      </chain>
-
-      <chain>
-        <chainName>RegressionTest_LucidSimTes</chainName>
+        <chainName>RegressionTest_LucidSimTest</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
             <jobTransform userJobId="LucidSimTest">
-              <doc>Test Main ATLAS+Lucid simulation job transform with the most recent frozen DB Release</doc>
+              <doc>Test Main ATLAS+Lucid simulation job transform</doc>
               <jobTransformJobName>LucidSimTest</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/e_E50_eta0-25.evgen.pool.root' --outputHITSFile 'testLucid.HITS.pool.root' --maxEvents '3' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --LucidOn 'True' --DBRelease 'current'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/minbias_Inelastic-pythia8-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '3' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --LucidOn 'True' --postInclude 'PyJobTransforms/UseFrontier.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -616,13 +532,13 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>LucidSimTestHITSFileDiff</testidentifier>
                 <arg>
                   <argname>fileName</argname>
-                  <argvalue>testLucid.HITS.pool.root</argvalue>
+                  <argvalue>test.HITS.pool.root</argvalue>
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/LucidSimTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/LucidSimTest.HITS.pool.root</argvalue>
                 </arg>
-                <keepFilePattern>testLucid.HITS.pool.root_LucidSimTest.HITS.pool.root.diffPool</keepFilePattern>
+                <keepFilePattern>test.HITS.pool.root_LucidSimTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
             </jobTransform>
           </chainElement>
@@ -641,14 +557,59 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
       </chain>
 
       <chain>
+        <chainName>RegressionTest_AFPSimTest</chainName>
+        <abortOnError />
+        <sequential>
+
+          <chainElement>
+            <jobTransform userJobId="AFPSimTest">
+              <doc>Test Main ATLAS+AFP simulation job transform</doc>
+              <jobTransformJobName>AFPSimTest</jobTransformJobName>
+              <!-- FIXME need an AFP-specific single particle generator configuration -->
+              <jobTransformCmd>AtlasG4_tf.py --preInclude 'G4AtlasTests/preInclude.ALFA_SingleParticle.py' --outputHITSFile 'test.HITS.pool.root' --maxEvents '3' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --AFPOn 'True' --postInclude 'PyJobTransforms/UseFrontier.py'
+              </jobTransformCmd>
+              <group>SimCoreJobTransformTests</group>
+              <queue>short</queue>
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DiffPoolFilesRunner</testname>
+                <testidentifier>AFPSimTestHITSFileDiff</testidentifier>
+                <arg>
+                  <argname>fileName</argname>
+                  <argvalue>test.HITS.pool.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>refFileName</argname>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/AFPSimTest.HITS.pool.root</argvalue>
+                </arg>
+                <keepFilePattern>test.HITS.pool.root_AFPSimTest.HITS.pool.root.diffPool</keepFilePattern>
+              </test>
+            </jobTransform>
+          </chainElement>
+
+          <chainElement>
+            <jobTransform userJobId="AFPSimTest_Reg">
+              <doc>Regression test between releases</doc>
+              <jobTransformJobName>AFPSimTest_Reg</jobTransformJobName>
+              <jobTransformCmd>sim_reg_test.py AFPSimTest</jobTransformCmd>
+              <group>SimCoreTests:SimCoreRegressionTests</group>
+              <queue>short</queue>
+            </jobTransform>
+          </chainElement>
+
+        </sequential>
+      </chain>
+
+      <chain>
         <chainName>RegressionTest_ALFASimTest</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
             <jobTransform userJobId="ALFASimTest">
-              <doc>Test Main ATLAS+ALFA simulation job transform with the most recent frozen DB Release</doc>
+              <doc>Test Main ATLAS+ALFA simulation job transform</doc>
               <jobTransformJobName>ALFASimTest</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --preInclude 'G4AtlasTests/preInclude.ALFA_SingleParticle.py' --outputHITSFile 'testALFA.HITS.pool.root' --maxEvents '3' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --ALFAOn 'True' --DBRelease 'current' --postInclude 'G4AtlasTests/postInclude.ALFA_dcube.py'
+              <jobTransformCmd>AtlasG4_tf.py --preInclude 'G4AtlasTests/preInclude.ALFA_SingleParticle.py' --outputHITSFile 'test.HITS.pool.root' --maxEvents '3' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --ALFAOn 'True' --postInclude 'PyJobTransforms/UseFrontier.py' 'AtlasG4Tf:G4AtlasTests/postInclude.ALFA_dcube.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -658,31 +619,32 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>ALFASimTestHITSFileDiff</testidentifier>
                 <arg>
                   <argname>fileName</argname>
-                  <argvalue>testALFA.HITS.pool.root</argvalue>
+                  <argvalue>test.HITS.pool.root</argvalue>
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/ALFASimTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/ALFASimTest.HITS.pool.root</argvalue>
                 </arg>
-                <keepFilePattern>testALFA.HITS.pool.root_ALFASimTest.HITS.pool.root.diffPool</keepFilePattern>
-            </test>
+                <keepFilePattern>test.HITS.pool.root_ALFASimTest.HITS.pool.root.diffPool</keepFilePattern>
+              </test>
               <test position="2">
                 <modulename>RttLibraryTools</modulename>
                 <testname>DCubeRunner</testname>
                 <testidentifier>ALFASimTestDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>18.X.0/dcube-ALFASimTest.xml</argvalue>
+                  <argvalue>20.3.X/dcube-ALFASimTest.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>18.X.0/ALFASimTest.truth.root</argvalue>
+                  <argvalue>20.3.X/ALFASimTest.truth.root</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
                   <argvalue>truth.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-18.X.0/ALFASimTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-20.3.X/ALFASimTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
             </jobTransform>
           </chainElement>
@@ -702,13 +664,14 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
       <chain>
         <chainName>RegressionTest_ZDCSimTest</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
             <jobTransform userJobId="ZDCSimTest">
-              <doc>Test Main ATLAS+ZDC simulation job transform with the most recent frozen DB Release</doc>
+              <doc>Test Main ATLAS+ZDC simulation job transform</doc>
               <jobTransformJobName>ZDCSimTest</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --preInclude 'G4AtlasTests/preInclude.ZDC_SingleParticle.py' --outputHITSFile 'testZDC.HITS.pool.root' --maxEvents 3 --randomSeed 10 --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --ZDCOn 'True' --DBRelease 'current' --postInclude 'G4AtlasTests/postInclude.ZDC_dcube.py'
+              <jobTransformCmd>AtlasG4_tf.py --preInclude 'G4AtlasTests/preInclude.ZDC_SingleParticle.py' --outputHITSFile 'test.HITS.pool.root' --maxEvents 3 --randomSeed 10 --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --ZDCOn 'True' --postInclude 'PyJobTransforms/UseFrontier.py' 'AtlasG4Tf:G4AtlasTests/postInclude.ZDC_dcube.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>medium</queue>
@@ -718,13 +681,13 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>ZDCSimTestHITSFileDiff</testidentifier>
                 <arg>
                   <argname>fileName</argname>
-                  <argvalue>testZDC.HITS.pool.root</argvalue>
+                  <argvalue>test.HITS.pool.root</argvalue>
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/ZDCSimTest.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/ZDCSimTest.HITS.pool.root</argvalue>
                 </arg>
-                <keepFilePattern>testZDC.HITS.pool.root_ZDCSimTest.HITS.pool.root.diffPool</keepFilePattern>
+                <keepFilePattern>test.HITS.pool.root_ZDCSimTest.HITS.pool.root.diffPool</keepFilePattern>
               </test>
               <test position="2">
                 <modulename>RttLibraryTools</modulename>
@@ -732,17 +695,18 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>ZDCSimTestDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>18.X.0/dcube-ZDCSimTest.xml</argvalue>
+                  <argvalue>20.3.X/dcube-ZDCSimTest.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>18.X.0/ZDCSimTest.truth.root</argvalue>
+                  <argvalue>20.3.X/ZDCSimTest.truth.root</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
                   <argvalue>truth.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-18.X.0/ZDCSimTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-20.3.X/ZDCSimTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
             </jobTransform>
           </chainElement>
@@ -760,7 +724,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>ZDCSimTest_RegDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>18.X.0/dcube-ZDCSimTest.xml</argvalue>
+                  <argvalue>20.3.X/dcube-ZDCSimTest.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
@@ -775,6 +739,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <argvalue>today.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
             </jobTransform>
           </chainElement>
@@ -784,13 +749,14 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
       <chain>
         <chainName>RegressionTest_AtlasG4_muons</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
             <jobTransform userJobId="AtlasG4_muons">
               <doc>Tests detector functionality using single muons</doc>
               <jobTransformJobName>AtlasG4_muons</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --preInclude 'SimulationJobOptions/preInclude.SingleMuonGenerator.py' --outputHITSFile 'test.HITS.pool.root' --maxEvents '2000' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01_VALIDATION' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --DBRelease 'current' --postInclude 'G4AtlasTests/postInclude.DCubeTest.py' --preExec 'simFlags.ReleaseGeoModel=False;'
+              <jobTransformCmd>AtlasG4_tf.py --preInclude 'SimulationJobOptions/preInclude.SingleMuonGenerator.py' --outputHITSFile 'test.HITS.pool.root' --maxEvents '2000' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --postInclude 'PyJobTransforms/UseFrontier.py' 'AtlasG4Tf:G4AtlasTests/postInclude.DCubeTest.py' --preExec 'AtlasG4Tf:simFlags.ReleaseGeoModel=False;'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>medium</queue>
@@ -801,17 +767,18 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>AtlasG4_muonsDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>18.X.0/dcube-AtlasG4_muons.xml</argvalue>
+                  <argvalue>20.3.X/dcube-AtlasG4_muons.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>18.X.0/AtlasG4_muons.truth.root</argvalue>
+                  <argvalue>20.3.X/AtlasG4_muons.truth.root</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
                   <argvalue>truth.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-18.X.0/AtlasG4_muons.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-20.3.X/AtlasG4_muons.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
             </jobTransform>
             <chainfileout>test.HITS.pool.root</chainfileout>
@@ -829,7 +796,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <chaindatasetName>test.HITS.pool.root</chaindatasetName>
                   <dataset_info>
                     <dc2 />
-                    <datasetName>/eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/AtlasG4_muons.HITS.pool.root</datasetName>
+                    <datasetName>/eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/AtlasG4_muons.HITS.pool.root</datasetName>
                   </dataset_info>
                 </chaindataset_info>
                 <test>
@@ -838,7 +805,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <testidentifier>AtlasG4_muons_noevgenDCubeTest</testidentifier>
                   <arg>
                     <argname>DCubeCfg</argname>
-                    <argvalue>18.X.0/dcube-AtlasG4_muons_noevgen.xml</argvalue>
+                    <argvalue>20.3.X/dcube-AtlasG4_muons_noevgen.xml</argvalue>
                   </arg>
                   <arg>
                     <argname>DCubeRef</argname>
@@ -853,6 +820,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                     <argvalue>truth_2.root</argvalue>
                   </arg>
                   <keepFilePattern>DCube-truth.root/truth_2.root.dcube.xml.php</keepFilePattern>
+                  <noalarm />
                 </test>
                 <testToRemove>
                   <jobGroupName>RTT:Top</jobGroupName>
@@ -882,7 +850,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <testidentifier>AtlasG4_muons_RegDCubeTest</testidentifier>
                   <arg>
                     <argname>DCubeCfg</argname>
-                    <argvalue>18.X.0/dcube-AtlasG4_muons.xml</argvalue>
+                    <argvalue>20.3.X/dcube-AtlasG4_muons.xml</argvalue>
                   </arg>
                   <arg>
                     <argname>DCubeRef</argname>
@@ -897,11 +865,8 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                     <argvalue>today.root</argvalue>
                   </arg>
                   <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                  <noalarm />
                 </test>
-                <testToRemove>
-                  <jobGroupName>SimCoreTests:SimCoreRegressionTests</jobGroupName>
-                  <testidentifier>HITS_RegressionTestRunner</testidentifier>
-                </testToRemove>
               </jobTransform>
             </chainElement>
 
@@ -911,13 +876,14 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
       <chain>
         <chainName>RegressionTest_AtlasG4_pions</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
             <jobTransform userJobId="AtlasG4_pions">
               <doc>Tests detector functionality using single pions</doc>
               <jobTransformJobName>AtlasG4_pions</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --preInclude 'SimulationJobOptions/preInclude.SinglePionGenerator.py' --outputHITSFile 'test.HITS.pool.root' --maxEvents '150' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01_VALIDATION' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --DBRelease 'current' --postInclude 'G4AtlasTests/postInclude.DCubeTest.py' --preExec 'simFlags.ReleaseGeoModel=False;'
+              <jobTransformCmd>AtlasG4_tf.py --preInclude 'SimulationJobOptions/preInclude.SinglePionGenerator.py' --outputHITSFile 'test.HITS.pool.root' --maxEvents '150' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --postInclude 'PyJobTransforms/UseFrontier.py' 'AtlasG4Tf:G4AtlasTests/postInclude.DCubeTest.py' --preExec 'AtlasG4Tf:simFlags.ReleaseGeoModel=False;'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>long</queue>
@@ -928,17 +894,18 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>AtlasG4_pionsDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>18.X.0/dcube-AtlasG4_pions.xml</argvalue>
+                  <argvalue>20.3.X/dcube-AtlasG4_pions.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>18.X.0/AtlasG4_pions.truth.root</argvalue>
+                  <argvalue>20.3.X/AtlasG4_pions.truth.root</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
                   <argvalue>truth.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-18.X.0/AtlasG4_pions.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-20.3.X/AtlasG4_pions.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
             </jobTransform>
           </chainElement>
@@ -956,7 +923,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>AtlasG4_pions_RegDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>18.X.0/dcube-AtlasG4_pions.xml</argvalue>
+                  <argvalue>20.3.X/dcube-AtlasG4_pions.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
@@ -971,11 +938,8 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <argvalue>today.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
-              <testToRemove>
-                <jobGroupName>SimCoreTests:SimCoreRegressionTests</jobGroupName>
-                <testidentifier>HITS_RegressionTestRunner</testidentifier>
-              </testToRemove>
             </jobTransform>
           </chainElement>
 
@@ -984,34 +948,51 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
       <chain>
         <chainName>RegressionTest_AtlasG4_minbias</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
-            <athena userJobId="AtlasG4_minbias">
-              <doc>Tests inner detector and beam transformation functionality</doc>
-              <commandLineString>--preloadlib=${ATLASMKLLIBDIR_PRELOAD}/libintlc.so.5:${ATLASMKLLIBDIR_PRELOAD}/libimf.so</commandLineString>
-              <options>G4AtlasTests/test_AtlasG4_minbias</options>
-              <group>AthenaSimCoreTestJobs</group>
+            <jobTransform userJobId="AtlasG4_minbias">
+              <doc>Reading gen events, single particle</doc>
+              <jobTransformJobName>AtlasG4_minbias</jobTransformJobName>
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/minbias_Inelastic-pythia8-7000.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '50' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --preInclude 'SimulationJobOptions/preInclude.CaloOffDigitConfig.py,SimulationJobOptions/preInclude.MuonOffDigitConfig.py' --postInclude 'PyJobTransforms/UseFrontier.py' 'AtlasG4Tf:G4AtlasTests/postInclude.DCubeTest.py' --preExec 'AtlasG4Tf:simFlags.ReleaseGeoModel=False;simFlags.EventFilter.set_On();simFlags.EventFilter.get_Value()["BeamEffectTransformation"]=True;'
+              </jobTransformCmd>
+              <group>SimCoreJobTransformTests</group>
               <queue>medium</queue>
+              <test position="1">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DiffPoolFilesRunner</testname>
+                <testidentifier>AtlasG4_minbias_HITSFileDiff</testidentifier>
+                <arg>
+                  <argname>fileName</argname>
+                  <argvalue>test.HITS.pool.root</argvalue>
+                </arg>
+                <arg>
+                  <argname>refFileName</argname>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/AtlasG4_minbias.HITS.pool.root</argvalue>
+                </arg>
+                <keepFilePattern>test.HITS.pool.root_AtlasG4_minbias.HITS.pool.root.diffPool</keepFilePattern>
+              </test>
               <test>
                 <modulename>RttLibraryTools</modulename>
                 <testname>DCubeRunner</testname>
                 <testidentifier>AtlasG4_minbiasDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>18.X.0/dcube-AtlasG4_minbias.xml</argvalue>
+                  <argvalue>20.3.X/dcube-AtlasG4_minbias.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>18.X.0/AtlasG4_minbias.truth.root</argvalue>
+                  <argvalue>20.3.X/AtlasG4_minbias.truth.root</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
                   <argvalue>truth.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-18.X.0/AtlasG4_minbias.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-20.3.X/AtlasG4_minbias.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
-            </athena>
+            </jobTransform>
           </chainElement>
 
           <chainElement>
@@ -1027,7 +1008,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>AtlasG4_minbias_RegDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>18.X.0/dcube-AtlasG4_minbias.xml</argvalue>
+                  <argvalue>20.3.X/dcube-AtlasG4_minbias.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
@@ -1042,11 +1023,8 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <argvalue>today.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
-              <testToRemove>
-                <jobGroupName>SimCoreTests:SimCoreRegressionTests</jobGroupName>
-                <testidentifier>HITS_RegressionTestRunner</testidentifier>
-              </testToRemove>
             </jobTransform>
           </chainElement>
 
@@ -1055,13 +1033,14 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
       <chain>
         <chainName>RegressionTest_AtlasG4_electrons</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
             <jobTransform userJobId="AtlasG4_electrons">
               <doc>Tests detector functionality using single electrons</doc>
               <jobTransformJobName>AtlasG4_electrons</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --preInclude 'SimulationJobOptions/preInclude.SingleElectronGenerator.py' --outputHITSFile 'test.HITS.pool.root' --maxEvents '1000' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01_VALIDATION' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --DBRelease 'current' --postInclude 'G4AtlasTests/postInclude.DCubeTest.py' --preExec 'simFlags.ReleaseGeoModel=False;'
+              <jobTransformCmd>AtlasG4_tf.py --preInclude 'SimulationJobOptions/preInclude.SingleElectronGenerator.py' --outputHITSFile 'test.HITS.pool.root' --maxEvents '1000' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --postInclude 'PyJobTransforms/UseFrontier.py' 'AtlasG4Tf:G4AtlasTests/postInclude.DCubeTest.py' --preExec 'AtlasG4Tf:simFlags.ReleaseGeoModel=False;'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>long</queue>
@@ -1072,17 +1051,18 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>AtlasG4_electronsDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>18.X.0/dcube-AtlasG4_electrons.xml</argvalue>
+                  <argvalue>20.3.X/dcube-AtlasG4_electrons.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>18.X.0/AtlasG4_electrons.truth.root</argvalue>
+                  <argvalue>20.3.X/AtlasG4_electrons.truth.root</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
                   <argvalue>truth.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-18.X.0/AtlasG4_electrons.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-20.3.X/AtlasG4_electrons.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
 
             </jobTransform>
@@ -1102,7 +1082,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <chaindatasetName>test.HITS.pool.root</chaindatasetName>
                   <dataset_info>
                     <dc2 />
-                    <datasetName>/eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/AtlasG4_electrons.HITS.pool.root</datasetName>
+                    <datasetName>/eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/AtlasG4_electrons.HITS.pool.root</datasetName>
                   </dataset_info>
                 </chaindataset_info>
                 <test>
@@ -1111,7 +1091,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <testidentifier>AtlasG4_electrons_noevgenDCubeTest</testidentifier>
                   <arg>
                     <argname>DCubeCfg</argname>
-                    <argvalue>18.X.0/dcube-AtlasG4_electrons_noevgen.xml</argvalue>
+                    <argvalue>20.3.X/dcube-AtlasG4_electrons_noevgen.xml</argvalue>
                   </arg>
                   <arg>
                     <argname>DCubeRef</argname>
@@ -1126,6 +1106,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                     <argvalue>truth_2.root</argvalue>
                   </arg>
                   <keepFilePattern>DCube-truth.root/truth_2.root.dcube.xml.php</keepFilePattern>
+                  <noalarm />
                 </test>
                 <testToRemove>
                   <jobGroupName>RTT:Top</jobGroupName>
@@ -1155,7 +1136,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <testidentifier>AtlasG4_electrons_RegDCubeTest</testidentifier>
                   <arg>
                     <argname>DCubeCfg</argname>
-                    <argvalue>18.X.0/dcube-AtlasG4_electrons.xml</argvalue>
+                    <argvalue>20.3.X/dcube-AtlasG4_electrons.xml</argvalue>
                   </arg>
                   <arg>
                     <argname>DCubeRef</argname>
@@ -1170,11 +1151,8 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                     <argvalue>today.root</argvalue>
                   </arg>
                   <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                  <noalarm />
                 </test>
-                <testToRemove>
-                  <jobGroupName>SimCoreTests:SimCoreRegressionTests</jobGroupName>
-                  <testidentifier>HITS_RegressionTestRunner</testidentifier>
-                </testToRemove>
               </jobTransform>
             </chainElement>
 
@@ -1184,14 +1162,15 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
       </chain>
 
       <chain>
-        <chainName>RegressionTest_WriteClaHitsTest</chainName>
+        <chainName>RegressionTest_WriteCalHitsTest</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
             <jobTransform userJobId="WriteCalHitsTest">
               <doc>Reading gen events, single particle</doc>
               <jobTransformJobName>WriteCalHitsTest</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/pi_E50_eta0-60.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT' --preInclude 'SimulationJobOptions/preInclude.CalHits.py,SimulationJobOptions/preInclude.ParticleID.py' --postInclude 'G4AtlasTests/postInclude.DCubeTest_CaloCalibHits.py' --preExec 'simFlags.ReleaseGeoModel=False;'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/pi_E50_eta0-60.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '0' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --preInclude 'SimulationJobOptions/preInclude.CalHits.py,SimulationJobOptions/preInclude.ParticleID.py' --postInclude 'PyJobTransforms/UseFrontier.py' 'AtlasG4Tf:G4AtlasTests/postInclude.DCubeTest_CaloCalibHits.py' --preExec 'AtlasG4Tf:simFlags.ReleaseGeoModel=False;'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -1201,33 +1180,33 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>WriteCalHitsTestDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>18.X.0/dcube-WriteCalHitsTest.xml</argvalue>
+                  <argvalue>20.3.X/dcube-WriteCalHitsTest.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
-                  <argvalue>18.X.0/WriteCalHitsTest.truth.root</argvalue>
+                  <argvalue>20.3.X/WriteCalHitsTest.truth.root</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeMon</argname>
                   <argvalue>truth.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-18.X.0/WriteCalHitsTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-20.3.X/WriteCalHitsTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
-              <!--
-                  <test position="2">
-                  <modulename>RttLibraryTools</modulename>
-                  <testname>DiffPoolFilesRunner</testname>
-                  <testidentifier>WriteCalHitsTestHITSFileDiff</testidentifier>
-                  <arg>
+              <test position="2">
+                <modulename>RttLibraryTools</modulename>
+                <testname>DiffPoolFilesRunner</testname>
+                <testidentifier>WriteCalHitsTestHITSFileDiff</testidentifier>
+                <arg>
                   <argname>fileName</argname>
                   <argvalue>test.HITS.pool.root</argvalue>
-                  </arg>
-                  <arg>
+                </arg>
+                <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/WriteCalHitsTest.HITS.pool.root</argvalue>
-                  </arg>
-                  </test>
-              -->
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/WriteCalHitsTest.HITS.pool.root</argvalue>
+                </arg>
+                <keepFilePattern>test.HITS.pool.root_WriteCalHitsTest.HITS.pool.root.diffPool</keepFilePattern>
+              </test>
             </jobTransform>
           </chainElement>
 
@@ -1244,7 +1223,7 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>WriteCalHitsTest_RegDCubeTest</testidentifier>
                 <arg>
                   <argname>DCubeCfg</argname>
-                  <argvalue>18.X.0/dcube-WriteCalHitsTest.xml</argvalue>
+                  <argvalue>20.3.X/dcube-WriteCalHitsTest.xml</argvalue>
                 </arg>
                 <arg>
                   <argname>DCubeRef</argname>
@@ -1259,11 +1238,8 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                   <argvalue>today.root</argvalue>
                 </arg>
                 <keepFilePattern>DCube-yesterday.root/today.root.dcube.xml.php</keepFilePattern>
+                <noalarm />
               </test>
-              <testToRemove>
-                <jobGroupName>SimCoreTests:SimCoreRegressionTests</jobGroupName>
-                <testidentifier>HITS_RegressionTestRunner</testidentifier>
-              </testToRemove>
             </jobTransform>
           </chainElement>
 
@@ -1272,41 +1248,25 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
 
       <!--
-           ********************************************************************************
-           Section II
-           ********************************************************************************
-      -->
+         ********************************************************************************
+         Section II
+         ********************************************************************************
+        -->
 
       <athena userJobId="G4AtlasGeoTest">
-        <doc>Recursive geometry test on ATLAS-GEO-20-00-01 (MC12 default). Done only on G4 and GeoModel envelopes</doc>
+        <doc>Recursive geometry test on ATLAS-R2-2015-03-01-00 (MC15 default). Done only on G4 and GeoModel envelopes</doc>
         <options>G4AtlasTests/test_G4AtlasGeo</options>
         <group>SimCoreTests:SimGeomTestJobs</group>
         <queue>short</queue>
-        <testToInvert> <!-- still failing as of March 2013 -->
-          <jobGroupName>SimCoreTests:SimGeomTestJobs</jobGroupName>
-          <testidentifier>DaughterOvershootGrepper</testidentifier>
-        </testToInvert>
-        <testToInvert> <!-- still failing as of March 2013 -->
+        <testToInvert> <!-- still failing as of August 2015 -->
           <jobGroupName>SimCoreTests:SimGeomTestJobs</jobGroupName>
           <testidentifier>SolidProblemGrepper</testidentifier>
         </testToInvert>
       </athena>
-
-
-      <athena userJobId="G4AtlasGeoTest_latest">
-        <doc>Recursive geometry test on ATLAS-GEO-21-00-00. Done only on G4 and GeoModel envelopes</doc>
-        <options>G4AtlasTests/test_G4AtlasGeo-21-00-00.py</options>
-        <group>SimCoreTests:SimGeomTestJobs</group>
-        <queue>short</queue>
-        <testToInvert> <!-- still failing as of March 2013 -->
-          <jobGroupName>SimCoreTests:SimGeomTestJobs</jobGroupName>
-          <testidentifier>SolidProblemGrepper</testidentifier>
-        </testToInvert>
-      </athena>
-
 
       <chain>
         <chainName>RegressionTest_G4AtlasCosmic</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
@@ -1326,43 +1286,26 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
               <jobTransformCmd>sim_reg_test.py G4AtlasCosmic</jobTransformCmd>
               <group>SimCoreTests:SimCoreRegressionTests</group>
               <queue>short</queue>
-              <test position="1">
-                <modulename>RttLibraryTools</modulename>
-                <testname>DiffPoolFilesRunner</testname>
-                <testidentifier>G4AtlasCosmic_RegressionTest</testidentifier>
-                <arg>
-                  <argname>fileName</argname>
-                  <argvalue>today.hits.pool.root</argvalue>
-                </arg>
-                <arg>
-                  <argname>refFileName</argname>
-                  <argvalue>yesterday.hits.pool.root</argvalue>
-                </arg>
-                <keepFilePattern>today.hits.pool.root_yesterday.hits.pool.root.diffPool</keepFilePattern>
-              </test>
-              <testToRemove> <!-- NEED TO RENAME OUTPUT FILES IN G4AtlasApps/jobOptions.G4Cosmic.py -->
-                <jobGroupName>SimCoreTests:SimCoreRegressionTests</jobGroupName>
-                <testidentifier>HITS_RegressionTestRunner</testidentifier>
-              </testToRemove>
             </jobTransform>
           </chainElement>
 
         </sequential>
       </chain>
       <!--
-           ********************************************************************************
-           Section III
-           ********************************************************************************
-      -->
+         ********************************************************************************
+         Section III
+         ********************************************************************************
+        -->
       <chain>
         <chainName>RegressionTest_SkipEventsTest</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
             <jobTransform userJobId="SkipEventsTest">
               <doc>Reading single particle gen events, checking that the SkipEvents argument works</doc>
               <jobTransformJobName>SkipEvents</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/e_E50_eta0-25.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '5' --randomSeed '10' --geometryVersion 'ATLAS-GEO-20-00-01' --conditionsTag 'OFLCOND-MC12-SIM-00' --physicsList 'FTFP_BERT'
+              <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile '/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/e_E50_eta0-25.evgen.pool.root' --outputHITSFile 'test.HITS.pool.root' --maxEvents '10' --skipEvents '5' --randomSeed '10' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --DataRunNumber '222525' --physicsList 'FTFP_BERT' --postInclude 'PyJobTransforms/UseFrontier.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -1402,13 +1345,14 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
       <chain>
         <chainName>RegressionTest_CosmicSim</chainName>
+        <abortOnError />
         <sequential>
 
           <chainElement>
             <jobTransform userJobId="CosmicSim">
               <doc>Running cosmic simulation transform</doc>
               <jobTransformJobName>CosmicSim</jobTransformJobName>
-              <jobTransformCmd>AtlasG4_tf.py --outputHITSFile 'testCosmics.HITS.pool.root' --maxEvents '1500' --randomSeed '1234' --DataRunNumber '222222' --CosmicFilterVolume 'Calo' --CosmicFilterVolume2 'NONE' --geometryVersion 'ATLAS-R2-2015-01-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-01' --physicsList 'FTFP_BERT' --CosmicPtSlice 'NONE' --outputEVNT_COSMICSTRFile 'testCosmics.TR.pool.root' --beamType 'cosmics'
+              <jobTransformCmd>AtlasG4_tf.py --outputHITSFile 'test.HITS.pool.root' --maxEvents '1500' --randomSeed '1234' --DataRunNumber '222525' --CosmicFilterVolume 'Calo' --CosmicFilterVolume2 'NONE' --geometryVersion 'ATLAS-R2-2015-03-01-00_VALIDATION' --conditionsTag 'OFLCOND-RUN12-SDR-19' --physicsList 'FTFP_BERT' --CosmicPtSlice 'NONE' --outputEVNT_COSMICSTRFile 'test.TR.pool.root' --beamType 'cosmics' --postInclude 'PyJobTransforms/UseFrontier.py'
               </jobTransformCmd>
               <group>SimCoreJobTransformTests</group>
               <queue>short</queue>
@@ -1418,13 +1362,13 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>CosmicSimHITSFileDiff</testidentifier>
                 <arg>
                   <argname>fileName</argname>
-                  <argvalue>testCosmics.HITS.pool.root</argvalue>
+                  <argvalue>test.HITS.pool.root</argvalue>
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/CosmicSim.HITS.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/CosmicSim.HITS.pool.root</argvalue>
                 </arg>
-                <keepFilePattern>testCosmics.HITS.pool.root_CosmicSim.HITS.pool.root.diffPool</keepFilePattern>
+                <keepFilePattern>test.HITS.pool.root_CosmicSim.HITS.pool.root.diffPool</keepFilePattern>
               </test>
               <test position="2">
                 <modulename>RttLibraryTools</modulename>
@@ -1432,13 +1376,13 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
                 <testidentifier>CosmicSimTrackRecordFileDiff</testidentifier>
                 <arg>
                   <argname>fileName</argname>
-                  <argvalue>testCosmics.TR.pool.root</argvalue>
+                  <argvalue>test.TR.pool.root</argvalue>
                 </arg>
                 <arg>
                   <argname>refFileName</argname>
-                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/18.X.0/CosmicSim.TR.pool.root</argvalue>
+                  <argvalue>root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/simulation/validation/RTT/referenceFiles/20.3.X/CosmicSim.TR.pool.root</argvalue>
                 </arg>
-                <keepFilePattern>testCosmics.TR.pool.root_CosmicSim.TR.pool.root.diffPool</keepFilePattern>
+                <keepFilePattern>test.TR.pool.root_CosmicSim.TR.pool.root.diffPool</keepFilePattern>
               </test>
               <testToRemove>
                 <jobGroupName>SimCoreTests:SimCoreJobTransformTests</jobGroupName>
@@ -1488,30 +1432,28 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
         <test>
           <modulename>RttLibraryTools</modulename>
           <testname>FileGrepper</testname>
-          <outputFile>G4ExceptionGrepper_results.txt</outputFile>
-          <testidentifier>G4ExceptionGrepper</testidentifier>
+          <outputFile>ErrorG4ExceptionGrepper_results.txt</outputFile>
+          <testidentifier>ErrorG4ExceptionGrepper</testidentifier>
           <arg>
             <argname>inputFile</argname>
             <argvalue>*_log</argvalue>
           </arg>
           <arg>
             <fileGrepperArgs>
-
               <!-- veto pattern block -->
               <fileGrepperVetoPattern>
-                <fileGrepperPattern>G4Exception((?!(PART102|StuckTrack)).)*$
+                <fileGrepperPattern>-------- EEEE ------- G4Exception-START -------- EEEE -------
                 </fileGrepperPattern>
               </fileGrepperVetoPattern>
-
             </fileGrepperArgs>
           </arg>
-          <keepFilePattern>G4ExceptionGrepper_results.txt</keepFilePattern>
+          <keepFilePattern>ErrorG4ExceptionGrepper_results.txt</keepFilePattern>
         </test>
         <test>
           <modulename>RttLibraryTools</modulename>
           <testname>FileGrepper</testname>
-          <outputFile>StuckTrackGrepper_results.txt</outputFile>
-          <testidentifier>StuckTrackGrepper</testidentifier>
+          <outputFile>WarningG4ExceptionGrepper_results.txt</outputFile>
+          <testidentifier>WarningG4ExceptionGrepper</testidentifier>
           <arg>
             <argname>inputFile</argname>
             <argvalue>*_log</argvalue>
@@ -1520,74 +1462,55 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
             <fileGrepperArgs>
               <!-- veto pattern block -->
               <fileGrepperVetoPattern>
-                <fileGrepperPattern>G4Exception : StuckTrack</fileGrepperPattern>
-                <compileFlags>S</compileFlags>
+                <fileGrepperPattern>-------- WWWW ------- G4Exception-START -------- WWWW -------
+                </fileGrepperPattern>
               </fileGrepperVetoPattern>
             </fileGrepperArgs>
           </arg>
-          <keepFilePattern>StuckTrackGrepper_results.txt</keepFilePattern>
+          <keepFilePattern>WarningG4ExceptionGrepper_results.txt</keepFilePattern>
+          <noalarm />
         </test>
-        <test> <!-- Special Test for CSCspacer Stuck Track G4Exceptions should remove once it starts failing.. -->
+        <test> <!-- Special Test for uninitialized random stream seeds should remove once it starts failing.. -->
           <modulename>RttLibraryTools</modulename>
           <testname>FileGrepper</testname>
-          <outputFile>CSCspacerStuckTrackGrepper_results.txt</outputFile>
-          <testidentifier>CSCspacerStuckTrackGrepper</testidentifier>
+          <outputFile>DefaultSeedsGrepper_results.txt</outputFile>
+          <testidentifier>DefaultSeedsGrepper</testidentifier>
           <arg>
             <argname>inputFile</argname>
             <argvalue>*_log</argvalue>
           </arg>
           <arg>
             <fileGrepperArgs>
-                    <!-- veto pattern block -->
-                    <fileGrepperVetoPattern>
-                <!-- This looks for StuckTrack that is not due to a CSCspacer -->
-                <fileGrepperPattern>\*\*\* G4Exception : StuckTrack(?!([^\n]*\n){4}([^\n]*?)CSCspacer)</fileGrepperPattern>
+              <!-- veto pattern block -->
+              <fileGrepperVetoPattern>
+                <fileGrepperPattern>DEFAULT seeds</fileGrepperPattern>
                 <compileFlags>S</compileFlags>
               </fileGrepperVetoPattern>
             </fileGrepperArgs>
           </arg>
-          <keepFilePattern>CSCspacerStuckTrackGrepper_results.txt</keepFilePattern>
+          <keepFilePattern>DefaultSeedsGrepper_results.txt</keepFilePattern>
         </test>
-        <test> <!-- Special Test for uninitialized random stream seeds should remove once it starts failing.. -->
-           <modulename>RttLibraryTools</modulename>
-           <testname>FileGrepper</testname>
-           <outputFile>DefaultSeedsGrepper_results.txt</outputFile>
-           <testidentifier>DefaultSeedsGrepper</testidentifier>
-           <arg>
-             <argname>inputFile</argname>
-             <argvalue>*_log</argvalue>
-           </arg>
-           <arg>
-             <fileGrepperArgs>
-               <!-- veto pattern block -->
-               <fileGrepperVetoPattern>
-                 <fileGrepperPattern>DEFAULT seeds</fileGrepperPattern>
-                 <compileFlags>S</compileFlags>
-               </fileGrepperVetoPattern>
-             </fileGrepperArgs>
-           </arg>
-           <keepFilePattern>DefaultSeedsGrepper_results.txt</keepFilePattern>
-         </test>
-         <test> <!-- Special Test for StrangePDG G4Exceptions should remove once it starts failing.. -->
-           <modulename>RttLibraryTools</modulename>
-           <testname>FileGrepper</testname>
-           <outputFile>StrangePDGGrepper_results.txt</outputFile>
-           <testidentifier>StrangePDGGrepper</testidentifier>
-           <arg>
-             <argname>inputFile</argname>
-             <argvalue>*_log</argvalue>
-           </arg>
-           <arg>
-             <fileGrepperArgs>
-               <!-- veto pattern block -->
-               <fileGrepperVetoPattern>
-                 <fileGrepperPattern>G4Exception : PART102</fileGrepperPattern>
-                 <compileFlags>S</compileFlags>
-               </fileGrepperVetoPattern>
-             </fileGrepperArgs>
-           </arg>
-           <keepFilePattern>StrangePDGGrepper_results.txt</keepFilePattern>
-         </test>
+        <test> <!-- Special Test for StrangePDG G4Exceptions should remove once it starts failing.. -->
+          <modulename>RttLibraryTools</modulename>
+          <testname>FileGrepper</testname>
+          <outputFile>StrangePDGGrepper_results.txt</outputFile>
+          <testidentifier>StrangePDGGrepper</testidentifier>
+          <arg>
+            <argname>inputFile</argname>
+            <argvalue>*_log</argvalue>
+          </arg>
+          <arg>
+            <fileGrepperArgs>
+              <!-- veto pattern block -->
+              <fileGrepperVetoPattern>
+                <fileGrepperPattern>G4Exception : PART102</fileGrepperPattern>
+                <compileFlags>S</compileFlags>
+              </fileGrepperVetoPattern>
+            </fileGrepperArgs>
+          </arg>
+          <keepFilePattern>StrangePDGGrepper_results.txt</keepFilePattern>
+          <noalarm />
+        </test>
       </jobGroup>
 
       <jobGroup name="SimGeomTestJobs" parent="RTT:Athena">
@@ -1701,7 +1624,12 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
 
         <testToRemove>
           <jobGroupName>SimCoreTests:AthenaSimCoreTestJobs</jobGroupName>
-          <testidentifier>G4ExceptionGrepper</testidentifier>
+          <testidentifier>ErrorG4ExceptionGrepper</testidentifier>
+        </testToRemove>
+
+        <testToRemove>
+          <jobGroupName>SimCoreTests:AthenaSimCoreTestJobs</jobGroupName>
+          <testidentifier>WarningG4ExceptionGrepper</testidentifier>
         </testToRemove>
 
         <testToRemove>
@@ -1730,13 +1658,15 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
         <keepFilePattern>*.php</keepFilePattern>
         <keepFilePattern>log*</keepFilePattern>
         <keepFilePattern>*log</keepFilePattern>
+        <keepFilePattern>*.json</keepFilePattern>
         <keepFilePattern>*.diffPool</keepFilePattern>
         <keepFilePattern>test.athena.profile</keepFilePattern>
+        <!-- TODO: Look for G4Exceptions in jobReport.json rather than the log files. -->
         <test>
           <modulename>RttLibraryTools</modulename>
           <testname>FileGrepper</testname>
-          <outputFile>G4ExceptionGrepper_results.txt</outputFile>
-          <testidentifier>G4ExceptionGrepper</testidentifier>
+          <outputFile>ErrorG4ExceptionGrepper_results.txt</outputFile>
+          <testidentifier>ErrorG4ExceptionGrepper</testidentifier>
           <arg>
             <argname>inputFile</argname>
             <argvalue>log.AtlasG4Tf</argvalue>
@@ -1745,18 +1675,18 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
             <fileGrepperArgs>
               <!-- veto pattern block -->
               <fileGrepperVetoPattern>
-                <fileGrepperPattern>G4Exception((?!(PART102|StuckTrack)).)*$
+                <fileGrepperPattern>-------- EEEE ------- G4Exception-START -------- EEEE -------
                 </fileGrepperPattern>
               </fileGrepperVetoPattern>
             </fileGrepperArgs>
           </arg>
-          <keepFilePattern>G4ExceptionGrepper_results.txt</keepFilePattern>
+          <keepFilePattern>ErrorG4ExceptionGrepper_results.txt</keepFilePattern>
         </test>
         <test>
           <modulename>RttLibraryTools</modulename>
           <testname>FileGrepper</testname>
-          <outputFile>StuckTrackGrepper_results.txt</outputFile>
-          <testidentifier>StuckTrackGrepper</testidentifier>
+          <outputFile>WarningG4ExceptionGrepper_results.txt</outputFile>
+          <testidentifier>WarningG4ExceptionGrepper</testidentifier>
           <arg>
             <argname>inputFile</argname>
             <argvalue>log.AtlasG4Tf</argvalue>
@@ -1765,33 +1695,13 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
             <fileGrepperArgs>
               <!-- veto pattern block -->
               <fileGrepperVetoPattern>
-                <fileGrepperPattern>G4Exception : StuckTrack</fileGrepperPattern>
-                <compileFlags>S</compileFlags>
+                <fileGrepperPattern>-------- WWWW ------- G4Exception-START -------- WWWW -------
+                </fileGrepperPattern>
               </fileGrepperVetoPattern>
             </fileGrepperArgs>
           </arg>
-          <keepFilePattern>StuckTrackGrepper_results.txt</keepFilePattern>
-        </test>
-        <test> <!-- Special Test for CSCspacer Stuck Track G4Exceptions should remove once it starts failing.. -->
-          <modulename>RttLibraryTools</modulename>
-          <testname>FileGrepper</testname>
-          <outputFile>CSCspacerStuckTrackGrepper_results.txt</outputFile>
-          <testidentifier>CSCspacerStuckTrackGrepper</testidentifier>
-          <arg>
-            <argname>inputFile</argname>
-            <argvalue>log.AtlasG4Tf</argvalue>
-          </arg>
-          <arg>
-            <fileGrepperArgs>
-                    <!-- veto pattern block -->
-                    <fileGrepperVetoPattern>
-                <!-- This looks for StuckTrack that is not due to a CSCspacer -->
-                <fileGrepperPattern>\*\*\* G4Exception : StuckTrack(?!([^\n]*\n){4}([^\n]*?)CSCspacer)</fileGrepperPattern>
-                <compileFlags>S</compileFlags>
-              </fileGrepperVetoPattern>
-            </fileGrepperArgs>
-          </arg>
-          <keepFilePattern>CSCspacerStuckTrackGrepper_results.txt</keepFilePattern>
+          <keepFilePattern>WarningG4ExceptionGrepper_results.txt</keepFilePattern>
+          <noalarm />
         </test>
         <test>
           <modulename>RttLibraryTools</modulename>
@@ -1838,45 +1748,46 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
           <keepFilePattern>jobGroupFileGrepper_results.txt</keepFilePattern>
         </test>
         <test> <!-- Special Test for uninitialized random stream seeds should remove once it starts failing.. -->
-           <modulename>RttLibraryTools</modulename>
-           <testname>FileGrepper</testname>
-           <outputFile>DefaultSeedsGrepper_results.txt</outputFile>
-           <testidentifier>DefaultSeedsGrepper</testidentifier>
-           <arg>
-             <argname>inputFile</argname>
-             <argvalue>log.AtlasG4Tf</argvalue>
-           </arg>
-           <arg>
-             <fileGrepperArgs>
-               <!-- veto pattern block -->
-               <fileGrepperVetoPattern>
-                 <fileGrepperPattern>DEFAULT seeds</fileGrepperPattern>
-                 <compileFlags>S</compileFlags>
-               </fileGrepperVetoPattern>
-             </fileGrepperArgs>
-           </arg>
-           <keepFilePattern>DefaultSeedsGrepper_results.txt</keepFilePattern>
-         </test>
-         <test> <!-- Special Test for StrangePDG G4Exceptions should remove once it starts failing.. -->
-           <modulename>RttLibraryTools</modulename>
-           <testname>FileGrepper</testname>
-           <outputFile>StrangePDGGrepper_results.txt</outputFile>
-           <testidentifier>StrangePDGGrepper</testidentifier>
-           <arg>
-             <argname>inputFile</argname>
-             <argvalue>log.AtlasG4Tf</argvalue>
-           </arg>
-           <arg>
-             <fileGrepperArgs>
-               <!-- veto pattern block -->
-               <fileGrepperVetoPattern>
-                 <fileGrepperPattern>G4Exception : PART102</fileGrepperPattern>
-                 <compileFlags>S</compileFlags>
-               </fileGrepperVetoPattern>
-             </fileGrepperArgs>
-           </arg>
-           <keepFilePattern>StrangePDGGrepper_results.txt</keepFilePattern>
-         </test>
+          <modulename>RttLibraryTools</modulename>
+          <testname>FileGrepper</testname>
+          <outputFile>DefaultSeedsGrepper_results.txt</outputFile>
+          <testidentifier>DefaultSeedsGrepper</testidentifier>
+          <arg>
+            <argname>inputFile</argname>
+            <argvalue>log.AtlasG4Tf</argvalue>
+          </arg>
+          <arg>
+            <fileGrepperArgs>
+              <!-- veto pattern block -->
+              <fileGrepperVetoPattern>
+                <fileGrepperPattern>DEFAULT seeds</fileGrepperPattern>
+                <compileFlags>S</compileFlags>
+              </fileGrepperVetoPattern>
+            </fileGrepperArgs>
+          </arg>
+          <keepFilePattern>DefaultSeedsGrepper_results.txt</keepFilePattern>
+        </test>
+        <test> <!-- Special Test for StrangePDG G4Exceptions should remove once it starts failing.. -->
+          <modulename>RttLibraryTools</modulename>
+          <testname>FileGrepper</testname>
+          <outputFile>StrangePDGGrepper_results.txt</outputFile>
+          <testidentifier>StrangePDGGrepper</testidentifier>
+          <arg>
+            <argname>inputFile</argname>
+            <argvalue>log.AtlasG4Tf</argvalue>
+          </arg>
+          <arg>
+            <fileGrepperArgs>
+              <!-- veto pattern block -->
+              <fileGrepperVetoPattern>
+                <fileGrepperPattern>G4Exception : PART102</fileGrepperPattern>
+                <compileFlags>S</compileFlags>
+              </fileGrepperVetoPattern>
+            </fileGrepperArgs>
+          </arg>
+          <keepFilePattern>StrangePDGGrepper_results.txt</keepFilePattern>
+          <noalarm />
+        </test>
       </jobGroup>
       <jobGroup name="SimCoreRegressionTests" parent="RTT:Top">
         <keepFilePattern>*.root</keepFilePattern>
@@ -1891,7 +1802,34 @@ https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/SimCoreTests
         <test position="1">
           <modulename>RttLibraryTools</modulename>
           <testname>DiffPoolFilesRunner</testname>
+          <outputFile>today.HITS.pool.root_yesterday.HITS.pool.root.basic.diffPool</outputFile>
           <testidentifier>HITS_RegressionTestRunner</testidentifier>
+          <arg>
+            <argname>fileName</argname>
+            <argvalue>today.HITS.pool.root</argvalue>
+          </arg>
+          <arg>
+            <argname>refFileName</argname>
+            <argvalue>yesterday.HITS.pool.root</argvalue>
+          </arg>
+          <keepFilePattern>today.HITS.pool.root_yesterday.HITS.pool.root.basic.diffPool</keepFilePattern>
+        </test>
+        <test>
+          <modulename>FlexibleDiffPoolFilesRunner</modulename>
+          <testname>FlexibleDiffPoolFilesRunner</testname>
+          <testidentifier>HITS_RegressionTestRunner</testidentifier>
+          <arg>
+            <argname>platformDependent</argname>
+            <argvalue>True</argvalue>
+          </arg>
+          <arg>
+            <argname>optionString</argname>
+            <argvalue>--ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings</argvalue>
+          </arg>
+          <arg>
+            <argname>doDetailedChecks</argname>
+            <argvalue>True</argvalue>
+          </arg>
           <arg>
             <argname>fileName</argname>
             <argvalue>today.HITS.pool.root</argvalue>
