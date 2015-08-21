@@ -61,6 +61,16 @@ TileLaserDefaultCalibTool::TileLaserDefaultCalibTool(const std::string& type, co
   m_rs_diode_signal_LASERII(),
   m_diode_Ped_LASERII(),
   m_diode_Ped_S_LASERII(),
+  m_diode_Alpha_LASERII(),
+  m_diode_Alpha_S_LASERII(),
+  m_diode_Led_LASERII(),
+  m_diode_Led_S_LASERII(),
+  /*  m_diode_Lin_LASERII(),
+  m_diode_Lin_S_LASERII(),
+  m_diode_Las_LASERII(),
+  m_diode_Las_S_LASERII(), */
+  m_PMT_Ped_LASERII(),
+  m_PMT_Ped_S_LASERII(),
   m_PMT(),
   m_PMT_S(),
   m_diode(),
@@ -131,24 +141,41 @@ StatusCode TileLaserDefaultCalibTool::initialize(){
     for ( int gain=0; gain<NGAINS; gain++ ) {
       m_diode_LASERII[diode][gain] = 0;      // diode signal values
       m_diode_S_LASERII[diode][gain] = 0;    // Sigma of signal values    
-      m_diode_Ped_LASERII[diode][gain] = 0;  // Corresponding pedestal values
-      m_diode_Ped_S_LASERII[diode][gain] = 0;// Sigma of pedestal values    
-      
       m_rs_diode_signal_LASERII[diode][gain] = new RunningStat();
     }
   }
 
-  for(int d=0;d<NPMTS;++d){
+  for ( int diode=0; diode<NDIODES+1; ++diode ) {
     for ( int gain=0; gain<NGAINS; gain++ ) {
-      m_PMT_LASERII[d][gain]      = 0;
-      m_PMT_S_LASERII[d][gain]    = 0;
+
+      m_diode_Ped_LASERII[diode][gain] = 0;  // Corresponding pedestal values
+      m_diode_Ped_S_LASERII[diode][gain] = 0;// Sigma of pedestal values    
+      m_diode_Alpha_LASERII[diode][gain] = 0;  // Corresponding Alpha values
+      m_diode_Alpha_S_LASERII[diode][gain] = 0;// Sigma of Alpha values    
+      m_diode_Led_LASERII[diode][gain] = 0;  // Corresponding LED values
+      m_diode_Led_S_LASERII[diode][gain] = 0;// Sigma of LED values    
+      /*      m_diode_Lin_LASERII[diode][gain] = 0;  // Corresponding linearity values
+      m_diode_Lin_S_LASERII[diode][gain] = 0;// Sigma of linearity values    
+      m_diode_Las_LASERII[diode][gain] = 0;  // Corresponding Laser values
+      m_diode_Las_S_LASERII[diode][gain] = 0;// Sigma of Laser values    
+      */
+
+    }
+  }
+
+  for(int pmt=0;pmt<NPMTS;++pmt){
+    for ( int gain=0; gain<NGAINS; gain++ ) {
+      m_PMT_LASERII[pmt][gain]      = 0;
+      m_PMT_S_LASERII[pmt][gain]    = 0;
+      m_PMT_Ped_LASERII[pmt][gain] = 0;  // Corresponding pedestal values
+      m_PMT_Ped_S_LASERII[pmt][gain] = 0;// Sigma of pedestal values    
       
-      m_rs_PMT_signal_LASERII[d][gain] = new RunningStat();
+      m_rs_PMT_signal_LASERII[pmt][gain] = new RunningStat();
     }
     // LASERI
-    m_PMT[d]      = 0;
-    m_PMT_S[d]    = 0;
-    m_rs_PMT_signal[d] = new RunningStat();
+    m_PMT[pmt]      = 0;
+    m_PMT_S[pmt]    = 0;
+    m_rs_PMT_signal[pmt] = new RunningStat();
   } // FOR
   
   // LASERI
@@ -242,6 +269,7 @@ StatusCode TileLaserDefaultCalibTool::initNtuple(int runNumber, int runType, TFi
 } // INITNTUPLE
 
 StatusCode TileLaserDefaultCalibTool::execute(){
+  const char* text[NGAINS] = {"LG DIODE ","HG DIODE "}; 
   // INCREMENT EVENT NUMBER
   ++m_evtNr;
   ATH_MSG_DEBUG ( "EVENT COUNTER: " << m_evtNr );
@@ -270,32 +298,120 @@ StatusCode TileLaserDefaultCalibTool::execute(){
     return StatusCode::SUCCESS; // This is expected for some events
   } // IF
   
-
+  float normalization[NDIODES][NGAINS];
   if ( m_LASERII ) {  // LASERII
     // We need to have pedestals
-    if ( m_evtNr<=4 ) return StatusCode::SUCCESS; 
+    static int have_pedestals = 0; 
+    static int have_alpha = 0; 
+    static int have_led = 0; 
+    static int have_linearity = 0; 
+    static int have_laser = 0;
+
+    
+    
+      
+    if ( ! (have_pedestals && have_alpha && have_led ) ) {
+      ATH_MSG_DEBUG ( "Calib type " << laserObj->getCalibType() << have_pedestals << have_alpha <<have_led<<have_linearity<<have_laser);
+      switch ( laserObj->getCalibType()  ) {
+
+      case TileLaserObject::calibType::Pedestal0: 	
+	if ( laserObj->isSet(0, 0, TileLaserObject::calibType::Pedestal0) ) { // Pedestal are set
+	  for ( int diode=0; diode<NDIODES; ++diode ) {
+	    for ( int gain=0; gain<NGAINS; gain++ ) {
+	      m_diode_Ped_LASERII[diode][gain]   = laserObj->getMean(diode, gain, TileLaserObject::calibType::Pedestal0);
+	      m_diode_Ped_S_LASERII[diode][gain] = laserObj->getSigma(diode, gain, TileLaserObject::calibType::Pedestal0);	     
+	    }	   
+	  }
+
+	  for (int pmt=0; pmt<NPMTS; pmt++ ) {
+	    for ( int gain=0; gain<NGAINS; gain++ ) {
+	      m_PMT_Ped_LASERII[pmt][gain]   = laserObj->getMean(pmt, gain, TileLaserObject::calibType::Pedestal0);
+	      m_PMT_Ped_S_LASERII[pmt][gain] = laserObj->getSigma(pmt, gain, TileLaserObject::calibType::Pedestal0);	
+	    }
+	  }
+	  // PHOCAL 
+	  for ( int gain=0; gain<NGAINS; gain++ ) {
+	    m_diode_Ped_LASERII[NDIODES][gain]   = laserObj->getMean(13, gain, TileLaserObject::calibType::Pedestal0);
+	    m_diode_Ped_S_LASERII[NDIODES][gain] = laserObj->getSigma(13, gain, TileLaserObject::calibType::Pedestal0);	     
+	  }
+	  have_pedestals = 1;
+	} 
+	
+	break; 
+	
+      case TileLaserObject::calibType::Pedestal1: 
+	break;
+
+
+      case TileLaserObject::calibType::Alpha: 	
+	if ( laserObj->isSet(0, 0, TileLaserObject::calibType::Alpha) ) { // Alpha are set
+	  for ( int diode=0; diode<NDIODES; ++diode ) {
+	    for ( int gain=0; gain<NGAINS; gain++ ) {
+	      m_diode_Alpha_LASERII[diode][gain]   = laserObj->getMean(diode, gain, TileLaserObject::calibType::Alpha);
+	      m_diode_Alpha_S_LASERII[diode][gain] = laserObj->getSigma(diode, gain, TileLaserObject::calibType::Alpha);	     
+	    }	   
+	  }
+	  // PHOCAL
+	  for ( int gain=0; gain<NGAINS; gain++ ) { 
+	    m_diode_Alpha_LASERII[NDIODES][gain]   = laserObj->getMean(13, gain, TileLaserObject::calibType::Alpha);
+	    m_diode_Alpha_S_LASERII[NDIODES][gain] = laserObj->getSigma(13, gain, TileLaserObject::calibType::Alpha);	     
+	  }
+
+	  have_alpha = 1;
+	} 
+	break; 
+		
+		
+      case TileLaserObject::calibType::LED: 	
+	if ( laserObj->isSet(0, 0, TileLaserObject::calibType::LED) ) { // LED are set
+	  for ( int diode=0; diode<NDIODES; ++diode ) {
+	    for ( int gain=0; gain<NGAINS; gain++ ) {
+	      m_diode_Led_LASERII[diode][gain]   = laserObj->getMean(diode, gain, TileLaserObject::calibType::LED);
+	      m_diode_Led_S_LASERII[diode][gain] = laserObj->getSigma(diode, gain, TileLaserObject::calibType::LED);	     
+	    }	  
+	    //PHOCAL
+	    for ( int gain=0; gain<NGAINS; gain++ ) {
+	      m_diode_Led_LASERII[NDIODES][gain]   = laserObj->getMean(13, gain, TileLaserObject::calibType::LED);
+	      m_diode_Led_S_LASERII[NDIODES][gain] = laserObj->getSigma(13, gain, TileLaserObject::calibType::LED);	     
+	    }
+ 
+	  }
+	  have_led = 1;
+	} 
+	break; 	
+
+
+      default:
+	ATH_MSG_ERROR ("Got an invalid calibration type from LaserObject" ); 
+	return StatusCode::SUCCESS; // We can't do anything yet
+	break;
+      }
+    }
+    
+    if (! have_pedestals) return StatusCode::SUCCESS; // We can't do anything yet
+
+    // Now we have pedestals, start accumulating the Diode responses
     for ( int diode=0; diode<NDIODES; ++diode ) {
-      const char* text[NGAINS] = {"LG DIODE ","HG DIODE "}; 
-      for ( int gain=0; gain<NGAINS; gain++ ) {
-	if ( laserObj->isSet(diode, gain, 0) ) { // Pedestal are set 
-	  m_diode_Ped_LASERII[diode][gain]   = laserObj->getMean(diode, gain,0);
-	  m_diode_Ped_S_LASERII[diode][gain] = laserObj->getSigma(diode, gain,0);
-	  ATH_MSG_DEBUG ( text[gain] << diode << " PED= " 
-			  << m_diode_Ped_LASERII[diode][gain]  << "+/-" << m_diode_Ped_S_LASERII[diode][gain] 
-			  << " ( " << laserObj->isSet(diode, gain, 0) << " ) " 
-			  );
-	  m_rs_diode_signal_LASERII[diode][gain]->Push(laserObj->getDiodeADC(diode,gain) - 
-						       laserObj->getMean(diode, gain,0));
-	}
+      for ( int gain=0; gain<NGAINS; gain++ ) {	
+	ATH_MSG_DEBUG ( text[gain] << diode << " PED= " 
+			<< m_diode_Ped_LASERII[diode][gain]  << "+/-" << m_diode_Ped_S_LASERII[diode][gain] 
+			<< " ( " << laserObj->isSet(diode, gain, 0) << " ) " 
+			);
+	
+	m_rs_diode_signal_LASERII[diode][gain]->Push( laserObj->getDiodeADC(diode,gain) - 
+						      m_diode_Ped_LASERII[diode][gain]);	
+	normalization[diode][gain] = ((float)laserObj->getDiodeADC(diode,gain)-m_diode_Ped_LASERII[diode][gain]);
+	ATH_MSG_DEBUG ( text[gain]  << diode << " Signal=" << normalization[diode][gain] << " " << m_rs_diode_signal_LASERII[diode][gain]->Mean() << " " << laserObj->getDiodeADC(diode,gain) << " Ped="<< m_diode_Ped_LASERII[diode][gain] );
       }
     }    
     
+    // And also the PMT responses
     for (int pmt=0; pmt<NPMTS; pmt++ ) {
       for ( int gain=0; gain<NGAINS; gain++ ) {
-	m_rs_PMT_signal_LASERII[pmt][gain]->Push(laserObj->getPMADC(pmt,gain)-laserObj->getMean(pmt==0?10:14,gain,0));
+	m_rs_PMT_signal_LASERII[pmt][gain]->Push(laserObj->getPMADC(pmt,gain)-m_PMT_Ped_LASERII[pmt][gain]);
       }
     }    
-
+    
   } else {  // laserI
 
     for(int d=0; d<NDIODES_LASER1; ++d){
@@ -365,6 +481,7 @@ StatusCode TileLaserDefaultCalibTool::execute(){
     } 
   } // Now we have the average time per partition for this event
   
+
   // Loop over tilerawchannelcollections 
   for ( itColl=rawCnt->begin(); itColl != itCollEnd; ++itColl ) {
     HWIdentifier drawer_id = m_tileHWID->drawer_id((*itColl)->identify());
@@ -428,14 +545,9 @@ StatusCode TileLaserDefaultCalibTool::execute(){
       
       if ( m_LASERII ){
         for(int diode=0; diode<NDIODES; ++diode){
-	  const char* text[NGAINS] = {"LG CHANNEL ","HG CHANNEL "};  
-	  for ( int diode_gain=0; diode_gain<NGAINS; diode_gain++ ) {
-	    ATH_MSG_DEBUG ( text[diode_gain]  << diode << " SIG=" << ampInPicoCoulombs << " " << laserObj->getDiodeADC(diode,diode_gain) << " " << m_diode_Ped_LASERII[diode][diode_gain] );
-
-	    // MONITORING DIODES
-	    float normalization = ((float)laserObj->getDiodeADC(diode,diode_gain)-m_diode_Ped_LASERII[diode][diode_gain]);
-	    if ( normalization!=0. )
-	      m_rs_ratio_LASERII[diode][diode_gain][ros][drawer][chan][gain]->Push( ampInPicoCoulombs/normalization );
+	  for ( int diode_gain=0; diode_gain<NGAINS; diode_gain++ ) {  // MONITORING DIODES
+	    if ( normalization[diode][diode_gain]!=0. )
+	      m_rs_ratio_LASERII[diode][diode_gain][ros][drawer][chan][gain]->Push( ampInPicoCoulombs/normalization[diode][diode_gain] );
           } // Diode Gains
         } // Diodes
       } else {
@@ -542,13 +654,11 @@ StatusCode TileLaserDefaultCalibTool::finalizeCalculations(){
         for(int couple=0; couple<NCOUPLES; ++couple){
           int chan0 = getCoupleOfChan(partition, couple).first;
           int chan1 = getCoupleOfChan(partition, couple).second;
-          if(couple%2==0){
-            m_kappa[partition][drawer][chan0][gain] = m_kappa[partition][drawer][0][gain];
-            m_kappa[partition][drawer][chan1][gain] = m_kappa[partition][drawer][0][gain];
-          } else {
-            m_kappa[partition][drawer][chan0][gain] = m_kappa[partition][drawer][1][gain];
-            m_kappa[partition][drawer][chan1][gain] = m_kappa[partition][drawer][1][gain];
-          } // ELSE
+	  int fibre = couple%2; 
+
+	  m_kappa[partition][drawer][chan0][gain] = m_kappa[partition][drawer][fibre][gain];
+	  m_kappa[partition][drawer][chan1][gain] = m_kappa[partition][drawer][fibre][gain];
+
         } // FOR
         // This line looks like a bug to me (Henric), commenting it,
 	// m_kappa[partition][drawer][32][gain] = m_kappa[partition][drawer][0][gain];
@@ -625,13 +735,28 @@ StatusCode TileLaserDefaultCalibTool::writeNtuple(int runNumber, int runType, TF
                /* Laser II */
     t->Branch("PMT_Signal",*m_PMT_LASERII, "PMT[2][2]/F");
     t->Branch("PMT_Sigma_Signal",*m_PMT_S_LASERII, "PMT_s[2][2]/F");
+
+    t->Branch("PMT_Ped",*m_PMT_Ped_LASERII, "PMT_Ped[2][2]/F");
+    t->Branch("PMT_Sigma_Ped",*m_PMT_Ped_S_LASERII, "PMT_sPed[2][2]/F");
+
     t->Branch("Diode_Signal",*m_diode_LASERII, "diode[10][2]/F");
     t->Branch("Diode_Sigma_Signal",*m_diode_S_LASERII, "diode_s[10][2]/F");
-    t->Branch("Diode_Ped",*m_diode_Ped_LASERII,"diode_Ped[10][2]/F");
-    t->Branch("Diode_Sigma_Ped",*m_diode_Ped_S_LASERII,"diode_sPed[10][2]/F");
+
+    t->Branch("Diode_Ped",*m_diode_Ped_LASERII,"diode_Ped[11][2]/F");
+    t->Branch("Diode_Sigma_Ped",*m_diode_Ped_S_LASERII,"diode_sPed[11][2]/F");
+
+    t->Branch("Diode_Alpha",*m_diode_Alpha_LASERII,"diode_Alpha[11][2]/F");
+    t->Branch("Diode_Sigma_Alpha",*m_diode_Alpha_S_LASERII,"diode_sAlpha[11][2]/F");
+
+    t->Branch("Diode_Led",*m_diode_Led_LASERII,"diode_Led[11][2]/F");
+    t->Branch("Diode_Sigma_Led",*m_diode_Led_S_LASERII,"diode_sLed[11][2]/F");
+
+    /*    t->Branch("Diode_Lin",*m_diode_Lin_LASERII,"diode_Lin[10][2]/F");
+    t->Branch("Diode_Sigma_Lin",*m_diode_Lin_S_LASERII,"diode_sLin[10][2]/F");
+    */
     t->Branch("Ratio",*m_ratio_LASERII,"signal_cor[10][2][4][64][48][2]/F");
     t->Branch("Sigma_Ratio",*m_ratio_S_LASERII,"signal_cor_s[10][2][4][64][48][2]/F");
-
+ 
   } else {
               /* Laser I */
     t->Branch("Humidity",&m_hrate,"humid/F");

@@ -50,7 +50,7 @@ from AtlasGeoModel import GeoModelInit
 #=== set global tag
 #=============================================================
 from IOVDbSvc.CondDB import conddb
-if RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2014-00")
+if RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2015-09")
 else:    conddb.setGlobalTag("COMCOND-BLKPA-RUN1-06")
 
 #=============================================================
@@ -150,6 +150,9 @@ tileInfoDump.PrintTimingCorrections = True  # set also run type below
 tileInfoDump.PrintBadChannels       = True
 tileInfoDump.PrintPulseShapes       = True  # set also run type below
 tileInfoDump.PrintOfcsCool          = True  # set also run type below
+tileInfoDump.PrintOfcRos            = 0   
+tileInfoDump.PrintOfcDrawer         = 0
+tileInfoDump.PrintOfcChannel        = 0
 tileInfoDump.PrintBadCells          = True
 tileInfoDump.PrintMuID              = False
 tileInfoDump.Print1gNoise           = True

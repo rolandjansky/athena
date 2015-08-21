@@ -116,6 +116,9 @@ class TileInfoDump: public AthAlgorithm {
     TH2F* m_h_badCellGap;
     TH2F* m_h_badCell;
 
+    unsigned int m_printOfcRos;
+    unsigned int m_printOfcDrawer;
+    unsigned int m_printOfcChannel;
 };
 
 #endif 

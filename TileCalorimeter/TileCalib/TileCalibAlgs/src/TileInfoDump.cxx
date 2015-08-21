@@ -87,6 +87,9 @@ TileInfoDump::TileInfoDump(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("PrintBadCells", m_printBadCells = false, "Switch on Bad Cells print out");
   declareProperty("PrintMuID", m_printMuID = false, "Switch on MuID threshold print out");
   declareProperty("Print1gNoise", m_print1gNoise = false, "Switch on 1g noise print out");
+  declareProperty("PrintOfcRos", m_printOfcRos = 0, "Print OFC for this ros (0 by default)");
+  declareProperty("PrintOfcDrawer", m_printOfcDrawer = 0, "Print OFC for this drawer (0 by default)");
+  declareProperty("PrintOfcChannel", m_printOfcChannel = 0, "Print OFC for this channel (0 by default)");
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -866,12 +869,11 @@ void TileInfoDump::printMuID() {
 void TileInfoDump::printOfcs() {
   MsgStream log(msgSvc(), name());
 
+  ATH_MSG_INFO("OFC will be printed for ros " << m_printOfcRos << ", drawer " << m_printOfcDrawer << ", channel " << m_printOfcChannel);
+
   //=== dump default channel only
   unsigned int gain = 0;
-  unsigned int ros = 0;
-  unsigned int drawer = 0;
-  unsigned int channel = 0;
-  unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
+  unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(m_printOfcRos, m_printOfcDrawer);
   int NPhases;
   int NFields;
   int Phamin;
@@ -880,21 +882,27 @@ void TileInfoDump::printOfcs() {
 
   m_tileToolOfcCool->getOfcParams(drawerIdx, NPhases, NFields, Phamin, Phamax, NSamples);
 
+  int phase_step = round((Phamax - Phamin) / (std::abs(NPhases) - 1));
+
   ATH_MSG_INFO(  "-------- OFC parameters ----->"
-               << " NPhases  " << NPhases
-               << " NFields " << NFields
-               << " Phamin " << Phamin
-               << " Phamax " << Phamax
-               << " NSamples " << NSamples );
+                 << " nPhases " << NPhases
+                 << " nFields " << NFields
+                 << " minimum phase " << Phamin * PHASE_PRECISION << " ns "
+                 << " maximum phase " << Phamax * PHASE_PRECISION << " ns "
+                 << " nSamples " << NSamples 
+                 << " phase step " << phase_step * PHASE_PRECISION << " ns");
+
+
 
   const TileOfcWeightsStruct* m_weights;
   for (gain = 0; gain < 2; gain++) {
     ATH_MSG_INFO(  "----------------- Gain " << gain << "-----------------" );
 
-    for (int phase = Phamin; phase <= Phamax; phase++) {
-      m_weights = m_tileToolOfcCool->getOfcWeights(drawerIdx, channel, gain, float(phase) / 10., true);
+    for (int phase = Phamin; phase <= Phamax; phase += phase_step ) {
+      float real_phase = float(phase) * PHASE_PRECISION;
+      m_weights = m_tileToolOfcCool->getOfcWeights(drawerIdx, m_printOfcChannel, gain, real_phase, true);
 
-      ATH_MSG_INFO( "OFC phase " << phase );
+      ATH_MSG_INFO( "OFC phase " << real_phase << " ns");
 
       msg(MSG::INFO) << "OFC A";
       for (int i = 0; i < m_weights->n_samples; i++)

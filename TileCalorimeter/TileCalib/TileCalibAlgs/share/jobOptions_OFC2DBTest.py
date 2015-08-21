@@ -59,7 +59,7 @@ from AtlasGeoModel import GeoModelInit
 #=== set global tag
 #=============================================================
 from IOVDbSvc.CondDB import conddb
-if RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2014-00")
+if RUN2: conddb.setGlobalTag("CONDBR2-BLKPA-2015-09")
 else:    conddb.setGlobalTag("COMCOND-BLKPA-RUN1-06")
 
 #========================================================
@@ -103,7 +103,7 @@ tileOFC2DBAlg.OutputLevel = INFO
 
 tileOFC2DBAlg.FixedPhasesNumber = 100
 tileOFC2DBAlg.PhaseStep = 0.5
-tileOFC2DBAlg.Modules = ['AUX01', 'AUX05', 'AUX09', 'AUX13', 'AUX17']
+tileOFC2DBAlg.Modules = ['AUX01', 'AUX05', 'AUX13', 'AUX14', 'AUX15', 'AUX16', 'AUX17', 'AUX18', 'AUX19', 'AUX20']
 tileOFC2DBAlg.CreateAllModules = True # In DB will be stored other missing modules with zeros size (empty)
 
 

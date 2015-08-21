@@ -130,7 +130,8 @@ StatusCode TileOFC2DBAlg::execute() {
                    << ", number of fixed phases: " << m_nFixedPhases
                    << ", phase step: " << m_phaseStep);
 
-    std::vector<int> phases(m_nFixedPhases * TileCalibUtils::MAX_GAIN + 1);
+    std::vector<float> phases;
+    phases.reserve(m_nFixedPhases * 2 + 1);
 
     //=== create attribute list
     coral::AttributeList ofcList(*spec);
@@ -138,14 +139,12 @@ StatusCode TileOFC2DBAlg::execute() {
 
     std::vector<bool> coolChannelCreated(TileCalibUtils::MAX_DRAWERIDX, false);
 
-    for (unsigned int gain = 0; gain < TileCalibUtils::MAX_GAIN; ++gain) {
-      for (int phase = - m_nFixedPhases; phase <= m_nFixedPhases; ++phase) {
-        phases.push_back(phase);
-      }
+    for (int iPhase = - m_nFixedPhases; iPhase <= m_nFixedPhases; ++iPhase) {
+      phases.push_back(iPhase * m_phaseStep);
     }
 
     unsigned int maxChan(0);
-    int nPhases = m_nFixedPhases * TileCalibUtils::MAX_GAIN + 1;
+    int nPhases = phases.size();
     TileCalibDrawerOfc* drawerOfc;
 
     for (unsigned int drawerIdx : m_drawerIdxs) {
@@ -157,16 +156,17 @@ StatusCode TileOFC2DBAlg::execute() {
       } else {
         //=== create an OFC blob interpreter
         maxChan = TileCalibUtils::MAX_CHAN;
-        drawerOfc = TileCalibDrawerOfc::getInstance(blob, objVersion, ndig, nPhases, maxChan, TileCalibUtils::MAX_GAIN); // nPhases, nChann, nGains
+        drawerOfc = TileCalibDrawerOfc::getInstance(blob, objVersion, ndig, -nPhases, maxChan, TileCalibUtils::MAX_GAIN); // nPhases, nChann, nGains
         
       }
-      
+
+      drawerOfc->setPhases(0, 0, phases);      
+
       for (unsigned int channel = 0; channel < maxChan; ++channel) {
         for (unsigned int gain = 0; gain < TileCalibUtils::MAX_GAIN; ++gain) {
-          drawerOfc->setPhases(channel, gain, phases);
-          for (int phase = - m_nFixedPhases; phase <= m_nFixedPhases; ++phase) {
-            float fphase = phase * m_phaseStep;
-            m_weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, fphase, m_of2);
+
+          for (float phase : phases) {
+            m_weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, phase, m_of2);
             for (int isam = 0; isam < ndig; isam++) {
               drawerOfc->setOfc(TileCalibDrawerOfc::FieldA, channel, gain, phase, isam, m_weights->w_a[isam]);
               drawerOfc->setOfc(TileCalibDrawerOfc::FieldB, channel, gain, phase, isam, m_weights->w_b[isam]);
@@ -240,7 +240,7 @@ StatusCode TileOFC2DBAlg::execute() {
     
   } else { // take best phase from DB and calculate OFCs for each channel
 
-    std::vector<int> phases(TileCalibUtils::MAX_CHAN);
+    std::vector<float> phases(TileCalibUtils::MAX_CHAN);
 
     //=== create attribute list
     coral::AttributeList ofcList(*spec);
@@ -250,13 +250,12 @@ StatusCode TileOFC2DBAlg::execute() {
     TileCalibDrawerOfc* drawerOfc = TileCalibDrawerOfc::getInstance(blob, objVersion, ndig, -48, 256, 2); // nPhases, nChann, nGains
 
     for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel)
-      phases[channel] = channel;
+      phases[channel] = (float) channel;
 
     for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
       for (unsigned int drawer = 0; drawer < TileCalibUtils::getMaxDrawer(ros); ++drawer) {
         unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
         drawerOfc->setPhases(drawerIdx, 0, phases);
-        drawerOfc->setPhases(drawerIdx, 1, phases);
 
         for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
 
