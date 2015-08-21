@@ -120,36 +120,36 @@ hMETStatus = defineHistogram('EF_MET_status', type='TH1I', title="EF MET Status"
 
 hCompEx     = defineHistogram('compN, compEx', type='TH2F',
                              title="EF MissingE_{x} VS component;;sgn(ME_{x}) log_{10}(E_{x}/GeV)",
-                             xbins=35,  xmin=-0.5, xmax=34.5, ybins=41, ymin=-3.075, ymax=3.075, labels=compLabels)
+                             xbins=36,  xmin=-0.5, xmax=35.5, ybins=41, ymin=-3.075, ymax=3.075, labels=compLabels)
 hCompEy     = defineHistogram('compN, compEy', type='TH2F',
                              title="EF Missing E_{y} VS component;;sgn(ME_{y}) log_{10}(E_{y}/GeV)",
-                             xbins=35,  xmin=-0.5, xmax=34.5, ybins=41, ymin=-3.075, ymax=3.075, labels=compLabels)
+                             xbins=36,  xmin=-0.5, xmax=35.5, ybins=41, ymin=-3.075, ymax=3.075, labels=compLabels)
 hCompEz     = defineHistogram('compN, compEz', type='TH2F',
                              title="EF Missing E_{z} VS component;;sgn(ME_{z}) log_{10}(E_{z}/GeV)",
-                             xbins=35,  xmin=-0.5, xmax=34.5, ybins=41, ymin=-3.075, ymax=3.075, labels=compLabels)
+                             xbins=36,  xmin=-0.5, xmax=35.5, ybins=41, ymin=-3.075, ymax=3.075, labels=compLabels)
 hCompEt     = defineHistogram('compN, compEt', type='TH2F',
                               title="EF MissingE_{T} VS component;;log_{10}(ME_{T}/GeV)",
-                              xbins=35,  xmin=-0.5, xmax=34.5, ybins=24, ymin=-0.15, ymax=3.45, labels=compLabels)
+                              xbins=36,  xmin=-0.5, xmax=35.5, ybins=24, ymin=-0.15, ymax=3.45, labels=compLabels)
 hCompSumEt  = defineHistogram('compN, compSumEt', type='TH2F',
                              title="EF Sum |E_{T}| VS component;;log_{10}(SumE_{T}/GeV)",
-                             xbins=35,  xmin=-0.5, xmax=34.5, ybins=35, ymin=-1.875, ymax=3.375, labels=compLabels)
+                             xbins=36,  xmin=-0.5, xmax=35.5, ybins=35, ymin=-1.875, ymax=3.375, labels=compLabels)
 hCompSumE   = defineHistogram('compN, compSumE', type='TH2F',
                              title="EF Sum |E| VS component;;log_{10}(SumE/GeV)",
-                             xbins=35,  xmin=-0.5, xmax=34.5, ybins=35, ymin=-1.875, ymax=3.375, labels=compLabels)
+                             xbins=36,  xmin=-0.5, xmax=35.5, ybins=35, ymin=-1.875, ymax=3.375, labels=compLabels)
 
 hCompEt_lin = defineHistogram('compN, compEt_lin', type='TH2F',
                              title="EF MissingE_{T} VS component;;ME_{T} (GeV)",
-                             xbins=35,  xmin=-0.5, xmax=34.5, ybins=205, ymin=-13.5, ymax=601.5, labels=compLabels)
+                             xbins=36,  xmin=-0.5, xmax=35.5, ybins=205, ymin=-13.5, ymax=601.5, labels=compLabels)
 hCompSumEt_lin= defineHistogram('compN, compSumEt_lin', type='TH2F',
                              title="EF Sum |E_{T}| VS component;;SumE_{T} (GeV)",
-                             xbins=35,  xmin=-0.5, xmax=34.5, ybins=305, ymin=-27,   ymax=1803,  labels=compLabels)
+                             xbins=36,  xmin=-0.5, xmax=35.5, ybins=305, ymin=-27,   ymax=1803,  labels=compLabels)
 
 # for a in bitNames:
 #     compLabels += a+':'
 
 #hCompStatus = defineHistogram('compN, compStatus', type='TH2I',
 #                              title="Event status bits VS component",
-#                              xbins=35,  xmin=-0.5, xmax=34.5, ybins=16, ymin=-0.5, ymax=15.5,
+#                              xbins=36,  xmin=-0.5, xmax=35.5, ybins=16, ymin=-0.5, ymax=15.5,
 #                              labels=compLabels, opt="kVec")
 
 

@@ -50,6 +50,9 @@ EFMissingETFromClustersPUC::EFMissingETFromClustersPUC(const std::string& type,
   m_nphibins = (TMath::TwoPi()/m_towerwidthinput/2)*2;
   m_netabins = 2* m_etarange/m_towerwidthinput;
   m_ntowers = m_nphibins*m_netabins;
+
+  //initialization to make coverity happy:
+  m_clusterstate = xAOD::CaloCluster_v1::UNCALIBRATED;
  
   
 }
@@ -198,7 +201,7 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
     covEtobs[0][1] = covEtobs[1][0];
     // record masks, remove towers that are masked from observed quantities
     vector<double> Emasked; TMatrixD Etmasked(2,1);
-    double sumEtmasked, arealost = 0, areatot = (m_etarange*2)*2*M_PI;
+    double sumEtmasked = 0, arealost = 0, areatot = (m_etarange*2)*2*M_PI;
     for(int k = 0; k < nummasks; k++) {
         arealost += AreaInMask[k];
         double E1 = sqrt(ExInMask[k]*ExInMask[k]+EyInMask[k]*EyInMask[k]);
@@ -271,12 +274,12 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
 
   } else {
   
-      // Just store the clusters 
-      metComp->m_ex = -MExFull;
-      metComp->m_ey = -MEyFull;
-      metComp->m_ey = -MEzFull;
-      metComp->m_sumEt = sumEtFull;
-      metComp->m_sumE  = sumEFull;
+      // Just store zero energies for the clusters 
+      metComp->m_ex = 0.;
+      metComp->m_ey = 0.;
+      metComp->m_ey = 0.;
+      metComp->m_sumEt = 0.;
+      metComp->m_sumE  = 0.;
       metComp->m_usedChannels += 1;
       
       metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition + 1 ); // fetch first auxiliary component to store uncorrected MET

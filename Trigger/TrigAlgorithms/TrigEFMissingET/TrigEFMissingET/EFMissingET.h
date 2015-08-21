@@ -79,7 +79,7 @@ class EFMissingET : public HLT::AllTEAlgo {
     HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& tes_in,
         unsigned int type_out);
 
-    HLT::ErrorCode getROI();
+    //HLT::ErrorCode getROI();
 
     /**
      * makeMissingET() invokes the different tools that make the actual work.
@@ -110,7 +110,7 @@ class EFMissingET : public HLT::AllTEAlgo {
     /** pointer to transient helper object */
     TrigEFMissingEtHelper *m_met_help;
     /** input trigger element */
-    const HLT::TriggerElement *m_inputTE;
+    //const HLT::TriggerElement *m_inputTE;
     /** pointer to StoreGate */
     StoreGateSvc* m_StoreGate;
         

@@ -181,6 +181,13 @@ EFMissingET::EFMissingET(const std::string & name, ISvcLocator* pSvcLocator):
   // m_maskTileE_A_Missing    = 0x04000000; // bit 26
   // m_maskTileE_C_Missing    = 0x08000000; // bit 27
 
+  //Initialize some variables to make coverity happy,
+  //even though not needed in principle
+  
+  m_met=0;
+  firsteventinrun=false;
+  n_sizePers=0;
+
 }
 
 //////////////////////////////////////////////////////////
@@ -447,11 +454,11 @@ HLT::ErrorCode EFMissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
         m_TileExtBarCside=true;
 
         if (m_decodeDetMask) {
-          uint32_t mask0 = pEvent->detectorMask0();
-          uint32_t mask1 = pEvent->detectorMask1();
+          uint64_t mask0 = pEvent->detectorMask0();
+          uint64_t mask1 = pEvent->detectorMask1();
           if(msgLvl() <= MSG::DEBUG){
             char buff[512];
-            snprintf(buff,512,"REGTEST: DetMask_1 = 0x%08x, DetMask_0 = 0x%08x",mask1,mask0);
+            snprintf(buff,512,"REGTEST: DetMask_1 = 0x%08lu, DetMask_0 = 0x%08lu",mask1,mask0);
             msg() << MSG::DEBUG << buff << endreq;
           }
 
@@ -515,18 +522,18 @@ HLT::ErrorCode EFMissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
 
 }
 ///////////////////////////////////////////
-HLT::ErrorCode EFMissingET::getROI()    {
-
-  // Some debug output:
-  if(msgLvl() <= MSG::DEBUG){
-    msg() << MSG::DEBUG
-      << "m_inputTE->label(): "
-        //Migration << m_inputTE->label()
-        << endreq;
-  }
-
-  return HLT::OK;
-}
+//HLT::ErrorCode EFMissingET::getROI()    {
+//
+//  // Some debug output:
+//  if(msgLvl() <= MSG::DEBUG){
+//    msg() << MSG::DEBUG
+//      << "m_inputTE->label(): "
+//        //Migration << m_inputTE->label()
+//        << endreq;
+//  }
+//
+//  return HLT::OK;
+//}
 
 //////////////////////////////////////////////////////////////////////
 HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerElement*> >& tes_in)
@@ -560,7 +567,10 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
          HLT::ErrorCode status = getFeature(  (*it) , m_caloCluster );
          
          if(status!=HLT::OK || !m_caloCluster) {      	 
-            msg() << MSG::ERROR <<"Failed to get ClusterContainer" << endreq; return HLT::NAV_ERROR; 
+            // Changed to prevent abortions of combined chains during cosmic data taking
+            // This should not be in during collisions
+            //msg() << MSG::ERROR <<"Failed to get ClusterContainer" << endreq; return HLT::NAV_ERROR; 
+            msg() << MSG::ERROR <<"Failed to get ClusterContainer" << endreq; return HLT::OK; 
          } else {     
             if (msgLvl() <= MSG::DEBUG) {
                msg() << MSG::DEBUG << "size of cluster container " << m_caloCluster->size() << endreq;  	

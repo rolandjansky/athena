@@ -36,6 +36,9 @@ EFMissingETFromClusters::EFMissingETFromClusters(const std::string& type,
   _fextype = FexType::TOPO;
   
   m_methelperposition = 14;
+
+  //initialization to make coverity happy:
+  m_clusterstate = xAOD::CaloCluster_v1::UNCALIBRATED;
   
 }
 
