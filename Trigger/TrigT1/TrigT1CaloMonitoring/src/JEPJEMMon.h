@@ -36,9 +36,6 @@ namespace LVL1 {
 // ============================================================================
 // Forward declarations:
 // ============================================================================
-class JEMEtSums;
-class JetElement;
-class JEMTobRoI;
 class ITrigT1CaloMonErrorTool;
 class TrigT1CaloLWHistogramTool;
 // ============================================================================
@@ -150,10 +147,6 @@ private:
    /// Error summary bins
    enum SummaryErrors { EMParity, HadParity, EMLink, HadLink, JEMStatus,
                         NumberOfSummaryBins };
-
-   typedef DataVector<LVL1::JetElement> JECollection;
-   typedef DataVector<LVL1::JEMEtSums>  JEMEtSumsCollection;
-   typedef DataVector<LVL1::JEMTobRoI>  JemRoiCollection;
 
    static const int s_crates     = 2;   ///< Number of JEM crates
    static const int s_modules    = 16;  ///< Number of modules per crate

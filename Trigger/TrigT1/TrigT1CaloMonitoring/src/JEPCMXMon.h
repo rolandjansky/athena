@@ -34,9 +34,6 @@ namespace LVL1 {
 // ============================================================================
 // Forward declarations:
 // ============================================================================
-class CMXJetTob;
-class CMXJetHits;
-class CMXEtSums;
 class ITrigT1CaloMonErrorTool;
 class TrigT1CaloLWHistogramTool;
 // ============================================================================
@@ -156,9 +153,6 @@ private:
    enum SummaryErrors { JetStatus, EnergyStatus, JetParity, EnergyParity,
                         NumberOfSummaryBins };
 
-   typedef DataVector<LVL1::CMXJetTob>  CMXJetTobCollection;
-   typedef DataVector<LVL1::CMXJetHits> CMXJetHitsCollection;
-   typedef DataVector<LVL1::CMXEtSums>  CMXEtSumsCollection;
 
    static const int s_crates     = 2;   ///< Number of JEM crates
    static const int s_modules    = 16;  ///< Number of modules per crate

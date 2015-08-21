@@ -46,6 +46,10 @@ if l1caloRawMon:
             'TrigT1CaloCalibConditions/L1CaloCalibConditionsTier0_jobOptions.py'
         )
 
+    # setup l1calo database
+    if athenaCommonFlags.isOnline:
+        include('TrigT1CaloCalibConditions/L1CaloCalibConditions_jobOptions.py')
+
     include("CaloConditions/CaloConditions_jobOptions.py")
     if Offline:
         include("LArDetDescr/LArDetDescr_joboptions.py")
@@ -79,6 +83,7 @@ if l1caloRawMon:
             name="L1PPrStabilityMonTool",
             doFineTimeMonitoring=doFineTime,
             doPedestalMonitoring=LVL1CaloMonFlags.doPedestalMonitoring(),
+            doPedestalCorrectionMonitoring=LVL1CaloMonFlags.doPedestalCorrectionMonitoring(),
             doEtCorrelationMonitoring=(
                 LVL1CaloMonFlags.doEtCorrelationMonitoring() and isCalo),
             ppmADCMinValue=60,
@@ -89,6 +94,13 @@ if l1caloRawMon:
         )
         ToolSvc += L1PPrStabilityMonTool
         L1CaloMan.AthenaMonTools += [L1PPrStabilityMonTool]
+
+        # --- BunchCrossing Tool configuration ---
+        if athenaCommonFlags.isOnline:
+            from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
+            theBCTool = BunchCrossingTool()
+            ToolSvc += theBCTool
+            L1PPrStabilityMonTool.BunchCrossingTool = theBCTool
 
     else:
 
@@ -119,7 +131,7 @@ if l1caloRawMon:
         L1PPrMonTool = LVL1__PPrMon(
             name="L1PPrMonTool",
             LUTHitMap_ThreshVec=[
-                0, 1, 2, 3, 4, 5, 6, 7, 10, 15, 20, 33, 45, 50],
+                0, 1, 3, 5, 10, 20, 35, 50],
             LUTHitMap_LumiBlocks=10,
             ADCHitMap_Thresh=50,
             MaxEnergyRange=256,
@@ -174,18 +186,13 @@ if l1caloRawMon:
         ToolSvc += L1JEPCMXMonTool
         L1CaloMan.AthenaMonTools += [L1JEPCMXMonTool]
 
-        # if isData:
-
-        #--------------------- Transmission and Performance -------------------
-        # from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import JEPSimBSMon
-        # JEPSimBSMonTool = JEPSimBSMon("JEPSimBSMonTool",
-        #     JEPHitsTool = "LVL1::L1JEPHitsTools/L1JEPHitsTools_Mon",
-        #     JetTool = "LVL1::L1JetTools/L1JetTools_Mon",
-        #     JEPEtSumsTool = "LVL1::L1JEPEtSumsTools/L1JEPEtSumsTools_Mon",
-        #     )
-        # ToolSvc += JEPSimBSMonTool
-        # L1CaloMan.AthenaMonTools += [ JEPSimBSMonTool ]
-        # ToolSvc.JEPSimBSMonTool.OutputLevel = DEBUG
+        if isData:
+	        #--------------------- Transmission and Performance -------------------
+	        from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__JEPSimMon
+	        JEPSimMonTool = LVL1__JEPSimMon("JEPSimMonTool")
+	        ToolSvc += JEPSimMonTool
+	        L1CaloMan.AthenaMonTools += [ JEPSimMonTool ]
+	        # ToolSvc.JEPSimBSMonTool.OutputLevel = DEBUG
 
         # from TrigT1CaloTools.TrigT1CaloToolsConf import LVL1__L1JEPHitsTools
         # L1JEPHitsTools = LVL1__L1JEPHitsTools("L1JEPHitsTools_Mon")

@@ -32,6 +32,8 @@
 #include "xAODTrigL1Calo/CPMTowerContainer.h"
 #include "xAODTrigL1Calo/CMXCPTobContainer.h"
 #include "xAODTrigL1Calo/CMXCPHitsContainer.h"
+#include "xAODTrigL1Calo/RODHeaderContainer.h"
+#include "xAODTrigL1Calo/CPMTobRoIContainer.h"
 
 
 class LWHist;
@@ -46,14 +48,12 @@ namespace LVL1 {
 // Forward declarations:
 // ============================================================================
 class CPAlgorithm;
-//class CPMTower;
-//class CMXCPTob;
-//class CMXCPHits;
-class CPMTobRoI;
-class RODHeader;
+
+
 //class TriggerTower;
 class IL1EmTauTools;
 class IL1CPCMXTools;
+class IL1CPMTools;
 class ITrigT1CaloMonErrorTool; 
 class TrigT1CaloLWHistogramTool;
 // ============================================================================
@@ -206,21 +206,19 @@ private:
   //typedef DataVector<LVL1::CMXCPTob>     CmxCpTobCollection;
   //typedef DataVector<LVL1::CMXCPHits>    CmxCpHitsCollection;  
   //typedef DataVector<LVL1::TriggerTower> TriggerTowerCollection;  
-  
-  typedef DataVector<LVL1::CPMTobRoI>    CpmTobRoiCollection;
+
   typedef DataVector<LVL1::CPAlgorithm>  InternalRoiCollection;
-  typedef DataVector<LVL1::RODHeader>    RodHeaderCollection;
-  
   typedef std::vector<int> ErrorVector;
 
   //typedef maps @@
   //typedef std::map<int, LVL1::TriggerTower*> TriggerTowerMap;
   typedef std::map<int, const xAOD::TriggerTower*> TriggerTowerMapEm;
   typedef std::map<int, const xAOD::TriggerTower*> TriggerTowerMapHad;
-  typedef std::map<int, const xAOD::CPMTower*>     CpmTowerMap;
+  typedef std::map<int, xAOD::CPMTower*>     CpmTowerMap;
+  //  typedef std::map<int, const xAOD::CPMTower*>*    CpmTowerMapP;
   typedef std::map<int, const xAOD::CMXCPTob*>     CmxCpTobMap;
   typedef std::map<int, const xAOD::CMXCPHits*>    CmxCpHitsMap;
-  typedef std::map<int, LVL1::CPMTobRoI*>    CpmTobRoiMap;
+  typedef std::map<int, xAOD::CPMTobRoI*>    CpmTobRoiMap;
 
   static const int s_crates  = 4;
   static const int s_modules = 14;
@@ -251,19 +249,19 @@ private:
   /// Set up CpmTower map
   void  setupMap(const xAOD::CPMTowerContainer* coll, CpmTowerMap& map);
   /// Set up CpmTobRoi map
-  void  setupMap(const CpmTobRoiCollection* coll, CpmTobRoiMap& map);
+  void  setupMap(const xAOD::CPMTobRoIContainer* coll, CpmTobRoiMap& map);
   /// Set up CmxCpTob map
   void  setupMap(const xAOD::CMXCPTobContainer* coll, CmxCpTobMap& map,
                                            std::vector<int>* parityMap = 0);
   /// Set up CmxCpHits map
   void  setupMap(const xAOD::CMXCPHitsContainer* coll, CmxCpHitsMap& map);
   /// Simulate CPM RoIs from CPM Towers
-  void  simulate(const CpmTowerMap towers, const CpmTowerMap towersOv,
-                       CpmTobRoiCollection* rois);
+  void  simulate(const CpmTowerMap *towers, const CpmTowerMap *towersOv,
+                       xAOD::CPMTobRoIContainer* rois);
   /// Simulate CPM RoIs from CPM Towers quick version
-  void  simulate(const CpmTowerMap towers, CpmTobRoiCollection* rois);
+  void  simulate(const CpmTowerMap* towers, xAOD::CPMTobRoIContainer* rois);
   /// Simulate CMX-CP TOBs from CPM RoIs
-  void  simulate(const CpmTobRoiCollection* rois, xAOD::CMXCPTobContainer* tobs);
+  void  simulate(const xAOD::CPMTobRoIContainer* rois, xAOD::CMXCPTobContainer* tobs);
   /// Simulate CMX Hit sums from CMX TOBs
   void  simulate(const xAOD::CMXCPTobContainer* tobs,
 		 xAOD::CMXCPHitsContainer* hits, int selection);
@@ -273,18 +271,20 @@ private:
   /// Return EM FPGA for given crate/phi
   int   fpga(int crate, double phi);
   /// Return a tower with zero energy if parity bit is set
-  const xAOD::CPMTower* ttCheck(const xAOD::CPMTower* tt, xAOD::CPMTowerContainer* coll);
+  xAOD::CPMTower* ttCheck( xAOD::CPMTower* tt, xAOD::CPMTowerContainer* coll);
   /// Check if LimitedRoISet bit is set
   bool  limitedRoiSet(int crate);
 
   /// CP RoI simulation tool
   ToolHandle<LVL1::IL1EmTauTools>        m_emTauTool;
   /// CP-CMX simulation tool
-  ToolHandle<LVL1::IL1CPCMXTools>         m_cpCmxTool;
+  ToolHandle<LVL1::IL1CPCMXTools>        m_cpCmxTool;
+  /// CP simulation tool
+  ToolHandle<LVL1::IL1CPMTools>          m_cpmTool;
   /// Event veto error tool
   ToolHandle<ITrigT1CaloMonErrorTool>    m_errorTool;  
   /// Histogram helper tool
-  ToolHandle<TrigT1CaloLWHistogramTool> m_histTool;
+  ToolHandle<TrigT1CaloLWHistogramTool>  m_histTool;
   // Debug printout flag
   bool m_debug;
 
@@ -310,7 +310,7 @@ private:
   /// Error vector StoreGate key
   std::string m_errorLocation;
   /// Pointer to ROD header container
-  const RodHeaderCollection* m_rodTES;
+  const xAOD::RODHeaderContainer* m_rodTES;
 
   /// CPM overlap tower container present
   bool m_overlapPresent;

@@ -8,7 +8,7 @@
 // PACKAGE:  TrigT1CaloMonitoring
 //
 // AUTHOR:   Peter Faulkner
-//	     
+//
 //
 // ********************************************************************
 #ifndef TRIGT1CALOMONITORING_JEPSIMMON_H
@@ -23,6 +23,20 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "DataModel/DataVector.h"
 
+// ============================================================================
+// xAOD
+// ============================================================================
+#include "xAODTrigL1Calo/CMXEtSumsContainer.h"
+#include "xAODTrigL1Calo/CMXJetTobContainer.h"
+#include "xAODTrigL1Calo/CMXJetHitsContainer.h"
+#include "xAODTrigL1Calo/CMXRoIContainer.h"
+#include "xAODTrigL1Calo/JEMEtSumsContainer.h"
+#include "xAODTrigL1Calo/JEMTobRoIContainer.h"
+#include "xAODTrigL1Calo/JetElementContainer.h"
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "xAODTrigL1Calo/RODHeaderContainer.h"
+// ============================================================================
+
 class LWHist;
 class TH1F_LW;
 class TH2F_LW;
@@ -34,19 +48,10 @@ namespace LVL1 {
 // ============================================================================
 // Forward declarations:
 // ============================================================================
-class CMXEtSums;
-class CMXJetTob;
-class CMXJetHits;
-class CMXRoI;
-class JEMEtSums;
-class JEMTobRoI;
-class JetAlgorithm;
-class JetElement;
-class RODHeader;
-class TriggerTower;
+class JEMJetAlgorithm;
 class IL1JetCMXTools;
 class IL1JetElementTools;
-class IL1JetTools;
+class IL1JEMJetTools;
 class IL1EnergyCMXTools;
 class ITrigT1CaloMonErrorTool;
 class TrigT1CaloLWHistogramTool;
@@ -191,17 +196,17 @@ class JEPSimMon: public ManagedMonitorToolBase
 {
 
 public:
-  
+
   JEPSimMon(const std::string & type, const std::string & name,
-		       const IInterface* parent);
-    
+            const IInterface* parent);
+
 
   static const InterfaceID& interfaceID();
 
   virtual ~JEPSimMon();
 
   virtual StatusCode initialize();
-    
+
   virtual StatusCode bookHistogramsRecurrent();
   virtual StatusCode fillHistograms();
   virtual StatusCode procHistograms();
@@ -211,62 +216,55 @@ private:
   // Error summary bins
   enum SummaryErrors { EMElementMismatch,   HadElementMismatch,
                        RoIMismatch,         CMXJetTobMismatch,
-		       LocalJetMismatch,    RemoteJetMismatch,
-		       TotalJetMismatch,    CMXJetTopoMismatch,
-		       JEMEtSumsMismatch,   CMXEtSumsMismatch,
-		       LocalEnergyMismatch, RemoteEnergyMismatch,
-		       TotalEnergyMismatch, SumEtMismatch,
-		       MissingEtMismatch,   MissingEtSigMismatch,
-		       EnergyRoIMismatch,   NumberOfSummaryBins };
+                       LocalJetMismatch,    RemoteJetMismatch,
+                       TotalJetMismatch,    CMXJetTopoMismatch,
+                       JEMEtSumsMismatch,   CMXEtSumsMismatch,
+                       LocalEnergyMismatch, RemoteEnergyMismatch,
+                       TotalEnergyMismatch, SumEtMismatch,
+                       MissingEtMismatch,   MissingEtSigMismatch,
+                       EnergyRoIMismatch,   NumberOfSummaryBins
+                     };
 
-  typedef DataVector<LVL1::JetElement>   JetElementCollection;
-  typedef DataVector<LVL1::CMXJetTob>    CmxJetTobCollection;
-  typedef DataVector<LVL1::CMXJetHits>   CmxJetHitsCollection;
-  typedef DataVector<LVL1::JEMTobRoI>    JemRoiCollection;
-  typedef DataVector<LVL1::TriggerTower> TriggerTowerCollection;
-  typedef DataVector<LVL1::JetAlgorithm> InternalRoiCollection;
-  typedef DataVector<LVL1::JEMEtSums>    JemEtSumsCollection;
-  typedef DataVector<LVL1::CMXEtSums>    CmxEtSumsCollection;
-  typedef DataVector<LVL1::RODHeader>    RodHeaderCollection;
-  
+
   typedef std::vector<int> ErrorVector;
+  typedef DataVector<LVL1::JEMJetAlgorithm> InternalRoiCollection;
 
-  typedef std::map<int, LVL1::JetElement*>   JetElementMap;
-  typedef std::map<int, LVL1::JEMTobRoI*>    JemRoiMap;
-  typedef std::map<int, LVL1::CMXJetTob*>    CmxJetTobMap;
-  typedef std::map<int, LVL1::CMXJetHits*>   CmxJetHitsMap;
-  typedef std::map<int, LVL1::JEMEtSums*>    JemEtSumsMap;
-  typedef std::map<int, LVL1::CMXEtSums*>    CmxEtSumsMap;
+  typedef std::map<int, xAOD::JetElement*>   JetElementMap;
+  typedef std::map<int, xAOD::JEMTobRoI*>    JEMTobRoIMap;
+  typedef std::map<int, xAOD::CMXJetTob*>    CmxJetTobMap;
+  typedef std::map<int, xAOD::CMXJetHits*>   CmxJetHitsMap;
+  typedef std::map<int, xAOD::JEMEtSums*>    JemEtSumsMap;
+  typedef std::map<int, xAOD::CMXEtSums*>    CmxEtSumsMap;
 
   static const int s_crates    = 2;
   static const int s_modules   = 16;
   static const int s_cmxs      = 2;
   static const int s_locCoords = 4;
-  
+
   /// Compare Simulated JetElements with data
   bool  compare(const JetElementMap& jeSimMap, const JetElementMap& jeMap,
-                      ErrorVector& errors, bool overlap);
+                ErrorVector& errors, bool overlap);
   /// Compare Simulated RoIs with data
-  void  compare(const JemRoiMap& roiSimMap, const JemRoiMap& roiMap,
-                                                 ErrorVector& errors);
+  void  compare(const JEMTobRoIMap& roiSimMap, const JEMTobRoIMap& roiMap,
+                ErrorVector& errors);
   /// Compare simulated CMX TOBs with data
   void  compare(const CmxJetTobMap& tobSimMap, const CmxJetTobMap& tobMap,
-                      ErrorVector& errorsJEM, ErrorVector& errorsCMX);
+                ErrorVector& errorsJEM, ErrorVector& errorsCMX);
   /// Compare Simulated CMX Hit Sums and Data CMX Hit Sums
   void  compare(const CmxJetHitsMap& cmxSimMap, const CmxJetHitsMap& cmxMap,
-                                          ErrorVector& errors, int selection);
+                ErrorVector& errors, int selection);
   /// Compare simulated JEM Et Sums with data
   void  compare(const JemEtSumsMap& jemSimMap, const JemEtSumsMap& jemMap,
-                                               ErrorVector& errors);
+                ErrorVector& errors);
   /// Compare JEM EtSums and CMX EtSums
   void  compare(const JemEtSumsMap& jemMap, const CmxEtSumsMap& cmxMap,
-                      ErrorVector& errorsJEM, ErrorVector& errorsCMX);
+                ErrorVector& errorsJEM, ErrorVector& errorsCMX);
   /// Compare Simulated CMX EtSums and Data CMX EtSums
   void  compare(const CmxEtSumsMap& cmxSimMap, const CmxEtSumsMap& cmxMap,
-                                          ErrorVector& errors, int selection);
+                ErrorVector& errors, int selection);
   /// Compare Et Maps and Energy Totals with Energy RoIs from data
-  void  compare(const CmxEtSumsMap& cmxMap, const LVL1::CMXRoI* cmxRoi,
-                                              ErrorVector& errors);
+  void  compare(const CmxEtSumsMap& cmxMap, const xAOD::CMXRoI* cmxRoi,
+                ErrorVector& errors);
   /// Fill error event number histogram
   void  fillEventSample(int err, int loc, bool isJem);
   /// Set overview and summary histogram labels
@@ -282,41 +280,41 @@ private:
   /// Set energy threshold names histogram labels
   void  setLabelsEnTotThr(LWHist* hist);
   /// Set up JetElement map
-  void  setupMap(const JetElementCollection* coll, JetElementMap& map);
+  void  setupMap(const xAOD::JetElementContainer* coll, JetElementMap& map);
   /// Set up JemTobRoi map
-  void  setupMap(const JemRoiCollection* coll, JemRoiMap& map);
+  void  setupMap(const xAOD::JEMTobRoIContainer* coll, JEMTobRoIMap& map);
   /// Set up CmxJetTob map
-  void  setupMap(const CmxJetTobCollection* coll, CmxJetTobMap& map);
+  void  setupMap(const xAOD::CMXJetTobContainer* coll, CmxJetTobMap& map);
   /// Set up CmxJetHits map
-  void  setupMap(const CmxJetHitsCollection* coll, CmxJetHitsMap& map);
+  void  setupMap(const xAOD::CMXJetHitsContainer* coll, CmxJetHitsMap& map);
   /// Set up JemEtSums map
-  void  setupMap(const JemEtSumsCollection* coll, JemEtSumsMap& map);
+  void  setupMap(const xAOD::JEMEtSumsContainer* coll, JemEtSumsMap& map);
   /// Set up CmxEtSums map
-  void  setupMap(const CmxEtSumsCollection* coll, CmxEtSumsMap& map);
+  void  setupMap(const xAOD::CMXEtSumsContainer* coll, CmxEtSumsMap& map);
   /// Simulate Jet Elements from Trigger Towers
-  void  simulate(const TriggerTowerCollection* towers,
-                       JetElementCollection* elements);
+  void  simulate(const xAOD::TriggerTowerContainer* towers,
+                 xAOD::JetElementContainer* elements);
   /// Simulate JEM TOB RoIs from Jet Elements
-  void  simulate(const JetElementCollection* elements,
-                 const JetElementCollection* elementsOv,
-		       JemRoiCollection* rois);
+  void  simulate(const xAOD::JetElementContainer* elements,
+                 const xAOD::JetElementContainer* elementsOv,
+                 xAOD::JEMTobRoIContainer* rois);
   /// Simulate JEM RoIs from Jet Elements quick version
-  void  simulate(const JetElementCollection* elements,
-		       JemRoiCollection* rois);
+  void  simulate(const xAOD::JetElementContainer* elements,
+                 xAOD::JEMTobRoIContainer* rois);
   /// Simulate CMX TOBs from JEM RoIs
-  void  simulate(const JemRoiCollection* rois, CmxJetTobCollection* hits);
+  void  simulate(const xAOD::JEMTobRoIContainer* rois, xAOD::CMXJetTobContainer* hits);
   /// Simulate CMX-Jet Hit sums from CMX-Jet TOBs
-  void  simulate(const CmxJetTobCollection* tobs,
-                       CmxJetHitsCollection* hits, int selection);
+  void  simulate(const xAOD::CMXJetTobContainer* tobs,
+                 xAOD::CMXJetHitsContainer* hits, int selection);
   /// Simulate CMX Total Hit sums from Remote/Local
-  void  simulate(const CmxJetHitsCollection* hitsIn,
-                       CmxJetHitsCollection* hitsOut);
+  void  simulate(const xAOD::CMXJetHitsContainer* hitsIn,
+                 xAOD::CMXJetHitsContainer* hitsOut);
   /// Simulate JEM EtSums from JetElements
-  void  simulate(const JetElementCollection* elements,
-                       JemEtSumsCollection* sums);
+  void  simulate(const xAOD::JetElementContainer* elements,
+                 xAOD::JEMEtSumsContainer* sums);
   /// Simulate CMX-Energy Total sums from CMX-Energy Sums
-  void  simulate(const CmxEtSumsCollection* sumsIn,
-                       CmxEtSumsCollection* sumsOut, int selection);
+  void  simulate(const xAOD::CMXEtSumsContainer* sumsIn,
+                 xAOD::CMXEtSumsContainer* sumsOut, int selection);
   /// Check if LimitedRoISet bit set
   bool  limitedRoiSet(int crate);
   /// Load ROD Headers
@@ -325,7 +323,7 @@ private:
   /// CMX-Jet simulation tool
   ToolHandle<LVL1::IL1JetCMXTools>            m_jetCmxTool;
   /// JEM RoI simulation tool
-  ToolHandle<LVL1::IL1JetTools>               m_jetTool;
+  ToolHandle<LVL1::IL1JEMJetTools>               m_jetTool;
   /// Jet element simulation tool
   ToolHandle<LVL1::IL1JetElementTools>        m_jetElementTool;
   /// CMX-Energy simulation tool
@@ -363,7 +361,7 @@ private:
   /// Error vector StoreGate key
   std::string m_errorLocation;
   /// Pointer to ROD header container
-  const RodHeaderCollection* m_rodTES;
+  const xAOD::RODHeaderContainer* m_rodTES;
   /// LimitedRoISet flags
   int m_limitedRoi;
   /// Histograms booked flag
