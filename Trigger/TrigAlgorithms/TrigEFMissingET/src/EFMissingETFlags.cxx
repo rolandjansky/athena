@@ -311,7 +311,8 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 		   << "Cannot find TileExt!  Skipping check" << endreq;
 	  break;
 	}
-      } else if (i<24) { // FCal
+      } else { // FCal
+        // note: i must be < 24 because i < elem-14 = 38-14 = 24
 	if (Name.substr(0,4)=="FCal") {
 	  if (Name == "FCalEM") EM_SumE += sumE;
 	  FCal_SumE += sumE;
@@ -320,12 +321,9 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
 		   << "Cannot find FCal!  Skipping check" << endreq;
 	  break;
 	}
-      } else {
-        msg(MSG::WARNING)
-		 << "ERROR: Found impossible index " << i << endreq;
-	break;
-      }
-     }
+      }  // end loop over i 
+
+     }  //end elem == 38
 
   } else {
     msg(MSG::WARNING) << "Found " << elem 

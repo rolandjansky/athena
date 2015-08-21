@@ -47,6 +47,9 @@ EFMissingETFromClustersPS::EFMissingETFromClustersPS(const std::string& type,
 
   m_methelperposition = 14; 
 
+  //initialization to make coverity happy:
+  m_clusterstate = xAOD::CaloCluster_v1::UNCALIBRATED;
+
 }
 
 
@@ -188,6 +191,11 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
      // --------------------
      for(int ring = 0; ring < m_pileupnumrings; ring++) {
           ringException[ring] = false;
+          ringE[ring]=0;
+          ringESq[ring]=0;
+          ringE_Cl_thresh[ring]=0;
+          numRingCl[ring]=0;
+          numRingCl_thresh[ring]=0;
 
           msg() << MSG::DEBUG << " In ring: " << ring << endreq;
 
