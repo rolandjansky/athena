@@ -31,27 +31,29 @@ NINPUTS 1
 bank.pcache.root
 
 # output/input file
-#   if NINPUTS is given
-#   then the pcache file is read and the
-#   PATTENTSBYSECTOR file is written (patterns ordered by sector)
+#   format written by FTKTSPBank
+PCACHEIN patterns.pcache.root
+PCACHEOUT cached.root
 #
-PATTERNSBYSECTOR patternsBySector.root
-#
-# binary lookup-tables output file
-BINARYFILEOUT ssidFile.bin
-#
-# compressed lookup-tables input file
-# BINARYFILEIN ssidFile.bin
+#   binary format (not compatible)
+# BINARYIN ssidFile.bin
+BINARYOUT ssidFile.bin
 #
 # binarylookup-tables output file
-ROOTFILEOUT ssidFile.root
+CCACHEIN ssidFile.root
+CCACHEOUT ssidFile.root
 #
-# output in cached bank format
-CACHEDBANKFILEOUT cached.root
+# for experts:
+# select hwradware mode for TSP-SSID and/or DC-SSID encoding
+SSHWMODEID_TSP 0
+SSHWMODEID_DC 0
 #
 # list of SSIDs to test pattern finding
 #
 # TSP_SSID 8 19215 32415 42815 30505 38105 45705 45705 53305
+#
+# print pattern bank for a given sector
+PRINTSECTOR 0
  */
 
 #include <iostream>
@@ -75,32 +77,39 @@ CACHEDBANKFILEOUT cached.root
 
 using namespace std;
 
-#define NINPUTS "NINPUTS"
-#define PATTERNSBYSECTOR "PATTERNSBYSECTOR"
+#define TOWER "TOWER"
+#define PCACHEIN "PCACHEIN"
+#define PCACHEOUT "PCACHEOUT"
 #define PMAP "PMAP"
 #define RMAP "RMAP"
 #define SSMAP "SSMAP"
 #define TSP_SSMAP "TSP_SSMAP"
-#define BINARYFILEIN "BINARYFILEIN"
-#define BINARYFILEOUT "BINARYFILEOUT"
-#define ROOTFILEIN "ROOTFILEIN"
-#define ROOTFILEOUT "ROOTFILEOUT"
-#define CACHEDBANKFILEOUT "CACHEDBANKFILEOUT"
+#define BINARYIN "BINARYIN"
+#define BINARYOUT "BINARYOUT"
+#define CCACHEIN "CCACHEIN"
+#define CCACHEOUT "CCACHEOUT"
+#define MAXPATT "MAXPATT"
+#define ROOTIN "ROOTIN"
 #define TSP_SSID "TSP_SSID"
 #define DC_SSID "DC_SSID"
+#define PRINTSECTOR "PRINTSECTOR"
+#define HWMODESS_TSP "HWMODESS_TSP"
+#define HWMODESS_DC "HWMODESS_DC"
 
 class MakeSmallBankSteering : public FTKSteering {
 public:
    static MakeSmallBankSteering *Instance(void) {
       if(!fSteering) {
          fSteering=new MakeSmallBankSteering();
-         fSteering->AddStringPar(NINPUTS,0);
-         fSteering->AddStringPar(PATTERNSBYSECTOR,1);
-         fSteering->AddStringPar(BINARYFILEIN,1);
-         fSteering->AddStringPar(BINARYFILEOUT,1);
-         fSteering->AddStringPar(ROOTFILEIN,1);
-         fSteering->AddStringPar(ROOTFILEOUT,1);
-         fSteering->AddStringPar(CACHEDBANKFILEOUT,1);
+         fSteering->AddIntPar(TOWER,1,-1);
+         fSteering->AddStringPar(PCACHEIN,1);
+         fSteering->AddStringPar(PCACHEOUT,1);
+         fSteering->AddStringPar(BINARYIN,1);
+         fSteering->AddStringPar(BINARYOUT,1);
+         fSteering->AddStringPar(CCACHEIN,1);
+         fSteering->AddStringPar(CCACHEOUT,1);
+         fSteering->AddIntPar(MAXPATT,1,-1);
+         fSteering->AddStringPar(ROOTIN,1);
          fSteering->AddStringPar(PMAP,1,
 				 "../config/map_file/raw_8LcIbl123.pmap");
          fSteering->AddStringPar(RMAP,1,
@@ -111,6 +120,9 @@ public:
 				 "../config/ss_file/raw_15x16x36Ibl.ss");
          fSteering->AddDoublePar(TSP_SSID,0);
          fSteering->AddDoublePar(DC_SSID,0);
+         fSteering->AddIntPar(PRINTSECTOR,1,-1);
+         fSteering->AddIntPar(HWMODESS_TSP,1,-1);
+         fSteering->AddIntPar(HWMODESS_DC,1,-1);
       }
       return fSteering;
    }
@@ -120,29 +132,26 @@ public:
       fSSmap=0;
       fSSmap_tsp=0;
    }
-   int GetNInput(void) const {
-      return (*this)[NINPUTS]->GetActualSize();
+   const char *GetCCachedBankFileIn(void) const {
+      return *(*this)[CCACHEIN];
    }
-   const char *GetInput(int i) const {
-      return (*(*this)[NINPUTS])[i];
-   }
-   const char *GetPatternsbysector(void) const {
-      return *(*this)[PATTERNSBYSECTOR];
+   const char *GetPCachedBankFileIn(void) const {
+      return *(*this)[PCACHEIN];
    }
    const char *GetBinaryFileIn(void) const {
-      return *(*this)[BINARYFILEIN];
+      return *(*this)[BINARYIN];
    }
    const char *GetRootFileIn(void) const {
-      return *(*this)[ROOTFILEIN];
+      return *(*this)[ROOTIN];
    }
    const char *GetBinaryFileOut(void) const {
-      return *(*this)[BINARYFILEOUT];
+      return *(*this)[BINARYOUT];
    }
-   const char *GetRootFileOut(void) const {
-      return *(*this)[ROOTFILEOUT];
+   const char *GetCCacheFileOut(void) const {
+      return *(*this)[CCACHEOUT];
    }
-   const char *GetCachedBankFileOut(void) const {
-      return *(*this)[CACHEDBANKFILEOUT];
+   const char *GetPCacheFileOut(void) const {
+      return *(*this)[PCACHEOUT];
    }
    const int GetNSSIDdc(void) {
       return (*this)[DC_SSID]->GetActualSize();
@@ -154,7 +163,7 @@ public:
       r.second=(int)((dSSID-r.first)*10.+0.5);
       return r;
    }
-   const int GetNSSIDtsp(void) {
+   int GetNSSIDtsp(void) {
       return (*this)[TSP_SSID]->GetActualSize();
    }
    const pair<int,int> GetSSIDtsp(int i) {
@@ -164,7 +173,22 @@ public:
       r.second=(int)((dSSID-r.first)*10.+0.5);
       return r;
    }
-
+   int GetTower(void) {
+      return (*this)[TOWER][0];
+   }
+   int GetPrintSector(void) {
+      return (*this)[PRINTSECTOR][0];
+   }
+   int GetMaxPatt(void) {
+      return (*this)[MAXPATT][0];
+   }
+   int GetHWModeSS_tsp(void) {
+      return (*this)[HWMODESS_TSP][0];
+   }
+   int GetHWModeSS_dc(void) {
+      return (*this)[HWMODESS_DC][0];
+   }
+   
    FTKSSMap *GetSSmap(void);
    FTKSSMap *GetSSmapTSP(void);
 private:
@@ -200,54 +224,52 @@ int main(int argc, char const *argv[]) {
 
    MakeSmallBankSteering::Instance()->Print(cout);
 
-   int nInput=MakeSmallBankSteering::Instance()->GetNInput();
-   char const *patternsbysectorName=
-      MakeSmallBankSteering::Instance()->GetPatternsbysector();
-   FTK_CompressedAMBank *bank[2]={0,0};
+   int tower=MakeSmallBankSteering::Instance()->GetTower();
+   if(tower<0) {
+      logging.Fatal("tower")<<"tower number not set\n";
+   }
+
+   int hwModeSS_tsp=MakeSmallBankSteering::Instance()->GetHWModeSS_tsp();
+   int hwModeSS_dc=MakeSmallBankSteering::Instance()->GetHWModeSS_dc();
+
+   char const *pcachedBankFileIn=
+      MakeSmallBankSteering::Instance()->GetPCachedBankFileIn();
+   FTK_CompressedAMBank *bank[4]={0,0,0,0};
+   int nBank=0;
    FTKSSMap *ssMap=MakeSmallBankSteering::Instance()->GetSSmap();
    FTKSSMap *ssMapTSP=MakeSmallBankSteering::Instance()->GetSSmapTSP();
-   if((!error)&&(nInput>0)&&(patternsbysectorName)&&
-      patternsbysectorName[0]) {
-      bank[0]=new FTK_CompressedAMBank(0,0,ssMap,ssMapTSP);
-      logging.Info("main")<<"pcache -> patternsBySector"<<nInput<<"\n";
-      logging.Info("main")<<"number of input files: "<<nInput<<"\n";
-      vector<char const *> inputs;
-      for(int iInput=0;iInput<nInput;iInput++) {
-	inputs.push_back(MakeSmallBankSteering::Instance()->
-			 GetInput(iInput));
-      }
-      error=bank[0]->convertCachedBankFiles(inputs,patternsbysectorName);
+   if((!error)&& pcachedBankFileIn && pcachedBankFileIn[0]) {
+      bank[nBank]=new FTK_CompressedAMBank(tower,0,ssMap,ssMapTSP,
+                                           hwModeSS_tsp,hwModeSS_dc);
+      error=bank[nBank++]->readROOTBankCache(pcachedBankFileIn);
    }
-   // read sector-ordered patterns
-   if((!error) && patternsbysectorName && patternsbysectorName[0]) {
-      if(!bank[0]) bank[0]=new FTK_CompressedAMBank(0,0,ssMap,ssMapTSP);
-     error=bank[0]->readSectorOrderedFile(patternsbysectorName);
+   char const *ccachedBankFileIn=
+      MakeSmallBankSteering::Instance()->GetCCachedBankFileIn();
+   if((!error)&& ccachedBankFileIn && ccachedBankFileIn[0]) {
+      bank[nBank]=new FTK_CompressedAMBank(tower,0,ssMap,ssMapTSP,
+                                           hwModeSS_tsp,hwModeSS_dc);
+      error=bank[nBank++]->readROOTBankCache(ccachedBankFileIn);
    }
    char const *binaryInputName=
      MakeSmallBankSteering::Instance()->GetBinaryFileIn();
    if((!error) && binaryInputName && binaryInputName[0]) {
-     int iBank=0;
-     if(bank[0]) iBank=1;
-     bank[iBank]=new FTK_CompressedAMBank(0,0,ssMap,ssMapTSP);
-     error=bank[iBank]->readBinaryFile(binaryInputName);
+      bank[nBank]=new FTK_CompressedAMBank(tower,0,ssMap,ssMapTSP,
+                                           hwModeSS_tsp,hwModeSS_dc);
+     error=bank[nBank++]->readBinaryFile(binaryInputName);
    }
    char const *rootInputName=
      MakeSmallBankSteering::Instance()->GetRootFileIn();
+   int maxPatterns=MakeSmallBankSteering::Instance()->GetMaxPatt();
    if((!error) && rootInputName && rootInputName[0]) {
-     int iBank=0;
-     if(bank[0]) iBank=1;
-     if(bank[iBank]) {
-       logging.Error("main")<<"three input files specified\n";
-       error++;
-     } else {
-        bank[iBank]=new FTK_CompressedAMBank(0,0,ssMap,ssMapTSP);
-        error=bank[iBank]->readRootFile(rootInputName);
-     }
+      bank[nBank]=new FTK_CompressedAMBank(tower,0,ssMap,ssMapTSP,
+                                           hwModeSS_tsp,hwModeSS_dc);
+      error=bank[nBank++]->readROOTBank(rootInputName,maxPatterns);
    }
-   if(bank[1]) {
-     error=bank[0]->compare(bank[1]);
+   for(int iBank=1;iBank<nBank;iBank++) {
+     error=bank[0]->compare(bank[iBank]);
      if(error) {
-       logging.Error("main")<<"the banks are not in agreement\n";
+        logging.Error("main")<<"bank[0] and bank["
+                             <<iBank<<"] are not in agreement\n";
      }
    }
    char const *binaryOutputName=
@@ -255,15 +277,17 @@ int main(int argc, char const *argv[]) {
    if((!error) && bank[0] && binaryOutputName && binaryOutputName[0]) {
       error=bank[0]->writeBinaryFile(binaryOutputName);
    }
-   char const *rootOutputName=
-      MakeSmallBankSteering::Instance()->GetRootFileOut();
-   if((!error) && bank[0] && rootOutputName && rootOutputName[0]) {
-      error=bank[0]->writeRootFile(rootOutputName);
+   char const *ccachedBankOutputName=
+      MakeSmallBankSteering::Instance()->GetCCacheFileOut();
+   if((!error) && bank[0] && ccachedBankOutputName &&
+      ccachedBankOutputName[0]) {
+      error=bank[0]->writeCCachedBankFile(ccachedBankOutputName);
    }
-   char const *cachedBankOutputName=
-      MakeSmallBankSteering::Instance()->GetCachedBankFileOut();
-   if((!error) && bank[0] && cachedBankOutputName && cachedBankOutputName[0]) {
-      error=bank[0]->writeCachedBankFile(cachedBankOutputName);
+   char const *pcachedBankOutputName=
+      MakeSmallBankSteering::Instance()->GetPCacheFileOut();
+   if((!error) && bank[0] && pcachedBankOutputName && 
+      pcachedBankOutputName[0]) {
+      error=bank[0]->writePCachedBankFile(pcachedBankOutputName);
    }
 
    if((!error) && bank[0]) {
@@ -312,6 +336,12 @@ int main(int argc, char const *argv[]) {
       bank[0]->am_in_r(roadFinderInput);
       bank[0]->am_output();
       bank[0]->printRoads(bank[0]->getRoads(),-1);
+   }
+   if((!error) && bank[0]) {
+      int printsector=MakeSmallBankSteering::Instance()->GetPrintSector();
+      if(printsector>=0) {
+         bank[0]->printSector(printsector);
+      }
    }
 
    return error;

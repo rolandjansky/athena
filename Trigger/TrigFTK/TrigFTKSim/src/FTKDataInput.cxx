@@ -14,8 +14,8 @@ using namespace std;
 
 FTKDataInput::FTKDataInput() :
   m_nevent(-1), m_pmap(0x0), m_pmap_unused(0x0),
-  m_run_number(0ul), m_event_number(0ul) ,
-  m_nplanes(0), m_nregions(0), m_nsubregions(0),
+  m_reghits(0x0), m_run_number(0ul), m_event_number(0ul) ,
+  m_original_reghits(0), m_nplanes(0), m_nregions(0), m_nsubregions(0),
   m_ncoords(0), m_region(-1), m_subregion(-1), 
   m_Clustering(true), m_SaveClusterContent(false),
   m_DiagClustering(true), m_SctClustering(false), m_PixelClusteringMode(0), m_DuplicateGanged(true), 
@@ -23,14 +23,15 @@ FTKDataInput::FTKDataInput() :
   m_SplitBlayerModules(false),  
   m_init(false), m_save_unused(false), m_read_clusters(false),
   m_trackinput(0), m_roadinput(0), // cy road
-  m_nao_nhits_tot(0), m_nao_nclus_tot(0), m_firstEvent(-1),
-  m_regional(false),
-  m_reghits(m_reghits), m_original_reghits(0), m_goodRegions(0)
+  m_nao_nhits_tot(0), m_nao_nclus_tot(0), m_firstEventFTK(-1),
+  m_goodRegions(0),
+  m_regional(false)
 {;}
 
 FTKDataInput::FTKDataInput(const FTKPlaneMap *pmap, const FTKPlaneMap *pmap_unused) :
   m_nevent(-1), m_pmap(pmap), m_pmap_unused(pmap_unused),
-  m_run_number(0ul), m_event_number(0ul) ,
+  m_reghits(0x0), m_run_number(0ul), m_event_number(0ul) ,
+  m_original_reghits(0),
   m_nplanes(m_pmap->getNPlanes()), m_nregions(0), m_nsubregions(0),
   m_ncoords(0), m_region(-1), m_subregion(-1), 
   m_Clustering(true), m_SaveClusterContent(false),
@@ -39,9 +40,9 @@ FTKDataInput::FTKDataInput(const FTKPlaneMap *pmap, const FTKPlaneMap *pmap_unus
   m_SplitBlayerModules(false),  
   m_init(false), m_save_unused(false), m_read_clusters(false),
   m_trackinput(0), m_roadinput(0), // cy road
-  m_nao_nhits_tot(0), m_nao_nclus_tot(0), m_firstEvent(-1),
-  m_regional(false),
-  m_reghits(m_reghits), m_original_reghits(0), m_goodRegions(0)
+  m_nao_nhits_tot(0), m_nao_nclus_tot(0), m_firstEventFTK(-1),
+  m_goodRegions(0),
+  m_regional(false)
 {;}
 
 FTKDataInput::~FTKDataInput()

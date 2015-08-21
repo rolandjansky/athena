@@ -1,5 +1,5 @@
 # FTK Simulation Transform Skeleton Job Options
-# $Id: skeleton.FTKStandaloneSim.py 646626 2015-02-12 22:20:57Z jsaxon $
+# $Id: skeleton.FTKStandaloneSim.py 689768 2015-08-17 12:23:46Z jahreda $
 
 from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 from AthenaCommon.Logging import logging
@@ -14,9 +14,14 @@ else:
     ftkLog.info("Running on all the events")
     theApp.EvtMax = -1
 
+if hasattr(runArgs,"skipEvents"):
+    theApp.SkipEvents = runArgs.skipEvents
+else:
+    ftkLog.info("Skipping zero events")
+    theApp.SkipEvents = 0
+
 from AthenaCommon.AlgSequence import AlgSequence
 alg = AlgSequence()
-
 
 from PerfMonComps.PerfMonFlags import jobproperties as pmjp
 pmjp.PerfMonFlags.doSemiDetailedMonitoring = True # to enable monitoring
@@ -40,12 +45,6 @@ from PyJobTransforms.trfUtils import findFile
 
 # control some general behavior
 FTKRoadMarket = FTK_RoadMarketTool()
-if hasattr(runArgs,"SaveRoads") :
-  ftkLog.info("Roads storing flag set to %s" % runArgs.SaveRoads)
-  FTKRoadMarket.SaveRoads = runArgs.SaveRoads
-else :
-  ftkLog.info("Roads are not saved, default value")
-  FTKRoadMarket.SaveRoads = False
 ToolSvc += FTKRoadMarket
 
 # Adding the roadfinder and trackfitter algorithms
@@ -66,7 +65,7 @@ runArgsFromTrfOptionalRF = {'TSPMinCoverage': 0,
                             'badmap_path': 'empty.bmap', 
                             'badmap_path_for_hit': '',
                             'MakeCache': False,
-                            'CachePath': 'bankcache.root', # Maybe should abort if MakeCache=True, but no value given?
+                            'CachePath': 'bankcache_reg%d_sub%d.root'%(runArgs.bankregion[0], runArgs.banksubregion[0]),
                             'CachedBank': False,
                             'DoRoadFile': True,
                             'RoadFilesDir': '.',
@@ -74,12 +73,16 @@ runArgsFromTrfOptionalRF = {'TSPMinCoverage': 0,
                             'SetAMSize': 0,
                             'IBLMode': 0,
                             'PixelClusteringMode': 0,
+                            'GangedPatternReco' : 0,
+                            'DuplicateGanged' : 1,
                             'SctClustering': 0,
                             'MaxMissingSCTPairs': 1,
                             'RestrictSctPairModule': True,
                             'RestrictSctPairLayer': True,
                             'SectorsAsPatterns' : 0,
-                            'DCMatchMethod': 0
+                            'DCMatchMethod': 1,
+                            'HWModeSS': 0,
+                            'ModuleLUTPath': ""
                             }
 
 runArgsFromTrfOptionalTF = {'IBLMode': 0,
@@ -170,7 +173,8 @@ else:
                            'pmapcomplete_path': os.path.join(ftkBaseConfigDir, 'map_files'),
                            'rmap_path': os.path.join(ftkBaseConfigDir, 'map_files'),
                            'badmap_path': os.path.join(ftkBaseConfigDir, 'bad_modules'),
-                           'badmap_path_for_hit': os.path.join(ftkBaseConfigDir, 'bad_modules'), 
+                           'badmap_path_for_hit': os.path.join(ftkBaseConfigDir, 'bad_modules'),
+                           'ModuleLUTPath': os.path.join(ftkBaseConfigDir, 'map_files'), 
                            }
 
 # Preliminary check that the most important arguments are set
@@ -196,6 +200,7 @@ FTKTagOptions["TDRv1"] =  \
     {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_8Lc.pmap', 'rmap_path': 'raw_11L.tmap', 'ssmap_path': 'raw_30x32x72.ss', 'ssmapunused_path': 'raw_unused.ss', 'pmapunused_path': 'raw_8Lc_unused.pmap', 'bankpatterns': [4194304]*NumberOfSubregions, \
          'ssmaptsp_path': 'raw_15x16x36.ss', 'UseTSPBank': True, 'DBBankLevel': 1, 'TSPSimulationLevel': 2, \
          'loadHWConf_path': 'raw_11L.hw','pmapcomplete_path': 'raw_11L.pmap','SetAMSize': 2, 'SecondStageFit': True, 'TRACKFITTER_MODE': 1}
+
 FTKTagOptions["TDAQTDRv0"] =  \
     {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_8LcIbl123.pmap', 'rmap_path': 'raw_12Libl.tmap', 'ssmap_path': 'raw_30x32x72Ibl.ss', 'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss', 'pmapunused_path': 'raw_8LcIbl123_unused.pmap', 'bankpatterns': [4194304]*NumberOfSubregions, \
          'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': True, 'DBBankLevel': 1, 'TSPSimulationLevel': 2, \
@@ -212,13 +217,71 @@ FTKTagOptions["TDAQTDRv2"] =  \
          'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': True, 'DBBankLevel': 1, 'TSPSimulationLevel': 2, \
          'loadHWConf_path': 'raw_12L.hw','pmapcomplete_path': 'raw_12Libl.pmap','SetAMSize': 2, 'SecondStageFit': True, 'TRACKFITTER_MODE': 3, 'SSFMultiConnection': True, 'SSFNConnections': 4, \
          'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4, 'SSFTRMinEta': 1.0, \
-         'IBLMode': 1, 'PixelClusteringMode': 1}
+         'IBLMode': 1, 'PixelClusteringMode': 1, 'GangedPatternReco': 0, 'DuplicateGanged': 1}
+
+FTKTagOptions["Run2v0"] =  \
+    {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl3D.tmap', 'ssmap_path': 'raw_30x32x72Ibl.ss', 'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss', 'pmapunused_path': 'raw_8LcIbl123_unused.pmap', 'bankpatterns': [4194304]*NumberOfSubregions, \
+         'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': True, 'DBBankLevel': 1, 'TSPSimulationLevel': 2, \
+         'loadHWConf_path': 'raw_12L.hw','pmapcomplete_path': 'raw_12Libl3D.pmap','SetAMSize': 2, 'SecondStageFit': True, 'TRACKFITTER_MODE': 3, 'SSFMultiConnection': True, 'SSFNConnections': 4, \
+         'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4, 'SSFTRMinEta': 1.0, \
+         'IBLMode': 2, 'PixelClusteringMode': 1, 'GangedPatternReco': 0, 'DuplicateGanged': 1}
+
+#### Run2TempMapv0 is for Run 2 IBL with 3d modules, but tower map (raw_12Libl3DTempv0.tmap) is not good for data flow since it has expanded phi towers in both directions. There may also still be some issues in the mapping in eta
+FTKTagOptions["Run2TempMapv0"] =  \
+    {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl3DTempv0.tmap', 'ssmap_path': 'raw_30x32x72Ibl.ss', 'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss', 'pmapunused_path': 'raw_8LcIbl123_unused.pmap', 'bankpatterns': [4194304]*NumberOfSubregions, \
+         'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': True, 'DBBankLevel': 1, 'TSPSimulationLevel': 2, \
+         'loadHWConf_path': 'raw_12L.hw','pmapcomplete_path': 'raw_12Libl3D.pmap','SetAMSize': 2, 'SecondStageFit': True, 'TRACKFITTER_MODE': 3, 'SSFMultiConnection': True, 'SSFNConnections': 4, \
+         'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4, 'SSFTRMinEta': 1.0, \
+         'IBLMode': 2, 'PixelClusteringMode': 1, 'GangedPatternReco': 0, 'DuplicateGanged': 1}
+
+
+FTKTagOptions["TDAQTDRv2HWMode2"] =  \
+    {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_8LcIbl123.pmap', 'rmap_path': 'raw_12Libl.tmap', 'ssmap_path': 'raw_30x32x72Ibl.ss', 'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss', 'pmapunused_path': 'raw_8LcIbl123_unused.pmap', 'bankpatterns': [4194304]*NumberOfSubregions, \
+         'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': True, 'DBBankLevel': 1, 'TSPSimulationLevel': 2, \
+         'loadHWConf_path': 'raw_12L.hw','pmapcomplete_path': 'raw_12Libl.pmap','SetAMSize': 2, 'SecondStageFit': False, 'TRACKFITTER_MODE': 3, 'SSFMultiConnection': True, 'SSFNConnections': 4, \
+         'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4, 'SSFTRMinEta': 1.0, \
+         'IBLMode': 1, 'PixelClusteringMode': 1, 'GangedPatternReco': 0, 'DuplicateGanged': 1}
+
+FTKTagOptions['SectorsAsPatterns3D'] = {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl3D.tmap', 'ssmap_path': 'raw_30x32x72Ibl.ss', 'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss', 'pmapunused_path': 'raw_8LcIbl3D123_unused.pmap', 'bankpatterns': [-1]*NumberOfSubregions, 'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, 'loadHWConf_path': 'raw_8Lc.hw','SecondStageFit': False, 'TRACKFITTER_MODE': 1, 'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1 , 'SaveRoads': True}
+FTKTagOptions['SectorsAsPatterns12L3D'] = {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12Libl3D.pmap', 'rmap_path': 'raw_12Libl3D.tmap', 'bankpatterns': [-1]*NumberOfSubregions, 'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, 'loadHWConf_path': 'raw_12L.hw','SecondStageFit': False, 'TRACKFITTER_MODE': 1, 'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1 , 'SaveRoads': True}
+
+FTKTagOptions['SectorsAsPatterns3Dv2'] = {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl3Dv2.tmap', 'ssmap_path': 'raw_30x32x72Ibl.ss', 'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss', 'pmapunused_path': 'raw_8LcIbl3D123_unused.pmap', 'bankpatterns': [-1]*NumberOfSubregions, 'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, 'loadHWConf_path': 'raw_8Lc.hw','SecondStageFit': False, 'TRACKFITTER_MODE': 1, 'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1 , 'SaveRoads': True}
+
+FTKTagOptions['SectorsAsPatterns12L3Dv2'] = {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12Libl3D.pmap', 'rmap_path': 'raw_12Libl3Dv2.tmap', 'bankpatterns': [-1]*NumberOfSubregions, 'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, 'loadHWConf_path': 'raw_12L.hw','SecondStageFit': False, 'TRACKFITTER_MODE': 1, 'IBLMode': 2, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1 , 'SaveRoads': True}
 
 FTKTagOptions['SectorsAsPatterns'] = \
     {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap', 'rmap_path': 'raw_12Libl.tmap', 'ssmap_path': 'raw_30x32x72Ibl.ss', 'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss', 'pmapunused_path': 'raw_8LcIbl123_unused.pmap', 'bankpatterns': [-1]*NumberOfSubregions, \
          'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, \
          'loadHWConf_path': 'raw_8Lc.hw','SecondStageFit': False, 'TRACKFITTER_MODE': 1,
-         'IBLMode': 1, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1}
+         'IBLMode': 1, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1 , 'SaveRoads': True}
+FTKTagOptions['SectorsAsPatterns12L'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12Libl.pmap', 'rmap_path': 'raw_12Libl.tmap', 'bankpatterns': [-1]*NumberOfSubregions, \
+     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, \
+     'loadHWConf_path': 'raw_12L.hw','SecondStageFit': False, 'TRACKFITTER_MODE': 1,
+     'IBLMode': 1, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1 , 'SaveRoads': True}
+FTKTagOptions['SectorsAsPatterns12Lb'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW.pmap', 'rmap_path': 'raw_12Libl.tmap', 'bankpatterns': [-1]*NumberOfSubregions, \
+     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, \
+     'loadHWConf_path': 'raw_12L.hw','SecondStageFit': False, 'TRACKFITTER_MODE': 1,
+     'IBLMode': 1, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1 , 'SaveRoads': True}
+
+
+FTKTagOptions['SectorsAsPatternsHWMode2'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap', 'rmap_path': 'raw_12Libl.tmap', 
+     'bankpatterns': [-1]*NumberOfSubregions, \
+     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, \
+     'loadHWConf_path': 'raw_8Lc.hw','SecondStageFit': False, 
+     'IBLMode': 1, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1,
+     'MaxMissingSCTPairs': 0, 
+     'HWModeSS': 2,'ModuleLUTPath': 'raw_8LcIbl123.moduleidmap', 'SaveRoads': True}
+FTKTagOptions['SectorsAsPatterns12LHWMode2'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW.pmap', 'rmap_path': 'raw_12Libl64TmodB.tmap', 
+     'bankpatterns': [-1]*NumberOfSubregions, \
+     'ssmap_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, \
+     'loadHWConf_path': 'raw_12L.hw','SecondStageFit': False, 
+     'IBLMode': 1, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1,
+     'MaxMissingSCTPairs': 0, 
+     'HWModeSS': 2,'ModuleLUTPath': 'raw_12Libl.moduleidmap', 'SaveRoads': True}
     
 # enable the "Scenario" runarg that sets other runarg values as consequence
 if hasattr(runArgs, 'FTKSetupTag'):
@@ -237,10 +300,30 @@ if hasattr(runArgs, 'FTKSetupTag'):
         
 
 skipArgs = []
+
+if hasattr(runArgs,"SaveRoads") :
+  ftkLog.info("Roads storing flag set to %s" % runArgs.SaveRoads)
+  FTKRoadMarket.SaveRoads = runArgs.SaveRoads
+else :
+  ftkLog.info("Roads are not saved, default value")
+  FTKRoadMarket.SaveRoads = False
+
 # Normalize some mandatory options removing few of them according 
 if hasattr(runArgs,'UseTSPBank') :
     if not runArgs.UseTSPBank :
-        skipArgs += ['DBBankLevel','TSPSimulationLevel']
+        skipArgs += ['DBBankLevel','TSPSimulationLevel','ssmaptsp_path']
+else :
+    skipArgs += ['DBBankLevel','TSPSimulationLevel','ssmaptsp_path']
+
+if not hasattr(runArgs,'SecondStageFit') :
+   skipArgs += ['pmapunused_path','fit711constantspath','sectorpath','pmapcomplete_path','ssmapunused_path']
+   FTKTrackFitter.SecondStageFit = False
+elif not getattr(runArgs,'SecondStageFit') :
+   skipArgs += ['pmapunused_path','fit711constantspath','sectorpath','pmapcomplete_path','ssmapunused_path']
+   FTKTrackFitter.SecondStageFit = False
+else :
+   # Second stage case
+   FTKTrackFitter.SecondStageFit = True
     
 # set the FTKRoadFinder properties
 for runArgName in runArgsFromTrfMandatory + runArgsFromTrfMandatoryRF + runArgsFromTrfOptionalRF.keys():
@@ -286,8 +369,8 @@ elif hasattr(runArgs, 'inputNTUP_FTKIPFile'):
   FTKRoadFinder.InputFromWrapper = True
   FTKRoadFinder.RegionalWrapper = True
   FTKRoadFinder.WrapperFiles = runArgs.inputNTUP_FTKIPFile
-  if hasattr(runArgs, "firstEvent"):
-    FTKRoadFinder.FirstEvent = runArgs.firstEvent
+  if hasattr(runArgs, "firstEventFTK"):
+    FTKRoadFinder.FirstEventFTK = runArgs.firstEventFTK
 elif hasattr(runArgs, 'inputRDOFile') :
   FTKRoadFinder.InputFromWrapper = False
   FTKSGInput = FTK_SGHitInput( maxEta= 3.2, minPt= 0.8*GeV)
@@ -300,6 +383,7 @@ elif hasattr(runArgs, 'inputRDOFile') :
   rec.readRDO.set_Value_and_Lock( True )
   globalflags.InputFormat.set_Value_and_Lock('pool')
   athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDOFile )
+
   #include("RecExCommon/RecExCommon_topOptions.py")
   if True :
     ServiceMgr.EventSelector.InputCollections = runArgs.inputRDOFile
@@ -328,24 +412,11 @@ if hasattr(runArgs,'outputNTUP_FTKTMPFile'):
 else:
    ftkLog.warning('FTK Sim output filename was unset')
 
-skipArgs = [] # instance the list of parameters that can currently be ignored
-
 #check if we want to save 1st stage tracks
 if hasattr(runArgs,'Save1stStageTrks'):
    FTKTrackFitter.Save1stStageTrks = runArgs.Save1stStageTrks
 
 # check if the second stage is going to be used
-if not hasattr(runArgs,'SecondStageFit') :
-   skipArgs = ['pmapunused_path','fit711constantspath','sectorpath','pmapcomplete_path']
-   FTKTrackFitter.SecondStageFit = False
-elif not getattr(runArgs,'SecondStageFit') :
-   skipArgs = ['pmapunused_path','fit711constantspath','sectorpath','pmapcomplete_path']
-   FTKTrackFitter.SecondStageFit = False
-else :
-   # Second stage case
-   FTKTrackFitter.SecondStageFit = True
-
-
 if not hasattr(runArgs,'doAuxFW'):
   FTKTrackFitter.doAuxFW = False
 else: FTKTrackFitter.doAuxFW = getattr(runArgs,'doAuxFW')

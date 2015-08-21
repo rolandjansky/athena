@@ -156,7 +156,7 @@ class HistoGroupFTK :
     def Fill(self,track,num=1) :
         self.histo_phi.Fill(track.getPhi(),num)
         self.histo_d0.Fill(track.getIP(),num)
-        self.histo_curv.Fill(track.getInvPt(),num)
+        self.histo_curv.Fill(track.getHalfInvPt(),num)
         self.histo_pt.Fill(track.getPt(),num)
         self.histo_eta.Fill(track.getEta(),num)
         self.histo_z0.Fill(track.getZ0(),num)
@@ -407,7 +407,7 @@ class HistoGroupRes :
     def CompTruthFTK(self,ref_track,fit_track) :
         """Fill the histogram with the residual of the track parameters comparing a truth track with an FTK track"""
         dphi = fit_track.getPhi()-ref_track.phi0
-        dcurv = fit_track.getInvPt()-ref_track.curv
+        dcurv = fit_track.getHalfInvPt()-ref_track.curv
         dip = fit_track.getIP()-ref_track.d0
         dctheta = fit_track.getCotTheta()-ref_track.ctheta
         dz0 = fit_track.getZ0()-ref_track.z0
@@ -491,7 +491,7 @@ def getMajorityType(ftk_track) :
         
 def isGoodFTK(ftk_track) :
     # fiducial region check
-    if abs(ftk_track.getInvPt())>CURVLIM  :
+    if abs(ftk_track.getHalfInvPt())>CURVLIM  :
         rejNumberFTK[0] += 1
         if VERBOSE>2 :
             print "Out curvature limits"

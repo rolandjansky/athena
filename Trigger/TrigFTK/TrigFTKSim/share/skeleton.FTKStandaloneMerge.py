@@ -48,9 +48,6 @@ import sys
 FTKMerger = FTKMergerAlgo( "FTKMergerAlgo" , OutputLevel=DEBUG)
 FTKMerger.doMerging = True # this enables the behavior of the FTKMergerAlgo as FTK streams merger
 
-if hasattr(runArgs, 'MergeRoads'):
-  FTKMerger.MergeRoads = runArgs.MergeRoads
-
 runArgsMandatory =  ['NBanks', 'NSubRegions', 'pmap_path', 'loadHWConf_path']
 
 runArgsOptional = {'FirstRegion': 0, 'FirstSubreg': 0, 'MergeRegion': -1, 'HWNDiff': 6, 'HitWarrior': 2}
@@ -72,9 +69,39 @@ FTKTagOptions["TDAQTDRv1"] =  \
 FTKTagOptions["TDAQTDRv2"] =  \
     {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_12Libl.pmap', \
          'loadHWConf_path': 'raw_12L.hw'}
+FTKTagOptions["Run2v0"] =  \
+    {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_12Libl3D.pmap', \
+         'loadHWConf_path': 'raw_12L.hw'}
+FTKTagOptions["Run2TempMapv0"] =  \
+    {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_12Libl3D.pmap', \
+         'loadHWConf_path': 'raw_12L.hw'}
 FTKTagOptions['SectorsAsPatterns'] = \
-    {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_8LcIbl123.pmap', 
-     'loadHWConf_path': 'raw_8Lc.hw'}
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap', 
+     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
+FTKTagOptions['SectorsAsPatterns12L'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12Libl.pmap', 
+     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
+FTKTagOptions['SectorsAsPatterns12Lb'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW.pmap', 
+     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
+FTKTagOptions['SectorsAsPatternsHWMode2'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap', 
+     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
+FTKTagOptions['SectorsAsPatterns12LHWMode2'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW.pmap', 
+     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
+FTKTagOptions['SectorsAsPatterns3D'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap',
+     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
+FTKTagOptions['SectorsAsPatterns12L3D'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12Libl3D.pmap',
+     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
+FTKTagOptions['SectorsAsPatterns3Dv2'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap',
+     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
+FTKTagOptions['SectorsAsPatterns12L3Dv2'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12Libl3D.pmap',
+     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
 
 # enable the "Scenario" runarg that sets other runarg values as consequence
 if hasattr(runArgs, 'FTKSetupTag'):
@@ -91,6 +118,12 @@ if hasattr(runArgs, 'FTKSetupTag'):
             setattr(runArgs,k,v)
         ftkLog.info(info)
         
+
+if hasattr(runArgs, 'MergeRoads'):
+  FTKMerger.MergeRoads = runArgs.MergeRoads
+
+if hasattr(runArgs, 'MergeRoadsDetailed'):
+  FTKMerger.MergeRoadsDetailed = runArgs.MergeRoadsDetailed
 
 # The presence of the option FinalMerge
 if hasattr(runArgs, 'MergeFromTowers') :
@@ -197,10 +230,10 @@ if hasattr(runArgs,'FTKDoGrid'):
 
 if hasattr(runArgs,'outputNTUP_FTKFile') :
     FTKMerger.FTKMergedOutput = runArgs.outputNTUP_FTKFile
-    FTKMerger.GenerateRDO = False
+
 elif hasattr(runArgs,'outputNTUP_FTKTMPFile') :
     FTKMerger.FTKMergedOutput = runArgs.outputNTUP_FTKTMPFile
-    FTKMerger.GenerateRDO = False
+
 elif hasattr(runArgs,'outputRDO_FTKFile') :
   if hasattr(runArgs, 'inputRDOFile') :
     # Merge an existing RDO with the FTK tracks

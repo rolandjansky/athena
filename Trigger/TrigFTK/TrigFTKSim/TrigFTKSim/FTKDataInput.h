@@ -78,7 +78,7 @@ protected:
   int m_nao_nhits_tot;             // total number of hits per event
   int m_nao_nclus_tot;             // total number of hits per event
 
-  int m_firstEvent;
+  int m_firstEventFTK;
   
 protected:
   bool *m_goodRegions;
@@ -164,8 +164,8 @@ public:
   void setReadClusters(bool flag=true) { m_read_clusters = flag; }
   bool getReadClusters() const { return m_read_clusters; }
 
-  void setFirstEvent(int firstEvent = -1) { m_firstEvent = firstEvent;}
-  int getFirstEvent() const {return m_firstEvent;}
+  void setFirstEvent(int firstEventFTK = -1) { m_firstEventFTK = firstEventFTK;}
+  int getFirstEvent() const {return m_firstEventFTK;}
 
   virtual int init(bool *good=0x0)=0;
   virtual void initRoadsTracks() {;}

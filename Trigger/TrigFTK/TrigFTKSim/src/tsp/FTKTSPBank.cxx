@@ -23,11 +23,12 @@ using namespace boost;
 FTKTSPBank::FTKTSPBank(int bankid, int subid) :
     FTK_AMBank(bankid, subid),
     m_TSPProcessor(0x0),
+    m_file(0),
     m_SimulateTSP(0), m_npatternsTSP(0), m_TSPMinCoverage(0),
     m_setAMSize(0), m_AMSplit(0),
     m_DCMatchMethod(0),
     m_ssmap_tsp(0x0), m_splitted_ssmap(0x0),
-    m_cachepath(""), m_file(0)
+    m_cachepath(""), m_makecache(false)
 {}
 
 
@@ -370,6 +371,13 @@ int FTKTSPBank::readROOTBank(const char *fname, int maxpatt)
     }
     cout << "]" << endl;
 
+// set number of DC bits in FTKSSMap
+    for (int iplane=0; iplane<m_nplanes; iplane++)
+    {
+      m_ssmap_tsp->setSSDCX(iplane,m_TSPProcessor->getTSPMap().getNBits(iplane,0));
+      m_ssmap_tsp->setSSDCY(iplane,m_TSPProcessor->getTSPMap().getNBits(iplane,1));
+    }
+
     // can close the ROOT file, this
     m_file->Close();
 
@@ -395,6 +403,10 @@ int FTKTSPBank::readROOTBankCache(const char *fname)
 
     // Create the TTree with 1 branch: the list of the FTK patterns (AM level)
     TTree *amtree = dynamic_cast<TTree *>(rootcache->Get("Bank"));
+    if (amtree == NULL)  {
+       FTKSetup::PrintMessage(ftk::sevr, "Could not get amtree");
+       return 0;
+    }
     FTKPattern *curpatt = 0x0;
     amtree->SetBranchAddress("Pattern", &curpatt);
     // get the number of the patterns
@@ -448,6 +460,12 @@ int FTKTSPBank::readROOTBankCache(const char *fname)
 
     ftksetup.usageStat("End AM cache read");
 
+    // set number of DC bits in FTKSSMap
+    for (int iplane=0; iplane<m_nplanes; iplane++)
+    {
+      m_ssmap_tsp->setSSDCX(iplane,m_TSPProcessor->getTSPMap().getNBits(iplane,0));
+      m_ssmap_tsp->setSSDCY(iplane,m_TSPProcessor->getTSPMap().getNBits(iplane,1));
+    }
 
     FTKSetup::PrintMessageFmt(ftk::info, "Loaded #%d TSP Patterns", m_npatternsTSP);
     readBankInitEnd();
@@ -557,7 +575,7 @@ void FTKTSPBank::data_organizer() {
 
       int ss(-1);
       if (FTKSetup::getFTKSetup().getHWModeSS()==0) {
-        // First calculate the SS for the course resolution part
+        // First calculate the SS for the coarse resolution part
         ss = m_ssmap->getSSGlobal(curhit) << m_TSPProcessor->getTSPMap().getNBits(iplane);
 
 
@@ -569,9 +587,13 @@ void FTKTSPBank::data_organizer() {
         cout << ">>> " << iplane << " " << m_ssmap->getSSGlobal(curhit) << " " << m_TSPProcessor->getTSPMap().getHighResSSPart(curhit) << " " << ss << " " << curhit[0] << " " << curhit[1] << endl;
 #endif
       }
+      else if (FTKSetup::getFTKSetup().getHWModeSS()==2) {
+      // Calculate the SS for HWModeID=2
+	  // tower ID = bankid
+      ss = m_ssmap_tsp->getSSTower(curhit,FTK_AMBank::getBankID());
+      }
       else {
-        //TODO Add the HWmode claculation
-        FTKSetup::PrintMessage(sevr,"Direct DC matching method for HWMode!=0 not implemented");
+        FTKSetup::PrintMessage(sevr,"HWMode should be 0 or 2");
       }
 
       //       cout<<"KAMA"<<endl;

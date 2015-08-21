@@ -16,11 +16,10 @@ bool FTKPattern::m_orderByCoverage = false;
 /** default constructor, used by the ROOT streamer */
 FTKPattern::FTKPattern() :
   TObject(),
-  m_patternID(-1), m_nplanes(0), m_ssid(0x0),
+  m_patternID(-1), m_patternDBID(0), m_nplanes(0), m_ssid(0x0),
   m_sectorID(-1), m_coverage(0),
   m_dcmask(-1), m_hbmask(-1),
   m_nsubpatterns(0),
-  m_patternDBID(0),
   m_hashes(0)
 {
   m_subpatterns = new TClonesArray("FTKPattern",1);
@@ -32,11 +31,10 @@ FTKPattern::FTKPattern() :
     this pattern */
 FTKPattern::FTKPattern(int nplanes) :
   TObject(),
-  m_patternID(-1), m_nplanes(0),m_ssid(0x0),
+  m_patternID(-1), m_patternDBID(0), m_nplanes(0),m_ssid(0x0),
   m_sectorID(-1), m_coverage(0),
   m_dcmask(-1), m_hbmask(-1),
   m_nsubpatterns(0),
-  m_patternDBID(0),
   m_hashes(0)
 {
   m_subpatterns = new TClonesArray("FTKPattern",1);

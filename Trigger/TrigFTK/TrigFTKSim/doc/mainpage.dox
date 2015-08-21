@@ -1,0 +1,20 @@
+/**
+\mainpage TrigFTKSim documentation. 
+
+\section sec_intro Introduction
+
+\section sec_athena_use Athena usage
+
+\section sec_standalone_use Standalone usage
+
+\section sec_useful_branches Useful branches
+
+\section sec_doxygen_tips Doxygen style-guides
+Brief comment before: Add an extra "/" 
+
+Detailed comment before: Add an extra "*" 
+
+Brief comment after: Add an extra "/<" 
+
+Detailed comment after: Add an extra "*<" 
+*/

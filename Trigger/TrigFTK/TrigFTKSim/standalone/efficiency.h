@@ -1,0 +1,142 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include <TMath.h>
+#include <TH2F.h>
+#include <TGraphAsymmErrors.h>
+#include <map>
+#include <iostream>
+#include "../TrigFTKSim/FTKTrackStream.h"
+#include "../TrigFTKSim/FTKTruthTrack.h"
+#include "TChain.h"
+#include "TFile.h"
+
+using namespace std;
+
+class MatchInfo {
+private:
+  int m_barcode;
+  int m_evtindex;
+
+public:
+  MatchInfo() : m_barcode(0), m_evtindex(-1) {;}
+  MatchInfo(int v1, int v2) : m_barcode(v1), m_evtindex(v2) {;}
+  bool operator==(const MatchInfo& o) const {
+    return (m_barcode==o.m_barcode)&&(m_evtindex==o.m_evtindex);
+  }
+  bool operator<(const MatchInfo& o) const {
+    if (m_evtindex!=o.m_evtindex)
+      return (m_evtindex<o.m_evtindex);
+    else
+      return m_barcode<o.m_barcode;
+  }
+};
+
+typedef multimap<MatchInfo,const FTKTrack*> FTKBarcodeMM;
+unsigned nbins;
+double maxntracks;
+double d0min, d0max;
+double z0min, z0max;
+double phimin, phimax;
+double etamin, etamax;
+double abscurvmax;
+double ptmax;
+double Dd0;
+double Dphi;
+double Drelpt;
+double Dcurv;
+double Deta;
+double Dz0;
+
+// block of generic control histograms for the FTK tracks
+TH2F *histocoordmasketa_ftk;
+TH2F *histocoordmaskphi_ftk;
+TH2F *histonmisseta_ftk;
+TH2F *histochisqndfeta_ftk;
+
+TH1F *histontracks_ftk;
+TH1F *histod0_ftk;
+TH1F *histoz0_ftk;
+TH1F *histophi_ftk;
+TH2F *histophid0_ftk;
+TH1F *histocurv_ftk;
+TH1F *histoeta_ftk;
+TH2F *histoetaphi_ftk;
+TH2F *histoetaphi_truth;
+TH2F *histoetaphi_truthM;
+TH2F *histoetaz0_ftk;
+TH2F *histoetaz0_truth;
+TH2F *histoetaz0_truthM;
+TH1F *histopt_ftk;
+
+// FTK for fakes
+TH1F *histontracks_goodftk;
+TH1F *histod0_goodftk;
+TH1F *histoz0_goodftk;
+TH1F *histocurv_goodftk;
+TH1F *histoeta_goodftk;
+TH1F *histophi_goodftk;
+TH1F *histopt_goodftk;
+
+TH1F *histontracks_goodftkU;
+TH1F *histod0_goodftkU;
+TH1F *histoz0_goodftkU;
+TH1F *histocurv_goodftkU;
+TH1F *histoeta_goodftkU;
+TH1F *histophi_goodftkU;
+TH1F *histopt_goodftkU;
+
+// block of distribution related to truth tracks
+TH1F *histontracks_truth;
+TH1F *histod0_truth;
+TH1F *histoz0_truth;
+TH1F *histocurv_truth;
+TH1F *histoeta_truth;
+TH1F *histophi_truth;
+TH1F *histopt_truth;
+
+TH1F *histontracks_truthM;
+TH1F *histod0_truthM;
+TH1F *histoz0_truthM;
+TH1F *histocurv_truthM;
+TH1F *histoeta_truthM;
+TH1F *histophi_truthM;
+TH1F *histopt_truthM;
+TH1F *histod0res;
+TH1F *histoz0res;
+TH1F *histocurvres;
+TH1F *histoetares;
+TH1F *histophires;
+TH1F *historelptres;
+TH2F *historelptrespt;
+
+// block of distribution related to truth muon tracks
+TH1F *histontracks_truth_muon;
+TH1F *histod0_truth_muon;
+TH1F *histoz0_truth_muon;
+TH1F *histocurv_truth_muon;
+TH1F *histoeta_truth_muon;
+TH1F *histophi_truth_muon;
+TH1F *histopt_truth_muon;
+
+TH1F *histontracks_truthM_muon;
+TH1F *histod0_truthM_muon;
+TH1F *histoz0_truthM_muon;
+TH1F *histocurv_truthM_muon;
+TH1F *histoeta_truthM_muon;
+TH1F *histophi_truthM_muon;
+TH1F *histopt_truthM_muon;
+
+// Things to access variables!
+FTKTrackStream *tracks(0);
+std::vector<FTKTruthTrack> *truthTracks(0);
+Int_t RunNumber, EventNumber;
+TChain *t_ftkdata;
+TChain *t_truth;
+TChain *t_evtinfo;
+
+int towerNumber;
+std::string outputname;
+int ientry2;
+bool Use1stStage;

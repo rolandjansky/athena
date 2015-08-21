@@ -18,9 +18,11 @@ private:
   int m_eta_min; // minimum eta ID
   int m_eta_max; // minimum eta ID
   int m_eta_tot; // total number of modules along eta
-  std::set<unsigned int> m_global_module_ids;
+   //std::set<unsigned int> m_global_module_ids;
 public:
   FTKRegionMapItem();
+  FTKRegionMapItem(int phi_min, int phi_max, int phi_tot, int eta_min, int eta_max, int eta_tot):
+     m_phi_min(phi_min), m_phi_max(phi_max), m_phi_tot(phi_tot), m_eta_min(eta_min), m_eta_max(eta_max), m_eta_tot(eta_tot) {}
   int getPhiMin() const { return m_phi_min; }
   int getPhiMax() const { return m_phi_max; }
   int getPhiTot() const {return m_phi_tot; }
@@ -42,10 +44,10 @@ public:
   void setMax(int v) { setPhiMax(v); }
   void setTotMod(int v) { setPhiTot(v); }
   
-  std::set<unsigned int> getGlobalModuleIds() const { return m_global_module_ids; }
-  void addGlobalModuleId(const unsigned int& id) { m_global_module_ids.insert(id); }
-  void clearGlobalModuleIds() { m_global_module_ids.clear(); }
-  bool hasGlobalModuleId(const unsigned int& id) const { return(m_global_module_ids.find(id)!=m_global_module_ids.end()); }
+  // std::set<unsigned int> getGlobalModuleIds() const { return m_global_module_ids; }
+  // void addGlobalModuleId(const unsigned int& id) { m_global_module_ids.insert(id); }
+  // void clearGlobalModuleIds() { m_global_module_ids.clear(); }
+  // bool hasGlobalModuleId(const unsigned int& id) const { return(m_global_module_ids.find(id)!=m_global_module_ids.end()); }
 };
 
 class FTKRegionMapOfflineId {
@@ -62,6 +64,8 @@ public:
   , m_layer(-999)
   , m_etamod(-999)
   , m_phimod(-999) {}
+  FTKRegionMapOfflineId(bool isPixel, int barrelEC, int layer, int etamod, int phimod) :
+     m_isPixel(isPixel), m_barrelEC(barrelEC), m_layer(layer), m_etamod(etamod), m_phimod(phimod) {}
   
   bool getIsPixel() const { return m_isPixel; }
   void setIsPixel(const bool& isPixel) { m_isPixel = isPixel; }
@@ -85,34 +89,31 @@ public:
 
 
 class FTKRegionMap {
+public:
+  typedef std::map<unsigned int,unsigned int> global_to_local_map_type;
+  typedef std::map<unsigned int,global_to_local_map_type> plane_global_to_local_map_type;
+  typedef std::map<unsigned int, plane_global_to_local_map_type > tower_global_to_local_map_type;
+  typedef std::map<unsigned int,FTKRegionMapOfflineId> global_to_offline_map_type;
+
 private:
-  bool m_isok;
-
-  bool m_old_format; // old_format = 8 regions; otherwise 64 towers
-
   std::string m_path; // configuration file path
-
+  bool m_isok;
+  bool m_old_format; // old_format = 8 regions; otherwise 64 towers
   FTKPlaneMap *m_pmap;
-
+  FTKPlaneMap *m_m_pmap; //whether this class 'owns' m_pmap
   int m_nregions;
   int m_nregions_phi;
-
   int m_nplanes;
-
   int *m_sections;
-
   FTKRegionMapItem ***m_map;
 
   // lookup table for local module ID within a tower:
   //   m_tower_global_to_local_map[tower id][global id] = (local id)
-  typedef std::map<unsigned int,unsigned int> global_to_local_map_type;
-  typedef std::map<unsigned int,global_to_local_map_type> plane_global_to_local_map_type;
-  typedef std::map<unsigned int, plane_global_to_local_map_type > tower_global_to_local_map_type;
   tower_global_to_local_map_type m_tower_global_to_local_map;
   // conversion between global module IDs and offline
-  typedef std::map<unsigned int,FTKRegionMapOfflineId> global_to_offline_map_type;
   global_to_offline_map_type m_global_to_offline_map;
   
+  static const TString s_dirname;
   
 private:
   void load_offline_lut(const char *path);
@@ -121,6 +122,14 @@ public:
   FTKRegionMap();
   virtual ~FTKRegionMap();  
   FTKRegionMap(FTKPlaneMap *, const char *);
+  FTKRegionMap(TDirectory* file);
+
+  static FTKRegionMap* GetRMapFromRootFile(TDirectory* file);
+  static int GetChecksum(TDirectory* file);
+  static int GetChecksumLUT(TDirectory* file);
+  void WriteMapToRootFile(TDirectory* file);
+  int CalcChecksum() const;
+  int CalcChecksumLUT() ;
 
   void loadModuleIDLUT(const char *);
   const char *getPath() const { return m_path.c_str(); }
@@ -133,8 +142,10 @@ public:
 
   const int& getNPlanes() const { return m_nplanes; }
 
-  unsigned int getLocalModuleID(const FTKHit&, unsigned int) const;
+  unsigned int getLocalModuleID(const FTKHit&, unsigned int);
   void convertLocalID(unsigned int, int, int, int, int&, int&);
+  unsigned int getLocalID(int towerID,int plane,int section,
+                          int modPhi,int modEta) const;
 
   bool isHitInRegion(const FTKHit&,int) const;
   bool isHitInRegion_old(const FTKHit&,int) const;
@@ -144,6 +155,7 @@ public:
   int getGlobalId(const unsigned int& towerId,const unsigned int& planeId,const unsigned int& localModuleId) const;
   std::map<unsigned int,unsigned int> getGlobalToLocalMapping(const unsigned int& towerId,const unsigned int& planeId) const;
 
+  bool getIsOK() const { return m_isok;}
   bool operator!() const { return !m_isok; }
 
 };

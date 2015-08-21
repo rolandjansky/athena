@@ -10,6 +10,8 @@
 #include <cstdio>
 #include <iostream>
 #include <vector>
+#include <TTree.h>
+#include <TKey.h>
 using namespace std;
 
 #include "TrigFTKSim/ftkdefs.h"
@@ -31,22 +33,37 @@ FTKPlaneSection::FTKPlaneSection(int plane, int section)
 
 FTKModuleInfo::FTKModuleInfo() :
   m_isEndcap(0), m_layer(-1), m_pdisk(0), m_nphi(-1),
-  m_neta(-1), m_nste(0), m_ndimension(0),
-  m_nfi(0), m_ncott(0), m_ncurv(0)
+  m_neta(-1), 
+  m_nfi(0), m_ncott(0), m_ncurv(0),
+  m_nste(0), m_ndimension(0)
 {
    // nothing to do here
 }
 
 
+FTKModuleInfo::FTKModuleInfo(int isEndcap,int layer,int pdisk,
+			     int nphi,int neta,int nfi,int ncott,int ncurv,int nste,int ndimension) : 
+   m_isEndcap(isEndcap), m_layer(layer), m_pdisk(pdisk), m_nphi(nphi), m_neta (neta), 
+   m_nfi(nfi), m_ncott(ncott) ,m_ncurv(ncurv) ,m_nste(nste), m_ndimension(ndimension) 
+{
+   //
+}
+
+
+const TString FTKPlaneMap::s_dirname = "PlaneMap";
+
+
 FTKPlaneMap::FTKPlaneMap(const char *fname) :
-   m_path(fname), m_nplanes(0), m_rlayers(0), m_totaldim(0),
-   m_enablePlanePair(false),  m_isok(false),
-   m_nlayers(0),
-   m_planeType(0),
+   m_path(fname), m_nplanes(0), // m_nlayers(0), 
+   m_rlayers(0),
+   m_totaldim(0),   m_planeType(0),
    m_isZ(0),
    m_planePair(0),
-   m_nsections(0)
+   m_enablePlanePair(false),  
+   m_nsections(0),
+   m_isok(false)
 {
+   //! Default constructor
    FTKSetup &ftkset = FTKSetup::getFTKSetup();
    m_idim[0] = 0; m_idim[1] = 0;
    m_planes = 0x0;
@@ -67,14 +84,12 @@ FTKPlaneMap::FTKPlaneMap(const char *fname) :
   /* the code to read PMAP file is taken from the original
    F  pmap_rd.c. */
 
-  const int MAXPLANES(20);
-
   // store the maximum ID of an unused plane, 
   // needed to size the m_planes_unused
   int max_plane_id(-1);
 
-  int used_plane_dim[MAXPLANES];
-  int used_plane_sections[MAXPLANES];
+  int used_plane_dim[ftk::MAXPLANES];
+  int used_plane_sections[ftk::MAXPLANES];
   int section;
   char line[100];
   int npixel=0, npixelEC=0, nSCT=0, nSCTEC=0, ntot, isEC, i, pd, plane, nphi, neta, nste, ndimension;
@@ -87,7 +102,7 @@ FTKPlaneMap::FTKPlaneMap(const char *fname) :
   }
 
   // zeroes the counters
-  for (int j=0; j < MAXPLANES; j++) {
+  for (int j=0; j < ftk::MAXPLANES; j++) {
     used_plane_dim[j] = 0;
     used_plane_sections[j] = 0;
   }
@@ -198,7 +213,7 @@ FTKPlaneMap::FTKPlaneMap(const char *fname) :
  */
 
       /* count number of modules, record dimension, used plane number */
-      if (plane < MAXPLANES) {
+      if (plane < ftk::MAXPLANES) {
 	if (plane != -1) {
 	  used_plane_dim[plane] = ndimension;
 	  used_plane_sections[plane]++;
@@ -252,7 +267,7 @@ FTKPlaneMap::FTKPlaneMap(const char *fname) :
       m_rlayers++;
       
       /* count number of modules, record dimension, used plane number */
-      if (plane < MAXPLANES) {
+      if (plane < ftk::MAXPLANES) {
 	if(plane != -1) {
 	  used_plane_dim[plane] = ndimension;
 	  used_plane_sections[plane]++;
@@ -273,7 +288,7 @@ FTKPlaneMap::FTKPlaneMap(const char *fname) :
   /* decode used_plane_dim to infer number of valid logical planes and their dimension */
   m_nplanes = max_plane_id+1;
 
-  for (int j = 0; j < MAXPLANES; j++) {
+  for (int j = 0; j < ftk::MAXPLANES; j++) {
     if (used_plane_dim[j]) {
       m_totaldim += used_plane_dim[j];
     }
@@ -281,10 +296,10 @@ FTKPlaneMap::FTKPlaneMap(const char *fname) :
 
 
   // allocate the array to store the number of used sections
-  m_nsections = new int[MAXPLANES];
-  if ((m_nsections = (int *)calloc(MAXPLANES,sizeof(int))) == NULL)
+  m_nsections = new int[ftk::MAXPLANES];
+  if ((m_nsections = (int *)calloc(ftk::MAXPLANES,sizeof(int))) == NULL)
     FTKSetup::PrintMessage(sevr,"pmap_rd: Allocation of pmap nsections failed.");
-  for (int j = 0; j < MAXPLANES; j++) {
+  for (int j = 0; j < ftk::MAXPLANES; j++) {
     m_nsections[j] = 0; // initialize the value
     if (used_plane_dim[j]) {
       m_nsections[j] = used_plane_sections[j];
@@ -314,7 +329,7 @@ FTKPlaneMap::FTKPlaneMap(const char *fname) :
     FTKSetup::PrintMessage(debg,"\n");
   }
 
-  m_isZ =  new int[m_totaldim];
+  m_isZ = new int[m_totaldim];
   m_planePair = new int[m_nplanes];
   m_planeType = new int[m_nplanes];
   m_idim[0] = new int[m_nplanes];
@@ -333,7 +348,7 @@ FTKPlaneMap::FTKPlaneMap(const char *fname) :
   if(nSCTtrk==0)
     fgets(line,100,fpmap);
 
-  for (int l = 0; l < MAXPLANES; l++) {
+  for (int l = 0; l < ftk::MAXPLANES; l++) {
     used_plane_sections[l] = 0;
   }
     
@@ -454,35 +469,9 @@ FTKPlaneMap::FTKPlaneMap(const char *fname) :
   }
 
   if (cmDebug) {
-    printf("\nDumping pmap\n");
-    printf("%d planes\n",m_nplanes);
-    for (int j = 0; j < m_nplanes; j++) {
-      printf("\tPlane %d has %d sections\n",j,m_nsections[j]);
-      for (int k = 0; k < m_nsections[j]; k++) {
-	printf("\t\tSection %d: ",k);
-	if (m_planes[j][k].getNSte() == -2) printf("SCT track ");
-	else if (m_planes[j][k].getNSte() == 0) printf("SCT axial ");
-	else if (m_planes[j][k].getNSte() == 1) printf("SCT stereo ");
-	else printf("pixel ");
-	if (m_planes[j][k].getIsEndcap()) printf("endcap ");
-	else printf("barrel ");
-	printf("(physical layer %d / %d, map gives back plane %d section %d): \n",
-	       m_planes[j][k].getPDisk(), 
-	       m_planes[j][k].getLayer(), 
-	       //     m_map[1][m_planes[j][k].getIsEndcap()][m_planes[j][k].getLayer()].getPlane(),
-	       // m_map[1][m_planes[j][k].getIsEndcap()][m_planes[j][k].getLayer()].getSection());
-	       m_map[m_planes[j][k].getNSte() == -1][m_planes[j][k].getIsEndcap()][m_planes[j][k].getLayer()].getPlane(),
-	       m_map[m_planes[j][k].getNSte() == -1][m_planes[j][k].getIsEndcap()][m_planes[j][k].getLayer()].getSection());
-	if (m_planes[j][k].getNSte() == -2)
-	  printf("\t\t%d modules in fi %d in cott %d in curv\n", 
-		 m_planes[j][k].getNumFi(), m_planes[j][k].getNumCott(),m_planes[j][k].getNumCurv());
-	else
-	  printf("\t\t%d modules in eta %d in phi\n", 
-		 m_planes[j][k].getNumEta(), m_planes[j][k].getNumPhi());
-      }
-    }
-    FTKSetup::PrintMessage(debg,"\n\n");
-    }
+     DumpPMap();
+     //FTKSetup::PrintMessage(debg,"\n\n");
+  }
   
       if(nSCTtrk==0){
   // set the m_planePair array. When the 1st SCT plane is found
@@ -525,6 +514,488 @@ FTKPlaneMap::FTKPlaneMap(const char *fname) :
   }
       }
   m_isok = true;
+}
+
+FTKPlaneMap::FTKPlaneMap(TDirectory* file) {
+   //! Read pmap class from root file
+   //! return NULL if reading failed.
+   //! check validity also using m_isok
+
+   //cout<<"Instantiate PlaneMap from root file."<<endl;
+   TDirectory* thisdir = gDirectory;
+
+   m_isok=false;
+
+   if ( !file->cd(s_dirname) ) {
+      cerr << "Error in FTKPlaneMap::FTKPlaneMap. No PlaneMap found in root-file. "<< endl;
+      return;
+   } 
+
+   m_path = gDirectory->GetTitle();
+   //cout<<"PathName:        "<<m_path<<endl;
+
+   TTree* tplane = (TTree*)gDirectory->Get("Planes");
+   TTree* tree   = (TTree*)gDirectory->Get("PlaneConstants");
+   TTree* tConst = (TTree*)gDirectory->Get("Constants");
+   if ( !tplane || !tree || !tConst ) {
+      cerr << "Error in FTKPlaneMap::FTKPlaneMap. Could not find trees. "<< endl;
+      cerr << "  tree('Planes')          "<<tplane<<endl;
+      cerr << "  tree('PlaneConstants')  "<<tree<<endl;
+      cerr << "  tree('Constants')       "<<tConst<<endl;
+      m_nplanes=0;
+      m_rlayers=0;
+      m_totaldim=0;
+      m_planeType=0;
+      m_isZ=0;
+      m_planePair=0;
+      m_enablePlanePair=0;
+      m_idim[0] = 0; m_idim[1] = 0;
+      m_nsections=0;
+      m_planes=0;
+      return;
+   }
+
+   m_isok=true;
+
+   int chksum;
+   // constants:
+   tConst->GetBranch("nplanes")->SetAddress(&m_nplanes);
+   tConst->GetBranch("rlayers")->SetAddress(&m_rlayers);
+   tConst->GetBranch("totaldim")->SetAddress(&m_totaldim);
+   tConst->GetBranch("enablePlanePair")->SetAddress(&m_enablePlanePair);
+   tConst->GetBranch("Checksum")->SetAddress(&chksum);
+   // read constants
+   tConst->GetEntry(0);
+   // cout<<"nplanes          "<<m_nplanes<<endl;
+   // cout<<"rlayers          "<<m_rlayers<<endl;
+   // cout<<"totaldim         "<<m_totaldim<<endl;
+   // cout<<"enablePlanePair: "<<m_enablePlanePair<<endl;
+
+   if ( tree->GetEntries() != m_nplanes ) cerr<<"Error in FTKPlaneMap::FTKPlaneMap. Inconsistent nplanes."<<endl;
+   int isZ,planePair,planeType,nsections;
+   int idim[2];
+   tree->GetBranch("isZ")->SetAddress(&isZ);
+   tree->GetBranch("planePair")->SetAddress(&planePair);
+   tree->GetBranch("planeType")->SetAddress(&planeType);
+   tree->GetBranch("idim_0")->SetAddress(&idim[0]);
+   tree->GetBranch("idim_1")->SetAddress(&idim[1]);
+   tree->GetBranch("nsections")->SetAddress(&nsections);
+
+   m_planeType = new int[m_nplanes]; // SCT / PIXEL / SCTtrk
+   m_isZ = new int[m_totaldim]; // legacy (unused)
+   m_planePair = new int[m_nplanes];
+   m_idim[0]= new int[m_nplanes];
+   m_idim[1]= new int[m_nplanes];
+   m_nsections = new int[ftk::MAXPLANES]; // number of sections in the used planes
+   for ( int i = 0 ; i < ftk::MAXPLANES ; i++ ) m_nsections[i]=0;
+
+   for ( int j = 0 ; j<m_nplanes ; j++ ) {
+      tree->GetEntry(j);
+      m_planeType[j] = planeType;
+      m_isZ[j] = isZ;
+      m_planePair[j] = planePair;
+      m_idim[0][j] = idim[0];
+      m_idim[1][j] = idim[1];   
+      m_nsections[j] = nsections;
+   }
+   
+   int iplane,isection;
+   int isEndcap,layer,pdisk,nphi,neta,nfi,ncott,ncurv,nste,ndimension;
+   int mapSection,mapPlane,mapPlaneType,mapEC,mapItype;
+   tplane->GetBranch("iplane")->SetAddress(&iplane);
+   tplane->GetBranch("isection")->SetAddress(&isection);
+
+   tplane->GetBranch("isEndcap")->SetAddress(&isEndcap);
+   tplane->GetBranch("layer")->SetAddress(&layer);
+   tplane->GetBranch("pdisk")->SetAddress(&pdisk);
+   tplane->GetBranch("nphi")->SetAddress(&nphi);
+   tplane->GetBranch("neta")->SetAddress(&neta);
+   tplane->GetBranch("nfi")->SetAddress(&nfi);
+   tplane->GetBranch("ncott")->SetAddress(&ncott);
+   tplane->GetBranch("ncurv")->SetAddress(&ncurv);
+   tplane->GetBranch("nste")->SetAddress(&nste);
+   tplane->GetBranch("ndimension")->SetAddress(&ndimension);
+
+   tplane->GetBranch("mapSection")->SetAddress(&mapSection);
+   tplane->GetBranch("mapPlane")->SetAddress(&mapPlane);
+   tplane->GetBranch("mapPlaneType")->SetAddress(&mapPlaneType);
+   tplane->GetBranch("mapEC")->SetAddress(&mapEC);
+   tplane->GetBranch("mapItype")->SetAddress(&mapItype);
+
+   const int nmax = 34;
+   //m_map = new FTKPlaneSection**[ftk::NHITTYPES];
+   for ( int i = 0 ; i < ftk::NHITTYPES ; i++ ){
+      //m_map[i] = new FTKPlaneSection*[2];
+      for ( int j = 0 ; j < 2 ; j++ ) {
+	 //FTKPlaneSection *m_map[ftk::NHITTYPES][2];
+	 m_map[i][j] = new FTKPlaneSection[nmax];
+      }
+   }
+
+
+
+   // map, planes 
+   int nev=0;
+   m_planes = new FTKModuleInfo*[m_nplanes];
+   for (int j = 0; j < m_nplanes; j++) {
+      tplane->GetEntry(nev++);
+      //cout <<"j="<<j<<", iplane="<<iplane<<endl;
+      //printf("\tPlane %d has %d sections\n",j,m_nsections[j]);
+      m_planes[j] = new FTKModuleInfo[m_nsections[j]];
+      for (int k = 0; k < m_nsections[j]; k++) {	
+	 if ( k!= 0) tplane->GetEntry(nev++);
+	 if ( k!= isection || j!= iplane ) {
+	    cerr << "Error reading PlaneMap."<<endl;
+	    m_isok = false;
+	 }
+	 // planes
+	 // m_planes[j][k] = {isEndcap,layer,pdisk, nphi,neta,nfi,ncott,ncurv,nste,ndimension};
+	 m_planes[j][k] =  FTKModuleInfo{isEndcap,layer,pdisk,
+					 nphi,neta,nfi,ncott,ncurv,nste,ndimension};
+	 // maps
+         // plane   = m_map[m_planes[j][k].getNSte() == -1][m_planes[j][k].getIsEndcap()][m_planes[j][k].getLayer()].getPlane();
+         // section = m_map[m_planes[j][k].getNSte() == -1][m_planes[j][k].getIsEndcap()][m_planes[j][k].getLayer()].getSection();
+	 m_map[m_planes[j][k].getNSte() == -1][m_planes[j][k].getIsEndcap()][m_planes[j][k].getLayer()] = FTKPlaneSection{mapPlane,mapSection};
+      }
+   }
+
+   // cout<<"FTKPlaneMap::FTKPlaneMap read from file. Dumping PlaneMap"<<endl;
+   // cout<<"-----------------------------------------------------"<<endl;
+   // DumpPMap();
+   // cout<<"-----------------------------------------------------"<<endl;
+
+   thisdir->cd(); // go back
+ 
+   if ( chksum != CalcChecksum() ) {
+      cerr<<"FTKPMap::FTKPMap. Error. Checksum after reading is not consistent with Checksum stored in file."<<endl;
+      m_isok=false;
+   }
+
+
+}
+
+int FTKPlaneMap::CalcChecksum() const {
+   // calculate checksum of map
+   vector<double> vec;
+
+   // fill vec with member variables
+   vec.push_back((double)m_nplanes);
+   vec.push_back((double)m_rlayers);
+   vec.push_back((double)m_totaldim);
+   vec.push_back((double)m_enablePlanePair);
+
+   // plane, map, m_planes
+   // m_plane, m_map
+   for (int j = 0; j < m_nplanes; j++) {
+      for (int k = 0; k < m_nsections[j]; k++) {
+	 vec.push_back((double)j);
+	 vec.push_back((double)k);
+	 vec.push_back((double)m_planes[j][k].getIsEndcap());
+	 vec.push_back((double)m_planes[j][k].getLayer());
+	 vec.push_back((double)m_planes[j][k].getPDisk());
+	 vec.push_back((double)m_planes[j][k].getNumPhi());
+	 vec.push_back((double)m_planes[j][k].getNumEta());
+	 vec.push_back((double)m_planes[j][k].getNumFi());
+	 vec.push_back((double)m_planes[j][k].getNumCott());
+	 vec.push_back((double)m_planes[j][k].getNumCurv());
+	 vec.push_back((double)m_planes[j][k].getNSte()); 
+	 vec.push_back((double)m_planes[j][k].getNDimension());
+	 // m_map
+	 vec.push_back((double)m_map[m_planes[j][k].getNSte() == -1][m_planes[j][k].getIsEndcap()][m_planes[j][k].getLayer()].getPlane() );
+	 vec.push_back((double)m_map[m_planes[j][k].getNSte() == -1][m_planes[j][k].getIsEndcap()][m_planes[j][k].getLayer()].getSection());
+	 vec.push_back((double)m_planes[j][k].getNSte() == -1);
+	 vec.push_back((double)m_planes[j][k].getIsEndcap());
+	 vec.push_back((double)m_planes[j][k].getLayer());
+      }
+   } 
+
+   for ( int i = 0 ; i<m_nplanes ; i++ ) {
+      vec.push_back((double)m_isZ[i]);
+      vec.push_back((double)m_planePair[i]);
+      vec.push_back((double)m_planeType[i]);
+      vec.push_back((double)m_idim[0][i]);
+      vec.push_back((double)m_idim[1][i]);
+      vec.push_back((double)m_nsections[i]);
+   }
+   
+   // path
+   /*
+   TString title = ftk::StripFileName(getPath());
+   std::string smd5 = title.MD5().Data();
+   double* dmd5 = (double*)&smd5[0];
+   for ( unsigned int i = 0 ; i<smd5.size()/sizeof(double); i++ ) {
+      vec.push_back(dmd5[i]);
+   }
+   */
+
+   size_t size = sizeof(double) * vec.size();
+   int checksum = ftk::adler32chksum(&vec[0],size);
+   //cout<<"Checksum PMap: "<<checksum<<endl;
+
+   return checksum;
+   
+}
+
+
+void FTKPlaneMap::DumpPMap() const {
+    printf("Dumping pmap\n");
+    printf("%d planes\n",m_nplanes);
+    for (int j = 0; j < m_nplanes; j++) {
+      printf("\tPlane %d has %d sections\n",j,m_nsections[j]);
+      for (int k = 0; k < m_nsections[j]; k++) {
+	printf("\t\tSection %d: ",k);
+	if (m_planes[j][k].getNSte() == -2) printf("SCT track ");
+	else if (m_planes[j][k].getNSte() == 0) printf("SCT axial ");
+	else if (m_planes[j][k].getNSte() == 1) printf("SCT stereo ");
+	else printf("pixel ");
+	if (m_planes[j][k].getIsEndcap()) printf("endcap ");
+	else printf("barrel ");
+	printf("(physical layer %d / %d, map gives back plane %d section %d): \n",
+	       m_planes[j][k].getPDisk(), 
+	       m_planes[j][k].getLayer(), 
+	       //     m_map[1][m_planes[j][k].getIsEndcap()][m_planes[j][k].getLayer()].getPlane(),
+	       // m_map[1][m_planes[j][k].getIsEndcap()][m_planes[j][k].getLayer()].getSection());
+	       m_map[m_planes[j][k].getNSte() == -1][m_planes[j][k].getIsEndcap()][m_planes[j][k].getLayer()].getPlane(),
+	       m_map[m_planes[j][k].getNSte() == -1][m_planes[j][k].getIsEndcap()][m_planes[j][k].getLayer()].getSection());
+	if (m_planes[j][k].getNSte() == -2)
+	  printf("\t\t%d modules in fi %d in cott %d in curv\n", 
+		 m_planes[j][k].getNumFi(), m_planes[j][k].getNumCott(),m_planes[j][k].getNumCurv());
+	else
+	  printf("\t\t%d modules in eta %d in phi\n", 
+		 m_planes[j][k].getNumEta(), m_planes[j][k].getNumPhi());
+      }
+    }
+}
+
+
+int FTKPlaneMap::GetConst(TDirectory* file, TString ConstName){
+   // get nplanes from root file
+   // if error: return -1
+   TDirectory* thisdir = gDirectory;
+
+
+   if ( !file->cd(s_dirname) ) {
+      cerr << "Error in FTKPlaneMap::GetNPlanes. No PlaneMap found in root-file. "<< endl;
+	 return -1;
+   } 
+
+   TTree* tConst = (TTree*)gDirectory->Get("Constants");
+   if ( !tConst ) {
+      cerr << "Error in FTKPlaneMap::GetNPlanes. Could not find trees. "<< endl;
+      cerr << "  tree('Constants')       "<<tConst<<endl;
+	 return -1;
+   }
+
+   // constants:
+   int ret;
+   TBranch* br = tConst->GetBranch(ConstName);
+   br->SetAddress(&ret);
+   br->GetEntry(0);
+   thisdir->cd();
+   return ret;
+}
+
+int FTKPlaneMap::GetNPlanes(TDirectory* file){
+   // get nplanes from root file
+   // if error: return -1
+   return GetConst(file,"nplanes");
+}
+
+int FTKPlaneMap::GetTotalDim(TDirectory* file){
+   // get totaldim from root file
+   // if error: return -1
+   return GetConst(file,"totaldim");
+}
+
+int FTKPlaneMap::GetChecksum(TDirectory* file){
+   // get totaldim from root file
+   // if error: return -1
+   return GetConst(file,"Checksum");
+}
+
+
+
+FTKPlaneMap* FTKPlaneMap::GetPMapFromRootFile(TDirectory* file){
+   //! Read pmap class from root file
+   //! return NULL if reading failed.
+   //! check validity also using m_isok
+
+   TDirectory* thisdir = gDirectory;
+   FTKPlaneMap* ret = new FTKPlaneMap(file);
+
+   if ( !ret->getIsOK() ) {
+      cerr <<"FTKPlaneMap::GetPMapFromRootFile. Error. PlaneMap seems not to be ok (isok==false). Returning nullptr."<<endl;
+      delete ret;
+      return NULL;
+   }
+   
+   thisdir->cd(); // go back
+   return  ret;
+}
+
+void FTKPlaneMap::WriteMapToRootFile(TDirectory* dir)
+{
+   //! Write PMap to root file
+   //! PMap is stored in TDirectory* pmap
+   //!    name:  "PMap"
+   //!    title:  <filename>
+   //! PMap is again readable using ReadMapFromRootFile()
+   
+   //cout<<"Writing PlaneMap to root file."<<endl;
+   // cout<<"-----------------------------------------------------"<<endl;
+   // DumpPMap();
+   // cout<<"-----------------------------------------------------"<<endl;
+   
+   TDirectory* thisdir = gDirectory;
+   // check if PMap already exists
+   if ( dir->GetKey(s_dirname) ) {
+      if ( FTKPlaneMap::GetChecksum(dir) == CalcChecksum()  ) {
+	 cout<<"Info. Identical PlaneMap already written to disk. Skipping writing."<<endl;
+	 return;
+      }
+      else {
+	 cerr << "Error: [FTKPlaneMap::WriteMapToRootFile] There is already a PlaneMap in this file: " << dir->GetTitle() << endl;
+	 cerr << "                                         PlaneMap title: "<<dir->GetKey(s_dirname)->GetTitle()<<endl;
+	 cerr << "       *** Skipping writing *** "<<endl;
+	 return;
+      }
+   }
+   if ( !m_isok ) {
+      cerr << "Error: [FTKPlaneMap::WriteMapToRootFile] PlaneMap is not properly initalized. m_isok= " << m_isok << endl;
+      cerr << "       *** Skipping writing *** "<<endl;
+      return;
+   }
+
+   // create new directory for PMap content
+   TString title = ftk::StripFileName(getPath());
+   TDirectory* pmapdir = dir->mkdir(s_dirname,title);
+   pmapdir->cd();
+   
+   /*
+   // write PMap content
+   cout<<"ftk::NHITTYPES="<<ftk::NHITTYPES<<endl;
+   cout<<"Writing m_planes, m_map"<<endl;
+   printf("%d planes\n",m_nplanes);
+   for (int j = 0; j < m_nplanes; j++) {
+      printf("\tPlane %d has %d sections\n",j,m_nsections[j]);
+      for (int k = 0; k < m_nsections[j]; k++) {
+	 printf("\t\tSection %d: \n",k);
+
+	 TString objname = Form("plane_%d_%d",j,k);
+	 cout<<" * Writing m_planes: "<<objname<<endl;
+	 pmapdir->WriteObject(&m_planes[j][k],objname);
+	
+	 printf("\t\t\t(physical layer %d / %d, map gives back plane %d section %d): \n",
+		m_planes[j][k].getPDisk(), 
+		m_planes[j][k].getLayer(), 
+		m_map[m_planes[j][k].getNSte() == -1][m_planes[j][k].getIsEndcap()][m_planes[j][k].getLayer()].getPlane(),
+		m_map[m_planes[j][k].getNSte() == -1][m_planes[j][k].getIsEndcap()][m_planes[j][k].getLayer()].getSection());
+
+	 int a = m_planes[j][k].getNSte() == -1; //ftk::NHITTypes
+	 int b = m_planes[j][k].getIsEndcap(); // EC or not
+	 int c = m_planes[j][k].getLayer();
+	 TString mapname = Form("map_%d_%d_%d",a,b,c);
+	 cout<<" * Writing m_map: "<<mapname<<endl;
+	 pmapdir->WriteObject(&m_map[a][b][c],mapname);
+      }
+   }  
+   */
+
+   //cout<<"Writing planes into tree."<<endl;
+   TTree tplane("Planes","Planes");
+
+   // plane
+   int iplane, isection;
+   int isEndcap, layer, pdisk, nphi, neta, nfi, ncott, ncurv, nste, ndimension;
+   // map
+   int plane,section,i1,i2,i3;
+   // m_planes
+   tplane.Branch("iplane",&iplane,"iplane/I");
+   tplane.Branch("isection",&isection,"isection/I");
+   // m_planes
+   tplane.Branch("isEndcap",&isEndcap  ,"isEndcap/I");
+   tplane.Branch("layer",&layer     ,"layer/I");
+   tplane.Branch("pdisk",&pdisk     ,"pdisk/I");
+   tplane.Branch("nphi",&nphi      ,"nphi/I");
+   tplane.Branch("neta",&neta      ,"neta/I");
+   tplane.Branch("nfi",&nfi       ,"nfi/I");
+   tplane.Branch("ncott",&ncott     ,"ncott/I");
+   tplane.Branch("ncurv",&ncurv     ,"ncurv/I");
+   tplane.Branch("nste",&nste      ,"nste/I");
+   tplane.Branch("ndimension",&ndimension,"ndimension/I");
+   // m_map
+   tplane.Branch("mapSection",&section,"mapSection/I");
+   tplane.Branch("mapPlane",&plane    ,"mapPlane/I");
+   tplane.Branch("mapPlaneType",&i1     ,"mapPlaneType/I");
+   tplane.Branch("mapEC",&i2          ,"EC/I");
+   tplane.Branch("mapItype",&i3       ,"Itype/I");
+   // filling
+   //printf("%d planes\n",m_nplanes);
+   for (int j = 0; j < m_nplanes; j++) {
+      //printf("\tPlane %d has %d sections\n",j,m_nsections[j]);
+      for (int k = 0; k < m_nsections[j]; k++) {
+	 //printf("\t\tSection %d: \n",k);
+	 // m_planes
+	 iplane = j;
+	 isection = k;
+	 isEndcap  = m_planes[j][k].getIsEndcap();
+	 layer     = m_planes[j][k].getLayer();
+	 pdisk     = m_planes[j][k].getPDisk();
+	 nphi      = m_planes[j][k].getNumPhi();
+	 neta      = m_planes[j][k].getNumEta();
+	 nfi       = m_planes[j][k].getNumFi();
+	 ncott     = m_planes[j][k].getNumCott();
+	 ncurv     = m_planes[j][k].getNumCurv();
+	 nste      = m_planes[j][k].getNSte();
+	 ndimension= m_planes[j][k].getNDimension();
+	 // m_map
+	 plane   = m_map[m_planes[j][k].getNSte() == -1][m_planes[j][k].getIsEndcap()][m_planes[j][k].getLayer()].getPlane();
+	 section = m_map[m_planes[j][k].getNSte() == -1][m_planes[j][k].getIsEndcap()][m_planes[j][k].getLayer()].getSection();
+	 i1 = m_planes[j][k].getNSte() == -1;
+	 i2 = m_planes[j][k].getIsEndcap();
+	 i3 = m_planes[j][k].getLayer();
+	 // TString objname = Form("plane_%d_%d",j,k);
+	 // cout<<" * Writing m_planes: "<<objname<<endl;
+	 //	 pmapdir->WriteObject(&m_planes[j][k],objname);
+	 tplane.Fill();
+      }
+   } 
+
+   
+   //cout<<"Writing plane constants."<<endl;
+   TTree tree("PlaneConstants","Plane constants");
+   int isZ, planePair, planeType, idim_0, idim_1, nsections;
+   tree.Branch("isZ",&isZ,"isZ/I");
+   tree.Branch("planePair",&planePair,"planePair/I");
+   tree.Branch("planeType",&planeType,"planeType/I");
+   tree.Branch("idim_0",&idim_0,"idim_0/I"); 
+   tree.Branch("idim_1",&idim_1,"idim_1/I");
+   tree.Branch("nsections",&nsections,"nsections/I");
+   for ( int i = 0 ; i<m_nplanes ; i++ ) {
+      isZ = m_isZ[i];
+      planePair = m_planePair[i];
+      planeType = m_planeType[i];
+      idim_0 =  m_idim[0][i];
+      idim_1 = m_idim[1][i];
+      nsections = m_nsections[i];
+      tree.Fill();
+   }
+   
+   //cout<<"Writing constants."<<endl;
+   int chksum = CalcChecksum();
+
+   TTree tConst("Constants","Constants");
+   tConst.Branch("nplanes",&m_nplanes,"nplanes/I");
+   tConst.Branch("rlayers",&m_rlayers,"rlayers/I");
+   tConst.Branch("totaldim",&m_totaldim,"totaldim/I");
+   tConst.Branch("enablePlanePair",&m_enablePlanePair,"enablePlanePair/O");
+   tConst.Branch("Checksum",&chksum,"chksum/I");
+   tConst.Fill();
+
+   pmapdir->Write();
+
+   // goback
+   thisdir->cd();
 }
 
 

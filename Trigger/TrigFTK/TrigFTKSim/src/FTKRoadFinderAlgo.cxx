@@ -36,6 +36,8 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_IBLMode(0),
   m_ss_offset_fraction(0),
   m_PixelClusteringMode(0),
+  m_DuplicateGanged(1),
+  m_GangedPatternRecognition(0),
   m_SctClustering(0),
   m_SCTTrkMode(false), m_scttrk_tracklist(""),
   m_scttrk_roadlist(""), m_scttrk_sectormap_path(""),
@@ -65,7 +67,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_SectorAsPatterns(0),
   m_DCMatchMethod(0),
   m_AutoDisable(false),
-  m_firstEvent(-1)
+  m_firstEventFTK(-1)
 {
   // number of banks
   declareProperty("NBanks",m_nbanks);
@@ -87,6 +89,8 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("IBLMode",m_IBLMode);
 
   declareProperty("PixelClusteringMode",m_PixelClusteringMode,"Pixel clustering correction: 0 simple default, 1 channel center and linear ToT interpolation and account for different pixel lengths");
+  declareProperty("DuplicateGanged",m_DuplicateGanged,"Duplicate ganged pixels so we don't lose efficiency");
+  declareProperty("GangedPatternReco", m_GangedPatternRecognition,"Pattern recognition to partially remove duplication");
   declareProperty("SctClustering",m_SctClustering,"Enable SCT clustering: 0 disabled, 1 enabled");
 
   declareProperty("CachedBank",m_CachedBank);
@@ -125,7 +129,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
 
   declareProperty("DCMatchMethod",m_DCMatchMethod,"Set the DC matching method: 0 through TSP SS organization, 1 direct");
 
-  declareProperty("FirstEvent",m_firstEvent,"First event to run over");
+  declareProperty("FirstEventFTK",m_firstEventFTK,"First event to run over");
 }
 
 FTKRoadFinderAlgo::~FTKRoadFinderAlgo()
@@ -248,7 +252,7 @@ StatusCode FTKRoadFinderAlgo::initialize(){
       // set the pmap address to FTKDataInput to use in processEvent
       m_hitInputTool->reference()->setPlaneMaps(m_pmap,m_pmap_unused);
     }
-    m_hitInputTool->reference()->setFirstEvent(m_firstEvent);
+    m_hitInputTool->reference()->setFirstEvent(m_firstEventFTK);
     m_rfobj.setDataInputModule(m_hitInputTool->reference());
     
   }
@@ -268,7 +272,7 @@ StatusCode FTKRoadFinderAlgo::initialize(){
       log << MSG::INFO << "Loading " << m_wrapperpaths[ifile] << endreq;
       ftkrawinput->addFile(m_wrapperpaths[ifile].c_str());
     }
-    ftkrawinput->setFirstEvent(m_firstEvent);
+    ftkrawinput->setFirstEvent(m_firstEventFTK);
     m_rfobj.setDataInputModule(ftkrawinput);
   }
   else {
@@ -287,13 +291,15 @@ StatusCode FTKRoadFinderAlgo::initialize(){
       log << MSG::INFO << "Loading " << m_wrapperpaths[ifile] << endreq;
       ftkrawinput->addFile(m_wrapperpaths[ifile].c_str());
     }
-    ftkrawinput->setFirstEvent(m_firstEvent);
+    ftkrawinput->setFirstEvent(m_firstEventFTK);
     m_rfobj.setDataInputModule(ftkrawinput);
   }
 
   // Set options related to the input: clustering or other features
   m_rfobj.getDataInputModule()->setPixelClusteringMode(m_PixelClusteringMode);
   m_rfobj.getDataInputModule()->setSctClustering(m_SctClustering);
+  m_rfobj.getDataInputModule()->setDuplicateGanged(m_DuplicateGanged);
+  m_rfobj.getDataInputModule()->setGangedPatternRecognition(m_GangedPatternRecognition);
     
   // Set Option (temporaly way for checking standalone ver. -> should change to better way) //
   ftkset.setBarrelOnly(m_BarrelOnly);

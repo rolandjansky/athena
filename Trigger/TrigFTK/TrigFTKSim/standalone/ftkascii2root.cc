@@ -186,7 +186,7 @@ int main(int argc, char *argv[]) {
 	    rectrack->setZ0(z0);
 	    rectrack->setPhi(phi);
 	    rectrack->setCotTheta(cottheta);
-	    rectrack->setInvPt(.5e-3/pt);
+	    rectrack->setHalfInvPt(.5e-3/pt);
 	    rectrack->setBarcode(barcode);
 	    rectrack->setBarcodeFrac(barcode_frac);
 	    rectrack->setTrackID(evtindex);
@@ -220,7 +220,7 @@ int main(int argc, char *argv[]) {
 	    cottheta = pz/sqrt(px*px+py*py);
 
 	    truthtrack->setIP(a0);
-	    truthtrack->setInvPt(curv);
+	    truthtrack->setHalfInvPt(curv);
 	    truthtrack->setPhi(phi);
 	    truthtrack->setCotTheta(cottheta);
 	    truthtrack->setZ0(z);

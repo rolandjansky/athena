@@ -11,6 +11,7 @@
 #include "TrigFTKSim/FTKPatternBySector.h"
 #include "TrigFTKSim/ftk_dcap.h"
 #include "TrigFTKSim/FTKRootFile.h"
+#include "TrigFTKSim/FTKSSMap.h"
 
 /* class FTKMergeRoot
  *
@@ -180,6 +181,30 @@ int FTKMergeRoot::DoMerge(int MinCoverage,int compression){
       delete patternWriter; // write to disk
       patternWriter=0;
 
+      // keep ssmap, rmap, pmap if available. check consistency btw. maps.
+      for(int i=0;i<GetNInput();i++) {
+	 TString inputFileName = GetInput(i);
+	 //cout<<"Writing ssmaps input: "<<inputFileName<<", to: "<<rootOutputFile->GetName() <<endl;
+	 if(FTKRootFile::Instance()->IsRootFile(inputFileName)) {
+	    TDirectory *inputFile = FTKRootFile::Instance()->OpenRootFileReadonly(inputFileName);
+	    if ( inputFile->GetDirectory(FTKSSMap::GetDCorTSPDirname("TSP") ) ) {
+	       FTKSSMap* ssmap = FTKSSMap::GetSSMapFromRootFile(inputFile,"TSP");
+	       if ( ssmap->getIsOK() ) {
+		  //Info("DoMerge")<<"Writing SSMap to file: "<<rootOutputFile->GetName()<<endl;
+		  ssmap->WriteMapToRootFile(rootOutputFile, "TSP");
+	       }
+	       else 
+		  Info("DoMerge")<<"No ssmap found in file: "<<inputFileName<<endl;
+	    }
+	    else 
+	       Info("DoMerge")<<"No ssmap found in file: "<<inputFileName<<endl;
+	 }
+	 else {
+	    Info("DoMerge")<<"No ssmap found, since these can be stored only in root-files."<<endl;
+	 }
+      }
+
+      // write to disk
       delete rootOutputFile;
 
       // delete files if requested

@@ -8,6 +8,8 @@
 #include "TrigFTKSim/FTKPMap.h"
 #include "TrigFTKSim/FTKRegionMap.h"
 #include "TrigFTKSim/FTKPattern.h"
+#include "TrigFTKSim/FTKRootFile.h"
+#include "TrigFTKSim/FTKPatternBySector.h"
 
 #include <TTree.h>
 #include <TBranch.h>
@@ -16,6 +18,8 @@
 
 #include <cstdio>
 #include <iostream>
+
+#include "TrigFTKSim/FTK_AMBank.h"
 
 using namespace TSPROOT;
 using namespace boost;
@@ -28,58 +32,152 @@ TSPROOTBankGenerator::TSPROOTBankGenerator(const char *fname) :
    m_maxPatterns(0),
    m_planes(0),
    m_mincoverage(0),
-   m_patternID(0)
+   m_patternID(0),
+   m_preader(NULL),
+   m_npatterns(0),
+   m_iSub(0),
+   m_nSub(0),
+   m_nplanes(0)
 {
   m_bankfile = TFile::Open(fname);
 }
 
 
 TSPROOTBankGenerator::TSPROOTBankGenerator(FTKSetup* setup, const std::vector<FTKSSMap*>& ssMaps, const std::string& inputBank, const std::string& outBank, unsigned planes, int maxPatterns, int mincoverage) :
-   m_setup(setup), m_ssMaps(ssMaps), m_maxPatterns(maxPatterns), m_planes(planes),  m_mincoverage(mincoverage), m_patternID(0l), m_RemoveTSP(0){
 
-  m_setup = &FTKSetup::getFTKSetup();
-	if (!ftk_dcap::open_for_read(inputBank, m_inputBank)) {
-		FTKSetup::PrintMessageFmt(ftk::sevr, "Error opening the inputbank file: %s\n", inputBank.c_str());
-		throw;
-	}
+   m_RemoveTSP(0), m_setup(setup), m_ssMaps(ssMaps), m_maxPatterns(maxPatterns), m_planes(planes),  m_mincoverage(mincoverage), m_patternID(0l),m_preader(NULL),
+   m_iSub(0), m_nSub(0)
+{
+ 
+  
+   m_setup = &FTKSetup::getFTKSetup(); // ???
+   // init input stream:
+   // either root-formated (sector-ordered) patterns
+   // or ascii file
+   if ( FTKRootFile::Instance()->IsRootFile(inputBank.c_str()) ){
+      FTKSetup::PrintMessageFmt(ftk::info,"TSPROOTBankGenerator. Reading inputBank (in root-format): %s.\n",inputBank.c_str());
+      // input bank is in .root format
+      // open rootfile
+      TFile* file = (TFile*)FTKRootFile::Instance()->OpenRootFileReadonly(inputBank.c_str());
+      if ( !file ) {
+         FTKSetup::PrintMessageFmt(ftk::sevr, "Cannot read root-file from: %s\n", inputBank.c_str());
+         throw;
+      }
+      m_preader = new FTKPatternBySectorReader(*file);
+      if(!m_preader) {
+         FTKSetup::PrintMessageFmt(ftk::sevr, "Cannot read root-file pattern from: %s\n", inputBank.c_str());
+         throw;
+      }
+      m_npatterns = m_preader->GetNPatterns();
+      m_nplanes = m_preader->GetNLayers();
+   }
+   else {
+      FTKSetup::PrintMessageFmt(ftk::info,"TSPROOTBankGenerator. Reading inputBank (in ascii-format): %s.\n",inputBank.c_str());
+      // input bank is in ascii format
+      if (!ftk_dcap::open_for_read(inputBank, m_inputBank)) {
+	 FTKSetup::PrintMessageFmt(ftk::sevr, "Error opening the inputbank file: %s\n", inputBank.c_str());
+	 throw;
+      }
+      m_inputBank >> m_npatterns >> m_nplanes;
+   }
+   m_npatterns = m_maxPatterns >= 0 ? m_maxPatterns : m_npatterns;
 
-	m_bankfile = TFile::Open(outBank.c_str(),"recreate");
-	FTKSetup::PrintMessageFmt(ftk::info,"Output bank file created: %s\n",outBank.c_str());
+   // open outbank file 
+   //m_bankfile = FTKRootFile::Instance()->CreateRootFile(outBank.c_str());
+   m_bankfile = TFile::Open(outBank.c_str(),"recreate");
+   FTKSetup::PrintMessageFmt(ftk::info,"Output bank file created: %s\n",outBank.c_str());
 }
 
 TSPROOTBankGenerator::~TSPROOTBankGenerator(){
-
+   //FTKSetup::PrintMessageFmt(ftk::info,"~TSPROOTBankGenerator. Closing output bank file %s.\n",m_bankfile->GetName());
 	 m_bankfile->Close();
 	 delete m_bankfile;
+}
+
+
+/** write ssmaps, region map, plane map to file */
+void TSPROOTBankGenerator::writeSSMapsToFile() {
+   m_ssMaps[0]->WriteMapToRootFile(m_bankfile,"TSP");
+   m_ssMaps[1]->WriteMapToRootFile(m_bankfile,"DC");
 }
 
 
 /** produce the banks and the relations */
 void TSPROOTBankGenerator::generate() throw (TSPPatternReadException){
   // read the head of the oroginal pattern bank
-  int npatterns, nplanes;
-  m_inputBank >> npatterns >> nplanes;
-  FTKSetup::PrintMessageFmt(ftk::info, "Leaf bank db copy started\nInput bank: %d Patterns, %d Planes\n", npatterns, nplanes);
-  
+   FTKSetup::PrintMessageFmt(ftk::info, "Leaf bank db copy started\nInput bank: %d Patterns, %d Planes, %d MaxPatterns\n", m_npatterns, m_nplanes, m_maxPatterns);
+
   // prepare the first bank
-  FTKPattern *inputpattern = new FTKPattern(nplanes);
-  TTree *bank0 = new TTree("Bank0","Level 0 pattern");
+  FTKPattern* inputpattern = new FTKPattern(m_nplanes);
+  TTree* bank0 = new TTree("Bank0","Level 0 pattern");
   bank0->Branch("Pattern",&inputpattern);
-  npatterns = m_maxPatterns >= 0 ? m_maxPatterns : npatterns;
+
+  // the first step is just the conversion of the original (ASCII or root) bank a TTree
+  if ( m_preader ) {
+     FTKPatternBySectorReader::SectorSet_t sectorByCoverage;
+     long npatt = m_preader->GetPatternByCoverage(sectorByCoverage,m_iSub,m_nSub); 
+
+     // update number of patterns (for the current subregion)
+     m_npatterns = m_maxPatterns >= 0 ? m_maxPatterns : npatt;
   
-  // the first step is just the conversion of the original ASCII bank a TTree
-  //  for (int ipatt = 0; ipatt < npatterns; ++ipatt) {
-  for (int ipatt = 0; ipatt < 1; ++ipatt) {
-    showstats(ipatt, npatterns);
-    readNextPattern(*inputpattern, ipatt);    
-    // verify the pattern has the minimum requried coverage
-    if (inputpattern->getCoverage()<m_mincoverage) {
-      FTKSetup::PrintMessageFmt(ftk::info, "Minimum coverage cutoff at %d reached at pattern %d\n",m_mincoverage,ipatt);
-      break; // don't add
-    }
-    bank0->Fill();
-    m_patternID+=1; // increment the global pattern ID
+     // loop over sectors recursively, convert to 'FTKPattern' and write into root-tree
+     while(sectorByCoverage.begin()!=sectorByCoverage.end() && m_patternID<m_npatterns ) {
+	FTKPatternBySectorReader::PatternTreeBySector_t::iterator oneSector=*sectorByCoverage.begin();
+	sectorByCoverage.erase(sectorByCoverage.begin()); // remove this sector temporarily
+	
+	FTKPatternRootTreeReader* tree=oneSector->second;
+	int sector=oneSector->first;
+
+	int coverage=tree->GetPattern().GetCoverage();
+	if ( coverage < m_mincoverage ) break;
+
+	bool isNotEmpty=false;
+	do {
+	   showstats(m_patternID, m_npatterns);
+	   inputpattern->setPatternID(m_patternID);
+	   inputpattern->setSectorID(sector);
+	   inputpattern->setCoverage(coverage);
+	   const FTKHitPattern& patternData=tree->GetPattern().GetHitPattern();
+	   for(unsigned int iLayer=0;iLayer<patternData.GetSize();iLayer++) {
+	      inputpattern->setSSID(iLayer,patternData.GetHit(iLayer));
+	   }
+
+	   // fill tree
+	   bank0->Fill();
+	   m_patternID++; // increment the global pattern ID
+
+	   isNotEmpty = tree->ReadNextPattern();
+	   // if(!tree->ReadNextPattern()) {
+	   //    isEmpty=true;
+	   //    break;
+	   // }
+	} 
+	while(isNotEmpty && tree->GetPattern().GetCoverage()==coverage && m_patternID<m_npatterns);
+	// add sector again to (coveraged ordered) set 
+	if(isNotEmpty) {
+	   sectorByCoverage.insert(oneSector);
+	}	
+     } // end while(sectors)
+
+     delete m_preader;
+     m_preader = NULL;
+     m_npatterns = m_patternID;
   }
+  else {
+     for (int ipatt = 0; ipatt < m_npatterns; ++ipatt) {
+	showstats(ipatt, m_npatterns);
+	readNextPattern(*inputpattern, ipatt);    
+	// verify the pattern has the minimum requried coverage
+	if (inputpattern->getCoverage()<m_mincoverage) {
+	   FTKSetup::PrintMessageFmt(ftk::info, "Minimum coverage cutoff at %d reached at pattern %d\n",m_mincoverage,ipatt);
+	   break; // don't add
+	}
+	bank0->Fill();
+	m_patternID+=1; // increment the global pattern ID
+     }
+  }
+
+  // Write patterns to disk
   bank0->Write();
 
   // Loop for each AM SS map to generate AM maps grouping the previous loop, i=0 is the TSP level
@@ -87,11 +185,12 @@ void TSPROOTBankGenerator::generate() throw (TSPPatternReadException){
     FTKSetup::PrintMessageFmt(ftk::info, "Bank conversion for %d patterns\n",m_patternID);
     m_patternMap.clear();
     m_patternID = 0; // reset the pattern counter
-    generateChildren(i, nplanes);
+    generateChildren(i, m_nplanes);
   }
 
   if (m_RemoveTSP>0) {
-    m_bankfile->Delete(Form("%s;*",bank0->GetName()));
+     FTKSetup::PrintMessageFmt(ftk::info, "Deleteing bank %s from file %s\n",bank0->GetName(),m_bankfile->GetName());
+     m_bankfile->Delete(Form("%s;*",bank0->GetName()));
   }
   m_setup->usageStat();
 }
@@ -146,7 +245,7 @@ void TSPROOTBankGenerator::generateChildren(int bankID, int planes) throw (TSPPa
                  int ssoff = tspmap.getDim(i)==2 ? m_ssMaps[bankID - 1]->getPhiOffset(false) : m_ssMaps[bankID - 1]->getPhiOffset(true);
                  int ssid_eta = ssid % ssoff;
                  
-                 int newssid;
+                 int newssid(0);
                  if (tspmap.getDim(i)==2) { // PXL case
                     // retrieve the number of bits used to codify the internal positions
                     const int &nbitsX = tspmap.getNBits(i,0);
@@ -183,7 +282,7 @@ void TSPROOTBankGenerator::generateChildren(int bankID, int planes) throw (TSPPa
                     bitlayerX = tspmap.IEEE2GC(nbitsX,bitlayerX);
                     bitlayerY = tspmap.IEEE2GC(nbitsY,bitlayerY);
                     // encode the positions in the HB mask
-	  halfplanes |= (bitlayerX | (bitlayerY<<tspmap.getInternalBitOffset(i,0))) << tspmap.getBitOffset(i);
+                    halfplanes |= (bitlayerX | (bitlayerY<<tspmap.getInternalBitOffset(i,0))) << tspmap.getBitOffset(i);
                  } else if ( tspmap.getDim(i)==1) { // SCT case
                     // get the number of bits used to codify the internal position
                     const int &nbitsX = tspmap.getNBits(i,0);
@@ -371,7 +470,9 @@ void TSPROOTBankGenerator::generateChildren(int bankID, int planes) throw (TSPPa
            TSPrelations->Fill();
         }
         
+	FTKSetup::PrintMessageFmt(ftk::info, "Writing AMbank to root-file.\n");
         AMbank->Write();
+	FTKSetup::PrintMessageFmt(ftk::info, "Writing TSPrelations to root-file.\n");
         TSPrelations->Write();
      }
   }

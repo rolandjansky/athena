@@ -20,7 +20,7 @@ std::istream& operator>>(std::istream &out, lookup_container_int &data) {
   return out;
 }
 
-std::ostream& operator<<(ostream &out, const lookup_container_float3 &data) {
+std::ostream& operator<<(std::ostream &out, const lookup_container_float3 &data) {
   std::streamsize oldprec = out.precision();
   out << data.evt << "\t";
   out.precision(10);

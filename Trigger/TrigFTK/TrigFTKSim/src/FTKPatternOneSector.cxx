@@ -46,6 +46,14 @@ FTKPatternOneSectorOrdered::FTKPatternOneSectorOrdered
    }
 }
 
+int FTKPatternOneSectorOrdered::GetSummedCoverage() const {
+   int r=0;
+   for(Ptr_t i=Begin();i!=End();i++) {
+      r += GetCoverage(i);
+   }
+   return r;
+}
+
 //======================== class FTKPatternOrderByCoverage =========
 
 bool FTKPatternOrderByCoverage::operator()

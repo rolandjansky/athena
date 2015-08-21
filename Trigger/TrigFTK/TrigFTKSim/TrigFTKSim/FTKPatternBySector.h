@@ -55,24 +55,8 @@ protected:
 
 class FTKPatternBySectorReader : public FTKPatternBySectorBase {
 public:
-   explicit FTKPatternBySectorReader(TDirectory &dir); // read pattern bank
-   explicit FTKPatternBySectorReader(FTKRootFileChain &chain); // read pattern bank
-   ~FTKPatternBySectorReader();
-
-   Long64_t GetNPatterns(void) const;
-   Long64_t GetNPatterns(int sector) const;
-
-   int WritePatternsToASCIIstream(std::ostream &out,
-                                  int iSub,int nSub); // export as ASCII
-   // save data from one sector, ordered by coverage
-
-   // the following methods are for looping over the data of one sector
-   int GetFirstSector(void) const;
-   int GetNextSector(int sector) const;
-   FTKPatternOneSector *MergePatterns(int sector) const; // get data from one sector   
-protected:
+   // typedefs and comparison classes
    typedef std::map<int,FTKPatternRootTreeReader *> PatternTreeBySector_t;
-   PatternTreeBySector_t fPatterns;
    class FTKPatternTreeBySectorCompare {
    public:
       // helper class to compare patterns from different sectors
@@ -99,6 +83,39 @@ protected:
    protected:
       FTKHitPatternCompare fHitCompare;
    };
+   typedef std::set<PatternTreeBySector_t::iterator,FTKPatternTreeBySectorCompare> SectorSet_t;
+   
+public:
+   explicit FTKPatternBySectorReader(TDirectory &dir,
+                                     char const *name="FTKPatternBySector",
+                                    int nSub=1,int iSub=0); // read pattern bank
+   explicit FTKPatternBySectorReader(FTKRootFileChain &chain); // read pattern bank
+   ~FTKPatternBySectorReader();
+
+   Long64_t GetNPatterns(void) const;
+   Long64_t GetNPatterns(int sector) const;
+   void GetNPatternsByCoverage(std::map<int,int> &coverageMap) const;
+
+   int WritePatternsToASCIIstream(std::ostream &out,
+                                  int iSub,int nSub); // export as ASCII
+   // save data from one sector, ordered by coverage
+   FTKPatternOneSector *MergePatterns(int sector) const; // get data from one sector   
+
+   // the following methods are for looping over the data of one sector
+   int GetFirstSector(void) const;
+   int GetNextSector(int sector) const;
+   Long64_t GetPatternByCoverage(SectorSet_t& sectorByCoverage, int iSub, int nSub) ;
+
+protected:
+   PatternTreeBySector_t fPatterns;
+
+};
+
+class FTKPatternBySectorBlockReader : public FTKPatternBySectorReader {
+ public:
+   FTKPatternBySectorBlockReader(TDirectory &dir,int nSub,int iSub);
+   void Rewind(void);
+   FTKPatternOneSector *Read(int sector,int minCoverage); 
 };
 
 class FTKPatternBySectorWriter : public FTKPatternBySectorBase {
@@ -110,7 +127,8 @@ public:
    int AppendMergedPatterns(int sector,
                             FTKPatternOneSectorOrdered const *ordered);
    int AppendPattern(int sector,FTKPatternWithCoverage const &pattern);
-   int AppendPattern(FTKPatternWithSector const &pattern) { return AppendPattern(pattern.GetSectorID(),pattern);}                                               TDirectory& GetTDirectoryAddress() { return fDir;}
+   int AppendPattern(FTKPatternWithSector const &pattern) { return AppendPattern(pattern.GetSectorID(),pattern);} 
+   TDirectory& GetTDirectoryAddress() { return fDir;}
    
 protected:
    TDirectory &fDir;

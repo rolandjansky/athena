@@ -316,7 +316,7 @@ int FTK_RegionalRawInput::readData() {
      
      m_glob_event += 1;
      m_evtnum += 1;
-  } while (m_glob_event < m_firstEvent);
+  } while (m_glob_event < m_firstEventFTK);
 
   return res;
 }

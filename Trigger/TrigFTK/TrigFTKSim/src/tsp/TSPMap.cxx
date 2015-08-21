@@ -24,10 +24,10 @@ TSPMap::TSPMap() :
 TSPMap::TSPMap(const FTKSSMap *amssmap, const FTKSSMap *tspssmap) :
     m_amssmap(0x0), m_tspssmap(0x0),
     m_nplanes(0),
-		   m_nbits(0x0), m_nfactor(0x0), m_internal_nbits(0x0),
-		   m_bitoffset(0x0), m_internal_bitoffset(0x0),
-		   m_ndim(0x0), m_npos(0x0),
-		   m_totbits(0), m_max_nbits(0)
+    m_nbits(0x0), m_nfactor(0x0), m_internal_nbits(0x0),
+    m_bitoffset(0x0), m_internal_bitoffset(0x0),
+    m_ndim(0x0), m_npos(0x0),
+    m_totbits(0), m_max_nbits(0)
 {
   generate(amssmap,tspssmap);
 }
@@ -35,16 +35,16 @@ TSPMap::TSPMap(const FTKSSMap *amssmap, const FTKSSMap *tspssmap) :
 
 /** copy constructor */
 TSPMap::TSPMap(const TSPMap &cpy) :
-    m_amssmap(cpy.m_amssmap),
-    m_tspssmap(cpy.m_tspssmap),
-  m_nplanes(cpy.m_nplanes),
-  m_nbits(0x0), m_nfactor(0x0), m_internal_nbits(0x0),
-  m_bitoffset(0x0), m_internal_bitoffset(0x0),
-  m_ndim(0x0), m_npos(0x0),
-  m_totbits(cpy.m_totbits),
-  m_max_nbits(cpy.m_max_nbits),
-  m_B2G_table(cpy.m_B2G_table),
-  m_G2B_table(cpy.m_G2B_table)
+   m_amssmap(cpy.m_amssmap),
+   m_tspssmap(cpy.m_tspssmap),
+   m_nplanes(cpy.m_nplanes),
+   m_nbits(0x0), m_nfactor(0x0), m_internal_nbits(0x0),
+   m_bitoffset(0x0), m_internal_bitoffset(0x0),
+   m_ndim(0x0), m_npos(0x0),
+   m_totbits(cpy.m_totbits),
+   m_max_nbits(cpy.m_max_nbits),
+   m_B2G_table(cpy.m_B2G_table),
+   m_G2B_table(cpy.m_G2B_table)
 {
   if (cpy.m_nplanes==0) return;
 
@@ -53,22 +53,22 @@ TSPMap::TSPMap(const TSPMap &cpy) :
   m_nfactor = new int*[m_nplanes];
   m_internal_nbits = new int*[m_nplanes];
   m_internal_bitoffset = new int*[m_nplanes];
-
+  
   for (int ip=0;ip!=m_nplanes;++ip) {
-    m_nbits[ip] = cpy.m_nbits[ip];
-    m_bitoffset[ip] =cpy.m_bitoffset[ip];
-    m_ndim[ip] = cpy.m_ndim[ip];
-    if (m_ndim[ip]>1) {
-      m_internal_bitoffset[ip] = new int[m_ndim[ip]-1];
-      for (int id=0;id!=m_ndim[ip]-1;++id) 
-	m_internal_bitoffset[ip][id] = cpy.m_internal_bitoffset[ip][id];
-    }
-    m_nfactor[ip] = new int[m_ndim[ip]];
-    m_internal_nbits[ip] = new int[m_ndim[ip]];
-    for (int id=0;id!=m_ndim[ip];++id) {
-      m_nfactor[ip][id] = cpy.m_nfactor[ip][id];
-      m_internal_nbits[ip][id] = cpy.m_internal_nbits[ip][id];
-    }
+     m_nbits[ip] = cpy.m_nbits[ip];
+     m_bitoffset[ip] =cpy.m_bitoffset[ip];
+     m_ndim[ip] = cpy.m_ndim[ip];
+     if (m_ndim[ip]>1) {
+        m_internal_bitoffset[ip] = new int[m_ndim[ip]-1];
+        for (int id=0;id!=m_ndim[ip]-1;++id) 
+           m_internal_bitoffset[ip][id] = cpy.m_internal_bitoffset[ip][id];
+     }
+     m_nfactor[ip] = new int[m_ndim[ip]];
+     m_internal_nbits[ip] = new int[m_ndim[ip]];
+     for (int id=0;id!=m_ndim[ip];++id) {
+        m_nfactor[ip][id] = cpy.m_nfactor[ip][id];
+        m_internal_nbits[ip][id] = cpy.m_internal_nbits[ip][id];
+     }
   }
 }
 
@@ -301,15 +301,13 @@ int TSPMap::getHighResSSPart(FTKHit &hit) const {
     // full precision local position
     int ss = static_cast<int>(hit[0]/m_tspssmap->getSSPhiWidth(hit)) % m_nfactor[iplane][0];
     // GC of the position
-    // TODO
-    return ss;
+    return FTKSSMap::gray_code(ss);
   }
   else if (ndim==2) { // Pixel case
     // evaluate the high precision
     int ss_x = static_cast<int>(hit[0]/m_tspssmap->getSSPhiWidth(hit)) % m_nfactor[iplane][0];
     int ss_y = static_cast<int>(hit[1]/m_tspssmap->getSSEtaWidth(hit)) % m_nfactor[iplane][1];
-    // TODO GC for the  ss_?
-    return ss_y << m_internal_bitoffset[iplane][0] | ss_x;
+    return (FTKSSMap::gray_code(ss_y) << m_internal_bitoffset[iplane][0]) | FTKSSMap::gray_code(ss_x);
   }
 
   return -1;

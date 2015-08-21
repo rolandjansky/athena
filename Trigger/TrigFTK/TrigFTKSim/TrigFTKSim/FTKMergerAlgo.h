@@ -31,8 +31,6 @@
 
 #include "TrigFTKPool/FTKAthTrack.h" 
 
-#include "TrigFTK_RawData/FTK_RawTrack.h"
-#include "TrigFTK_RawData/FTK_RawTrackContainer.h"
 
 #include <vector>
 #include <string>
@@ -76,6 +74,7 @@ private:
   bool m_doMerging; // if "true" input is expected from regions/sub-regions and has to be merged
 
   bool m_MergeRoads; // if true also the roads will be merged, if the road merging is required but the roads are not found an error will be raised
+  bool m_MergeRoadsDetailed; // if true roads will be merged and detailed info will be saved. if true, this overrides m_MergeRoads == false
 
   unsigned int m_nregions; // number of regions
   unsigned int m_nsubregions; // number of sub-regions (in each region)
@@ -110,12 +109,12 @@ private:
   TTree ***m_ftktrack_tomerge_tree;  
   TFile ***m_ftktrack_tomerge_file;
   TBranch ***m_ftktrack_tomerge_branch;
-  TBranch ***m_ftkroad_tomerge_branch;
   FTKTrackStream ***m_ftktrack_tomerge_stream;  
   std::string m_ftktrack_mergeoutput;
   std::string m_ftktrack_mergeInputPath;
   std::string m_ftktrack_mergeFileRoot;
 
+  TBranch ***m_ftkroad_tomerge_branch;
   FTKTrackStream ***m_ftkroad_tomerge_stream;
   std::string m_ftkroad_mergeoutput;
   std::string m_ftkroad_mergeInputPath;
@@ -165,7 +164,7 @@ private:
 
   // merging functions for the standalong tracks 
   int m_nfits_rej;
-  void merge_tracks(FTKTrackStream *&, FTKTrackStream ***, unsigned int ireg);
+  void merge_tracks(FTKTrackStream *&, FTKTrackStream ***, int ireg);
   std::list<FTKTrack>::iterator removeTrack(std::list<FTKTrack>&, std::list<FTKTrack>::iterator, FTKTrack&, const FTKTrack&,bool isnew=false);
 
    StatusCode merge_roads(FTKRoadStream *&,FTKRoadStream **, unsigned int, unsigned int);
@@ -196,14 +195,13 @@ private:
   const PixelID *m_pixel_id;
   const SCT_ID *m_sct_id;
 
+   std::vector<int> zerovec;
+
 
   // Trk::Track
   std::string m_out_trktrack_Name;
   TrackCollection *m_out_trktrack;
 
-  bool m_GenerateRDO; // when true the raw track collection is generated during the merge
-  std::string m_ftk_raw_trackcollection_Name;
-  FTK_RawTrackContainer *m_ftk_raw_trackcollection;
 
   std::string m_out_ftktrackconv_Name;
   TrackCollection *m_out_ftktrackconv;
@@ -264,10 +262,6 @@ private:
   double getSigmaQoverP(double invpt, double sigmaTwoInvPt, double eta,  double sigmaEta);
   double getSigmaTheta (double eta,   double sigmaEta);
 
-  // Convertor for RDO objects 
-  FTK_RawTrack SimToRaw(FTKAthTrack);
-  FTK_RawTrack* SimToRaw(const FTKTrack&);
-  void printBits(unsigned int num, unsigned int length);
 };
 
 #endif // FTKMergerAlgo_h

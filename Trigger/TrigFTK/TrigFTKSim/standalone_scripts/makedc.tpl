@@ -1,10 +1,14 @@
 PMAP_FILE       ${mapdir}/raw_${L}L${Lv}.pmap
 RMAP_FILE       ${mapdir}/raw_${L}L.rmap
 
-CUR_REGION 0
-CUR_SUBREGION 0
-# number of subregions
-NSUBREGIONS 16
+#CUR_REGION 0
+#CUR_SUBREGION 0
+## number of subregions
+#NSUBREGIONS 16
+
+CUR_REGION ${i}
+NSUBREGIONS ${M}
+CUR_SUBREGION ${j}
 
 
 # encode subregion information into the road (100*subid+regid).
@@ -13,6 +17,8 @@ ENCODE_SUBREGION 0
 
 VERBOSITY 0
 
+# 
+#HWMODEID 2
 
 SS_FILE_AM         ${ssdir}/raw_${amlabel}.ss
 SS_FILE_TSP         ${ssdir}/raw_${sslabel}.ss

@@ -132,6 +132,8 @@ public:
   virtual std::set<int> *getWildcardList(int plane) { return &m_WCSS[plane]; }
 
   virtual void dumpGlobalToLocalModuleMap();
+
+  virtual void dumpIDMap();
 };
 
 #endif // FTKDetectorTool_h

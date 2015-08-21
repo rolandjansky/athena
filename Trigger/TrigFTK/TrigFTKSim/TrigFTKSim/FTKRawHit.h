@@ -29,34 +29,35 @@ class FTKRawHit : public TObject {
  private:
   float m_x;
   float m_y;
-  float m_z;  /* Hit position in global coordinates */
-  int m_hitType;     /* Flag to know if the module belongs to Pixel or SCT or SCTtrk */
+  float m_z;  /** Hit position in global coordinates */
+  int m_hitType;     /** Flag to know if the module belongs to Pixel or SCT or SCTtrk */
+  int m_moduleType;  /** Flag that indicates the module type */
   unsigned int m_IdentifierHash; // Athena identifier hash
-  int m_barrel_ec;   /* and if it's on barrel or endcaps, default values below */
-  int m_layer_disk;  /* Layer or disk number */
-  int m_phi_module;  /* Module id along phi */
-  int m_eta_module;  /* Module id along eta */
-  int m_pi_side;     /* phi index for pixel, side for SCT */
-  int m_ei_strip;    /* eta index for pixel, strip for SCT */
-  int m_n_strips;    /* # of strips in a cluster for SCT; time-over-threshold for pixels */
+  int m_barrel_ec;   /** and if it's on barrel or endcaps, default values below */
+  int m_layer_disk;  /** Layer or disk number */
+  int m_phi_module;  /** Module id along phi */
+  int m_eta_module;  /** Module id along eta */
+  int m_pi_side;     /** phi index for pixel, side for SCT */
+  int m_ei_strip;    /** eta index for pixel, strip for SCT */
+  int m_n_strips;    /** # of strips in a cluster for SCT; time-over-threshold for pixels */
   int m_etaWidth;
   int m_phiWidth; // width of cluster along the 2 directions
   float m_dPhi;
-  float m_dEta; /* float correction for distance from center */
+  float m_dEta; /** float correction for distance from center */
 
-  /* store SCT and Pixel cluster positions as integers using the same FTK_IM HW definition */
+  /** store SCT and Pixel cluster positions as integers using the same FTK_IM HW definition */
   unsigned int m_hw_word;
-  
-  bool m_includesGangedHits; /* cluster includes one or more ganged pixel hits */
 
-  signed long m_eventindex; /* athena event index assigned to this channel */
-  signed long m_barcode; /* geant particle barcode assigned to this channel */
-  float m_barcode_pt; /* maximum 'pt' for any 'good'
+  bool m_includesGangedHits; /** cluster includes one or more ganged pixel hits */
+
+  signed long m_eventindex; /** athena event index assigned to this channel */
+  signed long m_barcode; /** geant particle barcode assigned to this channel */
+  float m_barcode_pt; /** maximum 'pt' for any 'good'
                          geant particle contributing to the
                          channel. corresponds to the particle with
                          m_barcode */
-  unsigned long m_parentage_mask; /* ancestor information of this channel */
-  /* geant truth data (clusters only). filled
+  unsigned long m_parentage_mask; /** ancestor information of this channel */
+  /** geant truth data (clusters only). filled
      during clustering using the m_barcode and
      m_barcode_frac data for each raw hit in the
      cluster. */
@@ -88,6 +89,8 @@ public:
   void divZ(float v) { m_z /= v; }
 
   void setHitType(int v) { m_hitType = v; }
+  void setModuleType(int v) { m_moduleType = v; }
+
   void setIdentifierHash(unsigned int val) { m_IdentifierHash = val; }
   void setBarrelEC(int v) { m_barrel_ec = v; }
   void setLayer(int v) { m_layer_disk = v; }
@@ -97,26 +100,62 @@ public:
   void setEtaStrip(int v) { m_ei_strip = v; }
   void setNStrips(int v) { m_n_strips = v; }
   void setTot(int v) { m_n_strips = v; }
+
+  /*!
+   * Function setting the column width in m_hw_word for pixel 
+   * @param v the new column width
+   * @return void
+   */
   void setEtaWidth(int v) {
       if (v <8) m_hw_word = (m_hw_word&~eta_width_mask) | (((v-1) << eta_width_bit)&eta_width_mask);
       else if (v >= 8) m_hw_word = (m_hw_word&~eta_width_mask) | ((7 << eta_width_bit)&eta_width_mask);
-      m_etaWidth = v; 
+      m_etaWidth = v;
   }
-  void setPhiWidth(int v) { 
+
+  /*!
+   * Function setting the row width in m_hw_word for pixel 
+   * @param v the new row width
+   * @return void
+   */
+  void setPhiWidth(int v) {
       int mask(~0);
       if (m_hitType == 0) mask = strip_width_mask;
       else if (m_hitType == 1) mask = phi_width_mask;
 
       if (v < 8) m_hw_word = (m_hw_word&~mask) | (((v-1) << phi_width_bit) & mask);
       else m_hw_word = (m_hw_word&~mask) | ((7 << phi_width_bit) & mask);
-      m_phiWidth = v; 
+      m_phiWidth = v;
   }
-  void setSplit(bool b) { 
+    
+  /*!
+   * Function setting the split cluster flag in m_hw_word
+   * @param b split cluster flag
+   * @return void
+   */
+  void setSplit(bool b) {
       if (b) m_hw_word = (m_hw_word&~split_mask) | ((1 << split_bit)&split_mask);
       else   m_hw_word = (m_hw_word&~split_mask) | ((0 << split_bit)&split_mask);
   }
+
+  /*!
+   * Function setting the row coordinate in m_hw_word for pixel 
+   * @param v the new row coordinate
+   * @return void
+   */
   void setRowCoordinate(int v) { m_hw_word = (m_hw_word&~row_coord_mask) | ((v << row_coord_bit)&row_coord_mask); }
+
+  /*!
+   * Function setting the column coordinate in m_hw_word for pixel 
+   * @param v the new column coordinate
+   * @return void
+   */
   void setColumnCoordinate(int v) { m_hw_word = (m_hw_word&~column_coord_mask) | ((v << column_coord_bit)&column_coord_mask); }
+
+  /*!
+   * Function setting the column coordinate in m_hw_word for pixel 
+   * @param v the new column coordinate
+   * @return void
+   */
   void setStripCoordinate(int v) { m_hw_word = (m_hw_word &~ strip_coord_mask) | ((v << 0) & strip_coord_mask); }
   void setX(float v) { m_x = v; }
   void setY(float v) { m_y = v; }
@@ -127,6 +166,8 @@ public:
   void setTruth(const MultiTruth&); // truth for clusters
 
   int getHitType() const { return m_hitType; }
+  int getModuleType() const { return m_moduleType; }
+
   int getIsPixel() const { return m_hitType==ftk::PIXEL; }
   int getIsSCT() const { return m_hitType==ftk::SCT; }
   int getIsSCTtrk() const { return m_hitType==ftk::SCTtrk; }
@@ -180,7 +221,7 @@ public:
   unsigned int getNChannels() const { return m_channels.size(); }
   const FTKRawHit& getChannel(unsigned int pos) const { return m_channels[pos]; }
   const std::vector<FTKRawHit>& getChannels() const { return m_channels; }
-  
+
   friend std::istream& operator>>(std::istream &,FTKRawHit&);
   friend std::ostream& operator<<(std::ostream &,const FTKRawHit&);
 
@@ -188,23 +229,24 @@ public:
   friend std::istream& clusterC( std::istream & , FTKRawHit& );
 
   // These are now public because they are needed by FTKHit and FTKCoord
-  const static int row_coord_mask    = 0x00000FFF;
-  const static int phi_width_mask    = 0x00007000;
-  const static int split_mask        = 0x00008000;
-  const static int column_coord_mask = 0x0FFF0000;
-  const static int eta_width_mask    = 0x70000000;
-  const static int row_coord_bit     = 0;
-  const static int phi_width_bit     = 12;
-  const static int split_bit         = 15;
-  const static int column_coord_bit  = 16;
-  const static int eta_width_bit     = 28;
+  const static int row_coord_mask    = 0x00000FFF; ///< Bitmask marking the location of the row coordinate in m_hw_word for pixel(12 bits)
+  const static int phi_width_mask    = 0x00007000; ///< Bitmask marking the location of the row width in m_hw_word for pixel(3 bits)
+  const static int split_mask        = 0x00008000; ///< Bitmask marking the location of the split cluster flag in m_hw_word for pixel(1 bit)
+  const static int column_coord_mask = 0x0FFF0000; ///< Bitmask marking the location of the column coordinate in m_hw_word for pixel(12 bits)
+  const static int eta_width_mask    = 0x70000000; ///< Bitmask marking the location of the column width in m_hw_word for pixel(3 bits)
 
-  const static int strip_coord_mask = 0x07FF;
-  const static int strip_coord_bit  = 0;
-  const static int strip_width_mask = 0x7000;
-  const static int strip_width_bit  = 12;
+  const static int row_coord_bit     = 0; ///< Starting bit of row coordinate in m_hw_word for pixel
+  const static int phi_width_bit     = 12; ///< Starting bit of row width in m_hw_word for pixel
+  const static int split_bit         = 15; ///< Bit for the split cluster flag in m_hw_word for pixel
+  const static int column_coord_bit  = 16; ///<  Starting bit of column coordinate in m_hw_word for pixel
+  const static int eta_width_bit     = 28; ///< Starting bit of column width in m_hw_word for pixel
 
-  ClassDef(FTKRawHit,3)
+  const static int strip_coord_mask = 0x07FF; ///< Bitmask marking the location of the strip coordinate in m_hw_word for SCT (3 bits)
+  const static int strip_coord_bit  = 0; ///< Starting bit of strip coordinate in m_hw_word for SCT
+  const static int strip_width_mask = 0x7000; ///< Bitmask marking the location of the strip width in m_hw_word  for SCT (3 bits)
+  const static int strip_width_bit  = 12; ///< Starting bit of strip width in m_hw_word for SCT
+
+  ClassDef(FTKRawHit,4)
 };
 
 #endif // FTKRAWHIT_H

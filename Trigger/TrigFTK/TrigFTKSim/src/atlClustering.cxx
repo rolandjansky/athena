@@ -36,11 +36,10 @@ using ftk::ENDCAP;
 using ftk::POSEC;
 using ftk::NEGEC;
 
-// #define VERBOSE_DEBUG_CLUST
-// #define DEBUG_HITS
+//#define VERBOSE_DEBUG_CLUST
+//#define DEBUG_HITS
 //#define DECODER_INPUT 0
 //#define DECODER_OUTPUT 0
-//#define CLUSTER_DEBUG 0
 //#define CLUSTERING_PRINTOUT 0
 //#define CENTROID_PRINTOUT 0
 
@@ -75,49 +74,14 @@ bool BOUNDING_BOX;
 
 bool hitSelector(const FTKRawHit &hit) {
     if (hit.getHitType() == PIXEL && hit.getBarrelEC() == 0 && hit.getLayer()== 1) {
-        std::cout << hit.getHitType() << " "<< hit.getBarrelEC() << " " << hit.getLayer() << " " << hit.getPhiModule() << " " << hit.getEtaModule() ;
         if (hit.getPhiModule() == 13 && (hit.getEtaModule() <= 0))  {
-            std::cout << " TRUE ΝΙΝΙ " << std::endl;
             return true;
         }
-        else
-        {
-            std::cout <<" valse " <<std::endl;
-            return false;
-        }
-    }   
+    }
     else  {
         return false;
-    }   
-
-    //111510
-    if (hit.getHitType() == PIXEL && hit.getBarrelEC() == 0 && hit.getLayer()== 2) {
-        if (hit.getPhiModule() == 19 && hit.getEtaModule() >= 1)  {
-            std::cout << " 19 ININ"<< std::endl;
-            return true;
-        }   
-        else if (hit.getPhiModule() == 28 && hit.getEtaModule() >= 0) {
-            std::cout << " 28 ININ"<< std::endl;
-            return true;
-        }
-        else {
-            std::cout << " here but no " << hit.getPhiModule() << " " << hit.getEtaModule() << std::endl;
-        }
-
     }
-
-    //IBL
-     //if (hit.getHitType() == PIXEL && hit,getBarrelEC() == 0 && hit.getPhiModule() == 10 && 
-             //(hit.getEtaModule() >=4 && hit.getModule() <=9)) {
-        //std::cout << "hitType " << hit.getHitType() << " BEC " << hit.getBarrelEC() << " layer " << hit.getLayer() << " phimod " << hit.getPhiModule() << " etamod " << hit.getEtaModule() << std::endl;
-     ////if (hit.getHitType() == PIXEL && hit.getBarrelEC() == 0 && hit.getLayer()== 2 && hit.getPhiModule() == 35
-             ////&& (hit.getEtaModule() >= 1))  {
-         //return true;
-     //}   
-     //else  {
-         //return false;
-     //}   
-     return false;
+    return false;
 }
 
 cluster::~cluster()
@@ -144,7 +108,7 @@ struct fe_hit {
 };
 
 
-struct cluster_hit 
+struct cluster_hit
 {
     int tot, ccol, crow; //cluster coordinates
     cluster_hit(const FTKRawHit &h, const FTKRawHit* seed) {
@@ -155,14 +119,14 @@ struct cluster_hit
     }
 };
 
-bool sortbyFE (const FTKRawHit* i,const  FTKRawHit* j) { 
-    if (i->getHitType() == SCT || j->getHitType() == SCT) 
+bool sortbyFE (const FTKRawHit* i,const  FTKRawHit* j) {
+    if (i->getHitType() == SCT || j->getHitType() == SCT)
         return false;
 
     fe_hit lhit1(i);
     fe_hit lhit2(j);
 
-    if (lhit1.fe != lhit2.fe) return lhit1.fe <= lhit2.fe; 
+    if (lhit1.fe != lhit2.fe) return lhit1.fe <= lhit2.fe;
     else if (lhit1.fe == lhit2.fe) {
         if (lhit1.lcol/2 != lhit2.lcol/2) return lhit1.lcol/2 <= lhit2.lcol/2;
         else if (lhit1.lcol/2 == lhit2.lcol/2) return lhit1.lrow < lhit2.lrow;
@@ -172,20 +136,20 @@ bool sortbyFE (const FTKRawHit* i,const  FTKRawHit* j) {
 }
 
 bool pixelRowIsGanged(const int row) {
-  switch (row) {
-  case 153:
-  case 155:
-  case 157:
-  case 159:
-  case 168:
-  case 170:
-  case 172:
-  case 174:
-    return row;        // pixel ganged found (readout channel)
-  }
-  if (160<=row && row<=167)
-    return row;        // pixel ganged found (non readout channel)
-  return false;
+    switch (row) {
+        case 153:
+        case 155:
+        case 157:
+        case 159:
+        case 168:
+        case 170:
+        case 172:
+        case 174:
+            return row;        // pixel ganged found (readout channel)
+    }
+    if (160<=row && row<=167)
+        return row;        // pixel ganged found (non readout channel)
+    return false;
 }
 
 // int moduleIdToLayer(int modId) {
@@ -203,35 +167,35 @@ bool pixelRowIsGanged(const int row) {
 
 // int moduleIdIsEndcap(int modId) {
 //   unsigned int eta = ( (modId/MOD_ID_ETA_VAL)%MOD_ID_ETA_MASK );
-//   if (MAX_BARREL_ETA <= eta && eta < MAX_BARREL_ETA+3) 
+//   if (MAX_BARREL_ETA <= eta && eta < MAX_BARREL_ETA+3)
 //     return 2; // positive endcap
-//   if (MAX_BARREL_ETA+3 <= eta && eta < MAX_ETA) 
+//   if (MAX_BARREL_ETA+3 <= eta && eta < MAX_ETA)
 //     return -2; // negative encap
 //   return 0;
 // }
 
 double eta(double px, double py, double pz) {
-  double theta = atan( sqrt(px*px+py*py)/pz );
-  if (theta<0) theta += 3.1415;
-  
-//   std::cout << "px=" << px << " py=" << py << " pz=" << pz 
-// 	    << " theta=" << theta << " eta=" << - log( tan (theta/2) ) << "\n";
+    double theta = atan( sqrt(px*px+py*py)/pz );
+    if (theta<0) theta += 3.1415;
 
-  return - log( tan (theta/2) );
+    //   std::cout << "px=" << px << " py=" << py << " pz=" << pz
+    // 	    << " theta=" << theta << " eta=" << - log( tan (theta/2) ) << "\n";
+
+    return - log( tan (theta/2) );
 }
 // double eta(double pt, double pz) {
 //   double theta = atan(pt/pz);
 //   return - log( tan (theta/2) );
 // }
 double eta(FTKRawHit &hit) {
-  // eta of hit position
-  return eta(hit.getX(), hit.getY(), hit.getZ());
+    // eta of hit position
+    return eta(hit.getX(), hit.getY(), hit.getZ());
 }
 
 bool isSplitCluster(const cluster& clu)
 {
     //cluster_hit seed = cluster_hit(*clu.seed, clu.seed);
-    hitVector::const_iterator it = clu.hitlist.begin(); 
+    hitVector::const_iterator it = clu.hitlist.begin();
     for (it = clu.hitlist.begin(); it != clu.hitlist.end(); it++) {
         cluster_hit chit = cluster_hit(**it , clu.seed);
         if ((chit.ccol >= GRID_COL_MAX - 1) ||  (chit.crow >= (GRID_ROW_MAX - 1)) || ( chit.crow <= 0))
@@ -243,18 +207,18 @@ bool isSplitCluster(const cluster& clu)
 
 #if defined(CLUSTERING_PRINTOUT) || defined(CENTROID_PRINTOUT) || defined(DECODER_INPUT)
 
-bool clusterSort (const cluster_hit &i, const cluster_hit &j) 
-{ 
-    // reverse the hits on the first row if they are above the seed  
+bool clusterSort (const cluster_hit &i, const cluster_hit &j)
+{
+    // reverse the hits on the first row if they are above the seed
     if (i.ccol == 0 && j.ccol == 0 && i.crow <= 10 && j.crow <= 10)
         return j.crow <= i.crow;
     else if (i.ccol == j.ccol)
         return i.crow <= j.crow;
-    else 
+    else
         return i.ccol <= j.ccol;
 }
 
-int getModId(const FTKRawHit* h) 
+int getModId(const FTKRawHit* h)
 {
     return h->getIdentifierHash();
     //printf("%.8X\n", h->getIdentifierHash());
@@ -262,60 +226,60 @@ int getModId(const FTKRawHit* h)
     int modid = 99;
     if (h->getLayer() == 1) {
         //std::cout << " LAYER IS 1 " << h->getPhiModule() << " " << h->getEtaModule() << std::endl;
-        if (h->getPhiModule() == 13 && h->getEtaModule() == 0) modid = 72; 
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -1) modid = 70; 
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -2) modid = 62; 
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -3) modid = 60; 
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -4) modid = 10; 
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -5) modid = 02; 
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -6) modid = 00; 
-    }   
+        if (h->getPhiModule() == 13 && h->getEtaModule() == 0) modid = 72;
+        else if (h->getPhiModule() == 13 && h->getEtaModule() == -1) modid = 70;
+        else if (h->getPhiModule() == 13 && h->getEtaModule() == -2) modid = 62;
+        else if (h->getPhiModule() == 13 && h->getEtaModule() == -3) modid = 60;
+        else if (h->getPhiModule() == 13 && h->getEtaModule() == -4) modid = 10;
+        else if (h->getPhiModule() == 13 && h->getEtaModule() == -5) modid = 02;
+        else if (h->getPhiModule() == 13 && h->getEtaModule() == -6) modid = 00;
+    }
     else if (h->getLayer() == 2) {
 
-    }   
+    }
     else if (h->getLayer() == 3) {
-        if (h->getPhiModule() == 11 && h->getEtaModule() == 0) modid = 72; 
-        else if (h->getPhiModule() == 11 && h->getEtaModule() == -1) modid = 71; 
-        else if (h->getPhiModule() == 11 && h->getEtaModule() == -2) modid = 70; 
-        else if (h->getPhiModule() == 11 && h->getEtaModule() == -3) modid = 63; 
-        else if (h->getPhiModule() == 11 && h->getEtaModule() == -4) modid = 62; 
-        else if (h->getPhiModule() == 11 && h->getEtaModule() == -5) modid = 61; 
-        else if (h->getPhiModule() == 11 && h->getEtaModule() == -6) modid = 60; 
+        if (h->getPhiModule() == 11 && h->getEtaModule() == 0) modid = 72;
+        else if (h->getPhiModule() == 11 && h->getEtaModule() == -1) modid = 71;
+        else if (h->getPhiModule() == 11 && h->getEtaModule() == -2) modid = 70;
+        else if (h->getPhiModule() == 11 && h->getEtaModule() == -3) modid = 63;
+        else if (h->getPhiModule() == 11 && h->getEtaModule() == -4) modid = 62;
+        else if (h->getPhiModule() == 11 && h->getEtaModule() == -5) modid = 61;
+        else if (h->getPhiModule() == 11 && h->getEtaModule() == -6) modid = 60;
 
-        else if (h->getPhiModule() == 12 && h->getEtaModule() == -1) modid = 41; 
-        else if (h->getPhiModule() == 12 && h->getEtaModule() == -2) modid = 42; 
-        else if (h->getPhiModule() == 12 && h->getEtaModule() == -3) modid = 43; 
-        else if (h->getPhiModule() == 12 && h->getEtaModule() == -4) modid = 50; 
-        else if (h->getPhiModule() == 12 && h->getEtaModule() == -5) modid = 51; 
-        else if (h->getPhiModule() == 12 && h->getEtaModule() == -6) modid = 52; 
+        else if (h->getPhiModule() == 12 && h->getEtaModule() == -1) modid = 41;
+        else if (h->getPhiModule() == 12 && h->getEtaModule() == -2) modid = 42;
+        else if (h->getPhiModule() == 12 && h->getEtaModule() == -3) modid = 43;
+        else if (h->getPhiModule() == 12 && h->getEtaModule() == -4) modid = 50;
+        else if (h->getPhiModule() == 12 && h->getEtaModule() == -5) modid = 51;
+        else if (h->getPhiModule() == 12 && h->getEtaModule() == -6) modid = 52;
 
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -0) modid = 32; 
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -1) modid = 31; 
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -2) modid = 30; 
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -3) modid = 23; 
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -4) modid = 22; 
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -5) modid = 21; 
-        else if (h->getPhiModule() == 13 && h->getEtaModule() == -6) modid = 20; 
+        else if (h->getPhiModule() == 13 && h->getEtaModule() == -0) modid = 32;
+        else if (h->getPhiModule() == 13 && h->getEtaModule() == -1) modid = 31;
+        else if (h->getPhiModule() == 13 && h->getEtaModule() == -2) modid = 30;
+        else if (h->getPhiModule() == 13 && h->getEtaModule() == -3) modid = 23;
+        else if (h->getPhiModule() == 13 && h->getEtaModule() == -4) modid = 22;
+        else if (h->getPhiModule() == 13 && h->getEtaModule() == -5) modid = 21;
+        else if (h->getPhiModule() == 13 && h->getEtaModule() == -6) modid = 20;
 
-        else if (h->getPhiModule() == 14 && h->getEtaModule() == -1) modid = 01; 
-        else if (h->getPhiModule() == 14 && h->getEtaModule() == -2) modid = 02; 
-        else if (h->getPhiModule() == 14 && h->getEtaModule() == -3) modid = 03; 
-        else if (h->getPhiModule() == 14 && h->getEtaModule() == -4) modid = 10; 
-        else if (h->getPhiModule() == 14 && h->getEtaModule() == -5) modid = 11; 
-        else if (h->getPhiModule() == 14 && h->getEtaModule() == -6) modid = 12; 
-    }   
+        else if (h->getPhiModule() == 14 && h->getEtaModule() == -1) modid = 01;
+        else if (h->getPhiModule() == 14 && h->getEtaModule() == -2) modid = 02;
+        else if (h->getPhiModule() == 14 && h->getEtaModule() == -3) modid = 03;
+        else if (h->getPhiModule() == 14 && h->getEtaModule() == -4) modid = 10;
+        else if (h->getPhiModule() == 14 && h->getEtaModule() == -5) modid = 11;
+        else if (h->getPhiModule() == 14 && h->getEtaModule() == -6) modid = 12;
+    }
 
     //printf("0x0200000%02d\n", modid);
     return modid;
 }
 
-void printClu(const cluster &clu) 
+void printClu(const cluster &clu)
 {
     hitVector hs = clu.hitlist;
     hitVector::iterator hit = hs.begin();
 
     vector<cluster_hit> tmp;
-    for (hit = hs.begin(); hit != hs.end(); hit++) 
+    for (hit = hs.begin(); hit != hs.end(); hit++)
         tmp.push_back(cluster_hit(**hit, clu.seed));
 
     //sort and print the vector.
@@ -327,8 +291,8 @@ void printClu(const cluster &clu)
         //printf(" tot: %d col: %d row: %d\n",(*hit1).tot, (*hit1).ccol, (*hit1).crow);
     }
 
-        int boundary = 2;
-        if (isSplitCluster(clu)) 
+    int boundary = 2;
+    if (isSplitCluster(clu))
         boundary = 3;
 
     if (clu.seed->getEtaStrip() %2 != 0) {
@@ -343,7 +307,7 @@ void printClu(const cluster &clu)
     }
 }
 
-void printClusterList(clustersByModuleMap clustersByModule) 
+void printClusterList(clustersByModuleMap clustersByModule)
 {
     clustersByModuleMap::iterator p;
     for (p = clustersByModule.begin(); p!=clustersByModule.end(); ++p) { // loop over modules
@@ -362,7 +326,7 @@ void printClusterList(clustersByModuleMap clustersByModule)
 }
 
 
-void printCentroidList(clustersByModuleMap clustersByModule) 
+void printCentroidList(clustersByModuleMap clustersByModule)
 {
     clustersByModuleMap::iterator p;
     for (p = clustersByModule.begin(); p!=clustersByModule.end(); ++p) { // loop over modules
@@ -393,7 +357,7 @@ void calcBoundingBox(cluster& clu) {
 
         if ((*hit)->getEtaStrip() < col_min) col_min = (*hit)->getEtaStrip();
         else if ((*hit)->getEtaStrip() > col_max) col_max = (*hit)->getEtaStrip();
-       
+
         if ((*hit)->getPhiSide() < row_min) row_min = (*hit)->getPhiSide();
         else if ((*hit)->getPhiSide() > row_max) row_max = (*hit)->getPhiSide();
     }
@@ -404,328 +368,335 @@ void calcBoundingBox(cluster& clu) {
 
 
 void printHit(const FTKRawHit &hit) {
-  std::cout << "DEBUG_HITS: "
-	    << "  isPixel=" << hit.getIsPixel() 
-	    << "  barrel_ec=" << hit.getBarrelEC()
-	    << "  layer_disk=" << hit.getLayer()
-	    << "  phi_module=" << hit.getPhiModule()
-	    << "  eta_module=" << hit.getEtaModule()
-	    << "  pi_side=" << hit.getPhiSide()
-	    << "  ei_strip=" << hit.getEtaStrip()
-	    << "  n_strips=" << hit.getNStrips()
-	    << "  deltaPhi=" << hit.getDeltaPhi()
-	    << "  deltaEta=" << hit.getDeltaEta()
-	    << "  ( x=" << hit.getX()
-	    << " y=" << hit.getY()
-	    << " z=" << hit.getZ()
-	    << " eventindex=" << hit.getEventIndex()
-	    << " barcode=" << hit.getBarcode()
-	    << " bar_pt=" << hit.getBarcodePt()
-	    << " parentage_mask=" << hit.getParentageMask()
-	    << " )\n";
+    std::cout << "DEBUG_HITS: "
+        << "  isPixel=" << hit.getIsPixel()
+        << "  barrel_ec=" << hit.getBarrelEC()
+        << "  layer_disk=" << hit.getLayer()
+        << "  phi_module=" << hit.getPhiModule()
+        << "  eta_module=" << hit.getEtaModule()
+        << "  pi_side=" << hit.getPhiSide()
+        << "  ei_strip=" << hit.getEtaStrip()
+        << "  n_strips=" << hit.getNStrips()
+        << "  deltaPhi=" << hit.getDeltaPhi()
+        << "  deltaEta=" << hit.getDeltaEta()
+        << "  ( x=" << hit.getX()
+        << " y=" << hit.getY()
+        << " z=" << hit.getZ()
+        << " eventindex=" << hit.getEventIndex()
+        << " barcode=" << hit.getBarcode()
+        << " bar_pt=" << hit.getBarcodePt()
+        << " parentage_mask=" << hit.getParentageMask()
+        << " )\n";
 }
 
 int hitToModuleId(const FTKRawHit &hit) {
-  // returns moduleId of given hit
+    // returns moduleId of given hit
+    if (DEBUG_HITS)
+        printHit(hit);
 
-  if (DEBUG_HITS)
-    printHit(hit);
+    if (hit.getIdentifierHash() > 0 && hit.getHitType() == PIXEL) {
+        return hit.getIdentifierHash();
+    }
+    else if (hit.getIdentifierHash() > 0 && hit.getHitType() == SCT) {
+        return 0x8000 + hit.getIdentifierHash();
+    }
 
-  unsigned int ieta = 0;
-  if (FTKSetup::getFTKSetup().getIBLMode()==1){
-    assert(hit.getEtaModule()>=-8 && hit.getEtaModule()<=8); // cy for ibl
-  }
-  else if (FTKSetup::getFTKSetup().getIBLMode()==2){
-    assert(hit.getEtaModule()>=-10 && hit.getEtaModule()<=10); // version with 3D sensors
-  }
-  else{
-    assert(hit.getEtaModule()>=-6 && hit.getEtaModule()<=6); 
-  }
+    unsigned int ieta = 0;
+    if (FTKSetup::getFTKSetup().getIBLMode()==1){
+        assert(hit.getEtaModule()>=-8 && hit.getEtaModule()<=8); // cy for ibl
+    }
+    else if (FTKSetup::getFTKSetup().getIBLMode()==2){
+        assert(hit.getEtaModule()>=-10 && hit.getEtaModule()<=10); // version with 3D sensors
+    }
+    else{
+        assert(hit.getEtaModule()>=-6 && hit.getEtaModule()<=6);
+    }
 
-  if (FTKSetup::getFTKSetup().getIBLMode()==1 && hit.getBarrelEC() == ftk::BARREL && hit.getLayer() == 0 && hit.getIsPixel() == 1) { // for ibl
-    // eta index should range -8 to 8 for ibl
-    ieta = 8 + hit.getEtaModule(); // cy was 6
-  } else if (FTKSetup::getFTKSetup().getIBLMode()==2 && hit.getBarrelEC() == ftk::BARREL && hit.getLayer() == 0 && hit.getIsPixel() == 1) { // for ibl
-    // eta index should range -8 to 8 for ibl
-    ieta = 10 + hit.getEtaModule(); // cy was 6
-  }  else if (hit.getBarrelEC() == BARREL){
-    // eta index should range -6 to 6 for barrel
-    ieta = 6 + hit.getEtaModule(); // cy was 6
-  }  else {
-    // eta index should range 0 to 2 for endcaps (just 0 for pixels)
-    assert(hit.getEtaModule()>=0 && hit.getEtaModule()<3);
-    // removed dependency on getIBLMode because it is not needed
-    if (hit.getBarrelEC() == POSEC)
-      ieta = MAX_BARREL_ETA+hit.getEtaModule();
-    if (hit.getBarrelEC() == NEGEC)
-      ieta = MAX_BARREL_ETA+3+hit.getEtaModule();
-  }
+    if (FTKSetup::getFTKSetup().getIBLMode()==1 && hit.getBarrelEC() == ftk::BARREL && hit.getLayer() == 0 && hit.getIsPixel() == 1) { // for ibl
+        // eta index should range -8 to 8 for ibl
+        ieta = 8 + hit.getEtaModule(); // cy was 6
+    } else if (FTKSetup::getFTKSetup().getIBLMode()==2 && hit.getBarrelEC() == ftk::BARREL && hit.getLayer() == 0 && hit.getIsPixel() == 1) { // for ibl
+        // eta index should range -8 to 8 for ibl
+        ieta = 10 + hit.getEtaModule(); // cy was 6
+    }  else if (hit.getBarrelEC() == BARREL){
+        // eta index should range -6 to 6 for barrel
+        ieta = 6 + hit.getEtaModule(); // cy was 6
+    }  else {
+        // eta index should range 0 to 2 for endcaps (just 0 for pixels)
+        assert(hit.getEtaModule()>=0 && hit.getEtaModule()<3);
+        // removed dependency on getIBLMode because it is not needed
+        if (hit.getBarrelEC() == POSEC)
+            ieta = MAX_BARREL_ETA+hit.getEtaModule();
+        if (hit.getBarrelEC() == NEGEC)
+            ieta = MAX_BARREL_ETA+3+hit.getEtaModule();
+    }
 
-//   if (FTKSetup::getFTKSetup().getIBLMode()==1){
-//     assert(ieta<MAX_ETA+3); // additions for ibl the first +3 is for ibl (13->16), and the +2 is for ibl (6->8), remove the +2 for 11L ibl 
-//   }  
-//   else {
+    //   if (FTKSetup::getFTKSetup().getIBLMode()==1){
+    //     assert(ieta<MAX_ETA+3); // additions for ibl the first +3 is for ibl (13->16), and the +2 is for ibl (6->8), remove the +2 for 11L ibl
+    //   }
+    //   else {
     assert(ieta<MAX_ETA);
     //  }
-  
-  unsigned int iphi = hit.getPhiModule();
-  assert(iphi<MAX_PHI);
 
-  unsigned int ilayer = 0;
-  switch (hit.getHitType()) {
-  case PIXEL:
-    ilayer = hit.getLayer();
-    if (FTKSetup::getFTKSetup().getIBLMode()>=1) {
-      assert(ilayer<MAX_LAYER_PIXEL+1); // +1 for ibl layer as pixel
-      break;
+    unsigned int iphi = hit.getPhiModule();
+    assert(iphi<MAX_PHI);
+
+    unsigned int ilayer = 0;
+    switch (hit.getHitType()) {
+        case PIXEL:
+            ilayer = hit.getLayer();
+            if (FTKSetup::getFTKSetup().getIBLMode()>=1) {
+                assert(ilayer<MAX_LAYER_PIXEL+1); // +1 for ibl layer as pixel
+                break;
+            }
+            else {
+                assert(ilayer<MAX_LAYER_PIXEL);
+                break;
+            }
+            break;
+        case SCT:
+            // for endcaps hit.layer_disk goes from 0 to 17
+            //printHit(hit);
+            ilayer = 10 + hit.getLayer();
+            assert(ilayer>=10 && ilayer<MAX_LAYER);
+            break;
+        default:
+            assert(0);
     }
-    else {
-      assert(ilayer<MAX_LAYER_PIXEL);
-      break;
-    }
-    break;
-  case SCT:
-    // for endcaps hit.layer_disk goes from 0 to 17
-    //printHit(hit);
-    ilayer = 10 + hit.getLayer();
-    assert(ilayer>=10 && ilayer<MAX_LAYER);
-    break;
-  default:
-    assert(0);
-  }
-  assert(ilayer<MOD_ID_LAYER_MASK);
-  assert(iphi<MOD_ID_PHI_MASK);
-  assert(ieta<MOD_ID_ETA_MASK);
+    assert(ilayer<MOD_ID_LAYER_MASK);
+    assert(iphi<MOD_ID_PHI_MASK);
+    assert(ieta<MOD_ID_ETA_MASK);
 
-  unsigned int ModuleId = ilayer*MOD_ID_LAYER_VAL + ieta*MOD_ID_ETA_VAL + iphi*MOD_ID_PHI_VAL;
+    unsigned int ModuleId = ilayer*MOD_ID_LAYER_VAL + ieta*MOD_ID_ETA_VAL + iphi*MOD_ID_PHI_VAL;
 
-  if (DEBUG_HITS)
-    std::cout << "  ModuleId=" << ModuleId
-	      << "  ilayer=" << ilayer 
-	      << "  ieta=" << ieta 
-	      << "  iphi=" << iphi
-	      << "\n";
+    if (DEBUG_HITS)
+        std::cout << "  ModuleId=" << ModuleId
+            << "  ilayer=" << ilayer
+            << "  ieta=" << ieta
+            << "  iphi=" << iphi
+            << "\n";
 
-  return ModuleId;
+    return ModuleId;
 }
 
 bool neighborhood(const FTKRawHit &hit1, const FTKRawHit &hit2) {
-  /*
-   * Check (and define) if two hits are neighborhood
-   */
+    /*
+     * Check (and define) if two hits are neighborhood
+     */
 
-  /*
-   * For the time being it accepts only pair of hits from the same module and same SCT side.
-   * It crash if hits are the same.
-   */
+    /*
+     * For the time being it accepts only pair of hits from the same module and same SCT side.
+     * It crash if hits are the same.
+     */
 
-  // 1st check same module
-  if (hit1.getBarrelEC() != hit2.getBarrelEC() || hit1.getHitType() != hit2.getHitType() ||
-      hit1.getLayer() != hit2.getLayer() || hit1.getEtaModule() != hit2.getEtaModule() ||
-      hit1.getPhiModule() != hit2.getPhiModule()) { // if module is NOT the same
-    //printHit(hit1);
-    //printHit(hit2);
-    assert(0); // temporary check
-    return false;
-  }
-  
-  switch (hit1.getHitType()) {
-  case SCT:
-    if (!SCT_CLUSTERING)
-      return false; 
-
-    if (hit1.getPhiSide() != hit2.getPhiSide()) { // if different side
-       assert(0); // temporary check
-       return false;
-    }
-    assert(hit1.getEtaStrip() != hit2.getEtaStrip()); // sanity check
-    //    assert(hit1.getNStrips()==1 && hit2.getNStrips()==1); // should be false some times... just a test
-    //    if (hit1.getEtaStrip() == hit2.getEtaStrip()+1 || hit1.getEtaStrip()+1 == hit2.getEtaStrip())
-    //      return true;
-    if (hit1.getEtaStrip() == hit2.getEtaStrip()+hit2.getNStrips() 
-	|| hit1.getEtaStrip()+hit1.getNStrips() == hit2.getEtaStrip())
-      return true;
-    return false;
-
-  case PIXEL:
-    assert(hit1.getEtaStrip() != hit2.getEtaStrip() || hit1.getPhiSide() != hit2.getPhiSide()); // sanity check
-    /* need a common edge, i.e. contiguity along diagonal is not enough (see below) */
-    if ( (hit1.getEtaStrip() == hit2.getEtaStrip()+1 || hit1.getEtaStrip()+1 == hit2.getEtaStrip())
-	 && hit1.getPhiSide() == hit2.getPhiSide()) return true;
-    if ( (hit1.getPhiSide() == hit2.getPhiSide()+1 || hit1.getPhiSide()+1 == hit2.getPhiSide())
-	 && hit1.getEtaStrip() == hit2.getEtaStrip()) return true;
-
-    
-    if (DIAG_CLUSTERING) { /* Accept contiguity along diagonal as well */
-      if ( (hit1.getEtaStrip() == hit2.getEtaStrip()+1 || hit1.getEtaStrip()+1 == hit2.getEtaStrip())
-	   && (hit1.getPhiSide() == hit2.getPhiSide()+1 || hit1.getPhiSide()+1 == hit2.getPhiSide()) )
-	return true;
+    // 1st check same module
+    if (hit1.getBarrelEC() != hit2.getBarrelEC() || hit1.getHitType() != hit2.getHitType() ||
+            hit1.getLayer() != hit2.getLayer() || hit1.getEtaModule() != hit2.getEtaModule() ||
+            hit1.getPhiModule() != hit2.getPhiModule()) { // if module is NOT the same
+        //printHit(hit1);
+        //printHit(hit2);
+        assert(0); // temporary check
+        return false;
     }
 
+    switch (hit1.getHitType()) {
+        case SCT:
+            if (!SCT_CLUSTERING)
+                return false;
+
+            if (hit1.getPhiSide() != hit2.getPhiSide()) { // if different side
+                assert(0); // temporary check
+                return false;
+            }
+            assert(hit1.getEtaStrip() != hit2.getEtaStrip()); // sanity check
+            //    assert(hit1.getNStrips()==1 && hit2.getNStrips()==1); // should be false some times... just a test
+            //    if (hit1.getEtaStrip() == hit2.getEtaStrip()+1 || hit1.getEtaStrip()+1 == hit2.getEtaStrip())
+            //      return true;
+            if (hit1.getEtaStrip() == hit2.getEtaStrip()+hit2.getNStrips()
+                    || hit1.getEtaStrip()+hit1.getNStrips() == hit2.getEtaStrip())
+                return true;
+            return false;
+
+        case PIXEL:
+            assert(hit1.getEtaStrip() != hit2.getEtaStrip() || hit1.getPhiSide() != hit2.getPhiSide()); // sanity check
+            /* need a common edge, i.e. contiguity along diagonal is not enough (see below) */
+            if ( (hit1.getEtaStrip() == hit2.getEtaStrip()+1 || hit1.getEtaStrip()+1 == hit2.getEtaStrip())
+                    && hit1.getPhiSide() == hit2.getPhiSide()) return true;
+            if ( (hit1.getPhiSide() == hit2.getPhiSide()+1 || hit1.getPhiSide()+1 == hit2.getPhiSide())
+                    && hit1.getEtaStrip() == hit2.getEtaStrip()) return true;
+
+
+            if (DIAG_CLUSTERING) { /* Accept contiguity along diagonal as well */
+                if ( (hit1.getEtaStrip() == hit2.getEtaStrip()+1 || hit1.getEtaStrip()+1 == hit2.getEtaStrip())
+                        && (hit1.getPhiSide() == hit2.getPhiSide()+1 || hit1.getPhiSide()+1 == hit2.getPhiSide()) )
+                    return true;
+            }
+
+            return false;
+    }
+    assert(0); // should not get here!
     return false;
-  }
-   assert(0); // should not get here!
-   return false;
 }
 
 int buildUpCluster(hitVector *currentHits, cluster &clu) {
-  /*
-   * Recursively adds hits to a given cluster. 
-   * Returns number of hits in final cluster.
-   * If no cluster is given (or empty cluster) make a cluster out of the 1st hit.
-   */
-  assert(currentHits->size()>0); // need at least one hit!
-
-  hitVector::iterator hitP;
-  if (clu.hitlist.size()==0) {     // if cluster is empty
-    hitP = currentHits->begin();
-    clu.hitlist.push_back(*hitP);
-    currentHits->erase(hitP);
-
-    // FlagAK - dirty fix to disable clustering on 1st layer
-    //    if( (*hitP).getLayer()==0 && (*hitP).getIsPixel() ) {
-    //      return clu->hitlist.size();
-    //    }
-    
-  } 
-
-  /* Now we have a non empty cluster */
-  bool newHitsAdded = false;
-  int distanceis = clu.hitlist.size();
-  hitVector::iterator hitCluP; // hits in cluster
-  //for (hitCluP=clu.hitlist.begin(); hitCluP!=clu.hitlist.end(); ++hitCluP) { // loop over hits in cluster
-  for(int i = 0; i < distanceis; i++) {
-      FTKRawHit* hit = clu.hitlist.at(i); 
-      for (hitP=currentHits->begin(); hitP!=currentHits->end();) { // loop over hits in module
-          //if (neighborhood(**hitCluP, **hitP)) { // if hits are neighborhood
-          if (neighborhood(*hit, **hitP)) { // if hits are neighborhood
-              // add hit to cluster
-              clu.hitlist.push_back(*hitP);
-              //hitCluP = clu.hitlist.begin();
-              currentHits->erase(hitP);
-              distanceis++;
-              hitP=currentHits->begin(); // if a hit is erased then restart the loop
-              newHitsAdded = true;
-          } else { 
-              ++hitP; // if hit is not a neighborhood then go to next hit
-          }
-      } // end of loop over hits in module 
-  } // end of loop over hits in cluster
-
-  // if at least one hit was added, check for more neighborhood hits
-  if (newHitsAdded && currentHits->size()) buildUpCluster(currentHits, clu);
-  return clu.hitlist.size();
-}
-
-void makeClustersLNF(hitVector *currentHits, cluList *currentClusters) {
     /*
-     * Group all hits from one module into clusters
+     * Recursively adds hits to a given cluster.
+     * Returns number of hits in final cluster.
+     * If no cluster is given (or empty cluster) make a cluster out of the 1st hit.
      */
+    assert(currentHits->size()>0); // need at least one hit!
 
-    int index=0;
-    while (currentHits->size()) { // as long as we have hits
+    hitVector::iterator hitP;
+    if (clu.hitlist.size()==0) {     // if cluster is empty
+        hitP = currentHits->begin();
+        clu.hitlist.push_back(*hitP);
+        currentHits->erase(hitP);
+
+        // FlagAK - dirty fix to disable clustering on 1st layer
+        //    if( (*hitP).getLayer()==0 && (*hitP).getIsPixel() ) {
+        //      return clu->hitlist.size();
+        //    }
+
+    }
+
+    /* Now we have a non empty cluster */
+    bool newHitsAdded = false;
+    int distanceis = clu.hitlist.size();
+    hitVector::iterator hitCluP; // hits in cluster
+    //for (hitCluP=clu.hitlist.begin(); hitCluP!=clu.hitlist.end(); ++hitCluP) { // loop over hits in cluster
+    for(int i = 0; i < distanceis; i++) {
+        FTKRawHit* hit = clu.hitlist.at(i);
+        for (hitP=currentHits->begin(); hitP!=currentHits->end();) { // loop over hits in module
+            //if (neighborhood(**hitCluP, **hitP)) { // if hits are neighborhood
+            if (neighborhood(*hit, **hitP)) { // if hits are neighborhood
+                // add hit to cluster
+                clu.hitlist.push_back(*hitP);
+                //hitCluP = clu.hitlist.begin();
+                currentHits->erase(hitP);
+                distanceis++;
+                hitP=currentHits->begin(); // if a hit is erased then restart the loop
+                newHitsAdded = true;
+            } else {
+                ++hitP; // if hit is not a neighborhood then go to next hit
+            }
+        } // end of loop over hits in module
+        } // end of loop over hits in cluster
+
+        // if at least one hit was added, check for more neighborhood hits
+        if (newHitsAdded && currentHits->size()) buildUpCluster(currentHits, clu);
+        return clu.hitlist.size();
+    }
+
+    void makeClustersLNF(hitVector *currentHits, cluList *currentClusters) {
+        /*
+         * Group all hits from one module into clusters
+         */
+
+        int index=0;
+        while (currentHits->size()) { // as long as we have hits
+            cluster clu;
+            clu.isSafe = false;               // initialitaion
+            clu.isKilled = false;             // initialitaion
+            int cluSize = buildUpCluster(currentHits, clu);
+            currentClusters->push_back(clu);
+            if (0)
+                std::cout << "DEBUG_makeCluster:"
+                    << "  index=" << index
+                    << "  cluSize=" << cluSize
+                    << "  Nclusters=" << currentClusters->size()
+                    << "\n";
+            index++;
+        }
+    }
+
+    void makeClusterFromSeed(hitVector *currentHits, cluList *currentClusters, FTKRawHit* &seed) {
+        //erase seed fom currentHits
+        hitVector::iterator position = std::find(currentHits->begin(), currentHits->end(), seed);
+        if (position != currentHits->end()) {
+            currentHits->erase(position);
+        }
+
         cluster clu;
-        clu.isSafe = false;               // initialitaion
-        clu.isKilled = false;             // initialitaion
-        int cluSize = buildUpCluster(currentHits, clu);
+        clu.seed = seed;
+        clu.hitlist.push_back(seed);
+        clu.isSafe = false;
+        clu.isKilled = false;
+        if (currentHits->size() > 0) buildUpCluster(currentHits, clu);
         currentClusters->push_back(clu);
-        if (0)
-            std::cout << "DEBUG_makeCluster:"
-                << "  index=" << index
-                << "  cluSize=" << cluSize
-                << "  Nclusters=" << currentClusters->size()
-                << "\n";
-        index++;
-    }
-}
-
-void makeClusterFromSeed(hitVector *currentHits, cluList *currentClusters, FTKRawHit* &seed) {
-    //erase seed fom currentHits
-    hitVector::iterator position = std::find(currentHits->begin(), currentHits->end(), seed);
-    if (position != currentHits->end()) {
-        currentHits->erase(position);
-    }
-
-    cluster clu;
-    clu.seed = seed;
-    clu.hitlist.push_back(seed);
-    clu.isSafe = false;
-    clu.isKilled = false;
-    if (currentHits->size() > 0) buildUpCluster(currentHits, clu);
-    currentClusters->push_back(clu);
 
 #ifdef BOUNDING_BOX
-    calcBoundingBox(clu);
+        calcBoundingBox(clu);
 #endif
-}
-//
-bool gangedHitHasNeighborhood(const FTKRawHit &hit, const cluster &clu, hitVector &connectedHits) {
-    bool hasNeighborhood = false;
-    int phi = hitIsGanged(hit);
-    //  std::cout << "phi: " << phi << std::endl;
-    if (phi) { // check hit is ganged
-        int eta = hit.getEtaStrip();
-        hitVector hv = clu.hitlist;
-        hitVector::iterator pp;
-        for (pp=hv.begin(); pp!=hv.end(); ++pp) {
-            if ( eta != (*pp)->getEtaStrip() ) continue;
-            if ( abs(phi - (*pp)->getPhiSide() ) != 1 ) continue;
-            hasNeighborhood = true;
-            FTKRawHit *tmpHit = new FTKRawHit();
-            tmpHit->setHitType( ftk::PIXEL );
-            tmpHit->setEtaStrip( eta );
-            tmpHit->setLayer( hit.getLayer() );
-            tmpHit->setPhiSide( gangedPartner(hit) );
-            if ( !hitIsGanged(*tmpHit) ) {
-                printHit(*tmpHit);
-                assert(0);
+    }
+    //
+    bool gangedHitHasNeighborhood(const FTKRawHit &hit, const cluster &clu, hitVector &connectedHits) {
+        bool hasNeighborhood = false;
+        int phi = hitIsGanged(hit);
+        //  std::cout << "phi: " << phi << std::endl;
+        if (phi) { // check hit is ganged
+            int eta = hit.getEtaStrip();
+            hitVector hv = clu.hitlist;
+            hitVector::iterator pp;
+            for (pp=hv.begin(); pp!=hv.end(); ++pp) {
+                if ( eta != (*pp)->getEtaStrip() ) continue;
+                if ( abs(phi - (*pp)->getPhiSide() ) != 1 ) continue;
+                hasNeighborhood = true;
+                FTKRawHit *tmpHit = new FTKRawHit();
+                tmpHit->setHitType( ftk::PIXEL );
+                tmpHit->setModuleType( ftk::MODULETYPE_PIXEL );
+                tmpHit->setEtaStrip( eta );
+                tmpHit->setLayer( hit.getLayer() );
+                tmpHit->setPhiSide( gangedPartner(hit) );
+                if ( !hitIsGanged(*tmpHit) ) {
+                    printHit(*tmpHit);
+                    assert(0);
+                }
+                connectedHits.push_back( tmpHit ); // store connected hit pointer
+            } // end of nested loop over hits
+        } //end of "if (phi)"
+        return hasNeighborhood;
+    }
+
+    bool findConnectedGanged(cluster &clu, hitVector &connectedHits) {
+        assert(clu.hitlist.size()>0); // sanity check
+
+        hitVector::iterator p;
+        bool hasNeighborhood = false;
+        for (p=clu.hitlist.begin(); p!=clu.hitlist.end(); ++p) {
+            if ( gangedHitHasNeighborhood(**p, clu, connectedHits) ) {
+                hasNeighborhood = true;
             }
-            connectedHits.push_back( tmpHit ); // store connected hit pointer
-        } // end of nested loop over hits
-    } //end of "if (phi)"
-    return hasNeighborhood;
-}
+        } // end of first loop over hits
 
-bool findConnectedGanged(cluster &clu, hitVector &connectedHits) {
-    assert(clu.hitlist.size()>0); // sanity check
+        return hasNeighborhood;
+    }
 
-    hitVector::iterator p; 
-    bool hasNeighborhood = false;
-    for (p=clu.hitlist.begin(); p!=clu.hitlist.end(); ++p) {
-        if ( gangedHitHasNeighborhood(**p, clu, connectedHits) ) {
-            hasNeighborhood = true;
+    bool cluIsGanged(const cluster &clu) {
+        hitVector hv = clu.hitlist;
+        hitVector::iterator p;
+        for (p=hv.begin(); p!=hv.end(); ++p) {
+            if ( hitIsGanged(**p) ) return true;
         }
-    } // end of first loop over hits
 
-    return hasNeighborhood;
-}
+        return false;
+    }
 
-bool cluIsGanged(const cluster &clu) {
-    hitVector hv = clu.hitlist;
-    hitVector::iterator p; 
-    for (p=hv.begin(); p!=hv.end(); ++p) {
-        if ( hitIsGanged(**p) ) return true;
-    } 
+    bool isKilled(const cluster &clu, const hitVector &connectedHits) {
+        hitVector tmphv = clu.hitlist;
+        hitVector::iterator p;
+        for (p=tmphv.begin(); p!=tmphv.end(); ++p) {
+            if ( !hitIsGanged(**p) ) continue;
+            hitVector hv = connectedHits;
+            hitVector::iterator c;
+            for (c=(hv).begin(); c!=(hv).end(); ++c) {
+                assert( hitIsGanged(**c) ); // all connected hits should be ganged !
+                if ( (*c)->getPhiSide() == (*p)->getPhiSide()
+                        && (*c)->getEtaStrip() == (*p)->getEtaStrip() ) return true;
+            }
+        } // loop over hits in cluster
 
-    return false;
-}
-
-bool isKilled(const cluster &clu, const hitVector &connectedHits) {
-    hitVector tmphv = clu.hitlist;
-    hitVector::iterator p; 
-    for (p=tmphv.begin(); p!=tmphv.end(); ++p) {
-        if ( !hitIsGanged(**p) ) continue;
-        hitVector hv = connectedHits;
-        hitVector::iterator c;
-        for (c=(hv).begin(); c!=(hv).end(); ++c) {
-            assert( hitIsGanged(**c) ); // all connected hits should be ganged !
-            if ( (*c)->getPhiSide() == (*p)->getPhiSide() 
-                    && (*c)->getEtaStrip() == (*p)->getEtaStrip() ) return true;
-        }
-    } // loop over hits in cluster
-
-    return false;
-}
+        return false;
+    }
 
 void averageCluster(cluster &clu) {
     const unsigned int &nHits = clu.hitlist.size();
@@ -737,9 +708,10 @@ void averageCluster(cluster &clu) {
     av.reset();
     av.setX(0);
     av.setY(0);
-    av.setZ(0);  
+    av.setZ(0);
     av.setIdentifierHash(first->getIdentifierHash());
     av.setHitType(first->getHitType());
+    av.setModuleType(first->getModuleType());
     av.setBarrelEC(first->getBarrelEC());
     av.setLayer(first->getLayer());
     av.setPhiModule(first->getPhiModule());
@@ -751,8 +723,8 @@ void averageCluster(cluster &clu) {
     av.setPhiWidth(0);
     av.setIncludesGanged(false);
 
-    if (DEBUG_AVERAGE) 
-        std::cout << "DEBUG_AVERAGE:  isPixel=" << av.getIsPixel() 
+    if (DEBUG_AVERAGE)
+        std::cout << "DEBUG_AVERAGE:  isPixel=" << av.getIsPixel()
             << ", nHits=" << nHits<< "\n";
 
     hitVector::iterator p;
@@ -769,25 +741,25 @@ void averageCluster(cluster &clu) {
     float etaPitch = ftk::etaPitchPixel;
     float numberOfEtaPixelsInModule = ftk::numberOfEtaPixelsInPixelModule;
     float pixelModuleActiveLength = ftk::lengthOfPixelModuleIn400umPixels*ftk::etaPitchPixel/ftk::micrometer;
-    float pixYScaleFactor = 16.; //multiply by 16 to count in unit of 25um 
+    float pixYScaleFactor = 16.; //multiply by 16 to count in unit of 25um
     float pixXScaleFactor;
     // FlagAA: 2015-01-29 making default the units of 6.25um for r-phi coordinates
     pixXScaleFactor = 8.;
-    float etaModule = first->getEtaModule()-6; 
+    float etaModule = first->getEtaModule()-6;
     const float pixelEndCapRPhiCorrection = 25.4*ftk::micrometer/ftk::phiPitch; // Lorentz angle?
     const float pixelIblRPhiCorrection = 7*ftk::micrometer/ftk::phiPitch; // Lorentz angle?
     // FlagAA 2013-07-31: IBL code assumes fully planar geometry as in mc12+IBL
     // This will change for the real detector!!!
     if (isIBLmodule) {
-        etaModule = first->getEtaModule()-8; 
-        pixYScaleFactor = 10.; //multiply by 10 to count in unit of 25um 
+        etaModule = first->getEtaModule()-8;
+        pixYScaleFactor = 10.; //multiply by 10 to count in unit of 25um
         etaPitch = ftk::etaPitchIbl;
         //    float sensorThickness = 230*micrometer; // 3D sensors
         //    pixelModuleActiveLength = 80*0.25;  // 3D sesors ???
         //    numberOfEtaPixelsInModule = 80; // 3D sesors ???
         sensorThickness = ftk::sensorThicknessIbl;
         pixelModuleActiveLength = ftk::lengthOfIblModuleIn250umPixels*ftk::etaPitchIbl/ftk::micrometer; // planar sensors
-        numberOfEtaPixelsInModule = ftk::numberOfEtaPixelsInIblModule; 
+        numberOfEtaPixelsInModule = ftk::numberOfEtaPixelsInIblModule;
     }
     if (FTKSetup::getFTKSetup().getIBLMode()==0)
         layer++; // always count IBL as layer0 ad BLayer as layer1
@@ -797,7 +769,7 @@ void averageCluster(cluster &clu) {
     if (layer==2)
         radius = 88.5; // Layer 1
     if (layer==3)
-        radius = 122.5; // Layer 2                             
+        radius = 122.5; // Layer 2
     bool hasGanged=false;
     int rowMin = 99999; //int(2*(design->width()/design->phiPitch()))+1;;
     int rowMax = 0;
@@ -826,14 +798,14 @@ void averageCluster(cluster &clu) {
             float stripNumberFloat = (firstStrip*1.+lastStrip)/2;
             //(av.getEtaStrip()*1.)/nHits;
             av.setEtaStrip( (int) stripNumberFloat );
-            av.setDeltaPhi( stripNumberFloat - (int) stripNumberFloat ); 
+            av.setDeltaPhi( stripNumberFloat - (int) stripNumberFloat );
             // The convention used for SCT is that we are providing as output
-            // the cluster center minus half a strip (i.e. use the left edge of strip for a single strip cluster) 
+            // the cluster center minus half a strip (i.e. use the left edge of strip for a single strip cluster)
             // where output = av.setEtaStrip + av.setDeltaPhi
             av.setStripCoordinate(firstStrip+lastStrip);
-            av.setColumnCoordinate( 0 ); 
+            av.setColumnCoordinate( 0 );
             av.setDeltaEta(0);
-            av.setNStrips(lastStrip+1-firstStrip); 
+            av.setNStrips(lastStrip+1-firstStrip);
             av.setEtaWidth(1);
             //std::cout << " strip " << std::endl;
             av.setPhiWidth(lastStrip+1-firstStrip);
@@ -844,14 +816,8 @@ void averageCluster(cluster &clu) {
             }
             break; // end of SCT
             }
-        case PIXEL: 
-#if defined (CLUSTER_DEBUG) 
-    std::cout << "<---- START CENTROID CALCULATION ---->" << std::endl;
-    std::cout << "\t--> HITLIST WITH # OF HITS: " << (clu).hitlist.size() << std::endl;
-    printClu(clu);
-    std::cout << "\tINFO: START LOOPING ON HITS WITH PCM " << PIXEL_CLUSTERING_MODE << ": " << std::endl;
-#endif
-            av.setPhiSide(0); // eta is reset a few lines above 
+        case PIXEL:
+            av.setPhiSide(0); // eta is reset a few lines above
             for (p=clu.hitlist.begin(); p!=clu.hitlist.end(); ++p) { //loop over hits in cluster
                 assert(av.getLayer()==(*p)->getLayer() && av.getPhiModule()==(*p)->getPhiModule() && av.getEtaModule()==(*p)->getEtaModule() );
                 //      if (hitIsGanged(**p))
@@ -863,7 +829,7 @@ void averageCluster(cluster &clu) {
                     MultiTruth mt;
                     MultiTruth::Barcode uniquecode(tmpch.getEventIndex(),tmpch.getBarcode());
                     mt.maximize(uniquecode,tmpch.getBarcodePt());
-                    tmpch.setTruth(mt);	  
+                    tmpch.setTruth(mt);
                     av.addChannel(tmpch);
                 }
 
@@ -873,18 +839,18 @@ void averageCluster(cluster &clu) {
 
                 int row = (*p)->getPhiSide();
                 int col = (*p)->getEtaStrip();
-                int tot = (*p)->getTot(); // ToT for pixels  
+                int tot = (*p)->getTot(); // ToT for pixels
                 if (!isIBLmodule && pixelRowIsGanged(row))
                     hasGanged = true;
 
                 if (PIXEL_CLUSTERING_MODE>0) {
-                    // calculate cluster center following code at line 701 of 
+                    // calculate cluster center following code at line 701 of
                     // https://svnweb.cern.ch/trac/atlasoff/browser/InnerDetector/InDetRecTools/SiClusterizationTool/trunk/src/MergedPixelsTool.cxx#L701
-                    // I.e. m_posStrategy == 1 
+                    // I.e. m_posStrategy == 1
                     // I.e. use charge imbalance between the two outer most ros (columns) to calculate the centroid
                     // In this code I'll use etaTrack instead of pixel eta for simplicity
 
-                    if (!isIBLmodule) {   
+                    if (!isIBLmodule) {
                         // account for 600um pixels in the centroid calculation
                         // will use units of 100um and the convert to normal pixel units below
                         // will also indicate the center of the pixel instead of the left edge
@@ -901,15 +867,17 @@ void averageCluster(cluster &clu) {
                         col += pixYScaleFactor/2; // assume 1<=FEcolumn<=16 add half a pixel coming from 600um pixel in FEcolumn==0
                         if (FEcolumn==0) col -= pixYScaleFactor/4; // correct position for first column in FE chip
                         if (FEcolumn==17) col += pixYScaleFactor/4; // correct position for last column in FE chip
-#if defined(CLUSTER_DEBUG)
-    std::cout << "\tMODIFIED TO tot: " << tot << " col: " << col << " row: " << row << std::endl;
-#endif 
                     } else { // IBL case
                         int orig_col = col;
                         col = col*pixYScaleFactor; // use units of 25um
                         col += pixYScaleFactor/2; // add half a pixel to align to pixel center
                         if (orig_col==0) col += pixYScaleFactor/2; // add half pixel (500um pixel in col0)
                         if (orig_col>0) col += pixYScaleFactor; // add a pixel (500um pixel in col0)
+
+                        // for 3D modules only
+                        // if (orig_col==79) col += pixYScaleFactor*5/10; // add 5/10 of pixel i.e. 100um (500um pixel in col79)
+
+                        // for planar modules only
                         if (orig_col==79) col += pixYScaleFactor*4/10; // add 4/10 of pixel i.e. 100um (450um pixel in col79)
                         if (orig_col==80) col += pixYScaleFactor*12/10; // add 12/10 of pixel i.e. 300um (450um pixel in col79 and col80)
                         if (orig_col>80) col += pixYScaleFactor*16/10; // add 16/10 of pixel i.e. 400um (450um pixel in col79 and col80)
@@ -953,32 +921,29 @@ void averageCluster(cluster &clu) {
                 if (DEBUG_AVERAGE)
                     printHit(**p);
                 av.addTot(first->getTot()); // sum ToT for pixel clusters
-            } 
-#if defined(CLUSTER_DEBUG)
-    std::cout << "\tINFO: LOOP ON HITLIST ENDED" << std::endl;
-    std::cout << "\tqcolMin: " << qColMin << "\tqcolMax: " << qColMax << "\tqrowMin: " << qRowMin << "\tqrowMax: " << qRowMax << std::endl;
-    std::cout << "\tcolMin: " << colMin << "\tcolMax: " << colMax << "\trowMin: " << rowMin << "\trowMax: " << rowMax << std::endl;
-    std::cout << "\tetaMin: " << etaMin << "\tetaMax: " << etaMax << "\tphiMin: " << phiMin << "\tphiMax: " << phiMax << std::endl;
-#endif
-            av.setEtaWidth(etaMax-etaMin+1); 
+            }
+            av.setEtaWidth(etaMax-etaMin+1);
             av.setPhiWidth(phiMax-phiMin+1);
-            
-            // calculate eta index and eta delta 
+
+            // calculate eta index and eta delta
             double eta_average, phi_average, delta;
             if (PIXEL_CLUSTERING_MODE>0) {
                 float pixelEstimateCotTheta = -9999.;
+
+		/* The next lines calculate CotTheta of a hypothetic track starting from ATLAS (0,0,0) and crossing the center of the bounding box of the cluster.
+		   The Z global position is estimated as: module Z position + cluster Z position within the module.
+		   The radius is a fixed costant depending on the layer. It could be better estimated accounting also for the rphi position within the module.
+		*/
                 pixelEstimateCotTheta = (etaModule+(rowMin+rowMax)/2./pixYScaleFactor/numberOfEtaPixelsInModule-0.5) * pixelModuleActiveLength / radius;
-                if (PIXEL_CLUSTERING_MODE>=PIXEL_CLUSTERING_IDEAL_APRIL_2014_FIX)
+                if (PIXEL_CLUSTERING_MODE>=PIXEL_CLUSTERING_IDEAL_APRIL_2014_FIX) /* Fixing an error in the formula */
                     pixelEstimateCotTheta = (etaModule+(colMin+colMax)/2./pixYScaleFactor/numberOfEtaPixelsInModule-0.5) * pixelModuleActiveLength / radius;
+
                 // Compute eta for charge interpolation correction (if required)
                 // Two pixels may have tot=0 (very rarely, hopefully)
                 float etaRow = -1;
                 float etaCol = -1;
                 if(qRowMin+qRowMax > 0) etaRow = qRowMax/float(qRowMin+qRowMax);
                 if(qColMin+qColMax > 0) etaCol = qColMax/float(qColMin+qColMax);
-#if defined(CLUSTER_DEBUG) 
-    std::cout << "\tetaRow: " << etaRow << " etaCol: " << etaCol << std::endl;
-#endif
 
                 // Charge interpolation. Very rough guess (one can do better with
                 // candidate track information later) TL
@@ -995,11 +960,7 @@ void averageCluster(cluster &clu) {
                     deltay = 10*ftk::micrometer*sqrt(sensorThickness/(250*ftk::micrometer));
                 }
 
-#if defined(CLUSTER_DEBUG) 
-    std::cout << "\tdeltax: " << deltax << " deltay: " << deltay << std::endl;
-#endif
-
-                if(m_posStrategy == 1 && !hasGanged && etaRow>0 && etaCol > 0 && PIXEL_CLUSTERING_MODE < PIXEL_CLUSTERING_MIXED){
+                if(m_posStrategy == 1 && !hasGanged && etaRow>0 && etaCol > 0 && PIXEL_CLUSTERING_MODE <= PIXEL_CLUSTERING_MIXED){
                     // width of the region of charge sharing // For disks assume normal incidence: delta is small, due to diffusion
                     // of drifting charges in silicon // For barrel, assume 10 deg. incidence in Rphi, in z compute from
                     // pseudorapidity // this may be improved with better parameterization, but it is
@@ -1012,15 +973,12 @@ void averageCluster(cluster &clu) {
                     eta_average = (colMin+colMax)/2. + pixYScaleFactor*deltay*(etaCol-0.5)/etaPitch;
                     //    std::cout << "CENTER: rowMin=" << rowMin << ", rowMax=" << rowMax << ", deltax=" << deltax << ", etaRow=" << etaRow << ", phiPixel=" << phiPixel << std::endl;
                     //    std::cout << "CENTER: colMin=" << colMin << ", colMax=" << colMax << ", deltay=" << deltay << ", etaCol=" << etaCol << ", etaPixel=" << etaPixel << ", trackCotTheta=" << trackCotTheta << std::endl;
-                } else { // if ganged or no imbalance (etaRow, etaCol) available use center of enclosing box 
-                        eta_average = (colMin + colMax) / 2.;
-                        phi_average = (rowMin + rowMax) / 2.;
+                } else { // if ganged or no imbalance (etaRow, etaCol) available use center of enclosing box
+                    eta_average = (colMin + colMax) / 2.;
+                    phi_average = (rowMin + rowMax) / 2.;
                 }
                 //std::cout << "\tphi_average: " << phi_average << " eta_average: " << eta_average << std::endl;
-#if defined(CLUSTER_DEBUG) 
-    printf("\teta_average: %f (%X) phi_average:%f (%X)\n", eta_average, int(eta_average), phi_average, int(phi_average)); //: " << phi_average << " eta_average: " << eta_average << std::endl;
-#endif
-                if (PIXEL_CLUSTERING_MODE <PIXEL_CLUSTERING_MIXED) {
+                if (PIXEL_CLUSTERING_MODE <= PIXEL_CLUSTERING_MIXED) {
                     if (!isIBLmodule) {
                         // rescale full module length 152*400um to the range 0-144
                         // here 1 units is 400*19/18um (i.e. average 400/600um pixel length)
@@ -1043,15 +1001,9 @@ void averageCluster(cluster &clu) {
                 if (isIBLmodule) phi_average += pixelIblRPhiCorrection;
 
                 delta = eta_average - (int) eta_average;
-#if defined(CLUSTER_DEBUG) 
-    std::cout << "\tdeltaeta: " << delta << std::endl;
-#endif
                 av.setDeltaEta(delta);
                 av.setSplit(false);
                 delta = phi_average - (int) phi_average;
-#if defined(CLUSTER_DEBUG) 
-    std::cout << "\tdeltaphi: " << delta << std::endl;
-#endif
                 av.setDeltaPhi(delta);
                 //printf("\tfinal: eta_average: %d (%X) phi_average:%d (%X)\n", lround(eta_average*pixYScaleFactor), int(eta_average), lround(phi_average * pixXScaleFactor), int(phi_average)); //: " << phi_average << " eta_average: " << eta_average << std::endl;
                 av.setEtaStrip( (int) eta_average );
@@ -1067,13 +1019,6 @@ void averageCluster(cluster &clu) {
                         av.setSplit(true);
 
                 }
-                else if (PIXEL_CLUSTERING_MODE < PIXEL_CLUSTERING_MIXED) {
-                }
-#if defined(CLUSTER_DEBUG)
-    printf("/<----- CENTROID FINAL %.8X %d-%X %d-%X %d %d-%X %d-%X\n ",av.getHWWord(),  av.getEtaWidth(), av.getEtaWidth(), av.getColumnCoordinate(), 
-         av.getColumnCoordinate(), av.getSplit(), av.getPhiWidth(), av.getPhiWidth(), av.getStripCoordinate(), av.getStripCoordinate() );
-#endif
-
             } else { // PIXEL_CLUSTERING_MODE == 0
                 tmp = (int)round((av.getEtaStrip()*1.)/nHits);
                 av.setDeltaEta((av.getEtaStrip()*1.)/nHits-tmp);
@@ -1087,7 +1032,7 @@ void averageCluster(cluster &clu) {
             assert(0); // should not get here!
     } // end of switch
 
-        // finally divide by nHits
+    // finally divide by nHits
     av.divX(nHits);
     av.divY(nHits);
     av.divZ(nHits);
@@ -1113,7 +1058,7 @@ void averageCluster(cluster &clu) {
         std::cout << "    AVERAGE IS:\n";
         printHit(av);
         std::cout << "\n\n";
-}
+    }
 }
 
 void atlClusteringBlayer(vector<FTKRawHit> &hits) {
@@ -1150,24 +1095,24 @@ void realisticPixelDecoder(hitVector* &currentHits)
     hitVector::iterator hit = currentHits->begin();
 
 #if defined(DECODER_INPUT)
-    printf("0x8%.7x\n", getModId(*hit));   
+    printf("0x8%.7x\n", getModId(*hit));
     std::cout << "HitType: " << (*hit)->getHitType()  << " Barrel-EC: " << (*hit)->getBarrelEC() <<  " Layer: " << (*hit)->getLayer() << " PhiModule:" << (*hit)->getPhiModule() << " EtaModule: " << (*hit)->getEtaModule() << std::endl;
     //for (hit = currentHits->begin(); hit!= currentHits->end(); hit++) {
-        //fe_hit fehit = fe_hit((*hit));
-        //printf("0x08%.1X%.2X%.2X%.2X -- %d %d %d", fehit.fe, fehit.tot, fehit.lcol, fehit.lrow , fehit.tot, fehit.lcol, fehit.lrow);
-        //std::cout << " hitType " << (*hit)->getHitType() << " BEC " << (*hit)->getBarrelEC() << " layer " << (*hit)->getLayer() << " phimod " << (*hit)->getPhiModule() << " etamod " << (*hit)->getEtaModule() << std::endl;
+    //fe_hit fehit = fe_hit((*hit));
+    //printf("0x08%.1X%.2X%.2X%.2X -- %d %d %d", fehit.fe, fehit.tot, fehit.lcol, fehit.lrow , fehit.tot, fehit.lcol, fehit.lrow);
+    //std::cout << " hitType " << (*hit)->getHitType() << " BEC " << (*hit)->getBarrelEC() << " layer " << (*hit)->getLayer() << " phimod " << (*hit)->getPhiModule() << " etamod " << (*hit)->getEtaModule() << std::endl;
     //}
 #endif
 
-    if (currentHits->size() > 1) 
+    if (currentHits->size() > 1)
         std::stable_sort(currentHits->begin(), currentHits->end(), sortbyFE);
 
     std::stack<FTKRawHit*> lifo;
     std::queue<FTKRawHit*> fifo;
     for(hit = currentHits->begin(); hit != currentHits->end(); hit++) {
-        if ((*hit)->getPhiSide() <= 163) 
+        if ((*hit)->getPhiSide() <= 163)
             fifo.push(*hit);
-        else lifo.push(*hit); 
+        else lifo.push(*hit);
     }
 
     currentHits->clear();
@@ -1195,11 +1140,11 @@ void realisticPixelDecoder(hitVector* &currentHits)
 }
 
 
-FTKRawHit* gridAUTH( boost::circular_buffer<FTKRawHit*> &cb, hitVector &fifo, hitVector &gridhits) 
-{ 
-    //seed is set from cb if there are hits and from 
-    //fifo if the seed is empty. 
-    FTKRawHit* seed = fifo.front(); 
+FTKRawHit* gridAUTH( boost::circular_buffer<FTKRawHit*> &cb, hitVector &fifo, hitVector &gridhits)
+{
+    //seed is set from cb if there are hits and from
+    //fifo if the seed is empty.
+    FTKRawHit* seed = fifo.front();
     if (cb.size() != 0) {
         boost::circular_buffer<FTKRawHit*>::iterator cbi = cb.begin();
         seed = *cbi;
@@ -1224,11 +1169,11 @@ FTKRawHit* gridAUTH( boost::circular_buffer<FTKRawHit*> &cb, hitVector &fifo, hi
     for(int i = 0; i < dist; i++) {
         FTKRawHit* h = cb.front();
         if (!hitColInGrid(gridStrCol, h)) {
-            cb.pop_front(); 
+            cb.pop_front();
             continue;
         }
         if (hitRowInGrid(gridCntRow, h))
-            gridhits.push_back(h); 
+            gridhits.push_back(h);
         else
             cb.push_back(h);
         cb.pop_front();
@@ -1238,11 +1183,11 @@ FTKRawHit* gridAUTH( boost::circular_buffer<FTKRawHit*> &cb, hitVector &fifo, hi
     hitVector::iterator fifo_it = fifo.begin();
     while (fifo_it != fifo.end()) {
         FTKRawHit* hit = *fifo_it;
-        if (!hitColInGrid(gridStrCol, hit)) 
+        if (!hitColInGrid(gridStrCol, hit))
             break;
         if (hitRowInGrid(gridCntRow, hit))
             gridhits.push_back(hit);
-        else 
+        else
             cb.push_back(hit);
         fifo.erase(fifo_it);
     }
@@ -1251,7 +1196,7 @@ FTKRawHit* gridAUTH( boost::circular_buffer<FTKRawHit*> &cb, hitVector &fifo, hi
 }
 
 
-void atlClusteringLNF(vector<FTKRawHit> &hits) 
+void atlClusteringLNF(vector<FTKRawHit> &hits)
 {
     /*
      * make clusters in every module
@@ -1264,14 +1209,14 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
     std::vector<FTKRawHit> gangedPixelList;
     gangedPixelList.reserve(hits.size()); // reserve memory in excess
 
-    /* 
-     * First: organize raw hits by module 
+    /*
+     * First: organize raw hits by module
      */
     for(unsigned int i = 0; i < hits.size(); i++) {
         int modId = hitToModuleId(hits[i]);
         if (modId>=0) {
             //if (hitSelector((hits[i]))) {
-                hitsByModule[modId].push_back( &(hits[i]) );
+            hitsByModule[modId].push_back( &(hits[i]) );
             //}
             if (DUPLICATE_GANGED && hitIsGanged(hits[i])) {
                 //use the copy constructor instead of manually assigning each
@@ -1294,18 +1239,18 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
 #endif
 
     /*
-     * Second: build the list of clusters 
+     * Second: build the list of clusters
      */
     clustersByModuleMap clustersByModule; // store clusters by module
     hitsByModuleFrozen = hitsByModule; // keep hits structure
     hitsByModuleMap::iterator p;
     for (p = hitsByModule.begin(); p!=hitsByModule.end(); ++p) { // loop over modules
-        hitVector *currentHits = & (p->second); 
+        hitVector *currentHits = & (p->second);
         FTKRawHit &firstHit = **(currentHits->begin());
         int modId = hitToModuleId( firstHit );
 
 #if defined(DECODER_OUTPUT)
-   printDecoderOutput(currentHits);
+        printDecoderOutput(currentHits);
 #endif
         cluList *currentClusters = new cluList(); // instantiate cluster list
         clustersByModule[modId] = currentClusters;
@@ -1337,11 +1282,11 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
 
         if (DEBUG_CLUSTERS) {
             std::cout << "DEBUG_CLUSTERS:"
-                << "  modId=" << modId 
+                << "  modId=" << modId
                 << "  HitListSize=" << currentHits->size()
                 << "  ClusterListSize=" << currentClusters->size()
                 << "\n";
-        }    
+        }
     } // end of loop over modules
 
 #ifdef VERBOSE_DEBUG_CLUST
@@ -1361,7 +1306,7 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
         hitVector connectedHits; // list of ganged hits that are connected to a confirmed ganged hit
         cluList::iterator cluP;
         for (cluP=cluModP->second->begin(); cluP!=cluModP->second->end(); cluP++) {
-            // do pattern recognition in the ganged region	
+            // do pattern recognition in the ganged region
             if ( (*cluP->hitlist.begin())->getIsPixel() && findConnectedGanged(*cluP, connectedHits) ) // set isSafe
                 cluP->isSafe = true;
         }
@@ -1381,7 +1326,7 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
 
         // delete connected hits
         hitVector::iterator connectedP;
-        for (connectedP = connectedHits.begin(); connectedP!=connectedHits.end(); ++connectedP) { 
+        for (connectedP = connectedHits.begin(); connectedP!=connectedHits.end(); ++connectedP) {
             delete *connectedP;
         }
     }
@@ -1413,7 +1358,7 @@ void atlClusteringLNF(vector<FTKRawHit> &hits)
         for (cluP=cluModP->second->begin(); cluP!=cluModP->second->end(); cluP++) {
             // kill clusters with ganged hits according to ganged pattern recognition
             if ( GANGED_PATTERN_RECOGNITION && cluP->isKilled && !cluP->isSafe ) {
-                // AA 2009-07-07 removing the "isSafe" protection does not change 
+                // AA 2009-07-07 removing the "isSafe" protection does not change
                 // number of combinations to fit for single muon events
                 deletedGangedClusters++;
                 continue;
