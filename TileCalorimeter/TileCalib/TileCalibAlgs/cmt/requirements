@@ -19,8 +19,6 @@ use TileConditions	TileConditions-*	TileCalorimeter
 
 use TrigT1CaloCalibToolInterfaces	TrigT1CaloCalibToolInterfaces-*		Trigger/TrigT1
 
-
-
 private
 
 use AtlasCLHEP			AtlasCLHEP-*		External
@@ -38,7 +36,7 @@ use TileEvent			TileEvent-*		TileCalorimeter
 use TileRecUtils		TileRecUtils-*		TileCalorimeter
 use TileByteStream		TileByteStream-*	TileCalorimeter/TileSvc
 use TileCalibBlobObjs		TileCalibBlobObjs-*	TileCalorimeter/TileCalib
-use TileMonitoring              TileMonitoring-*        TileCalorimeter
+
 use TrigT1CaloEvent		TrigT1CaloEvent-*	Trigger/TrigT1
 
 end_private

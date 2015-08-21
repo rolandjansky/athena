@@ -30,7 +30,6 @@ class TileCablingSvc;
 class TFile;
 class TileRawChannelContainer;
 class TMap;
-class ITileStuckBitsProbsTool;
 
 class TileCisDefaultCalibTool: public AthAlgTool
                              , virtual public ITileCalibTool {
@@ -86,7 +85,6 @@ class TileCisDefaultCalibTool: public AthAlgTool
     const TileCablingService* m_cabling;
     ServiceHandle<TileCablingSvc> m_cablingSvc;
     ToolHandle<TileBeamInfoProvider> m_beamPrv;
-    ToolHandle<ITileStuckBitsProbsTool> m_stuckBitsProbs;
 
     // jobOptions
     std::string m_rawChannelContainerName;
@@ -117,31 +115,31 @@ class TileCisDefaultCalibTool: public AthAlgTool
     bool m_doSampleChecking;
 
     // Results
-    float m_calib[5][64][48][2];
-    int m_qflag[5][64][48][2];
-    int m_nDAC[5][64][48][2]; // This is now deprecated since you can get this form the TGraph
-    int m_nDigitalErrors[5][64][48][2];
-    float m_chi2[5][64][48][2];
+    float calib[5][64][48][2];
+    int qflag[5][64][48][2];
+    int nDAC[5][64][48][2]; // This is now deprecated since you can get this form the TGraph
+    int nDigitalErrors[5][64][48][2];
+    float chi2[5][64][48][2];
 
     // These will not be saved to the ntuple
     // They are for the sample check that gets written to qflag
     // Mike Miller - 4 June 2009
-    int m_edgeSample[5][64][48][2];
-    int m_nextToEdgeSample[5][64][48][2];
+    int edgeSample[5][64][48][2];
+    int nextToEdgeSample[5][64][48][2];
 
     // these arrays are used to contain information about stuck bits in adc's
     // this array pertains to the "stuck bit" quality flag; it is not written to
     // the ntuple
-    int m_SampleBit[5][64][48][2][10];
+    int SampleBit[5][64][48][2][10];
     // This array contains information about each bit in the adc
     // it IS written into the ntuple
-    unsigned short m_BitStatus[5][64][48][2][4];
+    unsigned short BitStatus[5][64][48][2][4];
     // used to count the number of injection samples analyzed for odd bit behavior
-    int m_NumSamp[5][64][48][2];
+    int NumSamp[5][64][48][2];
 
     //  TList *scanList;  // This is now deprecated and replaced by the map for speed -CT March 09
-    TMap* m_scanMap;
-    TMap* m_scanMapRMS;
+    TMap* scanMap;
+    TMap* scanMapRMS;
 
     // Functions
     inline int chanIsConnected(int ros, int chan) {
