@@ -49,6 +49,12 @@
 #include <iostream>
 
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
+#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
+#else
+#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
+#endif
+
 #define MAX_DRAWERS 256
 #define N_CHANS 48
 #define N_DMUS 16
@@ -183,7 +189,7 @@ StatusCode TileRawChNoiseCalibAlg::initialize() {
             sStr << "Amplitudes_RC_" << rc << "_Part_" << ros << "_Drawer_" << drawer << "_Ch_" << ch << "_Gain_" << g;
             nam = sStr.str();
             histAmp[rc][ros][drawer][ch][g] = new TH1F(nam.c_str(), nam.c_str(), 101, -xmax[g], xmax[g]);
-            histAmp[rc][ros][drawer][ch][g]->SetBit(TH1::kCanRebin); //in case some entries are outside the initial limits
+            CAN_REBIN(histAmp[rc][ros][drawer][ch][g]); //in case some entries are outside the initial limits
             histAmp[rc][ros][drawer][ch][g]->SetDirectory(0);
           }
         }
@@ -205,7 +211,7 @@ StatusCode TileRawChNoiseCalibAlg::initialize() {
             sStr << "CellAmplitude_Side_" << side << "_Drawer_" << drawer << "_Sample_" << sample << "_Tower_" << tower << "_Gains_" << gg;
             nam = sStr.str();
             histCellAmp[side][drawer][sample][tower][gg] = new TH1F(nam.c_str(), nam.c_str(), nbin, -xcellmax[gg / 3], xcellmax[gg / 3]); // cell limits should be at least sqrt(2)*channel limits
-            histCellAmp[side][drawer][sample][tower][gg]->SetBit(TH1::kCanRebin); //in case some entries are outside the initial limits
+            CAN_REBIN(histCellAmp[side][drawer][sample][tower][gg]); //in case some entries are outside the initial limits
             histCellAmp[side][drawer][sample][tower][gg]->SetDirectory(0);
           }
         }

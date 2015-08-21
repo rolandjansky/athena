@@ -114,8 +114,20 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   float m_diode_S_LASERII[NDIODES][NGAINS];       // Corresponding RMS
   RunningStat* m_rs_diode_signal_LASERII[NDIODES][NGAINS];
 
-  float m_diode_Ped_LASERII[NDIODES][NGAINS];     // Corresponding pedestal values
-  float m_diode_Ped_S_LASERII[NDIODES][NGAINS];   // Sigma of pedestal values
+
+  float m_diode_Ped_LASERII[NDIODES+1][NGAINS];     // Corresponding pedestal values
+  float m_diode_Ped_S_LASERII[NDIODES+1][NGAINS];   // Sigma of pedestal values
+  float m_diode_Alpha_LASERII[NDIODES+1][NGAINS];     // Corresponding pedestal values
+  float m_diode_Alpha_S_LASERII[NDIODES+1][NGAINS];   // Sigma of pedestal values
+  float m_diode_Led_LASERII[NDIODES+1][NGAINS];     // Corresponding pedestal values
+  float m_diode_Led_S_LASERII[NDIODES+1][NGAINS];   // Sigma of pedestal values
+  // float m_diode_Lin_LASERII[NDIODES][NGAINS];     // Corresponding pedestal values
+  // float m_diode_Lin_S_LASERII[NDIODES][NGAINS];   // Sigma of pedestal values
+  // float m_diode_Las_LASERII[NDIODES][NGAINS];     // Corresponding pedestal values
+  // float m_diode_Las_S_LASERII[NDIODES][NGAINS];   // Sigma of pedestal values
+  float m_PMT_Ped_LASERII[NPMTS][NGAINS];     // Corresponding pedestal values
+  float m_PMT_Ped_S_LASERII[NPMTS][NGAINS];   // Sigma of pedestal values
+
 
   // LASERI
   float m_PMT[NPMTS];                                // Mean value for box PMTs
