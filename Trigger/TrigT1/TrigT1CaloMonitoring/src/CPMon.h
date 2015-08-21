@@ -21,7 +21,7 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
 #include "xAODTrigL1Calo/TriggerTower.h"
 #include "xAODTrigL1Calo/CPMTower.h"

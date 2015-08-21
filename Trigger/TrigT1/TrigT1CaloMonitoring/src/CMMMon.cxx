@@ -119,7 +119,7 @@ StatusCode CMMMon::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+                 << PACKAGE_VERSION << endreq;
 
   StatusCode sc;
 
@@ -129,14 +129,14 @@ StatusCode CMMMon::initialize()
   sc = m_errorTool.retrieve();
   if( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                    << endmsg;
+                    << endreq;
     return sc;
   }
 
   sc = m_histTool.retrieve();
   if( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramToolV1"
-                    << endmsg;
+                    << endreq;
     return sc;
   }
 
@@ -147,7 +147,7 @@ StatusCode CMMMon::initialize()
 StatusCode CMMMon::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "in CMMMon::bookHistograms" << endmsg;
+  msg(MSG::DEBUG) << "in CMMMon::bookHistograms" << endreq;
   
   if( m_environment == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -157,7 +157,7 @@ StatusCode CMMMon::bookHistogramsRecurrent()
     // book histograms that are only relevant for cosmics data...
   }
   
-  //if ( newLumiBlock ) { }
+  if ( newLumiBlock ) { }
 
   if ( newRun ) {
 
@@ -342,14 +342,14 @@ StatusCode CMMMon::fillHistograms()
   const bool debug = msgLvl(MSG::DEBUG);
 
   if (!m_histBooked) {
-    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endmsg;
+    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endreq;
     return StatusCode::SUCCESS;
   }
 
   // Skip events believed to be corrupt
 
   if (m_errorTool->corrupt()) {
-    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg;
+    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endreq;
     return StatusCode::SUCCESS;
   }
 
@@ -371,12 +371,12 @@ StatusCode CMMMon::fillHistograms()
   StatusCode sc = evtStore()->retrieve(CMMJetHits, m_CMMJetHitsLocation);
   if (sc == StatusCode::FAILURE || !CMMJetHits) {
     msg(MSG::INFO) << "No CMM JetHits found in TES at "
-                   << m_CMMJetHitsLocation << endmsg;
+                   << m_CMMJetHitsLocation << endreq;
     return StatusCode::SUCCESS;
   }  
 
   if (debug) {
-    msg(MSG::DEBUG) << "--------------  CMM Jet Hits ---------------"<<endmsg;  
+    msg(MSG::DEBUG) << "--------------  CMM Jet Hits ---------------"<<endreq;  
   }
 
   CMMJetHitsCollection::const_iterator it_CMMJetHits ;
@@ -413,7 +413,7 @@ StatusCode CMMMon::fillHistograms()
       if (debug) {
         const int nHits = (forward) ? 12 : 8;
 	msg(MSG::DEBUG) << m_histTool->thresholdString(jetHits, nHits, nBits)
-	                << endmsg;
+	                << endreq;
       }
       
     // -----------------------------------------------------------------------
@@ -439,7 +439,7 @@ StatusCode CMMMon::fillHistograms()
 		           dataID == LVL1::CMMJetHits::REMOTE_MAIN) ? 3 :
                               ((dataID == LVL1::CMMJetHits::ET_MAP) ? 1 : 2);
 	msg(MSG::DEBUG) << m_histTool->thresholdString(jetHits, nHits, nBits)
-	                << endmsg;
+	                << endreq;
       }
     }
 
@@ -488,11 +488,11 @@ StatusCode CMMMon::fillHistograms()
   sc = evtStore()->retrieve(CMMEtSums, m_CMMEtSumsLocation);
   if (sc == StatusCode::FAILURE || !CMMEtSums) {
     msg(MSG::INFO) << "No CMMEtSums found in TES at "
-                   << m_CMMEtSumsLocation << endmsg ;
+                   << m_CMMEtSumsLocation << endreq ;
     return StatusCode::SUCCESS;
   }
   
-  msg(MSG::DEBUG) << "-------------- CMM Et Sums ---------------" << endmsg;
+  msg(MSG::DEBUG) << "-------------- CMM Et Sums ---------------" << endreq;
   
   // Step over all cells 
   CMMEtSumsCollection::const_iterator it_CMMEtSums ;
@@ -540,9 +540,9 @@ StatusCode CMMMon::fillHistograms()
 
       if (debug) {
         msg(MSG::DEBUG) << "    Ex: " << ex << "; Ey: " << ey << "; Et " << et
-                        << endmsg;
+                        << endreq;
         msg(MSG::DEBUG) << "raw Ex: " << rawEx << "; Ey: " << rawEy << "; Et "
-                        << rawEt << endmsg;
+                        << rawEt << endreq;
       }
     }
     //MissingEt/SumEt/MissingEtSig Hitmaps
@@ -563,7 +563,7 @@ StatusCode CMMMon::fillHistograms()
         } else if (dataID == LVL1::CMMEtSums::SUM_ET_MAP) {
 	  msg(MSG::DEBUG) << "SumEt Hits: ";
 	} else msg(MSG::DEBUG) << "MissingEtSig Hits: ";
-	msg(MSG::DEBUG) << m_histTool->thresholdString(rawEt, nHits) << endmsg;
+	msg(MSG::DEBUG) << m_histTool->thresholdString(rawEt, nHits) << endreq;
       }
     }
       
@@ -636,12 +636,12 @@ StatusCode CMMMon::fillHistograms()
   sc = evtStore()->retrieve (CR, m_CMMRoILocation);
   if (sc == StatusCode::FAILURE || !CR) {
     msg(MSG::INFO) << "No CMM RoI found in TES at " << m_CMMRoILocation
-                   << endmsg;
+                   << endreq;
     return StatusCode::SUCCESS;    
   }
 
   if (debug) {
-    msg(MSG::DEBUG) << "-------------- CMM RoI ---------------" << endmsg;
+    msg(MSG::DEBUG) << "-------------- CMM RoI ---------------" << endreq;
   }
 
   // -------------------------------------------------------------------------
@@ -674,7 +674,7 @@ StatusCode CMMMon::fillHistograms()
 		    << m_histTool->thresholdString(missingEtHits, 8)
 		    << "; MissingEtSigHits: "
 		    << m_histTool->thresholdString(missingEtSigHits, 8)
-		    << endmsg;
+		    << endreq;
   }
 
   // Use CrateEnergy object to decode 15-bit twos-complement format
@@ -689,11 +689,11 @@ StatusCode CMMMon::fillHistograms()
  
   if (debug) {
     msg(MSG::DEBUG) << "    Ex: " << ex << "; Ey: " << ey << "; Et " << et
-                    << endmsg;
+                    << endreq;
     msg(MSG::DEBUG) << "raw Ex: " << rawEx << "; Ey: "<< rawEy << "; Et " << et
-                    << endmsg;
+                    << endreq;
     msg(MSG::DEBUG) << "CMM Slice numbers: Jet: " << j_num_slice
-                    << " Energy: " << e_num_slice << endmsg;
+                    << " Energy: " << e_num_slice << endreq;
   }
   
   // errors
@@ -726,7 +726,7 @@ StatusCode CMMMon::fillHistograms()
   sc = evtStore()->record(save, "L1CaloJEMCMMErrorVector");
   if (sc != StatusCode::SUCCESS) {
     msg(MSG::ERROR) << "Error recording JEM CMM error vector in TES "
-                    << endmsg;
+                    << endreq;
     return sc;
   }
 
@@ -737,9 +737,9 @@ StatusCode CMMMon::fillHistograms()
 StatusCode CMMMon::procHistograms()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "in procHistograms" << endmsg ;
+  msg(MSG::DEBUG) << "in procHistograms" << endreq ;
 
-  //if( endOfLumiBlock || endOfRun ) { }
+  if( endOfLumiBlock || endOfRun ) { }
 	
   return StatusCode::SUCCESS;
 }

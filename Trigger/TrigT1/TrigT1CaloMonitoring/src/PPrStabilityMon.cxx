@@ -84,20 +84,20 @@ StatusCode PPrStabilityMon::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+                 << PACKAGE_VERSION << endreq;
 
   StatusCode sc;
   sc = ManagedMonitorToolBase::initialize();
   if (sc.isFailure()) return sc;
 
   sc = m_errorTool.retrieve();
-  if ( sc.isFailure() ) {msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool" << endmsg; return sc;}
+  if ( sc.isFailure() ) {msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool" << endreq; return sc;}
 
   sc = m_histTool.retrieve();
-  if ( sc.isFailure() ) {msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool" << endmsg; return sc;}
+  if ( sc.isFailure() ) {msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool" << endreq; return sc;}
 
   sc = m_ttTool.retrieve();
-  if ( sc.isFailure() ) {msg(MSG::ERROR) << "Unable to locate Tool L1TriggerTowerTool" << endmsg; return sc;}
+  if ( sc.isFailure() ) {msg(MSG::ERROR) << "Unable to locate Tool L1TriggerTowerTool" << endreq; return sc;}
   
   CHECK(m_bunchCrossingTool.retrieve()); 
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
@@ -161,35 +161,29 @@ StatusCode PPrStabilityMon::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode PPrStabilityMon::bookHistogramsRecurrent()
-{
-  CHECK(ManagedMonitorToolBase::bookHistogramsRecurrent());
-  return m_ttTool->retrieveConditions();
-}
-
 StatusCode PPrStabilityMon::fillHistograms()
 {
   const bool debug = msgLvl(MSG::DEBUG);
 
   // Skip events believed to be corrupt
-  if (m_errorTool->corrupt()) {if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg; return StatusCode::SUCCESS;}
+  if (m_errorTool->corrupt()) {if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endreq; return StatusCode::SUCCESS;}
 
   StatusCode sc;
 
   //Retrieve eventInfo from storeGate;
   m_evtInfo = 0;
   sc = evtStore()->retrieve(m_evtInfo);
-  if ( sc.isFailure() ) { msg(MSG::ERROR) << "Could not retrieve Event Info" << endmsg; return sc;}
+  if ( sc.isFailure() ) { msg(MSG::ERROR) << "Could not retrieve Event Info" << endreq; return sc;}
 
   //Retrieve TriggerTowers from SG
   const xAOD::TriggerTowerContainer* trigTwrColl = 0;
   sc = evtStore()->retrieve(trigTwrColl, m_xAODTriggerTowerContainerName);
   if (sc.isFailure())
   {
-    if (debug) msg(MSG::DEBUG) << "No TriggerTower found at " << m_xAODTriggerTowerContainerName << endmsg ;
+    if (debug) msg(MSG::DEBUG) << "No TriggerTower found at " << m_xAODTriggerTowerContainerName << endreq ;
     return sc;
   }
-  if (debug) msg(MSG::DEBUG) << "In Fill histograms" << endmsg;
+  if (debug) msg(MSG::DEBUG) << "In Fill histograms" << endreq;
 
   if (m_doEtCorrelationMonitoring) {
     sc = m_etCorrelationPlotManager->getCaloCells();
@@ -200,11 +194,11 @@ StatusCode PPrStabilityMon::fillHistograms()
   if (m_doFineTimeMonitoring) {
     //load the standalone sqlite db containing the fine time references and calibration values
     sc = m_ttTool->loadFTRefs();
-    if (sc.isFailure()) {msg(MSG::WARNING) << "Failed to load FineTimeReference Folder" << endmsg; return sc;}
+    if (sc.isFailure()) {msg(MSG::WARNING) << "Failed to load FineTimeReference Folder" << endreq; return sc;}
     //if you want to use the calo quality cut also load the calo cell container
     if (m_doCaloQualCut) {
       StatusCode sc2 = m_fineTimePlotManager->getCaloCells();
-      if (sc2.isFailure()) {msg(MSG::WARNING) << "Failed to load Calo Cells" << endmsg; return sc2;}
+      if (sc2.isFailure()) {msg(MSG::WARNING) << "Failed to load Calo Cells" << endreq; return sc2;}
     }
   }
   
@@ -273,7 +267,7 @@ StatusCode PPrStabilityMon::fillHistograms()
 
 StatusCode PPrStabilityMon::procHistograms()
 {
-  //if (endOfRun) {}
+  if (endOfRun) {}
   return StatusCode::SUCCESS;
 }
 
@@ -287,14 +281,14 @@ void printPatternParsingInfo(Log& log, const Tool& tool, const ResultVector& res
     // print 20 items at once
     log << MSG::INFO << "Filled      ";
     for (bcid_t j = bcid; j != std::min(MAX_BCID, bcid + 20); ++j) log << std::setw(3) << tool->isFilled(j) << " ";
-    log << endmsg;
+    log << endreq;
     log << MSG::INFO << "Distance    ";
     for (bcid_t j = bcid; j != std::min(MAX_BCID, bcid + 20); ++j) log << std::setw(3) << result[j].second << " ";
-    log << endmsg;
+    log << endreq;
 
     log << MSG::INFO << "LongGap?    ";
     for (bcid_t j = bcid; j != std::min(MAX_BCID, bcid + 20); ++j) log <<  std::setw(3) << result[j].first << " ";
-    log << endmsg;
+    log << endreq;
   }
 }
 }

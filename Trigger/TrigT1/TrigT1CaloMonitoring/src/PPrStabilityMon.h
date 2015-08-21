@@ -171,7 +171,6 @@ class PPrStabilityMon: public ManagedMonitorToolBase, public virtual IIncidentLi
   virtual StatusCode finalize();
   virtual StatusCode fillHistograms();
   virtual StatusCode procHistograms();
-  virtual StatusCode bookHistogramsRecurrent();
   
   virtual void handle(const Incident& I);
 

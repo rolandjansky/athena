@@ -139,7 +139,7 @@ StatusCode TrigT1CaloCpmMonTool:: initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+                 << PACKAGE_VERSION << endreq;
 
   StatusCode sc;
 
@@ -149,14 +149,14 @@ StatusCode TrigT1CaloCpmMonTool:: initialize()
   sc = m_errorTool.retrieve();
   if( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                    << endmsg;
+                    << endreq;
     return sc;
   }
 
   sc = m_histTool.retrieve();
   if( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramToolV1"
-                    << endmsg;
+                    << endreq;
     return sc;
   }
 
@@ -174,7 +174,7 @@ StatusCode TrigT1CaloCpmMonTool:: finalize()
 StatusCode TrigT1CaloCpmMonTool::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "bookHistograms entered" << endmsg;
+  msg(MSG::DEBUG) << "bookHistograms entered" << endreq;
 
   if( m_environment == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -184,7 +184,7 @@ StatusCode TrigT1CaloCpmMonTool::bookHistogramsRecurrent()
     // book histograms that are only relevant for cosmics data...
   }
 
-  //if ( newLumiBlock ) { }
+  if ( newLumiBlock ) { }
 
   if ( newRun ) {
 
@@ -391,7 +391,7 @@ StatusCode TrigT1CaloCpmMonTool::bookHistogramsRecurrent()
 
   } // end if (newRun ...
 
-  msg(MSG::DEBUG) << "Leaving bookHistograms" << endmsg;
+  msg(MSG::DEBUG) << "Leaving bookHistograms" << endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -401,17 +401,17 @@ StatusCode TrigT1CaloCpmMonTool::fillHistograms()
 /*---------------------------------------------------------*/
 {
   const bool debug = msgLvl(MSG::DEBUG);
-  if (debug) msg(MSG::DEBUG) << "fillHistograms entered" << endmsg;
+  if (debug) msg(MSG::DEBUG) << "fillHistograms entered" << endreq;
 
   if (!m_histBooked) {
-    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endmsg;
+    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endreq;
     return StatusCode::SUCCESS;
   }
 
   // Skip events believed to be corrupt
 
   if (m_errorTool->corrupt()) {
-    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg;
+    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endreq;
     return StatusCode::SUCCESS;
   }
 
@@ -420,14 +420,14 @@ StatusCode TrigT1CaloCpmMonTool::fillHistograms()
   StatusCode sc = evtStore()->retrieve(triggerTowerTES,
                                                      m_triggerTowerLocation); 
   if( sc.isFailure()  ||  !triggerTowerTES ) {
-    msg(MSG::DEBUG) << "No Trigger Tower container found"<< endmsg; 
+    msg(MSG::DEBUG) << "No Trigger Tower container found"<< endreq; 
   }
 
   //Retrieve Core CPM Towers from SG
   const CpmTowerCollection* cpmTowerTES = 0; 
   sc = evtStore()->retrieve(cpmTowerTES, m_cpmTowerLocation); 
   if( sc.isFailure()  ||  !cpmTowerTES ) {
-    msg(MSG::DEBUG) << "No Core CPM Tower container found"<< endmsg; 
+    msg(MSG::DEBUG) << "No Core CPM Tower container found"<< endreq; 
   }
 
   //Retrieve Overlap CPM Towers from SG
@@ -436,28 +436,28 @@ StatusCode TrigT1CaloCpmMonTool::fillHistograms()
     sc = evtStore()->retrieve(cpmTowerOverlapTES, m_cpmTowerLocationOverlap); 
   } else sc = StatusCode::FAILURE;
   if( sc.isFailure()  ||  !cpmTowerOverlapTES ) {
-    msg(MSG::DEBUG) << "No Overlap CPM Tower container found"<< endmsg; 
+    msg(MSG::DEBUG) << "No Overlap CPM Tower container found"<< endreq; 
   }
   
   //Retrieve CPM RoIs from SG
   const CpmRoiCollection* cpmRoiTES = 0;
   sc = evtStore()->retrieve( cpmRoiTES, m_cpmRoiLocation);
   if( sc.isFailure()  ||  !cpmRoiTES ) {
-    msg(MSG::DEBUG) << "No CPM RoIs container found"<< endmsg;
+    msg(MSG::DEBUG) << "No CPM RoIs container found"<< endreq;
   }
   
   //Retrieve CPM Hits from SG
   const CpmHitsCollection* cpmHitsTES = 0;
   sc = evtStore()->retrieve( cpmHitsTES, m_cpmHitsLocation);
   if( sc.isFailure()  ||  !cpmHitsTES ) {
-    msg(MSG::DEBUG) << "No CPM Hits container found"<< endmsg; 
+    msg(MSG::DEBUG) << "No CPM Hits container found"<< endreq; 
   }
   
   //Retrieve CMM-CP Hits from SG
   const CmmCpHitsCollection* cmmCpHitsTES = 0;
   sc = evtStore()->retrieve( cmmCpHitsTES, m_cmmCpHitsLocation);
   if( sc.isFailure()  ||  !cmmCpHitsTES ) {
-    msg(MSG::DEBUG) << "No CMM-CP Hits container found"<< endmsg; 
+    msg(MSG::DEBUG) << "No CMM-CP Hits container found"<< endreq; 
   }
 
   // Vectors for error overview bits;
@@ -482,7 +482,7 @@ StatusCode TrigT1CaloCpmMonTool::fillHistograms()
     TriggerTowerCollection::const_iterator ttIteratorEnd =
                                                       triggerTowerTES->end(); 
     for (; ttIterator != ttIteratorEnd; ++ttIterator) {
-      TriggerTowerMap::mapped_type tt = *ttIterator;
+      LVL1::TriggerTower* tt = *ttIterator;
       const double eta = tt->eta();
       if (eta < -2.5 || eta > 2.5) continue;
       const std::vector<int>& emLut(tt->emLUT());
@@ -509,7 +509,7 @@ StatusCode TrigT1CaloCpmMonTool::fillHistograms()
       CpmTowerCollection::const_iterator ctIteratorEnd = cpmTwrTES->end(); 
 
       for (; ctIterator != ctIteratorEnd; ++ctIterator) {
-        CpmTowerMap::mapped_type ct = *ctIterator;
+	LVL1::CPMTower* ct = *ctIterator;
         const int    em  = ct->emEnergy();
         const int    had = ct->hadEnergy();
         const double eta = ct->eta();
@@ -606,7 +606,7 @@ StatusCode TrigT1CaloCpmMonTool::fillHistograms()
       const int sliceHadLut = hadLut.size();
       const int sliceEmVec = emVec.size();
       const int sliceHadVec = hadVec.size();
-      const int crate = static_cast<int>(tt->phi()*2*M_1_PI/2.);
+      const int crate = static_cast<int>(tt->phi()/(M_PI/2.));
       for (int slice = 0; slice < sliceEmLut; ++slice) {
         if (emLut[slice] > 0) {
 	  for (int slice2 = 0; slice2 < sliceEmVec; ++slice2) {
@@ -858,11 +858,11 @@ StatusCode TrigT1CaloCpmMonTool::fillHistograms()
   std::vector<int>* save = new std::vector<int>(crateErr);
   sc = evtStore()->record(save, "L1CaloCPMErrorVector");
   if (sc != StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "Error recording CPM error vector in TES " << endmsg;
+    msg(MSG::ERROR) << "Error recording CPM error vector in TES " << endreq;
     return sc;
   }
 
-  msg(MSG::DEBUG) << "Leaving fillHistograms" << endmsg;
+  msg(MSG::DEBUG) << "Leaving fillHistograms" << endreq;
 
   return StatusCode::SUCCESS;
 
@@ -872,10 +872,10 @@ StatusCode TrigT1CaloCpmMonTool::fillHistograms()
 StatusCode TrigT1CaloCpmMonTool::procHistograms()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "procHistograms entered" << endmsg;
+  msg(MSG::DEBUG) << "procHistograms entered" << endreq;
 
-  //if (endOfLumiBlock || endOfRun) {
-  //}
+  if (endOfLumiBlock || endOfRun) {
+  }
 
   return StatusCode::SUCCESS;
 }

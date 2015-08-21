@@ -84,7 +84,7 @@ StatusCode PPrSpareMon::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+                 << PACKAGE_VERSION << endreq;
 
   StatusCode sc;
 
@@ -94,14 +94,14 @@ StatusCode PPrSpareMon::initialize()
   sc = m_errorTool.retrieve();
   if( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                    << endmsg;
+                    << endreq;
     return sc;
   }
 
   sc = m_histTool.retrieve();
   if( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
-                    << endmsg;
+                    << endreq;
     return sc;
   }
 
@@ -112,7 +112,7 @@ StatusCode PPrSpareMon::initialize()
 StatusCode PPrSpareMon::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "in PPrSpareMon::bookHistograms" << endmsg;
+  msg(MSG::DEBUG) << "in PPrSpareMon::bookHistograms" << endreq;
 
   if( m_environment == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -122,7 +122,7 @@ StatusCode PPrSpareMon::bookHistogramsRecurrent()
     // book histograms that are only relevant for cosmics data...
   }
 
-  //if ( newLumiBlock) { }
+  if ( newLumiBlock) { }
 
   if ( newRun ) {
 
@@ -245,17 +245,17 @@ StatusCode PPrSpareMon::fillHistograms()
 /*---------------------------------------------------------*/
 {
   const bool debug = msgLvl(MSG::DEBUG);
-  if (debug) msg(MSG::DEBUG) << "in fillHistograms()" << endmsg;
+  if (debug) msg(MSG::DEBUG) << "in fillHistograms()" << endreq;
 
   if (!m_histBooked) {
-    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endmsg;
+    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endreq;
     return StatusCode::SUCCESS;
   }
 
   // Skip events believed to be corrupt
 
   if (m_errorTool->corrupt()) {
-    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg;
+    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endreq;
     return StatusCode::SUCCESS;
   }
 
@@ -270,7 +270,7 @@ StatusCode PPrSpareMon::fillHistograms()
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !TriggerTowerTES) {
     if (debug) msg(MSG::DEBUG) << "No TriggerTower found in TES at "
-                               << m_TriggerTowerContainerName<< endmsg ;
+                               << m_TriggerTowerContainerName<< endreq ;
     return StatusCode::SUCCESS;
   }
 
@@ -390,7 +390,7 @@ StatusCode PPrSpareMon::fillHistograms()
   //if (sc != StatusCode::SUCCESS)
   //  {
   //    msg(MSG::ERROR) << "Error recording PPMSpare error vector in TES "
-  //                    << endmsg;
+  //                    << endreq;
   //    return sc;
   //  }
   
@@ -403,9 +403,9 @@ StatusCode PPrSpareMon::fillHistograms()
 StatusCode PPrSpareMon::procHistograms()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "in procHistograms" << endmsg ;
+  msg(MSG::DEBUG) << "in procHistograms" << endreq ;
 
-  //if( endOfLumiBlock || endOfRun ) { }
+  if( endOfLumiBlock || endOfRun ) { }
 	
   return StatusCode::SUCCESS;
 }

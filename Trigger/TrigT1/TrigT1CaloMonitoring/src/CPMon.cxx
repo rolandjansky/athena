@@ -183,7 +183,7 @@ StatusCode CPMon:: initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+                 << PACKAGE_VERSION << endreq;
 
   StatusCode sc;
 
@@ -193,14 +193,14 @@ StatusCode CPMon:: initialize()
   sc = m_errorTool.retrieve();
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                    << endmsg;
+                    << endreq;
     return sc;
   }
 
   sc = m_histTool.retrieve();
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
-                    << endmsg;
+                    << endreq;
     return sc;
   }
 
@@ -217,7 +217,7 @@ StatusCode CPMon:: finalize()
 
 StatusCode CPMon::bookHistogramsRecurrent()
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in CPMMon::bookHistograms " << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in CPMMon::bookHistograms " << endreq;
 
   if ( m_environment == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -495,7 +495,7 @@ StatusCode CPMon::bookHistogramsRecurrent()
 
   } // end if (isNewRun ...
 
-  msg(MSG::DEBUG) << "Leaving bookHistograms" << endmsg;
+  msg(MSG::DEBUG) << "Leaving bookHistograms" << endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -505,16 +505,16 @@ StatusCode CPMon::fillHistograms()
 /*---------------------------------------------------------*/
 {
   const bool debug = msgLvl(MSG::DEBUG);
-  if (debug) msg(MSG::DEBUG) << "fillHistograms entered" << endmsg;
+  if (debug) msg(MSG::DEBUG) << "fillHistograms entered" << endreq;
 
   if (!m_histBooked) {
-    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endmsg;
+    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endreq;
     return StatusCode::SUCCESS;
   }
 
   // Skip events believed to be corrupt
   if (m_errorTool->corrupt()) {
-    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg;
+    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endreq;
     return StatusCode::SUCCESS;
   }
 
@@ -524,14 +524,14 @@ StatusCode CPMon::fillHistograms()
                                        m_xAODTriggerTowerContainerName);
 
   if ( sc.isFailure()  ||  !triggerTowerTES ) {
-    if (debug) msg(MSG::DEBUG) << "No Trigger Tower container found in TES " << m_xAODTriggerTowerContainerName << endmsg;
+    if (debug) msg(MSG::DEBUG) << "No Trigger Tower container found in TES " << m_xAODTriggerTowerContainerName << endreq;
   }
 
   //Retrieve Core CPM Towers from SG
   const xAOD::CPMTowerContainer* cpmTowerTES = 0;
   sc = evtStore()->retrieve(cpmTowerTES, m_cpmTowerLocation);
   if ( sc.isFailure()  ||  !cpmTowerTES ) {
-    msg(MSG::DEBUG) << "No Core CPM Tower container found" << endmsg;
+    msg(MSG::DEBUG) << "No Core CPM Tower container found" << endreq;
   }
 
   //Retrieve Overlap CPM Towers from SG
@@ -540,28 +540,28 @@ StatusCode CPMon::fillHistograms()
     sc = evtStore()->retrieve(cpmTowerOverlapTES, m_cpmTowerLocationOverlap);
   } else sc = StatusCode::FAILURE;
   if ( sc.isFailure()  ||  !cpmTowerOverlapTES ) {
-    msg(MSG::DEBUG) << "No Overlap CPM Tower container found" << endmsg;
+    msg(MSG::DEBUG) << "No Overlap CPM Tower container found" << endreq;
   }
 
   //Retrieve CPM TOB RoIs from SG
   const xAOD::CPMTobRoIContainer* cpmTobRoiTES = 0;
   sc = evtStore()->retrieve( cpmTobRoiTES, m_cpmTobRoiLocation);
   if ( sc.isFailure()  ||  !cpmTobRoiTES ) {
-    msg(MSG::DEBUG) << "No CPM TOB RoIs container found" << endmsg;
+    msg(MSG::DEBUG) << "No CPM TOB RoIs container found" << endreq;
   }
 
   //Retrieve CMX-CP TOBs from SG
   const xAOD::CMXCPTobContainer* cmxCpTobTES = 0;
   sc = evtStore()->retrieve( cmxCpTobTES, m_cmxCpTobLocation);
   if ( sc.isFailure()  ||  !cmxCpTobTES ) {
-    msg(MSG::DEBUG) << "No CMX-CP TOBs container found" << endmsg;
+    msg(MSG::DEBUG) << "No CMX-CP TOBs container found" << endreq;
   }
 
   //Retrieve CMX-CP Hits from SG
   const xAOD::CMXCPHitsContainer* cmxCpHitsTES = 0;
   sc = evtStore()->retrieve( cmxCpHitsTES, m_cmxCpHitsLocation);
   if ( sc.isFailure()  ||  !cmxCpHitsTES ) {
-    msg(MSG::DEBUG) << "No CMX-CP Hits container found" << endmsg;
+    msg(MSG::DEBUG) << "No CMX-CP Hits container found" << endreq;
   }
 
   // Vectors for error overview bits;
@@ -624,7 +624,7 @@ StatusCode CPMon::fillHistograms()
       xAOD::CPMTowerContainer::const_iterator ctIteratorEnd = cpmTwrTES->end();
 
       for (; ctIterator != ctIteratorEnd; ++ctIterator) {
-        const xAOD::CPMTower* ct = *ctIterator;
+        xAOD::CPMTower* ct = *ctIterator;
         const uint8_t    em  = ct->emEnergy();
         const uint8_t    had = ct->hadEnergy();
         const double eta = ct->eta();
@@ -1057,11 +1057,11 @@ StatusCode CPMon::fillHistograms()
   std::vector<int>* save = new std::vector<int>(crateErr);
   sc = evtStore()->record(save, m_errorLocation);
   if (sc != StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "Error recording CPM error vector in TES " << endmsg;
+    msg(MSG::ERROR) << "Error recording CPM error vector in TES " << endreq;
     return sc;
   }
 
-  msg(MSG::DEBUG) << "Leaving fillHistograms" << endmsg;
+  msg(MSG::DEBUG) << "Leaving fillHistograms" << endreq;
 
   return StatusCode::SUCCESS;
 
@@ -1071,10 +1071,10 @@ StatusCode CPMon::fillHistograms()
 //StatusCode CPMon::procHistograms()
 /*---------------------------------------------------------*/
 StatusCode CPMon::procHistograms() {
-  msg(MSG::DEBUG) << "procHistograms entered" << endmsg;
+  msg(MSG::DEBUG) << "procHistograms entered" << endreq;
 
-  //if ( endOfLumiBlock || endOfRun) {
-  // }
+  if ( endOfLumiBlock || endOfRun) {
+  }
 
   return StatusCode::SUCCESS;
 }
