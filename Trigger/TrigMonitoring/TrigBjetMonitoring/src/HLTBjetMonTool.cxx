@@ -31,8 +31,6 @@
 #include "TrigParticle/TrigEFBjet.h"
 #include "TrigParticle/TrigEFBjetContainer.h"
 
-#include "TrigBjetMonitoring/TaggerHelper.h"
-
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -207,7 +205,7 @@ StatusCode HLTBjetMonTool::book(){
 
   StatusCode HLTBjetMonTool::fill() {
 
-    *m_log << MSG::INFO<< "====> Entering HLTBjetMonTool::fill()" << endreq;
+    *m_log << MSG::DEBUG<< "====> Entering HLTBjetMonTool::fill()" << endreq;
 
   
   ////////////////////////////////////
@@ -218,7 +216,7 @@ StatusCode HLTBjetMonTool::book(){
   // Trigger (chain) name definition
 
   int size_TriggerChainBjet =m_TriggerChainBjet.size();
-  *m_log << MSG::INFO << " Size of Trigger chain " << size_TriggerChainBjet << endreq;
+  *m_log << MSG::DEBUG << " Size of Trigger chain " << size_TriggerChainBjet << endreq;
   if (size_TriggerChainBjet <= 0) {
     return StatusCode::SUCCESS;
   }
@@ -226,17 +224,17 @@ StatusCode HLTBjetMonTool::book(){
 
   for (int i =0; i<size_TriggerChainBjet; i++){
     if (!getTDT()->isPassed(m_TriggerChainBjet.at(i))){
-      *m_log << MSG::INFO << " Trigger chain " << i << " " << m_TriggerChainBjet.at(i) << " not fired." << endreq;
+      *m_log << MSG::DEBUG << " Trigger chain " << i << " " << m_TriggerChainBjet.at(i) << " not fired." << endreq;
     } else {
       chainName = m_TriggerChainBjet.at(i);
-      *m_log << MSG::INFO << " Trigger chain " << i << " " << chainName << " fired." << endreq;
+      *m_log << MSG::DEBUG << " Trigger chain " << i << " " << chainName << " fired." << endreq;
       // now check if configured
       std::vector<std::string> selectChains  = m_trigDec->getListOfTriggers( chainName );
       if ( selectChains.size() ) goto Fired;
       //      goto Fired; // w/o checking if configured
     }
   }
-  *m_log << MSG::INFO << " Trigger chain of size: " << size_TriggerChainBjet << " " << chainName << " at all - RETURN " << endreq;
+  *m_log << MSG::DEBUG << " Trigger chain of size: " << size_TriggerChainBjet << " " << chainName << " at all - RETURN " << endreq;
   return StatusCode::SUCCESS;
 
  Fired:
@@ -246,7 +244,7 @@ StatusCode HLTBjetMonTool::book(){
   CHECK( evtStore()->retrieve( eventInfo, "EventInfo") );
   bool MCflag = true;
   if ( !eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION) ) MCflag = false;
-  *m_log << MSG::INFO << " MCflag: " << MCflag << endreq;
+  *m_log << MSG::DEBUG << " MCflag: " << MCflag << endreq;
 
   /////////////////////////////////////////
   //
@@ -256,13 +254,13 @@ StatusCode HLTBjetMonTool::book(){
   /////////////////////////////////////////
 
   std::string trigItem = chainName;
-  ATH_MSG_INFO("PROCESSING TRIGITEM  -  " << trigItem);
+  ATH_MSG_DEBUG("PROCESSING TRIGITEM  -  " << trigItem);
 
   // Get truth jets
   if (MCflag) {
     const xAOD::JetContainer* truthjets = 0;
     ATH_CHECK( evtStore()->retrieve(truthjets,"AntiKt4TruthJets") );
-    ATH_MSG_INFO("RETRIEVED TRUTH JETS  - size: " << truthjets->size());
+    ATH_MSG_DEBUG("RETRIEVED TRUTH JETS  - size: " << truthjets->size());
   } // MCflag
 
 
@@ -271,10 +269,10 @@ StatusCode HLTBjetMonTool::book(){
   const xAOD::VertexContainer* offlinepv = 0;
   if ( evtStore()->contains<xAOD::VertexContainer>("PrimaryVertices") ) { 
     ATH_CHECK( evtStore()->retrieve(offlinepv, "PrimaryVertices") );
-    ATH_MSG_INFO("RETRIEVED OFFLINE PV  - size: " << offlinepv->size());
+    ATH_MSG_DEBUG("RETRIEVED OFFLINE PV  - size: " << offlinepv->size());
     if ( offlinepv->size() ) {
       offlinepvz = offlinepv->front()->z();
-      ATH_MSG_INFO(" 1st zPV a la Carlo: " << offlinepvz);
+      ATH_MSG_DEBUG(" 1st zPV a la Carlo: " << offlinepvz);
       hist("nPV","HLT/BjetMon/Shifter")->Fill(offlinepv->size());
       for (unsigned int j = 0; j<offlinepv->size(); j++){
 	hist("PVx","HLT/BjetMon/Shifter")->Fill((*(offlinepv))[j]->x());
@@ -288,45 +286,45 @@ StatusCode HLTBjetMonTool::book(){
 
   Trig::FeatureContainer fc = m_trigDec->features(trigItem);
   const std::vector< Trig::Combination >& bjetCombs = fc.getCombinations();
-  ATH_MSG_INFO("RETRIEVED " << bjetCombs.size() << " COMBINATIONS FOR "  << trigItem);
+  ATH_MSG_DEBUG("RETRIEVED " << bjetCombs.size() << " COMBINATIONS FOR "  << trigItem);
 
   // Loop on combinations
   std::vector< Trig::Combination >::const_iterator bjetComb;
   for( bjetComb = bjetCombs.begin(); bjetComb != bjetCombs.end(); ++bjetComb ) {
 
     const Trig::Combination& comb = *bjetComb;
-    ATH_MSG_INFO("------------ NEW COMBINATION ------------");
+    ATH_MSG_DEBUG("------------ NEW COMBINATION ------------");
 
 #define HISTO
 #ifdef HISTO
     // Get online pv - histo
     const std::vector< Trig::Feature<xAOD::VertexContainer> > onlinepvs_histo = comb.get<xAOD::VertexContainer>("EFHistoPrmVtx");
-    ATH_MSG_INFO("RETRIEVED PV (H) -   size: " << onlinepvs_histo.size());
+    ATH_MSG_DEBUG("RETRIEVED PV (H) -   size: " << onlinepvs_histo.size());
     if ( onlinepvs_histo.size() ) {
       const xAOD::VertexContainer* onlinepv_histo = onlinepvs_histo[0].cptr();
-      ATH_MSG_INFO("                 -   nVert: " << onlinepv_histo->size());
+      ATH_MSG_DEBUG("                 -   nVert: " << onlinepv_histo->size());
       hist("nPV_tr","HLT/BjetMon/Shifter")->Fill(onlinepv_histo->size());
       if(onlinepv_histo->size()) {
 	hist("PVx_tr","HLT/BjetMon/Shifter")->Fill((*(onlinepv_histo))[0]->x());
 	hist("PVy_tr","HLT/BjetMon/Shifter")->Fill((*(onlinepv_histo))[0]->y());
 	hist("PVz_tr","HLT/BjetMon/Shifter")->Fill((*(onlinepv_histo))[0]->z());
 	hist("diffzPV0offPVon","HLT/BjetMon/Shifter")->Fill((*(onlinepv_histo))[0]->z()-offlinepvz);
-	ATH_MSG_INFO("         Online PV - histo   -   z[0]: " << (*(onlinepv_histo))[0]->z());
+	ATH_MSG_DEBUG("         Online PV - histo   -   z[0]: " << (*(onlinepv_histo))[0]->z());
       }  // if
     } // onlinepvs_histo.size
 
 #else
     // Get online pv - id tracking
     const std::vector< Trig::Feature<xAOD::VertexContainer> > onlinepvs_id = comb.get<xAOD::VertexContainer>("xPrimVx");
-    ATH_MSG_INFO("RETRIEVED PV (I) -   size: " << onlinepvs_id.size());
+    ATH_MSG_DEBUG("RETRIEVED PV (I) -   size: " << onlinepvs_id.size());
     if(onlinepvs_id->size()) {
       const xAOD::VertexContainer* onlinepv_id = onlinepvs_id[0].cptr();
-      ATH_MSG_INFO("                 -   nVert: " << onlinepv_id->size());
+      ATH_MSG_DEBUG("                 -   nVert: " << onlinepv_id->size());
       hist("nPV_tr","HLT/BjetMon/Shifter")->Fill(onlinepv_id->size());
       if(onlinepv_id->size()) {
 	hist("PVz_tr","HLT/BjetMon/Shifter")->Fill((*(onlinepv_id))[0]->z());
 	hist("diffzPV0offPVon","HLT/BjetMon/Shifter")->Fill((*(onlinepv_id))[0]->z()-offlinepvz);
-	ATH_MSG_INFO("          Online PV - id tracking   -   z[0]: " << (*(onlinepv_id))[0]->z());
+	ATH_MSG_DEBUG("          Online PV - id tracking   -   z[0]: " << (*(onlinepv_id))[0]->z());
       } // if
     } // onlinepvs_id.size
 #endif
@@ -334,14 +332,14 @@ StatusCode HLTBjetMonTool::book(){
 
     // Get online jet
     const std::vector< Trig::Feature<xAOD::JetContainer> > onlinejets = comb.get<xAOD::JetContainer>();
-    ATH_MSG_INFO("RETRIEVED JETS   -   size: " << onlinejets.size());
+    ATH_MSG_DEBUG("RETRIEVED JETS   -   size: " << onlinejets.size());
     if(onlinejets.size()) {
       const xAOD::JetContainer* onlinejet = onlinejets[0].cptr();
-      ATH_MSG_INFO("                 -   nJet: " << onlinejet->size());
+      ATH_MSG_DEBUG("                 -   nJet: " << onlinejet->size());
       int nJet = onlinejet->size();
       hist("nJet","HLT/BjetMon/Shifter")->Fill(nJet);
       for(const auto* jet : *onlinejet) {
-	ATH_MSG_INFO("                 -   pt/eta/phi: " << (jet->pt())*1.e-3 << " / " << jet->eta() << " / " << jet->phi());
+	ATH_MSG_DEBUG("                 -   pt/eta/phi: " << (jet->pt())*1.e-3 << " / " << jet->eta() << " / " << jet->phi());
 	hist("jetPt","HLT/BjetMon/Shifter")->Fill((jet->pt())*1.e-3);
 	hist2("jetEtaPhi","HLT/BjetMon/Shifter")->Fill(jet->eta(),jet->phi());
       } // for online jet
@@ -350,14 +348,14 @@ StatusCode HLTBjetMonTool::book(){
 
     // Get online track particles
     const std::vector< Trig::Feature<xAOD::TrackParticleContainer> > onlinetracks = comb.get<xAOD::TrackParticleContainer>();
-    ATH_MSG_INFO("RETRIEVED TRACKS -   size: " << onlinetracks.size());
+    ATH_MSG_DEBUG("RETRIEVED TRACKS -   size: " << onlinetracks.size());
     if ( onlinetracks.size()>0 ) { 
       const xAOD::TrackParticleContainer*  onlinetrack = onlinetracks[0].cptr();
-      ATH_MSG_INFO("                 -   nTrack: " << onlinetrack->size());
+      ATH_MSG_DEBUG("                 -   nTrack: " << onlinetrack->size());
       int nTrack = onlinetrack->size();
       hist("nTrack","HLT/BjetMon/Shifter")->Fill(nTrack);
       for(const auto* trk : *onlinetrack) {
-	ATH_MSG_INFO("     pT: " << (trk->pt())*1.e-3 << " Eta: " << trk->eta() << " Phi: " << trk->phi() << " d0: " << trk->d0() << " z0 - zPVoffl: " << trk->z0()-offlinepvz );
+	ATH_MSG_DEBUG("     pT: " << (trk->pt())*1.e-3 << " Eta: " << trk->eta() << " Phi: " << trk->phi() << " d0: " << trk->d0() << " z0 - zPVoffl: " << trk->z0()-offlinepvz );
 	hist("d0","HLT/BjetMon/Shifter")->Fill(trk->d0());
 	hist("z0","HLT/BjetMon/Shifter")->Fill(trk->z0());
 	hist("ed0","HLT/BjetMon/Shifter")->Fill(Amg::error(trk->definingParametersCovMatrix(), 0));
@@ -373,21 +371,21 @@ StatusCode HLTBjetMonTool::book(){
    
     // Get online bjet from xAOD BTaggingContainer
     const std::vector< Trig::Feature<xAOD::BTaggingContainer> > onlinebjets = comb.get<xAOD::BTaggingContainer>();
-    ATH_MSG_INFO("RETRIEVED BJETS  -   size: " << onlinebjets.size());
+    ATH_MSG_DEBUG("RETRIEVED BJETS  -   size: " << onlinebjets.size());
     if(onlinebjets.size()) {
       const xAOD::BTaggingContainer* onlinebjet = onlinebjets[0].cptr();
-      ATH_MSG_INFO("                 -   nBjet: " << onlinebjet->size());
+      ATH_MSG_DEBUG("                 -   nBjet: " << onlinebjet->size());
       for(const auto* bjet : *onlinebjet) {
 	double wIP3D, wSV1, wCOMB, wMV1 = 0.;
 	bjet->loglikelihoodratio("IP3D", wIP3D);
 	bjet->loglikelihoodratio("SV1", wSV1);
 	wCOMB = wIP3D+wSV1;
 	wMV1 = bjet->MV1_discriminant();
-	ATH_MSG_INFO("                 -   IP3Dpu / IP3Dpb / IP3Dpc: " << bjet->IP3D_pu() << " / " << bjet->IP3D_pb() << " / " << bjet->IP3D_pc());
+	ATH_MSG_DEBUG("                 -   IP3Dpu / IP3Dpb / IP3Dpc: " << bjet->IP3D_pu() << " / " << bjet->IP3D_pb() << " / " << bjet->IP3D_pc());
 	hist("IP3D_pu_tr","HLT/BjetMon/Shifter")->Fill(bjet->IP3D_pu());
 	hist("IP3D_pb_tr","HLT/BjetMon/Shifter")->Fill(bjet->IP3D_pb());
 	hist("IP3D_pc_tr","HLT/BjetMon/Shifter")->Fill(bjet->IP3D_pc());
-	ATH_MSG_INFO("                 -   IP3D / SV1 / IP3D+SV1 / MV1: " << wIP3D << " / " << wSV1 << " / " << wCOMB << " / " << wMV1);
+	ATH_MSG_DEBUG("                 -   IP3D / SV1 / IP3D+SV1 / MV1: " << wIP3D << " / " << wSV1 << " / " << wCOMB << " / " << wMV1);
 	hist("wIP3D_Rbu_tr","HLT/BjetMon/Shifter")->Fill(wIP3D);
 	hist("wSV1_Rbu_tr","HLT/BjetMon/Shifter")->Fill(wSV1);
 	hist("wCOMB_Rbu_tr","HLT/BjetMon/Shifter")->Fill(wCOMB);
@@ -397,12 +395,12 @@ StatusCode HLTBjetMonTool::book(){
 
     // Get online bjet from TrigEFBjetContainer                                                                                                                               
     const std::vector< Trig::Feature<TrigEFBjetContainer> > EFonlinebjets = comb.get<TrigEFBjetContainer>();
-    ATH_MSG_INFO("RETRIEVED BJETS  -   size: " << EFonlinebjets.size());
+    ATH_MSG_DEBUG("RETRIEVED BJETS  -   size: " << EFonlinebjets.size());
     if(EFonlinebjets.size()) {
       const TrigEFBjetContainer* EFonlinebjet = EFonlinebjets[0].cptr();
-      ATH_MSG_INFO("                 -   nBjet: " << EFonlinebjet->size());
+      ATH_MSG_DEBUG("                 -   nBjet: " << EFonlinebjet->size());
       for(const auto* bjet : *EFonlinebjet) {
-	ATH_MSG_INFO("                 -   MVTX / EVTX / NVTX: " << (bjet->xMVtx())*1.e-3 << " / " << (bjet->xEVtx())*1.e-3 << " / " << bjet->xNVtx());
+	ATH_MSG_DEBUG("                 -   MVTX / EVTX / NVTX: " << (bjet->xMVtx())*1.e-3 << " / " << (bjet->xEVtx())*1.e-3 << " / " << bjet->xNVtx());
 	hist("xMVtx_tr","HLT/BjetMon/Shifter")->Fill( (bjet->xMVtx())*1.e-3 );
 	hist("xNVtx_tr","HLT/BjetMon/Shifter")->Fill(bjet->xNVtx());
       } //EFonlinebjet 
@@ -410,7 +408,7 @@ StatusCode HLTBjetMonTool::book(){
 
   } // for bjetComb
 
-  *m_log << MSG::INFO<< "====> Ended successfully HLTBjetMonTool::fill()" << endreq;
+  *m_log << MSG::DEBUG<< "====> Ended successfully HLTBjetMonTool::fill()" << endreq;
 
   
   return StatusCode::SUCCESS;
