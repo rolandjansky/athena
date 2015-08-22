@@ -69,12 +69,12 @@ and
 https://svnweb.cern.ch/trac/atlasoff/browser/Trigger/TrigMonitoring/TrigBjetMonitoring/trunk/python/TrigBjetMonitCategory.py
 python configuration files.
 
-Finally, the TrigBjetMonitoring package contains several dummy classes: 
+Finally, in the TrigBjetMonitoring package we definitely eliminated several classes: 
     BjetLikelihoodMon
     BjetProbabilityMon
     TaggerHelper
     TuningLikelihood
-which were used in Run 1 and not used in Run 2 for the moment. 
+which were used in Run 1 and used no more in Run 2 to resolve coverity issues present in these classes. 
      
 
 ***************/

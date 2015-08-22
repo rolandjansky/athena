@@ -20,9 +20,6 @@
 #include <vector>
 
 
-#include "TrigBjetMonitoring/BjetLikelihoodMon.h"
-#include "TrigBjetMonitoring/BjetProbabilityMon.h"
-#include "TrigBjetMonitoring/TuningLikelihood.h"
 
 #include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
 
