@@ -341,11 +341,13 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
          if (!printedErrorMuonColl) log << MSG::WARNING << "No Container with name " << "Muons" << " found in evtStore" << endreq;
          printedErrorMuonColl = true;
          return StatusCode::SUCCESS;
-   } else {
-      if (!printedErrorMuonColl) log << MSG::WARNING << "evtStore does not contain Container with name " << "Muons" << endreq;
-      printedErrorMuonColl = true;
-      return StatusCode::SUCCESS;
-   }
+   } 
+   // If successful at retrieving container, shouldn't fail!
+   // } else {
+   //    if (!printedErrorMuonColl) log << MSG::WARNING << "evtStore does not contain Container with name " << "Muons" << endreq;
+   //    printedErrorMuonColl = true;
+   //    return StatusCode::SUCCESS;
+   // }
 
    log << MSG::DEBUG << "Muons" << " Collection size : " << muons->size() << endreq;
   
@@ -448,12 +450,16 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
         ++idtracksItr, ++muontracksItr) {
 
       const Trk::Perigee *idPerigee   = &((*idtracksItr)->perigeeParameters());
-      const Trk::Perigee *measPerigee = &((*muontracksItr)->perigeeParameters());
+      const Trk::Perigee *premeasPerigee = &((*muontracksItr)->perigeeParameters());
+      const Trk::TrackParameters *measPerigee(0);
      
-      if (measPerigee) {
-         measPerigee = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*measPerigee,(idPerigee->associatedSurface()),Trk::anyDirection,false,Trk::muon));
+      if (premeasPerigee) {
+	ATH_MSG_WARNING("idPerigee? " << idPerigee << " " << idPerigee->associatedSurface());
+	ATH_MSG_WARNING("premeasPerigee? " << premeasPerigee->associatedSurface());
+	measPerigee = m_extrapolator->extrapolate(**muontracksItr,(idPerigee->associatedSurface()),Trk::anyDirection,true,Trk::pion);
+	   ATH_MSG_WARNING("measPerigee? " << measPerigee);
          if (!measPerigee) {            
-            log << MSG::WARNING << "Extrapolation failed!!" << endreq;
+            log << MSG::WARNING << "Extrapolation failed 1!!" << endreq;
          } 
       }
      
@@ -485,7 +491,7 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
                if (measPerigee2) {
                   measPerigee2 = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*measPerigee2,(idPerigee2->associatedSurface()),Trk::anyDirection,false,Trk::muon));
                   if (!measPerigee2) {
-                     log << MSG::WARNING << "Extrapolation failed!!" << endreq;
+                     log << MSG::WARNING << "Extrapolation failed 2!!" << endreq;
                   } 
                }
                

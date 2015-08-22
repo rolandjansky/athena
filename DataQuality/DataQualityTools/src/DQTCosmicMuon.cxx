@@ -39,7 +39,9 @@ DQTCosmicMuon::DQTCosmicMuon(const float &eta, const float &phi,
 // copy constructor
 DQTCosmicMuon::DQTCosmicMuon(const DQTCosmicMuon &input)
 {
-  *this = input;
+  if (this != &input) {
+    *this = input;
+  }
 }//end of copy constructor
 
 // destructor

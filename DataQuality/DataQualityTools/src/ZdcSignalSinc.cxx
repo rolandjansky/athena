@@ -4,6 +4,7 @@
 
 
 #include <iostream>
+#include <string.h>
 
 #include "DataQualityTools/ZdcSignalSinc.h"
 
@@ -18,6 +19,53 @@ ZdcSignalSinc::ZdcSignalSinc(int nSlc)
   m_Time   =  0.;
   m_Amp    =  0.;
   m_Err    =  e_noData;
+  m_Warn   = 0;
+  m_CorrFlag = false;
+  m_p      = 0;
+  m_np     = 0;
+  dt       = 0.;
+  // Pretty sure the following does nothing
+  AAAA     = 0;
+}
+
+ZdcSignalSinc::ZdcSignalSinc(const ZdcSignalSinc& other)
+  : n_Slices(other.n_Slices)
+    , m_AmpThresh(other.m_AmpThresh)
+    , tClock      (other.tClock)
+    , Pi(other.Pi)
+{
+  m_buf = new double[n_Slices];
+  memcpy(m_buf, other.m_buf, sizeof(double)*n_Slices);
+  m_Time   =  other.m_Time;
+  m_Amp    =  other.m_Amp;
+  m_Err    =  other.m_Err;
+  m_Warn   =  other.m_Warn;
+  m_CorrFlag = other.m_CorrFlag;
+  m_p      =  other.m_p;
+  m_np     =  other.m_np;
+  dt       =  other.dt;
+  // Pretty sure the following does nothing
+  AAAA     =  other.AAAA;
+}
+
+ZdcSignalSinc& ZdcSignalSinc::operator=(const ZdcSignalSinc& other)
+{
+  if (this != &other) {
+    delete m_buf;
+    m_buf = new double[n_Slices];
+    memcpy(m_buf, other.m_buf, sizeof(double)*n_Slices);
+    m_Time   =  other.m_Time;
+    m_Amp    =  other.m_Amp;
+    m_Err    =  other.m_Err;
+    m_Warn   =  other.m_Warn;
+    m_CorrFlag = other.m_CorrFlag;
+    m_p      =  other.m_p;
+    m_np     =  other.m_np;
+    dt       =  other.dt;
+    // Pretty sure the following does nothing
+    AAAA     =  other.AAAA;
+  }
+  return *this;
 }
 
 ZdcSignalSinc::~ZdcSignalSinc() { delete[] m_buf;}

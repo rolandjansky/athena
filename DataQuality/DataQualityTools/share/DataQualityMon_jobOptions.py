@@ -181,20 +181,20 @@ if DQMonFlags.monManEnvironment != 'tier0ESD':
         MinPtCut=500
 
     # Import MuonID tool
-    from DataQualityTools.DataQualityToolsConf import DQTMuonIDTrackTool
-    DQTMuonIDTrackMon = DQTMuonIDTrackTool(name            = 'DQTMuonIDTrackMon',
-                                     histoPathBase   = "/GLOBAL/DQTMuonVsInDet",
-                                     doOfflineHists          = isOffline,
-                                     doOnlineHists           = isOnline,
-                                     doRunCosmics            = isCosmics,
-                                     doRunBeam               = isBeam,
-                                     MinSCTHits              = MinSCTHits,
-                                     MinPtCut                = MinPtCut
-                                    );
+    #from DataQualityTools.DataQualityToolsConf import DQTMuonIDTrackTool
+    #DQTMuonIDTrackMon = DQTMuonIDTrackTool(name            = 'DQTMuonIDTrackMon',
+    #                                 histoPathBase   = "/GLOBAL/DQTMuonVsInDet",
+    #                                 doOfflineHists          = isOffline,
+    #                                 doOnlineHists           = isOnline,
+    #                                 doRunCosmics            = isCosmics,
+    #                                 doRunBeam               = isBeam,
+    #                                 MinSCTHits              = MinSCTHits,
+    #                                 MinPtCut                = MinPtCut
+    #                                );
 
-    DQTMuonIDTrackMon.ExtrapolationTool = DefaultExtrapolator
-    ToolSvc += DQTMuonIDTrackMon;
-    ManagedAthenaGlobalMon.AthenaMonTools += [ DQTMuonIDTrackMon ];
+    #DQTMuonIDTrackMon.ExtrapolationTool = DefaultExtrapolator
+    #ToolSvc += DQTMuonIDTrackMon;
+    #ManagedAthenaGlobalMon.AthenaMonTools += [ DQTMuonIDTrackMon ];
 
     # Import ElectronQuality Tool ---> Obsolete
     #from DataQualityTools.DataQualityToolsConf import  DQTElectronQualityTool

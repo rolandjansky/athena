@@ -17,6 +17,8 @@ class ZdcSignalSinc {
 	       e_wrongSignal, e_noSignal, e_localMinimum};
 
   ZdcSignalSinc(int);
+  ZdcSignalSinc(const ZdcSignalSinc& other);
+  ZdcSignalSinc& operator=(const ZdcSignalSinc& other);
   ~ZdcSignalSinc();
   int    process(double *,double gain=1., double ped=0., 
 		 double frac=1., bool corr=true);
