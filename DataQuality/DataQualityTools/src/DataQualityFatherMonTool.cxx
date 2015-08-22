@@ -19,12 +19,11 @@ DataQualityFatherMonTool::DataQualityFatherMonTool(const std::string & type,
 						   const std::string & name,
 						   const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent)
-  , m_detStore(detStore().operator->())
  //----------------------------------------------------------------------------------
 {
   declareInterface<IMonitorToolBase>(this);
 
-  //declareProperty("histoPathBase", m_path = "DataQuality");
+  declareProperty("histoPathBase", m_path = "DataQuality");
   declareProperty("doRunCosmics", m_doRunCosmics = 1);
   declareProperty("doRunBeam", m_doRunBeam = 1);
   declareProperty("doOfflineHists", m_doOfflineHists = 1);
@@ -51,23 +50,21 @@ StatusCode DataQualityFatherMonTool:: initialize()
   //sc = service( "StoreGateSvc", m_storeGate);
   //if( sc.isFailure() )
   //  {
-  //    log << MSG::FATAL << name() << ": Unable to locate Service StoreGateSvc" << endmsg;
+  //    log << MSG::FATAL << name() << ": Unable to locate Service StoreGateSvc" << endreq;
   //    return sc;
   //  }
-
-  /*  
+  
   sc = service("DetectorStore", m_detStore);
   if( sc.isFailure() )
     {
-      log << MSG::ERROR << "Unable to get pointer to DetectorStore Service" << endmsg;
+      log << MSG::ERROR << "Unable to get pointer to DetectorStore Service" << endreq;
       return sc;
     }
-  */
 
   sc = ManagedMonitorToolBase::initialize();
   if (sc.isFailure())  {
     log << MSG::ERROR
-        << "Unable to Initialize ManagedMonitoringToolBase::initialize" << endmsg;
+        << "Unable to Initialize ManagedMonitoringToolBase::initialize" << endreq;
     return sc;
   }
 
@@ -79,11 +76,11 @@ StatusCode DataQualityFatherMonTool::bookHistogramsRecurrent( )
 //----------------------------------------------------------------------------------
 { 
 
-  if ( newLumiBlockFlag() || newRunFlag() ) {
+  if ( newLumiBlock || newRun ) {
     MsgStream log(msgSvc(), name());
 
-    log << MSG::DEBUG << "in bookHists()" << endmsg;
-    log << MSG::DEBUG << "Using base path " << m_path << endmsg;
+    log << MSG::DEBUG << "in bookHists()" << endreq;
+    log << MSG::DEBUG << "Using base path " << m_path << endreq;
   }
   return StatusCode::SUCCESS;
 }
@@ -95,8 +92,8 @@ StatusCode DataQualityFatherMonTool::bookHistograms( )
 
   MsgStream log(msgSvc(), name());
 
-  log << MSG::DEBUG << "in bookHists()" << endmsg;
-  log << MSG::DEBUG << "Using base path " << m_path << endmsg;
+  log << MSG::DEBUG << "in bookHists()" << endreq;
+  log << MSG::DEBUG << "Using base path " << m_path << endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -107,7 +104,7 @@ StatusCode DataQualityFatherMonTool::fillHistograms()
 { 
   MsgStream log(msgSvc(), name());
 
-  log << MSG::DEBUG << "in fillHists()" << endmsg;
+  log << MSG::DEBUG << "in fillHists()" << endreq;
     
   return StatusCode::SUCCESS;
 }
@@ -119,7 +116,7 @@ StatusCode DataQualityFatherMonTool::procHistograms( )
 
     MsgStream log(msgSvc(), name());
 
-    log << MSG::DEBUG << "in procHistograms()" << endmsg;
+    log << MSG::DEBUG << "in procHistograms()" << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -131,7 +128,7 @@ StatusCode DataQualityFatherMonTool::checkHists(bool /* fromFinalize */)
 { 
   MsgStream log(msgSvc(), name());
 
-  log << MSG::DEBUG << "in checkHists()" << endmsg;
+  log << MSG::DEBUG << "in checkHists()" << endreq;
     
   return StatusCode::SUCCESS;
 }
@@ -144,7 +141,7 @@ StatusCode DataQualityFatherMonTool::checkHists(bool /* fromFinalize */)
 //  if(ManagedMonitorToolBase::regHist(h1, path, level, interval, dqmAlgorithm) != StatusCode::SUCCESS) {
 //    MsgStream log(msgSvc(), name());
 //    log << MSG::WARNING << "Could not register histogram : " 
-//	<< levelOfDetailEnumToString(level)+"/"+path+"/"+h1->GetName() << endmsg;
+//	<< levelOfDetailEnumToString(level)+"/"+path+"/"+h1->GetName() << endreq;
 //    return StatusCode::FAILURE;
 //  }
 //  return StatusCode::SUCCESS;
@@ -157,7 +154,7 @@ StatusCode DataQualityFatherMonTool::checkHists(bool /* fromFinalize */)
 //  if(ManagedMonitorToolBase::regHist(h1, path, level, interval, dqmAlgorithm) != StatusCode::SUCCESS) {
 //    MsgStream log(msgSvc(), name());
 //    log << MSG::WARNING << "Could not register histogram : " 
-//        << levelOfDetailEnumToString(level)+"/"+path+"/"+h1->GetName() << endmsg;
+//        << levelOfDetailEnumToString(level)+"/"+path+"/"+h1->GetName() << endreq;
 //    return StatusCode::FAILURE;
 //  }
 //  return StatusCode::SUCCESS;
@@ -171,7 +168,7 @@ StatusCode DataQualityFatherMonTool::checkHists(bool /* fromFinalize */)
 //  if(ManagedMonitorToolBase::regHist(h1, path, level, interval, dqmAlgorithm) != StatusCode::SUCCESS) {
 //    MsgStream log(msgSvc(), name());
 //    log << MSG::WARNING << "Could not register histogram : " 
-//	<< levelOfDetailEnumToString(level)+"/"+path+"/"+h1->GetName() << endmsg;
+//	<< levelOfDetailEnumToString(level)+"/"+path+"/"+h1->GetName() << endreq;
 //    return StatusCode::FAILURE;
 //  }
 //  return StatusCode::SUCCESS;
@@ -184,7 +181,7 @@ StatusCode DataQualityFatherMonTool::checkHists(bool /* fromFinalize */)
 //  if(ManagedMonitorToolBase::regHist(h1, path, level, interval, dqmAlgorithm) != StatusCode::SUCCESS) {
 //    MsgStream log(msgSvc(), name());
 //    log << MSG::WARNING << "Could not register histogram : " 
-//	<< levelOfDetailEnumToString(level)+"/"+path+"/"+h1->GetName() << endmsg;
+//	<< levelOfDetailEnumToString(level)+"/"+path+"/"+h1->GetName() << endreq;
 //    return StatusCode::FAILURE;
 //  }
 //  return StatusCode::SUCCESS;
@@ -197,7 +194,7 @@ StatusCode DataQualityFatherMonTool::checkHists(bool /* fromFinalize */)
 //  if(ManagedMonitorToolBase::regHist(h1, path, level, interval, dqmAlgorithm) != StatusCode::SUCCESS) {
 //    MsgStream log(msgSvc(), name());
 //    log << MSG::WARNING << "Could not register histogram : "
-//        << levelOfDetailEnumToString(level)+"/"+path+"/"+h1->GetName() << endmsg;
+//        << levelOfDetailEnumToString(level)+"/"+path+"/"+h1->GetName() << endreq;
 //    return StatusCode::FAILURE;
 //  }
 //  return StatusCode::SUCCESS;
@@ -210,7 +207,7 @@ StatusCode DataQualityFatherMonTool::checkHists(bool /* fromFinalize */)
 //  if(ManagedMonitorToolBase::regHist(h1, path, level, interval, dqmAlgorithm) != StatusCode::SUCCESS) {
 //    MsgStream log(msgSvc(), name());
 //    log << MSG::WARNING << "Could not register histogram : "
-//        << levelOfDetailEnumToString(level)+"/"+path+"/"+h1->GetName() << endmsg;
+//        << levelOfDetailEnumToString(level)+"/"+path+"/"+h1->GetName() << endreq;
 //    return StatusCode::FAILURE;
 //  }
 //  return StatusCode::SUCCESS;
@@ -223,7 +220,7 @@ StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TH2I_
   if(ManagedMonitorToolBase::regHist(h1, path, interval, histo_mgmt) != StatusCode::SUCCESS) {
     MsgStream log(msgSvc(), name());
     log << MSG::WARNING << "Could not register histogram : " 
-	<< "/"+path+"/"+h1->GetName() << endmsg;
+	<< "/"+path+"/"+h1->GetName() << endreq;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -237,7 +234,7 @@ StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TH1I_
   if(ManagedMonitorToolBase::regHist(h1, path, interval, histo_mgmt) != StatusCode::SUCCESS) {
     MsgStream log(msgSvc(), name());
     log << MSG::WARNING << "Could not register histogram : " 
-	<< "/"+path+"/"+h1->GetName() << endmsg;
+	<< "/"+path+"/"+h1->GetName() << endreq;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -252,7 +249,7 @@ StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TH2F_
   if(ManagedMonitorToolBase::regHist(h1, path, interval, histo_mgmt) != StatusCode::SUCCESS) {
     MsgStream log(msgSvc(), name());
     log << MSG::WARNING << "Could not register histogram : " 
-	<< "/"+path+"/"+h1->GetName() << endmsg;
+	<< "/"+path+"/"+h1->GetName() << endreq;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -260,13 +257,13 @@ StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TH2F_
 
 
 //----------------------------------------------------------------------------------
-StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TH1F_LW* h1, Interval_t interval, MgmtAttr_t histo_mgmt, const std::string& merge_algo)
+StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TH1F_LW* h1, Interval_t interval, MgmtAttr_t histo_mgmt)
 //----------------------------------------------------------------------------------
 {
-  if(ManagedMonitorToolBase::regHist(h1, path, interval, histo_mgmt, "", merge_algo) != StatusCode::SUCCESS) {
+  if(ManagedMonitorToolBase::regHist(h1, path, interval, histo_mgmt) != StatusCode::SUCCESS) {
     MsgStream log(msgSvc(), name());
     log << MSG::WARNING << "Could not register histogram : " 
-	<< "/"+path+"/"+h1->GetName() << endmsg;
+	<< "/"+path+"/"+h1->GetName() << endreq;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -274,13 +271,13 @@ StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TH1F_
 
 
 //----------------------------------------------------------------------------------
-StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TH1* h1, Interval_t interval, MgmtAttr_t histo_mgmt, const std::string& merge_algo)
+StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TH1* h1, Interval_t interval, MgmtAttr_t histo_mgmt)
 //----------------------------------------------------------------------------------
 {
-  if(ManagedMonitorToolBase::regHist(h1, path, interval, histo_mgmt, "", merge_algo) != StatusCode::SUCCESS) {
+  if(ManagedMonitorToolBase::regHist(h1, path, interval, histo_mgmt) != StatusCode::SUCCESS) {
     MsgStream log(msgSvc(), name());
     log << MSG::WARNING << "Could not register histogram : " 
-	<< "/"+path+"/"+h1->GetName() << endmsg;
+	<< "/"+path+"/"+h1->GetName() << endreq;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -294,7 +291,7 @@ StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TProf
   if(ManagedMonitorToolBase::regHist(h1, path, interval, histo_mgmt) != StatusCode::SUCCESS) {
     MsgStream log(msgSvc(), name());
     log << MSG::WARNING << "Could not register histogram : " 
-	<< "/"+path+"/"+h1->GetName() << endmsg;
+	<< "/"+path+"/"+h1->GetName() << endreq;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -308,7 +305,7 @@ StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TProf
   if(ManagedMonitorToolBase::regHist(h1, path, interval, histo_mgmt) != StatusCode::SUCCESS) {
     MsgStream log(msgSvc(), name());
     log << MSG::WARNING << "Could not register histogram : " 
-	<< "/"+path+"/"+h1->GetName() << endmsg;
+	<< "/"+path+"/"+h1->GetName() << endreq;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -321,7 +318,7 @@ StatusCode DataQualityFatherMonTool::registerHist(const std::string& path, TGrap
   if(ManagedMonitorToolBase::regGraph(h1, path, interval, histo_mgmt) != StatusCode::SUCCESS) {
     MsgStream log(msgSvc(), name());
     log << MSG::WARNING << "Could not register histogram : " 
-	<< "/"+path+"/"+h1->GetName() << endmsg;
+	<< "/"+path+"/"+h1->GetName() << endreq;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;

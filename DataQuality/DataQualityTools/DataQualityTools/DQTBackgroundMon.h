@@ -87,11 +87,11 @@ private:
   int m_UnpairIsoBG;
   int m_UnpairNonIsoBG;
 
-  unsigned int m_bg;
-  bool m_filled;
-  bool m_empty;
-  bool m_unpairiso;
-  bool m_unpairnoniso;
+  unsigned int bg;
+  bool filled;
+  bool empty;
+  bool unpairiso;
+  bool unpairnoniso;
 
   // All BG hists
   TH1F_LW *m_HistBitSet;

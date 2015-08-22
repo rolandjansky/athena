@@ -160,37 +160,14 @@ DQTDetSynchMonTool::DQTDetSynchMonTool(const std::string & type,
      m_Bfield_toroid_vsLB(0),    
      m_diff_BCID(0),
      m_diff_BCID_rate(0), //rate plot; bcid diff relative to ctp
-     m_diff_L1ID(0),
-     //m_nevents(0),
-     //m_n_sct_nrobs(0),
-     //m_n_trt_nrobs(0),
-     //m_n_lar_nrobs(0),
-     //m_n_tile_nrobs(0),
-     //m_n_pixel_nrobs(0),
-     //m_n_sct_bcid_nrobs(0),
-     //m_n_trt_bcid_nrobs(0),
-     //m_n_sct_lvl1_nrobs(0),
-     //m_n_trt_lvl1_nrobs(0),
-     //m_n_pixel_bcid_nrobs(0),
-     //m_n_pixel_lvl1_nrobs(0),
-     m_printedErrorCTP_RIO(false),
-     m_printedErrorTRT_BCID(false),
-     m_printedErrorSCT_BCID(false),
-     m_printedErrorPixel_BCID(false),
-     m_printedErrorTRT_LVL1ID(false),
-     m_printedErrorSCT_LVL1ID(false),
-     m_printedErrorPixel_LVL1ID(false),
-     m_printedErrorLAr(false),
-     m_printedErrorTile(false),
-     m_printedErrorTileCtr(false),
-     m_printedErrorRPC(false)
+     m_diff_L1ID(0)
 {
    declareInterface<IMonitorToolBase>(this);
    m_path = "GLOBAL/DQTSynch",
-     //declareProperty("doRunCosmics", m_doRunCosmics = 1);
-     //declareProperty("doRunBeam", m_doRunBeam = 1);
-     //declareProperty("doOfflineHists", m_doOfflineHists = 1);
-     //declareProperty("doOnlineHists", m_doOnlineHists = 1);
+      declareProperty("doRunCosmics", m_doRunCosmics = 1);
+   declareProperty("doRunBeam", m_doRunBeam = 1);
+   declareProperty("doOfflineHists", m_doOfflineHists = 1);
+   declareProperty("doOnlineHists", m_doOnlineHists = 1);
    declareProperty("MagFieldTool", m_field);
    declareProperty("SolenoidPositionX", m_solenoidPositionX = 0);
    declareProperty("SolenoidPositionY", m_solenoidPositionY = 10);
@@ -213,27 +190,27 @@ StatusCode DQTDetSynchMonTool::bookHistograms( )
 {
    bool failure(false);
 
-   m_printedErrorCTP_RIO = false;
-   m_printedErrorTRT_BCID = false;
-   m_printedErrorSCT_BCID = false;
-   m_printedErrorPixel_BCID = false;
+   printedErrorCTP_RIO = false;
+   printedErrorTRT_BCID = false;
+   printedErrorSCT_BCID = false;
+   printedErrorPixel_BCID = false;
 
-   m_printedErrorTRT_LVL1ID = false;
-   m_printedErrorSCT_LVL1ID = false;
-   m_printedErrorPixel_LVL1ID = false;
+   printedErrorTRT_LVL1ID = false;
+   printedErrorSCT_LVL1ID = false;
+   printedErrorPixel_LVL1ID = false;
 
-   m_printedErrorLAr = false;
-   m_printedErrorTile = false;
-   m_printedErrorTileCtr = false;
-   m_printedErrorRPC = false;     
+   printedErrorLAr = false;
+   printedErrorTile = false;
+   printedErrorTileCtr = false;
+   printedErrorRPC = false;     
 
 
    ////  if (isNewEventsBlock || isNewLumiBlock || isNewRun) {
    //if (newRun) {
       MsgStream log(msgSvc(), name());
   
-      //log << MSG::DEBUG << "in bookHistograms() and m_doRunCosmics = " << m_doRunCosmics << " and m_doRunBeam = " << m_doRunBeam << endmsg;
-      //log << MSG::DEBUG << "Using base path " << m_path << endmsg;
+      //log << MSG::DEBUG << "in bookHistograms() and m_doRunCosmics = " << m_doRunCosmics << " and m_doRunBeam = " << m_doRunBeam << endreq;
+      //log << MSG::DEBUG << "Using base path " << m_path << endreq;
   
       failure = bookBCID(); 
       failure = failure || bookL1ID();
@@ -407,7 +384,7 @@ bool DQTDetSynchMonTool::bookBCID()
   
    if (failure) 
    {
-      log << MSG::WARNING << "Error Booking BCID histograms " << endmsg;
+      log << MSG::WARNING << "Error Booking BCID histograms " << endreq;
    }
    return failure;
 
@@ -555,7 +532,7 @@ bool DQTDetSynchMonTool::bookL1ID()
 
    if (failure) 
    {
-      log << MSG::WARNING << "Error Booking L1ID histograms " << endmsg;
+      log << MSG::WARNING << "Error Booking L1ID histograms " << endreq;
    }
    return failure;
   
@@ -578,7 +555,7 @@ bool DQTDetSynchMonTool::bookBfield()
 
    if (failure) 
    {
-      log << MSG::WARNING << "Error Booking L1ID histograms " << endmsg;
+      log << MSG::WARNING << "Error Booking L1ID histograms " << endreq;
    }
    return failure;
 }    
@@ -607,7 +584,7 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
 {
    MsgStream log(msgSvc(), name());
 
-   //  log << MSG::DEBUG << "in fillHists()" << endmsg;
+   //  log << MSG::DEBUG << "in fillHists()" << endreq;
    StatusCode sc;  
 
    clearMultisets(); // clear previous event entries
@@ -627,8 +604,8 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    sc = evtStore()->retrieve(thisEventInfo);
    if(sc.isFailure())  
    {
-      if (!m_printedErrorCTP_RIO) log << MSG::WARNING << "Could not find EventInfo in evtStore" << endmsg;
-      m_printedErrorCTP_RIO = true;
+      if (!printedErrorCTP_RIO) log << MSG::WARNING << "Could not find EventInfo in evtStore" << endreq;
+      printedErrorCTP_RIO = true;
    }
    else
    {
@@ -647,17 +624,17 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
       for ( InDetTimeCollection::const_iterator itrt_bcid 
                = TRT_BCIDColl->begin();
             itrt_bcid != TRT_BCIDColl->end(); ++itrt_bcid ) {
-         //log << MSG::DEBUG << "TRT BCID pointer found! " << endmsg;
+         //log << MSG::DEBUG << "TRT BCID pointer found! " << endreq;
          if (!(*itrt_bcid)) continue;
          //Current bcid
          m_trtbcidset.insert((uint16_t)(*itrt_bcid)->second);
-         //log << MSG::DEBUG << "TRT BCID found " << (*itrt_bcid)->second  << endmsg;      
+         //log << MSG::DEBUG << "TRT BCID found " << (*itrt_bcid)->second  << endreq;      
         
       } // End for loop
    }
    else {
-      if (!m_printedErrorTRT_BCID) log << MSG::WARNING << "Could not get any TRT_BCID containers " << endmsg;
-      m_printedErrorTRT_BCID = true;
+      if (!printedErrorTRT_BCID) log << MSG::WARNING << "Could not get any TRT_BCID containers " << endreq;
+      printedErrorTRT_BCID = true;
    }
 
   
@@ -670,16 +647,16 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
       for ( InDetTimeCollection::const_iterator isct_bcid 
                = SCT_BCIDColl->begin();
             isct_bcid != SCT_BCIDColl->end(); ++isct_bcid ) {
-         //log << MSG::DEBUG << "SCT BCID pointer found! " << endmsg;
+         //log << MSG::DEBUG << "SCT BCID pointer found! " << endreq;
          if (!(*isct_bcid)) continue;
          //Current bcid
          m_sctbcidset.insert((uint16_t)(*isct_bcid)->second);
-         //log << MSG::DEBUG << "SCT BCID found " << (*isct_bcid)->second  << endmsg;            
+         //log << MSG::DEBUG << "SCT BCID found " << (*isct_bcid)->second  << endreq;            
       } // End for loop
    }
    else {
-      if (!m_printedErrorSCT_BCID) log << MSG::WARNING << "Could not get any SCT_BCID containers " << endmsg;
-      m_printedErrorSCT_BCID = true;
+      if (!printedErrorSCT_BCID) log << MSG::WARNING << "Could not get any SCT_BCID containers " << endreq;
+      printedErrorSCT_BCID = true;
    }
      
 
@@ -692,16 +669,16 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
       for ( InDetTimeCollection::const_iterator ipixel_bcid 
                = Pixel_BCIDColl->begin();
             ipixel_bcid != Pixel_BCIDColl->end(); ++ipixel_bcid ) {
-         //log << MSG::DEBUG << "Pixel BCID pointer found! " << endmsg;
+         //log << MSG::DEBUG << "Pixel BCID pointer found! " << endreq;
          if (!(*ipixel_bcid)) continue;
          //Current bcid
          m_pixelbcidset.insert((uint16_t)(*ipixel_bcid)->second);
-         //log << MSG::DEBUG << "Pixel BCID found " << (*ipixel_bcid)->second  << endmsg;            
+         //log << MSG::DEBUG << "Pixel BCID found " << (*ipixel_bcid)->second  << endreq;            
       } // End for loop
    }
    else {
-      if (!m_printedErrorPixel_BCID)  log << MSG::WARNING << "Could not get any Pixel_BCID containers " << endmsg;
-      m_printedErrorPixel_BCID = true;
+      if (!printedErrorPixel_BCID)  log << MSG::WARNING << "Could not get any Pixel_BCID containers " << endreq;
+      printedErrorPixel_BCID = true;
    }
 
   
@@ -714,16 +691,16 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
       for ( InDetTimeCollection::const_iterator itrt_lvl1id 
                = TRT_LVL1IDColl->begin();
             itrt_lvl1id != TRT_LVL1IDColl->end(); ++itrt_lvl1id ) {
-         //log << MSG::DEBUG << "TRT LVL1 ID pointer found! " << endmsg;
+         //log << MSG::DEBUG << "TRT LVL1 ID pointer found! " << endreq;
          if (!(*itrt_lvl1id)) continue;
          //Current lvl1id
          m_trtl1idset.insert((uint16_t)(*itrt_lvl1id)->second);
-         //log << MSG::DEBUG << "TRT LVL1 ID found " << (*itrt_lvl1id)->second  << endmsg;      
+         //log << MSG::DEBUG << "TRT LVL1 ID found " << (*itrt_lvl1id)->second  << endreq;      
       } // End for loop
    }
    else {
-      if (!m_printedErrorTRT_LVL1ID) log << MSG::WARNING << "Could not get TRT_LVL1ID container " << endmsg;
-      m_printedErrorTRT_LVL1ID = true;
+      if (!printedErrorTRT_LVL1ID) log << MSG::WARNING << "Could not get TRT_LVL1ID container " << endreq;
+      printedErrorTRT_LVL1ID = true;
    }
 
 
@@ -736,16 +713,16 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
       for ( InDetTimeCollection::const_iterator isct_lvl1id 
                = SCT_LVL1IDColl->begin();
             isct_lvl1id != SCT_LVL1IDColl->end(); ++isct_lvl1id ) {
-         //log << MSG::DEBUG << "SCT LVL1 ID pointer found! " << endmsg;
+         //log << MSG::DEBUG << "SCT LVL1 ID pointer found! " << endreq;
          if (!(*isct_lvl1id)) continue;
          //Current lvl1id
          m_sctl1idset.insert((uint16_t)(*isct_lvl1id)->second);
-         //log << MSG::DEBUG << "SCT LVL1 ID found " << (*isct_lvl1id)->second  << endmsg;            
+         //log << MSG::DEBUG << "SCT LVL1 ID found " << (*isct_lvl1id)->second  << endreq;            
       } // End for loop
    }
    else {
-      if (!m_printedErrorSCT_LVL1ID)  log << MSG::WARNING << "Could not get SCT_LVL1ID container " << endmsg;
-      m_printedErrorSCT_LVL1ID = true;
+      if (!printedErrorSCT_LVL1ID)  log << MSG::WARNING << "Could not get SCT_LVL1ID container " << endreq;
+      printedErrorSCT_LVL1ID = true;
    }
   
 
@@ -758,16 +735,16 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
       for ( InDetTimeCollection::const_iterator ipixel_lvl1id 
                = Pixel_LVL1IDColl->begin();
             ipixel_lvl1id != Pixel_LVL1IDColl->end(); ++ipixel_lvl1id ) {
-         //log << MSG::DEBUG << "Pixel LVL1 ID pointer found! " << endmsg;
+         //log << MSG::DEBUG << "Pixel LVL1 ID pointer found! " << endreq;
          if (!(*ipixel_lvl1id)) continue;
          //Current lvl1id
          m_pixell1idset.insert((uint16_t)(*ipixel_lvl1id)->second);
-         //log << MSG::DEBUG << "Pixel LVL1 ID found " << (*ipixel_lvl1id)->second  << endmsg;            
+         //log << MSG::DEBUG << "Pixel LVL1 ID found " << (*ipixel_lvl1id)->second  << endreq;            
       } // End for loop
    }
    else {
-      if (!m_printedErrorPixel_LVL1ID)  log << MSG::WARNING << "Could not get Pixel_LVL1ID container " << endmsg;
-      m_printedErrorPixel_LVL1ID = true;
+      if (!printedErrorPixel_LVL1ID)  log << MSG::WARNING << "Could not get Pixel_LVL1ID container " << endreq;
+      printedErrorPixel_LVL1ID = true;
    }
 
 
@@ -785,13 +762,13 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    
    sc = evtStore()->retrieve(hdrCont);
    if (sc.isFailure() || !hdrCont) {
-      if (!m_printedErrorLAr) log << MSG::WARNING
+      if (!printedErrorLAr) log << MSG::WARNING
                                 << "No LArFEB container found in TDS"
-                                << endmsg; 
-      m_printedErrorLAr = true;
+                                << endreq; 
+      printedErrorLAr = true;
    }
    else {
-      //log << MSG::DEBUG << "LArFEB container found" <<endmsg; 
+      //log << MSG::DEBUG << "LArFEB container found" <<endreq; 
       LArFebHeaderContainer::const_iterator it = hdrCont->begin(); 
       LArFebHeaderContainer::const_iterator itend = hdrCont->end(); 
       for ( ; it!=itend;++it) {
@@ -813,21 +790,21 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    if ( evtStore()->contains<TileDigitsContainer>("TileDigitsFlt") ) {      
       sc = evtStore()->retrieve(DigitsCnt, "TileDigitsFlt");
       if (sc.isFailure() || !DigitsCnt)  { 
-         if (!m_printedErrorTile) log << MSG::WARNING
+         if (!printedErrorTile) log << MSG::WARNING
                                     << "No Tile Digits container found in TDS"
-                                    << endmsg; 
-         m_printedErrorTile = true;
+                                    << endreq; 
+         printedErrorTile = true;
       } 
       else {
          TileDigitsContainer::const_iterator collItr=DigitsCnt->begin();
          TileDigitsContainer::const_iterator lastColl=DigitsCnt->end();
          
          if (sc.isFailure() || collItr==lastColl) {
-            if (!m_printedErrorTileCtr) log << MSG::WARNING << "No Tile digits in evtStore"<< endmsg ;
-            m_printedErrorTileCtr = true;
+            if (!printedErrorTileCtr) log << MSG::WARNING << "No Tile digits in evtStore"<< endreq ;
+            printedErrorTileCtr = true;
          }
          else {
-            //log << MSG::DEBUG << "Tile Digits found" <<endmsg; 
+            //log << MSG::DEBUG << "Tile Digits found" <<endreq; 
             for (;collItr!=lastColl;++collItr){
                m_tilebcidset.insert( (*collItr)->getRODBCID() );
                m_tilel1idset.insert( (*collItr)->getLvl1Id() );
@@ -839,8 +816,8 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
       tilel1id=findid(m_tilel1idset);
    }
    else {
-      if (!m_printedErrorTileCtr) log << MSG::WARNING << "No Tile digits in evtStore"<< endmsg ;
-      m_printedErrorTileCtr = true;
+      if (!printedErrorTileCtr) log << MSG::WARNING << "No Tile digits in evtStore"<< endreq ;
+      printedErrorTileCtr = true;
    }
 
    const DataHandle<RpcPadContainer> rpcRDO;
@@ -848,10 +825,10 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    sc= evtStore()->retrieve(rpcRDO,"RPCPAD");
    if (sc.isFailure() || !rpcRDO)  
    { 
-      if (!m_printedErrorRPC) log << MSG::WARNING
+      if (!printedErrorRPC) log << MSG::WARNING
                                 << "No RPC Pad container found in TDS"
-                                << endmsg; 
-      m_printedErrorRPC = true;
+                                << endreq; 
+      printedErrorRPC = true;
    }
    else 
    {
@@ -1201,10 +1178,10 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
 
 
    if ( m_field.retrieve().isFailure() ) {
-      log << MSG::WARNING << "Failed to retrieve MagneticField tool " << m_field << endmsg;
+      log << MSG::WARNING << "Failed to retrieve MagneticField tool " << m_field << endreq;
       return StatusCode::FAILURE;
    } else {
-      //log << MSG::DEBUG << "Retrieved MagneticField tool " << m_field << endmsg;
+      //log << MSG::DEBUG << "Retrieved MagneticField tool " << m_field << endreq;
    }
   
    //REL19 
@@ -1238,14 +1215,14 @@ StatusCode DQTDetSynchMonTool::fillHistograms()
    m_Bfield_toroid_vsLB->Fill(lumi, toroid_bx);
 
 
-   log << MSG::VERBOSE << "evt Num  : "  << evtNum    << "\tLumi      : "  << lumi     << endmsg;
-   log << MSG::VERBOSE << "evt L1ID : "  << ctpl1id   << "\tevt BCID  : "  << ctpbcid  << endmsg;
-   log << MSG::VERBOSE << "CTP L1ID : "  << ctpl1id   << "\tCTP BCID  : "  << ctpbcid  << endmsg;
-   log << MSG::VERBOSE << "LAR L1ID : "  << larl1id   << "\tLAR BCID  : "  << larbcid  << endmsg;
-   log << MSG::VERBOSE << "TILE L1ID: "  << tilel1id  << "\tTILE BCID : "  << tilebcid << endmsg;
-   log << MSG::VERBOSE << "RPC L1ID : "  << rpcl1id   << "\tRPC BCID  : "  << rpcbcid  << endmsg;
-   log << MSG::VERBOSE << "Pixel L1ID : "  << pixell1id   << "\tPixel BCID  : "  << pixelbcid  << endmsg;
-   log << MSG::VERBOSE << "CTP-RPC L1ID : "  << ctp_l1id9-rpcl1id   << "\tCTP-LAR L1ID  : "  << ctp_l1id16-larl1id  << endmsg;
+   log << MSG::VERBOSE << "evt Num  : "  << evtNum    << "\tLumi      : "  << lumi     << endreq;
+   log << MSG::VERBOSE << "evt L1ID : "  << ctpl1id   << "\tevt BCID  : "  << ctpbcid  << endreq;
+   log << MSG::VERBOSE << "CTP L1ID : "  << ctpl1id   << "\tCTP BCID  : "  << ctpbcid  << endreq;
+   log << MSG::VERBOSE << "LAR L1ID : "  << larl1id   << "\tLAR BCID  : "  << larbcid  << endreq;
+   log << MSG::VERBOSE << "TILE L1ID: "  << tilel1id  << "\tTILE BCID : "  << tilebcid << endreq;
+   log << MSG::VERBOSE << "RPC L1ID : "  << rpcl1id   << "\tRPC BCID  : "  << rpcbcid  << endreq;
+   log << MSG::VERBOSE << "Pixel L1ID : "  << pixell1id   << "\tPixel BCID  : "  << pixelbcid  << endreq;
+   log << MSG::VERBOSE << "CTP-RPC L1ID : "  << ctp_l1id9-rpcl1id   << "\tCTP-LAR L1ID  : "  << ctp_l1id16-larl1id  << endreq;
    return StatusCode::SUCCESS;
 }
 
@@ -1254,10 +1231,11 @@ StatusCode DQTDetSynchMonTool::procHistograms( )
 //StatusCode DQTDetSynchMonTool::procHistograms( bool isEndOfEventsBlock, bool isEndOfLumiBlock, bool isEndOfRun )
 //----------------------------------------------------------------------------------
 {
-  if ( endOfLumiBlockFlag() || endOfRunFlag() ) {
+   //if ( endOfEventsBlock || endOfLumiBlock || endOfRun ) {
+   if ( endOfLumiBlock || endOfRun ) {
       MsgStream log(msgSvc(), name());
 
-      //log << MSG::DEBUG << "in finalHists()" << endmsg;
+      //log << MSG::DEBUG << "in finalHists()" << endreq;
    }
 
    return StatusCode::SUCCESS;
@@ -1269,7 +1247,7 @@ StatusCode DQTDetSynchMonTool::checkHists(bool /* fromFinalize */)
 {
    MsgStream log(msgSvc(), name());
 
-   //log << MSG::DEBUG << "in checkHists()" << endmsg;
+   //log << MSG::DEBUG << "in checkHists()" << endreq;
 
    return StatusCode::SUCCESS;
 }
@@ -1287,21 +1265,21 @@ uint32_t DQTDetSynchMonTool::findid(std::multiset<uint32_t>& mset)
 
    if (it!=itend && !mset.empty()){ //if empty do nothing 
      // the following uses invalid iterator
-     // if ( (*it)==(*itend) ) { log << "all ids equal: " << (*it) << endmsg; return (*it);} // if all ids equal, return the result immediately
+     // if ( (*it)==(*itend) ) { log << "all ids equal: " << (*it) << endreq; return (*it);} // if all ids equal, return the result immediately
       for (;it!=itend;++it) {
          if ( (*it) != id ) { //skip check if the id value has been already evaluated
 
             id=*it; count = mset.count(*it);
-            log << MSG::VERBOSE << "new id found: " << (*it) << " with counts: " << count <<endmsg;
+            log << MSG::VERBOSE << "new id found: " << (*it) << " with counts: " << count <<endreq;
             if ( ( (*it) !=refid )&&(count>refcount) ){ // if count> previous maximum and double check the id value
                refid = (*it);
                refcount=count;
-               log << MSG::VERBOSE << "new REFERENCE id: " << refid << " with REFERENCE counts: " << refcount <<endmsg;
+               log << MSG::VERBOSE << "new REFERENCE id: " << refid << " with REFERENCE counts: " << refcount <<endreq;
             }
          }
       }
    }
-   log << MSG::VERBOSE << "Returning REFERENCE id: " << refid << " with REFERENCE counts: " << refcount <<endmsg;
+   log << MSG::VERBOSE << "Returning REFERENCE id: " << refid << " with REFERENCE counts: " << refcount <<endreq;
    return refid;
 }
 
