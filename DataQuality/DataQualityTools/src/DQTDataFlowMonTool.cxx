@@ -79,7 +79,7 @@ StatusCode DQTDataFlowMonTool::bookHistograms(  )
   
     MonGroup lb_hists( this, m_path, lumiBlock, ATTRIB_MANAGED );
     MonGroup lowStat_alpha_hists( this, m_path, lowStat, ATTRIB_MANAGED, "", "mergeRebinned" );
-    
+   
       //failure |= lb_hists.regHist(m_events_lb = TH1I_LW::create("events_lb", "Event Count", AthenaMonManager::altprod+1, -0.5, AthenaMonManager::altprod+0.5)).isFailure();
       failure |= lb_hists.regHist(m_events_lb = new TH1I("events_lb", "Event Count", AthenaMonManager::altprod+1, -0.5, AthenaMonManager::altprod+0.5)).isFailure();
       
@@ -103,39 +103,39 @@ StatusCode
 DQTDataFlowMonTool::bookHistogramsRecurrent() {
 
     bool failure(false);
-    MonGroup lowStat_hists( this, m_path, lowStat, ATTRIB_MANAGED );
-    MonGroup run_hists( this, m_path, run, ATTRIB_MANAGED );
+    MonGroup lowStat_hists( this, m_path, lowStat, ATTRIB_UNMANAGED );
+    MonGroup run_hists( this, m_path, run, ATTRIB_UNMANAGED );
     
     if( m_environment == AthenaMonManager::tier0
     || m_environment == AthenaMonManager::tier0ESD ) {
-    //  if (newRun) {
-    for (int i=0; i < EventInfo::nDets; i++) {
-      m_eventflag_run[i] = new TGraph();
-      m_eventflag_run[i]->SetTitle((std::string("Nonzero Warning/Error Event Flags for ")
-                       + eventflagdets[i]).c_str());
-      m_eventflag_run[i]->SetName((std::string("eventflag_run_")
-                      + eventflagdets[i]).c_str());
-      failure |= run_hists.regGraph(m_eventflag_run[i]).isFailure();
-      delete m_eventflag_vec[i];
-      m_eventflag_vec[i] = new std::vector<EvFlagPt_t>;
-      m_eventflag_vec[i]->reserve(1000);
-    }
-    //  }
-
-    // if (newLumiBlock && newLowStatInterval) {
-    //failure |= lowStat_hists.regHist(m_eventflag_summary_lowStat = TH2I_LW::create("eventflag_summary_lowStat", "Event Flag Summary", EventInfo::nDets+1, -0.5, EventInfo::nDets+0.5, 3, -0.5, 2.5)).isFailure();
-    failure |= lowStat_hists.regHist(m_eventflag_summary_lowStat = new TH2I("eventflag_summary_lowStat", "Event Flag Summary", EventInfo::nDets+1, -0.5, EventInfo::nDets+0.5, 3, -0.5, 2.5)).isFailure();
-
-    if (m_eventflag_summary_lowStat) {
-      m_eventflag_summary_lowStat->GetYaxis()->SetBinLabel(1, "OK");
-      m_eventflag_summary_lowStat->GetYaxis()->SetBinLabel(2, "Warning");
-      m_eventflag_summary_lowStat->GetYaxis()->SetBinLabel(3, "Error");
-      for (int i = 1; i <= EventInfo::nDets; i++) {
-        m_eventflag_summary_lowStat->GetXaxis()->SetBinLabel(i, eventflagdets[i-1]);
+      if (newRun) {
+	for (int i=0; i < EventInfo::nDets; i++) {
+	  m_eventflag_run[i] = new TGraph();
+	  m_eventflag_run[i]->SetTitle((std::string("Nonzero Warning/Error Event Flags for ")
+					+ eventflagdets[i]).c_str());
+	  m_eventflag_run[i]->SetName((std::string("eventflag_run_")
+				       + eventflagdets[i]).c_str());
+	  failure |= run_hists.regGraph(m_eventflag_run[i]).isFailure();
+	  delete m_eventflag_vec[i];
+	  m_eventflag_vec[i] = new std::vector<EvFlagPt_t>;
+	  m_eventflag_vec[i]->reserve(1000);
+	}
       }
-      m_eventflag_summary_lowStat->GetXaxis()->SetBinLabel(EventInfo::nDets+1, "All");
-    }
-    //  }
+
+      if (newLumiBlock && newLowStatInterval) {
+	//failure |= lowStat_hists.regHist(m_eventflag_summary_lowStat = TH2I_LW::create("eventflag_summary_lowStat", "Event Flag Summary", EventInfo::nDets+1, -0.5, EventInfo::nDets+0.5, 3, -0.5, 2.5)).isFailure();
+	failure |= lowStat_hists.regHist(m_eventflag_summary_lowStat = new TH2I("eventflag_summary_lowStat", "Event Flag Summary", EventInfo::nDets+1, -0.5, EventInfo::nDets+0.5, 3, -0.5, 2.5)).isFailure();
+	
+	if (m_eventflag_summary_lowStat) {
+	  m_eventflag_summary_lowStat->GetYaxis()->SetBinLabel(1, "OK");
+	  m_eventflag_summary_lowStat->GetYaxis()->SetBinLabel(2, "Warning");
+	  m_eventflag_summary_lowStat->GetYaxis()->SetBinLabel(3, "Error");
+	  for (int i = 1; i <= EventInfo::nDets; i++) {
+	    m_eventflag_summary_lowStat->GetXaxis()->SetBinLabel(i, eventflagdets[i-1]);
+	  }
+	  m_eventflag_summary_lowStat->GetXaxis()->SetBinLabel(EventInfo::nDets+1, "All");
+	}
+      }
     }
   //else if (isNewEventsBlock) {
   //  return StatusCode::SUCCESS;

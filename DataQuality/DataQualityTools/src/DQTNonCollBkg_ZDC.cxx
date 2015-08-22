@@ -109,6 +109,7 @@ StatusCode DQTNonCollBkg_ZDC::bookHistograms()
     return StatusCode::SUCCESS;
   }
 
+  /*
   StatusCode sc = m_trigDec.retrieve();
   
   if ( sc.isFailure() ){
@@ -119,7 +120,7 @@ StatusCode DQTNonCollBkg_ZDC::bookHistograms()
     log << MSG::DEBUG << "Got handle on TrigDecisionTool" << endreq;
     return StatusCode::SUCCESS;
   }
-
+  */
 }
 
 //----------------------------------------------------------------------------------

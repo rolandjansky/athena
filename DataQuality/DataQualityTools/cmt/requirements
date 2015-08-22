@@ -62,7 +62,7 @@ private
 #use AthenaKernel              AthenaKernel-*              Control
 use xAODCaloEvent             xAODCaloEvent-*             Event/xAOD
 
-use AnalysisTriggerEvent	AnalysisTriggerEvent-*	        PhysicsAnalysis/AnalysisTrigger
+#use AnalysisTriggerEvent	AnalysisTriggerEvent-*	        PhysicsAnalysis/AnalysisTrigger
 #use AtlasCLHEP                  AtlasCLHEP-*                    External
 
 # CTP dependency

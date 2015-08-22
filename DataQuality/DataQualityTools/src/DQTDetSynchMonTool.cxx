@@ -32,6 +32,12 @@
 
 #include "TProfile.h"
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
+#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
+#else
+#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
+#endif
+
 //----------------------------------------------------------------------------------
 DQTDetSynchMonTool::DQTDetSynchMonTool(const std::string & type, 
                                        const std::string & name,
@@ -286,12 +292,12 @@ bool DQTDetSynchMonTool::bookBCID()
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_Tile_BCID_lumi  = new TProfile("m_diff_CTP_Tile_BCID_lumi", "BCID difference between CTP and Tile detectors as a function of the LumiBlock", 30, 0., 30,-4096.,4096 )).isFailure();
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_RPC_BCID_lumi  = new TProfile("m_diff_CTP_RPC_BCID_lumi", "BCID difference between CTP and RPC detectors as a function of the LumiBlock", 30, 0., 30,-4096.,4096)).isFailure();
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_Pixel_BCID_lumi  = new TProfile("m_diff_CTP_Pixel_BCID_lumi", "BCID difference between CTP and Pixel detectors as a function of the LumiBlock", 30, 0., 30,-4096.,4096)).isFailure();
-      m_diff_CTP_RPC_BCID_lumi->SetBit(TH1::kCanRebin);
-      m_diff_CTP_SCT_BCID_lumi->SetBit(TH1::kCanRebin);
-      m_diff_CTP_TRT_BCID_lumi->SetBit(TH1::kCanRebin);
-      m_diff_CTP_LAR_BCID_lumi->SetBit(TH1::kCanRebin);
-      m_diff_CTP_Tile_BCID_lumi->SetBit(TH1::kCanRebin);
-      m_diff_CTP_Pixel_BCID_lumi->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_CTP_RPC_BCID_lumi);
+      CAN_REBIN(m_diff_CTP_SCT_BCID_lumi);
+      CAN_REBIN(m_diff_CTP_TRT_BCID_lumi);
+      CAN_REBIN(m_diff_CTP_LAR_BCID_lumi);
+      CAN_REBIN(m_diff_CTP_Tile_BCID_lumi);
+      CAN_REBIN(m_diff_CTP_Pixel_BCID_lumi);
    }
 
    // Booking subdetectors BCID differences
@@ -324,55 +330,55 @@ bool DQTDetSynchMonTool::bookBCID()
 
       // Booking subdetectors BCID differences wrt CTP in resizable histograms  
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_SCT_BCID_Rebin  = new TH1I("m_diff_CTP_SCT_BCID_Rebin", "BCID difference between CTP and SCT detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      m_diff_CTP_SCT_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_CTP_SCT_BCID_Rebin);
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_TRT_BCID_Rebin = new TH1I("m_diff_CTP_TRT_BCID_Rebin", "BCID difference between CTP and TRT detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      m_diff_CTP_TRT_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_CTP_TRT_BCID_Rebin);
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_LAR_BCID_Rebin = new TH1I("m_diff_CTP_LAR_BCID_Rebin", "BCID difference between CTP and LAR detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      m_diff_CTP_LAR_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_CTP_LAR_BCID_Rebin);
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_Tile_BCID_Rebin  = new TH1I("m_diff_CTP_Tile_BCID_Rebin", "BCID difference between CTP and Tile detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      m_diff_CTP_Tile_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_CTP_Tile_BCID_Rebin);
       failure = failure |registerHist(fullPathBCID, m_diff_CTP_RPC_BCID_Rebin  = new TH1I("m_diff_CTP_RPC_BCID_Rebin", "BCID difference between CTP and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_CTP_RPC_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_CTP_RPC_BCID_Rebin);
      
      
       // Booking subdetectors BCID differences in resizable histograms, these were missing
       failure = failure |registerHist(fullPathBCID, m_diff_SCT_TRT_BCID_Rebin = new TH1I("m_diff_SCT_TRT_BCID_Rebin", "BCID difference between SCT and TRT detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_SCT_TRT_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_SCT_TRT_BCID_Rebin);
      
       failure = failure |registerHist(fullPathBCID, m_diff_SCT_LAR_BCID_Rebin = new TH1I("m_diff_SCT_LAR_BCID_Rebin", "BCID difference between SCT and LAR detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_SCT_LAR_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_SCT_LAR_BCID_Rebin);
      
       failure = failure |registerHist(fullPathBCID, m_diff_SCT_Tile_BCID_Rebin  = new TH1I("m_diff_SCT_Tile_BCID_Rebin", "BCID difference between SCT and Tile detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_SCT_TRT_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_SCT_TRT_BCID_Rebin);
      
       failure = failure |registerHist(fullPathBCID, m_diff_SCT_RPC_BCID_Rebin  = new TH1I("m_diff_SCT_RPC_BCID_Rebin", "BCID difference between SCT and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_SCT_RPC_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_SCT_RPC_BCID_Rebin);
       failure = failure |registerHist(fullPathBCID, m_diff_TRT_LAR_BCID_Rebin = new TH1I("m_diff_TRT_LAR_BCID_Rebin", "BCID difference between TRT and LAR detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_TRT_LAR_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_TRT_LAR_BCID_Rebin);
       failure = failure |registerHist(fullPathBCID, m_diff_TRT_Tile_BCID_Rebin  = new TH1I("m_diff_TRT_Tile_BCID_Rebin", "BCID difference between TRT and Tile detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_TRT_Tile_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_TRT_Tile_BCID_Rebin);
       failure = failure |registerHist(fullPathBCID, m_diff_TRT_RPC_BCID_Rebin  = new TH1I("m_diff_TRT_RPC_BCID_Rebin", "BCID difference between TRT and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_TRT_RPC_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_TRT_RPC_BCID_Rebin);
       failure = failure |registerHist(fullPathBCID, m_diff_LAR_Tile_BCID_Rebin  = new TH1I("m_diff_LAR_Tile_BCID_Rebin", "BCID difference between LAR and Tile detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_LAR_Tile_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_LAR_Tile_BCID_Rebin);
       failure = failure |registerHist(fullPathBCID, m_diff_LAR_RPC_BCID_Rebin  = new TH1I("m_diff_LAR_RPC_BCID_Rebin", "BCID difference between LAR and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_LAR_RPC_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_LAR_RPC_BCID_Rebin);
       failure = failure |registerHist(fullPathBCID, m_diff_Tile_RPC_BCID_Rebin  = new TH1I("m_diff_Tile_RPC_BCID_Rebin", "BCID difference between Tile and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_Tile_RPC_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_Tile_RPC_BCID_Rebin);
      
           
       failure = failure |registerHist(fullPathBCID, m_diff_Pixel_SCT_BCID_Rebin  = new TH1I("m_diff_Pixel_SCT_BCID_Rebin", "BCID difference between Pixel and SCT detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      m_diff_Pixel_SCT_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_Pixel_SCT_BCID_Rebin);
       failure = failure |registerHist(fullPathBCID, m_diff_Pixel_TRT_BCID_Rebin = new TH1I("m_diff_Pixel_TRT_BCID_Rebin", "BCID difference between Pixel and TRT detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      m_diff_Pixel_TRT_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_Pixel_TRT_BCID_Rebin);
       failure = failure |registerHist(fullPathBCID, m_diff_Pixel_LAR_BCID_Rebin = new TH1I("m_diff_Pixel_LAR_BCID_Rebin", "BCID difference between Pixel and LAR detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      m_diff_Pixel_LAR_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_Pixel_LAR_BCID_Rebin);
       failure = failure |registerHist(fullPathBCID, m_diff_Pixel_Tile_BCID_Rebin  = new TH1I("m_diff_Pixel_Tile_BCID_Rebin", "BCID difference between Pixel and Tile detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      m_diff_Pixel_Tile_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_Pixel_Tile_BCID_Rebin);
       failure = failure |registerHist(fullPathBCID, m_diff_Pixel_RPC_BCID_Rebin  = new TH1I("m_diff_Pixel_RPC_BCID_Rebin", "BCID difference between Pixel and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_Pixel_RPC_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_Pixel_RPC_BCID_Rebin);
       failure = failure |registerHist(fullPathBCID, m_diff_Pixel_CTP_BCID_Rebin  = new TH1I("m_diff_Pixel_CTP_BCID_Rebin", "BCID difference between Pixel and CTP detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_Pixel_CTP_BCID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_Pixel_CTP_BCID_Rebin);
    }
   
   
@@ -438,12 +444,12 @@ bool DQTDetSynchMonTool::bookL1ID()
       failure = failure |registerHist(fullPathL1ID, m_diff_CTP_Tile_L1ID_lumi  = new TProfile("m_diff_CTP_Tile_L1ID_lumi", "L1ID difference between CTP and Tile detectors as a function of the LumiBlock", 30, 0., 30,-4096.,4096 )).isFailure();
       failure = failure |registerHist(fullPathL1ID, m_diff_CTP_RPC_L1ID_lumi  = new TProfile("m_diff_CTP_RPC_L1ID_lumi", "L1ID difference between CTP and RPC detectors as a function of the LumiBlock", 30, 0., 30,-4096.,4096)).isFailure();
       failure = failure |registerHist(fullPathL1ID, m_diff_CTP_Pixel_L1ID_lumi  = new TProfile("m_diff_CTP_Pixel_L1ID_lumi", "L1ID difference between CTP and Pixel detectors as a function of the LumiBlock", 30, 0., 30,-4096.,4096)).isFailure();     
-      m_diff_CTP_SCT_L1ID_lumi->SetBit(TH1::kCanRebin);
-      m_diff_CTP_TRT_L1ID_lumi->SetBit(TH1::kCanRebin);
-      m_diff_CTP_LAR_L1ID_lumi->SetBit(TH1::kCanRebin);
-      m_diff_CTP_Tile_L1ID_lumi->SetBit(TH1::kCanRebin);
-      m_diff_CTP_Pixel_L1ID_lumi->SetBit(TH1::kCanRebin);
-      m_diff_CTP_RPC_L1ID_lumi->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_CTP_SCT_L1ID_lumi);
+      CAN_REBIN(m_diff_CTP_TRT_L1ID_lumi);
+      CAN_REBIN(m_diff_CTP_LAR_L1ID_lumi);
+      CAN_REBIN(m_diff_CTP_Tile_L1ID_lumi);
+      CAN_REBIN(m_diff_CTP_Pixel_L1ID_lumi);
+      CAN_REBIN(m_diff_CTP_RPC_L1ID_lumi);
    }
 
    // Add those that were missing
@@ -476,51 +482,51 @@ bool DQTDetSynchMonTool::bookL1ID()
      
       // Booking subdetectors L1ID differences wrt CTP in resizable histograms
       failure = failure |registerHist(fullPathL1ID, m_diff_CTP_SCT_L1ID_Rebin  = new TH1I("m_diff_CTP_SCT_L1ID_Rebin", "L1ID difference between CTP and SCT detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      m_diff_CTP_SCT_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_CTP_SCT_L1ID_Rebin);
       failure = failure |registerHist(fullPathL1ID, m_diff_CTP_TRT_L1ID_Rebin = new TH1I("m_diff_CTP_TRT_L1ID_Rebin", "L1ID difference between CTP and TRT detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      m_diff_CTP_TRT_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_CTP_TRT_L1ID_Rebin);
       failure = failure |registerHist(fullPathL1ID, m_diff_CTP_LAR_L1ID_Rebin = new TH1I("m_diff_CTP_LAR_L1ID_Rebin", "L1ID difference between CTP and LAR detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      m_diff_CTP_LAR_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_CTP_LAR_L1ID_Rebin);
       failure = failure |registerHist(fullPathL1ID, m_diff_CTP_Tile_L1ID_Rebin  = new TH1I("m_diff_CTP_Tile_L1ID_Rebin", "L1ID difference between CTP and Tile detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      m_diff_CTP_Tile_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_CTP_Tile_L1ID_Rebin);
       failure = failure |registerHist(fullPathL1ID, m_diff_CTP_RPC_L1ID_Rebin  = new TH1I("m_diff_CTP_RPC_L1ID_Rebin", "L1ID difference between CTP and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_CTP_RPC_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_CTP_RPC_L1ID_Rebin);
      
 
       failure = failure |registerHist(fullPathL1ID, m_diff_SCT_TRT_L1ID_Rebin = new TH1I("m_diff_SCT_TRT_L1ID_Rebin", "L1ID difference between SCT and TRT detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_SCT_TRT_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_SCT_TRT_L1ID_Rebin);
      
       failure = failure |registerHist(fullPathL1ID, m_diff_SCT_LAR_L1ID_Rebin = new TH1I("m_diff_SCT_LAR_L1ID_Rebin", "L1ID difference between SCT and LAR detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_SCT_LAR_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_SCT_LAR_L1ID_Rebin);
       failure = failure |registerHist(fullPathL1ID, m_diff_SCT_Tile_L1ID_Rebin  = new TH1I("m_diff_SCT_Tile_L1ID_Rebin", "L1ID difference between SCT and Tile detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_SCT_Tile_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_SCT_Tile_L1ID_Rebin);
       failure = failure |registerHist(fullPathL1ID, m_diff_SCT_RPC_L1ID_Rebin  = new TH1I("m_diff_SCT_RPC_L1ID_Rebin", "L1ID difference between SCT and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_SCT_RPC_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_SCT_RPC_L1ID_Rebin);
       failure = failure |registerHist(fullPathL1ID, m_diff_TRT_LAR_L1ID_Rebin = new TH1I("m_diff_TRT_LAR_L1ID_Rebin", "L1ID difference between TRT and LAR detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_TRT_LAR_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_TRT_LAR_L1ID_Rebin);
       failure = failure |registerHist(fullPathL1ID, m_diff_TRT_Tile_L1ID_Rebin  = new TH1I("m_diff_TRT_Tile_L1ID_Rebin", "L1ID difference between TRT and Tile detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_TRT_Tile_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_TRT_Tile_L1ID_Rebin);
       failure = failure |registerHist(fullPathL1ID, m_diff_TRT_RPC_L1ID_Rebin  = new TH1I("m_diff_TRT_RPC_L1ID_Rebin", "L1ID difference between TRT and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_TRT_RPC_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_TRT_RPC_L1ID_Rebin);
       failure = failure |registerHist(fullPathL1ID, m_diff_LAR_Tile_L1ID_Rebin  = new TH1I("m_diff_LAR_Tile_L1ID_Rebin", "L1ID difference between LAR and Tile detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_LAR_Tile_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_LAR_Tile_L1ID_Rebin);
       failure = failure |registerHist(fullPathL1ID, m_diff_LAR_RPC_L1ID_Rebin  = new TH1I("m_diff_LAR_RPC_L1ID_Rebin", "L1ID difference between LAR and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_LAR_RPC_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_LAR_RPC_L1ID_Rebin);
       failure = failure |registerHist(fullPathL1ID, m_diff_Tile_RPC_L1ID_Rebin  = new TH1I("m_diff_Tile_RPC_L1ID_Rebin", "L1ID difference between Tile and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_Tile_RPC_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_Tile_RPC_L1ID_Rebin);
      
       failure = failure |registerHist(fullPathL1ID, m_diff_Pixel_SCT_L1ID_Rebin  = new TH1I("m_diff_Pixel_SCT_L1ID_Rebin", "L1ID difference between Pixel and SCT detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      m_diff_Pixel_SCT_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_Pixel_SCT_L1ID_Rebin);
       failure = failure |registerHist(fullPathL1ID, m_diff_Pixel_TRT_L1ID_Rebin = new TH1I("m_diff_Pixel_TRT_L1ID_Rebin", "L1ID difference between Pixel and TRT detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      m_diff_Pixel_TRT_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_Pixel_TRT_L1ID_Rebin);
       failure = failure |registerHist(fullPathL1ID, m_diff_Pixel_LAR_L1ID_Rebin = new TH1I("m_diff_Pixel_LAR_L1ID_Rebin", "L1ID difference between Pixel and LAR detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      m_diff_Pixel_LAR_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_Pixel_LAR_L1ID_Rebin);
       failure = failure |registerHist(fullPathL1ID, m_diff_Pixel_Tile_L1ID_Rebin  = new TH1I("m_diff_Pixel_Tile_L1ID_Rebin", "L1ID difference between Pixel and Tile detectors. Full Range.", 51, -25.5, 25.5)).isFailure();
-      m_diff_Pixel_Tile_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_Pixel_Tile_L1ID_Rebin);
       failure = failure |registerHist(fullPathL1ID, m_diff_Pixel_RPC_L1ID_Rebin  = new TH1I("m_diff_Pixel_RPC_L1ID_Rebin", "L1ID difference between Pixel and RPC detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_Pixel_RPC_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_Pixel_RPC_L1ID_Rebin);
       failure = failure |registerHist(fullPathL1ID, m_diff_Pixel_CTP_L1ID_Rebin  = new TH1I("m_diff_Pixel_CTP_L1ID_Rebin", "L1ID difference between Pixel and CTP detectors. Full Range", 51, -25.5, 25.5)).isFailure();
-      m_diff_Pixel_CTP_L1ID_Rebin->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_diff_Pixel_CTP_L1ID_Rebin);
      
    }
 
@@ -1258,7 +1264,8 @@ uint32_t DQTDetSynchMonTool::findid(std::multiset<uint32_t>& mset)
    std::multiset<uint32_t>::iterator itend = mset.end();
 
    if (it!=itend && !mset.empty()){ //if empty do nothing 
-      if ( (*it)==(*itend) ) { log << "all ids equal: " << (*it) << endreq; return (*it);} // if all ids equal, return the result immediately
+     // the following uses invalid iterator
+     // if ( (*it)==(*itend) ) { log << "all ids equal: " << (*it) << endreq; return (*it);} // if all ids equal, return the result immediately
       for (;it!=itend;++it) {
          if ( (*it) != id ) { //skip check if the id value has been already evaluated
 
@@ -1289,10 +1296,11 @@ float DQTDetSynchMonTool::findfrac(std::multiset<uint32_t>& mset, uint16_t ctpid
   float frac = 0.0;
 
   if (it!=itend && !mset.empty()){ //if empty do nothing
-    if ( (*it)==(*itend) ) { // if all ids equal, return the result immediately
-      if ((*it)==ctpid) return 0.0;
-      else if (!((*it)==ctpid)) return 1.0;
-    }
+    // The following is not valid C++
+    // if ( (*it)==(*itend) ) { // if all ids equal, return the result immediately
+    //   if ((*it)==ctpid) return 0.0;
+    //   else if (!((*it)==ctpid)) return 1.0;
+    // }
     for (;it!=itend;++it) {
       totalCounter++;
       if ( (*it) != ctpid ) nonctpIdCounter++;
