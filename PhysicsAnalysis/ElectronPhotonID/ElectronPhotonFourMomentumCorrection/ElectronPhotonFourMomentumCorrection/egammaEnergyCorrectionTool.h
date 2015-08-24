@@ -32,6 +32,7 @@
 #include "TFile.h"
 #include "TGraphErrors.h"
 #include "TH1D.h"
+#include "TH2F.h"
 #include "TSystem.h"
 #include "TF1.h"
 
@@ -46,9 +47,11 @@ namespace egGain { class GainTool; }
 
 // Create a namespace for all needed enums
 namespace egEnergyCorr {
-  
+  struct ROOT6_OpenNamespaceWorkaround { };  // workaround for reflex dict generation
+
   // Resolution error variations
   namespace Resolution {
+    struct ROOT6_OpenNamespaceWorkaround { };  // workaround for reflex dict generation
 
     enum Variation {
 
@@ -56,10 +59,10 @@ namespace egEnergyCorr {
 
       // Nothing to be done
       None,
-      
+
       // Nominal
       Nominal,
-      
+
       // All (Only for error plotting - not correct when running over a sample!)
       AllDown, AllUp,
 
@@ -70,7 +73,7 @@ namespace egEnergyCorr {
       SamplingTermDown, SamplingTermUp,
 
       // Material uncertainty
-      MaterialIDDown, MaterialIDUp, MaterialCaloDown, MaterialCaloUp, MaterialGapDown, MaterialGapUp, MaterialCryoDown, MaterialCryoUp, 
+      MaterialIDDown, MaterialIDUp, MaterialCaloDown, MaterialCaloUp, MaterialGapDown, MaterialGapUp, MaterialCryoDown, MaterialCryoUp,
 
       // Pileup uncertainty
       PileUpDown, PileUpUp,
@@ -91,18 +94,19 @@ namespace egEnergyCorr {
     };
 
   } // End: namespace Resolution
-  
-  
+
+
   // Scale error variations
   namespace Scale {
+    struct ROOT6_OpenNamespaceWorkaround { };  // workaround for reflex dict generation
 
-    enum Variation { 
-      
+    enum Variation {
+
       // Nothing to be done
       None,
-      
+
       // central value
-      Nominal, 
+      Nominal,
 
 
       // This applies to electrons only
@@ -115,9 +119,9 @@ namespace egEnergyCorr {
 
       // ... Zee scale uncertainty variations : Stat uncorrelated; Syst correlated vs eta
       ZeeStatUp, ZeeStatDown, ZeeSystUp, ZeeSystDown, ZeePhysUp, ZeePhysDown, ZeeAllUp, ZeeAllDown,
-      
+
       // ... LAr systematics on scale and material determinations : correlated vs eta
-      LArCalibUp, LArCalibDown, LArUnconvCalibUp, LArUnconvCalibDown, LArElecCalibUp, LArElecCalibDown, LArElecUnconvUp, LArElecUnconvDown, 
+      LArCalibUp, LArCalibDown, LArUnconvCalibUp, LArUnconvCalibDown, LArElecCalibUp, LArElecCalibDown, LArElecUnconvUp, LArElecUnconvDown,
 
       // ... G4 systematics on E1/E2
       G4Up, G4Down,
@@ -130,7 +134,7 @@ namespace egEnergyCorr {
 
       // ... Gain correction
       L1GainUp, L1GainDown, L2GainUp, L2GainDown,
-      
+
       // ... Pedestal
       PedestalUp, PedestalDown,
 
@@ -138,7 +142,7 @@ namespace egEnergyCorr {
       // The following apply to photons only
 
       // ... Leakage
-      LeakageUnconvUp, LeakageUnconvDown, LeakageConvUp, LeakageConvDown, 
+      LeakageUnconvUp, LeakageUnconvDown, LeakageConvUp, LeakageConvDown,
 
       // ... Conversion efficiency (-> vary unconverted photon calib), fake rate (-> vary converted photon calib)
       ConvEfficiencyUp, ConvEfficiencyDown, ConvFakeRateUp, ConvFakeRateDown, ConvRadiusUp, ConvRadiusDown,
@@ -153,8 +157,8 @@ namespace egEnergyCorr {
     };
 
   } // End: namespace Scale
-  
-  
+
+
   // ES model
 
   enum ESModel {
@@ -174,11 +178,13 @@ namespace egEnergyCorr {
     es2012cTight,           // mc12c : ditto, tight electrons, |eta|<2.47
 
     es2015_day0_3percent,   // temporary for day0 run2
+    es2012XX,               // as es2012 + mc15 MVA calibration + new scales
+    es2015PRE,               // as es2012 + mc15 MVA calibration + new scales + additional unc
 
     UNDEFINED
 
   };
-  
+
   // Geometry dostortions
 
   enum Geometry {
@@ -201,12 +207,12 @@ namespace egEnergyCorr {
 
 
 namespace AtlasRoot {
-  
+
   // Taken from CLHEP/Units/SystemOfUnits.h
   static const double GeV = 1.e+3;
-  
+
   class egammaEnergyCorrectionTool {
-    
+
   public:
     // input struct
     struct ParticleInformation {
@@ -229,7 +235,7 @@ namespace AtlasRoot {
       int convtrk2nSCTHits;
       float Rconv;
       PATCore::ParticleType::Type ptype;
-      
+
       ParticleInformation(float rawcl_Es0,
 			  float rawcl_Es1,
 			  float rawcl_Es2,
@@ -253,8 +259,8 @@ namespace AtlasRoot {
 	  ptconv(ptconv), pt1conv(pt1conv), pt2conv(pt2conv),
 	  convtrk1nPixHits(convtrk1nPixHits), convtrk1nSCTHits(convtrk1nSCTHits),
 	  convtrk2nPixHits(convtrk2nPixHits), convtrk2nSCTHits(convtrk2nSCTHits),
-	  Rconv(Rconv), 
-	  ptype((Rconv > 0 and Rconv < 800) ? PATCore::ParticleType::ConvertedPhoton : PATCore::ParticleType::UnconvertedPhoton) { } // I am a photon 
+	  Rconv(Rconv),
+	  ptype((Rconv > 0 and Rconv < 800) ? PATCore::ParticleType::ConvertedPhoton : PATCore::ParticleType::UnconvertedPhoton) { } // I am a photon
 
       ParticleInformation(float rawcl_Es0,
 			  float rawcl_Es1,
@@ -273,11 +279,11 @@ namespace AtlasRoot {
 	  convtrk1nPixHits(-999), convtrk1nSCTHits(-999),
 	  convtrk2nPixHits(-999), convtrk2nSCTHits(-999),
 	  Rconv(-999), ptype(PATCore::ParticleType::Electron) { } // I am an electron
-      
+
     };
-    
+
   public:
-    
+
     // Standard constructor and destructor
     //////////////////////////////////////
 
@@ -292,13 +298,15 @@ namespace AtlasRoot {
 
     // ... Initialize this tool with all internal parameters, depending on the previous user setup
     int initialize();
-    
+
     // Optional
     ///////////
 
     // ... set input file
     inline void setFileName ( const std::string& val ){ m_rootFileName = val; }
-    
+
+    inline void setMVAfolder(const std::string& val) { m_MVAfolder = val; }
+
     // ... use/tweak Layer correction (set properly according to esmodel). !!! Switch at own risk !!!
     void useLayerCorrection( bool val ) { m_use_layer_correction = val; }
     void applyPSCorrection( bool val ) { m_applyPSCorrection = val; }
@@ -308,7 +316,7 @@ namespace AtlasRoot {
     void useLayer2Recalibration( bool val ) { m_use_layer2_recalibration = val; }
 
     // ... use uniformity corrections (default = true )
-    void useIntermoduleCorrection( bool val ) { m_use_intermodule_correction = val; }    
+    void useIntermoduleCorrection( bool val ) { m_use_intermodule_correction = val; }
     void usePhiUniformCorrection( bool val ) { m_use_phi_unif_correction = val; }
 
     // ... use gain correction
@@ -317,39 +325,45 @@ namespace AtlasRoot {
     bool useIntermoduleCorrection() const { return m_use_intermodule_correction; }
     bool usePhiUniformCorrection() const { return m_use_phi_unif_correction; }
     bool useMVA ( ) const { return m_use_MVA_calibration; }
+    void useMVA (bool val) { m_use_MVA_calibration = val; }
     bool useLayer2Recalibration ( ) const { return m_use_layer2_recalibration; }
     bool useGainCorrection ( ) const { return m_use_gain_correction; }
 
     // ... set a seed for the random number generator
     void setRandomSeed( unsigned seed=0 ) { m_random3.SetSeed(seed); }
-    
+
     // ... Set output level to debug
     void setDebug( bool flag=false ) { m_debug=flag; }
-    
 
-    /** take eta and uncorrected energy of electron, return  corrected energy, 
+    void useStatErrorScaling(bool flag) { m_use_stat_error_scaling = flag; }
+
+    void use_temp_correction201215(bool flag) { m_use_temp_correction201215 = flag; }
+    void use_uA2MeV_2015_first2weeks_correction(bool flag) { m_use_uA2MeV_2015_first2weeks_correction = flag; }
+
+    /** take eta and uncorrected energy of electron, return  corrected energy,
 	apply given variation, for given particle type
 	Note : energies in MeV
 	This is the main method for users. It internally calls all other needed methods automatically */
-    
+
     double getCorrectedMomentum( PATCore::ParticleDataType::DataType dataType,
 				 PATCore::ParticleType::Type ptype,
 				 double momentum,
 				 double trk_eta,
 				 egEnergyCorr::Scale::Variation scaleVar = egEnergyCorr::Scale::None,
 				 double varSF = 1.0 ) const;
-    
+
     double getCorrectedEnergy( unsigned int runnumber,
 			       PATCore::ParticleDataType::DataType dataType,
 			       PATCore::ParticleType::Type ptype,
 			       double cl_eta,
+             double cl_etaCalo,
 			       double trk_eta,
 			       double energy,
 			       double energyS2,
 			       egEnergyCorr::Scale::Variation scaleVar = egEnergyCorr::Scale::None,
 			       egEnergyCorr::Resolution::Variation resVar = egEnergyCorr::Resolution::None,
                                egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90,
-			       double varSF = 1.0 ) const;    
+			       double varSF = 1.0 ) const;
 
     double getCorrectedEnergy( unsigned int runnumber,
 			       PATCore::ParticleDataType::DataType dataType,
@@ -358,7 +372,7 @@ namespace AtlasRoot {
 			       egEnergyCorr::Resolution::Variation resVar = egEnergyCorr::Resolution::None,
                                egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90,
 			       double varSF = 1.0 ) const;
-    
+
     double getCorrectedEnergy( unsigned int runnumber,
 			       PATCore::ParticleDataType::DataType dataType,
 			       PATCore::ParticleType::Type ptype,
@@ -384,7 +398,7 @@ namespace AtlasRoot {
 			       egEnergyCorr::Resolution::Variation resVar = egEnergyCorr::Resolution::None,
                                egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90,
 			       double varSF = 1.0 ) const;
-    
+
     double getCorrectedEnergyPhoton( unsigned int runnumber,
 				     PATCore::ParticleDataType::DataType dataType,
 				     float rawcl_Es0,
@@ -408,8 +422,8 @@ namespace AtlasRoot {
 				     egEnergyCorr::Resolution::Variation resVar = egEnergyCorr::Resolution::None,
                                      egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90,
 				     double varSF = 1.0 ) const;
-    
-    
+
+
     double getCorrectedEnergyElectron( unsigned int runnumber,
 				       PATCore::ParticleDataType::DataType dataType,
 				       float rawcl_Es0,
@@ -427,16 +441,17 @@ namespace AtlasRoot {
                                        egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90,
 				       double varSF = 1.0 ) const;
 
-    double resolution( double energy, double cl_eta, 
-		       PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron, 
-		       bool withCT=true,
-                       egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90 ) const;
-    
+    double resolution(double energy, double cl_eta, double cl_etaCalo,
+                      PATCore::ParticleType::Type ptype,
+		      bool withCT,
+		      bool fast,
+                      egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90 ) const;
+
     // new for mc12c model. Return relative uncertainty on the resolution
-    double getResolutionError(double energy, double eta,PATCore::ParticleType::Type ptype, egEnergyCorr::Resolution::Variation value,
+    double getResolutionError(double energy, double eta, double etaCalo, PATCore::ParticleType::Type ptype, egEnergyCorr::Resolution::Variation value,
                               egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::Gaussian) const;
 
-    
+
     StdCalibrationInputs* getCalibInputs() { return m_calibInputs; }
     float getCalibInputs(int i);
 
@@ -446,53 +461,56 @@ namespace AtlasRoot {
     static egEnergyCorr::Scale::Variation ScaleVariationFromString(std::string& var);
     static egEnergyCorr::Resolution::Variation ResolutionVariationFromString(std::string& var);
 
+    // convenient method for decorrelation of statistical error
+    const TAxis& get_ZeeStat_eta_axis() const { return *m_zeeNom->GetXaxis(); }
+
   private:
 
-    mutable egammaMVACalib* m_mva_electron_tool;                
-    mutable egammaMVACalib* m_mva_photon_tool;                  
-    mutable egammaLayerRecalibTool* m_layer_recalibration_tool;   
-    mutable egGain::GainTool* m_gain_tool;                      
-    mutable eg_resolution* m_resolution_tool;                   
+    mutable egammaMVACalib* m_mva_electron_tool;
+    mutable egammaMVACalib* m_mva_photon_tool;
+    mutable egammaLayerRecalibTool* m_layer_recalibration_tool;
+    mutable egGain::GainTool* m_gain_tool;
+    mutable eg_resolution* m_resolution_tool;
     mutable get_MaterialResolutionEffect* m_getMaterialDelta;
     mutable e1hg_systematics* m_e1hg_tool;
 
-    double getAlphaValue( double cl_eta, 
-			  double energy,
-			  double energyS2,
-                          PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron,
-                          egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal,     
-                          double varSF = 1. ) const;
+    double getAlphaValue(long int runnumber, double cl_eta, double cl_etaCalo,
+      double energy, double energyS2,
+      PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron,
+      egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal,
+      double varSF = 1. ) const;
 
-    double getAlphaUncertainty( double cl_eta, 
+    double getAlphaUncertainty(long int runnumber, double cl_eta, double cl_etaCalo,
 				double energy,
 				double energyS2,
                                 PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron,
-                                egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, 
+                                egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal,
                                 double varSF = 1. ) const;
-    
-    
+
+
     /// smearing corrections
     // Note : energies in MeV
-    
-    double getSmearingCorrection( double eta, double energy,
+
+    double getSmearingCorrection( double eta, double etaCalo, double energy,
 				  PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron,
+				  PATCore::ParticleDataType::DataType dataType = PATCore::ParticleDataType::Full,
                                   egEnergyCorr::Resolution::Variation value = egEnergyCorr::Resolution::Nominal,
                                   egEnergyCorr::Resolution::resolutionType resType = egEnergyCorr::Resolution::SigmaEff90 ) const;
-    
-    /// MC calibration corrections
-    
-    double applyMCCalibration( double eta, double ET, PATCore::ParticleType::Type ptype ) const;
-    double applyAFtoG4(double eta) const;
-    double applyFStoG4(double eta) const;
-    
 
-    /// Phi uniformity corrections 
+    /// MC calibration corrections
+
+    double applyMCCalibration( double eta, double ET, PATCore::ParticleType::Type ptype ) const;
+    double applyAFtoG4(double eta, PATCore::ParticleType::Type ptype) const;
+    double applyFStoG4(double eta) const;
+
+
+    /// Phi uniformity corrections
 
     static double IntermoduleCorrectionTool(double Ecl, double phi, double eta);
-    static double CorrectionPhiUnif(double eta, double phi);
-    
+    double CorrectionPhiUnif(double eta, double phi) const;
+
     // functions for resolution uncertainty evaluation
-    
+
     // functions for old model
     double mcSamplingTerm(double cl_eta) const;
     double mcSamplingTermRelError( double cl_eta ) const;
@@ -500,13 +518,13 @@ namespace AtlasRoot {
     double mcConstantTerm( double cl_eta ) const;
 
     // to access Z smearing and uncertainty
-    double dataConstantTerm( double cl_eta ) const;
-    double dataConstantTermError( double cl_eta ) const;
+    double dataConstantTerm(double eta) const;
+    double dataConstantTermError(double eta) const;
 
     // functions for old model
     double dataZPeakResolution( double cl_eta ) const;
     double mcZPeakResolution( double cl_eta ) const;
-    double dataConstantTermCorError( double cl_eta ) const; 
+    double dataConstantTermCorError( double cl_eta ) const;
     double fcn_sigma( double energy, double Cdata, double Cdata_er, double S, double S_er ) const;
     void   resolutionError( double energy, double cl_eta, double& errUp, double& errDown ) const;
 
@@ -514,13 +532,13 @@ namespace AtlasRoot {
 
     double getZeeMeanET( double cl_eta ) const;
 
-    double getAlphaZee( double cl_eta, egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
- 
-    double getLayerUncertainty( int iLayer, double cl_eta, 
+    double getAlphaZee(long int runnumber, double eta, egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
+
+    double getLayerUncertainty( int iLayer, double cl_eta,
 				egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF=1. ) const;
 
     double getLayerNonLinearity( int iLayer, double cl_eta, double energy, PATCore::ParticleType::Type ptype ) const;
-    
+
     double getDeltaX( double cl_eta, egEnergyCorr::MaterialCategory imat,
 		      egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal ) const;
 
@@ -529,19 +547,19 @@ namespace AtlasRoot {
 
     double getMaterialNonLinearity( double cl_eta, double energy, egEnergyCorr::MaterialCategory imat, PATCore::ParticleType::Type ptype,
 				    egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
-    
+
     double getAlphaLeakage(double cl_eta, PATCore::ParticleType::Type ptype,
 			   egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
-    
+
     double getAlphaConvSyst(double cl_eta, double energy, PATCore::ParticleType::Type ptype,
 			    egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
 
-    double getAlphaPedestal(double cl_eta, double energy, PATCore::ParticleType::Type ptype, bool isRef, 
+    double getAlphaPedestal(double cl_eta, double energy, PATCore::ParticleType::Type ptype, bool isRef,
 			    egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
 
     double getLayerPedestal(double cl_eta, PATCore::ParticleType::Type ptype, int iLayer,
 			    egEnergyCorr::Scale::Variation var = egEnergyCorr::Scale::Nominal, double varSF = 1. ) const;
-
+    double get_ZeeSyst(double eta) const;
     bool isInCrack( double cl_eta ) const;
     double nearestEtaBEC( double cl_eta ) const;
 
@@ -554,7 +572,7 @@ namespace AtlasRoot {
      @brief  Output : resolution_error = uncertainty on energy resolution in MeV from the systematics included according to bit mask
      @brief resolution_type 0=gaussian core, 1= sigma eff 80%, 2 = sigma eff 90%
   */
-    void getResolution_systematics(int particle_type, double energy, double eta, int syst_mask, double& resolution, double& resolution_error,double& resolution_error_up, double & resolution_error_down, int resol_type=0) const;
+    void getResolution_systematics(int particle_type, double energy, double eta, double etaCalo, int syst_mask, double& resolution, double& resolution_error,double& resolution_error_up, double & resolution_error_down, int resol_type=0) const;
 
     // approximate pileup noise contribution to the resolution
     double pileUpTerm(double eta, int particle_type) const;
@@ -562,9 +580,10 @@ namespace AtlasRoot {
   private:
 
     StdCalibrationInputs* m_calibInputs;
-      
-    TFile* m_rootFile;    
+
+    TFile* m_rootFile;
     std::string m_rootFileName;
+    std::string m_MVAfolder;
 
     mutable TRandom3   m_random3;
 
@@ -581,6 +600,7 @@ namespace AtlasRoot {
     TH1D*         m_zeeNom;
     TH1D*         m_zeeSyst;
     TH1D*         m_zeePhys;
+    TH1*          m_uA2MeV_2015_first2weeks_correction;
 
     TH1D*         m_resNom;
     TH1D*         m_resSyst;
@@ -631,21 +651,27 @@ namespace AtlasRoot {
 
     // Geometry distortion vectors (to be ordered as in the the Geometry enum!)
 
-    std::vector<TH1D*> m_matElectronScale;            
+    std::vector<TH1D*> m_matElectronScale;
     std::vector<TH1D*> m_matUnconvertedScale;
     std::vector<TH1D*> m_matConvertedScale;
     std::vector<TH1D*> m_matElectronCstTerm;
     std::vector<TH1D*> m_matX0Additions;
 
-    // Non-linearity graphs    
-    
+    // Non-linearity graphs
+
     TAxis*              m_matElectronEtaBins;
     std::vector<TList*> m_matElectronGraphs;
 
     // Fastsim -> Fullsim corrections
-    
-    TH1D*         m_G4OverAFII;
+
+    TH1D*         m_G4OverAFII_electron;
+    TH1D*         m_G4OverAFII_converted;
+    TH1D*         m_G4OverAFII_unconverted;
     TH1D*         m_G4OverFrSh;
+
+    TH2F* m_G4OverAFII_resolution_electron;
+    TH2F* m_G4OverAFII_resolution_unconverted;
+    TH2F* m_G4OverAFII_resolution_converted;
 
     // Main ES model switch
 
@@ -659,6 +685,8 @@ namespace AtlasRoot {
     bool m_use_phi_unif_correction;    // default = true
     bool m_use_layer2_recalibration;   // default = true
     bool m_use_gain_correction;        // default = false; true only for es2012c
+    bool m_use_etaCalo_scales;         // true for >= es2012XX
+    bool m_use_mapping_correction;     // true for run1 using phi uniformity corrections
 
     // for tests
     bool m_applyPSCorrection;          // default = true
@@ -666,11 +694,11 @@ namespace AtlasRoot {
 
     bool m_initialized;
     bool m_debug;
-    
-#ifdef ROOTCORE
-    ClassDef(egammaEnergyCorrectionTool,1)
-#endif
-      
+    bool m_use_new_resolution_model;
+    bool m_use_stat_error_scaling;  // default = false
+
+    bool m_use_temp_correction201215;  // default = true (used only for es2015PRE)
+    bool m_use_uA2MeV_2015_first2weeks_correction; // default = true (used only for es2105PRE)
   };
 
 } // end of namespace
@@ -678,4 +706,3 @@ namespace AtlasRoot {
 
 
 #endif
-

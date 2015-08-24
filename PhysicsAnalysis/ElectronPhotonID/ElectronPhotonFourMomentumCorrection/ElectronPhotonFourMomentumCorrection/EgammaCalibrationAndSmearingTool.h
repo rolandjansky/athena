@@ -10,8 +10,11 @@
 
 #include <functional>
 #include <string>
+#include <array>
+#include <memory>
 
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/AsgMessaging.h"
 #include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
 #include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/SystematicSet.h"
@@ -23,98 +26,184 @@
 
 #include "ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionTool.h"
 
+namespace xAOD {
+	inline float get_phi_calo(const xAOD::CaloCluster& cluster, bool do_throw=false)
+	{
+	  double phi_calo;
+	  if (cluster.retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,
+				       phi_calo)) { }
+	  else if (cluster.isAvailable<float>("phiCalo")) {
+	    phi_calo = cluster.auxdata<float>("phiCalo");
+	  }
+	  else {
+			asg::AsgMessaging msg("get_phi_calo");
+			msg.msg(MSG::ERROR) << "phiCalo not available as auxilliary variable" << endmsg;
+	    if (do_throw) { throw std::runtime_error("phiCalo not available as auxilliary variable"); }
+			msg.msg(MSG::WARNING) << "using phi as phiCalo" << endmsg;
+	    phi_calo = cluster.phi();
+	  }
+	  return phi_calo;
+	}
+
+	inline float get_eta_calo(const xAOD::CaloCluster& cluster, bool do_throw=false)
+	{
+	  double eta_calo;
+	  if (cluster.retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,
+				       eta_calo)) { }
+	  else if (cluster.isAvailable<float>("etaCalo")) {
+	    eta_calo = cluster.auxdata<float>("etaCalo");
+	  }
+	  else {
+			asg::AsgMessaging msg("get_eta_calo");
+			msg.msg(MSG::ERROR) << "etaCalo not available as auxilliary variable" << endmsg;
+	    if (do_throw) { throw std::runtime_error("etaCalo not available as auxilliary variable"); }
+			msg.msg(MSG::WARNING) << "using eta as etaCalo" << endmsg;
+	  }
+	  return eta_calo;
+	}
+}
+
 namespace CP {
 
-class EgammaCalibrationAndSmearingTool : virtual public IEgammaCalibrationAndSmearingTool, 
-					 virtual public CP::ISystematicsTool, 
+class EgammaCalibrationAndSmearingTool : virtual public IEgammaCalibrationAndSmearingTool,
+					 //virtual public CP::ISystematicsTool,
 					 public asg::AsgTool {
   // Create a proper constructor for Athena
   ASG_TOOL_CLASS2( EgammaCalibrationAndSmearingTool, IEgammaCalibrationAndSmearingTool, CP::ISystematicsTool)
-  
+
 public:
+
+  static const int AUTO = 2;  // this is used as a third state for boolean propertis (true/false/automatic)
   typedef unsigned int RandomNumber;
   typedef std::function<int(const EgammaCalibrationAndSmearingTool&, const xAOD::Egamma&, const xAOD::EventInfo&)> IdFunction;
-    
-  EgammaCalibrationAndSmearingTool( const std::string& name );
-    
-  ~EgammaCalibrationAndSmearingTool() {};
-  
+	typedef std::function<bool(const xAOD::Egamma&)> EgammaPredicate;
+
+  EgammaCalibrationAndSmearingTool(const std::string& name);
+
   StatusCode initialize();
-  
+
   StatusCode finalize();
 
-  //Apply the correction on a modifyable egamma object 
+  //Apply the correction on a modifyable egamma object
   virtual CP::CorrectionCode applyCorrection(xAOD::Egamma&);
-  
+	virtual CP::CorrectionCode applyCorrection(xAOD::Egamma & input, const xAOD::EventInfo& event_info);
+
+
   //Create a corrected copy from a constant egamma object
   //  virtual CP::CorrectionCode correctedCopy(const xAOD::Egamma&, xAOD::Egamma*&);
   virtual CP::CorrectionCode correctedCopy(const xAOD::Electron&, xAOD::Electron*&);
   virtual CP::CorrectionCode correctedCopy(const xAOD::Photon&, xAOD::Photon*&);
-  
-  //systematics 
+
+  //systematics
   //Which systematics have an effect on the tool's behaviour?
   virtual CP::SystematicSet affectingSystematics() const;
-  //Is the tool affected by a specific systematic? 
-  virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const; 
+  //Is the tool affected by a specific systematic?
+  virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
   //Systematics to be used for physics analysis
   virtual CP::SystematicSet recommendedSystematics() const;
   //Use specific systematic
   virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& systConfig );
-  //set default configuration 
-  virtual void forceSmearing( bool force); 
-  virtual void forceScaleCorrection( bool force);
   virtual void setRandomSeed( unsigned seed=0 );
   virtual void setRandomSeedFunction(const IdFunction&& function) { m_set_seed_function = function; }
-  
+	const IdFunction getRandomSeedFuction() const { return m_set_seed_function; }
+
+  virtual double resolution( double energy, double cl_eta, double cl_etaCalo,
+                             PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron) const;
 private:
 
-  std::string m_ESModel;             
+  std::string m_ESModel;
+  std::string m_decorrelation_model_name;
   egEnergyCorr::ESModel m_TESModel;
-  bool m_debug;
-  bool m_doScaleCorrection;
-  bool m_doSmearing;
+  int m_doScaleCorrection;
+  int m_doSmearing;
   bool m_auto_reseed;
   double m_varSF;
   std::string m_ResolutionType;
   egEnergyCorr::Resolution::resolutionType m_TResolutionType;
+  bool m_use_AFII;
+  PATCore::ParticleDataType::DataType m_simulation;
   //flags duplicated from the underlying ROOT tool
-  bool m_useLayerCorrection; 
-  bool m_usePSCorrection; 
-  bool m_useS12Correction; 
-  bool m_useLayer2Recalibration; 
-  bool m_useIntermoduleCorrection; 
-  bool m_usePhiUniformCorrection; 
-  bool m_useGainCorrection;
-  //corresponding flags to force these corrections
-  bool m_forceLayerCorrection;
-  bool m_forcePSCorrection;
-  bool m_forceS12Correction;
-  bool m_forceLayer2Recalibration;
-  bool m_forceIntermoduleCorrection;
-  bool m_forcePhiUniformCorrection;
-  bool m_forceGainCorrection;
+  int m_useLayerCorrection;
+  int m_usePSCorrection;
+  int m_useS12Correction;
+  int m_useLayer2Recalibration;
+  int m_useIntermoduleCorrection;
+  int m_usePhiUniformCorrection;
+  int m_useGainCorrection;
+  bool m_use_ep_combination;
+  int m_use_mva_calibration;
+  bool m_use_full_statistical_error;
+  int m_use_temp_correction201215;
+  int m_use_uA2MeV_2015_first2weeks_correction;
+  
+  void setupSystematics();
 
+	const EgammaPredicate AbsEtaCaloPredicateFactory(double eta_min, double eta_max) const
+	{
+		return [eta_min, eta_max](const xAOD::Egamma& p) {
+			const double aeta = std::abs(xAOD::get_eta_calo(*p.caloCluster()));
+			return (aeta >= eta_min and aeta < eta_max); };
+	}
+
+	const std::vector<EgammaPredicate> AbsEtaCaloPredicatesFactory(const std::vector<std::pair<double, double>> edges) const
+	{
+		std::vector<EgammaPredicate> result;
+		result.reserve(edges.size());
+		for (const auto& it : edges) {
+			result.push_back(AbsEtaCaloPredicateFactory(it.first, it.second));
+		}
+		return result;
+	}
+
+	const std::vector<EgammaPredicate> AbsEtaCaloPredicatesFactory(const std::vector<double> edges) const
+	{
+		std::vector<EgammaPredicate> result;
+		result.reserve(edges.size() - 1);
+		auto it2 = edges.begin();
+		auto it = it2++;
+		for(; it2 != edges.end(); ++it, ++it2)
+		{
+			result.push_back(AbsEtaCaloPredicateFactory(*it, *it2));
+		}
+		return result;
+	}
+
+	PATCore::ParticleType::Type xAOD2ptype(const xAOD::Egamma& particle) const;
 public:
-  virtual double getEnergy(const xAOD::Egamma*, const xAOD::EventInfo*); 
-  virtual double getElectronEnergy(const xAOD::Electron*, const xAOD::EventInfo*); 
-  virtual double getPhotonEnergy(const xAOD::Photon*, const xAOD::EventInfo*);  
+  virtual double getEnergy(const xAOD::Egamma*, const xAOD::EventInfo*);
+  virtual double getElectronEnergy(const xAOD::Electron*, const xAOD::EventInfo*);
+  virtual double getPhotonEnergy(const xAOD::Photon*, const xAOD::EventInfo*);
   virtual double getElectronMomentum(const xAOD::Electron*, const xAOD::EventInfo*);
-  
+  double getResolution(const xAOD::Egamma& particle, bool withCT=true) const;
+
+
 private:
-  // A pointer to the underlying ROOT tool 
-  AtlasRoot::egammaEnergyCorrectionTool* m_rootTool;
+  // A pointer to the underlying ROOT tool
+  std::unique_ptr<AtlasRoot::egammaEnergyCorrectionTool> m_rootTool;
+  std::string m_MVAfolder;
 
-  //Systematics maps
-  mutable std::map<egEnergyCorr::Resolution::Variation , CP::SystematicVariation> m_resSystMap; 
-  mutable std::map<egEnergyCorr::Scale::Variation , CP::SystematicVariation> m_scaleSystMap; 
+  struct SysInfo {
+    EgammaPredicate predicate;
+    egEnergyCorr::Scale::Variation effect;
+  };
   
-  //These are modified by the ISystematicsTool methods 
-  egEnergyCorr::Scale::Variation m_currentScaleVariation; 
-  egEnergyCorr::Resolution::Variation m_currentResolutionVariation;
-  IdFunction m_set_seed_function;
+  std::map<CP::SystematicVariation, SysInfo> m_syst_description;
+  std::map<CP::SystematicVariation, egEnergyCorr::Resolution::Variation> m_syst_description_resolution;
+  
 
-  inline float retrieve_phi_calo(const xAOD::CaloCluster&, bool do_throw=false) const;
-  inline float retrieve_eta_calo(const xAOD::CaloCluster&, bool do_throw=false) const;
+  //These are modified by the ISystematicsTool methods
+  egEnergyCorr::Scale::Variation m_currentScaleVariation_MC;
+  egEnergyCorr::Scale::Variation m_currentScaleVariation_data;
+  egEnergyCorr::Resolution::Variation m_currentResolutionVariation_MC;
+  egEnergyCorr::Resolution::Variation m_currentResolutionVariation_data;
+  
+  EgammaPredicate m_currentScalePredicate;
+  
+  IdFunction m_set_seed_function;
+  
+  inline egEnergyCorr::Scale::Variation oldtool_scale_flag_this_event(const xAOD::Egamma& p, const xAOD::EventInfo& event_info) const;
+  inline egEnergyCorr::Resolution::Variation oldtool_resolution_flag_this_event(const xAOD::Egamma& p, const xAOD::EventInfo& event_info) const;
+
 };
 
 }

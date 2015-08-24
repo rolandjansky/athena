@@ -11,7 +11,7 @@ theJob = AlgSequence()
 # Add the test algorithm:
 from ElectronPhotonFourMomentumCorrection.ElectronPhotonFourMomentumCorrectionConf import testAthenaEgammaCalibTool
 alg = testAthenaEgammaCalibTool()
-alg.EgammaCalibrationAndSmearingTool.ESModel = "es2012c"
+alg.EgammaCalibrationAndSmearingTool.ESModel = "es2015PRE"
 theJob += alg
 print alg
 

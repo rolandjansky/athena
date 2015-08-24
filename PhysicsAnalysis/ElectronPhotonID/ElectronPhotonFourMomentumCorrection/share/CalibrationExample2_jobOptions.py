@@ -4,7 +4,7 @@ FNAME = "/afs/cern.ch/atlas/project/PAT/xAODs/r5591/mc14_8TeV.117050.PowhegPythi
 import AthenaPoolCnvSvc.ReadAthenaPool
 ServiceMgr.EventSelector.InputCollections = [ FNAME ]
 
-ToolSvc += CfgMgr.CP__EgammaCalibrationAndSmearingTool("egammaCalibTool",ESModel="es2012c")
+ToolSvc += CfgMgr.CP__EgammaCalibrationAndSmearingTool("egammaCalibTool",ESModel="es2015PRE")
 theJob = CfgMgr.AthSequencer("AthAlgSeq")
 
 theJob += CfgMgr.CP__CalibratedEgammaProvider("ElectronCalibrator",Tool=ToolSvc.egammaCalibTool,Input="ElectronCollection",Output="CalibratedElectrons",OutputLevel=VERBOSE)

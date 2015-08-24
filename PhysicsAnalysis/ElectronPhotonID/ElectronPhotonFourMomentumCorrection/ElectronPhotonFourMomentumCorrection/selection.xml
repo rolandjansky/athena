@@ -1,15 +1,19 @@
  <lcgdict>
 
+   <class name="CP::EgammaCalibrationAndSmearingTool" />
    <class name="AtlasRoot::egammaEnergyCorrectionTool" />
-   <class name="CP::IEgammaCalibrationAndSmearingTool" /> 
-   
-   <enum pattern="egammaEnergyCorrection::*"/>
-   <variable pattern="egammaEnergyCorrection::*"/>
+   <class name="CP::IEgammaCalibrationAndSmearingTool" />
+   <namespace name="egEnergyCorr" />
+   <class name="egEnergyCorr::ROOT6_OpenNamespaceWorkaround" />
+   <namespace name="egEnergyCorr::Resolution" />
+   <class name="egEnergyCorr::Resolution::ROOT6_OpenNamespaceWorkaround" />
+   <namespace name="egEnergyCorr::Scale" />
+   <class name="egEnergyCorr::Scale::ROOT6_OpenNamespaceWorkaround" />
+   <enum pattern="egEnergyCorr::*"/>
+   <enum pattern="egEnergyCorr::Resolution::*"/>
+   <enum pattern="egEnergyCorr::Scale::*"/>
 
-   <enum pattern="egammaEnergyCorrection::Resolution::*"/>
-   <variable pattern="egammaEnergyCorrection::Resolution::*"/>
+   <class name="eg_resolution" />
 
-   <enum pattern="egammaEnergyCorrection::Scale::*"/>
-   <variable pattern="egammaEnergyCorrection::Scale::*"/>
-
+   <class name="EgammaFactory" />
 </lcgdict>

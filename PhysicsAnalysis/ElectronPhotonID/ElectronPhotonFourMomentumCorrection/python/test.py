@@ -7,13 +7,46 @@ import math
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 
+
+def arange(xmin, xmax, delta):
+    # just to don't inject dep from numpy
+    x = xmin
+    while True:
+        yield x
+        x += delta
+        if x >= xmax:
+            break
+
+
+def linspace(start, stop, n):
+    step = (stop - start) / float(n - 1)
+    for i in range(n):
+        yield start + step * i
+
+
 from PATCore.ParticleType import Electron, Photon, ConvertedPhoton, UnconvertedPhoton
 from PATCore.ParticleDataType import Data, Full
 
 
 class Test(unittest.TestCase):
     def setUp(self):
-        self.all_systematics = [ROOT.egEnergyCorr.Scale.None, ROOT.egEnergyCorr.Scale.Nominal, ROOT.egEnergyCorr.Scale.PSUp, ROOT.egEnergyCorr.Scale.PSDown, ROOT.egEnergyCorr.Scale.ZeeStatUp, ROOT.egEnergyCorr.Scale.ZeeStatDown, ROOT.egEnergyCorr.Scale.ZeeSystUp, ROOT.egEnergyCorr.Scale.ZeeSystDown, ROOT.egEnergyCorr.Scale.ZeeAllUp, ROOT.egEnergyCorr.Scale.ZeeAllDown, ROOT.egEnergyCorr.Scale.S12Up, ROOT.egEnergyCorr.Scale.S12Down, ROOT.egEnergyCorr.Scale.GainDown, ROOT.egEnergyCorr.Scale.GainUp, ROOT.egEnergyCorr.Scale.LeakageUp, ROOT.egEnergyCorr.Scale.LeakageDown, ROOT.egEnergyCorr.Scale.MatIDUp, ROOT.egEnergyCorr.Scale.MatIDDown, ROOT.egEnergyCorr.Scale.MatCryoUp, ROOT.egEnergyCorr.Scale.MatCryoDown, ROOT.egEnergyCorr.Scale.MatCaloUp, ROOT.egEnergyCorr.Scale.MatCaloDown, ROOT.egEnergyCorr.Scale.LArCalibUp, ROOT.egEnergyCorr.Scale.LArCalibDown, ROOT.egEnergyCorr.Scale.LArUnconvCalibUp, ROOT.egEnergyCorr.Scale.LArUnconvCalibDown, ROOT.egEnergyCorr.Scale.LArElecUnconvUp, ROOT.egEnergyCorr.Scale.LArElecUnconvDown, ROOT.egEnergyCorr.Scale.AllUp, ROOT.egEnergyCorr.Scale.AllDown]
+        self.all_systematics = [ROOT.egEnergyCorr.Scale.None, ROOT.egEnergyCorr.Scale.Nominal,
+                                ROOT.egEnergyCorr.Scale.PSUp, ROOT.egEnergyCorr.Scale.PSDown,
+                                ROOT.egEnergyCorr.Scale.ZeeStatUp, ROOT.egEnergyCorr.Scale.ZeeStatDown,
+                                ROOT.egEnergyCorr.Scale.ZeeSystUp, ROOT.egEnergyCorr.Scale.ZeeSystDown,
+                                ROOT.egEnergyCorr.Scale.ZeeAllUp, ROOT.egEnergyCorr.Scale.ZeeAllDown,
+                                ROOT.egEnergyCorr.Scale.S12Up, ROOT.egEnergyCorr.Scale.S12Down,
+                                ROOT.egEnergyCorr.Scale.L1GainDown, ROOT.egEnergyCorr.Scale.L1GainUp,
+                                ROOT.egEnergyCorr.Scale.L2GainDown, ROOT.egEnergyCorr.Scale.L2GainUp,
+                                ROOT.egEnergyCorr.Scale.LeakageUnconvUp, ROOT.egEnergyCorr.Scale.LeakageUnconvDown,
+                                ROOT.egEnergyCorr.Scale.LeakageConvUp, ROOT.egEnergyCorr.Scale.LeakageConvDown,
+                                ROOT.egEnergyCorr.Scale.MatIDUp, ROOT.egEnergyCorr.Scale.MatIDDown,
+                                ROOT.egEnergyCorr.Scale.MatCryoUp, ROOT.egEnergyCorr.Scale.MatCryoDown,
+                                ROOT.egEnergyCorr.Scale.MatCaloUp, ROOT.egEnergyCorr.Scale.MatCaloDown,
+                                ROOT.egEnergyCorr.Scale.LArCalibUp, ROOT.egEnergyCorr.Scale.LArCalibDown,
+                                ROOT.egEnergyCorr.Scale.LArUnconvCalibUp, ROOT.egEnergyCorr.Scale.LArUnconvCalibDown,
+                                ROOT.egEnergyCorr.Scale.LArElecUnconvUp, ROOT.egEnergyCorr.Scale.LArElecUnconvDown,
+                                ROOT.egEnergyCorr.Scale.AllUp, ROOT.egEnergyCorr.Scale.AllDown]
 
         # just a shortcut
         self.EnergyCorrectionTool = ROOT.AtlasRoot.egammaEnergyCorrectionTool
@@ -22,10 +55,10 @@ class Test(unittest.TestCase):
                    #              ROOT.egEnergyCorr.es2011d,
                    ROOT.egEnergyCorr.es2012a,
                    ROOT.egEnergyCorr.es2012c]
-        self.labels = ["es2010", "es2011c", 
-#                       "es2011d",
+        self.labels = ["es2010", "es2011c",
+                       #  "es2011d",
                        "es2012a", "es2012c"]
-        self.tools =  {}
+        self.tools = {}
         for es, label in zip(self.es, self.labels):
             self.tools[label] = self.EnergyCorrectionTool()
             self.tools[label].setESModel(es)
@@ -64,14 +97,14 @@ class Test(unittest.TestCase):
                 std_energy,         # cl_E      # 10
                 eta,                # cl_etaCalo
                 phi,                # cl_phiCalo
-                std_energy * 1.1 if particle==Photon else -999,               # ptconv
-                std_energy * 0.4 if particle==Photon else -999,               # pt1conv   # 15
-                std_energy * 0.7 if particle==Photon else -999,               # pt2conv            
-                3 if particle==Photon else -999,       # convtrk1nPixHits
-                5 if particle==Photon else -999,       # convtrk1nSCTHits
-                2 if particle==Photon else -999,       # convtrk2nPixHits
-                4 if particle==Photon else -999,                                          # 20
-                300 if particle==Photon else -999)     # RConv
+                std_energy * 1.1 if particle == Photon else -999,               # ptconv
+                std_energy * 0.4 if particle == Photon else -999,               # pt1conv   # 15
+                std_energy * 0.7 if particle == Photon else -999,               # pt2conv
+                3 if particle == Photon else -999,       # convtrk1nPixHits
+                5 if particle == Photon else -999,       # convtrk1nSCTHits
+                2 if particle == Photon else -999,       # convtrk2nPixHits
+                4 if particle == Photon else -999,                                          # 20
+                300 if particle == Photon else -999)     # RConv
 
     def example_electron(self, eta=0.0, std_energy=35E3, pdata=Full, phi=0.):
         inp = self.example_input(particle=Electron, eta=eta, std_energy=std_energy, pdata=pdata, phi=phi)
@@ -81,17 +114,13 @@ class Test(unittest.TestCase):
         inp = self.example_input(particle=Photon, eta=eta, std_energy=std_energy, pdata=pdata, phi=phi)
         return inp[3:9] + inp[10:]
 
-    def linspace(self, start, stop, n):
-        step = (stop - start) / float(n - 1)
-        for i in range(n):
-            yield start + step * i
-
     def iscrack(self, eta):
         # ranges used by MVA calibration
         return 1.37 <= abs(eta) <= 1.52
 
     def test_init(self):
-        for es in [ROOT.egEnergyCorr.es2010, ROOT.egEnergyCorr.es2011c, ROOT.egEnergyCorr.es2011d, ROOT.egEnergyCorr.es2012a, ROOT.egEnergyCorr.es2012c]:
+        for es in [ROOT.egEnergyCorr.es2010, ROOT.egEnergyCorr.es2011c,
+                   ROOT.egEnergyCorr.es2011d, ROOT.egEnergyCorr.es2012a, ROOT.egEnergyCorr.es2012c]:
             tool = self.EnergyCorrectionTool()
             tool.setESModel(es)
             self.assertTrue(tool)
@@ -109,7 +138,7 @@ class Test(unittest.TestCase):
         tool_mva.initialize()
         tool_std.initialize()
 
-        for eta in self.linspace(-2.5, 2.5, 200):
+        for eta in linspace(-2.5, 2.5, 200):
             inputs = self.example_input(eta=eta)
             std_energy_input = inputs[10]
 
@@ -126,16 +155,16 @@ class Test(unittest.TestCase):
         tool.setESModel(ROOT.egEnergyCorr.es2012c)
         tool_no_correction = self.EnergyCorrectionTool()
         tool_no_correction.setESModel(ROOT.egEnergyCorr.es2012c)
-        tool_no_correction.useIntermoduleCorrection(False)
 
         tool.initialize()
         tool_no_correction.initialize()
 
+        tool_no_correction.useIntermoduleCorrection(False)
+
         energy, energy_no_correction = [], []
 
-        for phi in self.linspace(-math.pi, math.pi, 200):
-            input_phi = self.example_input(phi=phi, pdata=Data)
-
+        for phi in linspace(-math.pi, math.pi, 400):
+            input_phi = self.example_input(phi=phi, eta=0.1, pdata=Data)
             energy.append(tool.getCorrectedEnergy(*input_phi))
             energy_no_correction.append(tool_no_correction.getCorrectedEnergy(*input_phi))
 
@@ -146,16 +175,17 @@ class Test(unittest.TestCase):
         tool.setESModel(ROOT.egEnergyCorr.es2012c)
         tool_no_correction = self.EnergyCorrectionTool()
         tool_no_correction.setESModel(ROOT.egEnergyCorr.es2012c)
-        tool_no_correction.usePhiUniformCorrection(False)
 
         tool.initialize()
         tool_no_correction.initialize()
 
+        tool_no_correction.usePhiUniformCorrection(False)
+
         h = ROOT.TH2F("phi_correction", "phi_correction", 200, -2.5, 2.5, 200, -math.pi, math.pi)
 
         energy, energy_no_correction = [], []
-        for eta in self.linspace(-3, 3, 200):
-            for phi in self.linspace(-math.pi, math.pi, 200):
+        for eta in linspace(-3, 3, 200):
+            for phi in linspace(-math.pi, math.pi, 200):
                 input_phi = self.example_input(phi=phi, pdata=Data, eta=eta)
 
                 e = tool.getCorrectedEnergy(*input_phi)
@@ -167,10 +197,10 @@ class Test(unittest.TestCase):
 
         self.assertFalse(all([x == y for x, y in zip(energy, energy_no_correction)]))
         self.assertTrue(all([abs(x / y - 1) < 0.3 for x, y in zip(energy, energy_no_correction)]))
- 
+
         m = min([x / y for x, y in zip(energy, energy_no_correction)])
         M = max([x / y for x, y in zip(energy, energy_no_correction)])
-       
+
         canvas_phicorrection = ROOT.TCanvas()
         h.SetMaximum(m)
         h.SetMinimum(M)
@@ -181,14 +211,12 @@ class Test(unittest.TestCase):
         canvas_phicorrection.Modified()
         canvas_phicorrection.SaveAs("canvas_phicorrection.png")
 
-
     def test_interface_equivalence(self):
         tool = self.EnergyCorrectionTool()
         tool.setESModel(ROOT.egEnergyCorr.es2012c)
         tool.initialize()
-        
-        
-        for eta in self.linspace(-2.5, 2.5, 200):
+
+        for eta in linspace(-2.5, 2.5, 200):
             input_electron = self.example_input(pdata=Data, eta=eta, particle=Electron)
             input_photon = self.example_input(pdata=Data, eta=eta, particle=Photon)
 
@@ -204,12 +232,9 @@ class Test(unittest.TestCase):
             energy_photon2 = tool.getCorrectedEnergyPhoton(input_electron[0],
                                                            input_electron[1],
                                                            *input_photon2)
-            
+
             energy_electron1 = tool.getCorrectedEnergy(*input_electron)
             energy_photon1 = tool.getCorrectedEnergy(*input_photon)
-            
-
-           
 
             energy_electron3 = tool.getCorrectedEnergy(input_electron[0],
                                                        input_electron[1],
@@ -224,26 +249,6 @@ class Test(unittest.TestCase):
             self.assertAlmostEqual(energy_photon1, energy_photon2)
             self.assertAlmostEqual(energy_photon2, energy_photon3)
 
-
-    def test_all_layer_null(self):
-        input_electron = (204026,
-                          1,
-                          0,                       # Es0
-                          0,                       # Es1
-                          0,                       # Es2
-                          0,                       # Es3
-                          -1.53044,                # cl_eta
-                          -1.42226,                # cl_phi
-                          -1.53928,                # trk_eta
-                          8365.23,                 # cl_E
-                          -1.51884,                # cl_etaCalo
-                          -1.42284)                # cl_phiCalo
-        tool = self.EnergyCorrectionTool()
-        tool.setESModel(ROOT.egEnergyCorr.es2010)
-        tool.initialize()
-        energy = tool.getCorrectedEnergyElectron(*input_electron)
-
-
     def test_scale_factors(self):
         graph_MC_nominal_ratio = {}
         graph_data_nominal_ratio = {}
@@ -255,7 +260,7 @@ class Test(unittest.TestCase):
 
             ipoint = 0
 
-            for eta in self.linspace(-2.5, 2.5, 250):
+            for eta in linspace(-2.5, 2.5, 250):
                 input_electron = self.example_input(eta=eta, particle=Electron)
                 particle_information = ROOT.AtlasRoot.egammaEnergyCorrectionTool.ParticleInformation(*(input_electron[3:13]))
                 nominal = ROOT.egEnergyCorr.Scale.Nominal
@@ -303,7 +308,7 @@ class Test(unittest.TestCase):
         legend2.Draw()
         canvas_data.SaveAs(canvas_data.GetTitle() + ".png")
 
-            
+
     def test_data_over_MC(self):
         graph_none_ratio = {}
         for label in self.labels:
@@ -312,7 +317,7 @@ class Test(unittest.TestCase):
 
             ipoint = 0
 
-            for eta in self.linspace(-2.5, 2.5, 250):
+            for eta in linspace(-2.5, 2.5, 250):
                 input_electron = self.example_input(eta=eta, particle=Electron)
                 particle_information = ROOT.AtlasRoot.egammaEnergyCorrectionTool.ParticleInformation(*(input_electron[3:13]))
 
@@ -362,7 +367,7 @@ class Test(unittest.TestCase):
         graph_E2.SetName("graph_es2012c_data_E2recalib")
         graph_E2.SetTitle("layer 2 recalib")
         ipoint = 0
-        for eta in self.linspace(-2.5, 2.5, 250):
+        for eta in linspace(-2.5, 2.5, 250):
             E0 = self.E0MC.GetBinContent(self.E0MC.FindBin(eta)) * 1E3
             E1 = self.E1MC.GetBinContent(self.E1MC.FindBin(eta)) * 1E3
             E2 = self.E2MC.GetBinContent(self.E2MC.FindBin(eta)) * 1E3
@@ -420,7 +425,7 @@ class Test(unittest.TestCase):
             gr[i].GetXaxis().SetTitle("#eta")
         ipoint = 0
 
-        for eta in self.linspace(-3.5, 3.5, 300):
+        for eta in linspace(-3.5, 3.5, 300):
             E0 = self.E0MC.GetBinContent(self.E0MC.FindBin(eta)) * 1E3
             E1 = self.E1MC.GetBinContent(self.E1MC.FindBin(eta)) * 1E3
             E2 = self.E2MC.GetBinContent(self.E2MC.FindBin(eta)) * 1E3
@@ -449,7 +454,7 @@ class Test(unittest.TestCase):
         canvas.SaveAs("canvas_" + canvas_name + ".png")
         self.output_file.cd()
         canvas.Write()
-        
+
 
     def test_layer(self):
         tool_es2012c = self.EnergyCorrectionTool()
@@ -476,7 +481,6 @@ class Test(unittest.TestCase):
         self.do_test_layer(tool_es2012c_layer1, "es2012c_with_layer1")
         self.do_test_layer(tool_es2011d_layer1, "es2011d_with_layer1")
 
-
     def test_gain(self):
         tool_es2012c = self.EnergyCorrectionTool()
         tool_es2012c.setESModel(ROOT.egEnergyCorr.es2012c)
@@ -493,12 +497,12 @@ class Test(unittest.TestCase):
 
         graph = ROOT.TGraph()
         ipoint = 0
-        for eta in self.linspace(-3, 3, 300):
+        for eta in linspace(-3, 3, 300):
             input_electron = self.example_input(eta=eta, particle=Electron)
             particle_information = ROOT.AtlasRoot.egammaEnergyCorrectionTool.ParticleInformation(*(input_electron[3:13]))
             energy = tool_es2012c.getCorrectedEnergy(0, Data, particle_information, ROOT.egEnergyCorr.Scale.None)
             energy_nogain = tool_es2012c_nogain.getCorrectedEnergy(0, Data, particle_information, ROOT.egEnergyCorr.Scale.None)
-            
+
             graph.SetPoint(ipoint, eta, energy/energy_nogain)
             ipoint += 1
 
@@ -528,7 +532,7 @@ class Test(unittest.TestCase):
 
         graph = ROOT.TGraph()
         ipoint = 0
-        for eta in self.linspace(-3.5, 3.5, 300):
+        for eta in linspace(-3.5, 3.5, 300):
             E0 = self.E0MC.GetBinContent(self.E0MC.FindBin(eta)) * 1E3
             E1 = self.E1MC.GetBinContent(self.E1MC.FindBin(eta)) * 1E3
             E2 = self.E2MC.GetBinContent(self.E2MC.FindBin(eta)) * 1E3
@@ -545,7 +549,6 @@ class Test(unittest.TestCase):
                                                                                                  phi)
             energy = tool_es2012c.getCorrectedEnergy(0, Data, particle_information, ROOT.egEnergyCorr.Scale.None)
             energy_nogain = tool_es2012c_nogain.getCorrectedEnergy(0, Data, particle_information, ROOT.egEnergyCorr.Scale.None)
-            
 
             if energy_nogain != 0:
                 graph.SetPoint(ipoint, eta, energy/energy_nogain)
@@ -593,7 +596,7 @@ class Test(unittest.TestCase):
         for particle in ("electron", "converted", "unconverted"):
             for scale_energy in [0.05, 0.1, 0.5, 1., 2.0, 10., 100.]:
                 for sys in self.all_systematics:
-                    for eta in self.linspace(-5, 5, 500):
+                    for eta in linspace(-5, 5, 500):
                         E0 = self.E0MC.GetBinContent(self.E0MC.FindBin(eta)) * 1E3 * scale_energy
                         E1 = self.E1MC.GetBinContent(self.E1MC.FindBin(eta)) * 1E3 * scale_energy
                         E2 = self.E2MC.GetBinContent(self.E2MC.FindBin(eta)) * 1E3 * scale_energy
@@ -655,25 +658,23 @@ class Test(unittest.TestCase):
                         if sys in (ROOT.egEnergyCorr.Scale.None, ROOT.egEnergyCorr.Scale.Nominal):
                             energy = tool.getCorrectedEnergy(0, Full, particle_information, sys, ROOT.egEnergyCorr.Resolution.Nominal)
                             self.assertFalse(math.isnan(energy), msg="got nan for Nominal res, %s" % particle_str)
-                            energy = tool.getCorrectedEnergy(0, Full, particle_information, sys, ROOT.egEnergyCorr.Resolution.ErrorUp)
+                            energy = tool.getCorrectedEnergy(0, Full, particle_information, sys, ROOT.egEnergyCorr.Resolution.AllUp)
                             self.assertFalse(math.isnan(energy), msg="got nan for ErrorUp res, %s" % particle_str)
-                            energy = tool.getCorrectedEnergy(0, Full, particle_information, sys, ROOT.egEnergyCorr.Resolution.ErrorDown)
+                            energy = tool.getCorrectedEnergy(0, Full, particle_information, sys, ROOT.egEnergyCorr.Resolution.AllDown)
                             self.assertFalse(math.isnan(energy), msg="got nan for ErrorDown res, %s" % particle_str)
                             energy = tool.getCorrectedEnergy(0, Data, particle_information, sys, ROOT.egEnergyCorr.Resolution.None)
                             self.assertFalse(math.isnan(energy), msg="got nan for Data, sys=%s, %s" % (sys, particle_str))
-
 
     def test_systematics(self):
         tool = self.EnergyCorrectionTool()
         tool.setESModel(ROOT.egEnergyCorr.es2012c)
         tool.initialize()
 
-        etas = list(self.linspace(0, 2.4, 300))
+        etas = list(linspace(0, 2.4, 300))
 
         datatype = Full
 
         systematics = self.all_systematics
-
 
         def create_graph(etas, nominal, distorted):
             gr = ROOT.TGraph()
@@ -712,14 +713,23 @@ class Test(unittest.TestCase):
 
         canvas = ROOT.TCanvas()
         multigraph = ROOT.TMultiGraph()
-        multigraph.SetTitle("Leakage;#eta; E_{sys} / E_{nom}")
-        multigraph.Add(ratios_smearing[ROOT.egEnergyCorr.Scale.LeakageUp])
-        multigraph.Add(ratios_smearing[ROOT.egEnergyCorr.Scale.LeakageDown])
-        multigraph.Add(ratios_nosmearing[ROOT.egEnergyCorr.Scale.LeakageUp])
-        multigraph.Add(ratios_nosmearing[ROOT.egEnergyCorr.Scale.LeakageDown])
+        multigraph.SetTitle("LeakageUnconv;#eta; E_{sys} / E_{nom}")
+        multigraph.Add(ratios_smearing[ROOT.egEnergyCorr.Scale.LeakageUnconvUp])
+        multigraph.Add(ratios_smearing[ROOT.egEnergyCorr.Scale.LeakageUnconvDown])
+        multigraph.Add(ratios_nosmearing[ROOT.egEnergyCorr.Scale.LeakageUnconvUp])
+        multigraph.Add(ratios_nosmearing[ROOT.egEnergyCorr.Scale.LeakageUnconvDown])
         multigraph.Draw("APL")
-        canvas.SaveAs("sys_Leakage_es2012c.png")
+        canvas.SaveAs("sys_LeakageUnconv_es2012c.png")
 
+        canvas = ROOT.TCanvas()
+        multigraph = ROOT.TMultiGraph()
+        multigraph.SetTitle("LeakageConv;#eta; E_{sys} / E_{nom}")
+        multigraph.Add(ratios_smearing[ROOT.egEnergyCorr.Scale.LeakageConvUp])
+        multigraph.Add(ratios_smearing[ROOT.egEnergyCorr.Scale.LeakageConvDown])
+        multigraph.Add(ratios_nosmearing[ROOT.egEnergyCorr.Scale.LeakageConvUp])
+        multigraph.Add(ratios_nosmearing[ROOT.egEnergyCorr.Scale.LeakageConvDown])
+        multigraph.Draw("APL")
+        canvas.SaveAs("sys_LeakageConv_es2012c.png")
 
         canvas = ROOT.TCanvas()
         multigraph = ROOT.TMultiGraph()
@@ -730,7 +740,6 @@ class Test(unittest.TestCase):
         multigraph.Add(ratios_nosmearing[ROOT.egEnergyCorr.Scale.S12Down])
         multigraph.Draw("APL")
         canvas.SaveAs("sys_S12_es2012c.png")
-
 
         canvas = ROOT.TCanvas()
         multigraph = ROOT.TMultiGraph()
@@ -772,7 +781,6 @@ class Test(unittest.TestCase):
         multigraph.Draw("APL")
         canvas.SaveAs("sys_ZeeAll_es2012c.png")
 
-
     def test_layer_invariance(self):
         tool_es2012c_layer1 = self.EnergyCorrectionTool()
         tool_es2012c_layer1.setESModel(ROOT.egEnergyCorr.es2012c)
@@ -783,7 +791,7 @@ class Test(unittest.TestCase):
         tool_es2012c_layer2.setESModel(ROOT.egEnergyCorr.es2012c)
         tool_es2012c_layer2.initialize()
 
-        for eta in self.linspace(-3.5, 3.5, 300):
+        for eta in linspace(-3.5, 3.5, 300):
             E0 = self.E0MC.GetBinContent(self.E0MC.FindBin(eta)) * 1E3
             E1 = self.E1MC.GetBinContent(self.E1MC.FindBin(eta)) * 1E3
             E2 = self.E2MC.GetBinContent(self.E2MC.FindBin(eta)) * 1E3
@@ -813,6 +821,41 @@ class Test(unittest.TestCase):
 
             self.assertEqual(energy1, energy2)
 
+
+class TestConsistencyEgammaMVACalib(unittest.TestCase):
+    def test_electron(self):
+        weight_version = "egammaMVACalib/v1"
+        tool_egammaMVACalib = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON,
+                                                  True, weight_version)
+        tool_egammaMVACalib.InitTree(0)
+        # egammaEnergyCorrectionTool uses as default v1
+        tool_EP4MC = ROOT.AtlasRoot.egammaEnergyCorrectionTool()
+        tool_EP4MC.setESModel(6)   # es2012c
+        tool_EP4MC.initialize()
+        from itertools import product
+        for eta, phi, phi_shift, eta_shift, el_cl_E in product(arange(-2.5, 2.5, 0.02),
+                                                               arange(-3, 3, 0.2),
+                                                               (-0.01, 0, 0.01),
+                                                               (-0.01, 0, 0.01),
+                                                               arange(1E3, 200E3, 20E3)):
+            Es0 = el_cl_E * 0.8 * 0.05
+            Es1 = el_cl_E * 0.8 * 0.10
+            Es2 = el_cl_E * 0.8 * 0.65
+            Es3 = el_cl_E * 0.8 * 0.20
+            phiCalo = phi + phi_shift
+            trk_eta = eta + eta_shift
+            etaCalo = eta - eta_shift
+            args = (0, 1,   # run number, Full simulation
+                    Es0, Es1, Es2, Es3,
+                    eta, phi, trk_eta,
+                    el_cl_E,
+                    etaCalo, phiCalo,
+                    0, 0)  # no scale factor, no smearing
+            energy_EP4MC = tool_EP4MC.getCorrectedEnergyElectron(*args)
+            args = (Es0, Es1, Es2, Es3, eta, el_cl_E, etaCalo, phiCalo)
+            energy_egammaMVACalib = tool_egammaMVACalib.getMVAEnergyElectron(*args)
+            self.assertAlmostEqual(energy_EP4MC, energy_egammaMVACalib,
+                                   msg="different energy eta=%f" % eta)
 
 if __name__ == '__main__':
     ROOT.gROOT.ProcessLine(".x $ROOTCOREBIN/scripts/load_packages.C")

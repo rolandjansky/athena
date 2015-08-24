@@ -19,21 +19,24 @@
 #include "PATInterfaces/CorrectionCode.h"
 #include "PATInterfaces/ISystematicsTool.h"
 
+// PAT includes
+#include "PATCore/PATCoreEnums.h"
+
 // TODO: remove as soon as possibile
 #include "ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionTool.h"
 
 namespace CP {
 
-class IEgammaCalibrationAndSmearingTool : virtual public asg::IAsgTool, virtual public CP::ISystematicsTool{
+class IEgammaCalibrationAndSmearingTool : public CP::ISystematicsTool{
   /// Declare the interface that the class provides
   ASG_TOOL_INTERFACE( IEgammaCalibrationAndSmearingTool )
 public:
-  
+
   virtual ~IEgammaCalibrationAndSmearingTool() {};
 
   virtual StatusCode initialize() = 0;
 
-  //Apply the correction on a modifyable egamma object (xAOD::Electron or xAOD::Photon) 
+  //Apply the correction on a modifyable egamma object (xAOD::Electron or xAOD::Photon)
   virtual CP::CorrectionCode applyCorrection(xAOD::Egamma &) = 0;
 
   //Create a corrected copy from a constant egamma object
@@ -41,10 +44,11 @@ public:
   virtual CP::CorrectionCode correctedCopy(const xAOD::Photon&, xAOD::Photon*&) = 0;
 
   //functions to be used per-event
-  virtual void forceSmearing( bool force ) = 0;
-  virtual void forceScaleCorrection( bool force ) = 0;
-  virtual void setRandomSeed(unsigned seed) = 0; 
-  
+  virtual void setRandomSeed(unsigned seed) = 0;
+
+  virtual double resolution( double energy, double cl_eta, double cl_etaCalo,
+                             PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron) const = 0;
+  virtual double getResolution(const xAOD::Egamma& particle, bool withCT=true) const = 0;
 };
 
 }

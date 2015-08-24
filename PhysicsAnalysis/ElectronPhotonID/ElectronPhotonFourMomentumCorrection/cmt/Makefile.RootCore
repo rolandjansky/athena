@@ -1,9 +1,9 @@
 PACKAGE          = ElectronPhotonFourMomentumCorrection
 PACKAGE_PRELOAD  = Hist Physics
-PACKAGE_CXXFLAGS = 
-PACKAGE_LDFLAGS  = 
-PACKAGE_BINFLAGS = 
-PACKAGE_DEP      = AsgTools PATCore egammaLayerRecalibTool egammaMVACalib PATInterfaces xAODEventInfo xAODEgamma PathResolver
+PACKAGE_CXXFLAGS = -Wno-shadow -Wall
+PACKAGE_LDFLAGS  =
+PACKAGE_BINFLAGS =
+PACKAGE_DEP      = AsgTools PATCore egammaLayerRecalibTool egammaMVACalib PATInterfaces xAODEventInfo xAODEgamma PathResolver xAODRootAccess
 PACKAGE_PEDANTIC = 1
 PACKAGE_REFLEX = 1
 

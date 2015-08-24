@@ -4,9 +4,7 @@
 
 #include "ElectronPhotonFourMomentumCorrection/get_MaterialResolutionEffect.h"
 
-#ifndef ROOTCORE
 #include "PathResolver/PathResolver.h"
-#endif
 
 #include <stdlib.h>
 #include "TAxis.h"
@@ -15,11 +13,7 @@
 get_MaterialResolutionEffect::get_MaterialResolutionEffect()
 {
   //std::cout << " Initialize get_MaterialResolutionEffect " << std::endl;
-#ifdef ROOTCORE
-  file0 = TFile::Open("$ROOTCOREBIN/data/ElectronPhotonFourMomentumCorrection/histos-systematics-material.root");
-#else
-  file0 = TFile::Open( PathResolver::find_file("ElectronPhotonFourMomentumCorrection/histos-systematics-material.root", "XMLPATH").c_str() );
-#endif
+  file0 = TFile::Open( PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/histos-systematics-material.root").c_str() );
 
   for (Int_t isys=0;isys<4;isys++) {
     for (Int_t ieta=0;ieta<8;ieta++) {
