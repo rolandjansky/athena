@@ -68,6 +68,10 @@ StatusCode GenModule::execute() {
     // Add the event to the end of the collection
     events()->push_back(evt);
     ATH_MSG_DEBUG("MC event added to McEventCollection");
+
+   // remove the empty event in case of ParticleDecayer
+    if (name() == "ParticleDecayer")
+        events()->pop_back();
       }
 
   // Call the incident service to notify that an event has been made
