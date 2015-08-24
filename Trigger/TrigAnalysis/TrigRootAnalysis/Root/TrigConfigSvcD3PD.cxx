@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfigSvcD3PD.cxx 624676 2014-10-28 18:02:35Z tamartin $
+// $Id: TrigConfigSvcD3PD.cxx 690858 2015-08-24 09:08:55Z tamartin $
 
 // ROOT include(s):
 #include <TTree.h>
@@ -749,8 +749,8 @@ namespace D3PD {
       hltRerunPrescaleMap.ReadFrom( tree );
       hltPassthroughMap.ReadFrom( tree );
       lowerChainNameMap.ReadFrom( tree );
-      
-      // [TrigMonConfig] 
+
+      // [TrigMonConfig]
       // Load variables for CHAIN
       D3PDReaderPriv::VarHandle< uint16_t >                                   chainN( this, "chainConfig_n", &entry );
       D3PDReaderPriv::VarHandle< std::vector< uint32_t >* >                   chainID( this, "chainConfig_ID", &entry );
@@ -817,7 +817,7 @@ namespace D3PD {
       D3PDReaderPriv::VarHandle< std::vector< std::vector< uint32_t > >* >    seqAlgNameID( this, "seqConfig_alg_nameID", &entry );
       D3PDReaderPriv::VarHandle< std::vector< std::vector< uint32_t > >* >    seqAlgTypeID( this, "seqConfig_alg_typeID", &entry );
       D3PDReaderPriv::VarHandle< std::vector< std::vector< std::string > >* > seqAlgName( this, "seqConfig_alg_name", &entry );
-      D3PDReaderPriv::VarHandle< std::vector< std::vector< std::string > >* > seqAlgTypeName( this, "seqConfig_alg_typeName", &entry );      
+      D3PDReaderPriv::VarHandle< std::vector< std::vector< std::string > >* > seqAlgTypeName( this, "seqConfig_alg_typeName", &entry );
       seqAlgN.ReadFrom( tree );
       seqAlgIndex.ReadFrom( tree );
       seqAlgPosition.ReadFrom( tree );
@@ -862,7 +862,7 @@ namespace D3PD {
          Warning( "Initialize", "This is expected for slightly older D3PD files" );
          extraBrAvailable = kFALSE;
       }
-      
+
       //
       // Check whether extended [TrigMonConfig] branches exist (don't check them all):
       //
@@ -871,11 +871,10 @@ namespace D3PD {
           ( ! chainSigN.IsAvailable() ) ||
           ( ! seqN.IsAvailable() ) ||
           ( ! seqAlgN.IsAvailable() )) {
-         Info( "Initialize", "The supplied TTree doesn't have extended TrigMonConfig branches" );
-         Info( "Initialize", "This is expected when not investigating trigger cost data." );
+         // Dont warn user as this is a special use case
          trigMonConfigAvailable = kFALSE;
       }
-      
+
 
       //
       // Load all configurations from the metadata tree:
@@ -895,6 +894,9 @@ namespace D3PD {
 
          const DBKeys_t keys = MakeDBKeys( smk(), l1psk(), hltpsk() );
 
+         // reprocessing can give us the same keys many times - only do this once per keyset!
+         if (m_lvl1NameMap.count(keys) == 1) continue;
+
          m_lvl1NameMap[ keys ]     = *( lvl1NameMap() );
          m_lvl1PrescaleMap[ keys ] = *( lvl1PrescaleMap() );
 
@@ -906,7 +908,7 @@ namespace D3PD {
             m_hltPassthroughMap[ keys ]   = *( hltPassthroughMap() );
             m_lowerChainNameMap[ keys ]   = *( lowerChainNameMap() );
          }
-         
+
          // [TrigMonConfig]
          if( trigMonConfigAvailable ) {
             // variables for CHAIN
@@ -952,7 +954,7 @@ namespace D3PD {
             m_metaStringKey[ keys ] = *( metaStringKey() );
             m_metaStringVal[ keys ] = *( metaStringVal() );
 
-            // Initialise the memory for the helper maps.            
+            // Initialise the memory for the helper maps.
             m_chainCounterMap[ keys ] = std::map< unsigned int, unsigned int >();
             m_TEIndexMap[ keys ] = std::map< unsigned int, unsigned int >();
             m_hltSequenceNameMap[ keys ] = std::map< unsigned int , std::string >();
@@ -960,6 +962,13 @@ namespace D3PD {
             m_hltAlgorithmNameIDMap[ keys ] = std::map< std::pair< int, int > , unsigned int >();
             m_hltAlgorithmTypeMap  [ keys ] = std::map< std::pair< int, int > , std::string >();
             m_hltAlgorithmTypeIDMap[ keys ] = std::map< std::pair< int, int > , unsigned int >();
+
+            //
+            // [TrigMonConfig]
+            // Temporarily set the 'global' key m_key and populate the newly formed helper maps
+            //
+            m_key = keys;
+            GenerateSignatureSequenceMap();
          }
       }
 
@@ -983,15 +992,7 @@ namespace D3PD {
       Info( "Initialize",
             "Loaded configuration: SMK: %i, L1PSK: %i, HLTPSK: %i",
             smk(), l1psk(), hltpsk() );
-      
-     //  
-     // [TrigMonConfig]       
-     // Populate the newly formed helper maps
-     //
-     if( trigMonConfigAvailable ) {
-        GenerateSignatureSequenceMap(m_key); 
-     }
-        
+
       m_initialized = kTRUE;
       return kTRUE;
    }
@@ -1012,7 +1013,7 @@ namespace D3PD {
       m_hltPassthroughMap.clear();
 
       m_lowerChainNameMap.clear();
-      
+
       // [TrigMonConfig]
       m_chainCounterMap.clear();
       m_TEIndexMap.clear();
@@ -1020,8 +1021,8 @@ namespace D3PD {
       m_hltAlgorithmNameMap.clear();
       m_hltAlgorithmNameIDMap.clear();
       m_hltAlgorithmTypeMap.clear();
-      m_hltAlgorithmTypeIDMap.clear();      
-      
+      m_hltAlgorithmTypeIDMap.clear();
+
       return;
    }
 
@@ -1093,7 +1094,7 @@ namespace D3PD {
       return std::make_pair( SMK, std::make_pair( L1PSK, HLTPSK ) );
    }
 
-   /** 
+   /**
     * [TrigMonConf] Returns the index of the chain with the given counter
     *
     * @param _counter Chain counter to locate in D3PD.
@@ -1101,7 +1102,7 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetChainIndexFromCounter( UInt_t _counter ) const {
       std::map< DBKeys_t, std::map< unsigned int, unsigned int > >::const_iterator _map = m_chainCounterMap.find( m_key );
-      
+
       if( _map == m_chainCounterMap.end() ) {
          Error( "TrigConfigSvcD3PD::GetChainIndexFromCounter", "Current configuration not available!" );
          return UINT_MAX;
@@ -1114,7 +1115,7 @@ namespace D3PD {
       Warning( "TrigConfigSvcD3PD::GetChainIndexFromCounter", "Couldn't find config treee D3PD index for chain with counter: %i", _counter );
       return UINT_MAX;
    }
-   
+
    /**
     * [TrigMonConf] Returns the index of the sequence with given output TE.
     *
@@ -1123,7 +1124,7 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetSequenceIndex( UInt_t _outputTE ) const {
       std::map< DBKeys_t, std::map< unsigned int, unsigned int > >::const_iterator _map = m_TEIndexMap.find( m_key );
-      
+
       if( _map == m_TEIndexMap.end() ) {
          Error( "TrigConfigSvcD3PD::GetSequenceIndex", "Current configuration not available!" );
          return UINT_MAX;
@@ -1136,7 +1137,7 @@ namespace D3PD {
       Warning( "TrigConfigSvcD3PD::GetSequenceIndex", "Couldn't find Sequence Index for OutputTE: %i", _outputTE );
       return UINT_MAX;
    }
-   
+
    /**
     * [TrigMonConf] Returns the name of a sequence from its index ID
     *
@@ -1145,12 +1146,12 @@ namespace D3PD {
     */
     const std::string& TrigConfigSvcD3PD::GetSequenceNameFromIndex( unsigned int _index ) const {
       std::map< DBKeys_t, std::map< unsigned int, std::string > >::const_iterator _map = m_hltSequenceNameMap.find( m_key );
-      
+
       if( _map == m_hltSequenceNameMap.end() ) {
          Error( "TrigConfigSvcD3PD::GetSequenceNameFromIndex", "Current configuration not available!" );
          return m_dummy;
       }
-      
+
       std::map< unsigned int, std::string >::const_iterator _itr = _map->second.find( _index );
       if( _itr != _map->second.end() ) {
          return _itr->second;
@@ -1158,7 +1159,7 @@ namespace D3PD {
       Warning( "TrigConfigSvcD3PD::GetSequenceNameFromIndex", "Couldn't find Sequence Name for Index: %i", _index );
       return m_dummy;
     }
-    
+
    /**
     * [TrigMonConf] Returns the name of an algorithm specified by its parent sequence and location within the sequence.
     *
@@ -1169,12 +1170,12 @@ namespace D3PD {
     const std::string& TrigConfigSvcD3PD::GetAlgNameFromSeqIDAndAlgPos( int _sequenceID, int _algorithmPosition ) const {
       std::map< DBKeys_t, std::map< std::pair<int,int> , std::string > >::const_iterator _map = m_hltAlgorithmNameMap.find( m_key );
       std::pair<int,int> _toFind( _sequenceID, _algorithmPosition );
-      
+
       if( _map == m_hltAlgorithmNameMap.end() ) {
          Error( "TrigConfigSvcD3PD::GetAlgNameFromSeqIDAndAlgPos", "Current configuration not available!" );
          return m_dummy;
       }
-      
+
       std::map< std::pair<Int_t,Int_t>, std::string >::const_iterator _itr = _map->second.find( _toFind );
       if( _itr != _map->second.end() ) {
          return _itr->second;
@@ -1193,12 +1194,12 @@ namespace D3PD {
     UInt_t TrigConfigSvcD3PD::GetAlgNameIDFromSeqIDAndAlgPos( int _sequenceID, int _algorithmPosition ) const {
       std::map< DBKeys_t, std::map< std::pair<int,int> , unsigned int > >::const_iterator _map = m_hltAlgorithmNameIDMap.find( m_key );
       std::pair<int,int> _toFind( _sequenceID, _algorithmPosition );
-      
+
       if( _map == m_hltAlgorithmNameIDMap.end() ) {
          Error( "TrigConfigSvcD3PD::GetAlgNameIDFromSeqIDAndAlgPos", "Current configuration not available!" );
          return 0;
       }
-      
+
       std::map< std::pair<int,int>, unsigned int >::const_iterator _itr = _map->second.find( _toFind );
       if( _itr != _map->second.end() ) {
          return _itr->second;
@@ -1206,7 +1207,7 @@ namespace D3PD {
       Warning( "TrigConfigSvcD3PD::GetAlgNameIDFromSeqIDAndAlgPos", "Couldn't find Algorithm Name for Seq Index: %i Alg Pos:%i", _sequenceID, _algorithmPosition );
       return 0;
     }
-    
+
    /**
     * [TrigMonConf] Returns the class name of an algorithm specified by its parent sequence and location within the sequence.
     *
@@ -1217,12 +1218,12 @@ namespace D3PD {
     const std::string& TrigConfigSvcD3PD::GetAlgClassNameFromSeqIDAndAlgPos( int _sequenceID, int _algorithmPosition ) const {
       std::map< DBKeys_t, std::map< std::pair<int,int> , std::string > >::const_iterator _map = m_hltAlgorithmTypeMap.find( m_key );
       std::pair<int,int> _toFind( _sequenceID, _algorithmPosition );
-      
+
       if( _map == m_hltAlgorithmTypeMap.end() ) {
          Error( "TrigConfigSvcD3PD::GetAlgClassNameFromSeqIDAndAlgPos", "Current configuration not available!" );
          return m_dummy;
       }
-      
+
       std::map< std::pair<int,int>, std::string >::const_iterator _itr = _map->second.find( _toFind );
       if( _itr != _map->second.end() ) {
          return _itr->second;
@@ -1241,12 +1242,12 @@ namespace D3PD {
     UInt_t TrigConfigSvcD3PD::GetAlgClassNameIDFromSeqIDAndAlgPos( int _sequenceID, int _algorithmPosition ) const {
       std::map< DBKeys_t, std::map< std::pair<int,int> , unsigned int > >::const_iterator _map = m_hltAlgorithmTypeIDMap.find( m_key );
       std::pair<int,int> _toFind( _sequenceID, _algorithmPosition );
-      
+
       if( _map == m_hltAlgorithmTypeIDMap.end() ) {
          Error( "TrigConfigSvcD3PD::GetAlgClassNameIDFromSeqIDAndAlgPos", "Current configuration not available!" );
          return 0;
       }
-      
+
       std::map< std::pair<int,int>, unsigned int >::const_iterator _itr = _map->second.find( _toFind );
       if( _itr != _map->second.end() ) {
          return _itr->second;
@@ -1254,23 +1255,23 @@ namespace D3PD {
       Warning( "TrigConfigSvcD3PD::GetAlgClassNameIDFromSeqIDAndAlgPos", "Couldn't find Algorithm Type for Seq Index: %i Alg Pos:%i", _sequenceID, _algorithmPosition );
       return 0;
     }
-   
+
    /**
     * [TrigMonConf] Returns the number of configured trigger chains.
     *
     * @returns The the algorithm name.
     */
-   UInt_t TrigConfigSvcD3PD::GetChainN() const{ 
+   UInt_t TrigConfigSvcD3PD::GetChainN() const{
      std::map< DBKeys_t, uint16_t >::const_iterator _map = m_chainN.find( m_key );
-     
+
      if( _map == m_chainN.end() ) {
        Warning( "TrigConfigSvcD3PD::GetChainN", "The requested information is not available" );
        return 0;
      }
-     
-     return _map->second;     
+
+     return _map->second;
    }
-   
+
    /**
     * [TrigMonConf] Returns the level of the chain at given index.
     *
@@ -1279,15 +1280,15 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetChainLevel(UInt_t _c) const {
      std::map< DBKeys_t, std::vector< uint8_t > >::const_iterator _map = m_chainLevel.find( m_key );
-     
+
      if( _map == m_chainLevel.end() ) {
        Warning( "TrigConfigSvcD3PD::GetChainLevel", "The requested information is not available" );
        return 0;
      }
-     
-     return _map->second.at(_c);  
+
+     return _map->second.at(_c);
    }
-   
+
    /**
     * [TrigMonConf] Returns the menu counter index for a chain.
     *
@@ -1296,32 +1297,32 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetChainCounter(UInt_t _c) const {
      std::map< DBKeys_t, std::vector< uint16_t > >::const_iterator _map = m_chainCounter.find( m_key );
-     
+
      if( _map == m_chainCounter.end() ) {
        Warning( "TrigConfigSvcD3PD::GetChainCounter", "The requested information is not available" );
        return 0;
      }
-     
-     return _map->second.at(_c);  
+
+     return _map->second.at(_c);
    }
-   
+
    /**
     * [TrigMonConf] Returns the name of the chain at given index.
     *
     * @param _c D3PD index of chain.
     * @returns The chain name.
     */
-   std::string TrigConfigSvcD3PD::GetChainName(UInt_t _c) const { 
+   std::string TrigConfigSvcD3PD::GetChainName(UInt_t _c) const {
      std::map< DBKeys_t, std::vector< std::string > >::const_iterator _map = m_chainName.find( m_key );
-     
+
      if( _map == m_chainName.end() ) {
        Warning( "TrigConfigSvcD3PD::GetChainName", "The requested information is not available" );
        return 0;
      }
-     
-     return _map->second.at(_c);  
+
+     return _map->second.at(_c);
    }
-   
+
    /**
     * [TrigMonConf] Returns the size of the Enhanced Bias vector of chain items for a given chain.
     *
@@ -1330,15 +1331,15 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetChainEBHypoNameSize(UInt_t _c) const {
      std::map< DBKeys_t, std::vector< std::vector< std::string > > >::const_iterator _map = m_chainEBHypoNames.find( m_key );
-     
+
      if( _map == m_chainEBHypoNames.end() ) {
        Warning( "TrigConfigSvcD3PD::GetChainEBHypoNameSize", "The requested information is not available" );
        return 0;
      }
-     
-     return _map->second.at(_c).size(); 
+
+     return _map->second.at(_c).size();
    }
-   
+
    /**
     * [TrigMonConf] Returns the Enhanced Bias item name for a given entry in the EB hypo vector for the chain at given index.
     *
@@ -1348,15 +1349,15 @@ namespace D3PD {
     */
    std::string TrigConfigSvcD3PD::GetChainEBHypoName(UInt_t _c, UInt_t _h) const {
      std::map< DBKeys_t, std::vector< std::vector< std::string > > >::const_iterator _map = m_chainEBHypoNames.find( m_key );
-     
+
      if( _map == m_chainEBHypoNames.end() ) {
        Warning( "TrigConfigSvcD3PD::GetChainEBHypoName", "The requested information is not available" );
        return 0;
      }
-     
-     return _map->second.at(_c).at(_h); 
-   }  
-   
+
+     return _map->second.at(_c).at(_h);
+   }
+
    /**
     * [TrigMonConf] Returns the size of the Group Name vector of chain items for a given chain.
     *
@@ -1365,13 +1366,13 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetChainGroupNameSize(UInt_t _c) const {
      std::map< DBKeys_t, std::vector< std::vector< std::string > > >::const_iterator _map = m_chainGroupNames.find( m_key );
-     
+
      if( _map == m_chainGroupNames.end() ) {
        Warning( "TrigConfigSvcD3PD::GetChainGroupNameSize", "The requested information is not available" );
        return 0;
      }
-     
-     return _map->second.at(_c).size(); 
+
+     return _map->second.at(_c).size();
    }
 
    /**
@@ -1383,32 +1384,32 @@ namespace D3PD {
     */
    std::string TrigConfigSvcD3PD::GetChainGroupName(UInt_t _c, UInt_t _g) const {
      std::map< DBKeys_t, std::vector< std::vector< std::string > > >::const_iterator _map = m_chainGroupNames.find( m_key );
-     
+
      if( _map == m_chainGroupNames.end() ) {
        Warning( "TrigConfigSvcD3PD::GetChainGroupName", "The requested information is not available" );
        return 0;
      }
-     
-     return _map->second.at(_c).at(_g); 
-   }  
-   
+
+     return _map->second.at(_c).at(_g);
+   }
+
    /**
     * [TrigMonConf] Returns the number of configured signatures for a given chain.
     *
     * @param _c D3PD index of chain.
     * @returns The number of signature steps configured for this chain.
     */
-   UInt_t TrigConfigSvcD3PD::GetSigN(UInt_t _c) const {     
+   UInt_t TrigConfigSvcD3PD::GetSigN(UInt_t _c) const {
      std::map< DBKeys_t, std::vector<  uint16_t > >::const_iterator _map = m_chainSigN.find( m_key );
-     
+
      if( _map == m_chainSigN.end() ) {
        Warning( "TrigConfigSvcD3PD::GetSigN", "The requested information is not available" );
        return 0;
      }
-     
-     return _map->second.at(_c);  
+
+     return _map->second.at(_c);
    }
-   
+
    /**
     * [TrigMonConf] Returns the signature ID for a given signature in a given chain.
     *
@@ -1418,15 +1419,15 @@ namespace D3PD {
     */
    UInt_t  TrigConfigSvcD3PD::GetSigCounter(UInt_t _c, UInt_t _s) const {
      std::map< DBKeys_t, std::vector< std::vector< uint32_t > > >::const_iterator _map = m_chainSigCounter.find( m_key );
-     
+
      if( _map == m_chainSigCounter.end() ) {
        Warning( "TrigConfigSvcD3PD::GetSigCounter", "The requested information is not available" );
        return 0;
      }
-     
-     return (_map->second.at(_c)).at(_s); 
+
+     return (_map->second.at(_c)).at(_s);
    }
-  
+
    /**
     * [TrigMonConf] Returns the signature logic for a given signature in a given chain.
     *
@@ -1436,15 +1437,15 @@ namespace D3PD {
     */
    UInt_t  TrigConfigSvcD3PD::GetSigLogic(UInt_t _c, UInt_t _s) const {
      std::map< DBKeys_t, std::vector< std::vector< uint32_t > > >::const_iterator _map = m_chainSigLogic.find( m_key );
-     
+
      if( _map == m_chainSigLogic.end() ) {
        Warning( "TrigConfigSvcD3PD::GetSigLogic", "The requested information is not available" );
        return 0;
      }
-     
-     return (_map->second.at(_c)).at(_s); 
+
+     return (_map->second.at(_c)).at(_s);
    }
-   
+
    /**
     * [TrigMonConf] Returns the signature label (name) for a given signature in a given chain.
     *
@@ -1452,17 +1453,17 @@ namespace D3PD {
     * @param _s D3PD index of signature.
     * @returns The signatures label (name).
     */
-   std::string TrigConfigSvcD3PD::GetSigLabel(UInt_t _c, UInt_t _s) const { 
+   std::string TrigConfigSvcD3PD::GetSigLabel(UInt_t _c, UInt_t _s) const {
      std::map< DBKeys_t, std::vector< std::vector< std::string > > >::const_iterator _map = m_chainSigLabel.find( m_key );
-     
+
      if( _map == m_chainSigLabel.end() ) {
        Warning( "TrigConfigSvcD3PD::GetSigLabel", "The requested information is not available" );
        return 0;
      }
-     
-     return (_map->second.at(_c)).at(_s); 
+
+     return (_map->second.at(_c)).at(_s);
    }
-   
+
    /**
     * [TrigMonConf] Returns the number of output trigger elements for a given signature in a given chain.
     *
@@ -1472,15 +1473,15 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetSigNOutputTE(UInt_t _c, UInt_t _s) const {
      std::map< DBKeys_t, std::vector< std::vector< uint16_t > > >::const_iterator _map = m_chainSigOutputTEn.find( m_key );
-     
+
      if( _map == m_chainSigOutputTEn.end() ) {
        Warning( "TrigConfigSvcD3PD::GetSigNOutputTE", "The requested information is not available" );
        return 0;
      }
-     
-     return (_map->second.at(_c)).at(_s); 
+
+     return (_map->second.at(_c)).at(_s);
    }
-   
+
    /**
     * [TrigMonConf] Returns the requested output trigger element for a given signature in a given chain.
     *
@@ -1493,7 +1494,7 @@ namespace D3PD {
      // Nested information, first look up index then fetch required entry
      std::map< DBKeys_t, std::vector< std::vector< uint32_t > > >::const_iterator _indexMap = m_chainSigOutputTEIndex.find( m_key );
      std::map< DBKeys_t, std::vector< std::vector< uint32_t > > >::const_iterator _map = m_chainSigOutputTEs.find( m_key );
-     
+
      if( _indexMap == m_chainSigOutputTEIndex.end() ) {
        Warning( "TrigConfigSvcD3PD::GetSigOutputTE::index", "The requested information is not available" );
        return 0;
@@ -1502,11 +1503,11 @@ namespace D3PD {
        Warning( "TrigConfigSvcD3PD::GetSigOutputTE::outputTEs", "The requested information is not available" );
        return 0;
      }
-     
+
      UInt_t _index = (_indexMap->second.at(_c)).at(_s);
      return (_map->second.at(_index)).at(_t);
    }
-   
+
    /**
     * [TrigMonConf] Returns the number of configures sequences.
     *
@@ -1514,15 +1515,15 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetSeqN() const {
      std::map< DBKeys_t, uint16_t >::const_iterator _map = m_seqN.find( m_key );
-     
+
      if( _map == m_seqN.end() ) {
        Warning( "TrigConfigSvcD3PD::GetSeqN", "The requested information is not available" );
        return 0;
      }
-     
+
      return _map->second;
    }
-   
+
    /**
     * [TrigMonConf] Returns the ID for a given sequence.
     *
@@ -1531,15 +1532,15 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetSeqID(UInt_t _s) const {
       std::map< DBKeys_t, std::vector< uint32_t > >::const_iterator _map = m_seqID.find( m_key );
-     
+
      if( _map == m_seqID.end() ) {
        Warning( "TrigConfigSvcD3PD::GetSeqID", "The requested information is not available" );
        return 0;
      }
-     
-     return _map->second.at(_s); 
+
+     return _map->second.at(_s);
    }
-   
+
    /**
     * [TrigMonConf] Returns the index for a given sequence.
     *
@@ -1548,15 +1549,15 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetSeqIndex(UInt_t _s) const {
       std::map< DBKeys_t, std::vector< uint16_t > >::const_iterator _map = m_seqIndex.find( m_key );
-     
+
      if( _map == m_seqIndex.end() ) {
        Warning( "TrigConfigSvcD3PD::GetSeqIndex", "The requested information is not available" );
        return 0;
      }
-     
-     return _map->second.at(_s); 
+
+     return _map->second.at(_s);
    }
-   
+
    /**
     * [TrigMonConf] Returns the name for a given sequence.
     *
@@ -1565,15 +1566,15 @@ namespace D3PD {
     */
    std::string TrigConfigSvcD3PD::GetSeqName(UInt_t _s) const {
      std::map< DBKeys_t, std::vector< std::string > >::const_iterator _map = m_seqName.find( m_key );
-     
+
      if( _map == m_seqName.end() ) {
        Warning( "TrigConfigSvcD3PD::GetSeqName", "The requested information is not available" );
        return 0;
      }
-     
-     return _map->second.at(_s);  
+
+     return _map->second.at(_s);
    }
-   
+
    /**
     * [TrigMonConf] Returns the number of input trigger elements for a given sequence.
     *
@@ -1582,16 +1583,16 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetSeqNInputTEs(UInt_t _s) const {
      std::map< DBKeys_t, std::vector< std::vector< uint32_t > > >::const_iterator _map = m_seqInputTEs.find( m_key );
-     
+
      if( _map == m_seqInputTEs.end() ) {
        Warning( "TrigConfigSvcD3PD::GetSeqNInputTEs", "The requested information is not available" );
        return 0;
      }
-     
-     return (_map->second.at(_s)).size(); 
+
+     return (_map->second.at(_s)).size();
    }
-   
-   
+
+
    /**
     * [TrigMonConf] Returns the ID of an input trigger element for a given sequence.
     *
@@ -1601,15 +1602,15 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetSeqInputTE(UInt_t _s, UInt_t _t) const {
      std::map< DBKeys_t, std::vector< std::vector< uint32_t > > >::const_iterator _map = m_seqInputTEs.find( m_key );
-     
+
      if( _map == m_seqInputTEs.end() ) {
        Warning( "TrigConfigSvcD3PD::GetSeqInputTE", "The requested information is not available" );
        return 0;
      }
-     
-     return (_map->second.at(_s)).at(_t); 
+
+     return (_map->second.at(_s)).at(_t);
    }
-   
+
    /**
     * [TrigMonConf] Returns the number of algorithms for a given sequence.
     *
@@ -1618,15 +1619,15 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetAlgN(UInt_t _s) const {
      std::map< DBKeys_t, std::vector<  uint16_t > >::const_iterator _map = m_seqAlgN.find( m_key );
-     
+
      if( _map == m_seqAlgN.end() ) {
        Warning( "TrigConfigSvcD3PD::GetAlgN", "The requested information is not available" );
        return 0;
      }
-     
-     return _map->second.at(_s);  
+
+     return _map->second.at(_s);
    }
-   
+
    /**
     * [TrigMonConf] Returns the index of an algorithm for a given sequence.
     *
@@ -1636,15 +1637,15 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetAlgIndex(UInt_t _s, UInt_t _a) const {
      std::map< DBKeys_t, std::vector< std::vector< uint16_t > > >::const_iterator _map = m_seqAlgIndex.find( m_key );
-     
+
      if( _map == m_seqAlgIndex.end() ) {
        Warning( "TrigConfigSvcD3PD::GetAlgIndex", "The requested information is not available" );
        return 0;
      }
-     
-     return (_map->second.at(_s)).at(_a); 
+
+     return (_map->second.at(_s)).at(_a);
    }
-   
+
    /**
     * [TrigMonConf] Returns the position of an algorithm in its parent sequence.
     *
@@ -1654,15 +1655,15 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetAlgPosition(UInt_t _s, UInt_t _a) const {
      std::map< DBKeys_t, std::vector< std::vector< uint8_t > > >::const_iterator _map = m_seqAlgPosition.find( m_key );
-     
+
      if( _map == m_seqAlgPosition.end() ) {
        Warning( "TrigConfigSvcD3PD::GetAlgPosition", "The requested information is not available" );
        return 0;
      }
-     
-     return (_map->second.at(_s)).at(_a); 
+
+     return (_map->second.at(_s)).at(_a);
    }
-   
+
    /**
     * [TrigMonConf] Returns the hash of the name of an algorithm from its position in its parent sequence.
     *
@@ -1672,15 +1673,15 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetAlgNameID(UInt_t _s, UInt_t _a) const {
      std::map< DBKeys_t, std::vector< std::vector< uint32_t > > >::const_iterator _map = m_seqAlgNameID.find( m_key );
-     
+
      if( _map == m_seqAlgNameID.end() ) {
        Warning( "TrigConfigSvcD3PD::GetAlgNameID", "The requested information is not available" );
        return 0;
      }
-     
-     return (_map->second.at(_s)).at(_a); 
+
+     return (_map->second.at(_s)).at(_a);
    }
-   
+
    /**
     * [TrigMonConf] Returns the name of an algorithm from its position in its parent sequence.
     *
@@ -1690,15 +1691,15 @@ namespace D3PD {
     */
    std::string TrigConfigSvcD3PD::GetAlgName(UInt_t _s, UInt_t _a) const {
      std::map< DBKeys_t, std::vector< std::vector< std::string > > >::const_iterator _map = m_seqAlgName.find( m_key );
-     
+
      if( _map == m_seqAlgName.end() ) {
        Warning( "TrigConfigSvcD3PD::GetAlgName", "The requested information is not available" );
        return 0;
      }
-     
-     return (_map->second.at(_s)).at(_a); 
+
+     return (_map->second.at(_s)).at(_a);
    }
-   
+
    /**
     * [TrigMonConf] Returns the hast of the type-name of an algorithm from its position in its parent sequence.
     *
@@ -1708,15 +1709,15 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetAlgTypeID(UInt_t _s, UInt_t _a) const {
      std::map< DBKeys_t, std::vector< std::vector< uint32_t > > >::const_iterator _map = m_seqAlgTypeID.find( m_key );
-     
+
      if( _map == m_seqAlgTypeID.end() ) {
        Warning( "TrigConfigSvcD3PD::GetAlgTypeID", "The requested information is not available" );
        return 0;
      }
-     
-     return (_map->second.at(_s)).at(_a); 
+
+     return (_map->second.at(_s)).at(_a);
    }
-   
+
    /**
     * [TrigMonConf] Returns the type-name (class name) of an algorithm from its position in its parent sequence.
     *
@@ -1726,13 +1727,13 @@ namespace D3PD {
     */
    std::string TrigConfigSvcD3PD::GetAlgTypeName(UInt_t _s, UInt_t _a) const {
      std::map< DBKeys_t, std::vector< std::vector< std::string > > >::const_iterator _map = m_seqAlgTypeName.find( m_key );
-     
+
      if( _map == m_seqAlgTypeName.end() ) {
        Warning( "TrigConfigSvcD3PD::GetAlgTypeName", "The requested information is not available" );
        return 0;
      }
-     
-     return (_map->second.at(_s)).at(_a); 
+
+     return (_map->second.at(_s)).at(_a);
    }
 
    /**
@@ -1742,12 +1743,12 @@ namespace D3PD {
     */
    UInt_t TrigConfigSvcD3PD::GetMetaStringN() const {
      std::map< DBKeys_t, std::vector< std::string > >::const_iterator _map = m_metaStringKey.find( m_key );
-     
+
      if( _map == m_metaStringKey.end() ) {
        Warning( "TrigConfigSvcD3PD::GetMetaStringN", "The requested information is not available" );
        return 0;
      }
-     
+
      return (UInt_t) _map->second.size();
    }
 
@@ -1759,12 +1760,12 @@ namespace D3PD {
     */
    std::string TrigConfigSvcD3PD::GetMetaStringKey(UInt_t _m) const {
      std::map< DBKeys_t, std::vector< std::string > >::const_iterator _map = m_metaStringKey.find( m_key );
-     
+
      if( _map == m_metaStringKey.end() ) {
        Warning( "TrigConfigSvcD3PD::GetMetaStringKey", "The requested information is not available" );
        return 0;
      }
-     
+
      return _map->second.at(_m);
    }
 
@@ -1776,36 +1777,35 @@ namespace D3PD {
     */
    std::string TrigConfigSvcD3PD::GetMetaStringVal(UInt_t _m) const {
      std::map< DBKeys_t, std::vector< std::string > >::const_iterator _map = m_metaStringVal.find( m_key );
-     
+
      if( _map == m_metaStringVal.end() ) {
        Warning( "TrigConfigSvcD3PD::GetMetaStringValue", "The requested information is not available" );
        return 0;
      }
-     
+
      return _map->second.at(_m);
    }
-   
+
    /**
     * [TrigMonConf] Populates helper maps with trigger configuration using the full dump performed with TrigMonConfig
-    * running of the trigger with TrigCost enabled.
-    *
-    * @param _keys trigger keys with which to populate.
+    * running of the trigger with TrigCost enabled. Uses m_key as the key to populate, as do all the helper functions
     */
-   void TrigConfigSvcD3PD::GenerateSignatureSequenceMap(std::pair<int, std::pair<int, int> > _keys) {
-   
-     std::map< DBKeys_t, std::map< unsigned int, unsigned int > >::iterator _map = m_TEIndexMap.find( _keys );
-      
+   void TrigConfigSvcD3PD::GenerateSignatureSequenceMap() {
+
+     std::map< DBKeys_t, std::map< unsigned int, unsigned int > >::iterator _map = m_TEIndexMap.find( m_key );
+
       if( _map == m_TEIndexMap.end() ) {
          Error( "TrigConfigSvcD3PD::GenerateSignatureSequenceMap",
-           "Current configuration (%i, %i, %i) not available!", _keys.first, _keys.second.first, _keys.second.second );
+           "Current configuration (%i, %i, %i) not available!", m_key.first, m_key.second.first, m_key.second.second );
          return;
       }
-      
-     Info("TrigConfigSvcD3PD::GenerateSignatureSequenceMap", "Forming trigger configuration helper maps");
 
-     std::map< DBKeys_t, std::map< unsigned int , unsigned int > >::iterator _chainIndex = m_chainCounterMap.find( _keys );
-      
-      _map->second.clear();
+     //Info("TrigConfigSvcD3PD::GenerateSignatureSequenceMap", "Forming trigger configuration helper maps for (%i, %i, %i)",
+     //    m_key.first, m_key.second.first, m_key.second.second);
+
+     std::map< DBKeys_t, std::map< unsigned int , unsigned int > >::iterator _chainIndex = m_chainCounterMap.find( m_key );
+
+     _map->second.clear();
 
       // For every configured chain
       for (UInt_t _c = 0; _c < GetChainN(); ++_c) {
@@ -1818,7 +1818,7 @@ namespace D3PD {
             for (UInt_t _t = 0; _t < _nOutputTEs; ++_t) {
                // Get ID of the output TE
                unsigned int _outputTE = GetSigOutputTE(_c, _s, _t);
-               bool _isMatched = false; 
+               bool _isMatched = false;
                unsigned int _inputTE = UINT_MAX;
                // For every configured sequence
                for(unsigned int l = 0; l < GetSeqN(); ++l) {
@@ -1853,12 +1853,12 @@ namespace D3PD {
             }
          }
       }
-      
-      std::map< DBKeys_t, std::map< unsigned int , std::string > >::iterator _seqMap = m_hltSequenceNameMap.find( _keys );
-      std::map< DBKeys_t, std::map< std::pair< int, int > , std::string > >::iterator _algNameMap = m_hltAlgorithmNameMap.find( _keys );
-      std::map< DBKeys_t, std::map< std::pair< int, int > , unsigned int > >::iterator _algNameIDMap = m_hltAlgorithmNameIDMap.find( _keys );
-      std::map< DBKeys_t, std::map< std::pair< int, int > , std::string > >::iterator _algTypeMap = m_hltAlgorithmTypeMap.find( _keys );
-      std::map< DBKeys_t, std::map< std::pair< int, int > , unsigned int > >::iterator _algTypeIDMap = m_hltAlgorithmTypeIDMap.find( _keys );
+
+      std::map< DBKeys_t, std::map< unsigned int , std::string > >::iterator _seqMap = m_hltSequenceNameMap.find( m_key );
+      std::map< DBKeys_t, std::map< std::pair< int, int > , std::string > >::iterator _algNameMap = m_hltAlgorithmNameMap.find( m_key );
+      std::map< DBKeys_t, std::map< std::pair< int, int > , unsigned int > >::iterator _algNameIDMap = m_hltAlgorithmNameIDMap.find( m_key );
+      std::map< DBKeys_t, std::map< std::pair< int, int > , std::string > >::iterator _algTypeMap = m_hltAlgorithmTypeMap.find( m_key );
+      std::map< DBKeys_t, std::map< std::pair< int, int > , unsigned int > >::iterator _algTypeIDMap = m_hltAlgorithmTypeIDMap.find( m_key );
       _seqMap->second.clear();
       _algNameMap->second.clear();
       _algNameIDMap->second.clear();
@@ -1880,7 +1880,7 @@ namespace D3PD {
 
          }
       }
-      
+
    }
 
 

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfigSvcD3PD.h 624676 2014-10-28 18:02:35Z tamartin $
+// $Id: TrigConfigSvcD3PD.h 684392 2015-07-20 16:18:20Z tamartin $
 #ifndef TRIGROOTANALYSIS_TRIGCONFIGSVCD3PD_H
 #define TRIGROOTANALYSIS_TRIGCONFIGSVCD3PD_H
 
@@ -39,8 +39,8 @@ namespace D3PD {
     *
     * @author Attila Krasznahrokay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 624676 $
-    * $Date: 2014-10-28 19:02:35 +0100 (Tue, 28 Oct 2014) $
+    * $Revision: 684392 $
+    * $Date: 2015-07-20 18:18:20 +0200 (Mon, 20 Jul 2015) $
     */
    class TrigConfigSvcD3PD : public ::TNamed,
                              public IITrigConfigSvcD3PD {
@@ -93,7 +93,7 @@ namespace D3PD {
       void PrintSummary() const;
       /// Print details about the currently loaded configuration
       void PrintConfig() const;
-      
+
       // Begin [TrigMonConf]
       // Get the D3PD index for a given chain counter
       UInt_t GetChainIndexFromCounter(UInt_t _counter) const;
@@ -110,29 +110,29 @@ namespace D3PD {
       /// Get an algorithms class name hash from its parent sequence and its poisition in said sequence
       UInt_t GetAlgClassNameIDFromSeqIDAndAlgPos( int _sequenceID, int _algorithmPosition ) const;
       /// Use full flat config information to populate helper maps
-      void GenerateSignatureSequenceMap(std::pair< int, std::pair< int, int> > _keys);
-      
+      void GenerateSignatureSequenceMap();
+
       // Chain
       UInt_t      GetChainN() const;
       UInt_t      GetChainLevel(UInt_t _c) const;
       UInt_t      GetChainCounter(UInt_t _c) const;
       std::string GetChainName(UInt_t _c) const;
       UInt_t      GetChainEBHypoNameSize(UInt_t _c) const;
-      std::string GetChainEBHypoName(UInt_t _c, UInt_t _h) const;    
+      std::string GetChainEBHypoName(UInt_t _c, UInt_t _h) const;
       UInt_t      GetChainGroupNameSize(UInt_t _c) const;
-      std::string GetChainGroupName(UInt_t _c, UInt_t _g) const; 
+      std::string GetChainGroupName(UInt_t _c, UInt_t _g) const;
       // Chain->Sig
       UInt_t      GetSigN(UInt_t _c) const;
       UInt_t      GetSigCounter(UInt_t _c, UInt_t _s) const;
       UInt_t      GetSigLogic(UInt_t _c, UInt_t _s) const;
       std::string GetSigLabel(UInt_t _c, UInt_t _s) const;
       UInt_t      GetSigNOutputTE(UInt_t _c, UInt_t _s) const;
-      UInt_t      GetSigOutputTE(UInt_t _c, UInt_t _s, UInt_t _t) const; 
-      
+      UInt_t      GetSigOutputTE(UInt_t _c, UInt_t _s, UInt_t _t) const;
+
       // Seq
-      UInt_t       GetSeqN() const; 
+      UInt_t       GetSeqN() const;
       UInt_t       GetSeqID(UInt_t _s) const;
-      UInt_t       GetSeqIndex(UInt_t _s) const; 
+      UInt_t       GetSeqIndex(UInt_t _s) const;
       std::string  GetSeqName(UInt_t _s) const;
       UInt_t       GetSeqNInputTEs(UInt_t _s) const;
       UInt_t       GetSeqInputTE(UInt_t _s, UInt_t _t) const;
@@ -176,22 +176,22 @@ namespace D3PD {
 
       /// All HLT chain -> Seeding chain / item associations
       std::map< DBKeys_t, std::map< std::string, std::string > > m_lowerChainNameMap;
-      
+
       /// [TrigMonConfig] Chain Counter -> D3PD location map
       std::map< DBKeys_t, std::map< unsigned int, unsigned int > > m_chainCounterMap;
 
       /// [TrigMonConfig] All Sig Output TE -> index of Seq with the corresponding Input TE
       std::map< DBKeys_t, std::map< unsigned int, unsigned int > > m_TEIndexMap;
-      
+
       /// [TrigMonConfig] Sequence Index -> Sequence Name
       std::map< DBKeys_t, std::map< unsigned int , std::string > > m_hltSequenceNameMap;
-    
+
       /// [TrigMonConfig] pair<SequenceID, Alg Position> -> Algorithm Name
       std::map< DBKeys_t, std::map< std::pair< int, int > , std::string > > m_hltAlgorithmNameMap;
 
       /// [TrigMonConfig] pair<SequenceID, Alg Position> -> Algorithm Name Hash
       std::map< DBKeys_t, std::map< std::pair< int, int > , unsigned int > > m_hltAlgorithmNameIDMap;
-      
+
       /// [TrigMonConfig] pair<SequenceID, Alg Position> -> Algorithm Class Name
       std::map< DBKeys_t, std::map< std::pair< int, int > , std::string > > m_hltAlgorithmTypeMap;
 
@@ -215,7 +215,7 @@ namespace D3PD {
 
       std::string m_dummy; ///< Dummy string needed for technical reasons
       std::vector< std::string > m_dummyVec; ///< Dummy vector
-      
+
       /// [TrigMonConfig]
       // variables for CHAIN
       std::map< DBKeys_t, uint16_t >                                  m_chainN;
@@ -259,7 +259,7 @@ namespace D3PD {
       // variables for META
       std::map< DBKeys_t, std::vector< std::string > >                m_metaStringKey;
       std::map< DBKeys_t, std::vector< std::string > >                m_metaStringVal;
-      
+
       ClassDef( D3PD::TrigConfigSvcD3PD, 0 )
 
    }; // class TrigConfigSvcD3PD

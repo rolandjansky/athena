@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataAccess.cxx 581262 2014-02-03 17:23:31Z tamartin $
+// $Id: DataAccess.cxx 684392 2015-07-20 16:18:20Z tamartin $
 
 // STL include(s):
 #include <stdio.h> // std::strcmp
@@ -364,15 +364,14 @@ namespace D3PD {
 
          //
          // Perform a name-check if this is a TrigCost ntuple [TrigMonConfig].
-         //         
+         //
          if( strcmp( m_tree->GetName(), m_trigCostTreeName.Data() ) == 0 ) {
-            // This is a [TrigMonConfig] file, trigger decision information is *NOT* present in the format this 
+            // This is a [TrigMonConfig] file, trigger decision information is *NOT* present in the format this
             // TrigRootAnalysis package usually uses, it is however available and parsed by the TrigCostRootAnalysis
             // package (which depends on this package).
-            // 
+            //
             // As a result, we don't need to display any errors and can silently return here.
-            Info( "Initialize", "Detected a Trigger Cost ntuple. Will enable full trigger configuration readout. "
-                  "Trigger descision information must use the TrigCostRootAnalysis interface." );
+
             // Note that m_detailLevel remains == -1
             return kTRUE;
          }
