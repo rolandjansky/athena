@@ -17,9 +17,9 @@
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "HepMC/GenEvent.h"
-//using HepMC::GenEvent;
-//using HepMC::GenVertex;
-//using HepMC::GenParticle;
+using HepMC::GenEvent;
+using HepMC::GenVertex;
+using HepMC::GenParticle;
 
 #include "HepPDT/ParticleData.hh"
 #include "HepPDT/ParticleDataTable.hh"
@@ -94,14 +94,13 @@ public:
   ///
   /// @note This function will make a new McEventCollection
   /// if there is not already a valid one _and_ MakeMcEvent=True.
-  SG::UpdateHandle<McEventCollection> events();
+  SG::RWVar<McEventCollection> events();
 
   /// Access the current event's McEventCollection (const)
-  SG::ReadHandle<McEventCollection> events_const() const {
-    SG::ReadHandle<McEventCollection> ret (m_mcevents_const);
-    if (!ret.isValid())
+  const SG::RVar<McEventCollection> events_const() const {
+    if (!m_mcevents_const.isValid())
       ATH_MSG_ERROR("No McEventCollection found in StoreGate with key " << m_mcEventKey);
-    return ret;
+    return m_mcevents_const;
   }
 
   //@}
@@ -161,9 +160,9 @@ private:
   ServiceHandle<IPartPropSvc> m_ppSvc;
 
   /// Handle to the MC event collection
-  SG::UpdateHandle<McEventCollection> m_mcevents;
+  SG::RWVar<McEventCollection> m_mcevents;
   /// Const handle to the MC event collection
-  SG::ReadHandle<McEventCollection> m_mcevents_const;
+  SG::RVar<McEventCollection> m_mcevents_const;
 
 };
 

@@ -15,8 +15,7 @@ GenModule::GenModule(const std::string& name, ISvcLocator* pSvcLocator)
     m_rndmGenSvc("AtRndmGenSvc", name),
     m_incidentSvc("IncidentSvc", name)
 {
-  m_mkMcEvent = true;
-  //declareProperty("MakeMcEvent", m_mkMcEvent=true, "Create a new MC event collection if it doesn't exist");
+  declareProperty("MakeMcEvent", m_mkMcEvent=true, "Create a new MC event collection if it doesn't exist");
   declareProperty("RandomSeed", m_randomSeed=1234567, "Random seed for the built-in random engine");
   declareProperty("IsAfterburner", m_isAfterburner=false, "Set true if generator modifies existing events rather than creating new ones");
   declareProperty("AtRndmGenSvc", m_rndmGenSvc);
@@ -56,7 +55,7 @@ StatusCode GenModule::execute() {
   CHECK(this->callGenerator());
 
   // Create the MC event and send the GeneratorEvent stored in it to fillEvt
-  HepMC::GenEvent* evt = new HepMC::GenEvent(1,1);
+  GenEvent* evt = new GenEvent(1,1);
   CHECK(this->fillEvt(evt));
 
   // Add the event to the MC event collection
