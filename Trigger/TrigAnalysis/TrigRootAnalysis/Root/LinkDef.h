@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LinkDef.h 639091 2015-01-13 11:05:23Z tamartin $
+// $Id: LinkDef.h 652737 2015-03-09 17:06:18Z mnowak $
 #ifndef TRIGROOTANALYSIS_LINKDEF_H
 #define TRIGROOTANALYSIS_LINKDEF_H
 
@@ -53,9 +53,15 @@
 // need some of these, but I beg to differ. I've seen some weird crashes without
 // these in some test jobs...
 #pragma link C++ class map<string,string>+;
-#pragma link C++ class pair<string,string>+;
+
+// MN: in ROOT6 this comes from RELAX so we don't need it
+#if ROOT_VERSION_CODE < 393216  // ROOT 6.0.0 version as int
+#  pragma link C++ class pair<string,string>+;
+#endif
+
 //#pragma link C++ class map<string,int>+;
-#pragma link C++ class map<string,float>+;
+//#pragma link C++ class map<string,float>+;
+
 //#pragma link C++ class vector<short>+;
 // [TrigMonConfig] addind some more dictionaries for additional structures used saving the full trig conf.
 // Will not run without these.
