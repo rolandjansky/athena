@@ -35,19 +35,15 @@ class EvgenAlg(PyAthena.Alg):
     def execute(self):
         self.msg.debug("Executing [%s]", self.name())
 
-        if self.evtStore.contains(McEventCollection, self.McEventKey):
-            self.msg.debug(self.McEventKey + " found before alg execution!")
-
         ## Retrieve MC event collection or create a new one
         mcevts = None
-        try:
+        if self.evtStore.contains(McEventCollection, self.McEventKey):
+            self.msg.debug(self.McEventKey + " found before alg execution!")
             mcevts = self.evtStore[self.McEventKey]
-        except:
+        else:
+            self.msg.debug("Creating " + self.McEventKey + " before alg execution!")
             mcevts = McEventCollection()
-            try:
-                self.evtStore.record(mcevts, self.McEventKey, True, False)
-            except:
-                self.evtStore.record(mcevts, self.McEventKey)
+            self.evtStore.record(mcevts, self.McEventKey, True, False)
         ROOT.SetOwnership(mcevts, False)
 
         if self.evtStore.contains(McEventCollection, self.McEventKey):
@@ -55,15 +51,18 @@ class EvgenAlg(PyAthena.Alg):
 
         ## Get the first event from the MCEC, or make a new one
         evt = None
-        try:
-            evt = mcevts[0]
-        except:
+        if mcevts.size() == 0:
             evt = HepMC.GenEvent()
             mcevts.push_back(evt)
+        else:
+            evt = mcevts[0]
         ROOT.SetOwnership(evt, False)
 
         ## Fill/modify the event
-        return self.fillEvent(evt)
+        st = self.fillEvent(evt)
+        #print "FILLEVENT RESULT:"
+        #getattr(evt, 'print')()
+        return st
 
 
     def finalize(self):

@@ -12,8 +12,8 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include "StoreGate/DataHandle.h"
-#include "StoreGate/RVar.h"
-#include "StoreGate/RWVar.h"
+//#include "StoreGate/ReadHandle.h"
+//#include "StoreGate/UpdateHandle.h"
 #include "GeneratorObjects/McEventCollection.h"
 
 #include "HepMC/GenEvent.h"
