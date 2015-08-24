@@ -24,6 +24,7 @@ public:
   StatusCode finalize();
 
  private:
+  unsigned int m_numberOfEventsSelected;
   StringProperty m_collection;
   // histograms
   TH1 *m_nGenEvents;
