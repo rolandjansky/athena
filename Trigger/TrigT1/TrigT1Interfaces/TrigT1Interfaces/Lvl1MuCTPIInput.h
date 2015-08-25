@@ -6,6 +6,7 @@
 #include <iosfwd>
 #include <fstream>
 #include <vector>
+#include <utility>
 
 // Local include(s):
 #include "TrigT1Interfaces/Lvl1MuSectorLogicData.h"
@@ -26,8 +27,8 @@ namespace LVL1MUONIF {
     *    @see LVL1MUONIF::Lvl1MuEndcapSectorLogicData
     *    @see LVL1MUONIF::Lvl1MuForwardSectorLogicData
     *
-    * $Revision: 187728 $
-    * $Date: 2009-05-27 18:18:06 +0200 (Wed, 27 May 2009) $
+    * $Revision: 683096 $
+    * $Date: 2015-07-15 14:21:04 +0200 (Wed, 15 Jul 2015) $
     */
    class Lvl1MuCTPIInput {
 
@@ -49,7 +50,7 @@ namespace LVL1MUONIF {
       enum { NumberOfMuonSubSystem = 2 };
       enum { NumberOfBarrelSector = 32 };
       enum { NumberOfEndcapSector = 48 };
-      enum { NumberOfForwardSector = 32 };
+      enum { NumberOfForwardSector = 24 }; 
 
    public:
       static size_t idBarrelSystem() { return Barrel; }
@@ -63,17 +64,20 @@ namespace LVL1MUONIF {
 
       const Lvl1MuSectorLogicData& getSectorLogicData( size_t systemAddress,
                                                        size_t subSystemAddress,
-                                                       size_t sectorAddress ) const;
+                                                       size_t sectorAddress,
+						       int    bcid=0        ) const;
 
       void setSectorLogicData( const Lvl1MuSectorLogicData& data,
                                size_t systemAddress,
                                size_t subSystemAddress,
-                               size_t sectorAddress );
+                               size_t sectorAddress,
+			       int    bcid=0        );
 
       void setSectorLogicData( const unsigned int & sectorWord,
                                size_t systemAddress,
                                size_t subSystemAddress,
-                               size_t sectorAddress );
+                               size_t sectorAddress,
+			       int    bcid=0        );
 
       /**
        * Merge SectorLogic data of another object into this
@@ -87,27 +91,71 @@ namespace LVL1MUONIF {
       void clearAll();
 
       /// Return "true" if  data of specified system is empty
-      bool isEmpty( size_t systemAddress ) const;
+      bool isEmpty( size_t systemAddress,
+		    int    bcid=0         ) const;
 
-      friend std::ostream& operator<<( std::ostream&, const Lvl1MuCTPIInput& );
+      /// Return "true" if  data of all systems for this bcid is empty
+      bool isEmptyAll(int bcid=0) const;
+
+      /// Return "true" if data of specified system is filled
+      /// for bunches other than 'current' bunch 
+      bool hasOutOfTimeCandidates(size_t systemAddress)  const
+      {
+	if ( systemAddress <  NumberOfMuonSystem) {
+	  return isFilledOutOfTimeCandidates[systemAddress];
+	} 
+	return false;
+      }
+
+     void duplicateToOtherBC(int bcidOffset);
+
+     friend std::ostream& operator<<( std::ostream&, const Lvl1MuCTPIInput& );
 
       /// To store object to file. (NOT TO BE USED ANYMORE...)
-      bool storeInWordFormat( std::ofstream& fOut, bool ascii = true );
+      //bool storeInWordFormat( std::ofstream& fOut, bool ascii = true );
+
       /// To retrieve object from file. (NOT TO BE USED ANYMORE...)
-      bool retrieveInWordFormat( std::ifstream& fIn, bool ascii = true );
+      //bool retrieveInWordFormat( std::ifstream& fIn, bool ascii = true );
 
    private:
-      bool storeInWordFormat( std::ofstream& fOut,
-                              bool ascii,
-                              size_t systemAddress,
-                              size_t subSystemAddress,
-                              size_t sectorAddress );
+     //bool storeInWordFormat( std::ofstream& fOut,
+     //                          bool ascii,
+     //                         size_t systemAddress,
+     //                         size_t subSystemAddress,
+     //                         size_t sectorAddress );
 
-      void reserve( size_t systemAddress );
+      size_t reserve( size_t systemAddress ,
+		      int    bcid=0         );
+     
+      size_t getSystemIndex(size_t systemAddress,
+	 	      size_t subSystemAddress,
+		      size_t sectorAddress ) const
+      {
+	if (systemAddress==0) {
+	  return NumberOfBarrelSector*subSystemAddress+sectorAddress;
+	} else if (systemAddress==1) {
+	  return NumberOfEndcapSector*subSystemAddress+sectorAddress;
+	} else {
+	  return NumberOfForwardSector*subSystemAddress+sectorAddress;
+	}
+      }
 
-      std::vector<Lvl1MuBarrelSectorLogicData> m_barrel[ NumberOfMuonSubSystem ];
-      std::vector<Lvl1MuEndcapSectorLogicData> m_endcap[ NumberOfMuonSubSystem ];
-      std::vector<Lvl1MuForwardSectorLogicData> m_forward[ NumberOfMuonSubSystem ];
+     size_t getBcidIndex(size_t systemAddress,
+                         int    bcid=0) const
+     {
+       for( size_t ip=0; ip<m_data[systemAddress].size(); ip++){
+         int bc=((m_data[systemAddress]).at(ip)).first;
+         if (bc == bcid) return ip;
+       }
+       return -1;
+     };
+
+     bool isFilledOutOfTimeCandidates[NumberOfMuonSystem];
+
+     
+     typedef std::vector<Lvl1MuSectorLogicData*> Lvl1MuVect;
+     typedef std::pair<int, Lvl1MuVect>  Lvl1MuVectWithBC; 
+     std::vector<Lvl1MuVectWithBC> m_data[ NumberOfMuonSystem ];
 
    }; // class Lvl1MuCTPIInput
 
