@@ -7,7 +7,7 @@
 
 #include "AthenaDBTestRec/TestCoolRecPoolData.h"
 
-TestCoolRecPoolData::TestCoolRecPoolData() {}
+TestCoolRecPoolData::TestCoolRecPoolData() {m_run=0; m_chan=0; }
 
 TestCoolRecPoolData::TestCoolRecPoolData(const int run, const int chan, 
 		 const std::string folder, const int size) : 
