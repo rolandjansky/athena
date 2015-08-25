@@ -21,8 +21,8 @@ PixelMonProfiles::PixelMonProfiles(std::string name, std::string title )
   B0    = new TProfile2D((name+"_B0").c_str(),   (title + ", B0 " + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,22,-0.5,21.5);
   B1    = new TProfile2D((name+"_B1").c_str(),   (title + ", B1 " + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,38,-0.5,37.5);
   B2    = new TProfile2D((name+"_B2").c_str(),   (title + ", B2 " + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,52,-0.5,51.5);
-  A     = new TProfile2D((name+"_A" ).c_str(),   (title + ", ECA "+ ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
-  C     = new TProfile2D((name+"_C" ).c_str(),   (title + ", ECC "+ ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
+  A     = new TProfile2D((name+"_ECA" ).c_str(), (title + ", ECA "+ ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
+  C     = new TProfile2D((name+"_ECC" ).c_str(), (title + ", ECC "+ ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
 
 
   formatHist();
@@ -39,6 +39,18 @@ PixelMonProfiles::~PixelMonProfiles()
    delete B2;
    delete A;
    delete C;
+}
+
+void PixelMonProfiles::SetMaxValue(float max)
+{
+   IBL->SetMaximum( max );
+   IBL2D->SetMaximum( max );
+   IBL3D->SetMaximum( max );
+   B0->SetMaximum( max );
+   B1->SetMaximum( max );
+   B2->SetMaximum( max );
+   A->SetMaximum( max ); 
+   C->SetMaximum( max ); 
 }
 
 void PixelMonProfiles::Fill(Identifier &id, const PixelID* pixID, float Index, bool doIBL)
@@ -236,14 +248,14 @@ void PixelMonProfiles::formatHist()
    A->SetOption("colz");
    C->SetOption("colz");
    //force the minimum to be 0 so you can spot empty blocks easily
-   IBL->SetMinimum(0.);  IBL->SetMaximum(2.0);    
-   IBL2D->SetMinimum(0.);IBL2D->SetMaximum(2.0);
-   IBL3D->SetMinimum(0.);IBL3D->SetMaximum(2.0);
-   B0->SetMinimum(0.);   B0->SetMaximum(2.0);  
-   B1->SetMinimum(0.);   B1->SetMaximum(2.0);
-   B2->SetMinimum(0.);   B2->SetMaximum(2.0);
-   A->SetMinimum(0.);    A->SetMaximum(2.0);  
-   C->SetMinimum(0.);    C->SetMaximum(2.0);
+   IBL->SetMinimum(0.);   
+   IBL2D->SetMinimum(0.);
+   IBL3D->SetMinimum(0.);
+   B0->SetMinimum(0.);     
+   B1->SetMinimum(0.);   
+   B2->SetMinimum(0.);   
+   A->SetMinimum(0.);     
+   C->SetMinimum(0.);    
    //Remvoe the stats box because it's in the way
    IBL->SetStats(0.);
    IBL2D->SetStats(0.);

@@ -21,8 +21,8 @@ PixelMon2DLumiProfiles::PixelMon2DLumiProfiles(std::string name, std::string tit
   B0lbp = TProfile2D_LW::create((name+"_2D_Profile_B0").c_str(),  (title + ", B0 " + title + " (Profile);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,286,-0.5,285.5);
   B1lbp = TProfile2D_LW::create((name+"_2D_Profile_B1").c_str(),  (title + ", B1 " + title + " (Profile);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,494,-0.5,493.5);
   B2lbp = TProfile2D_LW::create((name+"_2D_Profile_B2").c_str(),  (title + ", B2 " + title + " (Profile);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,676,-0.5,675.5);
-  Albp  = TProfile2D_LW::create((name+"_2D_Profile_A" ).c_str(),  (title + ", ECA " + title + " (Profile);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,144,-0.5,143.5);
-  Clbp  = TProfile2D_LW::create((name+"_2D_Profile_C" ).c_str(),  (title + ", ECC " + title + " (Profile);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,144,-0.5,143.5);
+  Albp  = TProfile2D_LW::create((name+"_2D_Profile_ECA" ).c_str(),(title + ", ECA " + title + " (Profile);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,144,-0.5,143.5);
+  Clbp  = TProfile2D_LW::create((name+"_2D_Profile_ECC" ).c_str(),(title + ", ECC " + title + " (Profile);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,144,-0.5,143.5);
 
   formatHist(doIBL,errorHist);
 }

@@ -31,6 +31,7 @@ class PixelMonProfiles
       TProfile2D* A;
       TProfile2D* C;
       void Fill(Identifier &id, const PixelID* pixID, float Index, bool doIBL);
+      void SetMaxValue(float max);
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
 private:
       StatusCode sc;
