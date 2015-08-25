@@ -351,7 +351,7 @@ TriggerHLTList = [
     #
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Electron_FTFAux'+RemoveIDVariables,          'BS ESD AODFULL',  'Egamma'),
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Electron_L2IDAux'+RemoveIDVariables,         'BS ESD AODFULL',  'Egamma'),
-    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Muon_FTFAux'+RemoveIDVariables,              'BS ESD AODFULL AODSLIM',  'Muon'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Muon_FTFAux.-caloExtension'+RemoveIDVariables,              'BS ESD AODFULL AODSLIM',  'Muon'),
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Tau_FTFAux.-caloExtension'+RemoveIDVariables,               'BS ESD AODFULL AODSLIM',  'Tau'),
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_TauCore_FTFAux.-caloExtension'+RemoveIDVariables,               'BS ESD AODFULL AODSLIM',  'Tau'),
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_TauIso_FTFAux.-caloExtension'+RemoveIDVariables,               'BS ESD AODFULL AODSLIM',  'Tau'),
@@ -764,9 +764,66 @@ TriggerLvl1List=[
     ('LVL1::CMMRoI#CMMRoIs' ,                            'ESD', 'L1'),
     ('CTP_RDO#CTP_RDO' ,                                 'ESD', 'Steer'),
     ('MuCTPI_RDO#MUCTPI_RDO' ,                           'ESD', 'Unknown'),
-    ('ROIB::RoIBResult#RoIBResult' ,                     'ESD', 'Steer')
-    ]
+    ('ROIB::RoIBResult#RoIBResult' ,                     'ESD', 'Steer'),
 
+    # from LVL1 bytestream decoders: ReadLVL1CaloBSRun2_jobOptions.py
+    # ============================================================================
+    # xAOD
+    # ============================================================================
+    ('xAOD::TriggerTowerContainer#xAODTriggerTowers' ,          'ESD', 'L1'),
+    ('xAOD::TriggerTowerAuxContainer#xAODTriggerTowersAux.' ,   'ESD', 'L1'),
+    ('xAOD::TriggerTowerContainer#xAODTriggerTowersMuon' ,       'ESD', 'L1'),
+    ('xAOD::TriggerTowerAuxContainer#xAODTriggerTowersMuonAux.' ,   'ESD', 'L1'),
+
+    ('xAOD::CPMTowerContainer#CPMTowers' ,                      'ESD', 'L1'),
+    ('xAOD::CPMTowerAuxContainer#CPMTowersAux.' ,               'ESD', 'L1'),
+    ('xAOD::CPMTowerContainer#CPMTowersOverlap' ,               'ESD', 'L1'),
+    ('xAOD::CPMTowerAuxContainer#CPMTowersOverlapAux.' ,        'ESD', 'L1'),
+   
+    ('xAOD::CMXCPTobContainer#CMXCPTobs',                       'ESD', 'L1'),
+    ('xAOD::CMXCPTobAuxContainer#CMXCPTobsAux.',                'ESD', 'L1'),
+    
+    ('xAOD::CMXCPHitsContainer#CMXCPHits',                      'ESD', 'L1'),
+    ('xAOD::CMXCPHitsAuxContainer#CMXCPHitsAux.',               'ESD', 'L1'),
+    
+    ('xAOD::CMXJetTobContainer#CMXJetTobs',                     'ESD', 'L1'),
+    ('xAOD::CMXJetTobAuxContainer#CMXJetTobsAux.',              'ESD', 'L1'),
+    
+    ('xAOD::CMXJetHitsContainer#CMXJetHits',                    'ESD', 'L1'),
+    ('xAOD::CMXJetHitsAuxContainer#CMXJetHitsAux.',             'ESD', 'L1'),
+    
+    ('xAOD::CMXEtSumsContainer#CMXEtSums',                      'ESD', 'L1'),
+    ('xAOD::CMXEtSumsAuxContainer#CMXEtSumsAux.',               'ESD', 'L1'),
+    
+    ('xAOD::JEMEtSumsContainer#JEMEtSums',                      'ESD', 'L1'),
+    ('xAOD::JEMEtSumsAuxContainer#JEMEtSumsAux.',               'ESD', 'L1'),
+    
+    ('xAOD::CPMTobRoIContainer#CPMTobRoIs',                     'ESD', 'L1'),
+    ('xAOD::CPMTobRoIAuxContainer#CPMTobRoIsAux.',              'ESD', 'L1'),
+    
+    ('xAOD::CPMTobRoIContainer#CPMTobRoIsRoIB',                 'ESD', 'L1'),
+    ('xAOD::CPMTobRoIAuxContainer#CPMTobRoIsRoIBAux.',          'ESD', 'L1'),
+    
+    ('xAOD::JEMTobRoIContainer#JEMTobRoIs',                     'ESD', 'L1'),
+    ('xAOD::JEMTobRoIAuxContainer#JEMTobRoIsAux.',              'ESD', 'L1'),
+    
+    ('xAOD::JEMTobRoIAuxContainer#JEMTobRoIsRoIB',              'ESD', 'L1'),
+    ('xAOD::JEMTobRoIAuxContainer#JEMTobRoIsRoIBAux.',          'ESD', 'L1'),
+    
+    ('xAOD::JetElementContainer#JetElements' ,                  'ESD', 'L1'),
+    ('xAOD::JetElementAuxContainer#JetElementsAux.' ,           'ESD', 'L1'),
+    
+    ('xAOD::JetElementContainer#JetElementsOverlap' ,           'ESD', 'L1'),
+    ('xAOD::JetElementAuxContainer#JetElementsOverlapAux.' ,    'ESD', 'L1'),
+    
+    ('xAOD::RODHeaderContainer#RODHeaders' ,                    'ESD', 'L1'),
+    ('xAOD::RODHeaderAuxContainer#RODHeadersAux.' ,             'ESD', 'L1'),
+
+    ('xAOD::CMXRoIContainer#CMXRoIs' ,                          'ESD', 'L1'),
+    ('xAOD::CMXRoIAuxContainer#CMXRoIsAux.' ,                   'ESD', 'L1'),
+    # =========================================================================
+
+    ]
 
 
 TriggerIDTruth= [
@@ -957,9 +1014,6 @@ EDMDetails["xAOD::JetEtRoIAuxInfo"]            = {'persistent':"",              
 EDMDetails["xAOD::EnergySumRoI"]               = {'persistent':"",              'typealias':'' }
 EDMDetails["xAOD::EnergySumRoIAuxInfo"]        = {'persistent':"",              'typealias':'', 'parent': 'xAOD::EnergySumRoI'}
 
-EDMDetails["xAOD::TriggerTowerContainer"]      = {'persistent':"",              'typealias':'' }
-EDMDetails["xAOD::TriggerTowerAuxContainer"]   = {'persistent':"",              'typealias':'', 'parent': 'xAOD::TriggerTowerContainer'}
-
 EDMDetails["xAOD::ElectronContainer"]          = {'persistent':"",              'typealias':'' }
 EDMDetails["xAOD::ElectronAuxContainer"]       = {'persistent':"",              'typealias':'', 'parent': 'xAOD::ElectronContainer'}
 EDMDetails["xAOD::PhotonContainer"]            = {'persistent':"",              'typealias':'' }
@@ -1004,9 +1058,50 @@ EDMDetails["xAOD::BTaggingAuxContainer"]       = {'persistent':"",              
 EDMDetails["xAOD::BTagVertexContainer"]        = {'persistent':"",              'typealias':'' }
 EDMDetails["xAOD::BTagVertexAuxContainer"]     = {'persistent':"",              'typealias':'', 'parent': 'xAOD::BTagVertexContainer'}
 
-EDMDetails["xAOD::CPMTowerContainer"]    = {'persistent':"", 'typealias':''}
-EDMDetails["xAOD::CPMTowerAuxContainer"] = {'persistent':"", 'typealias':'', 'parent': 'xAOD::CPMTowerContainer'}
+# objects from xAODTrigL1CaloEvent package
+# =============================================================================
+EDMDetails["xAOD::TriggerTowerContainer"]                 = {'persistent':"", 'typealias':'' }                                
+EDMDetails["xAOD::TriggerTowerAuxContainer"]              = {'persistent':"", 'typealias':'', 'parent': 'xAOD::TriggerTowerContainer'}
 
+EDMDetails["xAOD::CPMTowerContainer"]                     = {'persistent':"", 'typealias':''}                                                            
+EDMDetails["xAOD::CPMTowerAuxContainer"]                  = {'persistent':"", 'typealias':'', 'parent': 'xAOD::CPMTowerContainer'}
+
+EDMDetails['xAOD::CMXCPTobContainer']                     = {'persistent': "", 'typealias':'' }                          
+EDMDetails['xAOD::CMXCPTobAuxContainer']                  = {'persistent': "", 'typealias':'', 'parent': 'xAOD::CMXCPTobContainer' }    
+
+EDMDetails['xAOD::CMXCPHitsContainer']                    = {'persistent': "",  'typealias':'' }                        
+EDMDetails['xAOD::CMXCPHitsAuxContainer']                 = {'persistent': "", 'typealias':'', 'parent': 'xAOD::CMXCPHitsContainer'  }  
+
+EDMDetails['xAOD::CMXJetTobContainer']                    = {'persistent': "", 'typealias':'' }                                
+EDMDetails['xAOD::CMXJetTobAuxContainer']                 = {'persistent': "", 'typealias':'', 'parent': 'xAOD::CMXJetTobContainer'  }  
+
+EDMDetails['xAOD::CMXJetHitsContainer']                   = {'persistent': "", 'typealias':'' }                                
+EDMDetails['xAOD::CMXJetHitsAuxContainer']                = {'persistent': "", 'typealias':'', 'parent': 'xAOD::CMXJetHitsContainer'  }  
+
+EDMDetails['xAOD::CMXEtSumsContainer']                    = {'persistent': "", 'typealias':'' }                                
+EDMDetails['xAOD::CMXEtSumsAuxContainer']                 = {'persistent': "", 'typealias':'', 'parent': 'xAOD::CMXEtSumsContainer'  }  
+
+EDMDetails['xAOD::JEMEtSumsContainer']                    = {'persistent': "", 'typealias':'' }                                
+EDMDetails['xAOD::JEMEtSumsAuxContainer']                 = {'persistent': "", 'typealias':'', 'parent': 'xAOD::JEMEtSumsContainer'  }  
+
+EDMDetails['xAOD::CPMTobRoIContainer']                    = {'persistent': "", 'typealias':'' }                                
+EDMDetails['xAOD::CPMTobRoIAuxContainer']                 = {'persistent': "", 'typealias':'', 'parent': 'xAOD::CPMTobRoIContainer'  }  
+
+EDMDetails['xAOD::JEMTobRoIContainer']                    = {'persistent': "", 'typealias':'' }                                
+EDMDetails['xAOD::JEMTobRoIAuxContainer']                 = {'persistent': "", 'typealias':'', 'parent': 'xAOD::JEMTobRoIContainer'  }  
+
+EDMDetails['xAOD::JEMTobRoIAuxContainer']                 = {'persistent': "", 'typealias':'' }                                
+EDMDetails['xAOD::JEMTobRoIAuxContainer']                 = {'persistent': "", 'typealias':'', 'parent': 'xAOD::JEMTobRoIAuxContainer'  }  
+
+EDMDetails['xAOD::JetElementContainer']                   = {'persistent': "", 'typealias':'' }                                
+EDMDetails['xAOD::JetElementAuxContainer']                = {'persistent': "", 'typealias':'', 'parent': 'AOD::JetElementContainer'  }  
+
+EDMDetails['xAOD::RODHeaderContainer']                    = {'persistent': "", 'typealias':'' }                                
+EDMDetails['xAOD::RODHeaderAuxContainer']                 = {'persistent': "", 'typealias':'', 'parent': 'xAOD::RODHeaderContainer' }   
+
+EDMDetails['xAOD::CMXRoIContainer']                       = {'persistent': "", 'typealias':'' }                                
+EDMDetails['xAOD::CMXRoIAuxContainer']                    = {'persistent': "", 'typealias':'', 'parent': 'xAOD::CMXRoIContainer' }  
+# =============================================================================
 
 #
 # Rustem Ospanov: move list of EDM libraries from HLTTriggerGetter.py to TriggerEDM.py
