@@ -45,8 +45,7 @@ namespace LVL1 {
    }
 
   void MuCTPIL1Topo::setCandidates(std::vector<MuCTPIL1TopoCandidate> candList)  {
-    clearCandidates();
-    m_muonTopoCandidates = candList;
+     m_muonTopoCandidates = candList;
    }
   
   void MuCTPIL1Topo::addCandidate(MuCTPIL1TopoCandidate candidate){

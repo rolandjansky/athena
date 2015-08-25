@@ -26,35 +26,37 @@
 
 namespace LVL1 {
 
-/**
- * @short CoordinateRange class declaration
- *
- * Class defining a "window" in eta--phi space.
- *
- * $Revision: 734527 $
- * $Date: 2016-04-07 13:43:47 +0200 (Thu, 07 Apr 2016) $
- */
-class CoordinateRange : public Coordinate {
- public:
-  CoordinateRange(double phiMin, double phiMax, double etaMin, double etaMax);
-  CoordinateRange();
-  virtual ~CoordinateRange();
+   /**
+    * @short CoordinateRange class declaration
+    *
+    * Class defining a "window" in eta--phi space.
+    *
+    * $Revision: 187728 $
+    * $Date: 2009-05-27 18:18:06 +0200 (Wed, 27 May 2009) $
+    */
+   class CoordinateRange : public Coordinate {
 
-  void setRanges(double phiMin, double phiMax, double etaMin, double etaMax);
-  PhiRange phiRange() const;
-  Range etaRange() const;
-  /** returns true if the coordinate falls inside the coordinate range */
-  bool contains(Coordinate& coord) const;
+   public:
+      CoordinateRange( double phiMin, double phiMax, double etaMin, double etaMax );
+      CoordinateRange( const CoordinateRange& rhs );
+      CoordinateRange();
+      virtual ~CoordinateRange();
 
- private:
-  /** calculates the centre of the ranges and sets the phi,eta coords to that */
-  void setCentre();
+      void setRanges( double phiMin, double phiMax, double etaMin, double etaMax );
+      PhiRange phiRange() const;
+      Range etaRange() const;
+      /** returns true if the coordinate falls inside the coordinate range */
+      bool contains( Coordinate& coord ) const;
 
-  PhiRange m_phiRange;
-  Range m_etaRange;
+   private:
+      /** calculates the centre of the ranges and sets the phi,eta coords to that */
+      void setCentre();
 
-};  // class CoordinateRange
+      PhiRange m_phiRange;
+      Range m_etaRange;
 
-}  // namespace LVL1
+   }; // class CoordinateRange
 
-#endif  // TRIGT1INTERFACES_COORDINATERANGE_H
+} // namespace LVL1
+
+#endif // TRIGT1INTERFACES_COORDINATERANGE_H

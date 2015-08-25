@@ -4,9 +4,9 @@
 
 // System include(s):
 #include <iosfwd>
+#include <fstream>
 #include <vector>
 #include <utility>
-#include <memory>
 
 // Local include(s):
 #include "TrigT1Interfaces/Lvl1MuSectorLogicData.h"
@@ -27,8 +27,8 @@ namespace LVL1MUONIF {
     *    @see LVL1MUONIF::Lvl1MuEndcapSectorLogicData
     *    @see LVL1MUONIF::Lvl1MuForwardSectorLogicData
     *
-    * $Revision: 782811 $
-    * $Date: 2016-11-07 18:20:40 +0100 (Mon, 07 Nov 2016) $
+    * $Revision: 683096 $
+    * $Date: 2015-07-15 14:21:04 +0200 (Wed, 15 Jul 2015) $
     */
    class Lvl1MuCTPIInput {
 
@@ -107,8 +107,7 @@ namespace LVL1MUONIF {
 	return false;
       }
 
-     // for testing purposes only
-     // void duplicateToOtherBC(int bcidOffset);
+     void duplicateToOtherBC(int bcidOffset);
 
      friend std::ostream& operator<<( std::ostream&, const Lvl1MuCTPIInput& );
 
@@ -154,7 +153,7 @@ namespace LVL1MUONIF {
      bool isFilledOutOfTimeCandidates[NumberOfMuonSystem];
 
      
-     typedef std::vector<std::shared_ptr <Lvl1MuSectorLogicData> > Lvl1MuVect;
+     typedef std::vector<Lvl1MuSectorLogicData*> Lvl1MuVect;
      typedef std::pair<int, Lvl1MuVect>  Lvl1MuVectWithBC; 
      std::vector<Lvl1MuVectWithBC> m_data[ NumberOfMuonSystem ];
 

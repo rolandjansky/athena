@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: RecEmTauRoI.h 782811 2016-11-07 17:20:40Z smh $
+// $Id: RecEmTauRoI.h 615360 2014-09-05 19:34:47Z watsona $
 /***************************************************************************
                          RecEmTauRoI.h  -  description
                             -------------------
@@ -25,7 +25,7 @@
 #include <vector>
 
 // Gaudi/Athena include(s):
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
 // Local include(s):
 #include "TrigT1Interfaces/CoordinateRange.h"
@@ -54,12 +54,6 @@ namespace LVL1 {
       RecEmTauRoI( unsigned int RoIWord,
                    const std::vector< TrigConf::TriggerThreshold* >* caloThresholds );
 
-      // copy constructor
-      RecEmTauRoI(const RecEmTauRoI &obj);
-
-      // assignment operator
-      RecEmTauRoI& operator=(RecEmTauRoI const &obj);
-
       // destructor
       ~RecEmTauRoI();
 
@@ -71,18 +65,6 @@ namespace LVL1 {
 
       /** returns eta coord of ROI */
       virtual double eta() const;
-      
-      /** returns CP crate number */
-      virtual unsigned int crate() const;
-      
-      /** returns CPM number */
-      virtual unsigned int module() const;
-      
-      /** returns FPGA number */
-      virtual unsigned int fpga() const;
-      
-      /** returns local coordinate within FPGA */
-      virtual unsigned int localcoord() const;
 
       /** returns roi ET (Run 2 only) */
       virtual unsigned int et() const;
@@ -143,11 +125,11 @@ namespace LVL1 {
       /** this is the actual format of the data sent from
           the LVL1 hardware. See  ATL-DAQ-99-015 for
           further explanation. */
-      unsigned long int m_roiWord { 0 };
+      unsigned long int m_roiWord;
       
       /// Stored properties of the RoI:
-      TrigT1CaloDefs::RoIType m_type {TrigT1CaloDefs::RoIWordTypeError};
-      unsigned long int m_thresholdMask { 0 };
+      TrigT1CaloDefs::RoIType m_type;
+      unsigned long int m_thresholdMask;
       std::map< int, unsigned int > m_triggerThresholdValue;
       std::map< int, unsigned int > m_isolationMask;
       std::map< int, unsigned int > m_emIsolation;

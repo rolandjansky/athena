@@ -10,46 +10,64 @@
 
 namespace LVL1 {
 
-CoordinateRange::CoordinateRange(double phiMin, double phiMax, double etaMin,
-                                 double etaMax)
-    : m_phiRange(phiMin, phiMax), m_etaRange(etaMin, etaMax) {
-  checkBounds();
-  setCentre();
-}
+  CoordinateRange::CoordinateRange( double phiMin, double phiMax, double etaMin, double etaMax )
+    : m_phiRange( phiMin, phiMax ), m_etaRange( etaMin, etaMax ) {
 
-CoordinateRange::CoordinateRange()
-    : m_phiRange(0.0, 0.0), m_etaRange(0.0, 0.0) {}
+    checkBounds();
+    setCentre();
+  }
 
-// Destructor
-CoordinateRange::~CoordinateRange() {}
+  CoordinateRange::CoordinateRange( const CoordinateRange & rhs )
+    : Coordinate::Coordinate( rhs.phi(), rhs.eta() ),
+      m_phiRange( rhs.phiRange().min() , rhs.phiRange().max() ),
+      m_etaRange( rhs.etaRange().min() , rhs.etaRange().max() ) {
 
-/** change coords of an existing CoordinateRange object*/
-void CoordinateRange::setRanges(double phiMin, double phiMax, double etaMin,
-                                double etaMax) {
-  m_phiRange.setRange(phiMin, phiMax);
-  m_etaRange.setRange(etaMin, etaMax);
-  checkBounds();
-  setCentre();
-  return;
-}
+  }
 
-PhiRange CoordinateRange::phiRange() const { return m_phiRange; }
+  CoordinateRange::CoordinateRange()
+    : m_phiRange( 0.0, 0.0 ), m_etaRange( 0.0, 0.0 ) {
 
-Range CoordinateRange::etaRange() const { return m_etaRange; }
+  }
 
-/** returns true if the coordinate falls inside the coordinate range */
-bool CoordinateRange::contains(Coordinate& coord) const {
-  return ((phiRange().contains(coord.phi())) &&
-          (etaRange().contains(coord.eta())));
-}
+  // Destructor
+  CoordinateRange::~CoordinateRange() {
 
-/** calculates the centre of the ranges and sets the phi,eta coords to that */
-void LVL1::CoordinateRange::setCentre() {
-  double phi = m_phiRange.centre();
-  double eta = m_etaRange.min() + ((m_etaRange.max() - m_etaRange.min()) / 2);
+  }
 
-  Coordinate::setCoords(phi, eta);
-  return;
-}
+  /** change coords of an existing CoordinateRange object*/
+  void CoordinateRange::setRanges( double phiMin, double phiMax, double etaMin, double etaMax ) {
 
-}  // namespace LVL1
+    m_phiRange.setRange( phiMin, phiMax );
+    m_etaRange.setRange( etaMin, etaMax );
+    checkBounds();
+    setCentre();
+    return;
+  }
+
+  PhiRange CoordinateRange::phiRange() const {
+    return m_phiRange;
+  }
+
+  Range CoordinateRange::etaRange() const {
+    return m_etaRange;
+  }
+
+  /** returns true if the coordinate falls inside the coordinate range */
+  bool CoordinateRange::contains( Coordinate& coord ) const {
+
+    return ( ( phiRange().contains( coord.phi() ) ) &&
+             ( etaRange().contains( coord.eta() ) ) );
+
+  }
+
+  /** calculates the centre of the ranges and sets the phi,eta coords to that */
+  void LVL1::CoordinateRange::setCentre() {
+
+    double phi = m_phiRange.centre();
+    double eta = m_etaRange.min() + ( ( m_etaRange.max() - m_etaRange.min() ) / 2 );
+
+    Coordinate::setCoords( phi , eta );
+    return;
+  }
+
+} // namespace LVL1

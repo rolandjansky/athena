@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: RecJetRoI.h 782811 2016-11-07 17:20:40Z smh $
+// $Id: RecJetRoI.h 615360 2014-09-05 19:34:47Z watsona $
 /***************************************************************************
                          RecJetRoI.h  -  description
                             -------------------
@@ -24,7 +24,7 @@
 #include <map>
 
 // Gaudi/Athena include(s):
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
 // Local include(s):
 #include "TrigT1Interfaces/CoordinateRange.h"
@@ -53,13 +53,6 @@ namespace LVL1 {
       // constructor
       RecJetRoI( unsigned int RoIWord,
                  const std::vector< TrigConf::TriggerThreshold* >* caloThresholds );
-
-      //copy constructor
-      RecJetRoI( const RecJetRoI &obj );
-
-      //assignment operator
-      RecJetRoI& operator=(RecJetRoI const &obj);
-
       // destructor
       ~RecJetRoI();
 
@@ -71,18 +64,6 @@ namespace LVL1 {
 
       /** returns eta coord of ROI */
       virtual double eta() const;
-      
-      /** returns JEP crate number */
-      virtual unsigned int crate() const;
-      
-      /** returns JEM number */
-      virtual unsigned int module() const;
-      
-      /** returns RoI frame number  */
-      virtual unsigned int frame() const;
-      
-      /** returns local coordinate within frame */
-      virtual unsigned int localcoord() const;
 
       /** returns roi ET in larger cluster. Only valid for Run 2 data.
           Will return highest threshold passed if called for Run 1 data. */
@@ -136,13 +117,13 @@ namespace LVL1 {
 
       /** this is the actual format of the data sent from
           the LVL1 hardware. */
-      unsigned long int m_roiWord { 0 };
+      unsigned long int m_roiWord;
       
       /** Store the RoI format version */
-      int m_version { 0 };
+      int m_version;
 
       /** Information on trigger thresholds passed by RoI */ 
-      unsigned long int m_thresholdMask { 0 };
+      unsigned long int m_thresholdMask;
       std::map< int, unsigned int > m_triggerThresholdValue;
       std::map< int, unsigned int > m_windowSize;
       

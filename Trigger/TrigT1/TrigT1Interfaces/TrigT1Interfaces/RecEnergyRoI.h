@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: RecEnergyRoI.h 782811 2016-11-07 17:20:40Z smh $
+// $Id: RecEnergyRoI.h 550049 2013-06-06 13:20:41Z pottgen $
 /***************************************************************************
                          RecEnergyRoI.h  -  description
                             -------------------
@@ -24,7 +24,7 @@
 #include <map>
 
 // Gaudi/Athena include(s):
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
 // Local include(s):
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
@@ -130,15 +130,15 @@ namespace LVL1 {
       /** this is the actual format of the data sent from
           the LVL1 hardware. See  ATL-DAQ-99-015 for
           further explanation. */
-      unsigned long int m_roiWord0 { 0 };
+      unsigned long int m_roiWord0;
       /** this is the actual format of the data sent from
           the LVL1 hardware. See  ATL-DAQ-99-015 for
           further explanation. */
-      unsigned long int m_roiWord1 { 0 };
+      unsigned long int m_roiWord1;
       /** this is the actual format of the data sent from
           the LVL1 hardware. See  ATL-DAQ-99-015 for
           further explanation. */
-      unsigned long int m_roiWord2 { 0 };
+      unsigned long int m_roiWord2;
 
       std::map< int, unsigned int > m_etMissThresholdValue;
       std::map< int, unsigned int > m_sumEtThresholdValue;

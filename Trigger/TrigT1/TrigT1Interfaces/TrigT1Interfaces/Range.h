@@ -26,6 +26,7 @@ namespace LVL1 {
   public:
     Range() ;
     Range( double min, double max );
+    Range( const Range & rhs );
     virtual ~Range();
 
     double min() const;
