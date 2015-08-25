@@ -55,6 +55,7 @@ class HLTTrackPreSelHypo : public HLT::HypoAlgo
   /** Configurables */
 
   float m_lowerPtCut;
+  float m_lowerTrackPtCut;
   float m_clusterCone;
   float m_coreSize;
   float m_outerSize;

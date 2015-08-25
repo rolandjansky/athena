@@ -104,7 +104,7 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
 
      if(trackPer){
 	
-       float trackPt = trackPer->pT()/1000.;
+       float trackPt = trackPer->pT()*1e-3;
        if ( trackPt > trkPtMax ) {
 	 leadTrack = (*it);
 	 trkPtMax = trackPt;

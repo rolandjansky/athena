@@ -214,12 +214,12 @@ HLT::ErrorCode EFTauInvHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       
       // Cut on EtCalib
       
-      double EFet = (*tauIt)->et()/1000.;
+      double EFet = (*tauIt)->et()*1e-3;
       
       if( msgLvl() <= MSG::DEBUG )
 	msg() << MSG::DEBUG << " REGTEST: Et Calib "<<EFet<<endreq;
       
-      if(!( EFet > m_EtCalibMin/1000.)) continue;
+      if(!( EFet > m_EtCalibMin*1e-3)) continue;
       m_cutCounter++;
       
       // Cut on number of tracks

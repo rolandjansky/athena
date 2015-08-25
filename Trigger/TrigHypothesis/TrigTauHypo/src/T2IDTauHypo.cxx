@@ -202,7 +202,7 @@ HLT::ErrorCode T2IDTauHypo::hltExecute(const HLT::TriggerElement* inputTE, bool&
   
   //sumPtRatio
   if( fabs(tracksInfo->scalarPtSumCore()) > 1 ) m_sumPtRatio = tracksInfo->scalarPtSumIso() / tracksInfo->scalarPtSumCore();
-  else                                          m_sumPtRatio = tracksInfo->scalarPtSumIso() / 40000.; // assume 40 GeV is average candidate. 
+  else                                          m_sumPtRatio = tracksInfo->scalarPtSumIso() *(1. / 40000.); // assume 40 GeV is average candidate. 
 
   if ( m_nTracks == 1 && m_sumPtRatio_1PCut < 100.0 && m_sumPtRatio >= m_sumPtRatio_1PCut) pass = false;
   if ( m_nTracks >  1 && m_sumPtRatio_MPCut < 100.0 && m_sumPtRatio >= m_sumPtRatio_MPCut) pass = false;

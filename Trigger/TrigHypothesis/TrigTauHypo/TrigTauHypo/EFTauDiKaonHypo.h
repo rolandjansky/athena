@@ -4,15 +4,15 @@
 
 /********************************************************************
  *
- * NAME:     EFTauMVHypo.h
+ * NAME:     EFTauDiKaonHypo.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigTauHypo
  *
- * AUTHOR:   m. Morgenstern based on EFTauInvHypo
- * CREATED:  Jun 20, 2011
+ * AUTHOR:   D. Zanzi based on EFTauMVHypo
+ * CREATED:  Aug. 17, 2015
  *
   *********************************************************************/
-#ifndef TRIGEFTAUMVHYPO_H
-#define TRIGEFTAUMVHYPO_H
+#ifndef TRIGEFTAUDIKAONHYPO_H
+#define TRIGEFTAUDIKAONHYPO_H
 
 #include "TrigInterfaces/HypoAlgo.h"
 #include "TGraph.h"
@@ -22,14 +22,14 @@ namespace HLT {
   class TriggerElement;
 }
 
-class EFTauMVHypo : public HLT::HypoAlgo {
+class EFTauDiKaonHypo : public HLT::HypoAlgo {
 
  public:
 
   /** constructor of EF tauRec hypo algo */
-  EFTauMVHypo(const std::string& name, ISvcLocator* pSvcLocator);
+  EFTauDiKaonHypo(const std::string& name, ISvcLocator* pSvcLocator);
   /** destructor */
-  ~EFTauMVHypo();
+  ~EFTauDiKaonHypo();
 
   /** HLT method for initialize */
   HLT::ErrorCode hltInitialize();
@@ -44,30 +44,24 @@ class EFTauMVHypo : public HLT::HypoAlgo {
  private:
 
   /** Cuts to be applied */
-
-  /** min numTrack cut **/
-  int m_numTrackMin;
-  int m_numTrackMax;
-
-  double m_EtCalibMin;
-
-  int m_level;
-  int m_method;
-
-  /** min BDTScore cut **/
-  //double m_BDTScoreMin;
+  float m_massTrkSysMin;
+  float m_massTrkSysMax;
+  float m_EtCalibMin;
+  float m_leadTrkPtMin;
+  int m_nTrackMax;
+  int m_nTrackMin;
+  float m_EMPOverTrkSysPMax;
 
   /** variables used for cuts in hypo algorithm */   
-  int m_numTrack;
-
-  double m_LLHScore;
-  double m_BDTScore;
+  float m_massTrkSys;
+  float m_leadTrkPt;
+  float m_EtCalib;
+  int m_nTrack;
+  float m_EMPOverTrkSysP;
 
   /** for monitoring */
   int  m_cutCounter;
-  std::string s_cut_level;
-  std::map<std::string,TGraph> m_cuts;
-  TGraph *OneProngGraph,*MultiProngGraph;
+  
 };
 #endif
 

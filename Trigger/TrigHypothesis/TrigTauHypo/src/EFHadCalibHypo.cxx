@@ -256,7 +256,7 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
       // Step 2: Propagate tracks to the Calorimeter.
       //         Count tracks in the isolation region with pT above cut.
   
-      const double GAP_ETA = 1.5; // Gap between EMB and EMEC
+      //const double GAP_ETA = 1.5; // Gap between EMB and EMEC
   
       double extrapolatedEta = -50.;
       double extrapolatedPhi = -50.;
@@ -405,12 +405,12 @@ HLT::ErrorCode EFHadCalibHypo::hltTrackQualityCheck(Rec::TrackParticleContainer:
       msg() << MSG::DEBUG
 	    << "eta = " << m_HTeta << ", "
 	    << "phi = " << m_HTphi << " and "
-	    << "pT  = " << m_HTpT / 1000. << "GeV"
+	    << "pT  = " << m_HTpT * 1e-3 << "GeV"
 	    << endreq;
       msg() << MSG::DEBUG 
 	    << "d0  = " << m_HTd0  << ", "
 	    << "z0  = " << m_HTz0  << " and "
-	    << "p   = " << (*trackIter)->p  () / 1000. << "GeV"
+	    << "p   = " << (*trackIter)->p  () * 1e-3 << "GeV"
 	    << endreq;
       msg() << MSG::DEBUG << "hits:"
 	    << "pix = " << m_HTnPixHit << " "

@@ -129,7 +129,7 @@ HLT::ErrorCode HLTTauGenericHypo::hltExecute(const HLT::TriggerElement* inputTE,
     msg() << MSG::DEBUG << " Input tau collection has size " << myTauContainers.size() << endreq;
     if((myTauContainers.back())->size()==0)
       {
-	msg() << MSG::WARNING << "No taus in input collection: Rejecting" << endreq;
+	msg() << MSG::DEBUG << "No taus in input collection: Rejecting" << endreq;
 	return status;
       }
   }
