@@ -164,9 +164,9 @@ StatusCode TestCoolRecRead::finalize() {
       (nmismatchfold>0 && par_checkmatch)) {
     msg()  << "BAD (" << nerrorfold << "," << nemptyfold << "," << nmismatchfold
 	  << "," << m_nbadaux << 
-       ") error, empty folders, msimatched folders, bad files " << endmsg;
+       ") error, empty folders, msimatched folders, bad files " << endreq;
   } else {
-    msg() <<  "All folders OK" << endmsg;
+    msg() <<  "All folders OK" << endreq;
   }
   return StatusCode::SUCCESS;
 }
