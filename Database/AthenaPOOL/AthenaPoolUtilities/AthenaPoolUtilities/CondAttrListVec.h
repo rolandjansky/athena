@@ -38,6 +38,8 @@ class CondAttrListVec : public DataObject
   typedef std::map<unsigned int,IOVRange> AttrListIOVMap;
   typedef AttrListIOVMap::const_iterator iov_const_iterator;
   typedef AttrListIOVMap::size_type iov_size_type;
+  typedef std::map<unsigned int, std::vector<const coral::AttributeList*> >
+    AttrListCVMap;
 
   // constructor with specification of type of time: run/event or timestamp
   CondAttrListVec(bool runevent);
@@ -82,6 +84,18 @@ class CondAttrListVec : public DataObject
   // add new stop time to minRange - make sure minRange is <=stop
   void addNewStop(const IOVTime& stop);
 
+  // indexing function - return vector of unique channel IDs
+  const std::vector<unsigned int>& channelIDs() const;
+
+  // return true if a particular channel ID exists in the data
+  bool hasChannel(const int chan) const;
+
+  // return vector of pointers to attribute lists 
+  // that are associated with given channel
+  // requesting a channel which does not exist may give an exception
+  const std::vector<const coral::AttributeList*>& 
+    attrListVec(const int chan) const;
+
  private:
   // hide default constructor - force client to specify type
   CondAttrListVec();
@@ -91,7 +105,13 @@ class CondAttrListVec : public DataObject
   IOVRange m_minrange;
   bool m_uniqueiov;
   bool m_runevent;
+  mutable bool m_indexed;
   coral::AttributeListSpecification* m_spec;
+  // indexing variables
+  mutable AttrListCVMap m_indexchanvec;
+  mutable std::vector<unsigned int> m_indexchan;
+
+  void makeIndex() const;
 };
 
 CLASS_DEF( CondAttrListVec , 55403898 , 1)
@@ -99,7 +119,7 @@ CLASS_DEF( CondAttrListVec , 55403898 , 1)
 inline CondAttrListVec::CondAttrListVec(bool runevent) :
   m_minrange(IOVRange(IOVTime(IOVTime::MINRUN, IOVTime::MINEVENT), 
 		      IOVTime(IOVTime::MAXRUN, IOVTime::MAXEVENT))),
-     m_uniqueiov(true),m_runevent(runevent),m_spec(0) {
+  m_uniqueiov(true),m_runevent(runevent),m_indexed(false),m_spec(0) {
   if (!runevent) m_minrange=IOVRange(IOVTime(IOVTime::MINTIMESTAMP), 
 				     IOVTime(IOVTime::MAXTIMESTAMP));
 }
@@ -107,7 +127,7 @@ inline CondAttrListVec::CondAttrListVec(bool runevent) :
 inline CondAttrListVec::CondAttrListVec(bool runevent, size_type nelm) :
   m_minrange(IOVRange(IOVTime(IOVTime::MINRUN, IOVTime::MINEVENT), 
 		      IOVTime(IOVTime::MAXRUN, IOVTime::MAXEVENT))),
-     m_uniqueiov(true),m_runevent(runevent),m_spec(0) {
+	 m_uniqueiov(true),m_runevent(runevent),m_indexed(false),m_spec(0) {
   if (!runevent) m_minrange=IOVRange(IOVTime(IOVTime::MINTIMESTAMP), 
 				     IOVTime(IOVTime::MAXTIMESTAMP));
   m_data.reserve(nelm);
@@ -123,7 +143,7 @@ inline CondAttrListVec::CondAttrListVec(const CondAttrListVec& rhs) :
   m_iovmap(rhs.m_iovmap),
   m_minrange(rhs.m_minrange),
   m_uniqueiov(rhs.m_uniqueiov),
-  m_runevent(rhs.m_runevent),
+  m_runevent(rhs.m_runevent),m_indexed(false),
   m_spec(0)
 {
   // members with normal semantics setup in initialisation list
@@ -154,6 +174,7 @@ inline CondAttrListVec& CondAttrListVec::operator=(const CondAttrListVec& rhs) {
   m_minrange=rhs.m_minrange;
   m_uniqueiov=rhs.m_uniqueiov;
   m_runevent=rhs.m_runevent;
+  m_indexed=false;
   // make a new cache AttributeListSpecification and make the payload map
   // use it
   if (m_spec!=0) m_spec->release();
@@ -209,6 +230,8 @@ inline bool CondAttrListVec::hasUniqueIOV() const
 inline void CondAttrListVec::add(const IOVRange& range,
 	   const unsigned int chan, 
 	   AttrListDataIter data_begin, AttrListDataIter data_end) {
+  //invalidate index
+  m_indexed=false;
   // set minimum range correctly
   IOVTime start=m_minrange.start();
   if (m_minrange.start()<range.start()) start=range.start();
@@ -236,6 +259,8 @@ inline void CondAttrListVec::addSlice(const IOVRange& range,
 	   const unsigned int chan, 
 	   const std::vector<coral::AttributeList>& data,
 	   const unsigned int datastart,const unsigned int dataend) {
+  // invalidate index
+  m_indexed=false;
   // set minimum range correctly
   IOVTime start=m_minrange.start();
   if (m_minrange.start()<range.start()) start=range.start();
@@ -263,6 +288,44 @@ inline void CondAttrListVec::addSlice(const IOVRange& range,
 
 inline void CondAttrListVec::addNewStop(const IOVTime& stop) {
   if (stop<m_minrange.stop()) m_minrange=IOVRange(m_minrange.start(),stop);
+}
+
+inline const std::vector<unsigned int>& CondAttrListVec::channelIDs() const {
+  makeIndex();
+  return m_indexchan;
+}
+
+inline bool CondAttrListVec::hasChannel(const int chan) const {
+  return (m_indexchanvec.find(chan)!=m_indexchanvec.end());
+}
+
+inline const std::vector<const coral::AttributeList*>& 
+  CondAttrListVec::attrListVec(const int chan) const {
+  makeIndex();
+  return m_indexchanvec[chan];
+}
+
+inline void CondAttrListVec::makeIndex() const {
+  // check if already indexed
+  if (m_indexed) return;
+  m_indexchanvec.clear();
+  m_indexchan.clear();
+  // loop over all the elements, build vector of AttributeList for each channel
+  // and a vector of all the channels
+  for (const_iterator citr=m_data.begin();citr!=m_data.end();++citr) {
+    unsigned int chan=citr->first;
+    AttrListCVMap::iterator clist=m_indexchanvec.find(chan);
+    if (clist==m_indexchanvec.end()) {
+      // channel not seen before, create a new entry in map and vector
+      std::pair<AttrListCVMap::iterator,bool> res=
+	m_indexchanvec.insert(AttrListCVMap::value_type(chan,
+	std::vector<const coral::AttributeList*>()));
+      clist=res.first;
+      m_indexchan.push_back(chan);
+    }
+    clist->second.push_back(&(citr->second));
+  }
+  m_indexed=true;
 }
 
 #endif //  DBDATAOBJECTS_CONDATTRLISTVEC_H 
