@@ -59,19 +59,19 @@ EFTauTauCombFexAlgo::~EFTauTauCombFexAlgo()
 HLT::ErrorCode EFTauTauCombFexAlgo::hltInitialize()
 {
   if (msgLvl() <= MSG::DEBUG) 
-    msg() << MSG::DEBUG << "Initialization:" << endmsg;
+    msg() << MSG::DEBUG << "Initialization:" << endreq;
   
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Initialization completed successfully:" << endmsg;
+    msg() << MSG::DEBUG << "Initialization completed successfully:" << endreq;
     msg() << MSG::DEBUG << "AcceptAll            = " 
-          << (m_acceptAll==true ? "True" : "False") << endmsg; 
+          << (m_acceptAll==true ? "True" : "False") << endreq; 
 //     msg() << MSG::DEBUG << "ValidTau        = " 
-//           << (m_tauValid==true ? "True" : "False") << endmsg; 
-    msg() << MSG::DEBUG << "DeltaPhiCut         = " << m_MaxDPhi << endmsg;
-    msg() << MSG::DEBUG << "DeltaEtaCut         = " << m_MaxDEta << endmsg;
-    msg() << MSG::DEBUG << "MaxDeltaRCut         = " << m_MaxDR << endmsg;
-    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endmsg;
-    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endmsg;
+//           << (m_tauValid==true ? "True" : "False") << endreq; 
+    msg() << MSG::DEBUG << "DeltaPhiCut         = " << m_MaxDPhi << endreq;
+    msg() << MSG::DEBUG << "DeltaEtaCut         = " << m_MaxDEta << endreq;
+    msg() << MSG::DEBUG << "MaxDeltaRCut         = " << m_MaxDR << endreq;
+    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endreq;
+    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endreq;
   }
   return HLT::OK;
 }
@@ -80,7 +80,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::hltInitialize()
 HLT::ErrorCode EFTauTauCombFexAlgo::hltFinalize()
 {
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endmsg;
+    msg() << MSG::INFO << "in finalize()" << endreq;
   return HLT::OK;
 }
 
@@ -93,9 +93,9 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
   //  tau1Collection.clear();
 
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "Running EFTauTauCombFexAlgo::acceptInputs" << endmsg;
+    msg() << MSG::DEBUG << "Running EFTauTauCombFexAlgo::acceptInputs" << endreq;
   if ( inputTE.size() != 2 ) {
-    msg() << MSG::ERROR << "Did not collect 2 input TEs: " <<  inputTE.size() << " job badly configured" << endmsg;
+    msg() << MSG::ERROR << "Did not collect 2 input TEs: " <<  inputTE.size() << " job badly configured" << endreq;
     return HLT::BAD_JOB_SETUP;
   }
 
@@ -103,14 +103,14 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
   if (m_acceptAll) {
     if ( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" 
-	    << endmsg;
+	    << endreq;
     pass = true;
     return HLT::OK;
   } 
   else {
     if ( msgLvl() <= MSG::DEBUG )
       msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" 
-	    << endmsg;
+	    << endreq;
   }
 
   // this are 2 TEs which we eventually will combine
@@ -122,12 +122,12 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
     const TrigRoiDescriptor* roiDescriptor2 = 0;
     if ( getFeature(te1, roiDescriptor1) != HLT::OK || getFeature(te2, roiDescriptor2) != HLT::OK || roiDescriptor1==0 || roiDescriptor2==0) {
       if ( msgLvl() <= MSG::WARNING) {
-        msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Elements! " << endmsg;
+        msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Elements! " << endreq;
       }
       //return HLT::MISSING_FEATURE; 
     } else {
       if ( msgLvl() <= MSG::DEBUG )
-        msg() << MSG::DEBUG  << "Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2 << endmsg;
+        msg() << MSG::DEBUG  << "Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2 << endreq;
     }
   }
 
@@ -145,17 +145,17 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
   if ( getFeatures(te1, vectorTauContainers1) == HLT::OK && vectorTauContainers1.size() != 0)
     {
       if ( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG  << "EF tau collection 1 successfully retrieved" << endmsg;       
+	msg() << MSG::DEBUG  << "EF tau collection 1 successfully retrieved" << endreq;       
 
       if ( getFeatures(te2, vectorTauContainers2) == HLT::OK && vectorTauContainers2.size() != 0)
 	{
 	  if ( msgLvl() <= MSG::DEBUG )
-	    msg() << MSG::DEBUG  << "EF tau collection 2 successfully retrieved" << endmsg;       
+	    msg() << MSG::DEBUG  << "EF tau collection 2 successfully retrieved" << endreq;       
 	  tautau=true;
 	}
       else    { 
 	if ( msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "Failed to get EF tau collection 2" << endmsg;
+	  msg() << MSG::DEBUG << "Failed to get EF tau collection 2" << endreq;
 	}
 	//	return HLT::MISSING_FEATURE;
       }
@@ -163,7 +163,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
     }
   else    { 
     if ( msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Failed to get EF tau collection 2" << endmsg;
+      msg() << MSG::DEBUG << "Failed to get EF tau collection 2" << endreq;
     }
     //    return HLT::MISSING_FEATURE;
   }
@@ -177,17 +177,17 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	if(getFeatures(te2, vectorTauContainers1) != HLT::OK  || vectorTauContainers1.size() == 0)
 	  {
 	    if ( msgLvl() <= MSG::DEBUG) 
-	      msg() << MSG::DEBUG << "Failed to get EFtau collection" << endmsg;
+	      msg() << MSG::DEBUG << "Failed to get EFtau collection" << endreq;
 	    
 	  }
 	else{
 	  if ( msgLvl() <= MSG::DEBUG )
-	    msg() << MSG::DEBUG  << "EF tau collection successfully retrieved" << endmsg;       
+	    msg() << MSG::DEBUG  << "EF tau collection successfully retrieved" << endreq;       
 	  hastau=true;
 	}
       }else{
       if ( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG  << "EF tau collection successfully retrieved" << endmsg;       
+	msg() << MSG::DEBUG  << "EF tau collection successfully retrieved" << endreq;       
 	  hastau=true;
     }
 
@@ -196,17 +196,17 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	if(getFeature(te2, electronContainer1) != HLT::OK  || electronContainer1 == 0)
 	  {
 	    if ( msgLvl() <= MSG::DEBUG) 
-	      msg() << MSG::DEBUG << "Failed to get EF egamma collection" << endmsg;
+	      msg() << MSG::DEBUG << "Failed to get EF egamma collection" << endreq;
 	    
 	  }
 	else{
 	  if ( msgLvl() <= MSG::DEBUG )
-	    msg() << MSG::DEBUG  << "EF egamma collection successfully retrieved" << endmsg;       
+	    msg() << MSG::DEBUG  << "EF egamma collection successfully retrieved" << endreq;       
 	  haselec=true;
 	}
       }else{
       if ( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG  << "EF egamma collection successfully retrieved" << endmsg;       
+	msg() << MSG::DEBUG  << "EF egamma collection successfully retrieved" << endreq;       
 	  haselec=true;
     }
     
@@ -216,17 +216,17 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	if(getFeature(te2, MuEFTracksEF, "MuonCombEF") != HLT::OK  || MuEFTracksEF == 0)
 	  {
 	    if ( msgLvl() <= MSG::DEBUG) 
-	      msg() << MSG::DEBUG << "Failed to get EF MuidTrackContainer" << endmsg;
+	      msg() << MSG::DEBUG << "Failed to get EF MuidTrackContainer" << endreq;
 	    
 	  }
 	else{
 	  if ( msgLvl() <= MSG::DEBUG )
-	    msg() << MSG::DEBUG  << "EF MuidTrackContainer successfully retrieved with size " << MuEFTracksEF->size() << endmsg;   
+	    msg() << MSG::DEBUG  << "EF MuidTrackContainer successfully retrieved with size " << MuEFTracksEF->size() << endreq;   
 	  hasmu=true;
      }
       }else{
       if ( msgLvl() <= MSG::DEBUG )
-	msg() << MSG::DEBUG  << "EF MuidTrackContainer successfully retrieved with size " << MuEFTracksEF->size() << endmsg;   
+	msg() << MSG::DEBUG  << "EF MuidTrackContainer successfully retrieved with size " << MuEFTracksEF->size() << endreq;   
       hasmu=true;
     }   
   }
@@ -236,7 +236,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
   
   if(!tautau&&!taumu&&!tauelec)
     if ( msgLvl() <= MSG::WARNING ){
-      msg() << MSG::WARNING  << " No topo candidate features" << endmsg;     
+      msg() << MSG::WARNING  << " No topo candidate features" << endreq;     
       return HLT::MISSING_FEATURE;
     }
 
@@ -248,7 +248,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
       if( msgLvl() <= MSG::DEBUG )
 	msg() << MSG::DEBUG << " REGTEST: Received 0 taucontainers  "
 	      << "This algorithm is designed to work with  one tau container per TE."
-	      << endmsg;
+	      << endreq;
       return HLT::OK;
     }
     const Analysis::TauJetContainer *tauContainer1 = vectorTauContainers1.back();
@@ -258,7 +258,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
     Analysis::TauJetContainer::const_iterator tau2;
     
     if(msgLvl() <= MSG::VERBOSE) {
-      msg() << MSG::VERBOSE << "Size of tau1 container: " << tauContainer1->size() << " size of tau2 container " << tauContainer2->size() << endmsg; 
+      msg() << MSG::VERBOSE << "Size of tau1 container: " << tauContainer1->size() << " size of tau2 container " << tauContainer2->size() << endreq; 
     }
     
     int tau1_count,tau2_count;
@@ -271,7 +271,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
       }
       if((*tau1)==0)
 	{
-	  msg() << MSG::DEBUG << "Null pointer in tauContainer1. Skipping." << endmsg;
+	  msg() << MSG::DEBUG << "Null pointer in tauContainer1. Skipping." << endreq;
 	  continue;
 	}
       
@@ -281,7 +281,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	}
 	if((*tau2)==0)
 	  {
-	    msg() << MSG::DEBUG << "Null pointer in tauContainer2. Skipping." << endmsg;
+	    msg() << MSG::DEBUG << "Null pointer in tauContainer2. Skipping." << endreq;
 	    continue;
 	  }
 	
@@ -294,17 +294,17 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	TauTauTopoInfo->SetVertexState(1515);
 	
 	if(msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "New combination:" << endmsg; 
+	  msg() << MSG::DEBUG << "New combination:" << endreq; 
 	  msg() << MSG::DEBUG << "tau1: addr=" << (*tau1) 
 		<< "  et="    << (*tau1)->et() 
 		<< "; eta="   << (*tau1)->eta() 
 		<< "; phi="   << (*tau1)->phi() 
-		<< endmsg;             
+		<< endreq;             
 	  msg() << MSG::DEBUG << "tau2: addr=" << (*tau2) 
 		<< "  et="    << (*tau2)->et() 
 		<< "; eta="   << (*tau2)->eta() 
 		<< "; phi="   << (*tau2)->phi() 
-		<< endmsg;             
+		<< endreq;             
 	}
 	
 	// evaluate distance
@@ -318,7 +318,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	  msg() << MSG::VERBOSE 
 		<< "Delta Phi between tau1 and tau2 is " << m_DPhi 
 		<<" Delta Eta is " << m_DEta 
-		<<" Radial distance delta R is " << m_DR << endmsg;
+		<<" Radial distance delta R is " << m_DR << endreq;
 	}
 	
 	m_monDPhiAll=m_DPhi;
@@ -327,13 +327,13 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	
 	if(m_DPhi > m_MaxDPhi) {
 	  if(msgLvl() <= MSG::VERBOSE) 
-	    msg() << MSG::VERBOSE << "Combination failed Delta Phi cut" << endmsg;
+	    msg() << MSG::VERBOSE << "Combination failed Delta Phi cut" << endreq;
 	  
 	  delete TauTauTopoInfo;
 	  continue;               
 	}else{
 	  if(msgLvl() <= MSG::VERBOSE) 
-	    msg() << MSG::VERBOSE << "Combination passed Delta Phi cut of " << m_MaxDPhi << endmsg;
+	    msg() << MSG::VERBOSE << "Combination passed Delta Phi cut of " << m_MaxDPhi << endreq;
 	  
 	}
 	
@@ -345,13 +345,13 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	  {
 	    if(m_DR > m_MaxDR) {
 	      if(msgLvl() <= MSG::VERBOSE) 
-		msg() << MSG::VERBOSE << "Combination failed Delta R cut" << endmsg;
+		msg() << MSG::VERBOSE << "Combination failed Delta R cut" << endreq;
 	      
 	      delete TauTauTopoInfo;
 	      continue;
 	    }else{
 	      if(msgLvl() <= MSG::VERBOSE) {
-		msg() << MSG::VERBOSE << "Combination passed Delta R cut of " << m_MaxDR << endmsg;
+		msg() << MSG::VERBOSE << "Combination passed Delta R cut of " << m_MaxDR << endreq;
 	      }
 	    }       
 	  }
@@ -371,7 +371,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	if(msgLvl() <= MSG::DEBUG){
 	  msg() << MSG::DEBUG << "Created the following object: "
 		<< (*TauTauTopoInfo)
-		<< endmsg;
+		<< endreq;
 	}
 	if ( !m_tautauTopoColl ) m_tautauTopoColl = new ElectronMuonTopoInfoContainer();
 	m_tautauTopoColl->push_back(new ElectronMuonTopoInfo(*TauTauTopoInfo));
@@ -387,7 +387,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
       if( msgLvl() <= MSG::DEBUG )
 	msg() << MSG::DEBUG << " REGTEST: Received 0 taucontainers  "
 	      << "This algorithm is designed to work with  one tau container per TE."
-	      << endmsg;
+	      << endreq;
       return HLT::OK;
     }
 
@@ -396,7 +396,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
     MuidTrackContainer::const_iterator tr;
     
     if(msgLvl() <= MSG::VERBOSE) {
-      msg() << MSG::VERBOSE << "Size of tau1 container: " << tauContainer1->size()<< endmsg; 
+      msg() << MSG::VERBOSE << "Size of tau1 container: " << tauContainer1->size()<< endreq; 
     }
     
     int tau1_count,mu1_count;
@@ -409,7 +409,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
       }
       if((*tau1)==0)
 	{
-	  msg() << MSG::DEBUG << "Null pointer in tauContainer1. Skipping." << endmsg;
+	  msg() << MSG::DEBUG << "Null pointer in tauContainer1. Skipping." << endreq;
 	  continue;
 	}
     
@@ -419,13 +419,13 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	}
 	if((*tr)==0)
 	  {
-	    msg() << MSG::DEBUG << "Null pointer in MuEF. Skipping." << endmsg;
+	    msg() << MSG::DEBUG << "Null pointer in MuEF. Skipping." << endreq;
 	    continue;
 	  }
 	if((*tr)->indetTrack()==0)
 	  {
 	    if(msgLvl() <= MSG::DEBUG) 
-	      msg() << MSG::DEBUG << "No indetTrack attached to muon. Skipping" << endmsg;
+	      msg() << MSG::DEBUG << "No indetTrack attached to muon. Skipping" << endreq;
 	    
 	    continue;
 	  }
@@ -441,17 +441,17 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	float mu_phi = muon1->parameters()[Trk::phi];	
 
 	if(msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "New combination:" << endmsg; 
+	  msg() << MSG::DEBUG << "New combination:" << endreq; 
 	  msg() << MSG::DEBUG << "tau1: addr=" << (*tau1) 
 		<< "  et="    << (*tau1)->et() 
 		<< "; eta="   << (*tau1)->eta() 
 		<< "; phi="   << (*tau1)->phi() 
-		<< endmsg;             
+		<< endreq;             
 	  msg() << MSG::DEBUG << "muon: addr=" << muon1
 		<< "  qoverp="  << muon1->parameters()[Trk::qOverP] 
 		<< "; theta="   << muon1->parameters()[Trk::theta] 
 		<< "; phi="   << mu_phi
-		<< endmsg;       
+		<< endreq;       
 	}
 	
 	// evaluate distance
@@ -465,7 +465,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	  msg() << MSG::VERBOSE 
 		<< "Delta Phi between tau1 and muon1 is " << m_DPhi 
 		<<" Delta Eta is " << m_DEta 
-		<<" Radial distance delta R is " << m_DR << endmsg;
+		<<" Radial distance delta R is " << m_DR << endreq;
 	}
 	
 	m_monDPhiAll=m_DPhi;
@@ -474,13 +474,13 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	
 	if(m_DPhi > m_MaxDPhi) {
 	  if(msgLvl() <= MSG::VERBOSE) 
-	    msg() << MSG::VERBOSE << "Combination failed Delta Phi cut" << endmsg;
+	    msg() << MSG::VERBOSE << "Combination failed Delta Phi cut" << endreq;
 	  
 	  delete TauTauTopoInfo;
 	  continue;               
 	}else{
 	  if(msgLvl() <= MSG::VERBOSE) 
-	    msg() << MSG::VERBOSE << "Combination passed Delta Phi cut of " << m_MaxDPhi << endmsg;
+	    msg() << MSG::VERBOSE << "Combination passed Delta Phi cut of " << m_MaxDPhi << endreq;
 	  
 	}
 	
@@ -492,13 +492,13 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	  {
 	    if(m_DR > m_MaxDR) {
 	      if(msgLvl() <= MSG::VERBOSE) 
-		msg() << MSG::VERBOSE << "Combination failed Delta R cut" << endmsg;
+		msg() << MSG::VERBOSE << "Combination failed Delta R cut" << endreq;
 	      
 	      delete TauTauTopoInfo;
 	      continue;
 	    }else{
 	      if(msgLvl() <= MSG::VERBOSE) 
-		msg() << MSG::VERBOSE << "Combination passed Delta R cut of " << m_MaxDR << endmsg;
+		msg() << MSG::VERBOSE << "Combination passed Delta R cut of " << m_MaxDR << endreq;
 	      
 	    }       
 	  }
@@ -514,7 +514,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	if(msgLvl() <= MSG::DEBUG){
 	  msg() << MSG::DEBUG << "Created the following object: "
 		<< (*TauTauTopoInfo)
-		<< endmsg;
+		<< endreq;
 	}
 	if ( !m_tautauTopoColl ) m_tautauTopoColl = new ElectronMuonTopoInfoContainer();
 	m_tautauTopoColl->push_back(new ElectronMuonTopoInfo(*TauTauTopoInfo));
@@ -533,7 +533,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
       if( msgLvl() <= MSG::DEBUG )
 	msg() << MSG::DEBUG << " REGTEST: Received 0 taucontainers  "
 	      << "This algorithm is designed to work with  one tau container per TE."
-	      << endmsg;
+	      << endreq;
       return HLT::OK;
     }
     
@@ -543,7 +543,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
     egammaContainer::const_iterator electron1;
     
     if(msgLvl() <= MSG::VERBOSE) {
-      msg() << MSG::VERBOSE << "Size of tau1 container: " << tauContainer1->size()<< endmsg; 
+      msg() << MSG::VERBOSE << "Size of tau1 container: " << tauContainer1->size()<< endreq; 
     }
     
     int tau1_count,e1_count;
@@ -556,7 +556,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
       }
       if((*tau1)==0)
 	{
-	  msg() << MSG::DEBUG << "Null pointer in tauContainer1. Skipping." << endmsg;
+	  msg() << MSG::DEBUG << "Null pointer in tauContainer1. Skipping." << endreq;
 	  continue;
 	}
       for ( electron1 = electronContainer1->begin(); electron1 != electronContainer1->end(); ++electron1 ) {
@@ -565,13 +565,13 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	}
 	if((*electron1)==0)
 	  {
-	    msg() << MSG::DEBUG << "Null pointer in egammaContainer. Skipping." << endmsg;
+	    msg() << MSG::DEBUG << "Null pointer in egammaContainer. Skipping." << endreq;
 	    continue;
 	  }
 	if((*electron1)->trackParticle()==0)
 	  {
 	    if(msgLvl() <= MSG::DEBUG) 
-	      msg() << MSG::DEBUG << "No trackParticle attached to electron. Skipping" << endmsg;
+	      msg() << MSG::DEBUG << "No trackParticle attached to electron. Skipping" << endreq;
 	    
 	    continue;
 	  }
@@ -585,12 +585,12 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	TauTauTopoInfo->SetVertexState(1511);
 	
 	if(msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "New combination:" << endmsg; 
+	  msg() << MSG::DEBUG << "New combination:" << endreq; 
 	  msg() << MSG::DEBUG << "tau1: addr=" << (*tau1) 
 		<< "  et="    << (*tau1)->et() 
 		<< "; eta="   << (*tau1)->eta() 
 		<< "; phi="   << (*tau1)->phi() 
-		<< endmsg;             
+		<< endreq;             
 	  msg() << MSG::DEBUG << "egammaElectron: addr=" << (*electron1)
 		<< "  et="    << (*electron1)->cluster()->e()/cosh((*electron1)->trackParticle()->eta()) 
 		<< "; eta="   << (*electron1)->trackParticle()->eta()
@@ -598,7 +598,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 		<< "; charge=" << (*electron1)->trackParticle()->charge()
 		<< "; #Silicon hits=" <<
 	    (*electron1)->trackParticle()->trackSummary()->get( Trk::numberOfPixelHits )+ (*electron1)->trackParticle()->trackSummary()->get( Trk::numberOfSCTHits )
-		<< endmsg;
+		<< endreq;
 	}
 	
 	// evaluate distance
@@ -612,7 +612,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	  msg() << MSG::VERBOSE 
 		<< "Delta Phi between tau1 and muon1 is " << m_DPhi 
 		<<" Delta Eta is " << m_DEta 
-		<<" Radial distance delta R is " << m_DR << endmsg;
+		<<" Radial distance delta R is " << m_DR << endreq;
 	}
 	
 	m_monDPhiAll=m_DPhi;
@@ -621,13 +621,13 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	
 	if(m_DPhi > m_MaxDPhi) {
 	  if(msgLvl() <= MSG::VERBOSE) 
-	    msg() << MSG::VERBOSE << "Combination failed Delta Phi cut" << endmsg;
+	    msg() << MSG::VERBOSE << "Combination failed Delta Phi cut" << endreq;
 	  
 	  delete TauTauTopoInfo;
 	  continue;               
 	}else{
 	  if(msgLvl() <= MSG::VERBOSE) 
-	    msg() << MSG::VERBOSE << "Combination passed Delta Phi cut of " << m_MaxDPhi << endmsg;
+	    msg() << MSG::VERBOSE << "Combination passed Delta Phi cut of " << m_MaxDPhi << endreq;
 	  
 	}
 	
@@ -639,13 +639,13 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	  {
 	    if(m_DR > m_MaxDR) {
 	      if(msgLvl() <= MSG::VERBOSE) 
-		msg() << MSG::VERBOSE << "Combination failed Delta R cut" << endmsg;
+		msg() << MSG::VERBOSE << "Combination failed Delta R cut" << endreq;
 	      
 	      delete TauTauTopoInfo;
 	      continue;
 	    }else{
 	      if(msgLvl() <= MSG::VERBOSE) 
-		msg() << MSG::VERBOSE << "Combination passed Delta R cut of " << m_MaxDR << endmsg;
+		msg() << MSG::VERBOSE << "Combination passed Delta R cut of " << m_MaxDR << endreq;
 	      
 	    }       
 	  }
@@ -661,7 +661,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 	if(msgLvl() <= MSG::DEBUG){
 	  msg() << MSG::DEBUG << "Created the following object: "
 		<< (*TauTauTopoInfo)
-		<< endmsg;
+		<< endreq;
 	}
 	if ( !m_tautauTopoColl ) m_tautauTopoColl = new ElectronMuonTopoInfoContainer();
 	m_tautauTopoColl->push_back(new ElectronMuonTopoInfo(*TauTauTopoInfo));
@@ -679,7 +679,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
   if(tauelec)m_moncombtype=3;
 
   // set output TriggerElement true if good combination  
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "pass = " << pass << endmsg;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "pass = " << pass << endreq;
   return HLT::OK;
 
 
@@ -688,7 +688,7 @@ HLT::ErrorCode EFTauTauCombFexAlgo::acceptInputs(HLT::TEConstVec& inputTE, bool&
 HLT::ErrorCode
 EFTauTauCombFexAlgo::hltExecute(HLT::TEConstVec& /*inputTE*/, HLT::TriggerElement* outputTE){
   if(msgLvl() <= MSG::VERBOSE) {
-    msg() << MSG::VERBOSE << "Attaching TauTauTopoInfoCollection of the length " <<  m_tautauTopoColl->size() << endmsg;
+    msg() << MSG::VERBOSE << "Attaching TauTauTopoInfoCollection of the length " <<  m_tautauTopoColl->size() << endreq;
   }
   if(m_tautauTopoColl!=0) attachFeature(outputTE, m_tautauTopoColl, "EF_TauTauTopoFEX"); 
   return HLT::OK;

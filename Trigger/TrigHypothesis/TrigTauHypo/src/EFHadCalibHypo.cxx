@@ -49,9 +49,6 @@ EFHadCalibHypo::EFHadCalibHypo(const std::string& name,
   declareMonitoredVariable("HTnPixHit"    , m_HTnPixHit   );
   declareMonitoredVariable("HTnSCTHit"    , m_HTnSCTHit   );
 
-  m_cutCounter2 = 1;
-  m_DQtrackPass = true;
-
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -71,28 +68,28 @@ HLT::ErrorCode EFHadCalibHypo::hltInitialize()
 // ----------------------------------------------------------------------
 {
   
-  msg() << MSG::INFO << "in initialize()" << endmsg;
+  msg() << MSG::INFO << "in initialize()" << endreq;
   
-  msg() << MSG::INFO << " REGTEST: EFHadCalibHypo will cut on "                   << endmsg;
-  msg() << MSG::INFO << " REGTEST: CutForHighPtTrack "   << m_PtMinCut            << endmsg; 
-  msg() << MSG::INFO << " REGTEST: CutOnIsolationDeltaR "<< m_trackIsoDR          << endmsg; 
-  msg() << MSG::INFO << " REGTEST: CutnTracksOnDeltaR "  << m_nMaxTracksOnDeltaR  << endmsg; 
-  msg() << MSG::INFO << " REGTEST: MaxTrackPtInIso "     << m_maxPtInIso          << endmsg; 
-  msg() << MSG::INFO << " REGTEST: minPixHits "          << m_minPixHits          << endmsg; 
-  msg() << MSG::INFO << " REGTEST: minSCTHits "          << m_minSCTHits          << endmsg; 
-  msg() << MSG::INFO << " REGTEST: maxD0 "               << m_maxD0               << endmsg; 
-  msg() << MSG::INFO << " REGTEST: maxZ0 "               << m_maxZ0               << endmsg; 
-  msg() << MSG::INFO << " REGTEST: maxEta "              << m_maxEta              << endmsg; 
-  msg() << MSG::INFO << " REGTEST: ------ "                                       << endmsg;
+  msg() << MSG::INFO << " REGTEST: EFHadCalibHypo will cut on "                   << endreq;
+  msg() << MSG::INFO << " REGTEST: CutForHighPtTrack "   << m_PtMinCut            << endreq; 
+  msg() << MSG::INFO << " REGTEST: CutOnIsolationDeltaR "<< m_trackIsoDR          << endreq; 
+  msg() << MSG::INFO << " REGTEST: CutnTracksOnDeltaR "  << m_nMaxTracksOnDeltaR  << endreq; 
+  msg() << MSG::INFO << " REGTEST: MaxTrackPtInIso "     << m_maxPtInIso          << endreq; 
+  msg() << MSG::INFO << " REGTEST: minPixHits "          << m_minPixHits          << endreq; 
+  msg() << MSG::INFO << " REGTEST: minSCTHits "          << m_minSCTHits          << endreq; 
+  msg() << MSG::INFO << " REGTEST: maxD0 "               << m_maxD0               << endreq; 
+  msg() << MSG::INFO << " REGTEST: maxZ0 "               << m_maxZ0               << endreq; 
+  msg() << MSG::INFO << " REGTEST: maxEta "              << m_maxEta              << endreq; 
+  msg() << MSG::INFO << " REGTEST: ------ "                                       << endreq;
 
   //Retrieve the tool for track extrapolate to the calorimeter
   //if (m_toCalo.retrieve().isFailure()) 
   //  {
-  //    msg() << MSG::FATAL << "Could not retrieve m_toCalo " << m_toCalo << endmsg;
+  //    msg() << MSG::FATAL << "Could not retrieve m_toCalo " << m_toCalo << endreq;
   //    return HLT::BAD_JOB_SETUP;
   //  }
 
-  msg() << MSG::INFO << "Initialization of EFHadCalibHypo completed successfully" << endmsg;
+  msg() << MSG::INFO << "Initialization of EFHadCalibHypo completed successfully" << endreq;
   return HLT::OK;
 }
 
@@ -104,7 +101,7 @@ HLT::ErrorCode EFHadCalibHypo::hltInitialize()
 HLT::ErrorCode EFHadCalibHypo::hltFinalize(){
   // ----------------------------------------------------------------------
   
-  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "in finalize()" << endreq;
   return HLT::OK;
 }
 
@@ -120,7 +117,7 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
   // Get the messaging service, print where you are
   
   if( msgLvl() <= MSG::DEBUG )  
-    msg() << MSG::DEBUG << "REGTEST:"<< name() << ": in execute()" << endmsg;
+    msg() << MSG::DEBUG << "REGTEST:"<< name() << ": in execute()" << endreq;
   
   // general reset
   pass = false;
@@ -135,13 +132,13 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
   const TrigRoiDescriptor* roiDescriptor = 0;
   HLT::ErrorCode status = getFeature(inputTE, roiDescriptor);
   if ( status != HLT::OK || roiDescriptor == 0 ) {
-    msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endmsg;
+    msg() <<  MSG::WARNING << " Failed to find RoiDescriptor " << endreq;
     return status;
   }
 
   if( msgLvl() <= MSG::DEBUG )
     {
-      msg() << MSG::DEBUG << "+++++++++++++++++++ mdacunha: starting new event +++++++++++++++++++" << endmsg;
+      msg() << MSG::DEBUG << "+++++++++++++++++++ mdacunha: starting new event +++++++++++++++++++" << endreq;
     }
 
   //////////////////////////////////////////////////////////
@@ -158,30 +155,30 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
       if( msgLvl() <= MSG::INFO )
 	msg() << MSG::INFO
 	      << " REGTEST: Failed to get TrackParticleContainer's from the trigger element" 
-	      << endmsg;
+	      << endreq;
       return HLT::OK;
     } 
   if(TPContainerVector.size() == 0){
     if( msgLvl() <= MSG::INFO )
       msg() << MSG::INFO << " REGTEST: Received 0 TrackParticleContainers  "
-            << endmsg;
+            << endreq;
     return HLT::OK;
   }
 
   if ( msgLvl() <= MSG::DEBUG ){
-    msg() << MSG::DEBUG << "TrackParticleContainer successfully retrieved" << endmsg;
-    msg() << MSG::DEBUG << "TTPContainerVector.size = " << TPContainerVector.size() << endmsg;
+    msg() << MSG::DEBUG << "TrackParticleContainer successfully retrieved" << endreq;
+    msg() << MSG::DEBUG << "TTPContainerVector.size = " << TPContainerVector.size() << endreq;
   }
 
   // TrackParticleContainer: Container with all Track Particles inside the ROI (ex. 2x0.3 x 2x0.3)
   const Rec::TrackParticleContainer* TPContainer = TPContainerVector.back();
   if ( msgLvl() <= MSG::DEBUG )
-    msg() << MSG::DEBUG << "TrackParticleContainer size: " << TPContainer->size() << endmsg;
+    msg() << MSG::DEBUG << "TrackParticleContainer size: " << TPContainer->size() << endreq;
 
   if(TPContainer->size() == 0){
     if( msgLvl() <= MSG::INFO )
       msg() << MSG::INFO << " REGTEST: Empty TrackParticleContainer. Returning "
-            << endmsg;
+            << endreq;
     return HLT::OK;
   }
 
@@ -192,9 +189,9 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
   //HLT::ErrorCode 
   status = getFeatures(inputTE, vectorOfEFPrmVtxCollections, ""); 
   if (status != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to get VxContainer from the trigger element" << endmsg;
+    msg() << MSG::ERROR << "Failed to get VxContainer from the trigger element" << endreq;
   } else if (msgLvl() <= MSG::DEBUG) 
-    msg() << MSG::DEBUG << "Got " << vectorOfEFPrmVtxCollections.size() << " VxContainer" << endmsg;
+    msg() << MSG::DEBUG << "Got " << vectorOfEFPrmVtxCollections.size() << " VxContainer" << endreq;
     
   std::vector<const VxContainer*>::iterator pPrmVtxColl    = vectorOfEFPrmVtxCollections.begin();
   std::vector<const VxContainer*>::iterator lastPrmVtxColl = vectorOfEFPrmVtxCollections.end();
@@ -205,7 +202,7 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
       if ((*pPrmVtxColl)->front()->vertexType() == 1) {
 	if (msgLvl() >= MSG::DEBUG) 
 	  msg() << MSG::DEBUG << "Selected collection with Primary Vertex label" 
-		<< (*pPrmVtxColl)->front()->vertexType() << endmsg;
+		<< (*pPrmVtxColl)->front()->vertexType() << endreq;
 	break;
       }
     }
@@ -221,7 +218,7 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
 
   const VxContainer *Vxcontainer = *pPrmVtxColl;
   beamposition=(*(Vxcontainer->begin()))->recVertex();
-  msg() << MSG::DEBUG << "PV position " << beamposition.position() << endmsg;
+  msg() << MSG::DEBUG << "PV position " << beamposition.position() << endreq;
 
   m_cutCounter++; // all initialized
     
@@ -233,17 +230,17 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
        trackIter != TPContainer->end(); ++trackIter)
     {
 
-      m_cutCounter2 = 1;
+      cutCounter2 = 1;
  
       double TrackPt = fabs( (*trackIter)->pt());
 
       if(TrackPt < m_PtMinCut)
 	{
-	  m_cutCounter = ((m_cutCounter2 > m_cutCounter) ? m_cutCounter2:m_cutCounter);
+	  m_cutCounter = ((cutCounter2 > m_cutCounter) ? cutCounter2:m_cutCounter);
 	  continue;
 	}
 
-      m_cutCounter2++; // at least one track with pt threshold
+      cutCounter2++; // at least one track with pt threshold
 
       if(m_HTpT < TrackPt)
 	m_HTpT = TrackPt;
@@ -252,7 +249,7 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
 	
       if (!m_DQtrackPass)
 	{
-	  m_cutCounter = ((m_cutCounter2 > m_cutCounter) ? m_cutCounter2:m_cutCounter);
+	  m_cutCounter = ((cutCounter2 > m_cutCounter) ? cutCounter2:m_cutCounter);
 	  continue;
 	}
 
@@ -278,11 +275,11 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
 	  const Trk::TrackParameters * param_at_calo = 0;
 
 	  if( msgLvl() <= MSG::VERBOSE ){ 
-	    msg() << MSG::VERBOSE << "Extrapolating track to calo." << endmsg;
+	    msg() << MSG::VERBOSE << "Extrapolating track to calo." << endreq;
 	    msg() << MSG::VERBOSE << "Track eta = " << (*trackIter2)->eta() << ", "
 		  << "phi = " << (*trackIter2)->phi() << ", "
 		  << "pt = "  << (*trackIter2)->pt()
-		  << endmsg;
+		  << endreq;
 	  }
 
 	  /*
@@ -303,10 +300,9 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
 						    Trk::undefined);
 	    }
 	  */
-
-// commented lines because of coverity issue: param_at_calo is always false, so 'else' dead code (D.Zanzi,4/4/16)	  
-//	  if (!param_at_calo) 
-//	    {
+	  
+	  if (!param_at_calo) 
+	    {
 	      //use non-extrapolated track direction
 	      extrapolatedEta = (*trackIter2)->eta();
 	      extrapolatedPhi = (*trackIter2)->phi();
@@ -316,14 +312,14 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
 		      << "eta = " << (*trackIter2)->eta() << " and "
 		      << "phi = " << (*trackIter2)->phi()
 		      << ". Using non-extrapolated track direction! "
-		      << endmsg;
-//	    }
+		      << endreq;
+	    }
 
-//	  else 
-//	    {
-//	      extrapolatedEta = param_at_calo->position().eta();
-//	      extrapolatedPhi = param_at_calo->position().phi();
-//	    }
+	  else 
+	    {
+	      extrapolatedEta = param_at_calo->position().eta();
+	      extrapolatedPhi = param_at_calo->position().phi();
+	    }
 
 	  double deta = fabs(extrapolatedEta - (*trackIter)->eta());
 	  double dphi = fabs(extrapolatedPhi - (*trackIter)->phi());
@@ -342,29 +338,29 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
 	    msg() << MSG::VERBOSE << "Extrapolated "
 		  << "eta = " << param_at_calo->position().eta() << " and "
 		  << "phi = " << param_at_calo->position().phi() 
-		  << ", dR = " << dr << endmsg;
+		  << ", dR = " << dr << endreq;
 
 	  delete param_at_calo;
 	}
 
       if( msgLvl() <= MSG::INFO )
 	msg() << MSG::INFO << "REGTEST: Number of tracks in iso region = " << countTracksOnDeltaR 
-	      << endmsg;
+	      << endreq;
 
       m_nTracksInIso = countTracksOnDeltaR;
 
       if(countTracksOnDeltaR > m_nMaxTracksOnDeltaR){
 	if( msgLvl() <= MSG::DEBUG )
 	  {
-	    msg() << MSG::DEBUG << "REGTEST: The selected track is not isolated. skipping" << endmsg;
-	    msg() << MSG::DEBUG << "REGTEST: checking next track (if any)" << endmsg;
+	    msg() << MSG::DEBUG << "REGTEST: The selected track is not isolated. skipping" << endreq;
+	    msg() << MSG::DEBUG << "REGTEST: checking next track (if any)" << endreq;
 	  }
 	continue;
       }
 
       pass = true;
       if( msgLvl() <= MSG::INFO )
-	msg() << MSG::INFO << " REGTEST: TE accepted !! " << endmsg;
+	msg() << MSG::INFO << " REGTEST: TE accepted !! " << endreq;
 
       m_cutCounter++; // at least one track pass isolation criteria
       
@@ -374,7 +370,7 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
 
   if( msgLvl() <= MSG::INFO )
     msg() << MSG::INFO << "REGTEST: TE rejected !!"
-	  << endmsg;
+	  << endreq;
   
   return HLT::OK;
 }
@@ -387,7 +383,7 @@ HLT::ErrorCode EFHadCalibHypo::hltTrackQualityCheck(Rec::TrackParticleContainer:
   // extrapolate to PV
   const Trk::Perigee *mp(m_toVertex->perigeeAtVertex(*(*trackIter), beamposition.position()));
   if (!mp) {
-    msg() << MSG::WARNING << "Extrapolation @ EF to vertex is failed. Skip this track." << endmsg;
+    msg() << MSG::WARNING << "Extrapolation @ EF to vertex is failed. Skip this track." << endreq;
     m_DQtrackPass = false;
     return HLT::OK;
   } 
@@ -405,22 +401,22 @@ HLT::ErrorCode EFHadCalibHypo::hltTrackQualityCheck(Rec::TrackParticleContainer:
 
   if( msgLvl() <= MSG::DEBUG )
     {
-      msg() << MSG::DEBUG << "++++++++++++ High pT track ++++++++++++" << endmsg;
+      msg() << MSG::DEBUG << "++++++++++++ High pT track ++++++++++++" << endreq;
       msg() << MSG::DEBUG
 	    << "eta = " << m_HTeta << ", "
 	    << "phi = " << m_HTphi << " and "
 	    << "pT  = " << m_HTpT * 1e-3 << "GeV"
-	    << endmsg;
+	    << endreq;
       msg() << MSG::DEBUG 
 	    << "d0  = " << m_HTd0  << ", "
 	    << "z0  = " << m_HTz0  << " and "
 	    << "p   = " << (*trackIter)->p  () * 1e-3 << "GeV"
-	    << endmsg;
+	    << endreq;
       msg() << MSG::DEBUG << "hits:"
 	    << "pix = " << m_HTnPixHit << " "
 	    << "sct = " << m_HTnSCTHit << " "
-	    << endmsg;
-      msg() << MSG::DEBUG << "+++++++++++++++++++++++++++++++++++++++" << endmsg;
+	    << endreq;
+      msg() << MSG::DEBUG << "+++++++++++++++++++++++++++++++++++++++" << endreq;
       
     }
   if (m_HTnPixHit < m_minPixHits) 
@@ -430,11 +426,11 @@ HLT::ErrorCode EFHadCalibHypo::hltTrackQualityCheck(Rec::TrackParticleContainer:
 	      << " REGTEST: This track Pixel Hits = " <<m_HTnPixHit << " "
               << "did not pass the quality threshold: " 
 	      << m_minPixHits
-	      << endmsg;
+	      << endreq;
       m_DQtrackPass = false;
       return HLT::OK;
     }
-  m_cutCounter2++; // at least one track pass the pixel hits threshold
+  cutCounter2++; // at least one track pass the pixel hits threshold
 
   if (m_HTnSCTHit < m_minSCTHits) 
     {
@@ -443,11 +439,11 @@ HLT::ErrorCode EFHadCalibHypo::hltTrackQualityCheck(Rec::TrackParticleContainer:
 	      << " REGTEST: This track SCT Hits = " << m_HTnSCTHit << " "
               << "did not pass the quality threshold: " 
 	      << m_minSCTHits
-	      << endmsg;
+	      << endreq;
       m_DQtrackPass = false;
       return HLT::OK;
     }
-  m_cutCounter2++; // at least one track pass SCT hits threshold
+  cutCounter2++; // at least one track pass SCT hits threshold
    
   if (fabs(m_HTd0 ) > m_maxD0)
     {
@@ -457,11 +453,11 @@ HLT::ErrorCode EFHadCalibHypo::hltTrackQualityCheck(Rec::TrackParticleContainer:
 	      << fabs(m_HTd0 ) << " "
               << "did not pass the quality threshold: " 
 	      << m_maxD0
-	      << endmsg;
+	      << endreq;
       m_DQtrackPass = false;
       return HLT::OK;
     }
-  m_cutCounter2++; // at least one track pass d0 threshold
+  cutCounter2++; // at least one track pass d0 threshold
 
   if (fabs( m_HTz0 ) > m_maxZ0)
     {
@@ -471,11 +467,11 @@ HLT::ErrorCode EFHadCalibHypo::hltTrackQualityCheck(Rec::TrackParticleContainer:
 	      << m_HTz0 << " "
               << "did not pass the quality threshold: " 
 	      << m_maxZ0
-	      << endmsg;
+	      << endreq;
       m_DQtrackPass = false;
       return HLT::OK;
     }
-  m_cutCounter2++; // at least one track pass z0 threshold
+  cutCounter2++; // at least one track pass z0 threshold
 
   if (fabs(m_HTeta) > m_maxEta)
     {
@@ -485,11 +481,11 @@ HLT::ErrorCode EFHadCalibHypo::hltTrackQualityCheck(Rec::TrackParticleContainer:
 	      << m_HTeta << " "
               << "did not pass the quality threshold: " 
 	      << m_maxEta
-	      << endmsg;
+	      << endreq;
       m_DQtrackPass = false;
       return HLT::OK;
     }
-  m_cutCounter2++; // at least one track pass eta threshold
+  cutCounter2++; // at least one track pass eta threshold
 
   return HLT::OK;
 
