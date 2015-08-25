@@ -194,7 +194,11 @@ namespace LVL1MUONIF {
 
     std::cout << "I am faking candidates for testing - do you really want that??" << std::endl;
 
-    std::vector<Lvl1MuVectWithBC> dataCopy[ NumberOfMuonSystem ] = m_data;
+    std::vector<Lvl1MuVectWithBC> dataCopy[ NumberOfMuonSystem ];
+
+    for ( size_t id = 0; id < NumberOfMuonSystem; id++ ) {
+      dataCopy[ id ] = m_data[ id ];
+    }
 
     for (std::vector<Lvl1MuVectWithBC>::iterator itb = dataCopy[Barrel].begin(); itb !=dataCopy[Barrel].end(); ++itb){
       (*itb).first =bcidOffset ;
