@@ -44,6 +44,11 @@ def getAFIIParticleBrokerSvc(name="ISF_AFIIParticleBrokerSvc", **kwargs):
 def getSimHitService(name="ISF_SimHitService", **kwargs):
     kwargs.setdefault('ValidationOutput'    , ISF_Flags.ValidationMode()                    )
 
+    from AthenaCommon.DetFlags import DetFlags
+    kwargs.setdefault('SimulateID', DetFlags.simulate.ID_on() )
+    kwargs.setdefault('SimulateCalo', DetFlags.simulate.Calo_on() )
+    kwargs.setdefault('SimulateMS', DetFlags.simulate.Muon_on() )
+
     from G4AtlasApps.SimFlags import simFlags
 
     if hasattr(simFlags, 'CalibrationRun') and simFlags.CalibrationRun.statusOn:
@@ -54,6 +59,15 @@ def getSimHitService(name="ISF_SimHitService", **kwargs):
 
     from ISF_Services.ISF_ServicesConf import ISF__SimHitSvc
     return ISF__SimHitSvc(name, **kwargs)
+
+def getNoG4SimHitService(name="ISF_NoG4SimHitService", **kwargs):
+    #kwargs.setdefault("SensitiveDetectorMasterTool","EmptySensitiveDetectorMasterTool")
+    #kwargs.setdefault("FastSimulationMasterTool"   ,"EmptyFastSimulationMasterTool"   )
+    return getSimHitService(name, **kwargs)
+
+def getPileupSimHitService(name="ISF_PileupSimHitService", **kwargs):
+    kwargs.setdefault('SeparateInDetPileupHits'    , True )
+    return getNoG4SimHitService(name, **kwargs)
 
 def getISFEnvelopeDefSvc(name="ISF_ISFEnvelopeDefSvc", **kwargs):
     # ATLAS common envlope definitions
@@ -66,7 +80,7 @@ def getAFIIEnvelopeDefSvc(name="ISF_AFIIEnvelopeDefSvc", **kwargs):
     from AthenaCommon.SystemOfUnits import mm
     # ATLAS common envlope definitions
     kwargs.setdefault("ISFEnvelopeDefSvc"    , "ISF_ISFEnvelopeDefSvc"         )
-    kwargs.setdefault("InDetMaxExtentZ"      , 3550.*mm                        )
+    kwargs.setdefault("InDetMaxExtentZ"      , 3549.5*mm                       )
 
     from ISF_Services.ISF_ServicesConf import ISF__AFIIEnvelopeDefSvc
     return ISF__AFIIEnvelopeDefSvc(name, **kwargs)

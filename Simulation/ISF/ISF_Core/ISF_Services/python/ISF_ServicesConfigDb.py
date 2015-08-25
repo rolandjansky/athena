@@ -24,3 +24,5 @@ addService("ISF_Services.ISF_ServicesConfig.getLongLivedParticleBrokerSvc"  , "I
 addService("ISF_Services.ISF_ServicesConfig.getParticleBrokerSvcNoOrdering" , "ISF_ParticleBrokerSvcNoOrdering"     )
 addService("ISF_Services.ISF_ServicesConfig.getAFIIParticleBrokerSvc"       , "ISF_AFIIParticleBrokerSvc"           )
 addService("ISF_Services.ISF_ServicesConfig.getSimHitService"               , "ISF_SimHitService"                   )
+addService("ISF_Services.ISF_ServicesConfig.getNoG4SimHitService"           , "ISF_NoG4SimHitService"               )
+addService("ISF_Services.ISF_ServicesConfig.getPileupSimHitService"         , "ISF_PileupSimHitService"             )
