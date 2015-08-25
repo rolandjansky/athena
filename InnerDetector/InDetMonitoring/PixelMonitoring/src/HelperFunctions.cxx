@@ -41,6 +41,29 @@ int PixelMainMon :: GetPixLayerID(int ec, int ld, bool ibl)
    return layer;
 }
 
+int PixelMainMon :: GetPixLayerIDDBM(int ec, int ld, bool ibl)
+{
+   int layer = 99;
+   if(ec==2) layer = PixLayerDBM::kECA;
+   else if(ec==-2) layer = PixLayerDBM::kECC;
+   else if(ec==0) {
+      if(ibl && ld==0) layer = PixLayerDBM::kIBL;
+      if(ld==0+ibl) layer = PixLayerDBM::kB0;
+      if(ld==1+ibl) layer = PixLayerDBM::kB1;
+      if(ld==2+ibl) layer = PixLayerDBM::kB2;
+   }else{
+      if( ec == 4 ){
+         layer = PixLayerDBM::kDBMA;
+      }
+      if( ec == -4 ){
+         layer = PixLayerDBM::kDBMC;
+         //std::cout << "[GetPixLayerDBMID] layer == +- 4 : DBM!!" << std::endl;
+      }
+      //std::cout << "[ERROR: GetPixLayerDBMID] layer == 99!!" << std::endl;
+   }
+   return layer;
+}
+
 int PixelMainMon :: GetPixLayerIDIBL2D3D(int ec, int ld, int eta, bool ibl)
 {
    int layer = 99;
@@ -51,6 +74,59 @@ int PixelMainMon :: GetPixLayerIDIBL2D3D(int ec, int ld, int eta, bool ibl)
       //std::cout << "[ERROR: GetPixLayerIDIBL2D3D] layer == 99!!" << std::endl;
    }
    return layer;
+}
+
+int PixelMainMon :: GetPixLayerIDIBL2D3DDBM(int ec, int ld, int eta, bool ibl)
+{
+   int layer = 99;
+   if(ec==0) { 
+      if(ibl && ld==0 && eta<6 && eta>-7) layer = PixLayerIBL2D3DDBM::kIBL2D;
+      if(ibl && ld==0 && !(eta<6 && eta>-7)) layer = PixLayerIBL2D3DDBM::kIBL3D;
+   }else{
+      //std::cout << "[ERROR: GetPixLayerIDIBL2D3D] layer == 99!!" << std::endl;
+   }
+   return layer;
+}
+
+int PixelMainMon :: GetPhiID(Identifier &id, const PixelID* pixID)
+{
+   int phiid = pixID->phi_module(id);
+   return phiid;
+}
+
+int PixelMainMon :: GetEtaID(Identifier &id, const PixelID* pixID, bool doIBL, bool doIBL2D3D)
+{
+   int etaid = -1;
+
+   int bec = pixID->barrel_ec(id);
+   int ld  = pixID->layer_disk(id);
+
+   if(bec==2 || bec == -2) etaid = ld;
+   else if(bec==0)
+   {
+      if(doIBL){ld--;}
+      int em  = pixID->eta_module(id);
+      if(ld == 0 || ld == 1 || ld == 2) etaid = em;
+      else if(ld ==-1){
+	      int feid = 0;
+	      int emf = 0;
+	      if(em<6 && em>-7){
+	         if(pixID->eta_index(id) >= 80) feid = 1;
+	         emf = 2 * em + feid; 
+	         etaid = em;
+	      }
+	      else if(em<-6){
+	         emf = em - 6;
+	         etaid = em+10;
+	      }
+	      else{
+	         emf = em + 6;
+	         etaid = em-2;
+	      }
+	      if(!doIBL2D3D) etaid = emf;
+      }
+   }
+   return etaid;
 }
 
 void PixelMainMon :: TH1FFillMonitoring(TH1F_LW* mon, TH1F_LW* tmp)

@@ -22,8 +22,10 @@ PixelMon2DMaps::PixelMon2DMaps(std::string name, std::string title)
    B0 = new TH2F((name+"_B0").c_str(),      (title + ", B0 "  + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,22,-0.5,21.5);
    B1 = new TH2F((name+"_B1").c_str(),      (title + ", B1 "  + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,38,-0.5,37.5);
    B2 = new TH2F((name+"_B2").c_str(),      (title + ", B2 "  + ";eta index of module;phi index of module").c_str(),13,-6.5,6.5,52,-0.5,51.5);
-   A  = new TH2F((name+"_A" ).c_str(),      (title + ", ECA "             + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
-   C  = new TH2F((name+"_C" ).c_str(),      (title + ", ECC "             + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
+   A  = new TH2F((name+"_ECA" ).c_str(),    (title + ", ECA "          + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
+   C  = new TH2F((name+"_ECC" ).c_str(),    (title + ", ECC "          + ";disk number;phi index of module").c_str(),         3,-0.5,2.5,48,-0.5,47.5);
+   DBMA = new TH2F((name+"_DBMA" ).c_str(), (title + ", DBMA "         + ";layer number;phi index of telescope").c_str(),     3,-0.5,2.5,4,-0.5,3.5);
+   DBMC = new TH2F((name+"_DBMC" ).c_str(), (title + ", DBMC "         + ";layer number;phi index of telescope").c_str(),     3,-0.5,2.5,4,-0.5,3.5);
 
    formatHist();
 }
@@ -38,6 +40,8 @@ PixelMon2DMaps::~PixelMon2DMaps()
    delete B2;
    delete A;
    delete C;
+   delete DBMA;
+   delete DBMC;
 }
 
 void PixelMon2DMaps::Reset()
@@ -50,6 +54,8 @@ void PixelMon2DMaps::Reset()
    B2->Reset();
    A->Reset();
    C->Reset();
+   DBMA->Reset();
+   DBMC->Reset();
 }
 
 void PixelMon2DMaps::Fill(Identifier &id, const PixelID* pixID, bool doIBL)
@@ -60,7 +66,8 @@ void PixelMon2DMaps::Fill(Identifier &id, const PixelID* pixID, bool doIBL)
 
    if(bec==2) A->Fill(ld, pm);
    else if(bec==-2) C->Fill(ld, pm);
-
+   else if(bec==4) DBMA->Fill(ld, pm);
+   else if(bec==-4) DBMC->Fill(ld, pm);
    else if(bec==0)
    {
       if(doIBL){ld--;}
@@ -103,6 +110,8 @@ void PixelMon2DMaps::WeightingFill(Identifier &id, const PixelID* pixID, bool do
 
    if(bec==2) A->Fill(ld, pm, weight);
    else if(bec==-2) C->Fill(ld, pm, weight);
+   else if(bec==4) DBMA->Fill(ld, pm, weight);
+   else if(bec==-4) DBMC->Fill(ld, pm, weight);
 
    else if(bec==0)
    {
@@ -146,6 +155,8 @@ void PixelMon2DMaps::Scale (double number, bool doIBL)
 
    A->Scale((float)  1.0/number);
    C->Scale((float)  1.0/number);
+   DBMA->Scale((float)  1.0/number);
+   DBMC->Scale((float)  1.0/number);
    B0->Scale((float) 1.0/number);
    B1->Scale((float) 1.0/number);
    B2->Scale((float) 1.0/number);
@@ -160,6 +171,8 @@ void PixelMon2DMaps::ScaleBynPixnEvt(int nevent, bool doIBL)
 //void PixelMon2DMaps::FillNormalized(PixelMon2DMaps* old, int nevent, int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC, bool doIBL)
 //void PixelMon2DMaps::FillNormalized(PixelMon2DMaps* old, int nevent, int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC)
 {
+   double nactivechannels_DBMA   = 1.0*nevent*46080;
+   double nactivechannels_DBMC   = 1.0*nevent*46080;
    double nactivechannels_ECA   = 1.0*nevent*46080;
    double nactivechannels_ECC   = 1.0*nevent*46080;
    double nactivechannels_IBL2D = 1.0*nevent*26880*2;
@@ -171,6 +184,8 @@ void PixelMon2DMaps::ScaleBynPixnEvt(int nevent, bool doIBL)
 
    if (nevent==0) return; //shouldn't happen the way function is called, but dummy check to avoid divide by zero
 
+   DBMA->Scale((float)  1.0/nactivechannels_DBMA);
+   DBMC->Scale((float)  1.0/nactivechannels_DBMC);
    A->Scale((float)  1.0/nactivechannels_ECA);
    C->Scale((float)  1.0/nactivechannels_ECC);
    B0->Scale((float) 1.0/nactivechannels_B0);
@@ -229,6 +244,20 @@ void PixelMon2DMaps::ScaleBynPixnEvt(int nevent, bool doIBL)
 
 void PixelMon2DMaps::Fill2DMon(PixelMon2DMaps* oldmap)
 {
+   for(int x=1; x<=DBMA->GetNbinsX(); x++){
+      for(int y=1; y<=DBMA->GetNbinsY(); y++){
+         float content = oldmap->DBMA->GetBinContent(x, y);
+         DBMA->SetBinContent(x, y, content);
+         oldmap->DBMA->SetBinContent(x, y, 0);
+      }
+   }
+   for(int x=1; x<=DBMC->GetNbinsX(); x++){
+      for(int y=1; y<=DBMC->GetNbinsY(); y++){
+         float content = oldmap->DBMC->GetBinContent(x, y);
+         DBMC->SetBinContent(x, y, content);
+         oldmap->DBMC->SetBinContent(x, y, 0);
+      }
+   }
    for(int x=1; x<=A->GetNbinsX(); x++){
       for(int y=1; y<=A->GetNbinsY(); y++){
          float content = oldmap->A->GetBinContent(x, y);
@@ -288,8 +317,10 @@ void PixelMon2DMaps::Fill2DMon(PixelMon2DMaps* oldmap)
 }
 
 
-void PixelMon2DMaps::ScaleByNChannels(int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC)
+void PixelMon2DMaps::ScaleByNChannels(int nActive_IBL2D, int nActive_IBL3D, int nActive_B0, int nActive_B1, int nActive_B2, int nActive_ECA, int nActive_ECC, int nActive_DBMA, int nActive_DBMC)
 {
+   double nactivechannels_DBMA   = 1.0*26880*nActive_DBMA;
+   double nactivechannels_DBMC   = 1.0*26880*nActive_DBMC;
    double nactivechannels_ECA   = 1.0*46080*nActive_ECA;
    double nactivechannels_ECC   = 1.0*46080*nActive_ECC;
    double nactivechannels_IBL2D = 1.0*26880*2*nActive_IBL2D;
@@ -299,6 +330,8 @@ void PixelMon2DMaps::ScaleByNChannels(int nActive_IBL2D, int nActive_IBL3D, int 
    double nactivechannels_B1    = 1.0*46080*nActive_B1;
    double nactivechannels_B2    = 1.0*46080*nActive_B2;
 
+   if(nActive_DBMA>0) DBMA->Scale((double) 1.0/nactivechannels_DBMA);
+   if(nActive_DBMC>0) DBMC->Scale((double) 1.0/nactivechannels_DBMC);
    if(nActive_ECA>0)  A->Scale((double) 1.0/nactivechannels_ECA);
    if(nActive_ECC>0)  C->Scale((double) 1.0/nactivechannels_ECC);
    if(nActive_B0>0)   B0->Scale((double) 1.0/nactivechannels_B0);
@@ -312,8 +345,10 @@ void PixelMon2DMaps::ScaleByNChannels(int nActive_IBL2D, int nActive_IBL3D, int 
 void PixelMon2DMaps::formatHist()
 {
    const int ndisk = 3;
+   const int nphi_dbm  = 4;
    const int nphi  = 48;
    const char *disk[ndisk] = { "Disk 1", "Disk 2", "Disk 3" };
+   const char *phi_dbm[nphi_dbm] = { "M1","M2","M3","M4"};
    const int nmod = 13;
    const int nmodIBL2D = 12;
    const int nmodIBL3D = 8;
@@ -394,10 +429,17 @@ void PixelMon2DMaps::formatHist()
       A->GetYaxis()->SetBinLabel( i+1, nstaveA[i] );
       C->GetYaxis()->SetBinLabel( i+1, nstaveC[i] );
    }
+   for (int i=0; i<nphi_dbm; i++) 
+   {
+      DBMA->GetYaxis()->SetBinLabel( i+1, phi_dbm[i] );
+      DBMC->GetYaxis()->SetBinLabel( i+1, phi_dbm[i] );
+   }
    for (int i=0; i<ndisk; i++) 
    {
       A->GetXaxis()->SetBinLabel( i+1, disk[i] );
       C->GetXaxis()->SetBinLabel( i+1, disk[i] );
+      DBMA->GetXaxis()->SetBinLabel( i+1, disk[i] );
+      DBMC->GetXaxis()->SetBinLabel( i+1, disk[i] );
    }
    for (int i=0; i<nmod; i++) 
    {
@@ -455,6 +497,8 @@ void PixelMon2DMaps::formatHist()
    B2->GetYaxis()->SetLabelSize(0.03);
    A->GetYaxis()->SetLabelSize(0.02);
    C->GetYaxis()->SetLabelSize(0.02);
+   DBMA->GetYaxis()->SetLabelSize(0.02);
+   DBMC->GetYaxis()->SetLabelSize(0.02);
    //Move the lable so you can read it
    IBL2D->GetYaxis()->SetTitleOffset(1.35);
    IBL3D->GetYaxis()->SetTitleOffset(1.35);
@@ -464,6 +508,8 @@ void PixelMon2DMaps::formatHist()
    B2->GetYaxis()->SetTitleOffset(1.35);
    A->GetYaxis()->SetTitleOffset(1.35);
    C->GetYaxis()->SetTitleOffset(1.35);
+   DBMA->GetYaxis()->SetTitleOffset(1.35);
+   DBMC->GetYaxis()->SetTitleOffset(1.35);
    //put histograms in the easier to read colz format
    IBL2D->SetOption("colz");
    IBL3D->SetOption("colz");
@@ -473,6 +519,8 @@ void PixelMon2DMaps::formatHist()
    B2->SetOption("colz");
    A->SetOption("colz");
    C->SetOption("colz");
+   DBMA->SetOption("colz");
+   DBMC->SetOption("colz");
    //force the minimum to be 0 so you can spot empty blocks easily
    IBL2D->SetMinimum(0.);
    IBL3D->SetMinimum(0.);
@@ -482,6 +530,8 @@ void PixelMon2DMaps::formatHist()
    B2->SetMinimum(0.);
    A->SetMinimum(0.);
    C->SetMinimum(0.);
+   DBMA->SetMinimum(0.);
+   DBMC->SetMinimum(0.);
    //Remvoe the stats box because it's in the way
    IBL2D->SetStats(0.);
    IBL3D->SetStats(0.);
@@ -491,6 +541,8 @@ void PixelMon2DMaps::formatHist()
    B2->SetStats(0.);
    A->SetStats(0.);
    C->SetStats(0.);
+   DBMA->SetStats(0.);
+   DBMC->SetStats(0.);
 
 }
 
@@ -504,6 +556,8 @@ StatusCode PixelMon2DMaps::regHist(ManagedMonitorToolBase::MonGroup &group)
    sc = group.regHist(B2);
    sc = group.regHist(A);
    sc = group.regHist(C);
+   sc = group.regHist(DBMA);
+   sc = group.regHist(DBMC);
    
    return sc;
 }

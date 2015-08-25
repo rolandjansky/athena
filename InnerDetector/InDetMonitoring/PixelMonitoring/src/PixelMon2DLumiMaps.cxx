@@ -19,8 +19,8 @@ PixelMon2DLumiMaps::PixelMon2DLumiMaps(std::string name, std::string title,std::
   B0lbm = TH2F_LW::create((name+"_2D_Map_B0").c_str(),  (title + ", B0 "  + " (Map);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,286,-0.5,285.5);
   B1lbm = TH2F_LW::create((name+"_2D_Map_B1").c_str(),  (title + ", B1 "  + " (Map);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,494,-0.5,493.5);
   B2lbm = TH2F_LW::create((name+"_2D_Map_B2").c_str(),  (title + ", B2 "  + " (Map);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,676,-0.5,675.5);
-  Albm  = TH2F_LW::create((name+"_2D_Map_A" ).c_str(),  (title + ", ECA " + " (Map);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,144,-0.5,143.5);
-  Clbm  = TH2F_LW::create((name+"_2D_Map_C" ).c_str(),  (title + ", ECC " + " (Map);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,144,-0.5,143.5);
+  Albm  = TH2F_LW::create((name+"_2D_Map_ECA" ).c_str(),(title + ", ECA " + " (Map);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,144,-0.5,143.5);
+  Clbm  = TH2F_LW::create((name+"_2D_Map_ECC" ).c_str(),(title + ", ECC " + " (Map);LB;Module;" + zlabel).c_str(),2500,-0.5,2499.5,144,-0.5,143.5);
 
   formatHist(doIBL,errorHist);
 }
