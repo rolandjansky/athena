@@ -18,7 +18,6 @@
 #include "TH1F.h"   
 #include "TH1I.h"   
 #include "TH2F.h"
-#include "TH3F.h"
 #include "TH2I.h"
 #include "TString.h"
 #include "LWHists/TH1F_LW.h"
@@ -60,7 +59,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    /// error label
    static const int nerror = ErrorCategory::COUNT;
    static const int nerror_modrod = ErrorCategoryMODROD::COUNT;
-   const std::string errorType[nerror_modrod] = {"SyncErrors_Mod", "SyncErrors_ROD", "TruncErrors_Mod", "TruncErrors_ROD", "OpticalErrors_RODMod", "SEUErrors_RODMod", "TimeoutErrors_RODMod"};
+   const std::string errorType[nerror_modrod] = {"SyncErrors_Mod", "SyncErrors_ROD", "TruncErrors_Mod", "TruncErrors_ROD", "OpticalErrors", "SEUErrors", "TimeoutErrors"};
    const std::string errorType2[nerror_modrod] = {"SyncErrors_Mod", "SyncErrors_ROD", "TruncErrors_Mod", "TruncErrors_ROD", "Preamble/headerErrors", "SEUErrors", "TimeoutErrors"};
    const std::string errorCategory[nerror] = {"SyncErrors", "TruncErrors", "OpticalErrors", "SEUErrors", "TimeoutErrors"};
    const std::string errorCategory2[nerror] = {"SyncErrors", "TruncErrors", "Preamble/headerErrors", "SEUErrors", "TimeoutErrors"};
@@ -71,69 +70,51 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    const std::string modlabel2[nlayersIBL2d3d] = {"ECA", "ECC", "B0", "B1", "B2", "IBL", "IBL2D", "IBL3D"};
 
    unsigned int  nmod_eta[nlayers] = {3, 3, 13, 13, 13, 32};
-   //float min_eta[nlayers] = {-0.5, -0.5, -6.5, -6.5, -6.5, -16.5};
-   //float max_eta[nlayers] = {2.5, 3.5, 6.5, 6.5, 6.5, 15.5};
+   float min_eta[nlayers] = {-0.5, -0.5, -6.5, -6.5, -6.5, -16.5};
+   float max_eta[nlayers] = {2.5, 3.5, 6.5, 6.5, 6.5, 15.5};
 
    /// Set the number of bins, max/min bin
-   std::string atext_LB = ";lumi block"; 
-   std::string atext_err = ";# errors/event"; 
-   std::string atext_erf = ";# errors/module/event"; 
-   std::string atext_erb = ";Error bit"; 
-   std::string atext_ers = ";Error state"; 
    std::string axisTitle_LB = ";lumi block;# errors/event";
    std::string axisTitle_ES = ";Error State;# Errors";
-   int nbins_LB = m_lbRange; float minbin_LB = -0.5; float maxbin_LB = minbin_LB + (1.0*nbins_LB);
+   int nbins_LB = 2500; float minbin_LB = -0.5; float maxbin_LB = minbin_LB + (1.0*nbins_LB);
    int nbins_ES = 32;   float minbin_ES = -0.5; float maxbin_ES = minbin_ES + (1.0*nbins_ES);
    std::string tmp;
    std::string tmp2;
    std::string tmp3[nerror] = {"SyncErrorsFrac_per_event", "TruncationErrorsFrac_per_event", "OpticalErrorsFrac_per_event", "SEUErrorsFrac_per_event", "TimeoutErrorsFrac_per_event"};
-   std::string hname;
-   std::string htitles;
 
-
-   hname = makeHistname("SyncErrors_per_lumi_PIX", false);
-   htitles = makeHisttitle("Average Synchronization errors per event, PIXEL BARREL", (atext_LB+atext_err), false);
-   sc = rodHistos.regHist(m_SyncErrors_per_lumi_PIX = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
 
    for( int i=0; i<nlayersIBL2d3d; i++){
-      hname = makeHistname(("errors_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average number of errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
-      sc = rodHistos.regHist(m_errors_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
-
-      hname = makeHistname(("SyncErrors_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average Synchronization errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
-      sc = rodHistos.regHist(m_SyncErrors_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
-
-      hname = makeHistname(("OpticalErrors_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average Preamble/header errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
-      sc = rodHistos.regHist(m_OpticalErrors_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
-
-      hname = makeHistname(("SEUErrors_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average SEU errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
-      sc = rodHistos.regHist(m_SEU_Errors_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
-
-      hname = makeHistname(("TruncationErrors_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average Truncation errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
-      sc = rodHistos.regHist(m_TruncationErrors_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
-
-      hname = makeHistname(("TimeoutErrors_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average Timeout errors per event, "+modlabel2[i]), (atext_LB+atext_err), false);
-      sc = rodHistos.regHist(m_TimeoutErrors_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
-
-      hname = makeHistname(("ErrorBit_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average Errors per module per event, "+modlabel2[i]), (atext_LB+atext_erb+atext_err), false);
-      sc = rodHistos.regHist(m_ErrorBit_per_lumi_mod[i] = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB, 31, 0., 31.));
+      tmp = "errors_per_lumi_" + modlabel2[i];
+      tmp2 = "Number of errors per event per LB, " + modlabel2[i] + m_histTitleExt + axisTitle_LB;
+      sc = rodHistos.regHist(m_errors_per_lumi_mod[i] = TProfile_LW::create( tmp.c_str(), tmp2.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+      tmp = "SyncErrors_per_lumi_" + modlabel2[i];
+      tmp2 = "Synchronization errors per event per LB, " + modlabel2[i] + m_histTitleExt + axisTitle_LB;
+      sc = rodHistos.regHist(m_SyncErrors_per_lumi_mod[i] = TProfile_LW::create( tmp.c_str(), tmp2.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+      tmp = "OpticalErrors_per_lumi_" + modlabel2[i];
+      tmp2 = "Preamble/header errors per event per LB, " + modlabel2[i] + m_histTitleExt + axisTitle_LB;
+      sc = rodHistos.regHist(m_OpticalErrors_per_lumi_mod[i] = TProfile_LW::create( tmp.c_str(), tmp2.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+      tmp = "SEUErrors_per_lumi_" + modlabel2[i];
+      tmp2 = "SEU errors per event per LB, " + modlabel2[i] + m_histTitleExt + axisTitle_LB;
+      sc = rodHistos.regHist(m_SEU_Errors_per_lumi_mod[i] = TProfile_LW::create( tmp.c_str(), tmp2.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+      tmp = "TruncationErrors_per_lumi_" + modlabel2[i];
+      tmp2 = "Truncation errors per event per LB, " + modlabel2[i] + m_histTitleExt + axisTitle_LB;
+      sc = rodHistos.regHist(m_TruncationErrors_per_lumi_mod[i] = TProfile_LW::create( tmp.c_str(), tmp2.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+      tmp = "TimeoutErrors_per_lumi_" + modlabel2[i];
+      tmp2 = "Timeout errors per event per LB, " + modlabel2[i] + m_histTitleExt +  axisTitle_LB;
+      sc = rodHistos.regHist(m_TimeoutErrors_per_lumi_mod[i] = TProfile_LW::create( tmp.c_str(), tmp2.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+      tmp = "ErrorBit_per_lumi_" + modlabel2[i];
+      tmp2 = "Errors per event per LB, " + modlabel2[i] + m_histTitleExt +  axisTitle_LB;
+      sc = rodHistos.regHist(m_ErrorBit_per_lumi_mod[i] = TProfile2D_LW::create( tmp.c_str(), tmp2.c_str(), nbins_LB, minbin_LB, maxbin_LB, 31, 0., 31.));
       m_ErrorBit_per_lumi_mod[i]->SetOption("colz");
-
-      hname = makeHistname(("Error_per_lumi_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Average Errors per module per event, "+modlabel2[i]), (atext_LB+atext_ers+atext_err), false);
-      sc = rodHistos.regHist(m_Error_per_lumi_mod[i] = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB, 7, 0., 7.));
+      tmp = "Error_per_lumi_" + modlabel2[i];
+      tmp2 = "Errors per event per LB, " + modlabel2[i] + m_histTitleExt +  axisTitle_LB;
+      sc = rodHistos.regHist(m_Error_per_lumi_mod[i] = TProfile2D_LW::create( tmp.c_str(), tmp2.c_str(), nbins_LB, minbin_LB, maxbin_LB, 7, 0., 7.));
       m_Error_per_lumi_mod[i]->SetOption("colz");
 
       for( int j=0; j<nerror; j++){
-         hname = makeHistname((tmp3[j]+"_"+modlabel2[i]), false);
-         htitles = makeHisttitle((tmp3[j]+", "+modlabel2[i]), (atext_LB+atext_erf), false);
-         sc = rodHistos.regHist(m_ErrorFraction_per_evt[j][i] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+         tmp = tmp3[j] + "_" + modlabel2[i];
+         tmp2 = tmp3[j] + ", " + modlabel2[i] + m_histTitleExt + ";lumi block;# errors/(module, event)";
+         sc = rodHistos.regHist(m_ErrorFraction_per_evt[j][i] = TProfile_LW::create( tmp.c_str(), tmp2.c_str(), nbins_LB, minbin_LB, maxbin_LB));
       }
    }
    
@@ -152,34 +133,32 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    histErrorName[7][0] = "Mod_Trunc_EoE_Overflow_errors"; histErrorName[7][1] = "Truncation Module EoE Overflow errors per event per LB";
    histErrorName[8][0] = "ROD_Trunc_HT_Limit_errors";     histErrorName[8][1] = "Truncation ROD H/T Limit errors per event per LB";
    histErrorName[9][0] = "ROD_Trunc_ROD_OF_errors";       histErrorName[9][1] = "Truncation ROD Overflow errors per event per LB";
-   histErrorName[10][0] = "Optical_Errors";               histErrorName[10][1]= "Preamble/header Errors per event per LB";
-   histErrorName[11][0] = "SEU_Hit_Parity";               histErrorName[11][1]= "SEU Hit Parity errors per event per LB";
-   histErrorName[12][0] = "SEU_Register_Parity";          histErrorName[12][1]= "SEU Register Parity errors per event per LB";
-   histErrorName[13][0] = "SEU_Hamming";                  histErrorName[13][1]= "SEU Hamming Code errors per event per LB";
-   histErrorName[14][0] = "ROD_Timeout";                  histErrorName[14][1]= "ROD Formatter Timeout errors per event per LB";
-   histErrorName[15][0] = "FE_Warning";                   histErrorName[15][1]= "FE Warning errors per event per LB";
+   histErrorName[10][0] = "Optical_Errors";               histErrorName[10][1] = "Preamble/header Errors per event per LB";
+   histErrorName[11][0] = "SEU_Hit_Parity";               histErrorName[11][1] = "SEU Hit Parity errors per event per LB";
+   histErrorName[12][0] = "SEU_Register_Parity";          histErrorName[12][1] = "SEU Register Parity errors per event per LB";
+   histErrorName[13][0] = "SEU_Hamming";                  histErrorName[13][1] = "SEU Hamming Code errors per event per LB";
+   histErrorName[14][0] = "ROD_Timeout";                  histErrorName[14][1] = "ROD Formatter Timeout errors per event per LB";
+   histErrorName[15][0] = "FE_Warning";                   histErrorName[15][1] = "FE Warning errors per event per LB";
    for(int j=0; j<nerrState; j++){
       for (int i=0; i<nlayers-1; i++) {
-         hname = makeHistname((histErrorName[j][0]+"_per_lumi_"+modlabel2[i]), false);
-         htitles = makeHisttitle(("Average "+histErrorName[j][1]+", "+modlabel2[i]), (atext_LB+atext_erf), false);
-         sc = rodExpert.regHist(m_errorStates_per_lumi_mod[i][j] = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
+         tmp = histErrorName[j][0] + "_per_lumi_" + modlabel2[i];
+         tmp2 = histErrorName[j][1] + ", " + modlabel2[i] + m_histTitleExt + axisTitle_LB;
+         sc = rodExpert.regHist(m_errorStates_per_lumi_mod[i][j] = TProfile_LW::create(tmp.c_str(), tmp2.c_str(), nbins_LB, minbin_LB, maxbin_LB));
       }
       bool errorHist = false;
-      hname = makeHistname((histErrorName[j][0]+"_Map"), false);
-      htitles = makeHisttitle((histErrorName[j][1]), (atext_LB+atext_erf), false);
-      m_ErrorStateMap[j] = new PixelMon2DMapsLW(hname.c_str(), htitles.c_str(), m_doIBL, errorHist);
+      tmp = histErrorName[j][0] + "Map";
+      tmp2 = histErrorName[j][1] + m_histTitleExt;
+      m_ErrorStateMap[j] = new PixelMon2DMapsLW(tmp.c_str(), tmp2.c_str(), m_doIBL, errorHist);
       sc = m_ErrorStateMap[j]->regHist(rodExpert, m_doIBL, errorHist);
    }
 
    for( int i=0; i<nlayers; i++){
-      hname = makeHistname(("Bad_Module_Errors_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Errors for Bad Module, "+modlabel2[i]), (atext_LB+atext_erf), false);
-      sc = rodExpert.regHist(m_bad_mod_errors_mod[i]  = TH1I_LW::create(hname.c_str(), htitles.c_str(), nbins_ES, minbin_ES, maxbin_ES));
-
-      //hname = makeHistname(("Errors_EtaID_"+modlabel2[i]), false);
-      //htitles = makeHisttitle(("Errors vs Eta Module ID, "+modlabel2[i]), ";eta module ID;Error State;# Errors", false);
-      //sc = rodExpert.regHist(m_errors_etaid_mod[i] = TH2F_LW::create(hname.c_str(), htitles.c_str(), nmod_eta[i], min_eta[i], max_eta[i], 32,-0.5,31.5));
-
+      tmp = "Bad_Module_Errors_" + modlabel2[i];
+      tmp2 = "Errors for Bad Module, " + modlabel2[i] + m_histTitleExt + axisTitle_LB;
+      sc = rodExpert.regHist(m_bad_mod_errors_mod[i]  = TH1I_LW::create( tmp.c_str(), tmp2.c_str(), nbins_ES, minbin_ES, maxbin_ES));
+      tmp = "Errors_EtaID_" + modlabel2[i];
+      tmp2 = "Errors vs Eta Module ID, " + modlabel2[i] + m_histTitleExt + ";#eta module ID;Error State;# Errors";
+      sc = rodExpert.regHist(m_errors_etaid_mod[i] = TH2F_LW::create( tmp.c_str(), tmp2.c_str(), nmod_eta[i], min_eta[i], max_eta[i], 32,-0.5,31.5));
       //tmp = "Errors_EtaID_per_event_" + modlabel2[i];
       //tmp2 = "Errors vs Eta Module ID/event, " + modlabel2[i] + m_histTitleExt + ";#eta module ID;Error State;# Errors";
       //sc = rodExpert.regHist(m_errors_etaid_per_evt_mod[i] = TH2F_LW::create( tmp.c_str(), tmp2.c_str(), nmod_eta[i], min_eta[i], max_eta[i], 32,-0.5,31.5));
@@ -207,38 +186,38 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
                                    "28",                "29",                   "30",                  "31"
                                    };
 
-   //const char *disk[3] = { "Disk 1", "Disk 2", "Disk 3" };
-   //const char *mod[13] = { "M6C", "M5C", "M4C", "M3C", "M2C", "M1C", "M0","M1A", "M2A", "M3A", "M4A", "M5A", "M6A" } ;
-   //const char *modIBL[32] = {"C8","","C7","",
-	//			                 "C6","","C5","",
-	//			                 "C4","","C3","",
-	//			                 "C2","","C1","",
-	//			                 "A1","","A2","",
-	//			                 "A3","","A4","",
-	//			                 "A5","","A6","",
-	//			                 "A7","","A8",""};
+   const char *disk[3] = { "Disk 1", "Disk 2", "Disk 3" };
+   const char *mod[13] = { "M6C", "M5C", "M4C", "M3C", "M2C", "M1C", "M0","M1A", "M2A", "M3A", "M4A", "M5A", "M6A" } ;
+   const char *modIBL[32] = {"C8","","C7","",
+				                 "C6","","C5","",
+				                 "C4","","C3","",
+				                 "C2","","C1","",
+				                 "A1","","A2","",
+				                 "A3","","A4","",
+				                 "A5","","A6","",
+				                 "A7","","A8",""};
 
    for(int i=0; i<nlayers; i++){
       for( unsigned int x=1; x<=nmod_eta[i]; x++){
          if(i == PixLayer::kECA || i == PixLayer::kECC){
-            //m_errors_etaid_mod[i]->GetXaxis()->SetBinLabel(x, disk[x-1]);
+            m_errors_etaid_mod[i]->GetXaxis()->SetBinLabel(x, disk[x-1]);
             //m_errors_etaid_per_evt_mod[i]->GetXaxis()->SetBinLabel(x, disk[x-1]);
          }
          if(i >= PixLayer::kB0  && i <= PixLayer::kB2){
-            //m_errors_etaid_mod[i]->GetXaxis()->SetBinLabel(x, mod[x-1]);
+            m_errors_etaid_mod[i]->GetXaxis()->SetBinLabel(x, mod[x-1]);
             //m_errors_etaid_per_evt_mod[i]->GetXaxis()->SetBinLabel(x, mod[x-1]);
          }
          if(i == PixLayer::kIBL){
-            //m_errors_etaid_mod[i]->GetXaxis()->SetBinLabel(x, modIBL[x-1]);
+            m_errors_etaid_mod[i]->GetXaxis()->SetBinLabel(x, modIBL[x-1]);
             //m_errors_etaid_per_evt_mod[i]->GetXaxis()->SetBinLabel(x, modIBL[x-1]);
          }
       }
       for( unsigned int y=1; y<=32; y++){
          if(i != PixLayer::kIBL){
-            //m_errors_etaid_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsPIX[y-1]);
+            m_errors_etaid_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsPIX[y-1]);
             //m_errors_etaid_per_evt_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsIBL[y-1]);
          }else{
-            //m_errors_etaid_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsIBL[y-1]);
+            m_errors_etaid_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsIBL[y-1]);
             //m_errors_etaid_per_evt_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsPIX[y-1]);
          }
       }
@@ -281,6 +260,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    {
       m_errors = new PixelMonModules1D("errors", ("Errors in module:ErrorType" + m_histTitleExt + ";Number of Errors").c_str(), 7,0.5,7.5,m_doIBL);
       sc = m_errors->regHist(this,(path+"/ModulesErrors").c_str(),run,m_doIBL);
+      //const char * errorType[7] = {"synch (module)", "synch (ROD)", "trunc/high occ. (module)", "trunc/high occ. (ROD)", "optical transmission", "SEU", "timeout"};
       for(int k=0; k<7; k++) m_errors->SetBinLabel(errorType2[k].c_str(),k+1);
    }
 
@@ -291,7 +271,7 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
          sc = m_ErrorTypeMap[i]->regHist(rodHistos, m_doIBL, false);
       }
       for( int i=0; i<nerror; i++){
-         m_ErrorCategoryMap[i] = new PixelMon2DMapsLW( errorCategory[i].c_str(), (errorCategory2[i] + m_histTitleExt).c_str(), m_doIBL, false);
+         m_ErrorCategoryMap[i] = new PixelMon2DMapsLW(errorCategory[i].c_str(), (errorCategory2[i] + m_histTitleExt).c_str(), m_doIBL, false);
          sc = m_ErrorCategoryMap[i]->regHist(rodHistos, m_doIBL, false);
       }
 
@@ -305,26 +285,44 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
          }
       }
 
-   }
+      //tmp = "SyncErrors_mod"; tmp2 = "All Module Synchronization Errors"; errorHist = true;
+      //m_sync_mod_BCID1_int_LB  = new PixelMon2DLumiMaps( (tmp + "_BCID1_int_LB").c_str(), ( tmp2 + ", BCID1" + m_histTitleExt).c_str(),"# Mod BCID1 Errors",m_doIBL,errorHist);
+      //sc = m_sync_mod_BCID1_int_LB->regHist(rodExpert,m_doIBL,errorHist);
+      //m_sync_mod_BCID2_int_LB  = new PixelMon2DLumiMaps( (tmp + "_BCID2_int_LB").c_str(), ( tmp2 + ", BCID2" + m_histTitleExt).c_str(),"# Mod BCID2 Errors",m_doIBL,errorHist);
+      //sc = m_sync_mod_BCID2_int_LB->regHist(rodExpert,m_doIBL,errorHist);
+      //m_sync_mod_LVL1ID_int_LB = new PixelMon2DLumiMaps( (tmp + "_LVL1ID_int_LB").c_str(), ( tmp2 + ", LVL1ID" + m_histTitleExt).c_str(),"# Mod LVL1ID Errors",m_doIBL,errorHist);
+      //sc = m_sync_mod_LVL1ID_int_LB->regHist(rodExpert,m_doIBL,errorHist);
+      //tmp = "SyncErrors_rod"; tmp2 = "All ROD Synchronization Errors"; errorHist = true;
+      //m_sync_rod_BCID_int_LB   = new PixelMon2DLumiMaps( (tmp + "_BCID_int_LB").c_str(), ( tmp2 + ", BCID" + m_histTitleExt).c_str(),"# ROD BCID Errors",m_doIBL,errorHist);
+      //sc = m_sync_rod_BCID_int_LB->regHist(rodExpert,m_doIBL,errorHist);
+      //m_sync_rod_LVL1ID_int_LB = new PixelMon2DLumiMaps( (tmp + "_LVL1ID_int_LB").c_str(), ( tmp2 + ", LVL1ID" + m_histTitleExt).c_str(),"# ROD LVL1ID Errors",m_doIBL,errorHist);
+      //sc = m_sync_rod_LVL1ID_int_LB->regHist(rodExpert,m_doIBL,errorHist);
+      //tmp = "TruncErrors_mod"; tmp2 = "All Module Truncation Errors"; errorHist = true;
+      //m_trunc_mod_EOC_int_LB   = new PixelMon2DLumiMaps( (tmp + "_EOC_int_LB").c_str(), ( tmp2 + ", EoC" + m_histTitleExt).c_str(),"# Mod EoC Errors",m_doIBL,errorHist);
+      //sc = m_trunc_mod_EOC_int_LB->regHist(rodExpert,m_doIBL,errorHist);
+      //m_trunc_mod_hitOF_int_LB = new PixelMon2DLumiMaps( (tmp + "_hitOF_int_LB").c_str(), ( tmp2 + ", Hit Overflow" + m_histTitleExt).c_str(),"# Mod OF Errors",m_doIBL,errorHist);
+      //sc = m_trunc_mod_hitOF_int_LB->regHist(rodExpert,m_doIBL,errorHist);
+      //m_trunc_mod_EoEOF_int_LB = new PixelMon2DLumiMaps( (tmp + "_EoEOF_int_LB").c_str(), ( tmp2 + ", EoE Overflow" + m_histTitleExt).c_str(),"# Mod OF Errors",m_doIBL,errorHist);
+      //sc = m_trunc_mod_EoEOF_int_LB->regHist(rodExpert,m_doIBL,errorHist);
+      //tmp = "TruncErrors_rod"; tmp2 = "All ROD Truncation Errors"; errorHist = true;
+      //m_trunc_rod_HTlim_int_LB  = new PixelMon2DLumiMaps( (tmp + "_HTlim_int_LB").c_str(), ( tmp2 + ", H/T Limit" + m_histTitleExt).c_str(),"# H/T Errors",m_doIBL,errorHist);
+      //sc = m_trunc_rod_HTlim_int_LB->regHist(rodExpert,m_doIBL,errorHist);
+      //m_trunc_rod_FIFOOF_int_LB = new PixelMon2DLumiMaps( (tmp + "_FIFOOF_int_LB").c_str(), ( tmp2 + ", FIFO Overflow" + m_histTitleExt).c_str(),"# Mod OF Errors",m_doIBL,errorHist);
+      //sc = m_trunc_rod_FIFOOF_int_LB->regHist(rodExpert,m_doIBL,errorHist);
+      //tmp = "SEUErrors"; tmp2 = "All SEU Errors"; errorHist = true;
+      //m_seu_hit_parity_int_LB = new PixelMon2DLumiMaps( (tmp + "_Hit_Parity_int_LB").c_str(), ( tmp2 + ", Hit Parity" + m_histTitleExt).c_str(),"# Hit Parity Errors",m_doIBL,errorHist);
+      //sc = m_seu_hit_parity_int_LB->regHist(rodExpert,m_doIBL,errorHist);
+      //m_seu_reg_parity_int_LB = new PixelMon2DLumiMaps( (tmp + "_Reg_Parity_int_LB").c_str(), ( tmp2 + ", Register Parity" + m_histTitleExt).c_str(),"# Reg Parity Errors",m_doIBL,errorHist);
+      //sc = m_seu_reg_parity_int_LB->regHist(rodExpert,m_doIBL,errorHist);
+      //m_seu_hamming_int_LB = new PixelMon2DLumiMaps( (tmp + "_Hamming_int_LB").c_str(), ( tmp2 + ", Hamming Code" + m_histTitleExt).c_str(),"# HC Errors",m_doIBL,errorHist);
+      //sc = m_seu_hamming_int_LB->regHist(rodExpert,m_doIBL,errorHist);
 
-   hname = makeHistname("ServiceRecord_Unweighted_IBL_", false);
-   htitles = makeHisttitle("ServiceRecord Unweighted,_IBL", ";SR;Count", false);
-   sc = rodExpert.regHist(m_errors_ServiceRecordUnweight_IBL = TH1F_LW::create(hname.c_str(), htitles.c_str(), 32, -0.5, 31.5));
-
-   hname = makeHistname("ServiceRecord_Weighted_IBL_", false);
-   htitles = makeHisttitle("ServiceRecord Weighted,_IBL", ";SR;Count", false);
-   sc = rodExpert.regHist(m_errors_ServiceRecordWeight_IBL = TH1F_LW::create(hname.c_str(), htitles.c_str(), 32, -0.5, 31.5));
-
-   for (int i=0;i<32;i++){
-     if(m_errors_ServiceRecordUnweight_IBL) m_errors_ServiceRecordUnweight_IBL->GetXaxis()->SetBinLabel(i+1,errorBitsIBL[i]);
-     if(m_errors_ServiceRecordWeight_IBL) m_errors_ServiceRecordWeight_IBL->GetXaxis()->SetBinLabel(i+1,errorBitsIBL[i]);
-   }
-
-
-   for( int i=0; i<PixLayer::COUNT; i++){
-     hname   = makeHistname(("nFEswithTruncErr_"+m_modLabel_PixLayerIBL2D3D[i]), false);
-     htitles = makeHisttitle(("Number of FEs with FE EoC Trunc error, "+m_modLabel_PixLayerIBL2D3D[i]), ";lumi block;eta index of module;# FEs with errors in a module in an event;# event #times # modules", false);
-     sc = rodExpert.regHist(m_nFEswithTruncErr_mod[i] = new TH3F(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB, nmod_eta[i], -0.5, -0.5 + nmod_eta[i], 18, -0.5, 17.5));
+      //m_optical_error_int_LB = new PixelMon2DLumiMaps("Optical_Errors_int_LB", ("All Optical Errors" + m_histTitleExt).c_str(),"# Optical Errors",m_doIBL,true);
+      //sc = m_optical_error_int_LB->regHist(rodExpert,m_doIBL,true);
+      //m_timeout_int_LB = new PixelMon2DLumiMaps("ROD_Timeout_int_LB", ("All ROD Formatter Timeout Errors" + m_histTitleExt).c_str(),"# Timeout Errors",m_doIBL,true);
+      //sc = m_timeout_int_LB->regHist(rodExpert,m_doIBL,true); 
+      //m_FEwarning_int_LB = new PixelMon2DLumiMaps("FE_Warning_int_LB", ("All FE Warning Errors" + m_histTitleExt).c_str(),"# FE Warning Errors",m_doIBL,true);
+      //sc = m_FEwarning_int_LB->regHist(rodExpert,m_doIBL,true); 
    }
    if(sc.isFailure()) if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;   
    return StatusCode::SUCCESS;
@@ -342,15 +340,6 @@ StatusCode PixelMainMon::BookRODErrorLumiBlockMon(void)
    if (m_do2DMaps && !m_doOnline) {
      m_errors_LB = new PixelMon2DMapsLW("Errors_LB", ("Errors" + m_histTitleExt).c_str(), m_doIBL, true);
      sc = m_errors_LB->regHist(lumiBlockHist, m_doIBL, true);
-
-     m_errors_RODSync_mod = new PixelMon2DMapsLW("Errors_RODSync_LB",
-                                                ("Errors_RODSync" + m_histTitleExt).c_str(), m_doIBL, true);
-     sc = m_errors_RODSync_mod->regHist(lumiBlockHist, m_doIBL, true);
-
-     m_errors_ModSync_mod = new PixelMon2DMapsLW("Errors_ModSync_LB",
-                                                ("Errors_ModSync" + m_histTitleExt).c_str(), m_doIBL, true);
-     sc = m_errors_ModSync_mod->regHist(lumiBlockHist, m_doIBL, true);
-
    }
    
    if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;   
@@ -391,29 +380,6 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
       }
    }
 
-
-   static constexpr int nmod_phi[PixLayer::COUNT] = {48, 48, 22, 38, 52, 14};
-   static constexpr int nmod_eta[PixLayer::COUNT] = {3, 3, 13, 13, 13, 20};
-
-   int fewithErr_EA[ nmod_phi[PixLayer::kECA]][ nmod_eta[PixLayer::kECA]][16];
-   int fewithErr_EC[ nmod_phi[PixLayer::kECC]][ nmod_eta[PixLayer::kECC]][16];
-   int fewithErr_B0[ nmod_phi[PixLayer::kB0] ][ nmod_eta[PixLayer::kB0] ][16];
-   int fewithErr_B1[ nmod_phi[PixLayer::kB1] ][ nmod_eta[PixLayer::kB1] ][16];
-   int fewithErr_B2[ nmod_phi[PixLayer::kB2] ][ nmod_eta[PixLayer::kB2] ][16];
-   for(int i=0; i<PixLayer::COUNT; i++){
-      for( int phi=0; phi<nmod_phi[i]; phi++){
-         for(int eta=0; eta<nmod_eta[i]; eta++){
-           for(int j=0 ; j<16 ; j++){
-             if(i==PixLayer::kECA) fewithErr_EA[phi][eta][j]=0;
-             if(i==PixLayer::kECC) fewithErr_EC[phi][eta][j]=0;
-             if(i==PixLayer::kB0)  fewithErr_B0[phi][eta][j]=0;
-             if(i==PixLayer::kB1)  fewithErr_B1[phi][eta][j]=0;
-             if(i==PixLayer::kB2)  fewithErr_B2[phi][eta][j]=0;
-           }
-         }
-      }
-   }
-
    ///// Pixel ID Loop
    for (; idIt != idItEnd; ++idIt) 
    {
@@ -424,7 +390,6 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
       bool isIBL=false;
       //bool isError[16] = {false};
       bool hasError[ErrorCategory::COUNT] = {false};
-      bool hasErrorMODROD[ErrorCategoryMODROD::COUNT] = {false};
 
       if (m_ErrorSvc->isActive(id_hash) && m_pixelid->barrel_ec(WaferID)==0 && m_pixelid->layer_disk(WaferID)==0 && m_doIBL){isIBL=true;}
       
@@ -442,7 +407,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
          //if( (errors & (1<<kBit)) !=0 )
          if( (errors & (static_cast<uint64_t>(1)<<kBit)) !=0 )
          {
-            //m_errors_etaid_mod[pixlayer]->Fill( GetEtaID(WaferID, m_pixelid, m_doIBL, false), kBit);
+            m_errors_etaid_mod[pixlayer]->Fill( GetEtaID(WaferID, m_pixelid, m_doIBL, false), kBit);
 	         //TH2FSetBinScaled(m_errors_etaid_per_evt_mod[pixlayer], m_errors_etaid_mod[pixlayer], m_event);
 
 
@@ -502,39 +467,13 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
 	            }
 	       
 	            /// Count the each error
-               if( !hasErrorMODROD[ErrorType-1] ){
-                  nErrorTypes_mod[pixlayer][ErrorType-1]++;
-                  if(pixlayeribl2d3d != 0) nErrorTypes_mod[pixlayeribl2d3d][ErrorType-1]++;
-                  hasErrorMODROD[ErrorType-1] = true;
-               }
+               nErrorTypes_mod[pixlayer][ErrorType-1]++;
+               if(pixlayeribl2d3d != 0) nErrorTypes_mod[pixlayeribl2d3d][ErrorType-1]++;
                if( !hasError[kErrorCategory] ){
                   if(m_ErrorCategoryMap[kErrorCategory] && !m_doOnline) m_ErrorCategoryMap[kErrorCategory]->Fill(WaferID,m_pixelid,m_doIBL, false);
                   nErrorsCategory_permod[pixlayer][kErrorCategory]++;
                   if(pixlayeribl2d3d != 0) nErrorsCategory_permod[pixlayeribl2d3d][kErrorCategory]++;
                   hasError[kErrorCategory] = true;
-               }
-
-               ///
-               ///
-               ///
-               if( kBit==4 ){ /// EoC trunc error
-                 int fephi=0;
-                 int feeta=0;
-                 if( pixlayer == PixLayer::kB0 && GetFEID( pixlayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta) ){
-                   fewithErr_B0[m_pixelid->phi_module(WaferID)][(int)(fabs(6+m_pixelid->eta_module(WaferID)))][(int)((8*fephi)+feeta)] = 1;
-                 }
-                 if( pixlayer == PixLayer::kB1 && GetFEID( pixlayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta) ){
-                   fewithErr_B1[m_pixelid->phi_module(WaferID)][(int)(fabs(6+m_pixelid->eta_module(WaferID)))][(int)((8*fephi)+feeta)] = 1;
-                 }
-                 if( pixlayer == PixLayer::kB2 && GetFEID( pixlayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta) ){
-                   fewithErr_B2[m_pixelid->phi_module(WaferID)][(int)(fabs(6+m_pixelid->eta_module(WaferID)))][(int)((8*fephi)+feeta)] = 1;
-                 }
-                 if( pixlayer == PixLayer::kECA && GetFEID( pixlayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta) ){
-                   fewithErr_EA[m_pixelid->phi_module(WaferID)][(int)m_pixelid->layer_disk(WaferID)][(int)((8*fephi)+feeta)] = 1;
-                 }
-                 if( pixlayer == PixLayer::kECC && GetFEID( pixlayer, m_pixelid->phi_index(WaferID), m_pixelid->eta_index(WaferID), fephi, feeta) ){
-                   fewithErr_EC[m_pixelid->phi_module(WaferID)][(int)m_pixelid->layer_disk(WaferID)][(int)((8*fephi)+feeta)] = 1;
-                 }
                }
                
             } // End of if(ErrorType)
@@ -546,23 +485,10 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
                if( m_errors_int_LB[getErrorCategory(kBit, isIBL)])
                   m_errors_int_LB[getErrorCategory(kBit, isIBL)]->Fill(LBnum,WaferID,m_pixelid,1,m_doIBL,true);
             }
-
-            if(pixlayer == PixLayer::kIBL){
-              if(kBit > 7){ // part of service record
-                if(m_errors_ServiceRecordUnweight_IBL) m_errors_ServiceRecordUnweight_IBL->Fill(kBit);
-                if(m_errors_ServiceRecordWeight_IBL)   m_errors_ServiceRecordWeight_IBL->Fill(kBit, m_ErrorSvc->getServiceRecordCount(kBit));
-              }
-            }
          }//end bit shifting
       }//end for loop over bits
-	   
-      if(m_doLumiBlock){
-		   if(m_errors_ModSync_mod && hasErrorMODROD[0]) m_errors_ModSync_mod->Fill(WaferID,m_pixelid,m_doIBL, true);
-		   if(m_errors_RODSync_mod && hasErrorMODROD[1]) m_errors_RODSync_mod->Fill(WaferID,m_pixelid,m_doIBL, true);
-	   }
    } //end loop over all identifiers
  /// 
-   
    double errorSum = 0;
    for( int i=0; i<PixLayerIBL2D3D::COUNT; i++) errorSum += nErrors_mod[i];
    if(m_error_time1&&m_error_time2&&m_error_time3)FillTimeHisto(errorSum,  m_error_time1, m_error_time2, m_error_time3,10.,60.,360.);
@@ -575,20 +501,15 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
 
    for( int i=0; i<PixLayerIBL2D3D::COUNT; i++){
       for( int j=0; j<32; j++){
-         if(m_ErrorBit_per_lumi_mod[i] && nmodLayer[i] > 0) m_ErrorBit_per_lumi_mod[i]->Fill(LBnum, j, nErrorBit_mod[i][j]/nmodLayer[i]);
+         if(m_ErrorBit_per_lumi_mod[i]) m_ErrorBit_per_lumi_mod[i]->Fill(LBnum, j, nErrorBit_mod[i][j]);
       }
       for( int j=0; j<ErrorCategoryMODROD::COUNT; j++){
-         if(m_Error_per_lumi_mod[i] && nmodLayer[i] > 0) m_Error_per_lumi_mod[i]->Fill(LBnum, j, nErrorTypes_mod[i][j]/nmodLayer[i]);
+         if(m_Error_per_lumi_mod[i]) m_Error_per_lumi_mod[i]->Fill(LBnum, j, nErrorTypes_mod[i][j]);
       }
    }
 
    
    for(int i=0; i<PixLayerIBL2D3D::COUNT; i++){
-
-      m_nActivAndSync_mod[i] = nErrorsCategory_permod[i][ErrorCategory::kSync];
-      if(i == PixLayerIBL2D3D::kIBL){
-         m_nActivAndSync_mod[i] = 2*nErrorsCategory_permod[PixLayerIBL2D3D::kIBL2D][ErrorCategory::kSync] + nErrorsCategory_permod[PixLayerIBL2D3D::kIBL3D][ErrorCategory::kSync];
-      }
 
       if(m_errors_per_lumi_mod[i]) m_errors_per_lumi_mod[i]->Fill(LBnum, nErrors_mod[i]);
       if(m_SyncErrors_per_lumi_mod[i]) m_SyncErrors_per_lumi_mod[i]->Fill(LBnum, nErrorsCategory_permod[i][ErrorCategory::kSync]);
@@ -598,31 +519,10 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
       if(m_TruncationErrors_per_lumi_mod[i]) m_TruncationErrors_per_lumi_mod[i]->Fill(LBnum, nErrorsCategory_permod[i][ErrorCategory::kTrunc]);
 
       for( int j=0; j<ErrorCategory::COUNT; j++){
-         if(m_ErrorFraction_per_evt[j][i] && nmodLayer[i] > 0) m_ErrorFraction_per_evt[j][i]->Fill(LBnum, nErrorsCategory_permod[i][j]/nmodLayer[i]);
+         if(m_ErrorFraction_per_evt[j][i]) m_ErrorFraction_per_evt[j][i]->Fill(LBnum, nErrorsCategory_permod[i][j]/nmodLayer[i]);
       }
    }
-   if(m_SyncErrors_per_lumi_PIX) m_SyncErrors_per_lumi_PIX->Fill(LBnum, nErrorsCategory_permod[PixLayerIBL2D3D::kB0][ErrorCategory::kSync] + nErrorsCategory_permod[PixLayerIBL2D3D::kB1][ErrorCategory::kSync] + nErrorsCategory_permod[PixLayerIBL2D3D::kB2][ErrorCategory::kSync] );
 
-   ///
-   ///
-   ///
-   for(int i=0; i<PixLayer::COUNT; i++){
-     for( int phi=0; phi<nmod_phi[i]; phi++){
-       for(int eta=0; eta<nmod_eta[i]; eta++){
-         int nfes = 0;
-         for(int j=0 ; j<16 ; j++){
-           if(i==PixLayer::kECA) nfes += fewithErr_EA[phi][eta][j];
-           if(i==PixLayer::kECC) nfes += fewithErr_EC[phi][eta][j];
-           if(i==PixLayer::kB0)  nfes += fewithErr_B0[phi][eta][j];
-           if(i==PixLayer::kB1)  nfes += fewithErr_B1[phi][eta][j];
-           if(i==PixLayer::kB2)  nfes += fewithErr_B2[phi][eta][j];
-         }
-         //std::cout << "DDDDD " << i << " " << phi << " " << eta << " " << nfes << std::endl;
-         if(m_nFEswithTruncErr_mod[i]) m_nFEswithTruncErr_mod[i]->Fill(m_manager->lumiBlockNumber(), eta, nfes);
-       }
-     }
-   }
-      
    return StatusCode::SUCCESS;
 }
 
