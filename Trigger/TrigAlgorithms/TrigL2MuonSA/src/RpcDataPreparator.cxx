@@ -267,7 +267,6 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
              << " gasGap " << gasGap << " layer " << layer
              << endreq;
        
-       
        TrigL2MuonSA::RpcHitData lutDigit;
        
        lutDigit.x           = hitx;
@@ -282,19 +281,20 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        lutDigit.layer       = layer;
        
        rpcHits.push_back(lutDigit);
+       float r = sqrt(hitx*hitx+hity*hity);
+       float phi = atan(hity/hitx);
+       if (hitx<0 && hity>0) phi = phi + CLHEP::pi;
+       if (hitx<0 && hity<0) phi = phi - CLHEP::pi;
+       float l = sqrt(hitz*hitz+r*r);
+       float tan = sqrt( (l-hitz)/(l+hitz) );
+       float eta = -log(tan);
+       float deta = p_roids->eta() - eta;
+       float dphi = acos(cos( p_roids->phi() - phi ) );
        
-       if (m_use_RoIBasedDataAccess) 
-         rpcPatFinder->addHit(stationName, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
-       else {
-         float r = sqrt(hitx*hitx+hity*hity);
-         float phi = atan(hity/hitx);
-         if (hitx<0 && hity>0) phi = phi + CLHEP::pi;
-         if (hitx<0 && hity<0) phi = phi - CLHEP::pi;
-         float l = sqrt(hitz*hitz+r*r);
-         float tan = sqrt( (l-hitz)/(l+hitz) );
-         float eta = -log(tan);
-         float deta = p_roids->eta() - eta;
-         float dphi = p_roids->phi() - phi;
+       if (m_use_RoIBasedDataAccess) {
+         if ( fabs(deta)<0.1 && fabs(dphi)<0.1) 
+           rpcPatFinder->addHit(stationName, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
+       } else {
          if ( fabs(deta)<0.15 && fabs(dphi)<0.1) 
            rpcPatFinder->addHit(stationName, measuresPhi, gasGap, doubletR, hitx, hity, hitz);
        }

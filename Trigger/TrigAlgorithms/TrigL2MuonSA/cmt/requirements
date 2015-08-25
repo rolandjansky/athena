@@ -22,6 +22,7 @@ use MuonCnvToolInterfaces  MuonCnvToolInterfaces-*    MuonSpectrometer/MuonCnv
 use MuonMDT_Cabling	   MuonMDT_Cabling-*	      MuonSpectrometer/MuonCablings
 use MuonTGC_Cabling        MuonTGC_Cabling-*          MuonSpectrometer/MuonCablings
 use MuonRPC_Cabling        MuonRPC_Cabling-*          MuonSpectrometer/MuonCablings
+use RPCcablingInterface    RPCcablingInterface-*      MuonSpectrometer/MuonCablings
 
 use MuonRecToolInterfaces  MuonRecToolInterfaces-*    MuonSpectrometer/MuonReconstruction/MuonRecTools
 use CscClusterization      CscClusterization-*        MuonSpectrometer/MuonReconstruction/MuonDataPrep

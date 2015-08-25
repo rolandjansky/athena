@@ -47,6 +47,7 @@ class RpcPatFinder{
 		double &result_x1,
 		double &result_dMO);
   bool deltaOK(int l1, int l2, double x1, double x2, int isphi, double &delta);  
+  double calibR(std::string stationName, double R, double Phi);  
 };
 
 }

@@ -187,16 +187,16 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
      : m_options.roadParameters().deltaEtaAtInnerForHighPt();
    double mid_phi_test = m_options.roadParameters().deltaPhiAtMiddle();
    double inn_phi_test = m_options.roadParameters().deltaPhiAtInner();
+
+   // clear the hash ID vector
+   m_tgcHashList.clear();
    
-   // start conversion from RAW to RDO
-   std::vector<IdentifierHash> tgcHashList;
-   
-   m_regionSelector->DetHashIDList(TGC, *iroi, tgcHashList);
+   m_regionSelector->DetHashIDList(TGC, *iroi, m_tgcHashList);
    if(roi) delete roi;
    
    // now convert from RDO to PRD
    std::vector<IdentifierHash> inhash, outhash;
-   inhash = tgcHashList; 
+   inhash = m_tgcHashList; 
    
    if( m_tgcPrepDataProvider->decode(inhash, outhash).isFailure() ){
      msg() << MSG::ERROR << "Failed to convert from RDO to PRD" << endreq;

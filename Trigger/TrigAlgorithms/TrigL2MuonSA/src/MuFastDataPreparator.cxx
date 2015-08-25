@@ -352,9 +352,8 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   msg() << MSG::DEBUG << "nr of MDT (normal)  hits=" << mdtHits_normal.size() << endreq;
   msg() << MSG::DEBUG << "nr of MDT (overlap) hits=" << mdtHits_overlap.size() << endreq;
   
-  sc = m_cscDataPreparator->prepareData(p_roi,
+  sc = m_cscDataPreparator->prepareData(p_roids,
                                         muonRoad,
-                                        //muonRoad.aw[0][0], muonRoad.bw[0][0], muonRoad.rWidth[0][0],
                                         cscHits);
   if (!sc.isSuccess()) {
     msg() << MSG::WARNING << "Error in CSC data preparation." << endreq;

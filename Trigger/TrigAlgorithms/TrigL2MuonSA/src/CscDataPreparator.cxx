@@ -147,49 +147,23 @@ void TrigL2MuonSA::CscDataPreparator::setRoIBasedDataAccess(bool use_RoIBasedDat
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const LVL1::RecMuonRoI* p_roi,
+StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor* p_roids,
 							TrigL2MuonSA::MuonRoad& muonRoad,
 							TrigL2MuonSA::CscHits&  cscHits)
 {
-  StatusCode sc;
-
-  //
-  // Region definer, like mdtRegion, is not used for now.
-  //
-
-  sc = getCscHits(p_roi, muonRoad, cscHits);
-  if( sc!= StatusCode::SUCCESS ) {
-    msg() << MSG::ERROR << "Error in getting CSC hits" << endreq;
-    return sc;
-  }
-
-  return StatusCode::SUCCESS;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::CscDataPreparator::getCscHits(const LVL1::RecMuonRoI* p_roi,
-						       TrigL2MuonSA::MuonRoad& muonRoad,
-						       TrigL2MuonSA::CscHits&  cscHits)
-{
-  // Prepare new RoI object
-  double eta     = p_roi->eta();
-  double etaMin  = p_roi->eta() - 0.2;
-  double etaMax  = p_roi->eta() + 0.2;
-  double phi     = p_roi->phi();
-  double phiMin  = p_roi->phi() - 0.1;
-  double phiMax  = p_roi->phi() + 0.1;
-  if( phi < 0 )    phi += 2*CLHEP::pi;
-  if( phiMin < 0 ) phiMin += 2*CLHEP::pi;
-  if( phiMax < 0 ) phiMax += 2*CLHEP::pi;
-
-  TrigRoiDescriptor newRoI( eta, etaMin, etaMax, phi, phiMin, phiMax );
+  const IRoiDescriptor* iroi = (IRoiDescriptor*) p_roids;
 
   // Select RoI hits
   std::vector<IdentifierHash> cscHashIDs;
   cscHashIDs.clear();
-  m_regionSelector->DetHashIDList( CSC, newRoI, cscHashIDs );
+  if (m_use_RoIBasedDataAccess) {
+    msg() << MSG::DEBUG << "Use RoI based data access" << endreq;
+    m_regionSelector->DetHashIDList( CSC, *iroi, cscHashIDs );
+  } else {
+    msg() << MSG::DEBUG << "Use full data access" << endreq;
+    m_regionSelector->DetHashIDList( CSC, cscHashIDs );
+  }
+  msg() << MSG::DEBUG << "cscHashIDs.size()=" << cscHashIDs.size() << endreq;
 
   // Decode
   std::vector<IdentifierHash> cscHashIDs_decode;

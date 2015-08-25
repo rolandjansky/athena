@@ -7,14 +7,17 @@
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/TriggerInfo.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-#include "MuonRDO/RpcPadContainer.h"
+//#include "MuonRDO/RpcPadContainer.h"
 #include "MuonContainerManager/MuonRdoContainerAccess.h"
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
+#include "MuonRDO/RpcPadContainer.h"
+#include "Identifier/IdentifierHash.h"
 
 #include "MuCalDecode/CalibEvent.h"
 #include "MuCalDecode/CalibUti.h"
@@ -38,10 +41,12 @@ TrigL2MuonSA::MuCalStreamerTool::MuCalStreamerTool(const std::string& type,
    AthAlgTool(type,name,parent),
    m_msg(0),
    m_storeGate( "StoreGateSvc", name ),
-   m_robDataProvider(0),
    m_cid(-1),
    m_calibEvent(0),
-   m_roi(NULL)
+   m_roi(NULL),
+   m_tgcDataPreparator("TrigL2MuonSA::TgcDataPreparator")  
+
+
 {
    declareInterface<TrigL2MuonSA::MuCalStreamerTool>(this);
 
@@ -71,20 +76,71 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize()
       return sc;
    }
 
+   // Retrieve the RPC cabling service
+   ServiceHandle<IRPCcablingServerSvc> RpcCabGet ("RPCcablingServerSvc", name());
+   sc = RpcCabGet.retrieve();
+   if ( sc != StatusCode::SUCCESS ) {
+     msg() << MSG::ERROR << "Could not retrieve the RPCcablingServerSvc" << endreq;
+     return sc;
+   }
+   sc = RpcCabGet->giveCabling(m_rpcCabling);
+   if ( sc != StatusCode::SUCCESS ) {
+     msg() << MSG::ERROR << "Could not retrieve the RPC Cabling Server" << endreq;
+     return sc;
+   }
+   m_rpcCablingSvc = m_rpcCabling->getRPCCabling();
+   if ( !m_rpcCablingSvc ) {
+     msg() << MSG::ERROR << "Could not retrieve the RPC cabling svc" << endreq;
+     return StatusCode::FAILURE;
+   } 
+
+   // retrieve the TGC cabling svc
+   //   ServiceHandle<ITGCcablingServerSvc> TgcCabGet ("TGCCablingServerSvc", name());
+   //  sc = TgcCabGet.retrieve();
+   //  if ( sc != StatusCode::SUCCESS ) {
+   //   msg() << MSG::ERROR << "Could not retrieve the TGC cabling service" << endreq;
+   //   return StatusCode::FAILURE;
+   //  }
+   // sc = TgcCabGet->giveCabling(m_tgcCabling);
+   // if ( sc != StatusCode::SUCCESS ) {
+   //   msg() << MSG::ERROR << "Could not retrieve the TGC Cabling Server" << endreq;
+   //   return sc;
+   // }
+   // m_tgcCablingSvc = m_tgcCabling->getTGCCabling();
+   //if ( !m_tgcCablingSvc ) {
+   //  msg() << MSG::ERROR << "Could not retrieve the TGC cabling svc" << endreq;
+   //  return StatusCode::FAILURE;
+   //} 
+
+   sc = m_tgcDataPreparator.retrieve();
+   if ( sc.isFailure() ) { 
+     msg() << MSG::ERROR << "Could not retrieve " << m_tgcDataPreparator << endreq;                                                         
+     return sc;             
+   } 
+   msg() << MSG::DEBUG << "Retrieved service " << m_tgcDataPreparator << endreq; 
+
+   // locate the region selector
+   sc = service("RegSelSvc",m_regionSelector);
+   if ( sc.isFailure() ) {
+     msg() << MSG::ERROR << "Could not retrieve the region selector" << endreq;
+     return sc;
+   } 
+   msg() << MSG::DEBUG << "Retrieved the region selector" << endreq;
+
    // Locate ROBDataProvider
    std::string serviceName = "ROBDataProvider";
    IService* svc = 0;
    sc = service("ROBDataProviderSvc", svc);
    if(sc.isFailure()) {
-      msg() << MSG::ERROR << "Could not retrieve " << serviceName << endreq;
-      return sc;
+     msg() << MSG::ERROR << "Could not retrieve " << serviceName << endreq;
+     return sc;
    }
    m_robDataProvider = dynamic_cast<ROBDataProviderSvc*> (svc);
    if( m_robDataProvider == 0 ) {
-      msg() << MSG::ERROR << "Could not cast to ROBDataProviderSvc " << endreq;
-      return StatusCode::FAILURE;
+     msg() << MSG::ERROR << "Could not cast to ROBDataProviderSvc " << endreq;
+     return StatusCode::FAILURE;
    }
-   msg() << MSG::DEBUG << "Retrieved service " << serviceName << endreq;
+   msg() << MSG::DEBUG << "Retrieved service " << serviceName << endreq; 
 
    // initialize the local vector buffer
    m_localBuffer = new std::vector<int>();
@@ -113,7 +169,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::finalize()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::MuCalStreamerTool::openStream()
+StatusCode TrigL2MuonSA::MuCalStreamerTool::openStream(int calBufferSize)
 {
 
   std::string name = m_calBufferName;
@@ -131,14 +187,14 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::openStream()
     } 
     else {
       
-      m_cid = CircOpenCircConnection(0, (char*)name.c_str(), m_calBufferSize);
+      m_cid = CircOpenCircConnection(0, (char*)name.c_str(), calBufferSize);
       if( m_cid == -1 ) {
 	msg() << MSG::WARNING << "Could not open muon calibration buffer: name="
-	      << name << " buffer size=" << m_calBufferSize << endreq;
+	      << name << " buffer size=" << calBufferSize << endreq;
       }
       else {
 	msg() << MSG::INFO << "Opening muon calibration stream. Buffer name: " 
-	      << name << " buffer size: " << m_calBufferSize << endreq;
+	      << name << " buffer size: " << calBufferSize << endreq;
       }
       
     }
@@ -164,7 +220,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
     delete m_outputFile;
     m_outputFile = NULL;
   }
-  else if (!m_writeToFile && m_cid>-1) {
+  else if ( !m_writeToFile && m_cid>-1) {
     if (CircCloseCircConnection (0,(char*)name.c_str(),m_cid) != 0 ) {
       msg() << MSG::WARNING << "Could not close the muon calibration stream. Stream name: " 
 	    << m_calBufferName << endreq;
@@ -205,11 +261,22 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
 							      TrigL2MuonSA::TrackPattern& track,
 							      TrigL2MuonSA::MdtHits& mdtHits,
 							      TrigL2MuonSA::RpcHits& rpcHits,
+							      TrigL2MuonSA::TgcHits& tgcHits,
+							      int calBufferSize,
+							      bool doDataScouting,
 							      bool& updateTriggerElement)
 {
 
   // create the fragment
   // ( dummy input for now )
+
+  // skip the event if it's a data scouting chain and it's a noise burst
+  unsigned int totalHits = mdtHits.size()+rpcHits.size()+tgcHits.size();
+  if ( doDataScouting && totalHits > 500 ) {
+    msg()<<MSG::DEBUG<< "Too many hits: skip the RoI" << endreq;
+    updateTriggerElement=false;
+    return StatusCode::SUCCESS;
+  } 
   
   // init roi pointer
   if ( !roi ) {
@@ -247,10 +314,42 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
   float phi = (float) track.phiVtx;
   float pt  = (float) track.pt;
 
+  uint32_t mrods[4] = {0, 0, 0, 0};
+  // prepare the header information
+  std::vector<uint32_t> robIdList;
+  double etaMin = m_roi->eta()-0.05;
+  double etaMax = m_roi->eta()+0.05;
+  double phi_roi = m_roi->phi();
+  double phiMin = m_roi->phi()-0.05;
+  double phiMax = m_roi->phi()+0.05;
+  if( phi_roi < 0 ) phi_roi += 2*CLHEP::pi;     
+  if( phiMin < 0 ) phiMin += 2*CLHEP::pi;  
+  if( phiMax < 0 ) phiMax += 2*CLHEP::pi; 
+  
+  TrigRoiDescriptor* roiDescr = new TrigRoiDescriptor( m_roi->eta(), etaMin, etaMax, phi_roi, phiMin, phiMax );     
+    
+  const IRoiDescriptor* iroi = (IRoiDescriptor*) roiDescr;                                                        
+  m_regionSelector->DetROBIDListUint(MDT, *iroi, robIdList);  
 
-  uint32_t mrods[4];
+  // dump the list of robs for debugging 
+  int isize = robIdList.size()<5 ? robIdList.size() : 4; 
+  for (int ii = 0 ; ii<isize ; ++ii ) {
+    msg() << MSG::DEBUG << "robId: 0x" << std::hex << robIdList.at(ii) << std::dec << endreq;
+    mrods[ii] = robIdList.at(ii);
+  }  
+  
+  // get the list of TGC robs
+  std::vector<uint32_t> tgcRobIdList;
+  m_regionSelector->DetROBIDListUint(TGC, *iroi, tgcRobIdList);  
+  msg() << MSG::DEBUG << "Size of the tgc rob list: " << tgcRobIdList.size() << std::endl;
+
+  // get the list of CSC robs
+  std::vector<uint32_t> cscRobIdList;
+  m_regionSelector->DetROBIDListUint(CSC, *iroi, cscRobIdList);  
+  msg() << MSG::DEBUG << "Size of the tgc rob list: " << cscRobIdList.size() << std::endl;
+
+
   LVL2_MUON_CALIBRATION::CalibEvent  event(1,runId,lvl1Id,1,1,mrods,name().c_str(),eta,phi,pt);
-
   LVL2_MUON_CALIBRATION::MdtCalibFragment mdtFragment;
 
   // create the MDT fragment
@@ -264,83 +363,144 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
     event << mdtFragment;
   }
 
+  // create the RPC fragment 
   if ( rpcHits.size() > 0 ) {    
-    // create the RPC fragment 
     LVL2_MUON_CALIBRATION::RpcCalibFragment rpcFragment;
     
-    sc = createRpcFragment(rpcFragment);
+    sc = createRpcFragment(roi, rpcFragment);
     if ( sc != StatusCode::SUCCESS ) {
       msg() << MSG::ERROR << "Could not create the Rpc fragment of the calibration stream" << endreq;
     } 
-    event << rpcFragment;
+    else {
+      msg() << MSG::DEBUG << "Adding the RPC fragment to the calibration stream" << endreq;
+      event << rpcFragment;
+    }
+  }
+
+  if ( tgcHits.size() > 0 ) {    
+    LVL2_MUON_CALIBRATION::TgcCalibFragment tgcFragment;
+
+    sc = createTgcFragment(tgcRobIdList,tgcFragment);
+    if ( sc != StatusCode::SUCCESS ) {
+      msg() << MSG::ERROR << "Could not create the Tgc fragment of the calibration stream" << endreq;
+    } 
+    else {
+      msg() << MSG::DEBUG << "Adding the TGC fragment to the calibration stream" << endreq;
+      event << tgcFragment;
+    }
   }
 
 
+
+  // if there is any CSC rob, add also the CSC fragment
+  if ( cscRobIdList.size()>0 ) {
+    
+    LVL2_MUON_CALIBRATION::CscCalibFragment cscFragment;
+    sc = createCscFragment(cscRobIdList,cscFragment);
+    if ( sc != StatusCode::SUCCESS ) {
+      msg() << MSG::ERROR << "Could not create the Csc fragment of the calibration stream" << endreq;
+    } 
+    else {
+      msg() << MSG::DEBUG << "Adding the CSC fragment to the calibration stream" << endreq;
+      event << cscFragment;
+    }
+
+  } 
+
+
+
   if (m_writeToFile && m_outputFile) {                  
-    if ( m_algInstanceName=="MuFastSteering_900GeV" ) {     
-      uint16_t eventSize = event.size();       
-      uint8_t* buff = new uint8_t[eventSize];                                                                              
-      event.dumpWords(buff,eventSize); 
-      m_outputFile->write( (char*) buff, event.size() );                                                                   
-      // CID 22892: DELETE_ARRAY 
-      // delete buff; 
-      delete [] buff; 
-    }                                                                                                                      
+    uint16_t eventSize = event.size();       
+    uint8_t* buff = new uint8_t[eventSize];                                                                              
+    event.dumpWords(buff,eventSize); 
+    m_outputFile->write( (char*) buff, event.size() );                                                                   
+    // CID 22892: DELETE_ARRAY 
+    // delete buff; 
+    delete [] buff; 
   }                                                                                                                        
-  else if ( !m_doDataScouting && m_cid != -1) {  
+  else if ( !doDataScouting && m_cid != -1) {  
     uint16_t eventSize = event.size();
     char* p = NULL;  
     if ((p = CircReserve (m_cid, m_calibEvent, event.size())) != (char *) -1) { 
       uint8_t* buff = reinterpret_cast<uint8_t*>(p); 
-      // encode the event 
+      uint16_t eventSize8bits = eventSize;
+      // encode the event
       event.dumpWords(buff,eventSize); 
-      // dump the words to the circular buffer                                                                             
+      
+      // dump the encoded event to the screen
+      uint16_t eventSize32bits = eventSize8bits/4;
+      msg() << MSG::DEBUG << "Size of the CIRCULAR buffer in 8 and 32 bits words: " << eventSize8bits << " " 
+      	    << eventSize32bits << endreq;
+      for ( uint16_t words = 0 ; words != eventSize32bits ; words++)  {                 
+	uint32_t byte1 = *(buff+words*4);     
+	uint32_t byte2 = *(buff+1+words*4); 
+	uint32_t byte3 = *(buff+2+words*4); 
+	uint32_t byte4 = *(buff+3+words*4);                                                                                  
+	msg() << MSG::DEBUG << "byte1 = 0x" << std::hex << (byte1) << std::dec << endreq;
+	msg() << MSG::DEBUG << "byte2 = 0x" << std::hex << (byte2) << std::dec << endreq;
+	msg() << MSG::DEBUG << "byte3 = 0x" << std::hex << (byte3) << std::dec << endreq;
+	msg() << MSG::DEBUG << "byte4 = 0x" << std::hex << (byte4) << std::dec << endreq;
+
+      	uint32_t dataWord = (byte4 << 24) + (byte3 << 16) + (byte2 << 8) + byte1 ;
+	
+      	//	std::cout << "Number of data words: " << words << std::endl;
+      	msg() << MSG::DEBUG << "Data word " << words << " = " << std::hex << "0x" << dataWord << std::dec << endreq;
+      	
+	
+      } 
+      
+      // dump the words to the circular buffer   
       CircValidate (m_cid, m_calibEvent, p, event.size() ); 
-    }                                                                                                                      
+      
+    }                          
     else {  
-      msg() << MSG::ERROR << "Could not dump the event in the calibration stream circular buffer" << endreq;
+      msg() << MSG::DEBUG << "Could not dump the event in the calibration stream circular buffer" << endreq;
     }  
   }                                                                                                                        
-  else if ( m_doDataScouting ) { 
+  else if ( doDataScouting ) { 
 
     uint16_t eventSize_ds = event.size();  
+
     uint8_t* buff_ds = new uint8_t[eventSize_ds]; 
+
     // encode the event                                                                                                    
-    uint16_t evSize = eventSize_ds; 
-    event.dumpWords(buff_ds,evSize);                                                                                       
+    uint16_t eventSize8bits = eventSize_ds; 
+    uint16_t eventSize32bits = eventSize8bits/4;
+    event.dumpWords(buff_ds,eventSize_ds); 
+
     // fill the local buffer 
-    // dump the words also in the local buffer 
-    if ( m_localBufferSize+eventSize_ds < m_calBufferSize ) { 
-      msg() << MSG::DEBUG << "Updating the muon calibration buffer" << endreq; 
-      updateTriggerElement = false; 
+    // dump the words also in the local buffer     
+    // dump the encoded event to the screen
+    msg() << MSG::DEBUG << "Size of the DATASCOUTING buffer in 32 bits words: " << eventSize32bits << endreq;
+    for ( uint16_t words = 0 ; words != eventSize32bits ; words++)  {                 
+      uint32_t byte1 = *(buff_ds+words*4);  
+      uint32_t byte2 = *(buff_ds+1+words*4); 
+      uint32_t byte3 = *(buff_ds+2+words*4);  
+      uint32_t byte4 = *(buff_ds+3+words*4); 
 
-      for (int i=0 ; i<eventSize_ds ; ++i ) { 
-        m_localBuffer->push_back(buff_ds[i]); 
-      }                                                                                                                    
-      m_localBufferSize += eventSize_ds; 
-      msg() << MSG::INFO << "Updated size of the buffer: " << m_localBufferSize << endreq; 
-    }                                                                                                                      
-    // close the trigger object to be passed to the trigger element  
-    else {  
+      // encoding in big-endian for now ( revert order for little-endian )
+      uint32_t dataWord = (byte4 << 24) + (byte3 << 16) + (byte2 << 8) + byte1 ;
+      //	std::cout << "Number of data words: " << words << std::endl;
+      msg() << MSG::DEBUG << "Data word " << words << " = " << std::hex << "0x" << dataWord << std::dec << endreq;
       
-      // if it's the first event fill the buffer 
-      if (m_localBufferSize == 0) {  
-        msg() << MSG::INFO << "Updating the muon calibration buffer" << endreq;  
-        for (int i=0 ; i<eventSize_ds ; ++i ) {   
-          m_localBuffer->push_back(buff_ds[i]); 
-        }  
-        m_localBufferSize += eventSize_ds; 
-        msg() << MSG::INFO << "Updated size of the buffer: " << m_localBufferSize << endreq; 
-	
-      }                                                                                                                    
-                                                                                                                 
-      updateTriggerElement = true;
+      m_localBuffer->push_back(dataWord);
+    }
+    m_localBufferSize += eventSize32bits; 
 
-      m_localBufferSize = 0;  
+    if ( m_localBufferSize< calBufferSize ) { 
+      msg() << MSG::DEBUG << "Local buffer size = " << m_localBufferSize << endreq;
+      msg() << MSG::DEBUG << "Trigger element not to be updated yet " << endreq;
+      updateTriggerElement = false; 
     }                                                                                                                      
-    
+    else {
+      msg() << MSG::DEBUG << "Local buffer size = " << m_localBufferSize << endreq;
+      msg() << MSG::DEBUG << "Attach the buffer to the trigger element " << endreq;
+
+      updateTriggerElement = true;
+    } 
+
     delete [] buff_ds;
-  }                  
+  }                
                                                                                                       
   m_calibEvent++;
   
@@ -385,145 +545,299 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createMdtFragment(TrigL2MuonSA::MdtH
   return StatusCode::SUCCESS;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////
 //
 // prepare the Rpc fragment of the stream
 //
-StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(LVL2_MUON_CALIBRATION::RpcCalibFragment& /*rpcFragment*/)
+//////////////////////////////////////////////////////////////////////////////////////////
+StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuonRoI* roi,
+							      LVL2_MUON_CALIBRATION::RpcCalibFragment& rpcFragment)
 {
 
-  /*  
-  // access the pad ( to be replaced by the usage of RpcDataPreparator
-  unsigned short int subsystemID =  m_roi->subsysID();
-  //  unsigned short int sectorID    =  m_roi->sectorID();
-  //  unsigned short int roiNumber   =  m_roi->getRoINumber();
-  
-  const RpcPad* rpcPad = 0;
-  //unsigned int subsys_id = (subsystemID==1)? 0x65 : 0x66;
-  //  unsigned int robId     = (subsys_id << 16) | (sectorID/2);
-  
-  // now retrieve the rpc pad correspondig to the RoI
-  //  StatusCode sc = getRpcPad(robId,subsystemID,sectorID,roiNumber,rpcPad);
-  //  if( sc != StatusCode::SUCCESS ) {
-  //    msg() << MSG::ERROR << "getRpcPad failed: sc=" << sc << endreq;
-  //    return sc;
-  //  }
-  
-  if(rpcPad) {
-    uint16_t sector = rpcPad->sector();
-    uint16_t sysId  = (sector<32)? 0x66 : 0x65;
-    uint16_t secId  = sector%32;
-    uint16_t padId  = rpcPad->onlineId();
-    uint16_t status = rpcPad->status();
-    uint16_t error  = rpcPad->errorCode();
-    
-    LVL2_MUON_CALIBRATION::RpcCalibFragment frag(sysId,secId,padId,status,error);
-    rpcFragment = frag;
+  // exit if it's not in the barrel
+  if ( roi->sysID() != 0 ) return StatusCode::SUCCESS;
+ 
+  // retrieve the padId from the RecMuonRoi
+  unsigned int    roIWord=roi->roiWord();
 
-    RpcPad::const_iterator it3 = rpcPad->begin(); 
-    for (; it3!=rpcPad->end() ; ++it3) {
-      const RpcCoinMatrix * cma = (*it3);
+  //  decode  roIWord
+  unsigned int sectorAddress = (roIWord & 0x003FC000) >> 14;
+  unsigned int sectorRoIOvl  = (roIWord & 0x000007FC) >> 2;
+  unsigned int side =  sectorAddress & 0x00000001;
+  unsigned int sector = (sectorAddress & 0x0000003e) >> 1;
+  unsigned int roiNumber =  sectorRoIOvl & 0x0000001F;
+  //  unsigned int padNumber = roiNumber/4; 
+  
+
+  unsigned int logic_sector;
+  unsigned short int PADId;
+  Identifier padId;
+  
+  // retrieve the pad container
+  const RpcPadContainer* rpcPadContainer; 
+  StatusCode sc = m_storeGate->retrieve(rpcPadContainer,"RPCPAD");
+  if ( sc != StatusCode::SUCCESS ) { 
+    msg() << MSG::ERROR << "Could not retrieve the " << endreq;
+    return sc;
+  }
+
+//  std::cout << ">>>>>>>>>>>>>>>>>>> ROI PARAMETERS" << std::endl;
+//  std::cout << "sectorAddress: " << sectorAddress << std::endl;
+//  std::cout << "sectorRoIOvl : " << sectorRoIOvl << std::endl;
+//  std::cout << "side         : " << side << std::endl;
+//  std::cout << "sector       : " << sector << std::endl;
+//  std::cout << "roiNumber    : " << roiNumber << std::endl;
+//  std::cout << "padNumber    : " << padNumber << std::endl;
+
+  unsigned int padIdHash;
+
+  if ( m_rpcCablingSvc->give_PAD_address( side, sector, roiNumber, logic_sector, PADId, padIdHash) ) {
+
+    RpcPadContainer::const_iterator itPad = rpcPadContainer->indexFind(padIdHash);  
+    if( itPad==rpcPadContainer->end() ) {        
+      msg() << MSG::ERROR << "Failed to retrieve PAD hash Id " << padIdHash << endreq;  
+      return StatusCode::FAILURE;                         
+    } 
+
+    const RpcPad* rpcPad = *itPad;
+    //unsigned int subsys_id = (subsystemID==1)? 0x65 : 0x66;
+    //  unsigned int robId     = (subsys_id << 16) | (sectorID/2);
+    
+    if(rpcPad) {
+      uint16_t sector = rpcPad->sector();
+      uint16_t sysId  = (sector<32)? 0x66 : 0x65;
+      uint16_t secId  = sector%32;
+      uint16_t padId  = rpcPad->onlineId();
+      uint16_t status = rpcPad->status();
+      uint16_t error  = rpcPad->errorCode();
       
-      uint16_t cmaId  = cma->onlineId();
-      uint16_t fel1Id = cma->fel1Id();
-      uint16_t febcId = cma->febcId();
-      uint16_t crc    = cma->crc();
-      
-      LVL2_MUON_CALIBRATION::RpcCalibData matrix(cmaId,fel1Id,febcId,crc);
-             
-      //for each cma for over fired channels
-      RpcCoinMatrix::const_iterator it5 = (*it3)->begin(); 
-      for (; it5 != (*it3)->end() ; ++it5) {
-	const RpcFiredChannel * fChannel = (*it5);
+      LVL2_MUON_CALIBRATION::RpcCalibFragment frag(sysId,secId,padId,status,error);
+      rpcFragment = frag;
+
+      RpcPad::const_iterator it3 = rpcPad->begin(); 
+      for (; it3!=rpcPad->end() ; ++it3) {
+	const RpcCoinMatrix * cma = (*it3);
 	
-	uint16_t bcid    = fChannel->bcid();
-	uint16_t time    = fChannel->time();
-	uint16_t ijk     = fChannel->ijk();
-	uint16_t channel = fChannel->channel();
-	uint16_t ovl     = fChannel->ovl();
-	uint16_t thr     = fChannel->thr();
-        
-	if(ijk!=7) matrix.getHit(bcid,time,ijk,channel);
-	else       matrix.getHit(bcid,time,ijk,ovl,thr);
-
-      } // loop on the matrix hits
-
-      rpcFragment << matrix;
-    } // loop on the pad matrices
+	uint16_t cmaId  = cma->onlineId();
+	uint16_t fel1Id = cma->fel1Id();
+	uint16_t febcId = cma->febcId();
+	uint16_t crc    = cma->crc();
+	
+	LVL2_MUON_CALIBRATION::RpcCalibData matrix(cmaId,fel1Id,febcId,crc);
+	
+	//for each cma for over fired channels
+	RpcCoinMatrix::const_iterator it5 = (*it3)->begin(); 
+	for (; it5 != (*it3)->end() ; ++it5) {
+	  const RpcFiredChannel * fChannel = (*it5);
+	  
+	  uint16_t bcid    = fChannel->bcid();
+	  uint16_t time    = fChannel->time();
+	  uint16_t ijk     = fChannel->ijk();
+	  uint16_t channel = fChannel->channel();
+	  uint16_t ovl     = fChannel->ovl();
+	  uint16_t thr     = fChannel->thr();
+	  
+	  if(ijk!=7) matrix.getHit(bcid,time,ijk,channel);
+	  else       matrix.getHit(bcid,time,ijk,ovl,thr);
+	  
+	} // loop on the matrix hits
+	
+	rpcFragment << matrix;
+      } // loop on the pad matrices
     
+    }
+    else {
+      msg() << MSG::ERROR << "Can't initialize the RpcPad" << endreq;
+      return StatusCode::FAILURE;
+    }
   }
   else {
-
+    msg() << MSG::ERROR << "Can't get the pad address from the rpc cabling service" << endreq;
+    return StatusCode::FAILURE;
   }
-     
-  */
+
   return StatusCode::SUCCESS;
 }
 
+////////////////////////////////////////////////////////////////////////////////
 //
-// prepare the Mdt fragment of the stream
+// prepare the TGC fragment of the stream
 //
-//StatusCode TrigL2MuonSA::MuCalStreamerTool::createTgcFragment(TrigL2MuonSA::TgcHits& tgcHits,   
-//							      LVL2_MUON_CALIBRATION::TgcCalibFragment& tgcFragment)
-//{
-//
-//  return StatusCode::SUCCESS;
-//}
+////////////////////////////////////////////////////////////////////////////////
+StatusCode TrigL2MuonSA::MuCalStreamerTool::createTgcFragment(std::vector<uint32_t>& tgcRobIdList,
+							      LVL2_MUON_CALIBRATION::TgcCalibFragment& tgcFragment)
+{
 
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
+
+  if ( tgcRobIdList.size()<1 ) {
+    msg() << MSG::DEBUG << "No TGC Rob found" << endreq;
+    return StatusCode::SUCCESS;
+  } 
+
+  // system Id = 1 should correspond to the endcap
+  uint16_t systemId = 1;
+  // this is the subdetector Id
+  uint16_t subSystemId = ( (tgcRobIdList.at(0) & 0xff0000) >> 16 );
+  uint16_t rdoId = ( tgcRobIdList.at(0) & 0xff );
+
+  uint16_t roiNumber = 0;
+
+  tgcFragment = LVL2_MUON_CALIBRATION::TgcCalibFragment(systemId,subSystemId,rdoId,roiNumber);
+
+  // get the list of hash ID's from the TGC data preparator
+  std::vector<IdentifierHash> tgcHashList = m_tgcDataPreparator->getHashList();
+
+  // retrieve the tgcrdo container
+  const TgcRdoContainer* tgcRdoContainer = Muon::MuonRdoContainerAccess::retrieveTgcRdo("TGCRDO");
+  if( tgcRdoContainer==0 ) {
+    msg() << MSG::DEBUG << "Tgc RDO container not registered by MuonRdoContainerManager" << endreq;
+    msg() << MSG::DEBUG << "-> Retrieving it from the StoreGate" << endreq;
+    StatusCode sc = m_storeGate->retrieve(tgcRdoContainer, "TGCRDO");
+    if( sc.isFailure() ) {
+      msg() << MSG::ERROR << "Could not retrieve the TgcRdoContainer" << endreq;
+      return sc;
+    }
+  }
+
+  // now get the list of ROB Ids and from the the subdetector ID ( that corresponds to the
+  // subsystem ID
+  
+
+  LVL2_MUON_CALIBRATION::TgcCalibData tgc_payload;
+  TgcRdoContainer::const_iterator it = tgcRdoContainer->begin();
+  
+  for ( ; it != tgcRdoContainer->end() ; ++it )  {
+
+    msg()<< MSG::DEBUG << "Adding the hits from a new TGC chamber" << endreq;
+
+    // loop on the element of the TGC RDO
+    msg()<< MSG::DEBUG << "Number of hits: " << (*it)->size() << endreq;
+
+    TgcRdo::const_iterator itRaw = (*it)->begin();
+    for ( ; itRaw != (*it)->end() ; ++itRaw )  {
+
+      const TgcRawData* raw = (*itRaw);
+      LVL2_MUON_CALIBRATION::TGC_BYTESTREAM_READOUTHIT roh;
+      LVL2_MUON_CALIBRATION::TGC_BYTESTREAM_READOUTTRIPLETSTRIP tps;
+      LVL2_MUON_CALIBRATION::TGC_BYTESTREAM_READOUTTRACKLET rot;
+      LVL2_MUON_CALIBRATION::TGC_BYTESTREAM_HIPT hpt;
+      LVL2_MUON_CALIBRATION::TGC_BYTESTREAM_SL sl;
+
+
+      switch (raw->type()) {
+      case TgcRawData::TYPE_HIT:
+	{
+	  roh.channel = raw->channel()-40;
+	  roh.sbId = raw->slbId();
+	  roh.sbType = raw->slbType();
+	  roh.adj = raw->isAdjacent();
+	  roh.ldbId = raw->sswId();
+	  roh.bcBitmap = bcBitmap(raw->bcTag());
+	  roh.tracklet = raw->tracklet();
+	  roh.ok = 1;
+	  
+	}
+	break;
+      case TgcRawData::TYPE_TRACKLET:
+	if (raw->slbType() == TgcRawData::SLB_TYPE_TRIPLET_STRIP)
+	  {
+	    tps.phi = raw->position();
+	    tps.seg = raw->segment();
+	    tps.sbId = raw->slbId();
+	    tps.ldbId = raw->sswId();
+	    tps.bcBitmap = bcBitmap(raw->bcTag());
+	    tps.slbType = TgcRawData::SLB_TYPE_TRIPLET_STRIP;
+	    tps.ok = 1;
+	  }
+	else
+	  {
+	    rot.rphi = raw->position();
+	    rot.subm = raw->subMatrix();
+	    rot.seg = raw->segment();
+	    rot.delta = raw->delta();
+	    rot.sbId = raw->slbId();
+	    rot.ldbId = raw->sswId();
+	    rot.bcBitmap = bcBitmap(raw->bcTag());
+	    rot.slbType = raw->slbType();
+	    if (raw->slbType() == TgcRawData::SLB_TYPE_INNER_STRIP)
+	      rot.slbType = 4;
+	    rot.ok = 1;
+	  }
+	break;
+      case TgcRawData::TYPE_HIPT:
+	{
+	  hpt.delta = raw->delta();
+	  hpt.hitId = raw->hitId();
+	  hpt.hipt = raw->isHipt();
+	  hpt.cand = raw->index();
+	  hpt.chip = raw->chip();
+	  hpt.sector = raw->sector();
+	  hpt.fwd = raw->isForward();
+	  hpt.strip = raw->isStrip();
+	  hpt.bcBitmap = bcBitmap(raw->bcTag());
+	}
+	break;
+      case TgcRawData::TYPE_SL:
+	{
+	  sl.roi = raw->roi();
+	  sl.overlap = raw->isOverlap();
+	  sl.threshold = raw->threshold();
+	  sl.sign = raw->isMuplus();
+	  sl.cand = raw->index();
+	  sl.sector = raw->sector();
+	  sl.fwd = raw->isForward();
+	  sl.bcBitmap = bcBitmap(raw->bcTag());
+	  sl.cand2plus = raw->cand3plus();
+	}
+	break;
+      default:
+	{
+	  msg() << MSG::ERROR << "Invalid TgcRawData type: " << raw->type() << endreq;
+	  return StatusCode::FAILURE;
+	}
+      }	
+      
+      tgc_payload.getHit(roh,tps,rot,hpt,sl);
+      
+    }
+  }
+ 
+  tgcFragment << tgc_payload;
+  
+  return StatusCode::SUCCESS;
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 //
-// retrieve the rpc pad ( to be replaced by the direct usage of the RpcDataPreparator
+// prepare the CSC fragment of the stream
 //
-//StatusCode TrigL2MuonSA::MuCalStreamerTool::getRpcPad(unsigned int robId, unsigned short int subsystemID,
-//						      unsigned short int sectorID, unsigned short int roiNumber,
-//						      const RpcPad*& rpcPad)
-//{
-//   std::vector<uint32_t> v_robIds;
-//   v_robIds.push_back(robId);
-//   
-//   m_robDataProvider->addROBData(v_robIds);
-//
-//   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> v_robFragments;
-//   
-//   const RpcPadContainer* pRpcPadContainer = Muon::MuonRdoContainerAccess::retrieveRpcPad("RPCPAD");
-//   if(pRpcPadContainer==0) {
-//      msg() << MSG::ERROR << "Rpc PAD container not registered by MuonRdoContainerManager" << endreq;
-//      msg() << MSG::ERROR << "-> Retrieving it from the StoreGate" << endreq;
-//      StatusCode sc = m_storeGate->retrieve(pRpcPadContainer, "RPCPAD");
-//      if( sc.isFailure() ) {
-//	 msg() << MSG::ERROR << "Retrieval of RpcPadContainer failed" << endreq;
-//	 return sc;
-//      }
-//   }
-//
-//   m_robDataProvider->getROBData(std::vector<uint32_t>(1,robId),v_robFragments);
-//
-//   Identifier rpc_pad_id;       // identifier for accessing the RPC PAD
-//   unsigned int logic_sector = 0;
-//   unsigned short int PADId  = 0;
-//
-//   // here use the new cabling service to retrieve the padid
-//
-//   //   IdentifierHash pad_id = padHashFunction(rpc_pad_id);
-//   //
-//   //   if( m_rpcRawDataProvider->convert(v_robFragments,std::vector<IdentifierHash>(1,pad_id)).isFailure()) {
-//   //      msg() << MSG::ERROR << "Failed to convert RPC PAD ID=" << pad_id << endreq;
-//   //      return StatusCode::FAILURE;
-//   //   }
-//   //
-//   //   RpcPadContainer::const_iterator itPad = pRpcPadContainer->indexFind(pad_id);
-//   //   if( itPad==pRpcPadContainer->end() ) {
-//   //      msg() << MSG::ERROR << "Failed to retrieve PAD hash Id " << pad_id << endreq;
-//   //      return StatusCode::FAILURE;
-//   //   }
-//   //
-//   //   rpcPad = *itPad;
-//   //
-//   //   if (!rpcPad) {
-//   //      msg() << MSG::ERROR << "Could not find the rpcPad" << pad_id << endreq;
-//   //      return StatusCode::FAILURE;     
-//   //   }
-//   
-//   return StatusCode::SUCCESS;
-//}
+////////////////////////////////////////////////////////////////////////////////
+StatusCode TrigL2MuonSA::MuCalStreamerTool::createCscFragment(std::vector<uint32_t>& cscRobIdList,
+							      LVL2_MUON_CALIBRATION::CscCalibFragment& cscFragment) 
+{
+  
+  // retreive the csc rob data
+  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFragments;
+  m_robDataProvider->getROBData(cscRobIdList,robFragments);
+
+  // transfer the rob data to the CSC fragment
+  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::const_iterator it;
+  for ( it = robFragments.begin() ; it != robFragments.end() ; ++it ) {
+    
+    LVL2_MUON_CALIBRATION::CscCalibData CscData;
+    uint32_t rod_words     = (**it).rod_fragment_size_word(); 
+    OFFLINE_FRAGMENTS_NAMESPACE::PointerType wr;
+    (*it)->rod_start(wr); 
+
+    for (uint32_t i=0;i<rod_words;++i) {
+      // CID 22907: CAST_TO_QUALIFIED_TYPE
+      // CscData << static_cast<const uint32_t>(*(wr+i));
+      CscData << static_cast<uint32_t>(*(wr+i));
+    }            
+    cscFragment << CscData;
+  }
+
+  return StatusCode::SUCCESS;
+}
 

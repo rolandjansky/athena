@@ -94,6 +94,8 @@ class TrigL2MuonSAConfig(MuFastSteering):
 
         if ( args[0]== 'MuonCalib' ):
             self.DoCalibrationStream = True
+            self.MuonCalDataScouting = False
+            self.MuonCalBufferSize   = 1024*1024
 
         if ( args[0]== 'MuonCalibDataScouting' ):
             self.DoCalibrationStream = True

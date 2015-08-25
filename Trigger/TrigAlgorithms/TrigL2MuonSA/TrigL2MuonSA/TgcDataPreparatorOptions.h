@@ -14,9 +14,9 @@ class TgcDataPreparatorRoadParameters
 {
    public:
       TgcDataPreparatorRoadParameters() :
-	 ETA_LOW_MID_DELTA(0.10),
-	 ETA_HIGH_MID_DELTA(0.05),
-	 PHI_MID_DELTA(0.05),
+	 ETA_LOW_MID_DELTA(0.075),
+	 ETA_HIGH_MID_DELTA(0.035),
+	 PHI_MID_DELTA(0.035),
 	 ETA_LOW_INN_DELTA(0.15),
 	 ETA_HIGH_INN_DELTA(0.10),
 	 PHI_INN_DELTA(0.10)

@@ -112,7 +112,7 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
 
    double R    = mdtHit.R;
    //   double InCo = mdtHit.cInCo;
-   double InCo = (track_phi - cos(fabsf(phi0))!=0)? 1./(cos(fabsf(track_phi - phi0))): 0; 
+   double InCo = cos(fabsf(track_phi - phi0))!=0 ? 1./(cos(fabsf(track_phi - phi0))): 0; 
    double X    = (isEndcap)? R*cos(track_phi): R*InCo*cos(track_phi);
    double Y    = (isEndcap)? R*sin(track_phi): R*InCo*sin(track_phi);
    double Z    = mdtHit.Z;
@@ -251,10 +251,10 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
      
      // remove outlier
      while(1) {
-       unsigned int layer = 9999;
+       unsigned int layer = 999999;
        double DistMax  = 0.;
        double Residual = 0.;
-       unsigned int i_hit_max = 9999;
+       unsigned int i_hit_max = 999999;
        ResMed = (v_mdtLayerHits[chamber][0].ntot!=0)? 
 	 v_mdtLayerHits[chamber][0].ResSum/v_mdtLayerHits[chamber][0].ntot : 0.;
        for(unsigned int i_layer=0; i_layer<=i_layer_max; i_layer++) {
@@ -274,7 +274,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
        msg() << MSG::DEBUG << "ResMed=" << ResMed << ": DistMax/layer/i_hit_max/ntot=" 
 	     << DistMax << "/" << layer << "/" << i_hit_max << "/" << v_mdtLayerHits[chamber][0].ntot << endreq;
        // break conditions
-       if(layer == 9999) break;
+       if(layer == 999999) break;
        if(v_mdtLayerHits[chamber][layer].ndigi==1) break;
        double Mednew = (v_mdtLayerHits[chamber][0].ResSum - Residual)/(v_mdtLayerHits[chamber][0].ntot - 1);
        double Delta = 2.*fabs((ResMed - Mednew)/(ResMed + Mednew));
@@ -302,7 +302,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 	// choose one at each layer
 	while( v_mdtLayerHits[chamber][i_layer].ndigi>=2 ) {
 	  double ResMax = 0.;
-	  unsigned int i_hit_max = 9999;
+	  unsigned int i_hit_max = 999999;
 	  for(unsigned int idigi=0;idigi<v_mdtLayerHits[chamber][i_layer].ndigi_all;idigi++) {
 	    unsigned int i_hit = v_mdtLayerHits[chamber][i_layer].indexes[idigi];
 	    if( mdtHits[i_hit].isOutlier > 0 ) continue;
@@ -312,7 +312,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 	    }
 	  }
 	  msg() << MSG::DEBUG << "ResMax=" << ResMax << ": i_hit_max=" << i_hit_max << endreq; 
-	  if( i_hit_max == 9999 ) break;
+	  if( i_hit_max == 999999 ) break;
 	  v_mdtLayerHits[chamber][0].ResSum = v_mdtLayerHits[chamber][0].ResSum - ResMax;
 	  v_mdtLayerHits[chamber][0].ntot--;
 	  v_mdtLayerHits[chamber][i_layer].ndigi--;

@@ -194,7 +194,7 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
     float Y1 = tgcFitResult.tgcMid1[3] * sin(tgcFitResult.tgcMid1[1]);
     float X2 = tgcFitResult.tgcMid2[3] * cos(tgcFitResult.tgcMid2[1]);
     float Y2 = tgcFitResult.tgcMid2[3] * sin(tgcFitResult.tgcMid2[1]);
-    tgcFitResult.phiDir = (Y1/X1 + Y2/X2)/2.;
+    if (X1>ZERO_LIMIT && X2>ZERO_LIMIT) tgcFitResult.phiDir = (Y1/X1 + Y2/X2)/2.;
 
     
     if( ! isMiddleFailure ) {

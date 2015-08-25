@@ -53,18 +53,21 @@ void TrigL2MuonSA::RpcPatFinder::addHit(std::string stationName,
   ilay+=2*(doubletR-1);
   // gasGap
   ilay+=gasGap-1;
-  
+
+  double R=sqrt(gPosX*gPosX+gPosY*gPosY);
+  double Phi=atan2(gPosY,gPosX);
+   
   if (!measuresPhi){
     // if eta measurement then save Z/R
-    double R=sqrt(gPosX*gPosX+gPosY*gPosY);
+    R = calibR(stationName,R, Phi);  
     double x=gPosZ/R;
     m_hits_in_layer_eta.at(ilay).push_back(x);
   }else{
     // if phi measurement then save phi
-    double x=atan2(gPosY,gPosX);
-    m_hits_in_layer_phi.at(ilay).push_back(x);
-  }  
+    m_hits_in_layer_phi.at(ilay).push_back(Phi);
+  }
 }
+
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -231,13 +234,8 @@ bool  TrigL2MuonSA::RpcPatFinder::deltaOK(int l1, int l2, double x1, double x2, 
   const double delta_feet_phi = 0.03;
 
   // calculate delta-eta or delta-phi 
-  delta=x2-x1;
-  if (isphi){
-    if (delta>M_PI) delta-=2*M_PI;
-    if (delta<-M_PI) delta+=2*M_PI;
-  }
-  delta=fabs(x2-x1); 
-  
+  if(isphi) delta=fabs(acos(cos(x2-x1)));
+  else delta=fabs(x2-x1); 
 
   double delta_max=0;
   if (l1>l2) {
@@ -277,5 +275,30 @@ bool  TrigL2MuonSA::RpcPatFinder::deltaOK(int l1, int l2, double x1, double x2, 
   
 }
 
-
+double TrigL2MuonSA::RpcPatFinder::calibR(std::string stationName, double R, double Phi){
+  double calibR, DeltaPhi, temp_phi;
+  
+  Phi=acos(cos(Phi)); // 0 < Phi < 2PI
+  
+  if(stationName.substr(2,3)=="L"){//For Large , SP
+    DeltaPhi= 999;temp_phi=9999;
+    for(int inum=0;inum < 8;inum++){
+      temp_phi = fabs((inum * M_PI/4.0 )- Phi);
+      if(temp_phi < DeltaPhi)      DeltaPhi = temp_phi;
+    }
+  }else if(stationName.substr(2,3)=="S" ||
+	   stationName.substr(2,3)=="F" ||
+	   stationName.substr(2,3)=="G" ){//For Small , SP
+    
+    DeltaPhi= 999;temp_phi=9999;
+    for(int inum=0;inum < 8;inum++){
+      temp_phi = fabs(inum *(M_PI/4.0 )+(M_PI/8.0) - Phi);
+      if(temp_phi < DeltaPhi)      DeltaPhi = temp_phi;
+    }//for end                                                                                                                      
+  }else return R;
+  
+  calibR = R *cos(DeltaPhi);
+  
+  return calibR;
+}//calbR()
 

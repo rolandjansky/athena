@@ -259,6 +259,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
      TrigL2MuonSA::MdtHits::iterator itMdtHit;
      for (itMdtHit=mdtSegment->begin(); itMdtHit!=mdtSegment->end(); itMdtHit++) { // loop for MDT hit
        
+       if (count >= NMEAMX) continue;
        if (itMdtHit->isOutlier) continue;
        
        superPoint->Ndigi++;
@@ -294,7 +295,6 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
          pbFitResult.WILIN[count] = 1/(sigma*sigma);
          pbFitResult.JLINE[count] = count;
          pbFitResult.IDMEA[count] = station*10 + itMdtHit->Layer;
-         pbFitResult.NLINE[count]++;
  
          pbFitResult.DISTJ[count] = 0.;
          pbFitResult.RESI[count] = 0.;
@@ -408,7 +408,10 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
       const int   MIN_MDT_FOR_FIT    = 3;
 
      for (itMdtHit=mdtSegment->begin(); itMdtHit!=mdtSegment->end(); itMdtHit++) { // loop for MDT hit
+
+       if (count >= NMEAMX) continue;
        if (itMdtHit->isOutlier) continue;
+
        superPoint->Ndigi++;
        if (!count) {
          rm   = itMdtHit->cYmid;
@@ -439,7 +442,6 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::superPointFitter(TrigL2MuonSA::Tra
          pbFitResult.WILIN[count] = 1/(sigma*sigma);
          pbFitResult.JLINE[count] = count;
          pbFitResult.IDMEA[count] = station*10 + itMdtHit->Layer;
-         pbFitResult.NLINE[count]++;
          pbFitResult.DISTJ[count] = 0.;
          pbFitResult.RESI[count] = 0.;
          count++;
@@ -810,6 +812,8 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
 
           if(mdtSegment->at(hit_index).isOutlier>1) continue;
 
+	  if (count >= NMEAMX) continue;
+
           int fd=0;
 
           for (int j=0; j<(int)hitarray.size(); j++) {
@@ -856,7 +860,6 @@ void TrigL2MuonSA::MuFastStationFitter::stationSPFit(TrigL2MuonSA::MdtHits*    m
              if (i_station==4) i_st = 1;
              if (i_station==5) i_st = 2;
              pbFitResult.IDMEA[count] = i_st*10 + itMdtHit->Layer;
-             pbFitResult.NLINE[count]++;
              pbFitResult.DISTJ[count] = 0.;
              pbFitResult.RESI[count] = 0.;
 

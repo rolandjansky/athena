@@ -20,6 +20,7 @@
 #include "TrigL2MuonSA/CscData.h"
 #include "TrigL2MuonSA/RecMuonRoIUtils.h"
 #include "TrigL2MuonSA/MuonRoad.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
@@ -65,7 +66,7 @@ namespace TrigL2MuonSA {
     
   public:
     
-    StatusCode prepareData(const LVL1::RecMuonRoI*  p_roi,
+    StatusCode prepareData(const TrigRoiDescriptor* p_roids,
 			   TrigL2MuonSA::MuonRoad&  muonRoad,
 			   TrigL2MuonSA::CscHits&   cscHits);
 
@@ -75,10 +76,6 @@ namespace TrigL2MuonSA {
     
     MsgStream* m_msg;
     inline MsgStream& msg() const { return *m_msg; }
-
-    StatusCode getCscHits(const LVL1::RecMuonRoI*  p_roi,
-			  TrigL2MuonSA::MuonRoad&  muonRoad,
-			  TrigL2MuonSA::CscHits&   cscHits);
 
     double calc_residual(double aw,
 			 double bw,

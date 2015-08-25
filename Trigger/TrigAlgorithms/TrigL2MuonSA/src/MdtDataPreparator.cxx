@@ -382,12 +382,26 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI*  
     
     // decode 
     msg() << MSG::DEBUG << "decoding MdtCsm (normal)..." << endreq;
+    bool Endcap_Mid=false;
     for(unsigned int i=0; i<v_mdtCsms_normal.size(); i++) {
       if (!decodeMdtCsm(v_mdtCsms_normal[i], mdtHits_normal, muonRoad)) return StatusCode::FAILURE;
+      if(muonRoad.isEndcap){
+        int midN=0;
+        for(unsigned int ti=0; ti<mdtHits_normal.size(); ti++){
+          if(mdtHits_normal[ti].Chamber==4)midN++;
+        }
+        if(midN==0)Endcap_Mid=true;
+      }
     }
     msg() << MSG::DEBUG << "decoding MdtCsm (overlap)..." << endreq;
     for(unsigned int i=0; i<v_mdtCsms_overlap.size(); i++) {
       if (!decodeMdtCsm(v_mdtCsms_overlap[i],mdtHits_overlap, muonRoad)) return StatusCode::FAILURE;
+    }
+    
+    if(Endcap_Mid || v_mdtCsms_normal.size() == 0){
+      for(unsigned int i=0; i<v_mdtCsms_overlap.size(); i++) {
+        if (!decodeMdtCsm(v_mdtCsms_overlap[i],mdtHits_normal, muonRoad)) return StatusCode::FAILURE;
+      }
     }
 
   } else { // use MdtPrepData
@@ -443,12 +457,27 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtCsm(const MdtCsmContainer* pMd
     }
     return StatusCode::FAILURE;
   }
-  
+ 
+  std::vector<uint32_t> v_robIds;
+  bool redundant;
   // Modificaiton provided by Jochen Meyer
   unsigned int i=0;
   int processingDetEl = 1;
   bool BMEpresent = m_mdtIdHelper->stationNameIndex("BME") != -1;
   while( i < v_idHash.size() ) {
+
+    redundant = false;
+    uint32_t newROBId = v_idHash[i];
+    for (int rob_iter=0; rob_iter<(int)v_robIds.size(); rob_iter++){
+      if(newROBId == v_robIds[rob_iter]) redundant=true;
+    }
+    if(!redundant){
+      v_robIds.push_back(newROBId);
+    }else{
+      ++i;
+      continue;
+    }
+
     IdentifierHash v_idHash_corr = v_idHash[i];
     if( BMEpresent ) {
       // if there are BMEs the RDOs are registered with the detectorElement hash

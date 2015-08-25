@@ -73,6 +73,9 @@ class TgcDataPreparator: public AthAlgTool
 
       void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
 
+      // access the list of hash ID's
+      std::vector<IdentifierHash> getHashList() { return m_tgcHashList; }
+
    private:
 
       MsgStream* m_msg;
@@ -92,6 +95,9 @@ class TgcDataPreparator: public AthAlgTool
       const MuonGM::TgcReadoutElement* m_tgcReadout;
       const TgcIdHelper* m_tgcIdHelper;
       ActiveStoreSvc* m_activeStore;
+      // vector of the TGC hash ID list
+      std::vector<IdentifierHash> m_tgcHashList;         
+
       // Tool for Rdo to Prep Data conversion
       ToolHandle<Muon::IMuonRdoToPrepDataTool> m_tgcPrepDataProvider;
 	

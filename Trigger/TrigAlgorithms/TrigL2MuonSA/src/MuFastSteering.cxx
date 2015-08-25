@@ -77,7 +77,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("USE_ROIBASEDACCESS_MDT", m_use_RoIBasedDataAccess_MDT = true);
   declareProperty("USE_ROIBASEDACCESS_TGC", m_use_RoIBasedDataAccess_TGC = true);
   declareProperty("USE_ROIBASEDACCESS_RPC", m_use_RoIBasedDataAccess_RPC = true);
-  declareProperty("USE_ROIBASEDACCESS_CSC", m_use_RoIBasedDataAccess_CSC = false);
+  declareProperty("USE_ROIBASEDACCESS_CSC", m_use_RoIBasedDataAccess_CSC = true);
 
   declareProperty("USE_NEW_SEGMENTFIT", m_use_new_segmentfit = true);
 
@@ -249,8 +249,6 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     }
     // set properties
     m_calStreamer->setBufferName(m_calBufferName);
-    m_calStreamer->setBufferSize(m_calBufferSize);
-    m_calStreamer->setDoDataScouting(m_calDataScouting);
     msg() << MSG::DEBUG << "Initialized the Muon Calibration Streamer. Buffer name: " << m_calBufferName 
           << ", buffer size: " << m_calBufferSize 
           << " doDataScouting: "  << m_calDataScouting << endreq;
@@ -284,9 +282,11 @@ HLT::ErrorCode MuFastSteering::hltEndRun() {
   msg() << MSG::DEBUG << "hltEndRun"<<  endreq;
    // close the calibration stream 
    if (m_doCalStream) { 
-     StatusCode sc = m_calStreamer->closeStream();
-     if ( sc != StatusCode::SUCCESS ) {
-       msg() << MSG::ERROR << "Failed to close the calibration stream" << endreq;
+     if ( !m_calDataScouting ) {
+       StatusCode sc = m_calStreamer->closeStream();
+       if ( sc != StatusCode::SUCCESS ) {
+	 msg() << MSG::ERROR << "Failed to close the calibration stream" << endreq;
+       }
      }
    } 
 
@@ -561,7 +561,13 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       //      m_calStreamer->setInstanceName(this->name());
       
       bool updateTriggerElement = false;
-      sc = m_calStreamer->createRoiFragment(*p_roi,tp,m_mdtHits_normal,m_rpcHits,updateTriggerElement); 
+      sc = m_calStreamer->createRoiFragment(*p_roi,tp,m_mdtHits_normal,
+					    m_rpcHits,
+					    m_tgcHits,
+					    m_calBufferSize,
+					    m_calDataScouting,
+					    updateTriggerElement); 
+
       if (sc != StatusCode::SUCCESS ) {  
         msg() << MSG::WARNING << "Calibration streamer: create Roi Fragment failed" << endreq;
       }
@@ -590,7 +596,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
 	  
 	  // set the detail of the trigcomposite object
 	  //	  xAOD::TrigComposite* tc = m_trigCompositeContainer->at(0);
-	  tc->setDetail("MuonCalStream", *(m_calStreamer->getLocalBuffer()) );
+	  tc->setDetail("MuonCalibrationStream", *(m_calStreamer->getLocalBuffer()) );
 	  
 	  outputTE->setActiveState(true);
 	  HLT::ErrorCode status = attachFeature( outputTE, m_trigCompositeContainer, "MuonCalibrationStream" );
@@ -600,10 +606,13 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
 	    return false;
 	  }
 	  
-	  
 	  m_calStreamer->clearLocalBuffer();
 
-        }         
+        }
+	// test: set to false the active state if no buffer size limit reached
+	else {
+	  outputTE->setActiveState(false);
+	}
       } 
     }
 
@@ -855,14 +864,12 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
 
     // RPC hits
     for(unsigned int i_hit=0; i_hit<rpcHits.size(); i_hit++) {
-      int ilay=0;
-      if (rpcHits[i_hit].stationName.substr(0,2)=="BO") ilay=4;
-      muonSA->setPadHit(ilay, rpcHits[i_hit].gasGap, 
+      muonSA->setPadHit(rpcHits[i_hit].layer, rpcHits[i_hit].gasGap, 
                         rpcHits[i_hit].x, rpcHits[i_hit].y, rpcHits[i_hit].z,
                         rpcHits[i_hit].doubletR, rpcHits[i_hit].measuresPhi);
       msg() << MSG::DEBUG << "RPC hits stored in xAOD: "
             << "stationName=" << rpcHits[i_hit].stationName << ","
-            << "ilay=" << ilay << ","
+            << "layer=" << rpcHits[i_hit].layer << ","
             << "gasGap=" << rpcHits[i_hit].gasGap << ","
             << "x=" << rpcHits[i_hit].x << ","
             << "y=" << rpcHits[i_hit].y << ","
@@ -873,7 +880,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
     }
 
     // Road information
-    for (int i_station=0; i_station<3; i_station++) {
+    for (int i_station=0; i_station<8; i_station++) {
       for (int i_sector=0; i_sector<2; i_sector++) {
         muonSA->setRoad(i_station, i_sector, muonRoad.aw[i_station][i_sector], muonRoad.bw[i_station][i_sector]);
         muonSA->setRegionZ(i_station, i_sector, mdtRegion.zMin[i_station][i_sector], mdtRegion.zMax[i_station][i_sector]);
@@ -885,23 +892,29 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
     }
 
     if ( muonRoad.isEndcap ) {
-    // TGC fit results
-      muonSA->setTgcPt(tgcFitResult.tgcPT);
-
-      muonSA->setTgcInn(tgcFitResult.tgcInn[0], tgcFitResult.tgcInn[1],
-                        tgcFitResult.tgcInn[2], tgcFitResult.tgcInn[3]);
-      muonSA->setTgcInnF(tgcFitResult.tgcInnRhoStd, tgcFitResult.tgcInnRhoNin,
-                         tgcFitResult.tgcInnPhiStd, tgcFitResult.tgcInnPhiNin);
-
-      muonSA->setTgcMid1(tgcFitResult.tgcMid1[0], tgcFitResult.tgcMid1[1],
-                         tgcFitResult.tgcMid1[2], tgcFitResult.tgcMid1[3]);
-      muonSA->setTgcMid2(tgcFitResult.tgcMid2[0], tgcFitResult.tgcMid2[1],
-                         tgcFitResult.tgcMid2[2], tgcFitResult.tgcMid2[3]);
-      muonSA->setTgcMidF(tgcFitResult.tgcMidRhoChi2, tgcFitResult.tgcMidRhoNin,
-                         tgcFitResult.tgcMidPhiChi2, tgcFitResult.tgcMidPhiNin);
-
+      // TGC fit results
+      if (tgcFitResult.isSuccess ) {
+	muonSA->setTgcPt(tgcFitResult.tgcPT);
+	
+	muonSA->setTgcInn(tgcFitResult.tgcInn[0], tgcFitResult.tgcInn[1],
+			  tgcFitResult.tgcInn[2], tgcFitResult.tgcInn[3]);
+	muonSA->setTgcInnF(tgcFitResult.tgcInnRhoStd, tgcFitResult.tgcInnRhoNin,
+			   tgcFitResult.tgcInnPhiStd, tgcFitResult.tgcInnPhiNin);
+	
+	muonSA->setTgcMid1(tgcFitResult.tgcMid1[0], tgcFitResult.tgcMid1[1],
+			   tgcFitResult.tgcMid1[2], tgcFitResult.tgcMid1[3]);
+	muonSA->setTgcMid2(tgcFitResult.tgcMid2[0], tgcFitResult.tgcMid2[1],
+			   tgcFitResult.tgcMid2[2], tgcFitResult.tgcMid2[3]);
+	muonSA->setTgcMidF(tgcFitResult.tgcMidRhoChi2, tgcFitResult.tgcMidRhoNin,
+			   tgcFitResult.tgcMidPhiChi2, tgcFitResult.tgcMidPhiNin);
+      }
     } else {
-   // RPC fit results
+      // RPC fit results (at R=1)
+      if (rpcFitResult.isSuccess ) {
+        muonSA->setRpc1(cos(rpcFitResult.phi_middle), sin(rpcFitResult.phi_middle), rpcFitResult.ZoverR_middle);
+        muonSA->setRpc2(cos(rpcFitResult.phi_middle), sin(rpcFitResult.phi_middle), rpcFitResult.ZoverR_middle);
+        muonSA->setRpc3(cos(rpcFitResult.phi_outer), sin(rpcFitResult.phi_outer), rpcFitResult.ZoverR_outer);
+      }
     }
 
     // Store track positions if set of (R, Z, eta, phi) are all available
@@ -991,6 +1004,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
     // -------
     // store TrigRoiDescriptor
     if (fabs(muonSA->pt()) > ZERO_LIMIT ) {
+
       TrigRoiDescriptor* MSroiDescriptor = new TrigRoiDescriptor(roids->l1Id(),
                                                                  roids->roiId(),
                                                                  pattern.etaMap,
@@ -1132,6 +1146,8 @@ int MuFastSteering::L2MuonAlgoMap(const std::string& name)
   int algoId = 0;
   if (name == "MuFastSteering_Muon")  {
     algoId = xAOD::L2MuonParameters::L2MuonAlgoId::MUONID;
+  } else if (name == "MuFastSteering_900GeV")  {
+    algoId = xAOD::L2MuonParameters::L2MuonAlgoId::GEV900ID;
   } else {
     algoId = xAOD::L2MuonParameters::L2MuonAlgoId::NULLID;
   }
@@ -1323,7 +1339,6 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
                                          std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns)
 {
   const float ZERO_LIMIT = 1e-5;
-  const int MAX_STATION = 3;
   
   if( trackPatterns.size() > 0 ) {
 
@@ -1345,16 +1360,19 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
       if (st=='I') {
         count_inner++;
         m_res_inner.push_back(mdtHits[i_hit].Residual/norm);
+        if (mdtHits[i_hit].isOutlier==0) m_fit_residuals.push_back(mdtHits[i_hit].Residual/norm);
       }
       
       if (st=='M') {
         count_middle++;
         m_res_middle.push_back(mdtHits[i_hit].Residual/norm);
+        if (mdtHits[i_hit].isOutlier==0) m_fit_residuals.push_back(mdtHits[i_hit].Residual/norm);
       }
       
       if (st=='O') {
         count_outer++;
         m_res_outer.push_back(mdtHits[i_hit].Residual/norm);
+        if (mdtHits[i_hit].isOutlier==0) m_fit_residuals.push_back(mdtHits[i_hit].Residual/norm);
       }
     }
     
@@ -1362,15 +1380,6 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
     m_middle_mdt_hits = count_middle;
     m_outer_mdt_hits  = count_outer;
     
-    for (int i_station=0; i_station<MAX_STATION; i_station++) {
-      for (int i_layer=0; i_layer<8; i_layer++) {
-
-        if ( fabs(pattern.superPoints[i_station].Residual[i_layer]) > ZERO_LIMIT ) 
-           m_fit_residuals.push_back(pattern.superPoints[i_station].Residual[i_layer]/norm);
-
-      }
-    }
-
     m_track_pt    = (fabs(pattern.pt ) > ZERO_LIMIT)? pattern.charge*pattern.pt: 9999.;
     m_absolute_pt = fabs(m_track_pt);
 
@@ -1446,10 +1455,17 @@ void MuFastSteering::handle(const Incident& incident) {
     // set a fixed name for the buffer
     m_calBufferName = "/tmp/muonCalStreamOutput";
     m_calStreamer->setBufferName(m_calBufferName);
-    m_calStreamer->setInstanceName(worker_name); 
-    StatusCode sc = m_calStreamer->openStream();
-    if ( sc != StatusCode::SUCCESS ) {  
-     msg() << MSG::ERROR << "Failed to open the calibration stream" << endreq;
+    m_calStreamer->setInstanceName(worker_name);
+
+    // if it's not a data scouting chain, open the circular buffer
+    if (!m_calDataScouting) {
+      StatusCode sc = m_calStreamer->openStream(m_calBufferSize);
+      if ( sc != StatusCode::SUCCESS ) {  
+	msg() << MSG::ERROR << "Failed to open the connection to the circular buffer" << endreq;
+      }
+      else {
+	msg() << MSG::INFO << "Opened the connection to the circular buffer" << endreq;
+      }
     }
   }
 
