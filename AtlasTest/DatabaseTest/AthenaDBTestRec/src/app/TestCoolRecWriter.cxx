@@ -42,7 +42,9 @@ TestCoolRecWriter::TestCoolRecWriter(const std::string& cooldb, const int mode,
   m_time0(time0), m_timerun(timerun), m_poolmode(0),m_poolstem("pool"),
   m_tagsuffix("tag1"),
   m_usepool(false),
-  m_usecoracool(false) {
+  m_usecoracool(false),
+  m_poolcat(NULL),
+  m_persistencySvc(NULL) {
   std::cout << "Starting TestCoolRecWriter" << std::endl 
 	    << "Cool database: " << m_coolstr << std::endl
 	    << "Mode: " << m_mode << std::endl

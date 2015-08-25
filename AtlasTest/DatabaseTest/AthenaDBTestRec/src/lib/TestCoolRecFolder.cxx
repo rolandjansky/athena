@@ -94,6 +94,31 @@ StatusCode TestCoolRecFolder::access(StoreGateSvc* detstore, const int run,
 	if (adata.size()<4 || adata[2].data<int>()!=modrun ||
 	    adata[3].data<int>()!=chan) ++m_nmismatch;
       }
+      // alternative access via index
+      const std::vector<unsigned int>& channels=atrvec->channelIDs();
+      std::cout << "ChannelIDs vector for " << m_key << " has " << 
+	channels.size() << " elements" << std::endl;
+      // loop over the channels and get the attributes
+      for (std::vector<unsigned int>::const_iterator ci=channels.begin();
+	   ci!=channels.end();++ci) {
+	int chan=(*ci);
+	bool haschan=atrvec->hasChannel(chan);
+	if (haschan) {
+	  const std::vector<const coral::AttributeList*>& atrv=
+	    atrvec->attrListVec(chan);
+	  std::cout << "Check channel " << chan << " has info " << haschan <<
+	  " vecsize " << atrv.size() << std::endl;
+	  // dump attributelist 0 for first two channels
+	  if (chan<2) {
+	    const coral::AttributeList& atrlist=*(atrv[0]);
+	    std::cout << "Dumping AtrList for channel " << chan;
+	    atrlist.toOutputStream(std::cout);
+	    std::cout << std::endl;
+	  }
+	} else {
+	  std::cout << "Check channel " << chan << " has no info" << std::endl;
+	}
+      }
     } else {
       ++m_nerror;
       return StatusCode::FAILURE;
