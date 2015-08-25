@@ -95,7 +95,7 @@ HLT::ErrorCode EFTauTauCombHypo::hltExecute(const HLT::TriggerElement* outputTE,
   float deta=0.;
   float dr = 0.; 
   int VX_state = -1;
-  bool  oppositeCharge = false;
+  //bool  oppositeCharge = false;
   
   
   
@@ -131,7 +131,7 @@ HLT::ErrorCode EFTauTauCombHypo::hltExecute(const HLT::TriggerElement* outputTE,
     dr = (*TauTauTopoInfo)->DeltaR();
     deta = sqrt(fabs(dr*dr - dphi*dphi));
     VX_state = (*TauTauTopoInfo)->VertexState();
-    oppositeCharge = (*TauTauTopoInfo)->OppositeCharge();
+    //oppositeCharge = (*TauTauTopoInfo)->OppositeCharge();
     
     if ( msgLvl() <= MSG::DEBUG ){
       msg() << MSG::DEBUG  << "Object no. " << TauTauTopoInfo - TauTauTopoInfoColl->begin() << ": Reading in mass and distance information from address " << (*TauTauTopoInfo) << "; " << *(*TauTauTopoInfo) << endreq;

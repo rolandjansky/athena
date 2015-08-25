@@ -44,6 +44,9 @@ class TrigTauHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         elif myName.find("EFTauMVHypo") > -1:
             cuts=['Input','has tau details','E_{T} calib','tk. number','score cut']
 
+        elif myName.find("EFTauDiKaonHypo") > -1:
+            cuts=['Input','E_{T} calib','tk. number','lead tr pt','massTrkSys','EMPOverTrkSysP']
+
         elif myName.find("HLTCaloTauHypo") > -1:
             cuts=['Input', 'E_{T} calib', 'Calo Cuts']
 
@@ -295,6 +298,11 @@ class EFTauMVHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
         super(EFTauMVHypoOnlineMonitoring, self).__init__(name)
         self.defineTarget("Online")
 
+class EFTauDiKaonHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
+    def __init__ (self, name):
+        super(EFTauDiKaonHypoOnlineMonitoring, self).__init__(name)
+        self.defineTarget("Online")
+
 class EFTauInvHypoValidationMonitoring(TrigTauHypoValidationMonitoring):
     def __init__ (self, name):
         super(EFTauInvHypoValidationMonitoring, self).__init__(name)
@@ -541,4 +549,4 @@ def setHLTTrackPreselMonTools( algoObject ):
     nameVal = algoName+"_Val"
     valTool = HLTTrackPreselHypoValidationMonitoring(nameVal)
 
-    algoObject.AthenaMonTools = [ time, valTool ]
+    algoObject.AthenaMonTools = [ time, valTool ] 

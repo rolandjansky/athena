@@ -57,6 +57,7 @@ HLTTrackPreSelHypo::HLTTrackPreSelHypo(const std::string& name,
 
 {
   declareProperty("LowerPtCut",           m_lowerPtCut=20000.0);
+  declareProperty("LowerTrackPtCut",      m_lowerTrackPtCut=0.0);
   declareProperty("ClusterEnergySumCone", m_clusterCone=0.2);
   declareProperty("TrackVariableCore",    m_coreSize=0.2);
   declareProperty("TrackVariableOuter",   m_outerSize=0.4);
@@ -91,6 +92,7 @@ HLT::ErrorCode HLTTrackPreSelHypo::hltInitialize()
   msg() << MSG::INFO << "in initialize()" << endreq;
   
   msg() << MSG::INFO << " REGTEST: HLTTrackPreSelHypo will cut on "           << endreq;
+  msg() << MSG::INFO << " REGTEST: Lower pt cut for track selection: " <<  m_lowerTrackPtCut   << endreq;
   msg() << MSG::INFO << " REGTEST: Tracks in core <= " << m_tracksInCoreCut       << endreq;  
   msg() << MSG::INFO << " REGTEST: Tracks in outer <= " << m_tracksInIsoCut       << endreq;  
   msg() << MSG::INFO << " REGTEST: ------ "                                       << endreq;
@@ -194,7 +196,8 @@ HLT::ErrorCode HLTTrackPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE
 	float trk_phi = tp->parameters()[Trk::phi];
 	double dR_trk_tau = sqrt((roIEta-trk_eta)*(roIEta-trk_eta) + HLT::wrapPhi(roIPhi-trk_phi)*HLT::wrapPhi(roIPhi-trk_phi));
 
-	float trk_pt = tp->pT()/1000.;
+	float trk_pt = tp->pT();
+        if(trk_pt < m_lowerTrackPtCut) continue;
 	if ((trk_pt > trk_pt_max) && dR_trk_tau < m_deltaRLeadTrkRoI) {
 	  Ltrack = (*it);
 	  trk_pt_max = trk_pt;
@@ -235,9 +238,10 @@ HLT::ErrorCode HLTTrackPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE
 	float trk_eta = tp->eta();
 	float trk_phi = tp->parameters()[Trk::phi];
 	float trk_z0 = tp->parameters()[Trk::z0];
-		
+        float trk_pt = tp->pT();
+        if(trk_pt < m_lowerTrackPtCut) continue;		
 	float dR_trki_ltrk = sqrt((ltrk_eta-trk_eta)*(ltrk_eta-trk_eta) + HLT::wrapPhi(ltrk_phi-trk_phi)*HLT::wrapPhi(ltrk_phi-trk_phi));
-	float dZ0 = abs(ltrk_z0 - trk_z0);
+	float dZ0 = fabs(ltrk_z0 - trk_z0);
 	
 	if((dR_trki_ltrk < m_coreSize) && ((dZ0 < m_deltaZ0Cut)||!usePileupSuppCut)){
 	  ++m_nTracksInCore;

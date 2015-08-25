@@ -52,7 +52,7 @@ class HLTTrackTauHypoBase(HLTTrackPreSelHypo):
 
 class HLTTrackTauHypo (HLTTrackTauHypoBase):
     __slots__ = []
-    def __init__(self, name = "HLTCaloTauHypo", var = [], val = []):
+    def __init__(self, name = "HLTTrackTauHypo", var = [], val = []):
         super(HLTTrackTauHypo, self).__init__(name)
         #applyDefaults(self, T2Calo_defaults)
         setVarCut(self, var, val)

@@ -51,6 +51,19 @@ class EFTauMVHypo (EFTauMVHypoBase):
         self.Method    = 2 #default bdt as of March 22
         setVarCut(self, var, val)
 
+## EFTauDiKaon
+class EFTauDiKaonHypoBase (EFTauDiKaonHypo):
+    __slots__ = []
+    def __init__(self, name):
+        super(EFTauDiKaonHypoBase, self).__init__(name)
+        setTauEFMonTools(self)
+
+class EFTauDiKaonHypo (EFTauDiKaonHypoBase):
+    __slots__ = []
+    def __init__(self, name = "EFTauDiKaonHypo", var = [], val = []):
+        super(EFTauDiKaonHypo, self).__init__(name)     
+        setVarCut(self, var, val)
+
 
 ## EFHadCalib: from mdacunha
 class EFHadCalibHypoBase (EFHadCalibHypo):

@@ -99,7 +99,7 @@ class EFTauInvHypo : public HLT::HypoAlgo {
   /** variables used for cuts in hypo algorithm */   
   int    m_numTrack;
   double m_EMRadius;
-  double m_Ncand;
+  //double m_Ncand;
   double m_DrTrkAvg;
   double m_EtovPtLead;
 

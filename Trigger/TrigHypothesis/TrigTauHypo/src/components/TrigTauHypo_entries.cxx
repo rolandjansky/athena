@@ -5,6 +5,7 @@
 #include "TrigTauHypo/T2TauHypo.h"
 #include "TrigTauHypo/EFTauInvHypo.h"
 #include "TrigTauHypo/EFTauMVHypo.h"
+#include "TrigTauHypo/EFTauDiKaonHypo.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TrigTauHypo/EFHadCalibHypo.h"
 #include "TrigTauHypo/T2TauTauCombHypo.h"
@@ -24,6 +25,7 @@ DECLARE_ALGORITHM_FACTORY( T2IDIsoTauHypo )
 DECLARE_ALGORITHM_FACTORY( T2TauHypo )
 DECLARE_ALGORITHM_FACTORY( EFTauInvHypo )
 DECLARE_ALGORITHM_FACTORY( EFTauMVHypo )
+DECLARE_ALGORITHM_FACTORY( EFTauDiKaonHypo )
 DECLARE_ALGORITHM_FACTORY( EFHadCalibHypo )
 DECLARE_ALGORITHM_FACTORY( T2TauTauCombHypo )
 DECLARE_ALGORITHM_FACTORY( T2TauTauCombFexAlgo )
@@ -43,6 +45,7 @@ DECLARE_FACTORY_ENTRIES( TrigTauHypo ) {
   DECLARE_ALGORITHM( T2TauHypo );
   DECLARE_ALGORITHM( EFTauInvHypo );
   DECLARE_ALGORITHM( EFTauMVHypo );
+  DECLARE_ALGORITHM( EFTauDiKaonHypo );
   DECLARE_ALGORITHM( EFHadCalibHypo );      
   DECLARE_ALGORITHM( T2TauTauCombHypo );      
   DECLARE_ALGORITHM( T2TauTauCombFexAlgo );      
