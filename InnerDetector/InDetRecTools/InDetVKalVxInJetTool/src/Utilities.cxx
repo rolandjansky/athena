@@ -6,6 +6,7 @@
 #include "InDetVKalVxInJetTool/InDetVKalVxInJetTool.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
 #include  "VxVertex/VxTrackAtVertex.h"
+#include "TrkTrackSummary/TrackSummary.h"
 //-------------------------------------------------
 // Other stuff
 #include <cmath>
@@ -18,6 +19,7 @@ namespace InDet{
   void InDetVKalVxInJetTool::printWrkSet(const std::vector<WrkVrt> *WrkVrtSet, const std::string name)
   const
   {
+    int nGoodV=0;
     for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
       std::cout<<name
       <<"= "<<(*WrkVrtSet)[iv].vertex[0]
@@ -35,7 +37,9 @@ namespace InDet{
       //for(int kk=0; kk<(int)(*WrkVrtSet)[iv].SelTrk.size(); kk++) {
       //          std::cout<<", "<<MomAtVrt((*WrkVrtSet)[iv].TrkAtVrt[kk]).Perp();}
       std::cout<<'\n';
+      if((*WrkVrtSet)[iv].Good)nGoodV++;
     }
+    std::cout<<name<<" N="<<nGoodV<<'\n';
   }
 
                /*  Technicalities */
@@ -495,21 +499,25 @@ namespace InDet{
   {
     	blHit=l1Hit=l2Hit=nLays=0; 
         if(m_existIBL){              // 4-layer pixel detector
-          uint8_t IBLhit,BLhit,NPlay;
+          uint8_t IBLhit,BLhit,NPlay,IBLexp,BLexp;
           if(!Part->summaryValue( IBLhit,  xAOD::numberOfInnermostPixelLayerHits) )        IBLhit = 0;
           if(!Part->summaryValue(  BLhit,  xAOD::numberOfNextToInnermostPixelLayerHits) )   BLhit = 0;
           if(!Part->summaryValue(  NPlay,  xAOD::numberOfContribPixelLayers) )              NPlay = 0;
-          blHit=IBLhit;
-          l1Hit= BLhit;
-	  l2Hit=1;
-          if((IBLhit+BLhit) == 0){      //no hits in IBL and BL
-	     if(NPlay>=1) { l2Hit=1; }  // at least one of remaining layers is fired
-	     if(NPlay==0) { l2Hit=0; }
-          }else if( IBLhit*BLhit == 0){ // one hit in IBL and BL. Others are presumably also fired
-	     if(NPlay>=2) { l2Hit=1; }
-	     if(NPlay<=1) { l2Hit=0; }  // no fired layer except for IBL/BL
-          }
+          if(!Part->summaryValue( IBLexp,  xAOD::expectInnermostPixelLayerHit) )           IBLexp = 0;
+          if(!Part->summaryValue(  BLexp,  xAOD::expectNextToInnermostPixelLayerHit) )      BLexp = 0;
+          blHit=IBLhit; if( IBLexp==0 ) blHit=-1;
+          l1Hit= BLhit; if(  BLexp==0 ) l1Hit=-1;
           nLays=NPlay;
+          //if((IBLhit+BLhit) == 0){      //no hits in IBL and BL  VK OLD VERSION WITHOUT PATTERN AVAILABLE
+	  //   if(NPlay>=1) { l2Hit=1; }  // at least one of remaining layers is fired
+	  //   if(NPlay==0) { l2Hit=0; }
+          //}else if( IBLhit*BLhit == 0){ // one hit in IBL and BL. Others are presumably also fired
+	  //   if(NPlay>=2) { l2Hit=1; }
+	  //   if(NPlay<=1) { l2Hit=0; }  // no fired layer except for IBL/BL
+          //}
+          uint32_t HitPattern=Part->hitPattern();
+	  l2Hit=0; if( HitPattern&((int)pow(2,Trk::pixelBarrel2)) ) l2Hit=1;
+	  //   bitH=HitPattern&((int)pow(2,Trk::pixelBarrel1));
         } else {                     // 3-layer pixel detector
           uint8_t BLhit,NPlay,NHoles,IBLhit;
           if(!Part->summaryValue( BLhit,  xAOD::numberOfBLayerHits) )          BLhit = 0;
@@ -518,22 +526,38 @@ namespace InDet{
           if(!Part->summaryValue( NPlay,  xAOD::numberOfContribPixelLayers) )  NPlay = 0;
           if(!Part->summaryValue(NHoles,  xAOD::numberOfPixelHoles) )         NHoles = 0;
           blHit=BLhit;  //B-layer hit is fired. Presumable all other layers are also fired.
-	  l1Hit=1;
-	  l2Hit=1;
-          if (BLhit==0) {   //B-layer hit is absent. 
-	     if(NPlay>=2) { l1Hit=l2Hit=1;}
-	     if(NPlay==0) { l1Hit=l2Hit=0;}
-	     if(NPlay==1) { 
-	       if( NHoles==0) {l1Hit=0; l2Hit=1;}  
-	       if( NHoles>=1) {l1Hit=1; l2Hit=0;}  
-             }
-          }
           nLays=NPlay;
+          //if (BLhit==0) {   //B-layer hit is absent. 
+	  //   if(NPlay>=2) { l1Hit=l2Hit=1;}
+	  //   if(NPlay==0) { l1Hit=l2Hit=0;}
+	  //   if(NPlay==1) { 
+	  //     if( NHoles==0) {l1Hit=0; l2Hit=1;}  
+	  //     if( NHoles>=1) {l1Hit=1; l2Hit=0;}  
+          //   }
+          //}
+          uint32_t HitPattern=Part->hitPattern();
+	  l1Hit=0; if( HitPattern&((int)pow(2,Trk::pixelBarrel1)) ) l1Hit=1;
+	  l2Hit=0; if( HitPattern&((int)pow(2,Trk::pixelBarrel2)) ) l2Hit=1;
         }
 
   }
 
-
+  void   InDetVKalVxInJetTool::getPixelDiscs(const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const
+  {
+        uint32_t HitPattern=Part->hitPattern();
+	d0Hit=0; if( HitPattern&((int)pow(2,Trk::pixelEndCap0)) ) d0Hit=1;
+	d1Hit=0; if( HitPattern&((int)pow(2,Trk::pixelEndCap1)) ) d1Hit=1;
+	d2Hit=0; if( HitPattern&((int)pow(2,Trk::pixelEndCap2)) ) d2Hit=1;
+  }
+  void   InDetVKalVxInJetTool::getPixelDiscs(const  Rec::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const
+  {
+        const Trk::TrackSummary* testSum = Part->trackSummary();
+        if(testSum){ 
+	       if(testSum->isHit(Trk::pixelEndCap0))d0Hit=1;
+	       if(testSum->isHit(Trk::pixelEndCap1))d1Hit=1;
+	       if(testSum->isHit(Trk::pixelEndCap2))d2Hit=1;
+        } else d0Hit=d1Hit=d2Hit=0; 
+  }
 
 /*************************************************************************************************************/
    const std::vector<const Trk::TrackParticleBase*> 
@@ -819,6 +843,12 @@ namespace InDet{
       VrtCovMtx(1,2) = VrtCovMtx(2,1) = ErrorMatrix[4];
       VrtCovMtx(2,2)                  = ErrorMatrix[5];
       return VrtCovMtx;
+  }
+
+  double InDetVKalVxInJetTool::trkPtCorr(double pT) const
+  {
+     double adp=pT/64000.; if(adp<0.)adp=0; if(adp>1.)adp=1.; adp=sqrt(adp)/2.;
+     return adp;
   }
 
 }  //end namespace

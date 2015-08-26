@@ -149,6 +149,7 @@ namespace InDet {
       TH1D* m_hb_impactZ;
       TH1D* m_hb_r2d;
       TH1D* m_hb_r2dc;
+      TH1D* m_hb_dstToMat;
       TH1D* m_hb_jmom;
       TH1D* m_hb_mom;
       TH1D* m_hb_signif3D;
@@ -170,6 +171,9 @@ namespace InDet {
       TH1F* m_hb_lifetime;
       TH1F* m_hb_trkPErr;
       TProfile * m_pr_effVrt2tr;
+      TProfile * m_pr_effVrt2trEta;
+      TProfile * m_pr_effVrt;
+      TProfile * m_pr_effVrtEta;
       long int m_iflag;
 
       SimpleProperty<int>    m_Robustness;
@@ -191,10 +195,9 @@ namespace InDet {
       double m_ConeForTag;
       double m_Sel2VrtChi2Cut;
       double m_Sel2VrtSigCut;
-      double m_Sel2VrtSigNTrkDep;
       double m_TrkSigCut;
       double m_TrkSigSumCut;
-      double m_TrkSigSumNTrkDep;
+      double m_TrkSigNTrkDep;
       double m_A0TrkErrorCut;
       double m_ZTrkErrorCut;
       double m_AntiPileupSigRCut;
@@ -221,6 +224,7 @@ namespace InDet {
       double m_RlayerB;
       double m_Rlayer1;
       double m_Rlayer2;
+      double m_Rlayer3;
       double m_SVResolutionR;
 
       bool     m_useMaterialRejection;
@@ -248,7 +252,10 @@ namespace InDet {
       double m_massE;
       double m_massK0;
       double m_massLam;
+      double m_massB;
       mutable int m_NRefTrk;    //Measure of track in jet multiplicity
+      std::string m_instanceName;
+
 
 // For multivertex version only
 
@@ -267,7 +274,7 @@ namespace InDet {
          int nCloseVrt;
          double dCloseVrt;
 	 double ProjectedVrt;
-         int detachedTrack;
+         int detachedTrack=-1;
 	 };
 
 
@@ -363,6 +370,7 @@ namespace InDet {
       double FitCommonVrt(std::vector<const Trk*>& ListSecondTracks,
                           std::vector<int>     & cntComb,
                           const xAOD::Vertex   & PrimVrt,
+ 	                  const TLorentzVector & JetDir,
                           std::vector<double>  & InpMass, 
 	                  Amg::Vector3D        & FitVertex,
                           std::vector<double>  & ErrorMatrix,
@@ -389,7 +397,7 @@ namespace InDet {
       template <class Particle>
       double  improveVertexChi2( std::vector<WrkVrt> *WrkVrtSet, int V, std::vector<const Particle*> & AllTracks)const;
 
-     int   SelGoodTrkParticle( const std::vector<const Rec::TrackParticle*>& InpPart,
+      int   SelGoodTrkParticle( const std::vector<const Rec::TrackParticle*>& InpPart,
                                 const xAOD::Vertex                          & PrimVrt,
 	                        const TLorentzVector                        & JetDir,
                                       std::vector<const Rec::TrackParticle*>& SelPart) const;
@@ -420,6 +428,7 @@ namespace InDet {
 
      Trk::TrackParticleBase *  CreateParticle(const Trk::ExtendedVxCandidate * vxCandidate) const;
      double massError(const Trk::ExtendedVxCandidate * vxCandidate, double mass) const;
+     double trkPtCorr(double pT) const;
      Amg::MatrixX SetFullMatrix(int NTrk, std::vector<double> & Matrix) const;
 
 
@@ -434,8 +443,10 @@ namespace InDet {
      template <class Track>
      bool  Check2TrVertexInPixel( const Track* p1, const Track* p2, Amg::Vector3D &, double ) const;
 
-     void  getPixelLayers(const Rec::TrackParticle* Part,  int &blHit, int &l1Hit, int &l2Hit, int &nLay) const;
+     void  getPixelLayers(const  Rec::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLay) const;
      void  getPixelLayers(const xAOD::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLay) const;
+     void  getPixelDiscs(const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const;
+     void  getPixelDiscs(const  Rec::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const;
 
 
      StatusCode VKalVrtFitBase(const std::vector<const Rec::TrackParticle*> & listPart,
@@ -466,12 +477,8 @@ namespace InDet {
   {
     if(Outlier < 0 ) return;
     if(Outlier >= (int)ListTracks.size() ) return;
-    typename std::vector<const Trk*>::iterator   TransfEnd;
-    TransfEnd = remove( ListTracks.begin(), ListTracks.end(), ListTracks[Outlier]);
-    ListTracks.erase( TransfEnd,ListTracks.end());
-    typename std::vector<int>::iterator   cntEnd;
-    cntEnd = remove( cnt.begin(), cnt.end(), cnt[Outlier]);
-    cnt.erase( cntEnd,cnt.end());
+    ListTracks.erase( ListTracks.begin()+Outlier);
+    cnt.erase( cnt.begin()+Outlier);
   }     
 
   template <class Trk>

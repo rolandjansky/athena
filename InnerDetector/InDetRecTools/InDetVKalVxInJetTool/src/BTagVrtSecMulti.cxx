@@ -12,6 +12,7 @@
 #include  "TrkParticleBase/TrackParticleBaseCollection.h"
 #include  "VxVertex/VxTrackAtVertex.h"
 #include  "TrkParticleCreator/TrackParticleCreatorTool.h"
+#include  "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include  "TMath.h"
 #include  <algorithm>
 //
@@ -387,11 +388,12 @@ namespace InDet{
     int nGoodVertices=0;         // Final number of good vertices
     m_fitSvc->setDefault();
     m_fitSvc->setMomCovCalc(1);
-    double Signif3D, Dist2D, Dist3D, Signif3Dproj;
+    double Signif3D, Signif3Dproj;
+    //double Dist3D=0;
     int n2trVrt=0;              // N vertices with 2 and more tracks
     for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
           if(!(*WrkVrtSet)[iv].Good )                 continue;  //don't work on vertex which is already bad
-          if( fabs((*WrkVrtSet)[iv].vertex.z())>650. )continue;  //vertex outside Pixel det.
+          if( fabs((*WrkVrtSet)[iv].vertex.z())>650. ){(*WrkVrtSet)[iv].Good=false; continue;}  //vertex outside Pixel det.
           nth=(*WrkVrtSet)[iv].SelTrk.size();
           Signif3Dproj=VrtVrtDist(PrimVrt, (*WrkVrtSet)[iv].vertex, (*WrkVrtSet)[iv].vertexCov, JetDir);
           //VrtVrtDist(PrimVrt,(*WrkVrtSet)[iv].vertex, (*WrkVrtSet)[iv].vertexCov, Signif3D); //VK non-projected Signif3D is worse
@@ -416,14 +418,12 @@ namespace InDet{
           if(nth <= 1)                          continue;                    /* Definitely bad vertices */
           if((*WrkVrtSet)[iv].ProjectedVrt<0.)  continue;                    /* Remove vertices behind primary one */ 
           if(xAODwrk)xAODwrk->tmpListTracks.clear(); else if(RECwork)RECwork->tmpListTracks.clear();
-          int TrkAbovePtCut=0;
           for(i=0;i<nth;i++) {
 	    j=(*WrkVrtSet)[iv].SelTrk[i];                           /*Track number*/
             if     (xAODwrk)xAODwrk->tmpListTracks.push_back( xAODwrk->listJetTracks[j] );
 	    else if(RECwork)RECwork->tmpListTracks.push_back( RECwork->listJetTracks[j] );
-            if( MomAtVrt((*WrkVrtSet)[iv].TrkAtVrt[i]).Perp() > m_JetPtFractionCut*JetDir.Perp() )TrkAbovePtCut++;
           }
-          //VK   Refitting is not needed here - done previously. Option for saftey
+          //VK   Refitting is not needed here - done previously. Option for safety
 	  //sc.setCode(0);
           //if     (xAODwrk)sc = RefitVertex( WrkVrtSet, iv, xAODwrk->listJetTracks);
           //else if(RECwork)sc = RefitVertex( WrkVrtSet, iv, RECwork->listJetTracks);
@@ -431,10 +431,17 @@ namespace InDet{
           //---------------------------------------------------------------------------         
           if( TMath::Prob( (*WrkVrtSet)[iv].Chi2, 2*nth-3)<0.001) continue;           /* Bad Chi2 of refitted vertex  */
 //----
-          Dist2D= (*WrkVrtSet)[iv].vertex.perp();
-          Dist3D=((*WrkVrtSet)[iv].vertex-PrimVrt.position()).mag();
+          //Dist3D=((*WrkVrtSet)[iv].vertex-PrimVrt.position()).mag();  /*Not needed currently*/
 //----
 //        if(PrmVrtAdded && iv==PrmVrtAdded && Dist3D<3.5) continue;  /* Skip added primary vertex */
+//----
+          bool isolVrt=true; // Check whether this vertex is linked with any 1tr vertex
+	  if(nth==2){
+             for(int jv=0; jv<(int)WrkVrtSet->size(); jv++)  if( (*WrkVrtSet)[jv].Good  && iv!=jv && (*WrkVrtSet)[jv].SelTrk.size()==1) {
+                for(i=0;i<nth;i++) if( (*WrkVrtSet)[iv].SelTrk[i] == (*WrkVrtSet)[jv].detachedTrack )isolVrt=false;
+                if(!isolVrt) break;
+             }
+          }
 //----
           if(nth==2 && m_useVertexCleaning){
             if(RECwork){
@@ -446,17 +453,26 @@ namespace InDet{
 //
 //---  Check interactions on pixel layers
 //
-	  if(m_useMaterialRejection && nth==2){
+          if(m_useMaterialRejection && nth==2 && isolVrt){
 	    double xvt=(*WrkVrtSet)[iv].vertex.x(); double yvt=(*WrkVrtSet)[iv].vertex.y();
-            Dist2D=sqrt( (xvt-m_XlayerB)*(xvt-m_XlayerB) + (yvt-m_YlayerB)*(yvt-m_YlayerB) ); 
-	    if( fabs(Dist2D-m_RlayerB) < 3.5)  continue;
-            Dist2D=sqrt( (xvt-m_Xlayer1)*(xvt-m_Xlayer1) + (yvt-m_Ylayer1)*(yvt-m_Ylayer1) ); 
-	    if( fabs(Dist2D-m_Rlayer1) < 4.0)  continue;
-            Dist2D=sqrt( (xvt-m_Xlayer2)*(xvt-m_Xlayer2) + (yvt-m_Ylayer2)*(yvt-m_Ylayer2) );
-            if( fabs(Dist2D-m_Rlayer2) < 5.0)  continue;
-          }
+            float Dist2DBP=sqrt( (xvt-m_Xbeampipe)*(xvt-m_Xbeampipe) + (yvt-m_Ybeampipe)*(yvt-m_Ybeampipe) ); 
+            float Dist2DBL=sqrt( (xvt-m_XlayerB)*(xvt-m_XlayerB) + (yvt-m_YlayerB)*(yvt-m_YlayerB) ); 
+            float Dist2DL1=sqrt( (xvt-m_Xlayer1)*(xvt-m_Xlayer1) + (yvt-m_Ylayer1)*(yvt-m_Ylayer1) );
+            float Dist2DL2=sqrt( (xvt-m_Xlayer2)*(xvt-m_Xlayer2) + (yvt-m_Ylayer2)*(yvt-m_Ylayer2) );
+            if(m_existIBL){              // 4-layer pixel detector
+               if( fabs(Dist2DBP-m_Rbeampipe)< 1.0)  continue;           // Beam Pipe removal  
+               if( fabs(Dist2DBL-m_RlayerB)  < 2.5)  continue;
+               if( fabs(Dist2DL1-m_Rlayer1)  < 3.0)  continue;
+               if( fabs(Dist2DL2-m_Rlayer2)  < 3.0)  continue;
+            }else{                       // 3-layer pixel detector
+               if( fabs(Dist2DBP-m_Rbeampipe)< 1.5)  continue;           // Beam Pipe removal  
+               if( fabs(Dist2DBL-m_RlayerB)  < 3.5)  continue;
+               if( fabs(Dist2DL1-m_Rlayer1)  < 4.0)  continue;
+               if( fabs(Dist2DL2-m_Rlayer2)  < 5.0)  continue;
+            }
+         }
 //---  Check V0s and conversions
-          if( nth==2 && (*WrkVrtSet)[iv].vertexCharge==0 ){
+          if(nth==2 && (*WrkVrtSet)[iv].vertexCharge==0 && isolVrt){
              double mass_PiPi =  (*WrkVrtSet)[iv].vertexMom.M();  
              double mass_PPi  =  massV0((*WrkVrtSet)[iv].TrkAtVrt,m_massP,m_massPi);
              double mass_EE   =  massV0((*WrkVrtSet)[iv].TrkAtVrt,m_massE,m_massE);
@@ -464,50 +480,50 @@ namespace InDet{
              if(m_FillHist)m_hb_totmassEE->Fill( mass_EE, w_1);
 	     if( fabs(mass_PiPi-m_massK0) < 22.)   continue;
  	     if( fabs(mass_PPi-m_massLam) <  8.)   continue;
-             if( mass_EE < 80. && (*WrkVrtSet)[iv].vertex.perp() > 20.) continue;
+             if( mass_EE < 40. && (*WrkVrtSet)[iv].vertex.perp() > 20.) continue;
           }          
 //---
           if(m_FillHist){m_hb_sig3DTot->Fill( Signif3Dproj, w_1); }
-          if(m_FillHist){m_hb_tr2SelVar->Fill(Dist2D/10., w_1);}
 //---
           if(Signif3Dproj<m_Sel2VrtSigCut)continue;      //Main PV-SV distance quality cut 
-          if(nth<=2 && TrkAbovePtCut==0) continue;
-	  if(nth >2 && TrkAbovePtCut <2) continue;
 //-----
-	if(Dist2D<2.){
-          double tmpProb=0.;
-          if     (xAODwrk)tmpProb=FitVertexWithPV( WrkVrtSet, iv, PrimVrt, xAODwrk->listJetTracks);
-          else if(RECwork)tmpProb=FitVertexWithPV( WrkVrtSet, iv, PrimVrt, RECwork->listJetTracks);
-          if(m_FillHist){m_hb_trkPtMax->Fill( tmpProb*1.e5, w_1); }
-          if(tmpProb>0.01)continue; // Vertex can be associated with PV
-	}
+//        float Dist2D= (*WrkVrtSet)[iv].vertex.perp();
+//	  if(Dist2D<2.){
+//            double tmpProb=0.;
+//            if     (xAODwrk)tmpProb=FitVertexWithPV( WrkVrtSet, iv, PrimVrt, xAODwrk->listJetTracks);
+//            else if(RECwork)tmpProb=FitVertexWithPV( WrkVrtSet, iv, PrimVrt, RECwork->listJetTracks);
+//            if(m_FillHist){m_hb_trkPtMax->Fill( tmpProb*1.e5, w_1); }
+//            if(tmpProb>0.01)continue; // Vertex can be associated with PV
+//	  }
 //---
           (*WrkVrtSet)[iv].Good = true;  /* Vertex is absolutely good */
           nGoodVertices++;
           if(nth>=2)n2trVrt++;
     }
 //
-// Cleaning - single 2tr vertex
+// Cleaning - single vertex close to PV
     if( n2trVrt==1 && nGoodVertices==1 && (!m_MultiWithPrimary) ){
       for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
-        if( !(*WrkVrtSet)[iv].Good || (*WrkVrtSet)[iv].SelTrk.size() != 2) continue;
- 	VrtVrtDist(PrimVrt,(*WrkVrtSet)[iv].vertex, (*WrkVrtSet)[iv].vertexCov, Signif3D); // Non-projected significance
-	if(Signif3D < (m_Sel2VrtSigCut+m_Sel2VrtSigNTrkDep*m_NRefTrk))(*WrkVrtSet)[iv].Good = false;
-        //if( MomAtVrt((*WrkVrtSet)[iv].TrkAtVrt[0]).Perp() < m_JetPtFractionCut*JetDir.Perp() ) (*WrkVrtSet)[iv].Good = false;
-        //if( MomAtVrt((*WrkVrtSet)[iv].TrkAtVrt[1]).Perp() < m_JetPtFractionCut*JetDir.Perp() ) (*WrkVrtSet)[iv].Good = false;
+        if( !(*WrkVrtSet)[iv].Good ) continue;
+	if((*WrkVrtSet)[iv].vertex.perp()<2.){
+          double tmpProb=0.;
+          if     (xAODwrk)tmpProb=FitVertexWithPV( WrkVrtSet, iv, PrimVrt, xAODwrk->listJetTracks);
+          else if(RECwork)tmpProb=FitVertexWithPV( WrkVrtSet, iv, PrimVrt, RECwork->listJetTracks);
+          if(m_FillHist){m_hb_trkPtMax->Fill( tmpProb*1.e5, w_1); }
+          if(tmpProb>0.01)continue; // Vertex can be associated with PV
+	}
       }
     }
 //
 //--Experimental lifetime-based selection
-    for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
-      if(!(*WrkVrtSet)[iv].Good)continue;
-      if( (*WrkVrtSet)[iv].SelTrk.size() == 0) continue;   /* Definitely bad vertices */
-      double lifeTime=(*WrkVrtSet)[iv].ProjectedVrt*(*WrkVrtSet)[iv].vertexMom.M()/(*WrkVrtSet)[iv].vertexMom.E();
-      if(m_FillHist){m_hb_lifetime->Fill( sqrt(lifeTime), w_1); }
-      if(lifeTime>2.)(*WrkVrtSet)[iv].Good=false;  
-    }
+//    for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
+//      if(!(*WrkVrtSet)[iv].Good)continue;
+//      double lifeTime=(*WrkVrtSet)[iv].ProjectedVrt*(*WrkVrtSet)[iv].vertexMom.M()/(*WrkVrtSet)[iv].vertexMom.E();
+//      if(m_FillHist){m_hb_lifetime->Fill( sqrt(lifeTime), w_1); }
+//      if(lifeTime>2.)(*WrkVrtSet)[iv].Good=false;  
+//    }
 //
-// Cleaning -  1track vertices set
+//--Cleaning -  1track vertices set
     Clean1TrVertexSet(WrkVrtSet);
 //-------------------------------------------
 //checks
@@ -516,6 +532,9 @@ namespace InDet{
     n2trVrt=0;               // N vertices with 2 and more tracks
     for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
        nth=(*WrkVrtSet)[iv].SelTrk.size(); if(nth == 0) continue;   /* Definitely bad vertices */
+       Amg::Vector3D tmpVec=(*WrkVrtSet)[iv].vertex-PrimVrt.position();
+       TLorentzVector Momentum(tmpVec.x(),tmpVec.y(),tmpVec.z(),m_massPi);
+       if(Momentum.DeltaR(JetDir)>m_ConeForTag) (*WrkVrtSet)[iv].Good=false; /* Vertex outside jet cone */
        if( (*WrkVrtSet)[iv].Good) {
 	  nGoodVertices++;                                    
           WrkVrt tmpVrt((*WrkVrtSet)[iv]);
@@ -554,9 +573,9 @@ namespace InDet{
 //----------------------------------------------------------------------------------
 //  Nonused tracks for one-track-vertex search
 //
-    if( m_MultiWithOneTrkVrt && (!m_MultiWithPrimary) ){        // Addition of one-track vertices is allowed
+    if( m_MultiWithOneTrkVrt && (!m_MultiWithPrimary) && nGoodVertices<4){        // Addition of one-track vertices is allowed
       double addVrtChi2Cut   =3.0;
-      double addDistRatioCut =0.5;
+      double addDistRatioCut =0.25;
       int tmpNTrk=0; if(xAODwrk)tmpNTrk=xAODwrk->listJetTracks.size(); else if(RECwork)tmpNTrk=RECwork->listJetTracks.size();
       std::vector<long int> nonusedTracks;
       std::vector<double> Impact,ImpactError;
@@ -583,25 +602,37 @@ namespace InDet{
       std::vector<WrkVrt> AddedVerticesClean;
       if(nonusedTracks.size()>0 ){
         std::vector<double> VKPerigee,CovPerigee; std::vector<double> ErrorMatrix(21,0.);
-        ErrorMatrix[0]=ErrorMatrix[2]=ErrorMatrix[5]=ErrorMatrix[9]=ErrorMatrix[14]=ErrorMatrix[20]=1.e-6;
+        ErrorMatrix[0]=ErrorMatrix[2]=ErrorMatrix[5]=1.e-2;
         for(int iv=0; iv<(int)GoodVertices.size(); iv++) {
           if(GoodVertices[iv].SelTrk.size()<2) continue; 
           VrtVrtDist(PrimVrt, GoodVertices[iv].vertex, newvrt.vertexCov, Signif3D);
           if(Signif3D<10.) continue;   //Too close to primary vertex. Direction not robust
           Amg::Vector3D tmpVec=GoodVertices[iv].vertex-PrimVrt.position(); tmpVec.normalize();
-          TLorentzVector Momentum(tmpVec.x(),tmpVec.y(),tmpVec.z(),1.); Momentum *= 1.e5;
-          sc=m_fitSvc->VKalVrtCvtTool(GoodVertices[iv].vertex,Momentum,ErrorMatrix,0,VKPerigee,CovPerigee);
+	  ErrorMatrix[ 9]=1.e9*tmpVec.x()*tmpVec.x();
+	  ErrorMatrix[14]=1.e9*tmpVec.y()*tmpVec.y();
+	  ErrorMatrix[20]=1.e9*tmpVec.z()*tmpVec.z();
+	  Amg::setMag(tmpVec,1.e5); TLorentzVector Momentum(tmpVec.x(),tmpVec.y(),tmpVec.z(),m_massPi);
+          //std::copy(GoodVertices[iv].vertexCov.begin(),GoodVertices[iv].vertexCov.begin()+6,ErrorMatrix.begin());
+          //sc=m_fitSvc->VKalVrtCvtTool(GoodVertices[iv].vertex,Momentum,ErrorMatrix,0,VKPerigee,CovPerigee);
+          sc=m_fitSvc->VKalVrtCvtTool(PrimVrt.position(),Momentum,ErrorMatrix,0,VKPerigee,CovPerigee);
           if(sc.isSuccess()) {
-            double distRef=(GoodVertices[iv].vertex-PrimVrt.position()).mag(); //Distance of already found vertex
-            double addChi2Min=999999.;                            //For selection of the best candidate for given existing vertex
+            double distRef=(GoodVertices[iv].vertex-PrimVrt.position()).perp(); //Distance of already found vertex
+            double maxDistRatio=-999.;                            //For selection of the best candidate for given existing vertex
             WrkVrt newvrt; newvrt.Good=true;
             Trk::Track* TT(0); 
             Rec::TrackParticle* TP(0);
             xAOD::TrackParticle * xaodTP(0);
-            if( RECwork && m_trkPartCreator){
-              TT = m_fitSvc->CreateTrkTrack(VKPerigee,CovPerigee); 
-              TP=m_trkPartCreator->createParticle(TT);
-              RECwork->tmpListTracks.clear(); RECwork->tmpListTracks.push_back(TP);
+            if( RECwork ) {
+              if ( !m_trkPartCreator ){ 
+                 if ( m_trkPartCreator.retrieve().isFailure() )
+                    {if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve TrackParticleCreator tool" << endreq;}
+                 else {if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackParticleCreator tool" << m_trkPartCreator << endreq;}
+              }
+	      if( m_trkPartCreator ){
+                TT = m_fitSvc->CreateTrkTrack(VKPerigee,CovPerigee); 
+                TP=m_trkPartCreator->createParticle(TT);
+                RECwork->tmpListTracks.clear(); RECwork->tmpListTracks.push_back(TP);
+	      }
             } else if(xAODwrk){
               xaodTP=new xAOD::TrackParticle();
               xaodTP->makePrivateStore();
@@ -609,6 +640,7 @@ namespace InDet{
 	      std::vector<float> floatCovPerigee(15,0); for(i=0; i<15; i++)floatCovPerigee[i]=(float)CovPerigee[i];
 	      xaodTP->setDefiningParametersCovMatrixVec(floatCovPerigee);
               xaodTP->setParametersOrigin(0.,0.,0.);
+              //xaodTP->setRadiusOfFirstHit(25.);
               xAODwrk->tmpListTracks.clear(); xAODwrk->tmpListTracks.push_back(xaodTP);
 	    }
             //
@@ -625,18 +657,21 @@ namespace InDet{
 		                                  newvrt.vertexCov, newvrt.Chi2PerTrk, newvrt.TrkAtVrt, newvrt.Chi2);   
               }	      
               if( sc.isSuccess() ) {
-                //if(m_FillHist){ m_hb_tr2SelVar->Fill( newvrt.Chi2 , 1.); }
+                if(tmpVec.dot(newvrt.vertex-PrimVrt.position())<0.) continue;
+	        double distRatio=(newvrt.vertex-PrimVrt.position()).perp()/distRef;
+                if( distRatio < 0.05) continue;                                              // Too close to primary vertex (Preliminary!!!) 
+                if(m_FillHist){ m_hb_tr2SelVar->Fill( newvrt.Chi2 , 1.); }
                 if(newvrt.Chi2>addVrtChi2Cut) continue;
-                if(m_FillHist)m_hb_addRatioMV->Fill( (newvrt.vertex-PrimVrt.position()).mag()/distRef,1.);
-                if( (newvrt.vertex-PrimVrt.position()).mag()/distRef < addDistRatioCut) continue;  // Too close to primary vertex
+                if(m_FillHist)m_hb_addRatioMV->Fill( distRatio,1.);
+                if( distRatio < addDistRatioCut) continue;                                 // Too close to primary vertex
                 newvrt.Good=true;  newvrt.vertexCharge +=1.;                               //Compensate charge of pseudotrack
                 newvrt.SelTrk.clear(); newvrt.SelTrk.push_back(nonusedTracks[add]);        //Add the only nonused track
                 newvrt.vertexMom=MomAtVrt(newvrt.TrkAtVrt[1]);                             //Redefine VertexMom using SINGLE REAL track
-                if(newvrt.Chi2 < addChi2Min){ if(addChi2Min!=999999.)AddedVertices.pop_back(); AddedVertices.push_back(newvrt); addChi2Min=newvrt.Chi2;}
+                if(distRatio > maxDistRatio){ if(maxDistRatio!=-999.)AddedVertices.pop_back(); AddedVertices.push_back(newvrt); maxDistRatio=distRatio;}
 	      } 
 	      if(RECwork)RECwork->tmpListTracks.pop_back(); else if(xAODwrk)xAODwrk->tmpListTracks.pop_back();
 	    }
-            if(addChi2Min<999999. && m_FillHist) m_hb_addChi2MV->Fill(AddedVertices[AddedVertices.size()-1].Chi2,1.);
+            if(maxDistRatio>0. && m_FillHist) m_hb_addChi2MV->Fill(AddedVertices[AddedVertices.size()-1].Chi2,1.);
             if     (RECwork){ RECwork->tmpListTracks.clear(); delete TT; delete TP; }
 	    else if(xAODwrk){ xAODwrk->tmpListTracks.clear(); delete xaodTP; }
           }
@@ -716,6 +751,7 @@ namespace InDet{
           tmpVertex->makePrivateStore();
           tmpVertex->setPosition(GoodVertices[iv].vertex);
           int NERMS=GoodVertices[iv].vertexCov.size();
+	  NERMS=6;
           std::vector<float> floatErrMtx;   floatErrMtx.resize(NERMS);
           for(int i=0; i<NERMS; i++) floatErrMtx[i]=GoodVertices[iv].vertexCov[i];
           tmpVertex->setCovariance(floatErrMtx);
@@ -946,10 +982,10 @@ namespace InDet{
 	       if( (*WrkVrtSet)[VertexNumber].SelTrk[itmp] == it ) {         /* Track found*/        
                 //Chi2Red=(*WrkVrtSet)[VertexNumber].Chi2PerTrk.at(itmp)/m_chiScale[(NTrkInVrt<10?NTrkInVrt:10)]; //   Reduced Chi2
 	        //if(NTrkInVrt==2){ Chi2Red += 30./((*WrkVrtSet)[VertexNumber].vertex.perp()+5.);}       //VK Reduce vrt multiplicity. May decrease fake rate
-	          Chi2Red=(*WrkVrtSet)[VertexNumber].Chi2PerTrk.at(itmp);            //   Normal Chi2 seems the best
-                //Chi2Red=(*WrkVrtSet)[VertexNumber].Chi2PerTrk.at(itmp)/NTrkInVrt;  //VK Favour large multiplicities
+	        //Chi2Red=(*WrkVrtSet)[VertexNumber].Chi2PerTrk.at(itmp);            //   Normal Chi2 seems the best
+	          Chi2Red=(*WrkVrtSet)[VertexNumber].Chi2PerTrk.at(itmp)+(*WrkVrtSet)[VertexNumber].Chi2/NTrkInVrt;//Improved normal
                   if(NTrkInVrt==2){
-		    Chi2Red=(*WrkVrtSet)[VertexNumber].Chi2/2.;                     //VK disfavour 2track vertices
+		  //Chi2Red=(*WrkVrtSet)[VertexNumber].Chi2/2.;                     //VK 2track vertices with Normal Chi2Red
 	            if((*WrkVrtSet)[VertexNumber].vertexMom.M()>6000.)Chi2Red=100.; //VK break immediately very heavy 2tr vertices
                   }
                   if( MaxOf < Chi2Red ){
@@ -961,6 +997,18 @@ namespace InDet{
             }
 	 }
       }
+//-- Additional check for a common track in 2tr-2tr vertex topology
+      if( (*TrkInVrt)[SelectedTrack].size() == 2){
+          int v1=(*TrkInVrt)[SelectedTrack][0]; int v2=(*TrkInVrt)[SelectedTrack][1];
+          if( (*WrkVrtSet)[v1].SelTrk.size()==2 && (*WrkVrtSet)[v2].SelTrk.size()==2){
+            if( (*WrkVrtSet)[SelectedVertex].Chi2 < TMath::ChisquareQuantile(0.9, 1) ){    // Probability > 10%!!!
+              double vr1=(*WrkVrtSet)[v1].vertex.perp(); double vr2=(*WrkVrtSet)[v2].vertex.perp();
+              if     (SelectedVertex==v1 && vr2<vr1/2.) SelectedVertex=v2;  // Swap to remove the closest vertex
+              else if(SelectedVertex==v2 && vr1<vr2/2.) SelectedVertex=v1;  // Swap to remove the closest vertex
+            }
+	  }
+      }
+//
       return MaxOf;
    }
 

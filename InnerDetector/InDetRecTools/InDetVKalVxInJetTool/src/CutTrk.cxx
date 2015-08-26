@@ -66,16 +66,16 @@ namespace InDet{
           double trkChi2=1.; if(TrkQual) trkChi2=TrkQual->chiSquared() / TrkQual->numberDoF();
           double CovTrkMtx11 = (*(m_mPer->covariance()))(0,0);
           double CovTrkMtx22 = (*(m_mPer->covariance()))(1,1);
-          double CovTrkMtx55 = (*(m_mPer->covariance()))(4,4);
 
 	  if ( CovTrkMtx11 > m_A0TrkErrorCut*m_A0TrkErrorCut )  continue;
 	  if ( CovTrkMtx22 > m_ZTrkErrorCut*m_ZTrkErrorCut )    continue;
 	  if( ConeDist(VectPerig,JetDir) > m_ConeForTag )       continue;
 
           double trkP=1./fabs(VectPerig[4]);         
+          double CovTrkMtx55 = (*(m_mPer->covariance()))(4,4);
           if(trkP>10000.){  double trkPErr=sqrt(CovTrkMtx55)*trkP;
 	                    if(m_FillHist)m_hb_trkPErr->Fill( trkPErr , w_1);       
-                            if(trkPErr>0.15) continue;   }
+                            if(trkPErr>0.5) continue;   }
 
           long int PixelHits     = 3;
           long int SctHits       = 9; 
@@ -136,7 +136,7 @@ namespace InDet{
           m_mPer=GetPerigee( (*i_ntrk) ) ;
           if( m_mPer == NULL ){ continue; } 
           VectPerig = m_mPer->parameters(); 
-	  if( ConeDist(VectPerig,JetDir) > m_ConeForTag*1.3 )       continue;
+	  if( ConeDist(VectPerig,JetDir) > m_ConeForTag )       continue;
 //----------------------------------- Summary tools
           const Trk::TrackSummary* testSum = (*i_ntrk)->trackSummary();
           long int PixelHits = (long int) testSum->get(Trk::numberOfPixelHits);
@@ -194,15 +194,23 @@ namespace InDet{
           double trkP=1./fabs(VectPerig[4]);         
           if(trkP>10000.){  double trkPErr=sqrt(CovTrkMtx55)*trkP;
 	                    if(m_FillHist)m_hb_trkPErr->Fill( trkPErr , w_1);       
-                            if(trkPErr>0.15) continue;   }
+                            if(trkPErr>0.5) continue;   }
 
-          uint8_t PixelHits,SctHits,BLayHits,SharedHits;
-          if( !((*i_ntrk)->summaryValue(PixelHits,xAOD::numberOfPixelHits)) ) PixelHits=0;
-          if( !((*i_ntrk)->summaryValue(  SctHits,xAOD::numberOfSCTHits))   )   SctHits=0;
-          if( !((*i_ntrk)->summaryValue( BLayHits,xAOD::numberOfBLayerHits)))  BLayHits=0;
-          SharedHits    = 0; //Always 0 now
+          uint8_t PixelHits,SctHits,BLayHits;
+          if( !((*i_ntrk)->summaryValue(PixelHits,xAOD::numberOfPixelHits)) )   continue; // Track is 
+          if( !((*i_ntrk)->summaryValue(  SctHits,xAOD::numberOfSCTHits))   )   continue; // definitely  
+          if( SctHits<3 )                                                       continue; // bad
+          if( !((*i_ntrk)->summaryValue(BLayHits,xAOD::numberOfInnermostPixelLayerHits)))  BLayHits=0;
+          //if( !((*i_ntrk)->summaryValue(sctSharedHits,xAOD::numberOfSCTSharedHits)))  sctSharedHits=0;  //VK Bad for high Pt
+          //if( !((*i_ntrk)->summaryValue(pixSharedHits,xAOD::numberOfPixelSharedHits)))pixSharedHits=0;  //and many tracks
+          //long int SharedHits = sctSharedHits+pixSharedHits; 
+          long int SharedHits = 0;  //VK Should always be
 
-//std::cout<<"NwTrkSummary="<<(long int)PixelHits<<", "<<(long int)SctHits<<", "<<(long int)BLayHits<<'\n';
+          uint8_t splSCTHits,outSCTHits,splPixHits,outPixHits;
+          if( !((*i_ntrk)->summaryValue(splSCTHits,xAOD::numberOfSCTSpoiltHits)))  splSCTHits=0;
+          if( !((*i_ntrk)->summaryValue(outSCTHits,xAOD::numberOfSCTOutliers)))    outSCTHits=0;
+          if( !((*i_ntrk)->summaryValue(splPixHits,xAOD::numberOfPixelSpoiltHits)))splPixHits=0;
+          if( !((*i_ntrk)->summaryValue(outPixHits,xAOD::numberOfPixelOutliers)))  outPixHits=0;
           //uint8_t BLaySharedH,BLaySplitH,BLayOutlier;
           //if( !((*i_ntrk)->summaryValue(BLaySharedH,xAOD::numberOfBLayerSharedHits)) )  BLaySharedH=-1;
           //if( !((*i_ntrk)->summaryValue(BLaySplitH ,xAOD::numberOfBLayerSplitHits))  )  BLaySplitH=-1;
@@ -221,12 +229,18 @@ namespace InDet{
           double ImpactZ=VectPerig[1]-PrimVrt.position().z();   // Temporary
 	  ImpactA0=Impact[0];  
 	  ImpactZ=Impact[1];   
+//---- Improved cleaning
+/////          if(PixelHits<=2 && ( outPixHits || splPixHits )) continue;  //VK Bad idea at high Pt!
+          if(fabs((*i_ntrk)->eta())>2.  ) {
+            if( PixelHits<=3 && ( splSCTHits || outSCTHits || outPixHits || splPixHits ))continue;
+            if(m_existIBL){PixelHits -=1; SctHits   -=1;}             // 4-layer pixel detector
+            else          {PixelHits -=1;}                            // 3-layer pixel detector
+          }
+          if(fabs((*i_ntrk)->eta())>1.65)  SctHits   -=1;
 //----
           StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3],
-                       ImpactA0 , ImpactZ, trkChi2,
-		       PixelHits, SctHits, SharedHits, BLayHits);
-
-					  
+                          ImpactA0 , ImpactZ, trkChi2,
+		          PixelHits, SctHits, SharedHits, BLayHits);  //
           if( sc.isFailure() )                 continue;
 	  if(ImpactSignif < 3.)NPrimTrk += 1;
 	  SelectedTracks.push_back(*i_ntrk);
@@ -252,7 +266,7 @@ namespace InDet{
 //
           const Trk::Perigee m_mPer=(*i_ntrk)->perigeeParameters() ;
           AmgVector(5) VectPerig = m_mPer.parameters(); 
-	  if( ConeDist(VectPerig,JetDir) > m_ConeForTag*1.3 )       continue;
+	  if( ConeDist(VectPerig,JetDir) > m_ConeForTag )       continue;
 //----------------------------------- Summary tools
           uint8_t PixelHits,SctHits;
           if( !((*i_ntrk)->summaryValue(PixelHits,xAOD::numberOfPixelHits)) ) PixelHits=0;
@@ -263,9 +277,12 @@ namespace InDet{
           if(fabs(Impact[0])     > m_CutA0)			continue;
           if(fabs(Impact[1])     > m_CutZVrt/sin(VectPerig[3]))	continue;
 
-          if(PixelHits	< m_CutPixelHits) 	continue;
-          if(SctHits	< m_CutSctHits) 	continue;
-          if((PixelHits+SctHits) < m_CutSiHits) continue;
+          int currCutPixelHits=m_CutPixelHits; if(fabs((*i_ntrk)->eta())>2.  )currCutPixelHits +=1;
+          int currCutSctHits  =m_CutSctHits;   if(fabs((*i_ntrk)->eta())>1.65)currCutSctHits   +=1;
+ 
+          if(PixelHits 	         < currCutPixelHits) continue;
+          if(SctHits	         < currCutSctHits)   continue;
+          if((PixelHits+SctHits) < m_CutSiHits)	     continue;
 	  if(ImpactSignif < 3.)NPrimTrk += 1;
 	  SelectedTracks.push_back(*i_ntrk);
       }

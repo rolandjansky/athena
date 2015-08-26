@@ -42,10 +42,9 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_ConeForTag(0.4),
     m_Sel2VrtChi2Cut(4.5),
     m_Sel2VrtSigCut(3.0),
-    m_Sel2VrtSigNTrkDep(0.4),
     m_TrkSigCut(2.0),
-    m_TrkSigSumCut(1.),
-    m_TrkSigSumNTrkDep(0.2),
+    m_TrkSigSumCut(2.),
+    m_TrkSigNTrkDep(0.12),
     m_A0TrkErrorCut(1.0),
     m_ZTrkErrorCut(5.0),
     m_AntiPileupSigRCut(2.0),
@@ -54,7 +53,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_JetPtFractionCut(0.01),
     m_TrackInJetNumberLimit(25),
     m_FillHist(false),
-    m_existIBL(false),
+    m_existIBL(true),
     m_RobustFit(5),
     m_Xbeampipe (0.),
     m_Ybeampipe (0.),
@@ -99,20 +98,19 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
     declareProperty("CutPt",         m_CutPt,     "Track Pt selection cut"  );
     declareProperty("CutA0",         m_CutA0,     "Track A0 selection cut"  );
-    declareProperty("CutZVrt",       m_CutZVrt,   "Track Z impact selection cut"   );
-    declareProperty("ConeForTag",    m_ConeForTag,"Cone around jet direction for track selection"  );
+    declareProperty("CutZVrt",       m_CutZVrt,   "Track Z impact selection cut");
+    declareProperty("ConeForTag",    m_ConeForTag,"Cone around jet direction for track selection");
     declareProperty("CutChi2",       m_CutChi2,   "Track Chi2 selection cut" );
     declareProperty("TrkSigCut",     m_TrkSigCut, "Track 3D impact significance w/r primary vertex" );
-    declareProperty("TrkSigSumCut",  m_TrkSigSumCut, "Sum of 3D track significances cut for 2tr vertex search" );
-    declareProperty("TrkSigSumNTrkDep", m_TrkSigSumNTrkDep, "NTrack in jet dependent increase of TrkSigSumCut " );
-    declareProperty("SecTrkChi2Cut", m_SecTrkChi2Cut,"Track - common secondary vertex association cut. Single Vertex Finder only" );
+    declareProperty("TrkSigSumCut",  m_TrkSigSumCut, "Sum of 3D track significances cut for 2tr vertex search");
+    declareProperty("TrkSigNTrkDep", m_TrkSigNTrkDep, "NTrack in jet dependent increase of TrkSigCut and TrkSigSumCut");
+    declareProperty("SecTrkChi2Cut", m_SecTrkChi2Cut,"Track - common secondary vertex association cut. Single Vertex Finder only");
 
     declareProperty("A0TrkErrorCut",  m_A0TrkErrorCut, "Track A0 error cut" );
     declareProperty("ZTrkErrorCut",   m_ZTrkErrorCut,  "Track Z impact error cut" );
 
     declareProperty("Sel2VrtChi2Cut",    m_Sel2VrtChi2Cut, "Cut on Chi2 of 2-track vertex for initial selection"  );
     declareProperty("Sel2VrtSigCut",     m_Sel2VrtSigCut,  "Cut on significance of 3D distance between initial 2-track vertex and PV"  );
-    declareProperty("Sel2VrtSigNTrkDep", m_Sel2VrtSigNTrkDep, "NTrack in jet dependent increase of Sel2VrtSigCut");
     declareProperty("AntiPileupSigRCut",   m_AntiPileupSigRCut, "Remove tracks with low Rphi and big Z impacts presumably coming from pileup"  );
     declareProperty("AntiPileupSigZCut",   m_AntiPileupSigZCut, "Remove tracks with low Rphi and big Z impacts presumably coming from pileup"  );
     declareProperty("AntiFake2trVrtCut",   m_AntiFake2trVrtCut, "Cut to reduce fake 2-track vertices contribution.Single Vertex Finder only"  );
@@ -162,7 +160,9 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     m_massE   =   0.511  ;
     m_massK0  = 497.648  ;
     m_massLam =1115.683  ;
+    m_massB   =5279.400  ;
     m_WorkArray = 0;
+    m_instanceName=name;
 
    }
 
@@ -201,19 +201,19 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
         return StatusCode::SUCCESS;
      }
 //------
-     if ( m_trackToVertexIP.retrieve().isFailure() ) {
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve trackToVertexIPEstimator tool. Used for tests only, so safe!" << endreq;
-     } else {
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackToVertexIPEstimator tool. Only for tests!" << m_trackToVertexIP<<endreq;
-     }
+//     if ( m_trackToVertexIP.retrieve().isFailure() ) {
+//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve trackToVertexIPEstimator tool. Used for tests only, so safe!" << endreq;
+//     } else {
+//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackToVertexIPEstimator tool. Only for tests!" << m_trackToVertexIP<<endreq;
+//     }
 //-------
-     if(m_MultiVertex && m_MultiWithOneTrkVrt) {
-       if ( m_trkPartCreator.retrieve().isFailure() ) {
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve TrackParticleCreator tool " << endreq;
-       } else {
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackParticleCreator tool" << m_trkPartCreator<<endreq;
-       }
-     }
+//     if(m_MultiVertex && m_MultiWithOneTrkVrt) {
+//       if ( m_trkPartCreator.retrieve().isFailure() ) {
+//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve TrackParticleCreator tool " << endreq;
+//       } else {
+//        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackParticleCreator tool" << m_trkPartCreator<<endreq;
+//       }
+//     }
 //-------
 //     Trk::IVertexFitter * tmp;
 //     sc = toolSvc->retrieveTool("Trk::TrkVKalVrtFitter",tmp,this);
@@ -228,14 +228,15 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 // Chose whether IBL is installed
      if(m_existIBL){ // 4-layer pixel detector
        if( m_Rbeampipe==0.)  m_Rbeampipe=24.0;    
-       if( m_RlayerB  ==0.)  m_RlayerB  =35.0;
+       if( m_RlayerB  ==0.)  m_RlayerB  =34.0;
        if( m_Rlayer1  ==0.)  m_Rlayer1  =51.6;
        if( m_Rlayer2  ==0.)  m_Rlayer2  =90.0;
+                             m_Rlayer3  =122.5;
      } else {   // 3-layer pixel detector
        if( m_Rbeampipe==0.)  m_Rbeampipe=29.4;    
        if( m_RlayerB  ==0.)  m_RlayerB  =51.5;
        if( m_Rlayer1  ==0.)  m_Rlayer1  =90.0;
-       if( m_Rlayer2  ==0.)  m_Rlayer2  =123.0;
+       if( m_Rlayer2  ==0.)  m_Rlayer2  =122.5;
      }       
        
 //
@@ -265,6 +266,7 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        m_hb_impactRZ   = new TH2D("impactRZ"," impactRZ", 40,-10., 10., 60, -30.,30. );
        m_hb_r2d        = new TH1D("r2interact","Interaction radius 2tr", 150,0., 150.);
        m_hb_r2dc       = new TH1D("r2interactCommon","Interaction radius common", 150,0., 150.);
+       m_hb_dstToMat   = new TH1D("dstToMatL","Distance to material layer", 80,0., 40.);
        m_hb_impV0      = new TH1D("impactV0"," V0 impact", 100,0., 50.);
        m_hb_ntrkjet    = new TH1D("ntrkjet"," NTrk in jet", 50,0., 50.);
        m_hb_jmom       = new TH1D("jetmom"," Jet mom", 200,0., 1000000.);
@@ -288,10 +290,13 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        m_hb_addNVrtMV  = new TH1F("addNVrtMV","N of added vertices multivertex case", 10, 0., 10.);
        m_hb_lifetime   = new TH1F("lifetime","Distance/momentum", 100, 0., 5.);
        m_hb_trkPErr    = new TH1F("trkPErr","Track momentum error for P>10 GeV", 100, 0., 0.5);
-       m_pr_effVrt2tr  = new TProfile("effVrt2tr"," 2tr vertex efficiency vs track", 50, 0., 50.);
+       m_pr_effVrt2tr   = new TProfile("effVrt2tr"," 2tr vertex efficiency vs Ntrack", 50, 0., 50.);
+       m_pr_effVrt2trEta= new TProfile("effVrt2trEta"," 2tr vertex efficiency vs eta", 50, -3., 3.);
+       m_pr_effVrt   = new TProfile("effVrt","Full vertex efficiency vs Ntrack", 50, 0., 50.);
+       m_pr_effVrtEta= new TProfile("effVrtEta","Full vertex efficiency vs eta", 50, -3., 3.);
        std::string histDir;
-       if(m_MultiVertex) histDir="/file1/stat/MSVrtInJet/";
-       else              histDir="/file1/stat/SVrtInJet/";
+       if(m_MultiVertex) histDir="/file1/stat/MSVrtInJet"+m_instanceName+"/";
+       else              histDir="/file1/stat/SVrtInJet"+m_instanceName+"/";
        sc = hist_root->regHist(histDir+"massPiPi", m_hb_massPiPi);
        sc = hist_root->regHist(histDir+"massPPi", m_hb_massPPi);
        sc = hist_root->regHist(histDir+"massEE", m_hb_massEE );
@@ -302,36 +307,40 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        sc = hist_root->regHist(histDir+"mass2trcomvrt0", m_hb_totmass2T0);
        sc = hist_root->regHist(histDir+"mass2trcomvrt1", m_hb_totmass2T1);
        sc = hist_root->regHist(histDir+"mass2trcomvrt2", m_hb_totmass2T2);
-       sc = hist_root->regHist(histDir+"impact", m_hb_impact);
-       sc = hist_root->regHist(histDir+"impactR", m_hb_impactR);
-       sc = hist_root->regHist(histDir+"impactZ", m_hb_impactZ);
-       sc = hist_root->regHist(histDir+"impactRZ", m_hb_impactRZ);
+       sc = hist_root->regHist(histDir+"impact",    m_hb_impact);
+       sc = hist_root->regHist(histDir+"impactR",   m_hb_impactR);
+       sc = hist_root->regHist(histDir+"impactZ",   m_hb_impactZ);
+       sc = hist_root->regHist(histDir+"impactRZ",  m_hb_impactRZ);
        sc = hist_root->regHist(histDir+"r2interact2tr", m_hb_r2d);
        sc = hist_root->regHist(histDir+"r2interactCommon", m_hb_r2dc);
-       sc = hist_root->regHist(histDir+"impactV0", m_hb_impV0);
-       sc = hist_root->regHist(histDir+"ntrkjet", m_hb_ntrkjet);
-       sc = hist_root->regHist(histDir+"jetmom", m_hb_jmom);
+       sc = hist_root->regHist(histDir+"dstToMatL", m_hb_dstToMat);
+       sc = hist_root->regHist(histDir+"impactV0",  m_hb_impV0);
+       sc = hist_root->regHist(histDir+"ntrkjet",   m_hb_ntrkjet);
+       sc = hist_root->regHist(histDir+"jetmom",    m_hb_jmom);
        sc = hist_root->regHist(histDir+"jetmomvrt", m_hb_mom);
-       sc = hist_root->regHist(histDir+"signif3D", m_hb_signif3D);
+       sc = hist_root->regHist(histDir+"signif3D",  m_hb_signif3D);
        sc = hist_root->regHist(histDir+"massPiPi1", m_hb_massPiPi1);
        sc = hist_root->regHist(histDir+"massPiPi2", m_hb_massPiPi2);
        sc = hist_root->regHist(histDir+"sig3dcommon", m_hb_sig3DTot);
-       sc = hist_root->regHist(histDir+"sig3D1tr", m_hb_sig3D1tr);
-       sc = hist_root->regHist(histDir+"sig3D2tr", m_hb_sig3D2tr);
-       sc = hist_root->regHist(histDir+"sig3DNtr", m_hb_sig3DNtr);
-       sc = hist_root->regHist(histDir+"goodvrtN", m_hb_goodvrtN);
-       sc = hist_root->regHist(histDir+"distVV", m_hb_distVV);
-       sc = hist_root->regHist(histDir+"diffPS", m_hb_diffPS);
-       sc = hist_root->regHist(histDir+"trkPtMax", m_hb_trkPtMax);
+       sc = hist_root->regHist(histDir+"sig3D1tr",  m_hb_sig3D1tr);
+       sc = hist_root->regHist(histDir+"sig3D2tr",  m_hb_sig3D2tr);
+       sc = hist_root->regHist(histDir+"sig3DNtr",  m_hb_sig3DNtr);
+       sc = hist_root->regHist(histDir+"goodvrtN",  m_hb_goodvrtN);
+       sc = hist_root->regHist(histDir+"distVV",    m_hb_distVV);
+       sc = hist_root->regHist(histDir+"diffPS",    m_hb_diffPS);
+       sc = hist_root->regHist(histDir+"trkPtMax",  m_hb_trkPtMax);
        sc = hist_root->regHist(histDir+"tr2SelVar", m_hb_tr2SelVar);
-       sc = hist_root->regHist(histDir+"blshared", m_hb_blshared);
-       sc = hist_root->regHist(histDir+"pxshared", m_hb_pxshared);
-       sc = hist_root->regHist(histDir+"addRatioMV", m_hb_addRatioMV);
+       sc = hist_root->regHist(histDir+"blshared",  m_hb_blshared);
+       sc = hist_root->regHist(histDir+"pxshared",  m_hb_pxshared);
+       sc = hist_root->regHist(histDir+"addRatioMV",m_hb_addRatioMV);
        sc = hist_root->regHist(histDir+"addChi2MV", m_hb_addChi2MV);
        sc = hist_root->regHist(histDir+"addNVrtMV", m_hb_addNVrtMV);
-       sc = hist_root->regHist(histDir+"lifetime", m_hb_lifetime);
-       sc = hist_root->regHist(histDir+"trkPErr", m_hb_trkPErr);
+       sc = hist_root->regHist(histDir+"lifetime",  m_hb_lifetime);
+       sc = hist_root->regHist(histDir+"trkPErr",   m_hb_trkPErr);
        sc = hist_root->regHist(histDir+"effVrt2tr", m_pr_effVrt2tr);
+       sc = hist_root->regHist(histDir+"effVrt2trEta", m_pr_effVrt2trEta);
+       sc = hist_root->regHist(histDir+"effVrt",    m_pr_effVrt);
+       sc = hist_root->regHist(histDir+"effVrtEta", m_pr_effVrtEta);
        if( sc.isFailure() ) {     // Check of StatusCode
          if(msgLvl(MSG::INFO))msg(MSG::INFO) << "BTagVrtSec Histogram registration failure!!!" << endreq;
        }
@@ -405,6 +414,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     }else{
        xAOD::Vertex* secVrt = GetVrtSec( InpTrk,PrimVrt,JetDir,Results,SelSecTrk,xaodTrkFromV0);
        if(secVrt != 0) listVrtSec.push_back(secVrt);
+       else if(m_FillHist){ m_pr_effVrt->Fill((float)m_NRefTrk,0.);
+	                    m_pr_effVrtEta->Fill( JetDir.Eta(),0.);}
     }
     if(Results.size()<3) {
        listVrtSec.clear();
@@ -412,14 +423,15 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        SecVtxMass =      Results[0];
        RatioE     =      Results[1];
        N2trVertices  = (int)Results[2];
-       EnergyJet     =      Results[7];
+       EnergyJet     =      Results[6];
     }
 
     std::vector<const xAOD::IParticle*>  iparTrkFromV0(0); 
     for(int i=0; i<(int)xaodTrkFromV0.size(); i++)iparTrkFromV0.push_back(xaodTrkFromV0[i]);
 
-    const Trk::VxSecVertexInfo* res = 
+    const Trk::VxSecVKalVertexInfo* res = 
           new Trk::VxSecVKalVertexInfo(listVrtSec, SecVtxMass, RatioE, N2trVertices, EnergyJet, iparTrkFromV0 );
+    if(Results.size()>8)res->setDstToMatLay(Results[7]);
     m_fitSvc->clearMemory();
     std::vector<int> zytmp(1000); m_WorkArray->m_Incomp.swap(zytmp);    // Deallocate memory
     std::vector<int> zwtmp(0);    m_WorkArray->m_Prmtrack.swap(zwtmp);  // 
@@ -458,6 +470,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     }else{
        xAOD::Vertex * secVrt = GetVrtSec( InpTrk,xaodPrimVrt,JetDir,Results,SelSecTrk,TrkFromV0);
        if(secVrt != 0) listVrtSec.push_back(secVrt);
+       else if(m_FillHist){ m_pr_effVrt->Fill((float)m_NRefTrk,0.);              
+	                    m_pr_effVrtEta->Fill( JetDir.Eta(),0.);}
     }
     if(Results.size()<3) {
        listVrtSec.clear();
@@ -465,10 +479,11 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        SecVtxMass =      Results[0];
        RatioE     =      Results[1];
        N2trVertices  = (int)Results[2];
-       EnergyJet     =      Results[7];
+       EnergyJet     =      Results[6];
     }
-    const Trk::VxSecVertexInfo* res = 
+    const Trk::VxSecVKalVertexInfo* res = 
           new Trk::VxSecVKalVertexInfo(listVrtSec, SecVtxMass, RatioE, N2trVertices, EnergyJet, PartToBase(TrkFromV0) );
+    if(Results.size()>8)res->setDstToMatLay(Results[7]);
     m_fitSvc->clearMemory();
     std::vector<int> zytmp(1000); m_WorkArray->m_Incomp.swap(zytmp);    // Deallocate memory
     std::vector<int> zwtmp(0);    m_WorkArray->m_Prmtrack.swap(zwtmp);  // 
@@ -509,6 +524,8 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
     }else{
        xAOD::Vertex* secVrt = GetVrtSec( InpTrk,xaodPrimVrt,JetDir,Results,SelSecTrk,TrkFromV0);
        if(secVrt != 0) listVrtSec.push_back(secVrt);
+       else if(m_FillHist){ m_pr_effVrt->Fill((float)m_NRefTrk,0.);              
+	                    m_pr_effVrtEta->Fill( JetDir.Eta(),0.);}
     }
     if(Results.size()<3) {
        listVrtSec.clear();
@@ -516,10 +533,11 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        SecVtxMass =      Results[0];
        RatioE     =      Results[1];
        N2trVertices  = (int)Results[2];
-       EnergyJet     =      Results[7];
+       EnergyJet     =      Results[6];
     }
-    const Trk::VxSecVertexInfo* res = 
+    const Trk::VxSecVKalVertexInfo* res = 
           new Trk::VxSecVKalVertexInfo(listVrtSec, SecVtxMass, RatioE, N2trVertices, EnergyJet, PartToBase(TrkFromV0) );
+    if(Results.size()>8)res->setDstToMatLay(Results[7]);
     m_fitSvc->clearMemory();
     std::vector<int> zytmp(1000); m_WorkArray->m_Incomp.swap(zytmp);    // Deallocate memory
     std::vector<int> zwtmp(0);    m_WorkArray->m_Prmtrack.swap(zwtmp);  // 
