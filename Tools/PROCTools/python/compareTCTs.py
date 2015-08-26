@@ -154,7 +154,7 @@ if __name__ == "__main__":
             sys.exit(-1)
 
     if len(filePattern)==0:
-        filePattern+=(".*myESD.*pool.root$",".*myRDO.*pool.root$",".*myAOD.*pool.root$","myTAG.*.root$","jobReport(_RecoTrf)?.gpickle$")
+        filePattern+=(".*myESD.*pool.root$",".*myAOD.*pool.root$","myTAG.*.root$","jobReport(_RecoTrf)?.gpickle$")
     else:
         for i in range(len(filePattern)):
         #for fP in filePattern:
@@ -164,8 +164,6 @@ if __name__ == "__main__":
                 filePattern[i]="*.pool.root$"
             elif filePattern[i].upper()=="ESD":
                 filePattern[i]=".*myESD.*pool.root$"
-            elif filePattern[i].upper()=="RDO":
-                filePattern[i]=".*myRDO.*pool.root$"
             elif filePattern[i].upper()=="AOD":
                 filePattern[i]=".*myAOD.*pool.root$"
             elif filePattern[i].upper()=="TAGCOMM":
@@ -243,7 +241,7 @@ if __name__ == "__main__":
                     if(v.startswith("/eos")): v = "root://eosatlas/"+v
                     if not diffroot: stat=diffPoolFiles(r,v,details)
                     else: 
-		        stat=os.system("acmd.py diff-root "+r+" "+v+" --error-mode resilient --ignore-leaves HITStoRDO_timings RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings RAWtoALL_mems RAWtoALL_timings RecoTimingObj_p1_RAWtoALL_mems RecoTimingObj_p1_RAWtoALL_timings --entries 10 > tmp.txt")
+		        stat=os.system("acmd.py diff-root "+r+" "+v+" --error-mode resilient --ignore-leaves HITStoRDO_timings RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings --entries 10 > tmp.txt")
                         os.system("cat tmp.txt|grep -v sync")
                         os.system("rm -f tmp.txt")
                     identical=not stat
