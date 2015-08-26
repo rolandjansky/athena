@@ -69,14 +69,15 @@ private:
   
 private:
   
-  double m_et_min, m_sumet_min, m_phi_min, m_det_min;
-  double m_et_max, m_sumet_max, m_phi_max, m_det_max;
-  int m_et_bins, m_sumet_bins, m_phi_bins, m_det_bins;
+  double m_et_min, m_sumet_min, m_phi_min, m_det_min, m_eff_min;
+  double m_et_max, m_sumet_max, m_phi_max, m_det_max, m_eff_max;
+  int m_et_bins, m_sumet_bins, m_phi_bins, m_det_bins, m_eff_bins;
   
   bool m_debuglevel; //!< private member to control debug messages
   
   std::vector<std::string> m_primary_met;
   std::vector<std::string> m_monitoring_met;
+  std::vector<std::string> m_monitoring_alg;
   std::vector<std::string> m_prescaled_met;
   
   std::vector<std::string> m_met_triggers_l1, m_met_triggers_hlt;
@@ -85,16 +86,22 @@ private:
   
   bool m_print_met_trig_stats; 
   bool m_make_expert_histograms;
-  bool m_doRecMET;
+  //bool m_doRecMET;
   
   std::string m_mon_path;
   std::string m_shifter_path;
   std::string m_expert_path;
   
-  bool m_is_do_trigger_effic;
+  //bool m_is_do_trigger_effic;
   
   std::string m_lvl1_roi_key;
   std::string m_hlt_met_key; 
+  std::string m_hlt_mht_met_key; 
+  std::string m_hlt_topocl_met_key; 
+  std::string m_hlt_topocl_PS_met_key; 
+  std::string m_hlt_topocl_PUC_met_key; 
+  std::string m_hlt_FEB_met_key; 
+  std::string m_hlt_Fex_met_key; 
   std::string m_off_met_key;
   std::string m_muon_key;
   std::string m_muon_base_trigger;
@@ -106,7 +113,7 @@ private:
 
   // for the efficiencies                                                                                                    
   std::string m_denominator_trigger;
-  TH1F *h_denominator;
+  TH1F *h_denominator = 0;
 
   std::string m_numerator_trigger[4]; // = {"HLT_xe80", "HLT_xe100"};                                                        
   TH1F *trig_eff_num[4] = {0};

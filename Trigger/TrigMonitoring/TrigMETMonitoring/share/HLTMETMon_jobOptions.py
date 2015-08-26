@@ -10,7 +10,16 @@ import sys
 ##############
 # Input files
 ##############
-InputFiles = ['AOD.SampleA.ttbar.root',] ##AOD_new.root',]
+#InputFiles = ['/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0331._0001.1']
+
+
+InputFiles = ['/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0331._0001.1', '/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0342._0007.1', '/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0350._0004.1', '/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0363._0001.1', '/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0373._0004.1']
+
+#InputFiles = ['/hep300/data/khamano/data15/data15_13TeV.00267639.physics_Main.merge.AOD.f603_m1453_r6897_p2346_tid06023676_00/AOD.06023676._000004.pool.root.1']
+
+#InputFiles = ['/hep300/data/khamano/data15/data15_13TeV.00267639.physics_Main.merge.AOD.f603_m1453_r6897_p2346_tid06023676_00/AOD.06023676._000004.pool.root.1','/hep300/data/khamano/data15/data15_13TeV.00267639.physics_Main.merge.AOD.f603_m1453_r6897_p2346_tid06023676_00/AOD.06023676._000011.pool.root.1']
+
+#InputFiles = ['/hep300/data/khamano/mc15/mc15_13TeV.361100.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Wplusenu.merge.AOD.e3601_s2576_s2132_r6630_r6264_tid05371496_00/AOD.05371496._000392.pool.root.1']
 
 #mc15
 

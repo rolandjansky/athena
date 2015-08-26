@@ -58,6 +58,15 @@ bitNames_allHLT= [
              ]
 
 
+met_alt_algorithms = [
+        "mht",
+        "tc_lcw",
+        "pueta",
+        "pufit",
+        "feb",
+        "fex",
+]
+
 
 def HLTMETMonitoringTool():
 	from TrigMETMonitoring.TrigMETMonitoringConf import HLTMETMonTool
@@ -68,6 +77,7 @@ def HLTMETMonitoringTool():
                                   comp_names   = compNames_all,
                                   bit_names    = bitNames_allHLT,
                                   monitoring_met         = hltmonList.monitoring_met,
+                                  monitoring_alg         = met_alt_algorithms,
 				  muon_base              = "HLT_mu26",
                                   muon_pt_thresh         = 18,
                                   electron_pt_thresh     = 20,
