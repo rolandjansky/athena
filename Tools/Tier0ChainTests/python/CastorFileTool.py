@@ -70,7 +70,7 @@ class CastorFileTool:
     FileList=open("filelist.temp","r").readlines()
     FileList1=["rfio:"+castorDir+file.split()[8]
                for file in FileList
-               if file.split()[4]!="0"]
+               if file.split()[0][0]!="d"]
     os.system("rm filelist.temp")
     return FileList1
 
@@ -184,11 +184,11 @@ class CastorFileTool:
   def LatestSubdirsFromCastor(self, castorDir, recursiveSearch=False):
     if ( castorDir.rfind("/")!=(len(castorDir)-1) ):
         castorDir+="/"
-
+    
     # dirs in given castor directory
     timenow = datetime.today().strftime("%d%b%y.%Hh%M")
     dirlist = "dirlist.temp" + timenow
-    os.system("nsls -l " + castorDir + " > " + dirlist)
+    os.system("/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select ls -l " + castorDir + " > " + dirlist)
     FileList=open(dirlist,"r").readlines()
 
     # construct map with subdirectories
@@ -197,7 +197,9 @@ class CastorFileTool:
         linesplit = line.split()
 
         # filesize == 0 for a directory
-        if (linesplit[4]=="0"):
+        # TC: not true with eos!!
+        #if (linesplit[4]=="0"):
+        if (linesplit[0][0]=="d"):
 
             # sortable time integer
             timeint = self.GetFileTimeInt(line)
@@ -207,9 +209,12 @@ class CastorFileTool:
                 if (timeint==key): 
                     timeFound = True
                     break
+            newdir=castorDir+linesplit[8]
+            if newdir.find("merge")!=-1 or newdir.find("recon")!=-1:
+                continue
             if (not timeFound): dirList[timeint] = []
     
-            dirList[timeint].append(castorDir+linesplit[8])
+            dirList[timeint].append(newdir)
 
     # Be sure to delete tmpfile before next iteration.
     os.system("rm -f "+dirlist)
@@ -227,7 +232,8 @@ class CastorFileTool:
     # return
     if (recursiveSearch): 
         return self.LatestSubdirsFromCastor(dirList[keys[len(keys)-1]][0],recursiveSearch)
-    else: return dirList
+    else:
+        return dirList
 
   def RunFilesFromCastor(self, castorDir, streamStr=["Express"]):
     if ( castorDir.rfind("/")!=(len(castorDir)-1) ):
@@ -235,7 +241,7 @@ class CastorFileTool:
     if ( self.runSubdirToSearch != "" ): 
         if ( self.runSubdirToSearch.rfind("/")!=(len(self.runSubdirToSearch)-1) ):
             self.runSubdirToSearch += "/"
-    castorDir += self.runSubdirToSearch
+    #castorDir += self.runSubdirToSearch
 
     # dirs in given castor directory
     timenow = datetime.today().strftime("%d%b%y.%Hh%M")
@@ -243,7 +249,7 @@ class CastorFileTool:
     if self.lumiBlock != None and ',' in self.lumiBlock:
       FileList = []
       for iblock in range(int(self.lumiBlock.split(',')[0]),int(self.lumiBlock.split(',')[1])+1):
-        cmd = "nsls -l " + castorDir
+        cmd = "/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select ls -l " + castorDir
         for grepStr in streamStr:
           cmd += " | grep " + grepStr
           pass
@@ -254,9 +260,10 @@ class CastorFileTool:
         FileList += open(filelist,"r").readlines()
         pass
     else:
-      cmd = "nsls -l " + castorDir
-      for grepStr in streamStr:
-        cmd += " | grep " + grepStr
+      #cmd = "nsls -l " + castorDir
+      cmd = "/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select ls -l " + castorDir
+      #for grepStr in streamStr:
+      #  cmd += " | grep " + grepStr
       if self.lumiBlock != None: cmd += " | grep _lb%0.4d" % int(self.lumiBlock)
       cmd += " > " + filelist
       print "RunFilesFromCastor : running command",cmd
@@ -270,7 +277,10 @@ class CastorFileTool:
         linesplit = line.split()
 
         # filesize == 0 for a directory
-        if (linesplit[4]!="0"):
+        # TC: not true with eos!!
+        #print "test ",linesplit[0]," ",linesplit[0][0]," ",linesplit[4]
+        #if (linesplit[4]!="0"):
+        if (linesplit[0][0]!="d"):
 
             # run number
             runNumber = self.GetRunNumber(linesplit[8])
@@ -284,6 +294,7 @@ class CastorFileTool:
 
             # two gb webserver limit
             if (self.nFilesNeeded==5 and self.nFilesPerJob==1 and int(linesplit[4])>=self.twogblimit): continue
+	    #if (int(linesplit[4])<100000000): continue
 
             runMap[runNumber].append(castorDir+linesplit[8])
 
@@ -306,7 +317,7 @@ class CastorFileTool:
 
     # retrieve castor directories, with timestamps
     if (self.useBaseSubdirs):
-        dirMap = self.LatestSubdirsFromCastor( self.baseCastorDir, recursiveSearch=False )
+        dirMap = self.LatestSubdirsFromCastor( self.baseCastorDir+"/"+self.runSubdirToSearch, recursiveSearch=True )
     else: dirMap[len(self.staticRuns)] = [ self.baseCastorDir ]
 
     # sort directories in time
@@ -433,8 +444,8 @@ class CastorFileTool:
     return fileStr
 
   def TmpFilesCopyCommands(self, jobFileList,tmpFileList):
-    #cpcommand = "time xrdcp root://castoratlas/"
-    cpcommand = "time rfcp "
+    cpcommand = "time /afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select cp "
+    #cpcommand = "time rfcp "
     inprefix = ""
     outprefix = ""
 
