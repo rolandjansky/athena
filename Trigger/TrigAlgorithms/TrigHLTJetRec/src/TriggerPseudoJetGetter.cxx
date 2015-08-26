@@ -23,21 +23,17 @@ TriggerPseudoJetGetter::TriggerPseudoJetGetter(const std::string& s,
   declareInterface<ITriggerPseudoJetGetter>(this);
 }
 
-TriggerPseudoJetGetter::~TriggerPseudoJetGetter(){}
-
-StatusCode TriggerPseudoJetGetter::initialize()
-{
+StatusCode TriggerPseudoJetGetter::initialize() {
+  declareProperty("Label", m_label);
   return StatusCode::SUCCESS;
 }
 
-void TriggerPseudoJetGetter::prime(const PseudoJetVector* psjv)
-{
+void TriggerPseudoJetGetter::prime(const PseudoJetVector* psjv){
   m_pseudoJetVector = psjv;
   m_primed = true;
 }
 
-const PseudoJetVector* TriggerPseudoJetGetter::get() const 
-{
+const PseudoJetVector* TriggerPseudoJetGetter::get() const {
   if (!m_primed) {
     ATH_MSG_ERROR("Prime was not called before get()");
     return 0;
@@ -46,8 +42,7 @@ const PseudoJetVector* TriggerPseudoJetGetter::get() const
 }
 
 // Write properties to the log
-void TriggerPseudoJetGetter::print() const 
-{
+void TriggerPseudoJetGetter::print() const {
   ATH_MSG_DEBUG("The input trigger element contained "
                 << m_pseudoJetVector->size()
                 << " particles");

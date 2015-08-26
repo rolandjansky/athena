@@ -26,7 +26,7 @@
 class IJetBuildTool;
 // class JetRecTool;
 class ITriggerPseudoJetGetter;
-class IPseudoJetSelector;
+class IIParticleSelector;
 
 namespace jet {
   class LabelIndex;
@@ -40,29 +40,24 @@ class TrigHLTJetRecBase: public HLT::FexAlgo {
 
  public:
   TrigHLTJetRecBase(const std::string & name, ISvcLocator* pSvcLocator);
-  virtual ~TrigHLTJetRecBase();
+  ~TrigHLTJetRecBase();
   
-  virtual HLT::ErrorCode hltInitialize();
+  HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
                             HLT::TriggerElement* outputTE);
   HLT::ErrorCode hltFinalize();
   
- protected:
-
-  virtual HLT::ErrorCode getPseudoJets(const InputContainer*,
-                                      LabelIndex* indexMap,
-                                      PseudoJetVector& pjv);
-
-  std::string getClusterCalib() const {return m_clusterCalib;}
-
-  virtual const xAOD::JetContainer* build() const = 0; 
-  const xAOD::JetContainer* defaultBuild() const;
- 
+  
  private:
   std::string m_clusterCalib;
 
  HLT::ErrorCode getInputContainer(const HLT::TriggerElement*,
                                   const InputContainer*&);
+
+ HLT::ErrorCode getPseudoJets(const IParticleVector&,
+                              LabelIndex* indexMap,
+                              PseudoJetVector& pjv);
+  
 
  // IJetBuildTool - offline code to transform pseudojets to xAOD jets
  ToolHandle<IJetBuildTool> m_jetbuildTool;
@@ -73,7 +68,7 @@ class TrigHLTJetRecBase: public HLT::FexAlgo {
  ToolHandle<ITriggerPseudoJetGetter>  m_pseudoJetGetter;
  
  /* A tool to select the pseudojets to be converted to jets */
- ToolHandle<IPseudoJetSelector>  m_IPseudoJetSelector;
+ ToolHandle<IIParticleSelector>  m_IParticleSelector;
  
  /* label saying which cluster calibration was configured.
     Used to label tools.*/

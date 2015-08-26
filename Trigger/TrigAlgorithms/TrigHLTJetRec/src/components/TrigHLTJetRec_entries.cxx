@@ -15,11 +15,8 @@
 #include "TrigHLTJetRec/TrigHLTHypoDiagnostics.h"
 #include "TrigHLTJetRec/TrigHLTPSvsFSDiagnostics.h"
 #include "TrigHLTJetRec/TrigHLTEnergyDensity.h"
-#include "TrigHLTJetRec/TrigHLTSoftKiller.h"
 #include "TrigHLTJetRec/TrigHLTJetDSSelector.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
-#include "TrigHLTJetRec/TrigHLTJetRecGroomer.h"
-#include "TrigHLTJetRec/TrigJetFromPseudojet.h"
 
 //DECLARE_ALGORITHM_FACTORY( TrigHLTJetRec)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecFromCluster)
@@ -33,16 +30,13 @@ DECLARE_ALGORITHM_FACTORY( TrigHLTRoIDiagnostics)
 DECLARE_ALGORITHM_FACTORY( TrigHLTHypoDiagnostics)
 DECLARE_ALGORITHM_FACTORY( TrigHLTPSvsFSDiagnostics)
 DECLARE_ALGORITHM_FACTORY( TrigHLTEnergyDensity)
-DECLARE_ALGORITHM_FACTORY( TrigHLTSoftKiller)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetDSSelector)
-DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecGroomer)
 
 DECLARE_TOOL_FACTORY(TriggerPseudoJetGetter)
 DECLARE_TOOL_FACTORY(PseudoJetSelectorAll)
 DECLARE_TOOL_FACTORY(PseudoJetSelectorEtaPt)
 DECLARE_TOOL_FACTORY(IParticleSelectorAll)
 DECLARE_TOOL_FACTORY(IParticleSelectorEtaPt)
-DECLARE_TOOL_FACTORY(TrigJetFromPseudojet)
 
 DECLARE_FACTORY_ENTRIES(TrigHLTJetRec) {
   //DECLARE_ALGORITHM( TrigHLTJetRec);
@@ -57,15 +51,12 @@ DECLARE_FACTORY_ENTRIES(TrigHLTJetRec) {
     DECLARE_ALGORITHM( TrigHLTHypoDiagnostics);
     DECLARE_ALGORITHM( TrigHLTPSvsFSDiagnostics);
     DECLARE_ALGORITHM( TrigHLTEnergyDensity);
-    DECLARE_ALGORITHM( TrigHLTSoftKiller);
     DECLARE_ALGORITHM( TrigHLTJetDSSelector);
-    DECLARE_ALGORITHM( TrigHLTJetRecGroomer);
     DECLARE_TOOL(TriggerPseudoJetGetter);
     DECLARE_TOOL(PseudoJetSelectorAll);
     DECLARE_TOOL(PseudoJetSelectorEtaPt);
     DECLARE_TOOL(IParticleSelectorAll);
     DECLARE_TOOL(IParticleSelectorEtaPt);
-    DECLARE_TOOL(TrigJetFromPseudojet)
 }
 
 

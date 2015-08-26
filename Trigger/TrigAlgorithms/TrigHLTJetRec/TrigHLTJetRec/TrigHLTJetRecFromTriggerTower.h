@@ -15,9 +15,5 @@ public TrigHLTJetRecBase<xAOD::TriggerTowerContainer>{
   TrigHLTJetRecFromTriggerTower(const std::string & name,
                                 ISvcLocator* pSvcLocator);
   ~TrigHLTJetRecFromTriggerTower();
-
-
-  const xAOD::JetContainer* build() const override;
-
 }; 
 #endif

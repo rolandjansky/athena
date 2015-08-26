@@ -25,21 +25,20 @@ public:
   ~PseudoJetSelectorEtaPt(){};
   
   StatusCode initialize();
-  StatusCode select(const PseudoJetVector&,
-                    PseudoJetVector&) const override;
+  StatusCode select(PseudoJetVector&) const override;
  private:
 
-  class PseudoJetSelector{
+  class PseudoJetRemover{
   public:
 
-  PseudoJetSelector():m_etaMax(0), m_ptMin(0){}
-  PseudoJetSelector(double etaMax, double ptMin):
+  PseudoJetRemover():m_etaMax(0), m_ptMin(0){}
+  PseudoJetRemover(double etaMax, double ptMin):
     m_etaMax(etaMax), m_ptMin(ptMin){}
 
     bool operator()(const fastjet::PseudoJet& pj) const{
-      if (std::abs(pj.eta()) > m_etaMax){return false;}
-      if (pj.pt() < m_ptMin){return false;}
-      return true;}
+      if (std::abs(pj.eta()) > m_etaMax){return true;}
+      if (pj.pt() < m_ptMin){return true;}
+      return false;}
 
     private:
       double m_etaMax;
@@ -48,7 +47,7 @@ public:
 
   double m_etaMax;
   double m_ptMin;
-  PseudoJetSelector m_selector;
+  PseudoJetRemover m_remover;
 };
 
 #endif

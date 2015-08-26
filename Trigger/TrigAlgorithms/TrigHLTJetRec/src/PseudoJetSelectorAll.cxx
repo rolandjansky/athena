@@ -13,9 +13,7 @@ PseudoJetSelectorAll::PseudoJetSelectorAll(const std::string& s,
   declareInterface<IPseudoJetSelector>(this);
 }
 
-StatusCode PseudoJetSelectorAll::select(const PseudoJetVector& in,
-                                        PseudoJetVector& out) const {
-  out.assign(in.begin(), in.end());
+StatusCode PseudoJetSelectorAll::select(PseudoJetVector&) const {
   return StatusCode::SUCCESS;}
   
 

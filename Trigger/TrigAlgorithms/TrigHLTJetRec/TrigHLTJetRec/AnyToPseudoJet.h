@@ -36,12 +36,11 @@ class AnyToPseudoJet {
   /* No special assigment operator for copy constructor, or destructor
    as the LableIndex is deleted by the caller */
   
- AnyToPseudoJet(LabelIndex* index_map):m_indexMap(index_map){}
+ AnyToPseudoJet(const LabelIndex* index_map):m_indexMap(index_map){}
   
-  // T is decided by the caller.When using a DataVector<T> dv  and 
-  // AnyToPSeudoJet  is used in an STL Algorithm, set T to dv::const_value_type
-
-  PseudoJet operator() (T cluster) const {
+  // the T referes to a _pointer_ to the input object (cluster, trigger tower,
+  // or other.
+  PseudoJet operator() (const T cluster){
     PseudoJet psj(cluster->p4());
     IConstituentUserInfo* pcui = new IndexedConstituentUserInfo(*cluster,
                                                                 1,
@@ -52,6 +51,6 @@ class AnyToPseudoJet {
   
  private:
   
-  LabelIndex* m_indexMap;
+  const LabelIndex* m_indexMap;
 };
 #endif

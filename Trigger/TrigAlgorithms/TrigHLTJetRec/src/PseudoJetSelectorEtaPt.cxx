@@ -16,18 +16,17 @@ PseudoJetSelectorEtaPt::PseudoJetSelectorEtaPt(const std::string& s,
 }
 
 StatusCode PseudoJetSelectorEtaPt::initialize() {
-  m_selector = PseudoJetSelector(m_etaMax, m_ptMin);
+  m_remover = PseudoJetRemover(m_etaMax, m_ptMin);
   ATH_MSG_INFO("etaMax: " << m_etaMax << " ptMin: " << m_ptMin << endreq);  
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode PseudoJetSelectorEtaPt::select(const PseudoJetVector& in,
-                                          PseudoJetVector& out) const {
-  std::copy_if(in.begin(),
-               in.end(),
-               std::back_inserter(out),
-               m_selector);
+StatusCode PseudoJetSelectorEtaPt::select(PseudoJetVector& pseudojets) const {
+  pseudojets.erase(std::remove_if(pseudojets.begin(),
+                                  pseudojets.end(),
+                                  m_remover),
+                   pseudojets.end());
   
   return StatusCode::SUCCESS;}
   
