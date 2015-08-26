@@ -128,7 +128,7 @@ class findTCTFiles:
               
         
     def getCommonChains(self):
-        print "Seaching for compatible TCT directories ..." 
+        print "Searching for compatible TCT directories ..." 
         allEvents=0
         
         os.path.walk(self._rDir, self.hasLogfile, True)   # Reference directory
@@ -136,6 +136,11 @@ class findTCTFiles:
         
         names = self._commonDirs.keys()
         for tctname in names:
+            if (tctname.startswith("LatestRun") or tctname.endswith("_MP") or tctname.endswith("IDCosmic0")):
+                print "skipping "+tctname
+                self._commonDirs.pop(tctname)
+                continue
+
             tcis = self._commonDirs[tctname]
 
             if len(tcis) != 2:

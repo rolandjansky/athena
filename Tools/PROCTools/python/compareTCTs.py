@@ -119,7 +119,8 @@ if __name__ == "__main__":
     sumFileName=None
     refPath=None
     valPath=None
-    opts,args=getopt.getopt(sys.argv[1:],"b",["nRef=","nVal=","rRef=","rVal=","rel=","nightly=","details=","file=","sum=","refPath=","valPath="])
+    diffroot=False
+    opts,args=getopt.getopt(sys.argv[1:],"b",["nRef=","nVal=","rRef=","rVal=","rel=","nightly=","details=","file=","sum=","refPath=","valPath=","diff-root="])
     for o,a in opts:
         if o=="--nRef": nRef=a
         if o=="--nVal": nVal=a
@@ -132,6 +133,8 @@ if __name__ == "__main__":
         if o=="--sum": sumFileName=a
         if o=="--refPath": refPath=a
         if o=="--valPath": valPath=a
+	if o=="--diff-root":
+	    if a=="True": diffroot=True
         
     if refPath is None:
         if nRef is None:
@@ -233,15 +236,23 @@ if __name__ == "__main__":
                 fileName=r.split('/')[-1]
                 print "Comparing files",fileName,"of TCT",name
                 identical=False
-                if fileName.endswith(".pool.root"):
+                if (fileName.endswith(".pool.root") and not fileName.startswith("myTAG")):
                     if(r.startswith("/eos")): r = "root://eosatlas/"+r
                     if(v.startswith("/eos")): v = "root://eosatlas/"+v
-                    stat=diffPoolFiles(r,v,details)
+                    if not diffroot: stat=diffPoolFiles(r,v,details)
+                    else: 
+		        stat=os.system("acmd.py diff-root "+r+" "+v+" --error-mode resilient --ignore-leaves HITStoRDO_timings RecoTimingObj_p1_HITStoRDO_timings RecoTimingObj_p1_RAWtoESD_mems RecoTimingObj_p1_RAWtoESD_timings RAWtoESD_mems RAWtoESD_timings ESDtoAOD_mems ESDtoAOD_timings --entries 10 > tmp.txt")
+                        os.system("cat tmp.txt|grep -v sync")
+                        os.system("rm -f tmp.txt")
                     identical=not stat
                 elif fileName.endswith(".root"):
-                    (eq,dif)=compareTreeFiles(r,v,details)
-                    if eq==0 and dif==0: continue
-                    identical=(dif==0)
+                    #(eq,dif)=compareTreeFiles(r,v,details)
+                    #if eq==0 and dif==0: continue
+                    #identical=(dif==0)
+                    stat=os.system("diffTAGTree.py "+r+" "+v+" > tmp.txt")
+                    os.system("cat tmp.txt|grep -v sync")
+                    os.system("rm -f tmp.txt")
+                    identical=not stat
                 elif fileName.endswith(".pickle"):
                     stat=diffPickleFiles(r,v,details)
                     identical=not stat
@@ -332,9 +343,11 @@ if __name__ == "__main__":
                 else:
                     print ln
     
+    isok=True
     for f,s in statPerChain.iteritems():
         if s:
             print "%-70s CHANGED" % f
+            isok=False
         else:
             print "%-70s IDENTICAL" % f
 
@@ -354,3 +367,5 @@ if __name__ == "__main__":
         
     #print statPerChain
     del diffTTree
+    if not isok:
+        sys.exit(-1)        

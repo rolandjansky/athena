@@ -5,4 +5,4 @@
 __version__ = '0.0.0'
 __author__  = 'walter.lampl@cern.ch'
 	
-__all__ = [ "compareTCTs","diffTAGTree","getFileLists"]
+__all__ = [ "compareTCTs","diffTAGTree","getFileLists","RunTier0Tests"]
