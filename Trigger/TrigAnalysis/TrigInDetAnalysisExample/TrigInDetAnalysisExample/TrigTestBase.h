@@ -148,10 +148,6 @@ protected:
   /// use only the highest pt tracks
   bool m_useHighestPT;
 
-  /// if performing the vertex analysis, the index of the 
-  /// offline vertex to look for
-  int m_vtxIndex;
-
   /// also run purity analyses
   bool m_runPurity;
 

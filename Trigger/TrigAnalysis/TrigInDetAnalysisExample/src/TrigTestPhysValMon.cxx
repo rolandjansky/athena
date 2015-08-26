@@ -51,14 +51,12 @@ StatusCode TrigTestPhysValMon::bookHistograms(bool newEventsBlock, bool newLumiB
   
   ATH_MSG_DEBUG("TrigTestPhysValMon::bookHistograms() " << gDirectory->GetName());
     
-
-  ATH_MSG_INFO("TrigTestPhysValMon::bookHistograms()"); 
-  //	       << "\tbuildNtuple "   << m_buildNtuple
-  //	       << "\tNewEventBlock " << newEventsBlock 
-  //	       << "\tNewLumiBlock "  << newLumiBlock 
-  //	       << "\tNewRun "        << newRun);
+  ATH_MSG_INFO("TrigTestPhysValMon::bookHistograms() " 
+	       << "\tbuildNtuple "   << m_buildNtuple
+	       << "\tNewEventBlock " << newEventsBlock 
+	       << "\tNewLumiBlock "  << newLumiBlock 
+	       << "\tNewRun "        << newRun);
   
-
 #ifdef ManagedMonitorToolBase_Uses_API_201401
   StatusCode sc = TrigTestBase::book();
 #else
