@@ -7,8 +7,10 @@
 //-------------------------------------------------
 // Other stuff
 #include  "GaudiKernel/ToolFactory.h"
+#include  "TrkParticleBase/LinkToTrackParticleBase.h"
 #include  "AnalysisUtils/AnalysisMisc.h"
 #include  "TrkParticleBase/TrackParticleBaseCollection.h"
+#include  "VxVertex/VxTrackAtVertex.h"
 #include  "TrkParticleCreator/TrackParticleCreatorTool.h"
 #include  "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include  "TMath.h"
@@ -24,7 +26,8 @@
 //   4) Number of selected for vertexing tracks in jet 
 //   5) Number of track in secondary vertex
 //   6) 0. 
-//   7) Jet energy used in (2) calculation 
+//   7) Maximal track Pt with respect to jet axis
+//   8) Jet energy used in (2) calculation 
 //---------------------------------------------------------------------------------------- 
 
 namespace Trk {
@@ -53,9 +56,6 @@ namespace InDet{
 	                                     std::vector<double>                         & Results)
    const
    {
-
-      const double probVrtMergeLimit=0.04;
-
       m_NRefTrk=0;
       int inpNPart=0; 
       int i,j;
@@ -68,9 +68,10 @@ namespace InDet{
         RECwork->FoundSecondTracks.clear();     // Input clearing for failure return
         Results.clear();                        // Input clearing for failure return
       }
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDet GetVrtSecMulti() called with NPart=" <<inpNPart<< endmsg;
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "InDet GetVrtSecMulti() called with NPart=" <<inpNPart<< endreq;
    
       //std::vector<const Rec::TrackParticle*> listJetTracks, tmpListTracks, listSecondTracks, TracksForFit;
+      //std::vector<Trk::VxCandidate*>  finalVertices; 
       std::vector<xAOD::Vertex*>  finalVertices; 
 
       if( inpNPart < 2 ) { return finalVertices;}   // 0,1 track => nothing to do!
@@ -84,7 +85,7 @@ namespace InDet{
       else if(RECwork) {  SelGoodTrkParticle( RECwork->InpTrk, PrimVrt, JetDir, RECwork->listJetTracks);
                           NTracks = RECwork->listJetTracks.size();
                           MomentumJet = TotalMom(GetPerigeeVector(RECwork->listJetTracks));}
-      if(m_FillHist){m_hb_ntrkjet->Fill( (double) NTracks, m_w_1); }
+      if(m_FillHist){m_hb_ntrkjet->Fill( (double) NTracks, w_1); }
 
       if(NTracks>m_TrackInJetNumberLimit){
         if     (xAODwrk ) xAODwrk->listJetTracks.resize(m_TrackInJetNumberLimit);
@@ -93,9 +94,9 @@ namespace InDet{
       }
       if( NTracks < 2 ) { return finalVertices;} // 0,1 selected track => nothing to do!
 
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Number of selected tracks inside jet= " <<NTracks << endmsg;
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Number of selected tracks inside jet= " <<NTracks << endreq;
       
-      if(m_FillHist){m_hb_jmom->Fill( MomentumJet.Perp(), m_w_1); }
+      if(m_FillHist){m_hb_jmom->Fill( MomentumJet.Perp(), w_1); }
 
 //
 //  InpTrk[]           - input track list
@@ -125,7 +126,7 @@ namespace InDet{
 //      if(m_WorkArray->m_Incomp.size() < 2 ) { return finalVertices;}	// 0,1 tracks left VVK WRONG!!!
 //
 //---
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Found different tracks in pairs="<< Vrt2TrackNumber<<endmsg;
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Found different tracks in pairs="<< Vrt2TrackNumber<<endreq;
 //      if(listSecondTracks.size() < 2 ) { return finalVertices;}	// 0,1 tracks left VVK WRONG !!!
 
 
@@ -141,41 +142,35 @@ namespace InDet{
 
       std::vector<WrkVrt> *WrkVrtSet= new std::vector<WrkVrt>;
       WrkVrt newvrt; newvrt.Good=true;
-      m_fitSvc->setDefault();
-      StatusCode sc; sc.setChecked(); 
-      long int NPTR=0, nth=2; // VK nth=2 to speed up PGRAPH when it's used
 
-//================================================ PGRAPH version
-//      int iRet=0;
-//      long int* weit     = new long int[m_WorkArray->m_Incomp.size()];
-//      long int* Solution = new long int[NTracks];
-//      for(i=0; i<(int)m_WorkArray->m_Incomp.size(); i++) *(weit+i)=(long int) (m_WorkArray->m_Incomp[i]+1); /* +1 is needed for PGRAPH*/
-//      long int edges = m_WorkArray->m_Incomp.size()/2; 
-//      while(true) {
-//          iRet=Trk::pgraphm_( weit, &edges, &NTracks, Solution, &NPTR, &nth);
-//          if( iRet != 0) { if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << " Error in PGRAPHm iRet=" <<iRet << endmsg;}
-//                                     if(NPTR <= 0)  break;      /* No more solutions   */
-//                                     if(NPTR == 1)  continue;   /* Not a good solution */
-//          newvrt.SelTrk.clear();
-//          for(i=0;i<NPTR;i++) { newvrt.SelTrk.push_back(Solution[i]-1);}//std::cout<<"Solution="<<Solution[i]<<'\n';
-//================================================== Boost version (don't forget to uncomment addEdge in Select2TrVrt()
-      long int* weit=0; long int* Solution=0;
-      std::vector< std::vector<int> > allCliques;
-      bron_kerbosch_all_cliques(*m_compatibilityGraph, clique_visitor(allCliques));
-      for(int cq=0; cq<(int)allCliques.size();cq++){
-          newvrt.SelTrk.clear();
-          NPTR=allCliques[cq].size();
-          for(i=0;i<NPTR;i++){ newvrt.SelTrk.push_back(allCliques[cq][i]);}
-//==================================================
+      int iRet=0;
+      long int* weit     = new long int[m_WorkArray->m_Incomp.size()];
+      long int* Solution = new long int[NTracks];
+      for(i=0; i<(int)m_WorkArray->m_Incomp.size(); i++) *(weit+i)=(long int) (m_WorkArray->m_Incomp[i]+1); /* +1 is needed for PGRAPH*/
+      long int edges = m_WorkArray->m_Incomp.size()/2; 
+      long int NPTR=0,     nth=2; // VK nth=2 for speed up
+      m_fitSvc->setDefault();
+      StatusCode sc; if(sc.isSuccess())iRet=1; //Safety!
+      while(true) {
+          iRet=Trk::pgraphm_( weit, &edges, &NTracks, Solution, &NPTR, &nth);
+	  if( iRet != 0) { if(msgLvl(MSG::ERROR))msg(MSG::ERROR) << " Error in PGRAPHm iRet=" <<iRet << endreq;}
+
+                                     if(NPTR <= 0)  break;      /* No more solutions   */
+                                     if(NPTR == 1)  continue;   /* Not a good solution */
           if(xAODwrk)xAODwrk->tmpListTracks.clear(); else if(RECwork)RECwork->tmpListTracks.clear();
-          for(i=0;i<NPTR;i++) {
-             if     (xAODwrk)xAODwrk->tmpListTracks.push_back( xAODwrk->listJetTracks.at(newvrt.SelTrk[i]) );
-	     else if(RECwork)RECwork->tmpListTracks.push_back( RECwork->listJetTracks.at(newvrt.SelTrk[i]) );
+          newvrt.SelTrk.clear();
+          for(i=0;i<NPTR;i++) {         //std::cout<<"Solution="<<Solution[i]<<'\n';
+             newvrt.SelTrk.push_back(Solution[i]-1);
+             if     (xAODwrk)xAODwrk->tmpListTracks.push_back( xAODwrk->listJetTracks.at(Solution[i]-1) );
+	     else if(RECwork)RECwork->tmpListTracks.push_back( RECwork->listJetTracks.at(Solution[i]-1) );
           }
+       
           if     (xAODwrk)sc = VKalVrtFitFastBase(xAODwrk->tmpListTracks,newvrt.vertex);
 	  else if(RECwork)sc = VKalVrtFitFastBase(RECwork->tmpListTracks,newvrt.vertex);
           if( sc.isFailure() || newvrt.vertex.perp() > m_Rlayer2*2.  ) {   /* No initial estimation */ 
-              m_fitSvc->setApproximateVertex(PrimVrt.x(), PrimVrt.y(), PrimVrt.z()); /*Use as starting point*/
+              m_fitSvc->setApproximateVertex(PrimVrt.position().x(),       /*Use as starting point*/
+                                             PrimVrt.position().y(),
+                                             PrimVrt.position().z()); 
               if( m_MultiWithPrimary ) m_fitSvc->setApproximateVertex(0., 0., 0.); 
  	  } else {
 	      Amg::Vector3D vDist=newvrt.vertex-PrimVrt.position();
@@ -184,11 +179,11 @@ namespace InDet{
               if( JetVrtDir>0. ) {                           /* Good initial estimation */ 
                   m_fitSvc->setApproximateVertex(newvrt.vertex.x(),newvrt.vertex.y(),newvrt.vertex.z()); /*Use as starting point*/
 	      }else{
-                  m_fitSvc->setApproximateVertex(PrimVrt.x(), PrimVrt.y(), PrimVrt.z()); 
+                  m_fitSvc->setApproximateVertex(PrimVrt.position().x(), PrimVrt.position().y(), PrimVrt.position().z()); 
               }
           }
 //  std::cout<<"FoundAppVrt="<<newvrt.vertex[0]<<", "<<newvrt.vertex[1]<<", "<<newvrt.vertex[2]<<'\n';
-	  sc.setCode(StatusCode::FAILURE);
+	  sc.setCode(0);
           if     (xAODwrk){sc=VKalVrtFitBase(xAODwrk->tmpListTracks,
 	                                     newvrt.vertex,     newvrt.vertexMom, newvrt.vertexCharge, newvrt.vertexCov,
                                              newvrt.Chi2PerTrk, newvrt.TrkAtVrt,  newvrt.Chi2);}
@@ -198,45 +193,17 @@ namespace InDet{
 //  std::cout << "Res="<<newvrt.Chi2<<", "<<NPTR<<", "<<newvrt.SelTrk[0]<<", "<<newvrt.SelTrk[1]<<'\n'; 
           if( sc.isFailure() )           continue;   /* Bad fit - goto next solution */
           if(NPTR==2 && newvrt.Chi2>10.) continue;   /* Bad 2track vertex */
-          if(newvrt.Chi2PerTrk.size()==2) newvrt.Chi2PerTrk[0]=newvrt.Chi2PerTrk[1]=newvrt.Chi2/2.;
           newvrt.Good         = true;
           newvrt.nCloseVrt    = 0;
           newvrt.dCloseVrt    = 1000000.;
           WrkVrtSet->push_back(newvrt);
     } 
 //==================================================================================
-// boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS>::vertex_iterator vertexIt, vertexEnd;
-// boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS>::adjacency_iterator neighbourIt, neighbourEnd;
-// tie(vertexIt, vertexEnd) = vertices(*m_compatibilityGraph);
-// for (; vertexIt != vertexEnd; ++vertexIt) { std::cout << *vertexIt << " is connected with "; 
-//    tie(neighbourIt, neighbourEnd) = adjacent_vertices(*vertexIt, *m_compatibilityGraph); 
-//    for (; neighbourIt != neighbourEnd; ++neighbourIt) std::cout << *neighbourIt << " ";   std::cout << "\n"; }
-//==================================================================================
 //--- Initial cleaning of solutions
 //
-//- Try to merge vertices with 3 and more tracks which have at least 2 common tracks
-    int NSoluI=(*WrkVrtSet).size();
-    for(int iv=0; iv<NSoluI-1; iv++ ){
-       if(!(*WrkVrtSet)[iv].Good )                continue;
-       int nTrk1=(*WrkVrtSet)[iv].SelTrk.size();
-       for(int jv=iv+1; jv<NSoluI; jv++){
-         if(!(*WrkVrtSet)[jv].Good )              continue;
-         int nTrk2=(*WrkVrtSet)[jv].SelTrk.size();
-         if( nTrk1<3 || nTrk2<3 || nTrk1+nTrk2<7) continue; 
-         int nTCom=nTrkCommon( WrkVrtSet, iv, jv);
-         if( nTrk1-nTCom==1 || nTrk2-nTCom==1){
-            if     (xAODwrk)mergeAndRefitVertices( WrkVrtSet, iv, jv, newvrt, xAODwrk->listJetTracks);
-            else if(RECwork)mergeAndRefitVertices( WrkVrtSet, iv, jv, newvrt, RECwork->listJetTracks);
-         }
-         (*WrkVrtSet).push_back(newvrt);
-	 (*WrkVrtSet)[iv].Good=false;      
-	 (*WrkVrtSet)[jv].Good=false;      
-       }
-    }
 //-Remove worst track from vertices with very bad Chi2
-    NSoluI=(*WrkVrtSet).size();
+    int NSoluI=(*WrkVrtSet).size();
     for(int iv=0; iv<NSoluI; iv++){
-       if(!(*WrkVrtSet)[iv].Good )               continue;
        if( (*WrkVrtSet)[iv].SelTrk.size() == 2 ) continue;
        if( (*WrkVrtSet)[iv].Chi2 > (5.*(*WrkVrtSet)[iv].SelTrk.size()) ){
           if     (xAODwrk)DisassembleVertex(WrkVrtSet,iv,xAODwrk->listJetTracks);
@@ -247,29 +214,25 @@ namespace InDet{
     while( (*WrkVrtSet).size()>1 ){
       int tmpN=(*WrkVrtSet).size();  int iv=0;
       for(; iv<tmpN-1; iv++){        int jv=iv+1;
-        if(!(*WrkVrtSet)[iv].Good )               continue;
         for(; jv<tmpN; jv++){
-          if(!(*WrkVrtSet)[jv].Good )             continue;
           int nTCom=nTrkCommon( WrkVrtSet, iv, jv);
           if(      nTCom==(int)(*WrkVrtSet)[iv].SelTrk.size()){  (*WrkVrtSet).erase((*WrkVrtSet).begin()+iv); break; }
           else if( nTCom==(int)(*WrkVrtSet)[jv].SelTrk.size()){  (*WrkVrtSet).erase((*WrkVrtSet).begin()+jv); break; }
         }   if(jv!=tmpN)   break;  // One vertex is erased. Restart check
       }     if(iv==tmpN-1) break;  // No vertex deleted
     }
-    if(m_FillHist){ int cvgood=0; for(int iv=0; iv<(int)(*WrkVrtSet).size(); iv++) if((*WrkVrtSet)[iv].Good)cvgood++;
-                    m_hb_rawVrtN->Fill( (float)cvgood, m_w_1); }
 //- Try to merge all vertices which have at least 1 common track
     for(int iv=0; iv<(int)(*WrkVrtSet).size()-1; iv++ ){
        if(!(*WrkVrtSet)[iv].Good )           continue;
        for(int jv=iv+1; jv<(int)(*WrkVrtSet).size(); jv++){
          if(!(*WrkVrtSet)[jv].Good )           continue;
-         if(nTrkCommon( WrkVrtSet, iv, jv)<2)  continue;
+         if(!nTrkCommon( WrkVrtSet, iv, jv))   continue;
          if( VrtVrtDist((*WrkVrtSet)[iv].vertex,(*WrkVrtSet)[iv].vertexCov,
                         (*WrkVrtSet)[jv].vertex,(*WrkVrtSet)[jv].vertexCov) < m_VertexMergeCut) {
 	    double probV=0.;
             if     (xAODwrk)probV=mergeAndRefitVertices( WrkVrtSet, iv, jv, newvrt, xAODwrk->listJetTracks);
             else if(RECwork)probV=mergeAndRefitVertices( WrkVrtSet, iv, jv, newvrt, RECwork->listJetTracks);
-	    if(probV>probVrtMergeLimit){        //  Good merged vertex found
+	    if(probV>0.001){        //  Good merged vertex found
               double tstDst=JetProjDist(newvrt.vertex, PrimVrt, JetDir);
 	      if(tstDst>0.){                               // only positive vertex directions are accepted as merging result
                 (*WrkVrtSet).push_back(newvrt);
@@ -344,15 +307,14 @@ namespace InDet{
          if(foundMaxT<m_TrackDetachCut) foundMinVrtDst = minVrtVrtDist( WrkVrtSet, foundV1, foundV2);
 
 //Choice of action
-          if( foundMaxT<m_TrackDetachCut && foundMinVrtDst<m_VertexMergeCut && nTrkCommon( WrkVrtSet, foundV1, foundV2)){
-          //if( foundMaxT<m_TrackDetachCut && foundMinVrtDst<m_VertexMergeCut){
+          if( foundMaxT<m_TrackDetachCut && foundMinVrtDst<m_VertexMergeCut){
              bool vrtMerged=false;   //to check whether something is really merged
              while(foundMinVrtDst<m_VertexMergeCut){
                if(foundV1<foundV2) { int tmp=foundV1; foundV1=foundV2; foundV2=tmp;} /*Always drop vertex with smallest number*/
 	       double probV=0.;
                if     (xAODwrk)probV=mergeAndRefitVertices( WrkVrtSet, foundV1, foundV2, newvrt, xAODwrk->listJetTracks);
                else if(RECwork)probV=mergeAndRefitVertices( WrkVrtSet, foundV1, foundV2, newvrt, RECwork->listJetTracks);
-	       if(probV>probVrtMergeLimit && newvrt.vertexMom.M()<6000.){        //  Good merged vertex found
+	       if(probV>0.001 && newvrt.vertexMom.M()<6000.){        //  Good merged vertex found
                  double tstDst=JetProjDist(newvrt.vertex, PrimVrt, JetDir);
 	         if(tstDst>0.){                               // only positive vertex directions are accepted as merging result
                    std::swap((*WrkVrtSet)[foundV1],newvrt);
@@ -392,7 +354,7 @@ namespace InDet{
 	double probV=0.;
         if     (xAODwrk)probV=mergeAndRefitVertices( WrkVrtSet, foundV1, foundV2, newvrt, xAODwrk->listJetTracks);
         else if(RECwork)probV=mergeAndRefitVertices( WrkVrtSet, foundV1, foundV2, newvrt, RECwork->listJetTracks);
-	if(probV>probVrtMergeLimit && newvrt.vertexMom.M()<6000.){        //  Good merged vertex found
+	if(probV>0.01 && newvrt.vertexMom.M()<6000.){        //  Good merged vertex found
            double tstDst=JetProjDist(newvrt.vertex, PrimVrt, JetDir);
 	   if(tstDst>0.){                               // only positive vertex directions are accepted as merging result
               std::swap((*WrkVrtSet)[foundV1],newvrt);
@@ -446,7 +408,7 @@ namespace InDet{
                 double Signif3DP = 0;
 		if     (xAODwrk) Signif3DP=m_fitSvc->VKalGetImpact(xAODwrk->listJetTracks[(*WrkVrtSet)[iv].SelTrk[0]],PrimVrt.position(), 1, Impact, ImpactError);
 		else if(RECwork) Signif3DP=m_fitSvc->VKalGetImpact(RECwork->listJetTracks[(*WrkVrtSet)[iv].SelTrk[0]],PrimVrt.position(), 1, Impact, ImpactError);
-                if(m_FillHist){m_hb_diffPS->Fill( Signif3DP, m_w_1); }
+                if(m_FillHist){m_hb_diffPS->Fill( Signif3DP, w_1); }
                 if( Signif3DP > 2.*m_TrkSigCut && Signif3Dproj>m_Sel2VrtSigCut){  /* accept only tracks which are far from primary vertex */
 	           nGoodVertices++;  continue;    // Vertex is accepted as good.
                 } 
@@ -508,20 +470,20 @@ namespace InDet{
                if( fabs(Dist2DL1-m_Rlayer1)  < 4.0)  continue;
                if( fabs(Dist2DL2-m_Rlayer2)  < 5.0)  continue;
             }
-          }
+         }
 //---  Check V0s and conversions
           if(nth==2 && (*WrkVrtSet)[iv].vertexCharge==0 && isolVrt){
              double mass_PiPi =  (*WrkVrtSet)[iv].vertexMom.M();  
              double mass_PPi  =  massV0((*WrkVrtSet)[iv].TrkAtVrt,m_massP,m_massPi);
              double mass_EE   =  massV0((*WrkVrtSet)[iv].TrkAtVrt,m_massE,m_massE);
-	     if(m_FillHist)m_hb_massPiPi1->Fill( mass_PiPi , m_w_1);       
-             if(m_FillHist)m_hb_totmassEE->Fill( mass_EE, m_w_1);
+	     if(m_FillHist)m_hb_massPiPi1->Fill( mass_PiPi , w_1);       
+             if(m_FillHist)m_hb_totmassEE->Fill( mass_EE, w_1);
 	     if( fabs(mass_PiPi-m_massK0) < 22.)   continue;
  	     if( fabs(mass_PPi-m_massLam) <  8.)   continue;
              if( mass_EE < 40. && (*WrkVrtSet)[iv].vertex.perp() > 20.) continue;
           }          
 //---
-          if(m_FillHist){m_hb_sig3DTot->Fill( Signif3Dproj, m_w_1); }
+          if(m_FillHist){m_hb_sig3DTot->Fill( Signif3Dproj, w_1); }
 //---
           if(Signif3Dproj<m_Sel2VrtSigCut)continue;      //Main PV-SV distance quality cut 
 //-----
@@ -530,7 +492,7 @@ namespace InDet{
 //            double tmpProb=0.;
 //            if     (xAODwrk)tmpProb=FitVertexWithPV( WrkVrtSet, iv, PrimVrt, xAODwrk->listJetTracks);
 //            else if(RECwork)tmpProb=FitVertexWithPV( WrkVrtSet, iv, PrimVrt, RECwork->listJetTracks);
-//            if(m_FillHist){m_hb_trkPtMax->Fill( tmpProb*1.e5, m_w_1); }
+//            if(m_FillHist){m_hb_trkPtMax->Fill( tmpProb*1.e5, w_1); }
 //            if(tmpProb>0.01)continue; // Vertex can be associated with PV
 //	  }
 //---
@@ -539,23 +501,25 @@ namespace InDet{
           if(nth>=2)n2trVrt++;
     }
 //
-// Cleaning - single vertex close to PV . Doesn't improve anything => commented out
-//    if( n2trVrt==1 && nGoodVertices==1 && (!m_MultiWithPrimary) ){
-//      for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
-//        if( !(*WrkVrtSet)[iv].Good ) continue;
-//        if( ((*WrkVrtSet)[iv].vertex-PrimVrt.position()).perp()<3.){
-//          double tmpProb=0.;
-//          if     (xAODwrk)tmpProb=FitVertexWithPV( WrkVrtSet, iv, PrimVrt, xAODwrk->listJetTracks);
-//          else if(RECwork)tmpProb=FitVertexWithPV( WrkVrtSet, iv, PrimVrt, RECwork->listJetTracks);
-//          if(m_FillHist){m_hb_trkPtMax->Fill( tmpProb*1.e5, w_1); }
-//          if(tmpProb>0.01){  (*WrkVrtSet)[iv].Good =false; continue; }// Vertex can be associated with PV
-//    } } }
+// Cleaning - single vertex close to PV
+    if( n2trVrt==1 && nGoodVertices==1 && (!m_MultiWithPrimary) ){
+      for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
+        if( !(*WrkVrtSet)[iv].Good ) continue;
+	if((*WrkVrtSet)[iv].vertex.perp()<2.){
+          double tmpProb=0.;
+          if     (xAODwrk)tmpProb=FitVertexWithPV( WrkVrtSet, iv, PrimVrt, xAODwrk->listJetTracks);
+          else if(RECwork)tmpProb=FitVertexWithPV( WrkVrtSet, iv, PrimVrt, RECwork->listJetTracks);
+          if(m_FillHist){m_hb_trkPtMax->Fill( tmpProb*1.e5, w_1); }
+          if(tmpProb>0.01)continue; // Vertex can be associated with PV
+	}
+      }
+    }
 //
 //--Experimental lifetime-based selection
 //    for(int iv=0; iv<(int)WrkVrtSet->size(); iv++) {
 //      if(!(*WrkVrtSet)[iv].Good)continue;
 //      double lifeTime=(*WrkVrtSet)[iv].ProjectedVrt*(*WrkVrtSet)[iv].vertexMom.M()/(*WrkVrtSet)[iv].vertexMom.E();
-//      if(m_FillHist){m_hb_lifetime->Fill( sqrt(lifeTime), m_w_1); }
+//      if(m_FillHist){m_hb_lifetime->Fill( sqrt(lifeTime), w_1); }
 //      if(lifeTime>2.)(*WrkVrtSet)[iv].Good=false;  
 //    }
 //
@@ -580,7 +544,7 @@ namespace InDet{
     }
     if(nGoodVertices == 0 || n2trVrt==0){
       delete WrkVrtSet;
-      delete TrkInVrt; if(weit)delete[] weit; if(Solution)delete[] Solution;
+      delete TrkInVrt; delete[] weit; delete[] Solution;
       return finalVertices;
     }
 //
@@ -605,7 +569,7 @@ namespace InDet{
     if(nGoodVertices>1){
       if( GoodVertices[1].vertexMom.M()-GoodVertices[0].vertexMom.M() > 5000.) std::swap( GoodVertices[0], GoodVertices[1] );
     }
-    if(m_FillHist){m_hb_distVV->Fill( minVrtVrtDist( WrkVrtSet, foundV1, foundV2), m_w_1); }
+    if(m_FillHist){m_hb_distVV->Fill( minVrtVrtDist( WrkVrtSet, foundV1, foundV2), w_1); }
 //----------------------------------------------------------------------------------
 //  Nonused tracks for one-track-vertex search
 //
@@ -661,8 +625,8 @@ namespace InDet{
             if( RECwork ) {
               if ( !m_trkPartCreator ){ 
                  if ( m_trkPartCreator.retrieve().isFailure() )
-                    {if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve TrackParticleCreator tool" << endmsg;}
-                 else {if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackParticleCreator tool" << m_trkPartCreator << endmsg;}
+                    {if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Failed to retrieve TrackParticleCreator tool" << endreq;}
+                 else {if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Retrieved Trk::TrackParticleCreator tool" << m_trkPartCreator << endreq;}
               }
 	      if( m_trkPartCreator ){
                 TT = m_fitSvc->CreateTrkTrack(VKPerigee,CovPerigee); 
@@ -746,18 +710,41 @@ namespace InDet{
              if(trackPt>trackPtMax)trackPtMax=trackPt;
           }
           if( m_FillHist ){
-            m_hb_r2dc->Fill( GoodVertices[iv].vertex.perp(), m_w_1);
+            m_hb_r2dc->Fill( GoodVertices[iv].vertex.perp(), w_1);
             Signif3D=VrtVrtDist(PrimVrt, GoodVertices[iv].vertex, GoodVertices[iv].vertexCov, JetDir);
             if( nth==2 ){
-	      if(GoodVertices[iv].vertexCharge==0){m_hb_totmass2T1->Fill( GoodVertices[iv].vertexMom.M(), m_w_1);}
-	      else                                {m_hb_totmass2T2->Fill( GoodVertices[iv].vertexMom.M(), m_w_1);}
-	      m_hb_sig3D2tr->Fill( Signif3D , m_w_1);
+	      if(GoodVertices[iv].vertexCharge==0){m_hb_totmass2T1->Fill( GoodVertices[iv].vertexMom.M(), w_1);}
+	      else                                {m_hb_totmass2T2->Fill( GoodVertices[iv].vertexMom.M(), w_1);}
+	      m_hb_sig3D2tr->Fill( Signif3D , w_1);
             } else if( nth==1){
-              m_hb_sig3D1tr->Fill( Signif3D, m_w_1);
+              m_hb_sig3D1tr->Fill( Signif3D, w_1);
             } else {
-              m_hb_sig3DNtr->Fill( Signif3D, m_w_1);
+              m_hb_sig3DNtr->Fill( Signif3D, w_1);
             }
           }
+//
+// New code------------------------------------------------------------------------------------------
+//          Trk::RecVertex* tmpRecV = new Trk::RecVertex( GoodVertices[iv].vertex , makeVrtCovMatrix( GoodVertices[iv].vertexCov ), 
+//	                                              tmpListTracks.size()*2.-3., GoodVertices[iv]. Chi2); 
+//          std::vector<Trk::VxTrackAtVertex*> * tmpVTAV = new std::vector<Trk::VxTrackAtVertex*>();
+//          for(i=0; i<nth; i++) {
+//             AmgSymMatrix(5) * tmpCovMatr=new AmgSymMatrix(5); (*tmpCovMatr).setIdentity(); 
+//             Trk::Perigee * measPerigee =  new Trk::Perigee( 0.,0., GoodVertices[iv].TrkAtVrt[i][0],
+//                                                                    GoodVertices[iv].TrkAtVrt[i][1],
+//                                                                    GoodVertices[iv].TrkAtVrt[i][2],
+//                                                            Trk::PerigeeSurface(GoodVertices[iv].vertex),
+//                                                            tmpCovMatr  );
+//             tmpPointer = new Trk::VxTrackAtVertex( 1., measPerigee ) ;
+//             ElementLink<Trk::TrackParticleBaseCollection> TEL;  TEL.setElement( (Trk::TrackParticleBase*) tmpListTracks[i]);
+//             Trk::LinkToTrackParticleBase * ITL = new Trk::LinkToTrackParticleBase(TEL); //pointer to initial Trk
+//             Trk::VxTrackAtVertex * tmpPointer->setOrigTrack(ITL);              //pointer to initial TrackParticle
+//             tmpPointer->setWeight(1.);
+//             tmpVTAV->push_back( tmpPointer );
+//          }
+//          Trk::VxCandidate * tmpVx =new Trk::VxCandidate(*tmpRecV,*tmpVTAV);
+//          tmpVx->setVertexType(Trk::SecVtx);
+//          delete tmpVTAV;delete tmpRecV;
+//          finalVertices.push_back(tmpVx);
 //
 // xAOD::Vertex creation-----------------------------
           xAOD::Vertex * tmpVertex=new xAOD::Vertex();
@@ -792,7 +779,7 @@ namespace InDet{
           if( iv==0 && m_MultiWithPrimary ) continue;  //skip primary vertex if present
           VertexMom += GoodVertices[iv].vertexMom;
     }
-    if(m_FillHist){m_hb_goodvrtN->Fill( (double)nGoodVertices, m_w_1); }
+    if(m_FillHist){m_hb_goodvrtN->Fill( (double)nGoodVertices, w_1); }
 
 //-----------------------------------------------------------------------------------
 //  Saving of results
@@ -809,15 +796,16 @@ namespace InDet{
       else if(RECwork) Results.push_back((double)RECwork->listSecondTracks.size());   //5th
 //      Dist3D=VrtVrtDist(PrimVrt, FitVertex, ErrorMatrix, Signif3D);
 //      Results.push_back(Signif3D);
-      Results.push_back(0.);                                        //6th  -  not clear what to use here -> return 0.
-      Results.push_back(MomentumJet.E());                 //7th
+      Results.push_back(0.);                                //6th  -  not clear what to use here -> return 0.
+      Results.push_back(trackPtMax);                        //7th
+      Results.push_back(MomentumJet.E());                   //8th
 
-      if(m_FillHist){m_hb_ratio->Fill( Results[1], m_w_1); }
-      if(m_FillHist){m_hb_totmass->Fill( Results[0], m_w_1); }
-      if(m_FillHist){m_hb_nvrt2->Fill( Results[2], m_w_1); }
-      if(m_FillHist){m_hb_mom->Fill( MomentumJet.Perp(), m_w_1);} 
+      if(m_FillHist){m_hb_ratio->Fill( Results[1], w_1); }
+      if(m_FillHist){m_hb_totmass->Fill( Results[0], w_1); }
+      if(m_FillHist){m_hb_nvrt2->Fill( Results[2], w_1); }
+      if(m_FillHist){m_hb_mom->Fill( MomentumJet.Perp(), w_1);} 
 
-      delete WrkVrtSet; delete TrkInVrt; if(weit)delete[] weit; if(Solution)delete[] Solution;
+      delete WrkVrtSet; delete TrkInVrt; delete[] weit; delete[] Solution;
 
       return finalVertices;
 
@@ -865,7 +853,6 @@ namespace InDet{
       }	    
       if(SelT==-1)return;
       StatusCode sc;
-      int NVrtCur=WrkVrtSet->size();
       for(int i=0; i<NTrk; i++){
 	   if(i==SelT)continue;
            ListBaseTracks.clear();
@@ -888,12 +875,8 @@ namespace InDet{
 			               newvrt.Chi2);   
            if( sc.isFailure() )  continue;  
            if( newvrt.Chi2>10.)  continue;  // Too bad 2-track vertex fit
-           newvrt.Chi2PerTrk[0]=newvrt.Chi2PerTrk[1]=newvrt.Chi2/2.;
            newvrt.nCloseVrt    = 0;
            newvrt.dCloseVrt    = 1000000.;
-           if((int)WrkVrtSet->size()==NVrtCur) { WrkVrtSet->push_back(newvrt); continue;}  // just the first added vertex
-           if( (*WrkVrtSet)[NVrtCur].Chi2<newvrt.Chi2 ) continue;  // previous vertex was better
-           WrkVrtSet->erase(WrkVrtSet->begin()+NVrtCur);
            WrkVrtSet->push_back(newvrt);
       }
       (*WrkVrtSet)[iv].SelTrk.erase( (*WrkVrtSet)[iv].SelTrk.begin() + SelT ); //remove track
@@ -1183,7 +1166,6 @@ namespace InDet{
 			               newvrt.Chi2);   
       if( sc.isFailure() )             return 0.;  
       if( newvrt.Chi2>500. )           return 0.;  //VK protection
-      if( newvrt.Chi2PerTrk.size()==2) newvrt.Chi2PerTrk[0]=newvrt.Chi2PerTrk[1]=newvrt.Chi2/2.;
       return TMath::Prob( newvrt.Chi2, 2*newvrt.SelTrk.size()-3);
    }
 
@@ -1249,9 +1231,6 @@ namespace InDet{
 				(*WrkVrtSet)[SelectedVertex].TrkAtVrt,
 				(*WrkVrtSet)[SelectedVertex].Chi2); 
       if(SC.isSuccess())(*WrkVrtSet)[SelectedVertex].Good = true;
-      if((*WrkVrtSet)[SelectedVertex].Chi2PerTrk.size()==2) 
-         (*WrkVrtSet)[SelectedVertex].Chi2PerTrk[0]=
-	 (*WrkVrtSet)[SelectedVertex].Chi2PerTrk[1]=(*WrkVrtSet)[SelectedVertex].Chi2/2.;
       return SC;
    }
 
@@ -1273,7 +1252,7 @@ namespace InDet{
 	                             (*WrkVrtSet)[SelectedVertex].vertex[1],
 	                             (*WrkVrtSet)[SelectedVertex].vertex[2]);
       m_fitSvc->setCnstType(6);
-      m_fitSvc->setVertexForConstraint(PV.x(),PV.y(),PV.z());
+      m_fitSvc->setVertexForConstraint(PV.position().x(),PV.position().y(),PV.position().z());
       m_fitSvc->setCovVrtForConstraint(PV.covariancePosition()(0,0), PV.covariancePosition()(0,1),
                                        PV.covariancePosition()(1,1), PV.covariancePosition()(0,2),
                                        PV.covariancePosition()(1,2), PV.covariancePosition()(2,2)*10000.);
@@ -1287,7 +1266,6 @@ namespace InDet{
 				newvrt.Chi2); 
       m_fitSvc->setCnstType(0);     //reset constraints
       if(SC.isFailure())return 0.;
-      if(newvrt.Chi2PerTrk.size()==2) newvrt.Chi2PerTrk[0]=newvrt.Chi2PerTrk[1]=newvrt.Chi2/2.;
       return TMath::Prob( newvrt.Chi2, 2*nth);
    }
 

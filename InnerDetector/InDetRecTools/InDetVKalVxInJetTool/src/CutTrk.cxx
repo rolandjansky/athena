@@ -50,7 +50,7 @@ namespace InDet{
 
     std::vector<const Rec::TrackParticle*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
-    const Trk::Perigee* mPer;
+    const Trk::Perigee* m_mPer;
     const Trk::FitQuality*     TrkQual;
     std::vector<double> Impact,ImpactError;
     int NPrimTrk=0;
@@ -58,23 +58,23 @@ namespace InDet{
 //
 //-- Perigee in TrackParticle
 //
-          mPer=GetPerigee( (*i_ntrk) ) ;
-          if( mPer == NULL )  continue;
-          VectPerig = mPer->parameters(); 
+          m_mPer=GetPerigee( (*i_ntrk) ) ;
+          if( m_mPer == NULL )  continue;
+          VectPerig = m_mPer->parameters(); 
           TrkQual   = (*i_ntrk)->fitQuality();
           if(TrkQual && TrkQual->numberDoF()== 0) continue; //Protection
           double trkChi2=1.; if(TrkQual) trkChi2=TrkQual->chiSquared() / TrkQual->numberDoF();
-          double CovTrkMtx11 = (*(mPer->covariance()))(0,0);
-          double CovTrkMtx22 = (*(mPer->covariance()))(1,1);
+          double CovTrkMtx11 = (*(m_mPer->covariance()))(0,0);
+          double CovTrkMtx22 = (*(m_mPer->covariance()))(1,1);
 
 	  if ( CovTrkMtx11 > m_A0TrkErrorCut*m_A0TrkErrorCut )  continue;
 	  if ( CovTrkMtx22 > m_ZTrkErrorCut*m_ZTrkErrorCut )    continue;
 	  if( ConeDist(VectPerig,JetDir) > m_ConeForTag )       continue;
 
           double trkP=1./fabs(VectPerig[4]);         
-          double CovTrkMtx55 = (*(mPer->covariance()))(4,4);
+          double CovTrkMtx55 = (*(m_mPer->covariance()))(4,4);
           if(trkP>10000.){  double trkPErr=sqrt(CovTrkMtx55)*trkP;
-	                    if(m_FillHist)m_hb_trkPErr->Fill( trkPErr , m_w_1);       
+	                    if(m_FillHist)m_hb_trkPErr->Fill( trkPErr , w_1);       
                             if(trkPErr>0.5) continue;   }
 
           long int PixelHits     = 3;
@@ -95,6 +95,12 @@ namespace InDet{
           double ImpactZ=VectPerig[1]-PrimVrt.position().z();   // Temporary
 	  ImpactA0=Impact[0];  
 	  ImpactZ=Impact[1];   
+//---- Check of extrapolation to primary vertex
+//	  if(m_trackToVertexIP){
+//            std::vector<Trk::VxTrackAtVertex*> very_tmpTrk;  Trk::VxCandidate very_tmpVrt(PrimVrt,very_tmpTrk);
+//            const Trk::ImpactParametersAndSigma* relPV = m_trackToVertexIP->estimate((*i_ntrk), &very_tmpVrt, false);
+//	      if(relPV)	delete relPV;
+//        } 
 //----
           StatusCode sc = CutTrk( VectPerig[4] , VectPerig[3],
                        ImpactA0 , ImpactZ, trkChi2,
@@ -120,16 +126,16 @@ namespace InDet{
 
     std::vector<const Rec::TrackParticle*>::const_iterator   i_ntrk;
     AmgVector(5) VectPerig; VectPerig<<0.,0.,0.,0.,0.;
-    const Trk::Perigee* mPer;
+    const Trk::Perigee* m_mPer;
     std::vector<double> Impact,ImpactError;
     int NPrimTrk=0;
     for (i_ntrk = InpTrk.begin(); i_ntrk < InpTrk.end(); ++i_ntrk) {
 //
 //-- MeasuredPerigee in TrackParticle
 //
-          mPer=GetPerigee( (*i_ntrk) ) ;
-          if( mPer == NULL ){ continue; } 
-          VectPerig = mPer->parameters(); 
+          m_mPer=GetPerigee( (*i_ntrk) ) ;
+          if( m_mPer == NULL ){ continue; } 
+          VectPerig = m_mPer->parameters(); 
 	  if( ConeDist(VectPerig,JetDir) > m_ConeForTag )       continue;
 //----------------------------------- Summary tools
           const Trk::TrackSummary* testSum = (*i_ntrk)->trackSummary();
@@ -168,8 +174,8 @@ namespace InDet{
 //
 //-- Perigee in TrackParticle
 //
-          const Trk::Perigee mPer=(*i_ntrk)->perigeeParameters() ;
-          AmgVector(5) VectPerig = mPer.parameters(); 
+          const Trk::Perigee m_mPer=(*i_ntrk)->perigeeParameters() ;
+          AmgVector(5) VectPerig = m_mPer.parameters(); 
 
 
           if((*i_ntrk)->numberDoF() == 0) continue; //Protection
@@ -183,11 +189,11 @@ namespace InDet{
 
 	  if ( CovTrkMtx11 > m_A0TrkErrorCut*m_A0TrkErrorCut )  continue;
 	  if ( CovTrkMtx22 > m_ZTrkErrorCut*m_ZTrkErrorCut )    continue;
-	  if ( ConeDist(VectPerig,JetDir) > m_ConeForTag )       continue;
+	  if( ConeDist(VectPerig,JetDir) > m_ConeForTag )       continue;
 
           double trkP=1./fabs(VectPerig[4]);         
           if(trkP>10000.){  double trkPErr=sqrt(CovTrkMtx55)*trkP;
-	                    if(m_FillHist)m_hb_trkPErr->Fill( trkPErr , m_w_1);       
+	                    if(m_FillHist)m_hb_trkPErr->Fill( trkPErr , w_1);       
                             if(trkPErr>0.5) continue;   }
 
           uint8_t PixelHits,SctHits,BLayHits;
@@ -258,8 +264,8 @@ namespace InDet{
 //
 //-- MeasuredPerigee in xAOD::TrackParticle
 //
-          const Trk::Perigee mPer=(*i_ntrk)->perigeeParameters() ;
-          AmgVector(5) VectPerig = mPer.parameters(); 
+          const Trk::Perigee m_mPer=(*i_ntrk)->perigeeParameters() ;
+          AmgVector(5) VectPerig = m_mPer.parameters(); 
 	  if( ConeDist(VectPerig,JetDir) > m_ConeForTag )       continue;
 //----------------------------------- Summary tools
           uint8_t PixelHits,SctHits;

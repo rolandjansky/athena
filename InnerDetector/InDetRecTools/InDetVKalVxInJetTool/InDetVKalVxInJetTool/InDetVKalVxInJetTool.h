@@ -8,7 +8,7 @@
 /*
    Tool for secondary vertex inside jet reconstruction.
    It returns a pointer to Trk::VxSecVertexInfo object which contains
-   vector of pointers to xAOD::Vertex's of found secondary verteces.
+   vector of pointers to VxCandidates of found secondary verteces.
    In case of failure pointer to Trk::VxSecVertexInfo is 0.
    
 
@@ -44,9 +44,8 @@
 // Gaudi includes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include <boost/graph/undirected_graph.hpp>
-#include <boost/graph/bron_kerbosch_all_cliques.hpp>
 //
+//#include  "TrkTrack/Track.h"
 #include  "Particle/TrackParticle.h"
 #include  "xAODTracking/TrackParticleContainer.h"
 //
@@ -57,7 +56,6 @@
 #include "TProfile.h"
 
 #include "InDetRecToolInterfaces/ISecVertexInJetFinder.h"
-//#include "InDetMaterialRejTool/InDetMaterialRejTool.h"
 
 
 
@@ -131,7 +129,7 @@ namespace InDet {
 
     private:
 
-      double m_w_1;
+      double w_1;
       TH1D* m_hb_massPiPi;
       TH1D* m_hb_massPiPi1;
       TH1D* m_hb_massPiPi2;
@@ -170,15 +168,8 @@ namespace InDet {
       TH1F* m_hb_addRatioMV;
       TH1F* m_hb_addChi2MV;
       TH1F* m_hb_addNVrtMV;
-      TH1F* m_hb_rawVrtN;
       TH1F* m_hb_lifetime;
       TH1F* m_hb_trkPErr;
-//--
-      TH1D*  m_hb_massJetTrkSV;
-      TH1D*  m_hb_ratioJetTrkSV;
-      TH1D*  m_hb_DST_JetTrkSV;
-      TH1D*  m_hb_NImpJetTrkSV;
-//--
       TProfile * m_pr_effVrt2tr;
       TProfile * m_pr_effVrt2trEta;
       TProfile * m_pr_effVrt;
@@ -205,8 +196,8 @@ namespace InDet {
       double m_Sel2VrtChi2Cut;
       double m_Sel2VrtSigCut;
       double m_TrkSigCut;
-      double m_TrkSigNTrkDep;
       double m_TrkSigSumCut;
+      double m_TrkSigNTrkDep;
       double m_A0TrkErrorCut;
       double m_ZTrkErrorCut;
       double m_AntiPileupSigRCut;
@@ -214,8 +205,6 @@ namespace InDet {
       double m_AntiFake2trVrtCut;
       double m_JetPtFractionCut;
       int    m_TrackInJetNumberLimit;
-      double m_MaterialPtCut;
-      double m_pseudoSigCut;
 
       bool m_FillHist;
 
@@ -255,7 +244,6 @@ namespace InDet {
 //      ToolHandle < Trk::ITrkVKalVrtFitter >   m_fitSvc;
       ToolHandle < Trk::ITrackToVertexIPEstimator > m_trackToVertexIP;
       ToolHandle< Trk::ITrackParticleCreatorTool > m_trkPartCreator;
-//      ToolHandle< IInDetMaterialRejection > m_materialMap;
       Trk::TrkVKalVrtFitter*   m_fitSvc;
  
 
@@ -271,7 +259,6 @@ namespace InDet {
 
 // For multivertex version only
 
-      boost::adjacency_list<boost::listS, boost::vecS, boost::undirectedS> *m_compatibilityGraph;
       float m_chiScale[11];
       VKalVxInJetTemp*  m_WorkArray;     
       struct WrkVrt 
@@ -314,12 +301,6 @@ namespace InDet {
 	                           const TLorentzVector                        & JetDir,
 	                           std::vector<double>                         & Results) const;
 
-      xAOD::Vertex* tryPseudoVertex(const std::vector<const xAOD::TrackParticle*>& Tracks,
-                                                      const xAOD::Vertex         & PrimVrt,
-                                                      const TLorentzVector       & JetDir,
-                                                      const TLorentzVector       & TrkJet,
-						      const int                  & nTrkLead,
-	                                              std::vector<double>        & Results)  const;
 
       void  TrackClassification(std::vector<WrkVrt> *WrkVrtSet, 
                                 std::vector< std::deque<long int> > *TrkInVrt) const;
@@ -354,10 +335,6 @@ namespace InDet {
       double           TotalTVMom(const Amg::Vector3D &Dir, const std::vector<const Trk::Perigee*>& InpTrk) const; 
       double           pTvsDir(const Amg::Vector3D &Dir, const std::vector<double>& InpTrk) const; 
 
-      TLorentzVector GetBDir( const xAOD::TrackParticle* trk1,
-                              const xAOD::TrackParticle* trk2,
-                              const xAOD::Vertex    & PrimVrt,
-			      Amg::Vector3D &V1, Amg::Vector3D &V2) const;
 
       int   nTrkCommon( std::vector<WrkVrt> *WrkVrtSet, int V1, int V2) const;
       double minVrtVrtDist( std::vector<WrkVrt> *WrkVrtSet, int & V1, int & V2) const;
@@ -381,8 +358,7 @@ namespace InDet {
       void DisassembleVertex(std::vector<WrkVrt> *WrkVrtSet, int iv, 
                          std::vector<const Particle*>  AllTracks) const;
 					  
-      double ProjPos(const Amg::Vector3D & Vrt, const TLorentzVector & JetDir) const;
-      double ProjPosT(const Amg::Vector3D & Vrt, const TLorentzVector & JetDir) const;
+      double ProjPos(const Amg::Vector3D & Vrt,const TLorentzVector & JetDir) const;
 
       const Trk::Perigee* GetPerigee( const xAOD::TrackParticle* ) const;
       const Trk::Perigee* GetPerigee( const Rec::TrackParticle* ) const;
@@ -406,8 +382,6 @@ namespace InDet {
       template <class Trk>
       void RemoveDoubleEntries(std::vector<const Trk*>& ) const;
 
-      template <class Trk>
-      double RemoveNegImpact(std::vector<const Trk*>& , const xAOD::Vertex &, const TLorentzVector&, const double ) const;
 
       template <class Particle>
       StatusCode RefitVertex( std::vector<WrkVrt> *WrkVrtSet, int SelectedVertex,
@@ -452,6 +426,8 @@ namespace InDet {
 
      Amg::MatrixX  makeVrtCovMatrix( std::vector<double> & ErrorMatrix ) const;
 
+     Trk::TrackParticleBase *  CreateParticle(const Trk::ExtendedVxCandidate * vxCandidate) const;
+     double massError(const Trk::ExtendedVxCandidate * vxCandidate, double mass) const;
      double trkPtCorr(double pT) const;
      Amg::MatrixX SetFullMatrix(int NTrk, std::vector<double> & Matrix) const;
 
@@ -471,8 +447,6 @@ namespace InDet {
      void  getPixelLayers(const xAOD::TrackParticle* Part, int &blHit, int &l1Hit, int &l2Hit, int &nLay) const;
      void  getPixelDiscs(const xAOD::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const;
      void  getPixelDiscs(const  Rec::TrackParticle* Part, int &d0Hit, int &d1Hit, int &d2Hit) const;
-     void  getPixelProblems(const xAOD::TrackParticle* Part, int &splshIBL, int &splshBL ) const;
-     void  getPixelProblems(const Rec::TrackParticle* Part, int &splshIBL, int &splshBL ) const;
 
 
      StatusCode VKalVrtFitBase(const std::vector<const Rec::TrackParticle*> & listPart,
@@ -491,7 +465,7 @@ namespace InDet {
                                                   std::vector<double>&           Chi2PerTrk,
                                                   std::vector< std::vector<double> >& TrkAtVrt,
                                                   double& Chi2 ) const;
-     const std::vector<const Trk::TrackParticleBase*> 
+    const std::vector<const Trk::TrackParticleBase*> 
                PartToBase(const std::vector<const Rec::TrackParticle*> & listPart) const;
      const std::vector<const Rec::TrackParticle*> 
                BaseToPart(const std::vector<const Trk::TrackParticleBase*> & listBase) const;
@@ -516,22 +490,6 @@ namespace InDet {
     ListTracks.erase( TransfEnd, ListTracks.end());
   }     
 
-  struct clique_visitor
-  {
-    clique_visitor(std::vector< std::vector<int> > & input): m_allCliques(input){ input.clear();}
-    
-    template <typename Clique, typename Graph>
-    void clique(const Clique& clq, Graph& )
-    { 
-      std::vector<int> new_clique(0);
-      //for(auto i = clq.begin(); i != clq.end(); ++i) std::cout<< *i << ","; std::cout<<'\n';  //For debugging
-      for(auto i = clq.begin(); i != clq.end(); ++i) new_clique.push_back(*i);
-      m_allCliques.push_back(new_clique);
-    }
-
-    std::vector< std::vector<int> > & m_allCliques;
-
-  };
 
 }  //end namespace
 
