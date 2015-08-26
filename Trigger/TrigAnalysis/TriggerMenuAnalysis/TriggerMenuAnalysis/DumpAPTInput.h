@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGGERMENUANALSYIS_DUMPAPTINPUT_H
-#define TRIGGERMENUANALSYIS_DUMPAPTINPUT_H
+#ifndef __DumpAPTInput_h__
+#define __DumpAPTInput_h__
 /*
   DumpAPTInput.h
 */
@@ -45,28 +45,28 @@ private:
   
 private:
   // Properties
-  std::string m_outputFileName;
+  std::string mOutputFileName;
 
-  std::ofstream m_outputFile;
+  std::ofstream mOutputFile;
 
-  ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
-  const Trig::ChainGroup* m_chainGroup_AllL1;
-  const Trig::ChainGroup* m_chainGroup_AllL2;
-  const Trig::ChainGroup* m_chainGroup_AllEF;
-  std::map<int, std::string> m_L1NameIdMap;
-  std::map<int, std::string> m_L2NameIdMap;
-  std::map<int, std::string> m_EFNameIdMap;
+  ToolHandle<Trig::TrigDecisionTool> mTrigDecisionTool;
+  const Trig::ChainGroup* mChainGroup_AllL1;
+  const Trig::ChainGroup* mChainGroup_AllL2;
+  const Trig::ChainGroup* mChainGroup_AllEF;
+  std::map<int, std::string> mL1NameIdMap;
+  std::map<int, std::string> mL2NameIdMap;
+  std::map<int, std::string> mEFNameIdMap;
 
-  std::bitset<N_L1_BITS> m_L1_TBP;
-  std::bitset<N_L1_BITS> m_L1_TAP;
-  std::bitset<N_L1_BITS> m_L1_TAV;
+  std::bitset<N_L1_BITS> mL1_TBP;
+  std::bitset<N_L1_BITS> mL1_TAP;
+  std::bitset<N_L1_BITS> mL1_TAV;
 
-  std::bitset<N_L2_BITS> m_L2_Raw;
-  std::bitset<N_L2_BITS> m_L2_Rerun;
+  std::bitset<N_L2_BITS> mL2_Raw;
+  std::bitset<N_L2_BITS> mL2_Rerun;
 
-  std::bitset<N_EF_BITS> m_EF_Raw;
-  std::bitset<N_EF_BITS> m_EF_Rerun;
+  std::bitset<N_EF_BITS> mEF_Raw;
+  std::bitset<N_EF_BITS> mEF_Rerun;
 
 };
 
-#endif // TRIGGERMENUANALSYIS_DUMPAPTINPUT_H
+#endif // __DumpAPTInput_h__

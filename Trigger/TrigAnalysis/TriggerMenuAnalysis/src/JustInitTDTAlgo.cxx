@@ -9,15 +9,15 @@
 
 JustInitTDTAlgo::JustInitTDTAlgo(const std::string& name, ISvcLocator* svcloc) : 
   AthAlgorithm(name, svcloc), 
-  m_trigAccessTool("TrigAccessTool/TrigAccessTool", this) {
-  declareProperty("TrigAccessTool", m_trigAccessTool, "TrigAccessTool");
+  mTrigAccessTool("TrigAccessTool/TrigAccessTool", this) {
+  declareProperty("TrigAccessTool", mTrigAccessTool, "TrigAccessTool");
 }
 
 JustInitTDTAlgo::~JustInitTDTAlgo() {
 }
 
 StatusCode JustInitTDTAlgo::initialize() {
-  if (m_trigAccessTool.retrieve().isFailure()) {
+  if (mTrigAccessTool.retrieve().isFailure()) {
     ATH_MSG_WARNING ("Cannot retrieve TrigAccessTool");
   }
   return StatusCode::SUCCESS;

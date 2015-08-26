@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGGERMENUANALYSIS_TILEMUOBJECTSINROI_H
-#define TRIGGERMENUANALYSIS_TILEMUOBJECTSINROI_H
+#ifndef __TileMuObjectsInRoI_h__
+#define __TileMuObjectsInRoI_h__
 /*
   TileMuObjectsInRoI.h
 */
@@ -34,17 +34,17 @@ public:
   TileMuObjectsInRoI();
   ~TileMuObjectsInRoI();
 
-  const Muon_ROI* getMuonRoI() const { return m_muonRoI; }
-  const TileMuFeature* getTileMuFeature() const { return m_tileMuFeature; }
-  const TileTrackMuFeature* getTileTrackMuFeature() const { return m_tileTrackMuFeature; }
+  const Muon_ROI* getMuonRoI() const { return mMuonRoI; }
+  const TileMuFeature* getTileMuFeature() const { return mTileMuFeature; }
+  const TileTrackMuFeature* getTileTrackMuFeature() const { return mTileTrackMuFeature; }
   const TrigVertexCollection* getVertexCollection() const {
-    return m_vertexCollection;
+    return mVertexCollection;
   }
   const TrigInDetTrackCollection* getInDetTrackCollection() const {
-    return m_inDetTrackCollection;
+    return mInDetTrackCollection;
   }
-  const TrigMuonEFContainer* getEFMuon() const { return m_EFMuon; }
-  const TrigMuonEFInfoContainer* getEFMuonInfo() const { return m_EFMuonInfo; }
+  const TrigMuonEFContainer* getEFMuon() const { return mEFMuon; }
+  const TrigMuonEFInfoContainer* getEFMuonInfo() const { return mEFMuonInfo; }
 
   inline void setTileMuFeature(const TileMuFeature* x);
   inline void setTileTrackMuFeature(const TileTrackMuFeature* x);
@@ -52,32 +52,31 @@ public:
   inline void setEFMuonInfo(const TrigMuonEFInfoContainer* x);
 
 protected:
-  const Muon_ROI* m_muonRoI;
-  const TileMuFeature* m_tileMuFeature;
-  const TileTrackMuFeature* m_tileTrackMuFeature;
-  const TrigVertexCollection* m_vertexCollection;
-  const TrigInDetTrackCollection* m_inDetTrackCollection;
+  const Muon_ROI* mMuonRoI;
+  const TileMuFeature* mTileMuFeature;
+  const TileTrackMuFeature* mTileTrackMuFeature;
+  const TrigVertexCollection* mVertexCollection;
+  const TrigInDetTrackCollection* mInDetTrackCollection;
 
-  const TrigMuonEFContainer* m_EFMuon;
-  const TrigMuonEFInfoContainer* m_EFMuonInfo;
+  const TrigMuonEFContainer* mEFMuon;
+  const TrigMuonEFInfoContainer* mEFMuonInfo;
 };
 
 
 void TileMuObjectsInRoI::setTileMuFeature(const TileMuFeature* x) {
-  m_tileMuFeature = x;
+  mTileMuFeature = x;
 }
 
 void TileMuObjectsInRoI::setTileTrackMuFeature(const TileTrackMuFeature* x) {
-  m_tileTrackMuFeature = x;
+  mTileTrackMuFeature = x;
 }
 
 void TileMuObjectsInRoI::setEFMuon(const TrigMuonEFContainer* x) {
-  m_EFMuon = x;
+  mEFMuon = x;
 }
 
 void TileMuObjectsInRoI::setEFMuonInfo(const TrigMuonEFInfoContainer* x) {
-  m_EFMuonInfo = x;
+  mEFMuonInfo = x;
 }
 
-#endif // TRIGGERMENUANALYSIS_TILEMUOBJECTSINROI_H
-
+#endif // __TileMuObjectsInRoI_h__

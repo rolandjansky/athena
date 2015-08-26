@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGGERMENUANALYSIS_TRIGMENUHISTS_H
-#define TRIGGERMENUANALYSIS_TRIGMENUHISTS_H
+#ifndef __TrigMenuHists_h__
+#define __TrigMenuHists_h__
 /*
   TrigMenuHists.h
 */
@@ -29,10 +29,10 @@ public:
   bool fillMuonObjects(const std::vector<HLTObjectsInRoI*>& objs);
 
 private:
-  ServiceHandle<ITHistSvc> m_THistSvc;
-  TH1* m_histMuFastPt;
-  TH1* m_histMuInDetPt;
-  TH1* m_histMuCombPt;
+  ServiceHandle<ITHistSvc> mTHistSvc;
+  TH1* mHistMuFastPt;
+  TH1* mHistMuInDetPt;
+  TH1* mHistMuCombPt;
 };
 
-#endif // TRIGGERMENUANALYSIS_TRIGMENUHISTS_H
+#endif // __TrigMenuHists_h__

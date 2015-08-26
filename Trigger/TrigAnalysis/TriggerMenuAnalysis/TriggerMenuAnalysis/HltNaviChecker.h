@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGGERMENUANALSYIS_HLTNAVICHECKER_H
-#define TRIGGERMENUANALSYIS_HLTNAVICHECKER_H
+#ifndef __HltNaviChecker_h__
+#define __HltNaviChecker_h__
 /*
   HltNaviChecker.h
 */
@@ -31,15 +31,15 @@ private:
 		     HLT::NavigationCore* navi, 
 		     const std::string& prefix="");
 private:
-  ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
-  ToolHandle<RoILinksCnvTool> m_RoILinksCnvTool;
-  std::vector<std::string> m_chainNames;
+  ToolHandle<Trig::TrigDecisionTool> mTrigDecisionTool;
+  ToolHandle<RoILinksCnvTool> mRoILinksCnvTool;
+  std::vector<std::string> mChainNames;
 
-  TFile* m_file;
-  TTree* m_tree;
-  int m_NPassBits;
-  std::vector<unsigned int>* m_EFElectronPassBitsIndex;
+  TFile* mFile;
+  TTree* mTree;
+  int mNPassBits;
+  std::vector<unsigned int>* mEFElectronPassBitsIndex;
   
 };
 
-#endif // TRIGGERMENUANALSYIS_HLTNAVICHECKER_H
+#endif // __HltNaviChecker_h__

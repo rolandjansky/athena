@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGGERMENUANALYSIS_TESTNEWTDT_H
-#define TRIGGERMENUANALYSIS_TESTNEWTDT_H
+#ifndef __TestNewTDT_h__
+#define __TestNewTDT_h__
 /*
   TestNewTDT.h
 */
@@ -33,16 +33,16 @@ protected:
 			  const std::string& chain_name);
 
 private:
-  ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
-  ServiceHandle<IClassIDSvc> m_classIDSvc;
+  ToolHandle<Trig::TrigDecisionTool> mTrigDecisionTool;
+  ServiceHandle<IClassIDSvc> mClassIDSvc;
 
-  const Trig::ChainGroup* m_chainGroup_L2;
-  const Trig::ChainGroup* m_chainGroup_EF;
+  const Trig::ChainGroup* mChainGroup_L2;
+  const Trig::ChainGroup* mChainGroup_EF;
 
-  std::vector<std::string> m_chainGroupNames;
-  std::vector<const Trig::ChainGroup*> m_chainGroups;
+  std::vector<std::string> mChainGroupNames;
+  std::vector<const Trig::ChainGroup*> mChainGroups;
 
-  std::map<std::string, std::multiset<std::string> > m_chainCombMap;
+  std::map<std::string, std::multiset<std::string> > mChainCombMap;
 };
 
-#endif // TRIGGERMENUANALYSIS_TESTNEWTDT_H
+#endif // __TestNewTDT_h__

@@ -11,13 +11,13 @@
 using namespace std;
 
 
-TrigMenuEvent* TrigMenuEvent::s_event = 0;
+TrigMenuEvent* TrigMenuEvent::gEvent = 0;
 
 TrigMenuEvent* TrigMenuEvent::getInstance() {
-  if (s_event == 0) {
-    s_event = new TrigMenuEvent();
+  if (gEvent == 0) {
+    gEvent = new TrigMenuEvent();
   }
-  return s_event;
+  return gEvent;
 }
 
 TrigMenuEvent::TrigMenuEvent() {
@@ -27,13 +27,13 @@ TrigMenuEvent::~TrigMenuEvent() {
 }
 
 void TrigMenuEvent::clear() {
-  clearHLTObjects(m_muonChainObjects);
-  clearHLTObjects(m_tileMuChainObjects);
-  clearHLTObjects(m_electronChainObjects);
-  clearHLTObjects(m_jetChainObjects);
-  clearHLTObjects(m_tauChainObjects);
-  clearHLTObjects(m_missingETChainObjects);
-  clearHLTObjects(m_tileMuChainObjects);
+  clearHLTObjects(mMuonChainObjects);
+  clearHLTObjects(mTileMuChainObjects);
+  clearHLTObjects(mElectronChainObjects);
+  clearHLTObjects(mJetChainObjects);
+  clearHLTObjects(mTauChainObjects);
+  clearHLTObjects(mMissingETChainObjects);
+  clearHLTObjects(mTileMuChainObjects);
 }
 
 void TrigMenuEvent::clearHLTObjects(std::vector<HLTObjectsInRoI*>& objs) {

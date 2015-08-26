@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGGERMENUANALYSIS_ESNTCOMPONENT_H
-#define TRIGGERMENUANALYSIS_ESNTCOMPONENT_H
+#ifndef __ESNtComponent_h__
+#define __ESNtComponent_h__
 /*
   ESNtComponent.h
 */
@@ -26,12 +26,12 @@ public:
   void clear();
 
 protected:
-  ServiceHandle<TrigConf::IHLTConfigSvc> m_trigConfigSvc;
-  ToolHandle<Trig::TrigDecisionTool> m_TDT;
-  std::string m_eventInfoKey;
+  ServiceHandle<TrigConf::IHLTConfigSvc> mTrigConfigSvc;
+  ToolHandle<Trig::TrigDecisionTool> mTDT;
+  std::string mEventInfoKey;
 
-  std::vector<std::string>* m_chainNames;
-  std::vector<int>* m_chainCounters;
+  std::vector<std::string>* mChainNames;
+  std::vector<int>* mChainCounters;
 };
 
-#endif // TRIGGERMENUANALYSIS_ESNTCOMPONENT_H
+#endif // __ESNtComponent_h__

@@ -36,35 +36,35 @@ using namespace NtComponent;
 HltMuonNtComponent::HltMuonNtComponent(NtupleAlgorithm* mainAlg, 
 				       NtComponentParameters parameters) : 
   NtupleComponent(mainAlg, parameters), 
-  m_trigEventInfo(0), 
-  m_tgcHptWire(0), 
-  m_tgcHptStrip(0), 
-  m_moore(0), 
-  m_muid(0), 
-  m_tileL2Muon(0), 
-  m_tileMuon(0), m_muonChains() {
-  //  declareProperty("EventInfoName", m_eventInfoName = "McEventInfo", "EventInfo key");
+  mTrigEventInfo(0), 
+  mTgcHptWire(0), 
+  mTgcHptStrip(0), 
+  mMoore(0), 
+  mMuid(0), 
+  mTileL2Muon(0), 
+  mTileMuon(0), mMuonChains() {
+  //  declareProperty("EventInfoName", mEventInfoName = "McEventInfo", "EventInfo key");
   
-  m_muonDataVec = 0;
-  m_tileMuDataVec = 0;
+  mMuonDataVec = 0;
+  mTileMuDataVec = 0;
 
-  m_trigEventInfo = 0;
-  m_tgcHptWire = 0;
-  m_tgcHptStrip = 0;
-  m_moore = 0;
-  m_muid = 0;
-  m_tileL2Muon = 0;
-  m_tileMuon = 0;
+  mTrigEventInfo = 0;
+  mTgcHptWire = 0;
+  mTgcHptStrip = 0;
+  mMoore = 0;
+  mMuid = 0;
+  mTileL2Muon = 0;
+  mTileMuon = 0;
 
   m_activeStore = 0;
-  m_trigAccessTool = 0;
-  m_event = 0;
+  mTrigAccessTool = 0;
+  mEvent = 0;
 
   TrigMenuNtupleAlg* mymainAlg = dynamic_cast<TrigMenuNtupleAlg*>(mainAlg);
 
   if (mymainAlg) {
     m_activeStore = mymainAlg->activeStoreSvc();
-    m_trigAccessTool = mymainAlg->trigAccessTool();
+    mTrigAccessTool = mymainAlg->trigAccessTool();
   }
 
   // Configure properties from the NtComponentParameters
@@ -73,12 +73,12 @@ HltMuonNtComponent::HltMuonNtComponent(NtupleAlgorithm* mainAlg,
   std::map<std::string, std::string>::const_iterator p_mm = 
     mm.find(container_key);
   if (p_mm != mm.end()) {
-    m_eventInfoName = p_mm->second;
+    mEventInfoName = p_mm->second;
   }
   unsigned int i=0;
   for (i=0; i<parameters.options.size(); ++i) {
     const std::string& chain_name = parameters.options[i];
-    m_muonChains.push_back(chain_name);
+    mMuonChains.push_back(chain_name);
   }
 
   createChainGroups();
@@ -86,51 +86,51 @@ HltMuonNtComponent::HltMuonNtComponent(NtupleAlgorithm* mainAlg,
 
 HltMuonNtComponent::~HltMuonNtComponent() {
 
-  if( m_trigEventInfo ) delete m_trigEventInfo;
+  if( mTrigEventInfo ) delete mTrigEventInfo;
 
-  if( m_muonDataVec ) delete m_muonDataVec;
-  if( m_tileMuDataVec ) delete m_tileMuDataVec;
+  if( mMuonDataVec ) delete mMuonDataVec;
+  if( mTileMuDataVec ) delete mTileMuDataVec;
 
 
-  if( m_tgcHptWire ) delete m_tgcHptWire;
-  if( m_tgcHptStrip ) delete m_tgcHptStrip;
+  if( mTgcHptWire ) delete mTgcHptWire;
+  if( mTgcHptStrip ) delete mTgcHptStrip;
 
-  if( m_moore ) delete m_moore;
-  if( m_muid ) delete m_muid;
-  if( m_tileL2Muon ) delete m_tileL2Muon;
-  if( m_tileMuon ) delete m_tileMuon;
+  if( mMoore ) delete mMoore;
+  if( mMuid ) delete mMuid;
+  if( mTileL2Muon ) delete mTileL2Muon;
+  if( mTileMuon ) delete mTileMuon;
   
 
 }
 
 StatusCode HltMuonNtComponent::book() {
-  m_trigEventInfo = new TrigEventInfo();
+  mTrigEventInfo = new TrigEventInfo();
 
-  m_muonDataVec = new std::vector<RoIData_Muon>();
-  m_tileMuDataVec = new std::vector<RoIData_TileMu>();
-
-  //for Muon HLT
-  m_tgcHptWire = new std::vector<TgcHpt>();
-  m_tgcHptStrip = new std::vector<TgcHpt>();
-  m_moore = new std::vector<MSMuon>();
-  m_muid = new std::vector<CBMuon>();
-  m_tileL2Muon = new std::vector<TileL2Muon>();
-  m_tileMuon = new std::vector<TileMuon>();
-
-  m_tree->Branch("EventInfo", m_trigEventInfo);
-
-  m_tree->Branch("Muon", m_muonDataVec);
-  m_tree->Branch("TileMu",m_tileMuDataVec);
+  mMuonDataVec = new std::vector<RoIData_Muon>();
+  mTileMuDataVec = new std::vector<RoIData_TileMu>();
 
   //for Muon HLT
-  m_tree->Branch("TgcHptWire", m_tgcHptWire);
-  m_tree->Branch("TgcHptStrip", m_tgcHptStrip);
-  m_tree->Branch("Moore", m_moore);
-  m_tree->Branch("Muid", m_muid);
-  m_tree->Branch("TileL2Muon", m_tileL2Muon);
-  m_tree->Branch("TileMuon", m_tileMuon);
+  mTgcHptWire = new std::vector<TgcHpt>();
+  mTgcHptStrip = new std::vector<TgcHpt>();
+  mMoore = new std::vector<MSMuon>();
+  mMuid = new std::vector<CBMuon>();
+  mTileL2Muon = new std::vector<TileL2Muon>();
+  mTileMuon = new std::vector<TileMuon>();
 
-  m_event = TrigMenuEvent::getInstance();
+  m_tree->Branch("EventInfo", mTrigEventInfo);
+
+  m_tree->Branch("Muon", mMuonDataVec);
+  m_tree->Branch("TileMu",mTileMuDataVec);
+
+  //for Muon HLT
+  m_tree->Branch("TgcHptWire", mTgcHptWire);
+  m_tree->Branch("TgcHptStrip", mTgcHptStrip);
+  m_tree->Branch("Moore", mMoore);
+  m_tree->Branch("Muid", mMuid);
+  m_tree->Branch("TileL2Muon", mTileL2Muon);
+  m_tree->Branch("TileMuon", mTileMuon);
+
+  mEvent = TrigMenuEvent::getInstance();
 
   return StatusCode::SUCCESS;
 }
@@ -138,18 +138,18 @@ StatusCode HltMuonNtComponent::book() {
 StatusCode HltMuonNtComponent::fill() {
 
   //clear variables
-  m_trigEventInfo->clear();
+  mTrigEventInfo->clear();
 
-  m_muonDataVec->clear();
-  m_tileMuDataVec->clear();
+  mMuonDataVec->clear();
+  mTileMuDataVec->clear();
 
-  m_tgcHptWire->clear();
-  m_tgcHptStrip->clear();
+  mTgcHptWire->clear();
+  mTgcHptStrip->clear();
 
-  m_moore->clear();
-  m_muid->clear();
-  m_tileL2Muon->clear();
-  m_tileMuon->clear();
+  mMoore->clear();
+  mMuid->clear();
+  mTileL2Muon->clear();
+  mTileMuon->clear();
 
 
   fillHltData();
@@ -170,8 +170,8 @@ void HltMuonNtComponent::fillHltData() {
   std::vector<HLTObjectsInRoI*> muonRoIs;
 
   std::vector<std::string>::const_iterator p_chain;
-  for (p_chain=m_muonChains.begin(); p_chain!=m_muonChains.end(); ++p_chain) {
-    m_trigAccessTool->getChainObjects<MuonObjectsInRoI>(*p_chain, muonRoIs);
+  for (p_chain=mMuonChains.begin(); p_chain!=mMuonChains.end(); ++p_chain) {
+    mTrigAccessTool->getChainObjects<MuonObjectsInRoI>(*p_chain, muonRoIs);
   }
   std::vector<HLTObjectsInRoI*>::const_iterator p_roi;
   for (p_roi=muonRoIs.begin(); p_roi!=muonRoIs.end(); ++p_roi) {
@@ -179,7 +179,7 @@ void HltMuonNtComponent::fillHltData() {
     MuonObjectsInRoI* x1 = dynamic_cast<MuonObjectsInRoI*>(*p_roi);
     if (x1) {
       convertMuonData(x, *x1);
-      m_muonDataVec->push_back(x);
+      mMuonDataVec->push_back(x);
     }
   }
 }
@@ -187,14 +187,14 @@ void HltMuonNtComponent::fillHltData() {
 void HltMuonNtComponent::fillEventInfo() {
   //  MsgStream log(msgSvc(), name());
 
-  log() << MSG::DEBUG << " fillEventInfo start " << endmsg;
+  log() << MSG::DEBUG << " fillEventInfo start " << endreq;
 
   //get Event Info
   EventInfo* eventInfo;
-  StatusCode sc = (*m_activeStore) -> retrieve( eventInfo, m_eventInfoName );
+  StatusCode sc = (*m_activeStore) -> retrieve( eventInfo, mEventInfoName );
   //StatusCode sc = (*m_activeStore) -> retrieve( m_eventInfo, "McEventInfo" );
   if ( sc.isFailure() || 0 == eventInfo ) {
-    log() << MSG::ERROR << " Cannot retrieve EventInfo " << endmsg;
+    log() << MSG::ERROR << " Cannot retrieve EventInfo " << endreq;
     return;
   }
 
@@ -212,22 +212,22 @@ void HltMuonNtComponent::fillEventInfo() {
     time         = evtid->time_stamp();
     BCID         = evtid->bunch_crossing_id();
   }
-  m_trigEventInfo -> setTrigEventInfo( run_number, lumi_block,  event_number, time, BCID);
+  mTrigEventInfo -> setTrigEventInfo( run_number, lumi_block,  event_number, time, BCID);
 
-  log() << MSG::DEBUG << " fillEventInfo end " << endmsg;
+  log() << MSG::DEBUG << " fillEventInfo end " << endreq;
 }
 
 void HltMuonNtComponent::fillTgcHpt() {
   //  MsgStream log(msgSvc(), name());
 
-  log() << MSG::DEBUG << " fillTgcHpt start " << endmsg;
+  log() << MSG::DEBUG << " fillTgcHpt start " << endreq;
 
   //TGC trigger PRD
   const Muon::TgcCoinDataContainer* tgc_container(0);
 
   StatusCode sc = (*m_activeStore) -> retrieve( tgc_container, "TrigT1CoinDataCollection" );
   if ( sc.isFailure() || 0 == tgc_container ) {
-    log() << MSG::ERROR << " Cannot retrieve TgcCoinDataContainer " << endmsg;
+    log() << MSG::ERROR << " Cannot retrieve TgcCoinDataContainer " << endreq;
     return;
   }
 
@@ -238,7 +238,7 @@ void HltMuonNtComponent::fillTgcHpt() {
        ++ it ){ 
        
     if ( it == tgc_container->end() || (*it)->size()==0) continue;  //check if there are counts      
-    log() << MSG::DEBUG << "size of tgc collection is " << (*it) -> size() << endmsg;
+    log() << MSG::DEBUG << "size of tgc collection is " << (*it) -> size() << endreq;
 
 
     //loop over collection
@@ -247,10 +247,10 @@ void HltMuonNtComponent::fillTgcHpt() {
          itc != itc_end;
          ++ itc ){
 
-      const Muon::TgcCoinData* tcd = *itc;
+      Muon::TgcCoinData* tcd = *itc;
 
       //if not HPT continue
-      log() << MSG::ERROR << "type " << Muon::TgcCoinData::TYPE_HIPT<<" "<< tcd -> type() << endmsg;
+      log() << MSG::ERROR << "type " << Muon::TgcCoinData::TYPE_HIPT<<" "<< tcd -> type() << endreq;
       if( tcd -> type() != Muon::TgcCoinData::TYPE_HIPT ) continue;
 
       TgcHpt hpt;
@@ -264,13 +264,13 @@ void HltMuonNtComponent::fillTgcHpt() {
 
       if( tcd -> isStrip() == true ){//strip HPT
 
-        log() << MSG::ERROR << "push back hpt strip" <<endmsg;
-        m_tgcHptStrip -> push_back(hpt);
+        log() << MSG::ERROR << "push back hpt strip" <<endreq;
+        mTgcHptStrip -> push_back(hpt);
 
       }else{//wire HPT
 
-        log() << MSG::ERROR << "push back hpt wire" <<endmsg;
-        m_tgcHptWire -> push_back(hpt);
+        log() << MSG::ERROR << "push back hpt wire" <<endreq;
+        mTgcHptWire -> push_back(hpt);
 
       }
 
@@ -278,7 +278,7 @@ void HltMuonNtComponent::fillTgcHpt() {
 
   }//loop over container end
 
-  log() << MSG::DEBUG << " fillTGC end " << endmsg;
+  log() << MSG::DEBUG << " fillTGC end " << endreq;
 }
 
 void HltMuonNtComponent::fillOfflineMuon() {
@@ -301,7 +301,7 @@ void HltMuonNtComponent::fillOfflineMuon() {
       if(mooreMuon){
         MSMuon m;
         setMSMuon(m, mooreMuon);
-        m_moore->push_back(m);
+        mMoore->push_back(m);
       }
       CBMuon m;
       const Rec::TrackParticle* muidsaMuon = thisMuon->muonExtrapolatedTrackParticle();
@@ -313,7 +313,7 @@ void HltMuonNtComponent::fillOfflineMuon() {
         setCBMuon(m, muidcbMuon);
       }
       if(muidsaMuon || muidcbMuon){
-        m_muid->push_back(m);
+        mMuid->push_back(m);
       }
     }
   }
@@ -321,18 +321,18 @@ void HltMuonNtComponent::fillOfflineMuon() {
   //TileL2Muon
   const TileL2Container* mutags_ROD;
   sc=(*m_activeStore)->retrieve(mutags_ROD, "TileL2Cnt" );
-  log() << MSG::DEBUG << " filling TileL2" << endmsg;
+  log() << MSG::DEBUG << " filling TileL2" << endreq;
   if(sc == StatusCode::FAILURE) {
     log() << MSG::WARNING
         << "cannot retrieve TileL2Container in TDS"
-        << endmsg;
+        << endreq;
     return;
   }
 
   TileL2Container::const_iterator it= mutags_ROD->begin();
   TileL2Container::const_iterator end=mutags_ROD->end();
 
-  int ntag=0;
+  int m_ntag=0;
 
   //loop over ROD
   for(; it != end; ++it) {
@@ -352,16 +352,16 @@ void HltMuonNtComponent::fillOfflineMuon() {
       energy1.push_back( (*it)->enemu1(a) );
       energy2.push_back( (*it)->enemu2(a) );
       quality.push_back( (*it)->qual(a) );
-      ntag++;
+      m_ntag++;
     }
 
     TileL2Muon m;
 
     m.setTileL2Muon(eta, phi, energy0, energy1, energy1, quality);
 
-    m_tileL2Muon->push_back(m);
+    mTileL2Muon->push_back(m);
 
-    //if (ntag >= max_ntag) break;
+    //if (m_ntag >= max_ntag) break;
 
   }
 
@@ -370,17 +370,17 @@ void HltMuonNtComponent::fillOfflineMuon() {
   // step1: read  from TDS
   const TileMuContainer*  mutags_cont;
   sc=(*m_activeStore)->retrieve(mutags_cont, "TileMuObj");
-  log() << MSG::DEBUG << " filling TileMu" << endmsg;
+  log() << MSG::DEBUG << " filling TileMu" << endreq;
 
   if(sc == StatusCode::FAILURE) {
-    log()<<MSG::WARNING<<"cannot retrieve TileMuContainer in TDS"<<endmsg;
+    log()<<MSG::WARNING<<"cannot retrieve TileMuContainer in TDS"<<endreq;
     return;
   }
 
   TileMuContainer::const_iterator it2= mutags_cont->begin();
   TileMuContainer::const_iterator end2=mutags_cont->end();
 
-  ntag=0;
+  m_ntag=0;
 
   for(; it2 != end2; ++it2) {
     TileMuon m;
@@ -393,11 +393,11 @@ void HltMuonNtComponent::fillOfflineMuon() {
     m.energy.push_back( (*it2)->enedep() [3] );
     m.quality = (*it2)->quality() ;
 
-    m_tileMuon->push_back(m);
+    mTileMuon->push_back(m);
 
-    ntag++;
+    m_ntag++;
 
-    //if (ntag >= max_ntag) break;
+    //if (m_ntag >= max_ntag) break;
   }
 
   return;
@@ -411,15 +411,15 @@ void HltMuonNtComponent::printChainNames(const std::vector<std::string>& /*v*/,
 }
 
 void HltMuonNtComponent::createChainGroups() {
-  createChainGroups(m_muonChains);
+  createChainGroups(mMuonChains);
 }
 
 void HltMuonNtComponent::createChainGroups(const std::vector<std::string>& v) {
 
   std::vector<std::string>::const_iterator p;
   for (p=v.begin(); p!=v.end(); ++p) {
-    log() << MSG::DEBUG << "Create chaingroup for chain: " << (*p) << endmsg;
-    m_trigAccessTool->createChainGroup(*p);
+    log() << MSG::DEBUG << "Create chaingroup for chain: " << (*p) << endreq;
+    mTrigAccessTool->createChainGroup(*p);
   }
 }
 

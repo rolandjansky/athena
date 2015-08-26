@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGGERMENUANALYSIS_TRIGACCESSTOOL_H
-#define TRIGGERMENUANALYSIS_TRIGACCESSTOOL_H
+#ifndef __TrigAccessTool_h__
+#define __TrigAccessTool_h__
 /*
   TrigAccessTool.h
 */
@@ -71,9 +71,9 @@ protected:
   bool decodeHLTResult(const std::string& name);
 
 protected:
-  ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
+  ToolHandle<Trig::TrigDecisionTool> mTrigDecisionTool;
 
-  std::map<std::string, const Trig::ChainGroup*> m_chainGroups;
+  std::map<std::string, const Trig::ChainGroup*> mChainGroups;
 };
 
 StoreGateSvc* TrigAccessTool::getStoreGateSvc() {
@@ -81,7 +81,7 @@ StoreGateSvc* TrigAccessTool::getStoreGateSvc() {
 }
 
 Trig::TrigDecisionTool* TrigAccessTool::getTrigDecisionTool() {
-  return const_cast<Trig::TrigDecisionTool*>( &(*m_trigDecisionTool));
+  return const_cast<Trig::TrigDecisionTool*>( &(*mTrigDecisionTool));
 }
 
 namespace __Kadda__ada15__ {
@@ -98,4 +98,4 @@ bool TrigAccessTool::getChainObjects(const std::string& chain_name,
 }
 
 
-#endif // TRIGGERMENUANALYSIS_TRIGACCESSTOOL_H
+#endif // __TrigAccessTool_h__

@@ -74,47 +74,55 @@ RoILinksCnvTool::RoILinksCnvTool(const std::string& type,
 				 const std::string& name, 
 				 const IInterface* p) : 
   AthAlgTool(type, name, p), 
-  m_trigConfSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
-  m_trigAccessTool("TrigAccessTool"), 
-  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"), 
-  m_expertMethods(0)
-{
+  mStoreGateSvc("StoreGate/StoreGateSvc", this->name()), 
+  mTrigConfSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
+  mTrigAccessTool("TrigAccessTool"), 
+  mTrigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"), 
+  mExpertMethods(0), 
+  mLog(0) {
   declareInterface<RoILinksCnvTool>(this);
   
-  declareProperty("SaveInactiveCombination", m_saveInactiveCombination = true,
+  declareProperty("SaveInactiveCombination", mSaveInactiveCombination = true,
 		  "Save also links to inactive objects in combinations");
-  declareProperty("Chains_Muon", m_chains_Muon0, "L2/EF Muon chains");
-  declareProperty("Chains_Electron", m_chains_Electron0);
-  declareProperty("Chains_Tau", m_chains_Tau0);
-  declareProperty("Chains_Jet", m_chains_Jet0);
-  declareProperty("Chains_Bjet", m_chains_Bjet0);
-  declareProperty("Chains_MET", m_chains_MET0);
-  declareProperty("Chains_MinBias", m_chains_MinBias0);
-  declareProperty("Chains_Bphysics", m_chains_Bphysics0);
-  declareProperty("Chains_TileMu", m_chains_TileMu0);
-  declareProperty("Chains_Any", m_chains_Any0);
-  declareProperty("ChainsToSaveAllCombinations", m_chainsToSaveAllCombinations, 
+  declareProperty("Chains_Muon", mChains_Muon0, "L2/EF Muon chains");
+  declareProperty("Chains_Electron", mChains_Electron0);
+  declareProperty("Chains_Tau", mChains_Tau0);
+  declareProperty("Chains_Jet", mChains_Jet0);
+  declareProperty("Chains_Bjet", mChains_Bjet0);
+  declareProperty("Chains_MET", mChains_MET0);
+  declareProperty("Chains_MinBias", mChains_MinBias0);
+  declareProperty("Chains_Bphysics", mChains_Bphysics0);
+  declareProperty("Chains_TileMu", mChains_TileMu0);
+  declareProperty("Chains_Any", mChains_Any0);
+  declareProperty("ChainsToSaveAllCombinations", mChainsToSaveAllCombinations, 
 		  "List of exceptional chains (regex) to save all combinations");
 }
 
 RoILinksCnvTool::~RoILinksCnvTool() {
+  if (mLog) {
+    delete mLog;
+    mLog = 0;
+  }
 }
 
 StatusCode RoILinksCnvTool::initialize() {
-  if (m_trigConfSvc.retrieve().isFailure()) {
-    log() << MSG::WARNING << "Cannot retrieve TrigConfSvc" << endmsg;
+  if (mStoreGateSvc.retrieve().isFailure()) {
+    log() << MSG::WARNING << "Cannot retrieve StoreGateSvc" << endreq;
   }
-  if (m_trigAccessTool.retrieve().isFailure()) {
-    log() << MSG::WARNING << "Cannot retrieve TrigAccessTool" << endmsg;
+  if (mTrigConfSvc.retrieve().isFailure()) {
+    log() << MSG::WARNING << "Cannot retrieve TrigConfSvc" << endreq;
   }
-  if (m_trigDecisionTool.retrieve().isFailure()) {
+  if (mTrigAccessTool.retrieve().isFailure()) {
+    log() << MSG::WARNING << "Cannot retrieve TrigAccessTool" << endreq;
+  }
+  if (mTrigDecisionTool.retrieve().isFailure()) {
     log() << MSG::WARNING 
-	  << "Cannot retrieve Trig::TrigDecisionTool" << endmsg;
+	  << "Cannot retrieve Trig::TrigDecisionTool" << endreq;
   }
-  m_expertMethods = m_trigDecisionTool->ExperimentalAndExpertMethods();
-  if (m_expertMethods) m_expertMethods->enable();
+  mExpertMethods = mTrigDecisionTool->ExperimentalAndExpertMethods();
+  if (mExpertMethods) mExpertMethods->enable();
 
-  CombLinksDef::buildKnownCombLinksDefs(&(*evtStore()), &log());
+  CombLinksDef::buildKnownCombLinksDefs(&(*mStoreGateSvc), &log());
 
   return StatusCode::SUCCESS;
 }
@@ -122,44 +130,44 @@ StatusCode RoILinksCnvTool::initialize() {
 StatusCode RoILinksCnvTool::beginRun() {
 
 
-  log() << MSG::INFO << "List of triggers to check" << endmsg;
+  log() << MSG::INFO << "List of triggers to check" << endreq;
 
   vector<string>::const_iterator p2;
   vector<string> cg_chains;
 
-//   log() << MSG::DEBUG << "Now checking all L2 triggers" << endmsg;
-//   const Trig::ChainGroup* chain_group = m_trigDecisionTool->getChainGroup("L2_.*");
+//   log() << MSG::DEBUG << "Now checking all L2 triggers" << endreq;
+//   const Trig::ChainGroup* chain_group = mTrigDecisionTool->getChainGroup("L2_.*");
 //   cg_chains = chain_group->getListOfTriggers();
-//   log() << MSG::DEBUG << "N triggers: " << cg_chains.size() << endmsg;
+//   log() << MSG::DEBUG << "N triggers: " << cg_chains.size() << endreq;
 //   for (p2=cg_chains.begin(); p2!=cg_chains.end(); ++p2) {
-//     log() << MSG::DEBUG << "  " << (*p2) << endmsg;
+//     log() << MSG::DEBUG << "  " << (*p2) << endreq;
 //   }
   
-  findDefinedChains(m_chains_Muon0, m_chains_Muon);
-  findDefinedChains(m_chains_Electron0, m_chains_Electron);
-  findDefinedChains(m_chains_Tau0, m_chains_Tau);
-  findDefinedChains(m_chains_Jet0, m_chains_Jet);
-  findDefinedChains(m_chains_Bjet0, m_chains_Bjet);
-  findDefinedChains(m_chains_MinBias0, m_chains_MinBias);
-  findDefinedChains(m_chains_Bphysics0, m_chains_Bphysics);
-  findDefinedChains(m_chains_TileMu0, m_chains_TileMu);
-  findDefinedChains(m_chains_Any0, m_chains_Any);
+  findDefinedChains(mChains_Muon0, mChains_Muon);
+  findDefinedChains(mChains_Electron0, mChains_Electron);
+  findDefinedChains(mChains_Tau0, mChains_Tau);
+  findDefinedChains(mChains_Jet0, mChains_Jet);
+  findDefinedChains(mChains_Bjet0, mChains_Bjet);
+  findDefinedChains(mChains_MinBias0, mChains_MinBias);
+  findDefinedChains(mChains_Bphysics0, mChains_Bphysics);
+  findDefinedChains(mChains_TileMu0, mChains_TileMu);
+  findDefinedChains(mChains_Any0, mChains_Any);
 
   std::vector<std::string> allcomb;
-  findDefinedChains(m_chainsToSaveAllCombinations, allcomb);
-  m_chainsAllComb.clear();
+  findDefinedChains(mChainsToSaveAllCombinations, allcomb);
+  mChainsAllComb.clear();
   std::copy(allcomb.begin(), allcomb.end(), 
-	    std::inserter(m_chainsAllComb, m_chainsAllComb.begin()) );
+	    std::inserter(mChainsAllComb, mChainsAllComb.begin()) );
 
-  printListOfTriggers(m_chains_Muon, "Muon");
-  printListOfTriggers(m_chains_Electron, "Electron");
-  printListOfTriggers(m_chains_Tau, "Tau");
-  printListOfTriggers(m_chains_Jet, "Jet");
-  printListOfTriggers(m_chains_Bjet, "Bjet");
-  printListOfTriggers(m_chains_MinBias, "MinBias");
-  printListOfTriggers(m_chains_Bphysics, "Bphysics");
-  printListOfTriggers(m_chains_TileMu, "TileMu");
-  printListOfTriggers(m_chains_Any, "Any");
+  printListOfTriggers(mChains_Muon, "Muon");
+  printListOfTriggers(mChains_Electron, "Electron");
+  printListOfTriggers(mChains_Tau, "Tau");
+  printListOfTriggers(mChains_Jet, "Jet");
+  printListOfTriggers(mChains_Bjet, "Bjet");
+  printListOfTriggers(mChains_MinBias, "MinBias");
+  printListOfTriggers(mChains_Bphysics, "Bphysics");
+  printListOfTriggers(mChains_TileMu, "TileMu");
+  printListOfTriggers(mChains_Any, "Any");
   printListOfTriggers(allcomb, "Exceptional chains to save all combinations");
 
   return StatusCode::SUCCESS;
@@ -173,9 +181,9 @@ void RoILinksCnvTool::findDefinedChains(const vector<std::string>& chains0,
   vector<string> cg_chains;
   
   for (p=chains0.begin(); p!=chains0.end(); ++p) {
-    const Trig::ChainGroup* cg = m_trigDecisionTool->getChainGroup(*p);
+    const Trig::ChainGroup* cg = mTrigDecisionTool->getChainGroup(*p);
     if (msgLvl(MSG::DEBUG) ) {
-      log() << MSG::DEBUG << "Check chains matching regex " << (*p) << endmsg;
+      log() << MSG::DEBUG << "Check chains matching regex " << (*p) << endreq;
     }
     if (cg) {
       cg_chains = cg->getListOfTriggers();
@@ -185,7 +193,7 @@ void RoILinksCnvTool::findDefinedChains(const vector<std::string>& chains0,
 	  if ( (*p2) != (*p)) {
 	    if (msgLvl(MSG::DEBUG) ) {
 	      log() << MSG::DEBUG << "Chain " << (*p2) << " found for regex "
-		    << (*p) << endmsg;
+		    << (*p) << endreq;
 	    }
 	  }
 	}
@@ -200,31 +208,31 @@ void RoILinksCnvTool::printListOfTriggers(vector<string>& chains,
   int level = 0; // L2 -> 2, EF -> 3
 
   log() << MSG::INFO << "Chain type: " << type 
-	<< " (size=" << chains.size() << ")" << endmsg;
+	<< " (size=" << chains.size() << ")" << endreq;
   std::vector<std::string> v2;
   std::vector<std::string>::const_iterator p;
   for (p=chains.begin(); p!=chains.end(); ++p) {
     level = findHltLevel(*p);
     if (level == 2 || level == 3) {
       log() << MSG::INFO << "  " << (*p) 
-	    << "(level=" << level << ")" << endmsg;
+	    << "(level=" << level << ")" << endreq;
     } else {
       log() << MSG::WARNING << "Cannot find out if the chain " << (*p) 
-	    << " is a L2 or EF chain. --> Ignore" << endmsg;
+	    << " is a L2 or EF chain. --> Ignore" << endreq;
     }
     if (find(v2.begin(), v2.end(), *p) == v2.end()) {
       v2.push_back(*p);
     } else {
       log() << MSG::WARNING << "Chain " << (*p) 
 	    << " was defined more than once, removing duplicate"
-	    << endmsg;
+	    << endreq;
     }
   }
   if (v2.size() < chains.size()) chains = v2;
 }
 
 StatusCode RoILinksCnvTool::finalize() {
-  //  log() << MSG::INFO << "finalize" << endmsg;
+  //  log() << MSG::INFO << "finalize" << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -238,28 +246,28 @@ void RoILinksCnvTool::fill(std::vector<ChainEntry>& chain_entries,
   clear();
 
   fillChains(chain_entries, roi_links, 
-	     "Muon", m_chains_Muon, 
+	     "Muon", mChains_Muon, 
 	     ChainEntry::kRoIType_L2_mu, ChainEntry::kRoIType_EF_mu);
   fillChains(chain_entries, roi_links, 
-	     "Electron", m_chains_Electron, 
+	     "Electron", mChains_Electron, 
 	     ChainEntry::kRoIType_L2_e, ChainEntry::kRoIType_EF_e);
   fillChains(chain_entries, roi_links, 
-	     "Tau", m_chains_Tau, 
+	     "Tau", mChains_Tau, 
 	     ChainEntry::kRoIType_L2_tau, ChainEntry::kRoIType_EF_tau);
   fillChains(chain_entries, roi_links, 
-	     "Jet", m_chains_Jet, 
+	     "Jet", mChains_Jet, 
 	     ChainEntry::kRoIType_L2_j, ChainEntry::kRoIType_EF_j);
   fillChains(chain_entries, roi_links, 
-	     "Bjet", m_chains_Bjet, 
+	     "Bjet", mChains_Bjet, 
 	     ChainEntry::kRoIType_L2_b, ChainEntry::kRoIType_EF_b);
   fillChains(chain_entries, roi_links, 
-	     "MET", m_chains_MET, 
+	     "MET", mChains_MET, 
 	     ChainEntry::kRoIType_L2_xe, ChainEntry::kRoIType_EF_xe);
   fillChains(chain_entries, roi_links, 
-	     "Bphysics", m_chains_Bphysics, 
+	     "Bphysics", mChains_Bphysics, 
 	     ChainEntry::kRoIType_L2_DiMu, ChainEntry::kRoIType_EF_DiMu);
   fillChains(chain_entries, roi_links, 
-	     "TileMu", m_chains_TileMu, 
+	     "TileMu", mChains_TileMu, 
 	     ChainEntry::kRoIType_L2_TileMu, ChainEntry::kRoIType_EF_TileMu);
 
   for (unsigned int ic=0; ic<chain_entries.size(); ++ic) {
@@ -275,7 +283,7 @@ void RoILinksCnvTool::fill(std::vector<ChainEntry>& chain_entries,
     vector<CombLinks>::const_iterator p_end=roi_links.getCombLinks().end();
     for (; p!=p_end; ++p) {
       log() << MSG::DEBUG << "CombLinks: (valid=" << p->isValid() << ") " 
-	    << (*p) << endmsg;
+	    << (*p) << endreq;
     }
   }
 }
@@ -292,7 +300,7 @@ int RoILinksCnvTool::fillChains(std::vector<ChainEntry>& chain_entries,
 
   if (msgSvc()->outputLevel(name()) <= MSG::DEBUG) {
     log() << MSG::DEBUG << "N. of " << slice_name << " chains: " 
-	  << chain_names.size() << endmsg;
+	  << chain_names.size() << endreq;
   }
 
   for (p=chain_names.begin(); p!=chain_names.end(); ++p) {
@@ -314,7 +322,7 @@ int RoILinksCnvTool::findHltLevel(const std::string& chain_name) const {
   //   alog << MSG::DEBUG << "chain_name = " << chain_name 
   //        << " L2_ index = " << chain_name.find("L2_")
   //        << " EF_ index = " << chain_name.find("EF_")
-  //        << endmsg;
+  //        << endreq;
   if (chain_name.find("L2_") == 0) level = 2;
   else if (chain_name.find("EF_") == 0) level = 3;
   return level;
@@ -327,9 +335,9 @@ int RoILinksCnvTool::setMuonRoILinks(RoILinks& links, const Trig::Combination& c
   typedef IndexFinder<TrigInDetTrackCollection, TrigInDetTrackCollection, TrigInDetTrack> IndexFinder2;
   typedef IndexFinder<CombinedMuonFeature, CombinedMuonFeatureContainer> IndexFinder3;
 
-  IndexFinder1 indexFinder1("HLT", *evtStore(), log());
-  IndexFinder2 indexFinder2("HLT_TrigSiTrack_Muon", *evtStore(), log());
-  IndexFinder3 indexFinder3("HLT", *evtStore(), log());
+  IndexFinder1 indexFinder1("HLT", *mStoreGateSvc, log());
+  IndexFinder2 indexFinder2("HLT_TrigSiTrack_Muon", *mStoreGateSvc, log());
+  IndexFinder3 indexFinder3("HLT", *mStoreGateSvc, log());
 
   vector<Trig::Feature<MuonFeature> > feat1 = 
     comb.get<MuonFeature>("", TrigDefs::alsoDeactivateTEs);
@@ -350,13 +358,13 @@ int RoILinksCnvTool::setMuonRoILinks(RoILinks& links, const Trig::Combination& c
     isvalid = true;
   }
   if (feat2.size() == 1) {
-    //    log() << MSG::DEBUG << "find indices of Tracks" << endmsg;
+    //    log() << MSG::DEBUG << "find indices of Tracks" << endreq;
     index2 = findIndexesForCont(feat2[0].cptr(), indexFinder2);
     if (feat2[0].te()->getActiveState()) te_status[1] = 1;
     isvalid = true;
   }
   if (feat3.size() == 1) {
-    //    log() << MSG::DEBUG << "find index of CombinedMuonFeature" << endmsg;
+    //    log() << MSG::DEBUG << "find index of CombinedMuonFeature" << endreq;
     index3 = indexFinder3.findIndex(feat3[0].cptr());
     if (feat3[0].te()->getActiveState()) te_status[2] = 1;
     isvalid = true;
@@ -368,7 +376,7 @@ int RoILinksCnvTool::setMuonRoILinks(RoILinks& links, const Trig::Combination& c
     for (unsigned int i=0; i<index2.size(); ++i) {
       log() << index2[i] << ", ";
     }
-    log() << "], " << index3 << ")" << endmsg;
+    log() << "], " << index3 << ")" << endreq;
   }
 
   if (isvalid) {
@@ -389,10 +397,10 @@ int RoILinksCnvTool::setElectronRoILinks(RoILinks& links, const Trig::Combinatio
   typedef IndexFinder<TrigElectronContainer, TrigElectronContainer,TrigElectron> IndexFinder3;
   typedef IndexFinder<egammaContainer, egammaContainer, egamma> IndexFinder4;
 
-  IndexFinder1 indexFinder1("HLT_TrigT2CaloEgamma", *evtStore(), log());
-  IndexFinder2 indexFinder2("HLT_TrigSiTrack_eGamma", *evtStore(), log());
-  IndexFinder3 indexFinder3("HLT_L2IDCaloFex", *evtStore(), log());
-  IndexFinder4 indexFinder4("HLT_egamma_Electrons", *evtStore(), log());
+  IndexFinder1 indexFinder1("HLT_TrigT2CaloEgamma", *mStoreGateSvc, log());
+  IndexFinder2 indexFinder2("HLT_TrigSiTrack_eGamma", *mStoreGateSvc, log());
+  IndexFinder3 indexFinder3("HLT_L2IDCaloFex", *mStoreGateSvc, log());
+  IndexFinder4 indexFinder4("HLT_egamma_Electrons", *mStoreGateSvc, log());
 
   vector<Trig::Feature<TrigEMCluster> > feat1 = 
     comb.get<TrigEMCluster>("", TrigDefs::alsoDeactivateTEs);
@@ -413,25 +421,25 @@ int RoILinksCnvTool::setElectronRoILinks(RoILinks& links, const Trig::Combinatio
   bool isvalid = false;
 
   if (feat1.size() == 1) {
-    //    log() << MSG::DEBUG << "find index of TrigEMCluster" << endmsg;
+    //    log() << MSG::DEBUG << "find index of TrigEMCluster" << endreq;
     index1 = indexFinder1.findIndex(feat1[0].cptr());
     if (feat1[0].te()->getActiveState()) te_status[0] = 1;
     isvalid = true;
   }
   if (feat2.size() == 1) {
-    //    log() << MSG::DEBUG << "find indices of Tracks" << endmsg;
+    //    log() << MSG::DEBUG << "find indices of Tracks" << endreq;
     index2 = findIndexesForCont(feat2[0].cptr(), indexFinder2);
     if (feat2[0].te()->getActiveState()) te_status[1] = 1;
     isvalid = true;
   }
   if (feat3.size() == 1) {
-    //    log() << MSG::DEBUG << "find indices of TrigElectron" << endmsg;
+    //    log() << MSG::DEBUG << "find indices of TrigElectron" << endreq;
     index3 = findIndexesForCont(feat3[0].cptr(), indexFinder3);
     if (feat3[0].te()->getActiveState()) te_status[2] = 1;
     isvalid = true;
   }
   if (feat4.size() == 1) {
-    //    log() << MSG::DEBUG << "find indices of egamma" << endmsg;
+    //    log() << MSG::DEBUG << "find indices of egamma" << endreq;
     index4 = findIndexesForCont(feat4[0].cptr(), indexFinder4);
     if (feat4[0].te()->getActiveState()) te_status[3] = 1;
     isvalid = true;
@@ -451,7 +459,7 @@ int RoILinksCnvTool::setElectronRoILinks(RoILinks& links, const Trig::Combinatio
     for (unsigned int i=0; i<index4.size(); ++i) {
       log() << index4[i] << ", ";
     }
-    log() << MSG::DEBUG << "] )" << endmsg;
+    log() << MSG::DEBUG << "] )" << endreq;
   }
 
   if (isvalid) {
@@ -465,15 +473,15 @@ int RoILinksCnvTool::setElectronRoILinks(RoILinks& links, const Trig::Combinatio
 
 void RoILinksCnvTool::record(std::vector<ChainEntry>& chain_entries, 
 			     RoILinks& x) {
-  if (!evtStore()->contains<ChainEntryContainer>("ChainEntryContainer")) {
+  if (!mStoreGateSvc->contains<ChainEntryContainer>("ChainEntryContainer")) {
     ChainEntryContainer* cec = new ChainEntryContainer();
     std::vector<ChainEntry>::const_iterator p;
     for (p=chain_entries.begin(); p!=chain_entries.end(); ++p) {
       cec->push_back(new ChainEntry(*p));
     }
-    if (evtStore()->record(cec, "ChainEntryContainer").isFailure()) {
+    if (mStoreGateSvc->record(cec, "ChainEntryContainer").isFailure()) {
       if (msgLvl(MSG::DEBUG) ) {
-	log() << MSG::DEBUG << "Cannot record ChainEntryContainer" << endmsg;
+	log() << MSG::DEBUG << "Cannot record ChainEntryContainer" << endreq;
       }
     }
   }
@@ -494,30 +502,35 @@ void RoILinksCnvTool::record(std::vector<ChainEntry>& chain_entries,
 
 void RoILinksCnvTool::recordCombLinks(const std::vector<CombLinks>& x, 
 				      const std::string& label) {
-  if (!evtStore()->contains<CombLinksContainer>(label)) {
+  if (!mStoreGateSvc->contains<CombLinksContainer>(label)) {
     CombLinksContainer* clc = new CombLinksContainer();
     std::vector<CombLinks>::const_iterator p;
     for (p=x.begin(); p!=x.end(); ++p) {
       clc->push_back(new CombLinks(*p));
     }
-    if (evtStore()->record(clc, label).isFailure()) {
+    if (mStoreGateSvc->record(clc, label).isFailure()) {
       if (msgLvl(MSG::DEBUG) ) {
 	log() << MSG::DEBUG << "Cannot record CombLinksContainer with label: "
-	      << label << endmsg;
+	      << label << endreq;
       }
     }
   }
 }
 
 MsgStream& RoILinksCnvTool::log() const {
-  return msg();
+  if (mLog) {
+    return *mLog;
+  } else {
+    mLog = new MsgStream(msgSvc(), name());
+  }
+  return (*mLog);
 }
 
 void RoILinksCnvTool::clear() {
-  m_RoILinks.clear();
+  mRoILinks.clear();
 
-  m_muonRoIVec.clear();
-  m_electronRoIVec.clear();
+  mMuonRoIVec.clear();
+  mElectronRoIVec.clear();
 }
 
 int RoILinksCnvTool::processChain(const std::string& chain_name, 
@@ -525,7 +538,7 @@ int RoILinksCnvTool::processChain(const std::string& chain_name,
 				  std::vector<ChainEntry>& chain_entries, 
 				  RoILinks& roi_links) {
   Trig::FeatureContainer fc = 
-    m_trigDecisionTool->features(chain_name, TrigDefs::alsoDeactivateTEs);
+    mTrigDecisionTool->features(chain_name, TrigDefs::alsoDeactivateTEs);
   std::vector<Trig::Combination> combs = fc.getCombinations();
   std::vector<Trig::Combination>::const_iterator p_comb;
   int chain_counter=-1;
@@ -537,18 +550,18 @@ int RoILinksCnvTool::processChain(const std::string& chain_name,
     if (combs.size() > 0) {
       log() << MSG::DEBUG 
 	    << "Number of combinations for " << chain_name 
-	    << ": " << combs.size() << endmsg;
+	    << ": " << combs.size() << endreq;
     } else {
       log() << MSG::DEBUG
 	    << "Number of combinations for " << chain_name 
-	    << ": " << combs.size() << endmsg;
+	    << ": " << combs.size() << endreq;
     }
   }
 
   //int lastStep = -1;
   unsigned int tmp_step=0;
 
-  const HLT::Chain* chainDetail = m_expertMethods->getChainDetails(chain_name);
+  const HLT::Chain* chainDetail = mExpertMethods->getChainDetails(chain_name);
   const TrigConf::HLTChain* configChain = 0;
   if (chainDetail) {
     configChain = chainDetail->getConfigChain();
@@ -566,7 +579,7 @@ int RoILinksCnvTool::processChain(const std::string& chain_name,
     chain_counter = configChain->chain_counter();
   }
 
-  const TrigConf::HLTChainList* hltChains = m_trigConfSvc->chainList();
+  const TrigConf::HLTChainList* hltChains = mTrigConfSvc->chainList();
 
   for(TrigConf::HLTChainList::const_iterator chain = hltChains->begin(); chain != hltChains->end(); ++chain){
     if( (*chain)->chain_name()==chain_name ){
@@ -577,9 +590,9 @@ int RoILinksCnvTool::processChain(const std::string& chain_name,
 
   //----- get L1 RoIs -----//
   const LVL1_ROI* coll=0;
-  if (evtStore()->retrieve(coll, "LVL1_ROI").isFailure()) {
+  if (mStoreGateSvc->retrieve(coll, "LVL1_ROI").isFailure()) {
     if (msgLvl(MSG::DEBUG) ) {
-      log() << MSG::DEBUG << "Cannot retrieve LVL1_ROI" << endmsg;
+      log() << MSG::DEBUG << "Cannot retrieve LVL1_ROI" << endreq;
     }
     return -1;
   }
@@ -606,7 +619,7 @@ int RoILinksCnvTool::processChain(const std::string& chain_name,
   if( !def ) {
     if (msgLvl(MSG::DEBUG) ) {
       log() << MSG::DEBUG << "CombLinksDef for RoIType=" 
-	    << roi_type << " is not defined" << endmsg;
+	    << roi_type << " is not defined" << endreq;
     }
     return -1;
   }
@@ -636,12 +649,12 @@ int RoILinksCnvTool::processChain(const std::string& chain_name,
     //----- for multi-objects chain, only active Combinations are saved -----//
     if(!isSingleObjectChain) {
       bool skipcomb=true;
-      if (m_saveInactiveCombination || p_comb->active() ||
-	  m_chainsAllComb.find(chain_name) != m_chainsAllComb.end() ) {
+      if (mSaveInactiveCombination || p_comb->active() ||
+	  mChainsAllComb.find(chain_name) != mChainsAllComb.end() ) {
 	skipcomb = false;
       }
       if (skipcomb) continue;
-      // if( !m_saveInactiveCombination && !p_comb->active() ) continue;
+      // if( !mSaveInactiveCombination && !p_comb->active() ) continue;
     }
 
     //----------  get Step ----------//
@@ -700,9 +713,9 @@ int RoILinksCnvTool::processChain(const std::string& chain_name,
 	    tmp.addIndex(*p_roi, FeatureIndex(p_roiIndex->first, true) );
 	    if (msgSvc()->outputLevel(name()) <= MSG::DEBUG) {
 	      log() << MSG::DEBUG << "Filling CombLinks for this comb/TE/RoI"
-		    << endmsg;
+		    << endreq;
 	    }
-	    def->fillCombLinks(tmp, *p_comb, &(*m_trigDecisionTool), 
+	    def->fillCombLinks(tmp, *p_comb, &(*mTrigDecisionTool), 
 			       p_roiIndex->second);
 
 	    if (tmp.isValid()) {
@@ -719,8 +732,8 @@ int RoILinksCnvTool::processChain(const std::string& chain_name,
 	    iroi = roi_links.addCombLinks(ttt);
 	    chain_entry.addRoI(roi_type, iroi);
 	    if (msgSvc()->outputLevel(name()) <= MSG::DEBUG) {
-	      log() << MSG::DEBUG << "Dump CombLinks" << endmsg;
-	      log() << MSG::DEBUG << (*ppp) << endmsg;
+	      log() << MSG::DEBUG << "Dump CombLinks" << endreq;
+	      log() << MSG::DEBUG << (*ppp) << endreq;
 	    }
 	  }
 	} else {
@@ -735,10 +748,10 @@ int RoILinksCnvTool::processChain(const std::string& chain_name,
 	  tmp.setTENumber(te_index);
 	  tmp.setRoINumber(-1); // unseeded. Not sure what to put here
 
-	  def->fillCombLinks(tmp, *p_comb, &(*m_trigDecisionTool), -1);
+	  def->fillCombLinks(tmp, *p_comb, &(*mTrigDecisionTool), -1);
 
 	  if (msgSvc()->outputLevel(name()) <= MSG::DEBUG) {
-	    log() << MSG::DEBUG << tmp << endmsg;
+	    log() << MSG::DEBUG << tmp << endreq;
 	  }
 
 	  if (tmp.isValid()) {

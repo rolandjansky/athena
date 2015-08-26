@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGGERMENUANALSYIS_TRIGMENUNTCOMPONENT_H
-#define TRIGGERMENUANALSYIS_TRIGMENUNTCOMPONENT_H
+#ifndef __TrigMenuNtComponent_h__
+#define __TrigMenuNtComponent_h__
 /*
   TrigMenuNtComponent.h
 */
@@ -32,16 +32,16 @@ protected:
   void ClearMember();
 
 private:
-  Trig::TrigDecisionTool* m_trigDecisionTool;
-  TrigAccessTool* m_trigAccessTool;
-  RoILinksCnvTool* m_RoILinksCnvTool;
+  Trig::TrigDecisionTool* mTrigDecisionTool;
+  TrigAccessTool* mTrigAccessTool;
+  RoILinksCnvTool* mRoILinksCnvTool;
 
   // ntuple variables
-  std::vector<ChainEntry>* m_chainEntries;
-  RoILinks* m_RoILinks;
+  std::vector<ChainEntry>* mChainEntries;
+  RoILinks* mRoILinks;
 
   // Variables used when using TrigDecisionTool
 };
 
 
-#endif // TRIGGERMENUANALSYIS_TRIGMENUNTCOMPONENT_H
+#endif // __TrigMenuNtComponent_h__

@@ -627,7 +627,7 @@ setMuComb(RoIData_Muon& m, const CombinedMuonFeature* f, std::vector<std::string
   const DataHandle<TrigInDetTrackCollection> lastTrackCollection;
   StatusCode sc_idtrk = m_storeGate->retrieve(trackCollection,lastTrackCollection);
   if ( sc_idtrk.isFailure() ) {
-    *m_log << MSG::VERBOSE << "Failed to retrieve ID tracks collections" << endmsg;
+    *m_log << MSG::VERBOSE << "Failed to retrieve ID tracks collections" << endreq;
     return StatusCode::SUCCESS;   
   }
 	
@@ -720,7 +720,7 @@ setInDet(RoIData_Muon& m, const TrigInDetTrackCollection* f)
 
   for (; track != lastTrack; track++) {
 
-    const TrigInDetTrack* trk = (*track);
+    TrigInDetTrack* trk = (*track);
     if( trk==0 ) continue;
 
     //only SiTrack(1) and IDScan(2)
@@ -784,11 +784,11 @@ setMuonEF(RoIData_Muon& m, const TrigMuonEFInfoContainer* c, std::vector<std::st
     m.MuonEF_nTGC = muonInfo->NTgcHits();
     m.MuonEF_nCSC = muonInfo->NCscHits();
 
-    const TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();
+    TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();
 
     for (TrigMuonEFInfoTrackContainer::const_iterator TrackItr = tc->begin() ; TrackItr!=tc->end(); TrackItr++) {
 
-      const TrigMuonEFInfoTrack* t = (*TrackItr);
+      TrigMuonEFInfoTrack* t = (*TrackItr);
       if( !t )continue;
 
       TrigMuonEFTrack* muonTrack = t->SpectrometerTrack();
@@ -886,11 +886,11 @@ setMuonEF(RoIData_TileMu& m, const TrigMuonEFInfoContainer* c, std::vector<std::
     m.MuonEF_nTGC = muonInfo->NTgcHits();
     m.MuonEF_nCSC = muonInfo->NCscHits();
 
-    const TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();
+    TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();
 
     for (TrigMuonEFInfoTrackContainer::const_iterator TrackItr = tc->begin() ; TrackItr!=tc->end(); TrackItr++) {
 
-      const TrigMuonEFInfoTrack* t = (*TrackItr);
+      TrigMuonEFInfoTrack* t = (*TrackItr);
       if( !t )continue;
 
       TrigMuonEFTrack* muonTrack = t->SpectrometerTrack();

@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGGERMENUANALYSISI_TRIGMENUNTUPLEALG_H
-#define TRIGGERMENUANALYSISI_TRIGMENUNTUPLEALG_H
+#ifndef __TrigMenuNtupleAlg_h__
+#define __TrigMenuNtupleAlg_h__
 /*
   TrigMenuNtupleAlg.h
 */
@@ -31,12 +31,13 @@ public:
   RoILinksCnvTool* roILinksCnvTool();
 
 private:
-  ActiveStoreSvc* m_activeStoreSvc;
-  ServiceHandle<TrigConf::ITrigConfigSvc> m_trigConfigSvc;
-  ToolHandle<Trig::TrigDecisionTool> m_trigDecisionTool;
-  ToolHandle<TrigAccessTool> m_trigAccessTool;
-  ToolHandle<RoILinksCnvTool> m_RoILinksCnvTool;
+  ActiveStoreSvc* mActiveStoreSvc;
+  ServiceHandle<TrigConf::ITrigConfigSvc> mTrigConfigSvc;
+  ToolHandle<Trig::TrigDecisionTool> mTrigDecisionTool;
+  ToolHandle<TrigAccessTool> mTrigAccessTool;
+  ToolHandle<RoILinksCnvTool> mRoILinksCnvTool;
 
 };
 
-#endif // TRIGGERMENUANALYSISI_TRIGMENUNTUPLEALG_H
+#endif // __TrigMenuNtupleAlg_h__
+

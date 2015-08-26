@@ -1,5 +1,5 @@
-#ifndef TRIGGERMENUANALYSIS_JUSTINITTDTALGO_HXX
-#define TRIGGERMENUANALYSIS_JUSTINITTDTALGO_HXX
+#ifndef __JustInitTDTAlgo_hxx__
+#define __JustInitTDTAlgo_hxx__
 /*
   JustInitTDTAlgo.hxx
 */
@@ -17,7 +17,7 @@ public:
   StatusCode finalize();
 
 private:
-  ToolHandle<TrigAccessTool> m_trigAccessTool;
+  ToolHandle<TrigAccessTool> mTrigAccessTool;
 };
 
-#endif // TRIGGERMENUANALYSIS_JUSTINITTDTALGO_HXX
+#endif // __JustInitTDTAlgo_hxx__
