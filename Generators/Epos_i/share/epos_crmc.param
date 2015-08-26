@@ -23,10 +23,6 @@ nodecay -20    !uncomment not to decay k0L (PDG id = -130)
 MinDecayLength  1.    !minimum c.Tau to define stable particles (cm)
 set istmax 1          ! option to save the mother particle (0 no mother part. 1 with mother part)
 
-fqgsjet dat   tabs/qgsjet.dat
-fqgsjet ncs   tabs/qgsjet.ncs
-fqgsjetII dat tabs/qgsdat-II-03
-fqgsjetII ncs tabs/sectnu-II-03
 fname check  none
 fname initl  tabs/epos.initl
 fname iniev  tabs/epos.iniev

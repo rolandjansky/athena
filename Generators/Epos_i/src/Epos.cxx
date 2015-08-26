@@ -46,14 +46,14 @@ extern "C" double atl_epos_rndm_( int* )
 extern "C" 
 {
     // generator initialization
- void crmc_set_f_(int &nEvents,int &iSeed,double &beamMomentum, double &targetMomentum, int &primaryParticle, int &targetParticle, int &model,
-		  int &itab, int &ilheout, const char *outFile, const char *paramFile);
+  void crmc_set_f_(int &nEvents,int &iSeed,double &beamMomentum, double &targetMomentum, int &primaryParticle, int &targetParticle, int &model, int &itab, int &itypout, const char *paramFile);
+
   void crmc_init_f_();
   //  void crmc_init_f_( int &iSeed, double &beamMomentum, double &targetMomentum, int &primaryParticle, int &targetParticle, int &model, const char *paramFile );
     // event generation
   void crmc_f_( int &iout, int &ievent, int &nParticles, double &impactParam, int &partPdg, 
 		double &partPx, double &partPy, double &partPz, double &partEnergy, double &partMass, int &outstat );
- 
+
     // cross section info 
   void crmc_xsection_f_(double &xsigtot, double &xsigine, double &xsigela, double &xsigdd, 
       double &xsigsd, double &xsloela, double &xsigtotaa, double &xsigineaa, double &xsigelaaa);
@@ -164,7 +164,7 @@ Epos::Epos( const std::string &name, ISvcLocator *pSvcLocator ):
   
   declareProperty( "BeamMomentum",    m_beamMomentum    = -3500.0 );      // GeV
   declareProperty( "TargetMomentum",  m_targetMomentum  = 3500.0 );
-  declareProperty( "Model",           m_model           = 0 );            // 0=EPOS 1.99 LHC, 1=EPOS 1.99
+  declareProperty( "Model",           m_model           = 7 );            // 0=EPOS 1.99 LHC, 1=EPOS 1.99
   declareProperty( "PrimaryParticle", m_primaryParticle = 1 );            // 1=p, 12=C, 120=pi+, 207=Pb 
   declareProperty( "TargetParticle",  m_targetParticle  = 1 );
   declareProperty( "ParamFile",       m_paramFile       = "crmc.param" );
@@ -212,9 +212,9 @@ StatusCode Epos::genInitialize()
 
   // set up initial values
 
-  //  std::cout << "parameters " << m_nEvents << " " << iSeed << " " << m_beamMomentum << " " << m_targetMomentum << " " << m_primaryParticle << " " << m_targetParticle << " " << m_model << " " << m_itab << " " << m_ilheout << " " <<  m_lheout.c_str()<< " " <<  m_paramFile.c_str() << std::endl;
+    std::cout << "parameters " << m_nEvents << " " << iSeed << " " << m_beamMomentum << " " << m_targetMomentum << " " << m_primaryParticle << " " << m_targetParticle << " " << m_model << " " << m_itab << " " << m_ilheout << " " <<  m_lheout.c_str()<< " " <<  m_paramFile.c_str() << std::endl;
 
-  crmc_set_f_(m_nEvents, iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_itab, m_ilheout, m_lheout.c_str(), m_paramFile.c_str() ); 
+    crmc_set_f_(m_nEvents, iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_itab, m_ilheout, m_paramFile.c_str() ); 
 
     // initialize Epos
   //  crmc_init_f_( iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_paramFile.c_str() );
@@ -260,7 +260,7 @@ StatusCode Epos::callGenerator()
   crmc_f_( m_iout, m_ievent ,nParticles, impactParameter, m_partID[0], m_partPx[0], m_partPy[0], m_partPz[0], 
 	   m_partEnergy[0], m_partMass[0], m_partStat[0]  );
 
-  std::cout << "events " << m_events << " " << m_ievent << std::endl;
+  // std::cout << "events " << m_events << " " << m_ievent << std::endl;
   //  HepMC::HEPEVT_Wrapper::print_hepevt();
 
   /* for (int i=1;i<=50;++i){
