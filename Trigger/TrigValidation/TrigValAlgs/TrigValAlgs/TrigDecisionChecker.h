@@ -58,9 +58,9 @@ class TrigDecisionChecker : public AthAlgorithm
 
   StatusCode checkTauEDM(std::string trigItem);
 
-    StatusCode checkMuonEDM(std::string trigItem);
+  StatusCode checkMuonEDM(std::string trigItem);
 
-    StatusCode checkBphysEDM(std::string trigItem); //!< Bphysics EDM checker
+  StatusCode checkBphysEDM(std::string trigItem); //!< Bphysics EDM checker
 
   StatusCode checkBjetEDM(std::string trigItem);
   
@@ -69,31 +69,28 @@ class TrigDecisionChecker : public AthAlgorithm
   StatusCode checkPhotonEDM(std::string trigItem);
 
   StatusCode checkMinBiasEDM(std::string trigItem);
-	void checkTrigSpacePointCounts(const Trig::FeatureContainer& fc);
-	void checkTrigT2MBTSBits(const Trig::FeatureContainer& fc);
-	void checkTrigVertexCounts(const Trig::FeatureContainer& fc);
-	void checkTrigTrackCounts(const Trig::FeatureContainer& fc);
+  void checkTrigSpacePointCounts(const Trig::FeatureContainer& fc);
+  void checkTrigT2MBTSBits(const Trig::FeatureContainer& fc);
+  void checkTrigVertexCounts(const Trig::FeatureContainer& fc);
+  void checkTrigTrackCounts(const Trig::FeatureContainer& fc);
 
   StatusCode checkJetEDM(std::string trigItem);
 
-
-  ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!< interface to use the trigger data: TriggerTool
-  
-  std::string m_trigDecisionKey; //!< SG key of the trigger data (TrigDecision object)
-  
+  uint32_t m_smk; ///< Super Master Key
+  uint32_t m_l1psk; ///< LVL1 Prescale Key
+  uint32_t m_hltpsk; ///< HLT Prescale Key
   uint32_t m_smKey; //!< Super Master Key number to select (0=ignore)
-  
-  /// The trigger configuration service to get the information from
-  ServiceHandle< TrigConf::ITrigConfigSvc > m_configSvc;
-  /// Handle used (sometimes) when reading MC files
-  ServiceHandle< TrigConf::ITrigConfigSvc > m_dsSvc;
-    
+  std::string m_trigDecisionKey; //!< SG key of the trigger data (TrigDecision object)
   bool m_event_decision_printout;
-
   // write out trigger counts
   bool          m_printout_counts;
   std::string   m_printout_filename;
   std::ofstream m_printout_file;
+
+  
+  
+  
+    
 
   // useful for bookkeeping:
   std::map<std::string,int> m_L1_summary;
@@ -114,9 +111,14 @@ class TrigDecisionChecker : public AthAlgorithm
   std::vector<int> m_run_count_sigs;
   std::vector<std::vector<int>* > m_count_sigs;
   std::vector<std::string> m_count_sig_names;
-  std::string m_tauItems;
   int   m_event_number;
   float m_mu_sum; 
+
+  ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!< interface to use the trigger data: TriggerTool
+  /// The trigger configuration service to get the information from
+  ServiceHandle< TrigConf::ITrigConfigSvc > m_configSvc;
+  /// Handle used (sometimes) when reading MC files
+  ServiceHandle< TrigConf::ITrigConfigSvc > m_dsSvc;
 
   /// Muon triggers to test output for
   std::vector<std::string> m_muonItems;
@@ -152,9 +154,6 @@ class TrigDecisionChecker : public AthAlgorithm
   // needed for mu value
   std::string m_eventInfoName;
 
-  uint32_t m_smk; ///< Super Master Key
-  uint32_t m_l1psk; ///< LVL1 Prescale Key
-  uint32_t m_hltpsk; ///< HLT Prescale Key
 
   // Tool to dump info about xAOD muons
   ToolHandle<Rec::IMuonPrintingTool>            m_muonPrinter;

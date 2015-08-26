@@ -83,10 +83,17 @@
 
 TrigDecisionChecker::TrigDecisionChecker(const std::string &name, ISvcLocator *pSvcLocator)
 : AthAlgorithm(name, pSvcLocator),
-m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
-m_dsSvc( "TrigConf::DSConfigSvc/DSConfigSvc", name ),
-m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool")
+  m_smk(0),
+  m_l1psk(0),
+  m_hltpsk(0),
+  m_printout_file(""),
+  m_first_event(true),
+  m_event_number(0),
+  m_mu_sum(0.0),
+  m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
+  m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
+  m_dsSvc( "TrigConf::DSConfigSvc/DSConfigSvc", name ),
+  m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool")
 {
     // default for muon chains
     m_muonItems.push_back("HLT_mu26_imedium");
@@ -330,7 +337,6 @@ uint32_t TrigDecisionChecker_old_smk=0;
 
 StatusCode TrigDecisionChecker::execute()
 {
-    printf("TDC::execute called!\n");
     // Fill the variables:
     m_smk = m_configSvc->masterKey();
     m_l1psk = m_configSvc->lvl1PrescaleKey();
@@ -366,10 +372,10 @@ StatusCode TrigDecisionChecker::execute()
     }
     
     if(TrigDecisionChecker_old_smk!=m_smk) {
-        printf("New SMK found = %d\n",m_smk);
+        ATH_MSG_INFO("New SMK found = " << m_smk);
         TrigDecisionChecker_old_smk=m_smk;
     }
-    printf("SMK = %d\n",m_smk);
+    ATH_MSG_DEBUG("SMK = " << m_smk);
     
     // Check to see whether this is an event which we should process
     if(m_smk!=m_smKey && m_smKey!=0) {

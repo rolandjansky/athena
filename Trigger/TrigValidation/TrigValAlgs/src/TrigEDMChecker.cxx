@@ -1811,6 +1811,7 @@ StatusCode TrigEDMChecker::dumpxAODElectronContainer() {
   }
   float val_float=-99;
   unsigned int isEMbit=0;
+  bool pid=false;
   //DEBUG output for Egamma container
   ATH_MSG_INFO(" REGTEST: xAOD Reconstruction variables: ");
   //                //Cluster and ShowerShape info
@@ -1820,28 +1821,54 @@ StatusCode TrigEDMChecker::dumpxAODElectronContainer() {
           ATH_MSG_INFO(" REGTEST: egamma energy: " << eg->e() );
           ATH_MSG_INFO(" REGTEST: egamma eta: " << eg->eta() );
           ATH_MSG_INFO(" REGTEST: egamma phi: " << eg->phi() );
-          ATH_MSG_INFO(" REGTEST: isEMVLoose " << eg->selectionisEM(isEMbit,"isEMVLoose"));
-          ATH_MSG_INFO(" REGTEST: isEMVLoose bit " << std::hex << isEMbit << std::dec);
-          ATH_MSG_INFO(" REGTEST: isEMLoose " << eg->selectionisEM(isEMbit,"isEMLoose"));
-          ATH_MSG_INFO(" REGTEST: isEMLoose bit " << std::hex << isEMbit << std::dec);
-          ATH_MSG_INFO(" REGTEST: isEMMedium " << eg->selectionisEM(isEMbit,"isEMMedium"));
-          ATH_MSG_INFO(" REGTEST: isEMMedium bit " << std::hex << isEMbit << std::dec);
-          ATH_MSG_INFO(" REGTEST: isEMTight " << eg->selectionisEM(isEMbit,"isEMTight"));
-          ATH_MSG_INFO(" REGTEST: isEMTight bit " << std::hex << isEMbit << std::dec);
-          ATH_MSG_INFO(" REGTEST: LHValue " << eg->likelihoodValue("LHValue"));
-          ATH_MSG_INFO(" REGTEST: LHCaloValue " << eg->likelihoodValue("LHCaloValue"));
-          ATH_MSG_INFO(" REGTEST: LHVLoose " << eg->passSelection("LHVLoose"));
-          ATH_MSG_INFO(" REGTEST: LHLoose " << eg->passSelection("LHLoose"));
-          ATH_MSG_INFO(" REGTEST: LHMedium " << eg->passSelection("LHMedium"));
-          ATH_MSG_INFO(" REGTEST: LHTight " << eg->passSelection("LHTight"));
-          ATH_MSG_INFO(" REGTEST: isEMLHVLoose " << eg->selectionisEM(isEMbit,"isEMLHVLoose"));
-          ATH_MSG_INFO(" REGTEST: isEMLHVLoose bit " << std::hex << isEMbit << std::dec);
-          ATH_MSG_INFO(" REGTEST: isEMLHLoose " << eg->selectionisEM(isEMbit,"isEMLHLoose"));
-          ATH_MSG_INFO(" REGTEST: isEMLHLoose bit " << std::hex << isEMbit << std::dec);
-          ATH_MSG_INFO(" REGTEST: isEMLHMedium " << eg->selectionisEM(isEMbit,"isEMLHMedium"));
-          ATH_MSG_INFO(" REGTEST: isEMLHMedium bit " << std::hex << isEMbit << std::dec);
-          ATH_MSG_INFO(" REGTEST: isEMLHTight " << eg->selectionisEM(isEMbit,"isEMLHTight"));
-          ATH_MSG_INFO(" REGTEST: isEMLHTight bit " << std::hex << isEMbit << std::dec);
+          if(eg->selectionisEM(isEMbit,"isEMVLoose"))
+              ATH_MSG_INFO(" REGTEST: isEMVLoose " << std::hex << isEMbit << std::dec);
+          else ATH_MSG_WARNING(" REGTEST: Missing Aux info");
+          if(eg->selectionisEM(isEMbit,"isEMLoose"))
+              ATH_MSG_INFO(" REGTEST: isEMLoose " << std::hex << isEMbit << std::dec);
+          else ATH_MSG_WARNING(" REGTEST: Missing Aux info");
+          if(eg->selectionisEM(isEMbit,"isEMMedium"))
+              ATH_MSG_INFO(" REGTEST: isEMMedium " << std::hex << isEMbit << std::dec);
+          else ATH_MSG_WARNING(" REGTEST: Missing Aux info");
+          if(eg->selectionisEM(isEMbit,"isEMTight"))
+              ATH_MSG_INFO(" REGTEST: isEMTight " << std::hex << isEMbit << std::dec);
+          else ATH_MSG_WARNING(" REGTEST: Missing Aux info");
+          if(eg->selectionisEM(isEMbit,"isEMLHVLoose"))
+              ATH_MSG_INFO(" REGTEST: isEMLHVLoose " << std::hex << isEMbit << std::dec);
+          else ATH_MSG_WARNING(" REGTEST: Missing Aux info");
+          if(eg->selectionisEM(isEMbit,"isEMLHLoose"))
+              ATH_MSG_INFO(" REGTEST: isEMLHLoose " << std::hex << isEMbit << std::dec);
+          else ATH_MSG_WARNING(" REGTEST: Missing Aux info");
+          if(eg->selectionisEM(isEMbit,"isEMLHMedium"))
+              ATH_MSG_INFO(" REGTEST: isEMLHMedium " << std::hex << isEMbit << std::dec);
+          else ATH_MSG_WARNING(" REGTEST: Missing Aux info");
+          if(eg->selectionisEM(isEMbit,"isEMLHTight"))
+              ATH_MSG_INFO(" REGTEST: isEMLHTight " << std::hex << isEMbit << std::dec);
+          else ATH_MSG_WARNING(" REGTEST: Missing Aux info");
+          if(eg->likelihoodValue(val_float,"LHValue"))
+              ATH_MSG_INFO(" REGTEST: LHValue " << val_float);
+          else
+              ATH_MSG_WARNING(" REGTEST: Missing Aux info ");
+          if(eg->likelihoodValue(val_float,"LHCaloValue"))
+              ATH_MSG_INFO(" REGTEST: LHValue " << val_float);
+          else
+              ATH_MSG_WARNING(" REGTEST: Missing Aux info ");
+          if(eg->passSelection(pid,"LHVLoose"))
+              ATH_MSG_INFO(" REGTEST: LHVLoose " << pid); 
+          else
+              ATH_MSG_WARNING(" REGTEST: Missing Aux info ");
+          if(eg->passSelection(pid,"LHLoose"))
+              ATH_MSG_INFO(" REGTEST: LHLoose " << pid); 
+          else
+              ATH_MSG_WARNING(" REGTEST: Missing Aux info ");
+          if(eg->passSelection(pid,"LHMedium"))
+              ATH_MSG_INFO(" REGTEST: LHMedium " << pid); 
+          else
+              ATH_MSG_WARNING(" REGTEST: Missing Aux info ");
+          if(eg->passSelection(pid,"LHTight"))
+              ATH_MSG_INFO(" REGTEST: LHTight " << pid); 
+          else
+              ATH_MSG_WARNING(" REGTEST: Missing Aux info ");
       } else{
           ATH_MSG_INFO(" REGTEST: problems with egamma pointer" );
           return StatusCode::SUCCESS;
@@ -2612,9 +2639,9 @@ StatusCode TrigEDMChecker::dumpxAODJetContainer() {
     float containerSizeParameter[29] = {0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4,
         1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}; //no DSSelector
     int containerInputCalibration[29] = {1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 2, 2,
-        1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 2, 2, 11}; //no DSSelector
+        1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 2, 2, 1}; //no DSSelector
     int containerSignalState[29] = {0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1,
-        0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1}; //no DSSelector
+        0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 1, 0}; //no DSSelector
     bool onefilled = false;
     
     for (int icont=0; icont<30; ++icont) {
@@ -2643,6 +2670,7 @@ StatusCode TrigEDMChecker::dumpxAODJetContainer() {
                     ATH_MSG_INFO( "REGTEST    phi: " << thisjet->phi() );
                     ATH_MSG_INFO( "REGTEST    m: " << thisjet->m() );
                     ATH_MSG_INFO( "REGTEST    e: " << thisjet->e() );
+                    ATH_MSG_INFO( "REGTEST    rapidity: " << thisjet->rapidity() );
                     ATH_MSG_INFO( "REGTEST    px: " << thisjet->px() );
                     ATH_MSG_INFO( "REGTEST    py: " << thisjet->py() );
                     ATH_MSG_INFO( "REGTEST    pz: " << thisjet->pz() );
