@@ -17,11 +17,15 @@ m_oResidualPlots_TGC_wire(this, "/TGC/", "wire"),
 m_oResidualPlots_TGC_strip(this, "/TGC/", "strip"),
 m_oResidualPlots_CSC_eta(this, "/CSC/", "eta"),
 m_oResidualPlots_CSC_phi(this, "/CSC/", "phi"),
+m_pt_broad(NULL),
+m_eta_phi_broad(NULL),
 m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
 {}
 
 void RecoMuonTrackPlots::initializePlots(){
   //booking histograms
+  m_pt_broad = Book1D("_pt_broad", "High p_{T} Distribution", 140, 100, 1500);
+  m_eta_phi_broad = Book2D("_eta_phi_broad", "High p_{T} Muon #eta #phi Distribution;;#eta;#phi", 128, -3.2, 3.2, 128, -3.2, 3.2);
 }
 
 //when the plot function called with a Muon Container
@@ -59,6 +63,11 @@ void RecoMuonTrackPlots::fill(const xAOD::TrackParticle& muTP){
   m_oTrkRecoInfoPlots.fill(muTP);
   m_oMSHitPlots.fill(muTP);
   
+  if (muTP.pt()/1000.0 > 100) {//ony for high pt muons
+    m_pt_broad->Fill(muTP.pt()/1000.0);
+    m_eta_phi_broad->Fill(muTP.eta(), muTP.phi());
+  }
+  
   const Trk::Track* track = muTP.track(); //@@@ NUMEROUS FPE WARNINGS!!!
   if (!track) return;
 
@@ -94,21 +103,21 @@ void RecoMuonTrackPlots::fill(const xAOD::TrackParticle& muTP){
     }
     else if (techid==Muon::MuonStationIndex::RPC){
       if (measuresPhi)
-	m_oResidualPlots_RPC_phi.fill(*resPull,stationPhi);
+        m_oResidualPlots_RPC_phi.fill(*resPull,stationPhi);
       else
-	m_oResidualPlots_RPC_eta.fill(*resPull,stationPhi);
+        m_oResidualPlots_RPC_eta.fill(*resPull,stationPhi);
     }
     else if (techid==Muon::MuonStationIndex::TGC){
       if (measuresPhi)
-	m_oResidualPlots_TGC_strip.fill(*resPull,stationPhi);
+        m_oResidualPlots_TGC_strip.fill(*resPull,stationPhi);
       else
-	m_oResidualPlots_TGC_wire.fill(*resPull,stationPhi);
+        m_oResidualPlots_TGC_wire.fill(*resPull,stationPhi);
     }
     else if (techid==Muon::MuonStationIndex::CSCI){ //it's CSCI, not CSC!!!
       if (measuresPhi)
-	m_oResidualPlots_CSC_phi.fill(*resPull,stationPhi);
+        m_oResidualPlots_CSC_phi.fill(*resPull,stationPhi);
       else
-	m_oResidualPlots_CSC_eta.fill(*resPull,stationPhi);
+        m_oResidualPlots_CSC_eta.fill(*resPull,stationPhi);
     }
     delete resPull;
   }

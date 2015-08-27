@@ -27,6 +27,9 @@ class RecoMuonIDTrackPlots:public PlotBase {
       Trk::RecoInfoPlots              m_oTrkRecoInfoPlots;
       Trk::IDHitPlots                 m_oIDHitPlots;
 
+      TH1* m_pt_broad;
+      TH2* m_eta_phi_broad;
+
       //fill methods
       void fill(const xAOD::Muon& mu, int component);
       void fill(const xAOD::TrackParticle& muTP);
