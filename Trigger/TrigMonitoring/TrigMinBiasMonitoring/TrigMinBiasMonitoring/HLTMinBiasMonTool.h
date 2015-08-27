@@ -100,11 +100,10 @@ private:
 	
 	void bookHistogramsForItem(const std::string &item, unsigned histGroup);
 	void fillHistogramsForItem(const std::string &item, unsigned histGroup);
-	void fillPurityForItem(const std::string &item, const ToolHandle< InDet::IInDetTrackSelectionTool > &selTool, unsigned greaterThan = 1);
+	void fillPurityForItem(const std::string &item, const ToolHandle< InDet::IInDetTrackSelectionTool > &selTool, unsigned greaterThan = 1, const std::string& collectiveHistogramPostfix = "");
 	unsigned howManyGoodTracks(const ToolHandle< InDet::IInDetTrackSelectionTool > &selTool, std::vector<double> *acceptedTracksPt = nullptr);
-	void fillEfficiencyForItem(const std::string &item, unsigned goodTracks, bool isPassed);
+	void fillEfficiencyForItem(const std::string &item, unsigned goodTracks, bool isPassed, const std::string &collectiveHistogramPostfix = "");
 	
-	void initSelTools(std::vector< ToolHandle< InDet::IInDetTrackSelectionTool > > &selTool, const std::vector<unsigned> &cuts);
 	unsigned receiveIsPassedCondition(unsigned internalIsPassedCondition);
 	
 	StatusCode fillHLTMbtsInfo();
@@ -142,10 +141,17 @@ private:
 		unsigned histoGroup;
 		unsigned effCutIdx;
 		unsigned isPassedCondition;
+		std::string algorithm;
 	};
 	std::map< std::string, chainMapping > m_chainProperties;
 	
 	std::map< unsigned, std::string > m_pathForGroup;
+	
+	//collective histograms
+	std::vector < std::string > m_collectiveHistogramsNames;
+	std::vector < std::string > m_collectiveHistogramForAlgorithm; 
+	//<algorithmName, collectiveHistorgramPostfix>
+	std::map < std::string, std::string > m_collectiveHistogramPostfixForAlgorithm; 
 	
 	const TileTBID* m_tileTBID;
 	const ZdcID *m_ZdcID;
@@ -221,12 +227,18 @@ private:
 	int totpix_spEF;
 	int totsct_spEF;
 	
-	std::vector< ToolHandle< InDet::IInDetTrackSelectionTool > > m_effSelTool;
-	std::vector< ToolHandle< InDet::IInDetTrackSelectionTool > > m_purSelTool;
+	ToolHandle< InDet::IInDetTrackSelectionTool >  m_mbtsEffSelTool;
+	ToolHandle< InDet::IInDetTrackSelectionTool >  m_sptrkEffSelTool;
+	ToolHandle< InDet::IInDetTrackSelectionTool >  m_noalgEffSelTool;
+	ToolHandle< InDet::IInDetTrackSelectionTool >  m_hmtperfEffSelTool;
+	ToolHandle< InDet::IInDetTrackSelectionTool >  m_idperfEffSelTool;
+	ToolHandle< InDet::IInDetTrackSelectionTool >  m_perfEffSelTool;
+	ToolHandle< InDet::IInDetTrackSelectionTool >  m_hmtEffSelTool;
+	std::vector< ToolHandle< InDet::IInDetTrackSelectionTool >* > m_effSelTool;
+	
+	ToolHandle< InDet::IInDetTrackSelectionTool >  m_purSelTool;
 	
 	std::string m_inDetTrackParticleContainerName;
-	std::vector<unsigned> m_effCuts;
-	std::vector<unsigned> m_purCuts;
 	std::vector<unsigned> m_isPassedCondtitions;
 	
 	std::string m_refTrigItem;
