@@ -20,6 +20,7 @@
 #include "MuonTrackMonitoring/RecoMuonIDTrackPlots.h"
 #include "MuonTrackMonitoring/RecoLumiPlots.h"
 #include "MuonTrackMonitoring/RecoPhysPlots.h"
+#include "MuonTrackMonitoring/RecoVertexPlots.h"
 #include "MuonHistUtils/MuonEnumDefs.h"
  
 #include "TrigConfL1Data/TriggerItem.h"
@@ -76,13 +77,19 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
 
   //second argument is the souce type
   void plot_lumi(   std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances_Z, 
-  std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances_jpsi,
-  const xAOD::MuonContainer* Muons, 
-  const xAOD::TrackParticleContainer*   tracksMS, 
-  const xAOD::MuonSegmentContainer* MuonSegments);
+    std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances_jpsi, 
+    const xAOD::MuonContainer* Muons,
+    const xAOD::TrackParticleContainer*   tracksMS, 
+    const xAOD::MuonSegmentContainer* MuonSegments);
+  void plot_lumi_notrig(const xAOD::MuonContainer* Muons, 
+    const xAOD::TrackParticleContainer*   tracksMS, 
+    const xAOD::MuonSegmentContainer* MuonSegments);
+  //other plots
   void plot_muon(   const xAOD::Muon&          muon,    int source);
+  void plot_muon_notrig(const xAOD::Muon&        muon,    int source);
   void plot_segment(const xAOD::MuonSegment&   segment, int source);
   void plot_track(  const xAOD::TrackParticle& track,   int source);
+  void plot_vertex( const xAOD::Vertex&        aVx,     int source);
   void plot_resonances(std::vector<std::pair<const xAOD::Muon*, const xAOD::Muon*> > resonances, int source);
 
   void FillPullResid(RecoMuonTrackPlots *, const xAOD::TrackParticle*);
@@ -103,6 +110,8 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   //std::vector<RecoMuonPlots*>         m_oRecoMuonForwPlots;
   //std::vector<RecoMuonPlots*>         m_oRecoMuonCaloPlots;
   std::vector<RecoPhysPlots*>         m_oRecoPhysPlots;
+  std::vector<RecoVertexPlots*>         m_oRecoVertexPlots;
+
   
  protected:
 
@@ -114,6 +123,7 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   std::string m_muonsName;
   std::string m_muonSegmentsName;
   std::string m_muonTracksName;
+  std::string m_msVertexCollection;
   std::string m_muonExtrapTracksName;
   std::string m_innerTracksName;
             
@@ -124,8 +134,8 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   StatusCode bookInMongroup(PlotBase& valPlots, MonGroup& mongroup, std::string source, TString Montype);
 
   // define the different classes of plots;
-  enum SOURCE {Z = 0, JPSI, ALLMUONS, NONCBMUONS, CONTAINER, N_SOURCE};
-  std::string sources[SOURCE::N_SOURCE + 1] = {"Z", "Jpsi", "AllMuons", "NonCBMuons", "Container", "N_SOURCE"};
+  enum SOURCE {Z = 0, JPSI, CBMUONS, NONCBMUONS, CONTAINER, N_SOURCE};
+  std::string sources[SOURCE::N_SOURCE + 1] = {"Z", "Jpsi", "CBMuons", "NonCBMuons", "Container", "N_SOURCE"};
   enum MUON_COMPONENT {TRACK_MS=0, TRACK_ME, TRACK_ID, N_COMPONENTS};
   // Trigger items
   bool m_useTrigger; 

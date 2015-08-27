@@ -5,7 +5,28 @@
 #include "MuonTrackMonitoring/RecoLumiPlots.h"
 
 RecoLumiPlots::RecoLumiPlots(PlotBase* pParent, std::string sDir, std::string recObj):PlotBase(pParent, sDir),
+  //book the 1D hists
+  m_hNSegment_LB_1D(NULL),
+  m_hNMuonTrack_LB_1D(NULL),
+  m_hNMuon_LB_1D(NULL),
+  m_hNResonance_LB_1D(NULL),
 
+  m_hNSegment_Inst_1D(NULL),
+  m_hNMuonTrack_Inst_1D(NULL),
+  m_hNMuon_Inst_1D(NULL),
+  m_hNResonance_Inst_1D(NULL),
+
+  m_hNSegment_IntLumi_1D(NULL),
+  m_hNMuonTrack_IntLumi_1D(NULL),
+  m_hNMuon_IntLumi_1D(NULL),
+  m_hNResonance_IntLumi_1D(NULL),
+
+  m_hNSegment_LB_BA_1D(NULL),
+  m_hNSegment_LB_BC_1D(NULL),
+  m_hNSegment_LB_EA_1D(NULL),
+  m_hNSegment_LB_EC_1D(NULL),
+  
+  //book the usual 2D hists
   m_hNSegment_LB(NULL),
   m_hNMuonTrack_LB(NULL),
   m_hNMuon_LB(NULL),
@@ -15,7 +36,6 @@ RecoLumiPlots::RecoLumiPlots(PlotBase* pParent, std::string sDir, std::string re
   m_hNMuonTrack_Inst(NULL),
   m_hNMuon_Inst(NULL),
   m_hNResonance_Inst(NULL),
-
 
   m_hNSegment_IntLumi(NULL),
   m_hNMuonTrack_IntLumi(NULL),
@@ -36,34 +56,56 @@ void RecoLumiPlots::initializePlots()
   //Specify the names for different resonances
   std::string Zsig("Z");
   std::string Jsig("Jpsi");
-  std::string AllMuons("AllMuons");
+  std::string CBMuons("CBMuons");
   std::string OtherMuons("NonCBMuons");
 
   if (!type.compare(Zsig)) {name="Z";}
   else if (!type.compare(Jsig)) {name="J/#psi";}
-  else if (!type.compare(AllMuons)) {name="CBMuons";}
+  else if (!type.compare(CBMuons)) {name="CBMuons";}
   else if (!type.compare(OtherMuons)) {name="NonCBMuons";}
   else {name = "other";}
 
-  m_hNSegment_LB = Book2D("nSegment_LB", "Number of Muon Segments Per LumiBlock;LumiBlock;Number of Segments", 2000, -0.5, 1999.5, 100, 0.5, 101.5);
-  m_hNMuonTrack_LB = Book2D("nMuonTrack_LB", "Number of Muon MS Tracks Per LumiBlock;LumiBlock;Number of Tracks", 2000, -0.5, 1999.5, 21, 0.5, 21.5);
-  if (name != "other") m_hNMuon_LB = Book2D("nMuon_LB", "Number of Loose+ Muons Per LumiBlock;LumiBlock;Nmuons", 2000, -0.5, 1999.5, 21, 0.5, 21.5);
-  if (name == "Z" || name == "J/#psi"){m_hNResonance_LB = Book2D("n" + type + "_LB", "Number of " + name + " Per LumiBlock;LumiBlock;Number of " + name, 2000, -0.5, 1999.5, 5, 0.5, 5.5);}
+  //Make sure the 1D hists has the same dimension as the 2D!
+  m_hNSegment_LB = Book2D("nSegment_LB_2D", "Number of Muon Segments Per LumiBlock;LumiBlock;Number of Segments", 1600, -0.5, 1599.5, 100, 0.5, 101.5);
+  m_hNMuonTrack_LB = Book2D("nMuonTrack_LB_2D", "Number of Muon MS Tracks Per LumiBlock;LumiBlock;Number of Tracks", 1600, -0.5, 1599.5, 21, 0.5, 21.5);
+  if (name != "other") m_hNMuon_LB = Book2D("nMuon_LB_2D", "Number of Muons Per LumiBlock;LumiBlock;Nmuons", 1600, -0.5, 1599.5, 21, 0.5, 21.5);
+  if (name == "Z" || name == "J/#psi"){m_hNResonance_LB = Book2D("n" + type + "_LB_2D", "Number of " + name + " Per LumiBlock;LumiBlock;Number of " + name, 1600, -0.5, 1599.5, 5, 0.5, 5.5);}
 
-  m_hNSegment_Inst = Book2D("nSegment_Inst", "Number of Muon Segments vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};Nsegments", 150, -0.5, 10.5, 100, 0.5, 101.5);
-  m_hNMuonTrack_Inst = Book2D("nMuonTrack_Inst", "Number of Muon MS Tracks vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};Ntracks", 150, -0.5, 10.5, 21, 0.5, 21.5);
-  if (name != "other") m_hNMuon_Inst = Book2D("nMuon_Inst", "Number of Loose+  Muons vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};Nmuons", 150, -0.5, 10.5, 21, 0.5, 21.5);
-  if (name == "Z" || name == "J/#psi"){m_hNResonance_Inst = Book2D("n" + type + "_Inst", "Number of " + name + " vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};N " + name, 150, -0.5, 10.5, 5, 0.5, 5.5);}
+  m_hNSegment_Inst = Book2D("nSegment_Inst_2D", "Number of Muon Segments vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};Nsegments", 150, -0.5, 10.5, 100, 0.5, 101.5);
+  m_hNMuonTrack_Inst = Book2D("nMuonTrack_Inst_2D", "Number of Muon MS Tracks vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};Ntracks", 150, -0.5, 10.5, 21, 0.5, 21.5);
+  if (name != "other") m_hNMuon_Inst = Book2D("nMuon_Inst_2D", "Number of Muons vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};Nmuons", 150, -0.5, 10.5, 21, 0.5, 21.5);
+  if (name == "Z" || name == "J/#psi"){m_hNResonance_Inst = Book2D("n" + type + "_Inst_2D", "Number of " + name + " vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};N " + name, 150, -0.5, 10.5, 5, 0.5, 5.5);}
 
-  m_hNSegment_IntLumi = Book2D("nSegment_IntLumi", "Number of Muon Segments vs Average Inst Lumi per Sec;Average Inst Lumi per Sec;Nsegments", 251, -0.5, 250.5, 100, 0.5, 101.5);
-  m_hNMuonTrack_IntLumi = Book2D("nMuonTrack_IntLumi", "Number of Muon MS Tracks vs Average Inst Lumi per Sec;Average Inst Lumi per Sec;Ntracks", 251, -0.5, 250.5, 21, 0.5, 21.5);
-  if (name != "other") m_hNMuon_IntLumi = Book2D("nMuon_IntLumi", "Number of Loose+  Muons vs Average Inst Lumi per Sec;Average Inst Lumi per Sec;Nmuons", 251, -0.5, 250.5, 21, 0.5, 21.5);
-  if (name == "Z" || name == "J/#psi"){m_hNResonance_IntLumi = Book2D("n" + type + "_IntLumi", "Number of " + name + " vs Average Inst Lumi per Sec;Average Inst Lumi per Sec;N " + name, 251, -0.5, 250.5, 5, 0.5, 5.5);}
+  m_hNSegment_IntLumi = Book2D("nSegment_IntLumi_2D", "Number of Muon Segments vs Average Inst Lumi per Sec;Average Inst Lumi per Sec, 10^{30}cm^{-2}s^{-1};Nsegments", 500, -0.5, 1000.5, 100, 0.5, 101.5);
+  m_hNMuonTrack_IntLumi = Book2D("nMuonTrack_IntLumi_2D", "Number of Muon MS Tracks vs Average Inst Lumi per Sec;Average Inst Lumi per Sec, 10^{30}cm^{-2}s^{-1};Ntracks", 500, -0.5, 1000.5, 21, 0.5, 21.5);
+  if (name != "other") m_hNMuon_IntLumi = Book2D("nMuon_IntLumi_2D", "Number of Muons vs Average Inst Lumi per Sec;Average Inst Lumi per Sec, 10^{30}cm^{-2}s^{-1};Nmuons", 500, -0.5, 1000.5, 21, 0.5, 21.5);
+  if (name == "Z" || name == "J/#psi"){m_hNResonance_IntLumi = Book2D("n" + type + "_IntLumi_2D", "Number of " + name + " vs Average Inst Lumi per Sec;Average Inst Lumi per Sec, 10^{30}cm^{-2}s^{-1};N " + name, 500, -0.5, 1000.5, 5, 0.5, 5.5);}
 
-  m_hNSegment_LB_BA = Book2D("nSegment_LB_BA", "Number of Muon Segments in Barrel A side Per LumiBlock;LumiBlock;Number of Segments", 2000, -0.5, 1999.5, 100, 0.5, 101.5);
-  m_hNSegment_LB_BC = Book2D("nSegment_LB_BC", "Number of Muon Segments in Barrel C side Per LumiBlock;LumiBlock;Number of Segments", 2000, -0.5, 1999.5, 100, 0.5, 101.5);
-  m_hNSegment_LB_EA = Book2D("nSegment_LB_EA", "Number of Muon Segments in Endcap A side Per LumiBlock;LumiBlock;Number of Segments", 2000, -0.5, 1999.5, 100, 0.5, 101.5);
-  m_hNSegment_LB_EC = Book2D("nSegment_LB_EC", "Number of Muon Segments in Endcap C side Per LumiBlock;LumiBlock;Number of Segments", 2000, -0.5, 1999.5, 100, 0.5, 101.5);
+  m_hNSegment_LB_BA = Book2D("nSegment_LB_BA_2D", "Number of Muon Segments in Barrel A side Per LumiBlock;LumiBlock;Number of Segments", 1600, -0.5, 1599.5, 80, 0.5, 81.5);
+  m_hNSegment_LB_BC = Book2D("nSegment_LB_BC_2D", "Number of Muon Segments in Barrel C side Per LumiBlock;LumiBlock;Number of Segments", 1600, -0.5, 1599.5, 80, 0.5, 81.5);
+  m_hNSegment_LB_EA = Book2D("nSegment_LB_EA_2D", "Number of Muon Segments in Endcap A side Per LumiBlock;LumiBlock;Number of Segments", 1600, -0.5, 1599.5, 80, 0.5, 81.5);
+  m_hNSegment_LB_EC = Book2D("nSegment_LB_EC_2D", "Number of Muon Segments in Endcap C side Per LumiBlock;LumiBlock;Number of Segments", 1600, -0.5, 1599.5, 80, 0.5, 81.5);
+
+  //book the 1D hists for webdisplay
+  m_hNSegment_LB_1D = Book1D("nSegment_LB", "Number of Muon Segments Per LumiBlock;LumiBlock;Number of Segments", 1600, -0.5, 1599.5);
+  m_hNMuonTrack_LB_1D = Book1D("nMuonTrack_LB", "Number of Muon MS Tracks Per LumiBlock;LumiBlock;Number of Tracks", 1600, -0.5, 1599.5);
+  if (name != "other") m_hNMuon_LB_1D = Book1D("nMuon_LB", "Number of Muons Per LumiBlock;LumiBlock;Nmuons", 1600, -0.5, 1599.5);
+  if (name == "Z" || name == "J/#psi"){m_hNResonance_LB_1D = Book1D("n" + type + "_LB", "Number of " + name + " Per LumiBlock;LumiBlock;Number of " + name, 1600, -0.5, 1599.5);}
+
+  m_hNSegment_Inst_1D = Book1D("nSegment_Inst", "Number of Muon Segments vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};Nsegments", 150, -0.5, 10.5);
+  m_hNMuonTrack_Inst_1D = Book1D("nMuonTrack_Inst", "Number of Muon MS Tracks vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};Ntracks", 150, -0.5, 10.5);
+  if (name != "other") m_hNMuon_Inst_1D = Book1D("nMuon_Inst", "Number of Muons vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};Nmuons", 150, -0.5, 10.5);
+  if (name == "Z" || name == "J/#psi"){m_hNResonance_Inst_1D = Book1D("n" + type + "_Inst", "Number of " + name + " vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};N " + name, 150, -0.5, 10.5);}
+
+  m_hNSegment_IntLumi_1D = Book1D("nSegment_IntLumi", "Number of Muon Segments vs Average Inst Lumi per Sec;Average Inst Lumi per Sec, 10^{30}cm^{-2}s^{-1};Nsegments", 500, -0.5, 1000.5);
+  m_hNMuonTrack_IntLumi_1D = Book1D("nMuonTrack_IntLumi", "Number of Muon MS Tracks vs Average Inst Lumi per Sec;Average Inst Lumi per Sec, 10^{30}cm^{-2}s^{-1};Ntracks", 500, -0.5, 1000.5);
+  if (name != "other") m_hNMuon_IntLumi_1D = Book1D("nMuon_IntLumi", "Number of Muons vs Average Inst Lumi per Sec;Average Inst Lumi per Sec, 10^{30}cm^{-2}s^{-1};Nmuons", 500, -0.5, 1000.5);
+  if (name == "Z" || name == "J/#psi"){m_hNResonance_IntLumi_1D = Book1D("n" + type + "_IntLumi", "Number of " + name + " vs Average Inst Lumi per Sec;Average Inst Lumi per Sec, 10^{30}cm^{-2}s^{-1};N " + name, 500, -0.5, 1000.5);}
+
+  m_hNSegment_LB_BA_1D = Book1D("nSegment_LB_BA", "Number of Muon Segments in Barrel A side Per LumiBlock;LumiBlock;Number of Segments", 1600, -0.5, 1599.5);
+  m_hNSegment_LB_BC_1D = Book1D("nSegment_LB_BC", "Number of Muon Segments in Barrel C side Per LumiBlock;LumiBlock;Number of Segments", 1600, -0.5, 1599.5);
+  m_hNSegment_LB_EA_1D = Book1D("nSegment_LB_EA", "Number of Muon Segments in Endcap A side Per LumiBlock;LumiBlock;Number of Segments", 1600, -0.5, 1599.5);
+  m_hNSegment_LB_EC_1D = Book1D("nSegment_LB_EC", "Number of Muon Segments in Endcap C side Per LumiBlock;LumiBlock;Number of Segments", 1600, -0.5, 1599.5);
 }
 
 //fill Segment related lb plots
@@ -136,10 +178,10 @@ void RecoLumiPlots::fill_CB(const xAOD::MuonContainer* Muons, int m_current_lb, 
   if (m_inst_lumi_lb > 0) m_hNMuon_IntLumi->Fill(m_inst_lumi_lb, m_NMuIDco);
   m_hNMuonTrack_LB->Fill(m_current_lb, m_NTrkIDco);
   if (m_inst_lumi_bcid > 0) m_hNMuonTrack_Inst->Fill(m_inst_lumi_bcid, m_NTrkIDco);
-  if (m_inst_lumi_lb > 0) m_hNMuonTrack_Inst->Fill(m_inst_lumi_lb, m_NTrkIDco);
+  if (m_inst_lumi_lb > 0) m_hNMuonTrack_IntLumi->Fill(m_inst_lumi_lb, m_NTrkIDco);
   m_hNSegment_LB->Fill(m_current_lb, m_NSegIDco);
   if (m_inst_lumi_bcid > 0) m_hNSegment_Inst->Fill(m_inst_lumi_bcid, m_NSegIDco);
-  if (m_inst_lumi_lb > 0) m_hNSegment_Inst->Fill(m_inst_lumi_lb, m_NSegIDco);
+  if (m_inst_lumi_lb > 0) m_hNSegment_IntLumi->Fill(m_inst_lumi_lb, m_NSegIDco);
   m_hNSegment_LB_BA->Fill(m_current_lb, m_NsegBA);
   m_hNSegment_LB_BC->Fill(m_current_lb, m_NsegBC);
   m_hNSegment_LB_EA->Fill(m_current_lb, m_NsegEA);
@@ -186,10 +228,10 @@ void RecoLumiPlots::fill_Other(const xAOD::MuonContainer* Muons, int m_current_l
   if (m_inst_lumi_lb > 0) m_hNMuon_IntLumi->Fill(m_inst_lumi_lb, m_NMuIDco);
   m_hNMuonTrack_LB->Fill(m_current_lb, m_NTrkIDco);
   if (m_inst_lumi_bcid > 0) m_hNMuonTrack_Inst->Fill(m_inst_lumi_bcid, m_NTrkIDco);
-  if (m_inst_lumi_lb > 0) m_hNMuonTrack_Inst->Fill(m_inst_lumi_lb, m_NTrkIDco);
+  if (m_inst_lumi_lb > 0) m_hNMuonTrack_IntLumi->Fill(m_inst_lumi_lb, m_NTrkIDco);
   m_hNSegment_LB->Fill(m_current_lb, m_NSegIDco);
   if (m_inst_lumi_bcid > 0) m_hNSegment_Inst->Fill(m_inst_lumi_bcid, m_NSegIDco);
-  if (m_inst_lumi_lb > 0) m_hNSegment_Inst->Fill(m_inst_lumi_lb, m_NSegIDco);
+  if (m_inst_lumi_lb > 0) m_hNSegment_IntLumi->Fill(m_inst_lumi_lb, m_NSegIDco);
   m_hNSegment_LB_BA->Fill(m_current_lb, m_NsegBA);
   m_hNSegment_LB_BC->Fill(m_current_lb, m_NsegBC);
   m_hNSegment_LB_EA->Fill(m_current_lb, m_NsegEA);
@@ -259,10 +301,10 @@ void RecoLumiPlots::fill(std::vector<std::pair<const xAOD::Muon*, const xAOD::Mu
   if (m_inst_lumi_lb > 0) m_hNMuon_IntLumi->Fill(m_inst_lumi_lb, m_NMuIDco);
   m_hNMuonTrack_LB->Fill(m_current_lb, m_NTrkIDco);
   if (m_inst_lumi_bcid > 0) m_hNMuonTrack_Inst->Fill(m_inst_lumi_bcid, m_NTrkIDco);
-  if (m_inst_lumi_lb > 0) m_hNMuonTrack_Inst->Fill(m_inst_lumi_lb, m_NTrkIDco);
+  if (m_inst_lumi_lb > 0) m_hNMuonTrack_IntLumi->Fill(m_inst_lumi_lb, m_NTrkIDco);
   m_hNSegment_LB->Fill(m_current_lb, m_NSegIDco);
   if (m_inst_lumi_bcid > 0) m_hNSegment_Inst->Fill(m_inst_lumi_bcid, m_NSegIDco);
-  if (m_inst_lumi_lb > 0) m_hNSegment_Inst->Fill(m_inst_lumi_lb, m_NSegIDco);
+  if (m_inst_lumi_lb > 0) m_hNSegment_IntLumi->Fill(m_inst_lumi_lb, m_NSegIDco);
   m_hNSegment_LB_BA->Fill(m_current_lb, m_NsegBA);
   m_hNSegment_LB_BC->Fill(m_current_lb, m_NsegBC);
   m_hNSegment_LB_EA->Fill(m_current_lb, m_NsegEA);

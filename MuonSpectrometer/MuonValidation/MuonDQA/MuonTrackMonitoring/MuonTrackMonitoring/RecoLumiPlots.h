@@ -26,7 +26,30 @@ class RecoLumiPlots:public PlotBase {
 
             //set the useful varaibles
 
-            // Reco only information
+
+            // Set 1D hists for webdisplay
+
+            TH1* m_hNSegment_LB_1D;
+            TH1* m_hNMuonTrack_LB_1D;
+            TH1* m_hNMuon_LB_1D;
+            TH1* m_hNResonance_LB_1D;
+
+            TH1* m_hNSegment_Inst_1D;
+            TH1* m_hNMuonTrack_Inst_1D;
+            TH1* m_hNMuon_Inst_1D;
+            TH1* m_hNResonance_Inst_1D;
+
+            TH1* m_hNSegment_IntLumi_1D;
+            TH1* m_hNMuonTrack_IntLumi_1D;
+            TH1* m_hNMuon_IntLumi_1D;
+            TH1* m_hNResonance_IntLumi_1D;
+
+            TH1* m_hNSegment_LB_BA_1D;
+            TH1* m_hNSegment_LB_BC_1D;
+            TH1* m_hNSegment_LB_EA_1D;
+            TH1* m_hNSegment_LB_EC_1D;
+
+            // Set 2D hists for development
 
             TH2* m_hNSegment_LB;
             TH2* m_hNMuonTrack_LB;
