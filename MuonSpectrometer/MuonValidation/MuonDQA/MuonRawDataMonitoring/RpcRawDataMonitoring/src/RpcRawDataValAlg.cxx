@@ -2314,7 +2314,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DEtaStationTriggerHits_Side_Pt.back()->SetOption("COLZ") ;    
 	  rpc2DEtaStationTriggerHits_Side_Pt.back()->SetMarkerSize(0.2);
 	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetXaxis()->SetTitle("<--- IP      Rpc Eta Station       EC A --->");
-	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetTitle("") ;	  
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
 
 	  // station trigger hits SIDE C LowPt
 	  rpc2DEtaStationTriggerHits_Side_Pt.push_back( new TH2I("rpc2DEtaStationTriggerHits_BC_LowPt","rpc2DEtaStationTriggerHits_BC_LowPt", 7, -7, 0,  16*2, 0, 16) ); 
@@ -2322,7 +2331,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DEtaStationTriggerHits_Side_Pt.back()->SetOption("COLZ") ;    
 	  rpc2DEtaStationTriggerHits_Side_Pt.back()->SetMarkerSize(0.2);
 	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetXaxis()->SetTitle("<--- EC C      Rpc Eta Station       IP --->");
-	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetTitle("RPC ATLAS Sector");
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetTitle("");  
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
    
 	  // station trigger hits SIDE A HighPt  ( includes stationEta 0 )
 	  rpc2DEtaStationTriggerHits_Side_Pt.push_back( new  TH2I("rpc2DEtaStationTriggerHits_BA_HighPt","rpc2DEtaStationTriggerHits_BA_HighPt", 8, 0, 8,  16*2, 0, 16 ) ); 
@@ -2330,7 +2348,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DEtaStationTriggerHits_Side_Pt.back()->SetOption("COLZ") ;    
 	  rpc2DEtaStationTriggerHits_Side_Pt.back()->SetMarkerSize(0.2);
 	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetXaxis()->SetTitle("<--- IP      Rpc Eta Station       EC A --->");
-	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetTitle("") ;	  
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
      
 	  // station trigger hits SIDE C HighPt
 	  rpc2DEtaStationTriggerHits_Side_Pt.push_back( new TH2I("rpc2DEtaStationTriggerHits_BC_HighPt","rpc2DEtaStationTriggerHits_BC_HighPt", 7, -7, 0,  16*2, 0, 16) ); 
@@ -2338,7 +2365,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DEtaStationTriggerHits_Side_Pt.back()->SetOption("COLZ") ;    
 	  rpc2DEtaStationTriggerHits_Side_Pt.back()->SetMarkerSize(0.2);
 	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetXaxis()->SetTitle("<--- EC C      Rpc Eta Station       IP --->");
-	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetTitle("RPC ATLAS Sector");
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetTitle("");  
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
        
            
 	  // station trigger hits SIDE A LowPt  ( includes stationEta 0 )
@@ -2347,7 +2383,15 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->SetOption("COLZ") ;    
 	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->SetMarkerSize(0.2);
 	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetXaxis()->SetTitle("<--- IP      Rpc Eta Station       EC A --->");
-	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetTitle("") ;	  
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
 
 	  // station trigger hits SIDE C LowPt
 	  rpc2DEtaStationTriggerHits_Side_Pt_norm.push_back( new TH2F("rpc2DEtaStationTriggerHits_BC_LowPt_norm","rpc2DEtaStationTriggerHits_BC_LowPt_norm", 7, -7, 0,  16*2, 0, 16) ); 
@@ -2355,7 +2399,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->SetOption("COLZ") ;    
 	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->SetMarkerSize(0.2);
 	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetXaxis()->SetTitle("<--- EC C      Rpc Eta Station       IP --->");
-	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetTitle("RPC ATLAS Sector");
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetTitle("");	  
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
    
 	  // station trigger hits SIDE A HighPt  ( includes stationEta 0 )
 	  rpc2DEtaStationTriggerHits_Side_Pt_norm.push_back( new  TH2F("rpc2DEtaStationTriggerHits_BA_HighPt_norm","rpc2DEtaStationTriggerHits_BA_HighPt_norm", 8, 0, 8,  16*2, 0, 16 ) ); 
@@ -2363,7 +2416,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->SetOption("COLZ") ;    
 	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->SetMarkerSize(0.2);
 	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetXaxis()->SetTitle("<--- IP      Rpc Eta Station       EC A --->");
-	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetTitle("") ;	  
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
      
 	  // station trigger hits SIDE C HighPt
 	  rpc2DEtaStationTriggerHits_Side_Pt_norm.push_back( new TH2F("rpc2DEtaStationTriggerHits_BC_HighPt_norm","rpc2DEtaStationTriggerHits_BC_HighPt_norm", 7, -7, 0,  16*2, 0, 16) ); 
@@ -2371,7 +2433,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->SetOption("COLZ") ;    
 	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->SetMarkerSize(0.2);
 	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetXaxis()->SetTitle("<--- EC C      Rpc Eta Station       IP --->");
-	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetTitle("RPC ATLAS Sector");
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetTitle("");	  
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DEtaStationTriggerHits_Side_Pt_norm.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
         
 	  //DQ from Mauro
 	 
@@ -2381,7 +2452,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("<--- Side C      Rpc Phi Panel       Side A --->");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
 	
 	  // 2D panels Phi trigger hits HighPt 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelTriggerHits_HighPt","rpc2DPhiPanelTriggerHits_HighPt", 26, -13, 13,  16*2, 0, 16 ) ); 
@@ -2389,7 +2469,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("<--- Side C      Rpc Phi Panel       Side A --->");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
 	
 	  // 2D panels Eta trigger hits LowPt 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelTriggerHits_LowPt","rpc2DEtaPanelTriggerHits_LowPt", 26, -13, 13,  16*2, 0, 16 ) ); 
@@ -2397,7 +2486,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("<--- Side C      Rpc Eta Panel       Side A --->");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
 	
 	  // 2D panels Eta trigger hits HighPt 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelTriggerHits_HighPt","rpc2DEtaPanelTriggerHits_HighPt", 26, -13, 13,  16*2, 0, 16 ) ); 
@@ -2405,7 +2503,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("<--- Side C      Rpc Eta Panel       Side A --->");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
 	
 	  // 2D panels Phi  hits LowPt0_BA 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelHits_LowPt0_BA","rpc2DPhiPanelHits_LowPt0_BA", 12, 0, 12,  16*2, 0, 16 ) ); 
@@ -2413,7 +2520,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel Side A");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
 		
 	  // 2D panels Phi  hits LowPt1_BA 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelHits_LowPt1_BA","rpc2DPhiPanelHits_LowPt1_BA", 12, 0, 12,  16*2, 0, 16 ) ); 
@@ -2421,7 +2537,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel Side A");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
 	
 	  // 2D panels Eta  hits LowPt0_BA 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelHits_LowPt0_BA","rpc2DEtaPanelHits_LowPt0_BA", 12, 0, 12,  16*2, 0, 16 ) ); 
@@ -2429,7 +2554,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Eta Panel Side A");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
 		
 	  // 2D panels Eta  hits LowPt1_BA 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelHits_LowPt1_BA","rpc2DEtaPanelHits_LowPt1_BA", 12, 0, 12,  16*2, 0, 16 ) ); 
@@ -2437,7 +2571,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Eta Panel Side A");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
 
 	  // 2D panels Phi  hits Pivot0_BA 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelHits_Pivot0_BA","rpc2DPhiPanelHits_Pivot0_BA", 13, 0, 13,  16*2, 0, 16 ) ); 
@@ -2445,7 +2588,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel Side A");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
 		
 	  // 2D panels Phi  hits Pivot1_BA 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelHits_Pivot1_BA","rpc2DPhiPanelHits_Pivot1_BA", 13, 0, 13,  16*2, 0, 16 ) ); 
@@ -2453,7 +2605,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel Side A");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
 
 	  // 2D panels Eta  hits Pivot0_BA 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelHits_Pivot0_BA","rpc2DEtaPanelHits_Pivot0_BA", 13, 0, 13,  16*2, 0, 16 ) ); 
@@ -2461,7 +2622,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Eta Panel Side A");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
 		
 	  // 2D panels Eta  hits Pivot1_BA 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelHits_Pivot1_BA","rpc2DEtaPanelHits_Pivot1_BA", 13, 0, 13,  16*2, 0, 16 ) ); 
@@ -2469,7 +2639,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Eta Panel Side A");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
 			
 	  // 2D panels Phi  hits HighPt0_BA 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelHits_HighPt0_BA","rpc2DPhiPanelHits_HighPt0_BA", 13, 0, 13,  16*2, 0, 16 ) ); 
@@ -2477,7 +2656,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel Side A");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
 		
 	  // 2D panels Phi  hits HighPt1_BA 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelHits_HighPt1_BA","rpc2DPhiPanelHits_HighPt1_BA", 13, 0, 13,  16*2, 0, 16 ) ); 
@@ -2485,7 +2673,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel Side A");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;	
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+	
 			
 	  // 2D panels Eta  hits HighPt0_BA 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelHits_HighPt0_BA","rpc2DEtaPanelHits_HighPt0_BA", 13, 0, 13,  16*2, 0, 16 ) ); 
@@ -2493,7 +2690,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Eta Panel Side A");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
 		
 	  // 2D panels Eta  hits HighPt1_BA 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelHits_HighPt1_BA","rpc2DEtaPanelHits_HighPt1_BA", 13, 0, 13,  16*2, 0, 16 ) ); 
@@ -2501,7 +2707,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Eta Panel Side A");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"A01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"A02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"A03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"A04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"A05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"A06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"A07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"A08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"A09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"A10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"A11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"A12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"A13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"A14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"A15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"A16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"A01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"A02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"A03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"A04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"A05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"A06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"A07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"A08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"A09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"A10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"A11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"A12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"A13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"A14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"A15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"A16 HVside") ;
+
 
 	  // 2D panels Phi  hits LowPt0_BC 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelHits_LowPt0_BC","rpc2DPhiPanelHits_LowPt0_BC", 12, 0, 12,  16*2, 0, 16 ) ); 
@@ -2509,7 +2724,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel Side C");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
 		
 	  // 2D panels Phi  hits LowPt1_BC 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelHits_LowPt1_BC","rpc2DPhiPanelHits_LowPt1_BC", 12, 0, 12,  16*2, 0, 16 ) ); 
@@ -2517,7 +2741,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel Side C");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
 	
 	  // 2D panels Eta  hits LowPt0_BC 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelHits_LowPt0_BC","rpc2DEtaPanelHits_LowPt0_BC", 12, 0, 12,  16*2, 0, 16 ) ); 
@@ -2525,7 +2758,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Eta Panel Side C");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
 		
 	  // 2D panels Eta  hits LowPt1_BC 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelHits_LowPt1_BC","rpc2DEtaPanelHits_LowPt1_BC", 12, 0, 12,  16*2, 0, 16 ) ); 
@@ -2533,7 +2775,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Eta Panel Side C");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
 
 	  // 2D panels Phi  hits Pivot0_BC 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelHits_Pivot0_BC","rpc2DPhiPanelHits_Pivot0_BC", 13, 0, 13,  16*2, 0, 16 ) ); 
@@ -2541,7 +2792,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel Side C");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
 		
 	  // 2D panels Phi  hits Pivot1_BC 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelHits_Pivot1_BC","rpc2DPhiPanelHits_Pivot1_BC", 13, 0, 13,  16*2, 0, 16 ) ); 
@@ -2549,7 +2809,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel Side C");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
 
 	  // 2D panels Eta  hits Pivot0_BC 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelHits_Pivot0_BC","rpc2DEtaPanelHits_Pivot0_BC", 13, 0, 13,  16*2, 0, 16 ) ); 
@@ -2557,7 +2826,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Eta Panel Side C");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
 		
 	  // 2D panels Eta  hits Pivot1_BC 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelHits_Pivot1_BC","rpc2DEtaPanelHits_Pivot1_BC", 13, 0, 13,  16*2, 0, 16 ) ); 
@@ -2565,7 +2843,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Eta Panel Side C");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
 			
 	  // 2D panels Phi  hits HighPt0_BC 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelHits_HighPt0_BC","rpc2DPhiPanelHits_HighPt0_BC", 13, 0, 13,  16*2, 0, 16 ) ); 
@@ -2573,7 +2860,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel Side C");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
 		
 	  // 2D panels Phi  hits HighPt1_BC 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DPhiPanelHits_HighPt1_BC","rpc2DPhiPanelHits_HighPt1_BC", 13, 0, 13,  16*2, 0, 16 ) ); 
@@ -2581,7 +2877,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Phi Panel Side C");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;	
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+	
 			
 	  // 2D panels Eta  hits HighPt0_BC 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelHits_HighPt0_BC","rpc2DEtaPanelHits_HighPt0_BC", 13, 0, 13,  16*2, 0, 16 ) ); 
@@ -2589,7 +2894,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Eta Panel Side C");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
 		
 	  // 2D panels Eta  hits HighPt1_BC 
 	  rpc2DPanelHits.push_back( new TH2I("rpc2DEtaPanelHits_HighPt1_BC","rpc2DEtaPanelHits_HighPt1_BC", 13, 0, 13,  16*2, 0, 16 ) ); 
@@ -2597,7 +2911,16 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
 	  rpc2DPanelHits.back()->SetOption("COLZ") ;    
 	  rpc2DPanelHits.back()->SetMarkerSize(0.2);
 	  rpc2DPanelHits.back()->GetXaxis()->SetTitle("Rpc Eta Panel Side C");
-	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("RPC ATLAS Sector") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetTitle("") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1-1,"C01 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2-1,"C02 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3-1,"C03 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4-1,"C04 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5-1,"C05 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6-1,"C06 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7-1,"C07 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8-1,"C08 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9-1,"C09 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10-1,"C10 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11-1,"C11 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12-1,"C12 ROside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13-1,"C13 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14-1,"C14 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15-1,"C15 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16-1,"C16 ROside") ;
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 1  ,"C01 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 2  ,"C02 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 3  ,"C03 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 4  ,"C04 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 5  ,"C05 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 6  ,"C06 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 7  ,"C07 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 8  ,"C08 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2* 9  ,"C09 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*10  ,"C10 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*11  ,"C11 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*12  ,"C12 HVside") ; 
+	  rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*13  ,"C13 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*14  ,"C14 HVside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*15  ,"C15 ROside") ; rpc2DPanelHits.back()->GetYaxis()->SetBinLabel(2*16  ,"C16 HVside") ;
+
           
 	  //DQ vs LB from Mauro
 	 
@@ -4240,13 +4563,16 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
   int NTotStripsSideA = 1;
   int NTotStripsSideC = 1;     
  
-  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields( iName, 2 , istatPhi+1, ir, 1, m_idblPhi+1 );    
+  const MuonGM::RpcReadoutElement* rpc   = m_muonMgr->getRpcRElement_fromIdFields( iName,  2 , istatPhi+1, ir, 1, m_idblPhi+1 );   
+  const MuonGM::RpcReadoutElement* rpc_c = m_muonMgr->getRpcRElement_fromIdFields( iName, -2 , istatPhi+1, ir, 1, m_idblPhi+1 );  
   
   if(rpc != NULL ){  
     Identifier idr = rpc->identify();
     std::vector<int>   rpcstripshift = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, idr, 0)  ;
     NTotStripsSideA = rpcstripshift[6]+rpcstripshift[17];
-    NTotStripsSideC = rpcstripshift[7]+rpcstripshift[18]; 
+    Identifier idr_c = rpc_c->identify();
+    std::vector<int>   rpcstripshift_c = RpcGM::RpcStripShift(m_muonMgr,m_rpcIdHelper, idr_c, 0)  ;
+    NTotStripsSideC = rpcstripshift_c[7]+rpcstripshift_c[18]; 
   }
   TH1 *rpcCoolHisto = new TH1F(histName.c_str(), histName.c_str(), NTotStripsSideC+NTotStripsSideA, -NTotStripsSideC, NTotStripsSideA );
 
