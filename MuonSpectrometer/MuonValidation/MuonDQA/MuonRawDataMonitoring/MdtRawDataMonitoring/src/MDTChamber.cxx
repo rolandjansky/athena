@@ -17,6 +17,8 @@ MDTChamber::MDTChamber(std::string name) :
   mdttdc(0),
   mdttdccut_ML1(0),
   mdttdccut_ML2(0),
+  mdtadc_onSegm_ML1(0),
+  mdtadc_onSegm_ML2(0),
   mdttdccut_RPCtrig_ML1(0),
   mdttdccut_TGCtrig_ML1(0),
   mdttdccut_RPCtrig_ML2(0),

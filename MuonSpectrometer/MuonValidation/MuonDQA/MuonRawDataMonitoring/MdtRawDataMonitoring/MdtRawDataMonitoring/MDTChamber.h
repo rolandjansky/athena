@@ -25,6 +25,8 @@ class MDTChamber {
   TH1F_LW* mdttdc;
   TH1F_LW* mdttdccut_ML1;
   TH1F_LW* mdttdccut_ML2;
+  TH1F_LW* mdtadc_onSegm_ML1;
+  TH1F_LW* mdtadc_onSegm_ML2;
   TH1F_LW* mdttdccut_RPCtrig_ML1;
   TH1F_LW* mdttdccut_TGCtrig_ML1;
   TH1F_LW* mdttdccut_RPCtrig_ML2;

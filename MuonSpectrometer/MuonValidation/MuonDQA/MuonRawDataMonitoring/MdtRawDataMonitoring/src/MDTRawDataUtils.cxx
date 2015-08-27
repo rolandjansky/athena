@@ -667,6 +667,7 @@ void MdtRawDataValAlg::CorrectLayerMax(const std::string & hardware_name, int & 
 StatusCode MdtRawDataValAlg::bookMDTHisto_overview( TH1*& h, TString h_title, TString xtit, TString ytit, int nbin, float xi, float xf, MonGroup& mgrp) {
   h = new TH1F(h_title, h_title, nbin, xi, xf);  
   h->SetFillColor(42);
+  h->SetTitleSize(0.3, "y");
   h->GetXaxis()->SetTitle(xtit);
   h->GetYaxis()->SetTitle(ytit);
   ATH_MSG_DEBUG("INSIDE bookMDTHisto: " << h << " " << h_title );
@@ -923,7 +924,21 @@ int MdtRawDataValAlg::GetTubeMax( const Identifier & digcoll_id, const std::stri
     tubeMax = 48*3 + 48*3;
   if( hardware_name.substr(0,3) == "BME")
 	  tubeMax = 546;
+  
+  
+  map<string,float>::iterator iter_tubesperchamber = m_tubesperchamber_map.find(hardware_name);
+  if ( iter_tubesperchamber == m_tubesperchamber_map.end() ) { 
+      m_tubesperchamber_map.insert( make_pair( hardware_name, tubeMax ) );
+      ATH_MSG_DEBUG("Chamber " << hardware_name << " has " << tubeMax << " tubes.");
+  } 
+  else {
+      ATH_MSG_WARNING("GetTubeMax: computing tubes per chamber twice for this chamber!");
+  }     
+  
   return tubeMax;
+  
+  
+  
 } 
 
 bool MdtRawDataValAlg::AinB( int A, std::vector<int> & B ) {
@@ -934,13 +949,16 @@ bool MdtRawDataValAlg::AinB( int A, std::vector<int> & B ) {
   return false;
 }
 
-StatusCode MdtRawDataValAlg::StoreTriggerType() {
-  const xAOD::EventInfo* eventInfo;
+StatusCode MdtRawDataValAlg::GetTimingInfo() {
+  m_time = -1;
+  const xAOD::EventInfo* evt(0);
 
   StatusCode sc = StatusCode::SUCCESS;
-  sc = evtStore()->retrieve(eventInfo);
+  sc = (*m_activeStore)->retrieve(evt);
   if ( sc.isSuccess() ) {
     ATH_MSG_DEBUG("MdtRawDataValAlg::retrieved eventInfo");
+  	//m_time = (uint32_t) evt->timeStamp();
+  	m_time = (1000000000L*(uint64_t)evt->timeStamp()+evt->timeStampNSOffset()) * 0.000000001;
   }
   else {
     ATH_MSG_ERROR("Could not find eventInfo");
@@ -948,7 +966,7 @@ StatusCode MdtRawDataValAlg::StoreTriggerType() {
   }
    
   // protection against simulated cosmics when the trigger_info() of the event_info is not filled and returns a null pointer. 
-  trigtype = eventInfo->level1TriggerType();
+  //trigtype = eventInfo->level1TriggerType();
 
   return sc;
 } 
@@ -987,6 +1005,24 @@ StatusCode MdtRawDataValAlg::fillLumiBlock(){
   }
 
   m_lumiblock = evt->lumiBlock();
+
+  return sc;
+
+}
+StatusCode MdtRawDataValAlg::GetEventNum(){
+
+  m_eventNum = -1;
+
+  const xAOD::EventInfo* evt(0);
+
+  StatusCode sc = StatusCode::SUCCESS;
+  sc = (*m_activeStore)->retrieve(evt);
+  if (sc.isFailure() || evt==0){
+    ATH_MSG_ERROR("Could not find Event Info");
+    return sc;
+  }
+
+  m_eventNum = evt->eventNumber();
 
   return sc;
 
@@ -1372,31 +1408,27 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
   if(region == 0 || region == 1){//Barrel
     if(crate == 0){ //Crate BA01 or BC01
       //Add Labels
-      h->SetBins(500,1,1501,76,0,76);
+      h->SetBins(500,1,1501,73,0,73);
       h->GetYaxis()->SetBinLabel(1,"BIL");
       h->GetYaxis()->SetBinLabel(13,"BIS");
       h->GetYaxis()->SetBinLabel(25,"BME");
-      h->GetYaxis()->SetBinLabel(27,"BML");
-      h->GetYaxis()->SetBinLabel(39,"BMR    ");
-      h->GetYaxis()->SetBinLabel(40,"BMS");
-      h->GetYaxis()->SetBinLabel(52,"BOL");
-      h->GetYaxis()->SetBinLabel(64,"BOR    ");
-      h->GetYaxis()->SetBinLabel(65,"BOS");
+      h->GetYaxis()->SetBinLabel(26,"BML");
+      h->GetYaxis()->SetBinLabel(38,"BMS");
+      h->GetYaxis()->SetBinLabel(50,"BOL");
+      h->GetYaxis()->SetBinLabel(62,"BOS");
       //Add lines
       h->GetYaxis()->SetTickLength(0);
-      for(int i = 0; i < 76; i++){
+      for(int i = 0; i < 73; i++){
 	TLine* l = new TLine(1,i,20,i);
 	h->GetListOfFunctions()->Add(l);
       }
       TLine* l2 = new TLine(1,0,50,0); h->GetListOfFunctions()->Add(l2);
       TLine* l3 = new TLine(1,12,50,12);  h->GetListOfFunctions()->Add(l3);
       TLine* l4 = new TLine(1,24,50,24);  h->GetListOfFunctions()->Add(l4);
-      TLine* l5 = new TLine(1,26,50,26);  h->GetListOfFunctions()->Add(l5);
+      TLine* l5 = new TLine(1,25,50,25);  h->GetListOfFunctions()->Add(l5);
       TLine* l6 = new TLine(1,38,50,38);  h->GetListOfFunctions()->Add(l6);
-      TLine* l7 = new TLine(1,39,50,39);  h->GetListOfFunctions()->Add(l7);
-      TLine* l8 = new TLine(1,51,50,51);  h->GetListOfFunctions()->Add(l8);
-      TLine* l9 = new TLine(1,63,50,63);  h->GetListOfFunctions()->Add(l9);
-      TLine* l10 = new TLine(1,64,50,64);  h->GetListOfFunctions()->Add(l10);
+      TLine* l8 = new TLine(1,49,50,49);  h->GetListOfFunctions()->Add(l8);
+      TLine* l9 = new TLine(1,61,50,61);  h->GetListOfFunctions()->Add(l9);
     }
 
     else if(crate == 1){ //BA02, BC02
@@ -1406,9 +1438,8 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
       h->GetYaxis()->SetBinLabel(13,"BIS");
       h->GetYaxis()->SetBinLabel(25,"BME");
       h->GetYaxis()->SetBinLabel(37,"BMS");
-      h->GetYaxis()->SetBinLabel(49,"BOE    ");
-      h->GetYaxis()->SetBinLabel(50,"BOL");
-      h->GetYaxis()->SetBinLabel(62,"BOS");
+      h->GetYaxis()->SetBinLabel(49,"BOL");
+      h->GetYaxis()->SetBinLabel(61,"BOS");
       //Add lines
       h->GetYaxis()->SetTickLength(0);
       for(int i = 1; i < 73; i++){
@@ -1419,8 +1450,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
       TLine* l2 = new TLine(1,24,50,24); h->GetListOfFunctions()->Add(l2);
       TLine* l3 = new TLine(1,36,50,36); h->GetListOfFunctions()->Add(l3);
       TLine* l4 = new TLine(1,48,50,48); h->GetListOfFunctions()->Add(l4);
-      TLine* l5 = new TLine(1,49,50,49); h->GetListOfFunctions()->Add(l5);
-      TLine* l6 = new TLine(1,61,50,61); h->GetListOfFunctions()->Add(l6);
+      TLine* l6 = new TLine(1,60,50,60); h->GetListOfFunctions()->Add(l6);
 
     }
     else if(crate == 2){ //BA03, BC03
@@ -1516,7 +1546,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
       TLine* l7 = new TLine(1,29,50,29);  h->GetListOfFunctions()->Add(l7);
       TLine* l8 = new TLine(1,39,50,39);  h->GetListOfFunctions()->Add(l8);
       TLine* l9 = new TLine(1,49,50,49);  h->GetListOfFunctions()->Add(l9);
-      TLine* l10 = new TLine(1,60,50,60);  h->GetListOfFunctions()->Add(l10);
+      TLine* l10 = new TLine(1,61,50,61);  h->GetListOfFunctions()->Add(l10);
     }
     else if(crate == 1){ //EA02, EC02
       h->SetBins(500,1,1501,71,0,71);
@@ -1585,33 +1615,28 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
 
 int MdtRawDataValAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, int eta, std::string chamber){
   int binNum = 999;
-  bool isBEE = false;
-  if(chamber.substr(0,3)=="BEE") isBEE=true;
-  
-  if((region == 0 || region == 1) && !isBEE){ //Barrel
+
+  if(region == 0 || region == 1){ //Barrel
     if(crate == 1){ //BA01, BC01
 	if(chamber.substr(0,3)=="BIL") binNum = 2*eta + (phi-1)/2 - 1; 
 	else if(chamber.substr(0,3)=="BIS") binNum = 12 + 2*eta + (phi-2)/2 - 1;
-	else if(chamber.substr(0,3)=="BME") binNum = 24 + (eta-3);	
-	else if(chamber.substr(0,3)=="BML") binNum = 26 + 2*eta + (phi-1)/2 - 1;
-	else if(chamber.substr(0,3)=="BMR") binNum = 39;
-	else if(chamber.substr(0,3)=="BMS") binNum = 39 + 2*eta + (phi-2)/2 - 1;
-	else if(chamber.substr(0,3)=="BOL") binNum = 52 + 2*eta + (phi-1)/2 - 1;
-	else if(chamber.substr(0,3)=="BOR") binNum = 64;
-	else if(chamber.substr(0,3)=="BOS") binNum = 64 + 2*eta + (phi-2)/2 - 1;
+	else if(chamber.substr(0,3)=="BME") binNum = 25;	
+	else if(chamber.substr(0,3)=="BML") binNum = 25 + 2*eta + (phi-1)/2 - 1;
+	else if(chamber.substr(0,3)=="BMS") binNum = 37 + 2*eta + (phi-2)/2 - 1;
+	else if(chamber.substr(0,3)=="BOL") binNum = 49 + 2*eta + (phi-1)/2 - 1;
+	else if(chamber.substr(0,3)=="BOS") binNum = 61 + 2*eta + (phi-2)/2 - 1;
 	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Bx01");
-	return binNum;
+  	return binNum - 1;
     } else if(crate == 2){//BA02, BC02
 
 	if(chamber.substr(0,3)=="BIL") binNum = 2*eta + (phi-5)/2 - 1; 
 	else if(chamber.substr(0,3)=="BIS") binNum = 12 + 2*eta + (phi-6)/2 - 1;
 	else if(chamber.substr(0,3)=="BML") binNum = 24 + 2*eta + (phi-5)/2 - 1;
 	else if(chamber.substr(0,3)=="BMS") binNum = 36 + 2*eta + (phi-6)/2 - 1;
-	else if(chamber.substr(0,3)=="BOE") binNum = 49;
-	else if(chamber.substr(0,3)=="BOL") binNum = 49+ 2*eta + (phi-5)/2 - 1;
-	else if(chamber.substr(0,3)=="BOS") binNum = 61 + 2*eta + (phi-6)/2 - 1;
+	else if(chamber.substr(0,3)=="BOL") binNum = 48+ 2*eta + (phi-5)/2 - 1;
+	else if(chamber.substr(0,3)=="BOS") binNum = 60 + 2*eta + (phi-6)/2 - 1;
 	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Bx02");
-	return binNum;
+	return binNum - 1;
     } else if(crate == 3){//BA03,BC03
 	if(chamber.substr(0,3)=="BIL") binNum = eta;
 	else if(chamber.substr(0,3)=="BIM") binNum = 6 + eta;
@@ -1620,13 +1645,13 @@ int MdtRawDataValAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, 
 	else if(chamber.substr(0,3)=="BMF") binNum = 29 + eta;
 	else if(chamber.substr(0,3)=="BML") binNum = 32 + 2*eta + (phi-9)/2-1;
 	else if(chamber.substr(0,3)=="BMS") binNum = 44 + eta;
-	else if(chamber.substr(0,3)=="BOF") binNum = 50 + 	eta;
+	else if(chamber.substr(0,3)=="BOF") binNum = 50 + (eta+1)/2;
 	else if(chamber.substr(0,4)=="BOG0") binNum = 55;
-	else if(chamber.substr(0,3)=="BOG") binNum = 56 + eta/2;
+	else if(chamber.substr(0,3)=="BOG") binNum = 55 + eta/2;
 	else if(chamber.substr(0,3)=="BOL") binNum = 59 + 2*eta + (phi-9)/2-1;
 	else if(chamber.substr(0,3)=="BOS") binNum = 71 + eta;
 	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Bx03");
-	return binNum;
+	return binNum - 1;
     } else if(crate == 4){//BA04, BC04
 
 	if(chamber.substr(0,3)=="BIL") binNum = eta;
@@ -1637,16 +1662,16 @@ int MdtRawDataValAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, 
 	else if(chamber.substr(0,3)=="BML" && eta < 6) binNum = 32 + 2*eta + (phi-13)/2-1;
 	else if(chamber.substr(0,7)=="BML6A15" || chamber.substr(0,7)=="BML6C15" ) binNum = 43;
 	else if(chamber.substr(0,3)=="BMS") binNum = 43 + eta;
-	else if(chamber.substr(0,3)=="BOF") binNum = 49 + eta;
+	else if(chamber.substr(0,3)=="BOF") binNum = 49 + (eta+1)/2;
 	else if(chamber.substr(0,4)=="BOG0") binNum = 54;
-	else if(chamber.substr(0,3)=="BOG") binNum = 55 + eta/2;
+	else if(chamber.substr(0,3)=="BOG") binNum = 54 + eta/2;
 	else if(chamber.substr(0,3)=="BOL") binNum = 58 + 2*eta + (phi-13)/2-1;
 	else if(chamber.substr(0,3)=="BOS") binNum = 70 + eta;
 	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Bx04");
-	return binNum;
+	return binNum - 1;
     }
-  } else if(region == 2 || region == 3 || isBEE){
-      if(crate == 1){ //EA01, EC01
+  } else if(region == 2 || region == 3){
+	if(crate == 1){ //EA01, EC01
 	if(chamber.substr(0,3)=="BEE") binNum = 2*eta + (phi-2)/2-1;
 	else if(chamber.substr(0,3)=="BIS") binNum = 4 + 2*(eta-6) + (phi-2)/2-1;
 	else if(chamber.substr(0,3)=="EEL") binNum = 8 + 2*eta + (phi-1)/2-1;	
@@ -1659,12 +1684,12 @@ int MdtRawDataValAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, 
 	else if(chamber.substr(0,3)=="EOL") binNum = 49 + 2*eta + (phi-1)/2-1;
 	else if(chamber.substr(0,3)=="EOS") binNum = 61 + 2*eta + (phi-2)/2-1;
 	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Ex01");	
-	return binNum;
+	return binNum - 1;
     } else if(crate == 2){//EA02, EC02
 	if(chamber.substr(0,3)=="BEE") binNum = 2*eta + (phi-6)/2-1;
-	else if(chamber.substr(0,3)=="BIS") binNum = 2*(eta-6) + (phi-6)/2-1;
-	else if(chamber.substr(0,4)=="EEL1") binNum = 9;
-	else if(chamber.substr(0,4)=="EEL2") binNum = 9 + (phi-3)/2;
+	else if(chamber.substr(0,3)=="BIS") binNum = 4 + 2*(eta-6) + (phi-6)/2-1;
+	else if(chamber.substr(0,4)=="EEL1") binNum = 9 + (phi-3)/2 - 1;
+	else if(chamber.substr(0,4)=="EEL2") binNum = 11;
 	else if(chamber.substr(0,3)=="EES") binNum = 11 + 2*eta + (phi-6)/2-1;
 	else if(chamber.substr(0,3)=="EIL") binNum = 15 + 2*eta + (phi-5)/2-1;
 	else if(chamber.substr(0,3)=="EIS") binNum = 23 + 2*eta + (phi-6)/2-1;
@@ -1673,11 +1698,11 @@ int MdtRawDataValAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, 
 	else if(chamber.substr(0,3)=="EOL") binNum = 47 + 2*eta + (phi-5)/2-1;
 	else if(chamber.substr(0,3)=="EOS") binNum = 59 + 2*eta + (phi-6)/2-1;
 	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Ex02");
-	return binNum;
+	return binNum - 1;
     } else if(crate == 3){//EA03, EC03
 
 	if(chamber.substr(0,3)=="BEE") binNum = 2*eta + (phi-10)/2-1;
-	else if(chamber.substr(0,3)=="BIS") binNum = 2*(eta-6) + (phi-10)/2-1;
+	else if(chamber.substr(0,3)=="BIS") binNum = 4 + 2*(eta-6) + (phi-10)/2-1;
 	else if(chamber.substr(0,3)=="EEL") binNum = 8 + 2*eta + (phi-9)/2-1;
 	else if(chamber.substr(0,3)=="EES") binNum = 12 + 2*eta + (phi-10)/2-1;
 	else if(chamber.substr(0,3)=="EIL" && eta < 5) binNum = 16 + 2*eta + (phi-9)/2-1;
@@ -1688,7 +1713,7 @@ int MdtRawDataValAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, 
 	else if(chamber.substr(0,3)=="EOL") binNum = 49 + 2*eta + (phi-9)/2-1;
 	else if(chamber.substr(0,3)=="EOS") binNum = 61 + 2*eta + (phi-10)/2-1;
 	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Ex03");	
-	return binNum;
+	return binNum - 1;
     } else if(crate == 4){//EA04, EC04
 	if(chamber.substr(0,3)=="BEE") binNum = 2*eta + (phi-14)/2-1;
 	else if(chamber.substr(0,3)=="BIS") binNum = 4 + 2*(eta-6) + (phi-14)/2-1;
@@ -1701,7 +1726,7 @@ int MdtRawDataValAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, 
 	else if(chamber.substr(0,3)=="EOL") binNum = 48 + 2*eta + (phi-13)/2-1;
 	else if(chamber.substr(0,3)=="EOS") binNum = 60 + 2*eta + (phi-14)/2-1;
 	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Ex04");	
-	return binNum;
+	return binNum - 1;
     }
   }  return -1;
   

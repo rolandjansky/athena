@@ -16,6 +16,8 @@ use     MuonDQAUtils      	MuonDQAUtils-*  		MuonSpectrometer/MuonValidation/Muo
 use 	TrkSegment 		TrkSegment-* 			Tracking/TrkEvent
 use     MuonIdHelpers           MuonIdHelpers-*         	MuonSpectrometer
 use     MuonPrepRawData		MuonPrepRawData-* 	        MuonSpectrometer/MuonReconstruction/MuonRecEvent 
+use 	EventInfo             	EventInfo-*             	Event
+use     MuonIdHelpers           MuonIdHelpers-*                 MuonSpectrometer
 
 private
 use     GaudiInterface          GaudiInterface-*                External

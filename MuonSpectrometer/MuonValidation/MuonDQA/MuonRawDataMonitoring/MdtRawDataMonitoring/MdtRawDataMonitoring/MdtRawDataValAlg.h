@@ -25,6 +25,8 @@
 #include "MuonDQAUtils/MuonDQAHistMap.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "AthenaMonitoring/DQAtlasReadyFilterTool.h"
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
 //standard library includes
 #include <fstream> 
 #include <cstdlib>
@@ -104,6 +106,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
 
   std::string m_title;
 
+  EventInfo* eventInfo; 
   MDTMonGroupStruct* mg;
   MDTNoisyTubes* m_masked_tubes;
   ActiveStoreSvc* m_activeStore;
@@ -114,9 +117,9 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   virtual StatusCode  bookMDTHistograms( MDTChamber* chamber, Identifier digcoll_id );//book chamber by chamber histos
   virtual StatusCode  fillMDTHistograms( const Muon::MdtPrepData* );//fill chamber by chamber histos
   virtual StatusCode  bookMDTSummaryHistograms( bool newLumiBlock, bool newRun);//Those over barrel/encap layer etc.
-  virtual StatusCode  fillMDTSummaryHistograms( const Muon::MdtPrepData*);
+  virtual StatusCode  fillMDTSummaryHistograms( const Muon::MdtPrepData*, bool &isNoiseBurstCandidate);
   virtual StatusCode  bookMDTOverviewHistograms( bool newLumiBlock, bool newRun);
-  virtual StatusCode  fillMDTOverviewHistograms(const Muon::MdtPrepData*);
+  virtual StatusCode  fillMDTOverviewHistograms(const Muon::MdtPrepData*, bool &isNoiseBurstCandidate);
   StatusCode handleEvent_effCalc(const Trk::SegmentCollection* segms);//, const Muon::MdtPrepDataContainer* mdt_container );
 
   //MDTRawDataUtils_cxx
@@ -153,10 +156,18 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   bool isATLASReady() { return m_atlas_ready; }
   void setIsATLASReady();
   StatusCode fillLumiBlock();
+  StatusCode GetTimingInfo();
+  StatusCode GetEventNum();
 
   ToolHandleArray<IDQFilterTool> m_DQFilterTools;
   bool m_atlas_ready;
   int m_lumiblock;
+  int m_eventNum; 
+  int m_firstEvent;
+  uint32_t m_time;
+  uint32_t m_firstTime;
+  int numberOfEvents;
+  //int m_time;
   //
 
 
@@ -184,7 +195,9 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   std::set<std::string> m_hardware_name_list;
   std::set<int> m_hashId_list;
   std::map<std::string,float> hitsperchamber_map;
-  
+
+  std::map<std::string,float> m_tubesperchamber_map;
+
   bool m_doMdtESD ; 
 
   //bool m_booked;
@@ -197,6 +210,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   std::string m_chamberName;
   std::string m_StationSize;
   std::string m_key_mdt;
+  std::string m_key_rpc;
   int m_StationEta;
   int m_StationPhi;
 
@@ -207,6 +221,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   float m_ADCCut;
   float m_ADCCut_Bkgrd;
   float m_TDCCut_Bkgrd;
+  float m_curTime;
   int m_TGCKey;
   int m_RPCKey;
 
@@ -220,24 +235,45 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   TH1* overalladc_Lumi; // all chambers adc
   TH1* overalltdccut_segm_PR_Lumi[4]; // all chambers tdc superimposed with adc cut per region
   TH1* overalltdccutPRLumi[4]; // all chambers tdc superimposed with adc cut per region
+  TH1* overalladc_segm_PR_Lumi[4]; // all chambers adc superimposed per region
+  TH1* overalladcPRLumi[4]; // all chambers adc superimposed per region
+  TH1* overalladccutPRLumi[4]; // all chambers adc superimposed per region with adc noise cut
   TH1* overalltdccutPRLumi_RPCtrig[4]; // all chambers tdc superimposed with adc cut per region
   TH1* overalltdccutPRLumi_TGCtrig[4]; // all chambers tdc superimposed with adc cut per region
   TH1* overalltdccut_RPCtrig; // all chambers tdc superimposed with adc cut
   TH1* overalltdccut_TGCtrig; // all chambers tdc superimposed with adc cut
+  
+  TH2* overalltdcadcHighOcc; // all chambers tdc vs adc superimposed, events with > m_HighOccThreshold hits
+  TH1* overalltdcHighOcc; // all chambers tdc superimposed, events with > m_HighOccThreshold hits
+  TH1* overalltdcHighOcc_ADCCut; // all chambers tdc (with ADC>80) superimposed, events with > m_HighOccThreshold hits
+  TH1* overalladc_HighOcc; // all chambers adc superimposed, events with > m_HighOccThreshold hits
+  TH2* overalltdcadcPR_HighOcc[4]; // all chambers tdc vs adc superimposed
+  TH1* overalltdcPR_HighOcc[4]; // all chambers tdc superimposed per region
+  TH1* overalltdcPR_HighOcc_ADCCut[4]; // all chambers tdc superimposed with adc cut per region
+  TH1* overalladcPR_HighOcc[4]; // all chambers tdc superimposed with adc cut per region
+
   TH2* overall_mdt_DRvsDT;
   //  TH2* overall_mdt_DRvsDRerr;
   TH2* overall_mdt_DRvsSegD;
   TH2* overallPR_mdt_DRvsDT[4];
   //  TH2* overallPR_mdt_DRvsDRerr[4];
   TH2* overallPR_mdt_DRvsSegD[4];
+  TH2* MdtNHitsvsRpcNHits;  
   TH1* mdtevents_RPCtrig; // Total number of MDT digits RPCtrig
   TH1* mdtevents_TGCtrig; // Total number of MDT digits TGCtrig
   TH1* mdteventscutLumi; // Total number of MDT digits with a cut on ADC
   TH1* mdteventscutLumi_big; // Total number of MDT digits with a cut on ADC (for high mult. evt)
   TH1* mdteventsLumi; // Total number of MDT digits without a cut on ADC
   TH1* mdteventsLumi_big; // Total number of MDT digits without a cut on ADC (for high mult. evt)
+  TH1* mdthitsvseventnum;
+  TH1* mdthitsvseventnumcut;
+  TH1* mdtglobalhitstime;
+  TH1* mdtglobalhitstruetime;
+  
   TH1* nummdtchamberswithhits; // Number of MDT chambers with hits
   TH1* nummdtchamberswithhits_ADCCut; // Number of MDT chambers with hits
+  TH1* nummdtchamberswithHighOcc; // Number of MDT chambers with > 1% occupancy
+
   TH1* mdtchamberstat;
   TH1* mdtchamberstatphislice[16];
   TH1* mdtChamberHits[4][4][16];
@@ -246,13 +282,12 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   TH2* mdthitspermultilayerLumi[4][4];
   TH2* mdteffpermultilayer[4][4];
   TH2* mdthitsperchamber_InnerMiddleOuterLumi[2];
+  TH2* mdthitsperchamber_InnerMiddleOuter_HighOcc[2];
   TH2* mdthitsperchamber_onSegm_InnerMiddleOuterLumi[2];
   TH2* mdteffperchamber_InnerMiddleOuter[4];
   TH2* mdthitsperML_byLayer[3];//These are alternative Global hit coverage plots
   TH2* mdtoccvslb[4][3];
-
   TH2* mdtoccvslb_by_crate[4][4];
-
   /////End from old BS
 
   ///////////For t0 calculations//////////
@@ -279,6 +314,8 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   bool m_do_mdttdc;
   bool m_do_mdttdccut_ML1;
   bool m_do_mdttdccut_ML2;
+  bool m_do_mdtadc_onSegm_ML1;
+  bool m_do_mdtadc_onSegm_ML2;
   bool m_do_mdttdccut_RPCtrig_ML1;
   bool m_do_mdttdccut_TGCtrig_ML1;
   bool m_do_mdttdccut_RPCtrig_ML2;
@@ -299,13 +336,14 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   bool m_do_mdt_DRvsDRerr;
   bool m_do_mdt_DRvsSegD;
   bool m_do_mdttubenoise; 
-  bool m_do_mdttdctube;   
+  bool m_do_mdttdctube; 
   //
 
   // NEW
   float  m_nb_hits;        //minimum number of hits in segment
   float  m_road_width;     //road width for pattern recognition
   float  m_chi2_cut;       //track chi2 cut;
+  float  m_HighOccThreshold; //minimum number of hits to consider an event a possible noise burst
 
 };
     
