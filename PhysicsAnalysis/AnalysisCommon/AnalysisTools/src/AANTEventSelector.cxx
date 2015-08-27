@@ -58,20 +58,20 @@ StatusCode AANTEventSelector::initialize()
   StatusCode sc = Service::initialize();
   
   // Create a message stream.
-  MsgStream log(msgSvc(), name());
+  MsgStream log(messageService(), name());
 
-  log << MSG::DEBUG << "initialize()" << endmsg;
+  log << MSG::DEBUG << "initialize()" << endreq;
 
   if (sc.isFailure())
     {
-      log << MSG::ERROR << "Unable to initialize Service base class" << endmsg;
+      log << MSG::ERROR << "Unable to initialize Service base class" << endreq;
       return sc;
     }
 
   sc = service("StoreGateSvc", m_storeGate);
   if (sc.isFailure())
     {
-      log << MSG::ERROR << "Unable to retrieve pointer to StoreGateSvc" << endmsg;
+      log << MSG::ERROR << "Unable to retrieve pointer to StoreGateSvc" << endreq;
       return sc;
     }
   
@@ -81,7 +81,7 @@ StatusCode AANTEventSelector::initialize()
     {
       log << MSG::ERROR << "Use the property:"
 	  << " EventSelector.InputCollections = [ \"<collectionName>\" ] (list of collections)"
-	  << endmsg;
+	  << endreq;
       return StatusCode::FAILURE;
     }
   // create TChain
@@ -91,14 +91,14 @@ StatusCode AANTEventSelector::initialize()
   std::vector<std::string>::iterator itE = inputColl.end();
   for (; it!=itE; ++it)
     {
-      log << MSG::DEBUG << "Add : " << *it << endmsg;      
+      log << MSG::DEBUG << "Add : " << *it << endreq;      
       m_tree->Add(it->c_str());
     }
 
   // get total number of events
   m_totalNEvents = m_tree->GetEntries();
   
-  log << MSG::DEBUG << "Total Events : " << m_totalNEvents << endmsg;      
+  log << MSG::DEBUG << "Total Events : " << m_totalNEvents << endreq;      
   
   // RunNumber and EventNumber
   m_tree->SetBranchAddress("EventNumber",&m_eventNumber);
@@ -108,20 +108,20 @@ StatusCode AANTEventSelector::initialize()
   AANTTreeGate::setTree(m_tree);
 
   // selection criteria
-  log << MSG::DEBUG << "Load Sel: " << m_strSelection << " from __main__" << endmsg;      
+  log << MSG::DEBUG << "Load Sel: " << m_strSelection << " from __main__" << endreq;      
   char smain[] = "__main__";
   m_selectionFunc = PyObject_GetAttr(PyImport_AddModule(smain),PyString_FromString(m_strSelection.c_str()));
   if (m_selectionFunc == NULL)
     {
-      log << MSG::ERROR << "Could not load sel : " << m_strSelection << endmsg;
+      log << MSG::ERROR << "Could not load sel : " << m_strSelection << endreq;
       return StatusCode::FAILURE;
     }
 
-  log << MSG::DEBUG << "Load Cnv: " << m_strConverter << " from __main__" << endmsg;      
+  log << MSG::DEBUG << "Load Cnv: " << m_strConverter << " from __main__" << endreq;      
   m_convFunc = PyObject_GetAttr(PyImport_AddModule(smain),PyString_FromString(m_strConverter.c_str()));
   if (m_convFunc == NULL)
     {
-      log << MSG::ERROR << "Could not load conv : " << m_strConverter << endmsg;
+      log << MSG::ERROR << "Could not load conv : " << m_strConverter << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -147,14 +147,14 @@ StatusCode AANTEventSelector::next(IEvtSelector::Context& it)const
 // jump
 StatusCode AANTEventSelector::next(IEvtSelector::Context& it, int jump) const
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "next(" << jump << ") : iEvt " << m_numEvents << endmsg;
+  MsgStream log(messageService(), name());
+  log << MSG::DEBUG << "next(" << jump << ") : iEvt " << m_numEvents << endreq;
 
   // get EventContext
   AANTEventContext* ct = dynamic_cast<AANTEventContext*>(&it);
   if (ct == 0)
     {
-      log << MSG::ERROR << "Could not dcast to AANTEventContext" << endmsg;
+      log << MSG::ERROR << "Could not dcast to AANTEventContext" << endreq;
       return StatusCode::FAILURE;
     }
   // jump
@@ -184,7 +184,7 @@ StatusCode AANTEventSelector::next(IEvtSelector::Context& it, int jump) const
 	  StatusCode sc = m_storeGate->record(evtInfo, "AANTEventInfo");
 	  if (sc.isFailure())
 	    {
-	      log << MSG::ERROR << "Could not record AANTEventInfo" << endmsg;
+	      log << MSG::ERROR << "Could not record AANTEventInfo" << endreq;
 	      return sc;
 	    }
 	  // return
@@ -222,8 +222,8 @@ StatusCode AANTEventSelector::previous(IEvtSelector::Context& it, int jump) cons
 // last
 StatusCode AANTEventSelector::last(IEvtSelector::Context& /*it*/) const
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::ERROR << "AANTEventSelector::last() not implemented" << endmsg;
+  MsgStream log(messageService(), name());
+  log << MSG::ERROR << "AANTEventSelector::last() not implemented" << endreq;
   return StatusCode::FAILURE;
 }
 
@@ -231,8 +231,8 @@ StatusCode AANTEventSelector::last(IEvtSelector::Context& /*it*/) const
 // resetCriteria
 StatusCode AANTEventSelector::resetCriteria(const std::string& /*criteria*/, IEvtSelector::Context& /*ctxt*/) const
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::ERROR << "AANTEventSelector::resetCriteria() not implemented" << endmsg;
+  MsgStream log(messageService(), name());
+  log << MSG::ERROR << "AANTEventSelector::resetCriteria() not implemented" << endreq;
   return StatusCode::FAILURE;
 }
 
@@ -240,8 +240,8 @@ StatusCode AANTEventSelector::resetCriteria(const std::string& /*criteria*/, IEv
 // rewind
 StatusCode AANTEventSelector::rewind(IEvtSelector::Context& /*it*/) const
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::ERROR << "AANTEventSelector::rewind() not implemented" << endmsg;
+  MsgStream log(messageService(), name());
+  log << MSG::ERROR << "AANTEventSelector::rewind() not implemented" << endreq;
   return StatusCode::FAILURE;
 }
 
@@ -257,8 +257,8 @@ StatusCode AANTEventSelector::createAddress(const IEvtSelector::Context& /*it*/,
 // releaseContext
 StatusCode AANTEventSelector::releaseContext(IEvtSelector::Context*& /*it*/) const
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::ERROR << "AANTEventSelector::releaseContext() not implemented" << endmsg;
+  MsgStream log(messageService(), name());
+  log << MSG::ERROR << "AANTEventSelector::releaseContext() not implemented" << endreq;
   return StatusCode::FAILURE;
 }
 
