@@ -253,7 +253,7 @@ StatusCode BSignalFilter::filterEvent()
 		      bool havePassedCuts=true;
 		      TLorentzVector CandPart1, CandPart2;
 		      //
-		      FindAllChildren((*pitr),"",false,isSignal,havePassedCuts,CandPart1,CandPart2,false);
+		      FindAllChildren((*pitr),"",false,isSignal,havePassedCuts,CandPart1,CandPart2);
 		      //
 		      ATH_MSG_DEBUG("");
 		      ATH_MSG_DEBUG(" ------------------------------- ");
@@ -396,14 +396,26 @@ bool BSignalFilter::LVL2_eMu_Trigger(const HepMC::GenParticle* child) const
 
 void BSignalFilter::FindAllChildren(const HepMC::GenParticle* mother,std::string treeIDStr,
 				    bool fromFinalB, bool &foundSignal, bool &passedAllCuts,
-				    TLorentzVector &p1, TLorentzVector &p2, bool fromSelectedB) const
+				    TLorentzVector &p1, TLorentzVector &p2) const
 {
   int pID = mother->pdg_id();
   //
   if ( !(mother->end_vertex()) && (mother->status() != 2) )  // i.e. this is a final state
     {
-      bool hasChildGoodParent = fromFinalB && (fromSelectedB || m_B_pdgid==0);
+      bool hasChildGoodParent = false;
       //
+      HepMC::GenVertex::particle_iterator firstChildParent, lastChildParent, thisChildParent;
+      firstChildParent = mother->production_vertex()->particles_begin(HepMC::parents);
+      lastChildParent  = mother->production_vertex()->particles_end(HepMC::parents);
+      for( thisChildParent = firstChildParent; thisChildParent != lastChildParent++; ++thisChildParent )
+	{
+	  int SigChild_parentID = (*thisChildParent)->pdg_id();
+	  if( SigChild_parentID == m_B_pdgid ){
+	    hasChildGoodParent = true;
+	  }else if( MC::PID::isHadron(pID) && MC::PID::isCharged(pID) && SigChild_parentID == 333 ){ // If the parent is a phi(1020)
+	    hasChildGoodParent = true;
+	  }
+	}
       if( fromFinalB && hasChildGoodParent )
 	{
 	  foundSignal=true;
@@ -456,7 +468,7 @@ void BSignalFilter::FindAllChildren(const HepMC::GenParticle* mother,std::string
       stringstream childCntSS; childCntSS << childCnt;
       childIDStr = treeIDStr + childCntSS.str();
       PrintChild( (*thisChild), childIDStr, fromFinalB );
-      FindAllChildren( (*thisChild),childIDStr,fromFinalB,foundSignal,passedAllCuts,p1,p2,(pID==m_B_pdgid) || fromSelectedB);
+      FindAllChildren( (*thisChild),childIDStr,fromFinalB,foundSignal,passedAllCuts,p1,p2);
     }
 
   return;
