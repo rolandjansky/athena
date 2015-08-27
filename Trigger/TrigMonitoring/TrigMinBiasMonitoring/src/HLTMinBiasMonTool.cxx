@@ -77,6 +77,13 @@
 
 #include <bitset>
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
+#   define CAN_REBIN(hist)     hist->SetCanExtend(TH1::kAllAxes)
+#   define CANNOT_REBIN(hist)  hist->SetCanExtend(TH1::kNoAxis);  
+#else
+#   define CAN_REBIN(hist)     hist->SetBit(TH1::kCanRebin)
+#   define CANNOT_REBIN(hist)  hist->ResetBit(TH1::kCanRebin) 
+#endif
 
 using namespace std;
 
@@ -87,7 +94,15 @@ using namespace std;
  *  numbers to be used, and the timebin.
  */
 HLTMinBiasMonTool::HLTMinBiasMonTool(const std::string & type, const std::string & myname, const IInterface* parent) :
-	IHLTMonTool(type, myname, parent), m_log(0), m_tileTBID(0)
+	IHLTMonTool(type, myname, parent), m_log(0), m_tileTBID(0),
+	m_mbtsEffSelTool( "InDet::InDetTrackSelectionTool/TrackSelectionToolMBTS", this ),
+	m_sptrkEffSelTool( "InDet::InDetTrackSelectionTool/TrackSelectionToolSPTRK", this ),
+	m_noalgEffSelTool( "InDet::InDetTrackSelectionTool/TrackSelectionToolNOALG", this ),
+	m_hmtperfEffSelTool( "InDet::InDetTrackSelectionTool/TrackSelectionToolHMTPERF", this ),
+	m_idperfEffSelTool( "InDet::InDetTrackSelectionTool/TrackSelectionToolIDPERF", this ),
+	m_perfEffSelTool( "InDet::InDetTrackSelectionTool/TrackSelectionToolPERF", this ),
+	m_hmtEffSelTool( "InDet::InDetTrackSelectionTool/TrackSelectionToolHMT", this ),
+	m_purSelTool( "InDet::InDetTrackSelectionTool/TrackSelectionToolPurity", this )
 {
 	m_log = new MsgStream(msgSvc(), name());
 
@@ -171,13 +186,27 @@ HLTMinBiasMonTool::HLTMinBiasMonTool(const std::string & type, const std::string
 	// Cut made on time overthreshold before any multiplicities are calculated.
 	declareProperty("PixelCLToTCut", m_timeOverThreshold_cut = 20.);
 		
-	//purity & efficiency
 	declareProperty("InDetTrackParticleContainerName", m_inDetTrackParticleContainerName);
 	
 	declareProperty("MinBiasRefTrigItem", m_refTrigItem);
-	declareProperty("MinBiasEffCuts", m_effCuts);
-	declareProperty("MinBiasPurCuts", m_purCuts);
 	declareProperty("IsPassedCondtitions", m_isPassedCondtitions);
+	
+	//purity & efficiency	
+	declareProperty("mbtsEfficiencyTrackSelectionTool", m_mbtsEffSelTool);
+	declareProperty("sptrkEfficiencyTrackSelectionTool", m_sptrkEffSelTool);
+	declareProperty("noalgEfficiencyTrackSelectionTool", m_noalgEffSelTool);
+	declareProperty("hmtperfEfficiencyTrackSelectionTool", m_hmtperfEffSelTool);
+	declareProperty("idperfEfficiencyTrackSelectionTool", m_idperfEffSelTool);
+	declareProperty("perfEfficiencyTrackSelectionTool", m_perfEffSelTool);
+	declareProperty("hmtEfficiencyTrackSelectionTool", m_hmtEffSelTool);
+	
+	declareProperty("PurityTrackSelectionTool", m_purSelTool);
+	
+	//collective histograms
+	//declareProperty("CollectiveHistogramProperties", m_collectiveHistogramProperties);
+	
+	declareProperty("CollectiveHistogramsNames", m_collectiveHistogramsNames);
+	declareProperty("CollectiveHistogramForAlgorithm", m_collectiveHistogramForAlgorithm);
 }
 
 StatusCode HLTMinBiasMonTool::init()
@@ -229,6 +258,7 @@ StatusCode HLTMinBiasMonTool::init()
 		m_algorithmsForChainClass[m_availableAlgs[i]] 			= m_histoTargets[i]; 
 		m_effCutForChainClass[m_availableAlgs[i]] 				= i;
 		m_isPassedCondtitionForChainClass[m_availableAlgs[i]]	= m_isPassedCondtitions[i];
+		m_collectiveHistogramPostfixForAlgorithm[m_availableAlgs[i]] = m_collectiveHistogramForAlgorithm[i];
 	}
   
 	m_pathForGroup[MBTS]  =         "MBTS";
@@ -255,46 +285,17 @@ StatusCode HLTMinBiasMonTool::init()
 	}
 	
 	//purity & efficiency	
-	initSelTools(m_effSelTool, m_effCuts);
-	initSelTools(m_purSelTool, m_purCuts);
+	
+	m_effSelTool.resize(7); 
+	m_effSelTool[0] = &m_mbtsEffSelTool;
+	m_effSelTool[1] = &m_sptrkEffSelTool;
+	m_effSelTool[2] = &m_noalgEffSelTool;
+	m_effSelTool[3] = &m_hmtperfEffSelTool;
+	m_effSelTool[4] = &m_idperfEffSelTool;
+	m_effSelTool[5] = &m_perfEffSelTool;
+	m_effSelTool[6] = &m_hmtEffSelTool;
 	
 	return sc;
-}
-
-void HLTMinBiasMonTool::initSelTools(std::vector< ToolHandle< InDet::IInDetTrackSelectionTool > > &selTool, const std::vector<unsigned> &cuts)
-{
-	StatusCode sc;
-	
-	selTool.resize(cuts.size()); 
-	for (unsigned i = 0; i < cuts.size(); ++i )
-	{
-		selTool[i] = ToolHandle< InDet::IInDetTrackSelectionTool >( "InDet::InDetTrackSelectionTool/TrackSelection", this );
-		switch(cuts[i])
-		{
-			case 0:
-				selTool[i]->setCutLevel( InDet::CutLevel::NoCut );
-				break;
-			case 1:
-				selTool[i]->setCutLevel( InDet::CutLevel::Loose );
-				break;
-			case 2:
-				selTool[i]->setCutLevel( InDet::CutLevel::LoosePrimary );
-				break;
-			case 3:
-				selTool[i]->setCutLevel( InDet::CutLevel::TightPrimary );
-				break;
-			default:
-				*m_log << MSG::WARNING << "Inappropriate cut level for InDetTrackSelectionTool - setting to default..." << endreq;
-		}
-		
-		sc = selTool[i]->initialize();
-		if (sc.isFailure())
-		{
-			*m_log << MSG::ERROR << "Unable to initialize InDetTrackSelectionTool" << endreq;
-		}
-	}
-	
-	return;
 }
 
 unsigned HLTMinBiasMonTool::receiveIsPassedCondition(unsigned internalIsPassedCondition)
@@ -328,6 +329,31 @@ StatusCode HLTMinBiasMonTool::book(bool newEventsBlock, bool newLumiBlock, bool 
 	TH1F *tEffPassed = new TH1F("TriggerEfficienciesPassed", "Trigger Efficiencies Passed; ;Entry Rate", m_trigItems.size(), 0, m_trigItems.size());
 	TH1F *tEff = new TH1F("TriggerEfficiencies", "Trigger Efficiencies; ;Efficiency", m_trigItems.size(), 0, m_trigItems.size());
 	
+	//collective histograms
+	std::string name, collectiveHistogramPostfix;
+	for (auto &i: m_collectiveHistogramsNames)
+	{
+		name = std::string("TriggerEntries") + i;
+		addHistogram( new TH1I(name.c_str(), "Trigger Entries; ;Entry Rate", 1, 0, 1));
+		hist(name.c_str())->Sumw2();
+		name = std::string("TriggerPuritiesPassed") + i;
+		addHistogram( new TH1I(name.c_str(), "Trigger Purities Passed; ;Entry Rate", 1, 0, 1));	
+		hist(name.c_str())->Sumw2();
+		name = (std::string("TriggerPurities") + i);
+		addHistogram( new TH1F(name.c_str(), "Trigger Purities; ;Purity", 1, 0, 1));
+		hist(name.c_str())->Sumw2();
+		
+		name = std::string("TriggerEfficienciesAll") + i;
+		addHistogram( new TH1I(name.c_str(), "Trigger All Efficiencies; ;Entry Rate", 1, 0, 1));
+		hist(name.c_str())->Sumw2();
+		name = std::string("TriggerEfficienciesPassed") + i;
+		addHistogram( new TH1I(name.c_str(), "Trigger Efficiencies Passed; ;Entry Rate", 1, 0, 1));
+		hist(name.c_str())->Sumw2();
+		name = (std::string("TriggerEfficiencies") + i);
+		addHistogram( new TH1F(name.c_str(), "Trigger Efficiencies; ;Efficiency", 1, 0, 1));
+		hist(name.c_str())->Sumw2();
+	}
+	
 	//Error rates for IDMinBias
 	addMonGroup(new MonGroup(this,"HLT/MinBiasMon/IDMinbias", run, ATTRIB_UNMANAGED));
 	TProfile *tTrigErrors = new TProfile("IDMinBiasTriggerErrors", "Trigger Errors; ;Error Rate", m_trigItems.size(), 0, m_trigItems.size(), 0, 1);	
@@ -354,6 +380,23 @@ StatusCode HLTMinBiasMonTool::book(bool newEventsBlock, bool newLumiBlock, bool 
 				m_chainProperties[i].histoGroup 		= k;//assign histoGroup(s) for a given chain
 				m_chainProperties[i].effCutIdx 			= m_effCutForChainClass[j];
 				m_chainProperties[i].isPassedCondition 	= receiveIsPassedCondition(m_isPassedCondtitionForChainClass[j]);
+				m_chainProperties[i].algorithm			= j;
+				
+				collectiveHistogramPostfix = m_collectiveHistogramPostfixForAlgorithm[j];
+				
+				name = std::string("TriggerEntries") + collectiveHistogramPostfix;
+				hist(name.c_str(), "HLT/MinBiasMon")->GetXaxis()->FindBin(i.c_str());
+				name = std::string("TriggerPuritiesPassed") + collectiveHistogramPostfix;
+				hist(name.c_str(), "HLT/MinBiasMon")->GetXaxis()->FindBin(i.c_str());
+				name = std::string("TriggerPurities") + collectiveHistogramPostfix;
+				hist(name.c_str(), "HLT/MinBiasMon")->GetXaxis()->FindBin(i.c_str());
+				name = std::string("TriggerEfficienciesAll") + collectiveHistogramPostfix;
+				hist(name.c_str(), "HLT/MinBiasMon")->GetXaxis()->FindBin(i.c_str());
+				name = std::string("TriggerEfficienciesPassed") + collectiveHistogramPostfix;
+				hist(name.c_str(), "HLT/MinBiasMon")->GetXaxis()->FindBin(i.c_str());
+				name = std::string("TriggerEfficiencies") + collectiveHistogramPostfix;
+				hist(name.c_str(), "HLT/MinBiasMon")->GetXaxis()->FindBin(i.c_str());
+				
 				if (k)
 				{
 					for (const auto &l: m_pathForGroup)//book needed histograms
@@ -402,7 +445,7 @@ StatusCode HLTMinBiasMonTool::book(bool newEventsBlock, bool newLumiBlock, bool 
 	
 	if (newRun)
 	{
-		tProf->ResetBit(TH1::kCanRebin);
+                CANNOT_REBIN(tProf);
 		tProf->SetMinimum(0.0);
 		
 		//tAllTracks->SetMinimum(0.0);
@@ -415,7 +458,7 @@ StatusCode HLTMinBiasMonTool::book(bool newEventsBlock, bool newLumiBlock, bool 
 		
 		th1i->SetMinimum(0.0);
 		
-		tTrigErrors->ResetBit(TH1::kCanRebin);
+		CANNOT_REBIN(tTrigErrors);
 		tTrigErrors->SetMinimum(0.0);
 		
 		th1i->Sumw2();
@@ -580,7 +623,7 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 		tProf->GetXaxis()->FindBin("L1_LUCID_C");
 		tProf->GetXaxis()->FindBin("L1_LUCID_A_C");
 		tProf->GetXaxis()->FindBin("L1_LUCID_COMM");
-		tProf->ResetBit(TH1::kCanRebin);
+		CANNOT_REBIN(tProf);
 		tProf->SetMinimum(0.0);
 		addProfile(tProf);
  	}
@@ -612,7 +655,7 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 		th1f->GetXaxis()->FindBin("no LHCF and no ZDC_C");
 		th1f->GetXaxis()->FindBin("LHCF, no ZDC_C");
 		th1f->GetXaxis()->FindBin("no LHCF but ZDC_C");
-		th1f->ResetBit(TH1::kCanRebin);
+		CANNOT_REBIN(th1f);
 		th1f->Sumw2();
 		addHistogram(th1f);
 		
@@ -622,7 +665,7 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 		th1f->GetXaxis()->FindBin("L1_TE50");
 		th1f->GetXaxis()->FindBin("L1_ZDC_A_VTE20");
 		th1f->GetXaxis()->FindBin("L1_ZDC_C_VTE20");
-		th1f->ResetBit(TH1::kCanRebin);
+		CANNOT_REBIN(th1f);
 		th1f->Sumw2();
 		addHistogram(th1f);
 		
@@ -661,7 +704,7 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 		tProf->GetXaxis()->FindBin("L1_BCM_AC_CA");
 		tProf->GetXaxis()->FindBin("L1_BCM_Wide");
 		tProf->GetXaxis()->FindBin("L1_BCM_HT");
-		tProf->ResetBit(TH1::kCanRebin);
+		CANNOT_REBIN(tProf);
 		tProf->SetMinimum(0.0);
 		addProfile(tProf);
  	}
@@ -674,6 +717,7 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 		addHistogram(new TH1I("NumTracksAtVertex", "Tracks at vertex;# of Tracks per Vertex;Entry Rate", 500, -0.5, 499.5));
 		
 		addHistogram(new TH1I("NumHitsAtVertex", "Hits at vertex;L2 Pileup Suppression Vertex Weight;Entry Rate", 2000, -0.5, 1999.5));
+		addHistogram(new TH1I("NumHitsAtVertexMax", "Max hits at vertex per event;L2 Pileup Suppression Vertex Weight;Entry Rate", 2000, -0.5, 1999.5));
  	}
 	
  	(*m_log) << MSG::DEBUG << "All histograms booked successfully" << endreq; 
@@ -686,17 +730,24 @@ StatusCode HLTMinBiasMonTool::fill()
 	bool refTrigPassed = getTDT()->isPassed(/*"EF_"*/ "HLT_" + m_refTrigItem);
 	unsigned goodTracks;
 	std::vector<double> goodTracksPt;
+	std::string collectiveHistogramPostfix;
 	
 	for (const auto &i: m_trigItems)
 	{
-		goodTracks = howManyGoodTracks(m_effSelTool[m_chainProperties[i].effCutIdx], &goodTracksPt);
+		goodTracks = howManyGoodTracks(*(m_effSelTool[m_chainProperties[i].effCutIdx]), &goodTracksPt);
+		
+		collectiveHistogramPostfix = m_collectiveHistogramPostfixForAlgorithm[m_chainProperties[i].algorithm];
 		
 		if (getTDT()->isPassed(/*"EF_"*/ "HLT_" + i))        //temporally
 		{
 			profile("TriggerEntriesProfile", "HLT/MinBiasMon")->Fill(i.c_str(), 1);
 			hist("TriggerEntries", "HLT/MinBiasMon")->Fill(i.c_str(), 1);
+			
+			hist((std::string("TriggerEntries")+collectiveHistogramPostfix).c_str(), "HLT/MinBiasMon")->Fill(i.c_str(), 1);
+			
 			fillHistogramsForItem(i, m_chainProperties[i].histoGroup);
-			fillPurityForItem(i, m_purSelTool[0]);
+			fillPurityForItem(i, m_purSelTool);
+			fillPurityForItem(i, m_purSelTool, 1, collectiveHistogramPostfix);
 			
 			//if (refTrigPassed && (goodTracks > 1)) fillEfficiencyForItem(i, goodTracks, true);
 			
@@ -707,28 +758,33 @@ StatusCode HLTMinBiasMonTool::fill()
 		{
 			profile("TriggerEntriesProfile", "HLT/MinBiasMon")->Fill(i.c_str(), 0);
 			hist("TriggerEntries", "HLT/MinBiasMon")->Fill(i.c_str(), 0);
+			
+			hist((std::string("TriggerEntries")+collectiveHistogramPostfix).c_str(), "HLT/MinBiasMon")->Fill(i.c_str(), 0);
+			
 			(*m_log) << MSG::DEBUG << i << " chain is empty" << endreq; 
 			//if (refTrigPassed && (goodTracks > 1)) fillEfficiencyForItem(i, goodTracks, false);
 		}
 		if (getTDT()->isPassedBits("HLT_" + i) & m_chainProperties[i].isPassedCondition)
 		{
-			if (refTrigPassed && (goodTracks > 1)) fillEfficiencyForItem(i, goodTracks, true);
+			if (refTrigPassed && (goodTracks > 1)) {fillEfficiencyForItem(i, goodTracks, true); fillEfficiencyForItem(i, goodTracks, true, collectiveHistogramPostfix);}
 		}
 		else
 		{
-			if (refTrigPassed && (goodTracks > 1)) fillEfficiencyForItem(i, goodTracks, false);
+			if (refTrigPassed && (goodTracks > 1)) {fillEfficiencyForItem(i, goodTracks, false); fillEfficiencyForItem(i, goodTracks, false, collectiveHistogramPostfix);}
 		}
 	}	
 	return sc;
 }
 
-void HLTMinBiasMonTool::fillEfficiencyForItem(const std::string &item, unsigned goodTracks, bool isPassed)
+void HLTMinBiasMonTool::fillEfficiencyForItem(const std::string &item, unsigned goodTracks, bool isPassed, const std::string& collectiveHistogramPostfix)
 {
-	hist("TriggerEfficienciesAll", "HLT/MinBiasMon")->Fill(item.c_str(), 1);
+	std::string name = std::string("TriggerEfficienciesAll")+collectiveHistogramPostfix;
+	hist(name.c_str(), "HLT/MinBiasMon")->Fill(item.c_str(), 1);
 	hist("EfficiencyAll", "HLT/MinBiasMon/Purities&Efficiencies/" + item)->Fill(getLumiBlockNr(), 1);
 	hist("EfficiencyTracksAll", "HLT/MinBiasMon/Purities&Efficiencies/" + item)->Fill(goodTracks, 1);
 	
-	hist("TriggerEfficienciesPassed", "HLT/MinBiasMon")->Fill(item.c_str(), (isPassed)?1:0);
+	name = std::string("TriggerEfficienciesPassed")+collectiveHistogramPostfix;
+	hist(name.c_str(), "HLT/MinBiasMon")->Fill(item.c_str(), (isPassed)?1:0);
 	hist("EfficiencyPassed", "HLT/MinBiasMon/Purities&Efficiencies/" + item)->Fill(getLumiBlockNr(), (isPassed)?1:0);
 	hist("EfficiencyTracksPassed", "HLT/MinBiasMon/Purities&Efficiencies/" + item)->Fill(goodTracks, (isPassed)?1:0);
 	
@@ -768,7 +824,7 @@ unsigned HLTMinBiasMonTool::howManyGoodTracks(const ToolHandle< InDet::IInDetTra
 	return goodTracks;
 }
 
-void HLTMinBiasMonTool::fillPurityForItem(const std::string &item, const ToolHandle< InDet::IInDetTrackSelectionTool > &selTool, unsigned greaterThan)
+void HLTMinBiasMonTool::fillPurityForItem(const std::string &item, const ToolHandle< InDet::IInDetTrackSelectionTool > &selTool, unsigned greaterThan, const std::string& collectiveHistogramPostfix)
 {
 	StatusCode sc = StatusCode::SUCCESS;
 	// Get the InDetTrackParticles from the event:
@@ -792,7 +848,8 @@ void HLTMinBiasMonTool::fillPurityForItem(const std::string &item, const ToolHan
 		}
 		//hist("TriggerPuritiesAll", "HLT/MinBiasMon")->Fill(item.c_str(), 1);
 		//hist("PurityAll", "HLT/MinBiasMon/Purities&Efficiencies/" + item)->Fill(getLumiBlockNr(), 1);
-		hist("TriggerPuritiesPassed", "HLT/MinBiasMon")->Fill(item.c_str(), ((goodTracks > greaterThan)?1:0));
+		std::string name = std::string("TriggerPuritiesPassed")+collectiveHistogramPostfix;
+		hist(name.c_str(), "HLT/MinBiasMon")->Fill(item.c_str(), ((goodTracks > greaterThan)?1:0));
 		hist("PurityPassed", "HLT/MinBiasMon/Purities&Efficiencies/" + item)->Fill(getLumiBlockNr(), ((goodTracks > greaterThan)?1:0));
 	}
 	hist("PurityAll", "HLT/MinBiasMon/Purities&Efficiencies/" + item)->Fill(getLumiBlockNr(), 1);
@@ -1413,7 +1470,7 @@ StatusCode HLTMinBiasMonTool::fillHLTMbtsInfo()
 	return sc;
 }
 
-StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string &item)
+StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string& /*item*/)
 {
 	unsigned int triggerWord = 0;
 	unsigned int timeWord = 0;
@@ -1903,6 +1960,9 @@ StatusCode HLTMinBiasMonTool::fillHMTTrigVertexCollectionInfo()
 	const TrigVertexCollection* vertexCollection = nullptr;
 	sc = m_storeGate->retrieve(vertexCollection, m_vcolContainerName);
 	
+	double vertex_weight=0.;
+	double max_vertex_weight=0.;
+
 	if (sc.isFailure() || vertexCollection->empty()) {
 		if (sc.isFailure())
 			(*m_log) << MSG::WARNING << "Failed to retrieve VertexCollectionMonTool for TrigVertexCollection" << endreq;
@@ -1913,11 +1973,16 @@ StatusCode HLTMinBiasMonTool::fillHMTTrigVertexCollectionInfo()
 		
 		for( /*const auto &i: vertexCollection*/TrigVertexCollection::const_iterator vtxIt = vertexCollection->begin(); vtxIt != vertexCollection->end(); ++vtxIt)
 		{
-			hist("NumHitsAtVertex")->Fill((*vtxIt)->z() );
+			vertex_weight = (*vtxIt)->z();
+			if(vertex_weight > max_vertex_weight) max_vertex_weight = vertex_weight;
+ 
+			hist("NumHitsAtVertex")->Fill(vertex_weight);
 			//m_vertexWeight.push_back( (*vtxIt)->z() );
 			//if ( (*vtxIt)->z() > m_vertexWeightMax ) m_vertexWeightMax = (*vtxIt)->z(); //looking for the biggest weight
 			//if ( (*vtxIt)->z() > -999. && (*vtxIt)->z() > m_weightThreshold ) nVertices++;
 		}
+		
+		hist("NumHitsAtVertexMax")->Fill(max_vertex_weight);
 	}
 	
 	return sc;
@@ -1938,7 +2003,7 @@ void HLTMinBiasMonTool::fixXaxis(TH1* h) {
 		const char* cell_name = (m_moduleLabel[i]).data();
 		h->GetXaxis()->FindBin(cell_name);
 	}
-	h->ResetBit(TH1::kCanRebin);
+	CANNOT_REBIN(h);
 
 	return;
 }
@@ -1965,6 +2030,12 @@ StatusCode HLTMinBiasMonTool::proc(bool endOfEventsBlock, bool endOfLumiBlock, b
 		hist("TriggerPurities", "HLT/MinBiasMon")->Divide(hist("TriggerPuritiesPassed", "HLT/MinBiasMon"), hist("TriggerEntries", "HLT/MinBiasMon"), 1.0, 1.0, "B");
 		
 		hist("TriggerEfficiencies", "HLT/MinBiasMon")->Divide(hist("TriggerEfficienciesPassed", "HLT/MinBiasMon"), hist("TriggerEfficienciesAll", "HLT/MinBiasMon"), 1.0, 1.0, "B");
+		
+		for (auto &i: m_collectiveHistogramsNames)
+		{	
+			hist((std::string("TriggerPurities") + i).c_str(), "HLT/MinBiasMon")->Divide(hist((std::string("TriggerPuritiesPassed") + i).c_str(), "HLT/MinBiasMon"), hist((std::string("TriggerEntries") + i).c_str(), "HLT/MinBiasMon"), 1.0, 1.0, "B");
+			hist((std::string("TriggerEfficiencies") + i).c_str(), "HLT/MinBiasMon")->Divide(hist((std::string("TriggerEfficienciesPassed") + i).c_str(), "HLT/MinBiasMon"), hist((std::string("TriggerEfficienciesAll") + i).c_str(), "HLT/MinBiasMon"), 1.0, 1.0, "B");
+		}
 		/*hist("TriggerPuritiesPassed", "HLT/MinBiasMon/")->Sumw2(false);
 		hist("TriggerEntries", "HLT/MinBiasMon/")->Sumw2(false);
 		hist("TriggerEfficienciesPassed", "HLT/MinBiasMon/")->Sumw2(false);

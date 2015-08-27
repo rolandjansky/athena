@@ -28,20 +28,60 @@ def TrigMinBiasMonitoringTool():
 										  
 										  monitoring_minbias = hltmonList.monitoring_minbias,
 										  MinBiasRefTrigItem = "mb_sptrk", # "mb_sptrk" should be used
-                                          MinBiasAvailableAlgorithms = ['mbts', 	  'sptrk', 		'noalg', 			'hmtperf', 		'idperf', 	 	'perf',       'hmt'], #the order here should matter (?) more specific names before more general eg. 'ideperf' before 'perf'... to think it through...
+                                          MinBiasAvailableAlgorithms = ['mbts', 	  'sptrk', 		'noalg', 			'hmtperf', 		'idperf', 	 	'perf',       'hmt'], #the order here matters: more specific names should go before general eg. 'ideperf' before 'perf'... 
                                           MinBiasHistoTargets = 	   [MBTS,      	  IDMINBIAS,     MBTS, 					HMT,       		0, 		MBTS + IDMINBIAS, 	HMT],
-                                          MinBiasEffCuts =             [LOOSEPRIMARY, LOOSEPRIMARY,  LOOSEPRIMARY,  	LOOSEPRIMARY,  LOOSEPRIMARY, LOOSEPRIMARY, LOOSEPRIMARY],
-										  MinBiasPurCuts = 			   [LOOSEPRIMARY],
 										  IsPassedCondtitions = 	   [PHYSICS, 	  PHYSICS, L1_ISPASSEDBEFOREPRESCALE,  PHYSICS,  	PHYSICS, 		PHYSICS, 	  PHYSICS],
+										  CollectiveHistogramForAlgorithm = ['1', '1', '1', '2', '2', '2', '3'],
 										  
                                           MBTS_countsSideA = 12,
                                           MBTS_countsSideC = 12
                                           );
+										  
+	# ---------------------- InDetTrackSelectionTool
+
+	#'mbts'
+	HLTMinBiasMon.mbtsEfficiencyTrackSelectionTool.CutLevel = "LoosePrimary"
+
+	#'sptrk'
+	HLTMinBiasMon.sptrkEfficiencyTrackSelectionTool.CutLevel = "LoosePrimary"
+
+	#'noalg'
+	HLTMinBiasMon.noalgEfficiencyTrackSelectionTool.CutLevel = "LoosePrimary"
+
+	#'hmtperf'
+	HLTMinBiasMon.hmtperfEfficiencyTrackSelectionTool.CutLevel = "LoosePrimary"
+
+	#'idperf'
+	HLTMinBiasMon.idperfEfficiencyTrackSelectionTool.CutLevel = "LoosePrimary"
+
+	#'perf'
+	HLTMinBiasMon.perfEfficiencyTrackSelectionTool.CutLevel = "LoosePrimary"
+
+	#'hmt'
+	HLTMinBiasMon.hmtEfficiencyTrackSelectionTool.CutLevel = "LoosePrimary"
+
+	#purity
+	HLTMinBiasMon.PurityTrackSelectionTool.CutLevel = "LoosePrimary"
+
+	# ---------------------- !InDetTrackSelectionTool
+
+	# ---------------------- Collective Histograms Management
+
+	tmpList = []
+	for i in range(len(HLTMinBiasMon.CollectiveHistogramForAlgorithm)):
+	#for i in HLTMinBiasMon.CollectiveHistogramForAlgorithm:
+		HLTMinBiasMon.CollectiveHistogramForAlgorithm[i] = HLTMinBiasMon.CollectiveHistogramForAlgorithm[i] if HLTMinBiasMon.CollectiveHistogramForAlgorithm[i] != '' else '_' #forces uniqueness
+		if HLTMinBiasMon.CollectiveHistogramForAlgorithm[i] not in tmpList:
+			tmpList.append(HLTMinBiasMon.CollectiveHistogramForAlgorithm[i]);
+	HLTMinBiasMon.CollectiveHistogramsNames = tmpList
+	
+	# ---------------------- !Collective Histograms Management
+										  
 	ToolSvc += HLTMinBiasMon;
 	list = [ "HLTMinBiasMonTool/HLTMinBiasMon" ];
 
 	return list
-#!----ADVANCED USER ACCESS-----
+
 
 
 
