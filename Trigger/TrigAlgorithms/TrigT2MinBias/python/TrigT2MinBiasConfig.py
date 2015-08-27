@@ -443,22 +443,6 @@ L2MbSpFex.PixelModuleThreshold = 1000000 # Disable dynamic masking.
 L2MbSpFex.SCTModuleThreshold = 1000000 # Disable dynamic masking.
 fexes["L2MbSpFex"] = L2MbSpFex
 
-L2MbSpFex_BLayer =  MbSpFex("L2MbSpFex_BLayer")
-L2MbSpFex_BLayer.PixelSP_ContainerName = "PixelTrigSpacePoints"
-L2MbSpFex_BLayer.SCT_SP_ContainerName = "SCT_TrigSpacePoints"
-L2MbSpFex_BLayer.PixelModuleThreshold = 30 # Enable dynamic masking.
-L2MbSpFex_BLayer.SCTModuleThreshold = 1000000 # Disable dynamic masking.
-L2MbSpFex_BLayer.OnlyCountBLayer = True # Pixel counter only uses inner BLayer
-fexes["L2MbSpFex_BLayer"] = L2MbSpFex_BLayer
-
-L2MbSpFex_ncb =  MbSpFex("L2MbSpFex_ncb")
-L2MbSpFex_ncb.PixelSP_ContainerName = "PixelTrigSpacePoints"
-L2MbSpFex_ncb.SCT_SP_ContainerName = "SCT_TrigSpacePoints"
-L2MbSpFex_ncb.PixelModuleThreshold = 1000000 # Disable dynamic masking.
-L2MbSpFex_ncb.SCTModuleThreshold = 30 # Enable dynamic masking.
-L2MbSpFex_ncb.ReadPixelSp = False # Disable the Pixel readout
-fexes["L2MbSpFex_ncb"] = L2MbSpFex_ncb
-
 L2MbSpFex_SCTNoiseSup =  MbSpFex("L2MbSpFex_SCTNoiseSup")
 L2MbSpFex_SCTNoiseSup.PixelSP_ContainerName = "PixelTrigSpacePoints"
 L2MbSpFex_SCTNoiseSup.SCT_SP_ContainerName = "SCT_TrigSpacePoints"
@@ -491,7 +475,6 @@ MbSpHypo_1 = MbSpHypo  # remove once cosmic clice migrated
 #             Sp hypo configuratables
 L2MbSpHypo = MbSpHypo("L2MbSpHypo")
 L2MbSpHypo.AcceptAll = False
-L2MbSpHypo.Veto = False
 L2MbSpHypo.TriggerTypeAND = True
 L2MbSpHypo.TotalPixelClus = 2.
 L2MbSpHypo.PixelClusRatioA = -1. # Disable
@@ -511,35 +494,11 @@ L2MbSpHypo.SctSpBarrel_max = -1. # Disable
 L2MbSpHypo.SctSpEndcapA_max = -1. # Disable
 hypos["L2MbSpHypo"] = L2MbSpHypo
 
-#             Sp hypo configuratables
-L2MbSpHypo_veto = MbSpHypo("L2MbSpHypo_veto")
-L2MbSpHypo_veto.AcceptAll = False
-L2MbSpHypo_veto.Veto = True
-L2MbSpHypo_veto.TriggerTypeAND = True
-L2MbSpHypo_veto.TotalPixelClus = 2.
-L2MbSpHypo_veto.PixelClusRatioA = -1. # Disable
-L2MbSpHypo_veto.PixelClusRatioB = -1. # Disable
-L2MbSpHypo_veto.PixelClusEndcapC = -1. # Disable
-L2MbSpHypo_veto.PixelClusBarrel = -1. # Disable
-L2MbSpHypo_veto.PixelClusEndcapA = -1. # Disable
-L2MbSpHypo_veto.PixelClusEndcapC_max = -1. # Disable
-L2MbSpHypo_veto.PixelClusBarrel_max = -1. # Disable
-L2MbSpHypo_veto.PixelClusEndcapA_max = -1. # Disable
-L2MbSpHypo_veto.TotalSctSp = 3.
-L2MbSpHypo_veto.SctSpEndcapC = -1. # Disable
-L2MbSpHypo_veto.SctSpBarrel = -1. # Disable
-L2MbSpHypo_veto.SctSpEndcapA = -1. # Disable
-L2MbSpHypo_veto.SctSpEndcapC_max = -1. # Disable
-L2MbSpHypo_veto.SctSpBarrel_max = -1. # Disable
-L2MbSpHypo_veto.SctSpEndcapA_max = -1. # Disable
-hypos["L2MbSpHypo_veto"] = L2MbSpHypo_veto
-
 
 
 #             Sp hypo configuratables veto large multiplicity
 L2MbSpHypoLow = MbSpHypo("L2MbSpHypoLow")
 L2MbSpHypoLow.AcceptAll = False
-L2MbSpHypoLow.Veto = False
 L2MbSpHypoLow.TriggerTypeAND = False ## ???
 L2MbSpHypoLow.VetoLargeSP = True
 L2MbSpHypoLow.TotalPixelClus = 200. # 
@@ -563,6 +522,11 @@ L2MbSpHypoLow.SctSpEndcapA_max = -1. # Disable
 hypos["L2MbSpHypoLow"] = L2MbSpHypoLow
 
 
+
+
+
+
+
 L2MbSpHypo_PT = MbSpHypo("L2MbSpHypo_PT") # Pass through version
 L2MbSpHypo_PT.AcceptAll = True
 hypos["L2MbSpHypo_PT"] = L2MbSpHypo_PT
@@ -570,7 +534,6 @@ hypos["L2MbSpHypo_PT"] = L2MbSpHypo_PT
 # ... oneD version
 L2MbSpHypo_oneD = MbSpHypo("L2MbSpHypo_oneD")
 L2MbSpHypo_oneD.AcceptAll = False
-L2MbSpHypo_oneD.Veto = False
 L2MbSpHypo_oneD.TriggerTypeAND = False
 L2MbSpHypo_oneD.TotalPixelClus = -1. # Disable
 L2MbSpHypo_oneD.PixelClusRatioA = -1. # Disable
@@ -596,7 +559,6 @@ hypos["L2MbSpHypo_oneD"] = L2MbSpHypo_oneD
 # ... fwd version
 L2MbSpHypo_fwd = MbSpHypo("L2MbSpHypo_fwd")
 L2MbSpHypo_fwd.AcceptAll = False
-L2MbSpHypo_fwd.Veto = False
 L2MbSpHypo_fwd.TriggerTypeAND = False
 L2MbSpHypo_fwd.TotalPixelClus = 5.
 L2MbSpHypo_fwd.PixelClusRatioA = -1. # Disable
@@ -622,7 +584,6 @@ hypos["L2MbSpHypo_fwd"] = L2MbSpHypo_fwd
 # ... cos version
 L2MbSpHypo_cos = MbSpHypo("L2MbSpHypo_cos")
 L2MbSpHypo_cos.AcceptAll = False
-L2MbSpHypo_cos.Veto = False
 L2MbSpHypo_cos.TriggerTypeAND = True
 L2MbSpHypo_cos.TotalPixelClus = 3.
 L2MbSpHypo_cos.PixelClusRatioA = -1. # Disable
@@ -644,60 +605,11 @@ L2MbSpHypo_cos.SctSpEndcapA_max = -1. # Disable
 L2MbSpHypo_cos.SctSpEndcaps_cut = -1. # Disable
 hypos["L2MbSpHypo_cos"] = L2MbSpHypo_cos
 
-# Setup for 2016 SCT only non collision bacground filtering
-L2MbSpHypo_ncb = MbSpHypo("L2MbSpHypo_ncb")
-L2MbSpHypo_ncb.AcceptAll = False
-L2MbSpHypo_ncb.Veto = False
-L2MbSpHypo_ncb.TriggerTypeAND = False # SCT only
-L2MbSpHypo_ncb.SctSpEndcaps_cut = 50 # max(SCT_EC_A, SCT_EC_C)
-L2MbSpHypo_ncb.TotalPixelClus = -1. # Disable
-L2MbSpHypo_ncb.PixelClusRatioA = -1. # Disable
-L2MbSpHypo_ncb.PixelClusRatioB = -1. # Disable
-L2MbSpHypo_ncb.PixelClusEndcapC = -1. # Disable
-L2MbSpHypo_ncb.PixelClusBarrel = -1. # Disable
-L2MbSpHypo_ncb.PixelClusEndcapA = -1. # Disable
-L2MbSpHypo_ncb.PixelClusEndcapC_max = -1. # Disable
-L2MbSpHypo_ncb.PixelClusBarrel_max = -1. # Disable
-L2MbSpHypo_ncb.PixelClusEndcapA_max = -1. # Disable
-L2MbSpHypo_ncb.PixelClusEndcaps_cut = -1. # Disable
-L2MbSpHypo_ncb.TotalSctSp = -1. # Disable
-L2MbSpHypo_ncb.SctSpEndcapC = -1. # Disable
-L2MbSpHypo_ncb.SctSpBarrel = -1. # Disable
-L2MbSpHypo_ncb.SctSpEndcapA = -1. # Disable
-L2MbSpHypo_ncb.SctSpEndcapC_max = -1. # Disable
-L2MbSpHypo_ncb.SctSpBarrel_max = -1. # Disable
-L2MbSpHypo_ncb.SctSpEndcapA_max = -1. # Disable
-hypos["L2MbSpHypo_ncb"] = L2MbSpHypo_ncb
 
-# Setup for 2016 PIX blayer counting
-L2MbSpHypo_blayer = MbSpHypo("L2MbSpHypo_blayer")
-L2MbSpHypo_blayer.AcceptAll = False
-L2MbSpHypo_blayer.Veto = False
-L2MbSpHypo_blayer.TriggerTypeAND = False # PIX only
-L2MbSpHypo_blayer.SctSpEndcaps_cut = -1 # Disable
-L2MbSpHypo_blayer.TotalPixelClus = 50 # Minimum number of hits in the BLayer (layer restriction in FEX) 
-L2MbSpHypo_blayer.PixelClusRatioA = -1. # Disable
-L2MbSpHypo_blayer.PixelClusRatioB = -1. # Disable
-L2MbSpHypo_blayer.PixelClusEndcapC = -1. # Disable
-L2MbSpHypo_blayer.PixelClusBarrel = -1. # Disable
-L2MbSpHypo_blayer.PixelClusEndcapA = -1. # Disable
-L2MbSpHypo_blayer.PixelClusEndcapC_max = -1. # Disable
-L2MbSpHypo_blayer.PixelClusBarrel_max = -1. # Disable
-L2MbSpHypo_blayer.PixelClusEndcapA_max = -1. # Disable
-L2MbSpHypo_blayer.PixelClusEndcaps_cut = -1. # Disable
-L2MbSpHypo_blayer.TotalSctSp = -1. # Disable
-L2MbSpHypo_blayer.SctSpEndcapC = -1. # Disable
-L2MbSpHypo_blayer.SctSpBarrel = -1. # Disable
-L2MbSpHypo_blayer.SctSpEndcapA = -1. # Disable
-L2MbSpHypo_blayer.SctSpEndcapC_max = -1. # Disable
-L2MbSpHypo_blayer.SctSpBarrel_max = -1. # Disable
-L2MbSpHypo_blayer.SctSpEndcapA_max = -1. # Disable
-hypos["L2MbSpHypo_blayer"] = L2MbSpHypo_blayer
 
 # ... setup for halo event trigger
 L2MbSpHypoBg = MbSpHypo("L2MbSpHypoBg")
 L2MbSpHypoBg.AcceptAll = False
-L2MbSpHypoBg.Veto = False
 L2MbSpHypoBg.TriggerTypeAND = False
 L2MbSpHypoBg.TotalPixelClus = 9.
 L2MbSpHypoBg.PixelClusRatioA = -1. # Disable
@@ -722,7 +634,6 @@ hypos["L2MbSpHypoBg"] = L2MbSpHypoBg
 # ... setup for MbSpMh
 L2MbSpMhHypo = MbSpHypo("L2MbSpMhHypo")
 L2MbSpMhHypo.AcceptAll = False
-L2MbSpMhHypo.Veto = False
 L2MbSpMhHypo.TriggerTypeAND = True
 L2MbSpMhHypo.TotalPixelClus = 349.
 L2MbSpMhHypo.PixelClusRatioA = -1. # Disable
@@ -745,7 +656,6 @@ hypos["L2MbSpMhHypo"] = L2MbSpMhHypo
 # ... setup for MbSpMh120
 L2MbSpMhPcHypo = MbSpHypo("L2MbSpMhPcHypo")
 L2MbSpMhPcHypo.AcceptAll = False
-L2MbSpMhPcHypo.Veto = False
 L2MbSpMhPcHypo.TriggerTypeAND = True 
 L2MbSpMhPcHypo.TotalPixelClus = 749.
 L2MbSpMhPcHypo.PixelClusRatioA = -1. # Disable
@@ -769,7 +679,6 @@ hypos["L2MbSpMhPcHypo"] = L2MbSpMhPcHypo
 # ... setup for MbSpMhNoPixHypo low pile up
 L2MbSpMhNoPixHypo = MbSpHypo("L2MbSpMhNoPixHypo")
 L2MbSpMhNoPixHypo.AcceptAll = False
-L2MbSpMhNoPixHypo.Veto = False
 L2MbSpMhNoPixHypo.TriggerTypeAND = False # Must use OR because Pixel is disabled
 L2MbSpMhNoPixHypo.TotalPixelClus = -1. # Disable
 L2MbSpMhNoPixHypo.PixelClusRatioA = -1. # Disable
@@ -792,7 +701,6 @@ hypos["L2MbSpMhNoPixHypo"] = L2MbSpMhNoPixHypo
 # ... setup for MbSpMhNoPixHypo_eff
 L2MbSpMhNoPixHypo_eff = MbSpHypo("L2MbSpMhNoPixHypo_eff")
 L2MbSpMhNoPixHypo_eff.AcceptAll = False
-L2MbSpMhNoPixHypo_eff.Veto = False
 L2MbSpMhNoPixHypo_eff.TriggerTypeAND = False # Must use OR because Pixel is disabled
 L2MbSpMhNoPixHypo_eff.TotalPixelClus = -1. # Disable
 L2MbSpMhNoPixHypo_eff.PixelClusRatioA = -1. # Disable
@@ -817,7 +725,6 @@ hypos["L2MbSpMhNoPixHypo_eff"] = L2MbSpMhNoPixHypo_eff
 # ... setup for MbSpMhNoPixHypo (medium pile-up)
 L2MbSpMhNoPixHypo_medium = MbSpHypo("L2MbSpMhNoPixHypo_medium")
 L2MbSpMhNoPixHypo_medium.AcceptAll = False
-L2MbSpMhNoPixHypo_medium.Veto = False
 L2MbSpMhNoPixHypo_medium.TriggerTypeAND = False # Must use OR because Pixel is disabled
 L2MbSpMhNoPixHypo_medium.TotalPixelClus = -1. # Disable
 L2MbSpMhNoPixHypo_medium.PixelClusRatioA = -1. # Disable
@@ -840,7 +747,6 @@ hypos["L2MbSpMhNoPixHypo_medium"] = L2MbSpMhNoPixHypo_medium
 # ... setup for MbSpMhNoPixHypo_eff
 L2MbSpMhNoPixHypo_medium_eff = MbSpHypo("L2MbSpMhNoPixHypo_medium_eff")
 L2MbSpMhNoPixHypo_medium_eff.AcceptAll = False
-L2MbSpMhNoPixHypo_medium_eff.Veto = False
 L2MbSpMhNoPixHypo_medium_eff.TriggerTypeAND = False # Must use OR because Pixel is disabled
 L2MbSpMhNoPixHypo_medium_eff.TotalPixelClus = -1. # Disable
 L2MbSpMhNoPixHypo_medium_eff.PixelClusRatioA = -1. # Disable
@@ -866,7 +772,6 @@ hypos["L2MbSpMhNoPixHypo_medium_eff"] = L2MbSpMhNoPixHypo_medium_eff
 # ... setup for MbSpMhNoPixHypo high pile up
 L2MbSpMhNoPixHypo_tight = MbSpHypo("L2MbSpMhNoPixHypo_tight")
 L2MbSpMhNoPixHypo_tight.AcceptAll = False
-L2MbSpMhNoPixHypo_tight.Veto = False
 L2MbSpMhNoPixHypo_tight.TriggerTypeAND = False # Must use OR because Pixel is disabled
 L2MbSpMhNoPixHypo_tight.TotalPixelClus = -1. # Disable
 L2MbSpMhNoPixHypo_tight.PixelClusRatioA = -1. # Disable
@@ -889,7 +794,6 @@ hypos["L2MbSpMhNoPixHypo_tight"] = L2MbSpMhNoPixHypo_tight
 # ... setup for MbSpMhNoPixHypo_eff
 L2MbSpMhNoPixHypo_tight_eff = MbSpHypo("L2MbSpMhNoPixHypo_tight_eff")
 L2MbSpMhNoPixHypo_tight_eff.AcceptAll = False
-L2MbSpMhNoPixHypo_tight_eff.Veto = False
 L2MbSpMhNoPixHypo_tight_eff.TriggerTypeAND = False # Must use OR because Pixel is disabled
 L2MbSpMhNoPixHypo_tight_eff.TotalPixelClus = -1. # Disable
 L2MbSpMhNoPixHypo_tight_eff.PixelClusRatioA = -1. # Disable
@@ -908,21 +812,6 @@ L2MbSpMhNoPixHypo_tight_eff.SctSpEndcapC_max = -1. # Disable
 L2MbSpMhNoPixHypo_tight_eff.SctSpBarrel_max = -1. # Disable
 L2MbSpMhNoPixHypo_tight_eff.SctSpEndcapA_max = -1. # Disable
 hypos["L2MbSpMhNoPixHypo_tight_eff"] = L2MbSpMhNoPixHypo_tight_eff
-
-
-class L2MbSpUPC(MbSpHypo):
-    def __init__(self, name, minTh, maxTh):        
-        super(L2MbSpUPC, self).__init__(name)
-        self.VetoLargeSP = True
-        self.TriggerTypeAND = False
-        self.TotalPixelClus = maxTh+0.1 # this is negated selection due to the VetoLargeSP and we want inclusive 8 - 24 selection
-        self.TotalPixelClusMin = minTh-0.1 
-        self.TotalSctSp=-1
-
-
-hypos["L2MbSpUPC_nominal"] = L2MbSpUPC("L2MbSpUPC_nominal", 8, 24)
-hypos["L2MbSpUPC_loose"]   = L2MbSpUPC("L2MbSpUPC_loose", 6, 28)
-
 
 
 # .... setup for HI High Multiplicity chains (SCT SP=2000)
@@ -1288,18 +1177,7 @@ L2MbMbtsHypo_1_1_inn_veto.TimeCut = trigT2MinBiasProperties.mbtsTimeCut()
 #L2MbMbtsHypo11.Threshold = 0.18 # pC
 hypos["L2MbMbtsHypo_1_1_inn_veto"] = L2MbMbtsHypo_1_1_inn_veto 
 
-#photoproduction in PbPb ATR-12470
-# the following mean that only events with 0_2+, 2+_0, 2+_1 and 1_2+ will pass
-L2MbMbtsHypo_1_1_inn_one_side_veto = MbMbtsHypo("L2MbMbtsHypo_1_1_inn_one_side_veto")
-L2MbMbtsHypo_1_1_inn_one_side_veto.AcceptAll = False
-L2MbMbtsHypo_1_1_inn_one_side_veto.MbtsCounters = 2
-L2MbMbtsHypo_1_1_inn_one_side_veto.Coincidence = False
-L2MbMbtsHypo_1_1_inn_one_side_veto.Or = True
-L2MbMbtsHypo_1_1_inn_one_side_veto.Veto = True
-L2MbMbtsHypo_1_1_inn_one_side_veto.MBTSMode = 1 # inner
-L2MbMbtsHypo_1_1_inn_one_side_veto.TimeCut = trigT2MinBiasProperties.mbtsTimeCut()
-#L2MbMbtsHypo11.Threshold = 0.18 # pC
-hypos["L2MbMbtsHypo_1_1_inn_one_side_veto"] = L2MbMbtsHypo_1_1_inn_one_side_veto
+
 
 #########
 ### ZDC
@@ -1446,6 +1324,7 @@ class ZdcHypo ( T2ZdcHypo ):
         self.AthenaMonTools += [ ZdcHypoMonitoring(), time]
 
 
+
 L2MbZdcHypo_PT = ZdcHypo("L2MbZdcHypo_PT")
 L2MbZdcHypo_PT.AcceptAll = True
 L2MbZdcHypo_PT.TimeLogic = 0
@@ -1538,17 +1417,3 @@ L2MbZdcHypo_hip_hi_sideC.MultCut = [ -1 , -1 ]
 L2MbZdcHypo_hip_hi_sideC.TimeCut= -1.
 hypos["L2MbZdcHypo_hip_hi_sideC"] = L2MbZdcHypo_hip_hi_sideC
 
-### ZDC both sides low threshold
-L2MbZdcHypo_sideAC_zdc_LG = ZdcHypo("L2MbZdcHypo_sideAC_zdc_LG")
-L2MbZdcHypo_sideAC_zdc_LG.AcceptAll = False
-L2MbZdcHypo_sideAC_zdc_LG.TimeLogic = 0
-L2MbZdcHypo_sideAC_zdc_LG.EnergyLogic = 1 ## AND
-L2MbZdcHypo_sideAC_zdc_LG.MultiplicityLogic = 0
-L2MbZdcHypo_sideAC_zdc_LG.TimeOffset = [0., 0., 0., 0., 0., 0., 0., 0.]
-L2MbZdcHypo_sideAC_zdc_LG.Pedestal = [0., 0., 0., 0., 0., 0., 0., 0.]
-L2MbZdcHypo_sideAC_zdc_LG.EnergyCalibration = [1., 1., 1., 1., 1., 1., 1., 1.]
-L2MbZdcHypo_sideAC_zdc_LG.TimeModuleCut = 99999.
-L2MbZdcHypo_sideAC_zdc_LG.SumEnergyCut = [0.,trigT2MinBiasProperties.zdcVetoThresholdLG(), 0.,trigT2MinBiasProperties.zdcVetoThresholdLG()] # 1<A<2 || 3<C<4 - LONG LINE!
-L2MbZdcHypo_sideAC_zdc_LG.MultCut = [ -1 , -1 ]
-L2MbZdcHypo_sideAC_zdc_LG.TimeCut= -1.
-hypos["L2MbZdcHypo_sideAC_zdc_LG"] = L2MbZdcHypo_sideAC_zdc_LG

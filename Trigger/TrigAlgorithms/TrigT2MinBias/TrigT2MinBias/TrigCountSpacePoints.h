@@ -57,7 +57,6 @@ class TrigCountSpacePoints: public HLT::AllTEAlgo {
 
   bool m_doPixelSp; //!< Flag to switch on or off Pixel space point retrieval 
   bool m_doSctSp; //!< Flag to switch on or off SCT space point retrieval 
-  bool m_doOnlyBLayer; //!< Flag to only count innermost layer of PIX (does not affect SCT)
 
   const PixelID* m_pixHelper;   
   const SCT_ID* m_sctHelper;
@@ -91,12 +90,12 @@ class TrigCountSpacePoints: public HLT::AllTEAlgo {
   // ----------------------------------------------------------------------------------------------------------
 
 
-  float m_nPixSP;
+  float nPixSP;
   float m_totNumPixSP;
   float m_pixClSize;
-  float m_nPixCL_1; 
-  float m_nPixCL_2; 
-  float m_nPixCLmin3; // pixel clusters with size > 3 
+  float nPixCL_1; 
+  float nPixCL_2; 
+  float nPixCLmin3; // pixel clusters with size > 3 
   float m_pixclToT; 
   float m_totNumPixCL_1; 
   float m_totNumPixCL_2; 
@@ -111,12 +110,12 @@ class TrigCountSpacePoints: public HLT::AllTEAlgo {
   std::vector<IdentifierHash> m_listOfPixIds;      
   std::vector<int> m_pixelDataErrors;
   std::vector<int> m_sctDataErrors;
-  int m_pixListSize;
-  int m_sctListSize;
+  int pixListSize;
+  int sctListSize;
   
   unsigned int m_pixModuleThreshold;
   unsigned int m_sctModuleThreshold;
-  unsigned int m_maxnid;
+  unsigned int maxnid;
 
   std::vector<unsigned int> m_pixSpPerModuleBarr;
   std::vector<unsigned int> m_pixSpPerModuleECA;
