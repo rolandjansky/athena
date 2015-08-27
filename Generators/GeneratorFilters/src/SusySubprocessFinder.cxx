@@ -3,7 +3,7 @@
 */
 
 #include "GeneratorFilters/SusySubprocessFinder.h"
-#include "TruthUtils/PIDUtils.h"
+#include "TruthUtils/PIDHelpers.h"
 #include "GaudiKernel/AlgFactory.h"
 
 using HepMC::GenVertex;

@@ -17,7 +17,7 @@
 #include "StoreGate/DataHandle.h"
 
 // Other classes used by this class
-#include "TruthUtils/PIDUtils.h"
+#include "TruthUtils/PIDHelpers.h"
 #include "HepMC/GenEvent.h"
 // #include "GeneratorObjects/McEventCollection.h"
 #include "TruthUtils/HepMCHelpers.h"
