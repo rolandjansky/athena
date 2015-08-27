@@ -8,8 +8,12 @@
 //
 //-----------------------------------------------------------------------------
 
+#define private public
+#define protected public
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkTrack/TrackInfo.h"
+#undef private
+#undef protected
 #include "TrkEventTPCnv/TrkParticleBase/TrackParticleBaseCnv_p1.h"
 
 void  TrackParticleBaseCnv_p1::persToTrans(const Trk::TrackParticleBase_p1 * persObj, Trk::TrackParticleBase * transObj, MsgStream &log)
@@ -83,7 +87,7 @@ void  TrackParticleBaseCnv_p1::transToPers(const Trk::TrackParticleBase * transO
   // // Leave test in for the moment.
   // // TODO - remove.
   // if (test!=transObj->m_trackInfo.m_patternRecognition){
-  //   log<<MSG::WARNING<<"TPBC Trackinfos don't match! "<<endmsg;
+  //   log<<MSG::WARNING<<"TPBC Trackinfos don't match! "<<endreq;
   //   std::cout<<"Trans:     "<<transObj->m_trackInfo.m_patternRecognition.to_string<char, std::char_traits<char>,std::allocator<char> >()<<std::endl;
   //   std::cout<<"Read back: "<<test.to_string<char, std::char_traits<char>,std::allocator<char> >()<<std::endl;
   //   std::cout<<"persObj->m_patternRecognition:    "<<std::hex<<persObj->m_patternRecognition<<std::endl;

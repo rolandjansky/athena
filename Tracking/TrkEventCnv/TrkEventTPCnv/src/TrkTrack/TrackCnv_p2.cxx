@@ -7,7 +7,12 @@
 // file:   TrackCnv_p2.cxx
 //
 //-----------------------------------------------------------------------------
+#define private public
+#define protected public
 #include "TrkTrack/Track.h"
+#undef private
+#undef protected
+
 #include "TrkEventTPCnv/TrkTrack/TrackCnv_p2.h"
 
 //including old enumerate schema

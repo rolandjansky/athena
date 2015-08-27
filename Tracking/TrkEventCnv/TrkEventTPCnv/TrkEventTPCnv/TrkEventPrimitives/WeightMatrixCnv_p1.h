@@ -13,8 +13,10 @@
 #define WEIGHT_MATRIX_CNV_P1_H
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
+#define private public
 #include "TrkEventPrimitives/WeightMatrix.h"
 #include "TrkEventTPCnv/TrkEventPrimitives/WeightMatrix_p1.h"
+#undef private
 
 class MsgStream;
 

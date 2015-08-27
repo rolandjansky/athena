@@ -2,7 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
+#define private public
+#define protected public
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
+#undef private
+#undef protected
+
 #include "TrkEventTPCnv/TrkRIO_OnTrack/RIO_OnTrackCnv_p1.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 
@@ -10,14 +16,14 @@ void RIO_OnTrackCnv_p1::persToTrans( const Trk::RIO_OnTrack_p1 *persObj, Trk::RI
 {
 //   static int count = 0;
 //   if( count++ < 10 ) {
-//      log << MSG::INFO << ">>>>---------  RIO_OnTrack ID = " << persObj->m_id << endmsg;
+//      log << MSG::INFO << ">>>>---------  RIO_OnTrack ID = " << persObj->m_id << endreq;
 //   }
 
   //transObj->m_identifier = persObj->m_id;
 
   if(!m_isInitialized) {
     if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize RIO_OnTRackCnv_p1 " << endmsg;
+      log << MSG::FATAL << "Could not initialize RIO_OnTRackCnv_p1 " << endreq;
     }
   }
 
@@ -53,7 +59,7 @@ void RIO_OnTrackCnv_p1::persToTrans( const Trk::RIO_OnTrack_p1 *persObj, Trk::RI
   if (transObj->detectorElement()==0) 
     log << MSG::WARNING<<"Unable to reset DetEl for this RIO_OnTrack, "
     << "probably because of a problem with the Identifier/IdentifierHash : ("
-    << transObj->identify()<<"/"<<transObj->idDE()<<endmsg;
+    << transObj->identify()<<"/"<<transObj->idDE()<<endreq;
 }
 
 
@@ -71,7 +77,7 @@ StatusCode RIO_OnTrackCnv_p1::initialize(MsgStream &log) {
    // get StoreGate service
   StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "StoreGate service not found !" << endmsg;
+    log << MSG::FATAL << "StoreGate service not found !" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -79,21 +85,21 @@ StatusCode RIO_OnTrackCnv_p1::initialize(MsgStream &log) {
   StoreGateSvc *detStore;
   sc = svcLocator->service("DetectorStore", detStore);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
+    log << MSG::FATAL << "DetectorStore service not found !" << endreq;
     return StatusCode::FAILURE;
   } 
    //   else {
-   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
+   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endreq;
    //   }
 
    // Get the sct helper from the detector store
   sc = detStore->retrieve(m_pixId, "PixelID");
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not get PixelID helper !" << endmsg;
+    log << MSG::FATAL << "Could not get PixelID helper !" << endreq;
     return StatusCode::FAILURE;
   } 
 
 
-   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
+   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
   return StatusCode::SUCCESS;
 }

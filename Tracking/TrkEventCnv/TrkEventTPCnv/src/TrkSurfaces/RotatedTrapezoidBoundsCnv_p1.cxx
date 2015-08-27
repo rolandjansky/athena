@@ -8,7 +8,10 @@
 //
 //-----------------------------------------------------------------------------
 
+#define private public
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
+#undef private
+
 #include "TrkEventTPCnv/TrkSurfaces/RotatedTrapezoidBoundsCnv_p1.h"
 
 void RotatedTrapezoidBoundsCnv_p1 :: persToTrans( const Trk :: RotatedTrapezoidBounds_p1 *persObj,

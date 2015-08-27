@@ -8,7 +8,12 @@
 // author: Lukasz Janyst <ljanyst@cern.ch>
 //
 //-----------------------------------------------------------------------------
+#define private public
+#define protected public
 #include "TrkEventPrimitives/LocalParameters.h"
+#undef private
+#undef protected
+
 #include "TrkEventTPCnv/TrkEventPrimitives/LocalParametersCnv_p1.h"
 #include  <stdexcept>
 

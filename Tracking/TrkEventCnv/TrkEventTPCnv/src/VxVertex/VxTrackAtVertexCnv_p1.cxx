@@ -8,7 +8,11 @@
 //
 //-----------------------------------------------------------------------------
 
+#define private public
+#define protected public
 #include "VxVertex/VxTrackAtVertex.h"
+#undef private
+#undef protected
 #include "TrkEventTPCnv/VxVertex/VxTrackAtVertexCnv_p1.h"
 
 #include "TrkTrack/LinkToTrack.h"
@@ -19,46 +23,56 @@
 
 void VxTrackAtVertexCnv_p1::persToTrans(const Trk::VxTrackAtVertex_p1 * persObj, Trk::VxTrackAtVertex * transObj, MsgStream &log){
     
- std::unique_ptr<Trk::ITrackLink> trackLink;
+          // std::cout<<"ILIJA read VxTrackAtVertexCnv_p1 "<<std::endl;
+    
  if (persObj->m_typeOfLink==0){  
   m_elementLinkConverterForTrack.resetForCnv(persObj->m_origTrackNames);
   Trk::LinkToTrack* tmpLink = new Trk::LinkToTrack;
-  trackLink  = std::unique_ptr<Trk::ITrackLink>(tmpLink);
+  transObj->m_trackOrParticleLink  = tmpLink;;
   m_elementLinkConverterForTrack.persToTrans(&persObj->m_origTrack,tmpLink,log);
  }
  else if (persObj->m_typeOfLink==1){  
   m_elementLinkConverterForTrackParticle.resetForCnv(persObj->m_origTrackNames);
   Trk::LinkToTrackParticleBase* tmpLink = new Trk::LinkToTrackParticleBase;
-  trackLink  = std::unique_ptr<Trk::ITrackLink>(tmpLink);
+  transObj->m_trackOrParticleLink  = tmpLink;
   m_elementLinkConverterForTrackParticle.persToTrans(&persObj->m_origTrack,tmpLink,log);
  }
+  // log << "persToTrans() Type of link is: " << persObj->m_typeOfLink << endreq;
+  // log << "link saved at: " << persObj->m_origTrackNames.m_names.front() 
+  //                          << "\tcontIndex: " << persObj->m_origTrack.m_contIndex 
+  //                          << "\telIndex : " << persObj->m_origTrack.m_elementIndex << endreq; 
 
- Trk::FitQuality fitq;
- fillTransFromPStore( &m_fqCnv, persObj->m_fitQuality, &fitq, log );
+ 
+ fillTransFromPStore( &m_fqCnv, persObj->m_fitQuality, &transObj->m_fitQuality, log );
+// transObj->m_fitQuality = *(createTransFromPStore( &m_fqCnv, persObj->m_fitQuality, log ));
+ // Trk::FitQuality* qtmp = createTransFromPStore( &m_fqCnv, persObj->m_fitQuality, log);
+ // if (qtmp){
+ //   transObj->m_fitQuality  = *qtmp;
+ //   delete qtmp;
+ // } else 
+ //    transObj->m_fitQuality = Trk::FitQuality();
 
+
+ transObj->m_trkWeight	          = persObj->m_trkWeight; 
+ transObj->m_VertexCompatibility  = persObj->m_VertexCompatibility;
+ 
  ITPConverterFor<Trk::TrackParameters> * paramsCnv = 0;
- Trk::TrackParameters* perigeeAtVertex      = dynamic_cast<Trk::TrackParameters*>(createTransFromPStore(&paramsCnv, persObj->m_perigeeAtVertex,log ));
-
- *transObj = Trk::VxTrackAtVertex(fitq.chiSquared(),
-                                  perigeeAtVertex,
-                                  static_cast<Trk::NeutralParameters*>(nullptr),
-                                  fitq.doubleNumberDoF());
- transObj->setWeight (persObj->m_trkWeight);
- transObj->setVtxCompatibility (persObj->m_VertexCompatibility);
- transObj->setOrigTrackNoCache (trackLink.release());
+ transObj->m_perigeeAtVertex      = dynamic_cast<Trk::TrackParameters*>(createTransFromPStore(&paramsCnv, persObj->m_perigeeAtVertex,log ));
+ 
+ // std::cout<<transObj->m_fitQuality<<std::endl;
+ 
 }
 
 void  VxTrackAtVertexCnv_p1::transToPers(const Trk::VxTrackAtVertex * transObj, Trk::VxTrackAtVertex_p1 * persObj, MsgStream &log){
     
           // std::cout<<"ILIJA write VxTrackAtVertexCnv_p1 "<<std::endl;
           
- const Trk::FitQuality fq = transObj->trackQuality();
- persObj->m_fitQuality = toPersistent( &m_fqCnv, &fq, log );
- persObj->m_trkWeight	         = transObj->weight(); 
- persObj->m_VertexCompatibility  = transObj->vtxCompatibility();
+ persObj->m_fitQuality = toPersistent( &m_fqCnv, &(transObj->m_fitQuality), log );
+ persObj->m_trkWeight	         = transObj->m_trkWeight; 
+ persObj->m_VertexCompatibility  = transObj->m_VertexCompatibility;
 
  ITPConverterFor<Trk::TrackParameters> * paramsCnv = 0; 
- persObj->m_perigeeAtVertex   = toPersistent(&paramsCnv, transObj->perigeeAtVertex(), log );
+ persObj->m_perigeeAtVertex   = toPersistent(&paramsCnv, transObj->m_perigeeAtVertex, log );
  
  Trk::LinkToTrack* trLink = dynamic_cast<Trk::LinkToTrack*>(const_cast<Trk::ITrackLink*>(transObj->trackOrParticleLink()));
  if (trLink!=0){
@@ -75,8 +89,8 @@ void  VxTrackAtVertexCnv_p1::transToPers(const Trk::VxTrackAtVertex * transObj, 
     m_elementLinkConverterForTrackParticle.transToPers(el,&persObj->m_origTrack,log);
    } 
  }
-//  log << "transToPers() Type of link is: " << persObj->m_typeOfLink << endmsg;
+//  log << "transToPers() Type of link is: " << persObj->m_typeOfLink << endreq;
 //  log << "link saved at: " << persObj->m_origTrackNames.m_names.front() 
 //                           << "\tcontIndex: " << persObj->m_origTrack.m_contIndex 
-//                           << "\telIndex : " << persObj->m_origTrack.m_elementIndex << endmsg; 
+//                           << "\telIndex : " << persObj->m_origTrack.m_elementIndex << endreq; 
 }

@@ -2,7 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "TrkTrack/Track.h"
+#undef private
+#undef protected
+
 #include "TrkEventTPCnv/TrkTrack/TrackCnv_p12.h"
 
 //including old enumerate schema
@@ -11,10 +16,10 @@
 #include "TrkEventTPCnv/TrkEventPrimitives/FitQuality_p1.h"
 #include "TrkEventTPCnv/TrkEventPrimitives/FitQualityCnv_p1.h"
 
-static FitQualityCnv_p1 fitQualityCnv;
+static FitQualityCnv_p1 m_fitQualityCnv;
 
 void TrackCnv_p12::persToTrans( const Trk::Track_p12 *persObj, Trk::Track *transObj, MsgStream &log ){
-    fitQualityCnv.persToTrans(&persObj->m_fitQuality,  const_cast<Trk::FitQuality*>(transObj->m_fitQuality), log);
+    m_fitQualityCnv.persToTrans(&persObj->m_fitQuality,  const_cast<Trk::FitQuality*>(transObj->m_fitQuality), log);
     
     transObj->m_trackStateVector = m_trackStateVectorCnv.createTransient( &persObj->m_trackState, log );
     

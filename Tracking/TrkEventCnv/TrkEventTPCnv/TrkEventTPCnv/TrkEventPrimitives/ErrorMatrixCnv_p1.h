@@ -22,8 +22,7 @@
 class MsgStream;
 
 namespace Trk {
-  class ErrorMatrix{
-  public:
+  struct ErrorMatrix{
     std::vector<float> values;
   }; // Original EM was removed from release as part of 19.0.0 migration from CLHEP to Eigen.
 }

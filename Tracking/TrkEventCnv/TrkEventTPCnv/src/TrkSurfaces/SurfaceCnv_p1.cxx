@@ -8,7 +8,12 @@
 //
 // ----------------------------------------------------------------------------
 
+#define private public
+#define protected public
 #include "TrkSurfaces/Surface.h"
+#undef private
+#undef protected
+
 #include "TrkEventTPCnv/TrkSurfaces/SurfaceCnv_p1.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 

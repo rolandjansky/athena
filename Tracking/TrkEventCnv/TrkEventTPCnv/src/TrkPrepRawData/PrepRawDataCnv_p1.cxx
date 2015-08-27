@@ -2,7 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
+#define private public
+#define protected public
 #include "TrkPrepRawData/PrepRawData.h"
+#undef private
+#undef protected
+
 #include "TrkEventTPCnv/TrkPrepRawData/PrepRawDataCnv_p1.h"
 #include <algorithm>
 #include "DataModel/tools/IdentContIndex.h"
@@ -11,6 +17,7 @@
 
 void PrepRawDataCnv_p1::persToTrans( const Trk::PrepRawData_p1 *persObj, Trk::PrepRawData *transObj, MsgStream &log )
 {
+#ifdef __IDENTIFIER_64BIT__
   bool id32 = false;
   if ((persObj->m_clusId & 0XFFFFFFFF00000000LL) == 0 &&
   (persObj->m_clusId & 0X00000000FFFFFFFFLL) != 0) {
@@ -18,6 +25,7 @@ void PrepRawDataCnv_p1::persToTrans( const Trk::PrepRawData_p1 *persObj, Trk::Pr
     id32 = true;
   }
   else
+#endif
     transObj->m_clusId = persObj->m_clusId; 
   fillTransFromPStore( &m_localPosCnv, persObj->m_localPos, &transObj->m_localPos,log );
     // Trk::ErrorMatrix* pMat = createTransFromPStore( &m_errorMxCnv, persObj->m_localErrMat, log );
@@ -33,7 +41,7 @@ void PrepRawDataCnv_p1::persToTrans( const Trk::PrepRawData_p1 *persObj, Trk::Pr
     //   (*tMat)(1,0) = static_cast<double>(pMat->values[1]);      
     //   (*tMat)(1,1) = static_cast<double>(pMat->values[2]);
     // } else {
-    //   log<<MSG::WARNING<<"PrepRawDataCnv_p1::persToTrans - unexpected size of cov matrix values: "<<size<<endmsg;
+    //   log<<MSG::WARNING<<"PrepRawDataCnv_p1::persToTrans - unexpected size of cov matrix values: "<<size<<endreq;
     // }
 
   Trk::ErrorMatrix dummy;
@@ -45,11 +53,13 @@ void PrepRawDataCnv_p1::persToTrans( const Trk::PrepRawData_p1 *persObj, Trk::Pr
 
   transObj->m_rdoList.resize( persObj->m_rdoList.size() );
 
+#ifdef __IDENTIFIER_64BIT__
   if (id32) {
     for (size_t i = 0; i < persObj->m_rdoList.size(); i++)
       transObj->m_rdoList[i] = Identifier32 (persObj->m_rdoList[i]);
   }
   else
+#endif
     std::copy( persObj->m_rdoList.begin(), persObj->m_rdoList.end(), transObj->m_rdoList.begin() );
 
   transObj->m_indexAndHash.setHashAndIndex(persObj->m_indexAndHash);

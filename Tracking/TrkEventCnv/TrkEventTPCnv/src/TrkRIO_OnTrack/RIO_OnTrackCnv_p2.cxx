@@ -3,7 +3,12 @@
 */
 
 
+#define private public
+#define protected public
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
+#undef private
+#undef protected
+
 #include "TrkEventTPCnv/TrkRIO_OnTrack/RIO_OnTrackCnv_p2.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 
@@ -11,7 +16,7 @@ void RIO_OnTrackCnv_p2::persToTrans( const Trk::RIO_OnTrack_p2 *persObj, Trk::RI
 {
 //   static int count = 0;
 //   if( count++ < 10 ) {
-//      log << MSG::INFO << ">>>>---------  RIO_OnTrack ID = " << persObj->m_id << endmsg;
+//      log << MSG::INFO << ">>>>---------  RIO_OnTrack ID = " << persObj->m_id << endreq;
 //   }
    
    transObj->m_identifier = persObj->m_id;
@@ -27,7 +32,7 @@ void RIO_OnTrackCnv_p2::persToTrans( const Trk::RIO_OnTrack_p2 *persObj, Trk::RI
    if (transObj->detectorElement()==0) 
       log << MSG::WARNING<<"Unable to reset DetEl for this RIO_OnTrack, "
           << "probably because of a problem with the Identifier/IdentifierHash : ("
-          << transObj->identify()<<"/"<<transObj->idDE()<<endmsg;
+          << transObj->identify()<<"/"<<transObj->idDE()<<endreq;
 }
 
 

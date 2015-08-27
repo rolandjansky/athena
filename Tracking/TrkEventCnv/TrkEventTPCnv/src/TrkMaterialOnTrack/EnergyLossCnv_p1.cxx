@@ -2,7 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
 #include "TrkMaterialOnTrack/EnergyLoss.h"
+#undef private
+
 #include "TrkEventTPCnv/TrkMaterialOnTrack/EnergyLossCnv_p1.h"
 
 void EnergyLossCnv_p1 :: persToTrans(
@@ -10,13 +13,10 @@ void EnergyLossCnv_p1 :: persToTrans(
    Trk :: EnergyLoss    *transObj,
    MsgStream& ) 
 {
-  *transObj = Trk::EnergyLoss (persObj->m_deltaE,
-                               persObj->m_sigmaDeltaE,
-                               persObj->m_sigmaMinusDeltaE,
-                               persObj->m_sigmaPlusDeltaE,
-                               0, 0, 0, 0,
-                               // Questionable, but preserves previous behavior.
-                               transObj->length());
+  transObj->m_deltaE              = persObj->m_deltaE;
+  transObj->m_sigmaDeltaE         = persObj->m_sigmaDeltaE;
+  transObj->m_sigmaMinusDeltaE    = persObj->m_sigmaMinusDeltaE;
+  transObj->m_sigmaPlusDeltaE     = persObj->m_sigmaPlusDeltaE;
 }
 
 void EnergyLossCnv_p1 :: transToPers(
@@ -24,10 +24,10 @@ void EnergyLossCnv_p1 :: transToPers(
    Trk::EnergyLoss_p1 *persObj,
    MsgStream& ) 
 {
-  persObj->m_deltaE              = (float)transObj->deltaE();
-  persObj->m_sigmaDeltaE         = (float)transObj->sigmaDeltaE();
-  persObj->m_sigmaMinusDeltaE    = (float)transObj->sigmaMinusDeltaE();
-  persObj->m_sigmaPlusDeltaE     = (float)transObj->sigmaPlusDeltaE();
+  persObj->m_deltaE              = (float)transObj->m_deltaE;
+  persObj->m_sigmaDeltaE         = (float)transObj->m_sigmaDeltaE;
+  persObj->m_sigmaMinusDeltaE    = (float)transObj->m_sigmaMinusDeltaE;
+  persObj->m_sigmaPlusDeltaE     = (float)transObj->m_sigmaPlusDeltaE;
 }
 
 

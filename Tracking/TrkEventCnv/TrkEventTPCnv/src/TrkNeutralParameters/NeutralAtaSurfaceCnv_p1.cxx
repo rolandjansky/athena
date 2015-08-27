@@ -8,7 +8,12 @@
 //
 //-----------------------------------------------------------------------------
 
+#define private public
+#define protected public
 #include "TrkNeutralParameters/NeutralParameters.h"
+#undef private
+#undef protected
+
 #include "TrkEventTPCnv/TrkDetElementSurface/DetElementSurfaceCnv_p1.h"
 
 #include "TrkEventTPCnv/TrkNeutralParameters/NeutralAtaSurfaceCnv_p1.h"

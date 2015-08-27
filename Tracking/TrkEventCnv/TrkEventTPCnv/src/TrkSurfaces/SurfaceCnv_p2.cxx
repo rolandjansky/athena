@@ -8,6 +8,8 @@
 //
 // ----------------------------------------------------------------------------
 
+#define private public
+#define protected public
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
@@ -15,9 +17,11 @@
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkDistortedSurfaces/SaggedLineSurface.h"
+#undef private
+#undef protected
+
 #include "TrkEventTPCnv/TrkSurfaces/SurfaceCnv_p2.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
-#include "CxxUtils/make_unique.h"
 
 template <class SURFACE>
 SURFACE* SurfaceCnv_p2<SURFACE>::createTransient( const Trk::Surface_p2 * persObj,MsgStream& ){
@@ -31,12 +35,12 @@ SURFACE* SurfaceCnv_p2<SURFACE>::createTransient( const Trk::Surface_p2 * persOb
     surface= const_cast<SURFACE*>(detSurf); // Needed to fulfill interface...
   } else {
     // Not Det element surface, so need to create surface & fill transform
-    auto transform = CxxUtils::make_unique<Amg::Transform3D>();
-    EigenHelpers::vectorToEigenTransform3D( persObj->m_transform, *transform.get() );
-    surface=new SURFACE(std::move(transform));
+    surface=new SURFACE();
     // std::cout<<"SurfaceCnv_p2<SURFACE>::createTransient with vector=[";
     // for (auto v : persObj->m_transform)
     //     std::cout << v << ' ';
+    surface->m_transform = new Amg::Transform3D();
+    EigenHelpers::vectorToEigenTransform3D( persObj->m_transform, *surface->m_transform );
   }  
   return surface;
 }
@@ -52,15 +56,11 @@ void SurfaceCnv_p2<SURFACE>::transToPers( const SURFACE         * transObj,
                                        MsgStream & log)
 {
   // std::cout<<"SurfaceCnv_p2<SURFACE>::transToPers - surf="<<transObj<<std::endl;
-  if (not transObj){
-    log<<MSG::WARNING<<"SurfaceCnv_p2<SURFACE>::transToPers - null pointer for transient object."<<endmsg;
-    return;
-  }
   persObj->m_associatedDetElementId = transObj->associatedDetectorElementIdentifier().get_identifier32().get_compact();
   if (transObj->isFree() ) { 
     // if this is a free surface, write it out 'as is' 
     // - otherwise we're relying on the fact that the Identifier is there (and valid!) to reconstruct it on reading
-    EigenHelpers::eigenTransform3DToVector( *transObj->cachedTransform(),persObj->m_transform );
+    EigenHelpers::eigenTransform3DToVector( *transObj->m_transform,persObj->m_transform );
     
     // std::cout<<"SurfaceCnv_p2<SURFACE>::transToPers free surface with pers vector=[";
     // for (auto v : persObj->m_transform)
@@ -71,7 +71,7 @@ void SurfaceCnv_p2<SURFACE>::transToPers( const SURFACE         * transObj,
     // std::cout<<*transObj<<std::endl;
     //assert(transObj->m_associatedDetElementId.is_valid());
     if (!transObj->associatedDetectorElementIdentifier().is_valid()) {
-       log<<MSG::WARNING<<"SurfaceCnv_p2<SURFACE>::transToPers - invalid detector element for non-free surface: "<<*transObj<<endmsg;
+       log<<MSG::WARNING<<"SurfaceCnv_p2<SURFACE>::transToPers - invalid detector element for non-free surface: "<<*transObj<<endreq;
     }
   }
   persObj->m_surfaceType = static_cast<uint8_t>(transObj->type());
@@ -86,7 +86,7 @@ void SurfaceCnv_p2<Trk::SaggedLineSurface>::transToPers( const Trk::SaggedLineSu
   persObj->m_associatedDetElementId = transObj->associatedDetectorElementIdentifier().get_identifier32().get_compact();
   persObj->m_surfaceType = static_cast<uint8_t>(transObj->type());
   if (transObj->isFree() ) {
-    log << MSG::WARNING<<"Not expecting these to be Free!"<<endmsg;
+    log << MSG::WARNING<<"Not expecting these to be Free!"<<endreq;
   }   
 }
 

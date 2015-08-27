@@ -3,7 +3,12 @@
 */
 
 
+#define private public
+#define protected public
 #include "TrkSegment/TrackSegment.h"
+#undef private
+#undef protected
+
 #include "TrkEventTPCnv/TrkSegment/TrackSegmentCnv_p1.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkEventCnvTools/DetElementSurface.h"

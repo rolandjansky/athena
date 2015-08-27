@@ -11,7 +11,10 @@
 //
 //-----------------------------------------------------------------------------
 
+#define private public
 #include "TrkSurfaces/TriangleBounds.h"
+#undef private
+
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "TrkEventTPCnv/TrkSurfaces/TriangleBounds_p1.h"
 
