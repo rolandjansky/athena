@@ -69,7 +69,7 @@
                     <chaindatasetName>AOD.Zee.50ns.pileup.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/AOD.backup.3events.pool.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <chaindataset_info>
@@ -77,7 +77,7 @@
                     <chaindatasetName>PhysVal_Zee_50ns.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/PhysVal.backup.3events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
@@ -125,7 +125,7 @@
                     <chaindatasetName>AOD.Zee.25ns.pileup.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/AOD.backup.3events.pool.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <chaindataset_info>
@@ -133,7 +133,7 @@
                     <chaindatasetName>PhysVal_Zee_25ns.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/PhysVal.backup.3events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
@@ -182,7 +182,7 @@
                     <chaindatasetName>AOD.ggH125.50ns.pileup.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/AOD.backup.3events.pool.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <chaindataset_info>
@@ -190,7 +190,7 @@
                     <chaindatasetName>PhysVal_ggH125_50ns.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/PhysVal.backup.3events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
@@ -238,7 +238,7 @@
                     <chaindatasetName>AOD.ggH125.25ns.pileup.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/AOD.backup.3events.pool.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <chaindataset_info>
@@ -246,7 +246,7 @@
                     <chaindatasetName>PhysVal_ggH125_25ns.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/PhysVal.backup.3events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
@@ -296,7 +296,7 @@
                     <chaindatasetName>AOD.dijet.JZ7W.50ns.pileup.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/AOD.backup.3events.pool.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <chaindataset_info>
@@ -304,7 +304,7 @@
                     <chaindatasetName>PhysVal_JZ7W_50ns.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/PhysVal.backup.3events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
@@ -352,7 +352,7 @@
                     <chaindatasetName>AOD.dijet.JZ7W.25ns.pileup.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/AOD.backup.3events.pool.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <chaindataset_info>
@@ -360,7 +360,7 @@
                     <chaindatasetName>PhysVal_JZ7W_25ns.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/PhysVal.backup.3events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
@@ -410,7 +410,7 @@
                     <chaindatasetName>AOD.dijet.JZ3W.50ns.pileup.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/AOD.backup.3events.pool.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <chaindataset_info>
@@ -418,7 +418,7 @@
                     <chaindatasetName>PhysVal_JZ3W_50ns.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/PhysVal.backup.3events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
@@ -466,7 +466,7 @@
                     <chaindatasetName>AOD.dijet.JZ3W.25ns.pileup.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/AOD.backup.3events.pool.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <chaindataset_info>
@@ -474,7 +474,7 @@
                     <chaindatasetName>PhysVal_JZ3W_25ns.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/PhysVal.backup.3events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
@@ -522,15 +522,15 @@
                     <chaindatasetName>AOD.ppToJpsie3e3.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/AOD.backup.3events.pool.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <chaindataset_info>
                   <jobTransformData />
-                    <chaindatasetName>PhysVaL_Jpsi.root</chaindatasetName>
+                    <chaindatasetName>PhysVal_Jpsi.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/PhysVal.backup.3events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
@@ -578,7 +578,7 @@
                     <chaindatasetName>AOD.Ggammagamma.pool.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/AOD_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/AOD.backup.3events.pool.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <chaindataset_info>
@@ -586,7 +586,7 @@
                     <chaindatasetName>PhysVal_Ggammagamma.root</chaindatasetName>
                       <dataset_info>
                        <dc2/>
-                        <datasetName>/eos/atlas/atlascerngroupdisk/trig-daq/egamma/PhysVal_backup_11events.root</datasetName>
+                        <datasetName>/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigEgammaValidation/PhysVal.backup.3events.root</datasetName>
                     </dataset_info>
                   </chaindataset_info>
                 <queue>long</queue>
