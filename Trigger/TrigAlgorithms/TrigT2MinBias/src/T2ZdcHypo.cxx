@@ -92,7 +92,7 @@ HLT::ErrorCode T2ZdcHypo::hltExecute(const HLT::TriggerElement* outputTE,
   
   
   // Try to retrieve the TrigT2ZdcSignals object produced by the Fex
-  if(getFeature(outputTE, m_t2ZdcSignals, "T2Zdc") != HLT::OK){
+  if(getFeature(outputTE, m_t2ZdcSignals, "zdcsignals") != HLT::OK){
     if(msgLvl() <= MSG::WARNING){
       m_log << MSG::WARNING << "Failed to retrieve features from TE." << endreq;
     }
