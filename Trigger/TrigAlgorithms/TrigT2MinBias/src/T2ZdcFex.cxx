@@ -175,7 +175,7 @@ HLT::ErrorCode T2ZdcFex::hltExecute(std::vector<std::vector<HLT::TriggerElement*
   HLT::TriggerElement* outputTE = config()->getNavigation()->addNode(allTEs, type_out);
   outputTE->setActiveState(true);
 
-  HLT::ErrorCode hltStatus = attachFeature(outputTE, m_zdcSignals, "T2Zdc");
+  HLT::ErrorCode hltStatus = attachFeature(outputTE, m_zdcSignals, "zdcsignals");
   if(hltStatus != HLT::OK) {
     if(msgLvl() <= MSG::ERROR) {
       m_log << MSG::ERROR << "Write of TrigEMCluster into outputTE failed" << endreq;
