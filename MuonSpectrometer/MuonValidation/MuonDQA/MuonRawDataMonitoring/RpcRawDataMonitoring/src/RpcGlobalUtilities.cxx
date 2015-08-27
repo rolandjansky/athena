@@ -41,11 +41,13 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* m_muonMgr, co
   int irpcgasGap	 =   int(m_rpcIdHelper->gasGap(prdcoll_id))	  ;
   int irpcmeasuresPhi	 =   int(m_rpcIdHelper->measuresPhi(prdcoll_id))  ;
   int irpcstrip		 =   int(m_rpcIdHelper->strip(prdcoll_id))	  ;
+
+  //std::cout << "prd irpcstationName " << irpcstationName<<" irpcstationEta " << irpcstationEta<< " irpcstationPhi " << irpcstationPhi<<" irpcdoubletR " << irpcdoubletR<< " irpcdoubletZ " << irpcdoubletZ <<std::endl;
    
   //get information from geomodel to book and fill rpc histos with the right max strip number
   
   const MuonGM::RpcReadoutElement* descriptor = m_muonMgr->getRpcReadoutElement(prdcoll_id);
-  
+  //const MuonGM::RpcReadoutSet*     chamberset = 
   // const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(irpcstationName-2, irpcstationEta  + 8,  irpcstationPhi-1, irpcdoubletR -1,irpcdoubletZ   -1);
   // const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields( irpcstationName, irpcstationEta, irpcstationPhi, irpcdoubletR, irpcdoubletZ, irpcdoubletPhi  );
  		      
@@ -104,7 +106,7 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* m_muonMgr, co
   //Extension feet Pivot
   if(irpcdoubletR==2)PlaneTipo=1;
   //BML7 assigned to pivot 
-  if( irpcstationName==2 && ( (abs(irpcstationEta)==7)||(irpcstationPhi==7&&abs(irpcstationEta)==6) ) )PlaneTipo=1;;
+  if( irpcstationName==2 && ( (abs(irpcstationEta)==7)||(irpcstationPhi==7&&abs(irpcstationEta)==6) ) )PlaneTipo=1;
   
   //evaluate strip shift
   //2=BML,3=BMS,4=BOL,5=BOS,8=BMF,9=BOF,10=BOG,53=BME
@@ -135,9 +137,30 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* m_muonMgr, co
        if (jrpcstationName>10 && jrpcstationName!=53) continue; 
        krpcstationName = jrpcstationName ;
        if(krpcstationName==1)krpcstationName = 53 ; //BME
-      for(int idbz=1; idbz!= 4; idbz++){
-    	const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(krpcstationName, ieta, irpcstationPhi, irpcdoubletR, idbz, 1 );
+      
+        int krpcdoubletR=irpcdoubletR;
+	
+	if(PlaneTipo==0){
+	 if(krpcstationName==2&&abs(ieta)==7         )continue;
+	 if(krpcstationName==2&&abs(ieta)==6&&irpcstationPhi==7)continue;
+	 if(krpcstationName==4||krpcstationName==5||krpcstationName==9||krpcstationName==10)continue;  
+        }
+	else if(PlaneTipo==1){
+	 if(krpcstationName==2&&abs(abs(ieta))==7  	         )krpcdoubletR=2;
+	 if(krpcstationName==2&&abs(abs(ieta))==6&&irpcstationPhi==7)krpcdoubletR=2;
+	 if(krpcstationName==2&&abs(ieta)==7         )krpcdoubletR=1;
+	 if(krpcstationName==2&&abs(ieta)==6&&irpcstationPhi==7)krpcdoubletR=1;
+        }
+	else if(PlaneTipo==2){
+	 if(krpcstationName==2||krpcstationName==3||krpcstationName==8||krpcstationName==53)continue;
+        }
+        
+	for(int idbz=1; idbz!= 4; idbz++){
+    	const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(krpcstationName, ieta, irpcstationPhi, krpcdoubletR, idbz, 1 );
     	if(rpc != NULL ){
+	
+	//std::cout << "loop krpcstationName " << krpcstationName<<" ieta " << ieta<< " irpcstationPhi " << irpcstationPhi<<" krpcdoubletR " << krpcdoubletR<< " idbz " << idbz <<std::endl;
+	
 		
 	  if ( idbz != rpc->getDoubletZ() ) continue ;
 	  
@@ -371,11 +394,11 @@ std::vector<int>  RpcStripShift(const MuonGM::MuonDetectorManager* m_muonMgr, co
   rpcstriptot.push_back(tower_dbindex         );   //24
   rpcstriptot.push_back(ShiftStripPhiAtlas    );   //25
   
-//      std::cout << "----------------"<< std::endl;
-//    
-//      std::cout << "NphiStripsTotSideA "<<NphiStripsTotSideA<< " NphiStripsTotSideC "<<NphiStripsTotSideC<< " " <<irpcmeasuresPhi <<std::endl;
-//      std::cout << "NetaStripsTotSideA "<<NetaStripsTotSideA<< " NetaStripsTotSideC "<<NetaStripsTotSideC<<" ShiftEtaStripsTot "<< ShiftEtaStripsTot<< std::endl;
-//      std::cout << "NetaPanelsTotSideA "<<NetaPanelsTotSideA<< " NetaPanelsTotSideC "<<NetaPanelsTotSideC<<" ShiftEtaPanelsTot "<< ShiftEtaPanelsTot<< std::endl;
+      //std::cout << "----------------"<< std::endl;
+    
+      //std::cout << "NphiStripsTotSideA "<<NphiStripsTotSideA<< " NphiStripsTotSideC "<<NphiStripsTotSideC<< " " <<irpcmeasuresPhi <<std::endl;
+      //std::cout << "NetaStripsTotSideA "<<NetaStripsTotSideA<< " NetaStripsTotSideC "<<NetaStripsTotSideC<<" ShiftEtaStripsTot "<< ShiftEtaStripsTot<< std::endl;
+      //std::cout << "NetaPanelsTotSideA "<<NetaPanelsTotSideA<< " NetaPanelsTotSideC "<<NetaPanelsTotSideC<<" ShiftEtaPanelsTot "<< ShiftEtaPanelsTot<< std::endl;
      
   
   return  rpcstriptot ;
