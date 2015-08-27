@@ -40,6 +40,7 @@
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "InDetReadoutGeometry/SiDetectorElement.h"
 //Conditions
 #include "InDetConditionsSummaryService/InDetHierarchy.h"
 #include "InDetRawData/SCT3_RawData.h"
@@ -75,6 +76,7 @@ namespace Trk {
 namespace InDetDD{
   class SiDetectorElement;
   class SiCellId;
+  class SCT_DetectorManagaer;
 }
 
 namespace{//anonymous namespace for functions at file scope
@@ -135,6 +137,8 @@ using std::string;
 SCTHitEffMonTool::SCTHitEffMonTool(const string& type,const string& name, const IInterface* parent) :
   ManagedMonitorToolBase(type,name,parent),
   mgr(nullptr),
+  m_pSCTHelper(0),
+  m_pManager(0),
   m_TrackName("ResolvedSCTTracks"),//original track collection
   m_chrono(nullptr),
   m_tracks(nullptr),//original tracks
@@ -174,6 +178,7 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string& type,const string& name, const 
   m_flaggedConditionSvc("SCT_FlaggedConditionSvc", name),
   m_configConditions("InDetSCT_ConfigurationConditionsSvc", name),
   m_Eff_Total(nullptr),
+  m_Eff_TotalBCID(nullptr),
   m_Eff_hashCodeHisto(nullptr),
   m_effHashLumiB(nullptr),
   m_mNHitHisto(nullptr),
@@ -239,6 +244,7 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string& type,const string& name, const 
   m_countEvent=0;
 
   m_Eff_summaryHisto.assign(0);
+  m_Eff_summaryHistoFirstBCID.assign(0);
   m_Eff_summaryHisto_old.assign(0);
   m_holesPerTrackHisto.assign(0);
   m_holesDistPerTrackHisto.assign(0);
@@ -342,6 +348,8 @@ StatusCode SCTHitEffMonTool::initialize(){
   INFO ("Retrieved tool " << m_rotcreator);
   CHECK(m_fieldServiceHandle.retrieve());
 
+  detStore()->retrieve( m_pSCTHelper, "SCT_ID");
+  detStore()->retrieve( m_pManager, "SCT");
   m_path = (m_useIDGlobal) ? ("/InDetGlobal/") : ("");
 
   if (m_superDetailed) m_detailed = true;
@@ -393,6 +401,8 @@ StatusCode SCTHitEffMonTool::bookHistograms()
 
     CHECK (bookEffHisto(m_Eff_Total, histGroupE[GENERAL_INDEX], "SctTotalEff", "SctTotalEff", N_REGIONS, 0, N_REGIONS));
     for (Int_t i(0) ; i != 3 ; ++i) m_Eff_Total->GetXaxis()->SetBinLabel(i+1, subDetName[i]);
+    CHECK (bookEffHisto(m_Eff_TotalBCID, histGroupE[GENERAL_INDEX], "SctTotalEffBCID", "SCT Total Efficiency for First BCID", N_REGIONS, 0, N_REGIONS));
+    for (Int_t i(0) ; i != 3 ; ++i) m_Eff_TotalBCID->GetXaxis()->SetBinLabel(i+1, subDetName[i]);
     CHECK (bookEffHisto(m_Eff_hashCodeHisto, histGroupE[GENERAL_INDEX], "effHashCode", "Efficiency vs module Hash code", n_mod[GENERAL_INDEX] * 2, -0.5, n_mod[GENERAL_INDEX] * 2 - 0.5));
     m_Eff_hashCodeHisto->GetXaxis()->SetTitle("Module Hash Code");
     m_Eff_hashCodeHisto->GetYaxis()->SetTitle("Efficiency");//15.12.2014
@@ -433,8 +443,10 @@ StatusCode SCTHitEffMonTool::bookHistograms()
     array < TString, N_REGIONS > ineffMapName= {{"ineffm_", "ineff_", "ineffp_"}};
     array < TString, N_REGIONS > effLumiName = {{"m_eff_Lumi_", "eff_Lumi_", "p_eff_Lumi_"}};//23.01.2015
     array < TString, N_REGIONS > sumeff      = {{"summaryeffm", "summaryeff", "summaryeffp"}};
+    array < TString, N_REGIONS > sumeffBCID      = {{"summaryeffmBCID", "summaryeffBCID", "summaryeffpBCID"}};
     array < TString, N_REGIONS > sumeff_old  = {{"summaryeffm_old", "summaryeff_old", "summaryeffp_old"}};
     TString sumefftitle[3]={"Summary Module Efficiency in Endcap C","Summary Module Efficiency in Barrel","Summary Module Efficiency in Endcap A"};//30.11.2014
+    TString sumefftitleBCID[3]={"Summary Module Efficiency in Endcap C for First BC","Summary Module Efficiency in Barrel for First BC","Summary Module Efficiency in Endcap A for First BC"};//30.11.2014
     array < TString, 12 > selecName = {{"All", "Module", "nHits", "TRTPhase", "Enclosed", "Phi", "Chi2", "Face", "Guard", "Bad chip", "d0", "pT"}};
     for (Int_t isub(0) ; isub != N_REGIONS ; ++isub) {
       for (Long_t i(0) ; i != n_layers[isub] ; ++i){
@@ -492,15 +504,18 @@ StatusCode SCTHitEffMonTool::bookHistograms()
       }
 
       CHECK (bookEffHisto(m_Eff_summaryHisto[isub],     histGroupShift[isub], sumeff[isub], sumefftitle[isub], 2*n_layers[isub], 0., n_layers[isub]));
+      CHECK (bookEffHisto(m_Eff_summaryHistoFirstBCID[isub],     histGroupShift[isub], sumeffBCID[isub], sumefftitleBCID[isub], 2*n_layers[isub], 0., n_layers[isub]));
       CHECK (bookEffHisto(m_Eff_summaryHisto_old[isub], histGroupShift[isub], sumeff_old[isub], sumefftitle[isub], 2*n_layers[isub], 0., n_layers[isub]));
       unsigned int limit[3]={N_DISKSx2,N_BARRELSx2,N_DISKSx2};//30.11.2014 
       for(unsigned int i(0); i != limit[isub]; i++){
         LayerSideFormatter layerSide(i,isub);
         // use dedicated title for the bin labels (from 0_1 to 3_0)
         m_Eff_summaryHisto[isub]    ->GetXaxis()->SetBinLabel(i+1,layerSide.dedicated_title().c_str());
+        m_Eff_summaryHistoFirstBCID[isub]    ->GetXaxis()->SetBinLabel(i+1,layerSide.dedicated_title().c_str());
         m_Eff_summaryHisto_old[isub]->GetXaxis()->SetBinLabel(i+1,layerSide.title().c_str());
       }//30.11.2014
       m_Eff_summaryHisto[isub]    ->GetYaxis()->SetTitle("Efficiency");
+      m_Eff_summaryHistoFirstBCID[isub]    ->GetYaxis()->SetTitle("Efficiency");
       m_Eff_summaryHisto_old[isub]->GetYaxis()->SetTitle("Efficiency");
 
       CHECK (bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub],"effLumiBlock", "Efficiency vs Luminosity block in " + subDetName[isub],50,1,1001));//20.01.2015
@@ -623,6 +638,8 @@ StatusCode SCTHitEffMonTool::bookHistogramsRecurrent()                          
 
     CHECK (bookEffHisto(m_Eff_Total, histGroupE[GENERAL_INDEX], "SctTotalEff", "SctTotalEff", N_REGIONS, 0, N_REGIONS));
     for (Int_t i(0) ; i != 3 ; ++i) m_Eff_Total->GetXaxis()->SetBinLabel(i+1, subDetName[i]);
+    CHECK (bookEffHisto(m_Eff_TotalBCID, histGroupE[GENERAL_INDEX], "SctTotalEffBCID", "SCT Total Efficiency for First BCID", N_REGIONS, 0, N_REGIONS));
+    for (Int_t i(0) ; i != 3 ; ++i) m_Eff_TotalBCID->GetXaxis()->SetBinLabel(i+1, subDetName[i]);
     CHECK (bookEffHisto(m_Eff_hashCodeHisto, histGroupE[GENERAL_INDEX], "effHashCode", "Efficiency vs module Hash code", n_mod[GENERAL_INDEX] * 2, -0.5, n_mod[GENERAL_INDEX] * 2 - 0.5));//26.11.2014
     m_Eff_hashCodeHisto->GetXaxis()->SetTitle("Module Hash Code");
     m_Eff_hashCodeHisto->GetYaxis()->SetTitle("Efficiency");//15.12.2014
@@ -664,8 +681,10 @@ StatusCode SCTHitEffMonTool::bookHistogramsRecurrent()                          
     array< TString, N_REGIONS > ineffMapName={{"ineffm_", "ineff_", "ineffp_"}};
     //
     array < TString, N_REGIONS > sumeff = {{"summaryeffm", "summaryeff", "summaryeffp"}};
+    array < TString, N_REGIONS > sumeffBCID = {{"summaryeffmBCID", "summaryeffBCID", "summaryeffpBCID"}};
     array < TString, N_REGIONS > sumeff_old = {{"summaryeffm_old", "summaryeff_old", "summaryeffp_old"}};
     TString sumefftitle[3]={"Summary Module Efficiency in Endcap C","Summary Module Efficiency in Barrel","Summary Module Efficiency in Endcap A"};
+    TString sumefftitleBCID[3]={"Summary Module Efficiency in Endcap C for First BC","Summary Module Efficiency in Barrel for First BC","Summary Module Efficiency in Endcap A for First BC"};
     array < TString, 12 > selecName = {{"All", "Module", "nHits", "TRTPhase", "Enclosed", "Phi", "Chi2", "Face", "Guard", "Bad chip", "d0", "pT"}};
     for (Int_t isub(0) ; isub != N_REGIONS ; ++isub) {
       for (Long_t i(0) ; i != n_layers[isub] ; ++i){
@@ -724,14 +743,17 @@ StatusCode SCTHitEffMonTool::bookHistogramsRecurrent()                          
       }
 
       CHECK (bookEffHisto(m_Eff_summaryHisto[isub],     histGroupShift[isub], sumeff[isub], sumefftitle[isub], 2*n_layers[isub], 0., n_layers[isub]));
+      CHECK (bookEffHisto(m_Eff_summaryHistoFirstBCID[isub],     histGroupShift[isub], sumeffBCID[isub], sumefftitleBCID[isub], 2*n_layers[isub], 0., n_layers[isub]));
       CHECK (bookEffHisto(m_Eff_summaryHisto_old[isub], histGroupShift[isub], sumeff_old[isub], sumefftitle[isub], 2*n_layers[isub], 0., n_layers[isub]));
       unsigned int limit[3]={N_DISKSx2,N_BARRELSx2,N_DISKSx2};//30.11.2014
       for(unsigned int i(0); i != limit[isub]; i++){
         LayerSideFormatter layerSide(i,isub);
         m_Eff_summaryHisto[isub]    ->GetXaxis()->SetBinLabel(i+1,layerSide.dedicated_title().c_str());
+        m_Eff_summaryHistoFirstBCID[isub]    ->GetXaxis()->SetBinLabel(i+1,layerSide.dedicated_title().c_str());
         m_Eff_summaryHisto_old[isub]->GetXaxis()->SetBinLabel(i+1,layerSide.title().c_str());
       }//30.11.2014
       m_Eff_summaryHisto[isub]    ->GetYaxis()->SetTitle("Efficiency");
+      m_Eff_summaryHistoFirstBCID[isub]    ->GetYaxis()->SetTitle("Efficiency");
       m_Eff_summaryHisto_old[isub]->GetYaxis()->SetTitle("Efficiency");
       CHECK (bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub],"effLumiBlock", "Efficiency vs Luminosity block in " + subDetName[isub],50,1,1001));//20.01.2015
       m_Eff_LumiBlockHisto[isub]->GetXaxis()->SetTitle("Luminosity block");
@@ -850,6 +872,7 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
   CHECK (evtStore()->retrieve(pEvent));
   if (not pEvent) return ERROR ("Could not find event pointer"), StatusCode::FAILURE;
   eventID = pEvent->event_ID();
+  unsigned BCID = eventID->bunch_crossing_id();
 
   typedef SCT_RDORawData SCTRawDataType;
 
@@ -1247,7 +1270,10 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
 
       // Check bad chips
       Bool_t nearBadChip(false);
-      Int_t chipPos(previousChip(xl, side, isub));
+      IdentifierHash waferHash = m_pSCTHelper->wafer_hash(surfaceID);
+      const InDetDD::SiDetectorElement* pElement = m_pManager->getDetectorElement(waferHash);
+      bool swap=(pElement->swapPhiReadoutDirection()) ? true : false;
+      Int_t chipPos(previousChip(xl, side, swap));
       unsigned int status(0);
       std::map<Identifier, unsigned int>::const_iterator badChip(m_badChips->find(module_id));
       if (badChip != m_badChips->end()){
@@ -1261,6 +1287,7 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
       m_Eff_summaryHisto[isub]    ->Fill(dedicated_layerPlusHalfSide, m_eff); // adjustment for dedicated_title()
       m_Eff_hashCodeHisto->Fill(Double_t(sideHash), m_eff);//15.12.2014
       m_Eff_LumiBlockHisto[isub]->Fill(eventID->lumi_block(), m_eff);//20.01.2015
+      if(BCID == 1) m_Eff_summaryHistoFirstBCID[isub]    ->Fill(dedicated_layerPlusHalfSide, m_eff); // adjustment for dedicated_title()
 
       if (m_detailed) {
         m_SelectionHisto[isub]->Fill(9.); // Past bad chip
@@ -1301,6 +1328,7 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
         if (fabs(trackHitResidual)<65) m_layerResidualHistos[isub][layerSideIndex]->Fill(m_sctId->eta_module(surfaceID), m_sctId->phi_module(surfaceID), trackHitResidual);
       }
       m_Eff_Total->Fill(Double_t(isub), m_eff);
+      if (BCID == 1) m_Eff_TotalBCID->Fill(Double_t(isub), m_eff);
       useDetector[isub] = true;
       const int ieta(m_sctId->eta_module(surfaceID));
       const int iphi(m_sctId->phi_module(surfaceID));
@@ -1495,17 +1523,14 @@ StatusCode SCTHitEffMonTool::failCut(Bool_t value, std::string name){
   return StatusCode::SUCCESS;
 }
 
-Int_t SCTHitEffMonTool::previousChip(Double_t xl, Int_t side, Int_t isub){
+Int_t SCTHitEffMonTool::previousChip(Double_t xl, Int_t side, bool swap){
   Float_t nStrips(768.);
   Float_t stripWidth(79.95e-3);
   Float_t nChips(6.);
   Float_t xLeftEdge(xl +  nStrips / 2. * stripWidth); // xl defined wrt center of module, convert to edge of module
   Int_t chipPos(int(xLeftEdge / (stripWidth  * nStrips) * nChips));
-  if (chipPos < 0 or chipPos > 5) VERBOSE("Wrong chip position " << chipPos << " " << xl << " " << side);
-  chipPos = std::max(chipPos, 0);
-  chipPos = std::min(chipPos, 5);
-  if (isub == 0) chipPos = 5 - chipPos; // Correction for inverted numbering in EC
-  if (side == 1) chipPos = 11 - chipPos;  
+  if(side==0) chipPos = swap ? 5-chipPos : chipPos;
+  else chipPos = swap ? 11-chipPos : 6+chipPos;
   return chipPos;
 }
 

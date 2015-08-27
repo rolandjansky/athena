@@ -23,7 +23,6 @@
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h" 
 #include "SCT_ConditionsServices/ISCT_FlaggedConditionSvc.h"
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
-
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
 
 /** Forward declarations*/
@@ -58,7 +57,9 @@ class SCTErrMonTool : public ManagedMonitorToolBase
 	  //@}
 
   private:
-  	static const int NREGIONS_INC_GENERAL=SCT_Monitoring::N_REGIONS+1;
+	  static const int NREGIONS_INC_GENERAL=SCT_Monitoring::N_REGIONS+1;
+	  typedef TProfile2D * Prof2_t;
+	  typedef std::vector<Prof2_t> VecProf2_t;
     StatusCode checkRateHists();
     StatusCode fillByteStreamErrors();
     StatusCode bookErrHistos();
@@ -126,6 +127,37 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   StatusCode bookPositiveEndCapConfMaps();
   StatusCode bookNegativeEndCapConfMaps();
 
+  int nLink0[4088];
+  int nLink1[4088];
+
+  bool goodModules[4088];
+  VecProf2_t m_pnoiseoccupancymapHistoVectorECC;
+  VecProf2_t m_pnoiseoccupancymapHistoVectorECCSide0;
+  VecProf2_t m_pnoiseoccupancymapHistoVectorECCSide1;
+  VecProf2_t m_pnoiseoccupancymapHistoVectorBar;
+  VecProf2_t m_pnoiseoccupancymapHistoVectorBarSide0;
+  VecProf2_t m_pnoiseoccupancymapHistoVectorBarSide1;
+  VecProf2_t m_pnoiseoccupancymapHistoVectorECA;
+  VecProf2_t m_pnoiseoccupancymapHistoVectorECASide0;
+  VecProf2_t m_pnoiseoccupancymapHistoVectorECASide1;
+
+  bool noSidesHit;
+  bool oneSideHit;
+  int nZero[4088];
+  int nOne[4088];
+  int nOneSide0[4088];
+  int nOneSide1[4088];
+  int nLayer[4088];
+  int nEta[4088];
+  int nPhi[4088];
+  int nNonGoodModule[4088];
+
+  int tbin;
+  int modNum;
+  float ratio;
+  float ratioside0;
+  float ratioside1;
+
   int fillByteStreamErrorsHelper(const std::set<IdentifierHash>* errors, TH2F *histo[NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2], bool lumiHist, int err_type, bool b_maskedlinks);
   void numByteStreamErrors(const std::set<IdentifierHash>* errors, int& ntot, int& nbar, int& neca, int& necc);
   StatusCode bookErrHistosHelper(MonGroup & mg, TString name, TString title, TString titlehitmap, TProfile2D* &tprof, TH2F* &th, const int layer, const bool barrel=true);
@@ -176,6 +208,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
 
   ///SCT Helper class
   const SCT_ID* m_pSCTHelper;
+
   //@}
 
  /// ---------------------------------------
@@ -190,8 +223,9 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   StatusCode resetCondDBMaps();
   StatusCode resetConfigurationDetails();
 
-  /// Pointer to 1D histogram of Number of SCT Clusters per Event
+  /// Pointer to 1D histogram of Number of SCT Clusters per Even
   TProfile * m_Conf[4];
+  TProfile * m_ConfRN[4];
   // TProfile * m_ConfOnline[4];
   TH1F     * m_ConfOnline[4];
   TProfile * m_MaskedLinksVsLB[4];
@@ -234,14 +268,25 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   /** a handle on the Hist/TTree registration service */
   ServiceHandle<ITHistSvc> m_thistSvc;
   ServiceHandle<ISCT_ByteStreamErrorsSvc> m_byteStreamErrSvc;
+  //  ServiceHandle<IInDetConditionsSvc>       m_pSummarySvc;
+  bool                                     m_checkBadModules;
+  bool                                     m_ignore_RDO_cut_online;
 
   float m_errThreshold;
   float m_effThreshold;
   int m_noiseThreshold;
   bool getHisto(const int lyr, const int reg, const int type, TH2* histo[2]);
   bool getHistoRecent(const int lyr, const int reg, const int type, TH2* histo[2]);
-
+  float calculateNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide);
+  float calculateOneSideNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide);
+  bool isBarrel(const int moduleNumber);
+  bool isEndcap(const int moduleNumber);
+  bool isEndcapA(const int moduleNumber);
+  bool isEndcapC(const int moduleNumber);
   //@}
+
+  Prof2_t
+    prof2Factory(const std::string & name, const std::string & title, const unsigned int&, VecProf2_t & storageVector);
 };
 
 #endif

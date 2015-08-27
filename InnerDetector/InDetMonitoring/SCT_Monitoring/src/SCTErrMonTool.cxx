@@ -68,6 +68,27 @@ namespace{ //anon. namespace for file-scoped functions
      }
    }
    **/
+
+  enum Pattern{ IXX=0, XIX, XXI };
+  
+  bool timeBinInPattern(const int tbin, const Pattern xxx){
+    switch (xxx) {
+    case IXX:
+      return (tbin>3);
+      break;
+    case XIX:
+      return (tbin==2||tbin==3||tbin==6||tbin==7);
+      break;
+    case XXI:
+      return (tbin==1||tbin==3||tbin==5||tbin==7);
+      break;
+    default:
+      return false;
+      break;
+    }
+  }
+  const std::string names[]={"Endcap C","Barrel","Endcap A"};
+  const std::string abbreviations[]={"ECC", "Bar","ECA"};
   
   int numberOfInefficientSides( TH2* pHistogramArray[],const int xbin, const int ybin, const float threshold){
     float histogramBinContent0=pHistogramArray[0]->GetBinContent(xbin, ybin);
@@ -82,6 +103,11 @@ namespace{ //anon. namespace for file-scoped functions
     float histogramBinContent0=pHistogramArray[0]->GetBinContent(xbin, ybin);
     float histogramBinContent1=pHistogramArray[1]->GetBinContent(xbin, ybin);
     return ((histogramBinContent0 > threshold) or (histogramBinContent1 > threshold));
+  }
+
+  bool checkOverThreshold( TProfile2D* pHistogram,const int xbin, const int ybin, const float threshold){
+    float histogramBinContent=pHistogram->GetBinContent(xbin, ybin);
+    return (histogramBinContent > threshold);
   }
   
   bool thereAreEnoughEntries( TH2* pHistogramArray[], const float threshold){
@@ -107,8 +133,24 @@ namespace{ //anon. namespace for file-scoped functions
           }
         }
       }
+  }
+
+  void countNoisyModulesRN(const int regionIndex, const int generalIndex, TProfile2D* pHistogram, const float threshold, int countArray[]){
+    const int xbins(pHistogram->GetNbinsX()+1);
+    const int ybins(pHistogram->GetNbinsY()+1);
+    for(int xb(1); xb!=xbins; ++xb){
+      for(int yb(1); yb!=ybins; ++yb){
+	if(checkOverThreshold(pHistogram,xb,yb,threshold)){
+	  countArray[generalIndex]++;
+	  countArray[regionIndex]++;
+	}
+      }
     }
   }
+}
+
+
+
   
 
 
@@ -121,10 +163,35 @@ namespace{ //anon. namespace for file-scoped functions
 //====================================================================================================
 SCTErrMonTool::SCTErrMonTool(const std::string & type,const std::string & name,const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent),
+    nLink0{},
+    nLink1{},
+    m_pnoiseoccupancymapHistoVectorECC{},
+    m_pnoiseoccupancymapHistoVectorECCSide0{},
+    m_pnoiseoccupancymapHistoVectorECCSide1{},
+    m_pnoiseoccupancymapHistoVectorBar{},
+    m_pnoiseoccupancymapHistoVectorBarSide0{},
+    m_pnoiseoccupancymapHistoVectorBarSide1{},
+    m_pnoiseoccupancymapHistoVectorECA{},
+    m_pnoiseoccupancymapHistoVectorECASide0{},
+    m_pnoiseoccupancymapHistoVectorECASide1{},
+    nZero{},
+    nOne{},
+    nLayer{},
+    nEta{},
+    nPhi{},
+    nNonGoodModule{},  
+    tbin(-1),
+    modNum(0),
+    ratio(-1.0),
+    ratioside0(-1.0),
+    ratioside1(-1.0),
     m_ConfigurationSvc("InDetSCT_ConfigurationConditionsSvc", name),
     m_flaggedSvc("InDetSCT_FlaggedConditionSvc", name),
     m_thistSvc("THistSvc",name),
-    m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name)
+    m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name),
+    //  m_pSummarySvc("SCT_ConditionsSummarySvc", name),
+    m_checkBadModules(true),
+    m_ignore_RDO_cut_online(true)
 {
   declareProperty("histoPathBase", m_stream = "/stat");
   declareProperty("CheckRate",m_checkrate=1000);
@@ -146,7 +213,9 @@ SCTErrMonTool::SCTErrMonTool(const std::string & type,const std::string & name,c
 
   declareProperty("DoPerLumiErrors",m_doPerLumiErrors=true);
   declareProperty("DoErr2DPerLumiHists",m_doErr2DPerLumiHists=false);
-
+  //  declareProperty("conditionsService", m_pSummarySvc);
+  declareProperty("checkBadModules", m_checkBadModules);
+  declareProperty("IgnoreRDOCutOnline",m_ignore_RDO_cut_online);
  
   FirstHit= nullptr;
   FirstHit_ECp= nullptr;
@@ -183,6 +252,7 @@ SCTErrMonTool::SCTErrMonTool(const std::string & type,const std::string & name,c
   clear1D(m_numErrorsPerLumi);
   clear1D(m_rateErrorsPerLumi);
   clear1D(m_Conf);
+  clear1D(m_ConfRN);
   clear1D(m_ConfOnline);
 
   clear1D(m_MaskedLinksVsLB);
@@ -216,6 +286,7 @@ SCTErrMonTool::SCTErrMonTool(const std::string & type,const std::string & name,c
 
   clear1D(m_MaxNumberOfErrorsVsLB);
   clear1D(m_MaxModulesWithErrorsVsLB); 
+ 
 }
 
 //====================================================================================================
@@ -238,7 +309,7 @@ StatusCode SCTErrMonTool::bookHistograms()
   m_dataObjectName = "SCT_RDOs";
   const InDetDD::SCT_DetectorManager* mgr; //confusingly this is in a dedicated namespace
   ATH_CHECK(detStore()->retrieve(mgr, "SCT"));
-  detStore()->retrieve(m_pSCTHelper,"SCT_ID");
+  ATH_CHECK(detStore()->retrieve(m_pSCTHelper,"SCT_ID"));
 
   // Services for Summary Histograms: SCT_ModuleConditionsTool from CondDB and flagged conditions service
   ATH_MSG_INFO( "Checking for CondDB" );
@@ -248,6 +319,13 @@ StatusCode SCTErrMonTool::bookHistograms()
 
   // get a handle on the histogramming service //
   ATH_CHECK(m_thistSvc.retrieve());
+
+  /*
+  if(m_checkBadModules){
+    ATH_MSG_INFO( "Clusterization has been asked to look at bad module info" );
+    ATH_CHECK(m_pSummarySvc.retrieve());
+  }
+  */
 
   /// SUMMARY HISTOGRAM
   if ( bookConfMaps().isFailure() )                  msg(MSG::WARNING) << "Error in bookConfMaps()" << endreq;
@@ -296,14 +374,52 @@ StatusCode SCTErrMonTool::fillHistograms(){
   int numFirstHit_ECp=0, numSecondHit_ECp=0,  numSCTRDOs_ECp=0;
   int numFirstHit_ECm=0, numSecondHit_ECm=0,  numSCTRDOs_ECm=0;
 
+  for(int i= 0; i < n_mod[GENERAL_INDEX]; i++){
+    nLink0[i]=0;
+    nLink1[i]=0;
+    goodModules[i] = true;
+  }
+
+  tbin = -1;
+
+  int count_SCT_RDO = 0;
   //Use new IDC
   SCT_RDO_Container::const_iterator lastCol  = p_rdocontainer->end();
   for(SCT_RDO_Container::const_iterator col_it  = p_rdocontainer->begin(); col_it!= lastCol ; ++col_it){
     const InDetRawDataCollection<SCT_RDORawData>* SCT_Collection(*col_it);
     if (!SCT_Collection) continue;  // select only SCT RDOs
     DataVector<SCTRawDataType>::const_iterator p_rdo_end= SCT_Collection->end();
+    const InDetRawDataCollection<SCT_RDORawData>* rd(*col_it);
+
+    Identifier SCT_Identifier = SCT_Collection->identify();
+    int thisLayerDisk = m_pSCTHelper->layer_disk(SCT_Identifier);
+    int thisPhi       = m_pSCTHelper->phi_module(SCT_Identifier);
+    int thisEta       = m_pSCTHelper->eta_module(SCT_Identifier);
+    int thisSide      = m_pSCTHelper->side(SCT_Identifier);
+       
+    modNum = (rd->identifyHash())/2;
+    
+    bool goodModule = (m_checkBadModules and m_ConfigurationSvc) ? m_ConfigurationSvc->isGood(rd->identifyHash()) : true;
+
+    goodModules[modNum] = goodModule;
+    nLayer[modNum]= thisLayerDisk;
+    nEta[modNum]= thisEta;  
+    nPhi[modNum]= thisPhi;
+
+    if(!goodModule){
+      nNonGoodModule[modNum] = 1;
+    }
     for(DataVector<SCTRawDataType>::const_iterator p_rdo=SCT_Collection->begin() ; p_rdo!=p_rdo_end; ++p_rdo){
+      count_SCT_RDO++;
       SCT3_RawData* rdo3 = dynamic_cast<SCT3_RawData*>(*p_rdo);
+      if (rdo3!=0) tbin = (rdo3)->getTimeBin();
+      if(timeBinInPattern(tbin,XIX) && goodModule){
+	if(thisSide==1){ 
+	  nLink1[modNum]+=1;
+	}else{
+	  nLink0[modNum]+=1;
+	}
+      }
       SCT_Identifier = (*p_rdo)->identify();
       int barrel_ec = m_pSCTHelper->barrel_ec(SCT_Identifier);
       if(barrel_ec==BARREL) {++numSCTRDOs;}
@@ -329,6 +445,32 @@ StatusCode SCTErrMonTool::fillHistograms(){
     }
   }//end for(SCT_RDO_Container...
 
+  if(count_SCT_RDO<1E6 || (m_ignore_RDO_cut_online && m_environment==AthenaMonManager::online)){
+    for(int j=0;j<n_mod[GENERAL_INDEX]; j++){
+      noSidesHit=false;
+      oneSideHit=false;
+      if(nLink0[j] !=0 && nLink1[j] !=0) {
+
+      } else {
+	if(nLink0[j] !=0 || nLink1[j] !=0 ){
+	  oneSideHit=true;
+	}
+      }
+      if(nLink0[j] ==0 && nLink1[j] ==0 && goodModules[j]/*no-sides-fix*/) {
+	noSidesHit=true;
+      }
+      if(noSidesHit && !nNonGoodModule[j]){
+	nZero[j]+=1;
+      }
+      if(oneSideHit){
+	nOne[j]+=1;
+	if(nLink0[j] != 0)
+	  nOneSide0[j]+=1;
+	if(nLink1[j] != 0)
+	  nOneSide1[j]+=1;
+      }   // end if(oneSideHit)
+    }
+  }
   if(numSCTRDOs!=0){
     double scale = 100./double(numSCTRDOs);
     FirstHit->Fill( double(numFirstHit)*scale ,1.); SecondHit->Fill( double(numSecondHit)*scale ,1.);
@@ -725,12 +867,12 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
       tot_err_max[reg]=tot_err[reg];
       m_MaxNumberOfErrorsVsLB[reg]->SetBinContent((int)current_lb,(tot_err[reg]));
     }
-    m_NumberOfErrorsVsLB[reg]->SetBinContent((int)current_lb,(tot_err[reg]));
+    m_NumberOfErrorsVsLB[reg]->Fill((int)current_lb,(tot_err[reg]));
     if(tot_mod_err_max[reg]<tot_mod_err[reg]){
       tot_mod_err_max[reg]=tot_mod_err[reg];
       m_MaxModulesWithErrorsVsLB[reg]->SetBinContent((int)current_lb,(tot_mod_err[reg]));
     }
-    m_ModulesWithErrorsVsLB[reg]->SetBinContent((int)current_lb,(tot_mod_err[reg]));
+    m_ModulesWithErrorsVsLB[reg]->Fill((int)current_lb,(tot_mod_err[reg]));
   }
 
   //  if(m_environment==AthenaMonManager::online){
@@ -1056,19 +1198,42 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
     std::string m_ConfigurationEffBinNames[] = {"Ineff B","Ineff EA","Ineff EC","ALL"};
 
     std::string m_ConfigurationNoiseBinNames[] = {"Noisy B","Noisy EA","Noisy EC","ALL"};
+    string hNumEndcap[N_DISKS]={"0","1","2","3","4","5","6","7","8"};
 
     m_p2DmapHistoVectorAll[iBARREL].clear();
-    //book 2D "noise" maps, containing hits that aren't associated to tracks
+    VecProf2_t * storageVectors[]={&m_pnoiseoccupancymapHistoVectorECC, &m_pnoiseoccupancymapHistoVectorBar, &m_pnoiseoccupancymapHistoVectorECA};
+    VecProf2_t * storageVectorsSide0[]={&m_pnoiseoccupancymapHistoVectorECCSide0, &m_pnoiseoccupancymapHistoVectorBarSide0, &m_pnoiseoccupancymapHistoVectorECASide0};
+    VecProf2_t * storageVectorsSide1[]={&m_pnoiseoccupancymapHistoVectorECCSide1, &m_pnoiseoccupancymapHistoVectorBarSide1, &m_pnoiseoccupancymapHistoVectorECASide1};
+    const int bec[] = {-2,0,2};
+    const unsigned int limits[]={N_DISKS, N_BARRELS, N_DISKS};
+    for(int systemIndex=0; systemIndex<3; systemIndex++){
+      (storageVectors[systemIndex])->clear();
+      (storageVectorsSide0[systemIndex])->clear();
+      (storageVectorsSide1[systemIndex])->clear();
+      
+      for (unsigned int i=0; i!=limits[systemIndex];++i) {
+	const string streamhitmap ="noiseoccupancymap"+abbreviations[systemIndex]+"_"+hNumEndcap[i];
+	const string streamhitmapside0 ="noiseoccupancymap"+abbreviations[systemIndex]+"_"+hNumEndcap[i]+"_side0";
+	const string streamhitmapside1 ="noiseoccupancymap"+abbreviations[systemIndex]+"_"+hNumEndcap[i]+"_side1";
+	std::string histotitle="SCT Noise Occupancy map for "+names[systemIndex]+": "+hNumEndcap[i];
+	std::string histotitleside0="SCT Noise Occupancy map for "+names[systemIndex]+": "+hNumEndcap[i]+" side0";
+	std::string histotitleside1="SCT Noise Occupancy map for "+names[systemIndex]+": "+hNumEndcap[i]+" side1";
+	prof2Factory(streamhitmap,histotitle, bec[systemIndex],*(storageVectors[systemIndex]));
+	prof2Factory(streamhitmapside0,histotitleside0, bec[systemIndex],*(storageVectorsSide0[systemIndex]));
+	prof2Factory(streamhitmapside1,histotitleside1, bec[systemIndex],*(storageVectorsSide1[systemIndex]));
+      }   
+    }
+      //book 2D "noise" maps, containing hits that aren't associated to tracks
     for (int i=0; i<N_BARRELSx2;++i) {
       ostringstream stream2dmap;
       stream2dmap <<"modulemap_"<< i/2 << "_" << i%2 ;
       TH2F* hitsHisto_tmp = new TH2F(TString(stream2dmap.str()),          // path
-             Form("Module Out of Configuration : Layer %d Side %d",i/2,i%2),   // title
-             N_ETA_BINS, FIRST_ETA_BIN-0.5, LAST_ETA_BIN+0.5,                
-             N_PHI_BINS, FIRST_PHI_BIN-0.5, LAST_PHI_BIN+0.5);               
+				     Form("Module Out of Configuration : Layer %d Side %d",i/2,i%2),   // title
+				     N_ETA_BINS, FIRST_ETA_BIN-0.5, LAST_ETA_BIN+0.5,                
+				     N_PHI_BINS, FIRST_PHI_BIN-0.5, LAST_PHI_BIN+0.5);               
       hitsHisto_tmp->GetXaxis()->SetTitle("Index in the direction of #eta"); 
       hitsHisto_tmp->GetYaxis()->SetTitle("Index in the direction of #phi");
-
+      
       if ( ConfMapsExpert.regHist(hitsHisto_tmp).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:" << stream2dmap.str() << endreq;
       m_p2DmapHistoVectorAll[iBARREL].push_back(hitsHisto_tmp); 
     }
@@ -1078,11 +1243,12 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
         msg(MSG::WARNING) << "Cannot book Histogram:SCTConfDetails" << endreq; 
 
         TString conftitle[4]={"SCTConfBarrel","SCTConfEndcapA","SCTConfEndcapC","SCTConf"};
+        TString conftitleRN[4]={"SCTConfBarrelRN","SCTConfEndcapARN","SCTConfEndcapCRN","SCTConfRN"};
         TString conflabel[4]={"Num of Problematic Module in Barrel","Num of Problematic Module in EndcapA", 
                                       "Num of Problematic Module in EndcapC","Num of Problematic Module in All Region"};//30.11.2014 
         TString confonlinetitle[4]={"SCTOnlineConfBarrel","SCTOnlineConfEndcapA","SCTOnlineConfEndcapC","SCTOnlineConf"};
         TString confefftitle="SCTEffConf";
-	TString region[4]={"Barrel","EndcapA","EndcapC",""};
+	TString region[4]={"Barrel","EndcapA","EndcapC","All Region"};
         TString confnoisetitle="SCTNoiseConf";
         TString confnoisetitle_recent="SCTNoiseConfRecent";
 
@@ -1121,6 +1287,8 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
         for(int reg=0; reg<4; reg++){
           m_Conf[reg] = new TProfile(conftitle[reg],conflabel[reg],Confbins,-0.5,Confbins-0.5);//30.11.2014
 	  for (int bin = 0; bin<Confbins; bin++) m_Conf[reg]->GetXaxis()->SetBinLabel(bin+1,m_SummaryBinNames[bin].c_str());
+          m_ConfRN[reg] = new TProfile(conftitleRN[reg],conflabel[reg],Confbins,-0.5,Confbins-0.5);//30.11.2014
+	  for (int bin = 0; bin<Confbins; bin++) m_ConfRN[reg]->GetXaxis()->SetBinLabel(bin+1,m_SummaryBinNames[bin].c_str());
           const int conf_online_bins = 4;
           if(m_environment==AthenaMonManager::online or testOffline){
             m_ConfOnline[reg]=new TH1F(confonlinetitle[reg],conflabel[reg]+" Online",conf_online_bins,-0.5,conf_online_bins-0.5);//30.11.2014 
@@ -1203,12 +1371,12 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
 
           m_NumberOfErrorsVsLB[reg] = new TProfile(numerrors[reg],"Ave. errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_NumberOfErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
-          m_ModulesWithErrorsVsLB[reg] = new TProfile(moderrors[reg],"Ave. num of modules with errors per event in "+region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_ModulesWithErrorsVsLB[reg] = new TProfile(moderrors[reg],"Ave. num of links with errors per event in "+region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_ModulesWithErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
 
           m_MaxNumberOfErrorsVsLB[reg] = new TH1F(maxnumerrors[reg],"Max num of errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaxNumberOfErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
-          m_MaxModulesWithErrorsVsLB[reg] = new TH1F(maxmoderrors[reg],"Max num of modules with errors per event in "+region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_MaxModulesWithErrorsVsLB[reg] = new TH1F(maxmoderrors[reg],"Max num of links with errors per event in "+region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaxModulesWithErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
  
         }
@@ -1229,6 +1397,10 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
       if ( ConfMaps.regHist(m_Conf[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
       if ( ConfHistECA.regHist(m_Conf[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
       if ( ConfHistECC.regHist(m_Conf[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
+      if ( ConfHist.regHist(m_ConfRN[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
+      if ( ConfMaps.regHist(m_ConfRN[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
+      if ( ConfHistECA.regHist(m_ConfRN[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
+      if ( ConfHistECC.regHist(m_ConfRN[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConf" << endreq;
       if(m_environment==AthenaMonManager::online or testOffline){
         if ( ConfHist.regHist(m_ConfOnline[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConfOnline" << endreq;
         if ( ConfMaps.regHist(m_ConfOnline[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTConfOnline" << endreq;
@@ -1425,6 +1597,7 @@ SCTErrMonTool::fillCondDBMaps(){
   int InEffModules[4] = {0};
   int NoisyModules[4] = {0};
   int NoisyModulesRecent[4] = {0};
+  int RNoisyModules[4] = {0};
 
   bool failedbooking = false;
   TH2* hitsHisto_tmp[2];
@@ -1433,6 +1606,7 @@ SCTErrMonTool::fillCondDBMaps(){
   std::string stem;
   SCT_ID::const_id_iterator planeIterator(m_pSCTHelper->wafer_begin());
   SCT_ID::const_id_iterator planeEnd = m_pSCTHelper->wafer_end();
+
   for(;planeIterator not_eq planeEnd;++planeIterator){
     Identifier  planeId(*planeIterator);
     int eta = m_pSCTHelper->eta_module(planeId);
@@ -1463,6 +1637,34 @@ SCTErrMonTool::fillCondDBMaps(){
     m_p2DmapHistoVectorAll[iRegion][element]->SetBinContent(x,y,IN);
   }
 
+  //calculate ratio noise
+  for(int j=0; j<n_mod[GENERAL_INDEX]; j++){
+    int layer = nLayer[j];
+    if(nZero[j]!=0){
+      ratio=0;
+      ratioside0=0;
+      ratioside1=0;
+      ratio = 1E5*calculateNoiseOccupancyUsingRatioMethod(nOne[j], nZero[j]);
+      ratioside0 = 1E5*calculateOneSideNoiseOccupancyUsingRatioMethod(nOneSide0[j], nZero[j]);
+      ratioside1 = 1E5*calculateOneSideNoiseOccupancyUsingRatioMethod(nOneSide1[j], nZero[j]);
+      if(isBarrel(j)){
+	m_pnoiseoccupancymapHistoVectorBar[layer]->Fill(nEta[j],nPhi[j],ratio);
+	m_pnoiseoccupancymapHistoVectorBarSide0[layer]->Fill(nEta[j],nPhi[j],ratioside0);
+	m_pnoiseoccupancymapHistoVectorBarSide1[layer]->Fill(nEta[j],nPhi[j],ratioside1);
+      }
+      if(isEndcapA(j)){
+	m_pnoiseoccupancymapHistoVectorECA[layer]->Fill(nEta[j],nPhi[j],ratio);
+	m_pnoiseoccupancymapHistoVectorECASide0[layer]->Fill(nEta[j],nPhi[j],ratioside0);
+	m_pnoiseoccupancymapHistoVectorECASide1[layer]->Fill(nEta[j],nPhi[j],ratioside1);
+      }
+      if(isEndcapC(j)){
+	m_pnoiseoccupancymapHistoVectorECC[layer]->Fill(nEta[j],nPhi[j],ratio);
+	m_pnoiseoccupancymapHistoVectorECCSide0[layer]->Fill(nEta[j],nPhi[j],ratioside0);
+	m_pnoiseoccupancymapHistoVectorECCSide1[layer]->Fill(nEta[j],nPhi[j],ratioside1);
+      }
+    }
+  }
+
   //barrel region
   for (int lyr = 0 ; lyr != N_BARRELS; ++lyr) {
     // Check for the number of Modules with more than m_errThreshold error rate
@@ -1480,7 +1682,7 @@ SCTErrMonTool::fillCondDBMaps(){
     if (failedbooking == false) {
       countNoisyModules(iBARREL, iGEN, hitsHisto_tmp, m_noiseThreshold, NoisyModules);
     }
-
+    countNoisyModulesRN(iBARREL, iGEN, m_pnoiseoccupancymapHistoVectorBar[lyr], m_noiseThreshold, RNoisyModules);
     //noisy modules recent
     if(m_environment==AthenaMonManager::online){
       failedbooking=getHistoRecent(lyr, iBARREL, 0, hitsHisto_tmp);
@@ -1531,12 +1733,13 @@ SCTErrMonTool::fillCondDBMaps(){
     if (failedbooking == false) {
       countNoisyModules(iECm, iGEN, hitsHisto_tmp, m_noiseThreshold, NoisyModules);
     }
+    countNoisyModulesRN(iECm, iGEN, m_pnoiseoccupancymapHistoVectorECC[lyr], m_noiseThreshold, RNoisyModules);
     //endcap A
     failedbooking=getHisto(lyr, iECp, 0, hitsHisto_tmp);
     if (failedbooking == false) {
       countNoisyModules(iECp, iGEN, hitsHisto_tmp, m_noiseThreshold, NoisyModules);
     }
-
+    countNoisyModulesRN(iECp, iGEN, m_pnoiseoccupancymapHistoVectorECA[lyr], m_noiseThreshold, RNoisyModules);
     //noisy modules recent
     if(m_environment==AthenaMonManager::online){
       failedbooking=getHistoRecent(lyr, iECm, 0, hitsHisto_tmp);
@@ -1566,6 +1769,8 @@ SCTErrMonTool::fillCondDBMaps(){
         }
       }
     }
+
+
     failedbooking=getHisto(lyr, iECp, 1, hitsHisto_tmp);
     if (failedbooking == false) {
       if(m_environment!=AthenaMonManager::online or thereAreEnoughEntries(hitsHisto_tmp, m_min_stat_ineff_mod) or testOffline) {
@@ -1583,15 +1788,22 @@ SCTErrMonTool::fillCondDBMaps(){
       }
     }
   }
+
   
   if (m_makeConfHisto) {
     for (int reg=0; reg<=3;++reg){
       m_Conf[reg]->Fill(0.,double (MOut[reg]));
+      m_ConfRN[reg]->Fill(0.,double (MOut[reg]));
       m_Conf[reg]->Fill(1.,double (Flagged[reg]));
+      m_ConfRN[reg]->Fill(1.,double (Flagged[reg]));
       m_Conf[reg]->Fill(2.,double (MaskedLinks[reg]));
+      m_ConfRN[reg]->Fill(2.,double (MaskedLinks[reg]));
       m_Conf[reg]->Fill(3.,double (ModErr[reg]));
+      m_ConfRN[reg]->Fill(3.,double (ModErr[reg]));
       m_Conf[reg]->Fill(4.,double (InEffModules[reg]));
+      m_ConfRN[reg]->Fill(4.,double (InEffModules[reg]));
       m_Conf[reg]->Fill(5.,double (NoisyModules[reg]));
+      m_ConfRN[reg]->Fill(5.,double (RNoisyModules[reg]));
       if(m_environment==AthenaMonManager::online){
         m_ConfOnline[reg]->Fill(0.,double (MOut[reg]));
         m_ConfOnline[reg]->Fill(1.,double (Flagged[reg]));
@@ -1680,6 +1892,7 @@ StatusCode SCTErrMonTool::resetCondDBMaps(){
   if(m_makeConfHisto) {
     for (int reg=0; reg<=3;++reg){
       m_Conf[reg]->Reset();
+      m_ConfRN[reg]->Reset();
       m_ConfOnline[reg]->Reset();
     }
     m_ConfEffOnline->Reset();
@@ -1746,3 +1959,66 @@ bool SCTErrMonTool::getHistoRecent(const int layer, const int reg, const int typ
   return false;
 }
 
+
+SCTErrMonTool::Prof2_t
+SCTErrMonTool::prof2Factory(const std::string & name, const std::string & title, const unsigned int& bec, VecProf2_t & storageVector){
+  int firstEta(FIRST_ETA_BIN), lastEta(LAST_ETA_BIN), firstPhi(FIRST_PHI_BIN), lastPhi(LAST_PHI_BIN), nEta(N_ETA_BINS), nPhi(N_PHI_BINS);
+  if (bec != BARREL){
+    firstEta=FIRST_ETA_BIN_EC;
+    lastEta=LAST_ETA_BIN_EC;
+    firstPhi=FIRST_PHI_BIN_EC;
+    lastPhi=LAST_PHI_BIN_EC;
+    nEta=N_ETA_BINS_EC;
+    nPhi=N_PHI_BINS_EC;
+  }
+  Prof2_t tmp = new TProfile2D(TString(name), TString(title), nEta, firstEta-0.5, lastEta+0.5, nPhi, firstPhi-0.5, lastPhi+0.5);
+  tmp->SetXTitle("Index in the direction of #eta");
+  tmp->SetYTitle("Index in the direction of #phi");
+  storageVector.push_back(tmp);
+  return tmp;
+}
+
+  float SCTErrMonTool::calculateNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide){
+    float div, rat;
+    constexpr int nstrips(768);
+    if(numberZeroSide!=0){
+      div = numberOneSide/numberZeroSide;
+      rat = (div/(div+2))/nstrips;
+      return rat;
+    }
+    else return -1;
+  }
+  
+  float SCTErrMonTool::calculateOneSideNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide){
+    float div, rat;
+    constexpr int nstrips(768);
+    if(numberZeroSide!=0){
+      div = numberOneSide/numberZeroSide;
+      rat = (div/(div+1))/nstrips;
+      return rat;
+    }
+    else return -1;
+  }
+
+  bool SCTErrMonTool::isEndcapC(const int moduleNumber){
+    bool moduleinEndcapC = false;
+    if(0<=moduleNumber    && moduleNumber<f_mod[BARREL_INDEX]){
+      moduleinEndcapC = true;}
+    return moduleinEndcapC;
+  }
+
+  
+  bool SCTErrMonTool::isBarrel(const int moduleNumber){
+    bool moduleinBarrel = false;
+    if(f_mod[BARREL_INDEX]<=moduleNumber && moduleNumber<f_mod[ENDCAP_A_INDEX]){
+      moduleinBarrel = true;}
+    return moduleinBarrel;
+  }
+  
+  bool SCTErrMonTool::isEndcapA(const int moduleNumber){
+    bool moduleinEndcapA = false;
+    if(f_mod[ENDCAP_A_INDEX]<=moduleNumber && moduleNumber<n_mod[GENERAL_INDEX]){
+    moduleinEndcapA = true;}
+    return moduleinEndcapA;
+  }
+  
