@@ -44,8 +44,8 @@ if weekold == 2 :
 release_current = "rel_"+str(day)
 release_previous = "rel_"+str(dayref)
 print "Current release: " , release_current , " Reference release: " , release_previous
-basePath1="Trigger/HLT/Egamma/Analysis/"
-basePath2="Trigger/HLT/Egamma/TPAnalysis/"
+basePath1="Trigger/HLT/Egamma/Analysis/Counters/"
+basePath2="Trigger/HLT/Egamma/TPAnalysis/Counters/"
 plots=["hlt_el_et","l1_rot_et"]
 tpplots=["nProbes","nProbesL1","nProbesL2Calo","nProbesEFCalo","nProbesHLT","EffL1","EffL2","EffEFCalo","EffHLT"]
 name="Analysis_Event"+".pdf"
@@ -240,183 +240,183 @@ for iplot in tpplots:
     c.Print(name)
 
 #last two slides, starting from one with HLT and L1 E_T  
-c2=TCanvas("c","c",800,500)
-c2.Divide(2,1,0.01,0.15)
-c2.cd(1)
-p1bis = ROOT.TPad("p","pad",0.0,0.3,1,1,0);
-p2bis = ROOT.TPad("p","pad",0.0,0.01,1,0.3,0);
-p1bis.Draw()
-p2bis.Draw()
-p1bis.SetBottomMargin(0.);
-p2bis.SetTopMargin(0.);
-p2bis.SetBottomMargin(0.18);
-p1bis.cd()
-if doReference :
-   h_ref=inputfile_reference.Get(basePath1+"hlt_el_et")
-   h_ref.SetLineColor(ROOT.kRed-3)
-   h_ref.SetLineWidth(2)
-   h_ref.SetStats(0)
-   h_ref.Draw()
-h=inputfile.Get(basePath1+"hlt_el_et")
-h.SetLineColor(ROOT.kBlack)
-h.SetLineWidth(2)
-h.SetLineStyle(2)
-if doReference :
-   h.Draw("SAME")
-else :
-   h.Draw("")
-legend.Draw()
-p2bis.cd()
-h_ratio = h.Clone()
-if doReference :
-    h_ratio.Divide(h_ref)
-    h_ratio.GetYaxis().SetTitle(release_current+"/"+release_previous)
-    h_ratio.SetTitle("Ratio")
-    h_ratio.GetXaxis().SetLabelSize(.1)
-    h_ratio.SetLineStyle(1)
-    h_ratio.SetStats(0)
-    h_ratio.GetXaxis().SetTitleSize(.10)
-    h_ratio.GetXaxis().SetTitleOffset(.8)
-    h_ratio.GetYaxis().SetRangeUser(0.9,1.1)
-    h_ratio.GetYaxis().SetTickLength(0.01)
-    h_ratio.GetYaxis().SetTitleOffset(0.3)
-    h_ratio.GetYaxis().SetTitleSize(0.1)
-    h_ratio.GetYaxis().SetLabelSize(0.06)
-    h_ratio.Draw("")
-else :
-    h_ratio.Divide(h)
-    h_ratio.GetYaxis().SetTitle(release_current+"/"+release_current)
-    h_ratio.SetTitle("Ratio")
-    h_ratio.GetXaxis().SetLabelSize(.1)
-    h_ratio.SetLineStyle(1)
-    h_ratio.SetStats(0)
-    h_ratio.GetXaxis().SetTitleSize(.10)
-    h_ratio.GetXaxis().SetTitleOffset(.8)
-    h_ratio.GetYaxis().SetRangeUser(0.9,1.1)
-    h_ratio.GetYaxis().SetTickLength(0.01)
-    h_ratio.GetYaxis().SetTitleOffset(0.3)
-    h_ratio.GetYaxis().SetTitleSize(0.1)
-    h_ratio.GetYaxis().SetLabelSize(0.06)
-    h_ratio.Draw("")
-c2.cd(2)
-p1bisbis = ROOT.TPad("p","pad",0.0,0.3,1,1,0);
-p2bisbis = ROOT.TPad("p","pad",0.0,0.01,1,0.3,0);
-p1bisbis.Draw()
-p2bisbis.Draw()
-p1bisbis.SetBottomMargin(0.);
-p2bisbis.SetTopMargin(0.);
-p2bisbis.SetBottomMargin(0.18);
-p1bisbis.cd()
-if doReference :
-   h_ref=inputfile_reference.Get(basePath1+"l1_roi_et")
-   h_ref.SetLineColor(ROOT.kRed-3)
-   h_ref.SetLineWidth(2)
-   h_ref.SetStats(0)
-   h_ref.Draw()
-h=inputfile.Get(basePath1+"l1_roi_et")
-h.SetLineColor(ROOT.kBlack)
-h.SetLineWidth(2)
-h.SetLineStyle(2)
-if doReference :
-   h.Draw("SAME")
-else :
-   h.Draw("")
-legend.Draw()
-p2bisbis.cd()
-h_ratio_bis = h.Clone()
-if doReference :
-    h_ratio_bis.Divide(h_ref)
-    h_ratio_bis.GetYaxis().SetTitle(release_current+"/"+release_previous)
-    h_ratio_bis.SetTitle("Ratio")
-    h_ratio_bis.SetStats(0)
-    h_ratio_bis.GetXaxis().SetLabelSize(.1)
-    h_ratio_bis.SetLineStyle(1)
-    h_ratio_bis.GetXaxis().SetTitleSize(.10)
-    h_ratio_bis.GetXaxis().SetTitleOffset(.8)
-    h_ratio_bis.GetYaxis().SetRangeUser(0.9,1.1)
-    h_ratio_bis.GetYaxis().SetTickLength(0.01)
-    h_ratio_bis.GetYaxis().SetTitleOffset(0.3)
-    h_ratio_bis.GetYaxis().SetTitleSize(0.1)
-    h_ratio_bis.GetYaxis().SetLabelSize(0.06)
-    h_ratio_bis.Draw("")
-else :
-    h_ratio_bis.Divide(h)
-    h_ratio_bis.GetYaxis().SetTitle(release_current+"/"+release_current)
-    h_ratio_bis.SetTitle("Ratio")
-    h_ratio_bis.SetStats(0)
-    h_ratio_bis.GetXaxis().SetLabelSize(.1)
-    h_ratio_bis.SetLineStyle(1)
-    h_ratio_bis.GetXaxis().SetTitleSize(.10)
-    h_ratio_bis.GetXaxis().SetTitleOffset(.8)
-    h_ratio_bis.GetYaxis().SetRangeUser(0.9,1.1)
-    h_ratio_bis.GetYaxis().SetTickLength(0.01)
-    h_ratio_bis.GetYaxis().SetTitleOffset(0.3)
-    h_ratio_bis.GetYaxis().SetTitleSize(0.1)
-    h_ratio_bis.GetYaxis().SetLabelSize(0.06)
-    h_ratio_bis.Draw("")
-c2.Print(name)
+#c2=TCanvas("c","c",800,500)
+#c2.Divide(2,1,0.01,0.15)
+#c2.cd(1)
+#p1bis = ROOT.TPad("p","pad",0.0,0.3,1,1,0);
+#p2bis = ROOT.TPad("p","pad",0.0,0.01,1,0.3,0);
+#p1bis.Draw()
+#p2bis.Draw()
+#p1bis.SetBottomMargin(0.);
+#p2bis.SetTopMargin(0.);
+#p2bis.SetBottomMargin(0.18);
+#p1bis.cd()
+#if doReference :
+#   h_ref=inputfile_reference.Get(basePath1+"hlt_el_et")
+#   h_ref.SetLineColor(ROOT.kRed-3)
+#   h_ref.SetLineWidth(2)
+#   h_ref.SetStats(0)
+#   h_ref.Draw()
+#h=inputfile.Get(basePath1+"hlt_el_et")
+#h.SetLineColor(ROOT.kBlack)
+#h.SetLineWidth(2)
+#h.SetLineStyle(2)
+#if doReference :
+#   h.Draw("SAME")
+#else :
+#   h.Draw("")
+#legend.Draw()
+#p2bis.cd()
+#h_ratio = h.Clone()
+#if doReference :
+#    h_ratio.Divide(h_ref)
+#    h_ratio.GetYaxis().SetTitle(release_current+"/"+release_previous)
+#    h_ratio.SetTitle("Ratio")
+#    h_ratio.GetXaxis().SetLabelSize(.1)
+#    h_ratio.SetLineStyle(1)
+#    h_ratio.SetStats(0)
+#    h_ratio.GetXaxis().SetTitleSize(.10)
+#    h_ratio.GetXaxis().SetTitleOffset(.8)
+#    h_ratio.GetYaxis().SetRangeUser(0.9,1.1)
+#    h_ratio.GetYaxis().SetTickLength(0.01)
+#    h_ratio.GetYaxis().SetTitleOffset(0.3)
+#    h_ratio.GetYaxis().SetTitleSize(0.1)
+#    h_ratio.GetYaxis().SetLabelSize(0.06)
+#    h_ratio.Draw("")
+#else :
+#    h_ratio.Divide(h)
+#    h_ratio.GetYaxis().SetTitle(release_current+"/"+release_current)
+#    h_ratio.SetTitle("Ratio")
+#    h_ratio.GetXaxis().SetLabelSize(.1)
+#    h_ratio.SetLineStyle(1)
+#    h_ratio.SetStats(0)
+#    h_ratio.GetXaxis().SetTitleSize(.10)
+#    h_ratio.GetXaxis().SetTitleOffset(.8)
+#    h_ratio.GetYaxis().SetRangeUser(0.9,1.1)
+#    h_ratio.GetYaxis().SetTickLength(0.01)
+#    h_ratio.GetYaxis().SetTitleOffset(0.3)
+#    h_ratio.GetYaxis().SetTitleSize(0.1)
+#    h_ratio.GetYaxis().SetLabelSize(0.06)
+#    h_ratio.Draw("")
+#c2.cd(2)
+#p1bisbis = ROOT.TPad("p","pad",0.0,0.3,1,1,0);
+#p2bisbis = ROOT.TPad("p","pad",0.0,0.01,1,0.3,0);
+#p1bisbis.Draw()
+#p2bisbis.Draw()
+#p1bisbis.SetBottomMargin(0.);
+#p2bisbis.SetTopMargin(0.);
+#p2bisbis.SetBottomMargin(0.18);
+#p1bisbis.cd()
+#if doReference :
+#   h_ref=inputfile_reference.Get(basePath1+"l1_roi_et")
+#   h_ref.SetLineColor(ROOT.kRed-3)
+#   h_ref.SetLineWidth(2)
+#   h_ref.SetStats(0)
+#   h_ref.Draw()
+#h=inputfile.Get(basePath1+"l1_roi_et")
+#h.SetLineColor(ROOT.kBlack)
+#h.SetLineWidth(2)
+#h.SetLineStyle(2)
+#if doReference :
+#   h.Draw("SAME")
+#else :
+#   h.Draw("")
+#legend.Draw()
+#p2bisbis.cd()
+#h_ratio_bis = h.Clone()
+#if doReference :
+#    h_ratio_bis.Divide(h_ref)
+#    h_ratio_bis.GetYaxis().SetTitle(release_current+"/"+release_previous)
+#    h_ratio_bis.SetTitle("Ratio")
+#    h_ratio_bis.SetStats(0)
+#    h_ratio_bis.GetXaxis().SetLabelSize(.1)
+#    h_ratio_bis.SetLineStyle(1)
+#    h_ratio_bis.GetXaxis().SetTitleSize(.10)
+#    h_ratio_bis.GetXaxis().SetTitleOffset(.8)
+#    h_ratio_bis.GetYaxis().SetRangeUser(0.9,1.1)
+#    h_ratio_bis.GetYaxis().SetTickLength(0.01)
+#    h_ratio_bis.GetYaxis().SetTitleOffset(0.3)
+#    h_ratio_bis.GetYaxis().SetTitleSize(0.1)
+#    h_ratio_bis.GetYaxis().SetLabelSize(0.06)
+#    h_ratio_bis.Draw("")
+#else :
+#    h_ratio_bis.Divide(h)
+#    h_ratio_bis.GetYaxis().SetTitle(release_current+"/"+release_current)
+#    h_ratio_bis.SetTitle("Ratio")
+#    h_ratio_bis.SetStats(0)
+#    h_ratio_bis.GetXaxis().SetLabelSize(.1)
+#    h_ratio_bis.SetLineStyle(1)
+#    h_ratio_bis.GetXaxis().SetTitleSize(.10)
+#    h_ratio_bis.GetXaxis().SetTitleOffset(.8)
+#    h_ratio_bis.GetYaxis().SetRangeUser(0.9,1.1)
+#    h_ratio_bis.GetYaxis().SetTickLength(0.01)
+#    h_ratio_bis.GetYaxis().SetTitleOffset(0.3)
+#    h_ratio_bis.GetYaxis().SetTitleSize(0.1)
+#    h_ratio_bis.GetYaxis().SetLabelSize(0.06)
+#    h_ratio_bis.Draw("")
+#c2.Print(name)
 
 #last slide with 2D plots
-c3 = TCanvas()
-c3.Divide(3,2)
-c3.cd(1)
-h=inputfile.Get(basePath1+"hlt_el_eta_phi")
-h.GetYaxis().SetTitle("phi")
-h.Draw("colz")
-htitle = ROOT.TPaveText(0.1,0.89,0.39,0.98,"brNDC");
-htitle.AddText(release_current+" (current)")
-htitle.Draw()
-c3.cd(2)
-if doReference :
-   h_refer=inputfile.Get(basePath1+"hlt_el_eta_phi")
-   h_refer.GetYaxis().SetTitle("phi")
-   h_refer.Draw("colz")
-   htitle_ref = ROOT.TPaveText(0.1,0.89,0.4,0.98,"brNDC")
-   if weekold > 0 :
-      htitle_ref.AddText(release_previous+" (>"+str(weekold)+" week old)")
-   else :
-      htitle_ref.AddText(release_previous+" (ref)")
-   htitle_ref.Draw()
-else :
-   pt = ROOT.TPaveText(0.2,0.4,0.8,0.6)
-   pt.AddText("box empty")
-   pt.AddText("(missing reference file)")  
-   pt.Draw()
-c3.cd(3)
-if doReference :
-   hdiff = h.Clone()
-   hdiff.Add(h_refer,-1);
-   hdiff.Draw("colz")
-   htitle_diff = ROOT.TPaveText(0.1,0.85,0.37,0.98,"brNDC")
-   htitle_diff.AddText(release_current+"-"+release_previous)
-   htitle_diff.AddText("DIFF")
-   htitle_diff.Draw()
-else :
-   pt2 = ROOT.TPaveText(0.2,0.4,0.8,0.6)
-   pt2.AddText("no diff plot")
-   pt2.AddText("(missing reference file)")
-   pt2.Draw()
-c3.cd(4)
-h=inputfile.Get(basePath1+"l1_eta_phi")
-h.Draw("colz")
-htitle.Draw()
-c3.cd(5)
-if doReference :
-   h_refer=inputfile.Get(basePath1+"l1_eta_phi")
-   h_refer.Draw("colz")
-   htitle_ref.Draw()
-else :
-   pt.Draw()
-c3.cd(6)
-if doReference :
-   hdiff2 = h.Clone()
-   hdiff2.Add(h_refer,-1)
-   hdiff2.Draw("colz")
-   htitle_diff.Draw()
-else :
-   pt2.Draw()
+#c3 = TCanvas()
+#c3.Divide(3,2)
+#c3.cd(1)
+#h=inputfile.Get(basePath1+"hlt_el_eta_phi")
+#h.GetYaxis().SetTitle("phi")
+#h.Draw("colz")
+#htitle = ROOT.TPaveText(0.1,0.89,0.39,0.98,"brNDC");
+#htitle.AddText(release_current+" (current)")
+#htitle.Draw()
+#c3.cd(2)
+#if doReference :
+#   h_refer=inputfile.Get(basePath1+"hlt_el_eta_phi")
+#   h_refer.GetYaxis().SetTitle("phi")
+#   h_refer.Draw("colz")
+#   htitle_ref = ROOT.TPaveText(0.1,0.89,0.4,0.98,"brNDC")
+#   if weekold > 0 :
+#      htitle_ref.AddText(release_previous+" (>"+str(weekold)+" week old)")
+#   else :
+#      htitle_ref.AddText(release_previous+" (ref)")
+#   htitle_ref.Draw()
+#else :
+#   pt = ROOT.TPaveText(0.2,0.4,0.8,0.6)
+#   pt.AddText("box empty")
+#   pt.AddText("(missing reference file)")  
+#   pt.Draw()
+#c3.cd(3)
+#if doReference :
+#   hdiff = h.Clone()
+#   hdiff.Add(h_refer,-1);
+#   hdiff.Draw("colz")
+#   htitle_diff = ROOT.TPaveText(0.1,0.85,0.37,0.98,"brNDC")
+#   htitle_diff.AddText(release_current+"-"+release_previous)
+#   htitle_diff.AddText("DIFF")
+#   htitle_diff.Draw()
+#else :
+#   pt2 = ROOT.TPaveText(0.2,0.4,0.8,0.6)
+#   pt2.AddText("no diff plot")
+#   pt2.AddText("(missing reference file)")
+#   pt2.Draw()
+#c3.cd(4)
+#h=inputfile.Get(basePath1+"l1_eta_phi")
+#h.Draw("colz")
+#htitle.Draw()
+#c3.cd(5)
+#if doReference :
+#   h_refer=inputfile.Get(basePath1+"l1_eta_phi")
+#   h_refer.Draw("colz")
+#   htitle_ref.Draw()
+#else :
+#   pt.Draw()
+#c3.cd(6)
+#if doReference :
+#   hdiff2 = h.Clone()
+#   hdiff2.Add(h_refer,-1)
+#   hdiff2.Draw("colz")
+#   htitle_diff.Draw()
+#else :
+#   pt2.Draw()
 
-c3.Print(name)
+#c3.Print(name)
 c.Print(name+"]"); 
 
 #SetAtlasStyle()
