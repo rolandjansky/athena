@@ -1,4 +1,7 @@
-This is the ATLAS track object, used to represent charged particles within ATLAS.
+This is the *prototype* of a suggested new common Track class.
 
-See the doxygen documentation for more details, or look here:
-https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CommonTrackingSoftware
+This is code in development, and is changing rapidly. It is now reaching some level of maturity though and can safely be used. Please let me know if there is anything 
+obvious missing, or unclear.
+
+
+Ed Moyse (edward.moyse@cern.ch)

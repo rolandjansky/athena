@@ -3,7 +3,6 @@
 */
 
 #include "TrkTrack/Track.h"
-#include "TrkTrack/AlignmentEffectsOnTrack.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkTrack/TrackStateOnSurface.h"
@@ -113,11 +112,11 @@ Trk::Track& Trk::Track::operator= (const Track& rhs)
         m_perigeeParameters=0;
 
         //set the author to be that of the Track being copied.
-        //       if( m_trackInfo!=0) delete m_trackInfo;
-        //	m_trackInfo = 0;
-        //        if (rhs.info()!=0)m_trackInfo = new TrackInfo(*(rhs.m_trackInfo));
-        m_trackInfo = rhs.m_trackInfo;
-
+ //       if( m_trackInfo!=0) delete m_trackInfo;
+//	m_trackInfo = 0;
+//        if (rhs.info()!=0)m_trackInfo = new TrackInfo(*(rhs.m_trackInfo));
+	m_trackInfo = rhs.m_trackInfo;
+	
         // create & copy other variables
         if (rhs.fitQuality()!=0)
             m_fitQuality = new FitQuality( *(rhs.m_fitQuality) );
@@ -194,7 +193,6 @@ void Trk :: Track :: findPerigee() const
     // code slower which (in my opinion) makes it not worth doing. EJWM
     // there can be other objects, like VertexOnTrack measurements, with
     // params at a Perigee surface, thus an additional TSoS type check. AS/WL
-    if (not m_trackStateVector) return; //coverity 106171 Explicit null dereferenced
     DataVector<const TrackStateOnSurface>::const_iterator it = 
             m_trackStateVector->begin();
     DataVector<const TrackStateOnSurface>::const_iterator itEnd = 
@@ -271,13 +269,13 @@ unsigned int Trk::Track::numberOfInstantiations()
 MsgStream& Trk::operator << ( MsgStream& sl, const Trk::Track& track)
 { 
     std::string name("Track ");
-    sl <<name<<"Author = "<<track.info().dumpInfo()<<endmsg;
-    if (track.fitQuality()!=0) sl << *(track.fitQuality() )<<endmsg;
-    if (track.trackSummary()!=0) sl << *(track.trackSummary())<<endmsg;
-    else sl << "No TrackSummary available in this track."<<endmsg;
+    sl <<name<<"Author = "<<track.info().dumpInfo()<<endreq;
+    if (track.fitQuality()!=0) sl << *(track.fitQuality() )<<endreq;
+    if (track.trackSummary()!=0) sl << *(track.trackSummary())<<endreq;
+    else sl << "No TrackSummary available in this track."<<endreq;
     if (track.trackStateOnSurfaces() !=0)
     { 
-        sl << name <<"has " << (track.trackStateOnSurfaces()->size()) << " trackStateOnSurface(s)" << endmsg;
+        sl << name <<"has " << (track.trackStateOnSurfaces()->size()) << " trackStateOnSurface(s)" << endreq;
 
         //level()sh shows the output level, currentLevel() 
         //shows what the stream is set to	
@@ -288,9 +286,9 @@ MsgStream& Trk::operator << ( MsgStream& sl, const Trk::Track& track)
             int num=0;
             for (;it!=track.trackStateOnSurfaces()->end();++it)
             {
-                sl<< " --------- Start of TrackStateOnSurface \t"<<num<<"\t-------"<<endmsg;
+                sl<< " --------- Start of TrackStateOnSurface \t"<<num<<"\t-------"<<endreq;
                 sl<<(**it);
-                sl<< " ---------   End of TrackStateOnSurface \t"<<num++<<"\t-------"<<endmsg;
+                sl<< " ---------   End of TrackStateOnSurface \t"<<num++<<"\t-------"<<endreq;
             }
         }
     }

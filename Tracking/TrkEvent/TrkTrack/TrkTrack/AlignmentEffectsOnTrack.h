@@ -7,8 +7,6 @@
 
 #include <vector>
 #include <iostream>
-#include "Identifier/Identifier.h"
-
 //#include "TrkTrack/TrackStateOnSurface.h" // Can't be forward declared because of ElementLink
 
 class MsgStream;
@@ -29,7 +27,7 @@ namespace Trk
                             float m_sigmaDeltaTranslation, 
                             float deltaAngle,  
                             float sigmaDeltaAngle,
-                            const std::vector< Identifier> & identifiersOfAffectedTSOS, 
+                            const std::vector<const TrackStateOnSurface*> & indicesOfAffectedTSOS, 
                             const Trk::Surface*);
     AlignmentEffectsOnTrack(const Trk::AlignmentEffectsOnTrack& rhs);
     Trk::AlignmentEffectsOnTrack& operator=(const Trk::AlignmentEffectsOnTrack& rhs);
@@ -49,10 +47,7 @@ namespace Trk
     float sigmaDeltaAngle() const;
 
     /// Returns a vector of the affected TSOS in the track. Obviously this must not be invalidated by removing TSOS from the track.
-    const std::vector< Identifier>& vectorOfAffectedTSOS() const;
-
-    /// Updates the vector of the affected TSOS in the track.
-    void updateVectorOfAffectedTSOS( std::vector< Identifier>& ) ;
+    const std::vector<const TrackStateOnSurface*>& vectorOfAffectedTSOS() const;
   
     /// Returns true if the effects of this  AlignmentEffectsOnTrack apply to all remaining TrackStatesOnSurface of the Track.
     bool effectsLastFromNowOn() const { return m_affectedTSOS.size()==0; }
@@ -65,7 +60,7 @@ namespace Trk
     float m_sigmaDeltaTranslation;
     float m_deltaAngle;
     float m_sigmaDeltaAngle;
-    std::vector< Identifier > m_affectedTSOS;
+    std::vector<const TrackStateOnSurface*> m_affectedTSOS;
     const Trk::Surface* m_surface;
   };
   
@@ -96,13 +91,9 @@ inline float Trk::AlignmentEffectsOnTrack::sigmaDeltaAngle() const
   return m_sigmaDeltaAngle;
 }
 
-inline const std::vector< Identifier > & Trk::AlignmentEffectsOnTrack::vectorOfAffectedTSOS() const
+inline const std::vector<const Trk::TrackStateOnSurface*>& Trk::AlignmentEffectsOnTrack::vectorOfAffectedTSOS() const
 {
   return m_affectedTSOS;
-}
-
-inline void Trk::AlignmentEffectsOnTrack::updateVectorOfAffectedTSOS( std::vector< Identifier>& affectedTSOS) {
-  m_affectedTSOS = affectedTSOS;
 }
 
 inline const Trk::Surface& Trk::AlignmentEffectsOnTrack::associatedSurface() const

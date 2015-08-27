@@ -19,8 +19,6 @@ email                : edward.moyse@cern.ch
 class MsgStream;
 
 class TrackCollectionCnv;
-class TrackStateOnSurfaceCnv_p3;
-
 
 namespace Trk
 {
@@ -67,8 +65,6 @@ namespace Trk
     class TrackStateOnSurface
     {
         friend class ::TrackCollectionCnv;
-        friend class ::TrackStateOnSurfaceCnv_p3;
-
         public:
         
             /**
@@ -129,27 +125,7 @@ namespace Trk
                 */
                 Alignment=11,
                 
-                PartialPersistification=12,
-                /**
-                 *  Mark the measuremenet for persistification
-                 */
-                PersistifyMeasurement=13,
-
-                /**
-                 *  Mark track parameters for persisitification
-                 */
-                PersistifyTrackParameters=14,
-
-                /**
-                 *  Mark track parameters for persisitification
-                 */
-                PersistifySlimCaloDeposit=15,
-
-                NumberOfTrackStateOnSurfaceTypes=16
-                /**
-                 *  Persistify all
-                 */
-
+                NumberOfTrackStateOnSurfaceTypes=12
             };
     
             /**
@@ -234,7 +210,6 @@ namespace Trk
             virtual ~TrackStateOnSurface();
     
             Trk::TrackStateOnSurface& operator=(const Trk::TrackStateOnSurface& rhs);
-            Trk::TrackStateOnSurface& operator=(Trk::TrackStateOnSurface&& rhs);
 
             /** returns 0 if there is no FQOS object assigned*/
             const FitQualityOnSurface* fitQualityOnSurface() const;
@@ -261,19 +236,6 @@ namespace Trk
              * @return true if the TrackStateOnSurface is of this type
              */
             bool type( const TrackStateOnSurfaceType& type ) const;
-
-            /**
-             * Use this method to set persistification hints.
-             * @throw logic_error if the type is not a persistification flag.
-             */
-            void setHint( const TrackStateOnSurfaceType& type ) const;
-
-            /**
-             * Use this method to clear persistification hint flag.
-             * @throw logic_error if the type is not a persistification flag.
-             */
-            void resetHint( const TrackStateOnSurfaceType& type ) const;
-
               
             /** returns a string with the expanded type of the object (i.e. if it has several type bits set, they all will be returned)*/
             std::string dumpType() const;
@@ -311,7 +273,7 @@ namespace Trk
             const MeasurementBase          *m_measurementOnTrack;
             const MaterialEffectsBase      *m_materialEffectsOnTrack;
             const AlignmentEffectsOnTrack  *m_alignmentEffectsOnTrack;
-            mutable std::bitset<NumberOfTrackStateOnSurfaceTypes>                    m_typeFlags;
+            std::bitset<NumberOfTrackStateOnSurfaceTypes>                    m_typeFlags;
     };
 
     /**Overload of << operator for MsgStream for debug output*/ 
