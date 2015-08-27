@@ -109,8 +109,14 @@ private:
   bool goodModules[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
 
   VecProf2_t m_pnoiseoccupancymapHistoVectorECC;
+  VecProf2_t m_pnoiseoccupancymapHistoVectorECCSide0;
+  VecProf2_t m_pnoiseoccupancymapHistoVectorECCSide1;
   VecProf2_t m_pnoiseoccupancymapHistoVectorBar;
+  VecProf2_t m_pnoiseoccupancymapHistoVectorBarSide0;
+  VecProf2_t m_pnoiseoccupancymapHistoVectorBarSide1;
   VecProf2_t m_pnoiseoccupancymapHistoVectorECA;
+  VecProf2_t m_pnoiseoccupancymapHistoVectorECASide0;
+  VecProf2_t m_pnoiseoccupancymapHistoVectorECASide1;
 
   int nOneSideModule;
   int nTwoSideModule;
@@ -133,6 +139,8 @@ private:
 
   int nZero[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
   int nOne[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int nOneSide0[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
+  int nOneSide1[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
   int nLayer[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
   int nEta[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
   int nPhi[N_MOD_BARREL + 2 * N_MOD_ENDCAPS];
@@ -146,6 +154,8 @@ private:
   int tbin;
   int modNum;
   float ratio;
+  float ratioside0;
+  float ratioside1;
   
   static const long NBINS_LBs = 2000;
 
@@ -184,7 +194,9 @@ private:
   H1_t m_N11ECA_vsLB[N_DISKS];
 
   H1_t m_NOb;
+  H1_t m_NObSide;
   H1_t m_NO;
+  H1_t m_NOSide;
   H1_t m_NOb_layer[N_BARRELS];
   H1_t m_NOb_layer_vsLB[N_BARRELS];
   H1_t m_NOECC_disk[N_DISKS];
@@ -192,6 +204,9 @@ private:
   H1_t m_NOECA_disk[N_DISKS];
   H1_t m_NOECA_disk_vsLB[N_DISKS];
   H1_t m_NOEC;
+  H1_t m_NOECSide;
+  H1_t m_NOECASide;
+  H1_t m_NOECCSide;
   H1_t m_NOEC_Outer;
   H1_t m_NOEC_ShortMiddle;
   H1_t m_NOEC_Inner;
@@ -238,6 +253,7 @@ private:
   // Calculate the local angle of incidence
   int findAnglesToWaferSurface ( const double (&vec)[3], const double &sinAlpha, const Identifier &id, double &theta, double &phi );
   float calculateNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide);
+  float calculateOneSideNoiseOccupancyUsingRatioMethod(const float numberOneSide, const float numberZeroSide);
   bool isBarrel(const int moduleNumber);
   bool isEndcap(const int moduleNumber);
   bool isEndcapA(const int moduleNumber);

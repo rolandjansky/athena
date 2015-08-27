@@ -97,7 +97,7 @@ private:
 				       Double_t &theta, Double_t &phi);
 
   /** Method to find the chip just before a given hit */
-  Int_t previousChip (Double_t xl, Int_t side, Int_t isub);
+  Int_t previousChip (Double_t xl, Int_t side, bool swap);
 
   /** Computes residual of a hit to a track */
   Double_t getResidual (const Identifier& surfaceID,
@@ -119,6 +119,8 @@ private:
 						Int_t nbinx, Double_t * xbins,
 						Int_t nbiny, Double_t * ybins);
 
+  const SCT_ID*   m_pSCTHelper;
+  const InDetDD::SCT_DetectorManager*   m_pManager;
   std::string m_TrackName;
   IChronoStatSvc * m_chrono;
   const TrackCollection * m_tracks; 
@@ -126,6 +128,7 @@ private:
 
   std::map < Identifier, unsigned int > * m_badChips;
   ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
+
 
   Int_t m_DetectorMode;
   Int_t m_RunningMode;
@@ -182,11 +185,13 @@ private:
   boost::array < boost::array < TProfile2D *, SCT_Monitoring::N_ENDCAPSx2 >, SCT_Monitoring::N_REGIONS > m_layerResidualHistos;
 
   TProfile * m_Eff_Total;
+  TProfile * m_Eff_TotalBCID;
   TProfile * m_Eff_hashCodeHisto;
 
   TProfile2D * m_effHashLumiB;
 
   TProfArray m_Eff_summaryHisto;
+  TProfArray m_Eff_summaryHistoFirstBCID;
   TProfArray m_Eff_summaryHisto_old;
   TProfArray m_holesPerTrackHisto;
   TProfArray m_holesDistPerTrackHisto;
