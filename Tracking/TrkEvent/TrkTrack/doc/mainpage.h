@@ -9,7 +9,7 @@
 
 @section introductionTrkTrack Introduction
 This package contains the common Track class for ATLAS.
-This Track class is also not intended for use in physics analysis (see Trk::TrackParticle),
+This Track class is also not intended for use in physics analysis (see xAOD::TrackParticle),
 and is instead optimised for reconstruction. 
 
 @section designTrkTrack Design
@@ -20,7 +20,7 @@ The two main aims are as follows:
 nothing should be compulsory beyond the absolute basics (i.e. a lot of the possible data which could be found in a track may be missing).
 
 Other points:
-- In contrast to some other track classes, Trk::Track contains a vector of Trk::TrackStateOnSurface which in turn contain Trk::MeasurentBase (i.e. measurements or hits), and Trk::TrackParameters. In other words, the hits and parameters are grouped together by the Trk::Surfaces they exist on.
+- Trk::Track contains a vector of Trk::TrackStateOnSurface which in turn contain Trk::MeasurentBase (i.e. measurements or hits), and Trk::TrackParameters. In other words, the hits and parameters are grouped together by the Trk::Surfaces they exist on.
 - Since the Trk::Perigee is a special case and will be used frequently there is a dedicated method ( Trk::Track::perigeeParameters )
 to return it.
 - There are also methods to return the Trk::FitQuality, and helper methods to return just the 'real' measurements from all the TrackStateOnSurfaces, as well as a method to return the outliers alone. 
@@ -35,9 +35,9 @@ Click on <a href="annotated.html">Class List</a> to see all the classes availabl
 Outstanding issues are shown in the <a href="todo.html">ToDo</a> list.
 
 @section guidelinesTrkTrack Guidelines for use
-One important point (mentioned above in the design section) is that, in order to provide a flexible class, it is not safe to assume that just because the Track *can* contain e.g. ScatteringAngles, that it does so. In general it won't - a good rule of thumb is that you MUST test all objects returned by pointer ... they may well not exist (i.e the pointer may = 0)
+One important point (mentioned above in the design section) is that, in order to provide a flexible class, it is not safe to assume that just because the Track *can* contain e.g. ScatteringAngles, that it does so. In general it won't - a good rule of thumb is that you must test all objects returned by pointer ... they may well not exist (i.e the pointer may = 0)
 
-The TrackStateOnSurface *should* be ordered geometrically (i.e. the first TrackStateOnSurface is the one closest to the IP, and the last TrackStateOnSurface is the furthest from it etc) but this is not checked in the constructors : creators of tracks MUST be careful! For further details of requirements coming from TrackStateOnSurface please see the documentation for that class.
+The TrackStateOnSurface *should* be ordered geometrically (i.e. the first TrackStateOnSurface is the one closest to the IP, and the last TrackStateOnSurface is the furthest from it etc) but this is not checked in the constructors : creators of tracks must be careful! For further details of requirements coming from TrackStateOnSurface please see the documentation for that class.
 
 For examples of how to form and use tracks see e.g. TrackParticleCreator and InDetLegacyCnvTools. Additionially there is a wiki page under development (feel free to add to it!)
 <a href="https://uimon.cern.ch/twiki/bin/view/Atlas/UsingTrkTracks">here</a>

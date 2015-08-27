@@ -77,11 +77,9 @@ namespace Trk
         * (which there shouldn't be!!), only the first one will be		            
         * returned by Trk::Track::perigeeParameters				            
         *									            
-        * @param[in] author Defines who created this track.			            
+        * @param[in] info Information about who created this track, and its properties.			            
         * @param[in] trackStateOnSurfaces Vector of TrackStateOnSurface objects.            
-        * @param[in] fitQuality Fit quality of the tracks. *			            
-        * @param[in] particle hypothesis used for the creation of the track,	            
-        *	     default = pion						            
+        * @param[in] fitQuality Fit quality of the tracks. *			                    
         */									            
        Track( const TrackInfo& info,						            
               DataVector<const TrackStateOnSurface>* trackStateOnSurfaces,	            

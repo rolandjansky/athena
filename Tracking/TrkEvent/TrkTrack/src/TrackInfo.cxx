@@ -19,23 +19,28 @@ Trk::TrackInfo::TrackInfo( const TrackFitter fitter, const ParticleHypothesis pa
 {
  if( m_particleHypo == undefined )
  {							       
-  						       
-  switch( m_fitter )
+  switch( m_fitter ) //switch on fitter of type TrackFitter (ok)
   {  				       
-   case GaussianSumFilter:	        		  
-   m_particleHypo = electron;	        		  
+   case GaussianSumFilter:	 //GaussianSumFilter of type TrackFitter (ok, =4)       		  
+     m_particleHypo = electron;	        		  
    break;			        		  
-   				      	   		  
-   case STACO:  		        	       
-//   case MuidComb:		        		  
-//   case MuidStandAlone:	        
-   case MuGirlUnrefitted:	        		  
-   case Muonboy:		        		  
-   m_particleHypo = muon;	        		  
+  /** The following cases all fall through to Muonboy/GlobalChi2Fitter; is this intentional? 
+    * Coverity bug 12476 : the enum types were mixed; I've commented out the original code
+    * but the enums should be checked  and made consistent with code here
+    * should use C++11 scoped enums to protect against this kind of error (sroe)						       
+   		  
+   case STACO: // STACO of type TrackPatternRecoInfo (not ok!), = 7 = DeterministicAnnealingFilter     	       
+   case MuGirlUnrefitted:	// type TrackPatternRecoInfo (not ok!), = 6 = DistributedKalmanFilter  		  
+   case Muonboy:		      // type TrackPatternRecoInfo (not ok!), = 5 = GlobalChi2Fitter   
+   **/
+   case DeterministicAnnealingFilter:
+   case DistributedKalmanFilter:
+   case GlobalChi2Fitter:
+     m_particleHypo = muon;	        		  
    break;			        		  
    				      	   		  
    default:			        	       
-   m_particleHypo = pion;	        		  
+     m_particleHypo = pion;	        		  
   }//end of switch operator				       	       
  }//end of particle hypothesis check			       
  m_properties.reset();
@@ -48,29 +53,18 @@ Trk::TrackInfo::TrackInfo (const TrackInfo& rhs)
     m_particleHypo(rhs.m_particleHypo), 
     m_properties(rhs.m_properties), 
     m_patternRecognition(rhs.m_patternRecognition) 
-    
 {
-    using namespace Trk;
-  
-    // check that not copying itself
-    if (this!=&rhs)
-    {
-        // might as well use assignment operator
-        // rather than duplicate it all
-        (*this)=rhs;
-    }
+    //sroe: removed duplicated code
 }
 
 Trk::TrackInfo& 
 Trk::TrackInfo::operator= (const TrackInfo& rhs)
 {
-    if (this!=&rhs)
-    {
-
-//set the fitter to be that of the TrackInfo being copied.
-      m_fitter  	   = rhs.m_fitter;	        
-      m_particleHypo	   = rhs.m_particleHypo;        
-      m_properties	   = rhs.m_properties;   
+    if (this!=&rhs){
+      //set the fitter to be that of the TrackInfo being copied.
+      m_fitter  	         = rhs.m_fitter;	        
+      m_particleHypo	     = rhs.m_particleHypo;        
+      m_properties	       = rhs.m_properties;   
       m_patternRecognition = rhs.m_patternRecognition;  
     }
     return *this;
@@ -113,7 +107,7 @@ std::string Trk::TrackInfo::dumpInfo() const
      case Trk::TrackInfo::MuonboyFitter: authorInfo<<"MuonboyFitter";                                                                
      break;     
 
-     default: authorInfo<<"Fitter not recognized " + m_fitter;
+    default: authorInfo<<"Fitter not recognized " << m_fitter;
     }
    
 //adding properties, but checking first 
@@ -210,13 +204,13 @@ MsgStream& Trk::operator << ( MsgStream& sl, const Trk::TrackInfo& info)
 
 void Trk::TrackInfo::addPatternRecoAndProperties(const TrackInfo& rhs) const
 {
-//merging information by means of logical "or"
+//merging information by means of bitwise "or"
   addPatternReco(rhs);
   m_properties = m_properties | rhs.m_properties;
 }//end addPatternRecoaAndProperties method
 
 void Trk::TrackInfo::addPatternReco(const TrackInfo& rhs) const
 {
-//merging information by means of logical "or"
+//merging information by means of bitwise "or"
   m_patternRecognition = m_patternRecognition | rhs.m_patternRecognition;
 }//end addPatternReco method

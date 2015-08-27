@@ -1,0 +1,104 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef TRKTRACK_ALIGNMENTEFFECTSONTRACK_H
+#define TRKTRACK_ALIGNMENTEFFECTSONTRACK_H
+
+#include <vector>
+#include <iostream>
+//#include "TrkTrack/TrackStateOnSurface.h" // Can't be forward declared because of ElementLink
+
+class MsgStream;
+
+namespace Trk
+{  
+  
+  class Surface;
+  class TrackStateOnSurface;
+  
+  /// Class to represent misalignments or 'discontinuities' on tracks
+  /// These have a surface where the z axis is aligned with the direction of the translation, and the angle of the rotation is with respect to this.
+  class AlignmentEffectsOnTrack 
+  {
+  public:
+  
+    AlignmentEffectsOnTrack(float deltaTranslation, 
+                            float m_sigmaDeltaTranslation, 
+                            float deltaAngle,  
+                            float sigmaDeltaAngle,
+                            const std::vector<const TrackStateOnSurface*> & indicesOfAffectedTSOS, 
+                            const Trk::Surface*);
+    AlignmentEffectsOnTrack(const Trk::AlignmentEffectsOnTrack& rhs);
+    Trk::AlignmentEffectsOnTrack& operator=(const Trk::AlignmentEffectsOnTrack& rhs);
+    
+    ~AlignmentEffectsOnTrack();
+  
+    /// returns the \f$ \Delta X \f$
+    float deltaTranslation()   const;
+  
+    /// returns the \f$ \sigma\Delta X \f$
+    float sigmaDeltaTranslation()   const;
+
+    /// returns the \f$ \Delta \alpha \f$
+    float deltaAngle() const;
+
+    /// returns the \f$ \sigma\Delta \alpha \f$
+    float sigmaDeltaAngle() const;
+
+    /// Returns a vector of the affected TSOS in the track. Obviously this must not be invalidated by removing TSOS from the track.
+    const std::vector<const TrackStateOnSurface*>& vectorOfAffectedTSOS() const;
+  
+    /// Returns true if the effects of this  AlignmentEffectsOnTrack apply to all remaining TrackStatesOnSurface of the Track.
+    bool effectsLastFromNowOn() const { return m_affectedTSOS.size()==0; }
+
+    /// The surface on which this offset is expressed.
+    const Trk::Surface& associatedSurface() const;
+    
+  private:
+    float m_deltaTranslation;
+    float m_sigmaDeltaTranslation;
+    float m_deltaAngle;
+    float m_sigmaDeltaAngle;
+    std::vector<const TrackStateOnSurface*> m_affectedTSOS;
+    const Trk::Surface* m_surface;
+  };
+  
+  /**Overload of << operator for MsgStream for debug output*/ 
+  MsgStream& operator << ( MsgStream& sl, const AlignmentEffectsOnTrack& tsos);
+  
+  /**Overload of << operator for std::ostream for debug output*/ 
+  std::ostream& operator << ( std::ostream& sl, const AlignmentEffectsOnTrack& tsos);
+}
+
+inline float Trk::AlignmentEffectsOnTrack::deltaTranslation() const
+{
+  return m_deltaTranslation;
+}
+
+inline float Trk::AlignmentEffectsOnTrack::sigmaDeltaTranslation() const
+{
+  return m_sigmaDeltaTranslation;
+}
+
+inline float Trk::AlignmentEffectsOnTrack::deltaAngle() const
+{
+  return m_deltaAngle;
+}
+
+inline float Trk::AlignmentEffectsOnTrack::sigmaDeltaAngle() const
+{
+  return m_sigmaDeltaAngle;
+}
+
+inline const std::vector<const Trk::TrackStateOnSurface*>& Trk::AlignmentEffectsOnTrack::vectorOfAffectedTSOS() const
+{
+  return m_affectedTSOS;
+}
+
+inline const Trk::Surface& Trk::AlignmentEffectsOnTrack::associatedSurface() const
+{
+  return *m_surface;
+}
+
+#endif
