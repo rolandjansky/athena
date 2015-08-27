@@ -23,7 +23,7 @@
 // -----------------------------------------------------------------------------------------------
 
 #include "GeneratorFilters/BSignalFilter.h"
-#include "TruthUtils/PIDUtils.h"
+#include "TruthUtils/PIDHelpers.h"
 #include "CLHEP/Vector/LorentzVector.h"
 
 #include <sstream>
