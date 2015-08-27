@@ -5,7 +5,7 @@
 #ifndef XAOD_ANALYSIS
 
 #include "EvgenProdTools/FixHepMC.h"
-#include "TruthUtils/HepMCUtils.h"
+#include "TruthUtils/HepMCHelpers.h"
 using namespace std;
 
 
