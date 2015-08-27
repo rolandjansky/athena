@@ -68,6 +68,7 @@ mdtRawDataValAlg_main = MdtRawDataValAlg(name='mdtRawDataValAlg_main',
                                          do_mdt_DRvsDT = False,
                                          do_mdt_DRvsDRerr = False,
                                          do_mdt_DRvsSegD = False,
+					 nHits_NoiseThreshold = 10000
                                          )
 
 ToolSvc += mdtRawDataValAlg_main
@@ -116,6 +117,7 @@ if( isTier0Flag ) :
                                                 do_mdt_DRvsDT = False,
                                                 do_mdt_DRvsDRerr = False,
                                                 do_mdt_DRvsSegD = False,
+					 	nHits_NoiseThreshold = 10000
                                                 )
     if DQMonFlags.useTrigger():
             mdtRawDataValAlg_express.TrigDecisionTool = monTrigDecTool #tool should already be in namespace
