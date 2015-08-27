@@ -16,6 +16,7 @@
 #include <string> 
 
 unsigned int Trk::Track::s_numberOfInstantiations=0;
+static bool debug=false;
 
 Trk::Track::Track ():
     m_cachedParameterVector ( 0 ),
@@ -28,6 +29,7 @@ Trk::Track::Track ():
     m_perigeeSearch( false ),
     m_trackSummary(0)
 {
+    if (debug) std::cout<<"Trk::Track Ctor 1 :"<<this<<std::endl;
 #ifndef NDEBUG
     s_numberOfInstantiations++; // new Track, so increment total count
 #endif
@@ -46,6 +48,7 @@ Trk::Track::Track( const TrackInfo& info,
     m_perigeeSearch( true ),
     m_trackSummary(0)
 {
+    if (debug) std::cout<<"Trk::Track Ctor 2 :"<<this<<std::endl;
     using namespace std;
 
     findPerigee();
@@ -67,6 +70,7 @@ Trk::Track::Track (const Track& rhs):
     m_perigeeSearch( true ),
     m_trackSummary(0)
 {
+    if (debug) std::cout<<"Trk::Track Ctor 3 :"<<this<<std::endl;
     using namespace Trk;
   
     // check that not copying itself
@@ -142,6 +146,8 @@ Trk::Track& Trk::Track::operator= (const Track& rhs)
 
 Trk::Track::~Track()
 {
+    if (debug) std::cout<<"Trk::Track dtor :"<<this<<std::endl;
+
     delete m_fitQuality;
     delete m_trackSummary;
     //the following are all DataVectors and so delete the contained objects automatically.

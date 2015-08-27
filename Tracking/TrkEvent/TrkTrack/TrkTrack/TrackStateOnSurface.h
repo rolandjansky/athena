@@ -25,7 +25,7 @@ namespace Trk
 
     class MeasurementBase;
     class Surface;
-
+    class AlignmentEffectsOnTrack;
     /**
      * @brief represents the track state (measurement, material, fit parameters
      *          and quality) at a surface.
@@ -103,9 +103,9 @@ namespace Trk
                  * you should not consider a missing b-layer hit as a hole.*/
                 Hole=6,
 
-		/** For some reason this does not fall into any of the other categories
-                 * PLEASE DO NOT USE THIS - DEPRECATED!*/
-		Unknown=7,
+                /** For some reason this does not fall into any of the other categories
+                             * PLEASE DO NOT USE THIS - DEPRECATED!*/
+                Unknown=7,
             
                 /** This TSOS contains a CaloEnergy object*/
                 CaloDeposit=8,
@@ -120,7 +120,12 @@ namespace Trk
                  */
                 FitQuality=10,
                 
-                NumberOfTrackStateOnSurfaceTypes=11
+                /**
+                * This TSOS contains a Trk::AlignmentEffectsOnTrack
+                */
+                Alignment=11,
+                
+                NumberOfTrackStateOnSurfaceTypes=12
             };
     
             /**
@@ -142,7 +147,8 @@ namespace Trk
                 const MeasurementBase          *meas,
                 const TrackParameters          *trackParameter,
                 const FitQualityOnSurface      *fitQoS,
-                const MaterialEffectsBase      *materialEffects = 0
+                const MaterialEffectsBase      *materialEffects = 0,
+                const AlignmentEffectsOnTrack  *alignmentEffectsOnTrack = 0
                 );
 
             /**
@@ -161,19 +167,22 @@ namespace Trk
              *            is being passed.   
              * @param[in] fitQoS pointer to a FitQualityOnSurface, or 0 if no object is
              *            being passed.  
-             * @param[in] materialEffects pointer to a MaterialEffectsBase, or 0
+             * @param[in] materialEffectsOnTrack pointer to a MaterialEffectsBase, or 0
              *            if no object is being passed.  
              * @param[in] typePattern The pattern of 'types' which correspond to this
              *            TSoS. You create the bitset as follows: 
              *     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
              *     typePattern.set(TrackStateOnSurface::Measurement);
+             * @param[in] alignmentEffectsOnTrack pointer to a AlignmentEffectsOnTrack, or 0
+             *            if no object is being passed. 
              */
             explicit TrackStateOnSurface(
                 const MeasurementBase           *meas,
                 const TrackParameters           *trackParameter,
                 const FitQualityOnSurface       *fitQoS,
                 const MaterialEffectsBase       *materialEffectsOnTrack,
-                const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern 
+                const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern,
+                const AlignmentEffectsOnTrack    *alignmentEffectsOnTrack=0 /// @TODO remove =0 at some point
                 );
 
             /**
@@ -212,10 +221,13 @@ namespace Trk
             const TrackParameters* trackParameters() const;
     
             /** returns MeasurementBase, or 0 if no RiO_OnTrack set.*/
-            const MeasurementBase* measurementOnTrack() const;
+            const MeasurementBase*     measurementOnTrack() const;
 
             /** returns 0 if there is no material effects, and the material effects otherwise*/
             const MaterialEffectsBase* materialEffectsOnTrack() const;
+            
+            /** returns 0 if there is no alignment effects, and the alignment effects otherwise*/
+            const AlignmentEffectsOnTrack* alignmentEffectsOnTrack() const; 
     
             /**
              * Use this method to find out if the TSoS is of a certain type:
@@ -260,6 +272,7 @@ namespace Trk
             const TrackParameters          *m_trackParameters;
             const MeasurementBase          *m_measurementOnTrack;
             const MaterialEffectsBase      *m_materialEffectsOnTrack;
+            const AlignmentEffectsOnTrack  *m_alignmentEffectsOnTrack;
             std::bitset<NumberOfTrackStateOnSurfaceTypes>                    m_typeFlags;
     };
 
@@ -268,8 +281,6 @@ namespace Trk
     
     /**Overload of << operator for std::ostream for debug output*/ 
     std::ostream& operator << ( std::ostream& sl, const TrackStateOnSurface& tsos);
-
-
 }
 
 inline Trk::TrackStateOnSurface* Trk::TrackStateOnSurface::clone() const
@@ -298,6 +309,12 @@ inline const Trk::MaterialEffectsBase *Trk::TrackStateOnSurface::materialEffects
     return m_materialEffectsOnTrack;
 }
 
+inline const Trk::AlignmentEffectsOnTrack *Trk::TrackStateOnSurface::alignmentEffectsOnTrack() const
+{
+    return m_alignmentEffectsOnTrack;
+}
+
+
 inline bool Trk::TrackStateOnSurface::type( const TrackStateOnSurfaceType& type ) const
 {
     if (type==NumberOfTrackStateOnSurfaceTypes || type==Unknown) return false;
@@ -309,6 +326,7 @@ inline void Trk::TrackStateOnSurface::setFlags()
 {
     if (m_measurementOnTrack) m_typeFlags.set(Measurement,true); 
     if (m_materialEffectsOnTrack) m_typeFlags.set(InertMaterial,true); 
+    if (m_alignmentEffectsOnTrack) m_typeFlags.set(Alignment,true); 
     if (m_trackParameters) m_typeFlags.set(Parameter,true); 
     if (m_fitQualityOnSurface) m_typeFlags.set(FitQuality,true); 
 }
@@ -318,7 +336,5 @@ Trk::TrackStateOnSurface::types() const
 {
     return m_typeFlags;
 }
-
-
 
 #endif
