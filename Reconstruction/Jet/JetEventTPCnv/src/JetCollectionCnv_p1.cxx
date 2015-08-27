@@ -51,7 +51,7 @@ JetCollectionCnv_p1::persToTrans( const JetCollection_p1* pers,
                                   MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading JetCollection from persistent state..."
-//       << endmsg;
+//       << endreq;
 
   // elements are managed by DataPool
   trans->clear(SG::VIEW_ELEMENTS);
@@ -84,12 +84,12 @@ JetCollectionCnv_p1::persToTrans( const JetCollection_p1* pers,
   strm >> RoIWord; 
   if( strm.good() )
     {
-      msg <<  MSG::DEBUG << "Note: This jet collection uses RoIWords!" << endmsg;
+      msg <<  MSG::DEBUG << "Note: This jet collection uses RoIWords!" << endreq;
       for( JetCollection::iterator itr = trans->begin(); itr != trans->end(); ++itr )
 	(*itr)->set_RoIword( RoIWord );
     }
 //   msg << MSG::DEBUG << "Loading JetCollection from persistent state [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }
 
@@ -99,7 +99,7 @@ JetCollectionCnv_p1::transToPers( const JetCollection* trans,
                                   MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of JetCollection..."
-//       << endmsg;
+//       << endreq;
 
   pers->m_ordered   = static_cast<short>(trans->m_ordered);
   //pers->m_roiAuthor = trans->m_ROIauthor;
@@ -116,7 +116,7 @@ JetCollectionCnv_p1::transToPers( const JetCollection* trans,
   }
   
 //   msg << MSG::DEBUG << "Creating persistent state of JetCollection [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }
 

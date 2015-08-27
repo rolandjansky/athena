@@ -12,9 +12,13 @@
 // STL includes
 
 // JetEvent includes
+#define private public
+#define protected public
 #include "JetEvent/Jet.h"
 #include "JetEvent/JetTagInfoBase.h"
 #include "JetEvent/JetAssociationBase.h"
+#undef private
+#undef protected
 
 // DataModelAthenaPool includes
 #include "DataModelAthenaPool/NavigableCnv_p1.h"
@@ -54,13 +58,13 @@ void JetCnv_p3::persToTrans( const Jet_p3* pers,
                              MsgStream& msg ) 
 {
   msg << MSG::DEBUG << "Loading Jet from persistent state...  e = "<< pers->m_momentum.m_ene
-      << endmsg;
+      << endreq;
 
   navCnv.persToTrans( &pers->m_nav,      
 		      &trans->navigableBase(), msg );
   momCnv.persToTrans( &pers->m_momentum, &trans->momentumBase(),  msg );
   
-  msg << MSG::DEBUG << "    after momCnv e=" << trans->e() <<endmsg; 
+  msg << MSG::DEBUG << "    after momCnv e=" << trans->e() <<endreq; 
 
   trans->m_jetAuthor = pers->m_author;
 
@@ -71,7 +75,7 @@ void JetCnv_p3::persToTrans( const Jet_p3* pers,
 
    JetKeyDescriptorInstance * keydesc = JetKeyDescriptorInstance::instance();
    std::vector<std::string> momentNames = keydesc->getKeys(JetKeyConstants::ShapeCat);
-   if( momentNames.size() != (pers)->m_shapeStore.size() ) msg << MSG::ERROR << " JEtCnv_p2 can't convert moments ! expected moment n= "<< momentNames.size() << " persistatn has "<< (pers)->m_shapeStore.size() <<endmsg;
+   if( momentNames.size() != (pers)->m_shapeStore.size() ) msg << MSG::ERROR << " JEtCnv_p2 can't convert moments ! expected moment n= "<< momentNames.size() << " persistatn has "<< (pers)->m_shapeStore.size() <<endreq;
    else for(size_t i=0;i<momentNames.size();i++){
        trans->setMoment(momentNames[i], (pers)->m_shapeStore[i], true);
      }
@@ -118,7 +122,7 @@ void JetCnv_p3::persToTrans( const Jet_p3* pers,
   trans->particleBase() = jtmp.particleBase();
 
    msg << MSG::DEBUG << "Loaded Jet from persistent state [OK]"
-       << endmsg;
+       << endreq;
    return;
 }
 
@@ -126,8 +130,8 @@ void JetCnv_p3::transToPers( const Jet* trans,
                              Jet_p3* pers, 
                              MsgStream& msg ) 
 {
-  msg << MSG::DEBUG << "Creating persistent state of Jet... e="<< trans->e() << "  "<< trans->momentumBase().e()
-      << endmsg;
+  msg << MSG::DEBUG << "Creating persistent state of Jet... e="<< trans->e() << "  "<< trans->momentumBase().m_e
+      << endreq;
 
   pers->m_ownPointers = false;
 
@@ -162,6 +166,6 @@ void JetCnv_p3::transToPers( const Jet* trans,
 
 
    msg << MSG::DEBUG << "Created persistent state of Jet [OK]  e="<< pers->m_momentum.m_ene
-      << endmsg;
+      << endreq;
   return;
 }

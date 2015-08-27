@@ -23,14 +23,12 @@
 // EventCommonTPCnv includes
 #include "EventCommonTPCnv/P4PxPyPzE_p1.h"
 
+#include "JetEvent/JetAssociationBase.h"
 #include "AthenaPoolUtilities/TPObjRef.h"
 
 #include "ParticleEventTPCnv/ParticleBase_p1.h"
 
 // forward declarations
-class JetTagInfoBase;
-class JetAssociationBase;
-
 class JetCnv_p4;
 
 class Jet_p4 

@@ -24,6 +24,7 @@
 // EventCommonTPCnv includes
 // #include "EventCommonTPCnv/P4PxPyPzE_p1.h"
 
+#include "JetEvent/JetAssociationBase.h"
 #include "AthenaPoolUtilities/TPObjRef.h"
 
 // replace particle base 
@@ -34,9 +35,8 @@
 // DataModelAthenaPool
 #include "DataModelAthenaPool/DataLink_p2.h"
 
-#include "JetEventTPCnv/JetConverterBase.h"
 
-class JetAssociationBase;
+#include "JetEventTPCnv/JetConverterBase.h"
 
 class Jet_p6
 {

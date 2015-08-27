@@ -56,11 +56,11 @@ JetCollectionCnv_p3::persToTrans( const JetCollection_p3* pers,
                                   MsgStream& msg ) 
 {
   msg << MSG::DEBUG << "Loading JetCollection from persistent state..."
-      << endmsg;
+      << endreq;
   
   // make sure to first read the JetKeyDescriptor
-  DataLinkCnv_p1<DataLink<JetKeyDescriptor> > JetKeyStoreCnv;
-  JetKeyStoreCnv.persToTrans( &pers->m_keyStore, &trans->m_keyStore, msg );
+  DataLinkCnv_p1<DataLink<JetKeyDescriptor> > m_JetKeyStoreCnv;
+  m_JetKeyStoreCnv.persToTrans( &pers->m_keyStore, &trans->m_keyStore, msg );
   // attach the map to the instance 
   (trans->m_keyStore)->access();
   // link the JetKeyDescriptorInstance to the store:
@@ -82,7 +82,7 @@ JetCollectionCnv_p3::persToTrans( const JetCollection_p3* pers,
   }
   else 
     trans->m_keyDescInstance.m_Stores  = JetKeyDescriptorInstance::instance()->m_Stores;
-  msg <<  MSG::DEBUG << "attached JetKeyDescriptor to its instance" << endmsg;
+  msg <<  MSG::DEBUG << "attached JetKeyDescriptor to its instance" << endreq;
   
   // elements are managed by DataPool
   trans->clear(SG::VIEW_ELEMENTS);
@@ -98,7 +98,7 @@ JetCollectionCnv_p3::persToTrans( const JetCollection_p3* pers,
   // each jet knows its ROI
   // trans->m_ROIauthor = //pers->m_roiAuthor;
 
-  msg << MSG::DEBUG << "persistant JetCollection  has size " << nJets <<endmsg;
+  msg << MSG::DEBUG << "persistant JetCollection  has size " << nJets <<endreq;
 
   trans->reserve( nJets );
   for ( JetCollection_p3::const_iterator 
@@ -118,13 +118,13 @@ JetCollectionCnv_p3::persToTrans( const JetCollection_p3* pers,
   strm >> RoIWord; 
   if( strm.good() )
     {
-      msg <<  MSG::DEBUG << "Note: This jet collection uses RoIWords!" << endmsg;
+      msg <<  MSG::DEBUG << "Note: This jet collection uses RoIWords!" << endreq;
       for( JetCollection::iterator itr = trans->begin(); itr != trans->end(); ++itr )
 	(*itr)->set_RoIword( RoIWord );
     }
   
   msg << MSG::DEBUG << "Loading JetCollection from persistent state [OK]"
-      << endmsg;
+      << endreq;
   return;
 }
 
@@ -134,7 +134,7 @@ JetCollectionCnv_p3::transToPers( const JetCollection* trans,
                                   MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of JetCollection..."
-//       << endmsg;
+//       << endreq;
 
   pers->m_ordered   = static_cast<short>(trans->m_ordered);
   //pers->m_roiAuthor = trans->m_ROIauthor;
@@ -151,11 +151,11 @@ JetCollectionCnv_p3::transToPers( const JetCollection* trans,
   }
   
   // RS now deal with the JetKeyDescriptor
-  DataLinkCnv_p1<DataLink<JetKeyDescriptor> > JetKeyStoreCnv;
-  JetKeyStoreCnv.transToPers( &trans->m_keyStore, &pers->m_keyStore, msg );
+  DataLinkCnv_p1<DataLink<JetKeyDescriptor> > m_JetKeyStoreCnv;
+  m_JetKeyStoreCnv.transToPers( &trans->m_keyStore, &pers->m_keyStore, msg );
   
 //   msg << MSG::DEBUG << "Creating persistent state of JetCollection [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }
 

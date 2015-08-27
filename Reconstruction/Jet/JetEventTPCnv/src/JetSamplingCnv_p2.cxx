@@ -52,7 +52,7 @@ void JetSamplingCnv_p2::persToTrans( const JetSampling_p2* pers,
 				     MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading JetSampling from persistent state..."
-//       << endmsg;
+//       << endreq;
 
   m_hlvCnv.persToTrans( &pers->m_pr,   &trans->m_pr,   msg ); // reco jet at EM scale
   m_hlvCnv.persToTrans( &pers->m_pt,   &trans->m_pt,   msg ); // PIC jet
@@ -144,7 +144,7 @@ void JetSamplingCnv_p2::persToTrans( const JetSampling_p2* pers,
   }
 
 //   msg << MSG::DEBUG << "Loaded JetSampling from persistent state [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }
 
@@ -153,7 +153,7 @@ void JetSamplingCnv_p2::transToPers( const JetSampling* trans,
 				     MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of JetSampling..."
-//       << endmsg;
+//       << endreq;
 
   m_hlvCnv.transToPers( &trans->m_pr,   &pers->m_pr,   msg ); // reconstructed jet at EM scale
   m_hlvCnv.transToPers( &trans->m_pt,   &pers->m_pt,   msg ); // PIC jet
@@ -245,6 +245,6 @@ void JetSamplingCnv_p2::transToPers( const JetSampling* trans,
   }
 
 //   msg << MSG::DEBUG << "Created persistent state of JetSampling [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }

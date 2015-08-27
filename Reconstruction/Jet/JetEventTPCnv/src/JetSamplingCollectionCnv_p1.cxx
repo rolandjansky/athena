@@ -49,7 +49,7 @@ JetSamplingCollectionCnv_p1::persToTrans( const JetSamplingCollection_p1* pers,
 					  MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading JetSamplingCollection from persistent state..."
-//       << endmsg;
+//       << endreq;
 
 
   // elements are managed by DataPool
@@ -72,7 +72,7 @@ JetSamplingCollectionCnv_p1::persToTrans( const JetSamplingCollection_p1* pers,
     trans->push_back( jetSampling );
   }
 //   msg << MSG::DEBUG << "Loading JetSamplingCollection from persistent state [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }
 
@@ -82,7 +82,7 @@ JetSamplingCollectionCnv_p1::transToPers( const JetSamplingCollection* trans,
 					  MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of JetSamplingCollection..."
-//       << endmsg;
+//       << endreq;
 
   std::size_t size = trans->size();     
   pers->resize(size);
@@ -96,7 +96,7 @@ JetSamplingCollectionCnv_p1::transToPers( const JetSamplingCollection* trans,
   }
 
 //   msg << MSG::DEBUG << "Creating persistent state of JetSamplingCollection [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }
 
