@@ -16,7 +16,6 @@ class VolumeHandleSharedData;
 class SoMaterial;
 class SoSeparator;
 class GeoMaterial;
-#include <Inventor/C/errors/debugerror.h>
 #include <Inventor/SbMatrix.h>
 
 class VolumeHandle {
