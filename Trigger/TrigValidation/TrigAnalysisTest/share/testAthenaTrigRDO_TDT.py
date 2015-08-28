@@ -1,7 +1,7 @@
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 
-include("TriggerTest/testAthenaTrigRDO.py")
+include("TriggerTest/testCommonSliceAthenaTrigRDO.py")
 
 from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
 trigDecWriter = WriteTrigDecision()
