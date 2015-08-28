@@ -210,7 +210,7 @@ InstallPackedContainerStreamer::InstallPackedContainerStreamer()
 }
 
 
-InstallPackedContainerStreamer packedContainerStreamerInstance;
+//InstallPackedContainerStreamer packedContainerStreamerInstance;
 
 
 } // namespace xAOD
