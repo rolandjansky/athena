@@ -172,7 +172,6 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD':
                                         massElectronClusterEtCut = 20000,
                                         massLowerCut = 60000,
                                         massUpperCut = 120000,
-                                        PhiBinning = 64,
                                         OutputLevel = egammaMonOutputLevel,
                                         TrigDecisionTool = MyTrigDecisionTool,
                                         UseTrigger = DQMonFlags.useTrigger())
@@ -191,7 +190,6 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD':
                                          massElectronClusterEtCut = 3000 ,
                                          massLowerCut = 2500,
                                          massUpperCut = 3500,
-                                         PhiBinning = 40,
                                          OutputLevel = egammaMonOutputLevel,
                                          TrigDecisionTool = MyTrigDecisionTool,
                                          UseTrigger = DQMonFlags.useTrigger())
@@ -211,7 +209,6 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD':
                                               massElectronClusterEtCut = 1000 ,
                                               massLowerCut = 5000,
                                               massUpperCut = 15000,
-                                              #PhiBinning = 64,
                                               OutputLevel = egammaMonOutputLevel,
                                               TrigDecisionTool = MyTrigDecisionTool,
                                               UseTrigger = DQMonFlags.useTrigger())
@@ -231,7 +228,6 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD':
                                               massElectronClusterEtCut = 1000 ,
                                               massLowerCut = 5000,
                                               massUpperCut = 15000,
-                                              #PhiBinning = 64,
                                               OutputLevel = egammaMonOutputLevel,
                                               TrigDecisionTool = MyTrigDecisionTool,
                                               UseTrigger = DQMonFlags.useTrigger())
@@ -252,7 +248,6 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD':
                                           massElectronClusterEtCut = 1000 ,
                                           massLowerCut = 0,
                                           massUpperCut = 200,
-                                          #PhiBinning = 64,
                                           LeadingElectronClusterPtCut = 20000,
                                           MissingParticleEtCut = 25000,
                                           JetEnergyCut = 1000000,
@@ -278,7 +273,6 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD':
                                           massElectronClusterEtCut = 1000 ,
                                           massLowerCut = 0,
                                           massUpperCut = 200,
-                                          #PhiBinning = 64,
                                           LeadingElectronClusterPtCut = 25000,
                                           MissingParticleEtCut = 40000,
                                           JetEnergyCut = 1000000,

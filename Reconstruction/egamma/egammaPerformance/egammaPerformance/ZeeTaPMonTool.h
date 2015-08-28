@@ -38,7 +38,6 @@ class ZeeTaPMonTool : public egammaMonToolBase
   float m_ElectronEtCut;
   float m_MassLowerCut;
   float m_MassUpperCut;
-  int m_PhiBinning;
 
   // Number of Z candidates vs leading electron eta
 
@@ -59,17 +58,10 @@ class ZeeTaPMonTool : public egammaMonToolBase
   TH1 * m_hIDEt;
   TH1 * m_hIDEta;
   TH1 * m_hIDPhi;
-  TProfile * m_effhIDEt;
-  TProfile * m_effhIDEta;
-  TProfile * m_effhIDPhi;
-
   // Efficiencies of topoEtCone40 isolation criteria vs pT, eta and phi
   TH1 * m_hISOEt;
   TH1 * m_hISOEta;
   TH1 * m_hISOPhi;
-  TProfile * m_effhISOEt;
-  TProfile * m_effhISOEta;
-  TProfile * m_effhISOPhi;
 
   // Loose electrons histograms
   TH1 * m_hN;       // Histogram for number of electrons

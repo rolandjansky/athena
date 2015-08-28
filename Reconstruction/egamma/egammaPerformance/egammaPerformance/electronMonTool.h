@@ -32,13 +32,11 @@ class electronHist
  public :
 
   std::string m_nameOfElectronType;
-  bool m_fullHistoList;
 
   enum electronType
    {
       LhMedium=0,
-      CbLoose,
-      LhLoose,
+      CbMedium,
       LhTight,
       CbTight,
       NumberOfTypesToMonitor
@@ -50,8 +48,6 @@ class electronHist
   TH1 *m_hEta;              // Histogram for electron eta
   TH1 *m_hPhi;              // Histogram for electron phi
   TH2 *m_hEtaPhi;           // Histogram for electron eta,phi
-  TH2 *m_hEtaPhi4GeV;       // Histogram for electron eta,phi (only candidates with a pt greater than 4 GeV)
-  TH2 *m_hEtaPhi20GeV;      // Histogram for electron eta,phi (only candidates with a pt greater than 20 GeV)
   TH1 *m_hTopoEtCone40;     // Histogram for electron isolation energy TopoEtcone40 
   TH1 *m_hPtCone20;         // Histogram for electron isolation energy PtCone20 
   TH1 *m_hTime;             // Histogram for electron cluster time
@@ -60,7 +56,6 @@ class electronHist
   std::vector<TH1*> m_hvEhad1;         
   std::vector<TH1*> m_hvEoverP;        
   std::vector<TH1*> m_hvCoreEM;        
-  std::vector<TH1*> m_hvF0;            
   std::vector<TH1*> m_hvF1;            
   std::vector<TH1*> m_hvF2;            
   std::vector<TH1*> m_hvF3;            
@@ -93,24 +88,17 @@ class electronHist
 
   TH1 *m_hLB_N; // Histogram for number of electrons vs LB
 
- electronHist(std::string name, bool FullHistoList):
+ electronHist(std::string name):
     m_hN (nullptr),
     m_hEt (nullptr),
     m_hEta (nullptr),
     m_hPhi (nullptr),
     m_hEtaPhi (nullptr),
-    m_hEtaPhi4GeV (nullptr),
-    m_hEtaPhi20GeV (nullptr),
     m_hTopoEtCone40 (nullptr),
     m_hPtCone20 (nullptr),
-    m_hTime (nullptr),
-    m_lumiBlockNumber(0),
-    m_nElectronsInCurrentLB(0),
-    m_nElectrons(0),
-    m_hLB_N(nullptr)
+    m_hTime (nullptr)
     {
       m_nameOfElectronType = name;
-      m_fullHistoList = FullHistoList;
     }
 
     ~electronHist(){
@@ -140,12 +128,10 @@ class electronMonTool : public egammaMonToolBase
 
   std::string m_ElectronContainer; // Container name for electrons
 
-  // LH Loose electrons histograms
-  electronHist *m_LhLooseElectrons;
   // LH Medium electrons histograms
   electronHist *m_LhMediumElectrons;
   // Medium cut based electrons histograms
-  electronHist *m_CbLooseElectrons;
+  electronHist *m_CbMediumElectrons;
   // LH Tight electrons histograms
   electronHist *m_LhTightElectrons;
   // Cut based Tight electrons histograms

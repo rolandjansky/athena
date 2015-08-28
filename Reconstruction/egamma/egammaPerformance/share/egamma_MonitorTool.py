@@ -69,7 +69,6 @@ ZeeMonTool = physicsMonTool(name= "ZeeMonTool",
                             Selection_Items = ["all"],
                             massShift = 91188,
                             massElectronClusterEtCut = 15000,
-                            PhiBinning = 64,
                             massLowerCut = 70000,
                             massUpperCut = 110000)
                           
@@ -84,7 +83,6 @@ JPsiMonTool = physicsMonTool(name= "JPsiMonTool",
                             Selection_Items = ["all"],
                             massShift = 3097,
                             massElectronClusterEtCut = 3000 ,
-                            PhiBinning = 40,
                             massLowerCut = 1000,
                             massUpperCut = 5000)
                           
@@ -99,7 +97,6 @@ Upsilon1SMonTool = physicsMonTool(name= "Upsilon1SMonTool",
                                 Selection_Items = ["all"],
                                 massShift = 9460,
                                 massElectronClusterEtCut = 1000 ,
-                                #PhiBinning = 64,
                                 massLowerCut = 5000,
                                 massUpperCut = 15000)
         
@@ -115,7 +112,6 @@ Upsilon2SMonTool = physicsMonTool(name= "Upsilon2SMonTool",
                                 Selection_Items = ["all"],
                                 massShift = 10023,
                                 massElectronClusterEtCut = 1000 ,
-                                #PhiBinning = 64,
                                 massLowerCut = 5000,
                                 massUpperCut = 15000)
 
@@ -137,7 +133,6 @@ WenuMonTool = ephysicsMonTool(name= "WenuMonTool",
                                 massElectronClusterEtCut = 1000 ,
                                 massLowerCut = 0,
                                 massUpperCut = 200,
-                                #PhiBinning = 64,
                                 LeadingElectronClusterPtCut = 25000,
                                 MissingParticleEtCut = 40000,
                                 JetEnergyCut = 30000,

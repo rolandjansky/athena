@@ -1,5 +1,5 @@
-if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
-                                       
+if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment() == 'online' or  DQMonFlags.monManEnvironment() == 'AOD' :
+
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
  
@@ -23,8 +23,9 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
         egammaMonOutputLevel = INFO
         #egammaMonOutputLevel = VERBOSE
         #egammaMonOutputLevel = DEBUG
-        ### Setup which objects will be monitored
 
+
+### Setup which objects will be monitored
         if not ('egammaMonitorPhotons' in dir()):
             egammaMonitorPhotons  = True
             
@@ -52,16 +53,26 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
         if not ('egammaMonitorTop' in dir()):
             egammaMonitorTop  = True
 
-        ## Commenting in/out Mon tools for now
+## Commenting in/out Mon tools for now
         egammaMonitorWenu  = False
         egammaMonitorTop = False
+        egammaMonitorJPsi  = False
         egammaMonitorUpsilon1S  = False
         egammaMonitorUpsilon2S  = False
-        # egammaMonitorJPsi  = False
-        # egammaMonitorZee  = False
-        # egammaMonitorFwdEg  = False
-        # egammaMonitorPhotons  = False
-        # egammaMonitorElectrons  = False
+#        egammaMonitorZee  = False
+#        egammaMonitorFwdEg  = False
+#        egammaMonitorPhotons  = False
+#        egammaMonitorElectrons  = False
+
+## Commenting in/out Trigger for now
+
+        #MyDoTrigger = True
+        MyDoTrigger = False
+        #MyDoTrigger = DQMonFlags.useTrigger()
+        
+#        print "EGamma Monitoring : use trigger ?", MyDoTrigger
+
+###
 
         photonTrigItems = []
         electronTrigItems = []
@@ -73,33 +84,35 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
         FrwdETrigItems = []
         MyTrigDecisionTool = ""
 
-        # do trigger by default for at least one electron and photon monitor
-
-        BypassphotonTrigItems = []
-        BypassmySingleElectronTrigItems = []
-        # Force the trigger with a trigger found in the test file for test purpose
-        # BypassphotonTrigItems = ['L1_EM20VH']
-        # BypassmySingleElectronTrigItems = ['L1_EM20VH']
-
-        BypassphotonTrigItems += egammaConf.primary_double_pho
-        BypassmySingleElectronTrigItems += egammaConf.primary_single_ele
-        print "egamma electron trigger =", BypassmySingleElectronTrigItems
-
-        BypassMyTrigDecisionTool = monTrigDecTool if DQMonFlags.useTrigger() else None
-
-        ## Commenting in/out Trigger for now
-        MyDoTrigger = False
-        #MyDoTrigger = DQMonFlags.useTrigger()
-
         if (MyDoTrigger):
+
+#            photonTrigItems = ["HLT_g35_loose_g25_loose"]
+#            electronTrigItems = ["HLT_e24_medium_L1EM18VH"]
+#            mySingleElectronTrigger = ["HLT_e24_medium_L1EM18VH"] 
+#            myDiElectronTrigger = ["HLT_2e12_loose","HLT_e24_lhtight_L1EM20VH_e15_etcut_Zee"] 
+#            JpsiTrigItems = ["HLT_e5_lhtight_e4_etcut_Jpsiee"] 
+#            FrwdETrigItems = ["HLT_e24_medium_L1EM18VH"]
+#            ZeeTrigItems = ["HLT_e24_lhtight_L1EM20VH_e15_etcut_Zee", "HLT_2e12_loose"]
+
             photonTrigItems += egammaConf.primary_double_pho
             mySingleElectronTrigger += egammaConf.primary_single_ele
             myDiElectronTrigger += egammaConf.primary_double_ele
             JPsiTrigItems += egammaConf.monitoring_Jpsiee
             FrwdETrigItems += egammaConf.primary_single_ele
             ZeeTrigItems += egammaConf.monitoring_Zee 
-            MyTrigDecisionTool = monTrigDecTool
+
+            MyTrigDecisionTool = "Trig::TrigDecisionTool/TrigDecisionTool"
             
+#            print "---------------"
+#            print "--------------- Config Trigger EGamma Monitoring"
+#            print "---------------"
+#            print photonTrigItems
+#            print mySingleElectronTrigger
+#            print myDiElectronTrigger
+#            print JPsiTrigItems
+#            print FrwdETrigItems
+#            print ZeeTrigItems
+#            print "---------------"
 
         if(egammaMonitorPhotons):
             from egammaPerformance.egammaPerformanceConf import photonMonTool
@@ -107,7 +120,6 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                       EgTrigDecisionTool = MyTrigDecisionTool,
                                       EgUseTrigger = MyDoTrigger,
                                       EgTrigger = photonTrigItems,
-                                      EgGroupExtension = "",
                                       PhotonContainer = "Photons",
                                       OutputLevel = egammaMonOutputLevel,
                                       )
@@ -119,57 +131,23 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
             ToolSvc+=phMonTool
             monManEgamma.AthenaMonTools += [ "photonMonTool/phMonTool" ]
 
-            if DQMonFlags.useTrigger():
-                phMonToolWithTrigger = photonMonTool(name= "phMonToolWithTrigger",
-                                                     EgTrigDecisionTool = BypassMyTrigDecisionTool,
-                                                     EgUseTrigger = True,
-                                                     EgTrigger = BypassphotonTrigItems,
-                                                     EgGroupExtension = "WithTrigger",
-                                                     PhotonContainer = "Photons",
-                                                     OutputLevel = egammaMonOutputLevel,
-                                                     )
-            
-                phMonToolWithTrigger.FilterTools += [ monbadlb ]
-                
-                if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                    phMonToolWithTrigger.FilterTools.append(monFilledBunchFilterTool)
-                ToolSvc+=phMonToolWithTrigger
-                monManEgamma.AthenaMonTools += [ "photonMonTool/phMonToolWithTrigger" ]
-
-
         if(egammaMonitorElectrons):
             from egammaPerformance.egammaPerformanceConf import electronMonTool
             elMonTool = electronMonTool(name= "elMonTool",
                                         EgTrigDecisionTool = MyTrigDecisionTool,
                                         EgUseTrigger = MyDoTrigger,
                                         EgTrigger = mySingleElectronTrigger,
-                                        EgGroupExtension = "",
                                         ElectronContainer = "Electrons",
                                         OutputLevel = egammaMonOutputLevel,
                                         )
+                        
             elMonTool.FilterTools += [ monbadlb ]
+            
             if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
                 elMonTool.FilterTools.append(monFilledBunchFilterTool)
             ToolSvc+=elMonTool
             monManEgamma.AthenaMonTools += [ "electronMonTool/elMonTool" ]
             print elMonTool
-
-            if DQMonFlags.useTrigger():
-                elMonToolWithTrigger = electronMonTool(name= "elMonToolWithTrigger",
-                                                       EgTrigDecisionTool = BypassMyTrigDecisionTool,
-                                                       EgUseTrigger = True,
-                                                       EgTrigger = BypassmySingleElectronTrigItems,
-                                                       EgGroupExtension = "WithTrigger",
-                                                       ElectronContainer = "Electrons",
-                                                       OutputLevel = egammaMonOutputLevel,
-                                                       )
-                elMonToolWithTrigger.FilterTools += [ monbadlb ]
-                if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                    elMonToolWithTrigger.FilterTools.append(monFilledBunchFilterTool)
-                ToolSvc+=elMonToolWithTrigger
-                monManEgamma.AthenaMonTools += [ "electronMonTool/elMonToolWithTrigger" ]
-                print elMonToolWithTrigger
-            
 
         if(egammaMonitorFwdEg):
             from egammaPerformance.egammaPerformanceConf import forwardElectronMonTool
@@ -194,40 +172,37 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                        EgTrigDecisionTool = MyTrigDecisionTool,
                                        EgUseTrigger = MyDoTrigger,
                                        EgTrigger = ZeeTrigItems,
-                                       EgGroupExtension="Z",
                                        ElectronContainer  ="Electrons",
                                        massPeak = 91188,
                                        electronEtCut = 20000,
                                        massLowerCut = 60000,
                                        massUpperCut = 120000,
-                                       #PhiBinning = 64,
                                        OutputLevel = egammaMonOutputLevel,
                                        )
             
-            if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                ZeeMonTool.FilterTools.append(monFilledBunchFilterTool)
             ToolSvc+=ZeeMonTool
             monManEgamma.AthenaMonTools += [ "ZeeTaPMonTool/ZeeMonTool" ]
 
         if(egammaMonitorJPsi):
             from egammaPerformance.egammaPerformanceConf import ZeeTaPMonTool
-            JPsiMonTool = ZeeTaPMonTool(name= "JPsiMonTool",
-                                        EgTrigDecisionTool = MyTrigDecisionTool,
-                                        EgUseTrigger = MyDoTrigger,
-                                        EgTrigger = JPsiTrigItems,
-                                        EgGroupExtension="JPsi",
-                                        ElectronContainer="Electrons",
-                                        massPeak = 3097,
-                                        electronEtCut = 3000,
-                                        massLowerCut = 2000,
-                                        massUpperCut = 5000,
-                                        #PhiBinning = 40,
-                                        OutputLevel = egammaMonOutputLevel,
-                                        )
-            if jobproperties.Beam.beamType()=='collisions' and hasattr(ToolSvc, 'DQFilledBunchFilterTool'):
-                JPsiMonTool.FilterTools.append(monFilledBunchFilterTool)       
+            JPsiMonTool = PhysMonTool(name= "JPsiMonTool",
+                                         EgTrigDecisionTool = MyTrigDecisionTool,
+                                         EgUseTrigger = MyDoTrigger,
+                                         EgTrigger = JPsiTrigItems,
+                                         ElectronContainer="Electrons",
+                                         electronEtCut = 5000,
+                                         massLowerCut = 2500,
+                                         massUpperCut = 3500,
+                                         OutputLevel = egammaMonOutputLevel,
+#                                         massPeak = 3097,
+#                                         massElectronClusterEtCut = 3000 ,
+#                                         massLowerCut = 2500,
+#                                         massUpperCut = 3500,
+                                         )
+        
             ToolSvc+=JPsiMonTool
             monManEgamma.AthenaMonTools += [ "ZeeTaPMonTool/JPsiMonTool" ]
+
 
         if(egammaMonitorUpsilon1S):
             from egammaPerformance.egammaPerformanceConf import physicsMonTool
@@ -240,7 +215,6 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                               massElectronClusterEtCut = 1000 ,
                                               massLowerCut = 5000,
                                               massUpperCut = 15000,
-                                              #PhiBinning = 64,
                                               OutputLevel = egammaMonOutputLevel,
                                               TrigDecisionTool = MyTrigDecisionTool,
                                               UseTrigger = MyDoTrigger)
@@ -260,7 +234,6 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                               massElectronClusterEtCut = 1000 ,
                                               massLowerCut = 5000,
                                               massUpperCut = 15000,
-                                              #PhiBinning = 64,
                                               OutputLevel = egammaMonOutputLevel,
                                               TrigDecisionTool = MyTrigDecisionTool,
                                               UseTrigger = MyDoTrigger)
@@ -281,7 +254,6 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                           massElectronClusterEtCut = 1000 ,
                                           massLowerCut = 0,
                                           massUpperCut = 200,
-                                          #PhiBinning = 64,
                                           LeadingElectronClusterPtCut = 20000,
                                           MissingParticleEtCut = 25000,
                                           JetEnergyCut = 1000000,
@@ -306,7 +278,6 @@ if  DQMonFlags.monManEnvironment() in ('tier0','tier0ESD','online', 'AOD'):
                                           massElectronClusterEtCut = 1000 ,
                                           massLowerCut = 0,
                                           massUpperCut = 200,
-                                          #PhiBinning = 64,
                                           LeadingElectronClusterPtCut = 25000,
                                           MissingParticleEtCut = 40000,
                                           JetEnergyCut = 1000000,

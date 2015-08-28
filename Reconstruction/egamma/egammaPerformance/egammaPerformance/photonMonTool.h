@@ -54,9 +54,7 @@ class photonHist
   TH1 * m_hPhi;      // Histogram for photon phi
   TH1 * m_hPhiUnconv;// Histogram for Unconverted photon phi
   TH1 * m_hPhiConv;  // Histogram for Converted photon phi
-  TH2 * m_hEtaPhi;          // Histogram for photon eta,phi
-  TH2 * m_hEtaPhi4GeV;      // Histogram for photon eta,phi (candidates with at least 4 GeV energy)
-  TH2 * m_hEtaPhi20GeV;     // Histogram for photon eta,phi (candidates with at least 20 GeV energy)
+  TH2 * m_hEtaPhi;      // Histogram for photon eta,phi
   TH2 * m_hEtaPhiUnconv;// Histogram for Unconverted photon eta,phi
   TH2 * m_hEtaPhiConv;  // Histogram for Converted photon eta,phi
   TH1 * m_hTopoEtCone40;      // Histogram for calo based isolation energy
@@ -84,7 +82,6 @@ class photonHist
   // photon ID per region histograms
   std::vector<TH1*> m_hvEhad1;         
   std::vector<TH1*> m_hvCoreEM;        
-  std::vector<TH1*> m_hvF0;            
   std::vector<TH1*> m_hvF1;            
   std::vector<TH1*> m_hvF2;            
   std::vector<TH1*> m_hvF3;            
@@ -122,6 +119,7 @@ class photonHist
   TH1 *m_hLB_N; // Histogram for number of photons vs LB
   TH1 *m_hLB_NUnconv; // Histogram for number of photons vs LB
   TH1 *m_hLB_NConv; // Histogram for number of photons vs LB
+
   TH1 *m_hLB_fConv; // Histogram of Conv. photon fraction vs LB
 
  photonHist(std::string name)
@@ -138,8 +136,6 @@ class photonHist
     m_hPhiUnconv(nullptr),
     m_hPhiConv(nullptr),
     m_hEtaPhi(nullptr),
-    m_hEtaPhi4GeV(nullptr),
-    m_hEtaPhi20GeV(nullptr),
     m_hEtaPhiUnconv(nullptr),
     m_hEtaPhiConv(nullptr),
     m_hTopoEtCone40(nullptr),
@@ -156,14 +152,6 @@ class photonHist
     m_hLB_fConv(nullptr)
     {
       m_nameOfPhotonType = name;
-      m_lumiBlockNumber = 0;
-      m_nPhotonsInCurrentLB = 0;
-      m_nPhotonsInCurrentLBUnconv = 0;
-      m_nPhotonsInCurrentLBConv = 0;
-      m_nPhotons = 0;
-      m_nPhotonsUnconv = 0;
-      m_nPhotonsConv = 0;
-
     }
   
   ~photonHist(){}
