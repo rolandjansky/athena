@@ -5,6 +5,7 @@
 /////////////////////////////////////////////////////////////
 //
 //      2014-05-21 Author: Remi Lafaye (Annecy) 
+//      2015-05-15 Author: Bertrand Laforge (LPNHE, Paris)
 //
 /////////////////////////////////////////////////////////////
 
@@ -27,7 +28,7 @@ class ZeeTaPMonTool : public egammaMonToolBase
   virtual StatusCode procHistograms();
      
  private:
-  void fillElectronProbe(const xAOD::Electron *el, bool isTight, float mass);
+  void fillElectronProbe(const xAOD::Electron *el, bool isTight, bool isIso, double mass);
 
  protected:
 
@@ -42,15 +43,25 @@ class ZeeTaPMonTool : public egammaMonToolBase
 
   TH1 * m_hNZcandidates;
 
+  MonGroup* m_electronGroup;
+  MonGroup* m_electronTrkGroup;
+  MonGroup* m_electronIdGroup;
+  MonGroup* m_electronIsoGroup;
+  MonGroup* m_electronLBGroup;
+  MonGroup *m_electronEffGroup;
+
   // Zee mass distributions
   std::vector<TH1*> m_hvMass;         
   TH1 * m_hMass;       // Histogram for Mass of Z candidates
 
-  // Efficiencies vs pT, eta
+  // Efficiencies of LHTight vs pT, eta and phi
   TH1 * m_hIDEt;
   TH1 * m_hIDEta;
+  TH1 * m_hIDPhi;
+  // Efficiencies of topoEtCone40 isolation criteria vs pT, eta and phi
   TH1 * m_hISOEt;
   TH1 * m_hISOEta;
+  TH1 * m_hISOPhi;
 
   // Loose electrons histograms
   TH1 * m_hN;       // Histogram for number of electrons
@@ -79,6 +90,16 @@ class ZeeTaPMonTool : public egammaMonToolBase
   // electron ISO
   std::vector<TH1*> m_hvCaloIso;
   std::vector<TH1*> m_hvTrackIso;
+
+  // Monitoring per lumiblock
+
+  unsigned int m_lumiBlockNumber;
+  unsigned int m_nZCandidatesInCurrentLB;
+  std::vector<int> m_nZCandidatesPerLumiBlock;
+  std::vector<int> m_nZCandidatessPerRegion;
+  unsigned int m_nZCandidates;
+
+  TH1 *m_hLB_N; // Histogram for number of electrons vs LB
 
 };
 
