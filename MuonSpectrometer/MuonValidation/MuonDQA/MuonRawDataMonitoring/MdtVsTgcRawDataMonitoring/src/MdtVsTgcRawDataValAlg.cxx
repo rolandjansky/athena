@@ -40,6 +40,9 @@
 #include "MdtVsTgcRawDataMonitoring/MdtVsTgcRawDataValAlg.h"
 #include "AthenaMonitoring/AthenaMonManager.h"
 
+//xAOD MDT segment container
+#include "xAODMuon/MuonSegmentContainer.h"
+
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TH1.h>
@@ -67,6 +70,7 @@ MdtVsTgcRawDataValAlg::MdtVsTgcRawDataValAlg( const std::string & type, const st
   // Declare the properties 
   declareProperty("CheckCabling",     m_checkCabling=false);
   declareProperty("TgcLv1File",       m_tgclv1file=true);    
+  declareProperty("UseNewMDTSegment", m_new_MDTSG=true);    
   declareProperty("ChamberName",      m_chamberName="XXX");
   declareProperty("StationSize",      m_StationSize="XXX");
   declareProperty("Sector",           m_sector=0); 
@@ -145,7 +149,6 @@ MdtVsTgcRawDataValAlg::initialize(){
   m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug printout reached
   
   m_log << MSG::INFO << "in initializing MdtVsTgcRawDataValAlg" << endreq;
-
   StatusCode sc;
 
   // Store Gate store
@@ -312,14 +315,27 @@ StatusCode MdtVsTgcRawDataValAlg::fillHistograms(){
     return sc;
   }
   
-  //MDT Segments
-  const Trk::SegmentCollection* mdt_segment_collection;
-  sc = (*m_activeStore)->retrieve(mdt_segment_collection, m_mdt_SegmentCollectionName);
-  if (sc.isFailure()) {
-    m_log << MSG::ERROR << " Cannot retrieve Mdt SegmentCollection " << m_mdt_SegmentCollectionName << endreq;
-    return sc;
+  if(m_new_MDTSG){ //new MDT Segments container
+    const xAOD::MuonSegmentContainer* mdt_new_segment ;
+    sc = (*m_activeStore)->retrieve(mdt_new_segment, m_mdt_SegmentCollectionName);
+    if (sc.isFailure()) {
+      m_log << MSG::ERROR << " Cannot retrieve New Mdt SegmentCollection " << m_mdt_SegmentCollectionName << endreq;
+      return sc;
+    }
+  tgceffcalc(mdt_new_segment, tgc_prd_container);
+  maphists(mdt_new_segment, tgc_prd_container);
+
+  }else{//MDT Segments
+    const Trk::SegmentCollection* mdt_segment_collection;
+    sc = (*m_activeStore)->retrieve(mdt_segment_collection, m_mdt_SegmentCollectionName);
+    if (sc.isFailure()) {
+      m_log << MSG::ERROR << " Cannot retrieve Mdt SegmentCollection " << m_mdt_SegmentCollectionName << endreq;
+      return sc;
+    }
+    tgceffcalc(mdt_segment_collection, tgc_prd_container);
+    maphists(mdt_segment_collection, tgc_prd_container);
   }
-  
+
   //only analyze nSL==1
   int nSL = numberOfSL(tgc_coin_container);
   //mdtvstgclv1_eff[0]->Fill(0);
@@ -340,10 +356,7 @@ StatusCode MdtVsTgcRawDataValAlg::fillHistograms(){
     correlation(mdt_prd_container, tgc_coin_container);
   }
 
-  tgceffcalc(mdt_segment_collection, tgc_prd_container);
-
-  maphists(mdt_segment_collection, tgc_prd_container);
-
+ 
   return sc;  // statuscode check
 } 
 /*----------------------------------------------------------------------------------*/

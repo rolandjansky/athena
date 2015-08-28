@@ -145,7 +145,7 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
           m_log << MSG::FATAL << "eff_stationmapbase["<<i<<"]["<<k<<"]["<<e<<"] Failed to register histogram " << endreq;
           return sc;
         }
-        labelStationMap(eff_stationmapbase[i][k][e], i);
+        labelStationMap(eff_stationmapbase[i][k][e], i,k);
         sst.str("");
         
         // Station Efficiency Map Midstation Segments
@@ -164,7 +164,7 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
           m_log << MSG::FATAL << "eff_stationmapmid["<<i<<"]["<<k<<"]["<<e<<"] Failed to register histogram " << endreq;
           return sc;
         }
-        labelStationMap(eff_stationmapmid[i][k][e], i);
+        labelStationMap(eff_stationmapmid[i][k][e], i,k);
         sst.str("");
         
         // Station Efficiency Map Total
@@ -183,7 +183,7 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
           m_log << MSG::FATAL << "eff_stationmap["<<i<<"]["<<k<<"]["<<e<<"] Failed to register histogram " << endreq;
           return sc;
         }
-        labelStationMap(eff_stationmap[i][k][e], i);
+        labelStationMap(eff_stationmap[i][k][e], i,k);
         sst.str("");
       }// EffNumDenom
     }// WireStrip
@@ -434,9 +434,9 @@ MdtVsTgcRawDataValAlg::bookeffhists(MonGroup &mdtvstgclv1_expert_a,
 
 // Apply labels to StationMap histogram's axis
 void
-MdtVsTgcRawDataValAlg::labelStationMap(TH2 *h2, int ac){
+MdtVsTgcRawDataValAlg::labelStationMap(TH2 *h2, int ac, int ws){
   // Blank non-existent chambers
-  BlankStationMap(h2);
+  BlankStationMap(h2,ws);
   
   std::stringstream sst;
   std::string AC[2]={"A","C"};
@@ -444,20 +444,49 @@ MdtVsTgcRawDataValAlg::labelStationMap(TH2 *h2, int ac){
   std::string chamber1[6]={"E1", "E2", "E3", "E4", "F"};
   std::string chamber3[6]={"E1", "E2", "E3", "E4", "E5", "F"};
   std::string chamberE[2]={"EI", "FI"};
-
+  
+  bool m_rebin=true;
   // Name StationEtas/Layers
   int ibin=1;
-  for(int l=0 ; l<9 ; l++ ){// Layer
-    for( int c=0 ; c<nChambers[l] ; c++ ){// Chamber
-      sst << "L" << l+1 << "_";
-      if(nChambers[l]==5)sst<<chamber1[c];
-      else if(nChambers[l]==6)sst<<chamber3[c];
-      else if(nChambers[l]==2)sst<<chamberE[c];
-      h2->GetXaxis()->SetBinLabel(ibin, sst.str().c_str()); 
-      sst.str(""); ibin++;
-    }// Chamber
-  }// Layer
-  h2->GetXaxis()->LabelsOption("v");
+  if(m_rebin){//use new bin
+    for(int l=0 ; l<9 ; l++ ){// Layer
+      for( int c=0 ; c<nChambers[l] ; c++ ){// Chamber
+        sst << "L" << l+1 << "_";
+        if(nChambers[l]==5)sst<<chamber1[c];
+        else if(nChambers[l]==6)sst<<chamber3[c];
+        else if(nChambers[l]==2)sst<<chamberE[c];
+          if(l+1>0 && l+1<=3 && c+1<5)ibin=7*c+(l+1);
+          else if(l+1>3 && l+1<=7 && c+1<5)ibin=7*c+(l+1);
+          else if(l+1>3 && l+1<=7 && c+1==5)ibin=25+(l+1);
+          else if(l+1==1 && c+1==5)ibin=33;
+          else if(l+1==2 && c+1==5)ibin=34;
+          else if(l+1==3 && c+1==5)ibin=35;
+          else if(l+1==4 && c+1==6)ibin=36;
+          else if(l+1==5 && c+1==6)ibin=37;
+          else if(l+1==6 && c+1==6)ibin=38;
+          else if(l+1==7 && c+1==6)ibin=39;
+          else if(l+1==8 && c+1==1)ibin=40;
+          else if(l+1==8 && c+1==2)ibin=42;
+          else if(l+1==9 && c+1==1)ibin=41;
+          else if(l+1==9 && c+1==2)ibin=43;
+        h2->GetXaxis()->SetBinLabel(ibin, sst.str().c_str()); 
+        h2->GetXaxis()->SetBit(TAxis::kLabelsVert);
+        sst.str(""); 
+      }// Chamber 
+    }// Layer
+  }else{//use old bin   logically dead code, comment out
+//    for(int l=0 ; l<9 ; l++ ){// Layer
+//      for( int c=0 ; c<nChambers[l] ; c++ ){// Chamber
+//        sst << "L" << l+1 << "_";
+//        if(nChambers[l]==5)sst<<chamber1[c];
+//        else if(nChambers[l]==6)sst<<chamber3[c];
+//        else if(nChambers[l]==2)sst<<chamberE[c];
+//        h2->GetXaxis()->SetBinLabel(ibin, sst.str().c_str()); 
+//        sst.str(""); ibin++;
+//      }// Chamber
+//    }// Layer
+//    h2->GetXaxis()->LabelsOption("v");
+  }
   // Name Phi Sectors
   for(int isec=1;isec<=12;isec++){// Sector
     for(int iphi=0;iphi<=3;iphi+=4){// Phi number

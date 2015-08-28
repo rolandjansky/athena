@@ -286,6 +286,7 @@ MdtVsTgcRawDataValAlg::CheckTGConTrack(vector<SegmTrack> (&matchedSegments)[2],
         // Skip PRD in stations which can't be checked
         if(stationIndex<0) continue;
         if(!(canCheckGlobal[stationIndex]||canCheckSector[stationIndex]))continue;
+	if(layer<0) continue;
         HasPRD[layer]=true;
         
         // Get position variables

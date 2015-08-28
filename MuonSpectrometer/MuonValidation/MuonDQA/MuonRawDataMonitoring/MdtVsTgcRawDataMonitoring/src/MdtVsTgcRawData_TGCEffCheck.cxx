@@ -17,6 +17,9 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "muonEvent/MuonContainer.h"
 #include "MuonCompetingRIOsOnTrack/CompetingMuonClustersOnTrack.h"
+//use new MDT segment container 
+#include "xAODMuon/MuonSegmentContainer.h"
+#include "xAODMuon/MuonSegment.h"
 
 #include <TH1F.h>
 #include <TH2F.h>
@@ -34,7 +37,57 @@ using namespace std;
 
 // Function to generate TGC efficiency histograms
 // Selects valid segments and attempts to match them into a track, then looks for TGC hits in the various layers
-// to calculate the efficiency
+//New to calculate the efficiency
+void
+MdtVsTgcRawDataValAlg::tgceffcalc(const xAOD::MuonSegmentContainer *m_newmdtsegment,
+                                  const Muon::TgcPrepDataContainer *tgc_prepcontainer){
+  if(m_debuglevel) m_log<<MSG::DEBUG<<"inside tgcEIFIeffcalc"<<endreq;
+  //////////////////////////////////////////////////////
+  // Declare vector arrays to hold segment pointers
+
+  // Holds Segments sorted into MDT Stations on each side
+  vector<const Muon::MuonSegment*> sortedSegments[2][4];           //[AC][MDTStation]
+  
+  // Holds Segments which have been disqualified, any segments in this array are ignored when looping through sortedSegments
+  vector<const Muon::MuonSegment*> DQdisqualifiedSegments[2][4];   //[AC][MDTStation] // Segments which have been disqualified by DQ
+  vector<const Muon::MuonSegment*> MATCHdisqualifiedSegments[2][4];//[AC][MDTStation] // Segments which have been disqualified by DQ or already been included in a track
+  
+  // Holds Segments which have been matched into a track
+  vector<SegmTrack> matchedSegments[2];             //[AC]
+  
+  
+  //////////////////////////////////////////////////////
+  // Sort and filter Segments
+  
+  // Sort Segments from segmcollection into correct bin in sortedSegments array
+  SortMDTSegments(m_newmdtsegment, sortedSegments);
+  // Disqualify Segments with bad DQ
+  DQCheckMDTSegments(sortedSegments, DQdisqualifiedSegments);
+  for(int i=0;i<2;i++){
+    for(int jMDT=0;jMDT<4;jMDT++){
+      MATCHdisqualifiedSegments[i][jMDT] = DQdisqualifiedSegments[i][jMDT];
+    }
+  }
+  
+  
+  //////////////////////////////////////////////////////
+  // Segment Track Method
+  // Match up Segments into tracks
+  MatchMDTSegments(sortedSegments, MATCHdisqualifiedSegments, matchedSegments);
+  // Use tracks to look for TGC hits
+  CheckTGConTrack(matchedSegments, tgc_prepcontainer);
+
+  
+  //////////////////////////////////////////////////////
+  // Midstation-only Method
+  
+  // Use segments to check Midstation again
+  MidstationOnlyCheck(sortedSegments, DQdisqualifiedSegments, tgc_prepcontainer);
+  
+  return;
+}// End of function
+
+//Old to calculate the efficiency
 void
 MdtVsTgcRawDataValAlg::tgceffcalc(const Trk::SegmentCollection     *m_segmcollection,
                                   const Muon::TgcPrepDataContainer *tgc_prepcontainer){
@@ -266,33 +319,44 @@ MdtVsTgcRawDataValAlg::getStationMapIndex(int x, int l, int stationFE, int stati
   if((l<0)||(l>8)) m_log << MSG::WARNING << "getStationMapIndex passed invalid layer index l=" << l << endreq;
   if(stationEta<1) m_log << MSG::WARNING << "getStationMapIndex passed invalid stationEta=" << stationEta << endreq;
   if(stationPhi<1) m_log << MSG::WARNING << "getStationMapIndex passed invalid stationPhi=" << stationPhi << endreq;
-  
   int index=0;
   switch(x){
-  case 1:// Getting Eta Index
+   case 1:// Getting Eta Index //use old eta bin
     if(l==0||l==1||l==2){// T1
       if(stationEta>4) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-      if(stationFE==0)index=4;
-      else index=4-stationEta;
-      index+=(l*5);
+      if(stationFE==0)index=32+l;
+      else{ 
+      	index=4-stationEta;
+        index=index*7+l;
+			}
     }
     else if(l==3||l==4){// T2
       if(stationEta>5) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-      if(stationFE==0)index=5;
-      else index=5-stationEta;
-      index+=((l-3)*6)+15;
+      if(stationFE==0)index=32+l;
+      else {
+        index=5-stationEta;
+        index=index*7+l;
+        if(stationEta==1)index=25+l;
+      }
     }
     else if(l==5||l==6){// T3
       if(stationEta>5) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-      if(stationFE==0)index=5;
-      else index=5-stationEta;
-      index+=((l-5)*6)+27;
+      if(stationFE==0)index=32+l;
+      else{
+        index=5-stationEta;
+        index=index*7+l;
+        if(stationEta==1)index=25+l;
+      }
     }
     else if(l==7||l==8){// T4
       if(stationEta>1) m_log << MSG::WARNING << "getStationMapIndex(" << x << ") passed invalid l=" << l << " stationEta=" << stationEta << endreq;
-      if(stationFE==0)index=1;
-      else index=1-stationEta;
-      index+=((l-7)*2)+39;
+      if(stationFE==0){
+        if(l==7){index=41;}
+        else if(l==8){index=42;}
+      }else{
+        if(l==7){index=39;}
+        else if(l==8){index=40;}
+      }
     }
     break;
   case 2:// Getting Phi Index

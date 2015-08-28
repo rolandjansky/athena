@@ -413,6 +413,8 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
 
       // Variables to hold best PRD matching results
       vector<Muon::TgcPrepData*> *bestTPDmatches[2];
+      bestTPDmatches[0] = 0;
+      bestTPDmatches[1] = 0;
       if(bestTPDmatches[0]->size()>0) bestTPDmatches[0]->clear();
       if(bestTPDmatches[1]->size()>0) bestTPDmatches[1]->clear();
       int bestTPDlayerMatches[2][9] = {{0,0,0,0,0,0,0,0,0},
@@ -427,7 +429,8 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
         int nTPD = tpdVector[k].size();
         for(int iTPD1=0;iTPD1<nTPD;iTPD1++){
           // Variables to hold matches found for this PRD
-          vector<Muon::TgcPrepData*> thisTPDmatches;
+          vector<Muon::TgcPrepData*> *thisTPDmatches;
+	  thisTPDmatches = 0;
           int thisTPDlayerMatches[9] = {0,0,0,0,0,0,0,0,0}; 
           
           // Get position variables
@@ -490,7 +493,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
               
               // Add PRD2 to matches for PRD1
               if(layer2>=0)thisTPDlayerMatches[layer2]++;
-              thisTPDmatches.push_back(tpdVector[k].at(iTPD2));
+              thisTPDmatches->push_back(tpdVector[k].at(iTPD2));
             }
           }// nTPD2
           
@@ -508,7 +511,7 @@ MdtVsTgcRawDataValAlg::MidstationOnlyCheck(vector<const Muon::MuonSegment*> (&so
               // Set maximum values to current segment's values
               nlayerMax = nlayerCurrent;
               nPRDMax   = nPRDCurrent;
-              bestTPDmatches[k]    = &thisTPDmatches;
+              bestTPDmatches[k]    = thisTPDmatches;
               for(int l=0;l<9;l++){
                 bestTPDlayerMatches[k][l] = thisTPDlayerMatches[l];
               }
