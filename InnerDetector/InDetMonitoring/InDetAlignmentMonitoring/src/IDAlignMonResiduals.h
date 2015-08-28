@@ -111,7 +111,6 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   void RegisterHisto(MonGroup& mon, TH2* histo);
   void RegisterHisto(MonGroup& mon, TProfile* histo);
   void RegisterHisto(MonGroup& mon, TProfile2D* histo);
-  void RegisterHisto(MonGroup& mon, TH3* histo);
   
   void InitializeHistograms();
 
@@ -193,7 +192,6 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   bool m_changedlumiblock;
   int  m_oldlumiblock;
   int m_FinerBinningFactor;
-  float m_LBGranularity;
   std::vector<TString> m_siliconBarrelLayersLabels; 
   std::vector<TString> m_siliconEndcapLayersLabels;
   
@@ -425,9 +423,6 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   int m_nBinsMuRange;
   float m_muRangeMin;
   float m_muRangeMax;
-  int m_nBinsLB;
-  float m_LBRangeMin;
-  float m_LBRangeMax;
   int nIBLHitsPerLB;
   
   
@@ -435,33 +430,13 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
 
   TProfile2D*   m_pix_b0_resXvsetaLumiBlock;
   TProfile2D*   m_pix_b0_resXvsetaLumiBlock_planars;
-
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_3d;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_planars_3d;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave0;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave1;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave2;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave3;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave4;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave5;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave6;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave7;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave8;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave9;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave10;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave11;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave12;
-  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave13;
-
-  //IBL fit magnitude and baseline as a function of LumiBlock
   
+  
+  //IBL fit magnitude and baseline as a function of LumiBlock
+  //TGraphErrors* m_mag_vs_LB;
+  //TGraphErrors* m_base_vs_LB;
   TH1D* m_mag_vs_LB;
   TH1D* m_base_vs_LB;
-
-  TH1D* m_mag_vs_LB_planars;
-  TH1D* m_base_vs_LB_planars;
-
-
   
 
   // SCT
@@ -547,10 +522,8 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TH1F*> m_pix_b_pullsy;
   std::vector<TH3F*> m_pix_b_xresvsmodetaphi_3ds;
   std::vector<TH3F*> m_pix_b_yresvsmodetaphi_3ds;
-  // -replaced by detailed std::vector<TH3F*> m_pix_b_biased_xresvsmodetaphi_3ds;
-  // std::vector<TH3F*> m_pix_b_biased_yresvsmodetaphi_3ds;
-  std::vector<TH3F*> m_pix_b_detailed_xresvsmodetaphi_3ds;
-  std::vector<TH3F*> m_pix_b_detailed_yresvsmodetaphi_3ds;
+  std::vector<TH3F*> m_pix_b_biased_xresvsmodetaphi_3ds;
+  std::vector<TH3F*> m_pix_b_biased_yresvsmodetaphi_3ds;
   std::vector<TH1F*> m_pix_b_top_residualsx;
   std::vector<TH1F*> m_pix_b_top_residualsy;
   std::vector<TH1F*> m_pix_b_btm_residualsx;

@@ -2,15 +2,9 @@
 #
 #
 #
-MAGH = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"mag_vs_LB","noFit",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(MAGH, outputDir+"/"+"MagnitudeVsLB."+oFext, "Distortion magnitude", "Magnitude [#mu m]", "LumiBlock", 0.15, 0.89, "#mum",canvasText,makeOutput,0.60, 0.88)
-
-
 PIXX0 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
 DrawPlots(PIXX0, outputDir+"/"+"PIXIBL_X."+oFext, "Pixel Barrel IBL", "Number of hits on tracks",
           "Local x residual [mm]", 0.15, 0.89, "#mum",canvasText,makeOutput,0.60, 0.88)
-
-DrawEvolutionPlot(PIXX0, outputDir+"/"+"Evol_PIXIBL_X."+oFext, "Pixel Barrel IBL", "Mean local x residual [mm]", 0.15, 0.89, "#mum",canvasText,makeOutput,0.60, 0.88)
 
 PIXY0 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_residualy","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
 DrawPlots(PIXY0, outputDir+"/"+"PIXIBL_Y."+oFext, "Pixel Barrel IBL", "Number of hits on tracks",
@@ -32,11 +26,11 @@ DrawPlots(PIX1_xRESvsETA, outputDir+"/"+"PIX1_xRESvsETA."+oFext, "Pixel layer 1"
           "ring along stave [#eta-index]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.60, 0.88, False)
 
 PIX2_xRESvsETA =  MakeProfPlotsFrom3D(residualsDir,legendTitles,markerColors,markerStyles, "pix_b2_xresvsmodetaphi_3d", "noFit", rootFiles, nFiles, True)
-DrawPlots(PIX2_xRESvsETA, outputDir+"/"+"PIX2_xRESvsETA."+oFext, "Pixel layer 2", "Average local x residual [mm]",
+DrawPlots(PIX2_xRESvsETA, outputDir+"/"+"PIX2_xRESvsETA."+oFext, "Pixel layer 1", "Average local x residual [mm]",
           "ring along stave [#eta-index]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.60, 0.88, False)
 
 PIX3_xRESvsETA =  MakeProfPlotsFrom3D(residualsDir,legendTitles,markerColors,markerStyles, "pix_b3_xresvsmodetaphi_3d", "noFit", rootFiles, nFiles, True)
-DrawPlots(PIX3_xRESvsETA, outputDir+"/"+"PIX3_xRESvsETA."+oFext, "Pixel layer 3", "Average local x residual [mm]",
+DrawPlots(PIX3_xRESvsETA, outputDir+"/"+"PIX3_xRESvsETA."+oFext, "Pixel layer 1", "Average local x residual [mm]",
           "ring along stave [#eta-index]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.60, 0.88, False)
 
 IBL_xRESvsETAupper =  MakeProfPlotsFrom3D(residualsDir,legendTitles,markerColors,markerStyles, "pix_b0_xresvsmodetaphi_3d", "noFit", rootFiles, nFiles, True, 3, 6)
@@ -96,58 +90,4 @@ IBL_xSagitta =  MakexResSagittaPlotsFrom3D(residualsDir,legendTitles,markerColor
 DrawPlots(IBL_xSagitta, outputDir+"/IBL_xSagitta."+oFext, "IBL", "Local x residual Sagitta [#mum]",
           "sector [#stave]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.60, 0.88, False)
     
-IBLvsLB = MakePlots2D(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_resXvsetaLumiBlock",rootFiles,nFiles)
-DrawPlots2D(IBLvsLB,outputDir+"/","IBL_resXvsetaLumiBlock."+oFext,"LumiBlock","Local X residual",0.18,0.88,"[mm]",canvasText,True)
-
-
-IBLvsLB_planars = MakePlots2D(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_resXvsetaLumiBlock_planars",rootFiles,nFiles)
-DrawPlots2D(IBLvsLB,outputDir+"/","IBL_resXvsetaLumiBlock_planars."+oFext,"LumiBlock","Local X residual",0.18,0.88,"[mm]",canvasText,True)
-
-
-if (userExtended):
-    par = [-999,-999,-999,-999]
-    par2 = [-999,-999,-999,-999]
-
-    magVSLB  = TH1F("magvslb","magvslb",IBLvsLB_planars[0].GetXaxis().GetNbins(),IBLvsLB_planars[0].GetXaxis().GetXmin(),IBLvsLB_planars[0].GetXaxis().GetXmax())
-    baseVSLB = TH1F("basevslb","basevslb",IBLvsLB_planars[0].GetXaxis().GetNbins(),IBLvsLB_planars[0].GetXaxis().GetXmin(),IBLvsLB_planars[0].GetXaxis().GetXmax())
-    for ibin in range(1,IBLvsLB_planars[0].GetXaxis().GetNbins()+1):
-        proj=IBLvsLB_planars[0].ProjectionY("Projection_IBL_LB"+str(ibin)+"-"+str(ibin),ibin,ibin)
-        par = MakeStaveShapeFit(proj,True,True,True,outputDir+"/"+"Projection_IBL_LB"+str(ibin)+"-"+str(ibin)+"."+oFext)
-        magVSLB.SetBinContent(ibin, par[0]*1000)
-        magVSLB.SetBinError(ibin,par[1]*1000)
-        baseVSLB.SetBinContent(ibin,par[2]*1000)
-        baseVSLB.SetBinError(ibin,par[3]*1000)
-
-    magVSLB.GetYaxis().SetRangeUser(-10,10)
-    baseVSLB.GetYaxis().SetRangeUser(-10,10)
-
-    par2 = MakeMagnitudeLinearFit(magVSLB,False,True,False,outputDir+"/"+"LinearFitToMagnitude"+"."+oFext)
-    par2 = MakeMagnitudeLinearFit(magVSLB,False,True,True,outputDir+"/"+"ConstantFitToMagnitude"+"."+oFext)
-    simpleDrawSingleHist(magVSLB,"magnitude [#mum]","Luminosity Block","",canvasText,markerStyles[0],markerColors[0],outputDir+"/"+"magvslb_planars."+oFext)
-    simpleDrawSingleHist(baseVSLB,"baseline [#mum]","Luminosity Block","",canvasText,markerStyles[0],markerColors[0],outputDir+"/"+"basevslb_planars."+oFext)
-
-    
-
-    par = [-999,-999,-999,-999]
-    magVSLB  = TH1F("magvslb","magvslb",IBLvsLB[0].GetXaxis().GetNbins(),IBLvsLB[0].GetXaxis().GetXmin(),IBLvsLB[0].GetXaxis().GetXmax())
-    baseVSLB = TH1F("basevslb","basevslb",IBLvsLB[0].GetXaxis().GetNbins(),IBLvsLB[0].GetXaxis().GetXmin(),IBLvsLB[0].GetXaxis().GetXmax())
-    for ibin in range(1,IBLvsLB[0].GetXaxis().GetNbins()+1):
-        proj=IBLvsLB_planars[0].ProjectionY("Projection_IBL_LB"+str(ibin)+"-"+str(ibin),ibin,ibin)
-        par = MakeStaveShapeFit(proj,True,True,True,outputDir+"/"+"Projection_IBL_LB"+str(ibin)+"-"+str(ibin)+"."+oFext)
-        magVSLB.SetBinContent(ibin, par[0]*1000)
-        magVSLB.SetBinError(ibin,par[1]*1000)
-        baseVSLB.SetBinContent(ibin,par[2]*1000)
-        baseVSLB.SetBinError(ibin,par[3]*1000)
-
-    magVSLB.GetYaxis().SetRangeUser(-10,10)
-    baseVSLB.GetYaxis().SetRangeUser(-10,10)
-
-    par2 = MakeMagnitudeLinearFit(magVSLB,False,True,False,outputDir+"/"+"LinearFitToMagnitude"+"."+oFext)
-    par2 = MakeMagnitudeLinearFit(magVSLB,False,True,True,outputDir+"/"+"ConstantFitToMagnitude"+"."+oFext)
-    simpleDrawSingleHist(magVSLB,"magnitude [#mum]","Luminosity Block","",canvasText,markerStyles[0],markerColors[0],outputDir+"/"+"magvslb."+oFext)
-    simpleDrawSingleHist(baseVSLB,"baseline [#mum]","Luminosity Block","",canvasText,markerStyles[0],markerColors[0],outputDir+"/"+"basevslb."+oFext)
-
 print " -- MakeResidualIBL -- completed "
-
-
-
