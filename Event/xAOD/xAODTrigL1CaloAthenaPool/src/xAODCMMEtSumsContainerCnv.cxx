@@ -64,11 +64,10 @@ createPersistent( xAOD::CMMEtSumsContainer* trans ) {
 
 xAOD::CMMEtSumsContainer* xAODCMMEtSumsContainerCnv::createTransient() {
    // The known ID(s) for this container:
-   static const pool::Guid v1_guid( "186A613D-0C91-4880-9B09-B41C28B17B53" );
-   static const pool::Guid v2_guid( "9EE079C0-5737-4710-A81D-278D97F01E50" );   
+   static const pool::Guid v1_guid( "186A613D-0C91-4880-9B09-B41C28B17B53" );   
 
    // Check if we're reading the most up to date type:
-   if( compareClassGuid( v2_guid ) ) {
+   if( compareClassGuid( v1_guid ) ) {
       xAOD::CMMEtSumsContainer* c = poolReadObject< xAOD::CMMEtSumsContainer >();
       setStoreLink( c , m_key );
       return c;
