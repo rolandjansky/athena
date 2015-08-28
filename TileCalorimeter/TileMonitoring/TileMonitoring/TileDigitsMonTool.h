@@ -42,6 +42,8 @@ class TileDigitsMonTool: public TilePaterMonTool {
     void bookHists(int ros, int drawer);
     void drawHists(int ros, int drawer, std::string moduleName);
 
+    const signed char * stuckBitProb (int ros=0, int module=0, int channel=0, int gain=0);
+
   private:
 
     /** Method to find stuckbits in Read-Out ADC channel.
@@ -51,7 +53,7 @@ class TileDigitsMonTool: public TilePaterMonTool {
     /** A crude method to check  Read-Out ADC channel stuckbits.
      */
     int stuckBits_Amp(TH1S *hist, int adc);
-    int stuckBits_Amp2(TH1S *hist, int adc, TH2C *outhist = NULL, int ch = 0);
+    int stuckBits_Amp2(TH1S *hist, int adc, TH2C *outhist = NULL, int ch = 0, signed char *stuck_probs = NULL);
     /** Method to check global CRC and DMU CRC.
      */
     void CRCcheck(uint32_t crc32, uint32_t crcMask, int headsize, int ros, int drawer);
@@ -124,6 +126,8 @@ class TileDigitsMonTool: public TilePaterMonTool {
     double m_meanAmp[5][64][2][48];
     double m_meanAmp_ij[5][64][2][48][48];
     double m_cov_ratio[5][64][2]; //covariance ratio printed in covariance plots
+    signed char m_stuck_probs[5][64][48][2][10];
+    bool m_allHistsFilled;
 
     //vector to hold data corruption information
     // std::vector<bool> corrup[5][64][2]; //ros, drawer, gain (index of each vector is channel)

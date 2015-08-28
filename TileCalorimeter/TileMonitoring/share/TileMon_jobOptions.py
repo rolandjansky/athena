@@ -96,6 +96,25 @@ if tileESDMon:
     ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileL2MuMon ];
 
 
+    if (jobproperties.Beam.beamType() == 'collisions'):
+
+        ToolSvc += CfgMgr.TileJetMonTool(name                = 'TileJetMonTool'
+                                         , OutputLevel       = INFO
+                                         , jetPtMin          = 20000.0
+                                         , jetEtaMax         = 1.4
+                                         , jetCollectionName = 'AntiKt4EMTopoJets'
+                                         , do_1dim_histos    = False
+                                         , do_2dim_histos    = False
+                                         , do_enediff_histos = False
+                                         , energyChanMin     = 2000
+                                         , energyChanMax     = 4000
+                                         , enediff_threshold = 2000
+                                         , histoPathBase     = "/Tile/Jet")
+
+        ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileJetMonTool ]
+
+
+
 if  tileRawMon:
 
     TileMBTSMon = CfgMgr.TileMBTSMonTool(name              = 'TileMBTSMon'
