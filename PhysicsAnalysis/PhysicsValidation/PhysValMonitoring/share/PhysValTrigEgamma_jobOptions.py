@@ -1,5 +1,5 @@
-from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import HLTEgammaMonitoringTool
-for toolname in HLTEgammaMonitoringTool():
+from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonitoringTool
+for toolname in TrigEgammaMonitoringTool():
     tool1 = getattr(ToolSvc, toolname.split('/')[-1])
     tool1.EnableLumi = False
     tool1.OutputLevel = WARNING
