@@ -244,7 +244,7 @@ StatusCode DerivationFramework::TrackParticleThinning::doThinning() const
       } else {
 	unsigned int size_measurements_sct = importedMeasurementsSct->size();
 	if (size_measurements_sct == 0) {
-	  ATH_MSG_WARNING("SCT measurements container is empty: " << m_statesSctSGKey);
+	  ATH_MSG_WARNING("SCT measurements container is empty: " << m_measurementsSctSGKey);
 	} else {
 	  maskMeasurementsSct.assign(size_measurements_sct,false); // default: don't keep any
 	  m_ntot_sct_measurements += size_measurements_sct;
