@@ -198,6 +198,8 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
   // RoI eta vs phi maps
   TH2* tgclv1roietavsphi[2];        //[AC]
   TH2* tgclv1roietavsphipt[2][6];   //[AC][pT]
+  TH2* tgclv1roietavsphiAll;        
+  TH2* tgclv1roietavsphiptAll[6];   //[pT]
   // nTrigger Phi Profile histograms
   TH1* tgclv1lptsectwire[2];    //[AC]
   TH1* tgclv1lptsectstrip[2];   //[AC]
@@ -210,6 +212,7 @@ class TgcLv1RawDataValAlg: public ManagedMonitorToolBase {
   TH2* tgclv1hptwirechamber[2]; //[AC]
   TH2* tgclv1hptstripchamber[2];//[AC]
   TH2* tgclv1slchamber[2];      //[AC]
+  TH2* tgclv1slchamberAll; 
   
   // Express Stream
   TH2* tgclv1_SL_vs_muonchain_ES;

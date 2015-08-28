@@ -232,6 +232,43 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
   
   ///////////////////////////////////////////////////////////////////////////
   // RoI Maps and pT Threshold histograms
+  // RoI trigger map with both sides
+  ss.str(""); ss << "RoI_Eta_Vs_Phi_All";
+  m_log << MSG::DEBUG << ss.str().c_str() << std::endl;
+  tgclv1roietavsphiAll =new TH2F(ss.str().c_str(), (ss.str() + ";C-side: Eta < 0, A-side: Eta > 0").c_str(), 54, -54, 54, 48, 0, 48); 
+  if( (tgclv1_shift.regHist(tgclv1roietavsphiAll)).isFailure()){ 
+    m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+    return StatusCode::FAILURE;
+  }
+
+  // RoI trigger maps for each pT threshold
+  for(int ipt=0;ipt<6;ipt++){// pt
+    ss.str(""); ss << "RoI_Eta_Vs_Phi_PT" << ipt+1 <<"_All";
+    m_log << MSG::DEBUG << ss.str().c_str() << std::endl;
+    tgclv1roietavsphiptAll[ipt] =new TH2F(ss.str().c_str(), (ss.str() + ";C-side: Eta < 0, A-side: Eta > 0").c_str(), 54, -54, 54, 48, 0, 48); 
+    if( (tgclv1_shift.regHist(tgclv1roietavsphiptAll[ipt])).isFailure()){ 
+      m_log << MSG::FATAL << ss.str() << " Failed to register histogram " << endreq;       
+      return StatusCode::FAILURE;
+    }
+  }// pt
+  
+  int ka;
+  // Set bin labels for RoI trigger maps
+  for(int isect=1;isect<=12;isect++){// sector
+    int nphi=4, phistep=4;
+    for(int iphi=0;iphi<nphi;iphi+=phistep){// phi
+      ss.str("");
+      if(isect<10) ss << "0";
+      ss << isect << "phi"<<iphi;
+
+      ka = (isect-1)*4 + iphi*4 + 1;
+      tgclv1roietavsphiAll->GetYaxis()->SetBinLabel(ka, ss.str().c_str());
+      for(int ipt=0;ipt<6;ipt++)
+        tgclv1roietavsphiptAll[ipt]->GetYaxis()->SetBinLabel(ka, ss.str().c_str());
+    }// phi
+  }// sector
+
+
   for(int ac=0;ac<2;ac++){// side
     // Triggers per pT threshold hist
     ss.str(""); ss << "Pt_Threshold_";
@@ -291,6 +328,31 @@ TgcLv1RawDataValAlg::bookHistogramsNumberOfTriggersAndProfile(){
 
   ///////////////////////////////////////////////////////////////////////////
   // LpT, HpT, SL Profile histograms
+  // SL trigger chamber map for both sides
+  ss.str(""); ss << "SL_Chamber_All";
+  tgclv1slchamberAll =new TH2F(ss.str().c_str(),ss.str().c_str(), 14, -7, 7, 48, 1, 49); 
+  if( ( tgclv1_shift.regHist(tgclv1slchamberAll) ).isFailure() ){
+    m_log << MSG::FATAL << ss.str() << "Failed to register histogram " << endreq;       
+    return sc;
+  }
+  for(int ieta=0;ieta<6;ieta++){// X bins
+    tgclv1slchamberAll      ->GetXaxis()->SetBinLabel(ieta+9, ("A-" + schamberT3[ieta]).c_str()); 
+    tgclv1slchamberAll      ->GetXaxis()->SetBinLabel(6-ieta, ("C-" + schamberT3[ieta]).c_str()); 
+  }
+  ka=1;
+  for(int isect=1;isect<=12;isect++){// sector
+    int nphi=4, phistep=4;
+    for(int iphi=0;iphi<nphi;iphi+=phistep){// phi
+      ss.str(""); 
+      if(isect<10)ss << "0";
+      ss << isect << "phi0";
+      
+      tgclv1slchamberAll      ->GetYaxis()->SetBinLabel( ka, ss.str().c_str() ); 
+      ka+=phistep;
+    }
+  }
+
+
   for(int ac=0;ac<2;ac++){// side
     /////////////////////////////////////
     // nTriggers Phi Profile histograms
@@ -698,7 +760,7 @@ TgcLv1RawDataValAlg::fillNumberOfTrigger(){
         
         // Get variables from vectors
         int phi48  = m_hpt_phi48[ws][pcn].at(ihpt);
-        int ef     = (m_hpt_isForward[ws][pcn].at(ihpt)==false);
+        int ef     = !(m_hpt_isForward[ws][pcn].at(ihpt));
         int ac     = (m_hpt_isAside[ws][pcn].at(ihpt)==false);
         int etain  = m_hpt_etain[ws][pcn].at(ihpt);
         int etaout = m_hpt_etaout[ws][pcn].at(ihpt);
@@ -781,13 +843,21 @@ TgcLv1RawDataValAlg::fillNumberOfTrigger(){
         // Fill RoI eta vs phi maps
         tgclv1roietavsphi[ac]        ->Fill(etaroi, (float)phiroi/4.);
         tgclv1roietavsphipt[ac][pt-1]->Fill(etaroi, (float)phiroi/4.);
-        
+	if(ac==0){  // Fill A-side
+	  tgclv1roietavsphiAll        ->Fill(etaroi+1, (float)phiroi/4.);
+          tgclv1roietavsphiptAll[pt-1]->Fill(etaroi+1, (float)phiroi/4.);
+        } else {  // Fill C-side
+	  tgclv1roietavsphiAll        ->Fill(-(etaroi+1), (float)phiroi/4.);
+          tgclv1roietavsphiptAll[pt-1]->Fill(-(etaroi+1), (float)phiroi/4.);
+        }  
         // Fill phi profiles
         tgclv1slsect[ac]      ->Fill(phi48sect+1);
         tgclv1slinlbvssect[ac]->Fill(m_lumiblock, phi48sect+1);
         
         // Fill in&out comparison map
         tgclv1slchamber[ac]->Fill((5-etaout), phi48mod+1);
+        if(ac==0)tgclv1slchamberAll ->Fill((5-etaout)+1, phi48mod+1); // fill A-side
+	else tgclv1slchamberAll ->Fill(-(5-etaout)-1.1, phi48mod+1); // fill C-side
         // not monitor these profiles at GM
         if( m_environment != AthenaMonManager::online )
           tgclv1slchamberlowstat[ac]->Fill((5-etaout), phi48mod+1);

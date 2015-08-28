@@ -356,7 +356,8 @@ TgcRawDataValAlg::procHistograms(){
           
           for(int binx=1;binx<=nbinx;binx++)
             for(int biny=1;biny<=nbiny;biny++){
-              tgcoccupancymap[ac][ws]->SetBinContent( binx, biny, nWireStripMap(ac, binx, biny ) * m_nEvent );
+              //tgcoccupancymap[ac][ws]->SetBinContent( binx, biny, nWireStripMap(ac, binx, biny ) * m_nEvent );//run1 default
+              tgcoccupancymap[ac][ws]->SetBinContent( binx, biny, nWireStripMap(ws, binx, biny ) * m_nEvent );
             }
           tgcoccupancymap[ac][ws]->Divide( tgcprofilemap[ac][ws], tgcoccupancymap[ac][ws], 1., 1., "B");
         }
