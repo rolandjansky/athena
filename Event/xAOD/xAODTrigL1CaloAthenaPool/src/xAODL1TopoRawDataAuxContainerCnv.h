@@ -29,8 +29,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::L1TopoRawDataAuxContainer,
  * @author John Morris <john.morris@cern.ch>
  * @author Simon George <s.george@rhul.ac.uk>
  *
- * $Revision: 652833 $
- * $Date: 2015-03-10 01:35:54 +0100 (Tue, 10 Mar 2015) $
+ * $Revision: 652829 $
+ * $Date: 2015-03-10 00:52:50 +0100 (Tue, 10 Mar 2015) $
  */
 class xAODL1TopoRawDataAuxContainerCnv :
    public xAODL1TopoRawDataAuxContainerCnvBase {

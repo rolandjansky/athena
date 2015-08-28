@@ -59,7 +59,9 @@ apply_pattern poolcnv typesWithNamespace="xAOD::JEMHitsContainer \
                                           xAOD::CMXJetTobContainer \
                                           xAOD::CMXJetTobAuxContainer \   
                                           xAOD::CMXEtSumsContainer \
-                                          xAOD::CMXEtSumsAuxContainer \  
+                                          xAOD::CMXEtSumsAuxContainer \ 
+                                          xAOD::CMXRoIContainer \
+                                          xAOD::CMXRoIAuxContainer \                                           
                                           xAOD::CPMTobRoIContainer \
                                           xAOD::CPMTobRoIAuxContainer \   
                                           xAOD::JEMTobRoIContainer \
@@ -102,7 +104,9 @@ apply_pattern poolcnv typesWithNamespace="xAOD::JEMHitsContainer \
                              CMXJetTobContainer.h \
                              CMXJetTobAuxContainer.h \ 
                              CMXEtSumsContainer.h \
-                             CMXEtSumsAuxContainer.h \   
+                             CMXEtSumsAuxContainer.h \  
+                             CMXRoIContainer.h \
+                             CMXRoIAuxContainer.h \                               
                              CPMTobRoIContainer.h \
                              CPMTobRoIAuxContainer.h \ 
                              JEMTobRoIContainer.h \
