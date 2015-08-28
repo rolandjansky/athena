@@ -336,6 +336,7 @@ void TileFatherMonTool::checkIsCollision() {
         if (m_tileID->is_tile(id)) {
 
           const TileCell* tile_cell = dynamic_cast<const TileCell*>(cell);
+          if (!tile_cell) continue;
 
           // get the cell energy, time
           double time = tile_cell->time();

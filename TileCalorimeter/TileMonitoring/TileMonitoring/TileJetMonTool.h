@@ -48,7 +48,7 @@ class TileJetMonTool: public TileFatherMonTool {
     void clearTimeHistograms();
     StatusCode fillTimeHistograms(const xAOD::Jet& jet, uint32_t LumiBlock);
 
-    unsigned int find_index(const float energy);
+    unsigned int find_index(const int gain, const float energy);
     bool isGoodChannel(int part, int mod, int pmt, uint32_t bad, unsigned int qbit, Identifier id);
     bool isGoodJet(const xAOD::Jet& jet);
 
@@ -98,9 +98,13 @@ class TileJetMonTool: public TileFatherMonTool {
   std::vector<TH1F*> m_TileEneDiff_HG[NPART];
 
   // vector for total cell histograms
-  std::vector<TH1F*> m_TilePartCellTime[NPART];
-  std::vector<TH1F*> m_TileEBCellTime_NoScint[NPART];
-  std::vector<float> cell_ene_up;
+  std::vector<TH1F*> m_TilePartCellTimeHG[NPART];
+  std::vector<TH1F*> m_TilePartCellTimeLG[NPART];
+  std::vector<TH1F*> m_TilePartCellEneHG[NPART];
+  std::vector<TH1F*> m_TilePartCellEneLG[NPART];
+
+  std::vector<float> cell_ene_hg_up;
+  std::vector<float> cell_ene_lg_up;
 };
 
 #endif

@@ -88,12 +88,14 @@ StatusCode TileDigitsMonTool::initialize()
   if (m_fillPedestalDifference) CHECK(m_tileToolNoiseSample.retrieve());
 
   m_nEvents = 0;
+  m_allHistsFilled = false;
   memset(m_sumPed1, 0, sizeof(m_sumPed1));
   memset(m_sumPed2, 0, sizeof(m_sumPed2));
   memset(m_sumRms1, 0, sizeof(m_sumRms1));
   memset(m_sumRms2, 0, sizeof(m_sumRms2));
   memset(m_meanAmp, 0, sizeof(m_meanAmp));
   memset(m_meanAmp_ij, 0, sizeof(m_meanAmp_ij));
+  memset(m_stuck_probs, 0, sizeof(m_stuck_probs));
 
   //For test stuck_bits_maker
   //hp = 1;
@@ -520,6 +522,8 @@ StatusCode TileDigitsMonTool::finalHists()
 {
 
   ATH_MSG_INFO("in finalHists()");
+  if (m_allHistsFilled) return StatusCode::SUCCESS;
+  m_allHistsFilled = true;
 
   const char *part[5] = { "AUX", "LBA", "LBC", "EBA", "EBC" };
   const char *gain[6] = { "_lo", "_hi", "", " low gain", " high gain", "" };
@@ -569,15 +573,13 @@ StatusCode TileDigitsMonTool::finalHists()
           sStr.str("");
           sStr << moduleName << gain[3 + gn] << " Stuck bits and saturation";
           histTitle = sStr.str();
-          m_final_hist_stucks[ros][drawer][adc] = book2C(subDir, histName, histTitle, 48, 0.0, 48.0, 8, 0., 8.);
-          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(1, "Stuck b0");
-          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(2, "Stuck b1");
-          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(3, "Stuck b2");
-          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(4, "Stuck H");
-          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(5, "Some 0");
-          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(6, "All 0");
-          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(7, "Some 1023");
-          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(8, "All 1023");
+          m_final_hist_stucks[ros][drawer][adc] = book2C(subDir, histName, histTitle, 48, 0.0, 48.0, 6, 0., 6.);
+          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(1, "SB 0");
+          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(2, "SB 1,2");
+          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(3, "SB 3,4");
+          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(4, "SB 5-9");
+          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(5, "zeros");
+          m_final_hist_stucks[ros][drawer][adc]->GetYaxis()->SetBinLabel(6, "saturation");
 
           for (unsigned int channel = 0; channel < TileCalibUtils::MAX_CHAN; ++channel) {
 
@@ -669,7 +671,7 @@ StatusCode TileDigitsMonTool::finalHists()
               }
             }
             m_final_hist1[ros][drawer][adc][3]->SetBinContent(channel + 1, weight);
-            stuckBits_Amp2(hist, adc, m_final_hist_stucks[ros][drawer][adc], channel);
+            stuckBits_Amp2(hist, adc, m_final_hist_stucks[ros][drawer][adc], channel, m_stuck_probs[ros][drawer][channel][adc]);
           } // end of loop over channels
 
           // BCID
@@ -841,6 +843,14 @@ StatusCode TileDigitsMonTool::finalHists()
 
   return StatusCode::SUCCESS;
 }
+
+/*---------------------------------------------------------*/
+const signed char * TileDigitsMonTool::stuckBitProb (int ros, int module, int channel, int gain)
+/*---------------------------------------------------------*/
+{
+  return m_stuck_probs[ros][module][channel][gain];
+}
+
 
 /*---------------------------------------------------------*/
 StatusCode TileDigitsMonTool::checkHists(bool /* fromFinalize */)
@@ -1329,7 +1339,7 @@ int TileDigitsMonTool::stuckBits_Amp(TH1S * hist, int /*adc*/) {
 }
 
 /* version 2. */
-int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, int /*adc*/, TH2C *outhist, int ch) {
+int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, int /*adc*/, TH2C *outhist, int ch, signed char *stuck_probs) {
 
   if (hist->GetEntries() < 1000)  return 0; /* too few events (1000 / N_samples) in histogram, ignore */
 
@@ -1414,39 +1424,56 @@ int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, int /*adc*/, TH2C *outhist, i
     }
 
   int is_stack = 0;
-  double prob_H = 0.;
+  double sb_prob[4] = {0., 0., 0., 0.};
+  static const int sb_map[10] = {0, 1, 1, 2, 2, 3, 3, 3, 3, 3}; // mapping of SB to histogram rows
   for (b = 0; b < 10; b++) {
     if ((ba0[b] == 0 || ba1[b] == 0) && bac[b] > 2 && (ba0[b] + ba1[b] >= bac[b] / 2 || ba0[b] + ba1[b] > 2)) {
       is_stack = 1;
       if (outhist != NULL) {
-        if (b < 3)
-          outhist->Fill((double) ch, (double) b, 100.);
-        else
-          prob_H = 100.;
+	  sb_prob[sb_map[b]] = 100.;
       }
+      if (stuck_probs != NULL)
+	stuck_probs[b] = ba0[b] == 0 ? -100 : 100;
       continue;
     }
     double bs1 = std::fabs(bs[b]) - sqrt(std::fabs(bs[b]));
     if (bs1 < 0.) bs1 = 0.;
     if ((bs1 > 0.5 * bc[b]) || (bc[b] > 7 && bs1 * 3 > bc[b])) is_stack = 1;
     if (outhist != NULL && bc[b] > 0) {
-      if (b < 3)
-        outhist->Fill((double) ch, (double) b, 100. * bs1 / bc[b]);
-      else if (prob_H < 100. * bs1 / bc[b]) prob_H = 100. * bs1 / bc[b];
+      if (sb_prob[sb_map[b]] < 100. * bs1 / bc[b]) sb_prob[sb_map[b]] = 100. * bs1 / bc[b];
     }
+    if (stuck_probs != NULL)
+      stuck_probs[b] = (bs[b] < 0 ? -100. : 100.) * bs1 / bc[b];
   }
   if ((first_non0 >= 512 && first_non0 < 1023) || (last_non0 == 511 && hist->GetBinContent(last_non0) > 3)) {
     is_stack = 1;
-    prob_H = 100.;
+    sb_prob[3] = 100.;
+    if (stuck_probs != NULL)
+      stuck_probs[9] = first_non0 >= 512 ? 100 : -100;
   }
   if (outhist != NULL) {
-    outhist->Fill((double) ch, 3., prob_H);
+    outhist->Fill((double) ch, 0., sb_prob[0]);
+    outhist->Fill((double) ch, 1., sb_prob[1]);
+    outhist->Fill((double) ch, 2., sb_prob[2]);
+    outhist->Fill((double) ch, 3., sb_prob[3]);
     if (first_non0 == 1023)
-      outhist->Fill((double) ch, 7., 100.);
-    else if (last_non0 == 1023) outhist->Fill((double) ch, 6., 100.);
-    if (last_non0 == 0)
       outhist->Fill((double) ch, 5., 100.);
-    else if (first_non0 == 0) outhist->Fill((double) ch, 4., 100.);
+    else if (last_non0 == 1023) {
+      double frac;
+      frac = 100. * (double) hist->GetBinContent(1024) / hist->GetEntries();
+      if (frac > 0. && frac < 1.) frac = 1.;
+      if (frac > 99. && frac < 100.) frac = 99.;
+      outhist->Fill((double) ch, 5., frac);
+    }
+    if (last_non0 == 0)
+      outhist->Fill((double) ch, 4., 100.);
+    else if (first_non0 == 0) {
+      double frac;
+      frac = 100. * (double) hist->GetBinContent(1) / hist->GetEntries();
+      if (frac > 0. && frac < 1.) frac = 1.;
+      if (frac > 99. && frac < 100.) frac = 99.;
+      outhist->Fill((double) ch, 4., frac);
+    }
     outhist->SetMaximum(100.);
   }
   return is_stack;
