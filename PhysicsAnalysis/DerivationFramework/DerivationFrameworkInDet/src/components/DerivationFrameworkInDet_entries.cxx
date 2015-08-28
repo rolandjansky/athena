@@ -12,6 +12,8 @@
 #include "DerivationFrameworkInDet/UnassociatedHitsDecorator.h"
 #include "DerivationFrameworkInDet/UnassociatedHitsGetterTool.h"
 #include "DerivationFrameworkInDet/LArCollisionTimeDecorator.h"
+#include "DerivationFrameworkInDet/EGammaTracksThinning.h"
+#include "DerivationFrameworkInDet/EGammaPrepRawDataThinning.h"
 
 using namespace DerivationFramework;
 
@@ -28,6 +30,8 @@ DECLARE_TOOL_FACTORY( EventInfoBSErrDecorator )
 DECLARE_TOOL_FACTORY( UnassociatedHitsDecorator )
 DECLARE_NAMESPACE_TOOL_FACTORY(DerivationFramework, UnassociatedHitsGetterTool)
 DECLARE_TOOL_FACTORY( LArCollisionTimeDecorator )
+DECLARE_TOOL_FACTORY( EGammaTracksThinning )
+DECLARE_TOOL_FACTORY( EGammaPrepRawDataThinning )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( TrackToVertexWrapper )
@@ -37,11 +41,13 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkInDet ) {
    DECLARE_TOOL( TauTrackParticleThinning )
    DECLARE_TOOL( JetTrackParticleThinning )
    DECLARE_TOOL( TrackParametersAtPV )
-	 DECLARE_TOOL( TrackStateOnSurfaceDecorator )
-	 DECLARE_TOOL( TrackParametersForTruthParticles )
-	 DECLARE_TOOL( EventInfoBSErrDecorator )
-	 DECLARE_TOOL( UnassociatedHitsDecorator )
-         DECLARE_NAMESPACE_TOOL(DerivationFramework, UnassociatedHitsGetterTool)
-	 DECLARE_TOOL( LArCollisionTimeDecorator )
+   DECLARE_TOOL( TrackStateOnSurfaceDecorator )
+   DECLARE_TOOL( TrackParametersForTruthParticles )
+   DECLARE_TOOL( EventInfoBSErrDecorator )
+   DECLARE_TOOL( UnassociatedHitsDecorator )
+   DECLARE_NAMESPACE_TOOL(DerivationFramework, UnassociatedHitsGetterTool)
+   DECLARE_TOOL( LArCollisionTimeDecorator )
+   DECLARE_TOOL( EGammaTracksThinning )
+   DECLARE_TOOL( EGammaPrepRawDataThinning )
 }
 

@@ -15,9 +15,20 @@ use AthLinks                    AthLinks-*              Control
 use SCT_ConditionsServices      SCT_ConditionsServices-*        InnerDetector/InDetConditions
 use SCT_Cabling                 SCT_Cabling-*                   InnerDetector/InDetDetDescr
 use xAODEventInfo               xAODEventInfo-*                 Event/xAOD
+use AtlasCLHEP                  AtlasCLHEP-*            External
+use AtlasROOT                   AtlasROOT-*             External
+use IRegionSelector             IRegionSelector-*       DetectorDescription
+use Identifier                  Identifier-*            DetectorDescription
+use RoiDescriptor               RoiDescriptor-*         DetectorDescription
+use VxVertex                    VxVertex-*              Tracking/TrkEvent
+use AthenaKernel		            AthenaKernel-*		Control
+use InDetIdentifier             InDetIdentifier-*               InnerDetector/InDetDetDescr
+use InDetPrepRawData       	InDetPrepRawData-*          	InnerDetector/InDetRecEvent
+use InDetReadoutGeometry        InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
+use TrkTrack                    TrkTrack-*                      Tracking/TrkEvent
+
 
 private
-use AthenaKernel		            AthenaKernel-*		Control
 use GaudiInterface              GaudiInterface-*        External
 use xAODMuon			              xAODMuon-*		Event/xAOD
 use xAODTau			                xAODTau-*		Event/xAOD	
@@ -27,15 +38,11 @@ use ExpressionEvaluation	ExpressionEvaluation-*	PhysicsAnalysis/CommonTools
 use TrkVertexFitterInterfaces   TrkVertexFitterInterfaces-*  Tracking/TrkVertexFitter
 
 use AtlasDetDescr               AtlasDetDescr-*                 DetectorDescription
-use TrkTrack                    TrkTrack-*                      Tracking/TrkEvent
 use TrkEventPrimitives          TrkEventPrimitives-*            Tracking/TrkEvent
 use TrkPrepRawData              TrkPrepRawData-*                Tracking/TrkEvent
-use InDetIdentifier             InDetIdentifier-*               InnerDetector/InDetDetDescr
 use TrkParameters               TrkParameters-*                 Tracking/TrkEvent
 use TrkCompetingRIOsOnTrack     TrkCompetingRIOsOnTrack-*       Tracking/TrkEvent
 use TrkRIO_OnTrack              TrkRIO_OnTrack-*                Tracking/TrkEvent
-use InDetPrepRawData       	InDetPrepRawData-*          	InnerDetector/InDetRecEvent
-use InDetReadoutGeometry        InDetReadoutGeometry-*          InnerDetector/InDetDetDescr
 use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTools
 use TRT_ConditionsServices      TRT_ConditionsServices-*        InnerDetector/InDetConditions
 
@@ -47,6 +54,8 @@ use TRT_ToT_Tools               TRT_ToT_Tools-*              InnerDetector/InDet
 use TrkExInterfaces             TrkExInterfaces-*            Tracking/TrkExtrapolation
 
 use LArRecEvent 		LArRecEvent-*		     LArCalorimeter
+use FourMomUtils                FourMomUtils-*          Event
+
 end_private
 
 ################################################################
