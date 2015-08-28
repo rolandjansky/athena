@@ -9,7 +9,6 @@
  *
  *@author
  * Heidi Sandaker <Heidi.Sandaker@cern.ch> @n
-
  * Arshak Tonoyan <Arshak.Tonyoan@cern.ch> @n
  * Thomas Burgess <Thomas.Burgess@cern.ch>
  * Gaetano Barone <Gaetano.Barone@cern.ch> @n 
@@ -24,12 +23,8 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
-#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
-#include "TrkToolInterfaces/IUpdator.h"
-
 #include "TrkMeasurementBase/MeasurementBase.h"
 
 #include "PixelGeoModel/IBLParameterSvc.h"
@@ -95,17 +90,16 @@ public:
     virtual StatusCode procHistograms();
 
     /// Functions to fill individual sets of histograms
-    void FillForwardTracks( const Trk::Track *track, const std::unique_ptr<const Trk::TrackSummary> & summary );
-    void FillEtaPhi( const Trk::Track *track, const std::unique_ptr<const Trk::TrackSummary> & summary );
-    void FillHits( const Trk::Track *track, const std::unique_ptr<const Trk::TrackSummary> & summary );
-    void FillTIDE();
-    void FillHoles( const Trk::Track *track, const std::unique_ptr<const Trk::TrackSummary> & summary );
+    void FillForwardTracks( const Trk::Track *track, const Trk::TrackSummary* summary );
+    void FillEtaPhi( const Trk::Track *track, const Trk::TrackSummary* summary );
+    void FillHits( const Trk::Track *track, const Trk::TrackSummary* summary );
+    void FillHoles( const Trk::Track *track, const Trk::TrackSummary* summary );
     void FillHitMaps( const Trk::Track *track );
     void FillHoleMaps( const Trk::Track *track );
     ///@} 
  
 private:
-    ToolHandle< InDet::IInDetTrackSelectionTool > m_baseline_selTool;
+    ToolHandle< InDet::IInDetTrackSelectionTool > m_loosePri_selTool;
     ToolHandle< InDet::IInDetTrackSelectionTool > m_tight_selTool;
 
     ///Switch if LB accounting should be done
@@ -115,9 +109,6 @@ private:
     bool m_DoHoles_Search;
     /// Switch for hitmaps
     bool m_doHitMaps;
-
-    bool m_doTide;
-    bool m_doTideResiduals;
     bool m_doForwardTracks;
     bool m_doIBL;
 
@@ -139,14 +130,10 @@ private:
     ServiceHandle <IBLParameterSvc> m_IBLParameterSvc;
     ToolHandle <Trk::ITrackHoleSearchTool> m_holes_search_tool;
     ToolHandle <Trk::ITrackSummaryTool> m_trkSummaryTool;
-    ToolHandle<Trk::IResidualPullCalculator> m_residualPullCalculator;
-    ToolHandle< Trk::ITrackToVertexIPEstimator >  m_trackToVertexIPEstimator;
-    ToolHandle<Trk::IUpdator>             m_iUpdator;
-    
+
     std::string m_CombinedTracksName;
     std::string m_ForwardTracksName;
-    std::string m_JetsName;
-    
+
     //--- Shift histograms ----------------------------------------
     
     // Gaetano Holes : 
@@ -166,16 +153,18 @@ private:
     TH2F *holes_quality;
     TProfile *holes_quality_profile;
     
-    TH1I * m_Trk_Base;
+    TH1I * m_Trk_nLoose;
     ///Distribution of eta vs phi for combined tracks
-    TH2F  * m_Trk_eta_phi_Base;
+    TH2F  * m_Trk_eta_phi;
+    TProfile2D  * m_Trk_eta_phi_LoosePrimary_ratio;
     TProfile2D  * m_Trk_eta_phi_Tight_ratio;
     TProfile2D  * m_Trk_eta_phi_noIBLhit_ratio;
     TProfile2D  * m_Trk_eta_phi_noBLhit_ratio;
     TProfile2D  * m_Trk_eta_phi_noTRText_ratio;
-    
+
     // Total number of tracks per LB for each subdetector 
-    TProfile * m_Trk_nBase_LB;
+    TProfile * m_Trk_nLoose_LB;
+    TProfile * m_Trk_nLoosePrimary_LB;
     TProfile * m_Trk_nTight_LB;
 
     TProfile * m_Trk_noIBLhits_LB;
@@ -185,7 +174,6 @@ private:
     TProfile * m_Trk_noIBLhits_frac_LB;
     TProfile * m_Trk_noBLhits_frac_LB;
     TProfile * m_Trk_noTRText_frac_LB;
-
     ///@name Detector managers
     ///{@
 
@@ -224,38 +212,6 @@ private:
     std::array<TProfile2D *, 4> m_trk_disabled_eta_phi;
     std::array<TProfile *,4> m_trk_hits_LB;
     
-    TProfile2D * m_trk_shared_pix_eta_phi;
-    TProfile2D * m_trk_split_pix_eta_phi;
-    TProfile2D * m_trk_shared_sct_eta_phi;
-
-    TProfile2D * m_trk_holes_pix_eta_phi;
-    TProfile2D * m_trk_holes_sct_eta_phi;
-
-    TProfile * m_trk_jetassoc_d0_reso_dr; 
-    TProfile * m_trk_jetassoc_z0_reso_dr; 
-    TProfile * m_trk_jetassoc_split_pix_dr; 
-    TProfile * m_trk_jetassoc_shared_pix_dr; 
-
-    TProfile * m_trk_jetassoc_res_pix_l0_x_dr;
-    TProfile * m_trk_jetassoc_res_pix_l1_x_dr;
-    TProfile * m_trk_jetassoc_res_pix_l2_x_dr;
-    TProfile * m_trk_jetassoc_res_pix_l3_x_dr;
-
-    TProfile * m_trk_jetassoc_res_pix_l0_y_dr;
-    TProfile * m_trk_jetassoc_res_pix_l1_y_dr;
-    TProfile * m_trk_jetassoc_res_pix_l2_y_dr;
-    TProfile * m_trk_jetassoc_res_pix_l3_y_dr;
-
-    TProfile * m_trk_jetassoc_res_pix_eca_x_dr;
-    TProfile * m_trk_jetassoc_res_pix_eca_y_dr;
-
-    TProfile * m_trk_jetassoc_res_pix_ecc_x_dr;
-    TProfile * m_trk_jetassoc_res_pix_ecc_y_dr;
-
-    TProfile * m_trk_jetassoc_ip_reso_lb; 
-    TProfile * m_trk_jetassoc_split_pix_lb; 
-    TProfile * m_trk_jetassoc_shared_pix_lb; 
-   
     //--- Combined tracks debug histograms-----------------------------------
     TH2F * m_Trk_FORW_FA_eta_phi;
     TH2F * m_Trk_FORW_FC_eta_phi;

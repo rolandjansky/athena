@@ -141,7 +141,7 @@ StatusCode InDetGlobalHitsMonTool::bookHistogramsRecurrent()
 {
   bool status = true;
   
-  if ( newRunFlag() ) {
+  if (newRun) {
     
     MonGroup monGr_shift(this, "InDetGlobal/Hits",run );
     MonGroup monGr_exp(this, "InDetGlobal/Hits", run );
