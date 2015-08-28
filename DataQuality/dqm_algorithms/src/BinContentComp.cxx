@@ -173,6 +173,7 @@ dqm_algorithms::BinContentComp::execute(	const std::string & name,
       if(refcont!=0) reldiff=diff/refcont;
       else if(diff==0) reldiff=0;
       if (ignorezero && refcont==0) continue;
+      if (ignorezero && ! refhist && inputcont==0) continue;
       if (inputerr !=0){
 	double sigma=diff/inputerr;
 	if (greaterthan && diff < 0. ) continue;  

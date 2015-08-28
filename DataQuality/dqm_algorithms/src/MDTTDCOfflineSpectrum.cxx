@@ -92,13 +92,13 @@ dqm_algorithms::MDTTDCOfflineSpectrum::execute(	const std::string &  name,
   
   std::map<std::string,double> tags;
 
-  if ( t0 > t0_warning && tmax < tmax_warning && std::abs(tdrift) < 1000 && t0 < 750 && tmax > 850) {
+  if (t0 > t0_warning && tmax < tmax_warning && std::abs(tdrift) < 1000) {
     result->status_ = dqm_core::Result::Green;
   }
-  else if ( t0 > t0_error && tmax < tmax_error && std::abs(tdrift) < 1200 && t0 < 800 && tmax > 800) {
-    if(t0 < t0_warning || t0 > 800) tags["t0_Warning"] = t0;
+  else if (t0 > t0_error && tmax < tmax_error && std::abs(tdrift) < 1200) {
+    if(t0 < t0_warning) tags["t0_Warning"] = t0;
     else tags["t0"] = t0;
-    if(tmax > tmax_warning || tmax < 800) tags["tMax_Warning"] = tmax;
+    if(tmax > tmax_warning) tags["tMax_Warning"] = tmax;
     else tags["tMax"] = tmax;
     if( std::abs(tdrift) > 1200 ) tags["tDrift_Warning"] = tdrift;
     else tags["tdrift"] = tdrift;
@@ -106,9 +106,9 @@ dqm_algorithms::MDTTDCOfflineSpectrum::execute(	const std::string &  name,
   }
   else {
     result->status_ = dqm_core::Result::Red;
-    if(t0 < t0_error || t0 > 1000) tags["t0_Error"] = t0;
+    if(t0 < t0_error) tags["t0_Error"] = t0;
     else tags["t0"] = t0;
-    if(tmax > tmax_error || tmax < 700) tags["tMax_Error"] = tmax;
+    if(tmax > tmax_error) tags["tMax_Error"] = tmax;
     else tags["tMax"] = tmax;
     if( std::abs(tdrift) > 1400 ) tags["tDrift_Error"] = tdrift;
     else tags["tdrift"] = tdrift;
