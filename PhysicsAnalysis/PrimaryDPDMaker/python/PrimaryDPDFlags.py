@@ -149,7 +149,7 @@ class WriteAllcellsStream(JobProperty):
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteAllcellsStream)
 listESDtoDPD.append(WriteAllcellsStream.StreamName)
 
-class WriteEGammaStream(JobProperty):
+class WriteDESDM_EGAMMAStream(JobProperty):
     """ Produce the primary DPD EGamma DPD."""
     statusOn     = True
     allowedTypes = ['bool']
@@ -159,8 +159,8 @@ class WriteEGammaStream(JobProperty):
     isVirtual    = False
     DPDMakerScript = "PrimaryDPDMaker/PerfDPD_EGamma.py"
     pass
-jobproperties.PrimaryDPDFlags.add_JobProperty(WriteEGammaStream)
-listESDtoDPD.append(WriteEGammaStream.StreamName)
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDESDM_EGAMMAStream)
+listESDtoDPD.append(WriteDESDM_EGAMMAStream.StreamName)
 
 class WriteDESDM_MSPerfStream(JobProperty):
     """ Produce the primary DESDM for Muon Alignment and Trigger commissioning."""
