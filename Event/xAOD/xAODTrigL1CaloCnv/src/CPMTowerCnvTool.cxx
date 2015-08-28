@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CPMTowerCnvTool.cxx 646317 2015-02-11 23:31:39Z morrisj $
+// $Id: CPMTowerCnvTool.cxx 691833 2015-08-28 08:22:07Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/CPMTowerCollection.h"
@@ -71,11 +71,11 @@ namespace xAODMaker {
         
         x->initialize( (float)(*itr)->eta() ,
                        (float)(*itr)->phi() ,
-                       convertVector<uint_least8_t>((*itr)->emEnergyVec() ) ,
-                       convertVector<uint_least8_t>((*itr)->hadEnergyVec() ) ,
-                       convertVector<uint_least8_t>((*itr)->emErrorVec() ) ,
-                       convertVector<uint_least8_t>((*itr)->hadErrorVec() ) , 
-                       (uint_least8_t)(*itr)->peak() );
+                       convertVector<uint8_t>((*itr)->emEnergyVec() ) ,
+                       convertVector<uint8_t>((*itr)->hadEnergyVec() ) ,
+                       convertVector<uint32_t>((*itr)->emErrorVec() ) ,
+                       convertVector<uint32_t>((*itr)->hadErrorVec() ) , 
+                       (uint8_t)(*itr)->peak() );
 
       }
       

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JEMEtSumsCnvTool.cxx 646317 2015-02-11 23:31:39Z morrisj $
+// $Id: JEMEtSumsCnvTool.cxx 645494 2015-02-10 10:42:39Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/JEMEtSumsCollection.h"

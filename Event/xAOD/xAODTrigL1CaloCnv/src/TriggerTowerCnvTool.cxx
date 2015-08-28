@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerTowerCnvTool.cxx 646317 2015-02-11 23:31:39Z morrisj $
+// $Id: TriggerTowerCnvTool.cxx 646315 2015-02-11 23:28:47Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"

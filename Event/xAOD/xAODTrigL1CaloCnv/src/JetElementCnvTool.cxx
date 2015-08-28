@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetElementCnvTool.cxx 646317 2015-02-11 23:31:39Z morrisj $
+// $Id: JetElementCnvTool.cxx 691833 2015-08-28 08:22:07Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/JetElementCollection.h"
@@ -72,12 +72,12 @@ namespace xAODMaker {
         x->initialize( (float)(*itr)->eta() ,
                        (float)(*itr)->phi() ,
                        (*itr)->key() ,
-                       convertVector<uint_least16_t>((*itr)->emEnergyVec()) ,
-                       convertVector<uint_least16_t>((*itr)->hadEnergyVec()) ,
-                       convertVector<uint_least8_t>((*itr)->emErrorVec()) ,
-                       convertVector<uint_least8_t>((*itr)->hadErrorVec()) ,
-                       convertVector<uint_least8_t>((*itr)->linkErrorVec()) ,
-                       (uint_least8_t)(*itr)->peak() );
+                       convertVector<uint16_t>((*itr)->emEnergyVec()) ,
+                       convertVector<uint16_t>((*itr)->hadEnergyVec()) ,
+                       convertVector<uint32_t>((*itr)->emErrorVec()) ,
+                       convertVector<uint32_t>((*itr)->hadErrorVec()) ,
+                       convertVector<uint32_t>((*itr)->linkErrorVec()) ,
+                       (uint8_t)(*itr)->peak() );
       }
       
       // Return gracefully:
