@@ -115,6 +115,11 @@ class HLTJetMonTool : public IHLTMonTool {
     // Default names for trigger items used by menu aware monitoring
     std::vector<std::string> m_monitoring_l1jet, m_monitoring_jet;
     std::vector<std::string> m_primary_l1jet, m_primary_jet;
+   
+    //Default names of triggers for DiJet histos 
+    std::vector<std::string> m_l1_DijetChains;
+    std::vector<std::string> m_hlt_DijetChains;
+    std::vector<std::string> m_of_DijetChains;
 
     // INternal names used for basic monitornig triggers and triggers used in the efficiencies
     JetSigtype m_basicL1Trig, m_basicHLTTrig;
@@ -136,6 +141,15 @@ class HLTJetMonTool : public IHLTMonTool {
 
     float m_MinPtCut, m_EtaCut /*m_jetTimens, m_badQFrac*/ ;
     int m_MaxNJet /*, m_n90Cut*/ ;
+
+    std::vector<TLorentzVector> v_HLTjet;
+    std::vector<TLorentzVector> v_L1jet;
+    std::vector<TLorentzVector> v_OFjet;
+    std::vector<int> v_HLTindex;
+    std::vector<int> v_L1index;
+    std::vector<int> v_OFindex;
+
+    int n_index;
 
     double lumi_weight;
     int m_lumiBlock;
@@ -163,10 +177,12 @@ class HLTJetMonTool : public IHLTMonTool {
     StatusCode fillJetHists();        // this method calls all other fill methods
     StatusCode fillBasicHists();      // basic hists
     StatusCode fillOfflineHists();    // offline jet + trigger efficiency hists
+    StatusCode fillDiJetHists();    // dijet monitoring hists
 
     // helpers for fill method
     void fillBasicL1forChain(const std::string& theChain, double L1thr); // No need to pass JetRoI - it is known Khaleesi
     void fillBasicHLTforChain(const std::string& theChain, double HLTthr, const std::string& theContainer);
+
 
     // SG retrieval method
     StatusCode retrieveContainers();
@@ -177,6 +193,7 @@ class HLTJetMonTool : public IHLTMonTool {
     void bookOfflineHists(JetSigtype& items, const std::string& ofjet);     // trigger efficiency hists
     //void bookCorrHists(const std::string& level2, const std::string& level1,  const std::string& ofjAlg);
     void bookBasicHists(std::vector<std::string>& level, std::vector<std::string>& hists);     // basic hists
+    void bookDijetHistos(const std::string& trigjet, const std::string& ofjet);
 
     void setHistProperties(TH1* h);
     void set2DHistProperties(TH2* h);
