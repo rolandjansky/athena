@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Utils.cxx 579516 2014-01-22 10:57:33Z krasznaa $
+// $Id: Utils.cxx 666126 2015-05-11 09:48:00Z mnowak $
 
 // System include(s):
 #include <cmath>
@@ -25,8 +25,8 @@ namespace {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 579516 $
-   /// $Date: 2014-01-22 11:57:33 +0100 (Wed, 22 Jan 2014) $
+   /// $Revision: 666126 $
+   /// $Date: 2015-05-11 11:48:00 +0200 (Mon, 11 May 2015) $
    ///
    struct TimeStruct {
       int miliseconds; ///< Elapsed milisecods
@@ -130,13 +130,13 @@ namespace xAOD {
 
       std::ostringstream result;
 
-      if( ::fabs( bytes ) > 1e12 ) {
+      if( std::abs( bytes ) > 1e12 ) {
          result << ( bytes * 1e-12 ) << " TB";
-      } else if( ::fabs( bytes ) > 1e9 ) {
+      } else if( std::abs( bytes ) > 1e9 ) {
          result << ( bytes * 1e-9 ) << " GB";
-      } else if( ::fabs( bytes ) > 1e6 ) {
+      } else if( std::abs( bytes ) > 1e6 ) {
          result << ( bytes * 1e-6 ) << " MB";
-      } else if( ::fabs( bytes ) > 1e3 ) {
+      } else if( std::abs( bytes ) > 1e3 ) {
          result << ( bytes * 1e-3 ) << " kB";
       } else {
          result << bytes << " bytes";

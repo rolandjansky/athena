@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TDVCollectionProxy.cxx 622935 2014-10-21 09:55:35Z krasznaa $
+// $Id: TDVCollectionProxy.cxx 666126 2015-05-11 09:48:00Z mnowak $
 
 // System include(s):
 #include <cassert>
@@ -338,8 +338,12 @@ namespace xAOD {
       // Make sure that TGenCollectionProxy knows that it's not
       // fully set up yet:
       if( fValue ) {
+#if ROOT_VERSION_CODE > ROOT_VERSION(6,2,5)
+         delete fValue.exchange( 0 );
+#else
          delete fValue;
          fValue = 0;
+#endif // ROOT_VERSION
       }
       if( fVal ) {
          delete fVal;
@@ -369,8 +373,12 @@ namespace xAOD {
       // on the same page...
       if( ! fInitialized ) {
          if( fValue ) {
+#if ROOT_VERSION_CODE > ROOT_VERSION(6,2,5)
+            delete fValue.exchange( 0 );
+#else
             delete fValue;
             fValue = 0;
+#endif // ROOT_VERSION
          }
          if( fVal ) {
             delete fVal;
@@ -463,7 +471,14 @@ namespace xAOD {
       fSTL_type = TClassEdit::kList;
 
       // Need to override what that set up for fValue and fVal.
-      if( fValue ) delete fValue;
+      if( fValue ) {
+#if ROOT_VERSION_CODE > ROOT_VERSION(6,2,5)
+         delete fValue.exchange( 0 );
+#else
+         delete fValue;
+         fValue = 0;
+#endif // ROOT_VERSION
+      }
       if( fVal )   delete fVal;
       fValue = new TGenCollectionProxy::Value( eltname.c_str(), false );
       fVal   = new TGenCollectionProxy::Value( *fValue );
@@ -474,7 +489,9 @@ namespace xAOD {
 
       // Remember that the initialisation succeeded:
       fInitialized = kTRUE;
+#if ROOT_VERSION_CODE <= ROOT_VERSION( 6, 2, 5 )
       fProperties |= kIsInitialized;
+#endif // ROOT_VERSION
 
       return this;
    }
