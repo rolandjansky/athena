@@ -3,9 +3,9 @@
 # default configuration of the ElectronIsEMSelectorCutDefs
 # This one is used for loose++ menu
 
-import PyCintex
+import cppyy
 try :
-    PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
+    cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
 except :
     pass
 

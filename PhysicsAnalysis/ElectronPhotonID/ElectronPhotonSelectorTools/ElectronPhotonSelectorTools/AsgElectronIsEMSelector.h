@@ -25,16 +25,17 @@
 
 // Include the interfaces
 #include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
-
 // Include the return object and the underlying ROOT tool
 #include "PATCore/TAccept.h"
 #include "ElectronPhotonSelectorTools/TElectronIsEMSelector.h"
 #include <string>
 
-class AsgElectronIsEMSelector :  virtual public asg::AsgTool, 
-                                 virtual public IAsgElectronIsEMSelector
+class AsgElectronIsEMSelector :  public asg::AsgTool, 
+				 virtual public IAsgElectronIsEMSelector
 {
-  ASG_TOOL_CLASS2(AsgElectronIsEMSelector, IAsgElectronIsEMSelector, IAsgSelectionTool)
+
+  ASG_TOOL_CLASS3(AsgElectronIsEMSelector, IAsgElectronIsEMSelector,
+		  IAsgEGammaIsEMSelector,IAsgSelectionTool)
 
   public:
   /** Standard constructor */
@@ -68,18 +69,18 @@ class AsgElectronIsEMSelector :  virtual public asg::AsgTool,
     return accept(&part);
   }
 
-  /** The main accept method: the actual cuts are applied here */
+  /** Accept with Photon objects */
   virtual const Root::TAccept& accept( const xAOD::Photon* part ) const ;
 
-  /** The main accept method: the actual cuts are applied here */
+  /** Accept with Photon objects */
   virtual const Root::TAccept& accept( const xAOD::Photon& part ) const {
     return accept(&part);
   }
 
-  /** The main accept method: the actual cuts are applied here */
+  /** Accept with Electron objects */
   virtual const Root::TAccept& accept( const xAOD::Electron* part ) const ;
 
-  /** The main accept method: the actual cuts are applied here */
+  /** Accept with Electron objects */
   virtual const Root::TAccept& accept( const xAOD::Electron& part ) const{
     return accept(&part);
   }
@@ -87,21 +88,14 @@ class AsgElectronIsEMSelector :  virtual public asg::AsgTool,
   /** The value of the isem **/
   unsigned int IsemValue() const {return m_rootTool->isEM(); };
 
-    /** Method to get the operating point */
+  /** Method to get the operating point */
   virtual std::string getOperatingPointName( ) const;
 
-  /** The basic isem */
-  StatusCode execute(const xAOD::Electron* el) const;
-
-  /** For Trigger **/
-  virtual StatusCode execute(const xAOD::Photon* ph) const;
-
-  /** The isem potentially for the trigger, implies CaloCutsOnly */
+  //The main execute method
   StatusCode execute(const xAOD::Egamma* eg) const;
 
   /** Method to get the plain TAccept */
-  virtual const Root::TAccept& getTAccept( ) const
-  {
+  virtual const Root::TAccept& getTAccept( ) const{
     return m_rootTool->getTAccept();
   }
 

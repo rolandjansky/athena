@@ -3,9 +3,9 @@
 # default configuration of the PhotonIsEMSelectorCutDefs
 # This one is used for stadard Tight photons cuts menus
 
-import PyCintex
+import cppyy
 try :
-    PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
+    cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
 except :
     pass
 

@@ -9,9 +9,9 @@
 ## Description: Find mapping of mask and function for ID quality
 ##=============================================================================
 
-import PyCintex
+import cppyy
 try :
-    PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
+    cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
 except :
     pass
 

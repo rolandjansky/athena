@@ -19,7 +19,7 @@
 
 // Include the interfaces
 #include "PATCore/IAsgSelectionTool.h"
-
+#include "ElectronPhotonSelectorTools/IAsgEGammaIsEMSelector.h"
 // Include the return object and the underlying ROOT tool
 #include "PATCore/TAccept.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
@@ -29,7 +29,7 @@
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/EgammaFwd.h"
 
-class IAsgElectronIsEMSelector : virtual public IAsgSelectionTool
+class IAsgElectronIsEMSelector : virtual public IAsgEGammaIsEMSelector
 {
 
   ASG_TOOL_INTERFACE(IAsgElectronIsEMSelector)
@@ -51,28 +51,23 @@ class IAsgElectronIsEMSelector : virtual public IAsgSelectionTool
   /** Accept with Egamma objects */
   virtual const Root::TAccept& accept( const xAOD::Egamma& part) const = 0;
 
-  /** The main accept method: the actual cuts are applied here */
+  /** Accept with Photon objects */
   virtual const Root::TAccept& accept( const xAOD::Photon* part ) const = 0;
 
-  /** The main accept method: the actual cuts are applied here */
+  /** Accept with Photon objects */
   virtual const Root::TAccept& accept( const xAOD::Photon& part ) const = 0;
 
-  /** The main accept method: the actual cuts are applied here */
+  /** Accept with Electron objects */
   virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
 
-  /** The main accept method: the actual cuts are applied here */
+  /** Accept with Electron objects */
   virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
 
 
   ///////////////Expert methods //////////////////////////////////////
 
-  /** This is for custom trigger calls */
-  virtual StatusCode execute(const xAOD::Photon* ph) const =0;
-
-  /** The basic isem */
-  virtual StatusCode execute(const xAOD::Electron* el) const =0;
   
-  /** The isem potentially for the trigger, imples CalocCutsOnly*/
+  //The main execute method
   virtual StatusCode execute(const xAOD::Egamma* eg) const =0;
 
   //////////////////////////////////////////////////////////////

@@ -3,9 +3,9 @@
 # default configuration of the ElectronIsEMSelectorCutDefs
 # This one is used for tight++ menu
 
-import PyCintex
+import cppyy
 try :
-    PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
+    cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
 except :
     pass
   
@@ -30,7 +30,7 @@ def ElectronIsEMTightSelectorConfigDC14(theTool) :
     
     theTool = GetTool(theTool)
 
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMTightSelectorCutDefs.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150329/ElectronIsEMTightSelectorCutDefs.conf"
 
 
 def ElectronIsEMTightSelectorConfig2011(theTool) :

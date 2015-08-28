@@ -27,10 +27,11 @@
 #include "ElectronPhotonSelectorTools/TElectronMultiLeptonSelector.h"
 
 
-class AsgElectronMultiLeptonSelector : virtual public asg::AsgTool,
+class AsgElectronMultiLeptonSelector : public asg::AsgTool,
 	    virtual public IAsgElectronMultiLeptonSelector
 {
-  ASG_TOOL_CLASS2(AsgElectronMultiLeptonSelector, IAsgElectronMultiLeptonSelector, IAsgSelectionTool)
+  ASG_TOOL_CLASS2(AsgElectronMultiLeptonSelector, IAsgElectronMultiLeptonSelector,
+		  IAsgSelectionTool)
 
 public: 
   /** Standard constructor */

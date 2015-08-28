@@ -114,8 +114,8 @@ namespace egammaPID {
     PhotonIDTightIso,
     PhotonIDLooseARIso,
     PhotonIDTightARIso,
-    frwdElectronIDLoose,
-    frwdElectronIDTight,
+    ForwardElectronIDLoose,
+    ForwardElectronIDTight,
     NoIDCut,
     PhotonIDMedium,
     PhotonIDMediumAR,
@@ -693,7 +693,46 @@ namespace egammaPID {
   /** @brief Medium photon selection for online EF */
   const unsigned int PhotonMediumEF = HADLEAKETA_PHOTON_EF | CALO_PHOTON_RETA_WETA2_ERATIO;
 
+enum BitDefForwardElectron {
+        /** @brief cluster eta range */
+        BinEta_ForwardElectron        =  0,
 
+        /** @brief second lambda shape moment */
+        SECONDLAMBDA_ForwardElectron        =  1,
+
+        /** @brief lateral shape moment */
+        LATERAL_ForwardElectron        =  2,
+
+        /** @brief Longitudinal shape moment */
+        LONGITUDINAL_ForwardElectron        =  3,
+
+        /** @brief cell max frac shape moment */
+        CELLMAXFRAC_ForwardElectron        =  4,
+
+        /** @brief secondR shape moment */
+        SECONDR_ForwardElectron        =  5,
+
+        /** @brief center lambda shape moment */
+        CENTERLAMBDA_ForwardElectron        =  6,
+
+
+};
+
+//
+  // cut definition for Forw electrons
+  //
+  /** @brief cuts on all variables */
+  const unsigned int ID_ForwardElectron =
+    0x1 << BinEta_ForwardElectron        |
+    0x1 << SECONDLAMBDA_ForwardElectron  |
+    0x1 << LATERAL_ForwardElectron       |
+    0x1 << LONGITUDINAL_ForwardElectron  |
+    0x1 << CELLMAXFRAC_ForwardElectron   |
+    0x1 << SECONDR_ForwardElectron       |
+    0x1 << CENTERLAMBDA_ForwardElectron  ;
+
+//std::cout <<" MAsk "<< (unsigned int)ID_ForwardElectron<<std::endl; 
+//ATH_MSG_ERROR(" MAsk "<< (unsigned int)ID_ForwardElectron);
   /**@brief forward electron flavours */
   /*
     --variables:
@@ -711,8 +750,8 @@ namespace egammaPID {
     Loose: SECOND_LAMBDA, SECOND_R, CENTER_LAMBDA 
   */
   
-  const unsigned int frwdElectronTight = 126;
-  const unsigned int frwdElectronLoose = 104;
+  const unsigned int ForwardElectronTight = 126;
+  const unsigned int ForwardElectronLoose = 104;
 
   struct ROOT6_NamespaceAutoloadHook{};
 }

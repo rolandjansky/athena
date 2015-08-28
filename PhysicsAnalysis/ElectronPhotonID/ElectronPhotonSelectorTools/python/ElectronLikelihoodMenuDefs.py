@@ -3,9 +3,9 @@
 # default configuration of the ElectronLikelihoodMenuDefs
 # 
 
-import PyCintex
+import cppyy
 try :
-    PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
+    cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
 except :
     pass
 
@@ -217,6 +217,16 @@ def ElectronLikelihoodTightTriggerConfig2015(theTool) :
 
     theTool = GetTool(theTool)
     theTool.ConfigFile = "ElectronPhotonSelectorTools/trigger/mc15_20150712/ElectronLikelihoodTightTriggerConfig2015.conf"
+
+
+def ElectronLikelihoodVeryLooseOfflineConfig2015(theTool) :
+    '''
+    This is for the custom implementation of the VeryLoose offline likelihood for MC15 / Run 2.
+    This uses Offline PDFs, but does not yet have the pileup dependent discriminant cut.
+    '''
+    
+    theTool = GetTool(theTool)
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodVeryLooseOfflineConfig2015.conf"
     
     
 def ElectronLikelihoodLooseOfflineConfig2015(theTool) :

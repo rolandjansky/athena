@@ -86,6 +86,8 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("CutSi",m_rootTool->CutSi,"Cut on precision hits");
   // turn off f3 at high Et
   declareProperty("doRemoveF3AtHighEt",m_rootTool->doRemoveF3AtHighEt,"Turn off f3 at high Et");
+  // use smooth interpolation between LH bins
+  declareProperty("doSmoothBinInterpolation",m_rootTool->doSmoothBinInterpolation,"use smooth interpolation between LH bins");
   // do pileup-dependent transform on discriminant value
   declareProperty("doPileupTransform",m_rootTool->doPileupTransform,"Do pileup-dependent transform on discriminant value");
   // reference disc for very hard cut; used by pileup transform
@@ -136,6 +138,7 @@ StatusCode AsgElectronLikelihoodTool::initialize()
      if(configFile=="")
       { 
 	ATH_MSG_ERROR("Could not locate " << m_configFile );
+	return StatusCode::FAILURE;
       } 
     TEnv env(configFile.c_str());
 
@@ -186,6 +189,8 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     m_rootTool->CutDeltaPhiRes = AsgConfigHelper::HelperDouble("CutDeltaPhiRes", env);
     // turn off f3 at high Et
     m_rootTool->doRemoveF3AtHighEt = env.GetValue("doRemoveF3AtHighEt", false);
+    // do smooth interpolation between bins
+    m_rootTool->doSmoothBinInterpolation = env.GetValue("doSmoothBinInterpolation", false);
     m_operatingPoint = env.GetValue("OperatingPoint", 0);
     m_caloOnly = env.GetValue("caloOnly", false);
 
@@ -542,7 +547,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
 	double pid_tmp = TRT_PID;
         if (pid_tmp >= 1.0) pid_tmp = 1.0 - 1.0e-15;  //this number comes from TMVA
         else if (pid_tmp <= fEpsilon) pid_tmp = fEpsilon;
-        trans_TRT_PID = - log(1.0/pid_tmp - 1.0)/double(tau);
+        trans_TRT_PID = - log(1.0/pid_tmp - 1.0)*(1./double(tau));
 
         unsigned int index;
         if( t->indexOfParameterAtPosition(index, xAOD::LastMeasurement) ) {

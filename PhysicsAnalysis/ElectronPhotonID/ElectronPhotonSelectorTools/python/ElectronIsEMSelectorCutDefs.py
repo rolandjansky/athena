@@ -3,9 +3,9 @@
 # default configuration of the ElectronIsEMSelectorCutDefs
 # This one is used for stadard loose, medium, and tight, not ++ menu
 
-import PyCintex
+import cppyy
 try :
-    PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
+    cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
 except :
     pass
 

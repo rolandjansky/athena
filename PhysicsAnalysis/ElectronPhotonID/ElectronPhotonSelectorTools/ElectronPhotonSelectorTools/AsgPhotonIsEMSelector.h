@@ -24,18 +24,21 @@
 
 // Include the interfaces
 #include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
-
 #include "xAODEgamma/PhotonFwd.h"
+#include "xAODEgamma/EgammaFwd.h"
+#include "xAODEgamma/ElectronFwd.h"
 #include "xAODTracking/VertexFwd.h"
 
 // Include the return object and the underlying ROOT tool
 #include "PATCore/TAccept.h"
 #include "ElectronPhotonSelectorTools/TPhotonIsEMSelector.h"
 
-class AsgPhotonIsEMSelector : virtual public asg::AsgTool,
-                              virtual public IAsgPhotonIsEMSelector
+class AsgPhotonIsEMSelector : public asg::AsgTool,
+			      virtual public IAsgPhotonIsEMSelector
+
 {
-  ASG_TOOL_CLASS2(AsgPhotonIsEMSelector, IAsgPhotonIsEMSelector, IAsgSelectionTool)
+  ASG_TOOL_CLASS3(AsgPhotonIsEMSelector, IAsgPhotonIsEMSelector,
+		  IAsgEGammaIsEMSelector,IAsgSelectionTool)
 
   public:
 
@@ -50,19 +53,36 @@ class AsgPhotonIsEMSelector : virtual public asg::AsgTool,
   /** @brief AlgTool finalize method*/
   StatusCode finalize();
 
-  /** The main accept method: the actual cuts are applied here */
-  const Root::TAccept& accept( const xAOD::IParticle* part ) const;
+  /** Accept with generic interface */
+  virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const ;
 
-  const Root::TAccept& accept( const xAOD::IParticle& part ) const{
-    return accept (&part);
+  /** Accept with generic interface */
+  virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const {
+    return accept(&part);
+  }
+  
+  /** Accept with Egamma objects */
+  virtual const Root::TAccept& accept( const xAOD::Egamma* part) const ;
+
+  /** Accept with Egamma objects */
+  virtual const Root::TAccept& accept( const xAOD::Egamma& part) const {
+    return accept(&part);
   }
 
   /** The main accept method: the actual cuts are applied here */
-  const Root::TAccept& accept( const xAOD::Photon* part ) const;
+  virtual const Root::TAccept& accept( const xAOD::Photon* part ) const ;
 
-  /** Accept using reference **/
+  /** The main accept method: the actual cuts are applied here */
   virtual const Root::TAccept& accept( const xAOD::Photon& part ) const {
-    return accept (&part);
+    return accept(&part);
+  }
+
+  /** The main accept method: the actual cuts are applied here */
+  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const ;
+
+  /** The main accept method: the actual cuts are applied here */
+  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const{
+    return accept(&part);
   }
 
   /** The value of the isem **/
@@ -72,7 +92,7 @@ class AsgPhotonIsEMSelector : virtual public asg::AsgTool,
   virtual std::string getOperatingPointName( ) const;
 
   /** The basic isem */
-  virtual StatusCode execute(const xAOD::Photon* eg) const;
+  virtual StatusCode execute(const xAOD::Egamma* eg) const;
 
   /** Method to get the plain TAccept */
   virtual const Root::TAccept& getTAccept( ) const

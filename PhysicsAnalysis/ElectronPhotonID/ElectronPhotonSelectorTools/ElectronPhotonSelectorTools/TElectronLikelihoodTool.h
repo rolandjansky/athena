@@ -176,8 +176,7 @@ namespace Root {
 
   private:
     class SafeTH1{
-    
-    public:
+    public :
       SafeTH1(TH1F* hist);
       ~SafeTH1();
 
@@ -194,7 +193,6 @@ namespace Root {
       double m_binWidth;
       double m_integral;
     };
-
 
     // Main methods
   public:
@@ -370,7 +368,9 @@ namespace Root {
       return GetLikelihoodBitmask(vars);
     };
     
-
+    double InterpolateCuts(const std::vector<double>& cuts,const std::vector<double>& cuts_4gev,double et,double eta) const;
+    double InterpolatePdfs(unsigned int s_or_b,unsigned int ipbin,double et,double eta,int bin,unsigned int var) const;
+    
   public:
     /** @brief cut min on b-layer hits*/
     std::vector<int> CutBL;
@@ -388,6 +388,8 @@ namespace Root {
     bool doCutConversion;
     /** @brief do remove f3 variable from likelihood at high Et (>100 GeV)*/
     bool doRemoveF3AtHighEt;
+    /** @brief do smooth interpolation between bins */
+    bool doSmoothBinInterpolation;
     /** @brief do pileup-dependent transform on discriminant value*/
     bool doPileupTransform;
     /** @brief cut on likelihood output*/
@@ -497,7 +499,7 @@ namespace Root {
     static const unsigned int  fnDiscEtBins     = 9; // number of discs stored, excluding 4GeV bin
     static const unsigned int  fnEtaBins        = 10;
     static const unsigned int  fnVariables      = 14; // 19
-    TElectronLikelihoodTool::SafeTH1*               fPDFbins     [2][IP_BINS][7][10][14]; // [sig(0)/bkg(1)][ip][et][eta][variable]
+    TElectronLikelihoodTool::SafeTH1*      fPDFbins     [2][IP_BINS][7][10][14]; // [sig(0)/bkg(1)][ip][et][eta][variable]
     static const char*  fVariables                      [14]; // 
     //static const double cutDiscriminant [1][6][10];     // [ip][et][eta]
 
@@ -520,7 +522,6 @@ namespace Root {
     unsigned int getIpBin(double ip) const;
     void getBinName(char* buffer, int etbin,int etabin, int ipbin, std::string iptype) const;
   };
-
 
 } // End: namespace Root
 

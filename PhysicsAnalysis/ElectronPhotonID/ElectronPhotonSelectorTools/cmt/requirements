@@ -10,14 +10,17 @@ use AtlasPyROOT                 AtlasPyROOT-*           External
 use AtlasROOT                   AtlasROOT-*             External
 use PATCore                     PATCore-*               PhysicsAnalysis/AnalysisCommon
 
+use xAODCaloEvent               xAODCaloEvent-*         Event/xAOD
+use xAODTracking                xAODTracking-*          Event/xAOD
 use xAODEgamma                  xAODEgamma-*            Event/xAOD
 use AsgTools                    AsgTools-*              Control/AthToolSupport
 use xAODTracking                xAODTracking-*          Event/xAOD
 
 private
-use  GaudiInterface             GaudiInterface-*           External
-use  xAODCaloEvent              xAODCaloEvent-*           Event/xAOD
-use  PathResolver               PathResolver-*             Tools
+use  GaudiInterface             GaudiInterface-*        External
+use  xAODCaloEvent              xAODCaloEvent-*         Event/xAOD
+use  PathResolver               PathResolver-*          Tools
+use  FourMomUtils               FourMomUtils-*          Event 
 
 # in AtlasEvent, even if in PhysicsAnalysis directory   
 end_private

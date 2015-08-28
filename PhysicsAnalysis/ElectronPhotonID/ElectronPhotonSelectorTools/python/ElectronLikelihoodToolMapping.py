@@ -9,9 +9,9 @@
 ## Description: Find mapping of mask and function for ID quality
 ##=============================================================================
 
-import PyCintex
+import cppyy
 try :
-    PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
+    cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
 except :
     pass
 
@@ -55,6 +55,7 @@ ElectronLHMapTrigger2015 = {
     }
 
 ElectronLHMapOffline2015 = {
+    LikeEnum.VeryLoose: ( LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodVeryLooseOfflineConfig2015 ),
     LikeEnum.Loose: ( LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodLooseOfflineConfig2015 ),
     LikeEnum.Medium: ( LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodMediumOfflineConfig2015 ),
     LikeEnum.Tight: ( LikeEnum.CustomOperatingPoint, ElectronLikelihoodMenuDefs.ElectronLikelihoodTightOfflineConfig2015 ),

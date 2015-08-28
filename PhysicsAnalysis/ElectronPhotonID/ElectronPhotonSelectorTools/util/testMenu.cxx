@@ -25,6 +25,7 @@
 
 #include "ElectronPhotonSelectorTools/AsgElectronMultiLeptonSelector.h"
 #include "ElectronPhotonSelectorTools/AsgElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/AsgForwardElectronIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
@@ -79,26 +80,34 @@ int main( int argc, char* argv[] ) {
 
 
    //The path the conf files
-   std::string confDir = "ElectronPhotonSelectorTools/offline/dc14b_20150121/";
+   std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20150518/";
 
    //std examples
 
 
    //MultiLepton
    AsgElectronMultiLeptonSelector myMultiLepton ("myMultiLepton");
-   myMultiLepton.initialize();
+   CHECK(    myMultiLepton.initialize() );
 
    //Likelihood
    AsgElectronLikelihoodTool myLikelihood ("myLikelihood");
    myLikelihood.setProperty("ConfigFile",confDir+"ElectronLikelihoodTightOfflineConfig2015.conf");
-   myLikelihood.initialize();
+   CHECK(   myLikelihood.initialize() );
 
    //IsEM
    AsgElectronIsEMSelector myLoose ("myLoose"); 
    myLoose.setProperty("ConfigFile",confDir+"ElectronIsEMLooseSelectorCutDefs.conf");
    myLoose.setProperty("isEMMask",static_cast<unsigned int> (egammaPID::ElectronLoosePP) );
-   myLoose.initialize();
+   CHECK(    myLoose.initialize() );
    myLoose.msg().setLevel(MSG::DEBUG); //set MSG LEVEL
+
+
+   //IsEMForward
+   AsgForwardElectronIsEMSelector forwardLoose ("forwardLoose"); 
+   forwardLoose.setProperty("ConfigFile","ElectronPhotonSelectorTools/ForwardElectronIsEMLooseSelectorCutDefs.conf");
+   CHECK( forwardLoose.initialize() );
+   forwardLoose.msg().setLevel(MSG::DEBUG); //set MSG LEVEL
+
 
    //IsEM no cut 
    AsgElectronIsEMSelector nocut ("nocut"); 
@@ -110,6 +119,15 @@ int main( int argc, char* argv[] ) {
    phnocut.setProperty("isEMMask",static_cast<unsigned int> (0) );
    phnocut.initialize();
 
+
+   //IsEM Photon Loose
+   AsgPhotonIsEMSelector myphLoose ("myphLoose"); 
+   myphLoose.setProperty("ConfigFile",confDir+"PhotonIsEMLooseSelectorCutDefs.conf");
+   myphLoose.setProperty("isEMMask",static_cast<unsigned int> (egammaPID::PhotonLoose) );
+   CHECK( myphLoose.initialize() );
+  
+   myphLoose.msg().setLevel(MSG::DEBUG); //set MSG LEVEL
+
    //Tight photon exampe using unique ptr
    // create the selector
    std::unique_ptr<AsgPhotonIsEMSelector> m_photonTightIsEMSelector ( new AsgPhotonIsEMSelector ( "PhotonTightIsEMSelector") );
@@ -117,7 +135,8 @@ int main( int argc, char* argv[] ) {
    m_photonTightIsEMSelector.get()->setProperty("isEMMask",egammaPID::PhotonTight);
    // set the file that contains the cuts on the shower shapes (stored in http://atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData/)
    m_photonTightIsEMSelector.get()->setProperty("ConfigFile",confDir+"PhotonIsEMTightSelectorCutDefs.conf");
-
+  
+   CHECK( m_photonTightIsEMSelector.get()->initialize());
 
    ///=========================================================================
    //IsEM here I am an expert, added as an example of what we can do already, but one should
@@ -217,11 +236,33 @@ int main( int argc, char* argv[] ) {
        std::cout << "Photon " << ph << " Num " << j<< std::endl; 
        std::cout << "xAOD pt = " << (*ph_it)->pt() << std::endl; 
        Info (APP_NAME,"Photon #%d", j); 
-
+       Info (APP_NAME,"Photon Loose cut  accept() returns %d ", static_cast<bool> (myphLoose.accept(*ph)) );      
        Info (APP_NAME,"Photon No cut  accept() returns %d ", static_cast<bool> (phnocut.accept(*ph)) );      
        Info (APP_NAME,"Photon Tight cut  accept() returns %d ", static_cast<bool> (m_photonTightIsEMSelector.get()->accept(*ph)) );      
+       Info (APP_NAME,"Photon Tight cut  IsemValue() returns %u ", m_photonTightIsEMSelector.get()->IsemValue() );      
 
      }
+
+
+    // //forwardElectron
+     const xAOD::ElectronContainer* forwardelectrons = 0 ;  
+     CHECK( event.retrieve( forwardelectrons, "ForwardElectrons" ) );
+     if ( !event.retrieve( forwardelectrons, "ForwardElectrons" ).isSuccess() ){ // retrieve arguments: container type, container key
+       Error("execute()", "Failed to retrieve forward-el container. Exiting." );
+     }
+
+     xAOD::ElectronContainer::const_iterator elforward_it      = forwardelectrons->begin(); 
+     xAOD::ElectronContainer::const_iterator elforward_it_last = forwardelectrons->end(); 
+     unsigned int jforward = 0; 
+     std::cout << "TEST " << std::endl; 
+     
+     for (;elforward_it != elforward_it_last; ++elforward_it, ++jforward) {
+  
+       Info (APP_NAME,"FORWARD electron Loose cut  accept() returns %d ", static_cast<bool> (forwardLoose.accept(*elforward_it)) );      
+
+     }
+
+
 
      Info( APP_NAME,
 	   "===>>>  done processing event #%lld ",entry);
@@ -230,8 +271,10 @@ int main( int argc, char* argv[] ) {
    myMultiLepton.finalize();
    myLikelihood.finalize();
    myLoose.finalize();
+   forwardLoose.finalize();
    nocut.finalize();
    phnocut.finalize();
+   myphLoose.finalize();
    m_photonTightIsEMSelector.get()->finalize();
    expert.finalize();
    // Return gracefully:

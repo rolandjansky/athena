@@ -18,6 +18,7 @@
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
 
 #include "xAODEgamma/Photon.h"
+#include "xAODEgamma/Electron.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -45,7 +46,7 @@ AsgPhotonIsEMSelector::AsgPhotonIsEMSelector(std::string myname) :
 		  m_rootTool->isEMMask=egammaPID::EgPidUndefined, //All pass by default, if not specified
 		  "The mask to use");
 
-   // boolean to force to test converted photon hypothesis
+  // boolean to force to test converted photon hypothesis
   declareProperty("ForceConvertedPhotonPID",
 		  m_rootTool->forceConvertedPhotonPID=false,
 		  "boolean to force to test converted photon hypothesis");
@@ -240,10 +241,12 @@ StatusCode AsgPhotonIsEMSelector::initialize()
     if(filename=="")
       { 
 	ATH_MSG_ERROR("Could not locate " << m_configFile );
+      	sc = StatusCode::FAILURE;
+	return sc;
       } 
     
     TEnv env(filename.c_str());
-   
+    
     ///------- Read in the TEnv config ------///
     ATH_MSG_DEBUG("Read in the TEnv config ");
     //Override the mask via the config only if it is not set     
@@ -287,6 +290,7 @@ StatusCode AsgPhotonIsEMSelector::initialize()
     m_rootTool->CutminEp_photonsConverted                 =AsgConfigHelper::HelperFloat("CutminEp_photonsConverted",env);
     m_rootTool->CutmaxEp_photonsConverted                 =AsgConfigHelper::HelperFloat("CutmaxEp_photonsConverted",env);
     m_rootTool->CutF3_photonsConverted                    =AsgConfigHelper::HelperFloat("CutF3_photonsConverted",env);
+    
   } else {
     ATH_MSG_INFO("Conf file empty. Just user Input");
   }
@@ -320,52 +324,53 @@ StatusCode AsgPhotonIsEMSelector::finalize()
 }
 
 
-
-
-
 //=============================================================================
 // The main accept method: the actual cuts are applied here 
 //=============================================================================
-const Root::TAccept& AsgPhotonIsEMSelector::accept( const xAOD::IParticle* part ) const
-{
-  ATH_MSG_DEBUG("Entering accept( const xAOD::IParticle*");
-  const xAOD::Photon* eg = dynamic_cast<const xAOD::Photon*>(part);
-  if ( eg )
-    {
-      return accept(eg);
-    }
-  else
-    {
-      ATH_MSG_ERROR("AsgPhotonIsEMSelector::could not cast argument to accept");
-      return m_acceptDummy;
-    }
+const Root::TAccept& AsgPhotonIsEMSelector::accept( const xAOD::IParticle* part ) const{
+
+  ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
+  if(part->type()==xAOD::Type::Photon || part->type()==xAOD::Type::Electron){
+    return accept(static_cast<const xAOD::Egamma*> (part));
+  }
+  else{
+    ATH_MSG_ERROR("AsgElectronIsEMSelector::could not convert argument to Photon/Electron");
+    return m_acceptDummy;
+  }
+
 }
 
-const Root::TAccept& AsgPhotonIsEMSelector::accept( const xAOD::Photon* eg ) const
-{
-  ATH_MSG_DEBUG("Entering accept( const xAOD::Photon* part )");  
-  if ( eg )
-    {
-      StatusCode sc = execute(eg);
-      if (sc.isFailure()) {
-	ATH_MSG_ERROR("could not calculate isEM");
-	return m_acceptDummy;
-      }
-      return m_rootTool->fillAccept();
-    }
-  else
-    {
-      ATH_MSG_ERROR("AsgPhotonIsEMSelector::accept was given a bad argument");
+const Root::TAccept& AsgPhotonIsEMSelector::accept( const xAOD::Egamma* eg ) const{
+ 
+  ATH_MSG_DEBUG("Entering accept( const Egamma* part )");  
+  if ( eg ){
+    StatusCode sc = execute(eg);
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR("could not calculate isEM");
       return m_acceptDummy;
     }
+    return m_rootTool->fillAccept();
+  }
+  else{
+    ATH_MSG_ERROR("AsgElectronIsEMSelector::accept was given a bad argument");
+    return m_acceptDummy;
+  }
 }
 
+const Root::TAccept& AsgPhotonIsEMSelector::accept( const xAOD::Photon* ph) const{
+  ATH_MSG_DEBUG("Entering accept( const Photon* part )");  
+  return accept(static_cast<const xAOD::Egamma*> (ph));  
+}
+
+const Root::TAccept& AsgPhotonIsEMSelector::accept( const xAOD::Electron* el) const{
+  ATH_MSG_DEBUG("Entering accept( const Electron* part )");  
+  return accept(static_cast<const xAOD::Egamma*> (el));  
+}
 
 //=============================================================================
 /// Get the name of the current operating point
 //=============================================================================
-std::string AsgPhotonIsEMSelector::getOperatingPointName() const
-{
+std::string AsgPhotonIsEMSelector::getOperatingPointName() const{
  
   if (m_rootTool->isEMMask == egammaPID::PhotonLoose){ return "Loose"; }
   else if (m_rootTool->isEMMask == egammaPID::PhotonMedium ){ return "Medium"; }
@@ -377,14 +382,11 @@ std::string AsgPhotonIsEMSelector::getOperatingPointName() const
     ATH_MSG_ERROR( "Didn't recognize the given operating point with mask: " << m_rootTool->isEMMask );
     return "";
   }
-
-
 }
 
-// The stuff copied over from egammaPhotonCutIDTool
 // A simple execute command wrapper
 // ==============================================================
-StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Photon* eg) const
+StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Egamma* eg) const
 {
   //
   // Particle identification for photons based on cuts
@@ -416,7 +418,6 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Photon* eg) const
   }
 
   // Fill variables
-
   // eta position in second sampling
   const float eta2   = fabsf(cluster->etaBE(2));
   // transverse energy in calorimeter (using eta position in second sampling)
@@ -433,14 +434,12 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Photon* eg) const
   bool allFound = true;
     
   // variables based on HCAL
-
   // transverse energy in 1st scintillator of hadronic calorimeter/ET
   allFound = allFound && eg->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1);
   // transverse energy in hadronic calorimeter/ET
   allFound = allFound && eg->showerShapeValue(Rhad, xAOD::EgammaParameters::Rhad);
 
   // variables based on S2 of EM CAL
-
   // E(7*7) in 2nd sampling
   allFound = allFound && eg->showerShapeValue(e277, xAOD::EgammaParameters::e277);
   // E(3*7)/E(7*7) in 2nd sampling
@@ -451,7 +450,6 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Photon* eg) const
   allFound = allFound && eg->showerShapeValue(weta2c, xAOD::EgammaParameters::weta2);
 
   // variables based on S1 of EM CAL
-
   // fraction of energy reconstructed in the 1st sampling
   allFound = allFound && eg->showerShapeValue(f1, xAOD::EgammaParameters::f1);
   // shower width in 3 strips in 1st sampling
@@ -474,23 +472,26 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Photon* eg) const
   }    
 
   // cut on E/p
-  double ep = 1.0; 		// default passes
+  double ep = 1.0; // default passes
   
   if (m_caloOnly){
     ATH_MSG_DEBUG("Doing CaloCutsOnly");
-    //
-    // apply only calo information
-    //
   } else {
     if (xAOD::EgammaHelpers::isConvertedPhoton(eg)) {
-      float p = xAOD::EgammaHelpers::momentumAtVertex(eg).mag();
-      if (p!=0.)
-	ep = energy / p;
-      else
-	ep = 9999999.;
+      const xAOD::Photon *ph = dynamic_cast<const xAOD::Photon*>(eg);
+      if(!ph){
+	ATH_MSG_WARNING("Can not cast egamma to photon for the e/p cut");
+      }else{
+	float p = xAOD::EgammaHelpers::momentumAtVertex(ph).mag();
+	if (p!=0.){
+	  ep = energy / p;
+	}
+	else{
+	  ep = 9999999.;
+	}
+      }
     }
   }
-
 
   // modifiy et when dealing with trigger
   // to be sure that it will take the correct bin (VD)

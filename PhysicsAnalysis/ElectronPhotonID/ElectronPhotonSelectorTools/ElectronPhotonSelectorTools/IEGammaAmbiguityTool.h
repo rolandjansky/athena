@@ -1,0 +1,59 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// Dear emacs, this is -*-c++-*-
+
+#ifndef __IEGammaAmbiguityTool__
+#define __IEGammaAmbiguityTool__
+
+/**
+   @class EGammaAmbiguityTool
+   @brief Electron / photon ambiguity resolution. Dual-use version, interface
+
+   @author Bruno Lenzi
+   @date   May 2015
+*/
+
+// Include the interfaces
+#include "AsgTools/IAsgTool.h"
+
+// Include the return object
+// #include "PATCore/TAccept.h"
+
+// Forward declarations
+#include "xAODCaloEvent/CaloClusterFwd.h"
+#include "xAODTracking/VertexFwd.h"
+#include "xAODTracking/TrackParticleFwd.h"
+#include "xAODEgamma/EgammaFwd.h"
+
+class IEGammaAmbiguityTool : virtual public asg::IAsgTool
+{
+  ASG_TOOL_INTERFACE(IEGammaAmbiguityTool)
+
+public:
+
+  /**Virtual Destructor*/
+  virtual ~IEGammaAmbiguityTool() {};
+
+  /** Return value: AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown */
+  virtual unsigned int ambiguityResolve(const xAOD::CaloCluster* cluster,
+                                        const xAOD::Vertex* vx,
+                                        const xAOD::TrackParticle* tp) const = 0;
+
+  /** Redo the ambiguity resolution of central electrons and photons and return
+    * AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown 
+    * or the author of the object if no overlapping object is found **/
+  virtual unsigned int ambiguityResolve(const xAOD::Egamma& egamma) const = 0;
+
+  /** Accept or reject egamma object based on ambiguity resolution */
+  virtual bool accept( const xAOD::Egamma& egamma, bool acceptAmbiguous = true) const = 0;
+  
+  /** Get overlapping egamma object given electron or photon */
+  virtual const xAOD::Egamma* getOverlappingObject( const xAOD::Egamma& egamma ) const = 0;
+
+}; // End: class definition
+
+
+#endif
+

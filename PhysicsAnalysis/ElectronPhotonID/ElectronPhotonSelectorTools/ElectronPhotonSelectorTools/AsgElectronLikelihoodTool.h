@@ -15,7 +15,7 @@
 
 #include "xAODEgamma/ElectronFwd.h"
 
-class AsgElectronLikelihoodTool : virtual public asg::AsgTool, 
+class AsgElectronLikelihoodTool : public asg::AsgTool, 
 				  virtual public IAsgElectronLikelihoodTool
 {
   ASG_TOOL_CLASS2(AsgElectronLikelihoodTool, IAsgElectronLikelihoodTool, IAsgSelectionTool)
@@ -55,7 +55,6 @@ public:
   /** The main accept method: in case mu not in EventInfo online */
   const Root::TAccept& accept( const xAOD::Egamma* eg, double mu ) const;
   
-
   /** Accept using reference **/
   virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const {
     return accept (&part);
@@ -80,7 +79,6 @@ public:
   virtual const Root::TAccept& accept( const xAOD::Egamma& part, double mu ) const {
     return accept (&part, mu);
   }
-
 
 
   // Main methods for IAsgCalculatorTool interface

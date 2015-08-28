@@ -10,9 +10,9 @@
 ##              Migrated from TrigEgammaElectronCutIDTool_medium1.py LowLumi_2012
 ##===============================================================================
 
-import PyCintex
+import cppyy
 try :
-    PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
+    cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
 except :
     pass
 

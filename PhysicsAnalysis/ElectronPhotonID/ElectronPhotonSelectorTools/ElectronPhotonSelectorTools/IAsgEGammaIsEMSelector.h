@@ -4,11 +4,11 @@
 
 // Dear emacs, this is -*-c++-*-
 
-#ifndef __IASGPHOTONISEMSELECTOR__
-#define __IASGPHOTONISEMSELECTOR__
+#ifndef __IASGEGAMMAISEMSELECTOR__
+#define __IASGEGAMMAISEMSELECTOR__
 
 /**
-   @class IAsgPhotonIsEMSelector
+   @class IAsgEGammaIsEMSelector
    @brief Interface to tool to select photons
 
    @author Jovan Mitrevski (UCSC) Karsten Koeneke (CERN)
@@ -19,7 +19,7 @@
 
 // Include the interfaces
 #include "PATCore/IAsgSelectionTool.h"
-#include "ElectronPhotonSelectorTools/IAsgEGammaIsEMSelector.h"
+
 // Include the return object and the underlying ROOT tool
 #include "PATCore/TAccept.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
@@ -30,44 +30,29 @@
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODEgamma/ElectronFwd.h"
 
-class IAsgPhotonIsEMSelector : virtual public IAsgEGammaIsEMSelector
+class IAsgEGammaIsEMSelector : virtual public IAsgSelectionTool
 {
 
-  ASG_TOOL_INTERFACE(IAsgPhotonIsEMSelector)
+  ASG_TOOL_INTERFACE(IAsgEGammaIsEMSelector)
 
 public:
 
   /**Virtual Destructor*/
-  virtual ~IAsgPhotonIsEMSelector() {};
+  virtual ~IAsgEGammaIsEMSelector() {};
 
   /** Accept with generic interface */
   virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
 
   /** Accept with generic interface */
   virtual const Root::TAccept& accept( const xAOD::IParticle& part ) const = 0;
-  
+
+  /////Egammma IsEM specific methods
+
   /** Accept with Egamma objects */
   virtual const Root::TAccept& accept( const xAOD::Egamma* part) const = 0;
 
   /** Accept with Egamma objects */
   virtual const Root::TAccept& accept( const xAOD::Egamma& part) const = 0;
-
-  /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Photon* part ) const = 0;
-
-  /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Photon& part ) const = 0;
-
-  /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Electron* part ) const = 0;
-
-  /** The main accept method: the actual cuts are applied here */
-  virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
-
-
-  ////Expert methods /////////////////////////////////////
-  /** The isem potentially for the trigger */
-  virtual StatusCode execute(const xAOD::Egamma* eg) const =0;
 
   virtual unsigned int IsemValue() const =0;
 

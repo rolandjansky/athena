@@ -12,7 +12,6 @@
     Please see TElectronLikelihoodTool.h for usage.
 */
 
-
 //=============================================================================
 // Constructor
 //=============================================================================
@@ -24,6 +23,7 @@ Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
   asg::AsgMessaging(std::string(name)),
   doCutConversion(false),
   doRemoveF3AtHighEt(false),
+  doSmoothBinInterpolation(false),
   doPileupTransform(false),
   DiscMaxForPileupTransform(2.0),
   PileupMaxForPileupTransform(50),
@@ -215,6 +215,7 @@ int Root::TElectronLikelihoodTool::initialize()
 		    << "\n - (bool)CutSi (yes/no)                         : " << (CutSi.size() ? "yes" : "no")
 		    << "\n - (bool)doCutConversion (yes/no)               : " << (doCutConversion ? "yes" : "no")
 		    << "\n - (bool)doRemoveF3AtHighEt (yes/no)            : " << (doRemoveF3AtHighEt ? "yes" : "no")
+		    << "\n - (bool)doSmoothBinInterpolation (yes/no)      : " << (doSmoothBinInterpolation ? "yes" : "no")
 		    << "\n - (bool)doPileupTransform (yes/no)             : " << (doPileupTransform ? "yes" : "no")
 		    << "\n - (bool)CutLikelihood (yes/no)                 : " << (CutLikelihood.size() ? "yes" : "no")
 		    << "\n - (bool)CutLikelihoodPileupCorrection (yes/no) : " << (CutLikelihoodPileupCorrection.size() ? "yes" : "no")
@@ -388,18 +389,24 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   }
   
   double cutDiscriminant;
-  int ibin_combined = etbin*10+etabin; // Must change if number of eta bins changes!. Also starts from 7-10 GeV bin.
+  unsigned int ibin_combined = etbin*10+etabin; // Must change if number of eta bins changes!. Also starts from 7-10 GeV bin.
 
-  if (vars_struct.eT > 7000. || !CutLikelihood4GeV.size()){
-    cutDiscriminant = CutLikelihood[ibin_combined];
-    // If doPileupTransform, then correct the discriminant itself instead of the cut value
-    if (!doPileupTransform && CutLikelihoodPileupCorrection.size()) 
-      cutDiscriminant += vars_struct.ip*CutLikelihoodPileupCorrection[ibin_combined];
-  }
-  else {
-    cutDiscriminant = CutLikelihood4GeV[etabin];
-    if (!doPileupTransform && CutLikelihoodPileupCorrection4GeV.size()) 
-      cutDiscriminant += vars_struct.ip*CutLikelihoodPileupCorrection4GeV[etabin];
+  if (doSmoothBinInterpolation){
+    cutDiscriminant = InterpolateCuts(CutLikelihood,CutLikelihood4GeV,vars_struct.eT,vars_struct.eta);
+    if (!doPileupTransform)
+      cutDiscriminant += vars_struct.ip*InterpolateCuts(CutLikelihoodPileupCorrection,CutLikelihoodPileupCorrection4GeV,vars_struct.eT,vars_struct.eta);
+  } else {
+    if (vars_struct.eT > 7000. || !CutLikelihood4GeV.size()){
+      cutDiscriminant = CutLikelihood[ibin_combined];
+      // If doPileupTransform, then correct the discriminant itself instead of the cut value
+      if (!doPileupTransform && CutLikelihoodPileupCorrection.size()) 
+        cutDiscriminant += vars_struct.ip*CutLikelihoodPileupCorrection[ibin_combined];
+    }
+    else {
+      cutDiscriminant = CutLikelihood4GeV[etabin];
+      if (!doPileupTransform && CutLikelihoodPileupCorrection4GeV.size()) 
+        cutDiscriminant += vars_struct.ip*CutLikelihoodPileupCorrection4GeV[etabin];
+    }
   }
 
   // Determine if the calculated likelihood value passes the cut
@@ -572,16 +579,22 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
     for (unsigned int s_or_b=0; s_or_b<2;s_or_b++) {
       
       std::string sig_bkg = (s_or_b==0) ? "sig" : "bkg" ;
-      
+
       int bin = fPDFbins[s_or_b][ipbin][etbin][etabin][var]->FindBin(varVector[var]);
-      
-      double integral = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->Integral());
-      if (integral == 0) {
-        ATH_MSG_WARNING("Error! PDF integral == 0!");
-        return -1.35;
+
+      double prob = 0;
+      if (doSmoothBinInterpolation) {
+        prob = InterpolatePdfs(s_or_b,ipbin,et,eta,bin,var);
+      } 
+      else {
+        double integral = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->Integral());
+        if (integral == 0) {
+          ATH_MSG_WARNING("Error! PDF integral == 0!");
+          return -1.35;
+        }
+        
+        prob = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->GetBinContent(bin)) / integral;
       }
-      
-      double prob = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->GetBinContent(bin)) / integral;
 
       if   (s_or_b == 0) SigmaS *= prob;
       else if (s_or_b == 1) SigmaB *= prob;
@@ -608,7 +621,7 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
   else if (disc <= 0.0) disc = fEpsilon;
   
   double tau = 15.0;
-  disc = - log(1.0/disc - 1.0)/double(tau);
+  disc = - log(1.0/disc - 1.0)*(1./double(tau));
     
   // Linearly transform the discriminant as a function of pileup, rather than
   // the old scheme of changing the cut value based on pileup. This is simpler for
@@ -637,23 +650,29 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
     double disc_loose_ref         ;
     double disc_max                = DiscMaxForPileupTransform;
     double pileup_max              = PileupMaxForPileupTransform;
-    
-    // default situation, in the case where 4-7 GeV bin is not defined
-    if (et > 7000. || !DiscHardCutForPileupTransform4GeV.size()){
-      unsigned int etfinebin = getLikelihoodEtDiscBin(et);
-      unsigned int ibin_combined = etfinebin*10+etabin;
-      
-      disc_hard_cut_ref       = DiscHardCutForPileupTransform[ibin_combined];
-      disc_hard_cut_ref_slope = DiscHardCutSlopeForPileupTransform[ibin_combined];
-      disc_loose_ref          = DiscLooseForPileupTransform[ibin_combined];
+
+    if (doSmoothBinInterpolation){
+      disc_hard_cut_ref       = InterpolateCuts(DiscHardCutForPileupTransform,DiscHardCutForPileupTransform4GeV,et,eta);
+      disc_hard_cut_ref_slope = InterpolateCuts(DiscHardCutSlopeForPileupTransform,DiscHardCutSlopeForPileupTransform4GeV,et,eta);
+      disc_loose_ref          = InterpolateCuts(DiscLooseForPileupTransform,DiscLooseForPileupTransform4GeV,et,eta);
     } else {
-      if( DiscHardCutForPileupTransform4GeV.size() == 0 || DiscHardCutSlopeForPileupTransform4GeV.size() == 0 || DiscLooseForPileupTransform4GeV.size() == 0){
-        ATH_MSG_WARNING("Vectors needed for pileup-dependent transform not correctly filled for 4-7 GeV bin! Skipping the transform.");
-        return disc;
+      // default situation, in the case where 4-7 GeV bin is not defined
+      if (et > 7000. || !DiscHardCutForPileupTransform4GeV.size()){
+        unsigned int etfinebin = getLikelihoodEtDiscBin(et);
+        unsigned int ibin_combined = etfinebin*10+etabin;
+        
+        disc_hard_cut_ref       = DiscHardCutForPileupTransform[ibin_combined];
+        disc_hard_cut_ref_slope = DiscHardCutSlopeForPileupTransform[ibin_combined];
+        disc_loose_ref          = DiscLooseForPileupTransform[ibin_combined];
+      } else {
+        if( DiscHardCutForPileupTransform4GeV.size() == 0 || DiscHardCutSlopeForPileupTransform4GeV.size() == 0 || DiscLooseForPileupTransform4GeV.size() == 0){
+          ATH_MSG_WARNING("Vectors needed for pileup-dependent transform not correctly filled for 4-7 GeV bin! Skipping the transform.");
+          return disc;
+        }
+        disc_hard_cut_ref       = DiscHardCutForPileupTransform4GeV[etabin];
+        disc_hard_cut_ref_slope = DiscHardCutSlopeForPileupTransform4GeV[etabin];
+        disc_loose_ref          = DiscLooseForPileupTransform4GeV[etabin];
       }
-      disc_hard_cut_ref       = DiscHardCutForPileupTransform4GeV[etabin];
-      disc_hard_cut_ref_slope = DiscHardCutSlopeForPileupTransform4GeV[etabin];
-      disc_loose_ref          = DiscLooseForPileupTransform4GeV[etabin];
     }
 
     double disc_hard_cut_ref_prime = disc_hard_cut_ref + disc_hard_cut_ref_slope * std::min(ip,pileup_max);
@@ -774,6 +793,71 @@ unsigned int Root::TElectronLikelihoodTool::GetLikelihoodBitmask(std::string var
   return mask;
 }
 
+//----------------------------------------------------------------------------------------
+double Root::TElectronLikelihoodTool::InterpolateCuts(const std::vector<double>& cuts,const std::vector<double>& cuts_4gev,double et,double eta) const{
+  int etbin = getLikelihoodEtDiscBin(et);
+  int etabin = getLikelihoodEtaBin(eta);
+  unsigned int ibin_combined = etbin*10+etabin;
+  double cut = cuts.at(ibin_combined);
+  if (cuts_4gev.size() && et < 7000.) cut = cuts_4gev.at(etabin);
+  if (et > 47500.) return cut; // interpolation stops here.
+  if (cuts_4gev.size() == 0 && et < 8500.) return cut; // stops here
+  if (cuts_4gev.size() > 0 && et < 6000.) return cut; // stops here
+  double bin_width = 5000.;
+  if (7000. < et && et < 10000.) bin_width = 3000.;
+  if (et < 7000.) bin_width = 2000.;
+  const double GeV = 1000; 
+  const double eTBins[9] = {8.5*GeV,12.5*GeV,17.5*GeV,22.5*GeV,27.5*GeV,32.5*GeV,37.5*GeV,42.5*GeV,47.5*GeV};
+  double bin_center = eTBins[etbin];
+  if (et > bin_center) {
+    double cut_next = cut;
+    if (etbin+1<=8) cut_next = cuts.at((etbin+1)*10+etabin);
+    return cut+(cut_next-cut)*(et-bin_center)/(bin_width);
+  }
+  // or else if et < bin_center :
+  double cut_before = cut;
+  if (etbin-1>=0) cut_before = cuts.at((etbin-1)*10+etabin);
+  else if (etbin == 0 && cuts_4gev.size()) cut_before = cuts_4gev.at(etabin);
+  return cut-(cut-cut_before)*(bin_center-et)/(bin_width);
+}
+
+//----------------------------------------------------------------------------------------
+double Root::TElectronLikelihoodTool::InterpolatePdfs(unsigned int s_or_b,unsigned int ipbin,double et,double eta,int bin,unsigned int var) const{
+  // histograms exist for the follwoing bins: 4, 7, 10, 15, 20, 30, 40.
+  // Interpolation between histograms must follow fairly closely the interpolation
+  // scheme between cuts - so be careful!
+  int etbin = getLikelihoodEtHistBin(et); // hist binning
+  int etabin = getLikelihoodEtaBin(eta);
+  double integral = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->Integral());
+  double prob = double(fPDFbins[s_or_b][ipbin][etbin][etabin][var]->GetBinContent(bin)) / integral;
+  if (et > 42500.) return prob; // interpolation stops here.
+  if (et < 6000.) return prob; // interpolation stops here.
+  if (22500. < et && et < 27500.) return prob; // region of non-interpolation for pdfs
+  if (32500. < et && et < 37500.) return prob; // region of non-interpolation for pdfs
+  double bin_width = 5000.;
+  if (7000. < et && et < 10000.) bin_width = 3000.;
+  if (et < 7000.) bin_width = 2000.;
+  const double GeV = 1000; 
+  const double eTHistBins[7] = {6.*GeV,8.5*GeV,12.5*GeV,17.5*GeV,22.5*GeV,32.5*GeV,42.5*GeV};
+  double bin_center = eTHistBins[etbin];
+  if (etbin == 4 && et >= 27500.) bin_center = 27500.; // special: interpolate starting from 27.5 here
+  if (etbin == 5 && et >= 37500.) bin_center = 37500.; // special: interpolate starting from 37.5 here
+  if (et > bin_center){
+    double prob_next = prob;
+    if (etbin+1<=6) {
+      double integral_next = double(fPDFbins[s_or_b][ipbin][etbin+1][etabin][var]->Integral());
+      prob_next = double(fPDFbins[s_or_b][ipbin][etbin+1][etabin][var]->GetBinContent(bin)) / integral_next;
+      return prob+(prob_next-prob)*(et-bin_center)/(bin_width);
+    }
+  }
+  // or else if et < bin_center :
+  double prob_before = prob;
+  if (etbin-1>=0) {
+    double integral_before = double(fPDFbins[s_or_b][ipbin][etbin-1][etabin][var]->Integral());
+    prob_before = double(fPDFbins[s_or_b][ipbin][etbin-1][etabin][var]->GetBinContent(bin)) / integral_before;
+  }
+  return prob-(prob-prob_before)*(bin_center-et)/(bin_width);
+}
 
 // These are the variables availalble in the likelihood.
 const char* Root::TElectronLikelihoodTool::fVariables[14] = {"el_d0significance"
@@ -952,4 +1036,3 @@ double Root::TElectronLikelihoodTool::SafeTH1::GetBinLowEdge(int bin){
 double Root::TElectronLikelihoodTool::SafeTH1::Integral(){
   return m_integral;
 }
-

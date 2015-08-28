@@ -3,9 +3,9 @@
 # default configuration of the ElectronIsEMSelectorCutDefs
 # This one is used for medium++ menu
 
-import PyCintex
+import cppyy
 try :
-    PyCintex.loadDictionary('ElectronPhotonSelectorToolsDict')
+    cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
 except :
     pass
 
@@ -24,7 +24,7 @@ def ElectronIsEMMediumSelectorConfigDC14(theTool) :
     
     theTool = GetTool(theTool)
 
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronIsEMMediumSelectorCutDefs.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/mc15_20150329/ElectronIsEMMediumSelectorCutDefs.conf"
 
 
 def ElectronIsEMMediumSelectorConfig2011(theTool) :
