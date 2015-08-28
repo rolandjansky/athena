@@ -20,7 +20,7 @@
 #include "EventContainers/IdentifiableContainer.h"
 //Needed Classes
 #include "TrkSpacePoint/SpacePointCollection.h"
-#include "TrkSpacePoint/SpacePointCLASS_DEF.h"
+//#include "TrkSpacePoint/SpacePointCLASS_DEF.h"
 
 class SpacePointContainer 
 : public IdentifiableContainer<SpacePointCollection>{
