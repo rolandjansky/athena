@@ -500,17 +500,18 @@ StatusCode IDAlignMonGenericTracks::initialize()
     ATH_CHECK (m_trackToVertexIPEstimator.retrieve());
   }
     
-  if(m_extendedPlots){
-    if ( m_beamCondSvc.retrieve().isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve beamspot service " << m_beamCondSvc << " - will use nominal beamspot at (0,0,0)" << endreq;
-      m_hasBeamCondSvc = false;
-    } else {
-      m_hasBeamCondSvc = true;
-      msg(MSG::INFO) << "Retrieved service " << m_beamCondSvc << endreq;
-      }
-    }
-  else
+  //if(m_extendedPlots){
+  if ( m_beamCondSvc.retrieve().isFailure() ) {
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve beamspot service " << m_beamCondSvc << " - will use nominal beamspot at (0,0,0)" << endreq;
     m_hasBeamCondSvc = false;
+  } 
+  else {
+    m_hasBeamCondSvc = true;
+    msg(MSG::INFO) << "Retrieved service " << m_beamCondSvc << endreq;
+  }
+  //  }
+  //else
+  //m_hasBeamCondSvc = false;
 
 
   if ( m_applyHistWeight ){
