@@ -152,10 +152,10 @@ namespace MuonCalib{
       CscCalibResultCollection * m_f001s;
       CscCalibResultCollection * m_onlineTHoldBreaches;
       int m_eventCnt;	
-      double * m_crossTalkFix;
+      double * crossTalkFix;
 
       //String for interface to patch changes
-      std::string m_cmt_parameter;
+      std::string cmt_parameter;
 
       //debug level
       bool m_debug, m_verbose;
