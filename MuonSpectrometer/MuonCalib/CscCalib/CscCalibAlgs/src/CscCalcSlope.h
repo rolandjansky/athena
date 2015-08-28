@@ -9,7 +9,7 @@ generates a flat file with the calibration constants. It also generates
 a root file where the user can view the histograms used to find the constants,
 so that he can determine the validity of the constants
 */
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "StoreGate/DataHandle.h"
@@ -51,7 +51,7 @@ namespace MuonCalib{
     view the validity of the constants.
    */
 
-  class CscCalcSlope: public Algorithm
+  class CscCalcSlope: public AthAlgorithm
   {
     public:
       CscCalcSlope(const std::string& name, ISvcLocator* pSvcLocator);

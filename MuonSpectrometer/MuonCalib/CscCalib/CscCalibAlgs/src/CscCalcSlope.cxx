@@ -45,16 +45,33 @@ using namespace std;
 namespace MuonCalib {
 
   CscCalcSlope::CscCalcSlope(const string& name, ISvcLocator* pSvcLocator) :
-    Algorithm(name,pSvcLocator),
+    AthAlgorithm(name,pSvcLocator),
+    m_storeGate(NULL),
+    m_cscCalibTool(NULL),
     m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc",name),
     m_cscRdoDecoderTool ("Muon::CscRDO_Decoder"),
+    m_cscId(NULL),
+    m_chronoSvc(NULL),
     m_outputFileName("output.cal"),
+    m_dumpAllHists(false),
+    m_maxStripHash(0),
     m_lastPulserLevel(-999),
+    m_fracProfs(NULL),
+    m_fracGraphs(NULL),
+    m_bitHists(NULL),
+    m_fitReturns(NULL),
+    m_resGraph(NULL),
+    m_calGraphs(NULL),
     m_currentAmpProf(NULL),
     m_ampProfs(NULL),
     m_pulsedChambers(NULL),
     m_eventCnt(0),
+    m_slopes(NULL),
+    m_intercepts(NULL),
+    m_peds(NULL),
+    m_noises(NULL),
     m_peakTimeProf(NULL),
+    m_peakTimes(NULL),
     m_numBits(12)
   {
     declareProperty("OutputFile", m_outputFileName = "");
@@ -318,6 +335,10 @@ cerr << "done init services" << endl;
       {
         in >> stripHash >> buff >> buff >> ped >> noise;
         mLog << MSG::INFO << stripHash << "\t" << ped << "\t" << noise << endreq;
+        if( stripHash < 0 || (unsigned int) stripHash > m_maxStripHash ) {
+          mLog << MSG::FATAL << "The hash "<< (int) stripHash << " is out of range for the Ped-Vector - Crashing!" << endreq;
+          return StatusCode::FAILURE;
+        }
         m_peds[stripHash] = ped;
         m_noises[stripHash] = noise;
       }
@@ -432,7 +453,8 @@ cerr << "done init services" << endl;
   {
     MsgStream mLog( msgSvc(), name() );
 
-    bool thereIsAnError = false;
+    // apparently not used since code is exited automatically if there is an error
+    // bool thereIsAnError = false;
 
     Chrono chrono(m_chronoSvc,"collectEventInfo");
     mLog << MSG::DEBUG <<"Collecting event info for event " << m_eventCnt << endreq;
@@ -533,11 +555,17 @@ cerr << "done init services" << endl;
               mLog << MSG::FATAL << "Cluster includes strip in chamber layer "
                 << chamberLayer << ". Only " << m_expectedChamberLayer 
                 << " is valid." << endreq;
-              thereIsAnError = true;
+              // thereIsAnError = true;
               return StatusCode::FAILURE;
             }
 
-            int currentWireLayer = m_cscId->wireLayer(stripId) - 1 ;
+            int currentWireLayer = m_cscId->wireLayer(stripId) - 1;
+            if( currentWireLayer < 0 || currentWireLayer > 3)
+            {
+              mLog << MSG::FATAL << "Problem in getting wire layer! - Current value is " 
+                   << m_cscId->wireLayer(stripId) << " while only values between 1-4 are allowed." << endreq;
+              return StatusCode::FAILURE;
+            }
             bool isThisLayerPulsed = (pulsedWireLayer >> currentWireLayer)&0x1;
             if(isThisLayerPulsed)
             {
@@ -650,8 +678,9 @@ cerr << "done init services" << endl;
     mLog << MSG::DEBUG << "end collectEventInfo()" << endreq;
     m_eventCnt++;
 
-    if(thereIsAnError)
-      return StatusCode::RECOVERABLE;
+    // at this part of the code thereIsAnError is always false - if true it would exit earlier
+    // if(thereIsAnError)
+    //   return StatusCode::RECOVERABLE;
 
     return StatusCode::SUCCESS;
   }// end collectEventInfo()
@@ -666,11 +695,12 @@ cerr << "done init services" << endl;
     StatusCode sc; 
     mLog << MSG::INFO << "Calculating calibration constants." << endreq;
 
+    if(!m_ampProfs){
+      mLog << MSG::FATAL << "m_ampProfs empty!" << endreq;
+      return StatusCode::FAILURE;
+    }
     unsigned int numCalibPoints = m_ampProfs->size();	
     mLog << MSG::INFO << "There are " << numCalibPoints << " pulser levels to evaluate." << endreq;
-
-
-
 
     IdContext channelContext = m_cscId->channel_context();	
 
@@ -762,11 +792,12 @@ cerr << "done init services" << endl;
 
       //Loop over all attenuation levels, filling the calGraph with the amplitudes
       //for this strip 
+      //m_ampProfs checked before since already dereferenced earlier
+      //if(!m_ampProfs){
+      //  mLog << MSG::FATAL << "m_ampProfs empty!" << endreq;
+      //  return StatusCode::FAILURE;
+      //}
       mLog << MSG::DEBUG << "Number of ampProfs " << m_ampProfs->size() << endreq;
-      if(!m_ampProfs){
-        mLog << MSG::FATAL << "m_ampProfs empty!" << endreq;
-        return StatusCode::FAILURE;
-      }
       int calPointItr = 0;
       map<int, TProfile*>::const_iterator ampProfItr = m_ampProfs->begin();
       map<int, TProfile*>::const_iterator ampProfEnd = m_ampProfs->end();

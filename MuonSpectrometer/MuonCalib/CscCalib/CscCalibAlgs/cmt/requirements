@@ -3,6 +3,8 @@ package CscCalibAlgs
 ########
 
 private
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+
 use AtlasPolicy     		AtlasPolicy-* 
 
 use AtlasROOT           AtlasROOT-*             External

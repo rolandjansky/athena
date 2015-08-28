@@ -38,14 +38,28 @@ using namespace std;
 namespace MuonCalib {
 
   CscCalcPed::CscCalcPed(const string& name, ISvcLocator* pSvcLocator) :
-    Algorithm(name,pSvcLocator),
+    AthAlgorithm(name,pSvcLocator),
+    m_storeGate(NULL),
+    m_detStore(NULL),
+    m_cscId(NULL),
+    m_muon_mgr(NULL),
     m_chronoSvc(0),
     m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc",name),
     m_cscRdoDecoderTool ("Muon::CscRDO_Decoder"),
+    m_maxStripHash(0),
     m_numBits(12),
+    m_ampHists(NULL),
+    m_sampHists(NULL),
     m_bitHists(NULL),
     m_bitProds(NULL),
+    m_bitCorrelation(NULL),
+    m_peds(NULL),
+    m_noises(NULL),
+    m_rmses(NULL),
+    m_f001s(NULL),
+    m_onlineTHoldBreaches(NULL),
     m_eventCnt(0),
+    crossTalkFix(NULL),
     m_debug(0),
     m_verbose(0)
   {
@@ -719,7 +733,8 @@ namespace MuonCalib {
         mLog << "Don't know how to write calibration file version " << m_calOutputVersion << endreq;
         return StatusCode::RECOVERABLE;
       }
-      return StatusCode::SUCCESS;
+      // this part of the code cannot be reached since one of the if statements before already exits the code
+      // return StatusCode::SUCCESS;
     }
 
     StatusCode CscCalcPed::calOutput0() {

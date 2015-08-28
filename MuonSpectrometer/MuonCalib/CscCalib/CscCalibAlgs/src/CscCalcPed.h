@@ -3,11 +3,11 @@
 */
 
 #ifndef CSCCALCPED_H
-#define CSCCALCPED_H_
+#define CSCCALCPED_H
 /**CscCalcPed - algorithm that finds the Cathode Strip Chamber pedestals from 
 an RDO
 */
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "StoreGate/DataHandle.h"
@@ -48,7 +48,7 @@ namespace MuonCalib{
     the pedestals. A root file is also generated where the user can	view the validity of the constants.
    */
 
-  class CscCalcPed: public Algorithm
+  class CscCalcPed: public AthAlgorithm
   {
     public:
       CscCalcPed(const std::string& name, ISvcLocator* pSvcLocator);
@@ -159,10 +159,6 @@ namespace MuonCalib{
 
       //debug level
       bool m_debug, m_verbose;
-
-      //Temp
-      int m_tempCnt;
-
 
       bool m_doOnlineDbFile;
 
