@@ -66,8 +66,8 @@ ToolSvc += HLTMon;
 HLTMonManager.AthenaMonTools += [ "HLTMonTool/HLTMon" ];
 
 
-from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import HLTEgammaMonitoringTool
-HLTMonManager.AthenaMonTools += HLTEgammaMonitoringTool()
+from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import TrigEgammaMonitoringTool
+HLTMonManager.AthenaMonTools += TrigEgammaMonitoringTool()
 
 from TrigCaloMonitoring.TrigCaloMonitoringConfig import HLTCaloMonitoringTool
 HLTMonManager.AthenaMonTools+=HLTCaloMonitoringTool()
@@ -98,9 +98,6 @@ HLTMonManager.AthenaMonTools += TrigBphysMonitoringTool()
 
 from TrigMinBiasMonitoring.TrigMinBiasMonitoringConfig import TrigMinBiasMonitoringTool
 HLTMonManager.AthenaMonTools += TrigMinBiasMonitoringTool()
-
-from TrigEgammaMonitoring.TrigEgammaMonitoringConfig import HLTEgammaMonitoringDumpTool
-HLTMonManager.AthenaMonTools += HLTEgammaMonitoringDumpTool()
 
 HLTMonManager.FileKey = "GLOBAL"
 
