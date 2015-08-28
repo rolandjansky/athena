@@ -321,6 +321,10 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
 			 "Trk_noIBLhits_LB","Average number of tracks with missing IBL hit per event in LB",
 			 c_range_LB,0,c_range_LB,
 			 "LB #", "Average number of tracks with missing IBL hit per event in LB").ignore();
+	registerManHist( m_Trk_noIBLhits_frac_LB, "InDetGlobal/Track", detailsInterval,
+			 "Trk_noIBLhits_frac_LB","Fraction of tracks with missing IBL hit per event in LB",
+			 c_range_LB,0,c_range_LB,
+			 "LB #", "Fraction of tracks with missing IBL hit per event in LB").ignore();
     }
     
     registerManHist( m_Trk_noBLhits_LB, "InDetGlobal/Track", detailsInterval,
@@ -328,10 +332,19 @@ StatusCode InDetGlobalTrackMonTool::bookHistograms()
 		     c_range_LB,0,c_range_LB,
 		     "LB #", "Average number of tracks with missing b-layer hit per event in LB").ignore();
 
+    registerManHist( m_Trk_noBLhits_frac_LB, "InDetGlobal/Track", detailsInterval,
+		     "Trk_noBLhits_frac_LB","Fraction of tracks with missing b-layer hit per event in LB",
+		     c_range_LB,0,c_range_LB,
+		     "LB #", "Fraction of tracks with missing b-layer hit per event in LB").ignore();
+
     registerManHist( m_Trk_noTRText_LB, "InDetGlobal/Track", detailsInterval,
 		     "Trk_noTRText_LB","Average number of tracks without TRT extension per event in LB",
 		     c_range_LB,0,c_range_LB,
 		     "LB #", "Average number of tracks with without TRT extension per event in LB").ignore();
+    registerManHist( m_Trk_noTRText_frac_LB, "InDetGlobal/Track", detailsInterval,
+		     "Trk_noTRText_frac_LB","Fraction of tracks without TRT extension per event in LB",
+		     c_range_LB,0,c_range_LB,
+		     "LB #", "Fraction of tracks with without TRT extension per event in LB").ignore();
 
     // Holes
     if ( m_doHolePlots )
@@ -522,33 +535,56 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 	// Skip tracks without Pixel or SCT hits in cosmics
 	if ( m_dataType == AthenaMonManager::cosmics  && 
 	     summary->get(Trk::numberOfPixelHits) + summary->get(Trk::numberOfSCTHits) <= 0 )
+	{
 	    continue;
-	
+	}
+
 	FillHits( track, summary );
 	FillEtaPhi( track , summary );
 	
 	nLoose++;
 	
 	if ( m_loosePri_selTool->accept(*track) )
+	{
 	    nLP++;
+	}
 	if ( m_tight_selTool->accept(*track) )
+	{
 	    nTight++;
-
-	if ( m_doIBL )
-	{
-	    if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
-		nNoIBL++;
-	    if ( summary->get( Trk::expectNextToInnermostPixelLayerHit ) && !summary->get( Trk::numberOfNextToInnermostPixelLayerHits ) )
+	    
+	    if ( m_doIBL )
+	    {
+		if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
+		{
+		    nNoIBL++;
+		    m_Trk_noIBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 1 );
+		}
+		else
+		{
+		    m_Trk_noIBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 0 );
+		}
+	    }
+	    
+	    if ( summary->get( ( m_doIBL ) ? Trk::expectNextToInnermostPixelLayerHit : Trk::expectInnermostPixelLayerHit ) && !summary->get( ( m_doIBL ) ? Trk::expectNextToInnermostPixelLayerHit : Trk::expectInnermostPixelLayerHit ) )
+	    {
 		nNoBL++;
-	}
-	else
-	{
-	    if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
-		nNoBL++;
-	}
-
-	if ( summary->get(Trk::numberOfTRTHits) + summary->get(Trk::numberOfTRTOutliers) == 0 )
-	    nNoTRText++;;
+		m_Trk_noBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 1 );
+	    }
+	    else
+	    {
+		m_Trk_noBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 0 );
+	    }
+	    if ( summary->get(Trk::numberOfTRTHits) + summary->get(Trk::numberOfTRTOutliers) == 0 )
+	    {
+		nNoTRText++;;
+		m_Trk_noTRText_frac_LB->Fill(m_manager->lumiBlockNumber(), 1);
+	    }
+	    else
+	    {
+		m_Trk_noTRText_frac_LB->Fill(m_manager->lumiBlockNumber(), 0);
+	    }
+	} 
+	
 	if ( m_doHitMaps ) 
 	{
 	    FillHitMaps( track );
@@ -574,7 +610,7 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
     m_Trk_noBLhits_LB->Fill( m_manager->lumiBlockNumber(), nNoBL );
     m_Trk_noTRText_LB->Fill( m_manager->lumiBlockNumber(), nNoTRText );
     
-    if ( m_doForwardTracks ) //m_dataType == AthenaMonManager::collisions )
+    if ( m_doForwardTracks )
     {
 	const TrackCollection * forward_tracks = 0;
 	if ( evtStore()->contains<TrackCollection>( m_ForwardTracksName ) ) 
@@ -663,6 +699,7 @@ void InDetGlobalTrackMonTool::FillEtaPhi( const Trk::Track *track, const Trk::Tr
 
     /// Map of all extended tracks
     m_Trk_eta_phi->Fill( eta, phi );
+    bool isTight = false;
     if ( track )
     {
 	// Loose primary tracks
@@ -678,6 +715,7 @@ void InDetGlobalTrackMonTool::FillEtaPhi( const Trk::Track *track, const Trk::Tr
 	/// TRACKSEL: Tight
 	if ( m_tight_selTool->accept(*track) )
 	{
+	    isTight = true;
 	    m_Trk_eta_phi_Tight_ratio->Fill( eta, phi, 1 );
 	}
 	else
@@ -687,46 +725,48 @@ void InDetGlobalTrackMonTool::FillEtaPhi( const Trk::Track *track, const Trk::Tr
     }
 
     /// Innermost layer
-    if ( m_doIBL )
+    if ( isTight )
     {
-	if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
+	if ( m_doIBL )
 	{
-	    m_Trk_eta_phi_noIBLhit_ratio->Fill( eta, phi, 1 );
+	    if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
+	    {
+		m_Trk_eta_phi_noIBLhit_ratio->Fill( eta, phi, 1 );
+	    }
+	    else
+	    {
+		m_Trk_eta_phi_noIBLhit_ratio->Fill( eta, phi, 0 );
+	    }
+	    
+	    /// Next-to-innermost
+	    if ( summary->get( Trk::expectNextToInnermostPixelLayerHit ) && !summary->get( Trk::numberOfNextToInnermostPixelLayerHits ) )
+	    {
+		m_Trk_eta_phi_noBLhit_ratio->Fill( eta, phi, 1 );
+	    }
+	    else
+	    {
+		m_Trk_eta_phi_noBLhit_ratio->Fill( eta, phi, 0 );
+	    }
 	}
 	else
 	{
-	    m_Trk_eta_phi_noIBLhit_ratio->Fill( eta, phi, 0 );
+	    if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
+	    {
+		m_Trk_eta_phi_noBLhit_ratio->Fill( eta, phi, 1 );
+	    }
+	    else
+	    {
+		m_Trk_eta_phi_noBLhit_ratio->Fill( eta, phi, 0 );
+	    }
 	}
 	
-	/// Next-to-innermost
-	if ( summary->get( Trk::expectNextToInnermostPixelLayerHit ) && !summary->get( Trk::numberOfNextToInnermostPixelLayerHits ) )
-	{
-	    m_Trk_eta_phi_noBLhit_ratio->Fill( eta, phi, 1 );
-	}
+	// No TRT extension
+	if ( summary->get(Trk::numberOfTRTHits) == 0 )
+	    m_Trk_eta_phi_noTRText_ratio->Fill( eta, phi, 1 );
 	else
-	{
-	    m_Trk_eta_phi_noBLhit_ratio->Fill( eta, phi, 0 );
-	}
+	    m_Trk_eta_phi_noTRText_ratio->Fill( eta, phi, 0 );
     }
-    else
-    {
-	if ( summary->get( Trk::expectInnermostPixelLayerHit ) && !summary->get( Trk::numberOfInnermostPixelLayerHits ) )
-        {
-            m_Trk_eta_phi_noBLhit_ratio->Fill( eta, phi, 1 );
-        }
-        else
-        {
-	    m_Trk_eta_phi_noBLhit_ratio->Fill( eta, phi, 0 );
-        }
-    }
-    
-    // No TRT extension
-    if ( summary->get(Trk::numberOfTRTHits) == 0 )
-	m_Trk_eta_phi_noTRText_ratio->Fill( eta, phi, 1 );
-    else
-	m_Trk_eta_phi_noTRText_ratio->Fill( eta, phi, 0 );
-
-    return;    
+    return;
 }
 
 void InDetGlobalTrackMonTool::FillForwardTracks( const Trk::Track *track, const Trk::TrackSummary* summary )

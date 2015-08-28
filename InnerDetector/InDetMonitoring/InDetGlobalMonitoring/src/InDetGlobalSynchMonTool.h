@@ -62,7 +62,7 @@ public:
     ///@{
     
     ///@copydoc InDetGlobalMotherMonTool::bookHistograms()
-    virtual StatusCode bookHistogramsRecurrent() ; 	
+    virtual StatusCode bookHistograms() ; 	
 
     ///@copydoc InDetGlobalMotherMonTool::fillHistograms()
     virtual StatusCode fillHistograms();
