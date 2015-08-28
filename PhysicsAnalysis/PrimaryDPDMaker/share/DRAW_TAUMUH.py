@@ -5,6 +5,11 @@
 ### Written having as example DRAW_EGCalib.py
 ### Nikolaos Rompotis, May 2015
 ### Contact: nikolaos.rompotis@cern.ch
+###
+### Updated: Aug 18,2015
+###          - medium muon ID (Muons.quality <= 1)
+###          - tau BDT score cut from 0.4 to 0.1
+###          - isolation etcone/pt 0.06 -> 0.1
 ####################################################
 
 # Sequence
@@ -16,11 +21,11 @@ DRAW_TAUMUH_Seq = CfgMgr.AthSequencer("DRAW_TAUMUH_Seq")
 # Object selection strings
 
 # muon selection, comment: muon ID has been removed  "Muons.DFCommonGoodMuon"
-sel_mu = '(Muons.pt > 27.0*GeV) && (Muons.pt < 1450.0*GeV) && (Muons.etcone40/Muons.pt < 0.06) && (Muons.ptcone40/Muons.pt < 0.2) && Muons.passesIDCuts'
+sel_mu = '(Muons.pt > 27.0*GeV) && (Muons.pt < 1450.0*GeV) && (Muons.etcone40/Muons.pt < 0.1) && (Muons.ptcone40/Muons.pt < 0.2) && Muons.passesIDCuts && (Muons.quality <= 1)'
 muRequirement = '( count( '+sel_mu+'  ) == 1 )'
 
 # tau selection
-sel_tau        = '(TauJets.pt > 19.0*GeV)  && ( TauJets.nTracks >= 0) && ( TauJets.nTracks <= 4) && (TauJets.BDTJetScore > 0.4)'
+sel_tau        = '(TauJets.pt > 19.0*GeV)  && ( TauJets.nTracks >= 0) && ( TauJets.nTracks <= 4) && (TauJets.BDTJetScore > 0.1)'
 tauRequirement = '( count( '+sel_tau+'  ) >= 1 )'
 
 # event selection string

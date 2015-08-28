@@ -85,7 +85,6 @@ if primDPD.MakePrimaryDPD():
     ## Include the event (skimming) filters for all DESD performance streams
     ##=======================================================================    
     if primDPD.WriteSingleElectronStream() \
-           or primDPD.WriteEGammaStream() \
            or primDPD.WriteMuonStream() \
            or primDPD.WriteSingleMuonStream() \
            or primDPD.WriteMinBiasStream() \
@@ -140,14 +139,6 @@ if primDPD.MakePrimaryDPD():
     if primDPD.WriteSingleElectronStream():
         rec.DPDMakerScripts.append("PrimaryDPDMaker/PerfDPD_SingleElectron.py")
         #include("PrimaryDPDMaker/PerfDPD_SingleElectron.py")
-        pass
-
-
-    ##=======================================================
-    ## Include the EGamma DPD Output Stream
-    ##=======================================================
-    if primDPD.WriteEGammaStream():
-        rec.DPDMakerScripts.append("PrimaryDPDMaker/PerfDPD_EGamma.py")
         pass
 
 
