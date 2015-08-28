@@ -113,6 +113,7 @@ StatusCode InDetGlobalBeamSpotMonTool::bookHistogramsRecurrent() {
 
     // Histograms for track-based beam spot monitoring
     m_hTrDPhi       = makeAndRegisterTH2F(al_beamspot_shift,"trkDPhi","DCA vs Phi;#varphi (rad);d_{0} (mm)",100,-3.5,3.5,100,-10,10);
+
     m_hTrPt         = makeAndRegisterTH1F(al_beamspot_expert,"trkPt","Track Pt;P_{t} (GeV)",100,0,20);
     m_hTrNPt        = makeAndRegisterTH1F(al_beamspot_expert,"trkNPt","Number of Tracks per event (after Pt cut);Number of tracks",100,0,1000);
 
@@ -132,13 +133,13 @@ StatusCode InDetGlobalBeamSpotMonTool::bookHistogramsRecurrent() {
       // The following histograms are made either relative to the current beamspot (from BeamCondSvc),
       // or relative to the nomial beamspot at (0,0,0) without any tilt.
       if (m_useBeamspot) {
-	m_hPvX          = makeAndRegisterTH1F(al_beamspot_shift,"pvX","Primary vertex: x - x_{beam};x-x_{beam} (#mum)",100,-500,500);
-	m_hPvY          = makeAndRegisterTH1F(al_beamspot_shift,"pvY","Primary vertex: y - y_{beam};y-y_{beam} (#mum)",100,-500,500);
-	m_hPvZ          = makeAndRegisterTH1F(al_beamspot_shift,"pvZ","Primary vertex: z - z_{beam};z-z_{beam} (mm)",100,-500,500);
+        m_hPvX          = makeAndRegisterTH1F(al_beamspot_shift,"pvX","Primary vertex: x - x_{beam};x-x_{beam} (#mum)",100,-500,500);
+        m_hPvY          = makeAndRegisterTH1F(al_beamspot_shift,"pvY","Primary vertex: y - y_{beam};y-y_{beam} (#mum)",100,-500,500);
+        m_hPvZ          = makeAndRegisterTH1F(al_beamspot_shift,"pvZ","Primary vertex: z - z_{beam};z-z_{beam} (mm)",100,-500,500);
       } else {
-	m_hPvX          = makeAndRegisterTH1F(al_beamspot_shift,"pvX","Primary vertex: x;x (mm)",100,-10,10);
-	m_hPvY          = makeAndRegisterTH1F(al_beamspot_shift,"pvY","Primary vertex: y;y (mm)",100,-10,10);
-	m_hPvZ          = makeAndRegisterTH1F(al_beamspot_shift,"pvZ","Primary vertex: z;z (mm)",100,-500,500);
+        m_hPvX          = makeAndRegisterTH1F(al_beamspot_shift,"pvX","Primary vertex: x;x (mm)",100,-10,10);
+        m_hPvY          = makeAndRegisterTH1F(al_beamspot_shift,"pvY","Primary vertex: y;y (mm)",100,-10,10);
+        m_hPvZ          = makeAndRegisterTH1F(al_beamspot_shift,"pvZ","Primary vertex: z;z (mm)",100,-500,500);
       }
 
       // Histograms that are independent of the useBeamSpot parameters
@@ -187,8 +188,8 @@ StatusCode InDetGlobalBeamSpotMonTool::fillHistograms() {
     m_hBsTiltX->Fill(1e6*beamTiltX);
     m_hBsTiltY->Fill(1e6*beamTiltY);
     if (msgLvl(MSG::DEBUG)) msg() << "Beamspot from " << m_beamCondSvc << ": x0 = " << beamSpotX << ", y0 = " << beamSpotY
-				  << ", z0 = " << beamSpotZ << ", tiltX = " << beamTiltX
-				  << ", tiltY = " << beamTiltY <<endreq;
+          << ", z0 = " << beamSpotZ << ", tiltX = " << beamTiltX
+          << ", tiltY = " << beamTiltY <<endreq;
   }
 
   const xAOD::TrackParticleContainer* trackCollection = evtStore()->tryConstRetrieve<xAOD::TrackParticleContainer>(m_trackContainerName);
@@ -203,13 +204,13 @@ StatusCode InDetGlobalBeamSpotMonTool::fillHistograms() {
 
     const xAOD::TrackParticle* tpb = *trkItr;
     if (!tpb) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Null pointer to TrackParticleBase" << endreq;
-	continue;
+      ATH_MSG_DEBUG( "Null pointer to TrackParticleBase" );
+      continue;
     }    
     const Trk::Perigee* perigee = &(tpb->perigeeParameters());
     if (!perigee) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Null pointer to track perigee" << endreq;
-	continue;
+      ATH_MSG_DEBUG( "Null pointer to track perigee" );
+      continue;
     }
 
     float theta = perigee->parameters()[Trk::theta];
@@ -219,12 +220,12 @@ StatusCode InDetGlobalBeamSpotMonTool::fillHistograms() {
     float phi0 = perigee->parameters()[Trk::phi0];
     float d0 = perigee->parameters()[Trk::d0];
     if ( qOverPt != 0 ){
-	float pT = (1/qOverPt)*(charge);
-	// For all tracks
-	m_hTrPt->Fill(pT/1000.);
-	
-	// Select tracks to use for remaining histograms
-	if (pT<m_minTrackPt) continue;
+      float pT = (1/qOverPt)*(charge);
+      // For all tracks
+      m_hTrPt->Fill(pT/1000.);
+  
+      // Select tracks to use for remaining histograms
+      if (pT<m_minTrackPt) continue;
     }
 
     nTracks++;
@@ -234,10 +235,15 @@ StatusCode InDetGlobalBeamSpotMonTool::fillHistograms() {
     // also use an extrapolator to calculate d0 wrt a
     // Trk::StraightLineSurface constructed along the beam line.
     if(m_useBeamspot){
-      float beamX = beamSpotX + tan(beamTiltX) * (z0-beamSpotZ);
-      float beamY = beamSpotY + tan(beamTiltY) * (z0-beamSpotZ);
+      float trkbeamlineTiltX=tpb->beamlineTiltX();
+      float trkbeamlineTiltY=tpb->beamlineTiltY();
+      float trkbeamspotx=tpb->vx();
+      float trkbeamspoty=tpb->vy();
+      float trkbeamspotz=tpb->vz();
+      float beamX = (beamSpotX-trkbeamspotx) + tan(beamTiltX-trkbeamlineTiltX) * (z0-beamSpotZ+trkbeamspotz);
+      float beamY = (beamSpotY-trkbeamspoty) + tan(beamTiltY-trkbeamlineTiltY) * (z0-beamSpotZ+trkbeamspotz);
       float d0corr = d0 - ( -sin(phi0)*beamX + cos(phi0)*beamY );
-      m_hTrDPhiCorr->Fill(phi0,d0corr*1e3);
+      m_hTrDPhiCorr->Fill(phi0,d0corr*1e3); 
     }
   }
   m_hTrNPt->Fill(nTracks);
@@ -250,8 +256,8 @@ StatusCode InDetGlobalBeamSpotMonTool::fillHistograms() {
     const xAOD::VertexContainer_v1* vxContainer = 0;
     if (evtStore()->contains<xAOD::VertexContainer_v1>(m_vxContainerName)) {
       if (evtStore()->retrieve(vxContainer,m_vxContainerName).isFailure() ) {
-	ATH_MSG_DEBUG ("Could not retrieve primary vertex container with key "+m_vxContainerName);
-	return StatusCode::SUCCESS;
+        ATH_MSG_DEBUG ("Could not retrieve primary vertex container with key "+m_vxContainerName);
+        return StatusCode::SUCCESS;
       }
     } else {
       ATH_MSG_DEBUG ("StoreGate doesn't contain primary vertex container with key "+m_vxContainerName);
@@ -297,14 +303,14 @@ StatusCode InDetGlobalBeamSpotMonTool::fillHistograms() {
 
       // Histograms on original tracks used for primary vertex
       for (unsigned int trkIter=0; trkIter!=(*vxIter)->nTrackParticles(); ++trkIter) {
-	const xAOD::TrackParticle* tp = (*vxIter)->trackParticle(trkIter);
-	if(!tp){
-	  ATH_MSG_DEBUG ("Could not retrieve track particle.");
-	  continue;
-	}
-	const Trk::Perigee measuredPerigee = tp->perigeeParameters();
-	m_hPvTrackEta->Fill(measuredPerigee.eta());
-	m_hPvTrackPt->Fill(measuredPerigee.pT()/1000.);   // Histo is in GeV, not MeV
+        const xAOD::TrackParticle* tp = (*vxIter)->trackParticle(trkIter);
+        if(!tp){
+          ATH_MSG_DEBUG ("Could not retrieve track particle.");
+          continue;
+        }
+        const Trk::Perigee measuredPerigee = tp->perigeeParameters();
+        m_hPvTrackEta->Fill(measuredPerigee.eta());
+        m_hPvTrackPt->Fill(measuredPerigee.pT()/1000.);   // Histo is in GeV, not MeV
       }
     }
     m_hPvNPriVtx->Fill(nPriVtx);
@@ -322,7 +328,7 @@ StatusCode InDetGlobalBeamSpotMonTool::procHistograms()
 
 
 TH1F_LW* InDetGlobalBeamSpotMonTool::makeAndRegisterTH1F(MonGroup& mon,
-					     const char* hName, std::string hTitle, int nBins, float minX, float maxX) {
+               const char* hName, std::string hTitle, int nBins, float minX, float maxX) {
   TH1F_LW* h = TH1F_LW::create(hName,hTitle.c_str(),nBins,minX,maxX);
   //h->Sumw2();
   if (mon.regHist(h).isFailure()) {
@@ -333,9 +339,9 @@ TH1F_LW* InDetGlobalBeamSpotMonTool::makeAndRegisterTH1F(MonGroup& mon,
 
 
 TH2F_LW* InDetGlobalBeamSpotMonTool::makeAndRegisterTH2F(MonGroup& mon,
-					     const char* hName, std::string hTitle,
-					     int nBinsX, float minX, float maxX,
-					     int nBinsY, float minY, float maxY) {
+               const char* hName, std::string hTitle,
+               int nBinsX, float minX, float maxX,
+               int nBinsY, float minY, float maxY) {
   TH2F_LW* h = TH2F_LW::create(hName,hTitle.c_str(),nBinsX,minX,maxX,nBinsY,minY,maxY);
   //h->Sumw2();
   //h->SetOption("colz");

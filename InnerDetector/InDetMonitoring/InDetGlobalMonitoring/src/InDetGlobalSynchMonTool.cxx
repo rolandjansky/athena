@@ -142,248 +142,207 @@ StatusCode InDetGlobalSynchMonTool::initialize(){
 
 
 //----------------------------------------------------------------------
-StatusCode InDetGlobalSynchMonTool::bookHistogramsRecurrent() 		   
+StatusCode InDetGlobalSynchMonTool::bookHistograms() 		   
 {
     bool status = true;
-
-    //eventsBlock - run
-    MonGroup monGr_shift ( this, "InDetGlobal/Synch", run); 
-    MonGroup monGr_exp   ( this, "InDetGlobal/Synch", run);
-    MonGroup monGr_bug	( this, "InDetGlobal/Synch", run);
    
-    if (newRun) {	
+    LWHist::LWHistAxis *axis = 0;	
+    m_diff_LVL1ID = TProfile_LW::create( "m_diff_LVL1ID",
+					 "Fraction of RODS with synchronized LVL1ID in each ID region",
+					 11,0,11);
+    axis = m_diff_LVL1ID->GetXaxis();
+    axis->SetBinLabel(1,"Pixel Barrel");
+    axis->SetBinLabel(2,"Pixel Disks");
+    axis->SetBinLabel(3,"Pixel B-Layer");
+    axis->SetBinLabel(4,"SCT Barrel A");
+    axis->SetBinLabel(5,"SCT Barrel C");
+    axis->SetBinLabel(6,"SCT ECA");
+    axis->SetBinLabel(7,"SCT ECC");
+    axis->SetBinLabel(8,"TRT Barrel A");
+    axis->SetBinLabel(9,"TRT Barrel C");
+    axis->SetBinLabel(10,"TRT ECA");
+    axis->SetBinLabel(11,"TRT ECC"); 
+    m_diff_LVL1ID->GetYaxis()->SetTitle("Fraction");
     
-      LWHist::LWHistAxis *axis = 0;	
-
-      status &= registerHist( monGr_shift , m_diff_LVL1ID = TProfile_LW::create(
-					   "m_diff_LVL1ID",
-					   "Fraction of RODS with synchronized LVL1ID in each ID region",
-					   11,0,11)).isSuccess();
-      axis = m_diff_LVL1ID->GetXaxis();
-      axis->SetBinLabel(1,"Pixel Barrel");
-      axis->SetBinLabel(2,"Pixel Disks");
-      axis->SetBinLabel(3,"Pixel B-Layer");
-      axis->SetBinLabel(4,"SCT Barrel A");
-      axis->SetBinLabel(5,"SCT Barrel C");
-      axis->SetBinLabel(6,"SCT ECA");
-      axis->SetBinLabel(7,"SCT ECC");
-      axis->SetBinLabel(8,"TRT Barrel A");
-      axis->SetBinLabel(9,"TRT Barrel C");
-      axis->SetBinLabel(10,"TRT ECA");
-      axis->SetBinLabel(11,"TRT ECC"); 
-
-
-	
-      m_diff_LVL1ID->GetYaxis()->SetTitle("Fraction");
-      
-	
-	status &= registerHist( monGr_shift , m_diff_Overview_LVL1ID = TH2I_LW::create(
-					   "m_diff_Overview_LVL1ID"
-					   ,"LVL1ID difference warning between the detectors and the RODs of each detector",
-					   4,-1,3,4,-1,3)).isSuccess();
-
-
-	axis = m_diff_Overview_LVL1ID->GetXaxis();
-	axis->SetBinLabel(1,"BCM");
-	axis->SetBinLabel(2,"Pixel");
-	axis->SetBinLabel(3,"SCT");
-	axis->SetBinLabel(4,"TRT");
-	axis = m_diff_Overview_LVL1ID->GetYaxis();
-	axis->SetBinLabel(1,"BCM");  
-	axis->SetBinLabel(2,"Pixel");
-	axis->SetBinLabel(3,"SCT");
-	axis->SetBinLabel(4,"TRT");
-	
-					   
-	status &= registerHist( monGr_shift , m_diff_BCID = TProfile_LW::create(
-					   "m_diff_BCID",
-					   "Fraction of RODS with synchronized BCID in each ID region",
-					   11,0,11)).isSuccess();
-
-        m_diff_BCID->GetYaxis()->SetTitle("Fraction");
-	axis = m_diff_BCID->GetXaxis();
-	axis->SetBinLabel(1,"Pixel Barrel");
-	axis->SetBinLabel(2,"Pixel Disks");
-	axis->SetBinLabel(3,"Pixel B-Layer");
-	axis->SetBinLabel(4,"SCT Barrel A");
-	axis->SetBinLabel(5,"SCT Barrel C");
-	axis->SetBinLabel(6,"SCT ECA");
-	axis->SetBinLabel(7,"SCT ECC");
-	axis->SetBinLabel(8,"TRT Barrel A");
-	axis->SetBinLabel(9,"TRT Barrel C");
-	axis->SetBinLabel(10,"TRT ECA");
-	axis->SetBinLabel(11,"TRT ECC");
-				   
-	status &= registerHist( monGr_shift , m_diff_Pixel_SCT_TRT_BCID = TH2I_LW::create(
-					   "m_diff_Pixel_SCT_TRT_BCID"
-					   ,"BCID difference warning status between SCT and Pixel vs between SCT and TRT",
-					   2,-1,1,2,-1,1)).isSuccess();
-
-	axis = m_diff_Pixel_SCT_TRT_BCID->GetXaxis();
-	axis->SetBinLabel(1,"SCT!= TRT");
-	axis->SetBinLabel(2,"SCT == TRT");
-	axis = m_diff_Pixel_SCT_TRT_BCID->GetYaxis();
-	axis->SetBinLabel(1,"SCT != Pix");
-	axis->SetBinLabel(2,"SCT == Pix");
-	
-	status &= registerHist( monGr_shift , m_diff_Overview_BCID = TH2I_LW::create(
-					   "m_diff_Overview_BCID"
-					   ,"BCID difference warning between the detectors and the RODs of each detector",
-					   4,-1,3,4,-1,3)).isSuccess();
-
-	axis = m_diff_Overview_BCID->GetXaxis();
-	axis->SetBinLabel(1,"BCM");
-	axis->SetBinLabel(2,"Pixel");
-	axis->SetBinLabel(3,"SCT");
-	axis->SetBinLabel(4,"TRT");
-	axis = m_diff_Overview_BCID->GetYaxis();
-	axis->SetBinLabel(1,"BCM");
-	axis->SetBinLabel(2,"Pixel");
-	axis->SetBinLabel(3,"SCT");
-	axis->SetBinLabel(4,"TRT");
-
-	
-	status &= registerHist( monGr_shift , m_diff_SCT_TRT_BCID = TH1I_LW::create(
-					   "m_diff_SCT_TRT_BCID"
+    status &= regHist(m_diff_LVL1ID, "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    
+    m_diff_Overview_LVL1ID = TH2I_LW::create(
+	"m_diff_Overview_LVL1ID"
+	,"LVL1ID difference warning between the detectors and the RODs of each detector",
+	4,-1,3,4,-1,3);
+    axis = m_diff_Overview_LVL1ID->GetXaxis();
+    axis->SetBinLabel(1,"BCM");
+    axis->SetBinLabel(2,"Pixel");
+    axis->SetBinLabel(3,"SCT");
+    axis->SetBinLabel(4,"TRT");
+    axis = m_diff_Overview_LVL1ID->GetYaxis();
+    axis->SetBinLabel(1,"BCM");  
+    axis->SetBinLabel(2,"Pixel");
+    axis->SetBinLabel(3,"SCT");
+    axis->SetBinLabel(4,"TRT");
+    status &= regHist( m_diff_Overview_LVL1ID, "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    
+    m_diff_BCID = TProfile_LW::create( "m_diff_BCID",
+				       "Fraction of RODS with synchronized BCID in each ID region",
+				       11,0,11);
+    m_diff_BCID->GetYaxis()->SetTitle("Fraction");
+    axis = m_diff_BCID->GetXaxis();
+    axis->SetBinLabel(1,"Pixel Barrel");
+    axis->SetBinLabel(2,"Pixel Disks");
+    axis->SetBinLabel(3,"Pixel B-Layer");
+    axis->SetBinLabel(4,"SCT Barrel A");
+    axis->SetBinLabel(5,"SCT Barrel C");
+    axis->SetBinLabel(6,"SCT ECA");
+    axis->SetBinLabel(7,"SCT ECC");
+    axis->SetBinLabel(8,"TRT Barrel A");
+    axis->SetBinLabel(9,"TRT Barrel C");
+    axis->SetBinLabel(10,"TRT ECA");
+    axis->SetBinLabel(11,"TRT ECC");
+    status &= regHist( m_diff_BCID, "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    
+    m_diff_Pixel_SCT_TRT_BCID = TH2I_LW::create( "m_diff_Pixel_SCT_TRT_BCID"
+						 ,"BCID difference warning status between SCT and Pixel vs between SCT and TRT",
+						 2,-1,1,2,-1,1);
+    axis = m_diff_Pixel_SCT_TRT_BCID->GetXaxis();
+    axis->SetBinLabel(1,"SCT!= TRT");
+    axis->SetBinLabel(2,"SCT == TRT");
+    axis = m_diff_Pixel_SCT_TRT_BCID->GetYaxis();
+    axis->SetBinLabel(1,"SCT != Pix");
+    axis->SetBinLabel(2,"SCT == Pix");
+    status &= regHist( m_diff_Pixel_SCT_TRT_BCID, "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    
+    m_diff_Overview_BCID = TH2I_LW::create( "m_diff_Overview_BCID"
+					    ,"BCID difference warning between the detectors and the RODs of each detector",
+					    4,-1,3,4,-1,3);
+    axis = m_diff_Overview_BCID->GetXaxis();
+    axis->SetBinLabel(1,"BCM");
+    axis->SetBinLabel(2,"Pixel");
+    axis->SetBinLabel(3,"SCT");
+    axis->SetBinLabel(4,"TRT");
+    axis = m_diff_Overview_BCID->GetYaxis();
+    axis->SetBinLabel(1,"BCM");
+    axis->SetBinLabel(2,"Pixel");
+    axis->SetBinLabel(3,"SCT");
+    axis->SetBinLabel(4,"TRT");
+    status &= regHist( m_diff_Overview_BCID, "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    
+    
+    m_diff_SCT_TRT_BCID = TH1I_LW::create( "m_diff_SCT_TRT_BCID"
 					   ,"BCID difference between SCT and TRT",
-					   20000,-10000,10000)).isSuccess();
-	
-	
-	status &= registerHist( monGr_shift , m_diff_SCT_PIX_BCID = TH1I_LW::create(
-					   "m_diff_SCT_PIX_BCID",
+					   20000,-10000,10000);
+    status &= regHist( m_diff_SCT_TRT_BCID, "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    
+    m_diff_SCT_PIX_BCID = TH1I_LW::create( "m_diff_SCT_PIX_BCID",
 					   "BCID difference between SCT and PIX",
-					   20000,-10000,10000)).isSuccess();
-
-	
-	m_det_diff_BCID.clear();
-		
-	status &= registerVHistLW<TH2I_LW>( monGr_exp,
-					    "m_diff_PIX_BCID",
-					    "BCID warning status between PIX RODS",
-					    m_det_diff_BCID,
-					    m_n_pix_robs_JO-1,0,m_n_pix_robs_JO-1,
-					    2,-1,1).isSuccess();
-	
-	status &= registerVHistLW<TH2I_LW>( monGr_exp , 
-					    "m_diff_SCT_BCID",
-					    "BCID warning status between SCT RODS",
-					    m_det_diff_BCID,
-					    m_n_sct_robs_JO-1,0, m_n_sct_robs_JO-1,
-					    2,-1,1).isSuccess();
-
-	
-	status &= registerVHistLW<TH2I_LW>( monGr_exp , 
-				   "m_diff_TRT_BCID",
-				   "BCID warning status between TRT RODS",
-				   m_det_diff_BCID,
-				   m_n_trt_robs_JO-1,0,m_n_trt_robs_JO-1,
-				   2,-1,1).isSuccess();
-	
-	
-
-	
-
-	m_det_diff_LVL1ID.clear();
-	status &= registerVHistLW<TH2I_LW>( monGr_exp,
-					    "m_diff_PIX_LVL1ID",
-					    "LVL1ID warning status between PIX RODS",
-					    m_det_diff_LVL1ID,
-					    m_n_pix_robs_JO-1,0,m_n_pix_robs_JO-1,
-					    2,-1,1).isSuccess();
-	status &= registerVHistLW<TH2I_LW>( monGr_exp , 
-				   "m_diff_SCT_LVL1ID",
-				   "LVL1ID warning status between SCT RODS",
-				   m_det_diff_LVL1ID,
-				   m_n_sct_robs_JO-1,0, m_n_sct_robs_JO-1,
-				   2,-1,1).isSuccess();
-
-	
-	status &= registerVHistLW<TH2I_LW>( monGr_exp , 
-				   "m_diff_TRT_LVL1ID",
-				   "LVL1ID warning status between TRT RODS",
-				   m_det_diff_LVL1ID,
-				   m_n_trt_robs_JO-1,0,m_n_trt_robs_JO-1,
-				   2,-1,1).isSuccess();
-	
-	
-	m_BCID.clear();
-	status  &= registerVHistLW<TH2I_LW>( monGr_exp, 
-					     "m_PIX_BCID", 
-					     "BCID of PIX RODS",
-					     m_BCID,
-					     m_n_pix_robs_JO,-0.5,m_n_pix_robs_JO-0.5,
-					     5000,0,5000 ).isSuccess();
-	
-	status  &= registerVHistLW<TH2I_LW>( monGr_exp, 
-					     "m_SCT_BCID", 
-					     "BCID of SCT RODS",
-					     m_BCID,
-					     m_n_sct_robs_JO,-0.5,m_n_sct_robs_JO-0.5,
-					     5000,0,5000 ).isSuccess();
-	
-	status  &= registerVHistLW<TH2I_LW>( monGr_exp, 
-					     "m_TRT_BCID", 
-					     "BCID of TRT RODS",
-					     m_BCID,
-					     m_n_trt_robs_JO,-0.5,m_n_trt_robs_JO-0.5,
-					     5000,0,5000 ).isSuccess();
-	
-
-	m_LVL1ID.clear();
-	status  &= registerVHistLW<TH2I_LW>( monGr_exp, 
-					     "m_PIX_LVL1ID", 
-					     "LVL1ID of PIX RODS",
-					     m_LVL1ID,
-					     m_n_pix_robs_JO,-0.5,m_n_pix_robs_JO-0.5,
-					     5000,0,5000 ).isSuccess();
-	
-	status  &= registerVHistLW<TH2I_LW>( monGr_exp, 
-					     "m_SCT_LVL1ID", 
-					     "LVL1ID of SCT RODS",
-					     m_LVL1ID,
-					     m_n_sct_robs_JO,-0.5,m_n_sct_robs_JO-0.5,
-					     5000,0,5000 ).isSuccess();
-	
-	status  &= registerVHistLW<TH2I_LW>( monGr_exp, 
-					     "m_TRT_LVL1ID", 
-					     "LVL1ID of TRT RODS",
-					     m_LVL1ID,
-					     m_n_trt_robs_JO,-0.5,m_n_trt_robs_JO-0.5,
-					     5000,0,5000 ).isSuccess();
-	
-	status &= registerHist( monGr_shift , m_InDet_Hits_BCID = new TProfile(
-				    "m_InDet_Hits_BCID","Number of Inner Detector (Pixel + SCT + TRT) hits vs BCID",
-				    5000,0,5000)).isSuccess(); 
-        m_InDet_Hits_BCID->GetXaxis()->SetTitle("BCID");
-	m_InDet_Hits_BCID->GetYaxis()->SetTitle("Total number of inner detector hits");
-	
-	status &= registerHist( monGr_shift , m_Pixel_Hits_BCID  = new TProfile(
-				    "m_Pixel_Hits_BCID","Number of Pixel hits vs Pixel BCID",
-				    500,0,5000)).isSuccess();  
-	m_Pixel_Hits_BCID->GetXaxis()->SetTitle("BCID");
-	m_Pixel_Hits_BCID->GetYaxis()->SetTitle("Number of Pixel hits");
-	
-	status &= registerHist( monGr_shift , m_SCT_Hits_BCID  = new TProfile(
-				    "m_SCT_Hits_BCID","Number of SCT hits vs SCT BCID",
-				    500,0,5000)).isSuccess(); 
-	m_SCT_Hits_BCID->GetXaxis()->SetTitle("BCID");
-	m_SCT_Hits_BCID->GetYaxis()->SetTitle("Number of SCT hits");
-	
-	status &= registerHist( monGr_shift , m_TRT_Hits_BCID  = new TProfile(
-				    "m_TRT_Hits_BCID","Number of TRT hits vs TRT BCID",
-				    500,0,5000)).isSuccess(); 
-	m_TRT_Hits_BCID->GetXaxis()->SetTitle("BCID");
-	m_TRT_Hits_BCID->GetYaxis()->SetTitle("Number of TRT hits");
-	
-	status &= registerHist( monGr_shift , m_Tracks_BCID  = new TProfile(
-				    "m_Tracks_BCID","Number of Tracks vs BCID",
-				    5000,0,5000)).isSuccess(); 
-	m_Tracks_BCID->GetXaxis()->SetTitle("BCID");
-	m_Tracks_BCID->GetYaxis()->SetTitle("Number of tracks");
-	
-    } 
-
-    return StatusCode::SUCCESS;
+					   20000,-10000,10000);
+    status &= regHist( m_diff_SCT_PIX_BCID, "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    
+    
+    m_det_diff_BCID.clear();
+    m_det_diff_BCID.push_back( TH2I_LW::create( "m_diff_PIX_BCID",
+						"BCID warning status between PIX RODS",
+						m_n_pix_robs_JO-1,0,m_n_pix_robs_JO-1,
+						2,-1,1) );
+    status &= regHist( m_det_diff_BCID[0], "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    
+    m_det_diff_BCID.push_back( TH2I_LW::create( "m_diff_SCT_BCID",
+						"BCID warning status between SCT RODS",
+						m_n_sct_robs_JO-1,0, m_n_sct_robs_JO-1,
+						2,-1,1) );
+    status &= regHist( m_det_diff_BCID[1], "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    
+    m_det_diff_BCID.push_back( TH2I_LW::create( "m_diff_TRT_BCID",
+						"BCID warning status between TRT RODS",
+						m_n_trt_robs_JO-1,0,m_n_trt_robs_JO-1,
+						2,-1,1) );
+    status &= regHist( m_det_diff_BCID[2] , "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    
+    
+    m_det_diff_LVL1ID.clear();
+    m_det_diff_LVL1ID.push_back( TH2I_LW::create("m_diff_PIX_LVL1ID",
+						 "LVL1ID warning status between PIX RODS",
+						 m_n_pix_robs_JO-1,0,m_n_pix_robs_JO-1,
+						 2,-1,1) );
+    status &= regHist( m_det_diff_LVL1ID[0], "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    
+    m_det_diff_LVL1ID.push_back( TH2I_LW::create("m_diff_SCT_LVL1ID",
+						 "LVL1ID warning status between SCT RODS",
+						 m_n_sct_robs_JO-1,0,m_n_sct_robs_JO-1,
+						 2,-1,1) );
+    status &= regHist( m_det_diff_LVL1ID[1], "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    
+    m_det_diff_LVL1ID.push_back( TH2I_LW::create("m_diff_TRT_LVL1ID",
+						 "LVL1ID warning status between TRT RODS",
+						 m_n_trt_robs_JO-1,0,m_n_trt_robs_JO-1,
+						 2,-1,1) );
+    status &= regHist( m_det_diff_LVL1ID[2], "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    
+    m_BCID.clear();
+    m_BCID.push_back( TH2I_LW::create( "m_PIX_BCID", 
+				       "BCID of PIX RODS",
+				       m_n_pix_robs_JO,-0.5,m_n_pix_robs_JO-0.5,
+				       5000,0,5000 ) );
+    status  &= regHist( m_BCID[0], "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    m_BCID.push_back( TH2I_LW::create( "m_SCT_BCID", 
+				       "BCID of SCT RODS",
+				       m_n_sct_robs_JO,-0.5,m_n_sct_robs_JO-0.5,
+				       5000,0,5000 ) );
+    status  &= regHist( m_BCID[1], "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    m_BCID.push_back( TH2I_LW::create( "m_TRT_BCID", 
+				       "BCID of TRT RODS",
+				       m_n_trt_robs_JO,-0.5,m_n_trt_robs_JO-0.5,
+				       5000,0,5000 ) );
+    status  &= regHist( m_BCID[2], "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    
+    
+    m_LVL1ID.clear();
+    m_LVL1ID.push_back( TH2I_LW::create( "m_PIX_LVL1ID",                                                                                                                                                                                 
+					 "LVL1ID of PIX RODS",                                                                                                                                                                           
+					 m_n_pix_robs_JO,-0.5,m_n_pix_robs_JO-0.5,                                                                                                                                                       
+					 5000,0,5000 ) );
+    status  &= regHist( m_LVL1ID[0], "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    m_LVL1ID.push_back( TH2I_LW::create( "m_SCT_LVL1ID",                                                                                                                                                                                 
+					 "LVL1ID of SCT RODS",                                                                                                                                                                           
+					 m_n_sct_robs_JO,-0.5,m_n_sct_robs_JO-0.5,                                                                                                                                                       
+					 5000,0,5000 ) );
+    status  &= regHist( m_LVL1ID[1], "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    m_LVL1ID.push_back( TH2I_LW::create( "m_TRT_LVL1ID",                                                                                                                                                                                 
+					 "LVL1ID of TRT RODS",                                                                                                                                                                           
+					 m_n_trt_robs_JO,-0.5,m_n_trt_robs_JO-0.5,                                                                                                                                                       
+					 5000,0,5000 ) );
+    status  &= regHist( m_LVL1ID[2], "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();
+    
+    m_InDet_Hits_BCID = new TProfile( "m_InDet_Hits_BCID","Number of Inner Detector (Pixel + SCT + TRT) hits vs BCID",
+				      5000,0,5000);
+    m_InDet_Hits_BCID->GetXaxis()->SetTitle("BCID");
+    m_InDet_Hits_BCID->GetYaxis()->SetTitle("Total number of inner detector hits");
+    status &= regHist( m_InDet_Hits_BCID, "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess(); 
+    
+    m_Pixel_Hits_BCID  = new TProfile( "m_Pixel_Hits_BCID","Number of Pixel hits vs Pixel BCID",
+				       500,0,5000);
+    m_Pixel_Hits_BCID->GetXaxis()->SetTitle("BCID");
+    m_Pixel_Hits_BCID->GetYaxis()->SetTitle("Number of Pixel hits");
+    status &= regHist( m_Pixel_Hits_BCID, "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess();  
+    
+    m_SCT_Hits_BCID  = new TProfile( "m_SCT_Hits_BCID","Number of SCT hits vs SCT BCID",
+				     500,0,5000);
+    m_SCT_Hits_BCID->GetXaxis()->SetTitle("BCID");
+    m_SCT_Hits_BCID->GetYaxis()->SetTitle("Number of SCT hits");
+    status &= regHist( m_SCT_Hits_BCID, "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess(); 
+    
+    m_TRT_Hits_BCID  = new TProfile( "m_TRT_Hits_BCID","Number of TRT hits vs TRT BCID",
+				     500,0,5000);
+    m_TRT_Hits_BCID->GetXaxis()->SetTitle("BCID");
+    m_TRT_Hits_BCID->GetYaxis()->SetTitle("Number of TRT hits");
+    status &= regHist( m_TRT_Hits_BCID, "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess(); 
+    
+    m_Tracks_BCID  = new TProfile( "m_Tracks_BCID","Number of Tracks vs BCID",
+				   5000,0,5000);
+    m_Tracks_BCID->GetXaxis()->SetTitle("BCID");
+    m_Tracks_BCID->GetYaxis()->SetTitle("Number of tracks");
+    status &= regHist( m_Tracks_BCID , "InDetGlobal/Synch", run, ATTRIB_MANAGED ).isSuccess(); 
+    
+    return ( status ? StatusCode::SUCCESS : StatusCode::FAILURE );
 }
 
 

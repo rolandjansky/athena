@@ -170,6 +170,10 @@ private:
     TProfile * m_Trk_noIBLhits_LB;
     TProfile * m_Trk_noBLhits_LB;
     TProfile * m_Trk_noTRText_LB;
+
+    TProfile * m_Trk_noIBLhits_frac_LB;
+    TProfile * m_Trk_noBLhits_frac_LB;
+    TProfile * m_Trk_noTRText_frac_LB;
     ///@name Detector managers
     ///{@
 
