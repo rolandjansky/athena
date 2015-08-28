@@ -247,7 +247,7 @@ StatusCode CscRdoToCscPrepDataTool::decode(const CscRawDataContainer* rdoContain
   m_cabling->hash2Rod(givenHashId,idColl);
   CscRawDataContainer::const_iterator it_coll = rdoContainer->indexFind(idColl);
   if (rdoContainer->end() ==  it_coll) {
-    unsigned int coll_hash = idColl;  
+    // unsigned int coll_hash = idColl;  
     ATH_MSG_DEBUG ( "Specific CSC RDO collection retrieving failed for collection hash = " << idColl );
     return StatusCode::SUCCESS;
   }
