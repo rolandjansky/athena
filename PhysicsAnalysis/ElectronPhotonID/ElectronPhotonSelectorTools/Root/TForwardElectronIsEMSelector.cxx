@@ -9,8 +9,12 @@ PACKAGE:  PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
 
  *********************************************************************/
 
-#include "TForwardElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/TForwardElectronIsEMSelector.h"
 #include <cmath>
+
+namespace{
+	const int SummaryTypeNotSet = -1;
+}
 
 Root::TForwardElectronIsEMSelector::TForwardElectronIsEMSelector(const char* name) :
 	TSelectorToolBase(name),

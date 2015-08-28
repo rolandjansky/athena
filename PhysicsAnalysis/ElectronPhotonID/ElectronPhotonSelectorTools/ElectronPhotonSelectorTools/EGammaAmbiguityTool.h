@@ -42,19 +42,9 @@ public:
   virtual StatusCode finalize();
 
   /** Return value: AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown */
-
-  virtual unsigned int ambiguityResolve(const xAOD::CaloCluster* cluster,
-                                        const xAOD::Vertex* vx,
-                                        const xAOD::TrackParticle* tp, xAOD::AmbiguityTool::AmbiguityType& type) const;
-
-  /** Return value: AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown 
-      Needed because of cliets
-      implementation calls method above
-   */
-  virtual unsigned int ambiguityResolve(const xAOD::CaloCluster* cluster,
-                                        const xAOD::Vertex* vx,
-                                        const xAOD::TrackParticle* tp) const;
-
+  unsigned int ambiguityResolve(const xAOD::CaloCluster* cluster,
+                                const xAOD::Vertex* vx,
+                                const xAOD::TrackParticle* tp) const;
 
   /** Redo the ambiguity resolution of central electrons and photons and return
     * AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown 
@@ -66,6 +56,9 @@ public:
     **/
   bool accept( const xAOD::Egamma& egamma, bool acceptAmbiguous = true ) const;
   
+  /** Get overlapping egamma object given electron or photon **/
+  const xAOD::Egamma* getOverlappingObject( const xAOD::Egamma& egamma ) const;
+
   /** Return true if track has innermost pixel hit 
     * or next-to-innermost in case innermost is not expected
     * or at least m_MinNoPixHits pixel hits in case next-to-innermost is not expected
@@ -99,6 +92,10 @@ private:
   /** @brief Photon container name */
   std::string m_photonContainerName;
   
+  /** Retrieve from StoreGate and return electron (if electronContainer=True) 
+    * or photon container **/
+  const xAOD::EgammaContainer *getContainer(bool electronContainer) const;
+
 }; // End: class definition
 
 #endif

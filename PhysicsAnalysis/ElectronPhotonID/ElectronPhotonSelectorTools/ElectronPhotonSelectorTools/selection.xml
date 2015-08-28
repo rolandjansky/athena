@@ -4,16 +4,12 @@
   <class name="egammaPID::ROOT6_NamespaceAutoloadHook" /> 
   <enum name="LikeEnum::Menu" />
   <class name="LikeEnum::ROOT6_NamespaceAutoloadHook" /> 
-  <class name="IAsgElectronIsEMSelector" /> 
-  <class name="IAsgForwardElectronIsEMSelector" /> 
-  <class name="IAsgPhotonIsEMSelector" />
-  <class name="IAsgElectronMultiLeptonSelector" /> 
-  <class name="IAsgElectronLikelihoodTool" /> 
-  <class name="IEGammaAmbiguityTool" />
   <class name="AsgElectronIsEMSelector" /> 
   <class name="AsgForwardElectronIsEMSelector" /> 
   <class name="AsgPhotonIsEMSelector" />
   <class name="AsgElectronMultiLeptonSelector" /> 
   <class name="AsgElectronLikelihoodTool" /> 
+  <function pattern="AsgConfigHelper::Helper*"/> 
+  <class name="IEGammaAmbiguityTool" />
   <class name="EGammaAmbiguityTool" /> 
 </lcgdict>

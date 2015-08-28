@@ -31,10 +31,7 @@
 
 // Include the return object and the underlying ROOT tool
 #include "PATCore/TAccept.h"
-
-namespace Root{
-  class TPhotonIsEMSelector;
-}
+#include "ElectronPhotonSelectorTools/TPhotonIsEMSelector.h"
 
 class AsgPhotonIsEMSelector : public asg::AsgTool,
 			      virtual public IAsgPhotonIsEMSelector
@@ -89,7 +86,7 @@ class AsgPhotonIsEMSelector : public asg::AsgTool,
   }
 
   /** The value of the isem **/
-  virtual unsigned int IsemValue() const ;
+  unsigned int IsemValue() const {return m_rootTool->isEM(); };
 
    /** Method to get the operating point */
   virtual std::string getOperatingPointName( ) const;
@@ -98,13 +95,13 @@ class AsgPhotonIsEMSelector : public asg::AsgTool,
   virtual StatusCode execute(const xAOD::Egamma* eg) const;
 
   /** Method to get the plain TAccept */
-  virtual const Root::TAccept& getTAccept( ) const;
+  virtual const Root::TAccept& getTAccept( ) const
+  {
+    return m_rootTool->getTAccept();
+  }
 
 
 private:
-
-  /** Working Point */
-  std::string m_WorkingPoint;
 
   /** Config File */
   std::string m_configFile;

@@ -29,12 +29,12 @@
 #include "xAODEgamma/EgammaxAODHelpers.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 
-#define CHECK_HITS( EXP )				\
-  if (!EXP)						\
-    {							\
-      ATH_MSG_WARNING("Failed \"" << #EXP << "\"" );	\
-      return false;					\
-    }							\
+#define CHECK_HITS( EXP )                                   \
+  if (!EXP)                                                 \
+  {                                                         \
+    ATH_MSG_WARNING("Failed \"" << #EXP << "\"" );          \
+    return false;                                           \
+  }                                                         \
 
 
 //=============================================================================
@@ -49,9 +49,9 @@ EGammaAmbiguityTool::EGammaAmbiguityTool(std::string myname) :
   declareProperty("minPCut",      m_minPtCut = 2000 ,  "Minimum Pt, less than that is ambiguous");
   declareProperty("maxDeltaR_innermost",      m_maxDeltaR_innermost = 40 ,  "Maximum value for Rconv - RfirstHit for Si+Si conversions where both tracks have innermost hits");
   declareProperty("ElectronContainerName", m_electronContainerName = "Electrons",
-		  "Electron container name");
+    "Electron container name");
   declareProperty("PhotonContainerName", m_photonContainerName = "Photons",
-		  "Photon container name");
+    "Photon container name");
 
 }
 
@@ -59,11 +59,14 @@ EGammaAmbiguityTool::EGammaAmbiguityTool(std::string myname) :
 //=============================================================================
 // Standard destructor
 //=============================================================================
-EGammaAmbiguityTool::~EGammaAmbiguityTool(){
+EGammaAmbiguityTool::~EGammaAmbiguityTool()
+{
 }
 
-StatusCode EGammaAmbiguityTool::initialize(){
+StatusCode EGammaAmbiguityTool::initialize()
+{
   ATH_MSG_DEBUG("Initializing " << name() << "...");
+  
   return StatusCode::SUCCESS;
 }
 
@@ -71,7 +74,8 @@ StatusCode EGammaAmbiguityTool::initialize(){
 //=============================================================================
 // finalize method (now called by destructor)
 //=============================================================================
-StatusCode EGammaAmbiguityTool::finalize(){
+StatusCode EGammaAmbiguityTool::finalize()
+{
   return StatusCode::SUCCESS;
 }
 
@@ -80,28 +84,27 @@ StatusCode EGammaAmbiguityTool::finalize(){
 
 unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::CaloCluster* cluster,
                                                    const xAOD::Vertex* vx,
-                                                   const xAOD::TrackParticle* tp,
-						   xAOD::AmbiguityTool::AmbiguityType& type) const{
+                                                   const xAOD::TrackParticle* tp) const
+{
+  uint8_t trkPixelHits(0), trkSiHits(0);  
 
-  type=xAOD::AmbiguityTool::unknown;
+  double ep(0);
   // Energy from 3x5 cluster, stored in altE after EMClusterTool
-  // Result should stay the same before after calibration corrections
-  double cluster_e = (cluster->clusterSize() != xAOD::CaloCluster::SW_35ele && 
-		      cluster->clusterSize() != xAOD::CaloCluster::SW_35gam &&
-		      cluster->clusterSize() != xAOD::CaloCluster::SuperCluster) ?  cluster->altE() : cluster->e();
-
+  if(tp){
+    if (cluster->clusterSize() != xAOD::CaloCluster::SW_35ele and 
+        cluster->clusterSize() != xAOD::CaloCluster::SW_35gam)
+      ep = cluster->altE() * fabs(tp->qOverP());
+    else
+      ep = cluster->e() * fabs(tp->qOverP());
+  }
   
-  //Number of hits from the track
-  uint8_t trkPixelHits(0), trkSiHits(0);    
-  if (tp && !tp->summaryValue(trkPixelHits,xAOD::numberOfPixelHits)){
+  if (tp && !tp->summaryValue(trkPixelHits,xAOD::numberOfPixelHits))
     ATH_MSG_WARNING("Could not retrieve number of pixel hits from track");
-  }
-  if (tp && !tp->summaryValue(trkSiHits, xAOD::numberOfSCTHits)){
+  
+  if (tp && !tp->summaryValue(trkSiHits, xAOD::numberOfSCTHits))
     ATH_MSG_WARNING("Could not retrieve number of SCT hits from track");
-  }
   trkSiHits += trkPixelHits;
   
-  //Check if the vertex is double silicon
   xAOD::EgammaParameters::ConversionType convType(xAOD::EgammaHelpers::conversionType(vx));
   bool vxDoubleSi = (convType == xAOD::EgammaParameters::doubleSi);
   
@@ -115,12 +118,11 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::CaloCluster* clus
   //if yes and the track is not good we definetely matched the conversion as electron.
   bool shareTrack = tp && trkSiHits>=m_MinNoSiHits && vxDoubleSi && isInVertex(*tp, *vx);
   
-  //Debug messages
   ATH_MSG_DEBUG("Vertex, SiSi, tracks with innermost pixel hits: " 
-		<< (vx != 0) << ", " << vxDoubleSi << ",  " << nTrkVxWithInnermostHit);
+    << (vx != 0) << ", " << vxDoubleSi << ",  " << nTrkVxWithInnermostHit);
   ATH_MSG_DEBUG("Track, Si hits, pixel hits, has innermost pixel hit: " 
-		<< (tp != 0) << ", " << (int) trkSiHits << ", " << (int) trkPixelHits 
-		<< " , " <<  (int) trkHasInnermostHit);
+    << (tp != 0) << ", " << (int) trkSiHits << ", " << (int) trkPixelHits 
+    << " , " <<  (int) trkHasInnermostHit);
   ATH_MSG_DEBUG("Share track : " << shareTrack);
 
   //The Electron collection will NOT contain Photons
@@ -144,31 +146,14 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::CaloCluster* clus
       trkSiHits<m_MinNoSiHits || 
       (vxDoubleSi && !trkPixelHits && shareTrack)){
     ATH_MSG_DEBUG("Returning Photon");
-    type= xAOD::AmbiguityTool::photon;
     return xAOD::EgammaParameters::AuthorPhoton;
   }
   
   //Ambigous due to E/P, Min Pt, pixel hits
   //We are not sure it is a Photon, but is not good enough either to be surely an Electron
   // - E/P >10  or track Pt < 2.0 GeV or no-pixel then Ambiguous
-  double track_ep= cluster_e * fabs(tp->qOverP());
-
-  if(tp->pt()<m_minPtCut) {
-    ATH_MSG_DEBUG("Returning Ambiguous due  min Pt");
-    type=xAOD::AmbiguityTool::ambiguousTrackLowPt;
-    return xAOD::EgammaParameters::AuthorAmbiguous;
-  }
-
-  if( track_ep > m_maxEoverPCut) {
-    ATH_MSG_DEBUG("Returning Ambiguous due to E over P");
-    type=xAOD::AmbiguityTool::ambiguousTrackLowEoverP;
-    return xAOD::EgammaParameters::AuthorAmbiguous;
-  }
-
-
-  if(!trkPixelHits) {
-    ATH_MSG_DEBUG("Returning Ambiguous due to  no pixels");
-    type=xAOD::AmbiguityTool::ambiguousTrackNoPixel;
+  if( ep > m_maxEoverPCut ||  tp->pt()<m_minPtCut || !trkPixelHits) {
+    ATH_MSG_DEBUG("Returning Ambiguous due to E over P ||  min Pt  || no pixels");
     return xAOD::EgammaParameters::AuthorAmbiguous;
   }
 
@@ -184,9 +169,9 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::CaloCluster* clus
   // In this case we do not want this to be in Photons
   
   if ( !vx|| 
-       (trkHasInnermostHit && (!vxDoubleSi || nTrkVxWithInnermostHit == 1 || !passDeltaR_innermost(*vx))) ){
+      (trkHasInnermostHit && (!vxDoubleSi || nTrkVxWithInnermostHit == 1 || !passDeltaR_innermost(*vx))) )
+  {
     ATH_MSG_DEBUG("Returning Electron");
-    type=xAOD::AmbiguityTool::electron;
     return xAOD::EgammaParameters::AuthorElectron;
   }
 
@@ -196,133 +181,138 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::CaloCluster* clus
   // and a track with "innermost pixel hits"
   // A non Si+Si vertex matched and a track with no "innermost pixel hits"
 
-  //Here the types can become interesting
-  double track_p = fabs(1.0/tp->qOverP());
-  double vertex_p=xAOD::EgammaHelpers::momentumAtVertex(*vx).mag() ;
 
-  type = (fabs(track_p - cluster_e) < fabs(vertex_p- cluster_e)) ? 
-    xAOD::AmbiguityTool::ambiguousTrackEoverPBetterThanVertexEoverP : 
-    xAOD::AmbiguityTool::ambiguousVertexEoverPBetterThanTrackEoverP ;
-  //end of types
-  
   ATH_MSG_DEBUG("Returning Ambiguous");
   return xAOD::EgammaParameters::AuthorAmbiguous;
 }
 
-unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::CaloCluster* cluster,
-                                                   const xAOD::Vertex* vx,
-                                                   const xAOD::TrackParticle* tp) const{
-
-  xAOD::AmbiguityTool::AmbiguityType type;
-  return ambiguityResolve(cluster,
-			  vx,
-			  tp,
-			  type);
-
-}
-
-
-
 /** Redo the ambiguity resolution of central electrons and photons and return
- * AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown 
- * or the author of the object if no overlapping object is found **/
-
-unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::Egamma& egamma) const{
-  
-    //Fwd and Topo seeded not handled 
-  if (egamma.author() == xAOD::EgammaParameters::AuthorFwdElectron ||
-      egamma.author() == xAOD::EgammaParameters::AuthorCaloTopo35){
-    ATH_MSG_DEBUG("Author Fwd of Topo seeded.  Do not do overlap or ambiguity");
+  * AuthorElectron, AuthorPhoton, AuthorAmbiguous, AuthorUnknown 
+  * or the author of the object if no overlapping object is found **/
+unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::Egamma& egamma) const
+{
+  if (egamma.author() == xAOD::EgammaParameters::AuthorFwdElectron or
+      egamma.author() == xAOD::EgammaParameters::AuthorCaloTopo35)
     return egamma.author();
-  }
   
-  //No overlap found so either photon or electron
-  if (!egamma.ambiguousObject()){
-    //!ELink.isAvailable(*egamma)) {
-    ATH_MSG_DEBUG("No overlaping object found");
-    return egamma.author();
-  }
+  const xAOD::Egamma *other = getOverlappingObject(egamma);
+  if (not other) return egamma.author();
   
-  //Overlap found. define the electron and the photon
-  const xAOD::Electron *electron = 
-    dynamic_cast<const xAOD::Electron*>(egamma.type() == xAOD::Type::Electron ? &egamma : egamma.ambiguousObject());
-  const xAOD::Photon *photon = 
-    dynamic_cast<const xAOD::Photon*>(egamma.type() == xAOD::Type::Photon ? &egamma : egamma.ambiguousObject());
+  const xAOD::Electron *electron = dynamic_cast<const xAOD::Electron*>(
+     egamma.type() == xAOD::Type::Electron ? &egamma : other);
+  const xAOD::Photon *photon = dynamic_cast<const xAOD::Photon*>(
+     egamma.type() == xAOD::Type::Photon ? &egamma : other);
   
-  //Error if cannot define any of them
-  if (!electron || !photon){
+  if (not electron or not photon)
+  {
     ATH_MSG_WARNING("Could not cast to electron and/or photon");
     return egamma.author();
   }
   
-  //pass the proper input to the ambiguity resolve method
-  xAOD::AmbiguityTool::AmbiguityType type;
-  unsigned int result = ambiguityResolve(electron->caloCluster(),
-					 photon->vertex(), 
-					 electron->trackParticle(),
-					 type);
-  ATH_MSG_DEBUG("Performed ambiguity resolution, resulting type is: "<< type);
-  return result;
-}
+  return ambiguityResolve(electron->caloCluster(),
+                          photon->vertex(), 
+                          electron->trackParticle());
+}  
 
 /** Accept or reject egamma object based on ambiguity resolution */
-bool EGammaAmbiguityTool::accept( const xAOD::Egamma& egamma, bool acceptAmbiguous ) const{
+bool EGammaAmbiguityTool::accept( const xAOD::Egamma& egamma, bool acceptAmbiguous ) const
+{
+  if (egamma.author() == xAOD::EgammaParameters::AuthorFwdElectron or
+      egamma.author() == xAOD::EgammaParameters::AuthorCaloTopo35)
+    return true;
+  
   unsigned int author = ambiguityResolve(egamma);
-
-  if (author == xAOD::EgammaParameters::AuthorFwdElectron ||
-      author == xAOD::EgammaParameters::AuthorCaloTopo35){
+  if (acceptAmbiguous && author == xAOD::EgammaParameters::AuthorAmbiguous)
     return true;
-  }
+  return (author == (egamma.type() == xAOD::Type::Electron ? 
+    xAOD::EgammaParameters::AuthorElectron : xAOD::EgammaParameters::AuthorPhoton) );
+}
 
-  if (acceptAmbiguous && author == xAOD::EgammaParameters::AuthorAmbiguous){
-    return true;
-  }
+/** Get overlapping egamma object given electron or photon */
+const xAOD::Egamma* EGammaAmbiguityTool::getOverlappingObject( const xAOD::Egamma& egamma ) const
+{
+  // Ignore forward electrons
+  if (xAOD::EgammaHelpers::isFwdElectron(&egamma)) return 0;
+  
+  // Sanity check
+  if (!egamma.caloCluster()) return 0;
 
- return (author == (egamma.type() == xAOD::Type::Electron ? 
-		     xAOD::EgammaParameters::AuthorElectron : xAOD::EgammaParameters::AuthorPhoton) );
+  // Given an electron (photon), retrieve the photon (electron) container
+  const xAOD::EgammaContainer *egammaContainer = getContainer(egamma.type() != xAOD::Type::Electron);
+  if (not egammaContainer) return 0;
+    
+  // Find the overlapping object based on dR < 0.05 between the clusters
+  for (const auto* other : *egammaContainer)
+  {
+    if ( xAOD::P4Helpers::deltaR2(egamma.caloCluster(), other->caloCluster()) < 0.0025 )
+      return other;
+  }
+  
+  return 0;
+}
+
+const xAOD::EgammaContainer* EGammaAmbiguityTool::getContainer(bool isElectronContainer) const
+{
+  if (isElectronContainer)
+  {
+    const xAOD::ElectronContainer *electronContainer = 0;
+    if (evtStore()->retrieve(electronContainer, m_electronContainerName).isFailure() )
+      ATH_MSG_WARNING("Could not retrieve " << m_electronContainerName);
+    
+    return electronContainer;
+  }
+  const xAOD::PhotonContainer *photonContainer = 0;
+  if (evtStore()->retrieve(photonContainer, m_photonContainerName).isFailure() )
+    ATH_MSG_WARNING("Could not retrieve " << m_photonContainerName);
+  
+  return photonContainer;
 }
 
 /** Return true if track has innermost pixel hit 
- * or next-to-innermost in case innermost is not expected
- * or at least m_MinNoPixHits pixel hits in case next-to-innermost is not expected
- **/
+  * or next-to-innermost in case innermost is not expected
+  * or at least m_MinNoPixHits pixel hits in case next-to-innermost is not expected
+  **/
 bool EGammaAmbiguityTool::hasInnermostPixelHit(const xAOD::TrackParticle& tp) const
 {
   uint8_t trkExpectHit(0), trkNhits(0);
   CHECK_HITS( tp.summaryValue(trkNhits,xAOD::numberOfInnermostPixelLayerHits) );
-  if (trkNhits) {return true;}
+  if (trkNhits) return true;
   
   CHECK_HITS( tp.summaryValue(trkExpectHit,xAOD::expectInnermostPixelLayerHit) );
-  if (trkExpectHit) {return false;}
+  if (trkExpectHit) return false;
   
   CHECK_HITS( tp.summaryValue(trkNhits,xAOD::numberOfNextToInnermostPixelLayerHits) );
-  if (trkNhits) {return true;}
+  if (trkNhits) return true;
   
   CHECK_HITS( tp.summaryValue(trkExpectHit,xAOD::expectNextToInnermostPixelLayerHit) );
-  if (trkExpectHit) {return false;}  
+  if (trkExpectHit) return false;  
   
   CHECK_HITS( tp.summaryValue(trkNhits,xAOD::numberOfPixelHits) );
   return (trkNhits >= m_MinNoPixHits);
 }
 
 /** Return the number of tracks with "innermost pixel hits" (see above) 
- * in the given vertex **/
-size_t EGammaAmbiguityTool::nTrkWithInnermostPixelHits(const xAOD::Vertex& vx) const{
+  * in the given vertex **/
+size_t EGammaAmbiguityTool::nTrkWithInnermostPixelHits(const xAOD::Vertex& vx) const
+{
   size_t n = 0;
-  for (size_t i = 0; i < vx.nTrackParticles(); ++i){
+  for (size_t i = 0; i < vx.nTrackParticles(); ++i)
+  {
     const xAOD::TrackParticle *tp = vx.trackParticle(i);
-    if (!tp) {ATH_MSG_WARNING("Null pointer to track particle in vertex");}
-    else if (hasInnermostPixelHit(*tp)) {++n;}
+    if (!tp) ATH_MSG_WARNING("Null pointer to track particle in vertex");
+    else if (hasInnermostPixelHit(*tp)) ++n;
   }
   return n;
 }
 
 /** Return true if the given TrackParticle is part of the vertex **/
-bool EGammaAmbiguityTool::isInVertex(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx) const{
-  for (size_t i = 0; i < vx.nTrackParticles(); ++i){
+bool EGammaAmbiguityTool::isInVertex(const xAOD::TrackParticle& trk, const xAOD::Vertex& vx) const
+{
+  for (size_t i = 0; i < vx.nTrackParticles(); ++i)
+  {
     const xAOD::TrackParticle *tp = vx.trackParticle(i);
-    if (!tp) {ATH_MSG_WARNING("Null pointer to track particle in vertex");}
-    if (tp == &trk) {return true;}
+    if (!tp) ATH_MSG_WARNING("Null pointer to track particle in vertex");
+    if (tp == &trk) return true;
   }
   return false;
 }
@@ -330,7 +320,8 @@ bool EGammaAmbiguityTool::isInVertex(const xAOD::TrackParticle& trk, const xAOD:
 /** Return true if the vertex passes the requirement on Rconv - RfirstHit **/
 bool EGammaAmbiguityTool::passDeltaR_innermost(const xAOD::Vertex& vx) const
 {
-  if (not vx.isAvailable<float>("minRfirstHit")){
+  if (not vx.isAvailable<float>("minRfirstHit"))
+  {
     ATH_MSG_WARNING("minRfirstHit not available");
     return false;
   }

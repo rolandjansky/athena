@@ -10,15 +10,10 @@
 
 // Atlas includes
 #include "AsgTools/AsgTool.h"
+#include "ElectronPhotonSelectorTools/TElectronLikelihoodTool.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+
 #include "xAODEgamma/ElectronFwd.h"
-#include "PATCore/TAccept.h"            // for TAccept
-#include "PATCore/TResult.h"            // for TResult
-
-namespace Root{
-  class TElectronLikelihoodTool;
-}
-
 
 class AsgElectronLikelihoodTool : public asg::AsgTool, 
 				  virtual public IAsgElectronLikelihoodTool
@@ -108,10 +103,17 @@ public:
   const Root::TResult& calculate( const xAOD::Egamma* eg, double mu ) const; 
 
   /** Method to get the plain TAccept */
-  virtual const Root::TAccept& getTAccept( ) const;
+  inline virtual const Root::TAccept& getTAccept( ) const
+  {
+    return m_rootTool->getTAccept();
+  }
+
 
   /** Method to get the plain TResult */
-  virtual const Root::TResult& getTResult( ) const;
+  inline virtual const Root::TResult& getTResult( ) const
+  {
+    return m_rootTool->getTResult();
+  }
 
   virtual std::string getOperatingPointName( ) const;
 
@@ -120,8 +122,6 @@ private:
   /// Get the number of primary vertices
   unsigned int getNPrimVertices() const;
 
-  /// Get the FCal ET for centrality determination (for HI collisions)
-  double getFcalEt() const;
 
   /// Get the name of the current operating point
 
@@ -129,9 +129,6 @@ private:
 
   // Private member variables
 private:
-  /** Working Point */
-  std::string m_WorkingPoint;
-
   // The input config file.
   std::string m_configFile;
 
@@ -154,16 +151,6 @@ private:
   /// The primary vertex container name
   std::string m_primVtxContName;
 
-  /// Whether or not to use the CaloSums container in HI events
-  bool m_useCaloSumsCont;
-
-  /// defualt FCal ET (when not using CaloSums container, in HI events)
-  double m_fcalEtDefault;
-
-  /// The CaloSums container name, in HI events
-  std::string m_CaloSumsContName;
-
-
   /// The input ROOT file name that holds the PDFs
   std::string m_pdfFileName;
 
@@ -171,6 +158,12 @@ private:
   bool m_caloOnly;
 
 
+
+  // /// Say if we should re-calculate the likelihood every time (otherwise tried to be taken from UserData)
+  // bool m_forceCalcLH;
+
+  /// The cut value to be used
+  unsigned int m_operatingPoint;
 
 }; // End: class definition
 

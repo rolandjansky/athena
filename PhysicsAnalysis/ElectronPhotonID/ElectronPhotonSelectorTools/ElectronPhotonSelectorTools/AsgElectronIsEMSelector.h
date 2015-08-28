@@ -27,12 +27,8 @@
 #include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
 // Include the return object and the underlying ROOT tool
 #include "PATCore/TAccept.h"
+#include "ElectronPhotonSelectorTools/TElectronIsEMSelector.h"
 #include <string>
-
-namespace Root{
-  class TElectronIsEMSelector;
-}
-
 
 class AsgElectronIsEMSelector :  public asg::AsgTool, 
 				 virtual public IAsgElectronIsEMSelector
@@ -90,7 +86,7 @@ class AsgElectronIsEMSelector :  public asg::AsgTool,
   }
 
   /** The value of the isem **/
-  virtual unsigned int IsemValue() const; 
+  unsigned int IsemValue() const {return m_rootTool->isEM(); };
 
   /** Method to get the operating point */
   virtual std::string getOperatingPointName( ) const;
@@ -99,7 +95,10 @@ class AsgElectronIsEMSelector :  public asg::AsgTool,
   StatusCode execute(const xAOD::Egamma* eg) const;
 
   /** Method to get the plain TAccept */
-  virtual const Root::TAccept& getTAccept( ) const;
+  virtual const Root::TAccept& getTAccept( ) const{
+    return m_rootTool->getTAccept();
+  }
+
 
   // Private member variables
 private:
@@ -112,9 +111,6 @@ private:
   unsigned int TrackCut(const xAOD::Electron* eg, 
 			float eta2, double et, double energy,
 			unsigned int iflag) const;
-
-  /** Working Point */
-  std::string m_WorkingPoint;
 
   /** Config File */
   std::string m_configFile;

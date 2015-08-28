@@ -9,7 +9,7 @@ PACKAGE:  PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
 
 *********************************************************************/
 
-#include "TElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/TElectronIsEMSelector.h"
 #include <cmath>
 
 namespace{
@@ -423,9 +423,6 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 							 // number of B-layer hits
 							 int nBL,
 							 int nBLOutliers,
-							 // number of next to inner-most B-layer hits
-							 int nNextToInnerMostLayer,
-							 int nNextToInnerMostLayerOutliers,
 							 // number of Pixel hits
 							 int nPi,
 							 int nPiOutliers,
@@ -448,8 +445,7 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 							 float deltaphi,
 							 // E/p
 							 double ep,
-							 bool expectHitInBLayer,
-							 bool expectHitNextInBLayer) const 
+							 bool expectHitInBLayer) const 
 {
   // Reset the cut result bits to zero (= fail cut)
   m_accept.clear();
@@ -474,8 +470,6 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 		    f3,
 		    nBL,
 		    nBLOutliers,
-		    nNextToInnerMostLayer,
-		    nNextToInnerMostLayerOutliers,
 		    nPi,
 		    nPiOutliers,
 		    nPiDeadSensors,
@@ -492,8 +486,7 @@ const Root::TAccept& Root::TElectronIsEMSelector::accept(
 		    deltaeta,
 		    deltaphi,
 		    ep,
-		    expectHitInBLayer,
-		    expectHitNextInBLayer);
+		    expectHitInBLayer);
 
   return fillAccept();
 
@@ -538,9 +531,6 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 						   // number of B-layer hits
 						   int nBL,
 						   int nBLOutliers,
-						   // number of next to inner-most B-layer hits
-						   int nNextToInnerMostLayer,
-						   int nNextToInnerMostLayerOutliers,
 						   // number of Pixel hits
 						   int nPi,
 						   int nPiOutliers,
@@ -563,8 +553,7 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 						   float deltaphi,
 						   // E/p
 						   double ep,
-						   bool expectHitInBLayer,
-						   bool expectHitNextInBLayer) const
+						   bool expectHitInBLayer) const
 { 
   unsigned int iflag = calocuts_electrons(eta2,
 					  et,
@@ -588,8 +577,6 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 		   et,
 		   nBL,
 		   nBLOutliers,
-		   nNextToInnerMostLayer,
-		   nNextToInnerMostLayerOutliers,
 		   nPi,
 		   nPiOutliers,
 		   nPiDeadSensors,
@@ -607,7 +594,6 @@ unsigned int Root::TElectronIsEMSelector::calcIsEm(
 		   deltaphi,
 		   ep,
 		   expectHitInBLayer,
-		   expectHitNextInBLayer,
 		   iflag);
 
   return iflag;
@@ -770,9 +756,6 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
 						   // number of B-layer hits
 						   int nBL,
 						   int nBLOutliers,
-						   // number of next to the innerm most B-layer hits
-						   int nNextToInnerMostLayer,
-						   int nNextToInnerMostLayerOutliers,
 						   // number of Pixel hits
 						   int nPi,
 						   int nPiOutliers,
@@ -796,7 +779,6 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
 						   // E/p
 						   double ep,
 						   bool expectHitInBLayer,
-						   bool expectHitNextInBLayer,
 						   unsigned int iflag) const
 {
   // check the bin number
@@ -809,7 +791,6 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
   
   if (useBLOutliers) {
     nBL += nBLOutliers;
-    nNextToInnerMostLayer += nNextToInnerMostLayerOutliers;
   }
   if (usePIXOutliers) {
     nPi += nPiOutliers;
@@ -833,14 +814,7 @@ unsigned int Root::TElectronIsEMSelector::TrackCut(
 	if (nBL<CutBL[ibin_eta])
 	  iflag |= ( 0x1 << egammaPID::TrackBlayer_Electron) ; 
       }
-    } else if  ((useBLayerHitPrediction && (nPi == 0 || expectHitNextInBLayer)) || !useBLayerHitPrediction) {
-      if (CheckVar(CutBL,1)) {
-	if (nNextToInnerMostLayer<CutBL[ibin_eta])
-	  iflag |= ( 0x1 << egammaPID::TrackBlayer_Electron) ; 
-      }
     }
-
-
     // cuts on number of pixel hits
     if (CheckVar(CutPi,1)) {
       if (nPi<CutPi[ibin_eta]) 

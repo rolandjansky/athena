@@ -14,15 +14,17 @@
 
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
-#include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
-#include "TPhotonIsEMSelector.h"
-#include "EGSelectorConfigurationMapping.h"
+#include "ElectronPhotonSelectorTools/AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
+
 #include "xAODEgamma/Photon.h"
 #include "xAODEgamma/Electron.h"
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/TrackParticle.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "PathResolver/PathResolver.h"
 #include "TEnv.h"
+
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
 //=============================================================================
@@ -35,8 +37,8 @@ AsgPhotonIsEMSelector::AsgPhotonIsEMSelector(std::string myname) :
 {
 
   m_rootTool = new Root::TPhotonIsEMSelector(myname.c_str());
-
-  declareProperty("WorkingPoint",m_WorkingPoint="","The Working Point");  
+  m_rootTool->msg().setLevel(this->msg().level());
+  
   declareProperty("ConfigFile",m_configFile="","The config file to use (if not setting cuts one by one)");
 
   // Name of the PID
@@ -232,21 +234,19 @@ StatusCode AsgPhotonIsEMSelector::initialize()
   // The standard status code
   StatusCode sc = StatusCode::SUCCESS ;
 
-  if(!m_WorkingPoint.empty()){
-    m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::m_PhotonCutPointToConfFile);
-    m_rootTool->isEMMask=AsgConfigHelper::findMask(m_WorkingPoint,EgammaSelectors::m_PhotonCutPointToMask);
-  }
-
   if(!m_configFile.empty()){
     //find the file and read it in
+
     std::string filename = PathResolverFindCalibFile( m_configFile);
-    if(filename==""){ 
+    if(filename=="")
+      { 
 	ATH_MSG_ERROR("Could not locate " << m_configFile );
       	sc = StatusCode::FAILURE;
 	return sc;
       } 
-    ATH_MSG_DEBUG("Configfile to use  " << m_configFile );
-    TEnv env(filename.c_str());    
+    
+    TEnv env(filename.c_str());
+    
     ///------- Read in the TEnv config ------///
     ATH_MSG_DEBUG("Read in the TEnv config ");
     //Override the mask via the config only if it is not set     
@@ -296,9 +296,7 @@ StatusCode AsgPhotonIsEMSelector::initialize()
   }
   
   ATH_MSG_INFO("operating point : " << this->getOperatingPointName());
-  // Get the message level and set the underlying ROOT tool message level accordingly
-  m_rootTool->msg().setLevel(this->msg().level());
-
+  
   // We need to initialize the underlying ROOT TSelectorTool
   if ( 0 == m_rootTool->initialize() )
     {
@@ -369,11 +367,6 @@ const Root::TAccept& AsgPhotonIsEMSelector::accept( const xAOD::Electron* el) co
   return accept(static_cast<const xAOD::Egamma*> (el));  
 }
 
-  /** The value of the isem **/
-unsigned int AsgPhotonIsEMSelector::IsemValue() const {
-    return m_rootTool->isEM(); 
-}
-
 //=============================================================================
 /// Get the name of the current operating point
 //=============================================================================
@@ -407,7 +400,7 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Egamma* eg) const
 
   // protection against null pointer
   if (eg==0) {
-    ATH_MSG_ERROR("eg == 0");
+    ATH_MSG_DEBUG("eg == 0");
     // if object is bad then use the bit for "bad eta"
     iflag = (0x1 << egammaPID::ClusterEtaRange_Photon); 
     m_rootTool->setIsEM(iflag);
@@ -417,7 +410,7 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Egamma* eg) const
   // protection against bad clusters
   const xAOD::CaloCluster* cluster  = eg->caloCluster(); 
   if ( cluster == 0 ) {
-    ATH_MSG_ERROR("exiting because cluster is NULL " << cluster);
+    ATH_MSG_DEBUG("cluster == " << cluster);
     // if object is bad then use the bit for "bad eta"
     iflag = (0x1 << egammaPID::ClusterEtaRange_Photon); 
     m_rootTool->setIsEM(iflag);
@@ -525,8 +518,4 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Egamma* eg) const
 			       xAOD::EgammaHelpers::isConvertedPhoton(eg));
   m_rootTool->setIsEM(iflag);  
   return StatusCode::SUCCESS;
-}
-
-const Root::TAccept& AsgPhotonIsEMSelector::getTAccept( ) const {
-  return m_rootTool->getTAccept();
 }

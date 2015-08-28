@@ -28,16 +28,20 @@ def ConfiguredAsgElectronLikelihoodTool( name, quality, menu=electronLHmenu.offl
     try:
         ntuple = ElectronLikelihoodMap(quality, menu)
     except KeyError:
-        sys.stderr.write("Electron quality not found. Please use an egammaIDQuality (ElectronPhotonSelectorTools/egammaPIDdefs.h).\n This function only supports standard electron IDs, and not photon or forward IDs\n")
+        sys.stderr.write("Electron quality not found. Please use an egammaIDQuality (egammaEvent/egammaPIDdefs.h).\n This function only supports standard electron IDs, and not photon or forward IDs\n")
         raise
 
     # Get the label for user data
     tmpName = (ntuple[1]).func_name
+    print tmpName
     labelName = "isLH" + ((tmpName.split("Config")[0]).split("Likelihood")[1])
 
     # Create an instance of the tool
     tool = CfgMgr.AsgElectronLikelihoodTool(name, **kw)
+
+    # Configure it with the standard configuration
     ntuple[1](tool)
+    tool.OperatingPoint = ntuple[0]
 
     # Get all provided properties and overwrite the default values with them
     SetToolProperties( tool, **kw )

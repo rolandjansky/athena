@@ -15,7 +15,7 @@
 
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgElectronMultiLeptonSelector.h"
-#include "TElectronMultiLeptonSelector.h"
+
 #include "xAODEgamma/Electron.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -33,6 +33,7 @@ AsgElectronMultiLeptonSelector::AsgElectronMultiLeptonSelector(std::string mynam
  
   // Create an instance of the underlying ROOT tool
   m_rootTool = new Root::TElectronMultiLeptonSelector(myname.c_str());
+  m_rootTool->msg().setLevel(this->msg().level());
 
 }
 
@@ -55,7 +56,6 @@ AsgElectronMultiLeptonSelector::~AsgElectronMultiLeptonSelector()
 StatusCode AsgElectronMultiLeptonSelector::initialize()
 {
   // We need to initialize the underlying ROOT TSelectorTool
-  m_rootTool->msg().setLevel(this->msg().level());
   if ( 0 == m_rootTool->initialize() )
     {
       ATH_MSG_ERROR ( "ERROR! Could not initialize the TElectronMultiLeptonSelector!" );
@@ -237,10 +237,7 @@ const Root::TAccept& AsgElectronMultiLeptonSelector::accept(const xAOD::IParticl
 //=============================================================================
 /// Get the name of the current operating point
 //=============================================================================
-std::string AsgElectronMultiLeptonSelector::getOperatingPointName() const{
+std::string AsgElectronMultiLeptonSelector::getOperatingPointName() const
+{
   return "MultiLepton";
-}
-
-const Root::TAccept& AsgElectronMultiLeptonSelector::getTAccept( ) const{
-  return m_rootTool->getTAccept();
 }

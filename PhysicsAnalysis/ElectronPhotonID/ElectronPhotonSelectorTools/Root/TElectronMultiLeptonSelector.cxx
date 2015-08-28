@@ -13,9 +13,16 @@ Description: Electron selector tool to select objects in pure ROOT using the mul
 
 
 // This class header
-#include "TElectronMultiLeptonSelector.h"
+#include "ElectronPhotonSelectorTools/TElectronMultiLeptonSelector.h"
+
 // STL includes
+#include <iostream>
+#include <cfloat>
 #include <math.h>
+#include <limits.h>
+
+// ROOT includes
+#include <TString.h>
 
 //=============================================================================
 // Constructor

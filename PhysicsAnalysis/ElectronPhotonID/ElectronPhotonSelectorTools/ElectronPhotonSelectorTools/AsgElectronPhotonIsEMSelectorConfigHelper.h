@@ -12,17 +12,18 @@
 
    @author Christos Anastopoulos
 */
+
 #include <string>
 #include <vector>
-#include <map>
-class TEnv;
+#include "TEnv.h"
 
 namespace AsgConfigHelper{
-  std::string  findConfigFile (std::string input, const std::map<std::string,std::string>& configmap);
-  unsigned int  findMask (std::string input, const std::map<std::string,unsigned int>& maskmap);
+
   std::vector<double> HelperDouble(const std::string& input,  TEnv& env);  
   std::vector<float> HelperFloat(const std::string& input,  TEnv& env);  
   std::vector<int> HelperInt(const std::string& input, TEnv& env);
+  bool strtof(const std::string& input, float& f); 
+
 }
 
 
