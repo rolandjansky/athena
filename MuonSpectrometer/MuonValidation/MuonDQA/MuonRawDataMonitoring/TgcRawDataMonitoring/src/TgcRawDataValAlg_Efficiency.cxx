@@ -212,6 +212,16 @@ TgcRawDataValAlg::bookHistogramsEfficiency(){
 
   for(int ac=0;ac<2;ac++){
     for(int ws=0;ws<2;ws++){
+      BlankStationMap(tgceffmap[ac][ws]);  
+      if(ws==1) BlankStripStationMap(tgceffmap[ac][ws]);
+      for(int bc=0; bc<2; bc++){
+        BlankStationMap(tgceffmapbc[ac][ws][bc]);
+        BlankStationMap(tgceffmapnumbc[ac][ws][bc]);                                                                                                     
+        if(ws==1){
+          BlankStripStationMap(tgceffmapbc[ac][ws][bc]);
+          BlankStripStationMap(tgceffmapnumbc[ac][ws][bc]);
+        }
+      }
       for(int sec=1;sec<=12;sec++){
         for(int phi=0;phi<=3;phi+=4){
           ss.str(""); ss << side[ac];
@@ -423,6 +433,9 @@ TgcRawDataValAlg::fillEfficiency(){
   vector<double> LptEta[2][2];//[ws][ac]        Eta associated lpt
   vector<double> LptPhi[2][2];//[ws][ac]        Phi associated lpt
 
+  vector<double> EIFIEta[2][2];//[ws][ac]        Eta associated lpt
+  vector<double> EIFIPhi[2][2];//[ws][ac]        Phi associated lpt
+
   //vector<double> MDTSegmentEta[2][3];//[ac][IMO]
   //vector<double> CSCSegmentEta[2][3];//[ac][IMO]
 
@@ -465,6 +478,22 @@ TgcRawDataValAlg::fillEfficiency(){
         LptPhi[ws][ac].push_back(channelPos.phi());
       }
 
+      if( tcd->type() == Muon::TgcCoinData::TYPE_TRACKLET_EIFI ){
+        // Get Side and Wire/Strip indexes
+        int ac=(tcd->isAside()==false);//isNotAside   a:0, c:1
+        int ws=(tcd->isStrip());       //isStrip      w:0, s:1
+        
+        // Get channel position
+        Identifier id = tcd->channelIdIn();
+        const MuonGM::TgcReadoutElement*  pReadoutElementTGC = m_muonMgr->getTgcReadoutElement(id);
+        const Amg::Vector3D channelPos = pReadoutElementTGC->channelPos(id); //global position 
+        
+        // Add position information to vectors
+        EIFIEta[ws][ac].push_back(channelPos.eta());
+        EIFIPhi[ws][ac].push_back(channelPos.phi());
+      }
+
+
     }//collection
   }//container
   
@@ -474,6 +503,10 @@ TgcRawDataValAlg::fillEfficiency(){
     int nLpT[2]; //[ws]
     nLpT[WIRE] = LptEta[WIRE][ac].size();
     nLpT[STRP] = LptEta[STRP][ac].size();
+
+    int nEIFI[2]; //[ws]
+    nEIFI[WIRE] = EIFIEta[WIRE][ac].size();
+    nEIFI[STRP] = EIFIEta[STRP][ac].size();
 
     for(int eta=0;eta<6;eta++){
       for(int phi48=0;phi48<48;phi48++){
@@ -647,6 +680,47 @@ TgcRawDataValAlg::fillEfficiency(){
             calculateEfficiency(ac, STRP, eta, phi48, layer);
           }
         }
+
+        ///////////////////////////////////////////////////////////////////////////
+        // Check EIFI Doublet
+        /////////////////////////////////////
+        for(int layer=7;layer<9;layer++){// layer= layer being checked for Efficiency
+          bool canCheck = true;
+          
+          // Check all adjacent layers verify a hit
+          for(int refLayer=7;refLayer<9;refLayer++){if(layer==refLayer) continue;// refLayer= adjacent layer
+            // Check that both Wire and Strip channels were found and are not edge hits
+            if(chIds[WIRE][refLayer]<0||edgehit[WIRE][refLayer]){canCheck=false;break;}
+            if(chIds[STRP][refLayer]<0||edgehit[STRP][refLayer]){canCheck=false;break;}
+          }
+          if(!canCheck) continue;
+          // Check LpT for match with current hits
+          bool EIFImatch[2] = {false,false};//[ws] Flags for LpT match found
+          int  refLayerEIFI;
+ 	  if(layer==7) refLayerEIFI = 8;
+          else if(layer==8) refLayerEIFI = 7;
+	  else break;
+          
+          // Loop over EIFI trigger 
+          for(int wsEIFI=0;wsEIFI<2;wsEIFI++){
+            for(int i=0;i<nEIFI[wsEIFI];i++){
+              // Flag wire if LpT matches layer 2&3 hits
+              if((fabs(chEtas[WIRE][refLayerEIFI]-EIFIEta[wsEIFI][ac][i]) <deta[WIRE][wsEIFI])&&
+                 (fabs(chPhis[WIRE][refLayerEIFI]-EIFIPhi[wsEIFI][ac][i]) <dphi[WIRE][wsEIFI])&&
+                 (fabs(chEtas[STRP][refLayerEIFI]-EIFIEta[wsEIFI][ac][i]) <deta[STRP][wsEIFI])&&
+                 (fabs(chPhis[STRP][refLayerEIFI]-EIFIPhi[wsEIFI][ac][i]) <dphi[STRP][wsEIFI])){
+                EIFImatch[wsEIFI]=true;
+                break;
+              }
+            }
+          }
+
+	  if(EIFImatch[WIRE] && EIFImatch[STRP]) {
+            // If all necessary PRD exists and lines up, calculate wire and strip efficiency
+            calculateEfficiency(ac, WIRE, eta, phi48, layer);
+            calculateEfficiency(ac, STRP, eta, phi48, layer);
+          }
+        }
         
       }//phi
     }//eta
@@ -708,8 +782,8 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
     if(compareID(prdChannel, referenceChannel, dmin, dmax)){
       if(m_debuglevel)m_log<<MSG::DEBUG<<"calculate efficiency current layer"<<layer+1 << " eta" << eta << " phi" << phi48 << " fire" <<std::endl;
       tgceffmapnum[ac][ws]->Fill(binx, biny);
+      tgceffnum[ac]->Fill(layerws);//fill numerator
       if(!isEIFI){
-        tgceffnum[ac]->Fill(layerws);//fill numerator
         tgceffsectornum[ac][ws]->Fill(sectorlayer);//fill numerator
       }
       return;
@@ -726,9 +800,9 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
     int dmax       = m_dchmax[layer][refLayer][ws][ac] + dch_extra;
     if(compareID(prdChannel, referenceChannel, dmin, dmax)){
       if(m_debuglevel)m_log<<MSG::DEBUG<<"calculate efficiency previous layer"<<layer+1 << " eta" << eta << " phi" << phi48 << " fire" <<std::endl;
-      if(!isEIFI){
+      //if(!isEIFI){
         tgceffmapnumbc[ac][ws][PREV]->Fill(binx, biny);
-      }
+      //}
       break;
     }
   }
@@ -743,9 +817,9 @@ TgcRawDataValAlg::calculateEfficiency(int ac, int ws, int eta, int phi48, int la
     int dmax       = m_dchmax[layer][refLayer][ws][ac] + dch_extra;
     if(compareID(prdChannel, referenceChannel, dmin, dmax)){
       if(m_debuglevel)m_log<<MSG::DEBUG<<"calculate efficiency next layer"<<layer+1 << " eta" << eta << " phi" << phi48 << " fire" <<std::endl;
-      if(!isEIFI){
+      //if(!isEIFI){
         tgceffmapnumbc[ac][ws][NEXT-1]->Fill(binx, biny); // only prev/next defined, array index should be 1 for NEXT PRD
-      }
+      //}
       break;
     }
   }

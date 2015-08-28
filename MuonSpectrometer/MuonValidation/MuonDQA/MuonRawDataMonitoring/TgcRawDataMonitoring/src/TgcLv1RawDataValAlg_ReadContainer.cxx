@@ -155,6 +155,9 @@ TgcLv1RawDataValAlg::readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* 
         //int sector = phi2sector(phi48,ef);
         int pt = tcd->pt();
         Amg::Vector3D gposout = tcd->globalposOut(); 
+	double eta, phi;
+	if(gposout[0]==0) { eta = 0; phi = 0;} 
+	else { eta = gposout.eta();  phi = gposout.phi(); } 
 
         const Identifier tcdidout = tcd->channelIdOut();
         int etaout = abs(int(m_tgcIdHelper->stationEta(tcdidout)));
@@ -178,8 +181,8 @@ TgcLv1RawDataValAlg::readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* 
           m_lpt_delta[ws][pcn].push_back( tcd->delta() );
           m_lpt_tid[ws][pcn].push_back( tcd->trackletId() );
           m_lpt_sub[ws][pcn].push_back( tcd->sub() );
-          m_lpt_eta[ws][pcn].push_back( gposout.eta() );
-          m_lpt_phi[ws][pcn].push_back( gposout.phi() );
+          m_lpt_eta[ws][pcn].push_back( eta );
+          m_lpt_phi[ws][pcn].push_back( phi );
           m_lpt_etain[ws][pcn].push_back( etain );
           m_lpt_etaout[ws][pcn].push_back( etaout );
           m_lpt_phi48[ws][pcn].push_back( tcd->phi() -1 );
@@ -200,8 +203,8 @@ TgcLv1RawDataValAlg::readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* 
           m_hpt_delta[ws][pcn].push_back( tcd->delta() );
           m_hpt_tid[ws][pcn].push_back( tcd->trackletId() );
           m_hpt_sub[ws][pcn].push_back( tcd->sub() );
-          m_hpt_eta[ws][pcn].push_back( gposout.eta() );
-          m_hpt_phi[ws][pcn].push_back( gposout.phi() );
+          m_hpt_eta[ws][pcn].push_back( eta );
+          m_hpt_phi[ws][pcn].push_back( phi );
           m_hpt_etain[ws][pcn].push_back( etain );
           m_hpt_etaout[ws][pcn].push_back( etaout );
           m_hpt_phi48[ws][pcn].push_back( tcd->phi() -1 );
@@ -229,8 +232,8 @@ TgcLv1RawDataValAlg::readTgcCoinDataContainer(const Muon::TgcCoinDataContainer* 
           
           //for turn on curves and timing
           m_sl_pt[pcn].push_back(pt);
-          m_sl_eta[pcn].push_back( gposout.eta() );
-          m_sl_phi[pcn].push_back( gposout.phi() );
+          m_sl_eta[pcn].push_back( eta );
+          m_sl_phi[pcn].push_back( phi );
           m_sl_tidw[pcn].push_back( tcd->trackletId() );
           m_sl_tids[pcn].push_back( tcd->trackletIdStrip() );
           m_sl_roi[pcn].push_back( roi );
