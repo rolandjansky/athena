@@ -5,6 +5,8 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment(
  
     from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
     from AthenaMonitoring.DQMonFlags import DQMonFlags
+
+    import TrigEgammaMonitoring.TrigEgammaMonitCategory as egammaConf
  
     try:
 
@@ -83,14 +85,34 @@ if DQMonFlags.monManEnvironment() == 'tier0ESD' or DQMonFlags.monManEnvironment(
         MyTrigDecisionTool = ""
 
         if (MyDoTrigger):
-            photonTrigItems = ["HLT_g35_loose_g25_loose"]
-            electronTrigItems = ["HLT_e24_medium_L1EM18VH"]
-            mySingleElectronTrigger = ["HLT_e24_medium_L1EM18VH"] 
-            myDiElectronTrigger = ["HLT_2e12_loose","HLT_e24_lhtight_L1EM20VH_e15_etcut_Zee"] 
-            JpsiTrigItems = ["HLT_e5_lhtight_e4_etcut_Jpsiee"] 
-            FrwdETrigItems = ["HLT_e24_medium_L1EM18VH"]
-            ZeeTrigItems = ["HLT_e24_lhtight_L1EM20VH_e15_etcut_Zee", "HLT_2e12_loose"]
+
+#            photonTrigItems = ["HLT_g35_loose_g25_loose"]
+#            electronTrigItems = ["HLT_e24_medium_L1EM18VH"]
+#            mySingleElectronTrigger = ["HLT_e24_medium_L1EM18VH"] 
+#            myDiElectronTrigger = ["HLT_2e12_loose","HLT_e24_lhtight_L1EM20VH_e15_etcut_Zee"] 
+#            JpsiTrigItems = ["HLT_e5_lhtight_e4_etcut_Jpsiee"] 
+#            FrwdETrigItems = ["HLT_e24_medium_L1EM18VH"]
+#            ZeeTrigItems = ["HLT_e24_lhtight_L1EM20VH_e15_etcut_Zee", "HLT_2e12_loose"]
+
+            photonTrigItems += egammaConf.primary_double_pho
+            mySingleElectronTrigger += egammaConf.primary_single_ele
+            myDiElectronTrigger += egammaConf.primary_double_ele
+            JPsiTrigItems += egammaConf.monitoring_Jpsiee
+            FrwdETrigItems += egammaConf.primary_single_ele
+            ZeeTrigItems += egammaConf.monitoring_Zee 
+
             MyTrigDecisionTool = "Trig::TrigDecisionTool/TrigDecisionTool"
+            
+#            print "---------------"
+#            print "--------------- Config Trigger EGamma Monitoring"
+#            print "---------------"
+#            print photonTrigItems
+#            print mySingleElectronTrigger
+#            print myDiElectronTrigger
+#            print JPsiTrigItems
+#            print FrwdETrigItems
+#            print ZeeTrigItems
+#            print "---------------"
 
         if(egammaMonitorPhotons):
             from egammaPerformance.egammaPerformanceConf import photonMonTool

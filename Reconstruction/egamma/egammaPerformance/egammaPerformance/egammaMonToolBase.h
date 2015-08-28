@@ -14,9 +14,11 @@
 #include <vector>
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TString.h"
 
 class TH1;
 class TH2;
+class TString;
 class TProfile;
 class StoreGateSvc;
 
@@ -57,8 +59,9 @@ class egammaMonToolBase : public ManagedMonitorToolBase
   ToolHandle<Trig::TrigDecisionTool> m_trigdec; // Trigger Decision Tool Handle
   bool m_UseTrigger; // Use Trigger ?
 
- private:
+  unsigned int  m_currentLB;
 
+ private:
   std::vector<std::string> m_region;
 };
 
