@@ -6,7 +6,6 @@
 #include "TrigConfStorage/TrigConfCoolFolderSpec.h"
 #include "TrigConfStorage/TrigConfCoolHLTPayloadConverters.h"
 #include "TrigConfStorage/TrigConfCoolL1PayloadConverters.h"
-#include "TrigConfStorage/MCKLoader.h"
 
 #include "TrigConfL1Data/PrescaleSet.h"
 #include "TrigConfL1Data/BunchGroupSet.h"
@@ -422,34 +421,9 @@ TrigConf::TrigConfCoolWriter::writeHLTPayload( ValidityRange vr,
 }
 
 
-// ------------------------------------------------------------
-// writeMCKPayload()
-// ------------------------------------------------------------
-void
-TrigConf::TrigConfCoolWriter::writeMCKPayload(ValidityRange vr,
-                                              unsigned int mck,
-                                              std::string & release,
-                                              std::string & info)
-{
-    AutoDBOpen db(this, READ_WRITE);
-    TrigConfCoolFolderSpec::createFolderStructure(m_dbPtr); // just in case
-    
-    // writing monitoring configuration key
-    if( shouldFolderBeUpdated("/TRIGGER/HLT/MenuAwareMonConfigKey") ) {
-        rangeInfo("Monitoring configuration key", vr.since(), vr.until());
-        try {
-            IFolderPtr monconfkeyFolder = TrigConfCoolFolderSpec::getMonConfKeyFolder(m_dbPtr);
-            Record     payload = createMonConfigKeyPayload(monconfkeyFolder, mck, info);
-            monconfkeyFolder->storeObject(vr.since(), vr.until(), payload, 0, "MenuAwareMonConfigKey-"+release); //tag
-            }
-        catch(exception & e) {
-            m_ostream << "<writeMCKPayload> caught and re-throw exception: " << e.what() << endl
-            << "WARNING: Failed to write monitoring configuration key (MCK) to COOL" << endl;
-            throw;
-        }
-    }
 
-}
+
+
 
 
 // ------------------------------------------------------------
@@ -1348,7 +1322,6 @@ TrigConfCoolWriter::readL1InputMapPayload( unsigned int run,
             foundTip[tipNumber] = true;
             pit->setPitNumber(tipNumber);
             tip->setTipNumber(tipNumber);
-            tip->setClock(tipNumber%2);
             pits.push_back(pit);
             tips.push_back(tip);
          }
@@ -1661,14 +1634,11 @@ TrigConfCoolWriter::readL1PrescalePayload( unsigned int run, unsigned int lb,
    bool isRun2 = ( nPrescales == 512 );
    prescale.resize( nPrescales );
 
-   for(cool::ChannelId channel = 0; channel < nPrescales; channel++) {
-
+   for(cool::ChannelId channel = 0; channel<prescale.prescales().size(); channel++) {
       objects = lvl1PsFolder->browseObjects( vr.since(), vr.until(), channel );
-
       if(objects->size()!=1) { 
          throw std::runtime_error("Lvl1 prescale access error: found empty prescale channel ");
       }
-
       objects->goToNext();
       const IObject& obj = objects->currentRef();
       const IRecord & payload = obj.payload();
@@ -1677,7 +1647,7 @@ TrigConfCoolWriter::readL1PrescalePayload( unsigned int run, unsigned int lb,
       if( isRun2 ) {
          prescale.setCut( channel, prescaleVal );
       } else {
-         prescale.setPrescale( channel, (float)prescaleVal );
+         prescale.setPrescale( channel, prescaleVal );
       }
    }
    prescale.setId( lvl1PrescaleKey );
@@ -1691,31 +1661,11 @@ TrigConf::TrigConfCoolWriter::HLTPrescaleFolderExists() {
 }
 
 
-/*------------------------------------------------------------
-   Shows status of all folders for a certain run
-   (starting at lb)
-  
-   displayMode : 0 - no indicator index
-                 1 - indicator index in front of empty 
-                     folders
-                 2 - indicator index in front of empty 
-                     and multiversion folders
- *-----------------------------------------------------------*/
-
 vector<string>
-TrigConf::TrigConfCoolWriter::checkPayloadSize(unsigned int run, unsigned int lb, int displayMode, bool openend, unsigned int lbend) {
+TrigConf::TrigConfCoolWriter::checkPayloadSize(unsigned int run, unsigned int lb) {
    AutoDBOpen db(this, READ_ONLY);
 
-
-   ValidityRange vr(run);
-   
-   if(openend) {
-       vr = ValidityRange(run, lb);
-   } else {
-       ValidityKey since(run); since <<= 32; since += lb;
-       ValidityKey until(run); until <<= 32; until += lbend+1;
-       vr = ValidityRange(since, until);
-   }
+   ValidityRange vr(run, lb); // 
    m_ostream << "Checking for run " << run << " and lb range " << (vr.since() & 0xFFFFFFFF) << " - " << ( (vr.until()-1) & 0xFFFFFFFF) << endl
              << endl
              << "    Folder                                     Payload Size" << endl
@@ -1746,15 +1696,11 @@ TrigConf::TrigConfCoolWriter::checkPayloadSize(unsigned int run, unsigned int lb
       bool isSingleVersion = folder->versioningMode()==FolderVersioning::SINGLE_VERSION;
       bool needsFixing = (size == 0);
 
-      bool displayFixing = false;
-      if(displayMode==1) { // only allow fixing of folders that are empty
-         displayFixing = (size == 0);
-      } else if(displayMode==2) { // allow fixing of folders that are empty or mv
-         displayFixing = (size == 0) || !isSingleVersion;
-      }
+      if(folderName=="/TRIGGER/LVL1/Thresholds" && size==2)
+         needsFixing = true;
 
       string fn = folderName + (isSingleVersion ? " (sv)" : " (mv)");
-      if(displayFixing) {
+      if(needsFixing) {
          m_ostream << setw(2) << foldersToFix.size()+1 << ") ";
          foldersToFix.push_back(folderName);
       } else {

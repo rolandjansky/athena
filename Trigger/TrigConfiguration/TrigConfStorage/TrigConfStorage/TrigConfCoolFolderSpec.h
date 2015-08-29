@@ -140,11 +140,7 @@ namespace TrigConf {
       // /TRIGGER/HLT/HltConfigKeys
       static cool::IFolderPtr getHltConfKeyFolder(cool::IDatabasePtr db);
 
-       
-      // /TRIGGER/HLT/MenuAwareMonConfigKey
-      static cool::IFolderPtr getMonConfKeyFolder(cool::IDatabasePtr db);
 
-       
       // /TRIGGER/HLT/Prescales
       static cool::IFolderPtr getHltPrescalesFolder(cool::IDatabasePtr db);
 

@@ -55,16 +55,6 @@ namespace TrigConf {
                                                unsigned int hltPrescaleKey, const std::string& configSource );
 
 
-       /**@brief build a COOL db record from a HLT monitoring configuration key
-        *
-        * @param MCK the monitoring configuration key
-        * @param configSource the source of configuration information (DB
-        * connection string or XML file name)
-        *
-        * @returns a COOL db record
-        */
-       cool::Record createMonConfigKeyPayload(cool::IFolderPtr fld, uint MCK, std::string& info );     
-      
       /**@brief build a COOL db record from a HLT prescale value
        *
        * @param prescale the prescale value

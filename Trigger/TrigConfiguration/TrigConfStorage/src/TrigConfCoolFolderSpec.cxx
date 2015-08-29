@@ -553,10 +553,6 @@ IFolderPtr TrigConfCoolFolderSpec::getHltConfKeyFolder(IDatabasePtr db) {
    return db->getFolder( "/TRIGGER/HLT/HltConfigKeys" );
 }
 
-IFolderPtr TrigConfCoolFolderSpec::getMonConfKeyFolder(IDatabasePtr db) {
-   return db->getFolder( "/TRIGGER/HLT/MenuAwareMonConfigKey" );
-}
-
 IFolderPtr TrigConfCoolFolderSpec::getHltPrescalesFolder(IDatabasePtr db) {
    return db->getFolder( "/TRIGGER/HLT/Prescales" );
 }

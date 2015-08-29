@@ -65,17 +65,15 @@ void printhelp(std::ostream & o, std::ostream& (*lineend) ( std::ostream& os )) 
   o << "[Global options]\n";
   o << "  -c|--cooldb       <cooldb>                    ... cool database and run number (default is COOLONL_TRIGGER/CONDBR2)\n";
   o << "                                                    e.g. COOLONL_TRIGGER/CONDBR2 or testcool.db \n";
-  o << "  -r|--run          <run> [<lb>] [<lbend>]      ... run number (mandatory) and optionally lb (range)\n";
+  o << "  -r|--run          <run> [<lb>]                ... run number (mandatory) and lb\n";
   o << "\n";
   o << "     --triggerdb    <triggerdb>                 ... trigger database as source of information (default is TRIGGERDBR2)\n";
   o << "     --smk          <smk>                       ... SMK to load to cool (specify when needed)\n";
   o << "     --bgsk         <bgsk>                      ... Bunchgroupset key to load to cool (specify when needed)\n";
   o << "     --l1psk        <l1psk>                     ... L1PSK to load to cool (specify when needed)\n";
-  o << "     --hltpsk       <int>                       ... hltpsk to load to cool (specify when needed)\n";
-  o << "     --release      <string>                    ... release, e.g. 20.2.3.1 (specify when configkeys is to be uploaded)\n";
+  o << "     --hltpsk       <hltpsk>                    ... hltpsk to load to cool (specify when needed)\n";
   o << "\n";
   o << "  -f|--fix                                      ... when specified it fixes the database. Only run after a test without it\n";
-  o << "  -e|--extended                                 ... allows fixing of any multiversion folder\n";
   o << "\n";
   o << "  -v|--loglevel     <level>                     ... log level [NIL, VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL, ALWAYS]\n";
   o << "  -p|--print        <detail>                    ... print configuration with detail 0...5 (default 1)\n";
@@ -95,18 +93,14 @@ public:
    string       cooldb{"COOLONL_TRIGGER/CONDBR2"};
    unsigned int run {0};
    unsigned int lb {0};
-   unsigned int lbend {0};
-   bool openended {true};
    // fix the database
    bool         fix {false};
-   bool         extendedSelection {false}; // if true also allows fixing of MV folders
    // trigger db
    string      triggerdb {"TRIGGERDBR2"};
    int         smk {0};
    int         bgsk {0};
    int         l1psk {0};
    int         hltpsk {0};
-   string      release {""};
    // other
    bool         help {false};
    int          printlevel {-1};
@@ -126,7 +120,6 @@ int
 JobConfig::parseProgramOptions(int argc, char* argv[]) {
    std::string currentPar("");
    std::string listofUnknownParameters = "";
-   uint runargpos(0);
    for(int i=1; i<argc; i++) {
       string currInput(argv[i]);
       int fchar = currInput.find_first_not_of('-');
@@ -139,9 +132,7 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
                 stripped == "l" || stripped == "log" ||
                 stripped == "p" || stripped == "print" ||
                 stripped == "f" || stripped == "fix" ||
-                stripped == "e" || stripped == "extended" ||
                 stripped == "triggerdb" ||
-                stripped == "release" ||
                 stripped == "h" || stripped == "help" ||
                 stripped == "v" || stripped == "loglevel") ) {
             listofUnknownParameters += " " + currInput;
@@ -152,29 +143,18 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
          currentPar = "";
          if(stripped == "h" || stripped == "help" )        { help = true; continue; }
          if(stripped == "f" || stripped == "fix")          { fix = true; continue; }
-         if(stripped == "e" || stripped == "extended")     { extendedSelection = true; continue; }
          currentPar = stripped;
       } else {
          if(currentPar == "c" || currentPar == "cooldb")   { cooldb = stripped; currentPar=""; continue; }
-         if(currentPar == "r" || currentPar == "run")      {
-            unsigned int val = boost::lexical_cast<unsigned int,string>(stripped);
-            switch(runargpos) {
-            case 0:
-               run = val;
-               break;
-            case 1:
-               lb = val;
-               break;
-            case 2:
-               lbend = val;
-               openended = false;
-               break;
-            }
-            runargpos++;
+         if(currentPar == "r" || currentPar == "run")      { 
+            if(run==0) {
+               run = boost::lexical_cast<int,string>(stripped); 
+            } else {
+               lb = boost::lexical_cast<int,string>(stripped); 
+            }               
             continue;
          }
          if(currentPar == "triggerdb")                     { triggerdb = stripped; continue; }
-         if(currentPar == "release")                       { release = stripped; continue; }
          if(currentPar == "p" || currentPar == "print")    { printlevel = boost::lexical_cast<int,string>(stripped); currentPar=""; continue; }
          if(currentPar == "v" || currentPar == "loglevel") {
             if("NIL" == stripped ) { outputlevel = MSGTC::NIL; }
@@ -236,8 +216,6 @@ JobConfig::PrintSetup() {
    cout << "========================================" << endl;
    cout << "JOB SETUP: " << endl;
    cout << "----------" << endl;
-   cout << "   Run                 : " << run << endl;
-   cout << "   LB                  : " << lb << " - " << lbend << endl;
    cout << "   Cool DB             : " << coolConnection << endl;
    cout << "   Trigger database    : " << triggerdb << endl;
    cout << "   Fix flag            : " << (fix ? "yes" : "no") << endl;
@@ -248,17 +226,21 @@ JobConfig::PrintSetup() {
 
 }
 
-template<typename T>
-void
-readKeyFromPrompt( const std::string & prompt, T & key) {
+
+unsigned int
+readKeyFromPrompt( const std::string & prompt ) {
    string input("");
-   cout << prompt; cin >> input;
-   try {
-      key = boost::lexical_cast<T, string>(input);
+   unsigned int key(0);
+   while(key==0) {
+      cout << prompt; cin >> input;
+      try {
+         key = boost::lexical_cast<unsigned int, string>(input);
+      }
+      catch(...) {
+         cout << input << " is not a valid key" << endl;
+      }
    }
-   catch(...) {
-      cout << input << " is not a valid input" << endl;
-   }
+   return key;
 }
 
 
@@ -277,35 +259,26 @@ int main( int argc, char* argv[] ) {
   
    gConfig.PrintSetup();
    
-   /*----------------------------
-    *
+
+   /*------------------
     * Read information from COOL
-    * and display it
-    *
-    *---------------------------*/
+    *-----------------*/
 
-   TrigConfCoolWriter * coolReader = new TrigConfCoolWriter( gConfig.coolConnection );
+   TrigConfCoolWriter * coolWriter = new TrigConfCoolWriter( gConfig.coolConnection );
 
-   int displayMode = gConfig.fix ? ( gConfig.extendedSelection ? 2 : 1 ) : 0;
+   vector<string> fixableFolders = coolWriter->checkPayloadSize( gConfig.run, gConfig.lb );
 
-   vector<string> fixableFolders = coolReader->checkPayloadSize( gConfig.run, gConfig.lb, displayMode, gConfig.openended, gConfig.lbend );
+   delete coolWriter;
 
-   if( ! gConfig.fix ) {
-      delete coolReader;
+   if( ! gConfig.fix )
       return 0;
-   }
+
 
    if(fixableFolders.size()==0) {
       cout << endl << "All folders are properly filled. Exiting ..." << endl;
       return 0; // exit the program
    }
 
-   /*----------------------------
-    *
-    * Select which folders should
-    * be fixed
-    *
-    *---------------------------*/
 
    set<unsigned int> selectForFixing;
 
@@ -322,7 +295,6 @@ int main( int argc, char* argv[] ) {
          }
       }
       cout << endl << "   a  ...  select/deselect all" << endl;
-      cout << endl << "   e  ...  " << (gConfig.extendedSelection ? "disallow" : "allow") << " multiversion folder selection (clears selection)" << endl;
       cout << endl << "   f  ...  fix now" << endl;
       cout << endl << endl << "Select/deselect folder to fix or other option : "; cin >> selection;
 
@@ -336,14 +308,6 @@ int main( int argc, char* argv[] ) {
                for(unsigned int selInd = 0; selInd<fixableFolders.size();selInd++)
                   selectForFixing.insert(selInd);
             }
-         } else if(selection=="e") {
-            
-            gConfig.extendedSelection = !gConfig.extendedSelection;
-
-            fixableFolders = coolReader->checkPayloadSize( gConfig.run, gConfig.lb, gConfig.extendedSelection ? 2 : 1, gConfig.openended, gConfig.lbend );
-
-            selectForFixing.clear();
-            
          } else {
             unsigned int selInd = boost::lexical_cast<unsigned int,string>(selection) - 1;
             if(selectForFixing.count(selInd)) {
@@ -354,10 +318,7 @@ int main( int argc, char* argv[] ) {
          }
       }
       catch(...){}
-
    }
-
-   delete coolReader;
 
 
    if(selection=="0") {
@@ -384,7 +345,7 @@ int main( int argc, char* argv[] ) {
 
 
    // check which information we need from the database
-   bool loadL1(false), loadHLT(false), loadBGSK(false), loadL1PSK(false), loadHLTPSK(false), saveConfigSource(false);
+   bool loadL1(false), loadHLT(false), loadBGSK(false), loadL1PSK(false), loadHLTPSK(false);
    for(const string & folderToFix : foldersToFix) {
 
       loadL1 |=
@@ -411,34 +372,25 @@ int main( int argc, char* argv[] ) {
       loadHLTPSK |=
          ( folderToFix == "/TRIGGER/HLT/PrescaleKey") ||
          ( folderToFix == "/TRIGGER/HLT/Prescales");
-
-      saveConfigSource |=
-         ( folderToFix == "/TRIGGER/HLT/HltConfigKeys");
    }
 
 
    
    if( (loadL1 || loadHLT) && gConfig.smk==0)
-      readKeyFromPrompt("Please specify Supermaster key : ", gConfig.smk);
+      gConfig.smk = readKeyFromPrompt("Please specify Supermaster key : ");
 
    if( loadBGSK && gConfig.bgsk==0)
-      readKeyFromPrompt("Please specify Bunchgroupset key : ", gConfig.bgsk );
+      gConfig.bgsk = readKeyFromPrompt("Please specify Bunchgroupset key : ");
 
    if( loadL1PSK && gConfig.l1psk==0)
-      readKeyFromPrompt("Please specify L1 Prescaleset key : ", gConfig.l1psk );
+      gConfig.l1psk = readKeyFromPrompt("Please specify L1 Prescaleset key : ");
    
-   if( loadHLTPSK && gConfig.hltpsk==0) {
-      string prompt = "Please specify HLT Prescaleset key";
-      if(gConfig.openended) {
-          prompt += " (starting at LB " + lexical_cast<string,int>(gConfig.lb) + "): ";
-      } else {
-          prompt += " (for LB " + lexical_cast<string,int>(gConfig.lb) + " - " + std::to_string(gConfig.lbend) + "): ";
-      }
-      readKeyFromPrompt( prompt, gConfig.hltpsk );
-   }
+   if( loadHLTPSK && gConfig.hltpsk==0)
+      gConfig.hltpsk = readKeyFromPrompt("Please specify HLT Prescaleset key : ");
 
-   if( saveConfigSource && gConfig.release=="")
-      readKeyFromPrompt("Please specify the HLT release : ", gConfig.release );
+
+
+
 
 
    CTPConfig * ctpConfig(0);
@@ -480,21 +432,9 @@ int main( int argc, char* argv[] ) {
       }
 
       if( loadL1PSK ) {
-         cout << endl << endl << "Retrieving L1 prescales" << endl;
-         l1pss = new PrescaleSet();
-         l1pss->setId(gConfig.l1psk);
-         sm->prescaleSetLoader().load(*l1pss);
-         if( gConfig.printlevel>=0)
-            l1pss->print("  ",gConfig.printlevel);
       }
    
       if( loadHLTPSK ) {
-         cout << endl << endl << "Retrieving HLT prescales" << endl;
-         hltpss = new HLTPrescaleSet();
-         hltpss->setId(gConfig.hltpsk);
-         sm->hltPrescaleSetLoader().load(*hltpss);
-         if( gConfig.printlevel>=0)
-            hltpss->print("  ",gConfig.printlevel);
       }
    }
    
@@ -505,137 +445,94 @@ int main( int argc, char* argv[] ) {
     *
     *******************************************************************************/
 
-   cout << "Writing cool to destination " << gConfig.coolConnection << endl;
-   TrigConfCoolWriter * coolWriter = new TrigConfCoolWriter( gConfig.coolConnection );
+   for(const string & folderToFix : foldersToFix) {
 
-   ValidityRange vr(gConfig.run);
+      cout << "Writing cool to destination " << gConfig.coolConnection << endl;
+      TrigConfCoolWriter * coolWriter = new TrigConfCoolWriter( gConfig.coolConnection );
 
-   if(gConfig.openended) {
-       vr = ValidityRange(gConfig.run, gConfig.lb);
-   } else {
-       cool::ValidityKey since(gConfig.run); since <<= 32; since += gConfig.lb;
-       cool::ValidityKey until(gConfig.run); until <<= 32; until += gConfig.lbend+1;
-       vr = ValidityRange(since, until);
-   }
-
-
-   /**
-    *  BGSK
-    */
-   {
-
-      bool doWrite(false);
-      for(const string & folderToFix : foldersToFix) {
-         if( folderToFix == "/TRIGGER/LVL1/BunchGroupKey" ||
-             folderToFix == "/TRIGGER/LVL1/BunchGroupContent") {
-            coolWriter->addWriteFolder( folderToFix );
-            doWrite = true;
-         }
-      }
-      if(loadBGSK && doWrite) {
-         coolWriter->writeL1BunchGroupLBPayload( vr, bgs->id(), *bgs);
-      }
-      coolWriter->clearWriteFolder();
-
-      for(const string & folderToFix : foldersToFix) {
-         if( folderToFix == "/TRIGGER/LVL1/BunchGroupDescription") {
-            if(ctpConfig && bgs) {
-               coolWriter->writeL1BunchGroupRunPayload( vr,
-                                                        ctpConfig->menu(),
-                                                        *bgs);
-            }
+      /**
+       *  L1
+       */
+      if( folderToFix == "/TRIGGER/LVL1/Menu" ) {
+         if(ctpConfig) {
+            coolWriter->addWriteFolder("/TRIGGER/LVL1/Menu");         
+            coolWriter->writeL1MenuPayload( ValidityRange(gConfig.run), ctpConfig->menu());
+            coolWriter->clearWriteFolder();
          }
       }
 
-   }
-
-   /**
-    *  L1PSK
-    */
-   {
-
-      bool doWrite(false);
-      for(const string & folderToFix : foldersToFix) {
-         if( folderToFix == "/TRIGGER/LVL1/Lvl1ConfigKey" ||
-             folderToFix == "/TRIGGER/LVL1/Prescales") {
-            coolWriter->addWriteFolder( folderToFix );
-            doWrite = true;
-         }
-      }
-      if(loadL1PSK && doWrite) {
-         coolWriter->writeL1PrescalePayload( vr.since(), vr.until(), l1pss->id() , *l1pss);
-      }
-      coolWriter->clearWriteFolder();
-
-
-   }
-
-
-
-   /**
-    *  HLT prescales
-    */
-   {
-
-      bool doWrite(false);
-      for(const string & folderToFix : foldersToFix) {
-         if( folderToFix == "/TRIGGER/HLT/PrescaleKey" ||
-             folderToFix == "/TRIGGER/HLT/Prescales") {
-            coolWriter->addWriteFolder( folderToFix );
-            doWrite = true;
-         }
-      }
-      if(hltpss && doWrite) {
-         coolWriter->writeHltPrescalePayload( vr.since(), vr.until(), *hltpss);
-      }
-      coolWriter->clearWriteFolder();
-   }
-
-   
-   /**
-    *  L1
-    */
-   {
-      bool doWrite(false);
-      for(const string & folderToFix : foldersToFix) {
-         if( folderToFix == "/TRIGGER/LVL1/Menu" ||
-             folderToFix == "/TRIGGER/LVL1/ItemDef" ||
-             folderToFix == "/TRIGGER/LVL1/Thresholds" ||
-             folderToFix == "/TRIGGER/LVL1/CTPCoreInputMapping") {
-            coolWriter->addWriteFolder( folderToFix );
-            doWrite = true;
-         }
-      }
-      if(ctpConfig && doWrite) {
+      if( folderToFix == "/TRIGGER/LVL1/ItemDef") {
+         coolWriter->addWriteFolder("/TRIGGER/LVL1/ItemDef");
          coolWriter->writeL1MenuPayload( ValidityRange(gConfig.run), ctpConfig->menu());
+         coolWriter->clearWriteFolder();
       }
-      coolWriter->clearWriteFolder();
-   }
+
+      if( folderToFix == "/TRIGGER/LVL1/Thresholds") {
+         coolWriter->addWriteFolder("/TRIGGER/LVL1/Thresholds");
+         coolWriter->writeL1MenuPayload( ValidityRange(gConfig.run), ctpConfig->menu());
+         coolWriter->clearWriteFolder();
+      }
+
+      if( folderToFix == "/TRIGGER/LVL1/CTPCoreInputMapping") {
+         coolWriter->addWriteFolder("/TRIGGER/LVL1/CTPCoreInputMapping");
+         coolWriter->writeL1MenuPayload( ValidityRange(gConfig.run), ctpConfig->menu());
+         coolWriter->clearWriteFolder();
+      }
 
 
 
-   /**
-    *  HLT
-    */
-   {
-      bool doWrite(false);
-      for(const string & folderToFix : foldersToFix) {
-         if( folderToFix == "/TRIGGER/HLT/Menu" ||
-             folderToFix == "/TRIGGER/HLT/Groups" ||
-             folderToFix == "/TRIGGER/HLT/HltConfigKeys" ) {
-            coolWriter->addWriteFolder( folderToFix );
-            doWrite = true;
+
+
+      /**
+       *  HLT
+       */
+      if( folderToFix == "/TRIGGER/HLT/HltConfigKeys") {
+         cout << "Writing of COOL folder " << folderToFix << " not yet implemented" << endl;
+      }
+
+      if( folderToFix == "/TRIGGER/HLT/Menu")
+         cout << "Writing of COOL folder " << folderToFix << " not yet implemented" << endl;
+
+      if( folderToFix == "/TRIGGER/HLT/Groups")
+         cout << "Writing of COOL folder " << folderToFix << " not yet implemented" << endl;
+   
+
+      /**
+       *  BGSK
+       */
+      if( folderToFix == "/TRIGGER/LVL1/BunchGroupKey")
+         cout << "Writing of COOL folder " << folderToFix << " not yet implemented" << endl;
+
+      if( folderToFix == "/TRIGGER/LVL1/BunchGroupContent")
+         cout << "Writing of COOL folder " << folderToFix << " not yet implemented" << endl;
+
+      if( folderToFix == "/TRIGGER/LVL1/BunchGroupDescription") {
+         if(ctpConfig && bgs) {
+            coolWriter->writeL1BunchGroupRunPayload( ValidityRange(gConfig.run),
+                                                     ctpConfig->menu(),
+                                                     *bgs);
          }
       }
 
-      if(hltFrame && doWrite) {
-         string configSource = "TRIGGERDBR2," + gConfig.release + ",AtlasP1HLT";
+      /**
+       *  L1PSK
+       */
+      if( folderToFix == "/TRIGGER/LVL1/Lvl1ConfigKey")
+         cout << "Writing of COOL folder " << folderToFix << " not yet implemented" << endl;
 
-         coolWriter->writeHLTPayload( ValidityRange(gConfig.run), *hltFrame, configSource);
-      }
-      coolWriter->clearWriteFolder();
+      if( folderToFix == "/TRIGGER/LVL1/Prescales")
+         cout << "Writing of COOL folder " << folderToFix << " not yet implemented" << endl;
+   
+      /**
+       *  HLTPSK
+       */
+      if( folderToFix == "/TRIGGER/HLT/PrescaleKey")
+         cout << "Writing of COOL folder " << folderToFix << " not yet implemented" << endl;
+   
+      if( folderToFix == "/TRIGGER/HLT/Prescales")
+         cout << "Writing of COOL folder " << folderToFix << " not yet implemented" << endl;
+
    }
-
 
    delete ctpConfig;
    delete hltFrame;

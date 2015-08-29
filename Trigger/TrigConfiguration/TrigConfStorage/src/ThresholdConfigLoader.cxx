@@ -44,8 +44,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
 
    const unsigned int schema_version_with_zb_fields = 9;
 
-   TRG_MSG_DEBUG("Loading ThresholdConfig object attached to Lvl1 master ID " << thrConfig.lvl1MasterTableId());
-   TRG_MSG_DEBUG("Current number of thresholds: " << thrConfig.size());
+   TRG_MSG_VERBOSE("Loading ThresholdConfig object attached to Lvl1 master ID " << thrConfig.lvl1MasterTableId());
 
    long caloinfoid = 0;
 
@@ -74,7 +73,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
       coral::ICursor& cursor0 = query0->execute();
 
       if ( ! cursor0.next() ) {
-         TRG_MSG_ERROR("ThresholdConfigLoader >> No such Master_Table exists " << thrConfig.lvl1MasterTableId());
+         msg() << "ThresholdConfigLoader >> No such Master_Table exists " << thrConfig.lvl1MasterTableId() << std::endl;
          commitSession();
          throw std::runtime_error( "ThresholdConfigLoader >> ThresholdConfig not available" );
       }
@@ -85,11 +84,17 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
 
       if ( cursor0.next() ) {
 
-         TRG_MSG_ERROR("ThresholdConfigLoader >> More than one Master_Table exists " 
-                       << thrConfig.lvl1MasterTableId());
+         msg() << "ThresholdConfigLoader >> More than one Master_Table exists " 
+               << thrConfig.lvl1MasterTableId() << std::endl;
          commitSession();
          throw std::runtime_error( "ThresholdConfigLoader >>  Master_Table not available" );
       }
+
+
+
+
+
+
 
       //=====================================================
       // get Thresholds WITH trigger threshold values
@@ -122,9 +127,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
       attList.extend<std::string>( "TM2TT.L1TM2TT_CABLE_CONNECTOR" );
       attList.extend<int>        ( "TM2TT.L1TM2TT_CABLE_START"     );
       attList.extend<int>        ( "TM2TT.L1TM2TT_CABLE_END"       );
-      if(isRun2()) {
-          attList.extend<int>        ( "TM2TT.L1TM2TT_CABLE_CLOCK"     );
-      }
+      attList.extend<int>        ( "TM2TT.L1TM2TT_CABLE_CLOCK"     );
       attList.extend<int>        ( "TT.L1TT_ID"                    );
       attList.extend<std::string>( "TT.L1TT_NAME"                  );
       attList.extend<int>        ( "TT.L1TT_VERSION"               );
@@ -192,11 +195,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
             tt->setCableConnector(row["TM2TT.L1TM2TT_CABLE_CONNECTOR"].data<std::string>());
             tt->setCableStart    (row["TM2TT.L1TM2TT_CABLE_START"].data<int>());
             tt->setCableEnd      (row["TM2TT.L1TM2TT_CABLE_END"].data<int>());
-            
-            int clock = 0;
-            if(isRun2()) {
-                clock = row["TM2TT.L1TM2TT_CABLE_CLOCK"].data<int>();
-            }
+            int clock = row["TM2TT.L1TM2TT_CABLE_CLOCK"].data<int>();
             if(clock >= 0) {
                tt->setClock(clock);
             }
@@ -282,7 +281,8 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
             ttv->setWindow(row["TTV.L1TTV_WINDOW"].data<int>());
             tt->addThresholdValue(ttv);
             ++numberofvalues;
-            TRG_MSG_DEBUG("ThresholdConfigLoader loading thresholdvalue with ID = " << ttv->id() << ":  " << ttv->name());
+            if(verbose()>=2)
+               msg() << "ThresholdConfigLoader loading thresholdvalue with ID = " << ttv->id() << ":  " << ttv->name() << std::endl;
          }
 
          nRowsLoop2 = row["TT.L1TT_ID"].data<int>();
@@ -291,6 +291,17 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
 
       // trigger thresholds sorted by type
       thrConfig.addTriggerThreshold(tt);
+
+
+
+
+
+
+
+
+
+
+
 
       //===========================================
       // now get the Thresholds WITHOUT trigger threshold values
@@ -320,9 +331,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
       attList1.extend<std::string>( "TM2TT.L1TM2TT_CABLE_CONNECTOR" );
       attList1.extend<int>        ( "TM2TT.L1TM2TT_CABLE_START"     );
       attList1.extend<int>        ( "TM2TT.L1TM2TT_CABLE_END"       );
-      if(isRun2()) {
-          attList1.extend<int>        ( "TM2TT.L1TM2TT_CABLE_CLOCK"     );
-      }
+      attList1.extend<int>        ( "TM2TT.L1TM2TT_CABLE_CLOCK"     );
       attList1.extend<int>        ( "TT.L1TT_ID"                    );
       attList1.extend<std::string>( "TT.L1TT_NAME"                  );
       attList1.extend<int>        ( "TT.L1TT_VERSION"               );
@@ -383,10 +392,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
             tt->setCableStart    (row["TM2TT.L1TM2TT_CABLE_START"].data<int>());
             tt->setCableEnd      (row["TM2TT.L1TM2TT_CABLE_END"].data<int>());
 
-            int clock = 0;
-            if(isRun2()) {
-                clock = row["TM2TT.L1TM2TT_CABLE_CLOCK"].data<int>();
-            }
+            int clock = row["TM2TT.L1TM2TT_CABLE_CLOCK"].data<int>();
             if(clock >= 0) {
                tt->setClock(clock);
             }
