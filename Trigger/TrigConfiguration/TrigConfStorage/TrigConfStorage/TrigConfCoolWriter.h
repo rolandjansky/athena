@@ -21,6 +21,7 @@ namespace TrigConf {
    class CTPConfig;
    class Menu;
    class PIT;
+   class TIP;
    class CaloInfo;
    class HLTFrame;
    class PrescaleSet;
@@ -313,8 +314,9 @@ namespace TrigConf {
        * @param runNumber run number
        * @param pits Vector of PIT object to be filled
        */
-      void readL1InputMapPayload(unsigned int runNumber,
-                                 std::vector<TrigConf::PIT*>& pits);
+      void readL1InputMapPayload( unsigned int runNumber,
+                                  std::vector<TrigConf::PIT*>& pits,
+                                  std::vector<TrigConf::TIP*>& tips);
     
       /**@brief Read run-wise LVL1 monitoring configuration from COOL database
        *

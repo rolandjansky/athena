@@ -107,17 +107,25 @@ TrigConf::HLTChainLoader::loadChains( HLTChainList& chainlist ) {
       int version                          = row["TC.HTC_VERSION"].data<int>();  
       string name                          = rmtilde(row["TC.HTC_NAME"].data<string>());
       string lower_chain_name              = rmtilde(row["TC.HTC_LOWER_CHAIN_NAME"].data<string>());
+
+      // level
       string level = "HLT";
-      float rerunps = 0;
       if(isRun1()) {
-         level                             = rmtilde(row["TC.HTC_L2_OR_EF"].data<string>());
+         level = rmtilde(row["TC.HTC_L2_OR_EF"].data<string>());
          if(level=="HL") level="HLT";
-         string rerunps_s                     = rmtilde(row["TC.HTC_RERUN_PRESCALE"].data<string>());
-         rerunps = boost::lexical_cast<float,string>(rerunps_s);
       }
+
       HLTChain* ch = new HLTChain( name, counter, version, level, lower_chain_name, 0, std::vector<HLTSignature*>() );
-      if(rerunps>=0)
-         ch->set_rerun_prescale(rerunps);
+
+      // rerun ps from the chain table only in run 1
+      if(isRun1()) {
+         float rerunps = 0;
+         string rerunps_s = rmtilde(row["TC.HTC_RERUN_PRESCALE"].data<string>());
+         rerunps = boost::lexical_cast<float,string>(rerunps_s);
+         if(rerunps>=0)
+            ch->set_rerun_prescale(rerunps);
+      }
+
       ch->setId(chainId);
       chainlist.addHLTChain(ch);
    }

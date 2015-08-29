@@ -21,6 +21,7 @@
 #include "TrigConfL1Data/L1DataDef.h"
 
 #include "boost/lexical_cast.hpp"
+#include "boost/algorithm/string.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -147,9 +148,30 @@ TrigConf::MenuLoader::loadItems(TrigConf::Menu& menu) {
             item->setPartition  (row["TI.L1TI_PARTITION"].data<int>());
             string mon = row["TI.L1TI_MONITOR"].data<string>();
             unsigned short monMask = 0;
-            if(mon.find("TBP") != string::npos) monMask |= 0x1;
-            if(mon.find("TAP") != string::npos) monMask |= 0x2;
-            if(mon.find("TAV") != string::npos) monMask |= 0x4;
+
+            const short TBP = 0x1;
+            const short TAP = 0x2;
+            const short TAV = 0x4;
+            
+            vector<string> monLfHf;
+            boost::split(monLfHf, mon, boost::is_any_of(":|"));
+            //copy(monLfHf.begin(),monLfHf.end(), ostream_iterator<string>(cout,"\n") );
+            
+            if(monLfHf.size()==4 && monLfHf[0]=="LF" && monLfHf[2]=="HF" && monLfHf[1].size()==3 && monLfHf[3].size()==3) {
+               // LF
+               if( monLfHf[1][2]=='1' )  monMask |= TBP;
+               if( monLfHf[1][1]=='1' )  monMask |= TAP;
+               if( monLfHf[1][0]=='1' )  monMask |= TAV;
+               // HF
+               if( monLfHf[3][2]=='1' )  monMask |= TBP << 3;
+               if( monLfHf[3][1]=='1' )  monMask |= TAP << 3;
+               if( monLfHf[3][0]=='1' )  monMask |= TAV << 3;
+            } else {
+               // this is for the temporary solution
+               if(mon.find("TBP") != string::npos) monMask |= TBP;
+               if(mon.find("TAP") != string::npos) monMask |= TAP;
+               if(mon.find("TAV") != string::npos) monMask |= TAV;
+            }
             item->setMonitor( monMask );
          }
 
@@ -378,7 +400,12 @@ TrigConf::MenuLoader::loadThresholds(TrigConf::Menu& menu) {
 
    loadPIT(menu);
 
-   createTipFromDirectThresholds(menu);
+   if( menu.pitVector().size() == menu.tipVector().size() ) {
+      // this is the case when we 
+      // a) have either no direct inputs in the menu (unlikely, but then the next call doesn't matter), or
+      // b) the direct inputs were not filled in the TIP map (which is the case until we switch that feature on in the TriggerTool)
+      createTipFromDirectThresholds(menu);
+   }
 
 }
 
@@ -406,6 +433,9 @@ TrigConf::MenuLoader::loadPIT(TrigConf::Menu& menu) {
    cond += " AND PITS.L1PIT_TM_TO_TT_ID = TM2TT.L1TM2TT_ID";
    q->setCondition( cond, bindings );
 
+   // should not be necessary, however currently the TriggerTool uploads identical copies in some cases
+   q->setDistinct();
+
    // Output data and types
    coral::AttributeList attList;
    attList.extend<int>( "TM2TT.L1TM2TT_TRIGGER_THRESHOLD_ID" );
@@ -414,57 +444,69 @@ TrigConf::MenuLoader::loadPIT(TrigConf::Menu& menu) {
    attList.extend<int>( "PITS.L1PIT_THRESHOLD_BIT"           );
    fillQuery(q.get(), attList);
 
+   uint npits(0), ntips(0);
+
    coral::ICursor& cursor = q->execute();
    while (cursor.next()) {
       const coral::AttributeList& row = cursor.currentRow();
 
       int ttid   = row["TM2TT.L1TM2TT_TRIGGER_THRESHOLD_ID"].data<int>();
       int tmtott = row["TM2TT.L1TM2TT_ID"].data<int>();
-      int pitnum = row["PITS.L1PIT_PIT_NUMBER"].data<int>();
+      int tipnum = row["PITS.L1PIT_PIT_NUMBER"].data<int>();
       int bitnum = row["PITS.L1PIT_THRESHOLD_BIT"].data<int>();
 
       TriggerThreshold* tt = menu.thresholdConfig().findTriggerThreshold(ttid);
 
+
       string slotString = tt->cableCtpin();
-      uint16_t slot = slotString[4]-'0'; // "SLOT7" -> (uint)7
-      if(slot<7 || slot>9) {
-         msg() << "MenuLoader:                       Unknown CTPIN string '" << slotString << "'" << std::endl;
+      uint16_t slot = 0;
+      if( boost::iequals( slotString, "CTPCORE" ) ) {
+         slot = 10;
+      } else {
+         slot = slotString[4]-'0'; // "SLOT7" -> (uint)7
+      }
+      if(slot<7 || slot>10) {
+         TRG_MSG_ERROR("Unknown CTPIN SLOT '" << slotString << "'");
          throw runtime_error( "MenuLoader: Error loading PITs " );
       }
 
       string conString = tt->cableConnector();
       uint16_t con = conString[3]-'0'; // "CON2" -> (uint)2
-      if(con>3) {
-         msg() << "MenuLoader:                       Unknown CTPIN connector string '" << conString << "'" << std::endl;
+      uint16_t conMax = slot==10 ? 2 : 3;
+      if( con > conMax ) {
+         TRG_MSG_ERROR("Unknown CTPIN CONNECTOR '" << conString << "'");
          throw runtime_error( "MenuLoader: Error loading PITs " );
       }
 
-      PIT* pit = new PIT();
-      pit->setThresholdName(tt->name());
-      pit->setCtpinSlot(slot);
-      pit->setCtpinConnector( con );
-      pit->setPitNumber(pitnum);
-      pit->setThresholdBit(bitnum);
-      pit->setCableBit( tt->cableStart() + bitnum );
-      pit->setTmToTtId(tmtott);
-      pit->setTriggerThresholdId(ttid);
-      pit->setThresholdActive(tt->active());
-      pit->setThresholdMapping(tt->mapping());
-      menu.addPit(pit);
+      if(slot!=10) {
+         PIT* pit = new PIT();
+         pit->setThresholdName(tt->name());
+         pit->setCtpinSlot(slot);
+         pit->setCtpinConnector( con );
+         pit->setPitNumber(tipnum);
+         pit->setThresholdBit(bitnum);
+         pit->setCableBit( tt->cableStart() + bitnum );
+         pit->setTmToTtId(tmtott);
+         pit->setTriggerThresholdId(ttid);
+         pit->setThresholdActive(tt->active());
+         pit->setThresholdMapping(tt->mapping());
+         menu.addPit(pit);
+         npits++;
+      }
 
-      int phase = 0;
-      if(tipNumbersUsed.count(pitnum) > 0) {
-         phase = 1;
+      // this is for early menus
+      if(tipNumbersUsed.count(tipnum) > 0) {
+         tipnum = tipnum + 160;
       } else {
-         tipNumbersUsed.insert(pitnum);
+         tipNumbersUsed.insert(tipnum);
       }
 
       TIP* tip = new TIP();
       tip->setThresholdName(tt->name());
       tip->setSlot(slot);
       tip->setConnector( con );
-      tip->setTipNumber(pitnum + 160 * phase);
-      tip->setClock(phase);
+      tip->setTipNumber(tipnum);
+      tip->setClock( tipnum % 2 );
       tip->setThresholdBit(bitnum);
       tip->setCableBit( tt->cableStart() + bitnum );
       tip->setTmToTtId(tmtott);
@@ -473,22 +515,42 @@ TrigConf::MenuLoader::loadPIT(TrigConf::Menu& menu) {
       tip->setThresholdMapping(tt->mapping());
       tip->setIsDirect(false);
       menu.addTip(tip);
+      ntips++;
+
+      TRG_MSG_DEBUG("TIP " << tip->tipNumber() << " -->  " << tt->name());
+      
+
+
    }
+
+   TRG_MSG_DEBUG("Loaded " << npits << " PITs and " << ntips << " TIPs");
+   TRG_MSG_DEBUG("Menu has " << menu.pitVector().size() << " PITs and " << menu.tipVector().size() << " TIPs");
+
 
 }
 
 
 void
 TrigConf::MenuLoader::createTipFromDirectThresholds(TrigConf::Menu& menu) {
+
+   // this is only needed as long as the TIPs from the direct input are not in the database
+
    for(TriggerThreshold * thr : menu.thresholdConfig().getThresholdVector() ) {
-      if(thr->ttype()==L1DataDef::TOPO) {
+      if(thr->ttype()==L1DataDef::TOPO || thr->ttype()==L1DataDef::ALFA) {
+
+         const string & conn = thr->cableConnector(); // "CON0", "CON1", "CON2"
+
+         unsigned int connector = conn[3]-'0';
+         unsigned int cableOffset = 320 + connector * 64;
+         unsigned int cableBit = (unsigned int) thr->cableStart();
+         unsigned int clock = thr->clock();
+         unsigned int tipNumber = 2*cableBit + clock + cableOffset;
+
          TIP* tip = new TIP();
          tip->setThresholdName(thr->name());
          tip->setSlot(10);
-         const string & conn = thr->cableConnector(); // "CON0", "CON1", "CON2"
-         tip->setConnector( conn[3]-'0' );
-         //cout << *thr << "  mapping " << thr->mapping() << "  clock " << thr->clock() << " bitnum " << thr->bitnum() << endl;
-         tip->setTipNumber( 320 + thr->mapping() );
+         tip->setConnector( connector );
+         tip->setTipNumber( tipNumber );
          tip->setThresholdBit( thr->clock() );
          tip->setCableBit( thr->cableStart() );
          tip->setTriggerThresholdId(thr->id() );
@@ -496,6 +558,9 @@ TrigConf::MenuLoader::createTipFromDirectThresholds(TrigConf::Menu& menu) {
          tip->setThresholdMapping(thr->mapping());
          tip->setIsDirect(true);
          menu.addTip(tip);
+         
+         TRG_MSG_DEBUG("TIP from direct input thresholds " << tip->tipNumber() << "  -->  " << thr->name());
+         
       }
    }
 }

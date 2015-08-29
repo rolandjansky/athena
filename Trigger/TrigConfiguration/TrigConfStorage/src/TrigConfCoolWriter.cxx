@@ -455,8 +455,6 @@ TrigConfCoolWriter::writeRunPayload( const RunRangeVec& runRanges,
                                      const TrigConf::HLTFrame & hltFrame,
                                      const std::string & configSource)
 {
-   cout << "JOERG begin of writeRunPayload" << endl;
-
    AutoDBOpen db(this, READ_WRITE);
    TrigConfCoolFolderSpec::createFolderStructure(m_dbPtr); // just in case
 
@@ -1178,8 +1176,6 @@ TrigConf::TrigConfCoolWriter::writeL1PrescalePayload( cool::ValidityKey since,
                                                       unsigned int lvl1PrescaleKey,
                                                       const TrigConf::PrescaleSet & prescaleSet)
 {
-   cout << "JOERG writeL1PrescalePayload " << lvl1PrescaleKey << endl;
-
    prescaleSet.print("",5);
    AutoDBOpen db(this, READ_WRITE);
    // writing configuration keys and prescales
@@ -1260,7 +1256,7 @@ TrigConfCoolWriter::readHLTPayload( unsigned int run,
       const IRecord & payload = object->payload();
       unsigned int smk, hltPrescaleKey;
       string configSource;
-      readHltConfigKeys( payload.attributeList(), smk, hltPrescaleKey, configSource );
+      readHltConfigKeys( payload.attributeList(), smk, hltPrescaleKey, configSource ); // the hltPrescaleKey here is not useable (it is superseeded by the multiversion one)
       hltFrame.setSMK(smk);
       hltFrame.setConfigSource(configSource);
    }
@@ -1296,8 +1292,9 @@ TrigConfCoolWriter::readL1Payload( unsigned int run,
 }
 
 void 
-TrigConfCoolWriter::readL1InputMapPayload(unsigned int run,
-                                          vector<PIT*>& pits)
+TrigConfCoolWriter::readL1InputMapPayload( unsigned int run,
+                                           vector<PIT*>& pits,
+                                           vector<TIP*>& tips )
 {
    AutoDBOpen db(this, READ_ONLY);
    ValidityRange vr(run, 1);
@@ -1311,22 +1308,24 @@ TrigConfCoolWriter::readL1InputMapPayload(unsigned int run,
          const IObject& obj = objects->currentRef();
          const IRecord & payload = obj.payload();
          PIT* pit = readLvl1InputMap( payload.attributeList() );
+         TIP* tip = readLvl1TIPMap( payload.attributeList() );
          uint16_t tipNumber = obj.channelId();
          if(tipNumber > 511) {
-            m_ostream << "PIT number " << tipNumber << " out of bounds!" << endl;
-            throw runtime_error("PIT number ouf ot bounds!");
+            m_ostream << "TIP number " << tipNumber << " out of bounds!" << endl;
+            throw runtime_error("TIP number ouf ot bounds!");
          } else {
             if(foundTip[tipNumber]) {
                stringstream str;
-               str << "PIT '" << tipNumber << "' had already been read!";
+               str << "TIP '" << tipNumber << "' had already been read!";
                throw runtime_error(str.str());
             }
             foundTip[tipNumber] = true;
             pit->setPitNumber(tipNumber);
+            tip->setTipNumber(tipNumber);
             pits.push_back(pit);
+            tips.push_back(tip);
          }
       }     
-      ++channel;
    }
 }
 
@@ -1513,11 +1512,19 @@ TrigConfCoolWriter::readL1Menu(unsigned int run, CTPConfig & ctpc)
    }
    menu.setCaloInfo(ci);
 
-   // PITs
+   // PITs (run1), TIPs (run2)
    vector<PIT*> pits;
-   readL1InputMapPayload(run, pits);
-   for ( PIT* pit : pits)
+   vector<TIP*> tips;
+   readL1InputMapPayload(run, pits, tips);
+   for ( PIT* pit : pits) {
+      if(pit->ctpinSlot()==10) continue;
       menu.addPit(pit);
+   }
+   for ( TIP* tip : tips) {
+      //       cout << tip->tipNumber() << "  :  thr = " << tip->thresholdName() << ", slot = " << tip->slot() << ", conn = " << tip->connector() << ", thrBit = "
+      //            << tip->thresholdBit() << ", cableBit = " << tip->cableBit() << endl;
+      menu.addTip(tip);
+   }
 }
 
 
@@ -1619,7 +1626,14 @@ TrigConfCoolWriter::readL1PrescalePayload( unsigned int run, unsigned int lb,
    const IRecord & payload = obj.payload();
    readLvl1ConfigKey( payload.attributeList(), lvl1PrescaleKey );
 
+
    cool::IFolderPtr lvl1PsFolder = TrigConfCoolFolderSpec::getLvl1PrescalesFolder(m_dbPtr);
+
+   // resize the vector to the correct size
+   size_t nPrescales = lvl1PsFolder->listChannels().size();
+   bool isRun2 = ( nPrescales == 512 );
+   prescale.resize( nPrescales );
+
    for(cool::ChannelId channel = 0; channel<prescale.prescales().size(); channel++) {
       objects = lvl1PsFolder->browseObjects( vr.since(), vr.until(), channel );
       if(objects->size()!=1) { 
@@ -1630,8 +1644,13 @@ TrigConfCoolWriter::readL1PrescalePayload( unsigned int run, unsigned int lb,
       const IRecord & payload = obj.payload();
       int64_t prescaleVal=0;
       readLvl1Prescale( payload.attributeList(), prescaleVal );
-      prescale.setPrescale( channel, prescaleVal );
+      if( isRun2 ) {
+         prescale.setCut( channel, prescaleVal );
+      } else {
+         prescale.setPrescale( channel, prescaleVal );
+      }
    }
+   prescale.setId( lvl1PrescaleKey );
 }
 
 
@@ -1677,7 +1696,6 @@ TrigConf::TrigConfCoolWriter::checkPayloadSize(unsigned int run, unsigned int lb
       bool isSingleVersion = folder->versioningMode()==FolderVersioning::SINGLE_VERSION;
       bool needsFixing = (size == 0);
 
-      // JOERG: need to remove this after fixing the 
       if(folderName=="/TRIGGER/LVL1/Thresholds" && size==2)
          needsFixing = true;
 

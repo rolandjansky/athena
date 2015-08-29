@@ -162,7 +162,7 @@ TrigConf::HLTPrescaleSetLoader::load( HLTPrescaleSet& hltpss ) {
             string pstype = row["PR.HPR_TYPE"].data<string>(); 
             string pscondition = row["PR.HPR_CONDITION"].data<string>(); 
 
-            //cout << setw(4) << right << counter << " : " << pstype << " (" << pscondition << ") => " << value << endl;
+            TRG_MSG_DEBUG("Loaded prescales:"<< setw(4) << right << counter << " : " << pstype << " (" << pscondition << ") => " << value );
 
             auto& thePS = hltpss.thePrescale( counter, str2lvl("HLT") );
 

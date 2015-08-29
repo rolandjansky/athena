@@ -90,7 +90,7 @@ TrigConf::JobOptionTableLoader::loadHLTMasterTable(int SuperMasterKey,
 bool
 TrigConf::JobOptionTableLoader::loadComponentNamesAndParameters(TrigConf::JobOptionTable& JOTable, const std::set<int>& compIDsToLoad) {
 
-   unsigned int batchSize = 1600;
+   unsigned int batchSize = 500;
    set<int>::const_iterator current = compIDsToLoad.begin();
    vector< SplitParam > splitparams;
 
@@ -116,7 +116,7 @@ JobOptionTableLoader::loadComponentNamesAndParameters(JobOptionTable& JOTable,
                                                       unsigned int batchSize) {
 
    unique_ptr< coral::IQuery > q( m_session.nominalSchema().newQuery() );
-   q->setRowCacheSize( 1000 );
+   q->setRowCacheSize( 500 );
 
    q->addToTableList ( "HLT_COMPONENT", "CP" );
    q->addToTableList ( "HLT_CP_TO_PA",  "CP2PA" );
@@ -130,7 +130,7 @@ JobOptionTableLoader::loadComponentNamesAndParameters(JobOptionTable& JOTable,
    cond += " AND CP2PA.HCP2PA_COMPONENT_ID = CP.HCP_ID";
    cond += " AND CP2PA.HCP2PA_PARAMETER_ID = PA.HPA_ID";
    q->setCondition( cond , bind );
-   
+
    // output and their types
    coral::AttributeList attList;
    attList.extend<std::string>( "CP.HCP_ALIAS" );
@@ -288,52 +288,89 @@ TrigConf::JobOptionTableLoader::buildCond_IN_(const std::string& field, const st
 }
 
 
+namespace {
+   vector<int> createSortedVector(const set<int>& compIDs) {
+      vector<int> sortedVector(compIDs.size());
+      copy(compIDs.begin(), compIDs.end(), sortedVector.begin());
+      sort(sortedVector.begin(),sortedVector.end());
+      return sortedVector;
+   }
+
+   vector<string> concatAndSplit(const vector<int>& v, uint maxStringSize) {
+
+      // create a single long string of comma-separated numbers
+      vector<string> split;
+
+      string s("");s.reserve(8000);
+      uint count(0);
+
+      for(int i:v) {
+         
+         s+=to_string(i) + ",";
+         count++;
+
+         if(count<1000  &&  s.size()<maxStringSize )  // oracle allows max 1000 items in (list)
+            continue;
+
+         s.erase(s.end()-1); // erase last comma
+
+         split.push_back( s );
+         
+         s="";
+         count=0;
+      }
+
+      // the last entries in the loop
+      if(s!="") {
+         s.erase(s.end()-1); // erase last comma
+         split.push_back( s );
+      }
+      
+      return split;
+   }
+
+}
+
 std::set<int>
 TrigConf::JobOptionTableLoader::getChildCompIDs(const std::set<int>& compIDs) {
 
-   std::set<int> childCompIDs;
+   std::set<int> childCompIDs; // the children IDs
 
+   TRG_MSG_DEBUG("Number of parents " << compIDs.size());
 
+   vector<int> sortedParentIDs = createSortedVector(compIDs);
 
-   coral::ITable& table = m_session.nominalSchema().tableHandle("HLT_CP_TO_CP");
-   std::unique_ptr< coral::IQuery > q( table.newQuery() );
+   vector<string> splitParentIDs = concatAndSplit(sortedParentIDs, 7500);
 
+   for(const string& idList : splitParentIDs) {
 
-   // condition
-   std::stringstream ss;
-   ss << "HCP2CP_PARENT_COMP_ID IN (";
+      // condition
+      string cond = "HCP2CP_PARENT_COMP_ID IN (" + idList + ")";
 
-   int count=0;
-   std::set<int>::iterator id = compIDs.begin();
-   std::set<int>::iterator last = compIDs.end(); last--;
-   for(; id!=last; ++id) {
-      ss << *id;
-      if(++count==1000) {
-         ss << ") OR HCP2CP_PARENT_COMP_ID IN (";
-         count=0;
-      } else {
-         ss << ",";
+      coral::ITable& table = m_session.nominalSchema().tableHandle("HLT_CP_TO_CP");
+      std::unique_ptr< coral::IQuery > q( table.newQuery() );
+
+      coral::AttributeList bind;
+      q->setCondition( cond, bind );
+
+      // output
+      coral::AttributeList attList;
+      attList.extend<int>( "HCP2CP_CHILD_COMP_ID" );
+      fillQuery(q.get(),attList);
+
+      // distinct
+      q->setDistinct();
+
+      // execute
+      coral::ICursor& cursor = q->execute();
+
+      // fill output
+      while( cursor.next() ) {
+         const coral::AttributeList& row = cursor.currentRow();
+         int id = row["HCP2CP_CHILD_COMP_ID"].data<int>();
+         childCompIDs.insert(id);
       }
-   }
-   ss << *last << ")";
 
-   string cond(ss.str());
-   coral::AttributeList bind;
-   q->setCondition( cond, bind );
-
-   // output
-   coral::AttributeList attList;
-   attList.extend<int>( "HCP2CP_CHILD_COMP_ID" );
-   fillQuery(q.get(),attList);
-
-   // distinct
-   q->setDistinct();
-
-   coral::ICursor& cursor = q->execute();
-   while( cursor.next() ) {
-      const coral::AttributeList& row = cursor.currentRow();
-      int id = row["HCP2CP_CHILD_COMP_ID"].data<int>();
-      childCompIDs.insert(id);
    }
 
    // no more children, can stop recursion
@@ -357,14 +394,8 @@ TrigConf::JobOptionTableLoader::load( TrigConfData& data ) {
    try {
       return load(jot);
    }
-   catch( const coral::SchemaException& e ) {
-      msg() << "JobOptionTableLoader:             ERROR SchemaException: " << e.what() << std::endl;
-      throw;
-   } catch( const std::exception& e ) {
-      msg() << "JobOptionTableLoader:             ERROR std::exception: " << e.what() << std::endl;
-      throw;
-   } catch( ... ) {
-      msg() << "JobOptionTableLoader:             ERROR any other exception" << std::endl;
+   catch( const std::exception& e ) {
+      TRG_MSG_FATAL("std::exception: " << e.what());
       throw;
    }
    return false;
@@ -386,7 +417,7 @@ TrigConf::JobOptionTableLoader::assembleSplitParameters( JobOptionTable& jot, co
    std::string aliasname   ="";
    std::string paraname    ="";
    
-      
+   
    //ignore those we have already matched
    vector< SplitParam > alreadymatched_v;
    
@@ -431,10 +462,8 @@ TrigConf::JobOptionTableLoader::assembleSplitParameters( JobOptionTable& jot, co
 	    
             if(actualname2==actualname && splitpar.alias==newtemp2.alias ){
                mergedvalue+= newtemp2.value;
-               if(verbose()>1) {
-                  msg() << "Found split parameters " << splitpar.alias << " : " <<  splitpar.name << " - " << newtemp2.name <<  std::endl;
-                  msg() << splitpar.value << " - " << newtemp2.value <<  std::endl;
-               }
+               TRG_MSG_VERBOSE("Found split parameters " << splitpar.alias << " : " <<  splitpar.name << " - " << newtemp2.name);
+               TRG_MSG_VERBOSE(splitpar.value << " - " << newtemp2.value);
             }
          }
       }
@@ -526,8 +555,7 @@ TrigConf::JobOptionTableLoader::load( JobOptionTable& jot ) {
 
    triggerDBSchemaVersion();
 
-   if(verbose())
-      TRG_MSG_INFO("Start loading job options with smk " << jot.smk());
+   TRG_MSG_INFO("Start loading job options with smk " << jot.smk());
 
    startSession();
    
@@ -548,8 +576,12 @@ TrigConf::JobOptionTableLoader::load( JobOptionTable& jot ) {
    jot.setHltMasterTableId( masterTableID );
    TRG_MSG_INFO("HLT masterkey: " << jot.hltMasterTableId());
    TRG_MSG_INFO("Menu ID      : " << triggerMenuID);
-   TRG_MSG_INFO("L2 Setup ID  : " << l2SetupID);
-   TRG_MSG_INFO("EF Setup ID  : " << efSetupID);
+   if(l2SetupID==efSetupID) {
+      TRG_MSG_INFO("Setup ID     : " << l2SetupID);
+   } else {
+      TRG_MSG_INFO("L2 Setup ID  : " << l2SetupID);
+      TRG_MSG_INFO("EF Setup ID  : " << efSetupID);
+   }
 
    int level = jot.triggerLevel()==0; // triggerLevel: 0 - L2, 1 - EF, 2 - HLT(combined L2+EF)
    if( l2SetupID == efSetupID || 
@@ -578,8 +610,8 @@ TrigConf::JobOptionTableLoader::load( JobOptionTable& jot ) {
    commitSession();
 
    // some stats:
-   msg() << "JobOptionTableLoader:             Total parameters  : " << jot.jobOptionVector().size() << std::endl;
-     
+   TRG_MSG_INFO("JobOptionTableLoader:             Total parameters  : " << jot.jobOptionVector().size());
+   
    return true;        
 }
 
