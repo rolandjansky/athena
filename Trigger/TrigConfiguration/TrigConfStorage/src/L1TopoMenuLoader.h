@@ -31,12 +31,18 @@ namespace TrigConf {
       virtual bool load( TXC::L1TopoMenu& );
 
       bool loadTopoAlgos( TXC::L1TopoMenu& tcaTarget);
-      bool loadAlgInput( TXC::L1TopoConfigAlg& tcaTarget, const int& );
-      bool loadAlgOutput( TXC::L1TopoConfigAlg& tcaTarget, const int& ta_id, const int& );
-      bool loadAlgRegister( TXC::L1TopoConfigAlg& tcaTarget, const int& ta_id );
-      bool loadAlgFixed( TXC::L1TopoConfigAlg& tcaTarget, const int& ta_id );
+//       bool loadAlgInput( TXC::L1TopoConfigAlg& tcaTarget, const int& );
+//       bool loadAlgOutput( TXC::L1TopoConfigAlg& tcaTarget, const int& ta_id, const int& );
+//       bool loadAlgRegister( TXC::L1TopoConfigAlg& tcaTarget, const int& ta_id );
+//       bool loadAlgFixed( TXC::L1TopoConfigAlg& tcaTarget, const int& ta_id );
       bool loadOutputList( TXC::L1TopoMenu& tcaTarget, const int& ctplinkid);
       bool loadTopoConfig( TXC::L1TopoMenu& tcaTarget);
+
+
+      bool loadAllAlgsInput( std::map<uint, TXC::L1TopoConfigAlg> & idToAlgMap );
+      bool loadAllAlgsOutput( std::map<uint, TXC::L1TopoConfigAlg> & idToAlgMap );
+      bool loadAllAlgsRegister( std::map<uint, TXC::L1TopoConfigAlg> & idToAlgMap );
+      bool loadAllAlgsFixed( std::map<uint, TXC::L1TopoConfigAlg> & idToAlgMap );
 
    };
 }

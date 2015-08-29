@@ -243,7 +243,7 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
 
    // parse the input 
    if( (inpar.size()==1 && endswith(inpar[0],".xml")) || 
-       (inpar.size()==2 && endswith(inpar[1],".xml") && endswith(inpar[1],".xml")) ) {
+       (inpar.size()==2 && endswith(inpar[0],".xml") && endswith(inpar[1],".xml")) ) {
       input = XML;
    } else if( inpar.size()>=1 && inpar[0].find(".db") != string::npos ) {
       // sqlite file
@@ -417,6 +417,8 @@ int main( int argc, char* argv[] ) {
    BunchGroupSet* bgs(nullptr);
    HLTFrame* hltFrame(0);
    TXC::L1TopoMenu* l1tm = nullptr;
+   uint smk(0),l1psk(0),hltpsk(0),bgsk(0);
+
 
    /*------------------
     * from DB
@@ -424,7 +426,7 @@ int main( int argc, char* argv[] ) {
    if (gConfig.input == JobConfig::DB) {
       unique_ptr<StorageMgr> sm(new StorageMgr(gConfig.db, "", "", log));
 
-      // Loadign L1 topo 
+      // Loading L1 topo 
       //log << "Retrieving Lvl1 Topo configuration" << lineend;
       l1tm  = new TXC::L1TopoMenu();
       l1tm->setSMK(gConfig.getKey(0));
@@ -438,6 +440,7 @@ int main( int argc, char* argv[] ) {
       ctpc->setBunchGroupSetId( gConfig.getKey(3) );
       DBLoader::setEnv(DBLoader::CTPOnl);
       ctpc->setLoadCtpFiles(gConfig.fw); // load CTP files ?
+      sm->masterTableLoader().setLevel( gConfig.outputlevel );
       sm->masterTableLoader().load(*ctpc);
       ctpc->muCTPi().setSMK( gConfig.getKey(0) );
       sm->masterTableLoader().load( ctpc->muCTPi() );
@@ -449,6 +452,12 @@ int main( int argc, char* argv[] ) {
          hltFrame->thePrescaleSetCollection().set_prescale_key_to_load( gConfig.getKey(2) );
       sm->hltFrameLoader().setLevel( gConfig.outputlevel );
       sm->hltFrameLoader().load( *hltFrame );
+
+      smk    = gConfig.getKey(0);
+      l1psk  = gConfig.getKey(1);
+      hltpsk = gConfig.getKey(2);
+      bgsk   = gConfig.getKey(3);
+
    }
    /*------------------
     * from XML
@@ -487,21 +496,47 @@ int main( int argc, char* argv[] ) {
       string coolInputConnection = gConfig.coolInputConnection;
       unsigned int runnumber =  gConfig.inpar.size()>1 ? boost::lexical_cast<unsigned int,string>(gConfig.inpar[1]) : 1;
       unsigned int lb =  gConfig.inpar.size()>2 ? boost::lexical_cast<unsigned int,string>(gConfig.inpar[2]) : 0;
-      log << "TrigConfReadWrite:                Reading cool : " << coolInputConnection << lineend;
+      log << "TrigConfReadWrite Reading cool : " << coolInputConnection << lineend;
+      log << "                  run number   : " << runnumber << lineend;
+      log << "                  lb           : " << lb << lineend;
       TrigConfCoolWriter * coolWriter = new TrigConfCoolWriter( coolInputConnection );
       string configSource("");
       ctpc = new CTPConfig();
       coolWriter->readL1Payload( runnumber, *ctpc);
 
-      //      bgs = new BunchGroupSet();
+      PrescaleSet ps;
+      coolWriter->readL1PrescalePayload( runnumber, lb, l1psk, ps);
+      ctpc->setPrescaleSet( ps );
+      
+      //       log << "L1 PSK 0  " << ps.id() << lineend;
+      //       log << "L1 PSK 1  " << l1psk << lineend;
+      //       log << "L1 PSK 2  " << ctpc->prescaleSet().id() << lineend;
+      //       log << "L1 PSK 3  " << ctpc->prescaleSetId() << lineend;   <---- does not work
+
       int bgKey(0);
       coolWriter->readL1BunchGroupLBPayload( runnumber, lb, bgKey, ctpc->bunchGroupSet() );
+
       hltFrame = new HLTFrame();
       coolWriter->readHLTPayload(runnumber, *hltFrame);
+
+      if(lb!=0) {
+         HLTPrescaleSet * pss = new HLTPrescaleSet();
+         coolWriter->readHltPrescalePayload( runnumber, lb, *pss);
+         hltpsk = pss->id();
+         hltFrame->thePrescaleSetCollection().addPrescaleSet( lb, pss );
+      }
+
+      smk    = hltFrame->smk();
+      bgsk   = bgKey;
+
    }
 
    if(gConfig.printlevel>=0) {
-      log << "Printout with print level " << gConfig.printlevel << lineend;
+      log << "Loaded this configuration" << lineend;
+      log << "    SMK     " << smk << lineend;
+      log << "    L1 PSK  " << l1psk << lineend;
+      log << "    HLT PSK " << hltpsk << lineend;
+      log << "    BGSK    " << bgsk << lineend;
       if(ctpc)     ctpc->print("  ", gConfig.printlevel);
       if(bgs)      bgs->print("  ", gConfig.printlevel);
       if(hltFrame) hltFrame->print("  ", gConfig.printlevel);
@@ -648,10 +683,12 @@ int main( int argc, char* argv[] ) {
       log << "TrigConfReadWrite:                  Retrieving JO from the TriggerDB" << lineend;
       jot.setSMK( gConfig.getKey(0) );
       jot.setTriggerLevel(0); // L2
+      sm->jobOptionTableLoader().setLevel(gConfig.outputlevel);
       sm->jobOptionTableLoader().load( jot );
       if(gConfig.printlevel>0) jot.print();
-      jot.writeToFile( string("HLTSetup_"+gConfig.outBase+".xml").c_str() );
-      
+      if ( (gConfig.output & JobConfig::XML) != 0 ) {
+         jot.writeToFile( string("HLTSetup_"+gConfig.outBase+".xml").c_str() );
+      }
 
    }
 

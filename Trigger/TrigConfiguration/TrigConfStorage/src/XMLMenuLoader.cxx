@@ -15,6 +15,8 @@
 #include <iostream>
 #include <string>
 
+#include "boost/algorithm/string.hpp"
+
 using namespace std;
 
 bool
@@ -47,10 +49,32 @@ TrigConf::XMLMenuLoader::load(Menu& menu) {
       if( readAttribute(v.second, "ctpid", ival) )            item->setCtpId(ival);
       if( readAttribute(v.second, "trigger_type", sval) )     item->setTriggerType( TrigConf::bin2uint(sval) );
       if( readAttribute(v.second, "monitor", sval) )          {
+         const short TBP = 0x1;
+         const short TAP = 0x2;
+         const short TAV = 0x4;
+         
+
          unsigned short monMask = 0;
-         if(sval.find("TBP") != string::npos) monMask |= 0x1;
-         if(sval.find("TAP") != string::npos) monMask |= 0x2;
-         if(sval.find("TAV") != string::npos) monMask |= 0x4;
+         vector<string> monLfHf;
+         boost::split(monLfHf, sval, boost::is_any_of(":|"));
+         //copy(monLfHf.begin(),monLfHf.end(), ostream_iterator<string>(cout,"\n") );
+
+         if(monLfHf.size()==4 && monLfHf[0]=="LF" && monLfHf[2]=="HF" && monLfHf[1].size()==3 && monLfHf[3].size()==3) {
+            // LF
+            if( monLfHf[1][2]=='1' )  monMask |= TBP;
+            if( monLfHf[1][1]=='1' )  monMask |= TAP;
+            if( monLfHf[1][0]=='1' )  monMask |= TAV;
+            // HF
+            if( monLfHf[3][2]=='1' )  monMask |= TBP << 3;
+            if( monLfHf[3][1]=='1' )  monMask |= TAP << 3;
+            if( monLfHf[3][0]=='1' )  monMask |= TAV << 3;
+         } else {
+            // this is for the temporary solution
+            if(sval.find("TBP") != string::npos) monMask |= TBP;
+            if(sval.find("TAP") != string::npos) monMask |= TAP;
+            if(sval.find("TAV") != string::npos) monMask |= TAV;
+         }
+         //cout << "JOERG " << sval << " ==> " << monMask << endl;
          item->setMonitor( monMask );
       }
 

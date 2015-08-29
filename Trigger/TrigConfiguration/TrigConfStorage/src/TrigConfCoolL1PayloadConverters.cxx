@@ -36,6 +36,8 @@
 #include <bitset>
 
 #include "boost/lexical_cast.hpp"
+#include <boost/algorithm/string.hpp>    
+
 using boost::lexical_cast;
 
 using namespace std;
@@ -417,8 +419,6 @@ TrigConfCoolL1PayloadConverters::createLvl1Threshold( const coral::AttributeList
    string thrValDef = al["ThresholdValue"].data<cool::String4k>();
    string cableDef  = al["Cable"].data<cool::String255>();
    
-   //std::cout << "JJJ thrDef: " << thrDef << ", thrValDef: " << thrValDef << ", cableDef: " << cableDef << std::endl;
-
    // TriggerThreshold
    TriggerThreshold * thr = new TriggerThreshold();
    vector<string> thrDefV = split(thrDef,",");
@@ -499,6 +499,13 @@ TrigConfCoolL1PayloadConverters::createLvl1Threshold( const coral::AttributeList
    int    cableEnd       = lexical_cast<int,std::string>(cableDefV[4]);
    thr->setCableName     ( cableName );
    thr->setCableCtpin    ( cableCtpin);
+   string ctpin(cableCtpin);
+   boost::to_lower(ctpin);
+   if( ctpin == "ctpcore" ) {
+      thr->setInput( "ctpcore" );
+   } else {
+      thr->setInput( "ctpin" );
+   }
    thr->setCableConnector( cableConnector);
    thr->setCableStart    ( cableStart );
    thr->setCableEnd      ( cableEnd );
@@ -519,7 +526,10 @@ TrigConfCoolL1PayloadConverters::readLvl1BGContent( const coral::AttributeList &
    unsigned int numberBG = (blob.size() == 3564) ? 8 : 16;
 
    vector<BunchGroup> bgV(numberBG);
-
+   unsigned int bgIdx(0);
+   for(BunchGroup & bg : bgV) {
+      bg.setInternalNumber(bgIdx++);
+   }
    
    const unsigned char* p = static_cast<const unsigned char*>(blob.startingAddress());
 
@@ -629,6 +639,21 @@ TrigConfCoolL1PayloadConverters::readLvl1InputMap( const coral::AttributeList & 
    pit->setThresholdActive( al["ThresholdActive"].data<cool::Bool>() );
 
    return pit;
+}
+
+TIP*
+TrigConfCoolL1PayloadConverters::readLvl1TIPMap( const coral::AttributeList & al)
+{
+   TrigConf::TIP* tip = new TrigConf::TIP();
+   tip->setThresholdName( al["ThresholdName"].data<cool::String255>() );
+   tip->setSlot( static_cast<uint16_t>(al["CtpinSlot"].data<cool::UChar>()) );
+   tip->setConnector( static_cast<uint16_t>(al["CtpinConnector"].data<cool::UChar>()) );
+   tip->setThresholdBit( static_cast<uint16_t>(al["ThresholdBit"].data<cool::UChar>()) );
+   tip->setCableBit( static_cast<uint16_t>(al["CableBit"].data<cool::UChar>()) );
+   tip->setThresholdMapping( static_cast<uint16_t>(al["ThresholdMapping"].data<cool::UChar>()) );
+   tip->setThresholdActive( al["ThresholdActive"].data<cool::Bool>() );
+
+   return tip;
 }
 
 std::vector<TrigConf::ThresholdMonitor*>

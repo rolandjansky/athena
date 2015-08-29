@@ -128,7 +128,9 @@ namespace TrigConf {
       int readLvl1BGKey( const coral::AttributeList & al);
 
       /** @brief Build a LVL1 PIT object from COOL payload */
-      TrigConf::PIT* readLvl1InputMap( const coral::AttributeList & al);
+      TrigConf::PIT* readLvl1InputMap( const coral::AttributeList & al); // backward compatible
+
+      TrigConf::TIP* readLvl1TIPMap( const coral::AttributeList & al);
 
       /** @brief Build a LVL1 mon counter object from COOL payload */
       std::vector<TrigConf::ThresholdMonitor*> readLvl1MonMap( const cool::IRecord & payload);

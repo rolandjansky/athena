@@ -90,5 +90,7 @@ TrigConf::PrescaleSetLoader::load( PrescaleSet& prescaleSet ) {
       throw;
    }
 
+   TRG_MSG_DEBUG("loaded L1 prescale set '" << prescaleSet.name() << "' (psk " << prescaleSet.id() << ")" );
+
    return true;
 }
