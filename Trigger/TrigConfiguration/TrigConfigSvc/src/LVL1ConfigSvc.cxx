@@ -97,7 +97,11 @@ LVL1ConfigSvc::initialize() {
       m_ctpConfig->setSMK( m_dbSMKey );
       m_ctpConfig->setPrescaleSetId( m_prescaleSetID );
       m_ctpConfig->setBunchGroupSetId( m_bunchgroupSetID );
-      m_storageMgr->masterTableLoader().load( *m_ctpConfig );
+      if(!m_storageMgr->masterTableLoader().load( *m_ctpConfig ))
+      {
+         ATH_MSG_ERROR("Could not load CTPConfig object");
+         return StatusCode::FAILURE;
+      }
       ATH_MSG_VERBOSE("CTPConfig object loaded");
 
       m_thrcfg = &m_ctpConfig->menu().thresholdConfig();

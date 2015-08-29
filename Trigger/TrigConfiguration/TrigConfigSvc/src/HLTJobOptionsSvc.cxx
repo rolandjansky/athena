@@ -55,13 +55,16 @@ TrigConf::HLTJobOptionsSvc::sysInitialize() {
    // (which is problematic for modifying the HLTJobOptionsSvc)
    StatusCode sc = base_class::sysInitialize(); 
 
-   // set the message level from the DB
-   vector<const Property*>* ownProperties;
-   m_catalogue.optionsOf( name(), ownProperties);
-   for(const Property * p : *ownProperties) {
-      if(p->name() != "OutputLevel") continue;
-      this->setProperty( "OutputLevel", *p );
-      break;
+   if(sc.isSuccess())
+   {
+      // set the message level from the DB
+      vector<const Property*>* ownProperties;
+      m_catalogue.optionsOf( name(), ownProperties);
+      for(const Property * p : *ownProperties) {
+         if(p->name() != "OutputLevel") continue;
+         this->setProperty( "OutputLevel", *p );
+         break;
+      }
    }
    return sc;
 }
@@ -338,7 +341,6 @@ TrigConf::HLTJobOptionsSvc::setMyProperties( const std::string& client, IPropert
 
    }
 
-
    bool fail = false;
 
    // this is for the case of old configurations
@@ -363,6 +365,10 @@ TrigConf::HLTJobOptionsSvc::setMyProperties( const std::string& client, IPropert
       if(client=="ApplicationMgr" && dbprop->name()=="Go") continue;
       if(client=="ApplicationMgr" && dbprop->name()=="Exit") continue;
 
+      if (dbprop->name()=="DBHLTPSKeySet")
+        continue; /* special case of property that is wrongly interpreted an
+                     empty array property (ATR-11877) */
+
       sc = StatusCode::FAILURE;
 
       const StringProperty* sp = dynamic_cast<const StringProperty*>(dbprop);
@@ -382,7 +388,7 @@ TrigConf::HLTJobOptionsSvc::setMyProperties( const std::string& client, IPropert
             if (dbprop->name()=="DBTable")       spval = m_dbconfig->m_schema;
             if (dbprop->name()=="DBSMKey")       spval = lexical_cast<string,int>(m_dbconfig->m_smkey);
             if (dbprop->name()=="DBHLTPSKey")    spval = lexical_cast<string,int>(m_dbconfig->m_hltkey);
-            if (dbprop->name()=="DBHLTPSKeySet") spval = m_dbconfig->hltKeysToString();
+
          }
 
          if(m_dbconfig->m_lvl1key && client=="LVL1ConfigSvc") {
@@ -441,7 +447,6 @@ TrigConf::HLTJobOptionsSvc::setMyProperties( const std::string& client, IPropert
       ATH_MSG_ERROR("Unable to set property " << dbprop->name() << " of " << client << "\n Neither String nor StringArray");
       fail = true;
    }
-
 
    ATH_MSG_DEBUG("Finished setting properties for " << client);
 
