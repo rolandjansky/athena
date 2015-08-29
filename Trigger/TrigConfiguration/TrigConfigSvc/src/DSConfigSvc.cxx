@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DSConfigSvc.cxx 677827 2015-06-24 07:52:56Z stelzer $
+// $Id: DSConfigSvc.cxx 692062 2015-08-29 21:31:16Z stelzer $
 
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
@@ -479,6 +479,7 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
       ATH_MSG_INFO( "Updating trigger configuration: LVL1 prescales" );
 
       CondAttrListCollection::size_type nCh = lvl1PsAtrColl->size();
+      bool isRun2 = ( nCh == 512 );
 
       ATH_MSG_INFO( "  Number of prescales: " << nCh );
 
@@ -499,13 +500,19 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
          // single prescale, the channel id is the ctpid)
          CondAttrListCollection::AttributeList atrList =
             lvl1PsAtrColl->chanAttrListPair( ch )->second;
-
+         
          readLvl1Prescale( atrList, ps );
-         pss.setPrescale( ch, ps );
+
+         if( isRun2 ) {
+            pss.setCut( ch, ps );
+         } else {
+            pss.setPrescale( ch, ps );
+         }
+
       }
 
       if( msgLvl( MSG::DEBUG ) ) {
-         pss.print();
+         pss.print("",5);
       }
 
       m_ctpConfig.setPrescaleSet( pss ); // overwrites the old one

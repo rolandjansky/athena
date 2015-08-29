@@ -55,7 +55,8 @@ TrigConfigSvc::initialize() {
             if(m_l1service==0) m_l1service = m_dsSvc.operator->();
             if(m_hltservice==0) m_hltservice = m_dsSvc.operator->(); 
          } else {
-            ATH_MSG_WARNING("failed to retrieve DetStore TrigConfigSvc: " << m_dsSvc);
+            ATH_MSG_FATAL("failed to retrieve DetStore TrigConfigSvc: " << m_dsSvc);
+            return StatusCode::FAILURE;
          }
       }
 
@@ -63,7 +64,8 @@ TrigConfigSvc::initialize() {
          if (m_l1topoSvc.retrieve().isSuccess()) {
             m_l1toposervice = m_l1topoSvc.operator->();
          } else {
-            ATH_MSG_WARNING("failed to retrieve L1TopoConfigSvc: " << m_l1topoSvc);
+            ATH_MSG_FATAL("failed to retrieve L1TopoConfigSvc: " << m_l1topoSvc);
+            return StatusCode::FAILURE;
          }
       }
 
@@ -72,17 +74,19 @@ TrigConfigSvc::initialize() {
             m_l1service = m_lvl1Svc.operator->();
             l1fromxml = true;
          } else {
-            ATH_MSG_WARNING("failed to retrieve LVL1 ConfigSvc: " << m_lvl1Svc);
+            ATH_MSG_FATAL("failed to retrieve LVL1 ConfigSvc: " << m_lvl1Svc);
+            return StatusCode::FAILURE;
          }
       }
 
     
-      if ( m_hltservice == 0 && (svc == "xmlhlt" || svc == "xml") ) {
+      if ( m_hltservice == 0 && (testsvc == "xmlhlt" || testsvc == "xml") ) {
          if (m_hltSvc.retrieve().isSuccess()) {
             m_hltservice = m_hltSvc.operator->();
             hltfromxml = true;
          } else {
-            ATH_MSG_WARNING("failed to retrieve HLT ConfigSvc: " << m_hltSvc);
+            ATH_MSG_FATAL("failed to retrieve HLT ConfigSvc: " << m_hltSvc);
+            return StatusCode::FAILURE;
          }
       }
 
