@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!-- hlt_master_table.name="dummy",  hlt_master_table.version="0.0" -->
+<!-- hlt_trigger_menu.name="dummy1",  hlt_trigger_menu.version="0.0" -->
+<!-- hlt_prescale_set.name="dummy2",  hlt_prescale_set.version="0.0" -->
+
+<CHAIN_LIST>
+
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  -->
+
+<CHAIN chain_id="gL2" chain_counter="1" lower_chain_id="EM40" level="L2" prescale="1" pass_through="0">
+
+  <SIGNATURE_LIST>
+  <SIGNATURE signature_counter="1" logic="1"> <TRIGGERELEMENT te_name="g" /> </SIGNATURE>
+  </SIGNATURE_LIST>
+
+</CHAIN>
+
+<CHAIN chain_id="gEF" chain_counter="1" lower_chain_id="gL2" level="EF" prescale="1" pass_through="0">
+
+  <SIGNATURE_LIST>
+  <SIGNATURE signature_counter="1" logic="1"> <TRIGGERELEMENT te_name="g4"   /> </SIGNATURE>
+  <SIGNATURE signature_counter="2" logic="1"> <TRIGGERELEMENT te_name="g40"  /> </SIGNATURE>
+  <SIGNATURE signature_counter="3" logic="1"> <TRIGGERELEMENT te_name="g40i" /> </SIGNATURE>
+  </SIGNATURE_LIST>
+
+</CHAIN>
+
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  -->
+
+<CHAIN chain_id="gmuL2" chain_counter="2" lower_chain_id="EM40_MU20" level="L2" prescale="1" pass_through="0">
+
+  <SIGNATURE_LIST>
+  <SIGNATURE signature_counter="1" logic="1"> <TRIGGERELEMENT te_name="g" /> <TRIGGERELEMENT te_name="mu"   /> </SIGNATURE>
+  <SIGNATURE signature_counter="2" logic="1"> <TRIGGERELEMENT te_name="g" /> <TRIGGERELEMENT te_name="mu20" /> </SIGNATURE>
+  </SIGNATURE_LIST>
+
+</CHAIN>
+
+<CHAIN chain_id="gmuEF" chain_counter="2" lower_chain_id="gmuL2" level="EF" prescale="1" pass_through="0">
+
+  <SIGNATURE_LIST>
+  <SIGNATURE signature_counter="1" logic="1"> <TRIGGERELEMENT te_name="g4"   /> <TRIGGERELEMENT te_name="mu20i" /> </SIGNATURE>
+  <SIGNATURE signature_counter="2" logic="1"> <TRIGGERELEMENT te_name="g40"  /> <TRIGGERELEMENT te_name="mu20i" /> </SIGNATURE>
+  <SIGNATURE signature_counter="3" logic="1"> <TRIGGERELEMENT te_name="g40i" /> <TRIGGERELEMENT te_name="mu20i" /> </SIGNATURE>
+  </SIGNATURE_LIST>
+
+</CHAIN>
+
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  -->
+
+<CHAIN chain_id="newelecL2" chain_counter="3" lower_chain_id="EM20" level="L2" prescale="1" pass_through="0">
+
+  <SIGNATURE_LIST>
+  <SIGNATURE signature_counter="1" logic="1"> <TRIGGERELEMENT te_name="e_cand"    /> 
+                                              <TRIGGERELEMENT te_name="track_cand"/> 
+  </SIGNATURE>
+  </SIGNATURE_LIST>
+
+</CHAIN>
+
+<CHAIN chain_id="newelecEF" chain_counter="2" lower_chain_id="newelecL2" level="EF" prescale="1" pass_through="0">
+
+  <SIGNATURE_LIST>
+  <SIGNATURE signature_counter="1" logic="1"> <TRIGGERELEMENT te_name="e"       /> </SIGNATURE>
+  <SIGNATURE signature_counter="2" logic="1"> <TRIGGERELEMENT te_name="e_tr"    /> </SIGNATURE>
+  <SIGNATURE signature_counter="3" logic="1"> <TRIGGERELEMENT te_name="e20_tr"  /> </SIGNATURE>
+  <SIGNATURE signature_counter="4" logic="1"> <TRIGGERELEMENT te_name="e20i_tr" /> </SIGNATURE>
+  </SIGNATURE_LIST>
+
+</CHAIN>
+
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  -->
+
+<CHAIN chain_id="gamma_elec_muL2" chain_counter="4" lower_chain_id="EM20_EM40_MU20" level="L2" prescale="1" pass_through="0">
+
+  <SIGNATURE_LIST>
+  <SIGNATURE signature_counter="1" logic="1"> <TRIGGERELEMENT te_name="e_cand"    /> 
+                                              <TRIGGERELEMENT te_name="track_cand"/> 
+                                              <TRIGGERELEMENT te_name="g"         />
+                                              <TRIGGERELEMENT te_name="mu"        /> 
+  </SIGNATURE>
+  <SIGNATURE signature_counter="2" logic="1"> <TRIGGERELEMENT te_name="e_cand"    /> 
+                                              <TRIGGERELEMENT te_name="track_cand"/> 
+                                              <TRIGGERELEMENT te_name="g"         />
+                                              <TRIGGERELEMENT te_name="mu20" /> 
+  </SIGNATURE>
+  </SIGNATURE_LIST>
+
+</CHAIN>
+
+<CHAIN chain_id="gmuEF" chain_counter="2" lower_chain_id="gmuL2" level="EF" prescale="1" pass_through="0">
+
+  <SIGNATURE_LIST>
+  <SIGNATURE signature_counter="1" logic="1"> <TRIGGERELEMENT te_name="e"       /> 
+                                              <TRIGGERELEMENT te_name="g4"      /> 
+                                              <TRIGGERELEMENT te_name="mu20i"   />
+  </SIGNATURE>
+  <SIGNATURE signature_counter="2" logic="1"> <TRIGGERELEMENT te_name="e_tr"    /> 
+                                              <TRIGGERELEMENT te_name="g40"     /> 
+                                              <TRIGGERELEMENT te_name="mu20i"   />
+  </SIGNATURE>
+  <SIGNATURE signature_counter="3" logic="1"> <TRIGGERELEMENT te_name="e20_tr"  /> 
+                                              <TRIGGERELEMENT te_name="g40i"    /> 
+                                              <TRIGGERELEMENT te_name="mu20i"   />
+  </SIGNATURE>
+  <SIGNATURE signature_counter="4" logic="1"> <TRIGGERELEMENT te_name="e20i_tr" /> 
+                                              <TRIGGERELEMENT te_name="g40i"    /> 
+                                              <TRIGGERELEMENT te_name="mu20i"   />
+  </SIGNATURE>
+  </SIGNATURE_LIST>
+
+</CHAIN>
+
+<!-- ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++  -->
+
+</CHAIN_LIST>

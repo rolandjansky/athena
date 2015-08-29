@@ -11,7 +11,9 @@
 
 #include <string>
 #include <vector>
-#include "GaudiKernel/Property.h"
+//#include "GaudiKernel/Property.h"
+
+class Property;
 
 namespace TrigConf {
 
@@ -25,7 +27,7 @@ namespace TrigConf {
      *
      * @param myOpt first property
      */
-    JobOptionsList( const std::string& myAlg, const Property* const& myOpt );
+    JobOptionsList( const std::string myAlg, const Property* const& myOpt );
 
     /**@brief destructor
      *
@@ -45,7 +47,7 @@ namespace TrigConf {
      * 
      * @returns name of algorithm
      */
-    virtual const std::string& algorithmName() const;
+    virtual std::string algorithmName() const;
 
     /**@brief accessor to the vector of properties
      * 

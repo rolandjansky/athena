@@ -82,7 +82,6 @@ namespace TrigConf {
 
       // Properties:
       bool            m_setMergedHLT; 
-      bool            m_doMon;
       std::string     m_partition;
       Histo1DProperty m_histProp_timePrescaleUpdate;
 

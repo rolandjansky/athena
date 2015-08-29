@@ -51,13 +51,22 @@ TrigConf::HLTJobOptionsSvc::readEnv()
 StatusCode
 TrigConf::HLTJobOptionsSvc::sysInitialize() {
 
-   //We specifically do not call the base class sysInitialize here (ATR-15094)
-   //StatusCode sc = base_class::sysInitialize(); 
-   
-   ATH_CHECK(initialize()); 
-   ATH_CHECK(setMyProperties(name(), this));
+   // problem is that AthService::sysInitialize forbids the setting of the outputLevel in ::initialize
+   // (which is problematic for modifying the HLTJobOptionsSvc)
+   StatusCode sc = base_class::sysInitialize(); 
 
-   return StatusCode::SUCCESS;
+   if(sc.isSuccess())
+   {
+      // set the message level from the DB
+      vector<const Property*>* ownProperties;
+      m_catalogue.optionsOf( name(), ownProperties);
+      for(const Property * p : *ownProperties) {
+         if(p->name() != "OutputLevel") continue;
+         this->setProperty( "OutputLevel", *p );
+         break;
+      }
+   }
+   return sc;
 }
 
 //----------------------------------------------------------------------------
@@ -255,15 +264,15 @@ StatusCode
 TrigConf::HLTJobOptionsSvc::queryInterface( const InterfaceID& riid, void** ppvIF )
 //----------------------------------------------------------------------------
 {
-   if ( IJobOptionsSvc::interfaceID() == riid )  {
-      *ppvIF = (IJobOptionsSvc*) this;
-   } else if ( IProperty::interfaceID() == riid ) {
-      *ppvIF = (IProperty*) this;
-   } else  {
-      return Service::queryInterface(riid, ppvIF);
-   }
-   addRef();
-   return StatusCode::SUCCESS;
+  if ( IJobOptionsSvc::interfaceID() == riid )  {
+    *ppvIF = (IJobOptionsSvc*) this;
+  } else if ( IProperty::interfaceID() == riid ) {
+    *ppvIF = (IProperty*) this;
+  } else  {
+    return Service::queryInterface(riid, ppvIF);
+  }
+  addRef();
+  return StatusCode::SUCCESS;
 }
 
 
@@ -502,24 +511,6 @@ TrigConf::HLTJobOptionsSvc::getProperties( const std::string& client) const
   }
   return 0;
 }
-
-//----------------------------------------------------------------------------
-const Property* 
-TrigConf::HLTJobOptionsSvc::getClientProperty( const std::string& client,
-                                                 const std::string& name ) const
-//----------------------------------------------------------------------------
-{
-  auto props = getProperties(client);
-  for (auto p: *props) {
-    if (p->name() == name) {
-      return p;
-    }
-  }
-
-  return nullptr;
-
-}
-
 //----------------------------------------------------------------------------
 std::vector<std::string>
 TrigConf::HLTJobOptionsSvc::getClients() const

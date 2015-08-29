@@ -99,7 +99,8 @@ TrigConf::TrigConfDataIOVChanger::execute() {
       return StatusCode::FAILURE;
    }
 
-   unsigned int runNumber = eventInfo->event_ID()->run_number();
+   EventID* myEventID = eventInfo->event_ID();
+   unsigned int runNumber = myEventID->run_number();
   
    if(m_LastRun == runNumber)       // already executed in this run?
       return StatusCode::SUCCESS;
@@ -224,7 +225,7 @@ TrigConf::TrigConfDataIOVChanger::execute() {
          }
       }
 
-      if( msgLevel()<=MSG::VERBOSE) {
+      if( outputLevel()<=MSG::VERBOSE) {
          itAttList    = payload->begin();
          for (; itAttList != itAttListEnd; ++itAttList)
             printOut((*itAttList));

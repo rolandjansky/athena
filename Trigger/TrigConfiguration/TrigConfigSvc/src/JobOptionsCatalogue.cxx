@@ -25,7 +25,7 @@ TrigConf::JobOptionsCatalogue::~JobOptionsCatalogue() {
 
 //----------------------------------------------------------------------------
 StatusCode
-TrigConf::JobOptionsCatalogue::findAlgorithm( const std::string& myAlg, 
+TrigConf::JobOptionsCatalogue::findAlgorithm( const std::string myAlg, 
                                                JobOptionsList*& myList ) const {
   std::vector<JobOptionsList*>::const_iterator iter;
 	for( iter = m_algorithmoptions.begin();
@@ -42,7 +42,7 @@ TrigConf::JobOptionsCatalogue::findAlgorithm( const std::string& myAlg,
 
 //----------------------------------------------------------------------------
 void
-TrigConf::JobOptionsCatalogue::addOption( const std::string& myAlg, 
+TrigConf::JobOptionsCatalogue::addOption( const std::string myAlg, 
                                           const Property* const& myOpt ) {
 	JobOptionsList* myList;
 	StatusCode sc = this->findAlgorithm( myAlg, myList );
@@ -113,7 +113,7 @@ TrigConf::JobOptionsCatalogue::printUnresolvedOptions(MsgStream& msgStream) {
           if ( s.length() > 0 && s[0] == '@' )    {
             msgStream << MSG::FATAL << "Found problematic option:" 
                       << (*iter)->algorithmName() << "." << p->name() 
-                      << " Value[" << i << "] = " << s << endmsg;
+                      << " Value[" << i << "] = " << s << endreq;
           }
         }
       }
@@ -124,7 +124,7 @@ TrigConf::JobOptionsCatalogue::printUnresolvedOptions(MsgStream& msgStream) {
           if ( s.length() > 0 && s[0] == '@' )
             msgStream << MSG::FATAL << "Found problematic option:" 
                       << (*iter)->algorithmName() << "." << p->name() 
-                      << " Value = " << s << endmsg;
+                      << " Value = " << s << endreq;
         }
       }
     }
@@ -181,10 +181,10 @@ TrigConf::JobOptionsCatalogue::resolveOptions(MsgStream& log) {
               }
             }
             else    {
-              log << endmsg
+              log << endreq
                   << MSG::FATAL << "Self references to options are not allowed!"
                   << (*iter)->algorithmName() << "." << p->name() 
-                  << " Value = " << s << endmsg;
+                  << " Value = " << s << endreq;
               return StatusCode::FAILURE;
             }
           }
@@ -223,7 +223,7 @@ TrigConf::JobOptionsCatalogue::resolveOptions(MsgStream& log) {
   if ( loops <= 0 || missing_syms > 0 )   {
     log << MSG::FATAL
         << "Job option symbols cannot be resolved. Bad symbols found."
-        << endmsg;
+        << endreq;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
