@@ -7,8 +7,10 @@
 #ifndef TRIGNAVSTRUCTURE_TYPEDHOLDER_H
 #define TRIGNAVSTRUCTURE_TYPEDHOLDER_H
 
-//#include <stdexcept>
+#include <memory>
+#include <stdexcept>
 #include <type_traits>
+#include <boost/type_traits/is_same.hpp> 
 
 #include "TrigNavStructure/TypelessHolder.h"
 #include "TrigNavStructure/TriggerElement.h"
@@ -33,11 +35,6 @@ typedef StoreGateSvc* EventPtr;
 
 #include "AsgTools/AsgMessaging.h"
 
-
-//forward declarations
-class TrigRoiDescriptor;
-class TrigRoiDescriptorCollection;
-
 namespace HLTNavDetails{
   /**
    * @brief standalone method implementing trigger core software naming scheme
@@ -46,16 +43,6 @@ namespace HLTNavDetails{
 }
 
 namespace HLT{
-
-
-  template<typename FEATURE, typename CONTAINER> class TypedHolder;
-
-
-  /**
-   * @brief specialization for RoIs. The definition is done by the TDT
-   **/
-  template<>
-  class TypedHolder<TrigRoiDescriptor,TrigRoiDescriptorCollection>;
   
   /**
    * @brief doubly templated class interfacing access to feature containers in StoreGate.
@@ -66,39 +53,36 @@ namespace HLT{
     /**
      * @brief shorthand for enable_if with returning StatusCode base on comparison with CONTAINER type
      **/
-    template<typename T,bool value> using StatusCode_if = typename std::enable_if<std::is_same<T,CONTAINER>::value == value,StatusCode>::type;
+    template<typename T,bool value> using StatusCode_if = typename std::enable_if<boost::is_same<T,CONTAINER>::value == value,StatusCode>::type;
 
     /**
      * @brief constructor from BaseHolder. Throws runtime exception if clids of BaseHolder and FEATURE type don't match
      **/
-
-    TypedHolder(const BaseHolder& baseholder, EventPtr store, const std::string& container_name = ClassID_traits<CONTAINER>::typeName()) 
+    TypedHolder(const BaseHolder& baseholder, EventPtr store) 
       : TypelessHolder(baseholder.typeClid(),baseholder.label(),baseholder.subTypeIndex()), 
 	asg::AsgMessaging("TypedHolder"),
 	m_store(store),
 	m_cont(0) {
-      //      if(!clidCheck<FEATURE>())
-      //throw std::runtime_error("attempted construction with CLID mismatch! Check template parameter and passed typeless holder");
-      m_key = HLTNavDetails::formatSGkey("HLT",container_name,this->label());
+      if(this->typeClid() != ClassID_traits<FEATURE>::ID())
+	throw std::runtime_error("attempted construction with CLID mismatch! Check template parameter and passed typeless holder");
     }
-    
+
     /**
      * @brief constructor from BaseHolder. Throws runtime exception if clids of BaseHolder and FEATURE type don't match
      **/
-    TypedHolder(const TypelessHolder& typeless, EventPtr store, const std::string& container_name = ClassID_traits<CONTAINER>::typeName()) 
+    TypedHolder(const TypelessHolder& typeless, EventPtr store) 
       : TypelessHolder(typeless),
 	asg::AsgMessaging("TypedHolder"),
 	m_store(store),
 	m_cont(0) {
-      //if(!clidCheck<FEATURE>())
-      //	throw std::runtime_error("attempted construction with CLID mismatch! Check template parameter and passed typeless holder");
-      m_key = HLTNavDetails::formatSGkey("HLT",container_name,this->label());
+      if(typeClid() != ClassID_traits<FEATURE>::ID())
+	throw std::runtime_error("attempted construction with CLID mismatch! Check template parameter and passed typeless holder");
     }
 
     /**
      * @brief key used to access EventStore
      **/
-    std::string key() const {return m_key;}
+    std::string key(){return HLTNavDetails::formatSGkey("HLT",ClassID_traits<CONTAINER>::typeName(),this->label());}
 
     /**
      * @brief method creates a new VIEW container containing pointers to the elements pointed to by the ObjectIndex.
@@ -169,19 +153,17 @@ namespace HLT{
       if(m_cont) return StatusCode::SUCCESS;
 
       StatusCode sc = m_store->retrieve(m_cont,key());
-      
       //sanity checks
       if(sc.isFailure()) return StatusCode::FAILURE;
       if(!m_cont) return StatusCode::FAILURE;
 
       return StatusCode::SUCCESS;
     }
-    
+
     TypedHolder(){;}
     EventPtr m_store;
     const CONTAINER* m_cont;
-    std::string m_key;
-  };    
+  };
 
 }//namespace HLT
 
