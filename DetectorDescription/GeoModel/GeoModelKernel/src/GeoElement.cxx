@@ -68,7 +68,7 @@ double GeoElement::getRadTsai() const
   const double Lrad_light[]  = {5.31,  4.79,  4.74,  4.71};
   const double Lprad_light[] = {6.144, 5.621, 5.805, 5.924};
 
-  const double logZ3 = std::log(z)/3.;
+  const double logZ3 = std::log(z) * (1./3);
 
   double Lrad, Lprad;
   int iz = (int)(z+0.5) - 1 ;

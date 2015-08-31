@@ -75,8 +75,8 @@ double GeoTrd::volume () const
   double fDx1 = xHalfLength1;
   double fDx2 = xHalfLength2;
   double fDy2 = yHalfLength2;
-  return 4.0 * ((fDx1 + fDx2) * (fDy1 + fDy2) * (fDz / 2.0) +
-		(fDx2 - fDx1) * (fDy2 - fDy1) * (fDz / 6.0));
+  return 4.0 * ((fDx1 + fDx2) * (fDy1 + fDy2) * (fDz * 0.5) +
+		(fDx2 - fDx1) * (fDy2 - fDy1) * (fDz * (1./6)));
 
   //## end GeoTrd::volume%3CD2A6F6026D.body
 }

@@ -79,9 +79,9 @@ double GeoPcon::volume () const
       double fRmax1 = getRMaxPlane (s + 1);
       double fRmax2 = getRMaxPlane (s);
       v +=
-	(dPhi / 3.0) * fDz * (fRmax1 * fRmax1 + fRmax2 * fRmax2 +
-			      fRmax1 * fRmax2 - fRmin1 * fRmin1 -
-			      fRmin2 * fRmin2 - fRmin1 * fRmin2);
+	(dPhi * (1./3)) * fDz * (fRmax1 * fRmax1 + fRmax2 * fRmax2 +
+                                 fRmax1 * fRmax2 - fRmin1 * fRmin1 -
+                                 fRmin2 * fRmin2 - fRmin1 * fRmin2);
     }
   return v;
 

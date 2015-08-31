@@ -697,10 +697,11 @@ GeoPolyhedron::RotateAroundZ (int nstep, double phi, double dphi,
 
   double cosPhi, sinPhi;
 
+  double fac = delPhi / nSphi;
   for (j = 0; j < nVphi; j++)
     {
-      cosPhi = cos (phi + j * delPhi / nSphi);
-      sinPhi = sin (phi + j * delPhi / nSphi);
+      cosPhi = cos (phi + j * fac);
+      sinPhi = sin (phi + j * fac);
       for (i = i1beg; i <= i2end; i++)
 	{
 	  if (r[i] != 0.)
@@ -1572,7 +1573,7 @@ GeoPolyhedron::GetVolume () const
 	}
       v += ((pV[i2] - pV[i0]).cross (pV[i3] - pV[i1])).dot (g);
     }
-  return v / 6.;
+  return v * (1./6);
 }
 
 GeoPolyhedronTrd2::GeoPolyhedronTrd2 (double Dx1, double Dx2,
@@ -1997,7 +1998,7 @@ GeoPolyhedronSphere::GeoPolyhedronSphere (double rmin, double rmax,
   //   P R E P A R E   T W O   P O L Y L I N E S
 
   int ns = (GetNumberOfRotationSteps () + 1) / 2;
-  int np1 = int (dthe * ns / M_PI + .5) + 1;
+  int np1 = int (dthe * ns * M_1_PI + .5) + 1;
   if (np1 <= 1)
     np1 = 2;
   int np2 = rmin < perMillion ? 1 : np1;

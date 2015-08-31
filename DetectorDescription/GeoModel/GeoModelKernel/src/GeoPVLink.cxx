@@ -79,37 +79,37 @@ GeoPVLink::~GeoPVLink()
 GeoVPhysVol & GeoPVLink::operator * ()
 {
   //## begin GeoPVLink::operator *%3D13DE1B0311.body preserve=yes
-  return *ptr;
+  return *m_ptr;
   //## end GeoPVLink::operator *%3D13DE1B0311.body
 }
 
 GeoVPhysVol * GeoPVLink::operator -> ()
 {
   //## begin GeoPVLink::operator->%3D13DE1B032F.body preserve=yes
-  return ptr;
+  return m_ptr;
   //## end GeoPVLink::operator->%3D13DE1B032F.body
 }
 
 const GeoVPhysVol & GeoPVLink::operator * () const
 {
   //## begin GeoPVLink::operator *%3D140E0001EC.body preserve=yes
-  return *ptr;
+  return *m_ptr;
   //## end GeoPVLink::operator *%3D140E0001EC.body
 }
 
 const GeoVPhysVol * GeoPVLink::operator -> () const
 {
   //## begin GeoPVLink::operator->%3D140E000214.body preserve=yes
-  return ptr;
+  return m_ptr;
   //## end GeoPVLink::operator->%3D140E000214.body
 }
 
-const GeoPVLink& GeoPVLink::operator = (const GeoPVLink& right) const
+GeoPVLink& GeoPVLink::operator = (const GeoPVLink& right)
 {
   //## begin GeoPVLink::operator=%3D1DC1D202EA.body preserve=yes
   if (&right != this)
     {
-      ptr = right.ptr;
+      m_ptr = right.m_ptr;
     }
   return *this;
   //## end GeoPVLink::operator=%3D1DC1D202EA.body

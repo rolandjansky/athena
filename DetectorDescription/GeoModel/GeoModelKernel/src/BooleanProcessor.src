@@ -22,7 +22,7 @@
 
 #define INITIAL_SIZE 200
 #define CRAZY_POINT  HVPoint3D(-10.e+6, -10.e+6, -10.e+6)
-#define GRANULARITY  10.e+5;
+#define GRANULARITY  (10.e+5)
 
 #define SWAP(A,B) w = A; A = B; B = w
 
@@ -312,6 +312,11 @@ void BooleanProcessor::takePolyhedron(const GeoPolyhedron & p,
   int dnode = nodes.size() - 1;
   int dface = faces.size() - 1;
 
+#ifdef __GNUC__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Warray-bounds"
+#endif
+
   //   S E T   N O D E S
 
   //  for (i=1; i <= p.GetNoVertices(); i++) {  
@@ -383,6 +388,10 @@ void BooleanProcessor::takePolyhedron(const GeoPolyhedron & p,
     faces.back().inext = faces.size(); 
   }
   faces.back().inext = 0; 
+
+#ifdef __GNUC__
+#pragma GCC diagnostic pop
+#endif
 }
 
 double BooleanProcessor::findMinMax()
@@ -443,7 +452,7 @@ double BooleanProcessor::findMinMax()
     if ((rmax1[i]-rmin1[i]) > del1) del1 = rmax1[i]-rmin1[i]; 
     if ((rmax2[i]-rmin2[i]) > del2) del2 = rmax2[i]-rmin2[i]; 
   }
-  return ((del1 < del2) ? del1 : del2) / GRANULARITY;
+  return ((del1 < del2) ? del1 : del2) * (1./GRANULARITY);
 }
 
 void BooleanProcessor::selectOutsideFaces(int & ifaces, int & iout)
@@ -1213,12 +1222,11 @@ BooleanProcessor::findABC(double x1, double y1, double x2, double y2,
  *                                                                     *
  ***********************************************************************/
 {
-  double w;
   a  = y1 - y2;
   b  = x2 - x1;
-  w  = fabs(a)+fabs(b);
-  a /= w;
-  b /= w;
+  double inv_w  = 1 / (fabs(a)+fabs(b));
+  a *= inv_w;
+  b *= inv_w;
   c  = -(a*x2 + b*y2);
 }
 

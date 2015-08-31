@@ -45,12 +45,13 @@ GeoXPEngine::GeoXPEngine (const Genfun::AbsFunction & Bx,
     Genfun::Variable Px(0,6),Py(1,6), Pz(2,6), X(3,6), Y(4,6), Z(5,6);
     Genfun::FixedConstant I(1.0);
     
-    Genfun::GENFUNCTION DPxDt  = (q/E)*(Py*(I%I%I%Bz) -Pz*(I%I%I%By))*CLHEP::c_light;
-    Genfun::GENFUNCTION DPyDt  = (q/E)*(Pz*(I%I%I%Bx) -Px*(I%I%I%Bz))*CLHEP::c_light;
-    Genfun::GENFUNCTION DPzDt  = (q/E)*(Px*(I%I%I%By) -Py*(I%I%I%Bx))*CLHEP::c_light;
-    Genfun::GENFUNCTION DxDt   = Px/E;
-    Genfun::GENFUNCTION DyDt   = Py/E;
-    Genfun::GENFUNCTION DzDt   = Pz/E;
+    const double inv_E = 1. / E;
+    Genfun::GENFUNCTION DPxDt  = (q*inv_E)*(Py*(I%I%I%Bz) -Pz*(I%I%I%By))*CLHEP::c_light;
+    Genfun::GENFUNCTION DPyDt  = (q*inv_E)*(Pz*(I%I%I%Bx) -Px*(I%I%I%Bz))*CLHEP::c_light;
+    Genfun::GENFUNCTION DPzDt  = (q*inv_E)*(Px*(I%I%I%By) -Py*(I%I%I%Bx))*CLHEP::c_light;
+    Genfun::GENFUNCTION DxDt   = Px*inv_E;
+    Genfun::GENFUNCTION DyDt   = Py*inv_E;
+    Genfun::GENFUNCTION DzDt   = Pz*inv_E;
     
     rkIntegrator.addDiffEquation(&DPxDt, "Px",p0.x(), p0.x(), p0.x());
     rkIntegrator.addDiffEquation(&DPyDt, "Py",p0.y(), p0.y(), p0.y());
