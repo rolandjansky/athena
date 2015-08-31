@@ -233,6 +233,9 @@ namespace xAOD {
       /** Property: exclude tile scintillator*/
       bool m_ExcludeTG3;
 
+      /** Property: Use cached caloExtension if avaliable. */
+      bool m_useCaloExtensionCaching;
+
       /** map to the orignal particle */
       std::map<const IParticle*, const IParticle*> m_derefMap;
 
