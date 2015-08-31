@@ -35,7 +35,7 @@ GeoPVConstLink::GeoPVConstLink()
   //## begin GeoPVConstLink::GeoPVConstLink%3D13D8DE0092_const.hasinit preserve=no
   //## end GeoPVConstLink::GeoPVConstLink%3D13D8DE0092_const.hasinit
   //## begin GeoPVConstLink::GeoPVConstLink%3D13D8DE0092_const.initialization preserve=yes
-:ptr (0)
+:m_ptr (0)
   //## end GeoPVConstLink::GeoPVConstLink%3D13D8DE0092_const.initialization
 {
   //## begin GeoPVConstLink::GeoPVConstLink%3D13D8DE0092_const.body preserve=yes
@@ -47,7 +47,7 @@ GeoPVConstLink::GeoPVConstLink(const GeoPVConstLink &right)
   //## end GeoPVConstLink::GeoPVConstLink%3D13D8DE0092_copy.hasinit
   //## begin GeoPVConstLink::GeoPVConstLink%3D13D8DE0092_copy.initialization preserve=yes
   :
-ptr (right.ptr)
+m_ptr (right.m_ptr)
   //## end GeoPVConstLink::GeoPVConstLink%3D13D8DE0092_copy.initialization
 {
   //## begin GeoPVConstLink::GeoPVConstLink%3D13D8DE0092_copy.body preserve=yes
@@ -59,7 +59,7 @@ GeoPVConstLink::GeoPVConstLink (const GeoVPhysVol  *addr)
   //## end GeoPVConstLink::GeoPVConstLink%3D14059C00B8.hasinit
   //## begin GeoPVConstLink::GeoPVConstLink%3D14059C00B8.initialization preserve=yes
   :
-ptr (const_cast < GeoVPhysVol * >(addr))
+m_ptr (const_cast < GeoVPhysVol * >(addr))
   //## end GeoPVConstLink::GeoPVConstLink%3D14059C00B8.initialization
 {
   //## begin GeoPVConstLink::GeoPVConstLink%3D14059C00B8.body preserve=yes
@@ -77,14 +77,14 @@ GeoPVConstLink::~GeoPVConstLink()
 int GeoPVConstLink::operator==(const GeoPVConstLink &right) const
 {
   //## begin GeoPVConstLink::operator==%3D13D8DE0092_eq.body preserve=yes
-  return ptr == right.ptr;
+  return m_ptr == right.m_ptr;
   //## end GeoPVConstLink::operator==%3D13D8DE0092_eq.body
 }
 
 int GeoPVConstLink::operator!=(const GeoPVConstLink &right) const
 {
   //## begin GeoPVConstLink::operator!=%3D13D8DE0092_neq.body preserve=yes
-  return ptr != right.ptr;
+  return m_ptr != right.m_ptr;
   //## end GeoPVConstLink::operator!=%3D13D8DE0092_neq.body
 }
 
@@ -92,28 +92,28 @@ int GeoPVConstLink::operator!=(const GeoPVConstLink &right) const
 int GeoPVConstLink::operator<(const GeoPVConstLink &right) const
 {
   //## begin GeoPVConstLink::operator<%3D13D8DE0092_ls.body preserve=yes
-  return ptr < right.ptr;
+  return m_ptr < right.m_ptr;
   //## end GeoPVConstLink::operator<%3D13D8DE0092_ls.body
 }
 
 int GeoPVConstLink::operator>(const GeoPVConstLink &right) const
 {
   //## begin GeoPVConstLink::operator>%3D13D8DE0092_gt.body preserve=yes
-  return ptr > right.ptr;
+  return m_ptr > right.m_ptr;
   //## end GeoPVConstLink::operator>%3D13D8DE0092_gt.body
 }
 
 int GeoPVConstLink::operator<=(const GeoPVConstLink &right) const
 {
   //## begin GeoPVConstLink::operator<=%3D13D8DE0092_lseq.body preserve=yes
-  return ptr <= right.ptr;
+  return m_ptr <= right.m_ptr;
   //## end GeoPVConstLink::operator<=%3D13D8DE0092_lseq.body
 }
 
 int GeoPVConstLink::operator>=(const GeoPVConstLink &right) const
 {
   //## begin GeoPVConstLink::operator>=%3D13D8DE0092_gteq.body preserve=yes
-  return ptr >= right.ptr;
+  return m_ptr >= right.m_ptr;
   //## end GeoPVConstLink::operator>=%3D13D8DE0092_gteq.body
 }
 
@@ -123,30 +123,30 @@ int GeoPVConstLink::operator>=(const GeoPVConstLink &right) const
 const GeoVPhysVol & GeoPVConstLink::operator * () const
 {
   //## begin GeoPVConstLink::operator *%3D13DCE90234.body preserve=yes
-  return *ptr;
+  return *m_ptr;
   //## end GeoPVConstLink::operator *%3D13DCE90234.body
 }
 
 const GeoVPhysVol * GeoPVConstLink::operator -> () const
 {
   //## begin GeoPVConstLink::operator->%3D13DD9601ED.body preserve=yes
-  return ptr;
+  return m_ptr;
   //## end GeoPVConstLink::operator->%3D13DD9601ED.body
 }
 
 GeoPVConstLink::operator bool () const
 {
   //## begin GeoPVConstLink::operator bool%3D140A1E02A1.body preserve=yes
-  return ptr;
+  return m_ptr;
   //## end GeoPVConstLink::operator bool%3D140A1E02A1.body
 }
 
-const GeoPVConstLink& GeoPVConstLink::operator = (const GeoPVConstLink& right) const
+GeoPVConstLink& GeoPVConstLink::operator = (const GeoPVConstLink& right)
 {
   //## begin GeoPVConstLink::operator=%3D1DC05000AA.body preserve=yes
   if (this != &right)
     {
-      ptr = right.ptr;
+      m_ptr = right.m_ptr;
     }
   return *this;
   //## end GeoPVConstLink::operator=%3D1DC05000AA.body

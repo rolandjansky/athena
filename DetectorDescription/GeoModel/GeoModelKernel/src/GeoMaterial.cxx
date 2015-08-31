@@ -363,9 +363,11 @@ void GeoMaterial::lock ()
 		<< ". Mass fractions sum to "      
 	        << wSum << "; renormalizing to 1.0" << std::endl;
     }
-    for (size_t e=0;e<getNumElements();e++) {_fraction[e]/=wSum;}
+    double inv_wSum = 1. / wSum;
+    for (size_t e=0;e<getNumElements();e++) {_fraction[e]*=inv_wSum;}
   } // ==============================================================
 
+  const double inv_lambda0 = 1. / lambda0;
   for (size_t e = 0; e < getNumElements (); e++)
     {
       double w = getFraction (e);	// Weight fraction.     
@@ -378,7 +380,7 @@ void GeoMaterial::lock ()
 
       dEDxConstant += w * C0 * dovera * Z;
       dEDxI0 += w * _ionizationPotential[iZ];
-      NILinv += n * pow (N, 2.0 / 3.0) * CLHEP::amu / lambda0;
+      NILinv += n * pow (N, 2.0 / 3.0) * CLHEP::amu * inv_lambda0;
 
       double nAtomsPerVolume = A ? CLHEP::Avogadro*density*_fraction[e]/A : 0.;
       radInv += (nAtomsPerVolume*_element[e]->getRadTsai());

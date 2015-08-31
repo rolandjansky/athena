@@ -86,7 +86,7 @@ class GeoPVLink : public GeoPVConstLink  //## Inherits: <unnamed>%3D13DE0A01F4
 
       //## Operation: operator=%3D1DC1D202EA
       //	Assignment operator.
-      const GeoPVLink& operator = (const GeoPVLink& right) const;
+      GeoPVLink& operator = (const GeoPVLink& right);
 
     // Additional Public Declarations
       //## begin GeoPVLink%3D13DDFD02C8.public preserve=yes

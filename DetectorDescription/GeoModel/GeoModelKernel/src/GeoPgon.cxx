@@ -94,7 +94,7 @@ double GeoPgon::volume () const
     // Equivalent which should be less sensitive to numerical precision errors:
     v += fabs(z1 - z2) * ((a1 - a2) * (a1 + a2)  + 
 			  (a1*b1 - a2*b2) * (z1 + z2) +
-			  (b1 - b2) * (b1 + b2) * (z1*z1+z2*z2+z1*z2)/3.);  
+			  (b1 - b2) * (b1 + b2) * (z1*z1+z2*z2+z1*z2)*(1./3));  
   } 
   v *=  0.5 * sides * sinAlpha;
   return v;
