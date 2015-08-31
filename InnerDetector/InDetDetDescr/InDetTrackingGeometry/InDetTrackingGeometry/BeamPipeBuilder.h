@@ -80,7 +80,7 @@ namespace InDet {
       double                                        m_beamPipeThickness;  //!< thickness of the beam pipe
       double                                        m_beamPipeX0;         //!< X0 of the beam pipe
       double                                        m_beamPipeL0;         //!< X0 of the beam pipe
-      double                                        m_beamPipedEdX;       //!< dEdX of the beam pipe
+      //double                                        m_beamPipedEdX;       //!< dEdX of the beam pipe
       double                                        m_beamPipeA;          //!< averageA of the beam pipe
       double                                        m_beamPipeZ;          //!< averageZ of the beam pipe
       double                                        m_beamPipeRho;        //!< averageRho of the beam pipe

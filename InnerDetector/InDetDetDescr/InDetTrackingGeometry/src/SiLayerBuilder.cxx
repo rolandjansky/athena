@@ -319,14 +319,15 @@ const std::vector< const Trk::CylinderLayer* >* InDet::SiLayerBuilder::cylindric
       bool nonEquidistantBinning = false;
       {
           // calculate the average bin size
-          double averageBinSize = (layerMaxZ[layerCounter]-layerMinZ[layerCounter])/(layerZsectors[layerCounter]);
+          const double averageBinSize = (layerMaxZ[layerCounter]-layerMinZ[layerCounter])/(layerZsectors[layerCounter]);
+          const double inv_averageBinSize2 = 1. / (averageBinSize*averageBinSize);
           // loop over the boundaries and check if theyare outside the tolerance
           auto bIter  = layerZboundaries[layerCounter].begin();
           auto bIterE = layerZboundaries[layerCounter].end();
           for ( ++bIter; bIter != bIterE; ++bIter ){
               float cZ = (*bIter);
               float pZ = (*(bIter-1));
-              nonEquidistantBinning =  (cZ-pZ)*(cZ-pZ)/(averageBinSize*averageBinSize) < (1.-m_barrelEdbTolerance) *(1.-m_barrelEdbTolerance);
+              nonEquidistantBinning =  (cZ-pZ)*(cZ-pZ)*inv_averageBinSize2 < (1.-m_barrelEdbTolerance) *(1.-m_barrelEdbTolerance);
               if (nonEquidistantBinning){
                   ATH_MSG_VERBOSE("Non-equidistant binning for (Silicon) Surfaces on this layer with radius " << layerRadiusIter << " detected. ");
                   ATH_MSG_VERBOSE("Difference " << (cZ-pZ)/averageBinSize << " at a allowed tolerance of : " << m_barrelEdbTolerance );

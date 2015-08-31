@@ -40,7 +40,7 @@ InDet::BeamPipeBuilder::BeamPipeBuilder(const std::string& t, const std::string&
   m_beamPipeThickness(1.*Gaudi::Units::mm),
   m_beamPipeX0(352.8*Gaudi::Units::mm),
   m_beamPipeL0(407.*Gaudi::Units::mm),
-  m_beamPipedEdX(0.2945*Gaudi::Units::MeV/Gaudi::Units::mm),
+  //m_beamPipedEdX(0.2945*Gaudi::Units::MeV/Gaudi::Units::mm),
   m_beamPipeA(9.012),
   m_beamPipeZ(4.),
   m_beamPipeRho(1.848e-3),
