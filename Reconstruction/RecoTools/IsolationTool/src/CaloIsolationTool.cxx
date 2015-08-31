@@ -9,20 +9,13 @@
 //////////////////////////////////////////////////////////////////////////////
 
 //<<<<<< INCLUDES                                                       >>>>>>
-#include "IsolationTool/CaloIsolationTool.h"
+#include "CaloIsolationTool.h"
 #include "CaloGeoHelpers/CaloSampling.h"
-
-#ifndef XAOD_ANALYSIS
 #include "CaloEvent/CaloCell.h"
 #include "TrackToCalo/CaloCellSelectorLayerdR.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkCaloExtension/CaloExtension.h"
-#include "CaloUtils/CaloClusterStoreHelper.h"
-#include "CaloUtils/CaloCellList.h"
-#include "GaudiKernel/ThreadLocalContext.h"
-#endif // XAOD_ANALYSIS
 
-// #include "IsolationCorrections/IIsolationCorrectionTool.h"
 #include "xAODPrimitives/IsolationConeSize.h"
 #include "xAODPrimitives/IsolationFlavour.h"
 #include "xAODPrimitives/IsolationCorrection.h"
@@ -32,9 +25,13 @@
 #include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h"
 
 #include "xAODEgamma/Egamma.h"
-#include "xAODEgamma/EgammaDefs.h"
 #include "xAODMuon/Muon.h"
-#include "xAODEgamma/EgammaxAODHelpers.h"
+#include "FourMomUtils/P4Helpers.h"
+#include "CaloUtils/CaloClusterStoreHelper.h"
+#include "CaloUtils/CaloCellList.h"
+#include "CaloClusterCorrection/CaloFillRectangularCluster.h"
+
+#include "IsolationCorrections/IIsolationCorrectionTool.h"
 
 #include "boost/foreach.hpp"
 #include "boost/format.hpp"
@@ -42,66 +39,47 @@
 #include <map> 
 
 
-namespace {
-#if defined(SIMULATIONBASE) || defined(XAOD_ANALYSIS)
-size_t cluster_size (const xAOD::CaloCluster* ) { return 0; }
-#else
-size_t cluster_size (const xAOD::CaloCluster* cl) { return cl->size(); }
-#endif
-}
-
-
 namespace xAOD {
  
-  CaloIsolationTool::CaloIsolationTool (const std::string& name):
-        asg::AsgTool(name),
-#ifndef XAOD_ANALYSIS
+  //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
+
+  CaloIsolationTool::CaloIsolationTool (const std::string& type, const std::string& name, const IInterface* parent)
+    :	AthAlgTool(type, name, parent),
+
         m_assoTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool"),
         m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
 	m_clustersInConeTool("xAOD::CaloClustersInConeTool/CaloClustersInConeTool"),
         m_pflowObjectsInConeTool(""),
-        m_caloFillRectangularTool(""),
-#endif // XAOD_ANALYSIS
-        m_IsoLeakCorrectionTool("")
+        m_caloFillRectangularTool("")
   {
-#ifndef XAOD_ANALYSIS
     declareInterface<ICaloCellIsolationTool>(this);
     declareInterface<ICaloTopoClusterIsolationTool>(this);
     declareInterface<INeutralEFlowIsolationTool>(this);
     declareProperty("ParticleCaloCellAssociationTool", m_assoTool);
     declareProperty("ParticleCaloExtensionTool",       m_caloExtTool);      
+
+    // Topo Isolation parameters
     declareProperty("ClustersInConeTool",             m_clustersInConeTool);
     declareProperty("PFlowObjectsInConeTool",         m_pflowObjectsInConeTool);
-    declareProperty("CaloFillRectangularClusterTool", m_caloFillRectangularTool, "Handle of the CaloFillRectangularClusterTool");
-    declareProperty("UseCaloExtensionCaching", m_useCaloExtensionCaching = true, "Use cached caloExtension if avaliable.");
-#endif // XAOD_ANALYSIS
-
-    declareProperty("IsoLeakCorrectionTool",          m_IsoLeakCorrectionTool,         "Handle on the leakage correction tool");
-    // Topo Isolation parameters
     declareProperty("UseEMScale",                     m_useEMScale = true, "Use TopoClusters at the EM scale.");
+    declareProperty("CaloFillRectangularClusterTool", m_caloFillRectangularTool, "Handle of the CaloFillRectangularClusterTool");
     // Handle of the calorimetric isolation tool
+    declareProperty("IsoLeakCorrectionTool",          m_IsoLeakCorrectionTool,         "Handle on the leakage correction tool");
     declareProperty("doEnergyDensityCorrection",      m_doEnergyDensityCorrection    = true, "Correct isolation variables based on energy density estimations");
     declareProperty("saveOnlyRequestedCorrections",   m_saveOnlyRequestedCorrections = false, "save only requested corrections (trigger usage mainly)");
     // list of calo to treat
     declareProperty("EMCaloNums",  m_EMCaloNums,  "list of EM calo to treat");
     declareProperty("HadCaloNums", m_HadCaloNums, "list of Had calo to treat");
-    declareProperty("TopoClusterEDCentralContainer", m_tpEDCentral = "TopoClusterIsoCentralEventShape", "Name of TopoCluster ED Central");
-    declareProperty("TopoClusterEDForwardContainer", m_tpEDForward = "TopoClusterIsoForwardEventShape", "Name of TopoCluster ED Forward");
-    declareProperty("TopoClusterEDveryForwardContainer", m_tpEDveryForward = "TopoClusterIsoVeryForwardEventShape", "Name of TopoCluster ED very Forward");
-    declareProperty("EFlowEDCentralContainer", m_efEDCentral = "NeutralParticleFlowIsoCentralEventShape", "Name of energy flow ED Central");
-    declareProperty("EFlowEDForwardContainer", m_efEDForward = "NeutralParticleFlowIsoForwardEventShape", "Name of energy flow ED Forward");
-    declareProperty("coneCoreSizeEg",          m_coneCoreSizeEg = 0.1,  "size of the coneCore core energy correction for egamma objects");
-    declareProperty("coneCoreSizeMu",          m_coneCoreSizeMu = 0.05, "size of the coneCore core energy correction for muons");
 
     // Choose whether TileGap3 cells are excluded 
     declareProperty("ExcludeTG3", m_ExcludeTG3 = true, "Exclude the TileGap3 cells");
-    declareProperty("addCaloExtensionDecoration", m_addCaloDeco = true, "Add the calo decorations");
+    declareProperty("UseCaloExtensionCaching", m_useCaloExtensionCaching = true, "Use cached caloExtension if avaliable.");
   }
 
   CaloIsolationTool::~CaloIsolationTool() { }
   
   StatusCode CaloIsolationTool::initialize() {
-#ifndef XAOD_ANALYSIS 
+    
     if (!m_assoTool.empty())
       ATH_CHECK(m_assoTool.retrieve());
 
@@ -116,7 +94,14 @@ namespace xAOD {
 
     if (!m_caloFillRectangularTool.empty()) {
       ATH_CHECK( m_caloFillRectangularTool.retrieve());
+      m_caloFillRectangularToolPtr=dynamic_cast<CaloFillRectangularCluster*>(&(*m_caloFillRectangularTool));
+      if (!m_caloFillRectangularToolPtr) {
+	ATH_MSG_WARNING("Could not retrieve CaloFillRectangularCluster");      
+      }
     }
+
+    if (!m_IsoLeakCorrectionTool.empty())
+      ATH_CHECK(m_IsoLeakCorrectionTool.retrieve());
 
     //check calo number specified for EM Calos
     unsigned int nSubCalo=static_cast<int>(CaloCell_ID::NSUBCALO);
@@ -140,10 +125,6 @@ namespace xAOD {
       } else 
       	ATH_MSG_DEBUG("Select calorimeter " << m_HadCaloNums[index]);
     }
-#endif // XAOD_ANALYSIS
-
-    if (!m_IsoLeakCorrectionTool.empty())
-      ATH_CHECK(m_IsoLeakCorrectionTool.retrieve());
     
     // Exit function
     return StatusCode::SUCCESS;
@@ -156,29 +137,23 @@ namespace xAOD {
 
 
   // IParticle interface for cell-based isolation (etcone)
- bool CaloIsolationTool::caloCellIsolation(CaloIsolation& result, const IParticle& particle, 
-            const std::vector<Iso::IsolationType>& cones, 
-            CaloCorrection corrlist, 
-            const CaloCellContainer* container) const {
-#ifdef XAOD_ANALYSIS
-    return false;
-#else // XAOD_ANALYSIS
-    derefMap_t derefMap;
+  bool CaloIsolationTool::caloCellIsolation(CaloIsolation& result, const IParticle& particle, 
+					    const std::vector<Iso::IsolationType>& cones, 
+					    CaloCorrection corrlist, 
+					    const CaloCellContainer* container ) {
+
     /// get track particle
     const IParticle* ip = getReferenceParticle(particle);
     if( !ip ){
       ATH_MSG_WARNING("Failed to obtain reference particle");
       return false;
     }
-    derefMap[ip] = &particle;
+    m_derefMap.clear();
+    m_derefMap[ip] = &particle;
 
-    double coneCoreSize = m_coneCoreSizeEg;
-    if (particle.type() == Type::Muon)
-      coneCoreSize = m_coneCoreSizeMu;
-    
     // muon etcone isolation
     const TrackParticle* trkp = dynamic_cast<const TrackParticle*>(ip);
-    if( trkp ) return caloCellIsolation(result,*trkp,cones,corrlist,container,coneCoreSize, derefMap);
+    if( trkp ) return caloCellIsolation(result,*trkp,cones,corrlist,container);
     
     // egamma etcone isolation
     const Egamma* egam = dynamic_cast<const Egamma*>(ip);
@@ -187,40 +162,35 @@ namespace xAOD {
     ATH_MSG_WARNING("CaloCellIsolation only supported for TrackParticles and Egamma");
     
     return true;
-#endif // not XAOD_ANALYSIS
   }
   
   // IParticle interface for cluster-based isolation (topoetcone)
   bool CaloIsolationTool::caloTopoClusterIsolation(CaloIsolation& result, const IParticle& particle, 
 						   const std::vector<Iso::IsolationType>& cones, 
 						   CaloCorrection corrlist, 
-						   const CaloClusterContainer* container  ) const {
-
+						   const CaloClusterContainer* container  ) {
+    
     if ( cones.size() == 0 ) {
       ATH_MSG_DEBUG("No isolation required");
       return false;
     }
 
-    double coneCoreSize = m_coneCoreSizeEg;
-    if (particle.type() == Type::Muon)
-      coneCoreSize = m_coneCoreSizeMu;
-        
-    derefMap_t derefMap;
     /// get track particle
     const IParticle* ip = getReferenceParticle(particle);
     if( !ip ){
       ATH_MSG_WARNING("Failed to obtain reference particle");
       return false;
     }
-    derefMap[ip] = &particle;
+    m_derefMap.clear();
+    m_derefMap[ip] = &particle;
 
     // muon topoetcone isolation
     const TrackParticle* trkp = dynamic_cast<const TrackParticle*>(ip);
-    if( trkp ) return caloTopoClusterIsolation(result,*trkp,cones,corrlist,container,nullptr,nullptr,coneCoreSize,derefMap);
+    if( trkp ) return caloTopoClusterIsolation(result,*trkp,cones,corrlist,container);
     
     // egamma topoetcone isolation
     const Egamma* egam = dynamic_cast<const Egamma*>(ip);
-    if( egam ) return caloTopoClusterIsolation(result,*egam,cones,corrlist,container, coneCoreSize);
+    if( egam ) return caloTopoClusterIsolation(result,*egam,cones,corrlist,container);
     
     ATH_MSG_WARNING("CaloTopoClusterIsolation only supported for TrackParticles and Egamma");
     
@@ -233,27 +203,22 @@ namespace xAOD {
 						const std::vector<Iso::IsolationType>& cones, 
 						CaloCorrection corrlist) {
     
-    //
-    double coneCoreSize = m_coneCoreSizeEg;
-    if (particle.type() == Type::Muon)
-      coneCoreSize = m_coneCoreSizeMu;
-
-    derefMap_t derefMap;
     /// get track particle
     const IParticle* ip = getReferenceParticle(particle);
     if( !ip ){
       ATH_MSG_WARNING("Failed to obtain reference particle");
       return false;
     }
-    derefMap[ip] = &particle;
+    m_derefMap.clear();
+    m_derefMap[ip] = &particle;
 
     // muon pflowetcone isolation
     const TrackParticle* trkp = dynamic_cast<const TrackParticle*>(ip);
-    if ( trkp ) return neutralEflowIsolation(result,*trkp,cones,corrlist,coneCoreSize,derefMap);
+    if ( trkp ) return neutralEflowIsolation(result,*trkp,cones,corrlist);
 
     // egamma pflowetcone isolation
     const Egamma* egam = dynamic_cast<const Egamma*>(ip);
-    if ( egam ) return neutralEflowIsolation(result,*egam,cones,corrlist,coneCoreSize);
+    if ( egam ) return neutralEflowIsolation(result,*egam,cones,corrlist);
     
     ATH_MSG_WARNING("PFlowObjectIsolation only supported for Egamma and TrackParticle");
 
@@ -262,17 +227,10 @@ namespace xAOD {
   
   
   // casted interface for TrackParticle cell-based isolation (etcone)
-  bool CaloIsolationTool::caloCellIsolation( CaloIsolation& result,
-#ifndef XAOD_ANALYSIS
-  const TrackParticle& tp,
-#endif
-	const std::vector<Iso::IsolationType>& isoTypes, CaloCorrection corrlist
-#ifndef XAOD_ANALYSIS	
-	, const CaloCellContainer* container
-        , double coneCoreSize
-        , const derefMap_t& derefMap
-#endif
-	) const {
+  bool CaloIsolationTool::caloCellIsolation( CaloIsolation& result, const TrackParticle& tp, 
+					     const std::vector<Iso::IsolationType>& isoTypes, 
+					     CaloCorrection corrlist, 
+					     const CaloCellContainer* container ) {
     if( isoTypes.empty() ) {
       ATH_MSG_WARNING("Empty list passed, failing calculation");
       return false;
@@ -284,12 +242,8 @@ namespace xAOD {
     // get cones
     Iso::IsolationFlavour theFlavour = Iso::isolationFlavour(isoTypes.front());
     
-    if (theFlavour == Iso::etcone)
-#ifndef XAOD_ANALYSIS 
-      return etConeIsolation(result, tp, isoTypes, container, coneCoreSize, derefMap);
-#else
-      return true;
-#endif
+    if (theFlavour == Iso::etcone)     
+      return etConeIsolation(result, tp, isoTypes, container);
     
     ATH_MSG_WARNING("Unsupported isolation flavour passed, cannot calculate isolation " << 
 		    static_cast<int>(theFlavour));
@@ -300,11 +254,8 @@ namespace xAOD {
   // casted interface for EGamma cell-based isolation (etcone)
   bool CaloIsolationTool::caloCellIsolation( CaloIsolation& result, const Egamma& eg, 
 					     const std::vector<Iso::IsolationType>& isoTypes, 
-					     CaloCorrection corrlist
-#ifndef XAOD_ANALYSIS 
-					     , const CaloCellContainer* container
-#endif
-                        ) const {
+					     CaloCorrection corrlist, 
+					     const CaloCellContainer* container ) {
     if( isoTypes.empty() ) {
       ATH_MSG_WARNING("Empty list passed, failing calculation");
       return false;
@@ -322,11 +273,7 @@ namespace xAOD {
     Iso::IsolationFlavour theFlavour = Iso::isolationFlavour(isoTypes.front());
     
     if (theFlavour == Iso::etcone){
-#ifndef XAOD_ANALYSIS 
       etConeIsolation(result, eg, isoTypes, container);
-#else
-      return true;
-#endif
     }else{
       ATH_MSG_WARNING("Unsupported isolation flavour passed, cannot calculate isolation " << static_cast<int>(theFlavour));
       return false;
@@ -341,8 +288,10 @@ namespace xAOD {
 
     // leakage correction
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::ptCorrection))) {
-      if (!PtCorrection(result, eg, isoTypes)) 
-	ATH_MSG_WARNING("Could not apply pt correction to etcone isolation");
+      if (!m_IsoLeakCorrectionTool.empty()) {
+	if (!PtCorrection(result, eg, isoTypes)) 
+	  ATH_MSG_WARNING("Could not apply pt correction to etcone isolation");
+      }
     }
     
     return true;
@@ -353,8 +302,7 @@ namespace xAOD {
 						   const Egamma& eg, 
 						   const std::vector<Iso::IsolationType>& isoTypes, 
 						   CaloCorrection corrlist, 
-						   const CaloClusterContainer* container,
-                                                   double coneCoreSize) const
+						   const CaloClusterContainer* container)
   {
     
     if( isoTypes.empty() ) {
@@ -372,31 +320,29 @@ namespace xAOD {
     
     float phi = eg.caloCluster()->phi();
     float eta = eg.caloCluster()->eta();
-
-    // JB
-    const CaloCluster* fwdClus = eg.author(xAOD::EgammaParameters::AuthorFwdElectron) ? eg.caloCluster() : nullptr;
     
-    if (!topoConeIsolation(result, eta, phi, coneSizes, true, container, fwdClus, &eg, coneCoreSize)) {
+    if (!topoConeIsolation(result, eta, phi, coneSizes, true, container)) {
       ATH_MSG_WARNING("topoConeIsolation failed for egamma");
       return false;
     }
-
-    // 5x7 : no meaning for fwd electron
-    if (fwdClus == nullptr && (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::core57cells)))) {
+    
+    if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::core57cells))) {
       // Apply core energy subtraction
       if (!correctIsolationEnergy_Eeg57(result,isoTypes,&eg)) 
 	ATH_MSG_WARNING("Could not compute core cell energy for egamma in topoetcone");
     }
-
-    // leakage : at least for the time being, no meaning for fwd electron
-    if ((!m_saveOnlyRequestedCorrections && fwdClus == nullptr) || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::ptCorrection))) {
+    
+    if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::ptCorrection))) {
       // do pt correction
-      if (!PtCorrection(result, eg, isoTypes))
-        ATH_MSG_WARNING("Could not apply pt correction to topoetcone isolation");
-    } 
+      if (!m_IsoLeakCorrectionTool.empty()) {
+	if (!PtCorrection(result, eg, isoTypes))
+	  ATH_MSG_WARNING("Could not apply pt correction to topoetcone isolation");
+      }
+    }
+    
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::pileupCorrection))) {
       // do pile-up correction
-      if (!EDCorrection(result,isoTypes,eta,"topo",fwdClus))
+      if (m_doEnergyDensityCorrection && !EDCorrection(result,isoTypes,eta))
 	ATH_MSG_WARNING("Could not apply ED correction to topo isolation");
     }
     
@@ -408,8 +354,7 @@ namespace xAOD {
   bool CaloIsolationTool::neutralEflowIsolation(CaloIsolation& result, 
 						const Egamma& eg, 
 						const std::vector<Iso::IsolationType>& isoTypes, 
-						CaloCorrection corrlist,
-                                                double coneCoreSize)
+						CaloCorrection corrlist)
   {
     
     if( isoTypes.empty() ) {
@@ -428,7 +373,7 @@ namespace xAOD {
     float phi = eg.caloCluster()->phi();
     float eta = eg.caloCluster()->eta();
     
-    if (!pflowConeIsolation(result, eta, phi, coneSizes, true, nullptr, coneCoreSize)) {
+    if (!pflowConeIsolation(result, eta, phi, coneSizes, true)) {
       ATH_MSG_WARNING("pflowConeIsolation failed");
       return false;
     }
@@ -441,14 +386,16 @@ namespace xAOD {
 
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::ptCorrection))) {
       // do pt correction
-      if (!PtCorrection(result, eg, isoTypes))
-	ATH_MSG_WARNING("Could not apply pt correction to isolation");
+      if (!m_IsoLeakCorrectionTool.empty()) {
+	if (!PtCorrection(result, eg, isoTypes))
+	  ATH_MSG_WARNING("Could not apply pt correction to isolation");
+      }
     }
 
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::pileupCorrection))) {
       // do pile-up correction
       std::string type = "PFlow";
-      if (!EDCorrection(result,isoTypes,eta,type,nullptr))
+      if (m_doEnergyDensityCorrection && !EDCorrection(result,isoTypes,eta,type))
 	ATH_MSG_WARNING("Could not apply ED correction to topo isolation");
     }
     
@@ -459,9 +406,7 @@ namespace xAOD {
   bool CaloIsolationTool::neutralEflowIsolation(CaloIsolation& result, 
 						const TrackParticle& tp, 
 						const std::vector<Iso::IsolationType>& isoTypes, 
-						CaloCorrection corrlist,
-                                                double coneCoreSize,
-                                                derefMap_t& derefMap)
+						CaloCorrection corrlist)
   {
     
     if( isoTypes.empty() ) {
@@ -479,75 +424,31 @@ namespace xAOD {
 
     float phi = tp.phi();
     float eta = tp.eta();
-    if(!GetExtrapEtaPhi(&tp,eta,phi,derefMap)) ATH_MSG_WARNING("TrackParticle eta = " << tp.eta() << ", phi = " << tp.phi() << " not updated from extraplation!");
+    GetExtrapEtaPhi(&tp,eta,phi);
     ATH_MSG_DEBUG("TrackParticle eta = " << tp.eta() << ", phi = " << tp.phi() << ", extrap eta = " << eta << ", phi = " << phi);  
 
     // The core subtraction with pflow removal is done in the method below
-    if (!pflowConeIsolation(result, eta, phi, coneSizes, false, nullptr, coneCoreSize)) {
+    if (!pflowConeIsolation(result, eta, phi, coneSizes, false)) {
       ATH_MSG_WARNING("pflowConeIsolation failed for muon");
       return false;
     }
 
     // core energy subtraction
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreMuon))) {
-      if (!correctIsolationEnergy_MuonCore(result, tp, derefMap)) 
+      if (!correctIsolationEnergy_MuonCore(result, tp)) 
 	ATH_MSG_WARNING("Could not compute muon core energy (cells) from neflowisol");
     }
 
     // do pile-up correction
     std::string type = "PFlow";
-    if (!EDCorrection(result,isoTypes,eta,type,nullptr)) 
+    if (m_doEnergyDensityCorrection && !EDCorrection(result,isoTypes,eta,type)) 
       ATH_MSG_WARNING("Could not apply ED correction to eflow isolation for muon");
     
     return true;
   }
   
-  bool CaloIsolationTool::GetExtrapEtaPhi(const TrackParticle* tp, float& eta, float& phi,
-                                          derefMap_t& derefMap) const
+  bool CaloIsolationTool::GetExtrapEtaPhi(const TrackParticle* tp, float& eta, float& phi)
   {
-    /// get it from decoration
-    static SG::AuxElement::ConstAccessor< char > Decorated("caloExt_Decorated");
-    static SG::AuxElement::ConstAccessor< float > Eta("caloExt_eta");
-    static SG::AuxElement::ConstAccessor< float > Phi("caloExt_phi");
-    if(Decorated.isAvailable(*tp) && Decorated(*tp)){
-      eta = Eta(*tp);
-      phi = Phi(*tp);
-      return true;
-    }
-
-    /// get it from calo-cluster if it's muon
-    const Muon* mu = dynamic_cast<const Muon*>(derefMap[tp]);
-    if(mu){
-      auto cluster = mu->cluster();
-      if(cluster){
-        float etaT = 0, phiT = 0;
-        int nSample = 0;
-        for(unsigned int i=0; i<CaloSampling::Unknown; i++) // dangerous?
-        { 
-          auto s = static_cast<CaloSampling::CaloSample>(i);
-          if(!cluster->hasSampling(s)) continue;
-          ATH_MSG_DEBUG("Sampling: " << i << "eta-phi (" << cluster->etaSample(s) << ", " << cluster->phiSample(s) << ")");
-          etaT += cluster->etaSample(s);
-          phiT += cluster->phiSample(s);
-          nSample++;
-        }
-        if(nSample>0){
-          eta = etaT/nSample;
-          phi = phiT/nSample;
-
-          if(m_addCaloDeco && !Decorated.isAvailable(*tp)) decorateTrackCaloPosition(*tp, eta, phi);
-          return true;
-        }else{
-          ATH_MSG_WARNING("Muon calo cluster is empty????");
-        }
-      }else{
-        ATH_MSG_DEBUG("Muon calo cluster not found.");
-      }
-    }
-
-#ifndef XAOD_ANALYSIS
-    /// try the extention in athena if it's not obtained from muon yet.
-    ATH_MSG_DEBUG("Geting calo extension caloExtension tool.");
     const Trk::CaloExtension* caloExtension = 0;
     if(!m_caloExtTool->caloExtension(*tp,caloExtension,m_useCaloExtensionCaching)){
       ATH_MSG_WARNING("Can not get caloExtension.");
@@ -555,29 +456,19 @@ namespace xAOD {
     };
 
     const std::vector<const Trk::CurvilinearParameters*>& intersections = caloExtension->caloLayerIntersections();
-    if(intersections.size()>0){
+    if (intersections.size()>0) {
       Amg::Vector3D avePoint(0,0,0);
       for (unsigned int i = 0; i < intersections.size(); ++i){
         const Amg::Vector3D& point = intersections[i]->position();
-        ATH_MSG_DEBUG("Intersection: " << i << " ID: " << m_parsIdHelper.caloSample(intersections[i]->cIdentifier()) 
-                      <<  " eta-phi (" << point.eta() << ", " << point.phi() << ")");
+        ATH_MSG_DEBUG("Intersection: " << i << " ID: " << parsIdHelper.caloSample(intersections[i]->cIdentifier()) 
+		      <<  " eta-phi (" << point.eta() << ", " << point.phi() << ")");
         avePoint += point;
       }
       avePoint = (1./intersections.size())*avePoint;
       eta = avePoint.eta();
       phi = avePoint.phi();
-
-      //JBdVtestif(m_addCaloDeco) decorateTrackCaloPosition(*tp, eta, phi);
-      if(m_addCaloDeco && !Decorated.isAvailable(*tp)) decorateTrackCaloPosition(*tp, eta, phi);
-      return true;
-    }else{
-        ATH_MSG_WARNING("Muon Calo extension got no intersection!!!");
     }
-#endif // xAOD
-
-    /// if still not got the updated eta & phi
-    ATH_MSG_WARNING("Calo extension can not be obtained!!!");
-    return false;
+    return true;
   }
 
   // casted interface for TrackParticle cluster-based isolation (topoetcone)
@@ -585,11 +476,7 @@ namespace xAOD {
 						   const TrackParticle& tp,
 						   const std::vector<Iso::IsolationType>& isoTypes, 
 						   CaloCorrection corrlist, 
-						   const CaloClusterContainer* container,
-                                                   const CaloCluster* fwdClus,
-                                                   const Egamma* egObj,
-                                                   double coneCoreSize,
-                                                   derefMap_t& derefMap) const {
+						   const CaloClusterContainer* container){
     if( isoTypes.empty() ) {
       ATH_MSG_WARNING("Empty list passed, failing calculation");
       return false;
@@ -597,6 +484,7 @@ namespace xAOD {
 
     unsigned int typesize = isoTypes.size();
     initresult(result, corrlist, typesize);
+
     std::vector<float> coneSizes;
     for( auto isoType : isoTypes ){
       coneSizes.push_back(Iso::coneSize(isoType));
@@ -604,36 +492,33 @@ namespace xAOD {
 
     float phi = tp.phi();
     float eta = tp.eta();
-    if(!GetExtrapEtaPhi(&tp,eta,phi,derefMap)) ATH_MSG_WARNING("TrackParticle eta = " << tp.eta() << ", phi = " << tp.phi() << " not updated from extraplation!");
+    GetExtrapEtaPhi(&tp,eta,phi);
     ATH_MSG_DEBUG("TrackParticle eta = " << tp.eta() << ", phi = " << tp.phi() << ", extrap eta = " << eta << ", phi = " << phi);  
     
     // get energy in cones
-    if (!topoConeIsolation(result, eta, phi, coneSizes, false, container, fwdClus, egObj, coneCoreSize)) {
+    if (!topoConeIsolation(result, eta, phi, coneSizes, false, container)) {
       ATH_MSG_WARNING("Could not compute topo isolation for muons");
       return false;
     }
     
     // core energy subtraction
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreMuon))) {
-      if (!correctIsolationEnergy_MuonCore(result, tp, derefMap)) 
+      if (!correctIsolationEnergy_MuonCore(result, tp)) 
 	ATH_MSG_WARNING("Could not compute muon core energy (cells) from topoetcone");
     }
 
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::pileupCorrection))) {
-      if (!EDCorrection(result,isoTypes,eta,"topo",fwdClus))
+      if (m_doEnergyDensityCorrection && !EDCorrection(result,isoTypes,eta))
 	ATH_MSG_WARNING("Could not apply ED correction to topo isolation");
     }
 
     return true;
   }
 
-#ifndef XAOD_ANALYSIS
   // etcone implementation for TrackParticle
   bool CaloIsolationTool::etConeIsolation( CaloIsolation& result, const TrackParticle& tp,
 					   const std::vector<Iso::IsolationType>& isoTypes, 
-					   const CaloCellContainer* container,
-                                           double coneCoreSize,
-                                           const derefMap_t& derefMap) const {
+					   const CaloCellContainer* container ) {
 
     // for now always use track, should move to extrapolation to calo entrance 
     const Trk::Track* track = *tp.trackLink();
@@ -655,9 +540,13 @@ namespace xAOD {
     }
 
     /// add coreCone if asked -- make sure it's the last one! or a better
-    const double coreConeDR = coneCoreSize;
+    const double coreConeDR = 0.1;
     bool doCoreCone = (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreCone)));
     if(doCoreCone && maxConeSize<coreConeDR) maxConeSize = coreConeDR;
+
+    /// if noEM option is on, start from HEC0
+//     bool noEM = false;
+//     const CaloSampling::CaloSample fistTile = CaloSampling::HEC0;
 
     /// start the calculation 
     ATH_MSG_DEBUG("calculating etcone for # " << conesf.size() << " cones");
@@ -676,6 +565,7 @@ namespace xAOD {
       for (auto aCell : association->data()){
         if( !selector.select(*aCell) ) continue;
         if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == aCell->caloDDE()->getSampling()) continue;
+//         if(noEM && aCell->caloDDE()->getSampling()<fistTile) continue;
         totE += aCell->et();
       }
       result.etcones[i] = totE;
@@ -691,6 +581,7 @@ namespace xAOD {
       for (auto aCell : association->data()){
         if( !selector.select(*aCell) ) continue;
         if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == aCell->caloDDE()->getSampling()) continue;
+//         if(noEM && aCell->caloDDE()->getSampling()<fistTile) continue;
         totE += aCell->et();
       }
       std::map<Iso::IsolationCorrectionParameter,float> corecorr;
@@ -713,18 +604,16 @@ namespace xAOD {
     // calculate etcore 
     if(!m_saveOnlyRequestedCorrections ||
        result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreMuon))){
-      correctIsolationEnergy_MuonCore(result, tp, derefMap);
+      correctIsolationEnergy_MuonCore(result, tp);
     }
-  
+    
     return true;
   }
-#endif  
 
-#ifndef XAOD_ANALYSIS
   // etcone implementation for Egamma
   bool CaloIsolationTool::etConeIsolation( CaloIsolation& result, const Egamma& eg,
 					   const std::vector<Iso::IsolationType>& isoTypes, 
-					   const CaloCellContainer* container )  const {
+					   const CaloCellContainer* container ) {
     if( isoTypes.empty() ) {
       ATH_MSG_WARNING("Empty list passed, failing calculation");
       return false;
@@ -742,6 +631,7 @@ namespace xAOD {
     float eta = eg.caloCluster()->eta();
         
     // Define a new Calo Cell list corresponding to EM Calo
+    //CaloCell_ID::SUBCALO EMCaloCellID = CaloCell_ID::SUBCALO::LAREM;
     std::vector<CaloCell_ID::SUBCALO> Vec_EMCaloEnums;
     for (unsigned int n=0; n < m_EMCaloNums.size(); ++n)
       Vec_EMCaloEnums.push_back(static_cast<CaloCell_ID::SUBCALO>( m_EMCaloNums[n] ));
@@ -767,7 +657,7 @@ namespace xAOD {
 	double phicel=(*it)->phi();
         
 	double deleta = eta-etacel;
-        float delphi = Phi_mpi_pi(phi-phicel);
+	double delphi = P4Helpers::deltaPhi(phi, phicel);
 	double drcel2 = (deleta*deleta) + (delphi*delphi);
         
 	for (unsigned int i = 0; i < coneSizes.size(); i++) {
@@ -794,7 +684,7 @@ namespace xAOD {
 	double phicel = (*it)->phi();
         
 	double deleta = eta-etacel;
-        float delphi = Phi_mpi_pi(phi-phicel);
+	double delphi = P4Helpers::deltaPhi(phi, phicel);
 	double drcel2 = (deleta*deleta) + (delphi*delphi);
 
 	for (unsigned int i = 0; i < coneSizes.size(); i++) {
@@ -808,32 +698,23 @@ namespace xAOD {
     delete HADccl;
     return true;
   }
-#endif
-
+  
   bool CaloIsolationTool::topoConeIsolation(CaloIsolation& result, float eta, float phi, 
 					    std::vector<float>& coneSizes, 
                                             bool coreEMonly,
-					    const CaloClusterContainer* container,
-                                            const CaloCluster* fwdClus,
-                                            const Egamma* egObj,
-                                            double coneCoreSize) const
+					    const CaloClusterContainer* container)
   {
 
     // offline topocluster container is large: preselect only those in max cone size
     auto max_cone_iter=std::max_element(coneSizes.begin(), coneSizes.end());
     float max_cone= (*max_cone_iter);
     std::vector<const CaloCluster*> clusts;    
-    if(!container){
-#ifndef XAOD_ANALYSIS 
+    if(!container){ 
       if(m_clustersInConeTool){
 	m_clustersInConeTool->particlesInCone(eta,phi,max_cone,clusts);
       }else{
 	ATH_MSG_WARNING("No CaloClustersInConeTool available");      
       }
-#else
-      if(!particlesInCone(eta,phi,max_cone,clusts))
-        ATH_MSG_WARNING("No CaloClustersInConeTool available");
-#endif
     }else{ // trigger container is small enough
       auto clItr  = container->begin();
       auto clItrE = container->end();
@@ -850,7 +731,7 @@ namespace xAOD {
 
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreCone))) {
       // Subtract core (easier to do that here than outside like other core corrections)
-      if (!correctIsolationEnergy_TopoCore(result, eta, phi, -1, -1, coneCoreSize*coneCoreSize, clusts, coreEMonly, fwdClus, egObj)) 
+      if (!correctIsolationEnergy_TopoCore(result, eta, phi, -1, -1, 0.01, clusts, coreEMonly)) 
 	ATH_MSG_WARNING("Could not compute topo core");
     }
 
@@ -860,8 +741,7 @@ namespace xAOD {
   bool CaloIsolationTool::pflowConeIsolation(CaloIsolation& result, float eta, float phi, 
 					     std::vector<float>& coneSizes,
                                              bool coreEMonly,
-					     const PFOContainer* container,
-                                             double coneCoreSize)
+					     const PFOContainer* container)
   {
 
     // container is large: preselect only those in max cone size
@@ -869,15 +749,11 @@ namespace xAOD {
     float max_cone = (*max_cone_iter);
     std::vector<const PFO*> clusts;    
     if (!container) { 
-#ifndef XAOD_ANALYSIS
       if (m_pflowObjectsInConeTool) {
 	m_pflowObjectsInConeTool->particlesInCone(eta,phi,max_cone,clusts);
       } else {
 	ATH_MSG_WARNING("No PFlowObjectsInConeTool available");      
       }
-#else
-      if(!particlesInCone(eta,phi,max_cone,clusts)) ATH_MSG_WARNING("Failed to get particles in cone.");
-#endif
     } else { // trigger container is small enough
       auto clItr  = container->begin();
       auto clItrE = container->end();
@@ -894,7 +770,8 @@ namespace xAOD {
 
     if (!m_saveOnlyRequestedCorrections || result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreCone))) {
       // Core subtraction
-      if (!correctIsolationEnergy_pflowCore(result, eta, phi, -1, -1, coneCoreSize*coneCoreSize, clusts, coreEMonly))  // be careful, require a certain tag of eflowRec, below which eSample are not always filled
+      //if (!correctIsolationEnergy_pflowCore(result, eta, phi, -1, -1, 0.01, clusts))
+      if (!correctIsolationEnergy_pflowCore(result, eta, phi, -1, -1, 0.01, clusts, coreEMonly))  // be careful, require a certain tag of eflowRec, below which eSample are not always filled
 	ATH_MSG_WARNING("Could not compure pflow core");
     }
 
@@ -906,7 +783,7 @@ namespace xAOD {
    */
   bool CaloIsolationTool::topoClustCones (CaloIsolation& result, float eta, float phi, 
 					  std::vector<float>& coneSizes,
-					  const std::vector<const CaloCluster*>& clusts) const 
+					  const std::vector<const CaloCluster*>& clusts) 
   {
     
     ATH_MSG_DEBUG("In CaloIsolationTool::topoClustCones");
@@ -919,13 +796,12 @@ namespace xAOD {
       float tilegap3_et = cl->eSample(CaloSampling::TileGap3)*st;
       et -= tilegap3_et;
       
-      float dPhi = Phi_mpi_pi(cl->phi()-phi);
+      float dPhi = P4Helpers::deltaPhi( cl->phi(), phi);
       float dEta = cl->eta()-eta;
       float dr=sqrt(dPhi*dPhi+ dEta*dEta);
       
       for (unsigned int i = 0; i < coneSizes.size(); i++) {
 	if (dr < coneSizes[i]) {
-	  ATH_MSG_DEBUG("Adding topo " << cl << " dR = " << dr << " et of a topo clust et = " << et << " (calibrated " << cl->pt() << ", tilegap et = " << tilegap3_et << ")");
 	  result.etcones[i] += et;
 	}
       }
@@ -934,6 +810,69 @@ namespace xAOD {
     return true;
   }
 
+  /*
+  // This method is never called !
+  bool CaloIsolationTool::topoClustCones (CaloIsolation& result, float eta, float phi, 
+					  std::vector<float> coneSizes,
+					  const std::vector<const CaloCluster*>& clusts,
+                                          float dEtaMin, float dPhiMin, float dR2Min, bool onlyEM) 
+  {
+    
+    ATH_MSG_DEBUG("In topoClustCones::topoClustCones [exclude core]");
+    
+    std::vector<float> coneSizes2(coneSizes.size());
+    for (unsigned int i = 0; i < coneSizes.size(); i++) {coneSizes2[i]=coneSizes[i]*coneSizes[i];}
+
+    float ecore = 0;
+
+    ATH_MSG_DEBUG("In topoClustCones:: clusts size " << clusts.size());
+    BOOST_FOREACH (const CaloCluster* cl, clusts) {
+      float et = (m_useEMScale ? cl->p4(CaloCluster::State::UNCALIBRATED).Et() : cl->pt() );
+      if(et <= 0 || fabs(cl->eta()) > 7.0) continue;
+
+      float st = 1./cosh(cl->p4(CaloCluster::State::UNCALIBRATED).Eta());
+      float tilegap3_et = cl->eSample(CaloSampling::TileGap3)*st;
+      et -= tilegap3_et;
+      ATH_MSG_DEBUG("In topoClustCones:: et = " << et);
+      
+      float dPhi = P4Helpers::deltaPhi( cl->phi(), phi);
+      float dEta = cl->eta()-eta;
+      float dr2  = dPhi*dPhi + dEta*dEta;
+      if ( ( dPhiMin > 0 && dEtaMin > 0 && fabs(dPhi) < dPhiMin && fabs(dEta) < dEtaMin ) ||
+	   ( dR2Min > 0 && dr2 < dR2Min ) ) {
+	double emfrac = 1.;
+	if(onlyEM) {
+	  if (!m_useEMScale) {
+	    if (!cl->retrieveMoment(CaloCluster::ENG_FRAC_EM, emfrac)) 
+	      ATH_MSG_WARNING("CaloCluster::ENG_FRAC_EM is not retrieved.");
+	    else {
+	      double eEM = cl->energyBE(0)+cl->energyBE(1)+cl->energyBE(2)+cl->energyBE(3);
+	      emfrac = std::min(1., eEM / cl->p4(CaloCluster::State::UNCALIBRATED).E());
+	    }
+	  }
+	}
+	ecore += emfrac*et;
+	continue;
+      }
+
+      for (unsigned int i = 0; i < coneSizes2.size(); i++) {
+	if (dr2 < coneSizes2[i]) result.etcones[i] += et;
+        ATH_MSG_DEBUG("In topoClustCones:: result.etcones[" << i << "] = " << result.etcones[i]);
+      }
+    }
+
+    float areacore = -999.;
+    if (dEtaMin > 0 && dPhiMin > 0) areacore = 4*dEtaMin*dPhiMin;
+    else if (dR2Min > 0)            areacore = M_PI*dR2Min;
+    std::map<Iso::IsolationCorrectionParameter,float> corecorr;
+    corecorr[Iso::coreEnergy] = ecore;
+    corecorr[Iso::coreArea]   = areacore;
+    result.coreCorrections[Iso::coreCone] = corecorr;
+    
+    return true;
+  }
+  */
+  
   /**
    * @brief Calculate isolation cones in pflow objects around @a eg.
    */
@@ -950,7 +889,7 @@ namespace xAOD {
 	et = cl->ptEM();
       if (et <= 0 || fabs(cl->eta()) > 7.0) continue;
       
-      float dPhi = Phi_mpi_pi(cl->phi()-phi);
+      float dPhi = P4Helpers::deltaPhi(cl->phi(), phi);
       float dEta = cl->eta()-eta;
       float dR   = sqrt(dPhi*dPhi+ dEta*dEta);
       
@@ -967,7 +906,7 @@ namespace xAOD {
 
   bool CaloIsolationTool::correctIsolationEnergy_Eeg57 (CaloIsolation& result, 
 							const std::vector<Iso::IsolationType>& isoTypes, 
-							const Egamma* eg)  const
+							const Egamma* eg) 
   {
 
     float coreV = 0;
@@ -977,27 +916,19 @@ namespace xAOD {
     else
       ATH_MSG_DEBUG("core57cells not available");
     if ((gotIso && fabs(coreV) < 1e-3) || !gotIso) { 
-#ifndef XAOD_ANALYSIS
       const CaloCluster *cleg = eg->caloCluster();
       // now correct the isolation energy for the core cluster energy
       float eraw57=0., eta=0.;
-
       if(cleg && cleg->getCellLinks()){
-	double seedEta = cleg->eta0(), seedPhi = cleg->phi0();
 	CaloCluster* egcCloneFor57 = CaloClusterStoreHelper::makeCluster(cleg->getCellLinks()->getCellContainer(),
-									 seedEta,seedPhi,
-									 cleg->clusterSize());
-	
-	if (!m_caloFillRectangularTool->execute (Gaudi::Hive::currentContext(),
-                                                 egcCloneFor57).isSuccess())
-        {
-          return false;
-	}
-	if(egcCloneFor57->size()==0){
-	  ATH_MSG_WARNING("Size of Created Cluster is 0 aka no cells");
+									 cleg->eta0(),cleg->phi0(),
+									 cleg->clusterSize()
+									 );
+	if (!m_caloFillRectangularToolPtr) {
+	  ATH_MSG_WARNING("CaloFillRectangularCluster is not available");
 	  return false;
 	}
-
+	m_caloFillRectangularToolPtr->makeCorrection(egcCloneFor57);
 	eraw57 = egcCloneFor57->e();
 	eta    = cleg->eta(); //FillRectangularCluster doesn't recalculated the overall cluster eta (only per-sampling)
 	coreV  = eraw57/cosh(eta);
@@ -1006,10 +937,7 @@ namespace xAOD {
 		      << " eraw = " << eraw57 << " etraw = " << coreV
 		      );
 	delete egcCloneFor57;
-     }
-#else
-     return false;
-#endif // XAOD_ANALYSIS
+      }
     }
 
     std::map<Iso::IsolationCorrectionParameter,float> corecorr;
@@ -1028,142 +956,61 @@ namespace xAOD {
 
   bool CaloIsolationTool::correctIsolationEnergy_TopoCore(CaloIsolation& result, float eta, float phi, 
 					  float dEtaMax_core, float dPhiMax_core, float dR2Max_core,
-                                                          const std::vector<const CaloCluster*>& clusts, bool onlyEM,
-                                                          const CaloCluster* fwdClus,
-                                                          const Egamma* egObj) const
+					  const std::vector<const CaloCluster*>& clusts, bool onlyEM) 
   {
     ATH_MSG_DEBUG("In CaloIsolationTool::correctIsolationEnergy_TopoCore");
     ATH_MSG_DEBUG("particle: eta " << eta << " phi " << phi);
 
+    float topoCore(0.);
+    BOOST_FOREACH (const CaloCluster* cl, clusts) {
+      ATH_MSG_DEBUG("cl: eta " << cl->eta() << " phi " << cl->phi() 
+ 		    << " E " << cl->p4(CaloCluster::State::UNCALIBRATED).E() 
+ 		    << " pt " << cl->p4(CaloCluster::State::UNCALIBRATED).Et() 
+ 		    << " cal E " << cl->e());
+      /// check distance
+      float dPhi = P4Helpers::deltaPhi(cl->phi(), phi);
+      if(dEtaMax_core>0 && fabs(dPhi) > dPhiMax_core) continue;
+      float dEta = cl->eta()-eta;
+      if(dPhiMax_core>0 && fabs(dEta) > dEtaMax_core) continue;
+      if(dR2Max_core>0 && dPhi*dPhi+dEta*dEta > dR2Max_core) continue;
+      ATH_MSG_DEBUG("dist: dPhi " << dPhi << " dEta " << dEta << " dR2 " << dPhi*dPhi+dEta*dEta);
+ 
+      /// get enenrgy
+      float et = (m_useEMScale ? cl->p4(CaloCluster::State::UNCALIBRATED).Et() : cl->pt() );
+      if(et <= 0 || fabs(cl->eta()) > 7.0) continue;
 
-    // I do not remember why I put areacore = 0 for fwdClus !!
+      /// remove TileGap3
+      double ettg3 = cl->eSample(CaloSampling::TileGap3)/cosh(cl->p4(CaloCluster::State::UNCALIBRATED).Eta());
+      et -= ettg3;
+      if (fabs(ettg3) > 1) 
+	ATH_MSG_DEBUG("After TG3 removal, pt = " << et);
+
+      /// if only EM
+      double emfrac = 1.;
+      if(onlyEM){
+	double eEM = cl->energyBE(0)+cl->energyBE(1)+cl->energyBE(2)+cl->energyBE(3);
+	emfrac     = std::min(1., eEM / cl->p4(CaloCluster::State::UNCALIBRATED).E());
+      }
+      et *= emfrac;
+
+      /// add to the core
+      topoCore += et;
+      ATH_MSG_DEBUG("adding in core et: " << et << " (em frac = " << emfrac << ") total " << topoCore);
+    }
+
     float areacore = -999.;
-    if (fwdClus == nullptr) {
-      if (dEtaMax_core>0 && dPhiMax_core>0) areacore = 4*dEtaMax_core*dPhiMax_core;
-      else if (dR2Max_core>0) areacore = M_PI*dR2Max_core;
-    } else
-      areacore = 0;
-
-    double topoCore(0.);
-    if (fwdClus) {
-      topoCore = fwdClus->p4(CaloCluster::State::UNCALIBRATED).Et();
-      ATH_MSG_DEBUG("Including " << topoCore << " in the core transverse energy of the fwd electron");
-    } else {
-      BOOST_FOREACH (const CaloCluster* cl, clusts) {
-	ATH_MSG_DEBUG("cl: eta " << cl->eta() << " phi " << cl->phi() 
-		      << " E " << cl->p4(CaloCluster::State::UNCALIBRATED).E() 
-		      << " pt " << cl->p4(CaloCluster::State::UNCALIBRATED).Et() 
-		      << " cal E " << cl->e());
-	/// check distance
-	float dPhi = Phi_mpi_pi(cl->phi()-phi);
-	if(dEtaMax_core>0 && fabs(dPhi) > dPhiMax_core) continue;
-	float dEta = cl->eta()-eta;
-	if(dPhiMax_core>0 && fabs(dEta) > dEtaMax_core) continue;
-	if(dR2Max_core>0 && dPhi*dPhi+dEta*dEta > dR2Max_core) continue;
-	ATH_MSG_DEBUG("dist: dPhi " << dPhi << " dEta " << dEta << " dR2 " << dPhi*dPhi+dEta*dEta);
-	
-	/// get enenrgy
-	float et = (m_useEMScale ? cl->p4(CaloCluster::State::UNCALIBRATED).Et() : cl->pt() );
-	if(et <= 0 || fabs(cl->eta()) > 7.0) continue;
-	
-	/// remove TileGap3
-	double ettg3 = cl->eSample(CaloSampling::TileGap3)/cosh(cl->p4(CaloCluster::State::UNCALIBRATED).Eta());
-	et -= ettg3;
-	if (fabs(ettg3) > 1) 
-	  ATH_MSG_DEBUG("After TG3 removal, pt = " << et);
-	
-	/// if only EM
-	double emfrac = 1.;
-	if(onlyEM){
-	  double eEM = cl->energyBE(0)+cl->energyBE(1)+cl->energyBE(2)+cl->energyBE(3);
-	  emfrac     = std::min(1., eEM / cl->p4(CaloCluster::State::UNCALIBRATED).E());
-	}
-	et *= emfrac;
-	
-	/// add to the core
-	topoCore += et;
-	ATH_MSG_DEBUG("adding in core et: " << et << " (em frac = " << emfrac << " dR = " << sqrt(dPhi*dPhi+dEta*dEta) << ") total " << topoCore);
-      }
-    }
-
-    double topoCoreSC(0.);
-    double test         = 0;
-    double topoCoreSCem = 0;
-    if (egObj && egObj->caloCluster()->clusterSize() == CaloCluster::ClusterSize::SuperCluster) {
-      const std::vector<const CaloCluster*> assocClus = EgammaHelpers::getAssociatedTopoClusters(egObj->caloCluster());
-      for (unsigned int ic = 0; ic < assocClus.size(); ic++) {
-	const CaloCluster* cl = assocClus.at(ic);
-	test       += cl->pt();
-	topoCoreSC += cl->p4(CaloCluster::State::UNCALIBRATED).Et();
-	ATH_MSG_DEBUG("Adding topo " << ic << " ptr = " << cl << " contrib, pt = " << cl->pt()
-		      << " uncal pt = " << cl->p4(CaloCluster::State::UNCALIBRATED).Et()
-		      << " eta,phi = " << cl->eta() << " " << cl->phi()
-		      << " uncal eta,phi = " << cl->p4(CaloCluster::State::UNCALIBRATED).Eta()
-		      << " " << cl->p4(CaloCluster::State::UNCALIBRATED).Phi()
-		      << " nCells = " << cluster_size(cl)
-                      );
-	
-	/// remove TileGap3
-	double ettg3 = cl->eSample(CaloSampling::TileGap3)/cosh(cl->p4(CaloCluster::State::UNCALIBRATED).Eta());
-	topoCoreSCem -= ettg3;
-
-	/// if only EM
-	double emfrac = 1.;
-	if(onlyEM){
-	  double eEM = cl->energyBE(0)+cl->energyBE(1)+cl->energyBE(2)+cl->energyBE(3);
-	  emfrac     = std::min(1., eEM / cl->p4(CaloCluster::State::UNCALIBRATED).E());
-	}
-	topoCoreSCem += emfrac*cl->p4(CaloCluster::State::UNCALIBRATED).Et();
-
-	//auto itc = assocClus.at(ic)->begin();
-	//for (; itc != assocClus.at(ic)->end(); itc++)
-	//  std::cout << "A cell " << (*itc) << " eta = " << (*itc)->eta() << std::endl;
-      }
-      ATH_MSG_DEBUG("Including " << topoCore << " only em, no tg3 " << topoCoreSCem << " calibrated " << test << " in the core transverse energy of the super cluster egamma object made of "
-		    << assocClus.size() << " clusters with corresponding pT = " << egObj->pt()
-		    << " cluster pT = " << egObj->caloCluster()->pt() << " cluster un cal pT = "
-		    << egObj->caloCluster()->p4(CaloCluster::State::UNCALIBRATED).Et()
-		    << " nCells = " << cluster_size(egObj->caloCluster())
-                    );
-      //auto itc = egObj->caloCluster()->begin();
-      //for (; itc != egObj->caloCluster()->end(); itc++)
-      //std::cout << "A cell in the SC " << (*itc) << " eta = " << (*itc)->eta() << std::endl;
-      
-      std::map<Iso::IsolationCorrectionParameter,float> corecorrSC;
-      corecorrSC[Iso::coreEnergy] = topoCoreSCem;
-      corecorrSC[Iso::coreArea]   = areacore;
-      result.coreCorrections[Iso::coreConeSC] = corecorrSC;
-
-    }
-
-    ATH_MSG_DEBUG("core energy, std = " << topoCore << " topo-assoc (full) = " << topoCoreSC << " topo-assoc (only em, no tg3) = " << topoCoreSCem);
-        
+    if (dEtaMax_core>0 && dPhiMax_core>0) areacore = 4*dEtaMax_core*dPhiMax_core;
+    else if (dR2Max_core>0) areacore = M_PI*dR2Max_core;
+    
     std::map<Iso::IsolationCorrectionParameter,float> corecorr;
     corecorr[Iso::coreEnergy] = topoCore;
     corecorr[Iso::coreArea]   = areacore;
     result.coreCorrections[Iso::coreCone] = corecorr;
-
-    float toSub = 0;
-    bool  doSub = false;
-    if (result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreCone)) ||
-	result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreConeSC))) {
-      doSub = true;
-      if (result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreCone)) &&
-	  !result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreConeSC)))
-	toSub = topoCore;
-      else if (!result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreCone)) &&
-	       result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreConeSC)))
-	toSub = topoCoreSCem;
-      else {
-	ATH_MSG_WARNING("Cannot do two core subtraction ! Using coreCone");
-	toSub = topoCore;
-      }
-    }
     
-    if (doSub) {
+    if (result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreCone))) {
       for (unsigned int i = 0; i < result.etcones.size(); i++){
-	result.etcones[i] -= toSub;
-	ATH_MSG_DEBUG("TopoCore correction i=" << i << " cone [before] " << result.etcones[i]+toSub << " cone [after] " << result.etcones[i]);
+	result.etcones[i] -= topoCore;
+	ATH_MSG_DEBUG("i: " << i << " cone [before] " << result.etcones[i]+topoCore << " cone [after] " << result.etcones[i]);
       }
     }
     
@@ -1179,7 +1026,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     BOOST_FOREACH (const PFO* cl, clusts) {
       ATH_MSG_DEBUG("pflo: eta " << cl->eta() << " phi " << cl->phi() << " pt " << cl->pt() << " ptEM = " << cl->ptEM()
 		    << " charge " << cl->charge());
-      float dphi = Phi_mpi_pi(cl->phi()-phi);
+      float dphi = P4Helpers::deltaPhi(cl->phi(), phi);
       if (detaMax > 0 && fabs(dphi) > dphiMax) continue;
       float deta = cl->eta()-eta;
       if (dphiMax > 0 && fabs(deta) > detaMax) continue;
@@ -1194,7 +1041,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
       double emfrac = 1.;
       if (onlyEM) {
 	const xAOD::CaloCluster *ocl = cl->cluster(0);
-	double eEM = ocl->energyBE(0)+ocl->energyBE(1)+ocl->energyBE(2)+ocl->energyBE(3);
+	double eEM = ocl ? ocl->energyBE(0)+ocl->energyBE(1)+ocl->energyBE(2)+ocl->energyBE(3) : 0.;
 	emfrac     = std::min(1.,eEM / cl->eEM());
       }
       et *= emfrac;
@@ -1225,23 +1072,55 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
   }
 
 
+
   // etcone implementation for TrackParticle
-  bool CaloIsolationTool::correctIsolationEnergy_MuonCore( CaloIsolation& result, const
-                                                           TrackParticle& tp,
-                                                           const derefMap_t& derefMap) const {
+  bool CaloIsolationTool::correctIsolationEnergy_MuonCore( CaloIsolation& result, const TrackParticle& tp) {
 
     ATH_MSG_DEBUG("in  CaloIsolationTool::correctIsolationEnergy_MuonCore ");
 
     // initialize varialbes
     double ecore = 0.;
-    auto muI = derefMap.find(&tp);
-    if(muI!=derefMap.end() && muI->second->isAvailable<float>("ET_Core")){
+    auto muI = m_derefMap.find(&tp);
+    if(muI!=m_derefMap.end() && muI->second->isAvailable<float>("ET_Core")){
       ecore = muI->second->auxdataConst<float>("ET_Core");
     }else{
      ATH_MSG_WARNING("ET_Core of muon not found! coreMuon isolation correction will not be applied!!!");
      return false;
     }
 
+// //     bool noEM = false; // should be an argument of the function
+// //     const CaloSampling::CaloSample firstTile = CaloSampling::HEC0;
+// 
+//     /// get intersections
+//     const Trk::CaloExtension* caloExtension = 0;
+//     if(!m_caloExtTool->caloExtension(tp, caloExtension)){
+//       ATH_MSG_WARNING("Can not get caloExtension.");
+//       return false;
+//     }
+//     const std::vector<const Trk::CurvilinearParameters*>& intersections = caloExtension->caloLayerIntersections();
+// 
+//     /// start calculation
+//     Amg::Vector3D enterMom(0.,0.,0.), currentMom(0.,0.,0.);
+//     bool entered = false;
+//     for (unsigned int i=0;i<intersections.size();++i){
+//       int layerID = parsIdHelper.caloSample(intersections[i]->cIdentifier());
+//       if(layerID>=24) continue;
+// //       if(noEM && layerID<=firstTile) continue;
+// 
+//       bool entering = parsIdHelper.isEntryToVolume(intersections[i]->cIdentifier());
+//       currentMom = intersections[i]->momentum();
+// 
+//       /// if already entered and it's not entering another
+//       if(entered && !entering) ecore += enterMom.mag() - currentMom.mag();
+//       ATH_MSG_DEBUG("layerID=" <<  layerID <<" entering=" << entering << " entered=" << entered << " enterMom=" << enterMom.mag() << " currentMom=" << currentMom.mag() << " ecore=" << ecore);
+// 
+//       /// if just entering after leaving the previous one
+//       if(entering && !entered) enterMom = currentMom;
+// 
+//       /// save preious status
+//       entered = entering;
+//     }
+   
     std::map<Iso::IsolationCorrectionParameter,float> corecorr;
     corecorr[Iso::coreEnergy] = ecore;
     corecorr[Iso::coreArea]   = 0;
@@ -1250,7 +1129,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     if (result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::coreMuon))) {
       for( unsigned int i=0;i<result.etcones.size();++i ) {
 	result.etcones[i] -= ecore;
-	ATH_MSG_DEBUG("MuonCore i=" << i << " cone [before] " << result.etcones[i]+ecore << " cone [after] " << result.etcones[i]);
+	ATH_MSG_DEBUG("i: " << i << " cone [before] " << result.etcones[i]+ecore << " cone [after] " << result.etcones[i]);
       }
     }
     
@@ -1259,21 +1138,14 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
   
   bool CaloIsolationTool::PtCorrection (CaloIsolation& result, 
 					const Egamma& eg, 
-					const std::vector<Iso::IsolationType>& isoTypes) const
+					const std::vector<Iso::IsolationType>& isoTypes)
   {
-// #ifndef XAOD_ANALYSIS
-    if(m_IsoLeakCorrectionTool.empty()) return false;
-// #endif // XAOD_ANALYSIS
 
     std::vector<float> corrvec; 
     corrvec.resize(isoTypes.size(),0.);
     for (unsigned int i = 0; i < isoTypes.size(); i++) {
       
-// #ifndef XAOD_ANALYSIS
       corrvec[i] = m_IsoLeakCorrectionTool->GetPtCorrection(eg, isoTypes[i]);
-// #else
-//       corrvec[i] = eg.isolationCaloCorrection (isoTypes[i], Iso::ptCorrection); 
-// #endif // XAOD_ANALYSIS
       if (result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::ptCorrection))) {
 	result.etcones[i] -= corrvec[i];
 	ATH_MSG_DEBUG("eta = " << eg.eta() << ", phi = " << eg.phi() << ", pt = " << eg.pt() << ", isoType = " << Iso::toString(isoTypes[i]) 
@@ -1281,8 +1153,6 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
       }
     }
     result.noncoreCorrections[Iso::ptCorrection] = corrvec;
-    /// FIX LATER
-    // get the correction from xAOD file
 
     return true;
   }
@@ -1290,18 +1160,18 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
   bool CaloIsolationTool::EDCorrection(CaloIsolation& result, 
 				       const std::vector<Iso::IsolationType>& isoTypes,
 				       float eta, // In principle, could be (eta,phi)
-				       std::string type,
-                                       const CaloCluster* fwdClus) const
+				       std::string type)
 
   {
     // assume two densities for the time being
     const EventShape* edShape;
-    
-    std::string esName = (fabs(eta) < 1.5) ? m_tpEDCentral : m_tpEDForward;
-    if(type == "PFlow") esName = (fabs(eta) < 1.5) ? m_efEDCentral : m_efEDForward;
-    else if (fwdClus != nullptr)
-      esName = m_tpEDveryForward;
-
+    std::string esName = (fabs(eta) < 1.5) ? "TopoClusterIsoCentralEventShape" : "TopoClusterIsoForwardEventShape";
+    if (type == "PFlow") {
+      if (fabs(eta) < 1.5) 
+	esName = "NeutralParticleFlowIsoCentralEventShape";
+      else
+	esName = "NeutralParticleFlowIsoForwardEventShape";
+    }
     if (evtStore()->retrieve(edShape,esName).isFailure()) {
       ATH_MSG_WARNING("Cannot retrieve density container " << esName << " for isolation correction. No ED correction");
       return false;
@@ -1338,7 +1208,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
       if (result.corrlist.calobitset.test(static_cast<unsigned int>(Iso::pileupCorrection))){
 	result.etcones[i] -= toSub;
       }
-      ATH_MSG_DEBUG("ED correction ("<< type << ")for size " << dR << " = " << toSub << " (areacore=" << areacore << ")");
+      ATH_MSG_DEBUG("ED correction for size " << dR << " = " << toSub);
     }
 
     result.noncoreCorrections[Iso::pileupCorrection] = corrvec;
@@ -1347,7 +1217,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 
   void CaloIsolationTool::initresult(CaloIsolation& result, 
 				     CaloCorrection corrlist, 
-				     unsigned int typesize) const {
+				     unsigned int typesize){
 
     result.corrlist = corrlist;
     result.coreCorrections.clear();
@@ -1361,7 +1231,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     if( tp ) return tp;
     const Muon* muon = dynamic_cast<const Muon*>(&particle);
     if( muon ) {
-      const TrackParticle* tp = 0;
+      const xAOD::TrackParticle* tp = 0;
       if(muon->inDetTrackParticleLink().isValid()) tp = *muon->inDetTrackParticleLink();
       if( !tp ) tp = muon->primaryTrackParticle();
       if( !tp ) {
@@ -1466,7 +1336,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
   bool CaloIsolationTool::decorateParticle_topoClusterIso( IParticle& tp,
                                           const std::vector<Iso::IsolationType>& cones,
                                           CaloCorrection corrections,
-                                          const CaloClusterContainer* TopClusters) {
+                                          const CaloClusterContainer* TopClusters){
     // calculate the isolation
     CaloIsolation result;
     if( !caloTopoClusterIsolation(result,tp,cones,corrections,TopClusters) ) {
@@ -1498,7 +1368,6 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     return true;
   }
 
-#ifndef XAOD_ANALYSIS
   bool CaloIsolationTool::decorateParticle( IParticle& tp,
                                           const std::vector<Iso::IsolationType>& cones,
                                           CaloCorrection corrections,
@@ -1529,69 +1398,6 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     
     return suc;    
   }
-#endif
-
-#ifdef XAOD_ANALYSIS // particlesInCone tool will not be avaible. Write our own...
-  bool CaloIsolationTool::particlesInCone( float eta, float phi, float dr, std::vector<const CaloCluster*>& output ) const {
-    /// retrieve container
-    const CaloClusterContainer* caloClusters = 0;
-    std::string m_caloClusterLocation = "CaloCalTopoClusters";
-    if(evtStore()->retrieve(caloClusters, m_caloClusterLocation).isFailure()) {
-      ATH_MSG_FATAL( "Unable to retrieve " << m_caloClusterLocation );
-      return false;
-    }
-
-    const float m_minPt = 1e-3;
-    /// make selection
-    float dr2 = dr*dr;
-    for(auto trk: *caloClusters){
-      if(trk->pt()<m_minPt) continue;
-
-      float dEta = eta-trk->eta();
-      float dPhi = Phi_mpi_pi(phi-trk->phi());
-      if(dr2<(dEta*dEta+dPhi*dPhi)) continue;
-      output.push_back(trk);
-    }
-
-    return true;
-  }
-  bool CaloIsolationTool::particlesInCone( float eta, float phi, float dr, std::vector<const PFO*>& output ){
-    /// retrieve container
-    const PFOContainer* Clusters = 0;
-    std::string m_ClusterLocation = "JetETMissNeutralParticleFlowObjects";
-    if(evtStore()->retrieve(Clusters,m_ClusterLocation).isFailure()) {
-      ATH_MSG_FATAL( "Unable to retrieve " << m_ClusterLocation);
-      return false;
-    }
-
-    const float m_minPt = 1e-3;
-    /// make selection
-    float dr2 = dr*dr;
-    for(auto trk: *Clusters){
-      if(trk->pt()<m_minPt) continue;
-      float dEta = eta-trk->eta();
-      float dPhi = Phi_mpi_pi(phi-trk->phi());
-      if(dr2<(dEta*dEta+dPhi*dPhi))continue;
-      output.push_back(trk);
-    }
-
-    return true;
-  }
-#endif // XAOD_ANALYSIS
-
-  void CaloIsolationTool::decorateTrackCaloPosition(const IParticle& p, float eta, float phi) const{
-    static SG::AuxElement::Decorator< char > dec_Decorated("caloExt_Decorated");
-    static SG::AuxElement::Decorator< float > dec_Eta("caloExt_eta");
-    static SG::AuxElement::Decorator< float > dec_Phi("caloExt_phi");
-
-    if(!dec_Decorated.isAvailable(p) || dec_Decorated.isAvailableWritable(p)){
-      dec_Decorated(p) = 1;
-      dec_Eta(p) = eta;
-      dec_Phi(p) = phi;
-    }else{
-      ATH_MSG_WARNING("The writing of caloExt decoration was requested, but couldn't be accomplished");
-    }
-  }
-
+  
 }	// end of namespace
 

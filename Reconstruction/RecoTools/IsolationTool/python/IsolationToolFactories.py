@@ -71,6 +71,9 @@ CaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool, name="CaloIsolationTool
                                 CaloFillRectangularClusterTool  = CaloFillRectangularCluster,
                                 IsoLeakCorrectionTool           = IsoCorrectionTool,
                                 ClustersInConeTool              = CaloClustersInConeTool,
+#                                 PFlowObjectsInConeTool          = None,
+#                                 ParticleCaloCellAssociationTool = None,
+#                                 ParticleCaloExtensionTool       = None,
                                 EMCaloNums  = [SUBCALO.LAREM],
                                 HadCaloNums = [SUBCALO.LARHEC, SUBCALO.TILE],
                                 UseEMScale = True
