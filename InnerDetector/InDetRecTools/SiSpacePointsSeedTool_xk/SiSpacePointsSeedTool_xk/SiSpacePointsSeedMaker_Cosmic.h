@@ -23,6 +23,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
+#include "TrkSpacePoint/SpacePointOverlapCollection.h"
 
 #include "SiSpacePointsSeedTool_xk/SiSpacePointForSeed.h"
 

@@ -222,6 +222,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent (int)
   buildBeamFrameWork();
 
   float irstep = 1./r_rstep;
+  int   irmax  = r_size-1  ;
 
   // Get pixels space points containers from store gate 
   //
@@ -245,8 +246,9 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent (int)
 	  float r = (*sp)->r(); if(r<0. || r>=r_rmax) continue;
 	  if(m_useassoTool &&  isUsed(*sp)           ) continue;
 
-	  int   ir = int(r*irstep); 
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
+
+	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
 	  r_Sorted[ir].push_back(sps); ++r_map[ir];
 	  if(r_map[ir]==1) r_index[m_nr++] = ir;
 	  ++m_ns;
@@ -276,8 +278,9 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newEvent (int)
 	  float r = (*sp)->r(); if(r<0. || r>=r_rmax) continue;
 	  if(m_useassoTool &&  isUsed(*sp)           ) continue;
 
-	  int   ir = int(r*irstep); 
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
+
+	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
 	  r_Sorted[ir].push_back(sps); ++r_map[ir];
 	  if(r_map[ir]==1) r_index[m_nr++] = ir;
 	  ++m_ns;
@@ -300,6 +303,7 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
   i_spforseed = l_spforseed.begin();
   buildBeamFrameWork();
 
+  int   irmax  = r_size-1  ;
   float irstep = 1./r_rstep;
 
   // Get pixels space points containers from store gate 
@@ -328,8 +332,9 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
 	  float r = (*sp)->r(); if(r<0. || r>=r_rmax) continue;
 	  if(m_useassoTool &&  isUsed(*sp)           ) continue;
 
-	  int   ir = int(r*irstep); 
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
+
+	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
 	  r_Sorted[ir].push_back(sps); ++r_map[ir];
 	  if(r_map[ir]==1) r_index[m_nr++] = ir;
 	  ++m_ns;
@@ -364,8 +369,9 @@ void InDet::SiSpacePointsSeedMaker_LowMomentum::newRegion
 	  float r = (*sp)->r(); if(r<0. || r>=r_rmax) continue;
 	  if(m_useassoTool &&  isUsed(*sp)           ) continue;
 
-	  int   ir = int(r*irstep); 
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
+
+	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
 	  r_Sorted[ir].push_back(sps); ++r_map[ir];
 	  if(r_map[ir]==1) r_index[m_nr++] = ir;
 	  ++m_ns;

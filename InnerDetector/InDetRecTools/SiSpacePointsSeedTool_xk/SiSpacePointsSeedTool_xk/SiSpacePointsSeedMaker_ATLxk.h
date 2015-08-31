@@ -23,6 +23,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
+#include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "SiSpacePointsSeedTool_xk/SiSpacePointForSeed.h"
@@ -122,6 +123,7 @@ namespace InDet {
       bool                        m_trigger                       ;
       bool                        m_checketa                      ;
       bool                        m_isvertex                      ;
+      bool                        m_dbm                           ;
       int                         m_outputlevel                   ;
       int                         m_nprint                        ;
       int                         m_state                         ;
@@ -160,6 +162,7 @@ namespace InDet {
       float                       m_diver                         ;
       float                       m_diverpps                      ;
       float                       m_diversss                      ;
+      float                       m_divermax                      ;
       float                       m_dazmax                        ;
       float                       m_ptmin                         ;
       float                       m_ipt                           ;

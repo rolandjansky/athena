@@ -93,7 +93,7 @@ namespace InDet {
   // Copy constructor
   /////////////////////////////////////////////////////////////////////////////////
 
-  inline SiSpacePointsProSeed::SiSpacePointsProSeed (const SiSpacePointsProSeed& sp)
+  inline SiSpacePointsProSeed::SiSpacePointsProSeed (const SiSpacePointsProSeed& sp): m_s0(sp.m_s0),m_s1(sp.m_s1),m_s2(sp.m_s2)
     {
       *this = sp;
     }
