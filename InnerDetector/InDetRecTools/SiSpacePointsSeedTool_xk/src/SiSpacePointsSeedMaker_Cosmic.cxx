@@ -26,10 +26,7 @@ InDet::SiSpacePointsSeedMaker_Cosmic::SiSpacePointsSeedMaker_Cosmic
 (const std::string& t,const std::string& n,const IInterface* p)
   : AthAlgTool(t,n,p)                                         ,
     m_fieldServiceHandle("AtlasFieldSvc",n), 
-    m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels"),
-    m_spacepointsSCT("SCT_SpacePoints"),
-    m_spacepointsPixel("PixelSpacePoints"),
-    m_spacepointsOverlap("OverlapSpacePoints")
+    m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels")
 {
   m_useassoTool = false ;
   m_useOverlap= false   ;
@@ -63,10 +60,12 @@ InDet::SiSpacePointsSeedMaker_Cosmic::SiSpacePointsSeedMaker_Cosmic
   m_V         = 0       ;
   m_seeds     = 0       ;
   
-
-//  m_spacepointsSCT         = 0                   ;
-//  m_spacepointsPixel       = 0                   ;
-//  m_spacepointsOverlap     = 0                   ;
+  m_spacepointsSCTname     = "SCT_SpacePoints"   ;
+  m_spacepointsPixelname   = "PixelSpacePoints"  ;
+  m_spacepointsOverlapname = "OverlapSpacePoints"; 
+  m_spacepointsSCT         = 0                   ;
+  m_spacepointsPixel       = 0                   ;
+  m_spacepointsOverlap     = 0                   ;
 
   declareInterface<ISiSpacePointsSeedMaker>(this);
 
@@ -89,9 +88,9 @@ InDet::SiSpacePointsSeedMaker_Cosmic::SiSpacePointsSeedMaker_Cosmic
   declareProperty("etaMin"                ,m_etamin                );
   declareProperty("etaMax"                ,m_etamax                );  
   declareProperty("checkEta"              ,m_checketa              );
-  declareProperty("SpacePointsSCTName"    ,m_spacepointsSCT    );
-  declareProperty("SpacePointsPixelName"  ,m_spacepointsPixel  );
-  declareProperty("SpacePointsOverlapName",m_spacepointsOverlap);
+  declareProperty("SpacePointsSCTName"    ,m_spacepointsSCTname    );
+  declareProperty("SpacePointsPixelName"  ,m_spacepointsPixelname  );
+  declareProperty("SpacePointsOverlapName",m_spacepointsOverlapname);
   declareProperty("useOverlapSpCollection", m_useOverlap           );
   declareProperty("UseAssociationTool"    ,m_useassoTool           ); 
   declareProperty("MagFieldSvc"           , m_fieldServiceHandle   );
@@ -191,10 +190,10 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent (int)
   //
   if(m_pixel) {
 
-//    m_spacepointsPixel = 0;
-//    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
+    m_spacepointsPixel = 0;
+    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
 
-    if(m_spacepointsPixel.isValid()) {
+    if(!sc.isFailure() && m_spacepointsPixel) {
 
       SpacePointContainer::const_iterator spc  =  m_spacepointsPixel->begin();
       SpacePointContainer::const_iterator spce =  m_spacepointsPixel->end  ();
@@ -224,9 +223,9 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent (int)
   //
   if(m_sct) {
 
-//    m_spacepointsSCT = 0;
-//    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
-    if(m_spacepointsSCT.isValid()) {
+    m_spacepointsSCT = 0;
+    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
+    if(!sc.isFailure() && m_spacepointsSCT) {
 
       SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
       SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
@@ -255,9 +254,9 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newEvent (int)
     //
     if(m_useOverlap) {
 
-//      m_spacepointsOverlap = 0;
-//      sc = evtStore()->retrieve(m_spacepointsOverlap,m_spacepointsOverlapname);
-      if(m_spacepointsOverlap.isValid()) {
+      m_spacepointsOverlap = 0;
+      sc = evtStore()->retrieve(m_spacepointsOverlap,m_spacepointsOverlapname);
+      if(!sc.isFailure() && m_spacepointsOverlap) {
 	
 	SpacePointOverlapCollection::const_iterator sp  = m_spacepointsOverlap->begin();
 	SpacePointOverlapCollection::const_iterator spe = m_spacepointsOverlap->end  ();
@@ -298,10 +297,10 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
   //
   if(m_pixel && vPixel.size()) {
 
-//    m_spacepointsPixel   = 0;
-//    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
+    m_spacepointsPixel   = 0;
+    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
     
-    if(m_spacepointsPixel.isValid()) {
+    if(!sc.isFailure() && m_spacepointsPixel) {
 
       SpacePointContainer::const_iterator spce =  m_spacepointsPixel->end  ();
 
@@ -334,10 +333,10 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::newRegion
   //
   if(m_sct && vSCT.size()) {
 
-//    m_spacepointsSCT     = 0;
-//    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
+    m_spacepointsSCT     = 0;
+    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
 
-    if(m_spacepointsSCT.isValid()) {
+    if(!sc.isFailure() && m_spacepointsSCT) {
 
       SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
 
@@ -490,21 +489,21 @@ MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dump( MsgStream& out ) const
 
 MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dumpConditions( MsgStream& out ) const
 {
-  int n = 42-m_spacepointsPixel.name().size();
+  int n = 42-m_spacepointsPixelname.size();
   std::string s2; for(int i=0; i<n; ++i) s2.append(" "); s2.append("|");
-  n     = 42-m_spacepointsSCT.name().size();
+  n     = 42-m_spacepointsSCTname.size();
   std::string s3; for(int i=0; i<n; ++i) s3.append(" "); s3.append("|");
-  n     = 42-m_spacepointsOverlap.name().size();
+  n     = 42-m_spacepointsOverlapname.size();
   std::string s4; for(int i=0; i<n; ++i) s4.append(" "); s4.append("|");
 
 
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
-  out<<"| Pixel    space points   | "<<m_spacepointsPixel.name() <<s2
+  out<<"| Pixel    space points   | "<<m_spacepointsPixelname <<s2
      <<std::endl;
-  out<<"| SCT      space points   | "<<m_spacepointsSCT.name()<<s3
+  out<<"| SCT      space points   | "<<m_spacepointsSCTname<<s3
      <<std::endl;
-  out<<"| Overlap  space points   | "<<m_spacepointsOverlap.name() <<s4
+  out<<"| Overlap  space points   | "<<m_spacepointsOverlapname<<s4
      <<std::endl;
   out<<"| usePixel                | "
      <<std::setw(12)<<m_pixel 
