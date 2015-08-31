@@ -90,7 +90,6 @@ pattern poolcnv \
   macro        dummy_for_library                "<library>" ; \
   macro_append <package>_named_libraries        " <package>PoolCnv " ; \
   apply_pattern generate_componentslist library=<package>PoolCnv group=<group> ; \
-  macro_append <package>_joboptions ' -s=../pool *.py ' ; \
   macro_append install_pool_joboptions_dependencies " <package>PoolCnvGen" ; \
   document data_installer install_pool_joboptions prefix=jobOptions "-s=../pool *.py" ; \
   apply_pattern optdebug_library name=<package>PoolCnv ; \
