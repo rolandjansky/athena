@@ -28,8 +28,6 @@ class LArPhysCaliTDiffAlg: public LArCond2NtupleBase {
   std::string m_outputContainer;
   std::string m_fileName;
 
-  bool m_perFebMG;
-
 
 };
 

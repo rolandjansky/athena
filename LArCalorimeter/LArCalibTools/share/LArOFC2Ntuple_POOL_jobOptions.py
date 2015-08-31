@@ -18,11 +18,11 @@ if not 'RootFileName' in dir():
 
 
 if not 'DBConnectionCOOL' in dir():
-        #DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
-        DBConnectionCOOL = "COOLOFL_LAR/CONDBR2"
+        DBConnectionCOOL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=COMP200;"
+        #DBConnectionCOOL = "COOLONL_LAR/COMP200"
 
 if not 'RunNumber' in dir():
-        RunNumber = 222222
+        RunNumber = 165983
 
 
 ###########################################################################
@@ -53,7 +53,7 @@ from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
 # Temperature folder
-#conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
+conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
 
 if "ONL" in DBConnectionCOOL:
    conddb.addFolder("","/LAR/BadChannels/BadChannels<dbConnection>"+DBConnectionCOOL+"</dbConnection>")
@@ -75,7 +75,6 @@ svcMgr.CondProxyProvider.InputCollections += [ PoolFileName ]
 from LArCalibTools.LArCalibToolsConf import LArOFC2Ntuple
 LArOFC2Ntuple = LArOFC2Ntuple( "LArOFC2Ntuple" )
 LArOFC2Ntuple.OutputLevel = INFO
-LArOFC2Ntuple.AddFEBTempInfo=False
 topSequence += LArOFC2Ntuple
 
 theApp.HistogramPersistency = "ROOT"

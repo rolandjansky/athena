@@ -218,7 +218,7 @@ StatusCode LArWFParams2Ntuple::stop() {
      }
 
      if ( m_dumpPhysCaliTdiff ) {
-	const LArPhysCaliTdiffP& params= completePhysCaliTdiff->get(hwid,igain);
+	const LArPhysCaliTdiffP& params= completePhysCaliTdiff->get(hwid,gain);
 	if (!params.isEmpty()) {
 	  vTdiff=params.m_Tdiff;
 	  if (!m_dumpTdrift && !m_dumpDetCellParams && !m_dumpCaliPulseParams) haveData=true;
@@ -226,7 +226,7 @@ StatusCode LArWFParams2Ntuple::stop() {
      }
 
      if ( m_dumpOFCBin ) {
-       const LArOFCBinP & bin = completeOFCBin->bin(hwid,igain);
+       const LArOFCBinP & bin = completeOFCBin->bin(hwid,gain);
        if (!bin.isEmpty()) {
 	 vBin=bin.m_bin;
 	 haveData=true;
