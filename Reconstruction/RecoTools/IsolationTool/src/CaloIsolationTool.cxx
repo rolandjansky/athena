@@ -73,6 +73,7 @@ namespace xAOD {
 
     // Choose whether TileGap3 cells are excluded 
     declareProperty("ExcludeTG3", m_ExcludeTG3 = true, "Exclude the TileGap3 cells");
+    declareProperty("UseCaloExtensionCaching", m_useCaloExtensionCaching = true, "Use cached caloExtension if avaliable.");
   }
 
   CaloIsolationTool::~CaloIsolationTool() { }
@@ -449,7 +450,7 @@ namespace xAOD {
   bool CaloIsolationTool::GetExtrapEtaPhi(const TrackParticle* tp, float& eta, float& phi)
   {
     const Trk::CaloExtension* caloExtension = 0;
-    if(!m_caloExtTool->caloExtension(*tp,caloExtension)){
+    if(!m_caloExtTool->caloExtension(*tp,caloExtension,m_useCaloExtensionCaching)){
       ATH_MSG_WARNING("Can not get caloExtension.");
       return false;
     };
@@ -1040,7 +1041,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
       double emfrac = 1.;
       if (onlyEM) {
 	const xAOD::CaloCluster *ocl = cl->cluster(0);
-	double eEM = ocl->energyBE(0)+ocl->energyBE(1)+ocl->energyBE(2)+ocl->energyBE(3);
+	double eEM = ocl ? ocl->energyBE(0)+ocl->energyBE(1)+ocl->energyBE(2)+ocl->energyBE(3) : 0.;
 	emfrac     = std::min(1.,eEM / cl->eEM());
       }
       et *= emfrac;
