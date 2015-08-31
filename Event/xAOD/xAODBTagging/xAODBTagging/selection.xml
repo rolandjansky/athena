@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 602916 2014-06-20 15:08:25Z vacavant $ -->
+<!-- $Id: selection.xml 688348 2015-08-10 09:03:52Z kleney $ -->
 <lcgdict>
 
   <!-- BTagging_v1 dictionaries: -->
@@ -7,6 +7,8 @@
          id="5D19F171-E07E-4F65-BC1F-FC4F4099E9F1" />
   <class name="xAOD::BTaggingAuxContainer_v1"
          id="5E1973D2-D860-4BB1-B8EF-C9AD8E6C66A2" />
+  <class name="xAOD::BTaggingTrigAuxContainer_v1"
+         id="1B738105-2F3E-4DCB-9DAE-DA3A4964486E" />
 
   <!-- Smart pointers to BTagging_v1 objects: -->
   <class name="DataLink<xAOD::BTaggingContainer_v1>" />
