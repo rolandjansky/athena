@@ -222,6 +222,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newEvent (int)
   i_spforseed   = l_spforseed.begin();
 
   float irstep = 1./r_rstep;
+  int   irmax  = r_size-1  ;
 
   // Get pixels space points containers from store gate 
   //
@@ -243,8 +244,10 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newEvent (int)
 	for(; sp != spe; ++sp) {
 
 	  float r = (*sp)->r(); if(r<0. || r>=r_rmax) continue;
-	  int   ir = int(r*irstep); 
+
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
+
+	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
 	  r_Sorted[ir].push_back(sps); ++r_map[ir];
 	  if(r_map[ir]==1) r_index[m_nr++] = ir;
 	  ++m_ns;
@@ -272,8 +275,10 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newEvent (int)
 	for(; sp != spe; ++sp) {
 
 	  float r = (*sp)->r(); if(r<0. || r>=r_rmax) continue;
-	  int   ir = int(r*irstep); 
+
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
+
+	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
 	  r_Sorted[ir].push_back(sps); ++r_map[ir];
 	  if(r_map[ir]==1) r_index[m_nr++] = ir;
 	  ++m_ns;
@@ -296,8 +301,10 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newEvent (int)
 
 	  float r = (*sp)->r(); 
 	  if(r<0. || r>=r_rmax) continue;
-	  int   ir = int(r*irstep); 
+
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
+
+	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
 	  r_Sorted[ir].push_back(sps); ++r_map[ir];
 	  if(r_map[ir]==1) r_index[m_nr++] = ir;
 	  ++m_ns;
@@ -329,6 +336,7 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newRegion
   i_spforseed = l_spforseed.begin();
 
   float irstep = 1./r_rstep;
+  int   irmax  = r_size-1  ;
 
   // Get pixels space points containers from store gate 
   //
@@ -354,8 +362,10 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newRegion
 	for(; sp != spe; ++sp) {
 
 	  float r = (*sp)->r(); if(r<0. || r>=r_rmax) continue;
-	  int   ir = int(r*irstep); 
+
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
+
+	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
 	  r_Sorted[ir].push_back(sps); ++r_map[ir];
 	  if(r_map[ir]==1) r_index[m_nr++] = ir;
 	  ++m_ns;
@@ -388,8 +398,10 @@ void InDet::SiSpacePointsSeedMaker_Trigger::newRegion
 	for(; sp != spe; ++sp) {
 
 	  float r = (*sp)->r(); if(r<0. || r>=r_rmax) continue;
-	  int   ir = int(r*irstep); 
+
 	  InDet::SiSpacePointForSeed* sps = newSpacePoint((*sp)); 
+
+	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
 	  r_Sorted[ir].push_back(sps); ++r_map[ir];
 	  if(r_map[ir]==1) r_index[m_nr++] = ir;
 	  ++m_ns;
