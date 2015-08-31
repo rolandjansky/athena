@@ -39,6 +39,7 @@
 #include "GeoModelKernel/GeoSimplePolygonBrep.h"
 #include "GeoModelKernel/GeoTessellatedSolid.h"
 #include "GeoModelKernel/GeoEllipticalTube.h"
+#include "GeoModelKernel/GeoTorus.h"
 #include "GeoModelKernel/GeoGenericTrap.h"
 
 // GeoShapeAction
@@ -231,6 +232,11 @@ void GeoShapeAction::handleTessellatedSolid (const GeoTessellatedSolid* tessella
 void GeoShapeAction::handleEllipticalTube (const GeoEllipticalTube * elltube)
 {
   handleShape(elltube);
+}
+
+void GeoShapeAction::handleTorus (const GeoTorus * torus)
+{
+  handleShape(torus);
 }
 
 void GeoShapeAction::handleGenericTrap (const GeoGenericTrap * gentrap)

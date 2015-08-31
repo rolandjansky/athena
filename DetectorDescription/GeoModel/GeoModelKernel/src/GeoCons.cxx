@@ -71,9 +71,9 @@ GeoCons::~GeoCons()
 double GeoCons::volume () const
 {
   //## begin GeoCons::volume%3CD2A6BC0134.body preserve=yes
-  return (dPhi / 3.0) * dZ * (rMax1 * rMax1 + rMax2 * rMax2 + rMax1 * rMax2
-			      - rMin1 * rMin1 - rMin2 * rMin2 -
-			      rMin1 * rMin2);
+  return (dPhi * (1./3)) * dZ * (rMax1 * rMax1 + rMax2 * rMax2 + rMax1 * rMax2
+                                 - rMin1 * rMin1 - rMin2 * rMin2 -
+                                 rMin1 * rMin2);
 
   //## end GeoCons::volume%3CD2A6BC0134.body
 }

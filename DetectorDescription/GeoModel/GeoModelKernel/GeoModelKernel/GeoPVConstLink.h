@@ -94,7 +94,7 @@ class GeoPVConstLink
 
       //## Operation: operator=%3D1DC05000AA
       //	Assignment operator.
-      const GeoPVConstLink& operator = (const GeoPVConstLink& right) const;
+      GeoPVConstLink& operator = (const GeoPVConstLink& right);
 
     // Additional Public Declarations
       //## begin GeoPVConstLink%3D13D8DE0092.public preserve=yes
@@ -106,7 +106,7 @@ class GeoPVConstLink
       //## Attribute: ptr%3D13DAF4008F
       //	A pointer to the underlying volume
       //## begin GeoPVConstLink::ptr%3D13DAF4008F.attr preserve=no  protected: mutable GeoVPhysVol *  {U} 
-      mutable GeoVPhysVol *  ptr;
+      GeoVPhysVol *  m_ptr;
       //## end GeoPVConstLink::ptr%3D13DAF4008F.attr
 
     // Additional Protected Declarations

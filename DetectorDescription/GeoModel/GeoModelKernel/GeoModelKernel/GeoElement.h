@@ -171,7 +171,7 @@ inline int GeoElement::operator!=(const GeoElement &right) const
 inline double GeoElement::getN () const
 {
   //## begin GeoElement::getN%3CDBB41F0065.body preserve=yes
-  return a / (CLHEP::gram / CLHEP::mole);
+  return a * (CLHEP::mole / CLHEP::gram);
   //## end GeoElement::getN%3CDBB41F0065.body
 }
 

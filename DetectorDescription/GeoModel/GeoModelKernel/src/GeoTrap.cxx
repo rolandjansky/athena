@@ -87,8 +87,8 @@ double GeoTrap::volume () const
   double fDx1 = 0.5 * (pDx1 + pDx2);
   double fDx2 = 0.5 * (pDx3 + pDx4);
 
-  return 4.0 * ((fDx1 + fDx2) * (fDy1 + fDy2) * (fDz / 2.0) +
-		(fDx2 - fDx1) * (fDy2 - fDy1) * (fDz / 6.0));
+  return 4.0 * ((fDx1 + fDx2) * (fDy1 + fDy2) * (fDz * 0.5) +
+		(fDx2 - fDx1) * (fDy2 - fDy1) * (fDz * (1./6)));
 
   //## end GeoTrap::volume%3CD2A6EF014B.body
 }
