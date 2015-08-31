@@ -60,7 +60,7 @@ int usage(const std::string& name, int status) {
   s << "    -e,  --efficiencies\t make test efficiencies with respect to reference \n";
   s << "    -r,  --refit       \t refit all resplots\n";
   s << "    -l,  --labels      \t use specified labels for key\n";
-  s << "    -b   --bayes       \t calculate Basyesian efficiency iuncertaintiesr\n";
+  s << "    -nb  --nobayes     \t do not calculate Basyesian efficiency uncertaintiesr\n";
   s << "    -as, --atlasstyle  \t use ATLAS style\n";
   s << "    -ns, --nostats     \t do not show stats for mean and rms\n";
   s << "    -nr, --noref       \t do not plot reference histograms\n";
@@ -221,7 +221,7 @@ int main(int argc, char** argv) {
   bool make_ref_efficiencies = false;
   bool refit_resplots        = false;
 
-  bool _bayes      = false;
+  bool _bayes      = true;
   bool nopng       = false;
   bool nostats     = false;
   bool noref       = false;
@@ -291,8 +291,8 @@ int main(int argc, char** argv) {
       Plotter::setplotref(false);
       noref = true;
     }
-    else if ( arg=="-b" || arg=="--bayes" ) { 
-      _bayes = true;
+    else if ( arg=="-nb" || arg=="--nobayes" ) { 
+      _bayes = false;
     }
     else if ( arg=="-np" || arg=="--noplots" ) { 
       noplots = true;
@@ -460,9 +460,9 @@ int main(int argc, char** argv) {
     { "eta_eff",      "Efficiency #eta",  "xaxis:lin",             "Offline track #eta",           "yaxis:lin:90:102",   "Efficiency [%]" },       
     { "phi_eff",      "Efficiency #phi",  "xaxis:lin",             "Offline track #phi",           "yaxis:lin:90:102",   "Efficiency [%]" },       
     { "d0_eff",       "Efficiency d0",    "xaxis:lin:autosym",        "Offline track d_{0} [mm]",     "yaxis:lin:90:102",   "Efficiency [%]" },       
-    { "a0_eff",       "Efficiency a0",    "xaxis:lin:-2:2",        "Offline track d_{0} [mm]",     "yaxis:lin:90:102",   "Efficiency [%]" },        
-    { "z0_eff",       "Efficiency z0",    "xaxis:lin:-250:250",    "Offline track z_{0} [mm]",     "yaxis:lin:90:102",   "Efficiency [%]" },       
- 
+    //    { "a0_eff",       "Efficiency a0",    "xaxis:lin:-2:2",        "Offline track d_{0} [mm]",     "yaxis:lin:90:102",   "Efficiency [%]" },        
+    { "a0_eff",       "Efficiency a0",    "xaxis:lin:autosym",        "Offline track d_{0} [mm]",     "yaxis:lin:90:102",   "Efficiency [%]" },      
+    { "z0_eff",       "Efficiency z0",    "xaxis:lin:-250:250",    "Offline track z_{0} [mm]",     "yaxis:lin:90:102",   "Efficiency [%]" },        
     { "eff_vs_mu",    "Efficiency <#mu>",            "xaxis:lin:auto",       "<#mu>",              "yaxis:lin:90:102",   "Efficiency [%]" },       
     { "roi_dphi_eff", "Efficiency #Delta#phi(RoI)",  "xaxis:lin:-0.6:0.6",   "#Delta#phi (RoI)",   "yaxis:lin:90:102",   "Efficiency [%]" },
     { "roi_deta_eff", "Efficiency #Delta#eta(RoI)",  "xaxis:lin:-0.6:0.6",   "#Delta#eta (RoI)",   "yaxis:lin:90:102",   "Efficiency [%]" },       
