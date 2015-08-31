@@ -40,8 +40,7 @@ description : Class for finding brem points in the inner detector using the GSF
 
 #include "TTree.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 
 
@@ -377,13 +376,12 @@ void Trk::BremFind::BremFinder(const Trk::ForwardTrajectory& forwardTrajectory, 
     
   
   //* Retrieve the event info for later syncrinization
-  const EventInfo*   eventInfo;
+  const xAOD::EventInfo*   eventInfo;
   if ((evtStore()->retrieve(eventInfo)).isFailure()) {
     msg(MSG::ERROR) << "Could not retrieve event info" << endreq;
   }
        
-  EventID*   myEventID  =  eventInfo->event_ID();
-  m_event_ID            =  myEventID->event_number();
+  m_event_ID            =  eventInfo->eventNumber();
 
   //Fill the TanH coefficients and graph values
   for (int forward_fill(0); forward_fill < (int) m_forwardparameters.coefficient.size(); forward_fill++) {
@@ -732,8 +730,8 @@ Amg::Vector3D Trk::BremFind::SurfacePosition(const Trk::TrackParameters& trackpa
   const Trk::TrackParameters* surfaceParameters1;
   const Trk::TrackParameters* surfaceParameters2;
 
-  Amg::Vector3D Pos1;
-  Amg::Vector3D Pos2;
+  Amg::Vector3D Pos1 (0, 0, 0);
+  Amg::Vector3D Pos2 (0, 0, 0);
   double phidifference1(0.), phidifference2(0.);
 
   //Pushing back just the global position of the brem not the extrapolated

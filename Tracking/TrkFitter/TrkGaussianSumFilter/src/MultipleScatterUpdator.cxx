@@ -112,18 +112,15 @@ const Trk::TrackParameters* Trk::MultipleScatterUpdator::update( const Trk::Trac
   // Check that the material properties have been defined - if not define them from the layer information
   materialProperties = materialProperties ? materialProperties : layer.fullUpdateMaterialProperties( *trackParameters );
 
-  if ( !materialProperties )
+  if ( !materialProperties ) {
+    msg(MSG::DEBUG) << "No material properties associated with layer... returning original parameters" << endreq;
     return trackParameters->clone();
+  }
 
   const AmgSymMatrix(5)* measuredTrackCov = trackParameters->covariance();
 
   if (!measuredTrackCov){
     msg(MSG::DEBUG) << "No measured track parameters for multiple scatter... returning original parameters" << endreq;
-    return trackParameters->clone();
-  }
-
-  if (!materialProperties){
-    msg(MSG::DEBUG) << "No material properties associated with layer... returning original parameters" << endreq;
     return trackParameters->clone();
   }
   

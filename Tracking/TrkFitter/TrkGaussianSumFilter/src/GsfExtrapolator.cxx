@@ -234,7 +234,7 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolate( const Trk::IP
   ++m_extrapolateCalls;
 
   // Start the timer
-  Chrono chrono( &(*m_chronoSvc), "extrapolate()" );
+  //Chrono chrono( &(*m_chronoSvc), "extrapolate()" );
 
   const Trk::Layer*           associatedLayer     = 0;
   const Trk::TrackingVolume*  startVolume         = 0;
@@ -664,7 +664,7 @@ void Trk::GsfExtrapolator::extrapolateToVolumeBoundary ( const Trk::IPropagator&
   ATH_MSG_DEBUG("GSF extrapolateToVolumeBoundary() to tracking volume: " << trackingVolume.volumeName());
 
   // Start the timer
-  Chrono chrono( &(*m_chronoSvc), "extrapolateToVolumeBoundary()" );
+  //Chrono chrono( &(*m_chronoSvc), "extrapolateToVolumeBoundary()" );
 
   // MultiComponentState propagation and material effects
   const Trk::MultiComponentState* currentState  = &multiComponentState;
@@ -784,6 +784,8 @@ void Trk::GsfExtrapolator::extrapolateToVolumeBoundary ( const Trk::IPropagator&
 
       nextNavigationCell   = m_navigator->nextTrackingVolume( *navigationPropagator, *navigationParameters, direction, trackingVolume );
       nextVolume           = nextNavigationCell.nextVolume;
+      if (navigationPropagatorIndex >= 1)
+        delete navigationParameters;
       navigationParameters = nextNavigationCell.parametersOnBoundary;
 
       ++navigationPropagatorIndex;
@@ -834,12 +836,11 @@ void Trk::GsfExtrapolator::extrapolateToVolumeBoundary ( const Trk::IPropagator&
 
       if (layerAtBoundary->layerMaterialProperties()) {
 	ATH_MSG_DEBUG("Boundary surface has material - updating properties");
-	if (currentState) {
-	  matUpdatedState = m_materialUpdator->postUpdate(*currentState, 
-							  *layerAtBoundary,
-							  direction, 
-							  particleHypothesis );
-	}
+        assert (currentState);
+        matUpdatedState = m_materialUpdator->postUpdate(*currentState, 
+                                                        *layerAtBoundary,
+                                                        direction, 
+                                                        particleHypothesis );
       }
     }
 
@@ -905,7 +906,7 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateInsideVolume ( 
   ATH_MSG_DEBUG("GSF extrapolateInsideVolume() in tracking volume: " << trackingVolume.volumeName() );
 
   // Start the timer
-  Chrono chrono( &(*m_chronoSvc), "extrapolateInsideVolume()" );
+  //Chrono chrono( &(*m_chronoSvc), "extrapolateInsideVolume()" );
   
   const Trk::MultiComponentState* currentState = &multiComponentState;
 
@@ -954,10 +955,10 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateInsideVolume ( 
 
   else if ( associatedLayer != destinationLayer && trackingVolume.confinedLayers() &&  associatedLayer->layerMaterialProperties() ){
 
-    const Trk::MultiComponentState* updatedState = m_materialUpdator->update( *currentState, 
-									      *associatedLayer, 
-									      direction,
-									      particleHypothesis );
+    const Trk::MultiComponentState* updatedState = m_materialUpdator->postUpdate( *currentState, 
+										  *associatedLayer, 
+										  direction,
+										  particleHypothesis );
     
     // Memory clean-up
     if ( updatedState && updatedState != currentState && currentState != &multiComponentState )
@@ -1129,7 +1130,7 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateFromLayerToLaye
     nextLayer = currentLayer->nextLayer( combinedState->position(), direction * combinedState->momentum().unit() );
   }
   
-  if (currentState && destinationLayer && nextLayer != destinationLayer  && currentState != &multiComponentState){
+  if (destinationLayer && nextLayer != destinationLayer  && currentState != &multiComponentState){
     ATH_MSG_DEBUG("extrapolateFromLayerToLayer failed to reach destination layer..  return 0");
     if (currentLayer)     ATH_MSG_DEBUG("Current layer     " << layerRZoutput(*currentLayer) );
     if (nextLayer)        ATH_MSG_DEBUG("NextLayer layer   " << layerRZoutput(*nextLayer) );
@@ -1518,7 +1519,7 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::multiStatePropagate ( cons
  
   
   // Start the timer
-  Chrono chrono( &(*m_chronoSvc), "multiStatePropagate()" );
+  //Chrono chrono( &(*m_chronoSvc), "multiStatePropagate()" );
 
   Trk::MultiComponentState* propagatedState = new Trk::MultiComponentState();
 
@@ -1605,7 +1606,7 @@ void Trk::GsfExtrapolator::initialiseNavigation ( const Trk::IPropagator& propag
 {
 
   // Start the timer
-  Chrono chrono( &(*m_chronoSvc), "initialiseNavigation()" );
+  //Chrono chrono( &(*m_chronoSvc), "initialiseNavigation()" );
   ATH_MSG_DEBUG("initialiseNavigation !!!");
   // Empty the garbage bin
   emptyGarbageBins();
@@ -1792,13 +1793,12 @@ const std::vector<const Trk::TrackStateOnSurface*>* Trk::GsfExtrapolator::extrap
     emptyGarbageBins();
     return 0;
   } 
-  
-  if (parameterAtDestination){
+  else {
     ATH_MSG_VERBOSE( "  [+] Adding the destination surface to the TSOS vector in extrapolateM() ");
     m_matstates->push_back(new TrackStateOnSurface(0,parameterAtDestination->begin()->first->clone(),0,0));
     delete parameterAtDestination;
-  } else 
-    ATH_MSG_VERBOSE( "  [-] Destination surface was not hit extrapolateM(), but not required through configuration.");
+  }
+
     // assign the temporary states
   std::vector<const Trk::TrackStateOnSurface*> *tmpMatStates = m_matstates;
   m_matstates=0;

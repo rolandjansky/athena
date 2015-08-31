@@ -65,7 +65,7 @@ class MultiStateMaterialEffects : public AthAlgTool, virtual public IMultiStateM
                    ParticleHypothesis particleHypothesis = nonInteracting ) const;
 
   /** Method to allow interface between single and multi-component states (through an adapter) */
-  virtual void setMaterialEffects( ToolHandle<IMaterialEffectsUpdator> ) const;
+  virtual void setMaterialEffects( const ToolHandle<IMaterialEffectsUpdator> &) const;
 
   virtual void reset() const;
 
@@ -93,7 +93,7 @@ class MultiStateMaterialEffects : public AthAlgTool, virtual public IMultiStateM
  
 }
 
-inline void Trk::MultiStateMaterialEffects::setMaterialEffects(ToolHandle<IMaterialEffectsUpdator> iMaterialEffectsUpdator) const
+inline void Trk::MultiStateMaterialEffects::setMaterialEffects(const ToolHandle<IMaterialEffectsUpdator> &iMaterialEffectsUpdator) const
 {
 	 m_materialEffectsUpdator = iMaterialEffectsUpdator;
 }

@@ -42,7 +42,7 @@ class IMultiStateMeasurementUpdator : virtual public IAlgTool {
   /** Method for updating the multi-state with a new measurement and calculate the fit qaulity at the same time*/
   virtual const MultiComponentState* update (const Trk::MultiComponentState&, 
                                              const Trk::MeasurementBase&,
-                                             FitQualityOnSurface*&   fitQoS ) const = 0;
+                                             std::unique_ptr<FitQualityOnSurface>& fitQoS ) const = 0;
 
   /** Method for reverse filters (smoothers) to determine the unbiased track parameters */
   virtual const MultiComponentState* getUnbiasedTrackParameters (const MultiComponentState&, const MeasurementBase&) const = 0;

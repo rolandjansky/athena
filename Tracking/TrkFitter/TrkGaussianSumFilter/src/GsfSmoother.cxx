@@ -26,7 +26,7 @@ decription           : Implementation code for the class GsfSmoother
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkCaloCluster_OnTrack/CaloCluster_OnTrack.h"
 
-
+#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/ToolHandle.h"
 
 Trk::GsfSmoother::GsfSmoother(const std::string& type, const std::string& name, const IInterface* parent)
@@ -34,8 +34,6 @@ Trk::GsfSmoother::GsfSmoother(const std::string& type, const std::string& name, 
   AthAlgTool(type, name, parent),
   m_outputlevel(0),
   m_combineWithFitter(false),
-  m_extrapolator(0),
-  m_updator(0),
   m_merger("Trk::CloseComponentsMultiStateMerger/CloseComponentsMultiStateMerger"),
   m_combiner("Trk::MultiComponentStateCombiner/GsfSmootherCombiner")
 {
@@ -76,7 +74,7 @@ StatusCode Trk::GsfSmoother::finalize()
 
 }
 
-StatusCode Trk::GsfSmoother::configureTools(ToolHandle<IMultiStateExtrapolator> extrapolator, ToolHandle<IMultiStateMeasurementUpdator> measurementUpdator)
+StatusCode Trk::GsfSmoother::configureTools(const ToolHandle<IMultiStateExtrapolator> &extrapolator, const ToolHandle<IMultiStateMeasurementUpdator> &measurementUpdator)
 {
 
   m_extrapolator = extrapolator;
@@ -127,7 +125,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
      In the GSF Smoother these TrackStateOnSurface objects are the base class for the
      MultiComponentStateOnSurface. This memory should be freed by the fitter / smoother master method */
 
-  Trk::SmoothedTrajectory* smoothedTrajectory = new SmoothedTrajectory();
+  std::unique_ptr<Trk::SmoothedTrajectory> smoothedTrajectory = CxxUtils::make_unique<Trk::SmoothedTrajectory>();
 
   // ==========================================================================================
   // Get the initial smoother prediction. It is the last prediction in the forwards trajectory
@@ -163,11 +161,10 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
 
   if ( !firstSmootherMeasurementOnTrack ){
     msg(MSG::WARNING) << "Initial state on surface in smoother does not have an associated MeasurementBase object... returning 0" << endreq;
-    delete smoothedTrajectory;
     return 0;
   }
 
-  Trk::FitQualityOnSurface* fitQuality = 0;
+  std::unique_ptr<Trk::FitQualityOnSurface> fitQuality;
   const Trk::MultiComponentState* firstSmoothedState = m_updator->update(*smootherPredictionMultiState, *firstSmootherMeasurementOnTrack, fitQuality);
 
   if (!firstSmoothedState) {
@@ -175,13 +172,6 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
 
     if (!smootherPredictionMultiStateOnSurface)
       delete smootherPredictionMultiState;
-
-    if(fitQuality)
-      delete fitQuality;
-    
-    delete smoothedTrajectory;
-
-
 
     if (m_outputlevel<=0)
       msg(MSG::DEBUG) << "First GSF smoothing update failed... Exiting!" << endreq;
@@ -197,7 +187,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
   const Trk::TrackParameters* combinedFirstSmoothedState = m_combiner->combine(*firstSmoothedState,true);
 
   const Trk::MultiComponentStateOnSurface* updatedStateOnSurface 
-                = new MultiComponentStateOnSurface(firstSmootherMeasurementOnTrack, combinedFirstSmoothedState, firstSmoothedState, fitQuality);
+    = new MultiComponentStateOnSurface(firstSmootherMeasurementOnTrack, combinedFirstSmoothedState, firstSmoothedState, fitQuality.release());
 
   smoothedTrajectory->push_back(updatedStateOnSurface);
 
@@ -207,7 +197,6 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
 
   smootherPredictionStateOnSurface = 0;
   updatedStateOnSurface = 0;
-  fitQuality = 0;
 
   if (!smootherPredictionMultiStateOnSurface)
     delete smootherPredictionMultiState;
@@ -221,32 +210,28 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
 
   if ( !firstSmoothedState->isMeasured() ){
     msg(MSG::WARNING) << "Updated state is not measured. Rejecting smoothed state... returning 0" << endreq;
-    delete smoothedTrajectory;
     return 0;
   }
 
   // Generate a large prediction for extrapolation. This way there is no dependance on error of prediction
   // NB local Y and theta are not blown out too much to help in the TRT
   //const Trk::MultiComponentState* smoothedStateWithScaledError = firstSmoothedState->cloneWithScaledError( 200. );
-  const Trk::MultiComponentState* smoothedStateWithScaledError = firstSmoothedState->cloneWithScaledError( 15., 5., 15., 5., 15. );
+  std::unique_ptr<const Trk::MultiComponentState> smoothedStateWithScaledError = 
+    std::unique_ptr<const Trk::MultiComponentState> (firstSmoothedState->cloneWithScaledError( 15., 5., 15., 5., 15. ));
 
   if ( !smoothedStateWithScaledError ){
     msg(MSG::WARNING) << "Covariance scaling could not be performed... returning 0" << endreq;
-    delete smoothedTrajectory;
     return 0;
   }
 
   // Perform a measurement update on this new state
-  const Trk::MultiComponentState* firstUpdatedState = m_updator->update(*smoothedStateWithScaledError, *firstSmootherMeasurementOnTrack);
+  std::unique_ptr<const Trk::MultiComponentState> updatedState = 
+    std::unique_ptr<const Trk::MultiComponentState> (m_updator->update(*smoothedStateWithScaledError, *firstSmootherMeasurementOnTrack));
 
-  if ( !firstUpdatedState ){
+  if ( !updatedState ){
     msg(MSG::WARNING) << "Smoother prediction could not be determined... returning 0" << endreq;
-    delete smoothedTrajectory;
     return 0;
   }
-
-  if ( firstUpdatedState != smoothedStateWithScaledError )
-    delete smoothedStateWithScaledError;
 
   // Clear rioOnTrack pointer
   firstSmootherMeasurementOnTrack = 0;
@@ -255,9 +240,6 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
   // Loop over all remaining TrackStateOnSurface objects in the forward trajectory
   // =============================================================================
   
-  // This is needed to ensure correct memory management
-  const Trk::MultiComponentState* updatedState = firstUpdatedState;
-
   Trk::ForwardTrajectory::const_reverse_iterator trackStateOnSurface = forwardTrajectory.rbegin() + 1;
  
   Trk::ForwardTrajectory::const_reverse_iterator lasttrackStateOnSurface = forwardTrajectory.rend() - 1;
@@ -268,23 +250,24 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
   for ( ; trackStateOnSurface != forwardTrajectory.rend(); ++trackStateOnSurface ) {
 
     // Retrieve the MeasurementBase object from the TrackStateOnSurface object
-    const Trk::MeasurementBase* measurement = (*trackStateOnSurface)->measurementOnTrack();
+    const Trk::MeasurementBase* measurement_in = (*trackStateOnSurface)->measurementOnTrack();
 
-    if ( !measurement ){
+    if ( !measurement_in ){
       msg(MSG::WARNING) << "MeasurementBase object could not be extracted from a measurement... continuing" << endreq;
       continue;
     }
 
     // Clone the MeasurementBase object
-    measurement = measurement->clone();
+    std::unique_ptr<const Trk::MeasurementBase> measurement = 
+      std::unique_ptr<const Trk::MeasurementBase> (measurement_in->clone());
 
     /* Extrapolate the current multi-component state to the next measurement surface. For the smoother the direction of propagation
        is opposite to the direction of momentum */
     
-    const Trk::TrackParameters* combinedState = 0;
     const AmgSymMatrix(5)* measuredCov = 0;
     if (m_outputlevel<=0){
-      combinedState = m_combiner->combine( *updatedState );
+      std::unique_ptr<const Trk::TrackParameters> combinedState =
+        std::unique_ptr<const Trk::TrackParameters> (m_combiner->combine( *updatedState ));
 
       measuredCov = combinedState->covariance();
 
@@ -299,36 +282,25 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
                     << combinedState->parameters()[Trk::theta] << "\t" 
                     << combinedState->parameters()[Trk::qOverP] << "\t"
                     << varQoverP );
-        
-      delete combinedState;
-      combinedState = 0;
     }
 
 
-    const Trk::MultiComponentState* extrapolatedState = m_extrapolator->extrapolate( *updatedState, 
-                                                                                     measurement->associatedSurface(), 
-                                                                                     Trk::oppositeMomentum, 
-                                                                                     false, 
-                                                                                     particleHypothesis );
-
-    // Free memory from the updated state. Only delete if the smoothed state is combined with forwards fit.
-    if ( m_combineWithFitter && updatedState != extrapolatedState )
-      delete updatedState;
-
-    updatedState = 0;
+    std::unique_ptr<const Trk::MultiComponentState> extrapolatedState =
+      std::unique_ptr<const Trk::MultiComponentState> 
+      (m_extrapolator->extrapolate( *updatedState, 
+                                    measurement->associatedSurface(), 
+                                    Trk::oppositeMomentum, 
+                                    false, 
+                                    particleHypothesis ) );
 
     if (!extrapolatedState) {
       ATH_MSG_DEBUG( "Extrapolation to measurement surface failed... rejecting track!");
-      delete measurement;
-      delete smoothedTrajectory;
-      if ( !m_combineWithFitter ) delete firstUpdatedState;
       return 0;
     }
-    
-    
 
     if (m_outputlevel<=0){
-      combinedState = m_combiner->combine( *extrapolatedState );
+      std::unique_ptr<const Trk::TrackParameters> combinedState =
+        std::unique_ptr<const Trk::TrackParameters> (m_combiner->combine( *extrapolatedState ));
 
       measuredCov = combinedState->covariance();
 
@@ -343,28 +315,17 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
             << combinedState->parameters()[Trk::theta] << "\t" 
             << combinedState->parameters()[Trk::qOverP] << "\t"
             << varQoverP << endreq;
-    
-      delete combinedState;
-      combinedState = 0;
     }
     
       // Original measurement was flagged as  an outlier
     if( !(*trackStateOnSurface)->type(TrackStateOnSurface::Measurement) ){
-      updatedState = extrapolatedState;
+      updatedState = std::move (extrapolatedState);
       
-      fitQuality = new FitQuality(1,1);
       std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type(0);
       type.set( TrackStateOnSurface::Outlier );  
        
-      const Trk::MultiComponentStateOnSurface* updatedStateOnSurface  =0;
-      
-      if(m_combineWithFitter){
-        updatedStateOnSurface = new Trk::MultiComponentStateOnSurface( measurement, updatedState->clone(), fitQuality, 0, type);
-      } else {
-        updatedStateOnSurface = new Trk::MultiComponentStateOnSurface( measurement, updatedState, fitQuality, 0, type);      
-      }
-    
-      
+      const Trk::MultiComponentStateOnSurface* updatedStateOnSurface =
+        new Trk::MultiComponentStateOnSurface( measurement.release(), updatedState->clone(), new FitQuality(1,1), 0, type);
       smoothedTrajectory->push_back( updatedStateOnSurface );
       continue;
     }
@@ -372,19 +333,17 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
     
 
     // Update newly extrapolated state with MeasurementBase measurement
-    fitQuality = 0;
-    updatedState = m_updator->update( *extrapolatedState, *measurement, fitQuality );
+    updatedState = std::unique_ptr<const Trk::MultiComponentState> (m_updator->update( *extrapolatedState, *measurement, fitQuality ) );
 
     if (!updatedState) {
       msg(MSG::WARNING) << "Could not update the multi-component state... rejecting track!" << endreq;
-      delete smoothedTrajectory;
-      if (fitQuality) delete fitQuality;
       return 0;
     }
 
     if (m_outputlevel<=0){
           
-      combinedState = m_combiner->combine( *updatedState );
+      std::unique_ptr<const Trk::TrackParameters> combinedState =
+        std::unique_ptr<const Trk::TrackParameters> (m_combiner->combine( *updatedState ));
 
       measuredCov = combinedState->covariance();
 
@@ -400,28 +359,16 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
             << combinedState->parameters()[Trk::qOverP] << "\t"
             << varQoverP << endreq;
       msg(MSG::DEBUG) << "-----------------------------------------------------------------------------" << endreq;
-    
-      delete combinedState;
-      combinedState = 0;
     }
     
-    // Free memory if the extrapolated state
-    if (updatedState != extrapolatedState)
-      delete extrapolatedState;
-    
-    extrapolatedState = 0;
-
     /* =============================================================
        Optional combine smoother state with fitter state
        ============================================================= */
 
     if (m_combineWithFitter){
     
-      if( fitQuality )  delete fitQuality;
-      fitQuality = 0;
-      
-      
       const Trk::MultiComponentState* forwardsMultiState = 0;
+      std::unique_ptr<const Trk::MultiComponentState> forwardsMultiStateOwn;
       
       const Trk::MultiComponentStateOnSurface* forwardsMultiStateOnSurface = dynamic_cast<const Trk::MultiComponentStateOnSurface*>(*trackStateOnSurface);
       
@@ -429,7 +376,8 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
 
         // Create new multiComponentState from single state
         Trk::ComponentParameters componentParameters( (*trackStateOnSurface)->trackParameters(), 1. );
-        forwardsMultiState = new Trk::MultiComponentState( componentParameters );
+        forwardsMultiStateOwn = CxxUtils::make_unique<Trk::MultiComponentState>( componentParameters );
+        forwardsMultiState = forwardsMultiStateOwn.get();
       }
       
       else
@@ -438,22 +386,22 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
       const Trk::MultiComponentState* combinedState2 = this->combine( *forwardsMultiState, *updatedState );
       
       // Free memory in the case of a new multi-component state being created
-      if (!forwardsMultiStateOnSurface)
-        delete forwardsMultiState;
+      // if (!forwardsMultiStateOnSurface)
+      //   delete forwardsMultiState;
       
       if (!combinedState2) {
         msg(MSG::WARNING) << "Could not combine state from forward fit with smoother state... rejecting track!" << endreq;
-        delete updatedState;
-        delete measurement;
-        delete extrapolatedState;
-        delete smoothedTrajectory;
+        // delete updatedState;
+        // delete measurement;
+        // delete smoothedTrajectory;
         return 0;
       }
             
       const Trk::FitQualityOnSurface* combinedFitQuality = m_updator->fitQuality( *combinedState2, *measurement );
 
       // In the case of combination with forwards state - push back the combined state
-      const Trk::MultiComponentStateOnSurface* combinedStateOnSurface = new MultiComponentStateOnSurface( measurement, combinedState2, combinedFitQuality );
+      //const Trk::MultiComponentStateOnSurface* combinedStateOnSurface = new MultiComponentStateOnSurface( measurement, combinedState2, combinedFitQuality );
+      const Trk::MultiComponentStateOnSurface* combinedStateOnSurface = new MultiComponentStateOnSurface( measurement.release(), combinedState2, combinedFitQuality );
       smoothedTrajectory->push_back( combinedStateOnSurface );
       
     } else {
@@ -465,13 +413,13 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
         const Trk::TrackParameters* combinedLastState = m_combiner->combine(*updatedState,true);
 
         if (combinedLastState)
-          updatedStateOnSurface = new Trk::MultiComponentStateOnSurface(measurement, combinedLastState, updatedState, fitQuality);
+          updatedStateOnSurface = new Trk::MultiComponentStateOnSurface(measurement.release(), combinedLastState, updatedState->clone(), fitQuality.release());
         else 
-          updatedStateOnSurface = new Trk::MultiComponentStateOnSurface(measurement, updatedState, fitQuality);
+          updatedStateOnSurface = new Trk::MultiComponentStateOnSurface(measurement.release(), updatedState->clone(), fitQuality.release());
         
       } else {
        
-        updatedStateOnSurface = new Trk::MultiComponentStateOnSurface( measurement, updatedState, fitQuality );
+        updatedStateOnSurface = new Trk::MultiComponentStateOnSurface( measurement.release(), updatedState->clone(), fitQuality.release() );
 
       }
       
@@ -486,9 +434,10 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
       
       if ( ccot && trackStateOnSurface == secondLastTrackStateOnSurface){
       
-        const Trk::MultiComponentState* ccotState = addCCOT( updatedStateOnSurface, ccot, smoothedTrajectory);
+        std::unique_ptr<const Trk::MultiComponentState> ccotState = 
+          std::unique_ptr<const Trk::MultiComponentState> (addCCOT( updatedStateOnSurface, ccot, smoothedTrajectory.get()));
         if(ccotState){
-          updatedState = ccotState;
+          updatedState = std::move(ccotState);
         }
         
       }
@@ -497,14 +446,7 @@ Trk::SmoothedTrajectory* Trk::GsfSmoother::fit (const ForwardTrajectory& forward
 
   } // End for loop over all components
 
-  // There is one updated state with new memory allocated at the end of the iterative for loop... This must be deleted
-  if ( m_combineWithFitter )
-    delete updatedState;
-
-  // Clean up the memory from the first updated state - it has already been deleted if combination with fitter
-  if ( !m_combineWithFitter ) delete firstUpdatedState;
-
-  return smoothedTrajectory;
+  return smoothedTrajectory.release();
 
 }
 
@@ -661,14 +603,13 @@ const Trk::MultiComponentState* Trk::GsfSmoother::addCCOT( const Trk::TrackState
   } 
 
   // Update newly extrapolated state with MeasurementBase measurement
-  Trk::FitQualityOnSurface* fitQuality=0;
+  std::unique_ptr<Trk::FitQualityOnSurface> fitQuality;
   const Trk::MultiComponentState* updatedState  =  m_updator->update( *extrapolatedState, *ccot, fitQuality);
       
 
   if( !updatedState || updatedState == extrapolatedState){
     ATH_MSG_DEBUG("Update of extrapolated state with CCOT failed .. now not being taken in account"); 
     delete extrapolatedState;
-    if(fitQuality) delete fitQuality;
     return 0;
   } 
 
@@ -686,7 +627,7 @@ const Trk::MultiComponentState* Trk::GsfSmoother::addCCOT( const Trk::TrackState
   
   //Build TSOS with CCOT at the surface of the surface of calo 
   const Trk::MultiComponentStateOnSurface* updatedMCSOS 
-              = new Trk::MultiComponentStateOnSurface( ccot->clone(), updatedState, fitQuality );
+    = new Trk::MultiComponentStateOnSurface( ccot->clone(), updatedState, fitQuality.release() );
 
   
   // Extrapolate back to the surface nearest the origin

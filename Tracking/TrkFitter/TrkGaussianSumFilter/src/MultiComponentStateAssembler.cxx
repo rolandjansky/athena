@@ -253,7 +253,7 @@ Trk::MultiComponentStateAssembler::assembledState () {
   
   const Trk::MultiComponentState* multiComponentState = m_multiComponentState->clone();
 
-  // Reset state cashe before leaving
+  // Reset state cache before leaving
   this->reset();
 
   return multiComponentState;
@@ -290,13 +290,15 @@ Trk::MultiComponentStateAssembler::doStateAssembly (const double& newWeight) {
   
   
   if (m_validWeightSum <= 0.) {
-    double fixedWeights = 1. / (double) m_multiComponentState->size();
-    Trk::MultiComponentState::iterator component = m_multiComponentState->begin();
-    for ( ; component != m_multiComponentState->end() ; ++component ){
-      component->second = fixedWeights;
-    } 
+    if (!m_multiComponentState->empty()) {
+      double fixedWeights = 1. / (double) m_multiComponentState->size();
+      Trk::MultiComponentState::iterator component = m_multiComponentState->begin();
+      for ( ; component != m_multiComponentState->end() ; ++component ){
+        component->second = fixedWeights;
+      } 
+    }
     const Trk::MultiComponentState* assembledState = m_multiComponentState->clone();
-    // Reset the cashe before leaving
+    // Reset the cache before leaving
     this->reset();
     return assembledState;
   }

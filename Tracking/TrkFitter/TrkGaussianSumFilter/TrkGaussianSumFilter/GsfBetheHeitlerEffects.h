@@ -143,10 +143,10 @@ class GsfBetheHeitlerEffects : public MultiStateMaterialEffects, virtual public 
   double m_componentMeanCut;
 
 
-  mutable double m_lastDz;
-  mutable double m_lastP;
-  mutable PropDirection m_lastPropDirection;
-  mutable double m_lastRadLength;
+  //mutable double m_lastDz;
+  //mutable double m_lastP;
+  //mutable PropDirection m_lastPropDirection;
+  //mutable double m_lastRadLength;
        
 
 

@@ -46,6 +46,7 @@ library TrkGaussianSumFilter *.cxx components/*.cxx
 apply_pattern component_library
 
 private
+use CxxUtils                CxxUtils-*                Control
 use TrkPrepRawData          TrkPrepRawData-*          Tracking/TrkEvent
 use TrkRIO_OnTrack          TrkRIO_OnTrack-*          Tracking/TrkEvent
 use TrkTrack                TrkTrack-*                Tracking/TrkEvent
@@ -56,11 +57,13 @@ use TrkCaloCluster_OnTrack  TrkCaloCluster_OnTrack-*  Tracking/TrkEvent
 use TrkDetElementBase       TrkDetElementBase-*       Tracking/TrkDetDescr
 use TrkVolumes              TrkVolumes-*              Tracking/TrkDetDescr
 
+use AtlasBoost         AtlasBoost-*             External 
+
 # Athena Control dependenencies
 use AtlasReconstructionRunTime    AtlasReconstructionRunTime-*      -no_auto_imports
 
 # Event Info declarations
-use EventInfo             EventInfo-*             Event
+use xAODEventInfo             xAODEventInfo-*             Event/xAOD
 
 # General Tool dependencies
 use PathResolver      PathResolver-*                Tools
@@ -68,4 +71,8 @@ use PathResolver      PathResolver-*                Tools
 #uncomment for debug mode
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
+
+macro_append TrkGaussianSumFilter_cppflags " -O3 "
+
+
 end_private

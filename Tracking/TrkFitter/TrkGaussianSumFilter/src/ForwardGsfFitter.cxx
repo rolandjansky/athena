@@ -26,13 +26,11 @@ decription           : Implementation code for ForwardGsfFitter class
 #include "TrkPrepRawData/PrepRawData.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkSurfaces/Surface.h"
+#include "CxxUtils/make_unique.h"
 
 Trk::ForwardGsfFitter::ForwardGsfFitter(const std::string& type, const std::string& name, const IInterface* parent)
   :
   AthAlgTool(type, name, parent),
-  m_extrapolator(0),
-  m_updator(0),
-  m_rioOnTrackCreator(0),
   m_stateCombiner("Trk::MultiComponentStateCombiner/ForwardsFitterCombiner"),
   m_cutChiSquaredPerNumberDOF(50.),
   m_overideMaterialEffectsSwitch(false),
@@ -81,9 +79,9 @@ StatusCode Trk::ForwardGsfFitter::finalize()
 
 }
 
-StatusCode Trk::ForwardGsfFitter::configureTools( ToolHandle<IMultiStateExtrapolator> extrapolator,
-               ToolHandle<IMultiStateMeasurementUpdator> measurementUpdator,
-               ToolHandle<IRIO_OnTrackCreator> rioOnTrackCreator )
+StatusCode Trk::ForwardGsfFitter::configureTools( const ToolHandle<IMultiStateExtrapolator> &extrapolator,
+               const ToolHandle<IMultiStateMeasurementUpdator> &measurementUpdator,
+               const ToolHandle<IRIO_OnTrackCreator> &rioOnTrackCreator )
 {
 
   m_extrapolator      = extrapolator;
@@ -441,13 +439,12 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
     return false;
   }
 
-  Trk::FitQualityOnSurface* fitQuality = 0;
+  std::unique_ptr<Trk::FitQualityOnSurface> fitQuality;
   updatedState = m_updator->update(*extrapolatedState, *measurement, fitQuality);
   
   if (!updatedState) {
     delete measurement;
     delete extrapolatedState;
-    if(fitQuality) delete fitQuality;
     if (msgLvl(MSG::DEBUG)) msg() << "Measurement update of the state failed... Exiting!" << endreq;
     return false;
   }
@@ -505,14 +502,13 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
     
     //
 
-    delete fitQuality;
-    fitQuality=  new FitQuality(1,1);
+    fitQuality=  CxxUtils::make_unique<FitQuality>(1,1);
   
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type(0);
     type.set( TrackStateOnSurface::Outlier );
     const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurface = new MultiComponentStateOnSurface(measurement, 
                                                                                                              extrapolatedState->clone(), 
-                                                                                                             fitQuality,
+                                                                                                             fitQuality.release(),
                                                                                                              0,
                                                                                                              type);
     
@@ -535,7 +531,7 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
     if (msgLvl(MSG::VERBOSE))
       msg() << "Track with new measurement passed the chi squared test... adding state to trajectory" << endreq;
 
-    const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurface = new MultiComponentStateOnSurface(measurement, extrapolatedState, fitQuality);
+    const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurface = new MultiComponentStateOnSurface(measurement, extrapolatedState, fitQuality.release());
 
     forwardTrajectory->push_back( multiComponentStateOnSurface );
     

@@ -59,8 +59,10 @@ class GaussianSumFitter : virtual public ITrackFitter, public AthAlgTool {
   /** AlgTool finalise method */
   StatusCode finalize();
 
+#if 0
   /** Configuration of the Gaussian sum filter. */
   StatusCode configureTools(const IMultiStateMeasurementUpdator*, const IRIO_OnTrackCreator*);
+#endif
 
   using ITrackFitter::fit;
 

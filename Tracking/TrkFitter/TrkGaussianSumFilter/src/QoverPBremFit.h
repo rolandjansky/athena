@@ -34,7 +34,11 @@ namespace Trk {
  
 
   class QoverPBremFit {
-  
+
+    // forbid copying
+    QoverPBremFit(const QoverPBremFit &) = delete ;
+    QoverPBremFit &operator=(const QoverPBremFit &) = delete;
+
   public:
   
     QoverPBremFit(int, bool); //type=1 for forward fit || type=-1 for backward fit

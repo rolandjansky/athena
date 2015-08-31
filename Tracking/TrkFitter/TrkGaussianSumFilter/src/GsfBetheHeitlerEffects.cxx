@@ -21,6 +21,13 @@ decription           : Implementation code for the Bethe-Heitler material effect
 #include <fstream>
 #include <cmath>
 
+namespace {
+	template<class T>
+	bool inRange(const T& var,const T& lo, const T& hi){
+		return ((var <= hi) and (var>=lo));
+	}
+}
+
 Trk::GsfBetheHeitlerEffects::GsfBetheHeitlerEffects(const std::string& type, const std::string& name, const IInterface* parent)
   : 
   MultiStateMaterialEffects(type, name, parent),
@@ -41,25 +48,26 @@ Trk::GsfBetheHeitlerEffects::GsfBetheHeitlerEffects(const std::string& type, con
   declareProperty("UpperRange", m_upperRange = 0.20);
   declareProperty("UseHighX0",  m_useHighX0 = true );
   declareProperty("ComponentMeanCut",  m_componentMeanCut = 0.0 );
+  
 }
 
 StatusCode Trk::GsfBetheHeitlerEffects::initialize(){
 
   if (m_correctionFlag == 1)
-    msg(MSG::INFO) << "1st moment of mixture will be corrected" << endreq;
+    ATH_MSG_INFO( "1st moment of mixture will be corrected" );
   else if (m_correctionFlag == 2)
-    msg(MSG::INFO) << "1st and 2nd moment of mixture will be corrected" << endreq;
+    ATH_MSG_INFO( "1st and 2nd moment of mixture will be corrected" );
   else if (m_correctionFlag == 0) 
-    msg(MSG::INFO) << "Moments of mixture will not be corrected" << endreq;
+    ATH_MSG_INFO( "Moments of mixture will not be corrected" );
   else {
-    msg(MSG::ERROR) <<  "Inappropriate setting for Bethe-Heitler mixture correction! ...Exiting!" << endreq;
+    ATH_MSG_INFO(  "Inappropriate setting for Bethe-Heitler mixture correction! ...Exiting!" );
     return StatusCode::FAILURE;
   }
 
   if ( this->readParameters() ){
-    msg(MSG::INFO) << "Parameters successfully imported from file" << endreq;
+    ATH_MSG_INFO( "Parameters successfully imported from file" );
 
-    msg(MSG::INFO) << "Initialisation of " << name() <<  " was successful" << endreq;
+    ATH_MSG_INFO( "Initialisation of " << name() <<  " was successful" );
 
     return StatusCode::SUCCESS;
 
@@ -77,7 +85,7 @@ StatusCode Trk::GsfBetheHeitlerEffects::initialize(){
 
 StatusCode Trk::GsfBetheHeitlerEffects::finalize(){
 
-  msg(MSG::INFO) << "Finalisation of " << name() <<  " was successful" << endreq;
+  ATH_MSG_INFO( "Finalisation of " << name() <<  " was successful" );
 
   return StatusCode::SUCCESS;
 
@@ -89,7 +97,7 @@ bool Trk::GsfBetheHeitlerEffects::readParameters()
   std::string resolvedFileName = PathResolver::find_file (m_parameterisationFileName, "DATAPATH");
   
   if (resolvedFileName != "")
-    msg(MSG::INFO) << "Parameterisation file found: " << resolvedFileName << endreq;
+    ATH_MSG_INFO( "Parameterisation file found: " << resolvedFileName );
   else {
     msg(MSG::ERROR) << "Parameterisation file not found" << endreq;
     return false;
@@ -109,6 +117,25 @@ bool Trk::GsfBetheHeitlerEffects::readParameters()
   fin >> m_numberOfComponents;
   fin >> orderPolynomial;
   fin >> m_transformationCode;
+  //
+  if (not inRange(m_numberOfComponents, 0, 100)){
+      msg(MSG::ERROR) << "numberOfComponents Parameter out of range 0-100: " << m_numberOfComponents << endreq;
+      return false;
+    }
+    if (not inRange(orderPolynomial, 0, 10)){
+      msg(MSG::ERROR) << "orderPolynomial Parameter out of range 0-10: " << orderPolynomial << endreq;
+      return false;
+    }
+    if (not inRange(m_transformationCode, 0, 10)){
+      msg(MSG::ERROR) << "transformationCode Parameter out of range 0-10: " << m_transformationCode << endreq;
+      return false;
+    }
+  
+  
+  if (!fin) {
+    msg(MSG::ERROR) << "Error while reading file : " << resolvedFileName << endreq;
+    return false;
+  }
 
   int componentIndex = 0;
   
@@ -122,7 +149,7 @@ bool Trk::GsfBetheHeitlerEffects::readParameters()
   if ( m_useHighX0){
     resolvedFileName = PathResolver::find_file (m_parameterisationFileNameHighX0, "DATAPATH");
     if (resolvedFileName != "")
-      msg(MSG::INFO) << "Parameterisation file found: " << resolvedFileName << endreq;
+      ATH_MSG_INFO( "Parameterisation file found: " << resolvedFileName );
     else {
       msg(MSG::ERROR) << "Parameterisation file not found" << endreq;
       return false;
@@ -140,6 +167,23 @@ bool Trk::GsfBetheHeitlerEffects::readParameters()
     fin >> m_numberOfComponentsHighX0;
     fin >> orderPolynomial;
     fin >> m_transformationCodeHighX0;
+    //
+    if (not inRange(m_numberOfComponentsHighX0, 0, 100)){
+      msg(MSG::ERROR) << "numberOfComponents Parameter out of range 0-100: " << m_numberOfComponentsHighX0 << endreq;
+      return false;
+    }
+    if (not inRange(orderPolynomial, 0, 10)){
+      msg(MSG::ERROR) << "orderPolynomial Parameter out of range 0-10: " << orderPolynomial << endreq;
+      return false;
+    }
+    if (not inRange(m_transformationCodeHighX0, 0, 10)){
+      msg(MSG::ERROR) << "transformationCode Parameter out of range 0-10: " << m_transformationCodeHighX0 << endreq;
+      return false;
+    }
+    if ( fin.bad() ){
+      msg(MSG::ERROR) << "Error reading file: " << resolvedFileName << endreq;
+      return false;
+    }
   
     int componentIndex = 0;
     
@@ -161,8 +205,12 @@ Trk::GsfBetheHeitlerEffects::readPolynomial (std::ifstream& fin, const int order
 
   int orderIndex = 0;
 
-  for ( ; orderIndex < (order + 1); ++orderIndex )
+  for ( ; orderIndex < (order + 1); ++orderIndex ) {
+    if (!fin) {
+      throw std::runtime_error("Reached end of stream but still expecting data.");
+    }
     fin >> coefficients[orderIndex];
+  }
 
   return Polynomial(coefficients);
 
@@ -175,7 +223,7 @@ void Trk::GsfBetheHeitlerEffects::compute ( const Trk::ComponentParameters& comp
               Trk::ParticleHypothesis ) const
 {
 
-  if (msgLvl(MSG::VERBOSE)) msg() << "Computing Bethe-Heitler energy loss effects" << endreq;
+  ATH_MSG_VERBOSE( "Computing Bethe-Heitler energy loss effects" );
 
   
   // Clear cache
@@ -202,7 +250,7 @@ void Trk::GsfBetheHeitlerEffects::compute ( const Trk::ComponentParameters& comp
     // If the amount of material is between 0.0001 and 0.01 return the gaussian approximation to the Bethe-Heitler distribution
     if ( pathlengthInX0 < m_lowerRange ){
 
-      if (msgLvl(MSG::DEBUG)) msg() << "Amount of material less than" << m_lowerRange <<"... Parameterising Bethe-Heitler as Gaussian" << endreq;
+      ATH_MSG_DEBUG( "Amount of material less than" << m_lowerRange <<"... Parameterising Bethe-Heitler as Gaussian" );
 
       double meanZ = exp( -1. * pathlengthInX0 );
 
@@ -232,8 +280,7 @@ void Trk::GsfBetheHeitlerEffects::compute ( const Trk::ComponentParameters& comp
       m_weights.push_back(1.);
       m_deltaCovariances.push_back(newCovarianceMatrix);
 
-      if (msgLvl(MSG::VERBOSE)) 
-        msg() << "Weight / deltaP / var (delta q/p) " << 1. << "\t" << deltaP << "\t" << varQoverP << endreq;
+      ATH_MSG_VERBOSE( "Weight / deltaP / var (delta q/p) " << 1. << "\t" << deltaP << "\t" << varQoverP );
 
       return;
 
@@ -319,7 +366,7 @@ void Trk::GsfBetheHeitlerEffects::compute ( const Trk::ComponentParameters& comp
 
       m_deltaCovariances.push_back(newCovarianceMatrix);
 
-      if (msgLvl(MSG::VERBOSE)) msg() <<  "Weight / deltaP / var (delta q/p) " << mixture[componentIndex].weight << "\t" << deltaP << "\t" << varianceInverseMomentum << endreq;
+      ATH_MSG_VERBOSE(  "Weight / deltaP / var (delta q/p) " << mixture[componentIndex].weight << "\t" << deltaP << "\t" << varianceInverseMomentum );
 
     } // end for loop over all components
 
@@ -327,7 +374,7 @@ void Trk::GsfBetheHeitlerEffects::compute ( const Trk::ComponentParameters& comp
 
   else {
 
-    if (msgLvl(MSG::DEBUG)) msg() <<  "Trying to apply energy loss to " << pathlengthInX0 << " x/x0. No Bethe-Heitler effects applied" << endreq;
+    ATH_MSG_DEBUG(  "Trying to apply energy loss to " << pathlengthInX0 << " x/x0. No Bethe-Heitler effects applied" );
 
     m_weights.push_back(1.);
     m_deltaPs.push_back(0.);

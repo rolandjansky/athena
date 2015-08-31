@@ -51,7 +51,7 @@ class GsfSmoother : public AthAlgTool, virtual public IGsfSmoother {
   /** Configure the GSF smoother
       - Configure the extrapolator
       - Configure the measurement updator */
-  virtual StatusCode configureTools ( ToolHandle<IMultiStateExtrapolator>, ToolHandle<IMultiStateMeasurementUpdator> );
+  virtual StatusCode configureTools ( const ToolHandle<IMultiStateExtrapolator> &, const ToolHandle<IMultiStateMeasurementUpdator> &);
 
   /** Gsf smoother method */
   virtual SmoothedTrajectory* fit (const ForwardTrajectory&, const ParticleHypothesis particleHypothesis = nonInteracting, const CaloCluster_OnTrack* ccot = 0  ) const;

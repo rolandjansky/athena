@@ -66,7 +66,7 @@ class IMultiStateMaterialEffects : virtual public IAlgTool{
                    ParticleHypothesis particleHypothesis = nonInteracting ) const = 0;
 
   /** Method to allow interface between single and multi-component states (through an adapter) */
-  virtual void setMaterialEffects(ToolHandle<IMaterialEffectsUpdator>) const = 0;
+  virtual void setMaterialEffects(const ToolHandle<IMaterialEffectsUpdator> &) const = 0;
 
   virtual void reset() const = 0;
 

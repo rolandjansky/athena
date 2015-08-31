@@ -48,9 +48,9 @@ class IForwardGsfFitter : virtual public IAlgTool {
       - Configure the extrapolator
       - Configure the measurement updator
       - Configure the RIO_OnTrack creator */
-  virtual StatusCode configureTools ( ToolHandle<Trk::IMultiStateExtrapolator>,
-			 const ToolHandle<Trk::IMultiStateMeasurementUpdator>,
-			 const ToolHandle<Trk::IRIO_OnTrackCreator> ) = 0;
+  virtual StatusCode configureTools (const ToolHandle<Trk::IMultiStateExtrapolator> &,
+			 const ToolHandle<Trk::IMultiStateMeasurementUpdator> &,
+			 const ToolHandle<Trk::IRIO_OnTrackCreator> &) = 0;
 
   /** Forward GSF fit using PrepRawData */
   virtual const ForwardTrajectory* fitPRD ( const PrepRawDataSet&,

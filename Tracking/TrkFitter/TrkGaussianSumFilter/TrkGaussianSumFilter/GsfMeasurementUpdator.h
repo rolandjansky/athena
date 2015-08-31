@@ -56,7 +56,7 @@ class GsfMeasurementUpdator : public AthAlgTool, virtual public IMultiStateMeasu
   /** Method for updating the multi-state with a new measurement and calculate the fit qaulity at the same time*/
   virtual const MultiComponentState* update (const Trk::MultiComponentState&, 
                                              const Trk::MeasurementBase&,
-                                             FitQualityOnSurface*&   fitQoS ) const;
+                                             std::unique_ptr<FitQualityOnSurface>& fitQoS ) const;
 
 
   /** Method for GSF smoother to calculate unbiased parameters of the multi-component state */
@@ -72,7 +72,7 @@ class GsfMeasurementUpdator : public AthAlgTool, virtual public IMultiStateMeasu
                                                   
   const MultiComponentState* calculateFilterStep( const MultiComponentState&, 
                                                   const MeasurementBase&, 
-                                                  FitQualityOnSurface*&   fitQoS ) const;                                                
+                                                  std::unique_ptr<FitQualityOnSurface>& fitQoS ) const;
 
  private:
   int                                      m_outputlevel;                      //!< to cache current output level

@@ -42,8 +42,7 @@ decription           : Implementation code for Gaussian Sum Fitter class
 #include "GaudiKernel/ToolFactory.h"
 
 #include <vector>
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 // Validation mode - TTree includes
 #include "GaudiKernel/ITHistSvc.h" 
@@ -305,6 +304,7 @@ StatusCode Trk::GaussianSumFitter::finalize()
 
 }
 
+#if 0
 StatusCode Trk::GaussianSumFitter::configureTools(const IMultiStateMeasurementUpdator* measurementUpdator, const IRIO_OnTrackCreator* rioOnTrackCreator)
 {
   
@@ -336,6 +336,7 @@ StatusCode Trk::GaussianSumFitter::configureTools(const IMultiStateMeasurementUp
   return StatusCode::SUCCESS;
 
 }
+#endif
 
 /* =========================================================================================================================================
    =========================================================================================================================================
@@ -764,7 +765,7 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::MeasurementSet&    measurem
   }
   
   // Create new track
-  Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, Trk::undefined); 
+  Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis); 
   info.setTrackProperties(TrackInfo::BremFit); 
   info.setTrackProperties(TrackInfo::BremFitSuccessful);
   Track* fittedTrack = new Track(info, smoothedTrajectory, fitQuality );  
@@ -1008,13 +1009,12 @@ void Trk::GaussianSumFitter::SaveMCSOSF(const Trk::ForwardTrajectory& forwardTra
   m_surfaceCounterF = 0;
 
   //* Retrieve the event info for later syncrinization
-  const EventInfo*   eventInfo;
+  const xAOD::EventInfo*   eventInfo;
   if ((evtStore()->retrieve(eventInfo)).isFailure()) {
     msg(MSG::ERROR) << "Could not retrieve event info" << endreq;
   }
        
-  EventID*   myEventID  =  eventInfo->event_ID();
-  m_event_ID            =  myEventID->event_number();
+  m_event_ID            =  eventInfo->eventNumber();
   
   for (int i=0; i< 100; i++){
     m_surfaceXF[i] = 0;
@@ -1051,13 +1051,23 @@ void Trk::GaussianSumFitter::SaveMCSOSF(const Trk::ForwardTrajectory& forwardTra
       else
         forwardsMultiState = forwardsMultiStateOnSurface->components();
 
-      const Amg::Vector3D& posOnSurf = forwardsMultiStateOnSurface->trackParameters()->position();
+
+      if (forwardsMultiStateOnSurface) {
+	const Amg::Vector3D& posOnSurf = forwardsMultiStateOnSurface->trackParameters()->position();
     
-      m_surfaceXF[m_surfaceCounterF] = posOnSurf.x();
-      m_surfaceYF[m_surfaceCounterF] = posOnSurf.y();
-      m_surfaceRF[m_surfaceCounterF] = posOnSurf.perp();
-      m_surfaceZF[m_surfaceCounterF] = posOnSurf.z();
-      m_surfaceTypeF[m_surfaceCounterF] = (int) (*trackStateOnSurface)->type(TrackStateOnSurface::Measurement);
+	m_surfaceXF[m_surfaceCounterF]    = posOnSurf.x();
+	m_surfaceYF[m_surfaceCounterF]    = posOnSurf.y();
+	m_surfaceRF[m_surfaceCounterF]    = posOnSurf.perp();
+	m_surfaceZF[m_surfaceCounterF]    = posOnSurf.z();
+	m_surfaceTypeF[m_surfaceCounterF] = (int) (*trackStateOnSurface)->type(TrackStateOnSurface::Measurement);
+      } else {
+	msg(MSG::WARNING) << "forwardsMultiStateOnSurface is null! Setting surface position values to -999 ..." << endreq;
+	m_surfaceXF[m_surfaceCounterF]    = -999.;
+	m_surfaceYF[m_surfaceCounterF]    = -999.;
+	m_surfaceRF[m_surfaceCounterF]    = -999.;
+	m_surfaceZF[m_surfaceCounterF]    = -999.;
+	m_surfaceTypeF[m_surfaceCounterF] = -999;
+      }
       
       // Clean up  stored items  for surface
       for (int wiper=0; wiper < s_Gsf_ValStates; wiper++){
@@ -1144,7 +1154,7 @@ void Trk::GaussianSumFitter::SaveMCSOSS( const Trk::SmoothedTrajectory& smoothed
     const Trk::MultiComponentStateOnSurface* smoothedMultiStateOnSurface = dynamic_cast<const Trk::MultiComponentStateOnSurface*>(*trackStateOnSurfaceS);
       
     if (m_surfaceCounterS < s_Gsf_ValSurface){            
-          
+      
       if (!smoothedMultiStateOnSurface) {
         // Create new multiComponentState from single state
         Trk::ComponentParameters componentParameters( (*trackStateOnSurfaceS)->trackParameters(), 1. );
@@ -1153,15 +1163,22 @@ void Trk::GaussianSumFitter::SaveMCSOSS( const Trk::SmoothedTrajectory& smoothed
       else
         smoothedMultiState = smoothedMultiStateOnSurface->components();
 
-      
-      const Amg::Vector3D& posOnSurf = smoothedMultiStateOnSurface->trackParameters()->position();
+      if (smoothedMultiStateOnSurface) {
+	const Amg::Vector3D& posOnSurf = smoothedMultiStateOnSurface->trackParameters()->position();
     
-      m_surfaceXS[m_surfaceCounterS] = posOnSurf.x();
-      m_surfaceYS[m_surfaceCounterS] = posOnSurf.y();
-      m_surfaceRS[m_surfaceCounterS] = posOnSurf.perp();
-      m_surfaceZS[m_surfaceCounterS] = posOnSurf.z();
-      m_surfaceTypeS[m_surfaceCounterS] = (int) (*trackStateOnSurfaceS)->type(TrackStateOnSurface::Measurement);
-
+	m_surfaceXS[m_surfaceCounterS]    = posOnSurf.x();
+	m_surfaceYS[m_surfaceCounterS]    = posOnSurf.y();
+	m_surfaceRS[m_surfaceCounterS]    = posOnSurf.perp();
+	m_surfaceZS[m_surfaceCounterS]    = posOnSurf.z();
+	m_surfaceTypeS[m_surfaceCounterS] = (int) (*trackStateOnSurfaceS)->type(TrackStateOnSurface::Measurement);
+      } else {
+	msg(MSG::WARNING) << "smoothedMultiStateOnSurface is null! Setting surface position values to -999 ..." << endreq;
+	m_surfaceXS[m_surfaceCounterS]    = -999.;
+	m_surfaceYS[m_surfaceCounterS]    = -999.;
+	m_surfaceRS[m_surfaceCounterS]    = -999.;
+	m_surfaceZS[m_surfaceCounterS]    = -999.;
+	m_surfaceTypeS[m_surfaceCounterS] = -999;
+      }
       
       // Clean up  stored items  for surface
       for (int wiper=0; wiper < s_Gsf_ValStates; wiper++){

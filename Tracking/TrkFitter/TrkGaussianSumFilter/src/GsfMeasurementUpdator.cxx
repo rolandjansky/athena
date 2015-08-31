@@ -20,6 +20,7 @@ decription           : Implementation code for GsfMeasurementUpdator class
 #include "TrkEventPrimitives/FitQuality.h"
 
 #include "TrkEventPrimitives/LocalParameters.h"
+#include "CxxUtils/make_unique.h"
 
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/Chrono.h"
@@ -258,7 +259,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
     msg(MSG::VERBOSE) << "Calculate Filter Step" << endreq;
 
   // Start the timer
-  Chrono chrono( &(*m_chronoSvc), "GsfMeasurementUpdate" );
+  //Chrono chrono( &(*m_chronoSvc), "GsfMeasurementUpdate" );
 
   // Check that the assember is reset
   bool isAssemblerReset = m_stateAssembler->reset();
@@ -372,17 +373,12 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
 
 
 const Trk::MultiComponentState*
-Trk::GsfMeasurementUpdator::update (const Trk::MultiComponentState& stateBeforeUpdate, const Trk::MeasurementBase& measurement,FitQualityOnSurface*&   fitQoS ) const
+Trk::GsfMeasurementUpdator::update (const Trk::MultiComponentState& stateBeforeUpdate, const Trk::MeasurementBase& measurement,
+                                    std::unique_ptr<FitQualityOnSurface>&   fitQoS ) const
 {
 
   if (m_outputlevel < 0) 
     msg(MSG::VERBOSE) << "Updating using GsfMeasurementUpdator" << endreq;
-
-  if (fitQoS){
-    msg(MSG::WARNING) << "expect nil FitQuality pointer, refuse operation to"
-                      << " avoid mem leak!" << endreq;
-    return 0;
-  }
 
   const Trk::MultiComponentState* updatedState = 0;
 
@@ -460,8 +456,7 @@ Trk::GsfMeasurementUpdator::update (const Trk::MultiComponentState& stateBeforeU
     if ( !updatedState ) {
       if (m_outputlevel <= 0) 
         msg(MSG::DEBUG) << "Updated state could not be calculated... Returning 0" << endreq;
-      if(fitQoS) delete fitQoS; 
-      fitQoS = 0;
+      fitQoS.reset();
       return 0;
     }
 
@@ -475,8 +470,7 @@ Trk::GsfMeasurementUpdator::update (const Trk::MultiComponentState& stateBeforeU
   if ( !updatedState ) {
     if (m_outputlevel <= 0) 
       msg(MSG::DEBUG) << "Updated state could not be calculated... Returning 0" << endreq;
-    if(fitQoS) delete fitQoS;
-    fitQoS = 0;
+    fitQoS.reset();
     return 0;
   }
 
@@ -488,14 +482,14 @@ Trk::GsfMeasurementUpdator::update (const Trk::MultiComponentState& stateBeforeU
 const Trk::MultiComponentState* 
 Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState& stateBeforeUpdate, 
              const Trk::MeasurementBase& measurement, 
-             FitQualityOnSurface*&   fitQoS ) const
+             std::unique_ptr<FitQualityOnSurface>& fitQoS) const
 {
 
   if (m_outputlevel < 0) 
     msg(MSG::VERBOSE) << "Calculate Filter Step" << endreq;
 
   // Start the timer
-  Chrono chrono( &(*m_chronoSvc), "GsfMeasurementUpdate" );
+  //Chrono chrono( &(*m_chronoSvc), "GsfMeasurementUpdate" );
 
   // Check that the assember is reset
   bool isAssemblerReset = m_stateAssembler->reset();
@@ -609,7 +603,7 @@ Trk::GsfMeasurementUpdator::calculateFilterStep( const Trk::MultiComponentState&
   ATH_MSG_VERBOSE( "AssembledUpdatedState size: " << assembledUpdatedState->size() );
 
   
-  fitQoS = new FitQualityOnSurface(chiSquared, degreesOfFreedom);
+  fitQoS = CxxUtils::make_unique<FitQualityOnSurface>(chiSquared, degreesOfFreedom);
 
       
   // Renormalise state

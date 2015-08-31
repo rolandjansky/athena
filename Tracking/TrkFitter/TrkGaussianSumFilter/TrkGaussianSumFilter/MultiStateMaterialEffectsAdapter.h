@@ -40,7 +40,7 @@ class MultiStateMaterialEffectsAdapter :  public MultiStateMaterialEffects, virt
   StatusCode finalize();
 
  private:
-  int                                m_outputlevel;                      //!< to cache current output level
+  //int                                m_outputlevel;                      //!< to cache current output level
   
   virtual void compute ( const ComponentParameters&, 
        const MaterialProperties&,
