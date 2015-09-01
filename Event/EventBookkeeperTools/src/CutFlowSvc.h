@@ -70,6 +70,7 @@ public:
   /// Gaudi Service Implementation
   //@{
   StatusCode initialize();
+  StatusCode stop();
   StatusCode finalize();
   StatusCode queryInterface( const InterfaceID& riid, void** ppvi );
   //@}

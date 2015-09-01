@@ -159,12 +159,14 @@ StatusCode CutFlowSvc::determineCycleNumberFromInput( const std::string& collNam
       tmpColl->setConstStore( auxColl );
     }
     // Now, iterate over all CutBookkeepers and search for the highest cycle number
+    int maxCycle=0;
     for ( std::size_t i=0; i<tmpColl->size(); ++i ) {
       // Get the current old EBK
       const xAOD::CutBookkeeper* cbk = tmpColl->at(i);
       int inCycle = cbk->cycle();
-      if ( inCycle > m_skimmingCycle ){ m_skimmingCycle = inCycle + 1; }
+      if (inCycle > maxCycle) maxCycle = inCycle;
     }
+    m_skimmingCycle = std::max(m_skimmingCycle,maxCycle+1);
   }
 
   ATH_MSG_DEBUG("done calling determineCycleNumberFromInput('" << collName
@@ -513,28 +515,6 @@ void CutFlowSvc::handle( const Incident& inc )
 
   if ( inc.type() == IncidentType::BeginInputFile ) {
     m_fileCurrentlyOpened = true;
-
-    // // Determine the processing cycle number from the first input file that we open
-    // if (!m_alreadyDeterminedCycleNumber) {
-    //   // Determine the skimming cycle number that we should use now from the input file
-    //   ATH_MSG_WARNING("Have currently the cycle number = " << m_skimmingCycle );
-    //   ATH_MSG_VERBOSE("Have currently the cycle number = " << m_skimmingCycle );
-    //   if ( !(this->determineCycleNumberFromOldInput("EventBookkeepers")).isSuccess() ){
-    //     ATH_MSG_WARNING("Couldn't determineCycleNumberFromOldInput('EventBookkeepers') with cycle number = " << m_skimmingCycle );
-    //   }
-    //   if( !(this->determineCycleNumberFromOldInput("IncompleteEventBookkeepers")).isSuccess() ){
-    //     ATH_MSG_WARNING("Couldn't determineCycleNumberFromOldInput('IncompleteEventBookkeepers') with cycle number = " << m_skimmingCycle );
-    //   }
-    //   if( !(this->determineCycleNumberFromInput(m_completeCollName)).isSuccess() ){
-    //     ATH_MSG_WARNING("Couldn't determineCycleNumberFromInput('"<< m_completeCollName << "') with cycle number = " << m_skimmingCycle );
-    //   }
-    //   if( !(this->determineCycleNumberFromInput(m_incompleteCollName)).isSuccess() ){
-    //     ATH_MSG_WARNING("Couldn't determineCycleNumberFromInput('"<< m_incompleteCollName << "') with cycle number = " << m_skimmingCycle );
-    //   }
-    //   ATH_MSG_WARNING("Will use as currently cycle number = " << m_skimmingCycle );
-    //   ATH_MSG_VERBOSE("Will use as currently cycle number = " << m_skimmingCycle );
-    //   m_alreadyDeterminedCycleNumber = true;
-    // }
 
     // Copy the existing cut bookkeepers from the input file to the output
     m_alreadyCopiedEventBookkeepers = false;
@@ -926,6 +906,26 @@ StatusCode CutFlowSvc::updateContainerFromOldEDM( xAOD::CutBookkeeperContainer* 
 }
 
 
+StatusCode
+CutFlowSvc::stop()
+{
+  const DataHandle<xAOD::CutBookkeeperContainer> coll;
+  std::string name = "CutBookkeepers";
+  if (m_outMetaDataStore->retrieve(coll,name).isSuccess()) {
+    for(xAOD::CutBookkeeperContainer::const_iterator it = coll->begin();
+                                          it != coll->end(); it++) {
+      ATH_MSG_INFO("CutBookkeeper " << name << " " << (*it)->inputStream() << " " << (*it)->name() << " Cyc=" << (*it)->cycle() << " N=" << (*it)->nAcceptedEvents() << " weight^2=" << (*it)->sumOfEventWeightsSquared());
+    }
+  }
+  name = "IncompleteCutBookkeepers";
+  if (m_outMetaDataStore->retrieve(coll,name).isSuccess()) {
+    for(xAOD::CutBookkeeperContainer::const_iterator it = coll->begin();
+                                          it != coll->end(); it++) {
+      ATH_MSG_INFO("CutBookkeeper " << name << " " << (*it)->inputStream() << " " << (*it)->name() << " Cyc=" << (*it)->cycle() << " N=" << (*it)->nAcceptedEvents() << " weight^2=" << (*it)->sumOfEventWeightsSquared());
+    }
+  }
+  return StatusCode::SUCCESS;
+}
 
 StatusCode
 CutFlowSvc::finalize()
