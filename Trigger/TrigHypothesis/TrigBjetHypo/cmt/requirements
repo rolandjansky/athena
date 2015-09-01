@@ -15,7 +15,6 @@ use     VxSecVertex             VxSecVertex-*                   Tracking/TrkEven
 use     TrigInDetEvent          TrigInDetEvent-*                Trigger/TrigEvent
 use     xAODBase                xAODBase-*                  	Event/xAOD
 use     xAODTracking            xAODTracking-*             	Event/xAOD
-use     JetCalibTools           JetCalibTools-*                 Reconstruction/Jet
 
 # ============================================================================================
 private
@@ -35,11 +34,11 @@ use     TrigParticle	        TrigParticle-*                  Trigger/TrigEvent
 use 	TrigSteeringEvent       TrigSteeringEvent-*		Trigger/TrigEvent
 use 	TrigNavigation		TrigNavigation-*		Trigger/TrigEvent
 use     xAODJet                 xAODJet-*                       Event/xAOD
-use     xAODMuon                xAODMuon-*                       Event/xAOD
+use     xAODMuon                 xAODMuon-*                       Event/xAOD
 use     xAODBTagging            xAODBTagging-*              	Event/xAOD
 use 	xAODCore		xAODCore-*			Event/xAOD  
 use     BTagging                BTagging-*                      PhysicsAnalysis/JetTagging/JetTagAlgs
-use     xAODTrigger             xAODTrigger-*                   Event/xAOD/
+
 
 # ============================================================================================
 public
@@ -49,3 +48,6 @@ library TrigBjetHypo *.cxx components/*.cxx
 apply_pattern component_library
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
+
+
+

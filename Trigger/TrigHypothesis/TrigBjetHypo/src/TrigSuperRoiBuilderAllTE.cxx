@@ -20,6 +20,7 @@
 #include "TrigBjetHypo/TrigSuperRoiBuilderAllTE.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigSuperRoi.h"
+#include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigNavigation/TriggerElement.h"
 
 #include "JetEvent/Jet.h"
@@ -51,17 +52,17 @@ TrigSuperRoiBuilderAllTE::TrigSuperRoiBuilderAllTE(const std::string & name, ISv
 HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltInitialize() {
 
   if (msgLvl() <= MSG::INFO) 
-    msg() << MSG::INFO << "Initializing TrigSuperRoiBuilderAllTE, version " << PACKAGE_VERSION << endmsg;
+    msg() << MSG::INFO << "Initializing TrigSuperRoiBuilderAllTE, version " << PACKAGE_VERSION << endreq;
 
   //* declareProperty overview *//
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
-    msg() << MSG::DEBUG << " JetInputKey = "  << m_jetInputKey  << endmsg; 
-    msg() << MSG::DEBUG << " JetOutputKey = " << m_jetOutputKey << endmsg; 
-    msg() << MSG::DEBUG << " EtaHalfWidth = " << m_etaHalfWidth << endmsg; 
-    msg() << MSG::DEBUG << " PhiHalfWidth = " << m_phiHalfWidth << endmsg; 
-    msg() << MSG::DEBUG << " MinJetEt     = " << m_minJetEt     << endmsg; 
-    msg() << MSG::DEBUG << " MaxJetEta    = " << m_maxJetEta    << endmsg; 
+    msg() << MSG::DEBUG << "declareProperty review:" << endreq;
+    msg() << MSG::DEBUG << " JetInputKey = "  << m_jetInputKey  << endreq; 
+    msg() << MSG::DEBUG << " JetOutputKey = " << m_jetOutputKey << endreq; 
+    msg() << MSG::DEBUG << " EtaHalfWidth = " << m_etaHalfWidth << endreq; 
+    msg() << MSG::DEBUG << " PhiHalfWidth = " << m_phiHalfWidth << endreq; 
+    msg() << MSG::DEBUG << " MinJetEt     = " << m_minJetEt     << endreq; 
+    msg() << MSG::DEBUG << " MaxJetEta    = " << m_maxJetEta    << endreq; 
   }
 
   return HLT::OK;
@@ -79,12 +80,12 @@ TrigSuperRoiBuilderAllTE::~TrigSuperRoiBuilderAllTE(){}
 
 HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTEs, unsigned int output) {
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Running TrigSuperRoiBuilderAllTE::hltExecute" << endmsg;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Running TrigSuperRoiBuilderAllTE::hltExecute" << endreq;
 
   beforeExecMonitors().ignore();
 
   if (inputTEs.size() != 1) {
-    msg() << MSG::WARNING << "Got more than one inputTE" << endmsg;
+    msg() << MSG::WARNING << "Got more than one inputTE" << endreq;
     afterExecMonitors().ignore();
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
   }
@@ -92,13 +93,13 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
   std::vector<HLT::TriggerElement*>& inputTE = inputTEs.at(0);
 
   if (inputTE.size() == 0) {
-    msg() << MSG::WARNING << "Got an empty inputTE" << endmsg;
+    msg() << MSG::WARNING << "Got an empty inputTE" << endreq;
     afterExecMonitors().ignore();
     return HLT::MISSING_FEATURE; 
   }
 
   if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " inputTEs.size() " << inputTEs.size() << " inputTE.size() " << inputTE.size() << endmsg;
+    msg() << MSG::DEBUG << " inputTEs.size() " << inputTEs.size() << " inputTE.size() " << inputTE.size() << endreq;
 
 
   // xAOD conversion const JetCollection* outJets(0);
@@ -107,17 +108,17 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
   HLT::ErrorCode statusJets = getFeature(inputTE.front(), jets); // this should really be given a name - need to find out froim the jet guys what!
   
   if (statusJets != HLT::OK) {
-    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features" << endmsg;
+    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features" << endreq;
     return HLT::NAV_ERROR;
   } 
 
   if(jets==0) {
-    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature." << endmsg;
+    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature." << endreq;
     return HLT::MISSING_FEATURE;
   }
 
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Found " << jets->size() << " jets, creating corresponding RoIs" << endmsg; 
+    msg() << MSG::DEBUG << "Found " << jets->size() << " jets, creating corresponding RoIs" << endreq; 
 
   // Create a superROI to add all the jet ROIs to.
   TrigRoiDescriptor* superRoi = new TrigRoiDescriptor();
@@ -144,18 +145,18 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
 
     if (jetEt < m_minJetEt) {
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_minJetEt << " GeV threshold; Et " << jetEt << "; skipping this jet." << endmsg;
+	msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_minJetEt << " GeV threshold; Et " << jetEt << "; skipping this jet." << endreq;
       continue;
     }
 
     if (fabs(jetEta) > m_maxJetEta) {
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet "<< i << " outside the |eta| < 2.5 requirement; Eta = " << jetEta << "; skipping this jet." << endmsg;
+	msg() << MSG::DEBUG << "Jet "<< i << " outside the |eta| < 2.5 requirement; Eta = " << jetEta << "; skipping this jet." << endreq;
       continue;
     }
 
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi << endmsg;
+      msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi << endreq;
 
     // create RoI correspondinding to the jet
     double phiMinus = HLT::wrapPhi(jetPhi-m_phiHalfWidth); 
@@ -166,9 +167,28 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
     TrigRoiDescriptor* roi =  new TrigRoiDescriptor(jetEta, etaMinus, etaPlus, 
 						    jetPhi, phiMinus, phiPlus );
 
-    msg() << MSG::DEBUG << "Adding ROI descriptor to superROI!" << endmsg;
+    msg() << MSG::DEBUG << "Adding ROI descriptor to superROI!" << endreq;
     superRoi->push_back( roi );
 
+//     // for checking Et and eta of jets in hypos later
+//     TrigOperationalInfo* trigInfoJetEt = new TrigOperationalInfo();
+//     trigInfoJetEt->set("EFJetEt", jetEt);
+//     HLT::ErrorCode hltEtStatus = attachFeature(outputTE, trigInfoJetEt, "EFJetInfo"); 
+//     if (hltEtStatus != HLT::OK) {
+//       msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (jet Et) as feature" << endreq;
+//       return hltEtStatus;
+//     }
+
+//     TrigOperationalInfo* trigInfoJetEta = new TrigOperationalInfo();
+//     trigInfoJetEta->set("EFJetEta", jetEta);
+//     HLT::ErrorCode hltEtaStatus = attachFeature(outputTE, trigInfoJetEta, "EFJetInfo"); 
+//     if (hltEtaStatus != HLT::OK) {
+//       msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (jet eta) as feature" << endreq;
+//       return hltEtaStatus;
+//     }
+
+    // Ideally would have liked to attach a view container
+    // but these cannot be persistified at the moment...
     // ConstDataVector<xAOD::JetContainer>* jc = new ConstDataVector<xAOD::JetContainer>(SG::VIEW_ELEMENTS);
     // jc->clear(SG::VIEW_ELEMENTS); 
     // jc->push_back ( *jetitr );
@@ -181,17 +201,17 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
 
     HLT::ErrorCode hltStatus = attachFeature(outputTE, jc, m_jetOutputKey); 
     if (hltStatus != HLT::OK) {
-      msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer (" << m_jetOutputKey << ") as feature jet eta, phi " << jet->eta() << ", " << jet->phi() << endmsg;
+      msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer (" << m_jetOutputKey << ") as feature jet eta, phi " << jet->eta() << ", " << jet->phi() << endreq;
       return hltStatus;
     }
 
   }
 
-  msg() << MSG::DEBUG << "Attaching feature" << endmsg;
+  msg() << MSG::DEBUG << "Attaching feature" << endreq;
   // was attached as m_jetOutputKey, now try hardcoding the name
   HLT::ErrorCode hltStatus = attachFeature(outputTE, superRoi, m_jetOutputKey);
   if (hltStatus != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to attach SuperRoi as feature" << endmsg;
+    msg() << MSG::ERROR << "Failed to attach SuperRoi as feature" << endreq;
     return hltStatus;
   }
   
@@ -200,7 +220,7 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
   const TrigRoiDescriptor* newSuperRoi;
   if (getFeature(outputTE, newSuperRoi) != HLT::OK) {
     if (msgLvl() <= MSG::WARNING) 
-      msg() <<  MSG::WARNING << "No RoI for this Trigger Element " << endmsg;
+      msg() <<  MSG::WARNING << "No RoI for this Trigger Element " << endreq;
     
     return HLT::NAV_ERROR;
   }
@@ -217,7 +237,7 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
 HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltFinalize() {
 
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endmsg;
+    msg() << MSG::INFO << "in finalize()" << endreq;
 
   return HLT::OK;
 }

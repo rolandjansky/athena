@@ -26,7 +26,7 @@ class BjetHypo (TrigBjetHypo):
         
         mlog = logging.getLogger('BjetHypoConfig.py')
         
-        AllowedCuts      = ["loose","medium","tight","offloose","offmedium","offtight","mv2c2040","mv2c2050","mv2c2060","mv2c2070","mv2c2077","mv2c2085" ]
+        AllowedCuts      = ["loose","medium","tight","offloose","offmedium","offtight","mv2c2060","mv2c2070","mv2c2077","mv2c2085" ]
         AllowedVersions  = ["2012", "2015", "MuJetChain_2012", "MuJetChain_2015"]
         AllowedInstances = ["EF", "MuJetChain"]
         
@@ -72,13 +72,7 @@ class BjetHypo (TrigBjetHypo):
             if version=="2015" :
                 self.MethodTag = "MV2c20"
                 # These are the offline working points
-                if cut=="mv2c2040":
-                    # Actually XX% efficient
-                    self.CutMV2c20 =  0.75
-                elif cut=="mv2c2050":
-                    # Actually XX% efficient
-                    self.CutMV2c20 =  0.5
-                elif cut=="mv2c2060":
+                if cut=="mv2c2060":
                     # Actually 62% efficient
                     self.CutMV2c20 = -0.0224729
                 elif cut=="mv2c2070":
@@ -136,7 +130,7 @@ class BjetHypoSplit (TrigBjetHypo):
         
         mlog = logging.getLogger('BjetHypoConfig.py')
         
-        AllowedCuts      = ["loose","medium","tight","offloose","offmedium","offtight","mv2c2040","mv2c2050","mv2c2060","mv2c2070","mv2c2077","mv2c2085"]
+        AllowedCuts      = ["loose","medium","tight","offloose","offmedium","offtight","mv2c2060","mv2c2070","mv2c2077","mv2c2085"]
         AllowedVersions  = ["2012","2015"]
         AllowedInstances = ["EF", "MuJetChain"]
         
@@ -163,6 +157,7 @@ class BjetHypoSplit (TrigBjetHypo):
             self.UseBeamSpotFlag = False
         
         if instance=="EF" :
+            print "GOOSEY: Phew, that hack worked!"
             from TrigBjetHypo.TrigBjetHypoMonitoring import TrigEFBjetHypoValidationMonitoring, TrigEFBjetHypoOnlineMonitoring
             validation = TrigEFBjetHypoValidationMonitoring()
             online     = TrigEFBjetHypoOnlineMonitoring()
@@ -185,13 +180,7 @@ class BjetHypoSplit (TrigBjetHypo):
             if version=="2015" :
                 self.MethodTag = "MV2c20"
                 # These are the offline working points
-                if cut=="mv2c2040":
-                    # Actually XX% efficient
-                    self.CutMV2c20 =  0.75
-                elif cut=="mv2c2050":
-                    # Actually XX% efficient
-                    self.CutMV2c20 =  0.5
-                elif cut=="mv2c2060":
+                if cut=="mv2c2060":
                     # Actually 62% efficient
                     self.CutMV2c20 = -0.0224729
                 elif cut=="mv2c2070":
@@ -213,16 +202,12 @@ class BjetHypoSplitNoCut (TrigBjetHypo):
         
         mlog = logging.getLogger('BjetHypoConfig.py')
                 
-        AllowedInstances = ["EF", "MuJetChain"]
+        AllowedInstances = ["EF"]
 
         self.JetKey = "SplitJet"
         
         if instance in AllowedInstances :
             
-            if instance=="MuJetChain" :
-                self.JetKey = "FarawayJet"
-                instance = "EF"
-                
             if instance=="EF" :
                 self.AcceptAll = True
                 self.Instance  = "EF"

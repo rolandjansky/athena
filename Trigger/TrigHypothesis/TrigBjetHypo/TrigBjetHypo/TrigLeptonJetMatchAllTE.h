@@ -55,12 +55,6 @@ class TrigLeptonJetMatchAllTE: public HLT::AllTEAlgo {
   float m_deltaPhiPass;
   float m_muonEFEta;
   float m_muonEFPhi;
-  float m_deltaRPass;
-  float m_deltaRAll;
-  float m_deltaZPass;
-  float m_deltaZAll;
- 
-
 
   HLT::ErrorCode getPrmVtxCollection(const xAOD::VertexContainer*& pointerToEFPrmVtxCollections, const HLT::TriggerElement* outputTE, std::string priVtxKey);
   HLT::ErrorCode getTrackCollection(const xAOD::TrackParticleContainer*& pointerToEFTrackCollections, const HLT::TriggerElement* outputTE);

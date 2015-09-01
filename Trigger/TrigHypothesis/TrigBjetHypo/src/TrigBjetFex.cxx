@@ -30,6 +30,8 @@
 
 #include "TrigParticle/TrigEFBjetContainer.h"
 
+#include "TrigSteeringEvent/TrigOperationalInfo.h"
+
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "TrigInDetEvent/TrigVertex.h"
@@ -234,99 +236,99 @@ HLT::ErrorCode TrigBjetFex::hltInitialize() {
   
   // Get message service
       if (msgLvl() <= MSG::INFO) 
-      msg() << MSG::INFO << "Initializing TrigBjetFex, version " << PACKAGE_VERSION << endmsg;
+      msg() << MSG::INFO << "Initializing TrigBjetFex, version " << PACKAGE_VERSION << endreq;
 
     // declareProperty overview
         if (msgLvl() <= MSG::DEBUG) {
-          msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
+          msg() << MSG::DEBUG << "declareProperty review:" << endreq;
 
-	  msg() << MSG::DEBUG << "JetKey = "               << m_jetKey << endmsg;
-	  msg() << MSG::DEBUG << "PriVtxKey = "            << m_priVtxKey << endmsg;
+	  msg() << MSG::DEBUG << "JetKey = "               << m_jetKey << endreq;
+	  msg() << MSG::DEBUG << "PriVtxKey = "            << m_priVtxKey << endreq;
 
-          msg() << MSG::DEBUG << " AlgoId = "              << m_algo << endmsg; 
-          msg() << MSG::DEBUG << " Instance = "            << m_instance << endmsg;
+          msg() << MSG::DEBUG << " AlgoId = "              << m_algo << endreq; 
+          msg() << MSG::DEBUG << " Instance = "            << m_instance << endreq;
  
-          msg() << MSG::DEBUG << " UseBeamSpotFlag = "     << m_useBeamSpotFlag << endmsg; 
-          msg() << MSG::DEBUG << " SetBeamSpotWidth = "    << m_setBeamSpotWidth << endmsg;
+          msg() << MSG::DEBUG << " UseBeamSpotFlag = "     << m_useBeamSpotFlag << endreq; 
+          msg() << MSG::DEBUG << " SetBeamSpotWidth = "    << m_setBeamSpotWidth << endreq;
 
-          msg() << MSG::DEBUG << " UseParamFromData = "    << m_useParamFromData << endmsg; 
+          msg() << MSG::DEBUG << " UseParamFromData = "    << m_useParamFromData << endreq; 
 
-          msg() << MSG::DEBUG << " Taggers = "             << m_taggers << endmsg; 
-          msg() << MSG::DEBUG << " UseErrIPParam = "       << m_useErrIPParam << endmsg; 
-          msg() << MSG::DEBUG << " UseJetDirection = "     << m_useJetDirection << endmsg; 
-          msg() << MSG::DEBUG << " RetrieveHLTJets = "     << m_retrieveHLTJets << endmsg; 
-          msg() << MSG::DEBUG << " TagHLTJets = "          << m_tagHLTJets << endmsg;
-          msg() << MSG::DEBUG << " HistoPrmVtxAtEF = "     << m_histoPrmVtxAtEF << endmsg;
-          msg() << MSG::DEBUG << " UseEtaPhiTrackSel = "   << m_useEtaPhiTrackSel << endmsg;
+          msg() << MSG::DEBUG << " Taggers = "             << m_taggers << endreq; 
+          msg() << MSG::DEBUG << " UseErrIPParam = "       << m_useErrIPParam << endreq; 
+          msg() << MSG::DEBUG << " UseJetDirection = "     << m_useJetDirection << endreq; 
+          msg() << MSG::DEBUG << " RetrieveHLTJets = "     << m_retrieveHLTJets << endreq; 
+          msg() << MSG::DEBUG << " TagHLTJets = "          << m_tagHLTJets << endreq;
+          msg() << MSG::DEBUG << " HistoPrmVtxAtEF = "     << m_histoPrmVtxAtEF << endreq;
+          msg() << MSG::DEBUG << " UseEtaPhiTrackSel = "   << m_useEtaPhiTrackSel << endreq;
 
-          msg() << MSG::VERBOSE << " JetProb 0 MC = "      << m_par_0_MC << endmsg; 
-          msg() << MSG::VERBOSE << " JetProb 1 MC = "      << m_par_1_MC << endmsg; 
-          msg() << MSG::VERBOSE << " JetProb 0 DT = "      << m_par_0_DT << endmsg; 
-          msg() << MSG::VERBOSE << " JetProb 1 DT = "      << m_par_1_DT << endmsg; 
+          msg() << MSG::VERBOSE << " JetProb 0 MC = "      << m_par_0_MC << endreq; 
+          msg() << MSG::VERBOSE << " JetProb 1 MC = "      << m_par_1_MC << endreq; 
+          msg() << MSG::VERBOSE << " JetProb 0 DT = "      << m_par_0_DT << endreq; 
+          msg() << MSG::VERBOSE << " JetProb 1 DT = "      << m_par_1_DT << endreq; 
 
-          msg() << MSG::VERBOSE << " SizeIP1D_Grade1 = "  << m_sizeIP1D_Grade1 << endmsg; 
-          msg() << MSG::VERBOSE << " bIP1D_Grade1 = "     << m_bIP1D_Grade1 << endmsg; 
-          msg() << MSG::VERBOSE << " uIP1D_Grade1 = "     << m_uIP1D_Grade1 << endmsg; 
-          msg() << MSG::VERBOSE << " SizeIP2D_Grade1 = "  << m_sizeIP2D_Grade1 << endmsg;
-          msg() << MSG::VERBOSE << " bIP2D_Grade1 = "     << m_bIP2D_Grade1 << endmsg; 
-          msg() << MSG::VERBOSE << " uIP2D_Grade1 = "     << m_uIP2D_Grade1 << endmsg;  
-          msg() << MSG::VERBOSE << " SizeIP3D_Grade1 = "  << m_sizeIP3D_Grade1 << endmsg; 
-          msg() << MSG::VERBOSE << " bIP3D_Grade1 = "     << m_bIP3D_Grade1 << endmsg; 
-          msg() << MSG::VERBOSE << " uIP3D_Grade1 = "     << m_uIP3D_Grade1 << endmsg; 
+          msg() << MSG::VERBOSE << " SizeIP1D_Grade1 = "  << m_sizeIP1D_Grade1 << endreq; 
+          msg() << MSG::VERBOSE << " bIP1D_Grade1 = "     << m_bIP1D_Grade1 << endreq; 
+          msg() << MSG::VERBOSE << " uIP1D_Grade1 = "     << m_uIP1D_Grade1 << endreq; 
+          msg() << MSG::VERBOSE << " SizeIP2D_Grade1 = "  << m_sizeIP2D_Grade1 << endreq;
+          msg() << MSG::VERBOSE << " bIP2D_Grade1 = "     << m_bIP2D_Grade1 << endreq; 
+          msg() << MSG::VERBOSE << " uIP2D_Grade1 = "     << m_uIP2D_Grade1 << endreq;  
+          msg() << MSG::VERBOSE << " SizeIP3D_Grade1 = "  << m_sizeIP3D_Grade1 << endreq; 
+          msg() << MSG::VERBOSE << " bIP3D_Grade1 = "     << m_bIP3D_Grade1 << endreq; 
+          msg() << MSG::VERBOSE << " uIP3D_Grade1 = "     << m_uIP3D_Grade1 << endreq; 
 
-          msg() << MSG::VERBOSE << " SizeIP1D_Grade2 = "  << m_sizeIP1D_Grade2 << endmsg; 
-          msg() << MSG::VERBOSE << " bIP1D_Grade2 = "     << m_bIP1D_Grade2 << endmsg; 
-          msg() << MSG::VERBOSE << " uIP1D_Grade2 = "     << m_uIP1D_Grade2 << endmsg; 
-          msg() << MSG::VERBOSE << " SizeIP2D_Grade2 = "  << m_sizeIP2D_Grade2 << endmsg;
-          msg() << MSG::VERBOSE << " bIP2D_Grade2 = "     << m_bIP2D_Grade2 << endmsg; 
-          msg() << MSG::VERBOSE << " uIP2D_Grade2 = "     << m_uIP2D_Grade2 << endmsg;  
-          msg() << MSG::VERBOSE << " SizeIP3D_Grade2 = "  << m_sizeIP3D_Grade2 << endmsg; 
-          msg() << MSG::VERBOSE << " bIP3D_Grade2 = "     << m_bIP3D_Grade2 << endmsg; 
-          msg() << MSG::VERBOSE << " uIP3D_Grade2 = "     << m_uIP3D_Grade2 << endmsg; 
+          msg() << MSG::VERBOSE << " SizeIP1D_Grade2 = "  << m_sizeIP1D_Grade2 << endreq; 
+          msg() << MSG::VERBOSE << " bIP1D_Grade2 = "     << m_bIP1D_Grade2 << endreq; 
+          msg() << MSG::VERBOSE << " uIP1D_Grade2 = "     << m_uIP1D_Grade2 << endreq; 
+          msg() << MSG::VERBOSE << " SizeIP2D_Grade2 = "  << m_sizeIP2D_Grade2 << endreq;
+          msg() << MSG::VERBOSE << " bIP2D_Grade2 = "     << m_bIP2D_Grade2 << endreq; 
+          msg() << MSG::VERBOSE << " uIP2D_Grade2 = "     << m_uIP2D_Grade2 << endreq;  
+          msg() << MSG::VERBOSE << " SizeIP3D_Grade2 = "  << m_sizeIP3D_Grade2 << endreq; 
+          msg() << MSG::VERBOSE << " bIP3D_Grade2 = "     << m_bIP3D_Grade2 << endreq; 
+          msg() << MSG::VERBOSE << " uIP3D_Grade2 = "     << m_uIP3D_Grade2 << endreq; 
 
-          msg() << MSG::DEBUG << " TrkSelGrade1_Chi2 = "            << m_trkSelGrade1_Chi2 << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade1_Innermost = "       << m_trkSelGrade1_Innermost << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade1_NextToInnermost = " << m_trkSelGrade1_NextToInnermost << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade1_PixHits = "         << m_trkSelGrade1_PixHits << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade1_SiHits = "          << m_trkSelGrade1_SiHits << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade1_D0 = "              << m_trkSelGrade1_D0 << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade1_Z0 = "              << m_trkSelGrade1_Z0 << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade1_Pt = "              << m_trkSelGrade1_Pt << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade1_Eta = "             << m_trkSelGrade1_Eta << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade1_Phi = "             << m_trkSelGrade1_Phi << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade1_R = "               << m_trkSelGrade1_R << endmsg; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_Chi2 = "            << m_trkSelGrade1_Chi2 << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_Innermost = "       << m_trkSelGrade1_Innermost << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_NextToInnermost = " << m_trkSelGrade1_NextToInnermost << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_PixHits = "         << m_trkSelGrade1_PixHits << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_SiHits = "          << m_trkSelGrade1_SiHits << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_D0 = "              << m_trkSelGrade1_D0 << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_Z0 = "              << m_trkSelGrade1_Z0 << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_Pt = "              << m_trkSelGrade1_Pt << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_Eta = "             << m_trkSelGrade1_Eta << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_Phi = "             << m_trkSelGrade1_Phi << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade1_R = "               << m_trkSelGrade1_R << endreq; 
 
-          msg() << MSG::DEBUG << " TrkSelGrade2_Chi2 = "            << m_trkSelGrade2_Chi2 << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade2_Innermost = "       << m_trkSelGrade2_Innermost << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade2_NextToInnermost = " << m_trkSelGrade2_NextToInnermost << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade2_PixHits = "         << m_trkSelGrade2_PixHits << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade2_SiHits = "          << m_trkSelGrade2_SiHits << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade2_D0 = "              << m_trkSelGrade2_D0 << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade2_Z0 = "              << m_trkSelGrade2_Z0 << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade2_Pt = "              << m_trkSelGrade2_Pt << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade2_Eta = "             << m_trkSelGrade2_Eta << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade2_Phi = "             << m_trkSelGrade2_Phi << endmsg; 
-          msg() << MSG::DEBUG << " TrkSelGrade2_R = "               << m_trkSelGrade2_R << endmsg; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_Chi2 = "            << m_trkSelGrade2_Chi2 << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_Innermost = "       << m_trkSelGrade2_Innermost << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_NextToInnermost = " << m_trkSelGrade2_NextToInnermost << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_PixHits = "         << m_trkSelGrade2_PixHits << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_SiHits = "          << m_trkSelGrade2_SiHits << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_D0 = "              << m_trkSelGrade2_D0 << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_Z0 = "              << m_trkSelGrade2_Z0 << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_Pt = "              << m_trkSelGrade2_Pt << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_Eta = "             << m_trkSelGrade2_Eta << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_Phi = "             << m_trkSelGrade2_Phi << endreq; 
+          msg() << MSG::DEBUG << " TrkSelGrade2_R = "               << m_trkSelGrade2_R << endreq; 
 
-          msg() << MSG::VERBOSE << " SizeMVtx = "       << m_sizeMVtx << endmsg; 
-          msg() << MSG::VERBOSE << " bMVtx = "          << m_bMVtx << endmsg; 
-          msg() << MSG::VERBOSE << " uMVtx = "          << m_uMVtx << endmsg;
-          msg() << MSG::VERBOSE << " SizeEVtx = "       << m_sizeEVtx << endmsg; 
-          msg() << MSG::VERBOSE << " bEVtx = "          << m_bEVtx << endmsg; 
-          msg() << MSG::VERBOSE << " uEVtx = "          << m_uEVtx << endmsg;  
-          msg() << MSG::VERBOSE << " SizeNVtx = "       << m_sizeNVtx << endmsg; 
-          msg() << MSG::VERBOSE << " bNVtx = "          << m_bNVtx << endmsg; 
-          msg() << MSG::VERBOSE << " uNVtx = "          << m_uNVtx << endmsg;
-          msg() << MSG::VERBOSE << " SizeSV = "         << m_sizeSV << endmsg; 
-          msg() << MSG::VERBOSE << " bSV = "            << m_bSV << endmsg; 
-          msg() << MSG::VERBOSE << " uSV = "            << m_uSV << endmsg;  
+          msg() << MSG::VERBOSE << " SizeMVtx = "       << m_sizeMVtx << endreq; 
+          msg() << MSG::VERBOSE << " bMVtx = "          << m_bMVtx << endreq; 
+          msg() << MSG::VERBOSE << " uMVtx = "          << m_uMVtx << endreq;
+          msg() << MSG::VERBOSE << " SizeEVtx = "       << m_sizeEVtx << endreq; 
+          msg() << MSG::VERBOSE << " bEVtx = "          << m_bEVtx << endreq; 
+          msg() << MSG::VERBOSE << " uEVtx = "          << m_uEVtx << endreq;  
+          msg() << MSG::VERBOSE << " SizeNVtx = "       << m_sizeNVtx << endreq; 
+          msg() << MSG::VERBOSE << " bNVtx = "          << m_bNVtx << endreq; 
+          msg() << MSG::VERBOSE << " uNVtx = "          << m_uNVtx << endreq;
+          msg() << MSG::VERBOSE << " SizeSV = "         << m_sizeSV << endreq; 
+          msg() << MSG::VERBOSE << " bSV = "            << m_bSV << endreq; 
+          msg() << MSG::VERBOSE << " uSV = "            << m_uSV << endreq;  
         }
 
     m_trigBjetTagger = new TrigBjetTagger(this, msg(), msgLvl());
     m_constTrigBjetTagger  = const_cast<const TrigBjetTagger*>(m_trigBjetTagger);
 
     if (msgLvl() <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "Retrieving tuning likelihoods." << endmsg;
+      msg() << MSG::DEBUG << "Retrieving tuning likelihoods." << endreq;
 
     m_tuningLikelihoodIP1D_Grade1 = new TuningLikelihood(&m_sizeIP1D_Grade1[0], &m_bIP1D_Grade1[0], &m_uIP1D_Grade1[0], m_sizeIP1D_Grade1.size());
     m_trigBjetTagger->fillLikelihoodMap("IP1D_Grade1", m_tuningLikelihoodIP1D_Grade1);
@@ -361,10 +363,10 @@ HLT::ErrorCode TrigBjetFex::hltInitialize() {
     // Retrieve TrigTrackJetFinder tool
         StatusCode sc = m_trackJetFinderTool.retrieve();
     if(sc.isFailure()) {
-      msg() << MSG::FATAL << "Failed to locate tool " << m_trackJetFinderTool << endmsg;
+      msg() << MSG::FATAL << "Failed to locate tool " << m_trackJetFinderTool << endreq;
       return HLT::BAD_JOB_SETUP;
     } else
-      msg() << MSG::INFO << "Retrieved tool " << m_trackJetFinderTool << endmsg;
+      msg() << MSG::INFO << "Retrieved tool " << m_trackJetFinderTool << endreq;
   
     m_trigBjetPrmVtxInfo = new TrigBjetPrmVtxInfo();
     m_trigBjetSecVtxInfo = new TrigBjetSecVtxInfo();
@@ -385,10 +387,10 @@ HLT::ErrorCode TrigBjetFex::getCollection(const xAOD::TrackParticleContainer*& p
   HLT::ErrorCode status = getFeatures(outputTE, vectorOfEFTrackCollections, m_trackKey); 
 
   if (status != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to get TrackParticleContainer from the trigger element" << endmsg;
+    msg() << MSG::ERROR << "Failed to get TrackParticleContainer from the trigger element" << endreq;
   } 
   else if (msgLvl() <= MSG::DEBUG) 
-    msg() << MSG::DEBUG << "Got " << vectorOfEFTrackCollections.size() << " TrackParticleContainer" << endmsg;
+    msg() << MSG::DEBUG << "Got " << vectorOfEFTrackCollections.size() << " TrackParticleContainer" << endreq;
   
   std::vector<const xAOD::TrackParticleContainer*>::iterator pTrackColl    = vectorOfEFTrackCollections.begin();
   std::vector<const xAOD::TrackParticleContainer*>::iterator lastTrackColl = vectorOfEFTrackCollections.end();
@@ -416,10 +418,10 @@ HLT::ErrorCode TrigBjetFex::getPrmVtxCollection(const xAOD::VertexContainer*& po
   
   HLT::ErrorCode status = getFeatures(outputTE, vectorOfEFPrmVtxCollections, priVtxKey);
   if (status != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to get xAOD::VertexContainer from the trigger element" << endmsg;
+    msg() << MSG::ERROR << "Failed to get xAOD::VertexContainer from the trigger element" << endreq;
   } 
   else if (msgLvl() <= MSG::DEBUG) 
-    msg() << MSG::DEBUG << "Got " << vectorOfEFPrmVtxCollections.size() << " xAOD::VertexContainer" << endmsg;
+    msg() << MSG::DEBUG << "Got " << vectorOfEFPrmVtxCollections.size() << " xAOD::VertexContainer" << endreq;
   
   std::vector<const xAOD::VertexContainer*>::iterator pPrmVtxColl    = vectorOfEFPrmVtxCollections.begin();
   std::vector<const xAOD::VertexContainer*>::iterator lastPrmVtxColl = vectorOfEFPrmVtxCollections.end();
@@ -430,7 +432,7 @@ HLT::ErrorCode TrigBjetFex::getPrmVtxCollection(const xAOD::VertexContainer*& po
     for ( ; pPrmVtxColl != lastPrmVtxColl; pPrmVtxColl++) { 
       
       if ((*pPrmVtxColl)->size() != 0)
-	      msg() << MSG::VERBOSE << "xAOD::VertexContainer with label " << (*pPrmVtxColl)->front()->vertexType() << endmsg;
+	      msg() << MSG::VERBOSE << "xAOD::VertexContainer with label " << (*pPrmVtxColl)->front()->vertexType() << endreq;
     }
     pPrmVtxColl = vectorOfEFPrmVtxCollections.begin();
   }
@@ -438,14 +440,14 @@ HLT::ErrorCode TrigBjetFex::getPrmVtxCollection(const xAOD::VertexContainer*& po
   for ( ; pPrmVtxColl != lastPrmVtxColl; pPrmVtxColl++) { 
     
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Size of pPrmVtxColl = " << (*pPrmVtxColl)->size() << endmsg;
+      msg() << MSG::DEBUG << "Size of pPrmVtxColl = " << (*pPrmVtxColl)->size() << endreq;
     
     if ((*pPrmVtxColl)->size() != 0) {
       
       if ((*pPrmVtxColl)->front()->vertexType() == xAOD::VxType::PriVtx) { // was == 1
         if (msgLvl() <= MSG::DEBUG) {
-          msg() << MSG::DEBUG << "Selected collection with Primary Vertex label " << (*pPrmVtxColl)->front()->vertexType() << endmsg;
-	  msg() << MSG::DEBUG << "First PV has z-position = " <<  (*pPrmVtxColl)->front()->z() << endmsg;
+          msg() << MSG::DEBUG << "Selected collection with Primary Vertex label " << (*pPrmVtxColl)->front()->vertexType() << endreq;
+	  msg() << MSG::DEBUG << "First PV has z-position = " <<  (*pPrmVtxColl)->front()->z() << endreq;
 	}
         break;
       }
@@ -456,12 +458,12 @@ HLT::ErrorCode TrigBjetFex::getPrmVtxCollection(const xAOD::VertexContainer*& po
   
   if (pPrmVtxColl == lastPrmVtxColl) {
     pointerToEFPrmVtxCollections = 0;
-    msg() << MSG::DEBUG << "No primary vertex collection found" << endmsg;
+    msg() << MSG::WARNING << "No primary vertex collection found" << endreq;
     return HLT::ERROR;
   } 
   else {
     if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Found a primary vertex collection." << endmsg;
+      msg() << MSG::DEBUG << "Found a primary vertex collection." << endreq;
     }
     pointerToEFPrmVtxCollections = *pPrmVtxColl;
     return HLT::OK;
@@ -477,9 +479,9 @@ HLT::ErrorCode TrigBjetFex::getSecVtxCollection(const Trk::VxSecVertexInfoContai
   std::vector<const Trk::VxSecVertexInfoContainer*> vectorOfSecVtxCollections;
   HLT::ErrorCode status = getFeatures(outputTE, vectorOfSecVtxCollections, "SecVtxInfo"); 
   if (status != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to get VxSecVertexInfoContainer from the trigger element" << endmsg;
+    msg() << MSG::ERROR << "Failed to get VxSecVertexInfoContainer from the trigger element" << endreq;
   } else if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Got " << vectorOfSecVtxCollections.size() << " VxSecVertexInfoContainer" << endmsg;
+    msg() << MSG::DEBUG << "Got " << vectorOfSecVtxCollections.size() << " VxSecVertexInfoContainer" << endreq;
 
   std::vector<const Trk::VxSecVertexInfoContainer*>::iterator pSecVtxColl    = vectorOfSecVtxCollections.begin();
   std::vector<const Trk::VxSecVertexInfoContainer*>::iterator lastSecVtxColl = vectorOfSecVtxCollections.end();
@@ -493,7 +495,7 @@ HLT::ErrorCode TrigBjetFex::getSecVtxCollection(const Trk::VxSecVertexInfoContai
         const std::vector<xAOD::Vertex*> vectorOfVxCandidates = (*pSecVtxColl)->front()->vertices();
 
         if (vectorOfVxCandidates.size()!=0)
-          msg() << MSG::VERBOSE << "VxSecVertexInfoContainer with label " << (*vectorOfVxCandidates.begin())->vertexType() << endmsg;
+          msg() << MSG::VERBOSE << "VxSecVertexInfoContainer with label " << (*vectorOfVxCandidates.begin())->vertexType() << endreq;
       }
     }
 
@@ -510,8 +512,8 @@ HLT::ErrorCode TrigBjetFex::getSecVtxCollection(const Trk::VxSecVertexInfoContai
         if ((*vectorOfVxCandidates.begin())->vertexType() == 2) {
          
           if (msgLvl() <= MSG::DEBUG) {
-            msg() << MSG::DEBUG << "Selected collection with Secondary Vertex label " << (*vectorOfVxCandidates.begin())->vertexType() << endmsg;
-	          msg() << MSG::DEBUG << "First SV has z-position = " <<  (*vectorOfVxCandidates.begin())->z() << endmsg;
+            msg() << MSG::DEBUG << "Selected collection with Secondary Vertex label " << (*vectorOfVxCandidates.begin())->vertexType() << endreq;
+	          msg() << MSG::DEBUG << "First SV has z-position = " <<  (*vectorOfVxCandidates.begin())->z() << endreq;
 	        }
           break;
         }
@@ -537,20 +539,20 @@ HLT::ErrorCode TrigBjetFex::getSecVtxInfo(const Trk::VxSecVertexInfoContainer*& 
 					  const xAOD::VertexContainer*& pointerToEFPrmVtxCollections) {
 
   if(!pointerToEFSecVtxCollections) {
-    msg() << MSG::DEBUG << "No secondary vertex collection sent when extracting sec vtx info" << endmsg;
+    msg() << MSG::DEBUG << "No secondary vertex collection sent when extracting sec vtx info" << endreq;
     return HLT::OK;
   }
 
-  const Trk::VxSecVertexInfo* secVertexInfo = (*pointerToEFSecVtxCollections)[0];
-  if(!secVertexInfo) {
-    msg() << MSG::DEBUG << "No secondary vertex when extracting sec vtx info" << endmsg;
+  const Trk::VxSecVertexInfo* m_secVertexInfo = (*pointerToEFSecVtxCollections)[0];
+  if(!m_secVertexInfo) {
+    msg() << MSG::DEBUG << "No secondary vertex when extracting sec vtx info" << endreq;
     return HLT::OK;
   }
 
-  const Trk::VxSecVKalVertexInfo* myVKalSecVertexInfo = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(secVertexInfo);
+  const Trk::VxSecVKalVertexInfo* myVKalSecVertexInfo = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(m_secVertexInfo);
    
   if(!myVKalSecVertexInfo) {
-    msg() << MSG::DEBUG << "The cast to VKal secndary vertex went wrong, the pointer is zero" << endmsg;
+    msg() << MSG::DEBUG << "The cast to VKal secndary vertex went wrong, the pointer is zero" << endreq;
     return HLT::OK;
   }
    
@@ -567,19 +569,19 @@ HLT::ErrorCode TrigBjetFex::getSecVtxInfo(const Trk::VxSecVertexInfoContainer*& 
     std::vector<xAOD::Vertex*>::const_iterator verticesEnd=myVertices.end();
       
     if(myVertices.size()>1) 
-      msg() << MSG::DEBUG << "Secondary vertex from InDetVKalVxInJet has more than one vertex, is this ok?" << endmsg;
+      msg() << MSG::DEBUG << "Secondary vertex from InDetVKalVxInJet has more than one vertex, is this ok?" << endreq;
       
     for( ; verticesIt!=verticesEnd ; ++verticesIt) {
 
       if(!(*verticesIt)) {
-        msg() << MSG::DEBUG << "Secondary vertex from InDetVKalVxInJet has zero pointer. Skipping this vtx.." << endmsg;
+        msg() << MSG::DEBUG << "Secondary vertex from InDetVKalVxInJet has zero pointer. Skipping this vtx.." << endreq;
         continue;
       }
 
       msg() << MSG::DEBUG << "VxCandidate at (" 
             << (*verticesIt)->position().x() << "," 
             << (*verticesIt)->position().y() << "," 
-            << (*verticesIt)->position().z() << endmsg;
+            << (*verticesIt)->position().z() << endreq;
 
       std::vector<Trk::VxTrackAtVertex> myTracks = (*verticesIt)->vxTrackAtVertex();
 
@@ -626,7 +628,7 @@ HLT::ErrorCode TrigBjetFex::getSecVtxInfo(const Trk::VxSecVertexInfoContainer*& 
               << pPrmVrt->position().z() << ") and error (" 
               << pPrmVrt->covariancePosition()(0,0) << "," 
               << pPrmVrt->covariancePosition()(1,1) << "," 
-              << pPrmVrt->covariancePosition()(2,2) << ")" << endmsg; 
+              << pPrmVrt->covariancePosition()(2,2) << ")" << endreq; 
       }
 	
       // Needs some Eigen migration magic here
@@ -680,7 +682,7 @@ HLT::ErrorCode TrigBjetFex::getSecVtxInfo(const Trk::VxSecVertexInfoContainer*& 
       double distance = (SecVrt - PrmVrt.position()).mag();
       if(msgLvl() <= MSG::DEBUG) {
         if(fabs(distance-dist3D)>0.0001) {
-          msg() << MSG::DEBUG << "decay length distance do not match among tools: tool " << dist3D << " manual " << distance << endmsg;
+          msg() << MSG::DEBUG << "decay length distance do not match among tools: tool " << dist3D << " manual " << distance << endreq;
         }
       }
          
@@ -692,7 +694,7 @@ HLT::ErrorCode TrigBjetFex::getSecVtxInfo(const Trk::VxSecVertexInfoContainer*& 
               << ") and jet direction (px,py,pz) = ("
               << jetDirection.Px() << "," << jetDirection.Py() << "," << jetDirection.Pz() <<  
           ") which gives 3D decay length " << distance << " (VrtVrtDist tool " << dist3D << ") and 3D significance " << sign3D 
-              << " and 2D(R/phi) decay length " << dist2D << endmsg;
+              << " and 2D(R/phi) decay length " << dist2D << endreq;
       }
 
       //Clean up if I created a vertex object earlier which is not pointer to collection
@@ -748,77 +750,77 @@ bool TrigBjetFex::trackSel(const xAOD::TrackParticle*& track, unsigned int i, in
   // END FIX 
 
   if (msgLvl() <= MSG::VERBOSE) {
-    msg() << MSG::VERBOSE << "TrackSel method (grade " << grade << ")" << endmsg;
-    msg() << MSG::VERBOSE << "  Track number "           << i+1  << " to be selected must be:" << endmsg;
-    msg() << MSG::VERBOSE << "    dEta "                 << dEta                          << " <= " << trkSelEta << endmsg;
-    msg() << MSG::VERBOSE << "    dPhi "                 << dPhi                          << " <= " << trkSelPhi << endmsg;
-    msg() << MSG::VERBOSE << "    dR "                   << dR                            << " <= " << trkSelR << endmsg;
-    msg() << MSG::VERBOSE << "    pt "                   << fabs(pT)                      << " >= " << trkSelPt << endmsg;
-    msg() << MSG::VERBOSE << "    d0 "                   << fabs(d0)                      << " <= " << trkSelD0 << endmsg;
-    msg() << MSG::VERBOSE << "    z0*sin(theta) "        << fabs(z0-zv)*TMath::Sin(theta) << " <= " << trkSelZ0 << endmsg;
-    msg() << MSG::VERBOSE << "    innermostLayer "       << (int)nInnermostHits           << " >= " << trkSelInnermost << endmsg;
-    msg() << MSG::VERBOSE << "    nextToInnermostLayer " << (int)nNextToInnermostHits     << " >= " << trkSelNextToInnermost << endmsg;
-    msg() << MSG::VERBOSE << "    pixelHit "             << (int)nPixHits                 << " >= " << trkSelPixHits << endmsg;
-    msg() << MSG::VERBOSE << "    siHit "                << (int)nSiHits                  << " >= " << trkSelSiHits << endmsg;
-    msg() << MSG::VERBOSE << "    prob(chi2) "           << TMath::Prob(track->chiSquared(), (int)nSiHits*3-5) << " > " << trkSelChi2 << endmsg;
+    msg() << MSG::VERBOSE << "TrackSel method (grade " << grade << ")" << endreq;
+    msg() << MSG::VERBOSE << "  Track number "           << i+1  << " to be selected must be:" << endreq;
+    msg() << MSG::VERBOSE << "    dEta "                 << dEta                          << " <= " << trkSelEta << endreq;
+    msg() << MSG::VERBOSE << "    dPhi "                 << dPhi                          << " <= " << trkSelPhi << endreq;
+    msg() << MSG::VERBOSE << "    dR "                   << dR                            << " <= " << trkSelR << endreq;
+    msg() << MSG::VERBOSE << "    pt "                   << fabs(pT)                      << " >= " << trkSelPt << endreq;
+    msg() << MSG::VERBOSE << "    d0 "                   << fabs(d0)                      << " <= " << trkSelD0 << endreq;
+    msg() << MSG::VERBOSE << "    z0*sin(theta) "        << fabs(z0-zv)*TMath::Sin(theta) << " <= " << trkSelZ0 << endreq;
+    msg() << MSG::VERBOSE << "    innermostLayer "       << (int)nInnermostHits           << " >= " << trkSelInnermost << endreq;
+    msg() << MSG::VERBOSE << "    nextToInnermostLayer " << (int)nNextToInnermostHits     << " >= " << trkSelNextToInnermost << endreq;
+    msg() << MSG::VERBOSE << "    pixelHit "             << (int)nPixHits                 << " >= " << trkSelPixHits << endreq;
+    msg() << MSG::VERBOSE << "    siHit "                << (int)nSiHits                  << " >= " << trkSelSiHits << endreq;
+    msg() << MSG::VERBOSE << "    prob(chi2) "           << TMath::Prob(track->chiSquared(), (int)nSiHits*3-5) << " > " << trkSelChi2 << endreq;
   }
   
   if (dEta > trkSelEta) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " is not selected (delta eta matching)" << endmsg;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " is not selected (delta eta matching)" << endreq;
     m_listCutApplied.push_back(2); return false;
   }
 
   if (dPhi > trkSelPhi) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " is not selected (delta phi matching)" << endmsg;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " is not selected (delta phi matching)" << endreq;
     m_listCutApplied.push_back(3); return false;
   }
 
   if (dR > trkSelR) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " is not selected (delta R matching)" << endmsg;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " is not selected (delta R matching)" << endreq;
     m_listCutApplied.push_back(4); return false;
   }
 
   if (fabs(pT) < trkSelPt) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (pT cut)" << endmsg;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (pT cut)" << endreq;
     m_listCutApplied.push_back(5); return false;
   }
 
   if (fabs(d0) > trkSelD0) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (d0 cut)" << endmsg;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (d0 cut)" << endreq;
     m_listCutApplied.push_back(6); return false;
   }
 
   if (fabs(z0-zv)*TMath::Sin(theta) > trkSelZ0) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (z0 cut)" << endmsg;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (z0 cut)" << endreq;
     m_listCutApplied.push_back(7); return false;
   }
 
   if (nInnermostHits < trkSelInnermost) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (missing innermost layer hit)" << endmsg;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (missing innermost layer hit)" << endreq;
     m_listCutApplied.push_back(8); return false;
   }
 
   if (nNextToInnermostHits < trkSelNextToInnermost) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (missing next to innermost layer hit)" << endmsg;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (missing next to innermost layer hit)" << endreq;
     m_listCutApplied.push_back(9); return false;
   }
 
   if (nPixHits < trkSelPixHits) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (too few pixel hits)" << endmsg;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (too few pixel hits)" << endreq;
     m_listCutApplied.push_back(10); return false;
   }
 
   if (nSiHits < trkSelSiHits) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (too few silicon hits)" << endmsg;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (too few silicon hits)" << endreq;
     m_listCutApplied.push_back(11); return false;
   }
 
   if (TMath::Prob(track->chiSquared(), (int)nSiHits*3-5) <= trkSelChi2) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (chi2 cut)" << endmsg;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  grade " << grade << " track " << i+1 << " not selected (chi2 cut)" << endreq;
     m_listCutApplied.push_back(12); return false;
   }
   
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "    grade " << grade << " track " << i+1 << " is selected" << endmsg;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "    grade " << grade << " track " << i+1 << " is selected" << endreq;
 
   m_listCutApplied.push_back(13);
   return true;
@@ -846,23 +848,63 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   const TrigRoiDescriptor* roiDescriptor = 0;
 
   if (getFeature(outputTE, roiDescriptor, m_jetKey) == HLT::OK) {
-    if (msgLvl() <= MSG::DEBUG && roiDescriptor != 0) {
+    if (msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG << "Using TE: " << "RoI id " << roiDescriptor->roiId()
-	    << ", Phi = " <<  roiDescriptor->phi() << ", Eta = " << roiDescriptor->eta() << endmsg;
+	    << ", Phi = " <<  roiDescriptor->phi() << ", Eta = " << roiDescriptor->eta() << endreq;
     }
   }
   else {
     if (msgLvl() <= MSG::DEBUG) 
-      msg() <<  MSG::DEBUG << "No feature for this Trigger Element" << endmsg;
+      msg() <<  MSG::DEBUG << "No feature for this Trigger Element" << endreq;
     
     return HLT::NAV_ERROR;
   }
 
+  // -----------------------------------
+  // Get EF jets 
+  // -----------------------------------
+  float m_et_EFjet = 0;
+  if (m_retrieveHLTJets && m_instance == "EF") {
+    std::vector<const TrigOperationalInfo*> m_vectorOperationalInfo;
+    if (getFeatures(outputTE, m_vectorOperationalInfo, "EFJetInfo") != HLT::OK) {
+      if (msgLvl() <= MSG::WARNING) {
+        msg() << MSG::WARNING << "Failed to get TrigOperationalInfo" << endreq;
+      }
+      return HLT::MISSING_FEATURE;
+    } 
+    else {
+      if (msgLvl() <= MSG::DEBUG) {
+        msg() << MSG::DEBUG << "Number of TrigOperationalInfo objects: " << m_vectorOperationalInfo.size() << endreq;
+      }
+    }
+
+    // -----------------------------------
+    // Get operational info
+    // -----------------------------------
+    std::vector<const TrigOperationalInfo*>::const_iterator m_operationalInfo;
+    for (m_operationalInfo=m_vectorOperationalInfo.begin(); m_operationalInfo!=m_vectorOperationalInfo.end(); ++m_operationalInfo) {    
+      
+      if ((*m_operationalInfo)->defined("EFJetEt")==1) {
+	
+        unsigned int m_etSize = (*m_operationalInfo)->infos().first.size();    
+        if (m_etSize!=1) {
+          if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "More than one Et threshold associated to the same EF jet" << endreq;
+          return HLT::NAV_ERROR;
+        }
+    
+        m_et_EFjet = (*m_operationalInfo)->get("EFJetEt");
+      }
+    }
+  }
+
+  m_trigBjetJetInfo->setEtaPhiJet(roiDescriptor->eta(), m_taggerHelper->phiCorr(roiDescriptor->phi()));
+  m_trigBjetJetInfo->setEtaPhiRoI(roiDescriptor->eta(), m_taggerHelper->phiCorr(roiDescriptor->phi()));
+  m_trigBjetJetInfo->setEtJet(m_et_EFjet);
+
   //xAOD jets from TE
 
-  float et_EFjet = 0;
  
-  msg() << MSG::DEBUG << "pass 1 " << et_EFjet << endmsg;
+  msg() << MSG::DEBUG << "pass 1 " << m_et_EFjet << endreq;
 
   const xAOD::JetContainer* jets(0);
   //HLT::ErrorCode ec = getFeature(outputTE, jets,"EFJet");
@@ -873,10 +915,10 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
     return ec;
   } 
   else {
-    msg() << MSG::DEBUG << "Obtained JetContainer with name = " << m_jetKey << endmsg;
+    msg() << MSG::DEBUG << "Obtained JetContainer with name = " << m_jetKey << endreq;
   }
 
-  msg() << MSG::DEBUG << "pass 2 " << &jets << endmsg;
+  msg() << MSG::DEBUG << "pass 2 " << &jets << endreq;
 
   if(jets == 0){
     ATH_MSG_WARNING("Jet collection pointer is 0");
@@ -885,7 +927,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
 
   std::vector<const xAOD::Jet*> theJets(jets->begin(), jets->end());
 
-  msg() << MSG::DEBUG << "pass 2 jet size: " << theJets.size() << endmsg;
+  msg() << MSG::DEBUG << "pass 2 jet size: " << theJets.size() << endreq;
 
   std::size_t njets = theJets.size();
   if( njets == 0 ){
@@ -902,56 +944,50 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
     double etjet = aJet->p4().Et();
     double etajet = aJet->p4().Eta();
 
-    et_EFjet = aJet->p4().Et()*0.001;
-
-    msg() << MSG::DEBUG << "et  " << etjet << " and eta " << etajet << " Et EFjet " << et_EFjet << endmsg;
+    msg() << MSG::DEBUG << "et  " << etjet << " and eta " << etajet << endreq;
 
   }
-
-    m_trigBjetJetInfo->setEtaPhiJet(roiDescriptor->eta(), m_taggerHelper->phiCorr(roiDescriptor->phi()));
-    m_trigBjetJetInfo->setEtaPhiRoI(roiDescriptor->eta(), m_taggerHelper->phiCorr(roiDescriptor->phi()));
-    m_trigBjetJetInfo->setEtJet(et_EFjet);
 
   // -----------------------------------
   // Retrieve beamspot information
   // -----------------------------------
-  IBeamCondSvc* iBeamCondSvc; 
-  StatusCode sc = service("BeamCondSvc", iBeamCondSvc);
+      IBeamCondSvc* m_iBeamCondSvc; 
+  StatusCode sc = service("BeamCondSvc", m_iBeamCondSvc);
 
-  if (sc.isFailure() || iBeamCondSvc == 0) {
-    iBeamCondSvc = 0;
+  if (sc.isFailure() || m_iBeamCondSvc == 0) {
+    m_iBeamCondSvc = 0;
 
     if (msgLvl() <= MSG::WARNING)
-      msg() << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endmsg;
+      msg() << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endreq;
 
   } 
   else {
     
-    Amg::Vector3D beamSpot = iBeamCondSvc->beamPos();
+    Amg::Vector3D m_beamSpot = m_iBeamCondSvc->beamPos();
     
-    int beamSpotBitMap = iBeamCondSvc->beamStatus();
+    int m_beamSpotBitMap = m_iBeamCondSvc->beamStatus();
     
     // Check if beam spot is from online algorithms
-    int beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);
+    int m_beamSpotStatus = ((m_beamSpotBitMap & 0x4) == 0x4);
     
     // Check if beam spot fit converged
-    if (beamSpotStatus)
-      beamSpotStatus = ((beamSpotBitMap & 0x3) == 0x3);
+    if (m_beamSpotStatus)
+      m_beamSpotStatus = ((m_beamSpotBitMap & 0x3) == 0x3);
     
     if(msgLvl() <= MSG::DEBUG)
       
-      msg() << MSG::DEBUG << "Beam spot from service: x=" << beamSpot.x() << ", y=" << beamSpot.y() << ", z=" << beamSpot.z() 
-            << ", tiltXZ=" << iBeamCondSvc->beamTilt(0) << ", tiltYZ=" << iBeamCondSvc->beamTilt(1) 
-            << ", sigmaX=" << iBeamCondSvc->beamSigma(0) << ", sigmaY=" << iBeamCondSvc->beamSigma(1) << ", sigmaZ=" << iBeamCondSvc->beamSigma(2) 
-            << ", status=" << beamSpotStatus << endmsg;
+      msg() << MSG::DEBUG << "Beam spot from service: x=" << m_beamSpot.x() << ", y=" << m_beamSpot.y() << ", z=" << m_beamSpot.z() 
+            << ", tiltXZ=" << m_iBeamCondSvc->beamTilt(0) << ", tiltYZ=" << m_iBeamCondSvc->beamTilt(1) 
+            << ", sigmaX=" << m_iBeamCondSvc->beamSigma(0) << ", sigmaY=" << m_iBeamCondSvc->beamSigma(1) << ", sigmaZ=" << m_iBeamCondSvc->beamSigma(2) 
+            << ", status=" << m_beamSpotStatus << endreq;
 
-    m_trigBjetPrmVtxInfo->setBeamSpot(beamSpot.x(), beamSpot.y(), beamSpot.z());
-    m_trigBjetPrmVtxInfo->setBeamSpotTilt(iBeamCondSvc->beamTilt(0), iBeamCondSvc->beamTilt(1));
-    m_trigBjetPrmVtxInfo->setBeamSpotWidth(iBeamCondSvc->beamSigma(0), iBeamCondSvc->beamSigma(1), iBeamCondSvc->beamSigma(2));
-    m_trigBjetPrmVtxInfo->setBeamSpotStatus(beamSpotStatus);
+    m_trigBjetPrmVtxInfo->setBeamSpot(m_beamSpot.x(), m_beamSpot.y(), m_beamSpot.z());
+    m_trigBjetPrmVtxInfo->setBeamSpotTilt(m_iBeamCondSvc->beamTilt(0), m_iBeamCondSvc->beamTilt(1));
+    m_trigBjetPrmVtxInfo->setBeamSpotWidth(m_iBeamCondSvc->beamSigma(0), m_iBeamCondSvc->beamSigma(1), m_iBeamCondSvc->beamSigma(2));
+    m_trigBjetPrmVtxInfo->setBeamSpotStatus(m_beamSpotStatus);
 
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << *m_trigBjetPrmVtxInfo << endmsg;
+      msg() << MSG::DEBUG << *m_trigBjetPrmVtxInfo << endreq;
 
   }
 
@@ -977,45 +1013,43 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   // -----------------------------------
   HLT::ErrorCode status = getFeature(outputTE, pointerToEFTrackCollections, m_trackKey);
 
-
   if (status != HLT::OK) {
-    msg() << MSG::DEBUG << "No HLT track collection retrieved" << endmsg;
-  } else if (pointerToEFTrackCollections == nullptr) {
-    msg() << MSG::DEBUG << "Null pointer to HLT track collection" << endmsg;
-  } else if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "HLT track collection retrieved with size = " << pointerToEFTrackCollections->size() << endmsg;
+    msg() << MSG::DEBUG << "No HLT track collection retrieved" << endreq;
+  } 
+  else if (msgLvl() <= MSG::DEBUG) {
+    msg() << MSG::DEBUG << "HLT track collection retrieved with size = " << pointerToEFTrackCollections->size() << endreq;
   }
 
   // -----------------------------------
   // Get secondary vertex collection 
   // -----------------------------------
   if (getSecVtxCollection(pointerToEFSecVtxCollections, outputTE) != HLT::OK) {
-    msg() << MSG::DEBUG << "No secondary vertex collection retrieved" << endmsg;
+    msg() << MSG::DEBUG << "No secondary vertex collection retrieved" << endreq;
   } 
   else if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Secondary vertex collection retrieved" << endmsg;
+    msg() << MSG::DEBUG << "Secondary vertex collection retrieved" << endreq;
   
   // -----------------------------------
   // Get primary vertex collection
   // -----------------------------------
 
-  float xPrmVtx=0, yPrmVtx=0, zPrmVtx=0;
+  float m_xPrmVtx=0, m_yPrmVtx=0, m_zPrmVtx=0;
 
   if (m_histoPrmVtxAtEF) {   // PV from TrigT2HistoPrmVtx
 
     if (getPrmVtxCollection(pointerToEFPrmVtxCollections, outputTE, m_priVtxKey) != HLT::OK) {
-      msg() << MSG::DEBUG << "No primary vertex collection retrieved with name " << m_priVtxKey << endmsg;
+      msg() << MSG::WARNING << "No primary vertex collection retrieved with name " << m_priVtxKey << endreq;
       // If the ID PV-finding fails then use the PV from T2HistoPrmVtx instead
       // This is not ideal... investigate why ID PV finding fails
       if (m_priVtxKey == "xPrimVx" && getPrmVtxCollection(pointerToEFPrmVtxCollections, outputTE, "EFHistoPrmVtx") != HLT::OK) {
-	      msg() << MSG::DEBUG << "No primary vertex collection retrieved with name EFHistoPrmVtx either..." << endmsg;
+	      msg() << MSG::WARNING << "No primary vertex collection retrieved with name EFHistoPrmVtx either..." << endreq;
       }
       else if (msgLvl() <= MSG::DEBUG) {
-	      msg() << MSG::DEBUG << "Didn't manage to find " << m_priVtxKey << " PV, so using EFHistoPrmVtx instead." << endmsg;
+	      msg() << MSG::DEBUG << "Didn't manage to find " << m_priVtxKey << " PV, so using EFHistoPrmVtx instead." << endreq;
       }
     } 
     else if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Primary vertex collection retrieved" << endmsg;
+      msg() << MSG::DEBUG << "Primary vertex collection retrieved" << endreq;
     }
 
     // Protect against null pointers
@@ -1023,14 +1057,14 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
       // Protect against empty vectors
       if(pointerToEFPrmVtxCollections->size()>0) {
 	      const xAOD::Vertex* prmVertex = (*pointerToEFPrmVtxCollections)[0];
-        zPrmVtx = prmVertex->z();
+        m_zPrmVtx = prmVertex->z();
       } else {
-        msg() << MSG::DEBUG << "Empty primary vertex collection retrieved" << endmsg;
-        zPrmVtx = 0;
+        msg() << MSG::DEBUG << "Empty primary vertex collection retrieved" << endreq;
+        m_zPrmVtx = 0;
       }
     } else {
-      msg() << MSG::DEBUG << "No primary vertex collection retrieved" << endmsg;
-      zPrmVtx = 0;
+      msg() << MSG::DEBUG << "No primary vertex collection retrieved" << endreq;
+      m_zPrmVtx = 0;
     }
   } else  {  // PV from ID tracking
 
@@ -1046,23 +1080,23 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
       if(pointerToEFPrmVtxCollections->size()>0) {
 
         const xAOD::Vertex* prmVertex = (*pointerToEFPrmVtxCollections)[0];
-        xPrmVtx = (float)prmVertex->x();
-        yPrmVtx = (float)prmVertex->y();
-        zPrmVtx = (float)prmVertex->z();
+        m_xPrmVtx = (float)prmVertex->x();
+        m_yPrmVtx = (float)prmVertex->y();
+        m_zPrmVtx = (float)prmVertex->z();
       } 
       else {
-        msg() << MSG::DEBUG << "Empty primary vertex collection retrieved" << endmsg;
-        xPrmVtx = 0;
-        yPrmVtx = 0;
-        zPrmVtx = 0;
+        msg() << MSG::DEBUG << "Empty primary vertex collection retrieved" << endreq;
+        m_xPrmVtx = 0;
+        m_yPrmVtx = 0;
+        m_zPrmVtx = 0;
       }
     } 
     else 
     **/{
-      msg() << MSG::DEBUG << "No primary vertex collection retrieved" << endmsg;
-      xPrmVtx = 0;
-      yPrmVtx = 0;
-      zPrmVtx = 0;
+      msg() << MSG::DEBUG << "No primary vertex collection retrieved" << endreq;
+      m_xPrmVtx = 0;
+      m_yPrmVtx = 0;
+      m_zPrmVtx = 0;
     }
   }
 
@@ -1070,29 +1104,28 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   // Apply beam spot correction for tilt
   // ----------------------------------- 
     
-  float xBeamSpot = m_trigBjetPrmVtxInfo->xBeamSpot() + tan(m_trigBjetPrmVtxInfo->xBeamSpotTilt()) * (zPrmVtx-m_trigBjetPrmVtxInfo->zBeamSpot());
-  float yBeamSpot = m_trigBjetPrmVtxInfo->yBeamSpot() + tan(m_trigBjetPrmVtxInfo->yBeamSpotTilt()) * (zPrmVtx-m_trigBjetPrmVtxInfo->zBeamSpot());
-  float zBeamSpot = m_trigBjetPrmVtxInfo->zBeamSpot();
+  float m_xBeamSpot = m_trigBjetPrmVtxInfo->xBeamSpot() + tan(m_trigBjetPrmVtxInfo->xBeamSpotTilt()) * (m_zPrmVtx-m_trigBjetPrmVtxInfo->zBeamSpot());
+  float m_yBeamSpot = m_trigBjetPrmVtxInfo->yBeamSpot() + tan(m_trigBjetPrmVtxInfo->yBeamSpotTilt()) * (m_zPrmVtx-m_trigBjetPrmVtxInfo->zBeamSpot());
+  float m_zBeamSpot = m_trigBjetPrmVtxInfo->zBeamSpot();
 
-  m_trigBjetPrmVtxInfo->setBeamSpot(xBeamSpot, yBeamSpot, zBeamSpot);
-  m_trigBjetPrmVtxInfo->setPrmVtx(xPrmVtx, yPrmVtx, zPrmVtx);
+  m_trigBjetPrmVtxInfo->setBeamSpot(m_xBeamSpot, m_yBeamSpot, m_zBeamSpot);
+  m_trigBjetPrmVtxInfo->setPrmVtx(m_xPrmVtx, m_yPrmVtx, m_zPrmVtx);
 
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << *m_trigBjetPrmVtxInfo << endmsg;
+    msg() << MSG::DEBUG << *m_trigBjetPrmVtxInfo << endreq;
 
   m_trackJetFinderTool->clear();
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Set input  z-vtx to trackjet tool " << m_trigBjetPrmVtxInfo->zPrmVtx() << endmsg;
+    msg() << MSG::DEBUG << "Set input  z-vtx to trackjet tool " << m_trigBjetPrmVtxInfo->zPrmVtx() << endreq;
   m_trackJetFinderTool->inputPrimaryVertexZ(m_trigBjetPrmVtxInfo->zPrmVtx());
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Done set input  z-vtx to trackjet tool " << m_trigBjetPrmVtxInfo->zPrmVtx() << endmsg;
+    msg() << MSG::DEBUG << "Done set input  z-vtx to trackjet tool " << m_trigBjetPrmVtxInfo->zPrmVtx() << endreq;
 
   m_totTracks = m_taggerHelper->getTrackNumber(pointerToEFTrackCollections);
   
   for (unsigned int j = 0; j < m_totTracks; j++) {
     
-    const xAOD::TrackParticle* track = pointerToEFTrackCollections == nullptr ? nullptr : (*pointerToEFTrackCollections)[j];
-    if (track == nullptr) continue;
+    const xAOD::TrackParticle* track = (*pointerToEFTrackCollections)[j];
 
     m_mon_trk_a0.push_back(track->d0());
     m_mon_trk_z0.push_back(track->z0() + m_trigBjetPrmVtxInfo->zBeamSpot());
@@ -1115,7 +1148,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
       z0Corr=track->z0()+m_trigBjetPrmVtxInfo->zBeamSpot();
       trigBjetTrackInfo.setIPCorr(d0Corr, z0Corr);
       if (msgLvl() <= MSG::DEBUG)
-        msg() << MSG::DEBUG << "  " << trigBjetTrackInfo << endmsg;
+        msg() << MSG::DEBUG << "  " << trigBjetTrackInfo << endreq;
       trigBjetTrackInfoVector.push_back(trigBjetTrackInfo);
 
       //m_trackJetFinderTool->addTrack(track, j);
@@ -1137,11 +1170,11 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
     m_trigBjetJetInfo->setEtaPhiTrkJet(m_trigBjetJetInfo->etaRoI(), m_trigBjetJetInfo->phiRoI());
     
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "eta Jet = eta RoI" << endmsg;
+      msg() << MSG::DEBUG << "eta Jet = eta RoI" << endreq;
   }
   
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << *m_trigBjetJetInfo << endmsg;
+    msg() << MSG::DEBUG << *m_trigBjetJetInfo << endreq;
 
   // -----------------------------------
   // For monitoring
@@ -1159,8 +1192,8 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   if (m_useBeamSpotFlag && !m_trigBjetPrmVtxInfo->beamSpotStatus()) {
 
     if(msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Beam spot status flag set to " << m_trigBjetPrmVtxInfo->beamSpotStatus() << ". Discriminant weights are not computed." << endmsg;
-      msg() << MSG::DEBUG << "Beam spot flag set to " << m_useBeamSpotFlag << ". Discriminant weights are not computed." << endmsg;
+      msg() << MSG::DEBUG << "Beam spot status flag set to " << m_trigBjetPrmVtxInfo->beamSpotStatus() << ". Discriminant weights are not computed." << endreq;
+      msg() << MSG::DEBUG << "Beam spot flag set to " << m_useBeamSpotFlag << ". Discriminant weights are not computed." << endreq;
     }
 
     m_listCutApplied.push_back(0);
@@ -1169,7 +1202,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   } else if (m_trigBjetPrmVtxInfo->xBeamSpotWidth()>m_setBeamSpotWidth || m_trigBjetPrmVtxInfo->yBeamSpotWidth()>m_setBeamSpotWidth) {
 
     if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Beam spot width is more than " << m_setBeamSpotWidth << "um. Discriminant weights are not computed." << endmsg;
+      msg() << MSG::DEBUG << "Beam spot width is more than " << m_setBeamSpotWidth << "um. Discriminant weights are not computed." << endreq;
 
     m_listCutApplied.push_back(1);
     m_trigBjetTagger->getWeights();
@@ -1178,7 +1211,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
     
     if (msgLvl() <= MSG::DEBUG) 
       msg() << MSG::DEBUG << "Computing discriminant weights using taggers: " << m_taggers 
-            << " and using calibration from " << (m_useParamFromData==0 ? "MC" : "data") << " for CHI2" << endmsg;
+            << " and using calibration from " << (m_useParamFromData==0 ? "MC" : "data") << " for CHI2" << endreq;
 
     //Look for a sec vertex?
     bool retrieveSV = false;
@@ -1195,10 +1228,10 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
       //if (getSecVtxInfo(pointerToEFSecVtxCollections, pointerToEFPrmVtxCollections, pointerToPrmVtxCollections) != HLT::OK)
       if (getSecVtxInfo(pointerToEFSecVtxCollections, pointerToEFPrmVtxCollections) != HLT::OK)
         if (msgLvl() <= MSG::DEBUG)
-          msg() << MSG::DEBUG << "No EF SV information retrieved from TrigBjetFex::getSecVtxInfo" << endmsg;
+          msg() << MSG::DEBUG << "No EF SV information retrieved from TrigBjetFex::getSecVtxInfo" << endreq;
       
       if (msgLvl() <= MSG::DEBUG)
-        msg() << MSG::DEBUG << *m_trigBjetSecVtxInfo << endmsg;
+        msg() << MSG::DEBUG << *m_trigBjetSecVtxInfo << endreq;
       
     }
 
@@ -1210,33 +1243,33 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
     const EventInfo* pEventInfo;
      
     if ( !store() || store()->retrieve(pEventInfo).isFailure() ) {
-      msg()  << MSG::DEBUG << "Failed to get EventInfo " << endmsg;
+      msg()  << MSG::DEBUG << "Failed to get EventInfo " << endreq;
     } 
     else {
       msg() << MSG::DEBUG << "Bjet slice summary (Run " << pEventInfo->event_ID()->run_number() 
-            << "; Event " << pEventInfo->event_ID()->event_number() << ")" << endmsg;
+            << "; Event " << pEventInfo->event_ID()->event_number() << ")" << endreq;
       msg() << MSG::DEBUG << "REGTEST:  RoI " << roiDescriptor->roiId()
             << ", Phi = "   << roiDescriptor->phi()
-            << ", Eta = "   << roiDescriptor->eta() << endmsg;
-      msg() << MSG::DEBUG << "REGTEST:  Tracks: " << m_totTracks << " reconstructed and " << m_totSelTracks <<" selected" << endmsg;
+            << ", Eta = "   << roiDescriptor->eta() << endreq;
+      msg() << MSG::DEBUG << "REGTEST:  Tracks: " << m_totTracks << " reconstructed and " << m_totSelTracks <<" selected" << endreq;
       
       if (pointerToEFPrmVtxCollections) {
         msg() << MSG::DEBUG << "REGTEST:  Primary vertex: " << pointerToEFPrmVtxCollections->size() << " reconstructed"
-              << ", (x,y,z) = (" << m_trigBjetPrmVtxInfo->xPrmVtx() << "," << m_trigBjetPrmVtxInfo->yPrmVtx() << "," << m_trigBjetPrmVtxInfo->zPrmVtx() << ")" << endmsg;
+              << ", (x,y,z) = (" << m_trigBjetPrmVtxInfo->xPrmVtx() << "," << m_trigBjetPrmVtxInfo->yPrmVtx() << "," << m_trigBjetPrmVtxInfo->zPrmVtx() << ")" << endreq;
       }
       if (pointerToEFSecVtxCollections)
-        msg() << MSG::DEBUG << "REGTEST:  Secondary vertex: " << pointerToEFSecVtxCollections->size() << " reconstructed" << endmsg;
+        msg() << MSG::DEBUG << "REGTEST:  Secondary vertex: " << pointerToEFSecVtxCollections->size() << " reconstructed" << endreq;
       else
-        msg() << MSG::DEBUG << "REGTEST:  Secondary vertex: 0 reconstructed" << endmsg;
+        msg() << MSG::DEBUG << "REGTEST:  Secondary vertex: 0 reconstructed" << endreq;
       
       msg() << MSG::DEBUG << "REGTEST:  SV L/sigma(L) " <<  m_trigBjetSecVtxInfo->decayLengthSignificance() << "  SV mass " <<  m_trigBjetSecVtxInfo->vtxMass() 
-            << "  SV efrac " <<  m_trigBjetSecVtxInfo->energyFraction() << "   SV 2-track vertex multiplicity " << m_trigBjetSecVtxInfo->n2TrkVtx() << endmsg; 
+            << "  SV efrac " <<  m_trigBjetSecVtxInfo->energyFraction() << "   SV 2-track vertex multiplicity " << m_trigBjetSecVtxInfo->n2TrkVtx() << endreq; 
       
-      msg() << MSG::DEBUG << "REGTEST: List weights stored probability and likelihood objects:" << endmsg;
+      msg() << MSG::DEBUG << "REGTEST: List weights stored probability and likelihood objects:" << endreq;
 
       pTagger = m_taggers.begin();
       for ( ; pTagger != lastTagger; pTagger++)
-        msg() << MSG::DEBUG << "REGTEST:  X(" << (*pTagger) << ") = " << m_trigBjetTagger->taggersXMap((*pTagger))  << endmsg;
+        msg() << MSG::DEBUG << "REGTEST:  X(" << (*pTagger) << ") = " << m_trigBjetTagger->taggersXMap((*pTagger))  << endreq;
 
     }
   }
@@ -1254,7 +1287,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   
   
   if (!m_trigEFBjetColl) {
-    msg() << MSG::ERROR << "Feature TrigEFBjetContainer not found" << endmsg;
+    msg() << MSG::ERROR << "Feature TrigEFBjetContainer not found" << endreq;
     return HLT::BAD_JOB_SETUP;
   }
   
@@ -1265,18 +1298,18 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   
   if (stat != HLT::OK) {
     if ( msgLvl() <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "Failed to attach TrigEFBjetContainer to navigation" << endmsg;
+      msg() << MSG::DEBUG << "Failed to attach TrigEFBjetContainer to navigation" << endreq;
     return stat;
   }
 
   // -----------------------------------
   // Create xAOD::BTagging and attach feature
   // -----------------------------------
+  xAOD::BTagging * newBTag = new xAOD::BTagging();
   if (!m_trigBTaggingContainer) {
-    msg() << MSG::ERROR << "Feature BTaggingContainer not found" << endmsg;
+    msg() << MSG::ERROR << "Feature BTaggingContainer not found" << endreq;
     return HLT::BAD_JOB_SETUP;
   }
-  xAOD::BTagging * newBTag = new xAOD::BTagging();
 
   m_trigBTaggingContainer->push_back(newBTag);
 
@@ -1330,14 +1363,14 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   msg() << MSG::DEBUG << "IP2D u/b: " << m_trigBjetTagger->taggersPuMap("IP2D") << "/" << m_trigBjetTagger->taggersPbMap("IP2D")
 	<< "   IP3D u/b: " << m_trigBjetTagger->taggersPuMap("IP3D") << "/" << m_trigBjetTagger->taggersPbMap("IP3D")
 	<< "   SV1 u/b: " << m_trigBjetTagger->taggersPuMap("MVTX")*m_trigBjetTagger->taggersPuMap("NVTX")*m_trigBjetTagger->taggersPuMap("EVTX") << "/"
-	<< m_trigBjetTagger->taggersPbMap("MVTX")*m_trigBjetTagger->taggersPbMap("NVTX")*m_trigBjetTagger->taggersPbMap("EVTX") << endmsg;
+	<< m_trigBjetTagger->taggersPbMap("MVTX")*m_trigBjetTagger->taggersPbMap("NVTX")*m_trigBjetTagger->taggersPbMap("EVTX") << endreq;
 
   
   stat = attachFeature(outputTE, m_trigBTaggingContainer, "HLTBjetFex");
   
   if (stat != HLT::OK) {
     if ( msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Failed to attach BTaggingContainer to navigation" << endmsg;
+      msg() << MSG::DEBUG << "Failed to attach BTaggingContainer to navigation" << endreq;
     return stat;
   }
 
@@ -1351,7 +1384,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
 HLT::ErrorCode TrigBjetFex::hltFinalize() {
 
   if (msgLvl() <= MSG::INFO) 
-    msg() << MSG::INFO << "Finalizing TrigBjetFex" << endmsg;
+    msg() << MSG::INFO << "Finalizing TrigBjetFex" << endreq;
 
   return HLT::OK;
 }
@@ -1359,4 +1392,4 @@ HLT::ErrorCode TrigBjetFex::hltFinalize() {
 
 
 
-//  LocalWords:  endmsg
+//  LocalWords:  endreq

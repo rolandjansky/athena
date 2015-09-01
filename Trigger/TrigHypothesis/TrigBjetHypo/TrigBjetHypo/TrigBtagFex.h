@@ -107,7 +107,6 @@ class TrigBtagFex: public HLT::FexAlgo {
   /** @brief Switch for offline tools */
   bool m_setupOfflineTools;
 
-  const xAOD::Vertex* getPrimaryVertex(const xAOD::VertexContainer* vertexContainer);
 
 
   // MOSTLY OLD VARIABLES - needs cleanup
@@ -299,8 +298,6 @@ class TrigBtagFex: public HLT::FexAlgo {
   std::string m_trackKey;
   std::string m_jetKey;
   std::string m_priVtxKey;
-  bool m_usePriVtxKeyBackup;
-  std::string m_priVtxKeyBackup;
 };
 
 #endif

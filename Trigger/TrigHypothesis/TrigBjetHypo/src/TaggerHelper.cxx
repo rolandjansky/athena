@@ -66,22 +66,22 @@ TaggerHelper::~TaggerHelper() {}
 void TaggerHelper::showParam(const xAOD::TrackParticle*& track, unsigned int i) {
   
   //* Print track impact parameters at EF *//
-  m_log << MSG::VERBOSE << "getParam method" << endmsg;
-  m_log << MSG::VERBOSE << " Track number " << i+1 << endmsg;
+  m_log << MSG::VERBOSE << "getParam method" << endreq;
+  m_log << MSG::VERBOSE << " Track number " << i+1 << endreq;
   m_log << MSG::VERBOSE 
 	<< "  d0 = "    << track->d0() 
 	<< "  z0 = "    << track->z0()
 	<< "  theta = " << track->theta() 
 	<< "  phi0 = "  << track->phi0() 
 	<< "  pT = "    << track->pt() 
-	<< endmsg;
+	<< endreq;
   m_log << MSG::VERBOSE 
 	<< "  errd0 = "    << track->definingParametersCovMatrix()( Trk::d0,   Trk::d0   )
     	<< "  errz0 = "    << track->definingParametersCovMatrix()( Trk::z0,   Trk::z0   )
 	<< "  errphi0 = "  << track->definingParametersCovMatrix()( Trk::phi0, Trk::phi0 )
 	<< "  errtheta = " << track->definingParametersCovMatrix()( Trk::theta,Trk::theta)
     //<< "  errpT = "    << track->pt() 
-	<< endmsg;
+	<< endreq;
   
 }
 
@@ -96,11 +96,11 @@ unsigned int TaggerHelper::getTrackNumber(const xAOD::TrackParticleContainer* po
   if (pointerToEFTrackCollections) {
     nTracks = pointerToEFTrackCollections->size();
     if (m_logLvl <= MSG::DEBUG)  
-      m_log << MSG::DEBUG << "Found " << nTracks << " tracks in the RoI" << endmsg;
+      m_log << MSG::DEBUG << "Found " << nTracks << " tracks in the RoI" << endreq;
   } else {
     nTracks = 0;
     if (m_logLvl <= MSG::DEBUG)  
-      m_log << MSG::DEBUG << "No tracks in the RoI" << endmsg;
+      m_log << MSG::DEBUG << "No tracks in the RoI" << endreq;
   }
 
   return nTracks;
@@ -117,11 +117,11 @@ unsigned int TaggerHelper::getVerticesNumber(const TrigVertexCollection*& pointe
   if (pointerToPrmVtxCollections) {
     nVertices = pointerToPrmVtxCollections->size();
     if (m_logLvl <= MSG::DEBUG)  
-      m_log << MSG::DEBUG << "Found " << nVertices << " vertices in the RoI" << endmsg;
+      m_log << MSG::DEBUG << "Found " << nVertices << " vertices in the RoI" << endreq;
   } else {
     nVertices = 0;
     if (m_logLvl <= MSG::DEBUG)  
-      m_log << MSG::DEBUG << "No vertices in the RoI" << endmsg;
+      m_log << MSG::DEBUG << "No vertices in the RoI" << endreq;
   }
 
   return nVertices;
@@ -138,11 +138,11 @@ unsigned int TaggerHelper::getVerticesNumber(const VxContainer*& pointerToPrmVtx
   if (pointerToPrmVtxCollections) {
     nVertices = pointerToPrmVtxCollections->size();
     if (m_logLvl <= MSG::DEBUG)  
-      m_log << MSG::DEBUG << "Found " << nVertices << " primary vertices in the RoI" << endmsg;
+      m_log << MSG::DEBUG << "Found " << nVertices << " primary vertices in the RoI" << endreq;
   } else {
     nVertices = 0;
     if (m_logLvl <= MSG::DEBUG)  
-      m_log << MSG::DEBUG << "No vertices in the RoI" << endmsg;
+      m_log << MSG::DEBUG << "No vertices in the RoI" << endreq;
   }
 
   return nVertices;
@@ -219,7 +219,7 @@ void TaggerHelper::IPCorr(float d0, float z0, float& d0c, float& z0c, float phi0
     d0c = d0 + xBeamSpot*sn - yBeamSpot*cs;
     
     if(xBeamSpot != 0 && yBeamSpot != 0 && m_logLvl <= MSG::VERBOSE)
-      m_log << MSG::VERBOSE << "d0 (shifted) = " << d0c << " , d0 (referred to origin) = " << d0 << endmsg;
+      m_log << MSG::VERBOSE << "d0 (shifted) = " << d0c << " , d0 (referred to origin) = " << d0 << endreq;
   } else {
 
     double rc = fabs(pt)*15.0/(9.0*1.042);
@@ -228,7 +228,7 @@ void TaggerHelper::IPCorr(float d0, float z0, float& d0c, float& z0c, float phi0
     double yc = (fabs(d0)-spt*sd0*rc)*sin(phi0+M_PI/2*sd0) - yBeamSpot;
     
     if(xBeamSpot != 0 && yBeamSpot != 0 && m_logLvl <= MSG::VERBOSE)
-      m_log << MSG::VERBOSE << "Coordinates of the circle center in transverse plane = (" << xc << "," << yc << ")" << endmsg;
+      m_log << MSG::VERBOSE << "Coordinates of the circle center in transverse plane = (" << xc << "," << yc << ")" << endreq;
 
     double newphi;
     double xd01,yd01,xd02,yd02;
@@ -270,9 +270,9 @@ void TaggerHelper::IPCorr(float d0, float z0, float& d0c, float& z0c, float phi0
     z0c = z0 + deltaz0;
 
     if(xBeamSpot != 0 && yBeamSpot != 0 && m_logLvl <= MSG::VERBOSE)
-      m_log << MSG::VERBOSE << "z0 (shifted) = " << z0c << " , z0 (referred to origin) = " << z0 << endmsg;
+      m_log << MSG::VERBOSE << "z0 (shifted) = " << z0c << " , z0 (referred to origin) = " << z0 << endreq;
     if(xBeamSpot != 0 && yBeamSpot != 0 && m_logLvl <= MSG::VERBOSE)
-      m_log << MSG::VERBOSE << "d0 (shifted) = " << d0c << " , d0 (referred to origin) = " << d0 << endmsg;
+      m_log << MSG::VERBOSE << "d0 (shifted) = " << d0c << " , d0 (referred to origin) = " << d0 << endreq;
 
   }
 }
@@ -305,7 +305,6 @@ double TaggerHelper::VrtVrtDist(const xAOD::Vertex& PrimVrt, const Amg::Vector3D
 
   bool isInvertible;
   AmgSymMatrix(3) WgtMtx;
-  WgtMtx.setZero();
   PrimCovMtx.computeInverseWithCheck(WgtMtx, isInvertible);
   if(isInvertible) {
     Signif = distx*WgtMtx(0,0)*distx

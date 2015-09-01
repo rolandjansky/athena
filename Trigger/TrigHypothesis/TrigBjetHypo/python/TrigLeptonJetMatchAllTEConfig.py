@@ -8,7 +8,6 @@ from AthenaCommon.SystemOfUnits import GeV
 thresholdsStartSequence = {
     '0GeV'   : 0,
     '15GeV'  : 15,
-    '20GeV'  : 20,
     '25GeV'  : 25,
     '30GeV'  : 30,
     '35GeV'  : 35,
