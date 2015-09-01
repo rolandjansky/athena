@@ -11,6 +11,7 @@ from AthenaCommon.BFieldFlags import jobproperties
 from InDetRecExample.InDetJobProperties import InDetFlags
 
 from AthenaCommon.Include import excludeTracePattern
+excludeTracePattern.append("*/TriggerMenuPython/CommonSliceHelper.py")
 excludeTracePattern.append("*/BTagging/BTaggingFlags.py")
 excludeTracePattern.append("*/RecExConfig/RecoFunctions.py")
 
@@ -68,9 +69,10 @@ except Exception:
     print "WARNING could not load muonCnvFlags"
 
 try:
-    from MuonCnvExample.MuonCalibFlags import muonCalibFlags
+    from MuonCalibAlgs.MuonCalibFlags import muonCalibFlags
 except Exception:
     print "WARNING could not load muonCalibFlags"
+
 
 try:
     from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags

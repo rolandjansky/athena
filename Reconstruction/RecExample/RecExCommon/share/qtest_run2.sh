@@ -1,13 +1,8 @@
 #!/bin/sh
 
 # fun start here : need different configuration for 19.1
-#RELEASEDATA=`cmt show projects | grep -v '(current)' | head -1 | sed "s/.\+(in \(.\+\)).\+/\1/g"`
-#RELEASEDATA="$RELEASEDATA/InstallArea/$CMTCONFIG/ReleaseData"
-IFS=:
-set -f
-helper=( $CMAKE_PREFIX_PATH )
-RELEASEDATA="${helper[0]}/ReleaseData"
-
+RELEASEDATA=`cmt show projects | grep -v '(current)' | head -1 | sed "s/.\+(in \(.\+\)).\+/\1/g"`
+RELEASEDATA="$RELEASEDATA/InstallArea/$CMTCONFIG/ReleaseData"
 
 release=`grep '^release:' $RELEASEDATA | gawk -F \: '{print $2}'`
 

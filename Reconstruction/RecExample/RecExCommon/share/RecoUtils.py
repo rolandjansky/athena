@@ -112,7 +112,8 @@ except Exception:
 ######################
 # Performance Monitor
 
-if rec.doPerfMon() :
+
+if rec.doPerfMon() or rec.doDetailedPerfMon() or rec.doSemiDetailedPerfMon():
     try:
         # see https://twiki.cern.ch/twiki/bin/view/Atlas/PerfMonComps
         # and https://twiki.cern.ch/twiki/bin/view/Atlas/PerfMonSD
@@ -149,7 +150,7 @@ if rec.doTimeLimit():
 ###############
 # Output file options
 # rather use default athenapool value
-if rec.doPersistencyOptimization() and hasattr(svcMgr, 'AthenaPoolCnvSvc'):
+if hasattr(svcMgr, 'AthenaPoolCnvSvc'):
     svcMgr.AthenaPoolCnvSvc.MaxFileSizes = [ "12000000000" ]
     svcMgr.AthenaPoolCnvSvc.CommitInterval = 1000000000
 
@@ -193,24 +194,15 @@ if rec.doPersistencyOptimization() and hasattr(svcMgr, 'AthenaPoolCnvSvc'):
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; COMPRESSION_LEVEL = '5'" ]
         # Optimize Basket Sizes to store data for 100 entries/events
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '100';"]
-
-	# Switch on splitting for the 2-3 largest container (default off)
-        if rec.doTruth():
-            svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree(TruthParticlesAux.)'; CONTAINER_SPLITLEVEL = '99'" ]
-
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree(InDetTrackParticlesAux.)'; CONTAINER_SPLITLEVEL = '99'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree(CaloCalTopoClustersAux.)'; CONTAINER_SPLITLEVEL = '99'" ]
-
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree'; CONTAINER_SPLITLEVEL = '1'"]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=Aux.'; CONTAINER_SPLITLEVEL = '1'"]
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'CollectionTreeInDet::Track_tlp2'; TREE_AUTO_FLUSH = '0'" ]
         # Base the xAOD branch names just on the SG keys:
         StreamAOD.WritingTool.SubLevelBranchName = "<key>"
 
 ###############
 # Verbose level (2=DEBUG, 3=INFO, 4=WAR NING, 5=ERR OR, 6=FATAL )
-# MN: check if a specific Reco output level was set in job properties,
-#  - don't overwrite blindly with the default
-if not rec.OutputLevel.isDefault():
-    ServiceMgr.MessageSvc.OutputLevel = rec.OutputLevel()
+ServiceMgr.MessageSvc.OutputLevel = rec.OutputLevel()
 #increase the number of letter reserved to the alg/tool name from 18 to 30
 ServiceMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M" 
 #ServiceMgr.MessageSvc.defaultLimit = 9999999  # all messages
