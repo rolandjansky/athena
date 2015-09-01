@@ -55,11 +55,11 @@ del runningFatrasID #Not needed any more
         
 # functionality : Muon reconstruction
 pdr.flag_domain('muon')
-from MuonRecExample.MuonRecFlags import muonRecFlags
 if DetFlags.detdescr.Muon_on() :
     try:
         from RecExConfig.RecConfFlags import recConfFlags
         from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
+        from MuonRecExample.MuonRecFlags import muonRecFlags
         muonRecFlags.applyResilience = athenaCommonFlags.AllowIgnoreConfigError()
     except Exception:
         treatException("Could not set muonRecFlags.applyResilience")        
@@ -71,20 +71,14 @@ if DetFlags.detdescr.Muon_on() :
 
 
     try:    
-        # now merged
-        #        if not rec.Commissioning:
         include ("MuonRecExample/MuonRec_jobOptions.py")
-        #        elif not rec.readESD and not rec.readAOD:
-        #            include("MuonCommRecExample/MuonCommRec_jobOptions.py")            
     except Exception:
         treatException("Problem with MuonRecExample/MuonRec_jobOptions.py. Switching off Moore and Muonboy")
-        muonRecFlags.doMoore=False
-        muonRecFlags.doMuonboy=False
+        from MuonRecExample.MuonRecFlags import muonRecFlags
         muonRecFlags.doStandalone=False
 
 else:
-    muonRecFlags.doMoore=False
-    muonRecFlags.doMuonboy=False
+    from MuonRecExample.MuonRecFlags import muonRecFlags
     muonRecFlags.doStandalone=False
 AODFix_postMuonRec()
 

@@ -86,7 +86,6 @@ if rec.doESD() and rec.doEgamma():
     except:
         treatException("Could not set up egammaLocker. Switched off !")
 
-
 #AODFix_postMuonCombinedRec()
 #
 # functionality : CaloTower protojets + preclustering + KT algorithm + CombinedJetAlg

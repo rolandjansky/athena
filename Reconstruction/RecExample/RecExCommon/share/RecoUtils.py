@@ -62,6 +62,23 @@ if rec.doDetailedAuditor():
 #    except Exception:
 #        treatException ("Could not load AthDsoLogger")
 
+# if both true, prefer full memory auditor
+if rec.doMemoryAuditor():  
+    try:
+        from AthenaAuditors.AthenaAuditorsConf import AthMemoryAuditor
+        theAuditorSvc += AthMemoryAuditor(MaxStacktracesPerAlg=20,
+                                          DefaultStacktraceDepth=50,
+                                          StacktraceDepthPerAlg=["StreamESD 100"])
+    except:
+        print "WARNING: MemoryAuditor not available in this release" 
+else:
+    if rec.doFastMemoryAuditor():  
+        try:
+            from AthenaAuditors.AthenaAuditorsConf import AthMemoryAuditor
+            theAuditorSvc += AthMemoryAuditor(DefaultStacktraceDepth=0)
+        except:
+            print "WARNING: fast MemoryAuditor not available in this release" 
+
 try:
     from AthenaAuditors.AthenaAuditorsConf import FPEAuditor
     theAuditorSvc += FPEAuditor()
