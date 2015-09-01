@@ -20,9 +20,6 @@
 #include "AthenaKernel/ICutFlowSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-// Prevent checkreq warning.
-#include "AthenaPoolKernel/IMetaDataTool.h"
-
 
 //class StoreGateSvc;
 
