@@ -41,7 +41,7 @@ TrigSuperRoiBuilderAllTE::TrigSuperRoiBuilderAllTE(const std::string & name, ISv
   declareProperty ("JetOutputKey", m_jetOutputKey = "SuperRoi");
   declareProperty ("EtaHalfWidth", m_etaHalfWidth = 0.2);
   declareProperty ("PhiHalfWidth", m_phiHalfWidth = 0.2);
-  declareProperty ("JetMinEt",     m_minJetEt     = 30.0); // in GeV
+  declareProperty ("JetMinEt",     m_minJetEt     = 30.0); // in GeV 
   declareProperty ("JetMaxEta",    m_maxJetEta    = 2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
 }
 

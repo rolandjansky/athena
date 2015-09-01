@@ -3,17 +3,39 @@
 from TrigBjetHypo.TrigBjetHypoConf import TrigLeptonJetMatchAllTE
 
 from AthenaCommon.Logging import logging
+from AthenaCommon.SystemOfUnits import GeV
+
+thresholdsStartSequence = {
+    '0GeV'   : 0,
+    '15GeV'  : 15,
+    '25GeV'  : 25,
+    '30GeV'  : 30,
+    '35GeV'  : 35,
+    '40GeV'  : 40,
+    '45GeV'  : 45,
+    '50GeV'  : 50,
+    '55GeV'  : 55,
+    '60GeV'  : 60,
+    '70GeV'  : 70,
+    '85GeV'  : 85,
+    '110GeV' : 110,
+    '150GeV' : 150,
+    '175GeV' : 175,
+    '260GeV' : 260,
+    '320GeV' : 320,
+    '400GeV' : 400,
+}
 
 
-def getLeptonJetMatchAllTEInstance( instance, version ):
-    return LeptonJetMatchAllTE( instance=instance, version=version, name="LeptonJetMatchAllTE_"+instance+"_"+version )
+def getLeptonJetMatchAllTEInstance( instance, version, cut ):
+    return LeptonJetMatchAllTE( instance=instance, version=version, cut=cut, name="LeptonJetMatchAllTE_"+instance+"_"+version+"_"+cut )
 
 
 
 class LeptonJetMatchAllTE (TrigLeptonJetMatchAllTE):
     __slots__ = []
     
-    def __init__(self, instance, version, name):
+    def __init__(self, instance, version, cut, name):
         super( LeptonJetMatchAllTE, self ).__init__( name )
         
         mlog = logging.getLogger('BjetHypoConfig.py')
@@ -40,7 +62,9 @@ class LeptonJetMatchAllTE (TrigLeptonJetMatchAllTE):
         elif instance=="FarOff" :
             self.WorkingMode = 2
             self.DeltaRCut   = 0.2
-            self.DeltaZCut   = 0            
+            self.DeltaZCut   = 0
+
+        self.EtThreshold = thresholdsStartSequence[cut]*GeV
         
         from TrigBjetHypo.TrigLeptonJetMatchAllTEMonitoring import TrigEFLeptonJetMatchAllTEValidationMonitoring, TrigEFLeptonJetMatchAllTEOnlineMonitoring
         validation = TrigEFLeptonJetMatchAllTEValidationMonitoring()

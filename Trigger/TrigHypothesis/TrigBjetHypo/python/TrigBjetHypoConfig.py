@@ -26,9 +26,9 @@ class BjetHypo (TrigBjetHypo):
         
         mlog = logging.getLogger('BjetHypoConfig.py')
         
-        AllowedCuts      = ["loose","medium","tight"]
-        AllowedVersions  = ["2012"]
-        AllowedInstances = ["EF"]
+        AllowedCuts      = ["loose","medium","tight","offloose","offmedium","offtight","mv2c2060","mv2c2070","mv2c2077","mv2c2085" ]
+        AllowedVersions  = ["2012", "2015", "MuJetChain_2012", "MuJetChain_2015"]
+        AllowedInstances = ["EF", "MuJetChain"]
         
         if instance not in AllowedInstances :
             mlog.error("Instance "+instance+" is not supported!")
@@ -64,12 +64,26 @@ class BjetHypo (TrigBjetHypo):
             if version=="2012" :
                 self.MethodTag = "COMB"
                 if cut=="loose":
-                    self.CutXCOMB = 1.099
+                    self.CutXCOMB = 0.25
                 elif cut=="medium":
-                    self.CutXCOMB = 3.156
+                    self.CutXCOMB = 1.25
                 elif cut=="tight":
-                    self.CutXCOMB = 4.528
-
+                    self.CutXCOMB = 2.65
+            if version=="2015" :
+                self.MethodTag = "MV2c20"
+                # These are the offline working points
+                if cut=="mv2c2060":
+                    # Actually 62% efficient
+                    self.CutMV2c20 = -0.0224729
+                elif cut=="mv2c2070":
+                    # Actually 72% efficient
+                    self.CutMV2c20 = -0.509032
+                elif cut=="mv2c2077":
+                    # Actually 79% efficient
+                    self.CutMV2c20 = -0.764668
+                elif cut=="mv2c2085":
+                    # Actually 87% efficient
+                    self.CutMV2c20 = -0.938441
 
 
 class BjetHypoNoCut (TrigBjetHypo):
@@ -116,9 +130,9 @@ class BjetHypoSplit (TrigBjetHypo):
         
         mlog = logging.getLogger('BjetHypoConfig.py')
         
-        AllowedCuts      = ["loose","medium","tight"]
-        AllowedVersions  = ["2012"]
-        AllowedInstances = ["EF"]
+        AllowedCuts      = ["loose","medium","tight","offloose","offmedium","offtight","mv2c2060","mv2c2070","mv2c2077","mv2c2085"]
+        AllowedVersions  = ["2012","2015"]
+        AllowedInstances = ["EF", "MuJetChain"]
         
         if instance not in AllowedInstances :
             mlog.error("Instance "+instance+" is not supported!")
@@ -132,14 +146,18 @@ class BjetHypoSplit (TrigBjetHypo):
             mlog.error("Cut "+cut+" is not supported!")
             return None
 
+        self.JetKey = "SplitJet"
+        if instance=="MuJetChain" :
+            self.JetKey = "FarawayJet"
+            instance = "EF"
+
         if instance=="EF" :
             self.AcceptAll = False
             self.Instance  = "EF"
             self.UseBeamSpotFlag = False
-
-        self.JetKey = "SplitJet"
         
         if instance=="EF" :
+            print "GOOSEY: Phew, that hack worked!"
             from TrigBjetHypo.TrigBjetHypoMonitoring import TrigEFBjetHypoValidationMonitoring, TrigEFBjetHypoOnlineMonitoring
             validation = TrigEFBjetHypoValidationMonitoring()
             online     = TrigEFBjetHypoOnlineMonitoring()
@@ -154,12 +172,26 @@ class BjetHypoSplit (TrigBjetHypo):
             if version=="2012" :
                 self.MethodTag = "COMB"
                 if cut=="loose":
-                    self.CutXCOMB = 1.099
+                    self.CutXCOMB = 0.25
                 elif cut=="medium":
-                    self.CutXCOMB = 3.156
+                    self.CutXCOMB = 1.25
                 elif cut=="tight":
-                    self.CutXCOMB = 4.528
-
+                    self.CutXCOMB = 2.65
+            if version=="2015" :
+                self.MethodTag = "MV2c20"
+                # These are the offline working points
+                if cut=="mv2c2060":
+                    # Actually 62% efficient
+                    self.CutMV2c20 = -0.0224729
+                elif cut=="mv2c2070":
+                    # Actually 72% efficient
+                    self.CutMV2c20 = -0.509032
+                elif cut=="mv2c2077":
+                    # Actually 79% efficient
+                    self.CutMV2c20 = -0.764668
+                elif cut=="mv2c2085":
+                    # Actually 87% efficient
+                    self.CutMV2c20 = -0.938441
 
 
 class BjetHypoSplitNoCut (TrigBjetHypo):

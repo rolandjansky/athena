@@ -36,10 +36,14 @@ TrigLeptonJetMatchAllTE::TrigLeptonJetMatchAllTE(const std::string& name, ISvcLo
   m_deltaPhiPass(0)
 {
   declareProperty("WorkingMode", m_workingMode = 1);
+  //  declareProperty ("Instance",           m_instance);
   declareProperty("DeltaRCut",   m_deltaRCut   = 0.4);
   declareProperty("DeltaZCut",   m_deltaZCut   = 2);
-  declareProperty("JetKey",      m_jetKey      = "SplitJet");
+//  declareProperty("JetKey",      m_jetKey      = "SplitJet");
+  declareProperty("JetKey",      m_jetKey      = "");
   declareProperty("PriVtxKey",  m_priVtxKey    = "xPrimVx"); // EFHistoPrmVtx for PV from T2HistoPrmVtx
+
+  declareProperty("EtThreshold",   m_etCut   = 10.);
 
   declareMonitoredVariable("CutCounter",   m_cutCounter);
   declareMonitoredVariable("DeltaEtaPass", m_deltaEtaPass);
@@ -68,8 +72,13 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltInitialize() {
       if (msgLvl() <= MSG::DEBUG) {
         msg() << MSG::DEBUG << "declareProperty review:" << endreq;
         msg() << MSG::DEBUG << " WorkingMode = " << m_workingMode  << endreq; 
+        //        msg() << MSG::DEBUG << " Instance = "            << m_instance << endreq;
         msg() << MSG::DEBUG << " DeltaRCut = "   << m_deltaRCut << endreq; 
         msg() << MSG::DEBUG << " DeltaZCut = "   << m_deltaZCut << endreq; 
+        msg() << MSG::DEBUG << " JetKey = "   << m_jetKey << endreq;
+        msg() << MSG::DEBUG << " PriVtxKey = "   << m_priVtxKey << endreq;
+
+        msg() << MSG::DEBUG << " EtCut = "   << m_etCut << endreq;
       }
   
   return HLT::OK;
@@ -132,35 +141,39 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
   // ==============================
   // Retrieve primary vertex
   // ==============================
-  
-  const xAOD::VertexContainer*  pointerToPrmVtxCollections(0);
-  
-  if (getPrmVtxCollection(pointerToPrmVtxCollections, inputTE[1].front(), m_priVtxKey) != HLT::OK) {
-    msg() << MSG::DEBUG << "No primary vertex collection retrieved" << endreq;
-    // If the ID PV-finding fails then use the PV from T2HistoPrmVtx instead
-    // This is not ideal... investigate why ID PV finding fails
-    if (m_priVtxKey == "xPrimVx" && getPrmVtxCollection(pointerToPrmVtxCollections, inputTE[1].front(), "EFHistoPrmVtx") != HLT::OK) {
-      msg() << MSG::WARNING << "No primary vertex collection retrieved with name EFHistoPrmVtx either..." << endreq;
-    }
-    else if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Didn't manage to find " << m_priVtxKey << " PV, so using EFHistoPrmVtx instead." << endreq;
-    }
-  } 
-  else if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Primary vertex collection retrieved" << endreq;
-  }
-  
+
   float  m_zPrmVtx=0;
   
-  if(pointerToPrmVtxCollections == 0 ){
-    msg() << MSG::DEBUG << "No vertex retrieved" << endreq;
+  if(m_deltaZCut<500){
+    const xAOD::VertexContainer*  pointerToPrmVtxCollections(0);
+    
+    if (getPrmVtxCollection(pointerToPrmVtxCollections, inputTE[1].front(), m_priVtxKey) != HLT::OK) {
+      msg() << MSG::DEBUG << "No primary vertex collection retrieved" << endreq;
+      // If the ID PV-finding fails then use the PV from T2HistoPrmVtx instead
+      // This is not ideal... investigate why ID PV finding fails
+      if (m_priVtxKey == "xPrimVx" && getPrmVtxCollection(pointerToPrmVtxCollections, inputTE[1].front(), "EFHistoPrmVtx") != HLT::OK) {
+        msg() << MSG::WARNING << "No primary vertex collection retrieved with name EFHistoPrmVtx either..." << endreq;
+      }
+      else if (msgLvl() <= MSG::DEBUG) {
+        msg() << MSG::DEBUG << "Didn't manage to find " << m_priVtxKey << " PV, so using EFHistoPrmVtx instead." << endreq;
+      }
+    } 
+    else if (msgLvl() <= MSG::DEBUG) {
+      msg() << MSG::DEBUG << "Primary vertex collection retrieved" << endreq;
+    }
+    
+    
+    
+    if(pointerToPrmVtxCollections == 0 ){
+      msg() << MSG::DEBUG << "No vertex retrieved" << endreq;
+    }
+    else{
+      const xAOD::Vertex* prmVertex = (*pointerToPrmVtxCollections)[0];
+      m_zPrmVtx = prmVertex->z();
+      msg() << MSG::DEBUG << "Found primary vertex at z = " << m_zPrmVtx << endreq;
+    }
   }
-  else{
-    const xAOD::Vertex* prmVertex = (*pointerToPrmVtxCollections)[0];
-    m_zPrmVtx = prmVertex->z();
-    msg() << MSG::DEBUG << "Found primary vertex at z = " << m_zPrmVtx << endreq;
-  }
-
+  
   // ==============================
   // Retrieve tracks
   // ******************************
@@ -283,7 +296,13 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
         j++;
 
         const xAOD::Muon::MuonType muontype = Muon->muonType();
-        if(!muontype == xAOD::Muon::MuonType::Combined ) continue;
+       if (msgLvl() <= MSG::DEBUG)
+          msg() << MSG::DEBUG << "Muon type "<< muontype << " and " 
+	<< xAOD::Muon::MuonType::Combined 
+	//<< " which gives " << muontype == xAOD::Muon::MuonType::Combined 
+	<<  endreq;
+
+	if(!(muontype == xAOD::Muon::MuonType::Combined) ) continue;
 
         muonEta = Muon->eta();
         muonPhi = Muon->phi();
@@ -294,17 +313,24 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
         //   msg() << MSG::DEBUG << "Z je " <<tr->z0() << " = " <<muonZ <<  endreq;
       
         if (msgLvl() <= MSG::DEBUG)
-          msg() << MSG::DEBUG << "Muon "<< j+1 << "; eta "<< muonEta << "; phi " << muonPhi << "; z " << muonZ << endreq;
+          msg() << MSG::DEBUG << "Muon "<< j+1 << "; pt " << Muon->pt()  << " eta "<< muonEta << "; phi " << muonPhi << "; z " << muonZ << endreq;
       
         for(unsigned int i=0; Jet!=lastJet; Jet++,i++) {
+
+         if (msgLvl() <= MSG::DEBUG)
+            msg() << MSG::DEBUG << "Jet "<< i+1 << "; et " << (*Jet)->p4().Et()/1000.
+	<< " and cut " << m_etCut   <<  endreq;
 	
+          if((*Jet)->p4().Et() < m_etCut)continue;
+
           jetEta = (*Jet)->eta();
           jetPhi = (*Jet)->phi();
           jetZ=m_zPrmVtx;
 	
           if (msgLvl() <= MSG::DEBUG)
-            msg() << MSG::DEBUG << "Jet "<< i+1 << "; eta "<< jetEta << "; phi " << jetPhi << "; z " << jetZ  <<  endreq;
+            msg() << MSG::DEBUG << "Jet "<< i+1 << "; et " << (*Jet)->p4().Et()/1000. << " eta "<< jetEta << "; phi " << jetPhi << "; z " << jetZ  <<  endreq;
 	  
+
           m_deltaEta = muonEta - jetEta;
           m_deltaPhi = phiCorr(phiCorr(muonPhi) - phiCorr(jetPhi));
           m_deltaZ   = fabs(muonZ-jetZ);

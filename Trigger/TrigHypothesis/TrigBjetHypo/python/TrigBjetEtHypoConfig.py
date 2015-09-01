@@ -64,7 +64,7 @@ class BjetEtHypo (TrigBjetEtHypo):
         
         mlog = logging.getLogger('BjetHypoConfig.py')
 
-        AllowedInstances = ["EF"]
+        AllowedInstances = ["EF", "MuJetChain"]
         AllowedVersions  = ["StartSequence","Btagging"]
 
         if instance not in AllowedInstances :
@@ -81,9 +81,14 @@ class BjetEtHypo (TrigBjetEtHypo):
 
         if version=="StartSequence" :
             self.EtThreshold = thresholdsStartSequence[cut]*GeV
-        elif version=="Btagging" :
+        elif version=="Btagging":
             self.EtThreshold = thresholdsBtagging[cut]*GeV
+            
+        if instance=="MuJetChain" :
+            self.JetKey = "FarawayJet"
+            instance = "EF"
 
+        #print "GOOSEY: TrigBjetEtHypo: JetKey = ",self.JetKey
 
 
 class BjetEtHypoNoCut (TrigBjetEtHypo):
@@ -94,7 +99,7 @@ class BjetEtHypoNoCut (TrigBjetEtHypo):
         
         mlog = logging.getLogger('BjetHypoConfig.py')
 
-        AllowedInstances = ["EF"]
+        AllowedInstances = ["EF", "MuJet"]
         AllowedVersions  = ["Btagging"]
 
         if instance not in AllowedInstances :
@@ -108,6 +113,9 @@ class BjetEtHypoNoCut (TrigBjetEtHypo):
         self.AcceptAll = True
         self.Instance  = instance
         self.Version   = version
+
+        if instance=="MuJet" :
+            self.JetKey = "FarawayJet"
 
 
 

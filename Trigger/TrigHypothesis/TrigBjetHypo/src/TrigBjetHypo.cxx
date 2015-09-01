@@ -25,7 +25,6 @@
 #include "xAODBTagging/BTagging.h"
 
 
-
 //* ----------------------------------------------------------------------------------------------------------------- **//
 
 
@@ -33,13 +32,14 @@ TrigBjetHypo::TrigBjetHypo(const std::string& name, ISvcLocator* pSvcLocator) :
   HLT::HypoAlgo(name, pSvcLocator),
   m_cutCounter(0)
 {
-  declareProperty ("JetKey",    m_jetKey   = ""     ); //"EFJet" or "" needed for default config, "SplitJet" for new config
+  declareProperty ("JetKey",    m_jetKey     = ""   ); //"EFJet" or "" needed for default config, "SplitJet" for new config
   declareProperty ("AcceptAll", m_acceptAll         );
-  declareProperty ("CutXIP2D",  m_xcutIP2D = -20    );
-  declareProperty ("CutXIP3D",  m_xcutIP3D = -20    );
-  declareProperty ("CutXCOMB",  m_xcutCOMB = -20    );
-  declareProperty ("CutXCHI2",  m_xcutCHI2 = -20    );
-  declareProperty ("MethodTag", m_methodTag = ""    );
+  declareProperty ("CutXIP2D",  m_xcutIP2D   = -20  );
+  declareProperty ("CutXIP3D",  m_xcutIP3D   = -20  );
+  declareProperty ("CutXCOMB",  m_xcutCOMB   = -20  );
+  declareProperty ("CutXCHI2",  m_xcutCHI2   = -20  );
+  declareProperty ("CutMV2c20", m_xcutMV2c20 = -20  );
+  declareProperty ("MethodTag", m_methodTag  = ""   );
   declareProperty ("Instance",  m_instance          );
 
   declareProperty ("UseBeamSpotFlag", m_useBeamSpotFlag = false);
@@ -66,15 +66,17 @@ HLT::ErrorCode TrigBjetHypo::hltInitialize() {
 
   if (msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "declareProperty review:" << endreq;
-    msg() << MSG::DEBUG << " AcceptAll = " << m_acceptAll << endreq; 
-    msg() << MSG::DEBUG << " MethodTag = " << m_methodTag << endreq; 
-    msg() << MSG::DEBUG << " Instance = "  << m_instance  << endreq; 
+    msg() << MSG::DEBUG << " AcceptAll = "       << m_acceptAll       << endreq; 
+    msg() << MSG::DEBUG << " MethodTag = "       << m_methodTag       << endreq; 
+    msg() << MSG::DEBUG << " Instance = "        << m_instance        << endreq; 
     msg() << MSG::DEBUG << " UseBeamSpotFlag = " << m_useBeamSpotFlag << endreq; 
+    msg() << MSG::DEBUG << " JetKey = "          << m_jetKey          << endreq; 
 
-    if (m_xcutCOMB != -20) msg() << MSG::DEBUG << " CutXCOMB = "  << m_xcutCOMB  << endreq; 
-    if (m_xcutCHI2 != -20) msg() << MSG::DEBUG << " CutXCHI2 = "  << m_xcutCHI2  << endreq; 
-    if (m_xcutIP3D != -20) msg() << MSG::DEBUG << " CutXIP3D = "  << m_xcutIP3D  << endreq; 
-    if (m_xcutIP2D != -20) msg() << MSG::DEBUG << " CutXIP2D = "  << m_xcutIP2D  << endreq; 
+    if (m_xcutMV2c20 != -20) msg() << MSG::DEBUG << " CutMV2c20 = "  << m_xcutMV2c20 << endreq; 
+    if (m_xcutCOMB   != -20) msg() << MSG::DEBUG << " CutXCOMB  = "  << m_xcutCOMB   << endreq; 
+    if (m_xcutCHI2   != -20) msg() << MSG::DEBUG << " CutXCHI2  = "  << m_xcutCHI2   << endreq; 
+    if (m_xcutIP3D   != -20) msg() << MSG::DEBUG << " CutXIP3D  = "  << m_xcutIP3D   << endreq; 
+    if (m_xcutIP2D   != -20) msg() << MSG::DEBUG << " CutXIP2D  = "  << m_xcutIP2D   << endreq; 
   }
 
   return HLT::OK;
@@ -183,7 +185,24 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   auto trigBTaggingEnd = trigBTaggingContainer->end();
 
   // Loop over EFBjets and perform cut 
-  if (m_methodTag == "COMB") {
+  if (m_methodTag == "MV2c20") {
+
+    for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++) { 
+
+      double x = (*trigBTagging)->auxdata<double>("MV2c20_discriminant");
+
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "MV2c20 x =  " << x;
+      if(x>m_xcutMV2c20) {
+	HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endreq;
+	result = true;
+      }
+      else {
+	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Failed " << endreq;
+      }
+    }
+  } 
+  else if (m_methodTag == "COMB") {
     for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++) { 
       double w=((*trigBTagging)->IP3D_pb()/(*trigBTagging)->IP3D_pu()) * ((*trigBTagging)->SV1_pb()/(*trigBTagging)->SV1_pu());
       double x=50;
@@ -198,7 +217,8 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Failed " << endreq;
       }
     }
-  } else if (m_methodTag == "IP3D") {
+  } 
+  else if (m_methodTag == "IP3D") {
     for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++) { 
       double w=(*trigBTagging)->IP3D_pb()/(*trigBTagging)->IP3D_pu();
       double x=-40;
@@ -213,7 +233,8 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Failed " << endreq;
       }
     }
-  } else if (m_methodTag == "IP2D") {
+  } 
+  else if (m_methodTag == "IP2D") {
     for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++) { 
       double w=(*trigBTagging)->IP2D_pb()/(*trigBTagging)->IP2D_pu();
       double x=-40;

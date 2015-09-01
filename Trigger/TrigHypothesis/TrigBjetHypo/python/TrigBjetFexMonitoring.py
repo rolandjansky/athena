@@ -54,6 +54,28 @@ class TrigBjetFexMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('roi_deltaPhiJetTrkJet', type='TH1F', title="Delta phi between the HLT jet and the HLT track-jet",
                                              xbins=40, xmin=-1.0, xmax=1.0) ]
 
+        # Run-2 histograms
+        self.Histograms += [ defineHistogram('sv_mass', type='TH1F', title="BjetFex SV Mass",
+                                             xbins=200, xmin=0.0, xmax=6000.0) ]
+        self.Histograms += [ defineHistogram('sv_evtx', type='TH1F', title="BjetFex SV Energy Fraction",
+                                             xbins=200, xmin=0.0, xmax=1.0) ]
+        self.Histograms += [ defineHistogram('sv_nvtx', type='TH1F', title="BjetFex SV Two-Track Vertex Number",
+                                             xbins=21, xmin=-0.5, xmax=20.5) ]
+
+        self.Histograms += [ defineHistogram('tag_IP2D', type='TH1F', title="BjetFex IP2D Likelihood Ratio",
+                                             xbins=200, xmin=-50.0, xmax=50.0) ]
+        self.Histograms += [ defineHistogram('tag_IP3D', type='TH1F', title="BjetFex IP3D Likelihood Ratio",
+                                             xbins=200, xmin=-50.0, xmax=50.0) ]
+        self.Histograms += [ defineHistogram('tag_SV1', type='TH1F', title="BjetFex SV1 Likelihood Ratio",
+                                             xbins=200, xmin=-50.0, xmax=50.0) ]
+        self.Histograms += [ defineHistogram('tag_IP3DSV1', type='TH1F', title="BjetFex IP3D+SV1 Discriminant",
+                                             xbins=200, xmin=-50.0, xmax=50.0) ]
+        self.Histograms += [ defineHistogram('tag_MV2c00', type='TH1F', title="BjetFex MV2c00 Discriminant",
+                                             xbins=200, xmin=-50.0, xmax=50.0) ]
+        self.Histograms += [ defineHistogram('tag_MV2c10', type='TH1F', title="BjetFex MV2c10 Discriminant",
+                                             xbins=200, xmin=-50.0, xmax=50.0) ]
+        self.Histograms += [ defineHistogram('tag_MV2c20', type='TH1F', title="BjetFex MV2c20 Discriminant",
+                                             xbins=200, xmin=-50.0, xmax=50.0) ]
 
 
 class TrigEFBjetFexValidationMonitoring(TrigBjetFexMonitoring):

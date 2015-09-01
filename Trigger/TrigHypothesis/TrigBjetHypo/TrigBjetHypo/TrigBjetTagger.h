@@ -64,6 +64,12 @@ class TrigBjetTagger {
   TrigBjetTagger(TrigBjetFexStandalone*, MsgStream&, unsigned int, bool);
 #endif
 
+  /** @brief Copy **/
+  TrigBjetTagger(const TrigBjetTagger & original);
+  
+  /** @brief Assignment **/
+  TrigBjetTagger & operator =(const TrigBjetTagger & rhs);
+
   /** @brief Destructor. */
   ~TrigBjetTagger();
 

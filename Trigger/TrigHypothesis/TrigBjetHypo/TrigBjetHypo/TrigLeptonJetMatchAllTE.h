@@ -36,6 +36,10 @@ class TrigLeptonJetMatchAllTE: public HLT::AllTEAlgo {
 
  private:
 
+  /** @brief string corresponding to the trigger level in which the algorithm is running. */
+  //  std::string m_instance;
+
+
   float phiCorr(float);
 
   int m_workingMode;
@@ -43,6 +47,8 @@ class TrigLeptonJetMatchAllTE: public HLT::AllTEAlgo {
   float m_deltaZCut;
   std::string m_jetKey;
   std::string m_priVtxKey;
+
+  float m_etCut;
 
   float m_cutCounter;
   float m_deltaEtaPass;

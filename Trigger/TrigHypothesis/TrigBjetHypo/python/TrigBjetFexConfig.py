@@ -21,8 +21,7 @@ def getBjetFexInstance( instance, version, algo):
         return BjetFex( instance=instance, version=version, algo=algo, name="EFBjetFex_"+algo )
 
 def getBjetFexSplitInstance( instance, version, algo):
-    if instance=="EF" :
-        return BjetFexSplit( instance=instance, version=version, algo=algo, name="EFBjetFexSplit_"+algo )
+    return BjetFexSplit( instance=instance, version=version, algo=algo, name=instance+"BjetFexSplit_"+algo )
 
 
 class BjetFex (TrigBjetFex):
@@ -49,6 +48,7 @@ class BjetFex (TrigBjetFex):
             calibInstance = "EF"
 
         self.JetKey = ""
+            
         self.PriVtxKey = "EFHistoPrmVtx"
         
         self.par_0_MC = getTuning_par_0_MC(calibInstance)
@@ -180,7 +180,7 @@ class BjetFexSplit (TrigBjetFex):
         
         mlog = logging.getLogger('BjetHypoConfig.py')
         
-        AllowedInstances = ["EF"]
+        AllowedInstances = ["EF", "MuJetChain"]
         AllowedVersions  = ["2012"]
         AllowedAlgos     = ["EFID"]
         
@@ -192,10 +192,15 @@ class BjetFexSplit (TrigBjetFex):
             mlog.error("Version "+version+" is not supported!")
             return None
 
+        self.JetKey = "SplitJet"
+        # Hack to get muon-jet chains working properly
+        if instance=="MuJetChain" :
+            self.JetKey = "FarawayJet"
+            instance = "EF"
+
         if instance=="EF" :
             calibInstance = "EF"
 
-        self.JetKey = "SplitJet"
         self.PriVtxKey = "xPrimVx" #"EFHistoPrmVtx"
         self.TrackKey = "InDetTrigTrackingxAODCnv_Bjet_IDTrig"
         
