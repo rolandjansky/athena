@@ -407,11 +407,10 @@ elif rec.readESD():
     # still need to read in AOD content built at ESD stage
     objKeyStore.readStreamAOD('RecExPers/OKS_streamAOD_fromESD.py')
     # at this point all streamAOD there should already be in ESD
-    for k in objKeyStore['streamAOD'].list():
-        if not objKeyStore['inputFile'].has_item (k):
-            logRecExCommon_topOptions.info("Warning item %s scheduled co be copied from ESD to  AOD, but missing in ESD! Dropped. " % k )
-            objKeyStore['streamAOD'].removeItem (k)
-
+    # for k in objKeyStore['streamAOD'].list():
+    #     if not objKeyStore['inputFile'].has_item (k):
+    #         logRecExCommon_topOptions.info("Warning item %s scheduled co be copied from ESD to  AOD, but missing in ESD! Dropped. " % k )
+    #         objKeyStore['streamAOD'].removeItem (k)
 
 elif rec.readAOD():
     pass
@@ -1049,11 +1048,12 @@ if rec.doFileMetaData():
         # Create LumiBlock meta data containers *before* creating the output StreamESD/AOD
         include ("LumiBlockComps/CreateLumiBlockFromFile_jobOptions.py")
         pass
-    #EventBookkeepers
-    if not hasattr(svcMgr,"CutFlowSvc"):
-        svcMgr+=CfgMgr.CutFlowSvc()
-        logRecExCommon_topOptions.debug("Added CutFlowSvc as it wasn't yet in the svcMgr")
-        pass
+
+    # Add the needed stuff for cut-flow bookkeeping.
+    # Only the configurables that are not already present will be created
+    from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
+    logRecExCommon_topOptions.debug("Going to call CreateCutFlowSvc")
+    CreateCutFlowSvc( svcName="CutFlowSvc", athFile=af, seq=topSequence, addMetaDataToAllOutputFiles=True ) 
     if rec.readAOD() or rec.readESD():
         #force CutFlowSvc execution (necessary for file merging)
         theApp.CreateSvc+=['CutFlowSvc']

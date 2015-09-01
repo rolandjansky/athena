@@ -59,14 +59,9 @@ except Exception:
 
 
 try:
-    from MuonRecExample.MuonRecFlags import muonRecFlags,mooreFlags,muonboyFlags
+    from MuonRecExample.MuonRecFlags import muonRecFlags
 except Exception:
     print "WARNING could not load muonRecFlags"
-
-try:
-    from MuonRecExample.MuonCBNTFlags import muonCBNT
-except Exception:
-    print "WARNING could not load muonCBNT"
 
 try:
     from MuonCnvExample.MuonCnvFlags import muonCnvFlags
