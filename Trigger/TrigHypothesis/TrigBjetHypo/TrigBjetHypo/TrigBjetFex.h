@@ -199,6 +199,21 @@ class TrigBjetFex: public HLT::FexAlgo {
   //* for monitoring *//
   //////////////////////
 
+  /** @brief Run-2 monitored variables. */
+
+  float m_mon_sv_mass;
+  float m_mon_sv_evtx;
+  int   m_mon_sv_nvtx;
+
+  float m_mon_tag_IP2D;
+  float m_mon_tag_IP3D;
+  float m_mon_tag_SV1;
+  float m_mon_tag_IP3DSV1;
+  float m_mon_tag_MV1;
+  float m_mon_tag_MV2c00;
+  float m_mon_tag_MV2c10;
+  float m_mon_tag_MV2c20;
+
   /** @brief to monitor track selection. */
   std::vector<float> m_listCutApplied;
 

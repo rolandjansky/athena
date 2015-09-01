@@ -60,6 +60,75 @@ TrigBjetTagger::~TrigBjetTagger() {
   if (m_taggerHelper) delete m_taggerHelper;
 }
 
+//** ----------------------------------------------------------------------------------------------------------------- **//
+// better to introduce a 'swap' function and implement copy & assign in terms of that, 
+// but this would change the interface
+TrigBjetTagger::TrigBjetTagger(const TrigBjetTagger & original): 
+  m_trigBjetFex(original.m_trigBjetFex),
+  m_log(original.m_log),
+  m_logLvl(original.m_logLvl)
+{
+  #ifdef VALIDATION_TOOL
+  //sroe: copy public data members (I'm assuming these are public for a reason)
+  m_vectorIP1D=original.m_vectorIP1D;
+  m_vectorIP2D=original.m_vectorIP2D;
+  m_vectorIP1D_lowSiHits=original.m_vectorIP1D_lowSiHits;
+  m_vectorIP2D_lowSiHits=original.m_vectorIP2D_lowSiHits;
+  #endif
+
+  //TrigBjetTagger owns the m_taggerHelper pointer (unique_ptr would be preferable)
+  m_taggerHelper=new TaggerHelper(*(original.m_taggerHelper));
+  m_taggersWMap=original.m_taggersWMap;
+  m_taggersPuMap=original.m_taggersPuMap;
+  m_taggersPbMap=original.m_taggersPbMap;
+  m_taggersXMap=original.m_taggersXMap;
+  std::map<std::string, TuningLikelihood*>::const_iterator i=original.m_likelihoodMap.begin();
+  std::map<std::string, TuningLikelihood*>::const_iterator theEnd=original.m_likelihoodMap.end();
+  for (;i!=theEnd;++i){
+    m_likelihoodMap[i->first] = new TuningLikelihood(*(i->second));
+  }
+}
+  
+//** ----------------------------------------------------------------------------------------------------------------- **//
+TrigBjetTagger & TrigBjetTagger::operator =(const TrigBjetTagger & rhs){
+  if (this == &rhs) return *this;
+  #ifdef VALIDATION_TOOL
+  //sroe: copy public data members (I'm assuming these are public for a reason)
+  m_vectorIP1D=rhs.m_vectorIP1D;
+  m_vectorIP2D=rhs.m_vectorIP2D;
+  m_vectorIP1D_lowSiHits=rhs.m_vectorIP1D_lowSiHits;
+  m_vectorIP2D_lowSiHits=rhs.m_vectorIP2D_lowSiHits;
+  #endif
+  //
+  //TrigBjetTagger doesnt own the m_trigBjetFex pointer
+  m_trigBjetFex=rhs.m_trigBjetFex;
+  //use original message stream; can't assign msg stream
+  //m_log=rhs.m_log <=not permitted
+  m_logLvl=rhs.m_logLvl;
+  //TrigBjetTagger owns the m_taggerHelper pointer (unique_ptr would be preferable)
+  delete m_taggerHelper;
+  m_taggerHelper=new TaggerHelper(*(rhs.m_taggerHelper));
+  m_taggersWMap=rhs.m_taggersWMap;
+  m_taggersPuMap=rhs.m_taggersPuMap;
+  m_taggersPbMap=rhs.m_taggersPbMap;
+  m_taggersXMap=rhs.m_taggersXMap;
+  //release owned pointers
+  std::map<std::string, TuningLikelihood*>::const_iterator i=m_likelihoodMap.begin();
+  std::map<std::string, TuningLikelihood*>::const_iterator theEnd=m_likelihoodMap.end();
+  for (;i!=theEnd;++i){
+    delete m_likelihoodMap[i->first];
+  }
+  //clear the map
+  m_likelihoodMap.clear();
+  //insert pointers to new objects which are copied from the rhs
+  std::map<std::string, TuningLikelihood*>::const_iterator j=rhs.m_likelihoodMap.begin();
+  std::map<std::string, TuningLikelihood*>::const_iterator rhsEnd=rhs.m_likelihoodMap.end();
+  for (;j!=rhsEnd;++j){
+    m_likelihoodMap[j->first] = new TuningLikelihood(*(j->second));
+  }
+  return *this;
+}
+
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
@@ -836,6 +905,7 @@ float TrigBjetTagger::f_ip(float x, int iclass) {
   }
 
   float res=0;
+  if (p==0) return res;
   float y1  = p[2]*p[3]*erfc(fabs(x)/(sqrt(2)*p[3]));
   float y2  = p[0]*p[1]*erfc(fabs(x)/(sqrt(2)*p[1]));
   float y3  = p[4]*exp(-fabs(x)*p[5]);

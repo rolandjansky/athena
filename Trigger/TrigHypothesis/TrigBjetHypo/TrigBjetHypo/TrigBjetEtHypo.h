@@ -46,6 +46,8 @@ class TrigBjetEtHypo : public HLT::HypoAlgo {
   std::string m_instance;
   /** @brief DeclareProperty: string corresponding to the version of the algorithm (StartSequence, Vertexing, Btagging). */
   std::string m_version;
+  /** @brief DeclareProperty: string corresponding to the name of the input jet collection */
+  std::string m_jetKey;
 
 };
 

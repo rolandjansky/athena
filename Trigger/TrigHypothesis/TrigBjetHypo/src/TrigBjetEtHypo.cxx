@@ -29,7 +29,7 @@
 // #include "xAODBTagging/BTagVertexAuxContainer.h"
 
 
-//** ----------------------------------------------------------------------------------------------------------------- **//
+// ----------------------------------------------------------------------------------------------------------------- 
 
 
 TrigBjetEtHypo::TrigBjetEtHypo(const std::string& name, ISvcLocator* pSvcLocator) :
@@ -41,16 +41,17 @@ TrigBjetEtHypo::TrigBjetEtHypo(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty ("EtThreshold", m_etThreshold);
   declareProperty ("Instance",    m_instance);
   declareProperty ("Version",     m_version);
+  declareProperty ("JetKey",      m_jetKey  = ""); //"" needed for default config, SplitJet for new config, FarawayJet for muon-jet chains with b-tagging
 }
 
 
-//** ----------------------------------------------------------------------------------------------------------------- **//
+// ----------------------------------------------------------------------------------------------------------------- 
 
 
 TrigBjetEtHypo::~TrigBjetEtHypo() {}
 
 
-//** ----------------------------------------------------------------------------------------------------------------- **//
+// ----------------------------------------------------------------------------------------------------------------- 
 
 
 HLT::ErrorCode TrigBjetEtHypo::hltInitialize() {
@@ -61,17 +62,18 @@ HLT::ErrorCode TrigBjetEtHypo::hltInitialize() {
 
   if (msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "declareProperty review:" << endreq;
-    msg() << MSG::DEBUG << " AcceptAll = "      << m_acceptAll << endreq;
-    msg() << MSG::DEBUG << " EtThreshold = "    << m_etThreshold  << endreq; 
-    msg() << MSG::DEBUG << " Instance = "       << m_instance  << endreq;
-    msg() << MSG::DEBUG << " Version = "        << m_version  << endreq;
+    msg() << MSG::DEBUG << " AcceptAll = "      << m_acceptAll   << endreq;
+    msg() << MSG::DEBUG << " EtThreshold = "    << m_etThreshold << endreq; 
+    msg() << MSG::DEBUG << " Instance = "       << m_instance    << endreq;
+    msg() << MSG::DEBUG << " Version = "        << m_version     << endreq;
+    msg() << MSG::DEBUG << " JetKey = "         << m_jetKey      << endreq;
   }
 
   return HLT::OK;
 }
 
 
-//** ----------------------------------------------------------------------------------------------------------------- **//
+// ----------------------------------------------------------------------------------------------------------------- 
 
 
 HLT::ErrorCode TrigBjetEtHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
@@ -86,19 +88,16 @@ HLT::ErrorCode TrigBjetEtHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   if (stat == HLT::OK) {
     if (msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG << "Using outputTE: ROI: " << &roiDescriptor << endreq;
-// 	    << "RoI id "  << roiDescriptor->roiId()
-// 	    << ", Phi = " <<  roiDescriptor->phi()
-// 	    << ", Eta = " << roiDescriptor->eta() 
-// 	    << endreq;
     }
-  } else {
+  } 
+  else {
     if (msgLvl() <= MSG::WARNING) 
       msg() <<  MSG::WARNING << "No RoI for this Trigger Element " << endreq;
     
     return HLT::NAV_ERROR;
   }
   
-  //* Get TrigOperationalInfo *//
+  // Get TrigOperationalInfo 
   std::vector<const TrigOperationalInfo*> m_vectorOperationalInfo;
   if (getFeatures(outputTE, m_vectorOperationalInfo, "EFJetInfo") != HLT::OK) {
     if (msgLvl() <= MSG::WARNING) {
@@ -129,7 +128,6 @@ HLT::ErrorCode TrigBjetEtHypo::hltExecute(const HLT::TriggerElement* outputTE, b
     
       if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Et jet: " << m_et << endreq;
     }
-    //} // KL commenting out this bracket and adding another one at the end
 
     //xAOD jets from TE
     
@@ -137,7 +135,7 @@ HLT::ErrorCode TrigBjetEtHypo::hltExecute(const HLT::TriggerElement* outputTE, b
     
     const xAOD::JetContainer* jets(0);
     //HLT::ErrorCode ec = getFeature(outputTE, jets,"EFJet");
-    HLT::ErrorCode ec = getFeature(outputTE, jets);
+    HLT::ErrorCode ec = getFeature(outputTE, jets, m_jetKey);
     
     if(ec!=HLT::OK) {
       ATH_MSG_WARNING("Failed to get JetCollection");
@@ -221,7 +219,7 @@ HLT::ErrorCode TrigBjetEtHypo::hltExecute(const HLT::TriggerElement* outputTE, b
 }
 
 
-//** ----------------------------------------------------------------------------------------------------------------- **//
+// ----------------------------------------------------------------------------------------------------------------- 
 
 
 HLT::ErrorCode TrigBjetEtHypo::hltFinalize() {

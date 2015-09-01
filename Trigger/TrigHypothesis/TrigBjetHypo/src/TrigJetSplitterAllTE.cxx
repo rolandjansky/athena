@@ -37,7 +37,7 @@ TrigJetSplitterAllTE::TrigJetSplitterAllTE(const std::string & name, ISvcLocator
   declareProperty ("EtaHalfWidth", m_etaHalfWidth = 0.4);
   declareProperty ("PhiHalfWidth", m_phiHalfWidth = 0.4);
   declareProperty ("ZHalfWidth",   m_zHalfWidth   = 20.0);// in mm?
-  declareProperty ("JetMinEt",     m_minJetEt     = 30.0); // in GeV (increase from 15 GeV to be same as vertex threshold)
+  declareProperty ("JetMinEt",     m_minJetEt     = 15.0); // in GeV ==> Can't be any higher than the lowest pT chain that will run
   declareProperty ("JetMaxEta",    m_maxJetEta    = 2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
 }
 
@@ -54,7 +54,8 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltInitialize() {
   if (msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "declareProperty review:" << endreq;
     msg() << MSG::DEBUG << " JetInputKey  = "  << m_jetInputKey << endreq; 
-    msg() << MSG::DEBUG << " JetOutputKey = " << m_jetOutputKey << endreq; 
+    msg() << MSG::DEBUG << " JetOutputKey = " << m_jetOutputKey << endreq;
+    msg() << MSG::DEBUG << " PriVtxKey    = " << m_priVtxKey    << endreq; 
     msg() << MSG::DEBUG << " EtaHalfWidth = " << m_etaHalfWidth << endreq; 
     msg() << MSG::DEBUG << " PhiHalfWidth = " << m_phiHalfWidth << endreq; 
     msg() << MSG::DEBUG << " ZHalfWidth   = " << m_zHalfWidth   << endreq; 
@@ -165,7 +166,7 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
     
     
     if(vertices->size() > 1) {
-      if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Retreived more than one primary vertex." << endreq;
+      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Retrieved " << vertices->size() << " primary vertices.  Using the first." << endreq;
     }
     
     const xAOD::Vertex* prmVtx = vertices->at(0);
