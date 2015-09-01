@@ -21,6 +21,7 @@
 #include "TBuffer.h"
 #include "TError.h"
 #include "TStreamerInfo.h"
+#include "Demangle.h"
 #include <cassert>
 #include <cstdlib>
 
@@ -333,8 +334,7 @@ TClass* TVirtualConverter::ToClass (const std::type_info& id)
   cl = gROOT->GetClass (n2);
   if (cl) return cl;
 
-  int errorCode = 0;
-  char* demname = TClassEdit::DemangleTypeIdName (id, errorCode);
+  char* demname = cplus_demangle (name, 0);
   if (demname) {
     cl = gROOT->GetClass (demname);
     free (demname);
