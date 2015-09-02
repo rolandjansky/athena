@@ -45,11 +45,9 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODEgammaCnv/xAODPhotonMonFuncs.h"
-#include "PATCore/TAccept.h"            // for TAccept
-#include "PATCore/TResult.h"            // for TResult
 // to add TrigPassBits 
-#include "xAODTrigger/TrigPassBits.h"
-using std::string;
+#include "TrigSteeringEvent/TrigPassBits.h"
+#include "TrigSteeringEvent/TrigPassFlags.h"
 
 namespace {
     template <class DEST,class SRC>
@@ -64,6 +62,15 @@ TrigEFPhotonHypo::TrigEFPhotonHypo(const std::string & name, ISvcLocator* pSvcLo
 
   declareProperty("AcceptAll",      m_acceptAll   = true);
 
+  //Trig isEMTrigCut cuts adopted from offline
+  //The cut methods and variables are slightly different online for electrons and photons, so 
+  //both methods are used here (for low and high lumi) photons.
+
+ // declareProperty("LumiLevel",m_LumiLevel="LowLumi");//LowLumi is the default, to use electron cuts - BC 2012, removed to match changes in offline, replaced with usePhotonCuts. "HighLumi" corresponds to usePhotonCuts = true, and "LowLumi" corresponds to usePhotonCuts = false.
+  declareProperty("usePhotonCuts",m_usePhotonCuts = false);
+  
+  //Name of egammaElectronCutIDTool and egammaPhotonCutIDToolName
+  declareProperty("egammaElectronCutIDToolName",m_egammaElectronCutIDToolName="");
   declareProperty("egammaPhotonCutIDToolName",m_egammaPhotonCutIDToolName="");
 
   //isEM offline
@@ -71,13 +78,6 @@ TrigEFPhotonHypo::TrigEFPhotonHypo(const std::string & name, ISvcLocator* pSvcLo
   declareProperty("IsEMrequiredBits",m_IsEMrequiredBits = 0xF2);
 
   declareProperty("emEt",m_emEt = 0.*CLHEP::GeV);
-  
-  //Isolation
-  declareProperty("ApplyIsolation", m_applyIsolation=false);
-  declareProperty("EtConeSizes",    m_EtConeSizes = 3);
-  declareProperty("RelEtConeCut",   m_RelEtConeCut);
-  declareProperty("IsoOffset",   m_IsoOffset);
-  declareProperty("EtConeCut",      m_EtConeCut);  
   
   typedef const DataVector<xAOD::Photon> xAODPhotonDV_type; 
   // Cluster and ShowerShape Monitoring
@@ -127,13 +127,7 @@ TrigEFPhotonHypo::TrigEFPhotonHypo(const std::string & name, ISvcLocator* pSvcLo
   //Initialize pointers
   m_totalTimer = nullptr;
   m_timerPIDTool_Ele = nullptr;
-  m_timerPIDTool_Pho = nullptr;
-  m_EgammaContainer = nullptr;
-  //isEM monitoring
-  m_NcandIsEM.assign(32,0);//32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton
-  m_NcandIsEMAfterCut.assign(32,0);//32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton
-  m_IsEMRequiredBits.assign(32,0);
-  m_IsEMRequiredBitsAfterCut.assign(32,0);
+  m_timerPIDTool_Pho = nullptr; 
 }
 
 void TrigEFPhotonHypo::prepareMonitoringVars() {
@@ -158,10 +152,37 @@ TrigEFPhotonHypo::~TrigEFPhotonHypo()
 HLT::ErrorCode TrigEFPhotonHypo::hltInitialize()
 {
   if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "in initialize()" << endmsg;
+    msg() << MSG::DEBUG << "in initialize()" << endreq;
   
   if (timerSvc())
     m_totalTimer = addTimer("TrigEFPhotonHypoTot");
+
+  //-------------------------------------------------------------------------------
+  // Use egammaElectronCutIDTool to run the Offline isEM. 
+  // The egammaElectronCutIDTool runs the Electron Selecton only
+  // independently on whether the egamma object has associated TrackParticle or not
+  //------------------------------------------------------------------------------
+  
+  if (m_egammaElectronCutIDToolName=="") {
+    ATH_MSG_DEBUG("egammaElectronCutID PID is disabled, no tool specified "); 
+    m_egammaElectronCutIDTool=ToolHandle<IAsgElectronIsEMSelector>();
+  } else {
+    m_egammaElectronCutIDTool=ToolHandle<IAsgElectronIsEMSelector>(m_egammaElectronCutIDToolName);    
+    if(m_egammaElectronCutIDTool.retrieve().isFailure()) {
+      msg() << MSG::ERROR << "Unable to retrieve " << m_egammaElectronCutIDTool
+	    << " tool " << endreq;
+      return HLT::BAD_JOB_SETUP; 
+    } 
+    else {
+      msg()<<MSG::DEBUG<<"Tool " << m_egammaElectronCutIDTool << " retrieved"<<endreq; 
+      //timing
+      if (timerSvc()) m_timerPIDTool_Ele = addTimer("m_egammaElectronCutIDToolName");
+    }
+  }
+  
+  //print summary info
+  msg() << MSG::INFO << "REGTEST: Particle Identification tool: " << m_egammaElectronCutIDToolName << endreq;
+
 
   //-------------------------------------------------------------------------------
   //Use egammaPhotonCutIDTool to run offline isEM 
@@ -175,49 +196,24 @@ HLT::ErrorCode TrigEFPhotonHypo::hltInitialize()
     m_egammaPhotonCutIDTool=ToolHandle<IAsgPhotonIsEMSelector>(m_egammaPhotonCutIDToolName);    
     if(m_egammaPhotonCutIDTool.retrieve().isFailure()) {
       msg() << MSG::ERROR << "Unable to retrieve " << m_egammaPhotonCutIDTool
-	    << " tool " << endmsg;
+	    << " tool " << endreq;
       return HLT::BAD_JOB_SETUP; 
     } 
     else {
-      msg()<<MSG::DEBUG<<"Tool " << m_egammaPhotonCutIDTool << " retrieved"<<endmsg; 
+      msg()<<MSG::DEBUG<<"Tool " << m_egammaPhotonCutIDTool << " retrieved"<<endreq; 
       //timing
       if (timerSvc()) m_timerPIDTool_Pho = addTimer("m_egammaPhotonCutIDToolName");
     }
   }
   
   //print summary info
-  msg() << MSG::INFO << "REGTEST: Particle Identification tool: " << m_egammaPhotonCutIDToolName << endmsg;
+  msg() << MSG::INFO << "REGTEST: Particle Identification tool: " << m_egammaPhotonCutIDToolName << endreq;
   //------------------------------------------------------------------------------
   
-  //Check Isolation Cone Sizes
-  if(m_applyIsolation){
-      if ( m_EtConeCut.size() != m_EtConeSizes ) {
-          ATH_MSG_ERROR(" m_EtConeCut size is " <<  m_EtConeCut.size() << " but needs " << m_EtConeSizes);
-          return StatusCode::FAILURE;
-      }
-      if ( m_RelEtConeCut.size() != m_EtConeSizes ) {
-          ATH_MSG_ERROR(" m_RelEtConeCut size is " <<  m_RelEtConeCut.size() << " but needs " << m_EtConeSizes);
-          return StatusCode::FAILURE;
-      }
-
-      //Define mapping between vector of Isolation Cone Sizes and variable names 
-      m_mapEtCone.insert(std::pair<int, string>(0, "topoetcone20")); 
-      m_mapEtCone.insert(std::pair<int, string>(1, "topoetcone30")); 
-      m_mapEtCone.insert(std::pair<int, string>(2, "topoetcone40"));
-      //
-      m_mapRelEtCone.insert(std::pair<int, string>(0, "topoetcone20/clus_et")); 
-      m_mapRelEtCone.insert(std::pair<int, string>(1, "topoetcone30/clus_et")); 
-      m_mapRelEtCone.insert(std::pair<int, string>(2, "topoetcone40/clus_et")); 
-      //
-      m_mapIsoOffset.insert(std::pair<int, string>(0, "topoetcone20_Offset")); 
-      m_mapIsoOffset.insert(std::pair<int, string>(1, "topoetcone30_Offset")); 
-      m_mapIsoOffset.insert(std::pair<int, string>(2, "topoetcone40_Offset")); 
-
-  }//end of if(m_applyIsolation){
   if(msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG
 	  << "Initialization of TrigEFPhotonHypo completed successfully"
-	  << endmsg;
+	  << endreq;
 
   return HLT::OK;
 }
@@ -233,7 +229,7 @@ HLT::ErrorCode TrigEFPhotonHypo::hltBeginRun() {
 HLT::ErrorCode TrigEFPhotonHypo::hltFinalize(){
   // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "in finalize()" << endreq;
   return HLT::OK;
 }
 
@@ -245,8 +241,6 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   m_EgammaContainer = 0;
   m_NofPassedCuts=-1;
-  m_NofPassedCutsIsEM=-1; 
-  m_NofPassedCutsIsEMTrig=-1; 
   
 
 
@@ -255,9 +249,9 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   // -------------------------------------
   if (timerSvc()) m_totalTimer->start(); 
 
-  ATH_MSG_DEBUG(name() << ": in execute()");
-  if( m_applyIsEM)
-      ATH_MSG_DEBUG("Apply Photon isEM with Tool " << m_egammaPhotonCutIDTool);
+  if(msgLvl() <= MSG::DEBUG)
+    msg() << MSG::DEBUG << name() << ": in execute()" << endreq;
+  
   // default value, it will be set to true if selection satisfied
   pass=false;
   
@@ -271,19 +265,19 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   if (stat != HLT::OK ) {
     msg() << MSG::WARNING 
 	  << " Failed to get xAOD::PhotonContainer's from the trigger element" 
-	  << endmsg;
+	  << endreq;
     if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   } 
 
   if(msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << "REGTEST: Got " << vectorEgammaContainers.size() 
-	  << " xAOD::PhotonContainers's associated to the TE " << endmsg;
+	  << " xAOD::PhotonContainers's associated to the TE " << endreq;
 
   if (vectorEgammaContainers.size() < 1) {
     msg() << MSG::DEBUG
 	  << " empty xAOD::PhotonContainer from the trigger element" 
-	  << endmsg;
+	  << endreq;
     if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   } 
@@ -294,7 +288,7 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
     if ( msgLvl() <= MSG::ERROR )
       msg() << MSG::ERROR
 	    << " REGTEST: Retrieval of xOAD::PhotonContainer from vector failed"
-	    << endmsg;
+	    << endreq;
     if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   }
@@ -307,7 +301,15 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
       ATH_MSG_DEBUG("AcceptAll property not set: applying selection");
 
   // generate TrigPassBits mask to flag which egamma objects pass hypo cuts
-  std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<xAOD::PhotonContainer>(m_EgammaContainer); 
+  TrigPassBits* passBits = HLT::makeTrigPassBits(m_EgammaContainer);
+  
+  
+  // adding TrigPassFlags for isEM bits
+  const unsigned int flagSize = 32;
+
+  // temporarily disable the TrigPassFlags until xAOD format is sorted out
+  TrigPassFlags* isEMFlags = 0; //HLT::makeTrigPassFlags(m_EgammaContainer, flagSize);
+  
   //counters for each cut
   int Ncand[10];
   for(int i=0; i<10; i++) Ncand[i]=0;
@@ -337,36 +339,75 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   //bool passed1=false;
   for (const auto& egIt : *m_EgammaContainer){
 
-      if(m_acceptAll){
-          xBits->markPassing(egIt,m_EgammaContainer,true);
-          continue;
-      }
       //passed1 = false;
       //-------------------------------------------------------------
       //Apply cut on IsEM bit pattern re-running the  Offline Builder  
       if( m_applyIsEM){
           unsigned int isEMTrig = 0;
 
-          ATH_MSG_DEBUG(" Applying HIGH Lumi Cuts on Photons");
-          // re-run the Offline isEM for Photons
-          if (m_egammaPhotonCutIDTool == 0) {
-              msg() << MSG::ERROR << m_egammaPhotonCutIDTool << " null, hypo continues but no isEM cut applied" << endmsg;
-          }else{
-              if (timerSvc()) m_timerPIDTool_Pho->start(); //timer
-              if ( m_egammaPhotonCutIDTool->accept(egIt) ) {
+          //LOW LUMI
+          //At low luminosity use the same cut algorithm as offline electrons
+          //BC 2012 changed from lumilevel variable to usePhotonCuts, to match offline changes.
+          //Only applies CaloCuts for Egamma Objects with AsgElectronIsEMSelector
+          if (!m_usePhotonCuts){
+              if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Applying LOW Lumi Cuts on Photons" << endreq;
+
+              //re-run the offline isEM for Electrons
+              if (m_egammaElectronCutIDTool == 0) {
+                  msg() << MSG::ERROR << m_egammaElectronCutIDTool << " null, hypo continues but no isEM cut applied" << endreq;
+              }else{
+                  if (timerSvc()) m_timerPIDTool_Ele->start(); //timer
+                  //Following method only performs CaloCuts and take Egamma (i.e. photons / electrons) object as input
+                  //Ensure that we set the trigger threshold in python to set 20 - 30 GeV bin
+                  
+                  if ( m_egammaElectronCutIDTool->execute(egIt).isFailure() ) { 
+                      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
+                          << "problem with egammaElectronCutIDTool, egamma object not stored"
+                              << endreq;
+                  } 
+                  //AT jan 2010: get isEM value from m_egammaElectronCutIDTool->IsemValue(), not from (*egIt)->isem()
+                  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<" IsemValue() = "<< m_egammaElectronCutIDTool->IsemValue()<< endreq;
+                  isEMTrig = m_egammaElectronCutIDTool->IsemValue();
                   if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
-                      << "passes PID egammaPhotonCutIDTool with TAccept"
-                          << endmsg;
-              } 
-              // Get isEM value from m_egammaPhotonCutIDTool->IsemValue(), not from (*egIt)->isem()
-              if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<" IsemValue() = "<< m_egammaPhotonCutIDTool->IsemValue()<< endmsg;
-              isEMTrig = m_egammaPhotonCutIDTool->IsemValue();
-              if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
-                  <<" isEMTrig = "
-                      << std::hex << isEMTrig
-                      << endmsg;
-              if (timerSvc()) m_timerPIDTool_Pho->stop(); //timer
-          }
+                      <<" isEMTrig = "
+                          << std::hex << isEMTrig
+                          << endreq;
+                  unsigned int isEMbit=0;
+                  // isEM for calo-only not working in PID builder since there is no TAccept for Calo-Only
+                  //ATH_MSG_DEBUG("isEMLoose " << egIt->selectionisEM(isEMbit,"isEMLoose"));
+                  //ATH_MSG_DEBUG("isEMLoose " << std::hex << isEMbit);
+                  //ATH_MSG_DEBUG("isEMMedium " << egIt->selectionisEM(isEMbit,"isEMMedium"));
+                  //ATH_MSG_DEBUG("isEMMedium " << std::hex << isEMbit);
+                  ATH_MSG_DEBUG("isEMTight " << egIt->selectionisEM(isEMbit,"isEMTight"));
+                  ATH_MSG_DEBUG("isEMTight " << std::hex << isEMbit);
+                  if (timerSvc()) m_timerPIDTool_Ele->stop(); //timer
+              }
+          }//end of "LowLumi"
+
+          //HIGH LUMI
+          //At high luminosity use the same cut algorithm as offline photon selection
+          else{
+              if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Applying HIGH Lumi Cuts on Photons" << endreq;
+              // re-run the Offline isEM for Photons
+              if (m_egammaPhotonCutIDTool == 0) {
+                  msg() << MSG::ERROR << m_egammaPhotonCutIDTool << " null, hypo continues but no isEM cut applied" << endreq;
+              }else{
+                  if (timerSvc()) m_timerPIDTool_Pho->start(); //timer
+                  if ( m_egammaPhotonCutIDTool->accept(egIt) ) {
+                      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
+                          << "passes PID egammaPhotonCutIDTool with TAccept"
+                              << endreq;
+                  } 
+                  // Get isEM value from m_egammaPhotonCutIDTool->IsemValue(), not from (*egIt)->isem()
+                  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<" IsemValue() = "<< m_egammaPhotonCutIDTool->IsemValue()<< endreq;
+                  isEMTrig = m_egammaPhotonCutIDTool->IsemValue();
+                  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
+                      <<" isEMTrig = "
+                          << std::hex << isEMTrig
+                          << endreq;
+                  if (timerSvc()) m_timerPIDTool_Pho->stop(); //timer
+              }
+          }//end of "HighLumi"
           //-------------------------------------------------------------
 
           //Monitor isEM
@@ -374,9 +415,14 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
               m_NcandIsEM[i]+= ((isEMTrig & (0x1<<i)) != 0); 
           }
 
+          // Set the isEM flag for this egamma object
+          if(isEMFlags)
+             HLT::setFlag(isEMFlags, egIt, m_EgammaContainer, HLT::AsFlag(isEMTrig, flagSize) );
+
+
           if( (isEMTrig & m_IsEMrequiredBits)!=0 ) {
               if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST IsEM = " << std::hex << isEMTrig 
-                  << " cut not satisfied for pattern:" << std::hex << m_IsEMrequiredBits << endmsg;
+                  << " cut not satisfied for pattern:" << std::hex << m_IsEMrequiredBits << endreq;
               continue; 
           }
 
@@ -406,127 +452,41 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
     const xAOD::CaloCluster* clus = egIt->caloCluster();
     if(!clus) {
       if(msgLvl() <= MSG::DEBUG)
-        msg() << MSG::DEBUG << "REGTEST no cluster pointer in egamma object " << endmsg;
+        msg() << MSG::DEBUG << "REGTEST no cluster pointer in egamma object " << endreq;
       continue;
     }
     Ncand[4]++;
     if( clus->et() < m_emEt) {
       if(msgLvl() <= MSG::DEBUG) 
-	msg() << MSG::DEBUG << "REGTEST Et cut no satisfied: "<< clus->et() << "< cut: " << m_emEt << endmsg;
+	msg() << MSG::DEBUG << "REGTEST Et cut no satisfied: "<< clus->et() << "< cut: " << m_emEt << endreq;
       continue;
     }
     Ncand[5]++;
     
-    //---------------------------------------------
-    //Isolation Cuts
-    //---------------------------------------------
-    if(!m_applyIsolation) {
-      //For CutCount monitoring histogram,to fill isolation bins when no isolation cut is applied
-      Ncand[6]++;//Abs. Etcone
-      Ncand[6]++;//Abs. Ptcone
-      Ncand[6]++;//Rel. Etcone
-      Ncand[6]++;//Rel. Ptcone
-    }
-    else{
-      ATH_MSG_DEBUG("Apply Isolation");
-	
-	//--Declare vectors of isolation variables for different cone sizes
-	std::vector<float>  EtCone;
-	//--Fill vectors of Absolute isolation variables for different cone sizes
-        float val_float=-99;
-        egIt->isolationValue(val_float,xAOD::Iso::topoetcone20);
-	EtCone.push_back(val_float);
-        egIt->isolationValue(val_float,xAOD::Iso::topoetcone30);
-	EtCone.push_back(val_float);
-        egIt->isolationValue(val_float,xAOD::Iso::topoetcone40);
-	EtCone.push_back(val_float);
-	
-        //printout
-        ATH_MSG_DEBUG("Absolute Calo Isolation (vector size = " << EtCone.size() << ") :"); 
-        for(std::size_t iConeSize = 0; iConeSize < EtCone.size(); iConeSize++) {
-            ATH_MSG_DEBUG("***   " << m_mapEtCone[iConeSize]
-                    << ", Cut = " << m_EtConeCut[iConeSize] 		  
-                    << ", Value = " << EtCone[iConeSize]);
-        }
-	
-	//--Cut on Absolute Calo Isolation
-	bool absEtConeCut_ispassed = true;
-	for(std::size_t iConeSize = 0; iConeSize < EtCone.size(); iConeSize++) {
-	  //NB: -ve values in cut means DO NOT CUT
-	  if( ( m_EtConeCut[iConeSize] > 0.) && (EtCone[iConeSize] > m_EtConeCut[iConeSize])) {
-	    ATH_MSG_DEBUG("REGTEST Absolute Calo Isolation " << m_mapEtCone[iConeSize] << " NOT satisfied: "<< EtCone[iConeSize] << " > cut: " << m_EtConeCut[iConeSize]);
-	    absEtConeCut_ispassed = false;
-	    break;//skip remaining etcone sizes if one fails
-	  }
-	}
-	
-	if(!absEtConeCut_ispassed) continue;//if one isolation cut fails on one egamma object go to next egamma object
-	Ncand[6]++;//Abs. EtCone
-
-	//--Relative isolation
-	std::vector<float>  RelEtCone, RelPtCone;
-
-	//--Check that CaloCluster exists, if so use cluster ET as Denonimator in Relative Isolation
-	float clus_et=-9999.;
-	if(!clus) {
-	  ATH_MSG_INFO("CaloCluster dees NOT Exist, do NOT use Electron ET as Denominator in Relative Isolation");
-	} else{
-	  ATH_MSG_DEBUG("CaloCluster Exists, may use cluster ET as denominator in relative Isolation varariables");
-	  clus_et=clus->et();
-	}
-	
-	//--Fill vectors of Relative isolation variables for different cone sizes with offset
-        //--Defined as (Etcone - Offset)/Et
-	for (std::size_t iConeSize = 0; iConeSize < EtCone.size(); iConeSize++){
-	  if(clus_et > 0.) 
-              RelEtCone.push_back(getIsolation(EtCone[iConeSize],m_IsoOffset[iConeSize],clus_et));
-	  else 
-              RelEtCone.push_back(0.);
-	}
-	
-        //printout
-        ATH_MSG_DEBUG("Relative Calo Isolation (vector size = " << RelEtCone.size()<< ") :");
-        for(std::size_t iConeSize = 0; iConeSize < RelEtCone.size(); iConeSize++) {
-            ATH_MSG_DEBUG("***   " << m_mapRelEtCone[iConeSize] 
-                << ", Cut = "   << m_RelEtConeCut[iConeSize]
-                << ", Offset = "<< m_IsoOffset[iConeSize]
-                << ", Etcone = "<< EtCone[iConeSize]
-                << ", Et =  "<< clus_et
-                << ", Value  = " << RelEtCone[iConeSize]);
-        }
-	
-	//--Cut on Relative Calo Isolation
-        bool relEtConeCut_ispassed = true;
-        for(std::size_t iConeSize = 0; iConeSize < RelEtCone.size(); iConeSize++) {
-            //NB: -ve values in cut means DO NOT CUT
-            if( ( m_RelEtConeCut[iConeSize] > 0.) && (RelEtCone[iConeSize] > m_RelEtConeCut[iConeSize])) {
-                ATH_MSG_DEBUG("REGTEST Relative Calo Isolation " << m_mapRelEtCone[iConeSize] << " NOT satisfied: "
-                        << RelEtCone[iConeSize] << " > cut: " << m_RelEtConeCut[iConeSize]);
-                relEtConeCut_ispassed = false;
-                break;//skip remaining etcone sizes if one fails
-            }
-        }
-	
-	if(!relEtConeCut_ispassed) continue;//if one isolation cut fails on one egamma object go to next egamma object
-	Ncand[7]++;//Rel. Etcone       
-    }
-	
-	
-    // At least 1 Photon passes selection
-    Ncand[8]++;
+    
+    Ncand[6]++;
     pass = true;
-    xBits->markPassing(egIt,m_EgammaContainer,true);
+    HLT::markPassing(passBits, egIt, m_EgammaContainer); // set bit for this egamma in TrigPassBits mask
   } // end of loop in egamma objects.
   
   for(int i=0; i<10; i++) m_NofPassedCuts+=(Ncand[i]>0);
 
 
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "REGTEST: Result = " <<(pass ? "passed" : "failed")<< endmsg;
+    msg() << MSG::DEBUG << "REGTEST: Result = " <<(pass ? "passed" : "failed")<< endreq;
   }
 
-  if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
-      ATH_MSG_ERROR("Could not store TrigPassBits! ");
+  // store TrigPassBits result
+  if ( attachBits(outputTE, passBits) != HLT::OK ) {
+    msg() << MSG::ERROR << "Could not store TrigPassBits! " << endreq;
+  }
+
+  // store TrigPassFlags result
+  if(isEMFlags) {
+     if ( attachFlags(outputTE, isEMFlags, "isEM") != HLT::OK ) {
+        msg() << MSG::ERROR << "Could not store isEM flags! " << endreq;
+     }
+  }
 
   // Time total TrigEFPhotonHypo execution time.
   // -------------------------------------

@@ -19,11 +19,10 @@
  **   Modified:  Apr 28 2007 Tomasz Bold major changes to run with new steering
  **   Modified:  May 25 2011 Toyonobu Okuyama major change to attach the calculated 
  **                          invariant mass to outputTE as TrigOperationalInfo
- **   Modified:  Apr    2016 use TrigComposite
  **************************************************************************/ 
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "xAODTrigger/TrigPassBits.h"
+#include "TrigSteeringEvent/TrigOperationalInfo.h"
 
 #include "TrigEgammaHypo/TrigL2DielectronMassFex.h"
 #include "CxxUtils/sincos.h"
@@ -48,11 +47,11 @@ TrigL2DielectronMassFex::TrigL2DielectronMassFex(const std::string & name, ISvcL
   declareProperty("ValidElectron",m_electronValid=true);
   declareProperty("LowerMassCut", m_lowerMassCut=1000.0);//! for J/psi
   declareProperty("UpperMassCut", m_upperMassCut=15000.0);//! for J/psi
+
   
   // monitoring
   declareMonitoredVariable("massOfAccepted", m_monMassAccepted);
   declareMonitoredVariable("cut", m_monCut);
-  m_cont=nullptr;
 }
 
 TrigL2DielectronMassFex::~TrigL2DielectronMassFex()
@@ -60,33 +59,39 @@ TrigL2DielectronMassFex::~TrigL2DielectronMassFex()
 
 HLT::ErrorCode TrigL2DielectronMassFex::hltInitialize()
 {
+  
+  if (msgLvl() <= MSG::VERBOSE) {
+    msg() << MSG::DEBUG << "Initialization:" << endreq;
+  }
 
-    ATH_MSG_DEBUG("Initialization:");
-
-    ATH_MSG_DEBUG("Initialization completed successfully:");
-    ATH_MSG_DEBUG("AcceptAll            = " 
-            << (m_acceptAll==true ? "True" : "False"));
-    ATH_MSG_DEBUG("UseClusterAsProbe    = " 
-            << (m_useClusterAsProbe==true ? "True" : "False"));
-    ATH_MSG_DEBUG("ElectronMass         = " << m_electronMass);
-    ATH_MSG_DEBUG("ValidElectron        = " 
-            << (m_electronValid==true ? "True" : "False"));
-    ATH_MSG_DEBUG("SameTrackAlgo        = " 
-            << (m_sameTrackAlgo==true ? "True" : "False"));
-    ATH_MSG_DEBUG("OppositeCharge       = " 
-            << (m_oppositeCharge==true ? "True" : "False"));
-    ATH_MSG_DEBUG("CommonVertex         = " 
-            << (m_commonVertex==true ? "True" : "False"));
-    ATH_MSG_DEBUG("LowerMassCut         = " << m_lowerMassCut);
-    ATH_MSG_DEBUG("UpperMassCut         = " << m_upperMassCut);
-
-    return HLT::OK;
+  
+  if(msgLvl() <= MSG::DEBUG) {
+    msg() << MSG::DEBUG << "Initialization completed successfully:" << endreq;
+    msg() << MSG::DEBUG << "AcceptAll            = " 
+	  << (m_acceptAll==true ? "True" : "False") << endreq; 
+    msg() << MSG::DEBUG << "UseClusterAsProbe    = " 
+	  << (m_useClusterAsProbe==true ? "True" : "False") << endreq; 
+    msg() << MSG::DEBUG << "ElectronMass         = " << m_electronMass << endreq;
+    msg() << MSG::DEBUG << "ValidElectron        = " 
+	  << (m_electronValid==true ? "True" : "False") << endreq; 
+    msg() << MSG::DEBUG << "SameTrackAlgo        = " 
+	  << (m_sameTrackAlgo==true ? "True" : "False") << endreq; 
+    msg() << MSG::DEBUG << "OppositeCharge       = " 
+	  << (m_oppositeCharge==true ? "True" : "False") << endreq; 
+    msg() << MSG::DEBUG << "CommonVertex         = " 
+	  << (m_commonVertex==true ? "True" : "False") << endreq; 
+    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endreq;
+    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endreq;
+  }
+  
+  return HLT::OK;
 }
 
 
 HLT::ErrorCode TrigL2DielectronMassFex::hltFinalize()
 {
-    ATH_MSG_INFO("in finalize()");
+  if ( msgLvl() <= MSG::INFO )
+    msg() << MSG::INFO << "in finalize()" << endreq;
 
   return HLT::OK;
 }
@@ -97,21 +102,29 @@ HLT::ErrorCode TrigL2DielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, b
   m_monMassAccepted = -1.;
   m_monCut=0;
   // sanity checks
-  ATH_MSG_DEBUG("Running TrigL2DielectronMassFex::acceptInputs");
+  if ( msgLvl() <= MSG::DEBUG )
+    msg() << MSG::DEBUG << "Running TrigL2DielectronMassFex::acceptInputs" << endreq;
 
   if ( inputTE.size() != 2 ) {
-    ATH_MSG_ERROR( "Got diferent than 2 number of input TEs: " <<  inputTE.size() << " job badly configured");
+    msg() << MSG::ERROR << "Got diferent than 2 number of input TEs: " <<  inputTE.size() << " job badly configured" << endreq;
     return HLT::BAD_JOB_SETUP;
   }
 
+
+
   // Accept-All mode: temporary patch; should be done with force-accept 
   if (m_acceptAll) {
-      ATH_MSG_DEBUG("AcceptAll property is set: taking all events");
-      pass = true;
-      return HLT::OK;
+    if ( msgLvl() <= MSG::DEBUG )
+      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" 
+	    << endreq;
+    
+    pass = true;
+    return HLT::OK;
   } 
   else {
-      ATH_MSG_DEBUG("AcceptAll property not set: applying selection");
+    if ( msgLvl() <= MSG::DEBUG )
+      msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" 
+	    << endreq;
   }
 
   // this are 2 TEs which we eventually will combine
@@ -120,12 +133,16 @@ HLT::ErrorCode TrigL2DielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, b
 
   // for debugging purpose look into RoIDescriptors
   if ( msgLvl() <= MSG::DEBUG ){
-      const TrigRoiDescriptor* roiDescriptor1 = 0;
-      const TrigRoiDescriptor* roiDescriptor2 = 0;
-      if ( getFeature(te1, roiDescriptor1) != HLT::OK || getFeature(te2, roiDescriptor2) != HLT::OK ) 
-          ATH_MSG_WARNING("No RoIDescriptors for this Trigger Elements! ");
-      else 
-          ATH_MSG_DEBUG("Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2);
+    const TrigRoiDescriptor* roiDescriptor1 = 0;
+    const TrigRoiDescriptor* roiDescriptor2 = 0;
+    if ( getFeature(te1, roiDescriptor1) != HLT::OK || getFeature(te2, roiDescriptor2) != HLT::OK ) {
+      if ( msgLvl() <= MSG::WARNING) {
+	msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Elements! " << endreq;
+      }  
+    } else {
+      if ( msgLvl() <= MSG::DEBUG )
+	msg() << MSG::DEBUG  << "Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2 << endreq;
+    }
   }
   
   // retrieve TrigElectronContainers(orTrigEMCluster) from this TE
@@ -135,21 +152,19 @@ HLT::ErrorCode TrigL2DielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, b
   if( m_useClusterAsProbe) {
     if ( getFeature(te1, electronContainer1) != HLT::OK || getFeature(te2, cluster2) != HLT::OK || 
 	 electronContainer1 == 0 || cluster2 == 0 ) {
-	ATH_MSG_WARNING("Failed to get TrigElectron or TrigEMCluster collections");
+      if ( msgLvl() <= MSG::DEBUG) {
+	msg() << MSG::DEBUG << "Failed to get TrigElectron or TrigEMCluster collections" << endreq;
+      } 
       return HLT::MISSING_FEATURE;
     }
   } else if ( getFeature(te1, electronContainer1) != HLT::OK || getFeature(te2, electronContainer2) != HLT::OK || 
        electronContainer1 == 0 ||  electronContainer2 == 0 ) {
-      ATH_MSG_WARNING("Failed to get TrigElectron collections");
+    if ( msgLvl() <= MSG::DEBUG) {
+      msg() << MSG::DEBUG << "Failed to get TrigElectron collections" << endreq;
+    } 
     return HLT::MISSING_FEATURE;
   }
 
-  const xAOD::TrigPassBits* bits(0);
-  HLT::ErrorCode status = getFeature(te1, bits, "passbits");
-  if (status != HLT::OK) {
-    ATH_MSG_WARNING(" Failed to get TrigPassBits ");
-    return HLT::MISSING_FEATURE;
-  }
 
   pass=false;
 
@@ -157,38 +172,22 @@ HLT::ErrorCode TrigL2DielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, b
   // loop ver all combinations
   xAOD::TrigElectronContainer::const_iterator electron1;
   xAOD::TrigElectronContainer::const_iterator electron2;
-  
-  
+
   if( m_useClusterAsProbe ) {
     // Use Cluster Mode (TrigElectron - TrigEMCluster)
     //==================================================
     for ( electron1 = electronContainer1->begin(); electron1 != electronContainer1->end(); ++electron1 ) {
-
-      if(!bits->isPassing((*electron1),electronContainer1)){
-	ATH_MSG_VERBOSE("Electron found not passing Hypo object");
-	continue;
-      }
-      ATH_MSG_DEBUG("New combination:");
-      ATH_MSG_DEBUG("1st TrigElectron "
-		    << ") RoI id="<< (*electron1)->roiWord()
-		    << "; pt="    << (*electron1)->pt()
-		    << "; eta="   << (*electron1)->eta()
-		    << "; phi="   << (*electron1)->phi());
-      ATH_MSG_DEBUG("2nd CaloCluster "
-		    //<< ") RoI id="<< *roiDescriptor2
-		    << "; Et="    << cluster2->et()
-		    << "; eta="   << cluster2->eta()
-		    << "; phi="   << cluster2->phi());
-
       m_monCut = 5;
       // evaluate mass
       double mass = TrigL2DielectronMassHelpers::invariantMass((*electron1), cluster2, m_electronMass);
 
       // apply cut on mass
       if(mass<m_lowerMassCut || mass>m_upperMassCut) {	
-	  ATH_MSG_VERBOSE("Combination failed mass cut: " 
+	if(msgLvl() <= MSG::VERBOSE) {
+	  msg() << MSG::VERBOSE << "Combination failed mass cut: " 
 		<< mass << " not in [" << m_lowerMassCut << "," 
-		<< m_upperMassCut << "]");
+		<< m_upperMassCut << "]" << endreq;
+	}
 	continue;
       } else {
 	// good combination found
@@ -196,8 +195,13 @@ HLT::ErrorCode TrigL2DielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, b
 	m_monCut = 6;
 	m_monMassAccepted = mass;
 	m_massCont.push_back(mass);
-        ATH_MSG_VERBOSE("Good combination found! Mee="<< mass << " MeV"); 
-            
+	if(msgLvl() <= MSG::VERBOSE) {
+	  msg() << MSG::VERBOSE << "Combination passed mass cut: " 
+		<< m_lowerMassCut << " < " << mass << " < " 
+		<< m_upperMassCut << endreq;	     
+	  msg() << MSG::DEBUG << "Good combination found! Mee=" 
+		<< mass << " MeV" << endreq;
+	}
       }
     }
   } else {
@@ -210,26 +214,58 @@ HLT::ErrorCode TrigL2DielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, b
 	//
 	// debug dump (both electrons have tracks now)
 	
-	  ATH_MSG_VERBOSE("New combination:");
-	  ATH_MSG_VERBOSE("1st TrigElectron " 
+	if(msgLvl() <= MSG::VERBOSE) {
+	  msg() << MSG::VERBOSE << "New combination:" << endreq; 
+	  msg() << MSG::VERBOSE << "1st TrigElectron " 
+		//<< ((*electron1)->isValid() ? "(valid" : "(not valid")
 		<< ") RoI id="<< (*electron1)->roiWord()
 		<< "; pt="    << (*electron1)->pt()  
-		<< "; eta="   << (*electron1)->eta()
-                << "; trkEta= " << (*electron1)->trackParticle()->eta()
-		<< "; phi="   << (*electron1)->phi());
-	  ATH_MSG_VERBOSE("2nd TrigElectron " 
+		<< "; eta="   << (*electron1)->eta()// <<"+-"<< (*electron1)->err_eta() 
+		<< "; phi="   << (*electron1)->phi()// <<"+-"<< (*electron1)->err_phi() 
+//		<< "; Zvtx="  << (*electron1)->Zvtx()<<"+-"<< (*electron1)->err_Zvtx() 
+		<< endreq;
+	  msg() << MSG::VERBOSE << "2nd TrigElectron " 
+		//<< ((*electron1)->isValid() ? "(valid" : "(not valid")
 		<< ") RoI id="<< (*electron2)->roiWord()
 		<< "; pt="    << (*electron2)->pt()  
-		<< "; eta="   << (*electron2)->eta()
-                << "; trkEta= " << (*electron1)->trackParticle()->eta() 
-		<< "; phi="   << (*electron2)->phi());
-          
-          m_monCut = 2;
-          //Ensure the tag electron passes hypo
-          if(!bits->isPassing((*electron1),electronContainer1)){
-              ATH_MSG_VERBOSE("Electron found not passing Hypo object");
-              continue;
-          }
+		<< "; eta="   << (*electron2)->eta()// <<"+-"<< (*electron2)->err_eta() 
+		<< "; phi="   << (*electron2)->phi()// <<"+-"<< (*electron2)->err_phi() 
+//		<< "; Zvtx="  << (*electron2)->Zvtx()<<"+-"<< (*electron2)->err_Zvtx() 
+		<< endreq;
+	}
+	
+	// check we're starting from valid TrigElectrons (i.e. which 
+	// passed all cuts)
+	if (m_electronValid) {
+	  
+	  if ( ! TrigL2DielectronMassHelpers::validElectrons(*electron1, *electron2) ) {
+	    
+	    if(msgLvl() <= MSG::VERBOSE) {
+	      msg() << MSG::VERBOSE << "One TrigElectron not valid: rejecting combination" << endreq;
+	    }	    
+	    continue;  // reject non-valid TrigElectrons if cut is on
+	  }
+	}
+	m_monCut = 2;
+	// tracking algorithm (sensible to separate things for now so 
+	// that efficiency can be easily measured for each tracking algo)
+	if (m_sameTrackAlgo) {
+	  
+#ifdef DONTDO
+	  if ( (*electron1)->trackAlgo() != (*electron2)->trackAlgo() ) {
+	    
+	    if(msgLvl() <= MSG::VERBOSE) {
+	      msg() << MSG::VERBOSE 
+		    << "TrigElectrons from different tracking algos: ignoring combination" << endreq;
+	    }    
+	  } else {      
+	    if(msgLvl() <= MSG::VERBOSE) {
+	      msg() << MSG::VERBOSE << "TrigElectrons from same tracking algo" 
+		    << endreq;
+	    }
+	  }
+#endif
+	}
 
 	
 	m_monCut = 3;
@@ -239,10 +275,15 @@ HLT::ErrorCode TrigL2DielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, b
 	  
 	  // note: track charge can be zero (unknown) so must use > and not >=
 	  if ( ! TrigL2DielectronMassHelpers::opositeCharge(*electron1, *electron2) ) {
-	      ATH_MSG_VERBOSE("Combination failed opposite charge cut");
+	    if(msgLvl() <= MSG::VERBOSE) {
+	      msg() << MSG::VERBOSE << "Combination failed opposite charge cut" << endreq;
+	    }
 	    continue;
 	  } else {
-	      ATH_MSG_VERBOSE("Combination passed opposite charge cut");
+	    if(msgLvl() <= MSG::VERBOSE) {
+	      msg() << MSG::VERBOSE << "Combination passed opposite charge cut" 
+		    << endreq;
+	    }
 	  }
 	}     
 	m_monCut = 4;
@@ -253,48 +294,77 @@ HLT::ErrorCode TrigL2DielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, b
 	// take track z at perigee as estimate of vertex z, since lateral 
 	// coordinates are small this should be done better with a vertexing
 	// algorithm...
-	// Remove call since code disabled
-        m_monCut = 5;
+	if( m_commonVertex ) {
+	  
+	  const TrigL2DielectronMassHelpers::Vertex vx = TrigL2DielectronMassHelpers::commonVertex(*electron1, *electron2);
+	  
+	  if ( vx == TrigL2DielectronMassHelpers::NotCommon ) {
+	    if (msgLvl() <= MSG::VERBOSE) {
+	      msg() << MSG::VERBOSE 
+		    << "Combination failed vertex cut" 
+		    << endreq;
+	    }
+	    
+	    continue;
+	  } else  if ( vx == TrigL2DielectronMassHelpers::Common ) {
+	    if (msgLvl() <= MSG::VERBOSE) {
+	      msg() << MSG::VERBOSE 
+		    << "Combination passed vertex cut" << endreq;
+	    }
+	  } else {
+	    if(msgLvl() <= MSG::VERBOSE) {
+	      msg() << MSG::VERBOSE 
+		    << "Bad track vertex errors: not applying cut" << endreq;
+	    }
+	  }
+	}
+	m_monCut = 5;
 	// evaluate mass
 	double mass = TrigL2DielectronMassHelpers::invariantMass((*electron1),(*electron2), m_electronMass);
 	
 	// apply cut on mass
-        if(mass<m_lowerMassCut || mass>m_upperMassCut) {	
-            ATH_MSG_VERBOSE("Combination failed mass cut: " 
-                    << mass << " not in [" << m_lowerMassCut << "," 
-                    << m_upperMassCut << "]");
-            continue;
-        } else {
-            // good combination found
-            pass = true;
-            m_monCut = 6;    
-            m_monMassAccepted = mass;
-            m_massCont.push_back(mass);
-            ATH_MSG_VERBOSE("Good combination found! Mee="<< mass << " MeV");
-
-        }
+	if(mass<m_lowerMassCut || mass>m_upperMassCut) {	
+	  if(msgLvl() <= MSG::VERBOSE) {
+	    msg() << MSG::VERBOSE << "Combination failed mass cut: " 
+		  << mass << " not in [" << m_lowerMassCut << "," 
+		  << m_upperMassCut << "]" << endreq;
+	  }
+	  continue;
+	} else {
+	  // good combination found
+	  pass = true;
+	  m_monCut = 6;    
+	  m_monMassAccepted = mass;
+	  m_massCont.push_back(mass);
+	  if(msgLvl() <= MSG::VERBOSE) {
+	    msg() << MSG::VERBOSE << "Combination passed mass cut: " 
+		<< m_lowerMassCut << " < " << mass << " < " 
+		  << m_upperMassCut << endreq;
+	  } else if(msgLvl() <= MSG::DEBUG) {
+	    msg() << MSG::DEBUG << "Good combination found! Mee=" 
+		  << mass << " MeV" << endreq;
+	  }
+	}
       } // electrons2 container loop end
     } // electrons1 container loop end
   }
 
   // set output TriggerElement true if good combination
-  ATH_MSG_DEBUG("pass = " << pass);
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "pass = " << pass << endreq;
   return HLT::OK;    
 }  
 
 HLT::ErrorCode TrigL2DielectronMassFex::hltExecute(HLT::TEConstVec& /*inputTE*/, HLT::TriggerElement* outputTE){
-  ATH_MSG_DEBUG("N mass accepted : " << m_massCont.size());
-  m_cont=new xAOD::TrigCompositeContainer();
-  xAOD::TrigCompositeAuxContainer contaux;
-  m_cont->setStore(&contaux);
-  for(const auto &mass:m_massCont) {
-    xAOD::TrigComposite *comp=new xAOD::TrigComposite();;
-    m_cont->push_back(comp);
-    comp->setName("L2Dielectron");
-    comp->setDetail("Mee",mass);
+  msg() << MSG::DEBUG << "N mass accepted : " << m_massCont.size() << endreq;
+  TrigOperationalInfo* trigInfo = new TrigOperationalInfo();
+  for(size_t i=0; i<m_massCont.size(); ++i) {
+    char buf[64];
+    std::sprintf(buf, "mass%d", (int)i);
+    msg() << MSG::DEBUG << "    " << buf << " : " << m_massCont[i] << endreq;    
+    trigInfo->set(std::string(buf), m_massCont[i]);
   }
-  attachFeature(outputTE,m_cont,"L2DielectronInfo"); 
-  ATH_MSG_DEBUG("attached feature");
+  attachFeature(outputTE, trigInfo, "L2DielectronInfo"); 
+  msg() << MSG::DEBUG << "attached feature" << endreq;
 
   return HLT::OK;
 }

@@ -18,39 +18,30 @@
  **
  **   Author(xAOD): Ryan Mackenzie White
  **   Modified: April 2014
- **  
- **   Updated to use TrigComposite Objects for release 21.
- **   @ R. White <ryan.white@cern.ch> October 2016 
- **   Algorithm reconstructs Tag and Probe pairs
- **   using well-identified electrons from the first TE as tag
- **   the probe can be either electron or cluster from the second TE.
- **   Entries for each TrigComposite object:
- **   name
- **   mass
- **   tag (elementlink)
- **   probe (elementlink)
  **************************************************************************/ 
 #include <sstream>
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "TrigEgammaHypo/TrigEFDielectronMassFex.h"
-#include "xAODTrigger/TrigComposite.h"
-#include "xAODTrigger/TrigCompositeContainer.h"
+
+#include "TrigSteeringEvent/TrigOperationalInfo.h"
+
 #include "TLorentzVector.h"
 #include "CLHEP/Vector/LorentzVector.h"
-//#include "TrigConfHLTData/HLTTriggerElement.h"
 #include <math.h>
-
 
 TrigEFDielectronMassFex::TrigEFDielectronMassFex(const std::string & name, ISvcLocator* pSvcLocator)
   : HLT::ComboAlgo(name, pSvcLocator) {
 
   // Read cuts
+  declareProperty("useElectronElectron", m_useElectronElectron=true, 
+		  "Use electron-electron pair to calculate invariant mass");
+  declareProperty("useElectronCluster", m_useElectronCluster=false, 
+		  "Use electron-cluster pair to calculate invariant mass");
   declareProperty("AcceptAll", m_acceptAll);
   declareProperty("LowerMassCut", m_lowerMassCut=50000.0);
   declareProperty("UpperMassCut", m_upperMassCut=130000.0);
-  declareProperty("OutputKey", m_key="TrigEFDielectronMassFex");
   
   // monitoring
   declareMonitoredVariable("massOfAccepted", m_monMassAccepted);
@@ -63,13 +54,18 @@ TrigEFDielectronMassFex::~TrigEFDielectronMassFex()
 HLT::ErrorCode TrigEFDielectronMassFex::hltInitialize()
 {
   
-    ATH_MSG_INFO("Initialization:");
+  if (msgLvl() <= MSG::VERBOSE) {
+    msg() << MSG::DEBUG << "Initialization:" << endreq;
+  }
+
   
-    ATH_MSG_DEBUG("Initialization completed successfully:");
-    ATH_MSG_DEBUG("AcceptAll            = " 
-	  << (m_acceptAll==true ? "True" : "False"));
-    ATH_MSG_DEBUG("LowerMassCut         = " << m_lowerMassCut);
-    ATH_MSG_DEBUG("UpperMassCut         = " << m_upperMassCut);
+  if(msgLvl() <= MSG::DEBUG) {
+    msg() << MSG::DEBUG << "Initialization completed successfully:" << endreq;
+    msg() << MSG::DEBUG << "AcceptAll            = " 
+	  << (m_acceptAll==true ? "True" : "False") << endreq; 
+    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endreq;
+    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endreq;
+  }
   
   return HLT::OK;
 }
@@ -77,86 +73,90 @@ HLT::ErrorCode TrigEFDielectronMassFex::hltInitialize()
 
 HLT::ErrorCode TrigEFDielectronMassFex::hltFinalize()
 {
-  
-    ATH_MSG_INFO("in finalize()");
+  if ( msgLvl() <= MSG::INFO )
+    msg() << MSG::INFO << "in finalize()" << endreq;
 
   return HLT::OK;
 }
 
 
 HLT::ErrorCode TrigEFDielectronMassFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass ) {
-    pass = false;
+  pass = false;
 
-    m_monMassAccepted = -1.;
-    m_monCut=0;
-    // sanity checks
-    ATH_MSG_DEBUG("Running TrigEFDielectronMassFex::acceptInputs");
+  m_monMassAccepted = -1.;
+  m_monCut=0;
+  // sanity checks
+  if ( msgLvl() <= MSG::DEBUG )
+    msg() << MSG::DEBUG << "Running TrigEFDielectronMassFex::acceptInputs" << endreq;
 
-    if ( inputTE.size() != 2 ) {
-        ATH_MSG_ERROR("Got diferent than 2 number of input TEs: " << 
-                inputTE.size() << " job badly configured");
-        return HLT::BAD_JOB_SETUP;
-    }
+  if ( inputTE.size() != 2 ) {
+    msg() << MSG::ERROR << "Got diferent than 2 number of input TEs: " << 
+      inputTE.size() << " job badly configured" << endreq;
+    return HLT::BAD_JOB_SETUP;
+  }
 
-    // Accept-All mode: temporary patch; should be done with force-accept 
-    if (m_acceptAll) {
-        ATH_MSG_DEBUG("AcceptAll property is set: taking all events");
-        pass = true;
-        return HLT::OK;
+  // Accept-All mode: temporary patch; should be done with force-accept 
+  if (m_acceptAll) {
+    if ( msgLvl() <= MSG::DEBUG )
+      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" 
+	    << endreq;
+    pass = true;
+    return HLT::OK;
+  } else {
+    if ( msgLvl() <= MSG::DEBUG )
+      msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" 
+	    << endreq;
+  }
+
+  // this are 2 TEs which we eventually will combine
+  const HLT::TriggerElement* te1 = inputTE[0];
+  const HLT::TriggerElement* te2 = inputTE[1];
+
+  // for debugging purpose look into RoIDescriptors
+  if ( msgLvl() <= MSG::DEBUG ){
+    const TrigRoiDescriptor* roiDescriptor1 = 0;
+    const TrigRoiDescriptor* roiDescriptor2 = 0;
+    if ( getFeature(te1, roiDescriptor1) != HLT::OK || getFeature(te2, roiDescriptor2) != HLT::OK ) {
+      if ( msgLvl() <= MSG::WARNING) {
+	msg() <<  MSG::WARNING << "No RoIDescriptors for this Trigger Elements! " << endreq;
+      }  
     } else {
-        ATH_MSG_DEBUG("AcceptAll property not set: applying selection");
+      if ( msgLvl() <= MSG::DEBUG )
+	msg() << MSG::DEBUG  << "Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2 << endreq;
     }
-
-    // this are 2 TEs which we eventually will combine
-    const HLT::TriggerElement* te1 = inputTE[0];
-    const HLT::TriggerElement* te2 = inputTE[1];
-
-    const xAOD::ElectronContainer* cont1(0);
-    const xAOD::ElectronContainer* cont2(0);
-    const xAOD::CaloClusterContainer* clusters(0);
-
-    ElementLinkVector< xAOD::ElectronContainer > links1;
-    ElementLinkVector< xAOD::ElectronContainer > links2;
-    ElementLinkVector< xAOD::CaloClusterContainer > cllinks;
-    if (getFeature(te1, cont1) != HLT::OK ||
-            getFeature(te2, cont2) != HLT::OK ||
-            getFeature(te2, clusters) != HLT::OK || 
-            cont1 == 0 || 
-            cont2 == 0 ||
-            clusters == 0) {
-        ATH_MSG_ERROR("Failed to get Electron or Cluster containers");
-        return HLT::MISSING_FEATURE;
+  }
+  
+  // retrieve TrigElectronContainers from this TE
+  const xAOD::ElectronContainer* electronCont(0);
+  const xAOD::CaloClusterContainer* clusterCont(0);
+  if (m_useElectronElectron) {
+    if ( getFeature(te1, electronCont) != HLT::OK || electronCont == 0 ||
+	 getFeature(te2, electronCont) != HLT::OK || electronCont == 0) {
+      // Not an error condition as it could happen for e+etcut chain
+      if ( msgLvl() <= MSG::DEBUG) {
+	msg() << MSG::DEBUG << "Failed to get egammaContainer" << endreq;
+      }
+      return HLT::MISSING_FEATURE;
     }
-    
-    // Useful for debugging
-    /*std::string label1="";
-    TrigConf::HLTTriggerElement::getLabel (inputTE[0]->getId(), label1 );
-    std::string label2="";
-    TrigConf::HLTTriggerElement::getLabel (inputTE[1]->getId(), label2 );
-    ATH_MSG_INFO(" TE Id: "<< inputTE[0]->getId() << " TE label: " 
-            << label1 << " electrons (tags): " << cont1->size());
-    ATH_MSG_INFO(" TE Id: "<< inputTE[1]->getId() << " TE label: " 
-            << label2 << " electrons (probes) " << cont2->size() << " cluster (probes) " << clusters->size());*/
-
-
-    if (getFeaturesLinks<xAOD::ElectronContainer,xAOD::ElectronContainer>(te1, links1,"") != HLT::OK 
-            || getFeaturesLinks<xAOD::ElectronContainer,xAOD::ElectronContainer>(te2, links2,"") != HLT::OK
-            || getFeaturesLinks<xAOD::CaloClusterContainer,xAOD::CaloClusterContainer>(te2, cllinks,"") != HLT::OK){ 
-        // Not an error condition as it could happen for e+etcut chain
-        ATH_MSG_ERROR("Failed to get ElementLinkContainers");
-        return HLT::MISSING_FEATURE;
+  }
+  if (m_useElectronCluster) {
+    if ( getFeature(te1, electronCont) != HLT::OK || electronCont == 0 ||
+	 getFeature(te2, clusterCont) != HLT::OK || clusterCont == 0) {
+      // Not an error condition as it could happen for e+etcut chain
+      if ( msgLvl() <= MSG::DEBUG) {
+	msg() << MSG::DEBUG 
+	      << "Failed to get egammaContainer/clusterContainer" << endreq;
+      }
+      return HLT::MISSING_FEATURE;
     }
-    const xAOD::TrigPassBits* bits(0);
-    HLT::ErrorCode status = getFeature(te1, bits, "passbits");
-    if (status != HLT::OK) {
-        ATH_MSG_WARNING(" Failed to get TrigPassBits ");
-        return HLT::MISSING_FEATURE;
-    }
+  }
 
-    pass=true;
+  pass=true;
 
-    ATH_MSG_DEBUG("pass = " << pass);
-    return HLT::OK;    
+  if(msgLvl() <= MSG::DEBUG) {
+    msg() << MSG::DEBUG << "pass = " << pass << endreq;
+  }
+  return HLT::OK;    
 }  
 
 HLT::ErrorCode TrigEFDielectronMassFex::hltExecute(HLT::TEConstVec& inputTE, 
@@ -164,140 +164,181 @@ HLT::ErrorCode TrigEFDielectronMassFex::hltExecute(HLT::TEConstVec& inputTE,
 
   m_monMassAccepted = -1.;
   m_monCut=0;
-  ATH_MSG_DEBUG("hltExecute()");
-  xAOD::TrigCompositeContainer *cont=new xAOD::TrigCompositeContainer();
-  xAOD::TrigCompositeAuxContainer cont_aux;
-  cont->setStore(&cont_aux);
-  process(inputTE, cont);
-  attachFeature(outputTE, cont, m_key);
+  m_massElectronElectron.clear();
+  m_massElectronCluster.clear();
+
+  unsigned int i;
+  if (m_useElectronElectron) {
+    TrigOperationalInfo* masses_ee = new TrigOperationalInfo();
+    processElectronElectron(inputTE, m_massElectronElectron);
+    for (i=0; i<m_massElectronElectron.size(); ++i) {
+      std::ostringstream os;
+      os << "mass_ee" << i;
+      masses_ee->set(os.str(), m_massElectronElectron[i]);
+    }
+    attachFeature(outputTE, masses_ee, "MassesElectronElectron");
+  }
+  if (m_useElectronCluster) {
+    TrigOperationalInfo* masses_ec = new TrigOperationalInfo();
+    processElectronCluster(inputTE, m_massElectronCluster);
+    for (i=0; i<m_massElectronCluster.size(); ++i) {
+      std::ostringstream os;
+      os << "mass_ec" << i;
+      masses_ec->set(os.str(), m_massElectronCluster[i]);
+    }
+    attachFeature(outputTE, masses_ec, "MassesElectronCluster");
+  }
 
   return HLT::OK;
 }
 
-void TrigEFDielectronMassFex::process(HLT::TEConstVec& inputTE, xAOD::TrigCompositeContainer *objs){ 
-
-    ATH_MSG_DEBUG("process");
-
-    const HLT::TriggerElement* te1 = inputTE[0];
-    const HLT::TriggerElement* te2 = inputTE[1];
-    const xAOD::ElectronContainer* cont1(0);
-    const xAOD::ElectronContainer* cont2(0);
-    const xAOD::CaloClusterContainer* clusters(0);
-
-    ElementLinkVector< xAOD::ElectronContainer > links1;
-    ElementLinkVector< xAOD::ElectronContainer > links2;
-    ElementLinkVector< xAOD::CaloClusterContainer > cllinks;
-    if (getFeature(te1, cont1) != HLT::OK ||
-            getFeature(te2, cont2) != HLT::OK ||
-            getFeature(te2, clusters) != HLT::OK || 
-            cont1 == 0 || 
-            cont2 == 0 ||
-            clusters == 0) {
-        ATH_MSG_WARNING("Failed to get Electron or Cluster containers");
-        return;
+void TrigEFDielectronMassFex::processElectronElectron(HLT::TEConstVec& inputTE, 
+						      std::vector<float>& masses) {
+  const HLT::TriggerElement* te1 = inputTE[0];
+  const HLT::TriggerElement* te2 = inputTE[1];
+  const xAOD::ElectronContainer* cont1(0);
+  const xAOD::ElectronContainer* cont2(0);
+  if (getFeature(te1, cont1) != HLT::OK || getFeature(te2, cont2) != HLT::OK ||
+      cont1 == 0 || cont2 == 0) {
+    // Not an error condition as it could happen for e+etcut chain
+    if ( msgLvl() <= MSG::DEBUG) {
+      msg() << MSG::DEBUG 
+	    << "Failed to get egammaContainers" << endreq;
     }
+    return;
+  }
 
-    if (getFeaturesLinks<xAOD::ElectronContainer,xAOD::ElectronContainer>(te1, links1,"") != HLT::OK 
-            || getFeaturesLinks<xAOD::ElectronContainer,xAOD::ElectronContainer>(te2, links2,"") != HLT::OK
-            || getFeaturesLinks<xAOD::CaloClusterContainer,xAOD::CaloClusterContainer>(te2, cllinks,"") != HLT::OK){ 
-        // Not an error condition as it could happen for e+etcut chain
-        ATH_MSG_WARNING("Failed to get ElementLinkContainers");
-        return;
+  xAOD::ElectronContainer::const_iterator p1;
+  xAOD::ElectronContainer::const_iterator p2;
+  float mass(0.0);
+  for (const auto& p1 : *cont1){
+      for (const auto& p2 : *cont2){
+      m_monCut = 1;
+      // selection is done here
+      //
+      // debug dump (both electrons have tracks now)
+
+      if(msgLvl() <= MSG::DEBUG) {
+	msg() << MSG::DEBUG << "New combination:" << endreq; 
+	msg() << MSG::DEBUG << "1st egammaElectron " 
+	      << "  pt="    << p1->pt()  
+	      << "; eta="   << p1->eta() 
+	      << "; phi="   << p1->phi() 
+	      << endreq;
+	msg() << MSG::DEBUG << "2nd egammaElectron " 
+	      << "  pt="    << p2->pt()  
+	      << "; eta="   << p2->eta()                 
+	      << "; phi="   << p2->phi()
+	      << endreq;
+      }
+
+      // evaluate mass
+      
+      TLorentzVector hlv1 = p1->p4();
+      TLorentzVector hlv2 = p2->p4();
+      mass = (hlv1+hlv2).M();
+
+//       if (msgLvl() <= MSG::DEBUG) {
+// 	TLorentzVector v1, v2;
+// 	const float m_e = 0.511;
+
+// 	float pt1 = hlv1.e()*sin(hlv1.theta());
+// 	float pt2 = hlv2.e()*sin(hlv2.theta());
+// 	v1.SetPtEtaPhiM(pt1, hlv1.eta(), hlv1.phi(), m_e);
+// 	v2.SetPtEtaPhiM(pt2, hlv2.eta(), hlv2.phi(), m_e);
+//       }
+
+      // apply cut on mass
+      if(mass<m_lowerMassCut || mass>m_upperMassCut) {
+	if(msgLvl() <= MSG::DEBUG) {
+	  msg() << MSG::DEBUG << "Combination failed mass cut: " 
+		<< mass << " not in [" << m_lowerMassCut << "," 
+		<< m_upperMassCut << "]" << endreq;
+	}
+	continue;
+      } else {
+	// good combination found
+	m_monCut = 2;
+	if (masses.size() == 0) m_monMassAccepted = mass;
+	masses.push_back(mass);
+	if(msgLvl() <= MSG::DEBUG) {
+	  msg() << MSG::DEBUG << "Combination passed mass cut: " 
+		<< m_lowerMassCut << " < " << mass << " < " 
+		<< m_upperMassCut << endreq;
+	}
+      }   
+    } // electrons2 container loop end
+  } // electrons1 container loop end
+}
+
+void TrigEFDielectronMassFex::processElectronCluster(HLT::TEConstVec& inputTE, 
+						     std::vector<float>& masses) {
+  const HLT::TriggerElement* te1 = inputTE[0];
+  const HLT::TriggerElement* te2 = inputTE[1];
+  const xAOD::ElectronContainer* cont1(0);
+  const xAOD::CaloClusterContainer* cont2(0);
+  if (getFeature(te1, cont1) != HLT::OK || getFeature(te2, cont2) != HLT::OK ||
+      cont1 == 0 || cont2 == 0) {
+    // Not an error condition as it could happen for e+etcut chain
+    if ( msgLvl() <= MSG::DEBUG) {
+      msg() << MSG::DEBUG 
+	    << "Failed to get egammaContainer & CaloClusterContainer" 
+	    << endreq;
     }
+    return;
+  }
 
-    const xAOD::TrigPassBits* bits(0);
-    HLT::ErrorCode status = getFeature(te1, bits, "passbits");
-    if (status != HLT::OK) {
-        ATH_MSG_WARNING(" Failed to get TrigPassBits ");
-        return; 
-    }
-    m_monCut = 1;
-    float mass(0.0);
-    for (const auto& link1 : links1){
-        // Ensure we use good tag
-        const xAOD::Electron* p1 = *link1;
-        ATH_MSG_DEBUG("Tag Electron " 
-                << "  pt="    << p1->pt()  
-                << "; eta="   << p1->eta() 
-                << "; phi="   << p1->phi());
-        if(!bits->isPassing(p1,cont1)){
-            ATH_MSG_DEBUG("Tag Electron found not passing Hypo object");
-            continue;
-        }
-        for (const auto& link2 : links2){
-            const xAOD::Electron* p2 = *link2;
-            m_monCut=2;
-            // selection is done here
-            ATH_MSG_DEBUG("Electron Electron combination:");
-            ATH_MSG_DEBUG("Probe Electron " 
-                    << "  pt="    << p2->pt()  
-                    << "; eta="   << p2->eta()                 
-                    << "; phi="   << p2->phi());
+  xAOD::ElectronContainer::const_iterator p1;
+  xAOD::CaloClusterContainer::const_iterator p2;
+  float mass(0.0);
+  for (const auto& p1 : *cont1){
+      for (const auto& p2 : *cont2){
+      m_monCut = 1;
+      // selection is done here
+      //
+      // debug dump (both electrons have tracks now)
 
-            // evaluate mass
-            TLorentzVector hlv1 = p1->p4();
-            TLorentzVector hlv2 = p2->p4();
-            mass = (hlv1+hlv2).M();
+      //Need to fix for xAOD!!!!!!!!!!!!
+      if(msgLvl() <= MSG::DEBUG) {
+	msg() << MSG::DEBUG << "New combination:" << endreq; 
+	msg() << MSG::DEBUG << "1st egammaElectron " 
+	      << "  pt="    << p1->pt()  
+	      << "; eta="   << p1->eta() 
+	      << "; phi="   << p1->phi() 
+	      << endreq;
+	msg() << MSG::DEBUG << "2nd CaloCluster:"
+	      << "  pt="    << p2->pt()  
+	      << "; eta="   << p2->eta()                 
+	      << "; phi="   << p2->phi()
+	      << endreq;
+      }
 
-            // apply cut on mass
-            if(mass<m_lowerMassCut || mass>m_upperMassCut) {
-                ATH_MSG_DEBUG("Combination failed mass cut: " 
-                        << mass << " not in [" << m_lowerMassCut << "," 
-                        << m_upperMassCut << "]");
-                continue;
-            } else {
-                // good combination found
-                m_monCut = 3;
-                m_monMassAccepted = mass;
-                xAOD::TrigComposite *comp=new xAOD::TrigComposite();;
-                objs->push_back(comp);
-                comp->setName("elel");
-                comp->setDetail("mass",mass);
-                comp->setObjectLink("tag",link1);
-                comp->setObjectLink("probe",link2);
-                ATH_MSG_DEBUG("Combination passed mass cut: " 
-                        << m_lowerMassCut << " < " << mass << " < " 
-                        << m_upperMassCut);
+      // evaluate mass
+      
+      TLorentzVector hlv1 = p1->p4();
+      TLorentzVector hlv2 = p2->p4();
+      mass = (hlv1+hlv2).M();
 
-            }   
-        } // electrons2 container loop end
-        // Now combine with cluster
-        for (const auto& cllink : cllinks){
-            const xAOD::CaloCluster *p2 = *cllink;
-            m_monCut = 4;
-
-            ATH_MSG_DEBUG("Electron Cluster combination:");
-            ATH_MSG_DEBUG("2nd CaloCluster:"
-                    << "  pt="    << p2->pt()  
-                    << "; eta="   << p2->eta()                 
-                    << "; phi="   << p2->phi());
-
-            // evaluate mass
-            TLorentzVector hlv1 = p1->p4();
-            TLorentzVector hlv2 = p2->p4();
-            mass = (hlv1+hlv2).M();
-
-            // apply cut on mass
-            if(mass<m_lowerMassCut || mass>m_upperMassCut) {
-                ATH_MSG_DEBUG("Combination failed mass cut: " 
-                        << mass << " not in [" << m_lowerMassCut << "," 
-                        << m_upperMassCut << "]");
-                continue;
-            } else {
-                // good combination found
-                m_monCut = 5;
-                m_monMassAccepted = mass;
-                xAOD::TrigComposite *comp=new xAOD::TrigComposite();;
-                objs->push_back(comp);
-                comp->setName("elcl");
-                comp->setDetail("mass",mass);
-                comp->setObjectLink("tag",link1);
-                comp->setObjectLink("probe",cllink);
-                ATH_MSG_DEBUG("Combination passed mass cut: " 
-                        << m_lowerMassCut << " < " << mass << " < " 
-                        << m_upperMassCut);
-            }
-        } // cluster container loop end
-    } // electrons1 container loop end
+      // apply cut on mass
+      if(mass<m_lowerMassCut || mass>m_upperMassCut) {
+	if(msgLvl() <= MSG::DEBUG) {
+	  msg() << MSG::DEBUG << "Combination failed mass cut: " 
+		<< mass << " not in [" << m_lowerMassCut << "," 
+		<< m_upperMassCut << "]" << endreq;
+	}
+	continue;
+      } else {
+	// good combination found
+	m_monCut = 2;
+	if (masses.size() == 0) m_monMassAccepted = mass;
+	masses.push_back(mass);
+	if (msgLvl() <= MSG::DEBUG) {
+	  msg() << MSG::DEBUG << "Combination passed mass cut: " 
+		<< m_lowerMassCut << " < " << mass << " < " 
+		<< m_upperMassCut << endreq;
+	}
+      }  
+    } // electrons2 container loop end
+  } // electrons1 container loop end
 }
 

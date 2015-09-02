@@ -186,6 +186,9 @@ class TrigEFElectronHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=26, xmin=-0.5, xmax=25.5 ) ]
                                              
 
+
+        self.Histograms += [ defineHistogram('A0',	 type='TH1F', title="EFElectron Hypo Hypo A0; Impact Parameter",xbins=100, xmin=-1.0, xmax=1.0) ]        
+
         self.Histograms += [ defineHistogram('mu',	 type='TH1F', title="EFElectron Hypo mu; Pileup",xbins=100, xmin=0., xmax=100.0) ]        
 
         self.Histograms += [ defineHistogram('LikelihoodRatio',	 type='TH1F', title="EFElectron Hypo Likelihood Ratio; LR",xbins=100, xmin=-1.0, xmax=1.0) ]        
@@ -254,7 +257,20 @@ class TrigEFElectronHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         
         self.Histograms += [ defineHistogram('El_ClusterEt', 	type='TH1F', title="EFElectron Hypo Cluster E_{T}; E_{T}^{em} [MeV]",
                                             xbins=50, xmin=-2000, xmax=100000) ]
+     
                                              
+        self.Histograms += [ defineHistogram('El_Reta', 	type='TH1F', title="EFElectron Hypo Reta = E237/E277; Reta",
+                                             xbins=130, xmin=-5.0, xmax=1.5 ) ]
+        
+                                             
+        self.Histograms += [ defineHistogram('El_Rhad', 	type='TH1F', title="EFElectron Hypo Rhad = Ethad/et; Rhad",
+                                             xbins=130, xmin=-0.25, xmax=0.25 ) ]
+        
+        
+        self.Histograms += [ defineHistogram('El_F3core',	 type='TH1F', title="EFElectron Hypo F3; E3(3x3)/(E0+E1+E2+E3)",xbins=96, xmin=-0.1, xmax=1.1) ]       
+        
+        self.Histograms += [ defineHistogram('El_DeltaE',	 type='TH1F', title="EFElectron Hypo F3; e2tsts1-emins1 ",xbins=96, xmin=-0.1, xmax=1.1) ]       
+        
         self.Histograms += [ defineHistogram('El_Eta',	 type='TH1F', title="EFElectron Hypo Eta; #eta ",xbins=100, xmin=-2.5, xmax=2.5) ]       
 
         self.Histograms += [ defineHistogram('El_Phi',	 type='TH1F', title="EFElectron Hypo Phi; #eta ",xbins=160, xmin=-3.2, xmax=3.2) ]       
@@ -263,6 +279,17 @@ class TrigEFElectronHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
 
         self.Histograms += [ defineHistogram('SigmaD0',	 type='TH1F', title="EFElectron Hypo #sigma(d0); #sigma(Impact Parameter) ",xbins=100, xmin=-1.0, xmax=1.0) ]        
         
+        self.Histograms += [ defineHistogram('El_Eratio', 	type='TH1F', title="EFElectron Hypo Eratio = (emax1 - emax2) / (emax1 + emax2) ; Eratio ",
+                                             xbins=32, xmin=-0.1, xmax=1.5 ) ]
+
+        self.Histograms += [ defineHistogram('El_WEta2', 	type='TH1F', title="EFElectron  Hypo corrected width in 3 strips in the 2st samp. ; WEta2",
+                                             xbins=20, xmin=0, xmax=0.05 ) ]
+
+        self.Histograms += [ defineHistogram('El_PtCone20', 	type='TH1F', title="EFElectron Hypo Pt in a ring of DR<0.20 above noise (excluding electron PT); PT [MeV]",
+                                             xbins=60, xmin=-10000, xmax=50000 ) ] 
+
+        self.Histograms += [ defineHistogram('TrackPt', 	type='TH1F', title="EFElectron Hypo Track E_{T}; E_{T}^{track}} [MeV]",
+                                            xbins=50, xmin=-2000, xmax=100000) ]
         self.Histograms += [ defineHistogram('dEta', 	type='TH1F', title="EFElectron Hypo #Delta #eta between track and cluster in first layer; #Delta#eta",
                                              xbins=100, xmin=-0.100, xmax=0.100) ]
         self.Histograms += [ defineHistogram('dPhi', 	type='TH1F', title="EFElectron Hypo #Delta #phi between track and cluster in second layer; #Delta#phi",
@@ -271,9 +298,6 @@ class TrigEFElectronHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('mu',	 type='TH1F', title="EFElectron Hypo mu; Pileup",xbins=100, xmin=0., xmax=100.0) ]        
 
         self.Histograms += [ defineHistogram('LikelihoodRatio',	 type='TH1F', title="EFElectron Hypo Likelihood Ratio; LR",xbins=100, xmin=-1.0, xmax=1.0) ]        
-        
-        self.Histograms += [ defineHistogram('El_PtCone20', 	type='TH1F', title="EFElectron Hypo Pt in a ring of DR<0.20 above noise (excluding electron PT); PT [MeV]",
-                                             xbins=60, xmin=-10000, xmax=50000 ) ] 
 
                                 									
         
@@ -465,7 +489,9 @@ class TrigEFElectronHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('nTRTHitsOutliers', 	type='TH1F', title="EFElectron Hypo number of outliers TRT hits; Number of TRT outlier hits",
                                              xbins=26, xmin=-0.5, xmax=25.5 ) ]
                                              
+       
 
+        self.Histograms += [ defineHistogram('A0',	 type='TH1F', title="EFElectron Hypo Hypo A0; Impact Parameter",xbins=100, xmin=-1.0, xmax=1.0) ]        
         self.Histograms += [ defineHistogram('mu',	 type='TH1F', title="EFElectron Hypo mu; Pileup",xbins=100, xmin=0., xmax=100.0) ]        
 
         self.Histograms += [ defineHistogram('LikelihoodRatio',	 type='TH1F', title="EFElectron Hypo Likelihood Ratio; LR",xbins=100, xmin=-1.0, xmax=1.0) ]        

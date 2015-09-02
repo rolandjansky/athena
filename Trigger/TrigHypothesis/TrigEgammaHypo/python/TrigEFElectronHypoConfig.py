@@ -11,7 +11,6 @@ from AthenaCommon.SystemOfUnits import GeV
 
 # Include EGammaPIDdefs for loose,medium,tight definitions
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
-from TrigEgammaHypo.TrigEgammaPidTools import * 
 class TrigEFElectronHypoBase (TrigEFElectronHypo):
     __slots__ = []
     def __init__(self, name):
@@ -81,36 +80,25 @@ class TrigEFElectronHypo_e_ID (TrigEFElectronHypoBase):
         self.ApplyEtIsEM = False
         self.emEt = float(threshold)*GeV
         self.IsEMrequiredBits = 0X0
+        from TrigEgammaHypo.TrigEgammaPidTools import ElectronToolName
+        from TrigEgammaHypo.TrigEgammaPidTools import ElectronHypoToolName
+        from TrigEgammaHypo.TrigEgammaPidTools import ElectronIsEMBits
         
         # Add the PID tools
         if( 'lh' in IDinfo):
+            self.egammaElectronCutIDToolName = "AsgElectronIsEMSelector/AsgElectronIsEMVLooseSelector"
             self.AthenaElectronLHIDSelectorToolName='AsgElectronLikelihoodTool/'+ElectronToolName[IDinfo]
             self.UseAthenaElectronLHIDSelectorTool = True
         else:
+            self.AthenaElectronLHIDSelectorToolName="AsgElectronLikelihoodTool/AsgElectronLHLooseSelector"
             self.IsEMrequiredBits =  ElectronIsEMBits[IDinfo]
-            self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
-
-
-class TrigEFElectronHypo_e_ID_HI (TrigEFElectronHypoBase):
-    __slots__ = []
-    def __init__(self, name, threshold, IDinfo):
-        super( TrigEFElectronHypo_e_ID_HI, self ).__init__( name ) 
-        # Set the properties        
-        self.AcceptAll = False
-        self.CaloCutsOnly = False
-        self.ApplyIsEM = True
-        self.ApplyEtIsEM = False
-        self.emEt = float(threshold)*GeV
-        self.IsEMrequiredBits = 0X0
-        
-        # Add the PID tools
-        if( 'lh' in IDinfo):
-            self.AthenaElectronLHIDSelectorToolName='AsgElectronLikelihoodTool/'+ElectronToolName[IDinfo]
-            self.UseAthenaElectronLHIDSelectorTool = True
-        else:
-            self.IsEMrequiredBits =  ElectronIsEMBits[IDinfo]
-            self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
-
+            if('1' in IDinfo):
+                if( float(threshold) < 20 ):
+                    self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
+                else:
+                    self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronHypoToolName[IDinfo]
+            else:
+                self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
  
 # Likelihood only chains for alignment studies 
 class TrigEFElectronHypo_e_LH (TrigEFElectronHypoBase):
@@ -124,21 +112,29 @@ class TrigEFElectronHypo_e_LH (TrigEFElectronHypoBase):
         self.ApplyEtIsEM = False
         self.emEt = float(threshold)*GeV
         self.IsEMrequiredBits = 0X0
+       
         
+        # Add the PID tools
+        self.egammaElectronCutIDToolName = "AsgElectronIsEMSelector/AsgElectronIsEMVLooseSelector"
+     
         self.UseAthenaElectronLHIDSelectorTool = True
         if(IDinfo == 'lhvloose'):
+            from TrigEgammaHypo.TrigEgammaPidTools import ElectronLHVLooseToolName
             self.AthenaElectronLHIDSelectorToolName='AsgElectronLikelihoodTool/'+ElectronLHVLooseToolName[lhInfo]
         elif(IDinfo == 'lhloose'):
+            from TrigEgammaHypo.TrigEgammaPidTools import ElectronLHLooseToolName
             self.AthenaElectronLHIDSelectorToolName='AsgElectronLikelihoodTool/'+ElectronLHLooseToolName[lhInfo]
         elif(IDinfo == 'lhmedium'):
+            from TrigEgammaHypo.TrigEgammaPidTools import ElectronLHMediumToolName
             self.AthenaElectronLHIDSelectorToolName='AsgElectronLikelihoodTool/'+ElectronLHMediumToolName[lhInfo]
         elif(IDinfo == 'lhtight'):
+            from TrigEgammaHypo.TrigEgammaPidTools import ElectronLHTightToolName
             self.AthenaElectronLHIDSelectorToolName='AsgElectronLikelihoodTool/'+ElectronLHTightToolName[lhInfo]
 
 # --- eXX LH chains for alignment with isolation 
 class TrigEFElectronHypo_e_LH_Iso (TrigEFElectronHypo_e_LH):
     __slots__ = []
-    def __init__(self, name, threshold, IDinfo, lhInfo, isoInfo):
+    def __init__(self, name, threshold, IDinfo, lhInfo):
         super( TrigEFElectronHypo_e_LH_Iso, self ).__init__( name, threshold, IDinfo, lhInfo ) 
 # Set the properties        
         self.CaloCutsOnly = False
@@ -147,17 +143,14 @@ class TrigEFElectronHypo_e_LH_Iso (TrigEFElectronHypo_e_LH):
         self.ApplyIsolation = True
         self.useClusETforCaloIso = True
         self.useClusETforTrackIso = True
-        #EtCone Size              =  20, 30, 40
-        self.EtConeSizes = 3
-        self.RelEtConeCut       = [-1, -1, -1]
-        self.EtConeCut          = [-1, -1, -1]
+        #EtCone Size              =  15, 20, 25, 30, 35, 40
+        self.EtConeSizes = 6
+        self.RelEtConeCut       = [-1, -1, -1, -1, -1, -1]
+        self.EtConeCut          = [-1, -1, -1, -1, -1, -1]
         #PtCone Size              =  20, 30, 40
-        self.PtConeSizes = 6
-        if 'ivarloose' in isoInfo:
-            self.RelPtConeCut       = [-1, -1, -1,0.100,-1,-1]
-        else:
-            self.RelPtConeCut       = [0.100, -1, -1,-1,-1,-1]
-        self.PtConeCut          = [-1, -1, -1,-1,-1,-1]
+        self.PtConeSizes = 3
+        self.RelPtConeCut       = [0.100, -1, -1]
+        self.PtConeCut          = [-1, -1, -1]
 
 # --- W T&P supporting trigger
 #-----------------------------------------------------------------------
@@ -171,8 +164,19 @@ class TrigEFElectronHypo_e_WTP (TrigEFElectronHypoBase):
         self.ApplyEtIsEM = False
         self.emEt = float(threshold)*GeV
         self.IsEMrequiredBits = 0X0
+        from TrigEgammaHypo.TrigEgammaPidTools import ElectronToolName
+        from TrigEgammaHypo.TrigEgammaPidTools import ElectronHypoToolName
+        from TrigEgammaHypo.TrigEgammaPidTools import ElectronIsEMBits
+        from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
+        self.AthenaElectronLHIDSelectorToolName="AsgElectronLikelihoodTool/AsgElectronLHLooseSelector"
         self.IsEMrequiredBits =  SelectionDefElectron.Electron_trk
-        self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName["loose"]
+        if('1' in IDinfo):
+            if( float(threshold) < 20 ):
+                self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
+            else:
+                self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronHypoToolName[IDinfo]
+        else:
+            self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
 
 #-----------------------------------------------------------------------
 # --- eXX Particle ID selection CaloCuts only
@@ -188,15 +192,72 @@ class TrigEFElectronHypo_e_ID_CaloOnly (TrigEFElectronHypo_e_ID):
         # Set the properties        
         self.CaloCutsOnly = True
         self.IsEMrequiredBits = 0X0
+        from TrigEgammaHypo.TrigEgammaPidTools import ElectronCaloToolName
+        from TrigEgammaHypo.TrigEgammaPidTools import ElectronCaloHypoToolName
+        from TrigEgammaHypo.TrigEgammaPidTools import ElectronIsEMBits
         
         if( 'lh' in IDinfo):
+            self.egammaElectronCutIDToolName = "AsgElectronIsEMSelector/AsgElectronIsEMVLooseCaloSelector"
             self.UseAthenaElectronLHIDSelectorTool = True
             self.AthenaElectronLHIDSelectorToolName='AsgElectronLikelihoodTool/'+ElectronCaloToolName[IDinfo]
         else:
+            self.AthenaElectronLHIDSelectorToolName="AsgElectronLikelihoodTool/AsgElectronLHLooseSelector"
             self.IsEMrequiredBits =  ElectronIsEMBits[IDinfo]
-            self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronCaloToolName[IDinfo]
+            if('1' in IDinfo):
+                if( float(threshold) < 20 ):
+                    self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronCaloToolName[IDinfo]
+                else:
+                    self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronCaloHypoToolName[IDinfo]
+            else:
+                self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronCaloToolName[IDinfo]
+
+#-----------------------------------------------------------------------
+# --- eXX IsEM Selection uses the Et of the object
+class TrigEFElectronHypo_e_ID_EtIsEM (TrigEFElectronHypoBase):
+    __slots__ = []
+    def __init__(self, name, threshold, IDinfo):
+        super( TrigEFElectronHypo_e_ID_EtIsEM, self ).__init__( name ) 
+# Set the properties        
+        self.AcceptAll = False
+        self.CaloCutsOnly = False
+        self.ApplyIsEM = True
+        self.ApplyEtIsEM = True
+        self.emEt = float(threshold)*GeV
+        self.IsEMrequiredBits = 0X0
+        
+        from TrigEgammaHypo.TrigEgammaPidTools import ElectronToolName
+        from TrigEgammaHypo.TrigEgammaPidTools import ElectronIsEMBits
+        
+        # Add the PID tools
+        if( 'lh' in IDinfo):
+            self.egammaElectronCutIDToolName = "AsgElectronIsEMSelector/AsgElectronIsEMVLooseSelector"
+            self.AthenaElectronLHIDSelectorToolName='AsgElectronLikelihoodTool/'+ElectronToolName[IDinfo]
+            self.UseAthenaElectronLHIDSelectorTool = True
+        else:
+            self.egammaElectronCutIDToolName = 'AsgElectronIsEMSelector/'+ElectronToolName[IDinfo]
+            self.IsEMrequiredBits = ElectronIsEMBits[IDinfo]
+    
 
 # --- eXX IsEM Selection uses the Et of the object
+class TrigEFElectronHypo_e_ID_EtIsEM_Iso (TrigEFElectronHypo_e_ID_EtIsEM):
+    __slots__ = []
+    def __init__(self, name, threshold, IDinfo):
+        super( TrigEFElectronHypo_e_ID_EtIsEM_Iso, self ).__init__( name, threshold, IDinfo ) 
+# Set the properties        
+        self.CaloCutsOnly = False
+        self.ApplyEtIsEM = True
+        #Isolation
+        self.ApplyIsolation = True
+        self.useClusETforCaloIso = True
+        self.useClusETforTrackIso = True
+        #EtCone Size              =  15, 20, 25, 30, 35, 40
+        self.EtConeSizes = 6
+        self.RelEtConeCut       = [-1, -1, -1, -1, -1, -1]
+        self.EtConeCut          = [-1, -1, -1, -1, -1, -1]
+        #PtCone Size              =  20, 30, 40
+        self.PtConeSizes = 3
+        self.RelPtConeCut       = [0.100, -1, -1]
+        self.PtConeCut          = [-1, -1, -1]
 #-----------------------------------------------------------------------
 # --- eXX Particle ID and Isolation
 # --- derives from e_ID
@@ -210,17 +271,14 @@ class TrigEFElectronHypo_e_Iso (TrigEFElectronHypo_e_ID):
         self.ApplyIsolation = True
         self.useClusETforCaloIso = True
         self.useClusETforTrackIso = True
-        #EtCone Size              =  20, 30, 40
-        self.EtConeSizes = 3
-        self.RelEtConeCut       = [-1, -1, -1]
-        self.EtConeCut          = [-1, -1, -1]
+        #EtCone Size              =  15, 20, 25, 30, 35, 40
+        self.EtConeSizes = 6
+        self.RelEtConeCut       = [-1, -1, -1, -1, -1, -1]
+        self.EtConeCut          = [-1, -1, -1, -1, -1, -1]
         #PtCone Size              =  20, 30, 40
-        self.PtConeSizes = 6
-        if 'ivarloose' in isoInfo:
-            self.RelPtConeCut       = [-1, -1, -1,0.100,-1,-1]
-        else:
-            self.RelPtConeCut       = [0.100, -1, -1,-1,-1,-1]
-        self.PtConeCut          = [-1, -1, -1,-1,-1,-1]
+        self.PtConeSizes = 3
+        self.RelPtConeCut       = [0.100, -1, -1]
+        self.PtConeCut          = [-1, -1, -1]
 
 #-----------------------------------------------------------------------
 # --- eXX Particle ID and Isolation performance chains
@@ -231,7 +289,7 @@ class TrigEFElectronHypo_e_Iso (TrigEFElectronHypo_e_ID):
 class TrigEFElectronHypo_e_ID_perf (TrigEFElectronHypo_e_ID):
     __slots__ = []
     def __init__(self, name, threshold, IDinfo):
-        super( TrigEFElectronHypo_e_ID_perf, self ).__init__( name, threshold, IDinfo )
+        super( TrigEFElectronHypo_e_IsD_perf, self ).__init__( name, threshold, IDinfo )
         self.AcceptAll = True
 
 class TrigEFElectronHypo_e_Iso_perf (TrigEFElectronHypo_e_ID):
@@ -251,18 +309,4 @@ class TrigEFElectronHypo_e_Iso_perf (TrigEFElectronHypo_e_ID):
         self.PtConeSizes = 3
         self.RelPtConeCut       = [0.100, -1, -1]
         self.PtConeCut          = [-1, -1, -1]
-
-# Add back some dummy classes
-# Just to ensure menu compiles
-class TrigEFElectronHypo_e_ID_EtIsEM (TrigEFElectronHypoBase):
-    __slots__ = []
-    def __init__(self, name):
-        super( TrigEFElectronHypo_e_ID_EtIsEM, self ).__init__( name)
-        self.AcceptAll = True
-
-class TrigEFElectronHypo_e_ID_EtIsEM_Iso (TrigEFElectronHypoBase):
-    __slots__ = []
-    def __init__(self, name):
-        super( TrigEFElectronHypo_e_ID_EtIsEM_Iso, self ).__init__( name)
-        self.AcceptAll = True
 

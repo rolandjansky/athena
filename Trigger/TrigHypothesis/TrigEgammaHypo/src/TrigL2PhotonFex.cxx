@@ -45,7 +45,7 @@ TrigL2PhotonFex::~TrigL2PhotonFex()
 HLT::ErrorCode TrigL2PhotonFex::hltInitialize()
 {
   if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Initializing"   << endmsg;
+    msg() << MSG::DEBUG << "Initializing"   << endreq;
   }
   
   return HLT::OK;
@@ -55,7 +55,7 @@ HLT::ErrorCode TrigL2PhotonFex::hltInitialize()
 HLT::ErrorCode TrigL2PhotonFex::hltFinalize()
 {
   if ( msgLvl() <= MSG::DEBUG ) {
-    msg() << MSG::DEBUG << "Finalizing" << endmsg;
+    msg() << MSG::DEBUG << "Finalizing" << endreq;
   }
 
   return HLT::OK;
@@ -77,21 +77,27 @@ HLT::ErrorCode TrigL2PhotonFex::hltExecute(const HLT::TriggerElement* inputTE,
   else {
     m_trigPhotonContainer->clear();
   }
-  
+
   // get RoI descriptor
   const TrigRoiDescriptor* roiDescriptor = 0;
-  if (getFeature(inputTE, roiDescriptor) != HLT::OK) roiDescriptor = 0;
+  status = getFeature(inputTE, roiDescriptor);
 
-  if ( !roiDescriptor ) {
-    ATH_MSG_WARNING("No RoI for this Trigger Element! ");
+  if ( status != HLT::OK ) {
+    if ( msgLvl() <= MSG::WARNING) {
+      msg() <<  MSG::WARNING << "No RoI for this Trigger Element! " << endreq;
+    }
     return HLT::NAV_ERROR;
   }
   
-  ATH_MSG_DEBUG("Using inputTE("<< inputTE <<")->getId(): " << inputTE->getId()
-          << "; RoI ID = "   << roiDescriptor->roiId()
-          << ": Eta = "      << roiDescriptor->eta()
-          << ", Phi = "      << roiDescriptor->phi());
-
+  if ( msgLvl() <= MSG::DEBUG ){
+    msg() << MSG::DEBUG
+	  << "Using inputTE("<< inputTE <<")->getId(): " << inputTE->getId()
+	  << "; RoI ID = "   << roiDescriptor->roiId()
+	  << ": Eta = "      << roiDescriptor->eta()
+	  << ", Phi = "      << roiDescriptor->phi()
+	  << endreq;
+  }
+  
   // fill local variables for RoI reference position
   double etaRef = roiDescriptor->eta();
   double phiRef = roiDescriptor->phi();
@@ -112,7 +118,7 @@ HLT::ErrorCode TrigL2PhotonFex::hltExecute(const HLT::TriggerElement* inputTE,
   }
   else {
     if ( msgLvl() <= MSG::DEBUG){ 
-      msg() << MSG::DEBUG << "Failed to get TrigEMCluster" << endmsg; 
+      msg() << MSG::DEBUG << "Failed to get TrigEMCluster" << endreq; 
     }
     return HLT::MISSING_FEATURE;
   }
@@ -122,7 +128,7 @@ HLT::ErrorCode TrigL2PhotonFex::hltExecute(const HLT::TriggerElement* inputTE,
 
   if(pClus == 0){
     if ( msgLvl() <= MSG::WARNING ){
-      msg() << MSG::WARNING << "Failed to retieve TrigEMCluster from ElementLink" << endmsg;
+      msg() << MSG::WARNING << "Failed to retieve TrigEMCluster from ElementLink" << endreq;
     }
     return HLT::MISSING_FEATURE;
   }
@@ -133,7 +139,7 @@ HLT::ErrorCode TrigL2PhotonFex::hltExecute(const HLT::TriggerElement* inputTE,
   dPhi = (dPhi < M_PI ? dPhi : 2*M_PI - dPhi );
   if ( msgLvl() <= MSG::DEBUG ) {
     msg() << MSG::DEBUG  << "TrigPhoton will be built with: dEta=" << dEta
-	  << "  and dPhi= " << dPhi << endmsg; 
+	  << "  and dPhi= " << dPhi << endreq; 
   } 
 
   // create TrigPhoton from TrigEMCluster
@@ -150,7 +156,7 @@ HLT::ErrorCode TrigL2PhotonFex::hltExecute(const HLT::TriggerElement* inputTE,
   // REGTEST output
   if ( msgLvl() <= MSG::DEBUG ) {
     msg() << MSG::DEBUG << "REGTEST: TrigPhotonContainer has " << m_trigPhotonContainer->size()
-	  << " element" << endmsg;
+	  << " element" << endreq;
     if (!m_trigPhotonContainer->empty()) {
       xAOD::TrigPhoton* p_tp = m_trigPhotonContainer->front();
       msg() << MSG::DEBUG  << "REGTEST: TrigPhoton: RoI=" << p_tp->roiWord()
@@ -161,7 +167,7 @@ HLT::ErrorCode TrigL2PhotonFex::hltExecute(const HLT::TriggerElement* inputTE,
 	    << "; Had Et=" << p_tp->etHad() 
 	    << "; EnergyRatio=" << p_tp->eratio()
 	    << "; rCore=" << p_tp->rcore()
-	    << endmsg;
+	    << endreq;
     }
   }  
   
@@ -177,12 +183,12 @@ HLT::ErrorCode TrigL2PhotonFex::hltExecute(const HLT::TriggerElement* inputTE,
   
   if( status == HLT::OK ){
     if( msgLvl() <= MSG::DEBUG ){ 
-      msg() << MSG::DEBUG << "Attached TrigPhotonContainer to outputTE with ID: " << outputTE->getId() << endmsg;    
+      msg() << MSG::DEBUG << "Attached TrigPhotonContainer to outputTE with ID: " << outputTE->getId() << endreq;    
     }
   }
   else {
     if ( msgLvl() <= MSG::ERROR ){
-      msg() << MSG::ERROR << "Failed to attach TrigPhotonContainer!" << endmsg;    
+      msg() << MSG::ERROR << "Failed to attach TrigPhotonContainer!" << endreq;    
     }
     return status;
   }

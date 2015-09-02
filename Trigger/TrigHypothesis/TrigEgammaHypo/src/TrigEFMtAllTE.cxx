@@ -15,8 +15,9 @@
 #include "TrigEgammaHypo/TrigEFMtAllTE.h"
 #include "TrigNavigation/Navigation.h"
 #include "TrigMissingEtEvent/TrigMissingET.h"
+#include "TrigSteeringEvent/TrigPassBits.h"
 #include "xAODEgamma/ElectronContainer.h"
-#include "xAODTrigger/TrigPassBits.h"
+
 using namespace std;
 
 struct DescendingEt:std::binary_function<const xAOD::Electron*,
@@ -50,7 +51,7 @@ HLT::ErrorCode TrigEFMtAllTE::hltExecute(std::vector<HLT::TEVec>& inputs, unsign
   HLT::TriggerElement* outputTE = makeOutputTE(inputs, type_out);
   if (outputTE && inputs.size() != 2) {
     msg() << MSG::WARNING << "OutputTE is null or input TE size not two"
-	  << endmsg;
+	  << endreq;
     return HLT::OK;
   }
 
@@ -65,12 +66,12 @@ HLT::ErrorCode TrigEFMtAllTE::hltExecute(std::vector<HLT::TEVec>& inputs, unsign
   m_mt_electron1_pass = -999;
 
   if(tes1.size() == 0) {
-    msg() << MSG::WARNING << "No MET TE found" << endmsg;
+    msg() << MSG::WARNING << "No MET TE found" << endreq;
     return HLT::MISSING_FEATURE;
   }
 
   if(tes2.size() == 0) {
-    msg() << MSG::WARNING << "No jet TE found" << endmsg;
+    msg() << MSG::WARNING << "No jet TE found" << endreq;
     return HLT::MISSING_FEATURE;
   }
 
@@ -79,11 +80,11 @@ HLT::ErrorCode TrigEFMtAllTE::hltExecute(std::vector<HLT::TEVec>& inputs, unsign
   std::vector<const xAOD::TrigMissingET*> v_met;
   HLT::ErrorCode statMET = getFeatures(tes1.front(), v_met);
   if(statMET != HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get vectorMissingETs " << endmsg;
+    msg() << MSG::WARNING << " Failed to get vectorMissingETs " << endreq;
     return HLT::OK;
   }
   if(v_met.size() == 0){
-    msg() << MSG::WARNING << " Failed to get vectorMissingETs " << endmsg;
+    msg() << MSG::WARNING << " Failed to get vectorMissingETs " << endreq;
     return HLT::MISSING_FEATURE;
   }
 
@@ -96,17 +97,17 @@ HLT::ErrorCode TrigEFMtAllTE::hltExecute(std::vector<HLT::TEVec>& inputs, unsign
   const xAOD::ElectronContainer* outEle=0;
   HLT::ErrorCode statEles = getFeature(tes2.front(), outEle);
   if(statEles != HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get Electrons " << endmsg;
+    msg() << MSG::WARNING << " Failed to get Electrons " << endreq;
     return HLT::OK;
   }
   if(outEle == 0){
-    msg() << MSG::DEBUG << " Got no Electrons associated to the TE! " << endmsg;
+    msg() << MSG::DEBUG << " Got no Electrons associated to the TE! " << endreq;
     return HLT::MISSING_FEATURE;
   }
-  const xAOD::TrigPassBits* bits(0);
+  const TrigPassBits* bits(0);
   HLT::ErrorCode status = getFeature(tes2.front(), bits, "passbits");
   if (status != HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get TrigPassBits " << endmsg;
+    msg() << MSG::WARNING << " Failed to get TrigPassBits " << endreq;
     return HLT::MISSING_FEATURE;
   }
 
@@ -115,24 +116,24 @@ HLT::ErrorCode TrigEFMtAllTE::hltExecute(std::vector<HLT::TEVec>& inputs, unsign
 
   for (const xAOD::Electron* aEle : theElectrons) {
 
-    if(!bits->isPassing( aEle, outEle )) {
-        if (msgLvl() <= MSG::DEBUG) {
-	msg() << MSG::DEBUG << "Electron found not passing Hypo object" << endmsg;
+    if(!HLT::isPassing( bits, aEle, outEle )) {
+      if (msgLvl() <= MSG::DEBUG) {
+	msg() << MSG::DEBUG << "Electron found not passing Hypo object" << endreq;
       }
       continue;
     }
 
-    float elephi = aEle->p4().Phi();
-    float elept = aEle->p4().Pt();
+    float m_elephi = aEle->p4().Phi();
+    float m_elept = aEle->p4().Pt();
 
-    double delta_phi = fabs(elephi - metphi);
+    double delta_phi = fabs(m_elephi - metphi);
     if (delta_phi>M_PI) delta_phi = 2*M_PI - delta_phi;
 
-    float mt = sqrt(2*elept*met*(1-cos(delta_phi)));
+    float mt = sqrt(2*m_elept*met*(1-cos(delta_phi)));
 
     if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Electron pt " << elept << " MeV, MT: " << mt << " MeV, MET: " << met << " MeV" << endmsg;
-      msg() << MSG::DEBUG << "Electron pt cut " << m_MinElectronEt*CLHEP::GeV << " MeV, MT cut: " << m_MinMtCut*CLHEP::GeV << " MeV" << endmsg;
+      msg() << MSG::DEBUG << "Electron pt " << m_elept << " MeV, MT: " << mt << " MeV, MET: " << met << " MeV" << endreq;
+      msg() << MSG::DEBUG << "Electron pt cut " << m_MinElectronEt*CLHEP::GeV << " MeV, MT cut: " << m_MinMtCut*CLHEP::GeV << " MeV" << endreq;
     }
 
     if(electron_counter == 0) {
@@ -140,7 +141,7 @@ HLT::ErrorCode TrigEFMtAllTE::hltExecute(std::vector<HLT::TEVec>& inputs, unsign
     }
 
     if(electron_counter < m_MaxNbElectrons) {
-      if(elept > m_MinElectronEt*CLHEP::GeV && mt > m_MinMtCut*CLHEP::GeV) {
+      if(m_elept > m_MinElectronEt*CLHEP::GeV && mt > m_MinMtCut*CLHEP::GeV) {
 	pass = true;
 	if(electron_counter == 0) {
 	  m_mt_electron1_pass = mt;
@@ -154,7 +155,7 @@ HLT::ErrorCode TrigEFMtAllTE::hltExecute(std::vector<HLT::TEVec>& inputs, unsign
   }
 
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Decision: " << pass << endmsg;
+    msg() << MSG::DEBUG << "Decision: " << pass << endreq;
   }
   if (pass) outputTE->setActiveState(true);
 

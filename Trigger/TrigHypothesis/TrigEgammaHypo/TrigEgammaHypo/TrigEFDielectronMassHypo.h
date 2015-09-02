@@ -32,8 +32,10 @@
 #include "TrigInterfaces/HypoAlgo.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 // trigger EDM
-#include "xAODTrigger/TrigComposite.h"
-#include "xAODTrigger/TrigCompositeContainer.h"
+//#include "TrigInDetEvent/TrigInDetTrack.h"
+//#include "TrigInDetEvent/TrigInDetTrackCollection.h"
+//#include "TrigInDetEvent/TrigInDetTrackHelper.h"
+//#include "TrigParticle/TrigElectron.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTrigEgamma/TrigElectron.h"
 #include "xAODTrigEgamma/TrigElectronContainer.h"
@@ -62,9 +64,8 @@ public:
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);
 
 private:
-  bool checkMasses(const xAOD::TrigCompositeContainer* masses, 
-          const std::string &key, const float mass_min, const float mass_max);
-  bool checkComposites(const xAOD::TrigCompositeContainer* masses);
+  bool checkAllMasses(const TrigOperationalInfo* masses, 
+		      float mass_min, float mass_max);
 
 private:
   bool m_useElectronElectron;

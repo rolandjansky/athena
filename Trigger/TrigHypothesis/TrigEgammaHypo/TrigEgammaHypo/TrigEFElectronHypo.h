@@ -117,8 +117,8 @@ class TrigEFElectronHypo : public HLT::HypoAlgo {
   std::vector<float> m_EtConeCut;
   std::vector<float> m_RelPtConeCut;
   std::vector<float> m_PtConeCut;
-  std::map<int, std::string> m_mapEtCone,m_mapPtCone;
-  std::map<int, std::string> m_mapRelEtCone,m_mapRelPtCone;
+  std::map<int, string> m_mapEtCone,m_mapPtCone;
+  std::map<int, string> m_mapRelEtCone,m_mapRelPtCone;
 
   int m_NofPassedCuts;
   int m_NofPassedCutsIsEM;
@@ -132,6 +132,8 @@ class TrigEFElectronHypo : public HLT::HypoAlgo {
   std::vector<unsigned int> m_IsEMRequiredBitsAfterCut;
   // Likelihood output
   std::vector<float> m_lhval;
+  //Impact parameter monitoring
+  std::vector<double> m_a0;
   // Lumi monitoring
   std::vector<double> m_avgmu;
 

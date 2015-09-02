@@ -56,13 +56,13 @@ TrigEFTrackHypo::TrigEFTrackHypo(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("NumTracks", m_numTracks=1, 
 		  "Number of tracks satisfying the selection");
 
-  declareMonitoredCollection("pt", *dvec_cast(&m_TrkParticleCont), &xAOD::TrackParticle::pt);
-  declareMonitoredCollection("Phi",*dvec_cast(&m_TrkParticleCont), &xAOD::TrackParticle::phi);
-  declareMonitoredCollection("Eta",*dvec_cast(&m_TrkParticleCont), &xAOD::TrackParticle::eta);
-  declareMonitoredCollection("d0", *dvec_cast(&m_TrkParticleCont), &xAOD::TrackParticle::d0);
-  declareMonitoredCollection("z0", *dvec_cast(&m_TrkParticleCont), &xAOD::TrackParticle::z0);
+  declareMonitoredCollection("pt", *dvec_cast(&TrkParticleCont), &xAOD::TrackParticle::pt);
+  declareMonitoredCollection("Phi",*dvec_cast(&TrkParticleCont), &xAOD::TrackParticle::phi);
+  declareMonitoredCollection("Eta",*dvec_cast(&TrkParticleCont), &xAOD::TrackParticle::eta);
+  declareMonitoredCollection("d0", *dvec_cast(&TrkParticleCont), &xAOD::TrackParticle::d0);
+  declareMonitoredCollection("z0", *dvec_cast(&TrkParticleCont), &xAOD::TrackParticle::z0);
   declareMonitoredVariable("numTrkPart",m_numTrkPart);
-  m_TrkParticleCont=nullptr;
+  TrkParticleCont=nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -84,7 +84,7 @@ TrigEFTrackHypo::~TrigEFTrackHypo()
 //----------------------------------------------------------------------------
 HLT::ErrorCode TrigEFTrackHypo::hltBeginRun(){
 
-  msg() << MSG::INFO << "TrigEFTrackHypo::beginRun()" << endmsg;
+  msg() << MSG::INFO << "TrigEFTrackHypo::beginRun()" << endreq;
   return HLT::OK;
 
 }
@@ -94,11 +94,11 @@ HLT::ErrorCode TrigEFTrackHypo::hltBeginRun(){
 HLT::ErrorCode TrigEFTrackHypo::hltInitialize() {
 // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "TrigEFTrackHypo initialize()" << endmsg;
+  msg() << MSG::INFO << "TrigEFTrackHypo initialize()" << endreq;
 
   msg() << MSG::INFO
       << "Initialization of TrigEFTrackHypo completed successfully"
-      << endmsg;
+      << endreq;
 
   return HLT::OK;
 }
@@ -107,7 +107,7 @@ HLT::ErrorCode TrigEFTrackHypo::hltInitialize() {
 HLT::ErrorCode TrigEFTrackHypo::hltFinalize() {
 // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "TrigEFTrackHypo finalize()" << endmsg;
+  msg() << MSG::INFO << "TrigEFTrackHypo finalize()" << endreq;
 
   return HLT::OK;
 }
@@ -119,24 +119,24 @@ HLT::ErrorCode TrigEFTrackHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
   // default value, it will be set to true if selection satisfied
   pass = false;
-  m_TrkParticleCont=0;
+  TrkParticleCont=0;
 
   int outputLevel = msgLvl();
 
   if(outputLevel <= MSG::DEBUG)
-    msg() << MSG::DEBUG << name() << ": in execute()" << endmsg;
+    msg() << MSG::DEBUG << name() << ": in execute()" << endreq;
 
   // AcceptAll property = true means selection cuts should not be applied
   if (m_acceptAll){
     if(outputLevel <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" << endmsg;
+      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" << endreq;
     pass=true;
     return HLT::OK;
   }
   else {
     if(outputLevel <= MSG::DEBUG) 
       msg() << MSG::DEBUG << "AcceptAll property not set: applying selection"
-	    << endmsg;
+	    << endreq;
   }
 
 
@@ -144,26 +144,26 @@ HLT::ErrorCode TrigEFTrackHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   //--------------------------------------------------
   bool accepted=false;
 
-  //const Rec::TrackParticleContainer* m_TrkParticleCont(0);
+  //const Rec::TrackParticleContainer* TrkParticleCont(0);
 
-  if ( HLT::OK != getFeature(outputTE, m_TrkParticleCont) ) {
-    msg() << MSG::ERROR << "Failed to get TrackParticleContainer from the trigger element " << endmsg;
+  if ( HLT::OK != getFeature(outputTE, TrkParticleCont) ) {
+    msg() << MSG::ERROR << "Failed to get TrackParticleContainer from the trigger element " << endreq;
     return HLT::NAV_ERROR;
   }
 
-  if ( !m_TrkParticleCont ) {
-    msg() << MSG::DEBUG << "No TrackParticleContainer present" << endmsg;
+  if ( !TrkParticleCont ) {
+    msg() << MSG::DEBUG << "No TrackParticleContainer present" << endreq;
     return HLT::OK;
   }
 
   if(outputLevel <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " REGTEST: Got " << m_TrkParticleCont->size() 
-	<< " TrackParticleContainer's associated to the TE " << endmsg;
+    msg() << MSG::DEBUG << " REGTEST: Got " << TrkParticleCont->size() 
+	<< " TrackParticleContainer's associated to the TE " << endreq;
   
-  m_numTrkPart=m_TrkParticleCont->size();
+  m_numTrkPart=TrkParticleCont->size();
 
   int ntracks=0;
-  for(const auto trkIt : *m_TrkParticleCont){
+  for(const auto trkIt : *TrkParticleCont){
     // apply the cuts
     // ---------------
 
@@ -207,7 +207,7 @@ HLT::ErrorCode TrigEFTrackHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     // 	  << " TRTratio=" << trtratio
     // 	  << " D0=" << d0
     // 	  << " Pt=" << pt
-    // 	  << endmsg;
+    // 	  << endreq;
     // ---------------------------------------------------
     // At least one track passed cuts: accept the event:
     // ---------------------------------------------------
@@ -216,7 +216,7 @@ HLT::ErrorCode TrigEFTrackHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     
   } // end of loop in tracks
 
-  //  msg() << MSG::DEBUG << "Number of tracks found: " << ntracks << endmsg;
+  //  msg() << MSG::DEBUG << "Number of tracks found: " << ntracks << endreq;
   if (ntracks >= m_numTracks) accepted = true;
 
   if(accepted){
@@ -224,12 +224,12 @@ HLT::ErrorCode TrigEFTrackHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     pass =true;
     
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " REGTEST: Event accepted ! " << endmsg;
+      msg() << MSG::DEBUG << " REGTEST: Event accepted ! " << endreq;
     
   }
   else{
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " REGTEST: No track was found !! Event rejected " << endmsg;
+      msg() << MSG::DEBUG << " REGTEST: No track was found !! Event rejected " << endreq;
   }
   
   // Time total TrigEFTrackHypo execution time.

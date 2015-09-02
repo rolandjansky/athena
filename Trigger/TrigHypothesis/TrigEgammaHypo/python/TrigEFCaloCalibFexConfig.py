@@ -12,7 +12,9 @@ from AthenaCommon.SystemOfUnits import GeV, mm
 from AthenaCommon.AppMgr import ToolSvc
 from egammaRec.Factories import Factory, ToolFactory
 
-from TrigEgammaRec.TrigEgammaToolFactories import TrigEgammaMVACalibTool
+from egammaTools.egammaToolsFactories import egammaMVATool,EMFourMomBuilder, EMShowerBuilder 
+TrigEgammaMVACalibTool =  egammaMVATool.copy(name="TrigEgammaMVACalibTool",folder="egammaMVACalib/online/v3")
+
 def configureTrigEFCaloCalibFexMonitoring(tool):
     
     from TrigEgammaHypo.TrigEFCaloHypoMonitoring import TrigEFCaloCalibFexValidationMonitoring, TrigEFCaloCalibFexOnlineMonitoring
@@ -28,7 +30,12 @@ TrigEFCaloCalibFex_Electron = Factory(TrigEgammaHypoConf.TrigEFCaloCalibFex, nam
         ApplyMVACalib = True,
         MVACalibTool = TrigEgammaMVACalibTool,
         egType = 'Electron',
-        ClusterContainerKey = 'TrigEFCaloCalibFex',
+        ShowerBuilderTool = EMShowerBuilder(
+                name = "TrigEgammaShowerBuilder",
+                CellsName = "",
+                Print = True,
+                ),
+        FourMomBuilderTool = EMFourMomBuilder(),
         postInit = [configureTrigEFCaloCalibFexMonitoring],
         )
 
@@ -37,6 +44,11 @@ TrigEFCaloCalibFex_Photon = Factory(TrigEgammaHypoConf.TrigEFCaloCalibFex, name 
         ApplyMVACalib = True,
         MVACalibTool = TrigEgammaMVACalibTool,
         egType = 'Photon',
-        ClusterContainerKey = 'TrigEFCaloCalibFex',
+        ShowerBuilderTool = EMShowerBuilder(
+                name = "TrigEgammaShowerBuilder",
+                CellsName = "",
+                Print = True,
+                ),
+        FourMomBuilderTool = EMFourMomBuilder(),
         postInit = [configureTrigEFCaloCalibFexMonitoring],
         )

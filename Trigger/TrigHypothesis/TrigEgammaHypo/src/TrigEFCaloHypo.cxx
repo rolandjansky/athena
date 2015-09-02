@@ -32,9 +32,7 @@
 //#include "xAODEgammaCnv/xAODPhotonMonFuncs.h" // Cannot use macros in more than one place
 #include "CaloEvent/CaloCellContainer.h"
 #include "CLHEP/Units/SystemOfUnits.h"
-#include "xAODTrigger/TrigPassBits.h"
-#include "PATCore/TAccept.h"            // for TAccept
-#include "PATCore/TResult.h"            // for TResult
+
 
 class ISvcLocator;
 
@@ -51,14 +49,12 @@ TrigEFCaloHypo::TrigEFCaloHypo(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("emEt",   m_emEt = -3.*CLHEP::GeV); 
   //isEM offline
   declareProperty("ApplyIsEM",m_applyIsEM = false);
-  declareProperty("ApplyPhotonIsEM",m_applyPhotonIsEM = false);
   declareProperty("ApplyLH",m_applyLH = false);
   declareProperty("IsEMrequiredBits",m_IsEMrequiredBits = 0xF2);
 
-  declareProperty("ShowerBuilderTool", m_showerBuilder, "Handle of instance of EMShowerBuilder");
-  declareProperty("FourMomBuilderTool", m_fourMomBuilder, "Handle of instance of EMFourBuilder");
+  declareProperty("SelectorTool", m_SelectorTool, "Handle for selector tool");
   declareProperty("SelectorToolName", m_SelectorToolName, "Name for selector tool");
-  declareProperty("PhotonSelectorToolName", m_PhSelectorToolName, "Name for selector tool");
+  declareProperty("LHSelectorTool", m_LHSelectorTool, "Handle for LH selector tool");
   declareProperty("LHSelectorToolName", m_LHSelectorToolName, "Name for LH selector tool");
 
   /** Luminosity tool */
@@ -111,69 +107,24 @@ HLT::ErrorCode TrigEFCaloHypo::hltInitialize()
    m_totalTimer  = addTimer("TrigEFCaloHypoTot");
   } 
 
-  if (m_SelectorToolName=="") {
-    ATH_MSG_DEBUG("Electron IsEM PID is disabled, no tool specified "); 
-    m_SelectorTool=ToolHandle<IAsgElectronIsEMSelector>();
-  } 
-  else {
-      m_SelectorTool=ToolHandle<IAsgElectronIsEMSelector>(m_SelectorToolName);
-      if(m_SelectorTool.retrieve().isFailure()) {
-          ATH_MSG_ERROR("Unable to retrieve " << m_SelectorTool  << " tool ");
-          return HLT::BAD_JOB_SETUP; 
-      } 
-      else ATH_MSG_DEBUG("Tool " << m_SelectorTool << " retrieved");
-  }
- 
-  if (m_PhSelectorToolName=="") {
-    ATH_MSG_DEBUG("Photon IsEM PID is disabled, no tool specified "); 
-    m_PhSelectorTool=ToolHandle<IAsgPhotonIsEMSelector>();
-  } 
-  else {
-      m_PhSelectorTool=ToolHandle<IAsgPhotonIsEMSelector>(m_PhSelectorToolName);
-      if(m_PhSelectorTool.retrieve().isFailure()) {
-          ATH_MSG_ERROR("Unable to retrieve " << m_PhSelectorTool  << " tool ");
-          return HLT::BAD_JOB_SETUP; 
-      } 
-      else ATH_MSG_DEBUG("Tool " << m_PhSelectorTool << " retrieved");
-  }
- 
-  if (m_LHSelectorToolName=="") {
-    ATH_MSG_DEBUG("Electron LH PID is disabled, no tool specified "); 
-    m_LHSelectorTool=ToolHandle<IAsgElectronLikelihoodTool>();
-  } 
-  else {
-      m_LHSelectorTool=ToolHandle<IAsgElectronLikelihoodTool>(m_LHSelectorToolName);
-      if(m_LHSelectorTool.retrieve().isFailure()) {
-          ATH_MSG_ERROR("Unable to retrieve " << m_LHSelectorTool  << " tool ");
-          return HLT::BAD_JOB_SETUP; 
-      } 
-      else ATH_MSG_DEBUG("Tool " << m_LHSelectorTool << " retrieved");
-  }
-  
-
-  if (m_showerBuilder.empty()) {
-      ATH_MSG_INFO("ShowerBuilder is empty");
-      return HLT::BAD_JOB_SETUP;
-  }
-  if(m_showerBuilder.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Unable to retrieve "<<m_showerBuilder);
+  m_SelectorTool=ToolHandle<IAsgElectronIsEMSelector>(m_SelectorToolName);
+  if(m_SelectorTool.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Unable to retrieve " << m_SelectorTool  << " tool ");
       return HLT::BAD_JOB_SETUP; 
-  }
-  else ATH_MSG_DEBUG("Retrieved Tool " << m_showerBuilder);
+  } 
+  else ATH_MSG_DEBUG("Tool " << m_SelectorTool << " retrieved");
   
-  if (m_fourMomBuilder.empty()) {
-      ATH_MSG_INFO("FourMomBuilder is empty");
-      return HLT::BAD_JOB_SETUP;
-  }
-  if(m_fourMomBuilder.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Unable to retrieve "<<m_fourMomBuilder);
+  m_LHSelectorTool=ToolHandle<IAsgElectronLikelihoodTool>(m_LHSelectorToolName);
+  if(m_LHSelectorTool.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Unable to retrieve " << m_LHSelectorTool  << " tool ");
       return HLT::BAD_JOB_SETUP; 
-  }
-  else ATH_MSG_DEBUG("Retrieved Tool " << m_fourMomBuilder);
+  } 
+  else ATH_MSG_DEBUG("Tool " << m_LHSelectorTool << " retrieved");
   
   // For now, just try to retrieve the lumi tool
   if (m_lumiBlockMuTool.retrieve().isFailure()) {
-      ATH_MSG_WARNING("Unable to retrieve Luminosity Tool");
+      ATH_MSG_DEBUG("Unable to retrieve Luminosity Tool");
+      // 244            return HLT::ERROR;
   } else {
       ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
   }
@@ -220,62 +171,44 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
   m_E.clear();
   m_ECalib.clear();
   m_ERes.clear();
-  m_lhval.clear();
-  m_avgmu.clear();
 
-  ATH_MSG_DEBUG(": in execute()");
+    ATH_MSG_DEBUG(": in execute()");
  
-  if(m_applyIsEM)
-      ATH_MSG_DEBUG("Apply Electron isEM PID with tool " << m_SelectorTool);
 
-  else if(m_applyPhotonIsEM)
-      ATH_MSG_DEBUG("Apply Photon isEM PID with tool " << m_PhSelectorTool);
+   // get RoI descriptor
+  const TrigRoiDescriptor* roiDescriptor = 0;
+  HLT::ErrorCode statt = getFeature(outputTE, roiDescriptor, "");
+  
+  if ( statt == HLT::OK ) {
+      ATH_MSG_DEBUG("RoI id " << roiDescriptor->roiId()
+	  << " LVL1 id " << roiDescriptor->l1Id()
+	  << " located at   phi = " <<  roiDescriptor->phi()
+	  << ", eta = " << roiDescriptor->eta());
+  } else {
+    ATH_MSG_WARNING("No RoI for this Trigger Element! ");
+    return HLT::NAV_ERROR;
+  }
 
-  else if(m_applyLH)
-      ATH_MSG_DEBUG("Apply Electron LH PID with tool " << m_LHSelectorTool);
-      
   // get CaloClusterContainer from the trigger element:
   //--------------------------------------------------
+
 
   bool accepted=false;
   // AcceptAll property = true means selection cuts should not be applied
   if (m_acceptAll) accepted=true;
 
-  std::vector<const xAOD::CaloClusterContainer*> vectorClusterContainer; 
+  std::vector<const xAOD::CaloClusterContainer*> vectorClusterContainer;
+   
   HLT::ErrorCode stat = getFeatures(outputTE,vectorClusterContainer , "");
 
   if (stat != HLT::OK ) {
      ATH_MSG_WARNING( " Failed to get vectorClusterContainers from the trigger element"); 
      if (timerSvc())m_totalTimer ->stop();
      return HLT::OK;
-  } 
+   } 
 
   ATH_MSG_DEBUG(" Got " << vectorClusterContainer.size()  << " vectorClusterContainer's associated to the TE ");
-  // Get the last ClusterContainer
-  const xAOD::CaloClusterContainer* clusContainer = vectorClusterContainer.back();
-  if(!clusContainer){
-      if ( msgLvl() <= MSG::ERROR )
-          msg() << MSG::ERROR
-              << " REGTEST: Retrieval of CaloClusterContainer from vector failed"
-              << endmsg;
-      //return HLT::BAD_JOB_SETUP;
-      return HLT::OK;
-  }
-
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
-      << clusContainer->size() << " calo clusters in container" << endmsg;
-
-  if(clusContainer->size() < 1){
-      return HLT::OK;
-  }
-  
-  // All this only to retrieve the key :
-  std::string clusCollKey;
-  if ( getStoreGateKey( clusContainer, clusCollKey) != HLT::OK) {
-      ATH_MSG_ERROR("Failed to get key for CaloClusterContainer");
-  }
-  else ATH_MSG_DEBUG("REGTEST:: Retrieved ClusterContainer with key " << clusCollKey);
-  
+        
   // Shower Shape & CaloCellContainer
   const CaloCellContainer* pCaloCellContainer = 0;
 
@@ -302,8 +235,33 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
       }
   }
 
-  // Create pass bits for clusters
-  std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<xAOD::CaloClusterContainer>(clusContainer);
+  std::vector<const xAOD::PhotonContainer*> vectorEgammaContainers;
+  
+  stat = getFeatures(outputTE, vectorEgammaContainers, "");
+
+  if (stat != HLT::OK ) {
+    ATH_MSG_WARNING( " Failed to get xAOD::PhotonContainer's from the trigger element"); 
+    if (timerSvc()) m_totalTimer->stop();
+    return HLT::OK;
+  } 
+
+  ATH_MSG_DEBUG("REGTEST: Got " << vectorEgammaContainers.size()  << " xAOD::PhotonContainers's associated to the TE ");
+	 
+
+  if (vectorEgammaContainers.size() < 1) {
+    ATH_MSG_DEBUG(" empty xAOD::PhotonContainer from the trigger element"); 
+    if (timerSvc()) m_totalTimer->stop();
+    return HLT::OK;
+  } 
+
+  const xAOD::PhotonContainer *egCont = vectorEgammaContainers.back();
+
+  if(egCont == 0){
+      ATH_MSG_ERROR(" REGTEST: Retrieval of xOAD::PhotonContainer from vector failed");
+    if (timerSvc()) m_totalTimer->stop();
+    return HLT::OK;
+  }
+
   double mu = 0.;
   double avg_mu = 0.;
   bool useLumiTool=false;
@@ -316,54 +274,21 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
       m_avgmu.push_back(avg_mu);
   }
   
-  unsigned int iclus=0;
-  for(const auto clus : *clusContainer){
-      if(m_acceptAll){
-          xBits->markPassing(clus,clusContainer,true);
-          continue;
-      }
+  const xAOD::CaloCluster *clus=0;
+  for(const auto eg : *egCont){
       unsigned int isEMTrig = 0;
       bool isLHAcceptTrig = false;
       float lhval=0.;
-        
-      // Now creating the photon objects (dummy EDM for Calo selection at EF)
-      const ElementLink<xAOD::CaloClusterContainer> clusterLink(*clusContainer,iclus);
-      std::vector< ElementLink<xAOD::CaloClusterContainer> > clLinks;
-      clLinks.push_back(clusterLink);
-      xAOD::Photon eg;
-      eg.makePrivateStore();
-      eg.setCaloClusterLinks(clLinks);
-
-      // Run the tools for each object
-      ATH_MSG_DEBUG("REGTEST: Run the tools on eg object");
-      if(m_fourMomBuilder->hltExecute(&eg));
-      else ATH_MSG_DEBUG("Problem with FourMomBuilder");
-      if(m_showerBuilder->recoExecute(&eg,pCaloCellContainer));
-      else ATH_MSG_DEBUG("Problem with ShowerBuilder");
-      ATH_MSG_DEBUG("REGTEST: cluster e " << clus->e());
-      ATH_MSG_DEBUG("REGTEST: e " << eg.e());
-      ATH_MSG_DEBUG("REGTEST: eg cluster e " << eg.caloCluster()->e());
-      ATH_MSG_DEBUG("REGTEST: eta " << eg.eta());
-      ATH_MSG_DEBUG("REGTEST: phi " << eg.phi());
-      // Increment counter for next cluster before selection
-      iclus++;
-      
-      // Apply selection
+      // First create the EL for clusters
       if(m_applyIsEM){
-          ATH_MSG_DEBUG("REGTEST: Check Object, eta2 = " << fabsf(eg.caloCluster()->etaBE(2)) << " e = " << eg.caloCluster()->e());
-          if(m_SelectorTool->execute(&eg).isFailure())
+          ATH_MSG_DEBUG("REGTEST: Check Object, eta2 = " << fabsf(eg->caloCluster()->etaBE(2)) << " e = " << eg->caloCluster()->e());
+          if(m_SelectorTool->execute(eg).isFailure())
               ATH_MSG_DEBUG("REGTEST:: Problem in isEM Selector");
           else isEMTrig = m_SelectorTool->IsemValue();
       }
-      else if(m_applyPhotonIsEM){
-          ATH_MSG_DEBUG("REGTEST: Check Object, eta2 = " << fabsf(eg.caloCluster()->etaBE(2)) << " e = " << eg.caloCluster()->e());
-          if(m_PhSelectorTool->execute(&eg).isFailure())
-              ATH_MSG_DEBUG("REGTEST:: Problem in isEM Selector");
-          else isEMTrig = m_PhSelectorTool->IsemValue();
-      }
       else if(m_applyLH){
           if(useLumiTool){
-              const Root::TAccept& acc = m_LHSelectorTool->accept(&eg,avg_mu);
+              const Root::TAccept& acc = m_LHSelectorTool->accept(eg,avg_mu);
               lhval=m_LHSelectorTool->getTResult().getResult(0);
               ATH_MSG_DEBUG("LHValue with mu " << lhval);
               m_lhval.push_back(lhval);
@@ -371,7 +296,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
           }
           else {
               ATH_MSG_DEBUG("Lumi tool returns mu = 0, do not pass mu");
-              const Root::TAccept& lhacc = m_LHSelectorTool->accept(&eg); // use method for calo-only
+              const Root::TAccept& lhacc = m_LHSelectorTool->accept(eg); // use method for calo-only
               lhval=m_LHSelectorTool->getTResult().getResult(0);
               ATH_MSG_DEBUG("LHValue without mu " << lhval);
               m_lhval.push_back(lhval);
@@ -380,13 +305,14 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
           ATH_MSG_DEBUG("REGTEST: Applying LH pid selection " << isLHAcceptTrig);
       }
+      clus = eg->caloCluster();
       // Monitoring
       m_EBE0.push_back(clus->energyBE(0));
       m_EBE1.push_back(clus->energyBE(1));
       m_EBE2.push_back(clus->energyBE(2));
       m_EBE3.push_back(clus->energyBE(3));
       m_Eta.push_back(clus->eta());
-      m_Phi.push_back(clus->phi());
+      m_Phi.push_back(clus->eta());
       double tmpeta = -999.;
       clus->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta);
       double tmpphi = -999.;
@@ -407,7 +333,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
           m_ERes.push_back(clus->e()-origClus->e());
       }
      
-      if(m_applyIsEM || m_applyPhotonIsEM){
+      if(m_applyIsEM){
           if( (isEMTrig & m_IsEMrequiredBits)!=0 ) {
               ATH_MSG_DEBUG("REGTEST IsEM = " << std::hex << isEMTrig 
                       << " cut not satisfied for pattern:" << std::hex << m_IsEMrequiredBits);
@@ -425,7 +351,6 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
           continue;
       }
       accepted=true;
-      xBits->markPassing(clus,clusContainer,true);
    
   }
 
@@ -434,12 +359,10 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
   ATH_MSG_DEBUG("REGTEST Result = " <<(accepted ? "accepted" : "not accepted"));
   ATH_MSG_DEBUG("REGTEST AcceptAll= " <<(m_acceptAll ? "true (no cuts)" : "false (selection applied)"));
   ATH_MSG_DEBUG("REGTEST Result = " <<(pass ? "passed" : "failed"));
+    
  
   // Time total TrigEFCaloHypo execution time.
   // -------------------------------------
-  // store TrigPassBits result
-  if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
-      ATH_MSG_ERROR("Could not store TrigPassBits! ");
 
   if (timerSvc()) m_totalTimer->stop();
 
