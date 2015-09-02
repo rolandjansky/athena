@@ -1,7 +1,6 @@
 #still needs a lot of cleaning ... 
 
 from RecExConfig.RecFlags import rec
-from RecExConfig.RecAlgsFlags import recAlgs
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 
 #if not acf.EvtMax.is_locked():
@@ -18,11 +17,6 @@ rec.doWriteAOD=True
 rec.doWriteESD=False
 rec.doWriteTAG=False
 rec.doAOD=True
-rec.doJetMissingETTag=True
-recAlgs.doMissingET=False
-rec.doMuonCombined=False
-rec.doTau=False
-rec.doBTagging=False
 #rec.doESD.set_Value_and_Lock(False) 
 rec.doESD=True
 doTAG=False
@@ -46,13 +40,7 @@ TriggerFlags.readLVL1configFromXML=False
 #if  ('menu' in dir()):
    # TiriggerFlags.triggerMenuSetup=menu 
 
-#include("TrigEgammaValidation/TrigEgammaValidation_RTT_Chains.py") # uncomment to get used-defined trigger list
-
-#egammatrigChainlist=electronChains() #Retrieve trigger menu to run from TrigEgammaValidation_RTT_Chains.py
-#TriggerFlags.triggerMenuSetup="MC_pp_v5"
-TriggerFlags.Slices_all_setOff()
-TriggerFlags.EgammaSlice.setAll()
-#TriggerFlags.EgammaSlice.signatures = egammatrigChainlist
+TriggerFlags.triggerMenuSetup="MC_pp_v5"
 
 
 TriggerFlags.doHLT=True
