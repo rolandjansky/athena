@@ -2,17 +2,16 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 #
-# $Id: checkxAOD.py 717322 2016-01-12 11:17:21Z schaffer $
+# $Id: checkxAOD.py 648761 2015-02-22 09:26:47Z schaffer $
 #
 # This is a modified version of PyUtils/bin/checkFile.py. It has been taught
 # how to sum up the sizes of all the branches belonging to a single xAOD
 # object/container.
 #
 
-__version__ = "$Revision: 717322 $"
+__version__ = "$Revision: 648761 $"
 __author__  = "Sebastien Binet <binet@cern.ch>, " \
-    "Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>, " \
-    "RD Schaffer R.D.Schaffer@cern.ch"
+    "Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>"
 
 import sys
 import os
@@ -34,25 +33,6 @@ if __name__ == "__main__":
        help = "Output CSV file name, to use with spreadsheets" )
     ( options, args ) = parser.parse_args()
 
-    # Set up categorization matching strings:
-    # Set up categorization matching strings:
-    categoryStrings = {
-        "MetaData" : ["^DataHeader", "(.*)_mems$", "(.*)_timings$", "^Token$", "^RawInfoSummaryForTag$"],
-        "Trig"     : ["^HLT", "^LVL1", "^xTrig", "^Trig", "^CTP_Decision", "^TrigInDetTrackTruthMap", "^TrigNavigation", ".*TriggerTowers", "TileTTL1MBTS", "^TileL2Cnt", "RoIBResult"],
-        "MET"      : ["^MET", "^METMAP", "JEMEtSums"],
-        "EvtId"    : ["^ByteStreamEventInfo", "^EventInfo", "^McEventInfo", "^LumiBlockN", "^EventWeight", "^RunNumber", "^ConditionsRun", "^EventTime", "^BunchId", "^EventNumber"],
-        "tau"      : ["^Tau", "^CombinedStauTrackParticles", "^ExtrapolatedStauTrackParticles"],
-        "PFO"      : ["(.*)EventShape$", "^AntiKt4EMPFlowJets", "^JetETMissChargedParticleFlowObjects", "^JetETMissNeutralParticleFlowObjects"],
-        "egamma"   : ["^GSF", "^ForwardElectron", "^egamma", "^Electron", "^Photon"],
-        "Muon"     : ["^Muon", "^TileMuObj", "^MS", "^SlowMuons", "^Staus", "(.*)MuonTrackParticles$", "MUCTPI_RDO", "^RPC", "^TGC", "^MDT", "^CSC", ".*MuonMeasurements$", "^ExtrapolatedMuonTracks", "^CombinedMuonTracks"],
-        "BTag"     : ["^BTag"],
-        "InDet"    : ["^InDet", "^PrimaryVertices", "^ComTime_TRT", "^Pixel", "^TRT", "^SCT", "^BCM", "^CTP", "^Tracks", "^ResolvedForwardTracks", "^SplitClusterAmbiguityMap"],
-        "Jet"      : ["^CamKt", "^AntiKt", "^Jet"],
-        "CaloTopo" : ["CaloCalTopoCluster"],
-        "Calo"     : ["^LAr", "^AODCellContainer", "^MBTSContainer", "^CaloCompactCellContainer", "^E4prContainer", "^TileCellVec", "^TileDigits"],
-        "Truth"    : ["^Truth", "Truth$", "TruthMap$", "TruthCollection$", "^PRD_MultiTruth", "TracksTruth$", ".*TrackTruth$", "TrackTruthCollection"]
-        }
-    
     fileNames = []
 
     if len( args ) > 0:
@@ -86,7 +66,6 @@ if __name__ == "__main__":
         # Loop over all the branches of the file, and sum up the information
         # about them in a smart way...
         summedData = {}
-        categData  = {}
         for d in poolFile.data:
             # Skip metadata/TAG/etc. branches:
             # if d.dirType != "B": continue
@@ -150,29 +129,20 @@ if __name__ == "__main__":
         for d in orderedData:
             # keep branches with either the same number of entries as the number of events, or the
             # special tlp branches with extra event information
-            mtlp = re.match( "(.*)_tlp.$", d.name ) or re.match( "(.*)DataHeader(.*)", d.name )
+            mtlp = re.match( "(.*)_tlp.$", d.name )
             if d.nEntries != poolFile.dataHeader.nEntries and not mtlp: continue
             # print d.name
-
             br = ttree.GetBranch( d.name )
-            d_name = d.name
             if br:
                 m = re.match( "(.*)_[pv]._", d.name )
                 m1 = re.match( "(.*)_tlp._", d.name )
                 m2 = re.match( "(.*)_v.>_", d.name )
-                m3 = re.match( "([a-zA-Z]+)_(.*_[lL]inks?)", d.name )
                 if m:
                     nameType = "%s (%s)" % ( d.name[m.end():], br.GetClassName() )
-                    d_name   = d.name[m.end():]
                 elif m1:
                     nameType = "%s (%s)" % ( d.name[m1.end():], br.GetClassName() )
-                    d_name   = d.name[m1.end():]
                 elif m2:
                     nameType = "%s (%s)" % ( d.name[m2.end():], br.GetClassName() )
-                    d_name   = d.name[m2.end():]
-                elif m3:
-                    nameType = "%s (%s)" % ( m3.group(2), br.GetClassName() )
-                    d_name   = m3.group(2)
                 else:
                     nameType = "%s (%s)" % ( d.name, br.GetClassName() )
             else:
@@ -181,57 +151,13 @@ if __name__ == "__main__":
                 # print "match",m,m1
                 if m:
                     nameType = "%s (%s)" % ( d.name[m.end():], (d.name[:m.end()-1]) )
-                    d_name   = d.name[m.end():]
                 elif m1:
                     # print "m1:",m1.group(),m1.group(1)
                     nt = m1.group(1).replace("_",":") + m1.group(2)
                     n  = m1.group(1).replace("_",":")
                     nameType = "%s (%s)" % ( n, nt )
-                    d_name   = n
                 else:
                     nameType = "%s (%s)" % ( d.name, "()" )
-
-            # Find category:
-            found = False
-            catName = '*Unknown*'
-            for categ in categoryStrings:
-                for pattern in categoryStrings[ categ ]:
-                    # print d.name, d_name, pair, type(d.name), type(d_name), type(pair[0])
-                    m = None
-                    try:
-                        m = re.match(pattern, d_name)
-                    except TypeError:
-                        pass
-                    if m:
-                        found = True
-                        catName = categ
-                        break
-                        # print d.name, categ
-                        pass
-                    pass
-                if not found:
-                    # print "Did not find category for:", d.name, d_name, br
-                    pass
-                pass
-            # Add on category to name/type
-            nameType += ' [' + catName + ']'
-
-            # Now sum up the sizes according to the category
-            # Check if we already know this category:
-            if catName in categData.keys():
-                categData[ catName ].memSize  += d.memSize
-                categData[ catName ].diskSize += d.diskSize
-            else:
-                categData[ catName ] = \
-                    PF.PoolRecord( catName,
-                                   d.memSize,
-                                   d.diskSize,
-                                   d.memSizeNoZip,
-                                   d.nEntries,
-                                   d.dirType )
-                pass
-            pass
-
             print( PF.PoolOpts.ROW_FORMAT %
                    ( d.memSize,
                      d.diskSize,
@@ -250,56 +176,6 @@ if __name__ == "__main__":
                  0.0,
                  poolFile.dataHeader.nEntries,
                  "Total" ) )
-        print( "" )
-
-        # Now print out the categorized information
-        # Order the records by size:
-        categorizedData = []
-        for br in categData.keys():
-            categorizedData += [ categData[ br ] ]
-            pass
-        sorter = PF.PoolRecord.Sorter.DiskSize
-        import operator
-        categorizedData.sort( key = operator.attrgetter( sorter ) )
-
-        print( "=" * 80 )
-        print( "         Categorized data" )
-        print( "=" * 80 )
-        print( "     Disk Size         Fraction    Category Name" )
-        print( "-" * 80 )
-        totDiskSize = 0.0
-        frac        = 0.0
-        ds     = []
-        dsFrac = []
-        dsName = []
-        for d in categorizedData:
-            dsPerEvt     = d.diskSize / poolFile.dataHeader.nEntries
-            dsPerEvtFrac = d.diskSize / diskSize
-            totDiskSize += dsPerEvt
-            frac        += dsPerEvtFrac
-            ds          += [dsPerEvt]
-            dsFrac      += [dsPerEvtFrac]
-            dsName      += [d.name]
-            print( "%12.3f kb %12.3f       %s" % ( dsPerEvt, dsPerEvtFrac, d.name ) )
-            pass
-        print( "%12.3f kb %12.3f       %s" % ( totDiskSize , frac, "Total" ) )
-        ds     += [totDiskSize]
-        dsFrac += [frac]
-        dsName += ["Total"]
-        
-        print( "" )
-        print( "=" * 80 )
-        print( "CSV for categories disk size/evt and fraction:" )
-        # print out comment separated list in descending order
-        print ",".join(dsName[::-1])
-        b = ['{:<0.3f}'.format(i)  for i in ds[::-1]]
-        print ",".join(b)
-        b = ['{:<0.3f}'.format(i)  for i in dsFrac[::-1]]
-        print ",".join(b)
-        print( "=" * 80 )
-        print( "" )
-
-        
         print( "=" * 80 )
         print( "         Meta data" )
         print( "=" * 80 )
@@ -310,7 +186,7 @@ if __name__ == "__main__":
         memSize = 0.0
         diskSize = 0.0
         for d in orderedData:
-            mtlp = re.match( "(.*)_tlp.$", d.name ) or re.match( "(.*)DataHeader(.*)", d.name )
+            mtlp = re.match( "(.*)_tlp.$", d.name )
             if d.nEntries == poolFile.dataHeader.nEntries or mtlp: continue
             print( "%12.3f kb %12.3f kb       %s" %
                    ( d.memSize, d.diskSize, d.name ) )
