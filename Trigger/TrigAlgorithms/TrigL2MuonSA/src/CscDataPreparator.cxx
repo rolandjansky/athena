@@ -5,6 +5,7 @@
 #include "TrigL2MuonSA/CscDataPreparator.h"
 
 #include "GaudiKernel/ToolFactory.h"
+#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
 
@@ -15,17 +16,12 @@
 #include "xAODTrigMuon/TrigMuonDefs.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
-
 using namespace Muon;
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 static const InterfaceID IID_CscDataPreparator("IID_CscDataPreparator", 1, 0);
-bool IsUnspoiled ( Muon::CscClusterStatus status );
-
 
 const InterfaceID& TrigL2MuonSA::CscDataPreparator::interfaceID() { return IID_CscDataPreparator; }
 
@@ -36,6 +32,7 @@ TrigL2MuonSA::CscDataPreparator::CscDataPreparator(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent): 
    AthAlgTool(type,name,parent),
+   m_msg(0),
    m_storeGateSvc( "StoreGateSvc", name ),
    p_ActiveStore(0),
    m_regionSelector(0),
@@ -61,45 +58,46 @@ TrigL2MuonSA::CscDataPreparator::~CscDataPreparator()
 StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
 {
 
-
-  ATH_MSG_DEBUG("Initializing CscDataPreparator - package version " << PACKAGE_VERSION);
+   // Get a message stream instance
+   m_msg = new MsgStream( msgSvc(), name() );
+   msg() << MSG::DEBUG << "Initializing CscDataPreparator - package version " << PACKAGE_VERSION << endreq ;
    
    StatusCode sc;
    sc = AthAlgTool::initialize();
    if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
+      msg() << MSG::ERROR << "Could not initialize the AthAlgTool base class." << endreq;
       return sc;
    }
    
    // Locate the StoreGateSvc
    sc =  m_storeGateSvc.retrieve();
    if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not find StoreGateSvc");
+      msg() << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
       return sc;
    }
 
    // Retrieve ActiveStore
    sc = serviceLocator()->service("ActiveStoreSvc", p_ActiveStore);
    if( !sc.isSuccess() || 0 == p_ActiveStore ){
-     ATH_MSG_ERROR(" Could not find ActiveStoreSvc ");
+     msg() << MSG::ERROR << " Could not find ActiveStoreSvc " << endreq;
      return sc;
    }
 
    // prepdataprovider
    sc = m_cscPrepDataProvider.retrieve();
    if (sc.isSuccess()) {
-     ATH_MSG_INFO("Retrieved " << m_cscPrepDataProvider);
+     msg() << MSG::INFO << "Retrieved " << m_cscPrepDataProvider << endreq;
    } else {
-     ATH_MSG_FATAL("Could not get " << m_cscPrepDataProvider);
+     msg() << MSG::FATAL << "Could not get " << m_cscPrepDataProvider << endreq;
      return sc;
    }
 
    // clusterization tool
    sc = m_cscClusterProvider.retrieve();
    if (sc.isSuccess()) {
-     ATH_MSG_INFO("Retrieved " << m_cscClusterProvider);
+     msg() << MSG::INFO << "Retrieved " << m_cscClusterProvider << endreq;
    } else {
-     ATH_MSG_FATAL("Could not get " << m_cscClusterProvider);
+     msg() << MSG::FATAL << "Could not get " << m_cscClusterProvider << endreq;
      return sc;
    }
 
@@ -107,18 +105,18 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
    StoreGateSvc* detStore;
    sc = serviceLocator()->service("DetectorStore", detStore);
    if( sc.isFailure() ){
-     ATH_MSG_ERROR("Could not retrieve  DetectorStore.");
+     msg() << MSG::ERROR << "Could not retrieve  DetectorStore." << endreq;
      return sc;
    }
-   ATH_MSG_DEBUG("Retrieved DetectorStore.");
+   msg() << MSG::DEBUG << "Retrieved DetectorStore." << endreq;
 
    // CSC ID helper
    sc = detStore->retrieve( m_muonMgr, "Muon" );
    if( sc.isFailure() ){
-     ATH_MSG_ERROR(" Cannot retrieve MuonGeoModel ");
+     msg() << MSG::ERROR << " Cannot retrieve MuonGeoModel " << endreq;
      return sc;
    }
-   ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
+   msg() << MSG::DEBUG << "Retrieved GeoModel from DetectorStore." << endreq;
    m_cscIdHelper = m_muonMgr->cscIdHelper();
 
    //
@@ -128,10 +126,10 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
    serviceName = "RegionSelector";
    sc = service("RegSelSvc", m_regionSelector);
    if(sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve " << serviceName);
+      msg() << MSG::ERROR << "Could not retrieve " << serviceName << endreq;
       return sc;
    }
-   ATH_MSG_DEBUG("Retrieved service " << serviceName);
+   msg() << MSG::DEBUG << "Retrieved service " << serviceName << endreq;
 
    // 
    return StatusCode::SUCCESS; 
@@ -155,45 +153,40 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 {
   const IRoiDescriptor* iroi = (IRoiDescriptor*) p_roids;
 
-
   // Select RoI hits
   std::vector<IdentifierHash> cscHashIDs;
   cscHashIDs.clear();
   if (m_use_RoIBasedDataAccess) {
-    ATH_MSG_DEBUG("Use RoI based data access");
+    msg() << MSG::DEBUG << "Use RoI based data access" << endreq;
     m_regionSelector->DetHashIDList( CSC, *iroi, cscHashIDs );
   } else {
-    ATH_MSG_DEBUG("Use full data access");
-    //    m_regionSelector->DetHashIDList( CSC, cscHashIDs ); full decoding is executed with an empty vector
+    msg() << MSG::DEBUG << "Use full data access" << endreq;
+    m_regionSelector->DetHashIDList( CSC, cscHashIDs );
   }
-  ATH_MSG_DEBUG("cscHashIDs.size()=" << cscHashIDs.size());
-
-  bool to_full_decode=( fabs(p_roids->etaMinus())>1.7 || fabs(p_roids->etaPlus())>1.7 ) && !m_use_RoIBasedDataAccess;
+  msg() << MSG::DEBUG << "cscHashIDs.size()=" << cscHashIDs.size() << endreq;
 
   // Decode
   std::vector<IdentifierHash> cscHashIDs_decode;
   cscHashIDs_decode.clear();
-  if( !cscHashIDs.empty() || to_full_decode ){
+  if( !cscHashIDs.empty() ){
     if( m_cscPrepDataProvider->decode( cscHashIDs, cscHashIDs_decode ).isFailure() ){
-      ATH_MSG_WARNING("Problems when preparing CSC PrepData");
+      msg() << MSG::WARNING << "Problems when preparing CSC PrepData" << endreq;
     }
     cscHashIDs.clear();
   }
-  ATH_MSG_DEBUG("cscHashIDs_decode.size()=" << cscHashIDs_decode.size());
 
   // Clustering
   std::vector<IdentifierHash> cscHashIDs_cluster;
   cscHashIDs_cluster.clear();
-  if(to_full_decode) cscHashIDs_decode.clear();
-  if( !cscHashIDs_decode.empty() || to_full_decode ){
+  if( !cscHashIDs_decode.empty() ){
     if( m_cscClusterProvider->getClusters( cscHashIDs_decode, cscHashIDs_cluster ).isFailure() ){
-      ATH_MSG_WARNING("Problems when preparing CSC Clusters");
+      msg() << MSG::WARNING << "Problems when preparing CSC Clusters" << endreq;
     }
     cscHashIDs_decode.clear();
   }
 
   // Debug info
-  ATH_MSG_DEBUG("CSC cluster #hash = " << cscHashIDs_cluster.size());
+  msg() << MSG::DEBUG << "CSC cluster #hash = " << cscHashIDs_cluster.size() << endreq;
 
   // Clear the output
   cscHits.clear();
@@ -203,7 +196,7 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
     const CscPrepDataContainer* cscPrepContainer = 0;
     StatusCode sc = (*p_ActiveStore)->retrieve( cscPrepContainer, "CSC_Clusters" );
     if( sc.isFailure() ){
-      ATH_MSG_ERROR(" Cannot retrieve CSC PRD Container ");
+      msg() << MSG::ERROR << " Cannot retrieve CSC PRD Container " << endreq;
       return sc;
     }
     
@@ -227,19 +220,14 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 	int chamber = xAOD::L2MuonParameters::Chamber::CSC;
 	double aw = muonRoad.aw[chamber][0];
 	double bw = muonRoad.bw[chamber][0];
-	//double rWidth = muonRoad.rWidth[chamber][0];
-	double phiw = muonRoad.phi[4][0];//roi_descriptor->phi(); //muonRoad.phi[chamber][0];
-
-	//cluster status
-	bool isunspoiled = IsUnspoiled (prepData.status());
-
+	double rWidth = muonRoad.rWidth[chamber][0];
 
 	// Create new digit
 	TrigL2MuonSA::CscHitData cscHit;
 	cscHit.StationName  = m_cscIdHelper->stationName( prepData.identify() );
 	cscHit.StationEta   = m_cscIdHelper->stationEta( prepData.identify() );
 	cscHit.StationPhi   = m_cscIdHelper->stationPhi( prepData.identify() );
-	cscHit.ChamberLayer = (true==isunspoiled) ? 1 : 0;//m_cscIdHelper->chamberLayer( prepData.identify() );
+	cscHit.ChamberLayer = m_cscIdHelper->chamberLayer( prepData.identify() );
 	cscHit.WireLayer    = m_cscIdHelper->wireLayer( prepData.identify() );
 	cscHit.MeasuresPhi  = m_cscIdHelper->measuresPhi( prepData.identify() );
 	cscHit.Strip        = m_cscIdHelper->strip( prepData.identify() );
@@ -247,49 +235,42 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 	cscHit.StripId = (cscHit.StationName << 18)
 	  | ((cscHit.StationEta + 2) << 16) | (cscHit.StationPhi << 12)
 	  | (cscHit.WireLayer << 9) | (cscHit.MeasuresPhi << 8) | (cscHit.Strip);
-	cscHit.eta = sqrt( prepData.localCovariance()(0,0) );
+	cscHit.eta = prepData.globalPosition().eta();
 	cscHit.phi = prepData.globalPosition().phi();
 	cscHit.r   = prepData.globalPosition().perp();
 	cscHit.z   = prepData.globalPosition().z();
 	cscHit.charge = prepData.charge();
 	cscHit.time   = prepData.time();
-	cscHit.Residual =  ( cscHit.MeasuresPhi==0 ) ? calc_residual( aw, bw, cscHit.z, cscHit.r ) : calc_residual_phi( aw,bw,phiw, cscHit.phi, cscHit.z);
+	cscHit.Residual = calc_residual( aw, bw, cscHit.z, cscHit.r );
 	cscHit.isOutlier = 0;
-	/*if( fabs(cscHit.Residual) > rWidth ) {
+	if( fabs(cscHit.Residual) > rWidth ) {
 	  cscHit.isOutlier = 2;
-	  }*/
-	double width = (cscHit.MeasuresPhi) ? 250. : 100.;
-	if( fabs(cscHit.Residual)>width ){
-	  cscHit.isOutlier=1;
-	  if( fabs(cscHit.Residual)>3.*width ){
-	    cscHit.isOutlier=2;
-	  }
 	}
-	
+
 	cscHits.push_back( cscHit );
-	
+
 	// Debug print
-       	ATH_MSG_DEBUG("CSC Hits: "
-		      << "SN="  << cscHit.StationName << ","
-		      << "SE="  << cscHit.StationEta << ","
-		      << "SP="  << cscHit.StationPhi << ","
-		      << "CL="  << cscHit.ChamberLayer << ","
-		      << "WL="  << cscHit.WireLayer << ","
-		      << "MP="  << cscHit.MeasuresPhi << ","
-		      << "St="  << cscHit.Strip << ","
-		      << "ID="  << cscHit.StripId << ","
-		      << "eta=" << cscHit.eta << ","
-		      << "phi=" << cscHit.phi << ","
-		      << "r="   << cscHit.r << ","
-		      << "z="   << cscHit.z << ","
-		      << "q="   << cscHit.charge << ","
-		      << "t="   << cscHit.time << ","
-		      << "Rs="  << cscHit.Residual << ","
-		      << "OL="  << cscHit.isOutlier);
+       	msg() << MSG::DEBUG << "CSC Hits: "
+	      << "SN="  << cscHit.StationName << ","
+	      << "SE="  << cscHit.StationEta << ","
+	      << "SP="  << cscHit.StationPhi << ","
+	      << "CL="  << cscHit.ChamberLayer << ","
+	      << "WL="  << cscHit.WireLayer << ","
+	      << "MP="  << cscHit.MeasuresPhi << ","
+	      << "St="  << cscHit.Strip << ","
+	      << "ID="  << cscHit.StripId << ","
+	      << "eta=" << cscHit.eta << ","
+	      << "phi=" << cscHit.phi << ","
+	      << "r="   << cscHit.r << ","
+	      << "z="   << cscHit.z << ","
+	      << "q="   << cscHit.charge << ","
+	      << "t="   << cscHit.time << ","
+	      << "Rs="  << cscHit.Residual << ","
+	      << "OL="  << cscHit.isOutlier << endreq;
       }
     }
   }
-
+  
   //
   return StatusCode::SUCCESS;
 }
@@ -300,30 +281,22 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 double TrigL2MuonSA::CscDataPreparator::calc_residual(double aw,double bw,double x,double y)
 {
   const double ZERO_LIMIT = 1e-4;
-  if( fabs(aw) < ZERO_LIMIT ) return y-bw;
+  if( fabs(aw) < ZERO_LIMIT ) return x-bw;
   double ia  = 1/aw;
   double iaq = ia*ia;
   double dz  = x - (y-bw)*ia;
   return dz/sqrt(1.+iaq);
-
 }
-
-
-double TrigL2MuonSA::CscDataPreparator::calc_residual_phi( double aw, double bw, double phiw, double hitphi, double hitz){
-
-  double roadr = hitz*aw + bw;
-
-  return roadr*( cos(phiw)*sin(hitphi)-sin(phiw)*cos(hitphi) );
-
-}
-
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 StatusCode TrigL2MuonSA::CscDataPreparator::finalize()
 {
-  ATH_MSG_DEBUG("Finalizing CscDataPreparator - package version " << PACKAGE_VERSION);
+   msg() << MSG::DEBUG << "Finalizing CscDataPreparator - package version " << PACKAGE_VERSION << endreq;
+   
+   // delete message stream
+   if ( m_msg ) delete m_msg;
    
    StatusCode sc = AthAlgTool::finalize(); 
    return sc;
@@ -331,11 +304,3 @@ StatusCode TrigL2MuonSA::CscDataPreparator::finalize()
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
-
-
-bool IsUnspoiled ( Muon::CscClusterStatus status ) {
-  if (status == Muon::CscStatusUnspoiled || status == Muon::CscStatusSplitUnspoiled )
-    return true;
-
-  return false;
-}

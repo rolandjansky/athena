@@ -6,6 +6,7 @@
 #define  TRIGL2MUONSA_MUFASTSTEERING_H
 
 #include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -22,8 +23,6 @@
 #include "TrigL2MuonSA/RecMuonRoIUtils.h"
 #include "TrigL2MuonSA/MuCalStreamerTool.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "TrigL2MuonSA/CscSegmentMaker.h"
-#include "TrigL2MuonSA/CscRegUtils.h"
 
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
@@ -136,10 +135,6 @@ class MuFastSteering : public HLT::FexAlgo,
   // Utils
   TrigL2MuonSA::RecMuonRoIUtils  m_recMuonRoIUtils;
 
-  //Tools for CSC
-  ToolHandle<CscSegmentMaker> m_cscsegmaker;
-
-
  private:
   TrigL2MuonSA::RpcHits      m_rpcHits;
   TrigL2MuonSA::TgcHits      m_tgcHits;
@@ -169,12 +164,14 @@ class MuFastSteering : public HLT::FexAlgo,
   BooleanProperty  m_use_RoIBasedDataAccess_CSC;
   BooleanProperty  m_doCalStream;
   BooleanProperty  m_calDataScouting;
-  BooleanProperty  m_rpcErrToDebugStream;
   
+  IntegerProperty m_esd_ext_size;
+  IntegerProperty m_esd_rob_size;
+  IntegerProperty m_esd_csm_size;
+  IntegerProperty m_esd_lv1_size;
   IntegerProperty m_esd_rpc_size;
   IntegerProperty m_esd_tgc_size;
   IntegerProperty m_esd_mdt_size;      
-  IntegerProperty m_esd_csc_size;      
   
   DoubleProperty m_rWidth_RPC_Failed;
   DoubleProperty m_rWidth_TGC_Failed;
@@ -210,8 +207,6 @@ class MuFastSteering : public HLT::FexAlgo,
   int m_calBufferSize;
   xAOD::TrigCompositeContainer* m_trigCompositeContainer;
   xAOD::TrigCompositeAuxContainer m_trigCompositeAuxContainer;
-
-
  
 };
 

@@ -5,6 +5,7 @@
 #include "TrigL2MuonSA/MuFastPatternFinder.h"
 
 #include "GaudiKernel/ToolFactory.h"
+#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "MuonCalibEvent/MdtCalibHit.h"
@@ -15,8 +16,6 @@
 #include "Identifier/Identifier.h"
 
 #include "xAODTrigMuon/TrigMuonDefs.h"
-
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -32,6 +31,7 @@ TrigL2MuonSA::MuFastPatternFinder::MuFastPatternFinder(const std::string& type,
 						     const std::string& name,
 						     const IInterface*  parent): 
    AthAlgTool(type,name,parent),
+   m_msg(0),
    m_mdtCalibrationSvc(0)
 {
    declareInterface<TrigL2MuonSA::MuFastPatternFinder>(this);
@@ -49,31 +49,35 @@ TrigL2MuonSA::MuFastPatternFinder::~MuFastPatternFinder()
 
 StatusCode TrigL2MuonSA::MuFastPatternFinder::initialize()
 {
+   // Get a message stream instance
+   m_msg = new MsgStream( msgSvc(), name() );
+   msg() << MSG::DEBUG << "Initializing MuFastPatternFinder - package version " << PACKAGE_VERSION << endreq ;
+   
    StatusCode sc;
    sc = AthAlgTool::initialize();
    if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
+      msg() << MSG::ERROR << "Could not initialize the AthAlgTool base class." << endreq;
       return sc;
    }
    
    // retrieve the mdtidhelper  
    StoreGateSvc* detStore(0);                                                                                                                     sc = serviceLocator()->service("DetectorStore", detStore); 
    if (sc.isFailure()) { 
-     ATH_MSG_ERROR("Could not retrieve DetectorStore."); 
+     msg() << MSG::ERROR << "Could not retrieve DetectorStore." << endreq; 
      return sc;
    } 
-   ATH_MSG_DEBUG("Retrieved DetectorStore.");
+   msg() << MSG::DEBUG << "Retrieved DetectorStore." << endreq;
    const MuonGM::MuonDetectorManager* muonMgr;                                                                 
    sc = detStore->retrieve( muonMgr,"Muon" ); 
    if (sc.isFailure()) return sc; 
-   ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore."); 
+   msg() << MSG::DEBUG << "Retrieved GeoModel from DetectorStore." << endreq; 
    m_mdtIdHelper = muonMgr->mdtIdHelper();                                                                                                    
 
    // Locate MDT calibration service
    sc = serviceLocator()->service("MdtCalibrationSvc", m_mdtCalibrationSvc );
    if(sc.isFailure()) {
-     ATH_MSG_WARNING("Unable to retrieve the MDT calibration Service");
-     ATH_MSG_WARNING("Proceed using dummy calibration for MDT");
+      msg() << MSG::WARNING << "Unable to retrieve the MDT calibration Service" << endreq;
+      msg() << MSG::WARNING << "Proceed using dummy calibration for MDT" << endreq;
    }
    
    // 
@@ -96,9 +100,9 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
    int Layer        = mdtHit.TubeLayer;
    int Tube         = mdtHit.Tube;
 
-   ATH_MSG_DEBUG("...StationName/StationEta/StationPhi/Multilayer/Layer/Tube="
-		 << StationName << "/" << StationEta << "/" << StationPhi << "/" << Multilayer << "/"
-		 << Layer << "/" << Tube);
+   msg() << MSG::DEBUG << "...StationName/StationEta/StationPhi/Multilayer/Layer/Tube="
+	 << StationName << "/" << StationEta << "/" << StationPhi << "/" << Multilayer << "/"
+	 << Layer << "/" << Tube << endreq;
 
    Identifier id = m_mdtIdHelper->channelID(StationName,StationEta,
 					    StationPhi,Multilayer,Layer,Tube);
@@ -131,16 +135,16 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
    calHit.setLocXtwin(0.);
    calHit.setSigma2LocXtwin(0.);
 
-   ATH_MSG_DEBUG("... MDT hit raw digit tdcCounts/adcCounts=" << tdcCounts << "/" << adcCounts);
+   msg() << MSG::DEBUG << "... MDT hit raw digit tdcCounts/adcCounts=" << tdcCounts << "/" << adcCounts << endreq;
 
-   ATH_MSG_DEBUG("... MDT hit position X/Y/Z/track_phi/Multilayer/Layer/Tube="
-		 << X << "/" << Y << "/" << Z << "/" << track_phi << "/" << Multilayer << "/" << Layer << "/" << Tube);
+   msg() << MSG::DEBUG << "... MDT hit position X/Y/Z/track_phi/Multilayer/Layer/Tube="
+	 << X << "/" << Y << "/" << Z << "/" << track_phi << "/" << Multilayer << "/" << Layer << "/" << Tube << endreq;
 
    m_mdtCalibrationSvc->driftRadiusFromTime( calHit, point.mag() );
    double driftSpace = calHit.driftRadius();
    double driftSigma = calHit.sigmaDriftRadius();
 
-   ATH_MSG_DEBUG("... MDT hit calibrated driftSpace/driftSigma=" << driftSpace << "/" << driftSigma);
+   msg() << MSG::DEBUG << "... MDT hit calibrated driftSpace/driftSigma=" << driftSpace << "/" << driftSigma << endreq;
 
    const double ZERO_LIMIT = 1e-4;
    
@@ -171,7 +175,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
    // Saddress = pos1/3 = 0:Large, 1:Large-SP, 2:Small, 3:Small-SP
    trackPattern.s_address = (muonRoad.isEndcap)? -1: muonRoad.Special + 2*muonRoad.LargeSmall;
 
-   const unsigned int MAX_STATION =  11;
+   const unsigned int MAX_STATION =  8;
    const unsigned int MAX_LAYER   =  12;
 
    TrigL2MuonSA::MdtLayerHits v_mdtLayerHits[MAX_STATION][MAX_LAYER];
@@ -211,17 +215,17 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
      unsigned int i_layer = mdtHits[i_hit].Layer;
      double rWidth = muonRoad.rWidth[chamber][i_layer];
 
-     ATH_MSG_DEBUG("... chamber/Z/R/aw/bw/residual/rWidth="
-		   << chamber << "/" << Z << "/" << R << "/" << aw << "/" << bw << "/" << residual << "/" << rWidth);
+     msg() << MSG::DEBUG << "... chamber/Z/R/aw/bw/residual/rWidth="
+	   << chamber << "/" << Z << "/" << R << "/" << aw << "/" << bw << "/" << residual << "/" << rWidth << endreq;
      
      if( fabs(residual) > rWidth ) {
        mdtHits[i_hit].isOutlier   = 2;
        continue;
      }
 
-     ATH_MSG_DEBUG(" --> included at i_layer=" << i_layer);
+     msg() << MSG::DEBUG << " --> included at i_layer=" << i_layer << endreq;
      if( mdtHits[i_hit].TubeLayer < 1 || i_layer > (MAX_LAYER-1) ) {
-       ATH_MSG_WARNING("strange i_layer=" << i_layer);
+       msg() << MSG::WARNING << "strange i_layer=" << i_layer << endreq;
        return StatusCode::FAILURE;
      }
      if( i_layer > i_layer_max ) i_layer_max = i_layer;
@@ -239,15 +243,14 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 
    for(unsigned int chamber=0; chamber<=chamber_max; chamber++) {
      
-     ATH_MSG_DEBUG(" --- chamber=" << chamber);
+     msg() << MSG::DEBUG << " --- chamber=" << chamber << endreq;
      
      double ResMed = 0;
      
-     ATH_MSG_DEBUG("removing outliers...");
+     msg() << MSG::DEBUG << "removing outliers..." << endreq;
      
      // remove outlier
      while(1) {
-       if (chamber==9) break;//BME skips this loop
        unsigned int layer = 999999;
        double DistMax  = 0.;
        double Residual = 0.;
@@ -268,14 +271,14 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 	   }
 	 }
        }
-       ATH_MSG_DEBUG("ResMed=" << ResMed << ": DistMax/layer/i_hit_max/ntot=" 
-		     << DistMax << "/" << layer << "/" << i_hit_max << "/" << v_mdtLayerHits[chamber][0].ntot);
+       msg() << MSG::DEBUG << "ResMed=" << ResMed << ": DistMax/layer/i_hit_max/ntot=" 
+	     << DistMax << "/" << layer << "/" << i_hit_max << "/" << v_mdtLayerHits[chamber][0].ntot << endreq;
        // break conditions
        if(layer == 999999) break;
        if(v_mdtLayerHits[chamber][layer].ndigi==1) break;
        double Mednew = (v_mdtLayerHits[chamber][0].ResSum - Residual)/(v_mdtLayerHits[chamber][0].ntot - 1);
        double Delta = 2.*fabs((ResMed - Mednew)/(ResMed + Mednew));
-       ATH_MSG_DEBUG("Mednew/Delta/DeltaMin=" << Mednew << "/" << Delta << "/" << DeltaMin);
+       msg() << MSG::DEBUG << "Mednew/Delta/DeltaMin=" << Mednew << "/" << Delta << "/" << DeltaMin << endreq;
        if(Delta<=DeltaMin) break;
        
        // if not, delete the maxRes and continue;
@@ -285,7 +288,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
        mdtHits[i_hit_max].isOutlier = 2;
      }
      
-     ATH_MSG_DEBUG("choosing one at each layer...");
+     msg() << MSG::DEBUG << "choosing one at each layer..." << endreq;
      
      // choose one at each layer, and record it in segment
       TrigL2MuonSA::MdtHits mdtSegment;
@@ -294,7 +297,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
       phi0 = 0;
       for(unsigned int i_layer=0; i_layer<=i_layer_max; i_layer++) {
 	
-	ATH_MSG_DEBUG("i_layer=" << i_layer << ": ndigi=" << v_mdtLayerHits[chamber][i_layer].ndigi);
+	msg() << MSG::DEBUG << "i_layer=" << i_layer << ": ndigi=" << v_mdtLayerHits[chamber][i_layer].ndigi << endreq;
 	
 	// choose one at each layer
 	while( v_mdtLayerHits[chamber][i_layer].ndigi>=2 ) {
@@ -308,7 +311,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 	      i_hit_max = i_hit;
 	    }
 	  }
-	  ATH_MSG_DEBUG("ResMax=" << ResMax << ": i_hit_max=" << i_hit_max); 
+	  msg() << MSG::DEBUG << "ResMax=" << ResMax << ": i_hit_max=" << i_hit_max << endreq; 
 	  if( i_hit_max == 999999 ) break;
 	  v_mdtLayerHits[chamber][0].ResSum = v_mdtLayerHits[chamber][0].ResSum - ResMax;
 	  v_mdtLayerHits[chamber][0].ntot--;
@@ -326,8 +329,9 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 	}
       }
       
+      
       //
-      ATH_MSG_DEBUG("nr of hits in segment=" << mdtSegment.size());
+      msg() << MSG::DEBUG << "nr of hits in segment=" << mdtSegment.size() << endreq;
       trackPattern.mdtSegments[chamber] = mdtSegment;
       
    } // end loop on stations.
@@ -343,7 +347,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
 double TrigL2MuonSA::MuFastPatternFinder::calc_residual(double aw,double bw,double x,double y)
 {
    const double ZERO_LIMIT = 1e-4;
-   if( fabs(aw) < ZERO_LIMIT ) return y-bw;
+   if( fabs(aw) < ZERO_LIMIT ) return x-bw;
    double ia  = 1/aw;
    double iaq = ia*ia;
    double dz  = x - (y-bw)*ia;
@@ -355,7 +359,10 @@ double TrigL2MuonSA::MuFastPatternFinder::calc_residual(double aw,double bw,doub
 
 StatusCode TrigL2MuonSA::MuFastPatternFinder::finalize()
 {
-  ATH_MSG_DEBUG("Finalizing MuFastPatternFinder - package version " << PACKAGE_VERSION);
+   msg() << MSG::DEBUG << "Finalizing MuFastPatternFinder - package version " << PACKAGE_VERSION << endreq;
+   
+   // delete message stream
+   if ( m_msg ) delete m_msg;
    
    StatusCode sc = AthAlgTool::finalize(); 
    return sc;

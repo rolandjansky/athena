@@ -6,30 +6,23 @@
 
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
+#include "GaudiKernel/MsgStream.h"
+
 #include "CLHEP/Units/PhysicalConstants.h"
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-static const InterfaceID IID_SagittaRadiusEstimate("IID_SagittaRadiusEstimate", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::SagittaRadiusEstimate::interfaceID() { return IID_SagittaRadiusEstimate; }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::SagittaRadiusEstimate::SagittaRadiusEstimate(const std::string& type,
-							   const std::string& name,
-							   const IInterface*  parent):
-  AthAlgTool(type, name, parent), 
-  m_use_mcLUT(0),
+TrigL2MuonSA::SagittaRadiusEstimate::SagittaRadiusEstimate(MsgStream* msg,
+							   BooleanProperty use_mcLUT,
+							   const TrigL2MuonSA::AlignmentBarrelLUTSvc* alignmentBarrelLUTSvc): 
+  m_msg(0),
+  m_use_mcLUT(use_mcLUT),
   m_alignmentBarrelLUT(0),
   m_alignmentBarrelLUTSvc(0)
 {
-  declareInterface<TrigL2MuonSA::SagittaRadiusEstimate>(this);
+  if ( msg ) m_msg = msg; 
+  if ( alignmentBarrelLUTSvc && !m_use_mcLUT ) m_alignmentBarrelLUT = alignmentBarrelLUTSvc->alignmentBarrelLUT();
 }
 
 // --------------------------------------------------------------------------------
@@ -37,36 +30,6 @@ TrigL2MuonSA::SagittaRadiusEstimate::SagittaRadiusEstimate(const std::string& ty
 
 TrigL2MuonSA::SagittaRadiusEstimate::~SagittaRadiusEstimate() 
 {
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::SagittaRadiusEstimate::initialize()
-{
-  ATH_MSG_DEBUG("Initializing SagittaRadiusEstimate - package version " << PACKAGE_VERSION) ;
-   
-  StatusCode sc;
-  sc = AthAlgTool::initialize();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-    return sc;
-  }
-
-  // 
-  return StatusCode::SUCCESS; 
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-void TrigL2MuonSA::SagittaRadiusEstimate::setMCFlag(BooleanProperty use_mcLUT,
-						    const AlignmentBarrelLUTSvc* alignmentBarrelLUTSvc)
-{
-  m_use_mcLUT = use_mcLUT;
-  if ( alignmentBarrelLUTSvc ) m_alignmentBarrelLUT = alignmentBarrelLUTSvc->alignmentBarrelLUT();
-
-  return;
 }
 
 // --------------------------------------------------------------------------------
@@ -144,7 +107,6 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
       xn = x0 - f(x0,c0,c1,c2,c3)/fp(x0,c33,c22,c1);
       x0 = xn;
     }
-    if (fabs(xn)<ZERO_LIMIT) xn = ZERO_LIMIT;//To avoid divergence
     
     x1 = xn;
     y1 = y0;    
@@ -152,11 +114,11 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
     if (superPoints[0]->R > ZERO_LIMIT ) {
       rad = superPoints[0]->R;
       theta = atan2(rad,(double)fabs(superPoints[0]->Z));
-      signZ = (fabs(superPoints[0]->Z) > ZERO_LIMIT)? superPoints[0]->Z/fabs(superPoints[0]->Z): 1.;
+      signZ = superPoints[0]->Z/fabs(superPoints[0]->Z);
     } else {
       rad = y1;
       theta = atan2(rad,(double)fabs(x1));
-      signZ = (fabs(x1) > ZERO_LIMIT)? x1/fabs(x1): 1.;
+      signZ = x1/fabs(x1);
     }
         
     trackPattern.etaMap = (-log(tan(theta/2.)))*signZ;
@@ -215,20 +177,20 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
 
     trackPattern.phiMS = phi;
 
-    // Alignment correation to LargeSpecial
-    if ( trackPattern.s_address==1) {
+    // Alignment correation to data
+    if ( !m_use_mcLUT && trackPattern.s_address==1) {
 
       if ( !m_alignmentBarrelLUT ) {
-	ATH_MSG_ERROR("Alignment correction service is not prepared");
+	msg() << MSG::ERROR << "Alignment correction service is not prepared" << endreq;
 	return StatusCode::FAILURE;
       }
 
-      double dZ = (*m_alignmentBarrelLUT)->GetDeltaZ(trackPattern.s_address,
-						     trackPattern.etaMap,
-						     trackPattern.phiMap,
-						     trackPattern.phiMS,
-						     superPoints[0]->R);
-      superPoints[1]->Z += 10*dZ;
+      double dZ = m_alignmentBarrelLUT->GetDeltaZ(trackPattern.s_address,
+						  trackPattern.etaMap,
+						  trackPattern.phiMap,
+						  trackPattern.phiMS,
+						  superPoints[0]->R);
+      superPoints[1]->Z += dZ;
     }
 
     a3 = ( superPoints[2]->Z - superPoints[0]->Z ) / ( superPoints[2]->R - superPoints[0]->R );
@@ -258,23 +220,12 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
 
   }
 
-  ATH_MSG_DEBUG("... count/trackPattern.barrelSagitta/barrelRadius/charge/s_address/phi="
-		<< count << " / " << trackPattern.barrelSagitta << "/" << trackPattern.barrelRadius << "/"
-		<< trackPattern.charge << "/" << trackPattern.s_address << "/"
-		<< trackPattern.phiMS);
+  msg() << MSG::DEBUG << "... count/trackPattern.barrelSagitta/barrelRadius/charge/s_address/phi="
+	<< count << " / " << trackPattern.barrelSagitta << "/" << trackPattern.barrelRadius << "/"
+	<< trackPattern.charge << "/" << trackPattern.s_address << "/"
+	<< trackPattern.phiMS << endreq;
   
   return StatusCode::SUCCESS; 
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::SagittaRadiusEstimate::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing SagittaRadiusEstimate - package version " << PACKAGE_VERSION);
-   
-  StatusCode sc = AthAlgTool::finalize(); 
-  return sc;
 }
 
 // --------------------------------------------------------------------------------

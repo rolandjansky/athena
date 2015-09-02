@@ -6,24 +6,9 @@
 
 #include<fstream>
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-static const InterfaceID IID_PtBarrelLUT("IID_PtBarrelLUT", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::PtBarrelLUT::interfaceID() { return IID_PtBarrelLUT; }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::PtBarrelLUT::PtBarrelLUT(const std::string& type,
-				       const std::string& name,
-				       const IInterface*  parent):
-  AthAlgTool(type, name, parent)
+TrigL2MuonSA::PtBarrelLUT::PtBarrelLUT(MsgStream* msg) :
+  m_msg(msg)
 {
-  declareInterface<TrigL2MuonSA::PtBarrelLUT>(this);
 }
 
 // --------------------------------------------------------------------------------
@@ -31,24 +16,6 @@ TrigL2MuonSA::PtBarrelLUT::PtBarrelLUT(const std::string& type,
 
 TrigL2MuonSA::PtBarrelLUT::~PtBarrelLUT()
 {
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::PtBarrelLUT::initialize()
-{
-  ATH_MSG_DEBUG("Initializing PtBarrelLUT - package version " << PACKAGE_VERSION) ;
-   
-  StatusCode sc;
-  sc = AthAlgTool::initialize();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-    return sc;
-  }
-
-  // 
-  return StatusCode::SUCCESS; 
 }
 
 // --------------------------------------------------------------------------------
@@ -87,7 +54,7 @@ StatusCode TrigL2MuonSA::PtBarrelLUT::readLUT(std::string lut_fileName,
 
   file.open(lut_fileName.c_str());
   if(!file) {
-    ATH_MSG_INFO("Failed to open barrel LUT file");
+    msg() << MSG::INFO << "Failed to open barrel LUT file" << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -118,31 +85,17 @@ StatusCode TrigL2MuonSA::PtBarrelLUT::readLUT(std::string lut_fileName,
   std::ifstream fileSP;
   fileSP.open(lutSP_fileName.c_str());
   if(!fileSP) {
-    ATH_MSG_INFO("Failed to open barrel LUT file");
+    msg() << MSG::INFO << "Failed to open barrel LUT file" << endreq;
     return StatusCode::FAILURE;
   }
 
-  int ieta, iphi, iqeta, iR;
+  int ieta, iphi, icharge, iR;
   while( !fileSP.eof() ){
-    fileSP >> iqeta >> iR >> ieta >> iphi >> A1 >> A0;
-    m_lutSP.table_LargeSP[iqeta][iR][ieta][iphi][0] = A1;
-    m_lutSP.table_LargeSP[iqeta][iR][ieta][iphi][1] = A0;
+    fileSP >> ieta >> iphi >> icharge >> iR >> A1 >> A0;
+    m_lutSP.table_LargeSP[iR][icharge][ieta][iphi][0] = A1;
+    m_lutSP.table_LargeSP[iR][icharge][ieta][iphi][1] = A0;
   }
 
   return StatusCode::SUCCESS;
 }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-StatusCode TrigL2MuonSA::PtBarrelLUT::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing TgcRoadDefiner - package version " << PACKAGE_VERSION);
-   
-  StatusCode sc = AthAlgTool::finalize(); 
-  return sc;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
 

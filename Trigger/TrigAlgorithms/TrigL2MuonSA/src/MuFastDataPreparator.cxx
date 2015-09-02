@@ -5,6 +5,7 @@
 #include "TrigL2MuonSA/MuFastDataPreparator.h"
 
 #include "GaudiKernel/ToolFactory.h"
+#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -15,7 +16,7 @@
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "TrigL2MuonSA/MdtRegionDefiner.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -31,15 +32,16 @@ TrigL2MuonSA::MuFastDataPreparator::MuFastDataPreparator(const std::string& type
                                                          const std::string& name,
                                                          const IInterface*  parent): 
   AthAlgTool(type,name,parent),
+  m_msg(0),
   m_recRPCRoiSvc("LVL1RPC::RPCRecRoiSvc",""),
   m_options(),
   m_rpcDataPreparator("TrigL2MuonSA::RpcDataPreparator"),
   m_tgcDataPreparator("TrigL2MuonSA::TgcDataPreparator"),
   m_mdtDataPreparator("TrigL2MuonSA::MdtDataPreparator"),
   m_cscDataPreparator("TrigL2MuonSA::CscDataPreparator"),
-  m_rpcRoadDefiner("TrigL2MuonSA::RpcRoadDefiner"),
-  m_tgcRoadDefiner("TrigL2MuonSA::TgcRoadDefiner"),
-  m_rpcPatFinder("TrigL2MuonSA::RpcPatFinder")
+  m_rpcRoadDefiner(0),
+  m_tgcRoadDefiner(0),
+  m_rpcPatFinder(0)
 {
    declareInterface<TrigL2MuonSA::MuFastDataPreparator>(this);
    declareProperty("RPCRecRoiSvc",      m_recRPCRoiSvc,      "Reconstruction of RPC RoI");
@@ -58,21 +60,22 @@ TrigL2MuonSA::MuFastDataPreparator::~MuFastDataPreparator()
 StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
 {
    // Get a message stream instance
-  ATH_MSG_DEBUG("Initializing MuFastDataPreparator - package version " << PACKAGE_VERSION);
+   m_msg = new MsgStream( msgSvc(), name() );
+   msg() << MSG::DEBUG << "Initializing MuFastDataPreparator - package version " << PACKAGE_VERSION << endreq ;
    
    StatusCode sc;
    sc = AthAlgTool::initialize();
    if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
+      msg() << MSG::ERROR << "Could not initialize the AthAlgTool base class." << endreq;
       return sc;
    }
 
   sc = m_recRPCRoiSvc.retrieve();
   if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Couldn't connect to " << m_recRPCRoiSvc);
+    msg() << MSG::ERROR << "Couldn't connect to " << m_recRPCRoiSvc << endreq;
     return sc;
   } else {
-    ATH_MSG_INFO("Retrieved Service " << m_recRPCRoiSvc);
+    msg() << MSG::INFO << "Retrieved Service " << m_recRPCRoiSvc << endreq;
   }
   
   // retrieve the ID helper and the region selector
@@ -80,74 +83,58 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
    const MuonGM::MuonDetectorManager* muonMgr;
    sc = serviceLocator()->service("DetectorStore", detStore);
    if (sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve DetectorStore.");
+     msg() << MSG::ERROR << "Could not retrieve DetectorStore." << endreq;
      return sc;
    }
-   ATH_MSG_DEBUG("Retrieved DetectorStore.");
+   msg() << MSG::DEBUG << "Retrieved DetectorStore." << endreq;
    
    sc = detStore->retrieve( muonMgr,"Muon" );
    if (sc.isFailure()) return sc;
-   ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
+   msg() << MSG::DEBUG << "Retrieved GeoModel from DetectorStore." << endreq;
    m_mdtIdHelper = muonMgr->mdtIdHelper();
    
    // Locate RegionSelector
    sc = service("RegSelSvc", m_regionSelector);
    if(sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve the regionselector service");
+      msg() << MSG::ERROR << "Could not retrieve the regionselector service" << endreq;
       return sc;
    }
-   ATH_MSG_DEBUG("Retrieved the RegionSelector service ");
+   msg() << MSG::DEBUG << "Retrieved the RegionSelector service " << endreq;
 
    if (m_use_rpc) {
      sc = m_rpcDataPreparator.retrieve();
      if ( sc.isFailure() ) {
-       ATH_MSG_ERROR("Could not retrieve " << m_rpcDataPreparator);
+       msg() << MSG::ERROR << "Could not retrieve " << m_rpcDataPreparator << endreq;
        return sc;
      }
-     ATH_MSG_DEBUG("Retrieved service " << m_rpcDataPreparator);
+     msg() << MSG::DEBUG << "Retrieved service " << m_rpcDataPreparator << endreq;
    }
 
    sc = m_tgcDataPreparator.retrieve();
    if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_tgcDataPreparator);
+      msg() << MSG::ERROR << "Could not retrieve " << m_tgcDataPreparator << endreq;
       return sc;
    }
-   ATH_MSG_DEBUG("Retrieved service " << m_tgcDataPreparator);
+   msg() << MSG::DEBUG << "Retrieved service " << m_tgcDataPreparator << endreq;
 
    sc =m_mdtDataPreparator.retrieve();
    if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_mdtDataPreparator);
+      msg() << MSG::ERROR << "Could not retrieve " << m_mdtDataPreparator << endreq;
       return sc;
    }
-   ATH_MSG_DEBUG("Retrieved service " << m_mdtDataPreparator);
+   msg() << MSG::DEBUG << "Retrieved service " << m_mdtDataPreparator << endreq;
    
    sc =m_cscDataPreparator.retrieve();
    if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_cscDataPreparator);
+     msg() << MSG::ERROR << "Could not retrieve " << m_cscDataPreparator << endreq;
      return sc;
    }
-   ATH_MSG_DEBUG("Retrieved service " << m_cscDataPreparator);
+   msg() << MSG::DEBUG << "Retrieved service " << m_cscDataPreparator << endreq;
 
-   sc =m_rpcRoadDefiner.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_rpcRoadDefiner);
-     return sc;
-   }
-   ATH_MSG_DEBUG("Retrieved service " << m_rpcRoadDefiner);
-
-   sc =m_tgcRoadDefiner.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_tgcRoadDefiner);
-     return sc;
-   }
-   ATH_MSG_DEBUG("Retrieved service " << m_tgcRoadDefiner);
-
-   sc =m_rpcPatFinder.retrieve();
-   if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_rpcPatFinder);
-     return sc;
-   }
-   ATH_MSG_DEBUG("Retrieved service " << m_rpcPatFinder);
+   // Set MsgStream for utils
+   m_rpcRoadDefiner = new TrigL2MuonSA::RpcRoadDefiner(m_msg);
+   m_tgcRoadDefiner = new TrigL2MuonSA::TgcRoadDefiner(m_msg);
+   m_rpcPatFinder   = new TrigL2MuonSA::RpcPatFinder(m_msg);
 
    // set the geometry tools
    m_rpcRoadDefiner->setMdtGeometry(m_regionSelector,m_mdtIdHelper);
@@ -182,7 +169,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::setMCFlag(BooleanProperty use_mcL
     sc = serviceLocator()->service("PtEndcapLUTSvc",    m_ptEndcapLUTSvc);
   }
   if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not find PtEndcapLUTSvc");
+    msg() << MSG::ERROR << "Could not find PtEndcapLUTSvc" << endreq;
     return sc;
   }
 
@@ -259,7 +246,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
                                                            TrigL2MuonSA::MdtHits&      mdtHits_overlap)
 {
 
-  ATH_MSG_DEBUG("RoI eta/phi=" << p_roi->eta() << "/" << p_roi->phi());  
+  msg() << MSG::DEBUG << "RoI eta/phi=" << p_roi->eta() << "/" << p_roi->phi() << endreq;  
   
   StatusCode sc = StatusCode::SUCCESS;
   
@@ -273,13 +260,9 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
     sc = m_rpcDataPreparator->prepareData(p_roids,
 					  roiWord,
                                           rpcHits,
-                                          &m_rpcPatFinder);
-
-    // check if the RoI is fake and se the flag
-    m_isRpcFakeRoi = m_rpcDataPreparator->isFakeRoi();
-
+                                          m_rpcPatFinder);
     if (!sc.isSuccess()) {
-      ATH_MSG_DEBUG("Error in RPC data prepapration. Continue using RoI");
+      msg() << MSG::DEBUG << "Error in RPC data prepapration. Continue using RoI" << endreq;
     }
   }
  
@@ -294,14 +277,14 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   sc = m_rpcRoadDefiner->defineRoad(p_roi,
                                     muonRoad,
                                     rpcHits,
-                                    &m_rpcPatFinder,
+                                    m_rpcPatFinder,
                                     rpcFitResult,
                                     roiEtaMinLow,
                                     roiEtaMaxLow,
                                     roiEtaMinHigh,
                                     roiEtaMaxHigh);
   if (!sc.isSuccess()) {
-    ATH_MSG_WARNING("Error in road definition.");
+    msg() << MSG::WARNING << "Error in road definition." << endreq;
     return sc;
   }
   
@@ -315,11 +298,11 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   
   
   if (!sc.isSuccess()) {
-    ATH_MSG_WARNING("Error in MDT data preparation.");
+    msg() << MSG::WARNING << "Error in MDT data preparation." << endreq;
     return sc;
   }
-  ATH_MSG_DEBUG("nr of MDT (normal)  hits=" << mdtHits_normal.size());
-  ATH_MSG_DEBUG("nr of MDT (overlap) hits=" << mdtHits_overlap.size());
+  msg() << MSG::DEBUG << "nr of MDT (normal)  hits=" << mdtHits_normal.size() << endreq;
+  msg() << MSG::DEBUG << "nr of MDT (overlap) hits=" << mdtHits_overlap.size() << endreq;
   
   return StatusCode::SUCCESS; 
 }
@@ -338,21 +321,21 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
                                                            TrigL2MuonSA::CscHits&      cscHits)
 {
   StatusCode sc = StatusCode::SUCCESS;
-  ATH_MSG_DEBUG("RoI eta/phi=" << p_roi->eta() << "/" << p_roi->phi());
+  msg() << MSG::DEBUG << "RoI eta/phi=" << p_roi->eta() << "/" << p_roi->phi() << endreq;
   
   sc = m_tgcDataPreparator->prepareData(p_roi,
                                         tgcHits);
   if (!sc.isSuccess()) {
-    ATH_MSG_DEBUG("Error in TGC data preparation. Continue using RoI");
+    msg() << MSG::DEBUG << "Error in TGC data preparation. Continue using RoI" << endreq;
   }
-  ATH_MSG_DEBUG("nr of TGC hits=" << tgcHits.size());
+  msg() << MSG::DEBUG << "nr of TGC hits=" << tgcHits.size() << endreq;
   
   sc = m_tgcRoadDefiner->defineRoad(p_roi,
                                     tgcHits,
                                     muonRoad,
                                     tgcFitResult);
   if (!sc.isSuccess()) {
-    ATH_MSG_WARNING("Error in road definition.");
+    msg() << MSG::WARNING << "Error in road definition." << endreq;
     return sc;
   }
   
@@ -365,20 +348,20 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
                                         mdtHits_overlap);
 
   if (!sc.isSuccess()) {
-    ATH_MSG_WARNING("Error in MDT data preparation.");
+    msg() << MSG::WARNING << "Error in MDT data preparation." << endreq;
     return sc;
   }
-  ATH_MSG_DEBUG("nr of MDT (normal)  hits=" << mdtHits_normal.size());
-  ATH_MSG_DEBUG("nr of MDT (overlap) hits=" << mdtHits_overlap.size());
+  msg() << MSG::DEBUG << "nr of MDT (normal)  hits=" << mdtHits_normal.size() << endreq;
+  msg() << MSG::DEBUG << "nr of MDT (overlap) hits=" << mdtHits_overlap.size() << endreq;
   
   sc = m_cscDataPreparator->prepareData(p_roids,
                                         muonRoad,
                                         cscHits);
   if (!sc.isSuccess()) {
-    ATH_MSG_WARNING("Error in CSC data preparation.");
+    msg() << MSG::WARNING << "Error in CSC data preparation." << endreq;
     return sc;
   }
-  ATH_MSG_DEBUG("nr of CSC hits=" << cscHits.size());
+  msg() << MSG::DEBUG << "nr of CSC hits=" << cscHits.size() << endreq;
 
   return StatusCode::SUCCESS; 
 }
@@ -388,12 +371,19 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
 
 StatusCode TrigL2MuonSA::MuFastDataPreparator::finalize()
 {
-  ATH_MSG_DEBUG("Finalizing MuFastDataPreparator - package version " << PACKAGE_VERSION);
+   msg() << MSG::DEBUG << "Finalizing MuFastDataPreparator - package version " << PACKAGE_VERSION << endreq;
    
+   // delete message stream
+   if ( m_msg ) delete m_msg;
+
+   if ( m_rpcRoadDefiner ) delete m_rpcRoadDefiner;
+   if ( m_tgcRoadDefiner ) delete m_tgcRoadDefiner;
+   if ( m_rpcPatFinder ) delete m_rpcPatFinder;
+
    StatusCode sc = AthAlgTool::finalize(); 
    if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not finalize the AthAlgTool base class.");
-     return sc;
+      msg() << MSG::ERROR << "Could not finalize the AthAlgTool base class." << endreq;
+      return sc;
    }
    return sc;
 }

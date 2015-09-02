@@ -5,19 +5,15 @@
 #ifndef TRIGL2MUONSA_PTBARRELLUT_H
 #define TRIGL2MUONSA_PTBARRELLUT_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/MsgStream.h"
 
 #include <string>
 
 namespace TrigL2MuonSA {
   
-class PtBarrelLUT: public AthAlgTool 
-{
- public:    
   struct LUT {
     int NbinEta[4];
     int NbinPhi[4];
@@ -35,29 +31,35 @@ class PtBarrelLUT: public AthAlgTool
     float table_LargeSP[2][2][30][30][2];
   };
 
+  class PtBarrelLUT {
+    
   public:
-    static const InterfaceID& interfaceID();
+    PtBarrelLUT(MsgStream* msg);
+    ~PtBarrelLUT();
 
-    PtBarrelLUT(const std::string& type, 
-		const std::string& name,
-                const IInterface*  parent);
-    ~PtBarrelLUT(void);
-
-    virtual StatusCode initialize();
-    virtual StatusCode finalize  ();
-
-    const LUT&   lut(void) const  { return m_lut; };
-    const LUTsp& lutSP(void) const { return m_lutSP; };
+    const LUT&   lut(void) const;
+    const LUTsp& lutSP(void) const;
     
     StatusCode readLUT(std::string lut_fileName,
 		       std::string lutSP_fileName);
     
+    MsgStream*  m_msg;
+    inline MsgStream& msg() const { return *m_msg; }
+    
   private:
     LUT    m_lut;
     LUTsp  m_lutSP;
+  };
 
-};
+  inline const LUT& PtBarrelLUT::lut(void) const
+  {
+    return m_lut;
+  }
 
+  inline const LUTsp& PtBarrelLUT::lutSP(void) const
+  {
+    return m_lutSP;
+  }
+  
 }
-
 #endif // PHYSICS_MU_PTBARRELLUT_H

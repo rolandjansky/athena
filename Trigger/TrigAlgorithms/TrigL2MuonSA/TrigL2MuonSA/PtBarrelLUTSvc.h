@@ -6,13 +6,10 @@
 #define TRIGL2MUONSA_PTBARRELLUTSVC_H
 
 #include <string>
-
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
-
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/MsgStream.h"
 
 #include "TrigL2MuonSA/PtBarrelLUT.h"
 
@@ -35,16 +32,17 @@ namespace TrigL2MuonSA {
     virtual StatusCode initialize(void);
     virtual StatusCode finalize(void);
 
+    MsgStream*     m_msg;
+    inline MsgStream& msg() const { return *m_msg; }
+    
   private:
     StringProperty m_lut_fileName;
     StringProperty m_lutSP_fileName;
 
-    ToolHandle<PtBarrelLUT>  m_ptBarrelLUT;
-
-  public:
-    const ToolHandle<PtBarrelLUT>* ptBarrelLUT(void) const
-    {return &m_ptBarrelLUT;};
+    PtBarrelLUT*   m_ptBarrelLUT;
     
+  public:
+    virtual const PtBarrelLUT* ptBarrelLUT(void) const;
   };
 
 }

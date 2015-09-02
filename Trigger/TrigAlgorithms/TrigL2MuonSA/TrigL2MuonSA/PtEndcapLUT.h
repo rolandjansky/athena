@@ -5,68 +5,52 @@
 #ifndef TRIGL2MUONSA_PTENDCAPLUT_H
 #define TRIGL2MUONSA_PTENDCAPLUT_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/MsgStream.h"
 
 #include <map>
 #include <cstring>
-#define ETAS1  5
-#define PHIS1  6
-#define PTS1   3
 
 namespace TrigL2MuonSA {
 
-class PtEndcapLUT: public AthAlgTool
-{
+  class PtEndcapLUT
+  {
   public:
-  enum DataType { INVALID, ALPHAPOL2, BETAPOL2, TGCALPHAPOL2, INVRADIUSPOL2, CSCPOL2 };
+    enum DataType { INVALID, ALPHAPOL2, BETAPOL2, INVRADIUSPOL2 };
     
-  public:
-    static const InterfaceID& interfaceID();
-
-    PtEndcapLUT(const std::string& type, 
-                const std::string& name,
-                const IInterface*  parent);
-    ~PtEndcapLUT(void);
-
-    virtual StatusCode initialize();
-    virtual StatusCode finalize  ();
+    PtEndcapLUT(MsgStream* msg);
+    ~PtEndcapLUT();
 
     StatusCode readLUT(std::string lut_fileName);
-    StatusCode readLUTSigmaMean(std::string lut_mean, std::string lut_sigma);
+
+    MsgStream*  m_msg;
+    inline MsgStream& msg() const { return *m_msg; }
 
     double alpha(double z1, double r1, double z2, double r2) const;
     double radius(double z1, double r1, double s1, double z2, double r2, double s2, double deltar) const;
-    double lookup(int side, int charge, DataType type, int iEta, int iPhi, double value) const;
-    double ptcombined(int iEta, int iPhi, double ApT, double BpT, double &CApT, double &CBpT) const;
-private:
-    double m_meana[ETAS1][PHIS1][PTS1];
-    double m_meanb[ETAS1][PHIS1][PTS1];
-    double m_meanc[ETAS1][PHIS1][PTS1];
-    double m_sigmaa[ETAS1][PHIS1][PTS1];
-    double m_sigmab[ETAS1][PHIS1][PTS1];
-    double m_sigmac[ETAS1][PHIS1][PTS1];
+    double lookup(int side, int charge, DataType type, int sector, int iEta, int iPhi, double value) const;
 
-    enum sizes { ETAS = 30, PHIS = 12, PHISEE = 192};
+private:
+    enum sizes { ETAS = 30, PHIS = 12, PHIS24 = 24 };
 
     struct KeyType
     {
       int      m_side;    /**< 0 = -, 1 = + */
       int      m_charge;  /**< 0 = -, 1 = + */
       DataType m_type;
-    KeyType(int side, int charge, DataType type) :
-      m_side(side), m_charge(charge), m_type(type) {}
+      int      m_sector;
+    KeyType(int side, int charge, DataType type, int sector) :
+      m_side(side), m_charge(charge), m_type(type), m_sector(sector) {}
       bool operator<(const KeyType& other) const;
       std::string toString() const;
     };
     
     struct TableType
     {
-      double m_xcepts[ETAS][PHISEE];
-      double m_slopes[ETAS][PHISEE];
+      double m_xcepts[ETAS][PHIS24];
+      double m_slopes[ETAS][PHIS24];
       TableType()
       {
 	memset(m_xcepts, 0, sizeof(m_xcepts));
@@ -81,7 +65,7 @@ private:
     
     TableMap          m_tables;
 
-};
+  };
 
 }
 

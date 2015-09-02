@@ -24,18 +24,10 @@ namespace TrigL2MuonSA {
       isPhiDir   = false;
       phi        = 0;
       dPhidZ     = 0;
-
-      phi_inner     = 0;
-      slope_inner   = 0;
-      offset_inner   = 0;
-
+      ZoverR_middle = 0;
+      ZoverR_outer  = 0;
       phi_middle    = 0;
-      slope_middle  = 0;
-      offset_middle  = 0;
-
       phi_outer     = 0;
-      slope_outer   = 0;
-      offset_outer  = 0;
     };
     
   public:
@@ -45,17 +37,10 @@ namespace TrigL2MuonSA {
     double phi;
     double dPhidZ;
     
-    double phi_inner;
-    double slope_inner;
-    double offset_inner;
-
+    double ZoverR_middle;
+    double ZoverR_outer;
     double phi_middle;
-    double slope_middle;
-    double offset_middle;
-
     double phi_outer;
-    double slope_outer;
-    double offset_outer;
   };
 }
 

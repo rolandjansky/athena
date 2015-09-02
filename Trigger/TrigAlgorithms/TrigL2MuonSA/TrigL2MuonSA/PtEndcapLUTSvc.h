@@ -8,9 +8,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
-
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/MsgStream.h"
 
 #include "TrigL2MuonSA/PtEndcapLUT.h"
 
@@ -19,9 +17,8 @@
 
 namespace TrigL2MuonSA {
 
-class PtEndcapLUTSvc : public AthService, virtual public IInterface
-{
-
+  class PtEndcapLUTSvc : public AthService, virtual public IInterface
+  {
   public:
     static const InterfaceID& interfaceID() { 
       static const InterfaceID _IID(11497, 0 , 0);
@@ -37,18 +34,17 @@ class PtEndcapLUTSvc : public AthService, virtual public IInterface
     virtual StatusCode initialize();
     virtual StatusCode finalize();
 
+    MsgStream*        m_msg;
+    inline MsgStream& msg() const { return *m_msg; }
+
   private:
     StringProperty    m_lut_fileName;
-    StringProperty    m_lut_mean;
-    StringProperty    m_lut_sigma;
 
-    ToolHandle<PtEndcapLUT>      m_ptEndcapLUT;
+    PtEndcapLUT*      m_ptEndcapLUT;
 
   public:
-    const ToolHandle<PtEndcapLUT>* ptEndcapLUT(void) const
-    {return &m_ptEndcapLUT;};
-
-};
+    virtual const PtEndcapLUT* ptEndcapLUT(void) const;
+  };
 
 }
 

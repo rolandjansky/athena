@@ -5,9 +5,8 @@
 #ifndef  TRIGL2MUONSA_PTFROMALPHABETA_H
 #define  TRIGL2MUONSA_PTFROMALPHABETA_H
 
-#include "AthenaBaseComps/AthAlgTool.h"
-
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IMessageSvc.h"
 
 #include "TrigL2MuonSA/TrackData.h"
 #include "TrigL2MuonSA/PtEndcapLUTSvc.h"
@@ -16,25 +15,16 @@
 
 namespace TrigL2MuonSA {
   
-class PtFromAlphaBeta: public AthAlgTool
-{
- public:
+  class PtFromAlphaBeta
+  {
+  public:
     
-  static const InterfaceID& interfaceID();
-
-  PtFromAlphaBeta(const std::string& type, 
-		  const std::string& name,
-		  const IInterface*  parent);
+    PtFromAlphaBeta(MsgStream* msg,
+		    const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc);
     
-  ~PtFromAlphaBeta();
+    ~PtFromAlphaBeta();
     
-  virtual StatusCode initialize();
-  virtual StatusCode finalize  ();
-
-  void setMCFlag(BooleanProperty use_mcLUT,
-		 const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc);
-
- public:
+  public:
     
     StatusCode setPt(TrigL2MuonSA::TrackPattern& trackPattern,
                      TrigL2MuonSA::TgcFitResult& tgcFitResult);
@@ -45,12 +35,25 @@ class PtFromAlphaBeta: public AthAlgTool
     
   private:
     
+    /** @brief Pointer to MsgStream.*/
+    MsgStream* m_msg;
+    
+    /**
+     * @brief Accessor method for the MsgStream.
+     * @return handle to the MsgStream.
+     */
+    inline MsgStream& msg() const { return *m_msg; }
+    
+    /**
+     * @brief Accessor method for the message level variable.
+     * @return value of the message level for this algorithm.
+     */
+    inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
+    
     float f(float x, float c0, float c1, float c2, float c3) const;
     float fp(float x, float c33, float c22, float c1) const;
     
-    BooleanProperty  m_use_mcLUT;
-
-    const ToolHandle<PtEndcapLUT>*    m_ptEndcapLUT;
+    const TrigL2MuonSA::PtEndcapLUT*    m_ptEndcapLUT;
       
 };
 

@@ -4,29 +4,21 @@
 
 #include "TrigL2MuonSA/PtFromRadius.h"
 
+#include "GaudiKernel/MsgStream.h"
+
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "TMath.h"
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-static const InterfaceID IID_PtFromRadius("IID_PtFromRadius", 1, 0);
-
-const InterfaceID& TrigL2MuonSA::PtFromRadius::interfaceID() { return IID_PtFromRadius; }
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-TrigL2MuonSA::PtFromRadius::PtFromRadius(const std::string& type,
-					 const std::string& name,
-					 const IInterface*  parent):
-  AthAlgTool(type, name, parent), 
-  m_use_mcLUT(0),
-  m_ptBarrelLUT(0)
+TrigL2MuonSA::PtFromRadius::PtFromRadius(MsgStream* msg,
+					 BooleanProperty use_mcLUT,
+					 const TrigL2MuonSA::PtBarrelLUTSvc* ptBarrelLUTSvc): 
+   m_msg(msg),
+   m_use_mcLUT(use_mcLUT),
+   m_ptBarrelLUT(ptBarrelLUTSvc->ptBarrelLUT())
 {
-  declareInterface<TrigL2MuonSA::PtFromRadius>(this);
 }
 
 // --------------------------------------------------------------------------------
@@ -39,38 +31,10 @@ TrigL2MuonSA::PtFromRadius::~PtFromRadius()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::PtFromRadius::initialize()
-{
-  ATH_MSG_DEBUG("Initializing PtFromRadius - package version " << PACKAGE_VERSION) ;
-   
-  StatusCode sc;
-  sc = AthAlgTool::initialize();
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
-    return sc;
-  }
-
-  // 
-  return StatusCode::SUCCESS; 
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-void TrigL2MuonSA::PtFromRadius::setMCFlag(BooleanProperty use_mcLUT,
-                                           const TrigL2MuonSA::PtBarrelLUTSvc* ptBarrelLUTSvc)
-{
-  m_use_mcLUT = use_mcLUT;
-  m_ptBarrelLUT = ptBarrelLUTSvc->ptBarrelLUT();
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPattern)
 {
-  const PtBarrelLUT::LUT&   lut   = (*m_ptBarrelLUT)->lut();
-  const PtBarrelLUT::LUTsp& lutSP = (*m_ptBarrelLUT)->lutSP();
+  const LUT&   lut   = m_ptBarrelLUT->lut();
+  const LUTsp& lutSP = m_ptBarrelLUT->lutSP();
 
   TrigL2MuonSA::SuperPoint* superPoints[3];
   for (int i_station=0; i_station<3; i_station++) {
@@ -106,16 +70,21 @@ StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPa
 
       ch = (trackPattern.charge>=0.)? 1 : 0;
 
-      if( add==1 ) {
+      if( !m_use_mcLUT && add==1 ) {
 	// Use special table for Large-SP data
 
-	int iR = ( superPoints[0]->R > 6000 )? 1: 0;
-        int qeta = ( trackPattern.charge*trackPattern.etaMap >= 0.)? 1 : 0;
+	if( fabs(trackPattern.phiMS)>90*TMath::DegToRad() ){
+	  phibin=29-phibin;
+	}
+	int iR = ( superPoints[0]->R > 600 )? 1: 0;
+	if( superPoints[0]->R < 0.01 ){
+	  iR = ( phibin>14 )? 1: 0;
+	}
 
-	A0[0] = lutSP.table_LargeSP[qeta][iR][etabin][phibin][0];
-	A1[0] = lutSP.table_LargeSP[qeta][iR][etabin][phibin][1];
+	A0[0] = lutSP.table_LargeSP[iR][ch][etabin][phibin][0];
+	A1[0] = lutSP.table_LargeSP[iR][ch][etabin][phibin][1];
 
-	trackPattern.pt = trackPattern.barrelRadius*A0[0] + A1[0];
+	trackPattern.pt = trackPattern.barrelRadius*scale*A0[0] + A1[0];
 
       } else {
 
@@ -173,9 +142,9 @@ StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPa
     }
   }
 
-  ATH_MSG_DEBUG("pT determined from radius: barrelRadius/barrelSagitta/pT/charge/s_address="
-		<< trackPattern.barrelRadius << "/" << trackPattern.barrelSagitta << "/"
-		<< trackPattern.pt << "/" << trackPattern.charge << "/" << trackPattern.s_address);
+  msg() << MSG::DEBUG << "pT determined from radius: barrelRadius/barrelSagitta/pT/charge/s_address="
+	<< trackPattern.barrelRadius << "/" << trackPattern.barrelSagitta << "/"
+	<< trackPattern.pt << "/" << trackPattern.charge << "/" << trackPattern.s_address << endreq;
 
 
   return StatusCode::SUCCESS; 
@@ -184,13 +153,3 @@ StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPa
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::PtFromRadius::finalize()
-{
-  ATH_MSG_DEBUG("Finalizing PtFromRadius - package version " << PACKAGE_VERSION);
-   
-  StatusCode sc = AthAlgTool::finalize(); 
-  return sc;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------

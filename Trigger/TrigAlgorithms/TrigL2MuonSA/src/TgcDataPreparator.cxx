@@ -5,6 +5,7 @@
 #include "TrigL2MuonSA/TgcDataPreparator.h"
 
 #include "GaudiKernel/ToolFactory.h"
+#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -24,8 +25,6 @@
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
-
 using namespace MuonGM;
 
 // --------------------------------------------------------------------------------
@@ -42,6 +41,7 @@ TrigL2MuonSA::TgcDataPreparator::TgcDataPreparator(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent): 
   AthAlgTool(type,name,parent),
+   m_msg(0),
    m_storeGateSvc( "StoreGateSvc", name ),
    m_tgcPrepDataProvider("Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool"),
    m_tgcRawDataProvider("Muon::TGC_RawDataProviderTool"),
@@ -66,77 +66,79 @@ TrigL2MuonSA::TgcDataPreparator::~TgcDataPreparator()
 StatusCode TrigL2MuonSA::TgcDataPreparator::initialize()
 {
    // Get a message stream instance
-  ATH_MSG_DEBUG("Initializing TgcDataPreparator - package version " << PACKAGE_VERSION );
+   m_msg = new MsgStream( msgSvc(), name() );
+   msg() << MSG::DEBUG << "Initializing TgcDataPreparator - package version " << PACKAGE_VERSION << endreq ;
    
    StatusCode sc;
    sc = AthAlgTool::initialize();
    if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
+      msg() << MSG::ERROR << "Could not initialize the AthAlgTool base class." << endreq;
       return sc;
    }
    
    // Locate the StoreGateSvc
    sc =  m_storeGateSvc.retrieve();
    if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not find StoreGateSvc");
+      msg() << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
       return sc;
    }
 
    // Locate TGC RawDataProvider
    sc = m_tgcRawDataProvider.retrieve();
    if ( sc.isFailure() ) {
-     ATH_MSG_ERROR("Could not retrieve " << m_tgcRawDataProvider);
+      msg() << MSG::ERROR << "Could not retrieve " << m_tgcRawDataProvider << endreq;
       return sc;
    }
-   ATH_MSG_DEBUG("Retrieved tool " << m_tgcRawDataProvider);
+   msg() << MSG::DEBUG << "Retrieved tool " << m_tgcRawDataProvider << endreq;
 
    // Locate RegionSelector
    sc = service("RegSelSvc", m_regionSelector);
    if(sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve RegionSelector");
+      msg() << MSG::ERROR << "Could not retrieve RegionSelector" << endreq;
       return sc;
    }
-   ATH_MSG_DEBUG("Retrieved service RegionSelector");
+   msg() << MSG::DEBUG << "Retrieved service RegionSelector" << endreq;
 
    // Locate ROBDataProvider
    std::string serviceName = "ROBDataProvider";
    IService* svc = 0;
    sc = service("ROBDataProviderSvc", svc);
    if(sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve " << serviceName);
+      msg() << MSG::ERROR << "Could not retrieve " << serviceName << endreq;
       return sc;
    }
    m_robDataProvider = dynamic_cast<ROBDataProviderSvc*> (svc);
    if( m_robDataProvider == 0 ) {
-     ATH_MSG_ERROR("Could not cast to ROBDataProviderSvc ");
+      msg() << MSG::ERROR << "Could not cast to ROBDataProviderSvc " << endreq;
       return StatusCode::FAILURE;
    }
-   ATH_MSG_DEBUG("Retrieved service " << serviceName);
+   msg() << MSG::DEBUG << "Retrieved service " << serviceName << endreq;
 
    StoreGateSvc* detStore(0);
    sc = serviceLocator()->service("DetectorStore", detStore);
    if (sc.isFailure()) {
-     ATH_MSG_ERROR("Could not retrieve DetectorStore.");
+     msg() << MSG::ERROR << "Could not retrieve DetectorStore." << endreq;
      return sc;
    }
-   ATH_MSG_DEBUG("Retrieved DetectorStore.");
+   msg() << MSG::DEBUG << "Retrieved DetectorStore." << endreq;
  
    sc = detStore->retrieve( m_muonMgr,"Muon" );
    if (sc.isFailure()) return sc;
-   ATH_MSG_DEBUG("Retrieved GeoModel from DetectorStore.");
+   msg() << MSG::DEBUG << "Retrieved GeoModel from DetectorStore." << endreq;
    m_tgcIdHelper = m_muonMgr->tgcIdHelper();
 
    sc = m_tgcPrepDataProvider.retrieve();
    if (sc.isFailure()) return sc;
-   ATH_MSG_DEBUG("Retrieved m_tgcPrepDataProvider");
+   msg() << MSG::DEBUG << "Retrieved m_tgcPrepDataProvider" << endreq;
 
    sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
    if (sc.isFailure()) {
-     ATH_MSG_ERROR(" Cannot get ActiveStoreSvc.");
+     msg() << MSG::ERROR << " Cannot get ActiveStoreSvc." << endreq;
      return sc ;
    }
-   ATH_MSG_DEBUG("Retrieved ActiveStoreSvc." );
-      
+   msg() << MSG::DEBUG << "Retrieved ActiveStoreSvc." << endreq; 
+   
+   
    // 
    return StatusCode::SUCCESS; 
 }
@@ -189,8 +191,7 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
    // clear the hash ID vector
    m_tgcHashList.clear();
    
-   if (iroi) m_regionSelector->DetHashIDList(TGC, *iroi, m_tgcHashList);
-   else m_regionSelector->DetHashIDList(TGC, m_tgcHashList);
+   m_regionSelector->DetHashIDList(TGC, *iroi, m_tgcHashList);
    if(roi) delete roi;
    
    // now convert from RDO to PRD
@@ -198,91 +199,22 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
    inhash = m_tgcHashList; 
    
    if( m_tgcPrepDataProvider->decode(inhash, outhash).isFailure() ){
-     ATH_MSG_ERROR("Failed to convert from RDO to PRD");
+     msg() << MSG::ERROR << "Failed to convert from RDO to PRD" << endreq;
      return StatusCode::FAILURE;
    }
    
    if ( m_activeStore ) {
      StatusCode sc_read = (*m_activeStore)->retrieve( tgcPrepContainer, "TGC_Measurements" );
      if (sc_read.isFailure()){
-       ATH_MSG_ERROR("Could not retrieve PrepDataContainer.");
+       msg() << MSG::ERROR << "Could not retrieve PrepDataContainer." << endreq;
        return sc_read;
      }
-     ATH_MSG_DEBUG("Retrieved PrepDataContainer: " << tgcPrepContainer->numberOfCollections());
+     msg() << MSG::DEBUG << "Retrieved PrepDataContainer: " << tgcPrepContainer->numberOfCollections() << endreq;
    } else {
-     ATH_MSG_ERROR("Null pointer to ActiveStore");
+     msg() << MSG::ERROR << "Null pointer to ActiveStore" << endreq;
      return StatusCode::FAILURE;;
    }  
  
-   //Find closest wires in Middle
-   Muon::TgcPrepDataContainer::const_iterator wi = tgcPrepContainer->begin();
-   Muon::TgcPrepDataContainer::const_iterator wi_end = tgcPrepContainer->end();
-   float min_dphi_wire=1000.;
-   float second_dphi_wire=1000.;
-   std::vector<float> ov_dphi;
-   ov_dphi.clear();
-   for( ; wi!=wi_end; ++wi ) { // loop over collections
-     const Muon::TgcPrepDataCollection* colwi = *wi;
-     if( !colwi ) continue;
-     Muon::TgcPrepDataCollection::const_iterator cwi = colwi->begin();
-     Muon::TgcPrepDataCollection::const_iterator cwi_end = colwi->end();
-     for( ;cwi!=cwi_end;++cwi ){ // loop over data in the collection
-       if( !*cwi ) continue;
-       const Muon::TgcPrepData& prepDataWi = **cwi;
-       if (!m_tgcIdHelper->isStrip(prepDataWi.identify())) {//wire
-         int stationNumWi = m_tgcIdHelper->stationRegion(prepDataWi.identify())-1;
-         if (stationNumWi==-1) stationNumWi=3;
-         if (stationNumWi<3 && fabs(prepDataWi.globalPosition().eta() - roi_eta) < mid_eta_test ) {
-           float dphi = acos(cos(prepDataWi.globalPosition().phi()-roi_phi));
-           bool overlap=false;
-           for (unsigned int ov=0;ov<ov_dphi.size();ov++)
-             if (fabs(dphi-ov_dphi[ov])<1e-5) overlap=true;
-           if (overlap) continue;
-           ov_dphi.push_back(dphi);
-           if (dphi<second_dphi_wire){
-             second_dphi_wire=dphi;
-           }
-           if (dphi<min_dphi_wire) {
-             second_dphi_wire=min_dphi_wire;
-             min_dphi_wire=dphi;
-           }
-         }
-       }
-     }
-   }
-
-   //Check if there are enough number of hits
-   Muon::TgcPrepDataContainer::const_iterator hit = tgcPrepContainer->begin();
-   Muon::TgcPrepDataContainer::const_iterator hit_end = tgcPrepContainer->end();
-   int num_min_hits=0;
-   int num_second_hits=0;
-   for( ; hit!=hit_end; ++hit ) { // loop over collections
-     const Muon::TgcPrepDataCollection* colhit = *hit;
-     if( !colhit ) continue;
-     Muon::TgcPrepDataCollection::const_iterator chit = colhit->begin();
-     Muon::TgcPrepDataCollection::const_iterator chit_end = colhit->end();
-     for( ;chit!=chit_end;++chit ){ // loop over data in the collection
-       if( !*chit ) continue;
-       const Muon::TgcPrepData& prepDataHit = **chit;
-       if (!m_tgcIdHelper->isStrip(prepDataHit.identify())) {//strip
-         int stationNumHit = m_tgcIdHelper->stationRegion(prepDataHit.identify())-1;
-         if (stationNumHit==-1) stationNumHit=3;
-         if (stationNumHit<3 && fabs(prepDataHit.globalPosition().eta() - roi_eta) < mid_eta_test ) {
-           float dphi = acos(cos(prepDataHit.globalPosition().phi()-roi_phi));
-           if (fabs(dphi-min_dphi_wire)<1e-5) num_min_hits++;
-           if (fabs(dphi-second_dphi_wire)<1e-5) num_second_hits++;
-         }
-       }
-     }
-   }
-
-   float dphi_wire=min_dphi_wire;
-   bool useDefault=false;
-   if (num_min_hits<5) {
-     if (num_second_hits>5) dphi_wire=second_dphi_wire;
-     else useDefault=true;
-   }
-
    Muon::TgcPrepDataContainer::const_iterator it = tgcPrepContainer->begin();
    Muon::TgcPrepDataContainer::const_iterator it_end = tgcPrepContainer->end();
    for( ; it!=it_end; ++it ) { // loop over collections
@@ -308,11 +240,7 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
        }
        else {
 	 // For wires, apply eta cut.
-         float dphi = acos(cos(prepData.globalPosition().phi()-roi_phi));
-	 if     ( stationNum < 3  && fabs(prepData.globalPosition().eta() - roi_eta) < mid_eta_test ) {
-           if (useDefault) isInRoad = true;//default
-           else if (fabs(dphi-dphi_wire)<1e-5) isInRoad = true;//for close-by muon 
-         }
+	 if     ( stationNum < 3  && fabs(prepData.globalPosition().eta() - roi_eta) < mid_eta_test ) { isInRoad = true; }
 	 else if( stationNum == 3 && fabs(prepData.globalPosition().eta() - roi_eta) < inn_eta_test ) { isInRoad = true; }
        }
        if( ! isInRoad ) continue;
@@ -338,6 +266,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
        lutDigit.bcTag = 2;
        lutDigit.inRoad = false;
        
+       msg() << MSG::DEBUG << "TGC hits extracted eta/phi/r/z="
+	     << lutDigit.eta << "/" << lutDigit.phi << "/" << lutDigit.r << "/" << lutDigit.z << endreq;
 
        tgcHits.push_back(lutDigit);
        
@@ -352,7 +282,10 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
 
 StatusCode TrigL2MuonSA::TgcDataPreparator::finalize()
 {
-  ATH_MSG_DEBUG("Finalizing TgcDataPreparator - package version " << PACKAGE_VERSION);
+   msg() << MSG::DEBUG << "Finalizing TgcDataPreparator - package version " << PACKAGE_VERSION << endreq;
+   
+   // delete message stream
+   if ( m_msg ) delete m_msg;
    
    StatusCode sc = AthAlgTool::finalize(); 
    return sc;

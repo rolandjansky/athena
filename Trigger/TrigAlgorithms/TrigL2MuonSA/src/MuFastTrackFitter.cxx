@@ -5,11 +5,10 @@
 #include "TrigL2MuonSA/MuFastTrackFitter.h"
 
 #include "GaudiKernel/ToolFactory.h"
+#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
-
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -25,6 +24,7 @@ TrigL2MuonSA::MuFastTrackFitter::MuFastTrackFitter(const std::string& type,
 						   const std::string& name,
 						   const IInterface*  parent): 
   AthAlgTool(type,name,parent),
+  m_msg(0),
   m_storeGateSvc( "StoreGateSvc", name ),
   m_use_mcLUT(true),
   m_alignmentBarrelLUTSvc(0)
@@ -37,6 +37,12 @@ TrigL2MuonSA::MuFastTrackFitter::MuFastTrackFitter(const std::string& type,
 
 TrigL2MuonSA::MuFastTrackFitter::~MuFastTrackFitter() 
 {
+  /*
+  delete m_sagittaRadiusEstimate;
+  delete m_alphaBetaEstimate;
+  delete m_ptFromRadius;
+  delete m_ptFromAlphaBeta;
+  */
 }
 
 // --------------------------------------------------------------------------------
@@ -44,17 +50,21 @@ TrigL2MuonSA::MuFastTrackFitter::~MuFastTrackFitter()
 
 StatusCode TrigL2MuonSA::MuFastTrackFitter::initialize()
 {
+   // Get a message stream instance
+   m_msg = new MsgStream( msgSvc(), name() );
+   msg() << MSG::DEBUG << "Initializing MuFastTrackFitter - package version " << PACKAGE_VERSION << endreq ;
+   
    StatusCode sc;
    sc = AthAlgTool::initialize();
    if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
+      msg() << MSG::ERROR << "Could not initialize the AthAlgTool base class." << endreq;
       return sc;
    }
    
    // Locate the StoreGateSvc
    sc =  m_storeGateSvc.retrieve();
    if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not find StoreGateSvc");
+      msg() << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
       return sc;
    }
    
@@ -77,7 +87,7 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::setMCFlag(BooleanProperty use_mcLUT)
     sc = serviceLocator()->service("PtBarrelLUTSvc",    m_ptBarrelLUTSvc);
   }
   if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not find PtBarrelLUTSvc");
+    msg() << MSG::ERROR << "Could not find PtBarrelLUTSvc" << endreq;
     return sc;
   }
   
@@ -87,55 +97,23 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::setMCFlag(BooleanProperty use_mcLUT)
     sc = serviceLocator()->service("PtEndcapLUTSvc",    m_ptEndcapLUTSvc);
   }
   if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not find PtEndcapLUTSvc");
+    msg() << MSG::ERROR << "Could not find PtEndcapLUTSvc" << endreq;
     return sc;
   }
 
-  sc = serviceLocator()->service("AlignmentBarrelLUTSvc", m_alignmentBarrelLUTSvc);
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("Could not find PtBarrelLUTSvc");
-    return sc;
+  if ( !m_use_mcLUT ) {
+    sc = serviceLocator()->service("AlignmentBarrelLUTSvc", m_alignmentBarrelLUTSvc);
+    if (!sc.isSuccess()) {
+      msg() << MSG::ERROR << "Could not find PtBarrelLUTSvc" << endreq;
+      return sc;
+    }
   }
 
-  // Calculation of sagitta and radius
-  sc = m_sagittaRadiusEstimate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve " << m_sagittaRadiusEstimate);
-    return sc;
-  }
-  ATH_MSG_DEBUG("Retrieved service " << m_sagittaRadiusEstimate);
-
-  m_sagittaRadiusEstimate->setMCFlag(m_use_mcLUT, m_alignmentBarrelLUTSvc);
-
-  // Calculation of alpha and beta
-  sc = m_alphaBetaEstimate.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve " << m_alphaBetaEstimate);
-    return sc;
-  }
-  ATH_MSG_DEBUG("Retrieved service " << m_alphaBetaEstimate);
-
-  m_alphaBetaEstimate->setMCFlag(m_use_mcLUT, m_ptEndcapLUTSvc);
-
-  // conversion: radius -> pT
-  sc = m_ptFromRadius.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve " << m_ptFromRadius);
-    return sc;
-  }
-  ATH_MSG_DEBUG("Retrieved service " << m_ptFromRadius);
-
-  m_ptFromRadius->setMCFlag(m_use_mcLUT, m_ptBarrelLUTSvc);
-
-  // conversion: alpha, beta -> pT
-  sc = m_ptFromAlphaBeta.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Could not retrieve " << m_ptFromAlphaBeta);
-    return sc;
-  }
-  ATH_MSG_DEBUG("Retrieved service " << m_ptFromAlphaBeta);
-
-  m_ptFromAlphaBeta->setMCFlag(m_use_mcLUT, m_ptEndcapLUTSvc);
+  // Set MsgStream for utils
+  m_sagittaRadiusEstimate = new TrigL2MuonSA::SagittaRadiusEstimate(m_msg, m_use_mcLUT, m_alignmentBarrelLUTSvc);
+  m_alphaBetaEstimate     = new TrigL2MuonSA::AlphaBetaEstimate(m_msg, m_ptEndcapLUTSvc);
+  m_ptFromRadius          = new TrigL2MuonSA::PtFromRadius(m_msg, m_use_mcLUT, m_ptBarrelLUTSvc);
+  m_ptFromAlphaBeta       = new TrigL2MuonSA::PtFromAlphaBeta(m_msg, m_ptEndcapLUTSvc);
 
   return StatusCode::SUCCESS;
 }
@@ -154,13 +132,13 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const LVL1::RecMuonRoI*  
 
      sc = m_sagittaRadiusEstimate->setSagittaRadius(p_roi, rpcFitResult, *itTrack);
      if (!sc.isSuccess()) {
-       ATH_MSG_WARNING("Barrel sagitta and radius estimation failed");
+       msg() << MSG::WARNING << "Barrel sagitta and radius estimation failed" << endreq;
        return sc;
      }
 
      sc = m_ptFromRadius->setPt(*itTrack);
      if (!sc.isSuccess()) {
-       ATH_MSG_WARNING("Barrel pT estimation failed");
+       msg() << MSG::WARNING << "Barrel pT estimation failed" << endreq;
        return sc;
      }
      
@@ -184,13 +162,13 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const LVL1::RecMuonRoI*  
 
      sc = m_alphaBetaEstimate->setAlphaBeta(p_roi, tgcFitResult, *itTrack, muonRoad);
      if (!sc.isSuccess()) {
-       ATH_MSG_WARNING("Endcap alpha and beta estimation failed");
+       msg() << MSG::WARNING << "Endcap alpha and beta estimation failed" << endreq;
        return sc;
      }
     
      sc = m_ptFromAlphaBeta->setPt(*itTrack,tgcFitResult);
      if (!sc.isSuccess()) {
-       ATH_MSG_WARNING("Endcap pT estimation failed");
+       msg() << MSG::WARNING << "Endcap pT estimation failed" << endreq;
        return sc;
      }
      
@@ -204,7 +182,15 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const LVL1::RecMuonRoI*  
 
 StatusCode TrigL2MuonSA::MuFastTrackFitter::finalize()
 {
-  ATH_MSG_DEBUG("Finalizing MuFastTrackFitter - package version " << PACKAGE_VERSION);
+   msg() << MSG::DEBUG << "Finalizing MuFastTrackFitter - package version " << PACKAGE_VERSION << endreq;
+   
+   // delete message stream
+   if ( m_msg ) delete m_msg;
+
+   if ( m_sagittaRadiusEstimate ) delete m_sagittaRadiusEstimate;
+   if ( m_alphaBetaEstimate ) delete m_alphaBetaEstimate;
+   if ( m_ptFromRadius ) delete m_ptFromRadius;
+   if ( m_ptFromAlphaBeta ) delete m_ptFromAlphaBeta;
    
    StatusCode sc = AthAlgTool::finalize(); 
    return sc;

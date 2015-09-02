@@ -7,8 +7,7 @@
 
 #include <string>
 
-#include "AthenaBaseComps/AthAlgTool.h"
-
+#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -32,37 +31,34 @@ namespace TrigL2MuonSA {
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-class TgcRoadDefiner: public AthAlgTool
+class TgcRoadDefiner
 {
  public:
-  static const InterfaceID& interfaceID();
-
-  TgcRoadDefiner(const std::string& type, 
-		 const std::string& name,
-		 const IInterface*  parent);
-
+  TgcRoadDefiner(MsgStream* msg);
   ~TgcRoadDefiner(void);
   
-  virtual StatusCode initialize();
-  virtual StatusCode finalize  ();
+  inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
 
   bool defineRoad(const LVL1::RecMuonRoI*      p_roi,
 		  const TrigL2MuonSA::TgcHits& tgcHits,
 		  TrigL2MuonSA::MuonRoad&      muonRoad,
 		  TrigL2MuonSA::TgcFitResult&  tgcFitResult);
 
+  void setMsgStream(MsgStream* msg) { m_msg = msg; };
   void setMdtGeometry(IRegSelSvc* regionSelector, const MdtIdHelper* mdtIdHelper);
   void setPtLUT(const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc);
   void setRoadWidthForFailure(double rWidth_TGC_Failed);
   void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator);
 
+  inline MsgStream& msg() const { return *m_msg; }
   bool prepareTgcPoints(const TrigL2MuonSA::TgcHits& tgcHits);
   
  private:
+  MsgStream* m_msg;
   ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool;
-  const ToolHandle<PtEndcapLUT>*         m_ptEndcapLUT;
+  const TrigL2MuonSA::PtEndcapLUT*       m_ptEndcapLUT;
 
-  ToolHandle<TgcFit>                     m_tgcFit;
+  TgcFit     m_tgcFit;
 
   TrigL2MuonSA::TgcFit::PointArray m_tgcStripMidPoints;  // List of TGC strip middle station points.
   TrigL2MuonSA::TgcFit::PointArray m_tgcWireMidPoints;   // List of TGC wire middle station points.

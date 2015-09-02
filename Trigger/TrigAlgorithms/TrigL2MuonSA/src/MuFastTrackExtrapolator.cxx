@@ -7,11 +7,10 @@
 #include "xAODTrigMuon/TrigMuonDefs.h"
 
 #include "GaudiKernel/ToolFactory.h"
+#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CLHEP/Units/PhysicalConstants.h"
-
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -27,6 +26,7 @@ TrigL2MuonSA::MuFastTrackExtrapolator::MuFastTrackExtrapolator(const std::string
                                                                const std::string& name,
                                                                const IInterface*  parent): 
   AthAlgTool(type,name,parent),
+  m_msg(0),
   m_storeGateSvc( "StoreGateSvc", name )
 {
   declareInterface<TrigL2MuonSA::MuFastTrackExtrapolator>(this);
@@ -51,19 +51,21 @@ TrigL2MuonSA::MuFastTrackExtrapolator::~MuFastTrackExtrapolator()
 
 StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::initialize()
 {
-   ATH_MSG_DEBUG("Initializing MuFastTrackExtrapolator - package version " << PACKAGE_VERSION);
+   // Get a message stream instance
+   m_msg = new MsgStream( msgSvc(), name() );
+   msg() << MSG::DEBUG << "Initializing MuFastTrackExtrapolator - package version " << PACKAGE_VERSION << endreq ;
    
    StatusCode sc;
    sc = AthAlgTool::initialize();
    if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not initialize the AthAlgTool base class.");
+      msg() << MSG::ERROR << "Could not initialize the AthAlgTool base class." << endreq;
       return sc;
    }
    
    // Locate the StoreGateSvc
    sc =  m_storeGateSvc.retrieve();
    if (!sc.isSuccess()) {
-     ATH_MSG_ERROR("Could not find StoreGateSvc");
+      msg() << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
       return sc;
    }
 
@@ -85,7 +87,7 @@ void TrigL2MuonSA::MuFastTrackExtrapolator::setExtrapolatorTool(ToolHandle<ITrig
 StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::extrapolateTrack(std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns,
                                                                    double winPt)
 {
-  ATH_MSG_DEBUG("in extrapolateTrack");
+  msg() << MSG::DEBUG << "in extrapolateTrack" << endreq;
   
   StatusCode sc = StatusCode::SUCCESS;
   
@@ -116,17 +118,18 @@ StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::extrapolateTrack(std::vector<T
       sc = (*m_backExtrapolatorTool)->give_eta_phi_at_vertex(muonSA, etaVtx, sigEta, phiVtx, sigPhi, winPt);
     
       if (sc.isFailure()) {
-        ATH_MSG_DEBUG ("BackExtrapolator problem: "
-              << "Pt of Muon Feature out of BackExtrapolator range.");
-        ATH_MSG_DEBUG ("Use Muon Feature position to fill the "
-		       << "TrigRoiDescriptor for IDSCAN.");
+        msg() << MSG::DEBUG  << "BackExtrapolator problem: "
+              << "Pt of Muon Feature out of BackExtrapolator range."
+              << endreq;
+        msg() << MSG::DEBUG  << "Use Muon Feature position to fill the "
+              << "TrigRoiDescriptor for IDSCAN." << endreq;
         etaVtx = itTrack->etaMap;
         phiVtx = itTrack->phiMS;
       }
 
     } else {
 
-      ATH_MSG_ERROR("Null pointer to ITrigMuonBackExtrapolator");
+	msg() << MSG::ERROR << "Null pointer to ITrigMuonBackExtrapolator" << endreq;
 	return StatusCode::FAILURE;
 
     }
@@ -147,7 +150,10 @@ StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::extrapolateTrack(std::vector<T
 
 StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::finalize()
 {
-  ATH_MSG_DEBUG("Finalizing MuFastTrackExtrapolator - package version " << PACKAGE_VERSION);
+  msg() << MSG::DEBUG << "Finalizing MuFastTrackExtrapolator - package version " << PACKAGE_VERSION << endreq;
+  
+  // delete message stream
+  if ( m_msg ) delete m_msg;
   
   StatusCode sc = AthAlgTool::finalize(); 
   return sc;

@@ -9,9 +9,7 @@
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
-
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/MsgStream.h"
 
 #include "TrigL2MuonSA/AlignmentBarrelLUT.h"
 
@@ -34,14 +32,16 @@ namespace TrigL2MuonSA {
     virtual StatusCode initialize(void);
     virtual StatusCode finalize(void);
 
+    MsgStream*     m_msg;
+    inline MsgStream& msg() const { return *m_msg; }
+    
   private:
     StringProperty m_lut_fileName;
 
-    ToolHandle<AlignmentBarrelLUT>   m_alignmentBarrelLUT;
+    TrigL2MuonSA::AlignmentBarrelLUT*   m_alignmentBarrelLUT;
     
   public:
-    const ToolHandle<AlignmentBarrelLUT>* alignmentBarrelLUT(void) const
-    { return &m_alignmentBarrelLUT; };
+    virtual const TrigL2MuonSA::AlignmentBarrelLUT* alignmentBarrelLUT(void) const;
   };
 
 }
