@@ -85,7 +85,6 @@ class TrigEFCaloHypo : public HLT::HypoAlgo {
   /** Luminosity Tool */
   ToolHandle<ILumiBlockMuTool>  m_lumiBlockMuTool;
   
-  std::vector<TrigTimer*>   m_timers;
   TrigTimer* m_totalTimer;
 
   // Monitor collections
@@ -94,12 +93,14 @@ class TrigEFCaloHypo : public HLT::HypoAlgo {
   std::vector<float> m_EBE2;
   std::vector<float> m_EBE3;
   std::vector<float> m_Eta;
+  std::vector<float> m_Phi;
   std::vector<float> m_EtaCalo;
   std::vector<float> m_PhiCalo;
   std::vector<float> m_E;
   std::vector<float> m_ECalib;
   std::vector<float> m_ERes;
   std::vector<float> m_lhval;
+  std::vector<double> m_avgmu;
 };
 #endif
 

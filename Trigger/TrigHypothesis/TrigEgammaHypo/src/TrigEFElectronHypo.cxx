@@ -106,7 +106,7 @@ TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name,
   declareMonitoredCollection("El_Fracs1", *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_fracs1);
   declareMonitoredCollection("El_Eratio", *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_Eratio);
   declareMonitoredCollection("El_DeltaE", *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getShowerShape_DeltaE);
-  declareMonitoredCollection("El_EtCluster37",   *my_pp_cast<xAODElectronDV_type>(&m_EgammaContainer), &getEtCluster37);
+  declareMonitoredCollection("El_ClusterEt37",   *my_pp_cast<xAODElectronDV_type>(&m_EgammaContainer), &getEtCluster37);
   declareMonitoredCollection("El_EtCone20",     *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getIsolation_etcone20);
   declareMonitoredCollection("El_PtCone20",     *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getIsolation_ptcone20);
   declareMonitoredCollection("El_Eta",           *my_pp_cast <xAODElectronDV_type>(&m_EgammaContainer), &getCluster_eta);
@@ -152,25 +152,22 @@ TrigEFElectronHypo::TrigEFElectronHypo(const std::string& name,
 
   //isEM monitoring 
   declareMonitoredStdContainer("IsEMBeforeCut",m_NcandIsEM);//per-object counter of failing isEM bits
-  //
-
   declareMonitoredStdContainer("IsEMAfterCut",m_NcandIsEMAfterCut);//per-object counter of failing isEM bits
-  //
-
   //Monitor isEM 32-Bit Pattern Before Cuts
-
   declareMonitoredStdContainer("IsEMRequiredBitsBeforeCut",m_IsEMRequiredBits);
-
   //Monitor isEM 32-Bit Pattern After Cuts
-
   declareMonitoredStdContainer("IsEMRequiredBitsAfterCut",m_IsEMRequiredBitsAfterCut); 
-
   // Monitor impact parameter wrt beamspot
   declareMonitoredStdContainer("A0",m_a0);
+  // Monitor pileup 
+  declareMonitoredStdContainer("mu",m_avgmu);
+  // Monitor liekihood output 
+  declareMonitoredStdContainer("LikelihoodRatio",m_lhval);
 
   prepareMonitoringVars();
-
-  //
+  //Initialize pointers 
+  m_totalTimer = nullptr;
+  m_timerPIDTool = nullptr; 
 
 }
 
@@ -411,18 +408,11 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   }
-  // Check for objects in container
-  if(m_EgammaContainer->size() == 0){
-      ATH_MSG_DEBUG("REGTEST: No Electrons in container");
-      if (timerSvc()) m_totalTimer->stop();
-      return HLT::OK;
-  }
   
   // AcceptAll property = true means selection cuts should not be applied
-  // Only set after checking container size
   if (m_acceptAll) {
       accepted = true;
-      ATH_MSG_DEBUG("AcceptAll property is set: taking all events");
+      ATH_MSG_DEBUG("AcceptAll property is set: taking all events ");
   } 
   else 
       ATH_MSG_DEBUG("AcceptAll property not set: applying selection");
@@ -449,8 +439,6 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   m_NofPassedCutsIsEM = 0;
   m_NofPassedCutsIsEMTrig = 0;
 
- 
-  //AT Jan 2010: 
   //Monitor the required isEM bits Before/After Cuts
   for(unsigned int i=0;i<32;i++) m_IsEMRequiredBits[i]=0;
   for(unsigned int i=0;i<32;i++) m_IsEMRequiredBitsAfterCut[i]=0;
@@ -459,6 +447,20 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   for(unsigned int i=0;i<32;++i) { //32-bit as it is in the Offline isEM for BitDefElecton and BitDefPhoton	
     m_IsEMRequiredBits[i]+= ((m_IsEMrequiredBits & (0x1<<i)) != 0); 
   }
+  
+  // Retrieve lumi information
+  bool useLumiTool=false;
+  double mu = 0.;
+  double avg_mu = 0.;
+  if(m_lumiBlockMuTool){
+      useLumiTool=true;
+      mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
+      avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+      ATH_MSG_DEBUG("REGTEST: Retrieved Mu Value : " << mu);
+      ATH_MSG_DEBUG("REGTEST: Average Mu Value   : " << avg_mu);
+      m_avgmu.push_back(avg_mu);
+  }
+  
   for (const auto& egIt : *m_EgammaContainer){
 
     int cutIndex=0;
@@ -479,6 +481,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
         unsigned int isEMTrig = 0;
         // again calculate PID but use Athena Selector Tool
         bool isLHAcceptTrig = false;
+        float lhval=0;
         if(m_useAthElectronLHIDSelector){
             //Check the tool
 
@@ -486,21 +489,19 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
                 ATH_MSG_ERROR(m_athElectronLHIDSelectorTool << " null, hypo continues but no AthenaLHSelector cut applied");
             }else{
                 if (timerSvc()) m_timerPIDTool->start(); //timer
-                double mu = 0.;
-                double avg_mu = 0.;
-                if(m_lumiBlockMuTool){
-                    mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
-                    avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
-                    ATH_MSG_DEBUG("REGTEST: Retrieved Mu Value : " << mu);
-                    ATH_MSG_DEBUG("REGTEST: Average Mu Value   : " << avg_mu);
+                if(useLumiTool){
                     const Root::TAccept& acc = m_athElectronLHIDSelectorTool->accept(egIt,avg_mu);
-                    ATH_MSG_DEBUG("LHValue with mu " << m_athElectronLHIDSelectorTool->getTResult().getResult(0));
+                    lhval=m_athElectronLHIDSelectorTool->getTResult().getResult(0);
+                    ATH_MSG_DEBUG("LHValue with mu " << lhval);
+                    m_lhval.push_back(lhval);
                     isLHAcceptTrig = (bool) (acc);
                 }
                 else {
                     ATH_MSG_DEBUG("Lumi tool returns mu = 0, do not pass mu");
                     const Root::TAccept& acc = m_athElectronLHIDSelectorTool->accept(egIt);
-                    ATH_MSG_DEBUG("LHValue no mu " << m_athElectronLHIDSelectorTool->getTResult().getResult(0));
+                    lhval=m_athElectronLHIDSelectorTool->getTResult().getResult(0);
+                    ATH_MSG_DEBUG("LHValue without mu " << lhval);
+                    m_lhval.push_back(lhval);
                     isLHAcceptTrig = (bool) (acc);
                 }
 
@@ -546,10 +547,9 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
 
         //Apply cut from LH selector 
         if(m_useAthElectronLHIDSelector){
-            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << m_athElectronLHIDSelectorTool 
-                << " AthenaLHSelectorTool configured, hypo continues with TAccept " << endreq;
+            ATH_MSG_DEBUG(m_athElectronLHIDSelectorTool << " AthenaLHSelectorTool configured, hypo continues with TAccept ");
             if( !isLHAcceptTrig) {
-                msg() << MSG::DEBUG << m_athElectronLHIDSelectorTool << " AthenaLHSelectorTool, hypo fails isEM " << endreq;
+                ATH_MSG_DEBUG(m_athElectronLHIDSelectorTool << " AthenaLHSelectorTool, hypo fails isEM ");
                 continue;
             }
         }
@@ -817,7 +817,8 @@ HLT::ErrorCode TrigEFElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   }//end of loop over egamma container
   
   //Count No of Events passing individual cuts
-  for(int i=0; i<10; i++) m_NofPassedCuts+=(Ncand[i]>0);
+  // Input, Pid, Et, AbsEtCone, AbsPtCone, RelEtCone, RelPtCone, Passed
+  for(int i=0; i<8; i++) m_NofPassedCuts+=(Ncand[i]>0);
 
   
   // print out Result     

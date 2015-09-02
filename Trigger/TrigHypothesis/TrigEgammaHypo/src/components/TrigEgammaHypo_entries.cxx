@@ -9,6 +9,7 @@
 #include "TrigEgammaHypo/TrigEFDielectronMassHypo.h"
 #include "TrigEgammaHypo/TrigEFDielectronMassFex.h"
 #include "TrigEgammaHypo/TrigEFHadronicRecoil.h"
+#include "TrigEgammaHypo/TrigEFMtAllTE.h"
 #include "TrigEgammaHypo/TrigEFCaloCalibFex.h"
 #include "TrigEgammaHypo/TrigEFCaloHypo.h"
 #include "TrigEgammaHypo/TrigGSFTrackFex.h"
@@ -32,6 +33,7 @@ DECLARE_ALGORITHM_FACTORY( TrigL2DielectronMassFex )
 DECLARE_ALGORITHM_FACTORY( TrigEFDielectronMassHypo )
 DECLARE_ALGORITHM_FACTORY( TrigEFDielectronMassFex )
 DECLARE_ALGORITHM_FACTORY( TrigEFHadronicRecoil )
+DECLARE_ALGORITHM_FACTORY( TrigEFMtAllTE )
 DECLARE_ALGORITHM_FACTORY( TrigEFCaloCalibFex )
 DECLARE_ALGORITHM_FACTORY( TrigEFCaloHypo )
 DECLARE_ALGORITHM_FACTORY( TrigGSFTrackFex )
@@ -52,6 +54,7 @@ DECLARE_FACTORY_ENTRIES( TrigEgammaHypo ) {
     DECLARE_ALGORITHM( TrigEFDielectronMassHypo )
     DECLARE_ALGORITHM( TrigEFDielectronMassFex )
     DECLARE_ALGORITHM( TrigEFHadronicRecoil )
+    DECLARE_ALGORITHM( TrigEFMtAllTE )
     DECLARE_ALGORITHM( TrigEFCaloCalibFex )
     DECLARE_ALGORITHM( TrigGSFTrackFex )
     DECLARE_ALGORITHM( TrigEFCaloHypo )

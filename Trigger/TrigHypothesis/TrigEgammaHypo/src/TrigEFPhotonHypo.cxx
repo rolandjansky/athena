@@ -108,7 +108,7 @@ TrigEFPhotonHypo::TrigEFPhotonHypo(const std::string & name, ISvcLocator* pSvcLo
   declareMonitoredCollection("Ph_Eaccordion",           *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getEaccordion);
   declareMonitoredCollection("Ph_E0Eaccordion",           *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getE0Eaccordion);
 
-  declareMonitoredCollection("Ph_EtCluster37",   *my_pp_cast<xAODPhotonDV_type>(&m_EgammaContainer), &getEtCluster37);
+  declareMonitoredCollection("Ph_ClusterEt37",   *my_pp_cast<xAODPhotonDV_type>(&m_EgammaContainer), &getEtCluster37);
   declareMonitoredCollection("Ph_Eta",           *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getCluster_eta);
   declareMonitoredCollection("Ph_Eta2",           *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getEta2);
   declareMonitoredCollection("Ph_Phi",           *my_pp_cast <xAODPhotonDV_type>(&m_EgammaContainer), &getCluster_phi);
@@ -123,6 +123,11 @@ TrigEFPhotonHypo::TrigEFPhotonHypo(const std::string & name, ISvcLocator* pSvcLo
   declareMonitoredStdContainer("IsEMRequiredBitsAfterCut",m_IsEMRequiredBitsAfterCut);
 
   prepareMonitoringVars();
+  
+  //Initialize pointers
+  m_totalTimer = nullptr;
+  m_timerPIDTool_Ele = nullptr;
+  m_timerPIDTool_Pho = nullptr; 
 }
 
 void TrigEFPhotonHypo::prepareMonitoringVars() {
@@ -287,14 +292,7 @@ HLT::ErrorCode TrigEFPhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
     if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   }
-  // Check for objects in container
-  if(m_EgammaContainer->size() == 0){
-      ATH_MSG_DEBUG("REGTEST: No Photons in container");
-      if (timerSvc()) m_totalTimer->stop();
-    return HLT::OK;
-  }
   // AcceptAll property = true means selection cuts should not be applied
-  // Only set after checking container size
   if (m_acceptAll) {
       pass = true;
       ATH_MSG_DEBUG("AcceptAll property is set: taking all events");

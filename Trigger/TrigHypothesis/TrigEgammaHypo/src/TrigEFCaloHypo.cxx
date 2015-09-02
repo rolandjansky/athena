@@ -66,11 +66,17 @@ TrigEFCaloHypo::TrigEFCaloHypo(const std::string& name, ISvcLocator* pSvcLocator
   declareMonitoredStdContainer("EnergyBE2",m_EBE2);
   declareMonitoredStdContainer("EnergyBE3",m_EBE3);
   declareMonitoredStdContainer("Eta",m_Eta);
+  declareMonitoredStdContainer("Phi",m_Phi);
   declareMonitoredStdContainer("EtaCalo",m_EtaCalo);
   declareMonitoredStdContainer("PhiCalo",m_PhiCalo);
   declareMonitoredStdContainer("E",m_E);
   declareMonitoredStdContainer("ECalib",m_ECalib);
   declareMonitoredStdContainer("ERes",m_ERes);
+  declareMonitoredStdContainer("mu",m_avgmu);
+  declareMonitoredStdContainer("LikelihoodRatio",m_lhval);
+
+  //Initialize pointers
+  m_totalTimer = nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -92,27 +98,25 @@ TrigEFCaloHypo::~TrigEFCaloHypo()
 HLT::ErrorCode TrigEFCaloHypo::hltInitialize()
 // ----------------------------------------------------------------------
 {
-  if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::INFO << "in initialize()" << endreq;
+    ATH_MSG_DEBUG("in initialize()");
 
   // Initialize timing service
   //------------------------------
+  
   if (timerSvc()){
    m_totalTimer  = addTimer("TrigEFCaloHypoTot");
-  }
+  } 
 
   m_SelectorTool=ToolHandle<IAsgElectronIsEMSelector>(m_SelectorToolName);
   if(m_SelectorTool.retrieve().isFailure()) {
-      msg() << MSG::ERROR << "Unable to retrieve " << m_SelectorTool 
-          << " tool " << endreq;
+      ATH_MSG_ERROR("Unable to retrieve " << m_SelectorTool  << " tool ");
       return HLT::BAD_JOB_SETUP; 
   } 
   else ATH_MSG_DEBUG("Tool " << m_SelectorTool << " retrieved");
   
   m_LHSelectorTool=ToolHandle<IAsgElectronLikelihoodTool>(m_LHSelectorToolName);
   if(m_LHSelectorTool.retrieve().isFailure()) {
-      msg() << MSG::ERROR << "Unable to retrieve " << m_LHSelectorTool 
-          << " tool " << endreq;
+      ATH_MSG_ERROR("Unable to retrieve " << m_LHSelectorTool  << " tool ");
       return HLT::BAD_JOB_SETUP; 
   } 
   else ATH_MSG_DEBUG("Tool " << m_LHSelectorTool << " retrieved");
@@ -142,9 +146,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltInitialize()
 // ----------------------------------------------------------------------
 HLT::ErrorCode TrigEFCaloHypo::hltFinalize(){
 // ----------------------------------------------------------------------
-
- 
-  msg() << MSG::INFO << "in finalize()" << endreq;
+  ATH_MSG_INFO("in finalize()");
   return HLT::OK;
 }
 
@@ -152,10 +154,9 @@ HLT::ErrorCode TrigEFCaloHypo::hltFinalize(){
 // ----------------------------------------------------------------------
 HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
 					    bool& pass){
-// ----------------------------------------------------------------------
+    // ----------------------------------------------------------------------
 
-   // Time total TrigEFCaloHypo execution time.
-  // -------------------------------------
+    // Time total TrigEFCaloHypo execution time.
   if (timerSvc()) m_totalTimer->start();    
 
   //clear the monitoring vectors
@@ -164,14 +165,14 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
   m_EBE2.clear();
   m_EBE3.clear();
   m_Eta.clear();
+  m_Phi.clear();
   m_EtaCalo.clear();
   m_PhiCalo.clear();
   m_E.clear();
   m_ECalib.clear();
   m_ERes.clear();
 
-  if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::INFO << name() << ": in execute()" << endreq;
+    ATH_MSG_DEBUG(": in execute()");
  
 
    // get RoI descriptor
@@ -179,16 +180,12 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
   HLT::ErrorCode statt = getFeature(outputTE, roiDescriptor, "");
   
   if ( statt == HLT::OK ) {
-    if(msgLvl() <= MSG::DEBUG){
-      msg() << MSG::DEBUG << "RoI id " << roiDescriptor->roiId()
+      ATH_MSG_DEBUG("RoI id " << roiDescriptor->roiId()
 	  << " LVL1 id " << roiDescriptor->l1Id()
 	  << " located at   phi = " <<  roiDescriptor->phi()
-	  << ", eta = " << roiDescriptor->eta() << endreq;
-    }
+	  << ", eta = " << roiDescriptor->eta());
   } else {
-    if(msgLvl() <= MSG::WARNING) {
-      msg() <<  MSG::WARNING << "No RoI for this Trigger Element! " << endreq;
-    }
+    ATH_MSG_WARNING("No RoI for this Trigger Element! ");
     return HLT::NAV_ERROR;
   }
 
@@ -205,9 +202,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
   HLT::ErrorCode stat = getFeatures(outputTE,vectorClusterContainer , "");
 
   if (stat != HLT::OK ) {
-     msg() << MSG::WARNING 
- 	<< " Failed to get vectorClusterContainers from the trigger element" 
- 	<< endreq;
+     ATH_MSG_WARNING( " Failed to get vectorClusterContainers from the trigger element"); 
      if (timerSvc())m_totalTimer ->stop();
      return HLT::OK;
    } 
@@ -245,21 +240,16 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
   stat = getFeatures(outputTE, vectorEgammaContainers, "");
 
   if (stat != HLT::OK ) {
-    msg() << MSG::WARNING 
-	  << " Failed to get xAOD::PhotonContainer's from the trigger element" 
-	  << endreq;
+    ATH_MSG_WARNING( " Failed to get xAOD::PhotonContainer's from the trigger element"); 
     if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   } 
 
-  if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "REGTEST: Got " << vectorEgammaContainers.size() 
-	  << " xAOD::PhotonContainers's associated to the TE " << endreq;
+  ATH_MSG_DEBUG("REGTEST: Got " << vectorEgammaContainers.size()  << " xAOD::PhotonContainers's associated to the TE ");
+	 
 
   if (vectorEgammaContainers.size() < 1) {
-    msg() << MSG::DEBUG
-	  << " empty xAOD::PhotonContainer from the trigger element" 
-	  << endreq;
+    ATH_MSG_DEBUG(" empty xAOD::PhotonContainer from the trigger element"); 
     if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   } 
@@ -267,19 +257,28 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
   const xAOD::PhotonContainer *egCont = vectorEgammaContainers.back();
 
   if(egCont == 0){
-    if ( msgLvl() <= MSG::ERROR )
-      msg() << MSG::ERROR
-	    << " REGTEST: Retrieval of xOAD::PhotonContainer from vector failed"
-	    << endreq;
+      ATH_MSG_ERROR(" REGTEST: Retrieval of xOAD::PhotonContainer from vector failed");
     if (timerSvc()) m_totalTimer->stop();
     return HLT::OK;
   }
 
+  double mu = 0.;
+  double avg_mu = 0.;
+  bool useLumiTool=false;
+  if(m_lumiBlockMuTool){
+      useLumiTool=true;
+      mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
+      avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+      ATH_MSG_DEBUG("REGTEST: Retrieved Mu Value : " << mu);
+      ATH_MSG_DEBUG("REGTEST: Average Mu Value   : " << avg_mu);
+      m_avgmu.push_back(avg_mu);
+  }
   
   const xAOD::CaloCluster *clus=0;
   for(const auto eg : *egCont){
       unsigned int isEMTrig = 0;
       bool isLHAcceptTrig = false;
+      float lhval=0.;
       // First create the EL for clusters
       if(m_applyIsEM){
           ATH_MSG_DEBUG("REGTEST: Check Object, eta2 = " << fabsf(eg->caloCluster()->etaBE(2)) << " e = " << eg->caloCluster()->e());
@@ -288,21 +287,19 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
           else isEMTrig = m_SelectorTool->IsemValue();
       }
       else if(m_applyLH){
-          double mu = 0.;
-          double avg_mu = 0.;
-          if(m_lumiBlockMuTool){
-              mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
-              avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
-              ATH_MSG_DEBUG("REGTEST: Retrieved Mu Value : " << mu);
-              ATH_MSG_DEBUG("REGTEST: Average Mu Value   : " << avg_mu);
+          if(useLumiTool){
               const Root::TAccept& acc = m_LHSelectorTool->accept(eg,avg_mu);
-              ATH_MSG_DEBUG("LHValue with mu " << m_LHSelectorTool->getTResult().getResult(0));
+              lhval=m_LHSelectorTool->getTResult().getResult(0);
+              ATH_MSG_DEBUG("LHValue with mu " << lhval);
+              m_lhval.push_back(lhval);
               isLHAcceptTrig = (bool) (acc);
           }
           else {
               ATH_MSG_DEBUG("Lumi tool returns mu = 0, do not pass mu");
               const Root::TAccept& lhacc = m_LHSelectorTool->accept(eg); // use method for calo-only
-              ATH_MSG_DEBUG("LHValue without mu " << m_LHSelectorTool->getTResult().getResult(0));
+              lhval=m_LHSelectorTool->getTResult().getResult(0);
+              ATH_MSG_DEBUG("LHValue without mu " << lhval);
+              m_lhval.push_back(lhval);
               isLHAcceptTrig = (bool) (lhacc);
           }
 
@@ -311,19 +308,30 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
       clus = eg->caloCluster();
       // Monitoring
       m_EBE0.push_back(clus->energyBE(0));
-      m_EBE0.push_back(clus->energyBE(1));
-      m_EBE0.push_back(clus->energyBE(2));
-      m_EBE0.push_back(clus->energyBE(3));
+      m_EBE1.push_back(clus->energyBE(1));
+      m_EBE2.push_back(clus->energyBE(2));
+      m_EBE3.push_back(clus->energyBE(3));
       m_Eta.push_back(clus->eta());
+      m_Phi.push_back(clus->eta());
       double tmpeta = -999.;
       clus->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta);
       double tmpphi = -999.;
       clus->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpphi);
       m_EtaCalo.push_back(tmpeta);
       m_PhiCalo.push_back(tmpphi);
-//      m_E.push_back(clus->e());
       m_ECalib.push_back(clus->e());
-//      m_ERes.push_back(clus->e()-newClus->e());
+      const xAOD::CaloCluster *origClus=nullptr;
+      static SG::AuxElement::Accessor<ElementLink<xAOD::CaloClusterContainer> > orig ("originalCaloCluster");
+      if (!orig.isAvailable(*clus) || !orig(*clus).isValid()){
+          ATH_MSG_DEBUG("Problem with original cluster link");
+      }
+      else {
+          origClus = *orig(*clus); 
+      }
+      if(origClus != NULL){
+          m_E.push_back(origClus->e());
+          m_ERes.push_back(clus->e()-origClus->e());
+      }
      
       if(m_applyIsEM){
           if( (isEMTrig & m_IsEMrequiredBits)!=0 ) {

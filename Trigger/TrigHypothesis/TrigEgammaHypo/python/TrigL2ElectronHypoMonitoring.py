@@ -8,13 +8,13 @@ class TrigL2ElectronHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         super(TrigL2ElectronHypoOnlineMonitoring, self).__init__(name)
         self.defineTarget( "Online" )
 
-        cuts=['Input','has TrigElectronContainer', 'p_{T} calo cut', '#Delta #eta tk-cl', '#Delta #phi tk-cl','E/p']
+        cuts=['Input','has TrigElectronContainer', 'p_{T} calo cut', '#Delta #eta tk-cl', '#Delta #phi tk-cl','E/p low','E/p hi','TRT ratio']
 
         labelsDescription = ''
         for c in cuts:
             labelsDescription +=  c+':'
         
-        self.Histograms += [ defineHistogram('CutCounter', type='TH1I', title="L2Electron Hypo Cut Counter;Cut Counter", xbins=12, xmin=-1.5, xmax=10, opt="kCumulative", labels=labelsDescription) ]
+        self.Histograms += [ defineHistogram('CutCounter', type='TH1I', title="L2Electron Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative", labels=labelsDescription) ]
         self.Histograms += [ defineHistogram('CaloTrackdEta', type='TH1F', title="L2Electron Hypo #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4) ]
         self.Histograms += [ defineHistogram('CaloTrackdPhi', type='TH1F', title="L2Electron Hypo #Delta #phi between cluster and track;#Delta #phi;Nevents", xbins=80, xmin=-0.4, xmax=0.4) ]
         self.Histograms += [ defineHistogram('CaloTrackEoverP', type='TH1F', title="L2Electron Hypo E/p;E/p;Nevents", xbins=120, xmin=0, xmax=12) ]
@@ -30,13 +30,12 @@ class TrigL2ElectronHypoValidationMonitoring(TrigL2ElectronHypoOnlineMonitoring)
         super(TrigL2ElectronHypoOnlineMonitoring, self).__init__(name)
         self.defineTarget("Validation")
 
-        cuts=['Input','has TrigElectronContainer', 'p_{T} calo cut', '#Delta #eta tk-cl', '#Delta #phi tk-cl','E/p']
-        
+        cuts=['Input','has TrigElectronContainer', 'p_{T} calo cut', '#Delta #eta tk-cl', '#Delta #phi tk-cl','E/p low','E/p hi','TRT ratio']
         labelsDescription = ''
         for c in cuts:
             labelsDescription +=  c+':'
 
-        self.Histograms += [ defineHistogram('CutCounter', type='TH1I', title="L2Electron Hypo Cut Counter;Cut Counter", xbins=12, xmin=-1.5, xmax=10, opt="kCumulative", labels=labelsDescription) ]
+        self.Histograms += [ defineHistogram('CutCounter', type='TH1I', title="L2Electron Hypo Cut Counter;Cut Counter", xbins=8, xmin=-1.5, xmax=7.5, opt="kCumulative", labels=labelsDescription) ]
         self.Histograms += [ defineHistogram('CaloTrackdEta', type='TH1F', title="L2Electron Hypo #Delta #eta between cluster and track;#Delta #eta;Nevents", xbins=80, xmin=-0.4, xmax=0.4) ]
         self.Histograms += [ defineHistogram('CaloTrackdPhi', type='TH1F', title="L2Electron Hypo #Delta #phi between cluster and track;#Delta #phi;Nevents", xbins=80, xmin=-0.4, xmax=0.4) ]
         self.Histograms += [ defineHistogram('CaloTrackEoverP', type='TH1F', title="L2Electron Hypo E/p;E/p;Nevents", xbins=120, xmin=0, xmax=12) ]

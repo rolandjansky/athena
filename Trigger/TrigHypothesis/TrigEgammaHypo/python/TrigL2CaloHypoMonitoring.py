@@ -34,7 +34,7 @@ class TrigL2CaloHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('Wstot', type='TH1F', title="L2Calo Hypo Wstot; E Width in sampling 1",xbins=48, xmin=-0.1, xmax=11.) ]
         self.Histograms += [ defineHistogram('F3', type='TH1F', title="L2Calo Hypo F3; E3/(E0+E1+E2+E3)",xbins=96, xmin=-0.1, xmax=1.1) ]        
  
-        cuts=['Input','has one TrigEMCluster', '#Delta #eta L2-L1', '#Delta #phi L2-L1','rCore',
+        cuts=['Input','has one TrigEMCluster', '#Delta #eta L2-L1', '#Delta #phi L2-L1','eta','rCore',
               'eRatio','E_{T}^{EM}', 'E_{T}^{Had}','f_{1}','Weta2','Wstot','F3']
 
         labelsDescription = ''
@@ -42,7 +42,7 @@ class TrigL2CaloHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
             labelsDescription +=  c+':'
             
         self.Histograms += [ defineHistogram('CutCounter', type='TH1I', title="L2Calo Hypo Passed Cuts;Cut",
-                                    xbins=14, xmin=-1.5, xmax=12.5,  opt="kCumulative", labels=labelsDescription) ]
+                                    xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", labels=labelsDescription) ]
 
 
 class TrigL2CaloHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
@@ -78,7 +78,7 @@ class TrigL2CaloHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('Wstot', type='TH1F', title="L2Calo Hypo Wstot; E Width in sampling 1",xbins=48, xmin=-0.1, xmax=11.) ]
         self.Histograms += [ defineHistogram('F3', type='TH1F', title="L2Calo Hypo F3; E3/(E0+E1+E2+E3)",xbins=96, xmin=-0.1, xmax=1.1) ]        
  
-        cuts=['Input','has one TrigEMCluster', '#Delta #eta L2-L1', '#Delta #phi L2-L1','rCore',
+        cuts=['Input','has one TrigEMCluster', '#Delta #eta L2-L1', '#Delta #phi L2-L1','eta','rCore',
               'eRatio','E_{T}^{EM}', 'E_{T}^{Had}','f_{1}','Weta2','Wstot','F3']
 
         labelsDescription = ''
@@ -86,7 +86,7 @@ class TrigL2CaloHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
             labelsDescription +=  c+':'
             
         self.Histograms += [ defineHistogram('CutCounter', type='TH1I', title="L2Calo Hypo Passed Cuts;Cut",
-                                             xbins=14, xmin=-1.5, xmax=12.5,  opt="kCumulative", labels=labelsDescription) ]
+                                             xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", labels=labelsDescription) ]
 
 class TrigL2CaloLayersHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigL2CaloLayersHypoOnlineMonitoring"):

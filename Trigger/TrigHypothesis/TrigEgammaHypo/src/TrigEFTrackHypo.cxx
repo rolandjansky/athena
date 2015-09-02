@@ -23,15 +23,15 @@
 //
 #include "TrigEgammaHypo/TrigEFTrackHypo.h"
 //
-#include "Particle/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "GaudiKernel/ITHistSvc.h"
 
 class ISvcLocator;
 
 template <class SRC>
-inline const DataVector<Rec::TrackParticle>** dvec_cast(SRC** ptr) { 
-  return (const DataVector<Rec::TrackParticle>**)(ptr); 
+inline const DataVector<xAOD::TrackParticle>** dvec_cast(SRC** ptr) { 
+  return (const DataVector<xAOD::TrackParticle>**)(ptr); 
 } 
 
 
@@ -56,12 +56,13 @@ TrigEFTrackHypo::TrigEFTrackHypo(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("NumTracks", m_numTracks=1, 
 		  "Number of tracks satisfying the selection");
 
-  declareMonitoredCollection("pt", *dvec_cast(&TrkParticleCont), &monPt);
-  declareMonitoredCollection("Phi",*dvec_cast(&TrkParticleCont), &monPhi);
-  declareMonitoredCollection("Eta",*dvec_cast(&TrkParticleCont), &monEta);
-  declareMonitoredCollection("d0", *dvec_cast(&TrkParticleCont), &mond0);
-  declareMonitoredCollection("z0", *dvec_cast(&TrkParticleCont), &monz0);
+  declareMonitoredCollection("pt", *dvec_cast(&TrkParticleCont), &xAOD::TrackParticle::pt);
+  declareMonitoredCollection("Phi",*dvec_cast(&TrkParticleCont), &xAOD::TrackParticle::phi);
+  declareMonitoredCollection("Eta",*dvec_cast(&TrkParticleCont), &xAOD::TrackParticle::eta);
+  declareMonitoredCollection("d0", *dvec_cast(&TrkParticleCont), &xAOD::TrackParticle::d0);
+  declareMonitoredCollection("z0", *dvec_cast(&TrkParticleCont), &xAOD::TrackParticle::z0);
   declareMonitoredVariable("numTrkPart",m_numTrkPart);
+  TrkParticleCont=nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -162,43 +163,33 @@ HLT::ErrorCode TrigEFTrackHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   m_numTrkPart=TrkParticleCont->size();
 
   int ntracks=0;
-  for(Rec::TrackParticleContainer::const_iterator trkIt = TrkParticleCont->begin();
-      trkIt != TrkParticleCont->end(); trkIt++){
-    
+  for(const auto trkIt : *TrkParticleCont){
     // apply the cuts
     // ---------------
 
-    const Trk::TrackSummary* summary = (*trkIt)->trackSummary();
-    
-    if(summary == 0){
-      msg() << MSG::WARNING 
-	  << " Atention! There is a track with no summary information linked ! " << endreq;
-    }
-    if(summary == 0 ) continue;  
-
     bool ok=true;
     if (m_applyTrackCut) {
-      //    int ncontrib_pixel = summary->get(Trk::numberOfContribPixelLayers);
-      int nblayer = summary->get(Trk::numberOfBLayerHits);
-      int npixel = summary->get(Trk::numberOfPixelHits);
-      int nsct = summary->get(Trk::numberOfSCTHits);
-      int ntrt = summary->get(Trk::numberOfTRTHits);
-      int ntrt_out = summary->get(Trk::numberOfTRTOutliers);
-      int ntrt_ht = summary->get(Trk::numberOfTRTHighThresholdHits);
-      int ntrt_ht_out = summary->get(Trk::numberOfTRTHighThresholdOutliers);
+      float d0 = trkIt->d0(); 
+      float pt = trkIt->pt();
+      //Summary values 
+      uint8_t nblayer(0),npixel(0),nsct(0),ntrt(0),ntrt_out(0),ntrt_ht(0),ntrt_ht_out(0),expectBlayerHit(0);
+      trkIt->summaryValue(nblayer,xAOD::numberOfInnermostPixelLayerHits);
+      trkIt->summaryValue(npixel,xAOD::numberOfPixelHits);
+      trkIt->summaryValue(npixel,xAOD::numberOfSCTHits);
+      trkIt->summaryValue(ntrt,xAOD::numberOfTRTHits);
+      trkIt->summaryValue(ntrt_out,xAOD::numberOfTRTOutliers);
+      trkIt->summaryValue(ntrt_ht,xAOD::numberOfTRTHighThresholdHits);
+      trkIt->summaryValue(ntrt_ht_out,xAOD::numberOfTRTHighThresholdOutliers);
+      trkIt->summaryValue(expectBlayerHit,xAOD::expectInnermostPixelLayerHit);
       int ntrt_total = ntrt + ntrt_out;
       float trtratio = 0.0;
       if ( (ntrt+ntrt_out) > 0) {
 	trtratio = static_cast<float>(ntrt_ht+ntrt_ht_out)/(ntrt+ntrt_out);
       }
-      float d0 = 0.0;
-      const Trk::Perigee* perigee = (*trkIt)->measuredPerigee();
-      if (perigee) d0 = perigee->parameters()[Trk::d0];
-      float pt = (*trkIt)->pt();
-      
-      //       if (summary->get(Trk::expectBLayerHit) && 
-      // 	  nblayer < m_numBLayerHits) ok = false;
-      if (nblayer < m_numBLayerHits) ok = false;
+
+      if (expectBlayerHit && 
+       	  nblayer < m_numBLayerHits) ok = false;
+      //if (nblayer < m_numBLayerHits) ok = false;
       if (npixel < m_numPixelHits) ok = false;
       if (nsct < m_numSCTHits) ok = false;
       if (ntrt_total < m_numTRTHits) ok = false;

@@ -60,7 +60,7 @@ TrigL2CaloHypo::TrigL2CaloHypo(const std::string & name, ISvcLocator* pSvcLocato
   declareMonitoredVariable("F1", F1); 
   declareMonitoredVariable("Weta2", Weta2);
   declareMonitoredVariable("Wstot", Wstot);
-  declareMonitoredVariable("F3", Weta2);
+  declareMonitoredVariable("F3", F3);
   declareMonitoredVariable("CutCounter", PassedCuts);
 }
 
@@ -166,17 +166,10 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   // Accept-All mode: temporary patch; should be done with force-accept 
   if (m_acceptAll) {
     pass = true;
-    if ( msgLvl() <= MSG::DEBUG ) {
-      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" 
-	    << endreq;
-    }
-    return HLT::OK;
+    ATH_MSG_DEBUG("AcceptAll property is set: taking all events");
   } else {
     pass = false;
-    if ( msgLvl() <= MSG::DEBUG ) {
-      msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" 
-	    << endreq;
-    }
+    ATH_MSG_DEBUG("AcceptAll property not set: applying selection");
   }
 
   ///////////// get RoI descriptor ///////////////////////////////////////////////////////
@@ -227,7 +220,7 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
 	<< endreq;
     return HLT::OK;
   }
-
+  PassedCuts++; //Input
   // get cluster
   const xAOD::TrigEMCluster* pClus = vectorOfClusters.front();
 
@@ -292,7 +285,7 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
 	  << " cut: <"   << m_detacluster          << endreq;
   }
   if ( fabs(pClus->eta() - etaRef) > m_detacluster ) return HLT::OK;
-  PassedCuts++;
+  PassedCuts++; //Deta
   
   // DeltaPhi(clus-ROI)
   if ( msgLvl() <= MSG::DEBUG ) {
@@ -301,7 +294,7 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
 	  << " cut: <"  << m_dphicluster            << endreq;
   }
   if( dPhi > m_dphicluster ) return HLT::OK;
-  PassedCuts++;
+  PassedCuts++; //DPhi
 
   // eta range
   if ( etaBin==-1 ) {  // VD
@@ -318,7 +311,7 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
     msg() << MSG::DEBUG << "TrigEMCluster: Rcore=" << rCore 
 	  << " cut: >"  << m_carcorethr[etaBin] << endreq;
   if ( rCore < m_carcorethr[etaBin] )  return HLT::OK;
-  PassedCuts++;
+  PassedCuts++; //Rcore
 
   // Eratio
   if ( msgLvl() <= MSG::DEBUG )
@@ -329,7 +322,7 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   } else {
     if ( energyRatio < m_caeratiothr[etaBin] ) return HLT::OK;
   }
-  PassedCuts++;
+  PassedCuts++; //Eratio
   if(inCrack) energyRatio = -1; //Set default value in crack for monitoring.
   
   // ET_em
@@ -337,7 +330,7 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
     msg() << MSG::DEBUG << "TrigEMCluster: ET_em=" << eT_T2Calo
 	<< " cut: >"  << m_eTthr[etaBin] << endreq;
   if ( eT_T2Calo < m_eTthr[etaBin]) return HLT::OK;
-  PassedCuts++;
+  PassedCuts++; // ET_em
  
   float hadET_cut = 0.0;  
   // find which ET_had to apply	: this depends on the ET_em and the eta bin
@@ -361,14 +354,14 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
 	<< " cut: <" << hadET_cut << endreq;
 
   if ( hadET_T2Calo > hadET_cut ) return HLT::OK;
-  PassedCuts++;
+  PassedCuts++; //ET_had
   
   // F1
   if ( msgLvl() <= MSG::DEBUG )
     msg() << MSG::DEBUG << "TrigEMCluster: F1=" << F1
 	  << " cut: >"  << m_F1thr[0] << endreq;
   // if ( F1 < m_F1thr[0]) return HLT::OK;  //(VD) not cutting on this variable, only used to select whether to cut or not on eRatio
-  PassedCuts++;
+  PassedCuts++; //F1
 
 
   //Weta2
@@ -376,7 +369,7 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
     msg() << MSG::DEBUG << "TrigEMCluster: Weta2=" << Weta2
 	  << " cut: <"  << m_WETA2thr[etaBin] << endreq; 
   if ( Weta2 > m_WETA2thr[etaBin]) return HLT::OK;
-  PassedCuts++;
+  PassedCuts++; //Weta2
 
 
   //Wstot
@@ -384,14 +377,14 @@ HLT::ErrorCode TrigL2CaloHypo::hltExecute(const HLT::TriggerElement* outputTE, b
     msg() << MSG::DEBUG << "TrigEMCluster: Wstot=" << Wstot
 	  << " cut: <"  << m_WSTOTthr[etaBin] << endreq; 
   if ( Wstot >= m_WSTOTthr[etaBin]) return HLT::OK;
-  PassedCuts++;
+  PassedCuts++; //Wstot
 
   //F3
   if ( msgLvl() <= MSG::DEBUG )
     msg() << MSG::DEBUG << "TrigEMCluster: F3=" << F3
 	  << " cut: <"  << m_F3thr[etaBin] << endreq; 
   if ( F3 > m_F3thr[etaBin]) return HLT::OK;
-  PassedCuts++;
+  PassedCuts++; //F3
 
 
   // got this far => passed!

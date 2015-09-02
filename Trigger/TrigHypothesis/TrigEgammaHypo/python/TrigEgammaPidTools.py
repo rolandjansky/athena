@@ -32,7 +32,7 @@ from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton
 
 # Path for versioned configuration
-ConfigFilePath = "ElectronPhotonSelectorTools/trigger/mc15_20150429/"
+ConfigFilePath = "ElectronPhotonSelectorTools/trigger/mc15_20150712/"
 
 # Dictionaries for ToolNames
 ElectronToolName = {'vloose':'AsgElectronIsEMVLooseSelector',
@@ -117,12 +117,14 @@ ElectronLHMediumToolConfigFile = {'cutd0dphideta':'ElectronLikelihoodMediumTrigg
 ElectronLHTightToolName = {'cutd0dphideta':'AsgElectronLHTightCutD0DphiDetaSelector',
         'nod0':'AsgElectronLHTightNoD0Selector',
         'nodeta':'AsgElectronLHTightNoDetaSelector',
-        'nodphires':'AsgElectronLHTightNoDphiResSelector',}
+        'nodphires':'AsgElectronLHTightNoDphiResSelector',
+        'smooth':'AsgElectronLHTightSmoothSelector'}
 
 ElectronLHTightToolConfigFile = {'cutd0dphideta':'ElectronLikelihoodTightTriggerConfig2015_CutD0DphiDeta.conf',
         'nod0':'ElectronLikelihoodTightTriggerConfig2015_NoD0.conf',
         'nodeta':'ElectronLikelihoodTightTriggerConfig2015_NoDeta.conf',
-        'nodphires':'ElectronLikelihoodTightTriggerConfig2015_NoDphiRes.conf',}
+        'nodphires':'ElectronLikelihoodTightTriggerConfig2015_NoDphiRes.conf',
+        'smooth':'ElectronLikelihoodTightTriggerConfig2015_Smooth.conf'}
 
 ElectronToolConfigFile = {'vloose':'ElectronIsEMVLooseSelectorCutDefs.conf', 
     'loose':'ElectronIsEMLooseSelectorCutDefs.conf',
