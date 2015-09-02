@@ -190,16 +190,12 @@ StatusCode JetCMX::execute( )
 	   // Decode TOB word 
 	   JetTopoTOB tob( crate, (*word) );
 	   int etaindex = tob.etaIndex();	   
-	   int ieta = 2*(etaindex-15) - 1;
-	   if (etaindex < 4 || etaindex > 27) {
-	     if (etaindex == 0)      ieta = -39;
-	     else if (etaindex == 0) ieta = -39;
-	     else if (etaindex == 1) ieta = -30;
-	     else if (etaindex == 2) ieta = -28;
-	     else if (etaindex == 3) ieta = -26;
-	     else if (etaindex == 28) ieta = 26;
-	     else if (etaindex == 29) ieta = 28;
-	     else if (etaindex >= 30) ieta = 39;
+	   int ieta = 2*(etaindex-15) + (etaindex > 15 ? 0 : -1);
+	   if (etaindex < 2 || etaindex > 28) {
+	     if (etaindex == 0)       ieta = -40;
+	     else if (etaindex == 1)  ieta = -30;
+	     else if (etaindex == 29) ieta =  29;
+	     else if (etaindex >= 30) ieta =  39;
 	   }
 	   int iphi = tob.iphi();
            if (iphi < 0) iphi += 64;
@@ -313,14 +309,14 @@ StatusCode JetCMX::execute( )
 
   
   // Store output for BS simulation
-  StatusCode sc = evtStore()->overwrite(CMXTobs, m_CMXJetTobLocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(CMXTobs, m_CMXJetTobLocation, true);
   if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING ( "Problem writing CMXTobs to StoreGate" );
 
-  sc = evtStore()->overwrite(CMXHits, m_CMXJetHitLocation,true,false,false);
+  sc = evtStore()->overwrite(CMXHits, m_CMXJetHitLocation, true);
   if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING ( "Problem writing CMXHits to StoreGate" );
 
   // Store Topo results
-  sc = evtStore()->overwrite(topoData, m_TopoOutputLocation,true,false,false);
+  sc = evtStore()->overwrite(topoData, m_TopoOutputLocation, true);
   if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING ( "Problem writing CPCMXTopoData object to StoreGate" );
  
   // Store CTP results
@@ -328,7 +324,7 @@ StatusCode JetCMX::execute( )
     m_jetCTP = new JetCTP(0,0);
     ATH_MSG_WARNING("No JetCTP found. Creating empty object" );
   }
-  sc = evtStore()->overwrite(m_jetCTP, m_CTPOutputLocation,true,false,false);
+  sc = evtStore()->overwrite(m_jetCTP, m_CTPOutputLocation, true);
   if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING ( "Problem writing JetCTP object to StoreGate" );
 
   return StatusCode::SUCCESS ;
