@@ -258,6 +258,9 @@ def getRelease( releaseId = "12.0.3", releaseRoot = GetTagDiff.ReleaseRoot ):
 
     id = releaseId.split(",")
     #print "## id [%s] length: %i" % (str(id), len(id))
+    import re
+    lcgmatch = re.search('lcg\d?', releaseId.lower())
+    migmatch = re.search('mig\d\d?', releaseId.lower())
     if releaseId.count("rel_") > 0 :
         if releaseId.lower().count("bugfix")  > 0 :
             releaseRoot = os.path.join( releaseRoot, "nightlies", "bugfix" )
@@ -269,14 +272,12 @@ def getRelease( releaseId = "12.0.3", releaseRoot = GetTagDiff.ReleaseRoot ):
             releaseRoot = os.path.join( releaseRoot, "nightlies", "devval" )
         elif releaseId.lower().count("dev")   > 0 :
             releaseRoot = os.path.join( releaseRoot, "nightlies", "dev" )
-        elif releaseId.lower().count("lcg")   > 0 :
-            releaseRoot = os.path.join( releaseRoot, "nightlies", "lcg" )
+        elif lcgmatch:
+            releaseRoot = os.path.join( releaseRoot, "nightlies", lcgmatch.group(0) )
+        elif migmatch:
+            releaseRoot = os.path.join( releaseRoot, "nightlies", migmatch.group(0) )
         elif releaseId.lower().count("lst")   > 0 :
             releaseRoot = os.path.join( releaseRoot, "nightlies", "lst" )
-        elif releaseId.lower().count("mig0")  > 0 :
-            releaseRoot = os.path.join( releaseRoot, "nightlies", "mig0" )
-        elif releaseId.lower().count("mig1")  > 0 :
-            releaseRoot = os.path.join( releaseRoot, "nightlies", "mig1" )
         elif releaseId.lower().count("trials")> 0 :
             releaseRoot = os.path.join( releaseRoot, "nightlies", "trials" )
         elif releaseId.lower().count("val")   > 0 :

@@ -29,7 +29,6 @@ alias vmem-sz	    vmem-sz.py
 alias dso-stats	    dso-stats.py
 alias dump-athfile  dump-athfile.py
 alias pkgco         pkgco.py
-alias icython       icython.py
 alias tabnanny-checker tabnanny-checker.py
 alias get-tag-diff  get-tag-diff.py
 alias avn           avn.py
@@ -74,7 +73,6 @@ apply_pattern declare_scripts files="\
  get-tag-diff.py \
  getTagDiff.py \
  gprof2dot \
- icython.py \
  issues \
  lstags \
  magnifyPoolFile.py \
