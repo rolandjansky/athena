@@ -95,30 +95,6 @@
 	<queue>atlasrttperf</queue>
       </jobTransform>
 
-      <jobTransform userJobId="monitoring_reco_data15_minbias">
-	<doc>Reco_tf runs on 13TeV collision data from the minbias stream</doc>
-	<jobTransformJobName>monitoring_reco_data12_jettauetmiss</jobTransformJobName>
-	<jobTransformCmd>
-	  export TRF_ECHO=1; Reco_tf.py  --inputBSFile 'root://eosatlas//eos/atlas/user/a/atlaspmb/data15_13TeV/data15_13TeV.00267167.physics_Main.merge.RAW._lb0176._SFO-1._0001.1' --outputESDFile "myESD.pool.root" --outputAODFile "myAOD.pool.root"  --ignorePatterns "ToolSvc.InDetSCTRodDecoder.+ERROR.+Unknown.+offlineId.+for.+OnlineId" --AMITag "f594" --ignoreErrors true --maxEvents 200 --skipEvents 0 --autoConfiguration "everything" --preExec 'DQMonFlags.enableLumiAccess=False;DQMonFlags.doCTPMon=False;from MuonRecExample.MuonRecFlags import muonRecFlags;muonRecFlags.useLooseErrorTuning.set_Value_and_Lock(True);' --beamType "collisions" --geometryVersion "ATLAS-R2-2015-03-01-00" --postExec "r2e:topSequence.LArNoisyROAlg.Tool.BadChanPerFEB=30" --outputHISTFile "myHIST.pool.root" --athenaopts=' --pmon=sdmonfp' | tee  __log.txt; 
-	  echo $? &gt;  __exitcode ; 
-	  touch __done ;
-	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
-	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
-	  checkxAOD.py myESD.pool.root &gt; myESD.pool.root.checkfile.txt ; 
-	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
-	  export userJobId="monitoring_reco_data15_minbias";
-	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
-	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
-	  gzip *txt; 
-	  mkdir -p                       ${OutputDestination} ; 
-	  rsync -avz ntuple*             ${OutputDestination}/. ; 
-	  rsync -avz __*                 ${OutputDestination}/. ; 
-	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
-	</jobTransformCmd>
-	<group>TrfRecPerf</group>
-	<queue>atlasrttperf</queue>
-      </jobTransform>
-
       <jobTransform userJobId="monitoring_reco_data12_jettauetmiss">
 	<doc>Reco_tf runs on 8TeV collision 8 data from the jettauetmiss stream</doc>
 	<jobTransformJobName>monitoring_reco_data12_jettauetmiss</jobTransformJobName>
