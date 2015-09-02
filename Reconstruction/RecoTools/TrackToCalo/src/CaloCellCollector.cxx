@@ -283,7 +283,15 @@ Rec::CaloCellCollector::collectEtCore( const xAOD::CaloCluster& clus,
             }
         }
         // Check if cell passes the noise threshold of 3.4sigma
-        if (m_doDebug && addCell) std::cout << " cell E,3.4*noise: " << cell->energy() << "/" << 3.4*caloNoiseTool->getNoise(cell);
+        if (m_doDebug && addCell) {
+           if( !caloNoiseTool.empty() ) std::cout << " cell E,3.4*noise: " << cell->energy() << "/" << 3.4*caloNoiseTool->getNoise(cell);
+           else std::cout << " cell E, NO CaloNoiseTool available: " << cell->energy() << "/ - ";
+        }
+        if (applyNoiseCut && caloNoiseTool.empty() ){
+           std::cout << "ERROR : Configured to apply calo noise cut, however no CaloNoiseTool available.\n "
+                     << "ERROR : Changing configuration to NOT apply calo noise cut!" << std::endl;
+           applyNoiseCut = false;
+        }
         if (applyNoiseCut && addCell && cell->energy() < sigmaNoiseCut*caloNoiseTool->getNoise(cell)) {
             addCell = false;
         }

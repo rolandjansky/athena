@@ -207,7 +207,8 @@ namespace Rec {
     double Eloss = 0.;
     double scaleTG = 1.0;
     if(!caloExtension.muonEntryLayerIntersection()) {
-      ATH_MSG_WARNING( " No muonEntryLayerIntersection found and therefore the expected Eloss is not calculated properly ");
+      if(caloExtension.caloEntryLayerIntersection()->momentum().mag()-fabs(deltaE)>1000.) ATH_MSG_WARNING( " No muonEntryLayerIntersection found and therefore the expected Eloss is not calculated properly for momentum " << caloExtension.caloEntryLayerIntersection()->momentum().mag() );
+      ATH_MSG_DEBUG( " No muonEntryLayerIntersection found and therefore the expected Eloss is not calculated properly ");
     } else {     
       Eloss = caloExtension.caloEntryLayerIntersection()->momentum().mag() - caloExtension.muonEntryLayerIntersection()->momentum().mag();
       ATH_MSG_DEBUG( " Energy loss from CaloExtension " << Eloss << " R muon Entry " << caloExtension.muonEntryLayerIntersection()->position().perp() << " Z muon Entry " << caloExtension.muonEntryLayerIntersection()->position().z() << " R calo entry " << caloExtension.caloEntryLayerIntersection()->position().perp() << " Z calo entry " << caloExtension.caloEntryLayerIntersection()->position().z() );
