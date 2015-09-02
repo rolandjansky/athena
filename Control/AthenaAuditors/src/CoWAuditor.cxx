@@ -11,19 +11,19 @@
 #include <chrono>
 
 CoWAuditor::CoWAuditor( const std::string& name, 
-            ISvcLocator* pSvcLocator ) : 
+			ISvcLocator* pSvcLocator ) : 
   Auditor     ( name, pSvcLocator  ),
   AthMessaging(msgSvc(), name),
-  m_dumpFinalize(true),m_dumpInfo(true),m_streamName("/CoWMoO"),m_hashTree(0),m_snapshotTree(0),
+  m_dumpFinalize(true),m_dumpInfo(true),m_detailed(false),m_streamName("CoWMoO.root"),m_hashTree(0),m_snapshotTree(0),
   m_algId(0),m_vmem(0),m_rss(0),m_pss(0),m_shared(0),m_private(0),m_anon(0),m_swap(0),m_currTime(0)
 {
   //
   // Property declaration
   // 
   declareProperty( "DumpAtFinalize", m_dumpFinalize, "Dump statistics at finalize (true)" );
+  declareProperty( "DetailedDump", m_detailed, "Dump per library details(false)" );
   declareProperty( "DumpAll", m_dumpInfo, "Dump delta for every call (true)" );
-  declareProperty( "MonFile", m_streamName, "output file name (/CoWMoO)" );
-  
+  declareProperty( "MonFile", m_streamName, "output file name (CoWMoO.root)" );
 }
 
 CoWAuditor::~CoWAuditor()
@@ -38,7 +38,7 @@ StatusCode CoWAuditor::initialize()
   // if(m_detailed){
   //   m_detailedStack.reserve(200);//200 deep stack
   // }else{
-    m_summaryStack.reserve(200);//200 deep stack
+  m_summaryStack.reserve(200);//200 deep stack
   // }
   IIncidentSvc* incsvc;
   
@@ -47,6 +47,7 @@ StatusCode CoWAuditor::initialize()
     return StatusCode::FAILURE;
   }
   incsvc->addListener(this,"PreFork", -500);
+  incsvc->addListener(this,"PostFork",10000);
   m_snapshotTree=new TTree("Snapshots","Smaps aggregated snapshots for given algorithm");
   m_snapshotTree->Branch("algID",&m_algId,"algID/l");  
   m_snapshotTree->Branch("vmem",&m_vmem,"vmem/L");
@@ -195,44 +196,57 @@ void CoWAuditor::after(CustomEventTypeRef evt,
 }
 
 bool CoWAuditor::pushStats(const std::string& caller){
-  // if(m_detailed){
-  //   auto first=parseDetailedSmaps();
-  //   if(first){
-  //     m_detailedStack.push_back(first);
-  //   }else{
-  //     ATH_MSG_ERROR("Parsing smaps failed while pushing for "<<caller);
-  //     return false;
-  //   }
-  // }else{
+  if(m_detailed){
+    auto first=parseDetailedSmaps();
+    if(first){
+      m_detailedStack.push_back(first);
+    }else{
+      ATH_MSG_ERROR("Parsing smaps failed while pushing for "<<caller);
+      return false;
+    }
+  }else{
     auto first=parseSmaps();
     if(first){
-      first->libName=caller;
+      first->m_libName=caller;
       m_summaryStack.push_back(first);
     }else{
       ATH_MSG_ERROR("Parsing smaps failed while pushing for "<<caller);
       return false;
     }
-  // }
+  }
   return true;
 }
 
 bool CoWAuditor::popStats(const std::string& caller){
-  // if(m_detailed){
-  //   auto last=parseDetailedSmaps();
-  //   if(m_detailedStack.empty()){
-  //     ATH_MSG_ERROR("Popping detail stack failed for caller="<<caller);
-  //     return false;
-  //   }
-  //   auto first=m_detailedStack.back();
-  //   m_detailedStack.pop_back();
-
-  //   if(last){
-  //     //diffRecords(last,first);  
-  //   }else{
-  //     ATH_MSG_ERROR("Parsing smaps failed for caller="<<caller);
-  //     return false;
-  //   }
-  // }else{//do summary
+  if(m_detailed){
+    auto last=parseDetailedSmaps();
+    if(m_detailedStack.empty()){
+      ATH_MSG_ERROR("Popping detail stack failed for caller="<<caller);
+      return false;
+    }
+    auto first=m_detailedStack.back();
+    m_detailedStack.pop_back();
+    if(last){
+      diffDetailedMaps(last,first);
+      if(checkChange(last)){
+	if(m_dumpInfo){
+	  std::stringstream oss;
+	  int count=0;
+	  for(auto l:*last){
+	    if(*(l.second)){
+	      count++;
+	      oss<<*(l.second)<<std::endl;
+	    }
+	  }
+	  msg(MSG::INFO)<<caller<<" : Total libs="<<count<<" stack depth="<<m_detailedStack.size()<<std::endl
+			<<oss.str()<<endreq;
+	}
+      }
+    }else{
+      ATH_MSG_ERROR("Parsing smaps failed for caller="<<caller);
+      return false;
+    }
+  }else{//do summary
     auto last=parseSmaps();
     if(m_summaryStack.empty()){
       ATH_MSG_ERROR("Popping summary stack failed while popping for "<<caller);
@@ -241,10 +255,10 @@ bool CoWAuditor::popStats(const std::string& caller){
     auto first=m_summaryStack.back();
     m_summaryStack.pop_back();
     if(last){
-      auto delta=(last->ms-first->ms);
+      auto delta=(last->m_ms-first->m_ms);
       if(delta){
 	for(auto& it:m_summaryStack){
-	  it->ms+=delta;
+	  it->m_ms+=delta;
 	}
 	auto it=m_algHashes.insert(std::make_pair(caller,m_hasher(caller)));
 	if(it.second){
@@ -266,7 +280,7 @@ bool CoWAuditor::popStats(const std::string& caller){
 	m_currTime=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 	m_snapshotTree->Fill();
 	if(m_dumpInfo){
-	  msg(MSG::INFO)<<caller<<" : "<<delta<<" oldName="<<first->libName<<" stack depth="<<m_summaryStack.size()<<endreq;
+	  msg(MSG::INFO)<<caller<<" : "<<delta<<" oldName="<<first->m_libName<<" stack depth="<<m_summaryStack.size()<<endreq;
 	}
 	
 	auto prev=m_runTotals.find(caller);
@@ -280,30 +294,70 @@ bool CoWAuditor::popStats(const std::string& caller){
       ATH_MSG_ERROR("Parsing smaps failed!");
       return false;
     }
-  // }
+  }
   return true;
 }
 
-std::shared_ptr<CoWAuditor::LibMap_t> CoWAuditor::parseDetailedSmaps(){return 0;}
+std::shared_ptr<CoWAuditor::LibMap_t> CoWAuditor::parseDetailedSmaps(){
+  auto lmap=std::make_shared<CoWAuditor::LibMap_t>();
+  std::ifstream pfile("/proc/self/smaps");
+  if(pfile.is_open()){
+    std::string line;
+    std::stringstream ss;  
+    while(!std::getline(pfile,line).eof()){
+      if(line.empty())continue;
+      if(line.size()>30 && line.at(0)!='V'&& ss.str().size()!=0){
+	ss.seekg(0);
+	//std::cout<<"Ss "<<ss.str()<<" size="<<ss.str().size()<<std::endl;
+
+	auto lib=CoWTools::CoWLibrary::fromRecord(ss,true);
+	auto l=lmap->find(lib->m_libName);
+	if(l==lmap->end()){
+	  lmap->insert(std::make_pair(lib->m_libName,lib));
+	}else{
+	  *(l->second)+=*lib;
+	}
+	ss.str("");
+	ss.clear();
+	// continue;
+      }
+      
+      ss<<line<<std::endl;
+      ss.clear();
+    }
+    if(ss.str().size()>200){
+      auto lib=CoWTools::CoWLibrary::fromRecord(ss,true);
+      auto l=lmap->find(lib->m_libName);
+      if(l==lmap->end()){
+	lmap->insert(std::make_pair(lib->m_libName,lib));
+      }else{
+	*(l->second)+=*lib;
+      }
+    }
+    pfile.close();
+  }
+  return lmap;
+
+}
 
 std::shared_ptr<CoWTools::CoWLibrary> CoWAuditor::parseSmaps(){
   std::ifstream pfile("/proc/self/smaps");
   std::shared_ptr<CoWTools::CoWLibrary> lr(0);
   if(pfile.is_open()){
-    lr=std::make_shared<CoWTools::CoWLibrary>(true);
     std::string line;
     std::stringstream ss;
-    std::string libLine;
+    std::string libName="Anonymous";
+    lr=std::make_shared<CoWTools::CoWLibrary>(true);
     while(!std::getline(pfile,line).eof()){
       if(line.empty())continue;
-      if(line.size()>30 && line.at(0)!='V'){
-	  ss.seekg(0);
-	  m_ms.parseRecord(ss);
-	  //std::cout<<"MS ="<<ms<<std::endl;
-	  lr->ms+=m_ms;
-	  ss.str("");
-	  ss.clear();
-	  continue;
+      if(line.size()>30 && line.at(0)!='V' &&  ss.str().size()!=0){
+	ss.seekg(0);
+	m_ms.parseRecord(ss);
+	//std::cout<<"MS ="<<ms<<std::endl;
+	lr->m_ms+=m_ms;
+	ss.str("");
+	ss.clear();
+	continue;
       }
       ss<<line<<std::endl;
       ss.clear();
@@ -311,18 +365,38 @@ std::shared_ptr<CoWTools::CoWLibrary> CoWAuditor::parseSmaps(){
     //if there is any records left (should never be possible)
     if(ss.str().size()>200){
       m_ms.parseRecord(ss);
-      lr->ms+=m_ms;
+      lr->m_ms+=m_ms;
     }
-    pfile.close();
   }
+  pfile.close();
   return lr;
+}
+
+bool CoWAuditor::checkChange(std::shared_ptr<LibMap_t> &capture){
+  for( auto l: *capture){
+    if(*(l.second))return true;
+  }
+  return false;
+}
+
+void CoWAuditor::diffDetailedMaps(std::shared_ptr<LibMap_t> &dst,std::shared_ptr<LibMap_t> &src){
+  for( auto l: *src){
+    auto old=dst->find(l.first);
+    if(old!=dst->end()){
+      *(old->second)-=*(l.second);
+    }else{
+      auto x=std::make_shared<CoWTools::CoWLibrary>();
+      *x=-*(l.second);
+      dst->insert(std::make_pair(l.first,x));
+    }
+  } 
 }
 
 void CoWAuditor::handle(const Incident &inc){
   ATH_MSG_INFO("Got incident "<<inc.type()<<" from "<<inc.source());
-  // if(!m_detailed){
+  if(!m_detailed){
     for( auto& i: m_summaryStack){
-      auto v=i->ms.getValueArray();
+      auto v=i->m_ms.getValueArray();
       v[3]+=v[5];
       v[5]=0;
       v[4]+=v[6];
@@ -335,5 +409,5 @@ void CoWAuditor::handle(const Incident &inc){
       v[4]+=v[6];
       v[6]=0;
     }
-  // }
+  }
 }

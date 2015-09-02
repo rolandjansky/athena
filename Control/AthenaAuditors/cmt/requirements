@@ -8,7 +8,7 @@ use AtlasPolicy      AtlasPolicy-*
 private
 use GaudiInterface                 GaudiInterface-*  	            External
 use AtlasGdb                       AtlasGdb-*                       External
-# use AtlasBoost			   AtlasBoost-*			    External
+use AtlasBoost			   AtlasBoost-*			    External
 use AtlasLibUnwind		   AtlasLibUnwind-*		    External
 
 private
@@ -21,3 +21,4 @@ library AthenaAuditors *.cxx -s=components *.cxx
 apply_pattern component_library
 
 use AthenaBaseComps  AthenaBaseComps-*	  Control
+

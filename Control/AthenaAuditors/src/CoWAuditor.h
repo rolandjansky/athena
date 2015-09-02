@@ -99,9 +99,11 @@ class CoWAuditor : virtual public Auditor, public AthMessaging,public IIncidentL
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
  private: 
-  bool m_dumpFinalize,m_dumpInfo;
-  std::string m_streamName;
   typedef std::unordered_map<std::string,std::shared_ptr<CoWTools::CoWLibrary> > LibMap_t;
+  bool checkChange(std::shared_ptr<LibMap_t> &capture);
+  void diffDetailedMaps(std::shared_ptr<LibMap_t> &dst,std::shared_ptr<LibMap_t> &src);
+  bool m_dumpFinalize,m_dumpInfo,m_detailed;
+  std::string m_streamName;
   LibMap_t m_libMap;
   std::vector<std::shared_ptr<CoWTools::CoWLibrary> > m_summaryStack;
   std::vector<std::shared_ptr<LibMap_t> > m_detailedStack;
