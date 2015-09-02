@@ -69,6 +69,8 @@ FPEAuditor::FPEAuditor( const std::string& name,
 
 // Destructor
 ///////////////
+#include <fstream>
+#include <iomanip>
 FPEAuditor::~FPEAuditor()
 { 
   //m_msg << MSG::DEBUG << "Calling destructor" << endreq;
