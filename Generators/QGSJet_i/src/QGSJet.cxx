@@ -9,7 +9,7 @@
 // in the Transient Store.
 //
 // AuthorList: 
-//   Sami Kama:       Initial code.
+//   Sami tyKama:       Initial code.
 //   Sebastian Piec:  Adaptation for Epos 1.99.crmc.r2790.
 // ---------------------------------------------------------------------- 
 
@@ -57,7 +57,7 @@ extern "C"
   void crmc_xsection_f_(double &xsigtot, double &xsigine, double &xsigela, double &xsigdd, 
       double &xsigsd, double &xsloela, double &xsigtotaa, double &xsigineaa, double &xsigelaaa);
 } 
-/*extern "C"
+extern "C"
 {
   extern struct
   {
@@ -149,7 +149,7 @@ extern "C"
   } c2evt_; //qgsjet.inc
 }
 
-*/
+
 
 
 using HepMC::IO_HEPEVT;
@@ -258,7 +258,7 @@ StatusCode QGSJet::callGenerator()
   crmc_f_( m_iout, m_ievent ,nParticles, impactParameter, m_partID[0], m_partPx[0], m_partPy[0], m_partPz[0], 
 	   m_partEnergy[0], m_partMass[0], m_partStat[0]  );
 
-  std::cout << "events " << m_events << " " << m_ievent << std::endl;
+//  std::cout << "events " << m_events << " " << m_ievent << std::endl;
   //  HepMC::HEPEVT_Wrapper::print_hepevt();
 
   /* for (int i=1;i<=50;++i){
@@ -274,7 +274,7 @@ StatusCode QGSJet::callGenerator()
    std::cout << "part " << i << " " << m_partID[i] << " " << m_partStat[i] << std::endl;
    std::cout << "part x " << m_partPx[i]<< " " << m_partPy[i] << " " << m_partPz[i] << " " << m_partEnergy[i] <<" " <<  m_partMass[i] << std::endl;
    }*/
-
+ 
 
 
   return StatusCode::SUCCESS;
@@ -361,8 +361,9 @@ StatusCode QGSJet::fillEvt( GenEvent* evt )
                       1e9*hadr5_.sigine);
 
 		      evt->set_heavy_ion(ion);  
-
+   */
   //an integer ID uniquely specifying the signal process (i.e. MSUB in Pythia)
+  // std::cout<<"obecny sig_proc_id " << evt->signal_process_id() << std::endl;
    int sig_id = -1;
    switch (int(c2evt_.typevt))
     {
@@ -378,10 +379,10 @@ StatusCode QGSJet::fillEvt( GenEvent* evt )
     }
 
   evt->set_signal_process_id(sig_id);
-   */
-  /*  ATH_MSG_INFO( "Event Information : \n");
-  std::cout << " signal_process_id "<<evt->signal_process_id() << std::endl;
-  std::cout << " heavy ion " << evt->heavy_ion() << std::endl;
+   
+  //ATH_MSG_INFO( "Event Information : \n");
+  //std::cout << " signal_process_id "<<evt->signal_process_id() << std::endl;
+  /* std::cout << " heavy ion " << evt->heavy_ion() << std::endl;
   evt->print();
   std::cout << " print-out done " << std::endl;*/
 
