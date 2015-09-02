@@ -71,6 +71,7 @@ class RpcDataPreparator: public AthAlgTool
       virtual StatusCode finalize  ();
     
       StatusCode prepareData(const TrigRoiDescriptor*    p_roids,
+			     unsigned int roiWord,
 			     TrigL2MuonSA::RpcHits&      rpcHits,
 			     TrigL2MuonSA::RpcPatFinder* rpcPatFinder);
 
@@ -96,6 +97,10 @@ class RpcDataPreparator: public AthAlgTool
       // ROB DataProvider
       ROBDataProviderSvc*  m_robDataProvider;
 
+      // RPC cabling service
+      const IRPCcablingSvc* m_rpcCabling;
+      const CablingRPCBase* m_rpcCablingSvc;
+      
       const MuonGM::MuonDetectorManager* m_muonMgr;
       const MuonGM::RpcReadoutElement* m_rpcReadout;
       // Muon Id Helpers

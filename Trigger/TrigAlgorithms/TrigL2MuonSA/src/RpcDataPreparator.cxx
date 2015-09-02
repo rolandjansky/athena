@@ -18,6 +18,8 @@
 #include "MuonContainerManager/MuonRdoContainerAccess.h"
 #include "Identifier/IdentifierHash.h"
 
+#include "RPCcablingInterface/IRPCcablingServerSvc.h"
+
 #include "TrigL2MuonSA/RpcData.h"
 #include "TrigL2MuonSA/RecMuonRoIUtils.h"
 
@@ -123,6 +125,24 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
      return sc ;
    }
    msg() << MSG::DEBUG << "Retrieved ActiveStoreSvc." << endreq; 
+
+   // Retrieve the RPC cabling service
+   ServiceHandle<IRPCcablingServerSvc> RpcCabGet ("RPCcablingServerSvc", name());
+   sc = RpcCabGet.retrieve();
+   if ( sc != StatusCode::SUCCESS ) {
+     msg() << MSG::ERROR << "Could not retrieve the RPCcablingServerSvc" << endreq;
+     return sc;
+   }
+   sc = RpcCabGet->giveCabling(m_rpcCabling);
+   if ( sc != StatusCode::SUCCESS ) {
+     msg() << MSG::ERROR << "Could not retrieve the RPC Cabling Server" << endreq;
+     return sc;
+   }
+   m_rpcCablingSvc = m_rpcCabling->getRPCCabling();
+   if ( !m_rpcCablingSvc ) {
+     msg() << MSG::ERROR << "Could not retrieve the RPC cabling svc" << endreq;
+     return StatusCode::FAILURE;
+   } 
    
    // 
    return StatusCode::SUCCESS; 
@@ -141,11 +161,35 @@ void TrigL2MuonSA::RpcDataPreparator::setRoIBasedDataAccess(bool use_RoIBasedDat
 // --------------------------------------------------------------------------------
 
 StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*    p_roids,
+							unsigned int roiWord,
                                                         TrigL2MuonSA::RpcHits&      rpcHits,
                                                         TrigL2MuonSA::RpcPatFinder* rpcPatFinder)
 {
   // RPC data extraction referring TrigMuonEFStandaloneTrackTool and MuonHoughPatternFinderTool
-   rpcHits.clear();
+  rpcHits.clear();
+  
+  // check the roi ID
+  
+  //  decode  roIWord
+  unsigned int sectorAddress = (roiWord & 0x003FC000) >> 14;
+  unsigned int sectorRoIOvl  = (roiWord & 0x000007FC) >> 2;
+  unsigned int side =  sectorAddress & 0x00000001;
+  unsigned int sector = (sectorAddress & 0x0000003e) >> 1;
+  unsigned int roiNumber =  sectorRoIOvl & 0x0000001F;
+  //  unsigned int padNumber = roiNumber/4; 
+  
+  unsigned int logic_sector;
+  unsigned short int PADId;
+  unsigned int padIdHash;
+  if ( !m_rpcCablingSvc->give_PAD_address( side, sector, roiNumber, logic_sector, PADId, padIdHash) ) {
+    msg() << MSG::ERROR << "Roi Number: " << roiNumber << "not compatible with side, sector: " << side 
+	  <<  " " << sector << endreq;
+    return StatusCode::FAILURE;
+  }
+  else {
+    msg() << MSG::DEBUG << "Roi Number: " << roiNumber << " side, sector: " << side 
+	  <<  " " << sector << " corresp. to log_sector, padId: " << logic_sector << " " << PADId << endreq;
+  }
 
    const IRoiDescriptor* iroi = (IRoiDescriptor*) p_roids;
 
