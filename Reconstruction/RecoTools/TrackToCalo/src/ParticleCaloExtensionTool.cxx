@@ -23,7 +23,6 @@ namespace Trk
 {
   ParticleCaloExtensionTool::ParticleCaloExtensionTool(const std::string& t, const std::string& n, const IInterface*  p )
     : AthAlgTool(t,n,p),
-      m_detID(nullptr),
       m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
       m_particleType(muon)
   {
@@ -230,7 +229,7 @@ namespace Trk
                                       << " pt " << param->momentum().perp();
           const Trk::MaterialEffectsBase* mat = m->materialEffectsOnTrack();
           if( mat ) msg(MSG::DEBUG) << " mat: " <<  mat->thicknessInX0();
-          msg(MSG::DEBUG) << endmsg;
+          msg(MSG::DEBUG) << endreq;
         }
         delete m;
       }

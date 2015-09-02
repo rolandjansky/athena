@@ -62,8 +62,7 @@ namespace Rec {
     ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool; //!< Tool to make the step-wise extrapolation
     ToolHandle< Trk::ITrackParticleCreatorTool >       m_particleCreator;     /**< The CB Particle Creator Tool */
     
-    // FIXME: mutable
-    mutable ToolHandle <ICaloNoiseTool>  m_caloNoiseTool; //!< Tool to quantify electronic noise in calorimeter
+    ToolHandle <ICaloNoiseTool>  m_caloNoiseTool; //!< Tool to quantify electronic noise in calorimeter
 
     // DATA MEMBERS
     double m_sigmasAboveNoise; // 4.

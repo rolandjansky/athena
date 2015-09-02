@@ -32,9 +32,7 @@ namespace Rec {
     m_emF1Cut(0.15),
     m_emipEM(0.42), // 0.42
     m_emipTile(0.86), // 0.86
-    m_emipHEC(0.65),  // 0.65
-    m_indetTrackParticles(nullptr),
-    m_muonTrackParticles(nullptr)
+    m_emipHEC(0.65)  // 0.65
   {
     declareInterface<IMuonCaloEnergyTool>(this);
     declareProperty("ParticleCaloExtensionTool",      m_caloExtensionTool );
@@ -190,6 +188,11 @@ namespace Rec {
     std::vector< std::pair<const CaloCell*,Rec::ParticleCellIntersection*> > cellIntersections = association->cellIntersections();
 
     const Trk::CaloExtension& caloExtension = association->caloExtension();
+
+    if(!(&caloExtension)) {
+      ATH_MSG_WARNING( " No caloExtension found ");
+      return;
+    }
 
     if(!caloExtension.caloEntryLayerIntersection()) {
       ATH_MSG_WARNING( " No caloEntryLayerIntersection found ");
@@ -443,7 +446,7 @@ namespace Rec {
      double E_measured = 0.;
      double E_measured_expected = E_em_expected + E_tile_expected + E_HEC_expected;
 //     if(E_em*cos(theta)>m_emEtCut&&E_em1>0.15*E_em) {
-     if(E_em*sin(theta)>m_emEtCut) {
+     if(E_em*cos(theta)>m_emEtCut) {
 // large e.m. deposit starting in first e.m. layer
        E_FSR = E_em;
 // do not use measured e.m. energy for muons and use expected (tile and HEC are fine)
@@ -503,21 +506,14 @@ namespace Rec {
   double MuonCaloEnergyTool::etaCorr(double eta) const{
 // measured energy* = measured energy + etaCorr(eta) * expected
 
-      int eta_index = int(fabs(eta) * (60./3.));
+      int eta_index = int(fabs(eta) * 60./3.);
       if(eta_index>59) return 0;
 
       double corr[60] = {
                         0.00368146 , 0.0419526 , 0.0419322 , 0.0392922 , 0.030304 , 0.0262424 , 0.0156346 , 0.00590235 , 0.00772249 , -0.0141775 , -0.0152247 , -0.0174432 , -0.0319056 , -0.0670813 , -0.128678 , -0.0982326 , -0.0256406 , -0.200244 , -0.178975 , -0.120156 , -0.124606 , -0.0961311 , -0.0163201 , 0.00357829 , 0.0292199 , 0.0110466 , -0.0375598 , 0.0417912 , 0.0386369 , -0.0689454 , -0.21496 , -0.126157 , -0.210573 , -0.215757 , -0.202019 , -0.164546 , -0.168607 , -0.128602 , -0.124629 , -0.0882631 , -0.100869 , -0.0460344 , -0.0709039 , -0.0163041 , -0.0521138 , -0.0125259 , -0.0378681 , 0.00396062 , -0.0636308 , -0.032199 , -0.0588335 , -0.0470752 , -0.0450315 , -0.0301302 , -0.087378 , -0.0115615 , -0.0152037 , 0 , 0 , 0
       }; // corrections
 
-// additional correction release 21
-
-     double cor21[20] = {0.999793 ,1.00017 ,0.990946 ,0.995358 ,1.01377 ,1.02676 ,1.03111 ,1.01483 ,0.995585 ,1.00465 ,1.05224 ,1.05238 ,1.03208 ,1.02373 ,1.02305 ,1.03975 ,1.06547 ,1.0364 ,1.0361 ,1.0361};
-
-      int i21 = fabs(eta*20./3.);
-      if(i21>19) i21 = 19;
-
-      return (cor21[i21]*corr[eta_index]);
+      return (corr[eta_index]);
   } // etaCorr
 
   double MuonCaloEnergyTool::thresholdCorrection(double E_observed,double E_expected,double sigma_Noise) const {

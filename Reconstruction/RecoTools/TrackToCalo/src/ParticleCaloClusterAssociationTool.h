@@ -63,8 +63,7 @@ namespace Rec {
                             ParticleClusterAssociation::Data& clusters ) const;
 
     ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
-    // FIXME: mutable
-    mutable ToolHandle< xAOD::ICaloClustersInConeTool >     m_clustersInConeTool;
+    ToolHandle< xAOD::ICaloClustersInConeTool >     m_clustersInConeTool;
     std::string m_containerName;
     double      m_coneSize;
 

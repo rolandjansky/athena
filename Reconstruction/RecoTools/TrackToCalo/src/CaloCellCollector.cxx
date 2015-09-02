@@ -22,8 +22,8 @@ typedef CaloCell_ID::CaloSample CaloSample;
 
 Rec::CaloCellCollector::CaloCellCollector ()
     :
-  //m_doDebug(true)
-  m_doDebug(false)
+    // m_doDebug(true)
+    m_doDebug(false)
 {
 
     // For EM, set explicit window per layer, for rest use input dR
@@ -160,7 +160,6 @@ Rec::CaloCellCollector::collectCells( const Trk::CaloExtension& extension,
     std::map<CaloSample, SampData > sampleEtaPhiMap;
     float                           etot = 0;
     unsigned int                    samplingPattern = 0;
-    Amg::Vector3D clusVec(0,0,0);
     
     // loop over samples using explicit sample window sizes
 
@@ -169,7 +168,6 @@ Rec::CaloCellCollector::collectCells( const Trk::CaloExtension& extension,
         if( pos != entryExitLayerMap.end() ) {
             samplingPattern |= CaloSampling::getSamplingPattern(samp); // add in sampling to pattern for cluster
             auto midPoint = 0.5 * (pos->second.first + pos->second.second);
-	    clusVec=clusVec+midPoint;
             myList.select(midPoint.eta(), midPoint.phi(), m_dEtadPhi[samp].first,  m_dEtadPhi[samp].second,  samp);
             cells.insert(cells.end(), myList.begin(), myList.end());
             float e = 0;
@@ -189,7 +187,6 @@ Rec::CaloCellCollector::collectCells( const Trk::CaloExtension& extension,
         if( pos != entryExitLayerMap.end() ) {
             samplingPattern |= CaloSampling::getSamplingPattern(samp); // add in sampling to pattern for cluster
             auto midPoint = 0.5 * (pos->second.first + pos->second.second);
-	    clusVec=clusVec+midPoint;
             myList.select(midPoint.eta(), midPoint.phi(), 0.1,  samp);
             cells.insert(cells.end(), myList.begin(), myList.end());
             float e = 0;
@@ -208,18 +205,7 @@ Rec::CaloCellCollector::collectCells( const Trk::CaloExtension& extension,
                       << " " << cell->eta() << "/" << cell->phi() << std::endl;
     }
 
-    if(etot==0){
-      if(m_doDebug) std::cout<<"no energy depositions, so no cluster"<<std::endl;
-      return 0;
-    }
-    float clusVecEta,clusVecPhi;
-    clusVecEta=clusVec.eta();
-    clusVecPhi=clusVec.phi();
-
-    if (m_doDebug){
-      std::cout << "associated cells " << cells.size() << std::endl;
-      std::cout <<"cluster eta: " << clusVecEta << ", phi: " << clusVecPhi << std::endl;
-    }
+    if (m_doDebug) std::cout << "associated cells " << cells.size() << std::endl;
 
     
     // create cluster
@@ -250,9 +236,6 @@ Rec::CaloCellCollector::collectCells( const Trk::CaloExtension& extension,
                                    << cluster->phiSample(entry.first) << std::endl;
         }
     }
-
-    cluster->setEta(clusVecEta);
-    cluster->setPhi(clusVecPhi);
     
     return cluster;
 }
@@ -264,12 +247,6 @@ Rec::CaloCellCollector::collectEtCore( const xAOD::CaloCluster& clus,
                                        bool applyNoiseCut,
                                        float sigmaNoiseCut) const
 {
-  // FIXME: const_cast
-  ICaloNoiseTool* caloNoiseTool_nc = nullptr;
-  if (!caloNoiseTool.empty()) {
-    const ICaloNoiseTool* caloNoiseTool_c = &*caloNoiseTool;
-    caloNoiseTool_nc = const_cast<ICaloNoiseTool*> (caloNoiseTool_c);
-  }
     // Collect the cells in the core for a muon
 
     // Collect etCore for the different samples
@@ -307,7 +284,7 @@ Rec::CaloCellCollector::collectEtCore( const xAOD::CaloCluster& clus,
         }
         // Check if cell passes the noise threshold of 3.4sigma
         if (m_doDebug && addCell) {
-           if( !caloNoiseTool.empty() ) std::cout << " cell E,3.4*noise: " << cell->energy() << "/" << 3.4*caloNoiseTool_nc->getNoise(cell);
+           if( !caloNoiseTool.empty() ) std::cout << " cell E,3.4*noise: " << cell->energy() << "/" << 3.4*caloNoiseTool->getNoise(cell);
            else std::cout << " cell E, NO CaloNoiseTool available: " << cell->energy() << "/ - ";
         }
         if (applyNoiseCut && caloNoiseTool.empty() ){
@@ -315,7 +292,7 @@ Rec::CaloCellCollector::collectEtCore( const xAOD::CaloCluster& clus,
                      << "ERROR : Changing configuration to NOT apply calo noise cut!" << std::endl;
            applyNoiseCut = false;
         }
-        if (applyNoiseCut && addCell && cell->energy() < sigmaNoiseCut*caloNoiseTool_nc->getNoise(cell)) {
+        if (applyNoiseCut && addCell && cell->energy() < sigmaNoiseCut*caloNoiseTool->getNoise(cell)) {
             addCell = false;
         }
         // sum of et, defined by cell E, and muon track eta
