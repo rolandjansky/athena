@@ -33,14 +33,14 @@ class TrigL2PhotonHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
 
 
 
-        cuts=['Input','has TrigPhotonContainer', '#Delta #eta', '#Delta #phi','rCore','eRatio','E_{T}^{EM}', 'E_{T}^{Had}','f_{1}']
+        cuts=['Input','has TrigPhotonContainer', '#Delta #eta', '#Delta #phi', '#eta','Reta','eRatio','E_{T}^{EM}', 'E_{T}^{Had}','f_{1}']
 
         labelsDescription = ''
         for c in cuts:
             labelsDescription +=  c+':'
 
         self.Histograms += [ defineHistogram('CutCounter', 	type='TH1I', title="L2Photon Hypo Passed Cuts;Cut",
-                                             xbins=12, xmin=-1.5, xmax=10.5, opt="kCumulative", labels=labelsDescription) ]        
+                                             xbins=10, xmin=-1.5, xmax=10.5, opt="kCumulative", labels=labelsDescription) ]        
 
 
 class TrigL2PhotonHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
@@ -74,14 +74,14 @@ class TrigL2PhotonHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=34, xmin=-0.5, xmax=1.2) ] 
 
 
-        cuts=['Input','has TrigPhotonContainer', '#Delta #eta', '#Delta #phi','rCore','eRatio','E_{T}^{EM}', 'E_{T}^{Had}','f_{1}']
-
+        cuts=['Input','has TrigPhotonContainer', '#Delta #eta', '#Delta #phi', '#eta','Reta','eRatio','E_{T}^{EM}', 'E_{T}^{Had}','f_{1}']
+        
         labelsDescription = ''
         for c in cuts:
             labelsDescription +=  c+':'
 
         self.Histograms += [ defineHistogram('CutCounter', 	type='TH1I', title="L2Photon Hypo Passed Cuts;Cut",
-                                             xbins=12, xmin=-1.5, xmax=10.5, opt="kCumulative", labels=labelsDescription) ]   
+                                             xbins=10, xmin=-1.5, xmax=10.5, opt="kCumulative", labels=labelsDescription) ]   
             
       
 
@@ -113,15 +113,14 @@ class TrigL2PhotonHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
 
         self.Histograms += [ defineHistogram('PhF1', type='TH1F', title="L2Photon Hypo f_{1};f_{1}",
                                              xbins=34, xmin=-0.5, xmax=1.2) ] 
-
-        cuts=['Input','has TrigPhotonContainer', '#Delta #eta', '#Delta #phi','rCore','eRatio','E_{T}^{EM}', 'E_{T}^{Had}']
+        cuts=['Input','has TrigPhotonContainer', '#Delta #eta', '#Delta #phi', '#eta','Reta','eRatio','E_{T}^{EM}', 'E_{T}^{Had}','f_{1}']
 
         labelsDescription = ''
         for c in cuts:
             labelsDescription +=  c+':'
 
         self.Histograms += [ defineHistogram('CutCounter', 	type='TH1I', title="L2Photon Hypo Passed Cuts;Cut",
-                                             xbins=12, xmin=-1.5, xmax=10.5, opt="kCumulative", labels=labelsDescription) ]   
+                                             xbins=10, xmin=-1.5, xmax=10.5, opt="kCumulative", labels=labelsDescription) ]   
        
       
 

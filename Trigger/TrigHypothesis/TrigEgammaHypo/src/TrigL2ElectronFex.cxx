@@ -547,7 +547,7 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
 #endif
 
   }
-
+  // Requires NULL pointer for monitoring?
   m_trigElecColl = NULL;
   return HLT::OK;
 }

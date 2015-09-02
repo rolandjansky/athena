@@ -11,7 +11,7 @@
  *           I. Grabowska-Bold, update Sept 2006
  * CREATED:  April 29, 2004
  * MODIFIED: V. Perez Reale  added doxygen comments 25/6/07 
- *
+ *           R.M. White switch to xAOD::TrackParticle 29/06/15
  *********************************************************************/
 #ifndef TRIGEFTRACKHYPO_H
 #define TRIGEFTRACKHYPO_H
@@ -22,8 +22,7 @@
 
 #include "GaudiKernel/IHistogramSvc.h"
 #include "AIDA/IHistogram1D.h"
-#include "Particle/TrackParticleContainer.h"
-
+#include "xAODTracking/TrackParticleContainer.h"
 class StoreGateSvc;
 class TriggerElement;
 
@@ -69,44 +68,8 @@ class TrigEFTrackHypo : public HLT::HypoAlgo {
 
   // functions to retrieve monitored quantities
 
-  const Rec::TrackParticleContainer* TrkParticleCont; //!<  pointer to TrackParticle container
+  const xAOD::TrackParticleContainer* TrkParticleCont; //!<  pointer to TrackParticle container
   int m_numTrkPart;
-
-
-/**
-   * \brief implements histograms for monitoring
-   */
-
-  static inline double monPt(const Rec::TrackParticle * t)
-    {
-      const Trk::Perigee* aMeasPer = t->measuredPerigee();
-      double ptSquare=pow(aMeasPer->momentum()[Trk::px],2.) + pow(aMeasPer->momentum()[Trk::py],2.);
-      return (ptSquare>0.)?sqrt(ptSquare)/1000.:-sqrt(fabs(ptSquare))/1000.;
-    }
-
-  static inline double monPhi(const Rec::TrackParticle * t)
-    {
-      const Trk::Perigee* aMeasPer = t->measuredPerigee();
-      return (aMeasPer->parameters()[Trk::phi]);
-    }
-
-  static inline double monEta(const Rec::TrackParticle * t)
-    {
-      const Trk::Perigee* aMeasPer = t->measuredPerigee();
-      return (-std::log(tan(aMeasPer->parameters()[Trk::theta]/2.)));
-    }
-
-  static inline double mond0(const Rec::TrackParticle * t)
-    {
-      const Trk::Perigee* aMeasPer = t->measuredPerigee();
-      return (aMeasPer->parameters()[Trk::d0]);
-    }
-
-  static inline double monz0(const Rec::TrackParticle * t)
-    {
-      const Trk::Perigee* aMeasPer = t->measuredPerigee();
-      return (aMeasPer->parameters()[Trk::z0]);
-    }
 
 };
 #endif

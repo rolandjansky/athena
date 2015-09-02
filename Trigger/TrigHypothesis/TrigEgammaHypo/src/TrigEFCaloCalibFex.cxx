@@ -45,11 +45,19 @@ TrigEFCaloCalibFex::TrigEFCaloCalibFex(const std::string & name, ISvcLocator* pS
   declareMonitoredStdContainer("EnergyBE2",m_EBE2);
   declareMonitoredStdContainer("EnergyBE3",m_EBE3);
   declareMonitoredStdContainer("Eta",m_Eta);
+  declareMonitoredStdContainer("Phi",m_Phi);
   declareMonitoredStdContainer("EtaCalo",m_EtaCalo);
   declareMonitoredStdContainer("PhiCalo",m_PhiCalo);
   declareMonitoredStdContainer("E",m_E);
   declareMonitoredStdContainer("ECalib",m_ECalib);
   declareMonitoredStdContainer("ERes",m_ERes);
+  
+  //Initialize pointers
+  m_totalTimer=nullptr;
+  m_toolTimer=nullptr;
+  pTrigCaloQuality=nullptr;
+  m_pCaloClusterContainer=nullptr;
+  m_egContainer=nullptr;
 }
 
 
@@ -94,20 +102,20 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltInitialize()
       return HLT::BAD_JOB_SETUP; 
   }
   else ATH_MSG_DEBUG("Retrieved Tool " << m_fourMomBuilder);
+  
   if (timerSvc()){
    m_totalTimer  = addTimer("TrigEFCaloCalibFexTot");
    m_toolTimer = addTimer("MVACalibTool");
   }
+  
   ATH_MSG_DEBUG("Initialization of TrigEFCaloHypo completed successfully");
-  ATH_MSG_DEBUG("Initialization successful");
   return HLT::OK;
 }
 
 
 HLT::ErrorCode TrigEFCaloCalibFex::hltFinalize()
 {
-  if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endreq;
+    ATH_MSG_INFO("in finalize()");
 
   delete m_caloCellDetPos;
   return HLT::OK;
@@ -127,6 +135,7 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
     m_EBE2.clear();
     m_EBE3.clear();
     m_Eta.clear();
+    m_Phi.clear();
     m_EtaCalo.clear();
     m_PhiCalo.clear();
     m_E.clear();
@@ -189,7 +198,7 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
         pTrigCaloQuality=0;
         msg() << MSG::WARNING << "cannot retireve TrigCaloQuality with key=" << cells_name << endreq;
     } else {
-        persKey     = (pTrigCaloQuality->getPersistencyFlag() ? name() : "TrigEFCaloCalibFex");
+        persKey     = "TrigEFCaloCalibFex";
         persKeyLink = persKey + "_Link";
     }
     msg() << MSG::DEBUG << "CaloClusterContainer is stored with key  = " << persKey << endreq;
@@ -319,10 +328,11 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
 
         // Monitoring
         m_EBE0.push_back(newClus->energyBE(0));
-        m_EBE0.push_back(newClus->energyBE(1));
-        m_EBE0.push_back(newClus->energyBE(2));
-        m_EBE0.push_back(newClus->energyBE(3));
+        m_EBE1.push_back(newClus->energyBE(1));
+        m_EBE2.push_back(newClus->energyBE(2));
+        m_EBE3.push_back(newClus->energyBE(3));
         m_Eta.push_back(newClus->eta());
+        m_Phi.push_back(newClus->phi());
         m_EtaCalo.push_back(tmpeta);
         m_PhiCalo.push_back(tmpphi);
         m_E.push_back(clus->e());

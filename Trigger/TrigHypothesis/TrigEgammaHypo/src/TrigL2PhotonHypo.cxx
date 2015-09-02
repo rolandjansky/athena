@@ -67,6 +67,7 @@ TrigL2PhotonHypo::TrigL2PhotonHypo(const std::string & name, ISvcLocator* pSvcLo
   declareMonitoredCollection("PhHadEt", *dvec_cast(&m_PhotonContainer), &xAOD::TrigPhoton::etHad);
   declareMonitoredCollection("PhF1",    *dvec_cast(&m_PhotonContainer), &xAOD::TrigPhoton::f1);
   declareMonitoredVariable("CutCounter",PassedCuts);
+  m_PhotonContainer=nullptr;
 }
 
 
@@ -146,29 +147,24 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
 {
   m_PhotonContainer=0;
 
-  // initialise monitoring variables for each event
-  dPhi         = -1.0;
-  dEta         = -1.0;
-  EmET         = -1.0;
-  HadEmRatio   = -1.0;
-  Reta         = -1.0;
-  Eratio       = -1.0;
-  f1           = -1.0;
+  float dPhi         = -99.0;
+  float dEta         = -99.0;
+  float EmET         = -99.0;
+  float HadEmRatio   = -99.0;
+  float Reta         = -99.0;
+  float Eratio       = -99.0;
+  float f1           = -99.0;
+  float HadET        = -99.0;
   PassedCuts   = -1;
 
   // Accept-All mode
+  // Allows algorithm to run
   if (m_acceptAll) {
       pass = true;
-      if ( msgLvl() <= MSG::DEBUG ) 
-	  msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" 
-	      << endreq;
-      return HLT::OK;
+      ATH_MSG_DEBUG("AcceptAll property is set: taking all events");
   } else {
-    pass = false;
-    if ( msgLvl() <= MSG::DEBUG ) {
-      msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" 
-	  << endreq;
-    }
+      pass = false;
+      ATH_MSG_DEBUG("AcceptAll property not set: applying selection");
   }
 
   // Get the TrigPhotonContainer from the Trigger Element (TE)
@@ -247,8 +243,6 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
     if ( absEta > m_etabin[iBin] && absEta < m_etabin[iBin+1] ) etaBin = iBin; 
   
   // getting photon variable
-  Eta        = photon->eta();
-  Phi        = photon->phi();
   dEta       = photon->dEta();
   dPhi       = photon->dPhi();
   Eratio     = photon->eratio();
@@ -269,7 +263,7 @@ HLT::ErrorCode TrigL2PhotonHypo::hltExecute(const HLT::TriggerElement* outputTE,
   }
 
   //now use the ratio, not the absolute HadEt (this is not yet persistified in the TrigPhoton)
-  float HadEmRatio = (EmET!=0) ? HadET/EmET : -1.0; 
+  HadEmRatio = (EmET!=0) ? HadET/EmET : -1.0; 
 
   // apply cuts: DeltaEta(clus-ROI)
   if ( msgLvl() <= MSG::DEBUG ) {

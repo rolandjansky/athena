@@ -22,8 +22,8 @@ class EFTrackHypo_OnlineMonitoring(TrigGenericMonitoringToolConfig):
         self.defineTarget("Online")
         self.Histograms += [ defineHistogram('pt',
                                              type='TH1F',
-                                             title="Track p_{T} (GeV); p_{T} [GeV]",
-                                             xbins = 100, xmin=0.0, xmax=50)]
+                                             title="Track p_{T} (GeV); p_{T} [MeV]",
+                                             xbins = 100, xmin=0.0, xmax=50000)]
         self.Histograms += [ defineHistogram('Phi',
                                              type='TH1F',
                                              title="Phi of track; #phi",
@@ -49,8 +49,8 @@ class EFTrackHypo_ValidationMonitoring(TrigGenericMonitoringToolConfig):
 
         self.Histograms += [ defineHistogram('pt',
                                              type='TH1F',
-                                             title="Track p_{T} (GeV); p_{T} [GeV]",
-                                             xbins = 100, xmin=0.0, xmax=50)]
+                                             title="Track p_{T} (GeV); p_{T} [MeV]",
+                                             xbins = 100, xmin=0.0, xmax=50000)]
         self.Histograms += [ defineHistogram('Phi',
                                              type='TH1F',
                                              title="Phi of track; #phi",

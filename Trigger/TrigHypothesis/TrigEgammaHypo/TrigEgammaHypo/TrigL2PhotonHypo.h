@@ -86,18 +86,6 @@ class TrigL2PhotonHypo : public HLT::HypoAlgo {
     // functions to retrieve monitored quantities
 
     const xAOD::TrigPhotonContainer* m_PhotonContainer; //!<  TrigPhotonConainer pointer
-
-    //cut varaibles (these are monitored)  
-    float Eta;        // cluster eta
-    float Phi;        // cluster phi
-    float dEta;       // diff between cluster and RoI eta
-    float dPhi;       // diff between cluster and RoI phi
-    float Eratio;     // (emaxs1-e2tsts1)/(emaxs1+e2tsts1)
-    float Reta;       // e237/e277 (used to be called rCore)
-    float EmET;       // cluster electromagnetic ET
-    float HadET;      // cluster hadronic ET 
-    float f1;         // fraction of energy deposited in 1st sampling
-    float HadEmRatio; // we now use the ratio (not the absolute HadEt) but this is not yet persistified in the TrigPhoton
     
     /**
      * \brief implements histograms for monitoring

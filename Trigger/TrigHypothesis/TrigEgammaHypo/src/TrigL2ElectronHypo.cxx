@@ -115,18 +115,16 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   m_cutCounter=-1;
   m_egamma_container = 0;
 
-  // Accept-All mode: temporary patch; should be done with force-accept 
+  bool hasInput=false;
+  bool hasContainer=false;
+  // Accept-All mode
+  // Allows algorithm to run
   if (m_acceptAll) {
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" 
-	  << endreq;
-    pass = true;
-    return HLT::OK;
-  } 
-  else {
-    if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" 
-	  << endreq;
+      pass = true;
+      ATH_MSG_DEBUG("AcceptAll property is set: taking all events");
+  } else {
+      pass = false;
+      ATH_MSG_DEBUG("AcceptAll property not set: applying selection");
   }
   
   // get RoI descriptor
@@ -162,6 +160,7 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
     return HLT::OK;
   }
 
+  hasInput=true;
   if ( msgLvl() <= MSG::DEBUG ) {
     msg() << MSG::DEBUG << "Got collection with " << trigElecColl->size() 
 	<< " TrigElectrons" << endreq;
@@ -176,7 +175,7 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
       msg() << MSG::DEBUG << "No electrons to analyse, leaving!" << endreq;
     return HLT::OK;
   }
-
+  hasContainer=true;
  // initialize counter after all error conditions checked
   m_egamma_container = trigElecColl;
   m_cutCounter=0;
@@ -191,7 +190,6 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   // Now loop over electrons, see if at least one passes all cuts
   xAOD::TrigElectronContainer::const_iterator elecIter, elecEnd=trigElecColl->end();
   for (elecIter = trigElecColl->begin(); elecIter != elecEnd; ++elecIter) {    
-
     //int algoId = (*elecIter)->trackAlgo();
     const xAOD::TrackParticle* trkIter = (*elecIter)-> trackParticle();
     if (trkIter==NULL) continue; // disconsider candidates without track
@@ -341,7 +339,7 @@ HLT::ErrorCode TrigL2ElectronHypo::hltExecute(const HLT::TriggerElement* outputT
   } // end of loop over electrons
     
   
-  m_cutCounter=pTcaloCut+dEtaCaloCut+dPhiCaloCut+eTOverPtCut_lo+eTOverPtCut_hi+TRTRatioCut;
+  m_cutCounter=hasInput+hasContainer+pTcaloCut+dEtaCaloCut+dPhiCaloCut+eTOverPtCut_lo+eTOverPtCut_hi+TRTRatioCut;
 
   // store TrigPassBits result
   if ( attachBits(outputTE, passBits) != HLT::OK ) {

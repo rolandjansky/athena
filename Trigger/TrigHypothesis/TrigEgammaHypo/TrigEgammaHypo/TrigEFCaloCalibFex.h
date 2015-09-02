@@ -81,6 +81,7 @@ class TrigEFCaloCalibFex : public HLT::FexAlgo  {
   std::vector<float> m_EBE2;
   std::vector<float> m_EBE3;
   std::vector<float> m_Eta;
+  std::vector<float> m_Phi;
   std::vector<float> m_EtaCalo;
   std::vector<float> m_PhiCalo;
   std::vector<float> m_E;
