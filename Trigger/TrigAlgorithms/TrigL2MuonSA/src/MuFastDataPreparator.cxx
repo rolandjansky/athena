@@ -252,11 +252,13 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   
   if(!m_use_rpc){
 
-  } else{
+  } else {
     
     m_rpcPatFinder->clear();
 
+    unsigned int roiWord = p_roi->roiWord();
     sc = m_rpcDataPreparator->prepareData(p_roids,
+					  roiWord,
                                           rpcHits,
                                           m_rpcPatFinder);
     if (!sc.isSuccess()) {

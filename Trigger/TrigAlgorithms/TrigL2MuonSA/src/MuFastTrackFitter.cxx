@@ -166,7 +166,7 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const LVL1::RecMuonRoI*  
        return sc;
      }
     
-     sc = m_ptFromAlphaBeta->setPt(*itTrack);
+     sc = m_ptFromAlphaBeta->setPt(*itTrack,tgcFitResult);
      if (!sc.isSuccess()) {
        msg() << MSG::WARNING << "Endcap pT estimation failed" << endreq;
        return sc;

@@ -11,6 +11,7 @@
 #include "TrigL2MuonSA/TrackData.h"
 #include "TrigL2MuonSA/PtEndcapLUTSvc.h"
 #include "TrigL2MuonSA/PtEndcapLUT.h"
+#include "TrigL2MuonSA/TgcFitResult.h"
 
 namespace TrigL2MuonSA {
   
@@ -25,7 +26,8 @@ namespace TrigL2MuonSA {
     
   public:
     
-    StatusCode setPt(TrigL2MuonSA::TrackPattern& trackPattern);
+    StatusCode setPt(TrigL2MuonSA::TrackPattern& trackPattern,
+                     TrigL2MuonSA::TgcFitResult& tgcFitResult);
     
     double     compute_radius(double InnerSlope, double InnerR, double InnerZ,
 			      double MiddleSlope, double MiddleR, double MiddleZ,

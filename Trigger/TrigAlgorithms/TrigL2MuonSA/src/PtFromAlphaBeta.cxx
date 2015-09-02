@@ -29,7 +29,8 @@ TrigL2MuonSA::PtFromAlphaBeta::~PtFromAlphaBeta()
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trackPattern)
+StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trackPattern,
+                                                TrigL2MuonSA::TgcFitResult& tgcFitResult)
 {
 
   if (trackPattern.etaBin < -1) 
@@ -41,7 +42,7 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trac
   if ( fabs(trackPattern.slope)<ZERO_LIMIT && fabs(trackPattern.intercept)<ZERO_LIMIT )
     return StatusCode::SUCCESS;
   
-  float tgcPt = fabs(trackPattern.pt) * trackPattern.charge;
+  float tgcPt = tgcFitResult.tgcPT ;
   
   // MDT pT by alpha
   int  side   = (trackPattern.etaMap <= 0.0) ? 0 : 1;
