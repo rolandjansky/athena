@@ -93,22 +93,22 @@ void ALGOTREEMD::clear()
 	iNumTrack = 0;
 	memset(&iDetector, 0, sizeof(iDetector));
 	memset(&bRecFlag, false, sizeof(bRecFlag));
-	fill_n(&fXDet[0][0], sizeof(fXDet)/sizeof(Double_t), -9999.0);
-	fill_n(&fYDet[0][0], sizeof(fYDet)/sizeof(Double_t), -9999.0);
-	fill_n(&fXPot[0][0], sizeof(fXPot)/sizeof(Double_t), -9999.0);
-	fill_n(&fYPot[0][0], sizeof(fYPot)/sizeof(Double_t), -9999.0);
-	fill_n(&fXStat[0][0], sizeof(fXStat)/sizeof(Double_t), -9999.0);
-	fill_n(&fYStat[0][0], sizeof(fYStat)/sizeof(Double_t), -9999.0);
-	fill_n(&fXLHC[0][0], sizeof(fXLHC)/sizeof(Double_t), -9999.0);
-	fill_n(&fYLHC[0][0], sizeof(fYLHC)/sizeof(Double_t), -9999.0);
-	fill_n(&fZLHC[0][0], sizeof(fZLHC)/sizeof(Double_t), -9999.0);
-	fill_n(&fXBeam[0][0], sizeof(fXBeam)/sizeof(Double_t), -9999.0);
-	fill_n(&fYBeam[0][0], sizeof(fYBeam)/sizeof(Double_t), -9999.0);
+	fill_n(&fXDet[0][0], sizeof(fXDet)/sizeof(Float_t), -9999.0);
+	fill_n(&fYDet[0][0], sizeof(fYDet)/sizeof(Float_t), -9999.0);
+	fill_n(&fXPot[0][0], sizeof(fXPot)/sizeof(Float_t), -9999.0);
+	fill_n(&fYPot[0][0], sizeof(fYPot)/sizeof(Float_t), -9999.0);
+	fill_n(&fXStat[0][0], sizeof(fXStat)/sizeof(Float_t), -9999.0);
+	fill_n(&fYStat[0][0], sizeof(fYStat)/sizeof(Float_t), -9999.0);
+	fill_n(&fXLHC[0][0], sizeof(fXLHC)/sizeof(Float_t), -9999.0);
+	fill_n(&fYLHC[0][0], sizeof(fYLHC)/sizeof(Float_t), -9999.0);
+	fill_n(&fZLHC[0][0], sizeof(fZLHC)/sizeof(Float_t), -9999.0);
+	fill_n(&fXBeam[0][0], sizeof(fXBeam)/sizeof(Float_t), -9999.0);
+	fill_n(&fYBeam[0][0], sizeof(fYBeam)/sizeof(Float_t), -9999.0);
 	fill_n(&iFibSelMD[0][0][0], sizeof(iFibSelMD)/sizeof(Int_t), -9999);
-	fill_n(&fInterceptDet[0][0], sizeof(fInterceptDet)/sizeof(Double_t), -9999.0);
-	fill_n(&fSlopeDet[0][0], sizeof(fSlopeDet)/sizeof(Double_t), -9999.0);
-	fill_n(&fOverU[0][0], sizeof(fOverU)/sizeof(Double_t), -9999.0);
-	fill_n(&fOverV[0][0], sizeof(fOverV)/sizeof(Double_t), -9999.0);
+	fill_n(&fInterceptDet[0][0], sizeof(fInterceptDet)/sizeof(Float_t), -9999.0);
+	fill_n(&fSlopeDet[0][0], sizeof(fSlopeDet)/sizeof(Float_t), -9999.0);
+	fill_n(&fOverU[0][0], sizeof(fOverU)/sizeof(Float_t), -9999.0);
+	fill_n(&fOverV[0][0], sizeof(fOverV)/sizeof(Float_t), -9999.0);
 	fill_n(&iNumU[0][0], sizeof(iNumU)/sizeof(Int_t), -9999);
 	fill_n(&iNumV[0][0], sizeof(iNumV)/sizeof(Int_t), -9999);
 
@@ -121,25 +121,25 @@ void ALGOTREEOD::clear()
 	memset(&iDetector, 0, sizeof(iDetector));
 	memset(&bRecFlag, false, sizeof(bRecFlag));
 	fill_n(&iFibSelOD[0][0][0], sizeof(iFibSelOD)/sizeof(Int_t), -9999);
-	fill_n(&fXDet[0][0], sizeof(fXDet)/sizeof(Double_t), -9999.0);
-	fill_n(&fYDet[0][0], sizeof(fYDet)/sizeof(Double_t), -9999.0);
-	fill_n(&fXPot[0][0], sizeof(fXPot)/sizeof(Double_t), -9999.0);
-	fill_n(&fYPot[0][0], sizeof(fYPot)/sizeof(Double_t), -9999.0);
-	fill_n(&fXStat[0][0], sizeof(fXStat)/sizeof(Double_t), -9999.0);
-	fill_n(&fYStat[0][0], sizeof(fYStat)/sizeof(Double_t), -9999.0);
-	fill_n(&fXLHC[0][0], sizeof(fXLHC)/sizeof(Double_t), -9999.0);
-	fill_n(&fYLHC[0][0], sizeof(fYLHC)/sizeof(Double_t), -9999.0);
-	fill_n(&fZLHC[0][0], sizeof(fZLHC)/sizeof(Double_t), -9999.0);
-	fill_n(&fXBeam[0][0], sizeof(fXBeam)/sizeof(Double_t), -9999.0);
-	fill_n(&fYBeam[0][0], sizeof(fYBeam)/sizeof(Double_t), -9999.0);
-	fill_n(&fInterceptDet[0][0], sizeof(fInterceptDet)/sizeof(Double_t), -9999.0);
-	fill_n(&fSlopeDet[0][0], sizeof(fSlopeDet)/sizeof(Double_t), -9999.0);
-	fill_n(&fOverY[0][0], sizeof(fOverY)/sizeof(Double_t), -9999.0);
+	fill_n(&fXDet[0][0], sizeof(fXDet)/sizeof(Float_t), -9999.0);
+	fill_n(&fYDet[0][0], sizeof(fYDet)/sizeof(Float_t), -9999.0);
+	fill_n(&fXPot[0][0], sizeof(fXPot)/sizeof(Float_t), -9999.0);
+	fill_n(&fYPot[0][0], sizeof(fYPot)/sizeof(Float_t), -9999.0);
+	fill_n(&fXStat[0][0], sizeof(fXStat)/sizeof(Float_t), -9999.0);
+	fill_n(&fYStat[0][0], sizeof(fYStat)/sizeof(Float_t), -9999.0);
+	fill_n(&fXLHC[0][0], sizeof(fXLHC)/sizeof(Float_t), -9999.0);
+	fill_n(&fYLHC[0][0], sizeof(fYLHC)/sizeof(Float_t), -9999.0);
+	fill_n(&fZLHC[0][0], sizeof(fZLHC)/sizeof(Float_t), -9999.0);
+	fill_n(&fXBeam[0][0], sizeof(fXBeam)/sizeof(Float_t), -9999.0);
+	fill_n(&fYBeam[0][0], sizeof(fYBeam)/sizeof(Float_t), -9999.0);
+	fill_n(&fInterceptDet[0][0], sizeof(fInterceptDet)/sizeof(Float_t), -9999.0);
+	fill_n(&fSlopeDet[0][0], sizeof(fSlopeDet)/sizeof(Float_t), -9999.0);
+	fill_n(&fOverY[0][0], sizeof(fOverY)/sizeof(Float_t), -9999.0);
 	fill_n(&iNumY[0][0], sizeof(iNumY)/sizeof(Int_t), -9999);
 }
 
 ALFA_Ntuple::ALFA_Ntuple(const std::string& name, ISvcLocator* pSvcLocator) :
-AthAlgorithm(name, pSvcLocator), m_iovSvc( "IOVDbSvc", name )/*,
+AthHistogramAlgorithm(name, pSvcLocator), m_iovSvc( "IOVDbSvc", name )/*,
 m_pDetStore(0)*/
 {
 	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::ALFA_Ntuple()");
@@ -155,6 +155,8 @@ m_pDetStore(0)*/
 	m_strTruthCollectionName  = "TruthEvent";
 	m_strKeyRawDataCollection = "ALFA_RawData";
 
+	declareProperty("CoolDirName", m_coolDirName = "COOL", "Name of the output directory with COOL trees");
+
 	declareProperty("McEventCollectionName", m_strTruthCollectionName, "McEventCollection name");
 
 	// ALFA_LocRec collection - returns reconstructed positions in Det CS
@@ -168,8 +170,8 @@ m_pDetStore(0)*/
 	// ALFA_LocRec collection - returns reconstructed positions in Det CS
 	m_strGloRecCollectionName   = "ALFA_GloRecEvCollection";
 
-	declareProperty("outputLocalRootFile", m_rootOutputFileName = "ALFA_Ntuple.root", "output local root file name");
-
+	// epoch of the LHC runs, RUN I or RUN II
+	declareProperty("RunEpoch", m_iRunEpoch=2, "Epoch of LHC runs");
 
 	// data type using in the local reconstruction
 	// for the simulation data the value is 0, for the real data the value is 1. Unset value is -1
@@ -195,7 +197,6 @@ m_pDetStore(0)*/
 	m_TreeGlobalTracks  = NULL;
 	m_TreeRunHeader     = NULL;
 	m_TreeTrackingData  = NULL;
-	m_rootOutput        = NULL;
 //	m_storeGate         = NULL;
 	m_TreeBLM           = NULL;
 	m_TreeBPMALFA       = NULL;
@@ -228,7 +229,9 @@ m_pDetStore(0)*/
 	m_iTimeStamp_ns     = 0;
 	memset(&m_bDQFlag, false, sizeof(m_bDQFlag));
 	memset(&m_bHLTrigSig, false, sizeof(m_bHLTrigSig));
-	memset(&m_bLVL1TrigSig, false, sizeof(m_bLVL1TrigSig));
+	memset(&m_bLVL1TrigSig_TBP, false, sizeof(m_bLVL1TrigSig_TBP));
+	memset(&m_bLVL1TrigSig_TAP, false, sizeof(m_bLVL1TrigSig_TAP));
+	memset(&m_bLVL1TrigSig_TAV, false, sizeof(m_bLVL1TrigSig_TAV));
 	memset(&m_bLVL2TrigSig, false, sizeof(m_bLVL2TrigSig));
 	memset(&m_fp_beam2_i, 0.0, sizeof(m_fp_beam2_i));
 	memset(&m_fVtx_A, 0.0, sizeof(m_fVtx_A));
@@ -246,13 +249,13 @@ m_pDetStore(0)*/
 	
 	memset(&m_iScaler, 0, sizeof(m_iScaler));
 	memset(&m_iArmGlo, 0, sizeof(m_iArmGlo));
-	fill_n(&m_fxPosGlo[0], sizeof(m_fxPosGlo)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fyPosGlo[0], sizeof(m_fyPosGlo)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fxSlopeGlo[0], sizeof(m_fxSlopeGlo)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fySlopeGlo[0], sizeof(m_fySlopeGlo)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fOverU[0][0], sizeof(m_fOverU)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fOverV[0][0], sizeof(m_fOverV)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fOverY[0][0], sizeof(m_fOverY)/sizeof(Double_t), -9999.0);
+	fill_n(&m_fxPosGlo[0], sizeof(m_fxPosGlo)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fyPosGlo[0], sizeof(m_fyPosGlo)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fxSlopeGlo[0], sizeof(m_fxSlopeGlo)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fySlopeGlo[0], sizeof(m_fySlopeGlo)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fOverU[0][0], sizeof(m_fOverU)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fOverV[0][0], sizeof(m_fOverV)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fOverY[0][0], sizeof(m_fOverY)/sizeof(Float_t), -9999.0);
 	fill_n(&m_iNumU[0][0], sizeof(m_iNumU)/sizeof(Int_t), -9999);
 	fill_n(&m_iNumV[0][0], sizeof(m_iNumV)/sizeof(Int_t), -9999);
 	fill_n(&m_iNumY[0][0], sizeof(m_iNumY)/sizeof(Int_t), -9999);
@@ -290,7 +293,7 @@ StatusCode ALFA_Ntuple::initialize()
 	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::initialize()");
 	ATH_MSG_DEBUG("begin ALFA_Ntuple::initialize()");
 
-	StatusCode sc;
+//	StatusCode sc;
 
 //	sc = service("StoreGateSvc",m_storeGate);
 //	if(sc.isFailure())
@@ -316,38 +319,35 @@ StatusCode ALFA_Ntuple::initialize()
 	m_MapAlgoNameToID.insert(pair<string, int>("MDMultiple", 5));
 	m_MapAlgoNameToID.insert(pair<string, int>("HalfReco", 6));
 	m_MapAlgoNameToID.insert(pair<string, int>("MDGap", 7));
+	m_MapAlgoNameToID.insert(pair<string, int>("EdgeMethod", 8));
 
-	// output local root file -----------------------------------------------------------
-	m_rootOutput = new TFile(m_rootOutputFileName.c_str(),"RECREATE");
 	if (m_bCoolData)
 	{
-		TDirectory *dirCOOL = m_rootOutput->mkdir("COOL");
-		dirCOOL->cd();
+	  
 
-		m_TreeBLM = new TTree("BeamLossMonitor","BeamLossMonitor");
-		m_TreeBLM->Branch("BLM", &m_BeamLossMonitor, "TimeIOVStart/l:TimeIOVStop:blm1310ms[6]/D");
+	        m_TreeBLM = bookGetPointer(TTree("BeamLossMonitor","BeamLossMonitor"), m_coolDirName);
+		m_TreeBLM->Branch("BLM", &m_BeamLossMonitor, "TimeIOVStart/l:TimeIOVStop:blm1310ms[6]/F");
 
-		m_TreeHVChannel = new TTree("HVChannel", "HVChannel");
-		m_TreeHVChannel->Branch("HVChan", &m_HVChannel, "TimeIOVStart/l:TimeIOVStop:Actual_VMeas[216]/D:Actual_IMeas[216]");
+		m_TreeHVChannel = bookGetPointer(TTree("HVChannel", "HVChannel"), m_coolDirName);
+		m_TreeHVChannel->Branch("HVChan", &m_HVChannel, "TimeIOVStart/l:TimeIOVStop:Actual_VMeas[216]/F:Actual_IMeas[216]");
 
-		m_TreeLocalMon = new TTree("LocalMonitoring", "LocalMonitoring");
-		m_TreeLocalMon->Branch("LocalMon", &m_LocalMonitoring, "TimeIOVStart/l:TimeIOVStop:Temperature_sensor1[8]/D:Temperature_sensor2[8]:Temperature_sensor3[8]:Temperature_sensor4[8]:Temperature_sensor5[8]");
+		m_TreeLocalMon = bookGetPointer(TTree("LocalMonitoring", "LocalMonitoring"), m_coolDirName);
+		m_TreeLocalMon->Branch("LocalMon", &m_LocalMonitoring, "TimeIOVStart/l:TimeIOVStop:Temperature_sensor1[8]/F:Temperature_sensor2[8]:Temperature_sensor3[8]:Temperature_sensor4[8]:Temperature_sensor5[8]");
 
-		m_TreeMovement = new TTree("Movement", "Movement");
-		m_TreeMovement->Branch("Movement", &m_Movement, "TimeIOVStart/l:TimeIOVStop:positionRO_lvdt[8]/D:positionRO_motor[8]");
+		m_TreeMovement = bookGetPointer(TTree("Movement", "Movement"), m_coolDirName);
+		m_TreeMovement->Branch("Movement", &m_Movement, "TimeIOVStart/l:TimeIOVStop:positionRO_lvdt[8]/F:positionRO_motor[8]");
 
-		m_TreeRadmon = new TTree("Radmon", "Radmon");
-		m_TreeRadmon->Branch("Radm", &m_Radmon, "TimeIOVStart/l:TimeIOVStop:dose_value[4]/D:fluence_value[4]:temperature_value[4]");
+		m_TreeRadmon = bookGetPointer(TTree("Radmon", "Radmon"), m_coolDirName);
+		m_TreeRadmon->Branch("Radm", &m_Radmon, "TimeIOVStart/l:TimeIOVStop:dose_value[4]/F:fluence_value[4]:temperature_value[4]");
 
-		m_TreeTriggerRate = new TTree("TriggerRate", "TriggerRate");
+		m_TreeTriggerRate = bookGetPointer(TTree("TriggerRate", "TriggerRate"), m_coolDirName);
 		m_TreeTriggerRate->Branch("TrigRate", &m_TriggerRate, "TimeIOVStart/l:TimeIOVStop:Trate[8]");
 
-		m_TreeBPMALFA = new TTree("BPMALFA", "BPMALFA");
-		m_TreeBPMALFA->Branch("BPMALFA", &m_BPMALFA, "TimeIOVStart/l:TimeIOVStop:bpmr_r_x_pos/D:bpmr_r_y_pos:bpmr_r_x_err:bpmr_r_y_err:bpmr_l_x_pos:bpmr_l_y_pos:bpmr_l_x_err:bpmr_l_y_err:bpmsa_r_x_pos:bpmsa_r_y_pos:bpmsa_r_x_err:bpmsa_r_y_err:bpmsa_l_x_pos:bpmsa_l_y_pos:bpmsa_l_x_err:bpmsa_l_y_err:bpmwb_r_x_pos:bpmwb_r_y_pos:bpmwb_r_x_err:bpmwb_r_y_err:bpmya_l_x_pos:bpmya_l_y_pos:bpmya_l_x_err:bpmya_l_y_err");
+		m_TreeBPMALFA = bookGetPointer(TTree("BPMALFA", "BPMALFA"), m_coolDirName);
+		m_TreeBPMALFA->Branch("BPMALFA", &m_BPMALFA, "TimeIOVStart/l:TimeIOVStop:bpmr_r_x_pos/F:bpmr_r_y_pos:bpmr_r_x_err:bpmr_r_y_err:bpmr_l_x_pos:bpmr_l_y_pos:bpmr_l_x_err:bpmr_l_y_err:bpmsa_r_x_pos:bpmsa_r_y_pos:bpmsa_r_x_err:bpmsa_r_y_err:bpmsa_l_x_pos:bpmsa_l_y_pos:bpmsa_l_x_err:bpmsa_l_y_err:bpmwb_r_x_pos:bpmwb_r_y_pos:bpmwb_r_x_err:bpmwb_r_y_err:bpmya_l_x_pos:bpmya_l_y_pos:bpmya_l_x_err:bpmya_l_y_err");
 	}
 
-	m_rootOutput->cd();
-	m_TreeRunHeader = new TTree("RunHeader", "RunHeader");
+	m_TreeRunHeader = bookGetPointer(TTree("RunHeader", "RunHeader"));
 	m_TreeRunHeader->Branch("Fill_num", &m_iFillNum, "Fill_num/I");
 	m_TreeRunHeader->Branch("Run_num", &m_iRunNum, "Run_num/I");
 	if (m_bCoolData)
@@ -358,10 +358,10 @@ StatusCode ALFA_Ntuple::initialize()
 		m_TreeRunHeader->Branch("Threshold", m_iThreshold, "Threshold[8][3]/I");
 		m_TreeRunHeader->Branch("Gain", m_iGain, "Gain[8][5]/I");
 	}
-	m_TreeRunHeader->Branch("TransformDetRP", &m_fTransformDetRP, "TransformDetRP[8][4][4]/D");
-	m_TreeRunHeader->Branch("Proton_momentum", &m_fProtonMomentum, "Proton_momentum/D");
+	m_TreeRunHeader->Branch("TransformDetRP", &m_fTransformDetRP, "TransformDetRP[8][4][4]/F");
+	m_TreeRunHeader->Branch("Proton_momentum", &m_fProtonMomentum, "Proton_momentum/F");
 
-	m_TreeEventHeader = new TTree("EventHeader", "EventHeader");
+	m_TreeEventHeader = bookGetPointer(TTree("EventHeader", "EventHeader"));
 	m_TreeEventHeader->Branch("Evt_num", &m_iEvent, "Evt_num/i");
 	if (m_iDataType==1)	// a part only for measured data
 	{
@@ -372,7 +372,18 @@ StatusCode ALFA_Ntuple::initialize()
 		m_TreeEventHeader->Branch("Lum_block", &m_iLumBlock, "Lum_block/i");
 		m_TreeEventHeader->Branch("TrigPat", &m_bTrigPat, "TrigPat[8][16]/O");
 		m_TreeEventHeader->Branch("QDC_Trig", &m_iQDCTrig, "QDC_Trig[8][2]/I");
-		m_TreeEventHeader->Branch("LVL1TrigSig", &m_bLVL1TrigSig, "LVL1TrigSig[256]/O");
+		if (m_iRunEpoch==1)
+		{
+			m_TreeEventHeader->Branch("LVL1TrigSig_TBP", &m_bLVL1TrigSig_TBP, "LVL1TrigSig_TBP[256]/O");
+			m_TreeEventHeader->Branch("LVL1TrigSig_TAP", &m_bLVL1TrigSig_TAP, "LVL1TrigSig_TAP[256]/O");
+			m_TreeEventHeader->Branch("LVL1TrigSig", &m_bLVL1TrigSig_TAV, "LVL1TrigSig_TAV[256]/O");
+		}
+		if (m_iRunEpoch==2)
+		{
+			m_TreeEventHeader->Branch("LVL1TrigSig_TBP", &m_bLVL1TrigSig_TBP, "LVL1TrigSig_TBP[512]/O");
+			m_TreeEventHeader->Branch("LVL1TrigSig_TAP", &m_bLVL1TrigSig_TAP, "LVL1TrigSig_TAP[512]/O");
+			m_TreeEventHeader->Branch("LVL1TrigSig", &m_bLVL1TrigSig_TAV, "LVL1TrigSig_TAV[512]/O");
+		}
 		m_TreeEventHeader->Branch("LVL2TrigSig", &m_bLVL2TrigSig, "LVL2TrigSig[256]/O");
 		m_TreeEventHeader->Branch("HLTrigSig", &m_bHLTrigSig, "HLTrigSig[256]/O");
 		m_TreeEventHeader->Branch("DQFlag", &m_bDQFlag, "DQFlag[25]/O");
@@ -397,58 +408,58 @@ StatusCode ALFA_Ntuple::initialize()
 	m_TreeEventHeader->Branch("MultiODPos", &m_iMultiODPos, "MultiODPos[8][3]/I");
 	m_TreeEventHeader->Branch("MultiODNeg", &m_iMultiODNeg, "MultiODNeg[8][3]/I");
 
-	m_TreeTrackingData = new TTree("TrackingData", "TrackingData");
+	m_TreeTrackingData = bookGetPointer(TTree("TrackingData", "TrackingData"));
 	m_TreeTrackingData->Branch("Evt_num", &m_iEvent, "Evt_num/i");
 	m_TreeTrackingData->Branch("NumTrack", &m_iNumTrack, "NumTrack/I");
 	m_TreeTrackingData->Branch("RecFlag", &m_bRecFlag, "RecFlag[NumTrack][8]/O");
 	m_TreeTrackingData->Branch("Detector", &m_iDetector, "Detector[NumTrack][8]/I");
-	m_TreeTrackingData->Branch("x_Det", &m_fXDet, "x_Det[NumTrack][8]/D");
-	m_TreeTrackingData->Branch("y_Det", &m_fYDet, "y_Det[NumTrack][8]/D");
-	m_TreeTrackingData->Branch("x_Pot", &m_fXPot, "x_Pot[NumTrack][8]/D");
-	m_TreeTrackingData->Branch("y_Pot", &m_fYPot, "y_Pot[NumTrack][8]/D");
-	m_TreeTrackingData->Branch("x_Stat", &m_fXStat, "x_Stat[NumTrack][8]/D");
-	m_TreeTrackingData->Branch("y_Stat", &m_fYStat, "y_Stat[NumTrack][8]/D");
-	m_TreeTrackingData->Branch("x_LHC", &m_fXLHC, "x_LHC[NumTrack][8]/D");
-	m_TreeTrackingData->Branch("y_LHC", &m_fYLHC, "y_LHC[NumTrack][8]/D");
-	m_TreeTrackingData->Branch("z_LHC", &m_fZLHC, "z_LHC[NumTrack][8]/D");
-	m_TreeTrackingData->Branch("x_Beam", &m_fXBeam, "x_Beam[NumTrack][8]/D");
-	m_TreeTrackingData->Branch("y_Beam", &m_fYBeam, "y_Beam[NumTrack][8]/D");
-	m_TreeTrackingData->Branch("OverU", &m_fOverU, "OverU[NumTrack][8]/D");
-	m_TreeTrackingData->Branch("OverV", &m_fOverV, "OverV[NumTrack][8]/D");
-	m_TreeTrackingData->Branch("OverY", &m_fOverY, "OverY[NumTrack][8]/D");
+	m_TreeTrackingData->Branch("x_Det", &m_fXDet, "x_Det[NumTrack][8]/F");
+	m_TreeTrackingData->Branch("y_Det", &m_fYDet, "y_Det[NumTrack][8]/F");
+	m_TreeTrackingData->Branch("x_Pot", &m_fXPot, "x_Pot[NumTrack][8]/F");
+	m_TreeTrackingData->Branch("y_Pot", &m_fYPot, "y_Pot[NumTrack][8]/F");
+	m_TreeTrackingData->Branch("x_Stat", &m_fXStat, "x_Stat[NumTrack][8]/F");
+	m_TreeTrackingData->Branch("y_Stat", &m_fYStat, "y_Stat[NumTrack][8]/F");
+	m_TreeTrackingData->Branch("x_LHC", &m_fXLHC, "x_LHC[NumTrack][8]/F");
+	m_TreeTrackingData->Branch("y_LHC", &m_fYLHC, "y_LHC[NumTrack][8]/F");
+	m_TreeTrackingData->Branch("z_LHC", &m_fZLHC, "z_LHC[NumTrack][8]/F");
+	m_TreeTrackingData->Branch("x_Beam", &m_fXBeam, "x_Beam[NumTrack][8]/F");
+	m_TreeTrackingData->Branch("y_Beam", &m_fYBeam, "y_Beam[NumTrack][8]/F");
+	m_TreeTrackingData->Branch("OverU", &m_fOverU, "OverU[NumTrack][8]/F");
+	m_TreeTrackingData->Branch("OverV", &m_fOverV, "OverV[NumTrack][8]/F");
+	m_TreeTrackingData->Branch("OverY", &m_fOverY, "OverY[NumTrack][8]/F");
 	m_TreeTrackingData->Branch("NU", &m_iNumU, "NU[NumTrack][8]/I");
 	m_TreeTrackingData->Branch("NV", &m_iNumV, "NV[NumTrack][8]/I");
 	m_TreeTrackingData->Branch("NY", &m_iNumY, "NY[NumTrack][8]/I");
 	m_TreeTrackingData->Branch("Fib_SelMD", &m_iFibSelMD, "Fib_SelMD[NumTrack][8][20]/I");
 	m_TreeTrackingData->Branch("Fib_SelOD", &m_iFibSelOD, "Fib_SelOD[NumTrack][8][3]/I");
-	m_TreeTrackingData->Branch("intercept_Det", &m_fInterceptDet, "intercept_Det[NumTrack][8]/D");
-	m_TreeTrackingData->Branch("slope_Det", &m_fSlopeDet, "slope_Det[NumTrack][8]/D");
+	m_TreeTrackingData->Branch("intercept_Det", &m_fInterceptDet, "intercept_Det[NumTrack][8]/F");
+	m_TreeTrackingData->Branch("slope_Det", &m_fSlopeDet, "slope_Det[NumTrack][8]/F");
 
 	if (m_iDataType==0)	// a part only for simulation
 	{
-		m_Tree_Vtx_Kin_Info = new TTree("Vertex_and_IP_kinematics", "Vertex_and_IP_kinematics");
-		m_Tree_Vtx_Kin_Info->Branch("vtx_g" , &m_fVtx_g,  "vtx_g[4]/D");
-		m_Tree_Vtx_Kin_Info->Branch("vtx_A" , &m_fVtx_A,  "vtx_A[4]/D");
-		m_Tree_Vtx_Kin_Info->Branch("vtx_C" , &m_fVtx_C,  "vtx_C[4]/D");
-		m_Tree_Vtx_Kin_Info->Branch("p_beam1_i" , &m_fp_beam1_i,  "p_beam1_i[4]/D");
-		m_Tree_Vtx_Kin_Info->Branch("p_beam2_i" , &m_fp_beam2_i,  "p_beam2_i[4]/D");
-		m_Tree_Vtx_Kin_Info->Branch("p_beam1_f" , &m_fp_beam1_f,  "p_beam1_f[4]/D");
-		m_Tree_Vtx_Kin_Info->Branch("p_beam2_f" , &m_fp_beam2_f,  "p_beam2_f[4]/D");
-		m_Tree_Vtx_Kin_Info->Branch("p_A" , &m_fp_A,  "p_A[4]/D");
-		m_Tree_Vtx_Kin_Info->Branch("p_C" , &m_fp_C,  "p_C[4]/D");
-//		m_Tree_Vtx_Kin_Info->Branch("t_13"  , &ft_13,   "t_13/D");
-//		m_Tree_Vtx_Kin_Info->Branch("t_24"  , &ft_24,   "t_24/D");
-		m_Tree_Vtx_Kin_Info->Branch("vtx_beam1_f" , &m_fvtx_beam1_f,  "vtx_beam1_f[4]/D");
-		m_Tree_Vtx_Kin_Info->Branch("vtx_beam2_f" , &m_fvtx_beam2_f,  "vtx_beam2_f[4]/D");
+		m_Tree_Vtx_Kin_Info = bookGetPointer(TTree("Vertex_and_IP_kinematics", "Vertex_and_IP_kinematics"));
+		m_Tree_Vtx_Kin_Info->Branch("vtx_g" , &m_fVtx_g,  "vtx_g[4]/F");
+		m_Tree_Vtx_Kin_Info->Branch("vtx_A" , &m_fVtx_A,  "vtx_A[4]/F");
+		m_Tree_Vtx_Kin_Info->Branch("vtx_C" , &m_fVtx_C,  "vtx_C[4]/F");
+		m_Tree_Vtx_Kin_Info->Branch("p_beam1_i" , &m_fp_beam1_i,  "p_beam1_i[4]/F");
+		m_Tree_Vtx_Kin_Info->Branch("p_beam2_i" , &m_fp_beam2_i,  "p_beam2_i[4]/F");
+		m_Tree_Vtx_Kin_Info->Branch("p_beam1_f" , &m_fp_beam1_f,  "p_beam1_f[4]/F");
+		m_Tree_Vtx_Kin_Info->Branch("p_beam2_f" , &m_fp_beam2_f,  "p_beam2_f[4]/F");
+		m_Tree_Vtx_Kin_Info->Branch("p_A" , &m_fp_A,  "p_A[4]/F");
+		m_Tree_Vtx_Kin_Info->Branch("p_C" , &m_fp_C,  "p_C[4]/F");
+//		m_Tree_Vtx_Kin_Info->Branch("t_13"  , &ft_13,   "t_13/F");
+//		m_Tree_Vtx_Kin_Info->Branch("t_24"  , &ft_24,   "t_24/F");
+		m_Tree_Vtx_Kin_Info->Branch("vtx_beam1_f" , &m_fvtx_beam1_f,  "vtx_beam1_f[4]/F");
+		m_Tree_Vtx_Kin_Info->Branch("vtx_beam2_f" , &m_fvtx_beam2_f,  "vtx_beam2_f[4]/F");
 	}
 
-	m_TreeGlobalTracks = new TTree("GlobalTracks", "GlobalTracks");
-	m_TreeGlobalTracks->Branch("NumGloTrack", &m_iNumGloTrack, "NumGloTrack/I");
-	m_TreeGlobalTracks->Branch("arm", &m_iArmGlo, "arm[NumGloTrack]/I");
-	m_TreeGlobalTracks->Branch("x_pos", &m_fxPosGlo, "x_pos[NumGloTrack]/D");
-	m_TreeGlobalTracks->Branch("y_pos", &m_fyPosGlo, "y_pos[NumGloTrack]/D");
-	m_TreeGlobalTracks->Branch("x_slope", &m_fxSlopeGlo, "x_slope[NumGloTrack]/D");
-	m_TreeGlobalTracks->Branch("y_slope", &m_fySlopeGlo, "y_slope[NumGloTrack]/D");
+	// m_TreeGlobalTracks = bookGetPointer(TTree("GlobalTracks", "GlobalTracks"));
+	// m_TreeGlobalTracks->Branch("NumGloTrack", &m_iNumGloTrack, "NumGloTrack/I");
+	// m_TreeGlobalTracks->Branch("arm", &m_iArmGlo, "arm[NumGloTrack]/I");
+	// m_TreeGlobalTracks->Branch("x_pos", &m_fxPosGlo, "x_pos[NumGloTrack]/F");
+	// m_TreeGlobalTracks->Branch("y_pos", &m_fyPosGlo, "y_pos[NumGloTrack]/F");
+	// m_TreeGlobalTracks->Branch("x_slope", &m_fxSlopeGlo, "x_slope[NumGloTrack]/F");
+	// m_TreeGlobalTracks->Branch("y_slope", &m_fySlopeGlo, "y_slope[NumGloTrack]/F");
 
 
 	// the trees for the other algorithms -------------------------------
@@ -471,30 +482,30 @@ StatusCode ALFA_Ntuple::initialize()
 
 		if(m_MapTreeOtherAlgo.find(m_MapAlgoNameToID[strAlgoMD])==m_MapTreeOtherAlgo.end())
 		{
-			m_treeOtherAlgo = new TTree(strAlgoMD.c_str(), strAlgoMD.c_str());
+			m_treeOtherAlgo = bookGetPointer(TTree(strAlgoMD.c_str(), strAlgoMD.c_str()));
 			m_treeOtherAlgo->Branch("algoID", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].iAlgoID, "algoID/I");
 			m_treeOtherAlgo->Branch("Evt_num", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].iEvent, "Evt_num/i");
 			m_treeOtherAlgo->Branch("NumTrack", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].iNumTrack, "NumTrack/I");
 			m_treeOtherAlgo->Branch("RecFlag", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].bRecFlag, "RecFlag[NumTrack][8]/O");
 			m_treeOtherAlgo->Branch("Detector", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].iDetector, "Detector[NumTrack][8]/I");
-			m_treeOtherAlgo->Branch("x_Det", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fXDet, "x_Det[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("y_Det", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fYDet, "y_Det[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("x_Pot", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fXPot, "x_Pot[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("y_Pot", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fYPot, "y_Pot[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("x_Stat", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fXStat, "x_Stat[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("y_Stat", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fYStat, "y_Stat[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("x_LHC", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fXLHC, "x_LHC[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("y_LHC", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fYLHC, "y_LHC[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("z_LHC", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fZLHC, "z_LHC[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("x_Beam", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fXBeam, "x_Beam[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("y_Beam", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fYBeam, "y_Beam[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("OverU", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fOverU, "OverU[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("OverV", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fOverV, "OverV[NumTrack][8]/D");
+			m_treeOtherAlgo->Branch("x_Det", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fXDet, "x_Det[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("y_Det", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fYDet, "y_Det[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("x_Pot", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fXPot, "x_Pot[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("y_Pot", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fYPot, "y_Pot[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("x_Stat", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fXStat, "x_Stat[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("y_Stat", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fYStat, "y_Stat[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("x_LHC", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fXLHC, "x_LHC[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("y_LHC", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fYLHC, "y_LHC[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("z_LHC", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fZLHC, "z_LHC[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("x_Beam", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fXBeam, "x_Beam[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("y_Beam", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fYBeam, "y_Beam[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("OverU", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fOverU, "OverU[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("OverV", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fOverV, "OverV[NumTrack][8]/F");
 			m_treeOtherAlgo->Branch("NU", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].iNumU, "NU[NumTrack][8]/I");
 			m_treeOtherAlgo->Branch("NV", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].iNumV, "NV[NumTrack][8]/I");
 			m_treeOtherAlgo->Branch("Fib_SelMD", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].iFibSelMD, "Fib_SelMD[NumTrack][8][20]/I");
-			m_treeOtherAlgo->Branch("intercept_Det", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fInterceptDet, "intercept_Det[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("slope_Det", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fSlopeDet, "slope_Det[NumTrack][8]/D");
+			m_treeOtherAlgo->Branch("intercept_Det", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fInterceptDet, "intercept_Det[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("slope_Det", &m_MapAlgoTreeMD[m_MapAlgoNameToID[strAlgoMD]].fSlopeDet, "slope_Det[NumTrack][8]/F");
 
 			m_MapTreeOtherAlgo.insert(pair<int, TTree*>(m_MapAlgoNameToID[strAlgoMD], m_treeOtherAlgo));
 		}
@@ -517,28 +528,28 @@ StatusCode ALFA_Ntuple::initialize()
 
 		if(m_MapTreeOtherAlgo.find(m_MapAlgoNameToID[strAlgoOD])==m_MapTreeOtherAlgo.end())
 		{
-			m_treeOtherAlgo = new TTree(strAlgoOD.c_str(), strAlgoOD.c_str());
+			m_treeOtherAlgo = bookGetPointer(TTree(strAlgoOD.c_str(), strAlgoOD.c_str()));
 			m_treeOtherAlgo->Branch("algoID", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].iAlgoID, "algoID/I");
 			m_treeOtherAlgo->Branch("Evt_num", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].iEvent, "Evt_num/i");
 			m_treeOtherAlgo->Branch("NumTrack", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].iNumTrack, "NumTrack/I");
 			m_treeOtherAlgo->Branch("RecFlag", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].bRecFlag, "RecFlag[NumTrack][8]/O");
 			m_treeOtherAlgo->Branch("Detector", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].iDetector, "Detector[NumTrack][8]/I");
-			m_treeOtherAlgo->Branch("x_Det", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fXDet, "x_Det[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("y_Det", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fYDet, "y_Det[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("x_Pot", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fXPot, "x_Pot[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("y_Pot", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fYPot, "y_Pot[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("x_Stat", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fXStat, "x_Stat[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("y_Stat", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fYStat, "y_Stat[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("x_LHC", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fXLHC, "x_LHC[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("y_LHC", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fYLHC, "y_LHC[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("z_LHC", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fZLHC, "z_LHC[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("x_Beam", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fXBeam, "x_Beam[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("y_Beam", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fYBeam, "y_Beam[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("OverY", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fOverY, "OverY[NumTrack][8]/D");
+			m_treeOtherAlgo->Branch("x_Det", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fXDet, "x_Det[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("y_Det", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fYDet, "y_Det[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("x_Pot", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fXPot, "x_Pot[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("y_Pot", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fYPot, "y_Pot[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("x_Stat", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fXStat, "x_Stat[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("y_Stat", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fYStat, "y_Stat[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("x_LHC", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fXLHC, "x_LHC[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("y_LHC", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fYLHC, "y_LHC[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("z_LHC", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fZLHC, "z_LHC[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("x_Beam", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fXBeam, "x_Beam[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("y_Beam", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fYBeam, "y_Beam[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("OverY", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fOverY, "OverY[NumTrack][8]/F");
 			m_treeOtherAlgo->Branch("NY", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].iNumY, "NY[NumTrack][8]/I");
 			m_treeOtherAlgo->Branch("Fib_SelOD", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].iFibSelOD, "Fib_SelOD[NumTrack][8][3]/I");
-			m_treeOtherAlgo->Branch("intercept_Det", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fInterceptDet, "intercept_Det[NumTrack][8]/D");
-			m_treeOtherAlgo->Branch("slope_Det", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fSlopeDet, "slope_Det[NumTrack][8]/D");
+			m_treeOtherAlgo->Branch("intercept_Det", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fInterceptDet, "intercept_Det[NumTrack][8]/F");
+			m_treeOtherAlgo->Branch("slope_Det", &m_MapAlgoTreeOD[m_MapAlgoNameToID[strAlgoOD]].fSlopeDet, "slope_Det[NumTrack][8]/F");
 
 			m_MapTreeOtherAlgo.insert(pair<int, TTree*>(m_MapAlgoNameToID[strAlgoOD], m_treeOtherAlgo));
 		}
@@ -553,7 +564,7 @@ StatusCode ALFA_Ntuple::initialize()
 	fill_n(&m_iLatency[0][0], sizeof(m_iLatency)/sizeof(Int_t), -1);
 	fill_n(&m_iGain[0][0], sizeof(m_iGain)/sizeof(Int_t), -1);
 	fill_n(&m_iThreshold[0][0], sizeof(m_iThreshold)/sizeof(Int_t), -1);
-	fill_n(&m_fTransformDetRP[0][0][0], sizeof(m_fTransformDetRP)/sizeof(Double_t), -9999.0);
+	fill_n(&m_fTransformDetRP[0][0][0], sizeof(m_fTransformDetRP)/sizeof(Float_t), -9999.0);
 
 	m_iEvtFromZero     =  0;
 	m_iFlagBLM         = -1;
@@ -566,19 +577,19 @@ StatusCode ALFA_Ntuple::initialize()
 
 
 	//clear COOL directory --------------------------------------------------------------
-	fill_n(&m_BeamLossMonitor.fBLM[0], sizeof(m_BeamLossMonitor.fBLM)/sizeof(Double_t), -9999.0);
-	fill_n(&m_HVChannel.fActualVMeas[0], sizeof(m_HVChannel.fActualVMeas)/sizeof(Double_t), -9999.0);
-	fill_n(&m_HVChannel.fActualIMeas[0], sizeof(m_HVChannel.fActualIMeas)/sizeof(Double_t), -9999.0);
-	fill_n(&m_LocalMonitoring.fTempSensor1[0], sizeof(m_LocalMonitoring.fTempSensor1)/sizeof(Double_t), -9999.0);
-	fill_n(&m_LocalMonitoring.fTempSensor2[0], sizeof(m_LocalMonitoring.fTempSensor2)/sizeof(Double_t), -9999.0);
-	fill_n(&m_LocalMonitoring.fTempSensor3[0], sizeof(m_LocalMonitoring.fTempSensor3)/sizeof(Double_t), -9999.0);
-	fill_n(&m_LocalMonitoring.fTempSensor4[0], sizeof(m_LocalMonitoring.fTempSensor4)/sizeof(Double_t), -9999.0);
-	fill_n(&m_LocalMonitoring.fTempSensor5[0], sizeof(m_LocalMonitoring.fTempSensor5)/sizeof(Double_t), -9999.0);
-	fill_n(&m_Movement.fPosLVDT[0], sizeof(m_Movement.fPosLVDT)/sizeof(Double_t), -9999.0);
-	fill_n(&m_Movement.fPosMotor[0], sizeof(m_Movement.fPosMotor)/sizeof(Double_t), -9999.0);
-	fill_n(&m_Radmon.fDose[0], sizeof(m_Radmon.fDose)/sizeof(Double_t), -9999.0);
-	fill_n(&m_Radmon.fFluence[0], sizeof(m_Radmon.fFluence)/sizeof(Double_t), -9999.0);
-	fill_n(&m_Radmon.fTemp[0], sizeof(m_Radmon.fTemp)/sizeof(Double_t), -9999.0);
+	fill_n(&m_BeamLossMonitor.fBLM[0], sizeof(m_BeamLossMonitor.fBLM)/sizeof(Float_t), -9999.0);
+	fill_n(&m_HVChannel.fActualVMeas[0], sizeof(m_HVChannel.fActualVMeas)/sizeof(Float_t), -9999.0);
+	fill_n(&m_HVChannel.fActualIMeas[0], sizeof(m_HVChannel.fActualIMeas)/sizeof(Float_t), -9999.0);
+	fill_n(&m_LocalMonitoring.fTempSensor1[0], sizeof(m_LocalMonitoring.fTempSensor1)/sizeof(Float_t), -9999.0);
+	fill_n(&m_LocalMonitoring.fTempSensor2[0], sizeof(m_LocalMonitoring.fTempSensor2)/sizeof(Float_t), -9999.0);
+	fill_n(&m_LocalMonitoring.fTempSensor3[0], sizeof(m_LocalMonitoring.fTempSensor3)/sizeof(Float_t), -9999.0);
+	fill_n(&m_LocalMonitoring.fTempSensor4[0], sizeof(m_LocalMonitoring.fTempSensor4)/sizeof(Float_t), -9999.0);
+	fill_n(&m_LocalMonitoring.fTempSensor5[0], sizeof(m_LocalMonitoring.fTempSensor5)/sizeof(Float_t), -9999.0);
+	fill_n(&m_Movement.fPosLVDT[0], sizeof(m_Movement.fPosLVDT)/sizeof(Float_t), -9999.0);
+	fill_n(&m_Movement.fPosMotor[0], sizeof(m_Movement.fPosMotor)/sizeof(Float_t), -9999.0);
+	fill_n(&m_Radmon.fDose[0], sizeof(m_Radmon.fDose)/sizeof(Float_t), -9999.0);
+	fill_n(&m_Radmon.fFluence[0], sizeof(m_Radmon.fFluence)/sizeof(Float_t), -9999.0);
+	fill_n(&m_Radmon.fTemp[0], sizeof(m_Radmon.fTemp)/sizeof(Float_t), -9999.0);
 	fill_n(&m_TriggerRate.iTRate[0], sizeof(m_TriggerRate.iTRate)/sizeof(Int_t), -1);
 
 	if (m_bCoolData)
@@ -634,7 +645,9 @@ StatusCode ALFA_Ntuple::execute()
 	m_iTimeStamp    = -1;
 	m_iTimeStamp_ns = -1;
 	memset(&m_bTrigPat, false, sizeof(m_bTrigPat));
-	memset(&m_bLVL1TrigSig, false, sizeof(m_bLVL1TrigSig));
+	memset(&m_bLVL1TrigSig_TBP, false, sizeof(m_bLVL1TrigSig_TBP));
+	memset(&m_bLVL1TrigSig_TAP, false, sizeof(m_bLVL1TrigSig_TAP));
+	memset(&m_bLVL1TrigSig_TAV, false, sizeof(m_bLVL1TrigSig_TAV));
 	memset(&m_bLVL2TrigSig, false, sizeof(m_bLVL2TrigSig));
 	memset(&m_bHLTrigSig, false, sizeof(m_bHLTrigSig));
 	memset(&m_bFibHitsMD, false, sizeof(m_bFibHitsMD));
@@ -649,25 +662,25 @@ StatusCode ALFA_Ntuple::execute()
 
 	fill_n(&m_iScaler[0], sizeof(m_iScaler)/sizeof(Int_t), -1);
 	fill_n(&m_iQDCTrig[0][0], sizeof(m_iQDCTrig)/sizeof(Int_t), -1);
-	fill_n(&m_fXDet[0][0], sizeof(m_fXDet)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fYDet[0][0], sizeof(m_fYDet)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fXPot[0][0], sizeof(m_fXPot)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fYPot[0][0], sizeof(m_fYPot)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fXStat[0][0], sizeof(m_fXStat)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fYStat[0][0], sizeof(m_fYStat)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fXLHC[0][0], sizeof(m_fXLHC)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fYLHC[0][0], sizeof(m_fYLHC)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fZLHC[0][0], sizeof(m_fZLHC)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fXBeam[0][0], sizeof(m_fXBeam)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fYBeam[0][0], sizeof(m_fYBeam)/sizeof(Double_t), -9999.0);
+	fill_n(&m_fXDet[0][0], sizeof(m_fXDet)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fYDet[0][0], sizeof(m_fYDet)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fXPot[0][0], sizeof(m_fXPot)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fYPot[0][0], sizeof(m_fYPot)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fXStat[0][0], sizeof(m_fXStat)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fYStat[0][0], sizeof(m_fYStat)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fXLHC[0][0], sizeof(m_fXLHC)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fYLHC[0][0], sizeof(m_fYLHC)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fZLHC[0][0], sizeof(m_fZLHC)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fXBeam[0][0], sizeof(m_fXBeam)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fYBeam[0][0], sizeof(m_fYBeam)/sizeof(Float_t), -9999.0);
 	fill_n(&m_iFibSelMD[0][0][0], sizeof(m_iFibSelMD)/sizeof(Int_t), -9999);
 	fill_n(&m_iFibSelOD[0][0][0], sizeof(m_iFibSelOD)/sizeof(Int_t), -9999);
-	fill_n(&m_fInterceptDet[0][0], sizeof(m_fInterceptDet)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fSlopeDet[0][0], sizeof(m_fSlopeDet)/sizeof(Double_t), -9999.0);
+	fill_n(&m_fInterceptDet[0][0], sizeof(m_fInterceptDet)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fSlopeDet[0][0], sizeof(m_fSlopeDet)/sizeof(Float_t), -9999.0);
 
-	fill_n(&m_fOverU[0][0], sizeof(m_fOverU)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fOverV[0][0], sizeof(m_fOverV)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fOverY[0][0], sizeof(m_fOverY)/sizeof(Double_t), -9999.0);
+	fill_n(&m_fOverU[0][0], sizeof(m_fOverU)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fOverV[0][0], sizeof(m_fOverV)/sizeof(Float_t), -9999.0);
+	fill_n(&m_fOverY[0][0], sizeof(m_fOverY)/sizeof(Float_t), -9999.0);
 	fill_n(&m_iNumU[0][0], sizeof(m_iNumU)/sizeof(Int_t), -9999);
 	fill_n(&m_iNumV[0][0], sizeof(m_iNumV)/sizeof(Int_t), -9999);
 	fill_n(&m_iNumY[0][0], sizeof(m_iNumY)/sizeof(Int_t), -9999);
@@ -692,13 +705,13 @@ StatusCode ALFA_Ntuple::execute()
 		m_ft_24 = 0;
 	}
 
-	//default values for GlobalTracks tree ----------------------------------------------
-	m_iNumGloTrack = 0;
-	memset(&m_iArmGlo, 0, sizeof(m_iArmGlo));
-	fill_n(&m_fxPosGlo[0], sizeof(m_fxPosGlo)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fyPosGlo[0], sizeof(m_fyPosGlo)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fxSlopeGlo[0], sizeof(m_fxSlopeGlo)/sizeof(Double_t), -9999.0);
-	fill_n(&m_fySlopeGlo[0], sizeof(m_fySlopeGlo)/sizeof(Double_t), -9999.0);
+	// //default values for GlobalTracks tree ----------------------------------------------
+	// m_iNumGloTrack = 0;
+	// memset(&m_iArmGlo, 0, sizeof(m_iArmGlo));
+	// fill_n(&m_fxPosGlo[0], sizeof(m_fxPosGlo)/sizeof(Float_t), -9999.0);
+	// fill_n(&m_fyPosGlo[0], sizeof(m_fyPosGlo)/sizeof(Float_t), -9999.0);
+	// fill_n(&m_fxSlopeGlo[0], sizeof(m_fxSlopeGlo)/sizeof(Float_t), -9999.0);
+	// fill_n(&m_fySlopeGlo[0], sizeof(m_fySlopeGlo)/sizeof(Float_t), -9999.0);
 
 	const EventInfo* eventInfo;
 	sc = evtStore()->retrieve(eventInfo);
@@ -759,11 +772,11 @@ StatusCode ALFA_Ntuple::execute()
 		ATH_MSG_WARNING("Failed to read ALFA locRec data collections.");
 	}
 
-	sc = GetGloRecData();
-	if (sc.isFailure())
-	{
-		ATH_MSG_WARNING("Failed to read ALFA gloRec data collections.");
-	}
+	// sc = GetGloRecData();
+	// if (sc.isFailure())
+	// {
+	// 	ATH_MSG_WARNING("Failed to read ALFA gloRec data collections.");
+	// }
 
 	// from here NumTrack value is known ------------------------------------------------
 
@@ -785,8 +798,8 @@ StatusCode ALFA_Ntuple::execute()
 	m_TreeEventHeader->Fill();
 	ATH_MSG_DEBUG("filling of the TrackingData tree");
 	m_TreeTrackingData->Fill();
-	ATH_MSG_DEBUG("filling of the GlobalTracks tree");
-	m_TreeGlobalTracks->Fill();
+	// ATH_MSG_DEBUG("filling of the GlobalTracks tree");
+	// m_TreeGlobalTracks->Fill();
 
 
 	map<int, TTree*>::iterator itTree;
@@ -820,10 +833,6 @@ StatusCode ALFA_Ntuple::finalize()
 
 	//fill RunHeader tree ---------------------------------------------------------------
 	m_TreeRunHeader->Fill();
-
-	m_rootOutput->cd();
-	m_rootOutput->Write();
-	m_rootOutput->Close();
 
 	ATH_MSG_DEBUG("end ALFA_Ntuple::finalize()");
 
@@ -1108,15 +1117,46 @@ StatusCode ALFA_Ntuple::GetRawDataCollection()
 	m_iTimeStamp_ns = -1;
 
 	vector<bool> bTrigPat, bLvl1TrigPat;
-	int iTrigPatSize=0, iLvl1TrigPatSize = 0;
+	int iTrigPatSize=0;
+	int iLvl1TrigPatSize = 0;
 
 	m_iTimeStamp = container->GetTimeStamp();
 	m_iTimeStamp_ns = container->GetTimeStampns();
 	m_iBCId = container->GetBCId();
 
+
+
+	// For the LVL1 trigger there are three consecutive blocks of 256 bits (8 ints):
+	// 256 bits for the TBP (trigger before prescale)
+	// 256 bits for the TAP (trigger after prescale
+	// 256 bits for the TAV (trigger after veto)
 	iLvl1TrigPatSize = container->GetLvl1Pattern_POT().size();
 	bLvl1TrigPat = container->GetLvl1Pattern_POT();
-	for (int i=0; i<iLvl1TrigPatSize; i++) m_bLVL1TrigSig[i] = bLvl1TrigPat[i];
+
+	ATH_MSG_DEBUG("iLvl1TrigPatSize " << iLvl1TrigPatSize);
+
+	int iL1Max = 512;
+//	if (m_iRunEpoch==1) iL1max = 256;
+//	if (m_iRunEpoch==2) iL1max = 512;
+	// 800 = 256 + 256 + 256 +32
+	if (iLvl1TrigPatSize == 800 && m_iRunEpoch==1) iL1Max = 256;
+	// 1568 = 512 + 512 + 512 + 32
+	if (iLvl1TrigPatSize == 1568 && m_iRunEpoch==2) iL1Max = 512;
+
+	ATH_MSG_DEBUG("iL1Max "<< iL1Max);
+
+	//L1 TBP
+	for (int i=0; i<iL1Max; i++)
+		m_bLVL1TrigSig_TBP[i] = bLvl1TrigPat[i];
+
+	//L1 TAP
+	for (int i=0; i<iL1Max; i++)
+		m_bLVL1TrigSig_TAP[i] = bLvl1TrigPat[iL1Max + i];
+
+	//L1 TAV
+	for (int i=0; i<iL1Max; i++)
+		m_bLVL1TrigSig_TAV[i] = bLvl1TrigPat[iL1Max + iL1Max + i];
+
 
 	//loop over collection (container) with hits (i.e. over 1 event) --------------------
 	for(;RawData_Collection_Beg!=RawData_Collection_End; ++RawData_Collection_Beg)
@@ -1130,6 +1170,7 @@ StatusCode ALFA_Ntuple::GetRawDataCollection()
 		bTrigPat.clear();
 		bTrigPat = (*RawData_Collection_Beg)->Get_pattern_POT();
 		iTrigPatSize = bTrigPat.size();
+		ATH_MSG_DEBUG("iTrigPatSize " << iTrigPatSize);
 		for (int i=0; i<iTrigPatSize; i++) m_bTrigPat[iMBId-1][i] = bTrigPat[iTrigPatSize-(i+1)];
 	}
 
@@ -1206,8 +1247,8 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 	StatusCode sc;
 	Int_t iRPot, iSide, iNumTrackPot[RPOTSCNT];
 	Int_t iNumU, iNumV;
-	Double_t fOverU, fOverV;
-	Double_t fRecPosX, fRecPosY;
+	Float_t fOverU, fOverV;
+	Float_t fRecPosX, fRecPosY;
 
 	memset(&iNumTrackPot, 0, sizeof(iNumTrackPot));
 
@@ -1318,7 +1359,7 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 
 	Int_t iSign=0;
 	vecFibSel.clear();
-	Double_t fOverY;
+	Float_t fOverY;
 	Int_t iNumY;
 	iTrackTmp = 0;
 	vNumTrackPotAll.clear();
@@ -1448,10 +1489,10 @@ StatusCode ALFA_Ntuple::GetLocRecCorrData()
 	StatusCode sc;
 	Int_t iRPot, iSide, iNumTrackPot[RPOTSCNT], iSign;
 	int iAlgoID = 0, iTrackTmp = 0;
-	Double_t fxLHC, fyLHC, fzLHC;
-	Double_t fxPot, fyPot;
-	Double_t fxStat, fyStat;
-	Double_t fxBeam, fyBeam;
+	Float_t fxLHC, fyLHC, fzLHC;
+	Float_t fxPot, fyPot;
+	Float_t fxStat, fyStat;
+	Float_t fxBeam, fyBeam;
 
 
 	memset(&iNumTrackPot, 0, sizeof(iNumTrackPot));
@@ -1618,7 +1659,7 @@ StatusCode ALFA_Ntuple::GetGloRecData()
 
 	StatusCode sc;
 	Int_t iArm, iNumGloTrack = 0;
-	Double_t fxPos, fyPos, fxSlope, fySlope;
+	Float_t fxPos, fyPos, fxSlope, fySlope;
 
 	const ALFA_GloRecEvCollection* pGloRecCol = 0;
 	sc = evtStore()->retrieve(pGloRecCol, m_strGloRecCollectionName);
