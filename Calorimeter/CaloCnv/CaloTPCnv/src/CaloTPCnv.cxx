@@ -88,11 +88,3 @@ DECLARE_TPCNV_FACTORY(CaloCellContainerCnv_p1,
                       CaloCellContainer,
                       CaloCompactCellContainer,
                       Athena::TPCnvVers::Current)
-
-
-#include "CaloTPCnv/CaloCalibrationHitContainerCnv_p3.h"
-
-DECLARE_TPCNV_FACTORY(CaloCalibrationHitContainerCnv_p3,
-                      CaloCalibrationHitContainer,
-                      CaloCalibrationHitContainer_p3,
-                      Athena::TPCnvVers::Current)

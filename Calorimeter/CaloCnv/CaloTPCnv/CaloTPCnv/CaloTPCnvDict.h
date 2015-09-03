@@ -14,7 +14,6 @@
 #include "CaloTPCnv/CaloClusterMomentStore_p1.h"
 #include "CaloTPCnv/CaloTowerContainer_p1.h"
 #include "CaloTPCnv/CaloTopoTowerContainer_p1.h"
-#include "CaloTPCnv/CaloCalibrationHitContainer_p1.h"
 
 //Version 2
 #include "CaloTPCnv/CaloClusterContainer_p2.h"
@@ -22,13 +21,10 @@
 #include "CaloTPCnv/CaloClusterMomentContainer_p1.h"
 #include "CaloTPCnv/CaloSamplingDataContainer_p1.h"
 #include "CaloTPCnv/CaloCellLinkContainer_p2.h"
-#include "CaloTPCnv/CaloCalibrationHitContainer_p2.h"
 
 //Version 3
 #include "CaloTPCnv/CaloClusterContainer_p3.h"
 #include "CaloTPCnv/CaloClusterMomentContainer_p2.h"
-#include "CaloTPCnv/CaloCalibrationHitContainer_p3.h"
-#include "CaloTPCnv/CaloCalibrationHit_p2.h"
 
 //Version 4
 #include "CaloTPCnv/CaloClusterContainer_p4.h"

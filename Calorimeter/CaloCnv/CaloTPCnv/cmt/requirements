@@ -12,15 +12,12 @@ use AthenaKernel         AthenaKernel-*             Control
 use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
 use EventCommonTPCnv     EventCommonTPCnv-*         Event
 use CaloEvent            CaloEvent-*                Calorimeter
-use CaloSimEvent         CaloSimEvent-*             Calorimeter
-use Identifier		 Identifier-* 		    DetectorDescription
 
 private
 use AtlasReflex          AtlasReflex-*              External
 use SGTools		 SGTools-*	            Control
 use CaloConditions       CaloConditions-*           Calorimeter
 use CaloInterface        CaloInterface-*            Calorimeter
-use CaloIdentifier       CaloIdentifier-* 	    Calorimeter
 use CaloUtils            CaloUtils-*                Calorimeter
 use CaloGeoHelpers	 CaloGeoHelpers-*           Calorimeter
 end_private
