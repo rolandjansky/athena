@@ -113,6 +113,7 @@ pattern with_optdebug_library \
    private ; \
    document optdebug_library <name>_optdebug_library library=<name>  ; \
    macro_append <name>_optdebug_library_dependencies " <name>" ; \
+   macro_append <name>_library_dependencies " <name>_optdebug_library " ; \ 
    action <name>_NICOS_Fix_debuginfo ' if test ! -z "$(NICOS_PROJECT_HOME)" -a ! -z "$(NICOS_PROJECT_RELNAME)" -a \ 
                                                ! -z "$(NICOS_COPY_HOME)"    -a ! -z "$(NICOS_PROJECT_RELNAME_COPY)" -a \ 
  					         -x /usr/lib/rpm/debugedit ; then \ 
@@ -160,3 +161,43 @@ tag_exclude NICOS NICOSrel_nightly
 # requires that the new path is shorter than the old path. ccache requires that the replaced and original path do not depend on the nightly it runs.  
 macro_append AtlasCommonPolicy_cppflags "" \ 
       NICOSrel_nightly ' -fdebug-prefix-map=$(NICOS_PROJECT_HOME)=$(NICOS_COPY_HOME) '
+	 
+#--------------------------------------------
+## Filling the JOBOPTSEARCHPATH list with list of currently visible installation areas
+#--------------------------------------------
+
+#path_remove  JOBOPTSEARCHPATH "InstallArea"
+#path_prepend JOBOPTSEARCHPATH `${ATLASPOLICYROOT}/cmt/jo.sh`
+
+cmtpath_pattern \
+  path JOBOPTSEARCHPATH "" ; \
+  path_remove PYTHONPATH "$(cmt_installarea_prefix)" ; \
+  path_remove DATAPATH "$(cmt_installarea_prefix)" ; \
+  path_remove ROOTMAPSEARCHPATH "$(cmt_installarea_prefix)" ; \
+  path_remove XMLPATH "$(cmt_installarea_prefix)"
+
+cmtpath_pattern \
+  path_prepend JOBOPTSEARCHPATH  "" \
+               <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/jobOptions" ; \
+  path_prepend PYTHONPATH        "" \
+               <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/python" ; \
+  path_prepend PYTHONPATH        "" \
+               <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/${CMTCONFIG}/lib/python$(Python_version)" ; \
+  path_prepend DATAPATH          "" \
+               <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/share" ; \
+  path_prepend DATAPATH          "" \
+               <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/${CMTCONFIG}/share" ; \
+  path_prepend ROOTMAPSEARCHPATH "" \
+               <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/rootmap" ; \
+  path_prepend XMLPATH           "" \
+               <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/XML"
+
+cmtpath_pattern \
+  path_prepend JOBOPTSEARCHPATH "."
+
+# temporary fix for https://its.cern.ch/jira/browse/ATEAM-151
+#  import and fix merge_files.py from GaudiPolicy
+macro merge_componentslist_cmd "python $(AtlasCommonPolicy_root)/scripts/merge_files.py"
+macro merge_rootmap_cmd "python $(AtlasCommonPolicy_root)/scripts/merge_files.py"
+macro merge_genconfDb_cmd "python $(AtlasCommonPolicy_root)/scripts/merge_files.py"
+macro merge_componentslist_cmd "python $(AtlasCommonPolicy_root)/scripts/merge_files.py"
