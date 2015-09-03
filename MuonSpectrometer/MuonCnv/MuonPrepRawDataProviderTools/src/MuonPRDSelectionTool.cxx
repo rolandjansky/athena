@@ -19,7 +19,7 @@ namespace Muon {
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
     m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
-    m_recoValidationTool(""), // ("Muon::MuonRecoValidationTool/MuonRecoValidationTool"),
+    m_recoValidationTool("Muon::MuonRecoValidationTool/MuonRecoValidationTool"),
     // m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),    
     m_distanceToTubeCut(1000.),
     m_secondCoordinateCut(1500.)
@@ -27,10 +27,7 @@ namespace Muon {
     declareInterface<IMuonPRDSelectionTool>(this);
 
     declareProperty("MuonIdHelperTool",m_idHelper );    
-    declareProperty("MdtDriftCircleOnTrackCreator",m_mdtCreator);
-    declareProperty("MuonClusterOnTrackCreator",m_clusterCreator);
     declareProperty("MuonRecoValidationTool",m_recoValidationTool);
-    
   }
 
  MuonPRDSelectionTool::~MuonPRDSelectionTool() { }
@@ -44,7 +41,7 @@ namespace Muon {
     ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_mdtCreator.retrieve());
     ATH_CHECK(m_clusterCreator.retrieve());
-    if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
+    ATH_CHECK(m_recoValidationTool.retrieve());
     // ATH_CHECK(m_pullCalculator.retrieve());
 
     return StatusCode::SUCCESS;
@@ -71,7 +68,7 @@ namespace Muon {
       if( !layerPrepRawData.cscs.empty() )  msg(MSG::DEBUG) << " CSCs "  << layerPrepRawData.cscs.size();
       if( !layerPrepRawData.stgcs.empty() ) msg(MSG::DEBUG) << " STGCs "  << layerPrepRawData.stgcs.size();
       if( !layerPrepRawData.mms.empty() )   msg(MSG::DEBUG) << " MMs "  << layerPrepRawData.mms.size();
-      msg(MSG::DEBUG) << endmsg;
+      msg(MSG::DEBUG) << endreq;
     }
     
     // loop over MDT collections
@@ -123,12 +120,12 @@ namespace Muon {
                                                  << " error " << err_precision << " along tube (%) " << distanceAlongTube/tubeHalfLen;
 
     if( std::abs(distanceAlongTube) > tubeHalfLen + m_secondCoordinateCut ) {
-      if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " outside tube second coordinate range, dropping " << endmsg;
+      if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " outside tube second coordinate range, dropping " << endreq;
       return 0;
     }
 
     if( std::abs(localPosition[Trk::locR]) > m_distanceToTubeCut ) {
-      if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " too far from wire, dropping " << endmsg;
+      if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " too far from wire, dropping " << endreq;
       return 0;
     }
     
@@ -138,7 +135,7 @@ namespace Muon {
       surface.localToGlobal(localPosition,direction,intersect);
       if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " outside tube, shifting";
     }
-    if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << endmsg;
+    if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << endreq;
 
     // calibrate hit
     const MdtDriftCircleOnTrack* mdtROT = m_mdtCreator->createRIO_OnTrack( mdt, intersect,  &direction ); 
@@ -146,15 +143,16 @@ namespace Muon {
     return mdtROT;    
   }
 
-  const MuonClusterOnTrack* MuonPRDSelectionTool::calibrateAndSelect( const Trk::TrackParameters& pars, const MuonCluster& clus ) const {
+
+  const MuonClusterOnTrack* MuonPRDSelectionTool::calibrateAndSelect( const MuonSystemExtension::Intersection& intersection, const MuonCluster& clus ) const {
     
     // basic info
     const Identifier& id = clus.identify();
     const Trk::Surface& surf = clus.detectorElement()->surface(id);
 
     // calculate intersection
-    const Amg::Vector3D& position  = pars.position();
-    const Amg::Vector3D& direction = pars.momentum();
+    const Amg::Vector3D& position  = intersection.trackParameters->position();
+    const Amg::Vector3D& direction = intersection.trackParameters->momentum();
     Trk::Intersection slIntersection = clus.detectorElement()->surface(id).straightLineIntersection(position,direction,false,false);
     Amg::Vector3D intersect = slIntersection.position;
 
@@ -169,10 +167,10 @@ namespace Muon {
     if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " Intersected " << m_idHelper->toString(id) << " local position " << localPosition[Trk::loc1] << " " << localPosition[Trk::loc2];
 
     if( !surf.insideBounds(localPosition, m_distanceToTubeCut, m_secondCoordinateCut) ) {
-      if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " outside bounds, dropping " << endmsg;
+      if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " outside bounds, dropping " << endreq;
       return 0;
     }
-    if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << endmsg;
+    if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << endreq;
 
     const MuonClusterOnTrack* cluster = m_clusterCreator->createRIO_OnTrack( clus, intersect ); 
     if( !cluster ){
@@ -181,10 +179,6 @@ namespace Muon {
     }
     
     return cluster;    
-  }
-
-  const MuonClusterOnTrack* MuonPRDSelectionTool::calibrateAndSelect( const MuonSystemExtension::Intersection& intersection, const MuonCluster& clus ) const {
-    return calibrateAndSelect(*intersection.trackParameters,clus);
   }
 
   Amg::Vector3D MuonPRDSelectionTool::intersectMDT( const MdtPrepData& mdt, const Amg::Vector3D& position, const Amg::Vector3D& direction, bool usePlane ) const {

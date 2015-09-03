@@ -42,7 +42,7 @@ namespace Muon {
   }
 
   bool MuonPrepRawDataCollectionProviderTool::getLayerData( int sector, MuonStationIndex::DetectorRegionIndex regionIndex, 
-                                                            MuonStationIndex::LayerIndex layerIndex, MuonLayerPrepRawData& layerPrepRawData ) const {
+                                                            MuonStationIndex::LayerIndex layerIndex, MuonLayerPrepRawData& layerPrepRawData ) {
     
     // get technologies in the given layer
     MuonStationIndex::StIndex stIndex = MuonStationIndex::toStationIndex( regionIndex, layerIndex );
@@ -74,7 +74,7 @@ namespace Muon {
       if( !layerPrepRawData.cscs.empty() )  msg(MSG::DEBUG) << " CSCs "  << layerPrepRawData.cscs.size();
       if( !layerPrepRawData.stgcs.empty() ) msg(MSG::DEBUG) << " STGCs "  << layerPrepRawData.stgcs.size();
       if( !layerPrepRawData.mms.empty() )   msg(MSG::DEBUG) << " MMs "  << layerPrepRawData.mms.size();
-      msg(MSG::DEBUG) << endmsg;
+      msg(MSG::DEBUG) << endreq;
     }
     return success;
   }

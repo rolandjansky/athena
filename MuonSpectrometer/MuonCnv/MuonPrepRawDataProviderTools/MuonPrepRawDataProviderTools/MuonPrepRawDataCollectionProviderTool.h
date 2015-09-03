@@ -40,12 +40,12 @@ namespace Muon {
     static const InterfaceID& interfaceID() { return IID_MuonPrepRawDataCollectionProviderTool; }
 
     /** access data in layer */
-    bool getLayerData( int sector, MuonStationIndex::DetectorRegionIndex regionIndex, MuonStationIndex::LayerIndex layerIndex, MuonLayerPrepRawData& layerPrepRawData ) const;
+    bool getLayerData( int sector, MuonStationIndex::DetectorRegionIndex regionIndex, MuonStationIndex::LayerIndex layerIndex, MuonLayerPrepRawData& layerPrepRawData );
 
     /** access data in layer for a given technology */
     template<class COL>
     bool getLayerData( int sector, MuonStationIndex::TechnologyIndex technology, MuonStationIndex::DetectorRegionIndex regionIndex, 
-                       MuonStationIndex::LayerIndex layerIndex, std::vector<const COL*>& output ) const {
+                       MuonStationIndex::LayerIndex layerIndex, std::vector<const COL*>& output ) {
 
       // get technologies in the given layer
       unsigned int sectorLayerHash = MuonStationIndex::sectorLayerHash( regionIndex, layerIndex );

@@ -62,9 +62,7 @@ namespace Muon {
     const MdtDriftCircleOnTrack* calibrateAndSelect( const MuonSystemExtension::Intersection& intersection, const MdtPrepData& mdt ) const;
 
     /** IMuonPRDSelectionTool interface: calibrate and select single cluster */
-    const MuonClusterOnTrack* calibrateAndSelect( const Trk::TrackParameters& pars, const MuonCluster& clus ) const;
     const MuonClusterOnTrack* calibrateAndSelect( const MuonSystemExtension::Intersection& intersection, const MuonCluster& clus ) const;
-
 
   private:
     /** intersect MDT surface or tube plane */
@@ -93,7 +91,7 @@ namespace Muon {
     ToolHandle<MuonIdHelperTool>              m_idHelper; 
     ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtCreator; //<! pointer to mdt rio ontrack creator
     ToolHandle<IMuonClusterOnTrackCreator>    m_clusterCreator;  //<! pointer to muon cluster rio ontrack creator
-    mutable ToolHandle<IMuonRecoValidationTool>       m_recoValidationTool; //<! FIXME!
+    ToolHandle<IMuonRecoValidationTool>       m_recoValidationTool;
 
     /** cuts */
     double m_distanceToTubeCut;
