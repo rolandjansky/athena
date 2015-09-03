@@ -30,14 +30,7 @@ public:
   typedef 	typename GeneratePersNavVectorType< Navigable_t, RPAR >::type	PersNavigableVector_t;
   typedef	ElementLinkVector<typename Navigable_t::container_type > 	ElementLinkVect_t;
 
-  NavigableVectorCnv_p1() :
-    m_pers(nullptr),
-    m_log(nullptr),
-    m_tempLinkVect(nullptr),
-    m_linkIterator(0),
-    m_navigableIterator(0)
-  {}
-
+  NavigableVectorCnv_p1() {}
 
   // standard interface for TP converter
   // (takes the whole vector of navigables at once)
@@ -83,13 +76,7 @@ public:
   typedef 	typename GeneratePersNavVectorType< Navigable_t >::type	PersNavigableVector_t;
   typedef	ElementLinkVector<typename Navigable_t::container_type > 	ElementLinkVect_t;
 
-  NavigableVectorCnv_p1() :
-    m_pers(nullptr),
-    m_log(nullptr),
-    m_tempLinkVect(nullptr),
-    m_linkIterator(0),
-    m_navigableIterator(0)
-  {}
+  NavigableVectorCnv_p1() {}
 
   // standard interface for TP converter
   // (takes the whole vector of navigables at once)
