@@ -21,11 +21,6 @@ logMuonComb = logging.getLogger("MuonCombinedRec")
 #
 # Flags for general use
 #
-# Replaces rec.Commissioning (which is to be removed). The default is set equal to muonRecFlags.Commissioning
-class Commissioning(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
 
 class printConfigurables(JobProperty):
     """if this is on the all the print ThisTool lines are activated"""
@@ -96,9 +91,6 @@ class doLArMuId(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-
-
-
 class doAOD(JobProperty):
     statusOn=True
     allowedTypes=['bool']
@@ -155,6 +147,15 @@ class printSummary(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
+class createTagAndProbeInput(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+class createScaleCalibrationInput(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
 
 
 ## The container with all the flags to steer MuonCombined reconstruction
@@ -169,8 +170,6 @@ class MuonCombinedRec(JobPropertyContainer):
         muonStandaloneFlags.setDefaults()
 
         from MuonRecExample.MuonRecUtils import setJobPropertyDefault as setDefault
-
-        setDefault(self.Commissioning,muonRecFlags.Commissioning())
         
         haveMuonTracks    = muonRecFlags.doStandalone() and self.doAOD
 # This logic doesn't work - doAOD seems to be off with Vakho's standard test

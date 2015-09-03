@@ -1,7 +1,6 @@
 from RecExConfig.RecFlags import rec as rec
 from RecExConfig.RecAlgsFlags import recAlgs as recAlgs
 from MuonRecExample.MuonRecFlags import muonRecFlags,muonStandaloneFlags
-from MuonRecExample.DataFiles import DataInfo,DataFilesInfoMap
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 athenaCommonFlags.AllowIgnoreConfigError = False
@@ -37,6 +36,7 @@ athenaCommonFlags.FilesInput = fileListZ
 athenaCommonFlags.FilesInput = fileListT1
 athenaCommonFlags.FilesInput = fileListMu10
 useIBLRDO = False
+athenaCommonFlags.FilesInput = fileListT1
 if useIBLRDO:
     athenaCommonFlags.FilesInput = ['/afs/cern.ch/user/n/neldik/work/RDO.19.1.1.pool.root']
     from IOVDbSvc.CondDB import conddb

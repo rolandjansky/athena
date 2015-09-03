@@ -63,9 +63,15 @@ def MuonCaloParticleCreator(name="MuonCaloParticleCreator",**kwargs):
     kwargs.setdefault("PerigeeExpression","Origin")
     return CfgMgr.Trk__TrackParticleCreatorTool(name,**kwargs)
 
+def InDetCandidateTool(name="InDetCandidateTool",**kwargs ):
+    kwargs.setdefault("TrackSelector", getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool") )
+    return CfgMgr.MuonCombined__InDetCandidateTool(name,**kwargs)
+
 def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
     getPublicTool("MuonMomentumBalanceSignificanceTool")
     getPublicTool("MuonScatteringAngleSignificanceTool")
+    getPublicTool("MuonCaloParticleCreator")
+
     kwargs.setdefault("TrackParticleCreator", getPublicTool("MuonCombinedParticleCreator") )
     # kwargs.setdefault("CaloNoiseTool", getPublicTool("CaloNoiseToolDefault") )
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)

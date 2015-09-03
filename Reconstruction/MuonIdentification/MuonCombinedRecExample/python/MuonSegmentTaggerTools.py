@@ -29,3 +29,9 @@ def MuTagAmbiguitySolverTool(name='MuTagAmbiguitySolverTool', **kwargs ):
     kwargs.setdefault("RejectMatchPhi",True)
     return CfgMgr.MuTagAmbiguitySolverTool(name,**kwargs)
 
+
+def MuonSegmentTagTool( name="MuonSegmentTagTool", **kwargs ):
+    kwargs.setdefault("MuTagMatchingTool", getPublicTool("MuTagMatchingTool") )
+    kwargs.setdefault("MuTagAmbiguitySolverTool", getPublicTool("MuTagAmbiguitySolverTool") )
+    return CfgMgr.MuonCombined__MuonSegmentTagTool(name,**kwargs)
+

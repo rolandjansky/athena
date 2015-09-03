@@ -12,7 +12,7 @@
 
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-from MuonRecExample.MuonRecFlags import muonRecFlags,mooreFlags
+from MuonRecExample.MuonRecFlags import muonRecFlags,muonStandaloneFlags
 from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
 from AthenaCommon.AppMgr import ToolSvc
 from MuonRecExample.MuonRecUtils import ExtraFlags
@@ -49,7 +49,7 @@ def iPatSLFitter( name='iPatSLFitter', **kwargs):
     kwargs.setdefault("LineFit",True)
     kwargs.setdefault("FullCombinedFit", True )
     kwargs.setdefault("MaterialAllocator",getPublicTool("MuidMaterialAllocator"))
-    kwargs.setdefault("LineMomentum", mooreFlags.straightLineFitMomentum() )
+    kwargs.setdefault("LineMomentum", muonStandaloneFlags.straightLineFitMomentum() )
     return CfgMgr.Trk__iPatFitter(name,**kwargs)
 
 
@@ -197,7 +197,7 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
     kwargs.setdefault("CleanStandalone"               , True )
     kwargs.setdefault("BadFitChi2"                    , 2.5 )
     kwargs.setdefault("LargeMomentumError"            , 0.5 )
-    kwargs.setdefault("LineMomentum"                  , mooreFlags.straightLineFitMomentum() )
+    kwargs.setdefault("LineMomentum"                  , muonStandaloneFlags.straightLineFitMomentum() )
     kwargs.setdefault("LowMomentum"                   , 10.*GeV )
     kwargs.setdefault("MinEnergy"                     , 0.3*GeV )
     kwargs.setdefault("PerigeeAtSpectrometerEntrance" , True )
@@ -218,6 +218,8 @@ def CombinedMuonTrackBuilderFit( name='CombinedMuonTrackBuilderFit', **kwargs ):
 
     if muonRecFlags.doSegmentT0Fit():
         kwargs.setdefault("MdtRotCreator"                 , "" )
+
+    getPublicTool("MuonCaloParticleCreator")
     return CfgMgr.Rec__CombinedMuonTrackBuilder(name,**kwargs)
 
 def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
@@ -237,7 +239,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     kwargs.setdefault("CleanStandalone"               , True )
     kwargs.setdefault("BadFitChi2"                    , 2.5 )
     kwargs.setdefault("LargeMomentumError"            , 0.5 )
-    kwargs.setdefault("LineMomentum"                  , mooreFlags.straightLineFitMomentum() )
+    kwargs.setdefault("LineMomentum"                  , muonStandaloneFlags.straightLineFitMomentum() )
     kwargs.setdefault("LowMomentum"                   , 10.*GeV )
     kwargs.setdefault("MinEnergy"                     , 0.3*GeV )
     kwargs.setdefault("PerigeeAtSpectrometerEntrance" , True )
@@ -269,6 +271,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
 
     if muonRecFlags.doSegmentT0Fit():
         kwargs.setdefault("MdtRotCreator"                 , "" )
+    getPublicTool("MuonCaloParticleCreator")
     return CfgMgr.Rec__CombinedMuonTrackBuilder(name,**kwargs)
 
 

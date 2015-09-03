@@ -51,3 +51,12 @@ if muonCombinedRecFlags.doTrackPerformance:
 #TODO - add something here to make this conditional, once the recFlag is decided on
 if( rec.doMuonCombined() ):
     include("MuonCombinedRecExample/MuonAODto_xAODCnv_jobOptions.py")
+
+if( muonCombinedRecFlags.createTagAndProbeInput() ):
+    from MuonCombinedRecExample.TagAndProbeInputSetup import setupTagAndProbeInput
+    setupTagAndProbeInput()
+
+if( muonCombinedRecFlags.createScaleCalibrationInput() ):
+    from MuonCombinedRecExample.ScaleCalibrationInputSetup import setupScaleCalibrationInput
+    setupScaleCalibrationInput()
+    
