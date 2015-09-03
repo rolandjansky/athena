@@ -261,7 +261,8 @@ private:
   float m_unit_online;
   float m_unit_offline;
   float m_timeOffset;
-  float m_tq_th;
+  short m_adc_th;
+  float m_peakTime_cut;
   float m_nb_lb;
 
   float m_BC; // value of 1 bunch-crossing = 25ns

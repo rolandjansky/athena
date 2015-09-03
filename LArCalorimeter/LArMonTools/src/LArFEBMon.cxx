@@ -596,7 +596,7 @@ StatusCode LArFEBMon::fillHistograms() {
 	  fillErrorsSummary(m_fcalASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
 	  break;
       }
-      if (m_currentFebStatus && m_febInErrorTree.size()<29){
+      if (m_currentFebStatus && m_febInErrorTree.size()<33){
 	m_febInErrorTree.push_back(febid.get_identifier32().get_compact());
 	m_febErrorTypeTree.push_back(m_rejectionBits.to_ulong());
       }

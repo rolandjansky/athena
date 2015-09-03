@@ -49,6 +49,8 @@ LArCollisionTimeMonTool::LArCollisionTimeMonTool(const std::string& type,
   declareProperty( "timeDiffCut"	,      m_timeCut = 5.0 );
   declareProperty( "nCells"		,      m_minCells = 2 );
   declareProperty( "eWeighted"		,      m_eWeighted = true );
+  declareProperty( "Key"                ,      m_key="LArCollisionTime");
+  declareProperty( "histPath"           ,      m_histPath="LArCollisionTime"); 
   
   m_eventsCounter = 0;  
   
@@ -80,7 +82,7 @@ LArCollisionTimeMonTool::initialize() {
 StatusCode 
 LArCollisionTimeMonTool::bookHistograms() {
   
-  MonGroup generalGroupShift( this, "/LAr/LArCollisionTime/", run, ATTRIB_MANAGED);
+  MonGroup generalGroupShift( this, "/LAr/"+m_histPath+"/", run, ATTRIB_MANAGED);
   //if(isNewRun ){ // Commented by B.Trocme to comply with new ManagedMonitorToolBase
     newrun=true;
     //

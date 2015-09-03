@@ -113,26 +113,26 @@ LArAffectedRegions::bookHistograms()
     
     // EM Calorimeter - Barrel - PS 
     m_hLArAffectedRegionsEMBPS[0] = TH2I_LW::create("LArAffectedRegionsEMBAPS",
-						    "LAr HV Affected Regions - EMBA - Presampler", 
+						    "HV Affected Regions - EMBA - Presampler", 
 						    8, 0.,1.6,32,-3.15, 3.15);
     SetHistoStyle(m_hLArAffectedRegionsEMBPS[0]);
     generalGroup.regHist(m_hLArAffectedRegionsEMBPS[0]).ignore();
     
     m_hLArAffectedRegionsEMBPS[1] = TH2I_LW::create("LArAffectedRegionsEMBCPS",
-						    "LAr HV Affected Regions - EMBC - Presampler", 
+						    "HV Affected Regions - EMBC - Presampler", 
 						    8,-1.61, -0.01,32,-3.15, 3.15);
     SetHistoStyle(m_hLArAffectedRegionsEMBPS[1]);
     generalGroup.regHist(m_hLArAffectedRegionsEMBPS[1]).ignore();
     
     // EM Calorimeter - Barrel - Layers 1-3
     m_hLArAffectedRegionsEMB[0] = TH2I_LW::create("LArAffectedRegionsEMBA",
-						  "LAr HV Affected Regions - EMBA - Samplings 1-3", 
+						  "HV Affected Regions - EMBA - Samplings 1-3", 
 						  7,0.,1.4,128,-3.15, 3.15);
     SetHistoStyle(m_hLArAffectedRegionsEMB[0]);
     generalGroup.regHist(m_hLArAffectedRegionsEMB[0]).ignore();
     
     m_hLArAffectedRegionsEMB[1] = TH2I_LW::create("LArAffectedRegionsEMBC",
-						  "LAr HV Affected Regions - EMBC - Samplings 1-3", 
+						  "HV Affected Regions - EMBC - Samplings 1-3", 
 						  7,-1.41, -0.01,128,-3.15, 3.15);
     SetHistoStyle(m_hLArAffectedRegionsEMB[1]);
     generalGroup.regHist(m_hLArAffectedRegionsEMB[1]).ignore();
@@ -147,26 +147,26 @@ LArAffectedRegions::bookHistograms()
     for(int ibin=0;ibin<=256;ibin++) phibin_EMEC[ibin] = -TMath::Pi()+ibin*2*TMath::Pi()/256;
 
     m_hLArAffectedRegionsEMECPS[0] = TH2I_LW::create("LArAffectedRegionsEMECAPS",
-						  "LAr HV Affected Regions - EMECA - Presampler", 
+						  "HV Affected Regions - EMECA - Presampler", 
 						  9,etabin_EMECP,64,phibin_EMECPS);
     SetHistoStyle(m_hLArAffectedRegionsEMECPS[0]);
     generalGroup.regHist(m_hLArAffectedRegionsEMECPS[0]).ignore();
 
     m_hLArAffectedRegionsEMECPS[1] = TH2I_LW::create("LArAffectedRegionsEMECCPS",
-						  "LAr HV Affected Regions - EMECC - Presampler", 
+						  "HV Affected Regions - EMECC - Presampler", 
 						  9,etabin_EMECM,64,phibin_EMECPS);
     SetHistoStyle(m_hLArAffectedRegionsEMECPS[1]);
     generalGroup.regHist(m_hLArAffectedRegionsEMECPS[1]).ignore();
 
     // EM Calorimeter - Endcap - Layers 1-3
     m_hLArAffectedRegionsEMEC[0] = TH2I_LW::create("LArAffectedRegionsEMECA",
-						  "LAr HV Affected Regions - EMECA - Samplings 1-3", 
+						  "HV Affected Regions - EMECA - Samplings 1-3", 
 						  9,etabin_EMECP,256,phibin_EMEC);
     SetHistoStyle(m_hLArAffectedRegionsEMEC[0]);
     generalGroup.regHist(m_hLArAffectedRegionsEMEC[0]).ignore();
     
     m_hLArAffectedRegionsEMEC[1] = TH2I_LW::create("LArAffectedRegionsEMECC",
-						  "LAr HV Affected Regions - EMECC - Samplings 1-3", 
+						  "HV Affected Regions - EMECC - Samplings 1-3", 
 						  9,etabin_EMECM,256,phibin_EMEC);
     SetHistoStyle(m_hLArAffectedRegionsEMEC[1]);
     generalGroup.regHist(m_hLArAffectedRegionsEMEC[1]).ignore();
@@ -175,13 +175,13 @@ LArAffectedRegions::bookHistograms()
     // HEC
     for(int iS=0;iS<4;iS++){
       m_hLArAffectedRegionsHECA[iS] = TH2I_LW::create(Form("LArAffectedRegionsHECA%i",iS),
-						     Form("LAr HV Affected Regions - HECA - Layer %i",iS+1), 
+						     Form("HV Affected Regions - HECA - Layer %i",iS+1), 
 						     1,1.5, 3.2, 32, -3.15, 3.15);
       SetHistoStyle(m_hLArAffectedRegionsHECA[iS]);
       generalGroup.regHist(m_hLArAffectedRegionsHECA[iS]).ignore();
 
       m_hLArAffectedRegionsHECC[iS] = TH2I_LW::create(Form("LArAffectedRegionsHECC%i",iS),
-						     Form("LAr HV Affected Regions - HECC - Layer %i",iS+1), 
+						     Form("HV Affected Regions - HECC - Layer %i",iS+1), 
 						     1,-3.21, -1.51, 32, -3.15, 3.15);
       SetHistoStyle(m_hLArAffectedRegionsHECC[iS]);
       generalGroup.regHist(m_hLArAffectedRegionsHECC[iS]).ignore();
