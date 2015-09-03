@@ -15,6 +15,51 @@ def MuonCombinedInDetExtensionAlg(name="MuonCombinedInDetExtensionAlg",**kwargs)
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
 
+def MuGirlAlg(name="MuGirlAlg",**kwargs):
+    tools = [getPublicTool("MuGirlTagTool")]
+    kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
+    return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
+
+def MuonCaloTagAlg(name="MuonCaloTagAlg",**kwargs):
+    tools = [getPublicTool("MuonCaloTagTool")]
+    kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
+    return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
+
+def MuonSegmentTagAlg( name="MuonSegmentTagAlg", **kwargs ):
+    kwargs.setdefault("MuonSegmentTagTool", getPublicTool("MuonSegmentTagTool") )
+    return CfgMgr.MuonSegmentTagAlg(name,**kwargs)
+
+def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
+    tools = [getPublicTool("MuonInsideOutRecoTool") ]
+    kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
+    return CfgMgr.MuonCombinedInDetExtensionAlg(name,**kwargs)
+
+def MuonCombinedInDetCandidateAlg( name="MuonCombinedInDetCandidateAlg",**kwargs ):
+    kwargs.setdefault("InDetCandidateTool",getPublicTool("InDetCandidateTool") )
+    return CfgMgr.MuonCombinedInDetCandidateAlg(name,**kwargs)
+    
+def MuonCombinedMuonCandidateAlg( name="MuonCombinedMuonCandidateAlg", **kwargs ):
+    kwargs.setdefault("MuonCandidateTool",getPublicTool("MuonCandidateTool"))
+    return CfgMgr.MuonCombinedMuonCandidateAlg(name,**kwargs)
+
+def MuonCombinedAlg( name="MuonCombinedAlg",**kwargs ):
+    kwargs.setdefault("MuonCombinedTool",getPublicTool("MuonCombinedTool"))
+    return CfgMgr.MuonCombinedAlg(name,**kwargs)
+
+def MuonCreatorAlg( name="MuonCreatorAlg",**kwargs ):
+    kwargs.setdefault("MuonCreatorTool",getPublicTool("MuonCreatorTool"))
+    return CfgMgr.MuonCreatorAlg(name,**kwargs)
+
+def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
+    kwargs.setdefault("MuonCreatorTool",getPublicTool("StauCreatorTool"))
+    kwargs.setdefault("MuonContainerLocation","Staus")
+    kwargs.setdefault("CombinedLocation","CombinedStau")
+    kwargs.setdefault("ExtrapolatedLocation","ExtrapolatedStau")
+    kwargs.setdefault("MuonCandidateLocation","")
+    kwargs.setdefault("SegmentContainerName","StauSegments")
+    kwargs.setdefault("BuildSlowMuon",1)
+    return MuonCreatorAlg(name,**kwargs)
+
 class MuonCombinedReconstruction(ConfiguredMuonRec):
     def __init__(self,**kwargs):
         ConfiguredMuonRec.__init__(self,"MuonCombinedReconstruction",**kwargs)
@@ -25,25 +70,22 @@ class MuonCombinedReconstruction(ConfiguredMuonRec):
         if not self.isEnabled(): return
 
         topSequence = AlgSequence()
-
-        getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool")
-        getPublicTool("MuonCaloParticleCreator")
-        getPublicTool("MuonCombinedParticleCreator")
-        getPublicTool("InDetCandidateTool")
-        getPublicTool("MuonCandidateTool")
-        getPublicTool("MuonCreatorTool")
+                      
         # creates input collections for ID and MS candidates
         topSequence += getAlgorithm("MuonCombinedInDetCandidateAlg") 
         topSequence += getAlgorithm("MuonCombinedMuonCandidateAlg") 
 
         # runs ID+MS combinations (fit, staco, mugirl, ID-taggers)
         if muonCombinedRecFlags.doStatisticalCombination() or muonCombinedRecFlags.doCombinedFit():
-            getPublicTool("MuonCombinedTool")
             topSequence += getAlgorithm("MuonCombinedAlg") 
 
-        if muonCombinedRecFlags.doMuGirl() or muonCombinedRecFlags.doCaloTrkMuId():
-            topSequence += getAlgorithm("MuonCombinedInDetExtensionAlg") 
+        if muonCombinedRecFlags.doMuGirl():
+            topSequence += getAlgorithm("MuonInsideOutRecoAlg") 
+            #topSequence += getAlgorithm("MuGirlAlg") 
 
+        if muonCombinedRecFlags.doCaloTrkMuId():
+            topSequence += getAlgorithm("MuonCaloTagAlg") 
+            
         if muonCombinedRecFlags.doMuonSegmentTagger():
             getPublicTool("MuonSegmentTagTool")
             topSequence += getAlgorithm("MuonSegmentTagAlg") 

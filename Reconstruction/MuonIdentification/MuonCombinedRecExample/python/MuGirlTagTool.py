@@ -27,6 +27,29 @@ def MuGirlTagTool( name='MuGirlTagTool', **kwargs ):
 def TrigMuGirlTagTool( name='TrigMuGirlTagTool', **kwargs ):
    return MuGirlTagToolBase(name=name,configureForTrigger=True,doStau=True,**kwargs)
 
+def MuonInsideOutRecoTool( name="MuonInsideOutRecoTool", **kwargs ):
+   return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
+
+def MuonCandidateTrackBuilderTool( name="MuonCandidateTrackBuilderTool",**kwargs):
+   return CfgMgr.Muon__MuonCandidateTrackBuilderTool(name,**kwargs)
+
+def MuonLayerSegmentMatchingTool( name="MuonLayerSegmentMatchingTool",**kwargs):
+   return CfgMgr.Muon__MuonLayerSegmentMatchingTool(name,**kwargs)
+
+def MuonLayerAmbiguitySolverTool( name="MuonLayerAmbiguitySolverTool",**kwargs):
+   return CfgMgr.Muon__MuonLayerAmbiguitySolverTool(name,**kwargs)
+
+def MuonRecoValidationTool( name="MuonRecoValidationTool",**kwargs):
+   return CfgMgr.Muon__MuonRecoValidationTool(name,**kwargs)
+
+        #ToolSvc +=  CfgMgr.Muon__MuonSystemExtensionTool("MuonSystemExtensionTool",OutputLevel=VERBOSE)
+        #ToolSvc +=  CfgMgr.Muon__MuonPrepRawDataCollectionProviderTool("MuonPrepRawDataCollectionProviderTool",OutputLevel=VERBOSE)
+        #ToolSvc +=  CfgMgr.Muon__MuonLayerHashProviderTool("MuonLayerHashProviderTool",OutputLevel=VERBOSE)
+        #ToolSvc +=  CfgMgr.Muon__MuonPRDSelectionTool("MuonPRDSelectionTool",OutputLevel=VERBOSE)
+        #ToolSvc +=  CfgMgr.Muon__MuonLayerSegmentFinderTool("MuonLayerSegmentFinderTool",OutputLevel=VERBOSE)
+        #ToolSvc +=  CfgMgr.Muon__MuonClusterSegmentFinderTool("MuonClusterSegmentFinderTool",OutputLevel=VERBOSE)
+        #ToolSvc +=  CfgMgr.Muon__VERBOSE)
+
 
 
 

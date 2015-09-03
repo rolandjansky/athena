@@ -10,11 +10,18 @@ from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 
 
 # combined tools
-addTool("MuonCombined::InDetCandidateTool","InDetCandidateTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedTool","MuonCombinedTool")
+addTool("MuonCombinedRecExample.MuonCombinedTools.InDetCandidateTool","InDetCandidateTool")
+
 addTool("MuonCombinedRecExample.MuGirlTagTool.MuGirlTagTool","MuGirlTagTool")
 addTool("MuonCombinedRecExample.MuGirlTagTool.TrigMuGirlTagTool","TrigMuGirlTagTool")
-addTool("MuonCombined::MuonSegmentTagTool","MuonSegmentTagTool")
+
+addTool("MuonCombinedRecExample.MuGirlTagTool.MuonInsideOutRecoTool","MuonInsideOutRecoTool")
+addTool("MuonCombinedRecExample.MuGirlTagTool.MuonCandidateTrackBuilderTool","MuonCandidateTrackBuilderTool")
+addTool("MuonCombinedRecExample.MuGirlTagTool.MuonLayerSegmentMatchingTool","MuonLayerSegmentMatchingTool")
+addTool("MuonCombinedRecExample.MuGirlTagTool.MuonLayerAmbiguitySolverTool","MuonLayerAmbiguitySolverTool")
+addTool("MuonCombinedRecExample.MuGirlTagTool.MuonRecoValidationTool","MuonRecoValidationTool")
+
 addTool("MuonCombined::MuonCombinedStacoTagTool","MuonCombinedStacoTagTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedFitTagTool","MuonCombinedFitTagTool")
 addTool("Trk::TrackParticleCreatorTool","TrackParticleCreatorTool")
@@ -22,20 +29,16 @@ addTool("MuonCombinedRecExample.MuonCaloTagTool.MuonCaloTagTool","MuonCaloTagToo
 addTool("Rec::MuonMomentumBalanceSignificanceTool","MuonMomentumBalanceSignificanceTool")
 addTool("Rec::MuonScatteringAngleSignificanceTool","MuonScatteringAngleSignificanceTool")
 
-addAlgorithm("MuonCombinedInDetCandidateAlg","MuonCombinedInDetCandidateAlg")
-addAlgorithm("MuonCombinedMuonCandidateAlg","MuonCombinedMuonCandidateAlg")
-addAlgorithm("MuonCombinedAlg","MuonCombinedAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuGirlAlg","MuGirlAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCaloTagAlg","MuonCaloTagAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonInsideOutRecoAlg","MuonInsideOutRecoAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetCandidateAlg","MuonCombinedInDetCandidateAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedMuonCandidateAlg","MuonCombinedMuonCandidateAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedAlg","MuonCombinedAlg")
 addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCombinedInDetExtensionAlg","MuonCombinedInDetExtensionAlg")
-addAlgorithm("MuonSegmentTagAlg","MuonSegmentTagAlg")
-addAlgorithm("MuonCreatorAlg","MuonCreatorAlg")
-addAlgorithm("MuonCreatorAlg","StauCreatorAlg",
-             MuonCreatorTool="StauCreatorTool",
-             MuonContainerLocation = "Staus",
-             CombinedLocation = "CombinedStau",
-             ExtrapolatedLocation = "ExtrapolatedStau",
-             MuonCandidateLocation = "",
-             SegmentContainerName = "StauSegments",
-             BuildSlowMuon=1)
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonSegmentTagAlg","MuonSegmentTagAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.MuonCreatorAlg","MuonCreatorAlg")
+addAlgorithm("MuonCombinedRecExample.MuonCombinedAlgs.StauCreatorAlg","StauCreatorAlg")
 
 # tracking tools
 addTool("TrkTrackSummaryTool.AtlasTrackSummaryTool.AtlasTrackSummaryTool", "AtlasTrackSummaryTool" )
@@ -43,9 +46,7 @@ addTool("TrkTrackSummaryTool.AtlasTrackSummaryTool.AtlasTrackSummaryTool", "Atla
 # put this here until it is set in the appropriate package
 addTool("MuonCombinedRecExample.MuonSegmentTaggerTools.MuTagMatchingTool","MuTagMatchingTool")
 addTool("MuonCombinedRecExample.MuonSegmentTaggerTools.MuTagAmbiguitySolverTool","MuTagAmbiguitySolverTool")
-
-
-addAlgorithm("MuonCombinedRecExample.MuonSegmentTaggerTools.MuonSegmentTaggerAlg","MuonSegmentTaggerAlg")
+addTool("MuonCombinedRecExample.MuonSegmentTaggerTools.MuonSegmentTagTool","MuonSegmentTagTool")
 
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedInDetDetailedTrackSelectorTool","MuonCombinedInDetDetailedTrackSelectorTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedParticleCreator","MuonCombinedParticleCreator")
