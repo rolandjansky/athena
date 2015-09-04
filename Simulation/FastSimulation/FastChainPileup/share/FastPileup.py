@@ -1,6 +1,10 @@
 # FastPileup.py - set up fast pileup emulation using in-time generator
 # Richard Hawkings, Vladimir Lyubushkin, 23/4/15
 
+# modified on 4/9/15 from MC15 joboptions file
+# MC15.361037.Pythia8_A2MSTW2008LO_minbias_inelastic_low.py
+# but without filter to remove highpT component
+
 if 'pileUpProfile' not in dir():
     fast_chain_log.info("Configuring default pileup profile for MC12")
     include("FastChainPileup/FastPileup_mc12_v2.py")
@@ -19,20 +23,20 @@ genSeq=acam.athMasterSeq.EvgenGenSeq
 
 # setup Pythia8 to run multiple times per event
 from EvgenJobTransforms.EvgenConfig import evgenConfig
-# following is copied from MC14.119994.Pythia8_A2MSTW2008LO_minbias_inelastic.py
+# following copied from MC15.361037.Pythia8_A2MSTW2008LO_minbias_inelastic_low.py
 # but modified to use the MultiPy8Pileup as the algorithm
 
 evgenConfig.description = "Inelastic minimum bias, with the A2 MSTW2008LO tune"
-evgenConfig.keywords = ["QCD", "minBias"]
+evgenConfig.keywords = ["QCD", "minBias","SM"]
 
-# following copied from Pythia8_A2_MSTW2008LO_Common.py
+# following copied from nonStandard/Pythia8/Pythia8_A2_MSTW2008LO_Common.py
 # modified to use MultiPy8Pileup
 
 from FastChainPileup.FastChainPileupConf import MultiPy8Pileup
 genSeq += MultiPy8Pileup("Pythia8")
 evgenConfig.generators += ["Pythia8"]
 
-# base configuration
+# base configuration from common/Pythia8/Pythia8_Base_Fragment.py
 genSeq.Pythia8.Commands += [
     "Main:timesAllowErrors = 500",
     "6:m0 = 172.5",
@@ -45,7 +49,7 @@ genSeq.Pythia8.Commands += [
     "ParticleDecays:limitTau0 = on",
     "ParticleDecays:tau0Max = 10.0"]
 
-# A2_MSTW2008LO_Common configuration
+# nonStandard/Pythia8_A2_MSTW2008LO_Common.py configuration
 genSeq.Pythia8.Commands += [
     "Tune:pp = 5",
     "PDF:useLHAPDF = on",
@@ -56,15 +60,14 @@ genSeq.Pythia8.Commands += [
     "MultipartonInteractions:ecmPow = 0.30",
     "BeamRemnants:reconnectRange = 2.28",
     "SpaceShower:rapidityOrder=0"]
-evgenConfig.tune = "A2 MSTWM2008LO"
+evgenConfig.tune = "A2 MSTW2008LO"
 
-# MC14.119994 specific configuration
-genSeq.Pythia8.Commands += \
-    ["SoftQCD:nonDiffractive = on",
-     "SoftQCD:singleDiffractive = on",
-     "SoftQCD:doubleDiffractive = on"]
+# MC15.361067 specific configuration
+genSeq.Pythia8.Commands += ["SoftQCD:inelastic = on"]
 
 ## end of copies from Pythia initialisation files
+
+genSeq.Pythia8.CollisionEnergy=13000. # how to set this automatically?
 
 from EvgenProdTools.EvgenProdToolsConf import FixHepMC
 genSeq+=FixHepMC(McEventKey=gen_pu,McEventsR=gen_pu,McEventsRW=gen_pu,OutputLevel=INFO)
