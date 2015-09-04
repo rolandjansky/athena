@@ -154,7 +154,7 @@ namespace iFatras {
     std::vector<double>                                            m_layerRotation;
     std::vector< std::vector<double> >                             m_layerMultipleRotation;
     bool                                                           m_layerSCTlike;
-    bool                                                           m_layerInvertOtherSurface;
+    //bool                                                           m_layerInvertOtherSurface;
     std::vector<double>                                            m_layerStereo;
     std::vector<double>                                            m_layerTiltedStereo;
     std::vector<double>                                            m_layerStereoSeparation; 
@@ -171,6 +171,7 @@ namespace iFatras {
     size_t                                                         m_endcapLayerBinsPhi;             //!< Endcap bins for the material in phi
     size_t                                                         m_endcapDiscs;
     size_t                                                         m_discOffset; // for identifier you need to know how many discs of the same type you already have
+    bool                                                           m_useTrapezoidalBounds;
     std::vector< std::vector<double> >                             m_discPhiSectors; // need to be std::vector< std::vector<double> > because of the parser
     std::vector<double>                                            m_discZpos;
     std::vector<double>                                            m_discThickness;

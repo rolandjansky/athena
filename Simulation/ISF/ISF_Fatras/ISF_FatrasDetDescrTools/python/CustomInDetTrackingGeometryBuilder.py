@@ -323,7 +323,7 @@ class CustomInDetTrackingGeometryBuilder( InDet__StagedTrackingGeometryBuilder )
 
             SCT_LayerBuilder.BarrelLayers = 4
             SCT_LayerBuilder.LayerSCTlike = True
-            SCT_LayerBuilder.LayerInvertOtherSurface = True
+            #SCT_LayerBuilder.LayerInvertOtherSurface = True
             SCT_LayerBuilder.LayersZsectors = [12, 12, 12, 12]
             SCT_LayerBuilder.LayerPhiSectors = [32, 40, 48, 56]
             SCT_LayerBuilder.LayerPhiOffset = [(-360./phi*0.2+180./phi) for phi in SCT_LayerBuilder.LayerPhiSectors]   #degrees
@@ -368,14 +368,59 @@ class CustomInDetTrackingGeometryBuilder( InDet__StagedTrackingGeometryBuilder )
             SCT_LayerBuilder.DiscLengthXmin = [[53.784, 54.490], [43.810, 53.784, 54.490], [43.810, 53.784, 54.490], [43.810, 53.784, 54.490], [43.810, 53.784, 54.490], [43.810, 53.784, 54.490], [53.784, 54.490], [64.174, 54.490], [54.490]]
             SCT_LayerBuilder.DiscLengthXmax = [[72.534, 69.548], [53.226, 72.534, 69.548], [53.226, 72.534, 69.548], [53.226, 72.534, 69.548], [53.226, 72.534, 69.548], [53.226, 72.534, 69.548], [72.534, 69.548], [72.534, 69.548], [69.548]]
             SCT_LayerBuilder.DiscLengthY = [[117.700, 121.236], [59.100, 117.700, 121.236], [59.100, 117.700, 121.236], [59.100, 117.7, 121.236], [59.100, 117.7, 121.236], [59.100, 117.7, 121.236], [117.7, 121.236], [52.474, 121.236], [121.236]]
-            SCT_LayerBuilder.DiscPitchX = [[0.080, 0.080], [0.080, 0.080, 0.080], [0.080, 0.080, 0.080], [0.080, 0.080, 0.080], [0.080, 0.080, 0.080], [0.080, 0.080, 0.080], [0.080, 0.080], [0.080, 0.080], [0.080]]
+            #SCT_LayerBuilder.DiscPitchX = [[0.080, 0.080], [0.080, 0.080, 0.080], [0.080, 0.080, 0.080], [0.080, 0.080, 0.080], [0.080, 0.080, 0.080], [0.080, 0.080, 0.080], [0.080, 0.080], [0.080, 0.080], [0.080]]
+            #SCT_LayerBuilder.DiscPitchY = [[117.700, 121.236], [59.100, 117.700, 121.236], [59.100, 117.700, 121.236], [59.100, 117.7, 121.236], [59.100, 117.7, 121.236], [59.100, 117.7, 121.236], [117.7, 121.236], [52.474, 121.236], [121.236]]
+            SCT_LayerBuilder.DiscPitchX = [[207.0e-06, 161.5e-06], [207.0e-06, 207.0e-06, 161.5e-06], [207.0e-06, 207.0e-06, 161.5e-06], [207.0e-06, 207.0e-06, 161.5e-06], [207.0e-06, 207.0e-06, 161.5e-06], [207.0e-06, 207.0e-06, 161.5e-06], [207.0e-06, 161.5e-06], [207.0e-06, 161.5e-06], [161.5e-06]] #in rad for DiscSurfaces
             SCT_LayerBuilder.DiscPitchY = [[117.700, 121.236], [59.100, 117.700, 121.236], [59.100, 117.700, 121.236], [59.100, 117.7, 121.236], [59.100, 117.7, 121.236], [59.100, 117.7, 121.236], [117.7, 121.236], [52.474, 121.236], [121.236]]
             #SCT_LayerBuilder.DiscPitchX = [[5.3784, 5.4490], [4.3810, 5.3784, 5.4490], [4.3810, 5.3784, 5.4490], [4.3810, 5.3784, 5.4490], [4.3810, 5.3784, 5.4490], [4.3810, 5.3784, 5.4490], [5.3784, 5.4490], [6.4174, 5.4490], [5.4490]]
             #SCT_LayerBuilder.DiscPitchY = [[117.700, 121.236], [59.100, 117.700, 121.236], [59.100, 117.700, 121.236], [59.100, 117.7, 121.236], [59.100, 117.7, 121.236], [59.100, 117.7, 121.236], [117.7, 121.236], [52.474, 121.236], [121.236]]
             SCT_LayerBuilder.DiscSeparation = [[5.3, 5.3], [5.3, 5.3, 5.3], [5.1, 5.1, 5.1], [5.3, 5.3, 5.3], [5.3, 5.3, 5.3], [5.2, 5.2, 5.2], [5.2, 5.2],  [5.2, 5.2], [5.1]]
             SCT_LayerBuilder.RingDisplacement = [[15.1, 15.1], [15.1, 15.1, 15.1], [15.2, 15.2, 15.2], [15.1, 15.1, 15.1], [15.1, 15.1, 15.1], [15.15, 15.15, 15.15], [15.15, 15.15],  [15.15, 15.15], [0.]]
             SCT_LayerBuilder.DiscStereo = [[2.3, 2.3], [2.3, 2.3, 2.3], [2.3, 2.3, 2.3], [2.3, 2.3, 2.3], [2.3, 2.3, 2.3], [2.3, 2.3, 2.3], [2.3, 2.3, 2.3], [2.3, 2.3], [2.3, 2.3], [2.3]]
+            #SCT_LayerBuilder.DiscStereo = [[10.0, 10.0], [10., 10., 10.], [10., 10., 10.], [10., 10., 10.], [10., 10., 10.], [10., 10., 10.], [10., 10., 10.], [10., 10.], [10., 10.], [10.]]
             SCT_LayerBuilder.DiscStereoSeparation = [[1., 1.], [1., 1., 1.], [1., 1., 1.], [1., 1., 1.], [1., 1., 1.], [1., 1., 1.], [1., 1.], [1., 1.], [1.]]
+
+            #SCT_LayerBuilder.EndcapDiscs = 1
+            #SCT_LayerBuilder.DiscSCTlike = True
+            ##SCT_LayerBuilder.DiscSCTlike = False
+            ## discs are ordered from the smaller z to the bigger one
+            ## from the smallest ring to the biggest
+            #SCT_LayerBuilder.DiscPhiSectors = [[16]]
+            #SCT_LayerBuilder.DiscZpos = [-1000, 1000]
+            #SCT_LayerBuilder.DiscRingMinR = [[337.6]]
+            #SCT_LayerBuilder.DiscRingMaxR = [[455.3]]
+            #SCT_LayerBuilder.DiscMinPhi = [[-180.0]]
+            #SCT_LayerBuilder.DiscMaxPhi = [[180.0]]
+            #SCT_LayerBuilder.DiscThickness = [0.2850]
+            #SCT_LayerBuilder.DiscLengthXmin = [[40]]
+            #SCT_LayerBuilder.DiscLengthXmax = [[80]]
+            #SCT_LayerBuilder.DiscLengthY = [[117.70]]
+            #SCT_LayerBuilder.DiscPitchX = [[0.080]]
+            #SCT_LayerBuilder.DiscPitchY = [[117.70]]
+            #SCT_LayerBuilder.DiscStereo = [[90.]]
+            #SCT_LayerBuilder.DiscStereoSeparation = [[1.]]
+            
+            #SCT_LayerBuilder.EndcapDiscs = 1
+            #SCT_LayerBuilder.DiscSCTlike = True
+            ##SCT_LayerBuilder.DiscSCTlike = False
+            ## discs are ordered from the smaller z to the bigger one
+            ## from the smallest ring to the biggest
+            #SCT_LayerBuilder.DiscPhiSectors = [[16]]
+            #SCT_LayerBuilder.DiscZpos = [-900., 900.]
+            #SCT_LayerBuilder.DiscRingMinR = [[337.6]]
+            #SCT_LayerBuilder.DiscRingMaxR = [[455.3]]
+            #SCT_LayerBuilder.DiscMinPhi = [[-180.0]]
+            #SCT_LayerBuilder.DiscMaxPhi = [[180.0]]
+            #SCT_LayerBuilder.DiscThickness = [0.2850]
+            #SCT_LayerBuilder.DiscLengthXmin = [[53.784]]
+            #SCT_LayerBuilder.DiscLengthXmax = [[72.534]]
+            #SCT_LayerBuilder.DiscLengthY = [[117.700]]
+            #SCT_LayerBuilder.DiscPitchX = [[207.0e-06]]
+            #SCT_LayerBuilder.DiscPitchX = [[0.0079739*2.]]
+            #SCT_LayerBuilder.DiscPitchY = [[117.700]]
+            #SCT_LayerBuilder.DiscStereo = [[10.]]
+            #SCT_LayerBuilder.DiscStereoSeparation = [[1.]]
+
             SCT_LayerBuilder.AdditionalDiscZpos = [ -2850 , 2850 ] 
             
             # set the layer association                   

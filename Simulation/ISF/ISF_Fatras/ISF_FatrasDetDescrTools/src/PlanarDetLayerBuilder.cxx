@@ -68,11 +68,12 @@ iFatras::PlanarDetLayerBuilder::PlanarDetLayerBuilder(const std::string& t, cons
   m_layerOffset(0),
   m_layerEquidistantBinning(true),
   m_layerSCTlike(false),
-  m_layerInvertOtherSurface(true),
+  //m_layerInvertOtherSurface(true),
   m_endcapLayerBinsR(100),
   m_endcapLayerBinsPhi(1),
   m_endcapDiscs(0),
   m_discOffset(0),
+  m_useTrapezoidalBounds(false),
   m_discSCTlike(false),
   m_inputLayerMaterialProvider(""),
   m_customMaterial(false),
@@ -156,7 +157,7 @@ iFatras::PlanarDetLayerBuilder::PlanarDetLayerBuilder(const std::string& t, cons
   declareProperty("LayerRotation"        , m_layerRotation); 
   declareProperty("LayerMultipleRotation", m_layerMultipleRotation);
   declareProperty("LayerSCTlike"         , m_layerSCTlike);
-  declareProperty("LayerInvertOtherSurface", m_layerInvertOtherSurface);
+  //declareProperty("LayerInvertOtherSurface", m_layerInvertOtherSurface);
   declareProperty("LayerStereo"          , m_layerStereo); 
   declareProperty("LayerTiltedStereo"    , m_layerTiltedStereo); 
   declareProperty("BarrelEnvelope"       , m_barrelEnvelope);
@@ -186,7 +187,7 @@ iFatras::PlanarDetLayerBuilder::PlanarDetLayerBuilder(const std::string& t, cons
   declareProperty("EndcapEnvelope"       , m_endcapEnvelope);
   declareProperty("DiscStereoSeparation" , m_discStereoSeparation); 
   declareProperty("AdditionalDiscZpos"   , m_discAdditionalLayerPosZ);
-
+  declareProperty("UseTrapezoidalBounds", m_useTrapezoidalBounds);
   declareProperty("CheckGeo"             , m_checkGeo);
 }
 
@@ -206,7 +207,7 @@ StatusCode iFatras::PlanarDetLayerBuilder::initialize()
     if ((detStore()->retrieve(pixMgr, m_siMgrLocation)).isFailure()) {
       ATH_MSG_ERROR( "Could not get PixelDetectorManager '" << m_siMgrLocation << "', no layers for Pixel Detector will be built. " );
     } else {
-      ATH_MSG_INFO( "PlanarDetLayerBuilder: PixelDetectorManager retrieved with key '" << m_siMgrLocation <<"'." );
+      ATH_MSG_VERBOSE( "PlanarDetLayerBuilder: PixelDetectorManager retrieved with key '" << m_siMgrLocation <<"'." );
       // assign the detector manager to the silicon manager
       m_siMgr = pixMgr;
       if (detStore()->retrieve(m_pixIdHelper, "PixelID").isFailure())
@@ -217,7 +218,7 @@ StatusCode iFatras::PlanarDetLayerBuilder::initialize()
     if ((detStore()->retrieve(sctMgr, m_siMgrLocation)).isFailure()) {
       ATH_MSG_ERROR( "Could not get SCT_DetectorManager '" << m_siMgrLocation << "', no layers for SCT Detector will be built." );
     } else {
-      ATH_MSG_INFO( "SCT_DetectorManager retrieved with key '" << m_siMgrLocation <<"'." );
+      ATH_MSG_VERBOSE( "SCT_DetectorManager retrieved with key '" << m_siMgrLocation <<"'." );
       // assign the detector manager to the silicon manager
       m_siMgr = sctMgr;
       if (detStore()->retrieve(m_sctIdHelper, "SCT_ID").isFailure())
@@ -252,20 +253,20 @@ StatusCode iFatras::PlanarDetLayerBuilder::initialize()
       return StatusCode::FAILURE;
     }
     else
-      ATH_MSG_INFO("Found and Retrieved collection " << m_detElementMapName);
+      ATH_MSG_VERBOSE("Found and Retrieved collection " << m_detElementMapName);
   }else{
     if((detStore()->record(m_detElementMap, m_detElementMapName)).isFailure()){
       ATH_MSG_FATAL("Could not record collection " << m_detElementMapName);
       return StatusCode::FAILURE;
     }
     else
-      ATH_MSG_INFO("Stored and Retrieved collection " << m_detElementMapName);
+      ATH_MSG_VERBOSE("Stored and Retrieved collection " << m_detElementMapName);
   } 
 
   if (m_inputLayerMaterialProvider.retrieve().isSuccess()){
-    ATH_MSG_INFO ( "Using InputLayerMaterialProvider " << m_inputLayerMaterialProvider);      
+    ATH_MSG_VERBOSE ( "Using InputLayerMaterialProvider " << m_inputLayerMaterialProvider);      
     m_layerMaterial = m_inputLayerMaterialProvider->handleMaterial();
-    ATH_MSG_INFO ( "handleMaterial Done!");      
+    ATH_MSG_VERBOSE ( "handleMaterial Done!");      
   }
 
   if (m_checkGeo){
@@ -287,7 +288,7 @@ StatusCode iFatras::PlanarDetLayerBuilder::initialize()
       ATH_MSG_ERROR("Cannot register Ttree");
       return StatusCode::FAILURE;
     }else{
-      ATH_MSG_INFO ( "Ttree registered" );      
+      ATH_MSG_VERBOSE ( "Ttree registered" );      
     }
   }
 
@@ -299,7 +300,7 @@ StatusCode iFatras::PlanarDetLayerBuilder::initialize()
     if ( sc.isFailure() )
       ATH_MSG_ERROR("Could not register SurfaceCollection in StoreGate"); 
     else
-      ATH_MSG_INFO("SurfaceCollection with " << m_surfcoll->size() << " elements successfully registered in StoreGate");
+      ATH_MSG_VERBOSE("SurfaceCollection with " << m_surfcoll->size() << " elements successfully registered in StoreGate");
   }
 
   return StatusCode::SUCCESS;
@@ -313,7 +314,7 @@ StatusCode iFatras::PlanarDetLayerBuilder::finalize()
     m_outputFile->cd();
     m_currentTree->Write();
     m_outputFile->Close();
-    ATH_MSG_INFO ( "SiSmearedDigitizationTool : Writing Tree" );
+    ATH_MSG_VERBOSE ( "SiSmearedDigitizationTool : Writing Tree" );
   }
 
   ATH_MSG_INFO( "finalize() successful" );
@@ -557,7 +558,7 @@ iFatras::PlanarDetElement* iFatras::PlanarDetLayerBuilder::CylinderDetElement(un
   // get the layer material
   const Trk::LayerMaterialProperties* layerMaterial = m_layerMaterial;
   
-  iFatras::PlanarDetElement* planElement = new iFatras::PlanarDetElement(idwafer, idhash, transform, *layerMaterial, m_layerThickness[layerCounter], lengthY, lengthXmin, lengthXmax, m_layerPitchX[layerCounter], m_layerPitchY[layerCounter], m_pixelCase, true, isOuterMost);
+  iFatras::PlanarDetElement* planElement = new iFatras::PlanarDetElement(idwafer, idhash, transl, transform, *layerMaterial, m_layerThickness[layerCounter], lengthY, lengthXmin, lengthXmax, 0., 0., m_layerPitchX[layerCounter], m_layerPitchY[layerCounter], stereo, m_pixelCase, true, isOuterMost, m_useTrapezoidalBounds, false);
   
   double rmin = 0.;
   double rmax = 0.;
@@ -593,8 +594,8 @@ iFatras::PlanarDetElement* iFatras::PlanarDetLayerBuilder::CylinderDetElement(un
     // add the stereo angle and 180 degree rotation (if needed)
     transform_os*= Amg::AngleAxis3D(stereo, Amg::Vector3D::UnitZ());
     
-    if (m_layerInvertOtherSurface)
-      transform_os*=Amg::AngleAxis3D(TMath::Pi(), Amg::Vector3D::UnitY());
+    //if (m_layerInvertOtherSurface)
+    //transform_os*=Amg::AngleAxis3D(TMath::Pi(), Amg::Vector3D::UnitY());
     
     // apply the rotation angle
     if (etaModule != 0)
@@ -612,7 +613,7 @@ iFatras::PlanarDetElement* iFatras::PlanarDetLayerBuilder::CylinderDetElement(un
     
     ATH_MSG_VERBOSE("Inside CylinderDetElement() --> Creating other PlanarDetElement with " << Amg::toString(transform_os));
     
-    iFatras::PlanarDetElement* planElement_os = new iFatras::PlanarDetElement(idwafer, idhash, transform_os, *layerMaterial_os, m_layerThickness[layerCounter], lengthY, lengthXmin, lengthXmax, m_layerPitchX[layerCounter], m_layerPitchY[layerCounter], m_pixelCase, true, isOuterMost);
+    iFatras::PlanarDetElement* planElement_os = new iFatras::PlanarDetElement(idwafer, idhash, transl_os, transform_os, *layerMaterial_os, m_layerThickness[layerCounter], lengthY, lengthXmin, lengthXmax, 0., 0., m_layerPitchX[layerCounter], m_layerPitchY[layerCounter], -stereo, m_pixelCase, true, isOuterMost, m_useTrapezoidalBounds, false);
 
     if (!planElement_os) ATH_MSG_WARNING("Inside CylinderDetElement() --> Null poiter for the other side Planar Detector Element.");
 
@@ -708,7 +709,6 @@ iFatras::PlanarDetElement* iFatras::PlanarDetLayerBuilder::DiscDetElement(unsign
   double phi_angle = (Phi-1) * phistep + phistep/2.;
 
   double discLengthY    = (m_discRingMaxR[VectPos][iring] - m_discRingMinR[VectPos][iring])* cos(phistep/2.);
-  
   double dx = (m_discRingMaxR[VectPos][iring]*cos(phistep/2.)-discLengthY/2.) * cos(phi);
   double dy = (m_discRingMaxR[VectPos][iring]*cos(phistep/2.)-discLengthY/2.) * sin(phi);
 
@@ -725,24 +725,60 @@ iFatras::PlanarDetElement* iFatras::PlanarDetLayerBuilder::DiscDetElement(unsign
     dz += (etaModule%2) ? (m_discZpos[ZdiscCounter]/fabs(m_discZpos[ZdiscCounter])*m_ringDisplacement[VectPos][iring]) : (-m_discZpos[ZdiscCounter]/fabs(m_discZpos[ZdiscCounter])*m_ringDisplacement[VectPos][iring]);
   }
 
-  Amg::Vector3D transl(dx,dy,dz);
-
-  // create the rotation
-  Amg::RotationMatrix3D rotation;     
-  rotation = Amg::AngleAxis3D(0, Amg::Vector3D::UnitX())*
-    Amg::AngleAxis3D(0, Amg::Vector3D::UnitY())*
-    Amg::AngleAxis3D(TMath::Pi()/2+phi_angle, Amg::Vector3D::UnitZ()); // you need TMath::Pi()/2 to make the correct rotation
+  double lengthXmax = 0.;
+  if (!m_discLengthXmax.empty())
+    lengthXmax = m_discLengthXmax[VectPos][iring];
 
   double stereo = 0.0;
   if (!m_discStereo.empty())
     stereo = m_discZpos[ZdiscCounter]/abs(m_discZpos[ZdiscCounter])*TMath::Pi()/180.*m_discStereo[VectPos][iring]; // Add the stereo angle (the rotation depends from pos/neg z)
   
+  
+  Amg::Vector3D centerOnModule(dx,dy,dz);
+
+  //  IMPORTANT FOR DISCTRAPEZOIDALBOUNDS
+  // If you have trapezoidal shape elements and you want to have DiscTrapezoidalBounds
+  // In this case you have a DiscSurface and you need to redefine the translation vector and the rotation matrix
+  // --> For the centerOnModule use the medium point of the height
+  // --> For the translation use the center of the disc surface 
+  // if you have no stereo angle it is (0., 0., z) for the disc
+  // if you have a stereo angle != 0. then you need to shift it accordingly to the tilt angle
+  // --> The rotation matrix will be the identity (you rotate the disc only in case you have the back surface)
+
+  if (!m_useTrapezoidalBounds && !m_discLengthXmax.empty()) {
+    double hmax = sqrt(m_discRingMaxR[VectPos][iring]*m_discRingMaxR[VectPos][iring]-lengthXmax/2.*lengthXmax/2.);
+    double hmin = sqrt(m_discRingMinR[VectPos][iring]*m_discRingMinR[VectPos][iring]-m_discLengthXmin[VectPos][iring]/2.*m_discLengthXmin[VectPos][iring]/2.);
+    double r = (hmax+hmin)/2.;
+    centerOnModule = Amg::Vector3D(r*cos(phi),r*sin(phi),dz);
+    if (m_discStereo.empty() || stereo == 0.) {// the easy case first so that you don't need to calculate anything since the result will be (0., 0., z.)
+      dx = 0.; dy = 0. ;    
+    } else { 
+      double rMedium = centerOnModule.perp();
+      double rphi = centerOnModule.phi();
+      dx = -dz/fabs(dz)*2.*rMedium*fabs(sin(stereo/2.))*sin(stereo/2.+ M_PI + rphi);
+      dy = dz/fabs(dz)*2.*rMedium*fabs(sin(stereo/2.))*cos(stereo/2.+ M_PI + rphi);
+    } 
+  }
+  
+  Amg::Vector3D transl(dx,dy,dz);
+  
+  // create the rotation
+  Amg::RotationMatrix3D rotation;     
+  if (m_useTrapezoidalBounds || m_discLengthXmax.empty()) 
+    rotation = Amg::AngleAxis3D(0., Amg::Vector3D::UnitX())*
+      Amg::AngleAxis3D(0., Amg::Vector3D::UnitY())*
+      Amg::AngleAxis3D(TMath::Pi()/2.+phi_angle, Amg::Vector3D::UnitZ()); // you need TMath::Pi()/2 to make the correct rotation
+  else 
+    rotation = Amg::AngleAxis3D(0., Amg::Vector3D::UnitX())*
+      Amg::AngleAxis3D(0., Amg::Vector3D::UnitY())*
+      Amg::AngleAxis3D(0., Amg::Vector3D::UnitZ()); // you need TMath::Pi()/2 to make the correct rotation
+  
   Amg::Transform3D transform(rotation, transl);
-
+  
   // add the stereo angle
-  if (m_discSCTlike)
+  if (m_discSCTlike && (m_useTrapezoidalBounds || m_discLengthXmax.empty()))
     transform*=Amg::AngleAxis3D(-m_discZpos[ZdiscCounter]/abs(m_discZpos[ZdiscCounter])*stereo, Amg::Vector3D::UnitZ());
-
+  
   bool isOuterMost = false;
   
   if(!(m_discZpos.size()%(discCounter+1)))
@@ -752,14 +788,10 @@ iFatras::PlanarDetElement* iFatras::PlanarDetLayerBuilder::DiscDetElement(unsign
     if (m_discStereoSeparation[VectPos][iring] > 0.)
       isOuterMost = false;
   
-  double lengthXmax = 0.;
-  if (!m_discLengthXmax.empty())
-    lengthXmax = m_discLengthXmax[VectPos][iring];
-  
   // get the layer material 
   const Trk::LayerMaterialProperties* layerMaterial = m_layerMaterial;
   
-  iFatras::PlanarDetElement* planElement = new iFatras::PlanarDetElement(idwafer, idhash, transform, *layerMaterial, m_discThickness[VectPos], m_discLengthY[VectPos][iring], m_discLengthXmin[VectPos][iring], lengthXmax, m_discPitchX[VectPos][iring], m_discPitchY[VectPos][iring], m_pixelCase, false, isOuterMost);
+  iFatras::PlanarDetElement* planElement = new iFatras::PlanarDetElement(idwafer, idhash, centerOnModule, transform, *layerMaterial, m_discThickness[VectPos], m_discLengthY[VectPos][iring], m_discLengthXmin[VectPos][iring], lengthXmax, m_discRingMinR[VectPos][iring], m_discRingMaxR[VectPos][iring], m_discPitchX[VectPos][iring], m_discPitchY[VectPos][iring], stereo, m_pixelCase, false, isOuterMost, m_useTrapezoidalBounds, false);
   
   ATH_MSG_VERBOSE("Inside DiscDetElement() --> Created PlanarDetElement with " << Amg::toString(transform));
   
@@ -773,29 +805,57 @@ iFatras::PlanarDetElement* iFatras::PlanarDetLayerBuilder::DiscDetElement(unsign
       if(!(m_discZpos.size()%(discCounter+1)))
 	isOuterMost = true;
   
-      double dx_os = dx;
-      double dy_os = dy;
+      double dx_os = (m_discRingMaxR[VectPos][iring]*cos(phistep/2.)-discLengthY/2.) * cos(phi);
+      double dy_os = (m_discRingMaxR[VectPos][iring]*cos(phistep/2.)-discLengthY/2.) * sin(phi);
       double dz_os = dz+m_discZpos[ZdiscCounter]/abs(m_discZpos[ZdiscCounter])*m_discStereoSeparation[VectPos][iring];
-  
+      
+      Amg::Vector3D centerOnModule_os(dx_os,dy_os,dz_os);
+      
+      //  IMPORTANT FOR DISCTRAPEZOIDALBOUNDS
+      // If you have trapezoidal shape elements and you want to have DiscTrapezoidalBounds
+      // In this case you have a DiscSurface and you need to redefine the translation vector and the rotation matrix
+      // --> For the centerOnModule use the medium point of the height
+      // --> For the translation use the center of the disc surface 
+      // if you have no stereo angle it is (0., 0., z) for the disc
+      // if you have a stereo angle != 0. then you need to shift it accordingly to the tilt angle
+      // --> The rotation matrix will be the identity (you rotate the disc only in case you have the back surface)
+      
+      if (!m_useTrapezoidalBounds && !m_discLengthXmax.empty()) {
+	double hmax = sqrt(m_discRingMaxR[VectPos][iring]*m_discRingMaxR[VectPos][iring]-lengthXmax/2.*lengthXmax/2.);
+	double hmin = sqrt(m_discRingMinR[VectPos][iring]*m_discRingMinR[VectPos][iring]-m_discLengthXmin[VectPos][iring]/2.*m_discLengthXmin[VectPos][iring]/2.);
+	double r = (hmax+hmin)/2.;
+	centerOnModule_os = Amg::Vector3D(r*cos(phi),r*sin(phi),dz_os);
+	if (m_discStereo.empty() || stereo == 0.) {// the easy case first so that you don't need to calculate anything since the result will be (0., 0., z.)
+	  dx_os = 0.; dy_os = 0. ;    
+	} else { 
+	  double rMedium = centerOnModule_os.perp();
+	  double rphi = centerOnModule_os.phi();
+	  dx_os = dz_os/fabs(dz_os)*2.*rMedium*fabs(sin(stereo/2.))*sin(-stereo/2.+ M_PI + rphi);
+	  dy_os = -dz_os/fabs(dz_os)*2.*rMedium*fabs(sin(stereo/2.))*cos(-stereo/2.+ M_PI + rphi);
+	} 
+      }
+      
       Amg::Vector3D transl_os(dx_os,dy_os,dz_os);
-            
+      
       // use the same rotation and create the translation
       Amg::Transform3D transform_os(rotation, transl_os);
 
       // add the stereo angle
-      transform_os*=Amg::AngleAxis3D(m_discZpos[ZdiscCounter]/abs(m_discZpos[ZdiscCounter])*stereo, Amg::Vector3D::UnitZ());
-      transform_os*=Amg::AngleAxis3D(TMath::Pi(), Amg::Vector3D::UnitY());
-
+      if (m_useTrapezoidalBounds || m_discLengthXmax.empty())
+	transform_os*=Amg::AngleAxis3D(m_discZpos[ZdiscCounter]/abs(m_discZpos[ZdiscCounter])*stereo, Amg::Vector3D::UnitZ());
+      
+      //transform_os*=Amg::AngleAxis3D(TMath::Pi(), Amg::Vector3D::UnitY());
+      
       const Trk::LayerMaterialProperties* layerMaterial_os = m_layerMaterial;
 	    
       if(!m_pixelCase) {
 	idwafer = m_sctIdHelper->wafer_id(brl_ec, disc, phiModule, etaModule, 1);
 	idhash = m_sctIdHelper->wafer_hash(m_sctIdHelper->wafer_id(idwafer));
       }
-  
+      
       ATH_MSG_VERBOSE("Inside DiscDetElement() --> Creating other PlanarDetElement with " << Amg::toString(transform_os));
-
-      iFatras::PlanarDetElement* planElement_os = new iFatras::PlanarDetElement(idwafer, idhash, transform_os, *layerMaterial_os, m_discThickness[VectPos], m_discLengthY[VectPos][iring], m_discLengthXmin[VectPos][iring], lengthXmax, m_discPitchX[VectPos][iring], m_discPitchY[VectPos][iring], m_pixelCase, false, isOuterMost);
+      
+      iFatras::PlanarDetElement* planElement_os = new iFatras::PlanarDetElement(idwafer, idhash, centerOnModule_os, transform_os, *layerMaterial_os, m_discThickness[VectPos], m_discLengthY[VectPos][iring], m_discLengthXmin[VectPos][iring], lengthXmax, m_discRingMinR[VectPos][iring], m_discRingMaxR[VectPos][iring], m_discPitchX[VectPos][iring], m_discPitchY[VectPos][iring], -stereo, m_pixelCase, false, isOuterMost, m_useTrapezoidalBounds, false);
   
       // each element points to the other face
       planElement->setBackSide(planElement_os); 
@@ -863,7 +923,7 @@ const std::vector< const Trk::CylinderLayer* >* iFatras::PlanarDetLayerBuilder::
     std::vector<const iFatras::PlanarDetElement*>::const_iterator Elem_Iter = m_barrelElements[layerCounter]->begin();
     for ( ; Elem_Iter != m_barrelElements[layerCounter]->end(); Elem_Iter++){
       const Trk::Surface* moduleSurface = &((*Elem_Iter)->surface());
-      Amg::Vector3D orderPosition((*Elem_Iter)->center());
+      Amg::Vector3D orderPosition((*Elem_Iter)->centerOnModule());
       // register the module surface
       Trk::SharedObject<const Trk::Surface> * sharedSurface = new Trk::SharedObject<const Trk::Surface>(moduleSurface);
       Trk::SurfaceOrderPosition surfaceOrder(*sharedSurface, orderPosition);
@@ -1118,7 +1178,7 @@ const std::vector< const Trk::DiscLayer* >* iFatras::PlanarDetLayerBuilder::disc
     std::vector<const iFatras::PlanarDetElement*>::const_iterator Elem_Iter = m_endcapElements[discCounter]->begin();
     for ( ; Elem_Iter != m_endcapElements[discCounter]->end(); Elem_Iter++) {
       const Trk::Surface* moduleSurface = &((*Elem_Iter)->surface());
-      Amg::Vector3D orderPosition((*Elem_Iter)->center());
+      Amg::Vector3D orderPosition((*Elem_Iter)->centerOnModule());
       // register the module surface
       Trk::SharedObject<const Trk::Surface> * sharedSurface = new Trk::SharedObject<const Trk::Surface>(moduleSurface);
       Trk::SurfaceOrderPosition surfaceOrder(*sharedSurface, orderPosition);
@@ -1243,7 +1303,6 @@ const std::vector< const Trk::DiscLayer* >* iFatras::PlanarDetLayerBuilder::disc
 								  currentSteerBinUtility,
 								  singleBinUtils);
 								
-    
     }
     
     int discSurfacesNum = (m_discSurfaces[discCounter]).size();
@@ -1286,7 +1345,7 @@ const std::vector< const Trk::DiscLayer* >* iFatras::PlanarDetLayerBuilder::disc
     Trk::DiscBounds* activeLayerBounds    = new Trk::DiscBounds(rMin,rMax);
 
     // prepare the right overlap descriptor  
-    Trk::OverlapDescriptor* olDescriptor = new iFatras::DiscOverlapDescriptor(currentBinnedArray, singleBinUtils);
+    Trk::OverlapDescriptor* olDescriptor = new iFatras::DiscOverlapDescriptor(currentBinnedArray, singleBinUtils, false);
 
     // layer thickness
     double activeThickness = thickness + discSeparation + ringDisplacement +m_endcapEnvelope;
