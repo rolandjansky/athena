@@ -3,6 +3,7 @@
 */
 
 #include "TrigInterfaces/HypoAlgo.h"
+#include "VnHypoHelper.h"
 namespace HLT{
   class TriggerElement;
 }
@@ -16,16 +17,21 @@ public:
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);
 
 private:
-
+  VnHypoHelper m_helper;
   // monitoring
   float m_Tot_Et;
   float m_Tot_Et_passing;
   float m_qn;
+  float m_qnx;
+  float m_qny;
   float m_qn_passing;
   int   m_icent;
   int   m_icent_passing;
 
   //Configuration
-  int m_ThresholdVnBin;
-  int m_FlowHarmonic  ;
+  //  int m_ThresholdVnBin;
+  int m_FlowHarmonic;
+  
+  double m_q0xShift; // shifts
+  double m_q0yShift;
 };

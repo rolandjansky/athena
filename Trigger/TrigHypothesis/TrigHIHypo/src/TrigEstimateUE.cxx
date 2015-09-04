@@ -11,9 +11,11 @@ using namespace HLT;
 TrigEstimateUE::TrigEstimateUE::TrigEstimateUE(const std::string& name, ISvcLocator* pSvcLocator)
   :AllTEAlgo(name, pSvcLocator),
    m_hasRun(false),
+   m_cells(nullptr),
    m_EtaMin(-5),
    m_EtaMax(5),
-   m_nEtaSlices(10){
+   m_nEtaSlices(10)
+{
   declareProperty("NEtaSlices",m_nEtaSlices,"Number of slices in which UE is estimated");
   declareProperty("EtaMin",m_EtaMin,"minimum eta");
   declareProperty("EtaMax",m_EtaMin,"maximum eta");
@@ -119,7 +121,7 @@ void TrigEstimateUE::Averages::setEtaBins(double etamin, double etamax, size_t s
   etaBin tmp;
   tmp.etaMin = etamin;
   double dEta = fabs(etamin - etamax)/s;
-  for( ; aIter != m_dEta.end(), tmp.etaMin != etamax; ++aIter){
+  for( ; aIter != m_dEta.end() && tmp.etaMin != etamax; ++aIter){
     tmp.etaMax = tmp.etaMin + dEta;
     (*aIter) = tmp;
     tmp.etaMin = tmp.etaMax;
