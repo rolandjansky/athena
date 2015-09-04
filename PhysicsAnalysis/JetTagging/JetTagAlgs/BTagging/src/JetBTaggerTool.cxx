@@ -34,7 +34,7 @@ JetBTaggerTool::JetBTaggerTool(const std::string& n) :
   m_BTagTrackAssocTool("Analysis::BTagTrackAssociation"),
   m_bTagSecVtxTool("Analysis::BTagSecVertexing"),
   m_PtRescalingTool("Analysis::BTagJetPtScaling"),
-  m_retag(false),
+  m_augment(false),
   m_PtRescale(false),
   m_magFieldSvc("AtlasFieldSvc",n)
 {
@@ -45,6 +45,7 @@ JetBTaggerTool::JetBTaggerTool(const std::string& n) :
   declareProperty( "BTagSVName", m_BTagSVName );
   declareProperty( "BTagJFVtxName", m_BTagJFVtxName );
   declareProperty( "BTagSecVertexing", m_bTagSecVtxTool);
+  declareProperty( "BTagAugmentation", m_augment, "switch to decide whether to merely extend the BTagging information as opposed to re-tagging from scratch");
   declareProperty( "BTagJetPtRescale", m_PtRescale, "switch to decide whether to carry out jet pt rescaling (to use calorimeter jet tunings for track jets)");
   declareProperty("MagFieldSvc",    m_magFieldSvc );
 }
@@ -122,32 +123,59 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
  
   std::vector<xAOD::BTagging *> btagsList;
   xAOD::BTaggingContainer * bTaggingContainer(0);
-  xAOD::BTaggingAuxContainer * bTaggingAuxContainer(0);
+  // xAOD::BTaggingAuxContainer * bTaggingAuxContainer(0);
 
+  // Keep track (on an event by event basis; not sure whether this is really necessary) of whether Flavour
+  // Tagging information exists already or not, as in that case it needs to be overwritten rather than created.
+  bool retag = false;
   
   if (evtStore()->contains<xAOD::BTaggingContainer > ( bTaggingContName )) { //prepare re-tagging
-    //BTaggingContainer in SG - overwrite it
+    //BTaggingContainer in SG - overwrite it (copying BTagging objects if in "augmentation" mode)
     ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " in store, re-tagging scenario");
-    // FF: here, have to make a choice between overwriting and extending
-    m_retag = true;
-    bTaggingContainer = new xAOD::BTaggingContainer();
-    bTaggingAuxContainer = new xAOD::BTaggingAuxContainer();
-    CHECK( evtStore()->overwrite(bTaggingAuxContainer, bTaggingContName+"Aux.", true, false) );
-    bTaggingContainer->setStore(bTaggingAuxContainer);
-    CHECK( evtStore()->overwrite(bTaggingContainer, bTaggingContName, true, false) );
-    ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " overwritten in store");
+    retag = true;
+
+    StatusCode sc = overwrite<xAOD::BTaggingContainer,xAOD::BTaggingAuxContainer>(bTaggingContName, m_augment);
+    if (sc.isFailure()) return sc;
+    CHECK( evtStore()->retrieve(bTaggingContainer, bTaggingContName) );
+    if (m_augment && jets.size() != bTaggingContainer->size()) {
+      ATH_MSG_ERROR("#BTAG# existing BTaggingContainer has size" << bTaggingContainer->size() << ", expected " << jets.size());
+    }
+    // bTaggingContainer = new xAOD::BTaggingContainer();
+    // bTaggingAuxContainer = new xAOD::BTaggingAuxContainer();
+    // bTaggingContainer->setStore(bTaggingAuxContainer);
+    // // Here, we have to make a choice between overwriting and extending
+    // if (m_augment) {
+    //   const xAOD::BTaggingContainer* existingContainer(0);
+    //   StatusCode sc = evtStore()->retrieve(existingContainer, bTaggingContName);
+    //   if (sc.isFailure()) {
+    // 	ATH_MSG_ERROR("#BTAG# unable to retrieve existing BTaggingContainer");
+    //   } else if (jets.size() != existingContainer->size()) {
+    // 	ATH_MSG_ERROR("#BTAG# existing BTaggingContainer has size" << existingContainer->size() << ", expected " << jets.size());
+    //   } else {
+    // 	ATH_MSG_VERBOSE("#BTAG# copying objects from existing BTaggingContainer");
+    // 	for (const xAOD::BTagging* bt : *existingContainer) {
+    // 	  xAOD::BTagging* newBTag = new xAOD::BTagging;
+    // 	  bTaggingContainer->push_back(newBTag);
+    // 	  *newBTag = *bt;
+    // 	  btagsList.push_back(newBTag);
+    // 	}
+    //   }
+    // }
+    // CHECK( evtStore()->overwrite(bTaggingAuxContainer, bTaggingContName+"Aux.", true, false) );
+    // CHECK( evtStore()->overwrite(bTaggingContainer, bTaggingContName, true, false) );
+    // ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " overwritten in store");
   }
   else {
-    if (!m_retag) {
-      //No BTaggingContainer not in SG and not re-tagging - record it in SG
-      ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " not in store, Jet reco scenario");
-      bTaggingContainer = new xAOD::BTaggingContainer();
-      bTaggingAuxContainer = new xAOD::BTaggingAuxContainer();
-      CHECK( evtStore()->record(bTaggingAuxContainer, bTaggingContName+"Aux.") );
-      bTaggingContainer->setStore(bTaggingAuxContainer);
-      CHECK( evtStore()->record(bTaggingContainer, bTaggingContName) );
-      ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " recorded in store");
-    }
+    if (m_augment)
+      ATH_MSG_WARNING("#BTAG# augmentation requested for non-existent BTaggingContainer");
+    //No BTaggingContainer not in SG and not re-tagging - record it in SG
+    ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " not in store, Jet reco scenario");
+    bTaggingContainer = new xAOD::BTaggingContainer();
+    xAOD::BTaggingAuxContainer* bTaggingAuxContainer = new xAOD::BTaggingAuxContainer();
+    CHECK( evtStore()->record(bTaggingAuxContainer, bTaggingContName+"Aux.") );
+    bTaggingContainer->setStore(bTaggingAuxContainer);
+    CHECK( evtStore()->record(bTaggingContainer, bTaggingContName) );
+    ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " recorded in store");
   }
 
   // The SV need to be remade in case of re-tagging, or simply used if b-tagging information is merely to be extended.
@@ -159,19 +187,22 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   xAOD::ShallowAuxContainer* bTagSVShallowAuxContainer(0);
   bool reuse_SVContainer = false;
   if (evtStore()->contains<xAOD::VertexContainer > ( bTagSecVertexContName )) {
-    // FF: here, have to make a choice between overwriting or retaining
-    if (m_retag) {
-      bTagSecVertexContainer = new xAOD::VertexContainer;
-      xAOD::VertexAuxContainer * bTagSecVertexAuxContainer =  new xAOD::VertexAuxContainer;
-      CHECK( evtStore()->overwrite(bTagSecVertexAuxContainer, bTagSecVertexContName+"Aux.", true, false) );
-      bTagSecVertexContainer->setStore(bTagSecVertexAuxContainer);
-      CHECK( evtStore()->overwrite(bTagSecVertexContainer, bTagSecVertexContName, true, false) );
+    if (retag && !m_augment) {
+      StatusCode sc = overwrite<xAOD::VertexContainer,xAOD::VertexAuxContainer>(bTagSecVertexContName, false);
+      if (sc.isFailure()) return sc;
+      CHECK( evtStore()->retrieve(bTagSecVertexContainer, bTagSecVertexContName) );
+
+      // bTagSecVertexContainer = new xAOD::VertexContainer;
+      // xAOD::VertexAuxContainer * bTagSecVertexAuxContainer =  new xAOD::VertexAuxContainer;
+      // CHECK( evtStore()->overwrite(bTagSecVertexAuxContainer, bTagSecVertexContName+"Aux.", true, false) );
+      // bTagSecVertexContainer->setStore(bTagSecVertexAuxContainer);
+      // CHECK( evtStore()->overwrite(bTagSecVertexContainer, bTagSecVertexContName, true, false) );
       ATH_MSG_VERBOSE("#BTAG# SV container " << bTagSecVertexContName << " overwritten in store");
     } else {
       const xAOD::VertexContainer *bTagSecVertexContainerAOD;
       StatusCode sc  = evtStore()->retrieve(bTagSecVertexContainerAOD,bTagSecVertexContName);
       if (sc.isFailure()) {
-       ATH_MSG_WARNING("#BTAG# Failed to retrieve  bTagSecVertexContainer " <<bTagSecVertexContName );
+       ATH_MSG_WARNING("#BTAG# Failed to retrieve bTagSecVertexContainer " << bTagSecVertexContName );
       } else {
 	auto rec = xAOD::shallowCopyContainer (*bTagSecVertexContainerAOD);
 	bTagSecVertexContainer = rec.first;
@@ -194,13 +225,16 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   xAOD::ShallowAuxContainer* bTagJFVShallowAuxContainer(0);
   bool reuse_JFVContainer = false;
   if (evtStore()->contains<xAOD::BTagVertexContainer > ( bTagJFVertexContName )) {
-    // FF: here, have to make a choice between overwriting or retaining
-    if (m_retag) {
-      bTagJFVertexContainer = new xAOD::BTagVertexContainer();
-      xAOD::BTagVertexAuxContainer * bTagJFVertexAuxContainer =  new xAOD::BTagVertexAuxContainer();
-      CHECK( evtStore()->overwrite(bTagJFVertexAuxContainer, bTagJFVertexContName+"Aux.",true, false) );
-      bTagJFVertexContainer->setStore(bTagJFVertexAuxContainer);
-      CHECK( evtStore()->overwrite(bTagJFVertexContainer, bTagJFVertexContName, true, false) );
+    if (retag && !m_augment) {
+      StatusCode sc = overwrite<xAOD::BTagVertexContainer,xAOD::BTagVertexAuxContainer>(bTagJFVertexContName, false);
+      if (sc.isFailure()) return sc;
+      CHECK( evtStore()->retrieve(bTagJFVertexContainer, bTagJFVertexContName) );
+
+      // bTagJFVertexContainer = new xAOD::BTagVertexContainer();
+      // xAOD::BTagVertexAuxContainer * bTagJFVertexAuxContainer =  new xAOD::BTagVertexAuxContainer();
+      // CHECK( evtStore()->overwrite(bTagJFVertexAuxContainer, bTagJFVertexContName+"Aux.",true, false) );
+      // bTagJFVertexContainer->setStore(bTagJFVertexAuxContainer);
+      // CHECK( evtStore()->overwrite(bTagJFVertexContainer, bTagJFVertexContName, true, false) );
       ATH_MSG_VERBOSE("#BTAG# JetFitter Vertex container " << bTagJFVertexContName << " overwritten in store");
     } else {
       const xAOD::BTagVertexContainer *bTagJFVertexContainerAOD;
@@ -235,14 +269,25 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   xAOD::JetContainer::iterator itB = jets.begin();
   xAOD::JetContainer::iterator itE = jets.end();
   if (m_magFieldSvc->solenoidOn()) {
+    // In case of augmentation, fill the btagsList vector here (so as not to complicate the downstream logic)
+    if (m_augment) {
+      for (auto bt : *bTaggingContainer) btagsList.push_back(bt);
+    }
+    unsigned int ibtag = 0;
     for (xAOD::JetContainer::iterator it = itB ; it != itE; ++it) {
       xAOD::Jet& jetToTag = ( **it );
       jetsList.push_back(&jetToTag);
-      xAOD::BTagging * newBTag = new xAOD::BTagging();
-      //Push the BTagging object in the container and in the temporary vector
-      bTaggingContainer->push_back(newBTag);
-      btagsList.push_back(newBTag);
-      if (!m_retag) {
+      // In case of augmentation, the BTagging object has been copied and added to btagsList already.
+      xAOD::BTagging* newBTag = 0;
+      if (m_augment) {
+	newBTag = btagsList[ibtag++];
+      } else {
+	newBTag = new xAOD::BTagging();
+	//Push the BTagging object in the container and in the temporary vector
+	bTaggingContainer->push_back(newBTag);
+	btagsList.push_back(newBTag);
+      }
+      if (!retag) {
         //Create an element link to be passed to the tagged Jet.
         //Nothing done in case of re-tagging, assuming the same order is used
         ElementLink< xAOD::BTaggingContainer> linkBTagger;
@@ -254,7 +299,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   else { //Solenoid OFF
     for (xAOD::JetContainer::iterator it = itB ; it != itE; ++it) {
       xAOD::Jet& jetToTag = ( **it );
-      if (!m_retag) {
+      if (!retag) {
 	ElementLink< xAOD::BTaggingContainer> linkBTagger;
         jetToTag.setBTaggingLink(linkBTagger);
       }
@@ -289,21 +334,24 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     } 
   } 
   
-  //if (!m_retag) {
-  // FF: the logic may need to be changed to allow for omitting the track association without yielding a WARNING for every jet
-    StatusCode jetIsAssociated;
-    if (!m_BTagTrackAssocTool.empty()) {
-      ATH_MSG_VERBOSE("#BTAG# Track association tool is not empty");
-      jetIsAssociated = m_BTagTrackAssocTool->BTagTrackAssociation_exec(&jetsList);
-    }
-    else {
-      ATH_MSG_WARNING("#BTAG# Empty track association tool ");
-    }
-    if ( jetIsAssociated.isFailure() ) {
-      ATH_MSG_ERROR("#BTAG# Failed to associate tracks to jet ");
-      return StatusCode::FAILURE;
-    }
-  //}
+  // if (!m_augment) {
+  // We don't want to redo the track-jet association in case of augmentation; however, since
+  // in the release-20 production the muon-jet association wasn't switched on and it is needed at
+  // least for the JetVertexChargeTool, we do rerun it here. The working assumption is that in the
+  // configuration, the track-jet association is switched off.
+  StatusCode jetIsAssociated;
+  if (!m_BTagTrackAssocTool.empty()) {
+    ATH_MSG_VERBOSE("#BTAG# Track association tool is not empty");
+    jetIsAssociated = m_BTagTrackAssocTool->BTagTrackAssociation_exec(&jetsList);
+  }
+  else {
+    ATH_MSG_WARNING("#BTAG# Empty track association tool ");
+  }
+  if ( jetIsAssociated.isFailure() ) {
+    ATH_MSG_ERROR("#BTAG# Failed to associate tracks to jet ");
+    return StatusCode::FAILURE;
+  }
+  // }
 
   std::vector<xAOD::BTagging *>::iterator itBTag = btagsList.begin();
   std::vector<xAOD::Jet *>::iterator itJetB = jetsList.begin();
@@ -311,7 +359,7 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   for (std::vector<xAOD::Jet *>::iterator it = itJetB ; it != itJetE; ++it,++itBTag) {
     xAOD::Jet& jetToTag = ( **it );
     // Secondary vertex reconstruction: unless it is clear that previous results are to be re-used, run this always.
-    if (! reuse_SVContainer) {
+    if (! (reuse_SVContainer || m_augment)) {
       StatusCode SV = m_bTagSecVtxTool->BTagSecVtx_exec(jetToTag, *itBTag, bTagSecVertexContainer, bTagJFVertexContainer);
       if (SV.isFailure()) {
 	ATH_MSG_WARNING("#BTAG# Failed to reconstruct sec vtx");
@@ -350,6 +398,69 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
   return 1;
 
 }
+
+  // Since we are having to do some manipulations for multiple containers, use a few functions to take care of this.
+  // We keep the functions private so that no other compilation unit can try to 
+  // Code "borrowed" from IsolationAugmentationToolMuons.cxx_nocompile and modified.
+  // This functionality is needed when overwriting containers within the Derivation context.
+  
+  template< class CONTAINER, class AUXSTORE >
+  StatusCode
+  JetBTaggerTool::overwrite(const std::string& key, bool doCopy) const {
+   
+    // Let the user know what's happening:
+    ATH_MSG_VERBOSE( "Running deepCopy on container: " << key );
+   
+    // Decide which implementation to call:
+    if (evtStore()->template contains< AUXSTORE >(key+"Aux.")) {
+      if (overwriteImp< CONTAINER, AUXSTORE >(key, doCopy).isFailure()) {
+        ATH_MSG_FATAL( "Couldn't call overwriteImp with concrete auxiliary store" );
+        return StatusCode::FAILURE;
+      }
+    } else if (evtStore()->template contains< xAOD::AuxContainerBase >(key+"Aux.")) {
+      if (overwriteImp<CONTAINER, xAOD::AuxContainerBase>(key, doCopy).isFailure()) {
+        ATH_MSG_FATAL( "Couldn't call overwriteImp with generic auxiliary store" );
+        return StatusCode::FAILURE;
+      }
+    } else {
+      ATH_MSG_FATAL( "Couldn't discover auxiliary store type for container \"" << key << "\"" );
+      return StatusCode::FAILURE;
+    }
+   
+    // Return gracefully:
+    return StatusCode::SUCCESS;
+  }
+
+  template< class CONTAINER, class AUXSTORE >
+  StatusCode
+  JetBTaggerTool::overwriteImp(const std::string& key, bool doCopy) const {
+   
+    // Retrieve the const container:
+    const CONTAINER* c = 0;
+    ATH_CHECK( evtStore()->retrieve(c, key) );
+   
+    // Create the new container:
+    CONTAINER* copy = new CONTAINER();
+    AUXSTORE* copyAux = new AUXSTORE();
+    copy->setStore(copyAux);
+
+    if (doCopy) {
+      // Create the new objects, doing a deep copy if requested
+      for (auto oldObj : *c ) {
+	auto newObj = new typename CONTAINER::base_value_type();
+	copy->push_back(newObj);
+	*newObj = *oldObj;
+      }
+    }
+   
+    // Do the overwrite:
+    ATH_CHECK( evtStore()->overwrite( copy, key, true, false ) );
+    ATH_CHECK( evtStore()->overwrite( copyAux, key + "Aux.", true, false ) );
+   
+    // Return gracefully:
+    return StatusCode::SUCCESS;
+  }
+
 
 
 } //// namespace analysis

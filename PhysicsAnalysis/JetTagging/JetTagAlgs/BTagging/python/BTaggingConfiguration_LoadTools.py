@@ -83,7 +83,7 @@ def Initiate(ConfInstance=None):
           print ConfInstance.BTagTag()+' - WARNING - Automatic inspection of input file failed (file too old?)'
 
     print ConfInstance.BTagTag()+' - Using ', TheTruthCollectionKey, ' as truth key'
-    print ConfInstance.BTagTag()+' - Re-tagging these jet collections: ', BTaggingFlags.RetagJets
+#    print ConfInstance.BTagTag()+' - Re-tagging these jet collections: ', BTaggingFlags.RetagJets
 
     #
     # ============ Setup basic services
@@ -107,7 +107,7 @@ def Initiate(ConfInstance=None):
       protectedInclude("BTagging/BTagCalibBroker_jobOptions.py") # New file which includes the file from JetCalibration and also registers it via registerTool() so it will be recognized by the various addTool() functions.
       BTagCalibrationBrokerTool = ConfInstance.getTool("BTagCalibrationBrokerTool") # In case this variable is needed
     elif ConfInstance._name == "Trig":
-      protectedInclude("BTagging/BTagCalibBroker_OnlineTriggerConfiguration_jobOptions.py")
+      protectedInclude("BTagging/BTagCalibBroker_Trig_jobOptions.py")
       BTagCalibrationBrokerTool = ConfInstance.getTool("BTagCalibrationBrokerTool")
     else:
       print ConfInstance.BTagTag()+' - ERROR - Configuration instance "'+ConfInstance._name+'" has no calibration broker setup specified!'
@@ -214,7 +214,9 @@ def SetupJetCollection(JetCollection, TaggerList=[], SetupScheme="Default", Conf
   ApprovedTaggerList = []
   # Check whether the flags actually this tagger to run
   for tagger in TaggerList:
-    if taggerIsPossible(tagger):
+    if ConfInstance._IgnoreTaggerObstacles:
+      ApprovedTaggerList.append(tagger)
+    elif taggerIsPossible(tagger):
       ApprovedTaggerList.append(tagger)
   if len(ApprovedTaggerList) == 0:
     print(ConfInstance.BTagTag()+' - WARNING - No taggers specified, or none of them can run with the present settings. Opting out of b-tagging for '+JetCollection)
@@ -331,6 +333,8 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
 
   if 'SV1' in TaggerList:
     ConfInstance.addTool('SV1Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'SV2' in TaggerList:
+    ConfInstance.addTool('SV2Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
   if 'SV1Flip' in TaggerList:
     ConfInstance.addTool('SV1FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 #          if BTaggingFlags.SV2:
@@ -427,10 +431,257 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
     ConfInstance.addTool('MV2mTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
   if 'MV2mFlip' in TaggerList:
     ConfInstance.addTool('MV2mFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'JetVertexCharge' in TaggerList:
+    ConfInstance.addTool('JetVertexCharge', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 #          if BTaggingFlags.MV2Flip:
 #            addTool('MV2FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 
   # -- b-tagging tool is now fully configured.
+
+  if BTaggingFlags.OutputLevel < 3:
+    ConfInstance.printAllTools()
+      # NOTE: Printing all tools might be excessive; however the adding of future tools might affect the earlier ones; so printing
+      # only really makes sense at the end, so we either have to do it each time; or get people to add the print command in their
+      # jobOptions. Let us go for the excessive printing in this case; which is only done if debugging anyway.
+
+  # Return True to denote all was successful
+  return True
+
+def SetupJetCollectionRetag(JetCollection, TaggerList, ConfInstance = None):
+  """Sets up the B-Tagging configuration for jet collection called JetCollection. Returns True if successful. The function does nothing 
+  (and returns True) if a configuration for the given jet collection already exists; therefore the function is idempotent.
+
+  This function is meant to be used for retagging, many tools will not be set up, and those that are, will not check for prerequisites.
+
+  TaggerList is a list of taggers (the names coming from BTaggingFlags._tags (see SetupJetCollection() for how the default is filled))."""
+  if ConfInstance is None:
+    from BTagging.BTaggingConfiguration import getConfiguration
+    ConfInstance = getConfiguration()
+
+  from AthenaCommon.AppMgr import ToolSvc
+
+  # -- setup basic b-tagging tool for this jet collection
+  # Note that we are not storing this tool on a variable on purpose; there is now a different one per jet collection and therefore
+  # subsequent scripts cannot depend on this variable (since it would just hold the last one initialized).
+  ConfInstance.addJetCollectionTool(JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3,
+                                  options={'BTagLabelingTool'            : ConfInstance.getTool("thisBTagLabeling", JetCollection=JetCollection),
+                                           'storeSecondaryVerticesInJet' : BTaggingFlags.writeSecondaryVertices})
+  
+  # Setup all taggers
+      
+  # if 'IP2D' in TaggerList:
+  #   ConfInstance.addTool('IP2DTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+  #                        CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  # if 'IP2DNeg' in TaggerList:
+  #   ConfInstance.addTool('IP2DNegTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+  #                        CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  # if 'IP3D' in TaggerList:
+  #   ConfInstance.addTool('IP3DTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+  #                        CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  # if 'IP3DNeg' in TaggerList:
+  #   ConfInstance.addTool('IP3DNegTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+  #                        CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  # if 'SV1' in TaggerList:
+  #   ConfInstance.addTool('SV1Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+  #                        CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  # if 'SV1Flip' in TaggerList:
+  #   ConfInstance.addTool('SV1FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+  #                        CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  # if 'SV0' in TaggerList:
+  #   ConfInstance.addTool('SV0Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+  #                        CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+
+  # if 'MultiSVbb1' in TaggerList:
+  #   ConfInstance.addTool('MultiSVbb1Tag', ToolSvc, 'BTagTrackToJetAssociatorBB', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+  #                        CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  # if 'MultiSVbb2' in TaggerList:
+  #   ConfInstance.addTool('MultiSVbb2Tag', ToolSvc, 'BTagTrackToJetAssociatorBB', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+  #                        CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+
+  # if 'JetFitterNN' in TaggerList:
+  #   ConfInstance.addTool('JetFitterTagNN', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+  #                        CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  #   if 'IP3D' in TaggerList:
+  #     ConfInstance.addTool('JetFitterTagCOMBNN', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+  #                          CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+
+  # if 'JetFitterNNFlip' in TaggerList:
+  #   ConfInstance.addTool('JetFitterTagNNFlip', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+  #                        CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  #   if 'IP3DNeg' in TaggerList:
+  #     ConfInstance.addTool('JetFitterTagCOMBNNIP3DNeg', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+  #                          CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+
+  if 'MV1' in TaggerList:
+    ConfInstance.addTool('MV1Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  if 'MVb' in TaggerList:
+    ConfInstance.addTool('MVbTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  if 'MVbFlip' in TaggerList:
+    ConfInstance.addTool('MVbFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  if 'MV1c' in TaggerList:
+    ConfInstance.addTool('MV1cTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  if 'MV1cFlip' in TaggerList:
+    ConfInstance.addTool('MV1cFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  if 'MV1Flip' in TaggerList:
+    ConfInstance.addTool('MV1FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  if 'MV2c00' in TaggerList:
+    ConfInstance.addTool('MV2c00Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  if 'MV2c00Flip' in TaggerList:
+    ConfInstance.addTool('MV2c00FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  if 'MV2c10' in TaggerList:
+    ConfInstance.addTool('MV2c10Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  if 'MV2c10Flip' in TaggerList:
+    ConfInstance.addTool('MV2c10FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  if 'MV2c20' in TaggerList:
+    ConfInstance.addTool('MV2c20Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  if 'MV2c20Flip' in TaggerList:
+    ConfInstance.addTool('MV2c20FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  if 'MV2c100' in TaggerList:
+    ConfInstance.addTool('MV2c100Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  if 'MV2c100Flip' in TaggerList:
+    ConfInstance.addTool('MV2c100FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  if 'MV2m' in TaggerList:
+    ConfInstance.addTool('MV2mTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  if 'MV2mFlip' in TaggerList:
+    ConfInstance.addTool('MV2mFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+  if 'JetVertexCharge' in TaggerList:   #LC FIXME
+    ConfInstance.setupMuonAssociator('Muons', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
+    ConfInstance.addTool('JetVertexCharge', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
+                         CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
+
+  if BTaggingFlags.OutputLevel < 3:
+    ConfInstance.printAllTools()
+      # NOTE: Printing all tools might be excessive; however the adding of future tools might affect the earlier ones; so printing
+      # only really makes sense at the end, so we either have to do it each time; or get people to add the print command in their
+      # jobOptions. Let us go for the excessive printing in this case; which is only done if debugging anyway.
+
+  # Return True to denote all was successful
+  return True
+
+def SetupJetCollectionTrig(JetCollection, TaggerList, ConfInstance = None):
+  """Sets up the trigger B-Tagging configuration for jet collection called JetCollection. Returns True if successful. The function does nothing 
+  (and returns True) if a configuration for the given jet collection already exists; therefore the function is idempotent.
+
+  TaggerList is a list of taggers (the names coming from BTaggingFlags._tags (see SetupJetCollection() for how the default is filled))."""
+  if ConfInstance is None:
+    from BTagging.BTaggingConfiguration import getConfiguration
+    ConfInstance = getConfiguration()
+
+  from AthenaCommon.AppMgr import ToolSvc
+
+  # -- setup basic b-tagging tool for this jet collection
+  # Note that we are not storing this tool on a variable on purpose; there is now a different one per jet collection and therefore
+  # subsequent scripts cannot depend on this variable (since it would just hold the last one initialized).
+  ConfInstance.addJetCollectionTool(JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3,
+                                  options={'BTagLabelingTool'            : ConfInstance.getTool("thisBTagLabeling", JetCollection=JetCollection),
+                                           'storeSecondaryVerticesInJet' : BTaggingFlags.writeSecondaryVertices})
+  
+  # Setup associators
+  BTagTrackToJetAssociator = ConfInstance.setupTrackAssociator('BTagTrackToJetAssociator', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'SoftMu' in TaggerList or 'SoftMuChi2' in TaggerList:
+    BTagMuonToJetAssociator = ConfInstance.setupMuonAssociator('Muons', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
+  else:
+    BTagMuonToJetAssociator = None
+  if 'SoftEl' in TaggerList:
+    BTagElectronToJetAssociator = ConfInstance.setupElectronAssociator('Electrons', JetCollection, ToolSvc, 
+                                                                     Verbose = BTaggingFlags.OutputLevel < 3,
+                                                                     PhotonCollectionName = 'Photons')
+  else:
+    BTagElectronToJetAssociator = None
+  if 'MultiSVbb1' in TaggerList or 'MultiSVbb2' in TaggerList:
+    ConfInstance.setupTrackAssociator('BTagTrackToJetAssociatorBB', JetCollection, ToolSvc,
+                                    Verbose = BTaggingFlags.OutputLevel < 3,
+                                    options={'shareTracks': False,
+                                             'useVariableSizedTrackCone' : True,
+                                             'coneSizeFitPar1' : 3.15265e-01,
+                                             'coneSizeFitPar2' : -3.66502e-01,
+                                             'coneSizeFitPar3' : -1.56387e-05})
+  
+  # NOTE: The secondary vertex finders etc. don't need to be set up here depending on the flags; they are set up when needed by the
+  # taggers below.
+
+  # Setup all taggers
+      
+  if 'IP2D' in TaggerList:
+    ConfInstance.addTool('IP2DTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'IP2DNeg' in TaggerList:
+    ConfInstance.addTool('IP2DNegTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'IP3D' in TaggerList:
+    ConfInstance.addTool('IP3DTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'IP3DNeg' in TaggerList:
+    ConfInstance.addTool('IP3DNegTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'SV1' in TaggerList:
+    ConfInstance.addTool('SV1Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'SV1Flip' in TaggerList:
+    ConfInstance.addTool('SV1FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'SV0' in TaggerList:
+    ConfInstance.addTool('SV0Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+
+  if 'MultiSVbb1' in TaggerList:
+    ConfInstance.addTool('MultiSVbb1Tag', ToolSvc, 'BTagTrackToJetAssociatorBB', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MultiSVbb2' in TaggerList:
+    ConfInstance.addTool('MultiSVbb2Tag', ToolSvc, 'BTagTrackToJetAssociatorBB', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+
+  if 'JetFitterNN' in TaggerList:
+    ConfInstance.addTool('JetFitterTagNN', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+    if 'IP3D' in TaggerList:
+      ConfInstance.addTool('JetFitterTagCOMBNN', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+
+  if 'JetFitterNNFlip' in TaggerList:
+    ConfInstance.addTool('JetFitterTagNNFlip', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+    if 'IP3DNeg' in TaggerList:
+      ConfInstance.addTool('JetFitterTagCOMBNNIP3DNeg', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+
+  if 'MV1' in TaggerList:
+    ConfInstance.addTool('MV1Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MVb' in TaggerList:
+    ConfInstance.addTool('MVbTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MVbFlip' in TaggerList:
+    ConfInstance.addTool('MVbFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV1c' in TaggerList:
+    ConfInstance.addTool('MV1cTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV1cFlip' in TaggerList:
+    ConfInstance.addTool('MV1cFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV1Flip' in TaggerList:
+    ConfInstance.addTool('MV1FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV2c00' in TaggerList:
+    ConfInstance.addTool('MV2c00Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV2c00Flip' in TaggerList:
+    ConfInstance.addTool('MV2c00FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV2c10' in TaggerList:
+    ConfInstance.addTool('MV2c10Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV2c10Flip' in TaggerList:
+    ConfInstance.addTool('MV2c10FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV2c20' in TaggerList:
+    ConfInstance.addTool('MV2c20Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV2c20Flip' in TaggerList:
+    ConfInstance.addTool('MV2c20FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV2c100' in TaggerList:
+    ConfInstance.addTool('MV2c100Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV2c100Flip' in TaggerList:
+    ConfInstance.addTool('MV2c100FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV2m' in TaggerList:
+    ConfInstance.addTool('MV2mTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV2mFlip' in TaggerList:
+    ConfInstance.addTool('MV2mFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'JetVertexCharge' in TaggerList:   #LC FIXME
+    ConfInstance.addTool('JetVertexCharge', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 
   if BTaggingFlags.OutputLevel < 3:
     ConfInstance.printAllTools()

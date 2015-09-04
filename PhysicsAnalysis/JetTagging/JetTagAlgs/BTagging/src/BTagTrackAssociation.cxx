@@ -9,7 +9,6 @@
 
 #include "xAODJet/Jet.h"
 // #include "JetEvent/JetCollection.h"
-// #include "JetTagEvent/TrackAssociation.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
 // #include "Particle/TrackParticle.h" 
@@ -19,8 +18,11 @@
 
 // // // For Soft Lepton Tag
 // #include "egammaEvent/ElectronAssociation.h"
-// #include "MuonIDEvent/MuonAssociation.h"
 // #include "egammaEvent/PhotonAssociation.h"
+
+#include "xAODMuon/MuonContainer.h"
+#include "xAODMuon/Muon.h"
+
 
 namespace Analysis {
 
@@ -57,24 +59,24 @@ namespace Analysis {
     /* ----------------------------------------------------------------------------------- */
 
     if(m_TrackToJetAssociatorList.size() != m_TrackToJetAssocNameList.size()){
-      msg( MSG::FATAL ) << "Size mismatch between track assoc tools("
-			<<m_TrackToJetAssociatorList.size()<<") and names( "
-			<<m_TrackToJetAssocNameList.size()<<")"  << endreq;
+      ATH_MSG_FATAL("Size mismatch between track assoc tools("
+		    << m_TrackToJetAssociatorList.size() << ") and names( "
+		    << m_TrackToJetAssocNameList.size() << ")");
       return StatusCode::FAILURE;
     }
     if(m_TrackToJetAssociatorList.retrieve().isFailure() ) {
-      msg( MSG::FATAL ) << "Failed to retrieve tools " << m_TrackToJetAssociatorList << endreq;
+      ATH_MSG_FATAL("Failed to retrieve tools " << m_TrackToJetAssociatorList);
       return StatusCode::FAILURE;
     } else {
       if (m_TrackToJetAssociatorList.size() == 0) {
-	msg( MSG::ERROR ) << " No tool for track to jet association" << endreq;
+	ATH_MSG_WARNING(" No tool for track to jet association");
       }
       else {
-        msg( MSG::INFO ) << "Retrieved tools " << m_TrackToJetAssociatorList << endreq;
+        ATH_MSG_INFO("Retrieved tools " << m_TrackToJetAssociatorList);
       }
     }
 
-    // FF: comment out everything but the bare track association for now
+    // It isn't obvious that we will need the electron association in the future; so comment it out
     // if(2*m_ElectronToJetAssociatorList.size() != m_ElectronContainerNameList.size() + m_PhotonContainerNameList.size()){ // because use the same tool for electrons and photons
     //   msg( MSG::FATAL ) << "Size mismatch between electron/photon assoc tools("
     // 			<<m_ElectronToJetAssociatorList.size()<<") and names( "
@@ -88,18 +90,20 @@ namespace Analysis {
     //   msg( MSG::INFO ) << "Retrieved tools " << m_ElectronToJetAssociatorList << endreq;
     // }
 
-    // if(m_MuonToJetAssociatorList.size() != m_MuonContainerNameList.size()){
-    //   msg( MSG::FATAL ) << "Size mismatch between muon assoc tools("
-    // 			<<m_MuonToJetAssociatorList.size()<<") and names( "
-    // 			<<m_MuonContainerNameList.size()<<")"  << endreq;
-    //   return StatusCode::FAILURE;
-    // }
-    // if(m_MuonToJetAssociatorList.retrieve().isFailure() ) {
-    //   msg( MSG::FATAL ) << "Failed to retrieve tools " << m_MuonToJetAssociatorList << endreq;
-    //   return StatusCode::FAILURE;
-    // } else {
-    //   msg( MSG::INFO ) << "Retrieved tools " << m_MuonToJetAssociatorList << endreq;
-    // }
+
+     if(m_MuonToJetAssociatorList.size() != m_MuonContainerNameList.size()){
+       ATH_MSG_FATAL("Size mismatch between muon assoc tools("
+		     << m_MuonToJetAssociatorList.size() << ") and names( "
+		     << m_MuonContainerNameList.size() << ")");
+       return StatusCode::FAILURE;
+     }
+     if(m_MuonToJetAssociatorList.retrieve().isFailure() ) {
+       ATH_MSG_FATAL("Failed to retrieve tools " << m_MuonToJetAssociatorList);
+       return StatusCode::FAILURE;
+     } else {
+       ATH_MSG_INFO("Retrieved tools " << m_MuonToJetAssociatorList);
+     }
+
 
     return StatusCode::SUCCESS;
   }
@@ -164,6 +168,7 @@ namespace Analysis {
 	  tagInfo->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(*tAssocNameIter) = associationLinks;
           ++i;
 	}
+        ATH_MSG_VERBOSE("#BTAG# stored track-to jet associations under name " << *tAssocNameIter);
         //delete pointer created in associateParticlesToJets
         for (i=0; i < assocs.size(); i++) {
 	  delete assocs[i];
@@ -231,27 +236,47 @@ namespace Analysis {
     //   }
     // }
 
+
     // // ----- associate muons
-    // const MuonContainer* muContainer(0);
-    // ToolHandleArray< Analysis::ParticleToJetAssociator >::iterator muassocIter = m_MuonToJetAssociatorList.begin();
-    // ToolHandleArray< Analysis::ParticleToJetAssociator >::iterator muassocEnd = m_MuonToJetAssociatorList.end();
-    // std::vector< std::string >::iterator muNameIter = m_MuonContainerNameList.begin();
-    // std::vector< std::string >::iterator muAssocNameIter = m_MuonToJetAssocNameList.begin();
+    const xAOD::MuonContainer * muonContainer( 0 );
+    ToolHandleArray< Analysis::ParticleToJetAssociator >::iterator muAssocIter = m_MuonToJetAssociatorList.begin();
+    ToolHandleArray< Analysis::ParticleToJetAssociator >::iterator muAssocEnd  = m_MuonToJetAssociatorList.end();
+    std::vector< std::string >::iterator muNameIter = m_MuonContainerNameList.begin();
+    std::vector< std::string >::iterator muAssocNameIter = m_MuonToJetAssocNameList.begin();
 
-    // ATH_MSG_VERBOSE("#BTAG# Now associate the muons");
+    for (; muAssocIter!=muAssocEnd; ++muAssocIter) {
+      sc = evtStore()->retrieve( muonContainer, *muNameIter );
+      if ( sc.isFailure() || muonContainer==0) {
+        ATH_MSG_ERROR("#BTAG# Failed to retrieve Muons " << *muNameIter);
+        return StatusCode::SUCCESS;
+      }
+      ATH_MSG_DEBUG("#BTAG# Number of Muons in event: " << muonContainer->size());
 
-    // for (; muassocIter!=muassocEnd; ++muassocIter) {
-    //   if (*muNameIter != "none") {
-    //     sc = evtStore()->retrieve( muContainer, *muNameIter );
-    //     if ( sc.isFailure() || muContainer==0) {
-    //       ATH_MSG_WARNING("#BTAG# Muon container " << *muNameIter << " not found.");
-    //     } else {
-    //       (*muassocIter)->associateParticlesToJets<Analysis::MuonAssociation>( theJets, muContainer, *muAssocNameIter ); 
-    //     }
-    //     ++muNameIter;
-    //     ++muAssocNameIter;
-    //   }
-    // }
+      std::vector<std::vector<const xAOD::Muon*>*> assocs =
+         (*muAssocIter)->associateParticlesToJets<std::vector<const xAOD::Muon*>, xAOD::MuonContainer>( theJets, muonContainer, *muAssocNameIter );
+
+      // then store them in the BTagging objects. Note that for this to work, the ElementLink from Jet to BTagging object must exist 
+      unsigned int i = 0;
+      for (jetcollection_t::iterator jetIter = theJets->begin(); jetIter != theJets->end(); ++jetIter) {
+        xAOD::BTagging* tagInfo = const_cast<xAOD::BTagging*>((*jetIter)->btagging());
+        std::vector< ElementLink< xAOD::MuonContainer > > associationLinks;
+        for (std::vector<const xAOD::Muon*>::const_iterator muonIter = assocs[i]->begin(); muonIter != assocs[i]->end(); ++muonIter) {
+          ElementLink<xAOD::MuonContainer> EL;
+          EL.toContainedElement(*muonContainer, *muonIter);
+          associationLinks.push_back(EL);
+        }
+        tagInfo->auxdata<std::vector<ElementLink<xAOD::MuonContainer> > >(*muAssocNameIter) = associationLinks;
+        ++i;
+      }
+      ATH_MSG_VERBOSE("#BTAG# stored muon-to-jet associations under name " << *muAssocNameIter);
+      //delete pointer created in associateParticlesToJets
+      for (i=0; i < assocs.size(); i++) {
+        delete assocs[i];
+      }
+      ++muNameIter;
+      ++muAssocNameIter;
+    }          
+
 
     return StatusCode::SUCCESS;
    }

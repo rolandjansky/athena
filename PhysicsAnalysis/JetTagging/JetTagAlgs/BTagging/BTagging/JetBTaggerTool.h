@@ -49,9 +49,16 @@ class  JetBTaggerTool:
   ToolHandle< IBTagTrackAssociation > m_BTagTrackAssocTool;
   ToolHandle< IBTagSecVertexing > m_bTagSecVtxTool;
   ToolHandle< IBTagJetPtScaling> m_PtRescalingTool;
-  mutable bool m_retag;
+  bool m_augment;
   bool m_PtRescale;
   ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc;
+
+  // Utility functions to be used in case of container overwriting.
+  // Note that they do not need to be defined here, as they can only be called from code in JetBTaggerTool.cxx.
+  template< class CONTAINER, class AUXSTORE >
+    StatusCode overwrite(const std::string& key, bool doCopy = true) const;
+  template< class CONTAINER, class AUXSTORE >
+    StatusCode overwriteImp(const std::string& key, bool doCopy = true) const;
 };
 
 }

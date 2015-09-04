@@ -16,11 +16,15 @@ metaIP3DTag = { 'IsATagger'         : True,
                                        'BTagTrackToVertexIPEstimator',
                                        'IP3DNewLikelihoodTool',
                                        'IP3DTrackSelector',
+                                       'InDetTrackSelector',
+                                       'SpecialTrackAssociator',
                                        'SVForIPTool_IP3D',
                                        'IP3DBasicTrackGradeFactory',
                                        'IP3DDetailedTrackGradeFactory'],
                 'PassByPointer'     : {'SVForIPTool'                : 'SVForIPTool_IP3D',
                                        'trackSelectorTool'          : 'IP3DTrackSelector',
+                                       'InDetTrackSelectionTool'    : 'InDetTrackSelector',
+                                       'TrackVertexAssociationTool' : 'SpecialTrackAssociator',
                                        'trackGradeFactory'          : 'IP3DDetailedTrackGradeFactory',
 #                                       'trackToVertexTool'          : 'BTagTrackToVertexTool',
                                        'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator',
@@ -47,6 +51,7 @@ def toolIP3DTag(name, useBTagFlagsDefaults = True, **options):
     unbiasIPEstimation                  default: False (switch to true (better!) when creating new PDFs)
     UseCHypo                            default: True
     SecVxFinderName                     default: "SV1"
+    jetPtMinRef                         default: BTaggingFlags.JetPtMinRef
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -64,6 +69,7 @@ def toolIP3DTag(name, useBTagFlagsDefaults = True, **options):
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'referenceType'                    : BTaggingFlags.ReferenceType,
+                     'jetPtMinRef'                      : BTaggingFlags.JetPtMinRef,
                      'impactParameterView'              : '3D',
                      'trackGradePartitions'             : grades ,
                      'RejectBadTracks'                  : False,
@@ -95,7 +101,6 @@ def toolIP3DDetailedTrackGradeFactory(name, useBTagFlagsDefaults = True, **optio
     useSharedHitInfo                    default: True
     useDetailSharedHitInfo              default: True
     hitBLayerGrade                      default: True
-    hitInnerLayersGrade                 default: True
     useRun2TrackGrading                 default: False
 
     input:             name: The name of the tool (should be unique).
@@ -178,6 +183,7 @@ def toolIP3DTrackSelector(name, useBTagFlagsDefaults = True, **options):
     OutputLevel                         default: BTaggingFlags.OutputLevel
     useBLayerHitPrediction              default: True
     usepTDepTrackSel                    default: False
+    nHitBLayer                          default: 0
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -193,6 +199,58 @@ def toolIP3DTrackSelector(name, useBTagFlagsDefaults = True, **options):
     options['name'] = name
     from JetTagTools.JetTagToolsConf import Analysis__TrackSelector
     return Analysis__TrackSelector(**options)
+
+#------------------------------------------------------------------
+
+metaInDetTrackSelector = { 'ToolCollection' : 'IP3DTag' }
+ 
+def toolInDetTrackSelector(name, useBTagFlagsDefaults = True, **options):
+    """Sets up a InDetTrackSelector tool and returns it.
+
+    The following options have BTaggingFlags defaults:
+
+    OutputLevel                         default: BTaggingFlags.OutputLevel
+
+    input:             name: The name of the tool (should be unique).
+      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
+                  **options: Python dictionary with options for the tool.
+    output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
+    if useBTagFlagsDefaults:
+        defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
+                     'CutLevel'               : "Loose",
+                     'maxZ0SinTheta'          : 3 }
+#                     'maxD0'                  : 2 }
+        for option in defaults:
+            options.setdefault(option, defaults[option])
+    options['name'] = name
+    
+    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+    return InDet__InDetTrackSelectionTool(**options)
+
+#------------------------------------------------------------------
+
+metaSpecialTrackAssociator = { 'ToolCollection' : 'IP3DTag' }
+ 
+def toolSpecialTrackAssociator(name, useBTagFlagsDefaults = True, **options):
+    """Sets up a InDetTrackSelector tool and returns it.
+
+    The following options have BTaggingFlags defaults:
+    OutputLevel                         default: BTaggingFlags.OutputLevel
+    
+    input:             name: The name of the tool (should be unique).
+      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
+                  **options: Python dictionary with options for the tool.
+    output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
+    if useBTagFlagsDefaults:
+        defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
+                     'dzSinTheta_cut'         : 3,
+                     'doPV'                   : True }
+        for option in defaults:
+            options.setdefault(option, defaults[option])
+    options['name'] = name
+    
+    from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TightTrackVertexAssociationTool
+    return CP__TightTrackVertexAssociationTool(**options)
 
 #------------------------------------------------------------------
 

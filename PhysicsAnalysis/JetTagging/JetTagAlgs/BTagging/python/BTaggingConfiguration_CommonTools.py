@@ -38,7 +38,7 @@ metathisBTagLabeling = { 'OneInTotal'    : True,
                                             } }
 
 def toolthisBTagLabeling(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a TrackToVertexIPEstimator tool and returns it.
+    """Sets up a BTagLabeling tool and returns it.
 
     The following options have BTaggingFlags defaults:
 
@@ -57,7 +57,7 @@ def toolthisBTagLabeling(name, useBTagFlagsDefaults = True, **options):
 metaBTagJetTruthMatching = { 'OneInTotal' : True }
 
 def toolBTagJetTruthMatching(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a TrackToVertexIPEstimator tool and returns it. There are actually two
+    """Sets up a BTagJetTruthMatching( tool and returns it. There are actually two
     incarnations of this tool, toolJetQuarkLabel or tooltoolJetTrackTruthMatching depending
     on the options. The relevant option is 'subtype'.
 

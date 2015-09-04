@@ -63,6 +63,7 @@ def toolIP2DTag(name, useBTagFlagsDefaults = True, **options):
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'referenceType'                    : BTaggingFlags.ReferenceType,
+                     'jetPtMinRef'                      : BTaggingFlags.JetPtMinRef,
                      'impactParameterView'              : '2D',
                      'trackGradePartitions'             : grades,
                      'RejectBadTracks'                  : False,
@@ -92,7 +93,6 @@ def toolIP2DDetailedTrackGradeFactory(name, useBTagFlagsDefaults = True, **optio
     useDetailSharedHitInfo              default: True
     useRun2TrackGrading                 default: False
     hitBLayerGrade                      default: True
-    hitInnerLayersGrade                 default: True
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -176,6 +176,7 @@ def toolIP2DTrackSelector(name, useBTagFlagsDefaults = True, **options):
     OutputLevel                         default: BTaggingFlags.OutputLevel
     useBLayerHitPrediction              default: True
     usepTDepTrackSel                    default: False
+    nHitBLayer                          default: 0
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.

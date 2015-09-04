@@ -13,6 +13,7 @@ use JetInterface           JetInterface-*          Reconstruction/Jet
 use AsgTools               AsgTools-*               Control/AthToolSupport
 use xAODTracking           xAODTracking-*         Event/xAOD
 use MagFieldInterfaces     MagFieldInterfaces-*     MagneticField
+
 private
 
 #use AtlasCLHEP             AtlasCLHEP-*             External
@@ -22,6 +23,7 @@ use xAODBase               xAODBase-*               Event/xAOD
 use xAODCore               xAODCore-*               Event/xAOD  
 use xAODTracking           xAODTracking-*           Event/xAOD
 use Particle               Particle-*               Reconstruction
+use xAODMuon               xAODMuon-*               Event/xAOD
 
 use JetTagEvent            JetTagEvent-*            PhysicsAnalysis/JetTagging
 use JetTagInfo             JetTagInfo-*             PhysicsAnalysis/JetTagging

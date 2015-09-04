@@ -37,6 +37,7 @@ def toolSV1Tag(name, useBTagFlagsDefaults = True, **options):
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'referenceType'                    : BTaggingFlags.ReferenceType,
+                     'jetPtMinRef'                      : BTaggingFlags.JetPtMinRef,
                      'SVAlgType'                        : 'SV1',
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'SecVxFinderName'                  : 'SV1',

@@ -3,6 +3,8 @@
 # Configuration functions for IP3DNegTag
 # Author: Wouter van den Wollenberg (2013-2014)
 from BTagging.BTaggingFlags import BTaggingFlags
+from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
+btagrun1 = (geoFlags.Run() == "RUN1" or (geoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
 
 metaIP3DNegTag = { 'IsATagger'         : True,
                    'xAODBaseName'      : 'IP3DNeg',
@@ -13,6 +15,8 @@ metaIP3DNegTag = { 'IsATagger'         : True,
                                           'BTagTrackToVertexIPEstimator',
                                           'IP3DNegNewLikelihoodTool',
                                           'IP3DNegTrackSelector',
+                                          'InDetTrackSelector',
+                                          'SpecialTrackAssociator',
                                           'SVForIPTool_IP3DNeg',
                                           'IP3DNegBasicTrackGradeFactory',
                                           'IP3DNegDetailedTrackGradeFactory'],
@@ -21,6 +25,8 @@ metaIP3DNegTag = { 'IsATagger'         : True,
                                           'trackGradeFactory'          : 'IP3DNegDetailedTrackGradeFactory',
 #                                          'trackToVertexTool'          : 'BTagTrackToVertexTool',
                                           'TrackToVertexIPEstimator'   : 'BTagTrackToVertexIPEstimator',
+                                          'InDetTrackSelectionTool'    : 'InDetTrackSelector',
+                                          'TrackVertexAssociationTool' : 'SpecialTrackAssociator',
                                           'LikelihoodTool'             : 'IP3DNegNewLikelihoodTool'},
 #                   'PassByName'        : {'SecVxFinderNameForV0Removal' : 'InDetVKalVxInJetTool',
 #                                          'SecVxFinderNameForIPSign'    : 'InDetVKalVxInJetTool'},
@@ -47,17 +53,26 @@ def toolIP3DNegTag(name, useBTagFlagsDefaults = True, **options):
     flipIPSign                          default: True
     usePosIP                            default: True
     useNegIP                            default: False
+    jetPtMinRef                         default: BTaggingFlags.JetPtMinRef
+
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
+        grades= [ "0HitIn0HitNInExp2","0HitIn0HitNInExpIn","0HitIn0HitNInExpNIn","0HitIn0HitNIn",
+                  "0HitInExp", "0HitIn",
+                  "0HitNInExp", "0HitNIn",
+                  "InANDNInShared", "PixShared", "SctShared",
+                  "InANDNInSplit", "PixSplit",
+                  "Good"]
+        if btagrun1: grades=[ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ]
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'referenceType'                    : BTaggingFlags.ReferenceType,
                      'impactParameterView'              : '3D',
-                     'trackGradePartitions'             : [ "Good", "BlaShared", "PixShared", "SctShared", "0HitBLayer" ],
+                     'trackGradePartitions'             : grades,
                      'RejectBadTracks'                  : False,
                      'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
                      'jetCollectionList'                : BTaggingFlags.Jets,
@@ -67,6 +82,7 @@ def toolIP3DNegTag(name, useBTagFlagsDefaults = True, **options):
                      'useNegIP'                         : False,
                      'UseCHypo'                         : True,
                      'SecVxFinderName'                  : 'SV1',
+                     'jetPtMinRef'                      : BTaggingFlags.JetPtMinRef,
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])
@@ -87,7 +103,6 @@ def toolIP3DNegDetailedTrackGradeFactory(name, useBTagFlagsDefaults = True, **op
     useSharedHitInfo                    default: True
     useDetailSharedHitInfo              default: True
     hitBLayerGrade                      default: True
-    hitInnerLayersGrade                 default: True
     useRun2TrackGrading                 default: False
 
     input:             name: The name of the tool (should be unique).
@@ -99,8 +114,10 @@ def toolIP3DNegDetailedTrackGradeFactory(name, useBTagFlagsDefaults = True, **op
                      'useSharedHitInfo'       : True,
                      'useDetailSharedHitInfo' : True,
                      'hitBLayerGrade'         : True,
-                     'useRun2TrackGrading'    : False,
-                     'hitInnerLayersGrade'    : True }
+                     'useRun2TrackGrading'    : (btagrun1 == False),
+                     'useInnerLayers0HitInfo' : (btagrun1 == False),
+                     'useDetailSplitHitInfo'  : (btagrun1 == False),
+                     }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
@@ -169,6 +186,7 @@ def toolIP3DNegTrackSelector(name, useBTagFlagsDefaults = True, **options):
     OutputLevel                         default: BTaggingFlags.OutputLevel
     useBLayerHitPrediction              default: True
     usepTDepTrackSel                    default: False
+    nHitBLayer                          default: 0
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -177,6 +195,7 @@ def toolIP3DNegTrackSelector(name, useBTagFlagsDefaults = True, **options):
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
                      'useBLayerHitPrediction' : True,
+                     'nHitBLayer'             : 0 ,
                      'usepTDepTrackSel'       : False }
         for option in defaults:
             options.setdefault(option, defaults[option])

@@ -71,7 +71,7 @@ if not BTaggingFlags.DoNotSetupBTagging: # Temporary measure so the JetRec peopl
     BTaggingFlags.Jets = [ name[:-4] for name in JetCollectionList]
 
     #BTagging list
-    btag = BTaggingFlags.OutputFilesBTag #"BTagging_"
+    btag = ConfInstance.getOutputFilesPrefix() #BTaggingFlags.OutputFilesBTag #"BTagging_"
     #tmpSVname = "SecVtx"
     #tmpJFVxname = "JFVtx"   
 

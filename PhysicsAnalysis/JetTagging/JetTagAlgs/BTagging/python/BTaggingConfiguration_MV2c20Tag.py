@@ -11,7 +11,8 @@ metaMV2c20Tag = { 'IsATagger'          : True,
                                           'BTagCalibrationBrokerTool',
                                           'IP2DTag',
                                           'IP3DTag',
-                                          'JetFitterTagCOMBNN',
+#                                          'JetFitterTagCOMBNN',
+                                          'NewJetFitterVxFinder',
                                           'SV0Tag',
                                           'SV1Tag'],
                   'CalibrationFolders' : ['MV2c20',],
@@ -25,6 +26,7 @@ def toolMV2c20Tag(name, useBTagFlagsDefaults = True, **options):
 
     OutputLevel                         default: BTaggingFlags.OutputLevel
     Runmodus                            default: BTaggingFlags.Runmodus
+    DecorateMvaInputs                   default: BTaggingFlags.DecorateMvaInputs
     taggerName                          default: "MV2c20"
     taggerNameBase                      default: "MV2c20"
     forceMV2CalibrationAlias            default: BTaggingFlags.ForceMV2CalibrationAlias
@@ -44,6 +46,7 @@ def toolMV2c20Tag(name, useBTagFlagsDefaults = True, **options):
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
+                     'DecorateMvaInputs'                : BTaggingFlags.DecorateMvaInputs,
                      'taggerName'                       : 'MV2c20',
                      'taggerNameBase'                   : 'MV2c20',
                      'forceMV2CalibrationAlias'         : BTaggingFlags.ForceMV2CalibrationAlias,

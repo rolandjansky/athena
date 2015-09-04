@@ -5,14 +5,14 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 metaSV2Tag = { 'IsATagger'         : True,
+               'xAODBaseName'      : 'SV2',
                'DependsOn'         : ['AtlasExtrapolator',
                                       'BTagTrackToVertexTool',
                                       'InDetVKalVxInJetTool',
                                       'SV2NewLikelihoodTool'],
                'PassByPointer'     : {'LikelihoodTool'  : 'SV2NewLikelihoodTool'},
-               'PassByName'        : {'SecVxFinderName' : 'InDetVKalVxInJetTool'},
+#               'PassByName'        : {'SecVxFinderName' : 'InDetVKalVxInJetTool'},
                'JetCollectionList' : 'jetCollectionList',
-               'JetWithInfoPlus'   : 'jetWithInfoPlus',
                'ToolCollection'    : 'SV2Tag' }
 
 def toolSV2Tag(name, useBTagFlagsDefaults = True, **options):
@@ -25,9 +25,9 @@ def toolSV2Tag(name, useBTagFlagsDefaults = True, **options):
     referenceType                       default: BTaggingFlags.ReferenceType
     SVAlgType                           default: "SV2"
     jetCollectionList                   default: BTaggingFlags.Jets
-    jetWithInfoPlus                     default: BTaggingFlags.JetsWithInfoPlus
-    originalTPCollectionName            default: BTaggingFlags.TrackParticleCollectionName
     LikelihoodTool                      default: None
+    SecVxFinderName                     default: "SV1"
+    UseCHypo                            default: True
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -39,8 +39,9 @@ def toolSV2Tag(name, useBTagFlagsDefaults = True, **options):
                      'referenceType'                    : BTaggingFlags.ReferenceType,
                      'SVAlgType'                        : 'SV2',
                      'jetCollectionList'                : BTaggingFlags.Jets,
-                     'jetWithInfoPlus'                  : BTaggingFlags.JetsWithInfoPlus,
-                     'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
+                     'SecVxFinderName'                  : 'SV1',
+                     'UseCHypo'                         : True,
+#                     'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
                      'LikelihoodTool'                   : None }
         for option in defaults:
             options.setdefault(option, defaults[option])

@@ -5,18 +5,19 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 metaMVbTag = { 'IsATagger'          : True,
-               'xAODBaseName'       : 'MVb',
+               'xAODBaseName'       : 'MV2c10b',
                'DependsOn'          : ['AtlasExtrapolator',
                                        'BTagTrackToVertexTool',
                                        'BTagCalibrationBrokerTool',
                                        'IP2DTag',
                                        'IP3DTag',
-                                       'JetFitterTagCOMBNN',
+#                                           'JetFitterTagCOMBNN',
+                                       'NewJetFitterVxFinder',
                                        'SV0Tag',
-                                       'SV1Tag'],
-               'CalibrationFolders' : ['MVb',],
+                                       'SV1Tag'],              
+               'CalibrationFolders' : ['MV2c10b',],
                'PassByPointer'      : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
-               'ToolCollection'     : 'MVbTag' }
+               'ToolCollection'     : 'MV2c10bTag' }
 
 def toolMVbTag(name, useBTagFlagsDefaults = True, **options):
     """Sets up a MVbTag tool and returns it.
@@ -41,8 +42,10 @@ def toolMVbTag(name, useBTagFlagsDefaults = True, **options):
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
-                     'taggerName'                       : 'MVb',
-                     'taggerNameBase'                   : 'MVb',
+                     'taggerName'                       : 'MV2c10b',
+                     'taggerNameBase'                   : 'MV2c10b',
+                     'forceMV2CalibrationAlias'         : BTaggingFlags.ForceMV2CalibrationAlias,
+                     'MV2CalibAlias'                    : BTaggingFlags.MV2CalibAlias,
                      'inputSV0SourceName'               : 'SV0',
                      'inputSV1SourceName'               : 'SV1',
                      'inputIP2DSourceName'              : 'IP2D',
@@ -53,5 +56,5 @@ def toolMVbTag(name, useBTagFlagsDefaults = True, **options):
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
-    from JetTagTools.JetTagToolsConf import Analysis__MVbTag
-    return Analysis__MVbTag(**options)
+    from JetTagTools.JetTagToolsConf import Analysis__MV2Tag
+    return Analysis__MV2Tag(**options)

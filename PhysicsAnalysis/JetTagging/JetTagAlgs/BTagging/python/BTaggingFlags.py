@@ -8,8 +8,11 @@ class _BTaggingFlags:
 
     _mode = [ 'Runmodus'  ]
 
+    _DecorateMvaInputs = [ 'DecorateMvaInputs' ]
+
     _ReferenceType = [ 'ReferenceType' ]
 
+    _JetPtMinRef = [ 'JetPtMinRef' ]
 
     _tags = [ 'lifetime1D', 'lifetime2D', 'lifetime3D', 'secVtxFitBU', 'secVtxFitTD', 'IP1D', 
               'IP2D', 'IP2DFlip', 'IP2DPos', 'IP2DNeg', 'IP2DSpc', 'IP2DSpcFlip', 'IP2DSpcPos', 'IP2DSpcNeg',
@@ -32,7 +35,8 @@ class _BTaggingFlags:
               'MV1Flip', 'MV1cFlip', 'MV2Flip',
               'MV2c00Flip','MV2c10Flip','MV2c20Flip','MV2c100Flip','MV2mFlip',
               'MV3_bVSuFlip', 'MV3_bVScFlip', 'MV3_cVSuFlip',
-              'MVb','MVbFlip','MVbPrime','MVbPrimeFlip']
+              'MVb','MVbFlip','MVbPrime','MVbPrimeFlip',
+              'JetVertexCharge']
 
     _BaselineTagger = [ 'BaselineTagger' ]
 
@@ -72,11 +76,15 @@ class _BTaggingFlags:
 
     _CalibrationFolderRoot = [ 'CalibrationFolderRoot' ]
 
+    _TrigCalibrationFolderRoot = [ 'TrigCalibrationFolderRoot' ]
+
     _CalibrationFromLocalReplica = [ 'CalibrationFromLocalReplica' ]
 
     _CalibrationFromCERN = [ 'CalibrationFromCERN' ]
 
     _CalibrationTag = [ 'CalibrationTag' ]
+
+    _TrigCalibrationTag = [ 'TrigCalibrationTag' ]
 
     _CalibrationChannelAliases = [ 'CalibrationChannelAliases' ]
 
@@ -98,6 +106,8 @@ class _BTaggingFlags:
     _MediumPriorityTaggers = [ 'MediumPriorityTaggers' ]
     _LowPriorityTaggers = [ 'LowPriorityTaggers' ]
 
+    _TriggerTaggers = [ 'TriggerTaggers' ]
+
     _doJetTagNtuple = [ 'doJetTagNtuple' ]
     _doJetTagSlimNtuple = [ 'doJetTagSlimNtuple' ]
     _doJetTagEfficiencyNtuple = [ 'doJetTagEfficiencyNtuple' ]
@@ -110,10 +120,12 @@ class _BTaggingFlags:
 
     _AutoInspectInputFile = [ 'AutoInspectInputFile' ]
 
+    _ConfigurationScheme = [ 'ConfigurationScheme' ] #Which configuration scheme to use by default.
+
     DoNotSetupBTagging = False # WOUTER: This is a temporary measure. It allows the JetRec people to test setting up b-tagging from their end without our job options setting it also up (and therefore ending up with a double setup). Do not switch to True unless you know what you are doing.
 
     # WOUTER: These govern the adding of jet collections to lists that decide which containers get persistified.
-    OutputFilesBTag = "BTagging_"
+    OutputFilesPrefix = "BTagging_"
     OutputFilesSVname = "SecVtx"
     OutputFilesJFVxname = "JFVtx"
     OutputFilesBaseName = "xAOD::BTaggingContainer#"
@@ -135,8 +147,13 @@ class _BTaggingFlags:
       for attr in self._mode:
         setattr(self, attr, 'analysis')
 
+      for attr in self._DecorateMvaInputs:
+        setattr(self, attr, False)
+
       for attr in self._ReferenceType:
         setattr(self, attr, 'ALL')
+      for attr in self._JetPtMinRef:
+        setattr(self, attr, 15e3) # in MeV for uncalibrated pt
 
       for attr in self._tags:
         if attr == 'lifetime1D':
@@ -208,11 +225,11 @@ class _BTaggingFlags:
         if attr == 'SoftMuChi2':
           setattr(self, attr, False)
         if attr == 'BasicJetFitter':
-          setattr(self, attr, True)
-        if attr == 'JetFitterTag':
-          setattr(self, attr, True)
-        if attr == 'JetFitterNN':
           setattr(self, attr, False)
+        if attr == 'JetFitterTag':
+          setattr(self, attr, False)
+        if attr == 'JetFitterNN':
+          setattr(self, attr, True)
         if attr == 'JetFitterTagFlip':
           setattr(self, attr, False)
         if attr == 'JetFitterNNFlip':
@@ -234,7 +251,7 @@ class _BTaggingFlags:
         if attr == 'TrackCountingFlip':
           setattr(self, attr, False)
         if attr == 'GbbNNTag':
-          setattr(self, attr, True)
+          setattr(self, attr, False)
         if attr == 'NewGbbNNTag':
           setattr(self, attr, False)
         if attr == 'QGTag':
@@ -284,24 +301,29 @@ class _BTaggingFlags:
         if attr == 'MV3_cVSuFlip':
           setattr(self, attr, False)
         if attr == 'MVb':
-          setattr(self, attr, False)
+          setattr(self, attr, True)
         if attr == 'MVbFlip':
           setattr(self, attr, False)
         if attr == 'MVbPrime':
           setattr(self, attr, False)
         if attr == 'MVbPrimeFlip':
           setattr(self, attr, False)
+        if attr == 'JetVertexCharge':
+          setattr(self, attr, True)
 
 
       for attr in self._BaselineTagger:
           setattr(self, attr, 'MV1')
 
       for attr in self._HighPriorityTaggers:
-        setattr(self, attr, ['IP3D','SV1','BasicJetFitter','JetFitterTag','JetFitterNN','MV1','MV1c','MV2c00','MV2c10','MV2c20','MV2c100','MV2m','IP3DFlip','IP3DPos','IP3DNeg','IP3DSpc','IP3DSpcPos','IP3DSpcNeg','SV1Flip','JetFitterTagFlip','JetFitterNNFlip','MV1Flip','MV1cFlip','MV2c00Flip','MV2c10Flip','MV2c20Flip','MV2c100Flip','MV2mFlip'])
+        setattr(self, attr, ['IP3D','SV1','BasicJetFitter','JetFitterTag','JetFitterNN','MV1','MV1c','MV2c00','MV2c10','MV2c20','MV2c100','MV2m','IP3DFlip','IP3DPos','IP3DNeg','IP3DSpc','IP3DSpcPos','IP3DSpcNeg','SV1Flip','JetFitterTagFlip','JetFitterNNFlip','MV1Flip','MV1cFlip','MV2c00Flip','MV2c10Flip','MV2c20Flip','MV2c100Flip','MV2mFlip', 'JetVertexCharge'])
       for attr in self._MediumPriorityTaggers:
         setattr(self, attr, ['SV0','IP2D','IP2DFlip','IP2DPos','IP2DNeg','IP2DSpc','IP2DSpcPos','IP2DSpcNeg','SoftEl','SoftMu','SoftMuChi2','MV2','MV2Flip'])
       for attr in self._LowPriorityTaggers:
         setattr(self, attr, ['IP1D','SV2','SV2Flip','TrackCounting','TrackCountingFlip','JetProb','JetProbFlip','MV3_bVSu','MV3_bVSc','MV3_cVSu','MV3_bVSuFlip','MV3_bVScFlip','MV3_cVSuFlip','MVb','MVbFlip','MVbPrime','MVbPrimeFlip'])
+
+      for attr in self._TriggerTaggers:
+        setattr(self, attr, ['IP2D','IP3D','SV1','MV2c00','MV2c10','MV2c20'])
 
       for attr in self._jetFinderBasedOn:
         setattr(self, attr, 'Cells')
@@ -377,6 +399,9 @@ class _BTaggingFlags:
       for attr in self._CalibrationFolderRoot:
         setattr(self, attr, '/GLOBAL/BTagCalib/')
 
+      for attr in self._TrigCalibrationFolderRoot:
+        setattr(self, attr, '/GLOBAL/TrigBTagCalib/')
+
       for attr in self._CalibrationFromLocalReplica:
         setattr(self, attr, False)
 
@@ -386,17 +411,20 @@ class _BTaggingFlags:
       for attr in self._CalibrationTag:
         setattr(self, attr, "")
 
+      for attr in self._TrigCalibrationTag:
+        setattr(self, attr, "")
+
       for attr in self._CalibrationChannelAliases:
 
-        setattr(self, attr, [ "myOwnCollection->Cone4H1Tower",
-                              "AntiKt4Tower->AntiKt4Tower,AntiKt4H1Tower,AntiKt4EMTopo",
+        setattr(self, attr, [ "myOwnCollection->AntiKt4TopoEM,AntiKt4EMTopo",
+                              "AntiKt4Tower->AntiKt4Tower,AntiKt4H1Tower,AntiKt4TopoEM,AntiKt4EMTopo",
                               "AntiKt4Topo->AntiKt4Topo,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4H1Topo",
                               "AntiKt4LCTopo->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4Topo,AntiKt4H1Topo",
-                              "AntiKt6Tower->AntiKt6Tower,AntiKt6H1Tower,AntiKt4EMTopo",
-                              "AntiKt6Topo->AntiKt6Topo,AntiKt6TopoEM,AntiKt6H1Topo,AntiKt6H1Tower,AntiKt4EMTopo",
-                              "AntiKt6LCTopo->AntiKt6LCTopo,AntiKt6TopoEM,AntiKt6Topo,AntiKt6H1Topo,AntiKt6H1Tower,AntiKt4EMTopo",
+                              "AntiKt6Tower->AntiKt6Tower,AntiKt6H1Tower,AntiKt4TopoEM,AntiKt4EMTopo",
+                              "AntiKt6Topo->AntiKt6Topo,AntiKt6TopoEM,AntiKt6H1Topo,AntiKt6H1Tower,AntiKt4TopoEM,AntiKt4EMTopo",
+                              "AntiKt6LCTopo->AntiKt6LCTopo,AntiKt6TopoEM,AntiKt6Topo,AntiKt6H1Topo,AntiKt6H1Tower,AntiKt4TopoEM,AntiKt4EMTopo",
                               "AntiKt4TopoEM->AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4H1Topo,AntiKt4LCTopo",
-                              "AntiKt6TopoEM->AntiKt6TopoEM,AntiKt6H1Topo,AntiKt6H1Tower,AntiKt4EMTopo",
+                              "AntiKt6TopoEM->AntiKt6TopoEM,AntiKt6H1Topo,AntiKt6H1Tower,AntiKt4TopoEM,AntiKt4EMTopo",
                               #WOUTER: I added some more aliases here that were previously set up at ./python/BTagging_jobOptions.py. But it cannot
                               #stay there if we want support for JetRec to setup b-tagging from their end.
                               "AntiKt4EMTopo->AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo",
@@ -440,6 +468,9 @@ class _BTaggingFlags:
       for attr in self._AutoInspectInputFile:
           setattr(self,attr,True)
 
+      for attr in self._ConfigurationScheme:
+          setattr(self,attr,"Default")
+
     def Print (self):
       if not BTaggingFlags.Active:
         print '#BTAG# b-tagging is OFF'
@@ -448,12 +479,17 @@ class _BTaggingFlags:
       print '#BTAG# BTagging configuration:'
       for attr in self._Outputlevel:
         print '#BTAG# -> Output level: '+str(getattr(self, attr))
+      for attr in self._DecorateMvaInputs:
+        _tmpdec=getattr(self, attr)
+        print '#BTAG# -> attach MVA inputs to the BTagging object: ', _tmpdec
       for attr in self._mode:
         _tmpmode=getattr(self, attr)
         print '#BTAG# -> Running in mode: '+_tmpmode
         if _tmpmode == 'reference':
           for attr in self._ReferenceType:
             print '#BTAG#    reference type: '+getattr(self, attr)
+          for attr in self._JetPtMinRef:
+            print '#BTAG#    minimum uncalibrated jet pt for reference in MeV: ', getattr(self, attr)
       for attr in self._AutoInspectInputFile:
         print '#BTAG# -> Automatic inspection of input file: '+str(getattr(self, attr))
       for attr in self._jetFinderBasedOn:
@@ -481,8 +517,12 @@ class _BTaggingFlags:
         print '#BTAG# -> Electron collection: '+getattr(self, attr)
       for attr in self._PhotonCollectionName:
         print '#BTAG# -> Photon collection: '+getattr(self, attr)
-      for attr in self._CalibrationFolderRoot:
-        print '#BTAG# -> Calibration folder root: '+getattr(self, attr)
+      #These will be updated later in BTagCalibrationBroker_xxx_jobOptions.py,
+      # no point in showing wrong values now
+      #for attr in self._CalibrationFolderRoot:
+      #  print '#BTAG# -> Calibration folder root: '+getattr(self, attr)
+      #for attr in self._TrigCalibrationFolderRoot:
+      #  print '#BTAG# -> Trigger calibration folder root: '+getattr(self, attr)
       for attr in self._CalibrationSingleFolder:
         if getattr(self, attr):
           print '#BTAG# -> Calibration schema: single actual DB folder + one shadow folder per tagger'
@@ -503,6 +543,11 @@ class _BTaggingFlags:
           print '#BTAG# -> Calibration tag: automatic'
         else:
           print '#BTAG# -> Calibration tag: '+getattr(self,attr)
+      for attr in self._TrigCalibrationTag:
+        if getattr(self, attr) == '':
+          print '#BTAG# -> Trigger calibration tag: automatic'
+        else:
+          print '#BTAG# -> Trigger calibration tag: '+getattr(self,attr)
       for attr in self._CalibrationJetFitterFile:
         print '#BTAG# -> JetFitter calibration files: '+getattr(self, attr)
       for attr in self._CalibrationChannelAliases:
@@ -510,10 +555,14 @@ class _BTaggingFlags:
       for attr in self._writeSecondaryVertices:
         print '#BTAG# -> Store secondary vertices: '+str(getattr(self, attr))
       format = "%25s : %s"
-      print '#BTAG# -> List of active taggers: ',
+      print '#BTAG# -> List of active tagger flags: ',
       for attr in self._tags:
         if getattr(self, attr):
           print attr,
+      print
+      print '#BTAG# -> List of active trigger tagger flags: ',
+      for attr in self._TriggerTaggers:
+        print(" ".join([tag for tag in getattr(self, attr) if (tag in self._tags and getattr(self, tag))]))
       print
 
       print

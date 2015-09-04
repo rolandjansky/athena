@@ -19,11 +19,12 @@ SV2TagTool = Analysis__SVTag(
                               Runmodus = BTaggingFlags.Runmodus,
                               referenceType = BTaggingFlags.ReferenceType,
                               SVAlgType = "SV2",
+                              xAODBaseName = "SV2",
+                              SecVxFinderName = "SV2",
                               OutputLevel = BTaggingFlags.OutputLevel,
                               LikelihoodTool    = SV2NewLikelihood,
                               jetCollectionList = BTaggingFlags.Jets,
-                              jetWithInfoPlus   = BTaggingFlags.JetsWithInfoPlus,
-                              originalTPCollectionName = BTaggingFlags.TrackParticleCollectionName
+                              UseCHypo=True
                              )
 ToolSvc += SV2TagTool
 if BTaggingFlags.OutputLevel < 3:
