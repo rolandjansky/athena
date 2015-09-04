@@ -45,8 +45,7 @@ class  JetBTaggerTool:
   std::string m_BTagSVName; 
   std::string m_BTagJFVtxName; 
 
-  // FIXME: mutable
-  mutable ToolHandle< IBTagTool > m_bTagTool; 
+  ToolHandle< IBTagTool > m_bTagTool; 
   ToolHandle< IBTagTrackAssociation > m_BTagTrackAssocTool;
   ToolHandle< IBTagSecVertexing > m_bTagSecVtxTool;
   ToolHandle< IBTagJetPtScaling> m_PtRescalingTool;

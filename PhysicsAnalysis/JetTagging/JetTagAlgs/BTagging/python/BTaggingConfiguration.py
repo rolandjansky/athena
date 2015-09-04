@@ -17,6 +17,9 @@ from BTagging.BTaggingConfiguration_InDetVKalVxInJetTool import *
 from BTagging.BTaggingConfiguration_InDetVKalVxNegativeTagInJetTool import *
 from BTagging.BTaggingConfiguration_InDetVKalVxMultiVxInJetTool import *
 
+# GbbNN tagger
+#from BTagging.BTaggingConfiguration_GbbNNTag import *
+
 # IP taggers
 #from BTagging.BTaggingConfiguration_IP1DTag import *
 #from BTagging.BTaggingConfiguration_IP2DFlipTag import *
@@ -57,7 +60,7 @@ from BTagging.BTaggingConfiguration_NewJetFitterIP3DNegCollection import *
 # Lepton taggers
 #from BTagging.BTaggingConfiguration_SoftElectronTag import *
 #from BTagging.BTaggingConfiguration_SoftMuonTagChi2 import *
-from BTagging.BTaggingConfiguration_SoftMuonTag import *
+#from BTagging.BTaggingConfiguration_SoftMuonTag import *
 
 # Track counting
 #from BTagging.BTaggingConfiguration_TrackCountingFlip import *
@@ -82,9 +85,10 @@ from BTagging.BTaggingConfiguration_MultiSVbb2Tag import *
 # MV taggers
 from BTagging.BTaggingConfiguration_MV1FlipTag import *
 from BTagging.BTaggingConfiguration_MV1Tag import *
+from BTagging.BTaggingConfiguration_MVbTag import *
+from BTagging.BTaggingConfiguration_MVbFlipTag import *
 #from BTagging.BTaggingConfiguration_MV2FlipTag import *
 #from BTagging.BTaggingConfiguration_MV2Tag import *
-from BTagging.BTaggingConfiguration_Myc100Tag import *
 from BTagging.BTaggingConfiguration_MV1cTag import *
 from BTagging.BTaggingConfiguration_MV1cFlipTag import *
 from BTagging.BTaggingConfiguration_MV2c00Tag import *
@@ -95,29 +99,13 @@ from BTagging.BTaggingConfiguration_MV2c20Tag import *
 from BTagging.BTaggingConfiguration_MV2c20FlipTag import *
 from BTagging.BTaggingConfiguration_MV2c100Tag import *
 from BTagging.BTaggingConfiguration_MV2c100FlipTag import *
-from BTagging.BTaggingConfiguration_MV2cl100Tag import *
-from BTagging.BTaggingConfiguration_MV2cl100FlipTag import *
 from BTagging.BTaggingConfiguration_MV2mTag import *
 from BTagging.BTaggingConfiguration_MV2mFlipTag import *
-from BTagging.BTaggingConfiguration_MV2c10hpTag import *
-from BTagging.BTaggingConfiguration_MV2c10hpFlipTag import *
 
 #JetVertexCharge tool
 from BTagging.BTaggingConfiguration_JetVertexCharge import *
 
-#ExKtbb tool
-from BTagging.BTaggingConfiguration_ExKtbbTag import *
 
-# MultivariateTagManager
-from BTagging.BTaggingConfiguration_MultivariateTagManager import *
-from BTagging.BTaggingConfiguration_MultivariateFlipTagManager import *
-
-# DL1 tagger
-from BTagging.BTaggingConfiguration_DL1Tag import *
-from BTagging.BTaggingConfiguration_DL1FlipTag import *
-
-# TagNtupleDumper
-from BTagging.BTaggingConfiguration_TagNtupleDumper import *
 
 # Global dictionary keeping track of all tool collections                                       
 _BTaggingConfig_ToolCollections = {}
@@ -1001,15 +989,6 @@ class Configuration:
       output: The tool."""
       options = dict(options)
       options['name'] = self.getToolName('BTagTrackToJetAssociator', TrackCollection, JetCollection)
-
-
-      if "TracksToTagList" in options:
-          print self.BTagTag() + " you have requested to tag the following collections of tracks: "
-          print options["TracksToTagList"]
-          return None
-
-
-
       tool = self.getTool('BTagTrackToJetAssociator', TrackCollection, JetCollection)
       if tool is None:
           if Verbose:
@@ -1588,12 +1567,11 @@ def taggerIsPossible(tagger):
                       'SV2Flip',
                       'TrackCountingFlip',
                       'MultiSVTag',
-                      'DL1',
-                      'DL1Flip',
+                      'GbbNNTag',
                       'MV1',
                       'MV2',
                       'MV1Flip',
-                      'MV2Flip']:
+                      'MV2Flip' ]:
             print '#BTAG# - WARNING - Disabling '+tagger+' tagger due to reference run modus...'
             return False
     # disable taggers accordingly to reconstruction scoping levels

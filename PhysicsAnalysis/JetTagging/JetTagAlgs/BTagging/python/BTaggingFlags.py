@@ -14,26 +14,28 @@ class _BTaggingFlags:
 
     _JetPtMinRef = [ 'JetPtMinRef' ]
 
-    _tags = [ 'IP1D',
+    _tags = [ 'lifetime1D', 'lifetime2D', 'lifetime3D', 'secVtxFitBU', 'secVtxFitTD', 'IP1D', 
               'IP2D', 'IP2DFlip', 'IP2DPos', 'IP2DNeg', 'IP2DSpc', 'IP2DSpcFlip', 'IP2DSpcPos', 'IP2DSpcNeg',
               'IP3D', 'IP3DFlip', 'IP3DPos', 'IP3DNeg', 'IP3DSpc', 'IP3DSpcFlip', 'IP3DSpcPos', 'IP3DSpcNeg',
               'SV0', 'MultiSVbb1','MultiSVbb2',
-              'SV1', 'SV1Flip',
-              'SV2', 'SV2Flip',
-              'JetProb', 'JetProbFlip',
-              'IPFordG', 'IPFordGNeg',
-              'SoftEl',
-              'SoftMu', 'SoftMuChi2',
+              'SV1', 'SV1Flip', 
+              'SV2', 'SV2Flip', 
+              'JetProb', 'JetProbFlip', 
+              'JetFitterCharm', 'JetFitterCharmNeg', 
+              'IPFordG', 'IPFordGNeg', 
+              'Gaia', 'GaiaNeg', 
+              'SoftEl', 
+              'SoftMu', 'SoftMuChi2', 
               'BasicJetFitter', 'JetFitterTag', 'JetFitterTagFlip','JetFitterNN', 'JetFitterNNFlip',
               'TrackCounting', 'TrackCountingFlip',
-              'QGTag',
-              'MV1', 'MV1c', 'MV2', 'Myc100',
-              'MV2c00','MV2c10','MV2c20','MV2c100','MV2cl100','MV2m', 'MV2c10hp',
+              'GbbNNTag', 'QGTag', 'NewGbbNNTag',
+              'MV1', 'MV1c', 'MV2',
+              'MV2c00','MV2c10','MV2c20','MV2c100','MV2m',
+              'MV3_bVSu', 'MV3_bVSc', 'MV3_cVSu',
               'MV1Flip', 'MV1cFlip', 'MV2Flip',
-              'MV2c00Flip','MV2c10Flip','MV2c20Flip','MV2c100Flip','MV2cl100Flip','MV2mFlip', 'MV2c10hpFlip',
-              'RNNIP',
-              'DL1', 'DL1Flip',
-              'TagNtupleDumper',
+              'MV2c00Flip','MV2c10Flip','MV2c20Flip','MV2c100Flip','MV2mFlip',
+              'MV3_bVSuFlip', 'MV3_bVScFlip', 'MV3_cVSuFlip',
+              'MVb','MVbFlip','MVbPrime','MVbPrimeFlip',
               'JetVertexCharge']
 
     _BaselineTagger = [ 'BaselineTagger' ]
@@ -76,8 +78,6 @@ class _BTaggingFlags:
 
     _TrigCalibrationFolderRoot = [ 'TrigCalibrationFolderRoot' ]
 
-    _AODFixCalibrationFolderRoot = [ 'AODFixCalibrationFolderRoot' ]
-
     _CalibrationFromLocalReplica = [ 'CalibrationFromLocalReplica' ]
 
     _CalibrationFromCERN = [ 'CalibrationFromCERN' ]
@@ -85,8 +85,6 @@ class _BTaggingFlags:
     _CalibrationTag = [ 'CalibrationTag' ]
 
     _TrigCalibrationTag = [ 'TrigCalibrationTag' ]
-
-    _AODFixCalibrationTag = [ 'AODFixCalibrationTag' ]
 
     _CalibrationChannelAliases = [ 'CalibrationChannelAliases' ]
 
@@ -99,6 +97,10 @@ class _BTaggingFlags:
     _MV2cTrainingConfig = [ 'MV2cTrainingConfig' ]
 
     _MV2mTrainingConfig = [ 'MV2mTrainingConfig' ]
+
+    _ForceMV3CalibrationAlias = [ 'ForceMV3CalibrationAlias' ]
+
+    _MV3CalibAlias = [ 'MV3CalibAlias' ]
 
     _HighPriorityTaggers = [ 'HighPriorityTaggers' ]
     _MediumPriorityTaggers = [ 'MediumPriorityTaggers' ]
@@ -134,31 +136,10 @@ class _BTaggingFlags:
     OutputFilesBaseAuxNameJFSecVtx = "xAOD::BTagVertexAuxContainer#"
 
     btaggingAODList = [ ]
-
+    
     btaggingESDList = [ ]
 
     def __init__ (self):
-      # NOTE FROM DAN: This way of defining instance variabes is a bit
-      # different from how it's done in the rest of the BTaggingFlags,
-      # but I don't see the rational for defining everything
-      # twice. See https://its.cern.ch/jira/browse/AFT-191 for
-      # discussion.
-      self.DL1LocalNNConfig = ''
-      self.ForceDL1CalibrationAlias = True
-      self.DL1CalibAlias = 'AntiKt4EMTopo'
-      self.DL1 = True
-      self.DL1Flip = False
-
-      self.TagNtupleDumper = False
-      self.TagNtupleStream = 'FTAG'
-
-      self.RNNIP = True
-      self.RNNIPConfig = {'ipmp_hits':''}
-      self.WriteRNNInputs = False
-
-      self.MultivariateTagManagerAuxBranches = [
-          'ipmp_hits_p' + x for x in ['b','c','u','tau']
-      ]
 
       for attr in self._Active:
         setattr(self, attr, True)
@@ -175,6 +156,16 @@ class _BTaggingFlags:
         setattr(self, attr, 15e3) # in MeV for uncalibrated pt
 
       for attr in self._tags:
+        if attr == 'lifetime1D':
+          setattr(self, attr, False)
+        if attr == 'lifetime2D':
+          setattr(self, attr, False)
+        if attr == 'lifetime3D':
+          setattr(self, attr, False)
+        if attr == 'secVtxFitBU':
+          setattr(self, attr, False)
+        if attr == 'secVtxFitTD':
+          setattr(self, attr, False)
         if attr == 'IP1D':
           setattr(self, attr, False)
         if attr == 'IP2D':
@@ -230,7 +221,7 @@ class _BTaggingFlags:
         if attr == 'SoftEl':
           setattr(self, attr, False)
         if attr == 'SoftMu':
-          setattr(self, attr, True)
+          setattr(self, attr, False)
         if attr == 'SoftMuChi2':
           setattr(self, attr, False)
         if attr == 'BasicJetFitter':
@@ -243,13 +234,25 @@ class _BTaggingFlags:
           setattr(self, attr, False)
         if attr == 'JetFitterNNFlip':
           setattr(self, attr, False)
-        if attr == 'IPFordG':
+        if attr == 'JetFitterCharm': 
+          setattr(self, attr, False)
+        if attr == 'JetFitterCharmNeg': 
+          setattr(self, attr, False)
+        if attr == 'Gaia': 
+          setattr(self, attr, False)
+        if attr == 'GaiaNeg': 
+          setattr(self, attr, False)
+        if attr == 'IPFordG': 
           setattr(self, attr, False)
         if attr == 'IPFordGNeg':
           setattr(self, attr, False)
         if attr == 'TrackCounting':
           setattr(self, attr, False)
         if attr == 'TrackCountingFlip':
+          setattr(self, attr, False)
+        if attr == 'GbbNNTag':
+          setattr(self, attr, False)
+        if attr == 'NewGbbNNTag':
           setattr(self, attr, False)
         if attr == 'QGTag':
           setattr(self, attr, False)
@@ -265,13 +268,7 @@ class _BTaggingFlags:
           setattr(self, attr, True)
         if attr == 'MV2c100':
           setattr(self, attr, True)
-        if attr == 'Myc100':
-          setattr(self, attr, True)
-        if attr == 'MV2cl100':
-          setattr(self, attr, True)
         if attr == 'MV2m':
-          setattr(self, attr, True)
-        if attr == 'MV2c10hp':
           setattr(self, attr, True)
         if attr == 'MV2c00Flip':
           setattr(self, attr, False)
@@ -281,19 +278,35 @@ class _BTaggingFlags:
           setattr(self, attr, False)
         if attr == 'MV2c100Flip':
           setattr(self, attr, False)
-        if attr == 'MV2cl100Flip':
-          setattr(self, attr, False)
         if attr == 'MV2mFlip':
           setattr(self, attr, False)
-        if attr == 'MV2c10hpFlip':
-          setattr(self, attr, False)
         if attr == 'MV2':
+          setattr(self, attr, False)
+        if attr == 'MV3_bVSu':
+          setattr(self, attr, False)
+        if attr == 'MV3_bVSc':
+          setattr(self, attr, False)
+        if attr == 'MV3_cVSu':
           setattr(self, attr, False)
         if attr == 'MV1Flip':
           setattr(self, attr, False)
         if attr == 'MV1cFlip':
           setattr(self, attr, False)
         if attr == 'MV2Flip':
+          setattr(self, attr, False)
+        if attr == 'MV3_bVSuFlip':
+          setattr(self, attr, False)
+        if attr == 'MV3_bVScFlip':
+          setattr(self, attr, False)
+        if attr == 'MV3_cVSuFlip':
+          setattr(self, attr, False)
+        if attr == 'MVb':
+          setattr(self, attr, True)
+        if attr == 'MVbFlip':
+          setattr(self, attr, False)
+        if attr == 'MVbPrime':
+          setattr(self, attr, False)
+        if attr == 'MVbPrimeFlip':
           setattr(self, attr, False)
         if attr == 'JetVertexCharge':
           setattr(self, attr, True)
@@ -303,21 +316,21 @@ class _BTaggingFlags:
           setattr(self, attr, 'MV1')
 
       for attr in self._HighPriorityTaggers:
-        setattr(self, attr, ['IP3D','SV1','BasicJetFitter','JetFitterTag','JetFitterNN','MV1','MV1c','MV2c00','MV2c10','MV2c20','MV2c100','Myc100','MV2cl100','MV2m','MV2c10hp', 'IP3DFlip','IP3DPos','IP3DNeg','IP3DSpc','IP3DSpcPos','IP3DSpcNeg','SV1Flip','JetFitterTagFlip','JetFitterNNFlip','MV1Flip','MV1cFlip','MV2c00Flip','MV2c10Flip','MV2c20Flip','MV2c100Flip','MV2cl100Flip','MV2mFlip', 'MV2c10hpFlip', 'JetVertexCharge', 'DL1', 'DL1Flip', 'SoftMu'])
+        setattr(self, attr, ['IP3D','SV1','BasicJetFitter','JetFitterTag','JetFitterNN','MV1','MV1c','MV2c00','MV2c10','MV2c20','MV2c100','MV2m','IP3DFlip','IP3DPos','IP3DNeg','IP3DSpc','IP3DSpcPos','IP3DSpcNeg','SV1Flip','JetFitterTagFlip','JetFitterNNFlip','MV1Flip','MV1cFlip','MV2c00Flip','MV2c10Flip','MV2c20Flip','MV2c100Flip','MV2mFlip', 'JetVertexCharge'])
       for attr in self._MediumPriorityTaggers:
-        setattr(self, attr, ['SV0','IP2D','IP2DFlip','IP2DPos','IP2DNeg','IP2DSpc','IP2DSpcPos','IP2DSpcNeg','SoftEl','SoftMuChi2','MV2','MV2Flip'])
+        setattr(self, attr, ['SV0','IP2D','IP2DFlip','IP2DPos','IP2DNeg','IP2DSpc','IP2DSpcPos','IP2DSpcNeg','SoftEl','SoftMu','SoftMuChi2','MV2','MV2Flip'])
       for attr in self._LowPriorityTaggers:
-        setattr(self, attr, ['IP1D','SV2','SV2Flip','TrackCounting','TrackCountingFlip','JetProb','JetProbFlip'])
+        setattr(self, attr, ['IP1D','SV2','SV2Flip','TrackCounting','TrackCountingFlip','JetProb','JetProbFlip','MV3_bVSu','MV3_bVSc','MV3_cVSu','MV3_bVSuFlip','MV3_bVScFlip','MV3_cVSuFlip','MVb','MVbFlip','MVbPrime','MVbPrimeFlip'])
 
       for attr in self._TriggerTaggers:
-        setattr(self, attr, ['IP2D','IP3D','SV1','MV2c00','MV2c10','MV2c20', 'MV2c10hp'])
+        setattr(self, attr, ['IP2D','IP3D','SV1','MV2c00','MV2c10','MV2c20'])
 
       for attr in self._jetFinderBasedOn:
         setattr(self, attr, 'Cells')
 
       for attr in self._doStandardAssoc:
         setattr(self, attr, True)
-
+      
       for attr in self._writeSecondaryVertices:
         setattr(self, attr, False)
 
@@ -349,13 +362,19 @@ class _BTaggingFlags:
         setattr(self, attr, True)
 
       for attr in self._MV2CalibAlias:
-        setattr(self, attr, 'AntiKt4EMTopo')
+        setattr(self, attr, 'AntiKt4TopoEM')
 
       for attr in self._MV2cTrainingConfig:
         setattr(self, attr, 'NoJF_NoSV0NoSv1_V3')
 
       for attr in self._MV2mTrainingConfig:
         setattr(self, attr, 'NoJF_NoSV0NoSv1_V3')
+
+      for attr in self._ForceMV3CalibrationAlias:
+        setattr(self, attr, True)
+
+      for attr in self._MV3CalibAlias:
+        setattr(self, attr, 'AntiKt4TopoEM')
 
       for attr in self._Outputlevel:
         from AthenaCommon.Constants import INFO
@@ -366,7 +385,7 @@ class _BTaggingFlags:
 
 
       #defaultJetCollections = ['AntiKt4LCTopo','AntiKt6LCTopo','AntiKt4TopoEM','AntiKt6TopoEM']
-      defaultJetCollections = ['AntiKt4LCTopo','AntiKt4EMTopo']
+      defaultJetCollections = ['AntiKt4LCTopo','AntiKt4TopoEM']
 
       for attr in self._Jets:
         setattr(self, attr, defaultJetCollections[:])
@@ -375,16 +394,13 @@ class _BTaggingFlags:
       for attr in self._RetagJets:
         setattr(self, attr, defaultJetCollections[:])
       for attr in self._JetsForNtuple:
-        setattr(self, attr, 'AntiKt4EMTopo')
+        setattr(self, attr, 'AntiKt4TopoEM')
 
       for attr in self._CalibrationFolderRoot:
         setattr(self, attr, '/GLOBAL/BTagCalib/')
 
       for attr in self._TrigCalibrationFolderRoot:
         setattr(self, attr, '/GLOBAL/TrigBTagCalib/')
-
-      for attr in self._AODFixCalibrationFolderRoot:
-        setattr(self, attr, '/GLOBAL/TrigBTagCalib/') #FIXME
 
       for attr in self._CalibrationFromLocalReplica:
         setattr(self, attr, False)
@@ -396,9 +412,6 @@ class _BTaggingFlags:
         setattr(self, attr, "")
 
       for attr in self._TrigCalibrationTag:
-        setattr(self, attr, "")
-
-      for attr in self._AODFixCalibrationTag:
         setattr(self, attr, "")
 
       for attr in self._CalibrationChannelAliases:
@@ -416,17 +429,14 @@ class _BTaggingFlags:
                               #stay there if we want support for JetRec to setup b-tagging from their end.
                               "AntiKt4EMTopo->AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo",
                               "AntiKt4LCTopo->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
-                              "AntiKt4EMTopoOrigin->AntiKt4EMTopoOrigin,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo",
-                              "AntiKt4LCTopoOrigin->AntiKt4LCTopoOrigin,AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
                               "AntiKt10LCTopo->AntiKt10LCTopo,AntiKt6LCTopo,AntiKt6TopoEM,AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
                               "AntiKt10Truth->AntiKt6TopoEM,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
                               "AntiKt10TruthWZ->AntiKt10TruthWZ,AntiKt6TopoEM,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
                               "AntiKt4Truth->AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
-                              "AntiKt4TruthWZ->AntiKt4TruthWZ,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
+			      "AntiKt4TruthWZ->AntiKt4TruthWZ,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
                               "AntiKt4Track->AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
-                              "AntiKt3Track->AntiKt3Track,AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
-                              "AntiKt2Track->AntiKt2Track,AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
-                              "AntiKt4EMPFlow->AntiKt4EMPFlow,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo"])
+                              "AntiKt3Track->AntiKt3Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
+			      "AntiKt2Track->AntiKt2Track,AntiKt3Track,AntiKt4Track,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo"])
 
       for attr in self._CalibrationSingleFolder:
         setattr(self, attr, True)
@@ -538,11 +548,6 @@ class _BTaggingFlags:
           print '#BTAG# -> Trigger calibration tag: automatic'
         else:
           print '#BTAG# -> Trigger calibration tag: '+getattr(self,attr)
-      for attr in self._AODFixCalibrationTag:
-        if getattr(self, attr) == '':
-          print '#BTAG# -> AODFix calibration tag: automatic'
-        else:
-          print '#BTAG# -> AODFix calibration tag: '+getattr(self,attr)
       for attr in self._CalibrationJetFitterFile:
         print '#BTAG# -> JetFitter calibration files: '+getattr(self, attr)
       for attr in self._CalibrationChannelAliases:
@@ -571,7 +576,7 @@ class _BTaggingFlags:
           print '#BTAG# -> JetTagSlimNtupleName: '+str(getattr(self,attr))
       for attr in self._UseLatestJetCollsForNtuple:
           print '#BTAG# -> Use latest re-tagged jet collections for ntuple: '+str(getattr(self,attr))
-
+      
       self.btaggingAODList = list()
       self.btaggingESDList = list()
 
@@ -582,9 +587,10 @@ class _BTaggingFlags:
       # The function which uses this list is JetCollectionIsSupported() in
       # ./python/BTaggingConfiguration.py
       self.SupportedJetCollections = ["AntiKt4LCTopo",
+                                      "AntiKt10LCTopo",
                                       "AntiKt4EMTopo",
                                       "AntiKt4Track",
-                                      "AntiKt4EMPFlow",
+                                      "AntiKt3Track",
                                       "AntiKt10TruthWZ",
                                       "AntiKt4TruthWZ",
                                       ]

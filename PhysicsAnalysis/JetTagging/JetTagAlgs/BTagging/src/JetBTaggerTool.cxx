@@ -137,12 +137,33 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     StatusCode sc = overwrite<xAOD::BTaggingContainer,xAOD::BTaggingAuxContainer>(bTaggingContName, m_augment);
     if (sc.isFailure()) return sc;
     CHECK( evtStore()->retrieve(bTaggingContainer, bTaggingContName) );
-    if (m_augment && jets.size() != bTaggingContainer->size() && m_magFieldSvc->solenoidOn()) {
+    if (m_augment && jets.size() != bTaggingContainer->size()) {
       ATH_MSG_ERROR("#BTAG# existing BTaggingContainer has size" << bTaggingContainer->size() << ", expected " << jets.size());
     }
-    for (const xAOD::Jet* j : jets) {
-      const_cast<ElementLink< xAOD::BTaggingContainer >&>(j->btaggingLink()).toTransient();
-    }
+    // bTaggingContainer = new xAOD::BTaggingContainer();
+    // bTaggingAuxContainer = new xAOD::BTaggingAuxContainer();
+    // bTaggingContainer->setStore(bTaggingAuxContainer);
+    // // Here, we have to make a choice between overwriting and extending
+    // if (m_augment) {
+    //   const xAOD::BTaggingContainer* existingContainer(0);
+    //   StatusCode sc = evtStore()->retrieve(existingContainer, bTaggingContName);
+    //   if (sc.isFailure()) {
+    // 	ATH_MSG_ERROR("#BTAG# unable to retrieve existing BTaggingContainer");
+    //   } else if (jets.size() != existingContainer->size()) {
+    // 	ATH_MSG_ERROR("#BTAG# existing BTaggingContainer has size" << existingContainer->size() << ", expected " << jets.size());
+    //   } else {
+    // 	ATH_MSG_VERBOSE("#BTAG# copying objects from existing BTaggingContainer");
+    // 	for (const xAOD::BTagging* bt : *existingContainer) {
+    // 	  xAOD::BTagging* newBTag = new xAOD::BTagging;
+    // 	  bTaggingContainer->push_back(newBTag);
+    // 	  *newBTag = *bt;
+    // 	  btagsList.push_back(newBTag);
+    // 	}
+    //   }
+    // }
+    // CHECK( evtStore()->overwrite(bTaggingAuxContainer, bTaggingContName+"Aux.", true, false) );
+    // CHECK( evtStore()->overwrite(bTaggingContainer, bTaggingContName, true, false) );
+    // ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " overwritten in store");
   }
   else {
     if (m_augment)
@@ -170,6 +191,12 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
       StatusCode sc = overwrite<xAOD::VertexContainer,xAOD::VertexAuxContainer>(bTagSecVertexContName, false);
       if (sc.isFailure()) return sc;
       CHECK( evtStore()->retrieve(bTagSecVertexContainer, bTagSecVertexContName) );
+
+      // bTagSecVertexContainer = new xAOD::VertexContainer;
+      // xAOD::VertexAuxContainer * bTagSecVertexAuxContainer =  new xAOD::VertexAuxContainer;
+      // CHECK( evtStore()->overwrite(bTagSecVertexAuxContainer, bTagSecVertexContName+"Aux.", true, false) );
+      // bTagSecVertexContainer->setStore(bTagSecVertexAuxContainer);
+      // CHECK( evtStore()->overwrite(bTagSecVertexContainer, bTagSecVertexContName, true, false) );
       ATH_MSG_VERBOSE("#BTAG# SV container " << bTagSecVertexContName << " overwritten in store");
     } else {
       const xAOD::VertexContainer *bTagSecVertexContainerAOD;
@@ -202,6 +229,12 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
       StatusCode sc = overwrite<xAOD::BTagVertexContainer,xAOD::BTagVertexAuxContainer>(bTagJFVertexContName, false);
       if (sc.isFailure()) return sc;
       CHECK( evtStore()->retrieve(bTagJFVertexContainer, bTagJFVertexContName) );
+
+      // bTagJFVertexContainer = new xAOD::BTagVertexContainer();
+      // xAOD::BTagVertexAuxContainer * bTagJFVertexAuxContainer =  new xAOD::BTagVertexAuxContainer();
+      // CHECK( evtStore()->overwrite(bTagJFVertexAuxContainer, bTagJFVertexContName+"Aux.",true, false) );
+      // bTagJFVertexContainer->setStore(bTagJFVertexAuxContainer);
+      // CHECK( evtStore()->overwrite(bTagJFVertexContainer, bTagJFVertexContName, true, false) );
       ATH_MSG_VERBOSE("#BTAG# JetFitter Vertex container " << bTagJFVertexContName << " overwritten in store");
     } else {
       const xAOD::BTagVertexContainer *bTagJFVertexContainerAOD;

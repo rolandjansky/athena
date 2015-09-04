@@ -117,7 +117,7 @@ namespace Analysis {
       return StatusCode::SUCCESS;
   }
 
-  StatusCode BTagSecVertexing::BTagSecVtx_exec(xAOD::Jet& myJet, xAOD::BTagging* newBTag, xAOD::VertexContainer* bTagVertexContainer, xAOD::BTagVertexContainer* bTagJFVertexContainer, const xAOD::Vertex* vtx) const {
+  StatusCode BTagSecVertexing::BTagSecVtx_exec(xAOD::Jet& myJet, xAOD::BTagging* newBTag, xAOD::VertexContainer* bTagVertexContainer, xAOD::BTagVertexContainer* bTagJFVertexContainer, const xAOD::Vertex* vtx) {
 
     const xAOD::Vertex* primaryVertex(0);
     StatusCode sc = StatusCode::SUCCESS;
@@ -164,8 +164,8 @@ namespace Analysis {
     
     const xAOD::Vertex& PrimaryVtx = *primaryVertex;
 
-    ToolHandleArray< InDet::ISecVertexInJetFinder >::const_iterator itSecVtxFinders = m_secVertexFinderToolsHandleArray.begin();
-    ToolHandleArray< InDet::ISecVertexInJetFinder >::const_iterator itSecVtxFindersEnd = m_secVertexFinderToolsHandleArray.end();
+    ToolHandleArray< InDet::ISecVertexInJetFinder >::iterator itSecVtxFinders = m_secVertexFinderToolsHandleArray.begin();
+    ToolHandleArray< InDet::ISecVertexInJetFinder >::iterator itSecVtxFindersEnd = m_secVertexFinderToolsHandleArray.end();
     int nameiter = 0;
 
     const xAOD::TrackParticleContainer* theTrackParticleContainer = 0;
@@ -222,7 +222,6 @@ namespace Analysis {
 	sc = fillVkalVariables(myJet, newBTag, bTagVertexContainer, myVertexInfoVKal, theTrackParticleContainer, PrimaryVtx, basename);
 	if(sc.isFailure()){
 	  ATH_MSG_ERROR("#BTAG# error filling variables from VxSecVKalVertexInfo for tool " << *itSecVtxFinders);
-          delete myVertexInfo;
 	  return sc;
 	}
       } else if (const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter = dynamic_cast<const Trk::VxJetFitterVertexInfo*>(myVertexInfo)) {
@@ -230,7 +229,6 @@ namespace Analysis {
   	sc = fillJFVariables(myJet, newBTag, bTagJFVertexContainer, myVertexInfoJetFitter, theTrackParticleContainer, basename);
   	if(sc.isFailure()){
   	  ATH_MSG_ERROR("#BTAG# error filling variables from VxJetFitterVertexInfo for tool " << *itSecVtxFinders);
-          delete myVertexInfo;
   	  return sc;
   	}
       } else {
@@ -253,14 +251,14 @@ namespace Analysis {
 						 const Trk::VxSecVKalVertexInfo* myVertexInfoVKal,
 						 const xAOD::TrackParticleContainer* theTrackParticleContainer,
                          const xAOD::Vertex& PrimaryVtx,
-						 std::string basename) const {
+						 std::string basename){
 
     std::vector<xAOD::Vertex*>::const_iterator verticesBegin = myVertexInfoVKal->vertices().begin();
     std::vector<xAOD::Vertex*>::const_iterator verticesEnd   = myVertexInfoVKal->vertices().end();
 
 
     std::vector<ElementLink<xAOD::TrackParticleContainer> > TrkList;
-    float    mass = -1., energyfrc = -1., energyTrk=-1, dsttomatlayer = -1; 
+    float    mass = -1., energyfrc = -1., energyTrk=-1;
     int  n2trk = -1, npsec = -1; //npprm = -1;
 
     std::vector< ElementLink< xAOD::VertexContainer > > SVertexLinks;
@@ -299,13 +297,11 @@ namespace Analysis {
         energyfrc = myVertexInfoVKal->energyFraction();
         n2trk = myVertexInfoVKal->n2trackvertices();
         energyTrk =  myVertexInfoVKal->energyTrkInJet();
-	dsttomatlayer= myVertexInfoVKal->dstToMatLay();
       }
 
 
 
       newBTag->setVariable<float>(basename, "energyTrkInJet", energyTrk);
-      newBTag->setVariable<float>(basename, "dstToMatLay", dsttomatlayer);
 
       if("SV1" == basename){
         //newBTag->setTaggerInfo(npprm, xAOD::BTagInfo::SV0_NGTinJet);
@@ -365,11 +361,11 @@ namespace Analysis {
 					       xAOD::BTagVertexContainer* bTagJFVertexContainer,
 					       const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter,
 					       const xAOD::TrackParticleContainer* theTrackParticleContainer,
-					       std::string basename) const {
+					       std::string basename){
      //twotrackVerticesInJet   
      const Trk::TwoTrackVerticesInJet* TwoTrkVtxInJet =  myVertexInfoJetFitter->getTwoTrackVerticesInJet();
 
-     const std::vector< const xAOD::Vertex*> vecTwoTrkVtx =  TwoTrkVtxInJet->getTwoTrackVertice();
+     const std::vector< const Trk::VxCandidate*> vecTwoTrkVtx =  TwoTrkVtxInJet->getTwoTrackVertice();
 
      int N2TrkVtx = vecTwoTrkVtx.size();
      if("JetFitter" == basename){
@@ -380,7 +376,7 @@ namespace Analysis {
      }
          
      //list of JFvertices
-     const std::vector<Trk::VxJetCandidate*> JFvertices =  myVertexInfoJetFitter->verticesJF();
+     const std::vector<Trk::VxCandidate*> JFvertices =  myVertexInfoJetFitter->verticesJF();
   
      int nVtx = 0;
      if (JFvertices.size() > 0) {
@@ -531,11 +527,10 @@ namespace Analysis {
 	   //++btagvxi;
 	   }
      }
-     typedef std::vector<ElementLink<xAOD::BTagVertexContainer> > BTagVertices;
-     ATH_MSG_DEBUG("#BTAGJF# filling vertices for basename:" << basename);
+      
+
       newBTag->setVariable<std::vector<ElementLink<xAOD::BTagVertexContainer> > >(basename, "JFvertices", JFVerticesLinks);
       newBTag->setDynBTagVxELName(basename, "JFvertices");
-      ATH_MSG_DEBUG("#BTAGJF# n vertices: " << newBTag->auxdata<BTagVertices>(basename + "_JFvertices").size());
 
 
       const Trk::RecVertexPositions& recVtxposition = vxjetcand->getRecVertexPositions();

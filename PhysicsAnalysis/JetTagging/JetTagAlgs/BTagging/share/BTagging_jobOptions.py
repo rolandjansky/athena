@@ -52,7 +52,7 @@ if not BTaggingFlags.DoNotSetupBTagging: # Temporary measure so the JetRec peopl
   if ConfInstance.checkFlagsUsingBTaggingFlags():
 
     #Jet collections
-    JetCollectionList = ['AntiKt4LCTopoJets', 'AntiKt4EMTopoJets', 'AntiKt4TrackJets', 'AntiKt4EMPFlowJets', 'AntiKt2TrackJets']
+    JetCollectionList = ['AntiKt4LCTopoJets', 'AntiKt10LCTopoJets', 'AntiKt4EMTopoJets', 'AntiKt4TrackJets', 'AntiKt3TrackJets', 'AntiKt2TrackJets']
     from JetRec.JetRecFlags import jetFlags
     if jetFlags.useTruth():
       JetCollectionList += [ 'AntiKt10TruthWZJets', 'AntiKt4TruthWZJets' ]
@@ -89,7 +89,7 @@ if not BTaggingFlags.DoNotSetupBTagging: # Temporary measure so the JetRec peopl
     NotInJetToolManager = [] # For jet collections
     from JetRec.JetRecStandard import jtm
     for i, jet in enumerate(JetCollectionList):
-        # try: 
+        try: 
 #          jet = jet.replace("Track", "PV0Track")
 #          jetname = getattr(jtm, jet)
   #          btagger = JetBTaggerTool(AuthorSubString[i].lower(), 
@@ -111,9 +111,9 @@ if not BTaggingFlags.DoNotSetupBTagging: # Temporary measure so the JetRec peopl
           jetname.lock()
           if BTaggingFlags.OutputLevel < 3:
             print ConfInstance.getJetCollectionTool(jet[:-4])
-        # except AttributeError as error:
-        #   print '#BTAG# --> ' + str(error)
-        #   NotInJetToolManager.append(AuthorSubString[i])
+        except AttributeError as error:
+          print '#BTAG# --> ' + str(error)
+          NotInJetToolManager.append(AuthorSubString[i])
 
     if len(NotInJetToolManager) > 0:
         AuthorSubString = list(set(AuthorSubString) - set(NotInJetToolManager))
