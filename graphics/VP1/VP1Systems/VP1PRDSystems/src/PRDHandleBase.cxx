@@ -20,10 +20,13 @@
 #include <Inventor/nodes/SoMaterial.h>
 
 #include "TrkSurfaces/Surface.h"
+#include "TrkSurfaces/DiscTrapezoidalBounds.h"
 #include "TrkPrepRawData/PrepRawData.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
+
+#include "ISF_FatrasDetDescrModel/PlanarDetElement.h"
 
 #include <vector>
 #include <algorithm>
@@ -397,6 +400,56 @@ SoTransform * PRDHandleBase::createTransform() const
     std::cerr<<"PRDHandleBase::createTransform() NaN in globalposition"<<std::endl;
   }
   theHitTransform->translation.setValue((*theHitGPos)[0], (*theHitGPos)[1], (*theHitGPos)[2]);
+
+  // std::cout << "Using this global position = " << (*theHitGPos)[0] << ", " << (*theHitGPos)[1] << ", " << (*theHitGPos)[2] << std::endl;
+
+  if ((prd->detectorElement()->surface()).type() == Trk::Surface::Disc) {
+    const Trk::DiscTrapezoidalBounds* cdtbo = dynamic_cast<const Trk::DiscTrapezoidalBounds*> (&((prd->detectorElement()->surface().bounds())));
+    if (cdtbo) {
+      const iFatras::PlanarDetElement* detEl = dynamic_cast<const iFatras::PlanarDetElement*>(prd->detectorElement());
+      
+      Amg::Vector2D localposHIT = detEl->localPositionOfCell( prd->identify() );
+      const Amg::Vector3D* globalposHIT = theSurface.localToGlobal(localposHIT);
+
+      double radius = sqrt((*theHitGPos)[0]*(*theHitGPos)[0]+(*theHitGPos)[1]*(*theHitGPos)[1]);
+      double radiusHIT = sqrt((*globalposHIT)[0]*(*globalposHIT)[0]+(*globalposHIT)[1]*(*globalposHIT)[1]);
+
+      double angle = atan((*theHitGPos)[1]/(*theHitGPos)[0]);
+
+      double rdiff = radiusHIT-radius;
+
+      double stereo  = cdtbo->stereo();
+      //double avePhi  = cdtbo->averagePhi()-stereo;
+      
+      if ((*theHitGPos)[0]<0.)
+	angle += M_PI;
+      else if ((*theHitGPos)[1]<0.)
+	angle += 2.*M_PI;      
+
+      double dx = rdiff*cos(angle-stereo);
+      double dy = rdiff*sin(angle-stereo);
+
+      theHitGPos = new Amg::Vector3D((*theHitGPos)[0]+dx,
+				     (*theHitGPos)[1]+dy,
+				     (*theHitGPos)[2]);
+
+      // std::cout << "Re-evaluating global position = " << (*theHitGPos)[0] << ", " << (*theHitGPos)[1] << ", " << (*theHitGPos)[2] << std::endl;
+
+      theHitTransform->translation.setValue((*theHitGPos)[0], (*theHitGPos)[1], (*theHitGPos)[2]);
+
+      Amg::RotationMatrix3D rotation;
+      rotation = Amg::AngleAxis3D(0., Amg::Vector3D::UnitX())*
+	Amg::AngleAxis3D(0., Amg::Vector3D::UnitY())*
+	Amg::AngleAxis3D(-M_PI/2.+angle-stereo, Amg::Vector3D::UnitZ());
+	
+      SbRotation myrotation = SbRotation(SbMatrix(rotation(0,0),rotation(1,0),rotation(2,0),0,
+						  rotation(0,1),rotation(1,1),rotation(2,1),0,
+						  rotation(0,2),rotation(1,2),rotation(2,2),0,
+						  0,0,0,1));
+      theHitTransform->rotation.setValue(myrotation);
+    }
+  }
+  
   delete theHitGPos;
   return theHitTransform;
 }

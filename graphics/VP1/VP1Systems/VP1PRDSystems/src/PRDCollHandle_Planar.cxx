@@ -27,7 +27,7 @@ public:
 
 //____________________________________________________________________
 PRDCollHandle_Planar::PRDCollHandle_Planar(PRDSysCommonData * cd,const QString& key)
-  : PRDCollHandleBase(PRDDetType::Planar,cd,key), d(new Imp)
+  : PRDCollHandleBase(PRDDetType::Pixel,cd,key), d(new Imp)
 {
   d->indetpartsflags = (PRDCommonFlags::BarrelPositive | PRDCommonFlags::BarrelNegative | PRDCommonFlags::EndCapPositive | PRDCommonFlags::EndCapNegative);
   d->minNRDOPerCluster = 2;

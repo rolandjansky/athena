@@ -19,7 +19,6 @@ QString PRDDetType::typeToString(const Type& t)
   case MDT: return "MDT";
   case MM: return "MM";
   case SpacePoints: return "SpacePoints";
-  case Planar: return "Planar";
   default: return "UNKNOWN";
   }
 }
@@ -39,7 +38,6 @@ PRDDetType::Type PRDDetType::stringToType(const QString&str, bool & status)
   if (str=="MDT") return MDT;
   if (str=="MM") return MM;
   if (str=="SpacePoints") return SpacePoints;
-  if (str=="Planar") return Planar;
   status = false;
   return Pixel;//***REMOVED*** - people better watch the return status!
 }
@@ -60,7 +58,6 @@ qint32 PRDDetType::typeToInt(const Type& t)
   case CSCstrip: return 8;
   case sTGC: return 9;
   case MM: return 10;
-  case Planar: return 11;
   default: return -1;
   }
 }
@@ -81,7 +78,6 @@ PRDDetType::Type PRDDetType::intToType(const qint32&i, bool & status)
   case 8: return CSCstrip;
   case 9: return sTGC;
   case 10: return MM;
-  case 11: return Planar;
   default:
     status = false;
     return Pixel;//***REMOVED*** - people better watch the return status!

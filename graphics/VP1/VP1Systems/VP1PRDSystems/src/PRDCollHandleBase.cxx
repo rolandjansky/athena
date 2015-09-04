@@ -215,8 +215,23 @@ bool PRDCollHandleBase::load() {
 bool PRDCollHandleBase::loadPlanarClusters() {
   bool safeToLoad(false);
   switch (d->detType){
-    case PRDDetType::Planar:
-    safeToLoad = true;
+    case PRDDetType::TRT:
+    safeToLoad = VP1JobConfigInfo::hasTRTGeometry();
+    break;
+    case PRDDetType::Pixel:
+    safeToLoad = VP1JobConfigInfo::hasPixelGeometry();
+    break;
+    case PRDDetType::SCT:
+    safeToLoad = VP1JobConfigInfo::hasSCTGeometry();
+    break;
+    case PRDDetType::CSC:
+    case PRDDetType::CSCstrip:
+    case PRDDetType::RPC:
+    case PRDDetType::TGC:
+    case PRDDetType::MDT:
+    case PRDDetType::MM:
+    case PRDDetType::sTGC:
+    safeToLoad = VP1JobConfigInfo::hasMuonGeometry();
     break;
     default:
     safeToLoad = false;

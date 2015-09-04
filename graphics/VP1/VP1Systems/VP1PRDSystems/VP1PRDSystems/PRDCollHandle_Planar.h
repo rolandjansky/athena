@@ -26,7 +26,7 @@ public slots:
 protected:
   PRDHandleBase * addPRD(Trk::PrepRawData*);
   bool cut(PRDHandleBase*);
-  
+
   void setupSettingsFromControllerSpecific(PRDSystemController*);
   float lodArea() const { return 800.0f*800.0f; }
   QColor defaultColor() const;

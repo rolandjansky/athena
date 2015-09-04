@@ -35,24 +35,26 @@ void PRDHandle_Planar::buildShapes(SoNode*& shape_simple, SoNode*& shape_detaile
     std::cerr<<"isSane check failed for PRD: "<<*m_cluster<<std::endl;
     return;
   }  
-
-  bool isPixel = m_cluster->detectorElement()->isPixel();
   
-  if (isPixel)
-    errSimple->addChild(common()->nodeManager()->getShapeNode_Point());
-  else {
-    striplength = m_cluster->detectorElement()->lengthY();
-    shape_simple=common()->nodeManager()->getShapeNode_Strip(striplength);
-  }
+  bool isPixel = m_cluster->detectorElement()->isPixel();
+  bool isDisc = ((m_cluster->detectorElement()->surface()).type() == Trk::Surface::Disc);
 
   Amg::Vector2D localpos = m_cluster->localPosition();
   Amg::Vector2D localposHIT = m_cluster->detectorElement()->localPositionOfCell( m_cluster->identify() );
-
+  
+  double radius = 0.;
+  if (!isPixel and isDisc) {
+    Amg::Vector2D localCart = Amg::Vector2D(localpos[Trk::locR]*cos(localpos[Trk::locPhi]), localpos[Trk::locR]*sin(localpos[Trk::locPhi]));
+    Amg::Vector2D localCartHIT = Amg::Vector2D(localposHIT[Trk::locR]*cos(localposHIT[Trk::locPhi]), localposHIT[Trk::locR]*sin(localposHIT[Trk::locPhi]));
+    localpos = localCart;
+    localposHIT = localCartHIT;
+    radius = localposHIT[Trk::locR];
+  }
+  
   SoTranslation * localtrans0 = new SoTranslation;
-
   double xdiff = localposHIT[Trk::locX]-localpos[Trk::locX];
   double ydiff = localposHIT[Trk::locY]-localpos[Trk::locY];
-
+  
   if (xdiff!=xdiff || ydiff!=ydiff) {
     std::cerr<<"NaN is in local pos calc"<<std::endl;
     if (xdiff!=xdiff) std::cerr<<"X diff"<<std::endl;
@@ -65,22 +67,35 @@ void PRDHandle_Planar::buildShapes(SoNode*& shape_simple, SoNode*& shape_detaile
     return;
   } else {
     //localtrans0->translation.setValue(localposHIT[Trk::locX]-localpos[Trk::locX],localposHIT[Trk::locY]-localpos[Trk::locY],0);
-    localtrans0->translation.setValue(0., 0., 0.);
+    localtrans0->translation.setValue(0.,0.,0.);
   }
 
+  if (isPixel)
+    errSimple->addChild(common()->nodeManager()->getShapeNode_Point());
+  else {
+    striplength = m_cluster->detectorElement()->length();
+    shape_simple=common()->nodeManager()->getShapeNode_Strip(striplength);
+  }
+  
   const std::vector<Identifier> rdolist = m_cluster->rdoList();
   if (rdolist.size() == 1 || !collHandle()->drawRDOs())
   {
     errDetailed->addChild(localtrans0);
+    
     //FIXME: dont hardcode thickness
-    if (isPixel)
+    if (isPixel) 
       errDetailed->addChild(common()->nodeManager()->getShapeNode_Strip(m_cluster->detectorElement()->pitchX(),
 									m_cluster->detectorElement()->pitchY(), 
 									m_cluster->detectorElement()->thickness()/10.0));
-    else
-      errDetailed->addChild(common()->nodeManager()->getShapeNode_Strip(striplength,
-									m_cluster->detectorElement()->phiPitch( m_cluster->localPosition() ),//strip width
-									m_cluster->detectorElement()->thickness()*3.0));
+    else 
+      if (isDisc) 
+	errDetailed->addChild(common()->nodeManager()->getShapeNode_Strip(striplength,
+									  m_cluster->detectorElement()->phiPitch( m_cluster->localPosition() )*radius,//strip width
+									  m_cluster->detectorElement()->thickness()*3.0));
+      else  
+	errDetailed->addChild(common()->nodeManager()->getShapeNode_Strip(striplength,
+									  m_cluster->detectorElement()->phiPitch( m_cluster->localPosition() ),//strip width
+									  m_cluster->detectorElement()->thickness()*3.0));
     //strip thickness - scaled up by factor of 3 (looks better)
     //Fixme: Should we drop this upscaling of thickness?
 
@@ -90,18 +105,23 @@ void PRDHandle_Planar::buildShapes(SoNode*& shape_simple, SoNode*& shape_detaile
     errDetailed->addChild(localtransBack);
     
   } else {
-    
     SoSeparator * rdos = new SoSeparator;
     rdos->addChild(localtrans0);
-
-    if (isPixel)
+    
+    if (isPixel) 
       rdos->addChild(common()->nodeManager()->getShapeNode_Strip(m_cluster->detectorElement()->pitchX(),
 								 m_cluster->detectorElement()->pitchY(), 
 								 m_cluster->detectorElement()->thickness()/10.0));
-    else
-      rdos->addChild(common()->nodeManager()->getShapeNode_Strip(striplength,
-								 m_cluster->detectorElement()->phiPitch( m_cluster->localPosition() ),//strip width
-								 m_cluster->detectorElement()->thickness()*3.0));
+    else 
+      if (isDisc) 
+	rdos->addChild(common()->nodeManager()->getShapeNode_Strip(striplength,
+								   m_cluster->detectorElement()->phiPitch( m_cluster->localPosition() )*radius,//strip width
+								   m_cluster->detectorElement()->thickness()*3.0));
+      else 
+    	rdos->addChild(common()->nodeManager()->getShapeNode_Strip(striplength,
+								   m_cluster->detectorElement()->phiPitch( m_cluster->localPosition() ),//strip width
+								   m_cluster->detectorElement()->thickness()*3.0));
+    
     //strip thickness - scaled up by factor of 3 (looks better)
     //Fixme: Should we drop this upscaling of thickness?
     
@@ -124,16 +144,20 @@ void PRDHandle_Planar::buildShapes(SoNode*& shape_simple, SoNode*& shape_detaile
 					 0);
 	
 	rdos->addChild(localtrans);
-	
 	//FIXME: dont hardcode thickness
-	if (isPixel)
+	if (isPixel) 
 	  rdos->addChild(common()->nodeManager()->getShapeNode_Strip(m_cluster->detectorElement()->pitchX(),
 								     m_cluster->detectorElement()->pitchY(), 
 								     m_cluster->detectorElement()->thickness()/10.0));
-	else
-	  rdos->addChild(common()->nodeManager()->getShapeNode_Strip(striplength,
-								     m_cluster->detectorElement()->phiPitch( m_cluster->localPosition() ),//strip width
-								     m_cluster->detectorElement()->thickness()*3.0));
+	else 
+	  if (isDisc) 
+	    rdos->addChild(common()->nodeManager()->getShapeNode_Strip(striplength,
+								       m_cluster->detectorElement()->phiPitch( m_cluster->localPosition() )*radius,//strip width
+								       m_cluster->detectorElement()->thickness()*3.0));
+	  else  
+	    rdos->addChild(common()->nodeManager()->getShapeNode_Strip(striplength,
+								       m_cluster->detectorElement()->phiPitch( m_cluster->localPosition() ),//strip width
+								       m_cluster->detectorElement()->thickness()*3.0));
 	
 	localposOLD = localposRDO;
       }
