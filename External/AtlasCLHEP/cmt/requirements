@@ -5,15 +5,6 @@ author ATLAS Software Librarian <ATLAS-Software.Librarian@cern.ch>
 use ExternalPolicy ExternalPolicy-00-* External
 use CLHEP v* LCG_Interfaces
 
-#macro AtlasCLHEP_native_version "$(CLHEP_native_version)"
-#macro AtlasCLHEP_home           "$(CLHEP_home)"
-#macro AtlasCLHEP_dir            "$(AtlasCLHEP_home)"
-
-macro AtlasCLHEP_native_version "2.2.0.4"
-macro AtlasCLHEP_home           "/afs/cern.ch/sw/lcg/external/clhep/2.2.0.4/x86_64-slc6-gcc49-opt"
-macro AtlasCLHEP_dir            "/afs/cern.ch/sw/lcg/external/clhep/2.2.0.4/x86_64-slc6-gcc49-opt"
-
-
 macro_remove CLHEP_linkopts "" \
              notAsNeeded    "" \
              asNeeded       "-lCLHEP-$(CLHEP_native_version)"
@@ -31,5 +22,3 @@ include_path none
 include_dirs "$(AtlasCLHEP_include)"
 
 apply_pattern set_root_include_path
-
-# Comment line added to be able to modify the CMakeLists.txt file
