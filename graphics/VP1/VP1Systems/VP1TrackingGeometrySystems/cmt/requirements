@@ -13,13 +13,13 @@ private
 use VP1Utils             VP1Utils-*             graphics/VP1
 use StoreGate            StoreGate-*            Control
 use AtlasCoinInventor    AtlasCoinInventor-*    External
+use TrkGeometryAlpine    TrkGeometryAlpine-*          Tracking/TrkDetDescr
 use TrkGeometry          TrkGeometry-*          Tracking/TrkDetDescr
 use VP1HEPVis            VP1HEPVis-*            graphics/VP1
 use TrkDetDescrUtils     TrkDetDescrUtils-*     Tracking/TrkDetDescr
 use TrkDetDescrInterfaces TrkDetDescrInterfaces-*     Tracking/TrkDetDescr
 use GeoPrimitives        GeoPrimitives-*        DetectorDescription
-use ISF_FatrasDetDescrModel    ISF_FatrasDetDescrModel-*    Simulation/ISF/ISF_Fatras
-use GaudiInterface       GaudiInterface-*	External
+use GaudiInterface       GaudiInterface-*       External
 public
 
 apply_pattern qt4based_library

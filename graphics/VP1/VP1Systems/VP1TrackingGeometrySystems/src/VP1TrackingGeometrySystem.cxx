@@ -28,13 +28,12 @@
 #include <Inventor/nodes/SoClipPlane.h>
 
 #include "TrkGeometry/TrackingGeometry.h"
+#include "TrkGeometryAlpine/AlpineLayer.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkDetDescrUtils/BinnedArray.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
-
-#include "ISF_FatrasDetDescrModel/PlanarDetElement.h"
 
 #include <vector>
 #include <map>
@@ -1039,12 +1038,9 @@ void VP1TrackingGeometrySystem::processTrkVolume(const Trk::TrackingVolume* tvol
         // skip navigaion layers for the moment
         if (!layIndex.value()) continue;
         
-        /* check the surface array */
-        const Trk::SurfaceArray* layerSubSurfaces = (*layerIter)->surfaceArray();
-
-        /** current separator helpers */
-        VP1ExtraSepLayerHelper* layerSepHelper = 0;
-        VP1ExtraSepLayerHelper* surfaceSepHelper = 0;
+	/** current separator helpers */
+	VP1ExtraSepLayerHelper* layerSepHelper = 0;
+	VP1ExtraSepLayerHelper* surfaceSepHelper = 0;
         
         if ( volumeName.contains("BeamPipe") > 0 ) {
             layerSepHelper = d->sephelper_beamPipe;
@@ -1114,24 +1110,48 @@ void VP1TrackingGeometrySystem::processTrkVolume(const Trk::TrackingVolume* tvol
         
         // process the layer with the correct separator helper
         if (layerSepHelper) processTrkLayer(*layerIter, layerSepHelper, tvol->colorCode());
-        // Surface
-        if (layerSubSurfaces && surfaceSepHelper){
-          const std::vector<const Trk::Surface*>& surfaceVector = layerSubSurfaces->arrayObjects();
-          std::vector<const Trk::Surface*>::const_iterator surfaceIter = surfaceVector.begin();
-          for ( ; surfaceIter != surfaceVector.end(); ++surfaceIter ){
-            // push_back the surface
-            if (*surfaceIter)
-              processTrkSurface(*surfaceIter, surfaceSepHelper, tvol->colorCode());
-	    if (*surfaceIter) {
-	      const iFatras::PlanarDetElement* pElement  = dynamic_cast<const iFatras::PlanarDetElement*>((*surfaceIter)->associatedDetectorElement());
-	      if (pElement && pElement->otherSide())
-	    	processTrkSurface(&(pElement->otherSide()->surface()),surfaceSepHelper, tvol->colorCode());
+
+	// Surface
+        if (surfaceSepHelper){
+	  /* check the surface array */
+	  const Trk::SurfaceArray* layerSubSurfaces = (*layerIter)->surfaceArray();
+	  
+	  if (layerSubSurfaces){
+	    const std::vector<const Trk::Surface*>& surfaceVector = layerSubSurfaces->arrayObjects();
+	    std::vector<const Trk::Surface*>::const_iterator surfaceIter = surfaceVector.begin();
+	    for ( ; surfaceIter != surfaceVector.end(); ++surfaceIter ){
+	      // push_back the surfaces
+	      if (*surfaceIter) {
+		const std::vector<const Trk::Surface*>& allSurfacesVector = ((*surfaceIter)->associatedDetectorElement())->surfaces();
+		std::vector<const Trk::Surface*>::const_iterator allSurfacesIter = allSurfacesVector.begin();
+		for ( ; allSurfacesIter != allSurfacesVector.end(); ++allSurfacesIter )
+		  processTrkSurface(*allSurfacesIter, surfaceSepHelper, tvol->colorCode());
+	      }
 	    }
-          } 
-        }
+	  } else {
+	    /* check for alpine layers if no surface array found */
+	    std::cout << "Processing Alpine Layer in Volume " <<  tvol->volumeName() << std::endl;
+	    const Trk::Layer* tlayer = (*layerIter);
+	    Trk::AlpineLayer* alayer =  const_cast<Trk::AlpineLayer*>(dynamic_cast<const Trk::AlpineLayer*>(tlayer));
+	    if (alayer) {
+	      const std::vector<const Trk::Surface*>& surfaceVector = const_cast<const std::vector<const Trk::Surface*>&>(alayer->getSurfaces());
+	      std::vector<const Trk::Surface*>::const_iterator surfaceIter = surfaceVector.begin();
+	      for ( ; surfaceIter != surfaceVector.end(); ++surfaceIter ){
+		// push_back the surface
+		if (*surfaceIter) {
+		  const std::vector<const Trk::Surface*>& allSurfacesVector = ((*surfaceIter)->associatedDetectorElement())->surfaces();
+		  std::vector<const Trk::Surface*>::const_iterator allSurfacesIter = allSurfacesVector.begin();
+		  for ( ; allSurfacesIter != allSurfacesVector.end(); ++allSurfacesIter )
+		    processTrkSurface(*allSurfacesIter, surfaceSepHelper, tvol->colorCode());
+		}
+	      }
+	    }
+	  }
+	}
       }
     }
   }
+  
   
   const Trk::BinnedArray< Trk::TrackingVolume >* confinedVolumes = tvol->confinedVolumes();
   // get the confined volumes and loop over it -> call recursively
