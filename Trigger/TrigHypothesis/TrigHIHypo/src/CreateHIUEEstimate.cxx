@@ -9,7 +9,7 @@
 
 CreateHIUEEstimate::CreateHIUEEstimate(const std::string& name, ISvcLocator* pSvcLocator) 
   : HLT::AllTEAlgo(name, pSvcLocator),
-    m_fillerTool("HIEventShapeFillerTool/TriggerHIEshapeFillerTool"), 
+    m_fillerTool("HIEventShapeFillerTool"), 
     m_hasRun(false)
 {
   
@@ -49,36 +49,32 @@ HLT::ErrorCode CreateHIUEEstimate::hltExecute(std::vector<std::vector<HLT::Trigg
   //  theUEContainer->setStore(aux);
 
   //  ATH_MSG_INFO( evtStore()->dump() );  
+  xAOD::HIEventShapeContainer* shape = new xAOD::HIEventShapeContainer();
+  xAOD::HIEventShapeAuxContainer shapeAux = xAOD::HIEventShapeAuxContainer();
+  shape->setStore(&shapeAux);
 
-  if( m_fillerTool->InitializeCollection().isFailure() ) {
-    return HLT::ERROR;
-  }
-
-  const CaloCellContainer* cells(0);
-  if( evtStore()->retrieve(cells, m_CaloCellContainerKey).isFailure() ) {
+  if( m_fillerTool->InitializeCollection(shape).isFailure() ) {
     return HLT::ERROR;
   }
   
-  for ( const auto cell: *cells ) {
-    if( m_fillerTool->UpdateWithCell(cell, 1.0).isFailure() ) {
-      return HLT::ERROR;
+  if( m_fillerTool->FillCollectionFromCells(m_CaloCellContainerKey).isFailure() ) {
+    return HLT::ERROR;
     }
-  }
+
   {
-    auto* theUEContainer = m_fillerTool->GetHIEventShapeContainer(); 
     
     // ATH_MSG_DEBUG( "UE Container size" << theUEContainer->size() );  
     // for ( auto eshape: *theUEContainer ) {
     //   ATH_MSG_INFO("Eshape layer " << eshape->layer() << " etamin: " << eshape->etaMin() << " etamax: " << eshape->etaMax() << " energy " << eshape->Et() << " area " << eshape->area() );
     // }
 
-    auto auxstore = theUEContainer->getStore();
+
     
-    auto status = attachFeature(outputTE, theUEContainer, m_HIEventShapeContainerKey);
+    auto status = attachFeature(outputTE, shape, m_HIEventShapeContainerKey);
     if ( status != HLT::OK ) {
       return status;      
     }
-    delete auxstore;
+
   }
 
   
