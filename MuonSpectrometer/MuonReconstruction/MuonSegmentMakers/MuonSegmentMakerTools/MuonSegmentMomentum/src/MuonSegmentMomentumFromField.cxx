@@ -52,41 +52,21 @@ MuonSegmentMomentumFromField::~MuonSegmentMomentumFromField()
 StatusCode MuonSegmentMomentumFromField::initialize()
 {
 
-  msg(MSG::VERBOSE) << " MuonSegmentMomentumFromField::Initializing " << endreq;
-  if (m_magFieldSvc.retrieve().isFailure()){
-    ATH_MSG_ERROR("Could not get " << m_magFieldSvc); 
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_VERBOSE(" MuonSegmentMomentumFromField::Initializing ");
 
-  StatusCode s=m_propagator.retrieve();
-  if (s.isFailure())
-    {
-      msg(MSG::FATAL) << "Could not find Propagator "<<m_propagator<<endreq;
-      return s;
-    }
+  ATH_CHECK( m_magFieldSvc.retrieve() );
 
-  s=m_navigator.retrieve();
-  if (s.isFailure())
-    {
-      msg(MSG::FATAL) << "Could not find Navigator "<<m_navigator<<endreq;
-      return s;
-    }
-  s = detStore()->retrieve( m_cscid );
-  if ( s.isFailure() ) {
-    msg(MSG::ERROR) << " Cannot retrieve CscIdHelper " << endreq;
-    return StatusCode::FAILURE;
-  }
-  s = detStore()->retrieve( m_rpcid );
-  if ( s.isFailure() ) {
-    msg(MSG::ERROR) << " Cannot retrieve RpcIdHelper " << endreq;
-    return StatusCode::FAILURE;
-  }
-  s = detStore()->retrieve( m_tgcid );
-  if ( s.isFailure() ) {
-    msg(MSG::ERROR) << " Cannot retrieve TgcIdHelper " << endreq;
-    return StatusCode::FAILURE;
-  }
-  msg(MSG::VERBOSE) << "End of Initializing" << endreq;  
+  ATH_CHECK( m_propagator.retrieve() );
+
+  ATH_CHECK( m_navigator.retrieve() );
+
+  ATH_CHECK( detStore()->retrieve( m_cscid ) );
+
+  ATH_CHECK( detStore()->retrieve( m_rpcid ) );
+
+  ATH_CHECK( detStore()->retrieve( m_tgcid ) );
+
+  ATH_MSG_VERBOSE("End of Initializing");  
 
   return StatusCode::SUCCESS; 
 }
@@ -102,7 +82,7 @@ void MuonSegmentMomentumFromField::fitMomentumVectorSegments( const std::vector 
   /** Estimate signed momentum from vector of MDT/CSC segments
       using fit to pairs of segments */
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Executing MuonSegmentMomentumTool  fitMomentumVectorSegments " << endreq;
+  ATH_MSG_VERBOSE(" Executing MuonSegmentMomentumTool  fitMomentumVectorSegments ");
   if (m_debug||m_summary) std::cout << " fitMomentumVectorSegments " << segments.size() << " segments " << std::endl;
 
   std::vector<const Muon::MuonSegment*>::const_iterator it = segments.begin();
@@ -165,7 +145,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments( const Muon::MuonSegment
   /** Estimate signed momentum for two segments
       by fitting 2 segments to one approximate track model */
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Executing MuonSegmentMomentumTool  fitMomentum2Segments " << endreq;
+  ATH_MSG_VERBOSE(" Executing MuonSegmentMomentumTool  fitMomentum2Segments ");
 
   const Muon::MuonSegment* myseg1=segment1,*myseg2=segment2;
   if (myseg1->globalDirection().dot(myseg2->globalPosition()-myseg1->globalPosition())<0) {
@@ -276,7 +256,7 @@ void MuonSegmentMomentumFromField::fitMomentum2Segments_old( const Muon::MuonSeg
   /** Estimate signed momentum for two segments
       by fitting 2 segments to one approximate track model */
 
-  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Executing MuonSegmentMomentumTool  fitMomentum2Segments " << endreq;
+  ATH_MSG_VERBOSE(" Executing MuonSegmentMomentumTool  fitMomentum2Segments ");
 
   const Muon::MuonSegment* myseg1=segment1,*myseg2=segment2;
   if (myseg1->globalDirection().dot(myseg2->globalPosition()-myseg1->globalPosition())<0) {

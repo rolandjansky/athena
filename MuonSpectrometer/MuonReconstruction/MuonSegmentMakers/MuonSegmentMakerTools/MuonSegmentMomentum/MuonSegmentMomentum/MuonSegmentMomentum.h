@@ -5,8 +5,7 @@
 #ifndef MuonSegmentMomentum_MuonSegmentMomentum_H
 #define MuonSegmentMomentum_MuonSegmentMomentum_H
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonRecToolInterfaces/IMuonSegmentMomentumEstimator.h"
 
 
@@ -15,7 +14,7 @@ namespace Muon {
 }
 
 
-class MuonSegmentMomentum : public AlgTool, virtual public Muon::IMuonSegmentMomentumEstimator
+class MuonSegmentMomentum : public AthAlgTool, virtual public Muon::IMuonSegmentMomentumEstimator
 {
  public: 
   /** constructor */

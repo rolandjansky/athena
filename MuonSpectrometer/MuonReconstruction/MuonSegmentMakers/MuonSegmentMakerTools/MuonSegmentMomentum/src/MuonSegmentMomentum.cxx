@@ -8,9 +8,7 @@
 #include <iostream>
 #include <vector>
 
-#include "GaudiKernel/MsgStream.h"
-
-MuonSegmentMomentum::MuonSegmentMomentum(const std::string& type,const std::string& name,const IInterface* parent):AlgTool(type,name,parent)
+MuonSegmentMomentum::MuonSegmentMomentum(const std::string& type,const std::string& name,const IInterface* parent):AthAlgTool(type,name,parent)
 {
   declareInterface<IMuonSegmentMomentumEstimator>(this);
 
@@ -34,11 +32,10 @@ MuonSegmentMomentum::~MuonSegmentMomentum()
 
 StatusCode MuonSegmentMomentum::initialize()
 {
-  MsgStream log(msgSvc(),name());
 
-  log << MSG::VERBOSE << " MuonSegmentMomentum::Initializing " << endreq;
+  ATH_MSG_VERBOSE(" MuonSegmentMomentum::Initializing ");
 
-  log << MSG::VERBOSE << "End of Initializing" << endreq;  
+  ATH_MSG_VERBOSE("End of Initializing");  
 
   return StatusCode::SUCCESS; 
 }
@@ -54,9 +51,8 @@ void MuonSegmentMomentum::fitMomentumVectorSegments( const std::vector <const Mu
   /** Estimate signed momentum from vector of MDT/CSC segments
       using fit to pairs of segments */
 
-  MsgStream log(msgSvc(),name());
 //  MsgStream log(messageService(),name());
-  log << MSG::VERBOSE << " Executing MuonSegmentMomentumTool  fitMomentumVectorSegments " << endreq;
+  ATH_MSG_VERBOSE(" Executing MuonSegmentMomentumTool  fitMomentumVectorSegments ");
   if (m_debug||m_summary) std::cout << " fitMomentumVectorSegments " << segments.size() << " segments " << std::endl;
 
   std::vector<const Muon::MuonSegment*>::const_iterator it = segments.begin();
@@ -90,9 +86,8 @@ void MuonSegmentMomentum::fitMomentum2Segments( const Muon::MuonSegment* segment
   /** Estimate signed momentum for two segments
       by fitting 2 segments to one approximate track model */
 
-  MsgStream log(msgSvc(),name());
 //  MsgStream log(messageService(),name());
-  log << MSG::VERBOSE << " Executing MuonSegmentMomentumTool  fitMomentum2Segments " << endreq;
+  ATH_MSG_VERBOSE(" Executing MuonSegmentMomentumTool  fitMomentum2Segments ");
 
   if (m_debug) std::cout << " fitMomentum2Segments " << std::endl;
 
