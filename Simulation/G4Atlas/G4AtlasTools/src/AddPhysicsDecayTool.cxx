@@ -22,7 +22,7 @@
 //
 // 15-05-2015 : Edoardo Farina
 //-----------------------------------------------------------------------------
-
+#include "G4Version.hh"
 #if G4VERSION_NUMBER > 1009
 #define PARTICLEITERATOR aParticleIterator
 #else
