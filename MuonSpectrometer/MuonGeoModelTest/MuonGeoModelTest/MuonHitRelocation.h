@@ -5,7 +5,7 @@
 #ifndef MUON_HIT_RELOCATION_H
 #define MUON_HIT_RELOCATION_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "MuonSimEvent/MdtHitIdHelper.h"
 #include "MuonSimEvent/RpcHitIdHelper.h"
 #include "MuonSimEvent/TgcHitIdHelper.h"
@@ -19,7 +19,7 @@
 // Detector.  Used to validate GeoModel + much more.
 
 
-class MuonHitRelocation: public Algorithm {
+class MuonHitRelocation: public AthAlgorithm {
 public:
 
     MuonHitRelocation(const std::string& name, ISvcLocator* pSvcLocator);
@@ -31,22 +31,22 @@ public:
 
 private:
 
-    bool _checkMdt;
-    bool _checkRpc;
-    bool _checkTgc;
-    bool _checkCsc;
-    bool _checksTgc;
-    bool _checkMM;
+    bool m_checkMdt;
+    bool m_checkRpc;
+    bool m_checkTgc;
+    bool m_checkCsc;
+    bool m_checksTgc;
+    bool m_checkMM;
 
     
     class Clockwork;
-    Clockwork *c;
-    RpcHitIdHelper* rmuonHelper;
-    MdtHitIdHelper* mmuonHelper;
-    TgcHitIdHelper* tmuonHelper;
-    CscHitIdHelper* cmuonHelper;
-    sTgcHitIdHelper* stmuonHelper;
-    MicromegasHitIdHelper* mmmuonHelper;
+    Clockwork *m_c;
+    RpcHitIdHelper* m_rmuonHelper;
+    MdtHitIdHelper* m_mmuonHelper;
+    TgcHitIdHelper* m_tmuonHelper;
+    CscHitIdHelper* m_cmuonHelper;
+    sTgcHitIdHelper* m_stmuonHelper;
+    MicromegasHitIdHelper* m_mmmuonHelper;
     
 };
 

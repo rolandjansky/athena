@@ -11,8 +11,6 @@
 //<doc><file>	$Id: MuonGMCheck.cxx,v 1.43 2009-03-28 10:59:01 stefspa Exp $
 //<version>	$Name: not supported by cvs2svn $
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IDataProviderSvc.h"
 #include "GaudiKernel/AlgFactory.h"
@@ -73,23 +71,11 @@
 
 typedef std::istringstream mystream;
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
-
 using namespace MuonGM;
 
 
 MuonGMCheck::MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm               ( name, pSvcLocator ),
-    p_EventStore            ( 0 ),
-    p_ActiveStore           ( 0 ),
+  : AthAlgorithm            ( name, pSvcLocator ),
     p_MuonMgr		    ( 0 ),
     p_RpcIdHelper           ( 0 ),
     p_TgcIdHelper           ( 0 ),
@@ -99,9 +85,9 @@ MuonGMCheck::MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator)
     p_MmIdHelper           ( 0 ),
     m_fixedIdTool("MuonCalib::IdToFixedIdTool")
 {
-    _mem = 0;
-    _cpu[0] = 0;
-    _cpu[1] = 0;
+    m_mem = 0;
+    m_cpu[0] = 0;
+    m_cpu[1] = 0;
 
     m_event_loop = 0;
     declareProperty("EventLoopMode", m_event_loop );
@@ -173,114 +159,68 @@ MuonGMCheck::~MuonGMCheck()
 StatusCode
 MuonGMCheck::initialize()
 {
-    StatusCode status = StatusCode::SUCCESS;
+  ATH_MSG_DEBUG(" starting up" );
+  showVmemCpu("initialize");
 
-
-    MsgStream ini_log(messageService(), name());
-    ini_log <<MSG::DEBUG<<" starting up"<<endreq;
-    showVmemCpu("initialize");
-
-    // Locate the StoreGateSvc and initialize our local ptr
-    status = serviceLocator()->service("StoreGateSvc", p_EventStore);
-    if (!status.isSuccess() || 0 == p_EventStore) {
-        ini_log << MSG::ERROR << " Could not find StoreGateSvc" << endreq;
-        return status;
-    }
-    else ini_log << MSG::DEBUG << " StoreGateSvc found" << endreq;
-
-      // Locate the ActiveStoreSvc and initialize our local ptr
-    status = serviceLocator()->service("ActiveStoreSvc", p_ActiveStore);
-    if (!status.isSuccess() || 0 == p_ActiveStore) {
-        ini_log << MSG::ERROR << " Could not find ActiveStoreSvc" << endreq;
-        return status;
-    }
-    else ini_log << MSG::DEBUG << " ActiveStoreSvc found" << endreq;
-    
-    StoreGateSvc* detStore=0;
-    status = serviceLocator()->service("DetectorStore", detStore);
-    if ( status.isSuccess() ) {
-
-	// first get helpers 
-	ini_log<<"Get Muon Id Helpers from the det store (through their converters)"<<endreq;
+  // first get helpers 
+  ATH_MSG_DEBUG("Get Muon Id Helpers from the det store (through their converters)" );
 	
-	status = detStore->retrieve(p_MdtIdHelper,"MDTIDHELPER");
-	if (status.isFailure()) {ini_log<<MSG::ERROR<<" not found MDT id helper"<<endreq; return status;}
-       	else ini_log<<MSG::INFO<<"MDTIDHELPER retrieved from DetStore"<<endreq;
+  ATH_CHECK( detStore()->retrieve(p_MdtIdHelper,"MDTIDHELPER") );
+  ATH_MSG_INFO("MDTIDHELPER retrieved from DetStore" );
 
-	status = detStore->retrieve(p_RpcIdHelper,"RPCIDHELPER");
-	if (status.isFailure() ){ini_log<<MSG::ERROR<<" not found RPC id helper"<<endreq; return status;}
-	else ini_log<<MSG::INFO<<"RPCIDHELPER retrieved from DetStore"<<endreq;
+  ATH_CHECK( detStore()->retrieve(p_RpcIdHelper,"RPCIDHELPER") );
+  ATH_MSG_INFO("RPCIDHELPER retrieved from DetStore" );
 	    	    
-	status = detStore->retrieve(p_TgcIdHelper,"TGCIDHELPER");
-	if (status.isFailure() ){ini_log<<MSG::ERROR<<" not found TGC id helper"<<endreq; return status;}
-	else ini_log<<MSG::INFO<<"TGCIDHELPER retrieved from DetStore"<<endreq;
+  ATH_CHECK( detStore()->retrieve(p_TgcIdHelper,"TGCIDHELPER") );
+  ATH_MSG_INFO("TGCIDHELPER retrieved from DetStore" );
 	    
-	status = detStore->retrieve(p_sTgcIdHelper,"STGCIDHELPER");
-	if (status.isFailure() ){ini_log<<MSG::ERROR<<" not found sTGC id helper"<<endreq; return status;}
-	else ini_log<<MSG::INFO<<"sTGCIDHELPER retrieved from DetStore"<<endreq;
+  ATH_CHECK( detStore()->retrieve(p_sTgcIdHelper,"STGCIDHELPER") );
+  ATH_MSG_INFO("sTGCIDHELPER retrieved from DetStore" );
 
-	status = detStore->retrieve(p_MmIdHelper,"MMIDHELPER");
-	if (status.isFailure() ){ini_log<<MSG::ERROR<<" not found MM id helper"<<endreq; return status;}
-	else ini_log<<MSG::INFO<<"MMIDHELPER retrieved from DetStore"<<endreq;
+  ATH_CHECK( detStore()->retrieve(p_MmIdHelper,"MMIDHELPER") );
+  ATH_MSG_INFO("MMIDHELPER retrieved from DetStore" );
 	    
-	status = detStore->retrieve(p_CscIdHelper,"CSCIDHELPER");
-	if (status.isFailure() ){ini_log<<MSG::ERROR<<" not found CSC id helper"<<endreq; return status;}
-	else ini_log<<MSG::INFO<<"CSCIDHELPER retrieved from DetStore"<<endreq;
+  ATH_CHECK( detStore()->retrieve(p_CscIdHelper,"CSCIDHELPER") );
+  ATH_MSG_INFO("CSCIDHELPER retrieved from DetStore" );
 
-	ini_log << MSG::DEBUG << " Id Helpers are obtained from the detector store " << endreq;
-	showVmemCpu("initialize (IDHELPERS retrieven from DetStore)");
+  ATH_MSG_DEBUG( " Id Helpers are obtained from the detector store "  );
+  showVmemCpu("initialize (IDHELPERS retrieven from DetStore)");
 		
-            //now get the MuonDetManager
-
-        status = detStore->retrieve( p_MuonMgr );
-        if ( status.isFailure() ) {
-            ini_log << MSG::ERROR << " Cannot retrieve MuonDetectorManager " << endreq;
-        }
-        else
-        {
-            // test when is the geometry really loaded
-            ini_log << MSG::DEBUG << " MuonDetectorManager  is retriven " << endreq;
-            showVmemCpu("initialize (MGManager retrieven)");
-            ini_log <<MSG::INFO<<"# of Mdt/Rpc/Tgc/Csc ReadoutElements "<<p_MuonMgr->nMdtRE()<<"/"<<p_MuonMgr->nRpcRE()<<"/"<<p_MuonMgr->nTgcRE()<<"/"<<p_MuonMgr->nCscRE()<<endreq;
-            showVmemCpu("initialize (MGManager queried for nRE)");
-	}
+  //now get the MuonDetManager
+  ATH_CHECK( detStore()->retrieve( p_MuonMgr ) );
+  // test when is the geometry really loaded
+  ATH_MSG_DEBUG( " MuonDetectorManager  is retrieved "  );
+  showVmemCpu("initialize (MGManager retrieved)");
+  ATH_MSG_INFO("# of Mdt/Rpc/Tgc/Csc ReadoutElements "<<p_MuonMgr->nMdtRE()<<"/"<<p_MuonMgr->nRpcRE()<<"/"<<p_MuonMgr->nTgcRE()<<"/"<<p_MuonMgr->nCscRE() );
+  showVmemCpu("initialize (MGManager queried for nRE)");
 	
-    }
-    else {
-        ini_log << MSG::ERROR << " DetectorStore not accessible" << endreq;
-    }
-    if (status == StatusCode::SUCCESS) {
-        if (m_event_loop == 0)
-        {
-            if (m_check_csc) checkreadoutcscgeo();
-            if (m_check_mdt) checkreadoutmdtgeo();
-            if (m_check_stgc) checkreadoutstgcgeo();
-            if (m_check_mm)  checkreadoutmmgeo();
-            if (m_check_tgc) checkreadouttgcgeo();
-            if (m_check_rpc) checkreadoutrpcgeo();
-            if (m_check_rpcrsmap) buildRpcRegionSelectorMap();
-            if (m_check_mdtrsmap) buildMdtRegionSelectorMap();
-            if (m_check_tgcrsmap) buildTgcRegionSelectorMap();
-            if (m_check_cscrsmap) buildCscRegionSelectorMap();
-            if (m_check_regsel) checkRegionSelectorMap();
-            if (m_check_parent) checkParentStation();
-        }
-     }
+  if (m_event_loop == 0)
+  {
+    if (m_check_csc) checkreadoutcscgeo();
+    if (m_check_mdt) checkreadoutmdtgeo();
+    if (m_check_stgc) checkreadoutstgcgeo();
+    if (m_check_mm)  checkreadoutmmgeo();
+    if (m_check_tgc) checkreadouttgcgeo();
+    if (m_check_rpc) checkreadoutrpcgeo();
+    if (m_check_rpcrsmap) buildRpcRegionSelectorMap();
+    if (m_check_mdtrsmap) buildMdtRegionSelectorMap();
+    if (m_check_tgcrsmap) buildTgcRegionSelectorMap();
+    if (m_check_cscrsmap) buildCscRegionSelectorMap();
+    if (m_check_regsel) checkRegionSelectorMap();
+    if (m_check_parent) checkParentStation();
+  }
     
-    
-    return  status;
+  return  StatusCode::SUCCESS;
 }
 
 void MuonGMCheck::test_MM_IdHelpers()
 {
-    MsgStream log(messageService(), name()+"testMMhelpers");
-    log << MSG::INFO << "Executing ..." << endreq;    
+  ATH_MSG_INFO( "Executing ..."  );
 }
 
 void MuonGMCheck::test_sTGC_IdHelpers()
 {
-    MsgStream log(messageService(), name()+"testSTGChelpers");
-    log << MSG::INFO << "Executing ..." << endreq;    
+  ATH_MSG_INFO( "Executing ..."  );
 }
 
 
@@ -288,18 +228,15 @@ void MuonGMCheck::test_sTGC_IdHelpers()
 StatusCode
 MuonGMCheck::execute()
 {
-    StatusCode status = StatusCode::SUCCESS;
-    
-    MsgStream exe_log(messageService(), name());
-    exe_log << MSG::DEBUG << "Executing" << endreq;
+    ATH_MSG_DEBUG( "Executing"  );
     if (m_event_loop == 0) 
     {
 	// on first event test MM and sTGC helpers 
 	test_MM_IdHelpers();
 	test_sTGC_IdHelpers();
 
-        exe_log<<MSG::INFO<<"Don't need to loop over events --- just doing nothing"<<endreq;
-        return status;
+        ATH_MSG_INFO("Don't need to loop over events --- just doing nothing" );
+        return StatusCode::SUCCESS;
     }
 
     showVmemCpu("execute (start new event)");
@@ -327,16 +264,16 @@ MuonGMCheck::execute()
     //p_MuonMgr->fillCache();
     
     //clearCache();
-    std::cout<<" caching flag = "<<p_MuonMgr->cachingFlag()<<std::endl;
+    //std::cout<<" caching flag = "<<p_MuonMgr->cachingFlag()<<std::endl;
     if (p_MuonMgr->cachingFlag() == 0) p_MuonMgr->clearCache();
     showVmemCpu("execute (after clearing cache)");
     
-    return status;
+    return StatusCode::SUCCESS;
 }
 
 void MuonGMCheck::clearCache() const
 {
-    std::cout<<" caching flag = "<<p_MuonMgr->cachingFlag()<<std::endl;
+    //std::cout<<" caching flag = "<<p_MuonMgr->cachingFlag()<<std::endl;
     if (p_MuonMgr->cachingFlag() == 0) p_MuonMgr->clearCache();
 }
 
@@ -344,35 +281,26 @@ void MuonGMCheck::clearCache() const
 StatusCode
 MuonGMCheck::finalize()
 {
-    StatusCode status = StatusCode::SUCCESS;
-    
-    
-    MsgStream fin_log(messageService(), name());
-    fin_log << MSG::DEBUG << "Finalizing" << endreq;
-    
-     
-    return status;
+  ATH_MSG_DEBUG( "Finalizing"  );
+  return StatusCode::SUCCESS;
 }
 
 void MuonGMCheck::checkreadoutrpcgeo()
- {
-    
-     MsgStream exe_log(messageService(), name());
-     exe_log << MSG::INFO << " *************************** Global Check for Rpc" << endreq;
-     exe_log << MSG::INFO << " *************************** Global Check for Rpc" << endreq;
+{
+    ATH_MSG_INFO( " *************************** Global Check for Rpc"  );
 
      if (p_MuonMgr->nRpcRE() == 0) {
-         exe_log << MSG::INFO << " No RpcReadoutElements found "<<endreq;
+         ATH_MSG_INFO( " No RpcReadoutElements found " );
          return;
      }
-     else exe_log << MSG::INFO <<p_MuonMgr->nRpcRE() << " RpcReadoutElements found "<<endreq;
+     else ATH_MSG_INFO(p_MuonMgr->nRpcRE() << " RpcReadoutElements found " );
 
      
      std::string gVersion = p_MuonMgr->geometryVersion();
      std::string fileName = "rpc_current_"+gVersion;
 
      std::ofstream fout(fileName.c_str());
-     exe_log << MSG::INFO << " ***** Writing file "<< fileName << endreq;
+     ATH_MSG_INFO( " ***** Writing file "<< fileName  );
      fout << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
      //typedef std::cout fout;
 
@@ -676,15 +604,12 @@ void MuonGMCheck::checkreadoutrpcgeo()
      fout<<" average Eta strip pitch = "<<etastr_pitch<<" for "<<netastr<<" eta strips in total"<<std::endl;
      fout<<" average Phi strip pitch = "<<phistr_pitch<<" for "<<nphistr<<" phi strips in total"<<std::endl;     
      fout.close();
-     exe_log<<MSG::INFO<<" CheckReadoutRpc done !"<<endreq;
+     ATH_MSG_INFO(" CheckReadoutRpc done !" );
      
  }
 void MuonGMCheck::checkParentStation()
 {
-    
-     MsgStream exe_log(messageService(), name());
-     exe_log << MSG::INFO << " *************************** Global Check for Mdt" << endreq;
-     exe_log << MSG::INFO << " *************************** Global Check for Mdt" << endreq;
+     ATH_MSG_INFO( " *************************** Global Check for Mdt"  );
 
      //     bool firsttime = true;
      //     bool firstspec = false;
@@ -741,24 +666,21 @@ void MuonGMCheck::checkParentStation()
 
 void MuonGMCheck::checkreadoutmmgeo()
 {
-    
-     MsgStream exe_log(messageService(), name());
-     exe_log << MSG::INFO << " *************************** Global Check for MM" << endreq;
-     exe_log << MSG::INFO << " *************************** Global Check for MM" << endreq;
+     ATH_MSG_INFO( " *************************** Global Check for MM"  );
 
      //     if (p_MuonMgr->nsTgcRE() == 0) {
      if (p_MuonMgr->nMMRE() == 0) {
-         exe_log << MSG::INFO << " No MMReadoutElements found "<<endreq;
+       ATH_MSG_INFO( " No MMReadoutElements found " );
          return;
      }
-     else exe_log << MSG::INFO <<p_MuonMgr->nMMRE() << " MMReadoutElements found "<<endreq;
+     else ATH_MSG_INFO(p_MuonMgr->nMMRE() << " MMReadoutElements found " );
      const MmIdHelper* helper = p_MmIdHelper;
 
 
      std::string gVersion = p_MuonMgr->geometryVersion();
      std::string fileName = "MM_current_"+gVersion;
      std::ofstream fout(fileName.c_str());
-     exe_log << MSG::INFO << " ***** Writing file "<< fileName << endreq;
+     ATH_MSG_INFO( " ***** Writing file "<< fileName  );
      fout << setiosflags(std::ios::fixed) <<std::setw(11)<< std::setprecision(4)<<std::endl;
 
 
@@ -838,21 +760,17 @@ void MuonGMCheck::checkreadoutmmgeo()
 }
 void MuonGMCheck::checkreadoutstgcgeo()
 {
-    
-     MsgStream exe_log(messageService(), name());
-     exe_log << MSG::INFO << " *************************** Global Check for sTgc" << endreq;
-     exe_log << MSG::INFO << " *************************** Global Check for sTgc" << endreq;
-
+     ATH_MSG_INFO( " *************************** Global Check for sTgc"  );
 
      if (p_MuonMgr->nsTgcRE() == 0) {
-       exe_log << MSG::INFO << " No sTgcReadoutElements found "<<endreq;
+       ATH_MSG_INFO( " No sTgcReadoutElements found " );
        return;
      }
-     else exe_log << MSG::INFO <<p_MuonMgr->nsTgcRE() << " sTgcReadoutElements found "<<endreq;
+     else ATH_MSG_INFO(p_MuonMgr->nsTgcRE() << " sTgcReadoutElements found " );
      std::string gVersion = p_MuonMgr->geometryVersion();
      std::string fileName = "sTgc_current_"+gVersion;
      std::ofstream fout(fileName.c_str());
-     exe_log << MSG::INFO << " ***** Writing file "<< fileName << endreq;
+     ATH_MSG_INFO( " ***** Writing file "<< fileName  );
      const sTgcIdHelper* helper = p_sTgcIdHelper;
 
 
@@ -942,17 +860,13 @@ void MuonGMCheck::checkreadoutstgcgeo()
 
 void MuonGMCheck::checkreadoutmdtgeo()
 {
-    
-     MsgStream exe_log(messageService(), name());
-     exe_log << MSG::INFO << " *************************** Global Check for Mdt" << endreq;
-     exe_log << MSG::INFO << " *************************** Global Check for Mdt" << endreq;
-
+     ATH_MSG_INFO( " *************************** Global Check for Mdt"  );
 
      if (p_MuonMgr->nMdtRE() == 0) {
-         exe_log << MSG::INFO << " No MdtReadoutElements found "<<endreq;
+        ATH_MSG_INFO( " No MdtReadoutElements found " );
          return;
      }
-     else exe_log << MSG::INFO <<p_MuonMgr->nMdtRE() << " MdtReadoutElements found "<<endreq;
+     else ATH_MSG_INFO(p_MuonMgr->nMdtRE() << " MdtReadoutElements found " );
 
      std::string gVersion = p_MuonMgr->geometryVersion();
      std::string fileName = "mdt_current_"+gVersion;
@@ -964,7 +878,7 @@ void MuonGMCheck::checkreadoutmdtgeo()
      if (m_check_blines) fendpoints.open(fileNameEP.c_str());
      std::ofstream fendpoints2(fileNameEP2.c_str());
      fendpoints2 << "id/I:str_id/C:px/D:py:pz:zx:zy:zz:mx:my:mz" << std::endl;
-     exe_log << MSG::INFO << " ***** Writing file "<< fileName << endreq;
+     ATH_MSG_INFO( " ***** Writing file "<< fileName  );
      fout << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
 
      bool doHeader = true;
@@ -1341,27 +1255,23 @@ void MuonGMCheck::checkreadoutmdtgeo()
        fendpoints2.close();
        fendpoints.close();
      }
-     exe_log << MSG::INFO <<" CheckReadoutMdt done !"<<endreq;
+     ATH_MSG_INFO(" CheckReadoutMdt done !" );
  }
 void MuonGMCheck::checkreadouttgcgeo()
- {
-     
-     MsgStream exe_log(messageService(), name());
-     exe_log << MSG::INFO << " *************************** Global Check for Tgc" << endreq;
-     exe_log << MSG::INFO << " *************************** Global Check for Tgc" << endreq;
-     
+{
+     ATH_MSG_INFO( " *************************** Global Check for Tgc"  );
 
      if (p_MuonMgr->nTgcRE() == 0) {
-         exe_log << MSG::INFO << " No TgcReadoutElements found "<<endreq;
+         ATH_MSG_INFO( " No TgcReadoutElements found " );
          return;
      }
-     else exe_log << MSG::INFO <<p_MuonMgr->nTgcRE() << " TgcReadoutElements found "<<endreq;
+     else ATH_MSG_INFO(p_MuonMgr->nTgcRE() << " TgcReadoutElements found " );
 
 
      std::string gVersion = p_MuonMgr->geometryVersion();
      std::string fileName = "tgc_current_"+gVersion;
      std::ofstream fout(fileName.c_str());
-     exe_log << MSG::INFO << " ***** Writing file "<< fileName << endreq;
+     ATH_MSG_INFO( " ***** Writing file "<< fileName  );
      fout << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
 
      
@@ -1488,8 +1398,8 @@ void MuonGMCheck::checkreadouttgcgeo()
                  fout<<" opposite stEta = "<<p_TgcIdHelper->show_to_string(idp1);
                  const TgcReadoutElement* tgc1 = p_MuonMgr->getTgcReadoutElement(idp1);
                  if (!tgc1) {
-                     exe_log << MSG::FATAL << " TGC readout Element at z<0, with id = "<<p_TgcIdHelper->show_to_string(idp1)<<" not found "<<endreq;
-                     exe_log << MSG::FATAL << " is the geometry COMPLETE ? Any StationSelection active ? Exiting"<<endreq;
+                     ATH_MSG_FATAL( " TGC readout Element at z<0, with id = "<<p_TgcIdHelper->show_to_string(idp1)<<" not found " );
+                     ATH_MSG_FATAL( " is the geometry COMPLETE ? Any StationSelection active ? Exiting" );
                      return;
                  }
                  fout<<" its offline hash Id = "<<tgc1->identifyHash()<<std::endl;
@@ -1743,14 +1653,11 @@ void MuonGMCheck::checkreadouttgcgeo()
          }
      }
      fout.close();
-     exe_log<<MSG::INFO<<" CheckReadoutTgc done !"<<endreq;
+     ATH_MSG_INFO(" CheckReadoutTgc done !" );
 }
 void MuonGMCheck::checkreadoutcscgeo()
- {
-     
-     MsgStream exe_log(messageService(), name());
-     exe_log << MSG::INFO << " *************************** Global Check for Csc" << endreq;
-     exe_log << MSG::INFO << " *************************** Global Check for Csc" << endreq;
+{
+     ATH_MSG_INFO( " *************************** Global Check for Csc"  );
 
 
      /* 
@@ -1760,32 +1667,32 @@ void MuonGMCheck::checkreadoutcscgeo()
      Amg::Transform3D C2A = HepGeom::TranslateY3D(571.25);
      Amg::Transform3D myT_inC = C2A.inverse()*myT*C2A;
      Amg::Transform3D ImyT_inC =  myT_inC.inverse();
-     exe_log << MSG::INFO<<" Transform in A-frame"<<endreq;
-     exe_log << MSG::INFO<<(myT)[0][0]<<" "<<(myT)[0][1]<<" "<<(myT)[0][2]<<" "<<(myT)[0][3]<<endreq; 
-     exe_log << MSG::INFO<<(myT)[1][0]<<" "<<(myT)[1][1]<<" "<<(myT)[1][2]<<" "<<(myT)[1][3]<<endreq; 
-     exe_log << MSG::INFO<<(myT)[2][0]<<" "<<(myT)[2][1]<<" "<<(myT)[2][2]<<" "<<(myT)[2][3]<<endreq; 
-     exe_log << MSG::INFO<<" Transform in C-frame"<<endreq;
-     exe_log << MSG::INFO<<(myT_inC)[0][0]<<" "<<(myT_inC)[0][1]<<" "<<(myT_inC)[0][2]<<" "<<(myT_inC)[0][3]<<endreq; 
-     exe_log << MSG::INFO<<(myT_inC)[1][0]<<" "<<(myT_inC)[1][1]<<" "<<(myT_inC)[1][2]<<" "<<(myT_inC)[1][3]<<endreq; 
-     exe_log << MSG::INFO<<(myT_inC)[2][0]<<" "<<(myT_inC)[2][1]<<" "<<(myT_inC)[2][2]<<" "<<(myT_inC)[2][3]<<endreq; 
-     exe_log << MSG::INFO<<" Inverse Transform in C-frame"<<endreq;
-     exe_log << MSG::INFO<<(ImyT_inC)[0][0]<<" "<<(ImyT_inC)[0][1]<<" "<<(ImyT_inC)[0][2]<<" "<<(ImyT_inC)[0][3]<<endreq; 
-     exe_log << MSG::INFO<<(ImyT_inC)[1][0]<<" "<<(ImyT_inC)[1][1]<<" "<<(ImyT_inC)[1][2]<<" "<<(ImyT_inC)[1][3]<<endreq; 
-     exe_log << MSG::INFO<<(ImyT_inC)[2][0]<<" "<<(ImyT_inC)[2][1]<<" "<<(ImyT_inC)[2][2]<<" "<<(ImyT_inC)[2][3]<<endreq; 
+     ATH_MSG_INFO(" Transform in A-frame" );
+     ATH_MSG_INFO((myT)[0][0]<<" "<<(myT)[0][1]<<" "<<(myT)[0][2]<<" "<<(myT)[0][3] );
+     ATH_MSG_INFO((myT)[1][0]<<" "<<(myT)[1][1]<<" "<<(myT)[1][2]<<" "<<(myT)[1][3] );
+     ATH_MSG_INFO((myT)[2][0]<<" "<<(myT)[2][1]<<" "<<(myT)[2][2]<<" "<<(myT)[2][3] );
+     ATH_MSG_INFO(" Transform in C-frame" );
+     ATH_MSG_INFO((myT_inC)[0][0]<<" "<<(myT_inC)[0][1]<<" "<<(myT_inC)[0][2]<<" "<<(myT_inC)[0][3] );
+     ATH_MSG_INFO((myT_inC)[1][0]<<" "<<(myT_inC)[1][1]<<" "<<(myT_inC)[1][2]<<" "<<(myT_inC)[1][3] );
+     ATH_MSG_INFO((myT_inC)[2][0]<<" "<<(myT_inC)[2][1]<<" "<<(myT_inC)[2][2]<<" "<<(myT_inC)[2][3] );
+     ATH_MSG_INFO(" Inverse Transform in C-frame" );
+     ATH_MSG_INFO((ImyT_inC)[0][0]<<" "<<(ImyT_inC)[0][1]<<" "<<(ImyT_inC)[0][2]<<" "<<(ImyT_inC)[0][3] );
+     ATH_MSG_INFO((ImyT_inC)[1][0]<<" "<<(ImyT_inC)[1][1]<<" "<<(ImyT_inC)[1][2]<<" "<<(ImyT_inC)[1][3] );
+     ATH_MSG_INFO((ImyT_inC)[2][0]<<" "<<(ImyT_inC)[2][1]<<" "<<(ImyT_inC)[2][2]<<" "<<(ImyT_inC)[2][3] );
      */
      
      
 
      if (p_MuonMgr->nCscRE() == 0) {
-         exe_log << MSG::INFO << " No CscReadoutElements found "<<endreq;
+         ATH_MSG_INFO( " No CscReadoutElements found " );
          return;
      }
-     else exe_log << MSG::INFO <<p_MuonMgr->nCscRE() << " CscReadoutElements found "<<endreq;
+     else ATH_MSG_INFO(p_MuonMgr->nCscRE() << " CscReadoutElements found " );
 
      std::string gVersion = p_MuonMgr->geometryVersion();
      std::string fileName = "csc_current_"+gVersion;
      std::ofstream fout(fileName.c_str());
-     exe_log << MSG::INFO << " ***** Writing file "<< fileName << endreq;
+     ATH_MSG_INFO( " ***** Writing file "<< fileName  );
      fout << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
 
 
@@ -1834,8 +1741,8 @@ void MuonGMCheck::checkreadoutcscgeo()
                      Identifier idp1ch = p_CscIdHelper->channelID(idp1, csc->ChamberLayer(), 1, 0, 1);
                      const CscReadoutElement* csc1 = p_MuonMgr->getCscReadoutElement(idp1ch);
                      if (!csc1) {
-                         exe_log << MSG::FATAL << " CSC readout Element at z<0, with id = "<<p_CscIdHelper->show_to_string(idp1ch)<<" not found "<<endreq;
-                         exe_log << MSG::FATAL << " is the geometry COMPLETE ? Any StationSelection active ? Exiting"<<endreq;
+                         ATH_MSG_FATAL( " CSC readout Element at z<0, with id = "<<p_CscIdHelper->show_to_string(idp1ch)<<" not found " );
+                         ATH_MSG_FATAL( " is the geometry COMPLETE ? Any StationSelection active ? Exiting" );
                      return;
                      }
                      fout<<" at opposite z  = "<<p_CscIdHelper->show_to_string(csc1->identify())
@@ -2170,12 +2077,11 @@ void MuonGMCheck::checkreadoutcscgeo()
          }
      }
      fout.close();
-     exe_log << MSG::INFO <<" CheckReadoutCsc done !"<<endreq;
+     ATH_MSG_INFO(" CheckReadoutCsc done !" );
      
 }
 void MuonGMCheck::buildRpcRegionSelectorMap()
 {
-    MsgStream log(Athena::getMessageSvc(), name());
     std::vector<Identifier>::const_iterator  idfirst = p_RpcIdHelper->module_begin();
     std::vector<Identifier>::const_iterator  idlast =  p_RpcIdHelper->module_end();
 
@@ -2301,7 +2207,6 @@ void MuonGMCheck::buildRpcRegionSelectorMap()
 
 void MuonGMCheck::buildMdtRegionSelectorMap()
 {
-    MsgStream log(Athena::getMessageSvc(), name());
     std::vector<Identifier>::const_iterator  idfirst = p_MdtIdHelper->module_begin();
     std::vector<Identifier>::const_iterator  idlast =  p_MdtIdHelper->module_end();
 
@@ -2606,9 +2511,6 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
 }
 void MuonGMCheck::buildTgcRegionSelectorMap()
 {
-
-  MsgStream log(Athena::getMessageSvc(), name());
-
   std::vector<Identifier>::const_iterator idfirst = p_TgcIdHelper->module_begin();
   std::vector<Identifier>::const_iterator idlast  = p_TgcIdHelper->module_end();
 
@@ -2723,7 +2625,6 @@ void MuonGMCheck::buildTgcRegionSelectorMap()
 
 void MuonGMCheck::buildCscRegionSelectorMap()
 {
-     MsgStream log(Athena::getMessageSvc(), name());
      std::vector<Identifier>::const_iterator  idfirst = p_CscIdHelper->module_begin();
      std::vector<Identifier>::const_iterator  idlast =  p_CscIdHelper->module_end();
  
@@ -2743,7 +2644,7 @@ void MuonGMCheck::buildCscRegionSelectorMap()
          else                   std::cout<<"     hash Id NOT computed "<<Idhash<<std::endl;
  
          std::string new_extid="";
-         int aux0, aux1, aux2, aux3, aux4, aux5;
+         int aux0, aux1=0, aux2, aux3=0, aux4, aux5;
          char _dot[5];
          std::string::size_type loc_o;
          std::string::size_type loc_c;
@@ -2762,6 +2663,11 @@ void MuonGMCheck::buildCscRegionSelectorMap()
  				// aux1 is module type (50,51)
  				// aux2 is eta region (-1,1)
  				// aux3 is phi region (1,8)
+         if( aux1==0 || aux3==0 ) {
+           std::cout<< "ERROR : There is something wrong in buildCscRegionSelectorMap!" << std::endl;
+           std::cout<< "ERROR : Variables aux1 and/or aux3 not initialized - Taking emergency exit!" << std::endl;
+           throw;
+         }
  
          std::cout<<extid<<" hash Id "<<Idhash<<" new format " << new_extid << std::endl;
  
@@ -3004,35 +2910,26 @@ void MuonGMCheck::buildCscRegionSelectorMap()
 
 void MuonGMCheck::checkRegionSelectorMap()
 {
-    MsgStream log(messageService(), name());
-
     IRegSelSvc* m_pRegionSelector;
     StatusCode status = service("RegSelSvc", m_pRegionSelector);
     if(status.isFailure()) {
-        log << MSG::FATAL
-            << "Unable to retrieve RegionSelector Svc"
-            << endreq;
+      ATH_MSG_FATAL( "Unable to retrieve RegionSelector Svc" );
       return;
     }
 }
 
 void MuonGMCheck::testRpcCache()
 {
-     MsgStream exe_log(messageService(), name());
-     exe_log << MSG::INFO << " *************************** Building Rpc cache" << endreq;
+     ATH_MSG_INFO( " *************************** Building Rpc cache"  );
      p_MuonMgr->fillRpcCache();
-
 }
 
 void MuonGMCheck::testRpcCache_here()
 {
-    
-     MsgStream exe_log(messageService(), name());
-     exe_log << MSG::INFO << " *************************** Building Rpc cache" << endreq;
-     exe_log << MSG::INFO << " *************************** Building Rpc cache" << endreq;
+     ATH_MSG_INFO( " *************************** Building Rpc cache"  );
      
      if (p_MuonMgr->nRpcRE() == 0) {
-         exe_log << MSG::INFO << " No RpcReadoutElements found "<<endreq;
+         ATH_MSG_INFO( " No RpcReadoutElements found " );
          return;
      }
      std::string gVersion = p_MuonMgr->geometryVersion();
@@ -3082,7 +2979,7 @@ void MuonGMCheck::testRpcCache_here()
                          //         <<rpc->getTechnologyName()<<"/"
                          //         <<rpc->getStationName()<<" # doubletPhi = "<<ndbphi<<std::endl;
 
-			 exe_log<<MSG::DEBUG<<"Filling cache for rpcRE n "<<nre<<" "<<p_RpcIdHelper->show_to_string(idr)<<endreq;
+			 ATH_MSG_DEBUG("Filling cache for rpcRE n "<<nre<<" "<<p_RpcIdHelper->show_to_string(idr) );
 			 rpc->fillCache();
 		     }
 		 }
@@ -3090,31 +2987,27 @@ void MuonGMCheck::testRpcCache_here()
 	 }
      }
      //fout.close();
-     exe_log << MSG::INFO <<" Rpc cache built !"<<endreq;
+     ATH_MSG_INFO(" Rpc cache built !" );
 }
 
 void MuonGMCheck::testTgcCache()
 {
-     MsgStream exe_log(messageService(), name());
-     exe_log << MSG::INFO << " *************************** Building Tgc cache" << endreq;
+     ATH_MSG_INFO( " *************************** Building Tgc cache"  );
      p_MuonMgr->fillTgcCache();
 }
 
 void MuonGMCheck::testTgcCache_here()
 {
-    
-     MsgStream exe_log(messageService(), name());
-     exe_log << MSG::INFO << " *************************** Building Tgc cache" << endreq;
-     exe_log << MSG::INFO << " *************************** Building Tgc cache" << endreq;
+     ATH_MSG_INFO( " *************************** Building Tgc cache"  );
      
      if (p_MuonMgr->nTgcRE() == 0) {
-         exe_log << MSG::INFO << " No TgcReadoutElements found "<<endreq;
+         ATH_MSG_INFO( " No TgcReadoutElements found " );
          return;
      }
      std::string gVersion = p_MuonMgr->geometryVersion();
      std::string fileName = "testTgcCache_"+gVersion;
      //std::ofstream fout(fileName.c_str());
-     //exe_log << MSG::INFO << " ***** Writing file "<< fileName << endreq;
+     //ATH_MSG_INFO( " ***** Writing file "<< fileName  );
      //fout << setiosflags(std::ios::fixed) << std::setprecision(3)<<std::endl;
 
      int nre = 0;
@@ -3144,36 +3037,32 @@ void MuonGMCheck::testTgcCache_here()
                  //         <<tgc->getTechnologyName()<<"/"
                  //         <<tgc->getStationName()
                  //    <<" stEta/stPhi "<<tgc->getStationEta()<<" "<<tgc->getStationPhi()<<std::endl;
-                 exe_log<<MSG::DEBUG<<" Filling cache for tgcRE n. "<<nre<<" "<<p_TgcIdHelper->show_to_string(idr)<<endreq;
+                 ATH_MSG_DEBUG(" Filling cache for tgcRE n. "<<nre<<" "<<p_TgcIdHelper->show_to_string(idr) );
                  tgc->fillCache();
              }
          }
      }
      //fout.close();
-     exe_log << MSG::INFO <<" Tgc cache built !"<<endreq;
+     ATH_MSG_INFO(" Tgc cache built !" );
 }
 
 void MuonGMCheck::testCscCache()
 {
-     MsgStream exe_log(messageService(), name());
-     exe_log << MSG::INFO << " *************************** Building Csc cache" << endreq;
+     ATH_MSG_INFO( " *************************** Building Csc cache"  );
      p_MuonMgr->fillCscCache();    
 }
 void MuonGMCheck::testCscCache_here()
 {
-    
-     MsgStream exe_log(messageService(), name());
-     exe_log << MSG::INFO << " *************************** Building Csc cache" << endreq;
-     exe_log << MSG::INFO << " *************************** Building Csc cache" << endreq;
+     ATH_MSG_INFO( " *************************** Building Csc cache"  );
      
      if (p_MuonMgr->nCscRE() == 0) {
-         exe_log << MSG::INFO << " No CscReadoutElements found "<<endreq;
+         ATH_MSG_INFO( " No CscReadoutElements found " );
          return;
      }
      std::string gVersion = p_MuonMgr->geometryVersion();
      std::string fileName = "testCscCache_"+gVersion;
      //std::ofstream fout(fileName.c_str());
-     //exe_log << MSG::INFO << " ***** Writing file "<< fileName << endreq;
+     //ATH_MSG_INFO( " ***** Writing file "<< fileName  );
      //fout << setiosflags(std::ios::fixed) << std::setprecision(3)<<std::endl;
 
      int nre=0;
@@ -3209,7 +3098,7 @@ void MuonGMCheck::testCscCache_here()
                      //fout<<"      parent Id = "<<p_CscIdHelper->show_to_string(idp)<<std::endl;
 
 
-                     exe_log<<MSG::DEBUG<<" Filling cache for cscRE n. "<<nre<<" "<<p_CscIdHelper->show_to_string(idr)<<endreq;
+                     ATH_MSG_DEBUG(" Filling cache for cscRE n. "<<nre<<" "<<p_CscIdHelper->show_to_string(idr) );
                      csc->fillCache();
                      //std::cout<<" Filling cache done for cscRE "<<p_CscIdHelper->show_to_string(idr)<<std::endl;                     
                  }
@@ -3217,30 +3106,25 @@ void MuonGMCheck::testCscCache_here()
          }
      }
      //fout.close();
-     exe_log << MSG::INFO <<" Csc cache built !"<<endreq;
+     ATH_MSG_INFO(" Csc cache built !" );
 }
 void MuonGMCheck::testMdtCache()
 {
-    MsgStream exe_log(messageService(), name());
-    exe_log << MSG::INFO << " *************************** Building Mdt cache" << endreq;
+    ATH_MSG_INFO( " *************************** Building Mdt cache"  );
     p_MuonMgr->fillMdtCache();
 }
 void MuonGMCheck::testMdtCache_here()
 {
-    
-     MsgStream exe_log(messageService(), name());
-     exe_log << MSG::INFO << " *************************** Building Mdt cache" << endreq;
-     exe_log << MSG::INFO << " *************************** Building Mdt cache" << endreq;
-
+     ATH_MSG_INFO( " *************************** Building Mdt cache"  );
 
      if (p_MuonMgr->nMdtRE() == 0) {
-         exe_log << MSG::INFO << " No MdtReadoutElements found "<<endreq;
+         ATH_MSG_INFO( " No MdtReadoutElements found " );
          return;
      }
      std::string gVersion = p_MuonMgr->geometryVersion();
      std::string fileName = "testMdtCache_"+gVersion;
      //std::ofstream fout(fileName.c_str());
-     //exe_log << MSG::INFO << " ***** Writing file "<< fileName << endreq;
+     //ATH_MSG_INFO( " ***** Writing file "<< fileName  );
      //fout << setiosflags(std::ios::fixed) << std::setprecision(3)<<std::endl;
 
 
@@ -3286,7 +3170,7 @@ void MuonGMCheck::testMdtCache_here()
                      //    <<" cyl. coords R,phi,Z "<<elc.perp()<<" "<<elc.phi()<<" "<<elc.z()<<std::endl;
                      
 
-                     exe_log<<MSG::DEBUG<<" Filling cache for mdtRE n. "<<nre<<" "<<p_MdtIdHelper->show_to_string(idr)<<endreq;
+                     ATH_MSG_DEBUG(" Filling cache for mdtRE n. "<<nre<<" "<<p_MdtIdHelper->show_to_string(idr) );
                      mdt->fillCache();
                      //std::cout<<" Filling cache done for mdtRE "<<p_MdtIdHelper->show_to_string(idr)<<endreq;
                  } // end of multilayer
@@ -3294,13 +3178,12 @@ void MuonGMCheck::testMdtCache_here()
          } // end of stEta
      } // end of stName
      //fout.close();
-     exe_log << MSG::INFO <<" Mdt cache built !"<<endreq;
+     ATH_MSG_INFO(" Mdt cache built !" );
  }
 
 void MuonGMCheck::testMdtDetectorElementHash()
 {
-    MsgStream log(Athena::getMessageSvc(), name()+"_testMdtDetectorElementHash");
-    log<<MSG::INFO<<" start running "<<endreq;
+    ATH_MSG_INFO(" start running " );
     std::vector<Identifier>::const_iterator  idfirst = p_MdtIdHelper->detectorElement_begin();
     std::vector<Identifier>::const_iterator  idlast =  p_MdtIdHelper->detectorElement_end();
 
@@ -3316,9 +3199,9 @@ void MuonGMCheck::testMdtDetectorElementHash()
         IdentifierHash Idhash;
         int gethash_code = p_MdtIdHelper->get_hash(Id, Idhash, &mdtDetElemContext);
         std::string extid = p_MdtIdHelper->show_to_string(Id);
-        log<<MSG::DEBUG<<"MDT Identifier = "<<extid;
-        if (gethash_code == 0) log<<MSG::DEBUG<<" its hash Id is "<<Idhash<<std::endl;
-        else                   log<<MSG::ERROR<<"     hash Id NOT computed "<<Idhash<<" for Id "<<extid<<endreq;
+        ATH_MSG_DEBUG("MDT Identifier = "<<extid );
+        if (gethash_code == 0) ATH_MSG_DEBUG(" its hash Id is "<<Idhash );
+        else                   ATH_MSG_ERROR("     hash Id NOT computed "<<Idhash<<" for Id "<<extid );
 
         std::string new_extid="";
         int aux0 = 0, aux1 = 0, aux2 = 0, aux3 = 0, aux4 = 0, aux5 = 0, aux6 = 0;
@@ -3337,19 +3220,19 @@ void MuonGMCheck::testMdtDetectorElementHash()
                 mdtid_nstr <<aux0 <<"/" << aux1 <<"/" << aux2 <<"/"<< aux3 <<"/" <<aux4 <<"/"<<aux5 <<"/"<<aux6 ;
                 new_extid = mdtid_nstr.str();
             } else {
-                log<<MSG::ERROR<<extid<<"There is sth wrong with CSC hash Id "<<Idhash<<" new format "<<new_extid<<" ... skipping ... "<<endreq;
+              ATH_MSG_ERROR(extid<<"There is sth wrong with CSC hash Id "<<Idhash<<" new format "<<new_extid<<" ... skipping ... " );
                 continue;
             }
         } else {
-            log<<MSG::ERROR<<extid<<"There is sth wrong with CSC hash Id "<<Idhash<<" new format "<<new_extid<<" ... skipping ... "<<endreq;
+          ATH_MSG_ERROR(extid<<"There is sth wrong with CSC hash Id "<<Idhash<<" new format "<<new_extid<<" ... skipping ... " );
             continue;
         }
-        log<<MSG::VERBOSE<<extid<<" hash Id "<<Idhash<<" new format "<<new_extid<<endreq;
+        ATH_MSG_VERBOSE(extid<<" hash Id "<<Idhash<<" new format "<<new_extid );
 
         const MdtReadoutElement* _mdt = p_MuonMgr->getMdtReadoutElement(Idhash);
         if (_mdt == NULL) 
         {
-            log<<MSG::ERROR<<"MuonManager->getMdtReadoutElement(Idhash) fails ! for id = "<<extid<<" detElemhash "<<Idhash<<endreq;
+            ATH_MSG_ERROR("MuonManager->getMdtReadoutElement(Idhash) fails ! for id = "<<extid<<" detElemhash "<<Idhash );
             continue;
         }
         
@@ -3371,7 +3254,7 @@ void MuonGMCheck::testMdtDetectorElementHash()
         //double theta_min = Pzmin.theta();
         double eta_min = Pzmin.eta();
         double eta_max = Pzmax.eta();
-        log<<MSG::VERBOSE<<"eta range "<<eta_min<<" "<<eta_max<<" phi range "<<phimin<<" "<<phimax<<endreq;
+        ATH_MSG_VERBOSE("eta range "<<eta_min<<" "<<eta_max<<" phi range "<<phimin<<" "<<phimax );
         //
         fout0 << new_extid
               << setiosflags(std::ios::fixed) << std::setprecision(0) << std::setw(6) 
@@ -3387,15 +3270,14 @@ void MuonGMCheck::testMdtDetectorElementHash()
               << std::endl;
         
     }
-    log<<MSG::INFO<<" end running "<<endreq;
+    ATH_MSG_INFO(" end running " );
     
     //fout.close();
     fout0.close();
 }
 void MuonGMCheck::testRpcDetectorElementHash()
 {
-    MsgStream log(Athena::getMessageSvc(), name()+"_testRpcDetectorElementHash");
-    log<<MSG::INFO<<" start running "<<endreq;
+    ATH_MSG_INFO(" start running " );
     std::vector<Identifier>::const_iterator  idfirst = p_RpcIdHelper->detectorElement_begin();
     std::vector<Identifier>::const_iterator  idlast =  p_RpcIdHelper->detectorElement_end();
 
@@ -3411,9 +3293,9 @@ void MuonGMCheck::testRpcDetectorElementHash()
         IdentifierHash Idhash;
         int gethash_code = p_RpcIdHelper->get_hash(Id, Idhash, &rpcDetElemContext);
         std::string extid = p_RpcIdHelper->show_to_string(Id);
-        log<<MSG::DEBUG<<"RPC  Identifier = "<<extid;
-        if (gethash_code == 0) log<<MSG::DEBUG<<" its hash Id is "<<Idhash<<endreq;
-        else                   log<<MSG::ERROR<<"     hash Id NOT computed "<<Idhash<<endreq;
+        ATH_MSG_DEBUG("RPC  Identifier = "<<extid );
+        if (gethash_code == 0) ATH_MSG_DEBUG(" its hash Id is "<<Idhash );
+        else                   ATH_MSG_ERROR("     hash Id NOT computed "<<Idhash );
 
         std::string new_extid="";
         int aux0, aux1, aux2, aux3, aux4, aux5, aux6, aux7;
@@ -3433,12 +3315,12 @@ void MuonGMCheck::testRpcDetectorElementHash()
                 new_extid = rpcid_nstr.str();
             }
         }
-        log<<MSG::VERBOSE<<extid<<" hash Id "<<Idhash<<" new format "<<new_extid<<endreq;
+        ATH_MSG_VERBOSE(extid<<" hash Id "<<Idhash<<" new format "<<new_extid );
 
         const RpcReadoutElement* _rpc = p_MuonMgr->getRpcReadoutElement(Idhash);
         if (_rpc == NULL) 
         {
-            log<<MSG::ERROR<<"MuonManager->getRpcReadoutElement(Idhash) fails ! for id = "<<extid<<" detElemhash "<<Idhash<<endreq;
+            ATH_MSG_ERROR("MuonManager->getRpcReadoutElement(Idhash) fails ! for id = "<<extid<<" detElemhash "<<Idhash );
             continue;
         }
         
@@ -3461,7 +3343,7 @@ void MuonGMCheck::testRpcDetectorElementHash()
         //double theta_min = Pzmin.theta();
         double eta_min = Pzmin.eta();
         double eta_max = Pzmax.eta();
-        log<<MSG::VERBOSE<<"eta range "<<eta_min<<" "<<eta_max<<" phi range "<<phimin<<" "<<phimax<<std::endl;
+        ATH_MSG_VERBOSE("eta range "<<eta_min<<" "<<eta_max<<" phi range "<<phimin<<" "<<phimax );
         //
         fout0 << new_extid
               << setiosflags(std::ios::fixed) << std::setprecision(0) << std::setw(6) 
@@ -3477,7 +3359,7 @@ void MuonGMCheck::testRpcDetectorElementHash()
               << std::endl;
         
     }
-    log<<MSG::INFO<<" end running "<<endreq;
+    ATH_MSG_INFO(" end running " );
     
     //fout.close();
     fout0.close();
@@ -3485,8 +3367,7 @@ void MuonGMCheck::testRpcDetectorElementHash()
 
 void MuonGMCheck::testTgcDetectorElementHash()
 {
-    MsgStream log(Athena::getMessageSvc(), name()+"_testTgcDetectorElementHash");
-    log<<MSG::INFO<<" start running "<<endreq;
+    ATH_MSG_INFO(" start running " );
     
     std::vector<Identifier>::const_iterator  idfirst = p_TgcIdHelper->detectorElement_begin();
     std::vector<Identifier>::const_iterator  idlast =  p_TgcIdHelper->detectorElement_end();
@@ -3503,9 +3384,9 @@ void MuonGMCheck::testTgcDetectorElementHash()
         IdentifierHash Idhash;
         int gethash_code = p_TgcIdHelper->get_hash(Id, Idhash, &tgcDetElemContext);
         std::string extid = p_TgcIdHelper->show_to_string(Id);
-        log<<MSG::DEBUG<<"TGC Identifier = "<<extid;
-        if (gethash_code == 0) log<<MSG::DEBUG<<" its hash Id is "<<Idhash<<endreq;
-        else                   log<<MSG::ERROR<<"     hash Id NOT computed "<<Idhash<<endreq;
+        ATH_MSG_DEBUG("TGC Identifier = "<<extid );
+        if (gethash_code == 0) ATH_MSG_DEBUG(" its hash Id is "<<Idhash );
+        else                   ATH_MSG_ERROR("     hash Id NOT computed "<<Idhash );
 
         std::string new_extid="";
         int aux0, aux1, aux2, aux3, aux4, aux5;
@@ -3525,12 +3406,12 @@ void MuonGMCheck::testTgcDetectorElementHash()
                 new_extid = tgcid_nstr.str();
             }
         }
-        log<<MSG::VERBOSE<<extid<<" hash Id "<<Idhash<<" new format "<<new_extid<<endreq;
+        ATH_MSG_VERBOSE(extid<<" hash Id "<<Idhash<<" new format "<<new_extid );
 
         const TgcReadoutElement* _tgc = p_MuonMgr->getTgcReadoutElement(Idhash);
         if (_tgc == NULL) 
         {
-            log<<MSG::ERROR<<"MuonManager->getTgcReadoutElement(Idhash) fails ! for id = "<<extid<<" detElemhash "<<Idhash<<endreq;
+            ATH_MSG_ERROR("MuonManager->getTgcReadoutElement(Idhash) fails ! for id = "<<extid<<" detElemhash "<<Idhash );
             continue;
         }
         
@@ -3551,7 +3432,7 @@ void MuonGMCheck::testTgcDetectorElementHash()
         //double theta_min = Pzmin.theta();
         double eta_min = Pzmin.eta();
         double eta_max = Pzmax.eta();
-        log<<MSG::VERBOSE<<"eta range "<<eta_min<<" "<<eta_max<<" phi range "<<phimin<<" "<<phimax<<endreq;
+        ATH_MSG_VERBOSE("eta range "<<eta_min<<" "<<eta_max<<" phi range "<<phimin<<" "<<phimax );
         //
         fout0 << new_extid
               << setiosflags(std::ios::fixed) << std::setprecision(0) << std::setw(6) 
@@ -3567,15 +3448,14 @@ void MuonGMCheck::testTgcDetectorElementHash()
               << std::endl;
         
     }
-    log<<MSG::INFO<<" end running "<<endreq;
+    ATH_MSG_INFO(" end running " );
     
     //fout.close();
     fout0.close();
 }
 void MuonGMCheck::testCscDetectorElementHash()
 {
-    MsgStream log(Athena::getMessageSvc(), name()+"_testCscDetectorElementHash");
-    log<<MSG::INFO<<" start running "<<endreq;
+    ATH_MSG_INFO(" start running " );
 
     std::vector<Identifier>::const_iterator  idfirst = p_CscIdHelper->detectorElement_begin();
     std::vector<Identifier>::const_iterator  idlast =  p_CscIdHelper->detectorElement_end();
@@ -3592,9 +3472,9 @@ void MuonGMCheck::testCscDetectorElementHash()
         IdentifierHash Idhash;
         int gethash_code = p_CscIdHelper->get_hash(Id, Idhash, &cscDetElemContext);
         std::string extid = p_CscIdHelper->show_to_string(Id);
-        log<<MSG::DEBUG<<"CSC Identifier = "<<extid;
-        if (gethash_code == 0) log<<MSG::DEBUG<<" its hash Id is "<<Idhash<<endreq;
-        else                   log<<MSG::ERROR<<"     hash Id NOT computed "<<Idhash<<endreq;
+        ATH_MSG_DEBUG("CSC Identifier = "<<extid );
+        if (gethash_code == 0) ATH_MSG_DEBUG(" its hash Id is "<<Idhash );
+        else                   ATH_MSG_ERROR("     hash Id NOT computed "<<Idhash );
 
         std::string new_extid="";
         int aux0, aux1, aux2, aux3, aux4, aux5, aux6;
@@ -3614,12 +3494,12 @@ void MuonGMCheck::testCscDetectorElementHash()
                 new_extid = cscid_nstr.str();
             }
         }
-        log<<MSG::VERBOSE<<extid<<" hash Id "<<Idhash<<" new format "<<new_extid<<endreq;
+        ATH_MSG_VERBOSE(extid<<" hash Id "<<Idhash<<" new format "<<new_extid );
 
         const CscReadoutElement* _csc = p_MuonMgr->getCscReadoutElement(Idhash);
         if (_csc == NULL) 
         {
-            log<<MSG::ERROR<<"MuonManager->getCscReadoutElement(Idhash) fails ! for id = "<<extid<<" detElemhash "<<Idhash<<endreq;
+            ATH_MSG_ERROR("MuonManager->getCscReadoutElement(Idhash) fails ! for id = "<<extid<<" detElemhash "<<Idhash );
             continue;
         }
         
@@ -3640,7 +3520,7 @@ void MuonGMCheck::testCscDetectorElementHash()
         //double theta_min = Pzmin.theta();
         double eta_min = Pzmin.eta();
         double eta_max = Pzmax.eta();
-        log<<MSG::VERBOSE<<"eta range "<<eta_min<<" "<<eta_max<<" phi range "<<phimin<<" "<<phimax<<endreq;
+        ATH_MSG_VERBOSE("eta range "<<eta_min<<" "<<eta_max<<" phi range "<<phimin<<" "<<phimax );
         //
         fout0 << new_extid
               << setiosflags(std::ios::fixed) << std::setprecision(0) << std::setw(6) 
@@ -3656,7 +3536,7 @@ void MuonGMCheck::testCscDetectorElementHash()
               << std::endl;
         
     }
-    log<<MSG::INFO<<" end running "<<endreq;
+    ATH_MSG_INFO(" end running " );
     
     //fout.close();
     fout0.close();
@@ -3664,14 +3544,13 @@ void MuonGMCheck::testCscDetectorElementHash()
 
 void MuonGMCheck::showVmemCpu(std::string message) 
 {
-    MsgStream log(messageService(), name()+"_STAT_");
     int dmem = 0;
     int ducpu = 0;
     int dscpu = 0;
     getVmemCpu(dmem, ducpu, dscpu);
 
-    log <<MSG::INFO<<message<<" Delta_VirtualMemory      "<< dmem <<" kB --- current Vmem "<< _mem <<" kB"<<endreq;    
-    log <<MSG::INFO<<message<<" Delta_CPU_time u/s/total "<< ducpu<<"/"<<dscpu<<"/"<<ducpu+dscpu<<" ms --- current user time "<< _cpu[0]<<" ms"<<endreq;
+    ATH_MSG_INFO(message<<" Delta_VirtualMemory      "<< dmem <<" kB --- current Vmem "<< m_mem <<" kB" );
+    ATH_MSG_INFO(message<<" Delta_CPU_time u/s/total "<< ducpu<<"/"<<dscpu<<"/"<<ducpu+dscpu<<" ms --- current user time "<< m_cpu[0]<<" ms" );
     
 }
 void MuonGMCheck::getVmemCpu(int& dVmem, int& dUCpu, int& dSCpu) 
@@ -3686,12 +3565,12 @@ void MuonGMCheck::getVmemCpu(int& dVmem, int& dUCpu, int& dSCpu)
 
     //std::cout<<" cpu_now = "<<cpu_now[0] <<" "<<cpu_now[1]<<std::endl;
     
-    dVmem = mem_now - _mem;
-    _mem = mem_now;
-    dUCpu  = cpu_now[0] - _cpu[0];
-    _cpu[0]  = cpu_now[0];
-    dSCpu  = cpu_now[1] - _cpu[1];
-    _cpu[1]  = cpu_now[1];
+    dVmem = mem_now - m_mem;
+    m_mem = mem_now;
+    dUCpu  = cpu_now[0] - m_cpu[0];
+    m_cpu[0]  = cpu_now[0];
+    dSCpu  = cpu_now[1] - m_cpu[1];
+    m_cpu[1]  = cpu_now[1];
 
     //std::cout<<"dU/S cpu "<<dUCpu<<" "<<dSCpu<<std::endl;
     //std::cout<<" out of getVmemCpu"<<std::endl;

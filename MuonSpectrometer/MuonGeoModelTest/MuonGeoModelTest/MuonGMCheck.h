@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 /***************************************************************************
  test MuonGeoModel from digits to pos. in space
  ----------------------------------------------
@@ -14,29 +15,12 @@
 #ifndef MUONGEOMODEL_MUONGMCHECK_H
 # define MUONGEOMODEL_MUONGMCHECK_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
-#include "GaudiKernel/Algorithm.h"
-
-//#include "MuonGeoModel/MuonDetectorManager.h"
-//#include "MuonGeoModel/MuonReadoutElement.h"
-//#include "MuonIdHelpers/MdtIdHelper.h"
-//#include "MuonIdHelpers/CscIdHelper.h"
-//#include "MuonIdHelpers/RpcIdHelper.h"
-//#include "MuonIdHelpers/TgcIdHelper.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCalibITools/IIdToFixedIdTool.h"
 
 
-class StoreGateSvc;
-class ActiveStoreSvc;
 class MdtIdHelper;
 class CscIdHelper;
 class RpcIdHelper;
@@ -51,9 +35,7 @@ namespace MuonGM
     class MuonDetectorManager;
 }
 
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
-class MuonGMCheck: public Algorithm
+class MuonGMCheck: public AthAlgorithm
 {
 public:
     
@@ -106,10 +88,6 @@ private:
 
     
 
-    // Pointers to the event
-    StoreGateSvc*      	        p_EventStore;
-    ActiveStoreSvc*      	        p_ActiveStore;
-
     const MuonGM::MuonDetectorManager*	p_MuonMgr;
     const RpcIdHelper*            p_RpcIdHelper;
     const TgcIdHelper*            p_TgcIdHelper;
@@ -120,8 +98,8 @@ private:
 
     ToolHandle<MuonCalib::IIdToFixedIdTool> m_fixedIdTool;
 
-    int _mem; //<! counter for memory allocated VmSize values read from /proc/<pid>/status 
-    int _cpu[2]; //<! counter for cpu time read from /proc/<pid>/cpu
+    int m_mem; //<! counter for memory allocated VmSize values read from /proc/<pid>/status 
+    int m_cpu[2]; //<! counter for cpu time read from /proc/<pid>/cpu
     void showVmemCpu(std::string message);
     void getVmemCpu(int& dVmem, int& duCpu, int& dsCpu);
 

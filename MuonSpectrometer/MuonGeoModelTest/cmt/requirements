@@ -11,6 +11,7 @@ use MuonSimEvent               MuonSimEvent-*                     MuonSpectromet
 use MuonPrepRawData            MuonPrepRawData-*       		  MuonSpectrometer/MuonReconstruction/MuonRecEvent        
 
 use MuonCalibITools            MuonCalibITools-*                  MuonSpectrometer/MuonCalib
+use AthenaBaseComps 	       AthenaBaseComps-*                  Control
 
 
 private 
@@ -26,7 +27,6 @@ use RegionSelector             RegionSelector-*                   DetectorDescri
 use EventInfo                  EventInfo-*                        Event
 use MuonAlignmentData          MuonAlignmentData-*                MuonSpectrometer/MuonAlignment
 use AtlasROOT 		       AtlasROOT-*                        External
-#use AthenaBaseComps 	       AthenaBaseComps-*                  Control
 
 use AtlasBoost 		       AtlasBoost-*                       External
 

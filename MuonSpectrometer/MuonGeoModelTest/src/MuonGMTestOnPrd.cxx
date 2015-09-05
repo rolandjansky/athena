@@ -11,8 +11,6 @@
 //<doc><file>	$Id: MuonGMTestOnPrd.cxx,v 1.8 2009-03-28 10:59:01 stefspa Exp $
 //<version>	$Name: not supported by cvs2svn $
 
-//<<<<<< INCLUDES                                                       >>>>>>
-
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IDataProviderSvc.h"
 #include "GaudiKernel/AlgFactory.h"
@@ -35,38 +33,24 @@
 // #include "Identifier/IdentifierHash.h"
 #include "TrkDistortedSurfaces/SaggedLineSurface.h"
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
-
-
 MuonGMTestOnPrd::MuonGMTestOnPrd(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm               ( name, pSvcLocator ),
-    m_debug(false),
-    m_verbose(false),
-    p_EventStore            ( 0 ),
-    p_MuonMgr		    ( 0 ),
-    p_RpcIdHelper           ( 0 ),
-    p_TgcIdHelper           ( 0 ),
-    p_CscIdHelper           ( 0 ),
-    p_MdtIdHelper           ( 0 ),
-    _mdt(true),
-    _rpc(true),
-    _tgc(true),
-    _csc(true),
-    _check_misal(false)
+  : AthAlgorithm               ( name, pSvcLocator ),
+    m_MuonMgr		    ( 0 ),
+    m_RpcIdHelper           ( 0 ),
+    m_TgcIdHelper           ( 0 ),
+    m_CscIdHelper           ( 0 ),
+    m_MdtIdHelper           ( 0 ),
+    m_mdt(true),
+    m_rpc(true),
+    m_tgc(true),
+    m_csc(true),
+    m_check_misal(false)
 {
-    declareProperty("doMDT", _mdt );        
-    declareProperty("doRPC", _rpc );        
-    declareProperty("doTGC", _tgc );        
-    declareProperty("doCSC", _csc );        
-    declareProperty("doCheckMisal", _check_misal );        
+    declareProperty("doMDT", m_mdt );        
+    declareProperty("doRPC", m_rpc );        
+    declareProperty("doTGC", m_tgc );        
+    declareProperty("doCSC", m_csc );        
+    declareProperty("doCheckMisal", m_check_misal );        
 }
 
 MuonGMTestOnPrd::~MuonGMTestOnPrd()
@@ -75,73 +59,38 @@ MuonGMTestOnPrd::~MuonGMTestOnPrd()
 StatusCode
 MuonGMTestOnPrd::initialize()
 {
-    StatusCode status = StatusCode::SUCCESS;
+  ATH_MSG_DEBUG("in initialize" );
 
-    MsgStream ini_log(messageService(), name());
-    ini_log <<MSG::DEBUG<<"in initialize"<<endreq;
-    m_debug = (ini_log.level()<=MSG::DEBUG);
-    m_verbose = (ini_log.level()<=MSG::VERBOSE);
-    
+  ATH_CHECK( detStore()->retrieve( m_MuonMgr ) );
+  ATH_MSG_DEBUG( " MuonDetectorManager  is retrieved "  );
+  m_CscIdHelper = m_MuonMgr->cscIdHelper();
+  m_RpcIdHelper = m_MuonMgr->rpcIdHelper();
+  m_TgcIdHelper = m_MuonMgr->tgcIdHelper();
+  m_MdtIdHelper = m_MuonMgr->mdtIdHelper();
+  ATH_MSG_DEBUG( " Id Helpers are obtained from MuonDetectorManager "  );
 
-    // Locate the StoreGateSvc and initialize our local ptr
-    status = serviceLocator()->service("StoreGateSvc", p_EventStore);
-    if (!status.isSuccess() || 0 == p_EventStore) {
-        ini_log << MSG::ERROR << " Could not find StoreGateSvc" << endreq;
-        return status;
-    }
-    else ini_log << MSG::DEBUG << " StoreGateSvc found" << endreq;
-    
-    // Locate the DetectorStore
-    StoreGateSvc* detStore=0;
-    status = serviceLocator()->service("DetectorStore", detStore);
-    if ( status.isSuccess() ) {
-        status = detStore->retrieve( p_MuonMgr );
-        if ( status.isFailure() ) {
-            ini_log << MSG::ERROR << " Cannot retrieve MuonDetectorManager " << endreq;
-        }
-        else
-        {
-            ini_log << MSG::DEBUG << " MuonDetectorManager  is retriven " << endreq;
-            p_CscIdHelper = p_MuonMgr->cscIdHelper();
-            p_RpcIdHelper = p_MuonMgr->rpcIdHelper();
-            p_TgcIdHelper = p_MuonMgr->tgcIdHelper();
-            p_MdtIdHelper = p_MuonMgr->mdtIdHelper();
-            ini_log << MSG::DEBUG << " Id Helpers are obtained from MuonDetectorManager " << endreq;
+  // test when is the geometry really loaded
+  ATH_MSG_INFO("# of Mdt/Rpc/Tgc/Csc ReadoutElements "<<m_MuonMgr->nMdtRE()<<"/"<<m_MuonMgr->nRpcRE()<<"/"<<m_MuonMgr->nTgcRE()<<"/"<<m_MuonMgr->nCscRE() );
 
-            // test when is the geometry really loaded
-            ini_log <<MSG::INFO<<"# of Mdt/Rpc/Tgc/Csc ReadoutElements "<<p_MuonMgr->nMdtRE()<<"/"<<p_MuonMgr->nRpcRE()<<"/"<<p_MuonMgr->nTgcRE()<<"/"<<p_MuonMgr->nCscRE()<<endreq;
-        }
-    }
-    else {
-        ini_log << MSG::ERROR << " DetectorStore not accessible" << endreq;
-    }
-
-    return  status;
+  return  StatusCode::SUCCESS;
 }
 
 
 StatusCode
 MuonGMTestOnPrd::execute()
 {
-    StatusCode status = StatusCode::SUCCESS;
-
-    MsgStream log(messageService(), name());
-    log << MSG::DEBUG << "Executing" << endreq;
+    ATH_MSG_DEBUG( "Executing"  );
 
     std::string key = "XXX_Measurements";
 
-    if (_mdt) 
+    if (m_mdt) 
     {
         // Mdt 
         key = "MDT_DriftCircles";
-        const MdtPrepDataContainer * mdtContainer;
-        if ( StatusCode::SUCCESS != p_EventStore->retrieve(mdtContainer, key) )
-        {
-            log<<MSG::ERROR<<"Cannot retrieve MDT PRD Container "<<endreq;
-            return StatusCode::FAILURE;
-        }
+        const Muon::MdtPrepDataContainer * mdtContainer = nullptr;
+        ATH_CHECK( evtStore()->retrieve(mdtContainer, key) );
     
-        log<<MSG::INFO<<"Retrieved MDT PRD Container with size = " << mdtContainer->size()<< endreq;
+        ATH_MSG_INFO("Retrieved MDT PRD Container with size = " << mdtContainer->size() );
     
         //     const DataHandle<MdtPrepDataCollection> mdtColl;
         //     const DataHandle<MdtPrepDataCollection> lastMdtColl;
@@ -150,53 +99,47 @@ MuonGMTestOnPrd::execute()
         //     }
         //     if (mdtColl==lastMdtColl) log<<MSG::DEBUG<<"NO MdtPrepDataCollections in the event"<<endreq;
 
-        for (MdtPrepDataContainer::const_iterator mdtColli = mdtContainer->begin(); mdtColli!=mdtContainer->end(); ++mdtColli)
+        for (const Muon::MdtPrepDataCollection* mdtColl : *mdtContainer)
         {
-            const Muon::MdtPrepDataCollection* mdtColl = *mdtColli;
             if (!mdtColl->empty())
             {
                 Identifier collid = mdtColl->identify();
                 IdentifierHash collidh = mdtColl->identifyHash();
-                log<<MSG::INFO<<"Mdt Collection "<<p_MdtIdHelper->show_to_string(collid)<<" hashId = "<<(int)collidh<<" found with size "<<mdtColl->size()<<endreq;
+                ATH_MSG_INFO("Mdt Collection "<<m_MdtIdHelper->show_to_string(collid)<<" hashId = "<<(int)collidh<<" found with size "<<mdtColl->size() );
                 processMdtCollection(mdtColl, collid, collidh);
                 //processMdtCollectionOld(mdtColl, collid, collidh);
             }
             else 
             {
                 Identifier collid = mdtColl->identify();
-                log<<MSG::INFO<<"Mdt Collection "<<p_MdtIdHelper->show_to_string(collid)<<" is empty"<<endreq;
+                ATH_MSG_INFO("Mdt Collection "<<m_MdtIdHelper->show_to_string(collid)<<" is empty" );
             }        
         }    
     }
 
-    if (_rpc)
+    if (m_rpc)
     {
         // Rpc 
         key = "RPC_Measurements";
-        const RpcPrepDataContainer * rpcContainer;
-        if ( StatusCode::SUCCESS != p_EventStore->retrieve(rpcContainer, key) )
-        {
-            log<<MSG::ERROR<<"Cannot retrieve RPC PRD Container "<<endreq;
-            return StatusCode::FAILURE;
-        }
+        const Muon::RpcPrepDataContainer * rpcContainer = nullptr;
+        ATH_CHECK( evtStore()->retrieve(rpcContainer, key) );
     
-        log<<MSG::INFO<<"Retrieved RPC PRD Container with size = " << rpcContainer->size()<< endreq;
+        ATH_MSG_INFO("Retrieved RPC PRD Container with size = " << rpcContainer->size() );
 
         int ict = 0;
         int ictphi = 0;
         int icteta = 0;
         int icttrg = 0;
         int ictamb = 0;
-        for (RpcPrepDataContainer::const_iterator rpcColli = rpcContainer->begin(); rpcColli!=rpcContainer->end(); ++rpcColli)
+        for (const Muon::RpcPrepDataCollection* rpcColl : *rpcContainer)
         {
             int ncoll = 0;
-            const Muon::RpcPrepDataCollection* rpcColl = *rpcColli;
             if (!rpcColl->empty())
             {
                 Identifier collid = rpcColl->identify();
                 IdentifierHash collidh = rpcColl->identifyHash();
-                log<<MSG::INFO<<"Rpc Collection "<<p_RpcIdHelper->show_to_string(collid)<<" hashId = "<<(int)collidh<<" found with size "<<rpcColl->size()<<endreq;
-                RpcPrepDataCollection::const_iterator it_rpcPrepData;
+                ATH_MSG_INFO("Rpc Collection "<<m_RpcIdHelper->show_to_string(collid)<<" hashId = "<<(int)collidh<<" found with size "<<rpcColl->size() );
+                Muon::RpcPrepDataCollection::const_iterator it_rpcPrepData;
                 int icc = 0;
                 int iccphi = 0;
                 int icceta = 0;
@@ -211,7 +154,7 @@ MuonGMTestOnPrd::execute()
                     }
                     else
                     {                    
-                        if (p_RpcIdHelper->measuresPhi((*it_rpcPrepData)->identify())) 
+                        if (m_RpcIdHelper->measuresPhi((*it_rpcPrepData)->identify())) 
                         {
                             iccphi++;
                             ictphi++;
@@ -223,114 +166,103 @@ MuonGMTestOnPrd::execute()
                             icteta++;
                         }                    
                     }
-                    log << MSG::INFO<<ict<<" in this coll. "<<icc<<" prepData id = "
-                          <<p_RpcIdHelper->show_to_string((*it_rpcPrepData)->identify())
-                          <<" time "<<(*it_rpcPrepData)->time()<<" triggerInfo "<<(*it_rpcPrepData)->triggerInfo()<<" ambiguityFlag "<<(*it_rpcPrepData)->ambiguityFlag()<<endreq;
-                    if (_check_misal)
+                    ATH_MSG_INFO(ict<<" in this coll. "<<icc<<" prepData id = "
+                                 <<m_RpcIdHelper->show_to_string((*it_rpcPrepData)->identify())
+                                 <<" time "<<(*it_rpcPrepData)->time()<<" triggerInfo "<<(*it_rpcPrepData)->triggerInfo()<<" ambiguityFlag "<<(*it_rpcPrepData)->ambiguityFlag() );
+                    if (m_check_misal)
                     {
-                        const RpcReadoutElement* rpcRE = (*it_rpcPrepData)->detectorElement();
+                        const MuonGM::RpcReadoutElement* rpcRE = (*it_rpcPrepData)->detectorElement();
                         Amg::Vector3D cgg = rpcRE->center((*it_rpcPrepData)->identify());
-                        log << MSG::INFO<<"     position of the center of the gas gap is "<<cgg.x()<<" "<<cgg.y()<<" "<<cgg.z()<<endreq;
+                        ATH_MSG_INFO("     position of the center of the gas gap is "<<cgg.x()<<" "<<cgg.y()<<" "<<cgg.z() );
                     }                    
                 }
                 ncoll++;
-                log << MSG::INFO<<"*** Collection "<<ncoll<<" Summary: "
-                      <<icctrg<<" trigger hits / "
-                      <<iccphi<<" phi hits / "
-                      <<icceta<<" eta hits "<<endreq;
-                log << MSG::INFO<<"--------------------------------------------------------------------------------------------"<<endreq;
+                ATH_MSG_INFO("*** Collection "<<ncoll<<" Summary: "
+                             <<icctrg<<" trigger hits / "
+                             <<iccphi<<" phi hits / "
+                             <<icceta<<" eta hits " );
+                ATH_MSG_INFO("--------------------------------------------------------------------------------------------" );
             }
         }
     }
     
-    if (_tgc)
+    if (m_tgc)
     {
         // Tgc 
         key = "TGC_Measurements";
-        const TgcPrepDataContainer * tgcContainer;
-        if ( StatusCode::SUCCESS != p_EventStore->retrieve(tgcContainer, key) )
-        {
-            log<<MSG::ERROR<<"Cannot retrieve TGC PRD Container "<<endreq;
-            return StatusCode::FAILURE;
-        }
+        const Muon::TgcPrepDataContainer * tgcContainer = nullptr;
+        ATH_CHECK( evtStore()->retrieve(tgcContainer, key) );
     
-        log<<MSG::INFO<<"Retrieved TGC PRD Container with size = " << tgcContainer->size()<< endreq;
+        ATH_MSG_INFO("Retrieved TGC PRD Container with size = " << tgcContainer->size() );
     
-        for (TgcPrepDataContainer::const_iterator tgcColli = tgcContainer->begin(); tgcColli!=tgcContainer->end(); ++tgcColli)
+        for (const Muon::TgcPrepDataCollection* tgcColl : *tgcContainer)
         {
             int ncoll = 0;
-            const Muon::TgcPrepDataCollection* tgcColl = *tgcColli;
             if (!tgcColl->empty())
             {
                 ncoll++;
                 Identifier collid = tgcColl->identify();
                 IdentifierHash collidh = tgcColl->identifyHash();
-                log<<MSG::INFO<<"Tgc Collection "<<p_TgcIdHelper->show_to_string(collid)<<" hashId = "<<(int)collidh<<" found with size "<<tgcColl->size()<<endreq;
-                TgcPrepDataCollection::const_iterator it_tgcPrepData;
+                ATH_MSG_INFO("Tgc Collection "<<m_TgcIdHelper->show_to_string(collid)<<" hashId = "<<(int)collidh<<" found with size "<<tgcColl->size() );
+                Muon::TgcPrepDataCollection::const_iterator it_tgcPrepData;
                 
                 for (it_tgcPrepData=tgcColl->begin(); it_tgcPrepData != tgcColl->end(); it_tgcPrepData++) {
-                    log << MSG::INFO<<"in Coll n. "<<ncoll<<"      PrepData Offline ID "
-                          <<p_TgcIdHelper->show_to_string((*it_tgcPrepData)->identify())
-                          <<endreq;
+                  ATH_MSG_INFO("in Coll n. "<<ncoll<<"      PrepData Offline ID "
+                               <<m_TgcIdHelper->show_to_string((*it_tgcPrepData)->identify()) );
                 }
             }
         }
     }
 
-    if (_csc)
+    if (m_csc)
     {
         // Csc 
         key = "CSC_Clusters";
-        const CscPrepDataContainer * cscContainer;
-        if ( StatusCode::SUCCESS != p_EventStore->retrieve(cscContainer, key) )
-        {
-            log<<MSG::ERROR<<"Cannot retrieve CSC PRD Container "<<endreq;
-            return StatusCode::FAILURE;
-        }
+        const Muon::CscPrepDataContainer * cscContainer = nullptr;
+        ATH_CHECK( evtStore()->retrieve(cscContainer, key) );
     
-        log<<MSG::INFO<<"Retrieved CSC PRD Container with size = " << cscContainer->size()<< endreq;
+        ATH_MSG_INFO("Retrieved CSC PRD Container with size = " << cscContainer->size() );
 
         int ict = 0;
-        for (CscPrepDataContainer::const_iterator cscColli = cscContainer->begin(); cscColli!=cscContainer->end(); ++cscColli)
+        for (const Muon::CscPrepDataCollection* cscColl : *cscContainer)
         {
             int ncoll = 0;
-            const Muon::CscPrepDataCollection* cscColl = *cscColli;
             if (!cscColl->empty())
             {
                 Identifier collid = cscColl->identify();
                 IdentifierHash collidh = cscColl->identifyHash();
-                log<<MSG::INFO<<"Csc Collection "<<p_CscIdHelper->show_to_string(collid)<<" hashId = "<<(int)collidh<<" found with size "<<cscColl->size()<<endreq;
-                CscPrepDataCollection::const_iterator it_cscPrepData;
+                ATH_MSG_INFO("Csc Collection "<<m_CscIdHelper->show_to_string(collid)<<" hashId = "<<(int)collidh<<" found with size "<<cscColl->size() );
+                Muon::CscPrepDataCollection::const_iterator it_cscPrepData;
                 int icc = 0;
                 int iccphi = 0;
                 int icceta = 0;
                 for (it_cscPrepData=cscColl->begin(); it_cscPrepData != cscColl->end(); ++it_cscPrepData) {
                     icc++;
                     ict++;
-                    if (p_CscIdHelper->measuresPhi((*it_cscPrepData)->identify()))
+                    if (m_CscIdHelper->measuresPhi((*it_cscPrepData)->identify()))
                         iccphi++;
                     else
                         icceta++;
                     
-                    log << MSG::INFO << ict <<" in this coll. " << icc << " prepData id = "
-                           << p_CscIdHelper->show_to_string((*it_cscPrepData)->identify()) << endreq;
-                    if (_check_misal)
+                    ATH_MSG_INFO( ict <<" in this coll. " << icc << " prepData id = "
+                                  << m_CscIdHelper->show_to_string((*it_cscPrepData)->identify())  );
+                    if (m_check_misal)
                     {
-                        const CscReadoutElement* cscRE = (const CscReadoutElement*)(*it_cscPrepData)->detectorElement();
+                        const MuonGM::CscReadoutElement* cscRE = (const MuonGM::CscReadoutElement*)(*it_cscPrepData)->detectorElement();
                         Amg::Vector3D cgg = cscRE->center((*it_cscPrepData)->identify());
-                        log << MSG::INFO<<"     position of the center of the gas gap is "<<cgg.x()<<" "<<cgg.y()<<" "<<cgg.z()<<endreq;
+                        ATH_MSG_INFO("     position of the center of the gas gap is "<<cgg.x()<<" "<<cgg.y()<<" "<<cgg.z() );
                     }          
                 }
                 ncoll++;
-                log << MSG::INFO << "*** Collection " << ncoll << " Summary: "
-                       << iccphi <<" phi hits / " << icceta << " eta hits " << endreq;
-                log << MSG::INFO << "-------------------------------------------------------------" << endreq;           
+                ATH_MSG_INFO( "*** Collection " << ncoll << " Summary: "
+                              << iccphi <<" phi hits / " << icceta << " eta hits "  );
+                ATH_MSG_INFO( "-------------------------------------------------------------"  );
             }
         }
     }
 
 //     // Rpc
-//     RpcPrepDataContainer * rpcContainer;
+//     Muon::RpcPrepDataContainer * rpcContainer;
 
 //     // Tgc 
 //     TgcPrepDataContainer * tgcContainer;
@@ -345,71 +277,51 @@ MuonGMTestOnPrd::execute()
 //     // Csc
 //     CscPrepDataContainer * cscContainer;
     
-    return status;
+    return StatusCode::SUCCESS;
 }
 
 StatusCode
 MuonGMTestOnPrd::finalize()
 {
-    StatusCode status = StatusCode::SUCCESS;
-        
-    MsgStream fin_log(messageService(), name());
-    fin_log << MSG::DEBUG << "Finalizing" << endreq;
-     
-    return status;
+  ATH_MSG_DEBUG( "Finalizing"  );
+  return StatusCode::SUCCESS;
 }
 
-void MuonGMTestOnPrd::processMdtCollection(const MdtPrepDataCollection* mdtColl,
+void MuonGMTestOnPrd::processMdtCollection(const Muon::MdtPrepDataCollection* mdtColl,
                                            Identifier& collid,
                                            IdentifierHash& collidh) const 
 {
-
-    MsgStream log(messageService(), name());
-    typedef MdtPrepDataCollection::const_iterator prd_iterator; 
-    prd_iterator it_prep = mdtColl->begin();
-    prd_iterator it_prep_end = mdtColl->end();
-
-    const MdtDetectorElement* mdtDE = p_MuonMgr->getMdtDetectorElement(collidh);
+    const MuonGM::MdtDetectorElement* mdtDE = m_MuonMgr->getMdtDetectorElement(collidh);
     if (!mdtDE)
     {
-        MsgStream log(messageService(), name()+"::processMdtCollection");
-        log<<MSG::ERROR<<"Impossible to retrive MdtDetectorElement for collection with hashId = "<<(int)collidh<<endreq;
+        ATH_MSG_ERROR("Impossible to retrieve MdtDetectorElement for collection with hashId = "<<(int)collidh );
         return;
     }
-    for( ; it_prep != it_prep_end; ++it_prep)
+    for (Muon::MdtPrepData *mdtPrepDatum : *mdtColl)
     {
-        MdtPrepData *mdtPrepDatum=(*it_prep);
         Identifier idchannel = mdtPrepDatum->identify();
 
         Amg::Vector3D xc = mdtDE->center(idchannel);
-        log<<MSG::INFO<<"Tube = "<<p_MdtIdHelper->show_to_string(collid)<<"    tdc = "<<mdtPrepDatum->tdc()<<"   adc = "<<mdtPrepDatum->adc()<<endreq;
-        if (_check_misal)
+        ATH_MSG_INFO("Tube = "<<m_MdtIdHelper->show_to_string(collid)<<"    tdc = "<<mdtPrepDatum->tdc()<<"   adc = "<<mdtPrepDatum->adc() );
+        if (m_check_misal)
         {
-            log << MSG::INFO<<"     position of the center of the tube is ("<<xc.x()<<", "<<xc.y()<<", "<<xc.z()<<")"<<endreq;
+          ATH_MSG_INFO("     position of the center of the tube is ("<<xc.x()<<", "<<xc.y()<<", "<<xc.z()<<")" );
         }          
     }
     return;
 }
-void MuonGMTestOnPrd::processMdtCollectionOld(const MdtPrepDataCollection* mdtColl,
-                                           Identifier& collid,
+void MuonGMTestOnPrd::processMdtCollectionOld(const Muon::MdtPrepDataCollection* mdtColl,
+                                              Identifier& collid,
                                               IdentifierHash& /*collidh*/) const 
 {
-
-    typedef MdtPrepDataCollection::const_iterator prd_iterator; 
-    prd_iterator it_prep = mdtColl->begin();
-    prd_iterator it_prep_end = mdtColl->end();
-
-    for( ; it_prep != it_prep_end; ++it_prep)
+    for (Muon::MdtPrepData *mdtPrepDatum : *mdtColl)
     {
-        MdtPrepData *mdtPrepDatum=(*it_prep);
         Identifier idchannel = mdtPrepDatum->identify();
 
-        const MdtReadoutElement* mdtRE = p_MuonMgr->getMdtReadoutElement(collid);
+        const MuonGM::MdtReadoutElement* mdtRE = m_MuonMgr->getMdtReadoutElement(collid);
         if (!mdtRE)
         {
-            MsgStream log(messageService(), name()+"::processMdtCollectionOld");
-            log<<MSG::ERROR<<"Impossible to retrive MdtReadoutElement for prd with Id = "<<p_MdtIdHelper->show_to_string(idchannel)
-               <<endreq;
+            ATH_MSG_ERROR("Impossible to retrive MdtReadoutElement for prd with Id = "<<m_MdtIdHelper->show_to_string(idchannel) );
             return;
         }
 
@@ -421,12 +333,11 @@ void MuonGMTestOnPrd::processMdtCollectionOld(const MdtPrepDataCollection* mdtCo
         
         //log<<MSG::INFO<<"Tube center is ("<<xc.x()<<", "<<xc.y()<<", "<<xc.z()<<")"<<endreq;
 
-        if (m_debug)
+        if (msgLvl(MSG::DEBUG))
         {
-          MsgStream log(messageService(), name()+"::processMdtCollectionOld");
-          log<<MSG::DEBUG<<"center "<<xc<<endreq;
-          surf.dump(log);
-          log<<"\n surface transform center "<<(surf.transform())*Amg::Vector3D(0.,0.,0.)<<endreq;
+          ATH_MSG_DEBUG("center "<<xc );
+          surf.dump(msg());
+          ATH_MSG_DEBUG ("\n surface transform center "<<(surf.transform())*Amg::Vector3D(0.,0.,0) );
         }
         
     }

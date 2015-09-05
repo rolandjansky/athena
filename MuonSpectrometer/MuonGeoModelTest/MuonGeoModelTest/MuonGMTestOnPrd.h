@@ -11,15 +11,7 @@
 #ifndef MUONGEOMODEL_MUONGMTESTONPRD_H
 # define MUONGEOMODEL_MUONGMTESTONPRD_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
@@ -35,11 +27,6 @@
 #include "Identifier/IdentifierHash.h"
 
 
-using namespace MuonGM;
-using namespace Muon;
-
-
-
 class StoreGateSvc;
 class ActiveStoreSvc;
 
@@ -47,9 +34,7 @@ class ActiveStoreSvc;
 //class MuonReadoutElement;
 
 
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
-class MuonGMTestOnPrd: public Algorithm
+class MuonGMTestOnPrd: public AthAlgorithm
 {
 public:
     
@@ -62,31 +47,23 @@ public:
 
 private:
 
-  // bool
-  bool m_debug, m_verbose;
-  
-  
-    // Pointers to the event
-    StoreGateSvc*      	        p_EventStore;
-    // ActiveStoreSvc*      	        p_ActiveStore;
+    const MuonGM::MuonDetectorManager*	  m_MuonMgr;
+    const RpcIdHelper*            m_RpcIdHelper;
+    const TgcIdHelper*            m_TgcIdHelper;
+    const CscIdHelper*            m_CscIdHelper;
+    const MdtIdHelper*            m_MdtIdHelper;
 
-    const MuonDetectorManager*	  p_MuonMgr;
-    const RpcIdHelper*            p_RpcIdHelper;
-    const TgcIdHelper*            p_TgcIdHelper;
-    const CscIdHelper*            p_CscIdHelper;
-    const MdtIdHelper*            p_MdtIdHelper;
-
-    bool _mdt;
-    bool _rpc;
-    bool _tgc;
-    bool _csc;
-    bool _check_misal;
+    bool m_mdt;
+    bool m_rpc;
+    bool m_tgc;
+    bool m_csc;
+    bool m_check_misal;
     
-    void processMdtCollection(const MdtPrepDataCollection* mdtColl,
+    void processMdtCollection(const Muon::MdtPrepDataCollection* mdtColl,
                               Identifier& collid,
                               IdentifierHash& collidh) const;
     
-    void processMdtCollectionOld(const MdtPrepDataCollection* mdtColl,
+    void processMdtCollectionOld(const Muon::MdtPrepDataCollection* mdtColl,
                                  Identifier& collid,
                                  IdentifierHash& collidh) const;
     

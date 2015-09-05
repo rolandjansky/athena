@@ -81,31 +81,27 @@ MuonHitRelocation::Clockwork::~Clockwork() {
 /////////////////////////////////////////////////////////////////////////////
 
 MuonHitRelocation::MuonHitRelocation(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),c(new Clockwork()), rmuonHelper(0), mmuonHelper(0),
-  tmuonHelper(0), cmuonHelper(0), stmuonHelper(0), mmmuonHelper(0)
+  AthAlgorithm(name, pSvcLocator),m_c(new Clockwork()), m_rmuonHelper(0), m_mmuonHelper(0),
+  m_tmuonHelper(0), m_cmuonHelper(0), m_stmuonHelper(0), m_mmmuonHelper(0)
 {
-    declareProperty("checkMdt", _checkMdt = true );
-    declareProperty("checkRpc", _checkRpc = true );
-    declareProperty("checkTgc", _checkTgc = true );
-    declareProperty("checkCsc", _checkCsc = true );
-    declareProperty("checksTgc", _checksTgc = true );
-    declareProperty("checkMM", _checkMM = true );
+    declareProperty("checkMdt", m_checkMdt = true );
+    declareProperty("checkRpc", m_checkRpc = true );
+    declareProperty("checkTgc", m_checkTgc = true );
+    declareProperty("checkCsc", m_checkCsc = true );
+    declareProperty("checksTgc", m_checksTgc = true );
+    declareProperty("checkMM", m_checkMM = true );
 }
 
 MuonHitRelocation::~MuonHitRelocation() {
-  delete c;
+  delete m_c;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode MuonHitRelocation::initialize(){
 
-  StatusCode status = StatusCode::SUCCESS;
-
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "HELLO from MuonHitRelocation" << endreq;
+  ATH_MSG_INFO( "HELLO from MuonHitRelocation"  );
   
-
   NTupleFilePtr     file(ntupleSvc(),"/NTUPLES/FILE");
 
   if (!file) return StatusCode::FAILURE;
@@ -115,55 +111,38 @@ StatusCode MuonHitRelocation::initialize(){
   NTuplePtr nt(ntupleSvc(),"/NTUPLES/FILE/COL/MuonHitRelocation");
   if (!nt) nt=ntupleSvc()->book(col, 1, CLID_ColumnWiseTuple, "MuonHitRelocation");
 
-  status = nt->addItem("Run",          c->run      );
-  status = nt->addItem("Event",        c->event    );
-  status = nt->addItem("Phi",          c->phi      );
-  status = nt->addItem("Theta",        c->theta    );
-  status = nt->addItem("X",            c->x        );
-  status = nt->addItem("Y",            c->y        );
-  status = nt->addItem("Z",            c->z        );
-  status = nt->addItem("LX",           c->lx       );
-  status = nt->addItem("LY",           c->ly       );
-  status = nt->addItem("LZ",           c->lz       );
-  status = nt->addItem("ZRESID",       c->zResid   );
-  status = nt->addItem("PHIRESID",     c->phiResid );
-  status = nt->addItem("DIST",         c->dist     );
-  status = nt->addItem("TECH",         c->tech     );
-  status = nt->addItem("STNAME",       c->stname   );
-  status = nt->addItem("STETA",        c->steta    );
-  status = nt->addItem("STPHI",        c->stphi    );
-  status = nt->addItem("MLAYER",       c->mlayer   ); //multi layer or chamber layer
-  status = nt->addItem("DBR",          c->dbr      );
-  status = nt->addItem("DBZ",          c->dbz      );
-  status = nt->addItem("DBPHI",        c->dbphi    );
-  status = nt->addItem("LAYER",        c->layer    ); //tube layer or gas gap
-  status = nt->addItem("TUBE",         c->tube     ); //tube layer or gas gap
-  //status =  nt->addItem("CHANNEL",      c->channel   ); //tube number or strip number or wire gang number
-  //status =  nt->addItem("MEASPHI",      c->measphi   ); 
-  if(status.isFailure()) {
-    log << MSG::FATAL
-	<< "Unable to add some item to the ntuple"
-	<< endreq;
-    return status;
-  }
+  ATH_CHECK( nt->addItem("Run",          m_c->run      ) );
+  ATH_CHECK( nt->addItem("Event",        m_c->event    ) );
+  ATH_CHECK( nt->addItem("Phi",          m_c->phi      ) );
+  ATH_CHECK( nt->addItem("Theta",        m_c->theta    ) );
+  ATH_CHECK( nt->addItem("X",            m_c->x        ) );
+  ATH_CHECK( nt->addItem("Y",            m_c->y        ) );
+  ATH_CHECK( nt->addItem("Z",            m_c->z        ) );
+  ATH_CHECK( nt->addItem("LX",           m_c->lx       ) );
+  ATH_CHECK( nt->addItem("LY",           m_c->ly       ) );
+  ATH_CHECK( nt->addItem("LZ",           m_c->lz       ) );
+  ATH_CHECK( nt->addItem("ZRESID",       m_c->zResid   ) );
+  ATH_CHECK( nt->addItem("PHIRESID",     m_c->phiResid ) );
+  ATH_CHECK( nt->addItem("DIST",         m_c->dist     ) );
+  ATH_CHECK( nt->addItem("TECH",         m_c->tech     ) );
+  ATH_CHECK( nt->addItem("STNAME",       m_c->stname   ) );
+  ATH_CHECK( nt->addItem("STETA",        m_c->steta    ) );
+  ATH_CHECK( nt->addItem("STPHI",        m_c->stphi    ) );
+  ATH_CHECK( nt->addItem("MLAYER",       m_c->mlayer   ) ); //multi layer or chamber layer
+  ATH_CHECK( nt->addItem("DBR",          m_c->dbr      ) );
+  ATH_CHECK( nt->addItem("DBZ",          m_c->dbz      ) );
+  ATH_CHECK( nt->addItem("DBPHI",        m_c->dbphi    ) );
+  ATH_CHECK( nt->addItem("LAYER",        m_c->layer    ) ); //tube layer or gas gap
+  ATH_CHECK( nt->addItem("TUBE",         m_c->tube     ) ); //tube layer or gas gap
+  //status =  nt->addItem("CHANNEL",      m_c->channel   ); //tube number or strip number or wire gang number
+  //status =  nt->addItem("MEASPHI",      m_c->measphi   ); 
 
-  c->nt = nt;
+  m_c->nt = nt;
   
-  // Get the detector store:
-  StoreGateSvc *detStore;
-  status = service("DetectorStore",detStore);
-  if(status.isFailure()) {
-    log << MSG::FATAL
-	<< "Unable to retrieve DetectorStore"
-	<< endreq;
-    return status;
-  }
-
-
-  cmuonHelper = CscHitIdHelper::GetHelper();
-  rmuonHelper = RpcHitIdHelper::GetHelper();
-  tmuonHelper = TgcHitIdHelper::GetHelper();
-  mmuonHelper = MdtHitIdHelper::GetHelper();
+  m_cmuonHelper = CscHitIdHelper::GetHelper();
+  m_rmuonHelper = RpcHitIdHelper::GetHelper();
+  m_tmuonHelper = TgcHitIdHelper::GetHelper();
+  m_mmuonHelper = MdtHitIdHelper::GetHelper();
 
   return StatusCode::SUCCESS;
 }
@@ -172,22 +151,16 @@ StatusCode MuonHitRelocation::initialize(){
 
 StatusCode MuonHitRelocation::execute() {
   
-
-
-  StoreGateSvc *stg;
-  StatusCode status=service("StoreGateSvc", stg);
-  MsgStream log(msgSvc(), name());
-  
   const EventInfo* pevt;
-  if (StatusCode::SUCCESS == stg->retrieve(pevt)) {
+  if (StatusCode::SUCCESS == evtStore()->retrieve(pevt)) {
     
-    c->event = pevt->event_ID()->event_number();
-    c->run   = pevt->event_ID()->run_number();
+    m_c->event = pevt->event_ID()->event_number();
+    m_c->run   = pevt->event_ID()->run_number();
   }
 
 
   const DataHandle<McEventCollection> mcEvent;
-  StatusCode sc=stg->retrieve(mcEvent,"TruthEvent");
+  StatusCode sc=evtStore()->retrieve(mcEvent,"TruthEvent");
   if (sc.isFailure()) return StatusCode::SUCCESS; 
 
 
@@ -195,7 +168,7 @@ StatusCode MuonHitRelocation::execute() {
   DataVector<HepMC::GenEvent>::const_iterator e;
   if (mcEvent->size()!=1) return StatusCode::SUCCESS;
 
-  Amg::Vector3D direction;
+  Amg::Vector3D direction(0., 0., 0.);
   for (e=mcEvent->begin();e!=mcEvent->end(); e++) {
     for (HepMC::GenEvent::particle_const_iterator p= (**e).particles_begin();
 	 p!= (**e).particles_end(); p++) {
@@ -211,397 +184,397 @@ StatusCode MuonHitRelocation::execute() {
         direction[1] = yd/mag;
         direction[2] = zd/mag;
         //direction = (**p).momentum().vect().normalize();
-        log<<MSG::INFO<<"Event # "<<c->event<<" vertex at "<<xv<<" "<<yv<<" "<<zv
-           <<" direction theta/phi = "<<direction.theta()<<" "<<direction.phi()<<endreq;
+        ATH_MSG_INFO("Event # "<<m_c->event<<" vertex at "<<xv<<" "<<yv<<" "<<zv
+                     <<" direction theta/phi = "<<direction.theta()<<" "<<direction.phi() );
     }
   }
 
 
 
 
-  if (_checkMdt)
+  if (m_checkMdt)
   {
       //-------------------------------------------------------------------------------------------------------
       //-------------------------------------------------------------------------------------------------------
       // MDT:
       // 
       const DataHandle<MDTSimHitCollection> mdt_collection;
-      if (stg->retrieve(mdt_collection)==StatusCode::SUCCESS) {
-          log<<MSG::VERBOSE<<"MDT hit Collection found with size = "<<mdt_collection->size()<<endreq;
+      if (evtStore()->retrieve(mdt_collection)==StatusCode::SUCCESS) {
+          ATH_MSG_VERBOSE("MDT hit Collection found with size = "<<mdt_collection->size() );
           for(MDTSimHitConstIterator i_hit=mdt_collection->begin() ; i_hit!=mdt_collection->end() ; ++i_hit) {
               GeoMDTHit ghit(*i_hit);
 
-              c->event = pevt->event_ID()->event_number();
-              c->run   = pevt->event_ID()->run_number();
-              c->theta = direction.theta();
-              c->phi   = direction.phi();
-              //std::cout<<"Event # "<<c->event<<"  phi/theta  "<<c->phi<<"/"<<c->theta<<std::endl;
+              m_c->event = pevt->event_ID()->event_number();
+              m_c->run   = pevt->event_ID()->run_number();
+              m_c->theta = direction.theta();
+              m_c->phi   = direction.phi();
+              //std::cout<<"Event # "<<m_c->event<<"  phi/theta  "<<m_c->phi<<"/"<<m_c->theta<<std::endl;
 
       
-              c->lx = (*i_hit).localPosition().x();
-              c->ly = (*i_hit).localPosition().y();
-              c->lz = (*i_hit).localPosition().z();
-              log<<MSG::DEBUG<<"        MDT hit - local coords "<<c->lx<<" "<<c->ly<<" "<<c->lz<<endreq;
+              m_c->lx = (*i_hit).localPosition().x();
+              m_c->ly = (*i_hit).localPosition().y();
+              m_c->lz = (*i_hit).localPosition().z();
+              ATH_MSG_DEBUG("        MDT hit - local coords "<<m_c->lx<<" "<<m_c->ly<<" "<<m_c->lz );
 
               const int idHit    = (*i_hit).MDTid();
               Amg::Vector3D u = ghit.getGlobalPosition();
-              c->x=u.x();
-              c->y=u.y();
-              c->z=u.z();
-              log<<MSG::DEBUG<<"        MDT hit - global coords "<<c->x<<" "<<c->y<<" "<<c->z<<endreq;
+              m_c->x=u.x();
+              m_c->y=u.y();
+              m_c->z=u.z();
+              ATH_MSG_DEBUG("        MDT hit - global coords "<<m_c->x<<" "<<m_c->y<<" "<<m_c->z );
       
 	      Amg::Vector3D tmp1 = direction.cross(Amg::Vector3D(0,0,1));
 	      tmp1.normalize();
 	      Amg::Vector3D tmp2 = u.cross(direction);
-              c->zResid   = tmp2.dot(tmp1);
-              c->phiResid = tmp2.z();
-              c->dist     = tmp2.mag(); // length of the vector
+              m_c->zResid   = tmp2.dot(tmp1);
+              m_c->phiResid = tmp2.z();
+              m_c->dist     = tmp2.mag(); // length of the vector
       
-              c->tech    = 0;
-              std::string stName = mmuonHelper->GetStationName(idHit);
-              c->stname          = getIntStName(stName);
-              c->steta           = mmuonHelper->GetZSector(idHit);
-              c->stphi           = mmuonHelper->GetPhiSector(idHit);
-              c->mlayer          = mmuonHelper->GetMultiLayer(idHit);
-              c->dbr             = -999;
-              c->dbz             = -999;
-              c->dbphi           = -999;
-              c->layer           = mmuonHelper->GetLayer(idHit);
-              c->tube            = mmuonHelper->GetTube(idHit);
-              if ( fabs(c->zResid)>0.001 || fabs(c->phiResid)>0.001 ) {
-                  log<<MSG::WARNING<<"        MDT hit ---   zResid "
-                     <<c->zResid<<" >1micron or phiResid "<<c->phiResid
-                     <<" for stName/stEta/stphi "<<stName<<"/"<<c->steta<<"/"<<c->stphi
-                     <<" ml/l/t "<<c->mlayer<<"/"<<c->layer<<"/"<<c->tube<<endreq;
+              m_c->tech    = 0;
+              std::string stName = m_mmuonHelper->GetStationName(idHit);
+              m_c->stname          = getIntStName(stName);
+              m_c->steta           = m_mmuonHelper->GetZSector(idHit);
+              m_c->stphi           = m_mmuonHelper->GetPhiSector(idHit);
+              m_c->mlayer          = m_mmuonHelper->GetMultiLayer(idHit);
+              m_c->dbr             = -999;
+              m_c->dbz             = -999;
+              m_c->dbphi           = -999;
+              m_c->layer           = m_mmuonHelper->GetLayer(idHit);
+              m_c->tube            = m_mmuonHelper->GetTube(idHit);
+              if ( fabs(m_c->zResid)>0.001 || fabs(m_c->phiResid)>0.001 ) {
+                ATH_MSG_WARNING("        MDT hit ---   zResid "
+                                <<m_c->zResid<<" >1micron or phiResid "<<m_c->phiResid
+                                <<" for stName/stEta/stphi "<<stName<<"/"<<m_c->steta<<"/"<<m_c->stphi
+                                <<" ml/l/t "<<m_c->mlayer<<"/"<<m_c->layer<<"/"<<m_c->tube );
               }
 
-              ntupleSvc()->writeRecord(c->nt);
+              ntupleSvc()->writeRecord(m_c->nt);
           }
       }
   }
   
 
-  if (_checkTgc)
+  if (m_checkTgc)
   {      
       //-------------------------------------------------------------------------------------------------------
       //-------------------------------------------------------------------------------------------------------
       // TGC:
       // 
       const DataHandle<TGCSimHitCollection> tgc_collection;
-      if (stg->retrieve(tgc_collection)==StatusCode::SUCCESS) {
-          log<<MSG::VERBOSE<<"TGC hit Collection found with size = "<<tgc_collection->size()<<endreq;
+      if (evtStore()->retrieve(tgc_collection)==StatusCode::SUCCESS) {
+          ATH_MSG_VERBOSE("TGC hit Collection found with size = "<<tgc_collection->size() );
           for(TGCSimHitConstIterator i_hit=tgc_collection->begin() ; i_hit!=tgc_collection->end() ; ++i_hit) {
               GeoTGCHit ghit(*i_hit);
-              c->event = pevt->event_ID()->event_number();
-              c->run   = pevt->event_ID()->run_number();
-              c->theta = direction.theta();
-              c->phi   = direction.phi();
+              m_c->event = pevt->event_ID()->event_number();
+              m_c->run   = pevt->event_ID()->run_number();
+              m_c->theta = direction.theta();
+              m_c->phi   = direction.phi();
       
-              c->lx = (*i_hit).localPosition().x();
-              c->ly = (*i_hit).localPosition().y();
-              c->lz = (*i_hit).localPosition().z();
-              log<<MSG::DEBUG<<"        TGC hit - local coords "<<c->lx<<" "<<c->ly<<" "<<c->lz<<endreq;
+              m_c->lx = (*i_hit).localPosition().x();
+              m_c->ly = (*i_hit).localPosition().y();
+              m_c->lz = (*i_hit).localPosition().z();
+              ATH_MSG_DEBUG("        TGC hit - local coords "<<m_c->lx<<" "<<m_c->ly<<" "<<m_c->lz );
 
               const int idHit    = (*i_hit).TGCid();
               //std::cout<<"TGC idHit = "<<idHit<<std::endl;
       
               Amg::Vector3D u = ghit.getGlobalPosition();
-              c->x=u.x();
-              c->y=u.y();
-              c->z=u.z();
-              log<<MSG::DEBUG<<"        TGC hit - global coords "<<c->x<<" "<<c->y<<" "<<c->z<<endreq;      
+              m_c->x=u.x();
+              m_c->y=u.y();
+              m_c->z=u.z();
+              ATH_MSG_DEBUG("        TGC hit - global coords "<<m_c->x<<" "<<m_c->y<<" "<<m_c->z );
 
 	      Amg::Vector3D tmp1 = direction.cross(Amg::Vector3D(0,0,1));
 	      tmp1.normalize();
 	      Amg::Vector3D tmp2 = u.cross(direction);
-              c->zResid   = tmp2.dot(tmp1);
-              c->phiResid = tmp2.z();
-              c->dist     = tmp2.mag(); // length of the vector
+              m_c->zResid   = tmp2.dot(tmp1);
+              m_c->phiResid = tmp2.z();
+              m_c->dist     = tmp2.mag(); // length of the vector
       
-              c->tech    = 3;
+              m_c->tech    = 3;
 
-              std::string stName = tmuonHelper->GetStationName(idHit);
-              c->stname          = getIntStName(stName);
-              c->steta           = tmuonHelper->GetStationEta(idHit);
-              c->stphi           = tmuonHelper->GetStationPhi(idHit);
-              c->mlayer          = -999;
-              c->dbr             = -999;
-              c->dbz             = -999;
-              c->dbphi           = -999;
-              c->layer           = tmuonHelper->GetGasGap(idHit);
-              c->tube            = -999;
-              if ( fabs(c->zResid)>0.001 || fabs(c->phiResid)>0.001 ) {
-                  log<<MSG::WARNING<<"        TGC hit ---   zResid "
-                     <<c->zResid<<" >1micron or phiResid "<<c->phiResid
-                     <<" for stName/stEta/stphi "<<stName<<"/"<<c->steta<<"/"<<c->stphi
-                     <<" layer "<<c->layer<<endreq;
+              std::string stName = m_tmuonHelper->GetStationName(idHit);
+              m_c->stname          = getIntStName(stName);
+              m_c->steta           = m_tmuonHelper->GetStationEta(idHit);
+              m_c->stphi           = m_tmuonHelper->GetStationPhi(idHit);
+              m_c->mlayer          = -999;
+              m_c->dbr             = -999;
+              m_c->dbz             = -999;
+              m_c->dbphi           = -999;
+              m_c->layer           = m_tmuonHelper->GetGasGap(idHit);
+              m_c->tube            = -999;
+              if ( fabs(m_c->zResid)>0.001 || fabs(m_c->phiResid)>0.001 ) {
+                ATH_MSG_WARNING("        TGC hit ---   zResid "
+                                <<m_c->zResid<<" >1micron or phiResid "<<m_c->phiResid
+                                <<" for stName/stEta/stphi "<<stName<<"/"<<m_c->steta<<"/"<<m_c->stphi
+                                <<" layer "<<m_c->layer );
               }
 
-              ntupleSvc()->writeRecord(c->nt);
+              ntupleSvc()->writeRecord(m_c->nt);
           }
       }
   }
 
-  if (_checkRpc)
+  if (m_checkRpc)
   {
       //-------------------------------------------------------------------------------------------------------
       //-------------------------------------------------------------------------------------------------------
       // RPC:
       // 
       const DataHandle<RPCSimHitCollection> rpc_collection;
-      if (stg->retrieve(rpc_collection)==StatusCode::SUCCESS) {
-          log<<MSG::VERBOSE<<"RPC hit Collection found with size = "<<rpc_collection->size()<<endreq;
+      if (evtStore()->retrieve(rpc_collection)==StatusCode::SUCCESS) {
+          ATH_MSG_VERBOSE("RPC hit Collection found with size = "<<rpc_collection->size() );
           for(RPCSimHitConstIterator i_hit=rpc_collection->begin() ; i_hit!=rpc_collection->end() ; ++i_hit) {
 
-              c->event = pevt->event_ID()->event_number();
-              c->run   = pevt->event_ID()->run_number();
+              m_c->event = pevt->event_ID()->event_number();
+              m_c->run   = pevt->event_ID()->run_number();
 
               GeoRPCHit ghit(*i_hit);
-              c->theta = direction.theta();
-              c->phi   = direction.phi();
+              m_c->theta = direction.theta();
+              m_c->phi   = direction.phi();
       
-              c->lx = (*i_hit).localPosition().x();
-              c->ly = (*i_hit).localPosition().y();
-              c->lz = (*i_hit).localPosition().z();
-              log<<MSG::DEBUG<<"        RPC hit - local coords "<<c->lx<<" "<<c->ly<<" "<<c->lz<<endreq;
+              m_c->lx = (*i_hit).localPosition().x();
+              m_c->ly = (*i_hit).localPosition().y();
+              m_c->lz = (*i_hit).localPosition().z();
+              ATH_MSG_DEBUG("        RPC hit - local coords "<<m_c->lx<<" "<<m_c->ly<<" "<<m_c->lz );
 
               const int idHit    = (*i_hit).RPCid();
               Amg::Vector3D u = ghit.getGlobalPosition();
-              c->x=u.x();
-              c->y=u.y();
-              c->z=u.z();
-              log<<MSG::DEBUG<<"        RPC hit - global coords "<<c->x<<" "<<c->y<<" "<<c->z<<endreq;      
+              m_c->x=u.x();
+              m_c->y=u.y();
+              m_c->z=u.z();
+              ATH_MSG_DEBUG("        RPC hit - global coords "<<m_c->x<<" "<<m_c->y<<" "<<m_c->z );
       
 	      Amg::Vector3D tmp1 = direction.cross(Amg::Vector3D(0,0,1));
 	      tmp1.normalize();
 	      Amg::Vector3D tmp2 = u.cross(direction);
-              c->zResid   = tmp2.dot(tmp1);
-              c->phiResid = tmp2.z();
-              c->dist     = tmp2.mag(); // length of the vector
+              m_c->zResid   = tmp2.dot(tmp1);
+              m_c->phiResid = tmp2.z();
+              m_c->dist     = tmp2.mag(); // length of the vector
       
-              c->tech    = 2;
-              std::string stName = rmuonHelper->GetStationName(idHit);
-              c->stname          = getIntStName(stName);
-              c->steta           = rmuonHelper->GetZSector(idHit);
-              c->stphi           = rmuonHelper->GetPhiSector(idHit);
-              c->mlayer          = -999;
-              c->dbr             = rmuonHelper->GetDoubletR(idHit);
-              c->dbz             = rmuonHelper->GetDoubletZ(idHit);
-              c->dbphi           = rmuonHelper->GetDoubletPhi(idHit);
-              c->layer           = rmuonHelper->GetGasGapLayer(idHit);
-              c->tube            = -999;
-              if ( fabs(c->zResid)>0.001 || fabs(c->phiResid)>0.001 ) {
-                  log<<MSG::WARNING<<"        RPC hit ---   zResid "
-                     <<c->zResid<<" >1micron or phiResid "<<c->phiResid
-                     <<" for stName/stEta/stphi "<<stName<<"/"<<c->steta<<"/"<<c->stphi
-                     <<" dbR/dbZ/dbP "<<c->dbr<<"/"<<c->dbz<<"/"<<c->dbphi<<" gg "<<c->layer<<endreq;
+              m_c->tech    = 2;
+              std::string stName = m_rmuonHelper->GetStationName(idHit);
+              m_c->stname          = getIntStName(stName);
+              m_c->steta           = m_rmuonHelper->GetZSector(idHit);
+              m_c->stphi           = m_rmuonHelper->GetPhiSector(idHit);
+              m_c->mlayer          = -999;
+              m_c->dbr             = m_rmuonHelper->GetDoubletR(idHit);
+              m_c->dbz             = m_rmuonHelper->GetDoubletZ(idHit);
+              m_c->dbphi           = m_rmuonHelper->GetDoubletPhi(idHit);
+              m_c->layer           = m_rmuonHelper->GetGasGapLayer(idHit);
+              m_c->tube            = -999;
+              if ( fabs(m_c->zResid)>0.001 || fabs(m_c->phiResid)>0.001 ) {
+                ATH_MSG_WARNING("        RPC hit ---   zResid "
+                                <<m_c->zResid<<" >1micron or phiResid "<<m_c->phiResid
+                                <<" for stName/stEta/stphi "<<stName<<"/"<<m_c->steta<<"/"<<m_c->stphi
+                                <<" dbR/dbZ/dbP "<<m_c->dbr<<"/"<<m_c->dbz<<"/"<<m_c->dbphi<<" gg "<<m_c->layer );
               }
 
-              ntupleSvc()->writeRecord(c->nt);
+              ntupleSvc()->writeRecord(m_c->nt);
           }
       }
   }
 
-  if (_checkCsc)
+  if (m_checkCsc)
   {
       //-------------------------------------------------------------------------------------------------------
       //-------------------------------------------------------------------------------------------------------
       // CSC:
       // 
       const DataHandle<CSCSimHitCollection> csc_collection;
-      if (stg->retrieve(csc_collection)==StatusCode::SUCCESS) {
-          log<<MSG::VERBOSE<<"CSC hit Collection found with size = "<<csc_collection->size()<<endreq;
+      if (evtStore()->retrieve(csc_collection)==StatusCode::SUCCESS) {
+          ATH_MSG_VERBOSE("CSC hit Collection found with size = "<<csc_collection->size() );
           for(CSCSimHitConstIterator i_hit=csc_collection->begin() ; i_hit!=csc_collection->end() ; ++i_hit) {
               GeoCSCHit ghit(*i_hit);
-              c->event = pevt->event_ID()->event_number();
-              c->run   = pevt->event_ID()->run_number();
-              c->theta = direction.theta();
-              c->phi   = direction.phi();
+              m_c->event = pevt->event_ID()->event_number();
+              m_c->run   = pevt->event_ID()->run_number();
+              m_c->theta = direction.theta();
+              m_c->phi   = direction.phi();
       
-              c->lx = 0;
-              c->ly = 0;
-              c->lz = 0;
-              log<<MSG::DEBUG<<"        CSC hit - local coords "<<c->lx<<" "<<c->ly<<" "<<c->lz<<endreq;
+              m_c->lx = 0;
+              m_c->ly = 0;
+              m_c->lz = 0;
+              ATH_MSG_DEBUG("        CSC hit - local coords "<<m_c->lx<<" "<<m_c->ly<<" "<<m_c->lz );
 
               const int idHit    = (*i_hit).CSCid();
               Amg::Vector3D u = ghit.getGlobalPosition();
-              c->x=u.x();
-              c->y=u.y();
-              c->z=u.z();
-              log<<MSG::DEBUG<<"        CSC hit - global coords "<<c->x<<" "<<c->y<<" "<<c->z<<endreq;      
+              m_c->x=u.x();
+              m_c->y=u.y();
+              m_c->z=u.z();
+              ATH_MSG_DEBUG("        CSC hit - global coords "<<m_c->x<<" "<<m_c->y<<" "<<m_c->z );
 
       
 	      Amg::Vector3D tmp1 = direction.cross(Amg::Vector3D(0,0,1));
 	      tmp1.normalize();
 	      Amg::Vector3D tmp2 = u.cross(direction);
-              c->zResid   = tmp2.dot(tmp1);
-              c->phiResid = tmp2.z();
-              c->dist     = tmp2.mag(); // length of the vector
+              m_c->zResid   = tmp2.dot(tmp1);
+              m_c->phiResid = tmp2.z();
+              m_c->dist     = tmp2.mag(); // length of the vector
       
-              c->tech    = 1;
-              std::string stName = cmuonHelper->GetStationName(idHit);
-              c->stname          = getIntStName(stName);
-              c->steta           = cmuonHelper->GetZSector(idHit);
-              c->stphi           = cmuonHelper->GetPhiSector(idHit);
-              c->mlayer          = cmuonHelper->GetChamberLayer(idHit);
-              c->dbr             = -999;
-              c->dbz             = -999;
-              c->dbphi           = -999;
-              c->layer           = cmuonHelper->GetWireLayer(idHit);
-              c->tube            = -999;
-              if ( fabs(c->zResid)>0.001 || fabs(c->phiResid)>0.001 ) {
-                  log<<MSG::WARNING<<"        CSC hit ---   zResid "
-                     <<c->zResid<<" >1micron or phiResid "<<c->phiResid
-                     <<" for stName/stEta/stphi "<<stName<<"/"<<c->steta<<"/"<<c->stphi
-                     <<" clay/lay "<<c->mlayer<<"/"<<c->layer<<endreq;
+              m_c->tech    = 1;
+              std::string stName = m_cmuonHelper->GetStationName(idHit);
+              m_c->stname          = getIntStName(stName);
+              m_c->steta           = m_cmuonHelper->GetZSector(idHit);
+              m_c->stphi           = m_cmuonHelper->GetPhiSector(idHit);
+              m_c->mlayer          = m_cmuonHelper->GetChamberLayer(idHit);
+              m_c->dbr             = -999;
+              m_c->dbz             = -999;
+              m_c->dbphi           = -999;
+              m_c->layer           = m_cmuonHelper->GetWireLayer(idHit);
+              m_c->tube            = -999;
+              if ( fabs(m_c->zResid)>0.001 || fabs(m_c->phiResid)>0.001 ) {
+                ATH_MSG_WARNING("        CSC hit ---   zResid "
+                                <<m_c->zResid<<" >1micron or phiResid "<<m_c->phiResid
+                                <<" for stName/stEta/stphi "<<stName<<"/"<<m_c->steta<<"/"<<m_c->stphi
+                                <<" clay/lay "<<m_c->mlayer<<"/"<<m_c->layer );
               }
       
-              ntupleSvc()->writeRecord(c->nt);
+              ntupleSvc()->writeRecord(m_c->nt);
           }
       }
   }
 
-  if (_checksTgc)
+  if (m_checksTgc)
   {      
       //-------------------------------------------------------------------------------------------------------
       //-------------------------------------------------------------------------------------------------------
       // sTGC:
       // 
-      stmuonHelper=sTgcHitIdHelper::GetHelper();
+      m_stmuonHelper=sTgcHitIdHelper::GetHelper();
 	
       const DataHandle<GenericMuonSimHitCollection> stgc_collection;
-      if (stg->retrieve(stgc_collection,"sTGCSensitiveDetector")==StatusCode::SUCCESS) {
-          log<<MSG::VERBOSE<<"Generic Muon hit Collection sTGC found with size = "<<stgc_collection->size()<<endreq;
+      if (evtStore()->retrieve(stgc_collection,"sTGCSensitiveDetector")==StatusCode::SUCCESS) {
+          ATH_MSG_VERBOSE("Generic Muon hit Collection sTGC found with size = "<<stgc_collection->size() );
           for(GenericMuonSimHitConstIterator i_hit=stgc_collection->begin() ; i_hit!=stgc_collection->end() ; ++i_hit) {
 	    
               GeosTGCHit ghit(*i_hit);
 
-              c->event = pevt->event_ID()->event_number();
-              c->run   = pevt->event_ID()->run_number();
-              c->theta = direction.theta();
-              c->phi   = direction.phi();
+              m_c->event = pevt->event_ID()->event_number();
+              m_c->run   = pevt->event_ID()->run_number();
+              m_c->theta = direction.theta();
+              m_c->phi   = direction.phi();
       
-              c->lx = (*i_hit).localPosition().x();
-              c->ly = (*i_hit).localPosition().y();
-              c->lz = (*i_hit).localPosition().z();
-              log<<MSG::DEBUG<<"        sTGC hit - local coords "<<c->lx<<" "<<c->ly<<" "<<c->lz<<endreq;
+              m_c->lx = (*i_hit).localPosition().x();
+              m_c->ly = (*i_hit).localPosition().y();
+              m_c->lz = (*i_hit).localPosition().z();
+              ATH_MSG_DEBUG("        sTGC hit - local coords "<<m_c->lx<<" "<<m_c->ly<<" "<<m_c->lz );
 
               const int idHit    = (*i_hit).GenericId();
               //std::cout<<"TGC idHit = "<<idHit<<std::endl;
       
               Amg::Vector3D u = ghit.getGlobalPosition();
-              c->x=u.x();
-              c->y=u.y();
-              c->z=u.z();
-              log<<MSG::DEBUG<<"       sTGC hit - OrigGlobCoord "
-		 <<(*i_hit).globalPosition().x()<<" "
-		 <<(*i_hit).globalPosition().y()<<" "
-		 <<(*i_hit).globalPosition().z()<<endreq;      
-              log<<MSG::DEBUG<<"       sTGC hit - global coords "<<c->x<<" "<<c->y<<" "<<c->z<<endreq;      
+              m_c->x=u.x();
+              m_c->y=u.y();
+              m_c->z=u.z();
+              ATH_MSG_DEBUG("       sTGC hit - OrigGlobCoord "
+                            <<(*i_hit).globalPosition().x()<<" "
+                            <<(*i_hit).globalPosition().y()<<" "
+                            <<(*i_hit).globalPosition().z() );
+              ATH_MSG_DEBUG("       sTGC hit - global coords "<<m_c->x<<" "<<m_c->y<<" "<<m_c->z );
 
 	      Amg::Vector3D tmp1 = direction.cross(Amg::Vector3D(0,0,1));
 	      tmp1.normalize();
 	      Amg::Vector3D tmp2 = u.cross(direction);
-              c->zResid   = tmp2.dot(tmp1);
-              c->phiResid = tmp2.z();
-              c->dist     = tmp2.mag(); // length of the vector
+              m_c->zResid   = tmp2.dot(tmp1);
+              m_c->phiResid = tmp2.z();
+              m_c->dist     = tmp2.mag(); // length of the vector
       
-              c->tech    = 4;
+              m_c->tech    = 4;
 
-              std::string stName = stmuonHelper->GetStationName(idHit);
-              c->stname          = getIntStName(stName);
-	      int side = stmuonHelper->GetSide(idHit);
-	      int eta  = stmuonHelper->GetZSector(idHit);
-              c->steta           = (side == 1 ? eta+1 : -eta-1);
-              c->stphi           = (stmuonHelper->GetPhiSector(idHit)-1)/2+1;
-              c->mlayer          = stmuonHelper->GetMultiLayer(idHit);
-              c->dbr             = -999;
-              c->dbz             = -999;
-              c->dbphi           = -999;
-              c->layer           = stmuonHelper->GetLayer(idHit);
-              c->tube            = -999;
-              if ( fabs(c->zResid)>0.001 || fabs(c->phiResid)>0.001 ) {
-                  log<<MSG::WARNING<<"        sTGC hit ---   zResid "
-                     <<c->zResid<<" >1micron or phiResid "<<c->phiResid
-                     <<" for stName/stEta/stphi "<<stName<<"/"<<c->steta<<"/"<<c->stphi
-                     <<" layer "<<c->layer<<endreq;
+              std::string stName = m_stmuonHelper->GetStationName(idHit);
+              m_c->stname          = getIntStName(stName);
+	      int side = m_stmuonHelper->GetSide(idHit);
+	      int eta  = m_stmuonHelper->GetZSector(idHit);
+              m_c->steta           = (side == 1 ? eta+1 : -eta-1);
+              m_c->stphi           = (m_stmuonHelper->GetPhiSector(idHit)-1)/2+1;
+              m_c->mlayer          = m_stmuonHelper->GetMultiLayer(idHit);
+              m_c->dbr             = -999;
+              m_c->dbz             = -999;
+              m_c->dbphi           = -999;
+              m_c->layer           = m_stmuonHelper->GetLayer(idHit);
+              m_c->tube            = -999;
+              if ( fabs(m_c->zResid)>0.001 || fabs(m_c->phiResid)>0.001 ) {
+                ATH_MSG_WARNING("        sTGC hit ---   zResid "
+                                <<m_c->zResid<<" >1micron or phiResid "<<m_c->phiResid
+                                <<" for stName/stEta/stphi "<<stName<<"/"<<m_c->steta<<"/"<<m_c->stphi
+                                <<" layer "<<m_c->layer );
               }
 
-              ntupleSvc()->writeRecord(c->nt);
+              ntupleSvc()->writeRecord(m_c->nt);
           }
       }
   }
-  if (_checkMM)
+  if (m_checkMM)
   {      
       //-------------------------------------------------------------------------------------------------------
       //-------------------------------------------------------------------------------------------------------
       // MM:
       // 
-      mmmuonHelper=MicromegasHitIdHelper::GetHelper();
+      m_mmmuonHelper=MicromegasHitIdHelper::GetHelper();
 	
       const DataHandle<GenericMuonSimHitCollection> mm_collection;
-      if (stg->retrieve(mm_collection,"MicromegasSensitiveDetector")==StatusCode::SUCCESS) {
-          log<<MSG::VERBOSE<<"Generic Muon hit Collection (Micromegas) found with size = "<<mm_collection->size()<<endreq;
+      if (evtStore()->retrieve(mm_collection,"MicromegasSensitiveDetector")==StatusCode::SUCCESS) {
+          ATH_MSG_VERBOSE("Generic Muon hit Collection (Micromegas) found with size = "<<mm_collection->size() );
           for(GenericMuonSimHitConstIterator i_hit=mm_collection->begin() ; i_hit!=mm_collection->end() ; ++i_hit) {
 	    
               GeoMMHit ghit(*i_hit);
 
-              c->event = pevt->event_ID()->event_number();
-              c->run   = pevt->event_ID()->run_number();
-              c->theta = direction.theta();
-              c->phi   = direction.phi();
+              m_c->event = pevt->event_ID()->event_number();
+              m_c->run   = pevt->event_ID()->run_number();
+              m_c->theta = direction.theta();
+              m_c->phi   = direction.phi();
       
-              c->lx = (*i_hit).localPosition().x();
-              c->ly = (*i_hit).localPosition().y();
-              c->lz = (*i_hit).localPosition().z();
-              log<<MSG::DEBUG<<"        MM hit - local coords "<<c->lx<<" "<<c->ly<<" "<<c->lz<<endreq;
+              m_c->lx = (*i_hit).localPosition().x();
+              m_c->ly = (*i_hit).localPosition().y();
+              m_c->lz = (*i_hit).localPosition().z();
+              ATH_MSG_DEBUG("        MM hit - local coords "<<m_c->lx<<" "<<m_c->ly<<" "<<m_c->lz );
 
               const int idHit    = (*i_hit).GenericId();
       
               Amg::Vector3D u = ghit.getGlobalPosition();
-              c->x=u.x();
-              c->y=u.y();
-              c->z=u.z();
-              log<<MSG::DEBUG<<"        MM hit - OrigGlobCoord "
-		 <<(*i_hit).globalPosition().x()<<" "
-		 <<(*i_hit).globalPosition().y()<<" "
-		 <<(*i_hit).globalPosition().z()<<endreq;      
-              log<<MSG::DEBUG<<"        MM hit - global coords "<<c->x<<" "<<c->y<<" "<<c->z<<endreq;   
+              m_c->x=u.x();
+              m_c->y=u.y();
+              m_c->z=u.z();
+              ATH_MSG_DEBUG("        MM hit - OrigGlobCoord "
+                            <<(*i_hit).globalPosition().x()<<" "
+                            <<(*i_hit).globalPosition().y()<<" "
+                            <<(*i_hit).globalPosition().z() );
+              ATH_MSG_DEBUG("        MM hit - global coords "<<m_c->x<<" "<<m_c->y<<" "<<m_c->z );
               Amg::Vector3D gtrk = ghit.getTrkGlobalPosition();
               Amg::Vector3D ltrk = ghit.getTrkLocalPosition();
-              log<<MSG::DEBUG<<"        MM h trk  local coords "<<ltrk.x()<<" "<<ltrk.y()<<" "<<ltrk.z()<<endreq;   
-              log<<MSG::DEBUG<<"        MM h trk global coords "<<gtrk.x()<<" "<<gtrk.y()<<" "<<gtrk.z()<<endreq;   
+              ATH_MSG_DEBUG("        MM h trk  local coords "<<ltrk.x()<<" "<<ltrk.y()<<" "<<ltrk.z() );
+              ATH_MSG_DEBUG("        MM h trk global coords "<<gtrk.x()<<" "<<gtrk.y()<<" "<<gtrk.z() );
 
 
 	      Amg::Vector3D tmp1 = direction.cross(Amg::Vector3D(0,0,1));
 	      tmp1.normalize();
 	      Amg::Vector3D tmp2 = u.cross(direction);
-              c->zResid   = tmp2.dot(tmp1);
-              c->phiResid = tmp2.z();
-              c->dist     = tmp2.mag(); // length of the vector
+              m_c->zResid   = tmp2.dot(tmp1);
+              m_c->phiResid = tmp2.z();
+              m_c->dist     = tmp2.mag(); // length of the vector
       
-              c->tech    = 5;
+              m_c->tech    = 5;
 
-              std::string stName = mmmuonHelper->GetStationName(idHit);
-              c->stname          = getIntStName(stName);
-	      int side = mmmuonHelper->GetSide(idHit);
-	      int eta  = mmmuonHelper->GetZSector(idHit);
-              c->steta           = (side == 1 ? eta+1 : -eta-1);
-              c->stphi           = (mmmuonHelper->GetPhiSector(idHit)-1)/2+1;
-              c->mlayer          =  mmmuonHelper->GetMultiLayer(idHit);
-              c->dbr             = -999;
-              c->dbz             = -999;
-              c->dbphi           = -999;
-              c->layer           = mmmuonHelper->GetLayer(idHit);
-              c->tube            = -999;
-              if ( fabs(c->zResid)>0.001 || fabs(c->phiResid)>0.001 ) {
-                  log<<MSG::WARNING<<"        MM hit ---   zResid "
-                     <<c->zResid<<" >1micron or phiResid "<<c->phiResid
-                     <<" for stName/stEta/stphi "<<stName<<"/"<<c->steta<<"/"<<c->stphi
-                     <<" layer "<<c->layer<<endreq;
+              std::string stName = m_mmmuonHelper->GetStationName(idHit);
+              m_c->stname          = getIntStName(stName);
+	      int side = m_mmmuonHelper->GetSide(idHit);
+	      int eta  = m_mmmuonHelper->GetZSector(idHit);
+              m_c->steta           = (side == 1 ? eta+1 : -eta-1);
+              m_c->stphi           = (m_mmmuonHelper->GetPhiSector(idHit)-1)/2+1;
+              m_c->mlayer          =  m_mmmuonHelper->GetMultiLayer(idHit);
+              m_c->dbr             = -999;
+              m_c->dbz             = -999;
+              m_c->dbphi           = -999;
+              m_c->layer           = m_mmmuonHelper->GetLayer(idHit);
+              m_c->tube            = -999;
+              if ( fabs(m_c->zResid)>0.001 || fabs(m_c->phiResid)>0.001 ) {
+                ATH_MSG_WARNING("        MM hit ---   zResid "
+                                <<m_c->zResid<<" >1micron or phiResid "<<m_c->phiResid
+                                <<" for stName/stEta/stphi "<<stName<<"/"<<m_c->steta<<"/"<<m_c->stphi
+                                <<" layer "<<m_c->layer );
               }
 
-              ntupleSvc()->writeRecord(c->nt);
+              ntupleSvc()->writeRecord(m_c->nt);
           }
       }
   }
@@ -613,9 +586,7 @@ StatusCode MuonHitRelocation::execute() {
 
 StatusCode MuonHitRelocation::finalize() {
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "GOODBYE from MuonHitRelocation" << endreq;
-
+  ATH_MSG_INFO( "GOODBYE from MuonHitRelocation"  );
   return StatusCode::SUCCESS;
 }
 
