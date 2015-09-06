@@ -14,6 +14,7 @@
 #include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
+#include "xAODTracking/TrackParticle.h"
 
 static const InterfaceID IID_ITrackDepositInCaloTool("ITrackDepositInCaloTool", 1, 0);
 
@@ -49,6 +50,8 @@ class ITrackDepositInCaloTool: virtual public IAlgTool
        @code extrapolations are returned. Straight line approximation. Covers EMB, TileBar, TileExt, EME and HEC acceptance.
     */
     virtual std::vector<DepositInCalo> getDeposits(const Trk::TrackParameters* par, const CaloCellContainer* caloCellCont = nullptr) const = 0;
+    
+    virtual std::vector<DepositInCalo> getDeposits(const xAOD::TrackParticle* tp, const CaloCellContainer* ccc = nullptr) const = 0;
     
     virtual StatusCode getTraversedLayers(const Trk::TrackParameters* par, std::map<double, const CaloDetDescriptor*>& caloInfo, std::vector<Amg::Vector3D>& extrapolations) const = 0;
     /**
