@@ -18,17 +18,13 @@ namespace TrigConf {
    class HLTSequence;
    class HLTPrescale;
    class HLTFrame;
-
-   typedef uint32_t HLTHash; 
   
    class HLTUtils {
 
    public:
 
       /**@brief hash function translating TE names into identifiers*/
-      static HLTHash string2hash( const std::string&, const std::string& category="TE" );
-      static const std::string hash2string( HLTHash, const std::string& category="TE" );
-
+      static uint32_t string2hash( const std::string&, const std::string& category="TE" );
      
 
 

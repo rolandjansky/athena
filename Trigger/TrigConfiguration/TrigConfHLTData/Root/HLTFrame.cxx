@@ -92,9 +92,10 @@ HLTFrame::print(const std::string& indent, unsigned int detail) const {
       cout << indent << "HLT Configuration";
       if(smk()>0) cout << " (SMK = " << smk() << ")";
       cout << ": "; printNameIdV(indent);
-      getHLTChainList().print(indent, detail);
-      getHLTSequenceList().print(indent, detail);
-      getPrescaleSetCollection().print(indent, detail);
+      cout << indent << "-----------------" << endl;
+      getHLTChainList().print(indent + "  ", detail);
+      getHLTSequenceList().print(indent + "  ", detail);
+      getPrescaleSetCollection().print(indent + "  ", detail);
       cout << indent << "================================================================================" << endl;
    }
 }
