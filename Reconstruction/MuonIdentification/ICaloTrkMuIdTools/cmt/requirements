@@ -9,6 +9,7 @@ use CaloIdentifier      	CaloIdentifier-*           Calorimeter
 use CaloDetDescr          	CaloDetDescr-*             Calorimeter
 use CaloEvent             	CaloEvent-*                Calorimeter
 use xAODCaloEvent             	xAODCaloEvent-*            Event/xAOD
+use xAODTracking                xAODTracking-*              Event/xAOD
 use TrkTrack            	TrkTrack-*    		   Tracking/TrkEvent
 use TrkParameters       	TrkParameters-*       	   Tracking/TrkEvent
 use TrkEventPrimitives  	TrkEventPrimitives-*       Tracking/TrkEvent
