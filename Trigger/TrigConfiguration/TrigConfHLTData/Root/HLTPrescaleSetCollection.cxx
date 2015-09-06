@@ -124,8 +124,8 @@ TrigConf::HLTPrescaleSetCollection::addPrescaleSet( const cont& add_psinfo ) {
       if( (psinfo_it != m_prescaleSets.end()) && (psinfo_it->lb == add_psinfo.lb) ) {
          delete psinfo_it->pss;
          psinfo_it->pss = add_psinfo.pss;
-         if(psinfo_it->pss != 0)
-            psinfo_it->psk = psinfo_it->pss->id();
+         //if(psinfo_it->pss != 0)
+         psinfo_it->psk = add_psinfo.psk;
       } else {
          m_prescaleSets.insert( psinfo_it, add_psinfo );
       }
