@@ -36,15 +36,14 @@
 
 #include <string>
 #include "GaudiKernel/ToolHandle.h"
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "CaloEvent/CaloClusterContainer.h"
-#include "CaloEvent/CaloCell2ClusterMap.h"
 
 class ICalorimeterNoiseTool;
 class StoreGateSvc;
 
-class CaloTopoTowerAlg : public AthReentrantAlgorithm
+class CaloTopoTowerAlg : public AthAlgorithm
 {
  public:
 
@@ -55,41 +54,41 @@ class CaloTopoTowerAlg : public AthReentrantAlgorithm
   virtual ~CaloTopoTowerAlg();
 
   /// initialize
-  virtual  StatusCode  initialize() override;
+  virtual  StatusCode  initialize();
 
   /// finalize   
-  virtual  StatusCode  finalize() override;
+  virtual  StatusCode  finalize();
   
   /// Execute
-  virtual StatusCode execute_r (const EventContext& ctx) const override;
+  virtual StatusCode execute();
 
-private:
-  // Container name strings
-  SG::ReadHandleKey<CaloCell2ClusterMap> m_cellToClusterMapKey;
-  SG::ReadHandleKey<CaloCellContainer> m_cellContainerKey;
-  SG::ReadHandleKey<CaloTowerContainer> m_towerContainerKey;
-  SG::WriteHandleKey<CaloTowerContainer> m_newTowerContainerKey;
-
-  // Selection criteria
-  double m_minimumCellEnergy;
-  double m_minimumClusterEnergy;
-  bool   m_useCellWeights;
-   
-  // Noise tool stuff
-  bool m_useNoiseTool;
-  bool m_usePileUpNoise;
-  // FIXME: mutable
-  mutable ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
-  float m_noiseSigma;
-  float m_cellESignificanceThreshold; 
+  private:
  
-  // Type definitions 
-  typedef Navigable<CaloClusterContainer>           nav_t;
+    // Container name strings
+    std::string m_cellToClusterMapName;
+    std::string m_cellContainerName;
+    std::string m_towerContainerName;
+    std::string m_newTowerContainerName;
+
+    // Selection criteria
+    double m_minimumCellEnergy;
+    double m_minimumClusterEnergy;
+    bool   m_useCellWeights;
+   
+    // Noise tool stuff
+    bool m_useNoiseTool;
+    bool m_usePileUpNoise;
+    ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
+    float m_noiseSigma;
+    float m_cellESignificanceThreshold; 
+ 
+    // Type definitions 
+    typedef Navigable<CaloClusterContainer>           nav_t;
     
-  // List of calorimeters from which to use cells
-  std::vector<std::string> m_includedCalos;
-  std::vector<CaloCell_ID::SUBCALO> m_caloIndices;
-  bool m_caloSelection;
+    // List of calorimeters from which to use cells
+    std::vector<std::string> m_includedCalos;
+    std::vector<CaloCell_ID::SUBCALO> m_caloIndices;
+    bool m_caloSelection;
   
 };
 #endif

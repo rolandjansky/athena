@@ -20,7 +20,7 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "CaloEvent/CaloConstCellContainer.h"
+
 class IChronoStatSvc;
 class ICaloConstCellMakerTool;
 
@@ -58,8 +58,8 @@ private:
   /// Property: List of tools to run.
   ToolHandleArray<ICaloConstCellMakerTool> m_caloCellMakerTools;
   
-  /// Property: Output container key.
-  SG::WriteHandleKey<CaloConstCellContainer> m_caloCellsOutputKey;
+  /// Property: Output container name.
+  std::string m_caloCellsOutputName;
 
   /// For timekeeping.
   ServiceHandle<IChronoStatSvc> m_chrono;

@@ -13,7 +13,7 @@
 #undef NDEBUG
 
 
-#include "../src/CaloCellFastCopyTool.h"
+#include "CaloRec/CaloCellFastCopyTool.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloConstCellContainer.h"

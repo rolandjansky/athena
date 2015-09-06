@@ -30,8 +30,8 @@ public:
 
 
  private:
-  // Name of input container
-  SG::ReadHandleKey<CaloCellContainer> m_caloCellsKey;
+
+  std::string m_caloCellsName ;  // name of input container
   std::vector<int> m_caloNums ; // list of calo to which this container 
                                // correspond. Only used to specify 
                                // bool hasCalo of CaloCellContainer

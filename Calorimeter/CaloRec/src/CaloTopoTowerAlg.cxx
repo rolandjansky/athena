@@ -19,6 +19,8 @@
 /// Date : 25 February 2009
 ///============================================================
 
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Service.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -26,28 +28,24 @@
 #include "CaloEvent/CaloCell2ClusterMap.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
-#include "CaloTopoTowerAlg.h"
-#include "CxxUtils/make_unique.h"
+#include "CaloRec/CaloTopoTowerAlg.h"
+
 #include <string>
 
 ///==============================================
 /// DEFAULT CONSTRUCTOR
 ///==============================================
 CaloTopoTowerAlg::CaloTopoTowerAlg(const std::string& name,ISvcLocator* pSvcLocator):
-   AthReentrantAlgorithm(name, pSvcLocator),
-   m_cellToClusterMapKey("CaloCell2TopoCluster"),
-   m_cellContainerKey("AllCalo"),
-   m_towerContainerKey("CmbTower"),
-   m_newTowerContainerKey("TopoTower"),
+   AthAlgorithm(name, pSvcLocator),
    m_noiseTool("CaloNoiseToolDefault"),
    m_caloSelection(false)
 { 
 
   // Containers needed for this algorithm
-  declareProperty("Cell2ClusterMapName",    m_cellToClusterMapKey);
-  declareProperty("CellContainerName"  ,    m_cellContainerKey);
-  declareProperty("InputTowerContainerName" ,    m_towerContainerKey);
-  declareProperty("OutputTowerContainerName",    m_newTowerContainerKey );
+  declareProperty("Cell2ClusterMapName",    m_cellToClusterMapName = "CaloCell2TopoCluster");
+  declareProperty("CellContainerName"  ,    m_cellContainerName = "AllCalo");
+  declareProperty("InputTowerContainerName" ,    m_towerContainerName = "CmbTower");
+  declareProperty("OutputTowerContainerName",    m_newTowerContainerName = "TopoTower");
   
   // Declare configurable properties of the algorithm
   declareProperty("MinimumCellEnergy",      m_minimumCellEnergy    = -1000000000.0);  
@@ -88,26 +86,24 @@ StatusCode CaloTopoTowerAlg::finalize()
 StatusCode CaloTopoTowerAlg::initialize()
 {
   // services
-  ATH_MSG_INFO( "Initializing CaloTopoTowerAlg"  );
-
-  CHECK(m_cellToClusterMapKey.initialize());
-  CHECK(m_cellContainerKey.initialize());
-  CHECK(m_towerContainerKey.initialize());
-  CHECK(m_newTowerContainerKey.initialize());
-  
-
+  MsgStream mLog(msgSvc(),name());
+  mLog  << MSG::INFO << "Initializing CaloTopoTowerAlg" << endreq;
 
   // retrieve noise tool from the tool svc
   if (m_useNoiseTool) {
-    ATH_CHECK( m_noiseTool.retrieve() );
-    ATH_MSG_INFO( "Noise Tool retrieved"  );
+    if (m_noiseTool.retrieve().isFailure()) {
+      mLog  << MSG::INFO << "Unable to find noise tool " << endreq;
+      return StatusCode::FAILURE;
+    }  
+    mLog  << MSG::INFO << "Noise Tool retrieved" << endreq;
   }
 
   // Report some information regarding the noise tool
-  if ( m_useNoiseTool && m_usePileUpNoise) {
-    ATH_MSG_DEBUG( "Pile-Up Noise from Noise Tool " 
-                   << " is selected! The noise sigma will be the"
-                   << " quadratic sum of the electronics noise and the pile up!"  );
+  if ( m_useNoiseTool && m_usePileUpNoise && (mLog.level() <= MSG::DEBUG)) {
+    mLog << MSG::DEBUG 
+         << "Pile-Up Noise from Noise Tool " 
+         << " is selected! The noise sigma will be the"
+         << " quadratic sum of the electronics noise and the pile up!" << endreq;
   }
   
   m_caloIndices.clear();
@@ -135,11 +131,11 @@ StatusCode CaloTopoTowerAlg::initialize()
   unsigned int nSubCalo=static_cast<int>(CaloCell_ID::NSUBCALO) ;
   if (m_caloIndices.size()>0 && m_caloIndices.size()<nSubCalo) m_caloSelection=true;
 
-  ATH_MSG_INFO( " Calo selection applied ? " << m_caloSelection  );
+  mLog << MSG::INFO << " Calo selection applied ? " << m_caloSelection << endreq;
   if (m_caloSelection) {
-    msg(MSG::INFO) << "   subcalo selected ";
-    for (unsigned int iCalos=0;iCalos< m_includedCalos.size(); iCalos++ ) msg(MSG::INFO) << " " << m_includedCalos[iCalos];
-    msg(MSG::INFO) << " " << endmsg;
+    mLog << MSG::INFO << "   subcalo selected ";
+    for (unsigned int iCalos=0;iCalos< m_includedCalos.size(); iCalos++ ) mLog << MSG::INFO << " " << m_includedCalos[iCalos];
+    mLog << MSG::INFO << " " << endreq;
   }
 
   // check setup
@@ -149,65 +145,64 @@ StatusCode CaloTopoTowerAlg::initialize()
 ///==============================================
 /// EXECUTE
 ///==============================================
-StatusCode CaloTopoTowerAlg::execute_r (const EventContext& ctx) const
+StatusCode CaloTopoTowerAlg::execute()
 {
   /// Say hello
-  ATH_MSG_DEBUG( "In CaloTopoTowerAlg::execute()"  );
+  MsgStream mLog(msgSvc(),name());
+  if (mLog.level() <= MSG::DEBUG) mLog << MSG::DEBUG << "In CaloTopoTowerAlg::execute()" << endreq;
 
   /// retrieve existing Tower container
-  
-  SG::ReadHandle<CaloTowerContainer> towerContainer( m_towerContainerKey, ctx );
-  if ( !towerContainer.isValid()) {
-     ATH_MSG_WARNING( " cannot retrieve tower container with key " << towerContainer.name()  );
+  const CaloTowerContainer* towerContainer=0;
+  if ( (evtStore()->retrieve(towerContainer,m_towerContainerName)).isFailure()) {
+     mLog << MSG::WARNING << " cannot retrieve tower container with key " << m_towerContainerName << endreq;
      return StatusCode::SUCCESS;
   }
 
-
   /// create new tower container with same tower segmentation and record it to StoreGate
-  SG::WriteHandle<CaloTowerContainer> newTowerContainer(m_newTowerContainerKey, ctx);  
-  if (newTowerContainer.record( std::make_unique<CaloTowerContainer> (towerContainer->towerseg()) ).isFailure()){
-    ATH_MSG_WARNING( " cannot record new tower container with key " << towerContainer.name()  );
+  CaloTowerContainer* newTowerContainer = new CaloTowerContainer(towerContainer->towerseg());
+  newTowerContainer->init();
+  if ( (evtStore()->record(newTowerContainer,m_newTowerContainerName)).isFailure()) {
+     mLog << MSG::WARNING << " cannot record new tower container with key " << m_newTowerContainerName << endreq;
     return StatusCode::SUCCESS;
   }
-  newTowerContainer->init();
 
   /// get CaloCell container from StoreGate
-  SG::ReadHandle<CaloCellContainer> theCells(m_cellContainerKey, ctx);
-  if ( !theCells.isValid()) {
-     ATH_MSG_WARNING( " cannot retrieve cell container with key " << theCells.name()  );
+  const CaloCellContainer* theCells =0;
+  if ( (evtStore()->retrieve(theCells,m_cellContainerName)).isFailure()) {
+     mLog << MSG::WARNING << " cannot retrieve cell container with key " << m_cellContainerName << endreq;
      return StatusCode::SUCCESS;
   }
 
   ///+++ pick up CaloCell2ClusterMap from StoreGate
+  const CaloCell2ClusterMap*  cellToClusterMap = 0;
   const CaloClusterContainer* clusterContainer = 0;
-  
-  SG::ReadHandle<CaloCell2ClusterMap> cellToClusterMap(  m_cellToClusterMapKey, ctx );
-  
-  if ( !cellToClusterMap.isValid() )
+  if ( (evtStore()->retrieve(cellToClusterMap,m_cellToClusterMapName)).isFailure() )
   {
-    ATH_MSG_WARNING( "cannot retrieve CaloCell2ClusterMap with key <"
-                     << cellToClusterMap.name() << ">" );
+    mLog  << MSG::WARNING
+            << "cannot retrieve CaloCell2ClusterMap with key <"
+            << m_cellToClusterMapName << ">" 
+            << endreq;
     return StatusCode::SUCCESS;
   }
-  ATH_MSG_DEBUG( "Successfully retrieved CaloCell2ClusterMap <"<< cellToClusterMap.name() << ">" );
+  if (mLog.level() <= MSG::DEBUG) mLog  << MSG::DEBUG << "Successfully retrieved CaloCell2ClusterMap <"<< m_cellToClusterMapName << ">"<< endreq;
 
   ///+++ consistency: pick up CaloClusterContainer pointer from map
   CaloCell2ClusterMap::const_iterator fClusMap(cellToClusterMap->begin());
   CaloCell2ClusterMap::const_iterator lClusMap(cellToClusterMap->end());
-  ATH_MSG_DEBUG( "Starting loop over Navigable CaloCell2ClusterMap"  );
+  if (mLog.level() <= MSG::DEBUG) mLog  << MSG::DEBUG << "Starting loop over Navigable CaloCell2ClusterMap" << endreq;
   while ( clusterContainer == 0 && fClusMap != lClusMap )
   {
-    ATH_MSG_VERBOSE( "In loop over Navigable CaloCell2ClusterMap"  );
+    if (mLog.level() <= MSG::VERBOSE) mLog  << MSG::VERBOSE << "In loop over Navigable CaloCell2ClusterMap" << endreq;
     if (*fClusMap) 
     {
       // Pick first Navigable and then ask first entry in this
       // Navigable for the pointer to the CaloClusterContainer.
       // This should be sufficient because all entries should 
       // have the same pointer. (TBC)
-      ATH_MSG_DEBUG( "CaloCell2ClusterMap has entry"  );
+      if (mLog.level() <= MSG::DEBUG) mLog  << MSG::DEBUG << "CaloCell2ClusterMap has entry" << endreq;
       const nav_t* pNav = (*fClusMap);
       clusterContainer = pNav->getContainer(pNav->begin());
-      ATH_MSG_DEBUG( "Successfully picked up CaloClusterContainer "  );
+      if (mLog.level() <= MSG::DEBUG) mLog  << MSG::DEBUG << "Successfully picked up CaloClusterContainer " << endreq;
     }
     else fClusMap++;
   }
@@ -216,31 +211,38 @@ StatusCode CaloTopoTowerAlg::execute_r (const EventContext& ctx) const
   if ( clusterContainer == 0 )
   {
     if (theCells->size() >0 ) {  
-      ATH_MSG_WARNING( "No cluster found from  CaloCell2ClusterMap, tool unusable" );
-      return StatusCode::SUCCESS;
+      mLog << MSG::WARNING
+           << "No cluster found from  CaloCell2ClusterMap, tool unusable"
+           << endreq;
+         return StatusCode::SUCCESS;
     }
     else {
-      ATH_MSG_DEBUG( " empty calorimeter event .. return "  );
+      if (mLog.level() <= MSG::DEBUG) mLog  << MSG::DEBUG << " empty calorimeter event .. return " << endreq;
       return StatusCode::SUCCESS;
     }
   }
-  else ATH_MSG_DEBUG( "Size of CaloClusterContainer = " << clusterContainer->size()  );
+  else if (mLog.level() <= MSG::DEBUG) mLog  << MSG::DEBUG << "Size of CaloClusterContainer = " << clusterContainer->size() << endreq;
   
   ///+++ loop on towers
   //  (*towerIter) is the ITERATOR over TOWERS
   //  (*cellInTowerIter) is the ITERATOR over CELLS for this TOWER
 
-  ATH_MSG_DEBUG( "Beginning loop over tower grid"  );
+  if (mLog.level() <= MSG::DEBUG) mLog  << MSG::DEBUG << "Beginning loop over tower grid" << endreq;
 
-  for (const CaloTower* theTower : *towerContainer) {
+  CaloTowerContainer::const_iterator towerIter(towerContainer->begin());
+  CaloTowerContainer::const_iterator lastTower(towerContainer->end());
+  for ( ; towerIter != lastTower; towerIter++ )
+  {
+
+    const CaloTower* theTower = (*towerIter);
     int towerIndex = towerContainer->getTowerIndex(theTower);
 
     CaloTower* newTower = newTowerContainer->getTower(towerIndex);
   
     ///+++ loop cells in old tower
-    ATH_MSG_VERBOSE( "In loop over tower grid: tower eta-phi" << theTower->eta() << " " << theTower->phi()  );
-    CaloTower::cell_iterator cellInTowerIter(theTower->cell_begin());
-    CaloTower::cell_iterator lastCellInTower(theTower->cell_end());
+    if (mLog.level() <= MSG::VERBOSE) mLog  << MSG::VERBOSE << "In loop over tower grid: tower eta-phi" << theTower->eta() << " " << theTower->phi() << endreq;
+    CaloTower::cell_iterator cellInTowerIter((*towerIter)->cell_begin());
+    CaloTower::cell_iterator lastCellInTower((*towerIter)->cell_end());
     
     /// Various counters for keeping track of energy added to this tower
     double energyTower = 0.0;
@@ -251,7 +253,7 @@ StatusCode CaloTopoTowerAlg::execute_r (const EventContext& ctx) const
     int    totalNumberOfCellsInAttachedClusters = 0;
     
     ///+++ Look at all cells in this tower
-    ATH_MSG_VERBOSE( "Now looking at all cells in this tower"  );
+    if (mLog.level() <= MSG::VERBOSE) mLog  << MSG::VERBOSE << "Now looking at all cells in this tower" << endreq;
     for ( ; cellInTowerIter != lastCellInTower; cellInTowerIter++ )
     {
       numberOfCellsInTower++;
@@ -266,7 +268,7 @@ StatusCode CaloTopoTowerAlg::execute_r (const EventContext& ctx) const
       
       size_t globalIndex=0;
       if (!(theTower->getCellIndex(cell,globalIndex)) ) {
-        ATH_MSG_WARNING( " cannot find back cell index "  );
+        mLog << MSG::WARNING << " cannot find back cell index " << endreq;
         continue;
       }
 
@@ -296,37 +298,43 @@ StatusCode CaloTopoTowerAlg::execute_r (const EventContext& ctx) const
       }
       
       // DEBUGGING
-      ATH_MSG_VERBOSE( "         Cell has E = " << signedE << "  eta,phi " << cell->eta() << " " << cell->phi()  );
-      ATH_MSG_VERBOSE( "Cell has E in tower = " << cellEnergy  );
-      ATH_MSG_VERBOSE( "   Cell noise sigma = " << noiseSigma  );
-      ATH_MSG_VERBOSE( "  Cell noise signif = " << signedRatio  );
+      if (mLog.level() <= MSG::VERBOSE) {
+       mLog  << MSG::VERBOSE << "         Cell has E = " << signedE << "  eta,phi " << cell->eta() << " " << cell->phi() << endreq;
+       mLog  << MSG::VERBOSE << "Cell has E in tower = " << cellEnergy << endreq;
+       mLog  << MSG::VERBOSE << "   Cell noise sigma = " << noiseSigma << endreq;
+       mLog  << MSG::VERBOSE << "  Cell noise signif = " << signedRatio << endreq;
+      }
 
       /// Require that the cell have a minimum energy and energy significance
       if ( (signedE > m_minimumCellEnergy) && ( fabs(signedRatio) > m_cellESignificanceThreshold) )
       {
         // find clusters associated to this cell using the hash ID
         size_t cellIndex(cell->caloDDE()->calo_hash());
-        ATH_MSG_VERBOSE( "Cell index from CaloCell2ClusterMap = " << cellIndex  );
+        if (mLog.level() <= MSG::VERBOSE) mLog  << MSG::VERBOSE << "Cell index from CaloCell2ClusterMap = " << cellIndex << endreq;
         const nav_t* nav = (cellToClusterMap->operator[])(cellIndex);
         
         /// Require that the cell be used in at least one cluster
         if (!nav) {
-          ATH_MSG_VERBOSE( "No Cluster container from this cell!"  );
+          if (mLog.level() <= MSG::VERBOSE) mLog  << MSG::VERBOSE << "No Cluster container from this cell!" << endreq;
         }
         else 
         {
           ///+++ Loop over all clusters associated to this cell
-          ATH_MSG_VERBOSE( "Cell associated to N clusters = " << nav->size()  );
-          for (const CaloCluster* clusterFromCell : *nav) {
+          if (mLog.level() <= MSG::VERBOSE) mLog  << MSG::VERBOSE << "Cell associated to N clusters = " << nav->size() << endreq;
+          nav_t::object_iter clusterIterator(nav->begin());
+          nav_t::object_iter lastCluster(nav->end());
+          for ( ; clusterIterator != lastCluster; clusterIterator++ )
+          {
+            const CaloCluster* clusterFromCell = (*clusterIterator);
             double eClusRaw  = clusterFromCell->getBasicEnergy();
             double eClus     = clusterFromCell->energy();
-            ATH_MSG_VERBOSE( " Cluster Basic Energy  = " << eClusRaw  );
-            ATH_MSG_VERBOSE( " Cluster Normal Energy = " << eClus  );
+            if (mLog.level() <= MSG::VERBOSE) mLog  << MSG::VERBOSE << " Cluster Basic Energy  = " << eClusRaw << endreq;
+            if (mLog.level() <= MSG::VERBOSE) mLog  << MSG::VERBOSE << " Cluster Normal Energy = " << eClus << endreq;
           
             /// filter clusters according to cluster energy
             if ( eClusRaw > m_minimumClusterEnergy )
             {
-              ATH_MSG_VERBOSE( "Cluster has at least E > " << m_minimumClusterEnergy  );
+              if (mLog.level() <= MSG::VERBOSE) mLog  << MSG::VERBOSE << "Cluster has at least E > " << m_minimumClusterEnergy << endreq;
  
               numberOfAttachedCellsInTower++;
               totalNumberOfCellsInAttachedClusters += clusterFromCell->getNumberOfCells(); 
@@ -334,48 +342,48 @@ StatusCode CaloTopoTowerAlg::execute_r (const EventContext& ctx) const
               energyTower += cellEnergy;
               numberOfClustersInTower++;           
 
-              newTower->addUniqueCellNoKine(theCells.cptr(),globalIndex,weight, 10);
+              newTower->addUniqueCellNoKine(theCells,globalIndex,weight, 10);
             
               // now that we found the cell in at least one cluster above threshold, stop looking at associated clusters
-              ATH_MSG_VERBOSE( " -- Found at least one cluster passing cuts. 'break'"  );
+              if (mLog.level() <= MSG::VERBOSE) mLog  << MSG::VERBOSE << " -- Found at least one cluster passing cuts. 'break'" << endreq;
               break;
             
             } // cluster filter
           } // clusters from cell loop
-          ATH_MSG_VERBOSE( "Finished cluster loop"  );
+          if (mLog.level() <= MSG::VERBOSE) mLog  << MSG::VERBOSE << "Finished cluster loop" << endreq;
         } // cluster associated to cell
       } // cell filter
     } // cell loop
-    ATH_MSG_VERBOSE( "Finished cell loop"  );
+    if (mLog.level() <= MSG::VERBOSE) mLog  << MSG::VERBOSE << "Finished cell loop" << endreq;
     
     /// Set tower energy according to the energy from cells in clusters passing selections
     newTower->setE(energyTower);
     
     // Report some information about this Topo-Tower
-    if (msgLvl(MSG::VERBOSE)) {
-      ATH_MSG_VERBOSE( "" );
-      ATH_MSG_VERBOSE( "Old/ new TopoTower energy from all cells               = " << theTower->e() << " " << newTower->e()  );
-      ATH_MSG_VERBOSE( "TopoTower energy adding all cells in clusters = " << energyTower  );
-      ATH_MSG_VERBOSE( "Total attached cluster energy                 = " << totalAttachedClusterEnergy  );
-      ATH_MSG_VERBOSE( "Total number of attached clusters             = " << numberOfClustersInTower  );
-      ATH_MSG_VERBOSE( "Number of cells in attached clusters          = " << totalNumberOfCellsInAttachedClusters  );
-      ATH_MSG_VERBOSE( "Total number of cells originally in tower     = " << numberOfCellsInTower  );
-      ATH_MSG_VERBOSE( "Total number of cells from clusters           = " << numberOfAttachedCellsInTower  );
+    if (mLog.level() <= MSG::VERBOSE) {
+      mLog << endreq;
+      mLog << MSG::VERBOSE << "Old/ new TopoTower energy from all cells               = " << theTower->e() << " " << newTower->e() << endreq;
+      mLog << MSG::VERBOSE << "TopoTower energy adding all cells in clusters = " << energyTower << endreq;
+      mLog << MSG::VERBOSE << "Total attached cluster energy                 = " << totalAttachedClusterEnergy << endreq;
+      mLog << MSG::VERBOSE << "Total number of attached clusters             = " << numberOfClustersInTower << endreq;
+      mLog << MSG::VERBOSE << "Number of cells in attached clusters          = " << totalNumberOfCellsInAttachedClusters << endreq;
+      mLog << MSG::VERBOSE << "Total number of cells originally in tower     = " << numberOfCellsInTower << endreq;
+      mLog << MSG::VERBOSE << "Total number of cells from clusters           = " << numberOfAttachedCellsInTower << endreq;     
       CaloTower::cell_iterator cellInTowerIter(newTower->cell_begin());
       CaloTower::cell_iterator lastCellInTower(newTower->cell_end());
-      msg(MSG::VERBOSE) << " E*weight, eta, phi of cells in new tower ";
+      mLog <<  MSG::VERBOSE << " E*weight, eta, phi of cells in new tower ";
       for ( ; cellInTowerIter != lastCellInTower; cellInTowerIter++ ) {
          double weight                 = theTower->getCellWeight(cellInTowerIter);     // get the weight of this cell in the tower
          const CaloCell* cell = (*cellInTowerIter);
          if (!cell) continue;
-         msg(MSG::VERBOSE) << cell->e()*weight << " " << cell->eta() << " " << cell->phi() << " / ";
+         mLog << cell->e()*weight << " " << cell->eta() << " " << cell->phi() << " / ";
       } 
-      msg(MSG::VERBOSE) << endmsg;
+      mLog << MSG::VERBOSE << endreq;
     }
     
   } // tower loop
   
-  ATH_MSG_DEBUG( "Finished creating TopoTowers"  );
+  if (mLog.level() <= MSG::DEBUG) mLog  << MSG::DEBUG << "Finished creating TopoTowers" << endreq;  
   
   return StatusCode::SUCCESS;
   

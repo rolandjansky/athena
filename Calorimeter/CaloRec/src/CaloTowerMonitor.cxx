@@ -20,7 +20,7 @@
 #include "CaloEvent/CaloTower.h"
 #include "CaloEvent/CaloTowerContainer.h"
 
-#include "CaloTowerMonitor.h"
+#include "CaloRec/CaloTowerMonitor.h"
 
 #include <string>
 #include <cmath>
@@ -58,6 +58,9 @@ CaloTowerMonitor::~CaloTowerMonitor()
 
 StatusCode CaloTowerMonitor::initialize()
 {
+  // messaging
+  MsgStream log(messageService(),name());
+
   ////////////////////////
   // Book Distributions //
   ////////////////////////
@@ -208,6 +211,9 @@ StatusCode CaloTowerMonitor::initialize()
 
 StatusCode CaloTowerMonitor::execute()
 {
+  // messaging
+  MsgStream log(messageService(),name());
+
   // constant
   //  double mathPi = 2. * asin(1.);
   // retrieve data container
@@ -240,7 +246,7 @@ StatusCode CaloTowerMonitor::execute()
 		  //		      << aTower->e() / GeV
 		  //		      << " GeV and #cells = "
 		  //		      << aTower->getNumberOfCells()
-		  //		      << endmsg;
+		  //		      << endreq;
 		  //		}
 	      //	      else
 	      if ( aTower->getNumberOfCells() != 0 )
@@ -252,15 +258,16 @@ StatusCode CaloTowerMonitor::execute()
 		  double phi   = aTower->phi();
 		  //		  if ( phi > mathPi ) phi -= 2. * mathPi;
 		  double cells = (double) aTower->getNumberOfCells();
-		  ATH_MSG_DEBUG( "Tower @"
+		  log << MSG::DEBUG
+		      << "Tower @"
 		      << aTower
 		      << " E = "
 		      << e << " GeV (eta,phi) = ("
-                                 << eta << "," << phi << ")"  );
+		      << eta << "," << phi << ")" << endreq;
 		  // fill distributions
 		  m_nTowersVsEta->fill(eta,1.);
 		  m_nTowersVsPhi->fill(phi*(1/deg),1.);
-		  // ATH_MSG_INFO( "fill tower e   " << e  );
+		  // log << MSG::INFO << "fill tower e   " << e << endreq;
 		  m_eTowers->fill(e,1.);
 		  m_eTowersVsEta->fill(eta,e,1.);
 		  m_eTowersVsPhi->fill(phi*(1./deg),e,1.);
@@ -268,7 +275,7 @@ StatusCode CaloTowerMonitor::execute()
 		    {
 		      m_eLogTowers->fill(log10(e),1.);
 		    }
-		  // ATH_MSG_INFO( "fill tower et  " << et  );
+		  // log << MSG::INFO << "fill tower et  " << et << endreq;
 		  m_etTowers->fill(et,1.);
 		  m_etTowersVsEta->fill(eta,et,1.);
 		  m_etTowersVsPhi->fill(phi*(1./deg),et,1.);
@@ -277,7 +284,7 @@ StatusCode CaloTowerMonitor::execute()
 		      m_etLogTowers->fill(log10(et),1.);
 		    }
 		  // tower shape
-		  // ATH_MSG_INFO( "fill tower cls " << cells  );
+		  // log << MSG::INFO << "fill tower cls " << cells << endreq;
 		  m_nCellsInTower->fill(cells,1.);
 		  m_nCellsInTowerVsEta->fill(eta,cells,1.);
 		  m_nCellsInTowerVsPhi->fill(phi*(1./deg),cells,1.);
@@ -294,14 +301,14 @@ StatusCode CaloTowerMonitor::execute()
 		      double deltaEta = eta - aCell->eta();
 		      double deltaPhi = correctPhi.diff(phi, aCell->phi());
 		      // log << MSG::INFO << "fill cell deta,dphi " 
-		      //  << deltaEta << "," << deltaPhi << endmsg;
+		      //  << deltaEta << "," << deltaPhi << endreq;
 		      m_cellsInEtaVsPhi->fill(deltaEta,deltaPhi,1.);
 		      // direction matches
 		      //log << MSG::INFO << "fill cell eta " 
-		      //	  << cellEta << endmsg;
+		      //	  << cellEta << endreq;
 		      m_etaTowerVsCell->fill(cellEta,eta,1.);
 		      //log << MSG::INFO << "fill tower phi " 
-		      //		  << cellPhi/deg << endmsg;
+		      //		  << cellPhi/deg << endreq;
 		      m_phiTowerVsCell->fill(cellPhi*(1./deg),phi*(1./deg),1.);
 		      CaloSampling::CaloSample theSample = aCell->caloDDE()->getSampling();
 		      CaloSampling::CaloSample takeSample = theSample;

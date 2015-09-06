@@ -14,7 +14,6 @@
 #include "CaloRec/CaloClusterProcessor.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "AthenaKernel/errorcheck.h"
-#include "GaudiKernel/ThreadLocalContext.h"
 
 
 /**
@@ -31,36 +30,22 @@ CaloClusterProcessor::CaloClusterProcessor (const std::string& type,
   : AthAlgTool (type, name, parent)
 {
   declareInterface<CaloClusterCollectionProcessor> (this);
-  declareInterface<CaloClusterProcessor> (this);
-}
-
-
-/**
- * @brief Execute on a single cluster.
- * @param cluster The cluster to process.
- * (deprecated)
- */
-StatusCode CaloClusterProcessor::execute (xAOD::CaloCluster* cluster)
-{
-  return execute (Gaudi::Hive::currentContext(), cluster);
 }
 
 
 /**
  * @brief Execute on an entire collection of clusters.
- * @param collection The container of clusters.
- * @param ctx The event context.
+ * @param The container of clusters.
  *
  * This will iterate over all the clusters in @c collection
  * and call @c execute on each one individually.
  */
-StatusCode CaloClusterProcessor::execute (const EventContext& ctx,
-                                          xAOD::CaloClusterContainer* collection) const
+StatusCode CaloClusterProcessor::execute (xAOD::CaloClusterContainer* collection)
 {
   xAOD::CaloClusterContainer::iterator beg = collection->begin();
   xAOD::CaloClusterContainer::iterator end = collection->end();
   for (; beg != end; ++beg) {
-    CHECK( execute (ctx, *beg) );
+    CHECK( execute (*beg) );
   }
   return StatusCode::SUCCESS;
 }

@@ -25,10 +25,7 @@
 
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "GaudiKernel/EventContext.h"
 
-
-static const InterfaceID IID_CaloClusterProcessor ("CaloClusterProcessor", 1 , 0);
 
 class CaloClusterProcessor : public AthAlgTool, virtual public CaloClusterCollectionProcessor {
 public:
@@ -44,40 +41,22 @@ public:
                         const std::string& name,
                         const IInterface* parent);
 
-  using CaloClusterCollectionProcessor::execute;
 
   /**
    * @brief Execute on a single cluster.
-   * @param cluster The cluster to process.
-   * @param ctx The event context.
+   * @param The cluster to process.
    */
-  virtual StatusCode execute (const EventContext& ctx,
-                              xAOD::CaloCluster* cluster) const = 0;
-
-
-  /**
-   * @brief Execute on a single cluster.
-   * @param cluster The cluster to process.
-   * (deprecated)
-   */
-  virtual StatusCode execute (xAOD::CaloCluster* cluster) final;
+  virtual StatusCode execute (xAOD::CaloCluster* cluster) = 0;
 
 
   /**
    * @brief Execute on an entire collection of clusters.
-   * @param collection The container of clusters.
+   * @param The container of clusters.
    *
    * This will iterate over all the clusters in @c collection
    * and call @c execute on each one individually.
    */
-  virtual StatusCode execute (const EventContext& ctx,
-                              xAOD::CaloClusterContainer* collection) const;
-
-  
-  /**
-   * @brief Standard Gaudi interface ID method.
-   */
-  static const InterfaceID& interfaceID() {return IID_CaloClusterProcessor;}
+  virtual StatusCode execute (xAOD::CaloClusterContainer* collection);
 };
 
 

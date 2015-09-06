@@ -19,11 +19,11 @@
 //-----------------------
 // This Class's Header --
 //-----------------------
-#include "CaloTopoClusterMaker.h"
-#include "CaloTopoTmpClusterCell.h"
-#include "CaloTopoTmpHashCluster.h"
-#include "CaloTopoTmpHashCell.h"
-#include "CaloTopoTmpHashCellSort.h"
+#include "CaloRec/CaloTopoClusterMaker.h"
+#include "CaloRec/CaloTopoTmpClusterCell.h"
+#include "CaloRec/CaloTopoTmpHashCluster.h"
+#include "CaloRec/CaloTopoTmpHashCell.h"
+#include "CaloRec/CaloTopoTmpHashCellSort.h"
 #include "CaloRec/CaloBadCellHelper.h"
 #include "CaloUtils/CaloClusterEtSort.h"
 #include "CaloUtils/CaloClusterStoreHelper.h"
@@ -35,7 +35,9 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "AthAllocators/ArenaPoolAllocator.h"
 #include "AthAllocators/ArenaHandle.h"
+#include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
+#include "GaudiKernel/ListItem.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include <vector>
 #include <algorithm>
@@ -44,7 +46,7 @@
 
 #include "xAODCaloEvent/CaloClusterKineHelper.h"
 
-#include "CaloProtoCluster.h"
+#include "CaloRec/CaloProtoCluster.h"
 
 using CLHEP::MeV;
 
@@ -75,7 +77,6 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
   : AthAlgTool(type, name, parent),
     m_calo_dd_man(0),
     m_calo_id(0),
-    m_cellsKey(""),
     m_subcaloUsed(),
     m_cellThresholdOnEorAbsEinSigma    (    0.),
     m_neighborThresholdOnEorAbsEinSigma(    3.),
@@ -99,13 +100,13 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
     m_treatL1PredictedCellsAsGood      (true),
     m_minSampling                      (0),
     m_maxSampling                      (0),
+    m_doALotOfPrintoutInFirstEvent     (false),
     m_hashMin                          (999999),
-    m_hashMax                          (0),
-    m_clusterSize                      ()
+    m_hashMax                          (0)
 {
   declareInterface<CaloClusterCollectionProcessor> (this);
   // Name(s) of Cell Containers
-  declareProperty("CellsName",m_cellsKey);
+  declareProperty("CellsName",m_cellsName);
   
   // Name(s) of Calorimeters to consider
   declareProperty("CalorimeterNames",m_caloNames);
@@ -170,14 +171,19 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
 
 StatusCode CaloTopoClusterMaker::initialize()
 {
-  ATH_MSG_INFO( "Initializing " << name()  );
-  ATH_MSG_INFO( "Treat L1 Predicted Bad Cells as Good set to" << ((m_treatL1PredictedCellsAsGood) ? "true" : "false")  );
-  ATH_MSG_INFO( "Two-Gaussian noise for Tile set to " << ((m_twogaussiannoise) ? "true" : "false")  );
-  ATH_CHECK( m_cellsKey.initialize() );
+  msg(MSG::INFO) << "Initializing " << name() << endreq;
+  msg(MSG::INFO) << "Treat L1 Predicted Bad Cells as Good set to" << ((m_treatL1PredictedCellsAsGood) ? "true" : "false") << endreq;
+  msg(MSG::INFO) << "Two-Gaussian noise for Tile set to " << ((m_twogaussiannoise) ? "true" : "false") << endreq;
+
   getClusterSize();
 
-  const IGeoModelSvc *geoModel=nullptr;
-  ATH_CHECK(  service("GeoModelSvc", geoModel) );
+  const IGeoModelSvc *geoModel=0;
+  StatusCode sc = service("GeoModelSvc", geoModel);
+  if(sc.isFailure())
+  {
+    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+    return sc;
+  }
 
   // dummy parameters for the callback:
   int dummyInt=0;
@@ -189,12 +195,17 @@ StatusCode CaloTopoClusterMaker::initialize()
   }
   else
   {
-    ATH_CHECK(  detStore()->regFcn(&IGeoModelSvc::geoInit,
-                                   geoModel,
-                                   &CaloTopoClusterMaker::geoInit,this) );
+    sc = detStore()->regFcn(&IGeoModelSvc::geoInit,
+			  geoModel,
+			  &CaloTopoClusterMaker::geoInit,this);
+    if(sc.isFailure())
+    {
+      msg(MSG::FATAL) << "Could not register geoInit callback" << endreq;
+      return sc;
+    }
   }
-  
-  return StatusCode::SUCCESS;
+
+  return sc;
 }
 
 StatusCode
@@ -202,23 +213,24 @@ CaloTopoClusterMaker::geoInit(IOVSVC_CALLBACK_ARGS)
 {
 
   //MsgStream log(msgSvc(), name());
+  m_doALotOfPrintoutInFirstEvent = false;
 
   // pointer to detector manager:
   m_calo_dd_man  = CaloDetDescrManager::instance(); 
 
   m_calo_id   = m_calo_dd_man->getCaloCell_ID();
 
-  ATH_MSG_INFO( "Threshold choices:"
-                << (m_seedCutsInAbsE?" SeedThresholdOnAbsEinSigma=":
-                    " SeedThresholdOnEinSigma=")
-                << m_seedThresholdOnEorAbsEinSigma
-                << (m_neighborCutsInAbsE?", NeighborThresholdOnAbsEinSigma=":
-                    ", NeighborThresholdOnEinSigma=")
-                << m_neighborThresholdOnEorAbsEinSigma
-                << (m_cellCutsInAbsE?", CellThresholdOnAbsEinSigma=":
-                    ", CellThresholdOnEinSigma=")
-                << m_cellThresholdOnEorAbsEinSigma
-                );
+  msg(MSG::INFO) << "Threshold choices:"
+      << (m_seedCutsInAbsE?" SeedThresholdOnAbsEinSigma=":
+	  " SeedThresholdOnEinSigma=")
+      << m_seedThresholdOnEorAbsEinSigma
+      << (m_neighborCutsInAbsE?", NeighborThresholdOnAbsEinSigma=":
+	  ", NeighborThresholdOnEinSigma=")
+      << m_neighborThresholdOnEorAbsEinSigma
+      << (m_cellCutsInAbsE?", CellThresholdOnAbsEinSigma=":
+	  ", CellThresholdOnEinSigma=")
+      << m_cellThresholdOnEorAbsEinSigma
+      << endreq;
 
   //--- set Neighbor Option
 
@@ -229,161 +241,170 @@ CaloTopoClusterMaker::geoInit(IOVSVC_CALLBACK_ARGS)
   else if ( m_neighborOption == "super3D" ) 
     m_nOption = LArNeighbours::super3D;
   else {
-    ATH_MSG_ERROR( "Invalid Neighbor Option "
-                   << m_neighborOption << ", exiting ..."  );
+    msg(MSG::ERROR) << "Invalid Neighbor Option "
+	<< m_neighborOption << ", exiting ..." << endreq;
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_INFO( "Neighbor Option "
-                << m_neighborOption << " is selected!"  );
+  msg(MSG::INFO) << "Neighbor Option "
+      << m_neighborOption << " is selected!" << endreq;
 
   //--- check calorimeter names to use
-  for (const std::string& caloName : m_caloNames) {
-    if ( caloName == "LAREM" ) 
+  std::vector<std::string>::iterator caloIter = m_caloNames.begin(); 
+  std::vector<std::string>::iterator caloIterEnd = m_caloNames.end(); 
+  for(; caloIter!=caloIterEnd; caloIter++) { 
+    if ( *caloIter == "LAREM" ) 
       m_subcaloUsed[CaloCell_ID::LAREM] = true;
-    else if ( caloName == "LARHEC" )
+    else if ( *caloIter == "LARHEC" )
       m_subcaloUsed[CaloCell_ID::LARHEC] = true;
-    else if ( caloName == "LARFCAL" )
+    else if ( *caloIter == "LARFCAL" )
       m_subcaloUsed[CaloCell_ID::LARFCAL] = true;
-    else if ( caloName == "TILE" )
+    else if ( *caloIter == "TILE" )
       m_subcaloUsed[CaloCell_ID::TILE] = true;
     else 
-      ATH_MSG_ERROR( "Calorimeter " << caloName
-                     << " is not a valid Calorimeter name and will be ignored! "
-                     << "Valid names are: LAREM, LARHEC, LARFCAL, and TILE."  );
+      msg(MSG::ERROR) << "Calorimeter " << *caloIter 
+	  << " is not a valid Calorimeter name and will be ignored! "
+	  << "Valid names are: LAREM, LARHEC, LARFCAL, and TILE." << endreq;
   }
 
   //--- check sampling names to use for seeds
-  for (const std::string& sampName : m_samplingNames) {
-    if ( sampName == "PreSamplerB" ) 
+  std::vector<std::string>::iterator samplingIter = m_samplingNames.begin(); 
+  std::vector<std::string>::iterator samplingIterEnd = m_samplingNames.end(); 
+  for(; samplingIter!=samplingIterEnd; samplingIter++) { 
+    if ( *samplingIter == "PreSamplerB" ) 
       m_validSamplings.insert(CaloCell_ID::PreSamplerB);
-    else if ( sampName == "EMB1" ) 
+    else if ( *samplingIter == "EMB1" ) 
       m_validSamplings.insert(CaloCell_ID::EMB1);
-    else if ( sampName == "EMB2" ) 
+    else if ( *samplingIter == "EMB2" ) 
       m_validSamplings.insert(CaloCell_ID::EMB2);
-    else if ( sampName == "EMB3" ) 
+    else if ( *samplingIter == "EMB3" ) 
       m_validSamplings.insert(CaloCell_ID::EMB3);
-    else if ( sampName == "PreSamplerE" ) 
+    else if ( *samplingIter == "PreSamplerE" ) 
       m_validSamplings.insert(CaloCell_ID::PreSamplerE);
-    else if ( sampName == "EME1" ) 
+    else if ( *samplingIter == "EME1" ) 
       m_validSamplings.insert(CaloCell_ID::EME1);
-    else if ( sampName == "EME2" ) 
+    else if ( *samplingIter == "EME2" ) 
       m_validSamplings.insert(CaloCell_ID::EME2);
-    else if ( sampName == "EME3" ) 
+    else if ( *samplingIter == "EME3" ) 
       m_validSamplings.insert(CaloCell_ID::EME3);
-    else if ( sampName == "HEC0" ) 
+    else if ( *samplingIter == "HEC0" ) 
       m_validSamplings.insert(CaloCell_ID::HEC0);
-    else if ( sampName == "HEC1" ) 
+    else if ( *samplingIter == "HEC1" ) 
       m_validSamplings.insert(CaloCell_ID::HEC1);
-    else if ( sampName == "HEC2" ) 
+    else if ( *samplingIter == "HEC2" ) 
       m_validSamplings.insert(CaloCell_ID::HEC2);
-    else if ( sampName == "HEC3" ) 
+    else if ( *samplingIter == "HEC3" ) 
       m_validSamplings.insert(CaloCell_ID::HEC3);
-    else if ( sampName == "TileBar0" ) 
+    else if ( *samplingIter == "TileBar0" ) 
       m_validSamplings.insert(CaloCell_ID::TileBar0);
-    else if ( sampName == "TileBar1" ) 
+    else if ( *samplingIter == "TileBar1" ) 
       m_validSamplings.insert(CaloCell_ID::TileBar1);
-    else if ( sampName == "TileBar2" ) 
+    else if ( *samplingIter == "TileBar2" ) 
       m_validSamplings.insert(CaloCell_ID::TileBar2);
-    else if ( sampName == "TileGap1" ) 
+    else if ( *samplingIter == "TileGap1" ) 
       m_validSamplings.insert(CaloCell_ID::TileGap1);
-    else if ( sampName == "TileGap2" ) 
+    else if ( *samplingIter == "TileGap2" ) 
       m_validSamplings.insert(CaloCell_ID::TileGap2);
-    else if ( sampName == "TileGap3" ) 
+    else if ( *samplingIter == "TileGap3" ) 
       m_validSamplings.insert(CaloCell_ID::TileGap3);
-    else if ( sampName == "TileExt0" ) 
+    else if ( *samplingIter == "TileExt0" ) 
       m_validSamplings.insert(CaloCell_ID::TileExt0);
-    else if ( sampName == "TileExt1" ) 
+    else if ( *samplingIter == "TileExt1" ) 
       m_validSamplings.insert(CaloCell_ID::TileExt1);
-    else if ( sampName == "TileExt2" ) 
+    else if ( *samplingIter == "TileExt2" ) 
       m_validSamplings.insert(CaloCell_ID::TileExt2);
-    else if ( sampName == "FCAL0" ) 
+    else if ( *samplingIter == "FCAL0" ) 
       m_validSamplings.insert(CaloCell_ID::FCAL0);
-    else if ( sampName == "FCAL1" ) 
+    else if ( *samplingIter == "FCAL1" ) 
       m_validSamplings.insert(CaloCell_ID::FCAL1);
-    else if ( sampName == "FCAL2" ) 
+    else if ( *samplingIter == "FCAL2" ) 
       m_validSamplings.insert(CaloCell_ID::FCAL2);
     else 
-      ATH_MSG_ERROR( "Calorimeter sampling" << sampName 
-                     << " is not a valid Calorimeter sampling name and will be ignored! "
-                     << "Valid names are: "
-                     << "PreSamplerB, EMB1, EMB2, EMB3, "
-                     << "PreSamplerE, EME1, EME2, EME3, "
-                     << "HEC0, HEC1, HEC2, HEC3, "
-                     << "TileBar0, TileBar1, TileBar2, "
-                     << "TileGap1, TileGap2, TileGap3, "
-                     << "TileExt0, TileExt1, TileExt2, "
-                     << "FCAL0, FCAL1, FCAL2."  );
+      msg(MSG::ERROR) << "Calorimeter sampling" << *samplingIter 
+	  << " is not a valid Calorimeter sampling name and will be ignored! "
+	  << "Valid names are: "
+	  << "PreSamplerB, EMB1, EMB2, EMB3, "
+	  << "PreSamplerE, EME1, EME2, EME3, "
+          << "HEC0, HEC1, HEC2, HEC3, "
+          << "TileBar0, TileBar1, TileBar2, "
+          << "TileGap1, TileGap2, TileGap3, "
+          << "TileExt0, TileExt1, TileExt2, "
+          << "FCAL0, FCAL1, FCAL2." << endreq;
   }
 
   msg(MSG::INFO) << "Samplings to consider for seeds:";
-  for (const std::string& sampName : m_samplingNames)
-    msg() << " " << sampName;
-  msg() << endmsg;
+  samplingIter = m_samplingNames.begin(); 
+  for(; samplingIter!=samplingIterEnd; samplingIter++)  
+    msg() << " " << *samplingIter;
+  msg() << endreq;
 
   m_minSampling=0;
   m_maxSampling=0;
-  for (int s : m_validSamplings) {
-    if ( s > m_maxSampling ) 
-      m_maxSampling = s;
-    if ( s < m_minSampling ) 
-      m_minSampling = s;
+  std::set<int>::const_iterator vSamplingIter = m_validSamplings.begin(); 
+  std::set<int>::const_iterator vSamplingIterEnd = m_validSamplings.end(); 
+  for(; vSamplingIter!=vSamplingIterEnd; vSamplingIter++) {
+    if ( (*vSamplingIter) > m_maxSampling ) 
+      m_maxSampling = (*vSamplingIter);
+    if ( (*vSamplingIter) < m_minSampling ) 
+      m_minSampling = (*vSamplingIter);
   }
 
   m_useSampling.resize(m_maxSampling-m_minSampling+1,false);
 
-  for (int s : m_validSamplings) {
-    m_useSampling[s-m_minSampling] = true;
+  for(vSamplingIter = m_validSamplings.begin(); vSamplingIter!=vSamplingIterEnd; vSamplingIter++) {
+    m_useSampling[(*vSamplingIter)-m_minSampling] = true;
   }
 
-  ATH_MSG_INFO( "CellCollection to use: " << m_cellsKey.key()  );
+  msg(MSG::INFO) << "CellCollection to use: " << m_cellsName << endreq;
 
   msg(MSG::INFO) << "Calorimeters to consider:";
-  for (const std::string& caloName : m_caloNames)
-    msg() << " " << caloName;
-  msg() << endmsg;
+  caloIter = m_caloNames.begin(); 
+  for(; caloIter!=caloIterEnd; caloIter++)  
+    msg() << " " << *caloIter;
+  msg() << endreq;
 
   //---- retrieve the noise tool ----------------
   
   if (m_useNoiseTool) {
     
     if(m_noiseTool.retrieve().isFailure()){
-      ATH_MSG_WARNING( "Unable to find Noise Tool"  );
+      msg(MSG::WARNING)
+	  << "Unable to find Noise Tool" << endreq;
     }  
     else {
-      ATH_MSG_INFO( "Noise Tool retrieved"  );
+      msg(MSG::INFO) << "Noise Tool retrieved" << endreq;
     }
   }
   else  {
-    ATH_MSG_INFO( "Noise Sigma "
-                  << m_noiseSigma << " MeV is selected!" 
-                  << (!m_usePileUpNoise?
-                      " The noise sigma will just be the electronics noise!":"") 
-                  );
+    msg(MSG::INFO) << "Noise Sigma "
+	<< m_noiseSigma << " MeV is selected!" 
+	<< (!m_usePileUpNoise?
+	    " The noise sigma will just be the electronics noise!":"") 
+	<< endreq;
   }
 
   if ( m_useNoiseTool && m_usePileUpNoise ) {
-    ATH_MSG_INFO( "Pile-Up Noise from Noise Tool" 
-                  << " is selected! The noise sigma will be the"
-                  << " quadratic sum of the electronics noise and the pile up!"  );
+    msg(MSG::INFO) << "Pile-Up Noise from Noise Tool" 
+	<< " is selected! The noise sigma will be the"
+        << " quadratic sum of the electronics noise and the pile up!" << endreq;
   }
   else {
-    ATH_MSG_INFO( "Additional E_t cuts (instead of Pile-Up Noise):" 
-                  << (m_seedCutsInAbsE?" SeedThresholdOnAbsEt=":" SeedThresholdOnEt=")
-                  << m_seedThresholdOnEtorAbsEt 
-                  << " MeV, " 
-                  << (m_neighborCutsInAbsE?"NeighborThresholdOnAbsEt=":
-                      "NeighborThresholdOnEt=")
-                  << m_neighborThresholdOnEtorAbsEt 
-                  << " MeV, "
-                  << (m_cellCutsInAbsE?"CellThresholdOnAbsEt=":
-                      "CellThresholdOnEt=")
-                  << m_cellThresholdOnEtorAbsEt 
-                  << " MeV"  );
+    msg(MSG::INFO) << "Additional E_t cuts (instead of Pile-Up Noise):" 
+	<< (m_seedCutsInAbsE?" SeedThresholdOnAbsEt=":" SeedThresholdOnEt=")
+	<< m_seedThresholdOnEtorAbsEt 
+	<< " MeV, " 
+	<< (m_neighborCutsInAbsE?"NeighborThresholdOnAbsEt=":
+	    "NeighborThresholdOnEt=")
+	<< m_neighborThresholdOnEtorAbsEt 
+	<< " MeV, "
+	<< (m_cellCutsInAbsE?"CellThresholdOnAbsEt=":
+	    "CellThresholdOnEt=")
+	<< m_cellThresholdOnEtorAbsEt 
+	<< " MeV" << endreq;
   }
 
-  ATH_MSG_INFO( (m_seedCutsInAbsE?"ClusterAbsEtCut= ":"ClusterEtCut= ")
-                << m_clusterEtorAbsEtCut << " MeV"  );
+  msg(MSG::INFO) << (m_seedCutsInAbsE?"ClusterAbsEtCut= ":"ClusterEtCut= ")
+      << m_clusterEtorAbsEtCut << " MeV" <<endreq;  
 
   m_hashMin = 999999;
   m_hashMax = 0;
@@ -403,14 +424,13 @@ CaloTopoClusterMaker::geoInit(IOVSVC_CALLBACK_ARGS)
 
 //#############################################################################
 
-StatusCode
-CaloTopoClusterMaker::execute(const EventContext& ctx,
-                              xAOD::CaloClusterContainer* clusColl) const
+StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
 {
   // minimal significance - should be > 0 in order to avoid 
   // throwing away of bad cells
   const float epsilon = 0.00001;
 
+  StatusCode sc;
   //ATH_MSG_DEBUG( "Executing " << name());
 
   typedef CaloTopoTmpHashCell<CaloTopoTmpClusterCell> HashCell;
@@ -434,14 +454,16 @@ CaloTopoClusterMaker::execute(const EventContext& ctx,
   //---- Get the CellContainers ----------------
 
   //  for (const std::string& cellsName : m_cellsNames) {
-  SG::ReadHandle<CaloCellContainer> cellColl(m_cellsKey, ctx);
-  if( !cellColl.isValid()){ 
-    ATH_MSG_ERROR( " Can not retrieve CaloCellContainer: "
-                   << cellColl.name()  );
+  const CaloCellContainer * cellColl = nullptr;
+  sc = evtStore()->retrieve(cellColl,m_cellsName); 
+
+  if( !sc.isSuccess() || !cellColl){ 
+    msg(MSG::ERROR) << " Can not retrieve CaloCellContainer: "
+		    << m_cellsName << endreq; 
     return StatusCode::RECOVERABLE;      
   }    
 
-  const DataLink<CaloCellContainer> cellCollLink (cellColl.name());
+  const DataLink<CaloCellContainer> cellCollLink (m_cellsName);
 
   //ATH_MSG_DEBUG("CaloCell container: "<< cellsName 
   //		  <<" contains " << cellColl->size() << " cells");
@@ -548,13 +570,13 @@ CaloTopoClusterMaker::execute(const EventContext& ctx,
 #if 1
   if (msgLvl(MSG::DEBUG)) {
     for (const HashCell& hc : mySeedCells) {
-      ATH_MSG_DEBUG( " SeedCell [" 
+      msg(MSG::DEBUG) << " SeedCell [" 
 		      << hc.getCaloTopoTmpClusterCell()->getSubDet() 
 		      << "|" 
 		      << (unsigned int)hc.getCaloTopoTmpClusterCell()->getID() 
 		      << "] has S/N = " 
 		      << hc.getCaloTopoTmpClusterCell()->getSignedRatio() 
-                     );
+		      << endreq;
     }
   }
 #endif
@@ -605,11 +627,11 @@ CaloTopoClusterMaker::execute(const EventContext& ctx,
       if ( m_doALotOfPrintoutInFirstEvent && msgLvl(MSG::DEBUG)) {
 	Identifier myId;
 	myId = m_calo_id->cell_id((int)(mySubDet),hashid);
-	ATH_MSG_DEBUG( " Cell [" << mySubDet << "|" 
-                       << (unsigned int)hashid << "|"
-                       << m_calo_id->show_to_string(myId,0,'/') 
-                       << "] has " << theNeighbors.size() 
-                       << " neighbors:"  );
+	msg(MSG::DEBUG) << " Cell [" << mySubDet << "|" 
+			<< (unsigned int)hashid << "|"
+			<< m_calo_id->show_to_string(myId,0,'/') 
+			<< "] has " << theNeighbors.size() 
+			<< " neighbors:" << endreq; 
       }
 #endif
       // loop over all neighbors of that cell (Seed Growing Algo)
@@ -620,10 +642,10 @@ CaloTopoClusterMaker::execute(const EventContext& ctx,
 #if 0
 	  if ( m_doALotOfPrintoutInFirstEvent && msgLvl(MSG::DEBUG)) {
 	    Identifier myId = m_calo_id->cell_id(nId);
-	    ATH_MSG_DEBUG(  "  NeighborCell [" << otherSubDet << "|" 
+	    msg(MSG::DEBUG) <<  "  NeighborCell [" << otherSubDet << "|" 
 			    << (unsigned int) nId << "|" 
 			    << m_calo_id->show_to_string(myId,0,'/') << "]" 
-                            );
+			    << endreq;
 
 	    m_calo_id->get_neighbours(nId,m_nOption,theNNeighbors);
 	    if ( std::find (theNNeighbors.begin(),
@@ -638,7 +660,7 @@ CaloTopoClusterMaker::execute(const EventContext& ctx,
 	      
 	      msg() << otherSubDet << "|" << nId << "|" 
 		    << m_calo_id->show_to_string(myId,0,'/') 
-		    << "]" << endmsg;
+		    << "]" << endreq;
 	    }
 	  }
 #endif
@@ -746,6 +768,9 @@ CaloTopoClusterMaker::execute(const EventContext& ctx,
     CaloClusterKineHelper::calculateKine(xAODCluster,false,true); //No weight at this point! 
   }
   
+  if ( m_doALotOfPrintoutInFirstEvent ) 
+    m_doALotOfPrintoutInFirstEvent = false;
+
   tmpclus_pool.erase();
   tmpcell_pool.erase();
 

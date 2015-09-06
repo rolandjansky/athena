@@ -208,25 +208,25 @@ ToolWithConstantsMixin::processConstantsFromDB (IOVSVC_CALLBACK_ARGS_K(keys))
   MsgStream log(Athena::getMessageSvc(), name());
   log << MSG::DEBUG
       << "In Callback function ToolWithConstants::processConstantsFromDB" 
-      << endmsg;
+      << endreq;
 
   if (m_folderName.size()>0) {
     //COOL-inline case
     if (std::find(keys.begin(),keys.end(),m_folderName)==keys.end()) {
        log << MSG::DEBUG
-	   << "The cool folder we care about (" << m_folderName<< ") is not in the list of keys. Do nothing." << endmsg;
+	   << "The cool folder we care about (" << m_folderName<< ") is not in the list of keys. Do nothing." << endreq;
        return StatusCode::SUCCESS;
     }
     else
        log << MSG::DEBUG
-	   << "Found cool folder " << m_folderName << " in the list of keys." << endmsg;
+	   << "Found cool folder " << m_folderName << " in the list of keys." << endreq;
   }
 
   // Check validity
   //if (!m_DBconstants.isValid()) {
   if (m_detStore->retrieve(m_DBconstants, m_detStoreKey).isFailure()) {
     log << MSG::ERROR << "DataHandle of ToolConstants object invalid!"
-        << endmsg;
+        << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -240,7 +240,7 @@ ToolWithConstantsMixin::fillFromDB(const ToolConstants* constants) {
   for (unsigned int i=0;i<m_infos.size();i++) {
     if (m_infos[i]->m_set) {
       log << MSG::DEBUG << "Property '" << m_infos[i]->m_name
-          << "' set by jobOptions." << endmsg;
+          << "' set by jobOptions." << endreq;
     } 
     else if (constants->hasrep (m_prefix + m_infos[i]->m_name)) {
       try {
@@ -254,10 +254,10 @@ ToolWithConstantsMixin::fillFromDB(const ToolConstants* constants) {
 
         if (m_infos[i]->m_setDB)
           log << MSG::DEBUG << "Property '" << m_infos[i]->m_name
-              << "' updated from database." << endmsg;
+              << "' updated from database." << endreq;
         else
           log << MSG::DEBUG << "Property '" << m_infos[i]->m_name
-              << "' loaded from database."<< endmsg;
+              << "' loaded from database."<< endreq;
       }
       catch (GaudiException& e)
       {

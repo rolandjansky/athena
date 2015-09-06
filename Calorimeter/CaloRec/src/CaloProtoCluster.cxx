@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloProtoCluster.h"
+#include "CaloRec/CaloProtoCluster.h"
 #include "CaloEvent/CaloPrefetch.h"
 #include <cmath>
 //#include "xAODCaloEvent/CaloClusterKineHelper.h"

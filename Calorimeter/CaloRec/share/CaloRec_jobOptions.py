@@ -302,21 +302,6 @@ if  globalflags.DataSource()=='data' and jobproperties.CaloRecFlags.doLArNoiseBu
         treatException("Problem with LArTimeVetoAlg")
 
 
-if jobproperties.CaloRecFlags.doCaloTowerFromCells() and rec.doESD  and rec.doCalo():
-    from CaloRec.CaloRecConf import CaloTowerxAODFromCells
-    topSequence+=CaloTowerxAODFromCells(CaloTowerContainer="CmbTowers",
-#                                        doCrossChecks=True
-                                        )
-
-if jobproperties.CaloRecFlags.doCaloTowerFromCluster() and rec.doESD  and rec.doCalo():
-    from CaloRec.CaloRecConf import CaloTowerxAODFromClusters
-    topSequence+=CaloTowerxAODFromClusters(CaloTowerContainer="CmbTopoTowers",
-#                                           doCrossChecks=True
-                                           )
-    
-
-
-
 #Convert clusters to xAOD::CaloCluster (temporary solution)
 if rec.doWritexAOD():
     from xAODCaloEventCnv.xAODCaloEventCnvConf import ClusterCreator
@@ -336,5 +321,5 @@ if rec.doWritexAOD():
     
     
 #L1Calo Trigger tower decoration
-if globalflags.DataSource()=='data' and rec.doESD() and rec.doCalo() and rec.doTrigger():
+if globalflags.DataSource()=='data' and rec.doESD() and rec.doCalo():
     include("TrigT1CaloCalibTools/DecorateL1CaloTriggerTowers_prodJobOFragment.py")

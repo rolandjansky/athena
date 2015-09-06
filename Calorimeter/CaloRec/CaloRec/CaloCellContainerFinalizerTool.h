@@ -24,7 +24,7 @@ public:
 				 const IInterface* parent) ;
 
 
-  virtual StatusCode initialize() override; 
+  virtual StatusCode initialize() ; 
 
   // update theCellContainer
   virtual StatusCode process(CaloCellContainer     * theCellContainer) override;

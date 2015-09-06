@@ -25,25 +25,23 @@
  * former modify the entire cluster container, the latter just single
  * clusters.  */
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CaloRec/CaloClusterCollectionProcessor.h"
 
 class CaloClusterCellLinkContainer;
 class IChronoStatSvc;
 
-class CaloClusterMaker : public AthReentrantAlgorithm
+class CaloClusterMaker : public AthAlgorithm
 {
 
  public:
 
   CaloClusterMaker(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~CaloClusterMaker() override;
-  virtual StatusCode initialize() override;
-  virtual StatusCode execute_r(const EventContext& ctx) const override;
-  virtual StatusCode finalize() override;
-
-  const std::string& getOutputContainerName() const;
+  virtual ~CaloClusterMaker();
+  virtual StatusCode initialize();
+  virtual StatusCode execute();
+  virtual StatusCode finalize();
 
  private:
 
@@ -85,6 +83,18 @@ class CaloClusterMaker : public AthReentrantAlgorithm
    * If true, we keep in StoreGate the complete list of clusters
    * before each correction has been performed. */
   bool m_keep_each_correction;
+
+  /**
+   * @brief a list of names of tools (and container names) which
+   * trigger a copy of the cluster before their execution
+   * 
+   * before the tools (even fields) in this list are executed the current 
+   * cluster container is recorded in StoreGate under the given names (odd 
+   * fields) */
+  std::vector<std::string> m_keepCorrectionToolAndContainerNames;
+
+  ///Digested version of the above
+  std::map<std::string,std::string> m_CorrectionToolAndContainerNamesMap;
 
   /** 
    * @brief controls saving the uncalibrated signal state just before

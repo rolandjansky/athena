@@ -14,7 +14,12 @@ PURPOSE:  merge the CaloCellContainer into the main one
 
 ********************************************************************/
 
-#include "CaloCellContainerMergerTool.h"
+#include "CaloRec/CaloCellContainerMergerTool.h"
+
+#include "GaudiKernel/Service.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/ListItem.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
@@ -31,10 +36,10 @@ CaloCellContainerMergerTool::CaloCellContainerMergerTool(
 			     const std::string& name, 
 			     const IInterface* parent)
   :AthAlgTool(type, name, parent),
-   m_caloCellsKey("")
+   m_caloCellsName("")
 {
   declareInterface<ICaloCellMakerTool>(this);
-  declareProperty ("CaloCellsName",m_caloCellsKey);
+  declareProperty ("CaloCellsName",m_caloCellsName);
   declareProperty ("CaloNums",m_caloNums);
   m_caloNums.clear();
 }
@@ -49,24 +54,25 @@ CaloCellContainerMergerTool::CaloCellContainerMergerTool(
 
 StatusCode CaloCellContainerMergerTool::initialize()
 {
-  ATH_CHECK(m_caloCellsKey.initialize());
+  MsgStream  log(msgSvc(),name());
+ 
   //check calo number specified
   if (m_caloNums.size()==0) {
-    ATH_MSG_WARNING( " no calo specified. bool hasCalo(caloNum) will not be set!!!  "  );
+    log << MSG::WARNING << " no calo specified. bool hasCalo(caloNum) will not be set!!!  " << endreq;
   }     
   else if  (m_caloNums.size() > static_cast<unsigned int>(CaloCell_ID::NSUBCALO) ) 
     {
-      ATH_MSG_ERROR( " More than " 
-                     << m_caloNums.size() 
-                     << " calos specified. Must be wrong. Stop."  );
+      log << MSG::ERROR << " More than " 
+	  << m_caloNums.size() 
+	  << " calos specified. Must be wrong. Stop." << endreq;
       return StatusCode::FAILURE;
     }
   else 
     {
       for (unsigned int index=0; index < m_caloNums.size() ; ++index) {
 	if (m_caloNums[index]<0 || m_caloNums[index]>=static_cast<int>(CaloCell_ID::NSUBCALO) ) {
-	  ATH_MSG_ERROR( "Invalid calo specification:" 
-                         << m_caloNums[index] << "Stop."  );
+	  log << MSG::ERROR << "Invalid calo specification:" 
+	      << m_caloNums[index] << "Stop." << endreq ;
 	  return StatusCode::FAILURE;	
 	}	
       }
@@ -79,19 +85,30 @@ StatusCode CaloCellContainerMergerTool::initialize()
 
 StatusCode CaloCellContainerMergerTool::process(CaloCellContainer * theCont )
 {
-  SG::ReadHandle<CaloCellContainer> theCellContainer (m_caloCellsKey);
+  MsgStream  log(msgSvc(),name());
+
+  StatusCode sc ;
+
+  const CaloCellContainer * theCellContainer ; 
+  sc = evtStore()->retrieve(theCellContainer,m_caloCellsName);
 
 
-  if (!theCellContainer.isValid()) {
-    ATH_MSG_ERROR( "Cannot retrieve CaloCellContainer "
-                   << m_caloCellsKey.key()
-                   << ". Ignore." );
+
+  if (sc != StatusCode::SUCCESS) {
+    log << MSG::ERROR 
+	<< "Cannot retrieve CaloCellContainer "
+	<< m_caloCellsName
+	<< ". Ignore."
+	<< endreq;
     return StatusCode::FAILURE;
   } 
 
-  for (const CaloCell* cell : *theCellContainer) {
+  CaloCellContainer::const_iterator itrCell=theCellContainer->begin();
+  CaloCellContainer::const_iterator endCell=theCellContainer->end();
+  for (;itrCell!=endCell;++itrCell){
+      
     //copy cell with the correct concrete type (LAr and Tile)
-    CaloCell * theCaloCell=cell->clone();
+    CaloCell * theCaloCell=(*itrCell)->clone();
 
     //copy each cell with the correct concrete type
     theCont->push_back(theCaloCell);
@@ -104,8 +121,8 @@ StatusCode CaloCellContainerMergerTool::process(CaloCellContainer * theCont )
     //specify that a given calorimeter has been filled
     if (theCellContainer->hasCalo(caloNum) )
       {
-	ATH_MSG_WARNING( "CaloCellContainer has already been filled with calo " 
-                         << caloNum  );
+	log << MSG::WARNING << "CaloCellContainer has already been filled with calo " 
+	    << caloNum << endreq ;    
       }
       
     theCont->setHasCalo(caloNum);

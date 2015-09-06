@@ -16,7 +16,7 @@
 //
 //-----------------------------------------------------------------------
 
-#include "CaloClusterMomentsMaker.h"
+#include "CaloRec/CaloClusterMomentsMaker.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCluster.h"
@@ -87,11 +87,9 @@ MomentName moment_names[] = {
   { "ISOLATION",         xAOD::CaloCluster::ISOLATION },
   { "LATERAL",           xAOD::CaloCluster::LATERAL },
   { "LONGITUDINAL",      xAOD::CaloCluster::LONGITUDINAL },
-  { "MASS",              xAOD::CaloCluster::MASS },
   { "N_BAD_CELLS",       xAOD::CaloCluster::N_BAD_CELLS },
   { "N_BAD_HV_CELLS",    xAOD::CaloCluster::N_BAD_HV_CELLS },
   { "N_BAD_CELLS_CORR",  xAOD::CaloCluster::N_BAD_CELLS_CORR },
-  { "PTD",               xAOD::CaloCluster::PTD },
   { "SECOND_ENG_DENS",   xAOD::CaloCluster::SECOND_ENG_DENS },
   { "SECOND_LAMBDA",     xAOD::CaloCluster::SECOND_LAMBDA },
   { "SECOND_R",          xAOD::CaloCluster::SECOND_R },
@@ -186,7 +184,7 @@ StatusCode CaloClusterMomentsMaker::initialize()
   StatusCode sc = service("GeoModelSvc", geoModel);
   if(sc.isFailure())
   {
-    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endmsg;
+    msg(MSG::ERROR) << "Could not locate GeoModelSvc" << endreq;
     return sc;
   }
 
@@ -205,7 +203,7 @@ StatusCode CaloClusterMomentsMaker::initialize()
 			  &CaloClusterMomentsMaker::geoInit,this);
     if(sc.isFailure())
     {
-      msg(MSG::ERROR) << "Could not register geoInit callback" << endmsg;
+      msg(MSG::ERROR) << "Could not register geoInit callback" << endreq;
       return sc;
     }
   }
@@ -248,7 +246,7 @@ CaloClusterMomentsMaker::geoInit(IOVSVC_CALLBACK_ARGS)
       int count = 0;
       for (const MomentName& m : moment_names)
 	msg() << ((count++)==0?" ":", ") << m.name;
-      msg() << endmsg;
+      msg() << endreq;
     }
   }
 
@@ -289,10 +287,10 @@ CaloClusterMomentsMaker::geoInit(IOVSVC_CALLBACK_ARGS)
     
     if(m_noiseTool.retrieve().isFailure()){
       msg(MSG::WARNING)
-	  << "Unable to find Noise Tool" << endmsg;
+	  << "Unable to find Noise Tool" << endreq;
     }  
     else {
-      msg(MSG::INFO) << "Noise Tool retrieved" << endmsg;
+      msg(MSG::INFO) << "Noise Tool retrieved" << endreq;
     }
   }
 
@@ -300,20 +298,15 @@ CaloClusterMomentsMaker::geoInit(IOVSVC_CALLBACK_ARGS)
     
     if(m_larHVScaleRetriever.retrieve().isFailure()){
       msg(MSG::WARNING)
-	  << "Unable to find LAr HV Scale Retriever Tool" << endmsg;
+	  << "Unable to find LAr HV Scale Retriever Tool" << endreq;
     }  
     else {
-      msg(MSG::INFO) << "LAr HV Scale Retriever Tool retrieved" << endmsg;
+      msg(MSG::INFO) << "LAr HV Scale Retriever Tool retrieved" << endreq;
     }
   }
 
   return StatusCode::SUCCESS;
   
-}
-
-StatusCode CaloClusterMomentsMaker::finalize()
-{
-  return StatusCode::SUCCESS;
 }
 
 //#############################################################################
@@ -335,10 +328,7 @@ struct cellinfo {
 
 } // namespace CaloClusterMomentsMaker_detail
 
-StatusCode
-CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
-                                 xAOD::CaloClusterContainer *theClusColl)
-  const
+StatusCode CaloClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusColl)
 { 
   ATH_MSG_DEBUG("Executing " << name());
 
@@ -360,7 +350,7 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
   if ( m_calculateIsolation ) {
 
     if (theClusColl->size() >= noCluster) {
-      msg(MSG::ERROR) << "Too many clusters" << endmsg;
+      msg(MSG::ERROR) << "Too many clusters" << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -393,10 +383,11 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
     }
   }
 
-  const ILArHVCorrTool* hvCorrTool = nullptr;
-  if (m_calculateLArHVFraction)
-    hvCorrTool = &*m_larHVScaleRetriever;
-  LArHVFraction larHVFraction (hvCorrTool);
+  // setup LAr HV Fraction class in case the corresponding moments are
+  // requested
+  if ( m_calculateLArHVFraction ) {
+    m_larHVFraction = new LArHVFraction(m_larHVScaleRetriever.operator->());
+  }
   
   // Move allocation of temporary arrays outside the cluster loop.
   // That way, we don't need to delete and reallocate them
@@ -414,7 +405,7 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
   for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
     xAOD::CaloCluster * theCluster = *clusIter;
 
-    double w(0),xc(0),yc(0),zc(0),mx(0),my(0),mz(0),mass(0);
+    double w(0),xc(0),yc(0),zc(0);
     double eBad(0),ebad_dac(0),ePos(0),eBadLArQ(0),sumSig2(0),maxAbsSig(0);
     double eLAr2(0),eLAr2Q(0);
     double eTile2(0),eTile2Q(0);
@@ -489,7 +480,7 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
 	  ePos += ene*weight;
 	}
 	if ( m_calculateLArHVFraction ) {
-	  if ( larHVFraction.isHVAffected(pCell) ) {
+	  if ( m_larHVFraction->isHVAffected(pCell) ) {
 	    eBadLArHV += ene*weight;
 	    nBadLArHV ++;
 	  }
@@ -572,17 +563,6 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
 	  xc += ci.energy*ci.x;
 	  yc += ci.energy*ci.y;
 	  zc += ci.energy*ci.z;
-
-	  double dir = ci.x*ci.x+ci.y*ci.y+ci.z*ci.z;
-
-          if ( dir > 0) {
-	    dir = sqrt(dir);
-	    dir = 1./dir;
-	  }
-	  mx += ci.energy*ci.x*dir;
-	  my += ci.energy*ci.y*dir;
-	  mz += ci.energy*ci.z*dir;
-
 	  w  += ci.energy;
 	 
 	  ncell++;
@@ -590,15 +570,6 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
       } //end of loop over all cells
 
       if ( w > 0 ) {
-	mass = w*w - mx*mx - my*my - mz*mz;
-	if ( mass > 0) {
-	  mass = sqrt(mass);
-	}
-	else {
-	  // make mass negative if m^2 was negative
-	  mass = -sqrt(-mass);
-	}
-
 	xc/=w;
 	yc/=w;
 	zc/=w;
@@ -606,8 +577,8 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
 	w=0;
 	
 
-	//log << MSG::WARNING << "Found bad cells " <<  xbad_dac << " " << ybad_dac << " " << zbad_dac << " " << ebad_dac <<  endmsg;
-	//log << MSG::WARNING << "Found Cluster   " <<  xbad_dac << " " << ybad_dac << " " << zbad_dac << " " <<  endmsg;
+	//log << MSG::WARNING << "Found bad cells " <<  xbad_dac << " " << ybad_dac << " " << zbad_dac << " " << ebad_dac <<  endreq;
+	//log << MSG::WARNING << "Found Cluster   " <<  xbad_dac << " " << ybad_dac << " " << zbad_dac << " " <<  endreq;
 	// shower axis is just the vector pointing from the IP to the shower center
 	// in case there are less than 3 cells in the cluster
 	
@@ -649,7 +620,7 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
 
 	  Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigensolver(C);
 	  if (eigensolver.info() != Eigen::Success) {
-	    msg(MSG::WARNING) << "Failed to compute Eigenvalues -> Can't determine shower axis" << endmsg;
+	    msg(MSG::WARNING) << "Failed to compute Eigenvalues -> Can't determine shower axis" << endreq;
 	  }
 	  else {
 	    // don't use the principal axes if at least one of the 3 
@@ -724,7 +695,6 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
 	// define common norm for all simple moments
 	double commonNorm = 0;
         double phi0 = ncell > 0 ? cellinfo[0].phi : 0;
-
 	for(i=0;i<ncell;i++) {
           const CaloClusterMomentsMaker_detail::cellinfo& ci = cellinfo[i];
 	  // loop over all valid moments
@@ -799,13 +769,6 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
 	    case xAOD::CaloCluster::ENG_FRAC_MAX:
 	      if ( (int)i == iCellMax ) 
 		myMoments[iMoment] = ci.energy;
-	      break;
-	    case xAOD::CaloCluster::PTD:
-	      // do not convert to pT since clusters are small and
-	      // there is virtually no difference and cosh just costs
-	      // time ...
-	      myMoments[iMoment] += ci.energy*ci.energy;
-	      myNorms[iMoment] += ci.energy;
 	      break;
 	    default:
 	      // nothing to be done for other moments
@@ -971,12 +934,6 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
 	  case xAOD::CaloCluster::N_BAD_HV_CELLS:
 	    myMoments[iMoment] = nBadLArHV;
             break;
-	  case xAOD::CaloCluster::PTD:
-	    myMoments[iMoment] = sqrt(myMoments[iMoment]);
-            break;
-	  case xAOD::CaloCluster::MASS:
-	    myMoments[iMoment] = mass;
-	    break;
 	  default:
 	    // nothing to be done for other moments
 	    break;
@@ -992,6 +949,7 @@ CaloClusterMomentsMaker::execute(const EventContext& /*ctx*/,
 	  myMoments[iMoment] /= myNorms[iMoment];
 	if ( moment == xAOD::CaloCluster::FIRST_PHI ) 
 	  myMoments[iMoment] = CaloPhiRange::fix(myMoments[iMoment]);
+	
 	theCluster->insertMoment(moment,myMoments[iMoment]);
       }
     }

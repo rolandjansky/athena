@@ -4,7 +4,7 @@
 
 
 // Calorimeter/CaloRec includes
-#include "CaloCellOverwrite.h"
+#include "CaloRec/CaloCellOverwrite.h"
 
 // STL includes
 
@@ -37,20 +37,20 @@ StatusCode CaloCellOverwrite::initialize() {
   const CaloCell_ID* caloCellId;
   StatusCode sc=detStore()->retrieve(caloCellId,"CaloCell_ID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve CaloCell_ID helper" << endmsg;
+    msg(MSG::ERROR) << "Failed to retrieve CaloCell_ID helper" << endreq;
     return sc;
   }
 
 
   if (!m_factorsPerGroup.setDefinition(caloCellId,m_factorsPerGroupInput,msg())) {
-    msg(MSG::ERROR) << "Failed to initialize CaloCellGroup object from jobOptions:" << endmsg;
+    msg(MSG::ERROR) << "Failed to initialize CaloCellGroup object from jobOptions:" << endreq;
     for (unsigned i=0;i<m_factorsPerGroupInput.size();++i) 
-      msg(MSG::ERROR) << m_factorsPerGroupInput[i] << endmsg;
+      msg(MSG::ERROR) << m_factorsPerGroupInput[i] << endreq;
     return StatusCode::FAILURE;
   }
 
   if (m_factorsPerGroup.getDefaults().size()!=1) {
-    msg(MSG::ERROR) << "Expected a CaloCellGroup definition of size 1, got " << m_factorsPerGroup.getDefaults().size() << endmsg;
+    msg(MSG::ERROR) << "Expected a CaloCellGroup definition of size 1, got " << m_factorsPerGroup.getDefaults().size() << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -68,7 +68,7 @@ StatusCode CaloCellOverwrite::execute() {
 
   StatusCode sc=evtStore()->retrieve(input,m_containerKey);
   if (sc. isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve CaloCellContainer with key " <<m_containerKey << endmsg;
+    msg(MSG::ERROR) << "Failed to retrieve CaloCellContainer with key " <<m_containerKey << endreq;
     return sc;
   }
 

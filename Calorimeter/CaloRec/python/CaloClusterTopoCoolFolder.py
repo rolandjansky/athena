@@ -6,6 +6,7 @@ def _setupCaloClusterTopoCoolFolder():
     from CaloRec.CaloTopoClusterFlags import jobproperties
     from IOVDbSvc.CondDB import conddb
 
+
     doOverride=False
     TagSuffix=""
 
@@ -29,16 +30,16 @@ def _setupCaloClusterTopoCoolFolder():
     # rely on global tag for both MC and data; do not specify folder tags
     # use CALO_OFL only for GEO>=18
     if globalflags.DataSource()=='data' or doOverride:
-        conddb.addFolder("CALO","/CALO/HadCalibration2/CaloEMFrac", className='CaloLocalHadCoeff')
+        conddb.addFolder("CALO","/CALO/HadCalibration2/CaloEMFrac")
         conddb.addFolder("CALO","/CALO/HadCalibration2/H1ClusterCellWeights")
-        conddb.addFolder("CALO","/CALO/HadCalibration2/CaloOutOfCluster", className='CaloLocalHadCoeff')
-        conddb.addFolder("CALO","/CALO/HadCalibration2/CaloOutOfClusterPi0", className='CaloLocalHadCoeff')
+        conddb.addFolder("CALO","/CALO/HadCalibration2/CaloOutOfCluster")
+        conddb.addFolder("CALO","/CALO/HadCalibration2/CaloOutOfClusterPi0")
         conddb.addFolder("CALO","/CALO/HadCalibration2/CaloDMCorr2")
     else:    
-        conddb.addFolder("CALO_OFL","/CALO/Ofl/HadCalibration2/CaloEMFrac", className='CaloLocalHadCoeff')
+        conddb.addFolder("CALO_OFL","/CALO/Ofl/HadCalibration2/CaloEMFrac")
         conddb.addFolder("CALO_OFL","/CALO/Ofl/HadCalibration2/H1ClusterCellWeights")
-        conddb.addFolder("CALO_OFL","/CALO/Ofl/HadCalibration2/CaloOutOfCluster", className='CaloLocalHadCoeff')
-        conddb.addFolder("CALO_OFL","/CALO/Ofl/HadCalibration2/CaloOutOfClusterPi0", className='CaloLocalHadCoeff')
+        conddb.addFolder("CALO_OFL","/CALO/Ofl/HadCalibration2/CaloOutOfCluster")
+        conddb.addFolder("CALO_OFL","/CALO/Ofl/HadCalibration2/CaloOutOfClusterPi0")
         conddb.addFolder("CALO_OFL","/CALO/Ofl/HadCalibration2/CaloDMCorr2")
 
 

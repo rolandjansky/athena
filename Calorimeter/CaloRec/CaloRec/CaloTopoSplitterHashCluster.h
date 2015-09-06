@@ -21,7 +21,7 @@
 #ifndef CALOTOPOSPLITTERHASHCLUSTER_H
 #define CALOTOPOSPLITTERHASHCLUSTER_H
 
-#include "CaloTopoTmpHashClusterBase.h"
+#include "CaloRec/CaloTopoTmpHashClusterBase.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include <CLHEP/Matrix/Vector.h>
 #include <CLHEP/Geometry/Vector3D.h>

@@ -42,13 +42,11 @@ public:
     : CaloClusterProcessor (type, name, parent) {}
 
   using CaloClusterProcessor::execute;
-  virtual StatusCode execute (const EventContext& ctx,
-                              xAOD::CaloCluster* cluster) const override;
+  virtual StatusCode execute (xAOD::CaloCluster* cluster);
 };
 
 
-StatusCode TTool::execute (const EventContext& /*ctx*/,
-                           xAOD::CaloCluster* cluster) const
+StatusCode TTool::execute (xAOD::CaloCluster* cluster)
 {
   std::cout << "execute " << cluster->eta0() << " " << cluster->phi0() << "\n";
   return StatusCode::SUCCESS;
@@ -74,7 +72,6 @@ int main()
   c[0]->setPhi0(2);
   c[1]->setEta0(3);
   c[1]->setPhi0(4);
-  EventContext ctx;
-  assert (t.execute (ctx, &c).isSuccess());
+  assert (t.execute (&c).isSuccess());
   return 0;
 }
