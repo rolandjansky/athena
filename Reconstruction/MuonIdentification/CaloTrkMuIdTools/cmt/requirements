@@ -10,12 +10,15 @@ use StoreGate                   StoreGate-*                 Control
 
 use TrkExInterfaces             TrkExInterfaces-*           Tracking/TrkExtrapolation
 use ICaloTrkMuIdTools           ICaloTrkMuIdTools-*         Reconstruction/MuonIdentification
+use  RecoToolInterfaces         RecoToolInterfaces-*        Reconstruction/RecoTools
 
 use CaloInterface               CaloInterface-*             Calorimeter
 use CaloTrackingGeometry        CaloTrackingGeometry-*      Calorimeter
 use CaloEvent                   CaloEvent-*                 Calorimeter
+use xAODTracking                xAODTracking-*              Event/xAOD
 
 private
+use CaloGeoHelpers              CaloGeoHelpers-*            Calorimeter
 use AtlasCLHEP                  AtlasCLHEP-*                External
 use CaloUtils                   CaloUtils-*                 Calorimeter
 use PathResolver                PathResolver-*              Tools
@@ -23,6 +26,8 @@ use AtlasROOT                   AtlasROOT-*                 External
 
 use TrkEventPrimitives          TrkEventPrimitives-*        Tracking/TrkEvent
 use TrkSurfaces                 TrkSurfaces-*               Tracking/TrkDetDescr
+use  ParticleCaloExtension      ParticleCaloExtension-*     Reconstruction/RecoEvent
+use  TrkCaloExtension           TrkCaloExtension-*          Tracking/TrkEvent
 
 use CaloIdentifier              CaloIdentifier-*            Calorimeter       
 use xAODCaloEvent               xAODCaloEvent-*             Event/xAOD
