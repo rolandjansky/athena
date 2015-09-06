@@ -281,7 +281,7 @@ int CaloMuonTag::caloMuonTag(const std::vector<DepositInCalo>& deposits, double 
       }
     }
 
-    if (numVetoesTriggered>=1) {
+    if (numVetoesTriggered>=1 || tag == 4) {
       m_numRejected++;
       return 0;
     }

@@ -18,6 +18,9 @@
 
 // --- Athena ---
 #include "CaloEvent/CaloCellContainer.h"
+#include "xAODTracking/TrackParticle.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 
 // --- STL ---
 #include <utility>
@@ -66,6 +69,8 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
        @param inCell Unused parameter. Kept for backward compatibility.
     */
     std::vector<DepositInCalo> getDeposits(const Trk::TrackParameters* par, const CaloCellContainer* caloCellCont = nullptr) const;
+
+    std::vector<DepositInCalo> getDeposits(const xAOD::TrackParticle* tp, const CaloCellContainer* ccc) const;
     
     std::vector<DepositInCalo> deposits(const Trk::TrackParameters *par, const double deltaR=0.3, const bool inCell= true) const;
     /**
@@ -154,7 +159,7 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
     
     bool isInsideDomain(double position, double domainCenter, double domainWidth, bool phiVariable = false) const;
     bool isInsideCell(const Amg::Vector3D& position, const CaloCell* cell) const;
-    
+    bool inCell(const CaloCell* cell, const Amg::Vector3D& pos) const;
     void showNeighbours(const CaloCell* cell) const;
     
   private:
@@ -164,6 +169,9 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
     ToolHandle<Trk::IExtrapolator>      m_extrapolator;                        //!< Extrapolator tool
     const CaloDetDescrManager*          m_caloDDM;                             //!< Calorimeter detector description manager
     const TileDetDescrManager*          m_tileDDM;
+    
+    ToolHandle <Trk::IParticleCaloExtensionTool> m_caloExtensionTool; //!< Tool to make the step-wise extrapolation
+    ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool; //!< Tool to make the step-wise extrapolation
     
     // Members
     mutable const CaloCellContainer*    m_cellContainer;                       //!< CaloCell container.

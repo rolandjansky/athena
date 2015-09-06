@@ -22,6 +22,14 @@
 #include "TileDetDescr/TileCellDim.h"
 #include "CaloUtils/CaloCellList.h"
 
+//#include "TrackToCalo/CaloCellHelpers.h"
+#include "CaloGeoHelpers/CaloPhiRange.h"
+#include "ParticleCaloExtension/ParticleCellAssociationCollection.h"
+#include "ParticleCaloExtension/ParticleCellIntersection.h"
+#include "ParticleCaloExtension/ParticleCaloAssociation.h"
+#include "TrkCaloExtension/CaloExtension.h"
+#include "TrkCaloExtension/CaloExtensionHelpers.h"
+
 // --- ROOT ---
 #include "TH1F.h"
 #include "TH2F.h"
@@ -32,6 +40,8 @@
 TrackDepositInCaloTool::TrackDepositInCaloTool( const std::string& type, const std::string& name, const IInterface* pInterface ) :
   AthAlgTool(type,name,pInterface),
   m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
+  m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
+  m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool"),
   m_cellContainer(0),
   m_solenoidRadius(1280)
   //m_solenoidHalfLength(2900)
@@ -97,6 +107,9 @@ StatusCode TrackDepositInCaloTool::initialize() {
 
   ATH_MSG_INFO("initialize() successful in " << name());
   return StatusCode::SUCCESS;
+
+  ATH_CHECK(m_caloExtensionTool.retrieve()   );
+  ATH_CHECK(m_caloCellAssociationTool.retrieve());
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -233,6 +246,99 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackP
   // ATH_MSG_INFO("Leaving getDeposits()...");
   return result;
 }
+
+
+///////////////////////////////////////////////////////////////////////////////
+// - New getDeposits
+///////////////////////////////////////////////////////////////////////////////
+std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const xAOD::TrackParticle* tp, const CaloCellContainer* ccc) const {
+
+    ATH_MSG_DEBUG("In TrackDepositsInCaloTool::getDeposits() - new");
+    std::vector<DepositInCalo> result;
+    const unsigned int nSamples = CaloSampling::getNumberOfSamplings();
+
+    if (!ccc) {
+      ATH_MSG_WARNING("Could not retrieve caloCells");
+     // return result;
+    }
+
+// - associate calocells to trackparticle, cone size 0.2, use cache
+
+    const Rec::ParticleCellAssociation* association = 0;
+    m_caloCellAssociationTool->particleCellAssociation(*tp,association,0.2,NULL,true);
+
+    if(!association) return result;
+       ATH_MSG_VERBOSE(" particleCellAssociation done  " << association );
+
+// - pick up the cell intersections
+
+    std::vector< std::pair<const CaloCell*,Rec::ParticleCellIntersection*> > cellIntersections = association->cellIntersections();
+
+    const Trk::CaloExtension& caloExtension = association->caloExtension();
+
+    if(!(&caloExtension)) {
+      ATH_MSG_WARNING( " No caloExtension found ");
+      return result;
+    }
+
+    if(!caloExtension.caloEntryLayerIntersection()) {
+      ATH_MSG_WARNING( " No caloEntryLayerIntersection found ");
+      return result;
+    }
+
+    ATH_MSG_DEBUG( " nr of cell intersections " << cellIntersections.size() );
+    if( cellIntersections.size() < 3) ATH_MSG_WARNING( " Strange nr of calorimeter cell intersections " << cellIntersections.size() );
+
+    CaloExtensionHelpers::EntryExitLayerMap  entryExitLayerMap;
+    CaloExtensionHelpers::entryExitLayerMap( caloExtension, entryExitLayerMap );
+    ATH_MSG_VERBOSE("EntryExitLayerMap " << entryExitLayerMap.size() );
+
+    CaloExtensionHelpers::ScalarLayerMap  eLossLayerMap;
+    CaloExtensionHelpers::eLossLayerMap( caloExtension, eLossLayerMap );
+    ATH_MSG_VERBOSE("eLossLayerMap " << eLossLayerMap.size() );
+
+    std::vector<float> exp_E(nSamples,0.0);
+    std::vector<float> meas_E(nSamples,0.0);
+    std::vector<float> meas_Et(nSamples,0.0);
+    std::vector<int> LayerHit(nSamples,0);
+    CaloSampling::CaloSample sample;
+    Amg::Vector3D lEntry, lExit;
+
+// loop over cellIntersections, there can be more than one cell hit in a layer
+
+    for(auto it : cellIntersections){
+      const CaloCell* curr_cell = it.first;
+      if (curr_cell->badcell()) continue;
+      int cellSampling = curr_cell->caloDDE()->getSampling();
+      CaloSampling::CaloSample sample = static_cast<CaloSampling::CaloSample>(cellSampling);
+      //bool badCell     = curr_cell->badcell();
+      auto pos = entryExitLayerMap.find(sample);
+      if (pos == entryExitLayerMap.end() ) continue;      
+      lEntry = pos->second.first;
+      lExit = pos->second.second;
+      if (TrackDepositInCaloTool::inCell(curr_cell, lEntry) || TrackDepositInCaloTool::inCell(curr_cell,lExit)){
+         meas_E[cellSampling] += Float_t(curr_cell->energy());
+         meas_Et[cellSampling] += Float_t(curr_cell->energy() * curr_cell->sinTh());
+         exp_E[cellSampling] = Float_t((it.second)->expectedEnergyLoss());
+         LayerHit[cellSampling]++;
+         ATH_MSG_VERBOSE( " Layer : " << cellSampling << "   Energy = " << curr_cell->energy() << " Exp : " << (it.second)->expectedEnergyLoss());
+      }
+    }
+   
+// sum cells per layer and fill samples per layer
+
+    for(int i = CaloSampling::PreSamplerB ; i < CaloSampling::CaloSample::Unknown; i++) {
+      if (LayerHit[i] > 0){
+         sample = static_cast<CaloSampling::CaloSample>(i);
+         result.push_back(DepositInCalo(sample, meas_E[i], exp_E[i], meas_Et[i])) ; 
+         ATH_MSG_DEBUG( " Layer : " << sample << "   Energy = " << meas_E[i] << " nCells : " << LayerHit[i] << " Exp: " << exp_E[i]);
+      }
+    }
+
+    return result;
+}
+
+// - end getDeposits
 
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1306,6 +1412,19 @@ bool TrackDepositInCaloTool::isInsideCell(const Amg::Vector3D& position, const C
   return true;
 }
 
+
+
+// inCell
+// an alternative version of crossedPhi from CaloCellHelpers, which has a bug
+
+bool TrackDepositInCaloTool::inCell(const CaloCell* cell, const Amg::Vector3D& pos) const {
+  bool result = fabs(CaloPhiRange::diff(pos.phi(),cell->phi())) < cell->caloDDE()->dphi()/2;
+  if (cell->caloDDE()->getSubCalo() != CaloCell_ID::TILE)
+     result &= fabs(pos.eta()-cell->eta()) < cell->caloDDE()->deta()/2 ;
+  else if (cell->caloDDE()->getSampling() != CaloCell_ID::TileBar1)  // still need to deal with tilebar1
+     result &= fabs(pos.z()-cell->z()) < cell->caloDDE()->dz()/2 ;
+  return result;
+}
 
 
 double TrackDepositInCaloTool::distance(const Amg::Vector3D& p1, const Amg::Vector3D& p2) const {
