@@ -42,11 +42,11 @@ HLT::ErrorCode TrigMooreHypo::hltInitialize(){
   if(m_acceptAll) {
       msg() << MSG::INFO
             << "Accepting all the events with not cut!"
-	    << endmsg;
+	    << endreq;
   } else {      
       m_bins = m_ptBins.size() - 1;
       if (m_bins != m_ptThresholds.size()) {
-          msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endmsg;
+          msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endreq;
           return HLT::BAD_JOB_SETUP;
       }
       
@@ -55,13 +55,13 @@ HLT::ErrorCode TrigMooreHypo::hltInitialize(){
           msg() << MSG::INFO
                 << "bin " << m_ptBins[i] << " - " <<  m_ptBins[i+1]
 		<< " with Pt Threshold of " << (m_ptThresholds[i])/CLHEP::GeV 
-		<< " GeV" << endmsg;
+		<< " GeV" << endreq;
       }
   }
  
   msg() << MSG::INFO 
         << "Initialization completed successfully" 
-        << endmsg;
+        << endreq;
   
   return HLT::OK;
 }
@@ -69,7 +69,7 @@ HLT::ErrorCode TrigMooreHypo::hltInitialize(){
 
 HLT::ErrorCode TrigMooreHypo::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "in finalize()" << endreq;
 
   return HLT::OK;
 }
@@ -79,7 +79,7 @@ HLT::ErrorCode TrigMooreHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
 
   m_storeGate = store();
 
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endmsg;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endreq;
 
   HLT::ErrorCode status;
 
@@ -90,48 +90,48 @@ HLT::ErrorCode TrigMooreHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
   m_fex_phi = -1000;
 
    // Some debug output:
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endmsg;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
 
   // Get vector of pointers to all TrigMuonEF objects linked to the outputTE 
   //   by label "uses":
   std::vector<const TrigMuonEFContainer*> vectorOfTrigMuonEF;
   status = getFeatures(outputTE, vectorOfTrigMuonEF);
   if(status!=HLT::OK) {
-      msg() << MSG::DEBUG << "no TrigMoore Feature found" << endmsg;
+      msg() << MSG::DEBUG << "no TrigMoore Feature found" << endreq;
       return status;
-  } else msg() << MSG::DEBUG << "TrigMoore Feature found" << endmsg;
+  } else msg() << MSG::DEBUG << "TrigMoore Feature found" << endreq;
 
 
   // Check that there is only one MuonFeature
   if (vectorOfTrigMuonEF.size() != 1){
     msg() << MSG::DEBUG
         << "Size of vector is not 1 but "<<vectorOfTrigMuonEF.size() 
-        << endmsg;
+        << endreq;
     if (vectorOfTrigMuonEF.size() == 0) return HLT::NAV_ERROR;
-  }  else msg() << MSG::DEBUG << "One TrigMoore container found" << endmsg;
+  }  else msg() << MSG::DEBUG << "One TrigMoore container found" << endreq;
 
   
   float threshold = 0;
   for (unsigned int i=0; i<vectorOfTrigMuonEF.size(); i++){
-    msg() << MSG::DEBUG << "Element "<<i<<" of vector of TrigMuonEF containers  "<<endmsg;
+    msg() << MSG::DEBUG << "Element "<<i<<" of vector of TrigMuonEF containers  "<<endreq;
     // Get first (and only) RoI:
     const TrigMuonEFContainer * trackCont = vectorOfTrigMuonEF[i];
     if(!trackCont){
       msg() << MSG::ERROR
 	    << "Retrieval of TrigMuonEF  container from vector failed"
-	    << endmsg;
+	    << endreq;
       return  HLT::NAV_ERROR;
-    }  else msg() << MSG::DEBUG << "container OK with size "<<trackCont->size()<< endmsg;
+    }  else msg() << MSG::DEBUG << "container OK with size "<<trackCont->size()<< endreq;
     
     
     // Check pt threshold for hypothesis,
     for (TrigMuonEFContainer::const_iterator tr = trackCont->begin();
 	 tr != trackCont->end(); tr++){
-      msg() << MSG::DEBUG << " Muon code is <" << (*tr)->MuonCode() <<">"<< endmsg;
+      msg() << MSG::DEBUG << " Muon code is <" << (*tr)->MuonCode() <<">"<< endreq;
       if ((*tr)->MuonCode()>100)
 	{
-	  msg() << MSG::DEBUG <<" track code is "<<(*tr)->MuonCode() << endmsg;
-	  msg() << MSG::DEBUG <<"abs pt of this track is" << (*tr)->pt()/CLHEP::GeV << " GeV" << endmsg;
+	  msg() << MSG::DEBUG <<" track code is "<<(*tr)->MuonCode() << endreq;
+	  msg() << MSG::DEBUG <<"abs pt of this track is" << (*tr)->pt()/CLHEP::GeV << " GeV" << endreq;
 	  
 	  m_fex_pt  = (*tr)->pt()/CLHEP::GeV;
 	  float theta = atan( 1./(*tr)->cotTh() );
@@ -149,7 +149,7 @@ HLT::ErrorCode TrigMooreHypo::hltExecute(const HLT::TriggerElement* outputTE, bo
 	  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " REGTEST muon pt is " << (*tr)->pt()/CLHEP::GeV << " GeV "   
 					   << " with Charge " << (*tr)->Charge() 
 					   << " and threshold cut is " << threshold/CLHEP::GeV << " GeV" 
-					   << " so hypothesis is " << (result?"true":"false") << endmsg;
+					   << " so hypothesis is " << (result?"true":"false") << endreq;
 	  
 	}
     }

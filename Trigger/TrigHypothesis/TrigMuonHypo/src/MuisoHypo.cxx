@@ -51,24 +51,24 @@ MuisoHypo::~MuisoHypo()
 HLT::ErrorCode MuisoHypo::hltInitialize()
 {
 
-   msg() << MSG::INFO << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endmsg;
+   msg() << MSG::INFO << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endreq;
 
    if (m_acceptAll) {
       msg() << MSG::DEBUG
             << "Accepting all the events with not cut!"
-            << endmsg;
+            << endreq;
    }
 
    msg() << MSG::DEBUG
          << "Initialization completed successfully"
-         << endmsg;
+         << endreq;
 
    return HLT::OK;
 }
 
 HLT::ErrorCode MuisoHypo::hltFinalize()
 {
-   msg() << MSG::DEBUG << "in finalize()" << endmsg;
+   msg() << MSG::DEBUG << "in finalize()" << endreq;
    return HLT::OK;
 }
 
@@ -78,7 +78,7 @@ HLT::ErrorCode MuisoHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& 
    // Retrieve store.
    m_storeGate = store();
 
-   if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endmsg;
+   if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endreq;
 
    m_cutCounter = -1;
 
@@ -87,7 +87,7 @@ HLT::ErrorCode MuisoHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& 
       if (msgLvl() <= MSG::DEBUG) {
          msg() << MSG::DEBUG
                << "Accept property is set: taking all the events"
-               << endmsg;
+               << endreq;
       }
       return HLT::OK;
    }
@@ -96,28 +96,28 @@ HLT::ErrorCode MuisoHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& 
 
    // Some debug output:
    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endmsg;
+      msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
    }
 
 
    //Retrieve combined muon
-   const xAOD::L2IsoMuonContainer* vectorOfMuons;
+   const xAOD::L2IsoMuonContainer* vectorOfMuons(0);
    HLT::ErrorCode status = getFeature(outputTE, vectorOfMuons);
    if (status != HLT::OK) {
-      msg() << MSG::ERROR << " getFeature fails to get the L2IsoMuonContainer " << endmsg;
+      msg() << MSG::ERROR << " getFeature fails to get the L2IsoMuonContainer " << endreq;
       return status;
    }
 
    // Check that there is only one L2IsoMuon
    if (vectorOfMuons->size() != 1) {
-      msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size() << endmsg;
+      msg() << MSG::ERROR << "Size of vector is " << vectorOfMuons->size() << endreq;
       return HLT::ErrorCode(HLT::Action::CONTINUE, HLT::Reason::NAV_ERROR);
    }
 
    // Get first (and only) L2IsoMuon
    const xAOD::L2IsoMuon* pMuonIso = vectorOfMuons->front();
    if (!pMuonIso) {
-      msg() << MSG::ERROR << "Retrieval of xAOD::L2IsoMuon from vector failed" << endmsg;
+      msg() << MSG::ERROR << "Retrieval of xAOD::L2IsoMuon from vector failed" << endreq;
       return HLT::ErrorCode(HLT::Action::CONTINUE, HLT::Reason::NAV_ERROR);
    }
 
@@ -138,7 +138,7 @@ HLT::ErrorCode MuisoHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& 
    if (ptmu > 0) isoID = ptsum/ptmu;
 
    if (isoID < 0) {
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " isoID < 0 --> should never happen, set to zero " << endmsg;
+      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " isoID < 0 --> should never happen, set to zero " << endreq;
       isoID = 0.0;
    }
 
@@ -160,10 +160,10 @@ HLT::ErrorCode MuisoHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& 
       msg() << MSG::DEBUG << " REGTEST pt / eta / SumPtCone / isoID : "
             << " / " << ptmu / CLHEP::GeV
             << " / " << etamu
-            << " / " << m_SumPtCone
+            << " / " << m_SumPtCone / CLHEP::GeV
             << " / " << isoID
             << " / Muon Isolation Hypotesis is " << (result ? "true" : "false")
-            << endmsg;
+            << endreq;
    }
 
    //store result

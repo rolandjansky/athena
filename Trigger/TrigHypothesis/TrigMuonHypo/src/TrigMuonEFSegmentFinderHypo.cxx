@@ -29,19 +29,19 @@ HLT::ErrorCode TrigMuonEFSegmentFinderHypo::hltInitialize(){
   if(m_acceptAll) {
     msg() << MSG::DEBUG
           << "Accepting all the events with not cut!"
-          << endmsg;
+          << endreq;
   }    
  
   msg() << MSG::INFO 
         << "Initialization completed successfully" 
-        << endmsg;
+        << endreq;
 
   return HLT::OK;
 }
 
 HLT::ErrorCode TrigMuonEFSegmentFinderHypo::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "in finalize()" << endreq;
   return HLT::OK;
 }
 
@@ -49,7 +49,7 @@ HLT::ErrorCode TrigMuonEFSegmentFinderHypo::hltExecute(const HLT::TriggerElement
 
   m_storeGate = store();
 
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endmsg;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endreq;
 
 
   if(m_acceptAll) {
@@ -57,7 +57,7 @@ HLT::ErrorCode TrigMuonEFSegmentFinderHypo::hltExecute(const HLT::TriggerElement
     if(msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG 
             << "Accept property is set: taking all the events"
-            << endmsg;
+            << endreq;
     }
     return HLT::OK;
   }
@@ -66,7 +66,7 @@ HLT::ErrorCode TrigMuonEFSegmentFinderHypo::hltExecute(const HLT::TriggerElement
   bool debug = msgLvl() <= MSG::DEBUG;
 
   // Some debug output:
-  if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endmsg;
+  if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
 
 
   //  will do hypo cuts here
@@ -75,14 +75,14 @@ HLT::ErrorCode TrigMuonEFSegmentFinderHypo::hltExecute(const HLT::TriggerElement
 
   const xAOD::MuonContainer* muonContainer=0;
   if(getFeature(outputTE, muonContainer)!=HLT::OK) {
-    if (debug) msg() << MSG::DEBUG << "no xAOD::Muon Feature found" << endmsg;
+    if (debug) msg() << MSG::DEBUG << "no xAOD::Muon Feature found" << endreq;
     return HLT::MISSING_FEATURE;
   } else {
     if (!muonContainer) { 
-      if (debug) msg() << MSG::DEBUG << "null xAOD::MuonContainer Feature found" << endmsg; 
+      if (debug) msg() << MSG::DEBUG << "null xAOD::MuonContainer Feature found" << endreq; 
       return HLT::MISSING_FEATURE; 
     } 
-    if (debug) msg() << MSG::DEBUG << "xAOD::Muon container found with size " << muonContainer->size() << endmsg;
+    if (debug) msg() << MSG::DEBUG << "xAOD::Muon container found with size " << muonContainer->size() << endreq;
   } 
 
  
@@ -90,7 +90,7 @@ HLT::ErrorCode TrigMuonEFSegmentFinderHypo::hltExecute(const HLT::TriggerElement
   for (unsigned int j=0; j<muonContainer->size(); j++ ) {
     const xAOD::Muon* muon = muonContainer->at(j);
     if (!muon) {
-      if (debug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endmsg;
+      if (debug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endreq;
       continue;
     } else {
       if (muon->nMuonSegments() >= m_nseg){
@@ -100,7 +100,7 @@ HLT::ErrorCode TrigMuonEFSegmentFinderHypo::hltExecute(const HLT::TriggerElement
       }
       if(debug) msg() << MSG::DEBUG << "REGTEST the total number of reconstruced segments is " << muon->nMuonSegments()    
 		      << " and threshold cut is " << m_nseg  
-		      << " so hypothesis is " << (result?"true":"false") << endmsg;
+		      << " so hypothesis is " << (result?"true":"false") << endreq;
     }
   }
 

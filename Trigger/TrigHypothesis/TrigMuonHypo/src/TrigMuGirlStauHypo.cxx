@@ -38,24 +38,24 @@ HLT::ErrorCode TrigMuGirlStauHypo::hltInitialize(){
   if(m_acceptAll) {
     msg() << MSG::INFO
           << "Accepting all the events with not cut!"
-          << endmsg;
+          << endreq;
   } else {
     m_bins = m_ptBins.size() - 1;
     if (m_bins != m_ptThresholds.size()) {
-      msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endmsg;
+      msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endreq;
       return HLT::BAD_JOB_SETUP;
     }
     for (std::vector<float>::size_type i=0; i<m_bins;++i) {
       msg() << MSG::INFO
             << "bin " << m_ptBins[i] << " - " <<  m_ptBins[i+1]
             << " with Pt Threshold of " << (m_ptThresholds[i])/CLHEP::GeV
-            << " CLHEP::GeV" << endmsg;
+            << " CLHEP::GeV" << endreq;
     }
   }
 
   msg() << MSG::INFO 
         << "Initialization completed successfully" 
-        << endmsg;
+        << endreq;
 
   return HLT::OK;
 }
@@ -63,7 +63,7 @@ HLT::ErrorCode TrigMuGirlStauHypo::hltInitialize(){
 
 HLT::ErrorCode TrigMuGirlStauHypo::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "in finalize()" << endreq;
   return HLT::OK;
 }
 
@@ -72,7 +72,7 @@ HLT::ErrorCode TrigMuGirlStauHypo::hltExecute(const HLT::TriggerElement* outputT
 
   m_storeGate = store();
   
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endmsg;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endreq;
   
   //resetting the monitoring variables 
   //  m_fex_pt.clear();
@@ -84,7 +84,7 @@ HLT::ErrorCode TrigMuGirlStauHypo::hltExecute(const HLT::TriggerElement* outputT
       if(msgLvl() <= MSG::DEBUG) {
           msg() << MSG::DEBUG 
                 << "Accept property is set: taking all the events"
-                << endmsg;
+                << endreq;
       }
       return HLT::OK;
   }
@@ -100,7 +100,7 @@ HLT::ErrorCode TrigMuGirlStauHypo::hltExecute(const HLT::TriggerElement* outputT
   status=getFeatures(outputTE, vectorOfTrigMuonEF);
 
   if (status != HLT::OK || vectorOfTrigMuonEF.size()==0) {
-      msg() << MSG::DEBUG << "Could not retieve vector of TrigMuonEFConatiner "<< endmsg;
+      msg() << MSG::DEBUG << "Could not retieve vector of TrigMuonEFConatiner "<< endreq;
       return HLT::MISSING_FEATURE;
 
   }
@@ -108,16 +108,16 @@ HLT::ErrorCode TrigMuGirlStauHypo::hltExecute(const HLT::TriggerElement* outputT
   
   for (unsigned int i=0; i<vectorOfTrigMuonEF.size(); i++)
     {
-      msg() << MSG::DEBUG << "Element "<<i<<" of vector of TrigMuonEF containers  "<<endmsg;
+      msg() << MSG::DEBUG << "Element "<<i<<" of vector of TrigMuonEF containers  "<<endreq;
       // Get first (and only) RoI:
       trackCont = vectorOfTrigMuonEF[i];
       if(!trackCont)
 	{
 	  msg() << MSG::ERROR
-		<< "Retrieval of TrigMuonEF  container from vector failed" << endmsg;
+		<< "Retrieval of TrigMuonEF  container from vector failed" << endreq;
 	  return  HLT::NAV_ERROR;
 	}  
-      else msg() << MSG::DEBUG << "container OK with size "<<trackCont->size()<< endmsg;
+      else msg() << MSG::DEBUG << "container OK with size "<<trackCont->size()<< endreq;
     }
   if(trackCont!=NULL){
     for (TrigMuonEFInfoContainer::const_iterator tr = trackCont->begin();tr != trackCont->end(); tr++)
@@ -144,7 +144,7 @@ HLT::ErrorCode TrigMuGirlStauHypo::hltExecute(const HLT::TriggerElement* outputT
 	double mass = (trk)->m()/CLHEP::GeV;
 	
 	double theta = 2.*atan(exp(-eta)); //should be turned into codes
-	double pCand = std::abs(pt)/sin(theta);
+	double pCand = fabsf(pt)/sin(theta);
 	//TrigMuonEFCbTrack* combinedTrk = (*tr)->CombinedTrack();
 	//double mass = combinedTrk->mass();
 	double iGamma = mass/pCand;
@@ -157,7 +157,7 @@ HLT::ErrorCode TrigMuGirlStauHypo::hltExecute(const HLT::TriggerElement* outputT
 	      << " with mass "<< mass 
 	      << " and beta "<< beta 
 	      << " and threshold cut is 40  CLHEP::GeV" 
-	      << " so hypothesis is " << (result?"true":"false") << endmsg;
+	      << " so hypothesis is " << (result?"true":"false") << endreq;
       }
   }
   

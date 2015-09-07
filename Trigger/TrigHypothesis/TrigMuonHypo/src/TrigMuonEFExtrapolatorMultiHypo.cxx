@@ -27,13 +27,10 @@ TrigMuonEFExtrapolatorMultiHypo::TrigMuonEFExtrapolatorMultiHypo(const std::stri
   declareProperty("PtBins", m_ptBins=def_bins);
   declareProperty("PtThresholds", m_ptThresholds=def_thrs);
   declareProperty("PtMultiplicity", m_ptMultiplicity=def_mult);
-  declareProperty("DoNscan", m_nscan=false);
-  declareProperty("ConeSize", m_conesize=0.3);
   declareMonitoredStdContainer("Pt",  m_fex_pt);
   declareMonitoredStdContainer("Eta", m_fex_eta);
   declareMonitoredStdContainer("Phi", m_fex_phi);
   declareMonitoredStdContainer("Nmuons", m_fex_nmuons);
-
 
   m_storeGate=0;
   m_bins=0;
@@ -45,12 +42,12 @@ TrigMuonEFExtrapolatorMultiHypo::~TrigMuonEFExtrapolatorMultiHypo(){
 
 HLT::ErrorCode TrigMuonEFExtrapolatorMultiHypo::hltInitialize(){
 
-  msg() << MSG::DEBUG << "TrigMuonEFExtrapolatorMultiHypo::hltInitialize()" << endmsg; 
+  msg() << MSG::DEBUG << "TrigMuonEFExtrapolatorMultiHypo::hltInitialize()" << endreq; 
   
   if(m_acceptAll) {
     msg() << MSG::INFO
 	  << "Accepting all the events with not cut!"
-	  << endmsg;
+	  << endreq;
   } else {
     m_mult = m_ptMultiplicity.size();
     m_bins = m_ptBins.size();
@@ -58,7 +55,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorMultiHypo::hltInitialize(){
       - *min_element(m_ptMultiplicity.begin(), m_ptMultiplicity.end()) + 1;  // determine muon multiplicity  
 
     // Print pt threshold info
-    msg() << MSG::INFO << "Pt threshold multiplicity = " << m_Nmult << endmsg; 
+    msg() << MSG::INFO << "Pt threshold multiplicity = " << m_Nmult << endreq; 
     unsigned int n_offset=0;
     unsigned int mult = m_ptMultiplicity[0];
     m_masks.push_back( 1 << mult );
@@ -73,26 +70,24 @@ HLT::ErrorCode TrigMuonEFExtrapolatorMultiHypo::hltInitialize(){
       msg() << MSG::INFO
 	    << "bin " << m_ptBins[i+n_offset] << " - " <<  m_ptBins[i+n_offset+1]
 	    << " with Pt Threshold of " << (m_ptThresholds[i])/CLHEP::GeV
-	    << " GeV and multiplity ID : " << m_ptMultiplicity[i] << endmsg;
+	    << " GeV and multiplity ID : " << m_ptMultiplicity[i] << endreq;
     }
 
     // check threshold vector sizes
     if (m_mult != m_ptThresholds.size() || m_mult != m_bins - m_Nmult ) {
-      msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endmsg;
+      msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endreq;
       msg() << MSG::INFO << "m_mult: " << m_mult 
 	    << ", m_bins: " << m_bins 
-	    << ", m_Nmult: " << m_Nmult << endmsg;
+	    << ", m_Nmult: " << m_Nmult << endreq;
       
       return HLT::BAD_JOB_SETUP;
     }
-
-    msg() << MSG::INFO << "DoNscan: "<<m_nscan<<endmsg;
 
   }
 
   msg() << MSG::INFO
 	<< "Initialization completed successfully"
-	<< endmsg;
+	<< endreq;
 	
   return HLT::OK;
 }
@@ -100,7 +95,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorMultiHypo::hltInitialize(){
 
 HLT::ErrorCode TrigMuonEFExtrapolatorMultiHypo::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "in finalize()" << endreq;
   return HLT::OK;
 }
 
@@ -109,7 +104,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorMultiHypo::hltExecute(const HLT::TriggerEle
 
   m_storeGate = store();
 
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endmsg;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endreq;
 
   //resetting the monitoring variables
   m_fex_pt.clear();
@@ -117,16 +112,12 @@ HLT::ErrorCode TrigMuonEFExtrapolatorMultiHypo::hltExecute(const HLT::TriggerEle
   m_fex_phi.clear();
   m_fex_nmuons.clear();
 
-  m_tmp_eta.clear();
-  m_tmp_phi.clear();
-
-
   if(m_acceptAll) {
     pass = true;
     if(msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG
 	    << "Accept property is set: taking all the events"
-	    << endmsg;
+	    << endreq;
     }
     return HLT::OK;
   }
@@ -134,19 +125,19 @@ HLT::ErrorCode TrigMuonEFExtrapolatorMultiHypo::hltExecute(const HLT::TriggerEle
   bool debug = msgLvl() <= MSG::DEBUG;
 
   // Some debug output:
-  if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endmsg;
+  if(debug) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
 
   // Get muonContainer linked to the outputTE
   const xAOD::MuonContainer* muonContainer=0;
   if(getFeature(outputTE, muonContainer)!=HLT::OK) {
-    if (debug) msg() << MSG::DEBUG << "no xAOD::MuonContainer Feature found" << endmsg;
+    if (debug) msg() << MSG::DEBUG << "no xAOD::MuonContainer Feature found" << endreq;
     return HLT::MISSING_FEATURE;
   } else {
     if (!muonContainer) {
-      if (debug) msg() << MSG::DEBUG << "null xAOD::MuonContainer Feature found" << endmsg;
+      if (debug) msg() << MSG::DEBUG << "null xAOD::MuonContainer Feature found" << endreq;
       return HLT::MISSING_FEATURE;
     }
-    if (debug) msg() << MSG::DEBUG << "xAOD::MuonContainer found with size " << muonContainer->size() << endmsg;
+    if (debug) msg() << MSG::DEBUG << "xAOD::MuonContainer found with size " << muonContainer->size() << endreq;
   } 
 
   // init result vector, muon counter
@@ -159,7 +150,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorMultiHypo::hltExecute(const HLT::TriggerEle
   for (unsigned int j=0; j< muonContainer->size(); ++j ) {
     const xAOD::Muon* muon = muonContainer->at(j);
     if (!muon) {
-      if (debug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endmsg;
+      if (debug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endreq;
       continue;
     } else {
 
@@ -169,12 +160,12 @@ HLT::ErrorCode TrigMuonEFExtrapolatorMultiHypo::hltExecute(const HLT::TriggerEle
 	const xAOD::TrackParticle *tr =  muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);  // get the TrackContainer
 
 	if (!tr) {
-	  if (debug) msg() << MSG::DEBUG << "No ExtrapolatedMuonSpectrometerTrackParticle found." << endmsg;
+	  if (debug) msg() << MSG::DEBUG << "No ExtrapolatedMuonSpectrometerTrackParticle found." << endreq;
 	  continue;
 	} else {
 	  if (debug) msg() << MSG::DEBUG
 			   << "Retrieved ExtrapolatedMuonSpectrometerTrackParticle with abs pt "
-			   << (*tr).pt()/CLHEP::GeV << "GeV. Charge=" << tr->charge() << endmsg;
+			   << (*tr).pt()/CLHEP::GeV << "GeV. Charge=" << tr->charge() << endreq;
 
 	  m_fex_pt.push_back(tr->pt()/CLHEP::GeV*tr->charge());
 	  float eta = tr->eta();
@@ -211,20 +202,16 @@ HLT::ErrorCode TrigMuonEFExtrapolatorMultiHypo::hltExecute(const HLT::TriggerEle
 				<< " passed threshold, mult=" << mult
 				<< ", mask=" << tmp
 				<< ", mu_count=" << mu_count 
-				<< endmsg;
+				<< endreq;
 	      }
 	    }
 	  } // end loop over eta bins for all multiplicities
 	       
 	  hypo_results.push_back( tmp ); // store result
-	  if(m_nscan){
-	    m_tmp_eta.push_back(tr->eta());
-	    m_tmp_phi.push_back(tr->phi());
-	  }
 	  if(debug) msg() << MSG::DEBUG << " REGTEST muon pt is " << tr->pt()/CLHEP::GeV << " GeV "
 			  << " with Charge " << tr->charge()
 			  << " and threshold cut is " << threshold/CLHEP::GeV << " GeV"
-			  << " so hypothesis mask is " << (tmp) << " for muon #" << mu_count << endmsg;
+			  << " so hypothesis mask is " << (tmp) << " for muon #" << mu_count << endreq;
 	}
 	    
       }
@@ -249,7 +236,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorMultiHypo::hltExecute(const HLT::TriggerEle
 	      << ") with hypo_result: " << hypo_results[i]  << ", ";	 
       }
     }
-    msg () << endmsg;
+    msg () << endreq;
   }
   // calculate result, assumption is that different thresholds are inclusive.
   // find matching combination of muons to hypos
@@ -276,28 +263,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorMultiHypo::hltExecute(const HLT::TriggerEle
     }
     // check every partial hypo is satisfied at least once.
     for (unsigned int i=0;i<m_Nmult && pass;i++) if (tmp_hypo[i]==0) pass = false;
- 
-    //Check for narrow scan triggers
-    float deta,dphi=10;
-    unsigned int nInCone=0;
-    int npass=0;
-    float muonR, coneCheck=0;
-    if(m_nscan && pass){
-      for(unsigned int i=0; i<m_tmp_eta.size(); i++){
-    	muonR = sqrt(m_tmp_eta[i]*m_tmp_eta[i]+m_tmp_phi[i]*m_tmp_phi[i]);
-    	coneCheck=m_conesize*muonR;
-      	nInCone=0;
-      	for(unsigned int j=i+1; j<m_tmp_eta.size(); j++){
-    	  deta = fabs(m_tmp_eta[i]-m_tmp_eta[j]);
-    	  dphi = getdphi(m_tmp_phi[i],m_tmp_phi[j]);
-      	  if(deta<coneCheck && dphi<m_conesize){
-      	    nInCone++;
-      	  }
-      	}
-      	if(nInCone>=m_Nmult-1) npass++;
-      }
-      if(npass==0) pass=false;
-    }
+
     if (pass) {
       // assumption is that partial hypo's are ranked and inclusive.
       // hypo is satisfied if rank of binary hypo matrix is >= m_Nmult. 
@@ -315,7 +281,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorMultiHypo::hltExecute(const HLT::TriggerEle
 	  msg() << MSG::DEBUG << " REGTEST ranked comparison of muon " 
 		<< i << ", hypoes satisfied are " <<  *(tmp_mu.end()-i-1) 
 		<< ", required are " << (m_Nmult-i) 
-		<< ", pass = " << pass << endmsg  ;
+		<< ", pass = " << pass << endreq  ;
 	}
       }
     } // if (pass) ...
@@ -333,11 +299,3 @@ int TrigMuonEFExtrapolatorMultiHypo::bitsum(unsigned long il) {
   }
   return ret;
 }
-
-float TrigMuonEFExtrapolatorMultiHypo::getdphi(float phi1, float phi2){
-  float dphi = phi1-phi2;
-  if(dphi > TMath::Pi()) dphi -= TMath::TwoPi();
-  if(dphi < -1*TMath::Pi()) dphi += TMath::TwoPi();
-  return fabs(dphi);
-}
-

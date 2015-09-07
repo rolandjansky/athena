@@ -58,21 +58,21 @@ HLT::ErrorCode TileMuHypo::hltInitialize(){
   if(m_acceptAll) {
       msg() << MSG::INFO
             << "Accepting all the events with not cut!"
-	    << endmsg;
+	    << endreq;
   } else {
       // initialize the selection here
   }
  
   msg() << MSG::INFO 
         << "Initialization completed successfully!" 
-        << " Pt_Cut=" << m_Pt_Cut << endmsg;
+        << " Pt_Cut=" << m_Pt_Cut << endreq;
   
   return HLT::OK;
 }
 
 
 HLT::ErrorCode TileMuHypo::hltFinalize(){
-  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "in finalize()" << endreq;
   return HLT::OK;
 }
 
@@ -81,21 +81,21 @@ HLT::ErrorCode TileMuHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   m_storeGate = store();
 
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endmsg;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endreq;
 
   if(m_acceptAll) {
       pass = true;
       if(msgLvl() <= MSG::DEBUG) {
           msg() << MSG::DEBUG
                 << "Accept property is set: taking all the events"
-                << endmsg;
+                << endreq;
       }
       return HLT::OK;
   }
 
   if(msgLvl() <= MSG::DEBUG) {
        msg() << MSG::DEBUG << "Accept property not set: applying selection!"
-             << endmsg;
+             << endreq;
   }
 
   bool result = false;
@@ -124,26 +124,26 @@ HLT::ErrorCode TileMuHypo::hltExecute(const HLT::TriggerElement* outputTE,
                                 (outputTE, TileMuFeatureEL) )
     {
       msg() << MSG::ERROR << " getFeatureLink fails to get TileMuFeature "
-                          << endmsg;
+                          << endreq;
       return HLT::ERROR;                                                    
     }
     if ( !TileMuFeatureEL.isValid() )
     {                               
       msg() << MSG::ERROR            
             <<  " getFeatureLink finds no TileMuFeature (EL invalid)"
-            << endmsg;
+            << endreq;
       return HLT::NAV_ERROR;
     }
    
     const TileMuFeature* muon = *TileMuFeatureEL;
     if (!muon) {
-      msg() << MSG::ERROR << "Retrieval of TileMuFeature from vector failed"                << endmsg;
+      msg() << MSG::ERROR << "Retrieval of TileMuFeature from vector failed"                << endreq;
       return HLT::NAV_ERROR;
     }
   
     if (msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG << " REGTEST Eta=" << muon->eta()
-            << " Phi=" << muon->phi() << endmsg;
+            << " Phi=" << muon->phi() << endreq;
     } 
     here_hypoEta = muon->eta();
     here_hypoPhi = muon->phi();
@@ -160,7 +160,7 @@ HLT::ErrorCode TileMuHypo::hltExecute(const HLT::TriggerElement* outputTE,
                     TileTrackMuFeature>(outputTE, TileTrackMuFeatureEL) )        
     {
       msg() << MSG::ERROR
-            << " getFeatureLink fails to get the TileTrackMuFeature " <<endmsg;
+            << " getFeatureLink fails to get the TileTrackMuFeature " <<endreq;
       return HLT::ERROR;
     }            
   
@@ -168,14 +168,14 @@ HLT::ErrorCode TileMuHypo::hltExecute(const HLT::TriggerElement* outputTE,
     {
       msg() << MSG::ERROR
             << " getFeatureLink finds no TileTrackMuFeature (EL invalid)"
-            << endmsg;
+            << endreq;
       return HLT::NAV_ERROR;
     }
   
     const TileTrackMuFeature*  TileTrackMu = *TileTrackMuFeatureEL;
     if (!TileTrackMu) {
       msg() << MSG::ERROR <<"Retrieval of TileTrackMuFeature from vector failed"
-            << endmsg;
+            << endreq;
       return HLT::NAV_ERROR;
     } 
    
@@ -188,7 +188,7 @@ HLT::ErrorCode TileMuHypo::hltExecute(const HLT::TriggerElement* outputTE,
     { 
       msg() << MSG::DEBUG
             << " TileTrackMuFeature has no valid TileMuFeature (EL invalid)"
-            << endmsg;
+            << endreq;
       TileMu = 0; 
     } else {
       TileMu = *TileMuFeatureEL; 
@@ -202,7 +202,7 @@ HLT::ErrorCode TileMuHypo::hltExecute(const HLT::TriggerElement* outputTE,
     {
       msg() << MSG::DEBUG 
             << " TileTrackMuFeature has no valid IDtracks (EL invalid)"
-            << endmsg;
+            << endreq;
       Track = 0;
     } else {
       Track = *IDScanEL;
@@ -276,8 +276,8 @@ HLT::ErrorCode TileMuHypo::hltExecute(const HLT::TriggerElement* outputTE,
                 << " Phi="        << Track->param()->phi0() 
                 << " PhiTR="      << TileTrackMu->PhiTR_Trk() 
                 << " Pt="         << Track->param()->pT() 
-                << " Typ_IDTrk="  << TileTrackMu->Typ_IDTrk() << endmsg;
-          msg() << MSG::DEBUG << " REGTEST Pt_Cut=" << m_Pt_Cut << endmsg;
+                << " Typ_IDTrk="  << TileTrackMu->Typ_IDTrk() << endreq;
+          msg() << MSG::DEBUG << " REGTEST Pt_Cut=" << m_Pt_Cut << endreq;
   
         } else {
 
@@ -288,7 +288,7 @@ HLT::ErrorCode TileMuHypo::hltExecute(const HLT::TriggerElement* outputTE,
                 << " Phi="        << Track->param()->phi0()
                 << " PhiTR="      << TileTrackMu->PhiTR_Trk()
                 << " Pt="         << Track->param()->pT()
-                << " Typ_IDTrk="  << TileTrackMu->Typ_IDTrk() << endmsg;
+                << " Typ_IDTrk="  << TileTrackMu->Typ_IDTrk() << endreq;
         }
       } else { // No Matched Track
 
@@ -297,7 +297,7 @@ HLT::ErrorCode TileMuHypo::hltExecute(const HLT::TriggerElement* outputTE,
                 << " Phi="        << TileMu->phi()
 		<< " Track::Eta=" << Track->param()->eta()
                 << " Phi="        << Track->param()->phi0()
-		<< endmsg;
+		<< endreq;
       }
     }
   }

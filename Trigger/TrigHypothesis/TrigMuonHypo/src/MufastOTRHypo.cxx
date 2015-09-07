@@ -61,34 +61,34 @@ MufastOTRHypo::~MufastOTRHypo(){
 HLT::ErrorCode MufastOTRHypo::hltInitialize(){
 
   msg() << MSG::INFO << "Initializing " << name() << " - package version " 
-	<< PACKAGE_VERSION << endmsg;
+	<< PACKAGE_VERSION << endreq;
 
   if(m_acceptAll) {
       msg() << MSG::INFO
             << "Accepting all the events with not cut!"
-	    << endmsg;
+	    << endreq;
   }
    
   // Retrieve the MuonRoITool
   StatusCode sc = m_trigMuonRoITool.retrieve();
   if ( sc.isFailure() ) {
      msg() << MSG::ERROR << "Could not retrieve " << m_trigMuonRoITool 
-           << endmsg;
+           << endreq;
      return HLT::ERROR;
   } else {
-     msg() << MSG::INFO << "Retrieved tool " << m_trigMuonRoITool << endmsg;
+     msg() << MSG::INFO << "Retrieved tool " << m_trigMuonRoITool << endreq;
   }
 
   msg() << MSG::INFO 
         << "Initialization completed successfully" 
-        << endmsg;
+        << endreq;
   
   return HLT::OK;
 }
 
 
 HLT::ErrorCode MufastOTRHypo::hltFinalize(){
-  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "in finalize()" << endreq;
   return HLT::OK;
 }
 
@@ -120,25 +120,25 @@ HLT::ErrorCode MufastOTRHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   m_storeGate = store();
 
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endmsg;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endreq;
 
   std::vector<const TrigRoiDescriptor*> vectorOfRoIs; 
   HLT::ErrorCode status = getFeatures(outputTE, vectorOfRoIs,"secondaryRoI_L2");
   if(status!=HLT::OK) {
-      msg() << MSG::DEBUG << "no TrigRoI descriptor found" << endmsg;
+      msg() << MSG::DEBUG << "no TrigRoI descriptor found" << endreq;
       return status;
   }
   
   // Check that there is at least 1 RoI descriptor 
   if (vectorOfRoIs.size() == 0){
       msg() << MSG::ERROR << "Couldn't find any Trig RoI descriptor"
-            << endmsg;
+            << endreq;
       return HLT::NAV_ERROR;
   }
 
 
   msg() << MSG::DEBUG << "Found n. " << vectorOfRoIs.size()
-                      << " TrigRoI descriptors" << endmsg;
+                      << " TrigRoI descriptors" << endreq;
 		      
   unsigned int sysID=0;
   int          BCID_diff=0;
@@ -158,18 +158,18 @@ HLT::ErrorCode MufastOTRHypo::hltExecute(const HLT::TriggerElement* outputTE,
    const xAOD::L2StandAloneMuonContainer* vectorOfMuons(0);
    status = getFeature(outputTE, vectorOfMuons);
    if (status!=HLT::OK) {
-      msg() << MSG::DEBUG << "no L2StandAloneMuon found" << endmsg;
+      msg() << MSG::DEBUG << "no L2StandAloneMuon found" << endreq;
       return status;
    }
 
   // Check that there at least one L2StandAloneMuon
   if (vectorOfMuons->size() == 0){
-      msg() << MSG::ERROR << "Couldn't find any L2StandAloneMuon" << endmsg;
+      msg() << MSG::ERROR << "Couldn't find any L2StandAloneMuon" << endreq;
       return HLT::NAV_ERROR;
   }
 
   msg() << MSG::DEBUG << "Found n. " << vectorOfMuons->size()
-                      << " L2StandAloneMuon" << endmsg;
+                      << " L2StandAloneMuon" << endreq;
 
   
   bool result = false;
@@ -188,7 +188,7 @@ HLT::ErrorCode MufastOTRHypo::hltExecute(const HLT::TriggerElement* outputTE,
           } else {
 	      msg() << MSG::ERROR << 
 	      "Couldn't find connection among RoI Descriptor and Muon Feature"
-	      << endmsg;
+	      << endreq;
 	      return HLT::NAV_ERROR; 
 	  }
       }
@@ -205,7 +205,7 @@ HLT::ErrorCode MufastOTRHypo::hltExecute(const HLT::TriggerElement* outputTE,
           if(msgLvl() <= MSG::DEBUG) {
               msg() << MSG::DEBUG 
 	            << "Accept property is set: taking all the events"
-	    	    << endmsg;
+	    	    << endreq;
           }
           return HLT::OK;
       }
@@ -213,7 +213,7 @@ HLT::ErrorCode MufastOTRHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
       if(msgLvl() <= MSG::DEBUG) {
           msg() << MSG::DEBUG << "Accept property not set: applying selection!"
-                << endmsg;
+                << endreq;
       }
     
       int num_of_segments = 0;
@@ -232,7 +232,7 @@ HLT::ErrorCode MufastOTRHypo::hltExecute(const HLT::TriggerElement* outputTE,
       // Some debug output:
       if(msgLvl() <= MSG::DEBUG) {
           msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() 
-	        << endmsg;
+	        << endreq;
       }
   
 
@@ -254,11 +254,11 @@ HLT::ErrorCode MufastOTRHypo::hltExecute(const HLT::TriggerElement* outputTE,
       }
 
       if (msgLvl() <= MSG::DEBUG) {
-          msg() << MSG::DEBUG << " Super Point I, z = " << pMuon->superPointZ(inner) <<endmsg; 
-          msg() << MSG::DEBUG << " Super Point M, z = " << pMuon->superPointZ(middle) <<endmsg; 
-          msg() << MSG::DEBUG << " Super Point O, z = " << pMuon->superPointZ(outer) <<endmsg; 
+          msg() << MSG::DEBUG << " Super Point I, z = " << pMuon->superPointZ(inner) <<endreq; 
+          msg() << MSG::DEBUG << " Super Point M, z = " << pMuon->superPointZ(middle) <<endreq; 
+          msg() << MSG::DEBUG << " Super Point O, z = " << pMuon->superPointZ(outer) <<endreq; 
           msg() << MSG::DEBUG << " Result of Out of Time RoI Hypothesis is " 
-                << (result?"true":"false") << endmsg;
+                << (result?"true":"false") << endreq;
       }
   }
   

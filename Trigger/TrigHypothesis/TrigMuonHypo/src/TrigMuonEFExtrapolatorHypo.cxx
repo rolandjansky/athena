@@ -42,34 +42,34 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltInitialize(){
   if(m_acceptAll) {
     msg() << MSG::INFO
 	  << "Accepting all the events with not cut!"
-	  << endmsg;
+	  << endreq;
   } else {
     m_bins = m_ptBins.size() - 1;
     if (m_bins != m_ptThresholds.size()) {
-      msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endmsg;
+      msg() << MSG::INFO << "bad thresholds setup .... exiting!" << endreq;
       return HLT::BAD_JOB_SETUP;
       //    msg() << MSG::INFO
-      //  << "current hypo implementation is dummy" << endmsg;
+      //  << "current hypo implementation is dummy" << endreq;
     }
 
     for (std::vector<float>::size_type i=0; i<m_bins;++i) {
       msg() << MSG::INFO
 	    << "bin " << m_ptBins[i] << " - " <<  m_ptBins[i+1]
 	    << " with Pt Threshold of " << (m_ptThresholds[i])/CLHEP::GeV
-	    << " GeV" << endmsg;
+	    << " GeV" << endreq;
     }
   }
 
   msg() << MSG::INFO
 	<< "Initialization completed successfully"
-	<< endmsg;
+	<< endreq;
 
   return HLT::OK;
 }
 
 HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "in finalize()" << endreq;
   return HLT::OK;
 }
 
@@ -79,7 +79,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltExecute(const HLT::TriggerElement*
 
   m_storeGate = store();
 
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endmsg;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "in execute()" << endreq;
 
   //resetting the monitoring variables
   m_fex_pt.clear();
@@ -91,7 +91,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltExecute(const HLT::TriggerElement*
     if(msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG
 	    << "Accept property is set: taking all the events"
-	    << endmsg;
+	    << endreq;
     }
     return HLT::OK;
   }
@@ -102,7 +102,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltExecute(const HLT::TriggerElement*
   bool debug = msgLvl() <= MSG::DEBUG;
 
   // Some debug output:
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endmsg;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "outputTE->ID(): " << outputTE->getId() << endreq;
 
   // will do hypo cuts here
 
@@ -110,14 +110,14 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltExecute(const HLT::TriggerElement*
 
   const xAOD::MuonContainer*  muonContainer(0);
   if(getFeature(outputTE, muonContainer)!=HLT::OK) {
-    if (debug) msg() << MSG::DEBUG << "no xAOD::MuonContainer Feature found" << endmsg;
+    if (debug) msg() << MSG::DEBUG << "no xAOD::MuonContainer Feature found" << endreq;
     return HLT::MISSING_FEATURE;
   } else {
     if (!muonContainer) { 
-      if (debug) msg() << MSG::DEBUG << "null xAOD::MuonContainer Feature found" << endmsg; 
+      if (debug) msg() << MSG::DEBUG << "null xAOD::MuonContainer Feature found" << endreq; 
       return HLT::MISSING_FEATURE; 
     } 
-    if (debug) msg() << MSG::DEBUG << "vector of xAOD::MuonContainer found with size " << muonContainer->size()  << endmsg;
+    if (debug) msg() << MSG::DEBUG << "vector of xAOD::MuonContainer found with size " << muonContainer->size()  << endreq;
   } 
 
   for (unsigned int i=0; i<muonContainer->size(); i++){
@@ -126,7 +126,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltExecute(const HLT::TriggerElement*
 
     const xAOD::Muon* muon = muonContainer->at(i); 
     if (!muon) {
-      if (debug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endmsg;
+      if (debug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endreq;
       continue;
     } else {
 
@@ -138,12 +138,12 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltExecute(const HLT::TriggerElement*
 
 
 	if (!tr) {
-	  if (debug) msg() << MSG::DEBUG << "No ExtrapolatedMuonSpectrometerTrackParticle found." << endmsg;
+	  if (debug) msg() << MSG::DEBUG << "No ExtrapolatedMuonSpectrometerTrackParticle found." << endreq;
 	  continue;
 	} else {
 	  if (debug) msg() << MSG::DEBUG
 			   << "Retrieved ExtrapolatedMuonSpectrometerTrack track with abs pt "
-			   << (*tr).pt()/CLHEP::GeV << " GeV " << endmsg;
+			   << (*tr).pt()/CLHEP::GeV << " GeV " << endreq;
 
 	  m_fex_pt.push_back(tr->pt()/CLHEP::GeV);
 	  float eta = tr->eta();
@@ -161,7 +161,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorHypo::hltExecute(const HLT::TriggerElement*
 	  if(debug) msg() << MSG::DEBUG << " REGTEST muon pt is " << tr->pt()/CLHEP::GeV << " GeV "
 			  << " with Charge " << tr->charge()
 			  << " and threshold cut is " << threshold/CLHEP::GeV << " GeV"
-			  << " so hypothesis is " << (result?"true":"false") << endmsg;
+			  << " so hypothesis is " << (result?"true":"false") << endreq;
 	}
       }
 				
