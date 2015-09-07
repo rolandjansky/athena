@@ -196,7 +196,6 @@ class CaloClusterCellLink {
    * @return const pointer to CaloCellContainer
    */
   const CaloCellContainer* getCellContainer() const { return m_cellCont.cptr();}
-  const DataLink<CaloCellContainer>& getCellContainerLink() const { return m_cellCont;}
 
   /// Method to reserve space the underlying vector<pair> 
   void reserve(const size_t s) { m_indicesAndWeights.reserve(s);}
@@ -228,7 +227,7 @@ inline bool CaloClusterCellLink::addCell(const unsigned cellIdx, const weight_t 
   }
   return !tryInsert.second;
   */
-  m_indicesAndWeights.emplace_back(cellIdx,weight);
+  m_indicesAndWeights.push_back(std::make_pair(cellIdx,weight));
   return true;
 
 }

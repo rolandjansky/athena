@@ -138,7 +138,7 @@ class CaloEnergyCluster : public Navigable<CaloCellContainer,double>,
 
   void addUniqueCellNoKine(const CaloCellContainer* theContainer,
                            index_type theIndex,
-                           IProxyDict* sg,
+                           IProxyDictWithPool* sg,
                            double weight,
                            size_t size_hint = 0);
 
