@@ -496,7 +496,17 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
 									    true); 
   
   if(!caloTSOS || caloTSOS->size()!=3) {
-    ATH_MSG_WARNING("Unable to retrieve Calorimeter TSOS from extrapolateM+aggregation (null or !=3)");
+    if((!m_magFieldSvc->toroidOn()&&fabs(idTrack.perigeeParameters()->parameters()[Trk::qOverP])*4000.<1)|| (m_magFieldSvc->toroidOn()&&msTrack.perigeeParameters()->parameters()[Trk::qOverP]!=1/100000.&&msTrack.perigeeParameters()->parameters()[Trk::qOverP]!=0)) {
+// Warnings only for high momentum ID tracks and MS tracks that have measured curvature (Straight track has pq= 100000)
+      if(!m_magFieldSvc->toroidOn()) ATH_MSG_WARNING(" Toroid off q*momentum of ID track " << 1./idTrack.perigeeParameters()->parameters()[Trk::qOverP]);
+      if(m_magFieldSvc->toroidOn()) ATH_MSG_WARNING(" Toroid on q*momentum of MS track " << 1./msTrack.perigeeParameters()->parameters()[Trk::qOverP]);
+      ATH_MSG_WARNING("Unable to retrieve Calorimeter TSOS from extrapolateM+aggregation (null or !=3)");
+      if(!caloTSOS) {
+         ATH_MSG_WARNING(" Zero Calorimeter TSOS from extrapolateM+aggregation");
+      } else {
+         ATH_MSG_WARNING(" nr Calorimeter TSOS from extrapolateM+aggregation not equal to 3 " << caloTSOS->size());
+      }
+    }    
     if(caloTSOS) deleteTSOS(caloTSOS);
     return;
   }
@@ -765,7 +775,19 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
 
   DataVector<const Trk::TrackStateOnSurface>*  finalCaloTSOS = 0;
   if(caloTSOS->size()<1||Eloss<1000.) {
-    ATH_MSG_WARNING("Unable to retrieve Calorimeter TSOS from extrapolateM caloTSOS->size() "<< caloTSOS->size() << " Eloss " << Eloss );
+    if(muonTrack.perigeeParameters()) {
+     if(muonTrack.perigeeParameters()->parameters()[Trk::qOverP]!=0) {
+      if(dir==Trk::alongMomentum&&fabs(1./muonTrack.perigeeParameters()->parameters()[Trk::qOverP])>4000.) {
+        ATH_MSG_WARNING("Unable to retrieve Calorimeter TSOS from extrapolateM caloTSOS->size() "<< caloTSOS->size() << " Eloss " << Eloss );
+        ATH_MSG_WARNING(" q*momentum of track " << 1./muonTrack.perigeeParameters()->parameters()[Trk::qOverP]);
+        ATH_MSG_WARNING(" momentum extrapolated of track " << parm.momentum().mag() << " radius " << parm.position().perp() << " z " << parm.position().z() );
+        ATH_MSG_WARNING(" surface radius " << surf.center().perp() << " z " << surf.center().z() );
+        if(parms) ATH_MSG_WARNING(" momentum of MS track " << parms->momentum().mag());
+      } // else track did not have enough momentum
+     } else {
+       ATH_MSG_WARNING(" track without perigeeParameters ");
+     }
+    }
     deleteTSOS(caloTSOS);
     return finalCaloTSOS;
   }
