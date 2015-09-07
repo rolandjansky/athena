@@ -65,6 +65,8 @@ private:
 
    void runNumberCallback(ISCallbackInfo *isc);
 
+   void readRunNumberFromIS();
+
    void writeHLTPrescaleSetToCool(unsigned int lb, unsigned int pskey, std::string& name);
 
    TC2CConfig                       fJobConfig; // object to hold different configuration parameters
