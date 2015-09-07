@@ -385,17 +385,34 @@ ClassIDSvc::uncheckedSetTypePackageForID(const CLID& id,
 
   //now the name->id map
   CLID knownID(0);
+  CLID correctedID( id );
   if (getIDOfTypeName(procName, knownID).isSuccess() && id != knownID) {
-    msg() << MSG::ERROR << "uncheckedSetTypePackageForID: " << info << 
-      " can not set CLID <" << id << "> for type name " <<
-      procName << ": Known CLID for this name <" << knownID << '>' ;
-    Athena::PackageInfo existInfo;
-    if (getPackageInfoForID(knownID, existInfo).isSuccess()) {
-      msg() << MSG::ERROR 
-	    << " It was set by " << existInfo; 
-    }
-    msg() << MSG::ERROR << endreq;
-    sc = StatusCode::FAILURE;
+     // Temporary hack: Allow this modification to be able to collect
+     // the xAODHIEvent fix into AtlasProduction:
+     if( procName.find( "xAOD::HIEvent" ) != 0 ) {
+        msg() << MSG::ERROR << "uncheckedSetTypePackageForID: " << info << 
+           " can not set CLID <" << id << "> for type name " <<
+           procName << ": Known CLID for this name <" << knownID << '>' ;
+        Athena::PackageInfo existInfo;
+        if (getPackageInfoForID(knownID, existInfo).isSuccess()) {
+           msg() << MSG::ERROR 
+                 << " It was set by " << existInfo; 
+        }
+        msg() << MSG::ERROR << endreq;
+        sc = StatusCode::FAILURE;
+     } else {
+        // Hard code the ID for the two types that we changed in 20.1.7.X:
+        if( procName == "xAOD::HIEventShapeContainer" ) {
+           correctedID = 1155025655;
+        } else if( procName == "xAOD::HIEventShapeAuxContainer" ) {
+           correctedID = 1170531618;
+        }
+        // Remove the previous declaration if necessary:
+        if( correctedID != knownID ) {
+           m_clidMap.erase( knownID );
+           m_packageMap.erase( knownID );
+        }
+     }
   } else if (id == knownID) {
 #ifndef NDEBUG		
     ATH_MSG_VERBOSE( "uncheckedSetTypePackageForID: CLID <" << id <<
@@ -424,14 +441,14 @@ ClassIDSvc::uncheckedSetTypePackageForID(const CLID& id,
     const std::string procTiName = typeInfoName.empty() 
       ? procName
       : typeInfoName;
-    m_clidMap[id] = std::make_pair(procName, procTiName);
-    m_nameMap[procName] = id;
+    m_clidMap[correctedID] = std::make_pair(procName, procTiName);
+    m_nameMap[procName] = correctedID;
     // FIXME: should we also check for ti-name<=>clid duplicates ?
-    m_tiNameMap[procTiName] = id;
-    m_packageMap[id] = info;
+    m_tiNameMap[procTiName] = correctedID;
+    m_packageMap[correctedID] = info;
 #ifndef NDEBUG		
     ATH_MSG_VERBOSE("uncheckedSetTypePackageForID: set type name <" <<
-		    procName << "> for CLID " << id);
+		    procName << "> for CLID " << correctedID);
 #endif					
     //  }
   return sc;
