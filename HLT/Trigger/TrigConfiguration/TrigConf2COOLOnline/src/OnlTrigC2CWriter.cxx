@@ -40,6 +40,7 @@
 #include "ers/ers.h"
 
 #include "rc/RunParams.h"
+#include "rc/RunParamsNamed.h"
 
 #include "boost/lexical_cast.hpp"
 #include "boost/algorithm/string.hpp"
@@ -206,6 +207,22 @@ TrigConf::OnlTrigC2CWriter::subscribeToIS() {
      return false;
   }
   return true;
+}
+
+
+void
+TrigConf::OnlTrigC2CWriter::readRunNumberFromIS() {
+
+  ERS_INFO("readRunNumberFromIS entered");
+
+  RunParamsNamed rp(*fIPCPartition,"RunParams.SOR_RunParams");
+
+  rp.checkout();
+
+  conf().CurrentRunNumber() = rp.run_number;
+
+  ERS_INFO("Read new run number: " << conf().CurrentRunNumber());
+
 }
 
 void
@@ -405,12 +422,18 @@ TrigConf::OnlTrigC2CWriter::connect(const daq::rc::TransitionCmd& cmd) {
 
 void
 TrigConf::OnlTrigC2CWriter::prepareForRun(const daq::rc::TransitionCmd& cmd) {
+   
+   ERS_INFO("Entered prepareForRun");
+
+   readRunNumberFromIS();
+
    if(conf().UseTriggerDB()) {
-      ERS_INFO("PREPAREFORRUN(" << cmd.toString() << ") -> write hlt config to COOL");
+      ERS_INFO("PREPAREFORRUN(" << cmd.toString() << ") -> write hlt config to COOL. Current run number " << conf().CurrentRunNumber());
    } else {
       ERS_INFO("PREPAREFORRUN(" << cmd.toString() << ") -> nothing to do since we are not running from the TriggerDB");
       return;
    }
+
    TrigConf::ThresholdConfig thrcfg;
    TrigConf::CaloInfo ci;
 
@@ -478,6 +501,8 @@ TrigConf::OnlTrigC2CWriter::unconfigure(const daq::rc::TransitionCmd& cmd) {
 void
 TrigConf::OnlTrigC2CWriter::writeHLTPrescaleSetToCool(unsigned int lb, unsigned int pskey, std::string& name) {
 
+   ERS_INFO("Entered writeHLTPrescaleSetToCool with LB = " << lb << " and HLT psk " << pskey);
+
    if(!conf().UseTriggerDB()) return;
 
    if(!fHLTFrame) {
@@ -485,6 +510,7 @@ TrigConf::OnlTrigC2CWriter::writeHLTPrescaleSetToCool(unsigned int lb, unsigned 
       return;
    }
 
+   readRunNumberFromIS();
 
    std::string conn(""), user(""), pw("");
    conf().TriggerDbConnectionParams(conn,user,pw);
@@ -496,7 +522,7 @@ TrigConf::OnlTrigC2CWriter::writeHLTPrescaleSetToCool(unsigned int lb, unsigned 
    sm->hltPrescaleSetLoader().load( *hltPrescaleSet );
    name = hltPrescaleSet->name();
 
-   ERS_INFO("writeHLTPrescaleSetToCool: HLT psk " << pskey << ", name " << name << " for LB " << lb);
+   ERS_INFO("writeHLTPrescaleSetToCool: HLT psk " << pskey << ", name " << name << " for Run " << conf().CurrentRunNumber() << " and LB " << lb);
 
    fHLTFrame->thePrescaleSetCollection().addPrescaleSet( lb, hltPrescaleSet );
 
