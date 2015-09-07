@@ -106,8 +106,8 @@ def GetFieldFromInputFile():
     toroidCurrent=None
     if inputFileSummary['metadata'].has_key('/EXT/DCS/MAGNETS/SENSORDATA'):
         try:
-            solenoidCurrent=inputFileSummary['metadata']['/EXT/DCS/MAGNETS/SENSORDATA'][0]['value']
-            toroidCurrent=inputFileSummary['metadata']['/EXT/DCS/MAGNETS/SENSORDATA'][2]['value']
+            solenoidCurrent=inputFileSummary['metadata']['/EXT/DCS/MAGNETS/SENSORDATA']['CentralSol_Current']['value']
+            toroidCurrent=inputFileSummary['metadata']['/EXT/DCS/MAGNETS/SENSORDATA']['Toroids_Current']['value']
         except:
             logAutoConfiguration.warning("Unable to find solenoid & toroid currents in /EXT/DCS/MAGNETS/SENSORDATA")
 
