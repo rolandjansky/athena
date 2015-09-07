@@ -11,12 +11,13 @@ library MuonAGDDBase *.cxx
 apply_pattern installed_library
 
 public
-use AGDDKernel		    	AGDDKernel-*		 	DetectorDescription/AGDD
-use AGDDControl		    	AGDDControl-*			DetectorDescription/AGDD
-use MuonGeoModel            MuonGeoModel-*          MuonSpectrometer
+use AGDDKernel		  AGDDKernel-*		  DetectorDescription/AGDD
+use AGDDControl		  AGDDControl-*		  DetectorDescription/AGDD
+use MuonAGDDDescription   MuonAGDDDescription-*   MuonSpectrometer/MuonDetDescr
 
 private
-use StoreGate               StoreGate-*             Control
-use GeoModelInterfaces      GeoModelInterfaces-*    DetectorDescription/GeoModel
-use AGDDModel				AGDDModel-*				DetectorDescription/AGDD
-use GeoModelKernel      	GeoModelKernel-*        DetectorDescription/GeoModel
+use MuonGeoModel          MuonGeoModel-*          MuonSpectrometer
+use StoreGate             StoreGate-*             Control
+use GeoModelInterfaces    GeoModelInterfaces-*    DetectorDescription/GeoModel
+use AGDDModel		  AGDDModel-*	   	  DetectorDescription/AGDD
+use GeoModelKernel        GeoModelKernel-*        DetectorDescription/GeoModel

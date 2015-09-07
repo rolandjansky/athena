@@ -3,7 +3,7 @@
 */
 
 #include "MuonAGDDBase/sTGC_readoutHandler.h"
-#include "MuonAGDDBase/AGDDsTGC.h"
+#include "MuonAGDDDescription/sTGCDetectorDescription.h"
 #include <iostream>
 
 
@@ -13,7 +13,7 @@ sTGC_readoutHandler::sTGC_readoutHandler(std::string s):XMLHandler(s)
 
 void sTGC_readoutHandler::ElementHandle()
 {
-    AGDDsTGC* sTGC=AGDDsTGC::GetCurrent();
+    sTGCDetectorDescription* sTGC=sTGCDetectorDescription::GetCurrent();
     // std::cout<<" this is sTGC_readoutHandler::Handle"<<sTGC->GetName()<<std::endl;
 
     bool ret=true;
