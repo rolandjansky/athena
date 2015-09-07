@@ -38,6 +38,7 @@ MufastNSWHypo::MufastNSWHypo(const std::string & name, ISvcLocator* pSvcLocator)
    declareMonitoredVariable("dLPhi",     m_fex_dlphi);
 
    m_bins = 0;
+   m_storeGate = 0;
 }
 
 MufastNSWHypo::~MufastNSWHypo(){

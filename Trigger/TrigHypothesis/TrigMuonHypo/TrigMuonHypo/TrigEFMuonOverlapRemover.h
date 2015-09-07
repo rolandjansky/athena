@@ -15,7 +15,7 @@
 
 #include <vector>
 #include "TrigInterfaces/AllTEAlgo.h"
-#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
+
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -49,8 +49,8 @@ class TrigEFMuonOverlapRemover : public HLT::AllTEAlgo
 				unsigned int output);
 
 
-      bool isOverlap(std::vector<const TrigMuonEFInfoContainer*> extrMfLink1,
-		     std::vector<const TrigMuonEFInfoContainer*> extrMfLink2);
+      bool isOverlap(std::vector<const xAOD::MuonContainer*> extrMfLink1,
+		     std::vector<const xAOD::MuonContainer*> extrMfLink2);
 
       double invMass(double m1, double pt1, double eta1, double phi1,
 		     double m2, double pt2, double eta2, double phi2);

@@ -27,6 +27,7 @@ TrigMuGirlHypo::TrigMuGirlHypo(const std::string & name, ISvcLocator* pSvcLocato
     //    declareMonitoredStdContainer("Phi", m_fex_phi);
 
     m_bins = 0;
+    m_storeGate =0;
 }
 
 TrigMuGirlHypo::~TrigMuGirlHypo(){

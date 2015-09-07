@@ -48,6 +48,7 @@ MufastHypo::MufastHypo(const std::string & name, ISvcLocator* pSvcLocator):
    declareMonitoredVariable("ZatBe", m_z_at_beam);
 
    m_bins = 0;
+   m_storeGate = 0;
 }
 
 MufastHypo::~MufastHypo(){

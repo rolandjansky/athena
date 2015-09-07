@@ -95,12 +95,7 @@ HLT::ErrorCode TrigMuonEFCombinerHypo::hltExecute(const HLT::TriggerElement* out
 	  if (debug) msg() << MSG::DEBUG << "no MuonContainer Feature found" << endreq;
 	  return HLT::MISSING_FEATURE;
 	}
-	else{
-	  if (!muonContainer) { 
-	    if (debug) msg() << MSG::DEBUG << "null xAOD::MuonContainer Feature found" << endreq; 
-	    return HLT::MISSING_FEATURE; 
-	  } 
-	}
+
 	if(debug) ATH_MSG_DEBUG("Found MuonContainer, n(muons) = " << muonContainer->size());
 
 	// loop on the muons within the RoI

@@ -23,6 +23,7 @@ MufastCALHypo::MufastCALHypo(const std::string & name, ISvcLocator* pSvcLocator)
 	declareMonitoredVariable("Eta", m_fex_eta);
 	declareMonitoredVariable("Phi", m_fex_phi);
 	
+        m_storeGate = 0;
 }
 
 MufastCALHypo::~MufastCALHypo(){
@@ -110,10 +111,12 @@ HLT::ErrorCode MufastCALHypo::hltExecute(const HLT::TriggerElement* outputTE,
   m_fex_eta = (pMuon->etaMS())? pMuon->etaMS() : -9999;
   m_fex_phi = (pMuon->etaMS())? pMuon->phiMS() : -9999; 
 
+  /* warning in coverity report: result is always false
   if (msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG << " Result of L2 Muon Calibration Hypothesis is " 
             << (result?"true":"false") << endreq;
   }
+  */
   
   //store the result
   pass = result;

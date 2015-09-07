@@ -638,6 +638,24 @@ class TrigMuonEFCombinerDiMuonMassHypoOnlineMonitoring(TrigGenericMonitoringTool
                                              xbins=100, xmin=-3.2, xmax=3.2) ]
         pass
 
+#vvvvv pvn
+class TrigMuonEFCombinerDiMuonMassPtImpactsHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigMuonEFCombinerDiMuonMassPtImpactsHypoOnlineMonitoring"):
+        super(TrigMuonEFCombinerDiMuonMassPtImpactsHypoOnlineMonitoring, self).__init__(name)
+        self.defineTarget("Online")
+
+        self.Histograms  = [ defineHistogram('nMuons', type='TH1F', title="number of Muons; nr of muons",
+                                             xbins=10, xmin=0, xmax=10) ]
+        self.Histograms += [ defineHistogram('invMassWide',   type='TH1F', title="invariant mass of di-muon pairs; inv mass [GeV]",
+                                             xbins=100, xmin=5., xmax=55.0) ]
+        self.Histograms += [ defineHistogram('dimuonPt', type='TH1F', title="pT of di-muons; di-muon pT [GeV]",
+                                             xbins=100, xmin=0., xmax=10.0) ]
+        self.Histograms += [ defineHistogram('muonDeltaZ', type='TH1F', title="delta(z0) of muons; muons delta(z0)",
+                                             xbins=100, xmin=-10., xmax=10.) ]
+        self.Histograms += [ defineHistogram('muonDeltaPhi', type='TH1F', title="delta(phi) of muons; muons delta(phi)",
+                                             xbins=140, xmin=-7., xmax=7.) ]
+        pass
+#^^^^^ pvn
 class TrigMuonEFCombinerDiMuonMassHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigMuonEFCombinerDiMuonMassHypoValidationMonitoring"):
         super(TrigMuonEFCombinerDiMuonMassHypoValidationMonitoring, self).__init__(name)

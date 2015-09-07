@@ -29,6 +29,8 @@
 #include "TrigMuonHypo/MufastNSWHypo.h"
 #include "TrigMuonHypo/TrigMuonEFExtrapolatorNSWHypo.h"
 #include "TrigMuonHypo/TrigMuonEFCombinerDiMuonMassHypo.h"
+#include "TrigMuonHypo/TrigMuonEFCombinerDiMuonMassPtImpactsHypo.h"
+#include "TrigMuonHypo/TrigMuonCaloTagHypo.h"
 
 DECLARE_ALGORITHM_FACTORY( MuonRoiFex )
 DECLARE_ALGORITHM_FACTORY( MufastHypo )
@@ -60,6 +62,8 @@ DECLARE_ALGORITHM_FACTORY( TrigEFMuonOverlapRemover )
 DECLARE_ALGORITHM_FACTORY( MufastNSWHypo )
 DECLARE_ALGORITHM_FACTORY( TrigMuonEFExtrapolatorNSWHypo )
 DECLARE_ALGORITHM_FACTORY( TrigMuonEFCombinerDiMuonMassHypo )
+DECLARE_ALGORITHM_FACTORY( TrigMuonEFCombinerDiMuonMassPtImpactsHypo )
+DECLARE_ALGORITHM_FACTORY( TrigMuonCaloTagHypo )
 
 DECLARE_FACTORY_ENTRIES( TrigMuonHypo ) {
 
@@ -90,5 +94,7 @@ DECLARE_FACTORY_ENTRIES( TrigMuonHypo ) {
 	DECLARE_ALGORITHM( MufastNSWHypo )
 	DECLARE_ALGORITHM( TrigMuonEFExtrapolatorNSWHypo )
 	DECLARE_ALGORITHM( TrigMuonEFCombinerDiMuonMassHypo )
+	DECLARE_ALGORITHM( TrigMuonEFCombinerDiMuonMassPtImpactsHypo )
+  DECLARE_ALGORITHM( TrigMuonCaloTagHypo )
 
 }

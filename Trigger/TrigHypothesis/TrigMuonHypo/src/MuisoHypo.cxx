@@ -40,6 +40,8 @@ MuisoHypo::MuisoHypo(const std::string & name, ISvcLocator* pSvcLocator):
 
    declareMonitoredVariable("CutCounter",  m_cutCounter);
    declareMonitoredVariable("SumPtCone",   m_SumPtCone);
+
+   m_storeGate = 0;
 }
 
 MuisoHypo::~MuisoHypo()

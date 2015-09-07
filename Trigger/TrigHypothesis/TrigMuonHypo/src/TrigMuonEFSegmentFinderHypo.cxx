@@ -17,6 +17,8 @@ TrigMuonEFSegmentFinderHypo::TrigMuonEFSegmentFinderHypo(const std::string & nam
   HLT::HypoAlgo(name, pSvcLocator){
   declareProperty("AcceptAll", m_acceptAll=false);
   declareProperty("Nseg" , m_nseg=0);  
+
+  m_storeGate=0;
 }
 
 TrigMuonEFSegmentFinderHypo::~TrigMuonEFSegmentFinderHypo(){

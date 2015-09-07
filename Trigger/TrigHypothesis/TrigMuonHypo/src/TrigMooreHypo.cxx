@@ -31,6 +31,7 @@ TrigMooreHypo::TrigMooreHypo(const std::string & name, ISvcLocator* pSvcLocator)
 	declareMonitoredVariable("Phi", m_fex_phi);
 
 	m_bins = 0;
+        m_storeGate = 0;
 }
 
 TrigMooreHypo::~TrigMooreHypo(){
