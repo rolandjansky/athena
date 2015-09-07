@@ -6,18 +6,22 @@
 #define AGDDDetectorStore_H
 
 class AGDDDetector;
+class AGDDTechnology;
 
 #include <map>
 #include <string>
 #include <vector>
 
 typedef std::map<std::string,AGDDDetector*> detectorList;
+typedef std::map<std::string,AGDDTechnology*> technologyList;
 
 class AGDDDetectorStore {
 public:
 	static AGDDDetectorStore* GetDetectorStore();
-	AGDDDetector* GetDetector(std::string) {return 0;}
+	AGDDDetector* GetDetector(std::string s) {return the_detectors[s];}
+	AGDDTechnology* GetTechnology(std::string s) {return the_technologies[s];}
 	void RegisterDetector(AGDDDetector*);
+	void RegisterTechnology(AGDDTechnology*);
 	void PrintAllDetectors();
 	detectorList& GetDetectorList() {return the_detectors;}
 	
@@ -29,6 +33,7 @@ public:
 private:
 	AGDDDetectorStore();
 	detectorList the_detectors;
+	technologyList the_technologies;
 };
 
 #endif
