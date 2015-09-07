@@ -82,13 +82,13 @@ theLArRODMonTool = LArRODMonTool(name="LArRODMonTool",
                                  #PrecisionERange3 = 512,
                                  #PrecisionERangeMax = 8192,
 
-                                 #Adding 1MeV on request of Alexis (truncating difference) (May 2016):
-
+                                 #Temporary adjustment for 4-sample running (Aug 2015): 
+                                 #Multiply precision with 2
                                  PrecisionERange0 = 2, # MeV (Precision on E is on Eoff - Eonl)
-                                 PrecisionERange1 = 9,
-                                 PrecisionERange2 = 65,
-                                 PrecisionERange3 = 513,
-                                 PrecisionERangeMax = 8192,
+                                 PrecisionERange1 = 16,
+                                 PrecisionERange2 = 128,
+                                 PrecisionERange3 = 1024,
+                                 PrecisionERangeMax = 16384,
 
 
                                  # Expected precision for T calculation (in ps)
@@ -98,11 +98,11 @@ theLArRODMonTool = LArRODMonTool(name="LArRODMonTool",
                                  PrecisionTRange3 = 340,
                                  PrecisionTRangeMax = 340,
                                  # Expected precision for Q calculation
-                                 PrecisionQRange0 = 3, # ADC (Precision on Q is on (Qoff - Qonl)/Sqrt(Qoff))
-                                 PrecisionQRange1 = 3,
-                                 PrecisionQRange2 = 3,
-                                 PrecisionQRange3 = 3,
-                                 PrecisionQRangeMax = 3,
+                                 PrecisionQRange0 = 2, # ADC (Precision on Q is on (Qoff - Qonl)/Sqrt(Qoff))
+                                 PrecisionQRange1 = 2,
+                                 PrecisionQRange2 = 2,
+                                 PrecisionQRange3 = 2,
+                                 PrecisionQRangeMax = 2,
                                  # Some other flags
                                  LArBadChannelMask = theLArBadChannelsMasker,
                                  SkipKnownProblematicChannels = False,
@@ -114,7 +114,7 @@ theLArRODMonTool = LArRODMonTool(name="LArRODMonTool",
                                  ADCthreshold = 0,
                                  peakTimeCut = 5.,
                                  IsOnline = False,
-                                 numberOfLB = 3000.,
+                                 numberOfLB = 2000.,
                                  Streams = ["express","L1Calo","L1CaloEM","CosmicCalo","MinBias"],
                                  ProcessNEvents = EventBlockSize
                                  )

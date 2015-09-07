@@ -85,33 +85,33 @@ LArHVCorrectionMonTool::~LArHVCorrectionMonTool()
 StatusCode LArHVCorrectionMonTool::initialize()
 {
   
-  msg(MSG::INFO) << "Initialize LArHVCorrectionMonTool" << endmsg;
+  msg(MSG::INFO) << "Initialize LArHVCorrectionMonTool" << endreq;
   StatusCode sc;
   
   sc = detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get LArOnlineIDHelper" << endmsg;
+    msg(MSG::FATAL) << "Could not get LArOnlineIDHelper" << endreq;
     return sc;
   }
   
   // Retrieve HVCorrTool 
   sc = m_hvCorrTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to find tool for LArHVCorrTool" << endmsg;
+    msg(MSG::ERROR) << "Unable to find tool for LArHVCorrTool" << endreq;
     return StatusCode::FAILURE;
   }
   
   // Retrieve HV Correction reference
   sc = detStore()->regHandle(m_dd_HVScaleCorr,m_keyHVScaleCorr);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to register handle to HVScaleCorr " << endmsg;
+    msg(MSG::ERROR) << "Unable to register handle to HVScaleCorr " << endreq;
     return StatusCode::FAILURE;
   }
   
   // Retrieve ID helpers
   sc =  detStore()->retrieve( m_caloIdMgr );
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get CaloIdMgr" << endmsg;
+    msg(MSG::FATAL) << "Could not get CaloIdMgr" << endreq;
     return sc;
   }
   m_LArEM_IDHelper   = m_caloIdMgr->getEM_ID();
@@ -121,14 +121,14 @@ StatusCode LArHVCorrectionMonTool::initialize()
   // CaloDetDescrMgr gives "detector description", including real positions of cells
   sc = detStore()->retrieve(m_CaloDetDescrMgr);
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get CaloDetDescrMgr "<< endmsg;
+    msg(MSG::FATAL) << "Could not get CaloDetDescrMgr "<< endreq;
     return sc;
   }
   
   // Get LAr Cabling Service
   sc=m_larCablingService.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endmsg;
+    msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -138,7 +138,7 @@ StatusCode LArHVCorrectionMonTool::initialize()
   
   // End Initialize
   ManagedMonitorToolBase::initialize().ignore();
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successful Initialize LArHVCorrection " << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successful Initialize LArHVCorrection " << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -146,7 +146,7 @@ StatusCode LArHVCorrectionMonTool::initialize()
 StatusCode 
 LArHVCorrectionMonTool::bookHistograms()
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in bookHists()" << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in bookHists()" << endreq;
   
   //  if(isNewRun){
     
@@ -260,7 +260,7 @@ LArHVCorrectionMonTool::bookHistograms()
     //  }// end isNewRun
   
   // Reset event counter at the start of each LB 
-  if(newLumiBlockFlag()){
+  if(newLumiBlock){
     
     m_eventsCounter = 0;
     
@@ -274,8 +274,9 @@ LArHVCorrectionMonTool::bookHistograms()
 StatusCode 
 LArHVCorrectionMonTool::fillHistograms()
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in fillHists()" << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in fillHists()" << endreq;
   
+  static CaloPhiRange m_phiHelper;
   m_eventsCounter++;
   
   if(m_eventsCounter == 1){ // Fill only at the beginning of LB. m_eventsCounter is reset at the begining of each LB.
@@ -283,7 +284,7 @@ LArHVCorrectionMonTool::fillHistograms()
     // Retrieve event information
     const xAOD::EventInfo* thisEventInfo;
     if (evtStore()->retrieve(thisEventInfo).isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve EventInfo object" << endmsg;
+      msg(MSG::ERROR) << "Failed to retrieve EventInfo object" << endreq;
       return StatusCode::FAILURE;
     }
     //const DataHandle<EventInfo> event_info;
@@ -292,13 +293,13 @@ LArHVCorrectionMonTool::fillHistograms()
     int lumi_block = thisEventInfo->lumiBlock();
     
     // Counter for deviating channels in each partition
-    float nonNominal[] = {0.,0.,0.,0.,0.,0.,0.,0.};
+    float m_nonNominal[] = {0.,0.,0.,0.,0.,0.,0.,0.};
     
     // Retrieve Raw Channels Container
     const LArRawChannelContainer* pRawChannelsContainer;
     StatusCode sc = evtStore()->retrieve(pRawChannelsContainer, m_channelKey);
     if(sc.isFailure()) {
-      msg(MSG::WARNING) << "Can't retrieve LArRawChannelContainer with key " << m_channelKey <<endmsg;
+      msg(MSG::WARNING) << "Can't retrieve LArRawChannelContainer with key " << m_channelKey <<endreq;
       return StatusCode::SUCCESS;
     }
     
@@ -318,67 +319,67 @@ LArHVCorrectionMonTool::fillHistograms()
       
       // Get Physical Coordinates
       float etaChan = 0; float phiChan = 0.;
-      const CaloDetDescrElement* caloDetElement = m_CaloDetDescrMgr->get_element(offlineID);
-      if(caloDetElement == 0 ){
-	msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endmsg;
+      const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offlineID);
+      if(m_CaloDetElement == 0 ){
+	msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endreq;
 	continue; 
       }else{
-	etaChan = caloDetElement->eta_raw();
-	phiChan = caloDetElement->phi_raw();
+	etaChan = m_CaloDetElement->eta_raw();
+	phiChan = m_CaloDetElement->phi_raw();
       }
       
       // Fix phi range in HEC
-      if (m_LArOnlineIDHelper->isHECchannel(id)) phiChan = CaloPhiRange::fix(phiChan);
+      if (m_LArOnlineIDHelper->isHECchannel(id)) phiChan = m_phiHelper.fix(phiChan);
       
       // Retrieve HV correction info
       float hvdev = 0;
       float hvcorr = m_hvCorrTool->Scale(offlineID);
-      //msg(MSG::VERBOSE) << "hvcorr" << hvcorr << endmsg;
+      //msg(MSG::VERBOSE) << "hvcorr" << hvcorr << endreq;
       float hvonline = m_dd_HVScaleCorr->HVScaleCorr(offlineID);
       if (hvonline<=0) continue; //No valid online correction
-      //msg(MSG::VERBOSE) << "hvonline" << hvonline << endmsg;
+      //msg(MSG::VERBOSE) << "hvonline" << hvonline << endreq;
       if (hvcorr>hvonline) hvdev = hvonline-hvcorr; //Monitor only channels that get a higher correction from DCS (eg are at a lower voltage). 
 
-      //msg(MSG::VERBOSE) << "hvdev" << hvdev << endmsg;
+      //msg(MSG::VERBOSE) << "hvdev" << hvdev << endreq;
       
     if (fabs(hvdev/hvonline)> m_threshold){
 	
 	// A-Side
 	if(etaChan >= 0){
 	  if(m_LArOnlineIDHelper->isEMBchannel(id)){
-	    nonNominal[0]++;
+	    m_nonNominal[0]++;
 	    m_hLArHVCorrectionEMB[0]->Fill(etaChan,phiChan, hvdev);
 	  }
 	  if(m_LArOnlineIDHelper->isEMECchannel(id)){
-	    nonNominal[1]++;
+	    m_nonNominal[1]++;
 	    m_hLArHVCorrectionEMEC[0]->Fill(etaChan,phiChan, hvdev);
 	  }
 	  if(m_LArOnlineIDHelper->isHECchannel(id)){
-	    nonNominal[2]++;
+	    m_nonNominal[2]++;
 	    m_hLArHVCorrectionHEC[0]->Fill(etaChan,phiChan, hvdev);
 	  }
 	  if(m_LArOnlineIDHelper->isFCALchannel(id)){
-	    nonNominal[3]++;
+	    m_nonNominal[3]++;
 	    m_hLArHVCorrectionFCAL[0]->Fill(etaChan,phiChan, hvdev);
 	  }
 	  
 	  // C-side
 	} else {
 	  if(m_LArOnlineIDHelper->isEMBchannel(id)){
-	    nonNominal[4]++;
+	    m_nonNominal[4]++;
 	    m_hLArHVCorrectionEMB[1]->Fill(etaChan,phiChan, hvdev);
 	  }
 	  if(m_LArOnlineIDHelper->isEMECchannel(id)){
-	    nonNominal[5]++;
+	    m_nonNominal[5]++;
 	    m_hLArHVCorrectionEMEC[1]->Fill(etaChan,phiChan, hvdev);
 	  }
 	  if(m_LArOnlineIDHelper->isHECchannel(id)){
 	    //std::cout << "HECC, hvdev=" << hvdev << ", onlCorr=" << hvonline << ", oflCorr=" << hvcorr << std::endl;
-	    nonNominal[6]++;
+	    m_nonNominal[6]++;
 	    m_hLArHVCorrectionHEC[1]->Fill(etaChan,phiChan, hvdev);
 	  }
 	  if(m_LArOnlineIDHelper->isFCALchannel(id)){
-	    nonNominal[7]++;
+	    m_nonNominal[7]++;
 	    m_hLArHVCorrectionFCAL[1]->Fill(etaChan,phiChan, hvdev);
 	  }
 	}
@@ -386,15 +387,15 @@ LArHVCorrectionMonTool::fillHistograms()
     }// end Raw Channels Loop
     
     // Fill number of problematic cell per LUMI_BLOCK
-    m_hNDeviatingChannelsEMB[0]->Fill(lumi_block,nonNominal[0]);
-    m_hNDeviatingChannelsEMEC[0]->Fill(lumi_block,nonNominal[1]);
-    m_hNDeviatingChannelsHEC[0]->Fill(lumi_block,nonNominal[2]);
-    m_hNDeviatingChannelsFCAL[0]->Fill(lumi_block,nonNominal[3]);
+    m_hNDeviatingChannelsEMB[0]->Fill(lumi_block,m_nonNominal[0]);
+    m_hNDeviatingChannelsEMEC[0]->Fill(lumi_block,m_nonNominal[1]);
+    m_hNDeviatingChannelsHEC[0]->Fill(lumi_block,m_nonNominal[2]);
+    m_hNDeviatingChannelsFCAL[0]->Fill(lumi_block,m_nonNominal[3]);
     
-    m_hNDeviatingChannelsEMB[1]->Fill(lumi_block,nonNominal[4]);
-    m_hNDeviatingChannelsEMEC[1]->Fill(lumi_block,nonNominal[5]);
-    m_hNDeviatingChannelsHEC[1]->Fill(lumi_block,nonNominal[6]);
-    m_hNDeviatingChannelsFCAL[1]->Fill(lumi_block,nonNominal[7]);
+    m_hNDeviatingChannelsEMB[1]->Fill(lumi_block,m_nonNominal[4]);
+    m_hNDeviatingChannelsEMEC[1]->Fill(lumi_block,m_nonNominal[5]);
+    m_hNDeviatingChannelsHEC[1]->Fill(lumi_block,m_nonNominal[6]);
+    m_hNDeviatingChannelsFCAL[1]->Fill(lumi_block,m_nonNominal[7]);
     
   } else {
     
@@ -408,7 +409,7 @@ LArHVCorrectionMonTool::fillHistograms()
 StatusCode LArHVCorrectionMonTool::procHistograms()
 {
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In procHistograms " << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In procHistograms " << endreq;
   
 //  //
 //  // Normalize and fix bins only at the end of a block, and only ONCE ! Otherwise it's a mess

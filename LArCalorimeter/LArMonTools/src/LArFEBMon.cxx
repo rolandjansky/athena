@@ -27,12 +27,6 @@
 #include "LArCOOLConditions/LArDSPThresholdsFlat.h"
 
 #include "TTree.h"
-#include "LWHists/TH1I_LW.h"
-#include "LWHists/TH2I_LW.h"
-#include "LWHists/TH1F_LW.h"
-#include "LWHists/TH2F_LW.h"
-#include "LWHists/TProfile2D_LW.h"
-#include "LWHists/TProfile_LW.h"
 
 #include "LArMonTools/LArFEBMon.h"
 
@@ -46,8 +40,6 @@
 
 #include "xAODEventInfo/EventInfo.h"
 #include "LArTrigStreamMatching.h"
-
-const unsigned nFEBnominal=1524;
 
 // ********************************************************************
 LArFEBMon::LArFEBMon(const std::string& type, 
@@ -70,8 +62,7 @@ LArFEBMon::LArFEBMon(const std::string& type,
     m_hecASummary(),
     m_fcalCSummary(),
     m_fcalASummary(),
-    m_febInError(),
-    m_anyfebIE(false) 
+    m_febInError() 
 {
   declareProperty("IgnoreMissingHeaderEMB",m_ignoreMissingHeaderEMB = false);
   declareProperty("IgnoreMissingHeaderPS",m_ignoreMissingHeaderPS = false);
@@ -82,22 +73,20 @@ LArFEBMon::LArFEBMon(const std::string& type,
   declareProperty("ExcludeCosmicCalo",m_excoscalo);
  
   declareProperty("IsOnline",m_isOnline=true);
-
-  declareProperty("m_lumi_blocks", m_lumi_blocks = 3000 );
   
   m_onlineHelper	= NULL;
   m_strHelper		= NULL;
 
   m_eventsCounter = 0;
   
-  for (unsigned i = 0;i < nFEBnominal; i++) {
+  for (int i = 0;i < 1524; i++) {
     m_febInError[i] = NULL;
     m_bfebIE[i]     = false;
   }
   
-  m_FEBmin	= -20.5;
-  m_FEBmax	= 1599.5;
-  m_FEBnbins	= 1620;
+  FEBmin	= -20.5;
+  FEBmax	= 1599.5;
+  FEBnbins	= 1620;
   
   m_LArAllErrors_dE	= NULL;
   m_rejectedYield	= NULL;
@@ -135,11 +124,11 @@ LArFEBMon::~LArFEBMon() {
 // ********************************************************************
 StatusCode LArFEBMon::initialize() {
   
-  msg(MSG::INFO) << "Initializing LArFEBMon " << endmsg;
+  msg(MSG::INFO) << "Initializing LArFEBMon " << endreq;
   
   StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
+    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -149,10 +138,10 @@ StatusCode LArFEBMon::initialize() {
   // Get BadChannelTool
   sc=m_badChannelTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve LArBadChannelTool " << m_badChannelTool << endmsg;
+    msg(MSG::ERROR) << "Could not retrieve LArBadChannelTool " << m_badChannelTool << endreq;
     return StatusCode::FAILURE;
   } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LArBadChannelTool" << m_badChannelTool << " retrieved" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LArBadChannelTool" << m_badChannelTool << " retrieved" << endreq;
   }
 
   ManagedMonitorToolBase::initialize().ignore(); 
@@ -177,9 +166,7 @@ StatusCode LArFEBMon::bookHistograms() {
     (m_rejectedHisto->GetXaxis())->SetBinLabel(1,"Whole event corrupted");
     (m_rejectedHisto->GetXaxis())->SetBinLabel(2,"Single FEB corrupted");
     (m_rejectedHisto->GetXaxis())->SetBinLabel(3,"Accepted");
-    //sc = sc && summaryGroup.regHist(m_rejectedHisto);
-    
-    sc = regHist(m_rejectedHisto,  "/LAr/FEBMon/Summary", run);
+    sc = sc && summaryGroup.regHist(m_rejectedHisto);
     
     m_rejectedYield = TH1F_LW::create("EventsRejectedYield","Data corruption yield",3,0.5,3.5);
     (m_rejectedYield->GetXaxis())->SetBinLabel(1,"Whole event corrupted");
@@ -225,25 +212,25 @@ StatusCode LArFEBMon::bookHistograms() {
     sc = sc && summaryGroup.regHist(m_LArAllErrors_dE);    
         
     // Number of events per minute vs LB
-    m_eventsLB = TH1I_LW::create("NbOfEventsVsLB","Nb of events per LB",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
+    m_eventsLB = TH1I_LW::create("NbOfEventsVsLB","Nb of events per LB",1500,-0.5,1499.5);
     (m_eventsLB->GetXaxis())->SetTitle("Luminosity Block");
     sc = sc && summaryGroup.regHist(m_eventsLB);
     
     // Number of events rejected per LB
-    m_rejectedYieldLB = TProfile_LW::create("YieldOfRejectedEventsVsLB","Yield of corrupted events",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
+    m_rejectedYieldLB = TProfile_LW::create("YieldOfRejectedEventsVsLB","Yield of corrupted events",1500,-0.5,1499.5);
     (m_rejectedYieldLB->GetXaxis())->SetTitle("Luminosity Block");
     (m_rejectedYieldLB->GetYaxis())->SetTitle("Yield(%)");
     m_rejectedYieldLB->SetMinimum(-5.);
     sc = sc && summaryGroup.regHist(m_rejectedYieldLB);
     
     // Number of events rejected per LB outside time veto window
-    m_rejectedYieldLBout = TProfile_LW::create("YieldOfRejectedEventsVsLBout","Yield of corrupted events not vetoed by time window",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
+    m_rejectedYieldLBout = TProfile_LW::create("YieldOfRejectedEventsVsLBout","Yield of corrupted events not vetoed by time window",1500,-0.5,1499.5);
     (m_rejectedYieldLBout->GetXaxis())->SetTitle("Luminosity Block");
     m_rejectedYieldLBout->SetMinimum(-5.);
     sc = sc && summaryGroup.regHist(m_rejectedYieldLBout);
     
     // Mean event size per LB
-    m_eventSizeLB = TProfile_LW::create("eventSizeVsLB","LAr event size (w/o ROS headers)",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
+    m_eventSizeLB = TProfile_LW::create("eventSizeVsLB","LAr event size (w/o ROS headers)",1500,-0.5,1499.5);
     (m_eventSizeLB->GetXaxis())->SetTitle("Luminosity Block");
     (m_eventSizeLB->GetYaxis())->SetTitle("Megabytes");
     sc = sc && summaryGroup.regHist(m_eventSizeLB);
@@ -252,7 +239,7 @@ StatusCode LArFEBMon::bookHistograms() {
        // Mean event size per stream per LB
        int nStreams = m_streams.size();
        if(nStreams > 0) {
-          m_stream_eventSizeLB = TProfile2D_LW::create("eventSizeStreamVsLB","LAr event size per stream per LB (w/o ROS headers)",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5,nStreams+1,-0.5,nStreams+0.5);
+          m_stream_eventSizeLB = TProfile2D_LW::create("eventSizeStreamVsLB","LAr event size per stream per LB (w/o ROS headers)",1500,-0.5,1499.5,nStreams+1,-0.5,nStreams+0.5);
           (m_stream_eventSizeLB->GetXaxis())->SetTitle("Luminosity Block");
           for (int str = 0; str < nStreams; str++) {
              (m_stream_eventSizeLB->GetYaxis())->SetBinLabel(str+1,m_streams[str].c_str());
@@ -272,7 +259,7 @@ StatusCode LArFEBMon::bookHistograms() {
     sc = sc && perPartitionDataGroup.regHist(m_nbOfEvts2D);
     
     // Global nb of readout FEB
-    m_nbOfFebBlocksTotal = TH1I_LW::create("NbOfReadoutFEBGlobal","# of readout FEB/DSP header",m_FEBnbins,m_FEBmin,m_FEBmax);
+    m_nbOfFebBlocksTotal = TH1I_LW::create("NbOfReadoutFEBGlobal","# of readout FEB/DSP header",FEBnbins,FEBmin,FEBmax);
     sc = sc && perPartitionDataGroup.regHist(m_nbOfFebBlocksTotal);
     
     // DSP threshold
@@ -334,9 +321,9 @@ StatusCode LArFEBMon::bookHistograms() {
         
        msg(MSG::INFO ) << "lvl1 item names: [";
        for (unsigned int i=0;i< l1triggers.size();i++) {
-            msg(MSG::INFO) << i << " " << l1triggers.at(i) << " , " << endmsg;
+            msg(MSG::INFO) << i << " " << l1triggers.at(i) << " , " << endreq;
        }
-       msg(MSG::INFO)<< "] " << endmsg;
+       msg(MSG::INFO)<< "] " << endreq;
 
     if (l1triggers.size()>0) {m_trigok=true;} else {m_trigok=false;}
     }
@@ -350,10 +337,10 @@ StatusCode LArFEBMon::bookHistograms() {
     summaryGroup.regTree(m_CorruptTree).ignore();
     //  }
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "done with bookHists()" << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "done with bookHists()" << endreq;
   
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Bookhists failed" << endmsg;
+    msg(MSG::ERROR) << "Bookhists failed" << endreq;
   }
   
   return sc;
@@ -377,7 +364,7 @@ StatusCode LArFEBMon::fillHistograms() {
   const xAOD::EventInfo* thisEvent=0;
 
   if(evtStore()->retrieve(thisEvent).isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve EventInfo object" << endmsg;
+    msg(MSG::ERROR) << "Failed to retrieve EventInfo object" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -388,15 +375,14 @@ StatusCode LArFEBMon::fillHistograms() {
   m_eventTime_ns=thisEvent->timeStampNSOffset();
     
   unsigned lumi_block = thisEvent->lumiBlock();
-  bool lar_inerror = (thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error) ? true : false;
   
-  //msg(MSG::INFO) << "LArFEBMon Lumi block: "<<lumi_block<<endmsg;
+  //msg(MSG::INFO) << "LArFEBMon Lumi block: "<<lumi_block<<endreq;
 
   const LArFebHeaderContainer* hdrCont;
   const LArFebErrorSummary* lArFebErrorSummary;
   StatusCode sc = evtStore()->retrieve(hdrCont);
   if (sc.isFailure() || !hdrCont) {
-    msg(MSG::WARNING) << "No LArFebHeaderContainer found in TDS" << endmsg; 
+    msg(MSG::WARNING) << "No LArFebHeaderContainer found in TDS" << endreq; 
     return sc;
   }
   
@@ -407,7 +393,7 @@ StatusCode LArFEBMon::fillHistograms() {
 
   sc=evtStore()->retrieve( lArFebErrorSummary, "LArFebErrorSummary");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "No LArFebErrorSummary found in TDS" << endmsg;
+    msg(MSG::ERROR) << "No LArFebErrorSummary found in TDS" << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -425,7 +411,7 @@ StatusCode LArFEBMon::fillHistograms() {
 	sc=detStore()->retrieve(dspThresh,m_keyDSPThresholds);
 	if(!sc.isSuccess()) {
 	  msg(MSG::ERROR) <<" Failed to retrieve LArDSPThresholds with key " << m_keyDSPThresholds 
-			  << ". Will not fill histograms" << endmsg;
+			  << ". Will not fill histograms" << endreq;
 	}
 	else {
 	  auto chIt=m_onlineHelper->channel_begin();
@@ -443,13 +429,13 @@ StatusCode LArFEBMon::fillHistograms() {
 	sc=detStore()->retrieve(dspThrshAttr,m_keyDSPThresholds);
 	if (sc.isFailure()) {
 	  msg(MSG::ERROR) << "Failed to retrieve AttributeList with key (folder) " << m_keyDSPThresholds 
-			  << ", containing DSP Thresholds. Will not fill histograms." << endmsg;
+			  << ", containing DSP Thresholds. Will not fill histograms." << endreq;
 	}
 	else {
 	  const LArDSPThresholdsFlat* dspThreshFlat=new LArDSPThresholdsFlat(dspThrshAttr);
 	  if (!dspThreshFlat->good()) {
 	    msg(MSG::ERROR) << "Failed to initialize LArDSPThresholdFlat from attribute list loaded from " << m_keyDSPThresholds
-			    << ". Will not fill histograms." << endmsg; 
+			    << ". Will not fill histograms." << endreq; 
 	  }//end if not good
 	  const IdentifierHash chanMax=m_onlineHelper->channelHashMax();
 	  for (unsigned iChan=0;iChan<chanMax;++iChan) {
@@ -462,7 +448,7 @@ StatusCode LArFEBMon::fillHistograms() {
       }// else run 2
     }// end load DSP thresholds from DB
     else 
-      msg(MSG::WARNING) << "No LArDSPThresholds key specificed. Will not fill these histograms" << endmsg;
+      msg(MSG::WARNING) << "No LArDSPThresholds key specificed. Will not fill these histograms" << endreq;
   }//end if eventsCounter==1
 
 
@@ -570,7 +556,6 @@ StatusCode LArFEBMon::fillHistograms() {
   
   // Loop over all febs to plot the error from statusword
   // This is mandatory to also monitor the FEBs with missing headers
-  m_anyfebIE = false;
   for (std::vector<HWIdentifier>::const_iterator allFeb = m_onlineHelper->feb_begin(); 
        allFeb != m_onlineHelper->feb_end(); ++allFeb) {
     HWIdentifier febid = HWIdentifier(*allFeb);
@@ -587,28 +572,28 @@ StatusCode LArFEBMon::fillHistograms() {
       // Fill the errors in partition histograms
       switch (partitionNb_dE){
 	case 0:
-	  fillErrorsSummary(m_barrelCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+	  fillErrorsSummary(m_barrelCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
 	  break;
 	case 1:
-	  fillErrorsSummary(m_barrelASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+	  fillErrorsSummary(m_barrelASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
 	  break;
 	case 2:
-	  fillErrorsSummary(m_emecCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+	  fillErrorsSummary(m_emecCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
 	  break;
 	case 3:
-	  fillErrorsSummary(m_emecASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+	  fillErrorsSummary(m_emecASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
 	  break;	
 	case 4:
-	  fillErrorsSummary(m_hecCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+	  fillErrorsSummary(m_hecCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
 	  break;
 	case 5:
-	  fillErrorsSummary(m_hecASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+	  fillErrorsSummary(m_hecASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
 	  break;
 	case 6:
-	  fillErrorsSummary(m_fcalCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+	  fillErrorsSummary(m_fcalCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
 	  break;
 	case 7:	    
-	  fillErrorsSummary(m_fcalASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
+	  fillErrorsSummary(m_fcalASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
 	  break;
       }
       if (m_currentFebStatus && m_febInErrorTree.size()<33){
@@ -616,7 +601,6 @@ StatusCode LArFEBMon::fillHistograms() {
 	m_febErrorTypeTree.push_back(m_rejectionBits.to_ulong());
       }
     }  
-    if(m_currentFebStatus) m_anyfebIE = m_currentFebStatus;
   }
   // Check and reset the rejected histo per partition
   // Use the ENTRIES variable to store the LB and reset if needed!
@@ -682,7 +666,7 @@ StatusCode LArFEBMon::fillHistograms() {
   // If the nb of DSP headers is lower than the maximum, this means that there are some missing FEBs, probably
   // due to missing ROS fragment
   // This assumes that the maximum of DSP headers found is the expected one
-  //  msg(MSG::ERROR) << "ICI" << nbOfFeb << " " << m_nbOfFebBlocksTotal->GetBinLowEdge(m_nbOfFebBlocksTotal->GetMaximumBin()) << endmsg;
+  //  msg(MSG::ERROR) << "ICI" << nbOfFeb << " " << m_nbOfFebBlocksTotal->GetBinLowEdge(m_nbOfFebBlocksTotal->GetMaximumBin()) << endreq;
   
   if (nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal)){
     // The nb of readout FEB is lower than the maximum number of FEBs observed in this run
@@ -714,21 +698,17 @@ StatusCode LArFEBMon::fillHistograms() {
     if (m_rejectedLBProfile->GetEntries() != lumi_block)
       m_rejectedLBProfile->Reset();
   }
-
-  if(m_anyfebIE) { m_CorruptTree->Fill(); }
-
-  if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal) || nbOfFeb < nFEBnominal){
-    if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal)) m_rejectedYieldLB->Fill(lumi_block,100); else m_rejectedYieldLB->Fill(lumi_block,50);
-
+    
+  if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal)){
+    m_rejectedYieldLB->Fill(lumi_block,100);
     if (!(thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)))
       m_rejectedYieldLBout->Fill(lumi_block,100);
     else
       m_rejectedYieldLBout->Fill(lumi_block,0);
-
-    if (m_isOnline) {
-       if (lar_inerror) m_rejectedLBProfile->Fill(0.5,100); else m_rejectedLBProfile->Fill(0.5,50);
-    }
-  } else{
+    if (m_isOnline) m_rejectedLBProfile->Fill(0.5,100);
+    m_CorruptTree->Fill();
+  }
+  else{
     m_rejectedYieldLB->Fill(lumi_block,0);
     m_rejectedYieldLBout->Fill(lumi_block,0);
     if (m_isOnline) m_rejectedLBProfile->Fill(0.5,0);
@@ -790,7 +770,7 @@ StatusCode LArFEBMon::fillHistograms() {
 
 
 // ********************************************************************
-void LArFEBMon::fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block, bool lar_inerror)
+void LArFEBMon::fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block)
 {  
   if (summ.maskedFEB->GetBinContent(slot,ft+1) != 0) return;
   
@@ -892,12 +872,8 @@ void LArFEBMon::fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,i
 
   if (m_currentFebStatus){
     (summ.LArAllErrors)->Fill(slot,ft);
-    if (lar_inerror) {// LArinError
-       m_eventRejected = true;
-       if (m_isOnline) (summ.m_rejectedLBProfilePart)->Fill(0.5,100);
-    } else {
-       if (m_isOnline)  (summ.m_rejectedLBProfilePart)->Fill(0.5,50);
-    }
+    m_eventRejected = true;
+    if (m_isOnline) (summ.m_rejectedLBProfilePart)->Fill(0.5,100);
   } else {
     if (m_isOnline)  (summ.m_rejectedLBProfilePart)->Fill(0.5,0);
   }
@@ -913,7 +889,7 @@ void LArFEBMon::fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,i
 //********************************************************************
 StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string summName)
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In bookNewPartitionSumm ->" << summName << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In bookNewPartitionSumm ->" << summName << endreq;
   
   MonGroup perPartitionGroup( this, "/LAr/FEBMon/perPartition", run, ATTRIB_MANAGED );
   MonGroup perPartitionYieldGroup( this, "/LAr/FEBMon/perPartition", run, ATTRIB_MANAGED, "" , "weightedEff" );
@@ -1068,7 +1044,7 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
   if(m_isOnline && nStreams > 0) { // book 2d histo with asked streams 
     hName = "eventSizeStreamVsLB"+summName;
     hTitle = "LAr event size per stream per LB (w/o ROS headers)" + summName;  
-    summ.stream_eventSizeLB = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),m_lumi_blocks,-0.5,(float)m_lumi_blocks+0.5,nStreams+1,-0.5,nStreams+0.5);
+    summ.stream_eventSizeLB = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),1500,-0.5,1499.5,nStreams+1,-0.5,nStreams+0.5);
     (summ.stream_eventSizeLB)->GetXaxis()->SetTitle("Luminosity Block");
     for (int str = 0; str < nStreams; str++) {
          (summ.stream_eventSizeLB->GetYaxis())->SetBinLabel(str+1,m_streams[str].c_str());
@@ -1078,7 +1054,7 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
   } else { // book simple profile
     hName = "eventSizeVsLB"+summName;
     hTitle = "LAr event size per LB (w/o ROS headers)" + summName;  
-    summ.eventSizeLB = TProfile_LW::create(hName.c_str(),hTitle.c_str(),m_lumi_blocks,-0.5,(float)m_lumi_blocks+0.5);
+    summ.eventSizeLB = TProfile_LW::create(hName.c_str(),hTitle.c_str(),1500,-0.5,1499.5);
     (summ.eventSizeLB)->GetXaxis()->SetTitle("Luminosity Block");
     sc = sc && perPartitionDataGroup.regHist(summ.eventSizeLB);
   }
@@ -1093,7 +1069,7 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
     sc = sc && perPartitionDataGroup.regHist(summ.m_rejectedLBProfilePart);
     
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Unable to book partitions histograms" << endmsg;
+      msg(MSG::FATAL) << "Unable to book partitions histograms" << endreq;
     } 
   } 
   return sc;
@@ -1104,18 +1080,18 @@ StatusCode
 LArFEBMon::procHistograms()
 {
   
-  if (m_eventsCounter != 0 && endOfEventsBlockFlag()){ 
+  if (m_eventsCounter != 0 && endOfEventsBlock){ 
     float scaleFactor = 100./((float) m_eventsCounter); 
     AddHistos(m_rejectedYield,m_rejectedHisto,m_rejectedHisto,scaleFactor,0.);
     m_rejectedYield->SetEntries(m_eventsCounter);
   }
   
   // Reset now done manually to be sure it works online!
-  //  if (isEndOfLumiBlockFlag(){
+  //  if (isEndOfLumiBlock){
   //    m_rejectedLBProfile->Reset();
   //  }
   
-  if (endOfRunFlag() || endOfEventsBlockFlag()){
+  if (endOfRun || endOfEventsBlock){
     // Book dynamically all FEBs in error
     for (int iError = 1;iError<14;iError++){
       fillFebInError(m_barrelCSummary,iError,0,0,"EMBC");
@@ -1129,7 +1105,7 @@ LArFEBMon::procHistograms()
     }
   }
   
-  //  if (isEndOfLumiBlockFlag() && m_iovStart!=0){
+  //  if (isEndOfLumiBlock && m_iovStart!=0){
   //    m_iovStop=m_iovStop+1; // Add 1second to cope with time needed to resync the QPLL (S.Simion June LAr week)
   //  }
   return StatusCode::SUCCESS;
@@ -1189,7 +1165,7 @@ LArFEBMon::plotMaskedFEB(){
 void 
 LArFEBMon::fillFebInError(const summaryPartition& summ,int errorType,int barrel_ec,int pos_neg,std::string summName)
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In fillFebInError" << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In fillFebInError" << endreq;
   
   //  TH2I* tempHisto = TH2I_LW::create(*summ.parity);
   
@@ -1271,7 +1247,7 @@ LArFEBMon::fillFebInError(const summaryPartition& summ,int errorType,int barrel_
 	  (m_febInError[hashId]->GetYaxis())->SetTitle("Number of errors");
 	  
 	  StatusCode sc = generalGroup.regHist(m_febInError[hashId]);
-	  if (sc.isFailure()) msg(MSG::ERROR) << "Failed to register Feb histogram!" << endmsg;
+	  if (sc.isFailure()) msg(MSG::ERROR) << "Failed to register Feb histogram!" << endreq;
 	  else m_bfebIE[hashId] = true;
 	}
 	m_febInError[hashId]->SetBinContent(errorType,binContent);
@@ -1291,7 +1267,7 @@ void LArFEBMon::fillYieldHistos(TH2I_LW* summaryHisto,TH2F_LW* statusHisto)
 // Compute the yield of odd events in error per FEB
 // The number of events in error is stored in summaryHisto and the yield is stored in statusHisto
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in fillYieldHistos() - " << m_eventsCounter << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in fillYieldHistos() - " << m_eventsCounter << endreq;
   
   if (m_eventsCounter != 0){
     for (unsigned int ix=1;ix<=summaryHisto->GetNbinsX();ix++){
@@ -1354,6 +1330,5 @@ bool LArFEBMon::nbOfFebOK(float nfeb,TH1I_LW* h){
       ixmax=ix;
     }
   }
-  return (nfeb<((m_FEBmax-m_FEBmin)/m_FEBnbins)*((float)(ixmax-1))+m_FEBmin);
+  return (nfeb<((FEBmax-FEBmin)/FEBnbins)*((float)(ixmax-1))+FEBmin);
 }
-

@@ -29,7 +29,7 @@
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "EventContainers/SelectAllObject.h" 
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "LArRecConditions/ILArBadChanTool.h"
 
@@ -103,7 +103,7 @@ class LArCoverage: public ManagedMonitorToolBase
   void SetBadChannelZaxisLabels(TH2I_LW* h);
 
   // To keep track of known disabled FEBs
-  void FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMgr);
+  void FillKnownMissingFEBs(const CaloDetDescrManager* m_CaloDetDescrMgr);
 
   // To fix empty bins in histos with variable bin size
   void FixEmptyBins();

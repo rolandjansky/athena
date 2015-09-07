@@ -25,9 +25,9 @@ CosmicMode=( jobproperties.Beam.beamType()== 'cosmics')
 
 #Declare stream if Cosmic or Beam:
 if CosmicMode:
-	StreamsToMonitor = ["CosmicCalo","Standby","LArCellsEmpty","Background"]
+	StreamsToMonitor = ["CosmicCalo","ZeroBias","Standby","CosmicMuons","Egamma","IDCosmic","MinBias","JetTauEtmiss","Muons","bulk"]
 else:
-	StreamsToMonitor = ["CosmicCalo","ZeroBias","Standby","express","Main","L1Calo","L1Topo","LArCells","LArCellsEmpty","Background","LArCellsEmpty"]
+	StreamsToMonitor = ["JetTauEtmiss","Egamma","bulk","CosmicCalo","ZeroBias","Standby","CosmicMuons","IDCosmic","MinBias","Muons"]
 
 
 ###### LArDigitMon Configuration ###############

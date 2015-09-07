@@ -26,7 +26,7 @@
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 #include "EventContainers/SelectAllObject.h" 
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "LArRecUtils/LArHVCorrTool.h"
 #include "LArElecCalib/ILArHVCorrTool.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"

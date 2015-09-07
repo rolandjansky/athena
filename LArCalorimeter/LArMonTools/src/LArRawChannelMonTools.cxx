@@ -280,9 +280,16 @@ vector<double> LArMonTools::sparse_bins_vector( Container const &bins,
 		
   }
 	
-
-  vector<double>::iterator itr = std::remove(result.begin(), result.end(), min);
-  result.resize (itr - result.begin());
+	
+  for ( vector<double>::iterator itr = result.begin(); itr != result.end(); itr++ ) {
+		
+    if ( *itr == min ) {
+      
+      itr = result.erase( itr ) - 1;
+      
+    }
+		
+  }
 	
   return result;
 
@@ -328,7 +335,7 @@ lar_axis_maker::lar_axis_maker()
 
     
 lar_axis_maker::lar_axis_maker( const map<Detector, map<Sampling, deque<Region> > > &regions )
-  : m_regions( regions )
+  : _regions( regions )
 {
 
   generate();
@@ -344,7 +351,7 @@ lar_axis_maker::~lar_axis_maker()
 const vector<double> lar_axis_maker::operator() (const Detector &d, const Sampling &s)
 {
 
-  return m_bins[d][s];
+  return _bins[d][s];
 
 }
 
@@ -352,10 +359,10 @@ const vector<double> lar_axis_maker::operator() (const Detector &d, const Sampli
 void lar_axis_maker::generate()
 {
 
-  m_bins.clear();
+  _bins.clear();
 
   // for each detector
-  foreach( const det_region_map_t::value_type &det_regions, m_regions ) {
+  foreach( const det_region_map_t::value_type &det_regions, _regions ) {
 
     const Detector &det = det_regions.first;
 
@@ -363,7 +370,7 @@ void lar_axis_maker::generate()
     foreach( const sam_region_map_t::value_type &sam_regions, det_regions.second ) {
 
       const Sampling &samp = sam_regions.first;
-      m_bins[det][samp] = vector<double>();
+      _bins[det][samp] = vector<double>();
 
       // for each region
       foreach( const Region &region, sam_regions.second ) {
@@ -377,7 +384,7 @@ void lar_axis_maker::generate()
 	if ( size <= 0 ) break;
 	while ( diff > 1.0e-10 ) { // float computaation =>
 					    // 0 + 1 - 1 != 0 ...
-	  m_bins[det][samp].push_back( lo );
+	  _bins[det][samp].push_back( lo );
 	  lo += size;
 	  last_diff = diff;
 	  diff = fabs( lo - up );
@@ -387,7 +394,7 @@ void lar_axis_maker::generate()
 
       }
 
-      m_bins[det][samp].push_back( sam_regions.second.back().upper );
+      _bins[det][samp].push_back( sam_regions.second.back().upper );
 
     }
 
@@ -396,12 +403,12 @@ void lar_axis_maker::generate()
 }
 
 
-const map<Detector, map<Sampling, deque<Region> > > &lar_axis_maker::regions() const { return m_regions; }
+const map<Detector, map<Sampling, deque<Region> > > &lar_axis_maker::regions() const { return _regions; }
 
 void lar_axis_maker::regions( const map<Detector, map<Sampling, deque<Region> > >& regions )
 {
 
-  m_regions = regions;
+  _regions = regions;
   generate();
 
 } 
@@ -422,39 +429,39 @@ bool LArMonTools::operator< ( const Region &lhs, const Region &rhs )
 
 
 SelectionContext::SelectionContext()
-  : m_positive_noise(0),
-    m_negative_noise(0),
-    m_quality( DBL_MAX ),
-    m_energy(0)
+  : _positive_noise(0),
+    _negative_noise(0),
+    _quality( DBL_MAX ),
+    _energy(0)
 {}
 
 SelectionContext::SelectionContext( const double& quality )
-  : m_positive_noise(0),
-    m_negative_noise(0),
-    m_quality( quality ),
-    m_energy(0)
+  : _positive_noise(0),
+    _negative_noise(0),
+    _quality( quality ),
+    _energy(0)
 {}
 
 SelectionContext::~SelectionContext() {}
 
 
 // Setters:
-void SelectionContext::quality( const double& quality) { m_quality = quality; }
+void SelectionContext::quality( const double& quality) { _quality = quality; }
 
 
 
 QualitySelector::QualitySelector()
-  : m_pSelectionContext(0)
+  : _pSelectionContext(0)
 {}
       
 
 // Getters:
-const SelectionContext * QualitySelector::selectionContext() const { return m_pSelectionContext; }
+const SelectionContext * QualitySelector::selectionContext() const { return _pSelectionContext; }
 
 
 // Setters:
 void QualitySelector::selectionContext( const SelectionContext * pSelectionContext ) {
-  m_pSelectionContext = pSelectionContext;
+  _pSelectionContext = pSelectionContext;
 }
 
 
@@ -464,38 +471,38 @@ QualitySelector::~QualitySelector() {}
 
 
 MeanCalculator::MeanCalculator()
-  : m_moment0( 0. )
-  , m_moment1( 0. )
-  , m_mean( 0. )
+  : _moment0( 0. )
+  , _moment1( 0. )
+  , _mean( 0. )
 {}
 
     
 MeanCalculator::~MeanCalculator() {}
 
 double& MeanCalculator::Add( const double & x , const double & w ) {
-  m_moment0 += w;
-  m_moment1 += x * w;
-  m_mean = ( m_moment0 > 0. )
-    ? m_moment1 / m_moment0
+  _moment0 += w;
+  _moment1 += x * w;
+  _mean = ( _moment0 > 0. )
+    ? _moment1 / _moment0
     : 0.;
-  return m_mean;
+  return _mean;
 }
 
-double MeanCalculator::result() const { return m_mean; }
+double MeanCalculator::result() const { return _mean; }
 
-void MeanCalculator::result( const double & mean) { m_mean = mean; }
+void MeanCalculator::result( const double & mean) { _mean = mean; }
 
 
 
 ResolutionCalculator::ResolutionCalculator()
-  : m_a ( 0. )
-  , m_b ( 0. )
+  : _a ( 0. )
+  , _b ( 0. )
 {}
 
 
 ResolutionCalculator::ResolutionCalculator( const double &a, const double &b )
-  : m_a ( a )
-  , m_b ( b )
+  : _a ( a )
+  , _b ( b )
 {}
 
   
@@ -505,7 +512,7 @@ ResolutionCalculator::~ResolutionCalculator() {}
 double ResolutionCalculator::operator() ( const double& x ){
 
   double numerator = x*x;
-  double denominator = m_a * m_a + m_b * m_b * x * x;
+  double denominator = _a * _a + _b * _b * x * x;
 
   return (denominator > 0. )
     ? sqrt( numerator / denominator )
