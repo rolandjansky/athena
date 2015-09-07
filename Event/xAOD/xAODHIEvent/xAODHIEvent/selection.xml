@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 612503 2014-08-19 11:58:04Z krasznaa $ -->
+<!-- $Id: selection.xml 693427 2015-09-07 11:45:19Z krasznaa $ -->
 <lcgdict>
   <!-- I do not think we need it -->
   <class name="xAOD::HIEventShape_v1"/>

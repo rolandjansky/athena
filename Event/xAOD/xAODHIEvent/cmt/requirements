@@ -22,3 +22,5 @@ use AtlasROOT     AtlasROOT-*     External
 apply_pattern lcgdict dict=xAODHIEvent selectionfile=selection.xml \
                       headerfiles="../xAODHIEvent/xAODHIEventDict.h" \
                       extralibfiles=../Root/dict/*.cxx
+
+apply_pattern do_genCLIDDB library=xAODHIEvent

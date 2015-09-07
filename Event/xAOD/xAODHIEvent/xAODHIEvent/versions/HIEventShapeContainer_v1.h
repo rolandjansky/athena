@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: HIEventShapeContainer_v1.h 594315 2014-04-25 17:34:40Z krasznaa $
+// $Id: HIEventShapeContainer_v1.h 693427 2015-09-07 11:45:19Z krasznaa $
 #ifndef XAODHIEVENT_HIEVENTSHAPECONTAINER_V1_H
 #define XAODHIEVENT_HIEVENTSHAPECONTAINER_V1_H
 

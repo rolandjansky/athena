@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: HIEventShapeContainer.h 594315 2014-04-25 17:34:40Z krasznaa $
+// $Id: HIEventShapeContainer.h 693427 2015-09-07 11:45:19Z krasznaa $
 #ifndef XAODHIEVENT_HIEVENTSHAPECONTAINER_H
 #define XAODHIEVENT_HIEVENTSHAPECONTAINER_H
 
@@ -17,7 +17,8 @@ namespace xAOD {
    typedef HIEventShapeContainer_v1 HIEventShapeContainer;
 }
 
+// Set up a CLID for the type:
 #include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::HIEventShapeContainer, 1219812540, 1)
+CLASS_DEF( xAOD::HIEventShapeContainer, 1155025655, 1 )
 
-#endif // XAODEVENTINFO_EVENTINFOCONTAINER_H
+#endif // XAODHIEVENT_HIEVENTSHAPECONTAINER_H

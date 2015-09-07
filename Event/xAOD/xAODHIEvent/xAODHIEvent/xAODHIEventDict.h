@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODHIEventDict.h 612503 2014-08-19 11:58:04Z krasznaa $
+// $Id: xAODHIEventDict.h 693427 2015-09-07 11:45:19Z krasznaa $
 #ifndef XAODHIEVENT_XAODHIEVENTDICT_H
 #define XAODHIEVENT_XAODHIEVENTDICT_H
 
