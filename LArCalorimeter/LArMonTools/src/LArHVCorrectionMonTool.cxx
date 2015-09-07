@@ -155,57 +155,57 @@ LArHVCorrectionMonTool::bookHistograms()
     
     // EM Calorimeter - Barrel
     m_hLArHVCorrectionEMB[0] = TH2F_LW::create("LArHVCorrectionEMBA",
-					       "LAr HV deviation (nominal - corrected) - EMBA", 
+					       "HV deviation (nominal - corrected) - EMBA", 
 					       int(1.6/m_delta_eta), 0.,1.6,int(6.3/m_delta_phi),-3.15, 3.15);
     SetTH2Style(m_hLArHVCorrectionEMB[0]);
     generalGroup.regHist(m_hLArHVCorrectionEMB[0]).ignore();
     
     m_hLArHVCorrectionEMB[1] = TH2F_LW::create("LArHVCorrectionEMBC",
-					       "LAr HV deviation (nominal - corrected) - EMBC", 
+					       "HV deviation (nominal - corrected) - EMBC", 
 					       int(1.6/m_delta_eta),-1.61, -0.01,int(6.3/m_delta_phi),-3.15, 3.15);
     SetTH2Style(m_hLArHVCorrectionEMB[1]);
     generalGroup.regHist(m_hLArHVCorrectionEMB[1]).ignore();
     
     m_hNDeviatingChannelsEMB[0] = TH1I_LW::create("NDeviatingChannelsEMBA",
-						  Form("Number of HV channels per LB with corr>%.0f%% - EMBA",m_threshold*100), 
+						  Form("Number of channels per LB with HV corr>%.0f%% - EMBA",m_threshold*100), 
 						  m_nlumi_blocks, 0.5, double(m_nlumi_blocks)+0.5);
     SetTH1Style(m_hNDeviatingChannelsEMB[0]);
     generalGroup.regHist(m_hNDeviatingChannelsEMB[0]).ignore();
     
     m_hNDeviatingChannelsEMB[1] = TH1I_LW::create("NDeviatingChannelsEMBC",
-						  Form("Number of HV channels per LB with corr>%.0f%% - EMBC",m_threshold*100), 
+						  Form("Number of channels per LB with HV corr>%.0f%% - EMBC",m_threshold*100), 
 						  m_nlumi_blocks, 0.5, double(m_nlumi_blocks)+0.5);
     SetTH1Style(m_hNDeviatingChannelsEMB[1]);
     generalGroup.regHist(m_hNDeviatingChannelsEMB[1]).ignore();
     
     // EM Calorimeter - Endcap
     m_hLArHVCorrectionEMEC[0] = TH2F_LW::create("LArHVCorrectionEMECA",
-						"LAr HV deviation (nominal - corrected) - EMECA", 
+						"HV deviation (nominal - corrected) - EMECA", 
 						int(1.8/m_delta_eta),1.375,3.2,int(6.3/m_delta_phi),-3.15, 3.15);
     SetTH2Style(m_hLArHVCorrectionEMEC[0]);
     generalGroup.regHist(m_hLArHVCorrectionEMEC[0]).ignore();
     
     m_hLArHVCorrectionEMEC[1] = TH2F_LW::create("LArHVCorrectionEMECC",
-						"LAr HV deviation (nominal - corrected) - EMECC", 
+						"HV deviation (nominal - corrected) - EMECC", 
 						int(1.8/m_delta_eta),-3.21,-1.385,int(6.3/m_delta_phi),-3.15, 3.15);
     SetTH2Style(m_hLArHVCorrectionEMEC[1]);
     generalGroup.regHist(m_hLArHVCorrectionEMEC[1]).ignore();
     
     m_hNDeviatingChannelsEMEC[0] = TH1I_LW::create("NDeviatingChannelsEMECA",
-						   Form("Number of HV channels per LB with corr>%.0f%% - EMECA",m_threshold*100),
+						   Form("Number of channels per LB with HV corr>%.0f%% - EMECA",m_threshold*100),
 						   m_nlumi_blocks, 0.5, double(m_nlumi_blocks)+0.5);
     SetTH1Style(m_hNDeviatingChannelsEMEC[0]);
     generalGroup.regHist(m_hNDeviatingChannelsEMEC[0]).ignore();
     
     m_hNDeviatingChannelsEMEC[1] = TH1I_LW::create("NDeviatingChannelsEMECC",
-						   Form("Number of HV channels per LB with corr>%.0f%% - EMECC",m_threshold*100),
+						   Form("Number of channels per LB with HV corr>%.0f%% - EMECC",m_threshold*100),
 						   m_nlumi_blocks, 0.5, double(m_nlumi_blocks)+0.5);
     SetTH1Style(m_hNDeviatingChannelsEMEC[1]);
     generalGroup.regHist(m_hNDeviatingChannelsEMEC[1]).ignore();
     
     // HEC
     m_hLArHVCorrectionHEC[0] = TH2F_LW::create("LArHVCorrectionHECA",
-					       "LAr HV deviation (nominal - corrected) - HECA", 
+					       "HV deviation (nominal - corrected) - HECA", 
 					       int(1.7/m_delta_eta),1.5, 3.2,int(6.3/m_delta_phi), -3.15, 3.15);
     
     SetTH2Style(m_hLArHVCorrectionHEC[0]);
@@ -213,44 +213,44 @@ LArHVCorrectionMonTool::bookHistograms()
     
     
     m_hLArHVCorrectionHEC[1] = TH2F_LW::create("LArHVCorrectionHECC",
-					       "LAr HV deviation (nominal - corrected) - HECC", 
+					       "HV deviation (nominal - corrected) - HECC", 
 					       int(1.7/m_delta_eta),-3.21, -1.51, int(6.3/m_delta_phi), -3.15, 3.15);
     SetTH2Style(m_hLArHVCorrectionHEC[1]);
     generalGroup.regHist(m_hLArHVCorrectionHEC[1]).ignore();
     
     m_hNDeviatingChannelsHEC[0] = TH1I_LW::create("NDeviatingChannelsHECA",
-						  Form("Number of HV channels per LB with corr>%.0f%% - HECA",m_threshold*100),
+						  Form("Number of channels per LB with HV corr>%.0f%% - HECA",m_threshold*100),
 						  m_nlumi_blocks, 0.5, double(m_nlumi_blocks)+0.5);
     SetTH1Style(m_hNDeviatingChannelsHEC[0]);
     generalGroup.regHist(m_hNDeviatingChannelsHEC[0]).ignore();
     
     m_hNDeviatingChannelsHEC[1] = TH1I_LW::create("NDeviatingChannelsHECC",
-						  Form("Number of HV channels per LB with corr>%.0f%% - HECC",m_threshold*100),
+						  Form("Number of channels per LB with HV corr>%.0f%% - HECC",m_threshold*100),
 						  m_nlumi_blocks, 0.5, double(m_nlumi_blocks)+0.5);
     SetTH1Style(m_hNDeviatingChannelsHEC[1]);
     generalGroup.regHist(m_hNDeviatingChannelsHEC[1]).ignore();
     
     // FCAL
     m_hLArHVCorrectionFCAL[0] = TH2F_LW::create("LArHVCorrectionFCALA",
-						"LAr HV deviation (nominal - corrected) - FCALA", 
+						"HV deviation (nominal - corrected) - FCalA", 
 						int(3./m_delta_eta), 2.9, 4.9,int(6.4/m_delta_phi), -3.2, 3.2);
     SetTH2Style(m_hLArHVCorrectionFCAL[0]);
     generalGroup.regHist(m_hLArHVCorrectionFCAL[0]).ignore();
     
     m_hLArHVCorrectionFCAL[1] = TH2F_LW::create("LArHVCorrectionFCALC",
-						"LAr HV deviation (nominal - corrected) - FCALC", 
+						"HV deviation (nominal - corrected) - FCalC", 
 						int(3./m_delta_eta), -4.91, -3.11, int(6.4/m_delta_phi), -3.2, 3.2);
     SetTH2Style(m_hLArHVCorrectionFCAL[1]);
     generalGroup.regHist(m_hLArHVCorrectionFCAL[1]).ignore();
     
     m_hNDeviatingChannelsFCAL[0] = TH1I_LW::create("NDeviatingChannelsFCALA",
-						   Form("Number of HV channels per LB with corr>%.0f%% - FCALA",m_threshold*100),
+						   Form("Number of channels with HV corr>%.0f%% - FCALA",m_threshold*100),
 						   m_nlumi_blocks, 0.5, double(m_nlumi_blocks)+0.5);
     SetTH1Style(m_hNDeviatingChannelsFCAL[0]);
     generalGroup.regHist(m_hNDeviatingChannelsFCAL[0]).ignore();
     
     m_hNDeviatingChannelsFCAL[1] = TH1I_LW::create("NDeviatingChannelsFCALC",
-						   Form("Number of HV channels per LB with corr>%.0f%% - FCALC",m_threshold*100),
+						   Form("Number of channels with HV corr>%.0f%% - FCALC",m_threshold*100),
 						   m_nlumi_blocks, 0.5, double(m_nlumi_blocks)+0.5);
     SetTH1Style(m_hNDeviatingChannelsFCAL[1]);
     generalGroup.regHist(m_hNDeviatingChannelsFCAL[1]).ignore();
@@ -336,11 +336,13 @@ LArHVCorrectionMonTool::fillHistograms()
       float hvcorr = m_hvCorrTool->Scale(offlineID);
       //msg(MSG::VERBOSE) << "hvcorr" << hvcorr << endreq;
       float hvonline = m_dd_HVScaleCorr->HVScaleCorr(offlineID);
+      if (hvonline<=0) continue; //No valid online correction
       //msg(MSG::VERBOSE) << "hvonline" << hvonline << endreq;
-      if (hvonline>0. && hvonline<100.) hvdev = hvonline-hvcorr;
+      if (hvcorr>hvonline) hvdev = hvonline-hvcorr; //Monitor only channels that get a higher correction from DCS (eg are at a lower voltage). 
+
       //msg(MSG::VERBOSE) << "hvdev" << hvdev << endreq;
       
-      if (fabs(hvdev/hvonline)> m_threshold){
+    if (fabs(hvdev/hvonline)> m_threshold){
 	
 	// A-Side
 	if(etaChan >= 0){
@@ -372,6 +374,7 @@ LArHVCorrectionMonTool::fillHistograms()
 	    m_hLArHVCorrectionEMEC[1]->Fill(etaChan,phiChan, hvdev);
 	  }
 	  if(m_LArOnlineIDHelper->isHECchannel(id)){
+	    //std::cout << "HECC, hvdev=" << hvdev << ", onlCorr=" << hvonline << ", oflCorr=" << hvcorr << std::endl;
 	    m_nonNominal[6]++;
 	    m_hLArHVCorrectionHEC[1]->Fill(etaChan,phiChan, hvdev);
 	  }
@@ -423,8 +426,8 @@ StatusCode LArHVCorrectionMonTool::procHistograms()
 /*---------------------------------------------------------*/
 void LArHVCorrectionMonTool::SetTH2Style(TH2F_LW* h){
   
-  h->GetXaxis()->SetTitle("#eta cell");
-  h->GetYaxis()->SetTitle("#phi cell"); 
+  h->GetXaxis()->SetTitle("cell #eta");
+  h->GetYaxis()->SetTitle("cell #phi"); 
   
   return;
 }
