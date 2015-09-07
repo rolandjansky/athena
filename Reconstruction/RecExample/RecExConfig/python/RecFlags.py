@@ -210,6 +210,20 @@ class doDetailedAuditor(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 #
+class doFastMemoryAuditor(JobProperty):
+    """ If True monitor memory allocations per algorithm and report if not freed, no stracktraces (memory leaks)
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+#
+class doMemoryAuditor(JobProperty):
+    """ If True monitor memory allocations per algorithm and report if not freed, with stracktraces (memory leaks)
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+#
 class doSGAuditor(JobProperty):
     """ If True monitor data flow, see https://twiki.cern.ch/twiki/bin/view/Atlas/DataFlowMonitoring )
     """
@@ -977,7 +991,7 @@ jobproperties.add_Container(Rec)
 _list_Rec=[TAGFromRDO, doTagRawSummary , \
 OutputLevel, RootHistoOutput, RootNtupleOutput, UserAlgs, UserExecs, UserFlags, doDPD, DPDMakerScripts, LoadGeometry, doAOD, doAODCaloCells, doESD,\
 doAODall, doCBNT, doPyDump, doMonitoring, doCheckDictionary, doCheckJOT,CBNTAthenaAware,\
-doDetailedAuditor, doSGAuditor, OutputSuffix, OutputFileNameForRecoStep, doPerfMon, doDetailedPerfMon, doSemiDetailedPerfMon, doRecoTiming, doDumpMC, doDumpPoolInputContent, doDumpProperties,\
+doDetailedAuditor, doSGAuditor, doFastMemoryAuditor, doMemoryAuditor, OutputSuffix, OutputFileNameForRecoStep, doPerfMon, doDetailedPerfMon, doSemiDetailedPerfMon, doRecoTiming, doDumpMC, doDumpPoolInputContent, doDumpProperties,\
 doDumpTDS, doDumpTES, doFloatingPointException, abortOnUncheckedStatusCode, abortOnErrorMessage, oldFlagCompatibility, oldFlagTopSteering,oldFlagLandMine,\
 doEdmMonitor, doHist, doJiveXML, doPersint,doVP1, doNameAuditor, \
 doRestrictedESD, doShowSizeStatistics, doTimeLimit, doTruth,\
