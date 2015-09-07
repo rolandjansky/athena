@@ -92,6 +92,8 @@ class LArCollisionTimeMonTool: public ManagedMonitorToolBase
   bool m_eWeighted;
   bool newrun;
 
+
+  std::string m_histPath, m_key;
 };
 
 #endif

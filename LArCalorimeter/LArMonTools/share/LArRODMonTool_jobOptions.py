@@ -111,7 +111,8 @@ theLArRODMonTool = LArRODMonTool(name="LArRODMonTool",
                                  TimeOFCUnitOnline = 1.,
                                  TimeOFCUnitOffline = 1.,
                                  TimeOffset = 0., # BC # just to keep the possibility to offset the time by hand
-                                 TQthreshold = 251., # MeV # useless now ?
+                                 ADCthreshold = 0,
+                                 peakTimeCut = 5.,
                                  IsOnline = False,
                                  numberOfLB = 2000.,
                                  Streams = ["express","L1Calo","L1CaloEM","CosmicCalo","MinBias"],
@@ -127,3 +128,5 @@ else:
 
 ToolSvc += theLArRODMonTool
 LArMon.AthenaMonTools+=[ theLArRODMonTool ] 
+
+#theLArRODMonTool.OutputLevel = DEBUG

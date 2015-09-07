@@ -9,6 +9,8 @@
 ## Include LArCollisionTimeAlg
 include ("LArCellRec/LArCollisionTime_jobOptions.py")
 
+include("LArClusterRec/LArClusterCollisionTime_jobOptions.py")
+
 #########
 # Now configure and schedule the monitoring tool
 # --- for athena online running ---
@@ -22,9 +24,16 @@ LArCollisionTimeMon = LArCollisionTimeMonTool(
     name                      = "LArCollisionTimeMon",
     timeDiffCut               = 5000.0,#5.0
     nCells                    = 1,# Needs at least >=2 cells to get rid of electronic noise
-    OutputLevel               = 3,
     )
 
+
+LArCluCollTimeMonTool=LArCollisionTimeMonTool(Key="ClusterCollTime",
+                                              histPath="LArClusterCollTime",
+                                              nCells=0,
+                                              )
+
+
 # --- register with toolservice ---
-ToolSvc += LArCollisionTimeMon
-LArMon.AthenaMonTools+=[ LArCollisionTimeMon ]
+ToolSvc += [LArCollisionTimeMon,LArCluCollTimeMonTool]
+LArMon.AthenaMonTools+=[ LArCollisionTimeMon,LArCluCollTimeMonTool ]
+
