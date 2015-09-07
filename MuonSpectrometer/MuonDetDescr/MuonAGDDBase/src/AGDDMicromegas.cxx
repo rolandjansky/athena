@@ -22,20 +22,14 @@
 #include "MuonGeoModel/Micromegas.h"
 #include "MuonGeoModel/MYSQL.h"
 
-AGDDMicromegas* AGDDMicromegas::current=0;
 
 using MuonGM::MYSQL;
 
-AGDDMicromegas::AGDDMicromegas(std::string s): AGDDDetector(s,"Micromegas")
+AGDDMicromegas::AGDDMicromegas(std::string s): 
+	MMDetectorDescription(s),AGDDVolume(s)
 {
 	current=this;
 	Register();
-}
-
-void AGDDMicromegas::Register()
-{
-	AGDDDetectorStore *s = AGDDDetectorStore::GetDetectorStore();
-	s->RegisterDetector(this);
 }
 
 void AGDDMicromegas::CreateSolid() 
@@ -72,45 +66,7 @@ void AGDDMicromegas::CreateVolume()
 	{
 		SetVolume(vvv);
 	}
-
-	if(AGDDParameterStore::GetParameterStore()->Exist((*this).GetName())) {
-		std::cout << " parameters for volume " << (*this).GetName() << " already registered" << std::endl;
-	}
-	else {
-		AGDDParameterBagMM* paraBag = new AGDDParameterBagMM();
-		paraBag->largeX = _large_x;
-		paraBag->smallX = _small_x;
-		paraBag->lengthY = _y;
-		AGDDParameterBagMMTech* techparaBag = dynamic_cast<AGDDParameterBagMMTech*> (AGDDParameterStore::GetParameterStore()->GetParameterBag(tech));
-		if(!techparaBag) std::cout << " not possible to retrieve technology parameters for <" << tech << ">" << std::endl;
-		paraBag->TechParameters = techparaBag; 
-		AGDDParameterStore::GetParameterStore()->RegisterParameterBag((*this).GetName(), paraBag);
-	}
 	
 	delete cham;
 }
-void AGDDMicromegas::SetDetectorAddress(AGDDDetectorPositioner* p)
-{
-		//std::cout<<"This is AGDDMicromegas::SetDetectorAddress "<<GetName()<<" "<<
-		//sType;
-		p->ID.detectorType="Micromegas";
-		p->theDetector=this;
-		std::stringstream stringone;
-		std::string side="A";
-		if (p->ID.sideIndex<0) side="C";
-		int ctype=0;
-		int ml=atoi(sType.substr(3,1).c_str());
-		if (sType.substr(2,1)=="L") ctype=1;
-		else if (sType.substr(2,1)=="S") ctype=3;
-		int etaIndex=atoi(sType.substr(1,1).c_str());
-		stringone<<"sMD"<<ctype<<"-"<<etaIndex<<"-"<<ml<<"-phi"<<p->ID.phiIndex+1<<side<<std::endl;
-		//std::cout<<" stringone "<<stringone.str()<<std::endl;
-		p->ID.detectorAddress=stringone.str();
-}
 
-MM_Technology* AGDDMicromegas::GetTechnology()
-{
-   MYSQL* mysql = MYSQL::GetPointer();   
-   MM_Technology* t = (MM_Technology*) mysql->GetTechnology(name);
-   return t;
-}

@@ -4,7 +4,7 @@
 
 #include "MuonAGDDBase/sTGC_TechHandler.h"
 #include "AGDDModel/AGDDParameterStore.h"
-#include "MuonGeoModel/sTGC_Technology.h"
+#include "MuonAGDDDescription/sTGC_Technology.h"
 #include <iostream>
 
 

@@ -4,7 +4,7 @@
 
 #include "MuonAGDDBase/mm_TechHandler.h"
 #include "AGDDModel/AGDDParameterStore.h"
-#include "MuonGeoModel/MM_Technology.h"
+#include "MuonAGDDDescription/MM_Technology.h"
 #include <iostream>
 
 

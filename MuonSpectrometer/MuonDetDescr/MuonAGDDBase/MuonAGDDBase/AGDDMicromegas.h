@@ -5,33 +5,23 @@
 #ifndef AGDDMicromegas_H
 #define AGDDMicromegas_H
 
-#include "AGDDKernel/AGDDDetector.h"
-#include "MuonGeoModel/MM_Technology.h"
+#include "MuonAGDDDescription/MMDetectorDescription.h"
+#include "AGDDKernel/AGDDVolume.h"
 #include <string>
 #include <vector>
 #include <iostream>
 
-class GeoMaterial;
 
-using MuonGM::MM_Technology;
 
-class AGDDMicromegas: public AGDDDetector {
+class AGDDMicromegas: public MMDetectorDescription, AGDDVolume {
 public:
-	AGDDMicromegas(std::string s);
-	void Register();
+    AGDDMicromegas(std::string s);
+
 	void CreateVolume();
 	void CreateSolid();
-	static AGDDMicromegas* GetCurrent() {return current;}
-	
-	double sWidth() {return _small_x;}
-	double lWidth() {return _large_x;}
-	double Length() {return _y;}
-	double Tck()    {return _z;}
-	
-	MM_Technology* GetTechnology();
+
 private:
-	void SetDetectorAddress(AGDDDetectorPositioner*);
-	static AGDDMicromegas* current;
+
 };
 
 #endif
