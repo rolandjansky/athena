@@ -27,16 +27,16 @@ eg_resolution::eg_resolution(const std::string& configuration)
   ATH_MSG_INFO("Initialize eg_resolution");
   
   if (configuration == "run1") {
-    m_file0 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/resolutionFit_electron_run1.root").c_str() );
-    m_file1 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/resolutionFit_recoUnconv_run1.root").c_str() );
-    m_file2 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/resolutionFit_recoConv_run1.root").c_str() );
-    m_file3 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/resolutionFit_trueUnconv_run1.root").c_str() );
+    m_file0 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_electron_run1.root").c_str() );
+    m_file1 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_recoUnconv_run1.root").c_str() );
+    m_file2 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_recoConv_run1.root").c_str() );
+    m_file3 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_trueUnconv_run1.root").c_str() );
   }
   else if (configuration == "run2_pre") {
-    m_file0 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/resolutionFit_electron_run2_pre.root").c_str());
-    m_file1 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/resolutionFit_recoUnconv_run2_pre.root").c_str());
-    m_file2 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/resolutionFit_recoConv_run2_pre.root").c_str());
-    m_file3 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/resolutionFit_trueUnconv_run2_pre.root").c_str());
+    m_file0 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_electron_run2_pre.root").c_str());
+    m_file1 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_recoUnconv_run2_pre.root").c_str());
+    m_file2 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_recoConv_run2_pre.root").c_str());
+    m_file3 = TFile::Open(PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/resolutionFit_trueUnconv_run2_pre.root").c_str());
   }
 
   if (!m_file0 or !m_file1 or !m_file2 or !m_file3) {
