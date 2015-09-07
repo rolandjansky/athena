@@ -61,7 +61,7 @@ namespace AtlasRoot {
 
     m_rootFile = 0;
 
-    m_rootFileName = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v4/egammaEnergyCorrectionData.root");
+    m_rootFileName = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v5/egammaEnergyCorrectionData.root");
     m_MVAfolder = "egammaMVACalib/v1";
     if (m_rootFileName.empty()) {
       throw std::runtime_error("cannot find file");
