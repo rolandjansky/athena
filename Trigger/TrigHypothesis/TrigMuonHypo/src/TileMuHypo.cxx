@@ -46,6 +46,8 @@ TileMuHypo::TileMuHypo(const std::string & name, ISvcLocator* pSvcLocator):
         declareMonitoredVariable("DelPhiTrk", m_hypoDelPhiTrk = -9999.9);
 	declareMonitoredVariable("DelPhiTrkTR", m_hypoDelPhiTrkTR = -9999.9);
         declareMonitoredVariable("absPtTrkPre", m_hypo_absPtTrk_Pre = -9999.9);
+
+	m_storeGate = 0;
 }
 
 TileMuHypo::~TileMuHypo(){

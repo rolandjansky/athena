@@ -20,6 +20,8 @@ StauHypo::StauHypo(const std::string & name, ISvcLocator* pSvcLocator):
 	declareProperty("BetaMax", m_betaMax = 0.97);
 	declareProperty("MMin", m_mMin = 40.*CLHEP::GeV);
 	declareProperty("AcceptAll", m_acceptAll=false);
+
+	m_storeGate =0;
 }
 
 StauHypo::~StauHypo(){

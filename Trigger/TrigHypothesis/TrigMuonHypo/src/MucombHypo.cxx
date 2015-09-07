@@ -59,6 +59,7 @@ MucombHypo::MucombHypo(const std::string & name, ISvcLocator* pSvcLocator):
    declareMonitoredVariable("A0",            m_id_A0);
 
    m_bins = 0;
+   m_storeGate = 0;
 }
 
 MucombHypo::~MucombHypo()

@@ -39,6 +39,8 @@ MucombStauHypo::MucombStauHypo(const std::string & name, ISvcLocator* pSvcLocato
     declareMonitoredVariable("Mass", m_fex_mass);
     declareMonitoredVariable("Beta", m_fex_beta);
     declareMonitoredVariable("IDMass", m_id_mass);
+
+    m_storeGate = 0;
 }
 
 MucombStauHypo::~MucombStauHypo(){

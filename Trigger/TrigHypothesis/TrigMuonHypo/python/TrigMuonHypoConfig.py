@@ -94,6 +94,7 @@ muCombThresholds = {
     '20GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 19.5, 18.5, 18.5, 18.5] ], 
     '22GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 21.4, 20.3, 20.3, 20.1] ],
     '24GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 23.2, 22.2, 22.2, 21.8] ], 
+    '25GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 24.2, 23.2, 23.2, 22.6] ], 
     '26GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 25.3, 24.1, 24.1, 23.5] ], 
     '27GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 26.2, 25.1, 25.1, 24.4] ], 
     '28GeV'            : [ [0,1.05,1.5,2.0,9.9], [ 27.1, 26.0, 26.0, 25.2] ], 
@@ -1279,6 +1280,44 @@ class TrigMuonEFCombinerDiMuonMassHypoConfig(TrigMuonEFCombinerDiMuonMassHypo) :
 	
         self.AthenaMonTools = [ validation, online ]
 
+#vvvvv   pvn
+class TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig(TrigMuonEFCombinerDiMuonMassPtImpactsHypo) :
+
+    __slots__ = []
+
+    def __new__( cls, *args, **kwargs ):
+        newargs = ['%s_%s_%s' % (cls.getType(),args[0],args[1])] + list(args)
+        return super( TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig, cls ).__new__( cls, *newargs, **kwargs )
+
+    def __init__( self, name, *args, **kwargs ):
+        super( TrigMuonEFCombinerDiMuonMassPtImpactsHypoConfig, self ).__init__( name )
+
+        try:
+            # in GeV
+
+            # HLT_2mu6_10invm30_pt2_z10
+            self.massThresLow  = 10.0
+            self.massThresHigh = 30.0
+            self.pairptThresLow  = -1
+            self.pairptThresHigh  = 2.0
+            self.deltaZThres = 10.0
+            self.deltaPhiThresLow = -1
+            self.deltaPhiThresHigh = -1
+            self.AcceptAll = False
+                                            
+        except LookupError:
+            if(args[0]=='passthrough') :
+                print 'Setting passthrough'
+                self.AcceptAll = True
+            else:
+                print 'args[0] = ', args[0]
+                raise Exception('TrigMuonEFCombinerDiMuonMassPtImpacts Hypo Misconfigured')
+        
+        online     = TrigMuonEFCombinerDiMuonMassPtImpactsHypoOnlineMonitoring()
+	
+        self.AthenaMonTools = [ online ]
+
+#^^^^^   pvn
 
 class MufastNSWHypoConfig(MufastNSWHypo) :
 
@@ -1316,3 +1355,14 @@ class TrigMuonEFExtrapolatorNSWHypoConfig(TrigMuonEFExtrapolatorNSWHypo) :
         online     = TrigMuonEFExtrapolatorNSWHypoOnlineMonitoring()
 	
         self.AthenaMonTools = [ validation, online ]
+
+class TrigMuonCaloTagHypoConfig(TrigMuonCaloTagHypo) :
+  __slots__ = []
+
+  def __new__(cls, *args, **kwargs):
+    newargs = ['%s' % cls.getType()] + list(args)
+    return super( TrigMuonCaloTagHypoConfig, cls).__new__(cls, *newargs, **kwargs)
+
+  def __init__(self, name, *args, **kwargs):
+    super( TrigMuonCaloTagHypoConfig, self).__init__(name)
+

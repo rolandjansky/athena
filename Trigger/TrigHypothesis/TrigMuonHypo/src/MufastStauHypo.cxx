@@ -36,6 +36,8 @@ MufastStauHypo::MufastStauHypo(const std::string & name, ISvcLocator* pSvcLocato
    declareMonitoredVariable("Mass",m_fex_mass);
    declareMonitoredVariable("Eta", m_fex_eta);
    declareMonitoredVariable("Phi", m_fex_phi);
+
+   m_storeGate = 0;
 }
 
 MufastStauHypo::~MufastStauHypo(){

@@ -9,11 +9,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
-#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
-#include "TrigMuonEvent/TrigMuonEFInfo.h"
-#include "TrigMuonEvent/TrigMuonEFTrack.h"
-#include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
-#include "TrigMuonEvent/TrigMuonEFInfoTrack.h"
 
 #include "TrigConfHLTData/HLTTriggerElement.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
@@ -112,13 +107,12 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltBeginRun()
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
-bool TrigEFMuonOverlapRemover::isOverlap(std::vector<const TrigMuonEFInfoContainer*> extrMfLink1,
-					 std::vector<const TrigMuonEFInfoContainer*> extrMfLink2)
+bool TrigEFMuonOverlapRemover::isOverlap(std::vector<const xAOD::MuonContainer*> extrMfLink1,
+					 std::vector<const xAOD::MuonContainer*> extrMfLink2)
 {
 
 
    //first TE
-   int size1 = 0; 
    std::vector<double> pt1; 
    std::vector<double> eta1; 
    std::vector<double> phi1; 
@@ -127,7 +121,7 @@ bool TrigEFMuonOverlapRemover::isOverlap(std::vector<const TrigMuonEFInfoContain
    for (unsigned int i=0; i<extrMfLink1.size(); i++){
      if (m_doDebug) msg() << MSG::DEBUG << "Element " << i << " of vector of TrigMuonEFInfo containers" << endreq;
      // Get first (and only) RoI:
-     const TrigMuonEFInfoContainer* trigMuon = extrMfLink1[i];
+     const xAOD::MuonContainer* trigMuon = extrMfLink1[i];
      if(!trigMuon){
        msg() << MSG::ERROR
              << "Retrieval of TrigMuonEFInfoContainer from vector failed"
@@ -137,45 +131,41 @@ bool TrigEFMuonOverlapRemover::isOverlap(std::vector<const TrigMuonEFInfoContain
        if(m_doDebug) msg() << MSG::DEBUG << "TrigMuonEFInfoContainer OK with size " << trigMuon->size() << endreq;
      }
      // loop on the muons within the RoI
-     TrigMuonEFInfoContainer::const_iterator MuonItr  = trigMuon->begin();
-     TrigMuonEFInfoContainer::const_iterator MuonItrE = trigMuon->end();
+     xAOD::MuonContainer::const_iterator MuonItr  = trigMuon->begin();
+     xAOD::MuonContainer::const_iterator MuonItrE = trigMuon->end();
      for(int j=0; MuonItr != MuonItrE; ++MuonItr, ++j ) {
-        msg() << MSG::DEBUG << "Looking at TrigMuonEFInfo " << j << endreq;
-        TrigMuonEFInfo* muonInfo = (*MuonItr);
-        if (!muonInfo) {
-          if (m_doDebug) msg() << MSG::DEBUG << "No TrigMuonEFInfo found." << endreq;
+        msg() << MSG::DEBUG << "Looking at xAOD::Muon " << j << endreq;
+	const xAOD::Muon* muon = (*MuonItr);
+        if (!muon) {
+          if (m_doDebug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endreq;
           continue;
-        } else {
-          if (muonInfo->hasTrack()) { // was there a muon in this RoI ?
-            TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();  // get the TrackContainer, there might be more than one muon in this RoI
-            size1 = tc->size();  
-            for (TrigMuonEFInfoTrackContainer::const_iterator TrackItr = tc->begin() ; TrackItr!=tc->end(); TrackItr++) {  // loop over container content
-              TrigMuonEFInfoTrack* muonInfoTrack = (*TrackItr);
-              if (!muonInfoTrack->hasExtrapolatedTrack()) {
+        }
+	else {
+          if (muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle)) { 
+	      const xAOD::TrackParticle *tr = muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle); 
+	      if (!tr) {
                 if (m_doDebug) msg() << MSG::DEBUG << "Extrapolated track not initialized." << endreq;
                 continue;
-              }
-              TrigMuonEFTrack* tr = muonInfoTrack->ExtrapolatedTrack();
-              if (!tr) {
-                if (m_doDebug) msg() << MSG::DEBUG << "No TrigMuonEFTrack found." << endreq;
-                continue;
-              } else {
-                if (m_doDebug) msg() << MSG::DEBUG
-                                 << "Retrieved extrapolated track with abs pt "
-                                 << (*tr).pt()/CLHEP::GeV << " GeV " << endreq;
+	      }
+	      else {
+		if (m_doDebug) msg() << MSG::DEBUG
+				     << "Retrieved extrapolated track with abs pt "
+				     << (*tr).pt()/CLHEP::GeV << " GeV " << endreq;
                 pt1.push_back((*tr).pt());
                 eta1.push_back((*tr).eta());
                 phi1.push_back((*tr).phi());
                 charge1.push_back((*tr).charge());
               }
             }
-          }
-        }
-      }
-    }
+	}
+     }
+   }
+	 
+	  
+	    
 
    //second TE
-   int size2 = 0;
+
    std::vector<double> pt2;
    std::vector<double> eta2;
    std::vector<double> phi2;
@@ -184,59 +174,52 @@ bool TrigEFMuonOverlapRemover::isOverlap(std::vector<const TrigMuonEFInfoContain
    for (unsigned int i=0; i<extrMfLink2.size(); i++){
      if (m_doDebug) msg() << MSG::DEBUG << "Element " << i << " of vector of TrigMuonEFInfo containers" << endreq;
      // Get first (and only) RoI:
-     const TrigMuonEFInfoContainer* trigMuon = extrMfLink2[i];
+     const xAOD::MuonContainer* trigMuon = extrMfLink2[i];
      if(!trigMuon){
        msg() << MSG::ERROR
-             << "Retrieval of TrigMuonEFInfoContainer from vector failed"
+             << "Retrieval of xAOD::MuonContainer from vector failed"
              << endreq;
              return HLT::NAV_ERROR;
      } else {
-       if(m_doDebug) msg() << MSG::DEBUG << "TrigMuonEFInfoContainer OK with size " << trigMuon->size() << endreq;
+       if(m_doDebug) msg() << MSG::DEBUG << "xAOD::MuonContainer OK with size " << trigMuon->size() << endreq;
      }
      // loop on the muons within the RoI
-     TrigMuonEFInfoContainer::const_iterator MuonItr  = trigMuon->begin();
-     TrigMuonEFInfoContainer::const_iterator MuonItrE = trigMuon->end();
+     xAOD::MuonContainer::const_iterator MuonItr  = trigMuon->begin();
+     xAOD::MuonContainer::const_iterator MuonItrE = trigMuon->end();
      for(int j=0; MuonItr != MuonItrE; ++MuonItr, ++j ) {
-        msg() << MSG::DEBUG << "Looking at TrigMuonEFInfo " << j << endreq;
-        TrigMuonEFInfo* muonInfo = (*MuonItr);
-        if (!muonInfo) {
+        msg() << MSG::DEBUG << "Looking at xAOD::Muon " << j << endreq;
+	const xAOD::Muon* muon = (*MuonItr);
+        if (!muon) {
           if (m_doDebug) msg() << MSG::DEBUG << "No TrigMuonEFInfo found." << endreq;
           continue;
-        } else {
-          if (muonInfo->hasTrack()) { // was there a muon in this RoI ?
-            TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();  // get the TrackContainer, there might be more then one muon in this RoI
-            size2 = tc->size();  
-            for (TrigMuonEFInfoTrackContainer::const_iterator TrackItr = tc->begin() ; TrackItr!=tc->end(); TrackItr++) {  // loop over container content
-              TrigMuonEFInfoTrack* muonInfoTrack = (*TrackItr);
-              if (!muonInfoTrack->hasExtrapolatedTrack()) {
-                if (m_doDebug) msg() << MSG::DEBUG << "Extrapolated track not initialized." << endreq;
-                continue;
-              }
-              TrigMuonEFTrack* tr = muonInfoTrack->ExtrapolatedTrack();
-              if (!tr) {
-                if (m_doDebug) msg() << MSG::DEBUG << "No TrigMuonEFTrack found." << endreq;
-                continue;
-              } else {
-                if (m_doDebug) msg() << MSG::DEBUG
-                                 << "Retrieved extrapolated track with abs pt "
-                                 << (*tr).pt()/CLHEP::GeV << " GeV " << endreq;
-                pt2.push_back((*tr).pt());
-                eta2.push_back((*tr).eta());
-                phi2.push_back((*tr).phi());
-                charge2.push_back((*tr).charge());
-              }
-            }
+        } 
+	else {
+          if (muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle)) { // was there a muon in this RoI ?
+	    const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
+	    if (!tr) {
+	      if (m_doDebug) msg() << MSG::DEBUG << "No TrigMuonEFTrack found." << endreq;
+	      continue;
+	    } 
+	    else {
+	      if (m_doDebug) msg() << MSG::DEBUG
+				   << "Retrieved extrapolated track with abs pt "
+				   << (*tr).pt()/CLHEP::GeV << " GeV " << endreq;
+	      pt2.push_back((*tr).pt());
+	      eta2.push_back((*tr).eta());
+	      phi2.push_back((*tr).phi());
+	      charge2.push_back((*tr).charge());
+	    }	  
           }
         }
-      }
-    }
+     }
+   }
 
    //overlap check... just say that the extrapolated track collections are identical
    bool sametrackcollection = false;
-   if(size1!=size2 || size1==0 || size2==0 || size1>1 || size2>1) {
+   if(pt1.size()!=pt2.size() || pt1.size()==0 || pt2.size()==0 || pt1.size()>1 || pt2.size()>1) {
      if(m_doDebug) msg() << MSG::DEBUG << "   not same size of extrapolated track collection or not tracks found or size > 1.... cannot judge overlap -> return with false" << endreq;
    } else {
-     for(int i=0; i<size1; i++) { //to be closed
+     for(uint i=0; i<pt1.size(); i++) { //to be closed
        if(m_doDebug) msg() << MSG::DEBUG << "   ...extrM1: pt/eta/phi/charge=" << pt1[i]/CLHEP::GeV << " / " << eta1[i] << " / " << phi1[i] << " / " << charge1[i] << endreq;
        if(m_doDebug) msg() << MSG::DEBUG << "   ...extrM2: pt/eta/phi/charge=" << pt2[i]/CLHEP::GeV << " / " << eta2[i] << " / " << phi2[i] << " / " << charge2[i] << endreq;
 
@@ -498,15 +481,15 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
    }
 
    // ---
-   // get all TrigMuonEFInfoContainers 
+   // get all xAOD::MuonContainers 
    // ---
 
    bool errorWhenGettingELs = false;
   
-   std::vector<std::vector<const TrigMuonEFInfoContainer*> > EFMuonELvec; 
+   std::vector<std::vector<const xAOD::MuonContainer*> > EFMuonELvec; 
 
    for(i_te=0; i_te<n_allTEs; i_te++) {
-      std::vector<const TrigMuonEFInfoContainer*> EFMuonEL;
+     std::vector<const xAOD::MuonContainer*> EFMuonEL;
       HLT::ErrorCode isMuExtrOK = (m_doMuExtrBasedRemoval) ? getFeatures(vec_allTEs[i_te], EFMuonEL) : HLT::OK;
       if( (m_doMuExtrBasedRemoval && (isMuExtrOK != HLT::OK)) ) {
 	 errorWhenGettingELs = true;
@@ -654,47 +637,41 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
                for (unsigned int i=0; i<EFMuonELvec[j_te].size(); i++){
                  if (m_doDebug) msg() << MSG::DEBUG << "Element " << i << " of vector of TrigMuonEFInfo containers" << endreq;
                  // Get first (and only) RoI:
-                 const TrigMuonEFInfoContainer* trigMuon = EFMuonELvec[j_te].at(i);
+                 const xAOD::MuonContainer* trigMuon = EFMuonELvec[j_te].at(i);
                  if(!trigMuon){
                    msg() << MSG::ERROR
-                         << "Retrieval of TrigMuonEFInfoContainer from vector failed"
+                         << "Retrieval of xAOD::MuonContainer from vector failed"
                          << endreq;
                    return HLT::NAV_ERROR;
                  } else {
-                   if(m_doDebug) msg() << MSG::DEBUG << "TrigMuonEFInfoContainer OK with size " << trigMuon->size() << endreq;
+                   if(m_doDebug) msg() << MSG::DEBUG << "xAOD::MuonContainer OK with size " << trigMuon->size() << endreq;
                  }
                  // loop on the muons within the RoI
-                 TrigMuonEFInfoContainer::const_iterator MuonItr  = trigMuon->begin();
-                 TrigMuonEFInfoContainer::const_iterator MuonItrE = trigMuon->end();
+		 xAOD::MuonContainer::const_iterator MuonItr  = trigMuon->begin();
+		 xAOD::MuonContainer::const_iterator MuonItrE = trigMuon->end();
                  for(int j=0; MuonItr != MuonItrE; ++MuonItr, ++j ) {
-                   if (m_doDebug) msg() << MSG::DEBUG << "Looking at TrigMuonEFInfo " << j << endreq;
-                   TrigMuonEFInfo* muonInfo = (*MuonItr);
-                   if (!muonInfo) {
-                     if (m_doDebug) msg() << MSG::DEBUG << "No TrigMuonEFInfo found." << endreq;
+                   if (m_doDebug) msg() << MSG::DEBUG << "Looking at xAOD::Muon " << j << endreq;
+		   const xAOD::Muon* muon = (*MuonItr);
+                   if (!muon) {
+                     if (m_doDebug) msg() << MSG::DEBUG << "No xAOD::Muon found." << endreq;
                      continue;
-                   } else {
-                     if (muonInfo->hasTrack()) { // was there a muon in this RoI ?
-                       TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();  // get the TrackContainer, there might be more then one muon in this RoI
-                       for (TrigMuonEFInfoTrackContainer::const_iterator TrackItr = tc->begin() ; TrackItr!=tc->end(); TrackItr++) {  // loop over container content
-                         TrigMuonEFInfoTrack* muonInfoTrack = (*TrackItr);
-                         if (!muonInfoTrack->hasExtrapolatedTrack()) {
-                           if (m_doDebug) msg() << MSG::DEBUG << "Extrapolated track not initialized." << endreq;
-                           continue;
-                         }
-                         TrigMuonEFTrack* tr = muonInfoTrack->ExtrapolatedTrack();
-                         if (!tr) {
-                           if (m_doDebug) msg() << MSG::DEBUG << "No TrigMuonEFTrack found." << endreq;
-                           continue;
-                         } else {
-                           if (m_doDebug) msg() << MSG::DEBUG
-                                            << "Retrieved extrapolated track with abs pt "
-                                            << (*tr).pt()/CLHEP::GeV << " GeV " << endreq;
-                           m_mnt_muextrOverlappedPt.push_back(((*tr).pt())/CLHEP::GeV);
-                           m_mnt_muextrOverlappedEta.push_back((*tr).eta());
-                           m_mnt_muextrOverlappedPhi.push_back((*tr).phi());
-                         }
-                       }
-                     }
+                   } 
+		   else {
+                     if (muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle)) { // was there a muon in this RoI ?
+		       const xAOD::TrackParticle* tr = muon->trackParticle(xAOD::Muon::TrackParticleType::ExtrapolatedMuonSpectrometerTrackParticle);
+		       if (!tr) {
+			 if (m_doDebug) msg() << MSG::DEBUG << "No TrigMuonEFTrack found." << endreq;
+			 continue;
+		       } 
+		       else {
+			 if (m_doDebug) msg() << MSG::DEBUG
+					      << "Retrieved extrapolated track with abs pt "
+					      << (*tr).pt()/CLHEP::GeV << " GeV " << endreq;
+			 m_mnt_muextrOverlappedPt.push_back(((*tr).pt())/CLHEP::GeV);
+			 m_mnt_muextrOverlappedEta.push_back((*tr).eta());
+			 m_mnt_muextrOverlappedPhi.push_back((*tr).phi());
+		       }
+		     }
                    }
                  }
                }
@@ -702,7 +679,7 @@ HLT::ErrorCode TrigEFMuonOverlapRemover::hltExecute(std::vector<std::vector<HLT:
            }
          }
        }
-     } 
+     }
    }
 
    if(m_doMonitor) m_mnt_muextrNrActiveTEs = n_allTEs - m_mnt_muextrNrOverlapped;

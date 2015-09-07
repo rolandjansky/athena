@@ -24,6 +24,7 @@ MufastPEBHypo::MufastPEBHypo(const std::string & name, ISvcLocator* pSvcLocator)
 	declareMonitoredVariable("Eta", m_fex_eta);
 	declareMonitoredVariable("Phi", m_fex_phi);
 	
+        m_storeGate = 0;
 }
 
 MufastPEBHypo::~MufastPEBHypo(){

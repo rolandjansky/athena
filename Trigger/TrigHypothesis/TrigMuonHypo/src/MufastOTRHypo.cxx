@@ -52,6 +52,7 @@ MufastOTRHypo::MufastOTRHypo(const std::string & name, ISvcLocator* pSvcLocator)
 	declareMonitoredStdContainer("Eta", m_fex_eta, AutoClear);
 	declareMonitoredStdContainer("Phi", m_fex_phi, AutoClear);
 
+        m_storeGate = 0;
 }
 
 MufastOTRHypo::~MufastOTRHypo(){

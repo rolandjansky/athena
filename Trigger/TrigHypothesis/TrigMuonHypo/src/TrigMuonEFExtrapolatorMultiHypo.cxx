@@ -31,6 +31,10 @@ TrigMuonEFExtrapolatorMultiHypo::TrigMuonEFExtrapolatorMultiHypo(const std::stri
   declareMonitoredStdContainer("Eta", m_fex_eta);
   declareMonitoredStdContainer("Phi", m_fex_phi);
   declareMonitoredStdContainer("Nmuons", m_fex_nmuons);
+
+  m_storeGate=0;
+  m_bins=0;
+  m_mult=0;
 }
 
 TrigMuonEFExtrapolatorMultiHypo::~TrigMuonEFExtrapolatorMultiHypo(){

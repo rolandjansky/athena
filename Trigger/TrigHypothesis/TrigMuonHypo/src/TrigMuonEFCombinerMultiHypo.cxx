@@ -34,6 +34,8 @@ TrigMuonEFCombinerMultiHypo::TrigMuonEFCombinerMultiHypo(const std::string & nam
 
   m_bins = 0;
   m_mult = 0;
+  m_storeGate=0;
+
 }
 
 TrigMuonEFCombinerMultiHypo::~TrigMuonEFCombinerMultiHypo(){

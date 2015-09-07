@@ -33,6 +33,8 @@ TrigMuonEFExtrapolatorNSWHypo::TrigMuonEFExtrapolatorNSWHypo(const std::string &
    declareMonitoredStdContainer("dTheta",  m_fex_dTheta);
    declareMonitoredStdContainer("dLEta",   m_fex_dLeta);
    declareMonitoredStdContainer("dLPhi",   m_fex_dLphi);
+
+   m_storeGate=0;
 }
 
 TrigMuonEFExtrapolatorNSWHypo::~TrigMuonEFExtrapolatorNSWHypo(){

@@ -113,12 +113,6 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
     if (debug) msg() << MSG::DEBUG << "no MuonContainer Feature found" << endreq;
     return HLT::MISSING_FEATURE;
   }
-  else{
-    if (!muonContainer) { 
-      if (debug) msg() << MSG::DEBUG << "null xAOD::MuonContainer Feature found" << endreq; 
-      return HLT::MISSING_FEATURE; 
-    } 
-  }
 
   // make pass bits object to store the result per muon
   TrigPassBits* passBits = HLT::makeTrigPassBits(muonContainer);

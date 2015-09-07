@@ -39,6 +39,7 @@ TrigL2DimuonMassHypo::TrigL2DimuonMassHypo(const std::string & name, ISvcLocator
   declareProperty("LowerMassCut", m_lowerMassCut=70000.0);
   declareProperty("UpperMassCut", m_upperMassCut=110000.0);
 
+  m_storeGate = 0;
 }
 
 TrigL2DimuonMassHypo::~TrigL2DimuonMassHypo()

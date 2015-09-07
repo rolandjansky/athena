@@ -34,6 +34,8 @@ TrigMuonEFCombinerDiMuonMassHypo::TrigMuonEFCombinerDiMuonMassHypo(const std::st
   declareMonitoredStdContainer("invMassNarrow", m_mon_invMass);
   declareMonitoredStdContainer("muonPt",        m_mon_muonPt);
   declareMonitoredStdContainer("muonEta",       m_mon_muonEta);
+
+  m_storeGate=0;
 }
 
 TrigMuonEFCombinerDiMuonMassHypo::~TrigMuonEFCombinerDiMuonMassHypo() {
