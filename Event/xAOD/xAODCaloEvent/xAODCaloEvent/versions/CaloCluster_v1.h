@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster_v1.h 636000 2014-12-15 14:48:40Z wlampl $
+// $Id: CaloCluster_v1.h 693460 2015-09-07 12:37:12Z wlampl $
 #ifndef XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 #define XAODCALOEVENT_VERSIONS_CALOCLUSTER_V1_H
 
@@ -42,8 +42,8 @@ namespace xAOD {
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    /// @author Walter Lampl <Walter.Lampl@cern.ch>
    ///
-   /// $Revision: 636000 $
-   /// $Date: 2014-12-15 15:48:40 +0100 (Mon, 15 Dec 2014) $
+   /// $Revision: 693460 $
+   /// $Date: 2015-09-07 14:37:12 +0200 (Mon, 07 Sep 2015) $
    ///
    class CaloCluster_v1 : public IParticle {
      friend class ::CaloClusterChangeSignalState;
@@ -571,9 +571,11 @@ namespace xAOD {
 
      /**@brief Push the CaloClusterCellLink object into the cell-link container and hand-over ownership to it
       * @param CCCL pointer to the CaloClusterCellLinkContainer
+      * @param sg Explicitly specify the store to use for the ElementLink.
       * @return true on success
       */  
-     bool setLink(CaloClusterCellLinkContainer* CCCL);
+     bool setLink(CaloClusterCellLinkContainer* CCCL,
+                  IProxyDictWithPool* sg = nullptr);
 
      /**@brief Get a pointer to the CaloClusterCellLink object (const version)
       * @return ptr to CaloClusterCellLink obj, NULL if no valid link
@@ -614,8 +616,20 @@ namespace xAOD {
      ///Iterator of the underlying CaloClusterCellLink (const version)
      typedef CaloClusterCellLink::const_iterator const_cell_iterator; 
      //Fixme: Check ret-val of getCellLinks (might be NULL);
-     const_cell_iterator cell_begin() const { return getCellLinks()->begin();}
-     const_cell_iterator cell_end() const { return getCellLinks()->end();} 
+     const_cell_iterator cell_begin() const { 
+       const CaloClusterCellLink* links=getCellLinks();
+       if (!links) 
+	 return CaloClusterCellLink::dummyIt;
+       else
+	 return links->begin();
+     }
+     const_cell_iterator cell_end() const { 
+       const CaloClusterCellLink* links=getCellLinks();
+       if (!links) 
+	 return CaloClusterCellLink::dummyIt;
+       else
+	 return getCellLinks()->end();
+     } 
      
      ///Iterator of the underlying CaloClusterCellLink (non-const version)
      typedef CaloClusterCellLink::iterator cell_iterator; 
