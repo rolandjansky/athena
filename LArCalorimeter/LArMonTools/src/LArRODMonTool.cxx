@@ -37,6 +37,12 @@
 #include "AthenaKernel/errorcheck.h"
 
 
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
+#   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
+#else
+#   define CAN_REBIN(hist)  hist->SetBit(TH1::kCanRebin)
+#endif
+
 /*---------------------------------------------------------*/
 LArRODMonTool::LArRODMonTool(const std::string& type, 
 			     const std::string& name,
@@ -107,7 +113,8 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
 
   declareProperty("TimeOffset",m_timeOffset = 0);
 
-  declareProperty("TQthreshold",m_tq_th = 250.); // MeV // not used anymore ?
+  declareProperty("ADCthreshold",m_adc_th = 50); // Minimal number of ADC amplitude among samples required to compare online/offline
+  declareProperty("peakTimeCut",m_peakTime_cut = 5.); // Cut on abs(peak time) to compare online/offline (all quantities)
 
   declareProperty("LArBadChannelMask",m_badChannelMask);
   declareProperty("SkipKnownProblematicChannels",m_skipKnownProblematicChannels = false);
@@ -161,7 +168,7 @@ LArRODMonTool::initialize() {
     return sc;
   }
 
-  m_dumpDigits=(m_doDspTestDump || m_doCellsDump);
+  m_dumpDigits=(m_doDspTestDump || m_doCellsDump || (m_adc_th != 0));
 
   if (m_doDspTestDump) {
     sc = detStore()->regHandle(m_dd_ofc,m_keyOFC);
@@ -469,7 +476,8 @@ LArRODMonTool::bookHistograms()
     MonGroup infosGroup( this, "/LAr/DSPMonitoring/Infos", run, ATTRIB_MANAGED );
     
     hName = "EErrorsPerLB";
-    hTitle = "Nb of errors in E per LB and per partition";
+    std::string cut = "#delta ADC>"+std::to_string(m_adc_th)+" and |t_{offline}| < "+std::to_string(int(m_peakTime_cut))+"ns";
+    hTitle = "Nb of errors in E per LB - "+ cut;
     m_hEErrors_LB_part = new TH2I(hName.c_str(), hTitle.c_str(),m_nb_lb,-0.5,m_nb_lb-0.5,8,0,8);
     m_hEErrors_LB_part->GetYaxis()->SetBinLabel(1,"EMBC");
     m_hEErrors_LB_part->GetYaxis()->SetBinLabel(2,"EMBA");
@@ -483,7 +491,7 @@ LArRODMonTool::bookHistograms()
     CHECK(infosGroup.regHist(m_hEErrors_LB_part));
 
     hName = "TErrorsPerLB";
-    hTitle = "Nb of errors in T per LB and per partition";
+    hTitle = "Nb of errors in T per LB - "+cut;
     m_hTErrors_LB_part = new TH2I(hName.c_str(), hTitle.c_str(),m_nb_lb,-0.5,m_nb_lb-0.5,8,0,8);
     m_hTErrors_LB_part->GetYaxis()->SetBinLabel(1,"EMBC");
     m_hTErrors_LB_part->GetYaxis()->SetBinLabel(2,"EMBA");
@@ -497,7 +505,7 @@ LArRODMonTool::bookHistograms()
     CHECK(infosGroup.regHist(m_hTErrors_LB_part));
 
     hName = "QErrorsPerLB";
-    hTitle = "Nb of errors in Q per LB and per partition";
+    hTitle = "Nb of errors in Q per LB - "+cut;
     m_hQErrors_LB_part = new TH2I(hName.c_str(), hTitle.c_str(),m_nb_lb,-0.5,m_nb_lb-0.5,8,0,8);
     m_hQErrors_LB_part->GetYaxis()->SetBinLabel(1,"EMBC");
     m_hQErrors_LB_part->GetYaxis()->SetBinLabel(2,"EMBA");
@@ -706,6 +714,8 @@ StatusCode LArRODMonTool::fillHistograms() {
   LArRawChannelContainer::const_iterator rcBSIt_e=rawColl_fromBytestream->end();
 
   //Loop over indices in LArRawChannelContainer built offline (the small one)
+  msg(MSG::DEBUG) << "Entering the LArRawChannel loop." << endreq;
+
   for (;rcDigIt!=rcDigIt_e;++rcDigIt) {
     const HWIdentifier idDig=rcDigIt->hardwareID();
     const HWIdentifier febId=m_LArOnlineIDHelper->feb_Id(idDig);
@@ -748,12 +758,27 @@ StatusCode LArRODMonTool::fillHistograms() {
 	m_doDspTestDump=false;
 	m_doCellsDump=false;
       }
-      else
+      else{
 	dig=pLArDigitContainer->at(index);
+      }
     }
-    compareChannels(idDig,(*rcDigIt),(*rcBSIt),dig).ignore();
-      
+    short minSamples = 4095;
+    short maxSamples = 0;
+    if (dig){
+      const std::vector<short>& samples=dig->samples();
+      for (unsigned int k = 0; k<samples.size(); k++) {
+	if (samples.at(k) > maxSamples) maxSamples = samples.at(k);
+	if (samples.at(k) < minSamples) minSamples = samples.at(k);
+      }
+    }
+
+    if ((maxSamples-minSamples) > m_adc_th || m_adc_th <= 0) compareChannels(idDig,(*rcDigIt),(*rcBSIt),dig).ignore();
+    else {
+      if (dig) msg(MSG::DEBUG) << "Samples : "<< maxSamples << " " << minSamples << endreq;
+    }      
+
   }//end loop over rawColl_fromDigits
+  msg(MSG::DEBUG) << "Endof rawChannels loop" << endreq;
 
 
   for (unsigned i=0;i<m_LArOnlineIDHelper->febHashMax();++i) {
@@ -944,6 +969,7 @@ void LArRODMonTool::closeDumpfiles() {
 }
 
 StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawChannel& rcDig, const LArRawChannel& rcBS, const LArDigit* dig) {
+  msg(MSG::DEBUG) << " I am entering compareChannels method" << endreq;
   const int slot_fD = m_LArOnlineIDHelper->slot(chid);
   const  int feedthrough_fD = m_LArOnlineIDHelper->feedthrough(chid);
   const float timeOffline = rcDig.time()/m_unit_offline - m_timeOffset*m_BC;
@@ -955,6 +981,10 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
   const float& en_fD=rcDig.energy();
   const float abs_en_fB=fabs(en_fB);
 
+  if (fabs(timeOffline) > m_peakTime_cut*1000.){
+    msg(MSG::DEBUG) << " timeOffline too large " << timeOffline << endreq;
+    return StatusCode::SUCCESS;
+  }
 // Set the cuts corresponding to the range
   int energyrange, DECut, DTCut, DQCut;
   if (abs_en_fB < m_range_E_0) {
@@ -1042,7 +1072,7 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
   if (keepE) {//Energy histograms:
     //Partition histogram
     if (fabs(hg.m_hDE->GetXaxis()->GetXmax()) < fabs(DiffE) && m_IsOnline==true ) { // Set the histo axis
-      hg.m_hDE->SetBit(TH1::kCanRebin);
+      CAN_REBIN(hg.m_hDE);
       hg.m_hDE->RebinAxis(DiffE,hg.m_hDE->GetXaxis());
     }
     hg.m_hDE->Fill(DiffE);
@@ -1050,7 +1080,7 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
 
     //'ALL' histogram
     if (fabs(m_hE_all->GetXaxis()->GetXmax()) < fabs(DiffE) && m_IsOnline==true ) {
-      m_hE_all->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_hE_all);
       m_hE_all->RebinAxis(DiffE,m_hE_all->GetXaxis());
     }
     m_hE_all->Fill(DiffE);
@@ -1058,11 +1088,11 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
     
     //online vs offline histograms
     if (fabs(hg.m_hEon_VS_Eoff->GetXaxis()->GetXmax()) < fabs(maxE1) && m_IsOnline==true) {
-      hg.m_hEon_VS_Eoff->SetBit(TH1::kCanRebin);
+      CAN_REBIN(hg.m_hEon_VS_Eoff);
       hg.m_hEon_VS_Eoff->RebinAxis(maxE1,hg.m_hEon_VS_Eoff->GetXaxis());
     }
     if (fabs(hg.m_hEon_VS_Eoff->GetYaxis()->GetXmax()) < fabs(maxE2) && m_IsOnline==true ) {
-      hg.m_hEon_VS_Eoff->SetBit(TH1::kCanRebin);
+      CAN_REBIN(hg.m_hEon_VS_Eoff);
       hg.m_hEon_VS_Eoff->RebinAxis(maxE2,hg.m_hEon_VS_Eoff->GetYaxis());
     }
     hg.m_hEon_VS_Eoff->Fill(rcDig.energy(),en_fB);
@@ -1075,25 +1105,25 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
   if (keepT) { //Time histograms
     //partition histogram
     if (fabs(hg.m_hDT->GetXaxis()->GetXmax()) < fabs(DiffT) && m_IsOnline==true ) { // Set the histo axis
-      hg.m_hDT->SetBit(TH1::kCanRebin);
+      CAN_REBIN(hg.m_hDT);
       hg.m_hDT->RebinAxis(DiffT,hg.m_hDT->GetXaxis());
     }
     hg.m_hDT->Fill(DiffT);
 
     //'ALL' histogram:
     if (fabs(m_hT_all->GetXaxis()->GetXmax()) < fabs(DiffT) && m_IsOnline==true) {
-      m_hT_all->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_hT_all);
       m_hT_all->RebinAxis(DiffT,m_hT_all->GetXaxis());
     }
     m_hT_all->Fill(DiffT);
 
     //online vs offline histogram
     if (fabs(hg.m_hTon_VS_Toff->GetXaxis()->GetXmax()) < fabs(maxT1) && m_IsOnline==true) {
-      hg.m_hTon_VS_Toff->SetBit(TH1::kCanRebin);
+      CAN_REBIN(hg.m_hTon_VS_Toff);
       hg.m_hTon_VS_Toff->RebinAxis(maxT1,hg.m_hTon_VS_Toff->GetXaxis());
     }
     if (fabs(hg.m_hTon_VS_Toff->GetYaxis()->GetXmax()) < fabs(maxT2) && m_IsOnline==true) {
-      hg.m_hTon_VS_Toff->SetBit(TH1::kCanRebin);
+      CAN_REBIN(hg.m_hTon_VS_Toff);
       hg.m_hTon_VS_Toff->RebinAxis(maxT2,hg.m_hTon_VS_Toff->GetYaxis());
     }
     hg.m_hTon_VS_Toff->Fill(timeOffline,t_fB);
@@ -1108,25 +1138,25 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
   if (keepQ) { //Quality histograms
     //Partition histogram
     if (fabs(hg.m_hDQ->GetXaxis()->GetXmax()) < fabs(DiffQ) && m_IsOnline==true) { // Set the histo axis
-      hg.m_hDQ->SetBit(TH1::kCanRebin);
+      CAN_REBIN(hg.m_hDQ);
       hg.m_hDQ->RebinAxis(DiffQ,hg.m_hDQ->GetXaxis());
     }
     hg.m_hDQ->Fill(DiffQ);
 
     //'ALL' histograms
     if (fabs(m_hQ_all->GetXaxis()->GetXmax()) < fabs(DiffQ) && m_IsOnline==true) {
-      m_hQ_all->SetBit(TH1::kCanRebin);
+      CAN_REBIN(m_hQ_all);
       m_hQ_all->RebinAxis(DiffQ,m_hQ_all->GetXaxis());
     }
     m_hQ_all->Fill(DiffQ);
 
     //online vs offline histograms
     if (fabs(hg.m_hQon_VS_Qoff->GetXaxis()->GetXmax()) < fabs(maxQ1) && m_IsOnline==true) {
-      hg.m_hQon_VS_Qoff->SetBit(TH1::kCanRebin);
+      CAN_REBIN(hg.m_hQon_VS_Qoff);
       hg.m_hQon_VS_Qoff->RebinAxis(maxQ1,hg.m_hQon_VS_Qoff->GetXaxis());
     }
     if (fabs(hg.m_hQon_VS_Qoff->GetYaxis()->GetXmax()) < fabs(maxQ2) && m_IsOnline==true) {
-      hg.m_hQon_VS_Qoff->SetBit(TH1::kCanRebin);
+      CAN_REBIN(hg.m_hQon_VS_Qoff);
       hg.m_hQon_VS_Qoff->RebinAxis(maxQ2,hg.m_hQon_VS_Qoff->GetYaxis());
     }
     hg.m_hQon_VS_Qoff->Fill(rcDig.quality(),q_fB);
@@ -1178,6 +1208,7 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
       m_counter++;
     }//end if E,t or Q cut passed
   }//end if dig
+  msg(MSG::DEBUG) << " I am leaving compareChannels method" << endreq;
   return StatusCode::SUCCESS;
 }
 
