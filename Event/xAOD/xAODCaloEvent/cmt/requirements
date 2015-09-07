@@ -42,3 +42,5 @@ apply_pattern lcgdict dict=xAODCaloEvent selectionfile=selection.xml \
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
 
+
+apply_pattern do_genCLIDDB library=xAODCaloEvent

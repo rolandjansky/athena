@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloCluster_v1.cxx 636000 2014-12-15 14:48:40Z wlampl $
+// $Id: CaloCluster_v1.cxx 669554 2015-05-24 01:12:18Z ssnyder $
 
 // System include(s):
 #include <cmath>
@@ -932,14 +932,16 @@ namespace xAOD {
     return true;
   }
   */
-  bool CaloCluster_v1::setLink(CaloClusterCellLinkContainer* cccl) {
+  bool CaloCluster_v1::setLink(CaloClusterCellLinkContainer* cccl,
+                               IProxyDictWithPool* sg /*= nullptr*/)
+  {
     if (!m_cellLinks || !cccl) return false;
     cccl->push_back(m_cellLinks);
     m_ownCellLinks=false; //Cell Links now owned by CaloClusterCellLinkContainer
     const size_t idx=cccl->size()-1; //Use index for speed
     static Accessor<ElementLink<CaloClusterCellLinkContainer> > accCellLinks("CellLink");
     const CaloClusterCellLinkContainer& ref=*cccl;
-    ElementLink<CaloClusterCellLinkContainer> el(ref,idx);
+    ElementLink<CaloClusterCellLinkContainer> el(ref,idx,sg);
     accCellLinks(*this)=el;    
     return true;
   }
