@@ -27,7 +27,13 @@ class TrigFastTrackFinder(TrigFastTrackFinderBase):
     elif 'Iso' in name and 'Iso' not in type:
         hacktype = type+'Iso'
 
-    TrigFastTrackFinderBase.__init__(self, name, remap[hacktype])
+    #more type hacking
+    conftype = remap[hacktype]    
+    if name.find('TrigFastTrackFinder_FTK')>-1:
+      import re
+      conftype = re.search("FTK.*$",name).group(0)
+        
+    TrigFastTrackFinderBase.__init__(self, name, conftype)
     
 
 
