@@ -5,7 +5,6 @@
 #ifndef AGDDDetector_H
 #define AGDDDetector_H
 
-#include "AGDDKernel/AGDDVolume.h"
 #include "AGDDKernel/AGDDDetectorPositioner.h"
 #include <string>
 #include <vector>
@@ -13,10 +12,10 @@
 
 class GeoMaterial;
 
-class AGDDDetector: public AGDDVolume {
+class AGDDDetector {
 public:
-	AGDDDetector(std::string s):AGDDVolume(s),_small_x(0),_large_x(0),_y(0),_z(0) {}
-	AGDDDetector(std::string s,std::string t):AGDDVolume(s),_small_x(0),_large_x(0),_y(0),_z(0),detectorType(t) {}
+	AGDDDetector(std::string s):_small_x(0),_large_x(0),_y(0),_z(0),name(s) {}
+	AGDDDetector(std::string s,std::string t):_small_x(0),_large_x(0),_y(0),_z(0),detectorType(t),name(s) {}
 	virtual void SetXYZ(std::vector<double> v) 
 	{
 		_small_x=v[0];
@@ -36,8 +35,8 @@ public:
 	double z() {return _z;}
 	std::string subType() {return sType;}
 	std::string tech;
-	virtual void CreateVolume() =0;
-	virtual void CreateSolid() =0;
+	
+	std::string GetName() {return name;}
 	
 	std::string DetectorType() {return detectorType;}
 	std::string DetectorID() {return detectorID;}
@@ -64,6 +63,8 @@ protected:
 
 	virtual void SetDetectorAddress(AGDDDetectorPositioner*) =0;
 	std::vector<AGDDDetectorPositioner*> detectorPositions;
+	
+	std::string name;
 };
 
 #endif

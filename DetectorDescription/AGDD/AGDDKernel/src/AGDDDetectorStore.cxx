@@ -5,8 +5,11 @@
 #include "AGDDKernel/AGDDDetectorStore.h"
 #include "AGDDKernel/AGDDSection.h"
 #include "AGDDKernel/AGDDDetector.h"
+#include "AGDDKernel/AGDDTechnology.h"
 
 #include <iostream>
+
+//using AGDDModel::AGDDTechnology;
 
 AGDDDetectorStore::AGDDDetectorStore()
 {
@@ -23,6 +26,15 @@ void AGDDDetectorStore::RegisterDetector(AGDDDetector *s)
 		std::cout<<" Detector "<<n<<" already in store "<<std::endl;
 	else
 		the_detectors[n]=s;
+}
+
+void AGDDDetectorStore::RegisterTechnology(AGDDTechnology *s)
+{
+	std::string n=s->GetName();
+	if (the_technologies.find(n) != the_technologies.end())
+		std::cout<<" Technology "<<n<<" already in store "<<std::endl;
+	else
+		the_technologies[n]=s;
 }
 void AGDDDetectorStore::PrintAllDetectors()
 {
