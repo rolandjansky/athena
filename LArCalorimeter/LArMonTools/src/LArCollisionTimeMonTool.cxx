@@ -197,7 +197,7 @@ LArCollisionTimeMonTool::fillHistograms()
   
   // Retrieve LArCollision Timing information
   const LArCollisionTime * larTime;
-  if(evtStore()->retrieve(larTime,"LArCollisionTime").isFailure())
+  if(evtStore()->retrieve(larTime,m_key).isFailure())
   {
     msg(MSG::WARNING) << "Unable to retrieve LArCollisionTime event store" << endreq;
     return StatusCode::SUCCESS; // Check if failure shd be returned. VB
