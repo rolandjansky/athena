@@ -38,8 +38,6 @@ namespace Trk {
     : IAlignTrackCreator()
     , AthAlgTool(type,name,parent)
     , m_residualCalculator("Trk::AlignResidualCalculator/ResidualCalculator")
-    , m_idHelper{}
-    , m_measTypeIdHelper{}
   {
     declareInterface<IAlignTrackCreator>(this);
 
@@ -72,14 +70,14 @@ namespace Trk {
     m_measTypeIdHelper=new MeasurementTypeID(m_idHelper);
 
     if (m_residualCalculator.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not get " << m_residualCalculator << endmsg;
+      msg(MSG::FATAL) << "Could not get " << m_residualCalculator << endreq;
       return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("Retrieved " << m_residualCalculator);
 
     // get AlignModuleTool
     if (m_alignModuleTool.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not get " << m_alignModuleTool << endmsg;
+      msg(MSG::FATAL) << "Could not get " << m_alignModuleTool << endreq;
       return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("Retrieved " << m_alignModuleTool);

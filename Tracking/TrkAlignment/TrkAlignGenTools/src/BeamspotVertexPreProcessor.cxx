@@ -67,8 +67,6 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
   , m_doBeamspotConstraint(true)
   , m_doPrimaryVertexConstraint(false) 
   , m_doFullVertexConstraint(false)
-  , m_doNormalRefit(true)
-  , m_maxPt(0.)
   , m_refitTracks(true)
   , m_storeFitMatrices(true)
   , m_useSingleFitter(false)
@@ -104,9 +102,6 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
   declareProperty("BeamspotScalingFactor",     m_BSScalingFactor          );
   declareProperty("PrimaryVertexScalingFactor",m_PVScalingFactor          );
   declareProperty("MinTrksInVtx",              m_minTrksInVtx             );
-  declareProperty("doNormalRefit"             ,m_doNormalRefit            );
-  declareProperty("maxPt"                     ,m_maxPt            );
-  
 
   std::vector<std::string> defaultInterestedVertexContainers;
   defaultInterestedVertexContainers.push_back("PrimaryVertices");       // MD: Maybe only the first container?
@@ -129,7 +124,7 @@ StatusCode BeamspotVertexPreProcessor::initialize()
   // configure main track selector if requested
   if (!m_trkSelector.empty()) {
     if (m_trkSelector.retrieve().isFailure())
-      msg(MSG::ERROR)<<"Failed to retrieve tool "<<m_trkSelector<<". No Track Selection will be done."<<endmsg;
+      msg(MSG::ERROR)<<"Failed to retrieve tool "<<m_trkSelector<<". No Track Selection will be done."<<endreq;
     else
       ATH_MSG_INFO("Retrieved " << m_trkSelector);
   }
@@ -137,7 +132,7 @@ StatusCode BeamspotVertexPreProcessor::initialize()
   if (m_refitTracks) {
     // configure main track fitter
     if(m_trackFitter.retrieve().isFailure()) {
-       msg(MSG::FATAL) << "Could not get " << m_trackFitter << endmsg;
+       msg(MSG::FATAL) << "Could not get " << m_trackFitter << endreq;
        return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("Retrieved " << m_trackFitter);
@@ -145,7 +140,7 @@ StatusCode BeamspotVertexPreProcessor::initialize()
     // configure straight-line track fitter if requested
     if (!m_useSingleFitter) {
       if (m_SLTrackFitter.retrieve().isFailure()) {
-        msg(MSG::FATAL) << "Could not get " << m_SLTrackFitter << endmsg;
+        msg(MSG::FATAL) << "Could not get " << m_SLTrackFitter << endreq;
         return StatusCode::FAILURE;
       }
       ATH_MSG_INFO("Retrieved " << m_SLTrackFitter);
@@ -153,7 +148,7 @@ StatusCode BeamspotVertexPreProcessor::initialize()
 
      // TrackToVertexIPEstimator
     if (m_ITrackToVertexIPEstimator.retrieve().isFailure()) {
-      if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Can not retrieve TrackToVertexIPEstimator of type " << m_ITrackToVertexIPEstimator.typeAndName() << endmsg;
+      if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Can not retrieve TrackToVertexIPEstimator of type " << m_ITrackToVertexIPEstimator.typeAndName() << endreq;
         return StatusCode::FAILURE;
     } else { 
       ATH_MSG_INFO ( "Retrieved TrackToVertexIPEstimator Tool " << m_ITrackToVertexIPEstimator.typeAndName() );
@@ -161,14 +156,14 @@ StatusCode BeamspotVertexPreProcessor::initialize()
     
     // configure Atlas extrapolator
     if (m_extrapolator.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool "<<m_extrapolator<<endmsg;
+      msg(MSG::FATAL) << "Failed to retrieve tool "<<m_extrapolator<<endreq;
       return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("Retrieved " << m_extrapolator);
     
     // configure beam-spot conditions service
     if (m_beamCondSvc.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Failed to retrieve beamspot service "<<m_beamCondSvc<<endmsg;
+      msg(MSG::FATAL)<<"Failed to retrieve beamspot service "<<m_beamCondSvc<<endreq;
       return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("Retrieved " << m_beamCondSvc);
@@ -176,11 +171,11 @@ StatusCode BeamspotVertexPreProcessor::initialize()
     // configure beam-spot track selector if requested
     if(m_doBSTrackSelection) {
       if(m_BSTrackSelector.empty()) {
-        msg(MSG::FATAL) << "Requested BeamSpot track selection but Track Selector not configured"<< endmsg;
+        msg(MSG::FATAL) << "Requested BeamSpot track selection but Track Selector not configured"<< endreq;
         return StatusCode::FAILURE;
       }
       if (m_BSTrackSelector.retrieve().isFailure()) {
-         msg(MSG::FATAL) << "Could not get " << m_BSTrackSelector<< endmsg;
+         msg(MSG::FATAL) << "Could not get " << m_BSTrackSelector<< endreq;
          return StatusCode::FAILURE;
       }
       ATH_MSG_INFO("Retrieved " << m_BSTrackSelector);
@@ -189,7 +184,7 @@ StatusCode BeamspotVertexPreProcessor::initialize()
   }  // end of 'if (m_refitTracks)'
 
   else if (m_doBeamspotConstraint) {
-    msg(MSG::FATAL)<<"Requested beam-spot constraint but RefitTracks is False."<<endmsg;
+    msg(MSG::FATAL)<<"Requested beam-spot constraint but RefitTracks is False."<<endreq;
     return StatusCode::FAILURE;
   }
 
@@ -411,9 +406,9 @@ const xAOD::Vertex* BeamspotVertexPreProcessor::findVertexCandidate(const Track*
 
 const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Track* track, const xAOD::Vertex* &vtx) const {
 
-  const VertexOnTrack * vot       = nullptr;
-  const xAOD::Vertex* tmpVtx      = nullptr;
-  const xAOD::Vertex* updatedVtx  = nullptr;
+  const VertexOnTrack * vot       = 0;
+  const xAOD::Vertex* tmpVtx      = 0;
+  const xAOD::Vertex* updatedVtx  = 0;
 
   const xAOD::Vertex* findVtx = findVertexCandidate(track);
   
@@ -452,22 +447,10 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Trac
         if ( trackPerigee && trackPerigee->associatedSurface() == *surface )
           perigee = trackPerigee->clone();
       }
-      //if the perigee is still nonsense ...
-      if (not perigee){
-        //clean up
-        if (updatedVtx!= tmpVtx) delete updatedVtx;
-        delete tmpVtx;
-        delete surface;
-        //WARNING
-        ATH_MSG_WARNING("Perigee is nullptr in "<<__FILE__<<":"<<__LINE__);
-        //exit
-        return vot;
-      }
       
       // create the Jacobian matrix from Cartisian to Perigee
       AmgMatrix(2,3) Jacobian;
       Jacobian.setZero();
-      //perigee is dereferenced here, must not be nullptr!
       double ptInv                               =  1./perigee->momentum().perp();
       Jacobian(0,0)                              = -ptInv*perigee->momentum().y();
       Jacobian(0,1)                              =  ptInv*perigee->momentum().x();
@@ -476,9 +459,11 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Trac
       ATH_MSG_DEBUG(" Jacobian matrix from Cartesian to Perigee: "<< Jacobian);
       
       AmgSymMatrix(3) vtxCov = updatedVtx->covariancePosition(); // MD: that was NULL before?
+      
       //std::cout  << " before PV scaling : "<< vtxCov << std::endl;
       
       vtxCov *= m_PVScalingFactor * m_PVScalingFactor; 
+      
       //std::cout  << " after PV scaling : "<< vtxCov << std::endl;
 
       Amg::MatrixX errorMatrix;
@@ -496,14 +481,9 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Trac
       
       // in fact, in most of the normal situation, pointer tmpVtx and updatedVtx are the same. You can check the source code
       // But for safety, I would like to delete them seperately 
-      // sroe(2016.09.23): This would result in an illegal double delete, if they really point to the same thing!
-      // http://stackoverflow.com/questions/9169774/what-happens-in-a-double-delete
-      if (tmpVtx != updatedVtx){
-        delete updatedVtx;
-      }
-      delete tmpVtx;
-      tmpVtx=nullptr;
-      updatedVtx=nullptr;
+      if( tmpVtx )     delete tmpVtx;
+
+      if( updatedVtx ) delete updatedVtx;
 
       LocalParameters localParams = Trk::LocalParameters(Amg::Vector2D(0,0));
             
@@ -522,7 +502,7 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Trac
 
 const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromBeamspot(const Track* track) const{
 
-  const VertexOnTrack * vot = nullptr;
+  const VertexOnTrack * vot = 0;
 
   Amg::Vector3D  bpos = m_beamCondSvc->beamPos();
   ATH_MSG_DEBUG("beam spot: "<<bpos);
@@ -544,7 +524,7 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromBeamspot(const Tr
   Amg::Vector3D  BSC(beamX, beamY, z0);
   ATH_MSG_DEBUG("constructing beam point (x,y,z) = ( "<<beamX<<" , "<<beamY<<" , "<<z0<<" )");
 
-  const PerigeeSurface * surface = nullptr;
+  const PerigeeSurface * surface = 0;
   Amg::MatrixX  errorMatrix;
   LocalParameters beamSpotParameters;
   
@@ -570,18 +550,9 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromBeamspot(const Tr
       if ( trackPerigee && trackPerigee->associatedSurface() == *surface )
         perigee = trackPerigee->clone();
     }
-    if (not perigee){
-      //clean up
-      delete surface;
-      //WARNING
-      ATH_MSG_WARNING("Perigee is nullptr in "<<__FILE__<<":"<<__LINE__);
-      //exit
-      return vot;
-    }
   
     Eigen::Matrix<double,1,2> jacobian;
     jacobian.setZero();
-    //perigee is dereferenced here, must not be nullptr
     double ptInv   =  1./perigee->momentum().perp();
     jacobian(0,0) = -ptInv * perigee->momentum().y();
     jacobian(0,1) =  ptInv * perigee->momentum().x();
@@ -674,7 +645,7 @@ bool BeamspotVertexPreProcessor::doBeamspotConstraintTrackSelection(const Track*
   if(m_doAssociatedToPVSelection) {
 
     if(evtStore()->retrieve( vertices, m_PVContainerName ).isFailure()) {
-      msg(MSG::ERROR)<<"Cannot retrieve the \'"<<m_PVContainerName<<"\' vertex collection from StoreGate"<<endmsg;
+      msg(MSG::ERROR)<<"Cannot retrieve the \'"<<m_PVContainerName<<"\' vertex collection from StoreGate"<<endreq;
       m_doAssociatedToPVSelection = false;
     } else {
       // if there is no vertex, we can't associate the tracks to it
@@ -695,24 +666,8 @@ bool BeamspotVertexPreProcessor::doBeamspotConstraintTrackSelection(const Track*
 
   if( ( m_doAssociatedToPVSelection && haveVertex && vertex && isAssociatedToPV(track,vertices) ) ||
       ( m_doBSTrackSelection        && m_BSTrackSelector->accept(*track) ) ){
-    
-    if (m_maxPt > 0 )
-      {
-	const Trk::Perigee* perigee = track->perigeeParameters();
-	if (!perigee) {
-	  ATH_MSG_DEBUG("NO perigee on this track");
-	  return false;
-	}
-	const double qoverP = perigee->parameters()[Trk::qOverP] * 1000.;
-	double pt = 0.;
-	if (qoverP != 0 )
-	  pt = fabs(1.0/qoverP)*sin(perigee->parameters()[Trk::theta]);
-	ATH_MSG_DEBUG( " pt  : "<< pt );
-	if (pt > m_maxPt)
-	  return false;
-      } //maxPt selection
-    ATH_MSG_DEBUG("this track passes the beamspot track selection, will do beamspot constraint on it ");
-    return true; 
+        ATH_MSG_DEBUG("this track passes the beamspot track selection, will do beamspot constraint on it ");
+        return true; 
   } 
   else return false;
 }
@@ -736,15 +691,15 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
   
   if(m_doPrimaryVertexConstraint){
     vot = provideVotFromVertex(track, vtx);
-    if( !vot )  ATH_MSG_INFO( "VoT not found for this track! ");
-    if( !vtx )  ATH_MSG_INFO( "VTX pointer not found for this track! ");
+    if( !vot )  ATH_MSG_DEBUG( "VoT not found for this track! ");
+    if( !vtx )  ATH_MSG_DEBUG( "VTX pointer not found for this track! ");
     if(vot){
       newTrack = doConstraintRefit(fitter, track, vot, particleHypothesis);       
       type = AlignTrack::VertexConstrained;
       // this track failed the PV constraint reift
       if (!newTrack)  {
         ++m_nFailedPVRefits;
-        msg(MSG::ERROR)<<"VertexConstraint track refit failed! "<<endmsg;
+        msg(MSG::ERROR)<<"VertexConstraint track refit failed! "<<endreq;
       }
     }
   }
@@ -757,19 +712,18 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
         // this track failed the BS constraint reift
         if (!newTrack)  {
           ++m_nFailedBSRefits;
-          msg(MSG::ERROR)<<"BSConstraint track refit failed! "<<endmsg;
+          msg(MSG::ERROR)<<"BSConstraint track refit failed! "<<endreq;
         }
       }
   }
 
-  
-  if(!newTrack && m_doNormalRefit){
+  if(!newTrack){
       newTrack = fitter->fit(*track,m_runOutlierRemoval,particleHypothesis);
       type = AlignTrack::NormalRefitted;
       // this track failed the normal reift
       if (!newTrack)   {
         ++m_nFailedNormalRefits;
-        msg(MSG::ERROR)<<"Normal track refit failed! "<<endmsg;
+        msg(MSG::ERROR)<<"Normal track refit failed! "<<endreq;
       }
   }
 
@@ -783,12 +737,12 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
 
  
     if (msgLvl(MSG::DEBUG) || msgLvl(MSG::VERBOSE)) {
-      msg(MSG::DEBUG)<<"before refit: "<<endmsg;
-      msg(MSG::DEBUG)<< *track <<endmsg;
+      msg(MSG::DEBUG)<<"before refit: "<<endreq;
+      msg(MSG::DEBUG)<< *track <<endreq;
       if (msgLvl(MSG::VERBOSE))   AlignTrack::dumpLessTrackInfo(*track,msg(MSG::DEBUG));
       
-      msg(MSG::DEBUG)<<"after refit: "<<endmsg;
-      msg(MSG::DEBUG)<< *newTrack <<endmsg;
+      msg(MSG::DEBUG)<<"after refit: "<<endreq;
+      msg(MSG::DEBUG)<< *newTrack <<endreq;
       if (msgLvl(MSG::VERBOSE))   AlignTrack::dumpLessTrackInfo(*newTrack,msg(MSG::DEBUG));
     }
   
@@ -927,11 +881,11 @@ void BeamspotVertexPreProcessor::accumulateVTX(const AlignTrack* alignTrack) {
 
   // check if pointers are valid
   if (!ptrWeights || !ptrWeightsFD || !ptrResiduals || !ptrDerivs) {
-    msg(MSG::ERROR)<<"something missing from alignTrack!"<<endmsg;
-    if (!ptrWeights)   msg(MSG::ERROR)<<"no weights!"<<endmsg;
-    if (!ptrWeightsFD) msg(MSG::ERROR)<<"no weights for first deriv!"<<endmsg;
-    if (!ptrResiduals) msg(MSG::ERROR)<<"no residuals!"<<endmsg;
-    if (!ptrDerivs)    msg(MSG::ERROR)<<"no derivatives!"<<endmsg;
+    msg(MSG::ERROR)<<"something missing from alignTrack!"<<endreq;
+    if (!ptrWeights)   msg(MSG::ERROR)<<"no weights!"<<endreq;
+    if (!ptrWeightsFD) msg(MSG::ERROR)<<"no weights for first deriv!"<<endreq;
+    if (!ptrResiduals) msg(MSG::ERROR)<<"no residuals!"<<endreq;
+    if (!ptrDerivs)    msg(MSG::ERROR)<<"no derivatives!"<<endreq;
     return;
   }
 
@@ -1040,7 +994,7 @@ void BeamspotVertexPreProcessor::accumulateVTX(const AlignTrack* alignTrack) {
 
   // prepare derivatives w.r.t. the vertex position:
   int nmodules = allDerivatives[0].size();
-  msg(MSG::DEBUG) << "accumulateVTX: allDerivatives size is  " << nmodules << endmsg;
+  msg(MSG::DEBUG) << "accumulateVTX: allDerivatives size is  " << nmodules << endreq;
   for( int ii=0; ii<3; ++ii ) {
     VTXDerivatives[ii] = (*(allDerivatives[ii])[0]);
     for( int jj=1; jj<nmodules; ++jj ) {
@@ -1106,7 +1060,7 @@ void BeamspotVertexPreProcessor::solveVTX() {
       if( (*ivtx)->Ntracks()>1 ) {
         (*ivtx)->fitVertex();
        } else {
-         msg(MSG::WARNING) << "This vertex contains " << (*ivtx)->Ntracks() << " tracks. No solution possible." <<endmsg;
+         msg(MSG::WARNING) << "This vertex contains " << (*ivtx)->Ntracks() << " tracks. No solution possible." <<endreq;
        }
 
        ATH_MSG_DEBUG( "This vertex contains " << (*ivtx)->Ntracks() << " tracks.");

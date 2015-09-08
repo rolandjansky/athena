@@ -25,11 +25,6 @@ namespace Trk {
     
     : AthAlgTool(type,name,parent)
     , m_trackFitter("Trk::GlobalChi2Fitter/InDetTrackFitter")
-    , m_nRetrievalErrors(0)
-    , m_scalepmaptogev(false)    
-    , m_constrainedTracks(0)
-    , m_passconstrainedRequirements(0)
-    , m_unconstrainedTracks(0)
     , m_inputTrackCollection("Tracks")
     , m_constraintInputFile_P(0)
     , m_etaphiMap_P(0)
@@ -46,8 +41,8 @@ namespace Trk {
     declareProperty("UseConstrainedTrkOnly",    m_useConstrainedTrkOnly  = false   );
     declareProperty("MinPt",                    m_minPt         = 15.0             );        
     declareProperty("MaxPt",                    m_maxPt         = 100.0            );        
-    declareProperty("MinPIXHits",               m_minPIXHits    = 0                ); //1
-    declareProperty("MinSCTHits",               m_minSCTHits    = 0                ); //6
+    declareProperty("MinPIXHits",               m_minPIXHits    = 1                );
+    declareProperty("MinSCTHits",               m_minSCTHits    = 6                );
     declareProperty("MinTRTHits",               m_minTRTHits    = 0                );
     declareProperty("Maxd0",                    m_maxd0         = 500.             );
     declareProperty("Maxz0",                    m_maxz0         = 500.             );
@@ -63,7 +58,7 @@ namespace Trk {
     declareProperty("UseConstraintError",         m_useConstraintError = true   ,"Bla bla "   ); 
     declareProperty("ReduceConstraintUncertainty",m_reduceConstraintUncertainty = 1., "Reduce the uncertainty on teh track parmater constraint by this amount"  ); 
     declareProperty("DeltaScaling",               m_deltaScaling = 1.);
-    declareProperty("ScalePMapToGeV"             ,m_scalepmaptogev);
+   
   }
 
   //________________________________________________________________________
@@ -77,15 +72,15 @@ namespace Trk {
   {
     // configure main track fitter
     if(m_trackFitter.retrieve().isFailure()) {
-       msg(MSG::FATAL) << "Could not get " << m_trackFitter << endmsg;
+       msg(MSG::FATAL) << "Could not get " << m_trackFitter << endreq;
        return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("Retrieved " << m_trackFitter);
 
 
-    ATH_MSG_INFO( "init m_useConstraintError " <<m_useConstraintError );
+    std::cout << "init m_useConstraintError " <<m_useConstraintError <<std::endl;
 
-    ATH_MSG_INFO( "Init m_reduceConstraintUncertainty " << m_reduceConstraintUncertainty );
+    std::cout << "Init m_reduceConstraintUncertainty " << m_reduceConstraintUncertainty <<  std::endl;
 
 
     if(m_CorrectMomentum){
@@ -95,7 +90,7 @@ namespace Trk {
         ATH_MSG_FATAL( " Problem reading TFile " << m_constraintFileName_P );
         return StatusCode::FAILURE;
       }
-      ATH_MSG_INFO("Opened  file containing the constraints" << m_constraintFileName_P);
+      ATH_MSG_INFO("Opened  file containing the contraints" << m_constraintFileName_P);
       m_etaphiMap_P = (TH2F*)m_constraintInputFile_P->Get(m_constraintHistName_P.c_str());
       if(!m_etaphiMap_P){
         ATH_MSG_FATAL( " Problem getting constraints Hist.  Name " << m_constraintHistName_P );
@@ -103,7 +98,7 @@ namespace Trk {
         delete m_constraintInputFile_P;
         return StatusCode::FAILURE;
       }
-      ATH_MSG_INFO("Opened constraints histogram " << m_constraintHistName_P);
+      ATH_MSG_INFO("Opened contraints histogram " << m_constraintHistName_P);
     
     }
     
@@ -114,7 +109,7 @@ namespace Trk {
         ATH_MSG_FATAL( " Problem reading TFile " << m_constraintFileName_d0 );
         return StatusCode::FAILURE;
       }
-      ATH_MSG_INFO("Opened  file containing the constraints" << m_constraintFileName_d0);
+      ATH_MSG_INFO("Opened  file containing the contraints" << m_constraintFileName_d0);
       m_etaphiMap_d0 = (TH2F*)m_constraintInputFile_d0->Get(m_constraintHistName_d0.c_str());
       if(!m_etaphiMap_d0){
         ATH_MSG_FATAL( " Problem getting constraints Hist.  Name " << m_constraintHistName_d0 );
@@ -122,7 +117,7 @@ namespace Trk {
         delete m_constraintInputFile_d0;
         return StatusCode::FAILURE;
       }
-      ATH_MSG_INFO("Opened constraints histogram " << m_constraintHistName_d0);
+      ATH_MSG_INFO("Opened contraints histogram " << m_constraintHistName_d0);
     
     }
     
@@ -133,7 +128,7 @@ namespace Trk {
         ATH_MSG_FATAL( " Problem reading TFile " << m_constraintFileName_z0 );
         return StatusCode::FAILURE;
       }
-      ATH_MSG_INFO("Opened  file containing the constraints" << m_constraintFileName_z0);
+      ATH_MSG_INFO("Opened  file containing the contraints" << m_constraintFileName_z0);
       m_etaphiMap_z0 = (TH2F*)m_constraintInputFile_z0->Get(m_constraintHistName_z0.c_str());
       if(!m_etaphiMap_z0){
         ATH_MSG_FATAL( " Problem getting constraints Hist.  Name " << m_constraintHistName_z0 );
@@ -141,7 +136,7 @@ namespace Trk {
         delete m_constraintInputFile_z0;
         return StatusCode::FAILURE;
       }
-      ATH_MSG_INFO("Opened constraints histogram " << m_constraintHistName_z0);
+      ATH_MSG_INFO("Opened contraints histogram " << m_constraintHistName_z0);
     
     }
     
@@ -255,7 +250,7 @@ namespace Trk {
         constrainedPars.push_back( constrainedqOverP ) ;
         
         Amg::MatrixX constrainedCov( 3,3 ) ;
-	      constrainedCov.setZero();
+	constrainedCov.setZero();
         constrainedCov( 0, 0 )   =  correctedD0Error;
         constrainedCov( 1, 1 )   =  correctedZ0Error;
         constrainedCov( 2, 2 )   =  correctedQoverPError;
@@ -329,8 +324,9 @@ namespace Trk {
     }    
 
     ATH_MSG_DEBUG(" The final trackCollection size : " << trackCollection->size() );
-    //track Collection cannot be null here; it has already been dereferenced
-    finalTracks = trackCollection;
+    if ( trackCollection ){
+      finalTracks = trackCollection;
+    }
 
     return StatusCode::SUCCESS;
 
@@ -407,9 +403,6 @@ namespace Trk {
 
     double delta = m_etaphiMap_P->GetBinContent(binNumber) * m_deltaScaling;
        
-    if (m_scalepmaptogev)
-      delta = delta * 0.001;
-
     correctedQoverP = measuredPerigee->parameters()[Trk::qOverP] * (1.+ charge *pt *delta );
     correctedQoverPError = perr;
    

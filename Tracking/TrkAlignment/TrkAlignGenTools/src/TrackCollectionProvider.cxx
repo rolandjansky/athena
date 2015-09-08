@@ -63,10 +63,10 @@ namespace Trk {
 	++m_nRetrievalErrors;
 	if(m_nRetrievalErrors>=m_maxRetrievalErrors) {
 	  msg(MSG::FATAL)<<"Input track collection \'"<<m_inputCol<<"\' not found in first "
-			 <<m_nRetrievalErrors<<" events. Aborting."<<endmsg;
+			 <<m_nRetrievalErrors<<" events. Aborting."<<endreq;
 	  msg(MSG::FATAL)<<"Maximum allowed number of events without the track collection "
 			 <<"can be changed using the \'MaxRetrievalErrors\' option (-1 for infinite)."
-			 <<endmsg;
+			 <<endreq;
 	  return StatusCode::FAILURE;
 	}
       }

@@ -22,7 +22,6 @@
 
 
 #include "TrkAlignEvent/AlignTrack.h"
-#include "EventPrimitives/EventPrimitives.h"
 
 namespace Trk {
 
@@ -38,7 +37,6 @@ namespace Trk {
     , m_particleHypothesis(Trk::nonInteracting)
     , m_useSingleFitter(false)
     , m_selectHits(false)
-    , m_fixMomentum(false)
   {
     declareInterface<IAlignTrackPreProcessor>(this);
 
@@ -58,7 +56,6 @@ namespace Trk {
 
     declareProperty("HitQualityTool", m_hitQualityTool);
     declareProperty("SelectHits", m_selectHits);
-    declareProperty("FixMomentum", m_fixMomentum);
 
     m_logStream = 0;
   }
@@ -76,7 +73,7 @@ namespace Trk {
     if (m_trackFitterTool.retrieve().isSuccess())
       ATH_MSG_INFO("Retrieved " << m_trackFitterTool);
     else{
-      msg(MSG::FATAL) << "Could not get " << m_trackFitterTool << endmsg;
+      msg(MSG::FATAL) << "Could not get " << m_trackFitterTool << endreq;
       return StatusCode::FAILURE;
     }
 
@@ -84,19 +81,19 @@ namespace Trk {
       if (m_SLTrackFitterTool.retrieve().isSuccess())
         ATH_MSG_INFO("Retrieved " << m_SLTrackFitterTool);
       else {
-        msg(MSG::FATAL) << "Could not get " << m_SLTrackFitterTool << endmsg;
+        msg(MSG::FATAL) << "Could not get " << m_SLTrackFitterTool << endreq;
         return StatusCode::FAILURE;
       }
     }
 
     if(m_selectTracks) {
       if(m_trackSelectorTool.empty()) {
-        msg(MSG::FATAL) << "TrackSelectorTool not specified : " << m_trackSelectorTool << endmsg;
+        msg(MSG::FATAL) << "TrackSelectorTool not specified : " << m_trackSelectorTool << endreq;
         return StatusCode::FAILURE;
       }
       else if(m_trackSelectorTool.retrieve().isFailure())
       {
-        msg(MSG::FATAL) << "Could not get " << m_trackSelectorTool << endmsg;
+        msg(MSG::FATAL) << "Could not get " << m_trackSelectorTool << endreq;
         return StatusCode::FAILURE;
       }
       ATH_MSG_INFO("Retrieved " << m_trackSelectorTool);
@@ -104,12 +101,12 @@ namespace Trk {
 
     if (m_selectHits) {
       if(m_hitQualityTool.empty()) {
-  msg(MSG::FATAL) << "HitQualityTool not specified : " << m_hitQualityTool << endmsg;
+  msg(MSG::FATAL) << "HitQualityTool not specified : " << m_hitQualityTool << endreq;
   return StatusCode::FAILURE;
       }
       else if(m_hitQualityTool.retrieve().isFailure())
   {
-    msg(MSG::FATAL) << "Could not get " << m_trackSelectorTool << endmsg;
+    msg(MSG::FATAL) << "Could not get " << m_trackSelectorTool << endreq;
     return StatusCode::FAILURE;
   }
       ATH_MSG_INFO("Retrieved " << m_hitQualityTool);
@@ -194,11 +191,11 @@ namespace Trk {
   at = new AlignTrack(*newTrack);
   
   if (msgLvl(MSG::DEBUG) && !msgLvl(MSG::VERBOSE)) {
-    msg(MSG::DEBUG)<<"before refit: "<<endmsg;
+    msg(MSG::DEBUG)<<"before refit: "<<endreq;
     AlignTrack::dumpLessTrackInfo(*origTrack,msg(MSG::DEBUG));
-    msg(MSG::DEBUG)<<"after refit: "<<endmsg;
+    msg(MSG::DEBUG)<<"after refit: "<<endreq;
     AlignTrack::dumpLessTrackInfo(*newTrack,msg(MSG::DEBUG));
-    msg(MSG::DEBUG)<<endmsg;
+    msg(MSG::DEBUG)<<endreq;
   }
   
   // store fit matrices
@@ -206,20 +203,13 @@ namespace Trk {
     at->setFullCovarianceMatrix(fitter->FullCovarianceMatrix());
     at->setDerivativeMatrix(fitter->DerivMatrix());
   }
-  if (m_fixMomentum)
-    {
-       at->AlignTrack::setRefitQovP(false);
-    }
+  
   // delete newTrack since it's copied in AlignTrack
   delete newTrack;
       }
       else { // in case no selection is performed, keep all tracks
         at=new AlignTrack(*newTrack);
       }
-  	if (m_fixMomentum)
- 	   {
-  	     at->AlignTrack::setRefitQovP(false);
- 	   }
       
       newTracks->push_back(at);
     } 

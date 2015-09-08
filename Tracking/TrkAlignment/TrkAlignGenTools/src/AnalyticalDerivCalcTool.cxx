@@ -35,8 +35,7 @@ namespace Trk {
                                                    const IInterface  * parent)
     : AthAlgTool(type,name,parent)
     , m_alignModuleTool("Trk::AlignModuleTool/AlignModuleTool")
-    , m_idHelper(nullptr)
-    , m_measTypeIdHelper(nullptr)
+    , m_idHelper(0)
     , m_firstEvent(true)
     , m_residualType(HitOnly)
     , m_residualTypeSet(false)
@@ -68,13 +67,13 @@ namespace Trk {
   StatusCode AnalyticalDerivCalcTool::initialize()
   {
     if (m_alignModuleTool.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not get " << m_alignModuleTool << endmsg;
+      msg(MSG::FATAL) << "Could not get " << m_alignModuleTool << endreq;
       return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("Retrieved " << m_alignModuleTool);
 
     if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-      msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endmsg;
+      msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endreq;
       return StatusCode::FAILURE;
     }
     m_measTypeIdHelper = new MeasurementTypeID(m_idHelper);
@@ -176,7 +175,7 @@ namespace Trk {
     ATH_MSG_DEBUG("V inverse (diagonal only):");
     if (msgLvl(MSG::DEBUG)) {
       for (int i=0;i<Vinv->rows();i++) msg()<<(*Vinv)(i,i)<<" ";
-      msg()<<endmsg;
+      msg()<<endreq;
     } 
 
     // ========================
@@ -224,7 +223,7 @@ namespace Trk {
       ATH_MSG_DEBUG("setting local weight matrix W ( "<<W->rows()<<" x "<<W->cols()<<" ) (diagonal only):");
       if (msgLvl(MSG::DEBUG)) {
         for (int i=0;i<W->rows();i++) msg()<<(*W)(i,i)<<" ";
-        msg()<<endmsg;
+        msg()<<endreq;
       } 
       alignTrack->setWeightMatrix(W);
 
@@ -243,7 +242,7 @@ namespace Trk {
     ATH_MSG_DEBUG("V ( "<<V->rows()<<" x "<<V->cols()<<" ) (diagonal only):");
     if (msgLvl(MSG::DEBUG)) {
       for (int i=0;i<V->rows();i++) msg()<<(*V)(i,i)<<" ";
-      msg()<<endmsg;
+      msg()<<endreq;
     } 
 
     const int outputdim = alignTrack->nAlignTSOSMeas();
@@ -281,7 +280,7 @@ namespace Trk {
     ATH_MSG_DEBUG("setting weight for 1st derivatives (diagonal only): ");
     if (msgLvl(MSG::DEBUG)) {
       for (int i=0;i<W1st->rows();i++) msg()<<(*W1st)(i,i)<<" ";
-      msg()<<endmsg;
+      msg()<<endreq;
     }
     alignTrack->setWeightMatrixFirstDeriv(W1st);
 
@@ -553,7 +552,7 @@ namespace Trk {
       Risvalid = Risvalid && R(irow,irow)>0;
       if ( msgLvl(MSG::DEBUG) ) {
         if( !(R(irow,irow)>0) )
-          msg(MSG::DEBUG) << "matrix invalid: (" << irow << "," << irow<<") = " << R(irow,irow) << endmsg;
+          msg(MSG::DEBUG) << "matrix invalid: (" << irow << "," << irow<<") = " << R(irow,irow) << endreq;
       }
       else if (!Risvalid)
         break;
@@ -574,7 +573,7 @@ namespace Trk {
 
     if( !Risvalid ) {
       ATH_MSG_WARNING("Checked matrix is invalid.");
-      ATH_MSG_WARNING("R: \n"<<R);
+      ATH_MSG_WARNING("R: "<<endreq<<R);
     }
     return Risvalid;
   }
@@ -735,33 +734,12 @@ namespace Trk {
       projR[AlignModule::BowY]  = 0;    
       projR[AlignModule::BowZ]  = 0;
 
-      /** for L16 in local stave frame 
       //Bowing Parameterised by a 2nd order polynomial   
       const double localy = refPos.y();
       // stave length in the IBL -- we will see if there a more generic way of doing this
       const double  y0y0  = 366.5*366.5;
       //  refPos.y() should be the y position along in the AlignModule Frame
-      //      projR[AlignModule::BowX] = Rxx * ( localy*localy - y0y0 ) / y0y0;
-      projR[AlignModule::BowX] = -Rxx * ( localy*localy ) / y0y0;   // change the bowing base
-      **/
-      
-      /** for L11 in global frame
-      //Bowing Parameterised by a 2nd order polynomial                                                                         
-      const double localz = refPos.z();                                                                                         
-      // stave length in the IBL -- we will see if there a more generic way of doing this                             
-      const double  z0z0  = 366.5*366.5;                                                                       
-      //  refPos.z() should be the z position along in the AlignModule Frame
-      projR[AlignModule::BowX] = -projR[AlignModule::RotZ] / refPos.perp() * ( localz*localz - z0z0 ) / z0z0;
-      **/
-
-
-      /** try a generic formula:  **/
-      const double localz = alignTSOS->trackParameters()->position().z(); // - globalToAlignFrameTranslation().z();  // the last term to be doublechecked!
-      // stave length in the IBL -- we will see if there is a more generic way of doing this
-      const double  z0z0  = 366.5*366.5;
-
-      projR[AlignModule::BowX] = ( localz*localz - z0z0) / z0z0;    // this formula should work for both L11 ans L16, sign to be checked!
-
+      projR[AlignModule::BowX] = Rxx * ( localy*localy - y0y0 ) / y0y0;
 
       // prepare derivatives w.r.t. the vertex position:
       Amg::Vector3D RxLoc(Rxx, Ryx, Rzx);

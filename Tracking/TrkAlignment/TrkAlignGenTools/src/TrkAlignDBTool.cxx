@@ -29,7 +29,7 @@ namespace Trk {
   //_______________________________________________________________________
   StatusCode TrkAlignDBTool::initialize()
   {
-    msg(MSG::DEBUG) << "initialize() of TrkAlignDBTool" << endmsg;  
+    msg(MSG::DEBUG) << "initialize() of TrkAlignDBTool" << endreq;  
 
     return StatusCode::SUCCESS;
   }
@@ -37,7 +37,7 @@ namespace Trk {
   //_______________________________________________________________________
   StatusCode TrkAlignDBTool::finalize()
   {
-    msg(MSG::DEBUG) << "finalize() of TrkAlignDBTool" << endmsg;  
+    msg(MSG::DEBUG) << "finalize() of TrkAlignDBTool" << endreq;  
     
     return StatusCode::SUCCESS;    
   }

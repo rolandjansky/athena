@@ -69,7 +69,6 @@ namespace Trk {
 
     bool m_selectTracks;       //!< do the track selection
     bool m_selectHits;         //!< perform the hit InnerDetector selection
-    bool m_fixMomentum;        //!< Fix the momentum of the track so it is not refitted 
 
   }; // end class
 
