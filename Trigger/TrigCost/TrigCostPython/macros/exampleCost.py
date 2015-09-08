@@ -483,16 +483,10 @@ if opts.writexml!="":
             outname = string.replace(outname,".xml",
                                      "_"+str(opts.run)+"_"+str(lbbeg)+"_"+str(lbend)+".xml")
             print "Writing: ",outname
-            TrigCostXML.WriteXmlFile(outname,avgrates,lbset) # Don't remove PS
-            print "Writing equivilant cost folder: ",
-            TrigCostXML.WriteCsvFile(str(opts.run), str(lbbeg)+"-"+str(lbend), avgrates, lbset, outname) # Don't remove PS
-
+            TrigCostXML.WriteXmlFile(outname,avgrates,lbset)
             outname = outname.replace(".xml","_nops.xml")
             print "Writing: ",outname
             TrigCostXML.WriteXmlFile(outname,avgrates,lbset,True) # Remove PS
-            print "Writing equivilant cost folder: ",
-            TrigCostXML.WriteCsvFile(str(opts.run), str(lbbeg)+"-"+str(lbend), avgrates, lbset, outname, True) # Remove PS
-
 
             # if averaging all psset into one file we are done in one pass
             if opts.nopsrangebreak:
