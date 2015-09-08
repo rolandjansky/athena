@@ -44,31 +44,4 @@ public:
 
 CLASS_DEF (LArHitContainer, 2701 , 1 ) 
 
-class StoredLArHitContainers
-
-/** @brief store pointers to the different hit collections */
-{
- public:
-  StoredLArHitContainers():
-    embHitCollection(0),
-    emecHitCollection(0),
-    fcalHitCollection(0),
-    hecHitCollection(0),
-    miniFcalHitCollection(0)
-    {}
-
-  /** pointer to EM barrel hit collection */
-  LArHitContainer* embHitCollection;
-  /** pointer to EMEC hit collection */
-  LArHitContainer* emecHitCollection;
-  /** pointer to FCAL hit collection */
-  LArHitContainer* fcalHitCollection;
-  /** pointer to HEC hit collection */
-  LArHitContainer* hecHitCollection;
-  /** pointer to Mini FCAL hit collection */
-  LArHitContainer* miniFcalHitCollection;
-};
-
-CLASS_DEF( StoredLArHitContainers , 1265102271 , 1 )
-
 #endif     // LArSimEvent_LArHitContainer_h
