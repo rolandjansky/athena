@@ -11,6 +11,7 @@
 
 #include "TrkAlignInterfaces/IAlignTrackPreProcessor.h"
 #include "InDetAlignGenTools/IInDetAlignHitQualSelTool.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 #include <vector>
 
@@ -32,8 +33,7 @@ namespace Trk {
 
   class Track;
   class IGlobalTrackFitter;
-  class ITrackSelectorTool;
-
+  //class ITrackSelectorTool;
   class AlignTrackPreProcessor : virtual public IAlignTrackPreProcessor, public AthAlgTool
   {
 
@@ -52,11 +52,12 @@ namespace Trk {
     ToolHandle<IGlobalTrackFitter> m_trackFitterTool;
     ToolHandle<IGlobalTrackFitter> m_SLTrackFitterTool;
 
-    ToolHandle<ITrackSelectorTool> m_trackSelectorTool;
+    //ToolHandle<ITrackSelectorTool> m_trackSelectorTool;
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectorTool;
     ToolHandle<IInDetAlignHitQualSelTool> m_hitQualityTool;
     
     /** select silicon hits by quality. keep all the rest **/
-    Track * performSiliconHitSelection(Track *, ToolHandle<Trk::IGlobalTrackFitter> );
+    Track * performSiliconHitSelection(Track *, const ToolHandle<Trk::IGlobalTrackFitter> &);
 
     bool m_refitTracks; //!> flag to refit tracks
     bool m_storeFitMatricesAfterRefit; //!> flag to store derivative and covariance matrices after refit
@@ -72,6 +73,8 @@ namespace Trk {
   }; // end class
 
 } // end namespace
+
+
 
 #endif // TRKALIGNGENTOOLS_ALIGNTRACKPREPROCESSOR_H
 

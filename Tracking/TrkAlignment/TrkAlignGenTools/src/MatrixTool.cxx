@@ -45,6 +45,10 @@
 #include <algorithm>
 #include <iterator>
 
+//restore ostream 
+#include <boost/io/ios_state.hpp>
+
+
 
 #include <sys/resource.h>
 
@@ -126,6 +130,8 @@ namespace Trk {
     declareProperty("InputHitmapFiles",   m_inputHitmapFiles    = defaultHitmapInput);
   
     declareProperty("MaxReadErrors",    m_maxReadErrors     = 10);
+    declareProperty("AlignIBLbutNotPixel",    m_AlignIBLbutNotPixel = false);
+    declareProperty("AlignPixelbutNotIBL",    m_AlignPixelbutNotIBL = false);
 
   }
 
@@ -1338,13 +1344,32 @@ namespace Trk {
         (*alignParList)[i]->setSecndDeriv((*m_bigmatrix)[i][i]/sigma_i/sigma_i);
       }
     }
-   
+    
+    unsigned long long OldPixelIdentifier = 37769216; //Identifier for the Pixel Detector
+    unsigned long long IBLIdentifier      = 33574912; //Identifier for the Pixel Detector
+    
+
+    
+
     ATH_MSG_INFO("rescaling done");
 
     // select modules with non-zero tracks
     for(int i=0;i<nDoF;i++)
-      if((*alignParList)[i]->alignModule()->nHits() >= m_minNumHits && (*alignParList)[i]->alignModule()->nTracks() >= m_minNumTrks)
-        m_activeIndices.push_back(i);
+      {
+
+	if (m_AlignIBLbutNotPixel) //If m_AlignIBLbutNotPixel is set to True, Pixel would be skiped in the solving.
+	  if  ((*alignParList)[i]->alignModule()->identify32()== OldPixelIdentifier)  
+	    {ATH_MSG_INFO( "Pixel DOF have been skiped in the solving because AlignIBLbutNotPixel is set to True");
+	      continue;} 
+	
+	if (m_AlignPixelbutNotIBL) //If m_AlignPixelbutNotIBL is set to True, IBL would be skiped in the solving.
+	  if  ((*alignParList)[i]->alignModule()->identify32()== IBLIdentifier)  
+	    {ATH_MSG_INFO( "IBL DOF have been skiped in the solving because AlignPixelbutNotIBL is set to True");
+	      continue;}
+	
+	if((*alignParList)[i]->alignModule()->nHits() >= m_minNumHits && (*alignParList)[i]->alignModule()->nTracks() >= m_minNumTrks)
+	  m_activeIndices.push_back(i);
+      }
     m_aNDoF = m_activeIndices.size();
     ATH_MSG_DEBUG("aNDoF/nDoF: "<<m_aNDoF<<"/"<<nDoF);
 
@@ -1518,7 +1543,7 @@ namespace Trk {
 
     delete cov;
   }
-
+/**
   namespace {
     class RestoreIOSFlags 
     {
@@ -1538,10 +1563,12 @@ namespace Trk {
       std::streamsize  m_precision;
     };
   }
-
+**/
   //________________________________________________________________________
   void MatrixTool::printModuleSolution(std::ostream & os, const AlignModule * module, const CLHEP::HepSymMatrix * cov) const
   {
+    boost::io::ios_all_saver  ias( os ); //save the stream state    
+
     os << "--------------------------------------------------------------------------------" << std::endl;
     os << "Alignment parameters for module: " << module->name() << std::endl;
     os << "Number of tracks passing: " << module->nTracks() << std::endl;
@@ -1563,7 +1590,7 @@ namespace Trk {
       os << "No active parameters" << std::endl;
     else
     {
-      RestoreIOSFlags restore_flags(os);
+      //RestoreIOSFlags restore_flags(os);
 
       os.unsetf(std::ios_base::floatfield);
       os << std::setiosflags(std::ios_base::left) << std::setprecision(5);
@@ -1587,6 +1614,7 @@ namespace Trk {
         os << "Local correlation matrix: " << corrsub << std::flush;
       }
     }
+    ias.restore(); //restore the stream state
   }
 
   //________________________________________________________________________

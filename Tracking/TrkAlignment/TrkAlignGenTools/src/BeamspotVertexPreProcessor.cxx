@@ -2,9 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "TrkAlignGenTools/BeamspotVertexPreProcessor.h"
-//#include "TrkAlignGenTools/CompareTwoTracks.h"
 #include "TrkFitterInterfaces/IGlobalTrackFitter.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkExInterfaces/IExtrapolator.h"
@@ -15,27 +13,28 @@
 #include "TrkVertexOnTrack/VertexOnTrack.h"
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
-
 #include "DataModel/DataVector.h"
 #include "GaudiKernel/SmartDataPtr.h"
 
+// new xAOD, seems we need to keep old as well
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
 #include "VxVertex/VxContainer.h"
 #include "VxVertex/VxCandidate.h"
 #include "VxVertex/VxTrackAtVertex.h"
-#include "TrkVertexFitterInterfaces/IVertexLinearizedTrackFactory.h"
-#include "TrkVertexFitterInterfaces/IVertexUpdator.h"
+
+//++ new one
+#include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/LinkToTrack.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkParticleBase/TrackParticleBase.h"
-
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkParameters/TrackParameters.h"
-
 #include "TrkAlignInterfaces/IAlignModuleTool.h"
-
 #include "TrkMeasurementBase/MeasurementBase.h"
 
 #include <ext/algorithm>
@@ -54,11 +53,10 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
   , m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
   , m_trkSelector("")
   , m_BSTrackSelector("")
-  , m_IVertexUpdator("Trk::KalmanVertexUpdator")
-  , m_linFactory("Trk::FullLinearizedTrackFactory")
+  , m_ITrackToVertexIPEstimator("Trk::TrackToVertexIPEstimator")   // MD: new tool
   , m_alignModuleTool("Trk::AlignModuleTool/AlignModuleTool")
   , m_beamCondSvc("BeamCondSvc",name)
-  , m_PVContainerName("VxPrimaryCandidate")
+  , m_PVContainerName("PrimaryVertices")
   , m_runOutlierRemoval(false)
   , m_selectVertices(true)
   , m_particleNumber(3)                          // 3=pion, 0=non-interacting
@@ -106,10 +104,9 @@ BeamspotVertexPreProcessor::BeamspotVertexPreProcessor(const std::string & type,
   declareProperty("MinTrksInVtx",              m_minTrksInVtx             );
 
   std::vector<std::string> defaultInterestedVertexContainers;
-  defaultInterestedVertexContainers.push_back("VxPrimaryCandidate");
-  defaultInterestedVertexContainers.push_back("V0Candidates");
+  defaultInterestedVertexContainers.push_back("PrimaryVertices");       // MD: Maybe only the first container?
+  //defaultInterestedVertexContainers.push_back("V0UnconstrVertices");  //   : does not seem to exist in files -> check later again
   m_interestedVertexContainers = defaultInterestedVertexContainers;
-
 
   m_logStream = 0;
 }
@@ -148,27 +145,14 @@ StatusCode BeamspotVertexPreProcessor::initialize()
       }
       ATH_MSG_INFO("Retrieved " << m_SLTrackFitter);
     }
-    
-    //linearized track factory
-    msg(MSG::FATAL) << "Correct code to use the folowing tool " << endreq;
-    return StatusCode::FAILURE;
-       
 
-    if (m_linFactory.retrieve().isFailure()){
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_linFactory << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved VertexLinearizedTrackFactory tool " << m_linFactory << endreq;
-    }
-
-     // KalmanVertexUpdator
-    if (m_IVertexUpdator.retrieve().isFailure()) {
-      if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Can not retrieve VertexUpdator of type " << m_IVertexUpdator.typeAndName() << endreq;
+     // TrackToVertexIPEstimator
+    if (m_ITrackToVertexIPEstimator.retrieve().isFailure()) {
+      if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Can not retrieve TrackToVertexIPEstimator of type " << m_ITrackToVertexIPEstimator.typeAndName() << endreq;
         return StatusCode::FAILURE;
     } else { 
-      ATH_MSG_INFO ( "Retrieved VertexUpdator Tool " << m_IVertexUpdator.typeAndName() );
+      ATH_MSG_INFO ( "Retrieved TrackToVertexIPEstimator Tool " << m_ITrackToVertexIPEstimator.typeAndName() );
     }
-    
     
     // configure Atlas extrapolator
     if (m_extrapolator.retrieve().isFailure()) {
@@ -225,22 +209,18 @@ StatusCode BeamspotVertexPreProcessor::initialize()
     }
 
   }
-
-    
   return StatusCode::SUCCESS;
 }
 
+ 
+bool CompareTwoTracks::operator()(VxTrackAtVertex vtxTrk){ // MD: took away deref*
 
-
-bool CompareTwoTracks::operator()(VxTrackAtVertex* vtxTrk){
-
-  ITrackLink* trkLink = vtxTrk->trackOrParticleLink();
+  ITrackLink* trkLink = vtxTrk.trackOrParticleLink();
   LinkToTrackParticleBase* linkToTrackParticle = dynamic_cast<Trk::LinkToTrackParticleBase*>(trkLink);
   if(!linkToTrackParticle) return false;
     const TrackParticleBase* tpb = *(linkToTrackParticle->cptr());
  
-  const Track* originalTrk = tpb->originalTrack();         
-
+  const Track* originalTrk = tpb->originalTrack();
 
   bool equal = false;
   // compare the addresses of these two tracks directly 
@@ -270,55 +250,53 @@ bool CompareTwoTracks::operator()(VxTrackAtVertex* vtxTrk){
 
 
 
-bool BeamspotVertexPreProcessor::selectVertices(const Trk::VxCandidate* vtx) const {
-
-  if(0 == vtx->vertexType()) {
-     ATH_MSG_DEBUG("this primary vertex has been rejected as type dummy");
-     return false;
-  }
-  if (vtx->recVertex().fitQuality().numberDoF() <= 0){
-      ATH_MSG_WARNING(" VERY STRANGE!!!, this primary vertex has been rejected as non-positive DoF "<< vtx->recVertex().fitQuality().numberDoF() <<" the type of this vertex: "<<  vtx->vertexType() );  
+bool BeamspotVertexPreProcessor::selectVertices(const xAOD::Vertex * vtx) const {
+    
+    if(0 == vtx->vertexType()) {
+      ATH_MSG_DEBUG("this primary vertex has been rejected as type dummy");
       return false;
-  }
-  if (int(vtx->vxTrackAtVertex()->size()) < m_minTrksInVtx){
-      ATH_MSG_DEBUG(" this primary vertex vxTrackAtVertex size:  "<< vtx->vxTrackAtVertex()->size() );
+    }
+    if (vtx->numberDoF() <= 0){
+      ATH_MSG_WARNING(" VERY STRANGE!!!, this primary vertex has been rejected as non-positive DoF "<< vtx->numberDoF() <<" the type of this vertex: "<<  vtx->vertexType() );
       return false;
-  }
-  return true;
+    }
+    if (int(vtx->vxTrackAtVertex().size()) < m_minTrksInVtx){
+      ATH_MSG_DEBUG(" this primary vertex vxTrackAtVertex size:  "<< vtx->vxTrackAtVertex().size() );
+      return false;
+    }
+    return true;
 }
+  
 
-
-
-bool BeamspotVertexPreProcessor::selectUpdatedVertices(const Trk::VxCandidate* vtx) const {
-
-  if (vtx->recVertex().fitQuality().numberDoF() <= 0){
-      ATH_MSG_WARNING(" VERY STRANGE!!! , the updated vertex has been rejected as non-positive DoF: "<< vtx->recVertex().fitQuality().numberDoF() <<" the type of this vertex:"<<  vtx->vertexType() );
+bool BeamspotVertexPreProcessor::selectUpdatedVertices(const xAOD::Vertex * vtx) const {
+    
+    if (vtx->numberDoF() <= 0){
+      ATH_MSG_WARNING(" VERY STRANGE!!! , the updated vertex has been rejected as non-positive DoF: "<< vtx->numberDoF() <<" the type of this vertex:"<<  vtx->vertexType() );
       return false;
-  }
-
-  if (int(vtx->vxTrackAtVertex()->size()) < m_minTrksInVtx){
-      ATH_MSG_DEBUG(" the updated vertex has been rejected as vxTrackAtVertex size:  "<< vtx->vxTrackAtVertex()->size() );
+    }
+    
+    if (int(vtx->vxTrackAtVertex().size()) < m_minTrksInVtx){
+      ATH_MSG_DEBUG(" the updated vertex has been rejected as vxTrackAtVertex size:  "<< vtx->vxTrackAtVertex().size() );
       return false;
-  }
-
-  if ((vtx->recVertex().covariancePosition())(0,0)<=0  ||
-      (vtx->recVertex().covariancePosition())(1,1)<=0  ||
-      (vtx->recVertex().covariancePosition())(2,2)<=0){
-      ATH_MSG_WARNING(" VERY STRANGE!!! , this updated vertex has been rejected as negative diagonal error matrix "); 
+    }
+    
+    if ((vtx->covariancePosition())(0,0)<=0  ||
+        (vtx->covariancePosition())(1,1)<=0  ||
+        (vtx->covariancePosition())(2,2)<=0){
+      ATH_MSG_WARNING(" VERY STRANGE!!! , this updated vertex has been rejected as negative diagonal error matrix ");
       return false;
-  }
-  return true;
+    }
+    return true;
 }
+  
 
-
-
-bool BeamspotVertexPreProcessor::isAssociatedToPV(const Trk::Track * track, const VxContainer * vertices)
+bool BeamspotVertexPreProcessor::isAssociatedToPV(const Trk::Track * track, const xAOD::VertexContainer* vertices)
 {
   if(!vertices)
       return false;
 
-  VxContainer::const_iterator vtxEnd   = vertices->end();
-  VxContainer::const_iterator vtxIter  = vertices->begin();
+  xAOD::VertexContainer::const_iterator vtxEnd   = vertices->end();
+  xAOD::VertexContainer::const_iterator vtxIter  = vertices->begin();
  
   for ( ; vtxIter != vtxEnd  && (*vtxIter)->vertexType() == 1; ++vtxIter ){
         if (isAssociatedToVertex(track, *vtxIter)) return true;  
@@ -327,21 +305,19 @@ bool BeamspotVertexPreProcessor::isAssociatedToPV(const Trk::Track * track, cons
 }
 
 
-
-
 //____________________________________________________________________________
-bool BeamspotVertexPreProcessor::isAssociatedToVertex(const Trk::Track * track, const VxCandidate * vertex)
+bool BeamspotVertexPreProcessor::isAssociatedToVertex(const Trk::Track * track, const xAOD::Vertex * vertex)
 {
   if(!vertex)
     return false;
 
-  const std::vector<VxTrackAtVertex *> * vertexTracks = vertex->vxTrackAtVertex();
+  std::vector<VxTrackAtVertex >  vertexTracks = vertex->vxTrackAtVertex();
   Trk::CompareTwoTracks thisCompare(track, m_compareMethod);
 
-  std::vector<VxTrackAtVertex* >::const_iterator iVxTrackBegin = vertexTracks->begin();
-  std::vector<VxTrackAtVertex* >::const_iterator iVxTrackEnd   = vertexTracks->end();
+  std::vector<VxTrackAtVertex >::const_iterator iVxTrackBegin = vertexTracks.begin();
+  std::vector<VxTrackAtVertex >::const_iterator iVxTrackEnd   = vertexTracks.end();
 
-  std::vector<VxTrackAtVertex*>::const_iterator findResult = std::find_if(iVxTrackBegin, iVxTrackEnd, thisCompare);
+  std::vector<VxTrackAtVertex>::const_iterator findResult = std::find_if(iVxTrackBegin, iVxTrackEnd, thisCompare);
 
   if(findResult != iVxTrackEnd)
      return true;
@@ -350,105 +326,104 @@ bool BeamspotVertexPreProcessor::isAssociatedToVertex(const Trk::Track * track, 
 }
 
 
-
 void BeamspotVertexPreProcessor::prepareAllTracksVector(){
 
   // do clean up firstly
   m_allTracksVector.clear();
-  const VxContainer* thisContainer = 0;
-
+  const xAOD::VertexContainer* thisContainer = 0;
+  //xAODVertices
   std::vector<std::string>::const_iterator strs_iter = m_interestedVertexContainers.begin();
   std::vector<std::string>::const_iterator strs_end  = m_interestedVertexContainers.end();
 
   for(; strs_iter != strs_end; ++strs_iter){
 
     StatusCode sc = evtStore()->retrieve( thisContainer, *strs_iter);
-    if( sc.isFailure()  ||  !thisContainer ) {
-        ATH_MSG_WARNING("No VxContainer "<< *strs_iter <<" found in TDS tried ");
+    if (evtStore()->contains<xAOD::VertexContainer>(*strs_iter)) {
+      if (evtStore()->retrieve(thisContainer,*strs_iter).isFailure() ) {
+        ATH_MSG_DEBUG ("Could not retrieve xAOD vertex container with key "+(*strs_iter));
         continue;
-    } else {
-      
-      VxContainer::const_iterator vtxEnd   = thisContainer->end();
-      VxContainer::const_iterator vtxIter  = thisContainer->begin();
-    
-      for(; vtxIter != vtxEnd; ++vtxIter){
-        if(m_selectVertices && !selectVertices(*vtxIter)) {
-          ATH_MSG_DEBUG("this vertex did not pass the primary vertex selection...");
-          continue;
-        }             
-        
-        std::vector<VxTrackAtVertex*>*  vtxTracks = (*vtxIter)->vxTrackAtVertex();
-        m_allTracksVector.push_back(std::make_pair(*vtxIter,vtxTracks));
       }
-    } 
-  }       
+      else {
+    
+        xAOD::VertexContainer::const_iterator vtxEnd   = thisContainer->end();
+        xAOD::VertexContainer::const_iterator vtxIter  = thisContainer->begin();
+    
+        for(; vtxIter != vtxEnd; ++vtxIter){
+          if(m_selectVertices && !selectVertices(*vtxIter)) {
+            ATH_MSG_DEBUG("this vertex did not pass the primary vertex selection...");
+            continue;
+          }
+          // MD: extra check to make sure - maybe not needed?
+          if ((*vtxIter)->vxTrackAtVertexAvailable()){
+
+            std::vector<VxTrackAtVertex> vtxTracks = (*vtxIter)->vxTrackAtVertex();
+            m_allTracksVector.push_back(std::make_pair(*vtxIter,vtxTracks));
+          }
+          else {
+            ATH_MSG_DEBUG("this vertex did not pass the vxTrackAtVertexAvailable() call...");
+            continue;
+          }
+        }
+      }
+    }
+  }
   ATH_MSG_DEBUG("m_allTracksVector size: "<<m_allTracksVector.size());
 }
 
 
+const xAOD::Vertex* BeamspotVertexPreProcessor::findVertexCandidate(const Track* track) const {
 
-const std::pair<const VxCandidate*, VxTrackAtVertex*> BeamspotVertexPreProcessor::findVertexCandidate(const Track* track) const {
+  const xAOD::Vertex* findVxCandidate = 0;
+  //VxTrackAtVertex* findVxTrack = 0;
 
-  const VxCandidate*     findVxCandidate = 0;
-  VxTrackAtVertex* findVxTrack = 0;
-
-  std::vector< std::pair< VxCandidate*, std::vector<VxTrackAtVertex*>* > >::const_iterator iter    = m_allTracksVector.begin();
-  std::vector< std::pair< VxCandidate*, std::vector<VxTrackAtVertex*>* > >::const_iterator iterEnd = m_allTracksVector.end();
+  std::vector< std::pair< const xAOD::Vertex*, std::vector<VxTrackAtVertex> > >::const_iterator iter    = m_allTracksVector.begin();
+  std::vector< std::pair< const xAOD::Vertex*, std::vector<VxTrackAtVertex> > >::const_iterator iterEnd = m_allTracksVector.end();
   
   for(; iter != iterEnd; ++iter){
-    std::pair< VxCandidate*, std::vector<VxTrackAtVertex*>* > thisPair = *iter;
+    std::pair< const xAOD::Vertex*, std::vector<VxTrackAtVertex> > thisPair = *iter;
     //ATH_MSG_DEBUG(" this VxCandidate* and vector<VxTrackAtVertex*>* Pair: "<< *(thisPair.first));
     
-    std::vector<VxTrackAtVertex*>::iterator iVxTrackBegin  = (thisPair.second)->begin();
-    std::vector<VxTrackAtVertex*>::iterator iVxTrackEnd    = (thisPair.second)->end();
+    std::vector<VxTrackAtVertex>::iterator iVxTrackBegin  = (thisPair.second).begin();
+    std::vector<VxTrackAtVertex>::iterator iVxTrackEnd    = (thisPair.second).end();
     Trk::CompareTwoTracks thisCompare(track, m_compareMethod);
     
-    std::vector<VxTrackAtVertex*>::iterator findResult = std::find_if(iVxTrackBegin, iVxTrackEnd, thisCompare);
+    std::vector<VxTrackAtVertex>::iterator findResult = std::find_if(iVxTrackBegin, iVxTrackEnd, thisCompare);
     
     if(findResult != iVxTrackEnd){
-      ATH_MSG_DEBUG("the found VxTrackAtVertex: "<<**findResult);
+      ATH_MSG_DEBUG("the found VxTrackAtVertex: "<<*findResult);
       findVxCandidate      = thisPair.first;
-      findVxTrack          = *findResult;
+      //findVxTrack          = findResult;
       break;
     }
   }
 
-  if  ( !(findVxCandidate && findVxTrack) ) 
-    ATH_MSG_DEBUG("the track don't not belongs to any interested Vertex! ");
+  //if  ( !(findVxCandidate && findVxTrack) )
+  //  ATH_MSG_DEBUG("the track don't not belongs to any interested Vertex! ");
 
-  return std::make_pair(findVxCandidate, findVxTrack); 
+  return findVxCandidate;
 }
 
 
+const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Track* track, const xAOD::Vertex* &vtx) const {
 
-const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Track* track, const VxCandidate* &vtx) const {
+  const VertexOnTrack * vot       = 0;
+  const xAOD::Vertex* tmpVtx      = 0;
+  const xAOD::Vertex* updatedVtx  = 0;
 
-  VxTrackAtVertex* vtxTrk       = 0;
-  const VertexOnTrack * vot     = 0;
-  VxCandidate* tmpVtx           = 0;
-  VxCandidate* updatedVtx       = 0;
-
-  const std::pair<const VxCandidate*, VxTrackAtVertex*> findPair = findVertexCandidate(track);  
+  const xAOD::Vertex* findVtx = findVertexCandidate(track);
+  
+  ATH_MSG_DEBUG("findVtx in provideVotFromVertex: "<<findVtx);
  
-  ATH_MSG_DEBUG("findPair in provideVotFromVertex: "<<findPair);
- 
-  if (!( 0==findPair.first || 0==findPair.second )) {
-    vtx    = findPair.first;
-    vtxTrk = findPair.second;
-    const RecVertex & rvtx = vtx->recVertex();
-    ATH_MSG_DEBUG("the vertex position in provideVotFromVertex:  "<< rvtx);
-    
-    //////////////////////////////////////////////////////////////////////////     
-    
-    
-    ATH_MSG_WARNING("Commented out line to make code compile  --- correct when vertex classes are updated");
-    // if(!vtxTrk->linState()) m_linFactory->linearize(*vtxTrk, rvtx);
+  if (!( 0==findVtx) ) {
+    vtx    = findVtx;
     
     if( m_doFullVertexConstraint ) {
-      updatedVtx = vtx->clone();
+      updatedVtx = new xAOD::Vertex(*vtx);
+      //updatedVtx = vtx->clone();   // no clone option for xAODvertex
     } else {
-      tmpVtx = vtx->clone();
-      updatedVtx = m_IVertexUpdator->remove(*tmpVtx, *vtxTrk);
+      tmpVtx = new xAOD::Vertex(*vtx);
+      //tmpVtx = vtx->clone();  // no clone option for xAODvertex
+      updatedVtx = m_ITrackToVertexIPEstimator->getUnbiasedVertex(track->perigeeParameters(), vtx ); // MD: new function call
     }
     
       
@@ -458,11 +433,11 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Trac
         return vot;
       
       if( !m_doFullVertexConstraint ) 
-        ATH_MSG_DEBUG(" updated Vertex by KalmanVertexUpdator: "<<*updatedVtx);
+        ATH_MSG_DEBUG(" updated Vertex by KalmanVertexUpdator: "<<updatedVtx);
       
       
       ///vertex as perigeeSurface
-      Amg::Vector3D  globPos(updatedVtx->recVertex().position());
+      Amg::Vector3D  globPos(updatedVtx->position()); //look
       const PerigeeSurface* surface = new PerigeeSurface(globPos);
       
       
@@ -483,7 +458,7 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Trac
       
       ATH_MSG_DEBUG(" Jacobian matrix from Cartesian to Perigee: "<< Jacobian);
       
-      AmgSymMatrix(3) vtxCov;//= updatedVtx->recVertex().errorPosition().covariance();
+      AmgSymMatrix(3) vtxCov = updatedVtx->covariancePosition(); // MD: that was NULL before?
       
       //std::cout  << " before PV scaling : "<< vtxCov << std::endl;
       
@@ -494,7 +469,7 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromVertex(const Trac
       Amg::MatrixX errorMatrix;
       if( m_doFullVertexConstraint ) {
         AmgSymMatrix(3)  tmpCov;
-	tmpCov.setZero();
+        tmpCov.setZero();
         tmpCov(0,0) = 1.e-10 ; 
         tmpCov(1,1) = 1.e-10; 
         tmpCov(2,2) = 1.e-10;       
@@ -576,14 +551,14 @@ const VertexOnTrack* BeamspotVertexPreProcessor::provideVotFromBeamspot(const Tr
         perigee = trackPerigee->clone();
     }
   
-    Amg::MatrixX jacobian(1,2);
+    Eigen::Matrix<double,1,2> jacobian;
     jacobian.setZero();
     double ptInv   =  1./perigee->momentum().perp();
     jacobian(0,0) = -ptInv * perigee->momentum().y();
     jacobian(0,1) =  ptInv * perigee->momentum().x();
   
-    // HACKED
-    errorMatrix = Amg::MatrixX( jacobian.transpose() * beamSpotCov * jacobian );   // similarity transform by hand
+    // MD: changed -> reversed order of matrix multiplication
+    errorMatrix = Amg::MatrixX( jacobian*(beamSpotCov*jacobian.transpose()));
     if( errorMatrix.cols() != 1  )
          ATH_MSG_FATAL("Similarity transpose done incorrectly");
     delete perigee;
@@ -628,7 +603,6 @@ void BeamspotVertexPreProcessor::provideVtxBeamspot(const AlignVertex* b, AmgSym
 }
 
 
-
 const Track* BeamspotVertexPreProcessor::doConstraintRefit(ToolHandle<Trk::IGlobalTrackFitter>& fitter, const Track* track,  const VertexOnTrack* vot, const ParticleHypothesis& particleHypothesis) const{
 
   const Track* newTrack = 0;
@@ -663,8 +637,8 @@ const Track* BeamspotVertexPreProcessor::doConstraintRefit(ToolHandle<Trk::IGlob
 
 bool BeamspotVertexPreProcessor::doBeamspotConstraintTrackSelection(const Track* track) {
  
-  const VxContainer * vertices = 0;
-  const VxCandidate * vertex = 0;
+  const xAOD::VertexContainer* vertices = 0;
+  const xAOD::Vertex* vertex = 0;
   bool haveVertex = false;
  
   // retrieve the primary vertex if needed
@@ -691,7 +665,7 @@ bool BeamspotVertexPreProcessor::doBeamspotConstraintTrackSelection(const Track*
 
 
   if( ( m_doAssociatedToPVSelection && haveVertex && vertex && isAssociatedToPV(track,vertices) ) ||
-      ( m_doBSTrackSelection        && m_BSTrackSelector->decision(*track) ) ){
+      ( m_doBSTrackSelection        && m_BSTrackSelector->accept(*track) ) ){
         ATH_MSG_DEBUG("this track passes the beamspot track selection, will do beamspot constraint on it ");
         return true; 
   } 
@@ -699,25 +673,22 @@ bool BeamspotVertexPreProcessor::doBeamspotConstraintTrackSelection(const Track*
 }
 
 
-
 AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
 
   AlignTrack * alignTrack = 0;
   const Track* newTrack = 0;
   const VertexOnTrack* vot = 0;
-  const VxCandidate*    vtx = 0;
+  const xAOD::Vertex*    vtx = 0;
   AlignTrack::AlignTrackType type = AlignTrack::Unknown;
   // configuration of the material effects needed for track fitter
   ParticleSwitcher particleSwitch;
   ParticleHypothesis particleHypothesis = particleSwitch.particle[m_particleNumber];
 
-
   // initialization the GX2 track fitter
   ToolHandle<Trk::IGlobalTrackFitter> fitter = m_trackFitter;
   if (!m_useSingleFitter && AlignTrack::isSLTrack(track) )
       fitter = m_SLTrackFitter;
-       
-  // 
+  
   if(m_doPrimaryVertexConstraint){
     vot = provideVotFromVertex(track, vtx);
     if( !vot )  ATH_MSG_DEBUG( "VoT not found for this track! ");
@@ -797,7 +768,7 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
         ATH_MSG_DEBUG(" New AlignVertex has ben created.");
       
         // Beam Spot constraint on the vertex:
-        if( m_doBeamspotConstraint && (Trk::PriVtx == vtx->vertexType() || Trk::PileUp == vtx->vertexType()) && vtx->vxTrackAtVertex()->size()>4 ) {     // a beam line verex 
+        if( m_doBeamspotConstraint && (xAOD::VxType::PriVtx == vtx->vertexType() || xAOD::VxType::PileUp == vtx->vertexType()) && vtx->vxTrackAtVertex().size()>4 ) {     // a beam line verex
           ATH_MSG_DEBUG(" The Beam Spot constraint will be added to the vertex.." );  
           AmgSymMatrix(3)     qtemp;
           AmgVector(3)        vtemp;
@@ -809,18 +780,12 @@ AlignTrack* BeamspotVertexPreProcessor::doTrackRefit(const Track* track) {
         avtx->addAlignTrack(alignTrack);
         AlignVertices.push_back(avtx);
       }
-      
     }
-
-
-
-
      // increment counters
      ++m_trackTypeCounter[type];
      ++m_nTracks;
 
   }
-
   // garbage collection:
   if(vot)  delete vot;
 
@@ -861,7 +826,7 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
     
     // check whether the track passes the basic selection
     if (track && !m_trkSelector.empty()) {
-      if(!m_trkSelector->decision(*track))
+      if(!m_trkSelector->accept(*track))
         continue;
     }
   
@@ -873,7 +838,7 @@ DataVector<Track> * BeamspotVertexPreProcessor::processTrackCollection(const Dat
       if(alignTrack && !m_trkSelector.empty()) {
         // do not check for FullVertex tracks:
         if( !(alignTrack->getVtx()) ) {
-          if(!m_trkSelector->decision(*alignTrack))
+          if(!m_trkSelector->accept(*alignTrack))
              continue;
         }
       }  
