@@ -233,7 +233,7 @@ namespace Trk {
         
         double correctedZ0(0), correctedZ0Error(0);
         if(m_CorrectZ0){
-          getCorrectedValues_d0( measuredPerigee, correctedZ0, correctedZ0Error);
+          getCorrectedValues_z0( measuredPerigee, correctedZ0, correctedZ0Error);
         } else {
           correctedZ0 = measuredPerigee->parameters()[Trk::z0];
           correctedZ0Error = 1e6;
