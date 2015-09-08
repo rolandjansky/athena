@@ -278,7 +278,7 @@ bool SiTrkAlignDBTool::checkPixelLevel()
   bool ok = false;
 
   switch(m_pixelAlignLevelBarrel) {
-    case 11: case 12: case 15: case 2: case 22: case 27: case 3:
+    case 11: case 12: case 15: case 16: case 2: case 22: case 26: case 27: case 3:
       ok = true;
       break;
     default:
@@ -289,7 +289,7 @@ bool SiTrkAlignDBTool::checkPixelLevel()
   }
 
   switch(m_pixelAlignLevelEndcaps) {
-    case 11: case 2: case 3: case 12:
+    case 11: case 16: case 2: case 3: case 12:
       ok = ok && true;
       break;
     default:
@@ -458,6 +458,13 @@ void SiTrkAlignDBTool::updateDB()
     double apRotX = fullAlignPars->at(Trk::AlignModule::RotX)->par();
     double apRotY = fullAlignPars->at(Trk::AlignModule::RotY)->par();
     double apRotZ = fullAlignPars->at(Trk::AlignModule::RotZ)->par();
+    
+    // Need to add something here for the bowing!!!
+    double apBowX = fullAlignPars->at(Trk::AlignModule::BowX)->par();
+    
+    //tx ~ bowX (y^2/y_0^2 - 1) (ignoring that that local x does not quite equal stave x when you have a bowing)  
+    //rz ~ atan( 2 bowX y/y_^2 ) 
+    
     
     //construct the alignment transform
 //    CLHEP::HepRotation rotation = CLHEP::HepRotationX( apRotX ) * CLHEP::HepRotationY( apRotY ) * CLHEP::HepRotationZ( apRotZ );
@@ -792,7 +799,7 @@ void SiTrkAlignDBTool::updateAsL2(const Trk::AlignModule * module, const Amg::Tr
       }
     }
     else {
-      ATH_MSG_INFO("Skipping ModuleID: "<<m_idHelper->show_to_string(elemID,0,'/')<<" --> not unique");
+      ATH_MSG_DEBUG("Skipping ModuleID: "<<m_idHelper->show_to_string(elemID,0,'/')<<" --> not unique");
     }
   } // end loop over detElements
 }
