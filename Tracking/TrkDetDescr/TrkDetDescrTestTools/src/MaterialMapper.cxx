@@ -145,7 +145,7 @@ void Trk::MaterialMapper::recordMaterialHit(const AssociatedMaterial& amhit, con
             (*volTreeObj).path          += amhit.steplength();
             (*volTreeObj).pathInX0      += amhit.steplengthInX0();
             (*volTreeObj).pathInL0      += amhit.steplengthInL0();
-            (*volTreeObj).pathTimesRho  += amhit.rho()*amhit.steplength();
+            (*volTreeObj).pathZARho     += (amhit.Z()/amhit.A())*amhit.rho()*amhit.steplength();
         } else
             ATH_MSG_WARNING( "Cannot find/create VolumeTreeObject for volume '" << itvol->volumeName() << "'." );
         itvol = itvol->getMotherVolume();
@@ -156,30 +156,40 @@ void Trk::MaterialMapper::recordMaterialHit(const AssociatedMaterial& amhit, con
     // eta / phi
     m_averageEta += position.eta();
     m_averagePhi += position.phi();
-    
+    // effectively crossed Z/A*rho
+    double steplength = amhit.steplength();
     // fill the variables for spatial information & event characteristics
     if (lay) {
-        m_mappedPath            +=  amhit.steplength();
+        m_mappedPath            +=  steplength;
         m_mappedPathInX0        +=  amhit.steplengthInX0();
         m_mappedPathInL0        +=  amhit.steplengthInL0();
-        m_mappedPathTimesRho    +=  amhit.steplength()*amhit.rho();
-    }
-    else m_unmappedPathInX0 +=  amhit.steplengthInX0();
-    m_mapped[m_materialSteps] = lay ? lay->layerIndex().value() : 0;
+        m_mappedPathRho         +=  amhit.rho()*steplength;
+        m_mappedPathZARho       +=  (amhit.Z()/amhit.A())*amhit.rho()*steplength;
+        ATH_MSG_VERBOSE("[ MaterialMapper ] Accumulated Path in Rho (*Z/A) = " << m_mappedPathRho << " ( " <<  m_mappedPathZARho << " )");
+    } else 
+        m_unmappedPathInX0 +=  amhit.steplengthInX0();
+    
+    // mapping information
+    m_mapped[m_materialSteps]                    = lay ? lay->layerIndex().value() : 0;
     // the position & step information 
-    m_materialAccumPathInX0[m_materialSteps]    += amhit.steplengthInX0();
-    m_materialStepPathInX0[m_materialSteps]      = amhit.steplengthInX0();
-    m_materialStepPathInL0[m_materialSteps]      = amhit.steplengthInL0();
-    m_materialStepPathTimesRho[m_materialSteps]  = amhit.rho()*amhit.steplength();
+    m_materialAccumPathInX0[m_materialSteps]     = m_mappedPathInX0;
+    m_materialAccumPathZARho[m_materialSteps]    = m_mappedPathZARho;
+    m_materialStepPath[m_materialSteps]          = steplength;
+    m_materialStepX0[m_materialSteps]            = amhit.x0();
+    m_materialStepL0[m_materialSteps]            = amhit.l0();
+    m_materialStepA[m_materialSteps]             = amhit.A();
+    m_materialStepZ[m_materialSteps]             = amhit.Z();
+    m_materialStepRho[m_materialSteps]           = amhit.rho();
     m_materialStepPositionX[m_materialSteps]     = position.x();
     m_materialStepPositionY[m_materialSteps]     = position.y();
     m_materialStepPositionZ[m_materialSteps]     = position.z();
     m_materialStepPositionR[m_materialSteps]     = position.perp();
-    // record the projected position as well     
+    // record the projected position as well         
     m_materialProjPositionX[m_materialSteps]     = projectedPosition.x();
     m_materialProjPositionY[m_materialSteps]     = projectedPosition.y();
     m_materialProjPositionZ[m_materialSteps]     = projectedPosition.z();
     m_materialProjPositionR[m_materialSteps]     = projectedPosition.perp();
+    m_materialProjDistance[m_materialSteps]      = (position-projectedPosition).mag();
     // and increase the number of steps
     ++m_materialSteps;
     
@@ -216,7 +226,7 @@ void Trk::MaterialMapper::finalizeVolumeHits(bool mapped) const
         (*volTreeObj).path          = 0.;
         (*volTreeObj).pathInX0      = 0.;
         (*volTreeObj).pathInL0      = 0.;
-        (*volTreeObj).pathTimesRho  = 0.;
+        (*volTreeObj).pathZARho     = 0.;
 
     }
 }
@@ -424,7 +434,7 @@ Trk::VolumeTreeObject* Trk::MaterialMapper::volumeTreeObject(const Trk::Layer* l
         tvolName.ReplaceAll("::","_");
 
         TString   treeName   = tvolName;
-                  treeName  += "/";
+                  treeName  += "_";
                   treeName  += m_volumeTreePrefix;
         if (!lay) treeName  += "_UNMAPPED";
 
@@ -484,7 +494,7 @@ Trk::LayerTreeObject* Trk::MaterialMapper::layerTreeObject(const Trk::Layer& lay
         tvolName.ReplaceAll("::","_");
 
         TString treeName   = tvolName;
-                treeName  += "/";
+                treeName  += "_";
                 treeName  += m_layerTreePrefix;
 
         TString layerType = (lay.surfaceRepresentation().type() == Trk::Surface::Cylinder) ? 
@@ -597,7 +607,8 @@ void Trk::MaterialMapper::handle( const Incident& inc ) {
       m_mappedPath          = 0.;
       m_mappedPathInX0      = 0.;
       m_mappedPathInL0      = 0.;
-      m_mappedPathTimesRho  = 0.; 
+      m_mappedPathRho       = 0.;
+      m_mappedPathZARho     = 0.; 
       // increate counter
       ++m_processedEvents;       
   }
@@ -618,27 +629,33 @@ void Trk::MaterialMapper::bookValidationTree()
     m_validationTree = new TTree(m_validationTreeName.c_str(), m_validationTreeDescription.c_str());
     
     // position coordinates of the update
-    m_validationTree->Branch("Eta",                   &m_averageEta,           "averageEta/F");
-    m_validationTree->Branch("Phi",                   &m_averagePhi,           "averageEta/F");
-    m_validationTree->Branch("Path",                  &m_mappedPath,           "path/F");
-    m_validationTree->Branch("PathInX0",              &m_mappedPathInX0,       "pathInX0/F");
-    m_validationTree->Branch("PathInL0",              &m_mappedPathInL0,       "pathInL0/F");
-    m_validationTree->Branch("UnmappedPathInX0",      &m_unmappedPathInX0,     "unmappedPathInX0/F");
-    m_validationTree->Branch("PathTimesRho",          &m_mappedPathTimesRho,   "pathTimesRho/F");
-    m_validationTree->Branch("MaterialSteps",         &m_materialSteps,        "steps/I");
-    m_validationTree->Branch("Mapped",                m_mapped,                "mapped[steps]/I");
-    m_validationTree->Branch("MaterialStepPathInX0",  m_materialAccumPathInX0, "materialAccumPinX0[steps]/F");
-    m_validationTree->Branch("MaterialStepPathInX0",  m_materialStepPathInX0  ,"materialStepPinX0[steps]/F");
-    m_validationTree->Branch("MaterialStepPositionX", m_materialStepPositionX ,"materialStepX[steps]/F");
-    m_validationTree->Branch("MaterialStepPositionY", m_materialStepPositionY ,"materialStepY[steps]/F");
-    m_validationTree->Branch("MaterialStepPositionZ", m_materialStepPositionZ ,"materialStepZ[steps]/F");
-    
-    // only used on G4 material steps - thus for Mapping Validation
-    m_validationTree->Branch("MaterialStepPositionR", m_materialStepPositionR ,"materialStepR[steps]/F");
-    m_validationTree->Branch("MaterialProjPositionX", m_materialProjPositionX ,"materialProjX[steps]/F");
-    m_validationTree->Branch("MaterialProjPositionY", m_materialProjPositionY ,"materialProjY[steps]/F");
-    m_validationTree->Branch("MaterialProjPositionZ", m_materialProjPositionZ ,"materialProjZ[steps]/F");
-    m_validationTree->Branch("MaterialProjPositionR", m_materialProjPositionR ,"materialProjR[steps]/F");
+    m_validationTree->Branch("Eta",                    &m_averageEta,            "averageEta/F");
+    m_validationTree->Branch("Phi",                    &m_averagePhi,            "averagePhiF");
+    m_validationTree->Branch("Path",                   &m_mappedPath,            "path/F");
+    m_validationTree->Branch("PathInX0",               &m_mappedPathInX0,        "pathInX0/F");
+    m_validationTree->Branch("PathInL0",               &m_mappedPathInL0,        "pathInL0/F");
+    m_validationTree->Branch("PathRho",                &m_mappedPathRho,         "pathRho/F¯");
+    m_validationTree->Branch("PathZARho",              &m_mappedPathZARho,       "pathZARho/F¯");
+    m_validationTree->Branch("UnmappedPathInX0",       &m_unmappedPathInX0,      "unmappedPathInX0/F");
+    m_validationTree->Branch("MaterialSteps",          &m_materialSteps,         "steps/I");
+    m_validationTree->Branch("Mapped",                 m_mapped,                 "mapped[steps]/I");
+    m_validationTree->Branch("MaterialAccumPathInX0",  m_materialAccumPathInX0,  "materialAccumPinX0[steps]/F");
+    m_validationTree->Branch("MaterialAccumPathZARho", m_materialAccumPathZARho, "materialAccumPZARho[steps]/F");
+    m_validationTree->Branch("MaterialStepPath",       m_materialStepPath,       "materialStepPath[steps]/F");
+    m_validationTree->Branch("MaterialStepX0",         m_materialStepX0,         "materialStepX0[steps]/F");
+    m_validationTree->Branch("MaterialStepL0",         m_materialStepL0,         "materialStepL0[steps]/F");
+    m_validationTree->Branch("MaterialStepZ",          m_materialStepZ,          "materialStepZ[steps]/F");
+    m_validationTree->Branch("MaterialStepA",          m_materialStepA,          "materialStepA[steps]/F");
+    m_validationTree->Branch("MaterialStepRho",        m_materialStepRho,        "materialStepRho[steps]/F");
+    m_validationTree->Branch("MaterialStepPositionX",  m_materialStepPositionX , "materialStepX[steps]/F");
+    m_validationTree->Branch("MaterialStepPositionY",  m_materialStepPositionY , "materialStepY[steps]/F");
+    m_validationTree->Branch("MaterialStepPositionZ",  m_materialStepPositionZ , "materialStepZ[steps]/F");
+    m_validationTree->Branch("MaterialStepPositionR",  m_materialStepPositionR , "materialStepR[steps]/F");
+    m_validationTree->Branch("MaterialProjPositionX",  m_materialProjPositionX , "materialProjX[steps]/F");
+    m_validationTree->Branch("MaterialProjPositionY",  m_materialProjPositionY , "materialProjY[steps]/F");
+    m_validationTree->Branch("MaterialProjPositionZ",  m_materialProjPositionZ , "materialProjZ[steps]/F");
+    m_validationTree->Branch("MaterialProjPositionR",  m_materialProjPositionR , "materialProjR[steps]/F");
+    m_validationTree->Branch("MaterialProjDistance",   m_materialProjDistance  , "materialProjD[steps]/F");
     
     // now register the Tree
     if (service("THistSvc",tHistSvc).isFailure()) {

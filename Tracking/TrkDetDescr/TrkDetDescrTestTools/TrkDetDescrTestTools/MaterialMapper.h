@@ -43,7 +43,7 @@ namespace Trk {
         float path;
         float pathInX0;
         float pathInL0;
-        float pathTimesRho;
+        float pathZARho;
         TTree* tree;
 
         VolumeTreeObject(TString name, TString title)
@@ -52,7 +52,7 @@ namespace Trk {
           path(0.),
           pathInX0(0.),
           pathInL0(0.),
-          pathTimesRho(0.),
+          pathZARho(0.),
           tree(new TTree(name,title))
         {
             tree->Branch("Eta",             &eta,           "eta/F");
@@ -60,7 +60,7 @@ namespace Trk {
             tree->Branch("Path",            &path,          "path/F");
             tree->Branch("PathInX0",        &pathInX0,      "pathX0/F");
             tree->Branch("PathInL0",        &pathInL0,      "pathL0/F");
-            tree->Branch("PathTimesRho",    &pathTimesRho,  "pathTimesRho/F");
+            tree->Branch("PathZARho",       &pathZARho,  "pathZARho/F");
         }
     };
 
@@ -84,6 +84,7 @@ namespace Trk {
         float rho;
 
         int   layerHits;
+        float hitPathInX0[TRKDETDESCRTOOLS_MAXLAYERHITS];
         float hitPositionX[TRKDETDESCRTOOLS_MAXLAYERHITS];
         float hitPositionY[TRKDETDESCRTOOLS_MAXLAYERHITS];
         float hitPositionZ[TRKDETDESCRTOOLS_MAXLAYERHITS];
@@ -126,6 +127,7 @@ namespace Trk {
             tree->Branch("Z",                &Z,                 "z/F");            
             tree->Branch("Rho",              &rho,               "rho/F");
             tree->Branch("Hits",             &layerHits,         "layerhits/I");
+            tree->Branch("HitPathInX0",      &hitPathInX0,       "layerhitpathInX0[layerhits]/F");
             tree->Branch("HitPositionX",     &hitPositionX,      "layerhitsX[layerhits]/F");
             tree->Branch("HitPositionY",     &hitPositionY,      "layerhitsY[layerhits]/F");
             tree->Branch("HitPositionZ",     &hitPositionZ,      "layerhitsZ[layerhits]/F");
@@ -272,13 +274,18 @@ namespace Trk {
         mutable float         m_mappedPath;                                             //!< total mapped path
         mutable float         m_mappedPathInX0;                                         //!< total mapped path in X0
         mutable float         m_mappedPathInL0;                                         //!< total mapped path in L0
-        mutable float         m_mappedPathTimesRho;                                     //!< total mapped path * density
+        mutable float         m_mappedPathRho;                                          //!< total mapped path times rho
+        mutable float         m_mappedPathZARho;                                        //!< total mapped path times (Z/A)*rho
         mutable float         m_unmappedPathInX0;                                       //!< total path in x0 in these events lost        
         mutable int           m_mapped[TRKDETDESCRTOOLS_MAXSTEPS];                      //!< mapped or not mapped
         mutable float         m_materialAccumPathInX0[TRKDETDESCRTOOLS_MAXSTEPS];       //!< accumulated path length in x0
-        mutable float         m_materialStepPathInX0[TRKDETDESCRTOOLS_MAXSTEPS];        //!< step path in x0
-        mutable float         m_materialStepPathInL0[TRKDETDESCRTOOLS_MAXSTEPS];        //!< step path in l0
-        mutable float         m_materialStepPathTimesRho[TRKDETDESCRTOOLS_MAXSTEPS];    //!< step path times rho
+        mutable float         m_materialAccumPathZARho[TRKDETDESCRTOOLS_MAXSTEPS];      //!< accumulated path length times (Z/A)*rho
+        mutable float         m_materialStepPath[TRKDETDESCRTOOLS_MAXSTEPS];            //!< step path 
+        mutable float         m_materialStepX0[TRKDETDESCRTOOLS_MAXSTEPS];              //!< step x0
+        mutable float         m_materialStepL0[TRKDETDESCRTOOLS_MAXSTEPS];              //!< step l0
+        mutable float         m_materialStepZ[TRKDETDESCRTOOLS_MAXSTEPS];               //!< step Z
+        mutable float         m_materialStepA[TRKDETDESCRTOOLS_MAXSTEPS];               //!< step A
+        mutable float         m_materialStepRho[TRKDETDESCRTOOLS_MAXSTEPS];             //!< step rho
         mutable float         m_materialStepPositionX[TRKDETDESCRTOOLS_MAXSTEPS];       //!< x position of the material recording
         mutable float         m_materialStepPositionY[TRKDETDESCRTOOLS_MAXSTEPS];       //!< y position of the material recording
         mutable float         m_materialStepPositionZ[TRKDETDESCRTOOLS_MAXSTEPS];       //!< z position of the material recording
@@ -287,6 +294,7 @@ namespace Trk {
         mutable float         m_materialProjPositionY[TRKDETDESCRTOOLS_MAXSTEPS];       //!< y position of the material recording when assigned to layer
         mutable float         m_materialProjPositionZ[TRKDETDESCRTOOLS_MAXSTEPS];       //!< z position of the material recording when assigned to layer
         mutable float         m_materialProjPositionR[TRKDETDESCRTOOLS_MAXSTEPS];       //!< r value of the material recording when assigned to layer
+        mutable float         m_materialProjDistance[TRKDETDESCRTOOLS_MAXSTEPS];        //!< the distance to the projected hit
 
         // Per Volume Validation
         bool                  m_volumeValidation;
