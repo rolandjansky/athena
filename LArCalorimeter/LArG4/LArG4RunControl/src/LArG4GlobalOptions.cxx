@@ -29,7 +29,4 @@ void LArG4GlobalOptions::printMe()
 {
   std::cout << " *** *** This is the object of type LArG4GlobalOptions *** *** \n";
   std::cout << " ** OutOfTimeCut = " << m_OutOfTimeCut << "\n *** *** \n";
-  std::cout << " ** TimeBinType = " << m_TimeBinType << "\n *** *** \n";
-  std::cout << " ** TimeBinWidth = " << m_TimeBinWidth << "\n *** *** \n";
-  std::cout << " ** doCalibHitParticleID = " << m_doCalibHitParticleID << "\n *** *** \n";
 }
