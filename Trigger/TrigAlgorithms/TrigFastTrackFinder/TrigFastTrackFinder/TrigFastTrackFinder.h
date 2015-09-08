@@ -14,8 +14,8 @@
 // ATLAS Collaboration
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDER_H
-#define TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDER_H
+#ifndef __TRIG_FAST_TRACK_FINDER_H__
+#define __TRIG_FAST_TRACK_FINDER_H__
 
 #include<string>
 #include<vector>
@@ -118,9 +118,6 @@ protected:
   bool m_vertexSeededMode;
   bool m_doTrigInDetTrack;
   bool m_doZFinder;
-   bool m_doFTKZFinder;
-   bool m_doFTKFastVtxFinder;
-  bool m_doFastZVseeding;
   bool m_doResMonitoring;
 
   // Cuts and settings
@@ -137,6 +134,8 @@ protected:
   float m_tripletMinPtFrac;
   float m_pTmin;
   float m_initialD0Max;
+  float m_doublet_dR_Max;
+  float m_seedRadBinWidth;
 
   bool m_checkSeedRedundancy;
 
@@ -166,7 +165,6 @@ protected:
 
   int m_nZvertices; 
   std::vector<float> m_zVertices; 
-  std::vector<float> m_nTrk_zVtx; 
 
   std::vector<float> m_trk_pt;
   std::vector<float> m_trk_a0;
@@ -182,12 +180,6 @@ protected:
   std::vector<float> m_trk_dEta;
   //std::vector<double> m_sp_x, m_sp_y, m_sp_z, m_sp_r;//Spacepoint coordinates
   //
-  std::vector<float> m_IBL_layer;
-  std::vector<float> m_PixB_layer;
-  std::vector<float> m_PixEC_layer;
-  std::vector<float> m_SCTB_layer;
-  std::vector<float> m_SCTEC_layer;
-
   std::vector<double> m_iblResPhi;
   std::vector<double> m_iblResEta;
   std::vector<double> m_iblPullPhi;
@@ -204,20 +196,6 @@ protected:
   std::vector<double> m_pixPullEtaEC;
   std::vector<double> m_sctResEC;
   std::vector<double> m_sctPullEC;
-
-  std::vector<double> m_pixResPhiBarrelL1;
-  std::vector<double> m_pixResEtaBarrelL1;
-  std::vector<double> m_pixResPhiBarrelL2;
-  std::vector<double> m_pixResEtaBarrelL2;
-  std::vector<double> m_pixResPhiBarrelL3;
-  std::vector<double> m_pixResEtaBarrelL3;
-
-  std::vector<double> m_pixResPhiECL1;
-  std::vector<double> m_pixResEtaECL1;
-  std::vector<double> m_pixResPhiECL2;
-  std::vector<double> m_pixResEtaECL2;
-  std::vector<double> m_pixResPhiECL3;
-  std::vector<double> m_pixResEtaECL3;
 
   // Monitoring member functions 
 
@@ -270,8 +248,6 @@ protected:
 
   std::map<Identifier, std::vector<long int> > m_siClusterMap;
 
-  bool m_useNewLayerNumberScheme;
-
 };
 
-#endif // not TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDER_H
+#endif

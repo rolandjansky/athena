@@ -30,7 +30,6 @@ private
 
 use     AtlasTBB                        AtlasTBB-*                      External
 use     CxxUtils            CxxUtils-*         Control
-use     StoreGate            StoreGate-*         Control
 use TrigInDetPattRecoEvent	TrigInDetPattRecoEvent-*   Trigger/TrigEvent
 use 	TrkRIO_OnTrack			TrkRIO_OnTrack-*		Tracking/TrkEvent 
 use     InDetRIO_OnTrack                InDetRIO_OnTrack-*              InnerDetector/InDetRecEvent 
@@ -45,7 +44,6 @@ use TrigInDetToolInterfaces     TrigInDetToolInterfaces-*  Trigger/TrigTools
 use TrkTrack		        TrkTrack-* 		   Tracking/TrkEvent
 use TrigTimeAlgs		TrigTimeAlgs-*		   Trigger/TrigTools
 use InDetBeamSpotService        InDetBeamSpotService-*     InnerDetector/InDetConditions
-use TrkTrackSummary            TrkTrackSummary-*          Tracking/TrkEvent
 
 use AthenaBaseComps              AthenaBaseComps-*	   Control
 use InDetPrepRawData     	 InDetPrepRawData-*	   InnerDetector/InDetRecEvent 
