@@ -3,7 +3,7 @@
 */
 
 #ifndef INDETALIGNDBTOOLS_SITRKALIGNDBTOOL_H
-#define INDETALIGNDBTOOLS_SITTRKALIGNDBTOOL_H
+#define INDETALIGNDBTOOLS_SITRKALIGNDBTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkAlignInterfaces/ITrkAlignDBTool.h"
