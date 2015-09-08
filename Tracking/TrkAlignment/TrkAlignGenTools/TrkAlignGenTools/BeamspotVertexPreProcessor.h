@@ -6,6 +6,7 @@
 #define  TRKALIGNGENTOOLS_BEAMSPOTVERTEXPREPROCESSOR_H
 
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/IAlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkAlignInterfaces/IAlignTrackPreProcessor.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
@@ -13,6 +14,11 @@
 #include "VxVertex/VxContainer.h"
 #include <functional>
 
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/Vertex.h"
+#include "xAODTracking/VertexContainer.h"
 
 /**
    @brief Tool used to create a collection of AlignTracks from Tracks
@@ -27,6 +33,7 @@
    doVertexConstraint = False and doBeamspotConstraint = True 
    @author Jike Wang <jwang@cern.ch>
    @author Daniel Kollar <daniel.kollar@cern.ch>
+   -> updated 2015 Matthias Danninger
 */
  
 class IBeamCondSvc;
@@ -34,15 +41,14 @@ class IBeamCondSvc;
 namespace Trk {
   class IGlobalTrackFitter;
   class IExtrapolator;
-  class ITrackSelectorTool;
+  //class ITrackSelectorTool;
   class Track;
   class AlignTrack;
   class AlignVertex;
   class VxCandidate;
   class VertexOnTrack;
   class VxTrackAtVertex;
-  class IVertexUpdator;
-  class IVertexLinearizedTrackFactory;
+  class ITrackToVertexIPEstimator;
   class IAlignModuleTool;
 
   class BeamspotVertexPreProcessor : virtual public Trk::IAlignTrackPreProcessor, public AthAlgTool
@@ -62,7 +68,6 @@ namespace Trk {
 
     void solveVTX();
 
-
     /** Print processing summary to logfile. */
     virtual void printSummary();
 
@@ -72,13 +77,14 @@ namespace Trk {
 
     void  prepareAllTracksVector();
 
-    bool  isAssociatedToPV(const Track * track, const VxContainer * vertices);
-    bool  isAssociatedToVertex(const Track * track, const VxCandidate * vertex);
+    bool  isAssociatedToPV(const Track * track, const xAOD::VertexContainer* vertices);
+    bool  isAssociatedToVertex(const Track * track, const xAOD::Vertex * vertex);
 
-    bool  selectVertices(const VxCandidate* vtx) const;
-    bool  selectUpdatedVertices(const VxCandidate* updatedVtx) const;
-    const std::pair<const VxCandidate*, VxTrackAtVertex*> findVertexCandidate(const Track* track) const; 
-    const VertexOnTrack* provideVotFromVertex(const Track* track, const VxCandidate* &vtx) const;
+    bool  selectVertices(const xAOD::Vertex * vtx) const;
+    bool  selectUpdatedVertices(const xAOD::Vertex * updatedVtx) const;
+    
+    const xAOD::Vertex* findVertexCandidate(const Track* track) const; // MD: changed to be now only a vertex
+    const VertexOnTrack* provideVotFromVertex(const Track* track, const xAOD::Vertex* &vtx) const;
     const VertexOnTrack* provideVotFromBeamspot(const Track* track) const;
     void provideVtxBeamspot(const AlignVertex* b, AmgSymMatrix(3)* q, Amg::Vector3D* v) const;
 
@@ -89,17 +95,15 @@ namespace Trk {
 
 
 
-
     ToolHandle<IGlobalTrackFitter>    m_trackFitter;     //!< normal track fitter
     ToolHandle<IGlobalTrackFitter>    m_SLTrackFitter;   //! straight line track fitter
-
     ToolHandle<IExtrapolator>         m_extrapolator;    //!< track extrapolator
-    ToolHandle<ITrackSelectorTool>    m_trkSelector;     //!< track selector tool
-    ToolHandle<ITrackSelectorTool>    m_BSTrackSelector; //!< track selector tool for tracks to be used with beam-spot constraint
-    ToolHandle<IVertexUpdator>        m_IVertexUpdator;  //!< vertex updating tool, such as reomving one track from vertex
-    
-    //Comment out to make it compile in rel5  --  correct in the future 
-    ToolHandle<IVertexLinearizedTrackFactory> m_linFactory;
+    //ToolHandle<ITrackSelectorTool>    m_trkSelector;     //!< track selector tool
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_trkSelector; //!< new track selector tool
+    //ToolHandle<ITrackSelectorTool>    m_BSTrackSelector; //!< track selector tool for tracks to be used with beam-spot constraint
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_BSTrackSelector; //!< new track selector tool for tracks to be used with beam-spot constraint
+    //MD:
+    ToolHandle<ITrackToVertexIPEstimator>        m_ITrackToVertexIPEstimator;  //!< vertex updating tool, such as reomving one track from vertex
 
     /** Pointer to AlignModuleTool*/
     ToolHandle <Trk::IAlignModuleTool> m_alignModuleTool;
@@ -118,20 +122,19 @@ namespace Trk {
 
     std::string m_compareMethod;			 //!< the method used to judge whether two tracks are the same track
     std::vector<std::string> m_interestedVertexContainers;
-    std::vector< std::pair< VxCandidate*, std::vector<VxTrackAtVertex*>* > >  m_allTracksVector;
-
+    std::vector< std::pair< const xAOD::Vertex*, std::vector<VxTrackAtVertex> > >  m_allTracksVector;
     bool m_doBeamspotConstraint;    			 //!< do beamspot constraint 
     bool m_doPrimaryVertexConstraint;      		 //!< do vertex constraint 
     bool m_doFullVertexConstraint;                       //!< do GX full vertex constraint 
  
-    bool m_refitTracks;             			 //!< flag to refit tracks
+    bool m_refitTracks;                       //!< flag to refit tracks
     bool m_storeFitMatrices;  			         //!< flag to store derivative and covariance matrices after refit
-    bool m_useSingleFitter;   	    			 //!< only use 1 fitter for refitting track
-    bool m_selectTracks;            			 //!< do the track selection
-    double m_BSScalingFactor;				 //!< scaling factor on beasmpot width
-    double m_PVScalingFactor;				 //!< scaling factor on primary vertex position error
+    bool m_useSingleFitter;                   //!< only use 1 fitter for refitting track
+    bool m_selectTracks;                    //!< do the track selection
+    double m_BSScalingFactor;               //!< scaling factor on beasmpot width
+    double m_PVScalingFactor;               //!< scaling factor on primary vertex position error
 
-    int m_minTrksInVtx;					 //!< requirement to the minimal number of tracks in the vertex 
+    int m_minTrksInVtx;                     //!< requirement to the minimal number of tracks in the vertex
     int m_nTracks;
     std::vector<int> m_trackTypeCounter;
     int m_nFailedNormalRefits;
@@ -145,7 +148,7 @@ namespace Trk {
 
 
 
-class CompareTwoTracks : public std::unary_function<VxTrackAtVertex*, bool>{
+  class CompareTwoTracks : public std::unary_function<VxTrackAtVertex, bool>{
 
     public:
          CompareTwoTracks(const Track* track, std::string compareMethod)
@@ -154,7 +157,7 @@ class CompareTwoTracks : public std::unary_function<VxTrackAtVertex*, bool>{
          { //std::cout <<"compareMethod: "<< m_method <<std::endl; 
          }
 
-         bool operator()(VxTrackAtVertex* vtxTrk);
+    bool operator()(VxTrackAtVertex vtxTrk);
 
     private:
          std::string m_method;
@@ -162,8 +165,7 @@ class CompareTwoTracks : public std::unary_function<VxTrackAtVertex*, bool>{
   };
 
 
-
-} 
+}
 
 #endif // TRKALIGNGENTOOLS_BEAMSPOTVERTEXPREPROCESSOR_H
 

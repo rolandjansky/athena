@@ -659,7 +659,7 @@ namespace Trk {
 
       if(double alphastrip=alignTSOS->alphaStrip()) {
         ATH_MSG_DEBUG( "applying fanout rotation : " << alphastrip );
-	localToGlobalRotation = localToGlobalRotation * Amg::AngleAxis3D(alphastrip, Amg::Vector3D(0.,0.,1.));
+      	localToGlobalRotation = localToGlobalRotation * Amg::AngleAxis3D(alphastrip, Amg::Vector3D(0.,0.,1.));
         ATH_MSG_DEBUG( "localToGlobalRotation * fanout_rotation:");
         ATH_MSG_DEBUG(localToGlobalRotation(0,0) << " " <<
                       localToGlobalRotation(0,1) << " " <<
@@ -730,6 +730,16 @@ namespace Trk {
       projR[AlignModule::RotX] = -Ryx * refPos.z() + Rzx * refPos.y();
       projR[AlignModule::RotY] = -Rzx * refPos.x() + Rxx * refPos.z();
       projR[AlignModule::RotZ] = -Rxx * refPos.y() + Ryx * refPos.x();
+      projR[AlignModule::BowX]  = 0;  
+      projR[AlignModule::BowY]  = 0;    
+      projR[AlignModule::BowZ]  = 0;
+
+      //Bowing Parameterised by a 2nd order polynomial   
+      const double localy = refPos.y();
+      // stave length in the IBL -- we will see if there a more generic way of doing this
+      const double  y0y0  = 366.5*366.5;
+      //  refPos.y() should be the y position along in the AlignModule Frame
+      projR[AlignModule::BowX] = Rxx * ( localy*localy - y0y0 ) / y0y0;
 
       // prepare derivatives w.r.t. the vertex position:
       Amg::Vector3D RxLoc(Rxx, Ryx, Rzx);
@@ -770,6 +780,12 @@ namespace Trk {
         projR[AlignModule::RotX] = -Ryy * refPos.z() + Rzy * refPos.y();
         projR[AlignModule::RotY] = -Rzy * refPos.x() + Rxy * refPos.z();
         projR[AlignModule::RotZ] = -Rxy * refPos.y() + Ryy * refPos.x();
+
+        //Possibly could add the bowing correction  --  very weakly coupled to y residuals 
+        projR[AlignModule::BowX]  = 0;  
+        projR[AlignModule::BowY]  = 0; 
+        projR[AlignModule::BowZ]  = 0;
+
 
         // prepare derivatives w.r.t. the vertex position:
         Amg::Vector3D RyLoc(Rxy, Ryy, Rzy);

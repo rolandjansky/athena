@@ -19,6 +19,8 @@ use  muonEvent                  muonEvent-*                     Reconstruction/M
 use EventPrimitives             EventPrimitives-*               Event
 use GeoPrimitives	              GeoPrimitives-*	                DetectorDescription
 use  InDetAlignGenTools         InDetAlignGenTools-*            InnerDetector/InDetAlignTools
+use  xAODTracking               xAODTracking-*         Event/xAOD
+use  InDetTrackSelectionTool    InDetTrackSelectionTool-*       InnerDetector/InDetRecTools    
 
 private
 use StoreGate                   StoreGate-*                     Control
@@ -45,11 +47,13 @@ use  TrkPseudoMeasurementOnTrack TrkPseudoMeasurementOnTrack-*  Tracking/TrkEven
 
 use  InDetBeamSpotService       InDetBeamSpotService-*          InnerDetector/InDetConditions
 
+
+
 use Particle                    Particle-*                      Reconstruction
 use StoreGate                   StoreGate-*                     Control
 use MuonRecToolInterfaces       MuonRecToolInterfaces-*         MuonSpectrometer/MuonReconstruction/MuonRecTools
 use MuonSegment                 MuonSegment-*                   MuonSpectrometer/MuonReconstruction/MuonRecEvent
-
+use AtlasBoost			AtlasBoost-*          		External
 
 apply_tag ROOTGraphicsLibs
 

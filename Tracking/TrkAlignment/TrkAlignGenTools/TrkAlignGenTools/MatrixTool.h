@@ -214,6 +214,9 @@ namespace Trk {
     int m_aNDoF;                      //!< number of active DoF (size of m_activeIndices)
 
     int m_maxReadErrors;	//!< maximum number of reading TFile errors 
+    bool m_AlignIBLbutNotPixel;
+    bool m_AlignPixelbutNotIBL;
+
 
   }; // end of class
   
