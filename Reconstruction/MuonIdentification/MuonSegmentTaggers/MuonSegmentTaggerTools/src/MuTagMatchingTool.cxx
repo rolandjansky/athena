@@ -995,7 +995,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
 //
 // Flip sign in endcap for eta > 0 (not understood why)
 //
-    if(stIndex == Muon::MuonStationIndex::EI || stIndex == Muon::MuonStationIndex::EM || stIndex == Muon::MuonStationIndex::EO) {
+    if(stIndex == Muon::MuonStationIndex::EI || stIndex == Muon::MuonStationIndex::EM || stIndex == Muon::MuonStationIndex::EO || stIndex == Muon::MuonStationIndex::EE) {
       if(cos(segment->globalDirection().theta())>0) {
         correction = -correction;
         ATH_MSG_DEBUG(" Flip correlation term for segment direction theta " << segment->globalDirection().theta() << " position theta " <<  segment->globalPosition().theta()); 
