@@ -107,8 +107,8 @@ StatusCode CPMTowerMaker::execute( )
   if (msgLvl(MSG::DEBUG)) {
     ATH_MSG_DEBUG ( "Formed " << vectorOfCPMTs->size() << " CPM Towers " ) ;
     for (const CPMTower* cpmt : *vectorOfCPMTs)
-      ATH_MSG_DEBUG ( "CPMT has coords (" << cpmt->eta() <<", "<< cpmt->phi() << ") and energies : "
-                      << cpmt->emEnergy() <<", "<< cpmt->hadEnergy() <<" (Em,Had)" );
+      ATH_MSG_DEBUG ( "CPMT has coords (" << cpmt->eta() << ", "<< cpmt->phi() << ") and energies : "
+                      << static_cast<unsigned int>(cpmt->emEnergy()) << ", "<< static_cast<unsigned int>(cpmt->hadEnergy()) <<" (Em,Had)" );
 
   }
       
