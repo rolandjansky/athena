@@ -28,6 +28,8 @@
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TString.h"
+#include "TProfile.h"
+#include "TEfficiency.h"
 
 #include "boost/tokenizer.hpp"
 
@@ -85,6 +87,10 @@ HLTJetMonTool::HLTJetMonTool(
 
   declareProperty("HLTEtaHighThres",     m_hltEtaHighThres, "HLT Eta High Threshold for HLT eta chains" );
   declareProperty("HLTEtaLowThres",      m_hltEtaLowThres,  "HLT Eta Low Threshold for HLT eta chains" );
+  declareProperty("L1EtaHighThres",      m_l1EtaHighThres,  "L1 Eta High Threshold for L1 eta chains" );
+  declareProperty("L1EtaLowThres",       m_l1EtaLowThres,   "L1 Eta Low Threshold for L1 eta chains" );
+
+  declareProperty("HLTJetn",             m_hltJetn,         "HLT jet number for efficiency calculation" );
 
 
   // Jet Multiplicity bins
@@ -163,7 +169,7 @@ HLTJetMonTool::HLTJetMonTool(
 
   declareProperty("DoOFJetQualityCut",     m_reqBadQCut = true);
   declareProperty("OFJetQuality",          m_JetQuality = "LooseBad" );
-
+  declareProperty("JetCategory",           m_JetCategory = "LooseBad"  );
   /*
   // n90 => no. of constituents having 90% of jet energy
   declareProperty("DoOFMinN90JetCut", m_reqN90Cut = true);
@@ -485,9 +491,9 @@ StatusCode HLTJetMonTool::init() {
 
   // initialize jet category
   // jets in this category are rejected
-  if(m_JetQuality == "MediumBad" )      m_JetCategory = MediumBad;
-  else if(m_JetQuality == "TightBad" )  m_JetCategory = TightBad;
-  else                                  m_JetCategory = LooseBad;
+  if(m_JetQuality == "MediumBad" )      m_JetCategory = "MediumBad";
+  else if(m_JetQuality == "TightBad" )  m_JetCategory = "TightBad";
+  else                                  m_JetCategory = "LooseBad";
 
   
   return StatusCode::SUCCESS;
@@ -981,6 +987,10 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
     hname = Form("%s_Eff_vs_pt",trigName.Data());
     addHistogram(new TH1F(hname, htitle,nbinsEt,binloEt,binhiEt));
   
+    hname = Form("%s_EffPt",trigName.Data());
+    addProfile(new TProfile(hname, htitle,nbinsEt,binloEt,binhiEt));
+
+    /*
     // eff vs. Et
     htitle = Form("%s : %s Efficiency w.r.t %s vs. E_{T}; E_{T}^{jet} [GeV]; Efficiency", ContainerName.Data(), trigItem.Data(), ofjet.c_str());
     hname = Form("%s_Eff_vs_Et_num",trigName.Data());
@@ -990,6 +1000,7 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
 
     hname = Form("%s_Eff_vs_Et_den",trigName.Data());
     addHistogram(new TH1F(hname, htitle,nbinsEt,binloEt,binhiEt));
+    */
 
     // eff vs. eta
     htitle = Form("%s : %s Efficiency w.r.t %s vs. #eta; #eta^{jet}; Efficiency",ContainerName.Data(),trigItem.Data(), ofjet.c_str());
@@ -1003,6 +1014,9 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
     hname = Form("%s_Eff_vs_eta",trigName.Data());
     addHistogram(new TH1F(hname, htitle,m_jetanbins[0],m_jetabinlo[0],m_jetabinhi[0]));
 
+    hname = Form("%s_EffEta",trigName.Data());
+    addProfile(new TProfile(hname, htitle,m_jetanbins[0],m_jetabinlo[0],m_jetabinhi[0]));
+
     // eff vs. phi
     htitle = Form("%s : %s Efficiency w.r.t %s vs. #varphi; #varphi^{jet} [rad]; Efficiency",ContainerName.Data(),trigItem.Data(), ofjet.c_str());
     hname = Form("%s_Eff_vs_phi_num",trigName.Data());
@@ -1014,6 +1028,9 @@ void HLTJetMonTool::bookOfflineHists(JetSigtype& item, const std::string& ofjet)
 
     hname = Form("%s_Eff_vs_phi",trigName.Data());
     addHistogram(new TH1F(hname, htitle,m_jphinbins[0],m_jphibinlo[0],m_jphibinhi[0]));
+
+    hname = Form("%s_EffPhi",trigName.Data());
+    addProfile(new TProfile(hname, htitle,m_jphinbins[0],m_jphibinlo[0],m_jphibinhi[0]));
 
 
     //Unmatched jets pt
@@ -1723,7 +1740,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
      
      for(auto jcont : JetFeatureContainers) {
 
-       ATH_MSG_DEBUG("Loop Over Features");
+       ATH_MSG_INFO("Loop Over Features");
 
        for (auto j : *jcont.cptr()) {
 
@@ -2332,7 +2349,7 @@ bool HLTJetMonTool::selectJet(const Jet *jet) {
 
 // ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::..
 
-bool HLTJetMonTool::isBadJet(JetCategorytype Category, double emf, double hecf, double larq, double hecq, double time,
+bool HLTJetMonTool::isBadJet(const std::string &Category, double emf, double hecf, double larq, double hecq, double time,
     double sumpttrk, double eta, double pt, double fmax, double negE) {
 
   double chf=sumpttrk/pt;
@@ -2342,12 +2359,12 @@ bool HLTJetMonTool::isBadJet(JetCategorytype Category, double emf, double hecf, 
   if(emf<0.05 && fabs(eta)>=2)                     return true;
   if(fmax>0.99 && fabs(eta)<2)                     return true;
 
-  if(Category==MediumBad || Category==TightBad)  {
+  if(Category=="MediumBad" || Category=="TightBad")  {
     if(emf<0.05 && chf<0.1  && fabs(eta)<2)        return true;  
     if(emf>0.95 && chf<0.05 && fabs(eta)<2)        return true;
   }
 
-  if(Category==TightBad)  {
+  if(Category=="TightBad")  {
     if(emf<0.1 && chf<0.2  && fabs(eta)<2)         return true;
     if(emf<0.1 && fabs(eta)>=2 )                   return true;    
     if(emf>0.9 && chf<0.02 && fabs(eta)<2)         return true;
@@ -2356,17 +2373,17 @@ bool HLTJetMonTool::isBadJet(JetCategorytype Category, double emf, double hecf, 
   if(fabs(negE/1000.)>60)                          return true;
   if(hecf>0.5 && fabs(hecq)>0.5)                   return true;  
 
-  if(Category==MediumBad || Category==TightBad) {
+  if(Category=="MediumBad" || Category=="TightBad") {
     if(hecf>1-fabs(hecq))                          return true;
   }
 
   if(emf>0.95 && fabs(larq)>0.8 && fabs(eta)<2.8)  return true;
 
-  if(Category==MediumBad || Category==TightBad) {
+  if(Category=="MediumBad" || Category=="TightBad") {
     if(emf>0.9 && fabs(larq)>0.8 && fabs(eta)<2.8) return true;
   }
 
-  if(Category==TightBad) {
+  if(Category=="TightBad") {
     if(fabs(larq)>0.95)                            return true;
     if(emf>0.98 && fabs(larq)>0.05)                return true;
   }
@@ -2384,8 +2401,9 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 
   ATH_MSG_DEBUG("Filling Efficiency Plots");
 
-  TH1 *h(0);
-  TH2 *h2(0);
+  TH1      *h(0);
+  TH2      *h2(0);
+  TProfile *p(0);
 
   // fill offline jets in one loop
   unsigned int Nelem = m_OFJetC.size();
@@ -2440,19 +2458,22 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 	for(lIt = m_L1Items.begin(); lIt != m_L1Items.end(); ++lIt) {
 	  std::string itemName = (*lIt).first;          
 	  double thrGeVItem = m_ofEtThres[itemName];
+	  double EtaHighThres=m_l1EtaHighThres[(*lIt).second];
+	  double EtaLowThres =m_l1EtaLowThres[(*lIt).second];
+
 	  //passL1thr = (jet->pt()/CLHEP::GeV > thrGeVItem);
 	  
-	  ATH_MSG_DEBUG(" L1 Chain= "<<itemName<<" OF Jet pt= "<<jet->pt()/CLHEP::GeV<<" OF Jet eta= "<<jet->eta()<<" Threshold= "<<thrGeVItem<<" TDT= "<<getTDT()->isPassed(itemName));
+	  ATH_MSG_DEBUG(" L1 Chain= "<<itemName<<" OF Jet pt= "<<jet->pt()/CLHEP::GeV<<" OF Jet eta= "<<jet->eta()<<" Threshold= "<<thrGeVItem<<" TDT= "<<getTDT()->isPassed(itemName)<<" Eta Low "<<EtaLowThres<<" Eta High "<<EtaHighThres);
 	  
 	  // if L1 eff required
 	  if(m_doL1TrigEff) {
-	    if (isLeadingJet(jet,jetcoll,0,4.9)){ //OF leading jet in the same eta region of HLTJet
+	    if (isLeadingJet(jet,jetcoll,EtaLowThres,EtaHighThres,1)){ //OF leading jet in the same eta region of HLTJet
 	      
 	      ATH_MSG_DEBUG(" OF Jet passed requirements->Filling the denominator");
 	      
-	      if((h = hist(Form("%s_Eff_vs_pt_den",itemName.c_str())))) h->Fill(jet->pt()/CLHEP::GeV);
-	      if((h = hist(Form("%s_Eff_vs_eta_den",itemName.c_str())))) h->Fill(jet->eta());
-	      if((h = hist(Form("%s_Eff_vs_phi_den",itemName.c_str())))) h->Fill(jet->phi());
+	      if((h = hist(Form("%s_Eff_vs_pt_den",itemName.c_str()))))          h->Fill(jet->pt()/CLHEP::GeV);
+	      if((h = hist(Form("%s_Eff_vs_eta_den",itemName.c_str()))))         h->Fill(jet->eta());
+	      if((h = hist(Form("%s_Eff_vs_phi_den",itemName.c_str()))))         h->Fill(jet->phi());
 	      if((h2 = hist2(Form("%s_Eff_vs_pt_vs_eta_den",itemName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->eta());
 	      if((h2 = hist2(Form("%s_Eff_vs_pt_vs_phi_den",itemName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->phi());
 	      
@@ -2469,27 +2490,39 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 	    
 	    v_trigjet_tmp=mFoundL1Jets[count];
             std::string itemName = (*mIt).c_str();
+	    double EtaHighThres=m_l1EtaHighThres[(*mIt).c_str()];
+	    double EtaLowThres =m_l1EtaLowThres[(*mIt).c_str()];
 	    // fill num L1 eff
 	    
 	    
 	    ATH_MSG_DEBUG("Chain Matched= "<<itemName<<" TDT= "<<getTDT()->isPassed(itemName));
 	    
             if(m_doL1TrigEff) {
-	      if (isLeadingJet(jet,jetcoll,0,4.9)){ //OF leading jet in the same eta region of HLTJet
-		if(getTDT()->isPassed(itemName) /*&& passL1thr*/) {
+	      if (isLeadingJet(jet,jetcoll,EtaLowThres,EtaHighThres,1)){ //OF leading jet in the same eta region of HLTJet
+		if(getTDT()->isPassed(itemName)) {
 		  
 		  ATH_MSG_DEBUG(" OF Jet passed requirements->Filling the numerator");	 	
 		  
-		  if((h = hist(Form("%s_Eff_vs_pt_num",itemName.c_str())))) h->Fill(jet->pt()/CLHEP::GeV);		 
-		  if((h = hist(Form("%s_Eff_vs_eta_num",itemName.c_str())))) h->Fill(jet->eta());
-		  if((h = hist(Form("%s_Eff_vs_phi_num",itemName.c_str())))) h->Fill(jet->phi());
+		  if((h = hist(Form("%s_Eff_vs_pt_num",itemName.c_str()))))          h->Fill(jet->pt()/CLHEP::GeV); //fill numerator histogram		 
+		  if((h = hist(Form("%s_Eff_vs_eta_num",itemName.c_str()))))         h->Fill(jet->eta());
+		  if((h = hist(Form("%s_Eff_vs_phi_num",itemName.c_str()))))         h->Fill(jet->phi());
 		  if((h2 = hist2(Form("%s_Eff_vs_pt_vs_eta_num",itemName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->eta());
 		  if((h2 = hist2(Form("%s_Eff_vs_pt_vs_phi_num",itemName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->phi());
-		  if((h2 = hist2(Form("%s_pt_vs_OF_pt",itemName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,v_trigjet_tmp.Pt()/CLHEP::GeV);
+		  if((h2 = hist2(Form("%s_pt_vs_OF_pt",itemName.c_str()))))          h2->Fill(jet->pt()/CLHEP::GeV,v_trigjet_tmp.Pt()/CLHEP::GeV);
+
+		  if((p = profile(Form("%s_EffPt",itemName.c_str()))))  p->Fill(jet->pt()/CLHEP::GeV,1.0,1.0); //fill profile with 1
+		  if((p = profile(Form("%s_EffEta",itemName.c_str())))) p->Fill(jet->eta(),1.0,1.0);
+		  if((p = profile(Form("%s_EffPhi",itemName.c_str())))) p->Fill(jet->phi(),1.0,1.0);
 		  
 		  double res=(v_trigjet_tmp.Pt()-jet->pt())/(jet->pt());
 		  if((h = hist(Form("%s_Resolution_pt",itemName.c_str())))) h->Fill(res);
 		  
+		} if (!getTDT()->isPassed(itemName)){
+		  
+		  if((p = profile(Form("%s_EffPt",itemName.c_str()))))  p->Fill(jet->pt()/CLHEP::GeV,0.0,1.0); //fill profile with 0
+		  if((p = profile(Form("%s_EffEta",itemName.c_str())))) p->Fill(jet->eta(),0.0,1.0);
+		  if((p = profile(Form("%s_EffPhi",itemName.c_str())))) p->Fill(jet->phi(),0.0,1.0);
+
 		}
 	      } // if this L1 item passed
 	    } // if trigeff  
@@ -2529,28 +2562,26 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 
 	  for(lIt = m_HLTChains.begin(); lIt != m_HLTChains.end(); ++lIt) {
           std::string chainName = (*lIt).first;
-	  double thrGeVItem = m_ofEtThres[(*lIt).second];
-	  double EtaHighThres=m_hltEtaHighThres[(*lIt).second];
-	  double EtaLowThres =m_hltEtaLowThres[(*lIt).second];
+	  double EtaHighThres   = m_hltEtaHighThres[(*lIt).second];
+	  double EtaLowThres    = m_hltEtaLowThres[(*lIt).second];
+	  int NJet              = m_hltJetn[(*lIt).second];
 
-          //passHLTthr = (jet->pt()/CLHEP::GeV > thrGeVItem);
-       
-	  ATH_MSG_DEBUG(" HLT Chain= "<<chainName<<" OF Jet pt= "<<jet->pt()/CLHEP::GeV<<" OF Jet eta= "<<jet->eta()<<" Threshold= "<<thrGeVItem<<" EtaLowThres= "<<EtaLowThres<<" EtaHighThres= "<<EtaHighThres<<" TDT= "<<getTDT()->isPassed(Form("HLT_%s",chainName.c_str())));
+          //passHLTthr = (jet->pt()/CLHEP::GeV > thrGeVItem)
+	  
 
           // if HLT eff required
           if(m_doHLTTrigEff) {
-	    if (isLeadingJet(jet,jetcoll,EtaLowThres,EtaHighThres)){ //OF leading jet in the same eta region of HLTJet	    
+	    if (isLeadingJet(jet,jetcoll,EtaLowThres,EtaHighThres,NJet)){ //OF nth leading jet in the same eta region of HLTJet	    
 	    
-	      ATH_MSG_DEBUG(" OF Jet passed requirements->Filling the denominator");
-
-	      if((h = hist(Form("%s_Eff_vs_pt_den",chainName.c_str())))) h->Fill(jet->pt()/CLHEP::GeV);
-	      if((h = hist(Form("%s_Eff_vs_eta_den",chainName.c_str())))) h->Fill(jet->eta());
-	      if((h = hist(Form("%s_Eff_vs_phi_den",chainName.c_str())))) h->Fill(jet->phi());
+	      if((h = hist(Form("%s_Eff_vs_pt_den",chainName.c_str()))))          h->Fill(jet->pt()/CLHEP::GeV);
+	      if((h = hist(Form("%s_Eff_vs_eta_den",chainName.c_str()))))         h->Fill(jet->eta());
+	      if((h = hist(Form("%s_Eff_vs_phi_den",chainName.c_str()))))         h->Fill(jet->phi());
 	      if((h2 = hist2(Form("%s_Eff_vs_pt_vs_eta_den",chainName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->eta());
 	      if((h2 = hist2(Form("%s_Eff_vs_pt_vs_phi_den",chainName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->phi());
 	    
 	    } //isLeading
           }//doTrigEff
+      
         }//Loop over Chain
 
 	ATH_MSG_DEBUG("Filling Numerator Histograms for HLT");
@@ -2562,30 +2593,37 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 	    
 	    v_trigjet_tmp=mFoundHLTJets[count];
 	    std::string chainName = (*mIt).c_str();
-	    double EtaHighThres=m_hltEtaHighThres[(*mIt).c_str()];
-	    double EtaLowThres =m_hltEtaLowThres[(*mIt).c_str()];
+	    double EtaHighThres   = m_hltEtaHighThres[(*mIt).c_str()];
+	    double EtaLowThres    = m_hltEtaLowThres[(*mIt).c_str()];
+	    int NJet              = m_hltJetn[(*mIt).c_str()];
 	  
-	    ATH_MSG_DEBUG("Chain Matched= "<<chainName<<" TDT= "<<getTDT()->isPassed(Form("HLT_%s",chainName.c_str())));
-
             // fill num HLT eff
             if(m_doHLTTrigEff) {
-	      if (isLeadingJet(jet,jetcoll,EtaLowThres,EtaHighThres)){ //OF leading jet in the same eta region of HLTJet	  
-		if(getTDT()->isPassed(Form("HLT_%s",chainName.c_str())) /*&& passHLTthr*/) {
+	      if (isLeadingJet(jet,jetcoll,EtaLowThres,EtaHighThres,NJet)){ //OF leading jet in the same eta region of HLTJet	  
+		if(getTDT()->isPassed(Form("HLT_%s",chainName.c_str()))) {
 		  
-		  if((h = hist(Form("%s_Eff_vs_pt_num",chainName.c_str())))) h->Fill(jet->pt()/CLHEP::GeV);
-		  if((h = hist(Form("%s_Eff_vs_eta_num",chainName.c_str())))) h->Fill(jet->eta());
-		  if((h = hist(Form("%s_Eff_vs_phi_num",chainName.c_str())))) h->Fill(jet->phi());
+		  if((h = hist(Form("%s_Eff_vs_pt_num",chainName.c_str()))))          h->Fill(jet->pt()/CLHEP::GeV);
+		  if((h = hist(Form("%s_Eff_vs_eta_num",chainName.c_str()))))         h->Fill(jet->eta());
+		  if((h = hist(Form("%s_Eff_vs_phi_num",chainName.c_str()))))         h->Fill(jet->phi());
 		  if((h2 = hist2(Form("%s_Eff_vs_pt_vs_eta_num",chainName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->eta());
 		  if((h2 = hist2(Form("%s_Eff_vs_pt_vs_phi_num",chainName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,jet->phi());
-		  if((h2 = hist2(Form("%s_pt_vs_OF_pt",chainName.c_str())))) h2->Fill(jet->pt()/CLHEP::GeV,v_trigjet_tmp.Pt()/CLHEP::GeV);
+		  if((h2 = hist2(Form("%s_pt_vs_OF_pt",chainName.c_str()))))          h2->Fill(jet->pt()/CLHEP::GeV,v_trigjet_tmp.Pt()/CLHEP::GeV);
+
+		  if((p = profile(Form("%s_EffPt",chainName.c_str()))))  p->Fill(jet->pt()/CLHEP::GeV,1.0,1.0); //fill profile with 1
+		  if((p = profile(Form("%s_EffEta",chainName.c_str())))) p->Fill(jet->eta(),1.0,1.0);
+		  if((p = profile(Form("%s_EffPhi",chainName.c_str())))) p->Fill(jet->phi(),1.0,1.0);
 		  
 		  double res=(v_trigjet_tmp.Pt()-jet->pt())/(jet->pt());
 		  if((h = hist(Form("%s_Resolution_pt",chainName.c_str())))) h->Fill(res);
 		  
+		} if (! getTDT()->isPassed(Form("HLT_%s",chainName.c_str()))){
+		  if((p = profile(Form("%s_EffPt",chainName.c_str()))))  p->Fill(jet->pt()/CLHEP::GeV,0.0,1.0); //fill profile with 0
+		  if((p = profile(Form("%s_EffEta",chainName.c_str())))) p->Fill(jet->eta(),0.0,1.0);
+		  if((p = profile(Form("%s_EffPhi",chainName.c_str())))) p->Fill(jet->phi(),0.0,1.0);
 		}	 
               }//TDT
             } // doTrigEff
-
+	 
 	    count=count+1;
 
           } // Loop over Chain
@@ -2687,10 +2725,11 @@ bool HLTJetMonTool::passedChainTest( const xAOD::Jet *jet, std::vector<std::stri
   
 }//EOF
 
-bool HLTJetMonTool::isLeadingJet(const xAOD::Jet *jet, const xAOD::JetContainer *jetcoll, double EtaLow, double EtaHigh){
+bool HLTJetMonTool::isLeadingJet(const xAOD::Jet *jet, const xAOD::JetContainer *jetcoll, double EtaLow, double EtaHigh, int Jetn){
 
   double njets=0;
   double nleading=0;
+  bool   found_jetn=false;
   std::vector<double> v_ofjets;
 
   for(const auto & j : *jetcoll) {
@@ -2701,14 +2740,22 @@ bool HLTJetMonTool::isLeadingJet(const xAOD::Jet *jet, const xAOD::JetContainer 
     }
   }
   
+
   for(unsigned int i=0; i<v_ofjets.size(); ++i) {
     njets=njets+1;
-    if (jet->pt() >= v_ofjets[i] && fabs(jet->eta())>=EtaLow && fabs(jet->eta())<=EtaHigh){
+    if (jet->pt() >= v_ofjets[i] && fabs(jet->eta())>=EtaLow && fabs(jet->eta())<=EtaHigh && Jetn==1){ //Select leading if jetn=1
       nleading=nleading+1;
-    } 
+    } else if (jet->pt()==v_ofjets[Jetn-1] && v_ofjets.size()>=Jetn && Jetn>1){ // select nth Jet in case jetn != 1
+      found_jetn=true;
+    }
   }
-
+  
   v_ofjets.clear();
+
+  if (found_jetn){
+    njets=99;
+    nleading=99;
+  }
   
   if (njets==nleading && njets>0){
     ATH_MSG_DEBUG("is leading");
@@ -2722,7 +2769,7 @@ TLorentzVector HLTJetMonTool::DeltaRMatching(const xAOD::Jet *jet, const std::st
 
   double DRmin=99;
   double Ptmin=-99;
-  // double count=0;
+  int    count=1;
 
   ATH_MSG_DEBUG("DeltaR Matching");
 
@@ -2769,7 +2816,7 @@ TLorentzVector HLTJetMonTool::DeltaRMatching(const xAOD::Jet *jet, const std::st
 
 	  }
 
-	  if (fabs(v_L1.Eta())>0 && fabs(v_L1.Eta())<4.9 && v_L1.Pt()>Ptmin){ //select leading jet in the chosen eta range
+	  if (fabs(v_L1.Eta())>m_l1EtaLowThres[ChainName.c_str()] && fabs(v_L1.Eta())<m_l1EtaHighThres[ChainName.c_str()] && v_L1.Pt()>Ptmin){ //select leading jet in the chosen eta range
 	    Ptmin= v_L1.Pt();
 	    v_best_match=v_L1;	  
  
@@ -2814,15 +2861,17 @@ TLorentzVector HLTJetMonTool::DeltaRMatching(const xAOD::Jet *jet, const std::st
 	  // v_best_match=v_HLT;
 	}
 
-	if (fabs(v_HLT.Eta())>m_hltEtaLowThres[ChainName.c_str()] && fabs(v_HLT.Eta())<m_hltEtaHighThres[ChainName.c_str()] && v_HLT.Pt()>Ptmin){ //select leading jet in the chosen eta range
+	if (fabs(v_HLT.Eta())>m_hltEtaLowThres[ChainName.c_str()] && fabs(v_HLT.Eta())<m_hltEtaHighThres[ChainName.c_str()] && v_HLT.Pt()>Ptmin && m_hltJetn[ChainName.c_str()]==1){ //select leading jet in the chosen eta range
 	  Ptmin= v_HLT.Pt();
 	  v_best_match=v_HLT;	  
-
 	  ATH_MSG_DEBUG("is leading");
 
+	} else if (fabs(v_HLT.Eta())>m_hltEtaLowThres[ChainName.c_str()] && fabs(v_HLT.Eta())<m_hltEtaHighThres[ChainName.c_str()] && m_hltJetn[ChainName.c_str()]==count && m_hltJetn[ChainName.c_str()] != 1) { // select nth jet in the chosen eta range
+	  v_best_match=v_HLT;	  
+	  ATH_MSG_DEBUG("is leading");
 	}
 	
-	//	count=count+1;
+       	count=count+1;
 	
       }// loop over jet container
     }// loop over features container
@@ -2852,10 +2901,10 @@ StatusCode HLTJetMonTool::proc( ) {
  
     if (endOfRun){
 
-    TH1 *h(0);
-    TH1 *hnum(0);
-    TH1 *hden(0);
-    
+    TH1      *h(0);
+    TH1      *hnum(0);
+    TH1      *hden(0);
+
     JetSigIter lIt;
     
     unsigned int Nelem = m_OFJetC.size();
@@ -2886,6 +2935,7 @@ StatusCode HLTJetMonTool::proc( ) {
 		
 	for(lIt = m_L1Items.begin(); lIt != m_L1Items.end(); ++lIt) {
 	  std::string L1itemName = (*lIt).first;       
+
 	  
 	  if((h = hist(Form("%s_Eff_vs_pt", L1itemName.c_str()))))  {
 	    if((hnum=hist(Form("%s_Eff_vs_pt_num",L1itemName.c_str())))){
@@ -2930,6 +2980,7 @@ StatusCode HLTJetMonTool::proc( ) {
 	  
 
 	  ATH_MSG_DEBUG("HLT Chain "<<HLTchainName.c_str());
+
 
 	  if((h = hist(Form("%s_Eff_vs_pt", HLTchainName.c_str()))))  {
 	    if((hnum=hist(Form("%s_Eff_vs_pt_num",HLTchainName.c_str())))){
