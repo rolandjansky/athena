@@ -29,8 +29,10 @@ HLT::TrigNavigationSlimmingTool::TrigNavigationSlimmingTool( const std::string& 
 							     const IInterface* parent ) 
   : AthAlgTool(type, name, parent), 
     m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
-    m_thinningSvc("", name)
-{
+    m_thinningSvc("", name), 
+    m_seenEvent(0), 
+    m_navigation(0), 
+    m_destinationNavigation(0) {
 
   declareInterface<TrigNavigationSlimmingTool>(this);
   
@@ -131,68 +133,98 @@ StatusCode HLT::TrigNavigationSlimmingTool::initialize() {
 }
 
 
-StatusCode
-HLT::TrigNavigationSlimmingTool::drop(State& state) const
-{
-  state.destinationNavigation.clear();
+StatusCode HLT::TrigNavigationSlimmingTool::drop() {
+  m_destinationNavigation->clear();
   ATH_MSG_DEBUG ( "Navigation dropped entirely" );
   return StatusCode::SUCCESS;
 }
 
-StatusCode
-HLT::TrigNavigationSlimmingTool::reload (State& state) const
-{
-  state.destinationNavigation.clear();
+StatusCode HLT::TrigNavigationSlimmingTool::reload() {
+  m_destinationNavigation->clear();
   std::vector<unsigned int> cuts;
   std::vector<uint32_t> temp;
-  state.navigation.serialize(temp, cuts);
-  state.navigation.reset();
-  state.navigation.prepare();
-  state.navigation.deserialize(temp);
+  m_navigation->serialize(temp, cuts);
+  m_navigation->reset();
+  m_navigation->prepare();
+  m_navigation->deserialize(temp);
   ATH_MSG_DEBUG ( "Reloaded the navigation content in TDT (all clients will see reduced navigation content) ..." );
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode HLT::TrigNavigationSlimmingTool::save(State& state) const {
+StatusCode HLT::TrigNavigationSlimmingTool::save() {
   std::vector<unsigned int> cuts;
-  state.navigation.serialize(state.destinationNavigation, cuts);
+  m_navigation->serialize(*m_destinationNavigation, cuts);
   ATH_MSG_DEBUG ( "Saved the slimmed navigation" );
   return StatusCode::SUCCESS;
 }
 
-StatusCode
-HLT::TrigNavigationSlimmingTool::restore(State& state) const
-{
-  state.navigation.reset();
-  state.navigation.prepare();
-  state.navigation.deserialize(state.originalNavigation);
+StatusCode HLT::TrigNavigationSlimmingTool::restore() {
+  m_navigation->reset();
+  m_navigation->prepare();
+  m_navigation->deserialize(m_originalNavigation);
   ATH_MSG_DEBUG ( "Restored the original navigation" );
   return StatusCode::SUCCESS;
 }
 
 
 
-StatusCode HLT::TrigNavigationSlimmingTool::print(State& state) const {
-  ATH_MSG_DEBUG ( "Navigation printout \n" << state.navigation );
+StatusCode HLT::TrigNavigationSlimmingTool::print() {
+  std::vector<unsigned int> cuts;
+  ATH_MSG_DEBUG ( "Navigation printout \n" << *m_navigation );
   return StatusCode::SUCCESS;
 }
 
-StatusCode HLT::TrigNavigationSlimmingTool::squeeze(State& state) const {  
-  for ( auto te: state.navigation.getAllTEs() ) {
-    if ( state.navigation.isInitialNode(te) 
-	 or state.navigation.isRoINode(te) 
-	 or state.navigation.isTerminalNode(te) 
-	 or state.tesToProtect.find(te->getId()) != state.tesToProtect.end())
+StatusCode HLT::TrigNavigationSlimmingTool::squeeze() {
+  // gather TEs to protect if the flag is set
+  std::set<HLT::TriggerElement*> tesToProtect;
+  // if ( m_protectChains ) { 
+  //   // iterate through all the configured chains
+  //   for(std::vector<std::string>::iterator iter = m_configuredChainNames.begin();
+  //       iter != m_configuredChainNames.end(); ++iter) {
+  //     // grab the TEs for that chain
+  //     std::vector<HLT::TriggerElement*> *chainTEs = 
+  // 	getTEsFromChainGroup(m_trigDecisionTool->getChainGroup(*iter));
+
+  //     if(chainTEs) {
+  //       // if a TE does not seed another TE in that chain, protect it
+  //       for(std::vector<HLT::TriggerElement*>::const_iterator iterTE = chainTEs->begin();
+  //           iterTE != chainTEs->end(); ++iterTE) {
+  //         // grab the TEs the TE in question seeds
+  //         std::vector<HLT::TriggerElement*> seeds = 
+  // 	    (*iterTE)->getRelated(HLT::TriggerElement::seedsRelation);
+
+  //         bool isChainTerminal = true;
+  //         // check if any of the TEs it seeds are in the chain
+  //         for(std::vector<HLT::TriggerElement*>::const_iterator iterSeeds = seeds.begin();
+  //             iterSeeds != seeds.end(); ++iterSeeds) {
+  //           if(std::find(chainTEs->begin(), chainTEs->end(), (*iterSeeds)) != chainTEs->end()) {
+  //             isChainTerminal = false;
+  //             break;
+  //           }
+  //         }
+  //         // if it is terminal for the chain, protect it
+  //         if(isChainTerminal)
+  //           tesToProtect.insert(*iterTE);
+  //       }
+  //       delete chainTEs;
+  //     }
+  //   }
+  // }
+  
+  for ( auto te: m_navigation->getAllTEs() ) {
+    if ( m_navigation->isInitialNode(te) 
+	 or m_navigation->isRoINode(te) 
+	 or m_navigation->isTerminalNode(te) )
       continue;
     //    if ( te->getId() == 4032407525 ) m_report = true;
-    CHECK( removeTriggerElement(state, te) );
+    CHECK( removeTriggerElement(te) );
     //    m_report = false;
   }
 
   return StatusCode::SUCCESS;
 }
-StatusCode HLT::TrigNavigationSlimmingTool::dropFeatures(State& state) const {
+StatusCode HLT::TrigNavigationSlimmingTool::dropFeatures() {
   // turn the inclusion and exclusion lists into set of pairs <CLID, SubTypeIndex> of this collections which needs to be dropped
   // in fact this a bit waste of time that we reclaulate this each time, but, one can imagine slimming events from different runs/configurations
   // but then we sould have to check some configuration in data (i.e. SMK in the HLTResult, and recompute m_deletedFeatures only if it changes)
@@ -201,9 +233,9 @@ StatusCode HLT::TrigNavigationSlimmingTool::dropFeatures(State& state) const {
 
 
   //HLT::NavigationCore::FeaturesStructure::const_iterator types_iterator;
-  //typedef  std::map<uint16_t, HLTNavDetails::IHolder*> HoldersBySubType;
+  typedef  std::map<uint16_t, HLTNavDetails::IHolder*> HoldersBySubType;
   //std::map<uint16_t, HLTNavDetails::IHolder*>::const_iterator holders_iterator;
-  for( auto h : state.navigation.m_holderstorage.getAllHolders<HLTNavDetails::IHolder>() ) {
+  for( auto h : m_navigation->m_holderstorage.getAllHolders<HLTNavDetails::IHolder>() ) {
     if(!h) { // check if h is null
       ATH_MSG_WARNING("holder.second is null pointer; skipping...");
       continue;
@@ -230,9 +262,9 @@ StatusCode HLT::TrigNavigationSlimmingTool::dropFeatures(State& state) const {
   
 
   if ( not toRetain.empty() )
-    return retainFeatures(state, toRetain);
+    return retainFeatures(toRetain);
   if ( not toDelete.empty() )
-    return removeFeatures(state, toDelete);
+    return removeFeatures(toDelete);
 
   // now that we've removed them from the tree, we need to remove them from
   // the navigation structure as well.  We do this by finding the holders that
@@ -242,60 +274,60 @@ StatusCode HLT::TrigNavigationSlimmingTool::dropFeatures(State& state) const {
   return StatusCode::SUCCESS;  
 }
 
-StatusCode HLT::TrigNavigationSlimmingTool::dropRoIs(State& state) const {
-  for ( auto te: state.navigation.getAllTEs() ) {
-    if ( state.navigation.isRoINode(te) )
-      CHECK( removeTriggerElement(state, te) );
+StatusCode HLT::TrigNavigationSlimmingTool::dropRoIs() {
+  for ( auto te: m_navigation->getAllTEs() ) {
+    if ( m_navigation->isRoINode(te) )
+      CHECK( removeTriggerElement(te) );
   }
   return StatusCode::SUCCESS;  
 }
 
-StatusCode HLT::TrigNavigationSlimmingTool::dropEmptyRoIs(State& state) const {
-  for ( auto te: state.navigation.getAllTEs() ) {
-    if ( state.navigation.isRoINode(te) 
+StatusCode HLT::TrigNavigationSlimmingTool::dropEmptyRoIs() {
+  for ( auto te: m_navigation->getAllTEs() ) {
+    if ( m_navigation->isRoINode(te) 
 	 and te->getRelated(TriggerElement::seedsRelation).empty() )
-      CHECK( removeTriggerElement(state, te) );
+      CHECK( removeTriggerElement(te) );
   }
   return StatusCode::SUCCESS;  
 }
 
-StatusCode HLT::TrigNavigationSlimmingTool::dropFeatureless(State& state) const {
-  for ( auto te: state.navigation.getAllTEs() ) {
+StatusCode HLT::TrigNavigationSlimmingTool::dropFeatureless() {
+  for ( auto te: m_navigation->getAllTEs() ) {
     if ( te->getFeatureAccessHelpers().empty() )
-      CHECK( removeTriggerElement(state, te) );
+      CHECK( removeTriggerElement(te) );
   }  
   return StatusCode::SUCCESS;  
 }
 
 
 
-StatusCode HLT::TrigNavigationSlimmingTool::dropFeaturelessTerminals(State& state) const {
-  auto& allTEs = state.navigation.getAllTEs();
+StatusCode HLT::TrigNavigationSlimmingTool::dropFeaturelessTerminals() {
+  auto& allTEs = m_navigation->getAllTEs();
   // loop from back to front (rbegin, rend) and drop TEs if they have no features and are terminals
   // inverted direction of the loop enables a recursion as we are guaranteed to see leafs first
   for ( auto te = allTEs.rbegin(); te != allTEs.rend(); ++te ) {
     if ( (*te)->getFeatureAccessHelpers().empty() 
-	 and state.navigation.isTerminalNode(*te) 
-	 and not state.navigation.isInitialNode(*te) ) {
-      CHECK( removeTriggerElement(state, *te) );
+	 and m_navigation->isTerminalNode(*te) 
+	 and not m_navigation->isInitialNode(*te) ) {
+      CHECK( removeTriggerElement(*te) );
     }
   }
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode HLT::TrigNavigationSlimmingTool::dropChains(State& state) const {
+StatusCode HLT::TrigNavigationSlimmingTool::dropChains() {
   if ( m_chainsRegex.empty() ) {
     return StatusCode::SUCCESS;
   }
   // now run over the tree and drop alle TEs except RoIs and intial which are not in the TEs to protect
-  for ( auto te: state.navigation.getAllTEs() ) {
-    if ( state.navigation.isInitialNode(te)
-	 or state.navigation.isRoINode(te) ) {
+  for ( auto te: m_navigation->getAllTEs() ) {
+    if ( m_navigation->isInitialNode(te)
+	 or m_navigation->isRoINode(te) ) {
       continue;
     }
-    if ( state.tesToProtect.find(te->getId()) == state.tesToProtect.end() ) {
-      CHECK( removeTriggerElement(state, te));
+    if ( m_tesToProtect.find(te->getId()) == m_tesToProtect.end() ) {
+      CHECK( removeTriggerElement(te));
     }
   }
   return StatusCode::SUCCESS;
@@ -304,42 +336,50 @@ StatusCode HLT::TrigNavigationSlimmingTool::dropChains(State& state) const {
 
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
-StatusCode HLT::TrigNavigationSlimmingTool::doSlimming( std::vector<uint32_t>& slimmed_and_serialized) const {
+StatusCode HLT::TrigNavigationSlimmingTool::doSlimming( std::vector<uint32_t>& slimmed_and_serialzied) {
+  m_destinationNavigation = &slimmed_and_serialzied;
 
   // grab the navigation
   Trig::ExpertMethods *navAccess = m_trigDecisionTool->ExperimentalAndExpertMethods();
   navAccess->enable();
-  // FIXME: const_cast
-  HLT::NavigationCore *cnav = const_cast<HLT::NavigationCore*>(navAccess->getNavigation());
+  const HLT::NavigationCore *cnav = navAccess->getNavigation();
+  m_navigation = const_cast<HLT::NavigationCore*>(cnav);
+ 
 
-  if(cnav == 0) {
+  if(m_navigation == 0) {
     ATH_MSG_WARNING ( "Could not get navigation from Trigger Decision Tool" );
     ATH_MSG_WARNING ( "Navigation will not be slimmed in this event" );
     return StatusCode::SUCCESS;
   }
     
-  State state (*cnav, slimmed_and_serialized);
-  CHECK( lateFillConfiguration(state) );
+  // if this is the first event we've seen, we need to process the group and stream info
+  if( not m_seenEvent) {
+
+    // remember we've seen it
+    m_seenEvent = 1;
+    CHECK(lateFillConfiguration());
+    
+  } // end initialize on first event
   {
-    state.originalNavigation.clear();
+    m_originalNavigation.clear();
     std::vector<uint32_t> cuts;
-    cnav->serialize(state.originalNavigation, cuts);
+    m_navigation->serialize(m_originalNavigation, cuts);
   }
+
 
   for ( auto& action: m_actions ) {
     ATH_MSG_DEBUG("Applying action " << action << " on the navigation ");
-    auto ifunc = m_actionsMap.find (action);
-    if (ifunc != m_actionsMap.end()) {
-      auto function = ifunc->second;
-      CHECK( (this->*function)(state) );
-    }
+    auto function = m_actionsMap[action];
+    CHECK( (this->*function)() );
   }
+  m_destinationNavigation = 0;
   return StatusCode::SUCCESS;
 }
 
 
 
 StatusCode HLT::TrigNavigationSlimmingTool::finalize() {
+  m_navigation = 0;
   return StatusCode::SUCCESS;
 }
 
@@ -357,19 +397,18 @@ std::map<std::string, int> *HLT::TrigNavigationSlimmingTool::getFeatureOccurrenc
 
   for ( auto te : navigation->getAllTEs() ) {
     for ( const auto& fea: te->getFeatureAccessHelpers() ) {
-      (*featureOccurrences)[getLabel(*navigation, fea)] += 1;
+      (*featureOccurrences)[getLabel(fea)] += 1;
     }
   }
 
   return featureOccurrences;
 }
 
-std::string HLT::TrigNavigationSlimmingTool::getLabel(const HLT::NavigationCore& navigation,
-                                                      const TriggerElement::FeatureAccessHelper &fah) const {
+std::string HLT::TrigNavigationSlimmingTool::getLabel(const TriggerElement::FeatureAccessHelper &fah) const {
 
   CLID clid = fah.getCLID();
   std::string label;
-  HLTNavDetails::IHolder *h = navigation.getHolder(clid, fah.getIndex().subTypeIndex());
+  HLTNavDetails::IHolder *h = m_navigation->getHolder(clid, fah.getIndex().subTypeIndex());
   if(h) label = h->label();
 
   return label;
@@ -379,27 +418,23 @@ std::string HLT::TrigNavigationSlimmingTool::getLabel(const HLT::NavigationCore&
 
 
 
-StatusCode
-HLT::TrigNavigationSlimmingTool::lateFillConfiguration(State& state) const {
+StatusCode HLT::TrigNavigationSlimmingTool::lateFillConfiguration() {
   // remember the configured chain names, as they will be useful later  
-  // ??? Originally, this was done once and cached in the tool.
-  //     If this takes too long, consider storing it in the detector store.
   auto chainGroup = m_trigDecisionTool->getChainGroup(m_chainsRegex);
   ATH_MSG_INFO("Will keep information related to this chains" << chainGroup->getListOfTriggers());
   auto confTEs = chainGroup->getHLTTriggerElements();
   for ( auto& vec: confTEs) {
     for ( auto confTEPtr: vec) {
-      state.tesToProtect.insert(confTEPtr->id());
+      m_tesToProtect.insert(confTEPtr->id());
     }
   }
   return StatusCode::SUCCESS;
 }
 
-StatusCode HLT::TrigNavigationSlimmingTool::removeTriggerElement(State& state,
-                                                                 TriggerElement *te,
-								 bool propagateFeatures) const {
+StatusCode HLT::TrigNavigationSlimmingTool::removeTriggerElement(TriggerElement *te,
+								 bool propagateFeatures) {
   // refuse to remove the initial node
-  if(state.navigation.isInitialNode(te)) {
+  if(m_navigation->isInitialNode(te)) {
     return StatusCode::SUCCESS;
   }
   if ( m_report )  ATH_MSG_VERBOSE("Removing TE of ID: " << te->getId() );
@@ -439,7 +474,7 @@ StatusCode HLT::TrigNavigationSlimmingTool::removeTriggerElement(State& state,
     
 
     // now add all the nodes te seeds onto the node we just removed the seeds relation from
-    if(!state.navigation.isTerminalNode(te))
+    if(!m_navigation->isTerminalNode(te))
       seededByNode->relate( te->m_relations[ TriggerElement::seedsRelation ], TriggerElement::seedsRelation );
   }
 
@@ -455,7 +490,7 @@ StatusCode HLT::TrigNavigationSlimmingTool::removeTriggerElement(State& state,
     CHECK ( removeTriggerElementFromVector(te, relations) );
 
     // now add all the nodes te seeds onto the node we just removed the seeds relation from
-    if(!state.navigation.isInitialNode(te))
+    if(!m_navigation->isInitialNode(te))
       seedsNode->relate( te->m_relations[ TriggerElement::seededByRelation ], TriggerElement::seededByRelation );
   }
 
@@ -467,8 +502,7 @@ StatusCode HLT::TrigNavigationSlimmingTool::removeTriggerElement(State& state,
  * Feature Removal 
  *
  **********************************************************************/
-StatusCode HLT::TrigNavigationSlimmingTool::removeFeatures(State& state,
-                                                           const std::set<std::pair<CLID, uint16_t> >& toDelete) const {
+StatusCode HLT::TrigNavigationSlimmingTool::removeFeatures(const std::set<std::pair<CLID, uint16_t> >& toDelete) {
   // we have the following problem:
   // (a) features are stored as a vector where order can possibly matter
   // (b) its very time consuming to delete items from the middle of a vector
@@ -483,7 +517,7 @@ StatusCode HLT::TrigNavigationSlimmingTool::removeFeatures(State& state,
   // lists and remove elements when using exclusion lists
   ATH_MSG_DEBUG("Will remove " << toDelete.size()<< " feature type/key");
   using namespace HLT; 
-   for (auto te: state.navigation.getAllTEs()) {
+   for (auto te: m_navigation->getAllTEs()) {
     for ( auto& fea: te->getFeatureAccessHelpers() ) {
       if ( toDelete.find( std::make_pair(fea.getCLID(), fea.getIndex().subTypeIndex()) ) != toDelete.end() )	
 	fea.setForget(true); // when we mark this then the serialization of TEs will simpley skip this one, easy, no
@@ -499,11 +533,10 @@ StatusCode HLT::TrigNavigationSlimmingTool::removeFeatures(State& state,
 }
 
 
-StatusCode HLT::TrigNavigationSlimmingTool::retainFeatures(State& state,
-                                                           const std::set<std::pair<CLID, uint16_t> >& toRetain) const {
+StatusCode HLT::TrigNavigationSlimmingTool::retainFeatures(const std::set<std::pair<CLID, uint16_t> >& toRetain) {
   ATH_MSG_DEBUG("Will retain " << toRetain.size()<< " feature type/key");
   using namespace HLT; 
-   for (auto te: state.navigation.getAllTEs()) {
+   for (auto te: m_navigation->getAllTEs()) {
     for ( auto& fea: te->getFeatureAccessHelpers() ) {
       if ( toRetain.find( std::make_pair(fea.getCLID(), fea.getIndex().subTypeIndex()) ) == toRetain.end() )	
 	fea.setForget(true); // when we mark this then the serialization of TEs will simpley skip this one, easy, no
@@ -513,18 +546,16 @@ StatusCode HLT::TrigNavigationSlimmingTool::retainFeatures(State& state,
   
 }
 
-StatusCode
-HLT::TrigNavigationSlimmingTool::removeFeaturelessTriggerElements(State& state,
-                                                                  TriggerElement *) { 
+StatusCode HLT::TrigNavigationSlimmingTool::removeFeaturelessTriggerElements(TriggerElement *) { 
   ATH_MSG_DEBUG ( "Running the adjustIndicesAfterThinning" );
 
-  for ( auto te: state.navigation.getAllTEs() ) {
+  for ( auto te: m_navigation->getAllTEs() ) {
     size_t featuresCount = std::count_if(te->getFeatureAccessHelpers().begin(), 
 					 te->getFeatureAccessHelpers().end(), 
 					 [](const TriggerElement::FeatureAccessHelper& fea){ return fea.forget(); }
 					 );
     if( featuresCount == 0 ) {
-      CHECK( removeTriggerElement( state, te, false ) );      
+      CHECK( removeTriggerElement( te, false ) );      
     } 
   }
   return StatusCode::SUCCESS;
@@ -535,7 +566,7 @@ HLT::TrigNavigationSlimmingTool::removeFeaturelessTriggerElements(State& state,
  * Generic Helper Functions
  *
  **********************************************************************/
-StatusCode HLT::TrigNavigationSlimmingTool::removeTriggerElementFromVector(TriggerElement *te, std::vector<TriggerElement*>& v) const {
+StatusCode HLT::TrigNavigationSlimmingTool::removeTriggerElementFromVector(TriggerElement *te, std::vector<TriggerElement*>& v) {
     
   if( v.empty())
     return StatusCode::SUCCESS;
@@ -546,8 +577,7 @@ StatusCode HLT::TrigNavigationSlimmingTool::removeTriggerElementFromVector(Trigg
   return StatusCode::SUCCESS;
 }
 
-bool HLT::TrigNavigationSlimmingTool::toBeIncluded(State& state,
-                                                   TriggerElement *te, 
+bool HLT::TrigNavigationSlimmingTool::toBeIncluded(TriggerElement *te, 
 						   std::vector<std::string> *inclusionList, std::vector<std::string> *exclusionList) {
 
   // if the inclusion list exists, then we use that
@@ -559,11 +589,11 @@ bool HLT::TrigNavigationSlimmingTool::toBeIncluded(State& state,
 	  te->getFeatureAccessHelpers().begin();
         iter != te->getFeatureAccessHelpers().end(); ++iter) {
       // grab the label and check if it was found in the inclusion list
-      if(std::find(inclusionList->begin(), inclusionList->end(), this->getLabel(state.navigation, *iter )) != inclusionList->end())
+      if(std::find(inclusionList->begin(), inclusionList->end(), this->getLabel( *iter )) != inclusionList->end())
         return true;
       // now find if its in the exclusion list
       if(exclusionList && std::find(exclusionList->begin(), exclusionList->end(), 
-				    this->getLabel( state.navigation, *iter )) != exclusionList->end())
+				    this->getLabel( *iter )) != exclusionList->end())
         onExclusionList = 1;
     }
 
@@ -587,7 +617,7 @@ bool HLT::TrigNavigationSlimmingTool::toBeIncluded(State& state,
 	te->getFeatureAccessHelpers().begin();
       iter != te->getFeatureAccessHelpers().end(); ++iter) {
     // grab the label and check if it was found in the exclusion list
-    if(std::find(exclusionList->begin(), exclusionList->end(), this->getLabel(state.navigation, *iter )) != exclusionList->end())
+    if(std::find(exclusionList->begin(), exclusionList->end(), this->getLabel( *iter )) != exclusionList->end())
       return false;
   }
 
@@ -596,8 +626,7 @@ bool HLT::TrigNavigationSlimmingTool::toBeIncluded(State& state,
 
 }
 
-bool HLT::TrigNavigationSlimmingTool::toBeIncluded(State& state,
-                                                   TriggerElement *te, 
+bool HLT::TrigNavigationSlimmingTool::toBeIncluded(TriggerElement *te, 
 						   std::vector<TriggerElement*> *inclusionList, 
 						   std::vector<TriggerElement*> *exclusionList) {
 
@@ -605,7 +634,7 @@ bool HLT::TrigNavigationSlimmingTool::toBeIncluded(State& state,
     return false;
 
   // this function never allows inital nodes or RoI nodes to be removed
-  if( state.navigation.isInitialNode(te) || state.navigation.isRoINode(te) )
+  if( m_navigation->isInitialNode(te) || m_navigation->isRoINode(te) )
     return true;
 
   // if the inclusion list exists, then we use that
@@ -643,8 +672,7 @@ bool HLT::TrigNavigationSlimmingTool::toBeIncluded(State& state,
 
 }
 
-StatusCode
-HLT::TrigNavigationSlimmingTool::propagateFeaturesToChildren(const TriggerElement *te) const {
+StatusCode HLT::TrigNavigationSlimmingTool::propagateFeaturesToChildren(const TriggerElement *te) {
 
   if ( not te )
     return StatusCode::SUCCESS;
@@ -787,9 +815,9 @@ namespace {
   };
 }
 
-StatusCode HLT::TrigNavigationSlimmingTool::syncThinning(State& state) const {
+StatusCode HLT::TrigNavigationSlimmingTool::syncThinning( ) {
   ATH_MSG_DEBUG ( "Running the syncThinning" );
-  for(auto holder : state.navigation.m_holderstorage.getAllHolders<HLTNavDetails::IHolder>()) {
+  for(auto holder : m_navigation->m_holderstorage.getAllHolders<HLTNavDetails::IHolder>()) {
       holder->syncWithSG();
       auto containerPointer = holder->containerTypeProxy().cptr();
       if ( m_thinningSvc->thinningOccurred(containerPointer)  )  {
@@ -804,7 +832,7 @@ StatusCode HLT::TrigNavigationSlimmingTool::syncThinning(State& state) const {
 	
 	IndexRecalculator recalculator( &*m_thinningSvc, containerPointer);
 	// nowe we need to go over the TEs
-	for ( const auto& te: state.navigation.getAllTEs() ) {
+	for ( const auto& te: m_navigation->getAllTEs() ) {
 	  for ( auto& fea: te->getFeatureAccessHelpers() ) {
 	    if ( fea.getCLID() == holder->typeClid() 
 		 and fea.getIndex().subTypeIndex() == holder->subTypeIndex() ) {

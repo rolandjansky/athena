@@ -23,7 +23,7 @@ class SlimmingHandler : public ::Athena::ISlimmingHdlr {
 public:
   SlimmingHandler( ResultType *result, 
 		   const INamedInterface *requestor,  
-		   const HLT::TrigNavigationSlimmingTool *slimmer );
+		   HLT::TrigNavigationSlimmingTool *slimmer );
   
   void commit();
   
@@ -45,7 +45,7 @@ public:
   // nav and cuts data so that you can undo a slim
   std::vector<uint32_t> m_unslimmedNavData;
   
-  const HLT::TrigNavigationSlimmingTool *m_slimmer;
+  HLT::TrigNavigationSlimmingTool *m_slimmer;
   
   std::string m_name;  
 };
@@ -79,7 +79,7 @@ namespace {
 template<class ResultType>
 SlimmingHandler<ResultType>::SlimmingHandler(ResultType* result,
 					     const INamedInterface* requester, 
-					     const HLT::TrigNavigationSlimmingTool* slimmer)
+					     HLT::TrigNavigationSlimmingTool* slimmer)
   : Athena::ISlimmingHdlr(),
     m_result(result), 
 
@@ -95,20 +95,20 @@ SlimmingHandler<ResultType>::SlimmingHandler(ResultType* result,
 template<class ResultType>
 void SlimmingHandler<ResultType>::commit() {
   
-  //  log << MSG::DEBUG << "TrigNavigationSlimmingHdlr::commit() wiht slimming tool " << m_slimmer << endmsg;
+  //  log << MSG::DEBUG << "TrigNavigationSlimmingHdlr::commit() wiht slimming tool " << m_slimmer << endreq;
   // do slimming and serialized to the m_result
   std::vector<uint32_t> temp;
   
   if( m_slimmer->doSlimming( temp ).isFailure() ) {
     Athena::MsgStreamMember mlog(Athena::Options::Eager, m_name);
     MsgStream log = mlog.get();    
-    log << MSG::WARNING << "HLTResultSlimmingHandler failed execute().  Unable to proceed... bailing out" << endmsg;
+    log << MSG::WARNING << "HLTResultSlimmingHandler failed execute().  Unable to proceed... bailing out" << endreq;
     return;
   } 
   
   replace_data(m_result, temp);
   
-  //log << MSG::DEBUG << "Performed actual slimming" << endmsg;
+  //log << MSG::DEBUG << "Performed actual slimming" << endreq;
 }
 
 template<class ResultType>
@@ -129,7 +129,7 @@ void SlimmingHandler<ResultType>::rollback() {
   // navData.insert(navData.begin(), m_unslimmedNavData.begin(), m_unslimmedNavData.end());
   // cuts.clear();
   // cuts.insert(cuts.begin(), m_unslimmedCuts.begin(), m_unslimmedCuts.end());
-  //  log << MSG::DEBUG << "Rolled back the slimming" << endmsg;
+  //  log << MSG::DEBUG << "Rolled back the slimming" << endreq;
 }
 
 template<class ResultType>
