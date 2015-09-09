@@ -7,7 +7,7 @@ use AtlasHepMC            AtlasHepMC-*            External
 use LCG_Configuration
 
 macro Photospp_home "$(LCG_external)/MCGenerators/photos++"
-macro Photospp_version "3.52"
+macro Photospp_version "3.56"
 macro Photospp_native_version "$(Photospp_version)_lcgcmt$(LCG_config_version)"
 macro Photospp_system "$(LCG_ext_system)"
 macro Photospp_dir "$(Photospp_home)/$(Photospp_version)/$(Photospp_system)"
