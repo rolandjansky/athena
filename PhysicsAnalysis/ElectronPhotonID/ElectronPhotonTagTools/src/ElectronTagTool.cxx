@@ -31,6 +31,8 @@ Purpose : create a collection of ElectronTag
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 
+#include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
+
 #include <sstream>
 
 /** the constructor */
@@ -48,8 +50,8 @@ ElectronTagTool::ElectronTagTool (const std::string& type, const std::string& na
   m_loose_isolation(""),
   m_tight_isolation(""),
   m_gradient_loose_isolation(""),
-  m_gradient_isolation("") {
-  
+  m_gradient_isolation(""),
+  m_EgammaCalibrationAndSmearingTool("CP::EgammaCalibrationAndSmearingTool/EgammaCalibrationAndSmearingTool", this) {
   
   /** Electron AOD Container Name */
   declareProperty("Container",     m_containerNames);
@@ -81,6 +83,9 @@ ElectronTagTool::ElectronTagTool (const std::string& type, const std::string& na
   declareProperty("GradientLooseIsolation", m_gradient_loose_isolation);
   declareProperty("GradientIsolation",      m_gradient_isolation);
 
+  /** CP tool to calib objects */
+  declareProperty( "EgammaCalibrationAndSmearingTool", m_EgammaCalibrationAndSmearingTool);
+
   declareInterface<ElectronTagTool>( this );
 }
 
@@ -102,7 +107,10 @@ StatusCode  ElectronTagTool::initialize() {
   CHECK(m_tight_isolation.retrieve());
   CHECK(m_gradient_loose_isolation.retrieve());
   CHECK(m_gradient_isolation.retrieve());
-  
+
+  /** retreive and check the calibration tool */
+  CHECK(m_EgammaCalibrationAndSmearingTool.retrieve());
+
   if (m_etconeisocutvalues.size() > 4) {
     ATH_MSG_FATAL ("More than four etcone values are not permitted");
     return StatusCode::FAILURE;
@@ -193,7 +201,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     
     // create a shallow copy of the electron container
     std::pair< xAOD::ElectronContainer*, xAOD::ShallowAuxContainer* >  shallowCopy = xAOD::shallowCopyContainer(*electronContainer);
-    xAOD::ElectronContainer *electronContainerShallowCopy      = shallowCopy.first;
+    xAOD::ElectronContainer   *electronContainerShallowCopy    = shallowCopy.first;
     xAOD::ShallowAuxContainer *electronAuxContainerShallowCopy = shallowCopy.second;
     
     CHECK( evtStore()->record(electronContainerShallowCopy,    "ElectronsShallowTAG"));
@@ -201,6 +209,14 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
 
     static SG::AuxElement::Accessor< xAOD::IParticleLink > accSetOriginLink ("originalObjectLink");
     for ( xAOD::Electron *shallowCopyElectron : * electronContainerShallowCopy ) {
+
+      /** fix calibration using tool */
+      ATH_MSG_DEBUG("Un-Calibrated pt = " << shallowCopyElectron->pt());
+      if(m_EgammaCalibrationAndSmearingTool->applyCorrection(*shallowCopyElectron) != CP::CorrectionCode::Ok){
+          ATH_MSG_WARNING("Cannot calibrate electron");
+      }
+      ATH_MSG_DEBUG("Calibrated pt = " << shallowCopyElectron->pt()); 
+
       const xAOD::IParticleLink originLink( *electronContainer, shallowCopyElectron->index() );
       accSetOriginLink(*shallowCopyElectron) = originLink;
     }
@@ -215,15 +231,13 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     
     xAOD::ElectronContainer::const_iterator elecItr  = userContainer.begin();
     xAOD::ElectronContainer::const_iterator elecItrE = userContainer.end();
-    
-    
+   
     int k=0;
     
     for (; elecItr != elecItrE; ++elecItr) { 
       
       ATH_MSG_DEBUG( "Electron " << k << ", pt = " << (*elecItr)->pt() );
       k++;  
-    
 
       /**Apply loose preselection using the likelihood tool and pT cut*/
       if (  ! m_loose_likelihood->accept(*elecItr) )continue;      
@@ -231,8 +245,8 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
       
       if ( !select )continue; 
       
-      /** Fill a vector with selected electrons*/
-      unique_electrons.push_back( *elecItr );
+      /** Fill a vector with selected electrons */
+      unique_electrons.push_back(*elecItr);
       
     }
   }

@@ -69,4 +69,7 @@ PhotonTagTool = ConfiguredPhotonTagTool(
     cone40IsoTool        = cone40IsoTool,
     cone40CaloOnlyIsoTool= cone40CaloOnlyIsoTool
     )
+
+PhotonTagTool.EgammaCalibrationAndSmearingTool.ESModel =  "es2015PRE"
+
 ToolSvc += PhotonTagTool

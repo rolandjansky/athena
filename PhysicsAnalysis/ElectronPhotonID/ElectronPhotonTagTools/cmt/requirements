@@ -15,6 +15,7 @@ use xAODEgamma		   xAODEgamma-*	 	   Event/xAOD
 use xAODMissingET	   xAODMissingET-*	   Event/xAOD 
 use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-*  PhysicsAnalysis/ElectronPhotonID
 use ElectronPhotonShowerShapeFudgeTool ElectronPhotonShowerShapeFudgeTool-*  PhysicsAnalysis/ElectronPhotonID
+use ElectronPhotonFourMomentumCorrection ElectronPhotonFourMomentumCorrection-* PhysicsAnalysis/ElectronPhotonID
 use IsolationSelection     IsolationSelection-*    PhysicsAnalysis/AnalysisCommon
 use xAODEventInfo          xAODEventInfo-*         Event/xAOD
 
