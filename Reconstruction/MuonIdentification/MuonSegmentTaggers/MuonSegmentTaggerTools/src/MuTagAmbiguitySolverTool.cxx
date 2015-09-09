@@ -40,12 +40,7 @@ MuTagAmbiguitySolverTool::MuTagAmbiguitySolverTool(const std::string& t,
   p_muonHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),	 
   p_muonPrinter("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
   p_muonIdHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-  p_segmentMatchingTool("Muon::MuonSegmentMatchingTool/MuonSegmentMatchingTool"),
-  p_StoreGateSvc(0),
-  m_mdtIdHelper(0),
-  m_cscIdHelper(0),
-  m_rpcIdHelper(0),
-  m_tgcIdHelper(0)
+  p_segmentMatchingTool("Muon::MuonSegmentMatchingTool/MuonSegmentMatchingTool")
 {
   declareInterface<IMuTagAmbiguitySolverTool>(this);
   declareProperty("MuonSegmentMatchingTool" , p_segmentMatchingTool ) ;
@@ -60,26 +55,44 @@ MuTagAmbiguitySolverTool::~MuTagAmbiguitySolverTool(){
 
 StatusCode MuTagAmbiguitySolverTool::initialize()
 {
+   StatusCode sc ;
 
-  ATH_CHECK( AthAlgTool::initialize() ); 
+   sc = AthAlgTool::initialize(); 
+   if (sc.isFailure()) return sc;
 
-  //Set pointer on StoreGateSvc
-  ATH_CHECK( service("StoreGateSvc", p_StoreGateSvc) );
+//Set pointer on StoreGateSvc
+  sc = service("StoreGateSvc", p_StoreGateSvc);
+  if (sc.isFailure()){
+    ATH_MSG_FATAL( "StoreGate service not found" );
+    return( StatusCode::FAILURE );
+  }
   
   ATH_MSG_INFO( "================================" );
   ATH_MSG_INFO( "=Proprieties are " );
   ATH_MSG_INFO( "================================" );
 
+//Retrieve IdHelpers
+  StoreGateSvc* detStore = 0;
+  sc = service( "DetectorStore", detStore );
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL( "Could not get DetectorStore");
+    return sc;
+  }
+  
   // retrieve MuonDetectorManager
-  const MuonGM::MuonDetectorManager* detMgr;
-  ATH_CHECK( detStore()->retrieve(detMgr) );
+  std::string managerName="Muon";
+  const MuonGM::MuonDetectorManager*  m_detMgr;
+  sc=detStore->retrieve(m_detMgr);
+  if (sc.isFailure()) {
+    ATH_MSG_INFO( "Could not find the MuonGeoModel Manager: " << managerName << " ! " );
+  } 
 
   // initialize MuonIdHelpers
-  if (detMgr) {
-    m_mdtIdHelper = detMgr->mdtIdHelper();
-    m_cscIdHelper = detMgr->cscIdHelper();
-    m_rpcIdHelper = detMgr->rpcIdHelper();
-    m_tgcIdHelper = detMgr->tgcIdHelper();
+  if (m_detMgr) {
+    m_mdtIdHelper = m_detMgr->mdtIdHelper();
+    m_cscIdHelper = m_detMgr->cscIdHelper();
+    m_rpcIdHelper = m_detMgr->rpcIdHelper();
+    m_tgcIdHelper = m_detMgr->tgcIdHelper();
   } else {
     m_mdtIdHelper = 0;
     m_cscIdHelper = 0;
@@ -87,10 +100,23 @@ StatusCode MuTagAmbiguitySolverTool::initialize()
     m_tgcIdHelper = 0;
   }
 
-  ATH_CHECK( p_muonHelper.retrieve() );
-  ATH_CHECK( p_muonPrinter.retrieve() );
-  ATH_CHECK( p_muonIdHelper.retrieve() );
-  ATH_CHECK( p_segmentMatchingTool.retrieve() );
+  if( p_muonHelper.retrieve().isFailure() ){
+    ATH_MSG_WARNING( "Could not retrieve: " << p_muonHelper << " ! " );
+    return StatusCode::FAILURE;
+  }
+  if( p_muonPrinter.retrieve().isFailure() ){
+    ATH_MSG_WARNING( "Could not retrieve: " << p_muonPrinter << " ! " );
+    return StatusCode::FAILURE;
+  }
+  if( p_muonIdHelper.retrieve().isFailure() ){
+    ATH_MSG_WARNING( "Could not retrieve: " << p_muonIdHelper << " ! " );
+    return StatusCode::FAILURE;
+  }
+  if( p_segmentMatchingTool.retrieve().isFailure() ){
+    ATH_MSG_WARNING( "Could not retrieve: " << p_segmentMatchingTool << " ! " );
+    return StatusCode::FAILURE;
+  }
+
   
   return StatusCode::SUCCESS;
 
@@ -322,7 +348,7 @@ int MuTagAmbiguitySolverTool::ambiguousSegment( const Muon::MuonSegment& seg1, c
 	if( match ){
 	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " found matching segment pair: " << std::endl
 						      << p_muonPrinter->print(seg1) << std::endl
-						      << p_muonPrinter->print(seg2) << endmsg;
+						      << p_muonPrinter->print(seg2) << endreq;
 	  
 	  // if overlap matching enabled flag as ambiguous
 	  if( m_slOverlapMatching ) return 2;
@@ -346,7 +372,7 @@ int MuTagAmbiguitySolverTool::ambiguousSegment( const Muon::MuonSegment& seg1, c
       if( m_hitOverlapMatching ){
 	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " found overlapping segment pair: " << compareSegments.print(result) << std::endl
 						    << p_muonPrinter->print(seg1) << std::endl
-						    << p_muonPrinter->print(seg2) << endmsg;
+						    << p_muonPrinter->print(seg2) << endreq;
 	return 3;
       }
     }

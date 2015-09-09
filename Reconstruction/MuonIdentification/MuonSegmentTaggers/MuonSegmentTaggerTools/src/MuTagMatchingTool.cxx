@@ -70,11 +70,11 @@ namespace {
   }
 #endif
 
-
+  
 }
 
 
-MuTagMatchingTool::MuTagMatchingTool(const std::string& t,
+MuTagMatchingTool::MuTagMatchingTool(const std::string& t, 
 				     const std::string& n,
 				     const IInterface*  p ):
   AthAlgTool(t,n,p)
@@ -86,38 +86,31 @@ MuTagMatchingTool::MuTagMatchingTool(const std::string& t,
   , m_hitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool")
   , m_selectionTool("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool")
   , m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
-  , p_StoreGateSvc(0)
-  , m_detMgr(0)
-  , m_mdtIdHelper(0)
-  , m_cscIdHelper(0)
-  , m_rpcIdHelper(0)
-  , m_tgcIdHelper(0)
-  , m_trackingGeometry(0)
 {
   declareInterface<IMuTagMatchingTool>(this);
   declareProperty( "IExtrapolator" , p_IExtrapolator ) ;
   declareProperty( "Propagator" , p_propagator ) ;
 
-  declareProperty( "GlobalThetaCut",    m_GLOBAL_THETA_CUT       = 0.1  );
-  declareProperty( "GlobalPhiCut",      m_GLOBAL_PHI_CUT         = 0.5  );
-  declareProperty( "GlobalRCut",        m_GLOBAL_R_CUT           = 1000. ); 
+  declareProperty( "GlobalThetaCut",    GLOBAL_THETA_CUT       = 0.1  );
+  declareProperty( "GlobalPhiCut",      GLOBAL_PHI_CUT         = 0.5  );
+  declareProperty( "GlobalRCut",        GLOBAL_R_CUT           = 1000. ); 
 
-  declareProperty( "ThetaCut",          m_MATCH_THETA            = 5. ); // pull cut in local precision position (bending plane) 
-  declareProperty( "PhiCut",            m_MATCH_PHI              = 30. ); // pull cut in local NON precision position  
-  declareProperty( "ThetaAngleCut",     m_MATCH_THETAANGLE       = 5. ); // pull cut in local precision direction  
-  declareProperty( "PhiAngleCut",       m_MATCH_PHIANGLE         = 30. ); // pull cut in local NON precision direction
+  declareProperty( "ThetaCut",          MATCH_THETA            = 5. ); // pull cut in local precision position (bending plane) 
+  declareProperty( "PhiCut",            MATCH_PHI              = 30. ); // pull cut in local NON precision position  
+  declareProperty( "ThetaAngleCut",     MATCH_THETAANGLE       = 5. ); // pull cut in local precision direction  
+  declareProperty( "PhiAngleCut",       MATCH_PHIANGLE         = 30. ); // pull cut in local NON precision direction
 
-  declareProperty( "ErrorProtectionPosCut", m_ERROR_EX_POS_CUT   = 5000. );
-  declareProperty( "ErrorProtectionDirCut", m_ERROR_EX_ANGLE_CUT = 0.35  );
+  declareProperty( "ErrorProtectionPosCut", ERROR_EX_POS_CUT   = 5000. );
+  declareProperty( "ErrorProtectionDirCut", ERROR_EX_ANGLE_CUT = 0.35  );
 
   declareProperty( "DoDistanceCut",     m_doDistCut            = true  );
-  declareProperty( "PositionDistance",  m_DIST_POS               = 2000. );  
-  declareProperty( "AngleDistance",     m_DIST_ANGLE             =   0.7 );  
+  declareProperty( "PositionDistance",  DIST_POS               = 2000. );  
+  declareProperty( "AngleDistance",     DIST_ANGLE             =   0.7 );  
 
-  declareProperty( "ThetaSafety",       m_SAFE_THETA             = 25.    );  // additional uncertainty on precision plane position (bendig plane) 
-  declareProperty( "PhiSafety",         m_SAFE_PHI               = 100.    ); //  additional uncertainty on NON precision plane position
-  declareProperty( "ThetaAngleSafety",  m_SAFE_THETAANGLE        = 0.0015 ); //  additional uncertainty on precision plane direction
-  declareProperty( "PhiAngleSafety",    m_SAFE_PHIANGLE          = 0.25   ); //  additional uncertainty on NON precision plane direction
+  declareProperty( "ThetaSafety",       SAFE_THETA             = 25.    );  // additional uncertainty on precision plane position (bendig plane) 
+  declareProperty( "PhiSafety",         SAFE_PHI               = 100.    ); //  additional uncertainty on NON precision plane position
+  declareProperty( "ThetaAngleSafety",  SAFE_THETAANGLE        = 0.0015 ); //  additional uncertainty on precision plane direction
+  declareProperty( "PhiAngleSafety",    SAFE_PHIANGLE          = 0.25   ); //  additional uncertainty on NON precision plane direction
 
   declareProperty( "ChamberPullCut", m_chamberPullCut = 5. ); // Inside chamber pull is negative for outside chamber pull > 5 standard deviations (from edge) in non precision plane
   declareProperty( "CombinedPullCut", m_combinedPullCut = 5. ); // Combined pull build from local precision position and angle including the correlation 
@@ -133,48 +126,84 @@ MuTagMatchingTool::~MuTagMatchingTool(){
 
 StatusCode MuTagMatchingTool::initialize()
 {
+   StatusCode sc ;
 
-   ATH_CHECK( AthAlgTool::initialize() ); 
+   sc = AthAlgTool::initialize(); 
+   if (sc.isFailure()) return sc;
 
 //Set pointer on StoreGateSvc
-  ATH_CHECK( service("StoreGateSvc", p_StoreGateSvc) );
+  sc = service("StoreGateSvc", p_StoreGateSvc);
+  if (sc.isFailure()){
+    ATH_MSG_FATAL( "StoreGate service not found" );
+    return( StatusCode::FAILURE );
+  }
   
   ATH_MSG_DEBUG( "================================" );
   ATH_MSG_DEBUG( "=Proprieties are " );
-  ATH_MSG_DEBUG( "GlobalThetaCut"   << std::setw(10) << m_GLOBAL_THETA_CUT);   
-  ATH_MSG_DEBUG( "GlobaPhiCut"      << std::setw(10) << m_GLOBAL_PHI_CUT  );   
-  ATH_MSG_DEBUG( "GlobalRCut"       << std::setw(10) << m_GLOBAL_R_CUT    );   
-  ATH_MSG_DEBUG( "ThetaCut"         << std::setw(10) << m_MATCH_THETA     );   
-  ATH_MSG_DEBUG( "PhiCut"           << std::setw(10) << m_MATCH_PHI       );   
-  ATH_MSG_DEBUG( "ThetaAngleCut"    << std::setw(10) << m_MATCH_THETAANGLE);   
-  ATH_MSG_DEBUG( "PhiAngleCut"      << std::setw(10) << m_MATCH_PHIANGLE  );      
+  ATH_MSG_DEBUG( "GlobalThetaCut"   << std::setw(10) << GLOBAL_THETA_CUT);   
+  ATH_MSG_DEBUG( "GlobaPhiCut"      << std::setw(10) << GLOBAL_PHI_CUT  );   
+  ATH_MSG_DEBUG( "GlobalRCut"       << std::setw(10) << GLOBAL_R_CUT    );   
+  ATH_MSG_DEBUG( "ThetaCut"         << std::setw(10) << MATCH_THETA     );   
+  ATH_MSG_DEBUG( "PhiCut"           << std::setw(10) << MATCH_PHI       );   
+  ATH_MSG_DEBUG( "ThetaAngleCut"    << std::setw(10) << MATCH_THETAANGLE);   
+  ATH_MSG_DEBUG( "PhiAngleCut"      << std::setw(10) << MATCH_PHIANGLE  );      
   ATH_MSG_DEBUG( "DoDistanceCut"    << std::setw(10) << m_doDistCut     );      
-  ATH_MSG_DEBUG( "ThetaDistance"    << std::setw(10) << m_DIST_POS      );      
-  ATH_MSG_DEBUG( "ThetaAngleDistance"<< std::setw(10)<< m_DIST_ANGLE );      
-  ATH_MSG_DEBUG( "ThetaSafety"      << std::setw(10) << m_SAFE_THETA      );      
-  ATH_MSG_DEBUG( "PhiSafety"        << std::setw(10) << m_SAFE_PHI        );        
-  ATH_MSG_DEBUG( "ThetaAngleSafety" << std::setw(10) << m_SAFE_THETAANGLE );   
-  ATH_MSG_DEBUG( "PhiAngleSafety"   << std::setw(10) << m_SAFE_PHIANGLE   );      
+  ATH_MSG_DEBUG( "ThetaDistance"    << std::setw(10) << DIST_POS      );      
+  ATH_MSG_DEBUG( "ThetaAngleDistance"<< std::setw(10)<< DIST_ANGLE );      
+  ATH_MSG_DEBUG( "ThetaSafety"      << std::setw(10) << SAFE_THETA      );      
+  ATH_MSG_DEBUG( "PhiSafety"        << std::setw(10) << SAFE_PHI        );        
+  ATH_MSG_DEBUG( "ThetaAngleSafety" << std::setw(10) << SAFE_THETAANGLE );   
+  ATH_MSG_DEBUG( "PhiAngleSafety"   << std::setw(10) << SAFE_PHIANGLE   );      
   
   ATH_MSG_DEBUG( "AssumeLocalErrors "<< std::setw(10) << m_assumeLocalErrors );  
   ATH_MSG_DEBUG( "ExtrapolatePerigee "<< std::setw(10) << m_extrapolatePerigee );  
   ATH_MSG_DEBUG( "================================" );
 
 //Retrieve p_IExtrapolator
-  ATH_CHECK( p_IExtrapolator.retrieve() );
+  if ( p_IExtrapolator.retrieve().isFailure() ) {
+    ATH_MSG_FATAL( "Failed to retrieve tool " << p_IExtrapolator );
+    return StatusCode::FAILURE;
+  }
   ATH_MSG_DEBUG( "Retrieved tool " << p_IExtrapolator );
 
   ATH_CHECK( p_propagator.retrieve() );
 
 //Retrieve IdHelpers
+  StoreGateSvc* detStore = 0;
+  sc = service( "DetectorStore", detStore );
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL( "Could not get DetectorStore");
+    return sc;
+  }
   
   // retrieve MuonDetectorManager
-  ATH_CHECK( detStore()->retrieve(m_detMgr) );
+  std::string managerName="Muon";
+  sc=detStore->retrieve(m_detMgr);
+  if (sc.isFailure()) {
+    ATH_MSG_DEBUG( "Could not find the MuonGeoModel Manager: " << managerName << " ! " );
+  } 
 
-  ATH_CHECK( m_idHelper.retrieve() );
-  ATH_CHECK( m_helper.retrieve() );
-  ATH_CHECK( m_printer.retrieve() );
-  ATH_CHECK( m_pullCalculator.retrieve() );
+  if (m_idHelper.retrieve().isFailure()){
+    ATH_MSG_ERROR("Could not get " << m_idHelper );
+    return StatusCode::FAILURE;
+  }
+  
+  if (m_helper.retrieve().isFailure()){
+    ATH_MSG_ERROR("Could not get " << m_helper );
+    return StatusCode::FAILURE;
+  }
+  
+  if (m_printer.retrieve().isFailure()){
+    ATH_MSG_ERROR("Could not get " << m_printer );
+    return StatusCode::FAILURE;
+  }
+
+  if (m_pullCalculator.retrieve().isFailure()){
+    ATH_MSG_ERROR("Could not get " << m_pullCalculator );
+    return StatusCode::FAILURE;
+  }
+
+
 
   // initialize MuonIdHelpers
   if (m_detMgr) {
@@ -282,10 +311,17 @@ const Trk::TrackParameters* MuTagMatchingTool::ExtrapolateTrktoMSEntrance(
 									 Trk::PropDirection direction
 									 ){
   if ( pTrack == 0 ) return 0 ; 
-
+  
   StatusCode sc;
- 
-  sc = detStore()->retrieve(m_trackingGeometry,"AtlasTrackingGeometry");
+
+  StoreGateSvc* detStore = 0;
+  sc = service("DetectorStore", detStore);
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL( "Could not get DetectorStore");
+    return 0;
+  }
+
+  sc = detStore->retrieve(m_trackingGeometry,"AtlasTrackingGeometry");
   if (sc.isFailure()) {
     ATH_MSG_FATAL("Could not find tracking geometry. Exiting." );
     return 0;
@@ -396,8 +432,8 @@ bool MuTagMatchingTool::phiMatch( const Trk::TrackParameters*  atSurface,
 				  const Muon::MuonSegment*     segment, 
 				  std::string                  surfaceName ){
   
-  double PHI_CUT = m_GLOBAL_PHI_CUT; 
-  if( hasPhi(segment) ) PHI_CUT = m_GLOBAL_PHI_CUT/2. ; 
+  double PHI_CUT = GLOBAL_PHI_CUT; 
+  if( hasPhi(segment) ) PHI_CUT = GLOBAL_PHI_CUT/2. ; 
 
   Amg::Vector3D exTrkPos = atSurface->position();
   Amg::Vector3D segPos = segment->globalPosition();
@@ -462,7 +498,7 @@ bool MuTagMatchingTool::hasPhi( const Muon::MuonSegment* seg ){
 
 bool MuTagMatchingTool::thetaMatch( const Trk::TrackParameters*  atSurface, 
 				    const Muon::MuonSegment*     segment ){
-  double THETA_CUT = m_GLOBAL_THETA_CUT;
+  double THETA_CUT = GLOBAL_THETA_CUT;
   Amg::Vector3D exTrkPos = atSurface->position();
   Amg::Vector3D segPos = segment->globalPosition();
   
@@ -477,7 +513,7 @@ bool MuTagMatchingTool::rMatch( const Trk::TrackParameters*  atSurface,
   
   Amg::Vector3D exTrkPos = atSurface->position();
   double L = exTrkPos.mag();
-  double R_CUT = m_GLOBAL_R_CUT* (L/7500.) ; //mm
+  double R_CUT = GLOBAL_R_CUT* (L/7500.) ; //mm
 
   Amg::Vector3D segPos = segment->globalPosition();
   
@@ -491,8 +527,8 @@ double MuTagMatchingTool::errorProtection( double exTrk_Err, bool isAngle ){
 
   double newError = exTrk_Err ;
  
-  if( !isAngle && (exTrk_Err > m_ERROR_EX_POS_CUT)   ) newError = m_ERROR_EX_POS_CUT;
-  if(  isAngle && (exTrk_Err > m_ERROR_EX_ANGLE_CUT) ) newError = m_ERROR_EX_ANGLE_CUT ;
+  if( !isAngle && (exTrk_Err > ERROR_EX_POS_CUT)   ) newError = ERROR_EX_POS_CUT;
+  if(  isAngle && (exTrk_Err > ERROR_EX_ANGLE_CUT) ) newError = ERROR_EX_ANGLE_CUT ;
 
   return newError;
 
@@ -515,9 +551,9 @@ bool MuTagMatchingTool::matchSegmentPosition( MuonCombined::MuonSegmentInfo* inf
 //  if(info->stationLayer==12) scale = 5./3.;
 
   if( idHasEtaHits ) {
-    if (fabs(info->pullY) < m_MATCH_THETA || fabs(info->pullCY) < scale*m_combinedPullCut ) pass = true;
+    if (fabs(info->pullY) < MATCH_THETA || fabs(info->pullCY) < scale*m_combinedPullCut ) pass = true;
   } else {
-    if (fabs(info->pullX) < m_MATCH_PHI) pass = true; 
+    if (fabs(info->pullX) < MATCH_PHI) pass = true; 
   }
 
   return pass;
@@ -537,12 +573,12 @@ bool MuTagMatchingTool::matchSegmentDirection( MuonCombined::MuonSegmentInfo* in
 //  if(info->stationLayer==12) scale = 5./3.;
 
   if( idHasEtaHits ) {
-    if (fabs(info->pullYZ) < m_MATCH_THETAANGLE || fabs(info->pullCY) < scale*m_combinedPullCut ) {
+    if (fabs(info->pullYZ) < MATCH_THETAANGLE || fabs(info->pullCY) < scale*m_combinedPullCut ) {
       return true; 
     } else {return false;}
   } else {
      return true; 
-//    if (fabs(info->pullXZ) < m_MATCH_PHIANGLE) return true; 
+//    if (fabs(info->pullXZ) < MATCH_PHIANGLE) return true; 
   }
 
 }
@@ -801,8 +837,8 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
 // Pull local X and Y
     double erexX =  errorProtection(info.exErrorX, false );
     double erexY =  errorProtection(info.exErrorY, false );
-    info.pullX = info.resX / sqrt(erexX*erexX + info.segErrorX*info.segErrorX + m_SAFE_PHI*m_SAFE_PHI);
-    info.pullY = info.resY / sqrt(erexY*erexY + info.segErrorY*info.segErrorY + m_SAFE_THETA*m_SAFE_THETA);
+    info.pullX = info.resX / sqrt(erexX*erexX + info.segErrorX*info.segErrorX + SAFE_PHI*SAFE_PHI);
+    info.pullY = info.resY / sqrt(erexY*erexY + info.segErrorY*info.segErrorY + SAFE_THETA*SAFE_THETA);
 
 // Local angles
      
@@ -837,8 +873,8 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
     ATH_MSG_DEBUG( " info.exErrorYZ  " << info.exErrorYZ  << " info.segErrorYZ " << info.segErrorYZ << " info.exCovYZY " << info.exCovYZY );
     ATH_MSG_DEBUG( " info.exErrorXZ  " << info.exErrorXZ  << " info.segErrorXZ " << info.segErrorXZ );
 
-    info.pullXZ = info.dangleXZ / sqrt(erexXZ*erexXZ + info.segErrorXZ*info.segErrorXZ + m_SAFE_PHIANGLE*m_SAFE_PHIANGLE);
-    info.pullYZ = info.dangleYZ / sqrt(erexYZ*erexYZ + info.segErrorYZ*info.segErrorYZ + m_SAFE_THETAANGLE*m_SAFE_THETAANGLE);
+    info.pullXZ = info.dangleXZ / sqrt(erexXZ*erexXZ + info.segErrorXZ*info.segErrorXZ + SAFE_PHIANGLE*SAFE_PHIANGLE);
+    info.pullYZ = info.dangleYZ / sqrt(erexYZ*erexYZ + info.segErrorYZ*info.segErrorYZ + SAFE_THETAANGLE*SAFE_THETAANGLE);
 
    
     ATH_MSG_DEBUG( " info.pullXZ " << info.pullXZ ); 
@@ -956,7 +992,6 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
     }
     double dydyz = scale*info.exCovYZY;
     double correction = dydyz/(info.exErrorYZ*info.exErrorYZ);
-/*
 //
 // Flip sign in endcap for eta > 0 (not understood why)
 //
@@ -966,7 +1001,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
         ATH_MSG_DEBUG(" Flip correlation term for segment direction theta " << segment->globalDirection().theta() << " position theta " <<  segment->globalPosition().theta()); 
       } 
     } 
-*/
+
 // 
 //  residual after taking into account the correlation with the angle YZ
 //
@@ -985,7 +1020,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
 
 //  pull after taking into account the correlation with the angle YZ
 
-    info.pullCY =  info.resCY / sqrt(error_rescy*error_rescy + m_SAFE_THETA*m_SAFE_THETA +  correction*correction*m_SAFE_THETAANGLE*m_SAFE_THETAANGLE );
+    info.pullCY =  info.resCY / sqrt(error_rescy*error_rescy + SAFE_THETA*SAFE_THETA +  correction*correction*SAFE_THETAANGLE*SAFE_THETAANGLE );
 
 // chi2 with full covariance matrix in Y and YZ plane 
 
@@ -1053,7 +1088,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
    scale = 1.;
 //   if(info.stationLayer==12) scale = 5./3.;
 
-   if(fabs(info.pullY)<m_MATCH_THETA&&fabs(info.pullYZ)<m_MATCH_THETAANGLE&&fabs(info.pullCY)<scale*m_combinedPullCut&&info.pullChamber<m_chamberPullCut){
+   if(fabs(info.pullY)<MATCH_THETA&&fabs(info.pullYZ)<MATCH_THETAANGLE&&fabs(info.pullCY)<scale*m_combinedPullCut&&info.pullChamber<m_chamberPullCut){
      bool pass = true;
 //     if(info.hasPhi && (fabs(info.minimumPullPhi) > m_combinedPullCut && fabs(info.minimumPullPhi) < 100000. ) ) pass = false;
      if(pass) selected = 1;
@@ -1074,7 +1109,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
 //
 // the segment errors are stored in local angles (m_assumeLocalErrors = true);
 //
-
+  bool m_assumeLocalErrors = true;
   if( m_assumeLocalErrors ) {
     if ( segGlobCov(Trk::phi,Trk::phi)     >= 0 && segGlobCov(Trk::phi,Trk::phi)     <= 999.0 ) angleXZerror = std::sqrt( segGlobCov(Trk::phi,Trk::phi) );
     if ( segGlobCov(Trk::theta,Trk::theta) >= 0 && segGlobCov(Trk::theta,Trk::theta) <= 999.0) angleYZerror = std::sqrt( segGlobCov(Trk::theta,Trk::theta) );
@@ -1142,12 +1177,12 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
   if( !m_doDistCut ) return pass;
 
      if( info->hasPhi ){
-       if( fabs( info->resX ) > m_DIST_POS      )   pass = false;    
-       if( fabs( info->dangleXZ )   > m_DIST_ANGLE )   pass = false;
+       if( fabs( info->resX ) > DIST_POS      )   pass = false;    
+       if( fabs( info->dangleXZ )   > DIST_ANGLE )   pass = false;
      }
-     if( info->maximumResidualAlongTube > m_DIST_POS )                 pass = false;
-     if( fabs( info->resY ) > m_DIST_POS      )   pass = false;    
-     if( fabs( info->dangleYZ )     > m_DIST_ANGLE )   pass = false;
+     if( info->maximumResidualAlongTube > DIST_POS )                 pass = false;
+     if( fabs( info->resY ) > DIST_POS      )   pass = false;    
+     if( fabs( info->dangleYZ )     > DIST_ANGLE )   pass = false;
     
   return pass;   
  
