@@ -1,0 +1,25 @@
+package xAODForward
+
+author Libor Nozka <libor.nozka@cern.ch>
+author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
+
+public
+
+use AtlasPolicy             AtlasPolicy-*
+
+use AthContainers           AthContainers-*           Control
+
+use xAODCore                xAODCore-*                Event/xAOD
+
+library xAODForward ../Root/*.cxx
+apply_pattern installed_library
+
+private
+
+use AthLinks                AthLinks-*                Control
+use AtlasReflex             AtlasReflex-*             External
+use AtlasROOT               AtlasROOT-*               External
+
+apply_pattern lcgdict dict=xAODForward selectionfile=selection.xml \
+                      headerfiles="../xAODForward/xAODForwardDict.h" \
+                      extralibfiles=../Root/dict/*.cxx
