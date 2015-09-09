@@ -72,21 +72,156 @@ hlt_jetDepbinhi = [ 6.0 ]
 # 4-Feb-2015 Modified to match default naming scheme for menu-aware monitoring
 
 # L1 items   
-hlt_level1EtThresholds        = { 'L1_J15':5.,'L1_J400':150.}
+hlt_level1EtThresholds        = { 'L1_J15':5.,
+                                  'L1_J75':30.,
+                                  'L1_J100':50.,
+                                  'L1_J100.31ETA49':50.,
+                                  'L1_J400':150.}
+                                #  'L1_4J15':5.,
+                                #  'L1_4J20':10.}
+
+hlt_l1EtaLowThresholds        = { 'L1_J15':0.,                        #Chose eta range for efficiency calculation
+                                  'L1_J75':0.,
+                                  'L1_J100':0.,
+                                  'L1_J100.31ETA49':3.1,
+                                  'L1_J400':0.}
+                                #  'L1_4J15':0.,
+                                #  'L1_4J20':0.}
+
+hlt_l1EtaHighThresholds        = { 'L1_J15':4.9,
+                                   'L1_J75':4.9,
+                                   'L1_J100':4.9,
+                                   'L1_J100.31ETA49':4.9,
+                                   'L1_J400':4.9}
+                               #   'L1_4J15':4.9,
+                               #   'L1_4J20':4.9}
+
+
+
+
 hlt_level1EtNBins             = [ 40 ]
 hlt_level1EtBinsLow           = [ 0. ]
 hlt_level1EtBinsHigh          = [ 400. ]
 
 # HLT items
-hlt_hltEtThresholds            = { 'j25':20.,'j25_320eta490':20,'j60':50. , 'j60_L1RD0_FILLED':50.,'j60_280eta320':50.,'j60_320eta490':50.,'j200_jes_PS':100.,'j260':150.,'j360':250.,'j460_a10_sub_L1J100':350.,'j80_xe80':50.,'4j45':20.,'j0_perf_ds1_L1J75':0.,'j0_perf_ds1_L1J100':0.}
-hlt_hltEtaHighThresholds       = { 'j25':3.2,'j25_320eta490':4.9,'j60':3.2 , 'j60_L1RD0_FILLED':3.2,'j60_280eta320':3.2,'j60_320eta490':4.9,'j200_jes_PS':3.2,'j260':3.2, 'j360':3.2, 'j460_a10_sub_L1J100':3.2,'j80_xe80':3.2,'4j45':3.2,'j0_perf_ds1_L1J75':3.2,'j0_perf_ds1_L1J100':3.2}
-hlt_hltEtaLowThresholds        = { 'j25':0.,'j25_320eta490':3.2, 'j60':0.,   'j60_L1RD0_FILLED':0., 'j60_280eta320':2.8,'j60_320eta490':3.2,'j200_jes_PS':0.,'j260':0.,  'j360':0.,  'j460_a10_sub_L1J100':0.,'j80_xe80':0.,'4j45':0.,'HLT_j0_perf_ds1_L1J75':0.,'j0_perf_ds1_L1J100':0.}
-hlt_hltContainers              = {'j25':'a4tcemsubjesFS','j25_320eta490':'a4tcemsubjesFS','j60':'a4tcemsubjesFS','j60_L1RD0_FILLED':'a4tcemsubjesFS','j60_280eta320':'a4tcemsubjesFS','j60_320eta490':'a4tcemsubjesFS','j200_jes_PS':'a4tcemjesPS','j260':'a4tcemsubjesFS','j360':'a4tcemsubjesFS','j460_a10_sub_L1J100':'a10tcemsubFS','j80_xe80':'a4tcemsubjesFS','4j45':'a4tcemsubjesFS','j0_perf_ds1_L1J75':'a4tcemsubjesFS','j0_perf_ds1_L1J100':'a4tcemsubjesFS'}
+hlt_hltEtThresholds            = { 'j25':20.,
+                                   'j25_320eta490':20.,
+                                   'j60':50., 
+                                   'j60_L1RD0_FILLED':50.,
+                                   'j60_280eta320':50.,
+                                   'j60_320eta490':50.,
+                                   'j200_jes_PS':100.,
+                                   'j260':150.,
+                                #   'j260_320eta490':150.,
+                                   'j360':250.,
+                                   'j460_a10_sub_L1J100':350.,
+                                   'j80_xe80':50.,
+                                   '4j45':20.,
+                                   '6j45':20.,
+                                   '5j60':30.,
+                                   'j0_perf_ds1_L1J75':0.,
+                                   'j0_perf_ds1_L1J100':0.}
+            #                       'ht700_L1J75':50.}
+
+hlt_hltEtaHighThresholds       = { 'j25':3.2,                          #Chose eta range for efficiency calculation
+                                   'j25_320eta490':4.9,
+                                   'j60':3.2 , 
+                                   'j60_L1RD0_FILLED':3.2,
+                                   'j60_280eta320':3.2,
+                                   'j60_320eta490':4.9,
+                                   'j200_jes_PS':3.2,'j260':3.2, 
+                                   'j260_320eta490':4.9,'j360':3.2, 
+                                   'j460_a10_sub_L1J100':3.2,
+                                   'j80_xe80':3.2,
+                                   '4j45':3.2,
+                                   '6j45':3.2,
+                                   '5j60':3.2,
+                                   'j0_perf_ds1_L1J75':3.2,
+                                   'j0_perf_ds1_L1J100':3.2}
+                                 #  'ht700_L1J75':3.2}
+
+hlt_hltEtaLowThresholds        = { 'j25':0.,
+                                   'j25_320eta490':3.2, 
+                                   'j60':0.,   
+                                   'j60_L1RD0_FILLED':0., 
+                                   'j60_280eta320':2.8,
+                                   'j60_320eta490':3.2,
+                                   'j200_jes_PS':0.,
+                                   'j260':0.,   
+                                 #  'j260_320eta490':3.2, 
+                                   'j360':0.,  
+                                   'j460_a10_sub_L1J100':0.,
+                                   'j80_xe80':0.,
+                                   '4j45':0.,
+                                   '6j45':0.,
+                                   '5j60':0.,
+                                   'j0_perf_ds1_L1J75':0.,
+                                   'j0_perf_ds1_L1J100':0.}
+                               #    'ht700_L1J75':0.}
+
+
+hlt_hltJetn                    = { 'j25':1,                           #Select the nth jet for efficiency calcultaion of single/multijet HLT chains
+                                   'j25_320eta490':1, 
+                                   'j60':1,   
+                                   'j60_L1RD0_FILLED':1, 
+                                   'j60_280eta320':1,
+                                   'j60_320eta490':1,
+                                   'j200_jes_PS':1,
+                                   'j260':1,   
+                                 #  'j260_320eta490':1, 
+                                   'j360':1,  
+                                   'j460_a10_sub_L1J100':1,
+                                   'j80_xe80':1,
+                                   '4j45':4,
+                                   '6j45':6,
+                                   '5j60':5,
+                                   'j0_perf_ds1_L1J75':1,
+                                   'j0_perf_ds1_L1J100':1}
+                                #   'ht700_L1J75':1}
+
+
+hlt_hltContainers              = {'j25':'a4tcemsubjesFS',                  #Chose container to retrieve the features of a given chain
+                                  'j25_320eta490':'a4tcemsubjesFS',
+                                  'j60':'a4tcemsubjesFS',
+                                  'j60_L1RD0_FILLED':'a4tcemsubjesFS',
+                                  'j60_280eta320':'a4tcemsubjesFS',
+                                  'j60_320eta490':'a4tcemsubjesFS',
+                                  'j200_jes_PS':'a4tcemjesPS',
+                                  'j260':'a4tcemsubjesFS',
+                                 # 'j260_320eta490':'a4tcemsubjesFS',
+                                  'j360':'a4tcemsubjesFS',
+                                  'j460_a10_sub_L1J100':'a10tcemsubFS',
+                                  'j80_xe80':'a4tcemsubjesFS',
+                                  '4j45':'a4tcemsubjesFS',
+                                  '6j45':'a4tcemsubjesFS',
+                                  '5j60':'a4tcemsubjesFS',
+                                  'j0_perf_ds1_L1J75':'a4tcemsubjesFS',
+                                  'j0_perf_ds1_L1J100':'a4tcemsubjesFS'}
+                                #  'ht700_L1J75':'a4tcemsubjesFS'}
+
 hlt_hltEtNBins                 = [ 50, 50 ]
 hlt_hltEtBinsLow               = [ 0., 0. ]
 hlt_hltEtBinsHigh              = [ 500., 500.]
 # Offline 
-hlt_offlineEtThresholds        = { 'L1_J15':10., 'j25':20.,'j25_320eta490':20., 'j60':50.  , 'j60_L1RD0_FILLED':50.,'j60_280eta320':50.,'j60_320eta490':50.,'j200_jes_PS':100.,'j260':150.,'j360':250.,'j460_a10_sub_L1J100':350.,'j80_xe80':50.,'4j45':20.,'j0_perf_ds1_L1J75':0.,'j0_perf_ds1_L1J100':0.}
+hlt_offlineEtThresholds        = { 'L1_J15':10., 
+                                   'j25':20.,
+                                   'j25_320eta490':20., 
+                                   'j60':50.  , 
+                                   'j60_L1RD0_FILLED':50.,
+                                   'j60_280eta320':50.,
+                                   'j60_320eta490':50.,
+                                   'j200_jes_PS':100.,
+                                   'j260':150.,
+                                 #  'j260_320eta490':150.,
+                                   'j360':250.,
+                                   'j460_a10_sub_L1J100':350.,
+                                   'j80_xe80':50.,
+                                   '4j45':20.,
+                                   '6j45':20.,
+                                   '5j60':30.,
+                                   'j0_perf_ds1_L1J75':0.,
+                                   'j0_perf_ds1_L1J100':0.}
+                                 #  'ht700_L1J75':50.}
 #Dijet chains
 
 l1_DijetChains  = ['L1_J400']
@@ -183,8 +318,12 @@ def TrigJetMonitoringTool():
             L1EtThresGeV              = hlt_level1EtThresholds,
             HLTEtThresGeV             = hlt_hltEtThresholds,
 
+            L1EtaHighThres            = hlt_l1EtaHighThresholds,
+            L1EtaLowThres             = hlt_l1EtaLowThresholds,
             HLTEtaHighThres           = hlt_hltEtaHighThresholds,
             HLTEtaLowThres            = hlt_hltEtaLowThresholds,
+
+            HLTJetn                   =hlt_hltJetn,
 
             # L1 Items for trigger efficiency
             primary_l1jet           = hltmonList.primary_l1jet,
@@ -238,6 +377,7 @@ def TrigJetMonitoringTool():
             ## Remove Jets with Bad Quality (select from: LooseBad, MediumBad, TightBad)
             DoOFJetQualityCut = False,
             OFJetQuality = "LooseBad",
+            JetCategory =  "LooseBad",
 
             ## Use jet energy at this scale
             ## JETEMSCALE (same as UNCALIBRATED), JETFINAL (same as CALIBRATED)
