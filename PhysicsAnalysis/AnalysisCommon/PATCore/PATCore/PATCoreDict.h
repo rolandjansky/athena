@@ -22,6 +22,7 @@
 #include "PATCore/IAthCalculatorTool.h"
 #include "PATCore/IUserDataCalcTool.h"
 #include "PATCore/IAthHistogramTool.h"
-
+#include "PATCore/IAsgSelectionTool.h"
+#include "PATCore/IAsgSelectionWithVertexTool.h"
 
 #endif
