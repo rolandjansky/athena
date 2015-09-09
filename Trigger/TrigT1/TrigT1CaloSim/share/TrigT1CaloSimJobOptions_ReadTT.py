@@ -42,11 +42,12 @@ except BaseException, E:
             _my_run_number = None
             log.warning("Could not retrieve RunNumber from inputs. Assuming Run-2 data.")
             
-# on Run-1 data, schedule the CPMTowerCnvAlg if necessary
+# on Run-1 data, schedule the {CPMTower,JetElement}CnvAlg if necessary
 if _my_run_number:
     log.info('Using RunNumber %d' % _my_run_number)
 if _my_run_number and _my_run_number < 222222:
     job += CfgMgr.xAODMaker__CPMTowerCnvAlg()
+    job += CfgMgr.xAODMaker__JetElementCnvAlg()
     # add to bytestream decoder if not already there
     if globalflags.InputFormat() == 'bytestream':
         if not CfgMgr.ByteStreamAddressProviderSvc() in svcMgr:
@@ -54,10 +55,15 @@ if _my_run_number and _my_run_number < 222222:
             svcMgr += CfgMgr.ByteStreamAddressProviderSvc()
         if not "DataVector<LVL1::CPMTower>/CPMTowers" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
             svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::CPMTower>/CPMTowers" ]
+        if not "DataVector<LVL1::JetElement>/JetElements" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
+            svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::JetElement>/JetElements" ]
+
         try:
             # unpacking Run-1 data directly to xAOD::CPMTowers is not supported
             svcMgr.ByteStreamAddressProviderSvc.TypeNames.remove("xAOD::CPMTowerContainer/CPMTowers")
             svcMgr.ByteStreamAddressProviderSvc.TypeNames.remove("xAOD::CPMTowerAuxContainer/CPMTowersAux.")
+            svcMgr.ByteStreamAddressProviderSvc.TypeNames.remove("xAOD::JetElementContainer/JetElements")
+            svcMgr.ByteStreamAddressProviderSvc.TypeNames.remove("xAOD::JetElementAuxContainer/JetElementsAux.")
         except ValueError:
             pass
 # clean up
