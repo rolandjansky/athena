@@ -120,7 +120,7 @@ StatusCode EnergyCMX::execute( )
   ATH_MSG_DEBUG( "Executing" );
    
   // form module sums
-  EnergyCMXDataCollection* jemContainer;
+  EnergyCMXDataCollection* jemContainer = 0;
   ATH_CHECK(evtStore()->retrieve(jemContainer,m_energyCMXDataLocation));
       
   // form crate sums (full eta range)
@@ -153,9 +153,9 @@ StatusCode EnergyCMX::execute( )
   }
   
   
-  // form crate sums (restricted eta range)
+  // form crate sums (restricted eta range). Explicitly set restricted eta flag regardless of eta range
   DataVector<CrateEnergy>* cratesTrunc  = new DataVector<CrateEnergy>;
-  m_EtTool->crateSums(jemContainer, cratesTrunc, etaTrunc);
+  m_EtTool->crateSums(jemContainer, cratesTrunc, etaTrunc, true);
   // system summation and threshold tests
   SystemEnergy resultsTrunc = m_EtTool->systemSums(cratesTrunc);
   m_resultsTrunc = &resultsTrunc;
@@ -246,7 +246,7 @@ StatusCode EnergyCMX::execute( )
   CMXSums->push_back(systemEtSumTrunc); 
   
   // save Sums in SG
-  StatusCode sc1 = evtStore()->overwrite(CMXSums, m_cmxEtsumsLocation,true,false,false);
+  StatusCode sc1 = evtStore()->overwrite(CMXSums, m_cmxEtsumsLocation, true);
   if (!sc1.isSuccess()) ATH_MSG_ERROR ( "Failed to store CMXEtsums" );
   
   // Topo data
@@ -260,7 +260,7 @@ StatusCode EnergyCMX::execute( )
   topoData->addEy(m_resultsTrunc->eyTC(), m_resultsTrunc->eyOverflow(), LVL1::EnergyTopoData::Restricted);
   topoData->addEt(m_resultsTrunc->et(),   m_resultsTrunc->etOverflow(), LVL1::EnergyTopoData::Restricted);
 
-  StatusCode sc2 = evtStore()->overwrite(topoData, m_energyTopoLocation,true,false,false);
+  StatusCode sc2 = evtStore()->overwrite(topoData, m_energyTopoLocation, true);
   if (!sc2.isSuccess()) ATH_MSG_ERROR ( "Failed to store EnergyTopoData" );
 
   // tidy up at end of event
@@ -338,7 +338,7 @@ void LVL1::EnergyCMX::saveRoIs(){
   if (!added) ATH_MSG_WARNING( "Failed to add RoI Word 5: " << MSG::hex << roiWord5 << MSG::dec );
 
   // save RoIs in SG
-  StatusCode sc = evtStore()->overwrite(daqRoI, m_cmxRoILocation,true,false,false);
+  StatusCode sc = evtStore()->overwrite(daqRoI, m_cmxRoILocation, true);
   if (!sc.isSuccess()) ATH_MSG_ERROR ( "Failed to store CMXRoI object" );
   
   return;
