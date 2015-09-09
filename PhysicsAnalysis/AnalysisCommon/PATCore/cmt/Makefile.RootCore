@@ -2,8 +2,8 @@
 # PATCore root stand-alone makefile
 
 PACKAGE          = PATCore
-PACKAGE_DEP      = AthContainers
-PACKAGE_TRYDEP   = D3PDReader
+PACKAGE_DEP      = 
+PACKAGE_TRYDEP   = D3PDReader AthContainers
 PACKAGE_CXXFLAGS = 
 PACKAGE_LDFLAGS  =
 PACKAGE_CLEAN    = PATCore/config.h

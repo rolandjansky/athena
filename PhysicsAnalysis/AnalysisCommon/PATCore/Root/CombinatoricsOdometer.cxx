@@ -23,6 +23,8 @@
 
 #include "PATCore/CombinatoricsOdometer.h"
 
+#if !defined(ROOTCORE) || defined(ROOTCORE_PACKAGE_AthContainers)
+
 //////////////////////FlexDigit
 FlexDigit::FlexDigit( int digitMax, FlexDigit* nextDigit )
 {
@@ -375,3 +377,4 @@ bool PairMeter::increment()
     }
 }
 
+#endif
