@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GAUDISVC_THISTSVC_H
-#define GAUDISVC_THISTSVC_H
+#ifndef THISTSVCHLT_H
+#define THISTSVCHLT_H
 
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -32,7 +32,7 @@ class IIncidentSvc;
 // Forward declarations
 template <class TYPE> class SvcFactory;
 
-class THistSvc: public extends3<Service, ITHistSvc, IIncidentListener, 
+class THistSvcHLT: public extends3<Service, ITHistSvc, IIncidentListener, 
 				IIoComponent> {
 
 public:
@@ -87,7 +87,7 @@ public:
 
   virtual bool exists(const std::string& name) const;
 
-  THistSvc(const std::string& name, ISvcLocator *svc );
+  THistSvcHLT(const std::string& name, ISvcLocator *svc );
 
   void handle(const Incident&);
 
@@ -97,7 +97,7 @@ public:
 
 protected:
 
-  virtual ~THistSvc();
+  virtual ~THistSvcHLT();
 
 private:
 
@@ -159,7 +159,7 @@ private:
   void updateFiles();
   StatusCode write();
   StatusCode connect(const std::string&);
-  TDirectory* changeDir(const THistSvc::THistID& hid) const;
+  TDirectory* changeDir(const THistSvcHLT::THistID& hid) const;
   std::string dirname(std::string& dir) const;
   void removeDoubleSlash(std::string&) const;
 
@@ -227,8 +227,8 @@ private:
 
 };
 
-#ifndef GAUDISVC_THISTSVC_ICC
- #include "THistSvc.icc"
+#ifndef THISTSVCHLT_ICC
+ #include "THistSvcHLT.icc"
 #endif
 
 

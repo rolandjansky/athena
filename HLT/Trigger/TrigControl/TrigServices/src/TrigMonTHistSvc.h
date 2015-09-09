@@ -18,7 +18,7 @@
 
 
 #include "GaudiKernel/Service.h"
-#include "THistSvc.h"
+#include "THistSvcHLT.h"
 #include "AthenaBaseComps/AthMessaging.h"
 
 class TObject;
@@ -36,7 +36,7 @@ class TTree;
 // Forward declarations
 template <class TYPE> class SvcFactory;
 
-class TrigMonTHistSvc: virtual public THistSvc,
+class TrigMonTHistSvc: virtual public THistSvcHLT,
                        public AthMessaging
 { 
 public:

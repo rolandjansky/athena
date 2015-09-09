@@ -30,7 +30,7 @@
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 TrigMonTHistSvc::TrigMonTHistSvc( const std::string& name, ISvcLocator* svc ) 
-    : THistSvc(name, svc),
+    : THistSvcHLT(name, svc),
       AthMessaging(msgSvc(), name),
       m_add(true),      
       m_excludeType("()"), 
@@ -53,13 +53,13 @@ TrigMonTHistSvc::~TrigMonTHistSvc() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode TrigMonTHistSvc::queryInterface(const InterfaceID & riid,
                                            void **ppvInterface) {
-  return THistSvc::queryInterface(riid, ppvInterface);
+  return THistSvcHLT::queryInterface(riid, ppvInterface);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode TrigMonTHistSvc::initialize() {
 
-  CHECK(THistSvc::initialize());
+  CHECK(THistSvcHLT::initialize());
   CHECK(setProperties());
 
   AthMessaging::msg().setLevel(outputLevel());
@@ -117,7 +117,7 @@ StatusCode TrigMonTHistSvc::finalize() {
 
 StatusCode TrigMonTHistSvc::regHist(const std::string& id) {  
   ATH_MSG_DEBUG("registering histogram: " << id <<  " to get it");
-  return THistSvc::regHist(id);
+  return THistSvcHLT::regHist(id);
 }
 
 StatusCode TrigMonTHistSvc::regHist(const std::string& id, TH1* hist) {
@@ -133,7 +133,7 @@ StatusCode TrigMonTHistSvc::regHist(const std::string& id, TH3* hist) {
 }
 
 StatusCode TrigMonTHistSvc::regTree(const std::string& id) {
-  return THistSvc::regTree(id);
+  return THistSvcHLT::regTree(id);
 }
 
 StatusCode TrigMonTHistSvc::regTree(const std::string&, TTree* hist) {
@@ -146,21 +146,21 @@ StatusCode TrigMonTHistSvc::regTree(const std::string&, TTree* hist) {
 }
 
 StatusCode TrigMonTHistSvc::getHist(const std::string& id, TH1*& hist) const {
-  return THistSvc::getHist(id, hist);  
+  return THistSvcHLT::getHist(id, hist);  
 }
 
 
 StatusCode TrigMonTHistSvc::getHist(const std::string& id, TH2*& hist) const {
-  return THistSvc::getHist(id, hist);  
+  return THistSvcHLT::getHist(id, hist);  
 }
 
 
 StatusCode TrigMonTHistSvc::getHist(const std::string& id, TH3*& hist) const {
-  return THistSvc::getHist(id, hist);
+  return THistSvcHLT::getHist(id, hist);
 }
 
 StatusCode TrigMonTHistSvc::getTree(const std::string& id, TTree*& hist) const {
-  return THistSvc::getTree(id, hist);
+  return THistSvcHLT::getTree(id, hist);
 }
 
 
@@ -168,7 +168,7 @@ StatusCode TrigMonTHistSvc::getTree(const std::string& id, TTree*& hist) const {
 //  Needs proper implementation
 //
 StatusCode TrigMonTHistSvc::regGraph(const std::string& id) {
-  return THistSvc::regGraph(id);
+  return THistSvcHLT::regGraph(id);
 }
 
 StatusCode TrigMonTHistSvc::regGraph(const std::string&, TGraph*) {
@@ -177,7 +177,7 @@ StatusCode TrigMonTHistSvc::regGraph(const std::string&, TGraph*) {
 }
 
 StatusCode TrigMonTHistSvc::getGraph(const std::string& id, TGraph*& g) const {
-  return THistSvc::getGraph(id, g); 
+  return THistSvcHLT::getGraph(id, g); 
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -242,7 +242,7 @@ StatusCode TrigMonTHistSvc::deReg(const std::string& id ) {
 }
 
 std::vector<std::string> TrigMonTHistSvc::getHists() const {
-  std::vector<std::string> l = THistSvc::getHists();   // we need to update the list by objects holded by offline SVC
+  std::vector<std::string> l = THistSvcHLT::getHists();   // we need to update the list by objects holded by offline SVC
                  
   hltinterface::IInfoRegister::THList thlist;
   hltinterface::IInfoRegister::instance()->get(".+", thlist); 
@@ -399,5 +399,5 @@ StatusCode TrigMonTHistSvc::getTTrees(const std::string&, TList &, bool, bool) {
 }
 
 bool TrigMonTHistSvc::exists( const std::string& name ) const {
-  return THistSvc::exists(name);
+  return THistSvcHLT::exists(name);
 }

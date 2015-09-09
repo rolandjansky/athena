@@ -271,7 +271,7 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections(0),
   m_histProp_Hlt_result_size(Gaudi::Histo1DDef("HltResultSize",0,200000,100)),
   m_histProp_numStreamTags(Gaudi::Histo1DDef("NumberOfStreamTags",-.5,9.5,10)),
-  m_histProp_streamTagNames(Gaudi::Histo1DDef("StreamTagNames",-.5,19.5,20)),
+  m_histProp_streamTagNames(Gaudi::Histo1DDef("StreamTagNames",-.5,.5,1)),
   m_histProp_num_partial_eb_robs(Gaudi::Histo1DDef("NumberROBsPartialEB",-.5,99.5,100)),
   m_histProp_Hlt_Edm_Sizes(Gaudi::Histo1DDef("HltEDMSizes",0.,10000.,100)),
   m_total_evt(0),
@@ -1116,24 +1116,12 @@ StatusCode HltEventLoopMgr::processRoIs (
   //-----------------------------------------------------------------------
   if( l1_result.size() == 0 ) {   // no Lvl1 result robs
     m_invalid_lvl1_result++;
-    m_failed_evt++;
 
-    // set Psc error code
-    hltonl::PSCErrorCode hlt_psc_error = hltonl::PSC_ERROR_NO_L1_RESULT;
-    // put event on debug stream
-    addDebugStreamTag(hlt_result, m_HltDebugStreamName.value());
-    // make empty HLT result ROB
-    HltEmptyResultROB(hlt_result,hlt_psc_error);
-    // fill histograms
-    fillHltResultHistograms(hlt_result);
+    failedEvent(hlt_result,
+                hltonl::PSC_ERROR_NO_L1_RESULT,
+                "No Lvl1 result ROBs received.");
 
-    logStream() << MSG::ERROR << " No Lvl1 result ROBs received."
-    << " PSC error code = " << hltonl::PrintPscErrorCode(hlt_psc_error) << "\n"
-    << hlt_result
-    << endreq;
-
-    sc = StatusCode::RECOVERABLE;
-    return sc ;
+    return StatusCode::RECOVERABLE;
   }
 
   // *-- SubDetectors in received L1 ROB list
@@ -1286,24 +1274,12 @@ StatusCode HltEventLoopMgr::processRoIs (
   // skip the event and put it on the debug stream
   // -----------------------------------------------------------------------------
   if (m_lvl1CTPROBcheck && b_invalidCTPRob) {
-    m_failed_evt++;
-    // set Psc error code
-    hltonl::PSCErrorCode  hlt_psc_error = hltonl::PSC_ERROR_INVALID_CTP_RESULT;
-    // put event on debug stream
-    addDebugStreamTag(hlt_result, m_HltDebugStreamName.value());
-    // make empty HLT result ROB
-    HltEmptyResultROB(hlt_result,hlt_psc_error);
-    // fill histograms
-    fillHltResultHistograms(hlt_result);
+    ost << " Skip event requested. ";
+    failedEvent(hlt_result,
+                hltonl::PSC_ERROR_INVALID_CTP_RESULT,
+                ost.str());
 
-    logStream() << MSG::ERROR << ost.str()
-                << " Skip event requested. "
-                << " PSC error code = " << hltonl::PrintPscErrorCode(hlt_psc_error) << "\n"
-                << hlt_result
-                << endreq;
-
-    sc = StatusCode::RECOVERABLE;
-    return sc;
+    return StatusCode::RECOVERABLE;
   }
 
   //-----------------------------------------------------------------------
@@ -1314,20 +1290,8 @@ StatusCode HltEventLoopMgr::processRoIs (
     logStream() << MSG::DEBUG << " ---> Clear of Event data store " << sc << endreq;
   }
   if(sc.isFailure()) {
-    m_failed_evt++;
-    // set Psc error code
-    hltonl::PSCErrorCode  hlt_psc_error = hltonl::PSC_ERROR_SG_CLEAR_FAILED;
-    // put event on debug stream
-    addDebugStreamTag(hlt_result, m_HltDebugStreamName.value());
-    // make empty HLT result ROB
-    HltEmptyResultROB(hlt_result,hlt_psc_error);
-    // fill histograms
-    fillHltResultHistograms(hlt_result);
-
-    logStream() << MSG::ERROR << "Clear of Event data store failed."
-    << " PSC error code = " << hltonl::PrintPscErrorCode(hlt_psc_error) << "\n"
-    << hlt_result
-    << endreq;
+    failedEvent(hlt_result, hltonl::PSC_ERROR_SG_CLEAR_FAILED,
+                "Clear of Event data store failed.");
     return sc;
   }
 
@@ -1348,24 +1312,6 @@ StatusCode HltEventLoopMgr::processRoIs (
                                               m_l1_Trigger_Type,
                                               m_l1_Trigger_Info));
 
-  // create xAOD::EventInfo to register in evt store
-  auto aux = new xAOD::EventAuxInfo;
-  auto xev = new xAOD::EventInfo;
-  xev->setStore(aux);
-  xev->setRunNumber(m_run_no);
-  xev->setEventNumber(evId.globalId);
-  xev->setLumiBlock(m_lumi_block);
-  xev->setTimeStamp(m_time_stamp);
-  xev->setTimeStampNSOffset(m_time_stamp_ns_offset);
-  xev->setBCID(m_bunch_crossing_id);
-  xev->setDetectorMask0(std::get<0>(m_detector_mask));
-  xev->setDetectorMask1(std::get<1>(m_detector_mask));
-  xev->setDetectorMask2(std::get<2>(m_detector_mask));
-  xev->setDetectorMask3(std::get<3>(m_detector_mask));
-  xev->setStatusElement(m_l1_Status_Element);
-  xev->setExtendedLevel1ID(m_lvl1id);
-  xev->setLevel1TriggerType(m_l1_Trigger_Type);
-
   if ( logLevel() <= MSG::DEBUG ) {
     logStream() << MSG::DEBUG << " +-----------+ " << endreq;
     logStream() << MSG::DEBUG << " | New Event | Run = " << m_run_no 
@@ -1377,29 +1323,13 @@ StatusCode HltEventLoopMgr::processRoIs (
     logStream() << MSG::DEBUG << "        EventType    = " << ((pEvent->event_type())->typeToString()) << endreq;
     logStream() << MSG::DEBUG << "      TriggerInfo    = " << *(pEvent->trigger_info()) << endreq;
     logStream() << MSG::DEBUG << " Current Run number  = " << m_currentRun << endreq;
-
-    logStream() << MSG::DEBUG << " new xAOD::EventInfo: " << xev << endreq;
   }
 
   // Record it in StoreGate
-  if(m_evtStore->record(pEvent, "EventInfo").isFailure() ||
-     m_evtStore->record(aux, "EventInfoAux.").isFailure() ||
-     m_evtStore->record(xev, "EventInfo").isFailure())
+  if(m_evtStore->record(pEvent, "EventInfo").isFailure())
   {
-    m_failed_evt++;
-    // set Psc error code
-    hltonl::PSCErrorCode  hlt_psc_error = hltonl::PSC_ERROR_NO_EVENTINFO;
-    // put event on debug stream
-    addDebugStreamTag(hlt_result, m_HltDebugStreamName.value());
-    // make empty HLT result ROB
-    HltEmptyResultROB(hlt_result,hlt_psc_error);
-    // fill histograms
-    fillHltResultHistograms(hlt_result);
-
-    logStream() << MSG::ERROR << "Error recording EventInfo object in SG"
-    << " PSC error code = " << hltonl::PrintPscErrorCode(hlt_psc_error) << "\n"
-    << hlt_result
-    << endreq;
+    failedEvent(hlt_result, hltonl::PSC_ERROR_NO_EVENTINFO,
+        "Error recording EventInfo object in SG");
 
     return StatusCode::FAILURE;
   }
@@ -1409,9 +1339,22 @@ StatusCode HltEventLoopMgr::processRoIs (
   //-----------------------------------------------------------------------
   sc = executeEvent(NULL);
   if(sc.isFailure()) {
-    m_failed_evt++;
-    logStream() << MSG::ERROR << "An error occured during event processing" << endreq;
+    failedEvent(hlt_result, hltonl::PSC_ERROR_UNCLASSIFIED,
+                "An unknown error occured during event processing",
+                false /* no empty result */);
   }
+
+  // Get the xAOD::EventInfo from SG
+  xAOD::EventInfo * xev{nullptr};
+  if(m_evtStore->retrieve(xev, "EventInfo").isFailure())
+  {
+    logStream() << MSG::WARNING << ST_WHERE
+                << "Could not retrieve xAOD::EventInfo in store gate. "
+                << "If running in HelloWorld algorithms, this is OK."
+                << endreq;
+  }
+
+  logStream() << MSG::DEBUG << " new xAOD::EventInfo: " << xev << endreq;
 
   //-----------------------------------------------------------------------
   // build HLT result
@@ -1777,7 +1720,6 @@ void HltEventLoopMgr::HltEmptyResultROB(hltinterface::HLTResult& hlt_result,
   rob.status(n_status_word, m_status_words);
   rob.rod_status(n_status_word, m_status_words);
   rob.rod_data(hltr_data_size, hltr_data);
-  const eformat::write::node_t* top = rob.bind();
 
   //
   // store the dummy HLT ROB fragment in the hlt_result structure
@@ -1785,13 +1727,7 @@ void HltEventLoopMgr::HltEmptyResultROB(hltinterface::HLTResult& hlt_result,
   //
   // The maximum possible space is already allocated by the HLTMPPU
   // copy the ROB contents into the allocated memory
-  uint32_t copy_words = eformat::write::copy(*top, hlt_result.fragment_pointer, rob.size_word());
-  if ( (copy_words == 0) || (copy_words != rob.size_word()) )  {
-    logStream() << MSG::ERROR 
-        << "Memory copy operation for dummy HLT result ROB failed. Returned number of copied words = " << copy_words
-        << ". Number of words in ROB which should be copied = " << rob.size_word() << "."
-        << endreq;
-  }
+  addRobToHLTResult(hlt_result, rob, hlt_result.fragment_pointer, hlt_result.max_result_size);
 
   // delete the data array
   if (hltr_data != 0) delete[] hltr_data;
@@ -1805,7 +1741,8 @@ void HltEventLoopMgr::HltEmptyResultROB(hltinterface::HLTResult& hlt_result,
 void HltEventLoopMgr::HltEmptyResultROB(hltinterface::HLTResult& hlt_result, hltonl::PSCErrorCode pscErrorCode)
 {
   if ( logLevel() <= MSG::DEBUG ) {
-    logStream() << MSG::DEBUG << "---> HltEmptyResultROB() for " << name() << " called " << endreq;
+    logStream() << MSG::DEBUG << "---> HltEmptyResultROB() for "
+                << name() << " called " << endreq;
   }
 
   HltEmptyResultROB(hlt_result,
@@ -1893,12 +1830,15 @@ void HltEventLoopMgr::HltResult(hltinterface::HLTResult& hlt_result,
     logStream() << MSG::DEBUG << "---> HltResult() for " << name() << " called " << endreq;
   }
 
+  using xev_stags_t = decltype(xev->streamTags());
+  auto xev_stags = xev ? xev->streamTags() : xev_stags_t{};
+
   hltonl::PSCErrorCode hlt_psc_error = HltResultROBs(hlt_result,
                          m_run_no, m_lvl1id, m_bunch_crossing_id,
                          m_l1_Trigger_Type, m_l1_detev_type,
                          pEvent->trigger_info()->eventFilterInfo(),
                          pEvent->trigger_info()->streamTags(),
-                         xev->streamTags());
+                         xev_stags);
   // If there was an error when building the HLT result ROB,
   // put the event on the debug stream and try to create a dummy result ROB
   if (hlt_psc_error) {
@@ -2026,6 +1966,7 @@ void HltEventLoopMgr::bookHistograms()
       m_histProp_streamTagNames.value().lowEdge(),
       m_histProp_streamTagNames.value().highEdge());
   if (m_hist_streamTagNames) {
+    if (m_histProp_streamTagNames.value().bins()>0) m_hist_streamTagNames->GetXaxis()->SetBinLabel(1,std::string("DefaultLabel").c_str() );
     m_hist_streamTagNames->SetBit(TH1::kCanRebin);
     regHistsTH1F.push_back(&m_hist_streamTagNames);
   }
@@ -3004,6 +2945,7 @@ bool HltEventLoopMgr::checkRobSize(uint32_t robsize, uint32_t spaceleft,
   return true;
 }
 
+//=========================================================================
 bool HltEventLoopMgr::
 checkEventIdConsistency(const hltinterface::EventId& evId) const
 {
@@ -3021,3 +2963,21 @@ checkEventIdConsistency(const hltinterface::EventId& evId) const
   return true;
 }
 
+//=========================================================================
+void HltEventLoopMgr::failedEvent(hltinterface::HLTResult& hlt_result,
+                                  hltonl::PSCErrorCode ecode,
+                                  const std::string& emsg,
+                                  bool empty_result)
+{
+  m_failed_evt++;
+
+  addDebugStreamTag(hlt_result, m_HltDebugStreamName.value());
+  if(empty_result)
+    HltEmptyResultROB(hlt_result, ecode);
+  fillHltResultHistograms(hlt_result);
+
+  logStream() << MSG::ERROR << ST_WHERE
+              << emsg << " PSC error code = "
+              << hltonl::PrintPscErrorCode(ecode)
+              << "\n" << hlt_result << "\n" << endreq;
+}

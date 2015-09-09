@@ -290,6 +290,12 @@ private:
   std::set<eformat::SubDetector>
   filterDets(const std::set<uint32_t> dets) const;
 
+  // act on failure to process event
+  void failedEvent(hltinterface::HLTResult& hlt_result,
+                   hltonl::PSCErrorCode ecode,
+                   const std::string& emsg,
+                   bool empty_result = true);
+
   /** Handles to required services/tools **/
   typedef ServiceHandle<IIncidentSvc> IIncidentSvc_t;
   IIncidentSvc_t         m_incidentSvc;
