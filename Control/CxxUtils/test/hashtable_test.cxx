@@ -150,8 +150,8 @@ void test05()
   SG::unordered_set<int> s;
 
   s.bucket(42);
-  (void)s.key_eq();
-  (void)s.max_load_factor();  
+  s.key_eq();
+  s.max_load_factor();  
 }
 
 // libstdc++/26132

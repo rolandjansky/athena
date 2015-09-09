@@ -234,11 +234,8 @@ __attribute__ ((noinline))
 #endif
 void fromhere() 
 {
-  char pat[] = "stacktrace_testXXXXXX";
-  umask (0600);
-  int fd = mkstemp (pat);
-  if (fd < 0) std::abort();
-  FILE* fp = fdopen (fd, "w+");
+  FILE* fp = tmpfile();
+  int fd = fileno (fp);
   sethooks();
   Athena::DebugAids::stacktrace (fd);
   resethooks();

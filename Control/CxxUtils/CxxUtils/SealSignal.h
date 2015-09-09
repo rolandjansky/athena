@@ -280,7 +280,7 @@ public:
 					     const siginfo_t *info);
     static void			dumpMemory  (IOFD fd, char *buf,
 					     const void *data, size_t n);
-    static unsigned long        dumpContext (IOFD fd, char *buf,
+    static void			dumpContext (IOFD fd, char *buf,
 					     const void *context);
 
     static const char *		describe (int sig, int code);
@@ -290,7 +290,6 @@ private:
 
     static bool			s_crashed;
     static int			s_inFatal;
-    static unsigned long        s_lastSP;
     static const char		*s_applicationName;
     static IOFD			s_fatalFd;
     static FatalHook		s_fatalHook;
@@ -307,13 +306,4 @@ private:
 
 //} // namespace seal                             wlav
 } // namespace Athena                             wlav
-
-
-extern "C" {
-  /// Install fatal handler with default options.
-  /// This is meant to be easy to call from pyton via ctypes.
-  void CxxUtils_installFatalHandler();
-}
-
-
 #endif // CXXUTILS_SEAL_SIGNAL_H wlav SEAL_BASE_SIGNAL_H
