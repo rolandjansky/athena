@@ -25,10 +25,10 @@
 #include "JetMomentTools/JetBadChanCorrTool.h"
 #include "JetUtils/JetCellAccessor.h"
 #include "JetUtils/JetDistances.h"
-#include "AthenaKernel/Units.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 
-using Athena::Units::GeV;
+using Gaudi::Units::GeV;
 
 
 JetBadChanCorrTool::JetBadChanCorrTool(	const std::string& name) :
@@ -75,12 +75,12 @@ StatusCode JetBadChanCorrTool::initialize()
     std::string fname = PathResolver::find_file(m_profileName, "DATAPATH");
 
     if(fname==""){
-      ATH_MSG(ERROR) << "Could not get file " << m_profileName << endmsg;
+      ATH_MSG(ERROR) << "Could not get file " << m_profileName << endreq;
       return StatusCode::FAILURE;
     }
     TFile tf(fname.c_str());
     if(tf.IsOpen()==false){
-      ATH_MSG( ERROR ) << "Could not open file " << fname << endmsg;
+      ATH_MSG( ERROR ) << "Could not open file " << fname << endreq;
       return StatusCode::FAILURE;
     }
     // already registered hists
@@ -101,7 +101,7 @@ StatusCode JetBadChanCorrTool::initialize()
         if(find(histsInSvc.begin(),histsInSvc.end(),location)==histsInSvc.end()){
           StatusCode sc = m_thistSvc->regHist(location);
           if(sc.isFailure()){
-            ATH_MSG( ERROR ) << "failed to read histo " << location << endmsg;
+            ATH_MSG( ERROR ) << "failed to read histo " << location << endreq;
             return StatusCode::FAILURE;
           }
         }
@@ -116,14 +116,14 @@ StatusCode JetBadChanCorrTool::initialize()
                          &sample,&ptMin,&ptMax,&etaMin,&etaMax,&phiMin,&phiMax);
 
         if(ret<1 || sample<0 || sample>=CaloCell_ID::Unknown) {
-          ATH_MSG( DEBUG ) << "Could not understand the name of hist " << obj->GetName() << endmsg;
+          ATH_MSG( DEBUG ) << "Could not understand the name of hist " << obj->GetName() << endreq;
           continue;
         }
 
         TH1* th=0;
         StatusCode sc = m_thistSvc->getHist(location,th);
         if(sc.isFailure()){
-          ATH_MSG( ERROR ) << "failed to get histo " << location << endmsg;
+          ATH_MSG( ERROR ) << "failed to get histo " << location << endreq;
           return StatusCode::FAILURE;
         }
         m_profileDatas[sample].push_back(ProfileData((TH1D*)th,sample,ptMin,ptMax,etaMin,etaMax,phiMin,phiMax));
@@ -131,21 +131,21 @@ StatusCode JetBadChanCorrTool::initialize()
                          << " tag=" << tag << " sample=" << sample 
                          << " ptMin=" << ptMin << " ptMax=" << ptMax 
                          << " etaMin=" << etaMin << " etaMax=" << etaMax
-                         << " phiMin=" << phiMin << " phiMax=" << phiMax << endmsg;
+                         << " phiMin=" << phiMin << " phiMax=" << phiMax << endreq;
       }
     }
 
     // if(m_useCalibScale){
     //   CHECK( m_calibTool.retrieve() ) ;
-    //   ATH_MSG( DEBUG ) << "use calibration " << m_calibTool << endmsg;
+    //   ATH_MSG( DEBUG ) << "use calibration " << m_calibTool << endreq;
     // } 
   
     if (  m_useCone) {
       // CHECK( detStore()->retrieve(m_caloDDM) );
       // m_calo_id = m_caloDDM->getCaloCell_ID();
-      // ATH_MSG( DEBUG ) << "perform bad cells in cone calculations "  << endmsg;
+      // ATH_MSG( DEBUG ) << "perform bad cells in cone calculations "  << endreq;
       // if(m_calo_id==0){
-      //   ATH_MSG( ERROR ) << "Could not get CaloCell_ID" << endmsg;
+      //   ATH_MSG( ERROR ) << "Could not get CaloCell_ID" << endreq;
       //   return StatusCode::FAILURE;
       // }
     }
@@ -362,14 +362,13 @@ int JetBadChanCorrTool::correctionFromCellsInJet( xAOD::Jet* jet, const jet::Cal
     }
   } // loop over cells
 
-  const double inv_rawE = 1. / rawE;
-  corr_cell *= inv_rawE;
-  corr_dotx *= inv_rawE;
+  corr_cell /= rawE;
+  corr_dotx /= rawE;
   ATH_MSG( DEBUG ) << "pt=" << jet->pt()/GeV << " eta=" << jet->eta() << " phi=" << jet->phi()
                    << " BCH_CORR_CELL=" << corr_cell
                    << " BCH_CORR_DOTX=" << corr_dotx
                    << " BCH_CORR_JET=" << corr_jet_associate
-                   << " BCH_CORR_JET_FORCELL=" << corr_jet_forcell << endmsg;
+                   << " BCH_CORR_JET_FORCELL=" << corr_jet_forcell << endreq;
 
   jet->setAttribute<float>("BchCorrCell",corr_cell);
   jet->setAttribute<float>("BchCorrDotx",corr_dotx);

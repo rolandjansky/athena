@@ -17,8 +17,6 @@ JetOriginCorrectionTool::JetOriginCorrectionTool(const std::string& myname)
   declareProperty("VertexContainer", m_vtxContainerName="PrimaryVertices");
   declareProperty("OriginCorrectedName", m_correctionName="JetOriginConstitScaleMomentum");
   declareProperty("EventInfoName", m_eInfoName="EventInfo");
-
-  declareProperty("OnlyAssignPV", m_onlyAssignPV=false);
 }
 
 //**********************************************************************
@@ -68,12 +66,9 @@ int JetOriginCorrectionTool::modify(xAOD::JetContainer& jetCont) const {
   for(xAOD::Jet * jet : jetCont){
     ATH_MSG_DEBUG("  ---->  jet "<< jet);
     ATH_MSG_DEBUG("                     jet pT: "<< jet->pt());
-
-    if(!m_onlyAssignPV) {
-      xAOD::JetFourMom_t fv = jet::clusterOriginCorrection(*jet,*vx);
-      ATH_MSG_DEBUG("  " <<  m_correctionName << " pT: " << fv.pt());
-      jet->setAttribute<xAOD::JetFourMom_t>(m_correctionName, fv);
-    }
+    xAOD::JetFourMom_t fv = jet::clusterOriginCorrection(*jet,*vx);
+    ATH_MSG_DEBUG("  " <<  m_correctionName << " pT: " << fv.pt());
+    jet->setAttribute<xAOD::JetFourMom_t>(m_correctionName, fv);
     jet->setAssociatedObject("OriginVertex", vx);
 
   }

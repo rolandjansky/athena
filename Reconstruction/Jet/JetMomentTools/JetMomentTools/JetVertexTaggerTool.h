@@ -125,7 +125,7 @@ private:  // data
   std::string m_jvtfileName;
   std::string m_jvtName;
   ToolHandle<IJetTrackSelector> m_htsel;
-  TString m_fn;
+  TString fn;
   TFile * m_jvtfile;
   TH2F * m_jvthisto;
   float m_kcorrJVF;

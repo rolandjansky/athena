@@ -9,15 +9,6 @@
 #include "JetMomentTools/JetVoronoiDiagramHelpers.h"
 
 
-using JetVoronoiDiagramHelpers::coord;
-using JetVoronoiDiagramHelpers::Point;
-using JetVoronoiDiagramHelpers::Segment;
-using JetVoronoiDiagramHelpers::SegmentList;
-using JetVoronoiDiagramHelpers::Polygon;
-using JetVoronoiDiagramHelpers::PolygonList;
-using JetVoronoiDiagramHelpers::Diagram;
-
-
 JetVoronoiMomentsTool::JetVoronoiMomentsTool(const std::string& name)
     : JetModifierBase(name)
       //, m_voronoitool("")

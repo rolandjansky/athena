@@ -28,7 +28,7 @@ JetCaloQualityTool::JetCaloQualityTool(const std::string& name)
 int JetCaloQualityTool::modifyJet( xAOD::Jet& jet ) const
 {
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Inside process() method" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Inside process() method" << endreq;
   
   if(m_doFracSamplingMax==true)
     {
