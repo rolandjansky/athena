@@ -15,10 +15,9 @@
 
 #include <map>
 #include <memory>
+using std::make_pair;
 
 #include "PathResolver/PathResolver.h"
-
-using std::make_pair;
 
 namespace CP{
 
@@ -108,7 +107,7 @@ namespace CP{
 
   std::pair<float,float> ShowerDepthTool::getRZ(const float& eta,const int& sampling) const
   {
-    if ((sampling != 1 && sampling != 2) || (fabs(eta)>10))
+    if (sampling != 1 && sampling != 2)
     {
 //       ATH_MSG_INFO( "Invalid sampling: " << sampling );
       return std::make_pair(0., 0.);
@@ -136,7 +135,7 @@ namespace CP{
                                                           const bool& isData,
                                                           const int& sampling) const 
   {
-    if ((sampling != 1 && sampling != 2) || (fabs(eta)>10))
+    if (sampling != 1 && sampling != 2)
     {
 //       ATH_MSG_INFO( "Invalid sampling: " << sampling );
       return std::make_pair(0., 0.);
