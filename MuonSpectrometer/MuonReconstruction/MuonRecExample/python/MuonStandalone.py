@@ -154,7 +154,26 @@ class MuonStandalone(ConfiguredMuonRec):
                                                          UseTGC = muonRecFlags.doTGCs(),
                                                          UseTGCPriorBC = muonRecFlags.doTGCs() and muonRecFlags.useTGCPriorNextBC(),
                                                          UseTGCNextBC  = muonRecFlags.doTGCs() and muonRecFlags.useTGCPriorNextBC() ))
-
+                self.addAlg( CfgMgr.MooSegmentFinderAlg( "MuonSegmentMaker_NCB",
+                                                      SegmentFinder = getPublicToolClone("MooSegmentFinder_NCB","MuonSegmentFinder",
+                                                                                         DoSummary=muonStandaloneFlags.printSummary(),
+                                                                                         Csc2dSegmentMaker = getPublicToolClone("Csc2dSegmentMaker_NCB","Csc2dSegmentMaker",
+                                                                                                                                segmentTool = getPublicToolClone("CscSegmentUtilTool_NCB",
+                                                                                                                                                                 "CscSegmentUtilTool",
+                                                                                                                                                                 TightenChi2 = False, 
+                                                                                                                                                                 IPconstraint=False)),
+                                                                                         Csc4dSegmentMaker = getPublicToolClone("Csc4dSegmentMaker_NCB","Csc4dSegmentMaker",
+                                                                                                                                segmentTool = getPublicTool("CscSegmentUtilTool_NCB")),
+                                                                                         DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False),
+                                                      MuonPatternCombinationLocation = "NCB_MuonHoughPatternCombinations", 
+                                                      MuonSegmentOutputLocation = "NCB_MuonSegments", 
+                                                      MuonSegmentCombinationOutputLocation = "NCB_MooreSegmentCombinations",
+                                                      UseCSC = muonRecFlags.doCSCs(),
+                                                      UseMDT = False,
+                                                      UseRPC = False,
+                                                      UseTGC = False,
+                                                      UseTGCPriorBC = False,
+                                                      UseTGCNextBC  = False ) )
 
         elif muonStandaloneFlags.segmentOrigin == 'Muonboy':
             TheThirdChainMboyMuonSegmentMakerTester = CfgMgr.MboyMuonSegmentMakerTester("MuonSegmentMaker", 
@@ -163,6 +182,7 @@ class MuonStandalone(ConfiguredMuonRec):
             self.addAlg( TheThirdChainMboyMuonSegmentMakerTester )
 
         self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg") )
+        self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg_NCB",SegmentContainerName="NCB_MuonSegments",xAODContainerName="NCB_MuonSegments") )
         
         if muonStandaloneFlags.doSegmentsOnly():
                 return	                    
