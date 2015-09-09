@@ -23,7 +23,6 @@
 #include "TestUtils.h"
 
 using namespace HLT;
-using namespace TrigNavTest;
 HLT::Navigation* hns;
 
 template<class GET, class ATTACH>
@@ -82,7 +81,7 @@ int main() {
   BEGIN_TEST("RoIcaching test");
 
   ISvcLocator* pSvcLoc;
-  if (!Athena_test::initGaudi("test2.txt",  pSvcLoc)) {
+  if (!Athena_test::initGaudi("test.txt",  pSvcLoc)) {
     REPORT_AND_STOP("Can not intit Gaudi");
   }
   assert(pSvcLoc);
@@ -204,7 +203,7 @@ int main() {
 
 
 
-  //log << MSG::INFO << "\n" << *hns << endmsg;
+  //log << MSG::INFO << "\n" << *hns << endreq;
 
   auto calo2 = createAlgo("calo2",
 			  [&](TriggerElement* te) -> StatusCode {   // get RoI
@@ -234,7 +233,7 @@ int main() {
 
 
 
-  //log << MSG::INFO << "\n" << *hns << endmsg;
+  //log << MSG::INFO << "\n" << *hns << endreq;
 
   
   TriggerElement* trackA = hns->addNode(clusterA, 101);
@@ -359,6 +358,6 @@ int main() {
   REPORT_AND_CONTINUE("ALLOK");
 
 
-  //log << MSG::INFO << *hns << endmsg;
+  //log << MSG::INFO << *hns << endreq;
   return 0;
 }

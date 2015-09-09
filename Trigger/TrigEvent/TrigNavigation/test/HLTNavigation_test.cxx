@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include <sys/time.h>
 #include <iostream>
 #include <iterator>
@@ -11,8 +10,8 @@
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "AthLinks/ElementLinkVector.h"
-#include "AthContainers/ConstDataVector.h"
+#include "DataModel/ElementLinkVector.h"
+#include "DataModel/ConstDataVector.h"
 
 #include "TestTools/initGaudi.h"
 
@@ -29,13 +28,10 @@
 #include "TestTypes.h"
 #include "TestUtils.h"
 
-StoreGateSvc* pStore(0);
-
 double interval( struct timeval& begin, struct timeval& end) {
   return (end.tv_sec - begin.tv_sec)*1000. + (end.tv_usec - begin.tv_usec)*1e-3;
 }
 using namespace HLT;
-using namespace TrigNavTest;
 /*
 void blah( DataVector<B>::const_iterator ) {}
 
@@ -64,27 +60,27 @@ int testGetFeaturesOnDistinctTypes(MsgStream& log, Navigation* nav, TriggerEleme
   log << MSG::DEBUG << "testGetFeatures test for TE: " << te->getId() 
       << " and features of type " << ClassID_traits<T>::typeName() 
       << " with label " << label
-      << endmsg;
+      << endreq;
 
   if ( nav->getFeature(te, singleFromGet, label) == false ) {
-    log << MSG::ERROR << "falied to get: singleFromGetFeature" << endmsg; return -1;
+    log << MSG::ERROR << "falied to get: singleFromGetFeature" << endreq; return -1;
   }
 
   const TriggerElement* tsource(0);
   std::string lsource;
   if ( nav->getRecentFeature(te, singleFromGetRecent, label, tsource, lsource) ) {
     if ( tsource == 0 && singleFromGetRecent != 0 ) {
-      log << MSG::ERROR << "falied to get: singleFromGetFeature no source found " << singleFromGetRecent << " " << tsource  << endmsg; 
+      log << MSG::ERROR << "falied to get: singleFromGetFeature no source found " << singleFromGetRecent << " " << tsource  << endreq; 
       return -1;
     } 
     if ( tsource ) {
-      log << MSG::INFO << "worked to get: endmsg " << tsource->getId() << " label >" << label << "< back label >" << lsource << "< ptr: " <<  singleFromGetRecent << endmsg; 
+      log << MSG::INFO << "worked to get: endreq " << tsource->getId() << " label >" << label << "< back label >" << lsource << "< ptr: " <<  singleFromGetRecent << endreq; 
       
     }
-    log << MSG::INFO << "falied to get: singleFromGetFeature" << endmsg;    
+    log << MSG::INFO << "falied to get: singleFromGetFeature" << endreq;    
   } else {
     if ( !tsource ) {
-      log << MSG::ERROR << "in falied to get: singleFromGetFeature no source found " << tsource  << endmsg; 
+      log << MSG::ERROR << "in falied to get: singleFromGetFeature no source found " << tsource  << endreq; 
       return -1;
     }
   }
@@ -92,20 +88,20 @@ int testGetFeaturesOnDistinctTypes(MsgStream& log, Navigation* nav, TriggerEleme
   
 
   if ( nav->getFeatures(te, multipleFromGet, label) == false ) {
-    log << MSG::ERROR << "falied to get: multipleFromGet" << endmsg;  return -1;
+    log << MSG::ERROR << "falied to get: multipleFromGet" << endreq;  return -1;
   } 
   if ( nav->getRecentFeatures(te, multipleFromGetRecent, label) == false ) {
     if ( label != "" ) {
-      log << MSG::ERROR << "falied to get: multipleFromGetRecent" << endmsg; return -1;
+      log << MSG::ERROR << "falied to get: multipleFromGetRecent" << endreq; return -1;
     } else 
-      log << MSG::INFO << "falied to get: multipleFromGetRecent but OK, label is empty string" << endmsg;
+      log << MSG::INFO << "falied to get: multipleFromGetRecent but OK, label is empty string" << endreq;
   } 
 
   typedef ElementLink<C> CEL;
   CEL el;
 
   if ( nav->getRecentFeatureLink<C, T>(te, el, label) == false ) {
-    log << MSG::INFO << "falied to get: singleRecentThroughEL" << endmsg;
+    log << MSG::INFO << "falied to get: singleRecentThroughEL" << endreq;
   } 
   if (el.isValid())
     singleRecentThroughEL = *el;
@@ -117,9 +113,9 @@ int testGetFeaturesOnDistinctTypes(MsgStream& log, Navigation* nav, TriggerEleme
 
   if ( nav->getRecentFeaturesLinks<C, T>(te, elv, label) == false ) {    
     if ( label != "" ) {
-      log << MSG::ERROR << "falied to get: multipleRecentThroughELV" << endmsg; return -1;
+      log << MSG::ERROR << "falied to get: multipleRecentThroughELV" << endreq; return -1;
     } else {
-      log << MSG::INFO << "falied to get: multipleRecentThroughELV" << endmsg;
+      log << MSG::INFO << "falied to get: multipleRecentThroughELV" << endreq;
     }
   } 
   
@@ -129,43 +125,43 @@ int testGetFeaturesOnDistinctTypes(MsgStream& log, Navigation* nav, TriggerEleme
     multipleRecentThroughELV.push_back(const_cast<typename C::base_value_type *>(t));
   }
    
-  log << MSG::DEBUG << "testGetFeatures passed features retrieval ... checking thier relations" << endmsg; 
+  log << MSG::DEBUG << "testGetFeatures passed features retrieval ... checking thier relations" << endreq; 
 
    
    // cross check ordering
    if ( singleFromGet != 0 ) {
      if ( multipleFromGet.size() < 1 ) {
-       log << MSG::ERROR << "singleFromGet & multipleFromGet give give inconsistent sizes " << multipleFromGet.size() << endmsg;
+       log << MSG::ERROR << "singleFromGet & multipleFromGet give give inconsistent sizes " << multipleFromGet.size() << endreq;
        return -1 ; 
      }
      if ( singleFromGet != multipleFromGet.back() ) {
-       log << MSG::ERROR << "singleFromGet & multipleFromGet give wrong ordering" << endmsg;
+       log << MSG::ERROR << "singleFromGet & multipleFromGet give wrong ordering" << endreq;
        return -1 ;
      }
    }
 
   if ( singleFromGetRecent != 0 ) {
      if ( singleFromGetRecent != multipleFromGetRecent.back() ) {
-       log << MSG::ERROR << "singleFromGetRecent & multipleFromGetRecent give wrong ordering" << endmsg;
+       log << MSG::ERROR << "singleFromGetRecent & multipleFromGetRecent give wrong ordering" << endreq;
        return -1 ;
      }
    }
   
   //cross check if EL based methog give the same
   if ( singleFromGetRecent != singleRecentThroughEL ) {
-    log << MSG::ERROR << "singleFromGetRecent != singleRecentThroughEL" << endmsg;
+    log << MSG::ERROR << "singleFromGetRecent != singleRecentThroughEL" << endreq;
     return -1 ;
   }
 
 
   if ( multipleRecentThroughELV.size() != multipleFromGetRecent.size() ) {
-    log << MSG::ERROR << "multipleRecentThroughELV.size() " << multipleRecentThroughELV.size() << " != multipleFromGetRecent.size() " <<multipleFromGetRecent.size() << endmsg;
+    log << MSG::ERROR << "multipleRecentThroughELV.size() " << multipleRecentThroughELV.size() << " != multipleFromGetRecent.size() " <<multipleFromGetRecent.size() << endreq;
     return -1 ;
   }
 
   for ( unsigned i = 0; i < multipleRecentThroughELV.size() ; i++ ) {
     if ( multipleRecentThroughELV[i] != multipleFromGetRecent[i] ) {
-      log << MSG::ERROR << "multipleRecentThroughELV[i] != multipleFromGetRecent[i] for i: " << i  << endmsg;
+      log << MSG::ERROR << "multipleRecentThroughELV[i] != multipleFromGetRecent[i] for i: " << i  << endreq;
       return -1; 
     }
   }
@@ -175,7 +171,7 @@ int testGetFeaturesOnDistinctTypes(MsgStream& log, Navigation* nav, TriggerEleme
       << " with label " << label
       << " singleGet gave " << ( (singleFromGet) ? 1 : 0 )
       << " multipleGet gave " << multipleFromGet.size()
-      << endmsg;
+      << endreq;
 
   return 0;
 }
@@ -206,19 +202,19 @@ int testGetFeaturesOnSameTypes(MsgStream& log, Navigation* nav, TriggerElement* 
   log << MSG::DEBUG << "testGetFeaturesOnSameTypes test for TE: " << te->getId() 
       << " and features of type " << ClassID_traits<T>::typeName() 
       << " with label " << label
-      << endmsg;
+      << endreq;
 
   if ( nav->getFeature(te, singleFromGet, label) == false ) {
-    log << MSG::ERROR << "falied to get: singleFromGetFeature" << endmsg; return -1;
+    log << MSG::ERROR << "falied to get: singleFromGetFeature" << endreq; return -1;
   }
   if ( nav->getRecentFeature(te, singleFromGetRecent, label) == false ) {
-    log << MSG::INFO << "falied to get: singleFromGetRecentFeature" << endmsg; 
+    log << MSG::INFO << "falied to get: singleFromGetRecentFeature" << endreq; 
   } 
   if ( nav->getFeatures(te, multipleFromGet, label) == false ) {
-    log << MSG::ERROR << "falied to get: multipleFromGet" << endmsg;  return -1;
+    log << MSG::ERROR << "falied to get: multipleFromGet" << endreq;  return -1;
   } 
   if ( nav->getRecentFeatures(te, multipleFromGetRecent, label) == false ) {
-     log << MSG::INFO << "falied to get: multipleFromGetRecent" << endmsg;
+     log << MSG::INFO << "falied to get: multipleFromGetRecent" << endreq;
   } 
 
   typename std::vector<const T*>::const_iterator pIt;
@@ -230,7 +226,7 @@ int testGetFeaturesOnSameTypes(MsgStream& log, Navigation* nav, TriggerElement* 
   CEL el;
 
   if ( nav->getRecentFeatureLink<T, T>(te, el, label) == true ) {
-    log << MSG::ERROR << "managed to get: singleRecentThroughEL this method for same types should return false" << endmsg; return -1;
+    log << MSG::ERROR << "managed to get: singleRecentThroughEL this method for same types should return false" << endreq; return -1;
   } 
     
   typedef ElementLinkVector<T> CELV;
@@ -238,7 +234,7 @@ int testGetFeaturesOnSameTypes(MsgStream& log, Navigation* nav, TriggerElement* 
   typename CELV::iterator elvIt;
 
   if ( nav->getRecentFeaturesLinks<T, T>(te, elv, label) == false ) {
-     log << MSG::INFO << "falied to get: multipleRecentThroughELV" << endmsg;
+     log << MSG::INFO << "falied to get: multipleRecentThroughELV" << endreq;
   } 
   
   for ( elvIt = elv.begin(); elvIt != elv.end(); ++elvIt ) {
@@ -248,24 +244,24 @@ int testGetFeaturesOnSameTypes(MsgStream& log, Navigation* nav, TriggerElement* 
     multipleRecentThroughELV.push_back((S*)t);
   }
 
-  log << MSG::DEBUG << "testGetFeatures passed features retrieval ... checking thier relations" << endmsg; 
+  log << MSG::DEBUG << "testGetFeatures passed features retrieval ... checking thier relations" << endreq; 
 
    
    // cross check ordering
    if ( singleFromGet != 0 ) {
      if ( multipleFromGet.size() < 1 ) {
-       log << MSG::ERROR << "singleFromGet & multipleFromGet give give inconsistent sizes " << multipleFromGet.size() << endmsg;
+       log << MSG::ERROR << "singleFromGet & multipleFromGet give give inconsistent sizes " << multipleFromGet.size() << endreq;
        return -1 ; 
      }
      if ( singleFromGet != multipleFromGet.back() ) {
-       log << MSG::ERROR << "singleFromGet & multipleFromGet give wrong ordering" << endmsg;
+       log << MSG::ERROR << "singleFromGet & multipleFromGet give wrong ordering" << endreq;
        return -1 ;
      }
    }
 
   if ( singleFromGetRecent != 0 ) {
      if ( singleFromGetRecent != multipleFromGetRecent.back() ) {
-       log << MSG::ERROR << "singleFromGetRecent & multipleFromGetRecent give wrong ordering" << endmsg;
+       log << MSG::ERROR << "singleFromGetRecent & multipleFromGetRecent give wrong ordering" << endreq;
        return -1 ;
      }
    }
@@ -274,13 +270,13 @@ int testGetFeaturesOnSameTypes(MsgStream& log, Navigation* nav, TriggerElement* 
   
 
   if ( multipleRecentThroughELV.size() != multipleRecentThroughPlain.size() ) {
-    log << MSG::ERROR << "multipleRecentThroughELV.size() != multipleRecentThroughPlain.size()" << endmsg;
+    log << MSG::ERROR << "multipleRecentThroughELV.size() != multipleRecentThroughPlain.size()" << endreq;
     return -1 ;
   }
 
   for ( unsigned i = 0; i < multipleRecentThroughELV.size() ; i++ ) {
     if ( multipleRecentThroughELV[i] != multipleRecentThroughPlain[i] ) {
-      log << MSG::ERROR << "multipleRecentThroughELV[i] != multipleRecentThroughPlain[i] for i: " << i  << endmsg;
+      log << MSG::ERROR << "multipleRecentThroughELV[i] != multipleRecentThroughPlain[i] for i: " << i  << endreq;
       return -1; 
     }
   } 
@@ -290,7 +286,7 @@ int testGetFeaturesOnSameTypes(MsgStream& log, Navigation* nav, TriggerElement* 
       << " with label " << label
       << " singleGet gave " << ( (singleFromGet) ? 1 : 0 )
       << " multipleGet gave " << multipleFromGet.size()
-      << endmsg;
+      << endreq;
 
   return 0;
 }
@@ -300,16 +296,16 @@ template<class T>
 int testFindOwners(MsgStream& log, Navigation* nav, T* t, bool isRealyAttached=true) {
   std::vector<const TriggerElement*> tes;
   if (nav->findOwners(t, tes)  == false) {
-    log << MSG::ERROR << "find owners failed for : " << t << " of type " << ClassID_traits<T>::typeName()  << endmsg;
+    log << MSG::ERROR << "find owners failed for : " << t << " of type " << ClassID_traits<T>::typeName()  << endreq;
       return -1; 
     }
   if ( isRealyAttached && tes.size() == 0 ) {
-    log << MSG::ERROR << "find owners found 0 TEs for : " << t << " of type " << ClassID_traits<T>::typeName()  << endmsg;
+    log << MSG::ERROR << "find owners found 0 TEs for : " << t << " of type " << ClassID_traits<T>::typeName()  << endreq;
     return -1; 
   }
 
   if ( (!isRealyAttached) && tes.size() != 0 ) {      
-    log << MSG::ERROR << "find owners worked for : " << t << " of type " << ClassID_traits<T>::typeName()  << endmsg;    
+    log << MSG::ERROR << "find owners worked for : " << t << " of type " << ClassID_traits<T>::typeName()  << endreq;    
     return -1; 
   }
   return 0;
@@ -328,7 +324,7 @@ int checkGetFeaturesOnAllTEsOnDistinctTypes(MsgStream& log, Navigation* nav, Tri
   std::vector<TriggerElement*> succ = nav->getDirectSuccessors(te);
   std::vector<TriggerElement*>::iterator i;
   
-  log << MSG::DEBUG << "looping over successors " << succ.size() << endmsg;
+  log << MSG::DEBUG << "looping over successors " << succ.size() << endreq;
   for ( i = succ.begin(); i != succ.end(); ++i ) {
 
     if ( checkGetFeaturesOnAllTEsOnDistinctTypes <T,C>(log, nav, *i, label) != 0 )
@@ -348,7 +344,7 @@ int checkGetFeaturesOnAllTEsOnSameTypes(MsgStream& log, Navigation* nav, Trigger
   std::vector<TriggerElement*> succ = nav->getDirectSuccessors(te);
   std::vector<TriggerElement*>::iterator i;
   
-  log << MSG::DEBUG << "looping over successors " << succ.size() << endmsg;
+  log << MSG::DEBUG << "looping over successors " << succ.size() << endreq;
   for ( i = succ.begin(); i != succ.end(); ++i ) {
 
     if ( checkGetFeaturesOnAllTEsOnSameTypes <T>(log, nav, *i, label) != 0 )
@@ -780,22 +776,6 @@ StatusCode const_attach_test(HLT::Navigation* hns) {
 }
 
 
-StatusCode external_collection_test(HLT::Navigation* hns) {
-  BEGIN_TEST("external_collection test");
-  TestBContainer* dav = new TestBContainer;
-  dav->push_back(new TestB(1));
-  dav->push_back(new TestB(2));
-  
-  if ( pStore->record(dav, "HLT_external").isFailure() )
-    REPORT_AND_STOP("Failed to record in SG");
-
-  hns->associateExternalCollection<TestBContainer>("external");
-  // do it twice to see if it gives warnings
-  hns->associateExternalCollection<TestBContainer>("external");
-  END_TEST;
-}
-
-
 //****************************************************************************************
 int main () {
   using std::cerr;
@@ -819,18 +799,18 @@ int main () {
   msglog = &log;
 
 
-
+  StoreGateSvc* pStore(0);
 
 
   if( pSvcLoc->service("StoreGateSvc", pStore, true).isSuccess() ) {
-    log << MSG::DEBUG << "SG pointer: " << pStore << endmsg;
+    log << MSG::DEBUG << "SG pointer: " << pStore << endreq;
   } else REPORT_AND_STOP( "no SG available" );
 
 
   IToolSvc* toolSvc;
 
   if( pSvcLoc->service("ToolSvc", toolSvc, true).isSuccess()  ) {
-    log << MSG::DEBUG << "ToolSvc pointer: " << toolSvc << endmsg;
+    log << MSG::DEBUG << "ToolSvc pointer: " << toolSvc << endreq;
   } else 
     ABORT ( "no ToolSvc available" );
 
@@ -838,10 +818,10 @@ int main () {
   HLT::Navigation* hns;
   IAlgTool* algTool;
   if ( toolSvc->retrieveTool("HLT::Navigation/Navigation", algTool).isSuccess() ) {
-    log << MSG::DEBUG << "OK navigation tool retrieved" << endmsg;
+    log << MSG::DEBUG << "OK navigation tool retrieved" << endreq;
     hns = dynamic_cast< HLT::Navigation*>(algTool);
     if ( hns ) {
-      log << MSG::DEBUG << "OK navigation casted" << endmsg;    
+      log << MSG::DEBUG << "OK navigation casted" << endreq;    
     } else 
       ABORT( "navigation cast failed" );    
 
@@ -871,12 +851,8 @@ int main () {
   if ( const_attach_test(hns).isFailure() ) {
     ABORT("ConstDV attaching test failed");
   }
-  //  log << MSG::DEBUG << pStore->dump() << endmsg;
-  if ( external_collection_test(hns).isFailure() ) {
-    ABORT("ttest with externaly provided collection failed");
-  }
-
-
+  //  log << MSG::DEBUG << pStore->dump() << endreq;
+  
 
   HLT::Navigation* newhns(0);
   if ( toolSvc->retrieveTool("HLT::Navigation/Navigation2", algTool).isSuccess() ) {

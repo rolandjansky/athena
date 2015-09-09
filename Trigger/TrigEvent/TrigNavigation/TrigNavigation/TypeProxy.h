@@ -4,11 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TypeProxy.h 783046 2016-11-08 17:17:33Z smh $
+// $Id: TypeProxy.h 610936 2014-08-08 14:17:56Z tbold $
 #ifndef TRIGNAVIGATION_TYPEPROXY_H
 #define TRIGNAVIGATION_TYPEPROXY_H
 
-#include <type_traits>
+// Boost include(s):
+#include <boost/type_traits/is_base_of.hpp>
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/ClassID.h"
@@ -35,8 +36,8 @@ namespace HLTNavDetails {
     * @author Tomasz Bold <Tomasz.Bold@cern.ch>
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 783046 $
-    * $Date: 2016-11-08 18:17:33 +0100 (Tue, 08 Nov 2016) $
+    * $Revision: 610936 $
+    * $Date: 2014-08-08 16:17:56 +0200 (Fri, 08 Aug 2014) $
     */
    class ITypeProxy {
 
@@ -56,7 +57,7 @@ namespace HLTNavDetails {
       virtual StatusCode clear( StoreGateSvc* sg ) = 0;
 
       /// @name Cast operations for xAOD decorations
-      /// Actual implementation rely in std::is_base_of to avoid dynamic_cast
+      /// Actual implementation rely in boost::is_base_of to avoid dynamic_cast
       /// @{
 
       /// Return a pointer to the SG::AuxVectorBase base class of the object if
@@ -102,60 +103,9 @@ namespace HLTNavDetails {
       const void* m_pointer; ///< Const pointer to the proxied object
       /// Does the proxied type inherit from SG::AuxVectorBase?
       bool m_isAuxVectorBase;
-     
+
    }; // class ITypeProxy
-  
-  /*
-   *  @short Typeless read-only AuxStore implementation of ITypeProxy
-   *
-   * @author Lukas Heinrich <lukas.heinrich@cern.ch>
-   *
-   */
-  class TypelessAuxProxy : public ITypeProxy {
-  public:
-    
-    virtual StatusCode create(){
-      REPORT_MESSAGE( MSG::ERROR ) << "read-only aux proxy. it can't create new objects" << endmsg;
-      return StatusCode::FAILURE;
-    }
-    virtual StatusCode reg( StoreGateSvc* , const std::string&  ){
-      REPORT_MESSAGE( MSG::ERROR ) << "read-only aux proxy. it can't register new objects to SG" << endmsg;
-      return StatusCode::FAILURE;
-    };
-    virtual StatusCode clear( StoreGateSvc*  ) {
-      REPORT_MESSAGE( MSG::ERROR ) << "read-only aux proxy. it can't delete objects (because it didn't create any)" << endmsg;
-      return StatusCode::FAILURE;
-    };
-    
-    virtual StatusCode sync( StoreGateSvc* sg, const std::string& key ){
-      REPORT_MESSAGE( MSG::INFO ) << "syncing a read-only Aux proxy with key " << key << endmsg;
-      const SG::IAuxStore* aux = nullptr;
-      sg->retrieve(aux,key);
-      if(!aux){
-	REPORT_MESSAGE( MSG::ERROR ) << "syncing of read-only Aux proxy failed" << key << endmsg;
-        return StatusCode::FAILURE;
-      }
-      auto nonconstaux = const_cast<SG::IAuxStore*>(aux);
-      m_ncPointer = nonconstaux;
-      m_pointer = aux;
 
-      REPORT_MESSAGE( MSG::INFO ) << "syncing of read-only Aux proxy succeeded" << key << endmsg;
-
-      return StatusCode::SUCCESS;
-    }
-
-    virtual void syncTypeless(){
-      REPORT_MESSAGE( MSG::ERROR ) << "read-only Aux Proxy, syncing typeless" << endmsg;
-    };
-    
-    virtual ITypeProxy* clone() const{
-      REPORT_MESSAGE( MSG::ERROR ) << "read-only Aux Proxy should be created by direct object creation, not via clone of static instance" << endmsg;
-      return nullptr;
-    };
-
-
-
-  };
 
    /**
     *  @short Type specific implementation of ITypeProxy
@@ -163,8 +113,8 @@ namespace HLTNavDetails {
     * @author Tomasz Bold <Tomasz.Bold@cern.ch>
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 783046 $
-    * $Date: 2016-11-08 18:17:33 +0100 (Tue, 08 Nov 2016) $
+    * $Revision: 610936 $
+    * $Date: 2014-08-08 16:17:56 +0200 (Fri, 08 Aug 2014) $
     */
    template< class T >
    class TypeProxy : public ITypeProxy {
@@ -217,7 +167,7 @@ namespace HLTNavDetails {
       // Set the properties of the base class:
       m_clid = ClassID_traits< T >::ID();
       m_typeName = ClassID_traits< T >::typeName();
-      m_isAuxVectorBase = std::is_base_of< SG::AuxVectorBase, T >::value;
+      m_isAuxVectorBase = boost::is_base_of< SG::AuxVectorBase, T >::value;
    }
 
    /// Constructor pointing to an existing object

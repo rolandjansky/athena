@@ -12,8 +12,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigNavigation/Holder.h"
 #include "TrigNavigation/Holder.icc"
-#include "TrigSerializeCnvSvc/TrigSerializeConverter.h"
-#include "AthContainers/AuxTypeRegistry.h"
 
 #include "TrigNavigation/TriggerElement.h"
 
@@ -22,7 +20,6 @@
 
 using namespace std;
 using namespace HLTNavDetails;
-using namespace TrigNavTest;
 // Hi-lock: (("REPORT_AND_STOP" (0 (quote hi-yellow) t)))
 
 //const int OK=1;
@@ -31,23 +28,20 @@ using namespace TrigNavTest;
 StoreGateSvc* pStore(0);
 
 
-typedef TrigSerializeConverter<TestBContainer> TestBContainerSerCnv;
-typedef TrigSerializeConverter<TestAuxB> TestAuxBSerCnv;
-DECLARE_CONVERTER_FACTORY (TestBContainerSerCnv)
-DECLARE_CONVERTER_FACTORY (TestAuxBSerCnv)
+
+
 
 template<class HTYPE> 
-StatusCode reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typename HTYPE::base_type*& base_holder,
-                IConversionSvc* cnvsvc = nullptr) {
+StatusCode reg( HTYPE* full, const char* name, int idx, ITypeProxy* /*aux*/, typename HTYPE::base_type*& base_holder ) {
   BEGIN_TEST("Registration");
-  IHolder* iholder = full->clone("", name, idx);
+  IHolder* iholder = full->clone(name, idx);
   if ( ! iholder ) REPORT_AND_STOP ("Holder can't create IHolder" );
 
-  base_holder = dynamic_cast<typename HTYPE::base_type*>(iholder); // we do not intend to do it but here it is to see if types really fit
+  base_holder = dynamic_cast<typename HTYPE::base_type*>(iholder); // we do nto intend to do it but here it is to see if types realy fit
   if ( ! base_holder ) REPORT_AND_STOP ("Holder can't create base holder" );
   
 
-  iholder->prepare(msglog, pStore, cnvsvc, false);
+  iholder->prepare(msglog, pStore,0);
   if ( iholder->syncWithSG() == false ) REPORT_AND_STOP( "can not sync wiht holder" );
   
   END_TEST;
@@ -72,7 +66,7 @@ StatusCode creation() {
   REPORT_AND_CONTINUE( "Creation of the holders Object <-> Container" );
   Holder<TestA>* oc(0); 
   if ( reg(new HolderImp<TestA, TestAContainer >(), "creation1", 1, 0, oc).isFailure() ) REPORT_AND_STOP("reg creation1") ;
-
+  
 
   //////////////////////////////////////////////////////////////////
   REPORT_AND_CONTINUE( "Creation of the holders Container <-> Container with details" );
@@ -85,12 +79,6 @@ StatusCode creation() {
   Holder<TestA>* oc_dec(0); 
   if ( reg(new HolderImp<TestA, TestAContainer >(), "creation3", 3, deco, oc_dec).isFailure() ) REPORT_AND_STOP("reg creation3") ;
 
-  Holder<TestBContainerView >* cc_view(0);  
-  if (  reg( new HolderImp<TestBContainerView, TestBContainerView >() , "creation4", 0, 0, cc_view).isFailure() ) REPORT_AND_STOP( "reg creation4" );
-  
-  //  REPORT_AND_CONTINUE( "Creation of the holders ViewObject <-> ViewContainer" );
-  //  Holder<TestB >* cc_view_obj(0);
-  //  if (  reg( new HolderImp<TestB, TestBContainerView >() , "creation0", 0, 0, cc_view_obj).isFailure() ) REPORT_AND_STOP( "reg creation5" );
   END_TEST;
 }
 
@@ -218,134 +206,14 @@ StatusCode serialization() {
 
 
   IHolder::enquireSerialized(it,blob.end(), c, label, idx);
-  *msglog << MSG::DEBUG  << "INFO clid  : " << c << endmsg;  
-  *msglog << MSG::DEBUG  << "INFO STidx : " << idx << endmsg;  
-  *msglog << MSG::DEBUG  << "INFO label : " << label << endmsg;  
+  *msglog << MSG::DEBUG  << "INFO clid  : " << c << endreq;  
+  *msglog << MSG::DEBUG  << "INFO STidx : " << idx << endreq;  
+  *msglog << MSG::DEBUG  << "INFO label : " << label << endreq;  
   if ( label != "blu" || idx != 2 || c != ClassID_traits<TestBContainer>::ID() ) 
     REPORT_AND_STOP ( "serialization or inquire failed" );
   
   END_TEST;
 }
-
-
-//*****************************************************************************
-StatusCode externalCollection() {
-  BEGIN_TEST("externalCollection");
-
-  TestBContainer* dav = new TestBContainer;
-  dav->push_back(new TestB(1));
-  dav->push_back(new TestB(2));
-  
-  if ( pStore->record(dav, "HLT_external").isFailure() )
-    REPORT_AND_STOP("Failed to record in SG");
-  
-  Holder<TestBContainer> *base = new HolderImp<TestBContainer, TestBContainer >();
-  Holder<TestBContainer> *h =   dynamic_cast<Holder<TestBContainer>*>(base->clone("", "external", 77));
-  h->prepare(msglog, pStore,0, false);  
-
-  END_TEST;
-}
-
-
-//*****************************************************************************
-
-StatusCode serialize_xAOD() {
-  BEGIN_TEST("serialize_xAOD");
-  pStore->clearStore().ignore();
-  auto cont = std::make_unique<TestBContainer>();
-  auto store = std::make_unique<TestAuxB>();
-  cont->setStore (store.get());
-
-  static const TestB::Accessor<float> detail ("detail");
-  static const TestB::Accessor<int> dyn ("dyn");
-  static const TestB::Accessor<int> dyn2 ("dyn2");
-  for (unsigned int i=0; i < 10; i++) {
-    auto b = std::make_unique<TestB> (i);
-    cont->push_back (std::move(b));
-    detail(*cont->back()) = 20-i;
-    dyn(*cont->back()) = 20+i;
-    dyn2(*cont->back()) = 200+i;
-  }
-
-  if (pStore->record (std::move(cont), "_TrigNavTest__TestBContainer_testb").isFailure())
-    ABORT ("record");
-  if (pStore->record (std::move(store), "_TrigNavTest__TestBContainer_testbAux.").isFailure())
-    ABORT ("record");
-
-  ServiceHandle<IConversionSvc> serializer ("TrigSerializeCnvSvc",
-                                            "serialize_xAOD");
-  if (serializer.retrieve().isFailure())
-    ABORT ("TrigSerializeCnvSvc");
-
-  Holder<TestBContainer>* cch(0);
-  if ( reg( new HolderImp<TestBContainer, TestBContainer>(), "testb", 2, 0, cch,
-            serializer.get()).isFailure() )
-    REPORT_AND_STOP("It should have failed before");
-  IHolder * realH = cch;
-  std::vector<uint32_t>  blob;
-  size_t payloadSize;
-  xAOD::AuxSelection sel;
-  sel.selectAux (std::set<std::string> {"-dyn2"});
-  realH->serializeWithPayload(sel, blob, payloadSize);
-  delete realH;
-  realH = nullptr;
-  cch = nullptr;
-
-  pStore->clearStore().ignore();
-  if ( reg( new HolderImp<TestBContainer, TestBContainer>(), "testb", 2, 0, cch,
-            serializer.get()).isFailure() )
-    REPORT_AND_STOP("It should have failed before");
-  //IHolder * realH = cch;
-
-  CLID c;
-  uint16_t idx;
-  string label;
-  std::vector<uint32_t>::const_iterator it = blob.begin();
-  IHolder::enquireSerialized(it,blob.end(), c, label, idx);
-  if ( label != "testb" || idx != 2 || c != ClassID_traits<TestBContainer>::ID() ) 
-    REPORT_AND_STOP ( "serialization or inquire failed" );
-  realH = cch;
-
-  const std::vector<uint32_t>& cblob = blob;
-  std::vector<uint32_t> blobpart2(it, cblob.end());
-  realH->deserializePayload (blobpart2, 4);
-
-  if ( !realH->syncWithSG() )
-    REPORT_AND_STOP ( "syncWithSG" );
-
-  const TestBContainer* testb = 0;
-  if (pStore->retrieve (testb, "_TrigNavTest__TestBContainer_testb").isFailure())
-    REPORT_AND_STOP ( "retrieve testb" );
-
-  {
-    std::cout << "testb aux vars:\n";
-    const SG::auxid_set_t& auxids = testb->getAuxIDs();
-    SG::AuxTypeRegistry& reg = SG::AuxTypeRegistry::instance();
-    std::vector<SG::auxid_t> ids (auxids.begin(), auxids.end());
-    std::sort (ids.begin(), ids.end());
-
-    for (SG::auxid_t id : ids) {
-      std::cout << reg.getClassName(id) << "::" << reg.getName(id) << " "
-                << "[" << reg.getTypeName(id) << "]\n";
-    }
-  }
-
-  if (testb->size() != 10)
-    REPORT_AND_STOP ( "testb size" );
-
-  for (int i=0; i < 10; i++) {
-    if ((*testb)[i]->b != i)
-      REPORT_AND_STOP ( "testb content" );
-    if (detail(*(*testb)[i]) != 20-i)
-      REPORT_AND_STOP ( "detail content" );
-    if (dyn(*(*testb)[i]) != 20+i)
-      REPORT_AND_STOP ( "dyn content" );
-  }
-
-  pStore->clearStore().ignore();
-  END_TEST;
-}
-
 //*****************************************************************************
 int main() {
 
@@ -360,7 +228,7 @@ int main() {
    msglog = &log;
 
   if( pSvcLoc->service("StoreGateSvc", pStore, true).isSuccess() ) {
-    *msglog << MSG::DEBUG << "SG pointer: " << pStore << endmsg;
+    *msglog << MSG::DEBUG << "SG pointer: " << pStore << endreq;
   } else {
     ABORT( "ERROR no SG available" );
   }
@@ -369,39 +237,33 @@ int main() {
     ABORT("Holders creation failed");
 
   *msglog << MSG::DEBUG << pStore->dump();
-  *msglog << endmsg;
+  *msglog << endreq;
 
 
 
 
-  pStore->clearStore().ignore();
+  pStore->clearStore();
   if ( add_operation(false).isFailure() )
     ABORT("Failed add_operation w/o Aux");
 
-  pStore->clearStore().ignore();
-  *msglog << MSG::DEBUG << "Holders with decorations "  << endmsg;
+  pStore->clearStore();
+  *msglog << MSG::DEBUG << "Holders with decorations "  << endreq;
   if ( add_operation(true).isFailure() )
     ABORT("Failed add_operation with Aux");
 
-  pStore->clearStore().ignore();
-  *msglog << MSG::DEBUG << "Contains and co. methods "  << endmsg;
+  pStore->clearStore();
+  *msglog << MSG::DEBUG << "Contains and co. methods "  << endreq;
   if ( contains_operations().isFailure() )
     ABORT("Failed contains_operations");
 
 
-  *msglog << MSG::DEBUG << "Serialization "  << endmsg;
+  *msglog << MSG::DEBUG << "Serialization "  << endreq;
   if ( serialization().isFailure() )
     ABORT("Failed serialization");
 
-  *msglog << MSG::DEBUG << "Unique key "  << endmsg;
+  *msglog << MSG::DEBUG << "Unique key "  << endreq;
   if ( getUniqueKeyBeforeReg().isFailure() ) 
     ABORT("UniqueKey failed");
-
-  if ( externalCollection().isFailure() ) 
-    ABORT("Sync to an external collection failed");
-
-  if ( serialize_xAOD().isFailure() )
-    ABORT("Failed serialize_xAOD");
 
   REPORT_AND_CONTINUE( "END all went fine" );
   return 0;

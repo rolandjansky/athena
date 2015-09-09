@@ -27,15 +27,15 @@ StatusCode unit0(const TriggerElement::ObjectIndex& orig, unsigned expSerialized
     REPORT_AND_STOP( "orig ObjIdx serialized has size !=  " << expSerializedSize << " "  << serial.size() );
 
   for ( sIt = serial.begin(); sIt != serial.end(); ++sIt ) {
-    log << MSG::INFO << "serialized word: 0x" << MSG::hex <<  *sIt << MSG::dec << endmsg;
+    log << MSG::INFO << "serialized word: 0x" << MSG::hex <<  *sIt << MSG::dec << endreq;
   }
   sIt = serial.begin();
   deserial.deserialize(sIt);
   
   if ( deserial.isSameOrWithin(&orig) && orig.isSameOrWithin(&deserial)) {
-    log << MSG::INFO << "serialziation works well for orig     " << orig << endmsg;
-    log << MSG::INFO << "original     " << orig << endmsg;
-    log << MSG::INFO << "deserialized " << deserial << endmsg;
+    log << MSG::INFO << "serialziation works well for orig     " << orig << endreq;
+    log << MSG::INFO << "original     " << orig << endreq;
+    log << MSG::INFO << "deserialized " << deserial << endreq;
     
   } else REPORT_AND_STOP( "orig ObjIdx serialization failed " );
 
@@ -58,7 +58,7 @@ int main () {
   MsgStream log(Athena::getMessageSvc(), "TriggerElement_test");
   msglog = &log;
 
-  log << MSG::INFO << "small " << endmsg;
+  log << MSG::INFO << "small " << endreq;
   // test ObjectIndex:
   TriggerElement::ObjectIndex small1(12, 4, 5);
   if ( unit0(small1, 1, log).isFailure() ) 
@@ -79,7 +79,7 @@ int main () {
     ABORT("");
 
 
-  log << MSG::INFO << "huge "  << endmsg;
+  log << MSG::INFO << "huge "  << endreq;
   try {
   TriggerElement::ObjectIndex huge1(12, 65535, 65536);
   if ( unit0(huge1, 3, log).isFailure() )

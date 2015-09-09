@@ -15,14 +15,12 @@
 
 #include "TrigNavigation/TriggerElement.h"
 
-
 #include "TestTypes.h"
 #include "TestUtils.h"
 
 using namespace std;
 using namespace HLTNavDetails;
 using namespace HLT;
-using namespace TrigNavTest;
 // Hi-lock: (("REPORT_AND_STOP" (0 (quote hi-yellow) t)))
 
 //const int OK=1;
@@ -128,39 +126,6 @@ StatusCode firsInsertDecidesPolicy() {
   END_TEST;
 }
 
-StatusCode viewContainerAttachTest() {
-  BEGIN_TEST("testing if the xAOD view container works");
-  TestBContainer *b1 = makeContainer(SG::OWN_ELEMENTS, 2);
-  TestBContainerView* view1 = new TestBContainerView();
-  TestBContainerView* view2 = new TestBContainerView();
-  REPORT_AND_CONTINUE("Objects prepared");
-  view1->push_back(b1->at(0));
-  view1->push_back(b1->at(2)); // i.e. the el of index 1 is missing from the view
-
-  view2->push_back(b1->at(0));
-  view2->push_back(b1->at(1));
-
-  REPORT_AND_CONTINUE("View filled");
-  TriggerElement* te =  makeTE(hns);
-  REPORT_AND_CONTINUE("TE in place - attaching");
-  std::string key_back;
-  bool stat = hns->attachFeature(te, view1, Navigation::ObjectCreatedByNew, key_back, "BView");  
-  if (  stat == false ) {
-    REPORT_AND_STOP("attachFeature failed (for the first view)");
-  }
-  REPORT_AND_CONTINUE("First View attach worked");
-  // another attach ( this is append effectively ) 
-  stat = hns->attachFeature(te, view2, Navigation::ObjectCreatedByNew, key_back, "BView");  
-  if (  stat == false ) {
-    REPORT_AND_STOP("attachFeature failed (for the second view)");
-  }
-  REPORT_AND_CONTINUE("Second View attach worked");
-
-
-  END_TEST;
-}
-
-
 
 
 int main() {
@@ -176,7 +141,7 @@ int main() {
    msglog = &log;
 
   if( pSvcLoc->service("StoreGateSvc", pStore, true).isSuccess() ) {
-    *msglog << MSG::DEBUG << "SG pointer: " << pStore << endmsg;
+    *msglog << MSG::DEBUG << "SG pointer: " << pStore << endreq;
   } else {
     ABORT( "ERROR no SG available" );
   }
@@ -184,7 +149,7 @@ int main() {
   IToolSvc* toolSvc;
 
   if( pSvcLoc->service("ToolSvc", toolSvc, true).isSuccess()  ) {
-    log << MSG::DEBUG << "ToolSvc pointer: " << toolSvc << endmsg;
+    log << MSG::DEBUG << "ToolSvc pointer: " << toolSvc << endreq;
   } else 
     ABORT ( "no ToolSvc available" );
 
@@ -192,10 +157,10 @@ int main() {
 
   IAlgTool* algTool;
   if ( toolSvc->retrieveTool("HLT::Navigation/Navigation", algTool).isSuccess() ) {
-    log << MSG::DEBUG << "OK navigation tool retrieved" << endmsg;
+    log << MSG::DEBUG << "OK navigation tool retrieved" << endreq;
     hns = dynamic_cast< HLT::Navigation*>(algTool);
     if ( hns ) {
-      log << MSG::DEBUG << "OK navigation casted" << endmsg;    
+      log << MSG::DEBUG << "OK navigation casted" << endreq;    
     } else 
       ABORT( "navigation cast failed" );    
 
@@ -211,16 +176,12 @@ int main() {
   
   
 
-  if ( viewContainerAttachTest().isFailure() ) {
-    ABORT("");
-  }
-
 
   REPORT_AND_CONTINUE( "END all went fine" );
   return 0;
 
-  *msglog << MSG::INFO << "SUCCESS " << endmsg;
-  *msglog << MSG::DEBUG << "deleting messages below are related to scope exit " << endmsg;
+  *msglog << MSG::INFO << "SUCCESS " << endreq;
+  *msglog << MSG::DEBUG << "deleting messages below are related to scope exit " << endreq;
   
   return 0;
 }

@@ -3,7 +3,8 @@
 */
 
 #include <stdexcept>
-#include <string>
+#include <boost/lexical_cast.hpp>
+
 #include "TrigNavigation/RoICacheHistory.h"
 
 //-----------------------------------------------------------------------------
@@ -19,7 +20,7 @@ void HLT::RoICacheHistory::addAnswer(const TriggerElement* te, const TriggerElem
     if (  m_current.isValid() ) {
       m_current.addAnswer(te, f);
     } else {
-      throw std::runtime_error("HLT caching problem: " + std::to_string(te->getId()) );
+      throw std::runtime_error("HLT caching problem: " + boost::lexical_cast<std::string>(te->getId()) );
     }
   }
 }
@@ -82,7 +83,6 @@ HLT::RoICacheHistory::FeatureCall::FeatureCall(const TriggerElement* work, const
 //-----------------------------------------------------------------------------
 HLT::RoICacheHistory::FeatureCall::FeatureCall() 
   :m_init(0),
-   m_work(0),
    m_clid(0),
    m_issingle(false),
    m_isget(false) {
@@ -157,9 +157,7 @@ HLT::RoICacheHistory::QuestionScope::~QuestionScope()
 
   // Alway see valid question
   if(!roih.getCurrentFeatureCall().isValid()) {
-    // Can't throw from a dtor in c++11.
-    //throw std::runtime_error("HLT caching problem: logic error in history");
-    std::abort();
+    throw std::runtime_error("HLT caching problem: logic error in history");
   }
 
   // Return out of scope for first call

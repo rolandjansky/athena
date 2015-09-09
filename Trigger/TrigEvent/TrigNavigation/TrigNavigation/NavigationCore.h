@@ -17,9 +17,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-#include "xAODCore/AuxSelection.h"
-#include "AthContainers/OwnershipPolicy.h"
-#include "AthContainers/DataVector.h"
+#include "DataModel/OwnershipPolicy.h"
+#include "DataModel/DataVector.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
@@ -258,17 +257,6 @@ namespace HLT {
      * @param sourcelabel is labels which the object had (useful when calling this routine with empty label)
      **/
 
-
-    virtual bool getFeatureAccessors( const TriggerElement* te, class_id_type clid,
-                                      const index_or_label_type& index_or_label,
-                                      bool only_single_feature,
-                                      TriggerElement::FeatureVec& features,
-                                      bool with_cache_recording,
-                                      bool travel_backward_recursively,
-                                      const TriggerElement*& source = m_unspecifiedTE,
-                                      std::string& sourcelabel  = m_unspecifiedLabel) const;
-    
-
     virtual bool getFeatureAccessorsSingleTE( const TriggerElement* te, CLID clid,
 					      const index_or_label_type& index_or_label,
 					      bool only_single_feature,
@@ -393,16 +381,7 @@ namespace HLT {
 
     ITrigHolderFactory* m_holderfactory;
 
-    struct CSPair
-    {
-      CSPair (CLID clid, const std::string& key, xAOD::AuxSelection&& the_sel)
-        : first (clid), second (key), sel (std::move (the_sel))
-      {
-      }
-      CLID first;
-      std::string second;
-      xAOD::AuxSelection sel;
-    };
+    typedef std::pair<CLID, std::string> CSPair;
 
     std::vector<std::string> m_classesToPayloadProperty;              //!< list of classes#keys to be put to BS payload
     std::vector<CSPair>  m_classesToPayload;   //!< classess are put to payload according to that priority list (CLID + key)

@@ -9,9 +9,9 @@
 #define TrigNavigation_NavigationInit_icc
 
 //#include "GaudiKernel/MsgStream.h"
-#include <type_traits>
+#include <boost/type_traits/is_same.hpp>
 
-#include "AthContainers/ConstDataVector.h"
+#include "DataModel/ConstDataVector.h"
 #include "TrigNavigation/Holder.h"
 #include "TrigNavigation/Holder.icc"
 
@@ -84,19 +84,16 @@ template<typename T>
 struct ConstDVCompatible{
   typedef char yes[2];typedef char no[1];
 
-  // ATR-13318
-  //  template<typename X, X>
-  //  struct Help{
-  //  };
+  template<typename X, X>
+  struct Help{
+  };
 
   template<typename C>
-  //  static auto f(Help<decltype(&C::resize),&C::resize>*) -> yes&;
-  static yes& f(decltype(&C::resize));
+  static auto f(Help<decltype(&C::resize),&C::resize>*) -> yes&;
 
   template<typename C>
-  //  static auto f(...) -> no&;
-  static no& f(...);
-
+  static auto f(...) -> no&;
+  
   static const bool value = sizeof(f<T>(0)) == sizeof(yes);
 };
   
@@ -190,21 +187,16 @@ HLT::FeatureContainerInit<T, C>::FeatureContainerInit() {
 					       Navigation::MemoryManagement, std::string&, const std::string&  );
   temp_attachFeature = &HLT::Navigation::attachFeature<T>;
 
-  __attribute__((__unused__))
-  bool (HLT::Navigation::*temp_associateExternalCollection)( const std::string& );
-  temp_associateExternalCollection = &HLT::Navigation::associateExternalCollection<T>;
-
-
 
   __attribute__((__unused__))
-    typename acquire_attachFeatureConstDV<T, std::is_same<T,C>::value && ConstDVCompatible<T>::value>::type temp_attachFeatureConstDV;
+    typename acquire_attachFeatureConstDV<T, boost::is_same<T,C>::value && ConstDVCompatible<T>::value>::type temp_attachFeatureConstDV;
   temp_attachFeatureConstDV = acquire_attachFeatureConstDV<T,
-							   std::is_same<T,C>::value && 
+							   boost::is_same<T,C>::value && 
 							   ConstDVCompatible<T>::value
 							   >::do_it();
   
-  //  typename acquire_getRecentFeatureConstDV<T, std::is_same<T,C>::value>::type temp_getRecentFeatureConstDV;
-  //  temp_getRecentFeatureConstDV = acquire_getRecentFeatureConstDV<T, std::is_same<T,C>::value>::do_it();
+  //  typename acquire_getRecentFeatureConstDV<T, boost::is_same<T,C>::value>::type temp_getRecentFeatureConstDV;
+  //  temp_getRecentFeatureConstDV = acquire_getRecentFeatureConstDV<T, boost::is_same<T,C>::value>::do_it();
 
 
   //
@@ -223,17 +215,17 @@ HLT::FeatureContainerInit<T, C>::FeatureContainerInit() {
   //const T* (HLT::NavigationCore::*temp_featureLink2Object)( const TrigFeatureLink& ); 
   __attribute__((__unused__))
   typename FeatureLinkMethods<T>::fl2o temp_featureLink2Object;
-  temp_featureLink2Object = acquire_featureLinkToObject<T, std::is_same<T, C>::value>::do_it();//&HLT::NavigationCore::featureLink2Object<T>;
+  temp_featureLink2Object = acquire_featureLinkToObject<T, boost::is_same<T, C>::value>::do_it();//&HLT::NavigationCore::featureLink2Object<T>;
     
   //
   __attribute__((__unused__))
   typename FeatureLinkMethods<T>::o2fl_1 temp_object2FeatureLink;
-  temp_object2FeatureLink = acquire_object2FeatureLink1<T, std::is_same<T, C>::value>::do_it();
+  temp_object2FeatureLink = acquire_object2FeatureLink1<T, boost::is_same<T, C>::value>::do_it();
 
   //
   __attribute__((__unused__))
   typename FeatureLinkMethods2<C>::o2fl_2 temp_object2FeatureLink2;
-  temp_object2FeatureLink2 = acquire_object2FeatureLink2<C, std::is_same<T, C>::value>::do_it();
+  temp_object2FeatureLink2 = acquire_object2FeatureLink2<C, boost::is_same<T, C>::value>::do_it();
 
   //
   __attribute__((__unused__))
@@ -250,8 +242,8 @@ HLT::FeatureContainerInit<T, C>::FeatureContainerInit() {
 
 
   __attribute__((__unused__))
-    typename acquire_getRecentFeatureConstDV<T, std::is_same<T,C>::value and canTransfer<C>::value >::type temp_getRecentFeatureConstDV;
-  temp_getRecentFeatureConstDV = acquire_getRecentFeatureConstDV<T, std::is_same<T,C>::value and canTransfer<C>::value>::do_it();
+    typename acquire_getRecentFeatureConstDV<T, boost::is_same<T,C>::value and canTransfer<C>::value >::type temp_getRecentFeatureConstDV;
+  temp_getRecentFeatureConstDV = acquire_getRecentFeatureConstDV<T, boost::is_same<T,C>::value and canTransfer<C>::value>::do_it();
   
 
   //
@@ -269,7 +261,7 @@ HLT::FeatureContainerInit<T, C>::FeatureContainerInit() {
 
   //getRecentFeatureDataOrElementLink depends on what kind of feature we have
   //therefore we need to outsource to helper
-  instantiate_dataelementlink<C,std::is_same<T,C>::value >::do_it();
+  instantiate_dataelementlink<C,boost::is_same<T,C>::value >::do_it();
 
   //
   __attribute__((__unused__))

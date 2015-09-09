@@ -51,14 +51,14 @@ int main () {
 
 
   if( pSvcLoc->service("StoreGateSvc", pStore, true).isSuccess() ) {
-    log << MSG::DEBUG << "SG pointer: " << pStore << endmsg;
+    log << MSG::DEBUG << "SG pointer: " << pStore << endreq;
   } else 
     ABORT ( "ERROR no SG available" );
   
   IToolSvc* toolSvc;
 
   if( pSvcLoc->service("ToolSvc", toolSvc, true).isSuccess()  ) {
-    log << MSG::DEBUG << "ToolSvc pointer: " << toolSvc << endmsg;
+    log << MSG::DEBUG << "ToolSvc pointer: " << toolSvc << endreq;
   } else 
     ABORT( "ERROR no ToolSvc available" );
 
@@ -66,10 +66,10 @@ int main () {
   HLT::Navigation* hns;
   IAlgTool* algTool;
   if ( toolSvc->retrieveTool("HLT::Navigation/Navigation", algTool).isSuccess() ) {
-    log << MSG::DEBUG << "OK navigation tool retrieved" << endmsg;
+    log << MSG::DEBUG << "OK navigation tool retrieved" << endreq;
     hns = dynamic_cast< HLT::Navigation*>(algTool);
     if ( hns ) {
-      log << MSG::DEBUG << "OK navigation casted" << endmsg;    
+      log << MSG::DEBUG << "OK navigation casted" << endreq;    
     } else 
       ABORT( "ERROR navigation casted" );    
     
@@ -87,16 +87,16 @@ int main () {
   hns->attachFeature(hns->getInitialNode(), c, HLT::Navigation::ObjectCreatedByNew, key);
 
   TrigFeatureLink fl = hns->object2FeatureLink(hns->getInitialNode(), key, c );
-  log << MSG::DEBUG << "fl " << fl.clid() << endmsg;
+  log << MSG::DEBUG << "fl " << fl.clid() << endreq;
   const TestC* c_back = hns->featureLink2Object<TestC>(fl);
   if ( c_back != c ) {
-    log << MSG::ERROR << "failing the TrigFeatureLink get/restore"  << endmsg;
+    log << MSG::ERROR << "failing the TrigFeatureLink get/restore"  << endreq;
   } else {
-    log << MSG::DEBUG << "TrigFeatureLink worked ok" << endmsg;
+    log << MSG::DEBUG << "TrigFeatureLink worked ok" << endreq;
   }
   */
 
-  log << MSG::DEBUG << pStore->dump() << endmsg;
+  log << MSG::DEBUG << pStore->dump() << endreq;
   REPORT_AND_CONTINUE ( "Test finished" );
   return 0;
 }

@@ -8,8 +8,7 @@
 #include "TrigNavigation/NavigationCore.icc"
 
 #include "TrigNavigation/TriggerElement.h" 
-#include "TrigNavigation/AccessProxy.h"
-#include "TrigNavigation/TestTypesB.h"
+#include "TrigNavigation/AccessProxy.h" 
 //#include "TrigNavigation/Holder.h"
 
 struct GCCXML_DUMMY_INSTANTIATION_TRIGNAVIGATION {

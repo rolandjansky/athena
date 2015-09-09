@@ -9,8 +9,8 @@ use  GaudiInterface             GaudiInterface-*                External
 use  CLIDSvc                    CLIDSvc-*                       Control
 use  StoreGate                  StoreGate-*                     Control
 use  SGTools                    SGTools-*                       Control
+use  DataModel                  DataModel-*                     Control
 use  AthContainers              AthContainers-*                 Control
-use  AthLinks                   AthLinks-*                      Control
 use  AthenaKernel               AthenaKernel-*                  Control
 use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  TrigStorageDefinitions     TrigStorageDefinitions-*        Trigger/TrigEvent
@@ -19,7 +19,6 @@ use  AsgTools			AsgTools-*			Control/AthToolSupport
 private
 use  TrigSerializeResult        TrigSerializeResult-*           Trigger/TrigDataAccess
 use  AthContainersInterfaces    AthContainersInterfaces-*       Control
-use  CxxUtils                   CxxUtils-*                      Control
 
 
 public
@@ -35,8 +34,6 @@ use     TrigConfHLTData     TrigConfHLTData-*       Trigger/TrigConfiguration
 use     xAODCore                  xAODCore-*        Event/xAOD # for tests only
 use     TrigSerializeCnvSvc TrigSerializeCnvSvc-*   Trigger/TrigDataAccess
 use     AtlasReflex               AtlasReflex-*          External -no_auto_import
-use     RootUtils           RootUtils-*             Control
-use     AthContainersRoot   AthContainersRoot-*     Control
 
 
 
@@ -45,18 +42,17 @@ use     AthContainersRoot   AthContainersRoot-*     Control
 apply_pattern declare_joboptions files="test.txt navigation2dot.py"
 
 use TestTools      TestTools-*         AtlasTest
-apply_pattern UnitTest_run unit_test=TriggerElement
-apply_pattern UnitTest_run unit_test=Holder extrapatterns="^ClassIDSvc *VERBOSE|added entry for CLID|TStreamerInfo for|no dictionary for class"
-apply_pattern UnitTest_run unit_test=Registration extrapatterns="when retrieved"
+apply_pattern UnitTest_run unit_test=TriggerElement extrapatterns=".*"
+apply_pattern UnitTest_run unit_test=Holder extrapatterns=".*"
+apply_pattern UnitTest_run unit_test=Registration extrapatterns=".*"
 
-apply_pattern UnitTest_run unit_test=Ownership extrapatterns="when retrieved"
+apply_pattern UnitTest_run unit_test=Ownership extrapatterns=".*"
 
-apply_pattern UnitTest_run unit_test=HLTNavigation extrapatterns="when retrieved"
-apply_pattern UnitTest_run unit_test=RoICache extrapatterns="when retrieved"
+apply_pattern UnitTest_run unit_test=HLTNavigation extrapatterns=".*"
+apply_pattern UnitTest_run unit_test=RoICache extrapatterns=".*"
 
 
 
-apply_pattern lcgdict dict=TrigNavigation selectionfile=selection.xml headerfiles="../TrigNavigation/TrigNavigationDict.h" \
-  extralibfiles=../test/dict/*.cxx
 
+apply_pattern lcgdict dict=TrigNavigation selectionfile=selection.xml headerfiles="../TrigNavigation/TrigNavigationDict.h"
 end_private
