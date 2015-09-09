@@ -260,7 +260,7 @@ StatusCode HltROBDataProviderSvc::initialize()
 
   // Setup the StoreGateSvc
   if( (m_storeGateSvc.retrieve()).isFailure() ) {
-    log << MSG::ERROR << "Error retrieving StoreGateSvc "+m_storeGateSvc << endreq;
+    log << MSG::ERROR << "Error retrieving StoreGateSvc " << m_storeGateSvc << endreq;
     m_storeGateSvc.release().ignore();
     return StatusCode::FAILURE;
   }

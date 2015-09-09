@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef GAUDISVC_THISTSVC_ICC
-#define GAUDISVC_THISTSVC_ICC
+#ifndef THISTSVCHLT_ICC
+#define THISTSVCHLT_ICC
 
 #ifndef GAUDIKERNEL_MSGSTREAM_H
  #include "GaudiKernel/MsgStream.h"
@@ -18,7 +18,7 @@
 #include "TFile.h"
 
 template <typename T>
-StatusCode THistSvc::regHist_i(T* hist, const std::string& id) {
+StatusCode THistSvcHLT::regHist_i(T* hist, const std::string& id) {
 
   GlobalDirectoryRestore restore;
 
@@ -143,7 +143,7 @@ StatusCode THistSvc::regHist_i(T* hist, const std::string& id) {
 
 template <typename T>
 StatusCode 
-THistSvc::getHist_i(const std::string& id, T*& hist, bool quiet) const {
+THistSvcHLT::getHist_i(const std::string& id, T*& hist, bool quiet) const {
   // id starts with "/": unique
 
   GlobalDirectoryRestore restore;
@@ -244,7 +244,7 @@ THistSvc::getHist_i(const std::string& id, T*& hist, bool quiet) const {
 
 template <typename T>
 StatusCode
-THistSvc::readHist_i(const std::string& id, T*& hist) const {
+THistSvcHLT::readHist_i(const std::string& id, T*& hist) const {
 
   GlobalDirectoryRestore restore;
 
