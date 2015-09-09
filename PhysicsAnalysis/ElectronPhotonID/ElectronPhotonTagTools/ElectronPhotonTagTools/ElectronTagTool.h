@@ -24,6 +24,7 @@ Purpose : build the Electron Tag objects - ElectronTagCollection.h.
 #include "ElectronPhotonShowerShapeFudgeTool/IElectronPhotonShowerShapeFudgeTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "xAODEventInfo/EventInfo.h"
+#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
 
 #include <map>
 
@@ -91,7 +92,9 @@ private:
   ToolHandle<CP::IIsolationSelectionTool> m_tight_isolation;
   ToolHandle<CP::IIsolationSelectionTool> m_gradient_loose_isolation;
   ToolHandle<CP::IIsolationSelectionTool> m_gradient_isolation;
-  
+
+  /** calib tool */
+  ToolHandle<CP::IEgammaCalibrationAndSmearingTool> m_EgammaCalibrationAndSmearingTool;
   
 };
 

@@ -71,4 +71,6 @@ ElectronTagTool = ConfiguredElectronTagTool(
      GradientLooseIsolation = GradientLooseIsoTool  
      )
 
+ElectronTagTool.EgammaCalibrationAndSmearingTool.ESModel =  "es2015PRE"
+
 ToolSvc += ElectronTagTool
