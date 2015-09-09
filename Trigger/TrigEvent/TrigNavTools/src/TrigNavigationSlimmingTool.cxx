@@ -235,33 +235,31 @@ StatusCode HLT::TrigNavigationSlimmingTool::dropFeatures() {
   //HLT::NavigationCore::FeaturesStructure::const_iterator types_iterator;
   typedef  std::map<uint16_t, HLTNavDetails::IHolder*> HoldersBySubType;
   //std::map<uint16_t, HLTNavDetails::IHolder*>::const_iterator holders_iterator;
-  for( const HLT::NavigationCore::FeaturesStructure::value_type& ftype: m_navigation->m_featuresByIndex ) {
-    for( const HoldersBySubType::value_type& holder: ftype.second ) {
-      HLTNavDetails::IHolder *h = holder.second;
-      if(!h) { // check if h is null
-	ATH_MSG_WARNING("holder.second is null pointer; skipping...");
-	continue;
+  for( auto h : m_navigation->m_holderstorage.getAllHolders<HLTNavDetails::IHolder>() ) {
+    if(!h) { // check if h is null
+      ATH_MSG_WARNING("holder.second is null pointer; skipping...");
+      continue;
+    }
+    //ATH_MSG_VERBOSE("Checking what to do with " 
+    //		      << h->collectionName()+"#"+h->key());
+    // check if this needs to be kept
+    if ( not m_featureKeepSet.empty() ) {
+      if (  m_featureKeepSet.count(h->collectionName())
+	    || m_featureKeepSet.count(h->key()) ) {
+	toRetain.insert(std::make_pair(h->typeClid(), h->subTypeIndex() ));
+	ATH_MSG_DEBUG("will be keeping references associated to: " << h->collectionName()<<"#"<<h->key() << " clid: " << h->typeClid() );
+      } 
+    }
+    // check if this needs to be dropped
+    if ( not m_featureDropSet.empty() ) {
+      if ( m_featureDropSet.count(h->collectionName()) 
+	   || m_featureDropSet.count(h->key()) ) {
+	toDelete.insert(std::make_pair(h->typeClid(), h->subTypeIndex() ));
+	ATH_MSG_DEBUG("will be dropping references associated to: " << h->collectionName()<<"#"<<h->key() );
       }
-      //ATH_MSG_VERBOSE("Checking what to do with " 
-      //		      << h->collectionName()+"#"+h->key());
-      // check if this needs to be kept
-      if ( not m_featureKeepSet.empty() ) {
-	if (  m_featureKeepSet.count(h->collectionName())
-	      || m_featureKeepSet.count(h->key()) ) {
-	  toRetain.insert(std::make_pair(h->typeClid(), h->subTypeIndex() ));
-	  ATH_MSG_DEBUG("will be keeping references associated to: " << h->collectionName()<<"#"<<h->key() << " clid: " << h->typeClid() );
-	} 
-      }
-      // check if this needs to be dropped
-      if ( not m_featureDropSet.empty() ) {
-	if ( m_featureDropSet.count(h->collectionName()) 
-	     || m_featureDropSet.count(h->key()) ) {
-	  toDelete.insert(std::make_pair(h->typeClid(), h->subTypeIndex() ));
-	  ATH_MSG_DEBUG("will be dropping references associated to: " << h->collectionName()<<"#"<<h->key() );
-	}
-      }
-    }     
-  }
+    }
+  }     
+  
 
   if ( not toRetain.empty() )
     return retainFeatures(toRetain);
@@ -819,9 +817,7 @@ namespace {
 
 StatusCode HLT::TrigNavigationSlimmingTool::syncThinning( ) {
   ATH_MSG_DEBUG ( "Running the syncThinning" );
-  for(auto& clidMap: m_navigation->m_featuresByLabel) {
-    for ( auto& labelHolder: clidMap.second ) {
-      auto holder = labelHolder.second;
+  for(auto holder : m_navigation->m_holderstorage.getAllHolders<HLTNavDetails::IHolder>()) {
       holder->syncWithSG();
       auto containerPointer = holder->containerTypeProxy().cptr();
       if ( m_thinningSvc->thinningOccurred(containerPointer)  )  {
@@ -856,8 +852,7 @@ StatusCode HLT::TrigNavigationSlimmingTool::syncThinning( ) {
       else {
 	//	ATH_MSG_DEBUG("Thinning did not occure on the " << * holder );
       }
-    } // overll holders
-  } // over types (CLIDs)
+  } // holder loop
   return StatusCode::SUCCESS;
 }
 
