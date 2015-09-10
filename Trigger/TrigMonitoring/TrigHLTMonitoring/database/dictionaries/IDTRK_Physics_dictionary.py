@@ -3,10 +3,9 @@
 Slice='IDTRK'
 RunType='Physics'
 Recostep='ESD'
-MonitoringTriggers= [ " ",]                        
+MonitoringTriggers= [ "BENS_MADE-UP_TRIGGER_NAME",]
 Config=[]
-Config+= [("HLTIDpvtx", {"OnlineEfficiancyRangeCutY" : 0.02,}), ("HLTIDtrkDump", {"MinSiHits" : 7,}),
-("tidatool", {}), ("MyAtlasExtrapolator", {}), ("MyCaloExtrapolatorTool", {}), ("HLTIDZeeTag", {})
+Config+= [("MyAtlasExtrapolator", {}),
 ]
 PkgName = "TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig"
 CreatorName = "TrigIDtrkMonitoringTool"

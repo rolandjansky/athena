@@ -22,6 +22,20 @@ class doGeneral(JobProperty):
 	StoredValue=True
 list+=[doGeneral]
 
+class doMaM(JobProperty):
+	""" Switch for menu-aware monitoring """
+	statusOn=True
+	allowedTypes=['bool']
+	StoredValue=False
+list+=[doMaM]
+
+class MCK(JobProperty):
+	""" Monitoring Configuration Key (MCK) for menu-aware monitoring """
+	statusOn=True
+	allowedTypes=['int']
+	StoredValue=-1
+list+=[MCK]
+
 class doEgamma(JobProperty):
 	""" Egamma switch for monitoring """
 	statusOn=True
