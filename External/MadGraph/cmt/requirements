@@ -11,7 +11,7 @@ macro MadGraph_home "${SITEROOT}/atlas/offline/external/madgraph" \
         EXTSITE     "${SITEROOT}/madgraph" \
         STANDALONE  "${SITEROOT}/madgraph"
 
-macro MadGraph_native_version "MG5_aMC_v2_2_3_p3"
+macro MadGraph_native_version "MG5_aMC_v2_2_3_p4"
 
 set MADPATH "$(MadGraph_home)/$(MadGraph_native_version)"
 
