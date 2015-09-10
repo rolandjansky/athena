@@ -18,6 +18,18 @@
 
 #include "RodHeaderByteStreamTool.h"
 
+
+namespace {
+bool hasEnding(std::string const &fullString, std::string const &ending) {
+  if (fullString.length() >= ending.length()) {
+      return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
+  } else {
+      return false;
+  }
+}
+}
+
+
 namespace LVL1BS {
 
 // Interface ID
@@ -307,8 +319,8 @@ void RodHeaderByteStreamTool::fillRobIds(const bool all, const int numCrates,
 bool RodHeaderByteStreamTool::isAppended(const std::string& sgKey,
     const std::string& flag) const
 {
-  const std::string::size_type pos = sgKey.find(flag);
-  return (pos != std::string::npos && pos == sgKey.length() - flag.length());
+
+  return ::hasEnding(sgKey, flag) || ::hasEnding(sgKey, flag + "Aux.");
 }
 
 } // end namespace
