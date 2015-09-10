@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HIEVENTSHAPEINDEX_H
-#define HIEVENTSHAPEINDEX_H
+#ifndef __HIEVENTSHAPEINDEX_H__
+#define __HIEVENTSHAPEINDEX_H__
 
 #include "xAODHIEvent/HIEventShapeContainer.h"
 #include "HIEventUtils/HIEventDefs.h"
@@ -48,12 +48,7 @@ private:
 
     range_index_t(float emin, float emax, unsigned int ii) : eta_min(emin), eta_max(emax),index(ii) {};
     range_index_t()=default;
-    bool operator() (float eta) const 
-    {
-      if (eta > this->eta_min && eta < this->eta_max) return true;
-      if(eta==this->eta_min) return true;
-      return false;
-    };
+    bool operator() (float eta) const {return (eta > this->eta_min && eta < this->eta_max);};
     bool operator< (const range_index_t& rhs)  const {return this->eta_min < rhs.eta_min;};
   };
   std::map<int,std::vector<range_index_t> > m_edges;
@@ -65,9 +60,6 @@ private:
   unsigned int getIndex_Internal(float eta, int layer, bool etaIndex) const;
   std::map<int,std::vector<range_index_t> >::const_iterator getLayer(int layer) const;
 
-  inline float roundToTenth(float d) const {return std::floor(d)+std::floor((d-std::floor(d))*10.0+0.5)/10.0;};
-
-  
 
 };
 

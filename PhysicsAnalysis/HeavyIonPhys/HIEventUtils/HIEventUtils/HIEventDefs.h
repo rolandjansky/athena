@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HI_HIEVENTDEFS_H
-#define HI_HIEVENTDEFS_H
+#ifndef __HI_HIEVENTDEFS_H__
+#define __HI_HIEVENTDEFS_H__
 
 #include <utility>
 #include <cmath>

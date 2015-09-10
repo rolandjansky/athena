@@ -10,7 +10,6 @@ use AsgTools            AsgTools-*              Control/AthToolSupport
 use GaudiInterface      GaudiInterface-*        External
 use AtlasPolicy         AtlasPolicy-*
 use xAODHIEvent         xAODHIEvent-*           Event/xAOD
-use xAODForward         xAODForward-*           Event/xAOD
 use AtlasROOT           AtlasROOT-*             External
 use CaloGeoHelpers	CaloGeoHelpers-*	Calorimeter
 

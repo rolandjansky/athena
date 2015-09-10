@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef HICALORANGE_H
-#define HICALORANGE_H
+#ifndef __HICALORANGE_H__
+#define __HICALORANGE_H__
 
 #include "xAODHIEvent/HIEventShapeContainer.h"
 #include "HIEventUtils/HIEventDefs.h"
