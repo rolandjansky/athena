@@ -11,7 +11,6 @@
 #include "MuonLayerEvent/MuonSystemExtension.h"
 #include "MuonLayerEvent/MuonLayerPrepRawData.h"
 #include "MuonLayerEvent/MuonLayerROTs.h"
-#include "TrkParameters/TrackParameters.h"
 
 static const InterfaceID IID_IMuonPRDSelectionTool("Muon::IMuonPRDSelectionTool",1,0);
 
@@ -42,7 +41,6 @@ namespace Muon {
                                                              const MdtPrepData& mdt ) const = 0;
 
     /** IMuonPRDSelectionTool interface:  calibrate and select single cluster */
-    virtual const MuonClusterOnTrack* calibrateAndSelect( const Trk::TrackParameters& pars, const MuonCluster& clus ) const = 0;
     virtual const MuonClusterOnTrack* calibrateAndSelect( const MuonSystemExtension::Intersection& intersection,
                                                           const MuonCluster& clus ) const = 0;
 
