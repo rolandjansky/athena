@@ -110,8 +110,8 @@ void HIEventShapeFillerTool::UpdateShape(xAOD::HIEventShapeContainer* shape, con
 
   xAOD::HIEventShape* slice=index->getShape(eta0,layer,shape);
   //update members
-  slice->setNcells(slice->nCells()+sgn);
-  slice->setEt(slice->Et()+sgn*cell_et*geoWeight);
+  slice->setNCells(slice->nCells()+sgn);
+  slice->setEt(slice->et()+sgn*cell_et*geoWeight);
   float deta=theCell->caloDDE()->deta();
   float dphi=theCell->caloDDE()->dphi();
   float area=std::abs(deta*dphi);
@@ -120,14 +120,14 @@ void HIEventShapeFillerTool::UpdateShape(xAOD::HIEventShapeContainer* shape, con
   slice->setArea(slice->area() + sgn*area*geoWeight);
   slice->setRho(slice->rho() + sgn*rho);
 
-  for(unsigned int ih=0; ih<slice->Et_cos().size(); ih++)
+  for(unsigned int ih=0; ih<slice->etCos().size(); ih++)
   {
     float ih_f=ih+1;
-    float tmp_cos = slice->Et_cos().at(ih);
-    slice->Et_cos()[ih] = tmp_cos + cell_et*cos(ih_f*phi0)*geoWeight;
+    float tmp_cos = slice->etCos().at(ih);
+    slice->etCos()[ih] = tmp_cos + cell_et*cos(ih_f*phi0)*geoWeight;
     
-    float tmp_sin = slice->Et_sin().at(ih);
-    slice->Et_sin()[ih] = tmp_sin + cell_et*sin(ih_f*phi0)*geoWeight;
+    float tmp_sin = slice->etSin().at(ih);
+    slice->etSin()[ih] = tmp_sin + cell_et*sin(ih_f*phi0)*geoWeight;
   }
 }  
 
