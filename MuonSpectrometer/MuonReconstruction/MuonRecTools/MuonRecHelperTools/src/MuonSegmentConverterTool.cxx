@@ -82,9 +82,17 @@ namespace Muon {
 
     // call timing tool and dress xaodSeg
     IMuonHitTimingTool::TimingResult result = m_hitTimingTool->calculateTimingResult(clusters);
-    xaodSeg.auxdata<float>("clusterTime")      = result.time;
-    xaodSeg.auxdata<float>("clusterTimeError") = result.error;
-    xaodSeg.auxdata<int>("clusterTimeValid")   = result.valid;
+    if( std::fabs(result.time)>std::numeric_limits<float>::max() || std::fabs(result.error)>std::numeric_limits<float>::max() ) {
+      // xAOD stores this as a float. To avoid FPE, we need to check here...
+      if( result.valid ) ATH_MSG_WARNING("Unphysical time returned by tool - ignoring. result.valid = "+std::to_string(result.valid));
+      xaodSeg.auxdata<float>("clusterTime")      = std::numeric_limits<float>::max();
+      xaodSeg.auxdata<float>("clusterTimeError") = std::numeric_limits<float>::max();
+      xaodSeg.auxdata<int>("clusterTimeValid")   = 0;
+    } else {
+      xaodSeg.auxdata<float>("clusterTime")      = result.time;
+      xaodSeg.auxdata<float>("clusterTimeError") = result.error;
+      xaodSeg.auxdata<int>("clusterTimeValid")   = result.valid;
+    }
   }
 
 
