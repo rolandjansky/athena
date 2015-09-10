@@ -36,8 +36,8 @@ namespace Analysis {
     declareProperty("usePerigeeParameters", m_usePerigeeParameters = false);
     declareProperty("pTMin", m_pTMin = 1.*Gaudi::Units::GeV);
     declareProperty("usepTDepTrackSel", m_usepTDepTrackSel = false);
-    declareProperty("m_pTMinOffset", m_pTMinOffset);
-    declareProperty("m_pTMinSlope", m_pTMinSlope);
+    declareProperty("pTMinOffset", m_pTMinOffset = 0.);
+    declareProperty("pTMinSlope", m_pTMinSlope = 0.);
     declareProperty("d0Max", m_d0Max = 1.*Gaudi::Units::mm);
     declareProperty("z0Max", m_z0Max = 1.5*Gaudi::Units::mm);
     declareProperty("sigd0Max",m_sigd0Max = 999.*Gaudi::Units::mm);
@@ -74,7 +74,7 @@ namespace Analysis {
   }
 
   StatusCode TrackSelector::initialize() {
-    for(int i=0;i<16;i++) m_ntrc[i]=0;
+    for(int i=0;i<numCuts;i++) m_ntrc[i]=0;
     /** retrieving ToolSvc: */
     IToolSvc* toolSvc;
     StatusCode sc = service("ToolSvc", toolSvc);
@@ -153,7 +153,7 @@ namespace Analysis {
 
   StatusCode TrackSelector::finalize() {
     ATH_MSG_VERBOSE("#BTAG#  tracks selected: In= " << m_ntri);
-    for(int i=0;i<16;i++) ATH_MSG_VERBOSE("#BTAG#  cut" << i << "= " << m_ntrc[i]);
+    for(int i=0;i<numCuts;i++) ATH_MSG_VERBOSE("#BTAG#  cut" << i << "= " << m_ntrc[i]);
     ATH_MSG_VERBOSE("#BTAG#  Out= " << m_ntrf);
     return StatusCode::SUCCESS;
   }
@@ -162,10 +162,6 @@ namespace Analysis {
   bool TrackSelector::selectTrack(const xAOD::TrackParticle* track, double refPt) {
 
     /** for debugging purposes: */
-    enum Cuts { pTMin, d0Max, z0Max, sigd0Max, sigz0Max, etaMax, 
-		nHitBLayer, deadBLayer, nHitPix, nHitSct, nHitSi, nHitTrt, nHitTrtHighE,
-		fitChi2, fitProb,fitChi2OnNdfMax, trackingTightDef,
-		numCuts };
     std::bitset<numCuts> failedCuts;
     
     double trackD0;
@@ -363,7 +359,7 @@ namespace Analysis {
     if( msgLvl(MSG::VERBOSE) ){
       ATH_MSG_VERBOSE("#BTAG#  passedCuts for track ");
       for(int i=0;i<numCuts;i++) {
-	int passl = ~failedCuts[(Cuts)i];
+	int passl = ~failedCuts[(m_Cuts)i];
 	if(passl) m_ntrc[i]++;
 	msg(MSG::VERBOSE) << passl;
       } 

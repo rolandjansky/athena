@@ -117,6 +117,11 @@ namespace Analysis {
 	iss << tmp.data();	//iss << sss.Data();
       }
       
+      m_calibrationTool->storeStr(m_taggerNameBase, alias, m_taggerNameBase+"Calib",iss.str());
+    }
+    
+    if (!m_calibrationTool->updatedTagger(m_taggerNameBase, alias, m_taggerNameBase+"Calib", name()) ) {
+      std::string str = m_calibrationTool->getStr(m_taggerNameBase, alias, m_taggerNameBase+"Calib");
       // now configure the TMVAReader:
       // check if the reader for this tagger needs update
       tmvaReader = new TMVA::Reader();
@@ -124,7 +129,7 @@ namespace Analysis {
       tmvaReader->AddVariable("sv1", &m_sv1);
       tmvaReader->AddVariable("jfc", &m_jfc);
       tmvaReader->AddVariable("categ(pt,eta)", &m_cat);
-      TMVA::IMethod* method= tmvaReader->BookMVA(TMVA::Types::kMLP, iss.str().data() );
+      TMVA::IMethod* method= tmvaReader->BookMVA(TMVA::Types::kMLP, str.data() );//iss.str().data() );
       kl = dynamic_cast<TMVA::MethodBase*>(method);
 
       // add it or overwrite it in the map of readers:
@@ -140,6 +145,8 @@ namespace Analysis {
       }
       m_tmvaReaders.insert( std::make_pair( alias, tmvaReader ) );
       m_tmvaMethod.insert( std::make_pair( alias, kl ) );
+      
+      m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase,alias, m_taggerNameBase+"Calib", false, name());
     }
 
     /* retrieveing weights: */

@@ -34,6 +34,8 @@ private
 use Particle             Particle-*              Reconstruction
 use TrkTrack             TrkTrack-*              Tracking/TrkEvent
 
+use xAODMuon              xAODMuon-*               Event/xAOD
+
 use TrkNeuralNetworkUtils  TrkNeuralNetworkUtils-* Tracking/TrkUtilityPackages
 
 use Navigation           Navigation-*            Control
@@ -45,6 +47,9 @@ use Navigation           Navigation-*            Control
 #use JetEvent             JetEvent-*              Reconstruction/Jet
 #use MuonIDEvent          MuonIDEvent-*           PhysicsAnalysis/MuonID
 use VxVertex             VxVertex-*              Tracking/TrkEvent
+
+use InDetTrackSelectionTool InDetTrackSelectionTool-* InnerDetector/InDetRecTools
+use TrackVertexAssociationTool TrackVertexAssociationTool-* InnerDetector/InDetRecTools
 
 #use JetTagEvent          JetTagEvent-*           PhysicsAnalysis/JetTagging
 use JetTagCalibration    JetTagCalibration-*     PhysicsAnalysis/JetTagging
@@ -102,7 +107,7 @@ macro DOXYGEN_IMAGE_PATH "../doc/images"
 #library JetTagTools *.cxx components/*.cxx
 #library JetTagTools DummyTag.cxx components/*.cxx
 #apply_pattern dual_use_library files="*.cxx"
-apply_pattern dual_use_library files="DummyTag.cxx TrackSelector.cxx HistoHelperRoot.cxx NewLikelihoodTool.cxx BasicTrackGradeFactory.cxx DetailedTrackGradeFactory.cxx GradedTrack.cxx IPTag.cxx JetTagUtils.cxx SVForIPTool.cxx SVTag.cxx JetFitterTag.cxx JetFitterNtupleWriter.cxx JetFitterNNTool.cxx MV1Tag.cxx MV1cTag.cxx MV2Tag.cxx MVbTag.cxx JetFitterVariablesFactory.cxx MSVVariablesFactory.cxx MultiSVTag.cxx" 
+apply_pattern dual_use_library files="DummyTag.cxx TrackSelector.cxx HistoHelperRoot.cxx NewLikelihoodTool.cxx BasicTrackGradeFactory.cxx DetailedTrackGradeFactory.cxx GradedTrack.cxx IPTag.cxx JetTagUtils.cxx SVForIPTool.cxx SVTag.cxx JetFitterTag.cxx JetFitterNtupleWriter.cxx JetFitterNNTool.cxx MV1Tag.cxx MV1cTag.cxx MV2Tag.cxx MVbTag.cxx JetFitterVariablesFactory.cxx MSVVariablesFactory.cxx MultiSVTag.cxx JetVertexCharge.cxx" 
 #apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_runtime files="-s=../share *.root *.txt"
 

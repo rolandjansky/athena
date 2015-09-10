@@ -21,6 +21,9 @@
 
 namespace Reco { class ITrackToVertex; }
 namespace Trk  { class ITrackToVertexIPEstimator; }
+// following two are temporary (to be moved to a separate Tool)
+namespace InDet { class IInDetTrackSelectionTool; }
+namespace CP { class ITrackVertexAssociationTool;}
 
 namespace Analysis { 
 
@@ -74,6 +77,12 @@ namespace Analysis {
       
     /** Track selection cuts for IPTagging */
     ToolHandle< TrackSelector > m_trackSelectorTool;
+
+    /** InDetTrackSelectorTool (temporary: to be moved to a separate Tool) */
+    ToolHandle< InDet::IInDetTrackSelectionTool > m_InDetTrackSelectorTool;
+
+    /** TrackVertex associator (temporary: to be moved to a separate Tool) */
+    ToolHandle< CP::ITrackVertexAssociationTool > m_TightTrackVertexAssociationTool;
       
     /** Pointer to the likelihood tool. */
     ToolHandle< NewLikelihoodTool > m_likelihoodTool;

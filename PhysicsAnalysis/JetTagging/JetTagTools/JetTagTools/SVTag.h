@@ -83,6 +83,7 @@ namespace Analysis
       int m_nljet;
 
       bool m_useCHypo;
+      bool m_usePtSV2;
 
       std::vector<std::string> m_jetCollectionList;
       std::vector<std::string> m_hypotheses;

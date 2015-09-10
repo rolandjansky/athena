@@ -44,6 +44,7 @@ namespace Analysis {
     declareProperty("MV2CalibAlias", m_MV2CalibAlias = "AntiKt4TopoEM");
     // global configuration:
     declareProperty("Runmodus", m_runModus);
+    declareProperty("DecorateMvaInputs", m_decorateBTaggingObj=false);
     // to change input weights:
     declareProperty("inputSV0SourceName", m_sv0_infosource = "SV0");
     declareProperty("inputSV1SourceName", m_sv1_infosource = "SV1");
@@ -51,11 +52,12 @@ namespace Analysis {
     declareProperty("inputIP3DSourceName", m_ip3d_infosource = "IP3D");
     declareProperty("inputJFSourceName", m_jftNN_infosource = "JetFitter");
     declareProperty("inputJFProbSourceName", m_jfprob_infosource = "JetFitterCombNN");
-    declareProperty("xAODBaseName",      m_xAODBaseName);
+    declareProperty("xAODBaseName",      m_xAODBaseName);//"MV2c20" or etc.
     // which calibration folder to use 
     declareProperty("taggerNameBase", m_taggerNameBase = "MV2");
     declareProperty("taggerName", m_taggerName = "MV2");
-
+    declareProperty("decTagName", m_decTagName = "MV2_inputs");
+    
     declareProperty("trainingConfig", m_trainingConfig = "Default");//unused flag, now only to keep backward compatibility
 
     /// and this what was used before the flip (comfigure from python now)
@@ -156,6 +158,7 @@ namespace Analysis {
     TMVA::MethodBase * kl=0;        std::map<std::string, TMVA::MethodBase*>::iterator it_mb;
     egammaMVACalibNmsp::BDT *bdt=0; std::map<std::string, egammaMVACalibNmsp::BDT*>::iterator it_egammaBDT;
     
+    /*KM: Retrieval of objects from the calibration file and store it back in the calibration broker temporarily*/
     if(calibHasChanged) {
       ATH_MSG_DEBUG("#BTAG# " << m_taggerNameBase << " calib updated -> try to retrieve");
       if(!calib.first) {
@@ -177,9 +180,7 @@ namespace Analysis {
 
       //const std::string treeName  ="BDT";
       //const std::string varStrName="variables";
-      std::vector<float*>  inputPointers; inputPointers.clear();
       std::vector<std::string> inputVars; inputVars.clear();
-      unsigned nConfgVar=0,calibNvars=0; bool badVariableFound=false;
 
       if (!m_useEgammaMethodMV2) {
 	ATH_MSG_INFO("#BTAG# Booking TMVA::Reader for "<<m_taggerNameBase);
@@ -195,11 +196,7 @@ namespace Analysis {
 	  //std::cout<<tmp<<std::endl;
 	  iss << tmp.data();
 	  if (tmp.find("<Variable")!=std::string::npos ) {
-	    if ( tmp.find("Variables NVar")!=std::string::npos ) {
-	      std::string newString=tmp.substr(tmp.find("\"")+1,tmp.find("\" ")-(tmp.find("\"")+1));
-	      calibNvars=stoi(newString);
-	    }
-	    else if ( tmp.find("Variable VarIndex")!=std::string::npos ) {
+	    if ( tmp.find("Variable VarIndex")!=std::string::npos ) {
 	      std::string varIndex  =tmp.substr(tmp.find("=\"")+2, tmp.find("\" ")-(tmp.find("=\"")+2));
 	      std::string tmpVar  = tmp.erase(0,tmp.find("Expression=\"")+12);
 	      std::string varExpress=tmp.substr(0, tmp.find("\""));
@@ -211,7 +208,54 @@ namespace Analysis {
 	  //   nClasses =stoi(newString);
 	  // }
 	}
+	m_calibrationTool->storeCalib(m_taggerNameBase, alias, m_taggerNameBase+"Calib", inputVars, iss.str(), 0);
 
+	iss.clear();
+      }
+      else {//if m_useEgammaMethodMV2
+	std::pair<TObject*, bool> calibTree=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_treeName);
+	std::pair<TObject*, bool> calibVariables=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_varStrName);
+	TTree *tree = (TTree*) calibTree.first;
+	TObjArray* toa= (TObjArray*) calibVariables.first;
+	std::string commaSepVars="";
+	if (toa) {
+	  TObjString *tos= 0;
+	  if (toa->GetEntries()>0) tos= (TObjString*) toa->At(0);
+	  commaSepVars=tos->GetString().Data();
+	}
+
+	//prepare inputVars
+	while (commaSepVars.find(",")!=-1) {
+	  inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(",")));
+	  commaSepVars.erase(0,commaSepVars.find(",")+1);
+	}
+	inputVars.push_back(commaSepVars.substr(0,-1));
+
+	m_calibrationTool->storeCalib(m_taggerNameBase, alias, m_taggerNameBase+"Calib", inputVars, "", tree);
+      }
+    }//calibHasChanged
+
+    /*KM: Get back the calib objects from calibration broker*/
+    if (!m_calibrationTool->updatedTagger(m_taggerNameBase, alias, m_taggerNameBase+"Calib", name()) ) {
+      std::vector<float*>  inputPointers; inputPointers.clear();
+      unsigned nConfgVar=0; bool badVariableFound=false;
+
+      CalibrationBroker::calibMV2 calib = m_calibrationTool->getCalib(m_taggerNameBase, alias, m_taggerNameBase+"Calib");
+      std::vector<std::string> inputVars = calib.inputVars;
+      std::string str = calib.str;
+      TTree* tree = calib.obj!=0 ? (TTree*) calib.obj->Clone() : 0;
+
+      if      (str=="" and tree!=0) {	m_useEgammaMethodMV2=true;        }
+      else if (str!="" and tree==0) {	m_useEgammaMethodMV2=false;       }
+      else{
+	ATH_MSG_WARNING("#BTAG# Unrecognized MV2 configuration disabling the algorithm..." );
+	m_disableAlgo=true;
+	return StatusCode::SUCCESS;	
+      }
+
+      ATH_MSG_WARNING("#BTAG# MV2 m_useEgammaMethodMV2= "<<m_useEgammaMethodMV2 );
+
+      if (!m_useEgammaMethodMV2) {
 	// now configure the TMVAReaders:
 	/// check if the reader for this tagger needs update
 	tmvaReader = new TMVA::Reader();
@@ -220,14 +264,14 @@ namespace Analysis {
 	ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
 		      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<inputPointers.size() );
 
-	if ( calibNvars!=nConfgVar or badVariableFound ) {
-	  ATH_MSG_WARNING("#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << calibNvars << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
+	if ( inputVars.size()!=nConfgVar or badVariableFound ) {
+	  ATH_MSG_WARNING("#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
 	  m_disableAlgo=true;
 	  return StatusCode::SUCCESS;	
 	}
 
 	//tmvaReader->BookMVA("BDT", xmlFileName);
-	TMVA::IMethod* method= tmvaReader->BookMVA(TMVA::Types::kBDT, iss.str().data() );
+	TMVA::IMethod* method= tmvaReader->BookMVA(TMVA::Types::kBDT, str.data() );
 	kl = dynamic_cast<TMVA::MethodBase*>(method);
 
 	if (m_writeRootFile) {//KM: just for developpers
@@ -265,15 +309,12 @@ namespace Analysis {
 	}
 	m_tmvaMethod.insert( std::make_pair( alias, kl ) );
 
-	iss.clear();
       }
       else {//if m_useEgammaMethodMV2
 	ATH_MSG_INFO("#BTAG# Booking egammaMVACalibNmsp::BDT for "<<m_taggerNameBase);
 
 	// TDirectoryFile* f= (TDirectoryFile*)calib.first;
 	// TTree *tree = (TTree*) f->Get(treeName.data());
-	std::pair<TObject*, bool> calibTree=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_treeName);
-	TTree *tree = (TTree*) calibTree.first;
 	
 	if (tree) {
 	  bdt = new egammaMVACalibNmsp:: BDT(tree);
@@ -285,28 +326,12 @@ namespace Analysis {
 	  return StatusCode::SUCCESS;
 	}
 	
-	// TObjArray* toa= (TObjArray*) f->Get(varStrName.data());
-	std::pair<TObject*, bool> calibVariables=m_calibrationTool->retrieveTObject<TObject>(m_taggerNameBase,author,m_taggerNameBase+"Calib/"+m_varStrName);
-	TObjArray* toa= (TObjArray*) calibVariables.first;
-	std::string commaSepVars="";
-	if (toa) {
-	  TObjString *tos= 0;
-	  if (toa->GetEntries()>0) tos= (TObjString*) toa->At(0);
-	  commaSepVars=tos->GetString().Data();
-	}
-
-	while (commaSepVars.find(",")!=-1) {
-	  inputVars.push_back(commaSepVars.substr(0,commaSepVars.find(","))); calibNvars++;
-	  commaSepVars.erase(0,commaSepVars.find(",")+1);
-	}
-	inputVars.push_back(commaSepVars.substr(0,-1)); calibNvars++;
-
 	SetVariableRefs(inputVars,tmvaReader,nConfgVar,badVariableFound,inputPointers);
 	ATH_MSG_DEBUG("#BTAG# tmvaReader= "<<tmvaReader          <<", nConfgVar"<<nConfgVar
 		      <<", badVariableFound= "<<badVariableFound <<", inputPointers.size()= "<<inputPointers.size() );
 
-	if ( calibNvars!=nConfgVar or badVariableFound ) {
-	  ATH_MSG_WARNING( "#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << calibNvars << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
+	if ( inputVars.size()!=nConfgVar or badVariableFound ) {
+	  ATH_MSG_WARNING( "#BTAG# Number of expected variables for MVA: "<< nConfgVar << "  does not match the number of variables found in the calibration file: " << inputVars.size() << " ... the algorithm will be 'disabled' "<<alias<<" "<<author);
 	  m_disableAlgo=true;
 	  return StatusCode::SUCCESS;
 	}
@@ -321,7 +346,8 @@ namespace Analysis {
 	m_egammaBDTs.insert( std::make_pair( alias, bdt ) );
 
       }
-    }//calibHasChanged
+      m_calibrationTool->updateHistogramStatusPerTagger(m_taggerNameBase,alias, m_taggerNameBase+"Calib", false, name());
+    }
 
     // #2: Set necessary input variables
     //KM: Preparation of MVA instance over here, below should be put in some function like setInputVariables(myJet,BTag);
@@ -332,6 +358,15 @@ namespace Analysis {
     m_pt     = myJet.pt();
     m_absEta = fabs(myJet.eta());
 
+    m_trkSum_ntrk   = BTag->isAvailable<unsigned>("trkSum_ntrk") ? BTag->auxdata<unsigned>("trkSum_ntrk") : -1;
+    m_trkSum_sPt    = BTag->isAvailable<float   >("trkSum_SPt" ) ? BTag->auxdata<float   >("trkSum_SPt" ) : -1000;//<== -1 GeV
+    m_trkSum_vPt    = 0;
+    m_trkSum_vAbsEta= -10;
+    if (m_trkSum_ntrk>0) {
+      m_trkSum_vPt    = BTag->isAvailable<float>("trkSum_VPt" ) ?      BTag->auxdata<float>("trkSum_VPt" )  : -1000;
+      m_trkSum_vAbsEta= BTag->isAvailable<float>("trkSum_VEta") ? fabs(BTag->auxdata<float>("trkSum_VEta")) : -10  ;
+    }
+    
     ClearInputs();// VD: make sure that we initialize all variables  
     // these variable are not alwasy defined -> make sure to use always the same default when training
     // can rely on xAOD default at some point but not necessary the best way in case this is not set explicitly or set to a value which is desired in BDTs
@@ -339,61 +374,69 @@ namespace Analysis {
     TVector3 v3_jet(myJet.px(),myJet.py(),myJet.pz());
 
     ///// TMVA does not accept double or int -> use doubles to get xAOD-double info and copy to float
-    double sv0=-1;
-    double ip2_pb=-1;
-    double ip2_pc=-1;
-    double ip2_pu=-1;
-    double ip3_pb=-1;
-    double ip3_pc=-1;
-    double ip3_pu=-1;
-    double sv1_pb=-1;
-    double sv1_pc=-1;
-    double sv1_pu=-1;
-    double jfc_pb=-1;
-    double jfc_pc=-1;
-    double jfc_pu=-1;
-
-    int jf_nvtx   = -1;
-    int jf_nvtx1t = -1;
-    int jf_ntrkv  = -1;
-    int jf_n2tv   = -1;
-    int sv0_n2t   = -1;
-    int sv0_ntkv  = -1;
-    int sv1_n2t   = -1;
-    int sv1_ntkv  = -1;
+    double ip2_pb=-1, ip2_pc=-1, ip2_pu=-1;
+    double ip3_pb=-1, ip3_pc=-1, ip3_pu=-1;
+    double sv1_pb=-1, sv1_pc=-1, sv1_pu=-1;
+    double jfc_pb=-1, jfc_pc=-1, jfc_pu=-1;
 
     bool status = true;
 
-    status &= BTag->variable<double>(m_ip2d_infosource, "pu", ip2_pu);
-    status &= BTag->variable<double>(m_ip2d_infosource, "pb", ip2_pb);
-    status &= BTag->variable<double>(m_ip2d_infosource, "pc", ip2_pc);
-    m_ip2=BTag->IP2D_loglikelihoodratio();
-
-    if("IP3D"==m_ip3d_infosource){
-      ip3_pb=BTag->IP3D_pb();
-      ip3_pu=BTag->IP3D_pu();
-      ip3_pc=BTag->IP3D_pc();
-    } 
-    else {
-      status &= BTag->variable<double>(m_ip3d_infosource, "pu", ip3_pu);
-      status &= BTag->variable<double>(m_ip3d_infosource, "pb", ip3_pb);
-      status &= BTag->variable<double>(m_ip3d_infosource, "pc", ip3_pc);
+    /*** Accessing IP2D variables ***/
+    std::vector<float> weightBofTracksIP2D;
+    BTag->variable<std::vector<float> >(m_ip2d_infosource, "weightBofTracks", weightBofTracksIP2D);
+    int ntrk_ip2= weightBofTracksIP2D.size();
+    if(ntrk_ip2>0) {
+      if("IP2D"==m_ip2d_infosource){
+	ip2_pb=BTag->IP2D_pb();
+	ip2_pu=BTag->IP2D_pu();
+	ip2_pc=BTag->IP2D_pc();
+      }
+      else{
+	status &= BTag->variable<double>(m_ip2d_infosource, "pu", ip2_pu);
+	status &= BTag->variable<double>(m_ip2d_infosource, "pb", ip2_pb);
+	status &= BTag->variable<double>(m_ip2d_infosource, "pc", ip2_pc);
+      }
+      m_ip2   =BTag->calcLLR(ip2_pb,ip2_pu);
+      m_ip2_c =BTag->calcLLR(ip2_pb,ip2_pc);
+      m_ip2_cu=BTag->calcLLR(ip2_pc,ip2_pu);
     }
-    m_ip3=BTag->calcLLR(ip3_pb,ip3_pu);
 
+    /*** Accessing IP3D variables ***/
+    std::vector<float> weightBofTracksIP3D;
+    BTag->variable<std::vector<float> >(m_ip3d_infosource, "weightBofTracks", weightBofTracksIP3D);
+    int ntrk_ip3= weightBofTracksIP3D.size();
+    if(ntrk_ip3>0) {
+      if("IP3D"==m_ip3d_infosource){
+	ip3_pb=BTag->IP3D_pb();
+	ip3_pu=BTag->IP3D_pu();
+	ip3_pc=BTag->IP3D_pc();
+      } 
+      else {
+	status &= BTag->variable<double>(m_ip3d_infosource, "pu", ip3_pu);
+	status &= BTag->variable<double>(m_ip3d_infosource, "pb", ip3_pb);
+	status &= BTag->variable<double>(m_ip3d_infosource, "pc", ip3_pc);
+      }
+      m_ip3   =BTag->calcLLR(ip3_pb,ip3_pu);
+      m_ip3_c =BTag->calcLLR(ip3_pb,ip3_pc);
+      m_ip3_cu=BTag->calcLLR(ip3_pc,ip3_pu);
+    }
 
+    /*** Accessing SV1 output variables ***/
     if("SV1"==m_sv1_infosource){
       sv1_pb=BTag->SV1_pb();
       sv1_pu=BTag->SV1_pu();
       sv1_pc=BTag->SV1_pc();
     } 
     else {
-      status &= BTag->variable<double>(m_sv1_infosource, "pu", sv1_pu);
-      status &= BTag->variable<double>(m_sv1_infosource, "pb", sv1_pb);
-      status &= BTag->variable<double>(m_sv1_infosource, "pc", sv1_pc);
+      BTag->variable<double>(m_sv1_infosource, "pu", sv1_pu);
+      BTag->variable<double>(m_sv1_infosource, "pb", sv1_pb);
+      BTag->variable<double>(m_sv1_infosource, "pc", sv1_pc);
     }
-    m_sv1=BTag->calcLLR(sv1_pb,sv1_pu);
+    m_sv1    = BTag->calcLLR(sv1_pb,sv1_pu);
+    m_sv1_c  = BTag->calcLLR(sv1_pb,sv1_pc);
+    m_sv1_cu = BTag->calcLLR(sv1_pc,sv1_pu);
 
+    /*** Accessing JetFitter output variables ***/
     if("JetFitterCombNN"==m_jfprob_infosource){
       jfc_pb=BTag->JetFitterCombNN_pb();
       jfc_pu=BTag->JetFitterCombNN_pu();
@@ -405,40 +448,42 @@ namespace Analysis {
       jfc_pc=BTag->JetFitter_pc();
     } 
     else {
-      status &= BTag->variable<double>(m_jfprob_infosource, "pu", jfc_pu);
-      status &= BTag->variable<double>(m_jfprob_infosource, "pb", jfc_pb);
-      status &= BTag->variable<double>(m_jfprob_infosource, "pc", jfc_pc);
+      BTag->variable<double>(m_jfprob_infosource, "pu", jfc_pu);
+      BTag->variable<double>(m_jfprob_infosource, "pb", jfc_pb);
+      BTag->variable<double>(m_jfprob_infosource, "pc", jfc_pc);
     }
-   
-    status &= BTag->variable<double>(m_sv0_infosource, "significance3D", sv0);
-    if (!status) ATH_MSG_WARNING("#BTAG# error after reading SV0 significance information");
-
+    
+    /*** Accessing SV0 variables ***/    
     bool sv0OK=false;
     std::vector< ElementLink< xAOD::VertexContainer > > myVertices;
     // don't check the following status
     BTag->variable<std::vector<ElementLink<xAOD::VertexContainer> > >(m_sv0_infosource, "vertices", myVertices);
-    if (myVertices.size()>0 && myVertices[0].isValid()){
-      //const xAOD::Vertex* firstVertex = *(myVertices[0]);//unused
-      sv0OK=true;
-    }
+    if (myVertices.size()>0 && myVertices[0].isValid()){      sv0OK=true;    }
 
     if(sv0OK){
+      int sv0_n2t= -1, sv0_ntkv= -1;
       if ("SV0" == m_sv0_infosource){
-	status &= BTag->taggerInfo(m_sv0_mass, xAOD::BTagInfo::SV0_masssvx);
-	status &= BTag->taggerInfo(m_sv0_efrc, xAOD::BTagInfo::SV0_efracsvx);
-	status &= BTag->taggerInfo(sv0_n2t, xAOD::BTagInfo::SV0_N2Tpair);
-	status &= BTag->taggerInfo(sv0_ntkv, xAOD::BTagInfo::SV0_NGTinSvx);
+	BTag->taggerInfo(m_sv0_mass, xAOD::BTagInfo::SV0_masssvx);
+	BTag->taggerInfo(m_sv0_efrc, xAOD::BTagInfo::SV0_efracsvx);
+	BTag->taggerInfo(sv0_n2t, xAOD::BTagInfo::SV0_N2Tpair);
+	BTag->taggerInfo(sv0_ntkv, xAOD::BTagInfo::SV0_NGTinSvx);
+	BTag->taggerInfo(m_sv0, xAOD::BTagInfo::SV0_normdist);
       }
       else{
-	status &= BTag->variable<float>(m_sv0_infosource, "masssvx", m_sv0_mass);
-	status &= BTag->variable<float>(m_sv0_infosource, "efracsvx", m_sv0_efrc);
-	status &= BTag->variable<int>(m_sv0_infosource, "N2Tpair", sv0_n2t);
-	status &= BTag->variable<int>(m_sv0_infosource, "NGTinSvx", sv0_ntkv);
+	double sv0=-1;
+	BTag->variable<float>(m_sv0_infosource, "masssvx", m_sv0_mass);
+	BTag->variable<float>(m_sv0_infosource, "efracsvx", m_sv0_efrc);
+	BTag->variable<int>(m_sv0_infosource, "N2Tpair", sv0_n2t);
+	BTag->variable<int>(m_sv0_infosource, "NGTinSvx", sv0_ntkv);
+	BTag->variable<double>(m_sv0_infosource, "significance3D", sv0);
+	m_sv0 = sv0;
       }
+      m_sv0_n2t   = sv0_n2t;
+      m_sv0_ntkv  = sv0_ntkv;
       if ( m_trainingConfig=="Default" ) m_sv0_mass/=1000.;
     }
 
-    //Accessing primary vertex information
+    /*** Accessing primary vertex information ***/
     float pv_x=0, pv_y=0, pv_z=0;
     if(m_priVtx) {
       pv_x=m_priVtx->x();
@@ -449,6 +494,7 @@ namespace Analysis {
       ATH_MSG_WARNING("#BTAG# MV2 cannot access primary vertex, PV is set as (0,0,0).");
     }
     
+    /*** Accessing SV1 variables ***/        
     bool sv1OK=false;
     std::vector< ElementLink< xAOD::VertexContainer > > myVertices1;
     // don't check the following status
@@ -460,41 +506,47 @@ namespace Analysis {
       float dy = firstVertex->y() - pv_y;
       float dz = firstVertex->z() - pv_z;
       
-      TVector3 v3_PvSv(dx,dy,dz);
+      TVector3 v3_PvSv; v3_PvSv.SetXYZ(dx,dy,dz);
       m_sv1_dR = v3_PvSv.DeltaR(v3_jet);
-
-      m_sv1_Lxy= sqrt( pow(dx,2) + pow(dy,2) );
-      m_sv1_L3d= sqrt( pow(dx,2) + pow(dy,2) + pow(dz,2) );
-
+      m_sv1_Lxy= sqrt(v3_PvSv.Perp2());
+      m_sv1_L3d= v3_PvSv.Mag();
+      
       //ATH_MSG_WARNING("#BTAG# MV2 sv1_Lxy, sv1_L3d= "<<m_sv1_Lxy<<"\t"<<m_sv1_L3d);
       sv1OK=true;
     }
 
     if(sv1OK){
+      int sv1_n2t= -1, sv1_ntkv= -1;
       if ("SV1" == m_sv1_infosource){
 	status &= BTag->taggerInfo(m_sv1_mass, xAOD::BTagInfo::SV1_masssvx);
 	status &= BTag->taggerInfo(m_sv1_efrc, xAOD::BTagInfo::SV1_efracsvx);
 	status &= BTag->taggerInfo(sv1_n2t   , xAOD::BTagInfo::SV1_N2Tpair);
 	status &= BTag->taggerInfo(sv1_ntkv  , xAOD::BTagInfo::SV1_NGTinSvx);
-	status &= BTag->variable<float>(m_sv1_infosource, "significance3d" , m_sv1_sig3);
+	status &= BTag->taggerInfo(m_sv1_sig3, xAOD::BTagInfo::SV1_normdist);
       }
       else{
 	status &= BTag->variable<float>(m_sv1_infosource, "masssvx" , m_sv1_mass);
 	status &= BTag->variable<float>(m_sv1_infosource, "efracsvx", m_sv1_efrc);
 	status &= BTag->variable<int>(m_sv1_infosource  , "N2Tpair" , sv1_n2t);
 	status &= BTag->variable<int>(m_sv1_infosource  , "NGTinSvx", sv1_ntkv);
-	status &= BTag->variable<float>(m_sv1_infosource, "significance3d" , m_sv1_sig3);
+	status &= BTag->variable<float>(m_sv1_infosource, "normdist" , m_sv1_sig3);
       }
+      m_sv1_n2t   = sv1_n2t;
+      m_sv1_ntkv  = sv1_ntkv;
     }
 
-    int jf_nvtx_tmp=0;
-    int jf_nvtx1t_tmp=0;
-    bool jfitok=true; 
-    jfitok &= BTag->variable<int>(m_jftNN_infosource, "nVTX", jf_nvtx_tmp); 
-    jfitok &= BTag->variable<int>(m_jftNN_infosource, "nSingleTracks",  jf_nvtx1t_tmp); 
-    jfitok &= jf_nvtx_tmp>0 or jf_nvtx1t_tmp>0;
-
+    /*** Accessing JetFitter variables ***/        
+    bool jfitok=false;
+    std::vector< ElementLink< xAOD::BTagVertexContainer > > myVerticesJF;
+    // don't check the following status
+    BTag->variable<std::vector<ElementLink<xAOD::BTagVertexContainer> > >(m_jftNN_infosource, "JFvertices", myVerticesJF);
+    if (myVerticesJF.size()>0 and myVerticesJF[0].isValid()) {      jfitok=true;    }
+    int jf_nvtx_tmp=0;   m_jftNN_infosource=="JetFitter"? BTag->taggerInfo(jf_nvtx_tmp  , xAOD::BTagInfo::JetFitter_nVTX)         : BTag->variable<int>(m_jftNN_infosource, "nVTX"         , jf_nvtx_tmp  );
+    int jf_nvtx1t_tmp=0; m_jftNN_infosource=="JetFitter"? BTag->taggerInfo(jf_nvtx1t_tmp, xAOD::BTagInfo::JetFitter_nSingleTracks): BTag->variable<int>(m_jftNN_infosource, "nSingleTracks", jf_nvtx1t_tmp);
+    jfitok &= jf_nvtx_tmp + jf_nvtx1t_tmp > 0;
+    
     if(jfitok){
+      int jf_nvtx= -1, jf_nvtx1t= -1, jf_ntrkv= -1, jf_n2tv= -1;
       if("JetFitter" == m_jftNN_infosource){
 	status &= BTag->taggerInfo(jf_nvtx, xAOD::BTagInfo::JetFitter_nVTX);
 	status &= BTag->taggerInfo(jf_nvtx1t, xAOD::BTagInfo::JetFitter_nSingleTracks);
@@ -519,71 +571,124 @@ namespace Analysis {
 	// don't check the following status
 	BTag->variable<int>(m_jftNN_infosource, "N2Tpair", jf_n2tv);
       }
-    }
-    
-    if (!status) {
-      ATH_MSG_WARNING("#BTAG# Missing input data: cannot compute desired results. Assigning default light values."); 
- 	 
-      double defaultB=1e-10; 
-      double defaultC=1e-10; 
-      double defaultL=1.-defaultB-defaultC; 
-
-      if(m_runModus=="analysis") { 
-        if (m_taggerNameBase.find("MV2c")!=-1) BTag->setVariable<double>(m_xAODBaseName, "discriminant", -1); 
-        else { 
-          BTag->setVariable<double>(m_xAODBaseName, "pb", defaultB); 
-          BTag->setVariable<double>(m_xAODBaseName, "pu", defaultL); 
-          BTag->setVariable<double>(m_xAODBaseName, "pc", defaultC); 
-        } 
-      } 
- 
-      return StatusCode::SUCCESS; 
+      m_jf_nvtx   = jf_nvtx;
+      m_jf_nvtx1t = jf_nvtx1t;
+      m_jf_ntrkv  = jf_ntrkv;
+      m_jf_n2tv   = jf_n2tv;
+      m_jf_dR     = m_jf_dphi==-10 and m_jf_deta==-10 ? -1 : m_jf_dR = hypot(m_jf_dphi,m_jf_deta);
     }
 
-    m_sv0 = sv0;
-    m_ip2_pb = ip2_pb;
-    m_ip2_pc = ip2_pc;
-    m_ip2_pu = ip2_pu;
-    m_ip3_pb = ip3_pb;
-    m_ip3_pc = ip3_pc;
-    m_ip3_pu = ip3_pu;
-    m_sv1_pb = sv1_pb;
-    m_sv1_pc = sv1_pc;
-    m_sv1_pu = sv1_pu;
-    m_jfc_pb = jfc_pb;
-    m_jfc_pc = jfc_pc;
-    m_jfc_pu = jfc_pu;
+    /*** Generating MVb variables ***/
+    std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks; //= BTag->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_trackAssociationName);
+    bool trksOK=BTag->variable<std::vector<ElementLink<xAOD::TrackParticleContainer> > > (m_ip3d_infosource, "TrackParticleLinks", associationLinks );
 
-    m_jf_nvtx   = jf_nvtx;
-    m_jf_nvtx1t = jf_nvtx1t;
-    m_jf_ntrkv  = jf_ntrkv;
-    m_jf_n2tv   = jf_n2tv;
-  
-    m_sv0_n2t   = sv0_n2t;
-    m_sv0_ntkv  = sv0_ntkv;
+    std::vector<float> vectD0, vectD0Signi, vectZ0, vectZ0Signi;    vectD0.clear(), vectD0Signi.clear(), vectZ0.clear(), vectZ0Signi.clear();
+    trksOK &= BTag->variable< std::vector<float> > (m_ip3d_infosource, "valD0wrtPVofTracks", vectD0     );
+    trksOK &= BTag->variable< std::vector<float> > (m_ip3d_infosource, "sigD0wrtPVofTracks", vectD0Signi);
+    trksOK &= BTag->variable< std::vector<float> > (m_ip3d_infosource, "valZ0wrtPVofTracks", vectZ0     );
+    trksOK &= BTag->variable< std::vector<float> > (m_ip3d_infosource, "sigZ0wrtPVofTracks", vectZ0Signi);
+    if (vectD0.size() and vectD0Signi.size() and vectZ0.size() and vectZ0Signi.size()) {
+      trksOK &= associationLinks.size() == vectD0.size();
+      trksOK &= associationLinks.size() == vectZ0.size();
+      trksOK &= associationLinks.size() == vectD0Signi.size();
+      trksOK &= associationLinks.size() == vectZ0Signi.size();
+    }
+    //std::cout<<"debug: "<<associationLinks.size()<<" "<<vectD0.size()<<" "<<vectZ0.size()<<" "<<vectD0Signi.size()<<" "<<vectZ0Signi.size()<<std::endl;
+
+    int ntrks = associationLinks.size();
+    int n_trk_d0cut = 0;
+    if (trksOK) {
+      ATH_MSG_VERBOSE("#BTAG# MV2: calculating MVb inputs.");
+
+      float sum_pt = 0., sum_pt_dr = 0.;
+
+      std::vector<std::pair<float, float> > trk_d0_z0;
+      trk_d0_z0.reserve(associationLinks.size());
+
+      unsigned trkIndex=0;
+      for(auto trkIter = associationLinks.begin(); trkIter != associationLinks.end(); ++trkIter) {
+        const xAOD::TrackParticle* aTemp = **trkIter;
+        TLorentzVector trk;
+        trk.SetPtEtaPhiM(aTemp->pt(), aTemp->eta(), aTemp->phi(), 0.);
+
+        // no need for a dedicated selection here, the tracks are already
+        // selected by the IP3D algorithm
+        const float d0sig = vectD0Signi.at(trkIndex);
+        const float z0sig = vectZ0Signi.at(trkIndex);
+        trkIndex++;
+
+        if (std::fabs(d0sig) > 1.8)
+          n_trk_d0cut++;
+
+        // track width components
+        sum_pt += trk.Pt();
+        const float dRtoJet = trk.DeltaR(myJet.p4());
+        sum_pt_dr += dRtoJet * trk.Pt();
+
+        // for 3rd higest d0/z0 significance
+        trk_d0_z0.push_back(std::make_pair(d0sig, z0sig));
+      } //end of trk loop
     
-    if      (m_jf_dphi==-10 and m_jf_deta==-10) m_jf_dR = -1;
-    else if (m_jf_dphi==-11 and m_jf_deta==-11) m_jf_dR = -1;
-    else                                        m_jf_dR = hypot(m_jf_dphi,m_jf_deta) ;
-					     
-    if      (m_ip2==-30) m_ip2=-20;
-    else if (m_ip2_pu>1) m_ip2=-20;
-    m_ip2_c  = (m_ip2_pb>0 && m_ip2_pc>0 && m_ip2_pc<1) ? log(m_ip2_pb/m_ip2_pc) : -20;
-    m_ip2_cu = (m_ip2_pc>0 && m_ip2_pu>0 && m_ip2_pu<1) ? log(m_ip2_pc/m_ip2_pu) : -20;
-    if      (m_ip3==-30) m_ip3=-20;
-    else if (m_ip3_pu>1) m_ip3=-20;
-    m_ip3_c  = (m_ip3_pb>0 && m_ip3_pc>0 && m_ip3_pc<1) ? log(m_ip3_pb/m_ip3_pc) : -20;
-    m_ip3_cu = (m_ip3_pc>0 && m_ip3_pu>0 && m_ip3_pu<1) ? log(m_ip3_pc/m_ip3_pu) : -20;
+      // sort by highest signed d0 sig
+      std::sort(trk_d0_z0.begin(), trk_d0_z0.end(), [](const std::pair<float, float>& a, const std::pair<float, float>& b) { 
+        return a.first > b.first; 
+      } );
 
-    m_sv1_c  = (m_sv1_pb>0 && m_sv1_pc>0) ? log(m_sv1_pb/m_sv1_pc) : -20;
-    m_sv1_cu = (m_sv1_pc>0 && m_sv1_pu>0) ? log(m_sv1_pc/m_sv1_pu) : -20;
-    m_sv1_n2t   = sv1_n2t;
-    m_sv1_ntkv  = sv1_ntkv;
+      //Assign MVb variables
+      m_width          = sum_pt > 0 ? sum_pt_dr / sum_pt : 0;
+      m_n_trk_sigd0cut = n_trk_d0cut;
+      m_trk3_d0sig     = trk_d0_z0.size() > 2 ? trk_d0_z0[2].first : -100;
+      m_trk3_z0sig     = trk_d0_z0.size() > 2 ? trk_d0_z0[2].second : -100;
+      m_sv_scaled_efc  = m_sv1_ntkv>0               ? m_sv1_efrc * (static_cast<float>(ntrks) / m_sv1_ntkv)                : -1;
+      m_jf_scaled_efc  = m_jf_ntrkv + m_jf_nvtx1t>0 ? m_jf_efrc * (static_cast<float>(ntrks) / (m_jf_ntrkv + m_jf_nvtx1t)) : -1;
+    }
+
+    //add additional variables to b-tagging object
+    if(m_decorateBTaggingObj) {
+      ATH_MSG_VERBOSE("#BTAG# decorating btagging object with MV2 inputs.");
+      //MV2 inputs
+      BTag->setVariable<float>(m_decTagName, "sv1_Lxy" , m_sv1_Lxy);//m_xAODBaseName?
+      BTag->setVariable<float>(m_decTagName, "sv1_L3d" , m_sv1_L3d);
+      BTag->setVariable<float>(m_decTagName, "sv1_dR"  , m_sv1_dR );
+      BTag->setVariable<float>(m_decTagName, "jf_dR"   , m_jf_dR  );
+      //MVb inputs
+      BTag->setVariable<float>(m_decTagName, "width"         , m_width         );
+      BTag->setVariable<float>(m_decTagName, "sv_scaled_efc" , m_sv_scaled_efc );
+      BTag->setVariable<float>(m_decTagName, "jf_scaled_efc" , m_jf_scaled_efc );
+      BTag->setVariable<float>(m_decTagName, "trk3_d0sig"    , m_trk3_d0sig    );
+      BTag->setVariable<float>(m_decTagName, "trk3_z0sig"    , m_trk3_z0sig    );
+      BTag->setVariable<int>  (m_decTagName, "n_trk_sigd0cut",   n_trk_d0cut   );
+    }
+
+    //KM: These aren't used anymore though, just in case...
+    m_ip2_pb = ip2_pb;    m_ip2_pc = ip2_pc;    m_ip2_pu = ip2_pu;
+    m_ip3_pb = ip3_pb;    m_ip3_pc = ip3_pc;    m_ip3_pu = ip3_pu;
+    m_sv1_pb = sv1_pb;    m_sv1_pc = sv1_pc;    m_sv1_pu = sv1_pu;
+    m_jfc_pb = jfc_pb;    m_jfc_pc = jfc_pc;    m_jfc_pu = jfc_pu;
 
     //////////////////////////////////
     // End of MV2 inputs retrieving //
     //////////////////////////////////
     PrintInputs();
+    
+    if (!status) {
+      ATH_MSG_WARNING("#BTAG# Missing input data: cannot compute desired results. Assigning default light values.");
+
+      double defaultB=1e-10;
+      double defaultC=1e-10;
+      double defaultL=1.-defaultB-defaultC;
+
+      if(m_runModus=="analysis") {
+        if (m_taggerNameBase.find("MV2c")!=-1) BTag->setVariable<double>(m_xAODBaseName, "discriminant", -1.);
+        else {
+          BTag->setVariable<double>(m_xAODBaseName, "pb", defaultB);
+          BTag->setVariable<double>(m_xAODBaseName, "pu", defaultL);
+          BTag->setVariable<double>(m_xAODBaseName, "pc", defaultC);
+        }
+      }
+
+      return StatusCode::SUCCESS;
+    }
 
     // #3: Calcuation of MVA output variable(s)
     /* compute MV2: */
@@ -652,13 +757,30 @@ namespace Analysis {
     return StatusCode::SUCCESS;
   }
   
+  float MV2Tag::d0sgn_wrtJet(const TLorentzVector& jet, const TLorentzVector& trk, float d0sig) {
+    const double dPhi = jet.DeltaPhi(trk);
+    const float d0_sign = sin(dPhi) * d0sig;
+
+    if (std::fabs(d0_sign) < 1e-4)
+      return 1.0;
+
+    const float res = d0_sign / std::fabs(d0_sign);
+    return res;
+  }
+
+  float MV2Tag::z0sgn_wrtJet(float trackTheta, float trackZ0, float jetEta) {
+    const float trackEta = -std::log(std::tan(trackTheta/2.));
+    const float zs = (jetEta - trackEta)*trackZ0;
+    return (zs>=0. ? 1. : -1.);
+  }
+
   void MV2Tag::ClearInputs() {
-     m_ip2=-20;
-     m_ip2_c=-20;
-     m_ip2_cu=-20;
-     m_ip3=-20;
-     m_ip3_c=-20;
-     m_ip3_cu=-20;
+     m_ip2=-30;
+     m_ip2_c=-30;
+     m_ip2_cu=-30;
+     m_ip3=-30;
+     m_ip3_c=-30;
+     m_ip3_cu=-30;
      m_sv1=-10;
      m_sv1_c=-10;
      m_sv1_cu=-10;
@@ -698,12 +820,23 @@ namespace Analysis {
      m_jf_dphi=-11; 
      m_jf_deta=-11; 
      m_jf_sig3=-100;
+     m_width=-1;
+     m_n_trk_sigd0cut=-1;
+     m_trk3_d0sig=-10;
+     m_trk3_z0sig=-10;
+     m_sv_scaled_efc=-1;
+     m_jf_scaled_efc=-1;
   }
 
   void MV2Tag::PrintInputs() {
     ATH_MSG_DEBUG("#BTAG# MV2 jet info: " <<
 		  "  jet pt= "     << m_pt  <<
 		  ", jet eta= "    << m_absEta );
+    ATH_MSG_DEBUG("#BTAG# MV2 jet-trk info: " <<
+		  "  jet trk n= "      << m_trkSum_ntrk   <<
+		  ", jet trk pt sSum= "<< m_trkSum_sPt    <<
+		  ", jet trk pt= "     << m_trkSum_vPt    <<
+		  ", jet trk eta= "    << m_trkSum_vAbsEta );
     ATH_MSG_DEBUG("#BTAG# MV2 ip2d prob inputs: " <<
 		  "  ip2_pu= "     << m_ip2_pu     <<
 		  ", ip2_pb= "     << m_ip2_pb     <<
@@ -758,6 +891,13 @@ namespace Analysis {
 		  ", jf_deta= "    << m_jf_deta    <<
 		  ", jf_dR= "      << m_jf_dR      <<
 		  ", jf_sig3= "    << m_jf_sig3);
+    ATH_MSG_DEBUG("#BTAG# MV2 mvb inputs: " <<
+		  "  width= "         <<m_width         <<
+		  ", n_trk_sigd0cut= "<<m_n_trk_sigd0cut<<
+		  ", trk3_d0sig= "    <<m_trk3_d0sig    <<
+		  ", trk3_z0sig= "    <<m_trk3_z0sig    <<
+		  ", sv_scaled_efc= " <<m_sv_scaled_efc <<
+		  ", jf_scaled_efc= " <<m_jf_scaled_efc);
   }
 
   void MV2Tag::SetVariableRefs(const std::vector<std::string> inputVars, TMVA::Reader* tmvaReader, unsigned &nConfgVar, bool &badVariableFound, std::vector<float*> &inputPointers) {
@@ -775,6 +915,11 @@ namespace Analysis {
       //pt and abs(eta)
       if      (inputVars.at(ivar)=="pt"       ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_pt       ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_pt       ); nConfgVar++; }
       else if (inputVars.at(ivar)=="abs(eta)" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_absEta   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_absEta   ); nConfgVar++; }
+      //jet trk kinematics
+      else if (inputVars.at(ivar)=="trk_n"       ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_trkSum_ntrk   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_trkSum_ntrk   ); nConfgVar++; }
+      else if (inputVars.at(ivar)=="trk_pt_sSum" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_trkSum_sPt    ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_trkSum_sPt    ); nConfgVar++; }
+      else if (inputVars.at(ivar)=="trk_pt"      ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_trkSum_vPt    ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_trkSum_vPt    ); nConfgVar++; }
+      else if (inputVars.at(ivar)=="abs(trk_eta)") { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_trkSum_vAbsEta) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_trkSum_vAbsEta); nConfgVar++; }
       //IP2D output probabilities		  			                                       	  								      
       else if (inputVars.at(ivar)=="ip2_pu"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_ip2_pu   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_ip2_pu   ); nConfgVar++; }
       else if (inputVars.at(ivar)=="ip2_pb"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_ip2_pb   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_ip2_pb   ); nConfgVar++; }
@@ -829,6 +974,13 @@ namespace Analysis {
       else if (inputVars.at(ivar)=="jf_deta"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_deta  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_deta  ); nConfgVar++; }
       else if (inputVars.at(ivar)=="jf_dR"    ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_dR    ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_dR    ); nConfgVar++; }
       else if (inputVars.at(ivar)=="jf_sig3"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_sig3  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_sig3  ); nConfgVar++; }
+      //MVb input variables		  			                                       	  								      
+      else if (inputVars.at(ivar)=="width"         ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_width           ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_width           ); nConfgVar++; }
+      else if (inputVars.at(ivar)=="n_trk_sigd0cut") { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_n_trk_sigd0cut  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_n_trk_sigd0cut  ); nConfgVar++; }
+      else if (inputVars.at(ivar)=="trk3_d0sig"    ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_trk3_d0sig      ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_trk3_d0sig      ); nConfgVar++; }
+      else if (inputVars.at(ivar)=="trk3_z0sig"    ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_trk3_z0sig      ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_trk3_z0sig      ); nConfgVar++; }
+      else if (inputVars.at(ivar)=="sv_scaled_efc" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv_scaled_efc   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv_scaled_efc   ); nConfgVar++; }
+      else if (inputVars.at(ivar)=="jf_scaled_efc" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_scaled_efc   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_scaled_efc   ); nConfgVar++; }
       else {
 	ATH_MSG_WARNING( "#BTAG# \""<<inputVars.at(ivar)<<"\" <- This variable found in xml/calib-file does not match to any variable declared in MV2... the algorithm will be 'disabled'.");//<<alias<<" "<<author);
 	badVariableFound=true;

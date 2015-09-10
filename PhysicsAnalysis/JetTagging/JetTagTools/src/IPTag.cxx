@@ -25,12 +25,16 @@
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
 #include "JetTagTools/JetTagUtils.h"
 #include "ParticleJetTools/JetFlavourInfo.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 #include "TH1.h"
 #include <cmath>
 #include <sstream>
 #include <algorithm>
 #include <vector>
 #include <string>
+
+#include "TLorentzVector.h"
 
 namespace Analysis {
 
@@ -48,6 +52,8 @@ namespace Analysis {
       m_trackToVertexTool("Reco::TrackToVertex"),
       m_trackSelectorTool("Analysis::TrackSelector"),
       m_likelihoodTool("Analysis::NewLikelihoodTool"),
+      m_InDetTrackSelectorTool("InDet::InDetTrackSelectionTool"),
+      m_TightTrackVertexAssociationTool("CP::TightTrackVertexAssociationTool"),
       //m_secVxFinderNameForV0Removal("InDetVKalVxInJetTool"),
       //m_secVxFinderNameForIPSign("InDetVKalVxInJetTool"),
       m_secVxFinderName("InDetVKalVxInJetTool"),
@@ -117,6 +123,8 @@ namespace Analysis {
     
     declareProperty("unbiasIPEstimation",m_unbiasIPEstimation);
 
+    declareProperty("InDetTrackSelectionTool", m_InDetTrackSelectorTool); //
+    declareProperty("TrackVertexAssociationTool", m_TightTrackVertexAssociationTool); //
   }
 
   IPTag::~IPTag() {
@@ -296,6 +304,22 @@ namespace Analysis {
     m_ncjet = 0;
     m_nljet = 0;
   */
+
+    if (m_impactParameterView=="3D") { 
+      if ( m_InDetTrackSelectorTool.retrieve().isFailure() )  {
+	ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " <<  m_InDetTrackSelectorTool);
+	return StatusCode::FAILURE;
+      } else {
+	ATH_MSG_DEBUG("#BTAG# Retrieved tool " <<  m_InDetTrackSelectorTool);
+      }
+      if ( m_TightTrackVertexAssociationTool.retrieve().isFailure() )  {
+	ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " <<  m_TightTrackVertexAssociationTool);
+	return StatusCode::FAILURE;
+      } else {
+	ATH_MSG_DEBUG("#BTAG# Retrieved tool " <<  m_TightTrackVertexAssociationTool);
+      }
+    }
+
     return StatusCode::SUCCESS;
   }
 
@@ -387,18 +411,30 @@ namespace Analysis {
     m_trackSelectorTool->prepare();
     std::vector<const xAOD::TrackParticle*>* trackVector = NULL;
     std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks = 
-        BTag->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_trackAssociationName);
+      BTag->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_trackAssociationName);
+    double sumTrkpT = 0; unsigned ntrk=0;
+    TLorentzVector pseudoTrackJet(0,0,0,0);
     if( associationLinks.size() == 0 ) {
         ATH_MSG_VERBOSE("#BTAG#  Could not find tracks associated with BTagging object as " << m_trackAssociationName);
     } else {
       
       std::vector< ElementLink< xAOD::TrackParticleContainer> >::const_iterator trkIter;
-      double sumTrkpT = 0;
       // We loop over the tracks twice: the first time is to compute the summed pt of all tracks satisfying
       // the "normal" criteria; the second time a possibly tighter pt cut may be applied
       for( trkIter = associationLinks.begin(); trkIter != associationLinks.end() ; ++trkIter ) {
 	const xAOD::TrackParticle* aTemp = **trkIter;
-	if (m_trackSelectorTool->selectTrack(aTemp)) sumTrkpT += aTemp->pt();
+	
+	if (m_impactParameterView=="3D") { 
+	  if (m_InDetTrackSelectorTool->accept(*aTemp, m_priVtx) ) {
+	    if (m_TightTrackVertexAssociationTool->isCompatible(*aTemp, *m_priVtx)) {
+	      TLorentzVector tmpTrack(0,0,0,0);
+	      tmpTrack.SetPtEtaPhiM(  aTemp->pt(), aTemp->eta(), aTemp->phi(),0);
+	      pseudoTrackJet+=tmpTrack; ntrk++;
+	    }
+	  }
+	}
+
+	if (m_trackSelectorTool->selectTrack(aTemp)) sumTrkpT += aTemp->pt();	
       }
       // m_trackSelectorTool->setSumTrkPt(sumTrkpT);
 
@@ -427,8 +463,16 @@ namespace Analysis {
           theGrade=0;
         }
       }
-
     }
+    // temporary: storing these variables (which aren't IP3D-specific) ought to be moved to a separate Tool
+    if (m_xAODBaseName == "IP3D") { 
+      BTag->auxdata<unsigned>("trkSum_ntrk") = ntrk;
+      BTag->auxdata<float>("trkSum_SPt") = sumTrkpT;
+      BTag->auxdata<float>("trkSum_VPt") = pseudoTrackJet.Pt();
+      BTag->auxdata<float>("trkSum_VEta") = (pseudoTrackJet.Pt() != 0) ? pseudoTrackJet.Eta() : 1000;
+    }
+
+
     ATH_MSG_VERBOSE("#BTAG# #tracks = " << nbTrak);
     ATH_MSG_VERBOSE("#BTAG# the z of the primary = " << m_priVtx->position().z());
 

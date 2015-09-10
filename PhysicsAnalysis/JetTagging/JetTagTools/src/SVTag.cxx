@@ -54,6 +54,7 @@ namespace Analysis
 
     declareProperty("UseDRJetPvSv", m_useDRJPVSV = true);
     declareProperty("UseCHypo", m_useCHypo=true);
+    declareProperty("UseSV2Pt", m_usePtSV2=false);
 
   }
 
@@ -102,8 +103,15 @@ namespace Analysis
 	  }
 	}
 	if(m_SVmode=="SV2") {
-	  hName = m_hypotheses[ih]+"/TridimMEN2T";
-	  m_likelihoodTool->defineHistogram(hName);
+	  if(m_usePtSV2){
+	     hName = m_hypotheses[ih]+"/TridimMENPt";
+	     m_likelihoodTool->defineHistogram(hName);
+	     hName = m_hypotheses[ih]+"/N2TEffSV2";
+	     m_likelihoodTool->defineHistogram(hName);
+	  }else{
+	     hName = m_hypotheses[ih]+"/TridimMEN2T";
+	     m_likelihoodTool->defineHistogram(hName);
+          }
 	}
       }
       // for efficiencies, add a few histograms:
@@ -143,7 +151,8 @@ namespace Analysis
 	    // SV2
 	    m_histoHelper->bookHisto(hDir+"N2TEffSV2", "Number of Good Two Track Vertices",9,xbi);
 	    m_histoHelper->bookHisto(hDir+"N2TNormSV2", "Number of Good Two Track Vertices",30,0.,30.);
-	    m_histoHelper->bookHisto(hDir+"TridimMEN2T", "ln(N) vs (E fraction)**0.7 vs Mass/(Mass+1)" ,20,0.,1.,20,0.,1.,7,0.,3.8);
+            if(m_usePtSV2)m_histoHelper->bookHisto(hDir+"TridimMENPt","ln(Pt) vs (E fraction)**0.7 vs Mass/(Mass+1)",20,0.,1.,20,0.,1.,6,0.,4.8);
+            else          m_histoHelper->bookHisto(hDir+"TridimMEN2T"," ln(N) vs (E fraction)**0.7 vs Mass/(Mass+1)",20,0.,1.,20,0.,1.,7,0.,3.8);
 	    if(ih==0) {
 	      // Control with SV2
 	      hDir = "/RefFile/SV2/"+m_jetCollectionList[ijc]+"/controlSV/";
@@ -328,6 +337,7 @@ namespace Analysis
     if (m_SVmode != "SV0" ) {
       float ambtotp = ambtot > 0. ? ambtot/(1.+ambtot): 0.;
       float xratiop = xratio > 0. ? (float)pow(xratio,m_expos) : 0.;
+      float trfJetPt=log(jetToTag.pt()/20000.); if(trfJetPt<0.)trfJetPt=0.01; if(trfJetPt>4.8)trfJetPt=4.79;
       std::string pref = "";
       if (m_runModus=="reference") {
 	if (jetpt >= m_pTjetmin && fabs(jeteta) <= 2.5) {
@@ -372,7 +382,8 @@ namespace Analysis
 		}
 		if (m_SVmode == "SV2") {
 		  m_histoHelper->fillHisto(hDir+"N2TEffSV2",(float)NSVPair);
-		  m_histoHelper->fillHisto(hDir+"TridimMEN2T",ambtotp,xratiop,log((float)NSVPair));
+                  if(m_usePtSV2)m_histoHelper->fillHisto(hDir+"TridimMENPt",ambtotp,xratiop,trfJetPt);
+		  else          m_histoHelper->fillHisto(hDir+"TridimMEN2T",ambtotp,xratiop,log((float)NSVPair));
 		}
 	      }
 	    }
@@ -414,14 +425,27 @@ namespace Analysis
 	    }
 	    nslices.push_back(slice1);
 	  } else if (m_SVmode == "SV2") {
-	    AtomicProperty atom1(log((float)NSVPair),"log(Number of Two Track Vertices)");
 	    std::string compoName(author+"#");
-	    Composite compo(compoName+"TridimMEN2T");
-	    compo.atoms.push_back(atom2);
-	    compo.atoms.push_back(atom3);
-	    compo.atoms.push_back(atom1);
 	    Slice slice1("SV2");
-	    slice1.composites.push_back(compo);
+	    if(m_usePtSV2){ 
+	      AtomicProperty atom1(trfJetPt,"log(JetPt/2e4)");
+	      Composite compo(compoName+"TridimMENPt");
+	      compo.atoms.push_back(atom2);
+	      compo.atoms.push_back(atom3);
+	      compo.atoms.push_back(atom1);
+	      Composite compo1(compoName+"N2TEffSV2");
+	      AtomicProperty atom4(NSVPair,"Number of Two Track Vertices");
+	      compo1.atoms.push_back(atom4);
+	      slice1.composites.push_back(compo);
+	      slice1.composites.push_back(compo1);
+	    }else{ 
+	      AtomicProperty atom1(log((float)NSVPair),"log(Number of Two Track Vertices)");
+	      Composite compo(compoName+"TridimMEN2T");
+	      compo.atoms.push_back(atom2);
+	      compo.atoms.push_back(atom3);
+	      compo.atoms.push_back(atom1);
+	      slice1.composites.push_back(compo);
+            }
 	    nslices.push_back(slice1);
 	  }
 	  m_likelihoodTool->setLhVariableValue(nslices);

@@ -43,6 +43,7 @@ namespace Analysis {
     m_hypotheses.push_back("U");
     m_hypotheses.push_back("C");
     m_vetoSmoothingOf.push_back("/N2T");
+    m_vetoSmoothingOf.push_back("/N2TEffSV2");
     m_vetoSmoothingOf.push_back("/Sip3D");
   }
 
@@ -231,7 +232,7 @@ namespace Analysis {
         }
         if(2==h->GetDimension()) {
           int m2d=3;
-          if(hname.find("#B/")==std::string::npos) m2d=5;
+          //if(hname.find("#B/")==std::string::npos) m2d=5; //VK oversmoothing!!!
           if(!veto) {
 	    TH2 * dc_tmp = dynamic_cast<TH2*>(h);
 	    if (dc_tmp) {
@@ -245,7 +246,23 @@ namespace Analysis {
           if(!veto) {
 	    TH3 * dc_tmp = dynamic_cast<TH3*>(h);
 	    if (dc_tmp) {
-              HistoHelperRoot::smoothASH3D(dc_tmp, m3d1, m3d1, m3d3, msgLvl(MSG::DEBUG));
+	      int Nx=dc_tmp->GetNbinsX();
+	      int Ny=dc_tmp->GetNbinsY();
+	      int Nz=dc_tmp->GetNbinsZ();
+	      if(Nz == 7)         //==========Old SV2
+                HistoHelperRoot::smoothASH3D(dc_tmp, m3d1, m3d1, m3d3, msgLvl(MSG::DEBUG));
+ 	      else if(Nz == 6){   //==========New SV2Pt
+                double total=dc_tmp->Integral(1,Nx,1,Ny,1,Nz,"");
+	        for(int iz=1; iz<=Nz; iz++){
+                  double content=dc_tmp->Integral(1,Nx,1,Ny,iz,iz,""); if(content==0.)content=Nz;
+		  double dnorm=total/content/Nz;
+	          for(int ix=1; ix<=Nx; ix++){for(int iy=1; iy<=Ny; iy++){
+		    double cbin=dc_tmp->GetBinContent(ix,iy,iz)*dnorm; cbin= cbin>0. ? cbin : 0.1; //Protection against empty bins
+		    dc_tmp->SetBinContent(ix,iy,iz, cbin);
+	          }}
+                }
+                HistoHelperRoot::smoothASH3D(dc_tmp, m3d1, m3d1, m3d3, msgLvl(MSG::DEBUG));
+              }
             }
           }
         }

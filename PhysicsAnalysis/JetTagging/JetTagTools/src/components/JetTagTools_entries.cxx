@@ -35,6 +35,7 @@
 //#include "JetTagTools/MV3Tag.h"
 #include "JetTagTools/MVbTag.h"
 
+#include "JetTagTools/JetVertexCharge.h"
 //
 //#include "JetTagTools/SharedHitMapper.h"
 //
@@ -77,6 +78,8 @@ DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MV2Tag )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MV3Tag )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MVbTag )
 
+
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetVertexCharge )
 // Until we put it elsewhere
 //DECLARE_ALGORITHM_FACTORY( SharedHitMapper )
 
@@ -121,6 +124,7 @@ DECLARE_FACTORY_ENTRIES( JetTagTools )
   DECLARE_NAMESPACE_TOOL( Analysis, MV2Tag );
   // DECLARE_NAMESPACE_TOOL( Analysis, MV3Tag );
   DECLARE_NAMESPACE_TOOL( Analysis, MVbTag );
+  DECLARE_NAMESPACE_TOOL( Analysis, JetVertexCharge );
   // //
   // DECLARE_ALGORITHM( SharedHitMapper );
   // //

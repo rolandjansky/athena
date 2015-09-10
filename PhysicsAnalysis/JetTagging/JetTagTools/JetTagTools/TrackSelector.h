@@ -101,13 +101,18 @@ private:
   int m_antiPileUpNHolePixCut;
   bool m_useTrackingTightDefinition;
   // for debugging:
+  enum m_Cuts { pTMin, d0Max, z0Max, sigd0Max, sigz0Max, etaMax,
+                nHitBLayer, deadBLayer, nHitPix, nHitSct, nHitSi, nHitTrt, nHitTrtHighE,
+                fitChi2, fitProb,fitChi2OnNdfMax, trackingTightDef,
+                numCuts };
+
   int m_ntri;
   int m_ntrf;
-  int m_ntrc[16];
+  int m_ntrc[numCuts];
 
   ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
 
-  std::bitset<17> m_passedCuts;
+  std::bitset<numCuts> m_passedCuts;
 
 };
 

@@ -61,6 +61,8 @@ namespace Analysis {
     ToolHandle<CalibrationBroker> m_calibrationTool;
     bool m_forceMV2CalibrationAlias;
     bool m_useEgammaMethodMV2;
+    bool m_decorateBTaggingObj;
+    std::string m_decTagName;
     std::string m_MV2CalibAlias;
     std::string m_MV2cXX;
     std::string m_xAODBaseName;
@@ -83,6 +85,11 @@ namespace Analysis {
     /** reader to define the TMVA algorithms */
     float m_pt;
     float m_absEta;
+
+    float m_trkSum_ntrk;
+    float m_trkSum_sPt;
+    float m_trkSum_vPt;
+    float m_trkSum_vAbsEta;
 
     //more ip2 variables
     float m_ip2;
@@ -143,6 +150,14 @@ namespace Analysis {
     //float m_chi2Ondof;
     float m_jf_sig3;
 
+    //mvb variables
+    float m_width;//width of b-tag tracks
+    float m_n_trk_sigd0cut;
+    float m_trk3_d0sig;
+    float m_trk3_z0sig;
+    float m_sv_scaled_efc;
+    float m_jf_scaled_efc;
+
     std::map<std::string, TMVA::Reader*> m_tmvaReaders;
     std::map<std::string, TMVA::MethodBase*> m_tmvaMethod; 
     std::map<std::string, egammaMVACalibNmsp::BDT*> m_egammaBDTs;
@@ -157,6 +172,8 @@ namespace Analysis {
     std::string m_jfprob_infosource;
 
     std::string m_trainingConfig;
+    float d0sgn_wrtJet(const TLorentzVector& jet, const TLorentzVector& trk, float d0sig);
+    float z0sgn_wrtJet(float trackTheta, float trackZ0, float jetEta);
     //void setInputVariables(xAOD::Jet& jetToTag, xAOD::BTagging* BTag);//for future
     void ClearInputs();
     void PrintInputs();

@@ -364,26 +364,28 @@ StatusCode JetFitterNNTool::finalize() {
   }
 
   if (!status) {
-     ATH_MSG_DEBUG(" Missing input data: cannot compute desired results. Assigning default light values."); 
- 
-     double defaultB=1e-10; 
-     double defaultC=1e-10; 
-     double defaultL=1.-defaultB-defaultC; 
-	 
-     if("JetFitter" == outputbasename) 
-     { 
-       BTag->setJetFitter_pb(defaultB); 
-       BTag->setJetFitter_pc(defaultC); 
-       BTag->setJetFitter_pu(defaultL); 
-     } 
-     else 
-     { 
-       BTag->setVariable<double>(outputbasename, "pb", defaultB); 
-       BTag->setVariable<double>(outputbasename, "pc", defaultC); 
-       BTag->setVariable<double>(outputbasename, "pu", defaultL); 
-     } 
-      
-     return StatusCode::SUCCESS; 
+     ATH_MSG_DEBUG(" Missing input data: cannot compute desired results. Assigning default light values.");
+
+     double defaultB=1e-10;
+     double defaultC=1e-10;
+     double defaultL=1.-defaultB-defaultC;
+
+     if("JetFitter" == outputbasename)
+     {
+       BTag->setJetFitter_pb(defaultB);
+       BTag->setJetFitter_pc(defaultC);
+       BTag->setJetFitter_pu(defaultL);
+     }
+     else
+     {
+       BTag->setVariable<double>(outputbasename, "pb", defaultB);
+       BTag->setVariable<double>(outputbasename, "pc", defaultC);
+       BTag->setVariable<double>(outputbasename, "pu", defaultL);
+     }
+     
+
+
+     return StatusCode::SUCCESS;
   }
 
   std::vector<Double_t> inputData;
