@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <HIJetRec/HIClusterMaker.h>
-#include <NavFourMom/INavigable4MomentumCollection.h>
-#include <CaloEvent/CaloCell.h>
-#include <CaloEvent/CaloCellContainer.h>
-#include <Navigation/NavigationToken.h>
-#include <CaloUtils/CaloClusterStoreHelper.h>
-#include <CxxUtils/prefetch.h>
+#include "HIClusterMaker.h"
+#include "NavFourMom/INavigable4MomentumCollection.h"
+#include "CaloEvent/CaloCell.h"
+#include "CaloEvent/CaloCellContainer.h"
+#include "Navigation/NavigationToken.h"
+#include "CaloUtils/CaloClusterStoreHelper.h"
+#include "CxxUtils/prefetch.h"
 #include <cmath>
 #include <TVector2.h>
 

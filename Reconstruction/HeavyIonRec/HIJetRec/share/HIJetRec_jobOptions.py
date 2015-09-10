@@ -1,8 +1,11 @@
 from HIJetRec.HIJetRecFlags import HIJetFlags
 from HIGlobal.HIGlobalFlags import jobproperties
 from JetRec.JetRecFlags import jetFlags
-jetFlags.debug.set_Value_and_Lock(4);
+jetFlags.debug=2
+jetFlags.timeJetRecTool=2
+jetFlags.timeJetToolRunner=2
 jetFlags.useCells.set_Value(True);
+
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -20,103 +23,87 @@ ClusterKey=HIJetFlags.HIClusterKey()
 from  HIJetRec.HIJetRecUtils import *
 HIClusterGetter()
 
+
+used_JetRec=hasattr(topSequence,"jetalg") 
+
 #equip basic tools
-from  HIJetRec.HIJetTools import *
-
-
-#
-#
-#begin alg scheduling
-#
-#
+from  HIJetRec.HIJetRecTools import jtm
 
 ###
-#initial jet algorithm
+##truth jets
+if jetFlags.useTruth(): 
+    for R in HIJetFlags.AntiKtRValues() : 
+        tname="AntiKt%dTruthJets" % int(10*R)
+        if tname in jtm.tools : continue
+        if rec.readESD() :
+            from RecExConfig.ObjKeyStore import objKeyStore
+            inputcontent = objKeyStore['inputFile'].list()
+            if tname in inputcontent : continue
+        jtm.addJetFinder(tname,"AntiKt", R,"truth", ptmin= HIJetFlags.TruthJetPtMin())
+        AddToOutputList(tname)
+
 #track jets
 if jetFlags.useTracks():
-    jtm.addJetFinder("AntiKt4HITrackJets", "AntiKt", 0.4, "pv0track", ptmin= 2000)
+    tname="AntiKt4HITrackJets"
+    hi_trk_modifiers=jtm.modifiersMap["HITrack"]
+    hi_trk_modifiers += AddPtAssociationTools(0.4,False)
+    jtm.addJetFinder(tname, "AntiKt", 0.4, "HITrack", hi_trk_modifiers, ptmin= HIJetFlags.TrackJetPtMin())
+    HIJetFlags.TrackJetContainerName=tname
+    AddToOutputList(tname)
 
-#truth jets
 
 #initial unsubtracted jets
-hasTruthR4=False
-from RecExConfig.ObjKeyStore import objKeyStore
-inputcontent = objKeyStore['inputFile'].list()
+for R in HIJetFlags.AntiKtRValues() :  AddHIJetFinder(R)
+seeds0=jtm.addJetCopier("AntiKt2HIJets_%s0" % HIJetFlags.SeedSuffix(),"AntiKt2HIJets_Unsubtracted",[jtm.discrim],shallow=False)
+iter0=AddIteration(suffix="iter0",seed_container=seeds0.OutputContainer,shape_name=EventShapeKey)
+modulator0=iter0.Modulator
+subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,modulator=modulator0)
 
-rtools=[]
-if jetFlags.useCells():
-    rtools += [jtm.missingcells]
-if jetFlags.useTracks:
-    rtools += [jtm.tracksel]
-    rtools += [jtm.tvassoc]
+seeds1=jtm.addJetCopier("AntiKt2HIJets_%s1" % HIJetFlags.SeedSuffix(),"AntiKt2HIJets_Unsubtracted",[subtr1,jtm.jetfil20],shallow=False) #add calib tool
 
-for R in HIJetFlags.AntiKtRValues() : 
-    AddHIJetFinder(R)
-    tname="AntiKt%dTruthJets" % int(10*R)
-    if jetFlags.useTruth(): 
-        copyOnly=False
-        for o in inputcontent : 
-            if tname in o : 
-                copyOnly=True
-                break
-        if copyOnly and tname not in jtm.jetcons : jtm.jetcons+=[tname]
-        else : jtm.addJetFinder(tname,"AntiKt", R,"truth", ptmin= 5000)
-rtools+=jtm.jetrecs
-JetAlgFromTools(rtools,suffix="Unsubtr",persistify=False)
+# if jetFlags.useTracks() :
+#     seeds1a=jtm.addJetCopier("AntiKt2HIJets_seeds1","AntiKt2HIJets_Unsubtracted",[subtr1,jtm.jetfil20],shallow=False) #add calib tool
+#     seeds1= copy operation (seeds1a.OutputContainer,HIJetFlags.TrackJetContainerName())
 
-subtr0=MakeSubtractionTool(EventShapeKey, moment_name="subtr0") #for now, no iteration
-#
-#Iteration steps
-#
-#make some seeds and discriminate using moments
-seeds0=jtm.addJetCopier("AntiKt2HIJets_seeds0","AntiKt2HIJets_Unsubtracted",[discrim]);
-HIJetFinderDict[seeds0.OutputContainer]=seeds0
-JetAlgFromTools([seeds0],suffix="seeds0",persistify=False)
 
-from HIJetRec.HIJetRecConf import HIEventShapeJetIteration
-iter0=HIEventShapeJetIteration("iter0")
-iter0.InputEventShapeKey=EventShapeKey
-iter0.OutputEventShapeKey=EventShapeKey+"_iter0"
-iter0.AssociationKey=assoc_name
-iter0.SeedContainerKeys=[seeds0.OutputContainer]
-topSequence += iter0
+iter1=AddIteration(suffix="iter1",seed_container=seeds1.OutputContainer,shape_name=EventShapeKey)
+HIJetFlags.IteratedEventShapeKey=iter1.OutputEventShapeKey
+modulator1=iter1.Modulator
+jtm.modulator=modulator1
+subtr2=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey(),modulator=modulator1)
 
-subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,moment_name="subtr1")
-seeds1=jtm.addJetCopier("AntiKt2HIJets_seeds1","AntiKt2HIJets_Unsubtracted",[subtr0,jtm.jetfil20]) #add calib tool
-HIJetFinderDict[seeds1.OutputContainer]=seeds1
-JetAlgFromTools([seeds1],suffix="seeds1",persistify=False)
-
-iter1=HIEventShapeJetIteration("iter1")
-iter1.InputEventShapeKey=EventShapeKey
-iter1.OutputEventShapeKey=EventShapeKey+"_iter1"
-iter1.SeedContainerKeys=[seeds1.OutputContainer]#,jtm.AntiKt4HITrackJets.OutputContainer]#eventually add track jets
-iter1.AssociationKey=assoc_name
-topSequence += iter1
-subtr2=MakeSubtractionTool(iter1.OutputEventShapeKey,moment_name="subtr2")
-#subtr2.SetMomentOnly=False
-#store key of canonical background
+ApplySubtractionToClusters(event_shape_key=HIJetFlags.IteratedEventShapeKey(), cluster_key=ClusterKey, modulator=modulator1)
+subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,moment_name="subtr1",momentOnly=True,modulator=modulator0)
 
 
 #put subtraction tool at the FRONT of the jet modifiers list
-
-
-hi_tools=[subtr0,subtr1,subtr2]
+hi_tools=[subtr1,subtr2]
+hi_tools+=GetFlowMomentTools(iter1.OutputEventShapeKey,iter1.ModulationEventShapeKey)
+#hi_tools+=BuildFlowMomentTools(iter0.OutputEventShapeKey)
 hi_tools += jtm.modifiersMap['HI']
 jtm.modifiersMap['HI']=hi_tools
 
 ###
 #subtracted algorithms
 #make main jets from unsubtr collections w/ same R, add modifiers for subtraction
-rtools = []
-for k in HIJetFinderDict.keys() :
-    if 'Unsubtr' in k :
-        in_name=k
-        out_name=in_name.replace("_%s" % unsubtr_suffix,"")
-        copier=jtm.addJetCopier(out_name,in_name,"HI")
-        HIJetFinderDict[out_name]=copier
-        rtools+=[copier]
 
+unsubtr_suffix=HIJetFlags.UnsubtractedSuffix()
+for k in jtm.jetrecs :
+    if unsubtr_suffix in k.name() :
+        in_name=k.OutputContainer
+        out_name=in_name.replace("_%s" % unsubtr_suffix,"")
+        copier=jtm.addJetCopier(out_name,in_name,"HI",shallow=False)
+        AddToOutputList(out_name)
+
+
+
+rtools=[]
+if hasattr(jtm,"jetrun") :
+    for t in jtm.jetrecs :
+        if t not in jtm.jetrun.Tools : rtools+=[t]
+    AppendOutputList(jetFlags.jetAODList)
+else :  rtools=jtm.jetrecs
 JetAlgFromTools(rtools,suffix="HI",persistify=True)
 
-#eventually pass iterated event shape, event_shape_key=iter1.OutputEventShapeKey
-ApplySubtractionToClusters(event_shape_key=EventShapeKey, cluster_key=ClusterKey)
+
+

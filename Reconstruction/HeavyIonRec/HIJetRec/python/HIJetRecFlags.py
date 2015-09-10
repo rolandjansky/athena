@@ -10,6 +10,13 @@ class UnsubtractedSuffix(JobProperty):
     allowedTypes = ['string']
     StoredValue  = 'Unsubtracted'
 
+class SeedSuffix(JobProperty):
+    """ Common suffix for all unsubtracted jet collections
+    """
+    statusOn     = True
+    allowedTypes = ['string']
+    StoredValue  = 'Seed'
+
 class ClusterDRAssociation(JobProperty):
     """ DR used to associate clusters w/ jets. separate from jet constituents
     """
@@ -46,6 +53,14 @@ class AntiKtRValues(JobProperty):
     allowedTypes = ['list']
     StoredValue  = [0.2,0.3,0.4]
 
+class HarmonicsForSubtraction(JobProperty):
+    """ List of flow harmonics applied to jet subtraction
+    """
+    statusOn     = True
+    allowedTypes = ['list']
+    #StoredValue  = [2,3,4]
+    StoredValue  = [2]
+
 class HIClusterKey(JobProperty):
     """ Key of CaloClusterContainer containing HI clusters
     """
@@ -53,9 +68,23 @@ class HIClusterKey(JobProperty):
     allowedTypes = ['string']
     StoredValue  = 'HIClusters'
 
+class IteratedEventShapeKey(JobProperty):
+    """ Key of HIEventShapeContainer that has jet contribution excluded
+    """
+    statusOn     = True
+    allowedTypes = ['string']
+    StoredValue  = 'HIEventShape_iter1'
+
+class TruthJetPtMin(JobProperty):
+    """ Minimum pT of saved truth jets
+    """
+    statusOn     = True
+    allowedTypes = ['float']
+    StoredValue  = 5000.
+
 class InputTrackPtMin(JobProperty):
     """ Minimum track pT used in track jet finding
-    """
+xo    """
     statusOn     = True
     allowedTypes = ['float']
     StoredValue  = 4000.
@@ -67,12 +96,47 @@ class TrackJetPtMin(JobProperty):
     allowedTypes = ['float']
     StoredValue  = 7000.
 
-class HIJetAODItemList(JobProperty):
+class TrackJetContainerName(JobProperty):
+    """ Name of main track jets used in iteration and ghost matching
+    """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'AntiKt4HITrackJets'
+
+class HIJetOutputList(JobProperty):
     """ List of items to be written to AOD, initially empty but filled based on configuration
     """
     statusOn     = True
     allowedTypes = ['list']
     StoredValue  = []
+
+class WriteClusters(JobProperty):
+    """ Option to write HIClusters to AOD
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
+class WriteUnsubtracted(JobProperty):
+    """ Option to write unsubtracted containers
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class WriteSeeds(JobProperty):
+    """ Option to write seed containers
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class UseHITracks(JobProperty):
+    """ Use track selectors w/ HI specific cuts
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
 
     
 class HIJetRecFlags(JobPropertyContainer):
@@ -85,15 +149,24 @@ jobproperties.add_Container(HIJetRecFlags)
 
 # We want always the following flags in the container  
 list_jobproperties = [UnsubtractedSuffix,
+                      SeedSuffix,
                       ClusterDRAssociation,
                       ExclusionRadius,
                       DCutMaxOverMean,
                       DCutMax,
                       AntiKtRValues,
+                      HarmonicsForSubtraction,
                       HIClusterKey,
+                      IteratedEventShapeKey,
+                      TruthJetPtMin,
                       InputTrackPtMin,
                       TrackJetPtMin,
-                      HIJetAODItemList
+                      TrackJetContainerName,
+                      HIJetOutputList,
+                      WriteClusters,
+                      WriteUnsubtracted,
+                      WriteSeeds,
+                      UseHITracks
                       ]
 
 for i in list_jobproperties:

@@ -14,14 +14,6 @@ HIJetSubtractorToolBase::HIJetSubtractorToolBase(const std::string& myname) : as
 
   declareProperty("MinimumEnergyForMoments",m_E_min_moment=50.,"> E, cluster given tower coordinates");
   declareProperty("UpdateClusters",m_update_clusters=false,"If true set cluster kinematics to reflect subtraction");
-  declareProperty("HarmonicsList",m_harmonics_vec,"List of harmonics included in UE modulation");
-}
 
-StatusCode HIJetSubtractorToolBase::initialize()
-{
-  //Set cannot be passed as declare property
-  //Make sure list is unique
-  for(auto itr=m_harmonics_vec.begin(); itr!=m_harmonics_vec.end(); itr++) m_harmonics.insert(*itr);
-    return StatusCode::SUCCESS;
 }
 

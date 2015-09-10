@@ -3,7 +3,7 @@
 */
 
 #include "HIJetRec/HIJetClusterIndexAssociationTool.h"
-#include "HIGlobal/HICaloHelper.h"
+#include "HIEventUtils/HIEventDefs.h"
 #include <iomanip>
 
 //**********************************************************************
@@ -49,42 +49,42 @@ int HIJetClusterIndexAssociationTool::modify(xAOD::JetContainer& jets) const
     std::vector<const xAOD::IParticle*> ParticleVector;
     xAOD::Jet* theJet=(*ijet);
 
-    float eta=HICaloHelper::GetBinCenterEta(HICaloHelper::FindBinEta(theJet->eta()));
-    float phi=HICaloHelper::GetBinCenterPhi(HICaloHelper::FindBinPhi(theJet->phi()));
+    float eta=HI::TowerBins::getBinCenterEta(HI::TowerBins::findBinEta(theJet->eta()));
+    float phi=HI::TowerBins::getBinCenterPhi(HI::TowerBins::findBinPhi(theJet->phi()));
     
-    float etabinmin=HICaloHelper::FindBinEta(eta-m_DR);
-    float etabinmax=HICaloHelper::FindBinEta(eta+m_DR);
+    int etabinmin=HI::TowerBins::findBinEta(eta-m_DR);
+    int etabinmax=HI::TowerBins::findBinEta(eta+m_DR);
     
     if(etabinmin < 0) etabinmin=0;
-    if(etabinmax > HICaloHelper::NumEtaBins) etabinmax=HICaloHelper::NumEtaBins;
+    if(static_cast<unsigned int>(etabinmax) > HI::TowerBins::numEtaBins()) etabinmax=HI::TowerBins::numEtaBins();
     
     for(int ieta=etabinmin; ieta<=etabinmax; ieta++)
     {
       
-      float ev=HICaloHelper::GetBinCenterEta(ieta);
+      float ev=HI::TowerBins::getBinCenterEta(ieta);
       float delta_ev2=(ev-eta)*(ev-eta);
       float phimin=phi-std::sqrt( m_DR*m_DR-delta_ev2+1e-4 );
-      unsigned int iphi=HICaloHelper::FindBinPhi(phimin);
-      float pbc=HICaloHelper::GetBinCenterPhi(iphi);
+      unsigned int iphi=HI::TowerBins::findBinPhi(phimin);
+      float pbc=HI::TowerBins::getBinCenterPhi(iphi);
       float dphi=TVector2::Phi_mpi_pi(phi-pbc);
       float rv2=dphi*dphi+delta_ev2;
       
       if(rv2 > m_DR*m_DR)
       {
 	iphi++;
-	pbc=HICaloHelper::GetBinCenterPhi(iphi);
+	pbc=HI::TowerBins::getBinCenterPhi(iphi);
 	dphi=TVector2::Phi_mpi_pi(phi-pbc);
 	rv2=dphi*dphi+delta_ev2;
       }
       while(rv2 < m_DR*m_DR)
       {
-	float pv=HICaloHelper::GetBinCenterPhi(iphi);
-	unsigned int eta_phi_index=HICaloHelper::FindEtaPhiBin(ev,pv);
+	float pv=HI::TowerBins::getBinCenterPhi(iphi);
+	unsigned int eta_phi_index=HI::TowerBins::findEtaPhiBin(ev,pv);
 	const xAOD::IParticle* ap=(*ppars)[eta_phi_index];
 	ParticleVector.push_back( ap );
 	//update condition for next iteration in while loop
 	iphi++;
-	pbc=HICaloHelper::GetBinCenterPhi(iphi);
+	pbc=HI::TowerBins::getBinCenterPhi(iphi);
 	dphi=TVector2::Phi_mpi_pi(phi-pbc);
 	rv2=dphi*dphi+delta_ev2;
       }

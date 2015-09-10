@@ -26,15 +26,14 @@ class HIJetSubtractorToolBase : public asg::AsgTool, virtual public IHISubtracto
 public:
 
   HIJetSubtractorToolBase(const std::string& myname);
-  virtual StatusCode initialize();
+  virtual ~HIJetSubtractorToolBase(){};
 
 private:
 
   /// %% FIX needs some cleanup
   float m_E_min_moment;
   bool m_update_clusters;
-  std::vector<unsigned int> m_harmonics_vec;
-  std::set<unsigned int> m_harmonics;
+
 
 protected:
   inline void SetMinEnergyForMoment(float min_E) {m_E_min_moment=min_E;};
@@ -42,9 +41,6 @@ protected:
 
   inline float MinEnergyForMoments() const {return m_E_min_moment;};
   inline bool UpdateClusters() const {return m_update_clusters;};
-
-  inline const std::set<unsigned int>& Harmonics() const {return m_harmonics;};
-
 
 };
 
