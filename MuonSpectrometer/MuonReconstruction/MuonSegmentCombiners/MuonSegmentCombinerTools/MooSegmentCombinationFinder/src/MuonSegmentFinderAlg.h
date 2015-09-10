@@ -29,10 +29,6 @@
 #include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinderTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 
-namespace Muon {
-  class IMuonClusterSegmentFinder;
-}
-
 class MsgStream;
 class StoreGateSvc;
 class ICscSegmentFinder;
@@ -56,25 +52,20 @@ class MuonSegmentFinderAlg : public AthAlgorithm
   ToolHandle<Muon::IMuonPatternCalibration>       m_patternCalibration;
   ToolHandle<Muon::IMuonPatternSegmentMaker>      m_patternSegmentMaker;
   ToolHandle<Muon::IMuonSegmentMaker>             m_segmentMaker;     
-  ToolHandle<Muon::IMuonClusterSegmentFinder>     m_clusterSegMaker;
-  ToolHandle<Muon::IMuonSegmentOverlapRemovalTool> m_segmentOverlapRemovalTool;
+  ToolHandle<Muon::IMuonSegmentOverlapRemovalTool> m_segmentOverlapRemovalTool;     
   ToolHandle<Muon::IMuonClusterOnTrackCreator>    m_clusterCreator;  //<! pointer to muon cluster rio ontrack creator
-  ToolHandle<Muon::IMuonClusterSegmentFinderTool> m_clusterSegMakerNSW;
+  ToolHandle<Muon::IMuonClusterSegmentFinderTool> m_clusterSegMaker;
   ToolHandle<Muon::IMuonTruthSummaryTool>         m_truthSummaryTool;
   ToolHandle<ICscSegmentFinder>                  m_csc2dSegmentFinder;
   ToolHandle<ICscSegmentFinder>                  m_csc4dSegmentFinder;
 
   std::string m_segmentCollectionName;
   
-  void createSegmentsWithMDTs(const Muon::MuonPatternCombination* patt,std::vector<const Muon::MuonSegment*>& segs );
-  void createSegmentsFromClusters(const Muon::MuonPatternCombination* patt,std::vector<const Muon::MuonSegment*>& segs);
+  void createSegmentsWithMDTs(Muon::MuonPatternCombination* patt,std::vector<const Muon::MuonSegment*>& segs );
+  void createSegmentsFromClusters(Muon::MuonPatternCombination* patt,std::vector<const Muon::MuonSegment*>& segs);
 
   bool m_printSummary;
   bool m_useNSWMode;
-  
-  /** selection flags for cluster based segment finding */
-  bool                m_doTGCClust;
-  bool                m_doRPCClust;
 };
 
 
