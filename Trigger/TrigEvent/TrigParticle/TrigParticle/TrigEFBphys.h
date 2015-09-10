@@ -34,7 +34,10 @@ Authour: J.Kirk - Wed May 10
 #include "Particle/TrackParticleContainer.h"
 #include "DataModel/ElementLink.h"
 #include "DataModel/ElementLinkVector.h"
-#include "TrigParticle/TrigEFBphysContainer.h"
+class TrigEFBphysContainer;
+class TrigEFBphys;
+
+ELEMENTLINK_FWD(TrigEFBphysContainer, TrigEFBphys);
 
 class TrigEFBphys  {
 
@@ -83,13 +86,7 @@ class TrigEFBphys  {
   /** accessor method: z position of vertex */
   float fitz()  const { return m_fitz;    }
   /** accessor method: secondary decay particle */
-  const TrigEFBphys* pSecondDecay() const { 
-    if (m_secondaryDecay.isValid()) { 
-      return *m_secondaryDecay; 
-    } else {
-      return NULL;
-    }
-  }
+  const TrigEFBphys* pSecondDecay() const;
 
   /** accessor method:vector of tracks used to make particle */
   const ElementLinkVector<Rec::TrackParticleContainer> trackVector() const {return m_trackVector;}

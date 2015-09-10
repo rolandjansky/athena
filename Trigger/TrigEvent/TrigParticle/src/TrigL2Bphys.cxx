@@ -22,6 +22,7 @@ Authour: J.Kirk - Wed May 10
 */
 
 #include "TrigParticle/TrigL2Bphys.h"
+#include "TrigParticle/TrigL2BphysContainer.h"
 
 
 // default constructor
@@ -194,3 +195,12 @@ void diff( const TrigL2Bphys& a, const TrigL2Bphys& b, std::map<std::string, dou
   variableChange["z"] = a.fitz() - b.fitz();
 }
 
+
+const TrigL2Bphys* TrigL2Bphys::pSecondDecay() const 
+{
+  if (m_secondaryDecay.isValid()) { 
+    return *m_secondaryDecay; 
+  } else {
+    return NULL;
+  }
+}

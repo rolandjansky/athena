@@ -26,7 +26,7 @@ Modified:
 #include "CLIDSvc/CLASS_DEF.h"
 #include "SGTools/BaseInfo.h"
 
-//#include "TrigParticle/TrigL2Bphys.h"
+#include "TrigParticle/TrigL2Bphys.h"
 class TrigL2Bphys;
 
 //typedef DataVector<TrigL2Bphys> TrigL2BphysContainer;

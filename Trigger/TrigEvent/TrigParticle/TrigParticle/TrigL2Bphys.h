@@ -33,7 +33,11 @@ Authour: J.Kirk - Wed May 10
 #include "TrigInDetEvent/TrigVertexCollection.h"
 #include "DataModel/ElementLink.h"
 #include "DataModel/ElementLinkVector.h"
-#include "TrigParticle/TrigL2BphysContainer.h"
+class TrigL2BphysContainer;
+class TrigL2Bphys;
+
+
+ELEMENTLINK_FWD(TrigL2BphysContainer, TrigL2Bphys);
 
 
 class TrigL2Bphys  {
@@ -82,14 +86,8 @@ class TrigL2Bphys  {
   float fitz()  const { return m_fitz;    }
 
   /** accessor method: secondary decay particle */
-  const TrigL2Bphys* pSecondDecay() const 
-{
-  if (m_secondaryDecay.isValid()) { 
-    return *m_secondaryDecay; 
-  } else {
-    return NULL;
-  }
-}
+  const TrigL2Bphys* pSecondDecay() const ;
+
   /** accessor method:vector of tracks used to make particle */
   const ElementLinkVector<TrigInDetTrackCollection>& trackVector() const {return m_trackVector;}
 
