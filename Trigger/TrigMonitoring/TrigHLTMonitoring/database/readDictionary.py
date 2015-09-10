@@ -20,6 +20,8 @@ def readDictionary(*vargs, **kwargs):
     ConfigScriptHashMissing=[]
     slice_match_pattern_list=[]
 
+
+
     for sl_index, sl in enumerate(slice_list):
         for rtl in run_type_list:
            dictpath = "dictionaries/"
@@ -33,7 +35,7 @@ def readDictionary(*vargs, **kwargs):
            #print "here", my_dictionary_file
            #print "non zero file ", is_non_zero_file(my_dictionary_file)
            my_dictionary=sl+"_"+rtl+"_"+"dictionary"
-           tmp = "dictionaries."+my_dictionary 
+           #tmp = "dictionaries."+my_dictionary 
            my_dict=sl+"_"+rtl+"_"+"dict"
            #print "la la ", my_dictionary                                                                                                           
            #print my_dict                                                                                                                           

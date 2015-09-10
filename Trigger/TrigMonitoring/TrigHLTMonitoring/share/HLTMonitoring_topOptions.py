@@ -27,6 +27,8 @@ if DQMonFlags.monManEnvironment == 'tier0Raw':
   HLTMonFlags.doDump     = False
   HLTMonFlags.doOfflineTauTTP = False
   HLTMonFlags.doIDJpsiMon  = False
+  #HLTMonFlags.doMaM      = True # default is False
+  #HLTMonFlags.MCK        = -1 # default is -1
 elif DQMonFlags.monManEnvironment == 'tier0ESD':
   # we are in ESD->AOD step
   # run all tools *except* the following (these are run in RAW->ESD)
@@ -38,4 +40,6 @@ else :
   HLTMonFlags.doGeneral = False
   HLTMonFlags.doMonTier0 = False
 
+# temporarily disabling IDJpsiMon to deal with ATR-12037
+HLTMonFlags.doIDJpsiMon = False
 include( "TrigHLTMonitoring/addMonTools.py" )

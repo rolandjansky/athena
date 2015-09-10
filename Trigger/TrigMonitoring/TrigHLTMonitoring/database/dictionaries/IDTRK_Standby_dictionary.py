@@ -5,8 +5,7 @@ RunType='Standby'
 Recostep='ESD'
 MonitoringTriggers= [ " ",]                        
 Config=[]
-Config+= [("HLTIDpvtx", {"OnlineEfficiancyRangeCutY" : 0.02,}), ("HLTIDtrkDump", {"MinSiHits" : 7,}),
-("tidatool", {}), ("MyAtlasExtrapolator", {}), ("MyCaloExtrapolatorTool", {}), ("HLTIDZeeTag", {})
+Config+= [("MyAtlasExtrapolator", {}),
 ]
 PkgName = "TrigIDtrkMonitoring.TrigIDtrkMonitoringConfig"
 CreatorName = "TrigIDtrkMonitoringTool"

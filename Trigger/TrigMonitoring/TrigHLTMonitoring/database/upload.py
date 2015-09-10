@@ -34,7 +34,7 @@ def upload(MakeActive='False'):
   # get active key MCK
 
   activeKeyMCK = getActiveKeyMCK('oracle')
-  #print "active key MCK = ", activeKeyMCK
+  print "active key MCK = ", activeKeyMCK
   
   # if OVERWRITE = 1 then we should create a new config entry in the DB or take the existing one but not the active one
   OVERWRITE=0
@@ -43,15 +43,20 @@ def upload(MakeActive='False'):
   index_list=[]
   dbConfigId_check=[]
   
+  #print "ConfigNameDict", ConfigNameDict
+  #print "enumerate(ConfigNameDict)", enumerate(ConfigNameDict)
+
   for index,conf_name in enumerate(ConfigNameDict):
       #print "#####################################"
+      #print "index", index
       #print " dict slice, RunType ", conf_name, ConfigRunTypeDict[index]
       #print "config code from dict ", ConfigCodeDict[index]
       #print "dict hash ", ConfigCodeHashDict[index]
+      #print "ConfigRecostepDict[index] ", ConfigRecostepDict[index]
 
       # get active key conf and compare hash of config code:
-
-      dbConfigId, dbConfigCode, dbConfigScript,dbConfigCodeHash,dbConfigScriptHash=getConfigCodeForMCK('oracle', activeKeyMCK, ConfigRunTypeDict[index], conf_name, ConfigRecostepDict[index])
+      #print "'oracle', activeKeyMCK, ConfigRunTypeDict[index], conf_name, ConfigRecostepDict[index]",'oracle', activeKeyMCK, ConfigRunTypeDict[index], conf_name, ConfigRecostepDict[index]
+      dbConfigId, dbConfigCode, dbConfigScript, dbConfigCodeHash, dbConfigScriptHash=getConfigCodeForMCK('oracle', activeKeyMCK, ConfigRunTypeDict[index], conf_name, ConfigRecostepDict[index])
   
       dbConfigId_check.append(dbConfigId)
 

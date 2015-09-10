@@ -24,10 +24,10 @@ def configureMonitoring(MCK_number):
     # if entry is not None then we take monitoring config from DB, else it is taken from the release in a standard way 
     if config_caloraw != None:
       for (toolname, toolconfig) in config_caloraw['Config']:
-          # modify defaults according to config dictionary
-          tool = getattr(ToolSvc,toolname)
-          for confattr,confvalue in toolconfig.items():
-              tool.__setattr__(confattr, confvalue)
+        # modify defaults according to config dictionary
+        tool = getattr(ToolSvc,toolname)
+        for confattr,confvalue in toolconfig.items():
+          tool.__setattr__(confattr, confvalue)
 
 
   if HLTMonFlags.doCalo and DQMonFlags.monManEnvironment == 'tier0ESD':
@@ -36,10 +36,10 @@ def configureMonitoring(MCK_number):
     # if entry is not None then we take monitoring config from DB, else it is taken from the release in a standard way 
     if config_caloesd != None:
       for (toolname, toolconfig) in config_caloesd['Config']:
-          # modify defaults according to config dictionary
-          tool = getattr(ToolSvc,toolname)
-          for confattr,confvalue in toolconfig.items():
-              tool.__setattr__(confattr, confvalue)
+        # modify defaults according to config dictionary
+        tool = getattr(ToolSvc,toolname)
+        for confattr,confvalue in toolconfig.items():
+          tool.__setattr__(confattr, confvalue)
 
   if HLTMonFlags.doTau:
     # here we check which entry there is in the DB for this slice
@@ -47,10 +47,10 @@ def configureMonitoring(MCK_number):
     # if entry is not None then we take monitoring config from DB, else it is taken from the release in a standard way 
     if config_tau != None:
       for (toolname, toolconfig) in config_tau['Config']:
-          # modify defaults according to config dictionary
-          tool = getattr(ToolSvc,toolname)
-          for confattr,confvalue in toolconfig.items():
-              tool.__setattr__(confattr, confvalue)
+        # modify defaults according to config dictionary
+        tool = getattr(ToolSvc,toolname)
+        for confattr,confvalue in toolconfig.items():
+          tool.__setattr__(confattr, confvalue)
 
   if HLTMonFlags.doBjet:
     # here we check which entry there is in the DB for this slice
@@ -58,10 +58,10 @@ def configureMonitoring(MCK_number):
     # if entry is not None then we take monitoring config from DB, else it is taken from the release in a standard way 
     if config_bjet != None:
       for (toolname, toolconfig) in config_bjet['Config']:
-          # modify defaults according to config dictionary
-          tool = getattr(ToolSvc,toolname)
-          for confattr,confvalue in toolconfig.items():
-              tool.__setattr__(confattr, confvalue)
+        # modify defaults according to config dictionary
+        tool = getattr(ToolSvc,toolname)
+        for confattr,confvalue in toolconfig.items():
+          tool.__setattr__(confattr, confvalue)
 
   if HLTMonFlags.doBphys:
     # here we check which entry there is in the DB for this slice
@@ -69,10 +69,10 @@ def configureMonitoring(MCK_number):
     # if entry is not None then we take monitoring config from DB, else it is taken from the release in a standard way 
     if config_bphys != None:
       for (toolname, toolconfig) in config_bphys['Config']:
-          # modify defaults according to config dictionary
-          tool = getattr(ToolSvc,toolname)
-          for confattr,confvalue in toolconfig.items():
-              tool.__setattr__(confattr, confvalue)
+        # modify defaults according to config dictionary
+        tool = getattr(ToolSvc,toolname)
+        for confattr,confvalue in toolconfig.items():
+          tool.__setattr__(confattr, confvalue)
 
   if HLTMonFlags.doMET:
     # here we check which entry there is in the DB for this slice
@@ -80,10 +80,10 @@ def configureMonitoring(MCK_number):
     # if entry is not None then we take monitoring config from DB, else it is taken from the release in a standard way 
     if config_met != None:
       for (toolname, toolconfig) in config_met['Config']:
-          # modify defaults according to config dictionary
-          tool = getattr(ToolSvc,toolname)
-          for confattr,confvalue in toolconfig.items():
-              tool.__setattr__(confattr, confvalue)
+        # modify defaults according to config dictionary
+        tool = getattr(ToolSvc,toolname)
+        for confattr,confvalue in toolconfig.items():
+          tool.__setattr__(confattr, confvalue)
 
   if HLTMonFlags.doJet:
     # here we check which entry there is in the DB for this slice
@@ -91,10 +91,10 @@ def configureMonitoring(MCK_number):
     # if entry is not None then we take monitoring config from DB, else it is taken from the release in a standard way 
     if config_jet != None:
       for (toolname, toolconfig) in config_jet['Config']:
-          # modify defaults according to config dictionary
-          tool = getattr(ToolSvc,toolname)
-          for confattr,confvalue in toolconfig.items():
-              tool.__setattr__(confattr, confvalue)
+        # modify defaults according to config dictionary
+        tool = getattr(ToolSvc,toolname)
+        for confattr,confvalue in toolconfig.items():
+          tool.__setattr__(confattr, confvalue)
 
   if HLTMonFlags.doEgamma:
     # here we check which entry there is in the DB for this slice
@@ -102,10 +102,10 @@ def configureMonitoring(MCK_number):
     # if entry is not None then we take monitoring config from DB, else it is taken from the release in a standard way 
     if config_egamma != None:
       for (toolname, toolconfig) in config_egamma['Config']:
-          # modify defaults according to config dictionary
-         tool = getattr(ToolSvc,toolname)
-         for confattr,confvalue in toolconfig.items():
-              tool.__setattr__(confattr, confvalue)
+        # modify defaults according to config dictionary
+        tool = getattr(ToolSvc,toolname)
+        for confattr,confvalue in toolconfig.items():
+          tool.__setattr__(confattr, confvalue)
 
   if HLTMonFlags.doMuon:
     # here we check which entry there is in the DB for this slice
@@ -113,10 +113,10 @@ def configureMonitoring(MCK_number):
     # if entry is not None then we take monitoring config from DB, else it is taken from the release in a standard way 
     if config_muon != None:
       for (toolname, toolconfig) in config_muon['Config']:
-          # modify defaults according to config dictionary
-          tool = getattr(ToolSvc,toolname)
-          for confattr,confvalue in toolconfig.items():
-              tool.__setattr__(confattr, confvalue)
+        # modify defaults according to config dictionary
+        tool = getattr(ToolSvc,toolname)
+        for confattr,confvalue in toolconfig.items():
+          tool.__setattr__(confattr, confvalue)
 
   if HLTMonFlags.doIDtrk:
     # here we check which entry there is in the DB for this slice
@@ -124,10 +124,10 @@ def configureMonitoring(MCK_number):
     # if entry is not None then we take monitoring config from DB, else it is taken from the release in a standard way 
     if config_idtrk != None:
       for (toolname, toolconfig) in config_idtrk['Config']:
-          # modify defaults according to config dictionary
-          tool = getattr(ToolSvc,toolname)
-          for confattr,confvalue in toolconfig.items():
-            tool.__setattr__(confattr, confvalue)
+        # modify defaults according to config dictionary
+        tool = getattr(ToolSvc,toolname)
+        for confattr,confvalue in toolconfig.items():
+          tool.__setattr__(confattr, confvalue)
 
   if HLTMonFlags.doMinBias:
     # here we check which entry there is in the DB for this slice
@@ -135,10 +135,10 @@ def configureMonitoring(MCK_number):
     # if entry is not None then we take monitoring config from DB, else it is taken from the release in a standard way 
     if config_minbias != None:
       for (toolname, toolconfig) in config_minbias['Config']:
-          # modify defaults according to config dictionary
-          tool = getattr(ToolSvc,toolname)
-          for confattr,confvalue in toolconfig.items():
-              tool.__setattr__(confattr, confvalue)
+        # modify defaults according to config dictionary
+        tool = getattr(ToolSvc,toolname)
+        for confattr,confvalue in toolconfig.items():
+          tool.__setattr__(confattr, confvalue)
 
   if HLTMonFlags.doIDJpsiMon:
     # here we check which entry there is in the DB for this slice
@@ -146,8 +146,8 @@ def configureMonitoring(MCK_number):
     # if entry is not None then we take monitoring config from DB, else it is taken from the release in a standard way 
     if config_idjpsi != None:
       for (toolname, toolconfig) in config_idjpsi['Config']:
-          # modify defaults according to config dictionary
-          tool = getattr(ToolSvc,toolname)
-          for confattr,confvalue in toolconfig.items():
-              tool.__setattr__(confattr, confvalue)
+        # modify defaults according to config dictionary
+        tool = getattr(ToolSvc,toolname)
+        for confattr,confvalue in toolconfig.items():
+          tool.__setattr__(confattr, confvalue)
 
