@@ -25,7 +25,7 @@ Modified:
 #include "DataModel/DataVector.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
-//#include "TrigParticle/TrigEFBphys.h"
+#include "TrigParticle/TrigEFBphys.h"
 #include "SGTools/BaseInfo.h"
 
 class TrigEFBphys;

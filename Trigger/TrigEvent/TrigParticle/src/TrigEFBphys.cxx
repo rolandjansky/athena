@@ -22,6 +22,7 @@ Authour: J.Kirk - Wed May 10
 */
 
 #include "TrigParticle/TrigEFBphys.h"
+#include "TrigParticle/TrigEFBphysContainer.h"
 
 // default constructor
 TrigEFBphys::TrigEFBphys() :
@@ -188,4 +189,14 @@ void diff( const TrigEFBphys& a, const TrigEFBphys& b, std::map<std::string, dou
   variableChange["x"] = a.fitx() - b.fitx();
   variableChange["y"] = a.fity() - b.fity();
   variableChange["z"] = a.fitz() - b.fitz();
+}
+
+
+/** accessor method: secondary decay particle */
+const TrigEFBphys* TrigEFBphys::pSecondDecay() const { 
+  if (m_secondaryDecay.isValid()) { 
+    return *m_secondaryDecay; 
+  } else {
+    return NULL;
+  }
 }
