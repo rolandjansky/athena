@@ -57,16 +57,16 @@ namespace Analysis {
                                              bool & canUseSvxDirection,
                                              const xAOD::Jet & jetToTag,
                                              xAOD::BTagging * BTag,
-                                             const std::string & secVxFinderName,
-                                             const xAOD::Vertex & priVtx);
-                                             // const Trk::RecVertex & priVtx);
+                                             const std::string & m_secVxFinderName,
+                                             const xAOD::Vertex & m_priVtx);
+                                             // const Trk::RecVertex & m_priVtx);
     
 
     /**Method to get the tracks from V0 from the secondary vertex info */
     void getTrkFromV0FromSecondaryVertexInfo(std::vector<const xAOD::TrackParticle*> & TrkFromV0,
                                              const xAOD::Jet & jetToTag,
                                              xAOD::BTagging * BTag,
-                                             const std::string & secVxFinderName);
+                                             const std::string & m_secVxFinderName);
 
 
   private:

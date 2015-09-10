@@ -71,18 +71,21 @@ const TrackGradesDefinition & BasicTrackGradeFactory::getTrackGradesDefinition()
   if (m_useSharedHitInfo)
   {
 
-    uint8_t nbs=0, nps=0, nss=0;
+    uint8_t nbs, nps, nss;
     if (!track.summaryValue(nbs, xAOD::numberOfBLayerSharedHits)){
       ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfBLayerSharedHists for TrackGrade!");
     }
+    if(nbs < 0) nbs = 0;
 
     if (!track.summaryValue(nps, xAOD::numberOfPixelSharedHits)){
       ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfPixelSharedHists for TrackGrade!");
     }
+    if(nps < 0) nps = 0;
 
     if (!track.summaryValue(nss, xAOD::numberOfSCTSharedHits)){
       ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfSCTSharedHists for TrackGrade!");
     }
+    if(nss < 0) nss = 0;
     int nsht =  nps+nss ;
     
     

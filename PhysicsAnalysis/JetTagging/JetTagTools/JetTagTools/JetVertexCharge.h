@@ -24,15 +24,11 @@
 
 #include "xAODTracking/TrackParticle.h"
 
-#include <map>
 
 #include "TMVA/IMethod.h"
 #include "TMVA/MethodBase.h"
 namespace TMVA { class Reader; }
 namespace Analysis { class CalibrationBroker; }
-
-namespace CP { class IMuonSelectionTool; }
-namespace CP { class IMuonCalibrationAndSmearingTool; }
 
 class TList;
 
@@ -67,9 +63,7 @@ namespace Analysis {
 //------------------------------------------------------------------------            
 
    ToolHandle<CalibrationBroker> m_calibrationTool;
-   ToolHandle<CP::IMuonSelectionTool> m_muonSelectorTool;
-   ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muonCorrectionTool;
-   const xAOD::Vertex *m_primVtx = 0; 
+   const xAOD::Vertex *m_primVtx; 
 
 
    enum MVAcat {
@@ -97,8 +91,6 @@ namespace Analysis {
    bool m_doForcedCalib;
    std::string m_ForcedCalibName;
 
-   int m_muonQualityCut;
-
    double m_kappa;
    double m_kappa_SV;
    double m_kappa_TV;
@@ -122,14 +114,6 @@ namespace Analysis {
    std::map< int, TH1F* > m_histoList_pos;
    std::map< int, TH1F* > m_histoList_neg;
 
-   std::map<std::string, float*> m_variablePtr;
-
-   float m_jet_uPt;
-   float m_jc_jetPt;
-   float m_jc_all_jetPt;
-   float m_svc_jetPt;
-   float m_tvc_jetPt;
-   
    float m_jc;
    float m_jc_all;
    float m_svc;
@@ -154,14 +138,11 @@ namespace Analysis {
    float m_mu_ptLong;
    float m_mu_jet_dR;
    float m_mu_iso;
-   float m_mu_vtx;
 
 
 //      methods
 //------------------------------------------------------------------------
 
-   void initializeVariablePtrs();
-   
    bool passTrackCuts( const xAOD::TrackParticle &track ) const; 
 
    int category(); 
@@ -198,3 +179,4 @@ namespace Analysis {
 }  //End namespace
 
 #endif
+

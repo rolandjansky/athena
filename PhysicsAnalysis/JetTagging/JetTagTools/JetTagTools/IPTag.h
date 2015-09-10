@@ -57,10 +57,6 @@ namespace Analysis {
       
     StatusCode tagJet(xAOD::Jet& jetToTag, xAOD::BTagging * BTag);    
 
-    /** calculate individual track contribution to the three likelihoods: */
-    void trackWeight(std::string jetAuthor, TrackGrade grade, double sa0, double sz0,
-                     double & twb, double & twu, double & twc);
-    
     void finalizeHistos() {};
     
   private:      
@@ -76,107 +72,102 @@ namespace Analysis {
     /** Histogram Helper Class */
     HistoHelperRoot* m_histoHelper;
 
-    /// VD: bool switches
-    bool m_flipIP;              // reverse impact parameter signs for negative tag calibration method
-    bool m_flipZIP;             // reverse Z impact parameter signs for negative tag calibration method
-    bool m_usePosIP;            // use tracks with positive impact parameter for tagging
-    bool m_useNegIP;            // use tracks with negative impact parameter for tagging
-    bool m_useZIPSignForPosNeg; // use Z impact parameter sign as well to select Pos and Neg tracks
-    bool m_use2DSignForIP3D;    // force to use 2D IP sign even for IP3D IP
-    bool m_useD0SignForZ0;      // force to use transverse IP sign for Z impact parameter for IP3D
-    bool m_sortPt;              // sorting input tracks by pt
-    bool m_sortD0sig;           // sorting input tracks by d0sig
-    bool m_sortZ0D0sig;         // sorting input tracks by z0d0sig
-    bool m_RejectBadTracks;
-    bool m_SignWithSvx;
-    //bool m_writeInfoBase;       // writes a basic info for each tagger with Pb, Pu (IPInfoBase)
-    //bool m_writeInfoPlus;       // writes a detailed info 
-    bool m_checkOverflows;      // if true put the overflows in the first/last bins
-    bool m_doForcedCalib;
-    bool m_useCHypo;
-    bool m_unbiasIPEstimation;  // remove track from vertex when computing IP
-
-
-    //// VD: other (non-bool) configurables
-    /** Name of the track-to-jet association in the BTagging object */
-    std::string m_trackAssociationName;
-
-    /** List of the variables to be used in the likelihood */
-    std::vector<std::string> m_useVariables;
-     
-    /** specify the tag type (1D or 2D) */
-    std::string m_impactParameterView;
-    
-    /** forcing the calibration folder of a given collection */
-    std::string m_ForcedCalibName;
-
-    std::string m_infoPlusName; // key to store the IPInfoPlus (VD:???)
-
-   /** for reference mode: */
-    std::string m_referenceType;     // label to use for reference mode
-    std::string m_truthMatchingName; // name of truthMatchingTool instance to get TruthInfo 
-    double m_purificationDeltaR;     // skip light jets with heavy flavor in this cone
-    double m_jetPtMinRef;            // min cut on jet pT for reference
-
-    /** names of fools for getting the secondary vertex information */
-    std::string m_secVxFinderNameForV0Removal;
-    std::string m_secVxFinderNameForIPSign;
-    std::string m_secVxFinderName;
-
-    /** additional switch for smart track selection */
-    int m_NtrkMin;          // minimum number of tracks to consider
-    int m_NtrkMax;          // maximum number of tracks to consider (min will always prevail)
-    float m_trkFract;       // fraction of total tracks to consider (min will alwayt prevail)
-    std::string m_sortOption; // steering option
-
-
-    //// VD: auxiliary information to be stored
-    std::vector<std::string> m_hypotheses; // hypotheses: b | u
-    /** information to persistify: */
-    std::string m_originalTPCollectionName;
-    //const xAOD::TrackParticleContainer* m_originalTPCollection;
-    /** track classification. */
-    std::vector<std::string>          m_trackGradePartitionsDefinition;
-    std::vector<TrackGradePartition*> m_trackGradePartitions;
-    /** The jet of TrackParticles to be tagged. */
-    std::vector<GradedTrack> m_tracksInJet;
-    /** Storage for the primary vertex. Can be removed when JetTag provides origin(). */
-    // this pointer does not need to be deleted in the destructor (because it points to something in storegate)
-    const xAOD::Vertex* m_priVtx = 0;
-    std::vector<std::string> m_jetCollectionList, m_jetWithInfoPlus; // 
-    
-    
-    //// VD: list of tools below
     /** TrackToVertex tool */
     ToolHandle< Reco::ITrackToVertex > m_trackToVertexTool;
       
     /** Track selection cuts for IPTagging */
-    ToolHandle< TrackSelector >        m_trackSelectorTool;
+    ToolHandle< TrackSelector > m_trackSelectorTool;
 
-    /** Pointer to the likelihood tool. */
-    ToolHandle< NewLikelihoodTool >    m_likelihoodTool;
-
-    /** Pointer to the SV tool */
-    ToolHandle< SVForIPTool >          m_SVForIPTool;
-
-    /** ToolHandle for the ITrackGradeFactory tool */
-    ToolHandle< ITrackGradeFactory > m_trackGradeFactory;
-
-    /** GP: Tool for the estimation of the IPs to the Vertex */
-    ToolHandle< Trk::ITrackToVertexIPEstimator > m_trackToVertexIPEstimator;
-    
     /** InDetTrackSelectorTool (temporary: to be moved to a separate Tool) */
     ToolHandle< InDet::IInDetTrackSelectionTool > m_InDetTrackSelectorTool;
 
     /** TrackVertex associator (temporary: to be moved to a separate Tool) */
     ToolHandle< CP::ITrackVertexAssociationTool > m_TightTrackVertexAssociationTool;
       
+    /** Pointer to the likelihood tool. */
+    ToolHandle< NewLikelihoodTool > m_likelihoodTool;
+ 
+    /** The jet of TrackParticles to be tagged. */
+    std::vector<GradedTrack> m_tracksInJet;
+      
+    /** Name of the track-to-jet association in the BTagging object */
+    std::string m_trackAssociationName;
 
-    // VD: for debugging
+    /** Storage for the primary vertex. Can be removed when JetTag provides origin(). */
+    // this pointer does not need to be deleted in the destructor (because it
+    // points to something in storegate)
+    const xAOD::Vertex* m_priVtx;
+
+    /** List of the variables to be used in the likelihood */
+    std::vector<std::string> m_useVariables;
+     
+    /** specify the tag type (1D or 2D) */
+    std::string m_impactParameterView;
+
+    /** track classification. */
+    std::vector<std::string> m_trackGradePartitionsDefinition;
+    std::vector<TrackGradePartition*> m_trackGradePartitions;
+
+    bool m_flipIP;   // reverse impact parameter signs for negative tag calibration method
+    bool m_flipZIP;  // reverse Z impact parameter signs for negative tag calibration method
+    bool m_usePosIP; // use tracks with positive impact parameter for tagging
+    bool m_useNegIP; // use tracks with negative impact parameter for tagging
+    bool m_useZIPSignForPosNeg; // use Z impact parameter sign as well to select Pos and Neg tracks
+    bool m_use2DSignForIP3D; // force to use 2D IP sign even for IP3D IP
+    bool m_useD0SignForZ0; // force to use transverse IP sign for Z impact parameter for IP3D
+
+    /** JBdV */ 
+    bool m_RejectBadTracks;
+    bool m_SignWithSvx;
+
+    /** information to persistify: */
+    std::string m_originalTPCollectionName;
+    const xAOD::TrackParticleContainer* m_originalTPCollection;
+
+    bool m_writeInfoBase; // writes a basic info for each tagger with Pb, Pu (IPInfoBase)
+    bool m_writeInfoPlus; // writes a detailed info 
+    std::string m_infoPlusName; // key to store the IPInfoPlus
+
+    /** calculate individual track contribution to the three likelihoods: */
+    void trackWeight(std::string jetAuthor, TrackGrade grade, double sa0, double sz0,
+                     double & twb, double & twu, double & twc);
+
+    /** for reference mode: */
+    std::string m_referenceType; // label to use for reference mode
+    std::string m_truthMatchingName; // name of truthMatchingTool instance to get TruthInfo
+    bool m_checkOverflows; // if true put the overflows in the first/last bins
+    double m_purificationDeltaR; // skip light jets with heavy flavor in this cone
+    double m_jetPtMinRef; // min cut on jet pT for reference
+
+    std::vector<std::string> m_jetCollectionList, m_jetWithInfoPlus; // 
+
+    std::vector<std::string> m_hypotheses; // hypotheses: b | u
+
+    bool m_doForcedCalib;
+    std::string m_ForcedCalibName;
+
+    // for debugging:
     int m_nbjet;
     int m_ncjet;
     int m_nljet;
-  
+
+    bool m_useCHypo;
+
+    //GP: use Tool for getting the secondary vertex information
+    std::string m_secVxFinderNameForV0Removal;
+    std::string m_secVxFinderNameForIPSign;
+    std::string m_secVxFinderName;
+    ToolHandle< SVForIPTool > m_SVForIPTool;
+
+    /** ToolHandle for the ITrackGradeFactory tool */
+    ToolHandle< ITrackGradeFactory > m_trackGradeFactory;
+
+    /** GP: Tool for the estimation of the IPs to the Vertex */
+    ToolHandle< Trk::ITrackToVertexIPEstimator > m_trackToVertexIPEstimator;
+    /** option to unbias IP estimation (remove track from vertex) */
+    bool m_unbiasIPEstimation;
+    
+
   }; // End class
 
   inline void IPTag::setOrigin(const xAOD::Vertex* priVtx) { m_priVtx = priVtx; }

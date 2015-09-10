@@ -45,7 +45,7 @@ namespace Analysis {
     declareProperty("etaMax", m_etaMax = 9999.);
     declareProperty("useTrackSummaryInfo", m_useTrackSummaryInfo = true);
     declareProperty("nHitBLayer", m_nHitBLayer = 1);
-    declareProperty("nHitPix", m_nHitPix = 1);
+    declareProperty("nHitPix", m_nHitPix = 2);
     declareProperty("nHitSct", m_nHitSct = 0);
     declareProperty("nHitSi", m_nHitSi = 7);
     declareProperty("nHitTrt", m_nHitTrt = 0);
@@ -98,53 +98,53 @@ namespace Analysis {
  
     /** dump cuts: */
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "#BTAG# TrackSelector " << name() << " cuts: " << endmsg;
-      msg(MSG::DEBUG) << "#BTAG#     - pT >= " << m_pTMin << endmsg;
-      msg(MSG::DEBUG) << "#BTAG#     - |eta| <= " << m_etaMax << endmsg;
-      msg(MSG::DEBUG) << "#BTAG#     - |d0| <= " << m_d0Max << endmsg;
-      msg(MSG::DEBUG) << "#BTAG#     - |z0| <= " << m_z0Max << endmsg;
-      msg(MSG::DEBUG) << "#BTAG#     - |sigd0| <= " << m_sigd0Max << endmsg;
-      msg(MSG::DEBUG) << "#BTAG#     - |sigz0| <= " << m_sigz0Max << endmsg;
+      msg(MSG::DEBUG) << "#BTAG# TrackSelector " << name() << " cuts: " << endreq;
+      msg(MSG::DEBUG) << "#BTAG#     - pT >= " << m_pTMin << endreq;
+      msg(MSG::DEBUG) << "#BTAG#     - |eta| <= " << m_etaMax << endreq;
+      msg(MSG::DEBUG) << "#BTAG#     - |d0| <= " << m_d0Max << endreq;
+      msg(MSG::DEBUG) << "#BTAG#     - |z0| <= " << m_z0Max << endreq;
+      msg(MSG::DEBUG) << "#BTAG#     - |sigd0| <= " << m_sigd0Max << endreq;
+      msg(MSG::DEBUG) << "#BTAG#     - |sigz0| <= " << m_sigz0Max << endreq;
       if(m_useAntiPileUpCuts) {
         msg(MSG::DEBUG) << "#BTAG#     - antiPUcut: reject tracks with |sigz0| > " << m_antiPileUpSigZ0Cut 
-                        << " when |sigd0| < " << m_antiPileUpSigD0Cut << endmsg;
+                        << " when |sigd0| < " << m_antiPileUpSigD0Cut << endreq;
       }
       if(m_useTrackSummaryInfo) {
-	msg(MSG::DEBUG) << "#BTAG#     - nbHitsBLayer >= " << m_nHitBLayer << endmsg;
+	msg(MSG::DEBUG) << "#BTAG#     - nbHitsBLayer >= " << m_nHitBLayer << endreq;
 	if(m_useDeadPixInfo) {
-	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsPix+nbDeadPix >= " << m_nHitPix << endmsg;
+	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsPix+nbDeadPix >= " << m_nHitPix << endreq;
 	} else {
-	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsPix >= " << m_nHitPix << endmsg;
+	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsPix >= " << m_nHitPix << endreq;
 	}
 	if(m_useBLayerHitPrediction)
-	  msg(MSG::DEBUG) << "#BTAG#     using conddb for b-layer hit requirements " << endmsg;
+	  msg(MSG::DEBUG) << "#BTAG#     using conddb for b-layer hit requirements " << endreq;
 	  
 	if(m_useDeadSctInfo) {
-	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsSct+nbDeadSct >= " << m_nHitSct << endmsg;
+	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsSct+nbDeadSct >= " << m_nHitSct << endreq;
 	} else {
-	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsSct >= " << m_nHitSct << endmsg;
+	  msg(MSG::DEBUG) << "#BTAG#     - nbHitsSct >= " << m_nHitSct << endreq;
 	}
 	int nhsi = m_nHitSi;
 	if(m_useAntiPileUpCuts) nhsi = m_antiPileUpNHitSiCut;
 	if(m_useDeadPixInfo) {
 	  if(m_useDeadSctInfo) {
-	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadPix+nbDeadSct >= " << nhsi << endmsg;
+	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadPix+nbDeadSct >= " << nhsi << endreq;
 	  } else {
-	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadPix >= " << nhsi << endmsg;
+	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadPix >= " << nhsi << endreq;
 	  }
 	} else {
 	  if(m_useDeadSctInfo) {
-	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadSct >= " << nhsi << endmsg;
+	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi+nbDeadSct >= " << nhsi << endreq;
 	  } else {
-	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi >= " << nhsi << endmsg;
+	    msg(MSG::DEBUG) << "#BTAG#     - nbHitsSi >= " << nhsi << endreq;
 	  }
 	}
-	msg(MSG::DEBUG) << "#BTAG#     - nbHitsTrt >= " << m_nHitTrt << endmsg;
-	msg(MSG::DEBUG) << "#BTAG#     - nbHitsTrtHighE >= " << m_nHitTrtHighE << endmsg;
+	msg(MSG::DEBUG) << "#BTAG#     - nbHitsTrt >= " << m_nHitTrt << endreq;
+	msg(MSG::DEBUG) << "#BTAG#     - nbHitsTrtHighE >= " << m_nHitTrtHighE << endreq;
       }
-      msg(MSG::DEBUG) << "#BTAG#     - fit chi2 <= " << m_fitChi2 << endmsg;
-      msg(MSG::DEBUG) << "#BTAG#     - fit proba >= " << m_fitProb << endmsg;
-      msg(MSG::DEBUG) << "#BTAG#     - fit chi2 / ndf <= " << m_fitChi2OnNdfMax << endmsg;
+      msg(MSG::DEBUG) << "#BTAG#     - fit chi2 <= " << m_fitChi2 << endreq;
+      msg(MSG::DEBUG) << "#BTAG#     - fit proba >= " << m_fitProb << endreq;
+      msg(MSG::DEBUG) << "#BTAG#     - fit chi2 / ndf <= " << m_fitChi2OnNdfMax << endreq;
     }
 
     return StatusCode::SUCCESS;
@@ -232,16 +232,18 @@ namespace Analysis {
       failedCuts.set(etaMax);
     }
     if(m_useTrackSummaryInfo) {
-      uint8_t nb=0;
+      uint8_t nb;
       track->summaryValue(nb, xAOD::numberOfBLayerHits); 
+      if(nb<0) nb=0; 
       if(nb < m_nHitBLayer) {
 	failedCuts.set(nHitBLayer);
 	if(!m_useBLayerHitPrediction) { 
 	  pass = false;
 	  failedCuts.set(deadBLayer);
 	} else {
-	  uint8_t ehib=1;
-	  if (!track->summaryValue(ehib,xAOD::expectBLayerHit)) {
+	  uint8_t ehib;
+	  track->summaryValue(ehib,xAOD::expectBLayerHit);
+	  if(ehib < 0){
 	    ATH_MSG_WARNING("#BTAG# expectBLayerHit not computed in  TrackSummary: assuming true");
 	    ehib=1;
 	  }
@@ -251,15 +253,17 @@ namespace Analysis {
 	  }
 	}
       }
-      uint8_t nhp=0;
+      uint8_t nhp;
       track->summaryValue(nhp, xAOD::numberOfPixelHoles);
+      if(nhp<0) nhp=0;
       if(m_useAntiPileUpCuts) {
 	if(nhp>=m_antiPileUpNHolePixCut) {
 	  pass = false;
 	}
       }
-      uint8_t np=0;
+      uint8_t np;
       track->summaryValue(np, xAOD::numberOfPixelHits);
+      if(np<0) np=0;
       if(m_useDeadPixInfo) 
       {
 	uint8_t ndead;
@@ -270,8 +274,9 @@ namespace Analysis {
 	pass = false;
 	failedCuts.set(nHitPix);
       }
-      uint8_t ns=0;
+      uint8_t ns;
       track->summaryValue(ns, xAOD::numberOfSCTHits);
+      if(ns<0) ns=0;
       if(m_useDeadSctInfo)
       {
 	uint8_t ndead;
@@ -292,14 +297,16 @@ namespace Analysis {
 	  failedCuts.set(nHitSi);
 	}
       }
-      uint8_t nh=0;
+      uint8_t nh;
       track->summaryValue(nh, xAOD::numberOfTRTHits);//ms
+      if(nh<0) nh=0;
       if(nh < m_nHitTrt) {
 	pass = false;
 	failedCuts.set(nHitTrt);
       }
-      uint8_t nhe=0;
+      uint8_t nhe;
       track->summaryValue(nhe, xAOD::numberOfTRTHighThresholdHits);//ms
+      if(nhe<0) nhe=0;
       if(nhe < m_nHitTrtHighE) {
 	pass = false;
 	failedCuts.set(nHitTrtHighE);
@@ -356,7 +363,7 @@ namespace Analysis {
 	if(passl) m_ntrc[i]++;
 	msg(MSG::VERBOSE) << passl;
       } 
-      msg(MSG::VERBOSE) << endmsg;
+      msg(MSG::VERBOSE) << endreq;
     }
 
     m_passedCuts = ~failedCuts;

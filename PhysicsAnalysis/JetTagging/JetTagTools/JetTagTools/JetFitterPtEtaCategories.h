@@ -11,9 +11,9 @@
 ********************************************************/
 
 
-//using namespace std;
+using namespace std;
 
-std::pair<int,double> getPtCategory(double Pt)
+pair<int,double> getPtCategory(double Pt)
 {
 
   double correctionfactor=1e3;//PLEASE CHANGE IT TO 1 FOR INTERNAL CODE USE (GeV)
@@ -42,10 +42,10 @@ std::pair<int,double> getPtCategory(double Pt)
 //    interval=200/6;
   }
 
-  return std::pair<int,double>(actualpT,interval);
+  return pair<int,double>(actualpT,interval);
 }
 
-std::pair<int,double> getEtaCategory(double eta)
+pair<int,double> getEtaCategory(double eta)
 {
 
   int actualeta=-1;
@@ -62,7 +62,7 @@ std::pair<int,double> getEtaCategory(double eta)
 //    interval=0.6;
   }
   
-  return std::pair<int,double>(actualeta,interval);
+  return pair<int,double>(actualeta,interval);
 }
 
 int getNPtBins()
