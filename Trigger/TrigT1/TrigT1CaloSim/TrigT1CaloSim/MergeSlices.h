@@ -8,7 +8,7 @@
 #include <string>
 #include <map>
 
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
