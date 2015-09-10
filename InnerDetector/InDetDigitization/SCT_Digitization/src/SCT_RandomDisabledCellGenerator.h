@@ -26,8 +26,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "SCT_Digitization/ISCT_RandomDisabledCellGenerator.h"
 
-class SiChargedDiode;
-class SiChargedDiodeCollection;
+#include "SiDigitization/SiChargedDiode.h"
+#include "SiDigitization/SiChargedDiodeCollection.h"
 
 namespace CLHEP {
   class HepRandomEngine;

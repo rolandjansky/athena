@@ -107,9 +107,7 @@ float SCT_Amp::response(const list_t & Charges,const float timeOfThreshold) cons
   return resp*m_NormConstCentral ;
 }
 
-void SCT_Amp::response(const list_t & Charges,const float timeOfThreshold, std::vector<float> &response) const {
-  short bin_max = response.size();
-  std::fill(response.begin(), response.end(), 0.0);
+void SCT_Amp::response(const list_t & Charges,const float timeOfThreshold, float response[], short bin_max) const {
   float tp=m_PeakTime/3.0 ; // for CR-RC^3
   list_t::const_iterator p_charge = Charges.begin();
   list_t::const_iterator p_charge_end = Charges.end();
@@ -153,9 +151,7 @@ float SCT_Amp::crosstalk(const list_t & Charges,const float timeOfThreshold) con
   return resp*m_NormConstNeigh ;
 }
 
-void SCT_Amp::crosstalk(const list_t & Charges,const float timeOfThreshold, std::vector<float> &response) const {
-  short bin_max = response.size();
-  std::fill(response.begin(), response.end(), 0.0);
+void SCT_Amp::crosstalk(const list_t & Charges,const float timeOfThreshold, float response[], short bin_max) const {
   float tp=m_PeakTime/3.0 ; // for CR-RC^3
   list_t::const_iterator p_charge = Charges.begin();
   list_t::const_iterator p_charge_end = Charges.end();

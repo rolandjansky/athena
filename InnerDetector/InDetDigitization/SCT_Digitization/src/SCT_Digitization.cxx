@@ -10,7 +10,7 @@
 //---------------------------------------------------------------------- 
 SCT_Digitization::SCT_Digitization(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_sctDigitizationTool("SCT_DigitizationTool", this)
+  m_sctDigitizationTool("SCT_DigitizationTool")
 {
   declareProperty("DigitizationTool",     m_sctDigitizationTool,                 "SCT_DigitizationTool name");              
 }
