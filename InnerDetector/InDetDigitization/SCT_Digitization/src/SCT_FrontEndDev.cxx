@@ -933,76 +933,70 @@ StatusCode SCT_FrontEndDev::doThresholdCheckForCrosstalkHits(SiChargedDiodeColle
     if (m_StripHitsOnWafer[strip] != 0){ // real hits already checked
       continue;
     }
-    if (m_Analogue[1][strip]<0.0000001 || m_Analogue[1][strip]>-0.0000001){ // Better way of doing this?! set m_StripHitsOnWafer to x in prepareGainAndOffset
+    if (m_Analogue[1][strip]>0){ // Better way of doing this?! set m_StripHitsOnWafer to x in prepareGainAndOffset
       if(m_data_compression_mode == 1 and m_data_readout_mode == 0){ // level mode x1x
-	if ( m_Analogue[1][strip]<m_Threshold ) {
-	  m_StripHitsOnWafer[strip] = -2;           // Below threshold
-	}
-	else{
-	  m_StripHitsOnWafer[strip] = 2;            // Crosstalk+Noise hit
-	  if( StatusCode::SUCCESS != addNoiseDiode(collection, strip, 2) ){
-	    ATH_MSG_ERROR ( "Can't add noise hit diode to collection" ) ;
-	  }
-	}
-      }
-      else if(m_data_compression_mode == 2 and m_data_readout_mode == 0){ // edge mode 01x
-	if ( (m_Analogue[0][strip]>=m_Threshold || m_Analogue[1][strip]<m_Threshold) ){
-	  m_StripHitsOnWafer[strip] = -2;           // Below threshold
-	}
-	else{
-	  m_StripHitsOnWafer[strip] = 2;            // Crosstalk+Noise hit
-	  if( StatusCode::SUCCESS != addNoiseDiode(collection, strip, 2) ){
-	    ATH_MSG_ERROR ( "Can't add noise hit diode to collection" ) ;
-	  }
-	}
-      }
-      else if ( m_data_compression_mode == 3 or m_data_readout_mode == 1 ) {
-	int have_hit_bin = 0;
-	if( m_Analogue[0][strip]>=m_Threshold ){
-	  have_hit_bin = 4;
-	}
-	if( m_Analogue[1][strip]>=m_Threshold ){
-	  have_hit_bin += 2;
-	}
-	if( m_Analogue[2][strip]>=m_Threshold ){
-	  have_hit_bin += 1;
-	}
-	if ( m_data_compression_mode == 1 ){ //!< level and expanded mode
-	  if ( have_hit_bin == 2 or have_hit_bin == 3 or have_hit_bin == 6 or have_hit_bin == 7){
-	    m_StripHitsOnWafer[strip] = 2;          // Crosstalk+Noise hit
-	    if( StatusCode::SUCCESS != addNoiseDiode(collection, strip, have_hit_bin) ){
-	      ATH_MSG_ERROR ( "Can't add noise hit diode to collection" ) ;
-	    }
-	  }else{
-	    m_StripHitsOnWafer[strip] = -2;         // Below threshold
-	  }
-	}
-	else if ( m_data_compression_mode == 2 ){ //!< edge and expanded mode
-	  if ( have_hit_bin == 2 or have_hit_bin == 3){
-	    m_StripHitsOnWafer[strip] = 2; // Noise hit
-	    if( StatusCode::SUCCESS != addNoiseDiode(collection, strip, have_hit_bin) ){
-	      ATH_MSG_ERROR ( "Can't add noise hit diode to collection" ) ;
-	    }
-	  }else{
-	    m_StripHitsOnWafer[strip] = -2;         // Below threshold
-	  }  
-	}
-	else if ( m_data_compression_mode == 3 ){ //!< any hit mode
-	  if ( have_hit_bin == 0 ){
-	    m_StripHitsOnWafer[strip] = -2;         // Below threshold
-	  }else{
-	    m_StripHitsOnWafer[strip] = 2;          //!< Crosstalk+Noise hit
-	    if ( m_data_readout_mode == 1 ){        //!< check for exp mode or not
-	      if( StatusCode::SUCCESS != addNoiseDiode(collection, strip, have_hit_bin) ){
-		ATH_MSG_ERROR ( "Can't add noise hit diode to collection" ) ;
+	      if ( m_Analogue[1][strip]<m_Threshold ) {
+	        m_StripHitsOnWafer[strip] = -2;           // Below threshold
+	      } else {
+	        m_StripHitsOnWafer[strip] = 2;            // Crosstalk+Noise hit
+	        if( StatusCode::SUCCESS != addNoiseDiode(collection, strip, 2) ){
+	          ATH_MSG_ERROR ( "Can't add noise hit diode to collection" ) ;
+	        }
 	      }
-	    }else {
+      } else if(m_data_compression_mode == 2 and m_data_readout_mode == 0){ // edge mode 01x
+	      if ( (m_Analogue[0][strip]>=m_Threshold || m_Analogue[1][strip]<m_Threshold) ){
+	      m_StripHitsOnWafer[strip] = -2;           // Below threshold
+	    } else {
+	      m_StripHitsOnWafer[strip] = 2;            // Crosstalk+Noise hit
 	      if( StatusCode::SUCCESS != addNoiseDiode(collection, strip, 2) ){
-		ATH_MSG_ERROR ( "Can't add noise hit diode to collection" ) ;
+	        ATH_MSG_ERROR ( "Can't add noise hit diode to collection" ) ;
 	      }
 	    }
-	  }
-	}
+    } else if ( m_data_compression_mode == 3 or m_data_readout_mode == 1 ) {
+	      int have_hit_bin = 0;
+				if( m_Analogue[0][strip]>=m_Threshold ){
+					have_hit_bin = 4;
+				}
+				if( m_Analogue[1][strip]>=m_Threshold ){
+					have_hit_bin += 2;
+				}
+				if( m_Analogue[2][strip]>=m_Threshold ){
+					have_hit_bin += 1;
+				}
+				if ( m_data_compression_mode == 1 ){ //!< level and expanded mode
+					if ( have_hit_bin == 2 or have_hit_bin == 3 or have_hit_bin == 6 or have_hit_bin == 7){
+						m_StripHitsOnWafer[strip] = 2;          // Crosstalk+Noise hit
+						if( StatusCode::SUCCESS != addNoiseDiode(collection, strip, have_hit_bin) ){
+							ATH_MSG_ERROR ( "Can't add noise hit diode to collection" ) ;
+						}
+					}else{
+						m_StripHitsOnWafer[strip] = -2;         // Below threshold
+	        }
+	      } else if ( m_data_compression_mode == 2 ){ //!< edge and expanded mode
+	        if ( have_hit_bin == 2 or have_hit_bin == 3){
+	        m_StripHitsOnWafer[strip] = 2; // Noise hit
+	        if( StatusCode::SUCCESS != addNoiseDiode(collection, strip, have_hit_bin) ){
+	          ATH_MSG_ERROR ( "Can't add noise hit diode to collection" ) ;
+	        }
+	      }else{
+	        m_StripHitsOnWafer[strip] = -2;         // Below threshold
+	      }  
+	    } else if ( m_data_compression_mode == 3 ){ //!< any hit mode
+				if ( have_hit_bin == 0 ){
+					m_StripHitsOnWafer[strip] = -2;         // Below threshold
+				}else{
+					m_StripHitsOnWafer[strip] = 2;          //!< Crosstalk+Noise hit
+					if ( m_data_readout_mode == 1 ){        //!< check for exp mode or not
+						if( StatusCode::SUCCESS != addNoiseDiode(collection, strip, have_hit_bin) ){
+							ATH_MSG_ERROR ( "Can't add noise hit diode to collection" ) ;
+						}
+					}else {
+	          if( StatusCode::SUCCESS != addNoiseDiode(collection, strip, 2) ){
+		          ATH_MSG_ERROR ( "Can't add noise hit diode to collection" ) ;
+						}
+					}
+				}
+			}
       }
     }
   }

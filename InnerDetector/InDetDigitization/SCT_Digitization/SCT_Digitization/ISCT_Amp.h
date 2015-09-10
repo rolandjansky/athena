@@ -14,7 +14,6 @@
 #define SIDIGITIZATION_ISCT_AMP_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "InDetSimEvent/SiCharge.h"
 #include "InDetSimEvent/SiTotalCharge.h"
 
 static const InterfaceID IID_ISCT_Amp("ISCT_Amp",1,0);
