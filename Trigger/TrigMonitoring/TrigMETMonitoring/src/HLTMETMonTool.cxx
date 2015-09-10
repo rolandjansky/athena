@@ -225,6 +225,7 @@ StatusCode HLTMETMonTool::book() {
   addHistogram(new TH1F("HLT_SumEt_log", "HLT Sum |E_{T}|;log_{10}(SumE_{T}/GeV)", 20, -1.875, 4.125));
   addHistogram(new TH1F("HLT_MEz", "HLT Missing E_{z};E_{z} (GeV)", 100, -298.5,298.5));
   addHistogram(new TH1F("HLT_SumE", "HLT Sum |E|;SumE (GeV)", 153, -27., 18003.));
+  addHistogram(new TH2F("HLT_MET_etaphi", "HLT MET #eta/#phi;#phi (rad);#eta", m_phi_bins, m_phi_min, m_phi_max, 24, -4.8, 4.8));
   addHistogram(new TH2F("HLT_MET_etaphi_etweight", "HLT MET #eta/#phi(|Missing E_{T}|);#phi (rad);#eta", m_phi_bins, m_phi_min, m_phi_max, 24, -4.8, 4.8));
 
   // muon histograms                                                                                                                    
@@ -237,10 +238,10 @@ StatusCode HLTMETMonTool::book() {
 
   for (int i_eff = 1; i_eff < 4; i_eff++){
     std::string numerator_name = "Numerator_" + m_numerator_trigger[i_eff];
-    std::string numerator_title = numerator_name + "Efficiency Missing E_{x};ME_{T} (GeV)";
+    std::string numerator_title = numerator_name + "Efficiency Missing E_{T};ME_{T} (GeV)";
     std::string eff_name = "Effh_" + m_numerator_trigger[i_eff];
     std::string prof_name = "Eff_" + m_numerator_trigger[i_eff];
-    std::string eff_title = eff_name + " Efficiency Missing E_{x};ME_{T} (GeV)";
+    std::string eff_title = eff_name + " Efficiency Missing E_{T};ME_{T} (GeV)";
     trig_eff_num[i_eff] = new TH1F(numerator_name.c_str(), numerator_title.c_str(), m_eff_bins, m_eff_min, m_eff_max);
     addHistogram(new TH1F(eff_name.c_str(), eff_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
     addProfile(new TProfile(prof_name.c_str(), eff_title.c_str(), m_eff_bins, m_eff_min, m_eff_max));
@@ -276,7 +277,7 @@ StatusCode HLTMETMonTool::book() {
   addHistogram(new TH1F("HLT_MET_mu", "HLT |Missing E_{T}|;ME_{T} Signal-like #mu (GeV)", m_et_bins, m_et_min, m_et_max));
   addHistogram(new TH1F("HLT_SumEt_mu", "HLT Sum |E_{T}|;SumE_{T} Signal-like #mu (GeV)", m_sumet_bins, m_sumet_min, m_sumet_max));
   addHistogram(new TH1F("HLT_MET_phi_mu", "HLT MET #phi (rad);#phi (rad) Signal-like #mu", m_phi_bins, m_phi_min, m_phi_max));
-  //addHistogram(new TH1F("HLT_MET_phi_etweight_mu",  "HLT MET #phi (|Missing E_{T}|);MET #phi (rad) Signal-like #mu", m_phi_bins, m_phi_min, m_phi_max));
+  addHistogram(new TH1F("HLT_MET_phi_etweight_mu",  "HLT MET #phi (|Missing E_{T}|);MET #phi (rad) Signal-like #mu", m_phi_bins, m_phi_min, m_phi_max));
   addHistogram(new TH1F("HLT_MET_log_mu",   "HLT |Missing E_{T}|;log_{10}(ME_{T}/GeV) Signal-like #mu", 20, -1.875, 4.125));
   addHistogram(new TH1F("HLT_SumEt_log_mu", "HLT Sum |E_{T}|;log_{10}(SumE_{T}/GeV) Signal-like #mu", 20, -1.875, 4.125));
   addHistogram(new TH1F("HLT_MEz_mu", "HLT Missing E_{z};E_{z} (GeV) Signal-like #mu", 100, -298.5,298.5));
@@ -288,7 +289,7 @@ StatusCode HLTMETMonTool::book() {
   addHistogram(new TH1F("HLT_MET_e", "HLT |Missing E_{T}|;ME_{T} Signal-like e (GeV)", m_et_bins, m_et_min, m_et_max));
   addHistogram(new TH1F("HLT_SumEt_e", "HLT Sum |E_{T}|;SumE_{T} Signal-like e (GeV)", m_sumet_bins, m_sumet_min, m_sumet_max));
   addHistogram(new TH1F("HLT_MET_phi_e", "HLT MET #phi (rad);#phi (rad) Signal-like e", m_phi_bins, m_phi_min, m_phi_max));
-  //addHistogram(new TH1F("HLT_MET_phi_etweight_e",  "HLT MET #phi (|Missing E_{T}|);MET #phi (rad) Signal-like e", m_phi_bins, m_phi_min, m_phi_max));
+  addHistogram(new TH1F("HLT_MET_phi_etweight_e",  "HLT MET #phi (|Missing E_{T}|);MET #phi (rad) Signal-like e", m_phi_bins, m_phi_min, m_phi_max));
   addHistogram(new TH1F("HLT_MET_log_e",   "HLT |Missing E_{T}|;log_{10}(ME_{T}/GeV) Signal-like e", 20, -1.875, 4.125));
   addHistogram(new TH1F("HLT_SumEt_log_e", "HLT Sum |E_{T}|;log_{10}(SumE_{T}/GeV) Signal-like e", 20, -1.875, 4.125));
   addHistogram(new TH1F("HLT_MEz_e", "HLT Missing E_{z};E_{z} (GeV) Signal-like e", 100, -298.5,298.5));
@@ -862,7 +863,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
     off_ex = ((*m_off_met_cont)["FinalClus"]->mpx())/CLHEP::GeV;
     off_ey = ((*m_off_met_cont)["FinalClus"]->mpy())/CLHEP::GeV;
-    off_met = sqrt(off_ex*off_ex+off_ey+off_ey);
+    off_met = sqrt(off_ex*off_ex+off_ey*off_ey);
     off_sumet = ((*m_off_met_cont)["FinalClus"]->sumet())/CLHEP::GeV;
     off_phi = atan2(off_ey, off_ex);
   }
@@ -928,6 +929,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
   if ((h = hist("HLT_SumEt_log"))) h->Fill(hlt_sumet_log);
   if ((h = hist("HLT_MEz")))       h->Fill(hlt_ez);
   if ((h = hist("HLT_SumE")))      h->Fill(hlt_sume);
+  if ((h2 = hist2("HLT_MET_etaphi"))) h2->Fill(hlt_phi, hlt_eta);
   if ((h2 = hist2("HLT_MET_etaphi_etweight"))) h2->Fill(hlt_phi, hlt_eta, hlt_met);
 
   // muons contributing to trigger chain defined by m_muon_base_trigger
@@ -1052,6 +1054,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
     if((h = hist("HLT_MEy_mu") )) h->Fill(hlt_ey);
     if((h = hist("HLT_SumEt_mu") )) h->Fill(hlt_sumet);
     if((h = hist("HLT_MET_phi_mu") )) h->Fill(hlt_phi);
+    if((h = hist("HLT_MET_phi_etweight_mu") )) h->Fill(hlt_phi,hlt_met);
     if((h = hist("HLT_MET_log_mu") )) h->Fill(hlt_met_log);
     if((h = hist("HLT_SumEt_log_mu") )) h->Fill(hlt_sumet_log);
     if((h = hist("HLT_MEz_mu") )) h->Fill(hlt_ez);
@@ -1112,6 +1115,7 @@ StatusCode HLTMETMonTool::fillMETHist() {
     if((h = hist("HLT_MEy_e") )) h->Fill(hlt_ey);
     if((h = hist("HLT_SumEt_e") )) h->Fill(hlt_sumet);
     if((h = hist("HLT_MET_phi_e") )) h->Fill(hlt_phi);
+    if((h = hist("HLT_MET_phi_etweight_e") )) h->Fill(hlt_phi,hlt_met);
     if((h = hist("HLT_MET_log_e") )) h->Fill(hlt_met_log);
     if((h = hist("HLT_SumEt_log_e") )) h->Fill(hlt_sumet_log);
     if((h = hist("HLT_MEz_e") )) h->Fill(hlt_ez);
