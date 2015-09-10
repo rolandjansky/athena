@@ -56,11 +56,14 @@ int usage(const std::string& name, int status) {
 
 struct histoinfo {
   histoinfo( const std::string& f, const std::string& d ) : fname(f), dname(d) { } 
-    std::string fname; // File name
-    std::string dname; // Display name
+  std::string fname; // File name
+  std::string dname; // Display name
 };
 
 
+std::ostream& operator<<( std::ostream& s, const histoinfo& h ) { 
+  return s << h.fname << " : " << h.dname; 
+}
 
 int main(int argc, char** argv) {
 
@@ -81,10 +84,20 @@ int main(int argc, char** argv) {
   TFile* ftest = 0;
   TFile* fref  = 0;
 
+  bool atlasstyle = false;
+  bool ylog = true;
+  bool nopng = false;
+
   bool autochains = false;
+
+  std::string autopattern = "";
+
+  std::vector<std::string> taglabels;
 
   std::string directory = "TIMERS";
   std::string pattern = "_TotalTime";
+
+  TDirectory* tdir = gDirectory;
 
   // Parse the arguments
   std::vector<std::string> algorithms;
@@ -106,8 +119,15 @@ int main(int argc, char** argv) {
       if (++argnum < argc) { key = argv[argnum] + std::string("-"); }
       else { return usage(argv[0], -1); }
     }
+    else if (arg == "-np" || arg == "--nopng") {
+      nopng = true;
+    }
     else if (arg == "-a" || arg == "--auto") {
       autochains = true;
+    }
+    else if (arg == "-ap" || arg == "--autopattern") {
+      if (++argnum < argc) autopattern = argv[argnum];
+      else                 return usage(argv[0], -1); 
     }
     else if (arg == "-d" || arg == "--directory") {
       if (++argnum < argc) directory = argv[argnum];
@@ -158,7 +178,21 @@ int main(int argc, char** argv) {
     std::vector<std::string> dirs;
     contents( dirs, gDirectory, directory, pattern );
 
-    for ( unsigned j=0 ; j<dirs.size() ; j++ ) algorithms.push_back( dirs[j] );
+
+    if ( autopattern=="" ) { 
+      for ( unsigned j=0 ; j<dirs.size() ; j++ ) { 
+	algorithms.push_back( dirs[j] );
+      }
+    }
+    else { 
+      std::cout << "autopattern : " << autopattern << std::endl; 
+      for ( unsigned j=0 ; j<dirs.size() ; j++ ) { 
+	if ( dirs[j].find(autopattern)!=std::string::npos ) { 
+	  algorithms.push_back( dirs[j] );
+	  std::cout << "adding " << algorithms.back() << std::endl;
+	}
+      }
+    }
 
   }
   
@@ -198,6 +232,8 @@ int main(int argc, char** argv) {
   }
 #endif
 
+  TFile fcock( "fcock.root", "recreate" );
+
 
   std::vector<histoinfo> histograms;
   histograms.push_back( histoinfo("_TotalTime", "Total time") );
@@ -206,13 +242,19 @@ int main(int argc, char** argv) {
   //  std::cout << "main() processing algorithms : " << algorithms << std::endl;
 
   // Loop over histograms
-  for (unsigned int histogram = 0; histogram < histograms.size(); ++histogram) {
+  //  for (unsigned int histogram = 0; histogram < histograms.size(); ++histogram) {
+  for (unsigned int histogram=histograms.size(); histogram-- ; ) {
+
+    std::cout << "\nhistogram " << histograms.at(histogram) << " : with " << algorithms.size() << " algorithms" << std::endl;
+
 
     std::string xaxis = histograms.at(histogram).dname + " [ms]";
     std::string yaxis = "Entries";
 
+    
     // Loop over input algorithms
-    for (unsigned int algorithm = 0; algorithm < algorithms.size(); ++algorithm) {
+    //    for (unsigned int algorithm = 0; algorithm < algorithms.size(); ++algorithm) {
+    for (unsigned int algorithm = algorithms.size(); algorithm-- ; ) {
 
       std::cout << "main() processing algorithm : " << algorithms[algorithm] << std::endl;
 
@@ -229,6 +271,11 @@ int main(int argc, char** argv) {
 
       std::string histname = algorithms[algorithm]; // + histograms.at(histogram).fname;
 
+      std::string _xaxis = xaxis;
+      bool fractional = contains( histname, "Fractional" );
+      if ( fractional ) _xaxis = "Fraction of " + histograms.at(histogram).dname;
+      
+
       //      std::cout << "\t" << histname << "\t" << algorithms.at(algorithm) << " " <<  histograms.at(histogram).fname << std::endl;
 
 
@@ -240,6 +287,10 @@ int main(int argc, char** argv) {
         continue;
       }
       
+      
+      testhist->SetName( tail(algorithms[algorithm],"/").c_str() );
+      testhist->Write(); 
+
       //      std::cout << "\n\nfound histname " << histname << std::endl;
 
       TH1F* refhist = (TH1F*)fref->Get(histname.c_str());
@@ -249,11 +300,12 @@ int main(int argc, char** argv) {
         continue;
       }
 
+
       testhist->GetYaxis()->SetTitleOffset(1.5);
       refhist->GetYaxis()->SetTitleOffset(1.5);
-      testhist->GetXaxis()->SetTitle(xaxis.c_str());
+      testhist->GetXaxis()->SetTitle(_xaxis.c_str());
       testhist->GetYaxis()->SetTitle(yaxis.c_str());
-      refhist->GetXaxis()->SetTitle(xaxis.c_str());
+      refhist->GetXaxis()->SetTitle(_xaxis.c_str());
       refhist->GetYaxis()->SetTitle(yaxis.c_str());
 
       Plots plots;
@@ -266,35 +318,97 @@ int main(int argc, char** argv) {
 
       plots.push_back( Plotter( testhist, refhist, " "+algname ) );
 
-      if (histograms.at(histogram).fname == "_TotalTime") {
-        testhist->SetTitle("");
-        refhist->SetTitle("");
-	//    c1->SetLogy(true);
-	plots.xrange();
-        plots.Max(5);
-        plots.SetLogy(true);
-      }
-      else {
-	plots.SetLogy(false);
-	//        c1->SetLogy(false);
-      }
-
-      plots.Draw( legend, true );
-
       std::string plotname = dir + key + algname + tag;
       //                              histograms.at(histogram).fname + tag;
 
+
+      std::cout << "dir " << dir << "\tkey " << key << "\talgname " << algname << "\ttag " << tag << std::endl;  
+
+
+      std::vector<std::string> chains;
+      chains.push_back( algname + tag );
+
+      bool _ylog = ylog;
+      
+      
+      if ( fractional ) _ylog = false;
+
+      //      if ( ylog || histograms.at(histogram).fname == "_TotalTime") {
+        testhist->SetTitle("");
+        refhist->SetTitle("");
+	//    c1->SetLogy(true);
+	// plots.xrange();
+	//        plots.Max(5);
+
+        plots.SetLogy(_ylog);
+
+
+	double rmin = plots.realmin();
+	double rmax = plots.realmax();
+	
+	if ( _ylog ) { 
+	  double delta = std::log10(rmax)-std::log10(rmin);
+	  if ( atlasstyle ) plots.Max( rmax*std::pow(10,delta*0.15*2*(chains.size()+taglabels.size()+1)) );
+	  else              plots.Max( rmax*std::pow(10,delta*0.15*2*(chains.size()+taglabels.size())) );
+	  plots.Min( rmin*std::pow(10,-delta*0.1) );
+	}
+	else { 
+	  double delta = rmax-rmin;
+	  plots.Max( rmax+delta*0.1*2*chains.size() );
+
+	  double pmin = rmin-delta*0.1; 
+	  if ( pmin>0 ) plots.Min( pmin );
+	  else          plots.Min( 0 );
+	  
+	}
+	
+	//      }
+    //      else {
+	//	plots.SetLogy(false);
+	//        c1->SetLogy(false);
+	//   }
+
+      plots.Draw( legend, true );
+
       plots.back().Print( (plotname+".pdf").c_str() );
-      plots.back().Print( (plotname+".png").c_str() );
+      if ( !nopng ) plots.back().Print( (plotname+".png").c_str() );
 
       delete c1;
+
+      std::cout << "done algorithm " << algorithm << " " << algorithms[algorithm] << std::endl;
     }
+
+    std::cout << "done hist " << histogram << " " << histograms.at(histogram).dname << " " << std::endl;
   }
+
+  fcock.Write();
+  fcock.Close();
+
+  tdir->cd();
+
+
+#ifdef RENE_IS_NOT_AN_ARSE
+
+  std::cout << "deleting ftest" << std::endl;
+
+  /// AAAAARGH!!!! these deletes do not work!!! they just sit there for ever!!
+  ///              what is wrong with these destructors !!! I ask you
 
   //  delete testtimers;
   delete ftest;
+
+  std::cout << "deleting fref" << std::endl;  
+
   //  delete reftimers;
   delete fref;
+
+  //#else
+
+  //  std::cout << "***REMOVED***" << std::endl;
+
+#endif
+
+  std::cout << "done" << std::endl;
 
   return 0;
 }

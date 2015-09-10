@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.cxx 689896 2015-08-18 08:15:28Z sutt $
+//   $Id: ConfAnalysis.cxx 690801 2015-08-23 08:46:55Z sutt $
 
 
 #include "ConfAnalysis.h"
@@ -138,8 +138,8 @@ void ConfAnalysis::initialiseInternal() {
   const double d0resMax  = 5;
 
   // beamspot corrected position
-  const int    a0Bins = int(100*_binConfig.a0_NScale);
-  const double a0Max  = 5;
+  const int    a0Bins = int(300*_binConfig.a0_NScale);
+  const double a0Max  = 15;
 
   const int    a0resBins = 100;      
   const double a0resMax  = 5;
