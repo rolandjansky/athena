@@ -24,7 +24,7 @@ from LeptonMassDecorator import *
 from LHEv3Decorator import *
 from MassWindowDecorator import *
 from MiNLONLLDecorator import *
-from NNLOPSDecorator import *
+from NNLOReweightingDecorator import *
 from RadiationParametrisationDecorator import *
 from RunningScaleDecorator import *
 from RunningScalesDecorator import *

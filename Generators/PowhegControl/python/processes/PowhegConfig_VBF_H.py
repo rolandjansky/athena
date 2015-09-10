@@ -23,9 +23,13 @@ class PowhegConfig_VBF_H(PowhegConfig_base) :
     self.add_parameter( 'complexpolescheme', -1, desc='0 = SM' )
 
     ## Decorate with generic option sets
+    self.add_parameter_set( 'extra tests' )
     self.add_parameter_set( 'Higgs decay mode' )
     self.add_parameter_set( 'Higgs fixed width' )
     self.add_parameter_set( 'Higgs properties' )
+    self.add_parameter_set( 'LHEv3' )
+    self.add_parameter_set( 'radiation parametrisation' )
+    self.add_parameter_set( 'v2' )
 
     ## Set optimised integration parameters
     self.ncall1   = 20000
@@ -37,4 +41,5 @@ class PowhegConfig_VBF_H(PowhegConfig_base) :
     self.foldphi  = 5
 
     ## Override defaults
+    self.minlo    = -1
     self.withdamp = 1

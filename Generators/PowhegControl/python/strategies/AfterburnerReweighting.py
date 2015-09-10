@@ -1,19 +1,18 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-## @PowhegControl PowhegReweighting
+## @PowhegControl AfterburnerReweighting
 #  Reweight pre-generated Powheg events
 #
 #  Authors: James Robinson  <james.robinson@cern.ch>
 
 #! /usr/bin/env python
 import collections, shutil, subprocess, time
-from PowhegSingleThread import *
-from OutputHandler import write_output
+from GenerateSingleCore import *
 from ..utility import RepeatingTimer
 import os
 
 ## Initialise and validate reweighting lists
-def initialisePowhegReweighting(configurator) :
+def initialise_reweighting(configurator) :
   configurator.logger.info( 'Initialising PDF/scale variations' )
 
   ## Construct and sanitise PDF list
@@ -38,7 +37,7 @@ def initialisePowhegReweighting(configurator) :
 
 
 ## Run reweighting as an afterburner to existing events
-def runPowhegReweightingAfterburner(configurator) :
+def afterburner_reweighting(configurator) :
   ## Tuples to hold reweighting information
   ScalePDFWeightSpecifier = collections.namedtuple( 'ScalePDFWeightSpecifier', ['PDF', 'mu_F', 'mu_R', 'weight_ID', 'weight_description', 'group_combination_method', 'group_description'] )
   ArbitraryWeightSpecifier = collections.namedtuple( 'ArbitraryWeightSpecifier', ['parameter_settings', 'weight_ID', 'weight_description', 'group_combination_method', 'group_description'] )
@@ -94,7 +93,7 @@ def runPowhegReweightingAfterburner(configurator) :
 
     ## Run the process until termination
     time_start = time.time()
-    runPowhegSingleThread( configurator )
+    generate_single_core( configurator )
     shutil.move( 'pwgevents-rwgt.lhe', 'pwgevents.lhe' )
     configurator.logger.info( 'Finished weight variation {0}/{1} in {2}'.format(idx_variation, len(configurator.variations)-1, RepeatingTimer.human_readable_time_interval(time.time() - time_start)) )
 
