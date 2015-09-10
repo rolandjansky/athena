@@ -301,9 +301,9 @@ Muon::MooSegmentCombinationFinder::findSegments( const std::vector<const MdtPrep
 	if( !finalSegmentCollection ) finalSegmentCollection = new Trk::SegmentCollection();
 	extractSegmentCollection( *mdtSegmentCombinations, *finalSegmentCollection );
       }
+      printSummary( "MDT segment finding", finalSegmentCollection );
     }
 
-    if( msgLvl(MSG::DEBUG) ) printSummary( "MDT segment finding", finalSegmentCollection );
 
     MuonSegmentCombinationCollection* curvedSegmentCombinations = 0;
     MuonSegmentCombinationCollection* cleanedSegmentCombinations = 0;
@@ -342,6 +342,8 @@ Muon::MooSegmentCombinationFinder::findSegments( const std::vector<const MdtPrep
       }
       finalSegmentCombinations = cleanedSegmentCombinations;
     }
+
+    if( m_doSummary || msgLvl(MSG::DEBUG) ) msg() << endreq;
 
     // increase counters, assume that the tools is only called once per event
     ++m_nevents;
@@ -421,7 +423,7 @@ Muon::MooSegmentCombinationFinder::printSummary( std::string stageTag, const Muo
     if( !col ){
       ATH_MSG_INFO("No segment combinations found ");
     }else{
-      msg(MSG::INFO) << "Found " << col->size() << " segment combinations found " << std::endl
+      msg(MSG::INFO) << "Found " << col->size() << " segment combinations " << std::endl
 		     << m_edmPrinter->print( *col );
     }
   }
@@ -440,9 +442,8 @@ Muon::MooSegmentCombinationFinder::printSummary( std::string stageTag, const Trk
       for( ;sit!=sit_end;++sit ){
 	const MuonSegment* seg = dynamic_cast<const MuonSegment*>(*sit);
 	if( seg ){
-	  msg() << m_edmPrinter->print( *seg );
+	  msg() << m_edmPrinter->print( *seg ) ;
 	  if( sit+1 != sit_end ) msg() << std::endl;
-	  else                   msg() << endreq;
 	}
       }	
     }
