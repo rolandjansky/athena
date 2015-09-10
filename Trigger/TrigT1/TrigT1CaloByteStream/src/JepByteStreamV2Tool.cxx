@@ -112,19 +112,19 @@ JepByteStreamV2Tool::~JepByteStreamV2Tool()
 StatusCode JepByteStreamV2Tool::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+                 << PACKAGE_VERSION << endreq;
 
   StatusCode sc = m_jemMaps.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_jemMaps << endmsg;
+    msg(MSG::ERROR) << "Failed to retrieve tool " << m_jemMaps << endreq;
     return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_jemMaps << endmsg;
+  } else msg(MSG::INFO) << "Retrieved tool " << m_jemMaps << endreq;
 
   sc = m_errorTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_errorTool << endmsg;
+    msg(MSG::ERROR) << "Failed to retrieve tool " << m_errorTool << endreq;
     return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_errorTool << endmsg;
+  } else msg(MSG::INFO) << "Retrieved tool " << m_errorTool << endreq;
 
   m_srcIdMap          = new L1CaloSrcIdMap();
   m_elementKey        = new LVL1::JetElementKey();
@@ -309,7 +309,7 @@ StatusCode JepByteStreamV2Tool::convert(const LVL1::JEPBSCollectionV2* const jep
 	const int slink = module/modulesPerSlink;
         if (debug) {
           msg() << "Treating crate " << hwCrate
-                << " slink " << slink << endmsg;
+                << " slink " << slink << endreq;
         }
 	// Get number of JEM slices and triggered slice offset
 	// for this slink
@@ -317,19 +317,19 @@ StatusCode JepByteStreamV2Tool::convert(const LVL1::JEPBSCollectionV2* const jep
 	                                  timeslices, trigJem)) {
 	  msg(MSG::ERROR) << "Inconsistent number of slices or "
 	                  << "triggered slice offsets in data for crate "
-	                  << hwCrate << " slink " << slink << endmsg;
+	                  << hwCrate << " slink " << slink << endreq;
 	  return StatusCode::FAILURE;
         }
 	timeslicesNew = (m_forceSlices) ? m_forceSlices : timeslices;
 	trigJemNew    = ModifySlices::peak(trigJem, timeslices, timeslicesNew);
         if (debug) {
 	  msg() << "Data Version/Format: " << m_version
-	        << " " << m_dataFormat << endmsg
+	        << " " << m_dataFormat << endreq
                 << "Slices/offset: " << timeslices << " " << trigJem;
 	  if (timeslices != timeslicesNew) {
 	    msg() << " modified to " << timeslicesNew << " " << trigJemNew;
           }
-	  msg() << endmsg;
+	  msg() << endreq;
         }
         L1CaloUserHeader userHeader;
         userHeader.setJem(trigJemNew);
@@ -339,7 +339,7 @@ StatusCode JepByteStreamV2Tool::convert(const LVL1::JEPBSCollectionV2* const jep
 	theROD->push_back(userHeader.header());
 	m_rodStatusMap.insert(make_pair(rodIdJem, m_rodStatus));
       }
-      if (debug) msg() << "Module " << module << endmsg;
+      if (debug) msg() << "Module " << module << endreq;
 
       // Create a sub-block for each slice (except Neutral format)
 
@@ -423,12 +423,12 @@ StatusCode JepByteStreamV2Tool::convert(const LVL1::JEPBSCollectionV2* const jep
       for (pos = m_jemBlocks.begin(); pos != m_jemBlocks.end(); ++pos) {
         JemSubBlockV2* const subBlock = *pos;
 	if ( !subBlock->pack()) {
-	  msg(MSG::ERROR) << "JEM sub-block packing failed" << endmsg;
+	  msg(MSG::ERROR) << "JEM sub-block packing failed" << endreq;
 	  return StatusCode::FAILURE;
 	}
 	if (debug) {
 	  msg() << "JEM sub-block data words: "
-	        << subBlock->dataWords() << endmsg;
+	        << subBlock->dataWords() << endreq;
 	}
 	subBlock->write(theROD);
       }
@@ -519,12 +519,12 @@ StatusCode JepByteStreamV2Tool::convert(const LVL1::JEPBSCollectionV2* const jep
     for (; pos != m_cmxEnergyBlocks.end(); ++pos) {
       CmxEnergySubBlock* const subBlock = *pos;
       if ( !subBlock->pack()) {
-        msg(MSG::ERROR) << "CMX-Energy sub-block packing failed" << endmsg;
+        msg(MSG::ERROR) << "CMX-Energy sub-block packing failed" << endreq;
 	return StatusCode::FAILURE;
       }
       if (debug) {
 	msg() << "CMX-Energy sub-block data words: "
-	      << subBlock->dataWords() << endmsg;
+	      << subBlock->dataWords() << endreq;
       }
       subBlock->write(theROD);
     }
@@ -615,12 +615,12 @@ StatusCode JepByteStreamV2Tool::convert(const LVL1::JEPBSCollectionV2* const jep
     for (; jos != m_cmxJetBlocks.end(); ++jos) {
       CmxJetSubBlock* const subBlock = *jos;
       if ( !subBlock->pack()) {
-        msg(MSG::ERROR) << "CMX-Jet sub-block packing failed" << endmsg;
+        msg(MSG::ERROR) << "CMX-Jet sub-block packing failed" << endreq;
 	return StatusCode::FAILURE;
       }
       if (debug) {
 	msg() << "CMX-Jet sub-block data words: "
-	      << subBlock->dataWords() << endmsg;
+	      << subBlock->dataWords() << endreq;
       }
       subBlock->write(theROD);
     }
@@ -683,7 +683,7 @@ StatusCode JepByteStreamV2Tool::convertBs(
 
     if (debug) {
       ++robCount;
-      msg() << "Treating ROB fragment " << robCount << endmsg;
+      msg() << "Treating ROB fragment " << robCount << endreq;
     }
 
     // Skip fragments with ROB status errors
@@ -694,7 +694,7 @@ StatusCode JepByteStreamV2Tool::convertBs(
       (*rob)->status(robData);
       if (*robData != 0) {
         m_errorTool->robError(robid, *robData);
-	if (debug) msg() << "ROB status error - skipping fragment" << endmsg;
+	if (debug) msg() << "ROB status error - skipping fragment" << endreq;
 	continue;
       }
     }
@@ -703,7 +703,7 @@ StatusCode JepByteStreamV2Tool::convertBs(
 
     if (!dupCheck.insert(robid).second) {
       m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_DUPLICATE_ROB);
-      if (debug) msg() << "Skipping duplicate ROB fragment" << endmsg;
+      if (debug) msg() << "Skipping duplicate ROB fragment" << endreq;
       continue;
     }
 
@@ -716,7 +716,7 @@ StatusCode JepByteStreamV2Tool::convertBs(
     payloadEnd = payloadBeg + (*rob)->rod_ndata();
     payload = payloadBeg;
     if (payload == payloadEnd) {
-      if (debug) msg() << "ROB fragment empty" << endmsg;
+      if (debug) msg() << "ROB fragment empty" << endreq;
       continue;
     }
 
@@ -732,7 +732,7 @@ StatusCode JepByteStreamV2Tool::convertBs(
       if (debug) {
         msg() << "Wrong source identifier in data: ROD "
               << MSG::hex << sourceID << "  ROB " << robid
-	      << MSG::dec << endmsg;
+	      << MSG::dec << endreq;
       }
       continue;
     }
@@ -740,19 +740,19 @@ StatusCode JepByteStreamV2Tool::convertBs(
     // Check minor version
     const int minorVersion = (*rob)->rod_version() & 0xffff;
     if (minorVersion <= m_srcIdMap->minorVersionPreLS1()) {
-      if (debug) msg() << "Skipping pre-LS1 data" << endmsg;
+      if (debug) msg() << "Skipping pre-LS1 data" << endreq;
       continue;
     }
     const int rodCrate = m_srcIdMap->crate(sourceID);
     if (debug) {
       msg() << "Treating crate " << rodCrate 
-            << " slink " << m_srcIdMap->slink(sourceID) << endmsg;
+            << " slink " << m_srcIdMap->slink(sourceID) << endreq;
     }
 
     // First word should be User Header
     if ( !L1CaloUserHeader::isValid(*payload) ) {
       m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_USER_HEADER);
-      if (debug) msg() << "Invalid or missing user header" << endmsg;
+      if (debug) msg() << "Invalid or missing user header" << endreq;
       continue;
     }
     L1CaloUserHeader userHeader(*payload);
@@ -761,7 +761,7 @@ StatusCode JepByteStreamV2Tool::convertBs(
     if (headerWords != 1) {
       m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_USER_HEADER);
       if (debug) msg() << "Unexpected number of user header words: "
-                       << headerWords << endmsg;
+                       << headerWords << endreq;
       continue;
     }
     for (int i = 0; i < headerWords; ++i) ++payload;
@@ -769,8 +769,8 @@ StatusCode JepByteStreamV2Tool::convertBs(
     int trigJem = userHeader.jem();
     if (debug) {
       msg() << "Minor format version number: " << MSG::hex
-            << minorVersion << MSG::dec << endmsg
-            << "JEM triggered slice offset: " << trigJem << endmsg;
+            << minorVersion << MSG::dec << endreq
+            << "JEM triggered slice offset: " << trigJem << endreq;
     }
 
     // Loop over sub-blocks
@@ -779,7 +779,7 @@ StatusCode JepByteStreamV2Tool::convertBs(
     while (payload != payloadEnd) {
       
       if (L1CaloSubBlock::wordType(*payload) != L1CaloSubBlock::HEADER) {
-        if (debug) msg() << "Unexpected data sequence" << endmsg;
+        if (debug) msg() << "Unexpected data sequence" << endreq;
 	m_rodErr = L1CaloSubBlock::ERROR_MISSING_HEADER;
 	break;
       }
@@ -790,14 +790,14 @@ StatusCode JepByteStreamV2Tool::convertBs(
           payload = m_cmxJetSubBlock->read(payload, payloadEnd);
 	  if (m_cmxJetSubBlock->crate() != rodCrate) {
 	    if (debug) msg() << "Inconsistent crate number in ROD source ID"
-	                     << endmsg;
+	                     << endreq;
 	    m_rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
 	    break;
           }
 	  if (collection == CMX_HITS || collection == CMX_TOBS) {
 	    decodeCmxJet(m_cmxJetSubBlock, trigJem, collection);
 	    if (m_rodErr != L1CaloSubBlock::ERROR_NONE) {
-	      if (debug) msg() << "decodeCmxJet failed" << endmsg;
+	      if (debug) msg() << "decodeCmxJet failed" << endreq;
 	      break;
 	    }
           }
@@ -806,19 +806,19 @@ StatusCode JepByteStreamV2Tool::convertBs(
 	  payload = m_cmxEnergySubBlock->read(payload, payloadEnd);
 	  if (m_cmxEnergySubBlock->crate() != rodCrate) {
 	    if (debug) msg() << "Inconsistent crate number in ROD source ID"
-	                     << endmsg;
+	                     << endreq;
 	    m_rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
 	    break;
           }
 	  if (collection == CMX_SUMS) {
 	    decodeCmxEnergy(m_cmxEnergySubBlock, trigJem);
 	    if (m_rodErr != L1CaloSubBlock::ERROR_NONE) {
-	      if (debug) msg() << "decodeCmxEnergy failed" << endmsg;
+	      if (debug) msg() << "decodeCmxEnergy failed" << endreq;
 	      break;
 	    }
           }
 	} else {
-	  if (debug) msg() << "Invalid CMX type in module field" << endmsg;
+	  if (debug) msg() << "Invalid CMX type in module field" << endreq;
 	  m_rodErr = L1CaloSubBlock::ERROR_MODULE_NUMBER;
 	  break;
         }
@@ -828,14 +828,14 @@ StatusCode JepByteStreamV2Tool::convertBs(
         payload = m_jemSubBlock->read(payload, payloadEnd);
 	if (m_jemSubBlock->crate() != rodCrate) {
 	  if (debug) msg() << "Inconsistent crate number in ROD source ID"
-	                   << endmsg;
+	                   << endreq;
 	  m_rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
 	  break;
         }
 	if (collection == JET_ELEMENTS || collection == ENERGY_SUMS) {
 	  decodeJem(m_jemSubBlock, trigJem, collection);
 	  if (m_rodErr != L1CaloSubBlock::ERROR_NONE) {
-	    if (debug) msg() << "decodeJem failed" << endmsg;
+	    if (debug) msg() << "decodeJem failed" << endreq;
 	    break;
 	  }
         }
@@ -868,18 +868,18 @@ void JepByteStreamV2Tool::decodeCmxEnergy(CmxEnergySubBlock* subBlock,
 	  << "  Firmware "        << firmware
 	  << "  Summing "         << summing
           << "  Total slices "    << timeslices
-          << "  Slice "           << sliceNum    << endmsg;
+          << "  Slice "           << sliceNum    << endreq;
   }
   if (timeslices <= trigJem) {
     if (debug) msg() << "Triggered CMX slice from header "
                      << "inconsistent with number of slices: "
-                     << trigJem << ", " << timeslices << endmsg;
+                     << trigJem << ", " << timeslices << endreq;
     m_rodErr = L1CaloSubBlock::ERROR_SLICES;
     return;
   }
   if (timeslices <= sliceNum) {
     if (debug) msg() << "Total slices inconsistent with slice number: "
-                     << timeslices << ", " << sliceNum << endmsg;
+                     << timeslices << ", " << sliceNum << endreq;
     m_rodErr = L1CaloSubBlock::ERROR_SLICES;
     return;
   }
@@ -887,7 +887,7 @@ void JepByteStreamV2Tool::decodeCmxEnergy(CmxEnergySubBlock* subBlock,
   if (subBlock->dataWords() && !subBlock->unpack()) {
     if (debug) {
       std::string errMsg(subBlock->unpackErrorMsg());
-      msg() << "CMX-Energy sub-block unpacking failed: " << errMsg << endmsg;
+      msg() << "CMX-Energy sub-block unpacking failed: " << errMsg << endreq;
     }
     m_rodErr = subBlock->unpackErrorCode();
     return;
@@ -999,14 +999,14 @@ void JepByteStreamV2Tool::decodeCmxEnergy(CmxEnergySubBlock* subBlock,
 	  const int nsl = exVec.size();
 	  if (timeslices != nsl) {
 	    if (debug) msg() << "Inconsistent number of slices in sub-blocks"
-	                     << endmsg;
+	                     << endreq;
             m_rodErr = L1CaloSubBlock::ERROR_SLICES;
 	    return;
           }
 	  if (exVec[slice] != 0 || eyVec[slice] != 0 || etVec[slice] != 0 ||
 	      exErrVec[slice] != 0 || eyErrVec[slice] != 0 ||
               etErrVec[slice] != 0) {
-            if (debug) msg() << "Duplicate data for slice " << slice << endmsg;
+            if (debug) msg() << "Duplicate data for slice " << slice << endreq;
 	    m_rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
 	    return;
           }
@@ -1047,18 +1047,18 @@ void JepByteStreamV2Tool::decodeCmxJet(CmxJetSubBlock* subBlock, int trigJem,
 	  << "  Firmware "     << firmware
 	  << "  Summing "      << summing
           << "  Total slices " << timeslices
-          << "  Slice "        << sliceNum    << endmsg;
+          << "  Slice "        << sliceNum    << endreq;
   }
   if (timeslices <= trigJem) {
     if (debug) msg() << "Triggered CMX slice from header "
                      << "inconsistent with number of slices: "
-                     << trigJem << ", " << timeslices << endmsg;
+                     << trigJem << ", " << timeslices << endreq;
     m_rodErr = L1CaloSubBlock::ERROR_SLICES;
     return;
   }
   if (timeslices <= sliceNum) {
     if (debug) msg() << "Total slices inconsistent with slice number: "
-                     << timeslices << ", " << sliceNum << endmsg;
+                     << timeslices << ", " << sliceNum << endreq;
     m_rodErr = L1CaloSubBlock::ERROR_SLICES;
     return;
   }
@@ -1066,7 +1066,7 @@ void JepByteStreamV2Tool::decodeCmxJet(CmxJetSubBlock* subBlock, int trigJem,
   if (subBlock->dataWords() && !subBlock->unpack()) {
     if (debug) {
       std::string errMsg(subBlock->unpackErrorMsg());
-      msg() << "CMX-Jet sub-block unpacking failed: " << errMsg << endmsg;
+      msg() << "CMX-Jet sub-block unpacking failed: " << errMsg << endreq;
     }
     m_rodErr = subBlock->unpackErrorCode();
     return;
@@ -1142,13 +1142,13 @@ void JepByteStreamV2Tool::decodeCmxJet(CmxJetSubBlock* subBlock, int trigJem,
 	    const int nsl = energyLgVec.size();
 	    if (timeslices != nsl) {
 	      if (debug) msg() << "Inconsistent number of slices in sub-blocks"
-	                       << endmsg;
+	                       << endreq;
               m_rodErr = L1CaloSubBlock::ERROR_SLICES;
 	      return;
             }
 	    if (energyLgVec[slice] != 0 || energySmVec[slice] != 0 ||
 	        errorVec[slice]  != 0 || presenceMapVec[slice] != 0) {
-              if (debug) msg() << "Duplicate data for slice " << slice << endmsg;
+              if (debug) msg() << "Duplicate data for slice " << slice << endreq;
 	      m_rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
 	      return;
             }
@@ -1210,13 +1210,13 @@ void JepByteStreamV2Tool::decodeCmxJet(CmxJetSubBlock* subBlock, int trigJem,
 	    const int nsl = hit0Vec.size();
 	    if (timeslices != nsl) {
 	      if (debug) msg() << "Inconsistent number of slices in sub-blocks"
-	                       << endmsg;
+	                       << endreq;
               m_rodErr = L1CaloSubBlock::ERROR_SLICES;
 	      return;
             }
 	    if (hit0Vec[slice] != 0 || hit1Vec[slice] != 0 ||
 	        err0Vec[slice] != 0 || err1Vec[slice] != 0) {
-	      if (debug) msg() << "Duplicate data for slice " << slice << endmsg;
+	      if (debug) msg() << "Duplicate data for slice " << slice << endreq;
 	      m_rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
 	      return;
             }
@@ -1251,18 +1251,18 @@ void JepByteStreamV2Tool::decodeJem(JemSubBlockV2* subBlock, int trigJem,
     msg() << "JEM: Crate "     << hwCrate
           << "  Module "       << module
           << "  Total slices " << timeslices
-          << "  Slice "        << sliceNum    << endmsg;
+          << "  Slice "        << sliceNum    << endreq;
   }
   if (timeslices <= trigJem) {
     if (debug) msg() << "Triggered JEM slice from header "
                      << "inconsistent with number of slices: "
-                     << trigJem << ", " << timeslices << endmsg;
+                     << trigJem << ", " << timeslices << endreq;
     m_rodErr = L1CaloSubBlock::ERROR_SLICES;
     return;
   }
   if (timeslices <= sliceNum) {
     if (debug) msg() << "Total slices inconsistent with slice number: "
-                     << timeslices << ", " << sliceNum << endmsg;
+                     << timeslices << ", " << sliceNum << endreq;
     m_rodErr = L1CaloSubBlock::ERROR_SLICES;
     return;
   }
@@ -1270,7 +1270,7 @@ void JepByteStreamV2Tool::decodeJem(JemSubBlockV2* subBlock, int trigJem,
   if (subBlock->dataWords() && !subBlock->unpack()) {
     if (debug) {
       std::string errMsg(subBlock->unpackErrorMsg());
-      msg() << "JEM sub-block unpacking failed: " << errMsg << endmsg;
+      msg() << "JEM sub-block unpacking failed: " << errMsg << endreq;
     }
     m_rodErr = subBlock->unpackErrorCode();
     return;
@@ -1320,7 +1320,7 @@ void JepByteStreamV2Tool::decodeJem(JemSubBlockV2* subBlock, int trigJem,
 		if (timeslices != nsl) {
 		  if (debug) {
 		    msg() << "Inconsistent number of slices in sub-blocks"
-		          << endmsg;
+		          << endreq;
                   }
 		  m_rodErr = L1CaloSubBlock::ERROR_SLICES;
 		  return;
@@ -1328,7 +1328,7 @@ void JepByteStreamV2Tool::decodeJem(JemSubBlockV2* subBlock, int trigJem,
 		if (emEnergy[slice] != 0 || hadEnergy[slice] != 0 ||
 		    emError[slice]  != 0 || hadError[slice]  != 0) {
                   if (debug) msg() << "Duplicate data for slice "
-		                   << slice << endmsg;
+		                   << slice << endreq;
                   m_rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
 		  return;
                 }
@@ -1346,12 +1346,12 @@ void JepByteStreamV2Tool::decodeJem(JemSubBlockV2* subBlock, int trigJem,
 	    }
           } else if (verbose && jetEle.data()) {
 	    msg(MSG::VERBOSE) << "Non-zero data but no channel mapping for channel "
-	                      << chan << endmsg;
+	                      << chan << endreq;
 	    msg(MSG::DEBUG);
           }
         } else if (verbose) {
 	  msg(MSG::VERBOSE) << "No jet element data for channel "
-	                    << chan << " slice " << slice << endmsg;
+	                    << chan << " slice " << slice << endreq;
 	  msg(MSG::DEBUG);
         }
       }
@@ -1383,14 +1383,14 @@ void JepByteStreamV2Tool::decodeJem(JemSubBlockV2* subBlock, int trigJem,
 	  if (timeslices != nsl) {
 	    if (debug) {
 	      msg() << "Inconsistent number of slices in sub-blocks"
-	            << endmsg;
+	            << endreq;
 	    }
             m_rodErr = L1CaloSubBlock::ERROR_SLICES;
 	    return;
           }
 	  if (exVec[slice] != 0 || eyVec[slice] != 0 || etVec[slice] != 0) {
 	    if (debug) msg() << "Duplicate data for slice "
-	                     << slice << endmsg;
+	                     << slice << endreq;
             m_rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
 	    return;
           }
@@ -1404,7 +1404,7 @@ void JepByteStreamV2Tool::decodeJem(JemSubBlockV2* subBlock, int trigJem,
       } else if (verbose) {
         msg(MSG::VERBOSE) << "No energy sums data for crate/module/slice "
                           << hwCrate << "/" << module << "/" << slice
-    			  << endmsg;
+    			  << endreq;
 	msg(MSG::DEBUG);
       }
     }

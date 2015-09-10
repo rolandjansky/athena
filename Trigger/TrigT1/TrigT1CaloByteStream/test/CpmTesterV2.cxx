@@ -68,7 +68,7 @@ CpmTesterV2::~CpmTesterV2()
 StatusCode CpmTesterV2::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << /* version() */ PACKAGE_VERSION << endmsg;
+                 << /* version() */ PACKAGE_VERSION << endreq;
 
   m_towerKey = new LVL1::TriggerTowerKey();
 
@@ -89,7 +89,7 @@ StatusCode CpmTesterV2::execute()
     const CpmTowerCollection* ttCollection = 0;
     StatusCode sc = evtStore()->retrieve(ttCollection, m_cpmTowerLocation);
     if (sc.isFailure() || !ttCollection || ttCollection->empty()) {
-      msg() << "No core CPM towers found" << endmsg;
+      msg() << "No core CPM towers found" << endreq;
     } else {
 
       // Order by eta, phi
@@ -109,7 +109,7 @@ StatusCode CpmTesterV2::execute()
     const CpmTowerCollection* ttCollection = 0;
     StatusCode sc = evtStore()->retrieve(ttCollection, m_cpmTowerLocationOverlap);
     if (sc.isFailure() || !ttCollection || ttCollection->empty()) {
-      msg() << "No overlap CPM towers found" << endmsg;
+      msg() << "No overlap CPM towers found" << endreq;
     } else {
 
       // Order by eta, phi
@@ -129,7 +129,7 @@ StatusCode CpmTesterV2::execute()
     const CmxCpTobCollection* tobCollection = 0;
     StatusCode sc = evtStore()->retrieve(tobCollection, m_cmxCpTobLocation);
     if (sc.isFailure() || !tobCollection || tobCollection->empty()) {
-      msg() << "No CMX-CP TOBs found" << endmsg;
+      msg() << "No CMX-CP TOBs found" << endreq;
     } else {
 
       // Order by crate, cmx, cpm, chip
@@ -149,7 +149,7 @@ StatusCode CpmTesterV2::execute()
     const CmxCpHitsCollection* hitCollection = 0;
     StatusCode sc = evtStore()->retrieve(hitCollection, m_cmxCpHitsLocation);
     if (sc.isFailure() || !hitCollection || hitCollection->empty()) {
-      msg() << "No CMX-CP Hits found" << endmsg;
+      msg() << "No CMX-CP Hits found" << endreq;
     } else {
 
       // Order by crate, cmx, source
@@ -169,7 +169,7 @@ StatusCode CpmTesterV2::execute()
     const CpmRoiCollection* roiCollection = 0;
     StatusCode sc = evtStore()->retrieve(roiCollection, m_cpmRoiLocation);
     if (sc.isFailure() || !roiCollection || roiCollection->empty()) {
-      msg() << "No CPM RoIs found" << endmsg;
+      msg() << "No CPM RoIs found" << endreq;
     } else {
 
       // Order by RoI word
@@ -189,7 +189,7 @@ StatusCode CpmTesterV2::execute()
     const CpmRoiCollection* roiCollection = 0;
     StatusCode sc = evtStore()->retrieve(roiCollection, m_cpmRoiLocationRoib);
     if (sc.isFailure() || !roiCollection || roiCollection->empty()) {
-      msg() << "No CPM RoIs from RoIB found" << endmsg;
+      msg() << "No CPM RoIs from RoIB found" << endreq;
     } else {
 
       // Order by RoI word
@@ -219,7 +219,7 @@ StatusCode CpmTesterV2::finalize()
 void CpmTesterV2::printCpmTowers(const std::string& source) const
 {
   msg() << "Number of " << source << " CPM towers = "
-        << m_ttMap.size() << endmsg;
+        << m_ttMap.size() << endreq;
   CpmTowerMap::const_iterator mapIter = m_ttMap.begin();
   CpmTowerMap::const_iterator mapEnd  = m_ttMap.end();
   for (; mapIter != mapEnd; ++mapIter) {
@@ -247,7 +247,7 @@ void CpmTesterV2::printCpmTowers(const std::string& source) const
     msg() << MSG::hex;
     printVec(emError);
     printVec(hadError);
-    msg() << MSG::dec << endmsg;
+    msg() << MSG::dec << endreq;
   }
 }
 
@@ -255,7 +255,7 @@ void CpmTesterV2::printCpmTowers(const std::string& source) const
 
 void CpmTesterV2::printCmxCpTobs() const
 {
-  msg() << "Number of CMX-CP TOBs = " << m_tobMap.size() << endmsg;
+  msg() << "Number of CMX-CP TOBs = " << m_tobMap.size() << endreq;
   CmxCpTobMap::const_iterator mapIter = m_tobMap.begin();
   CmxCpTobMap::const_iterator mapEnd  = m_tobMap.end();
   for (; mapIter != mapEnd; ++mapIter) {
@@ -289,7 +289,7 @@ void CpmTesterV2::printCmxCpTobs() const
       ModifySlices::data(tb->presenceMapVec(), presence, slices);
       printVecH(presence, 1, 16);
     }
-    msg() << MSG::dec << endmsg;
+    msg() << MSG::dec << endreq;
   }
 }
 
@@ -297,7 +297,7 @@ void CpmTesterV2::printCmxCpTobs() const
 
 void CpmTesterV2::printCmxCpHits() const
 {
-  msg() << "Number of CMX-CP Hits = " << m_hitsMap.size() << endmsg;
+  msg() << "Number of CMX-CP Hits = " << m_hitsMap.size() << endreq;
   CmxCpHitsMap::const_iterator mapIter = m_hitsMap.begin();
   CmxCpHitsMap::const_iterator mapEnd  = m_hitsMap.end();
   for (; mapIter != mapEnd; ++mapIter) {
@@ -346,7 +346,7 @@ void CpmTesterV2::printCmxCpHits() const
     }
     printVec(err0);
     printVec(err1);
-    msg() << MSG::dec << endmsg;
+    msg() << MSG::dec << endreq;
   }
 }
 
@@ -355,7 +355,7 @@ void CpmTesterV2::printCmxCpHits() const
 void CpmTesterV2::printCpmRois(const std::string& source) const
 {
   msg() << "Number of CPM RoIs (" << source << ") = " << m_roiMap.size()
-        << endmsg;
+        << endreq;
   CpmRoiMap::const_iterator mapIter = m_roiMap.begin();
   CpmRoiMap::const_iterator mapEnd  = m_roiMap.end();
   for (; mapIter != mapEnd; ++mapIter) {
@@ -364,7 +364,7 @@ void CpmTesterV2::printCpmRois(const std::string& source) const
 	  << roi->crate()    << "/" << roi->cpm() << "/" << roi->chip() << "/"
 	  << roi->location() << "/" << roi->type() << "/"
 	  << roi->energy() << "/" << MSG::hex << roi->isolation() << MSG::dec
-	  << endmsg;
+	  << endreq;
   }
 }
 

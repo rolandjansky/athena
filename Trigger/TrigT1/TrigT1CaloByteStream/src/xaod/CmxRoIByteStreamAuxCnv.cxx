@@ -107,9 +107,7 @@ StatusCode CmxRoIByteStreamAuxCnv::createObj(IOpaqueAddress* pAddr,
 
   item->initialize(source.ex(), source.ey(), source.et(),
     source.exError(), source.eyError(), source.etError(),
-    //source.sumEtHits(), source.missingEtHits(),
-    // amazurov: values for EtHits and missingEtHits are swaзув in source 
-    source.missingEtHits(), source.sumEtHits(),
+    source.sumEtHits(), source.missingEtHits(),
     source.missingEtSigHits(),
     source.ex(LVL1::CMXRoI::SumType::MASKED),
     source.ey(LVL1::CMXRoI::SumType::MASKED),
@@ -117,9 +115,8 @@ StatusCode CmxRoIByteStreamAuxCnv::createObj(IOpaqueAddress* pAddr,
     source.exError(LVL1::CMXRoI::SumType::MASKED),
     source.eyError(LVL1::CMXRoI::SumType::MASKED),
     source.etError(LVL1::CMXRoI::SumType::MASKED),
-    // source.sumEtHits(LVL1::CMXRoI::SumType::MASKED), source.missingEtHits(LVL1::CMXRoI::SumType::MASKED)
-    // amazurov: values for EtHits and missingEtHits are swaзув in source  
-    source.missingEtHits(LVL1::CMXRoI::SumType::MASKED), source.sumEtHits(LVL1::CMXRoI::SumType::MASKED)
+    source.sumEtHits(LVL1::CMXRoI::SumType::MASKED),
+    source.missingEtHits(LVL1::CMXRoI::SumType::MASKED)
   );
 
   // -------------------------------------------------------------------------

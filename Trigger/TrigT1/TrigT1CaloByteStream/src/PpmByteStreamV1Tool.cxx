@@ -117,31 +117,31 @@ PpmByteStreamV1Tool::~PpmByteStreamV1Tool()
 StatusCode PpmByteStreamV1Tool::initialize()
 {
     msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                   << PACKAGE_VERSION << endmsg;
+                   << PACKAGE_VERSION << endreq;
 
     StatusCode sc = m_ppmMaps.retrieve();
     if (sc.isFailure())
     {
-        msg(MSG::ERROR) << "Failed to retrieve tool " << m_ppmMaps << endmsg;
+        msg(MSG::ERROR) << "Failed to retrieve tool " << m_ppmMaps << endreq;
         return sc;
     }
-    else msg(MSG::INFO) << "Retrieved tool " << m_ppmMaps << endmsg;
+    else msg(MSG::INFO) << "Retrieved tool " << m_ppmMaps << endreq;
 
     sc = m_errorTool.retrieve();
     if (sc.isFailure())
     {
-        msg(MSG::ERROR) << "Failed to retrieve tool " << m_errorTool << endmsg;
+        msg(MSG::ERROR) << "Failed to retrieve tool " << m_errorTool << endreq;
         return sc;
     }
-    else msg(MSG::INFO) << "Retrieved tool " << m_errorTool << endmsg;
+    else msg(MSG::INFO) << "Retrieved tool " << m_errorTool << endreq;
 
     sc = m_sms.retrieve();
     if (sc.isFailure())
     {
-        msg(MSG::ERROR) << "Failed to retrieve service " << m_sms << endmsg;
+        msg(MSG::ERROR) << "Failed to retrieve service " << m_sms << endreq;
         return sc;
     }
-    else msg(MSG::INFO) << "Retrieved service " << m_sms << endmsg;
+    else msg(MSG::INFO) << "Retrieved service " << m_sms << endreq;
 
     m_srcIdMap  = new L1CaloSrcIdMap();
     m_towerKey  = new LVL1::TriggerTowerKey();
@@ -317,7 +317,7 @@ StatusCode PpmByteStreamV1Tool::convert(
         if (debug)
         {
             ++robCount;
-            msg() << "Treating ROB fragment " << robCount << endmsg;
+            msg() << "Treating ROB fragment " << robCount << endreq;
         }
 
         // Skip fragments with ROB status errors
@@ -330,7 +330,7 @@ StatusCode PpmByteStreamV1Tool::convert(
             if (*robData != 0)
             {
                 m_errorTool->robError(robid, *robData);
-                if (debug) msg() << "ROB status error - skipping fragment" << endmsg;
+                if (debug) msg() << "ROB status error - skipping fragment" << endreq;
                 continue;
             }
         }
@@ -340,7 +340,7 @@ StatusCode PpmByteStreamV1Tool::convert(
         if (!dupCheck.insert(robid).second)
         {
             m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_DUPLICATE_ROB);
-            if (debug) msg() << "Skipping duplicate ROB fragment" << endmsg;
+            if (debug) msg() << "Skipping duplicate ROB fragment" << endreq;
             continue;
         }
 
@@ -354,7 +354,7 @@ StatusCode PpmByteStreamV1Tool::convert(
         payload = payloadBeg;
         if (payload == payloadEnd)
         {
-            if (debug) msg() << "ROB fragment empty" << endmsg;
+            if (debug) msg() << "ROB fragment empty" << endreq;
             continue;
         }
 
@@ -371,7 +371,7 @@ StatusCode PpmByteStreamV1Tool::convert(
             {
                 msg() << "Wrong source identifier in data: ROD "
                       << MSG::hex << sourceID << "  ROB " << robid
-                      << MSG::dec << endmsg;
+                      << MSG::dec << endreq;
             }
             continue;
         }
@@ -380,21 +380,21 @@ StatusCode PpmByteStreamV1Tool::convert(
         const int minorVersion = (*rob)->rod_version() & 0xffff;
         if (minorVersion > m_srcIdMap->minorVersionPreLS1())
         {
-            if (debug) msg() << "Skipping post-LS1 data" << endmsg;
+            if (debug) msg() << "Skipping post-LS1 data" << endreq;
             continue;
         }
         const int rodCrate = m_srcIdMap->crate(sourceID);
         if (debug)
         {
             msg() << "Treating crate " << rodCrate
-                  << " slink "         << m_srcIdMap->slink(sourceID) << endmsg;
+                  << " slink "         << m_srcIdMap->slink(sourceID) << endreq;
         }
 
         // First word should be User Header
         if ( !L1CaloUserHeader::isValid(*payload) )
         {
             m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_USER_HEADER);
-            if (debug) msg() << "Invalid or missing user header" << endmsg;
+            if (debug) msg() << "Invalid or missing user header" << endreq;
             continue;
         }
         L1CaloUserHeader userHeader(*payload);
@@ -406,7 +406,7 @@ StatusCode PpmByteStreamV1Tool::convert(
             if (debug)
             {
                 msg() << "Unexpected number of user header words: "
-                      << headerWords << endmsg;
+                      << headerWords << endreq;
             }
             continue;
         }
@@ -419,10 +419,10 @@ StatusCode PpmByteStreamV1Tool::convert(
         if (debug)
         {
             msg() << "Minor format version number: "
-                  << MSG::hex << minorVersion << MSG::dec              << endmsg
-                  << "LUT triggered slice offset:  " << trigLut        << endmsg
-                  << "FADC triggered slice offset: " << trigFadc       << endmsg
-                  << "FADC baseline lower bound:   " << m_fadcBaseline << endmsg;
+                  << MSG::hex << minorVersion << MSG::dec              << endreq
+                  << "LUT triggered slice offset:  " << trigLut        << endreq
+                  << "FADC triggered slice offset: " << trigFadc       << endreq
+                  << "FADC baseline lower bound:   " << m_fadcBaseline << endreq;
         }
         const int runNumber = (*rob)->rod_run_no() & 0xffffff;
 
@@ -438,7 +438,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                     || CmmSubBlock::cmmBlock(*payload))
             {
                 m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_MISSING_HEADER);
-                if (debug) msg() << "Missing Sub-block header" << endmsg;
+                if (debug) msg() << "Missing Sub-block header" << endreq;
                 continue;
             }
             firstBlock = true;
@@ -456,15 +456,15 @@ StatusCode PpmByteStreamV1Tool::convert(
                 m_errorTool->rodError(robid, subBlock->unpackErrorCode());
                 if (debug) msg() << "Unsupported version/data format: "
                                      << subBlock->version() << "/"
-                                     << subBlock->format()  << endmsg;
+                                     << subBlock->format()  << endreq;
                 continue;
             }
             if (debug) msg() << "Channels per sub-block: "
-                                 << chanPerSubBlock << endmsg;
+                                 << chanPerSubBlock << endreq;
         }
         else
         {
-            if (debug) msg() << "ROB fragment contains user header only" << endmsg;
+            if (debug) msg() << "ROB fragment contains user header only" << endreq;
             continue;
         }
         const int numSubBlocks = s_channels / chanPerSubBlock;
@@ -497,7 +497,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                         || CmmSubBlock::cmmBlock(word)
                         || PpmSubBlockV1::errorBlock(word))
                 {
-                    if (debug) msg() << "Unexpected data sequence" << endmsg;
+                    if (debug) msg() << "Unexpected data sequence" << endreq;
                     rodErr = L1CaloSubBlock::ERROR_MISSING_HEADER;
                     break;
                 }
@@ -508,7 +508,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                     {
                         msg() << "Unexpected channel sequence number: "
                               << L1CaloSubBlock::seqno(word) << " expected "
-                              << block *chanPerSubBlock << endmsg;
+                              << block *chanPerSubBlock << endreq;
                     }
                     rodErr = L1CaloSubBlock::ERROR_MISSING_SUBBLOCK;
                     break;
@@ -531,13 +531,13 @@ StatusCode PpmByteStreamV1Tool::convert(
                     module = subBlock->module();
                     if (debug)
                     {
-                        msg() << "Crate " << crate << "  Module " << module << endmsg;
+                        msg() << "Crate " << crate << "  Module " << module << endreq;
                     }
                     if (crate != rodCrate)
                     {
                         if (debug)
                         {
-                            msg() << "Inconsistent crate number in ROD source ID" << endmsg;
+                            msg() << "Inconsistent crate number in ROD source ID" << endreq;
                         }
                         rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
                         break;
@@ -548,21 +548,21 @@ StatusCode PpmByteStreamV1Tool::convert(
                     if (subBlock->crate() != crate)
                     {
                         if (debug) msg() << "Inconsistent crate number in sub-blocks"
-                                             << endmsg;
+                                             << endreq;
                         rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
                         break;
                     }
                     if (subBlock->module() != module)
                     {
                         if (debug) msg() << "Inconsistent module number in sub-blocks"
-                                             << endmsg;
+                                             << endreq;
                         rodErr = L1CaloSubBlock::ERROR_MODULE_NUMBER;
                         break;
                     }
                 }
                 if (payload == payloadEnd && block != numSubBlocks - 1)
                 {
-                    if (debug) msg() << "Premature end of data" << endmsg;
+                    if (debug) msg() << "Premature end of data" << endreq;
                     rodErr = L1CaloSubBlock::ERROR_MISSING_SUBBLOCK;
                     break;
                 }
@@ -578,7 +578,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                         && !CmmSubBlock::cmmBlock(*payload)
                         && PpmSubBlockV1::errorBlock(*payload))
                 {
-                    if (debug) msg() << "Error block found" << endmsg;
+                    if (debug) msg() << "Error block found" << endreq;
                     if (!m_errorBlock) m_errorBlock = new PpmSubBlockV1();
                     else m_errorBlock->clear();
                     isErrBlock = true;
@@ -586,14 +586,14 @@ StatusCode PpmByteStreamV1Tool::convert(
                     if (m_errorBlock->crate() != crate)
                     {
                         if (debug) msg() << "Inconsistent crate number in error block"
-                                             << endmsg;
+                                             << endreq;
                         rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
                         break;
                     }
                     if (m_errorBlock->module() != module)
                     {
                         if (debug) msg() << "Inconsistent module number in error block"
-                                             << endmsg;
+                                             << endreq;
                         rodErr = L1CaloSubBlock::ERROR_MODULE_NUMBER;
                         break;
                     }
@@ -602,7 +602,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                         if (debug)
                         {
                             std::string errMsg(m_errorBlock->unpackErrorMsg());
-                            msg() << "Unpacking error block failed: " << errMsg << endmsg;
+                            msg() << "Unpacking error block failed: " << errMsg << endreq;
                         }
                         rodErr = m_errorBlock->unpackErrorCode();
                         break;
@@ -631,14 +631,14 @@ StatusCode PpmByteStreamV1Tool::convert(
                 {
                     msg() << "Unpacking sub-block version/format/seqno: "
                           << subBlock->version() << "/" << subBlock->format() << "/"
-                          << subBlock->seqno() << endmsg;
+                          << subBlock->seqno() << endreq;
                 }
                 if (subBlock->dataWords() && !subBlock->unpack())
                 {
                     if (debug)
                     {
                         std::string errMsg(subBlock->unpackErrorMsg());
-                        msg() << "Unpacking PPM sub-block failed: " << errMsg << endmsg;
+                        msg() << "Unpacking PPM sub-block failed: " << errMsg << endreq;
                     }
                     rodErr = subBlock->unpackErrorCode();
                     break;
@@ -655,7 +655,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                     {
                         if (debug) msg() << "Duplicate data for crate/module/channel: "
                                              << crate << "/" << module << "/" << channel
-                                             << endmsg;
+                                             << endreq;
                         rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
                         break;
                     }
@@ -670,7 +670,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                         {
                             msg() << "Triggered LUT slice from header "
                                   << "inconsistent with number of slices: "
-                                  << trigLut << ", " << lut.size() << endmsg;
+                                  << trigLut << ", " << lut.size() << endreq;
                         }
                         rodErr = L1CaloSubBlock::ERROR_SLICES;
                         break;
@@ -681,7 +681,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                         {
                             msg() << "Triggered FADC slice from header "
                                   << "inconsistent with number of slices: "
-                                  << trigFadc << ", " << fadc.size() << endmsg;
+                                  << trigFadc << ", " << fadc.size() << endreq;
                         }
                         rodErr = L1CaloSubBlock::ERROR_SLICES;
                         break;
@@ -750,7 +750,7 @@ StatusCode PpmByteStreamV1Tool::convert(
     {
         if (debug)
         {
-            msg() << "Found " << ttCount << " channels, expected " << colSize << endmsg;
+            msg() << "Found " << ttCount << " channels, expected " << colSize << endreq;
         }
         std::vector<int> dummy(1);
         for (int word = 0; word < chanBitVecSize; ++word)
@@ -832,7 +832,7 @@ StatusCode PpmByteStreamV1Tool::convert(
     if (chanPerSubBlock == 0)
     {
         msg(MSG::ERROR) << "Unsupported version/data format: "
-                        << m_version << "/" << m_dataFormat << endmsg;
+                        << m_version << "/" << m_dataFormat << endreq;
         return StatusCode::FAILURE;
     }
     PpmSubBlockV1 errorBlock;
@@ -859,7 +859,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                 const int slink = module / modulesPerSlink;
                 if (debug)
                 {
-                    msg() << "Treating crate " << crate << " slink " << slink << endmsg;
+                    msg() << "Treating crate " << crate << " slink " << slink << endreq;
                 }
                 // Get number of slices and triggered slice offsets
                 // for this slink
@@ -868,7 +868,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                 {
                     msg(MSG::ERROR) << "Inconsistent number of slices or "
                                     << "triggered slice offsets in data for crate "
-                                    << crate << " slink " << slink << endmsg;
+                                    << crate << " slink " << slink << endreq;
                     return StatusCode::FAILURE;
                 }
                 slicesLutNew  = (m_forceSlicesLut)  ? m_forceSlicesLut  : slicesLut;
@@ -878,19 +878,19 @@ StatusCode PpmByteStreamV1Tool::convert(
                 if (debug)
                 {
                     msg() << "Data Version/Format: " << m_version
-                          << " " << m_dataFormat << endmsg
+                          << " " << m_dataFormat << endreq
                           << "LUT slices/offset: " << slicesLut << " " << trigLut;
                     if (slicesLut != slicesLutNew)
                     {
                         msg() << " modified to " << slicesLutNew << " " << trigLutNew;
                     }
-                    msg() << endmsg
+                    msg() << endreq
                           << "FADC slices/offset: " << slicesFadc << " " << trigFadc;
                     if (slicesFadc != slicesFadcNew)
                     {
                         msg() << " modified to " << slicesFadcNew << " " << trigFadcNew;
                     }
-                    msg() << endmsg;
+                    msg() << endreq;
                 }
                 L1CaloUserHeader userHeader;
                 userHeader.setPpmLut(trigLutNew);
@@ -902,7 +902,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                 theROD->push_back(userHeader.header());
                 m_rodStatusMap.insert(make_pair(rodIdPpm, m_rodStatus));
             }
-            if (debug) msg() << "Module " << module << endmsg;
+            if (debug) msg() << "Module " << module << endreq;
 
             // Find trigger towers corresponding to each eta/phi pair and fill
             // sub-blocks
@@ -984,7 +984,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                     // output the packed sub-block
                     if ( !subBlock.pack())
                     {
-                        msg(MSG::ERROR) << "PPM sub-block packing failed" << endmsg;
+                        msg(MSG::ERROR) << "PPM sub-block packing failed" << endreq;
                         return StatusCode::FAILURE;
                     }
                     if (m_printCompStats) addCompStats(subBlock.compStats());
@@ -996,7 +996,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                         if (debug)
                         {
                             msg() << "PPM sub-block data words: "
-                                  << subBlock.dataWords() << endmsg;
+                                  << subBlock.dataWords() << endreq;
                         }
                         subBlock.write(theROD);
                     }
@@ -1032,7 +1032,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                         if (debug)
                         {
                             msg() << "PPM sub-block data words: "
-                                  << subBlock.dataWords() << endmsg;
+                                  << subBlock.dataWords() << endreq;
                         }
                         subBlock.write(theROD);
                         // Only uncompressed format has a separate error block
@@ -1040,7 +1040,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                         {
                             if ( ! errorBlock.pack())
                             {
-                                msg(MSG::ERROR) << "PPM error block packing failed" << endmsg;
+                                msg(MSG::ERROR) << "PPM error block packing failed" << endreq;
                                 return StatusCode::FAILURE;
                             }
                             errorBlock.setStatus(0, glinkTimeout, false, upstreamError,
@@ -1049,7 +1049,7 @@ StatusCode PpmByteStreamV1Tool::convert(
                             if (debug)
                             {
                                 msg() << "PPM error block data words: "
-                                      << errorBlock.dataWords() << endmsg;
+                                      << errorBlock.dataWords() << endreq;
                             }
                         }
                     }
@@ -1089,7 +1089,7 @@ void PpmByteStreamV1Tool::printCompStats() const
     {
         msg() << " " << i << "/" << m_compStats[i];
     }
-    msg() << endmsg;
+    msg() << endreq;
 }
 
 // Find a trigger tower using separate layer maps

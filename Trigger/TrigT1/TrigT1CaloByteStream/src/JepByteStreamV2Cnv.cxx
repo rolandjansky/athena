@@ -60,7 +60,7 @@ StatusCode JepByteStreamV2Cnv::initialize()
 {
   m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
   m_log << MSG::DEBUG << "Initializing " << m_name << " - package version "
-                      << PACKAGE_VERSION << endmsg;
+                      << PACKAGE_VERSION << endreq;
 
   StatusCode sc = Converter::initialize();
   if ( sc.isFailure() )
@@ -70,19 +70,19 @@ StatusCode JepByteStreamV2Cnv::initialize()
   sc = m_ByteStreamEventAccess.retrieve();
   if ( sc.isFailure() ) {
     m_log << MSG::ERROR << "Failed to retrieve service "
-          << m_ByteStreamEventAccess << endmsg;
+          << m_ByteStreamEventAccess << endreq;
     return sc;
   } else {
     m_log << MSG::DEBUG << "Retrieved service "
-          << m_ByteStreamEventAccess << endmsg;
+          << m_ByteStreamEventAccess << endreq;
   }
 
   // Retrieve Tool
   sc = m_tool.retrieve();
   if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool << endmsg;
+    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool << endreq;
     return StatusCode::FAILURE;
-  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool << endmsg;
+  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool << endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -92,13 +92,13 @@ StatusCode JepByteStreamV2Cnv::initialize()
 StatusCode JepByteStreamV2Cnv::createRep( DataObject* pObj,
                                           IOpaqueAddress*& pAddr )
 {
-  if (m_debug) m_log << MSG::DEBUG << "createRep() called" << endmsg;
+  if (m_debug) m_log << MSG::DEBUG << "createRep() called" << endreq;
 
   RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
 
   LVL1::JEPBSCollectionV2* jep = 0;
   if( !SG::fromStorable( pObj, jep ) ) {
-    m_log << MSG::ERROR << " Cannot cast to JEPBSCollectionV2" << endmsg;
+    m_log << MSG::ERROR << " Cannot cast to JEPBSCollectionV2" << endreq;
     return StatusCode::FAILURE;
   }
 

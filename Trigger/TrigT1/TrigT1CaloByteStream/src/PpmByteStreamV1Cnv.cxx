@@ -63,7 +63,7 @@ StatusCode PpmByteStreamV1Cnv::initialize()
 {
   m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
   m_log << MSG::DEBUG << "Initializing " << m_name << " - package version "
-                      << PACKAGE_VERSION << endmsg;
+                      << PACKAGE_VERSION << endreq;
 
   StatusCode sc = Converter::initialize();
   if ( sc.isFailure() )
@@ -73,30 +73,30 @@ StatusCode PpmByteStreamV1Cnv::initialize()
   sc = m_ByteStreamEventAccess.retrieve();
   if ( sc.isFailure() ) {
     m_log << MSG::ERROR << "Failed to retrieve service "
-          << m_ByteStreamEventAccess << endmsg;
+          << m_ByteStreamEventAccess << endreq;
     return sc;
   } else {
     m_log << MSG::DEBUG << "Retrieved service "
-          << m_ByteStreamEventAccess << endmsg;
+          << m_ByteStreamEventAccess << endreq;
   }
 
   // Retrieve Tool
   sc = m_tool.retrieve();
   if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool << endmsg;
+    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool << endreq;
     return sc;
-  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool << endmsg;
+  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool << endreq;
 
   // Get ROBDataProvider
   sc = m_robDataProvider.retrieve();
   if ( sc.isFailure() ) {
     m_log << MSG::WARNING << "Failed to retrieve service "
-          << m_robDataProvider << endmsg;
+          << m_robDataProvider << endreq;
     // return is disabled for Write BS which does not require ROBDataProviderSvc
     // return sc ;
   } else {
     m_log << MSG::DEBUG << "Retrieved service "
-          << m_robDataProvider << endmsg;
+          << m_robDataProvider << endreq;
   }
 
   return StatusCode::SUCCESS;
@@ -107,18 +107,18 @@ StatusCode PpmByteStreamV1Cnv::initialize()
 StatusCode PpmByteStreamV1Cnv::createObj( IOpaqueAddress* pAddr,
                                         DataObject*& pObj )
 {
-  if (m_debug) m_log << MSG::DEBUG << "createObj() called" << endmsg;
+  if (m_debug) m_log << MSG::DEBUG << "createObj() called" << endreq;
 
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast<ByteStreamAddress *>( pAddr );
   if ( !pBS_Addr ) {
-    m_log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endmsg;
+    m_log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endreq;
     return StatusCode::FAILURE;
   }
 
   const std::string nm = *( pBS_Addr->par() );
 
-  if (m_debug) m_log << MSG::DEBUG << " Creating Objects " << nm << endmsg;
+  if (m_debug) m_log << MSG::DEBUG << " Creating Objects " << nm << endreq;
 
   // get SourceIDs
   const std::vector<uint32_t>& vID(m_tool->sourceIDs(nm));
@@ -132,7 +132,7 @@ StatusCode PpmByteStreamV1Cnv::createObj( IOpaqueAddress* pAddr,
                       new DataVector<LVL1::TriggerTower>(SG::VIEW_ELEMENTS);
   if (m_debug) {
     m_log << MSG::DEBUG << " Number of ROB fragments is " << robFrags.size()
-          << endmsg;
+          << endreq;
   }
   if (robFrags.size() == 0) {
     pObj = SG::asStorable(ttCollection) ;
@@ -141,7 +141,7 @@ StatusCode PpmByteStreamV1Cnv::createObj( IOpaqueAddress* pAddr,
 
   StatusCode sc = m_tool->convert(robFrags, ttCollection);
   if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << " Failed to create Objects   " << nm << endmsg;
+    m_log << MSG::ERROR << " Failed to create Objects   " << nm << endreq;
     delete ttCollection;
     return sc;
   }
@@ -156,13 +156,13 @@ StatusCode PpmByteStreamV1Cnv::createObj( IOpaqueAddress* pAddr,
 StatusCode PpmByteStreamV1Cnv::createRep( DataObject* pObj,
                                         IOpaqueAddress*& pAddr )
 {
-  if (m_debug) m_log << MSG::DEBUG << "createRep() called" << endmsg;
+  if (m_debug) m_log << MSG::DEBUG << "createRep() called" << endreq;
 
   RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
 
   DataVector<LVL1::TriggerTower>* ttCollection = 0;
   if( !SG::fromStorable( pObj, ttCollection ) ) {
-    m_log << MSG::ERROR << " Cannot cast to DataVector<TriggerTower>" << endmsg;
+    m_log << MSG::ERROR << " Cannot cast to DataVector<TriggerTower>" << endreq;
     return StatusCode::FAILURE;
   }
 

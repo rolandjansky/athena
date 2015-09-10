@@ -46,7 +46,7 @@ RodTester::~RodTester()
 StatusCode RodTester::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << /* version() */ PACKAGE_VERSION << endmsg;
+                 << /* version() */ PACKAGE_VERSION << endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -64,44 +64,44 @@ StatusCode RodTester::execute()
   std::vector<std::string>::const_iterator flagEnd  = m_flags.end();
   for (; flagIter != flagEnd; ++flagIter) {
     msg() << "================================================="
-          << endmsg;
+          << endreq;
     const std::string location(m_rodHeaderLocation + *flagIter);
     const RodHeaderCollection* rods = 0;
     StatusCode sc = evtStore()->retrieve(rods, location);
     if (sc.isFailure() || !rods || rods->empty()) {
-      msg() << "No ROD headers found for " << location << endmsg;
+      msg() << "No ROD headers found for " << location << endreq;
     } else {
 
       // Print the ROD headers
 
       msg() << "Number of ROD headers in collection "
-            << location << " is " << rods->size() << MSG::hex << endmsg;
+            << location << " is " << rods->size() << MSG::hex << endreq;
       RodHeaderCollection::const_iterator rodIter = rods->begin();
       RodHeaderCollection::const_iterator rodEnd  = rods->end();
       for (; rodIter != rodEnd; ++rodIter) {
         const LVL1::RODHeader* const header = *rodIter;
 	msg() << "-------------------------------------------------"
-	      << endmsg
+	      << endreq
 	      << "version/majorVersion/minorVersion: "
 	      << header->version() << "/" << header->majorVersion() << "/"
-	      << header->minorVersion() << endmsg
+	      << header->minorVersion() << endreq
               << "sourceID/subDetectorID/moduleID/crate/sLink/dataType: "
 	      << header->sourceID() << "/" << header->subDetectorID() << "/"
 	      << header->moduleID() << "/" << header->crate() << "/"
-	      << header->sLink() << "/" << header->dataType() << endmsg
+	      << header->sLink() << "/" << header->dataType() << endreq
               << "run/runType/runNumber: "
 	      << header->run() << "/" << header->runType() << "/"
-	      << header->runNumber() << endmsg
+	      << header->runNumber() << endreq
               << "extendedL1ID/ecrID/l1ID: "
 	      << header->extendedL1ID() << "/" << header->ecrID() << "/"
-	      << header->l1ID() << endmsg
+	      << header->l1ID() << endreq
               << "bunchCrossing/l1TriggerType: "
 	      << header->bunchCrossing() << "/" << header->l1TriggerType() << "/"
-	      << endmsg
+	      << endreq
               << "detEventType/orbitCount/stepNumber/stepType: "
 	      << header->detEventType() << "/" << header->orbitCount() << "/"
-	      << header->stepNumber() << "/" << header->stepType() << endmsg
-	      << "payloadSize: " << header->payloadSize() << endmsg;
+	      << header->stepNumber() << "/" << header->stepType() << endreq
+	      << "payloadSize: " << header->payloadSize() << endreq;
 	const std::vector<uint32_t>& words(header->statusWords());
         msg() << "statusWords(" << words.size() << "): ";
 	std::vector<uint32_t>::const_iterator wordIter = words.begin();
@@ -109,17 +109,17 @@ StatusCode RodTester::execute()
 	for (; wordIter != wordEnd; ++wordIter) {
 	  msg() << *wordIter << " ";
         }
-	msg() << endmsg
+	msg() << endreq
 	      << "bcnMismatch/gLinkTimeout/dataTransportError/rodFifoOverflow: "
 	      << header->bcnMismatch() << "/" << header->gLinkTimeout() << "/"
 	      << header->dataTransportError() << "/" << header->rodFifoOverflow()
-	      << endmsg
+	      << endreq
               << "lvdsLinkError/cmmParityError/gLinkError: "
 	      << header->lvdsLinkError() << "/" << header->cmmParityError() << "/"
-	      << header->gLinkError() << endmsg
+	      << header->gLinkError() << endreq
               << "limitedRoISet/triggerTypeTimeout: "
 	      << header->limitedRoISet() << "/" << header->triggerTypeTimeout()
-	      << endmsg;
+	      << endreq;
       }
       msg() << MSG::dec;
     }

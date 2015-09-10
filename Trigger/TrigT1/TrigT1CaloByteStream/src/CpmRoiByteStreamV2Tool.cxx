@@ -93,15 +93,15 @@ CpmRoiByteStreamV2Tool::~CpmRoiByteStreamV2Tool()
 StatusCode CpmRoiByteStreamV2Tool::initialize()
 {
     msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                   << PACKAGE_VERSION << endmsg;
+                   << PACKAGE_VERSION << endreq;
 
     StatusCode sc = m_errorTool.retrieve();
     if (sc.isFailure())
     {
-        msg(MSG::ERROR) << "Failed to retrieve tool " << m_errorTool << endmsg;
+        msg(MSG::ERROR) << "Failed to retrieve tool " << m_errorTool << endreq;
         return sc;
     }
-    else msg(MSG::INFO) << "Retrieved tool " << m_errorTool << endmsg;
+    else msg(MSG::INFO) << "Retrieved tool " << m_errorTool << endreq;
 
     m_subDetector = eformat::TDAQ_CALO_CLUSTER_PROC_ROI;
     m_srcIdMap    = new L1CaloSrcIdMap();
@@ -156,7 +156,7 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
         if (debug)
         {
             ++robCount;
-            msg() << "Treating ROB fragment " << robCount << endmsg;
+            msg() << "Treating ROB fragment " << robCount << endreq;
         }
 
         // Skip fragments with ROB status errors
@@ -169,7 +169,7 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
             if (*robData != 0)
             {
                 m_errorTool->robError(robid, *robData);
-                if (debug) msg() << "ROB status error - skipping fragment" << endmsg;
+                if (debug) msg() << "ROB status error - skipping fragment" << endreq;
                 continue;
             }
         }
@@ -179,7 +179,7 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
         if (!dupCheck.insert(robid).second)
         {
             m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_DUPLICATE_ROB);
-            if (debug) msg() << "Skipping duplicate ROB fragment" << endmsg;
+            if (debug) msg() << "Skipping duplicate ROB fragment" << endreq;
             continue;
         }
 
@@ -193,7 +193,7 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
         payload = payloadBeg;
         if (payload == payloadEnd)
         {
-            if (debug) msg() << "ROB fragment empty" << endmsg;
+            if (debug) msg() << "ROB fragment empty" << endreq;
             continue;
         }
 
@@ -210,7 +210,7 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
             if (debug)
             {
                 msg() << "Wrong source identifier in data: "
-                      << MSG::hex << sourceID << MSG::dec << endmsg;
+                      << MSG::hex << sourceID << MSG::dec << endreq;
             }
             continue;
         }
@@ -219,14 +219,14 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
         const int minorVersion = (*rob)->rod_version() & 0xffff;
         if (minorVersion <= m_srcIdMap->minorVersionPreLS1())
         {
-            if (debug) msg() << "Skipping pre-LS1 data" << endmsg;
+            if (debug) msg() << "Skipping pre-LS1 data" << endreq;
             continue;
         }
         const int rodCrate = m_srcIdMap->crate(sourceID);
         if (debug)
         {
             msg() << "Treating crate " << rodCrate
-                  << " slink " << m_srcIdMap->slink(sourceID) << endmsg;
+                  << " slink " << m_srcIdMap->slink(sourceID) << endreq;
         }
 
         // First word may be User Header
@@ -239,7 +239,7 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
             {
                 m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_USER_HEADER);
                 if (debug) msg() << "Unexpected number of user header words: "
-                                     << headerWords << endmsg;
+                                     << headerWords << endreq;
                 continue;
             }
             for (int i = 0; i < headerWords; ++i) ++payload;
@@ -258,7 +258,7 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
                 if (debug)
                 {
                     msg() << "CPM RoI sub-block: Crate " << m_subBlock->crate()
-                          << "  Module " << m_subBlock->module() << endmsg;
+                          << "  Module " << m_subBlock->module() << endreq;
                 }
                 // Unpack sub-block
                 if (m_subBlock->dataWords() && !m_subBlock->unpack())
@@ -266,7 +266,7 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
                     if (debug)
                     {
                         std::string errMsg(m_subBlock->unpackErrorMsg());
-                        msg() << "CPM RoI sub-block unpacking failed: " << errMsg << endmsg;
+                        msg() << "CPM RoI sub-block unpacking failed: " << errMsg << endreq;
                     }
                     rodErr = m_subBlock->unpackErrorCode();
                     break;
@@ -302,14 +302,14 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
                     if (roi.crate() != rodCrate - m_crateOffsetHw)
                     {
                         if (debug) msg() << "Inconsistent RoI crate number: "
-                                             << roi.crate() << endmsg;
+                                             << roi.crate() << endreq;
                         rodErr = L1CaloSubBlock::ERROR_CRATE_NUMBER;
                         break;
                     }
                     if (roi.cpm() == 0 || roi.cpm() > m_modules)
                     {
                         if (debug) msg() << "Invalid CPM number: "
-                                             << roi.cpm() << endmsg;
+                                             << roi.cpm() << endreq;
                         rodErr = L1CaloSubBlock::ERROR_MODULE_NUMBER;
                         break;
                     }
@@ -324,7 +324,7 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
                     else
                     {
                         if (debug) msg() << "Duplicate RoI word "
-                                             << MSG::hex << roiWord << MSG::dec << endmsg;
+                                             << MSG::hex << roiWord << MSG::dec << endreq;
                         rodErr = L1CaloSubBlock::ERROR_DUPLICATE_DATA;
                         break;
                     }
@@ -332,7 +332,7 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
                 else
                 {
                     if (debug) msg() << "Invalid RoI word "
-                                         << MSG::hex << roiWord << MSG::dec << endmsg;
+                                         << MSG::hex << roiWord << MSG::dec << endreq;
                     rodErr = L1CaloSubBlock::ERROR_ROI_TYPE;
                     break;
                 }
@@ -344,7 +344,7 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
     }
     if (debug)
     {
-        msg() << "Number of RoIs read = " << roiCollection->size() << endmsg;
+        msg() << "Number of RoIs read = " << roiCollection->size() << endreq;
     }
 
     return StatusCode::SUCCESS;
@@ -377,7 +377,7 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
     {
         msg() << "Number of RoIs to be written = " << roiCollection->size()
               << " (collection), " << m_roiMap.size() << " (map)"
-              << endmsg;
+              << endreq;
     }
     int count = 0;
     CpmRoiMap::const_iterator mapIter    = m_roiMap.begin();
@@ -406,9 +406,9 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
                 if (debug)
                 {
                     msg() << "Treating crate " << hwCrate
-                          << " slink " << slink << endmsg
+                          << " slink " << slink << endreq
                           << "Data Version/Format: " << m_version
-                          << " " << m_dataFormat << endmsg;
+                          << " " << m_dataFormat << endreq;
                 }
                 const uint32_t rodIdCpm = m_srcIdMap->getRodID(hwCrate, slink, daqOrRoi,
                                           m_subDetector);
@@ -420,7 +420,7 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
                 }
                 m_rodStatusMap.insert(make_pair(rodIdCpm, m_rodStatus));
             }
-            if (debug) msg() << "Module " << module << endmsg;
+            if (debug) msg() << "Module " << module << endreq;
 
             // Create a sub-block (Neutral format only)
 
@@ -453,13 +453,13 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
             {
                 if ( !m_subBlock->pack())
                 {
-                    msg(MSG::ERROR) << "CPMTobRoI sub-block packing failed" << endmsg;
+                    msg(MSG::ERROR) << "CPMTobRoI sub-block packing failed" << endreq;
                     return StatusCode::FAILURE;
                 }
                 if (debug)
                 {
                     msg() << "CPMTobRoI sub-block data words: "
-                          << m_subBlock->dataWords() << endmsg;
+                          << m_subBlock->dataWords() << endreq;
                 }
                 m_subBlock->write(theROD);
             }
@@ -467,7 +467,7 @@ StatusCode CpmRoiByteStreamV2Tool::convert(
     }
     if (debug)
     {
-        msg() << "Number of RoIs written = " << count << endmsg;
+        msg() << "Number of RoIs written = " << count << endreq;
     }
 
     // Fill the raw event

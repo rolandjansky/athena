@@ -51,13 +51,13 @@ PpmSubsetTester::~PpmSubsetTester()
 StatusCode PpmSubsetTester::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << /* version() */ PACKAGE_VERSION << endmsg;
+                 << /* version() */ PACKAGE_VERSION << endreq;
 
   StatusCode sc = m_dataAccess.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_dataAccess << endmsg;
+    msg(MSG::ERROR) << "Failed to retrieve tool " << m_dataAccess << endreq;
     return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_dataAccess << endmsg;
+  } else msg(MSG::INFO) << "Retrieved tool " << m_dataAccess << endreq;
 
   m_towerKey = new LVL1::TriggerTowerKey();
 
@@ -81,7 +81,7 @@ StatusCode PpmSubsetTester::execute()
   const TriggerTowerCollection* ttCollection = 0;
   StatusCode sc = evtStore()->retrieve(ttCollection, m_triggerTowerLocation);
   if (sc.isFailure() || !ttCollection || ttCollection->empty()) {
-    msg() << "No Trigger Towers found" << endmsg;
+    msg() << "No Trigger Towers found" << endreq;
     return StatusCode::SUCCESS;
   }
 
@@ -99,7 +99,7 @@ StatusCode PpmSubsetTester::execute()
   TriggerTowerCollection::const_iterator end;
   sc = m_dataAccess->loadCollection(beg, end, etaMin, etaMax, phiMin, phiMax, false);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Error accessing data" << endmsg;
+    msg(MSG::ERROR) << "Error accessing data" << endreq;
     return sc;
   }
 
@@ -127,7 +127,7 @@ StatusCode PpmSubsetTester::finalize()
 
 void PpmSubsetTester::printTriggerTowers() const
 {
-  msg() << "Number of Trigger Towers = " << m_ttMap.size() << endmsg;
+  msg() << "Number of Trigger Towers = " << m_ttMap.size() << endreq;
   TriggerTowerMap::const_iterator mapIter = m_ttMap.begin();
   TriggerTowerMap::const_iterator mapEnd  = m_ttMap.end();
   for (; mapIter != mapEnd; ++mapIter) {
@@ -169,7 +169,7 @@ void PpmSubsetTester::printTriggerTowers() const
     printVec(fadc);
     printVec(bcidLut);
     printVec(bcidFadc);
-    msg() << MSG::hex << tt->emError() << MSG::dec << "/" << endmsg
+    msg() << MSG::hex << tt->emError() << MSG::dec << "/" << endreq
           << "HAD:key/eta/phi/LUTpeak/FADCpeak/LUT/FADC/bcidLUT/bcidFADC/error: "
           << mapIter->first << "/" << tt->eta() << "/" << tt->phi() << "/"
 	  << hadPeak << "/" << hadADCPeak << "/";
@@ -181,7 +181,7 @@ void PpmSubsetTester::printTriggerTowers() const
     printVec(fadc);
     printVec(bcidLut);
     printVec(bcidFadc);
-    msg() << MSG::hex << tt->hadError() << MSG::dec << "/" << endmsg;
+    msg() << MSG::hex << tt->hadError() << MSG::dec << "/" << endreq;
   }
 }
 

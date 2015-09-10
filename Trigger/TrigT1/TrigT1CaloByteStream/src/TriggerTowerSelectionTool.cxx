@@ -68,15 +68,15 @@ TriggerTowerSelectionTool::~TriggerTowerSelectionTool()
 StatusCode TriggerTowerSelectionTool::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+                 << PACKAGE_VERSION << endreq;
 
   // Retrieve mapping tool
 
   StatusCode sc = m_mappingTool.retrieve();
   if ( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_mappingTool << endmsg;
+    msg(MSG::ERROR) << "Failed to retrieve tool " << m_mappingTool << endreq;
     return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_mappingTool << endmsg;
+  } else msg(MSG::INFO) << "Retrieved tool " << m_mappingTool << endreq;
 
   m_srcIdMap = new L1CaloSrcIdMap();
 

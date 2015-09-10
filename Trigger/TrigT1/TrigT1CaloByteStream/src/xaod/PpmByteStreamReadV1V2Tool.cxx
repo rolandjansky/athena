@@ -209,12 +209,12 @@ StatusCode PpmByteStreamReadV1V2Tool::processRobFragment_(
   }
 
   ATH_MSG_DEBUG(
-      "Run number: " << MSG::dec << m_rodRunNumber << endmsg
+      "Run number: " << MSG::dec << m_rodRunNumber << endreq
           << "Version code: 0x" << MSG::hex << int(m_verCode) << MSG::dec
-          << endmsg << "LUT triggered slice offset:  "
-          << int(m_caloUserHeader.lut()) << endmsg
+          << endreq << "LUT triggered slice offset:  "
+          << int(m_caloUserHeader.lut()) << endreq
           << "FADC triggered slice offset: " << int(m_caloUserHeader.ppFadc())
-          << endmsg << "FADC baseline lower bound:   "
+          << endreq << "FADC baseline lower bound:   "
           << int(m_caloUserHeader.ppLowerBound()));
 
   int indata = 0;
@@ -273,7 +273,7 @@ StatusCode PpmByteStreamReadV1V2Tool::processPpmWord_(uint32_t word,
     return processPpmStandardR3V1_(word, indata);
   } else {
     ATH_MSG_ERROR("Unsupported PPM version:format (" 
-      << m_verCode << ":" << m_subBlockHeader.format()
+      << m_verCode << ":" << format 
       <<") combination");
     return StatusCode::FAILURE;
   }

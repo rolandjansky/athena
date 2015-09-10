@@ -33,7 +33,7 @@ ErrorTester::~ErrorTester()
 StatusCode ErrorTester::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << /* version() */ PACKAGE_VERSION << endmsg;
+                 << /* version() */ PACKAGE_VERSION << endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -48,28 +48,28 @@ StatusCode ErrorTester::execute()
   const ErrorCollection* errVec = 0;
   StatusCode sc = evtStore()->retrieve(errVec, m_errorVectorLocation);
   if (sc.isFailure() || !errVec) {
-    msg() << "No error vector found for " << m_errorVectorLocation << endmsg;
+    msg() << "No error vector found for " << m_errorVectorLocation << endreq;
   } else {
     if (errVec->empty()) {
-      msg() << "Error vector empty" << endmsg;
+      msg() << "Error vector empty" << endreq;
     } else {
       ErrorCollection::const_iterator iter  = errVec->begin();
       ErrorCollection::const_iterator iterE = errVec->end();
       unsigned int size1 = *iter;
       ++iter;
-      msg() << "Number of ROB status errors: " << size1 << endmsg;
+      msg() << "Number of ROB status errors: " << size1 << endreq;
       while (iter != iterE) {
 	msg() << "ROB ID: " << MSG::hex << *iter << MSG::dec;
 	++iter;
 	if (iter != iterE) {
 	  if (size1 > 0) {
 	    msg() << "  status error: " << MSG::hex << *iter << MSG::dec
-	          << endmsg;
+	          << endreq;
 	    size1--;
-	  } else msg() << "  unpacking error: " << *iter << endmsg;
+	  } else msg() << "  unpacking error: " << *iter << endreq;
 	  ++iter;
         } else {
-	  msg() << "  vector truncated, no error value" << endmsg;
+	  msg() << "  vector truncated, no error value" << endreq;
         }
       }
     }

@@ -64,21 +64,21 @@ PpmMappingTester::~PpmMappingTester()
 StatusCode PpmMappingTester::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << /* version() */ PACKAGE_VERSION << endmsg;
+                 << /* version() */ PACKAGE_VERSION << endreq;
 
   // Retrieve mapping tools
 
   StatusCode sc = m_tool1.retrieve();
   if ( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_tool1 << endmsg;
+    msg(MSG::ERROR) << "Failed to retrieve tool " << m_tool1 << endreq;
     return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_tool1 << endmsg;
+  } else msg(MSG::INFO) << "Retrieved tool " << m_tool1 << endreq;
 
   sc = m_tool2.retrieve();
   if ( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_tool2 << endmsg;
+    msg(MSG::ERROR) << "Failed to retrieve tool " << m_tool2 << endreq;
     return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_tool2 << endmsg;
+  } else msg(MSG::INFO) << "Retrieved tool " << m_tool2 << endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -111,12 +111,12 @@ StatusCode PpmMappingTester::execute()
     etaPhiToChannel(m_tool2, chanIds2);
     unsigned int size1 = chanIds.size();
     unsigned int size2 = chanIds2.size();
-    msg(MSG::INFO) << "Vector sizes: " << size1 << ", " << size2 << endmsg;
+    msg(MSG::INFO) << "Vector sizes: " << size1 << ", " << size2 << endreq;
     if (size1 == size2) {
       for (unsigned int i = 0; i < size1; ++i) {
         if (chanIds[i] != chanIds2[i]) {
 	  msg(MSG::INFO) << "ChanID mismatch: " << chanIds[i] << ", "
-	                 << chanIds2[i] << endmsg;
+	                 << chanIds2[i] << endreq;
         }
       }
     }
@@ -127,7 +127,7 @@ StatusCode PpmMappingTester::execute()
     channelToEtaPhi(m_tool2, etas2, phis2, layers2);
     size1 = etas.size();
     size2 = etas2.size();
-    msg(MSG::INFO) << "Vector sizes: " << size1 << ", " << size2 << endmsg;
+    msg(MSG::INFO) << "Vector sizes: " << size1 << ", " << size2 << endreq;
     if (size1 == size2) {
       for (unsigned int i = 0; i < size1; ++i) {
         if (notEqual(etas[i], etas2[i]) ||
@@ -137,7 +137,7 @@ StatusCode PpmMappingTester::execute()
 	                 << etas[i] << "/" << phis[i] << "/"
 			 << layers[i] << "/" 
 	                 << etas2[i] << "/" << phis2[i] << "/"
-			 << layers2[i]      << endmsg;
+			 << layers2[i]      << endreq;
         }
       }
     }

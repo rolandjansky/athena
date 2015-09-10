@@ -52,7 +52,7 @@ StatusCode L1CaloErrorByteStreamCnv::initialize()
 {
   m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
   m_log << MSG::DEBUG << "Initializing " << m_name << " - package version "
-                      << PACKAGE_VERSION << endmsg;
+                      << PACKAGE_VERSION << endreq;
 
   StatusCode sc = Converter::initialize();
   if ( sc.isFailure() )
@@ -61,9 +61,9 @@ StatusCode L1CaloErrorByteStreamCnv::initialize()
   // Retrieve Tool
   sc = m_tool.retrieve();
   if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool << endmsg;
+    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool << endreq;
     return sc;
-  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool << endmsg;
+  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool << endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -73,25 +73,25 @@ StatusCode L1CaloErrorByteStreamCnv::initialize()
 StatusCode L1CaloErrorByteStreamCnv::createObj( IOpaqueAddress* pAddr,
                                                 DataObject*& pObj )
 {
-  if (m_debug) m_log << MSG::DEBUG << "createObj() called" << endmsg;
+  if (m_debug) m_log << MSG::DEBUG << "createObj() called" << endreq;
 
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast<ByteStreamAddress *>( pAddr );
   if ( !pBS_Addr ) {
-    m_log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endmsg;
+    m_log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endreq;
     return StatusCode::FAILURE;
   }
 
   const std::string nm = *( pBS_Addr->par() );
 
-  if (m_debug) m_log << MSG::DEBUG << " Creating Objects " << nm << endmsg;
+  if (m_debug) m_log << MSG::DEBUG << " Creating Objects " << nm << endreq;
 
   std::vector<unsigned int>* const errCollection =
                                              new std::vector<unsigned int>;
 
   StatusCode sc = m_tool->errors(errCollection);
   if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << " Failed to create Objects   " << nm << endmsg;
+    m_log << MSG::ERROR << " Failed to create Objects   " << nm << endreq;
     delete errCollection;
     return sc;
   }

@@ -89,13 +89,13 @@ RodHeaderByteStreamTool::~RodHeaderByteStreamTool()
 StatusCode RodHeaderByteStreamTool::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endmsg;
+                 << PACKAGE_VERSION << endreq;
 
   StatusCode sc = m_errorTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_errorTool << endmsg;
+    msg(MSG::ERROR) << "Failed to retrieve tool " << m_errorTool << endreq;
     return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_errorTool << endmsg;
+  } else msg(MSG::INFO) << "Retrieved tool " << m_errorTool << endreq;
 
   m_srcIdMap = new L1CaloSrcIdMap();
   return StatusCode::SUCCESS;
@@ -141,7 +141,7 @@ StatusCode RodHeaderByteStreamTool::convert(
 
     if (debug) {
       ++robCount;
-      msg() << "Treating ROB fragment " << robCount << endmsg;
+      msg() << "Treating ROB fragment " << robCount << endreq;
     }
 
     // Skip fragments with ROB status errors
@@ -152,7 +152,7 @@ StatusCode RodHeaderByteStreamTool::convert(
       (*rob)->status(robData);
       if (*robData != 0) {
         m_errorTool->robError(robid, *robData);
-        if (debug) msg() << "ROB status error - skipping fragment" << endmsg;
+        if (debug) msg() << "ROB status error - skipping fragment" << endreq;
         continue;
       }
     }
@@ -161,7 +161,7 @@ StatusCode RodHeaderByteStreamTool::convert(
 
     if (!dupCheck.insert(robid).second) {
       m_errorTool->rodError(robid, L1CaloSubBlock::ERROR_DUPLICATE_ROB);
-      if (debug) msg() << "Skipping duplicate ROB fragment" << endmsg;
+      if (debug) msg() << "Skipping duplicate ROB fragment" << endreq;
       continue;
     }
 
@@ -200,11 +200,11 @@ StatusCode RodHeaderByteStreamTool::convert(
             << "ROD Header version/sourceId/run/lvl1Id/bcId/trigType/detType/nData: "
             << version << "/" << sourceId << "/" << run << "/" << lvl1Id << "/"
             << bcId << "/" << trigType << "/" << detType << "/" << nData
-            << endmsg << "ROD Status Words:";
+            << endreq << "ROD Status Words:";
       std::vector<uint32_t>::const_iterator pos  = statusWords.begin();
       std::vector<uint32_t>::const_iterator pose = statusWords.end();
       for (; pos != pose; ++pos) msg() << " " << *pos;
-      msg() << MSG::dec << endmsg;
+      msg() << MSG::dec << endreq;
     }
   }
 
