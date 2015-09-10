@@ -97,7 +97,7 @@ void HIEventShapeMaker::PrintHIEventShapeContainer(const xAOD::HIEventShapeConta
       const xAOD::HIEventShape *sh=Container->at(i);
       int NCells   =  sh->nCells();
       int Layer    =  sh->layer();
-      float Et     =  sh->Et();
+      float Et     =  sh->et();
       float EtaMin =  sh->etaMin();
       float EtaMax =  sh->etaMax();
 
