@@ -10,7 +10,6 @@
 #include "TrkToolInterfaces/ITrackSummaryHelperTool.h"
 
 #include "TrkTrack/Track.h"
-#include "TrkTrack/AlignmentEffectsOnTrack.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
@@ -38,7 +37,6 @@
 
 #include "MuonIdHelpers/MuonStationIndex.h"
 
-#include <algorithm>
 #include <iostream>
 
 namespace Muon {
@@ -48,8 +46,7 @@ namespace Muon {
     : AthAlgTool(ty,na,pa), 
       m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
       m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
-      m_summaryHelper("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
-      m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
+      m_summaryHelper("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool")
   {
     declareInterface<MuonEDMPrinterTool>(this);
     declareProperty( "MuonIdHelperTool",    m_idHelper);
@@ -189,67 +186,19 @@ namespace Muon {
     if ( !states ) return "";
     DataVector<const Trk::TrackStateOnSurface>::const_iterator it = states->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator it_end = states->end();
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator it2 = states->begin();
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator it2_end = states->end();
-    // Build map of AEOTs and the measurements they affect
-    std::multimap<const Trk::MeasurementBase*, const Trk::AlignmentEffectsOnTrack *> measAndTheirAlignmentEffects;
-    const Trk::MeasurementBase* m = 0;
-    const Trk::AlignmentEffectsOnTrack* aeot = 0;
-    for ( ; it != it_end; ++it ) {
-        aeot = (*it)->alignmentEffectsOnTrack();
-        if (aeot) {
-            // Now get the list of identifiers which this AEOT impacts.
-            const std::vector< Identifier>& identifiers = aeot->vectorOfAffectedTSOS();
-            it2 = states->begin();
-            it2_end = states->end();
-            for (; it2 != it2_end; ++it2 ) {
-                m = (*it2)->measurementOnTrack();
-                if (m) {
-                    Identifier id = m_helper->getIdentifier(*m);
-                    if ( ( id.is_valid() && (std::find(identifiers.begin(), identifiers.end(), id)!=identifiers.end() ) ) 
-                       ||  (aeot->effectsLastFromNowOn() && it2>it) ) {
-                        // Either this measurement is explicitly listed, OR it is in a TSOS after an AEOT whose effects last from now on. 
-                        measAndTheirAlignmentEffects.insert(std::pair<const Trk::MeasurementBase*, const Trk::AlignmentEffectsOnTrack*>(m,aeot) );
-                    }
-                }
-            }
-        }
-    }
-//    std::cout << " measAndTheirAlignmentEffects " << measAndTheirAlignmentEffects.size() << std::endl;
-
-    // Reset
-    it = states->begin();
-    it_end = states->end();
     // first loop to get width of Id's for nice alignment
     std::vector< std::string > idStrings;
     std::vector< std::string > dataStrings;
     unsigned int idWidth = 0;
     for ( ; it != it_end; ++it ) {
-      m = (*it)->measurementOnTrack();
+      const Trk::MeasurementBase* m = (*it)->measurementOnTrack();
       if (m) {
 	// Identifier part
 	std::string idStr = printId(*m);
 	idStrings.push_back(idStr);
 	if ( idStr.length() > idWidth ) idWidth = idStr.length();
 	// Data part
-        const Trk::TrackParameters* trackParameters = (*it)->trackParameters();
 	std::string dataStr = printData(*m);
-        if (trackParameters) {
-          std::multimap<const Trk::MeasurementBase*, const Trk::AlignmentEffectsOnTrack *>::iterator itMap = measAndTheirAlignmentEffects.begin();
-          itMap = measAndTheirAlignmentEffects.find( m );
-          if(itMap != measAndTheirAlignmentEffects.end() ) { 
-            std::vector <const Trk::AlignmentEffectsOnTrack*> aeotos;
-            aeotos.push_back(itMap->second);
-            itMap++;
-            if(itMap != measAndTheirAlignmentEffects.end()&&itMap->first==m) aeotos.push_back(itMap->second);
-            const Trk::ResidualPull* resPull = m_pullCalculator->residualPull(m, trackParameters, Trk::ResidualPull::Unbiased, Trk::TrackState::unidentified, aeotos); 
-            if (resPull) dataStr += print(*resPull);
-            if (resPull) dataStr += " (AEOT)";   
-          } else {
-            const Trk::ResidualPull* resPull = m_pullCalculator->residualPull(m, trackParameters, Trk::ResidualPull::Unbiased);
-            if (resPull) dataStr += print(*resPull);
-          }
-        }
 	if ( (*it)->type(Trk::TrackStateOnSurface::Outlier) ) {
 	  dataStr += " (Outlier)";
 	} else if ( (*it)->type(Trk::TrackStateOnSurface::Hole) ) {
@@ -257,14 +206,6 @@ namespace Muon {
 	}
 	dataStrings.push_back(dataStr);
       }
-      aeot = (*it)->alignmentEffectsOnTrack();
-      if (aeot) {
-	std::string idStr = " AEOT ";
-	idStrings.push_back(idStr);
-        std::ostringstream souta;
-        souta << std::setprecision(3) << " deltaTranslation (mm) " << aeot->deltaTranslation()  << " error " << aeot->sigmaDeltaTranslation() << " deltaAngle (mrad) " << 1000*aeot->deltaAngle() << " error " << 1000*aeot->sigmaDeltaAngle(); 
-        dataStrings.push_back(souta.str());
-      } 
     }
 
     // second loop to print out aligned strings
@@ -821,9 +762,9 @@ namespace Muon {
     const std::vector<double>& residual = resPull.residual(); 
     const std::vector<double>& pull = resPull.pull(); 
     for( unsigned int i=0;i<residual.size();++i ) {
-      if( residual[i] != 999. && residual[i] != -999. ) sout << " residual " << std::setprecision(3) << std::setw(8) << residual[i] << "  ";
+      if( residual[i] != 999. && residual[i] != -999. ) sout << std::setprecision(3) << std::setw(8) << residual[i] << "  ";
     }
-    sout << " pull ";
+    sout << " pulls ";
     for( unsigned int i=0;i<pull.size();++i ) sout << std::setprecision(3) << std::setw(8) << pull[i] << "  ";
     return sout.str();
   }
@@ -849,8 +790,7 @@ namespace Muon {
       // add drift time for MDT
       const MdtDriftCircleOnTrack* mdt = dynamic_cast<const MdtDriftCircleOnTrack*>(rot);
       if (mdt) {
-        double error = std::sqrt(measurement.localCovariance()(0,0));
-	sout << "  r_drift " << std::fixed << std::setprecision(2) << std::setw(5) << mdt->driftRadius() << " error " <<  std::fixed << std::setprecision(2) << std::setw(5) << error ;
+	sout << "  r_drift " << std::fixed << std::setprecision(2) << std::setw(5) << mdt->driftRadius();
       } else {
 	// add time for RPC
 	const RpcClusterOnTrack* rpc = dynamic_cast<const RpcClusterOnTrack*>(rot);

@@ -15,7 +15,6 @@
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
 #include "MuonPattern/MuonPatternCollection.h"
-#include "TrkToolInterfaces/IResidualPullCalculator.h"
 
 #include <string>
 
@@ -138,7 +137,6 @@ namespace Muon{
     ToolHandle<MuonIdHelperTool>  m_idHelper;
     ToolHandle<MuonEDMHelperTool> m_helper;
     ToolHandle<Trk::ITrackSummaryHelperTool> m_summaryHelper;
-    ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator;
 
   };
 
