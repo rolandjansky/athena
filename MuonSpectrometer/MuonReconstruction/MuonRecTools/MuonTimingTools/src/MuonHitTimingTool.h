@@ -2,16 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef RPC_TIMINGTOOL_H
-#define RPC_TIMINGTOOL_H
+#ifndef MUON_MUONHITTIMINGTOOL_H
+#define MUON_MUONHITTIMINGTOOL_H
 
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonRecToolInterfaces/IMuonHitTimingTool.h"
 
-/** @class RPC_TimingTool
+/** @class MuonHitTimingTool
     
-    RPC_TimingTool calculates the time shift for a set of RPC hits WRT the current bunch
+    MuonHitTimingTool calculates the time shift for a set of cluster hits WRT the current bunch
+    Internally handles different technolgies
 
     @author MCP projects
 */
@@ -22,12 +23,12 @@ namespace Muon{
   class MuonClusterOnTrack;
   class MuonIdHelperTool;
   
-  class RPC_TimingTool : virtual public Muon::IMuonHitTimingTool, public AthAlgTool{
+  class MuonHitTimingTool : virtual public Muon::IMuonHitTimingTool, public AthAlgTool{
   public:
-    RPC_TimingTool(const std::string&, const std::string&, const IInterface*);
+    MuonHitTimingTool(const std::string&, const std::string&, const IInterface*);
 
     /** default destructor **/
-    virtual ~RPC_TimingTool();
+    virtual ~MuonHitTimingTool();
 
     /** standard initialization method **/
     virtual StatusCode initialize();
@@ -39,14 +40,12 @@ namespace Muon{
     TimingResult calculateTimingResult( const std::vector<const MuonClusterOnTrack*>& hits ) const;
 
     /** return a set of technologies accepted by the tool */
-    std::set<MuonStationIndex::TechnologyIndex> acceptedTechnologies() const { return std::set<MuonStationIndex::TechnologyIndex>({MuonStationIndex::RPC}); }
+    std::set<MuonStationIndex::TechnologyIndex> acceptedTechnologies() const { return m_acceptedTechnologies; }
 
   private:
-    /** calculate error on the RPC time */
-    double getError(const Muon::MuonClusterOnTrack&) const ; 
-
-    ToolHandle<MuonIdHelperTool> m_idHelper;
-
+    ToolHandle<MuonIdHelperTool>                 m_idHelper;
+    std::vector<ToolHandle<IMuonHitTimingTool> > m_hitTimingTools;
+    std::set<MuonStationIndex::TechnologyIndex>  m_acceptedTechnologies;
   };
 }
 
