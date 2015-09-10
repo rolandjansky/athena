@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #include "HICaloCellCorectionTool.h"
 
 HICaloCellCorectionTool::HICaloCellCorectionTool(const std::string& type, 
@@ -11,69 +12,50 @@ HICaloCellCorectionTool::HICaloCellCorectionTool(const std::string& type,
    m_avgEnergy(0)
 {
   declareInterface<ICaloCellMakerTool>(this);
-  declareProperty("CaloCellContainerName",m_CaloCellContainerName="SubtractedCells", "Name of corrected collection of cells");
+  //  declareProperty("CaloCellContainerName",m_CaloCellContainerName="SubtractedCells", "Name of corrected collection of cells");
   declareProperty("HIEventShapeContainerName",m_HIEventShapeContainerName="HLT_xAOD__HIEventShapeContainer_HIUE", "This HIEventShapeContainer object will be used");
   //  declareProperty("EventShapeFillerTool", m_eventShapeTool,"EventShapeFillerTool ");
 }
 
 StatusCode HICaloCellCorectionTool::initialize(){
-  //  msg(MSG::DEBUG) << "Retrieved the eventShape tool: "<<endreq;
-  //  msg(MSG::DEBUG) << m_eventShapeTool->name()<<endreq;
-  //  StatusCode evntShape = m_eventShapeTool.retrieve();
-  //  if(evntShape.isFailure()){
-  //    msg(MSG::FATAL) << "Unable to retrieve the IHIEventShapeFiller"<<endreq;
-  //    return evntShape;
-  //  }
   
   return StatusCode::SUCCESS;
 }
 
 StatusCode HICaloCellCorectionTool::process(CaloCellContainer* cells){
-  //get EventShapeContainer
-  //  m_eventShape = m_eventShapeTool->GetHIEventShapeContainer();  
-
-  //  const CaloCellContainer* allcels(nullptr);
-  //  CHECK(evtStore()->retrieve(allcels, "HLT_CaloCellContainer_TrigCaloCellMaker"));
-  //  ATH_MSG_INFO("Size of full calo cells collection" << allcels->size());
 
 
-  ATH_MSG_INFO( evtStore()->dump() );  
-
+  //  ATH_MSG_INFO( evtStore()->dump() );  
+  
   m_eventShape = nullptr;
   CHECK( evtStore()->retrieve(m_eventShape, m_HIEventShapeContainerName) );
 
-
-  //get cells from storegate
-  /*
-  StatusCode sc = evtStore()->retrieve(cells, m_CaloCellContainerName);
-  if(sc.isFailure()){
-    msg(MSG::WARNING) << "Couldn't retrieve CaloCellContainer" << m_CaloCellContainerName <<endreq;
-    return sc;
-  }
-  */
+  CaloCellContainer clone(SG::VIEW_ELEMENTS); // this is not newed as it will be disposed at the return from this fucntion
+  clone.insert(clone.end(), cells->begin(), cells->end());
+  //ATH_MSG_INFO( "Cloned cells size " << clone.size());
+  cells->clear();  
+  cells->clear(SG::OWN_ELEMENTS);
 
   //loop over cells 
-  typedef CaloCellContainer::const_iterator cellItr;
-  cellItr cIter = cells->begin();
+  for (CaloCell* cell : clone) {
 
-  for( ;cIter !=cells->end(); cIter++){
-    
-    int cellLayer = (*cIter)->caloDDE()->getSampling();
-    double cellEta = (*cIter)->eta();
-    double cellsinTheta = (*cIter)->sinTh();
+    int cellLayer = cell->caloDDE()->getSampling();
+    double cellEta = cell->eta();
+    double cellsinTheta = cell->sinTh();
     
     m_avgEnergy = getAvgEnergy(cellLayer, cellEta);
-    double cellEt = (*cIter)->et();
+    double cellEt = cell->et();
     
     //ATH_MSG_INFO( "Correction " << cellEt << " " << m_avgEnergy);
 
     double totEnergy = cellEt - m_avgEnergy;
     totEnergy /= cellsinTheta;
-
-    (*cIter)->setEnergy(totEnergy);
+    CaloCell* cell_clone = cell->clone();
+    cell_clone->setEnergy(totEnergy);
+    cells->push_back(cell_clone);
 
   }//end loop over cells
-
+  //  ATH_MSG_INFO( "Renewed size " << cells->size());
   return StatusCode::SUCCESS;
 }
 
@@ -85,9 +67,10 @@ double HICaloCellCorectionTool::getAvgEnergy(const int layer, const double eta){
     const xAOD::HIEventShape* ev = m_eventShape->at(i);
     int evLayer = ev->layer();
     
-    if(evLayer == layer && (eta < ev->etaMax() && eta > ev->etaMin())){
-      double et = ev->Et();
-      return et /= ev->nCells();
+    if(evLayer == layer && (eta <= ev->etaMax() && eta > ev->etaMin())){
+      double et = ev->et();
+      if ( std::abs(et) > 0.1 ) // energy in MeV so this small value essentially zero
+	return et /= ev->nCells();
     }
     else continue;
   }

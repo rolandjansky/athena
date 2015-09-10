@@ -31,6 +31,9 @@ TrigHIJetBaseSubtraction::TrigHIJetBaseSubtraction(const std::string & name, ISv
   declareMonitoredVariable("Jet_Background",m_Background);
   declareMonitoredVariable("JetEta",m_Jet_Eta);
     
+  declareProperty("tower_background",m_tower_background = -1);
+  declareProperty("jet_weighted_background",m_jet_weighted_background = -1);
+  declareProperty("ieta",m_ieta = -1);
 }
 
 TrigHIJetBaseSubtraction::~TrigHIJetBaseSubtraction() {}

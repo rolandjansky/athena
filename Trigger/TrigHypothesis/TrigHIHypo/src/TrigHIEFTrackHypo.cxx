@@ -65,6 +65,8 @@ TrigHIEFTrackHypo::TrigHIEFTrackHypo(const std::string& name, ISvcLocator* pSvcL
   declareMonitoredCollection("z0", *dvec_cast(&TrkParticleCont), &monz0);
   declareMonitoredVariable("numTrkPartIn",m_numTrkPartIn);
   declareMonitoredVariable("numTrkPartOut",m_numTrkPartOut);
+
+  TrkParticleCont = 0;
 }
 
 /////////////////////////////////////////////////////////////////////

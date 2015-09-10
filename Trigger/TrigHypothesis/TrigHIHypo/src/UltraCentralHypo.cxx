@@ -1,0 +1,75 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include <xAODHIEvent/HIEventShape.h>
+#include <xAODHIEvent/HIEventShapeContainer.h>
+#include "UltraCentralHypo.h"
+
+UltraCentralHypo::UltraCentralHypo(const std::string& name, ISvcLocator* pSvcLocator) 
+  : HLT::HypoAlgo(name, pSvcLocator)
+{
+
+  declareMonitoredVariable("FCalTotalEt"        , m_Tot_Et            ,  0.);
+  declareMonitoredVariable("FCalTotalEtPassing" , m_Tot_Et_passing    , -1.);
+
+  declareProperty("FcalEtUpperBound",     m_FcalEt_max, "Upper bound of passing values, negative means +inf.");
+  declareProperty("FcalEtLowerBound",     m_FcalEt_min, "Lower bound of passing values, negative means -inf.");
+  declareProperty("UpperBound_index",     m_max_index = 0, "index for vector defining Upper bound of passing values");
+  declareProperty("LowerBound_index",     m_min_index = 0, "index for vector defining Lower bound of passing values");
+}
+
+HLT::ErrorCode UltraCentralHypo::hltInitialize() { return HLT::OK; }
+
+
+UltraCentralHypo::~UltraCentralHypo() {
+}
+
+
+HLT::ErrorCode UltraCentralHypo::hltFinalize( ) { return HLT::OK; }
+
+HLT::ErrorCode UltraCentralHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
+
+  pass = false;
+  
+  m_Tot_Et = 0; // this must be 0 because our loop starts from it
+  m_Tot_Et_passing = -1; // this will only get assigned when we pass
+  
+  const xAOD::HIEventShapeContainer* evtShape;
+  ///*
+  if(getFeature(outputTE, evtShape) == HLT::OK && evtShape != 0){
+    ATH_MSG_DEBUG("Got HIEventShapeContainer object successfully");
+  }
+  else {
+    ATH_MSG_DEBUG("The HIEventShapeContainer object is inaccessible");
+    return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
+  }
+  // */
+ 
+  //Determine FCal ET
+  int size=evtShape->size();
+  for(int i=0;i<size;i++){
+    const xAOD::HIEventShape *sh=evtShape->at(i);
+    float Et     =  sh->et();
+    if(Et==0) continue;
+    
+    float eta=(sh->etaMin()+sh->etaMax())/2.0;
+    if(fabs(eta)<3.2) continue;//FCal Only
+    
+    m_Tot_Et+=Et;
+  }
+  
+  // now cutting
+  if ( m_FcalEt_max.at(m_max_index) > 0. && m_Tot_Et < m_FcalEt_max.at(m_max_index) ) {
+    pass = true;
+    m_Tot_Et_passing = m_Tot_Et;
+    return HLT::OK;
+  }
+  if ( m_FcalEt_min.at(m_min_index) > 0. && m_FcalEt_min.at(m_min_index) < m_Tot_Et ) {
+    pass = true;
+    m_Tot_Et_passing = m_Tot_Et;
+    return HLT::OK;
+  }
+
+  return HLT::OK;
+}
