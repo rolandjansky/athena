@@ -29,8 +29,8 @@ StatusCode HIUEModulatorTool::initialize()
   if(m_do_v3) m_nh_vector.push_back(3);
   if(m_do_v4) m_nh_vector.push_back(4);
   if(m_nh_vector.size()!=0 &&(m_shape_key.compare("NULL")==0)) 
-    ATH_MSG_WARNING("Requested modulation, but provided no name for HIEventShapeContainer, no modulation will be applied");
-  ATH_MSG_DEBUG("Equipping " << m_do_v2 << "\t" << m_do_v3 << "\t" << m_do_v4);
+    ATH_MSG_WARNING("Requested modulation, but provided no name for HIEventShapeContainer, no modulation will beapplied");
+
   return StatusCode::SUCCESS;
 }
 
@@ -47,40 +47,24 @@ void HIUEModulatorTool::setHarmonics(const std::vector<unsigned int>& v)
   m_nh_vector.assign(v.begin(),v.end());
 }
 
-float HIUEModulatorTool::getModulation(float phi,
-                                       const xAOD::HIEventShape* shape /*=nullptr*/) const
+float HIUEModulatorTool::getModulation(float phi) const
 {
-  if (!shape)
-    shape = m_shape;
-  if (!shape)
-    if (getShape (shape).isFailure() || !shape)
-      return 1;
-  return modulate(m_nh_vector,shape,phi);
+  if(!m_shape) return 1;
+  return modulate(m_nh_vector,m_shape,phi);
 }
 
-StatusCode HIUEModulatorTool::getShape(const xAOD::HIEventShape* & shape) const
+StatusCode HIUEModulatorTool::retrieveShape()
 {
-  shape = 0;
   if(m_shape_key.compare("NULL")==0) return StatusCode::SUCCESS;
   const xAOD::HIEventShapeContainer* mod_shape=0;
-  if(evtStore()->retrieve(mod_shape,m_shape_key).isFailure())
-  {
-    ATH_MSG_ERROR("Could not retrieve shape " << m_shape_key);
-    return StatusCode::FAILURE;
-    
-  }
+  CHECK(evtStore()->retrieve(mod_shape,m_shape_key));
   if(mod_shape->size()==0)
   {
     ATH_MSG_ERROR("Modulation container empty : " << m_shape_key);
     return StatusCode::FAILURE;
   }
-  shape=mod_shape->at(0);
+  m_shape=mod_shape->at(0);
   return StatusCode::SUCCESS;
-}
-
-StatusCode HIUEModulatorTool::retrieveShape()
-{
-  return getShape (m_shape);
 }
 
 float HIUEModulatorTool::modulate(const std::vector<unsigned int>& nh_vector, const xAOD::HIEventShape* shape, float phi)
@@ -93,16 +77,10 @@ float HIUEModulatorTool::modulate(const std::vector<unsigned int>& nh_vector, co
     {
       
       unsigned int ih=nh_vector.at(i)-1;
-      float nphi=nh_vector.at(i);
-      nphi*=phi;
       float qx=shape->etCos().at(ih);
       float qy=shape->etSin().at(ih);
-      CxxUtils::sincos sc(nphi);
-      //careful w/ factors of 2: 
-      //|q_vector| is 2 times v_n
-      //so 2 v_n cos( n (phi-psi_n) ) = 2 v_n (cos (nphi) cos(npsi_n) +sin(nphi) sin(npsi_n))
-      // = qx cos (nphi) + qy sin(nphi)
-      modulation+=sc.apply(qy,qx);
+      CxxUtils::sincos sc(phi*ih);
+      modulation+=2.*sc.apply(qx,qy);
     }
     modulation/=et;
   }
@@ -116,13 +94,6 @@ StatusCode HIUEModulatorTool::checkQVectorSize(const xAOD::HIEventShape* shape, 
 
 StatusCode HIUEModulatorTool::checkCompatibility() const
 {
-  for(unsigned int i=0; i < m_nh_vector.size(); i++) 
-  {
-    if(checkQVectorSize(m_shape,m_nh_vector.at(i)).isFailure())
-    {
-      ATH_MSG_ERROR("HIEventShapeContainer " << m_shape_key << " does not have requested harmonic");
-      return StatusCode::FAILURE;
-    }
-  }
+  for(unsigned int i=0; i < m_nh_vector.size(); i++) CHECK(checkQVectorSize(m_shape,m_nh_vector.at(i)));
   return StatusCode::SUCCESS;
 }
