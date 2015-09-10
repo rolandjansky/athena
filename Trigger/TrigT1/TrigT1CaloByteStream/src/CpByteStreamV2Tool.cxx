@@ -813,13 +813,13 @@ void CpByteStreamV2Tool::decodeCmxCp(CmxCpSubBlock *subBlock, int trigCpm,
                     LVL1::DataError errBits(subStatus);
                     if (error)
                     {
-                        errBits.set(LVL1::DataError::Parity, (error & 0x1f) ? 1 : 0);
-                        errBits.set(LVL1::DataError::ParityMerge, error);
-                        errBits.set(LVL1::DataError::ParityPhase0, (error >> 1));
-                        errBits.set(LVL1::DataError::ParityPhase1, (error >> 2));
-                        errBits.set(LVL1::DataError::ParityPhase2, (error >> 3));
-                        errBits.set(LVL1::DataError::ParityPhase3, (error >> 4));
-                        errBits.set(LVL1::DataError::Overflow,     (error >> 5));
+                        errBits.set(LVL1::DataError::ParityPhase0, error);
+                        errBits.set(LVL1::DataError::ParityPhase1, (error >> 1));
+                        errBits.set(LVL1::DataError::ParityPhase2, (error >> 2));
+                        errBits.set(LVL1::DataError::ParityPhase3, (error >> 3));
+                        errBits.set(LVL1::DataError::Overflow,     (error >> 4));
+                        errBits.set(LVL1::DataError::ParityMerge, (error >> 5));
+                        errBits.set(LVL1::DataError::Parity, (error & 0x2f) ? 1 : 0);
                     }
                     error = errBits.error();
                     const int key = tobKey(crate, cmx, cpm, chip, loc);
