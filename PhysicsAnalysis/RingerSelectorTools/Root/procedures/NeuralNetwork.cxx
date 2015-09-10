@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: NeuralNetwork.cxx 783557 2016-11-10 21:00:43Z wsfreund $
+// $Id: NeuralNetwork.cxx 667905 2015-05-18 19:07:55Z wsfreund $
 #include "RingerSelectorTools/procedures/NeuralNetwork.h"
 
 // STL includes:
@@ -62,7 +62,7 @@ void NNFeedForward::changeArchiteture(
     throw std::invalid_argument(
         std::string("Invalid node argument (empty)."));
   }
-  // Verifying weight vector size
+  //Verifying weight vector size
   unsigned int wSize=0;
   for (unsigned int k=0; k<n.size()-1; ++k) {
     wSize+=n[k]*n[k+1];
@@ -71,7 +71,7 @@ void NNFeedForward::changeArchiteture(
     throw std::invalid_argument(
       std::string("Invalid weight argument."));
   }
-  // Verifying bias vector size
+  //Verifying bias vector size
   unsigned int bSize=0;
   for (unsigned int k=1; k<n.size(); ++k) {
     bSize+=n[k];
@@ -81,20 +81,20 @@ void NNFeedForward::changeArchiteture(
       std::string("Invalid bias argument."));
   }
 
+  // Configuration is ok, copy it:
+  m_nodes = n;
+  m_nLayers = n.size();
+
   // Release possible older architeture:
   releaseWeights();
   releaseBias();
   releaseMMatrix();
 
-  // Configuration is ok, copy it:
-  m_nodes = n;
-  m_nLayers = n.size();
-
-  // First weight dimension
+  //First weight dimension
   m_wM = new float **[m_nLayers-1]; //number of layers excluding input
-  // First bias dimension
+  //First bias dimension
   m_bM = new float *[m_nLayers-1]; //number of layers excluding input
-  // First multiplication dimension
+  //First multiplication dimension
   m_mM = new float *[m_nLayers]; //number of layers including input
 
   for (unsigned int l = 0; l<m_nLayers; ++l){ 
@@ -103,21 +103,21 @@ void NNFeedForward::changeArchiteture(
   std::vector<float>::const_iterator itrB = b.begin();
   std::vector<float>::const_iterator itrW = w.begin();
   for (unsigned int l = 0; l < m_nLayers-1; ++l){  
-    // Second and last dimension of m_bM
+    //Second and last dimension of m_bM
     m_bM[l] = new float[n[l+1]]; //number of m_nodes in next layer
-    // Second dimension of m_wM
+    //Second dimension of m_wM
     m_wM[l] = new float*[n[l+1]]; //number of m_nodes in next layer
     for (unsigned int i=0; i<n[l+1]; i++){ 
-      // Third and last dimension of m_wM
+      //Third and last dimension of m_wM
       m_wM[l][i]=new float [n[l]]; //number of m_nodes in current layer
-      // Populating bias matrix
+      //Populating bias matrix
       m_bM[l][i]=(*itrB++);
-      // Populating weight matrix
+      //Populating weight matrix
       for (unsigned int j=0; j<n[l]; j++){
         m_wM[l][i][j]=(*itrW++);
       }
     }
-    // Populating multiplication matrix so that starting sum equals zero
+    //Populating multiplication matrix so that starting sum equals zero
     for (unsigned int i=0; i<n[l]; i++){
       m_mM[l][i]=0;
     }   
@@ -245,11 +245,11 @@ void NNFeedForward::print(MSG::Level lvl) const
   }
   std::vector<float> weights, bias;
   getWeigthsAndBias(weights, bias);
-  msg() << lvl << "Nodes: " << m_nodes << endmsg;
+  msg() << lvl << "Nodes: " << m_nodes << endreq;
   msg() << static_cast<MSG::Level>((lvl>MSG::VERBOSE)?(lvl-1):(lvl)) 
-    << "Vectorized Weights: " << weights << endmsg;
+    << "Vectorized Weights: " << weights << endreq;
   msg() << static_cast<MSG::Level>((lvl>MSG::VERBOSE)?(lvl-1):(lvl)) 
-    << "Vectorized Bias: " << bias << endmsg;
+    << "Vectorized Bias: " << bias << endreq;
 }
 
 // =============================================================================
@@ -260,8 +260,23 @@ void NNFeedForward::read(NNFeedForward *newObj,
   std::vector<unsigned int> nodes;
   std::vector<float> weights, bias;
   IOHelperFcns::readVar(configDir, "nodes", nodes); 
+  //std::cout << "Nodes are: (" << nodes.size() << ")" << std::endl;
+  //for ( auto node : nodes ){
+  //  std::cout << node << " ";
+  //}
+  //std::cout << std::endl;
   IOHelperFcns::readVar(configDir, "weights", weights); 
+  //std::cout << "weights are: (" << weights.size() << ")" << std::endl;
+  //for ( auto weight : weights ){
+  //  std::cout << weight << " ";
+  //}
+  //std::cout << std::endl;
   IOHelperFcns::readVar(configDir, "bias", bias); 
+  //std::cout << "bias are: (" << bias.size() << ")" << std::endl;
+  //for ( auto b : bias ){
+  //  std::cout << b << " ";
+  //}
+  //std::cout << std::endl;
   newObj->changeArchiteture(nodes,weights,bias);
 }
 

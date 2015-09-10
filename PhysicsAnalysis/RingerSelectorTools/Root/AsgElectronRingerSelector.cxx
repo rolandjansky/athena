@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AsgElectronRingerSelector.cxx 791627 2017-01-10 04:45:53Z wsfreund $
+// $Id: AsgElectronRingerSelector.cxx 694258 2015-09-10 22:46:03Z wsfreund $
 // STL includes:
 #include <string>
 #include <stdexcept>
@@ -371,15 +371,15 @@ StatusCode AsgElectronRingerSelector::execute(
   }
 
   // First, check if we can retrieve decoration:
-  const xAOD::CaloRingsLinks *caloRingsLinks(nullptr);
+  const xAOD::CaloRingsELVec *caloRingsELVec(nullptr);
   try {
-    caloRingsLinks = &(m_ringsELReader->operator()(*el));
+    caloRingsELVec = &(m_ringsELReader->operator()(*el));
   } catch ( const std::exception &e) {
-    ATH_MSG_ERROR("Couldn't retrieve CaloRingsLinks. Reason: " 
+    ATH_MSG_ERROR("Couldn't retrieve CaloRingsELVec. Reason: " 
         << e.what());
   }
 
-  if ( caloRingsLinks->empty() ){
+  if ( caloRingsELVec->empty() ){
 
     ATH_MSG_ERROR("Particle does not have CaloRings decoratorion.");
 
@@ -390,24 +390,11 @@ StatusCode AsgElectronRingerSelector::execute(
     return StatusCode::FAILURE;
   }
 
-  // FIXME The indexing should be an enum, previous test should ensure that the
-  // size is large enought to access index.
-  if ( !caloRingsLinks->at(0).isValid() ){
-    ATH_MSG_DEBUG("Ignoring candidate with invalid ElementLink.");
-
-    partDecMsk_ref.setCutResult( 
-        BitdefElectron::NoErrorBit, 
-        false);
-
-    return StatusCode::SUCCESS;
-  }
-
-
   // For now, we are using only the first cluster 
-  const xAOD::CaloRings *clrings = *(caloRingsLinks->at(0));
+  const xAOD::CaloRings *clrings = *(caloRingsELVec->at(0));
   
   // Check if everything is ok with CaloRings ElementLink vector:
-  if (caloRingsLinks->empty() || !(clrings) ){
+  if (caloRingsELVec->empty() || !(clrings) ){
 
     ATH_MSG_ERROR("There isn't CaloRings Decoration available" 
         " for input particle." );
@@ -428,7 +415,8 @@ StatusCode AsgElectronRingerSelector::execute(
   // Put cluster calibrated eta/et into DepVarStruct:
   const xAOD::CaloCluster *cluster = el->caloCluster();
   const DepVarStruct depVar( cluster->eta(), 
-      cluster->et() * .001 );
+      cluster->et() );
+
   // We head now into the RingerChain execution:
   try {
     // Execute Ringer Selector Common:
@@ -587,68 +575,9 @@ StatusCode AsgElectronRingerSelector::beginInputFile()
   if ( ( m_metaIsOnOutput || failedToRetrieveInInput ) &&
       outputMetaStore()->retrieve( m_rsConfCont, m_rsMetaName ).isFailure())
   {
-    // FIXME: This should be done by manually setting the metadata information
-    // if it is not set (if manually set, do not attempt to retrieve on the 
-    // metadata store).
-    ATH_MSG_WARNING( "Couldn't retrieve rings configuration on both "
-        "inputMetaStore and outputMetaStore. Setting default value, "
-        "(which might be wrong)." );
-    m_rawConfCol.clear();
-    m_rawConfCol = { 
-        {8,
-          std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
-          Ringer::CalJointLayer::PS,
-          Ringer::CalJointSection::EM,
-          false, false,
-          0, 8,
-        0, 88},
-        {64,
-          std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
-          Ringer::CalJointLayer::EM1,
-          Ringer::CalJointSection::EM,
-          false, false,
-          8, 72,
-        0, 88},
-        {8,
-          std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
-          Ringer::CalJointLayer::EM2,
-          Ringer::CalJointSection::EM,
-          false, false,
-          72, 80, 
-        0, 88},
-        {8,
-          std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
-          Ringer::CalJointLayer::EM3,
-          Ringer::CalJointSection::EM,
-          false, false,
-          80, 88, 
-        0, 88},
-        {4,
-          std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
-          Ringer::CalJointLayer::HAD1,
-          Ringer::CalJointSection::HAD,
-          false, false,
-          88, 92, 
-        88, 100},
-        {4,
-          std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
-          Ringer::CalJointLayer::HAD2,
-          Ringer::CalJointSection::HAD,
-          false, false,
-          92, 96, 
-        88, 100},
-        {4,
-          std::vector<CaloSampling::CaloSample>(), 0., 0., 0., 0.,
-          Ringer::CalJointLayer::HAD3,
-          Ringer::CalJointSection::HAD,
-          false, false,
-          96, 100,
-        88, 100} };
-    for ( auto &discrWrapper : m_discrWrapperCol ) {
-      discrWrapper->setRawConfCol( &m_rawConfCol );
-    }
-    xAOD::RingSetConf::print( m_rawConfCol, msg() );
-    m_metaDataCached = true;
+    ATH_MSG_ERROR( "Couldn't retrieve rings configuration on both "
+        "inputMetaStore and outputMetaStore." );
+    return StatusCode::FAILURE;
   } else {
     // Flag that meta is on outputMeta rather than the input 
     if ( failedToRetrieveInInput ){
@@ -812,7 +741,7 @@ void AsgElectronRingerSelector::printConf( IOConfStruct &fileConf,
 {
   if ( msg && msg->level() <= lvl ){
     auto flags = static_cast<std::ios_base::fmtflags>(msg->flags());
-    (*msg) << lvl << "File configuration is: " << endmsg;
+    (*msg) << lvl << "File configuration is: " << endreq;
     (*msg) << lvl << std::boolalpha << "useTrackPat: " << fileConf.useTrackPat 
       << " | useRawTrackPat: " << fileConf.useRawTrackPat 
       << " | useCaloCommittee: " << fileConf.useCaloCommittee
@@ -821,7 +750,7 @@ void AsgElectronRingerSelector::printConf( IOConfStruct &fileConf,
       << " | useSCTOutliers: " << fileConf.useSCTOutliers
       << " | useTRTOutliers: " << fileConf.useTRTOutliers
       << " | useTRTXenonHits: " << fileConf.useTRTXenonHits 
-      << endmsg;
+      << endreq;
     // reset previous cout flags
     msg->flags(flags);
   }

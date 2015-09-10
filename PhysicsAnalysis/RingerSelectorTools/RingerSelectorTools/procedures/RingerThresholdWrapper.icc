@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerThresholdWrapper.icc 770807 2016-08-30 14:10:50Z ssnyder $
+// $Id: RingerThresholdWrapper.icc 694258 2015-09-10 22:46:03Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_PROCEDURES_RINGERTHRESHOLDWRAPPER_ICC
 #define RINGERSELECTORTOOLS_PROCEDURES_RINGERTHRESHOLDWRAPPER_ICC
 
@@ -53,13 +53,12 @@ using namespace WrapperHelperFcns;
 //            -------------------------------------
 // =============================================================================
 
-/**/
 
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency
+  EtaDependency etaDependency,
+  EtDependency etDependency
 >
 void RingerProcedureWrapper<
   procedure_t,
@@ -84,8 +83,8 @@ void RingerProcedureWrapper<
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency
+  EtaDependency etaDependency,
+  EtDependency etDependency
 >
 void RingerProcedureWrapper<
   procedure_t,
@@ -130,8 +129,8 @@ void RingerProcedureWrapper<
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency
+  EtaDependency etaDependency,
+  EtDependency etDependency
 >
 void RingerProcedureWrapper<
   procedure_t,
@@ -142,21 +141,14 @@ void RingerProcedureWrapper<
   false,      // isDiscriminator
   true>       // isThreshold
 ::checkThresCol(){
-  try {
-    checkCollection(m_thresCol, 
-        static_cast<EtaDependency>(etaDependency), 
-        static_cast<EtDependency>(etDependency));
-  } catch ( const std::runtime_error &e ) {
-    throw std::runtime_error(std::string("Couldn't initialize RingerThresholdWrapper due to: ")
-        + e.what() );
-  }
+  checkCollection(m_thresCol, etaDependency, etDependency);
 }
 
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency
+  EtaDependency etaDependency,
+  EtDependency etDependency
 >
 void RingerProcedureWrapper<
   procedure_t,
@@ -176,8 +168,8 @@ void RingerProcedureWrapper<
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency
+  EtaDependency etaDependency,
+  EtDependency etDependency
 >
 std::string RingerProcedureWrapper<
   procedure_t,
@@ -193,8 +185,8 @@ std::string RingerProcedureWrapper<
   ss << "RingerProcedureWrapper<"
         << toStr(procedure_t::template procType<procEnum_t>() ) 
         << ((Ringer::is_same<procedure_t,Discrimination::IThresholdVarDep>::value)?",":"(VarDep),")
-        << toStr(static_cast<EtaDependency>(etaDependency)) << "," 
-        << toStr(static_cast<EtDependency>(etDependency)) << "," 
+        << toStr(etaDependency) << "," 
+        << toStr(etDependency) << "," 
         << toStr(NoSegmentation) << ">";
   return ss.str();
 }
@@ -202,8 +194,8 @@ std::string RingerProcedureWrapper<
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency
+  EtaDependency etaDependency,
+  EtDependency etDependency
 >
 std::string RingerProcedureWrapper<
   procedure_t,
@@ -220,8 +212,8 @@ std::string RingerProcedureWrapper<
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency
+  EtaDependency etaDependency,
+  EtDependency etDependency
 >
 void RingerProcedureWrapper<
   procedure_t,
@@ -238,7 +230,7 @@ void RingerProcedureWrapper<
       // Dont waste time printing nothing
       return;
     }
-    this->msg() << lvl << fullName() << " contents: "<<  endmsg;
+    this->msg() << lvl << fullName() << " contents: "<<  endreq;
     std::vector<unsigned> posVec(2);
     for ( unsigned etIdx = 0; etIdx < m_thresCol.size() ; ++etIdx){
       posVec[0] = etIdx;
@@ -246,7 +238,7 @@ void RingerProcedureWrapper<
       {
         posVec[1] = etaIdx;
         this->msg() << lvl << m_thresCol[etIdx][etaIdx]->name() << 
-          IOHelperFcns::makeIdxStr(posVec) << " configuration:" << endmsg;
+          IOHelperFcns::makeIdxStr(posVec) << " configuration:" << endreq;
         m_thresCol[etIdx][etaIdx]->print(lvl);
       }
     }
@@ -259,8 +251,8 @@ void RingerProcedureWrapper<
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency
+  EtaDependency etaDependency,
+  EtDependency etDependency
 >
 void RingerProcedureWrapper<
   procedure_t,
@@ -279,8 +271,8 @@ void RingerProcedureWrapper<
 
   // Write basic template information:
   thresEnum_t thresType = procedure_t::template procType<thresEnum_t>();
-  EtaDependency fileEtaDep = static_cast<EtaDependency>(etaDependency);
-  EtDependency fileEtDep = static_cast<EtDependency>(etDependency);
+  EtaDependency fileEtaDep = etaDependency;
+  EtDependency fileEtDep = etDependency;
   // FIXME Why do I need to use const? Unfortunately if I don't use so, the
   // compiler won't accept static_casting from discr_Enum_t to unsigned int:
   // some issue with reference casting.
@@ -322,8 +314,8 @@ void RingerProcedureWrapper<
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency
+  EtaDependency etaDependency,
+  EtDependency etDependency
 >
 RingerProcedureWrapper<
   procedure_t,
@@ -398,11 +390,11 @@ RingerProcedureWrapper<
     // Check if holden information dependency information is ok:
     if ( fileEtaDep != etaDependency ){
       throw std::runtime_error(std::string("Folder \"") + folderName + "\" is "
-          + toStr(fileEtaDep) + " whereas Wrapper is " + toStr(static_cast<EtaDependency>(etaDependency)) + ".");
+          + toStr(fileEtaDep) + " whereas Wrapper is " + toStr(etaDependency) + ".");
     }
     if ( fileEtDep != etDependency ){
       throw std::runtime_error(std::string("Folder \"") + folderName + "\" is "
-          + toStr(fileEtDep) + " whereas Wrapper is " + toStr(static_cast<EtDependency>(etDependency)) + ".");
+          + toStr(fileEtDep) + " whereas Wrapper is " + toStr(etDependency) + ".");
     }
     // Retrieve position indexes where we shall retrieve this pre-processing 
     IOHelperFcns::getIdxVecFromStr( folderName, thresIdxVec );
@@ -429,7 +421,7 @@ RingerProcedureWrapper<
       // If the procedure_t is not the PreProcessor interface, code will
       // never get here. We only use the interpret cast so that the compiler
       // doesn't complain about type casting.
-      thisThres = dynamic_cast<procedure_t*>( getThres(thresType, dirObj) );
+      thisThres = reinterpret_cast<procedure_t*>( getThres(thresType, dirObj) );
       // FIXME New compiler version complains to use static_cast, but would it compile on
       // older versions?
     } else {

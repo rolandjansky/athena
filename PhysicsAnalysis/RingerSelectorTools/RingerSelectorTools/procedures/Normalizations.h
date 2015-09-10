@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Normalizations.h 704615 2015-10-29 18:50:12Z wsfreund $
+// $Id: Normalizations.h 693573 2015-09-07 19:15:49Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_PROCEDURES_NORMALIZATIONS_H
 #define RINGERSELECTORTOOLS_PROCEDURES_NORMALIZATIONS_H
 
@@ -13,7 +13,6 @@
 #include <stdexcept>
 #include <string>
 #include <cmath>
-#include <iostream>
 
 // Gaudi includes:
 #if !defined(XAOD_STANDALONE) && !defined(RINGER_STANDALONE)
@@ -48,7 +47,7 @@ namespace Norm {
 
 /// Normalization base classes:
 /// @{
-class Norm1 : virtual public IPreProcessor,
+class Norm1 : public virtual IPreProcessor,
               public RedirectMsgStream 
 {
 
@@ -152,6 +151,7 @@ class Sequential : public virtual IPreProcessor,
 
   private:
     Sequential(Sequential&&);
+
     /// @brief The stop energy threshold for increasing noise
     float m_stopEnergy;
     /// @brief The energy threshold for choosing 
@@ -185,6 +185,7 @@ class Spherization : public virtual IPreProcessor,
 
   private:
     Spherization(Spherization&&);
+
     /// @brief The training sample data mean
     std::vector<float> m_deslocation;
     /// @brief The inverse of the training sample data standard deviation
@@ -216,6 +217,7 @@ class MinMax : public virtual IPreProcessor,
 
   private:
     MinMax(MinMax&&);
+
     /// @brief The training sample data min
     std::vector<float> m_deslocation;
     /// @brief The inverse of sample delta(max,min)

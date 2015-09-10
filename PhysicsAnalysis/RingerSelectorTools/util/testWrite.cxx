@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: testWrite.cxx 770805 2016-08-30 14:03:33Z ssnyder $
+// $Id: testWrite.cxx 694258 2015-09-10 22:46:03Z wsfreund $
 /**
  * In this executable we want to test if wrappers can be sucessfully written.
  *
@@ -239,9 +239,9 @@ int main( /*int argc, char* argv[]*/){
 #endif
         std::numeric_limits<float>::infinity()};
 
-  msg << MSG::INFO << BREAKER << endmsg;
-  msg << MSG::INFO << "Testing simple discriminator wrappers:" << endmsg;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << "Testing simple discriminator wrappers:" << endreq;
+  msg << MSG::INFO << BREAKER << endreq;
 
   // ----------------------------------------------------------------------------
   // Write simple discriminator using interface (without using normalization)
@@ -254,7 +254,7 @@ int main( /*int argc, char* argv[]*/){
     EtaIndependent,
     EtIndependent,
     NoSegmentation >("basicWrapper.root");
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   // Create eta dependent and non segmented wrapper.
   // Test it allocating all possible permutations of eta/et dependency.
@@ -266,7 +266,7 @@ int main( /*int argc, char* argv[]*/){
     NoSegmentation >("basicEtaDepWrapper.root",
         nullptr,
         etaDepBounderies);
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   // Create Et dependent and non segmented wrapper.
   // Test it allocating all possible permutations of eta/et dependency.
@@ -279,7 +279,7 @@ int main( /*int argc, char* argv[]*/){
         nullptr,
         etaIndepBounderies,
         etDepBounderies);
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   // Create eta, Et dependent and non segmented wrapper.
   // Test it allocating all possible permutations of eta/et dependency.
@@ -295,9 +295,9 @@ int main( /*int argc, char* argv[]*/){
 
   // Turn off the messages:
   msg.setLevel(MSG::ERROR);
-  msg << MSG::INFO << BREAKER << endmsg;
-  msg << MSG::INFO << "Testing creation of badly configured wrappers:" << endmsg;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << "Testing creation of badly configured wrappers:" << endreq;
+  msg << MSG::INFO << BREAKER << endreq;
   // -------------------------- END --- END --- END -----------------------------
 
   // ----------------------------------------------------------------------------
@@ -313,7 +313,7 @@ int main( /*int argc, char* argv[]*/){
     NoSegmentation >("shouldntWrite.root",
         nullptr,
         etaDepBounderies);
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   // Create independent and non segmented wrapper.
   // Test it allocating all possible permutations of eta/et dependency.
@@ -327,9 +327,9 @@ int main( /*int argc, char* argv[]*/){
         etaIndepBounderies,
         etDepBounderies);
   msg.setLevel(MSG::DEBUG);
-  msg << MSG::INFO << BREAKER << endmsg;
-  msg << MSG::INFO << "Creating PP wrappers:" << endmsg;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << "Creating PP wrappers:" << endreq;
+  msg << MSG::INFO << BREAKER << endreq;
   // ----------------------------------------------------------------------------
 
   // ----------------------------------------------------------------------------
@@ -343,7 +343,7 @@ int main( /*int argc, char* argv[]*/){
     EtaIndependent,
     EtIndependent,
     NoSegmentation >("basicPPWrapper.root");
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   auto *basicEtaDepPPWrapper = createPPWrapper<PreProcessing::IPreProcessorVarDep,
     EtaDependent,
@@ -352,7 +352,7 @@ int main( /*int argc, char* argv[]*/){
         etaDepBounderies);
   if (basicEtaDepPPWrapper) basicEtaDepPPWrapper->releaseMemory();
   delete basicEtaDepPPWrapper;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   auto *basicEtDepPPWrapper = createPPWrapper<PreProcessing::IPreProcessorVarDep,
     EtaIndependent,
@@ -362,7 +362,7 @@ int main( /*int argc, char* argv[]*/){
         etDepBounderies);
   if (basicEtDepPPWrapper) basicEtDepPPWrapper->releaseMemory();
   delete basicEtDepPPWrapper;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   auto *basicEtaEtDepPPWrapper = createPPWrapper<PreProcessing::IPreProcessorVarDep,
     EtaDependent,
@@ -372,7 +372,7 @@ int main( /*int argc, char* argv[]*/){
         etDepBounderies);
   if (basicEtaEtDepPPWrapper) basicEtaEtDepPPWrapper->releaseMemory();
   delete basicEtaEtDepPPWrapper;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   auto *basicEtaEtTrackCalDepPPWrapper = createPPWrapper<PreProcessing::IPreProcessorVarDep,
     EtaDependent,
@@ -382,7 +382,7 @@ int main( /*int argc, char* argv[]*/){
         etDepBounderies);
   if (basicEtaEtTrackCalDepPPWrapper) basicEtaEtTrackCalDepPPWrapper->releaseMemory();
   delete basicEtaEtTrackCalDepPPWrapper;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   auto *basicEtaEtTrackCalPatTypeDepPPWrapper = createPPWrapper<PreProcessing::IPreProcessorVarDep,
     EtaDependent,
@@ -392,7 +392,7 @@ int main( /*int argc, char* argv[]*/){
         etDepBounderies);
   if (basicEtaEtTrackCalDepPPWrapper) basicEtaEtTrackCalPatTypeDepPPWrapper->releaseMemory();
   delete basicEtaEtTrackCalPatTypeDepPPWrapper;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   auto *basicEtaEtSectionDepPPWrapper = createPPWrapper<PreProcessing::IPreProcessorVarDep,
     EtaDependent,
@@ -402,7 +402,7 @@ int main( /*int argc, char* argv[]*/){
         etDepBounderies);
   if (basicEtaEtSectionDepPPWrapper) basicEtaEtSectionDepPPWrapper->releaseMemory();
   delete basicEtaEtSectionDepPPWrapper;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   auto *basicEtaEtLayerDepPPWrapper = createPPWrapper<PreProcessing::IPreProcessorVarDep,
     EtaDependent,
@@ -410,19 +410,19 @@ int main( /*int argc, char* argv[]*/){
     TrackCalJointLayers >("basicEtaEtLayerDepPPWrapper.root",
         etaDepBounderies,
         etDepBounderies);
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   auto *basicNorm1Wrapper = createPPWrapper<PreProcessing::Norm::Norm1VarDep,
     EtaIndependent,
     EtIndependent,
     NoSegmentation >("basicNorm1Wrapper.root");
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   auto *basicLayerDepNorm1Wrapper = createPPWrapper<PreProcessing::Norm::Norm1VarDep,
     EtaIndependent,
     EtIndependent,
     TrackCalJointLayers >("basicLayerDepNorm1Wrapper.root");
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   auto *basicNorm2Wrapper = createPPWrapper<PreProcessing::Norm::Norm2VarDep,
     EtaIndependent,
@@ -430,7 +430,7 @@ int main( /*int argc, char* argv[]*/){
     TrackCalJointLayers >("basicNorm2Wrapper.root");
   if (basicNorm2Wrapper) basicNorm2Wrapper->releaseMemory();
   delete basicNorm2Wrapper;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   auto *basicSqrtWrapper = createPPWrapper<PreProcessing::Norm::SqrtVarDep,
     EtaIndependent,
@@ -438,7 +438,7 @@ int main( /*int argc, char* argv[]*/){
     NoSegmentation >("basicSqrtWrapper.root");
   if (basicSqrtWrapper) basicSqrtWrapper->releaseMemory();
   delete basicSqrtWrapper;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   auto *basicConstantValueWrapper = createPPWrapper<PreProcessing::Norm::ConstantValueVarDep,
     EtaIndependent,
@@ -446,7 +446,7 @@ int main( /*int argc, char* argv[]*/){
     NoSegmentation >("basicConstantValueWrapper.root");
   if (basicConstantValueWrapper) basicConstantValueWrapper->releaseMemory();
   delete basicConstantValueWrapper;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   auto *basicMevToGevWrapper = createPPWrapper<PreProcessing::Norm::MevToGevVarDep,
     EtaIndependent,
@@ -454,7 +454,7 @@ int main( /*int argc, char* argv[]*/){
     NoSegmentation >("basicMevToGevWrapper.root");
   if (basicMevToGevWrapper) basicMevToGevWrapper->releaseMemory();
   delete basicMevToGevWrapper;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   auto *basicSequentialWrapper = createPPWrapper<PreProcessing::Norm::SequentialVarDep,
     EtaIndependent,
@@ -462,7 +462,7 @@ int main( /*int argc, char* argv[]*/){
     NoSegmentation >("basicSequentialWrapper.root");
   if (basicSequentialWrapper) basicSequentialWrapper->releaseMemory();
   delete basicSequentialWrapper;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   auto *basicSpherizationWrapper = createPPWrapper<PreProcessing::Norm::SpherizationVarDep,
     EtaIndependent,
@@ -470,7 +470,7 @@ int main( /*int argc, char* argv[]*/){
     NoSegmentation >("basicSpherizationWrapper.root");
   if (basicSpherizationWrapper) basicSpherizationWrapper->releaseMemory();
   delete basicSpherizationWrapper;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   auto *basicMinMaxWrapper = createPPWrapper<PreProcessing::Norm::MinMaxVarDep,
     EtaIndependent,
@@ -480,9 +480,9 @@ int main( /*int argc, char* argv[]*/){
   delete basicMinMaxWrapper;
   // -------------------------- END --- END --- END -----------------------------
 
-  msg << MSG::INFO << BREAKER << endmsg;
-  msg << MSG::INFO << "Creating discriminator with PP wrappers:" << endmsg;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << "Creating discriminator with PP wrappers:" << endreq;
+  msg << MSG::INFO << BREAKER << endreq;
   
   // ----------------------------------------------------------------------------
   // Write discriminators with pre-processings
@@ -499,7 +499,7 @@ int main( /*int argc, char* argv[]*/){
         &randomNorm1PP,
         etaDepBounderies,
         etDepBounderies);
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   // Create Eta, Et dependent and non segmented wrapper.
   // Test it allocating all possible permutations of eta/et dependency.
@@ -517,9 +517,9 @@ int main( /*int argc, char* argv[]*/){
         etDepBounderies);
   // ----------------------------------------------------------------------------
 
-  msg << MSG::INFO << BREAKER << endmsg;
-  msg << MSG::INFO << "Creating segmented discriminator with PP wrappers:" << endmsg;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << "Creating segmented discriminator with PP wrappers:" << endreq;
+  msg << MSG::INFO << BREAKER << endreq;
 
   // ----------------------------------------------------------------------------
   // Write segmented discriminators with pre-processings
@@ -535,12 +535,12 @@ int main( /*int argc, char* argv[]*/){
         &randomDepPPrandomDepPP,
         etaDepBounderies,
         etDepBounderies);
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
   // -------------------------- END --- END --- END -----------------------------
 
-  msg << MSG::INFO << BREAKER << endmsg;
-  msg << MSG::INFO << "Creating specialized discriminator:" << endmsg;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << "Creating specialized discriminator:" << endreq;
+  msg << MSG::INFO << BREAKER << endreq;
 
   // ----------------------------------------------------------------------------
   // Write specialized discriminator wrapper with no pre-processings
@@ -549,7 +549,7 @@ int main( /*int argc, char* argv[]*/){
     EtaIndependent,
     EtIndependent,
     NoSegmentation >("NNWrapper.root");
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   createDiscrWrapper<Discrimination::NNFeedForwardVarDep,
     EtaDependent,
@@ -560,9 +560,9 @@ int main( /*int argc, char* argv[]*/){
         etDepBounderies);
   // -------------------------- END --- END --- END -----------------------------
 
-  msg << MSG::INFO << BREAKER << endmsg;
-  msg << MSG::INFO << "Creating specialized discriminator with PP wrappers:" << endmsg;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << "Creating specialized discriminator with PP wrappers:" << endreq;
+  msg << MSG::INFO << BREAKER << endreq;
 
   // ----------------------------------------------------------------------------
   // Write specialized discriminator wrapper with specialized pre-processings
@@ -572,7 +572,7 @@ int main( /*int argc, char* argv[]*/){
     EtaIndependent,
     EtIndependent,
     NoSegmentation >("Norm1NNWrapper.root", &basicNorm1WrapperVec);
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   IPreProcWrapperCollection fullDepWrapperVec0 = {basicLayerDepNorm1Wrapper};
   createDiscrWrapper<Discrimination::NNFeedForwardVarDep,
@@ -582,7 +582,7 @@ int main( /*int argc, char* argv[]*/){
         &fullDepWrapperVec0,
         etaDepBounderies,
         etDepBounderies);
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   IPreProcWrapperCollection fullDepWrapperVec = {basicLayerDepNorm1Wrapper, basicLayerDepNorm1Wrapper};
   createDiscrWrapper<Discrimination::NNFeedForwardVarDep,
@@ -594,9 +594,9 @@ int main( /*int argc, char* argv[]*/){
         etDepBounderies);
   // -------------------------- END --- END --- END -----------------------------
 
-  msg << MSG::INFO << BREAKER << endmsg;
-  msg << MSG::INFO << "Creating thresholds:" << endmsg;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << "Creating thresholds:" << endreq;
+  msg << MSG::INFO << BREAKER << endreq;
 
   // ----------------------------------------------------------------------------
   // Write thresholds
@@ -604,20 +604,20 @@ int main( /*int argc, char* argv[]*/){
   createThresWrapper<Discrimination::IThresholdVarDep,
     EtaIndependent,
     EtIndependent >("basicThres.root");
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   createThresWrapper<Discrimination::IThresholdVarDep,
     EtaDependent,
     EtIndependent >("basicEtaDepThres.root",
         etaDepBounderies);
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   createThresWrapper<Discrimination::IThresholdVarDep,
     EtaIndependent,
     EtDependent >("basicEtDepThres.root",
         etaIndepBounderies,
         etDepBounderies);
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   createThresWrapper<Discrimination::IThresholdVarDep,
     EtaDependent,
@@ -626,9 +626,9 @@ int main( /*int argc, char* argv[]*/){
         etDepBounderies);
   // -------------------------- END --- END --- END -----------------------------
 
-  msg << MSG::INFO << BREAKER << endmsg;
-  msg << MSG::INFO << "Creating specialized thresholds:" << endmsg;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << "Creating specialized thresholds:" << endreq;
+  msg << MSG::INFO << BREAKER << endreq;
 
   // ----------------------------------------------------------------------------
   // Write specialized thresholds
@@ -636,20 +636,20 @@ int main( /*int argc, char* argv[]*/){
   createThresWrapper<Discrimination::UniqueThresholdVarDep,
     EtaIndependent,
     EtIndependent >("uniqueThres.root");
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   createThresWrapper<Discrimination::UniqueThresholdVarDep,
     EtaDependent,
     EtIndependent >("uniqueEtaDepThres.root",
         etaDepBounderies);
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   createThresWrapper<Discrimination::UniqueThresholdVarDep,
     EtaIndependent,
     EtDependent >("uniqueEtDepThres.root",
         etaIndepBounderies,
         etDepBounderies);
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   createThresWrapper<Discrimination::UniqueThresholdVarDep,
     EtaDependent,
@@ -666,19 +666,19 @@ int main( /*int argc, char* argv[]*/){
     EtaIndependent,
     EtIndependent,
     NoSegmentation >("ElectronRingerDiscrTestLoose.root", &basicNorm1WrapperVec);
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   createDiscrWrapper<Discrimination::NNFeedForwardVarDep,
     EtaIndependent,
     EtIndependent,
     NoSegmentation >("ElectronRingerDiscrTestMedium.root", &basicNorm1WrapperVec);
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   createDiscrWrapper<Discrimination::NNFeedForwardVarDep,
     EtaIndependent,
     EtIndependent,
     NoSegmentation >("ElectronRingerDiscrTestTight.root", &basicNorm1WrapperVec);
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
   // -------------------------- END --- END --- END -----------------------------
 
   // ----------------------------------------------------------------------------
@@ -690,7 +690,7 @@ int main( /*int argc, char* argv[]*/){
         etaIndepBounderies,
         etIndepBounderies,
         0.948 );
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   createThresWrapper<Discrimination::UniqueThresholdVarDep,
     EtaIndependent,
@@ -698,7 +698,7 @@ int main( /*int argc, char* argv[]*/){
         etaIndepBounderies,
         etIndepBounderies,
         0.2644 );
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
 
   createThresWrapper<Discrimination::UniqueThresholdVarDep,
     EtaIndependent,
@@ -708,9 +708,9 @@ int main( /*int argc, char* argv[]*/){
         0.2826 );
   // -------------------------- END --- END --- END -----------------------------
 
-  msg << MSG::INFO << BREAKER << endmsg;
-  msg << MSG::INFO << "Finished!" << endmsg;
-  msg << MSG::INFO << BREAKER << endmsg;
+  msg << MSG::INFO << BREAKER << endreq;
+  msg << MSG::INFO << "Finished!" << endreq;
+  msg << MSG::INFO << BREAKER << endreq;
 
   return 0;
 }
@@ -719,7 +719,7 @@ int main( /*int argc, char* argv[]*/){
 void writeWrapperOnFile(const IProcWrapperBase &wrapper, const char* fileName,
     MSG::Level lvl)
 {
-  msg << lvl << "Writing to file!" << endmsg;
+  msg << lvl << "Writing to file!" << endreq;
 
   TFile wrapperFile(fileName, "RECREATE");
   auto wrapperDir = wrapperFile.GetDirectory("");
@@ -760,7 +760,7 @@ IPreProcWrapper* createPPWrapper(const char *fileName,
         << ((std::is_same<procedure_t,PreProcessing::IPreProcessorVarDep>::value)?",":"(VarDep),")
         << toStr(etaDependency) << "," 
         << toStr(etDependency) << "," 
-        << toStr(segType) << "> with file name: " << fileName << "." << endmsg;
+        << toStr(segType) << "> with file name: " << fileName << "." << endreq;
 
   unsigned etaDepProc = etaDepBounderies.size() - 1; 
   unsigned etDepProc = etDepBounderies.size() - 1; 
@@ -854,9 +854,9 @@ IPreProcWrapper* createPPWrapper(const char *fileName,
 
           msg << lvl << "Attempting to create wrapper with (" 
             << toStr(segType) << "," << toStr(etaDep) << "," << toStr(etDep) 
-            << ") pre-processing" << endmsg;
+            << ") pre-processing" << endreq;
 
-          //msg << lvl << ppCol << endmsg;
+          //msg << lvl << ppCol << endreq;
 
           // Create wrapper:
           auto wrapper = new wrapper_t(ppCol);
@@ -874,12 +874,12 @@ IPreProcWrapper* createPPWrapper(const char *fileName,
           // return parameter.
           ret = wrapper;
 
-          msg << lvl << "Succeed!" << endmsg;
+          msg << lvl << "Succeed!" << endreq;
 
         } catch (const std::runtime_error &e) {
 
           msg << MSG::VERBOSE << "Couldn't create wrapper. Reason: "
-            << e.what() << endmsg;
+            << e.what() << endreq;
 
           // Release collection memory
           for ( unsigned segDepIdx = 0; segDepIdx < numberOfSegments(cSegType); ++segDepIdx ){
@@ -975,28 +975,28 @@ PreProcessing::IPreProcessorVarDep* createRandomPP(SegmentationType cSegType,
   static unsigned sequenceLoop = 0;
   switch ( static_cast<PreProcessing::Type::PreProcessorTypes>(2+((sequenceLoop++)%7)) ) {
     case PreProcessing::Type::Norm1:
-      msg << lvl << "Creating Norm1" << endmsg;
+      msg << lvl << "Creating Norm1" << endreq;
       return new PreProcessing::Norm::Norm1VarDep;
       break;
     case PreProcessing::Type::Norm2:
-      msg << lvl << "Creating Norm2" << endmsg;
+      msg << lvl << "Creating Norm2" << endreq;
       return new PreProcessing::Norm::Norm2VarDep;
       break;
     case PreProcessing::Type::Sqrt:
-      msg << lvl << "Creating Sqrt" << endmsg;
+      msg << lvl << "Creating Sqrt" << endreq;
       return new PreProcessing::Norm::SqrtVarDep;
       break;
     case PreProcessing::Type::ConstantValue:
-      msg << lvl << "Creating ConstantValue" << endmsg;
+      msg << lvl << "Creating ConstantValue" << endreq;
       return new PreProcessing::Norm::ConstantValueVarDep(987);
       break;
     case PreProcessing::Type::Sequential:
-      msg << lvl << "Creating Sequential" << endmsg;
+      msg << lvl << "Creating Sequential" << endreq;
       return new PreProcessing::Norm::SequentialVarDep(100,.001);
       break;
     case PreProcessing::Type::Spherization:
     {
-      msg << lvl << "Creating Spherization" << endmsg;
+      msg << lvl << "Creating Spherization" << endreq;
       auto std = new PreProcessing::Norm::SpherizationVarDep(
           std::vector<float>( segmentationEntries[cSegType][segIdx], 21 ),
           std::vector<float>( segmentationEntries[cSegType][segIdx], 61 )
@@ -1006,7 +1006,7 @@ PreProcessing::IPreProcessorVarDep* createRandomPP(SegmentationType cSegType,
     }
     case PreProcessing::Type::MinMax:
     {
-      msg << lvl << "Creating MinMax" << endmsg;
+      msg << lvl << "Creating MinMax" << endreq;
       auto minMax = new PreProcessing::Norm::MinMaxVarDep(
           std::vector<float>( segmentationEntries[cSegType][segIdx], 11 ),
           std::vector<float>( segmentationEntries[cSegType][segIdx], 92 )
@@ -1079,7 +1079,7 @@ void createDiscrWrapper(const char *fileName,
         << ((Ringer::is_same<procedure_t,Discrimination::IDiscriminatorVarDep>::value)?",":"(VarDep),")
         << toStr(etaDependency) << "," 
         << toStr(etDependency) << "," 
-        << toStr(segType) << "> with file name: " << fileName << "." << endmsg;
+        << toStr(segType) << "> with file name: " << fileName << "." << endreq;
 
   unsigned etaDepProc = etaDepBounderies.size() - 1; 
   unsigned etDepProc = etDepBounderies.size() - 1; 
@@ -1151,7 +1151,7 @@ void createDiscrWrapper(const char *fileName,
 
         msg << lvl << "Attempting to create wrapper with (" 
           << toStr(etaDep) << "," << toStr(etDep) << ") discriminator" 
-          << endmsg;
+          << endreq;
 
         wrapper_t* wrapper(nullptr); 
         // Create wrapper:
@@ -1183,12 +1183,12 @@ void createDiscrWrapper(const char *fileName,
         //wrapper->releaseMemory();
         //delete wrapper;
 
-        msg << lvl << "Succeed!" << endmsg;
+        msg << lvl << "Succeed!" << endreq;
 
       } catch (const std::runtime_error &e) {
 
         msg << MSG::VERBOSE << "Couldn't create wrapper. Reason: "
-          << e.what() << endmsg;
+          << e.what() << endreq;
 
         // Release collection memory
         for ( unsigned segDepIdx = 0; segDepIdx < numberOfSegments(segType); ++segDepIdx ){
@@ -1294,7 +1294,7 @@ void createThresWrapper(const char* fileName,
         << toStr(procedure_t::template procType<procEnum_t>() ) 
         << ((Ringer::is_same<procedure_t,Discrimination::IThresholdVarDep>::value)?",":"(VarDep),")
         << toStr(etaDependency) << "," 
-        << toStr(etDependency) << "> with file name: " << fileName << "." << endmsg;
+        << toStr(etDependency) << "> with file name: " << fileName << "." << endreq;
 
   unsigned etaDepProc = etaDepBounderies.size() - 1; 
   unsigned etDepProc = etDepBounderies.size() - 1; 
@@ -1362,7 +1362,7 @@ void createThresWrapper(const char* fileName,
 
         msg << lvl << "Attempting to create wrapper with (" 
           << toStr(etaDep) << "," << toStr(etDep) << ") discriminator" 
-          << endmsg;
+          << endreq;
 
         // Create wrapper:
         auto wrapper = new wrapper_t(thresCol);
@@ -1383,12 +1383,12 @@ void createThresWrapper(const char* fileName,
         //wrapper->releaseMemory();
         //delete wrapper;
 
-        msg << lvl << "Succeed!" << endmsg;
+        msg << lvl << "Succeed!" << endreq;
 
       } catch (const std::runtime_error &e) {
 
         msg << MSG::VERBOSE << "Couldn't create wrapper. Reason: "
-          << e.what() << endmsg;
+          << e.what() << endreq;
 
         // Release collection memory
         for ( unsigned etDepIdx = 0; etDepIdx < etDepProc; ++etDepIdx){

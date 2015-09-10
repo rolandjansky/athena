@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerPreProcessorWrapper.icc 791627 2017-01-10 04:45:53Z wsfreund $
+// $Id: RingerPreProcessorWrapper.icc 670599 2015-05-28 14:15:35Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_PROCEDURES_RINGERPREPROCESSORWRAPPER_ICC
 #define RINGERSELECTORTOOLS_PROCEDURES_RINGERPREPROCESSORWRAPPER_ICC
 
@@ -88,9 +88,9 @@ using namespace WrapperHelperFcns;
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency,
-  /*SegmentationType*/int segType
+  EtaDependency etaDependency,
+  EtDependency etDependency,
+  SegmentationType segType
 >
 void RingerProcedureWrapper<
   procedure_t,
@@ -118,9 +118,9 @@ void RingerProcedureWrapper<
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency,
-  /*SegmentationType*/int segType
+  EtaDependency etaDependency,
+  EtDependency etDependency,
+  SegmentationType segType
 >
 void RingerProcedureWrapper<
   procedure_t,
@@ -139,7 +139,7 @@ void RingerProcedureWrapper<
 #endif
 
   // This method only applies for segType NoSegmentation.
-  ensureNoSegmentationOnlyFcn(static_cast<SegmentationType>(segType));
+  ensureNoSegmentationOnlyFcn(segType);
 
   // If not dependent, simply run for the first position in the vector:
   if ( !etaDependency && !etDependency ){
@@ -170,9 +170,9 @@ void RingerProcedureWrapper<
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency,
-  /*SegmentationType*/int segType
+  EtaDependency etaDependency,
+  EtDependency etDependency,
+  SegmentationType segType
 >
 void RingerProcedureWrapper<
   procedure_t,
@@ -221,7 +221,7 @@ void RingerProcedureWrapper<
         trackPat->exportPatternsTo(transformVec);
       }
       // Apply pre-processing to all transformVec:
-      m_ppCol[cPreProc++][etIdx][etaIdx]->execute(transformVec);
+      m_ppCol[cPreProc++][etaIdx][etIdx]->execute(transformVec);
       break;
     }
     case SegmentationType::TrackCalSegmentation:
@@ -236,7 +236,7 @@ void RingerProcedureWrapper<
         clrings->exportRingsTo(transformVec);
         executeSegmentedPP(
             transformVec,
-            m_ppCol[cPreProc++][etIdx][etaIdx], 
+            m_ppCol[cPreProc++][etaIdx][etIdx], 
             transformVec);
       } else {
         cPreProc += 1;
@@ -247,7 +247,7 @@ void RingerProcedureWrapper<
         trackPat->exportPatternsTo(transformVec);
         executeSegmentedPP(
             transformVec,
-            m_ppCol[cPreProc++][etIdx][etaIdx], 
+            m_ppCol[cPreProc++][etaIdx][etIdx], 
             transformVec);
       } else {
         cPreProc += 1;
@@ -258,7 +258,7 @@ void RingerProcedureWrapper<
     {
       // TODO Implement this if it is going to be used:
       throw std::runtime_error(std::string("There is no implementation method "
-            "for ") + toStr(static_cast<SegmentationType>(segType)) );
+            "for ") + toStr(segType) );
     }
     case SegmentationType::TrackCalJointSections:
     {
@@ -279,7 +279,7 @@ void RingerProcedureWrapper<
 
           executeSegmentedPP(
               transformVec,
-              m_ppCol[cPreProc++][etIdx][etaIdx], 
+              m_ppCol[cPreProc++][etaIdx][etIdx], 
               transformVec);
         }
       } else {
@@ -291,7 +291,7 @@ void RingerProcedureWrapper<
         trackPat->exportPatternsTo(transformVec);
         executeSegmentedPP(
             transformVec,
-            m_ppCol[cPreProc++][etIdx][etaIdx], 
+            m_ppCol[cPreProc++][etaIdx][etIdx], 
             transformVec);
       } else {
         cPreProc += 1;
@@ -318,7 +318,7 @@ void RingerProcedureWrapper<
 
           executeSegmentedPP(
               transformVec,
-              m_ppCol[cPreProc++][etIdx][etaIdx], 
+              m_ppCol[cPreProc++][etaIdx][etIdx], 
               transformVec);
         }
       } else {
@@ -330,7 +330,7 @@ void RingerProcedureWrapper<
         trackPat->exportPatternsTo(transformVec);
         executeSegmentedPP(
             transformVec,
-            m_ppCol[cPreProc++][etIdx][etaIdx], 
+            m_ppCol[cPreProc++][etaIdx][etIdx], 
             transformVec);
       } else {
         cPreProc += 1;
@@ -340,7 +340,7 @@ void RingerProcedureWrapper<
     default:
     {
       throw std::runtime_error(std::string("There is no implementation method "
-            "for ") + toStr(static_cast<SegmentationType>(segType)) );
+            "for ") + toStr(segType) );
     }
   }
   return;
@@ -349,9 +349,9 @@ void RingerProcedureWrapper<
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency,
-  /*SegmentationType*/int segType
+  EtaDependency etaDependency,
+  EtDependency etDependency,
+  SegmentationType segType
 >
 void RingerProcedureWrapper<
   procedure_t,
@@ -362,28 +362,21 @@ void RingerProcedureWrapper<
   false,     // isDiscriminator
   false>     // isThreshold
 ::checkPPCol(){
-  try {
-    checkCollection(m_ppCol, 
-        static_cast<EtaDependency>(etaDependency), 
-        static_cast<EtDependency>(etDependency));
-    if ( m_ppCol.size() != numberOfSegments(static_cast<SegmentationType>(segType))){
-      throw std::runtime_error(std::string("Cannot allocate segment ") +
-            "dependent vector of type " + toStr(static_cast<SegmentationType>(segType)) + " with size "
-            "different from " + std::to_string(numberOfSegments(static_cast<SegmentationType>(segType))) + 
-            ". Current size is " + std::to_string(m_ppCol.size()) + ".");
-    }
-  } catch ( const std::runtime_error &e ) {
-    throw std::runtime_error(std::string("Couldn't initialize RingerPreProcessorWrapper due to: ")
-        + e.what() );
+  checkCollection(m_ppCol, etaDependency, etDependency);
+  if ( m_ppCol.size() != numberOfSegments(segType)){
+    throw std::runtime_error(std::string("Cannot allocate segment ") +
+          "dependent vector of type " + toStr(segType) + " with size "
+          "different from " + std::to_string(numberOfSegments(segType)) + 
+          ". Current size is " + std::to_string(m_ppCol.size()) + ".");
   }
 }
 
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency,
-  /*SegmentationType*/int segType
+  EtaDependency etaDependency,
+  EtDependency etDependency,
+  SegmentationType segType
 >
 void RingerProcedureWrapper<
   procedure_t,
@@ -403,9 +396,9 @@ void RingerProcedureWrapper<
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency,
-  /*SegmentationType*/int segType
+  EtaDependency etaDependency,
+  EtDependency etDependency,
+  SegmentationType segType
 >
 std::string RingerProcedureWrapper<
   procedure_t,
@@ -422,18 +415,18 @@ std::string RingerProcedureWrapper<
         << toStr(procedure_t::template procType<procEnum_t>() ) 
         << ((Ringer::is_same<procedure_t, 
               PreProcessing::IPreProcessorVarDep>::value)?",":"(VarDep),")
-        << toStr(static_cast<EtaDependency>(etaDependency)) << "," 
-        << toStr(static_cast<EtDependency>(etDependency)) << "," 
-        << toStr(static_cast<SegmentationType>(segType)) << ">";
+        << toStr(etaDependency) << "," 
+        << toStr(etDependency) << "," 
+        << toStr(segType) << ">";
   return ss.str();
 }
 
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency,
-  /*SegmentationType*/int segType
+  EtaDependency etaDependency,
+  EtDependency etDependency,
+  SegmentationType segType
 >
 std::string RingerProcedureWrapper<
   procedure_t,
@@ -450,9 +443,9 @@ std::string RingerProcedureWrapper<
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency,
-  /*SegmentationType*/int segType
+  EtaDependency etaDependency,
+  EtDependency etDependency,
+  SegmentationType segType
 >
 void RingerProcedureWrapper<
   procedure_t,
@@ -470,7 +463,7 @@ void RingerProcedureWrapper<
       return;
     }
     std::vector<unsigned> posVec(3);
-    this->msg() << lvl << fullName() << " contents: "<<  endmsg;
+    this->msg() << lvl << fullName() << " contents: "<<  endreq;
     for ( size_t segIdx = 0; segIdx < m_ppCol.size() ; ++segIdx){
       posVec[0] = segIdx;
       for ( size_t etIdx = 0; etIdx < m_ppCol[segIdx].size() ; ++etIdx){
@@ -480,7 +473,7 @@ void RingerProcedureWrapper<
         {
           posVec[2] = etaIdx;
           this->msg() << lvl << m_ppCol[segIdx][etIdx][etaIdx]->name() <<
-            IOHelperFcns::makeIdxStr(posVec) << " configuration:" << endmsg;
+            IOHelperFcns::makeIdxStr(posVec) << " configuration:" << endreq;
           m_ppCol[segIdx][etIdx][etaIdx]->print(lvl);
         }
       }
@@ -494,9 +487,9 @@ void RingerProcedureWrapper<
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency,
-  /*SegmentationType*/int segType
+  EtaDependency etaDependency,
+  EtDependency etDependency,
+  SegmentationType segType
 >
 void RingerProcedureWrapper<
   procedure_t,
@@ -515,9 +508,9 @@ void RingerProcedureWrapper<
 
   // Write basic template information:
   preProcEnum_t ppType = procedure_t::template procType<preProcEnum_t>();
-  SegmentationType fileSegType = static_cast<SegmentationType>(segType);
-  EtaDependency fileEtaDep = static_cast<EtaDependency>(etaDependency);
-  EtDependency fileEtDep = static_cast<EtDependency>(etDependency);
+  SegmentationType fileSegType = segType;
+  EtaDependency fileEtaDep = etaDependency;
+  EtDependency fileEtDep = etDependency;
   // FIXME Why do I need to use const? Unfortunately if I don't use so, the
   // compiler won't accept static_casting from discr_Enum_t to unsigned int:
   // some issue with reference casting.
@@ -571,9 +564,9 @@ void RingerProcedureWrapper<
 // =============================================================================
 template < 
   class procedure_t,
-  /*EtaDependency*/int etaDependency,
-  /*EtDependency*/int etDependency,
-  /*SegmentationType*/int segType
+  EtaDependency etaDependency,
+  EtDependency etDependency,
+  SegmentationType segType
 >
 RingerProcedureWrapper<procedure_t,
   etaDependency,
@@ -650,11 +643,11 @@ RingerProcedureWrapper<
     // Check if holden information dependency information is ok:
     if ( fileEtaDep != etaDependency ){
       throw std::runtime_error(std::string("Folder \"") + folderName + "\" is "
-          + toStr(fileEtaDep) + " whereas Wrapper is " + toStr(static_cast<EtaDependency>(etaDependency)) + ".");
+          + toStr(fileEtaDep) + " whereas Wrapper is " + toStr(etaDependency) + ".");
     }
     if ( fileEtDep != etDependency ){
       throw std::runtime_error(std::string("Folder \"") + folderName + "\" is "
-          + toStr(fileEtDep) + " whereas Wrapper is " + toStr(static_cast<EtDependency>(etDependency)) + ".");
+          + toStr(fileEtDep) + " whereas Wrapper is " + toStr(etDependency) + ".");
     }
     // Retrieve position indexes where we shall retrieve this pre-processing 
     IOHelperFcns::getIdxVecFromStr( folderName, ppIdxVec );
@@ -683,7 +676,7 @@ RingerProcedureWrapper<
       // If the procedure_t is not the PreProcessor interface, code will
       // never get here. We only use the interpret cast so that the compiler
       // doesn't complain about type casting.
-      thisPP = dynamic_cast<procedure_t*>( getPP(ppType, dirObj) );
+      thisPP = reinterpret_cast<procedure_t*>( getPP(ppType, dirObj) );
     } else {
       // Here it's easier, we already know the type that is written in the file,
       // so all we need to do is loop over it and retrieve the discriminator.

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingerIOVarDepObj.h 770805 2016-08-30 14:03:33Z ssnyder $
+// $Id: RingerIOVarDepObj.h 694258 2015-09-10 22:46:03Z wsfreund $
 #ifndef RINGERSELECTORTOOLS_TOOLS_RINGERIOVARDEPOBJ_H
 #define RINGERSELECTORTOOLS_TOOLS_RINGERIOVARDEPOBJ_H
 
@@ -77,8 +77,8 @@
  *   if ( this->level() > lvl ) {
  *     return;
  *   }
- *   msg() << lvl << this->name() << " configuration:" << endmsg;
- *   msg() << lvl << "var:" << m_var << endmsg;
+ *   msg() << lvl << this->name() << " configuration:" << endreq;
+ *   msg() << lvl << "var:" << m_var << endreq;
  * }
  *
  * } // namespace Ringer
@@ -203,9 +203,6 @@ class RingerIOVarDepObj : virtual public VariableDependency
      **/
     //typedef CRTP crtp_t;
 
-    // Make sure we initialize the variable dependency
-    RingerIOVarDepObj():VariableDependency(){;}
-    
     /**
      * Retrieve name for this RingerIOVarDepObj
      **/

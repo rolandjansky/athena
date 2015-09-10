@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Normalizations.cxx 770805 2016-08-30 14:03:33Z ssnyder $
+// $Id: Normalizations.cxx 667905 2015-05-18 19:07:55Z wsfreund $
 #include "RingerSelectorTools/procedures/Normalizations.icc"
 
 #include <algorithm>
@@ -91,7 +91,7 @@ void ConstantValue::print(MSG::Level lvl) const
   if ( this->level() > lvl ) {
     return;
   }
-  msg() << lvl << "Constant normalization: " << 1/m_constantInv << endmsg;
+  msg() << lvl << "Constant normalization: " << 1/m_constantInv << endreq;
 }
 
 // =============================================================================
@@ -118,8 +118,8 @@ void Sequential::print(MSG::Level lvl) const
   if ( this->level() > lvl ) {
     return;
   }
-  msg() << lvl << "stopEnergy: " << m_stopEnergy << endmsg;
-  msg() << lvl << "energyThres: " << m_energyThres << endmsg;
+  msg() << lvl << "stopEnergy: " << m_stopEnergy << endreq;
+  msg() << lvl << "energyThres: " << m_energyThres << endreq;
 }
 
 // =============================================================================
@@ -173,8 +173,8 @@ void Spherization::print(MSG::Level lvl) const
   if ( this->level() > lvl ) {
     return;
   }
-  msg() << lvl << "deslocation: " << m_deslocation << endmsg;
-  msg() << lvl << "normInv: " << m_normInv << endmsg;
+  msg() << lvl << "deslocation: " << m_deslocation << endreq;
+  msg() << lvl << "normInv: " << m_normInv << endreq;
 }
 
 // =============================================================================
@@ -237,8 +237,8 @@ void MinMax::print(MSG::Level lvl) const
   if ( this->level() > lvl ) {
     return;
   }
-  msg() << lvl << "deslocation: " << m_deslocation << endmsg;
-  msg() << lvl << "normInv: " << m_normInv << endmsg;
+  msg() << lvl << "deslocation: " << m_deslocation << endreq;
+  msg() << lvl << "normInv: " << m_normInv << endreq;
 }
 
 // =============================================================================
