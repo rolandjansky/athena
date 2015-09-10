@@ -59,7 +59,6 @@ const IInterface* parent)
 : IHLTMonTool(type, name, parent)
 {
   declareProperty("RegExes",m_regexlist);
-  declareProperty("Run1RegExes",m_run1regexlist);
   declareProperty("LumiKey",m_lumikey = "LumiBlocks");
   declareProperty("RateChains",m_rateregex);
   declareProperty("ScopeLumi",m_scopeLumi = 0);
@@ -75,7 +74,6 @@ HLTMonTool::~HLTMonTool()
 StatusCode HLTMonTool:: init()
 /*---------------------------------------------------------*/
 { 
-  m_useRun1Trigger = false;
   return StatusCode::SUCCESS;
 }
 
@@ -85,40 +83,21 @@ StatusCode HLTMonTool::book( ) //suppress 'unused' compiler warning
 {
   StatusCode sc = StatusCode::SUCCESS;
   ATH_MSG_VERBOSE("HLTMonTool::book()");
-  m_useRun1Trigger = useRun1Trigger();
-  assert(getRunNr() > 0); // if this fails, run # is unknown & therefore m_useRun1Trigger is not properly set 
+  ATH_MSG_VERBOSE("Regular Expressions used for chain selection:\n" << m_regexlist);
   
-  if(m_useRun1Trigger)
-    ATH_MSG_VERBOSE("Regular Expressions used for chain selection:\n" << m_run1regexlist);
-  else
-    ATH_MSG_VERBOSE("Regular Expressions used for chain selection:\n" << m_regexlist);
-  
-  //  if (isNewRun) {  // Rebooking is now handled in the ManagedMonitorTool -- LS 20 Jan 2014
-  addMonGroup(new MonGroup(this,"HLT/ResultMon",run));
-  
-  sc = GetL1SummaryAndLBInfo();
-  if(sc.isFailure()) ATH_MSG_WARNING("failed getting necessary info for booking");
-
-  if(m_useRun1Trigger)
-    {
-      sc = bookResultAndConsistencyHistograms("L2");
-      if(sc.isFailure()) ATH_MSG_WARNING("failed booking result and consistency histos L2");
-      sc = bookResultAndConsistencyHistograms("EF");
-      if(sc.isFailure()) ATH_MSG_WARNING("failed booking result and consistency histos EF");
-    }
-  else
-    {
+//  if (isNewRun) {  // Rebooking is now handled in the MonagedMonitorTool -- LS 20 Jan 2014
+      addMonGroup(new MonGroup(this,"HLT/ResultMon",run));
+      
+      sc = GetL1SummaryAndLBInfo();
+      if(sc.isFailure()) ATH_MSG_WARNING("failed getting necessary info for booking");
       sc = bookResultAndConsistencyHistograms("HLT");
       if(sc.isFailure()) ATH_MSG_WARNING("failed booking result and consistency histos HLT");
-    }      
-
-  sc = bookLvl1Histograms();
-  if(sc.isFailure()) ATH_MSG_WARNING("failed booking LVL1 histos");
-  sc = bookHLTHistograms();
-  if(sc.isFailure()) ATH_MSG_WARNING("failed booking HLT Histos");
-  
+      sc = bookLvl1Histograms();
+      if(sc.isFailure()) ATH_MSG_WARNING("failed booking LVL1 histos");
+      sc = bookHLTHistograms();
+      if(sc.isFailure()) ATH_MSG_WARNING("failed booking HLT Histos");
+//  }
   if(sc.isFailure()) ATH_MSG_WARNING("failed at booking histograms for HLTMonTool");
-
   return sc;
 }
 
@@ -131,29 +110,13 @@ StatusCode HLTMonTool::fill()
 
   //go to original MonGroup
   setCurrentMonGroup("HLT/ResultMon");  
-
-  if(m_useRun1Trigger)
-    {
-      sc = fillResultAndConsistencyHistograms("HLTResult_L2", hist("ConfigConsistency_L2"), hist("HLTResultL2"));
-      if(sc.isFailure()) ATH_MSG_WARNING("Filling Result and Consistency histograms failed for L2");
-      sc = fillResultAndConsistencyHistograms("HLTResult_EF", hist("ConfigConsistency_EF"), hist("HLTResultEF"));
-      if(sc.isFailure()) ATH_MSG_WARNING("Filling Result and Consistency histograms failed for EF");
-    }
-  else
-    {
-      sc = fillResultAndConsistencyHistograms("HLTResult_HLT", hist("ConfigConsistency_HLT"), hist("HLTResultHLT"));
-      if(sc.isFailure()) ATH_MSG_WARNING("Filling Result and Consistency histograms failed for HLT");
-    }
+  sc = fillResultAndConsistencyHistograms("HLTResult_HLT", hist("ConfigConsistency_HLT"), hist("HLTResultHLT"));
+  if(sc.isFailure()) ATH_MSG_WARNING("Filling Result and Consistency histograms failed for HLT");
 
   fillLvl1Histograms();
   if(sc.isFailure()) ATH_MSG_WARNING("Filling Level 1 histograms failed");
   
-  std::vector<std::string> myChains; 
-  if(m_useRun1Trigger)
-    myChains = getTDT()->getListOfTriggers("L2_.*|EF_*");
-  else
-    myChains = getTDT()->getListOfTriggers("HLT_.*");
-
+  std::vector<std::string> myChains = getTDT()->getListOfTriggers("HLT_.*");
   if (!(myChains.empty())) {
     std::vector<std::string>::const_iterator chIt;
     for (chIt=myChains.begin(); chIt!=myChains.end(); ++chIt) {
@@ -162,10 +125,7 @@ StatusCode HLTMonTool::fill()
     }
   }
   else {
-    if(m_useRun1Trigger)
-      ATH_MSG_WARNING("No L2 and/or EF chains found using TDT");
-    else
-      ATH_MSG_WARNING("No HLT chains found using TDT");
+    ATH_MSG_WARNING("No HLT chains found using TDT");
     sc = StatusCode::FAILURE;
   }
   return sc;
@@ -210,7 +170,7 @@ StatusCode HLTMonTool::GetL1SummaryAndLBInfo(){
       xAOD::LumiBlockRangeContainer::const_iterator ie = m_lbc->end();
       xAOD::LumiBlockRangeContainer::const_iterator lbit = m_lbc->begin();
 
-      int nLBs = 0;
+      int m_nLBs = 0;
       uint32_t start, stop;
 
       //      uint32_t first = (((IOVRange*)(*lbit))->start()).event();
@@ -224,7 +184,7 @@ StatusCode HLTMonTool::GetL1SummaryAndLBInfo(){
 	start = (*lbit)->startLumiBlockNumber();
 	stop = (*lbit)->stopLumiBlockNumber();
 
-	nLBs += stop - start + 1;
+	m_nLBs += stop - start + 1;
       }//loop over contigous lb ranges
       
       //get all LumiBlocks for this run
@@ -245,9 +205,9 @@ StatusCode HLTMonTool::GetL1SummaryAndLBInfo(){
 	m_coolquery->openDbConn();
 	
 	m_coolquery->setIOV(IOVTime(getRunNr(),first).re_time(), IOVTime(getRunNr(),stop).re_time());
-	std::string parlvl1lblbfolder = "/TRIGGER/LUMI/LBLB";// for time information
-	m_lbStartTimes = m_coolquery->getObjMapFromFolderAtChan<cool::UInt63>("StartTime", parlvl1lblbfolder, 0);
-	m_lbStopTimes = m_coolquery->getObjMapFromFolderAtChan<cool::UInt63>("EndTime", parlvl1lblbfolder, 0);
+	std::string m_parlvl1lblbfolder = "/TRIGGER/LUMI/LBLB";// for time information
+	m_lbStartTimes = m_coolquery->getObjMapFromFolderAtChan<cool::UInt63>("StartTime", m_parlvl1lblbfolder, 0);
+	m_lbStopTimes = m_coolquery->getObjMapFromFolderAtChan<cool::UInt63>("EndTime", m_parlvl1lblbfolder, 0);
 	delete m_coolquery;
       }else{
 	ATH_MSG_WARNING("Couldn't create CoolQuery datase access.");
@@ -293,16 +253,10 @@ StatusCode HLTMonTool::bookLvl1Histograms(){
 
 StatusCode HLTMonTool::bookHLTHistograms(){
   StatusCode sc = StatusCode::SUCCESS;
-  const std::map<std::string,std::string> * streams;
-  if(m_useRun1Trigger)
-    streams = &m_run1regexlist;
-  else
-    streams = &m_regexlist;
-  std::map<std::string,std::string>::const_iterator strItr;
-  for (strItr=streams->begin();strItr!=streams->end(); ++strItr){
-    // we are trying to handle either "old" (L2_ and EF_) or "new" (HLT_) trigger chains here
+  std::map<std::string,std::string> streams = m_regexlist;
+  std::map<std::string,std::string>::iterator strItr;
+  for (strItr=streams.begin();strItr!=streams.end(); ++strItr)
     sc = bookHLTHistogramsForStream(strItr->first, strItr->second);
-  }
   return sc;
 }
 
@@ -310,60 +264,37 @@ StatusCode HLTMonTool::bookHLTHistogramsForStream(const std::string& name, const
   ATH_MSG_DEBUG("booking histograms for stream " << name);
   StatusCode sc = StatusCode::SUCCESS;
   std::string monpath = "HLT/ResultMon/" + name;
-  std::vector<std::string>::const_iterator chItr;
+  std::vector<std::string>::iterator chItr;
 
   addMonGroup(new MonGroup(this,monpath,run));
-  std::vector<std::string> onelevel[1]; // one level corresponds to HLT
-  std::vector<std::string> twolevels[2]; // two levels correspond to L2, EF
-
-  const char* OneLevel[1] = {"HLT"}; const char * TwoLevels[2] = {"L2", "EF"};
-  const char ** levelName = 0;
-  const std::vector<std::string> * listOfTriggers = 0;
-  unsigned array_length = 0;
-  if(m_useRun1Trigger)
-    {
-      // some regex manipulation to replace "(L2|EF)_" from regex with "L2_" or "EF_"
-      twolevels[0] = getTDT()->getListOfTriggers("L2_"+regex.substr(8,regex.length()-8));
-      twolevels[1] = getTDT()->getListOfTriggers("EF_"+regex.substr(8,regex.length()-8));
-      listOfTriggers = &twolevels[0];
-      levelName = &TwoLevels[0];
-      array_length = 2;
-    }
-  else
-    {
-      onelevel[0]  = getTDT()->getListOfTriggers(regex);
-      listOfTriggers = &onelevel[0];
-      levelName = &OneLevel[0];
-      array_length = 1;
-    }
-    
+  std::vector<std::string> lvl = {getTDT()->getListOfTriggers(regex)};
+  
   //create helper strings
   std::stringstream tmp_histname;  
   const char* triggerstatus[]={"RAW","PS","PT"};
-
-  for(uint index=0; index != array_length; ++index){
-    if(listOfTriggers[index].empty())continue;
-
-    for (uint j=0; j != sizeof(triggerstatus)/sizeof(triggerstatus[0]); ++j){
-
+  const char* level = "HLT";
+  
+  for (uint j=0; j<sizeof(triggerstatus)/sizeof(triggerstatus[0]); ++j)
+    if(lvl.size()>0) {
       tmp_histname.str("");//reset
-      tmp_histname << levelName[index] << "_" << name << triggerstatus[j];
+      tmp_histname << level << "_" << name << triggerstatus[j];
       ATH_MSG_DEBUG("\tbooking --> " << tmp_histname.str());
-      unsigned size = listOfTriggers[index].size();
-      addHistogram(new TH1F(tmp_histname.str().c_str(),tmp_histname.str().c_str(),size,0.5,size+0.5),monpath);
+      //      addHistogram(new TH1F(tmp_histname.str().c_str(),name.c_str(),lvl.size(),0.5,lvl.size()+0.5),monpath);
+      addHistogram(new TH1F(tmp_histname.str().c_str(),tmp_histname.str().c_str(),lvl.size(),0.5,lvl.size()+0.5),monpath);
       
-      for (chItr=listOfTriggers[index].begin(); chItr!=listOfTriggers[index].end(); chItr++)
-	hist(tmp_histname.str(),monpath)->GetXaxis()->SetBinLabel(chItr-listOfTriggers[index].begin()+1,chItr->c_str());
+      for (chItr=lvl.begin(); chItr!=lvl.end(); chItr++)
+	hist(tmp_histname.str(),monpath)->GetXaxis()->SetBinLabel(chItr-lvl.begin()+1,chItr->c_str());
     }
-  }
   
   //add a roi histo
-  //  addHistogram(new TH2F(std::string(name+"RoIs").c_str(),std::string(name+"RoIs").c_str(),100,-5,5,64,-3.2,3.2),monpath);
-  addHistogram(new TH2F(std::string(name+"RoIs").c_str(),std::string(name+"RoIs").c_str(),64,-3.2,3.2,64,-3.2,3.2),monpath);
+  //  addHistogram(new TH2F(std::string(name+"RoIs").c_str(),tmp_histname.str().c_str(),100,-5,5,64,-3.2,3.2),monpath);
+  addHistogram(new TH2F(std::string(name+"RoIs").c_str(),std::string(name+"RoIs").c_str(),100,-5,5,64,-3.2,3.2),monpath);
 
+  
   monpath+="/Rates";
   addMonGroup(new MonGroup(this,monpath,run));
-    
+  
+  
   if(m_scopeLumi)
     for(std::vector<std::string>::iterator rItr=m_rateregex.begin(); rItr!=m_rateregex.end();++rItr){
       std::vector<std::string> ratechains = getTDT()->getListOfTriggers(*rItr);
@@ -374,7 +305,7 @@ StatusCode HLTMonTool::bookHLTHistogramsForStream(const std::string& name, const
 	//	  IOVRange* range = (IOVRange*)(*lbit);
 	//  uint32_t start = (range->start()).event();
 	//  uint32_t stop = (range->stop()).event();
-        //xAOD::LumiBlockRangeContainer::const_iterator i = m_lbc->begin();
+        xAOD::LumiBlockRangeContainer::const_iterator i = m_lbc->begin();
         xAOD::LumiBlockRangeContainer::const_iterator ie = m_lbc->end();
         xAOD::LumiBlockRangeContainer::const_iterator lbit = m_lbc->begin();
         for(;lbit!=ie;++lbit){
@@ -390,110 +321,95 @@ StatusCode HLTMonTool::bookHLTHistogramsForStream(const std::string& name, const
 }
 
 StatusCode HLTMonTool::fillResultAndConsistencyHistograms(const std::string& key,TH1* chist, TH1* rhist){
-    StatusCode sc_trigDec = StatusCode::FAILURE;
-    StatusCode sc_hltResult = StatusCode::FAILURE;
+  StatusCode sc_trigDec = StatusCode::FAILURE;
+  StatusCode sc_hltResult = StatusCode::FAILURE;
+  
+  // will try to retrieve either the TrigDecision or the HLTResult
+ const xAOD::TrigDecision* trigDec = 0;  
+ const HLT::HLTResult*  HLTResult(0);
 
-    // will try to retrieve either the TrigDecision or the HLTResult
-    const xAOD::TrigDecision* trigDec = 0;  
-    const HLT::HLTResult*  HLTResult(0);
+ const std::string m_sgKey = "xTrigDecision"; //sgKey from 20.0.0.2 AOD
+ sc_trigDec = evtStore()->retrieve(trigDec,m_sgKey);
+ if (sc_trigDec.isFailure()) 
+   {
+     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No xAOD::xTrigDecision found in SG " << endreq;
+   }
+ else   
+   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found xAOD::xTrigDecision in SG ! " << endreq;
+ 
+ sc_hltResult = m_storeGate->retrieve(HLTResult,key);
+ if (sc_hltResult.isFailure()) 
+   ATH_MSG_DEBUG(" Failed to retrieve HLT Result " << key);
+ else
+   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found HLT Result in SG ! " << endreq;
 
-    const std::string sgKey = "xTrigDecision"; //sgKey from 20.0.0.2 AOD
-    sc_trigDec = evtStore()->retrieve(trigDec,sgKey);
-    if (sc_trigDec.isFailure()) 
-    {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No xAOD::xTrigDecision found in SG " << endmsg;
-    }
-    else   
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found xAOD::xTrigDecision in SG ! " << endmsg;
+ if(sc_hltResult.isFailure() && sc_trigDec.isFailure())
+   return StatusCode::SUCCESS; // if no info is available we simply skip to the next event
 
-    // check whether HLTResult present (ESD)
-    if(m_storeGate->transientContains<HLT::HLTResult>(key)){
-        sc_hltResult = m_storeGate->retrieve(HLTResult,key);
-        if (sc_hltResult.isFailure()) 
-            ATH_MSG_DEBUG(" Failed to retrieve HLT Result " << key);
-        else
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found HLT Result in SG ! " << endmsg;
-    }
-    
-    if(sc_hltResult.isFailure() && sc_trigDec.isFailure())
-        return StatusCode::SUCCESS; // if no info is available we simply skip to the next event
-    
-    uint32_t bskeys_1 = 9999; uint32_t bskeys_2 = 9999;
-    bool isAccepted = false; bool isPassThrough = false;
-    typedef std::vector< uint32_t >::const_iterator cIt;
-    if(sc_hltResult == StatusCode::SUCCESS)
-    {
-        bskeys_1 = HLTResult->getConfigSuperMasterKey();
-        bskeys_2 = HLTResult->getConfigPrescalesKey();
-        isAccepted = HLTResult->isAccepted();
-        isPassThrough = HLTResult->isPassThrough();
-    }
-    else if(sc_trigDec == StatusCode::SUCCESS)
-    {
-        bskeys_1 = trigDec->smk();
-        // this is not really useful as the whole point is to cross-check
-        // the prescale key against the one stored in HLTResult;
-        // leave here for now (Christos Leonidopoulos - Feb 15)
-        if(m_configTool.empty()) bskeys_2 = m_configsvc->hltPrescaleKey();
-        else bskeys_2 = m_configTool->hltPrescaleKey();
-        for(cIt it = trigDec->efPassedPhysics().begin(); it != trigDec->efPassedPhysics().end(); ++it)
-            if(*it > 0)
-            {
-                isAccepted = true;
-                break;
-            }
-        for(cIt it= trigDec->efPassedThrough().begin(); it != trigDec->efPassedThrough().end(); ++it)
-            if(*it > 0)
-            {
-                isPassThrough = true;
-                break;
-            }
+ uint32_t bskeys_1 = 9999; uint32_t bskeys_2 = 9999;
+ bool isAccepted = false; bool isPassThrough = false;
+ typedef std::vector< uint32_t >::const_iterator cIt;
+ if(sc_hltResult == StatusCode::SUCCESS)
+   {
+     bskeys_1 = HLTResult->getConfigSuperMasterKey();
+     bskeys_2 = HLTResult->getConfigPrescalesKey();
+     isAccepted = HLTResult->isAccepted();
+     isPassThrough = HLTResult->isPassThrough();
+   }
+ else if(sc_trigDec == StatusCode::SUCCESS)
+   {
+     bskeys_1 = trigDec->smk();
+     // this is not really useful as the whole point is to cross-check
+     // the prescale key against the one stored in HLTResult;
+     // leave here for now (Christos Leonidopoulos - Feb 15)
+     bskeys_2 = m_configsvc->hltPrescaleKey();
+     for(cIt it = trigDec->efPassedPhysics().begin(); it != trigDec->efPassedPhysics().end(); ++it)
+       if(*it > 0)
+	 {
+	   isAccepted = true;
+	   break;
+	 }
+     for(cIt it= trigDec->efPassedThrough().begin(); it != trigDec->efPassedThrough().end(); ++it)
+       if(*it > 0)
+	 {
+	   isPassThrough = true;
+	   break;
+	 }
 
-    }
-
-    uint32_t bskeys[] = {bskeys_1, bskeys_2};
-    uint32_t dbkeys[2];
-    if(m_configTool.empty()) {
-        dbkeys[0]=m_configsvc->masterKey();
-        dbkeys[1]=m_configsvc->hltPrescaleKey();
-    }
-    else {
-        dbkeys[0]=m_configTool->masterKey();
-        dbkeys[1]=m_configTool->hltPrescaleKey();
-    }
-
-    for(int i = 0; i < 2; ++i) {
-        ATH_MSG_VERBOSE("\t\t" << dbkeys[i] << "\t\t" << bskeys[i]);
-        if(dbkeys[i]==0) chist->Fill(3*i+1);
-        if(bskeys[i]==0) chist->Fill(3*i+2);
-        if(dbkeys[i]!=bskeys[i]) chist->Fill(3*i+3);
-
-        rhist->Fill(1);
-        if (isAccepted) rhist->Fill(2); 
-        if (isPassThrough) rhist->Fill(3);
-    }
-    return sc_trigDec || sc_hltResult;
+   }
+   
+ uint32_t bskeys[] = {bskeys_1, bskeys_2};
+ uint32_t dbkeys[] = {m_configsvc->masterKey(), m_configsvc->hltPrescaleKey()};
+ for(int i = 0; i < 2; ++i) {
+   ATH_MSG_VERBOSE("\t\t" << dbkeys[i] << "\t\t" << bskeys[i]);
+   if(dbkeys[i]==0) chist->Fill(3*i+1);
+   if(bskeys[i]==0) chist->Fill(3*i+2);
+   if(dbkeys[i]!=bskeys[i]) chist->Fill(3*i+3);
+   
+   rhist->Fill(1);
+   if (isAccepted) rhist->Fill(2); 
+   if (isPassThrough) rhist->Fill(3);
+ }
+ return sc_trigDec || sc_hltResult;
 }
 
 StatusCode HLTMonTool::fillLvl1Histograms(){
-    StatusCode sc = StatusCode::SUCCESS;
-    for (std::vector<std::string>::iterator aItem = m_L1_summary.begin();
-            aItem !=m_L1_summary.end(); ++aItem)
-        if (getTDT()->isPassed(*aItem))
-            hist("L1Events")->Fill((*aItem).c_str(),1);
-    if(sc.isFailure()) ATH_MSG_INFO("failed filling LVL1 Histograms");
-    return sc;
+  StatusCode sc = StatusCode::SUCCESS;
+  for (std::vector<std::string>::iterator aItem = m_L1_summary.begin();
+       aItem !=m_L1_summary.end(); ++aItem)
+    if (getTDT()->isPassed(*aItem))
+      hist("L1Events")->Fill((*aItem).c_str(),1);
+  if(sc.isFailure()) ATH_MSG_INFO("failed filling LVL1 Histograms");
+  return sc;
 }
 
 StatusCode HLTMonTool::fillForChain(const std::string& chain){
   StatusCode sc = StatusCode::SUCCESS;
   //get results
   std::map<std::string,bool> results;
-  bool isL2Chain = !(chain.compare(0,2,"L2"));
-  bool isHLTChain = !(chain.compare(0,3,"HLT")) || !(chain.compare(0,2,"EF"));
-
-  if(!(isHLTChain||isL2Chain)){
-    ATH_MSG_DEBUG(chain << "is neither HLT nor EF nor L2 chain");
+  bool isHLTChain = !(chain.compare(0,3,"HLT"));
+  if(!(isHLTChain)){
+    ATH_MSG_DEBUG(chain << "is not an HLT chain");
     return StatusCode::FAILURE;
   }
  
@@ -505,31 +421,20 @@ StatusCode HLTMonTool::fillForChain(const std::string& chain){
   
   //set up iterators and such
   const std::string basepath = "HLT/ResultMon/";
-  const std::map<std::string,std::string> * streams = 0;
+  std::map<std::string,std::string> streams = m_regexlist;
   std::map<std::string,bool>::iterator rsIt;
-
+  std::map<std::string,std::string>::const_iterator sIt = streams.begin();
   std::vector<std::string>::iterator rItr=m_rateregex.begin();
   
-  unsigned length_to_chop = 0;
-
-  if(m_useRun1Trigger)
-    {
-      length_to_chop = 3; // L2_ or EF_ from trigger chain name gets chopped
-      streams = &m_run1regexlist;
-    }
-  else
-    {
-      length_to_chop = 4; // HLT_ from trigger chain name gets chopped
-      streams = &m_regexlist;
-    }
-
-  std::map<std::string,std::string>::const_iterator sIt = streams->begin();
+  
+  
+  
   //loop streams, if chain matched stream, loop result and if result is true fill
-  for (;sIt!=streams->end();++sIt){ if (boost::regex_match(chain.c_str(),boost::regex(sIt->second))) {
+  for (;sIt!=streams.end();++sIt){ if (boost::regex_match(chain.c_str(),boost::regex(sIt->second))) {
       for (rsIt=results.begin();rsIt!=results.end(); rsIt ++){ if (rsIt->second) {
 	  ATH_MSG_DEBUG(chain << " passed " << rsIt->first << " and matches " << *sIt);
 	  const std::string monpath = basepath+sIt->first;
-	  const std::string name = chain.substr(0,length_to_chop)+sIt->first+rsIt->first;
+	  const std::string name = chain.substr(0,4)+sIt->first+rsIt->first;
 	  
 	  // ------------ Standard Fill ---------------------
 	  hist(name,monpath)->Fill(chain.c_str(),1);

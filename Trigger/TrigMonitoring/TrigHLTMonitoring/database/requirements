@@ -3,7 +3,9 @@ package TrigHLTMonitoring
 author Martin zur Nedden <nedden@mail.cern.ch>
 
 use AtlasPolicy             AtlasPolicy-*
+#use AtlasCLHEP             AtlasCLHEP-*            External
 use GaudiInterface          GaudiInterface-*        External
+use AthenaBaseComps         AthenaBaseComps-*       Control
 
 private
 apply_tag ROOTGraphicsLibs
@@ -18,17 +20,20 @@ use TrigDecisionTool        TrigDecisionTool-*      Trigger/TrigAnalysis
 #use TrigDecision           TrigDecision-*          Trigger/TrigEvent
 use TrigConfigSvc           TrigConfigSvc-*         Trigger/TrigConfiguration
 
-use LumiCalc                LumiCalc-*        LumiBlock
-use xAODLuminosity              xAODLuminosity-*     Event/xAOD
+use LumiBlockComps          LumiBlockComps-*        LumiBlock
+#use LumiBlockData          LumiBlockData-*         LumiBlock
+#use AtlasCOOL              AtlasCOOL-*             External
+#use AtlasCORAL             AtlasCORAL-*            External
+#use CoraCool               CoraCool-*              Database     
+
 
 private
 use AthenaKernel            AthenaKernel-*          Control
 use AtlasBoost              AtlasBoost-*            External
 use AtlasROOT               AtlasROOT-*             External
 use EventInfo               EventInfo-*             Event
-use AtlasCORAL             AtlasCORAL-*            External
+use AtlasCORAL           AtlasCORAL-*           External
 use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
-use xAODTrigger              xAODTrigger-*          Event/xAOD
 end_private
 
 
@@ -39,3 +44,4 @@ end_private
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
 apply_pattern dual_use_library files=*.cxx
+apply_pattern component_library

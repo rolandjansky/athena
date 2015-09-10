@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
 print "hello from TrigHLTMonitoringJobOptions_forRecExCommission.py"
 
 ######## flags ###########
@@ -27,12 +29,27 @@ if DQMonFlags.monManEnvironment == 'tier0Raw':
   HLTMonFlags.doDump     = False
   HLTMonFlags.doOfflineTauTTP = False
   HLTMonFlags.doIDJpsiMon  = False
-  #HLTMonFlags.doMaM      = True # default is False
-  #HLTMonFlags.MCK        = -1 # default is -1
+  #HLTMonFlags.doCalo  = True # tk  
 elif DQMonFlags.monManEnvironment == 'tier0ESD':
   # we are in ESD->AOD step
   # run all tools *except* the following (these are run in RAW->ESD)
   print 'HLTMonitoring_topOptions.py: environment is tier0ESD'
+
+  # here we decide at all if we want to do monitoring for these slices                                                                                       
+  HLTMonFlags.doBjet     = False
+  HLTMonFlags.doBphys    = False
+  HLTMonFlags.doMET      = False
+  HLTMonFlags.doJet      = True
+  HLTMonFlags.doEgamma   = True
+  HLTMonFlags.doMuon     = True
+  HLTMonFlags.doIDtrk    = False
+  HLTMonFlags.doTau      = True
+  HLTMonFlags.doMinBias  = True
+  #HLTMonFlags.doDump     = False # don't change here, not implemented yet                                                                                   
+  #HLTMonFlags.doOfflineTauTTP = False # don't change here, not implemented yet                                                                              
+  HLTMonFlags.doIDJpsiMon  = True
+  HLTMonFlags.doCalo  = True
+
   # HLTMonFlags.doCalo     = False 
 else :
   print 'HLTMonitoring_topOptions.py: environment is neither tier0Raw nor tier0ESD'
@@ -40,6 +57,5 @@ else :
   HLTMonFlags.doGeneral = False
   HLTMonFlags.doMonTier0 = False
 
-# temporarily disabling IDJpsiMon to deal with ATR-12037
-HLTMonFlags.doIDJpsiMon = False
 include( "TrigHLTMonitoring/addMonTools.py" )
+include("TrigHLTMonitoring/MaDQM.py")

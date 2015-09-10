@@ -14,7 +14,6 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigConfigSvc/TrigConfigSvc.h"
 #include "GaudiKernel/ServiceHandle.h" 
-#include "TrigConfInterfaces/ITrigConfigTool.h"
 
 // Forward declarations
 class IInterface;
@@ -79,17 +78,18 @@ class IHLTMonTool : public ManagedMonitorToolBase {
   // Automatically casts a TTree to ntuple
   TNtuple *ntuple(const std::string &treeName, const std::string &monGroup = "");
 
+
+
   protected:
 
   MsgStream *m_log;
 
   bool m_cafonly;
-  bool m_ignoreTruncationCheck;
 
   ServiceHandle<StoreGateSvc> m_storeGate;
   ServiceHandle<StoreGateSvc> m_inputMetaStore;
   ServiceHandle<TrigConf::ITrigConfigSvc> m_configsvc;
-  
+
   // Infra-structure members  
   std::map<std::string, MonGroup *> m_group; // maintain Monitoring groups
   std::map<std::string, TH1 *> m_hist; // maintain histograms
@@ -107,10 +107,8 @@ class IHLTMonTool : public ManagedMonitorToolBase {
   Trig::TrigDecisionTool* getTDT(){return &*m_tdthandle;}
 
  private:
-  ToolHandle<Trig::TrigDecisionTool> m_tdthandle;
-
- protected:
-  ToolHandle<TrigConf::ITrigConfigTool> m_configTool; //< trigger configuration tool  
+   
+  ToolHandle<Trig::TrigDecisionTool> m_tdthandle; 
 
 };
 #endif

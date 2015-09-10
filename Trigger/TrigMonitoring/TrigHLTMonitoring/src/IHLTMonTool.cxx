@@ -42,14 +42,11 @@ IHLTMonTool::IHLTMonTool(const std::string & type, const std::string & myname, c
   : ManagedMonitorToolBase(type, myname, parent), m_log(0), m_cafonly(0),
     m_storeGate("StoreGateSvc",myname),
     m_inputMetaStore("StoreGateSvc/InputMetaDataStore",myname),
-    m_configsvc("TrigConf::TrigConfigSvc/TrigConfigSvc",myname), //pickup previously configured configSvc from svcMgr (same as TDT)
-    m_tdthandle("Trig::TrigDecisionTool/TrigDecisionTool"),
-    m_configTool("") //defaults to empty
+    m_configsvc("TrigConfigSvc",myname),
+    m_tdthandle("Trig::TrigDecisionTool/TrigDecisionTool")
 {
   declareProperty("CAFonly", m_cafonly);
   declareProperty("TDT", m_tdthandle);
-  declareProperty("TrigConfigTool",m_configTool);
-  declareProperty("IgnoreTruncationCheck",m_ignoreTruncationCheck=false); //Default check for truncate HLTResult
   m_log = new MsgStream(msgSvc(), name());
 }
 
@@ -74,9 +71,6 @@ StatusCode IHLTMonTool::initialize() {
     return sc;
   }
 
-  // After retrieve enable Expert methods
-  getTDT()->ExperimentalAndExpertMethods()->enable();
-
   sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
     ATH_MSG_ERROR("Could not retrieve StoreGate");
@@ -89,25 +83,10 @@ StatusCode IHLTMonTool::initialize() {
     return sc;
   }
 
-  if(m_configTool.empty()){
-      ATH_MSG_INFO("No TrigConfigTool provided, using TrigConfigSvc (default)");
-      sc = m_configsvc.retrieve();
-      if ( sc.isFailure() ) {
-          ATH_MSG_WARNING("Could not retrieve TrigConfigSvc - trying TrigConf::xAODConfigTool");
-          m_configTool = ToolHandle<TrigConf::ITrigConfigTool>("TrigConf::xAODConfigTool");
-          sc = m_configTool.retrieve();
-          if ( sc.isFailure() ) {
-            ATH_MSG_ERROR("Could not retrieve TrigConfigTool");
-            return sc;
-          }
-      }
-  }
-  else {
-      sc = m_configTool.retrieve();
-      if ( sc.isFailure() ) {
-          ATH_MSG_ERROR("Could not retrieve TrigConfigTool");
-          return sc;
-      }
+  sc = m_configsvc.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR("Could not retrieve Trigger Config Svc");
+    return sc;
   }
 
   sc = ManagedMonitorToolBase::initialize();
@@ -138,7 +117,7 @@ int IHLTMonTool::getL1info() {
   if (sc.isFailure())  {
     return lvl1info;
   } else {
-    const TriggerInfo* triggerInfo = EventInfo->trigger_info();
+    TriggerInfo* triggerInfo = EventInfo->trigger_info();
     if (triggerInfo) {
       return triggerInfo->level1TriggerType();
     } else {
@@ -690,18 +669,7 @@ StatusCode IHLTMonTool::fillHistograms() {
   StatusCode sc = StatusCode::SUCCESS;
   try {
     ATH_MSG_DEBUG("Running fill() for " << name());
-   
-    // Do not require check on truncated HLTResult 
-    if(m_ignoreTruncationCheck)
-        sc=fill();
-    else {
-    // Require non-truncated HLTResult
-        if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()) 
-            ATH_MSG_WARNING("HLTResult truncated, skip HLT T0 monitoring for this event");
-        else 
-            sc= fill();
-    }
-
+    sc = fill();
     if (sc.isFailure()) {
       ATH_MSG_ERROR("fill() for " << name() << ", returned StatusCode::FAILURE!");
     }
