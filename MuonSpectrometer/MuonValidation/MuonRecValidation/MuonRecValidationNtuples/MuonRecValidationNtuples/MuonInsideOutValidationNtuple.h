@@ -1,0 +1,266 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#ifndef MUON_MUONINSIDEOUTVALIDATIONNTUPLE_H
+#define MUON_MUONINSIDEOUTVALIDATIONNTUPLE_H
+
+#include "MuonLayerEvent/MuonSystemExtension.h"
+#include "TrkMeasurementBase/MeasurementBase.h"
+#include "EventPrimitives/EventPrimitivesHelpers.h"
+
+#include <vector>
+#include <string>
+#include "TTree.h"
+
+namespace Muon {
+
+  /** base class for ntuple block
+      The class can handle float and integer block and supports sub blocks.
+      
+      Internally it caches the blocks in vectors which it uses to operate on them. 
+
+      Users should add all content they want in the ntuple in the constructor of they
+      concrete classes.
+   */
+  struct MuonValidationBlockBase {
+    // type defs of the types
+    typedef std::pair<std::reference_wrapper<std::vector<int>*>,std::string>           IntBlock;
+    typedef std::pair<std::reference_wrapper<std::vector<unsigned int>*>,std::string>  UnsignedIntBlock;
+    typedef std::pair<std::reference_wrapper<std::vector<float>*>,std::string>         FloatBlock;
+    typedef std::pair< MuonValidationBlockBase*, std::string >                         SubBlock;
+
+    // destructor, cleans up memory
+    virtual ~MuonValidationBlockBase();
+
+    // add a block to the internal caches, the name should correspond to the leave name of the block
+    void addBlock( std::vector<int>*& block, std::string name ) { block=nullptr; intBlocks.push_back( IntBlock(block,name) ); }
+    void addBlock( std::vector<unsigned int>*& block, std::string name ) { block=nullptr; unsignedIntBlocks.push_back( UnsignedIntBlock(block,name) ); }
+    void addBlock( std::vector<float>*& block, std::string name ) { block=nullptr; floatBlocks.push_back( FloatBlock(block,name) ); }
+    void addBlock( MuonValidationBlockBase* block, std::string name ) { subBlocks.push_back( SubBlock(block,name) ); }
+
+    // caches for the pointers
+    std::vector< IntBlock >           intBlocks;
+    std::vector< UnsignedIntBlock >   unsignedIntBlocks;
+    std::vector< FloatBlock >         floatBlocks;
+    std::vector< SubBlock >           subBlocks;
+
+    // initialize the ntuple for writing or reading
+    void init( std::string prefix, TTree*, bool write = true);
+      
+    // clear, to be called with filling the ntuple at the end of the event
+    void clear();
+
+  };
+
+  /**
+     Block with identifier information
+   */
+  struct MuonValidationIdBlock : public MuonValidationBlockBase {
+    MuonValidationIdBlock();
+
+    std::vector<int>*   sector;  // sector
+    std::vector<int>*   chIndex; // chamber index
+
+    void fill( int sector_, int chIndex_ ) { sector->push_back(sector_); chIndex->push_back(chIndex_); }
+      
+  };
+
+  /**
+     Block with truth information
+   */
+  struct MuonValidationTruthBlock : public MuonValidationBlockBase {
+    MuonValidationTruthBlock();
+
+    std::vector<int>*   pdg;     // pdg id
+    std::vector<int>*   barcode; // barcode
+
+    void fill( int pdg_, int barcode_ ) { pdg->push_back(pdg_); barcode->push_back(barcode_); }
+      
+  };
+
+  /**
+     Block with the track index
+   */
+  struct MuonValidationTrackBlock : public MuonValidationBlockBase {
+    MuonValidationTrackBlock();
+
+    std::vector<int>*   trkid;  // track index
+      
+    void fill( int trkid_ ) { trkid->push_back(trkid_); }
+
+  };
+
+
+  /**
+     Block with timing information
+   */
+  struct MuonValidationTimeBlock : public MuonValidationBlockBase {
+    MuonValidationTimeBlock();
+
+    MuonValidationIdBlock             id;    // identifier information for the segment
+    MuonValidationTrackBlock          track; // index of corresponding track particle
+    MuonValidationTruthBlock          truth; // truth matching based on the hit content of the segment
+
+    std::vector<int>*     type;      // type: 0 = rpc, 1 = segment
+    std::vector<unsigned int>* gasgapId;  // gasgapId (set to the chamber id for segments)
+    std::vector<float>*   r;         // r-position
+    std::vector<float>*   z;         // z-position
+    std::vector<float>*   d;         // total distance from ip
+    std::vector<float>*   time;      // time 
+    std::vector<float>*   err;       // error
+    std::vector<float>*   timeProp;  // propagation time 
+    std::vector<float>*   avTimeProp;// average propagation time 
+    std::vector<float>*   tof;       // time of flight
+    std::vector<float>*   avTof;     // average time of flight
+    std::vector<float>*   timeCor;   // time correction
+
+    void fill( int type_, unsigned int gasgapId_, float r_, float z_, float time_, float err_,
+               float timeProp_ = 0., float avTimeProp_ = 0., float tof_ = 0., float avTof_ = 0., float timeCor_ = 0. ) { 
+      type->push_back(type_); gasgapId->push_back(gasgapId_); r->push_back(r_); z->push_back(z_); d->push_back(sqrt(r_*r_+z_*z_)); time->push_back(time_); 
+      err->push_back(err_); timeProp->push_back(timeProp_); avTimeProp->push_back(avTimeProp_); tof->push_back(tof_); 
+      avTof->push_back(avTof_); timeCor->push_back(timeCor_); 
+    }
+      
+  };
+  
+
+  /**
+     Block with residual and pull information
+   */
+  struct MuonValidationResidualBlock : public MuonValidationBlockBase {
+    MuonValidationResidualBlock();
+
+    void fill( const Trk::MeasurementBase& hit, const MuonSystemExtension::Intersection& intersection, Trk::ParamDefs par ){
+      float pos_ = hit.localParameters()[par];
+      float err_ = Amg::error(hit.localCovariance(),par);
+      fill(pos_,err_,intersection,par);
+    } 
+      
+    void fill( float pos_, float err_, const MuonSystemExtension::Intersection& intersection, Trk::ParamDefs par ){
+      float expos_ = intersection.trackParameters->parameters()[Trk::loc1];
+      auto cov = intersection.trackParameters->covariance();
+      float expos_err_ = cov ? Amg::error(*cov,par) : 0;
+      fill(pos_,err_,expos_,expos_err_, cov!=nullptr );
+    }
+
+    void fill( float pos_, float err_, float expos_, float expos_err_, int status=1 ){
+
+      float res = pos_ - expos_;
+      float err2 = err_*err_ + expos_err_*expos_err_;
+      float pull_ = res/sqrt(err2);
+
+      residual->push_back(res); 
+      pull->push_back(pull_);
+      pos->push_back(pos_);
+      err->push_back(err_);
+      expos->push_back(expos_);
+      expos_err->push_back(expos_err_);
+      expos_errstatus->push_back(status);
+    }
+
+    void fillResPull( float res_, float pull_, int status=1 ){
+      fillResPull(res_,pull_,1.,1.,status);
+    }
+
+    void fillResPull( float res_, float pull_, float err_, float expos_err_, int status=1 ){
+
+      residual->push_back(res_); 
+      pull->push_back(pull_);
+      pos->push_back(0.);
+      err->push_back(err_);
+      expos->push_back(0.);
+      expos_err->push_back(expos_err_);
+      expos_errstatus->push_back(status);
+    }
+ 
+    std::vector<float>* residual;         // residual 
+    std::vector<float>* pull;             // pull
+    std::vector<float>* pos;              // measured position 
+    std::vector<float>* err;              // error on the measured position
+    std::vector<float>* expos;            // extrapolated position (prediction)
+    std::vector<float>* expos_err;        // error on extrapolated position
+    std::vector<int>*   expos_errstatus;  // status, 0 if no error estimate was provided on the extrapolated position
+      
+  };
+
+  /**
+     Block with information on the incoming track particle
+   */
+  struct MuonValidationTrackParticleBlock : public MuonValidationBlockBase {
+    MuonValidationTrackParticleBlock();
+
+    std::vector<float>* pt;         // pt (at the vertex)
+    std::vector<float>* p;          // p (at the vertex)
+    std::vector<float>* eta;        // eta (at the vertex) 
+    std::vector<float>* phi;        // phi (at the vertex) 
+    MuonValidationTruthBlock truth; // truth information
+
+  };
+  
+  /**
+     Block with segment information
+   */
+  struct MuonValidationSegmentBlock : public MuonValidationBlockBase {
+    MuonValidationSegmentBlock();
+
+    std::vector<int>*   stage;               // reco stage (0 : segment finding, 1: after matching with ID track)
+    std::vector<int>*   quality;             // segment quality
+    std::vector<int>*   nmdtHits;            // number of MDT hits
+    std::vector<int>*   ntrigEtaHits;        // number of trigger eta hits
+    std::vector<int>*   ntrigPhiHits;        // number of trigger phi hits
+    std::vector<float>* r;                   // r-position
+    std::vector<float>* z;                   // z-position
+    std::vector<float>* t0;                  // t0 from t0 fit
+    std::vector<float>* t0Error;             // error on t0 from t0 fit
+    std::vector<float>* t0Trig;              // t0 from trigger hits
+    std::vector<float>* t0TrigError;         // error on t0 from trigger hits
+    MuonValidationIdBlock             id;    // identifier information for the segment
+    MuonValidationTrackBlock          track; // index of corresponding track particle
+    MuonValidationTruthBlock          truth; // truth matching based on the hit content of the segment
+    MuonValidationResidualBlock       xresiduals; // residuals in the position in the non-bending plane
+    MuonValidationResidualBlock       yresiduals; // residuals in the position in the bending plane
+    MuonValidationResidualBlock       angleXZ;    // residuals in the angle in the non-bending plane
+    MuonValidationResidualBlock       angleYZ;    // residuals in the angle in the bending plane
+    MuonValidationResidualBlock       combinedYZ; // combined residuals in the position/angle in the bending plane 
+
+  };
+
+  /** 
+      Block with hough maxima information
+  */
+  struct MuonValidationHoughBlock : public MuonValidationBlockBase {
+    MuonValidationHoughBlock();
+
+    std::vector<float>*               maximum;   // height of the maximum
+    MuonValidationIdBlock             id;        // identifier information for the maximum
+    MuonValidationTrackBlock          track;     // index of corresponding track particle
+    MuonValidationTruthBlock          truth;     // truth matching based on the hit content of the maximum
+    MuonValidationResidualBlock       residuals; // residuals in the position in the bending plane
+
+  };
+
+  struct MuonValidationHitBlock : public MuonValidationBlockBase {
+    MuonValidationHitBlock();
+
+    MuonValidationIdBlock             id;        // identifier information for the hit
+    MuonValidationTrackBlock          track;     // index of corresponding track particle
+    MuonValidationTruthBlock          truth;     // truth matching based on the hit identifier
+    MuonValidationResidualBlock       residuals; // residuals in the position in the measurement plane of the hit
+  };
+
+
+  class MuonInsideOutValidationNtuple : public MuonValidationBlockBase {
+  public:
+    MuonInsideOutValidationNtuple();
+
+    MuonValidationTrackParticleBlock trackParticleBlock; // tracks
+    MuonValidationSegmentBlock       segmentBlock;       // segments
+    MuonValidationHoughBlock         houghBlock;         // hough maxima
+    MuonValidationHitBlock           hitBlock;           // hits
+    MuonValidationTimeBlock          timeBlock;          // times
+  };
+  
+}
+
+#endif
