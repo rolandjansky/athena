@@ -34,10 +34,10 @@ public:
   Double_t m_MinDist;
   Double_t m_tileMuDeltaEta ;
   Double_t m_tileMuDeltaPhi ;
-  float m_maxDistance;
-  float m_theDistance;
-  float m_theTime;
-  ComTime* m_myComTime;  
+  float MaxDistance;
+  float theDistance;
+  float theTime;
+  ComTime* myComTime;  
 };
 #endif // ROIMon_H: F Spano'
 

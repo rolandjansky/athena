@@ -28,12 +28,12 @@
 
 #include "xAODEventInfo/EventInfo.h"
 #include "CaloGeoHelpers/CaloSampling.h"
-#include "AthenaKernel/Units.h"
-#include <math.h>
 
+
+#define PI 3.14159265
+#define GEV 1000.0
 
 using xAOD::CaloCluster;
-using Athena::Units::GeV;
 
 /* Obsolete with C++11
 // sorting alg for clusters 
@@ -50,20 +50,8 @@ namespace GetSort{
 
 CaloClusterVecMon::CaloClusterVecMon(const std::string& type, const std::string& name, const IInterface* parent) :
   CaloMonToolBase(type, name, parent),
-  m_caloMgr(nullptr),
-  m_caloCellHelper(nullptr),
-  m_cluscount(0),
-  m_cluscount_top(0),
-  m_cluscount_bot(0),
-  m_maxclusindex_top(0),
-  m_maxclusindex_bot(0),
-  m_maxclusene_top(0),
-  m_maxclusene_bot(0),
-  m_EMenergy(0),
-  m_EMenergy_abs(0),
-  m_EMet(0),
-  m_EMeta(0),
-  m_EMphi(0)
+  m_caloMgr(0),
+  m_caloCellHelper(0)
 {
   declareInterface<IMonitorToolBase>(this);
 
@@ -99,69 +87,69 @@ CaloClusterVecMon::~CaloClusterVecMon() {
 void CaloClusterVecMon::initHists(){
  // cell hists 
  m_eventsCounter = 0; // km add
- m_nCells=nullptr;
- m_maxEcellToEclusterRatio=nullptr;
- m_dominantCellOccupancy_etaphi=nullptr;
- m_dominantCellAverageEnergy_etaphi=nullptr; 
- m_nCellInCluster_etaphi=nullptr;
- m_clusterTimeVsEnergy=nullptr;
- m_clusterTime=nullptr;
- m_cellTime=nullptr;
- m_cellvsclust_time=nullptr; 
+ m_nCells=0;
+ m_maxEcellToEclusterRatio=0;
+ m_dominantCellOccupancy_etaphi=0;
+ m_dominantCellAverageEnergy_etaphi=0; 
+ m_nCellInCluster_etaphi=0;
+ m_clusterTimeVsEnergy=0;
+ m_clusterTime=0;
+ m_cellTime=0;
+ m_cellvsclust_time=0; 
 
  // mult-threshold cluster hists
  for (int iE=0; iE<MAX_E; iE++){
-   m_clus_etaphi_Et_thresh[iE]=nullptr;
-   m_etaphi_thresh_avgEt[iE]=nullptr;
-//   m_EMclus_etaphi_Et_thresh[iE]=0;
-//   m_EMclus_etaVsPhi[iE]=0;
-   m_clus_eta[iE]=nullptr;
-   m_clus_eta_Et[iE]=nullptr;  // km add
+   m_clus_etaphi_Et_thresh[iE]=0;
+   m_etaphi_thresh_avgEt[iE]=0;
+   m_EMclus_etaphi_Et_thresh[iE]=0;
+   m_EMclus_etaVsPhi[iE]=0;
+   m_clus_eta[iE]=0;
+   m_clus_eta_Et[iE]=0;  // km add
    for(int j_plot=0; j_plot<3; j_plot++){
-   m_clus_phi[iE][j_plot]=nullptr;
-   m_clus_phi_Et[iE][j_plot]=nullptr;} // km add
-   m_etaVsPhi[iE]=nullptr;
-   m_etaphi_thresh_avgenergy[iE]=nullptr;
-   m_etaphi_thresh_Totalenergy[iE]=nullptr;
+   m_clus_phi[iE][j_plot]=0;
+   m_clus_phi_Et[iE][j_plot]=0;} // km add
+   m_etaVsPhi[iE]=0;
+   m_etaphi_thresh_avgenergy[iE]=0;
+   m_etaphi_thresh_Totalenergy[iE]=0;
   }
 
  // negative energy cluster hists 
-  m_etaVsPhiNegEn=nullptr;
-  m_averageNegativeEnergy_etaphi=nullptr;
+  m_etaVsPhiNegEn=0;
+  m_averageNegativeEnergy_etaphi=0;
 
   // no threshold cluster hists
-  m_averageEnergy_phi=nullptr;
-  m_averageEnergy_eta=nullptr;
+  m_averageEnergy_phi=0;
+  m_averageEnergy_eta=0;
 
-  m_clusterEnergyVsEta_barrel=nullptr;
-  m_clusterEnergyVsEta_endcap=nullptr;
-  m_clusterEnergyVsEta_hecfcal=nullptr;
-  m_clusterEtVsEta_barrel=nullptr; // for non-cosmics
-  m_clusterEtVsEta_endcap=nullptr; // for non-cosmics
-  m_clusterEtVsEta_hecfcal=nullptr; // for non-cosmics
+  m_clusterEnergyVsEta_barrel=0;
+  m_clusterEnergyVsEta_endcap=0;
+  m_clusterEnergyVsEta_hecfcal=0;
+  m_clusterEtVsEta_barrel=0; // for non-cosmics
+  m_clusterEtVsEta_endcap=0; // for non-cosmics
+  m_clusterEtVsEta_hecfcal=0; // for non-cosmics
 
   // energy > 500GeV cluster hists
-  m_averageEtOver500_etaphi=nullptr; // for non-cosmics
+  m_averageEtOver500_etaphi=0; // for non-cosmics
 
   // cluster stat hists
-  m_nClusters=nullptr;
-  m_nClustersBottomVsTop=nullptr;
-  m_averageEnergy_etaphi_maxEclusters=nullptr;
-  m_dEtaVsdPhi_maxEclustersTopVsBottom=nullptr; // for cosmics 
+  m_nClusters=0;
+  m_nClustersBottomVsTop=0;
+  m_averageEnergy_etaphi_maxEclusters=0;
+  m_dEtaVsdPhi_maxEclustersTopVsBottom=0; // for cosmics 
 
   // tile hists 
-  m_clustersCellsRatioEta=nullptr;
-  m_clustersCellsRatioPhi=nullptr;
-  m_clustersCellsRatioE=nullptr;
+  m_clustersCellsRatioEta=0;
+  m_clustersCellsRatioPhi=0;
+  m_clustersCellsRatioE=0;
  
-  m_clustersE=nullptr;
-  m_clustersEta=nullptr;
-  m_clustersPhi=nullptr;
-  m_clustersEtaPhi=nullptr;
+  m_clustersE=0;
+  m_clustersEta=0;
+  m_clustersPhi=0;
+  m_clustersEtaPhi=0;
 
-  m_clustersCellsEta=nullptr;
-  m_clustersCellsPhi=nullptr;
-  m_clustersCellsE=nullptr;
+  m_clustersCellsEta=0;
+  m_clustersCellsPhi=0;
+  m_clustersCellsE=0;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -247,29 +235,29 @@ bool CaloClusterVecMon::checkTimeGran(bool isNewEventsBlock, bool isNewLumiBlock
     }
     //... check if it is low statistics interval
     else if (m_timeGran.compare("lowStat") ==0){
-      isNewTimeGran=newLowStatIntervalFlag();
+      isNewTimeGran=newLowStatInterval;
       theinterval=lowStat;
     }
     //... or medium statistics
     else if (m_timeGran.compare("medStat") ==0) {
-      isNewTimeGran=newMedStatIntervalFlag();
+      isNewTimeGran=newMedStatInterval;
       theinterval=medStat;
     }
     else if (m_timeGran.compare("higStat") ==0){
-      isNewTimeGran=newHigStatIntervalFlag();
+      isNewTimeGran=newHigStatInterval;
       theinterval=higStat;
     }
     else if (m_timeGran.compare("fill") ==0){
-      isNewTimeGran=newLowStatIntervalFlag();
+      isNewTimeGran=newLowStatInterval;
       theinterval=fill;
     }
     else if (m_timeGran.compare("all") ==0){
-      isNewTimeGran=newLowStatIntervalFlag();
+      isNewTimeGran=newLowStatInterval;
       theinterval=all;
     }
     // if it is not global, but it is something else stick to medium stat
     else  {
-      isNewTimeGran=newLowStatIntervalFlag();
+      isNewTimeGran=newLowStatInterval;
       theinterval=medStat;
     }
   }
@@ -299,7 +287,7 @@ void CaloClusterVecMon::bookCellHists(const Interval_t theinterval){
     cluster_leadcell_expert.regHist(  m_maxEcellToEclusterRatio ).ignore();
     m_maxEcellToEclusterRatio->GetXaxis()->SetTitle("Ratio(E_lead_cell/E_cluster)");
 
-    m_dominantCellOccupancy_etaphi = new TH2F("etaphi_hotrat","Occupancy of Clusters with E_cell/E_cluster > 0.9 &E_cluster>0 GeV",98,-4.9,4.9,64,-3.15,3.15);
+    m_dominantCellOccupancy_etaphi = new TH2F("etaphi_hotrat","Hit map of Clusters with E_cell/E_cluster > 0.9 &E_cluster>0 GeV",98,-4.9,4.9,64,-3.15,3.15);
     cluster_leadcell_expert.regHist(  m_dominantCellOccupancy_etaphi ).ignore();
     m_dominantCellOccupancy_etaphi->GetXaxis()->SetTitle("#eta");
     m_dominantCellOccupancy_etaphi->GetYaxis()->SetTitle("#phi");
@@ -379,7 +367,7 @@ void CaloClusterVecMon::bookClusterHists(const Interval_t theinterval){
       char bname[256];
       char btitle[256];
 
-      sprintf(btitle, "Occupancy of clusters with  Et_clus>%4.1f GeV", m_Ethresh[i]);
+      sprintf(btitle, "Hit Map of clusters with  Et_clus>%4.1f GeV", m_Ethresh[i]);
       sprintf(bname, "m_clus_etaphi_Et_thresh%d", i);
       m_clus_etaphi_Et_thresh[i] = new TH2F(bname,btitle,98,-4.9,4.9,64,-3.15,3.15);
       cluster_2drates_expert.regHist(m_clus_etaphi_Et_thresh[i]).ignore();
@@ -393,31 +381,31 @@ void CaloClusterVecMon::bookClusterHists(const Interval_t theinterval){
       m_etaphi_thresh_avgEt[i]->GetXaxis()->SetTitle("#eta");
       m_etaphi_thresh_avgEt[i]->GetYaxis()->SetTitle("#phi");
 
-// DEPRECATED -- LS 21 March 2016      
-//      sprintf(btitle, "Occupancy of EMclusters with  Et_clus>%4.1f GeV", m_Ethresh[i]);
-//      sprintf(bname, "m_EMclus_etaphi_Et_thresh%d", i);
-//      m_EMclus_etaphi_Et_thresh[i] = new TH2F(bname,btitle,98,-4.9,4.9,64,-3.15,3.15);
-//      cluster_2drates_expert.regHist(m_EMclus_etaphi_Et_thresh[i]).ignore();
-//      m_EMclus_etaphi_Et_thresh[i]->GetXaxis()->SetTitle("#eta");
-//      m_EMclus_etaphi_Et_thresh[i]->GetYaxis()->SetTitle("#phi");
-//
-//      sprintf(btitle, "Occupancy of EMclusters with  E_clus>%4.1f GeV", m_Ethresh[i]);
-//      sprintf(bname, "m_EMclus_EtavsPhi%d", i);
-//      m_EMclus_etaVsPhi[i] = new TH2F(bname,btitle,98,-4.9,4.9,64,-3.15,3.15);
-//      if(i==0 || i==2) cluster_2drates_shift.regHist(m_EMclus_etaVsPhi[i]).ignore();
-//      else cluster_2drates_expert.regHist(m_EMclus_etaVsPhi[i]).ignore();
-//      m_EMclus_etaVsPhi[i]->GetXaxis()->SetTitle("#eta");
-//      m_EMclus_etaVsPhi[i]->GetYaxis()->SetTitle("#phi");
+      
+      sprintf(btitle, "Hit Map of EMclusters with  Et_clus>%4.1f GeV", m_Ethresh[i]);
+      sprintf(bname, "m_EMclus_etaphi_Et_thresh%d", i);
+      m_EMclus_etaphi_Et_thresh[i] = new TH2F(bname,btitle,98,-4.9,4.9,64,-3.15,3.15);
+      cluster_2drates_expert.regHist(m_EMclus_etaphi_Et_thresh[i]).ignore();
+      m_EMclus_etaphi_Et_thresh[i]->GetXaxis()->SetTitle("#eta");
+      m_EMclus_etaphi_Et_thresh[i]->GetYaxis()->SetTitle("#phi");
+
+      sprintf(btitle, "Hit Map of EMclusters with  E_clus>%4.1f GeV", m_Ethresh[i]);
+      sprintf(bname, "m_EMclus_EtavsPhi%d", i);
+      m_EMclus_etaVsPhi[i] = new TH2F(bname,btitle,98,-4.9,4.9,64,-3.15,3.15);
+      if(i==0 || i==2) cluster_2drates_shift.regHist(m_EMclus_etaVsPhi[i]).ignore();
+      else cluster_2drates_expert.regHist(m_EMclus_etaVsPhi[i]).ignore();
+      m_EMclus_etaVsPhi[i]->GetXaxis()->SetTitle("#eta");
+      m_EMclus_etaVsPhi[i]->GetYaxis()->SetTitle("#phi");
       
 
-      sprintf(btitle, "Occupancy of Clusters with E-Clus>%4.1f GeV", m_Ethresh[i]);
+      sprintf(btitle, "Hit Map of Clusters with E-Clus>%4.1f GeV", m_Ethresh[i]);
       sprintf(bname, "m_clus_eta%d", i);
       m_clus_eta[i] = new TH1F(bname,btitle,64,-5.0,5.0);
       cluster_1drates_expert.regHist( m_clus_eta[i] ).ignore();
       m_clus_eta[i]->GetXaxis()->SetTitle("#eta");
       
       // km add 
-      sprintf(btitle, "Occupancy of Clusters with Et-Clus>%4.1f GeV", m_Ethresh[i]);
+      sprintf(btitle, "Hit Map of Clusters with Et-Clus>%4.1f GeV", m_Ethresh[i]);
       sprintf(bname, "m_clus_eta_Et%d", i);
       m_clus_eta_Et[i] = new TH1F(bname,btitle,64,-5.0,5.0);
       cluster_1drates_expert.regHist( m_clus_eta_Et[i]).ignore();
@@ -426,15 +414,15 @@ void CaloClusterVecMon::bookClusterHists(const Interval_t theinterval){
       for (int j=0; j<3;j++){ //loop over regions
         switch(j){
         case 0:
-          sprintf(btitle, "Occupancy of Barrel Clusters Vs Phi E_Clus>%4.1f GeV ", m_Ethresh[i]);
+          sprintf(btitle, "Hit Map of Barrel Clusters Vs Phi E_Clus>%4.1f GeV ", m_Ethresh[i]);
           sprintf(bname, "m_clus_phi%dBarrel", i);
           break;
         case 1:
-          sprintf(btitle, "Occupancy of EndCapA Clusters Vs Phi with E_clus>%4.1f GeV ", m_Ethresh[i]);
+          sprintf(btitle, "Hit Map of EndCapA Clusters Vs Phi with E_clus>%4.1f GeV ", m_Ethresh[i]);
           sprintf(bname, "m_clus_phi%dEndcapA", i);
           break;
         case 2:
-          sprintf(btitle, "Occupancy of EndCapC clusters Vs phi with E_clus>%4.1f GeV Endcap C", m_Ethresh[i]);
+          sprintf(btitle, "Hit Map of EndCapC clusters Vs phi with E_clus>%4.1f GeV Endcap C", m_Ethresh[i]);
           sprintf(bname, "m_clus_phi%dEndcapC", i);
           break;
         }
@@ -450,15 +438,15 @@ void CaloClusterVecMon::bookClusterHists(const Interval_t theinterval){
        for (int j=0; j<3;j++){ //loop over regions
         switch(j){
         case 0:
-          sprintf(btitle, "Occupancy of Barrel Clusters Vs Phi Et_Clus>%4.1f GeV ", m_Ethresh[i]);
+          sprintf(btitle, "Hit Map of Barrel Clusters Vs Phi Et_Clus>%4.1f GeV ", m_Ethresh[i]);
           sprintf(bname, "m_clus_phi_Et%dBarrel", i);
           break;
         case 1:
-          sprintf(btitle, "Occupancy of EndCapA Clusters Vs Phi with Et_clus>%4.1f GeV ", m_Ethresh[i]);
+          sprintf(btitle, "Hit Map of EndCapA Clusters Vs Phi with Et_clus>%4.1f GeV ", m_Ethresh[i]);
           sprintf(bname, "m_clus_phi_Et%dEndcapA", i);
           break;
         case 2:
-          sprintf(btitle, "Occupancy of EndCapC clusters Vs phi with Et_clus>%4.1f GeV Endcap C", m_Ethresh[i]);
+          sprintf(btitle, "Hit Map of EndCapC clusters Vs phi with Et_clus>%4.1f GeV Endcap C", m_Ethresh[i]);
           sprintf(bname, "m_clus_phi_Et%dEndcapC", i);
           break;
         }
@@ -470,7 +458,7 @@ void CaloClusterVecMon::bookClusterHists(const Interval_t theinterval){
       }      
       
  
-      sprintf(btitle, "Occupancy of clusters with  E_clus>%4.1f GeV", m_Ethresh[i]);
+      sprintf(btitle, "Hit Map of clusters with  E_clus>%4.1f GeV", m_Ethresh[i]);
       sprintf(bname, "m_EtavsPhi%d", i);
       m_etaVsPhi[i] = new TH2F(bname,btitle,98,-4.9,4.9,64,-3.15,3.15);
       if(i==0 || i==2) cluster_2drates_shift.regHist(m_etaVsPhi[i]).ignore();
@@ -495,7 +483,7 @@ void CaloClusterVecMon::bookClusterHists(const Interval_t theinterval){
       m_etaphi_thresh_Totalenergy[i]->GetXaxis()->SetTitle("#eta");
     }
 
-    m_etaVsPhiNegEn = new TH2F("m_EtavsPhiNegEn","Occupancy of cluster with  E_Clus < 0.0 GeV",98,-4.9,4.9,64,-3.15,3.15);
+    m_etaVsPhiNegEn = new TH2F("m_EtavsPhiNegEn","Hit Map of cluster with  E_Clus < 0.0 GeV",98,-4.9,4.9,64,-3.15,3.15);
     cluster_2drates_expert.regHist(m_etaVsPhiNegEn).ignore();
     m_etaVsPhiNegEn ->GetXaxis()->SetTitle("#eta");
 
@@ -623,16 +611,16 @@ void CaloClusterVecMon::fillTileHistRange(){
 
     m_binRangePhi.reserve(3);
     m_binRangePhi[0]=64;
-    m_binRangePhi[1]=-M_PI;
-    m_binRangePhi[2]=M_PI;
+    m_binRangePhi[1]=-PI;
+    m_binRangePhi[2]=PI;
 
     m_binRangeEtaPhi.reserve(6);
     m_binRangeEtaPhi[0]=16;
     m_binRangeEtaPhi[1]=-1.6;
     m_binRangeEtaPhi[2]=1.6;
     m_binRangeEtaPhi[3]=64;
-    m_binRangeEtaPhi[4]=-M_PI;
-    m_binRangeEtaPhi[5]=M_PI;
+    m_binRangeEtaPhi[4]=-PI;
+    m_binRangeEtaPhi[5]=PI;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -704,7 +692,7 @@ StatusCode CaloClusterVecMon::fillHistograms() {
   sc = checkFilters(ifPass);
   if(sc.isFailure() || !ifPass) return StatusCode::SUCCESS;
 
-  const xAOD::CaloClusterContainer* clusterCont = nullptr;
+  const xAOD::CaloClusterContainer* clusterCont = 0;
   sc=evtStore()->retrieve( clusterCont, m_clusterContainerName);
   if( sc.isFailure()  ||  !clusterCont ) {
     ATH_MSG_WARNING( "No CaloCluster container found in TDS");
@@ -723,7 +711,7 @@ StatusCode CaloClusterVecMon::fillHistograms() {
     const CaloCluster* clus = *it; 
 
     fillCellHist(clus);
-    //fillClusterEMvar(clus);
+    fillClusterEMvar(clus);
 
     fillClusterStat(clus); 
     fillClusterHist(clus); 
@@ -756,19 +744,6 @@ void CaloClusterVecMon::fillCellHist(const CaloCluster* clus){
   float maxcellene=0;
   float maxcelltime=0;
 
-  const CaloClusterCellLink* cellLinks=clus->getCellLinks();
-  if (!cellLinks) {
-    ATH_MSG_DEBUG( "No cell links for this cluster"  );
-    return;
-  }
-
-  const CaloCellContainer* cellCont=cellLinks->getCellContainer();
-  if (!cellCont) {
-    ATH_MSG_DEBUG( "DataLink to cell container is broken"  );
-    return;
-  }
-
-
   xAOD::CaloCluster::const_cell_iterator cellIter =clus->cell_begin();
   xAOD::CaloCluster::const_cell_iterator cellIterEnd =clus->cell_end();
   for ( ;cellIter !=cellIterEnd;cellIter++) {
@@ -797,12 +772,12 @@ void CaloClusterVecMon::fillCellHist(const CaloCluster* clus){
     m_maxEcellToEclusterRatio->Fill(ratio );
     if( ratio > 0.9 ) {
       m_dominantCellOccupancy_etaphi->Fill(EtaClus,PhiClus);
-      m_dominantCellAverageEnergy_etaphi->Fill(EtaClus,PhiClus,EnergyClus/GeV);
+      m_dominantCellAverageEnergy_etaphi->Fill(EtaClus,PhiClus,EnergyClus/GEV);
     }
    }
 
    m_nCellInCluster_etaphi->Fill(EtaClus,PhiClus,cellcount);
-   m_clusterTimeVsEnergy->Fill(TimeClus,EnergyClus/GeV);
+   m_clusterTimeVsEnergy->Fill(TimeClus,EnergyClus/GEV);
    m_clusterTime->Fill(TimeClus);
    m_cellTime->Fill(maxcelltime);
    m_cellvsclust_time->Fill(maxcelltime,TimeClus);
@@ -811,56 +786,41 @@ void CaloClusterVecMon::fillCellHist(const CaloCluster* clus){
 }
 
 ////////////////////////////////////////////////////////////////////////////
-// THIS ROUTINE IS DEPRECATED - LS 21 March 2016
-//void CaloClusterVecMon::fillClusterEMvar(const xAOD::CaloCluster* clus){
-// 
-//  m_EMenergy=0.;
-//  m_EMenergy_abs=0.;
-//  m_EMet=0.;
-//  m_EMeta=0.;
-//  m_EMphi=0.;
-//
-//  std::cout << m_clusterContainerName << std::endl;
-//  if(  m_clusterContainerName == "CaloCalTopoClusters" ) {
-//
-//    //Loop over samplings
-//    for (unsigned iS=0;iS<CaloSampling::HEC0;++iS) {
-//      const CaloSampling::CaloSample iSamp=(CaloSampling::CaloSample)iS;
-//      if (clus->hasSampling(iSamp)) {
-//	const float sampler_energy = clus->eSample(iSamp);
-//	const float sampler_eta = clus->etaSample(iSamp);//samplers_eta.at(sampler_id);
-//	const float sampler_phi = clus->phiSample(iSamp);//samplers_phi.at(sampler_id);
-//	m_EMenergy+=sampler_energy;
-//	m_EMenergy_abs+=fabs(sampler_energy);
-//	m_EMeta+=sampler_eta*fabs(sampler_energy);
-//	m_EMphi+=sampler_phi*fabs(sampler_energy);
-//      }
-//    }
-//
-//    if(m_EMenergy_abs>0.01){
-//      m_EMeta=m_EMeta/m_EMenergy_abs;
-//      m_EMphi=m_EMphi/m_EMenergy_abs;
-//      if(fabs(m_EMeta)<20.)m_EMet=m_EMenergy/cosh(m_EMeta);
-//    }
-//    else{
-//      m_EMenergy=0.;
-//      m_EMenergy_abs=0.;
-//      m_EMet=0.;
-//      m_EMeta=0.;
-//      m_EMphi=0.;
-//    }
-//  }
-//  else {
-//   
-//   // Use energy and eta/phi from the EM clusters 
-//    m_EMeta = clus->eta();
-//    m_EMphi = clus->phi();
-//    m_EMet  = clus->et();
-//    m_EMenergy = clus->e();
-//    m_EMenergy_abs = fabs(m_EMenergy);
-//  }
-//
-//}
+void CaloClusterVecMon::fillClusterEMvar(const xAOD::CaloCluster* clus){
+ 
+  m_EMenergy=0.;
+  m_EMenergy_abs=0.;
+  m_EMet=0.;
+  m_EMeta=0.;
+  m_EMphi=0.;
+
+  //Loop over samplings
+  for (unsigned iS=0;iS<CaloSampling::HEC0;++iS) {
+    const CaloSampling::CaloSample iSamp=(CaloSampling::CaloSample)iS;
+    if (clus->hasSampling(iSamp)) {
+      const float sampler_energy = clus->eSample(iSamp);
+      const float sampler_eta = clus->etaSample(iSamp);//samplers_eta.at(sampler_id);
+      const float sampler_phi = clus->phiSample(iSamp);//samplers_phi.at(sampler_id);
+      m_EMenergy+=sampler_energy;
+      m_EMenergy_abs+=fabs(sampler_energy);
+      m_EMeta+=sampler_eta*fabs(sampler_energy);
+      m_EMphi+=sampler_phi*fabs(sampler_energy);
+    }
+  }
+
+  if(m_EMenergy_abs>0.01){
+    m_EMeta=m_EMeta/m_EMenergy_abs;
+    m_EMphi=m_EMphi/m_EMenergy_abs;
+    if(fabs(m_EMeta)<20.)m_EMet=m_EMenergy/cosh(m_EMeta);
+  }
+  else{
+    m_EMenergy=0.;
+    m_EMenergy_abs=0.;
+    m_EMet=0.;
+    m_EMeta=0.;
+    m_EMphi=0.;
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////////
 void CaloClusterVecMon::fillClusterStat(const CaloCluster* clus){
@@ -896,8 +856,8 @@ void CaloClusterVecMon::fillClusterHist(const CaloCluster* clus){
     float EtClus = clus->et();
     float EClus = clus->e();
 
-    TH1F* tmp_clusterEtVsEta_sub=nullptr;
-    TH1F* tmp_clusterEnergyVsEta_sub=nullptr;
+    TH1F* tmp_clusterEtVsEta_sub=0;
+    TH1F* tmp_clusterEnergyVsEta_sub=0;
     if( (fabs(EtaClus)<m_etaMin[1]) && (fabs(EtaClus)>=m_etaMin[0]) ){
       tmp_clusterEtVsEta_sub = m_clusterEtVsEta_barrel;
       tmp_clusterEnergyVsEta_sub = m_clusterEnergyVsEta_barrel;
@@ -914,16 +874,16 @@ void CaloClusterVecMon::fillClusterHist(const CaloCluster* clus){
     if(fabs(EtaClus) < 5.0) {
 
       for (int j=0;j<MAX_E;j++) {
-        if(EtClus > m_Ethresh[j]*GeV) {
+        if(EtClus > m_Ethresh[j]*GEV) {
           m_clus_etaphi_Et_thresh[j]->Fill(EtaClus, PhiClus);
-          m_etaphi_thresh_avgEt[j]->Fill(EtaClus, PhiClus,EtClus/GeV);
+          m_etaphi_thresh_avgEt[j]->Fill(EtaClus, PhiClus,EtClus/GEV);
         }
 
-//        if(m_EMet>m_Ethresh[j]*GeV)  m_EMclus_etaphi_Et_thresh[j]->Fill(m_EMeta,m_EMphi);
-//        if(m_EMenergy>m_Ethresh[j]*GeV)  m_EMclus_etaVsPhi[j]->Fill(m_EMeta,m_EMphi);
+        if(m_EMet>m_Ethresh[j]*GEV)  m_EMclus_etaphi_Et_thresh[j]->Fill(m_EMeta,m_EMphi);
+        if(m_EMenergy>m_Ethresh[j]*GEV)  m_EMclus_etaVsPhi[j]->Fill(m_EMeta,m_EMphi);
 
          // km add
-          if (EtClus > m_Ethresh[j]*GeV ) {
+          if (EtClus > m_Ethresh[j]*GEV ) {
            m_clus_eta_Et[j]->Fill(EtaClus);
            if (fabs(EtaClus)<1.5) {
             m_clus_phi_Et[j][0]->Fill(PhiClus);
@@ -934,7 +894,7 @@ void CaloClusterVecMon::fillClusterHist(const CaloCluster* clus){
           }
         }    
 
-        if(EClus/GeV > m_Ethresh[j]) {
+        if(EClus/GEV > m_Ethresh[j]) {
           m_clus_eta[j]->Fill(EtaClus);
           if (fabs(EtaClus)<1.5) {
             m_clus_phi[j][0]->Fill(PhiClus);
@@ -944,26 +904,26 @@ void CaloClusterVecMon::fillClusterHist(const CaloCluster* clus){
             m_clus_phi[j][2]->Fill(PhiClus);
           }
           m_etaVsPhi[j]->Fill(EtaClus, PhiClus);
-          m_etaphi_thresh_avgenergy[j]->Fill(EtaClus, PhiClus,EClus/GeV);
-          m_etaphi_thresh_Totalenergy[j]->Fill(EtaClus, PhiClus,EClus/GeV);
+          m_etaphi_thresh_avgenergy[j]->Fill(EtaClus, PhiClus,EClus/GEV);
+          m_etaphi_thresh_Totalenergy[j]->Fill(EtaClus, PhiClus,EClus/GEV);
         }
       }
 
       if( EClus < 0.0 ){
         m_etaVsPhiNegEn->Fill(EtaClus, PhiClus);
-        m_averageNegativeEnergy_etaphi->Fill(EtaClus, PhiClus,EClus/GeV);
+        m_averageNegativeEnergy_etaphi->Fill(EtaClus, PhiClus,EClus/GEV);
       }
 
-      m_averageEnergy_eta->Fill(EtaClus,EClus/GeV);
-      m_averageEnergy_phi->Fill(PhiClus,EClus/GeV);
+      m_averageEnergy_eta->Fill(EtaClus,EClus/GEV);
+      m_averageEnergy_phi->Fill(PhiClus,EClus/GEV);
 
       if(m_dataType !=  AthenaMonManager::cosmics){
-        if(EtClus>500000.) m_averageEtOver500_etaphi->Fill(EtaClus, PhiClus,EtClus/GeV);
-        if(tmp_clusterEtVsEta_sub) tmp_clusterEtVsEta_sub->Fill(EtClus/GeV); 
-        if(tmp_clusterEnergyVsEta_sub) tmp_clusterEnergyVsEta_sub->Fill(EClus/GeV); 
+        if(EtClus>500000.) m_averageEtOver500_etaphi->Fill(EtaClus, PhiClus,EtClus/GEV);
+        if(tmp_clusterEtVsEta_sub) tmp_clusterEtVsEta_sub->Fill(EtClus/GEV); 
+        if(tmp_clusterEnergyVsEta_sub) tmp_clusterEnergyVsEta_sub->Fill(EClus/GEV); 
       }
       else{
-        if(tmp_clusterEnergyVsEta_sub) tmp_clusterEnergyVsEta_sub->Fill(EClus/GeV);  
+        if(tmp_clusterEnergyVsEta_sub) tmp_clusterEnergyVsEta_sub->Fill(EClus/GEV);  
       }
 
     } 
@@ -988,12 +948,12 @@ void CaloClusterVecMon::fillClusterStatHist(const xAOD::CaloClusterContainer* cl
   if (m_dataType ==  AthenaMonManager::cosmics ){
 
     if (m_maxclusindex_top > 0){
-      m_averageEnergy_etaphi_maxEclusters->Fill(eta_top,phi_top,m_maxclusene_top/GeV);
+      m_averageEnergy_etaphi_maxEclusters->Fill(eta_top,phi_top,m_maxclusene_top/GEV);
       //m_averageEnergy_etaphi_maxEclusters->Fill(eta_top,phi_top,1.);
     }
 
     if (m_maxclusindex_bot > 0){
-      m_averageEnergy_etaphi_maxEclusters->Fill(eta_bot,phi_bot,m_maxclusene_bot/GeV);
+      m_averageEnergy_etaphi_maxEclusters->Fill(eta_bot,phi_bot,m_maxclusene_bot/GEV);
       //m_averageEnergy_etaphi_maxEclusters->Fill(eta_bot,phi_bot,1.);
     }
 
@@ -1003,10 +963,10 @@ void CaloClusterVecMon::fillClusterStatHist(const xAOD::CaloClusterContainer* cl
 
   } else  {
     if ( m_maxclusene_top > m_maxclusene_bot ) {
-      m_averageEnergy_etaphi_maxEclusters->Fill(eta_top,phi_top,m_maxclusene_top/GeV);
+      m_averageEnergy_etaphi_maxEclusters->Fill(eta_top,phi_top,m_maxclusene_top/GEV);
       //m_averageEnergy_etaphi_maxEclusters->Fill(eta_top,phi_top,1.);
     } else {
-      m_averageEnergy_etaphi_maxEclusters->Fill(eta_bot,phi_bot,m_maxclusene_bot/GeV);
+      m_averageEnergy_etaphi_maxEclusters->Fill(eta_bot,phi_bot,m_maxclusene_bot/GEV);
       //m_averageEnergy_etaphi_maxEclusters->Fill(eta_bot,phi_bot,1.);
     }
   }
@@ -1033,12 +993,9 @@ void CaloClusterVecMon::fillTileHist(const xAOD::CaloClusterContainer* clusterCo
 
   int i_clus=0;
 
-  
-
-
   //for(xAOD::CaloClusterContainer::const_iterator iCluster = clusColl.begin(); iCluster != clusColl.end(); iCluster++) {
   for (const CaloCluster* cluster_ptr : clusColl) {
-     float energy = cluster_ptr->e()/GeV;
+     float energy = cluster_ptr->e()/GEV;
      float eta = cluster_ptr->eta();
      float phi = cluster_ptr->phi();
      float eSum=0.;
@@ -1046,23 +1003,11 @@ void CaloClusterVecMon::fillTileHist(const xAOD::CaloClusterContainer* clusterCo
      float ratio=0.0;
      float ratioTile=0.0;
 
-     if (energy <  m_Threshold/GeV) continue;
-
-     const CaloClusterCellLink* cellLinks=cluster_ptr->getCellLinks();
-     if (!cellLinks) {
-       ATH_MSG_DEBUG( "No cell links for this cluster"  );
-       return;
-     }
-
-     const CaloCellContainer* cellCont=cellLinks->getCellContainer();
-     if (!cellCont) {
-       ATH_MSG_DEBUG( "DataLink to cell container is broken"  );
-       return;
-     }
+     if (energy <  m_Threshold/GEV) continue;
 
      for (CaloCluster::const_cell_iterator itrCell = cluster_ptr->cell_begin();itrCell!=cluster_ptr->cell_end(); ++itrCell) {
        const CaloCell * theCell=*itrCell;
-       float cell_e = theCell->energy()/GeV;
+       float cell_e = theCell->energy()/GEV;
        eSum+=cell_e;
 
        const Identifier cellId = theCell->ID();

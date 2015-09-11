@@ -20,18 +20,16 @@ use CaloIdentifier      CaloIdentifier-*    	 Calorimeter
 use CaloInterface       CaloInterface-*          Calorimeter
 use LArRecConditions    LArRecConditions-*       LArCalorimeter
 use LArIdentifier       LArIdentifier-*          LArCalorimeter
-use LArCabling          LArCabling-*             LArCalorimeter
+use LArTools            LArTools-*               LArCalorimeter
 use Identifier          Identifier-*             DetectorDescription
 
 use CommissionEvent     CommissionEvent-*        Commission
 
 use egammaEvent         egammaEvent-*            Reconstruction/egamma
-use ElectronPhotonSelectorTools     ElectronPhotonSelectorTools-* PhysicsAnalysis/ElectronPhotonID
 use MissingETEvent      MissingETEvent-*         Reconstruction
 
 
 private
-use AthenaKernel        AthenaKernel-*           Control
 use RecBackgroundEvent  RecBackgroundEvent-*     Reconstruction/RecBackground
 use CaloDetDescr        CaloDetDescr-*           Calorimeter
 use LArRecEvent         LArRecEvent-*            LArCalorimeter

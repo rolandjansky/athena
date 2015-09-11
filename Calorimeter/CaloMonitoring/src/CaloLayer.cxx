@@ -22,7 +22,6 @@
 static const double Pi = TMath::Pi();
 
 using namespace CaloMonitoring;
-using namespace std;
 
 //
 CaloLayer::CaloLayer(const char* name,Partition partition, int layerNumber, Side side) {
@@ -30,9 +29,9 @@ CaloLayer::CaloLayer(const char* name,Partition partition, int layerNumber, Side
   m_name = name;
   
   m_nTotEtaBins = 0;
-  m_etaBinArray = nullptr;
+  m_etaBinArray = 0;
   m_nTotPhiBins = 0;
-  m_phiBinArray = nullptr;
+  m_phiBinArray = 0;
 
   setProperties(partition, layerNumber, side);
 }
