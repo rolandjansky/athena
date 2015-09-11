@@ -17,12 +17,11 @@
 //                K ALGhadeer August 2012/2013 add 1D CellEnergyVsTime histograms with diffrent energy thresholds 
 //                L Sawyer 12/2013 Modified booking to reflect new managed histograms
 //                K ALGhadeer 08/19 Moved bookProcHists under bookHistogram
+//                Dilip Jana 06/2015 Fixed histogram binning issue
 // ********************************************************************
 #include "CaloMonitoring/CaloCellVecMon.h"
 
-#include "RecBackgroundEvent/BeamBackgroundData.h"
-
-#include "xAODEventInfo/EventInfo.h"
+//#include "xAODEventInfo/EventInfo.h"
 
 #include "LArRecConditions/LArBadChannel.h"
 #include "LArRecConditions/LArBadChanBitPacking.h"
@@ -37,15 +36,15 @@
 
 #include "CaloEvent/CaloCluster.h"
 #include "CaloEvent/CaloCellContainer.h"
-#include "LArRecEvent/LArCollisionTime.h"
+
 
 using namespace CaloMonitoring;
 
 ////////////////////////////////////////////
 CaloCellVecMon::CaloCellVecMon(const std::string& type, const std::string& name,const IInterface* parent) 
-  :ManagedMonitorToolBase(type, name, parent),
-   m_BadLBTool("DQBadLBFilterTool"),
-   m_ReadyFilterTool("DQAtlasReadyFilterTool"),
+  :CaloMonToolBase(type, name, parent),
+   //m_BadLBTool("DQBadLBFilterTool"),
+   //m_ReadyFilterTool("DQAtlasReadyFilterTool"),
    m_noiseTool("CaloNoiseTool"),
    m_trigDec("Trig::TrigDecisionTool"),
    m_rndmTriggerEvent(0),
@@ -75,15 +74,9 @@ CaloCellVecMon::CaloCellVecMon(const std::string& type, const std::string& name,
 
   // tools 
   declareProperty("isOnline", m_isOnline=false);
-  declareProperty("useBadLBTool", m_useBadLBTool=false);
-  declareProperty("BadLBTool", m_BadLBTool);
-  declareProperty("useReadyFilterTool",m_useReadyFilterTool=true);
-  declareProperty("ReadyFilterTool",m_ReadyFilterTool);
-  declareProperty("useLArNoisyAlg",m_useLArNoisyAlg=false);
   declareProperty("useElectronicNoiseOnly",m_useElectronicNoiseOnly=false);
   declareProperty("useTwoGaus", m_useTwoGaus=true);
   declareProperty("CaloNoiseTool",m_noiseTool,"Tool Handle for noise Tool");
-  declareProperty("useBeamBackgroundRemoval",m_useBeamBackgroundRemoval=false);
 
   // Trigger Awareness:
   declareProperty("useTrigger",m_useTrigger=true);
@@ -285,7 +278,6 @@ void CaloCellVecMon::initHists(){
   h_CellsRMSdivDBnoisePhi = 0;
 
   h_n_trigEvent = 0;
-  h_EvtRejSumm = 0 ;// km add
 
   for(int ilyr=EMBPA; ilyr<MAXLAYER; ilyr++){
     h_cellOccupancyEtaLumi[ilyr] = 0;
@@ -462,6 +454,13 @@ StatusCode CaloCellVecMon::initialize() {
     ATH_MSG_ERROR("Could not initialize ManagedMonitorToolBase"); 
     return sc;
   } 
+
+  sc=CaloMonToolBase::initialize();
+   if(sc.isFailure()){
+    ATH_MSG_ERROR("Could not initialize CaloMonToolBase"); 
+    return sc;
+  }
+
 
   ATH_MSG_INFO("CaloCellVecMon::initialize() is done!");
   return sc;
@@ -644,27 +643,6 @@ StatusCode CaloCellVecMon::retrieveTools(){
     }
   }
 
-// retrieve AtlasReadyFilter tool
-  if(m_useReadyFilterTool){
-   sc = m_ReadyFilterTool.retrieve();
-   if(sc.isFailure()) {
-     ATH_MSG_ERROR("Could Not Retrieve AtlasReadyFilterTool " << m_ReadyFilterTool);
-     m_useReadyFilterTool = false;
-     return sc;
-   }
-   ATH_MSG_INFO("AtlasReadyFilterTool retrieved");
-  }
-
-// retrieve BadLBFilter tool 
- if(m_useBadLBTool){
-  sc = m_BadLBTool.retrieve();
-  if(sc.isFailure()){
-    ATH_MSG_ERROR("Unable to retrieve the DQBadLBFilterTool");
-    m_useBadLBTool = false;
-    return sc;
-  }
-  ATH_MSG_INFO("DQBadLBFilterTool retrieved");
- }
 
  ATH_MSG_INFO("end of retrieveTools()");
  return sc; 
@@ -1651,9 +1629,9 @@ StatusCode CaloCellVecMon::bookHistograms(){
     
     bookMonGroups(TheTrigger,theinterval);
  
-    bookCaloLayers(); 
- 
     bookTileHists(); 
+
+    bookCaloLayers(); 
 
     bookLarMultThreHists();
 
@@ -1661,16 +1639,16 @@ StatusCode CaloCellVecMon::bookHistograms(){
 
     bookLarNonThreHists();  
 
-
     bookSummHists();
-    
-    processTileHists(); // khadeejah add
+   
+
+    //processTileHists(); // khadeejah add
     
     setBookSwitch();  //Khadeejah add
 
     
-    if(m_maskKnownBadChannels || m_maskNoCondChannels) m_procimask = m_doInverseMasking;
-    else m_procimask = false; 
+    //if(m_maskKnownBadChannels || m_maskNoCondChannels) m_procimask = m_doInverseMasking;
+    //else m_procimask = false; 
 
     if ( m_maskKnownBadChannels || m_maskNoCondChannels ){
        if(!m_doMaskingOnline) {
@@ -1685,16 +1663,16 @@ StatusCode CaloCellVecMon::bookHistograms(){
 
     if(m_bookProcHists) bookProcHists();  //Khadeejah 
 
-    processHists(); // Khadeejah 
+   // processHists(); // Khadeejah 
 
-    if(m_procimask) processMaskHists();
+   // if(m_procimask) processMaskHists();
 
 
     deleteBookSwitch();
 
     deleteCaloLayers(); // Khadeejah comment out
     
- //   m_bookProcHists = m_ifSaveAndDeleteHists;  // Khadeejah add
+    m_bookProcHists = m_ifSaveAndDeleteHists;  // Khadeejah add
 //  }
 
 //  ATH_MSG_INFO("CaloCellVecMon::bookHistograms() is done");
@@ -1853,7 +1831,7 @@ void CaloCellVecMon::bookMonGroups(const std::string& TheTrigger, Interval_t the
   SummaryGroup = new MonGroup( this,TheLArCellDir+TheTrigger+"/Summary", theinterval );
 
   TempMonGroup = new MonGroup( this,TheLArCellDir+TheTrigger+"/Temp", theinterval );
-  
+   
   ShifterMonGroup[KnownBadChannels] = new MonGroup( this,TheLArCellDir+TheTrigger+"/KnownBadChannels", theinterval, ATTRIB_MANAGED,"","weightedAverage");
   
   ShifterMonGroup[DatabaseNoise] = new MonGroup( this,TheLArCellDir+TheTrigger+"/DatabaseNoise", theinterval, ATTRIB_MANAGED,"","weightedAverage"); 
@@ -2341,10 +2319,12 @@ void CaloCellVecMon::bookLarMultThreHists(){
     if(m_doNActiveCellsFirstEventVsEta) {
       book1DEtaPhiHists(h_nActiveCellsFirstEvent_eta,Temporary,"NCellsActiveVsEta_%s",
                         "No. of Active Cells in #eta for %s","e");
+                       
     }
     if(m_doNActiveCellsFirstEventVsPhi){
       book1DEtaPhiHists(h_nActiveCellsFirstEvent_phi,Temporary,"NCellsActiveVsPhi_%s",
                         "No. of Active Cells in #phi for %s","p");
+      
     }
 
     if(m_doInverseMasking && m_doMaskingOnline) {
@@ -2593,19 +2573,10 @@ void CaloCellVecMon::bookLarNonThreHists(){
 
 void CaloCellVecMon::bookSummHists(){
 //    ATH_MSG_INFO("in bookSummHists()");
-    h_n_trigEvent = new TH1F("nEvtsByTrigger","Total Events: bin 0, RNDM Trigger: 1, Calo Trigger: 2, MinBias Trigger: 3, MET Trigger: 4, Misc Trigger: 5, Events Selected for Noise Plots: 6 ",7,0.,7.);
+    h_n_trigEvent = new TH1F("nEvtsByTrigger","Total Events: bin 0, RNDM Trigger: 1, Calo Trigger: 2, MinBias Trigger: 3, MET Trigger: 4, Misc Trigger: 5, Events Selected for Noise Plots: 6 ",7,1.,8.);
     SummaryGroup->regHist( h_n_trigEvent ).ignore();
-    
-     const Int_t flag = 7;
-     char const *Summary[flag] = {"TotalEvents","ReadyFilterTool","BadLBTool","LArCollisionTime","BeamBackgroundRemoval", "Trigger", "maskbadcel"};
-     h_EvtRejSumm  = new TH1F("nEvtsRejectByDifferentTool","Total Events: bin 1, ReadyFilterTool: 2, BadLBTool: 3, LArCollisionTime: 4, BeamBackgroundRemoval: 5, Trigger: 6, maskbadcell: 7 ",7,0.,7.);
-   //  h_EvtRejSumm  = new TH1F(flag);
-     h_EvtRejSumm->GetYaxis()->SetTitle("RejectedEvents");
-    for (int i=1;i<=flag;i++) h_EvtRejSumm->GetXaxis()->SetBinLabel(i,Summary[i-1]);
-    SummaryGroup->regHist( h_EvtRejSumm ).ignore();
-    
-  
-//    ATH_MSG_INFO("end of bookSummHists()");
+
+    bookBaseHists(SummaryGroup).ignore(); //from base class
 }
  
  
@@ -2619,8 +2590,6 @@ StatusCode CaloCellVecMon::fillHistograms(){
   sc = checkFilters(ifPass);
   if(sc.isFailure() || !ifPass) return StatusCode::SUCCESS;
 
-  sc = checkBeamBackgroundRemoval(); 
-  if(sc.isFailure()) return StatusCode::SUCCESS;
 
   fillTrigPara();
 
@@ -2642,7 +2611,6 @@ StatusCode CaloCellVecMon::fillHistograms(){
 
   m_newevent = true;  
   m_ncells=0;
-  bool phiInRange = true;
 
   // counting events
   m_eventsCounter++;
@@ -2669,15 +2637,9 @@ StatusCode CaloCellVecMon::fillHistograms(){
 
     if(is_lar) fillLarHists(cell);
 
-    //check that cellphi does not fall out of the -Pi to Pi bounds:
-    if (  m_eventsCounter == 1 ) {
-      if (phiInRange) {
-	if ( fabs(cellphi) > M_PI ) {
-	  phiInRange = false;
-	}
-      }
-    } // end of if (  m_eventsCounter == 1 )
-
+    if(  m_eventsCounter == 1 && fabs(cellphi) > M_PI) {
+      ATH_MSG_WARNING("CaloCellVecMon: Cell Phi values outside of -Pi to Pi range were found and not corrected: check CaloDetDescr."); 
+    }
   } // end of it loop 
 //  ATH_MSG_INFO("after it loop in fillHistograms() ");
 
@@ -2685,100 +2647,14 @@ StatusCode CaloCellVecMon::fillHistograms(){
 
 //  if(m_eventsCounter == 1) maskMissCell();
   maskMissCell();
- 
-  
-  if(  m_eventsCounter == 1) {
-   if( !phiInRange )  ATH_MSG_WARNING("CaloCellVecMon: Cell Phi values outside of -Pi to Pi range were found and not corrected: check CaloDetDescr."); 
-  }
-
+   
   if(m_sporadic_switch)  h_sporad->Fill(1);
 
   return sc;
 }
 
-StatusCode CaloCellVecMon::checkFilters(bool& ifPass){
 
-// ATH_MSG_INFO("CaloCellVecMon::checkFilters() starts");
- StatusCode sc = StatusCode::SUCCESS;
 
- const xAOD::EventInfo* eventInfo;
- sc = evtStore()->retrieve(eventInfo);
- if (sc.isFailure()) {
-   ATH_MSG_ERROR("Event info not found !" );
-   return sc;
- }
-
- m_lb = eventInfo->lumiBlock();
- 
- 
- if(m_useLArNoisyAlg && (eventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error)) ifPass = 0;
-
- m_failReadyFilterTool= false; // khadeejah
-
- if(m_useReadyFilterTool){
-   if(!m_ReadyFilterTool->accept()) ifPass = 0;
-   else if (!m_ReadyFilterTool->accept())  {m_failReadyFilterTool= true; } // km add
- }
-   //  h_EvtRejSumm->Fill( m_ReadyFilterToolchan ); // m_ReadyFilterToolChan = 1 in init
-   
-    h_EvtRejSumm->Fill(1);
-    
-    if (m_failReadyFilterTool) h_EvtRejSumm->Fill(2); // km ad
-    m_failBadLBTool=false;
- 
-   if(m_useBadLBTool){
-   if(!m_BadLBTool->accept()) ifPass = 0;
-   else if (!m_BadLBTool->accept()) { m_failBadLBTool=true;} //km add
-   }
-   // h_EvtRejSumm->Fill( m_BadLBToolchan ); // m_BadLBToolChan = 2 in init
-
-  if (m_failBadLBTool) h_EvtRejSumm->Fill(3); // m_BadLBToolChan = 2 in init
- // if (m_useBadLBTool) h_EvtRejSumm->Fill(3); // m_BadLBToolChan = 2 in init
-  
- m_failLArCollisionTime = false; // km add
- 
- const LArCollisionTime * larTime;
- sc = evtStore()->retrieve(larTime,"LArCollisionTime");
- if(sc.isFailure()){
-   ATH_MSG_WARNING("Unable to retrieve LArCollisionTime event store");
- }
- else {
-  if (larTime->timeC()!=0 && larTime->timeA()!=0 && std::fabs(larTime->timeC() - larTime->timeA())<10) ifPass = 0;
- }
-
- // this work
- sc = evtStore()->retrieve(larTime,"LArCollisionTime");
- if(sc.isFailure()){
-   ATH_MSG_WARNING("Unable to retrieve LArCollisionTime event store");
-   }else{
- if (larTime->timeC()!=0 && larTime->timeA()!=0 && std::fabs(larTime->timeC() - larTime->timeA())<10)  m_failLArCollisionTime=true;
- } // this is work ok
-
-   if (m_failLArCollisionTime) h_EvtRejSumm->Fill(4);
-// ATH_MSG_INFO("CaloCellVecMon::checkFilters() is done");
- return StatusCode::SUCCESS;
-}
-
-StatusCode CaloCellVecMon::checkBeamBackgroundRemoval()
-{
-//  ATH_MSG_INFO("CaloCellVecMon::checkBeamBackgroundRemoval() starts");
-  m_passBeamBackgroundRemoval = true;
-  BeamBackgroundData* beamBackgroundData;
-  if(m_useBeamBackgroundRemoval){
-   StatusCode sc = evtStore()->retrieve(beamBackgroundData, "BeamBackgroundData");
-   if(sc.isFailure()){
-    ATH_MSG_WARNING("Unable to retrieve BeamBackgroundData");
-    return StatusCode::SUCCESS;
-   }
-//   ATH_MSG_INFO("BeamBackgroundData is retrieved");
-   if( beamBackgroundData->GetNumSegment() > 0 )  m_passBeamBackgroundRemoval = false;
-  }
-  
-     if (m_passBeamBackgroundRemoval) h_EvtRejSumm->Fill(5);  // km ad
-//  ATH_MSG_INFO("m_passBeamBackgroundRemoval ="<<m_passBeamBackgroundRemoval);
-//  ATH_MSG_INFO("CaloCellVecMon::checkBeamBackgroundRemoval() ends");
-  return StatusCode::SUCCESS;
-}
 
 void CaloCellVecMon::fillTrigPara(){
 //  ATH_MSG_INFO("CaloCellVecMon::fillTrigPara() starts");
@@ -2946,8 +2822,9 @@ void CaloCellVecMon::fillTrigPara(){
     h_n_trigEvent->Fill(6.5);
   }
 
-//  if (m_useTrigger) h_EvtRejSumm->Fill(5.5);  // km add
-   if (m_useTrigger) h_EvtRejSumm->Fill(6); 
+
+  //if (m_useTrigger) h_EvtRejSumm->Fill(6); 
+  
 
   for(int ilyrns=EMBPNS; ilyrns<MAXLYRNS; ilyrns++) {
    for(int ti=0; ti < m_nThresholds[ilyrns]; ti++) {
@@ -3381,10 +3258,7 @@ void CaloCellVecMon::fillLarHists(const CaloCell* cell ){
   if (m_maskKnownBadChannels) 
       maskbadcell = m_badChannelMask->cellShouldBeMasked(id,gain); //<-- (Online) cell masking based on this
   else  maskbadcell = false; 
-
-   // km add
-// if (maskbadcell)  h_EvtRejSumm->Fill(6.5);
- if (maskbadcell)  h_EvtRejSumm->Fill(7);
+  
   // decide if cell should be masked: masksel==1: neither badcell, nor nocondition; masksel==0: either badcell, or noconditions 
   bool masksel = !maskbadcell && !masknoconditions; 
 
@@ -3686,16 +3560,16 @@ StatusCode CaloCellVecMon::realProcHistograms(){
 
     StatusCode sc = StatusCode::SUCCESS;
 
-   // processTileHists(); // khadeejah comment out
+    processTileHists(); // khadeejah comment out
    
    // bookCaloLayers(); //Khadeejah comment out
   
-   // setBookSwitch();  //Khadeejah comment out
+  //  setBookSwitch();  //Khadeejah comment out
 
-/*    if(m_maskKnownBadChannels || m_maskNoCondChannels) m_procimask = m_doInverseMasking;
+    if(m_maskKnownBadChannels || m_maskNoCondChannels) m_procimask = m_doInverseMasking;
     else m_procimask = false; 
 
-    if ( m_maskKnownBadChannels || m_maskNoCondChannels ){
+/*    if ( m_maskKnownBadChannels || m_maskNoCondChannels ){
        if(!m_doMaskingOnline) {
          //Book inverse masked histograms that would have been booked and filled in fillHistograms if
          // doMaskingOnline was on and which can be constructed here.
@@ -3704,16 +3578,16 @@ StatusCode CaloCellVecMon::realProcHistograms(){
          }
          maskBadChanHists();
        }
-    }
+    }*/
 
   //  if(m_bookProcHists) bookProcHists();  //Khadeejah Comment out
 
-  //  processHists(); // Khadeejah comment out
+    processHists(); // Khadeejah comment out
 
     if(m_procimask) processMaskHists();
 
 
-    if(m_maskKnownBadChannels || m_maskNoCondChannels){
+    /*if(m_maskKnownBadChannels || m_maskNoCondChannels){
       if(!m_doMaskingOnline) {
          if(m_doInverseMasking)  {
           if(m_ifSaveAndDeleteHists)  sc = deleteImaskHists();
@@ -3734,9 +3608,9 @@ StatusCode CaloCellVecMon::realProcHistograms(){
 
   //  deleteBookSwitch();
  
-  //  deleteCaloLayers();
+   // deleteCaloLayers();
 
- //   m_bookProcHists = m_ifSaveAndDeleteHists;
+    //m_bookProcHists = m_ifSaveAndDeleteHists;
 
 //    ATH_MSG_INFO("CaloCellVecMon realProcHistograms() is done");
     return sc;
@@ -4157,10 +4031,12 @@ void CaloCellVecMon::processHists(){
 	    unpackTProfile2D(h_energyProfile_etaphi[ilyr][ti],h_noise_etaphi[ilyr][ti],
 			     h_averageEnergy_etaphi[ilyr][ti],h_occupancy_etaphi[ilyr][ti],h_totalEnergy_etaphi[ilyr][ti] );
 
-	    if(m_procEtaPhiEnergyRMS[ilyr][ti]){
+#if 0
+	    if(m_procEtaPhiEnergyRMS[ilyrns][ti]){
 	    }
-	    if(m_procEtaPhiTotalEnergy[ilyr][ti]){
+	    if(m_procEtaPhiTotalEnergy[ilyrns][ti]){
 	    }
+#endif
 	    if(m_doEtaPhiAverageEnergy[ilyrns][ti]){
 	      if(m_thresholdDirection[ilyrns][ti] == NONE) {
 		setCorrectEntries(h_averageEnergy_etaphi,ilyr,ti);
@@ -4344,7 +4220,7 @@ void CaloCellVecMon::processMaskHists(){
 }
 
   // Khadeejah move the definition after deleteHistograms() deleteLarMultThreHists(){
-/*StatusCode CaloCellVecMon::deleteProcHists(){
+StatusCode CaloCellVecMon::deleteProcHists(){
 //      ATH_MSG_INFO("deleteProcHists() starts .");  
       StatusCode sc = StatusCode::SUCCESS;
   
@@ -4478,7 +4354,7 @@ void CaloCellVecMon::processMaskHists(){
       }
 //      ATH_MSG_INFO("deleteProcHists() is done .");  
       return sc;
-} */
+} 
 
 //////////////////////////////////////////////////////////////////
 StatusCode CaloCellVecMon::deleteHistograms(){
@@ -4505,7 +4381,20 @@ StatusCode CaloCellVecMon::deleteHistograms(){
 
   deleteLarMultThreHistVectors();
 
- //Khadeejah add
+  if(m_sporadic_switch) {
+   sc=deleteSporHists();
+   if(sc.isFailure()){
+    ATH_MSG_ERROR("fail in deleteSporHists ");
+    return sc;
+   }
+  }
+
+  sc=deleteTileHists();
+  if(sc.isFailure()){
+    ATH_MSG_ERROR("fail in deleteTileHists ");
+    return sc;
+  }
+//Khadeejah add
 
    sc=deleteProcHists();
     if(sc.isFailure()){
@@ -4525,22 +4414,6 @@ StatusCode CaloCellVecMon::deleteHistograms(){
          }
       } 
     }
-
-
-
-  if(m_sporadic_switch) {
-   sc=deleteSporHists();
-   if(sc.isFailure()){
-    ATH_MSG_ERROR("fail in deleteSporHists ");
-    return sc;
-   }
-  }
-
-  sc=deleteTileHists();
-  if(sc.isFailure()){
-    ATH_MSG_ERROR("fail in deleteTileHists ");
-    return sc;
-  }
 
   deleteMonGroups();
 
@@ -4798,7 +4671,7 @@ StatusCode CaloCellVecMon::deleteLarMultThreHists(){
 
   if(m_doNActiveCellsFirstEventVsPhi){
 //   ATH_MSG_INFO("before h_nActiveCellsFirstEven_phi");
-   sc=saveAndDeleteHistsInLayers(h_nActiveCellsFirstEvent_phi,Temporary);
+    sc=saveAndDeleteHistsInLayers(h_nActiveCellsFirstEvent_phi,Temporary);
    if(sc.isFailure()){
        ATH_MSG_ERROR("fail in calling saveAndDeleteHistsInLayer");
        return sc;
@@ -4847,7 +4720,7 @@ StatusCode CaloCellVecMon::deleteLarMultThreHists(){
 //  ATH_MSG_INFO("end of deleteLarMultThreHists ");
   return sc;
 }
-StatusCode CaloCellVecMon::deleteProcHists(){
+/*StatusCode CaloCellVecMon::deleteProcHists(){
 //      ATH_MSG_INFO("deleteProcHists() starts .");  
       StatusCode sc = StatusCode::SUCCESS;
   
@@ -4981,7 +4854,7 @@ StatusCode CaloCellVecMon::deleteProcHists(){
       }
 //      ATH_MSG_INFO("deleteProcHists() is done .");  
       return sc;
-} 
+} */
 
 
 
@@ -5396,35 +5269,9 @@ StatusCode CaloCellVecMon::deleteSummHists(){
 //  ATH_MSG_INFO("inside deleteSummHists");
   sc=saveAndDeleteHistFromGroup(h_n_trigEvent,SummaryGroup,1);
   sc=saveAndDeleteHistFromGroup(h_EvtRejSumm,SummaryGroup,1); // km add
+
 //  ATH_MSG_INFO("end of deleteSummHists");
   return sc; 
-}
-
-//////////////////////////////////////////////////////////////////
-StatusCode CaloCellVecMon::runStat()
-{
-//  ATH_MSG_INFO("CaloCellVecMon runStat() is starting");
-
-  StatusCode sc = StatusCode::SUCCESS;
-//  ATH_MSG_INFO("before call realProcHistograms in runStat()");
-  m_ifSaveAndDeleteHists = true;
-  sc = realProcHistograms(); 
-//  ATH_MSG_INFO("after call realProcHistograms in runStat()");
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR("realProcHistograms(true,true,true) method in CaloCellVecMon::runStat() failed");
-    return sc;
-  }
-
-//  ATH_MSG_INFO("before call deleteHistograms in runStat()");
-  sc = deleteHistograms();
-//  ATH_MSG_INFO("after call deleteHistograms in runStat()");
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR("fail to deleteHistograms at the end of run  ");
-    return sc;
-  }
-
-//  ATH_MSG_INFO("CaloCellVecMon runStat() is done");
-  return sc;
 }
 
 //////////////////////////////////////////////////////////////////

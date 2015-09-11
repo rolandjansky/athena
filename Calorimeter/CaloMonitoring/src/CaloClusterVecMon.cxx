@@ -13,9 +13,9 @@
 //            L. Sawyer  12/2013 Modified booking for new managed histograms 
 // MANAGERS:  H. Hadavand   
 //            R. Dhullipudi (01/07/2008)
-//            A .Sircar  
 //            D. Hu (Jun 2011 - May 2012)   
 //            L. Sawyer (2013 - )
+//           
 //********************************************************************
               
 
@@ -49,22 +49,15 @@ namespace GetSort{
 */
 
 CaloClusterVecMon::CaloClusterVecMon(const std::string& type, const std::string& name, const IInterface* parent) :
-  ManagedMonitorToolBase(type, name, parent),
+  CaloMonToolBase(type, name, parent),
   m_caloMgr(0),
   m_caloCellHelper(0)
 {
   declareInterface<IMonitorToolBase>(this);
 
-  declareProperty("CaloClusterContainer", m_clusterContainerName="CaloCalTopoCluster"); 
+  declareProperty("CaloClusterContainer", m_clusterContainerName="CaloCalTopoClusters"); 
 
   declareProperty("TimeGran",m_timeGran="lowStat");
- 
-  declareProperty("useBadLBTool", m_useBadLBTool=false);
-  declareProperty("BadLBTool", m_BadLBTool);
-  declareProperty("useReadyFilterTool",m_useReadyFilterTool=true);
-  declareProperty("ReadyFilterTool",m_ReadyFilterTool);
-  declareProperty("useLArNoisyAlg",m_useLArNoisyAlg=false);
-  declareProperty("useBeamBackgroundRemoval",m_useBeamBackgroundRemoval=false); 
 
   declareProperty("lowEthresh", m_Ethresh[LOW_E]=0.0);
   declareProperty("lowmedEthresh", m_Ethresh[LOWMED_E]=5.0);
@@ -93,6 +86,7 @@ CaloClusterVecMon::~CaloClusterVecMon() {
 
 void CaloClusterVecMon::initHists(){
  // cell hists 
+ m_eventsCounter = 0; // km add
  m_nCells=0;
  m_maxEcellToEclusterRatio=0;
  m_dominantCellOccupancy_etaphi=0;
@@ -192,28 +186,6 @@ StatusCode CaloClusterVecMon::retrieveTools(){
     return StatusCode::FAILURE;
   }
 
-  // retrieve BadLBFilter tool 
-  if(m_useBadLBTool){
-   sc = m_BadLBTool.retrieve();
-   if(sc.isFailure()){
-    ATH_MSG_ERROR("Unable to retrieve the DQBadLBFilterTool");
-    m_useBadLBTool = false;
-    return sc;
-   }
-   ATH_MSG_INFO("DQBadLBFilterTool retrieved");
-  }
-
-  // retrieve AtlasReadyFilter tool
-  if(m_useReadyFilterTool){
-   sc = m_ReadyFilterTool.retrieve();
-   if(sc.isFailure()) {
-     ATH_MSG_ERROR("Could Not Retrieve AtlasReadyFilterTool " << m_ReadyFilterTool);
-     m_useReadyFilterTool = false;
-     return sc;
-   }
-   ATH_MSG_INFO("AtlasReadyFilterTool retrieved");
-  }
-
   return sc;
 }
 
@@ -238,7 +210,7 @@ StatusCode CaloClusterVecMon::bookHistograms(){
     bookCellHists(theinterval);
     bookClusterHists(theinterval);
     bookClusterStatHists(theinterval);
-    if(  m_clusterContainerName == "CaloCalTopoCluster" ) {
+    if(  m_clusterContainerName == "CaloCalTopoClusters" ) {
       fillTileHistRange();
       bookTileHists(theinterval);
     }
@@ -387,15 +359,9 @@ void CaloClusterVecMon::bookClusterHists(const Interval_t theinterval){
     MonGroup  cluster_2davgEt_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/TransEnergy", theinterval);    
     MonGroup  cluster_2dTotale_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/TotalEnergy", theinterval);   
     MonGroup  cluster_energytime_expert  ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/Time_Energy", theinterval);
-    MonGroup  cluster_SummaryGroup_expert ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/Summary", theinterval); // add
-    // km add
+    MonGroup  cluster_SummaryGroup_expert ( this, "/CaloMonitoring/ClusterMon/"+m_clusterContainerName+TheTrigger+"/Summary", theinterval); 
     
-     const Int_t flag = 7;
-    char const *Summary[flag] = {"TotalEvents","ReadyFilterTool","BadLBTool","BeamBackgroundRemoval"};
-    m_EvtRejSumm  = new TH1F("nEvtsRejectByDifferentTool","Total Events: bin 1, ReadyFilterTool: 2, BadLBTool: 3, BeamBackgroundRemoval: 4 ",4,0.,4.);
-    m_EvtRejSumm->GetYaxis()->SetTitle("RejectedEvents");
-    cluster_SummaryGroup_expert.regHist( m_EvtRejSumm ).ignore();
-     for (int i=1;i<=flag;i++) m_EvtRejSumm->GetXaxis()->SetBinLabel(i,Summary[i-1]);
+    bookBaseHists(&cluster_SummaryGroup_expert).ignore(); //from base class
 
     for (int i=0; i<MAX_E; i++) { //loop over thresholds
       char bname[256];
@@ -499,8 +465,7 @@ void CaloClusterVecMon::bookClusterHists(const Interval_t theinterval){
       else cluster_2drates_expert.regHist(m_etaVsPhi[i]).ignore();
       m_etaVsPhi[i]->GetXaxis()->SetTitle("#eta");
       m_etaVsPhi[i]->GetYaxis()->SetTitle("#phi");
-     // m_etaVsPhi[i]->SetAxisRange(0,1000000,"Z");
-     // m_etaVsPhi[i]->GetZaxis()->SetMoreLogLabels(); // an option
+      m_etaVsPhi[i]->GetZaxis()->SetMoreLogLabels();  // km add
 
       sprintf(btitle, "Avg energy of clusters with E_clus>%4.1f GeV", m_Ethresh[i]);
       sprintf(bname, "etaphi_thresh_avgenergy_%d", i);
@@ -739,6 +704,9 @@ StatusCode CaloClusterVecMon::fillHistograms() {
   xAOD::CaloClusterContainer::const_iterator it = clusterCont->begin(); 
   xAOD::CaloClusterContainer::const_iterator it_e = clusterCont->end(); 
 
+  //count events
+  m_eventsCounter++; // km add
+
   for ( ; it!=it_e;++it) { 
     const CaloCluster* clus = *it; 
 
@@ -751,70 +719,11 @@ StatusCode CaloClusterVecMon::fillHistograms() {
 
   fillClusterStatHist(clusterCont);
 
-  if(  m_clusterContainerName == "CaloCalTopoCluster" ) fillTileHist(clusterCont);
+  if(  m_clusterContainerName == "CaloCalTopoClusters" ) fillTileHist(clusterCont);
 
   return sc;
 }
 
-////////////////////////////////////////////////////////////////////////////
-StatusCode CaloClusterVecMon::checkFilters(bool& ifPass){
- StatusCode sc = StatusCode::SUCCESS;
-
- if(m_useLArNoisyAlg) {
-   const xAOD::EventInfo* thisEventInfo;
-   sc = evtStore()->retrieve(thisEventInfo);
-   if (sc!=StatusCode::SUCCESS){
-     m_useLArNoisyAlg = false;
-     ATH_MSG_WARNING("No EventInfo object found! Can't read run number!");
-   }
-   else{
-     if (thisEventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error) ifPass = 0;
-   }
- }
-
-m_failReadyFilterTool= false; // km add  
- if(m_useReadyFilterTool){
-   if(!m_ReadyFilterTool->accept()) ifPass = 0;
-  else if (!m_ReadyFilterTool->accept())  {m_failReadyFilterTool= true; } // km add
- }
- 
-  m_EvtRejSumm->Fill(1); // this is for all the events km add
-  if (m_ReadyFilterTool) m_EvtRejSumm->Fill(2); // km add
- // m_EvtRejSumm->GetXaxis()->SetBinLabel(1.5,"FilterTool");
-  
- m_failBadLBTool=false;
- if(m_useBadLBTool){
-   if(!m_BadLBTool->accept()) ifPass = 0;
-   else if (!m_BadLBTool->accept()) { m_failBadLBTool=true;} //km add
- }
- 
- if (m_failBadLBTool) m_EvtRejSumm->Fill(3); // km add
- 
-// ATH_MSG_INFO("CaloClusterVecMon::checkBeamBackgroundRemoval() starts");
- if(m_useBeamBackgroundRemoval){ 
-   BeamBackgroundData* beamBackgroundData; 
-   sc = evtStore()->retrieve(beamBackgroundData, "BeamBackgroundData"); 
-   if(sc.isFailure()){ 
-    ATH_MSG_WARNING("Unable to retrieve BeamBackgroundData"); 
-   } 
-   else {
-//    ATH_MSG_INFO("BeamBackgroundData is retrieved"); 
-    if( beamBackgroundData->GetNumSegment() > 0 ) {
-       ifPass = false; 
-//       ATH_MSG_INFO("m_passBeamBackgroundRemoval = 0");   
-    }
-//    else ATH_MSG_INFO("m_passBeamBackgroundRemoval = 1");
-   }
- } 
-//  ATH_MSG_INFO("CaloClusterVecMon::checkBeamBackgroundRemoval() ends"); 
- if  (m_useBeamBackgroundRemoval) m_EvtRejSumm->Fill(4); // km add
-
- if(sc!=StatusCode::SUCCESS){
-  ATH_MSG_WARNING("failure in checkFilters");
- }
-
- return StatusCode::SUCCESS;
-}
 
 ////////////////////////////////////////////////////////////////////////////
 void CaloClusterVecMon::initCounter(){

@@ -16,11 +16,9 @@
 #ifndef CALOClusterVecMon_H
 #define CALOClusterVecMon_H
 
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "CaloMonitoring/CaloMonToolBase.h"
 
 #include "GaudiKernel/ToolHandle.h"
-
-#include "AthenaMonitoring/IDQFilterTool.h"
 
 #include "Identifier/Identifier.h"
 
@@ -42,7 +40,7 @@
 #include <functional>
 #include <set>
 
-class CaloClusterVecMon : public ManagedMonitorToolBase {
+class CaloClusterVecMon : public CaloMonToolBase {
  public:
 
   CaloClusterVecMon(const std::string & type, const std::string& name, const IInterface* parent);
@@ -67,7 +65,6 @@ class CaloClusterVecMon : public ManagedMonitorToolBase {
    void fillTileHistRange();
    void bookTileHists(const Interval_t theinterval);
 
-   StatusCode checkFilters(bool& ifPass);
    void initCounter();
    void fillCellHist(const xAOD::CaloCluster* clus);
    void fillClusterEMvar(const xAOD::CaloCluster* clus);
@@ -98,17 +95,6 @@ class CaloClusterVecMon : public ManagedMonitorToolBase {
    // Time granularity  
    std::string m_timeGran;
 
-   // Handles on various tools
-   bool m_useBadLBTool;
-   ToolHandle<IDQFilterTool> m_BadLBTool;
-   bool m_useReadyFilterTool;
-   ToolHandle<IDQFilterTool> m_ReadyFilterTool;
-   bool m_useLArNoisyAlg;
-
-   bool m_useBeamBackgroundRemoval; 
-   bool m_failReadyFilterTool; // km add
-   bool m_failBadLBTool; // km add
-
    //energy threshold, eta min and time width for plots 
    float m_Ethresh[MAX_E];
    float m_etaMin[MAX_REGION];
@@ -127,6 +113,7 @@ class CaloClusterVecMon : public ManagedMonitorToolBase {
    const CaloCell_ID*   m_caloCellHelper;
 
    // cluster stat variables
+   int m_eventsCounter; // add
    int m_cluscount;
    int m_cluscount_top;
    int m_cluscount_bot;
@@ -160,7 +147,6 @@ class CaloClusterVecMon : public ManagedMonitorToolBase {
    TH2F*       m_EMclus_etaVsPhi[MAX_E];
    TH1F*       m_clus_eta[MAX_E];
    TH1F*       m_clus_phi[MAX_E][3];
-   TH1F*       m_EvtRejSumm; // km add
    TH1F*       m_clus_eta_Et[MAX_E]; // km add
    TH1F*       m_clus_phi_Et[MAX_E][3]; // km add
    TH2F*       m_etaVsPhi[MAX_E];
