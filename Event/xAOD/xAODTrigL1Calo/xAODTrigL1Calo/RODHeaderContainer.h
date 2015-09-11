@@ -7,11 +7,11 @@
 
 // Local include(s):
 #include "xAODTrigL1Calo/RODHeader.h"
-#include "xAODTrigL1Calo/versions/RODHeaderContainer_v1.h"
+#include "xAODTrigL1Calo/versions/RODHeaderContainer_v2.h"
 
 namespace xAOD {
    /// Define the latest version of the RODHeader container
-   typedef RODHeaderContainer_v1 RODHeaderContainer;
+   typedef RODHeaderContainer_v2 RODHeaderContainer;
 }
 
 #include "xAODCore/CLASS_DEF.h"
