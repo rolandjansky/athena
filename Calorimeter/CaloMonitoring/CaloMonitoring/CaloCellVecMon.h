@@ -22,7 +22,7 @@
 #ifndef CALOCELLVECMON_H
 #define CALOCELLVECMON_H
 
-#include "AthenaMonitoring/ManagedMonitorToolBase.h"
+#include "CaloMonitoring/CaloMonToolBase.h"
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -90,7 +90,7 @@ class TProfile2D;
 class TProfile;
 
 
-class CaloCellVecMon : public ManagedMonitorToolBase {
+class CaloCellVecMon : public CaloMonToolBase {
  
  public:
 
@@ -103,7 +103,6 @@ class CaloCellVecMon : public ManagedMonitorToolBase {
   virtual StatusCode bookHistograms();
   virtual StatusCode procHistograms();  
   virtual StatusCode fillHistograms();
-  virtual StatusCode runStat();
   virtual StatusCode finalHists();
 
   // Enumerate the layers in order to keep track of them when looping
@@ -159,8 +158,8 @@ class CaloCellVecMon : public ManagedMonitorToolBase {
   void bookLarNonThreHists();
   void bookSummHists();
 
-  StatusCode checkFilters(bool& ifPass); 
-  StatusCode checkBeamBackgroundRemoval();
+  //StatusCode checkFilters(bool& ifPass); 
+  //  StatusCode checkBeamBackgroundRemoval();
   void fillTrigPara();
   void fillSporHists(const CaloCell* cell );
   void fillTileHists(const CaloCell* cell );
@@ -318,7 +317,7 @@ class CaloCellVecMon : public ManagedMonitorToolBase {
   int hashToLayer(CaloMonitoring::CaloLayer::Partition partition, int layerNum, CaloMonitoring::CaloLayer::Side side);
 
   // CaloCellContainer name 
-  std::string m_cellContainerName;
+  std::string m_cellContainerName, m_beamBackgroundKey;
   // Time granularity 
   std::string m_timeGran;
 
@@ -328,14 +327,6 @@ class CaloCellVecMon : public ManagedMonitorToolBase {
 
   bool m_firstcallofBook; 
   
-  // Handles on various tools
-  bool m_useBadLBTool;
-  ToolHandle<IDQFilterTool> m_BadLBTool;
-
-  bool m_useReadyFilterTool;
-  ToolHandle<IDQFilterTool> m_ReadyFilterTool;
-
-  bool m_useLArNoisyAlg;
   bool m_useElectronicNoiseOnly;
   bool m_useTwoGaus;
   ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
@@ -344,10 +335,6 @@ class CaloCellVecMon : public ManagedMonitorToolBase {
   bool m_useBeamBackgroundRemoval; 
   bool m_passBeamBackgroundRemoval;
 
-  bool m_failReadyFilterTool; // km add
-  bool m_failLArCollisionTime; // km add
-  bool m_failBadLBTool; // km add
-  
   // const Int_t flag = 7;
   //char *Summary[flag] = {"TotalEvents","ReadyFilterTool","BadLBTool","LArCollisionTime","BeamBackgroundRemoval", "Trigger", "maskbadcel"};
 
@@ -403,7 +390,7 @@ class CaloCellVecMon : public ManagedMonitorToolBase {
   int * m_nEventsPassingTrigger[MAXLYRNS];
   int * m_nEventsPassingBeamBG[MAXLYRNS];
   bool m_newevent;
-  int m_lb;
+  //int m_lb;
   int m_ncells; 
 
   // tile energy threshold
@@ -645,7 +632,7 @@ class CaloCellVecMon : public ManagedMonitorToolBase {
 
   // summary plot
   TH1F* h_n_trigEvent;
-  TH1F* h_EvtRejSumm; // km add
+  //TH1F* h_EvtRejSumm; // km add
 
   // monitoring cell with energy > 4*DBnoise
   TH2F * h_cellOccupancyEtaLumi[MAXLAYER];
