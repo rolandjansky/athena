@@ -292,7 +292,7 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
     m_TileCellDetailOccMapOvThr[ part ].push_back( book2F(m_TrigNames[trig]+"/"+m_PartNames[part],
                                                           "tileCellDetailOccMapOvThr_"+m_PartNames[part] + m_TrigNames[trig],
                                                           "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+" Partition "+m_PartNames[part]+
-                                                          ":  Occupancy Map Over Threshold "+sene.str()+" MeV",
+                                                          ":  Occupancy Map Over Threshold "+sene.str()+" MeV (entries = events)",
                                                           64,0.5, 64.5,48,-0.5,47.5) ) ;
 
     SetBinLabel(m_TileCellDetailOccMapOvThr[ part ][ element ]->GetYaxis(),m_cellchLabel[part]);
@@ -301,7 +301,7 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
     m_TileCellDetailOccMapHiGainOvThr[ part ].push_back( book2F(m_TrigNames[trig]+"/"+m_PartNames[part],
                                                                 "tileCellDetailOccMapHiGainOvThr_"+m_PartNames[part] + m_TrigNames[trig],
                                                                 "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+" Partition "+m_PartNames[part]+
-                                                                ": Hi Gain Occupancy Map Over Threshold "+sene.str()+" MeV",
+                                                                ": Hi Gain Occupancy Map Over Threshold "+sene.str()+" MeV (entries = events)",
                                                                 64,0.5, 64.5,48,-0.5,47.5) ) ;
 
     SetBinLabel(m_TileCellDetailOccMapHiGainOvThr[ part ][ element ]->GetYaxis(),m_cellchLabel[part]);
@@ -311,7 +311,7 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
     m_TileCellDetailOccMapLowGainOvThr[ part ].push_back( book2F(m_TrigNames[trig]+"/"+m_PartNames[part],
                                                                  "tileCellDetailOccMapLowGainOvThr_"+m_PartNames[part] + m_TrigNames[trig],
                                                                  "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+" Partition "+m_PartNames[part]+
-                                                                 ": Low Gain Occupancy Map Over Threshold "+sene.str()+" MeV",
+                                                                 ": Low Gain Occupancy Map Over Threshold "+sene.str()+" MeV (entries = events)",
                                                                  64,0.5, 64.5,48,-0.5,47.5) ) ;
 
     SetBinLabel(m_TileCellDetailOccMapLowGainOvThr[ part ][ element ]->GetYaxis(),m_cellchLabel[part]);
@@ -475,12 +475,23 @@ StatusCode TileCellMonTool::bookHistTrig( int trig ) {
   std::string histDir, histName, histTitle, xTitle;
 
   /// Book Sampling Histos
-  for (int sample=0; sample<TotalSamp; sample++) {
-    m_TileCellEtaPhiOvThrSamp[sample].push_back( book2I(m_TrigNames[trig],"tileCellEtaPhiOvThr"+m_SampStrNames[sample] + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile Cell "+m_SampStrNames[sample]+" Position of cells over threshold "+sene.str()+" MeV",21,-2.025, 2.025,64,-3.15,3.15) );
+  for (int sample = 0; sample < TotalSamp; ++sample) {
+    m_TileCellEtaPhiOvThrSamp[sample].push_back( book2I(m_TrigNames[trig]
+                                                        , "tileCellEtaPhiOvThr" + m_SampStrNames[sample] + m_TrigNames[trig]
+                                                        , "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": Tile Cell " + m_SampStrNames[sample]
+                                                                 + " Position of cells over threshold " + sene.str() + " MeV (entries = events)"
+                                                        , 21, -2.025, 2.025, 64, -3.15, 3.15) );
+
     m_TileCellEtaPhiOvThrSamp[sample][ element ]->GetXaxis()->SetTitle("#eta");
     m_TileCellEtaPhiOvThrSamp[sample][ element ]->GetYaxis()->SetTitle("#phi");
 
-    m_TileCellEneEtaPhiSamp[sample].push_back( bookProfile2D(m_TrigNames[trig],"tileCellEneEtaPhi"+m_SampStrNames[sample] + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile 2D Cell "+m_SampStrNames[sample]+" Energy Average depostion (MeV) (entries = events)",21,-2.025, 2.025,64,-3.15,3.15,-2.e6, 2.e6) );
+    m_TileCellEneEtaPhiSamp[sample].push_back( bookProfile2D(m_TrigNames[trig]
+                                                             , "tileCellEneEtaPhi" + m_SampStrNames[sample] + m_TrigNames[trig]
+                                                             , "Run " + runNumStr + " Trigger " + m_TrigNames[trig] 
+                                                                      + ": Tile 2D Cell " + m_SampStrNames[sample] 
+                                                                      + " Energy Average depostion (MeV) (entries = events)"
+                                                             , 21, -2.025, 2.025,64, -3.15, 3.15, -2.e6, 2.e6) );
+
     m_TileCellEneEtaPhiSamp[sample][ element ]->GetXaxis()->SetTitle("#eta");
     m_TileCellEneEtaPhiSamp[sample][ element ]->GetYaxis()->SetTitle("#phi");
     m_TileCellEneEtaPhiSamp[sample][ element ]->SetOption("COLZ");
@@ -1288,6 +1299,11 @@ StatusCode TileCellMonTool::fillHistograms() {
   calculateSynch();
 
   // Set number of events as entries
+  for (int partition = 0; partition < NumPart; ++partition) {
+    m_TileCellStatOnFly[partition]->SetEntries(m_nEvents);
+    m_TileCellDetailNegOccMap[partition]->SetEntries(m_nEvents);
+  }
+
   for (unsigned int i = 0; i < m_eventTrigs.size(); ++i) {
 
     ++m_nEventsProcessed[m_eventTrigs[i]];
@@ -1297,10 +1313,14 @@ StatusCode TileCellMonTool::fillHistograms() {
 
     for (int sample = 0; sample < TotalSamp; ++sample) {
       m_TileCellEneEtaPhiSamp[sample][vecInd]->SetEntries(nEventsPerTrig);    
+      m_TileCellEtaPhiOvThrSamp[sample][vecInd]->SetEntries(nEventsPerTrig);    
     }
 
     for (int partition = 0; partition < NumPart; ++partition) {
       m_TileCellDetailOccMap[partition][vecInd]->SetEntries(nEventsPerTrig);
+      m_TileCellDetailOccMapOvThr[partition][vecInd]->SetEntries(nEventsPerTrig);
+      m_TileCellDetailOccMapHiGainOvThr[partition][vecInd]->SetEntries(nEventsPerTrig);
+      m_TileCellDetailOccMapLowGainOvThr[partition][vecInd]->SetEntries(nEventsPerTrig);
     }
   }
 
@@ -1474,13 +1494,14 @@ void TileCellMonTool::FirstEvInit() {
     } 
 
     m_TileCellStatOnFly[p] = book2F("", "tileCellStatOnFly_" + m_PartNames[p]
-                                    , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Channels masked on the fly"
+                                    , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Channels masked on the fly (entries = events)"
                                     , 64, 0.5, 64.5, 48, -0.5, 47.5);
     SetBinLabel(m_TileCellStatOnFly[p]->GetYaxis(), m_cellchLabel[p]);
     SetBinLabel(m_TileCellStatOnFly[p]->GetXaxis(), m_moduleLabel[p]);
 
     m_TileCellDetailNegOccMap[p] = book2F("", "tileCellDetailNegOccMap_" + m_PartNames[p]
-                                          , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Occupancy Map Below Negative Threshold " + sene.str() + " GeV"
+                                          , "Run " + runNumStr + " Partition " + m_PartNames[p] 
+                                                   + ": Occupancy Map Below Negative Threshold " + sene.str() + " GeV (entries = events)"
                                           , 64, 0.5, 64.5, 48, -0.5, 47.5);
     SetBinLabel(m_TileCellDetailNegOccMap[p]->GetYaxis(), m_cellchLabel[p]);
     SetBinLabel(m_TileCellDetailNegOccMap[p]->GetXaxis(), m_moduleLabel[p]);
