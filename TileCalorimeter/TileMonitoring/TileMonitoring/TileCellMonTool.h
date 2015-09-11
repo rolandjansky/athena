@@ -100,8 +100,6 @@ class TileCellMonTool: public TileFatherMonTool {
 
     TH2S* m_TileCellStatFromDB[NumPart][2];  //partitions and gains
     TH2F* m_TileCellStatOnFly[NumPart];  //partitions
-    TH2F* m_TileCellStatOnFlyLastLumiblocks[NumPart];  //partitions
-    std::vector<TH2F*> m_TileCellStatOnFlyLastLumiblocksShadow[NumPart];  //partitions
     TH2F* m_TileCellDetailNegOccMap[NumPart];  //partitions
     TProfile* m_TileBadCell;  //number of bad cells per partition
 
@@ -135,15 +133,6 @@ class TileCellMonTool: public TileFatherMonTool {
 
     int m_cellsInPartition[5] = {1151, 1472, 1408, 1151, 5182}; // EBA, LBA, LBC, EBC, ALL
     bool m_fillTimeHistograms;
-    bool m_fillChannelTimeSampHistograms;
-    bool m_fillTimeAndEnergyDiffHistograms;
-    bool m_fillDigitizerTimeLBHistograms;
-    bool m_fillDigitizerEnergyLBHistograms;
-    int m_nLumiblocks;
-    int m_nLastLumiblocks;
-    bool m_fillMaskedOnFly4LastLumiblocks;
-    unsigned int m_nEventsLastLumiblocks;
-    std::vector<unsigned int> m_nEventsLastLumiblocksShadow;
 };
 
 #endif

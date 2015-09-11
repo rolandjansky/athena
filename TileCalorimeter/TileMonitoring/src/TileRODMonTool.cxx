@@ -41,14 +41,7 @@ TileRODMonTool::TileRODMonTool(const std::string & type, const std::string & nam
   , m_tileToolEmscale("TileCondToolEmscale")
   , m_tileBadChanTool("TileBadChanTool")
   , m_robSvc("ROBDataProviderSvc", name)
-  , m_evEref{}
-  , m_evTref{}
-  , m_nEventsProcessed{}
   , m_old_lumiblock(-1)
-  , m_nLumiblocks(3000)
-  , m_nEvents4FragmentSize(50)
-  , m_rodFragmentSizeSum{}
-  , m_lastRodFragmentSize{}
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -66,9 +59,6 @@ TileRODMonTool::TileRODMonTool(const std::string & type, const std::string & nam
   declareProperty("DspComparisonOF", m_useOFRef = true);
   declareProperty("doOnline", m_isOnline = false); // Switch for online running
   declareProperty("Details", m_details = false); // Switch for online running
-  declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
-  declareProperty("FillDetailRODFragmentSize", m_fillDetailFragmentSize = true);
-  declareProperty("NumberOfEventsToAverageFragmentSize", m_nEvents4FragmentSize = 50);
 
   m_path = "/Tile/ROD"; //ROOT File directory
 
@@ -98,8 +88,6 @@ StatusCode TileRODMonTool:: initialize() {
   CHECK( m_robSvc.retrieve() );
 
   memset(m_nEventsProcessed, 0, sizeof(m_nEventsProcessed));
-  memset(m_rodFragmentSizeSum, 0, sizeof(m_rodFragmentSizeSum));
-  memset(m_lastRodFragmentSize, 0, sizeof(m_lastRodFragmentSize));
 
   return TileFatherMonTool::initialize();
 }
@@ -524,28 +512,11 @@ StatusCode TileRODMonTool::bookHistTrig( int trig )
                                                    ,"tileRodFragmentSizeLB_" + m_TrigNames[trig]
                                                    , "Run " + runNumStr + " Trigger " + m_TrigNames[trig] +
                                                    ": Tile ROD fragment size (word) per LumiBlock"
-                                                   , m_nLumiblocks, -0.5, m_nLumiblocks - 0.5) );
+                                                   , 1500, -0.5, 1499.5) );
     
     m_tileRodFragmentSizeLB[element]->GetXaxis()->SetTitle("LumiBlocks");
   }
  
-
-  if (m_fillDetailFragmentSize) {
-    std::vector<std::string> partitions = {"AUX", "LBA", "LBC", "EBA", "EBC"};
-    for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
-      for (unsigned int fragment = 0; fragment < 16; ++fragment) {
-        m_tileRodFragmentSize1D[ros][fragment].push_back( book1F(m_TrigNames[trig]
-                                                                 , "tileRodFragmentSize_" + partitions[ros] + 
-                                                                 "_Fragment" + std::to_string(fragment) + "_" + m_TrigNames[trig]
-                                                                 , "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + 
-                                                                 " Partition " + partitions[ros] + " Fragment " + std::to_string(fragment) +
-                                                                 ": Tile ROD fragment size (word) averaged over " + std::to_string(m_nEvents4FragmentSize) + 
-                                                                 " events;Tile ROD fragment size [word]"
-                                                                 , 1000, -0.5, 999.5)) ;
-        
-      }
-    }
-  }
 
   return StatusCode::SUCCESS;
 
@@ -601,21 +572,11 @@ void TileRODMonTool::cleanHistVec()
 
   m_tileRodFragmentSize.clear();
 
-  if (m_fillDetailFragmentSize) {
-    for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
-      for (unsigned int fragment = 0; fragment < 16; ++fragment) {
-        m_tileRodFragmentSize1D[ros][fragment].clear();
-      }
-    }
-  }
-
   for (int t = 0; t < NTrigHisto; t++) {
     m_activeTrigs[t] = -1;
   }
 
   memset(m_nEventsProcessed, 0, sizeof(m_nEventsProcessed));
-  memset(m_rodFragmentSizeSum, 0, sizeof(m_rodFragmentSizeSum));
-  memset(m_lastRodFragmentSize, 0, sizeof(m_lastRodFragmentSize));
 }
 
 
@@ -843,34 +804,17 @@ StatusCode TileRODMonTool::fillHistograms()
     
   int allTileRodSize(0);
   
-
-  for (unsigned int trigger : m_eventTrigs) ++m_nEventsProcessed[trigger];
-
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFragments;
   m_robSvc->getROBData(m_tileRobIds, robFragments);
   
   for (const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* robFragment : robFragments) {
     uint32_t rodSourceId = robFragment->rod_source_id();
-    unsigned int ros = (rodSourceId & 0x0F0000) >> 16;
-    unsigned int fragment = rodSourceId & 0x00000F;
+    double ros = (rodSourceId & 0x0F0000) >> 16;
+    double fragment = rodSourceId & 0x00000F;
     allTileRodSize += robFragment->rod_fragment_size_word();
     
     for (unsigned int element = 0; element < m_eventTrigs.size(); ++element) {
-      int trigger = m_eventTrigs[element];
-
       m_tileRodFragmentSize[vecIndx(element)]->Fill(fragment, ros, robFragment->rod_fragment_size_word());
-      if (m_fillDetailFragmentSize) {
-
-        m_rodFragmentSizeSum[ros][fragment][m_eventTrigs[element]] += robFragment->rod_fragment_size_word();
-        if (m_nEventsProcessed[trigger] > m_nEvents4FragmentSize) {
-
-          m_rodFragmentSizeSum[ros][fragment][trigger] -= m_lastRodFragmentSize[ros][fragment][trigger];
-          float averageRodFragmentSize = m_rodFragmentSizeSum[ros][fragment][trigger] / m_nEvents4FragmentSize;
-          m_tileRodFragmentSize1D[ros][fragment][vecIndx(element)]->Fill(averageRodFragmentSize);
-        }
-
-        m_lastRodFragmentSize[ros][fragment][trigger] = robFragment->rod_fragment_size_word();
-      }
     }
   }
   
@@ -889,13 +833,11 @@ StatusCode TileRODMonTool::fillHistograms()
 
   
   for (unsigned int element = 0; element < m_eventTrigs.size(); ++element) {
-    int trigger = m_eventTrigs[element];
-    int nEvents = m_nEventsProcessed[trigger];
-    m_tileRodFragmentSize[vecIndx(element)]->SetEntries(nEvents);
+    ++m_nEventsProcessed[m_eventTrigs[element]];
+    m_tileRodFragmentSize[vecIndx(element)]->SetEntries(m_nEventsProcessed[m_eventTrigs[element]]);
     
     if (m_isOnline) m_tileRodFragmentSizeLB[vecIndx(element)]->Fill(0.0, allTileRodSize);
     else m_tileRodFragmentSizeLB[vecIndx(element)]->Fill(current_lumiblock, allTileRodSize);
-
   }
   
   
@@ -908,11 +850,11 @@ StatusCode TileRODMonTool::fillHistograms()
 StatusCode TileRODMonTool::procHistograms()
 /*---------------------------------------------------------*/
 {
-  if (!endOfRunFlag() || (m_isOnline && endOfRunFlag())) {
+  if (!endOfRun || (m_isOnline && endOfRun)) {
     return StatusCode::SUCCESS;
   }
 
-  if (endOfRunFlag()) {
+  if (endOfRun) {
     ATH_MSG_INFO( "in procHistograms()" );
   }
 

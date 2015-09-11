@@ -48,6 +48,11 @@
 #include <map>
 #include <algorithm>
 
+#include "CLHEP/Units/SystemOfUnits.h"
+
+using CLHEP::GeV;
+using CLHEP::ns;
+
 
 /*---------------------------------------------------------*/
 TileRawChannelNoiseMonTool::TileRawChannelNoiseMonTool(const std::string & type, const std::string & name, const IInterface* parent)
@@ -56,13 +61,6 @@ TileRawChannelNoiseMonTool::TileRawChannelNoiseMonTool(const std::string & type,
   , m_tileBadChanTool("TileBadChanTool")
   , m_tileToolEmscale("TileCondToolEmscale")
   , m_DQstatus(0)
-  , m_map_sigma{}
-  , m_map_sigma2{}
-  , m_map_R{}
-  , m_map_chi2{}
-  , m_map_chi2prb{}
-  , m_map_rmsOsig{}
-  , m_map_rms{}
   , m_gain(1)
   , m_nEventsProcessed(0)
 /*---------------------------------------------------------*/
@@ -80,7 +78,6 @@ TileRawChannelNoiseMonTool::TileRawChannelNoiseMonTool(const std::string & type,
   declareProperty("SummaryUpdateFrequency", m_summaryUpdateFrequency = 0);
 
   declareProperty("TileRawChannelContainer", m_rawChannelContainerName = "TileRawChannelOpt2"); //SG RC Container
-  declareProperty("TileRawChannelContainerDSP", m_rawChannelContainerDspName = "TileRawChannelCnt"); //SG RC Container
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
   declareProperty("Gain", m_gainName = "HG"); // gain to be processed
   declareProperty("TriggerTypes", m_triggerTypes);
@@ -502,20 +499,10 @@ StatusCode TileRawChannelNoiseMonTool::fillHistoPerRawChannel() {
 
   std::string module_name;
 
-  const TileRawChannelContainer* rawChannelContainerDSP(nullptr);
-  CHECK(evtStore()->retrieve(rawChannelContainerDSP, m_rawChannelContainerDspName));
-
-
   // Loop over the containers
   for (const TileRawChannelCollection* rawChannelCollection : *rawChannelContainer) {
 
     if (rawChannelCollection->empty()) continue;
-
-    int fragId = rawChannelCollection->identify();
-    IdentifierHash fragHash = (rawChannelContainerDSP->hashFunc())(fragId);
-    const TileRawChannelCollection* rawChannelCollectionDSP = *(rawChannelContainerDSP->indexFind(fragHash));
-
-    if (rawChannelCollectionDSP->getLvl1Type() != getL1info()) continue;
 
     HWIdentifier adc_id = rawChannelCollection->front()->adc_HWID();
     int ros = m_tileHWID->ros(adc_id);

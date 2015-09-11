@@ -56,9 +56,8 @@ if doTileDigiNoiseMon:
                                            , OutputLevel        = WARNING
                                            , TileDigitsContainer = "TileDigitsCnt"
                                            , histoPathBase = "/Tile/DigiNoise"
-                                           , FillEmptyFromDB = False
-                                           , SummaryUpdateFrequency = TileNoiseUpdateFrequency
-                                           , TriggerTypes        = [ 0x82 ] );
+                                           , FillEmptyFromDB = True
+                                           , SummaryUpdateFrequency = TileNoiseUpdateFrequency );
 
     topSequence.TileNoiseMon.AthenaMonTools += [ toolSvc.TileDigiNoiseMon ];
     print toolSvc.TileDigiNoiseMon;
@@ -74,8 +73,7 @@ if doTileRawChannelNoiseMon:
                                                  , Xmax = 20.25
                                                  , NBins = 81
                                                  , histoPathBase = "/Tile/RawChannelNoise"
-                                                 , SummaryUpdateFrequency = TileNoiseUpdateFrequency 
-                                                 , TriggerTypes        = [ 0x82 ]);
+                                                 , SummaryUpdateFrequency = TileNoiseUpdateFrequency );
 
     topSequence.TileNoiseMon.AthenaMonTools += [ toolSvc.TileRawChannelNoiseMon ];
     print toolSvc.TileRawChannelNoiseMon;

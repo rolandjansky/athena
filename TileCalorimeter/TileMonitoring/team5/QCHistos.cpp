@@ -217,8 +217,6 @@ Int_t quality(TString runno, TString filename, TString runtype, TString module, 
 
     }	
 
-    delete[] c_bcid;
-    delete[] histo_bcid;
 
   }
   else {// single gain runs
@@ -266,11 +264,9 @@ Int_t quality(TString runno, TString filename, TString runtype, TString module, 
 	  //	  c_cis[4*gain+2*cap].Print(w_outfile);
     }
 
-    delete[] histo_bcid;
   }	
 
 
 
-  delete[] histo;
   return 0;
 }

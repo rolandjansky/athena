@@ -354,7 +354,7 @@ StatusCode TileL2MonTool::fillHistograms() {
 StatusCode TileL2MonTool::procHistograms() {
 /*---------------------------------------------------------*/
 
-  if (endOfLumiBlockFlag() || endOfRunFlag()) {
+  if (endOfLumiBlock || endOfRun) {
     ATH_MSG_INFO( "in procHistograms()" );
   }
   return StatusCode::SUCCESS;

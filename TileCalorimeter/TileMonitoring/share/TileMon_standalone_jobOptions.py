@@ -45,7 +45,6 @@ ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileDQFragMon ]
 toolSvc += CfgMgr.TileRODMonTool( name             = 'TileRODMon'
                                   , OutputLevel    = INFO
                                   , histoPathBase  = "/Tile/ROD"
-                                  , NumberOfEventsToAverageFragmentSize = 50
                                   , doOnline       =  athenaCommonFlags.isOnline())
 
 ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileRODMon ];
@@ -78,7 +77,7 @@ if doTileTMDBRawChannelMon:
 						, OutputLevel	          = INFO
 						, TileRawChannelContainer = "TileMuRcvRawChannelOpt2"
                                                 , NotDSP                   = True
-                                                , AmplitudeThresholdForTime = 80.0
+                                                , AmplitudeThresholdForTime = 10.0
 						, histoPathBase           = "/Tile/TMDBRawChannel")
 
 
@@ -100,8 +99,7 @@ if doTileCells:
                                       , OutputLevel        = INFO
                                       , doOnline           = athenaCommonFlags.isOnline()
                                       , cellsContainerName = "AllCalo"
-                                      , histoPathBase      = "/Tile/Cell"
-                                      , NumberOfLastLumiblocks4MaskedChannelsOnFly = 7)
+                                      , histoPathBase      = "/Tile/Cell")
 
     if (jobproperties.Beam.beamType() == 'singlebeam'):
         toolSvc.TileCellMon.FillTimeHistograms = True
@@ -123,10 +121,7 @@ if doTileCells:
         toolSvc += CfgMgr.TileClusterMonTool(name                    = 'TileClusterMon'
                                              , OutputLevel           = INFO
                                              , clustersContainerName = "TileTopoCluster"
-                                             , FillTimingHistograms = True
-                                             , doOnline           = athenaCommonFlags.isOnline()
-                                             , histoPathBase         = "/Tile/Cluster" )
-
+                                             , histoPathBase         = "/Tile/Cluster")
 
         ManagedAthenaTileMon.AthenaMonTools += [ toolSvc.TileClusterMon ]
 

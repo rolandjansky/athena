@@ -377,7 +377,7 @@ StatusCode TileTowerMonTool::fillHistograms() {
 StatusCode TileTowerMonTool::procHistograms() {
 /*---------------------------------------------------------*/
 
-  if( endOfLumiBlockFlag() ||  endOfRunFlag() ) {
+  if( endOfLumiBlock ||  endOfRun ) {
     ATH_MSG_INFO( "in procHistograms()" );
   }
   

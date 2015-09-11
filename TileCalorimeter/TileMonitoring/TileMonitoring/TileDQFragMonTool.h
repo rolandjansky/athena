@@ -23,6 +23,9 @@ class TileDQstatus;
 class TileRawChannel;
 class TileRawChannelCollection;
 
+#define NERR 15
+#define NCORRUPTED 13
+#define NDMU 16
 
 /** @class TileDQFragMonTool
  *  @brief Class for TileCal monitoring of Data Quality fragment
@@ -101,7 +104,6 @@ class TileDQFragMonTool: public TileFatherMonTool {
     TH2I* m_hist_error[4][64];
     TH2I* m_hist_error_shadow[4][64][10];
     TH2I* m_hist_global[2];
-    TH2I* m_mismatchedL1TriggerType[2];
     TH2S* m_hist_BadChannelJump2D[4];
     TH2S* m_hist_BadChannelNeg2D[4];
 
@@ -112,13 +114,6 @@ class TileDQFragMonTool: public TileFatherMonTool {
     std::vector<std::string> m_cellchLabel[NumPart]; // array of cell-channels names
 
     TProfile* m_hist_error_lb[4][64];
-
-
-    static const int NERROR = 15;
-    static const int NCORRUPTED = 13;
-    static const int NDMU = 16;
-
-    int m_nLumiblocks;
 
     /*---------------------------------------------------------*/
 

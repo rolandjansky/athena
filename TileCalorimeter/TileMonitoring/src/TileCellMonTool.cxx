@@ -31,16 +31,25 @@
 #include "TProfile2D.h"
 #include "TString.h"
 
-#include "AthenaKernel/Units.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include <sstream>
 #include <iomanip>
 #include <map>
 
-using Athena::Units::GeV;
-using Athena::Units::ns;
+using CLHEP::GeV;
+using CLHEP::ns;
 
 
+// Make a TileCell namespace so this doesn't cause problems else where.
+namespace TC{
+template<class T>
+std::string to_string(T in){
+  std::ostringstream strm;
+  strm << in;
+  return strm.str();
+}
+}
 
 /*---------------------------------------------------------*/
 TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & name, const IInterface* parent)
@@ -48,20 +57,7 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
   , m_tileBadChanTool("TileBadChanTool")
   , m_TileCellTrig(0U)
   , m_delta_lumiblock(0U)
-  , m_TileCellEneBal{}
-  , m_TileCellTimBal{}
-  , m_TileCellStatFromDB{{}}
-  , m_TileCellStatOnFly{}
-  , m_TileCellStatOnFlyLastLumiblocks{}
-  , m_TileCellDetailNegOccMap{}
   , m_TileBadCell(0)
-  , m_TileMaskCellonFlyLumi{}
-  , m_TileMaskChannonFlyLumi{}
-  , m_TileMaskChannfromDBLumi{}
-  , m_nLumiblocks(3000)
-  , m_nLastLumiblocks(-7)
-  , m_fillMaskedOnFly4LastLumiblocks(false)
-  , m_nEventsLastLumiblocks(0U)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -75,13 +71,7 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
   declareProperty("doOnline"               , m_doOnline = false); //online mode
   declareProperty("TileBadChanTool"        , m_tileBadChanTool);
   declareProperty("FillTimeHistograms"     , m_fillTimeHistograms = false);
-  declareProperty("FillChannelTimePerSampleHistograms", m_fillChannelTimeSampHistograms = true);
-  declareProperty("FillCellTimeAndEnergyDifferenceHistograms", m_fillTimeAndEnergyDiffHistograms = true);
-  declareProperty("FillDigitizerTimeVsLBHistograms", m_fillDigitizerTimeLBHistograms = true);
-  declareProperty("FillDigitizerEnergyVsLBHistograms", m_fillDigitizerEnergyLBHistograms = true);
-  declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
-  declareProperty("NumberOfLastLumiblocks4MaskedChannelsOnFly", m_nLastLumiblocks = -7);
-
+  
   m_path = "/Tile/Cell";
 
   m_PartNames[PartEBA] = "EBA";
@@ -133,10 +123,7 @@ StatusCode TileCellMonTool:: initialize() {
 
   memset(m_nEventsProcessed, 0, sizeof(m_nEventsProcessed));
 
-  if (m_doOnline && m_nLastLumiblocks > 0) {
-    m_fillMaskedOnFly4LastLumiblocks = true;
-    for (int i = 0; i < m_nLastLumiblocks; ++i) m_nEventsLastLumiblocksShadow.push_back(0U);
-  }
+  
 
   return TileFatherMonTool::initialize();
 }
@@ -212,21 +199,22 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
                                                              120,-2000.,10000., run, ATTRIB_MANAGED,
                                                              "", "mergeRebinned") );
        m_TileCellEvEneSamp[part][ sample ][ element ]->GetXaxis()->SetTitle("Event Energy (MeV)");
+    }
 
-    } else if (m_fillTimeAndEnergyDiffHistograms){ //Don't make Samp E 
-
-      m_TileCellEneDiffSamp[part][ sample ].push_back( book1F(m_TrigNames[trig] + "/" + m_PartNames[part],
-                                                              "tileCellEneDiff" + m_SampStrNames[sample] + m_PartNames[part] + m_TrigNames[trig],
-                                                              "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCell " + 
-                                                              m_SampStrNames[sample]+" Energy difference (MeV) between PMTs",
+    if (sample != 3) { //Don't make Samp E 
+      m_TileCellEneDiffSamp[part][ sample ].push_back( book1F(m_TrigNames[trig]+"/"+m_PartNames[part],
+                                                              "tileCellEneDiff"+m_SampStrNames[sample] + m_PartNames[part] + m_TrigNames[trig],
+                                                              "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCell "+m_SampStrNames[sample]+" Energy difference (MeV) between PMTs",
                                                               50,-1000., 1000.) );
       m_TileCellEneDiffSamp[part][ sample ][ element ]->GetXaxis()->SetTitle("Energy diff (MeV)");
+    }  
 
-      m_TileCellTimeDiffSamp[part][ sample ].push_back( book1F(m_TrigNames[trig] + "/" + m_PartNames[part],
-                                                               "tileCellTimeDiff" + m_SampStrNames[sample] + m_PartNames[part] + m_TrigNames[trig],
-                                                               "Run " + runNumStr +" Trigger " + m_TrigNames[trig] + ": TileCell " + m_SampStrNames[sample] +
-                                                               " Time difference (ns) between PMTs. Collision Events, either E_{ch} > " + 
-                                                               std::to_string(m_ThresholdForTime) + " MeV", 50, -10., 10.) );
+    
+    if (sample != 3) { //Don't make samp E  
+      m_TileCellTimeDiffSamp[part][ sample ].push_back( book1F(m_TrigNames[trig]+"/"+m_PartNames[part],
+                                                               "tileCellTimeDiff"+m_SampStrNames[sample] + m_PartNames[part] + m_TrigNames[trig],
+                                                               "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCell "+m_SampStrNames[sample]+" Time difference (ns) between PMTs. Collision Events, either E_{ch} > "+TC::to_string(m_ThresholdForTime)+" MeV",
+                                                               50,-10., 10.) );
       m_TileCellTimeDiffSamp[part][ sample ][ element ]->GetXaxis()->SetTitle("time (ns)");
     }
   }
@@ -247,7 +235,7 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
 
   } else {
     m_TilenCellsLB[ part ].push_back( bookProfile(m_TrigNames[trig]+"/"+m_PartNames[part],"tilenCellsLB" + m_PartNames[part] + m_TrigNames[trig],
-                                                  "Trigger "+m_TrigNames[trig]+": TileCal Cell number per LumiBlock", m_nLumiblocks, -0.5, m_nLumiblocks - 0.5) );
+                                                  "Trigger "+m_TrigNames[trig]+": TileCal Cell number per LumiBlock", 1500, -0.5, 1499.5) );
     m_TilenCellsLB[ part ][ element ]->GetXaxis()->SetTitle("LumiBlock");
   }
 
@@ -267,41 +255,31 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
     
   if ( part != NumPart ){ //Don't make AllPart
 
-    if (m_fillChannelTimeSampHistograms) {
-      for (int sample = 0; sample < TotalSamp; sample++) {
-        if (sample == SampE && (part == PartLBA || part == PartLBC)) continue;
-        
-        m_TileChannelTimeSamp[part][ sample ].push_back( book1F(m_TrigNames[trig] + "/" + m_PartNames[part],
-                                                                "tileChannelTime" + m_SampStrNames[sample] + m_PartNames[part] + m_TrigNames[trig],
-                                                                "Run "+ runNumStr + " Trigger " + m_TrigNames[trig] + ": Partition " + m_PartNames[part] + 
-                                                                ": TileCell " + m_SampStrNames[sample] + " Channel time (ns) Collision Events, E_{ch} > " + 
-                                                                std::to_string(m_ThresholdForTime) + " MeV", 121, -60.5, 60.5) );
-        m_TileChannelTimeSamp[part][ sample ][ element ]->GetXaxis()->SetTitle("time (ns)");
-      }
+    for (int sample = 0; sample < TotalSamp; sample++) {
+      if (sample == SampE && (part == PartLBA || part == PartLBC)) continue;
+
+      m_TileChannelTimeSamp[part][ sample ].push_back( book1F(m_TrigNames[trig] + "/" + m_PartNames[part],
+                                                               "tileChannelTime" + m_SampStrNames[sample] + m_PartNames[part] + m_TrigNames[trig],
+                                                              "Run "+ runNumStr + " Trigger " + m_TrigNames[trig] + ": Partition " + m_PartNames[part] + ": TileCell " + m_SampStrNames[sample] + " Channel time (ns) Collision Events, E_{ch} > " + TC::to_string(m_ThresholdForTime) + " MeV",
+                                                               121, -60.5, 60.5) );
+      m_TileChannelTimeSamp[part][ sample ][ element ]->GetXaxis()->SetTitle("time (ns)");
+
     }
 
-
-    m_TileCellEvEneTim[ part ].push_back( bookProfile(m_TrigNames[trig] + "/" + m_PartNames[part], "tileCellEvEneTim" + m_PartNames[part] + m_TrigNames[trig],
-                                                      "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": Partition " + m_PartNames[part] + 
-                                                      ": Event Energy as a function of the event number", 25, 0., 100.,-2000.,200000.,  
-                                                      run, ATTRIB_MANAGED, "", "mergeRebinned") );
+    m_TileCellEvEneTim[ part ].push_back( bookProfile(m_TrigNames[trig]+"/"+m_PartNames[part],"tileCellEvEneTim"+m_PartNames[part] + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Partition "+m_PartNames[part]+": Event Energy as a function of the event number",25,0., 100.,-2000.,200000.,  run, ATTRIB_MANAGED, "", "mergeRebinned") );
     m_TileCellEvEneTim[ part ][ element ]->SetYTitle("Average Event Energy (MeV)");
     m_TileCellEvEneTim[ part ][ element ]->SetXTitle("Event Number");
   }
 
   if ( part != NumPart ){ //Don't Make allpart
-    m_TileCellEvEneLumi[ part ].push_back( bookProfile(m_TrigNames[trig] + "/" + m_PartNames[part], "tileCellEvEneLumi" + m_PartNames[part] + m_TrigNames[trig],
-                                                       "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": Partition " + m_PartNames[part] +
-                                                       ": Event Energy as a function of the LumiBlock", 10, 0., 20., -5.e6, 5.e6, 
-                                                       run, ATTRIB_MANAGED, "", "mergeRebinned") );
+    m_TileCellEvEneLumi[ part ].push_back( bookProfile(m_TrigNames[trig]+"/"+m_PartNames[part],"tileCellEvEneLumi"+m_PartNames[part] + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Partition "+m_PartNames[part]+": Event Energy as a function of the LumiBlock",10,0., 20.,-5.e6,5.e6, run, ATTRIB_MANAGED, "", "mergeRebinned") );
     m_TileCellEvEneLumi[ part ][ element ]->SetYTitle("Average Event Energy (MeV)");
     m_TileCellEvEneLumi[ part ][ element ]->SetXTitle("LumiBlock");
   }
 
 
-  m_TileCellOccOvThrBCID[ part ].push_back( bookProfile(m_TrigNames[trig] + "/" + m_PartNames[part], "tileCellOccOvThrBCID" + m_PartNames[part] + m_TrigNames[trig],
-                                                        "Run " + runNumStr + " Trigger " + m_TrigNames[trig] + ": TileCal Cell Occupancy over Threshold "+
-                                                        sene.str() + " MeV in " + m_PartNames[part] + " as a function of BCID", 3565, 0., 3565., 0., 10000.));
+  m_TileCellOccOvThrBCID[ part ].push_back( bookProfile(m_TrigNames[trig]+"/"+m_PartNames[part],"tileCellOccOvThrBCID" + m_PartNames[part] + m_TrigNames[trig],
+                                                        "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": TileCal Cell Occupancy over Threshold "+sene.str()+" MeV in "+m_PartNames[part]+" as a function of BCID",3565,0.,3565.,0.,10000.));
 
   m_TileCellOccOvThrBCID[ part ][ element ]->SetXTitle("BCID");
   m_TileCellOccOvThrBCID[ part ][ element ]->SetYTitle("Average number of cells over threshold");
@@ -388,7 +366,7 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
     histName = "tileChanPartTime_"+m_PartNames[part] + m_TrigNames[trig];
     histTitle = "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+" Partition "+
                 m_PartNames[part]+": TileCal Average Channel Time (ns). "+
-                "Collision Events, E_{ch} > " + std::to_string(m_ThresholdForTime)+
+                "Collision Events, E_{ch} > "+TC::to_string(m_ThresholdForTime)+
                 " MeV";
     obj = bookProfile2D(histDir,histName,histTitle, 64,0.5,64.5,48,-0.5,47.5,-80,80);
     m_TileChanPartTime[part].push_back(static_cast<TProfile2D*>(obj));
@@ -401,7 +379,7 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
     histName = "tileDigiPartTime_"+m_PartNames[part] + m_TrigNames[trig];
     histTitle = "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+" Partition "+
                 m_PartNames[part]+": TileCal Average Digitizer Time (ns). "+
-               "Collision Events, E_{ch} > " + std::to_string(m_ThresholdForTime)+
+               "Collision Events, E_{ch} > "+TC::to_string(m_ThresholdForTime)+
                " MeV";
     obj = bookProfile2D(histDir,histName,histTitle, 64,0.5,64.5,8,0.5,8.5,-80,80);
     m_TileDigiPartTime[part].push_back(static_cast<TProfile2D*>(obj));
@@ -410,53 +388,51 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
     m_TileDigiPartTime[part][element]->SetZTitle("Average Digitizer Time (ns)");
 
     // per module plots
-    for (int mod = 0; mod < 64; ++mod) {
+    for (int mod=0; mod<64; mod++) {
        
-      if (m_fillDigitizerTimeLBHistograms) {
-        //Tile Cell average digitizer time per lumiblock for each module
-        histName = "tileDigiTimeLB_" + m_PartNames[part] + "_" + std::to_string(mod + 1) + m_TrigNames[trig];
-        histTitle = "Run " + runNumStr + " Trigger " + m_TrigNames[trig] +
-                    " Partition " + m_PartNames[part] + " Module " + std::to_string(mod + 1) +
-                    ": TileCal Average Digitizer Time (ns) vs. Lumiblock " +
-                    "Collision Events, E_{ch} > " + std::to_string(m_ThresholdForTime) + " MeV";
-        
-        if (m_doOnline) {
-          obj = bookProfile2D(histDir,histName,histTitle,20,-0.5,19.5,8,0.5,8.5,-100,100);
-          m_TileDigiTimeLB[part][mod].push_back(static_cast<TProfile2D*>(obj));
-          m_TileDigiTimeLB[part][mod][element]->SetXTitle("Last 20 Lumiblocks (left = most recent)");
-          m_TileDigiTimeLB[part][mod][element]->SetYTitle("Digitizer");
-          m_TileDigiTimeLB[part][mod][element]->SetZTitle("Average Digitizer Time (ns)");
-        } else {
-          obj = bookProfile2D(histDir,histName,histTitle,150,-0.5,1499.5,8,0.5,8.5,-100,100);
-          m_TileDigiTimeLB[part][mod].push_back(static_cast<TProfile2D*>(obj));
-          m_TileDigiTimeLB[part][mod][element]->SetXTitle("Lumiblock (10 per bin)");
-          m_TileDigiTimeLB[part][mod][element]->SetYTitle("Digitizer");
-          m_TileDigiTimeLB[part][mod][element]->SetZTitle("Average Digitizer Time (ns)");
-        }
-      }
-      
-
-      if (m_fillDigitizerEnergyLBHistograms) {
-        //Tile Cell average digitizer energy per lumiblock for each module
-        histName = "tileDigiEnergyLB_" + m_PartNames[part] + "_" + std::to_string(mod + 1) + m_TrigNames[trig];
-        histTitle = "Run " + runNumStr + " Trigger " + m_TrigNames[trig] +
-                    " Partition" + m_PartNames[part] + " Module " + std::to_string(mod + 1) +
-                    ": TileCal Average Digitizer Energy (MeV) vs. Lumiblock" + "Collsion Events";
-
-        if (m_doOnline) {
-          obj = bookProfile2D(histDir,histName,histTitle,20,-0.5,19.5,8,0.5,8.5,-3000,3000);
-          m_TileDigiEnergyLB[part][mod].push_back(static_cast<TProfile2D*>(obj));
-          m_TileDigiEnergyLB[part][mod][element]->SetXTitle("Last 20 Lumiblocks (left = most recent)");
-          m_TileDigiEnergyLB[part][mod][element]->SetYTitle("Digitizer");
-          m_TileDigiEnergyLB[part][mod][element]->SetZTitle("Average Digitizer Energy (MeV)");
-        } else {
-          obj = bookProfile2D(histDir,histName,histTitle,150,-0.5,1499.5,8,0.5,8.5,-3000,3000);
-          m_TileDigiEnergyLB[part][mod].push_back(static_cast<TProfile2D*>(obj));
-          m_TileDigiEnergyLB[part][mod][element]->SetXTitle("Lumiblock (10 per bin)");
-          m_TileDigiEnergyLB[part][mod][element]->SetYTitle("Digitizer");
-          m_TileDigiEnergyLB[part][mod][element]->SetZTitle("Average Digitizer Energy (MeV)");
-        }
-      }
+    //Tile Cell average digitizer time per lumiblock for each module
+        histName = "tileDigiTimeLB_" + m_PartNames[part] + "_" + TC::to_string(mod+1) + m_TrigNames[trig];
+       histTitle = "Run " +runNumStr+" Trigger "+m_TrigNames[trig]+
+                   " Partition "+m_PartNames[part]+" Module "+TC::to_string(mod+1)+
+                   ": TileCal Average Digitizer Time (ns) vs. Lumiblock " +
+                   "Collision Events, E_{ch} > "+TC::to_string(m_ThresholdForTime)+
+                   " MeV";
+       if (m_doOnline) {
+         obj = bookProfile2D(histDir,histName,histTitle,20,-0.5,19.5,8,0.5,8.5,-100,100);
+         m_TileDigiTimeLB[part][mod].push_back(static_cast<TProfile2D*>(obj));
+         m_TileDigiTimeLB[part][mod][element]->SetXTitle("Last 20 Lumiblocks (left = most recent)");
+         m_TileDigiTimeLB[part][mod][element]->SetYTitle("Digitizer");
+         m_TileDigiTimeLB[part][mod][element]->SetZTitle("Average Digitizer Time (ns)");
+       }
+       else {
+         obj = bookProfile2D(histDir,histName,histTitle,150,-0.5,1499.5,8,0.5,8.5,-100,100);
+         m_TileDigiTimeLB[part][mod].push_back(static_cast<TProfile2D*>(obj));
+         m_TileDigiTimeLB[part][mod][element]->SetXTitle("Lumiblock (10 per bin)");
+         m_TileDigiTimeLB[part][mod][element]->SetYTitle("Digitizer");
+         m_TileDigiTimeLB[part][mod][element]->SetZTitle("Average Digitizer Time (ns)");
+       }
+    
+       //Tile Cell average digitizer energy per lumiblock for each module
+       histName = "tileDigiEnergyLB_" + m_PartNames[part] + "_" + TC::to_string(mod+1) + m_TrigNames[trig];
+       histTitle = "Run " +runNumStr+" Trigger "+m_TrigNames[trig]+
+                   " Partition"+m_PartNames[part]+" Module "+TC::to_string(mod+1)+
+                   ": TileCal Average Digitizer Energy (MeV) vs. Lumiblock" +
+                   "Collsion Events";
+       if (m_doOnline) {
+         obj = bookProfile2D(histDir,histName,histTitle,20,-0.5,19.5,8,0.5,8.5,-3000,3000);
+         m_TileDigiEnergyLB[part][mod].push_back(static_cast<TProfile2D*>(obj));
+         m_TileDigiEnergyLB[part][mod][element]->SetXTitle("Last 20 Lumiblocks (left = most recent)");
+         m_TileDigiEnergyLB[part][mod][element]->SetYTitle("Digitizer");
+         m_TileDigiEnergyLB[part][mod][element]->SetZTitle("Average Digitizer Energy (MeV)");
+       }
+       else {
+         obj = bookProfile2D(histDir,histName,histTitle,150,-0.5,1499.5,8,0.5,8.5,-3000,3000);
+         m_TileDigiEnergyLB[part][mod].push_back(static_cast<TProfile2D*>(obj));
+         m_TileDigiEnergyLB[part][mod][element]->SetXTitle("Lumiblock (10 per bin)");
+         m_TileDigiEnergyLB[part][mod][element]->SetYTitle("Digitizer");
+         m_TileDigiEnergyLB[part][mod][element]->SetZTitle("Average Digitizer Energy (MeV)");
+       }
+    
     }
 
   }
@@ -486,7 +462,7 @@ StatusCode TileCellMonTool::bookHistTrig( int trig ) {
 
   ss.str("");
   ss << m_TimBalThreshold;
-  m_TileCellTimBalModPart.push_back( book2S(m_TrigNames[trig],"tileCellTimBalModPart" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+" Partition ALL: Tile Cell Timing Difference above "+ss.str()+" ns. Collision Events, either E_{ch} > " + std::to_string(m_ThresholdForTime)+" MeV",64,0.5,64.5, 4,-0.5,3.5) );
+  m_TileCellTimBalModPart.push_back( book2S(m_TrigNames[trig],"tileCellTimBalModPart" + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+" Partition ALL: Tile Cell Timing Difference above "+ss.str()+" ns. Collision Events, either E_{ch} > "+TC::to_string(m_ThresholdForTime)+" MeV",64,0.5,64.5, 4,-0.5,3.5) );
   m_TileCellTimBalModPart[ element ]->GetXaxis()->SetTitle("Module Number");
   m_TileCellTimBalModPart[ element ]->GetYaxis()->SetTitle("Partition Number");
 
@@ -512,8 +488,8 @@ StatusCode TileCellMonTool::bookHistTrig( int trig ) {
     m_TileCellEneEtaPhiSamp[sample].push_back( bookProfile2D(m_TrigNames[trig]
                                                              , "tileCellEneEtaPhi" + m_SampStrNames[sample] + m_TrigNames[trig]
                                                              , "Run " + runNumStr + " Trigger " + m_TrigNames[trig] 
-                                                             + ": Tile 2D Cell " + m_SampStrNames[sample] 
-                                                             + " Energy Average depostion (MeV) (entries = events)"
+                                                                      + ": Tile 2D Cell " + m_SampStrNames[sample] 
+                                                                      + " Energy Average depostion (MeV) (entries = events)"
                                                              , 21, -2.025, 2.025,64, -3.15, 3.15, -2.e6, 2.e6) );
 
     m_TileCellEneEtaPhiSamp[sample][ element ]->GetXaxis()->SetTitle("#eta");
@@ -621,13 +597,7 @@ void  TileCellMonTool::cleanHistVec() {
       m_TileDigiTimeLB[part][mod].clear();
       m_TileDigiEnergyLB[part][mod].clear();
     }
-
-    for (TH2F* histogram : m_TileCellStatOnFlyLastLumiblocksShadow[part]) delete histogram;
-    m_TileCellStatOnFlyLastLumiblocksShadow[part].clear();
   }
-
-  m_nEventsLastLumiblocks = 0U;
-  for (unsigned int& nEvents : m_nEventsLastLumiblocksShadow) nEvents = 0U;
 
 }
 /*---------------------------------------------------------*/
@@ -730,35 +700,6 @@ StatusCode TileCellMonTool::fillHistograms() {
     }
   }
 
-
-  //Variables for lumiblock based plots
-  int32_t current_lumiblock = getLumiBlock();
-  if(m_old_lumiblock == -1) {
-    m_old_lumiblock = current_lumiblock;
-    for(int32_t parts = 0; parts < 4; parts++) { //initialize old lumiblock tracker array
-      for(int32_t mods = 0; mods < 64; mods++) {
-        for(int32_t vecInds = 0; vecInds < 4; vecInds++){
-          m_OldLumiArray1[parts][mods][vecInds] = current_lumiblock;
-          m_OldLumiArray2[parts][mods][vecInds] = current_lumiblock;
-        }
-      }
-    }
-  }
-  
-
-  if (m_fillMaskedOnFly4LastLumiblocks && m_old_lumiblock < current_lumiblock) {
-    for (unsigned int partition = 0; partition < NumPart; ++partition) {
-      for (int32_t lb = m_old_lumiblock + 1; lb <= current_lumiblock; ++lb) {
-        m_TileCellStatOnFlyLastLumiblocks[partition]->Add(m_TileCellStatOnFlyLastLumiblocksShadow[partition][lb % m_nLastLumiblocks], -1.0);
-        m_TileCellStatOnFlyLastLumiblocksShadow[partition][lb % m_nLastLumiblocks]->Reset();
-        m_nEventsLastLumiblocks -= m_nEventsLastLumiblocksShadow[lb % m_nLastLumiblocks];
-        m_nEventsLastLumiblocksShadow[lb % m_nLastLumiblocks] = 0U;
-      }
-    }
-    m_old_lumiblock = current_lumiblock;
-  }
-
-
   // Pointer to a Tile cell container
   const CaloCellContainer* cell_container;
 
@@ -778,6 +719,8 @@ StatusCode TileCellMonTool::fillHistograms() {
   //number of channels masked on the fly
   unsigned int badonfly[NPartHisto] = { 0 };
 
+  CaloCellContainer::const_iterator iCell = cell_container->begin();
+  CaloCellContainer::const_iterator lastCell  = cell_container->end();
   for (const CaloCell* cell : *cell_container) {
 
     Identifier id = cell->ID();
@@ -876,6 +819,19 @@ StatusCode TileCellMonTool::fillHistograms() {
       double t2 = tile_cell->time2();
       double tdiff = (single_PMT) ? 0.0 : 2.*tile_cell->timeDiff(); // attention! factor of 2 is needed here
 
+      //Variables for lumiblock based plots
+      int32_t current_lumiblock = getLumiBlock();
+      if(m_old_lumiblock == -1) {
+        m_old_lumiblock = current_lumiblock;
+        for(int32_t parts = 0; parts < 4; parts++) { //initialize old lumiblock tracker array
+          for(int32_t mods = 0; mods < 64; mods++) {
+            for(int32_t vecInds = 0; vecInds < 4; vecInds++){
+              m_OldLumiArray1[parts][mods][vecInds] = current_lumiblock;
+              m_OldLumiArray2[parts][mods][vecInds] = current_lumiblock;
+            }
+          }
+        }
+      }
 
       if (msgLvl(MSG::VERBOSE)) {
           //tile_cell->print();
@@ -945,10 +901,6 @@ StatusCode TileCellMonTool::fillHistograms() {
           if (m_TileCellStatFromDB[partition][gn1]->GetBinContent(drw + 1, ch1 + 1) == 0) {
             ++badonfly[partition];
             m_TileCellStatOnFly[partition]->Fill(drawer, ch1);
-            if (m_fillMaskedOnFly4LastLumiblocks) {
-              m_TileCellStatOnFlyLastLumiblocks[partition]->Fill(drawer, ch1);
-              m_TileCellStatOnFlyLastLumiblocksShadow[partition][current_lumiblock % m_nLastLumiblocks]->Fill(drawer, ch1);
-            }
           }
         }
     
@@ -956,10 +908,6 @@ StatusCode TileCellMonTool::fillHistograms() {
           if (m_TileCellStatFromDB[partition2][gn2]->GetBinContent(drw + 1, ch2 + 1) == 0) {
             ++badonfly[partition2];
             m_TileCellStatOnFly[partition2]->Fill(drawer, ch2);
-            if (m_fillMaskedOnFly4LastLumiblocks) {
-              m_TileCellStatOnFlyLastLumiblocks[partition2]->Fill(drawer, ch2);
-              m_TileCellStatOnFlyLastLumiblocksShadow[partition2][current_lumiblock % m_nLastLumiblocks]->Fill(drawer, ch2);
-            }
           }
         }
     
@@ -1014,53 +962,42 @@ StatusCode TileCellMonTool::fillHistograms() {
     
               if (ch1Ok && ene1 > m_ThresholdForTime) {
                 
-                if (m_fillChannelTimeSampHistograms) {
-                  m_TileChannelTimeSamp[partition][samp][vecInd]->Fill(t1, 1.);
-                  m_TileChannelTimeSamp[partition][AllSamp][vecInd]->Fill(t1, 1.);
-                }
+                m_TileChannelTimeSamp[partition][samp][vecInd]->Fill(t1, 1.);
+                m_TileChannelTimeSamp[partition][AllSamp][vecInd]->Fill(t1, 1.);
 
                 m_TileChanPartTime[ partition ][ vecInd ]->Fill(drawer, ch1, t1, 1.);
                 m_TileDigiPartTime[ partition ][ vecInd ]->Fill(drawer, ch2digi[ch1], t1, 1.);
 
                  if(m_doOnline) {
-                   m_delta_lumiblock = current_lumiblock - m_OldLumiArray2[partition][drw][vecInd];
-                   
-                   if (m_fillDigitizerEnergyLBHistograms) {
-                     if(m_delta_lumiblock != 0) {//move bins
-                       ShiftLumiHist(m_TileDigiEnergyLB[partition][drw][vecInd], m_delta_lumiblock);
-                       m_OldLumiArray2[partition][drw][vecInd] = current_lumiblock;
-                     }
-                     m_TileDigiEnergyLB[partition][drw][vecInd]->Fill(0,ch2digi[ch1],ene1,1.);
-                   }
-                   
-                   m_delta_lumiblock = current_lumiblock - m_OldLumiArray1[partition][drw][vecInd];
-                   
-                   if (m_fillDigitizerTimeLBHistograms) {
-                     if(m_delta_lumiblock != 0) {//move bins
-                       ShiftLumiHist(m_TileDigiTimeLB[partition][drw][vecInd], m_delta_lumiblock);
-                       m_OldLumiArray1[partition][drw][vecInd] = current_lumiblock;
-                     }
-                     m_TileDigiTimeLB[partition][drw][vecInd]->Fill(0,ch2digi[ch1],t1,1.);
-                   }
-                   
-                 } else {// End of Online
-                   if (m_fillDigitizerEnergyLBHistograms) {
-                     m_TileDigiEnergyLB[partition][drw][vecInd]->Fill(current_lumiblock,ch2digi[ch1],ene1,1.);                   
-                   }
+                  m_delta_lumiblock = current_lumiblock - m_OldLumiArray2[partition][drw][vecInd];
 
-                   if (m_fillDigitizerTimeLBHistograms) {
-                     m_TileDigiTimeLB[partition][drw][vecInd]->Fill(current_lumiblock,ch2digi[ch1],t1,1.);                   
-                   }
-                 }
-                 
+                  if(m_delta_lumiblock != 0) {//move bins
+                    ShiftLumiHist(m_TileDigiEnergyLB[partition][drw][vecInd], m_delta_lumiblock);
+                    m_OldLumiArray2[partition][drw][vecInd] = current_lumiblock;
+                  }
+
+                  m_TileDigiEnergyLB[partition][drw][vecInd]->Fill(0,ch2digi[ch1],ene1,1.);
+                  m_delta_lumiblock = current_lumiblock - m_OldLumiArray1[partition][drw][vecInd];
+
+                  if(m_delta_lumiblock != 0) {//move bins
+                    ShiftLumiHist(m_TileDigiTimeLB[partition][drw][vecInd], m_delta_lumiblock);
+                    m_OldLumiArray1[partition][drw][vecInd] = current_lumiblock;
+                  }
+
+                  m_TileDigiTimeLB[partition][drw][vecInd]->Fill(0,ch2digi[ch1],t1,1.);
+
+                } else {// End of Online
+
+                  m_TileDigiEnergyLB[partition][drw][vecInd]->Fill(current_lumiblock,ch2digi[ch1],ene1,1.);
+                  m_TileDigiTimeLB[partition][drw][vecInd]->Fill(current_lumiblock,ch2digi[ch1],t1,1.);
+                }
+
               }
     
               if (ch2Ok && ene2 > m_ThresholdForTime) {
 
-                if (m_fillChannelTimeSampHistograms) {
-                  m_TileChannelTimeSamp[partition2][samp][vecInd]->Fill(t2, 1.);
-                  m_TileChannelTimeSamp[partition2][AllSamp][vecInd]->Fill(t2, 1.);
-                }
+                m_TileChannelTimeSamp[partition2][samp][vecInd]->Fill(t2, 1.);
+                m_TileChannelTimeSamp[partition2][AllSamp][vecInd]->Fill(t2, 1.);
 
                 m_TileChanPartTime[ partition2 ][ vecInd ]->Fill(drawer, ch2, t2, 1.);
                 m_TileDigiPartTime[ partition2 ][ vecInd ]->Fill(drawer, ch2digi[ch2], t2, 1.);
@@ -1068,33 +1005,27 @@ StatusCode TileCellMonTool::fillHistograms() {
                 if(m_doOnline) {
                   m_delta_lumiblock = current_lumiblock - m_OldLumiArray2[partition2][drw][vecInd];
 
-                  if (m_fillDigitizerEnergyLBHistograms){
-                    if (m_delta_lumiblock != 0) {//move bins
-                      ShiftLumiHist(m_TileDigiEnergyLB[partition2][drw][vecInd], m_delta_lumiblock);
-                      m_OldLumiArray2[partition2][drw][vecInd] = current_lumiblock;
-                    }
-                    m_TileDigiEnergyLB[partition2][drw][vecInd]->Fill(0,ch2digi[ch2],ene2,1.);
+                  if(m_delta_lumiblock != 0) {//move bins
+                    ShiftLumiHist(m_TileDigiEnergyLB[partition2][drw][vecInd], m_delta_lumiblock);
+                    m_OldLumiArray2[partition2][drw][vecInd] = current_lumiblock;
                   }
 
+                  m_TileDigiEnergyLB[partition2][drw][vecInd]->Fill(0,ch2digi[ch2],ene2,1.);
                   m_delta_lumiblock = current_lumiblock - m_OldLumiArray1[partition2][drw][vecInd];
 
-                  if (m_fillDigitizerTimeLBHistograms) {
-                    if(m_delta_lumiblock != 0) {//move bins
-                      ShiftLumiHist(m_TileDigiTimeLB[partition2][drw][vecInd], m_delta_lumiblock);
-                      m_OldLumiArray1[partition2][drw][vecInd] = current_lumiblock;
-                    }
-                    m_TileDigiTimeLB[partition2][drw][vecInd]->Fill(0,ch2digi[ch2],t2,1.);
+                  if(m_delta_lumiblock != 0) {//move bins
+                    ShiftLumiHist(m_TileDigiTimeLB[partition2][drw][vecInd], m_delta_lumiblock);
+                    m_OldLumiArray1[partition2][drw][vecInd] = current_lumiblock;
                   }
+
+                  m_TileDigiTimeLB[partition2][drw][vecInd]->Fill(0,ch2digi[ch2],t2,1.);
 
                 } else {// End of Online
-                  if (m_fillDigitizerEnergyLBHistograms) {
-                    m_TileDigiEnergyLB[partition2][drw][vecInd]->Fill(current_lumiblock,ch2digi[ch1],ene2,1.);                  
-                  }
 
-                  if (m_fillDigitizerTimeLBHistograms) {
-                    m_TileDigiTimeLB[partition2][drw][vecInd]->Fill(current_lumiblock,ch2digi[ch1],t2,1.);
-                  }
+                  m_TileDigiEnergyLB[partition2][drw][vecInd]->Fill(current_lumiblock,ch2digi[ch1],ene2,1.);
+                  m_TileDigiTimeLB[partition2][drw][vecInd]->Fill(current_lumiblock,ch2digi[ch1],t2,1.);
                 }
+
               }
             }
     
@@ -1120,7 +1051,7 @@ StatusCode TileCellMonTool::fillHistograms() {
             
           } // end loop over TriggerType
           
-          bool fillEneAndTimeDiff(m_fillTimeAndEnergyDiffHistograms);
+          bool fillEneAndTimeDiff(true);
           
           // avoid double peak structure in energy and time balance histograms
           if ((gn1 == 0 && gn2 == 1 && (ene1 < 2000 || std::abs(ene1 / ene2) > 5))
@@ -1367,12 +1298,10 @@ StatusCode TileCellMonTool::fillHistograms() {
   //Fill synchronization plots
   calculateSynch();
 
-  if (m_fillMaskedOnFly4LastLumiblocks) {
-    ++m_nEventsLastLumiblocks;
-    m_nEventsLastLumiblocksShadow[current_lumiblock % m_nLastLumiblocks] += 1U;
-    for (unsigned int partition = 0; partition < NumPart; ++partition) {
-      m_TileCellStatOnFlyLastLumiblocks[partition]->SetEntries(m_nEventsLastLumiblocks);
-    }
+  // Set number of events as entries
+  for (int partition = 0; partition < NumPart; ++partition) {
+    m_TileCellStatOnFly[partition]->SetEntries(m_nEvents);
+    m_TileCellDetailNegOccMap[partition]->SetEntries(m_nEvents);
   }
 
   for (unsigned int i = 0; i < m_eventTrigs.size(); ++i) {
@@ -1396,14 +1325,6 @@ StatusCode TileCellMonTool::fillHistograms() {
   }
 
 
-  // Set number of events as entries
-  for (int partition = 0; partition < NumPart; ++partition) {
-    int nEvents = m_nEventsProcessed[AnyTrig];
-    m_TileCellStatOnFly[partition]->SetEntries(nEvents);
-    m_TileCellDetailNegOccMap[partition]->SetEntries(nEvents);
-  }
-
-
   return StatusCode::SUCCESS;
 }
 
@@ -1412,7 +1333,7 @@ StatusCode TileCellMonTool::procHistograms() {
 /*---------------------------------------------------------*/
 
 
-  if (endOfRunFlag()) {
+  if (endOfRun) {
     ATH_MSG_INFO( "in procHistograms()" );
   }
 
@@ -1538,7 +1459,7 @@ void TileCellMonTool::FirstEvInit() {
   }        
 
   std::ostringstream sene; sene.str("");
-  sene << m_NegThreshold / GeV;
+  sene << m_NegThreshold / 1000.0;
 
   std::string runNumStr =  getRunNumStr() ;
 
@@ -1553,7 +1474,7 @@ void TileCellMonTool::FirstEvInit() {
     m_TileCellEneBal[p]->SetXTitle("Module");
 
     m_TileCellTimBal[p] = bookProfile("", "tileCellTimBal" + m_PartNames[p]
-                                       , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Cell's PMTs Time Difference. Collision Events, either E_{ch} > " + std::to_string(m_ThresholdForTime) + " MeV"
+                                       , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Cell's PMTs Time Difference. Collision Events, either E_{ch} > " + TC::to_string(m_ThresholdForTime) + " MeV"
                                        , 64, 0.5, 64.5, -200., 200.);
     m_TileCellTimBal[p]->SetYTitle("Time balance between cells PMTs (ns)");
     m_TileCellTimBal[p]->SetXTitle("Module");
@@ -1578,24 +1499,9 @@ void TileCellMonTool::FirstEvInit() {
     SetBinLabel(m_TileCellStatOnFly[p]->GetYaxis(), m_cellchLabel[p]);
     SetBinLabel(m_TileCellStatOnFly[p]->GetXaxis(), m_moduleLabel[p]);
 
-    if (m_fillMaskedOnFly4LastLumiblocks) {
-      m_TileCellStatOnFlyLastLumiblocks[p] = book2F("", "tileCellStatOnFlyLastLumiblocks_" + m_PartNames[p]
-                                                    , "Run " + runNumStr + " Partition " + m_PartNames[p] 
-                                                    + ": Channels masked on the fly last " + std::to_string(m_nLastLumiblocks) 
-                                                    + " lumiblocks (entries = events)"
-                                                    , 64, 0.5, 64.5, 48, -0.5, 47.5);
-      SetBinLabel(m_TileCellStatOnFlyLastLumiblocks[p]->GetYaxis(), m_cellchLabel[p]);
-      SetBinLabel(m_TileCellStatOnFlyLastLumiblocks[p]->GetXaxis(), m_moduleLabel[p]);
-
-      for (int i = 0; i < m_nLastLumiblocks; ++i) {
-        m_TileCellStatOnFlyLastLumiblocksShadow[p].push_back(new TH2F(*m_TileCellStatOnFlyLastLumiblocks[p]));    
-      }
-    }
-
-
     m_TileCellDetailNegOccMap[p] = book2F("", "tileCellDetailNegOccMap_" + m_PartNames[p]
                                           , "Run " + runNumStr + " Partition " + m_PartNames[p] 
-                                          + ": Occupancy Map Below Negative Threshold " + sene.str() + " GeV (entries = events)"
+                                                   + ": Occupancy Map Below Negative Threshold " + sene.str() + " GeV (entries = events)"
                                           , 64, 0.5, 64.5, 48, -0.5, 47.5);
     SetBinLabel(m_TileCellDetailNegOccMap[p]->GetYaxis(), m_cellchLabel[p]);
     SetBinLabel(m_TileCellDetailNegOccMap[p]->GetXaxis(), m_moduleLabel[p]);
@@ -1623,7 +1529,7 @@ void TileCellMonTool::FirstEvInit() {
 
       m_TileMaskChannonFlyLumi[p] = bookProfile("", "tileMaskChannOnFlyLumi_" + m_PartNames[p]
                                                 , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Number of masked channels on the fly"
-                                                , m_nLumiblocks, -0.5, m_nLumiblocks - 0.5);
+                                                , 1500, -0.5, 1499.5);
       m_TileMaskChannonFlyLumi[p]->SetYTitle("Number of masked channels");
       m_TileMaskChannonFlyLumi[p]->SetXTitle("LumiBlock");
       
@@ -1631,7 +1537,7 @@ void TileCellMonTool::FirstEvInit() {
       ////////////////////////// Book Histograms with the cell status as a function of lumi block
       m_TileMaskCellonFlyLumi[p] = bookProfile("", "tileMaskCellOnFlyLumi_" + m_PartNames[p]
                                                , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Number of masked cells on the fly"
-                                               , m_nLumiblocks, -0.5, m_nLumiblocks - 0.5);
+                                               , 1500, -0.5, 1499.5);
       m_TileMaskCellonFlyLumi[p]->SetYTitle("Number of masked cells");
       m_TileMaskCellonFlyLumi[p]->SetXTitle("LumiBlock");
       
@@ -1639,7 +1545,7 @@ void TileCellMonTool::FirstEvInit() {
 
     m_TileMaskChannfromDBLumi[p] = bookProfile("", "tileMaskChannfromDBLumi_" + m_PartNames[p]
                                                , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Number of masked channels in DB"
-                                               , m_nLumiblocks, -0.5, m_nLumiblocks - 0.5);
+                                               , 1500, -0.5, 1499.5);
     m_TileMaskChannfromDBLumi[p]->SetYTitle("Number of masked channels");
     m_TileMaskChannfromDBLumi[p]->SetXTitle("LumiBlock");
 
