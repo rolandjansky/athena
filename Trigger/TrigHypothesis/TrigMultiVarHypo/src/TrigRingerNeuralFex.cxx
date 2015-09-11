@@ -24,7 +24,12 @@ const double TrigRingerNeuralFex::ENERGY_THRESHOLD = 0.001;
 
 
 TrigRingerNeuralFex::TrigRingerNeuralFex(const std::string& name, ISvcLocator* pSvcLocator):
-  HLT::FexAlgo(name, pSvcLocator), m_network(0)
+  HLT::FexAlgo(name, pSvcLocator), 
+  m_storeTimer(NULL),
+  m_decisionTimer(NULL),
+  m_normalizationTimer(NULL),
+  m_network(0),
+  m_maxRingsAccumulated(0)
 {
   declareProperty("HltFeature", m_hlt_feature = "TrigRingerNeuralFex");
   declareProperty("Feature", m_feature = "TrigT2CaloEgamma");
@@ -221,12 +226,12 @@ void TrigRingerNeuralFex::normalize_rings(std::vector<RingSet>& rset) {
 }
 
 
-HLT::ErrorCode TrigRingerNeuralFex::hltExecute(const HLT::TriggerElement* te, HLT::TriggerElement* outputTE) {
+HLT::ErrorCode TrigRingerNeuralFex::hltExecute(const HLT::TriggerElement* /*te*/, HLT::TriggerElement* outputTE) {
 
-  te = NULL; // just to avoid the compiler warning about unused variable.
+//  te = NULL; // just to avoid the compiler warning about unused variable.
 
   const xAOD::TrigRingerRings* rings = get_rings(outputTE);
-  const xAOD::TrigEMCluster* cluster = get_cluster(outputTE);
+  //const xAOD::TrigEMCluster* cluster = get_cluster(outputTE);
 
   if (!rings) {
     msg() << MSG::ERROR << "There is no xAOD::TrigRingerRings available in this TriggerElement." 
@@ -293,12 +298,12 @@ HLT::ErrorCode TrigRingerNeuralFex::hltExecute(const HLT::TriggerElement* te, HL
 
    xAOD::TrigRNNOutput *rnnOutput = new xAOD::TrigRNNOutput();
   rnnOutput->makePrivateStore();  
-  //rnnOutput->setRnnDecision(decision); 
-  rnnOutput->setDecision(decision);
-  rnnOutput->setRoIword(cluster->RoIword());
-  rnnOutput->setEt(cluster->et());
-  rnnOutput->auxdata<ElementLink<xAOD::TrigRingerRingsContainer>>( "ringerLink"  ) = ringer_link; // decorator
-  //rnnOutput->setRingerLink( ringer_link );
+  rnnOutput->setRnnDecision(decision); 
+  //rnnOutput->setDecision(decision);
+  //rnnOutput->setRoIword(cluster->RoIword());
+  //rnnOutput->setEt(cluster->et());
+  //rnnOutput->auxdata<ElementLink<xAOD::TrigRingerRingsContainer>>( "ringerLink"  ) = ringer_link; // decorator
+  rnnOutput->setRingerLink( ringer_link );
 
   hltStatus = recordAndAttachFeature<xAOD::TrigRNNOutput>(outputTE, rnnOutput, m_key, m_hlt_feature);
     

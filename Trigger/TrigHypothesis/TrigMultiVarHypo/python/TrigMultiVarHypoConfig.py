@@ -14,7 +14,7 @@ class TrigRingerNeuralFexConfig( TrigRingerNeuralFex ):
   def __init__(self, name = "TrigRingerNeuralFexConfig"):
     super(TrigRingerNeuralFexConfig, self).__init__(name)
 		
-    self.HltFeature = "TrigRingerNeuralFex"
+    self.HltFeature = "TrigRingerEgammaDec"
     self.Feature = "TrigT2CaloEgamma"
 
     from TrigMultiVarHypo.TrigMultiVarHypoMonitoring import TrigRingerNeuralFexTimeMonitoring
@@ -54,7 +54,7 @@ class TrigRingerNeuralHypoConfig( TrigRingerNeuralHypo ):
   def __init__(self, name = "TrigRingerNeuralHypoConfig"):
     super(TrigRingerNeuralHypoConfig, self).__init__(name)
     
-    self.HltFeature = "TrigRingerNeuralFex"
+    self.HltFeature = "TrigRingerEgammaDec"
     
     self.Threshold = 0.0
     self.AcceptAll = False

@@ -71,20 +71,20 @@ HLT::ErrorCode TrigRingerNeuralHypo::hltExecute(const HLT::TriggerElement* outpu
   }
 
     
-  if (rnnOutput->decision().size() > 1) {
+  if (rnnOutput->rnnDecision().size() > 1) {
     msg() << MSG::WARNING << "Expected only one neuron at the neural network output. I'm only using the first output!" << endreq;
   }
 
-  if (rnnOutput->decision().size() == 0) {
+  if (rnnOutput->rnnDecision().size() == 0) {
     msg() << MSG::ERROR << "Neural Network output vector is empty. I can't proceed without an output!" << endreq;
     return HLT::ERROR;
   }
 
   //m_decision = rnnOutput->at(0);
-  m_decision = rnnOutput->decision().at(0);
+  m_decision = rnnOutput->rnnDecision().at(0);
   if(msgLvl() <= MSG::DEBUG){
-     //msg() << MSG::DEBUG << "Event with roiword: 0x" << std::hex << rnnOutput->ringer()->emCluster()->RoIword() << std::dec <<endreq;
-     msg() << MSG::DEBUG << "Event with roiword: 0x" << std::hex << rnnOutput->RoIword() << std::dec << endreq;
+     msg() << MSG::DEBUG << "Event with roiword: 0x" << std::hex << rnnOutput->ringer()->emCluster()->RoIword() << std::dec <<endreq;
+     //msg() << MSG::DEBUG << "Event with roiword: 0x" << std::hex << rnnOutput->RoIword() << std::dec << endreq;
   }
 
 
@@ -95,8 +95,9 @@ HLT::ErrorCode TrigRingerNeuralHypo::hltExecute(const HLT::TriggerElement* outpu
       msg() << MSG::DEBUG << "Accepting event with output = " << m_decision << endreq;
   }
  
-  //float et = rnnOutput->ringer()->emCluster()->et();
-  float et = rnnOutput->et();
+  float et = rnnOutput->ringer()->emCluster()->et();
+  //float et = rnnOutput->et();
+
   if (m_emEtCut > 0.0) {
     if (et < m_emEtCut) {
       pass = false;

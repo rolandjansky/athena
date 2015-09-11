@@ -141,7 +141,7 @@ Neural::Neural(const std::vector<unsigned> &n, const std::vector<float> &w, cons
 Neural::~Neural(){
     for (unsigned l=0; l<nodes.size()-1; l++){
         if (bM){
-            if (bM[l]==NULL){
+            if (bM[l]!=NULL){
                 delete bM[l]; //Deletes null pointer
             }else{
                 delete[] bM[l]; //Deletes array of values at second dimension of bM
@@ -150,7 +150,7 @@ Neural::~Neural(){
         for (unsigned i=0; i<nodes[l+1]; i++){
             if (wM){ 
                 if(wM[l]){
-                    if (wM[l][i]==NULL){
+                    if (wM[l][i]!=NULL){
                         delete wM[l][i]; //Deletes null pointer
                     }
                 }
@@ -159,7 +159,7 @@ Neural::~Neural(){
             }
         }
         if (wM){
-            if (wM[l]==NULL){
+            if (wM[l]!=NULL){
                 delete wM[l]; //Deletes null pointer
             }else{
                 delete[] wM[l]; //Deletes array of pointers at second dimension of wM
@@ -168,24 +168,24 @@ Neural::~Neural(){
     }
     for (unsigned l=0; l<nodes.size(); l++){
         if(mM){
-            if (mM[l]==NULL){
+            if (mM[l]!=NULL){
                 delete mM[l]; //Deletes null pointer
             }
         }else{
             delete[] mM[l]; //Deletes array of values at second dimension of mM
         }
     }
-    if (wM==NULL){
+    if (wM!=NULL){
         delete wM; //Deletes null pointer
     }else{
         delete[] wM; //Deletes array of pointers at first dimension of wM
     }
-    if (bM==NULL){
+    if (bM!=NULL){
         delete bM; //Deletes null pointer
     }else{
         delete[] bM; //Deletes array of pointers at first dimension of bM
     }
-    if (mM==NULL){
+    if (mM!=NULL){
         delete mM; //Deletes null pointer
     }else{
         delete[] mM; //Deletes array of pointers at first dimension of mM
