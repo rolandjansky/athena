@@ -12,8 +12,6 @@
 namespace xAOD {
    /// Define the latest version of the CPMHits class
    typedef CPMHits_v1 CPMHits;
-
-   typedef std::map<int, const CPMHits*> CPMHitsMap_t;
 }
 
 #include "xAODCore/CLASS_DEF.h"

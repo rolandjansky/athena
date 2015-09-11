@@ -12,8 +12,6 @@
 namespace xAOD {
    /// Define the latest version of the CPMRoI class
    typedef CPMRoI_v1 CPMRoI;
-
-   typedef std::map<int, const CPMRoI*> CPMRoIMap_t;
 }
 
 #include "xAODCore/CLASS_DEF.h"
