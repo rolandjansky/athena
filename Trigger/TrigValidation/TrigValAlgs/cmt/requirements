@@ -26,7 +26,6 @@ use TrigParticle	 	TrigParticle-*	        Trigger/TrigEvent
 use TrigMuonEvent        	TrigMuonEvent-*         Trigger/TrigEvent
 use TrigCaloEvent        	TrigCaloEvent-*         Trigger/TrigEvent
 use TrigSteeringEvent           TrigSteeringEvent-*     Trigger/TrigEvent
-use xAODTrigger                 xAODTrigger-*           Event/xAOD
 
 #For Trig Slimming test
 use TrigNavigation      TrigNavigation-*    Trigger/TrigEvent
@@ -34,12 +33,7 @@ use TrigNavTools        TrigNavTools-*      Trigger/TrigEvent
 use TrigDecisionTool    TrigDecisionTool-*  Trigger/TrigAnalysis
 use AtlasTriggerRunTime 	AtlasTriggerRunTime-*
 
-#For aux store test
-use xAODCore                    xAODCore-*              Event/xAOD
 private
-
-use TrigDecisionEvent           TrigDecisionEvent-*     Trigger/TrigEvent
-
 
 # for TrigDecisionTool test
 use Particle                    Particle-*              Reconstruction

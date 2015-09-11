@@ -13,8 +13,6 @@
 #include "AnalysisTriggerEvent/EnergySum_ROI.h"
 #include "AnalysisTriggerEvent/Jet_ROI.h"
 
-#include "xAODTrigger/TrigPassBitsContainer.h"
-#include "xAODTrigger/TrigPassBits.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetConstituentVector.h"
 #include "xAODTrigMissingET/TrigMissingETAuxContainer.h"
@@ -111,46 +109,45 @@ TrigEDMChecker::TrigEDMChecker(const std::string& name, ISvcLocator* pSvcLocator
 
 	/** switches to control the analysis through job options */
 
-	declareProperty("doDumpAll", m_doDumpAll = true);
-        declareProperty("doDumpTrigPassBits", m_doDumpTrigPassBits = false);
-	declareProperty("doDumpLVL1_ROI", m_doDumpLVL1_ROI = false);
-	declareProperty("doDumpTrigMissingET", m_doDumpTrigMissingET = false);
-	declareProperty("doDumpxAODTrigMissingET", m_doDumpxAODTrigMissingET = false);
-	declareProperty("doDumpMuonFeature", m_doDumpMuonFeature = false);
-	declareProperty("doDumpCombinedMuonFeature", m_doDumpCombinedMuonFeature = false);
-	declareProperty("doDumpTileMuFeature",      m_doDumpTileMuFeature = false);
-	declareProperty("doDumpTileTrackMuFeature", m_doDumpTileTrackMuFeature = false);
-	declareProperty("doDumpTrigPhotonContainer", m_doDumpTrigPhotonContainer = false);
-	declareProperty("doDumpTrigL2BphysContainer", m_doDumpTrigL2BphysContainer = false);
-	declareProperty("doDumpTrigEFBphysContainer", m_doDumpTrigEFBphysContainer = false);
-	declareProperty("doDumpTrigEFBjetContainer", m_doDumpTrigEFBjetContainer = false);
-	declareProperty("doDumpTrigL2BjetContainer", m_doDumpTrigL2BjetContainer = false);
-	declareProperty("doDumpxAODJetContainer", m_doDumpxAODJetContainer = false);
-	declareProperty("doDumpTrigMuonEFContainer", m_doDumpTrigMuonEFContainer = false);
-	declareProperty("doDumpTrigMuonEFInfoContainer", m_doDumpTrigMuonEFInfoContainer = false);
-	declareProperty("doDumpTrigMuonEFIsolationContainer", m_doDumpTrigMuonEFIsolationContainer = false);
-	declareProperty("doDumpxAODMuonContainer", m_doDumpxAODMuonContainer = false);
-	declareProperty("doDumpTrigElectronContainer", m_doDumpTrigElectronContainer = false);
-	declareProperty("doDumpxAODTrigElectronContainer", m_doDumpxAODTrigElectronContainer = false);
-	declareProperty("doDumpxAODTrigPhotonContainer", m_doDumpxAODTrigPhotonContainer = false);
-	declareProperty("doDumpxAODElectronContainer", m_doDumpxAODElectronContainer = false);
-	declareProperty("doDumpxAODPhotonContainer", m_doDumpxAODPhotonContainer = false);
-	declareProperty("doDumpHLTResult", m_doDumpHLTResult = false);
-	declareProperty("doDumpTrigTauContainer", m_doDumpTrigTauContainer = false);
-	declareProperty("doDumpTrigTauTracksInfo", m_doDumpTrigTauTracksInfo = false);
-	declareProperty("doDumpTrigInDetTrackCollection", m_doDumpTrigInDetTrackCollection = false);
-	declareProperty("doDumpTrigVertexCollection", m_doDumpTrigVertexCollection = false);
-	declareProperty("doDumpTrigEMCluster", m_doDumpTrigEMCluster = false);
-	declareProperty("doDumpTrigEMClusterContainer", m_doDumpTrigEMClusterContainer = false);
-	declareProperty("doDumpxAODTrigEMCluster", m_doDumpxAODTrigEMCluster = false);
-	declareProperty("doDumpxAODTrigEMClusterContainer", m_doDumpxAODTrigEMClusterContainer = false);
-	declareProperty("doDumpTrigTauClusterContainer", m_doDumpTrigTauClusterContainer = false);
-	declareProperty("doDumpTrackParticleContainer", m_doDumpTrackParticleContainer = false);
-	declareProperty("doDumpTauJetContainer", m_doDumpTauJetContainer = false);
-	declareProperty("doDumpxAODTrackParticle", m_doDumpxAODTrackParticle = false);
-	declareProperty("doDumpxAODVertex", m_doDumpxAODVertex = false);
-	declareProperty("doDumpxAODTauJetContainer", m_doDumpxAODTauJetContainer = false);
-	declareProperty("doDumpxAODTrigMinBias", m_doDumpxAODTrigMinBias = false);
+	declareProperty("doDumpAll", doDumpAll = true);
+	declareProperty("doDumpLVL1_ROI", doDumpLVL1_ROI = false);
+	declareProperty("doDumpTrigMissingET", doDumpTrigMissingET = false);
+	declareProperty("doDumpxAODTrigMissingET", doDumpxAODTrigMissingET = false);
+	declareProperty("doDumpMuonFeature", doDumpMuonFeature = false);
+	declareProperty("doDumpCombinedMuonFeature", doDumpCombinedMuonFeature = false);
+	declareProperty("doDumpTileMuFeature",      doDumpTileMuFeature = false);
+	declareProperty("doDumpTileTrackMuFeature", doDumpTileTrackMuFeature = false);
+	declareProperty("doDumpTrigPhotonContainer", doDumpTrigPhotonContainer = false);
+	declareProperty("doDumpTrigL2BphysContainer", doDumpTrigL2BphysContainer = false);
+	declareProperty("doDumpTrigEFBphysContainer", doDumpTrigEFBphysContainer = false);
+	declareProperty("doDumpTrigEFBjetContainer", doDumpTrigEFBjetContainer = false);
+	declareProperty("doDumpTrigL2BjetContainer", doDumpTrigL2BjetContainer = false);
+	declareProperty("doDumpxAODJetContainer", doDumpxAODJetContainer = false);
+	declareProperty("doDumpTrigMuonEFContainer", doDumpTrigMuonEFContainer = false);
+	declareProperty("doDumpTrigMuonEFInfoContainer", doDumpTrigMuonEFInfoContainer = false);
+	declareProperty("doDumpTrigMuonEFIsolationContainer", doDumpTrigMuonEFIsolationContainer = false);
+	declareProperty("doDumpxAODMuonContainer", doDumpxAODMuonContainer = false);
+	declareProperty("doDumpTrigElectronContainer", doDumpTrigElectronContainer = false);
+	declareProperty("doDumpxAODTrigElectronContainer", doDumpxAODTrigElectronContainer = false);
+	declareProperty("doDumpxAODTrigPhotonContainer", doDumpxAODTrigPhotonContainer = false);
+	declareProperty("doDumpxAODElectronContainer", doDumpxAODElectronContainer = false);
+	declareProperty("doDumpxAODPhotonContainer", doDumpxAODPhotonContainer = false);
+	declareProperty("doDumpHLTResult", doDumpHLTResult = false);
+	declareProperty("doDumpTrigTauContainer", doDumpTrigTauContainer = false);
+	declareProperty("doDumpTrigTauTracksInfo", doDumpTrigTauTracksInfo = false);
+	declareProperty("doDumpTrigInDetTrackCollection", doDumpTrigInDetTrackCollection = false);
+	declareProperty("doDumpTrigVertexCollection", doDumpTrigVertexCollection = false);
+	declareProperty("doDumpTrigEMCluster", doDumpTrigEMCluster = false);
+	declareProperty("doDumpTrigEMClusterContainer", doDumpTrigEMClusterContainer = false);
+	declareProperty("doDumpxAODTrigEMCluster", doDumpxAODTrigEMCluster = false);
+	declareProperty("doDumpxAODTrigEMClusterContainer", doDumpxAODTrigEMClusterContainer = false);
+	declareProperty("doDumpTrigTauClusterContainer", doDumpTrigTauClusterContainer = false);
+	declareProperty("doDumpTrackParticleContainer", doDumpTrackParticleContainer = false);
+	declareProperty("doDumpTauJetContainer", doDumpTauJetContainer = false);
+	declareProperty("doDumpxAODTrackParticle", doDumpxAODTrackParticle = false);
+	declareProperty("doDumpxAODVertex", doDumpxAODVertex = false);
+	declareProperty("doDumpxAODTauJetContainer", doDumpxAODTauJetContainer = false);
+	declareProperty("doDumpxAODTrigMinBias", doDumpxAODTrigMinBias = false);
 }
 
 
@@ -164,42 +161,42 @@ StatusCode TrigEDMChecker::initialize() {
 	mLog << MSG::DEBUG << "Initializing TrigEDMChecker" << endreq;
 
 	mLog << MSG::INFO << "REGTEST Initializing..." << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpAll                     = " <<  m_doDumpAll  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpLVL1_ROI                = " <<  m_doDumpLVL1_ROI << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigMissingET           = " <<  m_doDumpTrigMissingET  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODTrigMissingET       = " <<  m_doDumpxAODTrigMissingET  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpMuonFeature             = " <<  m_doDumpMuonFeature  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpCombinedMuonFeature     = " <<  m_doDumpCombinedMuonFeature  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTileMuFeature           = " <<  m_doDumpTileMuFeature << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTileTrackMuFeature      = " <<  m_doDumpTileTrackMuFeature << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigPhotonContainer     = " <<  m_doDumpTrigPhotonContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigL2BphysContainer    = " <<  m_doDumpTrigL2BphysContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigEFBphysContainer    = " <<  m_doDumpTrigEFBphysContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigEFBjetContainer     = " <<  m_doDumpTrigEFBjetContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigL2BjetContainer     = " <<  m_doDumpTrigL2BjetContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODJetContainer        = " <<  m_doDumpxAODJetContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigMuonEFContainer     = " <<  m_doDumpTrigMuonEFContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigMuonEFInfoContainer = " <<  m_doDumpTrigMuonEFInfoContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODMuonContainer       = " <<  m_doDumpxAODMuonContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigElectronContainer   = " <<  m_doDumpTrigElectronContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODTrigElectronContainer   = " <<  m_doDumpxAODTrigElectronContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODTrigPhotonContainer   = " <<  m_doDumpxAODTrigPhotonContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODElectronContainer   = " <<  m_doDumpxAODElectronContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODPhotonContainer   = " <<  m_doDumpxAODPhotonContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpHLTResult               = " <<  m_doDumpHLTResult  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigTauContainer        = " <<  m_doDumpTrigTauContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigTauTracksInfo       = " <<  m_doDumpTrigTauTracksInfo  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigInDetTrackCollection= " <<  m_doDumpTrigInDetTrackCollection  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigVertexCollection    = " <<  m_doDumpTrigVertexCollection  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigEMCluster           = " <<  m_doDumpTrigEMCluster  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigEMClusterContainer        = " <<  m_doDumpTrigEMClusterContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrigTauClusterContainer = " <<  m_doDumpTrigTauClusterContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTrackParticleContainer          = " <<  m_doDumpTrackParticleContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpTauJetContainer          = " <<  m_doDumpTauJetContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODTrackParticle         = " <<  m_doDumpxAODTrackParticle  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODVertex                = " <<  m_doDumpxAODVertex  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODTauJetContainer          = " << m_doDumpxAODTauJetContainer  << endreq;
-	mLog << MSG::INFO << "REGTEST m_doDumpxAODTrigMinBias          = " << m_doDumpxAODTrigMinBias  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpAll                     = " <<  doDumpAll  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpLVL1_ROI                = " <<  doDumpLVL1_ROI << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTrigMissingET           = " <<  doDumpTrigMissingET  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpxAODTrigMissingET       = " <<  doDumpxAODTrigMissingET  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpMuonFeature             = " <<  doDumpMuonFeature  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpCombinedMuonFeature     = " <<  doDumpCombinedMuonFeature  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTileMuFeature           = " <<  doDumpTileMuFeature << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTileTrackMuFeature      = " <<  doDumpTileTrackMuFeature << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTrigPhotonContainer     = " <<  doDumpTrigPhotonContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTrigL2BphysContainer    = " <<  doDumpTrigL2BphysContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTrigEFBphysContainer    = " <<  doDumpTrigEFBphysContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTrigEFBjetContainer     = " <<  doDumpTrigEFBjetContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTrigL2BjetContainer     = " <<  doDumpTrigL2BjetContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpxAODJetContainer        = " <<  doDumpxAODJetContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTrigMuonEFContainer     = " <<  doDumpTrigMuonEFContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTrigMuonEFInfoContainer = " <<  doDumpTrigMuonEFInfoContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpxAODMuonContainer       = " <<  doDumpxAODMuonContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTrigElectronContainer   = " <<  doDumpTrigElectronContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpxAODTrigElectronContainer   = " <<  doDumpxAODTrigElectronContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpxAODTrigPhotonContainer   = " <<  doDumpxAODTrigPhotonContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpxAODElectronContainer   = " <<  doDumpxAODElectronContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpxAODPhotonContainer   = " <<  doDumpxAODPhotonContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpHLTResult               = " <<  doDumpHLTResult  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTrigTauContainer        = " <<  doDumpTrigTauContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTrigTauTracksInfo       = " <<  doDumpTrigTauTracksInfo  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTrigInDetTrackCollection= " <<  doDumpTrigInDetTrackCollection  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTrigVertexCollection    = " <<  doDumpTrigVertexCollection  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTrigEMCluster           = " <<  doDumpTrigEMCluster  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTrigEMClusterContainer        = " <<  doDumpTrigEMClusterContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTrigTauClusterContainer = " <<  doDumpTrigTauClusterContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTrackParticleContainer          = " <<  doDumpTrackParticleContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpTauJetContainer          = " <<  doDumpTauJetContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpxAODTrackParticle         = " <<  doDumpxAODTrackParticle  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpxAODVertex                = " <<  doDumpxAODVertex  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpxAODTauJetContainer          = " << doDumpxAODTauJetContainer  << endreq;
+	mLog << MSG::INFO << "REGTEST doDumpxAODTrigMinBias          = " << doDumpxAODTrigMinBias  << endreq;
 
 
 //      puts this here for the moment
@@ -209,7 +206,7 @@ StatusCode TrigEDMChecker::initialize() {
 	vertexWarningNum = 0;
         trackWarningNum = 0;
 
-	if(m_doDumpxAODMuonContainer || m_doDumpAll) {
+	if(doDumpxAODMuonContainer || doDumpAll) {
 	  StatusCode sc = m_muonPrinter.retrieve();
 	  if(sc.isFailure()) {
 	    ATH_MSG_ERROR("Could not retrieve MuonPrinter tool");
@@ -245,7 +242,7 @@ StatusCode TrigEDMChecker::execute() {
 
 	mLog << MSG::DEBUG << "in execute()" << endreq;
 
-	if(m_doDumpTrackParticleContainer){
+	if(doDumpTrackParticleContainer){
 		StatusCode sc = dumpTrackParticleContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrackParticleContainer() failed" << endreq;
@@ -253,7 +250,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpLVL1_ROI ){
+	if(doDumpAll || doDumpLVL1_ROI ){
 		StatusCode sc = dumpLVL1_ROI();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpLVL1_ROI() failed" << endreq;
@@ -262,7 +259,7 @@ StatusCode TrigEDMChecker::execute() {
 	}
 
     /*
-	if(m_doDumpAll || m_doDumpTrigMissingET){
+	if(doDumpAll || doDumpTrigMissingET){
 		StatusCode sc = dumpTrigMissingET();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigMissingET() failed" << endreq;
@@ -271,7 +268,7 @@ StatusCode TrigEDMChecker::execute() {
 	}
 	*/
 
-	if(m_doDumpAll || m_doDumpxAODTrigMissingET){
+	if(doDumpAll || doDumpxAODTrigMissingET){
 		StatusCode sc = dumpxAODTrigMissingET();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpxAODTrigMissingET() failed" << endreq;
@@ -279,7 +276,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
     }
 
-	if(m_doDumpAll || m_doDumpMuonFeature){
+	if(doDumpAll || doDumpMuonFeature){
 		StatusCode sc = dumpMuonFeature();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpMuonFeature() failed" << endreq;
@@ -287,7 +284,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpCombinedMuonFeature){
+	if(doDumpAll || doDumpCombinedMuonFeature){
 		StatusCode sc = dumpCombinedMuonFeature();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpCombinedMuonFeature() failed" << endreq;
@@ -300,7 +297,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpTileMuFeature) {
+	if(doDumpAll || doDumpTileMuFeature) {
 		StatusCode sc = dumpTileMuFeatureContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTileMuFeatureContainer() failed"
@@ -309,7 +306,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpTileTrackMuFeature) {
+	if(doDumpAll || doDumpTileTrackMuFeature) {
 		StatusCode sc = dumpTileTrackMuFeatureContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR
@@ -318,7 +315,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpTrigEMCluster){
+	if(doDumpAll || doDumpTrigEMCluster){
 		StatusCode sc = dumpTrigEMCluster();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigEMCluster() failed" << endreq;
@@ -327,7 +324,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpTrigEMClusterContainer){
+	if(doDumpAll || doDumpTrigEMClusterContainer){
 		StatusCode sc = dumpTrigEMClusterContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigEMClusterContainer() failed" << endreq;
@@ -336,7 +333,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-        if(m_doDumpAll || m_doDumpxAODTrigEMCluster){
+        if(doDumpAll || doDumpxAODTrigEMCluster){
                 StatusCode sc = dumpxAODTrigEMCluster();
                 if (sc.isFailure()) {
                         mLog << MSG::ERROR << "The method dumpxAODTrigEMCluster() failed" << endreq;
@@ -345,7 +342,7 @@ StatusCode TrigEDMChecker::execute() {
                 }
         }
 
-        if(m_doDumpAll || m_doDumpxAODTrigEMClusterContainer){
+        if(doDumpAll || doDumpxAODTrigEMClusterContainer){
                 StatusCode sc = dumpxAODTrigEMClusterContainer();
                 if (sc.isFailure()) {
                         mLog << MSG::ERROR << "The method dumpxAODTrigEMClusterContainer() failed" << endreq;
@@ -354,7 +351,7 @@ StatusCode TrigEDMChecker::execute() {
                 }
         }
 
-	if(m_doDumpTrigTauClusterContainer){
+	if(doDumpTrigTauClusterContainer){
 		StatusCode sc = dumpTrigTauClusterContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigTauClusterContainer() failed" << endreq;
@@ -363,7 +360,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpTrigPhotonContainer){
+	if(doDumpAll || doDumpTrigPhotonContainer){
 		StatusCode sc = dumpTrigPhotonContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigPhotonContainer() failed" << endreq;
@@ -372,7 +369,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpxAODJetContainer){
+	if(doDumpAll || doDumpxAODJetContainer){
 		StatusCode sc = dumpxAODJetContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpxAODJetContainer() failed" << endreq;
@@ -381,7 +378,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpTrigL2BphysContainer){
+	if(doDumpAll || doDumpTrigL2BphysContainer){
 		StatusCode sc = dumpTrigL2BphysContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigL2BphysContainer() failed" << endreq;
@@ -390,7 +387,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpTrigEFBphysContainer){
+	if(doDumpAll || doDumpTrigEFBphysContainer){
 		StatusCode sc = dumpTrigEFBphysContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigEFBphysContainer() failed" << endreq;
@@ -399,7 +396,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpTrigEFBjetContainer){
+	if(doDumpAll || doDumpTrigEFBjetContainer){
 		StatusCode sc = dumpTrigEFBjetContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigEFBjetContainer() failed" << endreq;
@@ -408,7 +405,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpTrigL2BjetContainer){
+	if(doDumpAll || doDumpTrigL2BjetContainer){
 		StatusCode sc = dumpTrigL2BjetContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigL2BjetContainer() failed" << endreq;
@@ -417,7 +414,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpTrigMuonEFContainer){
+	if(doDumpAll || doDumpTrigMuonEFContainer){
 		StatusCode sc = dumpTrigMuonEFContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigMuonEFContainer() failed" << endreq;
@@ -426,7 +423,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpTrigMuonEFInfoContainer){
+	if(doDumpAll || doDumpTrigMuonEFInfoContainer){
 		StatusCode sc = dumpTrigMuonEFInfoContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigMuonEFInfoContainer() failed" << endreq;
@@ -435,21 +432,21 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpTrigMuonEFIsolationContainer) {
+	if(doDumpAll || doDumpTrigMuonEFIsolationContainer) {
 	  StatusCode sc = dumpTrigMuonEFIsolationContainer();
 	  if(sc.isFailure()) {
 	    mLog << MSG::ERROR << "The method dumpTrigMuonEFIsolationContainer() failed" << endreq;
 	  }
 	}
 
-	if(m_doDumpAll || m_doDumpxAODMuonContainer) {
+	if(doDumpAll || doDumpxAODMuonContainer) {
 	  StatusCode sc = dumpxAODMuonContainer();
 	  if(sc.isFailure()) {
 	    mLog << MSG::ERROR << "The method dumpxAODMuonContainer() failed" << endreq;
 	  }
 	}
 
-	if(m_doDumpAll || m_doDumpTrigElectronContainer){
+	if(doDumpAll || doDumpTrigElectronContainer){
 		StatusCode sc = dumpTrigElectronContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigElectronContainer() failed" << endreq;
@@ -458,7 +455,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpxAODTrigElectronContainer){
+	if(doDumpAll || doDumpxAODTrigElectronContainer){
 		StatusCode sc = dumpxAODTrigElectronContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpxAODTrigElectronContainer() failed" << endreq;
@@ -467,7 +464,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpxAODTrigPhotonContainer){
+	if(doDumpAll || doDumpxAODTrigPhotonContainer){
 		StatusCode sc = dumpxAODTrigPhotonContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpxAODTrigElectronContainer() failed" << endreq;
@@ -476,7 +473,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-        if(m_doDumpAll || m_doDumpxAODElectronContainer){
+        if(doDumpAll || doDumpxAODElectronContainer){
 		StatusCode sc = dumpxAODElectronContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpxAODTrigElectronContainer() failed" << endreq;
@@ -485,7 +482,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpxAODPhotonContainer){
+	if(doDumpAll || doDumpxAODPhotonContainer){
 		StatusCode sc = dumpxAODPhotonContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpxAODTrigElectronContainer() failed" << endreq;
@@ -494,7 +491,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-        if(m_doDumpTrigTauContainer){
+        if(doDumpTrigTauContainer){
 		StatusCode sc = dumpTrigTauContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigTauContainer() failed" << endreq;
@@ -503,7 +500,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpTrigTauTracksInfo){
+	if(doDumpTrigTauTracksInfo){
 		StatusCode sc = dumpTrigTauTracksInfo();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigTauTracksInfo() failed" << endreq;
@@ -512,7 +509,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpHLTResult){
+	if(doDumpAll || doDumpHLTResult){
 		StatusCode sc = dumpHLTResult();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpHLTResult() failed" << endreq;
@@ -521,7 +518,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpTrigInDetTrackCollection){
+	if(doDumpTrigInDetTrackCollection){
 		StatusCode sc = dumpTrigInDetTrackCollection();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigInDetTrackCollection() failed" << endreq;
@@ -530,7 +527,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpTrigVertexCollection){
+	if(doDumpAll || doDumpTrigVertexCollection){
 		StatusCode sc = dumpTrigVertexCollection();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTrigVertexCollection() failed" << endreq;
@@ -539,7 +536,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpxAODTauJetContainer){
+	if(doDumpAll || doDumpxAODTauJetContainer){
 		StatusCode sc = dumpxAODTauJetContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpxAODTauJetContainer() failed" << endreq;
@@ -551,7 +548,7 @@ StatusCode TrigEDMChecker::execute() {
 
 
 
-	if(m_doDumpTauJetContainer){
+	if(doDumpTauJetContainer){
 		StatusCode sc = dumpTauJetContainer();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpTauJetContainer() failed" << endreq;
@@ -559,7 +556,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpxAODTrackParticle){
+	if(doDumpAll || doDumpxAODTrackParticle){
 		StatusCode sc = dumpxAODTrackParticle();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpxAODTrackParticle() failed" << endreq;
@@ -567,7 +564,7 @@ StatusCode TrigEDMChecker::execute() {
 		}
 	}
 
-	if(m_doDumpAll || m_doDumpxAODVertex){
+	if(doDumpAll || doDumpxAODVertex){
 		StatusCode sc = dumpxAODVertex();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpxAODVertex() failed" << endreq;
@@ -576,17 +573,10 @@ StatusCode TrigEDMChecker::execute() {
 	}
 
 
-	if (m_doDumpAll || m_doDumpxAODTrigMinBias){
+	if (doDumpAll || doDumpxAODTrigMinBias){
 		StatusCode sc = dumpxAODTrigMinBias();
 		if (sc.isFailure()) {
 			mLog << MSG::ERROR << "The method dumpxAODTrigMinBias() failed" << endreq;
-		}
-
-	}
-	if (m_doDumpTrigPassBits){
-		StatusCode sc = dumpTrigPassBits();
-		if (sc.isFailure()) {
-			mLog << MSG::ERROR << "The method dumpTrigPassBits() failed" << endreq;
 		}
 
 	}
@@ -596,36 +586,6 @@ StatusCode TrigEDMChecker::execute() {
 }
 
 //////////////////////////////////////////////////////////////////////////////////
-StatusCode TrigEDMChecker::dumpTrigPassBits(){
-    const std::string name="HLT_xAOD__TrigPassBitsContainer_passbits";
-    const xAOD::TrigPassBitsContainer *xbitscont=nullptr;
-    StatusCode sc = evtStore()->retrieve(xbitscont,name);
-    if (sc.isFailure() ){
-        ATH_MSG_INFO("Cannot retrieve TrigPassBits");
-    }
-    else {
-        ATH_MSG_INFO("Size of PassBits container : " << xbitscont->size());
-        for(const auto &bits:*xbitscont){
-            if(bits==nullptr){
-                ATH_MSG_INFO("TrigPassBits point nullptr ");
-                continue;
-            }
-            ATH_MSG_DEBUG("Analyzing bits for " << bits->containerClid() << " of size " << bits->size() << " with bit size " << bits->passBits().size());
-        }
-        xAOD::TrigPassBitsContainer::const_iterator itr  = xbitscont->begin();
-        xAOD::TrigPassBitsContainer::const_iterator itrE = xbitscont->end();
-
-        for (int j=0; itr != itrE; ++itr, ++j ) {
-            const xAOD::TrigPassBits * bits = (*itr);
-            if(bits==nullptr){
-                ATH_MSG_INFO("TrigPassBits point nullptr ");
-                continue;
-            }
-            ATH_MSG_DEBUG("Analyzing bits for " << bits->containerClid() << " of size " << bits->size() << " with bit size " << bits->passBits().size());
-        }
-    }
-    return StatusCode::SUCCESS;
-}
 
 void TrigEDMChecker::dumpTrigSpacePointCounts(MsgStream &mLog)
 {
@@ -1453,7 +1413,7 @@ StatusCode TrigEDMChecker::dumpTrigMuonEFInfoContainer() {
 				mLog <<MSG::INFO << "REGTEST Test new version " << endreq;
 
 				mLog <<MSG::INFO << "REGTEST hasTracks()=true " << endreq;
-				const TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();
+				TrigMuonEFInfoTrackContainer *tc = muonInfo->TrackContainer();
 				mLog <<MSG::INFO << "REGTEST TrackContainer size: " <<  tc->size() << endreq;
 
 				for (TrigMuonEFInfoTrackContainer::const_iterator TrackItr = tc->begin() ; TrackItr!=tc->end(); TrackItr++) {
@@ -1606,7 +1566,7 @@ StatusCode TrigEDMChecker::dumpTrigMuonEFIsolationContainer() {
 }//dumpTrigMuonEFIsolationContainer
 
 
-void TrigEDMChecker::printMuonTrk(MsgStream &mLog, const TrigMuonEFTrack* muonTrack) {
+void TrigEDMChecker::printMuonTrk(MsgStream &mLog, TrigMuonEFTrack* muonTrack) {
 	mLog <<MSG::INFO << "POINTER TrigMuonEFTrack: " << muonTrack << endreq;
 	//if(muonTrack) mLog << MSG::INFO << "REGTEST TrigMuonEFTrack: " << *muonTrack << endreq;
 
@@ -1632,7 +1592,7 @@ void TrigEDMChecker::printMuonTrk(MsgStream &mLog, const TrigMuonEFTrack* muonTr
 // 	mLog <<MSG::INFO << "REGTEST z0() returns " << muonTrack->z0() << endreq;
 }
 
-void TrigEDMChecker::printMuonTrk(MsgStream &mLog, const TrigMuonEFCbTrack* muonTrack) {
+void TrigEDMChecker::printMuonTrk(MsgStream &mLog, TrigMuonEFCbTrack* muonTrack) {
 	mLog <<MSG::INFO << " POINTER TrigMuonEFCbTrack: " << muonTrack << endreq;
 	//if(muonTrack) mLog << MSG::INFO << "REGTEST TrigMuonEFCbTrack: " << *muonTrack << endreq;
 
@@ -2325,7 +2285,7 @@ StatusCode TrigEDMChecker::dumpTrigInDetTrackCollection() {
 					mLog << MSG::DEBUG << " Track has truth info:  " << endreq;
 					const TrigInDetTrackTruth* pTRTtruth = pTruthMap->truth((*trkItr));
 					int nMatches = pTRTtruth->nrMatches() ;
-					if (nMatches==0) {
+					if (!nMatches>0) {
 						mLog << MSG::INFO << " REGTEST Track has no truth matches" <<  endreq;
 					} else {
 						mLog << MSG::INFO << "REGTEST number of matched truth hits: Si: " <<  pTruthMap->bestMatchSiHits((*trkItr))
@@ -3722,71 +3682,71 @@ StatusCode TrigEDMChecker::dumpxAODTauJetContainer() {
     ATH_MSG_INFO( "REGTEST (*tauIt)->phi() returns  " << (*tauIt)->phi() );
     ATH_MSG_INFO( "REGTEST (*tauIt)->pt() returns   " << (*tauIt)->pt() );
     ATH_MSG_INFO( "REGTEST (*tauIt)->nTracks() returns " << (*tauIt)->nTracks() );
-    ATH_MSG_INFO( "REGTEST (*tauIt)->nWideTracks() returns " << (*tauIt)->nTracksIsolation() );
+    ATH_MSG_INFO( "REGTEST (*tauIt)->nWideTracks() returns " << (*tauIt)->nWideTracks() );
     //bool test = false;
-    float trkAvgDist=0;
-    float etOvPtLead=0;
-    float emRadius=0;
-    float hadRadius=0;
-    float IsoFrac=0;
-    float centFrac=0;
-    float ipSigLeadTrk=0;
-    float trFlightPathSig=0;
-    float dRmax=0;
-    float massTrkSys=0;
-    float PSSFraction=0;
-    float EMPOverTrkSysP=0;
-    float ChPiEMEOverCaloEME=0;
-    float EtEm=0;
-    float EtHad=0;
+    float m_trkAvgDist=0;
+    float m_etOvPtLead=0;
+    float m_emRadius=0;
+    float m_hadRadius=0;
+    float m_IsoFrac=0;
+    float m_centFrac=0;
+    float m_ipSigLeadTrk=0;
+    float m_trFlightPathSig=0;
+    float m_dRmax=0;
+    float m_massTrkSys=0;
+    float m_PSSFraction=0;
+    float m_EMPOverTrkSysP=0;
+    float m_ChPiEMEOverCaloEME=0;
+    float m_EtEm=0;
+    float m_EtHad=0;
 
-    if ( (*tauIt)->detail(xAOD::TauJetParameters::trkAvgDist,trkAvgDist))
-      ATH_MSG_INFO( "REGTEST TauDetails->trkAvgDist() returns " << trkAvgDist);
+    if ( (*tauIt)->detail(xAOD::TauJetParameters::trkAvgDist,m_trkAvgDist))
+      ATH_MSG_INFO( "REGTEST TauDetails->trkAvgDist() returns " << m_trkAvgDist);
 
-    if ( (*tauIt)->detail(xAOD::TauJetParameters::etOverPtLeadTrk,etOvPtLead))
-      ATH_MSG_INFO( "REGTEST TauDetails->etOverPtLeadTrk() returns " << etOvPtLead);
+    if ( (*tauIt)->detail(xAOD::TauJetParameters::etOverPtLeadTrk,m_etOvPtLead))
+      ATH_MSG_INFO( "REGTEST TauDetails->etOverPtLeadTrk() returns " << m_etOvPtLead);
 
-    if ( (*tauIt)->detail(xAOD::TauJetParameters::EMRadius,emRadius))
-      ATH_MSG_INFO( "REGTEST TauDetails->EMRadius() returns " << emRadius);
+    if ( (*tauIt)->detail(xAOD::TauJetParameters::EMRadius,m_emRadius))
+      ATH_MSG_INFO( "REGTEST TauDetails->EMRadius() returns " << m_emRadius);
 
-    if ( (*tauIt)->detail(xAOD::TauJetParameters::hadRadius,hadRadius))
-      ATH_MSG_INFO( "REGTEST TauDetails->hadRadius() returns " << hadRadius);
+    if ( (*tauIt)->detail(xAOD::TauJetParameters::hadRadius,m_hadRadius))
+      ATH_MSG_INFO( "REGTEST TauDetails->hadRadius() returns " << m_hadRadius);
 
-    if ( (*tauIt)->detail(xAOD::TauJetParameters::isolFrac,IsoFrac))
-      ATH_MSG_INFO( "REGTEST TauDetails->isolFrac() returns " << IsoFrac);
+    if ( (*tauIt)->detail(xAOD::TauJetParameters::isolFrac,m_IsoFrac))
+      ATH_MSG_INFO( "REGTEST TauDetails->isolFrac() returns " << m_IsoFrac);
 
-    if ( (*tauIt)->detail(xAOD::TauJetParameters::centFrac,centFrac))
-      ATH_MSG_INFO( "REGTEST TauDetails->centFrac() returns " << centFrac);
+    if ( (*tauIt)->detail(xAOD::TauJetParameters::centFrac,m_centFrac))
+      ATH_MSG_INFO( "REGTEST TauDetails->centFrac() returns " << m_centFrac);
 
-    if ( (*tauIt)->detail(xAOD::TauJetParameters::ipSigLeadTrk,ipSigLeadTrk))
-      ATH_MSG_INFO( "REGTEST TauDetails->ipSigLeadTrk() returns " << ipSigLeadTrk);
+    if ( (*tauIt)->detail(xAOD::TauJetParameters::ipSigLeadTrk,m_ipSigLeadTrk))
+      ATH_MSG_INFO( "REGTEST TauDetails->ipSigLeadTrk() returns " << m_ipSigLeadTrk);
 
-    if ( (*tauIt)->detail(xAOD::TauJetParameters::trFlightPathSig,trFlightPathSig))
-      ATH_MSG_INFO( "REGTEST TauDetails->trFlightPathSig() returns " << trFlightPathSig);
+    if ( (*tauIt)->detail(xAOD::TauJetParameters::trFlightPathSig,m_trFlightPathSig))
+      ATH_MSG_INFO( "REGTEST TauDetails->trFlightPathSig() returns " << m_trFlightPathSig);
 
-    if ( (*tauIt)->detail(xAOD::TauJetParameters::dRmax,dRmax))
-      ATH_MSG_INFO( "REGTEST TauDetails->dRmax() returns " << dRmax);
+    if ( (*tauIt)->detail(xAOD::TauJetParameters::dRmax,m_dRmax))
+      ATH_MSG_INFO( "REGTEST TauDetails->dRmax() returns " << m_dRmax);
 
-    if ( (*tauIt)->detail(xAOD::TauJetParameters::massTrkSys,massTrkSys)){
-      massTrkSys /=1000;
-      ATH_MSG_INFO( "REGTEST TauDetails->massTrkSys() returns " << massTrkSys);}
+    if ( (*tauIt)->detail(xAOD::TauJetParameters::massTrkSys,m_massTrkSys)){
+      m_massTrkSys /=1000;
+      ATH_MSG_INFO( "REGTEST TauDetails->massTrkSys() returns " << m_massTrkSys);}
 
-    if ( (*tauIt)->detail(xAOD::TauJetParameters::PSSFraction,PSSFraction))
-      ATH_MSG_INFO( "REGTEST TauDetails->PSSFraction() returns " << PSSFraction);
+    if ( (*tauIt)->detail(xAOD::TauJetParameters::PSSFraction,m_PSSFraction))
+      ATH_MSG_INFO( "REGTEST TauDetails->PSSFraction() returns " << m_PSSFraction);
 
-    if ( (*tauIt)->detail(xAOD::TauJetParameters::EMPOverTrkSysP,EMPOverTrkSysP))
-      ATH_MSG_INFO( "REGTEST TauDetails->EMPOverTrkSysP() returns " << EMPOverTrkSysP);
+    if ( (*tauIt)->detail(xAOD::TauJetParameters::EMPOverTrkSysP,m_EMPOverTrkSysP))
+      ATH_MSG_INFO( "REGTEST TauDetails->EMPOverTrkSysP() returns " << m_EMPOverTrkSysP);
 
-    if ( (*tauIt)->detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME,ChPiEMEOverCaloEME))
-      ATH_MSG_INFO( "REGTEST TauDetails->ChPiEMEOverCaloEME() returns " << ChPiEMEOverCaloEME);
+    if ( (*tauIt)->detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME,m_ChPiEMEOverCaloEME))
+      ATH_MSG_INFO( "REGTEST TauDetails->ChPiEMEOverCaloEME() returns " << m_ChPiEMEOverCaloEME);
 
-    if ( (*tauIt)->detail(xAOD::TauJetParameters::etEMAtEMScale,EtEm)){
-      EtEm /=1000;
-      ATH_MSG_INFO( "REGTEST TauDetails->etEMAtEMScale() returns " << EtEm);}
+    if ( (*tauIt)->detail(xAOD::TauJetParameters::etEMAtEMScale,m_EtEm)){
+      m_EtEm /=1000;
+      ATH_MSG_INFO( "REGTEST TauDetails->etEMAtEMScale() returns " << m_EtEm);}
 
-    if ( (*tauIt)->detail(xAOD::TauJetParameters::etHadAtEMScale,EtHad)){
-       EtHad /=1000;
-       ATH_MSG_INFO( "REGTEST TauDetails->etHadAtEMScale() returns " << EtHad);}
+    if ( (*tauIt)->detail(xAOD::TauJetParameters::etHadAtEMScale,m_EtHad)){
+       m_EtHad /=1000;
+       ATH_MSG_INFO( "REGTEST TauDetails->etHadAtEMScale() returns " << m_EtHad);}
 
 
     if( !(*tauIt)->jetLink().isValid() ) {
@@ -3810,7 +3770,7 @@ StatusCode TrigEDMChecker::dumpxAODTauJetContainer() {
 
     for (unsigned int trackNum = 0;  trackNum < (*tauIt)->nTracks(); ++trackNum) {
 
-      const xAOD::TrackParticle *linkTrack = (*tauIt)->track(trackNum)->track();
+      const xAOD::TrackParticle *linkTrack = (*tauIt)->track(trackNum);
       if (!linkTrack) {
      	ATH_MSG_WARNING("can't get tau linked track");
      	return StatusCode::SUCCESS;

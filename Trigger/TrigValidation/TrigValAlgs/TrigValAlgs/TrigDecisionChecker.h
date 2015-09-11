@@ -55,7 +55,7 @@ class TrigDecisionChecker : public AthAlgorithm
   StatusCode finalize();//!< std Gaudi finalize method
   
  private:
-  template <class T> StatusCode checkEDM(std::string trigItem);
+
   StatusCode checkTauEDM(std::string trigItem);
 
   StatusCode checkMuonEDM(std::string trigItem);
@@ -75,8 +75,6 @@ class TrigDecisionChecker : public AthAlgorithm
   void checkTrigTrackCounts(const Trig::FeatureContainer& fc);
 
   StatusCode checkJetEDM(std::string trigItem);
-
-  StatusCode checkMetEDM(std::string trigItem);
 
   uint32_t m_smk; ///< Super Master Key
   uint32_t m_l1psk; ///< LVL1 Prescale Key
@@ -144,9 +142,6 @@ class TrigDecisionChecker : public AthAlgorithm
     
   // Jet triggers to test output for
   std::vector<std::string> m_jetItems;
-
-  // Met triggers to test output for
-  std::vector<std::string> m_metItems;
     
   // ...check prescale and passthrough factors 
   std::vector<float> m_chain_prescales;
@@ -158,9 +153,6 @@ class TrigDecisionChecker : public AthAlgorithm
 
   // needed for mu value
   std::string m_eventInfoName;
-
-  // Check pass bits
-  bool m_checkBits;
 
 
   // Tool to dump info about xAOD muons

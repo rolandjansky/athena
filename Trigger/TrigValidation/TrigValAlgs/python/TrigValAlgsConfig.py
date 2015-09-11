@@ -4,7 +4,7 @@ from TrigValAlgs.TrigValAlgsConf import TrigCountDumper
 from TrigValAlgs.TrigValAlgsConf import TrigDecisionChecker
 from TrigValAlgs.TrigValAlgsConf import TrigEDMChecker
 from TrigValAlgs.TrigValAlgsConf import TrigSlimValAlg
-from TrigValAlgs.TrigValAlgsConf import TrigEDMAuxChecker
+
 # TrigCountDumper configurable
 # Run with TrigCountDumper configured from AOD header
 class TrigCountDumper ( TrigCountDumper ):
@@ -37,34 +37,59 @@ class TrigDecisionChecker ( TrigDecisionChecker ):
 
     def setDefaults(self, handle):
 
-        # Use monitoring list to configure TrigDecChecker
-        import TrigBjetMonitoring.TrigBjetMonitCategory as bjet
-        import TrigBphysMonitoring.TrigBphysMonitCategory as bphys
-        import TrigEgammaMonitoring.TrigEgammaMonitCategory as egamma
-        import TrigJetMonitoring.TrigJetMonitCategory as jets
-        import TrigMETMonitoring.TrigMETMonitCategory as met
-        import TrigMinBiasMonitoring.TrigMinBiasMonitCategory as minbias
-        import TrigMuonMonitoring.TrigMuonMonitCategory as muon
-        import TrigTauMonitoring.TrigTauMonitCategory as tau
-        
         #if not hasattr( handle, 'TrigDecisionTool' ) :
         #    print "TrigDecisionChecker.py : adding TrigDecisionTool"
         #    from TrigDecision.TrigDecisionConfig import TrigDecisionTool
         #    handle.TrigDecisionTool = TrigDecisionTool('TrigDecisionTool')
         WriteEventDecision=False
-        CheckTrigPassBits=True
         MonitoredChains = [ ]
         MonitoringBlock = 100
 
-        self.MuonItems = muon.monitoring_muonNonIso + muon.monitoring_muonIso + muon.monitoring_MSonly + muon.monitoring_muonEFFS
-        self.ElectronItems = egamma.monitoringTP_electron + egamma.monitoring_electron 
-        self.ElectronItems.append('HLT_e0_perf_L1EM15')
-        self.PhotonItems = egamma.monitoring_photon 
-        self.MinBiasItems = minbias.monitoring_minbias
-        self.JetItems = jets.primary_l1jet + jets.primary_jet
-        self.BjetItems = bjet.monitoring_bjet
-        self.TauItems = tau.monitoring_tau 
-        self.MetItems = met.monitoring_met
+        self.MuonItems = ['HLT_mu26_imedium','HLT_mu6_idperf']
+        self.ElectronItems = ['e0_perf_L1EM15VH','e28_loose1_iloose','e28_lhloose_iloose']
+        self.PhotonItems = ['g0_perf_L1EM15VH','g25_loose1','g35_loose1']
+        self.MinBiasItems = ['HLT_mb_perf_L1MBTS_1', 'HLT_mb_sptrk', 'HLT_mb_sp2000_pusup600_trk70_hmt']
+        self.JetItems = ['HLT_j400','HLT_j460_a10_L1J100','HLT_j200_320eta490','HLT_j60','HLT_j110','HLT_j150','HLT_j200','HLT_j260','HLT_j330','HLT_3j175','HLT_4j100','HLT_5j85','HLT_ht1000_L1J100','HLT_j30_muvtx',] #DC14 jet menu
+        self.BjetItems = ['HLT_j55_bperf','HLT_j55_boffperf','HLT_j55_bperf_split']
+        self.TauItems = ['tau25_perf_tracktwo',                    
+                         'tau25_perf_track',                       
+                         'tau25_perf_calo',                        
+                         'tau25_perf_ptonly',                      
+                         'tau25_medium1_tracktwo',                 
+                         'tau25_medium1_track',                    
+                         'tau25_medium1_calo',                     
+                         'tau25_medium1_mvonly',                   
+                         'tau35_medium1_tracktwo_tau25_medium1_tracktwo',
+                         'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25',
+                         'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I',
+                         'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20ITAU12I-J25',
+                         'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1BOX-TAU20ITAU12I',
+                         'tau80_medium1_tracktwo_L1TAU60_tau50_medium1_tracktwo_L1TAU12',
+                         'tau125_medium1_tracktwo_tau50_medium1_tracktwo_L1TAU12',
+                         'e17_medium_tau25_medium1_tracktwo',
+                         'e17_lhmedium_tau25_medium1_tracktwo',
+                         'e17_medium_iloose_tau25_medium1_tracktwo',
+                         'e17_lhmedium_iloose_tau25_medium1_tracktwo',
+                         'e17_medium_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25',
+                         'e17_lhmedium_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25',
+                         'e17_medium_iloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25',
+                         'e17_lhmedium_iloose_tau25_medium1_tracktwo_L1DR-EM15TAU12I-J25',
+                         'e17_medium_tau80_medium1_tracktwo',
+                         'e17_lhmedium_tau80_medium1_tracktwo',
+                         'e17_medium_tau80_medium1_tracktwo_L1EM15-TAU40',
+                         'e17_lhmedium_tau80_medium1_tracktwo_L1EM15-TAU40',
+                         'mu14_tau25_medium1_tracktwo',
+                         'mu14_iloose_tau25_medium1_tracktwo',
+                         'mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I_TAU12-J25',
+                         'mu14_tau25_medium1_tracktwo_L1DR-MU10TAU12I',
+                         'tau35_medium1_tracktwo_tau25_medium1_tracktwo_xe50',
+                         'e17_medium_tau25_medium1_tracktwo_xe50',
+                         'e17_lhmedium_tau25_medium1_tracktwo_xe50',
+                         'e17_medium_tau25_medium1_tracktwo_xe50_L1XE35_EM15-TAU12I',
+                         'e17_lhmedium_tau25_medium1_tracktwo_xe50_L1XE40_EM15-TAU12I',
+                         'mu14_tau25_medium1_tracktwo_xe50',
+                         'mu14_iloose_tau25_medium1_tracktwo_xe50'
+                         ]
 
 
 # Run with TrigDecisionTool configured from XML files
@@ -122,24 +147,3 @@ class TrigSlimValAlg ( TrigSlimValAlg ):
     self.SlimmingTool = "HLT::TrigNavigationSlimmingTool/TrigNavigationSlimmingTool"
 
 
-def getEDMAuxList():
-    from TrigEDMConfig.TriggerEDM import getTriggerObjList,TriggerHLTList
-    tlist=getTriggerObjList('AODFULL',[TriggerHLTList])
-    objlist=[]
-    for t,kset in tlist.iteritems():
-        for k in kset:
-             if 'Aux' in k: 
-                 s = k.split('-',1)[0]
-                 objlist += [s]
-    return objlist 
-# TrigEDMChecker configurable
-class TrigEDMAuxChecker ( TrigEDMAuxChecker ):
-    __slots__ = []
-    def __init__(self, name="TrigEDMAuxChecker"):
-        super( TrigEDMAuxChecker, self ).__init__( name )
-
-    def setDefaults(self, handle) :
-        #self.AuxContainerList=['HLT_xAOD__PhotonContainer_egamma_PhotonsAux.']
-        self.AuxContainerList=getEDMAuxList()
-    
-    
