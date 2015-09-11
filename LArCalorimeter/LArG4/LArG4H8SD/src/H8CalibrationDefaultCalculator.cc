@@ -24,7 +24,7 @@
 
 #undef DEBUG_VOLUMES
 
-#include "LArG4H8SD/H8CalibrationDefaultCalculator.h"
+#include "H8CalibrationDefaultCalculator.h"
 #include "LArG4Code/LArG4Identifier.h"
 
 #include "G4ThreeVector.hh"
