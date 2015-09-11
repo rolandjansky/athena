@@ -4,12 +4,6 @@ author Guillaume Unal
 
 use AtlasPolicy    AtlasPolicy-*
 
-use LArG4SD        LArG4SD-*          LArCalorimeter/LArG4
-use LArG4Code      LArG4Code-*        LArCalorimeter/LArG4
-use LArG4Barrel    LArG4Barrel-*      LArCalorimeter/LArG4
-
-use CaloG4Sim       CaloG4Sim-*       Calorimeter
-
 # Build the library (and export the headers)
 library LArG4H8SD *.cc
 apply_pattern linked_library
@@ -22,9 +16,16 @@ private
 # only used in the stand-alone version of this application.
 macro_append LArG4H8SD_cppflags  " -DLARG4NOROOT -O -Wno-unused"
 
-use FadsSensitiveDetector  FadsSensitiveDetector-*  Simulation/G4Sim/FADS
-use GaudiInterface         GaudiInterface-*         External
+use LArG4Code      LArG4Code-*        LArCalorimeter/LArG4
+use LArG4Barrel    LArG4Barrel-*      LArCalorimeter/LArG4
+
+use CaloG4Sim       CaloG4Sim-*       Calorimeter
+
 use Geant4                 Geant4-*                 External
-use StoreGate              StoreGate-*              Control
+
+# For hit collections
+use CaloSimEvent                CaloSimEvent-*          Calorimeter
+use StoreGate                   StoreGate-*             Control
+use CxxUtils                    CxxUtils-*              Control
 
 end_private
