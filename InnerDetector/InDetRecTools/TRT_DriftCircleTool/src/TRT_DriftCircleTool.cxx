@@ -31,7 +31,7 @@
 
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
-
+#include "xAODEventInfo/EventInfo.h"
 ///////////////////////////////////////////////////////////////////
 // Constructior
 ///////////////////////////////////////////////////////////////////
@@ -179,6 +179,12 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
     return rio;
   }
 
+  float mu = -10;
+  const xAOD::EventInfo* m_eventInfo = 0;
+      if ( StatusCode::SUCCESS ==  evtStore()->retrieve(m_eventInfo) ){
+                mu = (float)           m_eventInfo->averageInteractionsPerCrossing();
+      }
+
   DataVector<TRT_RDORawData>::const_iterator r,rb=rdo->begin(),re=rdo->end(); 
   if(rb!=re) { 
 
@@ -311,7 +317,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
       std::vector<Identifier>    dvi                                   ;
       double error=0;
 
-      if(Mode<2) error = m_driftFunctionTool->errorOfDriftRadius(driftTime,id);
+      if(Mode<2) error = m_driftFunctionTool->errorOfDriftRadius(driftTime,id,mu);
 
       if( !isOK || (error==0.&&Mode<2) ) //Drifttime out of range. Make wirehit
 	{

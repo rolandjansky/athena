@@ -19,6 +19,7 @@ use InDetConditionsSummaryService  InDetConditionsSummaryService-*    InnerDetec
 use CommissionEvent      CommissionEvent-*        Commission
 use GeoPrimitives       GeoPrimitives-*              DetectorDescription
 use EventPrimitives       EventPrimitives-*              Event
+use xAODEventInfo         xAODEventInfo-*          Event/xAOD
 
 public 
 apply_pattern component_library
