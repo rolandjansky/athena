@@ -130,7 +130,14 @@
   <class name="xAOD::RODHeaderContainer_v1"
          id="AA0924D2-23E2-47B3-8C7D-9D3B104B8990" />
   <class name="xAOD::RODHeaderAuxContainer_v1"
-         id="6524E46D-CC9C-43D2-BAE0-55310A6B316C" />  
+         id="6524E46D-CC9C-43D2-BAE0-55310A6B316C" /> 
+
+  <!--   RODHeader Run2 EDM-->
+  <class name="xAOD::RODHeader_v2" />
+  <class name="xAOD::RODHeaderContainer_v2"
+         id="98368E90-F392-41D8-850C-317B65034544" />
+  <class name="xAOD::RODHeaderAuxContainer_v2"
+         id="A94BA0CD-E57C-4C69-ADA1-CCB91BC0C36F" /> 
   
   <!--   TriggerTower -->
   <class name="xAOD::TriggerTower_v1" />

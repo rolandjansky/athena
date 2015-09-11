@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ContainerProxies.cxx 681007 2015-07-07 13:34:12Z morrisj $
+// $Id: ContainerProxies.cxx 693681 2015-09-08 12:18:40Z amazurov $
 
 // xAOD include(s):
 #include "xAODCore/AddDVProxy.h"
@@ -28,6 +28,7 @@
 
 // Run 2
 #include "xAODTrigL1Calo/versions/TriggerTowerContainer_v2.h"
+#include "xAODTrigL1Calo/versions/RODHeaderContainer_v2.h"
 
 #include "xAODTrigL1Calo/versions/CMXCPHitsContainer_v1.h"
 #include "xAODTrigL1Calo/versions/CMXCPTobContainer_v1.h"
@@ -66,6 +67,7 @@ ADD_NS_DV_PROXY( xAOD , TriggerTowerContainer_v1 );
 
 // Run 2
 ADD_NS_DV_PROXY( xAOD , TriggerTowerContainer_v2 );
+ADD_NS_DV_PROXY( xAOD , RODHeaderContainer_v2 );
 
 ADD_NS_DV_PROXY( xAOD , CMXCPHitsContainer_v1 );
 ADD_NS_DV_PROXY( xAOD , CMXCPTobContainer_v1 );
