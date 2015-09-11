@@ -121,18 +121,18 @@ StatusCode InDet::TRT_DriftCircleTool::initialize()
   // Get DriftFunction tool servise
   //
   if ( m_driftFunctionTool.retrieve().isFailure() ) {
-    ATH_MSG_FATAL(  m_driftFunctionTool.propertyName() << ": Failed to retrieve tool " << m_driftFunctionTool.type() );
+    msg(MSG::FATAL) << m_driftFunctionTool.propertyName() << ": Failed to retrieve tool " << m_driftFunctionTool.type() << endreq;
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_INFO(  m_driftFunctionTool.propertyName() << ": Retrieved tool " << m_driftFunctionTool.type() );
+    msg(MSG::INFO) << m_driftFunctionTool.propertyName() << ": Retrieved tool " << m_driftFunctionTool.type() << endreq;
   }
 
   if(m_useConditionsStatus || m_useConditionsHTStatus){
     if ( m_ConditionsSummary.retrieve().isFailure() ) {
-    ATH_MSG_FATAL( "Failed to retrieve "<< m_ConditionsSummary);
+      msg(MSG::FATAL) <<"Failed to retrieve "<< m_ConditionsSummary << endreq;
       return StatusCode::FAILURE;
     } else {
-      ATH_MSG_INFO( "Retrieved tool " << m_ConditionsSummary);
+      msg(MSG::INFO) << "Retrieved tool " << m_ConditionsSummary << endreq;
     }
   }
 
@@ -141,8 +141,8 @@ StatusCode InDet::TRT_DriftCircleTool::initialize()
   sc = AthAlgTool::detStore()->retrieve(m_trt_mgr, m_trt_mgr_location);
   if (sc.isFailure() || !m_trt_mgr)
   {
-    ATH_MSG_FATAL( "Could not find TRT_DetectorManager: "
-		   << m_trt_mgr_location << " !" );
+    msg(MSG::FATAL) << "Could not find TRT_DetectorManager: "
+       	  << m_trt_mgr_location << " !" << endreq;
     return sc;
   }
   // Get TRT ID helper
@@ -165,29 +165,6 @@ StatusCode InDet::TRT_DriftCircleTool::finalize()
 }
 
 ///////////////////////////////////////////////////////////////////
-// Test validity gate
-///////////////////////////////////////////////////////////////////
-bool InDet::TRT_DriftCircleTool::passValidityGate(unsigned int word, float lowGate, float highGate, float t0) const
-{
-  bool foundInterval = false;
-  unsigned  mask = 0x02000000;
-  int i = 0;
-  while ( !foundInterval && (i < 24) ) {
-    if (word & mask) {
-      float thisTime = ((0.5+i)*3.125)-t0;
-      if (thisTime >= lowGate && thisTime <= highGate) foundInterval = true;
-    }
-    mask >>= 1;
-    if (i == 7 || i == 15) 
-      mask >>= 1;
-    i++;
-  }
-  if (foundInterval) return true;
-  return false;
-}
-
-
-///////////////////////////////////////////////////////////////////
 // Trk::TRT_DriftCircles collection production
 ///////////////////////////////////////////////////////////////////
 
@@ -198,7 +175,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
   InDet::TRT_DriftCircleCollection* rio = 0;
 
   if (!rdo) {
-    ATH_MSG_ERROR("empty TRT raw data collection");
+    ATH_MSG_ERROR("empty collection at input");
     return rio;
   }
 
@@ -223,7 +200,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
       //   perform initial loop to find the trigger pll in first layer
        for(r=rb; r!=re; ++r) {
           // skip if rdo is not testbeam or cosmic flavor
-          const TRT_TB04_RawData* tb_rdo = dynamic_cast<const TRT_TB04_RawData*>(*r);
+          const TRT_TB04_RawData* tb_rdo = dynamic_cast<TRT_TB04_RawData*>(*r);
           if(tb_rdo) {
             Identifier   id  = tb_rdo->identify();
             // skip if not first layer
@@ -234,9 +211,9 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
        }
     }
 
-    ATH_MSG_VERBOSE( " choose timepll for rdo collection: " << m_coll_pll);
+    if(msgLvl(MSG::VERBOSE)) msg() << " choose timepll for rdo collection: " << m_coll_pll << endreq;
 
-    bool reject_from_neighboring_BC = false;
+    bool reject_from_neighboring_BC = true;
     bool isArgonStraw = false;
 
     // Loop through all RDOs in the collection
@@ -248,14 +225,25 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
 	continue;
       }
 
-      Identifier   id  = (*r)->identify();
-      int tdcvalue = (*r)->driftTimeBin(); 
-      int newtdcvalue  = tdcvalue;
-      unsigned int timepll = 0;
+      Identifier   id  = (*r)->identify    ()                          ;
+      unsigned int m_word = (*r)->getWord(); 
+      unsigned  mask = 0x02000000; 
+      bool SawZero = false; 
+      int i; 
+      for(i=0;i<24;++i) 
+      { if      (  (m_word & mask) && SawZero) break; 
+         else if ( !(m_word & mask) ) SawZero = true; 
+         mask>>=1; 
+         if(i==7 || i==15) mask>>=1; 
+      } 
+      if(i==24) i=0; 
+      int tdcvalue = i; 
+      int          newtdcvalue  = tdcvalue                             ;
+      unsigned int timepll = 0                                         ;
 
       // Fix hardware bug in testbeam
       if(m_driftFunctionTool->isTestBeamData()) {
-        const TRT_TB04_RawData* tb_rdo = dynamic_cast<const TRT_TB04_RawData*>(*r);
+        const TRT_TB04_RawData* tb_rdo = dynamic_cast<TRT_TB04_RawData*>(*r);
         if(tb_rdo) timepll = tb_rdo->getTrigType();
         if(m_coll_pll) {
           newtdcvalue = tdcvalue - timepll/2 + m_coll_pll/2;
@@ -277,8 +265,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
       }
       
       if (m_useConditionsHTStatus) {
-         if (m_ConditionsSummary->getStatusHT(id) == TRTCond::StrawStatus::Argon ||
-	     m_ConditionsSummary->getStatusHT(id) == TRTCond::StrawStatus::Dead ) {
+         if (m_ConditionsSummary->getStatusHT(id) != TRTCond::StrawStatus::Good) {
             isArgonStraw = true;
          }
       }
@@ -303,12 +290,11 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
       double radius    = 0.;
       double driftTime = 0;
 
-      //make tube hit if first bin is high and no later LE appears (isOK false)
-      if( newtdcvalue==0 || newtdcvalue==24) {
+      //make tube hit if first bin is high and no later LE appears
+      if( newtdcvalue==0 || newtdcvalue==24 ) {
         isOK=false;
       } else {
-        bool dummy=false;
-        radius    = m_driftFunctionTool->driftRadius(rawTime,id,t0,dummy,word);
+        radius    = m_driftFunctionTool->driftRadius(rawTime,id,t0,isOK);
         driftTime = rawTime-t0;
       }
 
@@ -328,10 +314,10 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
       }
 
       
-      //      std::vector<Identifier>    dvi;  //we do not need the rdo list
+      std::vector<Identifier>    dvi                                   ;
       double error=0;
 
-      if(Mode<2) error = m_driftFunctionTool->errorOfDriftRadius(driftTime,id,mu,word);
+      if(Mode<2) error = m_driftFunctionTool->errorOfDriftRadius(driftTime,id,mu);
 
       if( !isOK || (error==0.&&Mode<2) ) //Drifttime out of range. Make wirehit
 	{
@@ -340,66 +326,17 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
 	  error = 4./sqrt(12.);
 	}
 
-      //if(Mode<1) dvi.push_back(id);  //we do not need the rdo list 
+      Amg::MatrixX* errmat = new Amg::MatrixX(1,1);                          ;
+      (*errmat)(0,0) = error*error;
+      Amg::Vector2D loc(radius,0.);
+
+      if(Mode<1) dvi.push_back(id); 
       
-     if(!m_getTRTBadChannel){
+      InDet::TRT_DriftCircle* tdc = new InDet::TRT_DriftCircle(id,loc,dvi,errmat,pE,word);
 
-
-        Amg::MatrixX* errmat = new Amg::MatrixX(1,1);
-        (*errmat)(0,0) = error*error;
-        Amg::Vector2D loc(radius,0.);
-        InDet::TRT_DriftCircle* tdc = new InDet::TRT_DriftCircle(id,loc,errmat,pE,word); 
-        if(tdc) {
-          // setting the index (via -> size) has to be done just before the push_back! (for safety)
-          tdc->setHashAndIndex(rio->identifyHash(), rio->size());
-          rio->push_back(tdc);
-	}
-     }else{
-        reject_from_neighboring_BC = false;
-        
-        float rawdrifttime =  (0.5+(*r)->driftTimeBin())*3.125;
-        unsigned int theword = (*r)->getWord();
-
-        if (!isArgonStraw) {
-           if (m_out_of_time_supression) {
-              // reject if first bit true 
-              if ((theword & 0x02000000) && m_reject_if_first_bit) reject_from_neighboring_BC = true;
-              // or reject if trailing edge (which is drift time + ToT) is less than min trailing edge
-              if ((rawdrifttime + (*r)->timeOverThreshold()) < m_min_trailing_edge) reject_from_neighboring_BC = true;
-              // reject if leading edge is too large
-              if (rawdrifttime > m_max_drift_time) reject_from_neighboring_BC = true;
-           }
-           
-           if (m_validity_gate_suppression) {
-	     if(!passValidityGate(theword, m_low_gate, m_high_gate, t0)) reject_from_neighboring_BC = true;
-           }
-        } else { // is argon straw. I have separate loops in case we want to do anything different for argon straws
-           if (m_out_of_time_supression_argon) {
-              // reject if first bit true 
-              if ((theword & 0x02000000) && m_reject_if_first_bit_argon) reject_from_neighboring_BC = true;
-              // or reject if trailing edge (which is drift time + ToT) is less than min trailing edge
-              if ((rawdrifttime + (*r)->timeOverThreshold()) < m_min_trailing_edge_argon) reject_from_neighboring_BC = true;
-              // reject if leading edge is too large
-              if (rawdrifttime > m_max_drift_time_argon) reject_from_neighboring_BC = true;
-           }
-           
-           if (m_validity_gate_suppression_argon) {
-	     if(!passValidityGate(theword, m_low_gate_argon, m_high_gate_argon, t0)) reject_from_neighboring_BC = true;
-           }
-        }
-
-        ATH_MSG_VERBOSE(" Reject from neighboring BC = " << reject_from_neighboring_BC);
-        if(m_strawstat && (!reject_from_neighboring_BC)){
-
-           Amg::MatrixX* errmat = new Amg::MatrixX(1,1);
-           (*errmat)(0,0) = error*error;
-           Amg::Vector2D loc(radius,0.);
-           InDet::TRT_DriftCircle* tdc = new InDet::TRT_DriftCircle(id,loc,errmat,pE,word);
-           if(tdc) {
-             tdc->setHashAndIndex(rio->identifyHash(), rio->size());
-             rio->push_back(tdc);
-             ATH_MSG_VERBOSE( " accept hit id "
-  		  << m_trtid->barrel_ec(id) << " " 
+      if (tdc) {
+         if(msgLvl(MSG::VERBOSE)) msg() << " new hit id "
+		  << m_trtid->barrel_ec(id) << " " 
                   << m_trtid->layer_or_wheel(id) << " "
                   << m_trtid->phi_module(id) << " "  
                   << m_trtid->straw_layer(id) << " " 
@@ -407,23 +344,93 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
                   << " data word " << MSG::hex<<tdc->getWord() <<MSG::dec
                   << " data word raw " << MSG::hex<<(*r)->getWord() <<MSG::dec 
                   << " radius " << radius
-			       << " err " << error);
+		  << " err " << error << endreq;
 
-	     ATH_MSG_VERBOSE( " driftTime "
+	 if(msgLvl(MSG::VERBOSE)) msg() << " driftTime "
                   << tdc->rawDriftTime() << " t0 " << t0
                   << " raw time " << (0.5+tdcvalue)*3.125
                   << " ToT " << tdc->timeOverThreshold()  
                   << " OK? " << isOK << " Noise? " 
-			      << tdc->isNoise() << " isArgon? " << isArgonStraw);
-	   } else{
-             ATH_MSG_ERROR("Could not create InDet::TRT_DriftCircle object !");
-           }
+                                    << tdc->isNoise() << " isArgon? " << isArgonStraw << endreq;
 
-        } else {
-	   // If the hit is from a bad channel or out of validity we do not create the tdc object
-	   // (before it was created and deleted afterwards)
-	   ATH_MSG_VERBOSE(" reject hit on bad channel or out of validity ");
+     
+     if(!m_getTRTBadChannel){
+        // setting the index (via -> size) has to be done just before the push_back! (for safety) 
+        tdc->setHashAndIndex(rio->identifyHash(), rio->size());
+        rio->push_back(tdc);
+     }else{
+        reject_from_neighboring_BC = false;
+        
+        float rawdrifttime =  (0.5+tdc->driftTimeBin())*3.125;
+        unsigned int theword = (*r)->getWord();
+
+        if (!isArgonStraw) {
+           if (m_out_of_time_supression) {
+              // reject if first bit true 
+              if ((theword & 0x02000000) && m_reject_if_first_bit) reject_from_neighboring_BC = true;
+              // or reject if trailing edge (which is drift time + ToT) is less than min trailing edge
+              if ((rawdrifttime + tdc->timeOverThreshold()) < m_min_trailing_edge) reject_from_neighboring_BC = true;
+              // reject if leading edge is too large
+              if (rawdrifttime > m_max_drift_time) reject_from_neighboring_BC = true;
+           }
+           
+           if (m_validity_gate_suppression) {
+              bool foundInterval = false;
+              unsigned  mask = 0x02000000;
+              int i = 0;
+              while ( !foundInterval && (i < 24) ) {
+                 if (m_word & mask) {
+                    float thisTime = ((0.5+i)*3.125)-t0;
+                    if (thisTime >= m_low_gate && thisTime <= m_high_gate) foundInterval = true;
+                 }
+                 mask >>= 1;
+                 if (i == 7 || i == 15) 
+                    mask >>= 1;
+                 i++;
+              }
+              if (!foundInterval) reject_from_neighboring_BC = true;
+           }
+        } // is not argon straw
+        else { // is argon straw. I have separate loops in case we want to do anything different for argon straws
+           if (m_out_of_time_supression_argon) {
+              // reject if first bit true 
+              if ((theword & 0x02000000) && m_reject_if_first_bit_argon) reject_from_neighboring_BC = true;
+              // or reject if trailing edge (which is drift time + ToT) is less than min trailing edge
+              if ((rawdrifttime + tdc->timeOverThreshold()) < m_min_trailing_edge_argon) reject_from_neighboring_BC = true;
+              // reject if leading edge is too large
+              if (rawdrifttime > m_max_drift_time_argon) reject_from_neighboring_BC = true;
+           }
+           
+           if (m_validity_gate_suppression_argon) {
+              bool foundInterval = false;
+              unsigned  mask = 0x02000000;
+              int i = 0;
+              while ( !foundInterval && (i < 24) ) {
+                 if (m_word & mask) {
+                    float thisTime = ((0.5+i)*3.125)-t0;
+                    if (thisTime >= m_low_gate_argon && thisTime <= m_high_gate_argon) foundInterval = true;
+                 }
+                 mask >>= 1;
+                 if (i == 7 || i == 15) 
+                    mask >>= 1;
+                 i++;
+              }
+              if (!foundInterval) reject_from_neighboring_BC = true;
+           }
         }
+
+        ATH_MSG_VERBOSE(" Reject from neighboring BC = " << reject_from_neighboring_BC);
+        if(m_strawstat && (!reject_from_neighboring_BC)){
+           tdc->setHashAndIndex(rio->identifyHash(), rio->size());
+           rio->push_back(tdc);
+        } else {
+	       ATH_MSG_VERBOSE(" Delete hit on bad channel ");
+           delete tdc;
+        }
+	 }
+     
+      } else{
+         ATH_MSG_ERROR("Could not create InDet::TRT_DriftCircle object !");
       }
     }
   }  
