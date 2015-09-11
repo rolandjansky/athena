@@ -35,7 +35,7 @@ class ITRT_DriftFunctionTool : virtual public IAlgTool {
 
   virtual double approxDriftTime(double driftradius) const = 0;
 
-  virtual double errorOfDriftRadius(double drifttime, Identifier id) const = 0;  
+  virtual double errorOfDriftRadius(double drifttime, Identifier id, float mu = -10) const = 0;  
 
   virtual double driftTimeToTCorrection(double tot, Identifier id) const = 0;
 
