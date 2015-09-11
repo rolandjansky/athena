@@ -79,7 +79,7 @@ public:
   double approxDriftTime(double driftradius) const;
 
   /** Time-dependent error of drift radius in mm */
-  double errorOfDriftRadius(double drifttime, Identifier id) const;  
+  double errorOfDriftRadius(double drifttime, Identifier id, float mu = -10) const;  
 
   /** Returns time over threshold correction to the drift time (ns) */
   double driftTimeToTCorrection(double tot, Identifier id) const;

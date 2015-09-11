@@ -420,18 +420,23 @@ double TRT_DriftFunctionTool::driftRadius(double rawtime, Identifier id, double&
 
   return driftRadius(drifttime);
 }
-
-//
+ 
 // Error of drift radius in mm -----------------------------------------------
-double TRT_DriftFunctionTool::errorOfDriftRadius(double drifttime, Identifier id) const
+double TRT_DriftFunctionTool::errorOfDriftRadius(double drifttime, Identifier id, float mu) const
 {
   if( m_dummy ) return 4./sqrt(12.);
   if(m_force_universal_errors && m_uni_error!=0) return m_uni_error;
-  bool found=true;
-  double error = m_TRTCalDbSvc->driftError(drifttime,id,found);
-  if(found) {
-    return error;
-  } else {  //interpolate
+  bool founderr=true;
+  bool foundslope=true;
+  double error = m_TRTCalDbSvc->driftError(drifttime,id,founderr);
+  double slope = m_TRTCalDbSvc->driftSlope(drifttime,id,foundslope);
+  if(founderr && foundslope) {
+    return error+mu*slope;
+//to add condition for old setup
+  } 
+  else if ((founderr && !foundslope)  || (mu<0)) {
+		return error; }
+  else {  //interpolate
     if(drifttime<=0.) {
       return m_errors[0];
     } else if(drifttime >= 18.*m_drifttimeperbin) {
