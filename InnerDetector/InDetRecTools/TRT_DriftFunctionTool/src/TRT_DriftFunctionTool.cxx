@@ -44,14 +44,12 @@ TRT_DriftFunctionTool::TRT_DriftFunctionTool(const std::string& type,
 				     const IInterface* parent)
   :  AthAlgTool(type, name, parent),
     m_TRTCalDbSvc("TRT_CalDbSvc",name),
-    m_TRTCalDbSvc2("",name),
     m_IncidentSvc("IncidentSvc",name),
     m_drifttimeperbin(3.125 * CLHEP::ns),
     m_error(0.17),
     m_drifttimeperhalfbin(0.), // set later
     m_isdata(false),
     m_ismc(true),
-    m_isoverlay(false),
     m_istestbeam(false),
     m_allow_data_mc_override(true),
     m_forcedata(true),
@@ -75,14 +73,12 @@ TRT_DriftFunctionTool::TRT_DriftFunctionTool(const std::string& type,
   declareProperty("ForcedDigiVersion",m_forced_digiversion);
   declareProperty("AllowDataMCOverride",m_allow_data_mc_override);
   declareProperty("ForceData",m_forcedata);
-  declareProperty("IsOverlay",m_isoverlay=false);
   declareProperty("OverrideSimulationCalibration",m_override_simcal);
   declareProperty("ForceUniversalErrors",m_force_universal_errors);
   declareProperty("UniversalError",m_uni_error);
   declareProperty("DummyMode",m_dummy);
   declareProperty("ErrorFudgeFactor",m_err_fudge);
   declareProperty("TRTCalDbTool", m_TRTCalDbSvc);
-  declareProperty("TRTCalDbTool2", m_TRTCalDbSvc2);
   declareProperty("DriftFunctionFile", m_inputfile);
   declareProperty("TrtDescrManageLocation",m_trt_mgr_location);
 
@@ -153,25 +149,25 @@ const InterfaceID& TRT_DriftFunctionTool::interfaceID( )
 // Initialize--------------------------------------------------
 StatusCode TRT_DriftFunctionTool::initialize()
 {
-  ATH_MSG_DEBUG( "initialize()");
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "initialize()" << endreq;
 
   StatusCode sc = AthAlgTool::initialize();
   if (sc.isFailure())
     {
-      ATH_MSG_FATAL("Cannot initialize AthAlgTool!");
+      msg(MSG::FATAL) << "Cannot initialize AthAlgTool!" << endreq;
       return StatusCode::FAILURE;
     } 
 
   if(m_dummy){
-    ATH_MSG_INFO(" Drift time information ignored ");
+    msg(MSG::INFO) << " Drift time information ignored "<< endreq;
   }
 
   //Incident service (to check for MC/data and setup accordingly)
   if ( m_IncidentSvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL("Failed to retrieve service " << m_IncidentSvc);
+    msg(MSG::FATAL) << "Failed to retrieve service " << m_IncidentSvc << endreq;
     return StatusCode::FAILURE;
   } else 
-    ATH_MSG_DEBUG("Retrieved service " << m_IncidentSvc);
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Retrieved service " << m_IncidentSvc << endreq;
 
   // call handle in case of BeginRun
   m_IncidentSvc->addListener( this, std::string("BeginRun"));
@@ -180,8 +176,8 @@ StatusCode TRT_DriftFunctionTool::initialize()
   sc = AthAlgTool::detStore()->retrieve(m_manager, m_trt_mgr_location);
   if (sc.isFailure() || !m_manager)
   {
-    ATH_MSG_FATAL("Could not find the Manager: "
-		  << m_trt_mgr_location << " !");
+    msg(MSG::FATAL) << "Could not find the Manager: "
+       	  << m_trt_mgr_location << " !" << endreq;
     return sc;
   }
 
@@ -194,7 +190,7 @@ StatusCode TRT_DriftFunctionTool::initialize()
 
   if(m_allow_data_mc_override)
     {
-      ATH_MSG_DEBUG(" Constants from conddb, code or file allowed "); 
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Constants from conddb, code or file allowed " << endreq; 
     }
 
   //
@@ -202,7 +198,7 @@ StatusCode TRT_DriftFunctionTool::initialize()
   IGeoModelSvc *geomodel;
   sc=service("GeoModelSvc",geomodel);
   if(sc.isFailure()){
-    ATH_MSG_FATAL(" Could not locate GeoModelSvc ");
+    msg(MSG::FATAL) << " Could not locate GeoModelSvc " << endreq;
     return sc;
   }
 
@@ -245,15 +241,16 @@ void TRT_DriftFunctionTool::handle(const Incident& inc)
   //Find out what type of run
   if (inc.type() == "BeginRun") 
     {
-      const EventInfo* pevt = 0; // pointer for the event
-      StatusCode status = evtStore()->retrieve(pevt); // retrieve the pointer to the event
-      if(!status.isSuccess() || pevt==0) {
-	ATH_MSG_FATAL("Couldn't get EventInfo object from StoreGate");
-        return;
+      const EventIncident* evtinc = dynamic_cast<const EventIncident*>(&inc);
+      if(evtinc==0) {
+         msg(MSG::FATAL) <<"Couldn't get EventIncident object => EventInfo not available"<<endreq;
+         return;
       }
+      const EventInfo evtinfo = evtinc->eventInfo();
+
 
       int numB = m_manager->getNumerology()->getNBarrelPhi();
-      ATH_MSG_DEBUG(" Number of Barrel elements "<< numB);      
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Number of Barrel elements "<< numB << endreq;      
       
       if (numB==2) {
           m_istestbeam = true;
@@ -261,23 +258,23 @@ void TRT_DriftFunctionTool::handle(const Incident& inc)
           m_istestbeam = false;
         }
 
-      if(pevt->event_type()->test(EventType::IS_CALIBRATION))
+      if(evtinfo.event_type()->test(EventType::IS_CALIBRATION))
 	{
-	  ATH_MSG_DEBUG("Run reports itself as calibration");
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Run reports itself as calibration"<<endreq;
 	} else {
-  	  ATH_MSG_DEBUG("Run reports itself as physics");
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Run reports itself as physics"<<endreq;
 	}
 
       bool choosedata = false;
       bool choosemc = false;
 
-      if(pevt->event_type()->test(EventType::IS_SIMULATION))
+      if(evtinfo.event_type()->test(EventType::IS_SIMULATION))
 	{
-	  ATH_MSG_DEBUG("Run reports itself as simulation");
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Run reports itself as simulation"<<endreq;
 	  choosemc = true;
           m_ismc=true;
 	} else {
-	ATH_MSG_DEBUG("Run reports itself as data");
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Run reports itself as data"<<endreq;
 	  choosedata = true;
           m_ismc=false;
 	}
@@ -288,16 +285,16 @@ void TRT_DriftFunctionTool::handle(const Incident& inc)
 	  choosemc = false;
 	  if (m_forcedata)
 	    {
-	      ATH_MSG_INFO(" Constants will be read from conddb ");
+	      msg(MSG::INFO) << " Constants will be read from conddb " << endreq;
 	      choosedata=true;
 	    } else {
-	    ATH_MSG_INFO(" Constants will be read from code ");
+	      msg(MSG::INFO) << " Constants will be read from code " << endreq;
 	      choosemc=true;
 	    }
 	}
 
-      if(choosemc&&choosedata) ATH_MSG_FATAL("Trying to init MC and data setup both!");
-      if(!choosemc&&!choosedata) ATH_MSG_FATAL("Neither MC nor data setup selected!");
+      if(choosemc&&choosedata) msg(MSG::FATAL) << "Trying to init MC and data setup both!" << endreq;
+      if(!choosemc&&!choosedata) msg(MSG::FATAL) << "Neither MC nor data setup selected!" << endreq;
       if(choosemc)
 	{
 	  m_isdata=false;
@@ -353,7 +350,7 @@ double TRT_DriftFunctionTool::driftRadius(double drifttime) const
 //
 // Drift radius in mm for valid drift time (rawtime-t0) in data; --------------
 // zero otherwise; truncated to at most 2mm.
-double TRT_DriftFunctionTool::driftRadius(double rawtime, Identifier id, double& t0, bool& isOK, unsigned int word) const
+double TRT_DriftFunctionTool::driftRadius(double rawtime, Identifier id, double& t0, bool& isOK) const
 {
   isOK = true;
   const double crawtime=rawtime - m_t0_shift; // const cast
@@ -368,27 +365,13 @@ double TRT_DriftFunctionTool::driftRadius(double rawtime, Identifier id, double&
   if(m_isdata)
     {
       double radius = 0.; 
-      if (!m_isoverlay){ //standard case
-	radius = m_TRTCalDbSvc->driftRadius(crawtime,ft0,cid,isOK);
-	t0=ft0 + m_t0_shift;
-      }
-      else{ //overlay case
-	radius = m_TRTCalDbSvc->driftRadius(rawtime,ft0,cid,isOK);// no m_t0_shift in rawtime, and use data TRTCalDbSvc
-	t0=ft0;
-	bool mcdigit = word & (1<<31);
-	if (mcdigit ){
-	  //check if it's a MC digit, and if so apply other calibration
-	  ATH_MSG_DEBUG ("Overlay TRTCalDbSvc  gave  radius: "<<radius<<", t0: "<<t0);
-	  radius = m_TRTCalDbSvc2->driftRadius(crawtime,ft0,cid,isOK);//t0_shift in crawtime, and use MC TRTCalDbSvc(2)
-	  t0=ft0 + m_t0_shift;
-	  ATH_MSG_DEBUG ("Overlay TRTCalDbSvc2 gives radius: "<<radius<<", t0: "<<t0);                                                                
-	}   
-      }
+      radius = m_TRTCalDbSvc->driftRadius(crawtime,ft0,cid,isOK);
+      t0=ft0 + m_t0_shift;
       double drifttime = rawtime-t0;
       if( !isValidTime(drifttime) ) isOK=false;
-      
+
       /*
-	if(isOK) {
+      if(isOK) {
 	std::cout <<" Found a radius " << radius << " for drifttime " << drifttime <<
                     " t0 " << t0 << " bin " << std::max(int(drifttime/m_drifttimeperbin),0)
                      << " for bec "<< m_trtid->barrel_ec(id) <<
@@ -439,7 +422,7 @@ double TRT_DriftFunctionTool::driftRadius(double rawtime, Identifier id, double&
 }
  
 // Error of drift radius in mm -----------------------------------------------
-double TRT_DriftFunctionTool::errorOfDriftRadius(double drifttime, Identifier id, float mu, unsigned int word) const
+double TRT_DriftFunctionTool::errorOfDriftRadius(double drifttime, Identifier id, float mu) const
 {
   if( m_dummy ) return 4./sqrt(12.);
   if(m_force_universal_errors && m_uni_error!=0) return m_uni_error;
@@ -447,17 +430,6 @@ double TRT_DriftFunctionTool::errorOfDriftRadius(double drifttime, Identifier id
   bool foundslope=true;
   double error = m_TRTCalDbSvc->driftError(drifttime,id,founderr);
   double slope = m_TRTCalDbSvc->driftSlope(drifttime,id,foundslope);
-  bool mcdigit = word & (1<<31);
-  if (m_isoverlay && mcdigit ){
-    //check if it's a MC digit, and if so apply other calibration
-    ATH_MSG_DEBUG ("Overlay TRTCalDbSvc gave error: "<<error<<", found="<<founderr);
-    error = m_TRTCalDbSvc2->driftError(drifttime,id,founderr);
-    ATH_MSG_DEBUG ("Overlay TRTCalDbSvc2 gives error: "<<error<<", found="<<founderr);
-    ATH_MSG_DEBUG ("Overlay TRTCalDbSvc gave slope: "<<slope<<", found="<<foundslope);
-    slope = m_TRTCalDbSvc2->driftSlope(drifttime,id,foundslope);
-    ATH_MSG_DEBUG ("Overlay TRTCalDbSvc2 gives slope: "<<slope<<", found="<<foundslope);
-  }
-  
   if(founderr && foundslope) {
     return error+mu*slope;
 //to add condition for old setup
@@ -509,44 +481,37 @@ void TRT_DriftFunctionTool::setupRtRelationData()
   //Setting up for data
   ATH_MSG_DEBUG(" Setting up for data ");
 
-  ATH_MSG_DEBUG(" Using TRTCalDbSvc ");
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Using TRTCalDbSvc "<<endreq;
   if ( m_TRTCalDbSvc.retrieve().isFailure() ) {
-    ATH_MSG_FATAL(m_TRTCalDbSvc.propertyName() <<
-		  ": Failed to retrieve service " << m_TRTCalDbSvc.type());
+    msg(MSG::FATAL) << m_TRTCalDbSvc.propertyName() <<
+      ": Failed to retrieve service " << m_TRTCalDbSvc.type() << endreq;
     return;
     
   } else {
-    ATH_MSG_DEBUG(m_TRTCalDbSvc.propertyName() <<
-		  ": Retrieved service " << m_TRTCalDbSvc.type());
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << m_TRTCalDbSvc.propertyName() <<
+      ": Retrieved service " << m_TRTCalDbSvc.type() << endreq;
   }
 
-  if (m_isoverlay){
-    ATH_MSG_INFO("Using TRTCalDbSvc2 for overlay ! ");
-    if ( m_TRTCalDbSvc2.retrieve().isFailure() ) {
-      ATH_MSG_FATAL(m_TRTCalDbSvc2.propertyName() <<": Failed to retrieveservice " << m_TRTCalDbSvc2.type());
-      return;
-    }
-  }
   //temporary: we need some way to automatically link digi version with db tag
   //for now we make a hack in order always to get the right t0 after having centered the
   //drifttime spectrum better in the allowed time-window with digi version 12 in release 14.
 
   int type = m_forced_digiversion;
-  if(m_ismc || m_isoverlay){
+  if(m_ismc){
    
     if(!m_allow_digi_version_override) {
       type = m_manager->digitizationVersion();
-      ATH_MSG_DEBUG("TRT detector manager returned digitization version "<< type <<
-		    " corresponding to "<< m_manager->digitizationVersionName());
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT detector manager returned digitization version "<< type <<
+                            " corresponding to "<< m_manager->digitizationVersionName() << endreq;
     } else {
-      ATH_MSG_WARNING("Digitization version chosen by user for global t0 correction: "<<type);
+      msg(MSG::WARNING) << "Digitization version chosen by user for global t0 correction: "<<type<<endreq;
     }
 
 
     if(type>10) {
       m_t0_shift=-8.;
-      ATH_MSG_INFO(" Digitization version " << type << " - T0 for barrel is shifted by "
-                   << m_t0_shift);
+      msg(MSG::INFO) << " Digitization version " << type << " - T0 for barrel is shifted by "
+                     << m_t0_shift << endreq;
     }
 
   }   
@@ -613,7 +578,7 @@ void TRT_DriftFunctionTool::setupRtRelationData()
 void TRT_DriftFunctionTool::setupRtRelationMC()
 {     
 
-  ATH_MSG_INFO(" Setting up for MC ");
+  msg(MSG::INFO) <<" Setting up for MC "<<endreq;
   int nBarrelRings = m_manager->getNumerology()->getNBarrelRings();
   int nEndcapWheels = m_manager->getNumerology()->getNEndcapWheels();
 
@@ -622,18 +587,18 @@ void TRT_DriftFunctionTool::setupRtRelationMC()
 	  int type;
 	  if(!m_allow_digi_version_override){      //use the digitization version on tape
 	    type = m_manager->digitizationVersion();
-	    ATH_MSG_DEBUG("TRT detector manager returned digitization version "<< type <<
-			  " corresponding to "<< m_manager->digitizationVersionName());
+	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT detector manager returned digitization version "<< type <<
+                         " corresponding to "<< m_manager->digitizationVersionName() << endreq;
 
 	  } else {                                 // use another digitization version than the one on tape
 	    type = m_forced_digiversion;
-	    ATH_MSG_WARNING("Digitization version chosen by user: " << type);
+	    msg(MSG::WARNING) << "Digitization version chosen by user: "<<type<<endreq;
 	  }
 
 
 	  if(type==0||type==1) //Old gas (DC1 + DC2)
 	  {
-	    ATH_MSG_DEBUG("Old gas selected (DC1 + DC2)");
+	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"Old gas selected (DC1 + DC2)"<<endreq;
 
 	    m_radius[0] = 0.118643;
 	    m_radius[1] = 0.155114;
@@ -658,7 +623,7 @@ void TRT_DriftFunctionTool::setupRtRelationMC()
 	  }
 	  else if (type==2||type==3) //New gas without time corrections (Rome)
 	  {
-	    ATH_MSG_DEBUG("New gas without time corrections selected (Rome)");
+	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"New gas without time corrections selected (Rome)"<<endreq;
 
 	    m_radius[0] = 0.125866;
 	    m_radius[1] = 0.174001;
@@ -683,7 +648,7 @@ void TRT_DriftFunctionTool::setupRtRelationMC()
 	  }
 	  else if (type==4||type==5) //New gas with time corrections (DC3)
 	  {
-	    ATH_MSG_DEBUG("New gas with time corrections selected (DC3)");
+	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"New gas with time corrections selected (DC3)"<<std::endl;
 
 	    m_radius[0] = 0.133702;
 	    m_radius[1] = 0.133909;
@@ -709,7 +674,7 @@ void TRT_DriftFunctionTool::setupRtRelationMC()
 	  }
 	  else if (type==6 || type==11) //(DC3version2)
 	  {
-	    ATH_MSG_INFO("New gas with time corrections + t_0 selected (DC3version2)");
+	    msg(MSG::INFO) <<"New gas with time corrections + t_0 selected (DC3version2)"<< endreq;
             m_radius[0] = 0.;
             m_radius[1] = 0.0;
             m_radius[2] = 0.100;
@@ -764,11 +729,12 @@ void TRT_DriftFunctionTool::setupRtRelationMC()
 	  } 
 	  else if (type==7 || type==9 || type==10) //(DC3version2-Cosmic)
 	  {
-	    ATH_MSG_INFO("New gas with time corrections + t_0 selected (DC3version2-Cosmic)");
+	    msg(MSG::INFO) <<"New gas with time corrections + t_0 selected (DC3version2-Cosmic)"<<endreq;
 
             if(m_manager->getLayout()!="SR1-EndcapC" && type!=10) {
 
-              ATH_MSG_INFO(" The specific layout is " << m_manager->getLayout());
+              msg(MSG::INFO) <<" The specific layout is "
+                                 << m_manager->getLayout() << endreq;
 
  	      m_radius[0] = 0.;
 	      m_radius[1] = 0.;
@@ -805,7 +771,8 @@ void TRT_DriftFunctionTool::setupRtRelationMC()
 
 		    
             } else {
-              ATH_MSG_INFO(" The specific layout is " << m_manager->getLayout());
+              msg(MSG::INFO) <<" The specific layout is "
+                                  << m_manager->getLayout() << endreq;
 
  	      m_radius[0] = 0.;
 	      m_radius[1] = 0.071;
@@ -836,7 +803,7 @@ void TRT_DriftFunctionTool::setupRtRelationMC()
 
 	 } else if (type==8) { //(DC3version2-CTB)
 		
-	    ATH_MSG_INFO("CTB: New gas with time corrections + t_0 selected (DC3version2-CTB)");
+	    msg(MSG::INFO) <<"CTB: New gas with time corrections + t_0 selected (DC3version2-CTB)"<<endreq;
 		  
 	    m_radius[0] = 0.;
 	    m_radius[1] = 0.;
@@ -882,11 +849,13 @@ void TRT_DriftFunctionTool::setupRtRelationMC()
 
 	  } else { //Non-supported digiversion
 
-            ATH_MSG_FATAL(" Non-supported digitization version - revert to default");
+	     msg(MSG::FATAL) <<
+             " Non-supported digitization version - revert to default" << endreq;
           }
 	
        } else if( m_inputfile!="") { // Overriding sim settings from text file or defaults
-          ATH_MSG_WARNING(" Simulation constants from file " <<  m_inputfile);
+	  msg(MSG::WARNING)<<" Simulation constants from file "
+                <<  m_inputfile  << endreq;
 
           std::ifstream infile;
           infile.open(m_inputfile.c_str());
@@ -896,10 +865,32 @@ void TRT_DriftFunctionTool::setupRtRelationMC()
               index++;
          
 	  } else {
-	    ATH_MSG_WARNING(" File does not exist - revert to default");
+	     msg(MSG::WARNING) <<
+             " File does not exist - revert to default" << endreq;
           }
 
-        }
+	  if(msgLvl(MSG::DEBUG)) {
+            msg(MSG::DEBUG)<<"  Radii are: \n";
+	    for (unsigned int i = 0; i!=20 ; i++)
+               msg(MSG::DEBUG)<<"["<<i<<"]: "<<m_radius[i]<<"\n";
+	    msg(MSG::DEBUG)<<endreq;
+
+	    msg(MSG::DEBUG)<<"  Errors are: \n";
+	    for (unsigned int i = 0; i!=20 ; i++)
+	      msg(MSG::DEBUG)<<"["<<i<<"]: "<<m_errors[i]<<"\n";
+	    msg(MSG::DEBUG)<<endreq;
+
+	    msg(MSG::DEBUG)<<"  Universal error is : " << m_error << endreq;
+
+	    msg(MSG::DEBUG)<<"  Barrel T0s are: \n";
+ 	    for (int i=0; i<nBarrelRings; i++) msg(MSG::DEBUG) << m_t0_barrel[i] << endreq;
+
+	    msg(MSG::DEBUG)<<"  Endcap T0s are: \n";
+ 	    for (int i=0; i<nEndcapWheels; i++)
+            msg(MSG::DEBUG)<< m_t0_endcap[i] << endreq;
+          }
+
+       }
 }
 
 /* ----------------------------------------------------------------------------------- */
