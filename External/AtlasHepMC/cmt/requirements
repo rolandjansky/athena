@@ -10,11 +10,12 @@ author  Cano Ay <aycano@mail.cern.ch>
 use ExternalPolicy ExternalPolicy-* External
 use LCG_Configuration v*
 
-macro HepMC_home "$(LCG_external)/HepMC"
+macro HepMC_home "$(LCG_external)/HepMC/$(HepMC_native_version)/$(LCG_system)"
 macro hepMC_native_version "$(HepMC_config_version)"
 macro HepMC_native_version "$(hepMC_native_version)"
 macro AtlasHepMC_native_version "$(hepMC_native_version)" 
-macro AtlasHepMC_lib "$(HepMC_home)/$(HepMC_native_version)/$(LCG_system)/lib"
+macro AtlasHepMC_lib      "$(HepMC_home)/lib"
+macro AtlasHepMC_include  "$(HepMC_home)/include"
 
 macro HepMC_linkopts         "-L$(AtlasHepMC_lib) $(notAsNeeded_linkopt) -lHepMC $(asNeeded_linkopt) "
 macro HepMC_IO_linkopts      "-L$(AtlasHepMC_lib) -lHepMCfio"
@@ -22,11 +23,11 @@ macro AtlasHepMC_linkopts    "$(HepMC_linkopts)"
 macro AtlasHepMC_IO_linkopts "$(HepMC_IO_linkopts)"
 
 include_path none
-include_dirs $(HepMC_home)/${HepMC_native_version}/$(LCG_system)/include 
+include_dirs  $AtlasHepMC_include
+apply_pattern set_root_include_path
 
-macro AtlasHepMC_export_paths \
-       "$(HepMC_home)/$(hepMC_native_version)/$(LCG_system)" 
+macro AtlasHepMC_export_paths "$(HepMC_home)" 
 
 # This is required to override the symlinks in the LCGCMT InstallArea
-apply_pattern declare_installed_libraries dir=$(HepMC_home)/$(hepMC_native_version)/$(LCG_system)/lib
+apply_pattern declare_installed_libraries dir=$AtlasHepMC_lib
 
