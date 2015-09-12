@@ -2203,7 +2203,100 @@ displayExtra( TCanvas* c, std::string str )
 	}
       }
       found=str.find("TText",found+1);
-    } 
+    }
+    
+    
+  found = str.find("TDota");  
+  while (found!=std::string::npos)
+    {
+      std::size_t found1 = str.find_first_of(")",found+1);
+      if (found1!=std::string::npos){
+	std::string coordinates = str.substr(found+6,found1-found-6);
+	bool NDC = false;
+	if (found1 < str.size()-3 && str.substr(found1+1,3)=="NDC") {
+	  NDC = true;
+	}
+	found1 = coordinates.find_first_of(",");
+	if (found1!=std::string::npos){
+	  std::string cx1 = coordinates.substr(0,found1);
+	  double x1=std::strtod(cx1.c_str(),NULL);
+	  std::size_t found2 =  coordinates.find_first_of(",",found1+1);
+	  if (found2!=std::string::npos){
+	    std::string cy1 = coordinates.substr(found1+1,found2-found1-1);
+	    double y1=std::strtod(cy1.c_str(),NULL);
+	    found1 = coordinates.find_first_of(",",found2+1);
+	    if (found1!=std::string::npos){
+	      std::string cx2 = coordinates.substr(found2+1,found1-found2-1);
+	      double x2=std::strtod(cx2.c_str(),NULL);
+	      std::string cy2 = coordinates.substr(found1+1,coordinates.size() );
+	      double y2=std::strtod(cy2.c_str(),NULL);
+	      c->cd();
+	      TLine *L = new TLine;
+	      L->SetLineStyle(2);
+	      if (NDC){
+		if ( x1<=1.0 && x1>=0.0 && x2<=1.0 && x2>=0.0 && y1<=1.0 && y1>=0.0 && y2<=1.0 && y2>=0.0) {
+		  L->DrawLineNDC(x1,y1,x2,y2);
+		}
+	      }
+	      else {
+		L->DrawLine(x1,y1,x2,y2);
+	      }
+	    }
+	  }
+	}
+      }
+      found=str.find("TDota",found+1);
+    }  
+  
+  found = str.find("TSize");  
+  while (found!=std::string::npos)
+    {
+      std::string coordinates, cx1,cy1,txtsize ="";
+      std::size_t found1 = str.find_first_of(")",found+1);
+      std::size_t found2 = str.find_first_of("\'",found+1);
+      if (found2!=std::string::npos){
+	 found2 = str.find_first_of("\"",found2+1);
+	 if (found2!=std::string::npos && found1 < found2) {
+	    found1 = str.find_first_of(")",found2+1);
+	 }
+      }
+      if (found1!=std::string::npos){
+	coordinates = str.substr(found+6,found1-found-6);
+	bool NDC = false;
+	if (found1 < str.size()-3 && str.substr(found1+1,3)=="NDC") {
+	  NDC = true;
+	}
+	found1 = coordinates.find_first_of(",");
+	if (found1!=std::string::npos){
+	  cx1 = coordinates.substr(0,found1);
+	  double x1=std::strtod(cx1.c_str(),NULL);
+	  found2 =  coordinates.find_first_of(",",found1+1);
+	  if (found2!=std::string::npos){
+	    cy1 = coordinates.substr(found1+1,found2-found1-1);
+	    double y1=std::strtod(cy1.c_str(),NULL);
+	    std::size_t found3 =  coordinates.find_first_of(",",found2+1);
+	    if (found3!=std::string::npos){
+	     txtsize = coordinates.substr(found2+1,found3-found2-1);
+	     double size=std::strtod(txtsize.c_str(),NULL);
+	     std::string txt =  coordinates.substr(found3+2,coordinates.size() );
+	     txt =  txt.substr(0,txt.size()-1 );
+	     c->cd();
+	     TText *T = new TText;
+	     T->SetTextSize(size/100);
+	     if (NDC) {
+	       if ( x1<=1.0 && x1>=0.0 && y1<=1.0 && y1>=0.0) {
+	     	 T->DrawTextNDC(x1,y1,txt.c_str() );
+	       }
+	     }
+	     else {
+	       T->DrawText(x1,y1,txt.c_str() );
+	     }
+	   }
+	  }
+	}
+      }
+      found=str.find("TSize",found+1);
+    }   
 }
 
 

@@ -36,13 +36,13 @@
 #include "TProfile.h"
 #include "TMinuit.h"
 
-void TwoDto2D_Eff(TH2 * Numerator, TH2 * Denominator, TH2 * Efficiency){
+void TwoDto2D_Eff(TH2 * Numerator, TH2 * Denominator, TH2 * Efficiency, bool rebin2d = false){
   //the input histograms must have the same dimension!
   if (Numerator == NULL || Denominator == NULL || Efficiency == NULL) {return;}
-  // if(rebin2d){
-  //   Numerator->Rebin2D();//here change the default binnning of eta-phi
-  //   Efficiency->Rebin2D();//here change the default binnning of eta-phi
-  // }
+  if(rebin2d){
+    Numerator->Rebin2D();//here change the default binnning of eta-phi
+    Efficiency->Rebin2D();//here change the default binnning of eta-phi
+  }
   //then check the dimensions
   int n_xbins = Numerator->GetNbinsX();
   if (Denominator->GetNbinsX() != n_xbins|| Efficiency->GetNbinsX() != n_xbins) {return;}
@@ -106,6 +106,7 @@ void SetMassInfo(int iBin, TH1* InputHist, TH1* OutMean, TH1* OutSigma){
     OutMean-> SetBinContent(iBin, InputHist->GetMean(1));
     OutMean-> SetBinError(  iBin, InputHist->GetMeanError(1));
     OutSigma->SetBinContent(iBin, InputHist->GetRMS(1));
+    OutSigma->SetBinError(  iBin, InputHist->GetRMSError(1));
     return;
 }
 
@@ -181,11 +182,11 @@ namespace dqutils {
       TString muonqualstr[4] = {"Tight", "Medium", "Loose", "Veryloose"};
       // Divide the efficiency histograms
       TH2F* m_EffDenominator = (TH2F*)dir1->Get(Form("%sMuons_%s_eta_phi", plotdirname.Data(), recalg_path.Data()));
-      //m_EffDenominator->Rebin2D();//here change the default binnning of eta-phi
+      m_EffDenominator->Rebin2D();//here change the default binnning of eta-phi
       for (int i = 0; i < 4; i++){
         TH2F* m_EffNumerator = (TH2F*)dir1->Get(Form("%sMuons_%s_%s_eta_phi", plotdirname.Data(), recalg_path.Data(), muonqualstr[i].Data()));
         TH2F* m_Efficiency = (TH2F*)dir1->Get(Form("%sMuons_%s_%s_eff", plotdirname.Data(), recalg_path.Data(), muonqualstr[i].Data()));
-        TwoDto2D_Eff(m_EffNumerator, m_EffDenominator, m_Efficiency);//here change the default binnning of eta-phi
+        TwoDto2D_Eff(m_EffNumerator, m_EffDenominator, m_Efficiency, true);//here change the default binnning of eta-phi
       }
     }//ends different subfolder for muon efficiency
 

@@ -247,11 +247,11 @@ void DGausFit(TH1 * Histogram, float * results, float fitWindow/*sigmas*/,  bool
     return;
   }
   
-  results[0] = 0.0;
-  results[1] = 0.0;
-  results[2] = 0.0;
-  results[3] = 0.0;
-  return;
+  // results[0] = 0.0;
+  // results[1] = 0.0;
+  // results[2] = 0.0;
+  // results[3] = 0.0;
+  // return;
   
 }
 
@@ -746,301 +746,301 @@ namespace dqutils {
     
     TFile* f = TFile::Open(inFilename.c_str(),"UPDATE");
     
-    if (f == 0) {
-      std::cerr << "MuonTrkPhys(): "
-      << "Input file not opened \n";
-      return;
-    }
-    if(f->GetSize()<1000.) {
-      std::cerr << "MuonTrkPhys(): "
-      << "Input file empty \n";
-      return; 
-    }
+  //   if (f == 0) {
+  //     std::cerr << "MuonTrkPhys(): "
+  //     << "Input file not opened \n";
+  //     return;
+  //   }
+  //   if(f->GetSize()<1000.) {
+  //     std::cerr << "MuonTrkPhys(): "
+  //     << "Input file empty \n";
+  //     return; 
+  //   }
     
-    //Define Constants
-    std::vector<TString> phi_vec;
-    phi_vec.push_back("S01");
-    phi_vec.push_back("S02");
-    phi_vec.push_back("S03");
-    phi_vec.push_back("S04");
-    phi_vec.push_back("S05");
-    phi_vec.push_back("S06");
-    phi_vec.push_back("S07");
-    phi_vec.push_back("S08");
-    phi_vec.push_back("S09");
-    phi_vec.push_back("S10");
-    phi_vec.push_back("S11");
-    phi_vec.push_back("S12");
-    phi_vec.push_back("S13");
-    phi_vec.push_back("S14");
-    phi_vec.push_back("S15");
-    phi_vec.push_back("S16");
+  //   //Define Constants
+  //   std::vector<TString> phi_vec;
+  //   phi_vec.push_back("S01");
+  //   phi_vec.push_back("S02");
+  //   phi_vec.push_back("S03");
+  //   phi_vec.push_back("S04");
+  //   phi_vec.push_back("S05");
+  //   phi_vec.push_back("S06");
+  //   phi_vec.push_back("S07");
+  //   phi_vec.push_back("S08");
+  //   phi_vec.push_back("S09");
+  //   phi_vec.push_back("S10");
+  //   phi_vec.push_back("S11");
+  //   phi_vec.push_back("S12");
+  //   phi_vec.push_back("S13");
+  //   phi_vec.push_back("S14");
+  //   phi_vec.push_back("S15");
+  //   phi_vec.push_back("S16");
     
-    std::vector<TString> side_vec;
-    side_vec.push_back("A");
-    side_vec.push_back("C");  
+  //   std::vector<TString> side_vec;
+  //   side_vec.push_back("A");
+  //   side_vec.push_back("C");  
     
-    std::vector<TString> string_vec;
-    string_vec.push_back("EC");
-    string_vec.push_back("BC");
-    string_vec.push_back("BA");
-    string_vec.push_back("EA");
+  //   std::vector<TString> string_vec;
+  //   string_vec.push_back("EC");
+  //   string_vec.push_back("BC");
+  //   string_vec.push_back("BA");
+  //   string_vec.push_back("EA");
     
     
-    // get run directory name
-    //Seemingly unnecessary lines are necessary
-    TIter nextcd0(gDirectory->GetListOfKeys());
-    TKey *key0 = (TKey*)nextcd0();
-    if (key0 == 0) return;
-    TDirectory *dir0= dynamic_cast<TDirectory*> (key0->ReadObj());
-    if (dir0 == 0) return;
-    dir0->cd();
-    ///
+  //   // get run directory name
+  //   //Seemingly unnecessary lines are necessary
+  //   TIter nextcd0(gDirectory->GetListOfKeys());
+  //   TKey *key0 = (TKey*)nextcd0();
+  //   if (key0 == 0) return;
+  //   TDirectory *dir0= dynamic_cast<TDirectory*> (key0->ReadObj());
+  //   if (dir0 == 0) return;
+  //   dir0->cd();
+  //   ///
     
-    TString runNumber = dir0->GetName();
-    TString mDir =  runNumber+"/Muon/MuonTrkPhysMonitoring/NoTrigger/Detector_Specific/";
-    if (! f->cd(mDir)) return;
-    //std::cout<<"jk: in directory "<<mDir<<std::endl;
-    TIter nextcd1(gDirectory->GetListOfKeys());
-    while(TKey* key1 = dynamic_cast<TKey*>(nextcd1())) {//While in Staco/Muid/Third chain
-      TString recalg_fullStr = mDir+key1->GetName();
-      TDirectory* dir1 = f->GetDirectory(recalg_fullStr);
-      if(!dir1) continue;
-      dir1->cd();
+  //   TString runNumber = dir0->GetName();
+  //   TString mDir =  runNumber+"/Muon/MuonTrkPhysMonitoring/NoTrigger/Detector_Specific/";
+  //   if (! f->cd(mDir)) return;
+  //   //std::cout<<"jk: in directory "<<mDir<<std::endl;
+  //   TIter nextcd1(gDirectory->GetListOfKeys());
+  //   while(TKey* key1 = dynamic_cast<TKey*>(nextcd1())) {//While in Staco/Muid/Third chain
+  //     TString recalg_fullStr = mDir+key1->GetName();
+  //     TDirectory* dir1 = f->GetDirectory(recalg_fullStr);
+  //     if(!dir1) continue;
+  //     dir1->cd();
       
       
       
-      //MDT HitResiduals:
+  //     //MDT HitResiduals:
       
-      //std::cout<<"ab: MDT HitResiduals!\n";
+  //     //std::cout<<"ab: MDT HitResiduals!\n";
       
-      TH2F* m_HitRes_Eta_Phi_Mean_I = (TH2F*)dir1->Get("m_HitRes_Eta_Phi_Mean_I");
-      TH2F* m_HitRes_Eta_Phi_Mean_M = (TH2F*)dir1->Get("m_HitRes_Eta_Phi_Mean_M");
-      TH2F* m_HitRes_Eta_Phi_Mean_O = (TH2F*)dir1->Get("m_HitRes_Eta_Phi_Mean_O");
-      TH2F* m_HitRes_Eta_Phi_Width_I = (TH2F*)dir1->Get("m_HitRes_Eta_Phi_Width_I");
-      TH2F* m_HitRes_Eta_Phi_Width_M = (TH2F*)dir1->Get("m_HitRes_Eta_Phi_Width_M");
-      TH2F* m_HitRes_Eta_Phi_Width_O = (TH2F*)dir1->Get("m_HitRes_Eta_Phi_Width_O");
+  //     TH2F* m_HitRes_Eta_Phi_Mean_I = (TH2F*)dir1->Get("m_HitRes_Eta_Phi_Mean_I");
+  //     TH2F* m_HitRes_Eta_Phi_Mean_M = (TH2F*)dir1->Get("m_HitRes_Eta_Phi_Mean_M");
+  //     TH2F* m_HitRes_Eta_Phi_Mean_O = (TH2F*)dir1->Get("m_HitRes_Eta_Phi_Mean_O");
+  //     TH2F* m_HitRes_Eta_Phi_Width_I = (TH2F*)dir1->Get("m_HitRes_Eta_Phi_Width_I");
+  //     TH2F* m_HitRes_Eta_Phi_Width_M = (TH2F*)dir1->Get("m_HitRes_Eta_Phi_Width_M");
+  //     TH2F* m_HitRes_Eta_Phi_Width_O = (TH2F*)dir1->Get("m_HitRes_Eta_Phi_Width_O");
       
-      TH2F* HitResHist = 0;
+  //     TH2F* HitResHist = 0;
 
-      for(int phi_itr = 0; phi_itr < m_HitRes_Eta_Phi_Mean_I->GetNbinsY(); phi_itr++){
-        int j = phi_itr+1;
+  //     for(int phi_itr = 0; phi_itr < m_HitRes_Eta_Phi_Mean_I->GetNbinsY(); phi_itr++){
+  //       int j = phi_itr+1;
         
-        for(int eta_itr = 0; eta_itr < m_HitRes_Eta_Phi_Mean_I->GetNbinsX(); eta_itr++){
-          int i = eta_itr+1;
+  //       for(int eta_itr = 0; eta_itr < m_HitRes_Eta_Phi_Mean_I->GetNbinsX(); eta_itr++){
+  //         int i = eta_itr+1;
           
-          if (m_HitRes_Eta_Phi_Mean_I && m_HitRes_Eta_Phi_Width_I) {
-	    TH1D* HitResProfile = 0;
-            HitResHist = (TH2F*)dir1->Get("m_HR_Eta_"+phi_vec.at(phi_itr)+"_I");
-            if(HitResHist) HitResProfile = HitResHist->ProjectionX("_pfx",eta_itr+1,eta_itr+1);
+  //         if (m_HitRes_Eta_Phi_Mean_I && m_HitRes_Eta_Phi_Width_I) {
+	 //    TH1D* HitResProfile = 0;
+  //           HitResHist = (TH2F*)dir1->Get("m_HR_Eta_"+phi_vec.at(phi_itr)+"_I");
+  //           if(HitResHist) HitResProfile = HitResHist->ProjectionX("_pfx",eta_itr+1,eta_itr+1);
               
-            m_HitRes_Eta_Phi_Mean_I->SetBinContent(i,j,0.0);
-            m_HitRes_Eta_Phi_Mean_I->SetBinError  (i,j,0.0);
-            m_HitRes_Eta_Phi_Width_I->SetBinContent(i,j,0.0);
-            m_HitRes_Eta_Phi_Width_I->SetBinError  (i,j,0.0);
+  //           m_HitRes_Eta_Phi_Mean_I->SetBinContent(i,j,0.0);
+  //           m_HitRes_Eta_Phi_Mean_I->SetBinError  (i,j,0.0);
+  //           m_HitRes_Eta_Phi_Width_I->SetBinContent(i,j,0.0);
+  //           m_HitRes_Eta_Phi_Width_I->SetBinError  (i,j,0.0);
             
-            float results[4] = {0.0,0.0,0.0,0.0};
-            if(HitResProfile) HitResProfile->Rebin(8);
-            DGausFit(HitResProfile,results,5,false);
+  //           float results[4] = {0.0,0.0,0.0,0.0};
+  //           if(HitResProfile) HitResProfile->Rebin(8);
+  //           DGausFit(HitResProfile,results,5,false);
             
-            m_HitRes_Eta_Phi_Mean_I->SetBinContent (i,j,results[0]);
-            m_HitRes_Eta_Phi_Mean_I->SetBinError   (i,j,results[1]);
-            m_HitRes_Eta_Phi_Width_I->SetBinContent(i,j,results[2]);
-            m_HitRes_Eta_Phi_Width_I->SetBinError  (i,j,results[3]);
+  //           m_HitRes_Eta_Phi_Mean_I->SetBinContent (i,j,results[0]);
+  //           m_HitRes_Eta_Phi_Mean_I->SetBinError   (i,j,results[1]);
+  //           m_HitRes_Eta_Phi_Width_I->SetBinContent(i,j,results[2]);
+  //           m_HitRes_Eta_Phi_Width_I->SetBinError  (i,j,results[3]);
             
-            delete HitResProfile;
+  //           delete HitResProfile;
             
-          }
+  //         }
           
-          //------
+  //         //------
           
-          if (m_HitRes_Eta_Phi_Mean_M && m_HitRes_Eta_Phi_Width_M) {
-	    TH1D* HitResProfile = 0;
-            HitResHist = (TH2F*)dir1->Get("m_HR_Eta_"+phi_vec.at(phi_itr)+"_M");
-            if(HitResHist) HitResProfile = HitResHist->ProjectionX("_pfx",eta_itr+1,eta_itr+1);
+  //         if (m_HitRes_Eta_Phi_Mean_M && m_HitRes_Eta_Phi_Width_M) {
+	 //    TH1D* HitResProfile = 0;
+  //           HitResHist = (TH2F*)dir1->Get("m_HR_Eta_"+phi_vec.at(phi_itr)+"_M");
+  //           if(HitResHist) HitResProfile = HitResHist->ProjectionX("_pfx",eta_itr+1,eta_itr+1);
             
-            m_HitRes_Eta_Phi_Mean_M->SetBinContent(i,j,0.0);
-            m_HitRes_Eta_Phi_Mean_M->SetBinError  (i,j,0.0);
-            m_HitRes_Eta_Phi_Width_M->SetBinContent(i,j,0.0);
-            m_HitRes_Eta_Phi_Width_M->SetBinError  (i,j,0.0);
+  //           m_HitRes_Eta_Phi_Mean_M->SetBinContent(i,j,0.0);
+  //           m_HitRes_Eta_Phi_Mean_M->SetBinError  (i,j,0.0);
+  //           m_HitRes_Eta_Phi_Width_M->SetBinContent(i,j,0.0);
+  //           m_HitRes_Eta_Phi_Width_M->SetBinError  (i,j,0.0);
             
-            float results[4] = {0.0,0.0,0.0,0.0};
-            if(HitResProfile) HitResProfile->Rebin(8);
-            DGausFit(HitResProfile,results,5,false);
+  //           float results[4] = {0.0,0.0,0.0,0.0};
+  //           if(HitResProfile) HitResProfile->Rebin(8);
+  //           DGausFit(HitResProfile,results,5,false);
             
-            m_HitRes_Eta_Phi_Mean_M->SetBinContent (i,j,results[0]);
-            m_HitRes_Eta_Phi_Mean_M->SetBinError   (i,j,results[1]);
-            m_HitRes_Eta_Phi_Width_M->SetBinContent(i,j,results[2]);
-            m_HitRes_Eta_Phi_Width_M->SetBinError  (i,j,results[3]);
+  //           m_HitRes_Eta_Phi_Mean_M->SetBinContent (i,j,results[0]);
+  //           m_HitRes_Eta_Phi_Mean_M->SetBinError   (i,j,results[1]);
+  //           m_HitRes_Eta_Phi_Width_M->SetBinContent(i,j,results[2]);
+  //           m_HitRes_Eta_Phi_Width_M->SetBinError  (i,j,results[3]);
            
             
-            delete HitResProfile;
-          }
+  //           delete HitResProfile;
+  //         }
           
-          //------
-          if (m_HitRes_Eta_Phi_Mean_O && m_HitRes_Eta_Phi_Width_O) {
-	    TH1D* HitResProfile = 0;
-            HitResHist = (TH2F*)dir1->Get("m_HR_Eta_"+phi_vec.at(phi_itr)+"_O");
-            if(HitResHist) HitResProfile = HitResHist->ProjectionX("_pfx",eta_itr+1,eta_itr+1);
+  //         //------
+  //         if (m_HitRes_Eta_Phi_Mean_O && m_HitRes_Eta_Phi_Width_O) {
+	 //    TH1D* HitResProfile = 0;
+  //           HitResHist = (TH2F*)dir1->Get("m_HR_Eta_"+phi_vec.at(phi_itr)+"_O");
+  //           if(HitResHist) HitResProfile = HitResHist->ProjectionX("_pfx",eta_itr+1,eta_itr+1);
             
-            m_HitRes_Eta_Phi_Mean_O->SetBinContent(i,j,0.0);
-            m_HitRes_Eta_Phi_Mean_O->SetBinError  (i,j,0.0);
-            m_HitRes_Eta_Phi_Width_O->SetBinContent(i,j,0.0);
-            m_HitRes_Eta_Phi_Width_O->SetBinError  (i,j,0.0);
+  //           m_HitRes_Eta_Phi_Mean_O->SetBinContent(i,j,0.0);
+  //           m_HitRes_Eta_Phi_Mean_O->SetBinError  (i,j,0.0);
+  //           m_HitRes_Eta_Phi_Width_O->SetBinContent(i,j,0.0);
+  //           m_HitRes_Eta_Phi_Width_O->SetBinError  (i,j,0.0);
             
-            float results[4] = {0.0,0.0,0.0,0.0};
-            if(HitResProfile) HitResProfile->Rebin(8);
-            DGausFit(HitResProfile,results,5,false);
+  //           float results[4] = {0.0,0.0,0.0,0.0};
+  //           if(HitResProfile) HitResProfile->Rebin(8);
+  //           DGausFit(HitResProfile,results,5,false);
             
-            m_HitRes_Eta_Phi_Mean_O->SetBinContent (i,j,results[0]);
-            m_HitRes_Eta_Phi_Mean_O->SetBinError   (i,j,results[1]);
-            m_HitRes_Eta_Phi_Width_O->SetBinContent(i,j,results[2]);
-            m_HitRes_Eta_Phi_Width_O->SetBinError  (i,j,results[3]);
+  //           m_HitRes_Eta_Phi_Mean_O->SetBinContent (i,j,results[0]);
+  //           m_HitRes_Eta_Phi_Mean_O->SetBinError   (i,j,results[1]);
+  //           m_HitRes_Eta_Phi_Width_O->SetBinContent(i,j,results[2]);
+  //           m_HitRes_Eta_Phi_Width_O->SetBinError  (i,j,results[3]);
             
             
-            delete HitResProfile;
-          }
-        }
-      }
+  //           delete HitResProfile;
+  //         }
+  //       }
+  //     }
 
-      if(m_HitRes_Eta_Phi_Mean_I)  m_HitRes_Eta_Phi_Mean_I->Write("",TObject::kOverwrite);
-      if(m_HitRes_Eta_Phi_Mean_M)  m_HitRes_Eta_Phi_Mean_M->Write("",TObject::kOverwrite);
-      if(m_HitRes_Eta_Phi_Mean_O)  m_HitRes_Eta_Phi_Mean_O->Write("",TObject::kOverwrite);
-      if(m_HitRes_Eta_Phi_Width_I) m_HitRes_Eta_Phi_Width_I->Write("",TObject::kOverwrite);
-      if(m_HitRes_Eta_Phi_Width_M) m_HitRes_Eta_Phi_Width_M->Write("",TObject::kOverwrite);
-      if(m_HitRes_Eta_Phi_Width_O) m_HitRes_Eta_Phi_Width_O->Write("",TObject::kOverwrite);
+  //     if(m_HitRes_Eta_Phi_Mean_I)  m_HitRes_Eta_Phi_Mean_I->Write("",TObject::kOverwrite);
+  //     if(m_HitRes_Eta_Phi_Mean_M)  m_HitRes_Eta_Phi_Mean_M->Write("",TObject::kOverwrite);
+  //     if(m_HitRes_Eta_Phi_Mean_O)  m_HitRes_Eta_Phi_Mean_O->Write("",TObject::kOverwrite);
+  //     if(m_HitRes_Eta_Phi_Width_I) m_HitRes_Eta_Phi_Width_I->Write("",TObject::kOverwrite);
+  //     if(m_HitRes_Eta_Phi_Width_M) m_HitRes_Eta_Phi_Width_M->Write("",TObject::kOverwrite);
+  //     if(m_HitRes_Eta_Phi_Width_O) m_HitRes_Eta_Phi_Width_O->Write("",TObject::kOverwrite);
       
-      // BEE
-      //std::cout<<"ab: BEE HitResiduals!\n";
-      for (unsigned int side_itr = 0; side_itr < side_vec.size(); side_itr++) {
+  //     // BEE
+  //     //std::cout<<"ab: BEE HitResiduals!\n";
+  //     for (unsigned int side_itr = 0; side_itr < side_vec.size(); side_itr++) {
         
-        TH1F* h_UHitRes = (TH1F*)dir1->Get("m_"+side_vec.at(side_itr)+"_BEE_UHitRes");
-        if(!h_UHitRes) continue;
+  //       TH1F* h_UHitRes = (TH1F*)dir1->Get("m_"+side_vec.at(side_itr)+"_BEE_UHitRes");
+  //       if(!h_UHitRes) continue;
         
-        TH1F* h_residual= 0;
+  //       TH1F* h_residual= 0;
         
-        for(unsigned int phi_itr = 0; phi_itr < phi_vec.size(); phi_itr++){
+  //       for(unsigned int phi_itr = 0; phi_itr < phi_vec.size(); phi_itr++){
           
-          h_residual = (TH1F*)dir1->Get("m_"+side_vec.at(side_itr)+"_BEE_"+phi_vec.at(phi_itr));
-          if (!h_residual) continue;
-          h_residual->Rebin(8);
+  //         h_residual = (TH1F*)dir1->Get("m_"+side_vec.at(side_itr)+"_BEE_"+phi_vec.at(phi_itr));
+  //         if (!h_residual) continue;
+  //         h_residual->Rebin(8);
           
-          if (phi_itr%2 == 0) {
-            h_UHitRes->SetBinContent (phi_itr+1,0.0);//Mean
-            h_UHitRes->SetBinError   (phi_itr+1,0.0);//Width
-            continue;
-          }
+  //         if (phi_itr%2 == 0) {
+  //           h_UHitRes->SetBinContent (phi_itr+1,0.0);//Mean
+  //           h_UHitRes->SetBinError   (phi_itr+1,0.0);//Width
+  //           continue;
+  //         }
           
-          h_UHitRes->SetBinContent(phi_itr+1,0.0);
-          h_UHitRes->SetBinError  (phi_itr+1,0.0);
+  //         h_UHitRes->SetBinContent(phi_itr+1,0.0);
+  //         h_UHitRes->SetBinError  (phi_itr+1,0.0);
           
-          float results[4] = {0.0,0.0,0.0,0.0};
+  //         float results[4] = {0.0,0.0,0.0,0.0};
           
-          DGausFit(h_residual,results,4.);
+  //         DGausFit(h_residual,results,4.);
           
-          h_UHitRes->SetBinContent (phi_itr+1,results[0]);//Mean
-          h_UHitRes->SetBinError   (phi_itr+1,results[2]/sqrt(h_residual->GetEntries()));//Width
-        }
+  //         h_UHitRes->SetBinContent (phi_itr+1,results[0]);//Mean
+  //         h_UHitRes->SetBinError   (phi_itr+1,results[2]/sqrt(h_residual->GetEntries()));//Width
+  //       }
         
-        h_UHitRes->Write("",TObject::kOverwrite);
+  //       h_UHitRes->Write("",TObject::kOverwrite);
         
-      }
+  //     }
       
-      //EE
-      //std::cout<<"ab: EE HitResiduals!\n";
-      for (unsigned int side_itr = 0; side_itr < side_vec.size(); side_itr++) {
+  //     //EE
+  //     //std::cout<<"ab: EE HitResiduals!\n";
+  //     for (unsigned int side_itr = 0; side_itr < side_vec.size(); side_itr++) {
         
-        TH1F* h_UHitRes = (TH1F*)dir1->Get("m_"+side_vec.at(side_itr)+"_EE_UHitRes");
-        if(!h_UHitRes) continue;
+  //       TH1F* h_UHitRes = (TH1F*)dir1->Get("m_"+side_vec.at(side_itr)+"_EE_UHitRes");
+  //       if(!h_UHitRes) continue;
         
-        TH1F* h_residual;
+  //       TH1F* h_residual;
         
-        for(unsigned int phi_itr = 0; phi_itr < phi_vec.size(); phi_itr++){
+  //       for(unsigned int phi_itr = 0; phi_itr < phi_vec.size(); phi_itr++){
           
-          h_residual = (TH1F*)dir1->Get("m_"+side_vec.at(side_itr)+"_EE_"+phi_vec.at(phi_itr));
-          if (!h_residual) continue; 
-          h_residual->Rebin(8);
+  //         h_residual = (TH1F*)dir1->Get("m_"+side_vec.at(side_itr)+"_EE_"+phi_vec.at(phi_itr));
+  //         if (!h_residual) continue; 
+  //         h_residual->Rebin(8);
           
-          //only 3, 5, 11, 13 installed on A side
-          if (side_itr == 0 && !(phi_itr == 2 || phi_itr == 4 || phi_itr == 10 || phi_itr == 12) )
-          {
-            h_UHitRes->SetBinContent (phi_itr+1,0.0);//Mean
-            h_UHitRes->SetBinError   (phi_itr+1,0.0);//Width
-            continue;
-          }
+  //         //only 3, 5, 11, 13 installed on A side
+  //         if (side_itr == 0 && !(phi_itr == 2 || phi_itr == 4 || phi_itr == 10 || phi_itr == 12) )
+  //         {
+  //           h_UHitRes->SetBinContent (phi_itr+1,0.0);//Mean
+  //           h_UHitRes->SetBinError   (phi_itr+1,0.0);//Width
+  //           continue;
+  //         }
           
-          h_UHitRes->SetBinContent(phi_itr+1,0.0);
-          h_UHitRes->SetBinError  (phi_itr+1,0.0);
+  //         h_UHitRes->SetBinContent(phi_itr+1,0.0);
+  //         h_UHitRes->SetBinError  (phi_itr+1,0.0);
           
-          float results[4] = {0.0,0.0,0.0,0.0};
+  //         float results[4] = {0.0,0.0,0.0,0.0};
           
-          DGausFit(h_residual,results,5./2.);
+  //         DGausFit(h_residual,results,5./2.);
           
-          h_UHitRes->SetBinContent (phi_itr+1,results[0]);//Mean
-          h_UHitRes->SetBinError   (phi_itr+1,results[2]/sqrt(h_residual->GetEntries()));//Width
-        }
+  //         h_UHitRes->SetBinContent (phi_itr+1,results[0]);//Mean
+  //         h_UHitRes->SetBinError   (phi_itr+1,results[2]/sqrt(h_residual->GetEntries()));//Width
+  //       }
         
-        h_UHitRes->Write("",TObject::kOverwrite);
-      }
+  //       h_UHitRes->Write("",TObject::kOverwrite);
+  //     }
       
-      //CSC
-      //std::cout<<"ab: CSC HitResiduals!\n";
-      for (unsigned int side_itr = 0; side_itr < side_vec.size(); side_itr++) {
+  //     //CSC
+  //     //std::cout<<"ab: CSC HitResiduals!\n";
+  //     for (unsigned int side_itr = 0; side_itr < side_vec.size(); side_itr++) {
         
-        TH1F* h_UHitRes = (TH1F*)dir1->Get("m_"+side_vec.at(side_itr)+"_CSC_UHitRes");
-        if(!h_UHitRes) continue;
+  //       TH1F* h_UHitRes = (TH1F*)dir1->Get("m_"+side_vec.at(side_itr)+"_CSC_UHitRes");
+  //       if(!h_UHitRes) continue;
         
-        TH1F* h_residual;
+  //       TH1F* h_residual;
         
-        for(unsigned int phi_itr = 0; phi_itr < phi_vec.size(); phi_itr++){
+  //       for(unsigned int phi_itr = 0; phi_itr < phi_vec.size(); phi_itr++){
           
-          h_residual = (TH1F*)dir1->Get("m_"+side_vec.at(side_itr)+"_CSC_UHitRes_"+phi_vec.at(phi_itr));
-          if (!h_residual) continue;
-          h_residual->Rebin(8);
+  //         h_residual = (TH1F*)dir1->Get("m_"+side_vec.at(side_itr)+"_CSC_UHitRes_"+phi_vec.at(phi_itr));
+  //         if (!h_residual) continue;
+  //         h_residual->Rebin(8);
           
-          h_UHitRes->SetBinContent(phi_itr+1,0.0);
-          h_UHitRes->SetBinError  (phi_itr+1,0.0);
+  //         h_UHitRes->SetBinContent(phi_itr+1,0.0);
+  //         h_UHitRes->SetBinError  (phi_itr+1,0.0);
           
-          float results[4] = {0.0,0.0,0.0,0.0};
+  //         float results[4] = {0.0,0.0,0.0,0.0};
           
-          DGausFit(h_residual,results,5./2.);
+  //         DGausFit(h_residual,results,5./2.);
           
-          h_UHitRes->SetBinContent (phi_itr+1,results[0]);//Mean
-          h_UHitRes->SetBinError   (phi_itr+1,results[2]/sqrt(h_residual->GetEntries()));//Width
-        }
+  //         h_UHitRes->SetBinContent (phi_itr+1,results[0]);//Mean
+  //         h_UHitRes->SetBinError   (phi_itr+1,results[2]/sqrt(h_residual->GetEntries()));//Width
+  //       }
         
-        h_UHitRes->Write("",TObject::kOverwrite);
-      }
-      
-      
-      //std::cout<<"ab: MDT Track Residuals!\n";    
-      TH1F* m_MDT_TrackResiduals = (TH1F*)dir1->Get("m_MDT_TrackResiduals");
-      TH1F * h_residual = 0;
-      
-      if(m_MDT_TrackResiduals){
-        for(unsigned int st_itr = 0; st_itr < string_vec.size(); st_itr++){
-          
-          h_residual = (TH1F*)dir1->Get("m_MDT_TR_"+string_vec.at(st_itr));
-          if (!h_residual) continue;
-          h_residual->Rebin(8);
-          
-          m_MDT_TrackResiduals->SetBinContent(st_itr+1,0.0);
-          m_MDT_TrackResiduals->SetBinError  (st_itr+1,0.0);
-          
-          float results[4] = {0.0,0.0,0.0,0.0};
-          
-          DGausFit(h_residual,results,3.);
-          
-          m_MDT_TrackResiduals->SetBinContent (st_itr+1,results[0]);//Mean
-          m_MDT_TrackResiduals->SetBinError   (st_itr+1,results[2]/sqrt(h_residual->GetEntries()));//Width
-          
-        }
-        
-        m_MDT_TrackResiduals->Write("",TObject::kOverwrite);
-      }
+  //       h_UHitRes->Write("",TObject::kOverwrite);
+  //     }
       
       
-    }
+  //     //std::cout<<"ab: MDT Track Residuals!\n";    
+  //     TH1F* m_MDT_TrackResiduals = (TH1F*)dir1->Get("m_MDT_TrackResiduals");
+  //     TH1F * h_residual = 0;
+      
+  //     if(m_MDT_TrackResiduals){
+  //       for(unsigned int st_itr = 0; st_itr < string_vec.size(); st_itr++){
+          
+  //         h_residual = (TH1F*)dir1->Get("m_MDT_TR_"+string_vec.at(st_itr));
+  //         if (!h_residual) continue;
+  //         h_residual->Rebin(8);
+          
+  //         m_MDT_TrackResiduals->SetBinContent(st_itr+1,0.0);
+  //         m_MDT_TrackResiduals->SetBinError  (st_itr+1,0.0);
+          
+  //         float results[4] = {0.0,0.0,0.0,0.0};
+          
+  //         DGausFit(h_residual,results,3.);
+          
+  //         m_MDT_TrackResiduals->SetBinContent (st_itr+1,results[0]);//Mean
+  //         m_MDT_TrackResiduals->SetBinError   (st_itr+1,results[2]/sqrt(h_residual->GetEntries()));//Width
+          
+  //       }
+        
+  //       m_MDT_TrackResiduals->Write("",TObject::kOverwrite);
+  //     }
+      
+      
+  //   }
     
     f->Close();
     delete f;
