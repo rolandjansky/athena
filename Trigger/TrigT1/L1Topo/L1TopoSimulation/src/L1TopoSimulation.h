@@ -7,6 +7,7 @@
 
 #include "TrigConfBase/MsgStream.h"
 
+
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
 
@@ -17,6 +18,11 @@
 
 class TH1;
 class IMonitorToolBase;
+class ITHistSvc;
+
+namespace LVL1 {
+   class PeriodicScaler;
+}
 
 namespace TCS {
    class TopoSteering;
@@ -35,19 +41,25 @@ namespace LVL1 {
       L1TopoSimulation(const std::string &name, ISvcLocator *pSvcLocator);
       ~L1TopoSimulation();
 
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
 
-      virtual StatusCode start();
+      virtual StatusCode beginRun() override;
+      virtual StatusCode endRun() override;
 
-      virtual StatusCode execute();
+      virtual StatusCode start() override;
+      virtual StatusCode stop() override;
 
-      virtual StatusCode finalize();
+      virtual StatusCode execute() override;
+
+      virtual StatusCode finalize() override;
 
    private:
 
       //! \brief Alg handles to tools and services
       //! @{
       ServiceHandle<TrigConf::IL1TopoConfigSvc> m_l1topoConfigSvc;
+
+      ServiceHandle<ITHistSvc> m_histSvc;
 
       ToolHandleArray < IMonitorToolBase > m_monitors;
 
@@ -70,6 +82,11 @@ namespace LVL1 {
       std::unique_ptr<TCS::TopoSteering>  m_topoSteering; //!< the topo steering 
 
       TH1 *  m_DecisionHist[3] { nullptr, nullptr, nullptr };
+
+      UnsignedIntegerProperty m_prescale; //! property for prescale factor
+      LVL1::PeriodicScaler* m_scaler; //! prescale decision tool
+
+      StringProperty m_histBaseDir; //! sets base dir for monitoring histograms
 
    };
 

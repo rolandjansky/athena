@@ -5,19 +5,30 @@
 #ifndef L1TopoSimulation_MuonInputProvider
 #define L1TopoSimulation_MuonInputProvider
 
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "L1TopoSimulation/IInputTOBConverter.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include <vector>
+
+class TH1I;
+class TH2I;
+
+class ITHistSvc;
 
 namespace TrigConf {
    class ILVL1ConfigSvc;
    class TriggerThreshold;
 }
 
+namespace TCS {
+   class MuonTOB;
+}
+
 namespace LVL1 {
 
    class RecMuonRoiSvc;
 
-   class MuonInputProvider : public extends1<AthAlgTool, IInputTOBConverter> {
+   class MuonInputProvider : public extends2<AthAlgTool, IInputTOBConverter, IIncidentListener> {
    public:
       MuonInputProvider(const std::string& type, const std::string& name, 
                          const IInterface* parent);
@@ -28,7 +39,15 @@ namespace LVL1 {
 
       virtual StatusCode fillTopoInputEvent(TCS::TopoInputEvent& ) const; 
 
+      virtual void handle(const Incident&);
+
    private:
+
+      TCS::MuonTOB createMuonTOB(uint32_t roiword) const;
+
+      StringProperty m_roibLocation;
+
+      ServiceHandle<ITHistSvc> m_histSvc;
 
       ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
 
@@ -38,6 +57,9 @@ namespace LVL1 {
       std::vector< TrigConf::TriggerThreshold* > m_MuonThresholds;
 
       StringProperty m_muonROILocation;    //!<  Muon ROIs SG key
+
+      TH1I * m_hPt {nullptr};
+      TH2I * m_hEtaPhi {nullptr};
 
    };
 }

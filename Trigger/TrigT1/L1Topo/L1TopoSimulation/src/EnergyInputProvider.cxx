@@ -2,6 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <math.h> /* atan2 */
+
+#include "TH1.h"
+#include "TH2.h"
+
+#include "GaudiKernel/ITHistSvc.h"
+
 #include "EnergyInputProvider.h"
 #include "TrigT1CaloEvent/EnergyRoI_ClassDEF.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
@@ -18,13 +25,51 @@ using namespace LVL1;
 EnergyInputProvider::EnergyInputProvider(const std::string& type, const std::string& name, 
                                          const IInterface* parent) :
    base_class(type, name, parent),
+   m_histSvc("THistSvc", name),
    m_energyLocation(TrigT1CaloDefs::EnergyTopoDataLocation)
 {
+   declareInterface<LVL1::IInputTOBConverter>( this );
    declareProperty( "EnergyROILocation", m_energyLocation, "Storegate key for reading the Topo Energy ROI" );
+
 }
 
 EnergyInputProvider::~EnergyInputProvider()
 {}
+
+StatusCode
+EnergyInputProvider::initialize() {
+
+   CHECK(m_histSvc.retrieve());
+
+   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "EnergyInputProvider");
+   CHECK(incidentSvc.retrieve());
+   incidentSvc->addListener(this,"BeginRun", 100);
+   incidentSvc.release().ignore();
+  
+   return StatusCode::SUCCESS;
+}
+
+
+void
+EnergyInputProvider::handle(const Incident& incident) {
+   if (incident.type()!="BeginRun") return;
+   ATH_MSG_DEBUG( "In BeginRun incident");
+
+   string histPath = "/EXPERT/" + name() + "/";
+   replace( histPath.begin(), histPath.end(), '.', '/'); 
+
+
+   m_hPt = new TH1I( "MET", "Missing ET TOB", 40, 0, 2000);
+   m_hPt->SetXTitle("p_{T}");
+
+   m_hPhi = new TH1I( "METPhi", "MET TOB Phi", 32, -3.2, 3.2);
+   m_hPhi->SetXTitle("#phi");
+
+   m_histSvc->regHist( histPath + "MET", m_hPt ).ignore();
+   m_histSvc->regHist( histPath + "METPhi", m_hPhi ).ignore();
+
+}
+
 
 StatusCode
 EnergyInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
@@ -70,6 +115,9 @@ EnergyInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
    
    TCS::MetTOB met( -(topoData->Ex()), -(topoData->Ey()), topoData->Et() );
    inputEvent.setMET( met );
+
+   m_hPt->Fill(met.Et());
+   m_hPhi->Fill( atan2(met.Ey(),met.Ex()) );
 
    return StatusCode::SUCCESS;
 }
