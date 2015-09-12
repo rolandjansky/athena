@@ -4,7 +4,7 @@
 # -*- coding: utf-8 -*-
 
 ## *****************************************************************************
-VERSION = '$Id: DQWebDisplay.py 689658 2015-08-16 14:57:56Z ponyisi $'
+VERSION = '$Id: DQWebDisplay.py 690278 2015-08-19 22:18:53Z ponyisi $'
 ## *****************************************************************************
 
 import os
@@ -47,7 +47,7 @@ if __name__ == "__main__":
   print len(sys.argv)
   if len(sys.argv) < 5 or len(sys.argv) > 7:
     usage()
-    sys.exit(0)
+    sys.exit(64)
   
   inputFile  = sys.argv[1] # data file
   runAccumulating = False
