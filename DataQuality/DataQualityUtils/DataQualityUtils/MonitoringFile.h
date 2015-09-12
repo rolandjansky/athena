@@ -140,7 +140,6 @@ namespace dqutils {
     static void   fitMergedFile_IDAlignMonResiduals(TFile* f, std::string run_dir, std::string TriggerName);
     static void   fitMergedFile_IDAlignMonTrackSegments(TFile* file, std::string run_dir, std::string tracksName);
     static void   fitMergedFile_IDAlignMonGenericTracks(TFile* file, std::string run_dir, std::string tracksName);
-    static void   fitMergedFile_IDAlignMonPVbiases(TFile* file, std::string run_dir, std::string tracksName);
     static void   fitMergedFile_IDPerfMonKshort(TFile* f, std::string run_dir, std::string TriggerName);
     static void   fitMergedFile_IDPerfMonJpsi(TFile* f, std::string run_dir, 
 					       std::string TriggerName);
@@ -156,7 +155,7 @@ namespace dqutils {
     static void   fitZmumuHistograms(TH1F* hmass, TH1F* hwidth, std::vector<TH1F*> hvec);
     static void   processModule(TFile* f, std::string run_dir, TKey* key_module, std::string moduleName);
     static void   fitMergedFile_DiMuMonAll(TFile* f, std::string run_dir, std::string resonName, std::string triggerName);
-    static void   fitHistos(TH2F* hin, std::vector<TH1F*> hout, int mode, std::string triggerName, std::string resonName, TH1F* m_chi2);
+    static void   fitHistos(TH2D* hin, std::vector<TH1D*> hout, int mode, std::string triggerName, std::string resonName, TH1D* m_chi2);
     static void   fillGaussianMeanOrWidth(TH2F* h2d, TH1F* h, float fitMin, float fitMax, int iopt);
     static void   fillMeanOrWidth(TH2F* h2d, TH1F* h, int iopt);
     static void   fillDetPaperMeanRMS(TH2F* h2d, TH1F* h, int iopt);
@@ -169,9 +168,6 @@ namespace dqutils {
     static void   setMinWindow(TH1* h1, float min, float max);
     static float  getMedian(TH1* h1);
     static void   ProcessAsymHistograms(TH1F* m_neg, TH1F* m_pos, TH1F* m_asym);
-    static void   Make1DProfile(TH1* output, TH2* histo);
-    static void   MakeMap(TH2* outputhist, TH3* hist);
-    static int    IterativeGaussFit(TH1* hist, double &mu, double &mu_err, double &sigma, double &sigma_err); 
 
     // Muon CSC
     static void CSCPostProcess(std::string inFilename, bool isIncremental = false);
@@ -182,14 +178,24 @@ namespace dqutils {
     // and efficiency error (err) according to errtype = 0(binomial), =1(UPX) or Sumw2
     static void GetCscEffAndErr(float& num, float& num_err, float& den, float& den_err, float& eff, float& err, int errtype);
 
+    // For MuonTrkPhysMonitoring
+    static void MuonTrkPhys(std::string inFileName, bool isIncremental = false);
+    static void MuonTrkPhys_Zmass(std::string inFileName);
+    static void MuonTrkPhys_Tracking(std::string inFileName);
+    static void MuonTrkPhys_DetectorSpecific(std::string inFileName);
+    static void MuonTrkPhys_BField(std::string inFileName);
+    static void MuonTrkPhys_Alignment(std::string inFileName);
+    static Double_t MuonTrkPhys_BWgaus(Double_t *x, Double_t *par);
+    static Double_t MuonTrkPhys_fitFunctionS(Double_t *x, Double_t *par);
+
     // For MuonTrackMonitoring
     static void MuonTrackPostProcess(std::string inFileName, bool isIncremental = false);
     static void MuonTrack_Main(std::string inFileName, TString dirname);
 
     //For Muon MDT
-    static void  MDTPostProcess(std::string inFilename, int txtFileOutputType = 0);
+    static void  MDTPostProcess(std::string inFilename, bool isIncremental = false, int txtFileOutputType = 0, bool useOfflineTubeID = false, bool makePDF = false, bool doAllPDF = true);
     static void  MDTChamReAlign(std::string inFilename, std::string title="MDT");
-    static void  MDTChamEff(std::string inFilename,  std::string title="MDT", int txtFileOutputType = 0 );
+    static void  MDTChamEff(std::string inFilename, bool isIncremental = false, std::string title="MDT", int txtFileOutputType = 0, bool useOfflineTubeID = false, bool makePDF = false, bool doAllPDF = true);
     static void  MDTChamOcc(std::string inFilename, std::string title="MDT");
     static void  MDTTDCSum(std::string inFilename, std::string title="MDT");
     static void  MDTLowStat(std::string inFilename, std::string title="MDT");

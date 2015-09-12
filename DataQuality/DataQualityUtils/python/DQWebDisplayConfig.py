@@ -10,7 +10,6 @@ class DQWebDisplayConfig:
   server             = []
   histogramCache     = ""
   hanResultsDir      = ""
-  eosResultsDir      = ""
   htmlDir            = ""
   htmlWeb            = ""
   runlist            = ""

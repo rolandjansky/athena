@@ -155,8 +155,7 @@ namespace dqutils {
 	if(cRatio=="Efficiency" || 
 	  cRatio=="Purity" || 
 	  cRatio=="EfficienciesTrigger" || 
-	  cRatio=="EfficiencyTracks" ||
-    cRatio=="TriggerPurities") 
+	  cRatio=="EfficiencyTracks") 
 	    targetNames.push_back( std::pair<TString,TString>(TString(gDirectory->GetPath()),TString(key->GetName())));
 	
       }

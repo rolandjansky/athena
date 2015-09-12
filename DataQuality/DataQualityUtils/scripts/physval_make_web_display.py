@@ -21,15 +21,13 @@ worst = DQAlgorithm(id='WorstCaseSummary',libname='libdqm_summaries.so')
 ### SOME THINGS YOU MIGHT WANT TO EDIT
 # Edit this to change what algorithm is applied (AuxAlgName--xxx)
 # or to disable printing the number of entries for each reference
-#algorithmparameters = [DQAlgorithmParameter('AuxAlgName--Chi2Test_Prob', 1),
 algorithmparameters = [DQAlgorithmParameter('AuxAlgName--Chi2Test_Chi2_per_NDF', 1),
                        DQAlgorithmParameter('RepeatAlgorithm--ResultsNEntries', 1)]
 
 # Edit this to change thresholds
-thresh = make_thresholds('Chi2_per_NDF', 1.0, 1.50, 'Chi2Thresholds')
+chi2thresh = make_thresholds('Chi2_per_NDF', 1, 1.5, 'Chi2Thresholds')
 
-def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', displaystring2D='Draw=COLZ', regex=None, startpath=None, hists=None):
-    import re
+def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', regex=None, startpath=None):
     for key in rdir.GetListOfKeys():
         cl = key.GetClassName(); rcl = ROOT.TClass.GetClass(cl)
         if ' ' in key.GetName():
@@ -45,42 +43,29 @@ def recurse(rdir, dqregion, ignorepath, refs=None, displaystring='Draw=PE', disp
             fpath = rdir.GetPath().replace(ignorepath, '')
             name = (fpath + '/' + key.GetName()).lstrip('/')
             #print rdir.GetPath(), ignorepath, name
-            if hists:
-                match = False
-                for hist in hists:
-                    if hist.match(name):
-                        match = True
-                if not match: continue
-            elif regex:
+            if regex: 
+                #print name
                 if not regex.match(name): continue
             dqpargs = { 'id' : ('' if fpath else 'top_level/') + name,
                         'algorithm': repeatalgorithm,
                         'inputdatasource': (startpath + '/' if startpath else '') + name,
                         'algorithmparameters': algorithmparameters,
-                        #'thresholds': chi2thresh,
-                        'thresholds': thresh,
+                        'thresholds': chi2thresh,
                         }
             if refs:
                 dqpargs['references'] = refs
             dqpar = dqregion.newDQParameter( **dqpargs)
             drawstrs = []
             if not options.normalize: drawstrs.append('NoNorm')
-            if options.logy and (cl.startswith('TH1') or cl.startswith('TProfile')): drawstrs.append('LogY')
-            if options.logy and cl.startswith('TH2'): drawstrs.append('LogZ')
+            if options.logy: drawstrs.append('LogY')
             if cl.startswith('TH1'): drawstrs.append(displaystring)
-            if cl.startswith('TProfile'): drawstrs.append(displaystring)
-            if cl.startswith('TH2'): drawstrs.append(displaystring2D)
             if options.scaleref != 1: drawstrs.append('ScaleRef=%f' % options.scaleref)
-            if options.ratio: drawstrs.append('RatioPad')
-            #if options.ratio: drawstrs.append('Ref2DSignif')
-            if options.ratio2D: drawstrs.append('Ref2DRatio')
-
             drawstrs.append('DataName=%s' % options.title)
             dqpar.addAnnotation('display', ','.join(drawstrs))
             
         elif rcl.InheritsFrom('TDirectory'):
             newregion = dqregion.newDQRegion( key.GetName(), algorithm=worst )
-            recurse(key.ReadObj(), newregion, ignorepath, refs, displaystring, displaystring2D, regex, startpath, hists)
+            recurse(key.ReadObj(), newregion, ignorepath, refs, displaystring, regex, startpath)
 
 def prune(dqregion):
     """
@@ -131,17 +116,13 @@ def process(infname, confname, options, refs=None):
     refpairs = refs.split(',')
     try:
         refdict = dict(_.split(':') for _ in refpairs)
-    except Exception, e:
+    except e:
         print e
     dqrs = [DQReference(reference='%s:same_name' % v, id=k)
             for k, v in refdict.items()]
     displaystring = options.drawopt
     if options.refdrawopt:
         displaystring += ',' + (','.join('DrawRef=%s' % _ for _ in options.refdrawopt.split(',')))
-    displaystring2D = options.drawopt2D
-    if options.drawrefopt2D:
-        displaystring2D += ',' + (','.join('DrawRef2D=%s' % _ for _ in options.drawrefopt2D.split(',')))
-
     if options.startpath:
         topindir = f.Get(options.startpath)
         if not topindir:
@@ -152,12 +133,8 @@ def process(infname, confname, options, refs=None):
         topindir = f
         topindirname = f.GetPath()
         startpath = None
-    hists = []
-    if options.histlistfile:
-        hists = [re.compile(line.rstrip('\n')) for line in open(options.histlistfile)]
-        if options.pathregex: print "histlistfile given, pathregex is ignored"
-    recurse(topindir, top_level, topindirname, dqrs, displaystring, displaystring2D,
-            re.compile(options.pathregex), startpath, hists)
+    recurse(topindir, top_level, topindirname, dqrs, displaystring, 
+            re.compile(options.pathregex), startpath)
     print 'Pruning dead branches...'
     prune(top_level)
     pc = paramcount(top_level)
@@ -267,30 +244,18 @@ if __name__=="__main__":
                       help='Normalize reference histograms for display')
     parser.add_option('--title', default='Summary',
                       help='Title for histograms being tested')
-    parser.add_option('--drawopt', default='Draw=PE',
-                      help='Draw options for tested histograms (only use if you know what you are doing)')
     parser.add_option('--refdrawopt',
                       help='ROOT Draw option for reference histograms (e.g. HIST)')
-    parser.add_option('--drawopt2D', default='Draw=COLZ',
-                      help='Draw options for tested TH2 histograms (only use if you know what you are doing)')
-    parser.add_option('--drawrefopt2D', default=None,
-                      help='Draw options for reference TH2 histograms. If nothing is specified, no 2D reference histograms are drawn. If you want to draw both test and reference histo, recommended settings are --drawopt2D="Draw=BOX" --drawrefopt2D="COLZ"')
+    parser.add_option('--drawopt', default='Draw=PE',
+                      help='Draw options for tested histograms (only use if you know what you are doing)')
     parser.add_option('--logy', action='store_true',
                       help='Display on log Y scale')
     parser.add_option('--pathregex', default='.*',
                       help='Specify regex to match histograms, e.g. "(Btag|Jets)"')
     parser.add_option('--startpath', default=None,
                       help='Start from this subdirectory of the file')
-    parser.add_option('--histlistfile',
-                      help='text file with a list of regexes/histogram names')
     parser.add_option('--scaleref', type=float, default=1,
                       help='Scale references by this value')
-    parser.add_option('--Kolmogorov', default=False, action='store_true',
-                      help='Run Kolmogorov test instead of Chi2 test')
-    parser.add_option('--ratio', default=False, action='store_true',
-                      help='Draw histograms with ratio plots')
-    parser.add_option('--ratio2D', default=False, action='store_true',
-                      help='Draw 2D histograms with ratio plots')
 
 
     options, args = parser.parse_args()
@@ -299,10 +264,6 @@ if __name__=="__main__":
         parser.print_help()
         sys.exit(1)
     fname = args[0]
-    if options.Kolmogorov:
-        algorithmparameters = [DQAlgorithmParameter('AuxAlgName--KolmogorovTest_Prob', 1),
-                               DQAlgorithmParameter('RepeatAlgorithm--ResultsNEntries', 1)]
-        thresh = make_thresholds('P', 0.05, 0.01, 'pThresholds')
 
     rv = super_process(fname, options)
     if rv == True:

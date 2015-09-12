@@ -3,7 +3,7 @@
 */
 
 // **********************************************************************
-// $Id: MonitoringFile.cxx 756119 2016-06-19 06:44:00Z ponyisi $
+// $Id: MonitoringFile.cxx 675315 2015-06-15 15:11:06Z ponyisi $
 // **********************************************************************
 
 #include "DataQualityUtils/MonitoringFile.h"
@@ -688,10 +688,9 @@ MonitoringFile::
 fillMetaDataMap( std::map<std::string,dqutils::MonitoringFile::MetaData>& mdMap, TDirectory* dir )
 {
   if (dir == 0) return;
-  //  TKey *mdKey = dynamic_cast<TKey*>(dir->GetListOfKeys()->FindObject("metadata"));
-  //if (mdKey == 0) return;
-  //TTree *md = dynamic_cast<TTree*>(mdKey->ReadObj());
-  TTree *md = dynamic_cast<TTree*>(dir->Get("metadata"));
+  TKey *mdKey = dynamic_cast<TKey*>(dir->GetListOfKeys()->FindObject("metadata"));
+  if (mdKey == 0) return;
+  TTree *md = dynamic_cast<TTree*>(mdKey->ReadObj());
   if (md == 0) return;
 
   char* i_name = new char[100];
@@ -1760,12 +1759,9 @@ int MonitoringFile::mergeObjs(TObject *objTarget, TObject *obj, std::string merg
        merge_RMSpercentDeviation( *h, *nextH );
      }else if( mergeType == "lowerLB" ) {
        merge_lowerLB( *h, *nextH );
-     }else if( mergeType == "merge" ) {
-       TList tl; tl.Add(nextH); h->Merge(&tl);
-     } else {
-       if (!h->Add( nextH )) {
-	 std::cerr << "Histogram " << h->GetName() << " should NOT be using Add: needs to specify a merge method (e.g. merge) in its metadata";
-       }
+     }else {
+       //TList tl; tl.Add(nextH); h->Merge(&tl);
+       h->Add( nextH );
      }
    }else if( (g = dynamic_cast<TGraph*>( objTarget )) ) {  // TGraphs
      if( mergeType != "<default>" ) {
@@ -1778,9 +1774,7 @@ int MonitoringFile::mergeObjs(TObject *objTarget, TObject *obj, std::string merg
      g->Merge( &listG );
      listG.Clear();
    }else if ((t = dynamic_cast<TTree*>( objTarget ))) { // TTrees
-     if ( debugLevel >= VERBOSE) {
-       std::cout << "Merging Tree " << obj->GetName() << std::endl;
-     }
+     std::cout << "Merging Tree " << obj->GetName() << std::endl;
      if( mergeType != "<default>" ) {
        std::cerr << name << ": TTree " << obj->GetName() << " request mergeType = " << mergeType
 		 << " but only default merging implemented for TTrees\n";            
