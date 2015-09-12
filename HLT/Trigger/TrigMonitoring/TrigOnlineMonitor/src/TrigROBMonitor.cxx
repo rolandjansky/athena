@@ -7,7 +7,6 @@
 #include "GaudiKernel/ThreadGaudi.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "AthenaKernel/Timeout.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "TrigROBDataProviderSvc/ITrigROBDataProviderSvc.h"
 #include "TrigMonitorBase/TrigLockedHist.h"
@@ -35,9 +34,7 @@ typedef std::ostringstream __sstream;
 /////////////////////////////////////////////////////////////////////////////
 
 TrigROBMonitor::TrigROBMonitor(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator), 
-  m_msg(0),
-  m_storeGateSvc( "StoreGateSvc", name ),
+  AthAlgorithm(name, pSvcLocator), 
   m_robDataProviderSvc( "ROBDataProviderSvc", name ),
   m_hist_failedChecksumForROB(0),
   m_histProp_failedChecksumForROB(Gaudi::Histo1DDef("FailedChecksumForROB" ,0,1,1)),
@@ -92,30 +89,23 @@ TrigROBMonitor::TrigROBMonitor(const std::string& name, ISvcLocator* pSvcLocator
 StatusCode TrigROBMonitor::initialize(){
 
   // Get the messaging service
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "initialize()" << endreq;
+  ATH_MSG_INFO( "initialize()" );
 
   // Print out the property values
-  log << MSG::INFO << " Put events with ROB errors on DEBUG stream = " << m_setDebugStream << endreq;
-  log << MSG::INFO << "         Name of used DEBUG stream          = " << m_debugStreamName << endreq;
-  log << MSG::INFO << " Do ROB checksum test                       = " << m_doROBChecksum << endreq;
-  log << MSG::INFO << "        Hist:FailedChecksumForROB           = " << m_histProp_failedChecksumForROB << endreq;
-  log << MSG::INFO << "        Hist:FailedChecksumForSD            = " << m_histProp_failedChecksumForSD << endreq;
-  log << MSG::INFO << " Do ROB status test                         = " << m_doROBStatus << endreq ;
-  log << MSG::INFO << " Plot ROB data volumes                      = " << m_doROBDataVolume << endreq ;
-  log << MSG::INFO << "        Hist:TotalDataVolumeROB             = " << m_histProp_totalDataVolumeROB << endreq;
+  ATH_MSG_INFO( " Put events with ROB errors on DEBUG stream = " << m_setDebugStream );
+  ATH_MSG_INFO( "         Name of used DEBUG stream          = " << m_debugStreamName );
+  ATH_MSG_INFO( " Do ROB checksum test                       = " << m_doROBChecksum );
+  ATH_MSG_INFO( "        Hist:FailedChecksumForROB           = " << m_histProp_failedChecksumForROB );
+  ATH_MSG_INFO( "        Hist:FailedChecksumForSD            = " << m_histProp_failedChecksumForSD );
+  ATH_MSG_INFO( " Do ROB status test                         = " << m_doROBStatus );
+  ATH_MSG_INFO( " Plot ROB data volumes                      = " << m_doROBDataVolume );
+  ATH_MSG_INFO( "        Hist:TotalDataVolumeROB             = " << m_histProp_totalDataVolumeROB );
 
-  // Locate the StoreGateSvc
-  StatusCode sc =  m_storeGateSvc.retrieve();
-  if (!sc.isSuccess()) {
-    log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-    return sc;
-  }
 
   // Locate the ROBDataProviderSvc
-  sc = m_robDataProviderSvc.retrieve();
+  StatusCode sc = m_robDataProviderSvc.retrieve();
   if (!sc.isSuccess()) {
-    log << MSG::ERROR << "Could not find ROBDataProviderSvc" << endreq;
+    ATH_MSG_ERROR( "Could not find ROBDataProviderSvc" );
     return sc;
   } else {
     // Setup the L2 ROB Data Provider Service when configured
@@ -125,11 +115,11 @@ StatusCode TrigROBMonitor::initialize(){
     m_trigROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( IID_ITrigROBDataProviderSvc, &*m_robDataProviderSvc );
 #endif
     if (m_trigROBDataProviderSvc.isValid()) {
-      log << MSG::DEBUG << "A ROBDataProviderSvc implementing the Level-2 interface ITrigROBDataProviderSvc was found."
-          << endreq;
+      ATH_MSG_DEBUG( "A ROBDataProviderSvc implementing the Level-2 interface ITrigROBDataProviderSvc was found."
+          );
     } else {
-      log << MSG::DEBUG << "No ROBDataProviderSvc implementing the Level-2 interface ITrigROBDataProviderSvc was found."
-          << endreq;
+      ATH_MSG_DEBUG( "No ROBDataProviderSvc implementing the Level-2 interface ITrigROBDataProviderSvc was found."
+          );
     }
   }
 
@@ -140,13 +130,13 @@ StatusCode TrigROBMonitor::initialize(){
 
 StatusCode TrigROBMonitor::execute() {
 
-  if (outputLevel() <= MSG::DEBUG)  logStream() << MSG::DEBUG << "execute()" << endreq;
+  ATH_MSG_DEBUG( "execute()" );
 
   //--------------------------------------------------------------------------
   // check that there is still time left
   //--------------------------------------------------------------------------
   if (Athena::Timeout::instance().reached()) {
-    logStream() << MSG::INFO << " Time out reached in entry to execute." << endreq;
+    ATH_MSG_INFO( " Time out reached in entry to execute." );
     return StatusCode::SUCCESS;
   }
 
@@ -159,22 +149,21 @@ StatusCode TrigROBMonitor::execute() {
 
   // In L2 access directly the cache
   if (m_trigROBDataProviderSvc.isValid()) {
-    if (outputLevel() <= MSG::DEBUG) logStream() << MSG::DEBUG 
-						 << " ===> Lvl2ROBDataProviderSvc is used : # ROB fragments = " 
+    ATH_MSG_DEBUG( " ===> Lvl2ROBDataProviderSvc is used : # ROB fragments = " 
 						 << m_trigROBDataProviderSvc->sizeROBCache() 
-						 << endreq;
+						 );
     for (std::map<uint32_t, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment>::iterator it = m_trigROBDataProviderSvc->beginROBCache();
 	 it != m_trigROBDataProviderSvc->endROBCache(); ++it) {
       // check for time out
       if (Athena::Timeout::instance().reached()) {
-        logStream() << MSG::INFO << " Time out reached in loop over ROB fragments." << endreq;
+        ATH_MSG_INFO( " Time out reached in loop over ROB fragments." );
 	return StatusCode::SUCCESS;
       }
       // verify checksum
-      if (verifyROBChecksum(logStream(), (*it).second )) event_with_checksum_failure=true ;
+      if (verifyROBChecksum((*it).second )) event_with_checksum_failure=true ;
 
       // verify status bits
-      verifyROBStatusBits(logStream(), (*it).second );
+      verifyROBStatusBits((*it).second );
 
       // get ROB fragment sizes
       total_ROB_Data_Volume += (*it).second.fragment_size_word();
@@ -190,40 +179,39 @@ StatusCode TrigROBMonitor::execute() {
     // build an index of all ROB fragments in the event 
     std::map<uint32_t, const uint32_t*> fullEventIndex;
     eformat::helper::build_toc( *(m_robDataProviderSvc->getEvent()), fullEventIndex);
-    if (outputLevel() <= MSG::DEBUG) logStream() << MSG::DEBUG 
-						 << " ===> Standard ROBDataProviderSvc is used : # ROB fragments = " 
+    ATH_MSG_DEBUG( " ===> Standard ROBDataProviderSvc is used : # ROB fragments = " 
 						 << fullEventIndex.size() 
-						 << endreq;
+						 );
     for (std::map<uint32_t, const uint32_t*>::iterator it = fullEventIndex.begin();
 	 it != fullEventIndex.end(); ++it) {
       // check for time out
       if (Athena::Timeout::instance().reached()) {
-        logStream() << MSG::INFO << " Time out reached in loop over ROB fragments." << endreq;
+        ATH_MSG_INFO( " Time out reached in loop over ROB fragments." );
 	return StatusCode::SUCCESS;
       }
       // verify checksum
-      if (verifyROBChecksum(logStream(), (*it).second )) event_with_checksum_failure=true ;
+      if (verifyROBChecksum((*it).second )) event_with_checksum_failure=true ;
 
       // verify status bits
-      verifyROBStatusBits(logStream(), (*it).second );
+      verifyROBStatusBits((*it).second );
 
       // get ROB fragment sizes
       OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment tmpROB( (*it).second );
       rob_Data_Volume_SD[ eformat::helper::SourceIdentifier( (*it).first ).subdetector_id() ] += tmpROB.fragment_size_word();
     }
   } else {
-    logStream() << MSG::WARNING 
-	<< " No check on ROB fragments was performed, since neither the ROB cache in L2 could be accessed nor the full event could be found." 
-	<< endreq;
+      ATH_MSG_WARNING(
+	" No check on ROB fragments was performed, since neither the ROB cache in L2 could be accessed nor the full event could be found." 
+	);
   } 
 
   // if the event shows errors, set the DEBUG stream tag when requested
   if ((m_setDebugStream.value()) && (event_with_checksum_failure)) {
     // get EventInfo
     const EventInfo* p_EventInfo(0);
-    StatusCode sc = m_storeGateSvc->retrieve(p_EventInfo);
+    StatusCode sc = evtStore()->retrieve(p_EventInfo);
     if(sc.isFailure()){
-      logStream() << MSG::ERROR << "Can't get EventInfo object for updating the StreamTag" << endreq;
+      ATH_MSG_ERROR( "Can't get EventInfo object for updating the StreamTag" );
       return sc;
     }
 
@@ -259,8 +247,7 @@ StatusCode TrigROBMonitor::execute() {
 StatusCode TrigROBMonitor::finalize() {
 
   // Get the messaging service
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "finalize()" << endreq;
+  ATH_MSG_INFO( "finalize()" );
 
 #ifdef ATLAS_GAUDI_V21
   m_trigROBDataProviderSvc.reset();
@@ -274,9 +261,8 @@ StatusCode TrigROBMonitor::finalize() {
 StatusCode TrigROBMonitor::beginRun() {
 
   // Get a message stream instance
-  m_msg = new MsgStream( msgSvc(), name() );
 
-  logStream() << MSG::INFO << "beginRun()" << endreq;
+  ATH_MSG_INFO( "beginRun()" );
 
   // Define histograms only when checks are requested
   if ((not m_doROBChecksum.value()) && (not m_doROBStatus.value()) &&
@@ -285,7 +271,7 @@ StatusCode TrigROBMonitor::beginRun() {
   // find histogramming service
   ServiceHandle<ITHistSvc> rootHistSvc("THistSvc", name());
   if ((rootHistSvc.retrieve()).isFailure()) {
-    logStream() << MSG::ERROR << "Unable to locate THistSvc" << endreq;
+    ATH_MSG_ERROR( "Unable to locate THistSvc" );
     rootHistSvc.release().ignore();
     return StatusCode::FAILURE;
   }
@@ -306,7 +292,7 @@ StatusCode TrigROBMonitor::beginRun() {
     if (m_hist_failedChecksumForROB) {
       m_hist_failedChecksumForROB->SetBit(TH1::kCanRebin);
       if( rootHistSvc->regHist(path + m_hist_failedChecksumForROB->GetName(), m_hist_failedChecksumForROB).isFailure() ) {
-	logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_failedChecksumForROB->GetName() << endreq;
+	ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_failedChecksumForROB->GetName() );
       }
     }
 
@@ -327,7 +313,7 @@ StatusCode TrigROBMonitor::beginRun() {
       }
 
       if( rootHistSvc->regHist(path + m_hist_failedChecksumForSD->GetName(), m_hist_failedChecksumForSD).isFailure() ) {
-	logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_failedChecksumForSD->GetName() << endreq;
+	ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_failedChecksumForSD->GetName() );
       }
     }
   }
@@ -355,7 +341,7 @@ StatusCode TrigROBMonitor::beginRun() {
       }
 
       if( rootHistSvc->regHist(path + m_hist_genericStatusForROB->GetName(), m_hist_genericStatusForROB).isFailure() ) {
-	logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_genericStatusForROB->GetName() << endreq;
+	ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_genericStatusForROB->GetName() );
       }
     }
 
@@ -381,7 +367,7 @@ StatusCode TrigROBMonitor::beginRun() {
       }
 
       if( rootHistSvc->regHist(path + m_hist_specificStatusForROB->GetName(), m_hist_specificStatusForROB).isFailure() ) {
-	logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_specificStatusForROB->GetName() << endreq;
+	ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_specificStatusForROB->GetName() );
       }
     }
   }
@@ -396,7 +382,7 @@ StatusCode TrigROBMonitor::beginRun() {
     if (m_hist_totalDataVolumeROB) {
       m_hist_totalDataVolumeROB->SetBit(TH1::kCanRebin);
       if( rootHistSvc->regHist(path + m_hist_totalDataVolumeROB->GetName(), m_hist_totalDataVolumeROB).isFailure() ) {
-	logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_totalDataVolumeROB->GetName() << endreq;
+	ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_totalDataVolumeROB->GetName() );
       }
     }
 
@@ -415,7 +401,7 @@ StatusCode TrigROBMonitor::beginRun() {
       }
 
       if( rootHistSvc->regHist(path + m_hist_dataVolumeFractionForSD->GetName(), m_hist_dataVolumeFractionForSD).isFailure() ) {
-	logStream() << MSG::WARNING << "Can not register monitoring histogram: " << m_hist_dataVolumeFractionForSD->GetName() << endreq;
+	ATH_MSG_WARNING( "Can not register monitoring histogram: " << m_hist_dataVolumeFractionForSD->GetName() );
       }
     }
   } // end m_doROBDataVolume.value()
@@ -430,33 +416,30 @@ StatusCode TrigROBMonitor::beginRun() {
 
 StatusCode TrigROBMonitor::endRun() {
 
-  logStream() << MSG::INFO << "endRun()" << endreq;
-
-  // delete message stream
-  if ( m_msg ) delete m_msg;
+  ATH_MSG_INFO( "endRun()" );
 
   return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-bool TrigROBMonitor::verifyROBChecksum(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag) {
+bool TrigROBMonitor::verifyROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag) {
 
   bool failed_checksum(false);
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType it(0); 
   uint32_t current_value(0);
 
   // print check for received ROB
-  if (log.level() <= MSG::VERBOSE) {
+  if (msg().level() <= MSG::VERBOSE) {
     robFrag.payload(it);
     current_value = eformat::helper::checksum(robFrag.checksum_type(), it, robFrag.payload_size_word());
 
-    log << MSG::VERBOSE
-	<< " ROB id = 0x"             << std::setw(6)  << MSG::hex << robFrag.source_id() << MSG::dec 
+    ATH_MSG_VERBOSE( 
+           " ROB id = 0x"             << std::setw(6)  << MSG::hex << robFrag.source_id() << MSG::dec 
 	<< " checksum: type = "       << std::setw(2)  << robFrag.checksum_type()
 	<< " value = "                << std::setw(12) << robFrag.checksum_value()
 	<< " value (recalculated) = " << std::setw(12) << current_value
 	<< " check = "                << std::setw(2)  << robFrag.checksum()
-	<< endreq;
+	);
   }
 
   // checksum test failed
@@ -468,14 +451,14 @@ bool TrigROBMonitor::verifyROBChecksum(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPA
     current_value = eformat::helper::checksum(robFrag.checksum_type(), it, robFrag.payload_size_word());
 
     // print warning
-    log << MSG::WARNING 
-	<< " ROB checksum verification failed." 
+    ATH_MSG_WARNING( 
+      " ROB checksum verification failed." 
 	<< " ROB id = 0x"             << std::setw(6)  << MSG::hex << robFrag.source_id() << MSG::dec 
 	<< " checksum type = "        << std::setw(2)  << robFrag.checksum_type()
 	<< " value = "                << std::setw(12) << robFrag.checksum_value()
 	<< " value (recalculated) = " << std::setw(12) << current_value
 	<< " check = "                << std::setw(2)  << robFrag.checksum()
-	<< endreq;
+	);
 
     // fill the histograms
     std::ostringstream ost;
@@ -493,14 +476,10 @@ bool TrigROBMonitor::verifyROBChecksum(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPA
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
-void TrigROBMonitor::verifyROBStatusBits(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag) {
+void TrigROBMonitor::verifyROBStatusBits(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag) {
 
   // print check for received ROB
-  if (log.level() <= MSG::VERBOSE) {
-    log << MSG::VERBOSE
-	<< " verifyROBStatusBits: ROB id = 0x" << std::setw(6)  << MSG::hex << robFrag.source_id() << MSG::dec 
-	<< endreq;
-  }
+  ATH_MSG_VERBOSE( " verifyROBStatusBits: ROB id = 0x" << std::setw(6)  << MSG::hex << robFrag.source_id() << MSG::dec );
 
   // fill monitoring histogram for ROB generic status
   if ( ( m_hist_genericStatusForROB ) && ( robFrag.nstatus() != 0 ) ) {
