@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
-
 #include "LumiBlockComps/LuminosityTool.h"
 
 #include "EventInfo/EventID.h"
@@ -609,4 +607,3 @@ LuminosityTool::recalculatePerBCIDLumi()
   return;
 }
 
-#endif
