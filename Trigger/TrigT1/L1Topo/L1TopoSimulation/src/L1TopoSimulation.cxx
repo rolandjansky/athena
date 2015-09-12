@@ -251,21 +251,13 @@ L1TopoSimulation::execute() {
    ATH_MSG_DEBUG("" << m_topoSteering->simulationResult().globalDecision());
    
 
-   /**
-    * Get the decision output and store for the CTP simulation
-    *
-    * note the the topo simulation currently uses modules 0 and 1
-    * while the CTP front panel expects the topo on cables 1 and 2
-    * (cable 0 is coming from ALFA)
-    *
-    */
-
+   // get the decision output and put it into storegate for the CTP
    const TCS::GlobalDecision & dec = m_topoSteering->simulationResult().globalDecision();
    LVL1::FrontPanelCTP * topo2CTP = new LVL1::FrontPanelCTP();
    for(unsigned int clock=0; clock<2; ++clock) {
-      topo2CTP->setCableWord0( clock, 0 ); // ALFA
-      topo2CTP->setCableWord1( clock, dec.decision( 0, clock) );  // TOPO 0
-      topo2CTP->setCableWord2( clock, dec.decision( 1, clock) );  // TOPO 1
+      topo2CTP->setCableWord0( clock, dec.decision( 0, clock) );
+      topo2CTP->setCableWord1( clock, dec.decision( 1, clock) );
+      topo2CTP->setCableWord2( clock, dec.decision( 2, clock) );
    } 
    CHECK(evtStore()->record( topo2CTP, m_topoCTPLocation ));
 

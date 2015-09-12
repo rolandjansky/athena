@@ -8,8 +8,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "L1TopoSimulation/IInputTOBConverter.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "TrigT1Interfaces/MuCTPIL1Topo.h"
 #include <vector>
 
 class TH1I;
@@ -24,17 +22,11 @@ namespace TrigConf {
 
 namespace TCS {
    class MuonTOB;
-   class LateMuonTOB;
-}
-
-namespace LVL1MUCTPI {
-  class IMuctpiSimTool;
 }
 
 namespace LVL1 {
 
    class RecMuonRoiSvc;
-   class MuCTPIL1TopoCandidate;
 
    class MuonInputProvider : public extends2<AthAlgTool, IInputTOBConverter, IIncidentListener> {
    public:
@@ -52,8 +44,6 @@ namespace LVL1 {
    private:
 
       TCS::MuonTOB createMuonTOB(uint32_t roiword) const;
-      TCS::MuonTOB createMuonTOB(const MuCTPIL1TopoCandidate & roi) const;
-      TCS::LateMuonTOB createLateMuonTOB(const MuCTPIL1TopoCandidate & roi) const;
 
       StringProperty m_roibLocation;
 
@@ -64,8 +54,6 @@ namespace LVL1 {
       ServiceHandle<LVL1::RecMuonRoiSvc> m_recRPCRoiSvc;
       ServiceHandle<LVL1::RecMuonRoiSvc> m_recTGCRoiSvc;
 
-      ToolHandle<LVL1MUCTPI::IMuctpiSimTool> m_MuctpiSimTool;
-
       std::vector< TrigConf::TriggerThreshold* > m_MuonThresholds;
 
       StringProperty m_muonROILocation;    //!<  Muon ROIs SG key
@@ -73,8 +61,6 @@ namespace LVL1 {
       TH1I * m_hPt {nullptr};
       TH2I * m_hEtaPhi {nullptr};
 
-     int m_MuonEncoding; //!< Use 0 for full granularity; 1 for MuCTPiToTopo muon granularity
-     StringProperty m_MuCTPItoL1TopoLocation;
    };
 }
 
