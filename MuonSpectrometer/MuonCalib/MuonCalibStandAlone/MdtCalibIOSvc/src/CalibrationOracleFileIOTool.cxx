@@ -5,9 +5,6 @@
 //this
 #include "MdtCalibIOSvc/CalibrationOracleFileIOTool.h"
 
-//gaudi
-#include "GaudiKernel/MsgStream.h"
-
 //MdtCalibUtils
 #include "MdtCalibUtils/TubeDataFromFile.h"
 #include "MdtCalibUtils/RtDataFromFile.h"
@@ -40,7 +37,7 @@
 
 namespace MuonCalib {
 
-CalibrationOracleFileIOTool :: CalibrationOracleFileIOTool(const std::string& t, const std::string& n, const IInterface* p) : AlgTool(t, n, p), m_calib_dir("oracle_calib")
+CalibrationOracleFileIOTool :: CalibrationOracleFileIOTool(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t, n, p), m_calib_dir("oracle_calib")
 	{
 	declareInterface< CalibrationIOTool >(this) ;
 	declareProperty("outputLocation", m_calib_dir);
@@ -50,7 +47,6 @@ CalibrationOracleFileIOTool :: CalibrationOracleFileIOTool(const std::string& t,
 
 StatusCode CalibrationOracleFileIOTool :: WriteT0(MdtTubeFitContainer* t0_output, const NtupleStationId & station_id, int iov_start, int iov_end)
 	{
-	MsgStream log(msgSvc(), name());
 //create directory
 	system(("mkdir -p "+m_calib_dir+"/t0s").c_str());
 //open file
@@ -59,7 +55,7 @@ StatusCode CalibrationOracleFileIOTool :: WriteT0(MdtTubeFitContainer* t0_output
 	db_file=fopen(t0_dbfile_name.c_str(),"w");
 	if(db_file==NULL)
 		{
-		log<< MSG::FATAL <<"Cannot open output file!" << endreq;
+		ATH_MSG_FATAL( "Cannot open output file!" );
 		return StatusCode::FAILURE;
 		}
 	TubeDataFromFile t0_file;
@@ -73,7 +69,6 @@ StatusCode CalibrationOracleFileIOTool :: WriteT0(MdtTubeFitContainer* t0_output
 
 StatusCode CalibrationOracleFileIOTool :: WriteRt(const RtCalibrationOutput *rt_relation, const IRtResolution * resolution, const NtupleStationId & station_id, int iov_start, int iov_end, bool /*real_rt*/, bool /*real_resolution*/)
 	{
-	MsgStream log(msgSvc(), name());
 	RtDataFromFile rt_data;
 	const IRtRelation *new_rt = rt_relation->rt();
 	RtDataFromFile::RtRelation *rt(new RtDataFromFile::RtRelation());
@@ -103,14 +98,14 @@ StatusCode CalibrationOracleFileIOTool :: WriteRt(const RtCalibrationOutput *rt_
 	db_rts_file=fopen(rts_dbfile_name.c_str(),"w");
 	if(db_rt_file==NULL || db_rtt_file==NULL || db_rtr_file==NULL || db_rts_file==NULL)
 		{
-		log << MSG::FATAL << "Cannot open output files" <<endreq;
+		ATH_MSG_FATAL( "Cannot open output files" );
 		if (db_rt_file) fclose(db_rt_file);
 		if (db_rtt_file) fclose(db_rtt_file);
 		if (db_rtr_file) fclose(db_rtr_file);
 		if (db_rts_file) fclose(db_rts_file);
 		return StatusCode::FAILURE;
 		}
-	log << MSG::INFO << "Writing out r-t relationships in the files for calibration db." << endreq;
+	ATH_MSG_INFO( "Writing out r-t relationships in the files for calibration db.");
 	// for the time being the variables:
         // mdt_rt_id,mdt_rt_map_t_id,mdt_rt_map_r_id,
         // mdt_rt_map_s_id and location
@@ -120,7 +115,7 @@ StatusCode CalibrationOracleFileIOTool :: WriteRt(const RtCalibrationOutput *rt_
 	fprintf(db_rtr_file," %d,%d,%s,", mdt_rt_map_r_id, mdt_rt_id, mdt_rt_map_t_id.c_str());
 	fprintf(db_rts_file," %d,%d,",mdt_rt_map_s_id,mdt_rt_id);
 	 rt_data.write_forDB(db_rt_file, db_rtt_file, db_rtr_file, db_rts_file, rt_region_id);
-	log << MSG::INFO << "r-t relationships wrote in the files for calibration db." << endreq;
+	ATH_MSG_INFO( "r-t relationships wrote in the files for calibration db." );
 	fclose(db_rt_file);
 	fclose(db_rtt_file);
 	fclose(db_rtr_file);
@@ -131,7 +126,6 @@ StatusCode CalibrationOracleFileIOTool :: WriteRt(const RtCalibrationOutput *rt_
 
 inline bool CalibrationOracleFileIOTool::fill_rt(RtDataFromFile::RtRelation *rt, const IRtRelation *new_rt, const MuonCalib::IRtResolution * resolut) 
 	{
-	MsgStream log(msgSvc(), name());
 ///////////////
 // VARIABLES //
 ///////////////
@@ -159,7 +153,7 @@ inline bool CalibrationOracleFileIOTool::fill_rt(RtDataFromFile::RtRelation *rt,
 			resol = resolut->resolution(time);
 			if(std::isnan(time) || std::isnan(radius) || std::isnan(resol))
 				{
-				log<<MSG::FATAL<<"Filling nan into rt relation!"<<endreq;
+				ATH_MSG_FATAL( "Filling nan into rt relation!" );
 //				return false;
 				}
 			rt->addEntry(time, radius, resol);
@@ -180,7 +174,7 @@ inline bool CalibrationOracleFileIOTool::fill_rt(RtDataFromFile::RtRelation *rt,
 				resol = resolut->resolution(t_min+bin_size*k);
 			if(std::isnan(radius) || std::isnan(resol))
 				{
-				log<<MSG::FATAL<<"Filling nan into rt relation!"<<endreq;
+				ATH_MSG_FATAL( "Filling nan into rt relation!" );
 //				return false;
 				}	
 			rt->addEntry(t_min+bin_size*k, rt_param[k+2], resol);

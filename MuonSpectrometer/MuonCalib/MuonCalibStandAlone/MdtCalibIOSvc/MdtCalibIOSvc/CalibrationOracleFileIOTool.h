@@ -8,6 +8,7 @@
 
 // MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/CalibrationIOTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "MdtCalibUtils/RtDataFromFile.h"
 
@@ -15,7 +16,7 @@ namespace MuonCalib {
 
 class RtRelation;
 
-class CalibrationOracleFileIOTool : public AlgTool, virtual public CalibrationIOTool
+class CalibrationOracleFileIOTool : public AthAlgTool, virtual public CalibrationIOTool
 	{
 	public:
 	/** constructor*/
@@ -28,7 +29,7 @@ class CalibrationOracleFileIOTool : public AlgTool, virtual public CalibrationIO
 	/** finalisation */
 		inline StatusCode finalize()
 			{
-			std::cout<<"CalibrationOracleFileIOTool Finalize"<<std::endl;
+			ATH_MSG_INFO( "CalibrationOracleFileIOTool Finalize" );
 			return StatusCode::SUCCESS;
 			}
 	/** write out t0 */

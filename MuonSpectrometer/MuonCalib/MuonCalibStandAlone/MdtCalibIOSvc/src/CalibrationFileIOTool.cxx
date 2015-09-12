@@ -5,9 +5,6 @@
 //this
 #include "MdtCalibIOSvc/CalibrationFileIOTool.h"
 
-//gaudi
-#include "GaudiKernel/MsgStream.h"
-
 //MdtCalibUtils
 #include "MdtCalibUtils/TubeDataFromFile.h"
 #include "MdtCalibUtils/RtDataFromFile.h"
@@ -40,7 +37,7 @@
 
 namespace MuonCalib {
 
-CalibrationFileIOTool :: CalibrationFileIOTool(const std::string& t, const std::string& n, const IInterface* p) : AlgTool(t, n, p), m_calib_dir("calibration"), m_use_fixed_id(false), m_rt_lookup(true)
+CalibrationFileIOTool :: CalibrationFileIOTool(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t, n, p), m_calib_dir("calibration"), m_use_fixed_id(false), m_rt_lookup(true)
 	{
 	declareInterface< CalibrationIOTool >(this) ;
 	declareProperty("outputLocation", m_calib_dir);
@@ -52,7 +49,6 @@ CalibrationFileIOTool :: CalibrationFileIOTool(const std::string& t, const std::
 
 StatusCode CalibrationFileIOTool :: WriteT0(MdtTubeFitContainer* t0_output, const NtupleStationId & station_id, int /*iov_start*/, int /*iov_end*/)
 	{
-	MsgStream log(msgSvc(), name());
 //create directory
 	system(("mkdir -p "+m_calib_dir+"/t0s").c_str());
 //open file
@@ -60,8 +56,8 @@ StatusCode CalibrationFileIOTool :: WriteT0(MdtTubeFitContainer* t0_output, cons
 	std::ofstream output_file(t0_file_name.c_str());
 	if(output_file.fail())
 		{
-		log << MSG::ERROR << "Could not open t0 file "
-				<< t0_file_name << "!" << endreq;
+		ATH_MSG_ERROR( "Could not open t0 file "
+				<< t0_file_name << "!" );
 		return StatusCode::FAILURE;
 		}
 //write
@@ -75,7 +71,6 @@ StatusCode CalibrationFileIOTool :: WriteT0(MdtTubeFitContainer* t0_output, cons
 
 StatusCode CalibrationFileIOTool :: WriteRt(const RtCalibrationOutput *rt_relation, const IRtResolution * resolution, const NtupleStationId & station_id, int /*iov_start*/, int /*iov_end*/, bool /*real_rt*/, bool /*real_resolution*/)
 	{
-	MsgStream log(msgSvc(), name());
 	RtDataFromFile rt_data;
 	const IRtRelation *new_rt = rt_relation->rt();
 	RtDataFromFile::RtRelation *rt(new RtDataFromFile::RtRelation());
@@ -108,8 +103,7 @@ StatusCode CalibrationFileIOTool :: WriteRt(const RtCalibrationOutput *rt_relati
 
 StatusCode  CalibrationFileIOTool :: LoadT0(std::map<NtupleStationId, MdtStationT0Container *> &t0s, int /*iov_id*/)
 	{
-	MsgStream log(msgSvc(), name());
-	log<< MSG::INFO << "Reading calibration from '" << (m_calib_dir + "/t0s") << "'" << endreq;
+	ATH_MSG_INFO( "Reading calibration from '" << (m_calib_dir + "/t0s") << "'" );
 	t0s.clear();
 	DIR *directory(opendir((m_calib_dir + "/t0s").c_str()));
 	if(directory==NULL) return StatusCode::SUCCESS;
@@ -125,16 +119,16 @@ StatusCode  CalibrationFileIOTool :: LoadT0(std::map<NtupleStationId, MdtStation
 	//store	
 		MuonCalib::NtupleStationId id;
 		if(!id.Initialize(station_str, eta, phi, ml)) continue;
-		log << MSG::INFO << "Reading t0 for " << station_str  << "_" << eta << "_" << phi << endreq;
+		ATH_MSG_INFO( "Reading t0 for " << station_str  << "_" << eta << "_" << phi );
 		MuonCalib::MdtStationT0Container *t0_container = new MuonCalib::MdtStationT0Container((m_calib_dir + "/t0s/" + nm).c_str());
 		if(t0_container->t0_loaded())
 			{
 			t0s[id] = t0_container;
-			log<< MSG::INFO << "Read t0 for "<<id.regionId()<<endreq;
+			ATH_MSG_INFO( "Read t0 for "<<id.regionId() );
 			}
 		else
 			{
-			log<<MSG::ERROR<< "t0 file for "<<id.regionId()<<" is corrupted!"<<endreq;
+			ATH_MSG_ERROR( "t0 file for "<<id.regionId()<<" is corrupted!" );
 			delete t0_container;
 			}
 		}
@@ -148,7 +142,6 @@ StatusCode CalibrationFileIOTool :: LoadRt(std::map<NtupleStationId, IRtRelation
 	{
 	rts.clear();
 	res.clear();
-	MsgStream log(msgSvc(), name());
 	DIR *directory(opendir((m_calib_dir + "/rts").c_str()));
 	if(directory==NULL) return StatusCode::SUCCESS;
 	struct dirent *dent;
@@ -162,10 +155,10 @@ StatusCode CalibrationFileIOTool :: LoadRt(std::map<NtupleStationId, IRtRelation
 		if(!interpret_chamber_name(nm, "Rt_", station_str, eta, phi, ml)) continue;
 		MuonCalib::NtupleStationId id;
 		if(!id.Initialize(station_str, eta, phi, ml)) continue;
-		log << MSG::INFO << "Reading rt for " << station_str  << "_" << eta << "_" << phi << "_" << ml << endreq;
+		ATH_MSG_INFO( "Reading rt for " << station_str  << "_" << eta << "_" << phi << "_" << ml );
 	//read rt ralation
 		read_rt_relation((m_calib_dir + "/rts/" + nm), rts, res, id);
-		log << MSG::INFO << "Read rt for " << id.regionId() << endreq;
+		ATH_MSG_INFO( "Read rt for " << id.regionId() );
 		}
 	closedir(directory);
 	return StatusCode::SUCCESS;
@@ -174,7 +167,6 @@ StatusCode CalibrationFileIOTool :: LoadRt(std::map<NtupleStationId, IRtRelation
 
 inline bool CalibrationFileIOTool::fill_rt(RtDataFromFile::RtRelation *rt, const IRtRelation *new_rt, const MuonCalib::IRtResolution * resolut) 
 	{
-	MsgStream log(msgSvc(), name());
 ///////////////
 // VARIABLES //
 ///////////////
@@ -202,7 +194,7 @@ inline bool CalibrationFileIOTool::fill_rt(RtDataFromFile::RtRelation *rt, const
 			resol = resolut->resolution(time);
 			if(std::isnan(time) || std::isnan(radius) || std::isnan(resol))
 				{
-				log<<MSG::FATAL<<"Filling nan into rt relation!"<<endreq;
+				ATH_MSG_FATAL("Filling nan into rt relation!");
 //				return false;
 				}
 			rt->addEntry(time, radius, resol);
@@ -223,7 +215,7 @@ inline bool CalibrationFileIOTool::fill_rt(RtDataFromFile::RtRelation *rt, const
 				resol = resolut->resolution(t_min+bin_size*k);
 			if(std::isnan(radius) || std::isnan(resol))
 				{
-				log<<MSG::FATAL<<"Filling nan into rt relation!"<<endreq;
+				ATH_MSG_FATAL("Filling nan into rt relation!");
 //				return false;
 				}	
 			rt->addEntry(t_min+bin_size*k, rt_param[k+2], resol);
@@ -265,12 +257,11 @@ inline bool  CalibrationFileIOTool :: interpret_chamber_name(const std::string &
 
 inline  void CalibrationFileIOTool :: read_rt_relation(const std::string & fname, std::map<NtupleStationId, IRtRelation *> & rts, std::map<NtupleStationId, IRtResolution *> &res_map,const MuonCalib::NtupleStationId & id)
 	{
-	MsgStream log(msgSvc(), name());
 //open file
 	std::ifstream infile(fname.c_str());
 	if(infile.fail())
 		{
-		log << MSG::ERROR << "Cannot open file '" << fname << "' for reading!" << endreq;
+		ATH_MSG_ERROR( "Cannot open file '" << fname << "' for reading!" );
 		return;
 		}
 //sample points
@@ -300,7 +291,7 @@ inline  void CalibrationFileIOTool :: read_rt_relation(const std::string & fname
 		}
 	if(r.size()<3)
 		{
-		log<<MSG::WARNING<< "Not enough good rt points for "<<id.regionId()<<"!"<<endreq;
+		ATH_MSG_WARNING( "Not enough good rt points for "<<id.regionId()<<"!");
 		return;
 		}
 	std::vector<MuonCalib::SamplePoint> point(r.size());

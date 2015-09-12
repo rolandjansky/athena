@@ -40,9 +40,10 @@
 #include <string>
 
 // Gaudi //
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h" 
 
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
 #include "MuonCalibStandAloneBase/CalibrationIOTool.h"
@@ -70,7 +71,7 @@ class MdtTubeFitContainer;
 const InterfaceID IID_IMdtCalibOutputDbSvc("MdtCalibOutputDbSvc", 1, 0);
 
 
-class MdtCalibOutputDbSvc : public Service {
+class MdtCalibOutputDbSvc : public AthService {
 
 public:
 // Constructor //
@@ -169,9 +170,9 @@ private:
 	const MdtIdHelper* m_mdtIdHelper;
 	const MuonGM::MuonDetectorManager* m_detMgr;
 //region selection service
-	RegionSelectionSvc *p_reg_sel_svc;
+	ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
 //calibration input service
-	MdtCalibInputSvc *p_input_service;	
+	ServiceHandle<MdtCalibInputSvc> m_input_service;	
 	std::vector<MuonCalib::NtupleStationId> region_ids;
 // private methods //
 	StatusCode saveCalibrationResults(void);

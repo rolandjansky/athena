@@ -12,9 +12,10 @@
 
 
 //gaudi
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "MuonCalibStandAloneBase/CalibrationIOTool.h"
 
@@ -26,7 +27,7 @@ class BFieldCorFunc;
 class IRtResolution;
 }
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
-class RegionSelectionSvc;
+#include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
 
 
 // interface to enable retrieving of a pointer to the singleton //
@@ -40,7 +41,7 @@ id
 */
 
 
-class MdtCalibInputSvc: public Service
+class MdtCalibInputSvc: public AthService
 	{
 	public:
 //=============================================================================
@@ -91,7 +92,7 @@ class MdtCalibInputSvc: public Service
 		mutable std::map<MuonCalib::NtupleStationId, MuonCalib::BFieldCorFunc *> m_B_corr;
 		std::map<MuonCalib::NtupleStationId, MuonCalib::IRtResolution *> m_spat_res;
 	/** pointer to region selection service */
-		RegionSelectionSvc *p_reg_sel_svc;
+		ServiceHandle<RegionSelectionSvc> m_reg_sel_svc;
 	/** create the b-field correction */
 		inline bool create_b_field_correction(const MuonCalib::NtupleStationId &id) const;
 		inline const MuonCalib::BFieldCorFunc * findbfieldfun(const MuonCalib::NtupleStationId & id) const;

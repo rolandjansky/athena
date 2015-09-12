@@ -8,6 +8,7 @@
 
 // MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/CalibrationIOTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "MdtCalibUtils/RtDataFromFile.h"
 
@@ -15,7 +16,7 @@ namespace MuonCalib {
 
 class RtRelation;
 
-class CalibrationFileIOTool : public AlgTool, virtual public CalibrationIOTool
+class CalibrationFileIOTool : public AthAlgTool, virtual public CalibrationIOTool
 	{
 	public:
 	/** constructor*/
@@ -28,7 +29,7 @@ class CalibrationFileIOTool : public AlgTool, virtual public CalibrationIOTool
 	/** finalisation */
 		inline StatusCode finalize()
 			{
-			std::cout<<"CalibrationFileIOTool Finalize"<<std::endl;
+			ATH_MSG_INFO("CalibrationFileIOTool Finalize");
 			return StatusCode::SUCCESS;
 			}
 	/** write out t0 */
