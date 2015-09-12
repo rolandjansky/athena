@@ -10,9 +10,6 @@
 #include "iostream"
 #include "list"
 
-// Gaudi //
-#include "GaudiKernel/MsgStream.h"
-
 //MdtCalibData
 #include "MdtCalibData/IRtRelation.h"
 #include "MdtCalibData/IRtResolution.h"
@@ -29,17 +26,16 @@
 //MuonCalibStandAloneBase
 #include "MuonCalibStandAloneBase/MdtStationT0Container.h"
 #include "MuonCalibStandAloneBase/NtupleStationId.h"
-#include "MuonCalibStandAloneBase/RegionSelectionSvc.h"
 
 #include "MuonCalibIdentifier/MuonFixedId.h"
 
-MdtCalibInputSvc ::MdtCalibInputSvc(const std::string & name, ISvcLocator *svc_locator) : Service(name, svc_locator), m_calib_input_tool("MuonCalib::CalibrationDummyIOTool")
+MdtCalibInputSvc ::MdtCalibInputSvc(const std::string & name, ISvcLocator *svc_locator) : AthService(name, svc_locator), m_calib_input_tool("MuonCalib::CalibrationDummyIOTool"), m_reg_sel_svc("RegionSelectionSvc", name)
 	{
 	declareProperty("CalibrationInputTool", m_calib_input_tool);
+	declareProperty("RegionSelectionSvc", m_reg_sel_svc);
 	p_sel_region_res=NULL;
 	p_sel_region_rt=NULL;
 	p_sel_region_b=NULL;
-	p_reg_sel_svc=NULL;
 	}
 
 
@@ -62,28 +58,12 @@ MdtCalibInputSvc ::~MdtCalibInputSvc()
 
 StatusCode MdtCalibInputSvc :: initialize()
 	{
- 	MsgStream log(messageService(), name());
-  	if(!Service::initialize().isSuccess())
-		{
-		log << MSG::FATAL <<"Failed to initialize service"<<endreq;
-		return StatusCode::FAILURE;
-		}
-	log<< MSG::INFO << "initialize()" << endreq;
+	ATH_MSG_INFO( "initialize()" );
 //get region selection service
-	StatusCode sc=service("RegionSelectionSvc", p_reg_sel_svc);
-	if(!sc.isSuccess() || p_reg_sel_svc==NULL)
-		{
-		log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endreq;
-		return sc;
-		}	
-	sc=m_calib_input_tool.retrieve();
-	if(!sc.isSuccess())
-		{
-		log << MSG::ERROR <<"Cannot retrieve inpput tool!" <<endreq;
-		return sc;
-		}
-	sc=read_calib_input();
-	return sc;
+        ATH_CHECK( m_reg_sel_svc.retrieve() );
+	ATH_CHECK( m_calib_input_tool.retrieve() );
+	ATH_CHECK( read_calib_input() );
+	return StatusCode::SUCCESS;
 	}
 
 StatusCode MdtCalibInputSvc :: finalize(void) 
@@ -93,12 +73,12 @@ StatusCode MdtCalibInputSvc :: finalize(void)
 
 StatusCode MdtCalibInputSvc::queryInterface(const InterfaceID& riid, 
 							void** ppvUnknown) {
-	std::cout<<"StatusCode MdtCalibInputSvc::queryInterface"<<std::endl;
+	ATH_MSG_INFO( "StatusCode MdtCalibInputSvc::queryInterface" );
 
 	if (IID_IMdtCalibInputSvc.versionMatch(riid)) { 
 		*ppvUnknown = (MdtCalibInputSvc *)this; 
 	} else { 
-		return Service::queryInterface(riid, ppvUnknown); 
+		return AthService::queryInterface(riid, ppvUnknown); 
 	}
 
 	return StatusCode::SUCCESS;
@@ -116,8 +96,7 @@ const MuonCalib::MdtStationT0Container * MdtCalibInputSvc :: GetT0(const MuonCal
 			{
 			if(m_t0_warned.find(chamber_id) == m_t0_warned.end())
 				{
-				MsgStream log(messageService(), name());
-				log<< MSG::WARNING << "T0 not loaded for station " << id.regionId() <<endreq;
+				ATH_MSG_WARNING("T0 not loaded for station " << id.regionId() );
 				m_t0_warned.insert(chamber_id);
 				}
 			return NULL;
@@ -138,8 +117,7 @@ const MuonCalib::IRtRelation * MdtCalibInputSvc :: GetRtRelation(const MuonCalib
 			{
 			if(m_rt_warned.find(chamber_id) == m_rt_warned.end())
 				{
-				MsgStream log(messageService(), name());
-				log<< MSG::WARNING << "Rt relation not loaded for station" << chamber_id.regionId() <<endreq;
+				ATH_MSG_WARNING("Rt relation not loaded for station" << chamber_id.regionId() );
 				m_rt_warned.insert(chamber_id);
 				}
 			return NULL;
@@ -170,8 +148,7 @@ const MuonCalib::IRtResolution * MdtCalibInputSvc :: GetResolution(const MuonCal
 			{
 			if(m_rt_warned.find(chamber_id) == m_rt_warned.end())
 				{
-				MsgStream log(messageService(), name());
-				log<< MSG::FATAL << "Rt relation not loaded for station" <<endreq;
+				ATH_MSG_FATAL( "Rt relation not loaded for station" );
 				m_rt_warned.insert(chamber_id);
 				}
 			return NULL;
@@ -184,21 +161,10 @@ const MuonCalib::IRtResolution * MdtCalibInputSvc :: GetResolution(const MuonCal
 
 inline StatusCode MdtCalibInputSvc :: read_calib_input()
 	{
-	MsgStream log(messageService(), name());
-	StatusCode sc=m_calib_input_tool->LoadT0(m_t0, -1);
-	if(!sc.isSuccess())
-		{
-		log << MSG::ERROR << "Cannot read t0s" <<endreq;
-		return sc;
-		}
-	sc=m_calib_input_tool->LoadRt(m_rt_relation, m_spat_res, -1);
-	if(!sc.isSuccess())
-		{
-		log << MSG::ERROR << "Cannot read rts" <<endreq;
-		return sc;
-		}
+	ATH_CHECK( m_calib_input_tool->LoadT0(m_t0, -1) );
+	ATH_CHECK( m_calib_input_tool->LoadRt(m_rt_relation, m_spat_res, -1) );
 	create_mean_rts();
-	return sc;
+	return StatusCode::SUCCESS;
 	}
 
 
@@ -206,8 +172,7 @@ inline bool MdtCalibInputSvc::create_b_field_correction(const MuonCalib::NtupleS
 	{
 	std::map<MuonCalib::NtupleStationId, MuonCalib::IRtRelation *> :: const_iterator it(m_rt_relation.find(id));
 	if (it==m_rt_relation.end()) return false;
-	MsgStream log(messageService(), name());
-	log<< MSG::INFO << "Initiailizing B-Field correction for " << id.regionId() <<endreq;	
+	ATH_MSG_INFO( "Initiailizing B-Field correction for " << id.regionId() );	
 	const MuonCalib::IRtRelation *rt_rel(it->second);
 // create magnetic field correction
 	std::vector<double> corr_params(2);
@@ -219,8 +184,7 @@ inline bool MdtCalibInputSvc::create_b_field_correction(const MuonCalib::NtupleS
 
 inline void MdtCalibInputSvc::create_mean_rts()
 	{
-	std::cout<<"MdtCalibInputSvc::create_mean_rts()"<<std::endl;
-	MsgStream log(messageService(), name());
+	ATH_MSG_INFO( "MdtCalibInputSvc::create_mean_rts()" );
 	std::list<const MuonCalib::IRtRelation *> matching_relations;
 	std::list<MuonCalib::NtupleStationId> matching_ids;
 //loop over all rts
@@ -237,7 +201,7 @@ inline void MdtCalibInputSvc::create_mean_rts()
 				id.setStationEta(it->first.GetEta());
 				id.setStationPhi(it->first.GetPhi());
 				id.setMdtMultilayer(i);
-				if(p_reg_sel_svc->isInRegion(id))
+				if(m_reg_sel_svc->isInRegion(id))
 					{
 					matching_relations.push_back( it->second);
 					matching_ids.push_back(it->first);
@@ -251,19 +215,19 @@ inline void MdtCalibInputSvc::create_mean_rts()
 			id.setStationEta(it->first.GetEta());
 			id.setStationPhi(it->first.GetPhi());
 			id.setMdtMultilayer(it->first.GetMl());
-			if(p_reg_sel_svc->isInRegion(id))
+			if(m_reg_sel_svc->isInRegion(id))
 				{
 				matching_relations.push_back( it->second);
 				matching_ids.push_back(it->first);
 				}
 			}
 		}
-	log << MSG::INFO <<"Found "<<matching_relations.size()<< " rt-relations for calibration region"<<endreq;
+	ATH_MSG_INFO( "Found "<<matching_relations.size()<< " rt-relations for calibration region" );
 	if(matching_relations.size()==0) return;
 //averageing over rt relations is not yet implemented - take the first found
 	if(matching_relations.size()>1)
 		{
-		log << MSG::WARNING <<"More than one rt relation for this region loaded! Taking first!" << endreq;
+		ATH_MSG_WARNING( "More than one rt relation for this region loaded! Taking first!" );
 		}
 	p_sel_region_rt = *(matching_relations.begin());
 	m_mean_station_id = *(matching_ids.begin());

@@ -17,14 +17,12 @@
 #include "cmath"
 
 // Gaudi //
-#include "GaudiKernel/MsgStream.h"
 #include "Identifier/Identifier.h"
 #include "StoreGate/StoreGateSvc.h"
 
 //geo model
 #include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
-
 
 // MuonCalib //
 #include "MdtCalibIOSvc/MdtCalibOutputDbSvc.h"
@@ -71,7 +69,7 @@ using namespace MuonCalib;
 
 //MdtCalibOutputDbSvc::MdtCalibOutputDbSvc(const std::string & name,
 //					 ISvcLocator *svc_locator) : Service(name, svc_locator), m_results(NULL), m_postprocess_calibration(false), m_write_root_database(false), m_db(NULL), m_iov_start(-1), m_iov_end(-1) {
-MdtCalibOutputDbSvc::MdtCalibOutputDbSvc(const std::string & name,ISvcLocator *svc_locator) : Service(name, svc_locator), m_results(NULL), m_postprocess_calibration(false), m_calib_output_tool("MuonCalib::CalibrationFileIOTool"), m_iov_start(-1), m_iov_end(-1) {
+MdtCalibOutputDbSvc::MdtCalibOutputDbSvc(const std::string & name,ISvcLocator *svc_locator) : AthService(name, svc_locator), m_results(NULL), m_postprocess_calibration(false), m_calib_output_tool("MuonCalib::CalibrationFileIOTool"), m_iov_start(-1), m_iov_end(-1), m_reg_sel_svc("RegionSelectionSvc", name), m_input_service("MdtCalibInputSvc",name) {
 
 	declareProperty("PostprocessCalibration", m_postprocess_calibration);
 	m_flat_default_resolution=-1;
@@ -79,13 +77,14 @@ MdtCalibOutputDbSvc::MdtCalibOutputDbSvc(const std::string & name,ISvcLocator *s
 	declareProperty("OutputTool", m_calib_output_tool);
 	m_force_default_resolution=false;
 	declareProperty("ForceDefaultResolution", m_force_default_resolution);
+
+	declareProperty("MdtCalibInputSvc", m_input_service);
+	declareProperty("RegionSelectionSvc", m_reg_sel_svc);
 	
 	//for the sake of coverity
-	p_reg_sel_svc=NULL;
 	m_detMgr=NULL;
 	m_mdtIdHelper=NULL;
 	m_resolution=NULL;
-	p_input_service=NULL;
 	
 	return;
 
@@ -103,7 +102,7 @@ StatusCode MdtCalibOutputDbSvc::queryInterface(const InterfaceID& riid,
 	if (IID_IMdtCalibOutputDbSvc.versionMatch(riid)) { 
 		*ppvUnknown = (MdtCalibOutputDbSvc *)this; 
 	} else { 
-		return Service::queryInterface(riid, ppvUnknown); 
+		return AthService::queryInterface(riid, ppvUnknown); 
 	}
 
 	return StatusCode::SUCCESS;
@@ -118,16 +117,9 @@ StatusCode MdtCalibOutputDbSvc::queryInterface(const InterfaceID& riid,
 
 StatusCode MdtCalibOutputDbSvc::initialize(void) {
   
- 	MsgStream log(messageService(), name());
-  	if(!Service::initialize().isSuccess())
-		{
-		log << MSG::FATAL <<"Failed to initialize service"<<endreq;
-		return StatusCode::FAILURE;
-		}
-  
 //to get service via static function 
 //  m_MdtCalibOutputDbSvc_pointer = this;
- 	log << MSG::INFO <<"initialize MdtCalibOutputDbSvc"<<endreq;
+ 	ATH_MSG_INFO("initialize MdtCalibOutputDbSvc");
 
 
 //get id helper and detector manager if postprocessing of calibration is selected
@@ -135,52 +127,20 @@ StatusCode MdtCalibOutputDbSvc::initialize(void) {
 		{
 	//retrieve detector store
 		StoreGateSvc* m_detStore;
-		StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-		if ( sc.isSuccess() ) 
-			{
-			log << MSG::DEBUG << "Retrieved DetectorStore" << endreq;
-  			}
-		else
-			{
-			log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
-    			return sc;
-			}
-	//retrieve mdt id helper
-		sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
-		if (!sc.isSuccess()) 
-			{
-			log << MSG::ERROR << "Can't retrieve MdtIdHelper" << endreq;
-			return sc;
-			}
-	//retrieve detector manager
-		sc = m_detStore->retrieve( m_detMgr );
-		if (!sc.isSuccess()) 
-			{
-			log << MSG::ERROR << "Can't retrieve MuonDetectorManager" << endreq;
-			return sc;
-  			}
+		ATH_CHECK( serviceLocator()->service("DetectorStore", m_detStore) );
+ 	//retrieve mdt id helper
+		ATH_CHECK( m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" ) );
+ 	//retrieve detector manager
+		ATH_CHECK( m_detStore->retrieve( m_detMgr ) );
+
 		}
 //get region selection service
-	StatusCode sc=service("RegionSelectionSvc", p_reg_sel_svc);
-	if(!sc.isSuccess())
-		{
-		log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endreq;
-		return sc;
-		}
-	region_ids=p_reg_sel_svc->GetStationsInRegions();
-	log<< MSG::INFO << "Regions selected: "<<region_ids.size()<<endreq;
+	ATH_CHECK( m_reg_sel_svc.retrieve() );
+	region_ids=m_reg_sel_svc->GetStationsInRegions();
+	ATH_MSG_INFO("Regions selected: "<<region_ids.size() );
 //retrieve tool
-	sc=m_calib_output_tool.retrieve();
-	if(sc.isFailure())
-		{
-		log << MSG::FATAL << "Cannot retrieve IO tool!" <<endreq;
-		return sc;
-		}
-	sc = service("MdtCalibInputSvc", p_input_service);
-	if(sc.isFailure())
-		{
-		log << MSG::FATAL << "Cannot retrieve calibration input service" <<endreq;
-		}
+	ATH_CHECK( m_calib_output_tool.retrieve() );
+	ATH_CHECK( m_input_service.retrieve() );
 	return StatusCode::SUCCESS;
 
 }
@@ -192,10 +152,9 @@ StatusCode MdtCalibOutputDbSvc::initialize(void) {
 //:::::::::::::::::::::
 
 StatusCode MdtCalibOutputDbSvc::finalize(void) {
-	StatusCode sc=saveCalibrationResults();
-	MsgStream log(messageService(), name());
-	log<< MSG::INFO<<"Results saved!"<<endreq;
-        return sc;
+	ATH_CHECK( saveCalibrationResults() );
+	ATH_MSG_INFO("Results saved!");
+        return StatusCode::SUCCESS;
 }
 
 
@@ -258,10 +217,8 @@ bool MdtCalibOutputDbSvc::memorize(const MuonCalib::IMdtCalibrationOutput * resu
 //:::::::::::::::::::::::::::::::::::
 
 StatusCode MdtCalibOutputDbSvc::saveCalibrationResults(void) {
- 	MsgStream log(messageService(), name());
 
-	if(m_results==NULL) return true;
-
+	if(m_results==NULL) return StatusCode::SUCCESS;
 
 	StatusCode sc;
 
@@ -285,7 +242,7 @@ StatusCode MdtCalibOutputDbSvc::saveCalibrationResults(void) {
 		{
 		if(!the_id.InitializeGeometry(m_mdtIdHelper, m_detMgr))
 			{
-			log << MSG::ERROR << "Faild to get geometry for " << the_id.regionId()<<endreq;
+			ATH_MSG_ERROR( "Faild to get geometry for " << the_id.regionId() );
 			}
 		}
 // t0 calibration //
@@ -294,7 +251,7 @@ StatusCode MdtCalibOutputDbSvc::saveCalibrationResults(void) {
 	if (t0_output!=0) {
 
 	
-		log << MSG::INFO << "Writing out t0s." << endreq;
+		ATH_MSG_INFO( "Writing out t0s." );
 	  MdtTubeFitContainer *new_t0s = t0_output->t0s();
 	  if(t0_output->GetMap().size())
 	  	{
@@ -321,15 +278,14 @@ StatusCode MdtCalibOutputDbSvc::saveCalibrationResults(void) {
 				{
 				if(!rt_output->rt()->HasTmaxDiff())
 					{
-					const IRtRelation *old_rel=p_input_service->GetRtRelation();
+					const IRtRelation *old_rel=m_input_service->GetRtRelation();
 					if(old_rel && old_rel->HasTmaxDiff())
 						{
 						const_cast<IRtRelation *>(rt_output->rt())->SetTmaxDiff(old_rel->GetTmaxDiff());
 						}
 					}
 				}
-			log << MSG::INFO
-				<< "Writing out r-t relationships." << endreq;
+			ATH_MSG_INFO( "Writing out r-t relationships." );
 			
 			
 			if(m_resolution==NULL)
@@ -350,7 +306,7 @@ StatusCode MdtCalibOutputDbSvc::saveCalibrationResults(void) {
 //-----------------------------------------------------------------------------
 	}
 //-----------------------------------------------------------------------------
-	log << MSG::INFO << "Finished writing"<<endreq;
+	ATH_MSG_INFO( "Finished writing" );
 	return StatusCode::SUCCESS;
 
 }
@@ -433,14 +389,13 @@ MuonCalib::MdtTubeFitContainer * MdtCalibOutputDbSvc::postprocess_t0s(MuonCalib:
 
 inline void MdtCalibOutputDbSvc :: create_default_resolution(const MuonCalib::IRtRelation *rt)
 	{
-	MsgStream log(messageService(), name());
 //check if resolution is saved in input service 
-	const IRtResolution *old_res = p_input_service->GetResolution();
-	const IRtRelation *old_rel=p_input_service->GetRtRelation();
+	const IRtResolution *old_res = m_input_service->GetResolution();
+	const IRtRelation *old_rel=m_input_service->GetRtRelation();
 	if(old_res!=NULL && old_rel!=NULL && !m_force_default_resolution) 
 		{
 	//scale the old resolution to the new rt relation
-		log<< MSG::INFO << "Taken old resolution" << endreq;
+		ATH_MSG_INFO( "Taken old resolution" );
 		std::vector<SamplePoint> res_points(100);
 		for (unsigned int i=0; i<100; i++)
 			{
@@ -456,7 +411,7 @@ inline void MdtCalibOutputDbSvc :: create_default_resolution(const MuonCalib::IR
 		m_resolution=new RtResolutionLookUp(respoints.getRtResolutionLookUp(res_points));
 		return;
 		}
-	log<< MSG::INFO << "Creating default resolution" << endreq;	
+	ATH_MSG_INFO( "Creating default resolution" );	
 //parameters for default resolution curve
 	double alpha[9] = {
 			0.31476,

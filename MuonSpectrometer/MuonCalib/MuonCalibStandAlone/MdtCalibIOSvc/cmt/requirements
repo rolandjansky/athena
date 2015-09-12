@@ -4,9 +4,8 @@ manager Felix Rauscher <rauscher@cern.ch>
 author  Felix Rauscher <rauscher@cern.ch>
 	
 use AtlasPolicy            *
-
 use GaudiInterface         * 	    External
-
+use AthenaBaseComps        AthenaBaseComps-*       Control
 
 
 use MuonCalibStandAloneBase	MuonCalibStandAloneBase-* MuonSpectrometer/MuonCalib/MuonCalibStandAlone
