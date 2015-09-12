@@ -139,6 +139,14 @@ def LuminosityToolOfflineRun2(name="LuminosityTool"):
     else:
         mlog.info("LuminosityToolOfflineRun2 found %s already defined!" % toolName)
 
+    # Other folders needed by LuminosityTool
+    folder = "/TRIGGER/LUMI/LBLB"
+    if not conddb.folderRequested( folder ):
+        conddb.addFolder('TRIGGER', folder)
+        mlog.info("LuminosityToolOfflineRun1 requested %s", folder)
+
+    lumiTool.LBLBFolderName = folder
+
     # Other folder names are now blank by default
 
     return lumiTool
