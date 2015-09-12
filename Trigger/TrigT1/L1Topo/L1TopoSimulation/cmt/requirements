@@ -4,8 +4,9 @@ author Joerg Stelzer
 
 public
 use  AtlasPolicy                AtlasPolicy-*
-use  AthenaBaseComps            AthenaBaseComps-*               Control
 private
+use  L1TopoInterfaces           L1TopoInterfaces-*              Trigger/TrigT1/L1Topo
+use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  AtlasROOT                  AtlasROOT-*                     External
 use  TrigConfL1Data             TrigConfL1Data-*                Trigger/TrigConfiguration
 use  TrigConfBase               TrigConfBase-*                  Trigger/TrigConfiguration
@@ -13,11 +14,13 @@ use  AthenaMonitoring           AthenaMonitoring-*              Control
 use  TrigT1Result               TrigT1Result-*                  Trigger/TrigT1
 use  GaudiInterface             GaudiInterface-*                External
 use  TrigInterfaces             TrigInterfaces-*                Trigger/TrigSteer
+#use  TrigSteering               TrigSteering-*                  Trigger/TrigSteer
 use  TrigConfInterfaces         TrigConfInterfaces-*            Trigger/TrigConfiguration
 use  L1TopoConfig               L1TopoConfig-*                  Trigger/TrigT1/L1Topo
 use  L1TopoCoreSim              L1TopoCoreSim-*                 Trigger/TrigT1/L1Topo
 use  L1TopoEvent                L1TopoEvent-*                   Trigger/TrigT1/L1Topo
 use  TrigT1CaloEvent            TrigT1CaloEvent-*               Trigger/TrigT1
+use  TrigT1CaloUtils            TrigT1CaloUtils-*               Trigger/TrigT1
 use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1
 end_private
 

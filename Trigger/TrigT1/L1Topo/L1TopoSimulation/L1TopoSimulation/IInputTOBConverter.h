@@ -5,7 +5,8 @@
 #ifndef L1TopoSimulation_IInputTOBConverter
 #define L1TopoSimulation_IInputTOBConverter
 
-#include "AthenaBaseComps/AthAlgTool.h"
+//#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/IAlgTool.h"
 
 namespace TCS {
    class TopoInputEvent;

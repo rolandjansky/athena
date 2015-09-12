@@ -5,15 +5,19 @@
 #include "./EMTauInputProvider.h"
 
 #include <math.h>
+#include "TH1.h"
+#include "TH2.h"
+
+#include "GaudiKernel/ITHistSvc.h"
 
 #include "TrigT1CaloEvent/EmTauROI_ClassDEF.h"
+#include "TrigT1CaloEvent/CPCMXTopoData.h"
 
 #include "TrigT1Interfaces/CPRoIDecoder.h"
 
 #include "L1TopoEvent/ClusterTOB.h"
 #include "L1TopoEvent/TopoInputEvent.h"
 
-#include "TrigT1CaloEvent/CPCMXTopoData.h"
 
 using namespace std;
 using namespace LVL1;
@@ -21,13 +25,57 @@ using namespace LVL1;
 EMTauInputProvider::EMTauInputProvider(const std::string& type, const std::string& name, 
                                        const IInterface* parent) :
    base_class(type, name, parent),
+   m_histSvc("THistSvc", name),
    m_emTauLocation( TrigT1CaloDefs::EmTauTopoTobLocation )
 {
+   declareInterface<LVL1::IInputTOBConverter>( this );
    declareProperty( "EmTauROILocation", m_emTauLocation, "Storegate key for the EMTAU info from CMX" );
 }
 
 EMTauInputProvider::~EMTauInputProvider()
 {}
+
+StatusCode
+EMTauInputProvider::initialize() {
+
+   CHECK(m_histSvc.retrieve());
+
+   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc", "EnergyInputProvider");
+   CHECK(incidentSvc.retrieve());
+   incidentSvc->addListener(this,"BeginRun", 100);
+   incidentSvc.release().ignore();
+
+   return StatusCode::SUCCESS;
+}
+
+
+void
+EMTauInputProvider::handle(const Incident& incident) {
+   if (incident.type()!="BeginRun") return;
+   ATH_MSG_DEBUG( "In BeginRun incident");
+
+   string histPath = "/EXPERT/" + name() + "/";
+   replace( histPath.begin(), histPath.end(), '.', '/'); 
+
+   m_hEMEt = new TH1I( "EMTOBEt", "EM TOB Et", 40, 0, 200);
+   m_hEMEt->SetXTitle("E_{T}");
+   m_hEMEtaPhi = new TH2I( "EMTOBPhiEta", "EM TOB Location", 25, -50, 50, 32, -32, 32);
+   m_hEMEtaPhi->SetXTitle("#eta");
+   m_hEMEtaPhi->SetYTitle("#phi");
+
+   m_hTauEt = new TH1I( "TauTOBEt", "Tau TOB Et", 40, 0, 200);
+   m_hTauEt->SetXTitle("E_{T}");
+   m_hTauEtaPhi = new TH2I( "TauTOBPhiEta", "Tau TOB Location", 25, -50, 50, 32, -32, 32);
+   m_hTauEtaPhi->SetXTitle("#eta");
+   m_hTauEtaPhi->SetYTitle("#phi");
+
+   m_histSvc->regHist( histPath + "EMTOBEt", m_hEMEt ).ignore();
+   m_histSvc->regHist( histPath + "EMTOBPhiEta", m_hEMEtaPhi ).ignore();
+   m_histSvc->regHist( histPath + "TauTOBEt", m_hTauEt ).ignore();
+   m_histSvc->regHist( histPath + "TauTOBPhiEta", m_hTauEtaPhi ).ignore();
+}
+
+
 
 StatusCode
 EMTauInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
@@ -73,8 +121,12 @@ EMTauInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
          
          if(tob.cmx()==0) {
             inputEvent.addCluster( cl );
+            m_hEMEt->Fill(cl.Et());
+            m_hEMEtaPhi->Fill(cl.eta(),cl.phi());
          } else {
             inputEvent.addTau( cl );            
+            m_hTauEt->Fill(cl.Et());
+            m_hTauEtaPhi->Fill(cl.eta(),cl.phi());
          }
       }
    }

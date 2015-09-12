@@ -5,26 +5,43 @@
 #ifndef L1TopoSimulation_EMTauInputProvider
 #define L1TopoSimulation_EMTauInputProvider
 
-
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "L1TopoSimulation/IInputTOBConverter.h"
+#include "GaudiKernel/IIncidentListener.h"
+
+class TH1I;
+class TH2I;
+
+class ITHistSvc;
 
 namespace LVL1 {
 
-   class EMTauInputProvider : public extends1<AthAlgTool, IInputTOBConverter> {
+   class EMTauInputProvider : public extends2<AthAlgTool, IInputTOBConverter, IIncidentListener> {
    public:
       EMTauInputProvider(const std::string& type, const std::string& name, 
                          const IInterface* parent);
       
       virtual ~EMTauInputProvider();
 
+      virtual StatusCode initialize();
+
       virtual StatusCode fillTopoInputEvent(TCS::TopoInputEvent& ) const; 
+
+      virtual void handle(const Incident&);
 
    private:
 
       /** \brief calculates eta and phi from roiWord*/
       void CalculateCoordinates(int32_t roiWord, double & eta, double & phi) const;
 
+      ServiceHandle<ITHistSvc> m_histSvc;
+
       StringProperty m_emTauLocation;    //!<  EMTAU ROI SG key
+
+      TH1I * m_hEMEt {nullptr};
+      TH2I * m_hEMEtaPhi {nullptr};
+      TH1I * m_hTauEt {nullptr};
+      TH2I * m_hTauEtaPhi {nullptr};
 
    };
 }
