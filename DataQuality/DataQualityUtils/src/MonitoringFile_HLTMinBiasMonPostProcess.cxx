@@ -87,6 +87,7 @@ namespace dqutils {
       TDirectory* minbiasmonDir(0);
       if( !(minbiasmonDir = f->GetDirectory(minbiasmonDirName)) ) {
 // 	std::cerr << "--> HLTMinBiasMonPostProcess: directory " << minbiasmonDirName << " not found." << std::endl;
+	delete v_targetNames;
 	return;
       }
       HLTMinBiasMonGetTargetHistos(gDirectory, *v_targetNames);
