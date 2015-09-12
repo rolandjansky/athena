@@ -44,9 +44,11 @@ StatusCode CreateLumiBlockCollectionFromFile::initialize(){
   // Set to be listener for end of event
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
   ATH_CHECK( incSvc.retrieve() );
-  //incSvc->addListener(this, "BeginInputFile", 60); // pri has to be < 100 
+  incSvc->addListener(this, "BeginInputFile", 60); // pri has to be < 100 
                                                  // to be after MetaDataSvc.
-  incSvc->addListener(this, "MetaDataStop", 50); // pri has to be > 20 to be 
+  incSvc->addListener(this, "EndInputFile", 50); // pri has to be > 10 to be 
+                                               //before MetaDataSvc.
+  incSvc->addListener(this, "LastInputFile", 50); // pri has to be > 20 to be 
                                                   // before MetaDataSvc and AthenaOutputStream.
 
   m_LumiBlockInfo.clear();
@@ -71,7 +73,7 @@ StatusCode CreateLumiBlockCollectionFromFile::initialize(){
 StatusCode CreateLumiBlockCollectionFromFile::execute() {
 //*******************************************************
 
-  ATH_MSG_VERBOSE( "execute()" );
+  ATH_MSG_DEBUG( "execute()" );
 
   // Check for event header
   const DataHandle<EventInfo> evt;
@@ -106,7 +108,7 @@ StatusCode CreateLumiBlockCollectionFromFile::execute() {
 StatusCode CreateLumiBlockCollectionFromFile::finalize() {
 // *****************************************************
 
-  ATH_MSG_VERBOSE( "finalize()" );
+  ATH_MSG_INFO( "finalize()" );
   return StatusCode::SUCCESS;
 }
  
@@ -163,7 +165,7 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
 	  << ") eventsSeen = " << (*it)->eventsSeen()
 	  << ", eventsExpected = " << (*it)->eventsExpected()
 	  << " ]"
-	  << endmsg;
+	  << endreq;
     }
   }
 
@@ -178,7 +180,7 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
 	  << ") eventsSeen = " << (*it)->eventsSeen()
 	  << ", eventsExpected = " << (*it)->eventsExpected()
 	  << " ]"
-	  << endmsg;
+	  << endreq;
     }
   }
 
@@ -193,7 +195,7 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
 	  << ") eventsSeen = " << (*it)->eventsSeen()
 	  << ", eventsExpected = " << (*it)->eventsExpected()
 	  << " ]"
-	  << endmsg;
+	  << endreq;
     }
   }
   
@@ -224,7 +226,6 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
 void CreateLumiBlockCollectionFromFile::handle(const Incident& inc) {
 // ********************************************************************
 
-/* WB: commented this out because it looks redundant (27/11/2015)
   // this incident serves the same purpose as BeginInputFile
   if (inc.type() == "BeginInputFile") {
     const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
@@ -236,7 +237,14 @@ void CreateLumiBlockCollectionFromFile::handle(const Incident& inc) {
       ATH_MSG_WARNING( " BeginInputFile handle detects non-zero size Cached LumiBlockColl" );
     }
   }
-  else*/ if(inc.type() == "MetaDataStop") {
+  else if(inc.type() == "EndInputFile") {
+    // ***************************************************************************************************
+    // We've hit EndInputFile, so we know that we have finished reading all the events for the LB
+    // Therefore we can transfer the list of LB to the cached collection of good LB's
+    // ***************************************************************************************************
+    ATH_MSG_DEBUG( "EndInputFile incident detected" );
+  }
+  else if(inc.type() == "LastInputFile") {
     finishUp();
   }
   else {

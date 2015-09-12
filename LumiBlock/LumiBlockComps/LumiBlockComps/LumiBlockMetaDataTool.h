@@ -29,9 +29,10 @@
 #include <string>
 
 class StoreGateSvc;
+class ILumiCalcSvc;
 class IGoodRunsListSelectorTool;
-//class LumiBlockRangeContainerConverter;
-
+class LumiBlockRangeContainerConverter;
+class ITriggerRegistryTool;
 
 namespace Root {
   class TGRLCollection;
@@ -93,14 +94,15 @@ private:
 
    int m_nfiles;
    bool m_fileCurrentlyOpened;
-   std::string m_CurrentFileName;
    bool m_calcLumi;
    bool m_storexmlfiles;
    bool m_applydqcuts;
-   /*LumiBlockRangeContainerConverter* m_converter;*/
+   LumiBlockRangeContainerConverter* m_converter;
    Root::TGRLCollection* m_grlcollection;
 
+   ServiceHandle<ILumiCalcSvc> m_lcSvc;
    ToolHandle< IGoodRunsListSelectorTool > m_GoodRunsListSelectorTool;
+   ToolHandle< ITriggerRegistryTool > m_TriggerRegistryTool;
 
 };
 

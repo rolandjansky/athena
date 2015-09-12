@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
-
 /**
    @class LumiBlockMuWriter
    @brief Algorithm to write interactions per crossing (mu) into EventInfo
@@ -44,8 +42,6 @@ class LumiBlockMuWriter: public AthAlgorithm {
  
 
 };
-
-#endif
 
 #endif
 

@@ -1,10 +1,9 @@
+///////////////////////// -*- C++ -*- /////////////////////////////
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
-
-///////////////////////// -*- C++ -*- /////////////////////////////
 // LumiCalcSvc.h 
 // Header file for class LumiCalcSvc
 // Author: B.Radics<radbal@cern.ch>
@@ -62,7 +61,7 @@ public:
   StatusCode calcLumi();
 
   // retrieve the details of the calculation as a TTree table
-  TTree * getLumiTree(){ return m_LumiTree; }
+  TTree * getLumiTree(){ return LumiTree; }
 
   StatusCode stop();
 
@@ -85,7 +84,7 @@ private:
 
   //  StoreGateSvc* p_inputstore; // input metadata store
   //  StoreGateSvc* p_metadatastore; // metadata store
-  ITHistSvc * m_tHistSvc;
+  ITHistSvc * tHistSvc;
 
   // Configurable Properties
   StringArrayProperty m_triggers;
@@ -109,7 +108,7 @@ private:
   LumiCalculator * m_lumicalc;
 
   // A TTree to bookkeep the calculation
-  TTree * m_LumiTree;
+  TTree * LumiTree;
   bool m_recordTTree;
 
   // Bookkeep if file is partially read
@@ -131,4 +130,3 @@ inline const InterfaceID& LumiCalcSvc::interfaceID()
 
 #endif //> !ATHENAKERNEL_LUMICALCSVC_H
 
-#endif
