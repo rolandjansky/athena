@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/SmartIF.h"
 #include "GaudiKernel/MsgStream.h"
@@ -26,7 +26,7 @@ class TH1F;       /// for monitoring purposes
 class TH2F;       /// for monitoring purposes
 class TProfile2D; /// for monitoring purposes
 
-class TrigMuCTPiROBMonitor:public Algorithm {
+class TrigMuCTPiROBMonitor:public AthAlgorithm {
 public:
   TrigMuCTPiROBMonitor(const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
@@ -36,25 +36,7 @@ public:
   StatusCode endRun();
 
 private:
-  /** @brief Pointer to MsgStream.*/
-  MsgStream* m_msg;
 
-  /**
-  * @brief Accessor method for the MsgStream.
-  * @return handle to the MsgStream.
-  */
-  inline MsgStream& logStream() const { return *m_msg; }
-	
-  /**
-   * @brief Accessor method for the message level variable.
-   * @return value of the message level for this algorithm.
-   */
-  inline MSG::Level logLevel() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
-
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
-  /// Reference to StoreGateSvc;
-  StoreGateSvc_t                   m_storeGateSvc;
-  
   typedef ServiceHandle<IROBDataProviderSvc> IIROBDataProviderSvc_t;
   /// Reference to the ROBDataProviderSvc service
   IIROBDataProviderSvc_t           m_robDataProviderSvc;
@@ -158,17 +140,17 @@ private:
 
   /// Helper for checksum test
   /// returns true if a ROB checksum failed
-  bool verifyROBChecksum(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  bool verifyROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
 
   /// Helper for status bits test
-  void verifyROBStatusBits(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  void verifyROBStatusBits(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
 
   /// Helper for decoding the muCTPi RoIB and DAQ ROB
-  void decodeMuCTPi(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  void decodeMuCTPi(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
 
   /// Helper for converting a mirod DAQ data word to a muCTPi RoIB data word 
-  uint32_t mirodToRoIBDataWord( uint32_t data_word );
+  uint32_t mirodToRoIBDataWord(uint32_t data_word );
 
   /// Helper to print contents of a muCTPi RoIB data word 
-  void dumpRoIBDataWord(MsgStream& log, uint32_t data_word );
+  void dumpRoIBDataWord(uint32_t data_word );
 };
