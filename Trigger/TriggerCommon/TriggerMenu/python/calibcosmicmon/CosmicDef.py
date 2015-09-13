@@ -7,14 +7,19 @@
 #########################################################################
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger(__name__)
+log = logging.getLogger( 'TriggerMenu.calibcosmon.CosmicDef' )
 
-from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
+from TriggerMenu.menu.HltConfig import *
+
+from AthenaCommon.Include import include
+from AthenaCommon.SystemOfUnits import GeV
+from TriggerJobOpts.TriggerFlags  import TriggerFlags
 
 ###################################################################################
 class L2EFChain_CosmicTemplate(L2EFChainDef):
 
     def __init__(self, chainDict):
+        mlog = logging.getLogger( 'CosmicDef.py:L2EFChain_CosmicTemplate' )
 
         self.L2sequenceList   = []
         self.EFsequenceList   = []
@@ -42,7 +47,7 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
 
         self.Flag='TriggerFlags.CosmicSlice.do%s()' % self.chainName
 
-        log.verbose('in L2EFChain_CosmicTemplate constructor for %s', self.chainName)
+        mlog.verbose('in L2EFChain_CosmicTemplate constructor for %s' % self.chainName)
 
         #---------------------------------
         # CHAIN DEFINITION SPECIFICATIONS

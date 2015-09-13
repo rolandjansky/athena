@@ -53,7 +53,7 @@ ChainDictTemplate = {
 #==========================================================
 AllowedTopos_e = ["Jpsiee","Zeg","Zee"]
 AllowedTopos_mu = ['Jpsimumu']
-AllowedTopos_xe = ['1dphi10', '2dphi05', '6dphi05', '6dphi15', '2dphi05', '2dphi15', 'mt25', 'mt35', 'razor140', 'razor170', 'razor200','razor220','razor100','razor185','razor195']
+AllowedTopos_xe = ['1dphi10', '2dphi05', '6dphi05', '6dphi15', 'mt25', 'mt35', 'razor140', 'razor170', 'razor200','razor100','razor185','razor195']
 AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu', 
                       'bJpsimumu', 'bUpsimumu', 
                       'bBmumu', 'bBmumux', 
@@ -62,37 +62,26 @@ AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu',
                       'BcmumuDs' ,   'BcmumuDsloose' ,
                       '7invm9', 'noos', 'noid', 'novtx',
                       '11invm60','18invm60', 'bUpsi',
-                      'Trkloose', 'Zmumu', 'noL2', 'noEFbph',
-                      'noinvm', 'ss', 'BpmumuKp', 'Taumumux', 'Dsmumux', 'LbmumuLambda',
-                      'trkTau', 'bTauTrk', 'bDsPhiX', 'bPhi','bDsPhiXtight',
-                      '11invm24', '24invm60',
-                      'tightChi2', 'Lxy0', 'Ftk','legacyVtx',
-                      'BsmumuPhi', 'BsJpsiPhi']
+                      'Trkloose', 'Zmumu', 'noL2',
+                      'noinvm', 'ss', 'BpmumuKp',
+                      '11invm24', '24invm60']
 AllowedTopos_jet = ['muvtx',
-                    'revllp',
                     'llp',
-		    'trkiso',
 		    'noiso',
-                    'pufix',
                     'deta2',
-                    'deta20',
                     'deta25',
-                    'deta30',
-                    'deta35',
                     'invm250',
                     'invm400',
-                    'invm500',
                     'invm600',
                     'invm700',
                     'invm800',
                     'invm1000']
-AllowedTopos_Tau = ['ditauL', 'ditauM', 'ditauT','tautsf','notautsf','50mVis10000','60mVis10000','03dR27','03dR30']
-AllowedTopos_comb = ['taumass', 'dr05', 'dz02','dz99']
+AllowedTopos_comb = ['taumass', 'dr05', 'dz02']
 
 #AllowedTopos = AllowedTopos_e+AllowedTopos_mu+AllowedTopos_bphys+AllowedTopos_jet+AllowedTopos_xe+AllowedTopos_comb
 
 #NOTE: removed jets from list, special case for VBF triggers
-AllowedTopos = AllowedTopos_e + AllowedTopos_mu + AllowedTopos_bphys + AllowedTopos_xe + AllowedTopos_Tau + AllowedTopos_comb
+AllowedTopos = AllowedTopos_e + AllowedTopos_mu + AllowedTopos_bphys + AllowedTopos_xe + AllowedTopos_comb
 
 
 #==========================================================
@@ -105,35 +94,23 @@ JetChainParts = {
     'chainPartName': '',
     'threshold'    : '',
     'multiplicity' : '',
-    'etaRange'     : ['0eta490','0eta320','0eta240', '240eta490',
-                      '280eta320', '320eta490', 'n320eta490', 'p320eta490'],
-    'gscThreshold' : ['gsc'],
+    'etaRange'     : ['0eta490','0eta320','0eta240', '240eta490','280eta320', '320eta490'],
     'trigType'     : ['j'],
-    'extra'        : ['noL1','test1','test2','test3', 'test4',
-                      'test5', 'test6', 'delayed','AND'],
-    'cleaning'     : ['cleanL','cleanT','cleanLLP',
-                      'cleanLA','cleanTA','cleanLLPA', 'noCleaning'
-                      ],
-    'recoAlg'      : ["a3","a4", "a10", "a10r", "a10t"],
-    'dataType'     : ['TT', 'tc', 'cc', 'ion'],
+    'extra'        : ['noL1','test1','test2','test3'],
+    'recoAlg'      : ["a4", "a10", "a10r"],
+    'dataType'     : ['TT', 'tc', 'cc'],
     'calib'        : ["had","lcw","em"],
-    'jetCalib'     : ["jes","sub","subjes","subjesIS", "nojcalib"],
+    'jetCalib'     : ["jes","sub","subjes", "nojcalib"],
     'scan'         : ['FS','PS'],
     'addInfo'      : ['perf'],    
-    'TLA'          : ['0i1c200m400TLA', '0i1c400m600TLA', '0i1c600m800TLA',
-                      '0i1c800m1000TLA', '0i1c500m2000TLA',
-                      '1i2c100m300TLA','1i2c300m500TLA','1i2c500m700TLA',
-                      '1i2c100m8000TLA','1i2c200m8000TLA','0i1c500m900TLA','1i2c500m900TLA','1i2c600m800TLA'],
     'topo'         : AllowedTopos_jet,
-    'bTag'         : ['bloose', 'bmedium', 'btight', 'bperf','boffperf', 'bmv2c2040', 'bmv2c2050', 'bmv2c2060', 'bmv2c2070', 'bmv2c2077', 'bmv2c2085'],
-    'bTracking'    : ['EFID','FTK','FTKVtx','FTKRefit'],
+    'bTag'         : ['bloose', 'bmedium', 'btight', 'bperf','boffperf', 'bmv2c2060', 'bmv2c2070', 'bmv2c2077', 'bmv2c2085'],
+    'bTracking'    : ['EFID'],
     'bConfig'      : ['split', 'hybrid', 'singlepass'],
 #    'bMatching'    : ['mu4antidr05', 'mu6antidr05'],
     'bMatching'    : ['antimatchdr05mu'],
     'dataScouting' : ['ds1', 'ds2'],
 }
-
-
 # ---- Jet Dictinary of default Values ----
 JetChainParts_Default = {
     'signature'    : ['Jet'],
@@ -143,14 +120,12 @@ JetChainParts_Default = {
     'etaRange'     : '0eta320',
     'trigType'     :'j',
     'extra'        : '',
-    'cleaning'     : 'noCleaning',
     'recoAlg'      :'a4',
     'dataType'     :'tc',
     'calib'        :'em',
-    'jetCalib'     :'subjesIS',
+    'jetCalib'     :'subjes',
     'scan'         :'FS',
     'addInfo'      : [],    
-    'TLA'          : '',    
     'topo'         : [],  
     'bTag'         : '',
     'bTracking'    : '',
@@ -158,10 +133,6 @@ JetChainParts_Default = {
     'bMatching'    : [],
     'dataScouting' : '',
     }
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-
-if "v6" in TriggerFlags.triggerMenuSetup():
-    JetChainParts_Default.update({'jetCalib'     :'subjes',})
 
 #==========================================================
 # HT chains
@@ -170,7 +141,7 @@ if "v6" in TriggerFlags.triggerMenuSetup():
 HTChainParts = deepcopy(JetChainParts)
 HTChainParts['signature']    = ['HT']
 HTChainParts['trigType']     = ['ht']
-HTChainParts['extra']     = ['j20', 'j25', 'j30', 'test4']
+HTChainParts['extra']     = ['j20', 'j25', 'j30',]
 # ---- HTDictinary of default Values ----
 HTChainParts_Default = deepcopy(JetChainParts_Default)
 HTChainParts_Default['signature']    = ['HT']
@@ -187,24 +158,22 @@ MuonChainParts = {
     'chainPartName'  : '',
     'multiplicity'   : '',    
     'trigType'       : ['mu'],
-    'etaRange'       : ['0eta105', '0eta250','0eta010','0eta500'],
+    'etaRange'       : ['0eta105', '0eta250'],
     'threshold'      : '',
     'extra'          : ['noL1'],
     'IDinfo'         : [],
-    'isoInfo'        : ['iloose', 'imedium', 'itight', 'ivarloose', 'ivarmedium','icalo','iloosecalo','imediumcalo'],
-    'reccalibInfo'   : ['msonly', 'l2msonly', 'l2idonly', 'nomucomb', 'idperf','muoncalib', 'mucombTag','muL2', 'mgonly'],
+    'isoInfo'        : ['iloose', 'imedium', 'itight',],
+    'reccalibInfo'   : ['msonly', 'l2msonly', 'idperf','muoncalib', 'mucombTag','muL2'],
     'trkInfo'        : ['fasttr', 'hlttr', 'ftk', 'IDT'],
     'hypoInfo'       : [],
-    'FSinfo'         : ['ftkFS', 'nscan03', 'l2nscan03', 'nscan05', 'l2nscan05', 'JpsimumuFS', 'JpsimumuL2','calotag'],
-    'L2IDAlg'        : ['L2Star','IdScan','FTK','FTKRefit'],
+    'FSinfo'         : ['ftkFS', 'nscan03', 'l2nscan03', 'nscan05', 'l2nscan05', 'JpsimumuFS', 'JpsimumuL2'],
+    'L2IDAlg'        : ['L2Star','IdScan','FTK'],
     'L2SAAlg'        : ['muFast', 'l2muonSA',],
     'L2CBAlg'        : ['muComb',],
     'EFAlg'          : ['SuperEF'],
-    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','pt2','z10','llns','noComb'],
-    'overlapRemoval' : ['wOvlpRm', 'noOvlpRm', 'noMuCombOvlpRm'],
+    'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','pt2','z10'],
+    'overlapRemoval' : ['wOvlpRm', 'noOvlpRm'],
     'topo'           : AllowedTopos_mu,
-    'flavour'        : ['hf'],
-    'specialStream'  : ['delayed']
     }
 # ---- MuonDictinary of default Values ----
 MuonChainParts_Default = {
@@ -228,8 +197,6 @@ MuonChainParts_Default = {
     'overlapRemoval' : ['wOvlpRm'],
     'addInfo'        : [],
     'topo'           : [],
-    'flavour'        : '',
-    'specialStream'  : '',
     }
 
 #==========================================================
@@ -239,7 +206,6 @@ MuonChainParts_Default = {
 #AllowedMatchingKeywords = ['antidr']
 # ---- Bphysics Dictinary of all allowed Values ----
 BphysicsChainParts = deepcopy(MuonChainParts)
-#BphysicsChainParts['bTracking'] = ['FTK']
 BphysicsChainParts['signature'] = ['Bphysics']
 BphysicsChainParts['topo'] = AllowedTopos_bphys
 # ---- Bphysics Dictinary of default Values ----
@@ -257,8 +223,8 @@ TauChainParts = {
     'L1item'       : '',
     'chainPartName': '',
     'threshold'    : '',
-    'preselection' : ['r1', 'FTK', 'FTKRefit', 'FTKNoPrec', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'trackcalo', 'tracktwocalo','tracktwo2015'],
-    'selection'    : ['medium0','loose1', 'medium1', 'tight1', 'perf', 'perf0', 'r1medium1', 'r1perf', 'cosmic', 'kaonpi1', 'kaonpi2', 'dipion1', 'dipion1loose', 'dipion2', 'dikaon', 'dikaontight', 'dikaonmass', 'dikaonmasstight', 'singlepion', 'singlepiontight',  'medium1HighptL', 'medium1HighptM', 'medium1HighptH'],
+    'preselection' : ['r1', 'FTK', 'calo', 'track', 'mvonly', 'ptonly', 'caloonly', 'trackonly', 'tracktwo', 'trackcalo', 'tracktwocalo'],
+    'selection'    : ['loose1', 'medium1', 'tight1', 'perf', 'r1medium1', 'r1perf', 'cosmic','dikaon', 'dikaontight'],
     'multiplicity' : '',
     'trigType'     : ['tau'],   
     'trkInfo'      : ['idperf'],
@@ -266,7 +232,6 @@ TauChainParts = {
     'recoAlg'      : '',
     'calib'        : '',
     'addInfo'      : ['IdTest'],
-    'topo'         : AllowedTopos_Tau,
 }
 TauChainParts_Default = {
     'signature'    : ['Tau'],
@@ -282,7 +247,6 @@ TauChainParts_Default = {
     'recoAlg'      : '',
     'calib'        : '',
     'addInfo'      : '',
-    'topo'         : [],
 }
 
 #==========================================================
@@ -303,7 +267,7 @@ METChainParts = {
     'EFrecoAlg'    : ['tc','cell','pueta','mht','pufit'],
     'L2muonCorr'   : ['','wL2MuFEB','wEFMuFEB'],
     'EFmuonCorr'   : ['','wEFMu'],
-    'addInfo'      : ['FStracks'],
+    'addInfo'      : [],
     }
 # ---- MetDictinary of default Values ----
 METChainParts_Default = {
@@ -361,8 +325,8 @@ ElectronChainParts = {
     'trigType'       : ['e'],
     'threshold'      : '',
     'etaRange'       : ['0eta250', '250eta490'],
-    'IDinfo'         : ['loose', 'medium', 'tight', 'lhloose', 'lhmedium', 'lhtight', 'loose1', 'medium1', 'tight1', 'vloose', 'lhvloose', 'mergedtight'],
-    'isoInfo'        : [ 'iloose','ivarloose'],
+    'IDinfo'         : ['loose', 'medium', 'tight', 'lhloose', 'lhmedium', 'lhtight', 'loose1', 'medium1', 'tight1', 'vloose', 'lhvloose'],
+    'isoInfo'        : [ 'iloose'],
     'trkInfo'        : ['fasttr', 'hlttr', 'IDTrkNoCut','FwdBackTrk','idperf'],
     'caloInfo'       : ['L2EFCalo','HLTCalo'],
     'lhInfo'         : ['cutd0dphideta','nod0','nodphires','nodeta','smooth'],
@@ -406,9 +370,9 @@ PhotonChainParts = {
     'trigType'       : ['g'],
     'threshold'      : '',
     'extra'          : ['i', 'i5', 'i6', 'ns', 'Tvh', 'ion'],
-    'IDinfo'         : ['loose', 'medium', 'tight', 'NoCut', 'nocut','loose1', 'medium1', 'tight1'],
-    'isoInfo'        : ['ivloose', 'iloose', 'itight'],
-    'reccalibInfo'   : ['MSonly', 'MGonly'],
+    'IDinfo'         : [ 'loose', 'medium', 'tight', 'NoCut', 'nocut','loose1', 'medium1', 'tight1'],
+    'isoInfo'        : '',
+    'reccalibInfo'   : 'MSonly',
     'trkInfo'        : ['fasttr', 'hlttr', 'ftk'],
     'caloInfo'       : ['HLTCalo'],
     'hypoInfo'       : '',
@@ -489,19 +453,13 @@ MinBiasChainParts = {
     'multiplicity'   : '',    
     'trigType'       : ['mb'],
     'threshold'      : '',
-    'extra'          : ['noisesup', 'vetombts2in', 'vetombts1side2in',  'vetospmbts2in', "vetosp" ,'ion', 'ncb', 'blayer', 'exclusiveloose', 'exclusivetight'], #ncb = non collision background, blayer = only sum innermost pix layer
+    'extra'          : ['noisesup', 'vetombts2in', 'ion',],
     'IDinfo'         : [],
     'ZDCinfo'        : ['lg', 'hg'],
     'trkInfo'        : ['hlttr', 'ftk', 'costr'],
-    'hypoL2Info'     : ['sp2', 'sp3', 'sp5', 'sp10', 'sp15', 'sp100', 'sp300', 'sp400', 'sp500', 'sp600', 'sp700', 'sp800', 'sp900',
-                        'sp1000', 'sp1200', 'sp1300', 'sp1400', 'sp1500', 'sp1600', 'sp1700', 'sp1800', 
-                        'sp2000', 'sp2100', 'sp2200', 'sp2300', 'sp2400', 'sp2500', 'sp2700', 'sp2800', 'sp2900', 'sp3000',
-                        'sp3100', 'sp3500', 'sp4100', 'sp4500', 'sp4800', 'sp5000', 'sp5200',],
-    'pileupInfo'     : ['pusup200','pusup300','pusup350', 'pusup400', 'pusup450', 'pusup500', 'pusup550', 'pusup600', 'pusup700', 'pusup750', 'pusup800', 'pusup900',
-                        'pusup1000', 'pusup1100', 'pusup1200', 'pusup1300', 'pusup1400', 'pusup1500',],
-    'hypoEFInfo'     : ['trk3','trk5','trk10','trk15',  'trk20',  'trk30',  'trk40', 'trk45', 'trk50', 'trk55', 'trk60', 'trk65', 'trk70', 'trk75', 'trk80', 'trk90',
-                        'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 'trk180', 'trk200', 'trk220', 'trk240', 'trk260', 'trk280',      
-                        'pt2', 'pt4', 'pt6', 'pt8', ],
+    'hypoL2Info'     : ['sp2', 'sp300', 'sp400', 'sp500', 'sp600', 'sp700', 'sp900', 'sp1000', 'sp1200', 'sp1300', 'sp1400', 'sp1500', 'sp1600', 'sp1700', 'sp1800', 'sp2000', 'sp2500', 'sp3000', ],
+    'pileupInfo'     : ['pusup350', 'pusup550', 'pusup600', 'pusup700', 'pusup750', 'pusup800',],
+    'hypoEFInfo'     : ['trk10', 'trk40', 'trk45', 'trk50', 'trk55', 'trk60', 'trk65', 'trk70', 'trk75', 'trk80', 'trk90', 'trk100', 'trk110', 'trk120', 'pt4', 'pt6', 'pt8', ],
     'hypoEFsumEtInfo': ['sumet40', 'sumet50', 'sumet60', 'sumet70', 'sumet80', 'sumet90', 'sumet110', 'sumet150',],
     'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf'],
     'addInfo'        : ['peb'],
@@ -537,20 +495,16 @@ HeavyIonChainParts = {
     'multiplicity'   : '',
     'trigType'       : ['hi'],
     'threshold'      : '',
-    'extra'          : ['th1', 'th2', 'th3', 'th4', 'th5', 'th6', 'th7', 'th8', 'th9', 'th10', 'th11', 'th12', 'th13', 'th14', 'th15', 'th16', 
-                        'th0p', 'th005p', 'th01p', 'th025p', 'th05p', 'th10p', 'th15p', 'th20p',
-                        'perf', 'perfzdc'],
+    'extra'          : ['th1', 'th2', 'th3', 'th4', 'th5', 'th6', 'th7', 'th8', 'th9', 'th10', 'th11', 'th12', 'th13', 'th14', 'th15', 'th16', 'perf'],
     'IDinfo'         : [],
     'trkInfo'        : [],
-    'eventShape'     : ['v2', 'v3', 'v23', 'v2A', 'v2C'],    
-    'eventShapeVeto' : ['veto2', 'veto3'],
-    'hypoL2Info'     : ['loose', 'medium', 'tight', 'gg',],
-    'pileupInfo'     : ['zdcpu'],
+    'eventShape'     : ['v2', 'v3'],
+    'hypoL2Info'     : [],
+    'pileupInfo'     : [],
     'hypoEFInfo'     : [],
     'hypoEFsumEtInfo': ['fcalet3000', 'fcalet3306', 'fcalet3391', 'fcalet3516',],
-    'recoAlg'        : ['ucc', 'upc'],
+    'recoAlg'        : ['ucc',],
     'addInfo'        : [ ],
-    'gap'            : [ 'FgapA', 'FgapC', 'FgapAC',   'L2FgapA', 'L2FgapC', 'L2FgapAC',   'EFFgapA', 'EFFgapC', 'EFFgapAC' ],
     }
 
 # ---- HeavyIonDictinary of default Values ----
@@ -565,14 +519,12 @@ HeavyIonChainParts_Default = {
     'IDinfo'         : '',
     'trkInfo'        : '',
     'eventShape'     : '',
-    'eventShapeVeto' : '',
     'hypoL2Info'       : '',
     'pileupInfo'       : '',
     'hypoEFInfo'       : '',
     'hypoEFsumEtInfo': '',    
     'recoAlg'        : [],
     'addInfo'        : [],
-    'gap'            : ''
     }
 
 
@@ -631,7 +583,7 @@ StreamingChainParts = {
     'multiplicity'   : '',
     'streamingInfo'  : ['bkg', 'idmon', 'mb', 'eb', 'zb','to','standby',
                         'hltpassthrough', 'jettauetmiss', 'larcells', 
-                        'cosmiccalo', 'cosmicmuons','idcosmic', 'dcmmon','zb', 'l1calo', 'l1topo'],
+                        'cosmiccalo', 'cosmicmuons','idcosmic', 'dcmmon','zb'],
     'trigType'       : 'streamer', 
     'extra'          : '',
     'streamType'        : AllowedStreamingChainIdentifiers,
@@ -667,10 +619,7 @@ AllowedCalibChainIdentifiers = ['csccalib',
                                 'lhcfpeb',
                                 'alfaidpeb',
                                 'larpebj',
-                                'l1satmon',
-                                'zdcpeb',
-                                'calibAFP',
-                                ]
+                                'l1satmon']
 
 # ---- Calib Chain Dictinary of all allowed Values ----
 ##stramingInfo not use in ChainConfiguration, only to distinguish streaming
@@ -689,7 +638,7 @@ CalibChainParts = {
     'threshold'      : '',
     'multiplicity'   : '',
     'trigType'       : ['trk'], 
-    'extra'          : ['rerun','bs',''],
+    'extra'          : ['rerun',''],
     }
 
 # ---- Calib Chain Default Dictinary of all allowed Values ----
@@ -713,7 +662,7 @@ CalibChainParts_Default = {
 #==========================================================
 # ---- MonitorDef chains -----
 #==========================================================
-AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner', 'idmon', 'costmonitor','cscmon','l1calooverflow','mistimemonl1bccorr','mistimemonl1bccorrnomu','mistimemoncaltimenomu','mistimemoncaltime','mistimemonj400']
+AllowedMonitorChainIdentifiers = ['robrequest', 'timeburner', 'idmon', 'costmonitor','cscmon']
 
 # ---- Monitor Chain Dictinary of all allowed Values ----
 MonitorChainParts = {
@@ -788,13 +737,12 @@ AllowedBeamspotChainIdentifiers = ['beamspot',]
 BeamspotChainParts = {
     'signature'      : ['Beamspot'],
     'chainPartName'  : '',
-    'L1item'         : '',
+    'L1item'       : '',
     'monType'        : AllowedBeamspotChainIdentifiers,
     'location'       : ['vtx'],
-#    'addInfo'        : ['trkFS','idperf'],
-    'addInfo'        : ['trkFS', 'allTE', 'activeTE','idperf'],
+    'addInfo'        : ['trkFS', 'allTE', 'activeTE'],
     'hypo'           : [],
-    'l2IDAlg'        : ['L2StarB','trkfast','FTK','FTKRefit'],
+    'l2IDAlg'        : ['L2StarB','trkfast'],
     'threshold'      : '',
     'multiplicity'   : '',
     'trigType'       : 'beamspot',

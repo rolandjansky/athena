@@ -108,7 +108,6 @@ class L2EFChain_MB(L2EFChainDef):
         elif "noalg" in self.chainPart['recoAlg']:
             self.setup_mb_noalg()
 
-
         L2EFChainDef.__init__(self, self.chainName, self.L2Name, self.chainCounter, self.chainL1Item, self.EFName, self.chainCounter, self.L2InputTE)
 
     def defineSequences(self):
@@ -137,72 +136,32 @@ class L2EFChain_MB(L2EFChainDef):
         if 'ion' in self.chainPart['extra']:
             doHeavyIon=True
 
-        doSpNcb=False
-        if 'ncb' in  self.chainPart['extra']:
-            doSpNcb=True
-
-        doBLayer=False
-        if 'blayer' in  self.chainPart['extra']:
-            doBLayer=True
-
-        doVetoSp=False
-        if 'vetosp' in self.chainPart['extra']:
-            doVetoSp=True
-
         doSptrk=False
         if "sptrk" in self.chainPart['recoAlg']: #do EFID
             doSptrk=True
 
         doMbtsVeto=False
-        if "vetombts2in" in self.chainPart['extra'] or "vetospmbts2in" in self.chainPart['extra']: #do EFID
+        if "vetombts2in" in self.chainPart['extra']: #do EFID
             doMbtsVeto=True
             theL2MbtsFex=L2MbMbtsFex
             theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_veto")
-
-        if "vetombts1side2in" in self.chainPart['extra']: #do EFID
-            doMbtsVeto=True
-            theL2MbtsFex=L2MbMbtsFex
-            theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_one_side_veto")
 
         ########## L2 algos ##################
         #if "sptrk" or "sp" in self.chainPart['recoAlg']:
         if "noisesup" in self.chainPart['extra']:
             chainSuffix = "sptrk_noisesup"
             theL2Fex  = L2MbSpFex_SCTNoiseSup
-        elif doSpNcb:
-            # spacepoint halo trigger is SCT only
-            theL2Fex  = L2MbSpFex_ncb
-            chainSuffix = "sp_ncb"
-        elif doBLayer:
-            # pix occupancy trigger only counts the innermost pix layer
-            theL2Fex = L2MbSpFex_BLayer
-            chainSuffix = "sp_blayer"
         else:
             theL2Fex  = L2MbSpFex
             if doSptrk:
                 chainSuffix = "sptrk"
-            elif doVetoSp:
-                chainSuffix = "sp_vetosp"
             else:
                 chainSuffix = "sp"
         
         if doMbtsVeto:
-            if "vetombts2in" in self.chainPart['extra']:
-                chainSuffix = chainSuffix+"_vetombts2in"
-            if "vetombts1side2in" in self.chainPart['extra']:
-                chainSuffix = chainSuffix+"_vetombts1side2in"
+            chainSuffix = chainSuffix+"_vetombts2in"
 
-        if doMbtsVeto and doVetoSp: # this will never be done w tracks
-            chainSuffix = "sp_vetospmbts2in"
-
-        if doSpNcb:
-            theL2Hypo = L2MbSpHypo_ncb
-        elif doBLayer:
-            theL2Hypo = L2MbSpHypo_blayer
-        elif doVetoSp:
-            theL2Hypo = L2MbSpHypo_veto
-        else:
-            theL2Hypo = L2MbSpHypo
+        theL2Hypo = L2MbSpHypo
 
         ########## EF algos ##################
         #if "sptrk" in self.chainPart['recoAlg']:
@@ -228,28 +187,12 @@ class L2EFChain_MB(L2EFChainDef):
             theEFFex2 =  EFMbTrkFex
             efhypo = self.chainPart['hypoEFInfo']
             if efhypo:
-                if "pt" in self.chainPart['hypoEFInfo']:
-                    efth=efhypo.lstrip('pt')
-                    threshold=float(efth)
-                    theEFHypo = MbTrkHypo('EFMbTrkHypo_pt%d'% threshold)
-                    theEFHypo.Min_pt = threshold
-                    theEFHypo.Max_z0 = 401.
-                    chainSuffix = chainSuffix+'_pt'+efth
-                elif "trk" in self.chainPart['hypoEFInfo']:
-                    efth=efhypo.lstrip('trk')
-                    theEFHypo = MbTrkHypo('EFMbTrkHypo_trk%i'% int(efth))
-                    theEFHypo.Required_ntrks = int(efth)
-                    theEFHypo.Min_pt = 0.200
-                    theEFHypo.Max_z0 = 401.
-                    chainSuffix = chainSuffix+'_trk'+efth
-            elif 'exclusiveloose' in self.chainPart['extra']:
-                efth=0.200 #default
-                theEFHypo =  EFMbTrkHypoExclusiveLoose
-                chainSuffix = chainSuffix+"_exclusiveloose"
-            elif 'exclusivetight' in self.chainPart['extra']:
-                efth=0.200 #default
-                theEFHypo =  EFMbTrkHypoExclusiveTight
-                chainSuffix = chainSuffix+"_exclusivetight"
+                efth=efhypo.lstrip('pt')
+                threshold=float(efth)
+                theEFHypo = MbTrkHypo('EFMbTrkHypo_pt%d'% threshold)
+                theEFHypo.Min_pt = threshold
+                theEFHypo.Max_z0 = 401.
+                chainSuffix = chainSuffix+'_pt'+efth
             else:
                 efth=0.200 #default
                 theEFHypo =  EFMbTrkHypo
@@ -442,17 +385,6 @@ class L2EFChain_MB(L2EFChainDef):
         if 'ion' in self.chainPart['extra']:
             doHeavyIon=True
 
-        theL2Fex  = L2MbMbtsFex
-
-        doMbtsVeto=False
-        if "vetombts2in" in self.chainPart['extra']: #do EFID
-            doMbtsVeto=True
-            theL2MbtsVetoHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_veto")
-
-        if "vetombts1side2in" in self.chainPart['extra']: #do EFID
-            doMbtsVeto=True
-            theL2MbtsVetoHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_one_side_veto")
-
         ########## L2 algos ##################
         if "mbts" in self.chainPart['recoAlg']:
             l2hypo = self.chainName
@@ -474,55 +406,40 @@ class L2EFChain_MB(L2EFChainDef):
 
             chainSuffix = "mbts"
             theL2Fex  = L2MbMbtsFex
-            
-            if not doMbtsVeto:
-                theL2Hypo = MbMbtsHypo('L2MbMbtsHypo_'+l2HypoCut)
-                theL2Hypo.AcceptAll = False
-                theL2Hypo.TimeCut = trigT2MinBiasProperties.mbtsTimeCut()
 
-                if(len(l2HypoCut) == 1):
-                    theL2Hypo.MbtsCounters = int(l2HypoCut)
-                    theL2Hypo.Coincidence = False
-                elif(len(l2HypoCut) == 3):
-                    L2th = l2HypoCut.split("_")[0]
+            theL2Hypo = MbMbtsHypo('L2MbMbtsHypo_'+l2HypoCut)
+            theL2Hypo.AcceptAll = False
+            theL2Hypo.TimeCut = trigT2MinBiasProperties.mbtsTimeCut()
+
+            if(len(l2HypoCut) == 1):
+                 theL2Hypo.MbtsCounters = int(l2HypoCut)
+                 theL2Hypo.Coincidence = False
+            elif(len(l2HypoCut) == 3):
+                 L2th = l2HypoCut.split("_")[0]
                  #print 'igb: threshold: ', L2th
-                    theL2Hypo.MbtsCounters = int(L2th)
-                    theL2Hypo.Coincidence = True
-                else:
-                    logMinBiasDef.error("Something weird in the setup_mb_mbts(), please check")
+                 theL2Hypo.MbtsCounters = int(L2th)
+                 theL2Hypo.Coincidence = True
             else:
-                theL2Hypo = theL2MbtsVetoHypo
-                if "vetombts2in" in self.chainPart['extra']:
-                    chainSuffix = chainSuffix+"_vetombts2in"
-                if "vetombts1side2in" in self.chainPart['extra']:
-                    chainSuffix = chainSuffix+"_vetombts1side2in"
-                
+                 logMinBiasDef.error("Something weird in the setup_mb_mbts(), please check")
+
         ########## EF algos ##################
 
-        ########theL2MbtsVetoHypo### Sequence List ##############
+        ########### Sequence List ##############
 
         self.L2sequenceList += [["",
                                  [dummyRoI],
                                  'L2_mb_step0']] 
-        if not doMbtsVeto:
-            self.L2sequenceList += [[['L2_mb_step0'],
-                                     [theL2Fex, theL2Hypo],
-                                     'L2_mb_step1']]
-        else:
-            self.L2sequenceList += [[['L2_mb_step0'],
-                                     [theL2Fex, theL2Hypo],
-                                     'L2_mb_mbtsveto']]
+
+        self.L2sequenceList += [[['L2_mb_step0'],
+                                 [theL2Fex, theL2Hypo],
+                                 'L2_mb_step1']]
 
         ########### Signatures ###########
-        if not doMbtsVeto:
-            self.L2signatureList += [ [['L2_mb_step1']] ]
-            self.TErenamingDict = {
-                'L2_mb_step1': mergeRemovingOverlap('L2_', ''+chainSuffix+'_'+l2HypoCut),
-                }
-        else:
-            self.L2signatureList += [ [['L2_mb_mbtsveto']] ]
-            self.TErenamingDict = {
-                'L2_mb_mbtsveto': mergeRemovingOverlap('L2_mbtsveto_', ''+chainSuffix),
+        self.L2signatureList += [ [['L2_mb_step0']] ]
+        self.L2signatureList += [ [['L2_mb_step1']] ]
+
+        self.TErenamingDict = {
+            'L2_mb_step1': mergeRemovingOverlap('L2_', ''+chainSuffix+'_'+l2HypoCut),
             }
 
 ########################### high multiplicity triggers
@@ -725,10 +642,8 @@ class L2EFChain_MB(L2EFChainDef):
         shortName=chainName.strip('mb_')
         self.chainName       = shortName
         
-
 #####################################################################
-
-
+    
 #if __name__ == '__main__':
 #    triggerPythonConfig = TriggerPythonConfig('hlt.xml', None)
 #    for m in Muons:

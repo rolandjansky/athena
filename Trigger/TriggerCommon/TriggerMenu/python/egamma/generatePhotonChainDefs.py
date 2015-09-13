@@ -16,7 +16,6 @@ from TriggerMenu.menu.MenuUtils import *
 
 Photons = []
 
-from TriggerMenu.egamma.EgammaDef import EgammaSequence
 ##########################################################################################
 ##########################################################################################
 
@@ -27,9 +26,7 @@ def generateChainDefs(chainDict):
     listOfChainDefs = []
 
     for subChainDict in listOfChainDicts:      
-        photon_seq = EgammaSequence(subChainDict)
-        log.info('Egamma Sequence: %s', photon_seq)
-        Photon = L2EFChain_g(subChainDict,photon_seq)
+        Photon = L2EFChain_g(subChainDict)
             
         listOfChainDefs += [Photon.generateHLTChainDef()]
     
@@ -42,6 +39,7 @@ def generateChainDefs(chainDict):
         theChainDef = _addTopoInfo(theChainDef,chainDict)    
 
     return theChainDef
+
 
 def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
 

@@ -7,7 +7,7 @@ import copy
 import unittest
 from mock import MagicMock
 from JetDef import generateHLTChainDef, usage
-from test_functions import run_test_dicts
+from test_functions import run_strawman_test
 
 from ChainConfigMaker import JetAttributes
 
@@ -28,7 +28,7 @@ class TestJetDef2(unittest.TestCase):
         if jetdef_test_env is not None:
             del os.environ['JETDEF_TEST']
 
-        chain_defs = run_test_dicts()
+        chain_defs = run_strawman_test()
 
         # reset diagonostics on if this was the previous state.
         if jetdef_test_env:
@@ -52,7 +52,7 @@ class TestJetDef2(unittest.TestCase):
         if jetdef_test_env is None:
             os.environ['JETDEF_TEST'] = '1'
 
-        chain_defs = run_test_dicts()
+        chain_defs = run_strawman_test()
 
         # reset diagonostics off if this was the previous state.
         if jetdef_test_env is None:

@@ -8,15 +8,12 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
 from TriggerMenu.TriggerConfigLVL1 import TriggerConfigLVL1
 from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
 
-def generateL1Menu(menu, doFTK="False",useTopoMenu="MATCH"):    
+def generateL1Menu(menu, useTopoMenu="MATCH"):
 
     from AthenaCommon.Logging import logging
     log = logging.getLogger("TriggerConfigLVL1")
     log.setLevel(logging.INFO)
     logging.getLogger("TriggerMenu.l1.Lvl1Menu").setLevel(logging.INFO)
-
-    TF.doFTK=doFTK
-    log.info("doFTK: %s " % TF.doFTK)
 
     # what menu to build
     TF.triggerMenuSetup = menu
@@ -41,7 +38,7 @@ def generateL1Menu(menu, doFTK="False",useTopoMenu="MATCH"):
     return tpcl1.menu
 
 
-def readL1MenuFromXML(menu="LVL1config_Physics_pp_v6.xml"):
+def readL1MenuFromXML(menu="LVL1config_Physics_pp_v5.xml"):
 
     from AthenaCommon.Logging import logging
     log = logging.getLogger("TriggerConfigLVL1")
@@ -74,7 +71,7 @@ def findUnneededRun2():
     from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
     from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
     
-    menus = ['Physics_pp_v6']
+    menus = ['Physics_pp_v5']
 
     for menu in menus:
         TF.triggerMenuSetup = menu
@@ -88,7 +85,7 @@ def findRequiredItemsFromXML():
     from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
     from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
     
-    menus = ['Physics_pp_v7','MC_pp_v7','Physics_pp_v6','MC_pp_v6']
+    menus = ['Physics_pp_v5','MC_pp_v5']
 
     from TriggerMenu.l1.XMLReader import L1MenuXMLReader
 
@@ -130,6 +127,7 @@ def findUnneededRun1(what="items"):
 
     print [x for x in unneeded if p.match(x)]
 
+
 def findFreeCTPIDs(menu):
     from pickle import load
     f = open("L1Items.pickle","r")
@@ -143,68 +141,46 @@ def findFreeCTPIDs(menu):
 
     
 def main():
+    if len(sys.argv)==1:
+        generateL1Menu(menu="Physics_pp_v5")
+        generateL1Menu(menu="MC_pp_v5")
+        generateL1Menu(menu="LS1_v1" )
+        #generateL1Menu(menu="DC14")
+        generateL1Menu(menu="MC_pp_v5_no_prescale")
+        generateL1Menu(menu="MC_pp_v5_loose_mc_prescale")
+        generateL1Menu(menu="MC_pp_v5_tight_mc_prescale")
+        generateL1Menu(menu="Physics_HI_v3")  # currently disabled since not defined in JobProp
+        generateL1Menu(menu="MC_HI_v3")  # currently disabled since not defined in JobProp
+        return 0
+
     printCabling = False
-    FTKFlag= False
     for arg in sys.argv:
         if arg.lower().startswith("cab"):
             printCabling = True
-        if arg.lower().startswith("doftk"):
-            FTKFlag = True
 
-    if len(sys.argv)==1 or (len(sys.argv)==2 and FTKFlag):        
-        
-        generateL1Menu(menu="Physics_pp_v7",doFTK=FTKFlag)
-        generateL1Menu(menu="MC_pp_v7",doFTK=FTKFlag)
-        generateL1Menu(menu="Physics_pp_v6",doFTK=FTKFlag)
-        generateL1Menu(menu="MC_pp_v6",doFTK=FTKFlag)
-#        generateL1Menu(menu="LS1_v1" )
-        #generateL1Menu(menu="DC14")
-#        generateL1Menu(menu="Physics_HI_v3")  # currently disabled since not defined in JobProp
-#        generateL1Menu(menu="MC_HI_v3")  # currently disabled since not defined in JobProp
-        return 0
 
-    
     if sys.argv[1].endswith(".xml"):
         readL1MenuFromXML(sys.argv[1])
         return 0
     
-    if sys.argv[1].lower().startswith("phy6"):
-        menu = generateL1Menu(menu="Physics_pp_v6",doFTK=FTKFlag)
+    if sys.argv[1].lower().startswith("phy"):
+        menu = generateL1Menu(menu="Physics_pp_v5")
         if printCabling:
             menu.printCabling()
         return 0
-
-    if sys.argv[1].lower().startswith("phy7"):
-        menu = generateL1Menu(menu="Physics_pp_v7",doFTK=FTKFlag)
-        if printCabling:
-            menu.printCabling()
-        return 0
-    
-    if sys.argv[1].lower().startswith("mc6"):
-        menu = generateL1Menu(menu="MC_pp_v6",doFTK=FTKFlag)
-        if printCabling:
-            menu.printCabling()
-        return 0
-
-    if sys.argv[1].lower().startswith("mc7"):
-        menu = generateL1Menu(menu="MC_pp_v7",doFTK=FTKFlag)
-        if printCabling:
-            menu.printCabling()
-        return 0
-
 
     if sys.argv[1].lower().startswith("mc4"):
-        generateL1Menu(menu="MC_pp_v4",doFTK=FTKFlag)
+        generateL1Menu(menu="MC_pp_v4")
         return 0
 
     if sys.argv[1].lower().startswith("mc"):
-        generateL1Menu(menu="MC_pp_v6",doFTK=FTKFlag)
+        generateL1Menu(menu="MC_pp_v5")
         return 0
 
     if sys.argv[1].lower().startswith("mcp"):
-        generateL1Menu(menu="MC_pp_v6_no_prescale",doFTK=FTKFlag)
-        generateL1Menu(menu="MC_pp_v6_loose_mc_prescale",doFTK=FTKFlag)
-        generateL1Menu(menu="MC_pp_v6_tight_mc_prescale",doFTK=FTKFlag)
+        generateL1Menu(menu="MC_pp_v5_no_prescale")
+        generateL1Menu(menu="MC_pp_v5_loose_mc_prescale")
+        generateL1Menu(menu="MC_pp_v5_tight_mc_prescale")
         return 0
 
     if sys.argv[1].lower().startswith("ls"):
@@ -213,24 +189,13 @@ def main():
         return 0
 
     if sys.argv[1].lower().startswith("dc14"):
-        generateL1Menu(menu="DC14",doFTK=FTKFlag,useTopoMenu="Physics_pp_v6")
+        generateL1Menu(menu="DC14", useTopoMenu="Physics_pp_v5")
         return 0
 
-    if sys.argv[1].lower().startswith("hiphy"):
-        generateL1Menu(menu="Physics_HI_v3",doFTK=FTKFlag)
+    if sys.argv[1].lower().startswith("hi"):
+        generateL1Menu(menu="Physics_HI_v3")
         return 0
 
-    if sys.argv[1].lower().startswith("himc"):
-        generateL1Menu(menu="MC_HI_v3",doFTK=FTKFlag)
-        return 0
-    
-    if sys.argv[1].lower().startswith("hipphy"):
-        generateL1Menu(menu="Physics_HI_v4",doFTK=FTKFlag)
-        return 0
-
-    if sys.argv[1].lower().startswith("hipmc"):
-        generateL1Menu(menu="MC_HI_v4",doFTK=FTKFlag)
-        return 0    
 
 if __name__=="__main__":
     sys.exit( main() )

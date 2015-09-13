@@ -36,7 +36,6 @@ from TrigHLTJetRec.TrigHLTJetRecConf import TrigHLTRoIDiagnostics
 from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
                                                TrigHLTJetRecFromCluster,
                                                TrigHLTJetRecFromJet,
-                                               TrigHLTJetRecGroomer,
                                                TrigHLTJetRecFromTriggerTower,
                                                TrigHLTClusterDiagnostics_named,
                                                TrigHLTCellDiagnostics_named,
@@ -45,16 +44,12 @@ from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
                                                TrigHLTEnergyDensity,
                                                TrigHLTJetDSSelector,)
 
-from TrigHLTJetHypo.TrigHLTJetHypoConfig import TrigHLTJetHypo2
+from TrigJetHypo.TrigJetHypoConfig import EFCentFullScanMultiJetHypo
 
+from TrigJetHypo.TrigJetHypoConf import TrigHLTJetHypo
+
+from TrigJetHypo.TrigEFHTHypoConfig import EFHT
 from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter
-
-from TrigHIRec.TrigHICaloRec import (TrigCaloTowerMaker_hijet,
-                                     TrigHIClusterMaker_hijet,
-                                     TrigHIEventShapeMaker_hijet,
-                                    )
-                                    
-from TrigHIRec.TrigHLTHIJetRecConfig import TrigHLTHIJetRecFromHICluster
 
 abomination_to_keep_config_weakvalue_dict_intact = []
 
@@ -72,8 +67,9 @@ class Instantiator(object):
         try:
             s = a.asString()  # convert alg to a string to be eval'd
         except Exception, e:
-            m = '%s() call to asString failed for object %s\n%s ' % (
-                self.err_hdr, str(a), str(e))
+            m = '%s() call to asString failed for object %s\n%s ' % (err_hdr,
+                                                                     str(s),
+                                                                     str(e))
             raise RuntimeError(m)
 
 
@@ -88,12 +84,8 @@ class Instantiator(object):
             m = '%s() Error instantiating  Algorithm: eval(%s) '\
                 '%s\nTraceback: \n%s'
             m = m % (self.__class__.__name__, s, str(e), tb)
-            try:
-                alg = a.alg
-            except:
-                m += '\nAttempt to retrieve pre-instantiated Algorithm failed'
 
-                raise RuntimeError(m)
+            raise RuntimeError(m)
 
         def manual_attr_add(k, v):
 
@@ -114,7 +106,7 @@ class Instantiator(object):
         err_hdr = self.err_hdr
         [manual_attr_add(k, v) for k, v in a.manual_attrs.items()]
 
-        if a.__class__.__name__ != 'AlgStringProxy': self.cache[s] = alg
+        self.cache[s] = alg
         # in 2012 it was required to maintain a reference to the
         # configuration objects due to the use of a weak referece
         # dictionary in a module far far away. Who knows what 2015 will bring..

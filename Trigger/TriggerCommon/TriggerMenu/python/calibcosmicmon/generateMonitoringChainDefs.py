@@ -7,7 +7,7 @@ __version__="Implementation of Streaming Chain Def Generations"
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-log = logging.getLogger(__name__)
+mlog = logging.getLogger("TriggerMenu.calibcosmic.generateMonitoringChainDefs")
 
 from TriggerMenu.calibcosmicmon.MonitorDef import *
 from TriggerMenu.menu.MenuUtils import *
