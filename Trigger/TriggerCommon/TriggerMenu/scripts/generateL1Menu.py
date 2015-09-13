@@ -13,6 +13,7 @@ def generateL1Menu(menu, useTopoMenu="MATCH"):
     from AthenaCommon.Logging import logging
     log = logging.getLogger("TriggerConfigLVL1")
     log.setLevel(logging.INFO)
+    logging.getLogger("TriggerMenu.l1.Lvl1Menu").setLevel(logging.INFO)
 
     # what menu to build
     TF.triggerMenuSetup = menu
@@ -35,6 +36,7 @@ def generateL1Menu(menu, useTopoMenu="MATCH"):
         log.error("the XML does not follow the document type definition LVL1config.dtd")
         
     return tpcl1.menu
+
 
 def readL1MenuFromXML(menu="LVL1config_Physics_pp_v5.xml"):
 
@@ -143,7 +145,7 @@ def main():
         generateL1Menu(menu="Physics_pp_v5")
         generateL1Menu(menu="MC_pp_v5")
         generateL1Menu(menu="LS1_v1" )
-        generateL1Menu(menu="DC14")
+        #generateL1Menu(menu="DC14")
         generateL1Menu(menu="MC_pp_v5_no_prescale")
         generateL1Menu(menu="MC_pp_v5_loose_mc_prescale")
         generateL1Menu(menu="MC_pp_v5_tight_mc_prescale")

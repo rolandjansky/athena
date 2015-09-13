@@ -56,11 +56,11 @@ class ChainConfigMaker(object):
 
         self.data_type = ''
         self.scan_type = ''
+        self.multi_eta = len(set([cp['etaRange'] for cp in d['chainParts']])) > 1
         self.jet_attributes = []
-
+        self.run_rtt_diags = d['run_rtt_diags']
         self.chain_name = d['chainName']
         self.seed = d['L1item']
-        self.test = d.get('test', '')
         [self.process_part(p) for p in d['chainParts']]
 
     def process_part(self, part):
@@ -70,6 +70,14 @@ class ChainConfigMaker(object):
         jet hypo"""
 
         self._check_part(part)
+
+        # ----- test chain parameter - if present, sill be  be in the 'extra' field
+        extra = part['extra']
+        if extra.startswith('test'):
+            self.check_and_set('test_flag', extra)
+        else:
+            self.check_and_set('test_flag', '')
+
         # -------------- cluster parameters -------------
 
         # the following dictionary translates the incoming value of
@@ -223,16 +231,29 @@ class ChainConfigMaker(object):
         self.check_and_set('run_hypo', run_hypo)
 
         # --------  hypo parameters ----------------
-        hypo_type = {'j': 'standard', 'ht':'ht'}.get(part['trigType'], '')
+        hypo_type = {('j', ''): 'standard',
+                     ('j', 'test1'): 'single_region',
+                     ('j', 'test2'): 'maximum_bipartite',
+                     ('j', 'test3'): 'single_region_cleaning',
+                     ('ht', ''):'ht'}.get((part['trigType'],
+                                           self.test_flag), None)
+
+        if self.multi_eta: hypo_type = 'maximum_bipartite'
+
         if not hypo_type:
-            msg = '%s: cannot determine hypo type from trigger type ' % (
-                self.err_hdr, part['trigType'])
+            msg = '%s: cannot determine hypo type '\
+                  'from trigger type: %s test flag: %s' % (
+                self.err_hdr, part['trigType'], self.test_flag)
             raise RuntimeError(msg)
 
         self.check_and_set('hypo_type', hypo_type)
 
-        hypo_setup_fn = {'standard': self._setup_standard_hypo,
-                         'ht': self._setup_ht_hypo}.get(hypo_type, None)
+        hypo_setup_fn = {
+            'standard': self._setup_standard_hypo,
+            'single_region': self._setup_standard_hypo,
+            'maximum_bipartite': self._setup_standard_hypo,
+            'single_region_cleaning': self._setup_standard_cleaning_hypo,
+            'ht': self._setup_ht_hypo}.get(hypo_type, None)
 
         if hypo_setup_fn is None:
             msg = '%s: unknown hypo type (JetDef bug) %s' % (
@@ -241,6 +262,8 @@ class ChainConfigMaker(object):
             raise RuntimeError(msg)
 
         hypo_setup_fn(part)
+
+            
         self.n_parts += 1
 
     def check_and_set(self, attr, val):
@@ -304,12 +327,15 @@ class ChainConfigMaker(object):
             # this is used to name the hypo instance
             last_fex_params = recluster_params  
 
-        if self.hypo_type == 'standard':
+        if self.hypo_type in ('standard', 'single_region',
+                              'maximum_bipartite', 'single_region_cleaning'):
             hypo_args = {
                 'chain_name': self.chain_name,
                 'jet_attributes': self.jet_attributes,
+                'cleaning': self.cleaning,
                 'isCaloFullScan': self.scan_type == 'FS',
-                'triggertower': self.data_type == 'TT'}
+                'triggertower': self.data_type == 'TT',
+            }
 
         elif self.hypo_type == 'ht':
             hypo_args = {
@@ -318,10 +344,11 @@ class ChainConfigMaker(object):
                 'ht_threshold': self.ht_threshold,
                 'jet_et_threshold': self.jet_et_threshold}
         else:
-            hypo_args = {}
+            msg = '%s unknown hypo_type' % (self.err_hdr, self.hypo_type)
+            raise RuntimeError(msg)
 
         hypo_params = hypo_factory(self.hypo_type, hypo_args)
-            
+
         menu_data = MenuData(self.scan_type,
                              self.data_type,
                              fex_params=fex_params,
@@ -332,15 +359,13 @@ class ChainConfigMaker(object):
                          )
 
 
-        
-
         return ChainConfig(chain_name=self.chain_name,
                            seed=self.seed,
                            run_hypo=self.run_hypo,
+                           run_rtt_diags=self.run_rtt_diags,
                            hypo_type = self.hypo_type,
-                           test=self.test,
                            data_scouting=self.data_scouting,
-                           menu_data=menu_data)
+                           menu_data=menu_data,)
 
     def _check_part(self, part):
         """Check chain part for errors"""
@@ -355,16 +380,19 @@ class ChainConfigMaker(object):
 
             hypo_setup_fn = {'standard': self.setup_standard_hypo,
                              'ht': self.setup_ht_hypo}.get(hypo_type, None)
+
     def _setup_standard_hypo(self, part):
-        if self.hypo_type == 'standard':
-            mult = int(part['multiplicity'])
-            threshold = int(part['threshold'])
-            eta_range = part['etaRange']
+        mult = int(part['multiplicity'])
+        threshold = int(part['threshold'])
+        eta_range = part['etaRange']
 
-            self.check_and_set('eta_range', eta_range)
+        self.jet_attributes.extend(
+            [(JetAttributes(threshold, eta_range)) for i in range(mult)])
+        self.cleaning = False
 
-            self.jet_attributes.extend(
-                [(JetAttributes(threshold, eta_range)) for i in range(mult)])
+    def _setup_standard_cleaning_hypo(self, part):
+        self._setup_standard_hypo(part)
+        self.cleaning = True
 
     def _setup_ht_hypo(self, part):
 

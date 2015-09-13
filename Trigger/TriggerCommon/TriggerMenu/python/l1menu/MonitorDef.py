@@ -34,6 +34,10 @@ from TriggerMenu.l1.Lvl1MonCounters import Lvl1MonCounters, Lvl1CtpinCounter, Lv
 
 class MonitorDef:
 
+    LOW_FREQ = 0
+    HIGH_FREQ = 1
+
+
     # CTPIN counters
     # these are generated for all CTPIN except the two highest JET inputs and the direct inputs
     @staticmethod
@@ -80,30 +84,126 @@ class MonitorDef:
         TAV=4
 
         monItems = { 1 :[], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] }
+        monItemsHF = { 1 :[], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] }
 
         # definitions hardcoded at the moment
 
+#        monItems[TBP] = [
+#            "L1_MBTSA0", "L1_MBTSA1", "L1_MBTSA2", "L1_MBTSA3", "L1_MBTSA4", "L1_MBTSA5", "L1_MBTSA6", "L1_MBTSA7", "L1_MBTSA8", "L1_MBTSA10", "L1_MBTSA12", "L1_MBTSA14", 
+#            "L1_MBTSC0", "L1_MBTSC1", "L1_MBTSC2", "L1_MBTSC3", "L1_MBTSC4", "L1_MBTSC5", "L1_MBTSC6", "L1_MBTSC7", "L1_MBTSC8", "L1_MBTSC10", "L1_MBTSC12", "L1_MBTSC14",
+#            "L1_LUCID", "L1_LUCID_A_C_EMPTY",
+#            "L1_LHCF",
+#            "L1_ALFA_A7R1U",
+#            "L1_ALFA_B7L1_OD","L1_ALFA_A7L1_OD","L1_ALFA_A7R1_OD","L1_ALFA_B7R1_OD",
+#            "L1_BPTX0_BGRP0", "L1_BPTX1_BGRP0",
+#            ]
+#
+#        
+#        monItems[TAP|TAV] = [
+#            "L1_EM7", "L1_EM12", "L1_EM8VH", "L1_EM10VH", "L1_EM15", "L1_EM15HI", "L1_EM15VH", 
+#            "L1_MU6", "L1_MU10", "L1_MU11", "L1_MU15", "L1_MU20",
+#            "L1_TAU20", "L1_TAU20IL", "L1_TAU20IM", "L1_TAU20IT", 
+#            "L1_J20", "L1_J100", 
+#            "L1_XE80", "L1_XS65", "L1_TE50",
+#            "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
+#            ]
+#        
+#        monItems[TBP|TAP|TAV] = [
+#            "L1_EM3", "L1_MU4", "L1_TAU12", "L1_J12", "L1_XE35", "L1_XS20", "L1_TE20",
+#            "L1_MBTS_4_A", "L1_MBTS_4_C", 
+#            "L1_HT200-J20s5.ETA49", "L1_HT1-J0.ETA49", "L1_HT190-J20s5.ETA49", "L1_JPSI-1M5-EMs", "L1_JPSI-1M5-EM6s", "L1_JPSI-1M5-EM12s",
+#            "L1_MJJ-4", "L1_MJJ-3", "L1_MJJ-2", "L1_MJJ-1", "L1_MJJ-350-0", "L1_MJJ-300-0", "L1_MJJ-250-0", "L1_MJJ-200-0", 
+#            "L1_RD0_FILLED", "L1_RD1_FILLED", "L1_RD2_FILLED", "L1_RD3_FILLED", 
+#            ]
+#
+#        monItemsHF[TBP] = [
+#            "L1_ALFA_ANY", 
+#            "L1_ALFA_A7R1L","L1_ALFA_B7R1U","L1_ALFA_B7R1L", "L1_ALFA_B7L1U", "L1_ALFA_B7L1L","L1_ALFA_A7L1U","L1_ALFA_A7L1L",
+#            ]
+#
+#
+#
+#        monItemsHF[TBP|TAP|TAV] = [
+#            "L1_BCM_Wide_BGRP0",
+#            "L1_BCM_AC_CA_BGRP0",
+#            "L1_BCM_AC_UNPAIRED_ISO",
+#            "L1_BCM_CA_UNPAIRED_ISO",
+#            "L1_J12",
+#            "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
+#            ]
+
+
+
         monItems[TBP] = [
-            "L1_EM3",
-            "L1_EM7"
+            "L1_ALFA_B7L1U", "L1_ALFA_B7L1L", "L1_ALFA_A7L1U", "L1_ALFA_A7L1L", "L1_ALFA_A7R1U", "L1_ALFA_A7R1L", "L1_ALFA_B7R1U", "L1_ALFA_B7R1L"
             ]
 
-        monItems[TBP|TAP] = [
-            "L1_EM12",
-            "L1_EM15"
-            ]
-        
-        monItems[TAP|TAV] = [
-            "L1_EM8VH",
-            "L1_EM10VH"
-            ]
-        
+
         monItems[TBP|TAP|TAV] = [
-            "L1_EM8I",
-            "L1_EM15I",
-            "L1_EM15VH",
-            "L1_EM18VH"
+            "L1_EM3","L1_EM12","L1_EM20VH","L1_EM20VHI","L1_EM22VHI",
+            "L1_MU4","L1_MU10","L1_MU20",
+            "L1_TAU12", "L1_TAU12IT", "L1_TAU20", "L1_TAU60",
+            "L1_J12", "L1_J20", "L1_J100", "L1_J400", "L1_J20.31ETA49", "L1_J30.31ETA49",
+            "L1_XE35", "L1_XE80", "L1_XS20", "L1_XS60", "L1_TE20", "L1_TE20.0ETA24", "L1_TE50",
+            "L1_MBTS_4_A", "L1_MBTS_4_C", "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
+            "L1_LUCID", "L1_LUCID_A_C_EMPTY", "L1_ALFA_ANY",
+             "L1_BTAG-MU4J30", "L1_3J15_BTAG-MU4J30", "L1_BPH-DR-2MU4-BO_BPH-4M8-2MU4-BO","L1_HT190-J15.ETA21","L1_JPSI-1M5-EM7","L1_J40_DPHI-J20XE50","L1_MJJ-100",
+            "L1_BPTX0_BGRP0","L1_BPTX1_BGRP0",
+            "L1_LHCF",
+            "L1_CALREQ2"
             ]
+
+        monItemsHF[TBP|TAP|TAV] = [
+            "L1_BCM_Wide_BGRP0",
+            "L1_BCM_AC_CA_BGRP0",
+            "L1_BCM_AC_UNPAIRED_ISO",
+            "L1_BCM_CA_UNPAIRED_ISO",
+            "L1_J12",
+            "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
+            ]
+
+
+
+        check = False
+        if check:
+            counts_LF_items = { TBP : set(), TAP : set(), TAV : set() }
+            counts_HF_items = { TBP : set(), TAP : set(), TAV : set() }
+
+            for k in range(1,8):
+
+                if k & TBP:
+                    counts_LF_items[TBP].update( monItems[k] )
+                    counts_HF_items[TBP].update( monItemsHF[k] )
+
+                if k & TAP:
+                    counts_LF_items[TAP].update( monItems[k] )
+                    counts_HF_items[TAP].update( monItemsHF[k] )
+
+                if k & TAV:
+                    counts_LF_items[TAV].update( monItems[k] )
+                    counts_HF_items[TAV].update( monItemsHF[k] )
+
+            counts_LF = dict( map(lambda (x,y) : (x,len(y)), counts_LF_items.items() ) )
+            counts_HF = dict( map(lambda (x,y) : (x,len(y)), counts_HF_items.items() ) )
+
+            lutsLF = ( max(counts_LF.values())-1) / 8 + 1
+            lutsHF = ( max(counts_HF.values())-1) / 8 + 1
+
+            if lutsLF + lutsHF > 8:
+                print "WARNING: too many monitoring items are defined:"
+                print "   low frequency  TBP: %i" % counts_LF[TBP]
+                print "                  TAP: %i" % counts_LF[TAP]
+                print "                  TAV: %i" % counts_LF[TAV]
+                print "   required LUTs: %i" % lutsLF
+                print "   high frequency TBP: %i" % counts_HF[TBP]
+                print "                  TAP: %i" % counts_HF[TAP]
+                print "                  TAV: %i" % counts_HF[TAV]
+                print "   required LUTs: %i" % lutsHF
+                print "   this menu requires %i monitoring LUTs while only 8 are available" % (lutsLF + lutsHF)
+            
+
+
+        #MonitorDef.checkForNonExistingMonItems(items, monItems)
 
         # for each item set the monitor flags
         for item in items:
@@ -111,12 +211,36 @@ class MonitorDef:
             itemName = item.name
             for k,l in monItems.items():
 
-                if  (k & TBP) and itemName in l:
-                    item.addMonitor("TBP")
+                if itemName in l:
+                    item.addMonitor(k, MonitorDef.LOW_FREQ)
 
-                if  (k & TAP) and itemName in l:
-                    item.addMonitor("TAP")
 
-                if  (k & TAV) and itemName in l:
-                    item.addMonitor("TAV")
+            for k,l in monItemsHF.items():
 
+                if itemName in l:
+                    item.addMonitor(k, MonitorDef.HIGH_FREQ)
+
+
+
+
+
+
+    @staticmethod
+    def checkForNonExistingMonItems(items, monItems):
+        # check is based on item names
+        allItemNames = [item.name for item in items]
+
+        # unify all item names that are monitored
+        allMonitorItems = set()
+        for i in range(1,8):
+            allMonitorItems.update(monItems[i])
+
+        # register all monitems that don't exist in here
+        nonExistiginMonItems = []
+        
+        for monItem in allMonitorItems:
+            if monItem not in allItemNames:
+                nonExistiginMonItems += [monItem]
+
+        if len(nonExistiginMonItems)>0:
+            raise RuntimeError("These monitoring items are part of the menu: %s" % ','.join(nonExistiginMonItems))

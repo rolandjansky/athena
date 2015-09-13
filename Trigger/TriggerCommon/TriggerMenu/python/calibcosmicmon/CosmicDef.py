@@ -15,30 +15,6 @@ from AthenaCommon.Include import include
 from AthenaCommon.SystemOfUnits import GeV
 from TriggerJobOpts.TriggerFlags  import TriggerFlags
 
-
-###################################################################################
-def getInputTEfromL1Item(item):
-
-
-    L1Map = {#'L1_RD0_EMPTY':      [''],
-        'L1_TAU8_EMPTY':      ['HA8'],
-        }
-
-    if TriggerFlags.triggerMenuSetup() == 'LS1_v1':                
-        L1Map['L1_CALREQ2']=['NIM30']
-    else:
-        L1Map['L1_CALREQ2']=['CAL2']
-
-    if item in L1Map:
-        return L1Map[item]
-    else: 
-        TE = item.replace("L1_","")
-        TE = TE.split("_")[0]
-        TE = TE[1:] if TE[0].isdigit() else TE
-        return TE
-
-
-
 ###################################################################################
 class L2EFChain_CosmicTemplate(L2EFChainDef):
 
@@ -64,6 +40,7 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
 
         self.L2InputL1Item = self.chainPartL1Item or self.chainL1Item
         if self.L2InputL1Item:
+            from TriggerMenu.menu.L1Seeds import getInputTEfromL1Item
             self.L2InputTE = getInputTEfromL1Item(self.L2InputL1Item)
         else:
             self.L2InputTE = ''
@@ -85,8 +62,8 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
         elif 'larhec' in self.chainPart['purpose']:
             self.setupCosmicLArHECNoise()
 
-        elif ('pixel' in self.chainPart['purpose']) \
-                | ('sct' in self.chainPart['purpose']):
+            
+        elif ('sct' in self.chainPart['purpose']):
             self.setupCosmicIDNoiseCalibration()
 
         elif ('id' in  self.chainPart['purpose']):
@@ -170,7 +147,7 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
         
         from TrigDetCalib.TrigDetCalibConfig import EtaHypo_HEC,LArL2ROBListWriter
         
-        self.L2sequenceList += [[ '', 
+        self.L2sequenceList += [[ self.L2InputTE, 
                                   [ EtaHypo_HEC('EtaHypo_HEC_' + self.chainPartName),],
                                   'L2_step1']]
         
@@ -198,36 +175,21 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
 
         from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
 
-        if 'pixel' in self.chainPart['purpose']:
-
-            l2_IDSubDetListWriter = TrigSubDetListWriter("CosmicIDSubDetListWriter")
-            l2_IDSubDetListWriter.Subdetectors = "Pixel,SCT,DBM"
-            l2_IDSubDetListWriter.extraROBs = []
-            theRobWriter = [l2_IDSubDetListWriter]
-
-            #if ('noise' in self.chainPart['addInfo']):
-            # elif 'beam' in self.chainPart['addInfo']:
-            #        l2_IDSubDetListWriter = TrigSubDetListWriter("CosmicIDSubDetListWriter")
-            #        l2_IDSubDetListWriter.Subdetectors = "Pixel,SCT,DBM"
-            #        l2_IDSubDetListWriter.extraROBs = []            
-            #        theRobWriter = [l2_IDSubDetListWriter]
-            
-        elif ('sct' in self.chainPart['purpose']) \
-                & ('noise' in self.chainPart['addInfo']):
-            l2_SCTSubDetListWriter = TrigSubDetListWriter("CosmicSCTNoiseSubDetListWriter")
-            l2_SCTSubDetListWriter.Subdetectors = "SCT"
-            l2_SCTSubDetListWriter.extraROBs = []
-            theRobWriter= [l2_SCTSubDetListWriter]
-
-
+        l2_SCTSubDetListWriter = TrigSubDetListWriter("CosmicSCTNoiseSubDetListWriter")
+        l2_SCTSubDetListWriter.Subdetectors = "SCT"
+        l2_SCTSubDetListWriter.extraROBs = []
+        theRobWriter= [l2_SCTSubDetListWriter]
+        
+        
         self.L2sequenceList += [[ '', theRobWriter,  'L2_step1']]
         self.L2signatureList+=[ [['L2_step1']*self.mult] ]
-
+        
         self.TErenamingDict = {
             'L2_step1': mergeRemovingOverlap('L2_','Calib'+self.chainName),
             }
 
-    ##################################################################
+        
+##################################################################
     def setupCosmicAllTeChains(self):
 
         newchainName = self.chainName

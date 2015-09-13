@@ -19,8 +19,8 @@ def getStreamTagForRerunChains(triggerPythonConfig, HLTPrescale):
         for ch in triggerPythonConfig.allChains[item]:
             if ch.level == 'HLT': hltchain = ch
             if n > 3  and hltchain:
-                if hltchain.prescale != "1":
-                    log.warning("chain "+ hltchain.chain_name + " in rerun mode with special strema tag is prescaled out ")
+                if hltchain.prescale != "0":
+                    log.warning("chain "+ hltchain.chain_name + " in rerun mode with special strema tag does not have the correct HLT PS [=0] ")
                 if hltchain.rerun_prescale !=  "1":
                     log.error("chain "+ hltchain.chain_name + " has special stream tag but it's not in rerun mode")
                 list.append( "%s:%s" %(str(hltchain.chain_name),str(prescales[3])) )

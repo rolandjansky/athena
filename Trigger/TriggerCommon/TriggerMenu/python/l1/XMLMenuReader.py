@@ -48,7 +48,15 @@ def readMenuFromXML(l1menu, filename):
         complex_deadtime = int(x['complex_deadtime'] if 'complex_deadtime' in x else prioMap[ctpid])
         psCut            = psMap[ctpid]
         triggerType      = int( x['trigger_type'], 2 )
+
         item = LVL1MenuItem(x['name'], ctpid = ctpid, complex_deadtime = complex_deadtime, psCut = psCut).setTriggerType( triggerType )
+
+        if 'monitor' in x and x['monitor'].startswith('LF'):
+            lf,hf = [ int(m[-3:],2) for m in x['monitor'].split('|') ]
+            from TriggerMenu.l1menu.MonitorDef import MonitorDef
+            item.addMonitor(lf, MonitorDef.LOW_FREQ)
+            item.addMonitor(hf, MonitorDef.HIGH_FREQ)
+
         l1menu.addItem( item )
 
     # Thresholds
@@ -78,7 +86,11 @@ def readMenuFromXML(l1menu, filename):
 
         ca = x.Cable
         thr.setCableInput()
-        
+        print "x[bitnum]", x['bitnum']
+        print "type x[bitnum]", type(x['bitnum'])
+        print "x['type']", x['type']
+
+
         # overwrite cable info with data from xml file
         si = ca.Signal
         thr.cableinfo.bitnum      = int(x['bitnum'])
@@ -106,11 +118,8 @@ def readMenuFromXML(l1menu, filename):
                     isobits = xV['isobits'] if 'isobits' in xV else '00000'
                     use_relIso = xV['use_relIso'] if 'use_relIso' in xV else False
                     thrVal.setIsolation(em_isolation, had_isolation, had_veto, isobits, use_relIso)
-
-
                 
                 thr.thresholdValues.append(thrVal)
-
 
         l1menu.thresholds.thresholds += [ thr ]
 

@@ -1,3 +1,81 @@
+2015-07-31   Peter Sherwood  <peter@localhost>
+
+	* Changes to jetDefInstantiator, AlgFactory, JetSequenceBuilder and
+	test modules to create study TT chains.
+
+	M       python/jet/JetDef_test.py
+	M       python/jet/ChainConfigMaker_test.py
+	M       python/jet/AlgFactory.py
+	M       python/jet/jetDefInstantiator.py
+	M       python/jet/test_dicts.py
+	M       python/jet/JetSequencesBuilder.py
+
+
+2015-05-27   Peter Sherwood  <peter@localhost>
+
+	* JetSequencesBuilder.py (JetSequencesBuilder.make_ps): 
+	For the SuperROI Algorithm, we are building sequences
+	with differerntly SuperROI instances, but with the same te_out.
+	This means the te_out no longer uniquely identifies the sequence.
+	Resolve by adding the seed (also used for the instance name to the
+	AlgList alias.
+
+	* jetDefInstantiator.py: removed unused imports as part of
+	a wider code clean-up operation.
+
+2015-05-22   Peter Sherwood  <peter@localhost>
+
+	* JetDef.py (_make_start_te): for non full scan chains set the input 
+	TE name to the return value of getInputTEfromL1Item(chain_config.seed)
+
+2015-05-04   Peter Sherwood  <peter@macbookpro-c8e0eb1928f3.fritz.box>
+
+	* hypo_factory_test.py: add test for new hypo alg classes.
+
+	* ChainConfigMaker_test.py: rationalize tests, add to test suite.
+
+	* hypo_factory.py: add more hypo algs classes for 
+	various configuration combinations of TrigHLTJetHypo.
+
+2015-05-03   Peter Sherwood  <peter@localhost>
+
+	* ChainConfigMaker.py: add flag to signal 
+	if muliple eta regions are requested.
+
+	* JetSequencesBuilder.py (JetSequencesBuilder.make_jh): 
+	run the maximum bipartite algorithm if more than one
+	eta region is requested. This is currently done
+	by manipulating the test flags.
+
+
+2015-04-30   Peter Sherwood  <peter@localhost>
+
+	* jetDefInstantiator.py: add import of TrigHLTJetHypo
+
+	* ChainConfig.py (ChainConfig): rename self.test to
+	self.run_rtt_diags, as "test" isnow used with different meanings.
+
+	* JetSequencesBuilder.py (JetSequencesBuilder.make_jh): 
+	improve handling of the test1, 2 3 flags
+
+	* AlgFactory.py (AlgFactory.hlt_hypo_test1,2,3): 
+	new method that uses the test1 flag for development
+
+2015-04-29   Peter Sherwood  <peter@localhost>
+
+	* ChainConfig.py (ChainConfig.__init__):
+	add support for the test flags that
+	can appear in the 'extra' field of the input dictionary.
+
+	* ChainConfigMaker.py: add support for the test flags that
+	can appear in the 'extra' field of the input dictionary.
+
+	* AlgFactory.py (AlgFactory.cellMaker_superPS_topo):
+	add the  C++ class name to the instance  name
+	(AlgFactory.cellMaker_fullcalo_topo):
+	add the  C++ class name to the instance  name
+
+
 2015-03-25   Peter Sherwood  <peter@localhost>
 
 	* AlgFactory.py (AlgFactory.ht_hypo): make HT hypo cuts

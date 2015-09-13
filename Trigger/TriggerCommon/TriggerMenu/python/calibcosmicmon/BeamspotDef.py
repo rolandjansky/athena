@@ -78,12 +78,19 @@ class L2EFChain_Beamspot(L2EFChainDef):
    ###########################################################################
    def setupBeamspotChains(self):
 
-     if ('peb' in self.eventBuildType):
+     if 'peb'== self.eventBuildType:
        from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
        robListWriter = TrigSubDetListWriter('IDSubDetListWriter')
        robListWriter.SubdetId = [ "SiOnly","TDAQ_CTP" ]
        robListWriter.addL1Calo = False                        
        theAlg = robListWriter       
+     elif 'pebTRT'== self.eventBuildType:
+       from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+       robListWriter = TrigSubDetListWriter('IDTRTSubDetListWriter')
+#       robListWriter.SubdetId = [ "SiOnly","TDAQ_CTP","TRT" ]
+       robListWriter.SubdetId = [ "InnerDetector","TDAQ_CTP" ]
+       robListWriter.addL1Calo = False                        
+       theAlg = robListWriter              
      else: 
        from TrigGenericAlgs.TrigGenericAlgsConf import PrescaleAlgo
        theAlg = PrescaleAlgo("terminateAlgo")   

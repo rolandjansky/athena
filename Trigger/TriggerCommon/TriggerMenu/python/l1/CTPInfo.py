@@ -11,6 +11,9 @@ class CTPInfo:
             self.cuts  = cuts
 
         def xml(self, ind=1, step=2):
+            if self.cuts[3] != 1:
+                raise RuntimeError("Random generator 3 has to run at 40MHz, so Random.cut3 must be set to 1")
+            
             a = []
             for idx, (name,cut) in enumerate( zip(self.names,self.cuts) ):
                 a += ['name%i="%s" cut%i="%i"' % (idx, name, idx, cut)]

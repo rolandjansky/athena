@@ -18,6 +18,7 @@ physicsStreams = ['Main',
                   'Met', 'Jet', 'Tau', 
                   'MinBias',
                   'ZeroBias',
+                  'TauOverlay',
                   'Standby', 
                   'L1Muon', 'L1Calo', 'L1MinBias', 
                   'IDCosmic','CosmicCalo',
@@ -27,6 +28,10 @@ physicsStreams = ['Main',
                   'CosmicMuons',
                   'HLT_IDCosmic',
                   'CosmicID',
+                  'Late',
+                  'HardProbes',
+                  'MinBiasOverlay',
+                  'UPC',
                   ]
 
 calibStreams = ['Background', 
@@ -42,7 +47,11 @@ calibStreams = ['Background',
                 'Muon_Calibration',
                 'ALFACalib',
                 'IBLLumi',
+                'IDTracks',
                 'TgcNoiseBurst',
+                'VdM',
+                'IDFwd',
+                'BeamSpot',
                 ]
 
 ##NOTE: DataScouting_xx_NAME: 
@@ -75,7 +84,10 @@ def getStreamTag(streams):
         if stream in physicsStreams:
             streamTags += [(stream, 'physics', 'yes', '1')]
         elif stream in calibStreams:
-            streamTags += [(stream, 'calibration', 'no', '1')]
+            if 'BeamSpot' in stream:
+               streamTags += [(stream, 'calibration', 'yes', '1')]
+            else: 
+               streamTags += [(stream, 'calibration', 'no', '1')]
         elif stream in expressStreams:
             streamTags += [(stream, 'express', 'yes', '1')]
         elif stream in monStreams:
@@ -88,7 +100,7 @@ def getStreamTag(streams):
             return [ ('jettauetmiss','physics','yes','1') ]#[('','','','')]
             
 
-    log.info('StreamTags '+str(streamTags))
+    log.debug('StreamTags '+str(streamTags))
     return streamTags
 
 #[ ('jettauetmiss','physics','yes','1') ]

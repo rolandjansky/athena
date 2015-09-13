@@ -65,7 +65,8 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
     HLTChainName = "HLT_" + chainDict['chainName']
 
 
-    topoStartFrom = chainDict['topoThreshold']
+    topoThresh = chainDict['topoThreshold']
+    topoStartFrom = setupTopoStartFrom(topoThresh,theChainDef) if topoThresh else None
 
     if "Jpsiee" in chainDict["topo"]:
         topo2StartFrom = None

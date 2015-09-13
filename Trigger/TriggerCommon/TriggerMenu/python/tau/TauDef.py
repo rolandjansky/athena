@@ -219,8 +219,11 @@ class L2EFChain_tau(L2EFChainDef):
             # tauRoiUpdater.z0HalfWidth = 2.0 # Temporarily widened to 10 mm
             tauRoiUpdater.z0HalfWidth = 7.0
 
-            #ftracks = trkcore+[tauRoiUpdater]+trkiso
-            ftracks = trkcore+[tauRejectEmpty, tauRoiUpdater]+trkiso
+            if not idperf:
+                ftracks = trkcore+[tauRejectEmpty, tauRoiUpdater]+trkiso
+            else :
+                ftracks = trkcore+[tauRoiUpdater]+trkiso
+            
 
             # Run fast-tracking
             self.EFsequenceList += [[[ self.currentItem ],
@@ -284,8 +287,7 @@ class L2EFChain_tau(L2EFChainDef):
                 theEFHypo       = self.hypoProvider.GetHypo('EF', threshold, selection, '', 'r1')
 
             # Get the necessary fexes
-            from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-            from TrigTauDiscriminant.TrigTauDiscriGetter import TrigTauDiscriGetter2015
+            from TrigInDetConf.TrigInDetSequence import TrigInDetSequence 
 
             # Change track selection if we're running on cosmics...
             if selection == 'cosmic':
@@ -305,17 +307,31 @@ class L2EFChain_tau(L2EFChainDef):
             if preselection not in fastTrackingUsed:
                 efidinsideout = trkcore+trkprec
 
-            efmv              = TrigTauDiscriGetter2015()
 
             # Precision tracking
             self.EFsequenceList += [[[ self.currentItem ],
                                      efidinsideout,
                                      self.continueChain('EF', 'tr')]]
-            # TrigTauRec, BDT and Hypo
-            self.EFsequenceList += [[[ self.currentItem ],
-                                     [recmerged_2012, efmv, theEFHypo],
-                                     self.continueChain('EF', 'effinal')]]
 
+
+            # TrigTauRec and Hypo (no BDT)
+            if selection == 'dikaon' or selection == 'dikaontight':
+                self.EFsequenceList += [[[ self.currentItem ],
+                                         [recmerged_2012, theEFHypo],
+                                         self.continueChain('EF', 'effinal')]]                
+            else:
+            # TrigTauRec, BDT and Hypo
+                from TrigTauDiscriminant.TrigTauDiscriGetter import TrigTauDiscriGetter2015
+                efmv              = TrigTauDiscriGetter2015()
+                self.EFsequenceList += [[[ self.currentItem ],
+                                         [recmerged_2012, efmv, theEFHypo],
+                                         self.continueChain('EF', 'effinal')]]
+#toremove
+#            # TrigTauRec, BDT and Hypo
+#            self.EFsequenceList += [[[ self.currentItem ],
+#                                     [recmerged_2012, efmv, theEFHypo],
+#                                     self.continueChain('EF', 'effinal')]]
+#
     def setup_tauChainRunOne(self):
 
         threshold   = self.chainPart['threshold']

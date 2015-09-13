@@ -35,6 +35,7 @@ theTrigFastTrackFinder_Electron = TrigFastTrackFinder_Electron()
 from TrigEgammaRec.TrigEgammaRecConfig       import TrigEgammaRec
 TrigEgammaRec_eGamma                  = TrigEgammaRec.copy(name = "TrigEgammaRec_eGamma",doPrint=False)
 TrigEgammaRec_Conv_eGamma                  = TrigEgammaRec.copy(name = "TrigEgammaRec_Conv_eGamma", doConversions = True,doPrint=False)
+TrigEgammaRec_NoIDEF_eGamma         = TrigEgammaRec.copy(name = "TrigEgammaRec_NoIDEF_eGamma",doTrackMatching = False,doTrackIsolation = False,doPrint=False)
 
 from TrigGenericAlgs.TrigGenericAlgsConf import PrescaleAlgo
 terminateAlgo = PrescaleAlgo('terminateAlgo')
@@ -371,20 +372,21 @@ class L2EFChain_e(L2EFChainDef):
         algoSuffix = "e%s_%s()" % (str(threshold),IDinfo)
         if 'etcut' in self.chainPart['addInfo']:
             from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_NoCut
-            from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_EtCut
             from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_EtCut
+            # No cut after FEX
+            from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_NoCut
             theL2CaloHypo      = L2CaloHypo_NoCut("L2CaloHypo_e"+str(threshold)+"_NoCut",threshold ) 
             theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+str(threshold)+"_EtCut",threshold);
-            theEFElectronHypo  = TrigEFElectronHypo_e_EtCut("TrigEFElectronHypo_e"+str(threshold)+"_EtCut",threshold)
+            theEFElectronHypo  = TrigEFElectronHypo_e_NoCut("TrigEFElectronHypo_e"+str(threshold)+"_NoCut",threshold)
         elif self.chainPart['IDinfo']:
             from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_e_ID
             theL2CaloHypo = L2CaloHypo_e_ID("TrigL2CaloHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo)
-            from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_e_ID
             # EF Calo
+            from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_e_ID
             theTrigEFCaloHypo = TrigEFCaloHypo_e_ID("TrigEFCaloHypo_e"+str(threshold)+"_"+str(IDinfo),threshold,IDinfo);
-            from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_ID_CaloOnly
-            theEFElectronHypo  = \
-                TrigEFElectronHypo_e_ID_CaloOnly("TrigEFElectronHypo_e"+str(threshold)+"_"+str(IDinfo)+"_CaloOnly",threshold,IDinfo)
+            # No cut after FEX
+            from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_NoCut    
+            theEFElectronHypo  = TrigEFElectronHypo_e_NoCut("TrigEFElectronHypo_e"+str(threshold)+"_NoCut",threshold)
         
         # EF Electron FEX
         if 'conv' in self.chainPart['addInfo']:
@@ -394,10 +396,10 @@ class L2EFChain_e(L2EFChainDef):
 
 
         ########### Sequences ###########
-        trkseq = list(theTrigEFIDDataPrep_Electron)
-        trkseq.append(theTrigFastTrackFinder_Electron)
-        trkseq += theFastTrackFinderxAOD
-        trkseq+=theTrigEFIDInsideOutMerged_Electron
+        from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+        [trkfast, trkprec] = TrigInDetSequence("Electron", "electron", "IDTrig").getSequence()
+
+        trkseq=trkfast+trkprec
 
         #calo thresholds here?
         self.L2sequenceList += [[self.L2InputTE, 
@@ -474,13 +476,13 @@ class L2EFChain_e(L2EFChainDef):
         theTrigL2SiTrackFinder_eGammaC=TrigL2SiTrackFinder_eGammaC()
 
         # EF Calo
-        from TrigHIHypo.UE import theUEMaker, theFSCellMaker, theTrigCaloCellMaker_eGamma
-
+        from TrigHIHypo.UE import theUEMaker, theFSCellMaker, theTrigCaloCellMaker_eGamma, theElectronUEMonitoring
+        print "imported UE stuff here"
 
         from TrigCaloRec.TrigCaloRecConfig import  TrigCaloCellMaker_eGamma, TrigCaloTowerMaker_eGamma, TrigCaloClusterMaker_slw
         #theTrigCaloCellMaker_eGamma      = TrigCaloCellMaker_eGamma("TrigCaloCellMaker_eGamma_heavyIon")
         theTrigCaloTowerMaker_eGamma     = TrigCaloTowerMaker_eGamma("TrigCaloTowerMaker_eGamma_heavyIon")
-        theTrigCaloClusterMaker_slw      = TrigCaloClusterMaker_slw("TrigCaloClusterMaker_slw_heavyIon")
+        theTrigCaloClusterMaker_slw      = TrigCaloClusterMaker_slw("TrigCaloClusterMaker_slw")
         
         from TrigEgammaHypo.TrigEFCaloCalibFexConfig import TrigEFCaloCalibFex_Electron
         theTrigEFCaloCalibFex = TrigEFCaloCalibFex_Electron()
@@ -523,11 +525,10 @@ class L2EFChain_e(L2EFChainDef):
             theTrigEgammaFex = TrigEgammaRec_eGamma()
 
 
-        ########### Sequences ###########
-        trkseq = list(theTrigEFIDDataPrep_Electron)
-        trkseq.append(theTrigFastTrackFinder_Electron)
-        trkseq += theFastTrackFinderxAOD
-        trkseq+=theTrigEFIDInsideOutMerged_Electron
+        ########### Sequences ##########
+        from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+        [trkfast, trkprec] = TrigInDetSequence("Electron", "electron", "IDTrig").getSequence()
+        trkseq=trkfast+trkprec
 
         #calo thresholds here?
         self.L2sequenceList += [[self.L2InputTE, 
@@ -544,7 +545,7 @@ class L2EFChain_e(L2EFChainDef):
                                  'EF_e_step1']]
         
         self.EFsequenceList += [[['EF_e_step1'], 
-                                 [theTrigEFCaloCalibFex,theTrigEFCaloHypo], 
+                                 [theTrigEFCaloCalibFex, theElectronUEMonitoring, theTrigEFCaloHypo], 
                                  'EF_e_step2']]
         
         if 'L2Star' in self.chainPart['addInfo']:
@@ -632,12 +633,12 @@ class L2EFChain_e(L2EFChainDef):
 
             from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_NoCut
             from TrigEgammaHypo.TrigEFTrackHypoConfig import EFTrackHypo_e_NoCut
-            from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_EtCut
+            from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_NoCut
             from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_EtCut
             theL2CaloHypo      = L2CaloHypo_NoCut("L2CaloHypo_e"+str(threshold)+"_NoCut",threshold ) 
             theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+str(threshold)+"_EtCut",threshold);
             theEFTrackHypo     = EFTrackHypo_e_NoCut("EFTrackHypo_e"+str(threshold)+"_NoCut",threshold) 
-            theEFElectronHypo  = TrigEFElectronHypo_e_EtCut("TrigEFElectronHypo_e"+str(threshold)+"_EtCut",threshold)
+            theEFElectronHypo  = TrigEFElectronHypo_e_NoCut("TrigEFElectronHypo_e"+str(threshold)+"_NoCut",threshold)
         elif 'perf' in self.chainPart['addInfo']:
             from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_NoCut
             from TrigEgammaHypo.TrigEFTrackHypoConfig import EFTrackHypo_e_NoCut
@@ -689,11 +690,8 @@ class L2EFChain_e(L2EFChainDef):
             theTrigEgammaFex = TrigEgammaRec_eGamma()
         ########### Sequences ###########
         
-        trkcomb1st = list(theTrigEFIDDataPrep_Electron)
-        trkcomb1st.append(theTrigFastTrackFinder_Electron)
-        trkcomb1st += theFastTrackFinderxAOD
-        trkcombfull = list(trkcomb1st)
-        trkcombfull += theTrigEFIDInsideOutMerged_Electron
+        from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+        [trkfast, trkprec] = TrigInDetSequence("Electron", "electron", "IDTrig").getSequence()
 
         if 'ringer' in self.chainPart['addInfo']:
             self.L2sequenceList += [[self.L2InputTE, 
@@ -717,7 +715,7 @@ class L2EFChain_e(L2EFChainDef):
                                  'EF_e_step2']]
         
         self.EFsequenceList += [[['EF_e_step2'], 
-                                 trkcombfull+[ theEFTrackHypo],
+                                 trkfast+trkprec+[ theEFTrackHypo],
                                  'EF_e_step3']]
         
         self.EFsequenceList += [[['EF_e_step3'], 
@@ -773,11 +771,11 @@ class L2EFChain_e(L2EFChainDef):
         # these can be made more configurable later (according to tracking algorithms etc...)
         if 'etcut' in self.chainPart['addInfo']:
             from TrigEgammaHypo.TrigEFTrackHypoConfig import EFTrackHypo_e_NoCut
-            from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_EtCut
+            from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_NoCut
             from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_EtCut
             theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+str(threshold)+"_EtCut",threshold);
             theEFTrackHypo     = EFTrackHypo_e_NoCut("EFTrackHypo_e"+str(threshold)+"_NoCut",threshold) 
-            theEFElectronHypo  = TrigEFElectronHypo_e_EtCut("TrigEFElectronHypo_e"+str(threshold)+"_EtCut",threshold)
+            theEFElectronHypo  = TrigEFElectronHypo_e_NoCut("TrigEFElectronHypo_e"+str(threshold)+"_NoCut",threshold)
         elif 'perf' in self.chainPart['addInfo']:
             from TrigEgammaHypo.TrigEFTrackHypoConfig import EFTrackHypo_e_NoCut
             from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_NoCut
@@ -827,6 +825,10 @@ class L2EFChain_e(L2EFChainDef):
         trkcombfull = list(trkcomb1st)
         trkcombfull += theTrigEFIDInsideOutMerged_Electron
 
+        from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+        [trkfast, trkprec] = TrigInDetSequence("Electron", "electron", "IDTrig").getSequence()
+        trkseq=trkfast+trkprec
+        
         self.EFsequenceList += [[self.L2InputTE, 
                                  [theTrigCaloCellMaker_eGamma, theTrigCaloTowerMaker_eGamma, theTrigCaloClusterMaker_slw],
                                  'EF_e_step1']]
@@ -836,7 +838,7 @@ class L2EFChain_e(L2EFChainDef):
                                  'EF_e_step2']]
         
         self.EFsequenceList += [[['EF_e_step2'], 
-                                 trkcombfull+[ theEFTrackHypo],
+                                 trkseq+[ theEFTrackHypo],
                                  'EF_e_step3']]
         
         self.EFsequenceList += [[['EF_e_step3'], 
@@ -915,13 +917,13 @@ class L2EFChain_e(L2EFChainDef):
             from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_NoCut
             from TrigEgammaHypo.TrigL2ElectronHypoConfig import L2ElectronHypo_e_NoCut
             from TrigEgammaHypo.TrigEFTrackHypoConfig import EFTrackHypo_e_NoCut
-            from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_EtCut
+            from TrigEgammaHypo.TrigEFElectronHypoConfig import TrigEFElectronHypo_e_NoCut
             from TrigEgammaHypo.TrigEFCaloHypoConfig import TrigEFCaloHypo_EtCut
             theL2CaloHypo      = L2CaloHypo_NoCut("L2CaloHypo_e"+str(threshold)+"_NoCut",threshold ) 
             theL2ElectronHypo  = L2ElectronHypo_e_NoCut("L2ElectronHypo_e"+str(threshold)+"_NoCut",threshold ) 
             theTrigEFCaloHypo = TrigEFCaloHypo_EtCut("TrigEFCaloHypo_e"+str(threshold)+"_EtCut",threshold);
             theEFTrackHypo     = EFTrackHypo_e_NoCut("EFTrackHypo_e"+str(threshold)+"_NoCut",threshold) 
-            theEFElectronHypo  = TrigEFElectronHypo_e_EtCut("TrigEFElectronHypo_e"+str(threshold)+"_EtCut",threshold)
+            theEFElectronHypo  = TrigEFElectronHypo_e_NoCut("TrigEFElectronHypo_e"+str(threshold)+"_NoCut",threshold)
         elif 'perf' in self.chainPart['addInfo']:
             from TrigEgammaHypo.TrigL2CaloHypoConfig import L2CaloHypo_NoCut
             from TrigEgammaHypo.TrigL2ElectronHypoConfig import L2ElectronHypo_e_NoCut
@@ -1001,6 +1003,10 @@ class L2EFChain_e(L2EFChainDef):
         trkcombfull = list(trkcomb1st)
         trkcombfull += theTrigEFIDInsideOutMerged_Electron
         
+        from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+        [trkfast, trkprec] = TrigInDetSequence("Electron", "electron", "IDTrig").getSequence()
+        trkseq=trkfast+trkprec
+        
         if 'ringer' in self.chainPart['addInfo']:
             self.L2sequenceList += [[self.L2InputTE, 
                                      [theT2CaloEgamma_Ringer, theL2CaloFex_Ringer, theL2CaloHypo], 
@@ -1015,7 +1021,7 @@ class L2EFChain_e(L2EFChainDef):
                                      'L2_e_step1']]
         
         self.L2sequenceList += [[['L2_e_step1'],    
-                                 trkcomb1st, 
+                                 trkfast, 
                                  'L2_e_step2']]
         
         self.L2sequenceList += [[['L2_e_step2'], 
@@ -1036,7 +1042,7 @@ class L2EFChain_e(L2EFChainDef):
         #                             'EF_e_step3']]
         else:
             self.EFsequenceList += [[['EF_e_step2'], 
-                                     theEFElectronIDFex+[ theEFTrackHypo],
+                                     trkprec+[ theEFTrackHypo],
                                      #trkcombfull+[ theEFTrackHypo],
                                      'EF_e_step3']]
         
@@ -1098,12 +1104,12 @@ class L2EFChain_e(L2EFChainDef):
         theL2ElectronFex = L2ElectronFex_1()
  
         # EF Calo
-        from TrigHIHypo.UE import theUEMaker, theFSCellMaker, theTrigCaloCellMaker_eGamma
-
+        from TrigHIHypo.UE import theUEMaker, theFSCellMaker, theTrigCaloCellMaker_eGamma, theElectronUEMonitoring
+        print "imported UE stuff there"
         from TrigCaloRec.TrigCaloRecConfig import  TrigCaloCellMaker_eGamma, TrigCaloTowerMaker_eGamma, TrigCaloClusterMaker_slw
         #theTrigCaloCellMaker_eGamma      = TrigCaloCellMaker_eGamma("TrigCaloCellMaker_eGamma_heavyIon")
         theTrigCaloTowerMaker_eGamma     = TrigCaloTowerMaker_eGamma("TrigCaloTowerMaker_eGamma_heavyIon")
-        theTrigCaloClusterMaker_slw      = TrigCaloClusterMaker_slw("TrigCaloClusterMaker_slw_heavyIon")
+        theTrigCaloClusterMaker_slw      = TrigCaloClusterMaker_slw("TrigCaloClusterMaker_slw")
        
         from TrigEgammaHypo.TrigEFCaloCalibFexConfig import TrigEFCaloCalibFex_Electron
         theTrigEFCaloCalibFex = TrigEFCaloCalibFex_Electron()
@@ -1210,6 +1216,9 @@ class L2EFChain_e(L2EFChainDef):
         trkcombfull = list(trkcomb1st)
         trkcombfull += theTrigEFIDInsideOutMerged_Electron
         
+        from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+        [trkfast, trkprec] = TrigInDetSequence("Electron", "electron", "IDTrig").getSequence()
+        trkseq=trkfast+trkprec
         if 'ringer' in self.chainPart['addInfo']:
             self.L2sequenceList += [[self.L2InputTE, 
                                      [theT2CaloEgamma_Ringer, theL2CaloFex_Ringer, theL2CaloHypo], 
@@ -1224,7 +1233,7 @@ class L2EFChain_e(L2EFChainDef):
                                      'L2_e_step1']]
         
         self.L2sequenceList += [[['L2_e_step1'],    
-                                 trkcomb1st, 
+                                 trkfast, 
                                  'L2_e_step2']]
         
         self.L2sequenceList += [[['L2_e_step2'], 
@@ -1242,7 +1251,7 @@ class L2EFChain_e(L2EFChainDef):
                                  'EF_e_step1']]
         
         self.EFsequenceList += [[['EF_e_step1'], 
-                                 [theTrigEFCaloCalibFex,theTrigEFCaloHypo], 
+                                 [theTrigEFCaloCalibFex, theElectronUEMonitoring, theTrigEFCaloHypo], 
                                  'EF_e_step2']]
         if 'gsf' in self.chainPart['addInfo']:
             logElectronDef.error("GSF chains are not configured yet")
@@ -1251,7 +1260,7 @@ class L2EFChain_e(L2EFChainDef):
         #                             'EF_e_step3']]
         else:
             self.EFsequenceList += [[['EF_e_step2'], 
-                                     theEFElectronIDFex+[ theEFTrackHypo],
+                                     trkprec+[ theEFTrackHypo],
                                      #trkcombfull+[ theEFTrackHypo],
                                      'EF_e_step3']]
         

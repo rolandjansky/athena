@@ -122,7 +122,7 @@ class LVL1Threshold(object):
             return self.addEMThresholdValue(value, *args, **kwargs)
         if self.ttype == 'JET' or self.ttype == 'JF' or self.ttype == 'JB':
             return self.addJetThresholdValue(value, *args, **kwargs)
-        if self.ttype in ['JE', 'TE', 'XE', 'XS', 'CALREQ', 'MBTSSI', 'TRT', 'ZDC', 'BCM', 'BCMCMB', 'LUCID', 'NIM']:
+        if self.ttype in ['JE', 'TE', 'XE', 'XS', 'CALREQ', 'MBTSSI', 'TRT', 'ZDC', 'BCM', 'BCMCMB', 'BPTX', 'LUCID', 'NIM']:
             return self.addEnergyThresholdValue(value, *args, **kwargs)
         
 

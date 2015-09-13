@@ -60,7 +60,7 @@ class TestAlgFactory(unittest.TestCase):
         for name, m in inspect.getmembers(self.alg_factory,
                                           predicate=inspect.ismethod):
 
-            if name.startswith ('__'):
+            if name.startswith ('__') or name == '_hlt_hypo':
                 continue
             print 'running Algfactory methods', name
 

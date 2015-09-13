@@ -77,7 +77,7 @@ class CaloLimits:
     ClusterOff   = 255
     IsolationOff = 63
     JetOff       = 1023
-    EtSumOff     = 2047
-    EtMissOff    = 2895
+    EtSumOff     = 32767
+    EtMissOff    = 32767 
     JetEtOff     = 13286
 

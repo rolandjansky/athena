@@ -10,6 +10,8 @@ import sys
 import getopt
 import shelve
 
+from TriggerMenu.menu.L1Seeds import getInputTEfromL1Item
+
 from JetSequencesBuilder import JetSequencesBuilder
 from TriggerMenu.menu.ChainDef import (ChainDef,
                                        ErrorChainDef)
@@ -98,7 +100,7 @@ def _check_chainpart_consistency(chain_parts):
         the different chainParts"""
 
         to_remove = ['multiplicity', 'etaRange', 'threshold', 'chainPartName',
-                     'addInfo', 'bTag', 'bTracking', 'bConfig', 'topo']
+                     'addInfo', 'bTag', 'bTracking', 'bConfig', 'topo', 'bMatching']
         for tr in to_remove: 
             try:
                 del d[tr]
@@ -193,22 +195,44 @@ def _is_full_scan(chain_config):
     return chain_config.menu_data.scan_type == 'FS'
 
 
+# def _make_start_te(chain_config):
+# 
+#     if _is_full_scan(chain_config):
+#         return ''  # the te_in name for a full scan is ''
+# 
+#     pat = r'^L1_\d?'
+#     seed  = chain_config.seed
+#     start_te = re.split(pat, seed)
+#     if len(start_te) != 2:
+#         msg = '_make_chain_def, L1 seed %s does not match %s' % (seed, pat)
+#         raise RuntimeError(msg)
+# 
+#     #chandle special case: for L1_TAU the start te should be HA
+#     result = start_te[1]
+#     result = result.replace('TAU', 'HA')
+#     return result
+# 
+# 
 def _make_start_te(chain_config):
 
     if _is_full_scan(chain_config):
         return ''  # the te_in name for a full scan is ''
 
-    pat = r'^L1_\d?'
-    seed  = chain_config.seed
-    start_te = re.split(pat, seed)
-    if len(start_te) != 2:
-        msg = '_make_chain_def, L1 seed %s does not match %s' % (seed, pat)
-        raise RuntimeError(msg)
+    # not sure about the following imported function...
+    # its return type can vary....
+    try:
+        te = getInputTEfromL1Item(chain_config.seed)
+    except:
+        raise RuntimeError(
+            'JetDef._make_start_te: Unable to obtain te name for L1')
 
-    #chandle special case: for L1_TAU the start te should be HA
-    result = start_te[1]
-    result = result.replace('TAU', 'HA')
-    return result
+    if isinstance(te, str):
+        return te
+
+    if isinstance(te, list):
+        return te[0]
+
+    raise RuntimeError('JetDef._make_start_te: unknown te type %s' % str(te))
 
 
 def generateHLTChainDef(caller_data):
@@ -225,7 +249,7 @@ def generateHLTChainDef(caller_data):
 
     caller_data_copy = copy.deepcopy(caller_data)
     
-    caller_data_copy['test'] = 'JETDEF_TEST' in os.environ
+    caller_data_copy['run_rtt_diags'] = 'JETDEF_TEST' in os.environ
     debug = 'JETDEF_DEBUG' in os.environ
     no_instantiation_flag = 'JETDEF_NO_INSTANTIATION' in os.environ
     use_atlas_config = not no_instantiation_flag

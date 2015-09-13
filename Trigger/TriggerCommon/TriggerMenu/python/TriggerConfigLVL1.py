@@ -281,6 +281,7 @@ class TriggerConfigLVL1:
             # add the items into the menu
             self.menu.addItem( item )
 
+        # printout
         for item in self.menu.items:
             if item.verbose:
                 log.info(str(item))
@@ -304,6 +305,9 @@ class TriggerConfigLVL1:
                 
         # threshold mapping
         self.mapThresholds()
+
+        # ZB thresholds on the right connectors
+        self.assignZeroBiasConnectors()
 
         # add the counters to the menu
         self.menu.addCounters()
@@ -350,6 +354,28 @@ class TriggerConfigLVL1:
             thr.setCableInput()
 
 
+    def assignZeroBiasConnectors(self):
+        from collections import Counter
+        from copy import copy
+        c = Counter()
+        for thr in self.menu.thresholds:
+            if thr.ttype=="ZB":
+                if not thr.seed in self.menu.thresholds:
+                    raise RuntimeError("Zero bias threshold '%s' based on non-existing threshold '%s'" % (thr,thr.seed) )
+                seed = self.menu.thresholds.thresholdOfName(thr.seed) # the ZB seed
+                thr.cableinfo = copy(seed.cableinfo)
+                thr.cableinfo.bitnum      = 1
+                thr.cableinfo.range_begin = 30
+                thr.cableinfo.range_end   = 30
+                c += Counter( ((thr.cableinfo.slot,thr.cableinfo.connector),) ) 
+        if sorted(c.values())[-1]>1:
+            for k,v in c.items():
+                if v>1:
+                    print "Slot %i, connector %i has more than one ZB threshold" % k 
+            raise RuntimeError("Multiple zero bias thresholds on single connector")
+            
+
+            
     def updateItemPrescales(self):
         from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
         for (it_name, ps) in Lvl1Flags.prescales().items():

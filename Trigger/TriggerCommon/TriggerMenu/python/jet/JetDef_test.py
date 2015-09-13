@@ -91,10 +91,17 @@ class TestJetDef(unittest.TestCase):
         #if chain_def.__class__.__name__ != 'ChainDef':
         #    print chain_def
         # No TT alg yet
-        if 'JETDEF_NO_INSTANTIATION' in os.environ:
-            self.assertTrue(chain_def.__class__.__name__ == 'ChainDef')
-        else:
-            self.assertTrue(chain_def.__class__.__name__ == 'ErrorChainDef')
+        # if 'JETDEF_NO_INSTANTIATION' in os.environ:
+        #     self.assertTrue(chain_def.__class__.__name__ == 'ChainDef')
+        # else:
+        #    self.assertTrue(chain_def.__class__.__name__ == 'ErrorChainDef')
+
+        # TT alg now under development
+        if chain_def.__class__.__name__ != 'ChainDef':
+            print 'real error ---> ', chain_def
+            print chain_def
+ 
+        self.assertTrue(chain_def.__class__.__name__ == 'ChainDef')
             
 
                 

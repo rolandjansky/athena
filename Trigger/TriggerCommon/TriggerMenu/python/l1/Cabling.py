@@ -77,16 +77,7 @@ def getLutInput(connector):
 class Cabling:
     @staticmethod
     def getInputCable(threshold):
-
-        inputCable = InputCable( threshold )
-
-        if threshold.ttype == 'ZB': # special case for ZB triggers that are sitting on the last bit of the same connector
-            inputCable.bitnum      = 1
-            inputCable.range_begin = 30
-            inputCable.range_end   = 30
-
-        return inputCable
-
+        return InputCable( threshold )
 
 
 
@@ -123,8 +114,8 @@ class Cabling:
                                 'EM'     : [(0,8,'EM1'), (8,16,'EM2')],
                                 'TAU'    : [(0,8,'TAU1'), (8,16,'TAU2')],
                                 'JET'    : [(0,10,'JET1'), (10,25,'JET2')],
-                                'TE'     : [(0,8,'EN1')],
-                                'XE'     : [(0,8,'EN1')],
+                                'TE'     : [(0,8,'EN1'),(8,16,'EN2')],
+                                'XE'     : [(0,8,'EN1'),(8,16,'EN2')],
                                 'XS'     : [(0,8,'EN1')],
                                 'MBTSSI' : [(0,12,'NIM1'),(12,24,'NIM2')],
                                 'MBTS'   : [(0,1,'NIM1'), (1,2,'NIM2')],
@@ -134,7 +125,9 @@ class Cabling:
                                 'TOPO'   : [(0,64,'TOPO1'), (64,128,'TOPO2')],
                                 'ALFA'   : [(0,64,'ALFA')],
                                 'BCM'    : [(0,3,'CTPCAL')],
-                                'BCMCMB' : [(0,3,'CTPCAL')],
+                                'BCMCMB' : [(0,1,'CTPCAL')],
+                                'BPTX'   : [(0,2,'CTPCAL')],
+                                'DBM'    : [(0,8,'CTPCAL')],
                                 'NIM'    : [(0,12,'NIM1'), (12,24,'NIM2')],
                                 'JF'     : [(0,4,'JET1')],
                                 'JB'     : [(0,4,'JET1')],
