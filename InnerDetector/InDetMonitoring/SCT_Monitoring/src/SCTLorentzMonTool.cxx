@@ -55,7 +55,14 @@ SCTLorentzMonTool::SCTLorentzMonTool(const string & type,const string & name,con
   m_pSCTHelper(nullptr),
   m_sctmgr(nullptr)
 {
-  declareProperty("histoPathBase", m_stream = "/stat");
+  /** sroe 3 Sept 2015:
+  histoPathBase is declared as a property in the base class, assigned to m_path
+  with default as empty string.
+	Declaring it here as well gives rise to compilation warning
+	WARNING duplicated property name 'histoPathBase', see https://its.cern.ch/jira/browse/GAUDI-1023
+
+  declareProperty("histoPathBase", m_stream = "/stat"); **/
+  m_stream="/stat";
   declareProperty("tracksName",m_tracksName="CombinedInDetTracks"); //this recommended
   declareProperty("TrackToVertexTool",m_trackToVertexTool); //for TrackToVertexTool
   m_numberOfEvents=0;

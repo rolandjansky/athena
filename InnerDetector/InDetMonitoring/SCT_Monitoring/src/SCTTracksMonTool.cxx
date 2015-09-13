@@ -49,22 +49,7 @@ namespace {
     if (eta > etaBoundary) return 2.0; //EC A
     return 1.0; //Barrel
   }
- 
-  //format a square matrix to a string
-  /**format a square matrix to a string
-     string 
-     matrixString(const CLHEP::HepSymMatrix &array){
-     string result("");
-     const int dim=array.num_col();
-     for(int row(0);row !=dim;++row){
-     for(int col(0);col !=dim;++col){
-     result+=(" "+boost::lexical_cast<string>(array[row][col]));
-     }
-     result += "\n";
-     }
-     return result;
-     }
-  **/
+
 }
 
 //====================================================================================================
@@ -130,7 +115,14 @@ SCTTracksMonTool::SCTTracksMonTool(const string & type,
   m_updator("Trk::KalmanUpdator/TrkKalmanUpdator"),
   m_pSCTHelper(nullptr)
 {
-  declareProperty("histoPathBase", m_stream = "/stat");
+  /** sroe 3 Sept 2015:
+  histoPathBase is declared as a property in the base class, assigned to m_path
+  with default as empty string.
+	Declaring it here as well gives rise to compilation warning
+	WARNING duplicated property name 'histoPathBase', see https://its.cern.ch/jira/browse/GAUDI-1023
+
+  declareProperty("histoPathBase", m_stream = "/stat"); **/
+  m_stream="/stat";
   declareProperty("tracksName",m_tracksName="SCT_Cosmic_Tracks"); //"ExtendedTracks");
   declareProperty("trackHitCut",m_trackHitCut=3);
   declareProperty("CheckRate",m_checkrate=1000);
