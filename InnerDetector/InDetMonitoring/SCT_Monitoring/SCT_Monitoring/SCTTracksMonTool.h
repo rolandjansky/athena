@@ -178,7 +178,7 @@ private:
   //@name Service methods
   //@{
   /// Calculate Pull value for MeasuredAtPlane TrackStates
-  float calculatePull(const float, const float, const float);
+  double calculatePull(const double, const double, const double);
   
   ///Factory + register for the 2D histos, returns whether successfully registered
   StatusCode h2Factory(const std::string & name, const std::string & title, const SCT_Monitoring::Bec bec, MonGroup & registry, VecH2_t & storageVector);

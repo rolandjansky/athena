@@ -13,8 +13,7 @@
 #define SCTEFFICIENCYTOOL_H
 //STL
 #include <string>
-//#include <boost/array.hpp>
-#include <array>
+#include <boost/array.hpp>
 
 //Gaudi
 #include "GaudiKernel/ToolHandle.h"
@@ -30,8 +29,6 @@
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
-
-#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
 
 //SCT
 #include "SCT_ConditionsServices/ISCT_FlaggedConditionSvc.h"
@@ -131,7 +128,6 @@ private:
 
   std::map < Identifier, unsigned int > * m_badChips;
   ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
-  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
 
 
   Int_t m_DetectorMode;
@@ -176,23 +172,21 @@ private:
   ServiceHandle < ISCT_ConfigurationConditionsSvc > m_configConditions;
 
 
-  typedef std::array < TProfile*, SCT_Monitoring::N_REGIONS > TProfArray;
-  typedef std::array < TH1F*, SCT_Monitoring::N_REGIONS > TH1FArray;
-  typedef std::array < TH2F*, SCT_Monitoring::N_REGIONS > TH2FArray;
-  typedef std::array < std::array < TH2F*, SCT_Monitoring::N_ENDCAPS >, SCT_Monitoring::N_REGIONS > TH2FArrayLayer;
+  typedef boost::array < TProfile*, SCT_Monitoring::N_REGIONS > TProfArray;
+  typedef boost::array < TH1F*, SCT_Monitoring::N_REGIONS > TH1FArray;
+  typedef boost::array < TH2F*, SCT_Monitoring::N_REGIONS > TH2FArray;
+  typedef boost::array < boost::array < TH2F*, SCT_Monitoring::N_ENDCAPS >, SCT_Monitoring::N_REGIONS > TH2FArrayLayer;
 
-  std::array < std::array < TProfile2D *, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effMap;
-  std::array < std::array < TProfile2D *, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_ineffMap;
-  std::array < std::array < TProfile *, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effLumiBlock;
-  std::array < TProfile2D *, SCT_Monitoring::N_LAYERS_TOTAL > m_accMap;
-  std::array < TProfile2D *, SCT_Monitoring::N_LAYERS_TOTAL > m_accPhysMap;
-  std::array < std::array < TProfile2D *, SCT_Monitoring::N_ENDCAPSx2 >, SCT_Monitoring::N_REGIONS > m_layerResidualHistos;
+  boost::array < boost::array < TProfile2D *, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effMap;
+  boost::array < boost::array < TProfile2D *, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_ineffMap;
+  boost::array < boost::array < TProfile *, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effLumiBlock;
+  boost::array < TProfile2D *, SCT_Monitoring::N_LAYERS_TOTAL > m_accMap;
+  boost::array < TProfile2D *, SCT_Monitoring::N_LAYERS_TOTAL > m_accPhysMap;
+  boost::array < boost::array < TProfile2D *, SCT_Monitoring::N_ENDCAPSx2 >, SCT_Monitoring::N_REGIONS > m_layerResidualHistos;
 
   TProfile * m_Eff_Total;
   TProfile * m_Eff_TotalBCID;
   TProfile * m_Eff_hashCodeHisto;
-	TProfile * m_Eff_LumiBlockHisto_Total;
-  TH1F* m_effdistribution;
 
   TProfile2D * m_effHashLumiB;
 
@@ -234,8 +228,8 @@ private:
   TProfArray m_Eff_nTrk; 
   TProfArray m_Eff_nGoodTrk; 
 
-  std::array < TProfile2D *, SCT_Monitoring::N_REGIONS > m_inEffStrip;
-  std::array < TProfile2D *, SCT_Monitoring::N_REGIONS > m_inEffChip;
+  boost::array < TProfile2D *, SCT_Monitoring::N_REGIONS > m_inEffStrip;
+  boost::array < TProfile2D *, SCT_Monitoring::N_REGIONS > m_inEffChip;
 
   TH1FArray m_EventHisto;
   TH1FArray m_SelectionHisto;
