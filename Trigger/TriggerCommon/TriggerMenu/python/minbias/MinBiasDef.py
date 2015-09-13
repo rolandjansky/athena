@@ -84,9 +84,10 @@ class L2EFChain_MB(L2EFChainDef):
         
         self.L2InputTE = self.chainPartL1Item or self.chainL1Item
         # cut of L1_, _EMPTY,..., & multiplicity
-        self.L2InputTE = self.L2InputTE.replace("L1_","")
-        self.L2InputTE = self.L2InputTE.split("_")[0]
-        self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
+        if self.L2InputTE is not '':
+            self.L2InputTE = self.L2InputTE.replace("L1_","")
+            self.L2InputTE = self.L2InputTE.split("_")[0]
+            self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
 
         if "sptrk" in self.chainPart['recoAlg']:
             self.setup_mb_sptrk()
@@ -135,10 +136,15 @@ class L2EFChain_MB(L2EFChainDef):
         if 'ion' in self.chainPart['extra']:
             doHeavyIon=True
 
+        doSptrk=False
         if "sptrk" in self.chainPart['recoAlg']: #do EFID
             doSptrk=True
-        else:       # don't do EFID
-            doSptrk=False
+
+        doMbtsVeto=False
+        if "vetombts2in" in self.chainPart['extra']: #do EFID
+            doMbtsVeto=True
+            theL2MbtsFex=L2MbMbtsFex
+            theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_veto")
 
         ########## L2 algos ##################
         #if "sptrk" or "sp" in self.chainPart['recoAlg']:
@@ -152,6 +158,9 @@ class L2EFChain_MB(L2EFChainDef):
             else:
                 chainSuffix = "sp"
         
+        if doMbtsVeto:
+            chainSuffix = chainSuffix+"_vetombts2in"
+
         theL2Hypo = L2MbSpHypo
 
         ########## EF algos ##################
@@ -180,8 +189,9 @@ class L2EFChain_MB(L2EFChainDef):
             if efhypo:
                 efth=efhypo.lstrip('pt')
                 threshold=float(efth)
-                theEFHypo = MbTrkHypo('EFMbTrkHypo_%d'% threshold)
+                theEFHypo = MbTrkHypo('EFMbTrkHypo_pt%d'% threshold)
                 theEFHypo.Min_pt = threshold
+                theEFHypo.Max_z0 = 401.
                 chainSuffix = chainSuffix+'_pt'+efth
             else:
                 efth=0.200 #default
@@ -193,8 +203,20 @@ class L2EFChain_MB(L2EFChainDef):
         ########### Sequence List ##############
 
         self.L2sequenceList += [["",
-                                 [dummyRoI]+efiddataprep,
-                                 'L2_mb_iddataprep']] 
+                                 [dummyRoI],
+                                 'L2_mb_dummy']] 
+
+        if doMbtsVeto:
+            self.L2sequenceList += [['L2_mb_dummy',
+                                     [theL2MbtsFex, theL2MbtsHypo],
+                                     'L2_mb_mbtsveto']] 
+            self.L2sequenceList += [['L2_mb_mbtsveto',
+                                     efiddataprep,
+                                     'L2_mb_iddataprep']] 
+        else:
+            self.L2sequenceList += [['L2_mb_dummy',
+                                     efiddataprep,
+                                     'L2_mb_iddataprep']] 
 
         self.L2sequenceList += [[['L2_mb_iddataprep'],
                                  [theL2Fex, theL2Hypo],
@@ -204,18 +226,37 @@ class L2EFChain_MB(L2EFChainDef):
             self.EFsequenceList += [[['L2_mb_step1'],
                                      theEFFex1+[theEFFex2, theEFHypo],
                                      'EF_mb_step1']]
+            if 'peb' in self.chainPart['addInfo']:
+                from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+                ALFASubDetListWriter = TrigSubDetListWriter("ALFASubDetListWriter")
+                ALFASubDetListWriter.SubdetId = ['TDAQ_HLT','TDAQ_CTP','InnerDetector','DBM','FORWARD_ALPHA','FORWARD_LUCID','FORWARD_ZDC','FORWARD_BCM']
+                ALFASubDetListWriter.MaxRoIsPerEvent=1
+                self.EFsequenceList += [[['EF_mb_step1'],
+                                         [ ALFASubDetListWriter ],
+                                         'EF_mb_step2']]
 
         ########### Signatures ###########
+        
+        self.L2signatureList += [ [['L2_mb_dummy']] ]
+        if doMbtsVeto:
+            self.L2signatureList += [ [['L2_mb_mbtsveto']] ]
         self.L2signatureList += [ [['L2_mb_iddataprep']] ]
         self.L2signatureList += [ [['L2_mb_step1']] ]
         if doSptrk:
             self.EFsignatureList += [ [['EF_mb_step1']] ]
+            if 'peb' in self.chainPart['addInfo']:
+                self.EFsignatureList += [ [['EF_mb_step2']] ]
 
         self.TErenamingDict = {
+            'L2_mb_dummy': mergeRemovingOverlap('L2_dummy_', chainSuffix),        
+            'L2_mb_mbtsveto': mergeRemovingOverlap('L2_mbtsveto_', chainSuffix),        
             'L2_mb_iddataprep': mergeRemovingOverlap('L2_iddataprep_', chainSuffix),
             'L2_mb_step1': mergeRemovingOverlap('L2_', chainSuffix),
             'EF_mb_step1': mergeRemovingOverlap('EF_', chainSuffix),
-                }
+            }
+
+        if 'peb' in self.chainPart['addInfo']:
+            self.TErenamingDict ['EF_mb_step2'] = mergeRemovingOverlap('EF_', chainSuffix+'_peb')
 
 ###########################
     def setup_mb_idperf(self):
@@ -270,7 +311,11 @@ class L2EFChain_MB(L2EFChainDef):
         ########### Sequence List ##############
 
         self.L2sequenceList += [["",
-                                 [dummyRoI]+ efiddataprep,
+                                 [dummyRoI],
+                                 'L2_mb_dummy']] 
+
+        self.L2sequenceList += [['L2_mb_dummy',
+                                 efiddataprep,
                                  'L2_mb_iddataprep']] 
         
         self.L2sequenceList += [[['L2_mb_iddataprep'],
@@ -282,15 +327,17 @@ class L2EFChain_MB(L2EFChainDef):
                                  'L2_mb_step2']]
 
         ########### Signatures ###########
+        self.L2signatureList += [ [['L2_mb_dummy']] ]
         self.L2signatureList += [ [['L2_mb_iddataprep']] ]
         self.L2signatureList += [ [['L2_mb_step1']] ]
         self.L2signatureList += [ [['L2_mb_step2']] ]
 
 
         self.TErenamingDict = {
-            'L2_mb_step1': mergeRemovingOverlap('L2_', 'sp_iddataprep_'+chainSuffix),
-            'L2_mb_step1': mergeRemovingOverlap('L2_', 'sp_'+chainSuffix),
-            'L2_mb_step2': mergeRemovingOverlap('L2_', 'mbts_'+chainSuffix),
+            'L2_mb_dummy': mergeRemovingOverlap('L2_dummy', chainSuffix),     
+            'L2_mb_iddataprep': mergeRemovingOverlap('L2_iddataprep_', chainSuffix),
+            'L2_mb_step1': mergeRemovingOverlap('L2_sp_', chainSuffix),
+            'L2_mb_step2': mergeRemovingOverlap('L2_mbts_', chainSuffix),
             }
 
 ###########################
@@ -451,7 +498,11 @@ class L2EFChain_MB(L2EFChainDef):
         ########### Sequence List ##############
 
         self.L2sequenceList += [["",
-                                 [dummyRoI]+efiddataprep,
+                                 [dummyRoI],
+                                 'L2_mb_dummy']] 
+
+        self.L2sequenceList += [['L2_mb_dummy',
+                                 efiddataprep,
                                  'L2_mb_iddataprep']] 
 
         self.L2sequenceList += [[['L2_mb_iddataprep'],
@@ -488,6 +539,7 @@ class L2EFChain_MB(L2EFChainDef):
                                          'EF_mb_step1']]
 
         ########### Signatures ###########
+        self.L2signatureList += [ [['L2_mb_dummy']] ]
         self.L2signatureList += [ [['L2_mb_iddataprep']] ]
         self.L2signatureList += [ [['L2_mb_step1']] ]
         if doPusup:
@@ -500,11 +552,12 @@ class L2EFChain_MB(L2EFChainDef):
             chainSuffixL2=efhypo2+'_'+chainSuffixL2
         
         self.TErenamingDict = {
+            'L2_mb_dummy': mergeRemovingOverlap('L2_dummy_', chainSuffix),
             'L2_mb_iddataprep': mergeRemovingOverlap('L2_iddataprep_', l2hypo1+'_'+chainSuffix),
             'L2_mb_step1': mergeRemovingOverlap('L2_', l2hypo1+'_'+chainSuffix),
-            'L2_mb_step2': mergeRemovingOverlap('L2_', l2hypo2+'_'+chainSuffix),
-            'EF_mb_step1': mergeRemovingOverlap('EF_', efhypo1+'_'+chainSuffixL2),
-            'EF_mb_step2': mergeRemovingOverlap('EF_', efhypo2+'_'+chainSuffixEF),
+            'L2_mb_step2': mergeRemovingOverlap('L2_', l2hypo1+'_'+l2hypo2+'_'+chainSuffix),
+            'EF_mb_step1': mergeRemovingOverlap('EF_', l2hypo1+'_'+efhypo1+'_'+chainSuffixL2),
+            'EF_mb_step2': mergeRemovingOverlap('EF_', l2hypo1+'_'+efhypo2+'_'+chainSuffixEF),
             }
 
 ########################### supporting triggers for high multiplicity triggers
@@ -544,7 +597,11 @@ class L2EFChain_MB(L2EFChainDef):
         ########### Sequence List ##############
 
         self.L2sequenceList += [["",
-                                 [dummyRoI]+efiddataprep,
+                                 [dummyRoI],
+                                 'L2_mb_dummy']] 
+
+        self.L2sequenceList += [['L2_mb_dummy',
+                                 efiddataprep,
                                  'L2_mb_iddataprep']] 
 
         self.L2sequenceList += [[['L2_mb_iddataprep'],
@@ -563,6 +620,7 @@ class L2EFChain_MB(L2EFChainDef):
                                  'EF_mb_step2']]
 
         ########### Signatures ###########
+        self.L2signatureList += [ [['L2_mb_dummy']] ]
         self.L2signatureList += [ [['L2_mb_iddataprep']] ]
         self.L2signatureList += [ [['L2_mb_step1']] ]
         self.L2signatureList += [ [['L2_mb_step2']] ]
@@ -570,6 +628,7 @@ class L2EFChain_MB(L2EFChainDef):
         self.EFsignatureList += [ [['EF_mb_step2']] ]
                 
         self.TErenamingDict = {
+            'L2_mb_dummy': mergeRemovingOverlap('L2_dummy_', chainSuffix),
             'L2_mb_iddataprep': mergeRemovingOverlap('L2_iddataprep_', l2hypo1+'_'+chainSuffix),
             'L2_mb_step1': mergeRemovingOverlap('L2_', l2hypo1+'_'+chainSuffix),
             'L2_mb_step2': mergeRemovingOverlap('L2_pusup0','_'+chainSuffix),

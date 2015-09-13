@@ -67,6 +67,11 @@ class TauHypoProvider:
                     if criteria== 'perf' or criteria== 'cosmic': 
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo_tauNoCut
                         currentHypo = EFTauMVHypo_tauNoCut(currentHypoKey.replace(threshold, ''))
+                    elif criteria=='dikaon' or criteria=='dikaontight':
+                        from TrigTauHypo.TrigTauHypoConfig2012 import EFTauDiKaonHypo
+                        theVars = ['massTrkSysMin', 'massTrkSysMax', 'leadTrkPtMin','EtCalibMin','EMPOverTrkSysPMax']
+                        theThresh = self.thresholdsEF_dikaon[(criteria, int(threshold))]
+                        currentHypo = EFTauDiKaonHypo(currentHypoKey, theVars, theThresh)
                     else:
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo
                         theVars = ['NTrackMax', 'EtCalibMin', 'Level']
@@ -112,8 +117,8 @@ class TauHypoProvider:
                 from TrigTauHypo.TrigTauHypoBase import HLTTrackTauHypo
                 # Important Note: the pT cut here is an unused dummy
                 if criteria != 'cosmic':
-                    theVars = ['LowerPtCut'] 
-                    theThresh = [int(threshold)*self.GeV]
+                    theVars = ['LowerPtCut','LowerTrackPtCut']
+                    theThresh = [int(threshold)*self.GeV,1.*self.GeV]
                     currentHypo = HLTTrackTauHypo(currentHypoKey, theVars, theThresh)
                 else:
                     theVars = ['LowerPtCut', 'TracksInCoreCut', 'TracksInIsoCut', 'DeltaZ0Cut']
@@ -220,4 +225,11 @@ class TauHypoProvider:
         ('tight1', 115): [3, 115.0*GeV, 3],
         ('tight1', 125): [3, 125.0*GeV, 3], 
         ('tight1', 160): [3, 160.0*GeV, 3] 
+        }
+
+    thresholdsEF_dikaon = {
+        ('dikaon', 25): [0.2*GeV, 0.45*GeV, 15.0*GeV, 25.0*GeV, 1.5],
+        ('dikaon', 35): [0.2*GeV, 0.45*GeV, 25.0*GeV, 35.0*GeV, 1.5], 
+        ('dikaontight', 25): [0.2*GeV, 0.45*GeV, 15.0*GeV, 25.0*GeV, 1.0],
+        ('dikaontight', 35): [0.2*GeV, 0.45*GeV, 25.0*GeV, 35.0*GeV, 1.0]
         }

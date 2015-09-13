@@ -14,60 +14,25 @@ from TriggerJobOpts.TriggerFlags  import TriggerFlags
 
 #########################################################################
 
-
-##USUAL STUPID HARDCODING OF THE ITEM LISTS DEPENDING ON THE MENU 
-if TriggerFlags.triggerMenuSetup() == 'LS1_v1':        
-    l1_seeds ={ 
-                
-        'low'       : ['L1_2EM3_EM12', 'L1_XS45', 'L1_J50', 'L1_MU4_J15', #'L1_FJ30',
-                       'L1_MU10', 'L1_J30', 'L1_TE500', 'L1_EM10VH', 'L1_EM16VH', 'L1_TE700', 'L1_XE30', 'L1_XE20', 'L1_3J15', 'L1_TAU20', 'L1_MU6', 'L1_EM12'],
-        
-        'high' : ['L1_EM6_MU6','L1_2EM6_EM16VH',
-                  'L1_2MU4',  'L1_2MU4_MU6', 'L1_2MU4_BARREL', 
-                  'L1_2MU4_2EM3', 'L1_MU4_J30',
-                  'L1_XS50','L1_XS60', #'L1_FJ50',
-                  'L1_EM16V_XE20', 'L1_MU4_J50' ] ,
-        
-        'firstempty'    :['L1_EM3_FIRSTEMPTY','L1_TAU8_FIRSTEMPTY',
-                          'L1_MU6_FIRSTEMPTY','L1_MU4_FIRSTEMPTY','L1_MU10_FIRSTEMPTY','L1_MU20_FIRSTEMPTY',                                 
-                          'L1_2MU4_FIRSTEMPTY',
-                          'L1_J10_FIRSTEMPTY''L1_J30_FIRSTEMPTY', #'L1_FJ30_FIRSTEMPTY'
-                          ],
-
-
-                
-        'empty': ['L1_EM3_EMPTY','L1_EM6_EMPTY','L1_TAU8_EMPTY',
-                         'L1_MU4_EMPTY','L1_MU10_EMPTY','L1_MU11_EMPTY',
-                         'L1_J10_EMPTY','L1_J30_EMPTY',#'L1_FJ30_EMPTY',
-                         'L1_2MU4_EMPTY','L1_MU4_J15_EMPTY'],                         
-
-        'unpairediso' :['L1_EM3_UNPAIRED_ISO','L1_TAU8_UNPAIRED_ISO',
-                        'L1_MU10_UNPAIRED_ISO','L1_MU4_UNPAIRED_ISO','L1_2MU6_UNPAIRED_ISO',                            
-                        'L1_MU4_J15_UNPAIRED_ISO',
-                        'L1_J30_UNPAIRED_ISO',#'L1_FJ30_UNPAIRED_ISO',
-                        'L1_J10_UNPAIRED_ISO'],
-
-
-        'unpairednoniso':['L1_EM3_UNPAIRED_NONISO','L1_TAU8_UNPAIRED_NONISO',
-                          'L1_MU4_UNPAIRED_NONISO','L1_2MU6_UNPAIRED_NONISO',
-                          'L1_J10_UNPAIRED_NONISO','L1_J30_UNPAIRED_NONISO'],
-        
-        }
-else:
-    l1_seeds ={ 
-
-        'low'       : ['L1_MU6','L1_MU10','L1_TAU20',
-                           'L1_EM12','L1_EM10VH', 'L1_EM18VH',
-                           'L1_J50',  'L1_J30','L1_3J15', 'L1_J30.32ETA49'                           
-                           'L1_XE35' ],
-        
-        'empty': ['L1_EM3_EMPTY','L1_EM7_EMPTY','L1_TAU8_EMPTY',
-                         'L1_MU4_EMPTY','L1_MU11_EMPTY',
-                         'L1_J12_EMPTY','L1_J30_EMPTY','L1_J30.32ETA49_EMPTY'],
-
-        }
+##USUAL STUPID HARDCODING OF THE ITEM LISTS DEPENDING ON THE MENU     
+l1_seeds ={ 
     
+    # Low threshold prescaled L1 items - slected at HLT based on TBP bit from L1 in random-seeded events        
+    'low'  : ['L1_MU6', 'L1_EM10VH', 
+              'L1_J30.0ETA49_2J20.0ETA49', 'L1_TAU12',
+              'L1_MU4_J12', 'L1_2EM7', 
+              'L1_J15'],
 
+    # High(er) threshold prescaled L1 items - slected at HLT based on TBP bit from L1 in random-seeded events 
+    'high' : ['L1_3J15','L1_EM18VH',
+              'L1_EM20VHI',  'L1_2EM10VH', 
+              'L1_J50', 'L1_TAU30',
+              'L1_2MU4', 'L1_XS30',
+              'L1_MU15','L1_TAU20_2TAU12', 
+              'L1_XE35', 'L1_MU6_2MU4',
+              'L1_MU6_J20', 'L1_EM7_MU10',
+              'L1_EM15_MU4', 'L1_EM15VH_3EM7'] 
+    }
 
 #########################################################################
 

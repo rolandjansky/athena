@@ -71,8 +71,8 @@ Prescales = physics_menu.Prescales
 # ######################################################
 # # DEFAULT MC prescales
 # ######################################################
-# Prescales.L1Prescales = dict([(ctpid,1) for ctpid in Prescales.L1Prescales])  # setting all L1 prescales to 1
-# Prescales.HLTPrescales.update({})
+Prescales.L1Prescales = dict([(ctpid,1) for ctpid in Prescales.L1Prescales])  # setting all L1 prescales to 1
+Prescales.HLTPrescales.update({})
 # ######################################################
 
 # ######################################################
@@ -93,10 +93,11 @@ Prescales = physics_menu.Prescales
 # ######################################################
 # # TIGHT mc prescales
 # ######################################################
-# Prescales.L1Prescales_tight_mc_prescale  = deepcopy(Prescales.L1Prescales)
-# Prescales.HLTPrescales_tight_mc_prescale = deepcopy(Prescales.HLTPrescales)
-# Prescales.HLTPrescales_tight_mc_prescale.update({ })
-# ######################################################
+Prescales.L1Prescales_tight_mc_prescale  = deepcopy(Prescales.L1Prescales)
+Prescales.HLTPrescales_tight_mc_prescale = deepcopy(Prescales.HLTPrescales)
+Prescales.HLTPrescales_tight_mc_prescale.update({
+        'mb_idperf_ion_L1MBTS_1'                    : [    -1,    0,   -1],     
+        })
 
 # ######################################################
 # Prescales.L1Prescales_upgrade_mc_prescale  = deepcopy(Prescales.L1Prescales)

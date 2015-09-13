@@ -50,6 +50,29 @@ class ChainDef:
             {'signature_counter': signature_counter,
              'listOfTriggerElements': listOfTriggerElements})
 
+
+    def insertSignature(self, signature_counter, listOfTriggerElements):
+        """insert signature data to the chain"""
+
+        #safety: if asked to insert with sig_counter -1, use addSignature
+        if signature_counter == -1:
+            addSignature(signature_counter,listOfTriggerElements)
+        else:
+            pos_newSeq = -1
+            
+            for pos, sig in enumerate(self.signatureList):
+                if sig['signature_counter'] == signature_counter:
+                    pos_newSeq = pos
+                    
+            self.signatureList.insert(pos_newSeq,
+                                      {'signature_counter': signature_counter,
+                                       'listOfTriggerElements': listOfTriggerElements})
+            
+            for pos, sig in enumerate(self.signatureList):
+                if pos <= pos_newSeq: continue
+                sig['signature_counter'] = sig['signature_counter']+1
+                
+
     def addSignatureL2(self, listOfTriggerElements):
         """add new signature after L2 signatures"""
 

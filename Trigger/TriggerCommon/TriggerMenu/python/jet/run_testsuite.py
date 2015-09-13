@@ -14,6 +14,7 @@ from InstantiatorFactory_test import TestInstantiatorFactory
 from hypo_factory_test import Test_hypo_factory
 from jetDefInstantiator_test import Test_jetDefInstantiator
 from fexparams_factory_test import Test_fexparams_factory
+from ChainConfigMaker_test import Test_ChainConfigMaker
 
 test_cases = (TestAlgFactory,
               TestJetDefAlgToString,
@@ -25,6 +26,7 @@ test_cases = (TestAlgFactory,
               Test_hypo_factory,
               Test_jetDefInstantiator,
               Test_fexparams_factory,
+              Test_ChainConfigMaker
           )
 
 loader = TestLoader()

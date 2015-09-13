@@ -15,7 +15,7 @@ class LVL1MenuItem(object):
     # New items will be assigned to this partition
     currentPartition = 0
     
-    __slots__ = ['name', 'group', 'ctpid', 'psCut', 'complex_deadtime', 'trigger_type', 'partition', 'logic', 'monitors', 'verbose']
+    __slots__ = ['name', 'group', 'ctpid', 'psCut', 'complex_deadtime', 'trigger_type', 'partition', 'logic', 'monitorsLF', 'monitorsHF', 'verbose']
     def __init__(self, name, ctpid=-1, group='1', prescale=1, complex_deadtime=0, psCut=None, verbose=False):
         self.name             = name
         self.group            = group
@@ -25,7 +25,8 @@ class LVL1MenuItem(object):
         self.trigger_type     = 0
         self.partition        = LVL1MenuItem.currentPartition
         self.logic            = None
-        self.monitors         = []
+        self.monitorsLF       = 0
+        self.monitorsHF       = 0
         self.verbose          = verbose
 
         if self.verbose:
@@ -58,8 +59,12 @@ class LVL1MenuItem(object):
         print "Setter: item priority not used anymore, replaced by complex_deadtime"
         
 
-    def addMonitor(self, flag):
-        self.monitors += [flag]
+    def addMonitor(self, flag, frequency):
+        from TriggerMenu.l1menu.MonitorDef import MonitorDef
+        if frequency == MonitorDef.LOW_FREQ:
+            self.monitorsLF |= flag
+        if frequency == MonitorDef.HIGH_FREQ:
+            self.monitorsHF |= flag
     
     def setLogic(self, logic):
         self.logic = logic
@@ -94,9 +99,7 @@ class LVL1MenuItem(object):
 
 
     def xml(self, ind, step=2):
-        monitor = ""
-        if self.monitors:
-            monitor= ' monitor="' + "|".join(self.monitors) + '"'
+        monitor= ' monitor="LF:{0:03b}|HF:{1:03b}"'.format(self.monitorsLF,self.monitorsHF)
         s = ind * step * ' ' + '<TriggerItem ctpid="%i" partition="%i" name="%s" complex_deadtime="%i" definition="(%s)" trigger_type="%s"%s>\n' % \
             (self.ctpid, self.partition, self.name, self.complex_deadtime, str(self.logic).replace('&','&amp;'), self.binary_trigger_type(8 if self.partition==1 else 4), monitor)
         if self.logic:

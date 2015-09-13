@@ -38,8 +38,8 @@ class DictFromChainName(object):
         m_EBstep = chainInfo[5]
 
 
-        logDict.info("Analysing chain with name: "+ m_chainName)
-        chainProp = self.analyseShortName(m_chainName,  m_L1items_chainParts)
+        logDict.debug("Analysing chain with name: "+ m_chainName)
+        chainProp = self.analyseShortName(m_chainName,  m_L1items_chainParts, m_L1item)
         logDict.debug('ChainProperties: '+ str(chainProp))
 
         chainProp['stream'] = m_stream
@@ -84,7 +84,7 @@ class DictFromChainName(object):
 
 
 
-    def analyseShortName(self, chainName, L1items_chainParts):
+    def analyseShortName(self, chainName, L1items_chainParts, L1item_main):
         """
         Function to obtain the chain configuration dictionay from the short name 
         by parsing its components and finding the corrsponding properties which 
@@ -164,30 +164,43 @@ class DictFromChainName(object):
         from SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
             AllowedCalibChainIdentifiers, AllowedStreamingChainIdentifiers, \
             AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers, AllowedEBChainIdentifiers
+            #, AllowedMatchingKeywords
 
         logDict.debug("cparts: "+ str(cparts))
         for cpart in cparts:
 
             logDict.debug("Looping over cpart: "+ str(cpart))
             m = pattern.match(cpart)
-            
+            #if 'mu4antidr05' in str(cpart): continue
             if m: 
                 logDict.debug("Pattern found in this string:"+ str(cpart))
                 m_groupdict = m.groupdict()
-                multiChainIndices = [i for i in range(len(chainName)) if chainName.startswith(cpart, i)]
+                # Check whether the extra contains a special keyword
+                skip=False
+#                for keyword in AllowedMatchingKeywords :
+#                    if keyword in m_groupdict['extra']: skip=True
+#                if skip: continue
+                
+                multiChainIndices = [i for i in range(len(chainName)) if ( chainName.startswith(cpart, i) ) ]
                 logDict.debug("MultiChainIndices: "+ str(multiChainIndices))
                 for theMultiChainIndex in multiChainIndices:
                     # this check is necessary for the bjet chains, example: j45_bloose_3j45
                     # j45 would be found in [0, 13], and 3j45 in [12]
                     # so need to make sure the multiplicities are considered here!
-                    if (theMultiChainIndex != 0) & (chainName[theMultiChainIndex-1] != '_'): continue                    
+                    if (theMultiChainIndex != 0) & (chainName[theMultiChainIndex-1] != '_'): continue
+                    skip=False
+#                    for keyword in AllowedMatchingKeywords :
+#                        if chainName[theMultiChainIndex:len(chainName)].startswith(cpart+keyword): skip=True
+#                    if skip: continue
+                    
                     if not theMultiChainIndex in multichainindex:
                         multichainindex.append(theMultiChainIndex)
 
                 logDict.debug("ChainName: "+ str(chainName))
                 logDict.debug("cpart: "+ str(cpart))
                 logDict.debug("m_groupdict: "+ str(m_groupdict))
-                        
+                logDict.debug("multichainindex: "+ str(multichainindex))
+                                        
                 sName = getSignatureNameFromToken(cpart)
                 m_groupdict['signature'] = sName
                 logDict.debug('groupdictionary m_groupdict: '+ str(m_groupdict))
@@ -275,10 +288,12 @@ class DictFromChainName(object):
         cN = chainName
         for i in reversed(multichainindex):
             if i!=0:
-                
+                logDict.debug('Appending to multichainparts (i!=0):'+str(chainName[i:len(cN)]))
+
                 multichainparts.append(chainName[i:len(cN)])
                 cN = cN[0:i-1]
             else:
+                logDict.debug('Appending to multichainparts:'+str(chainName[i:len(cN)]))
                 multichainparts.append(cN)
         logDict.debug("multichainparts: "+ str(multichainparts))
 
@@ -294,14 +309,45 @@ class DictFromChainName(object):
             L1itemFromChainName = ''; L1item = ''; 
             chainpartsNoL1 = chainparts
             
+            #Checking for L1 item for chain part and overall in the name
+            #and the L1 for the overall chain
+            if (chainparts.count("_L1") > 1):
+                # get position of all L1 items
+                import re
+                allL1indices = [match.start() for match in re.finditer(re.escape("_L1"), chainparts)]
+
+                allL1items = []
+                m_chainparts = deepcopy(chainparts)
+                for index in reversed(allL1indices):
+                    newindex = index+1
+                    m_newitem = m_chainparts[newindex:]  
+                    m_chainparts = m_chainparts[:newindex-1]
+                    newitem = m_newitem[:2]+'_'+m_newitem[2:]
+                    allL1items.append(newitem)
+                    
+                allL1items.reverse()
+                
+
+                if (allL1items[1] != L1item_main):
+                    logDict.error("Typo in chain name for overall L1 item? Please check again")
+                else:#remove the last part from the chain name
+                    chainparts = chainparts[:allL1indices[1]]
+                    
+                if (allL1items[0] not in L1items_chainParts):
+                    logDict.error("L1 chain part item does not seem to match the one in the chain name")
+
+
+
+            #this only find the FIRST instance on L1
             L1index = chainparts.find('_L1') 
+                                        
             logDict.debug('chainparts: '+ str(chainparts))
             logDict.debug('L1index: '+ str(L1index))
             if L1index != -1:
                 L1index = L1index+1 # to compensate the _
                 L1itemfromChainName = chainparts[L1index:]
                 if (L1itemfromChainName[2]=='_'):
-                    raise RuntimeError('ERROR IN NAMING CONVENTION: L1 items in chainNames are specified e.g. *_L1EM4, not *_L1_EM4')
+                    raise RuntimeError('ERROR IN CHAIN NAMING: L1 items in chainNames are specified e.g. *_L1EM4, not *_L1_EM4')
                 else:
                     L1item = L1itemfromChainName[:2]+'_'+L1itemfromChainName[2:]
                     if (L1item[-1] == '_'): 
@@ -317,13 +363,13 @@ class DictFromChainName(object):
             # ---- check if enough L1 items given for chain parts ----
             if (len(L1items_chainParts) > 0):
                 if (len(L1items_chainParts) != len(multichainparts)):
-                    logDict.info("Not enough L1 items for chain parts of chain %s defined => fix in menu please!" %(genchainDict['chainName']))
-
-
+                    logDict.info("Not enough L1 items for chain parts of chain %s defined => fix in menu please!" 
+                                 %(genchainDict['chainName']))
 
                 chainProperties['L1item'] = L1items_chainParts[chainindex]                
                 if (L1item !=  chainProperties['L1item']) & (L1item !=''):
-                    logDict.info("L1 item in name (%s) of chain %s does not match with given L1item list (%s)!" % (L1item, chainName, chainProperties['L1item']))
+                    logDict.info("L1 item in name (%s) of chain %s does not match with given L1item list (%s)!" 
+                                 % (L1item, chainName, chainProperties['L1item']))
 
             else:
                 logDict.debug('No L1 item specified in the name')
@@ -345,11 +391,15 @@ class DictFromChainName(object):
             chainProperties['signature']=mdicts[chainindex]['signature']
 
             # if we have a L1 topo in a multi-chain then we want to remove it from the chain name
+            # but only if it's the same as the L1item_main; otherwise it belongs to chain part and we q
+            # have to keep it in the name
             chainProperties['chainPartName'] = chainparts
-            if ('-' in L1item) and (len(multichainparts) > 1):
+            if ('-' in L1item) and (len(multichainparts) > 1) and (L1item_main == L1item):
+                chainProperties['chainPartName'] = chainpartsNoL1                
+            ##if we have the overall L1 item in a multi-part chains, then we want to remove it from the chain part name
+            if( L1item==L1item_main and (len(multichainparts) > 1) and (L1item.count("_") > 1 )):                
                 chainProperties['chainPartName'] = chainpartsNoL1
-            
-
+                                
             logDict.debug('Chainparts: '+ str(chainparts))
             if (chainProperties['signature'] != 'Cosmic') \
                     & (chainProperties['signature'] != 'Calibration')\

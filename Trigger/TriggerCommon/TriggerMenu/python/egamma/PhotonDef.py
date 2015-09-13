@@ -283,7 +283,7 @@ class L2EFChain_g(L2EFChainDef):
         from TrigCaloRec.TrigCaloRecConfig import  TrigCaloCellMaker_eGamma, TrigCaloTowerMaker_eGamma, TrigCaloClusterMaker_slw
         #theTrigCaloCellMaker_eGamma      = TrigCaloCellMaker_eGamma("TrigCaloCellMaker_eGamma_heavyIon")
         theTrigCaloTowerMaker_eGamma     = TrigCaloTowerMaker_eGamma("TrigCaloTowerMaker_eGamma_heavyIon")
-        theTrigCaloClusterMaker_slw      = TrigCaloClusterMaker_slw("TrigCaloClusterMaker_slw_heavyIon")
+        theTrigCaloClusterMaker_slw      = TrigCaloClusterMaker_slw("TrigCaloClusterMaker_slw")
 
 
         from TrigEgammaHypo.TrigEFCaloCalibFexConfig import TrigEFCaloCalibFex_Photon

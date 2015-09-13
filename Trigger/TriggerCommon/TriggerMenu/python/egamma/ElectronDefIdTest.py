@@ -58,10 +58,10 @@ theT2CaloEgamma_cells_e           = T2CaloEgamma_cells("T2CaloEgamma_cells")
 #from TrigCaloRec.TrigCaloRecConfig import  TrigCaloCellMaker_eGamma_cells
 #theTrigCaloCellMaker_eGamma_cells= TrigCaloCellMaker_eGamma_cells()
 
+from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+[trkfast, trkprec] = TrigInDetSequence("Electron", "electron", "IDTrig").getSequence()
+
 from InDetTrigRecExample.EFInDetConfig import TrigEFIDSequence
-theTrigEFIDInsideOut_Electron           = TrigEFIDSequence("Electron","electron","InsideOut").getSequence()
-theTrigEFIDDataPrep_Electron            = TrigEFIDSequence("Electron","electron","DataPrep").getSequence()
-theTrigEFIDInsideOutMerged_Electron     = TrigEFIDSequence("Electron","electron","InsideOutMerged").getSequence()
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
 [theFastTrackFinderxAOD]                  = TrigInDetSequence("Electron","electron","FastxAOD").getSequence()
 [theL2StarxAOD]                           = TrigInDetSequence("Electron","electron","L2StarxAOD").getSequence()
@@ -385,10 +385,7 @@ class L2EFChain_e(L2EFChainDef):
 
 
         ########### Sequences ###########
-        trkseq = list(theTrigEFIDDataPrep_Electron)
-        trkseq.append(theTrigFastTrackFinder_Electron)
-        trkseq += theFastTrackFinderxAOD
-        trkseq+=theTrigEFIDInsideOutMerged_Electron
+        trkseq = trkfast+trkprec
 
         #calo thresholds here?
         self.L2sequenceList += [[self.L2InputTE, 
@@ -534,7 +531,7 @@ class L2EFChain_e(L2EFChainDef):
                                  'L2_e_step1']]
         
         self.L2sequenceList += [[['L2_e_step1'],    
-                                 trkcomb1st, 
+                                 trkfast, 
                                  'L2_e_step2']]
         
         self.L2sequenceList += [[['L2_e_step2'], 
@@ -547,7 +544,7 @@ class L2EFChain_e(L2EFChainDef):
         
         self.EFsequenceList += [[['EF_e_step1'], 
                                  theEFElectronIDFex+[ theEFTrackHypo],
-                                 #trkcombfull+[ theEFTrackHypo],
+                                 #trkfast+trkprec+[ theEFTrackHypo],
                                  'EF_e_step2']]
         
         self.EFsequenceList += [[['EF_e_step2'], 

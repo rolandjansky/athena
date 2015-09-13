@@ -122,10 +122,14 @@ class AlgFactory(object):
         self.recluster_params = self.menu_data.recluster_params
         self.hypo_params = self.menu_data.hypo_params
 
+        # remove '.' characters from strings used to be Algorithm names
+        # as names containing '.' are not accepted by Gaudi
         self.chain_name_esc = self.chain_config.chain_name.replace('.', '_')
+        self.seed = self.chain_config.seed.replace('.', '_')
  
-    def tt_unpacker(self):
-        return [Alg('T2L1Unpacking_TT', (), {})]
+    def tt_maker(self):
+        name = "'TrigL1BSTowerMakerForJets'"
+        return [Alg('TrigL1BSTowerMaker', (), {'name': name})]
 
     def fullscan_roi(self):
         return [Alg('DummyAlgo', ('"RoiCreator"',), {})]
@@ -151,7 +155,40 @@ class AlgFactory(object):
         
         return [Alg('TrigHLTJetRec_param', (), kwds)]
 
-    def jetrec_cluster(self):
+    def jetrec_triggertowers(self):
+        """Instantiate a python object for TrigHLTJetRec that will
+        use TriggerTower objcts as as input."""
+
+        merge_param_str = str(self.fex_params.merge_param).zfill(2)
+    
+        factory = 'TrigHLTJetRecFromTriggerTower'
+        # add factory to instance label to facliltate log file searches
+        # name = '"%s_%s"' %(factory, self.fex_params.fex_label)
+
+        # kwds = {
+        #    'name': name,  # instance label
+        #    'merge_param': "'%s'" % merge_param_str,
+        #    'jet_calib': "'%s'" % self.fex_params.jet_calib,
+        #    'cluster_calib': self.cluster_calib,
+        #    'output_collection_label': "'%s'" % (
+        #    self.fex_params.fex_label)
+        #}
+
+        
+        name = '"%s"' % factory
+
+        kwds = {
+            'name': name,  # instance label
+            'merge_param': "'04'",
+            'jet_calib': "'nojcalib'",
+            'cluster_calib': "'EM'",
+            'output_collection_label': "'tcollection'",
+            'ptMinCut': 0.
+        }
+
+        return [Alg(factory, (), kwds)]
+
+    def jetrec_clusters(self):
         """Instantiate a python object for TrigHLTJetRec that will
         use xAOD::CaloCluster s as input."""
 
@@ -292,6 +329,75 @@ class AlgFactory(object):
             kargs)]
 
 
+    def _hlt_hypo(self, cleaningAlg, matchingAlg):
+        """
+        Skype discussion R Goncalo/P Sherwood
+        [21/01/15, 18:44:50] Ricardo Goncalo:
+        hypo parameters: ET, eta min, eta max
+
+        recoAlg:   'a4', 'a10', 'a10r'
+        dataType:  'TT', 'tc', 'cc'
+        calib:     'had', 'lcw', 'em'
+        jetCalob:  'jes', 'sub', 'subjes', 'nocalib'
+        scan:      'FS','PS'
+
+        j65_btight_split_3j65_L13J25.0ETA22 ->
+                        EFJetHypo_65000_0eta320_a4_tc_em_subjes_FS
+        """
+
+        
+        # assert len(self.hypo_params.jet_attributes) > 1
+        
+        ja = self.hypo_params.jet_attributes_tostring()
+
+        # the hypo instance name is constructed from the
+        # last jet fex run.
+
+        name_extension = '_'.join([str(e) for  e in
+                                   (ja,
+                                    self.last_fex_params.fex_alg_name,
+                                    self.last_fex_params.data_type,
+                                    self.cluster_params.cluster_calib,
+                                    self.last_fex_params.jet_calib,
+                                    self.menu_data.scan_type,
+                                    cleaningAlg,
+                                    matchingAlg
+                                )])
+        
+        name = '"TrigHLTJetHypo_%s"' % name_extension
+        hypo = self.menu_data.hypo_params
+
+        eta_mins = [ja.eta_min for ja in hypo.jet_attributes]
+        eta_maxs = [ja.eta_max for ja in hypo.jet_attributes]
+        EtThresholds = [ja.threshold * GeV for ja in hypo.jet_attributes]
+        
+        kargs = {
+            'name': name,
+            'eta_mins': eta_mins,
+            'eta_maxs': eta_maxs,
+            'EtThresholds': EtThresholds,
+            'cleaningAlg': '"%s"' % cleaningAlg, 
+            'matchingAlg': '"%s"' % matchingAlg,
+        }
+
+        return [Alg('TrigHLTJetHypo',(), kargs)]
+
+
+    def hlt_hypo_test1(self):
+        return self._hlt_hypo(cleaningAlg='noCleaning',
+                              matchingAlg='singleEtaRegion')
+
+
+    def hlt_hypo_test2(self):
+        return self._hlt_hypo(cleaningAlg='noCleaning',
+                              matchingAlg='maximumBipartite')
+
+
+    def hlt_hypo_test3(self):
+        return self._hlt_hypo(cleaningAlg='basicCleaning',
+                              matchingAlg='singleEtaRegion')
+
+
     def ht_hypo(self):
         """set up a HT hypo"""
     
@@ -322,11 +428,19 @@ class AlgFactory(object):
 
     def superRoIMaker(self):
         factory = 'SeededAlgo'
-        return [Alg(factory,
-                   (),
-                   {'UseRoiSizes':False,
-                    'EtaHalfWidth':0.5,
-                    'PhiHalfWidth':0.5})]
+
+        params = {'UseRoiSizes':False,
+                  'EtaHalfWidth':0.5,
+                  'PhiHalfWidth':0.5}
+
+        name = '"SeededAlgo_%s"' % self.seed
+
+        options = {'name': name,
+                   'UseRoiSizes': False,
+                   'EtaHalfWidth': 0.5,
+                   'PhiHalfWidth': 0.5}
+
+        return [Alg(factory, (), options)]
 
     def cellMaker_superPS_topo(self):
         """assign a name which identifies the fex sequence and
@@ -336,7 +450,7 @@ class AlgFactory(object):
         full scan case."""
         
         class_name = 'TrigCaloCellMaker_jet_super'
-        instance_name = '"%s"' % 'PS'
+        instance_name = '"TriggerCaloCellMaker_PS"'
 
         return [Alg(class_name,
                    (instance_name,
@@ -349,7 +463,7 @@ class AlgFactory(object):
         # the python class to be instantiated.
 
         class_name = 'TrigCaloCellMaker_jet_fullcalo'
-        instance_name = '"%s"' % 'FS'
+        instance_name = '"TriggerCaloCellMaker_FS"'
 
         return [Alg(class_name,
                    (instance_name,
@@ -505,10 +619,13 @@ class AlgFactory(object):
         object. These arguments arr not provided by the ChainConfig
         object, from which other Alg objects get their parmeters"""
 
-        jetPtThreshold =  0.* GeV
-        maxNJets =  -1
-
-        name_frag = '%d_%d' % (int(jetPtThreshold),  maxNJets)
+        jetPtThreshold = 0.* GeV
+        maxNJets = -1
+        name_frag = ""
+        if (maxNJets<0) : 
+           name_frag = str(int(jetPtThreshold))+"_AllJets" 
+        else :
+           name_frag = '%d_%dJets' % (int(jetPtThreshold), maxNJets)
         object_name = '"TrigHLTJetDSSelector_%s"' % name_frag
         jetCollectionName = '"TrigHLTJetDSSelectorCollection"'
 

@@ -8,7 +8,7 @@ instance."""
 
 from exc2string import exc2string2
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+#from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 from TrigGenericAlgs.TrigGenericAlgsConf import \
     PESA__DummyUnseededAllTEAlgo as DummyAlgo
@@ -16,20 +16,27 @@ from TrigGenericAlgs.TrigGenericAlgsConf import \
 from TrigGenericAlgs.TrigGenericAlgsConf import \
     PESA__SeededSuperRoiAllTEAlgo as SeededAlgo
 
-from TrigGenericAlgs.TrigGenericAlgsConf import DummyFEX
+# from TrigGenericAlgs.TrigGenericAlgsConf import DummyFEX
+
+# from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_jet_fullcalo,
+#                                           TrigCaloCellMaker_jet_super,
+#                                           TrigCaloTowerMaker_jet,
+#                                           TrigCaloTopoTowerMaker_jet,
+#                                           TrigCaloClusterMaker_topo,
+#                                           TrigLArNoisyROAlgConfig)
 
 from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_jet_fullcalo,
                                            TrigCaloCellMaker_jet_super,
-                                           TrigCaloTowerMaker_jet,
-                                           TrigCaloTopoTowerMaker_jet,
-                                           TrigCaloClusterMaker_topo,
-                                           TrigLArNoisyROAlgConfig)
+                                           TrigCaloClusterMaker_topo)
+
+from TrigCaloRec.TrigCaloRecConf import (TrigL1BSTowerMaker,)
 
 from TrigHLTJetRec.TrigHLTJetRecConf import TrigHLTRoIDiagnostics
 
 from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
                                                TrigHLTJetRecFromCluster,
                                                TrigHLTJetRecFromJet,
+                                               TrigHLTJetRecFromTriggerTower,
                                                TrigHLTClusterDiagnostics_named,
                                                TrigHLTCellDiagnostics_named,
                                                TrigHLTHypoDiagnostics_named,
@@ -37,16 +44,11 @@ from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
                                                TrigHLTEnergyDensity,
                                                TrigHLTJetDSSelector,)
 
-from TrigJetHypo.TrigJetHypoConfig import (EFJetHypo,
-                                           EFCentFullScanMultiJetHypo,
-                                           EFJetHypoNoiseConfig,
-                                           EFFwdJetHypo_doBasicCleaning,
-                                           EFJetHypoNoiseConfig,
-                                           EFJetHypo_doBasicCleaning,)
+from TrigJetHypo.TrigJetHypoConfig import EFCentFullScanMultiJetHypo
+
+from TrigJetHypo.TrigJetHypoConf import TrigHLTJetHypo
 
 from TrigJetHypo.TrigEFHTHypoConfig import EFHT
-# from TrigT2CaloJet.TrigT2CaloJetConfig import T2L1Unpacking_TT
-
 from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter
 
 abomination_to_keep_config_weakvalue_dict_intact = []

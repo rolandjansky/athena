@@ -34,7 +34,7 @@ def generateChainDefs(chainDict):
         allTopoAlgs = subCD['chainParts']['topo']
         for ta in allTopoAlgs:
             topoAlgs.append(ta)
-
+    
     if ('muvtx' in topoAlgs) or \
             ('llp' in topoAlgs) or \
             (b_any(('invm' or 'deta') in x for x in topoAlgs)):
@@ -64,9 +64,10 @@ def _addTopoInfo(theChainDef,chainDict, topoAlgs, doAtL2AndEF=True):
     listOfChainDefs = []
 
     if ('muvtx' in topoAlgs):
-        theChainDef = generateHVchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
+       # import pdb;pdb.set_trace()
+        theChainDef = generateMuonClusterLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
     elif ('llp' in topoAlgs):
-        theChainDef = generateLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
+        theChainDef = generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
     elif b_any(('invm' or 'deta') in x for x in topoAlgs):
         theChainDef = addDetaInvmTopo(theChainDef,chainDict,inputTEsL2, inputTEsEF, topoAlgs)
     else:
@@ -75,30 +76,38 @@ def _addTopoInfo(theChainDef,chainDict, topoAlgs, doAtL2AndEF=True):
     return theChainDef
 
 ##########################################################################################
-def generateHVchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
-    L2ChainName = "L2_" + chainDict['chainName']
-    EFChainName = "EF_" + chainDict['chainName']
+def generateMuonClusterLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
     HLTChainName = "HLT_" + chainDict['chainName']   
-    #    topoAlgs = chainDict["topo"]
-    l1item = chainDict["L1item"]
-    l1item = l1item[4:]
 
+
+    if 'EMPTY' in HLTChainName:
+        l1item = 'MU4'
+    elif 'UNPAIRED' in HLTChainName:
+        l1item = 'MU4'
+    else:
+        l1item = 'MU10'
+
+    # tracking
+    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+    [trkcore, trkiso, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig", "2step").getSequence()
     
-    from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_muonIsoB
-    fexes_l2_SiTrackFinder_muonIsoB = TrigL2SiTrackFinder_muonIsoB()
+    # muon cluster 
     from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConfig import MuonClusterConfig
-    fexes_l2_MuonCluster = MuonClusterConfig(IDtracking="STRATEGY_B")
+    fexes_l2_MuonCluster = MuonClusterConfig()
+
+    # muon cluster hypo
     from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import MuonClusterHypoConfig
-    from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import MuonClusterAllMSHypoConfig
-    hypos_l2_MuonCluster = MuonClusterHypoConfig()
-    hypos_l2_MuonCluster_ExtendedEta = MuonClusterAllMSHypoConfig()
-     
+    if ('noiso' not in topoAlgs):
+        hypos_l2_MuonCluster = MuonClusterHypoConfig("MuonClusterHypo_primary",maxEta=2.5, numJet=0, numTrk=0)
+    else:
+        hypos_l2_MuonCluster = MuonClusterHypoConfig("MuonClusterHypo_background",maxEta=2.5, numJet=-1, numTrk=-1)
+
     TEmuonIsoB = HLTChainName+'_muIsoB'
     TEmuonClusterFex = HLTChainName+'_muClusFex'
     TEmuonClusterHypo = HLTChainName+'_muClusHypo'
 
     # adding muonIso sequence
-    theChainDef.addSequence([fexes_l2_SiTrackFinder_muonIsoB],l1item, TEmuonIsoB)
+    theChainDef.addSequence(trkiso+trkprec,l1item, TEmuonIsoB)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TEmuonIsoB])
     
     # adding seq using jetTE and TE from seq above (MuonCluster fex)
@@ -113,23 +122,29 @@ def generateHVchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
 
 
 ##########################################################################################
-def generateLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
+def generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
     HLTChainName = "HLT_" + chainDict['chainName']   
-    #topoAlgs = chainDict["topo"]
 
-    from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_muonIsoB
-    fex_SiTrackFinder_muonIsoB = TrigL2SiTrackFinder_muonIsoB()
+    # need to chang the inputTE for the first seq. If set to L1Topoo -> change to TAU30 (HA30 threshold)
+    currentInput = theChainDef.sequenceList[0]['input']
+    if "-" in currentInput:
+        theChainDef.sequenceList[0]['input'] = "HA30"
+    
+    # jet splitting
+    from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConfig import getJetSplitterInstance
+    theJetSplit=getJetSplitterInstance()
+
+    # tracking
+    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+    [trkcore, trkiso, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig", "2step").getSequence()
+
+    # calo-ratio
     from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import CaloRatioHypo
     fex_llp_jet_hypo = CaloRatioHypo('TrigCaloRatioHypo_j30', threshold=30*GeV, logratio=1.2)
-    #from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import L2HVJetHypo
-    #fex_llp_jet_hypo = L2HVJetHypo('L2HVJetHypo_j30', l2_thr=30*GeV, l2_lrat=1.2)
-    from TrigEFLongLivedParticles.TrigEFLongLivedParticlesConfig import TrigLoFRemovalConfig
-    fex_LoF = TrigLoFRemovalConfig()
-    from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import TrigLoFRemovalHypoConfig
-    hypo_LoF = TrigLoFRemovalHypoConfig()
 
-    from TrigBjetHypo.TrigJetSplitterAllTEConfig import getJetSplitterAllTEInstance
-    theJetSplit=getJetSplitterAllTEInstance()
+    # beam-halo removal
+    from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import TrigNewLoFHypoConfig
+    hypo_LoF = TrigNewLoFHypoConfig()
 
     TE_SplitJets = HLTChainName+'_SplitJetTool'
     TE_TrackMuonIsoB = HLTChainName+'_TrkMuIsoB'
@@ -140,8 +155,7 @@ def generateLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
     theChainDef.addSequence(theJetSplit, inputTEsEF, TE_SplitJets)
 
     # adding tracking sequence
-#    theChainDef.addSequence([fex_SiTrackFinder_muonIsoB],inputTEsEF,TE_TrackMuonIsoB)
-    theChainDef.addSequence([fex_SiTrackFinder_muonIsoB],TE_SplitJets,TE_TrackMuonIsoB)
+    theChainDef.addSequence(trkiso+trkprec,TE_SplitJets,TE_TrackMuonIsoB)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_TrackMuonIsoB])
 
     # adding calo-ratio sequence
@@ -149,10 +163,12 @@ def generateLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_LogRatioCut])
 
     # adding LoF sequence
-    theChainDef.addSequence([fex_LoF, hypo_LoF],TE_LogRatioCut,TE_BeamHaloRemoval)
-    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_BeamHaloRemoval])
+    if ('noiso' not in topoAlgs):
+        theChainDef.addSequence([hypo_LoF],TE_LogRatioCut,TE_BeamHaloRemoval)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_BeamHaloRemoval])
 
     return theChainDef
+
 
 
 ##########################################################################################
@@ -164,7 +180,7 @@ def addDetaInvmTopo(theChainDef,chainDicts,inputTEsL2, inputTEsEF,topoAlgs):
         if 'deta' in topo_item:
             detaCut=float(topo_item.split('deta')[1]) 
         else:
-            logJet.debug("No deta threshold in topo definition, using default deta=-99.")
+            logJet.debug("No deta threshold in topo definition, using default deta=99.")
             detaCut = -99.
 
         if 'invm' in topo_item:
@@ -174,7 +190,7 @@ def addDetaInvmTopo(theChainDef,chainDicts,inputTEsL2, inputTEsEF,topoAlgs):
             invmCut = 0.
 
     from TrigJetHypo.TrigEFJetMassDEtaConfig import EFJetMassDEta
-    DEtaMjjJet_Hypo = EFJetMassDEta(algoName, mjj_cut=invmCut, deta_cut=detaCut)
+    DEtaMjjJet_Hypo = EFJetMassDEta(algoName, mjj_cut=invmCut*GeV, deta_cut=detaCut)
     
     chainName = "HLT_" + inputTEsEF[0] + "_"+ algoName
     theChainDef.addSequence([DEtaMjjJet_Hypo], inputTEsEF, chainName)

@@ -86,7 +86,10 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
       self.L2InputL1Item = self.chainPartL1Item or self.chainL1Item
       self.hypo = self.chainPart['hypo']
       self.location = self.chainPart['location']
-
+      self.mult = int(self.chainPart['multiplicity'])   
+      self.chainPartNameNoMult = self.chainPartName[1:] if self.mult > 1 else self.chainPartName 
+      self.signatureCounterOffset = 0
+      
       self.L2InputTE = self.chainPartL1Item or self.chainL1Item
       if self.L2InputL1Item:
         self.L2InputTE = getInputTEfromL1Item(self.L2InputL1Item)
@@ -116,13 +119,22 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
         self.setupL1ALFACalibrationChains()
       elif 'larnoiseburst' in self.chainPart['purpose']:
         self.setupLarNoiseBurstChains()
+      elif 'lumipeb' in self.chainPart['purpose']:
+        self.setupLumiPEBChains()
+      elif 'lhcfpeb' in self.chainPart['purpose']:
+        self.setupLHCfChains()
+      elif 'alfaidpeb' in self.chainPart['purpose']:
+        self.setupALFAIDChains()
+      elif 'larpebj' in self.chainPart['purpose']:
+        self.setupLarPEBChains()
+      elif 'l1satmon' in self.chainPart['purpose']:
+        self.setupL1SaturatedMon()
       else:
          mlog.error('Chain %s could not be assembled' % (self.chainPartName))
          return False      
 
-
       L2EFChainDef.__init__(self, self.chainName, self.L2Name, self.chainCounter,
-                            self.chainL1Item, self.EFName, self.chainCounter, self.L2InputTE)
+                            self.chainL1Item, self.EFName, self.chainCounter, self.L2InputTE, signatureCounterOffset=self.signatureCounterOffset)
 
    def defineSequences(self):	
       for sequence in self.L2sequenceList:
@@ -182,7 +194,7 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
    def setupTrkCalibChains(self):
       self.AlgoName = self.hypo+'_'+self.location
       self.AlgList = []
-
+      self.signatureCounterOffset = 14
 
       from TrigDetCalib.TrigDetCalibConfig import *
       trkAlgDict = {
@@ -263,7 +275,6 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
    ###########################################################################
    # LarNoiseBurst chains
    ###########################################################################
-
    def setupLarNoiseBurstChains(self):
 
      from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyAlgo
@@ -299,3 +310,103 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
        'EF_full_noise' : mergeRemovingOverlap('HLT_full__cluster__', 'jr_antikt'+str(antiktsize)+'tc_had' ), 
        'jet_hypo' : mergeRemovingOverlap('HLT_full__cluster__', 'jr_antikt'+str(antiktsize)+'tc_had_noiseHypo'+suffix ), 
        }
+
+   ###########################################################################
+   # LarPEB chains
+   ###########################################################################
+   def setupLarPEBChains(self):
+
+     threshold=self.chainName.split("_")[0].replace("conej","")
+     from TrigT2CaloJet.TrigT2CaloJetConfig import T2CaloJet_Jet_noCalib_noiseCut
+     from TrigJetHypo.TrigJetHypoConfig import L2JetHypo
+     from TrigDetCalib.TrigDetCalibConfig import EtaHypo_HEC
+     from TrigDetCalib.TrigDetCalibConfig import EtaHypo_FCAL
+     from TrigDetCalib.TrigDetCalibConfig import LArL2ROBListWriter
+     theL2JetFex = T2CaloJet_Jet_noCalib_noiseCut()
+     theL2JetHypo = L2JetHypo('L2JetHypo_j'+threshold,l2_thr=int(threshold)*GeV)
+     theEtaHypo = EtaHypo_FCAL('EtaHypo_FCAL_fj'+threshold+'_larcalib') if "31ETA49" in self.L2InputTE else EtaHypo_HEC('EtaHypo_HEC_fj'+threshold+'_larcalib')
+     theLArL2ROB = LArL2ROBListWriter('LArL2ROBListWriter_larcalib_j'+threshold)
+     self.L2sequenceList += [[self.L2InputTE,
+                              [theL2JetFex],
+                              'L2_larpeb_step1']]
+     self.L2sequenceList += [[['L2_larpeb_step1'],[theL2JetHypo,theEtaHypo],'L2_larpeb_step2']]
+     self.L2sequenceList += [[['L2_larpeb_step2'],[theLArL2ROB],'L2_larpeb_step3']]
+     self.L2signatureList += [ [['L2_larpeb_step1']*self.mult] ]
+     self.L2signatureList += [ [['L2_larpeb_step2']*self.mult] ]
+     self.L2signatureList += [ [['L2_larpeb_step3']*self.mult] ]
+     self.TErenamingDict = { 'L2_larpeb_step1': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'_'+self.L2InputTE+'_jetCalo'),
+                             'L2_larpeb_step2': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'_'+self.L2InputTE+'_jetCaloHypo'),
+                             'L2_larpeb_step3': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'_'+self.L2InputTE+'_jetEtaHypo'), 
+                             }
+     
+   ###########################################################################
+   # L1Saturated Monitored chains
+   ###########################################################################
+   def setupL1SaturatedMon(self):
+
+     threshold=self.chainName.split("_")[0].replace("l1satmon","")
+     from TrigCaloRec.TrigCaloRecConf import TrigL1BSTowerMaker
+     from TrigCaloRec.TrigCaloRecConfig import TrigL1BSTowerHypoConfig
+     theL1BS = TrigL1BSTowerMaker()
+     theL1BSHypo = TrigL1BSTowerHypoConfig('TrigL1BSTowerHypoConfig_'+self.chainName.replace(".",""))
+     self.L2sequenceList += [[self.L2InputTE,
+                              [theL1BS],
+                              'L2_l1bs_step1']]
+     self.L2sequenceList += [[['L2_l1bs_step1'],[theL1BSHypo],'L2_l1bs_step2']]
+     self.L2signatureList += [ [['L2_l1bs_step1']*self.mult] ]
+     self.L2signatureList += [ [['L2_l1bs_step2']*self.mult] ]
+
+     self.TErenamingDict = { 'L2_l1bs_step1':  mergeRemovingOverlap('L2_', self.chainName.replace(".","")+'_l1bs'),
+                             'L2_l1bs_step2':  mergeRemovingOverlap('L2_', self.chainName.replace(".","")+'_l1bsHypo'),
+     }
+     print self
+
+
+   ###########################################################################
+   # VdM chains
+   ###########################################################################
+   def setupLumiPEBChains(self):
+          
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+     
+     vdmSubDetListWriter = TrigSubDetListWriter("VdMSubDetListWriter")
+     vdmSubDetListWriter.SubdetId = ['TDAQ_HLT','TDAQ_CTP','SiOnly','DBM']
+     vdmSubDetListWriter.MaxRoIsPerEvent=1
+
+     self.robWriter = [vdmSubDetListWriter]            
+     self.L2sequenceList += [['', self.robWriter, 'L2_vdm']]     
+     self.L2signatureList += [[['L2_vdm']]]
+
+
+
+   ###########################################################################
+   # LHCf chains
+   ###########################################################################
+   def setupLHCfChains(self):
+          
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+     
+     lhcfSubDetListWriter = TrigSubDetListWriter("LHCfSubDetListWriter")
+     lhcfSubDetListWriter.SubdetId = ['TDAQ_HLT','TDAQ_CTP','InnerDetector','DBM','FORWARD_ALPHA','FORWARD_LUCID','FORWARD_ZDC','FORWARD_BCM']
+     lhcfSubDetListWriter.MaxRoIsPerEvent=1
+
+     self.robWriter = [lhcfSubDetListWriter]            
+     self.L2sequenceList += [['', self.robWriter, 'L2_lhcf']]     
+     self.L2signatureList += [[['L2_lhcf']]]
+
+
+
+   ###########################################################################
+   # ALFA+ID chains
+   ###########################################################################
+   def setupALFAIDChains(self):
+          
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+     
+     alfaidSubDetListWriter = TrigSubDetListWriter("ALFAIDSubDetListWriter")
+     alfaidSubDetListWriter.SubdetId = ['TDAQ_CTP','InnerDetector','FORWARD_ALPHA']
+     alfaidSubDetListWriter.MaxRoIsPerEvent=1
+
+     self.robWriter = [alfaidSubDetListWriter]            
+     self.L2sequenceList += [['', self.robWriter, 'L2_alfaid']]     
+     self.L2signatureList += [[['L2_alfaid']]]

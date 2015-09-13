@@ -84,14 +84,17 @@ class L2EFChain_HI(L2EFChainDef):
         
         self.L2InputTE = self.chainPartL1Item or self.chainL1Item
         # cut of L1_, _EMPTY,..., & multiplicity
-        self.L2InputTE = self.L2InputTE.replace("L1_","")
-        self.L2InputTE = self.L2InputTE.split("_")[0]
-        self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
+        if self.L2InputTE is not '':
+            self.L2InputTE = self.L2InputTE.replace("L1_","")
+            self.L2InputTE = self.L2InputTE.split("_")[0]
+            self.L2InputTE = self.L2InputTE[1:] if self.L2InputTE[0].isdigit() else self.L2InputTE
 
         if "v2" in self.chainPart['eventShape']:
             self.setup_hi_eventshape()
         elif "v3" in self.chainPart['eventShape']:
             self.setup_hi_eventshape()
+        elif "ucc" in self.chainPart['recoAlg']:
+            self.setup_hi_ultracentral()
         
         L2EFChainDef.__init__(self, self.chainName, self.L2Name, self.chainCounter, self.chainL1Item, self.EFName, self.chainCounter, self.L2InputTE)
 
@@ -123,13 +126,15 @@ class L2EFChain_HI(L2EFChainDef):
         #print 'igb: ES threshold:', ESth
 
         if 'v2' in self.chainPart['eventShape']:
-            from TrigHIHypo.VnHypos import V2
+            from TrigHIHypo.VnHypos import V2_th
             chainSuffix = 'v2_th'+ESth
-            EShypo=V2("V2_"+ESth, int(ESth)) 
+            assert V2_th.has_key(int(ESth)), "Missing V2 configuration for threshold "+ESth
+            EShypo=V2_th[int(ESth)] 
         elif 'v3' in self.chainPart['eventShape']:
-            from TrigHIHypo.VnHypos import V3
-            chainSuffix = 'v3_th'+ESth 
-            EShypo=V3("V3_"+ESth, int(ESth)) 
+            from TrigHIHypo.VnHypos import *
+            chainSuffix = 'v3_th'+ESth
+            assert V3_th.has_key(int(ESth)), "Missing V2 configuration for threshold "+ESth            
+            EShypo=V3_th[int(ESth)] 
 
         from TrigHIHypo.UE import theUEMaker, theFSCellMaker
 
@@ -160,6 +165,48 @@ class L2EFChain_HI(L2EFChainDef):
             }
 
 ###########################
+    def setup_hi_ultracentral(self):
+
+        if 'perf'  in self.chainPart['extra']:
+            from TrigHIHypo.UltraCentralHypos import UltraCentral_PT
+            chainSuffix = 'perf_ucc'
+            UChypo=UltraCentral_PT("UltraCentralHypo_PT") 
+        else:
+            from TrigHIHypo.UltraCentralHypos import UltraCentral
+            UChypo_temp = self.chainPart['hypoEFsumEtInfo']
+            UCth=UChypo_temp.lstrip('fcalet')
+            #print 'igb: UCC threshold:', UCth
+        
+            chainSuffix = 'fcalet'+UCth
+            UChypo=UltraCentral("UltraCentralHypo_"+UCth, float(UCth)*1000., -1.) 
+
+        from TrigHIHypo.UE import theUEMaker, theFSCellMaker
+
+        ########### Sequence List ##############
+        self.L2sequenceList += [["",
+                                 [dummyRoI],
+                                 'L2_hi_step1']] 
+        self.EFsequenceList += [[['L2_hi_step1'], 
+                                     [theFSCellMaker], 'EF_hi_step1_fs']]
+
+        self.EFsequenceList += [[['EF_hi_step1_fs'], 
+                                 [theUEMaker], 'EF_hi_step1_ue']]
+
+        self.EFsequenceList += [[['EF_hi_step1_ue'], 
+                                 [UChypo], 'EF_hi_step2']]
+
+        ########### Signatures ###########
+        self.L2signatureList += [ [['L2_hi_step1']] ]
+        self.EFsignatureList += [ [['EF_hi_step1_fs']] ]
+        self.EFsignatureList += [ [['EF_hi_step1_ue']] ]
+        self.EFsignatureList += [ [['EF_hi_step2']] ]
+    
+        self.TErenamingDict = {
+            'L2_hi_step1': mergeRemovingOverlap('L2_hi_step1_', chainSuffix),
+            'EF_hi_step1_fs': mergeRemovingOverlap('EF_hi_fs_', chainSuffix),
+            'EF_hi_step1_ue': mergeRemovingOverlap('EF_hi_ue_', chainSuffix),
+            'EF_hi_step2': mergeRemovingOverlap('EF_hi_', chainSuffix),
+            }
         
 #####################################################################
     

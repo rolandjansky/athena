@@ -36,7 +36,10 @@ class HltChainDef:
                  lower_chain_name, inputTEs,
                  prescale,
                  pass_through,
-                 rerun):
+                 rerun, 
+                 signatureCounterOffset):
+
+
         self.sig_id = "HLT_"+sig_id
         self.chain_name = chain_name
         self.chain_counter = chain_counter
@@ -45,6 +48,7 @@ class HltChainDef:
         self.prescale = prescale
         self.pass_through = pass_through
         self.rerun = rerun
+        self.signatureCounterOffset = signatureCounterOffset
         #
         self.inputTEs = inputTEs
         # self.suffix = config.suffix#
@@ -194,7 +198,7 @@ class HltChainDef:
                 out = self.renameTE(te)
                 tes.append(out)                
             if len(tes)>0: 
-                chainDef.addSignature(isig+1,tes)  #addHLTSignature(tes, isig+1)
+                chainDef.addSignature(isig+1+self.signatureCounterOffset,tes)  #addHLTSignature(tes, isig+1)
         #print "HltConfig : DONE ==================="
         return chainDef
 
@@ -202,13 +206,14 @@ class L2EFChainDef(HltChainDef):
     def __init__(self, sig_id, 
                  l2_chain_name, l2_chain_counter, l2_lower_chain_name,
                  ef_chain_name, ef_chain_counter, 
-                 l2_inputTEs, prescale=1, pass_through=0, rerun=-1):
-        self.l2chain = HltChainDef(sig_id, l2_chain_name, l2_chain_counter, 'L2', l2_lower_chain_name, l2_inputTEs, prescale, pass_through, rerun)
+                 l2_inputTEs, prescale=1, pass_through=0, rerun=-1, signatureCounterOffset=0):
+        self.l2chain = HltChainDef(sig_id, l2_chain_name, l2_chain_counter, 'L2', l2_lower_chain_name, l2_inputTEs, prescale, pass_through, rerun, signatureCounterOffset)
         self.sig_id = sig_id
         self.l2_lower_chain_name = l2_lower_chain_name
         self.l2_chain_name = l2_chain_name
         self.ef_chain_name = ef_chain_name
         self.inputTEs = l2_inputTEs
+        self.signatureCounterOffset = signatureCounterOffset
         #self.physics_streams = []
         #self.calib_streams = []
         #self.L2physics_streams = []
@@ -218,7 +223,7 @@ class L2EFChainDef(HltChainDef):
         #self.groups = []
         #self.trigger_type = []
         
-        self.efchain = HltChainDef(sig_id, ef_chain_name, ef_chain_counter,'EF', l2_chain_name, [], prescale, pass_through, rerun)
+        self.efchain = HltChainDef(sig_id, ef_chain_name, ef_chain_counter,'EF', l2_chain_name, [], prescale, pass_through, rerun, signatureCounterOffset )
         #
         #print 'define sequences'
         self.defineSequences()

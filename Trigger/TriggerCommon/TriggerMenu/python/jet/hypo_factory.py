@@ -6,12 +6,18 @@ from eta_string_conversions import eta_string_to_floats
 
 def hypo_factory(key, args):
 
-    # no choice yet
     if key == 'standard':
-        return JetRecHypoAlg(args)
+        return JetStandardHypo(args)
+    if key == 'single_region':
+        return JetSingleEtaRegionHypo(args)
+    if key == 'single_region_cleaning':
+        return JetSingleEtaRegionCleaningHypo(args)
+    if key == 'maximum_bipartite':
+        return JetMaximumBipartiteHypo(args)
     if key == 'ht':
-        return HTHypoAlg(args)
-    
+        return HTHypo(args)
+
+    raise RuntimeError('hypo_factory: unknoen key %s' % key)
 
 class HypoAlg(object):
     """ Argument checking class that holds the  parameters for an
@@ -40,13 +46,11 @@ class HypoAlg(object):
 
 
 
-class JetRecHypoAlg(HypoAlg):
+class JetHypo(HypoAlg):
     """ Argument checking class that holds the  parameters for an
     Hypo (decision taking) python alg. Derives from HypoAlg, adds
     the information as to whether the trigger tower sequences are
     present in the chain."""
-
-    hypo_type = 'standard'
 
     def __init__(self, ddict):
         HypoAlg.__init__(self, ddict)
@@ -76,17 +80,6 @@ class JetRecHypoAlg(HypoAlg):
                     ja.threshold)
                 raise RuntimeError(m)
 
-        eta_ranges = set([j.eta_range for j in jet_attributes])
-        if len(eta_ranges) != 1:
-            raise RuntimeError('expected 1 eta range, found %d' %
-                               len(eta_ranges))
-
-    def eta_range(self):
-        """return the of the eta_range of the first jet attribute instance.
-        self._check_arhgs ensures all jet_attributes
-        have the same eta_range."""
-        return self.jet_attributes[0].eta_range
-
     def jet_attributes_tostring(self):
         """Return a string of form '%d+_%s_%d+' where the digits preceeding the
         string are multiplicy, the string is the eta range and the digits
@@ -111,7 +104,49 @@ class JetRecHypoAlg(HypoAlg):
         return '_'.join(l)
 
 
-class HTHypoAlg(HypoAlg):
+class JetStandardHypo(JetHypo):
+    hypo_type = 'standard'
+
+    def __init__(self, ddict):
+        JetHypo.__init__(self, ddict)
+        
+    def _check_args(self, ddict):
+        JetHypo._check_args(self, ddict)
+
+        jet_attributes = ddict['jet_attributes']
+        eta_ranges = set([j.eta_range for j in jet_attributes])
+        if len(eta_ranges) != 1:
+            raise RuntimeError('expected 1 eta range, found %d' %
+                               len(eta_ranges))
+    def eta_range(self):
+        """return the of the eta_range of the first jet attribute instance.
+        self._check_arhgs ensures all jet_attributes
+        have the same eta_range."""
+        return self.jet_attributes[0].eta_range
+
+
+class JetSingleEtaRegionHypo(JetStandardHypo):
+    hypo_type = 'single_region'
+
+    def __init__(self, ddict):
+        JetStandardHypo.__init__(self, ddict)
+
+
+class JetSingleEtaRegionCleaningHypo(JetStandardHypo):
+    hypo_type = 'single_region_cleaning'
+
+    def __init__(self, ddict):
+        JetStandardHypo.__init__(self, ddict)
+
+
+class JetMaximumBipartiteHypo(JetHypo):
+    hypo_type = 'maximum_bipartite'
+
+    def __init__(self, ddict):
+        JetHypo.__init__(self, ddict)
+
+
+class HTHypo(HypoAlg):
     """ Store paramters for the HT hypoAlg"""
 
     hypo_type = 'HT'

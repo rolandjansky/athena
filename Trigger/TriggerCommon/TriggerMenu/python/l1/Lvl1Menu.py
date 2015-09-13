@@ -168,7 +168,8 @@ class Lvl1Menu:
         # if not success:
         #     raise RuntimeError("There is a problem in the menu that needs fixing")
         
-        # Check all items if bunchgroups are in the same partition
+
+        # Check for all items that their bunchgroups are in the same partition
         bgpart = dict( [("BGRP%i" % bg.internalNumber, bg.menuPartition) for bg in self.CTPInfo.bunchGroupSet.bunchGroups] )
         for item in self.items:
             bgs = [t for t in item.thresholdNames(include_bgrp=True) if t.startswith('BGRP')]
@@ -184,11 +185,62 @@ class Lvl1Menu:
         if not success:
             raise RuntimeError("There is a problem in the menu that needs fixing")
 
+
         # check that L1 CalReq are the last 3 items of the menu (509,510,511) - check with Thilo/Ralf
-
-
+        caldef = { "L1_CALREQ0" : 509, "L1_CALREQ1" : 510, "L1_CALREQ2" : 511 }
+        for name, ctpid in caldef.items():
+            calitem = self.getItem(name)
+            if calitem and calitem.ctpid != ctpid:
+                log.error('Item %s is not on CTPID %i' % (name,ctpid))
+                success = False
         if not success:
             raise RuntimeError("There is a problem in the menu that needs fixing")
+
+        
+        # check that the number of monitored items doesn't exceed the limit
+        (TBP, TAP, TAV) = (1, 2, 4)
+        items_LF = { TBP : set(), TAP : set(), TAV : set() }
+        items_HF = { TBP : set(), TAP : set(), TAV : set() }
+
+        for item in self.items:
+            for k in (TBP, TAP, TAV):
+                if item.monitorsLF & k:
+                    items_LF[k].add( item.name )
+                if item.monitorsHF & k:
+                    items_HF[k].add( item.name )
+
+        counts_LF = dict( map(lambda (x,y) : (x,len(y)), items_LF.items() ) )
+        counts_HF = dict( map(lambda (x,y) : (x,len(y)), items_HF.items() ) )
+
+        lutsLF = ( max(counts_LF.values() ) -1 ) / 8 + 1
+        lutsHF = ( max(counts_HF.values() ) -1 ) / 8 + 1
+
+        
+        if lutsLF + lutsHF <= 8:
+            log.info("LVL1 monitoring with %i LF groups (%i items) and %i HF groups (%i items)" % (lutsLF, max(counts_LF.values()), lutsHF, max(counts_HF.values())) )
+        else:
+            log.error("WARNING: too many monitoring items are defined")
+            print "   low frequency  TBP: %i" % counts_LF[TBP]
+            print "                  TAP: %i" % counts_LF[TAP]
+            print "                  TAV: %i" % counts_LF[TAV]
+            print "   required LUTs: %i" % lutsLF
+            print "   high frequency TBP: %i" % counts_HF[TBP]
+            print "                  TAP: %i" % counts_HF[TAP]
+            print "                  TAV: %i" % counts_HF[TAV]
+            print "   required LUTs: %i" % lutsHF
+            print "   this menu requires %i monitoring LUTs while only 8 are available" % (lutsLF + lutsHF)
+            print "   LF TBP:\n     %r" % sorted(items_LF[TBP])
+            print "   LF TAP:\n     %r" % sorted(items_LF[TAP])
+            print "   LF TAV:\n     %r" % sorted(items_LF[TAV])
+            print "   HF TBP:\n     %r" % sorted(items_HF[TBP])
+            print "   HF TAP:\n     %r" % sorted(items_HF[TAP])
+            print "   HF TAV:\n     %r" % sorted(items_HF[TAV])
+            success = False
+        if not success:
+            raise RuntimeError("There is a problem in the menu that needs fixing")
+
+
+
 
         return success
 

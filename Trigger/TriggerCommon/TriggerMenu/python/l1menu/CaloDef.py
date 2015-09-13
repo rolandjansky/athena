@@ -42,20 +42,33 @@ class CaloDef:
         slope: signed integer for a slope of m the isolation cut loosens by 1 GeV for every m GeV increase in the cluster ET
         
         E.g: with offset=-52 slope=35 means isolation <= ET/3.5 - 5.2
+
+
+        The following defaults are applied if not specified
+        mincut     : 0,
+        upperlimit : 255,
+        etamin     : -49,
+        etamax     : 49,
+        priority   : 0
         """
 
-        caloInfo.isolation["EMIsoForEMthr"] .addIsolation( isobit=2, slope=80, offset=-18,  mincut=20, upperlimit=50)\
-                                            .addIsolation( isobit=3, slope=80, offset=-18,  mincut=20, upperlimit=50)\
-                                            .addIsolation( isobit=4, slope=80, offset=-18, mincut=20, upperlimit=50)
+        caloInfo.isolation["EMIsoForEMthr"] .addIsolation( isobit=1, slope=0, offset=0, upperlimit=0)\
+                                            .addIsolation( isobit=2, slope=80, offset=-18, mincut=20, upperlimit=50)\
+                                            .addIsolation( isobit=3, slope=80, offset=-18, mincut=20, upperlimit=50)\
+                                            .addIsolation( isobit=4, slope=80, offset=-18, mincut=20, upperlimit=50)\
+                                            .addIsolation( isobit=5, slope=0, offset=0, upperlimit=0)
                                             
-        caloInfo.isolation["HAIsoForEMthr"] .addIsolation( isobit=1, slope=230, offset=-2, mincut=10,upperlimit=50)\
-                                            .addIsolation( isobit=3, slope=230, offset=-2, mincut=10,upperlimit=50)\
+        caloInfo.isolation["HAIsoForEMthr"] .addIsolation( isobit=1, slope=230, offset=-2, mincut=10, upperlimit=50)\
+                                            .addIsolation( isobit=2, slope=0, offset=0, upperlimit=0)\
+                                            .addIsolation( isobit=3, slope=230, offset=-2, mincut=10, upperlimit=50)\
                                             .addIsolation( isobit=4, slope=230, offset=-2, mincut=10, upperlimit=50)\
+                                            .addIsolation( isobit=5, slope=0, offset=0, upperlimit=0)
 
         caloInfo.isolation["EMIsoForTAUthr"] .addIsolation( isobit=1, slope=100, offset=30, upperlimit=60 )\
-	                                     .addIsolation( isobit=2, slope=100, offset=20, upperlimit=60 )\
-	                                     .addIsolation( isobit=3, slope=100, offset=15, upperlimit=60 )\
-	                                     .addIsolation( isobit=4, slope=0, offset=40)
+                                             .addIsolation( isobit=2, slope=100, offset=20, upperlimit=60 )\
+                                             .addIsolation( isobit=3, slope=100, offset=15, upperlimit=60 )\
+                                             .addIsolation( isobit=4, slope=0, offset=40)\
+                                             .addIsolation( isobit=5, slope=0, offset=0, upperlimit=0)
 
 
         # min PT for TOBs

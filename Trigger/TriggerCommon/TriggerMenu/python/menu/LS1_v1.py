@@ -268,13 +268,17 @@ def setupMenu():
         # jettauetmiss streamer
         ['noalg_jettauetmiss_L1RD0_FIRSTEMPTY',   'L1_RD0_FIRSTEMPTY',  [], ['Main'], ["Supporting", "Calibration", "BW:Detector"], -1],
 
-        # Enhanced bias item
-        ['noalg_eb_L1BGRP7',                 'L1_BGRP7',              [], ['EnhancedBias'], ["Supporting", "Calibration", "BW:Detector"], -1],
-        ['noalg_eb_L1RD1_FILLED',             'L1_RD1_FILLED',        [], ['EnhancedBias'], ["Supporting", "Calibration", "BW:Detector"], -1],
-        ['noalg_eb_L1RD0_EMPTY',              'L1_RD0_EMPTY',         [], ['EnhancedBias', 'express'], ["Supporting", "Calibration", "BW:Detector"], -1],
-        ['noalg_eb_L1RD0_FIRSTEMPTY',         'L1_RD0_FIRSTEMPTY',    [], ['EnhancedBias'], ["Supporting", "Calibration", "BW:Detector"], -1],
-        ['noalg_eb_L1RD0_UNPAIRED_ISO',       'L1_RD0_UNPAIRED_ISO',  [], ['EnhancedBias'], ["Supporting", "Calibration", "BW:Detector"], -1],
-        ['noalg_eb_L1Physics_noPS'   ,        'L1_Physics_noPS',      [], ['EnhancedBias'], ["Supporting", "Calibration", "BW:Detector"], -1],
+        # Enhanced bias Physics item
+        ['noalg_eb_L1RD3_FILLED',             'L1_RD3_FILLED',             [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
+        ['noalg_eb_L1PhysicsLow_noPS',        'L1_PhysicsLow_noPS',        [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
+        ['noalg_eb_L1PhysicsHigh_noPS',       'L1_PhysicsHigh_noPS',       [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
+        ## Enhanced Bias Background ##
+        ['noalg_eb_L1RD3_EMPTY',              'L1_RD3_EMPTY',              [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
+        ['noalg_eb_L1EMPTY_noPS',             'L1_EMPTY_noPS',             [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
+        ['noalg_eb_L1FIRSTEMPTY_noPS',        'L1_FIRSTEMPTY_noPS',        [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
+        ['noalg_eb_L1UNPAIRED_ISO_noPS',      'L1_UNPAIRED_noPS',          [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
+        ['noalg_eb_L1UNPAIRED_NONISO_noPS',   'L1_UNPAIRED_NONISO_noPS',   [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
+        ['noalg_eb_L1ABORTGAPNOTCALIB_noPS',  'L1_ABORTGAPNOTCALIB_noPS',  [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
 
         #idmon streamer
         ['noalg_idmon_L1RD0_EMPTY',          'L1_RD0_EMPTY',        [], ['express','IDMonitoring'], ["RATE:DISCARD","BW:DISCARD"], -1],
@@ -311,14 +315,9 @@ def setupMenu():
         ]
     
     TriggerFlags.EnhancedBiasSlice.signatures = [
-        #['eb_physics_L1RD1_FILLED',            'L1_RD1_FILLED',         [], ['EnhancedBias'], ["Supporting", "Calibration", "BW:Detector"], -1],
-        ['eb_low_L1RD0_FILLED',                  'L1_RD0_FILLED',         [], ['EnhancedBias'], ["Supporting", "Calibration", "BW:Detector"], -1],
-        ['eb_high_L1RD0_FILLED',               'L1_RD0_FILLED',         [], ['EnhancedBias'], ["Supporting", "Calibration", "BW:Detector"], -1],
-        ['eb_empty_L1RD0_EMPTY',               'L1_RD0_EMPTY',         [], ['EnhancedBias'], ["Supporting", "Calibration", "BW:Detector"], -1],
-        ['eb_firstempty_L1RD0_FIRSTEMPTY',     'L1_RD0_FIRSTEMPTY',         [], ['EnhancedBias'], ["Supporting", "Calibration", "BW:Detector"], -1],
-        ['eb_unpairediso_L1RD0_UNPAIRED_ISO',  'L1_RD0_UNPAIRED_ISO',         [], ['EnhancedBias'], ["Supporting", "Calibration", "BW:Detector"], -1],
-        
-        ]
+        ['eb_low_L1RD2_FILLED',               'L1_RD2_FILLED',             [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
+        ['eb_high_L1RD2_FILLED',              'L1_RD2_FILLED',             [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],    
+    ]
     
 
 

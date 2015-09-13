@@ -35,8 +35,10 @@ def getCutFromPrescale(prescale):
     
     sign = -1 if prescale<0 else 1
     prescale = abs(prescale)
-    return sign * ( 0x1000000 - int(0xFFFFFF/prescale) )
-
+    cut=sign * ( 0x1000000 - int(0xFFFFFF/prescale) )
+    if  prescale > 0xFFFFFF:
+        cut=sign * (0x1000000-1)
+    return cut
 
 def getPrescaleFromCut(cut):
     """

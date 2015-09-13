@@ -34,6 +34,17 @@ def _addTopoInfo(theChainDef,chainDicts,listOfChainDefs,doAtL2AndEF=True):
             logCombined.warning("Need a Met and a JET chain to run DPhi Topo cut")        
         else:
             theChainDef=_addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs)
+
+    elif any("mt" in alg for alg in topoAlgs):
+        ##Check that we only have a MET and Electron chain
+        inputChains=[]
+        for ChainPart in chainDicts: 
+            if 'MET' in ChainPart['signature'] or 'XS' in ChainPart['signature'] or 'Electron' in ChainPart['signature']:
+                inputChains.append(ChainPart['signature'])
+        if len(inputChains)<2: 
+            logCombined.warning("Need a MET/XS and an Electron chain to run MT cut")
+        else:
+            theChainDef=_addTransverseMass(theChainDef,chainDicts,listOfChainDefs)
             
     elif any("razor" in alg for alg in topoAlgs):
         ##Check that we only have a MET and JET chain
@@ -89,9 +100,15 @@ def _addTopoInfo(theChainDef,chainDicts,listOfChainDefs,doAtL2AndEF=True):
 ##############################################################################
 def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs): 
 
+    maxJets=-1
+    DPhiCut=-1
     for topo_item in chainDicts[0]['topo']:
-        DPhiCut=float(topo_item.split('dphi')[1]) if 'dphi' in topo_item else logCombined.error("No Dphi threshold in topo definition")
-    
+        if 'dphi' in topo_item:
+            maxJets=int(topo_item.split('dphi')[0])
+            DPhiCut=float(topo_item.split('dphi')[1])/10.
+        else:
+            logCombined.debug("No Dphi threshold in topo definition")
+
     JetThr=-1
     for ChainPart in chainDicts:
         if 'Jet' in ChainPart['signature']:
@@ -101,10 +118,13 @@ def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs):
     if JetThr==-1:
         logCombined.error("No JET chain part found in DPhiMetJet Topo cut")
 
+    if DPhiCut==-1 or maxJets==-1:
+        logCombined.error("No dphi chain part found in DPhiMetJet Topo cut")
+
     from TrigJetHypo.TrigEFDPhiMetJetAllTEConfig import *
 
     DPhiMetJet_Hypo = EFDPhiMetJet_Generic("EFDPhiMetJet_J"+str(JetThr).replace(".","")+"_DPhi"+str(DPhiCut).replace(".",""),
-                                           dPhiCut=DPhiCut, minJetEt=JetThr,maxDPhiJets=1)
+                                           dPhiCut=DPhiCut, minJetEt=JetThr*1000,maxDPhiJets=maxJets)
     
     ##Get only the last MET TE
     inputTEsEF = [] 
@@ -116,10 +136,51 @@ def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs):
     logCombined.debug("Input TEs to DPhi algorithm: %s" % inputTEsEF)
 
     EFChainName = "EF_" + chainDicts[0]['chainName']
+    if (len(EFChainName) > 99):
+        EFChainName = EFChainName[:-(len(EFChainName)-99)]
+    #if '_L1' in EFChainName:
+        #EFChainName = EFChainName.split("_L1")[0]
+    
+    theChainDef.addSequence([DPhiMetJet_Hypo],inputTEsEF,EFChainName)
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])    
+
+    return theChainDef
+
+
+##############################################################################
+def _addTransverseMass(theChainDef,chainDicts,listOfChainDefs): 
+
+    for topo_item in chainDicts[0]['topo']:
+        MTCut=int(topo_item.split('mt')[1]) if 'mt' in topo_item else logCombined.error("No mt threshold in topo definition")
+    
+    ElectronThr=-1
+    for ChainPart in chainDicts:
+        if 'Electron' in ChainPart['signature']:
+            ElectronThr=int(ChainPart['chainParts'][0]['threshold'])
+            break
+
+    if ElectronThr==-1:
+        logCombined.error("No Electron chain part found in Transverse Mass Topo cut")
+
+    from TrigEgammaHypo.TrigEFMtAllTEConfig import *
+
+    MT_Hypo = TrigEFMtAllTE_Generic("TrigEFMtAllTE_Mt"+str(MTCut).replace(".",""),
+                                    minMtCut=MTCut,maxNbElectrons=10,minElectronEt=ElectronThr)
+    
+    ##Get only the last MET TE
+    inputTEsEF = [] 
+    for cD in listOfChainDefs: 
+        inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])] 
+                         
+    inputTEsEF.reverse() # need first met then jet input TE           
+
+    logCombined.debug("Input TEs to Transverse Mass algorithm: %s" % inputTEsEF)
+
+    EFChainName = "EF_" + chainDicts[0]['chainName']
     if '_L1' in EFChainName:
         EFChainName = EFChainName.split("_L1")[0]
     
-    theChainDef.addSequence([DPhiMetJet_Hypo],inputTEsEF,EFChainName)
+    theChainDef.addSequence([MT_Hypo],inputTEsEF,EFChainName)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])    
 
     return theChainDef
@@ -152,9 +213,6 @@ def _addRazor(theChainDef,chainDicts,listOfChainDefs):
         if "EF" in sig['listOfTriggerElements'][-1] and 'xe' in sig['listOfTriggerElements'][-1] and not( 'step' in sig['listOfTriggerElements'][-1]  ) and not( 'razor' in sig['listOfTriggerElements'][-1]  ):
             inputTEsEFMET.append( sig['listOfTriggerElements'][-1])
 
-    ### CATRIN COMMENTING OUT DUE TO CHANGED JET DEFAULTSinputTEsEFJet.append( 'EF_full__cluster__antikt4_tc_jes' )
-
-    print "YYYYYYYYYYYYYY"
     signatureListCopy = deepcopy(theChainDef.signatureList)
     signatureListCopy.reverse()
     for sig in signatureListCopy:
@@ -218,93 +276,82 @@ def _addTauMass(theChainDef,chainDicts,listOfChainDefs):
 
 ##############################################################################
 
-def _addMatching(theChainDef,chainDicts,listOfChainDefs): 
+def _addMatching(theChainDef,chainDicts,listOfChainDefs):
 
     allInputTEsEF = [] 
     for cD in listOfChainDefs: 
         allInputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'][0])] 
 
-    inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
-    secondlastTEsEF = theChainDef.signatureList[-2]['listOfTriggerElements']
+    # =========================================================
+
+    # muon input TE to the hypo
     muonTE = theChainDef.signatureList[3]['listOfTriggerElements']
 
-    from TrigBjetHypo.TrigLeptonJetMatchAllTEConfig  import getLeptonJetMatchAllTEInstance
-    LeptonJetFexAllTE_RZ = getLeptonJetMatchAllTEInstance("CloseBy","RZ")
 
-    logCombined.debug("Input TEs to LeptonJet algorithm: %s" % inputTEsEF)
+    # =========================================================
+
+    # obtain deltaR for Hypo configuration
+    deltaR = -1
+    for topo_item in chainDicts[0]['topo']:
+        if 'dr' in topo_item:
+            deltaR=float(topo_item.split('dr')[1])/10.
+    if deltaR == -1: logCombined.error("No DeltaR cut could be extracted!")
+    # obtain deltaZ for Hypo configuration
+    deltaZ = -1
+    for topo_item in chainDicts[0]['topo']:
+        if 'dz' in topo_item:
+            deltaZ=float(topo_item.split('dz')[1]) # Need to modify this to be able to handle dZ values > 9...
+
+    #check if jet or bjet to be matched & find hypothreshold
+    chnameToMatch = chainDicts[0]['chainName'].split("_dr")[0]
+    chnameAddPart = chainDicts[0]['chainName'].split("_dr")[1]
+    jetPart = chnameToMatch.split("j")[1]
+    hypoThresh = [part.split("j")[1] for part in chnameToMatch.split("_") if "j" in part][0]+'GeV'
+    if hypoThresh == '': logCombined.error("No HypoThreshold could be extracted!")
+
+    # configure Hypo and jet/bjetTE    
+    from TrigBjetHypo.TrigLeptonJetMatchAllTEConfig  import getLeptonJetMatchAllTEInstance
+
+    if "dz" in topo_item: # it's a bjet chain
+        jetTE = theChainDef.signatureList[-1]['listOfTriggerElements']
+        pos_sigCounter = -1
+        LeptonJetFexAllTE = getLeptonJetMatchAllTEInstance("CloseBy","RZ", hypoThresh)
+        LeptonJetFexAllTE.JetKey = "SplitJet"
+        LeptonJetFexAllTE.DeltaRCut = deltaR
+        LeptonJetFexAllTE.DeltaZCut = deltaZ
+        
+    else: # dealing with jets to match
+        pos_sigCounter = 7
+        jetTE = theChainDef.signatureList[pos_sigCounter]['listOfTriggerElements']
+        LeptonJetFexAllTE = getLeptonJetMatchAllTEInstance("CloseBy","R", hypoThresh)
+        LeptonJetFexAllTE.JetKey = ""
+        LeptonJetFexAllTE.DeltaRCut = deltaR
+
+    # =========================================================
+      
+    logCombined.debug("Input TEs to LeptonJet algorithm: %s %s" % (muonTE, jetTE))
+
+    # =========================================================
+
+    # Topo start from settings
     EFChainName = "EF_" + chainDicts[0]['chainName']
+    from TriggerMenu.menu.MenuUtils import setupTopoStartFrom
+    topoThresh = chainDicts[0]['topoThreshold']
+    topoStartFrom = setupTopoStartFrom(topoThresh,theChainDef) if topoThresh else None
+    if topoStartFrom:
+        EFChainName = EFChainName + '_tsf'
+
+    # =========================================================
+
+    # matching sequence of the chain
+    theChainDef.addSequence([LeptonJetFexAllTE], [muonTE, jetTE],EFChainName, topo_start_from = topoStartFrom)
+
+    if pos_sigCounter == -1:
+        theChainDef.addSignature(theChainDef.signatureList[pos_sigCounter]['signature_counter']+1, [EFChainName])
+    else:
+        theChainDef.insertSignature(theChainDef.signatureList[pos_sigCounter]['signature_counter']+1, [EFChainName])
 
 
-    #-----------------------------------------------------------------------------------
-    # algo imports
-    #-----------------------------------------------------------------------------------
-    # super ROI building
-    from TrigBjetHypo.TrigSuperRoiBuilderAllTEConfig import getSuperRoiBuilderAllTEInstance
-    theSuperRoi=getSuperRoiBuilderAllTEInstance()
-
-    # tracking
-    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence # new
-    [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step").getSequence() # new
-    # for b-tagging
-    theBjetTracks = trkftf+trkprec
-    # for vertexing
-    theVertexTracks = trkvtx 
-    
-    # primary vertexing
-    from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxAllTEConfig import EFHistoPrmVtxAllTE_Jet
-    from TrigT2HistoPrmVtx.TrigT2HistoPrmVtxComboConfig import EFHistoPrmVtxCombo_Jet
-
-    #jet splitting
-    from TrigBjetHypo.TrigJetSplitterAllTEConfig import getJetSplitterAllTEInstance
-    theJetSplit=getJetSplitterAllTEInstance()
-
-    # Et hypo (doesn't work in superROI mode)
-    hypoThresh ='55GeV'
-    from TrigBjetHypo.TrigBjetEtHypoConfig import getBjetEtHypoInstance
-    theBjetEtHypo   = getBjetEtHypoInstance("EF", "Btagging", hypoThresh)
-
-    # secondary vertexing
-    from InDetTrigVxSecondary.InDetTrigVxSecondary_LoadTools import TrigVxSecondaryCombo_EF
-    theVxSecondary = TrigVxSecondaryCombo_EF()
-
-    #lepton jet matching
-    from TrigBjetHypo.TrigLeptonJetMatchAllTEConfig  import getLeptonJetMatchAllTEInstance
-    LeptonJetFexAllTE_RZ = getLeptonJetMatchAllTEInstance("CloseBy","RZ")
-
-
-    #-----------------------------------------------------------------------------------
-    # sequence assembling & TE definitions
-    #-----------------------------------------------------------------------------------
-    superTE = inputTEsEF[0]+'_sRoi'
-    superTrackingTE = superTE+'_sTrk'
-    prmVertexTE = superTrackingTE+'_prmVtx'
-    comboPrmVtxTE = inputTEsEF[0]+'_sRoiTrkVtx'
-    jetSplitTE=comboPrmVtxTE+'_jSplit'
-    jetEtHypoTE=jetSplitTE+'_hypo'+hypoThresh
-    jetTrackTE=jetEtHypoTE+'bjtrk'
-    secVtxTE=comboPrmVtxTE+hypoThresh+'SecVtx'
-    
-
-    # Vertexing part of the chain
-    theChainDef.addSequence(theSuperRoi,                 inputTEsEF,                    superTE        )
-    theChainDef.addSequence(theVertexTracks,             superTE,                       superTrackingTE) 
-    theChainDef.addSequence([EFHistoPrmVtxAllTE_Jet()],  superTrackingTE,               prmVertexTE    )
-    theChainDef.addSequence([EFHistoPrmVtxCombo_Jet()], [superTrackingTE, prmVertexTE], comboPrmVtxTE  )
-    
-    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [comboPrmVtxTE])
-
-    # b-tagging part of the chain (requires PV)
-    theChainDef.addSequence(theJetSplit,             [inputTEsEF, comboPrmVtxTE], jetSplitTE )
-    theChainDef.addSequence(theBjetEtHypo,            jetSplitTE,                 jetEtHypoTE)  
-    theChainDef.addSequence(theBjetTracks,            jetEtHypoTE,                jetTrackTE )   
-    theChainDef.addSequence(theVxSecondary,          [jetTrackTE, comboPrmVtxTE], secVtxTE   )
-
-    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [secVtxTE])
-
-    # matching part of the chain
-    theChainDef.addSequence([LeptonJetFexAllTE_RZ], [muonTE,     secVtxTE],EFChainName)    
-
-    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
 
     return theChainDef
 

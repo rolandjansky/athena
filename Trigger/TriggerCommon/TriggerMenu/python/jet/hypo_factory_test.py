@@ -5,8 +5,10 @@ import unittest
 from mock import MagicMock
 from hypo_factory import (hypo_factory,
                           HypoAlg,
-                          JetRecHypoAlg,
-                          HTHypoAlg)
+                          JetStandardHypo,
+                          JetSingleEtaRegionHypo,
+                          JetMaximumBipartiteHypo,
+                          HTHypo)
 
 class Test_hypo_factory(unittest.TestCase):
 
@@ -34,14 +36,23 @@ class Test_hypo_factory(unittest.TestCase):
         """test factory function"""
 
         hypo = hypo_factory('standard', self.hypo_args)
-        self.assertTrue(hypo.__class__.__name__ == 'JetRecHypoAlg')
+        self.assertTrue(hypo.__class__.__name__ == 'JetStandardHypo')
+
+        hypo = hypo_factory('single_region', self.hypo_args)
+        self.assertTrue(hypo.__class__.__name__ == 'JetSingleEtaRegionHypo')
+
+        hypo = hypo_factory('maximum_bipartite', self.hypo_args)
+        self.assertTrue(hypo.__class__.__name__ == 'JetMaximumBipartiteHypo')
+
+        hypo = hypo_factory('ht', self.ht_hypo_args)
+        self.assertTrue(hypo.__class__.__name__ == 'HTHypo')
 
     def test_1(self):
         """test HypoAlg construction"""
 
         hypo = hypo_factory('standard', self.hypo_args)
 
-        self.assertTrue(hypo.__class__.__name__ == 'JetRecHypoAlg')
+        self.assertTrue(hypo.__class__.__name__ == 'JetStandardHypo')
         str(hypo)  # exercise string method
         self.assertTrue(hypo.eta_range() == '0eta320')
         
@@ -51,19 +62,19 @@ class Test_hypo_factory(unittest.TestCase):
         """test HypoAlg construction, bad arguments"""
 
         del self.hypo_args['chain_name']
-        self.assertRaises(RuntimeError, JetRecHypoAlg, self.hypo_args)
+        self.assertRaises(RuntimeError, JetStandardHypo, self.hypo_args)
 
     def test_3(self):
         """test HypoAlg construction, bad arguments"""
 
         self.hypo_args['jet_attributes'] = []
-        self.assertRaises(RuntimeError, JetRecHypoAlg, self.hypo_args)
+        self.assertRaises(RuntimeError, JetStandardHypo, self.hypo_args)
 
     def test_4(self):
         """test HypoAlg construction, bad arguments"""
 
         self.hypo_args['jet_attributes'][0].threshold = 50.1
-        self.assertRaises(RuntimeError, JetRecHypoAlg, self.hypo_args)
+        self.assertRaises(RuntimeError, JetStandardHypo, self.hypo_args)
 
     def test_6(self):
         """test HypoAlg construction, > 1 region"""
@@ -73,25 +84,38 @@ class Test_hypo_factory(unittest.TestCase):
         jet_attribute.region = '320eta500'
 
         self.hypo_args['jet_attributes'].append(jet_attribute)
-        self.assertRaises(RuntimeError, JetRecHypoAlg, self.hypo_args)
+        self.assertRaises(RuntimeError, JetStandardHypo, self.hypo_args)
 
     def test_8(self):
         """test  construction HTHypoAlg"""
 
-        hypo = HTHypoAlg(self.ht_hypo_args)
-        self.assertTrue(hypo.__class__.__name__ == 'HTHypoAlg')
+        hypo = HTHypo(self.ht_hypo_args)
+        self.assertTrue(hypo.__class__.__name__ == 'HTHypo')
         
     def test_9(self):
-        """test JetRecHypoAlg construction"""
+        """test JetStandardHypo construction"""
 
-        hypo = JetRecHypoAlg(self.hypo_args)
-        self.assertTrue(hypo.__class__.__name__ == 'JetRecHypoAlg')
+        hypo = JetStandardHypo(self.hypo_args)
+        self.assertTrue(hypo.__class__.__name__ == 'JetStandardHypo')
         
     def test_10(self):
-        """test JetRecHypoAlg construction, bad args"""
+        """test JetStandardHypo construction, bad args"""
 
         del self.hypo_args['triggertower']
-        self.assertRaises(RuntimeError, JetRecHypoAlg, self.hypo_args)
+        self.assertRaises(RuntimeError, JetStandardHypo, self.hypo_args)
+
+    def test_11(self):
+        """test JetSingleEtaRegionHypo construction"""
+
+        hypo = JetSingleEtaRegionHypo(self.hypo_args)
+        self.assertTrue(hypo.__class__.__name__ == 'JetSingleEtaRegionHypo')
+
+    def test_12(self):
+        """test JetMaximumBipartiteHypo construction"""
+
+        hypo = JetMaximumBipartiteHypo(self.hypo_args)
+        print hypo.__class__.__name__
+        self.assertTrue(hypo.__class__.__name__ == 'JetMaximumBipartiteHypo')
 
 
 if __name__ == '__main__':

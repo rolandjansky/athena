@@ -537,7 +537,7 @@ class LVL1MenuItems:
 ClusterOff   = 255
 IsolationOff = 63
 JetOff       = 1023
-EtSumOff     = 2047
+EtSumOff     = 32767
 EtMissOff    = 2895
 JetEtOff     = 13286
 # InternalTriggers

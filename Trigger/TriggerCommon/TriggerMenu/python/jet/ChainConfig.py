@@ -28,19 +28,20 @@ class ChainConfig(object):
                  seed,
                  run_hypo,
                  hypo_type,
-                 test,
                  data_scouting,
-                 menu_data,):
+                 menu_data,
+                 run_rtt_diags,
+    ):
 
         self.chain_name = chain_name
         self.seed = seed
         self.run_hypo = run_hypo
         self.hypo_type = hypo_type
         self.data_scouting = data_scouting
+        self.run_rtt_diags = run_rtt_diags  # flag to run RTT the diagonistics.
 
         # menu_data: data acquired from chainParts of menu dict
         self.menu_data = menu_data  
-        self.test = test
 
     def __str__(self):
         d = to_dict(self)

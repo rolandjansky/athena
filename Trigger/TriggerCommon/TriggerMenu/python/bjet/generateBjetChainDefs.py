@@ -1,12 +1,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-
 __author__  = 'M.Backes, C.Bernius'
 __doc__="Definition of bjet chains" 
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
-logBjetDef = logging.getLogger("TriggerMenu.bjet.generateBjetChainDefs.py")
+log = logging.getLogger("TriggerMenu.bjet.generateBjetChainDefs.py")
 
 from TriggerMenu.menu.MenuUtils import *
 from TriggerMenu.menu.DictFromChainName import DictFromChainName 
@@ -21,7 +20,7 @@ def generateChainDefs(chainDict):
 
     from copy import deepcopy
     chainDict_orig = deepcopy(chainDict)
-    logBjetDef.debug("Initial b-jet chainDict: \n %s" % (pp.pformat(chainDict)))
+    log.debug("Initial b-jet chainDict: \n %s" % (pp.pformat(chainDict)))
 
     #----------------------------------------------------------------------------
     # --- preparing the dictionary for jet chain generation ---
@@ -30,7 +29,7 @@ def generateChainDefs(chainDict):
     if (n_chainParts >1):
         jetchainDict = _prepareJetChainDict(chainDict)
     elif (n_chainParts == 1):
-        logBjetDef.debug('Only one chain part dictionary for this chain.')
+        log.debug('Only one chain part dictionary for this chain.')
         jetchainDict = chainDict
     else:
         raise RuntimeError('No chain parts found for chain %s' % (chainDict['chainName']))
@@ -52,32 +51,34 @@ def generateChainDefs(chainDict):
 
     from TriggerMenu.jet.generateJetChainDefs import generateChainDefs as genJetChainDefs
     theBJChainDef =  genJetChainDefs(thejThrChainDef)
-    logBjetDef.debug("ChainDef for b-jet chain: \n %s" % (str(theBJChainDef)))
+    log.debug("ChainDef for b-jet chain: \n %s" % (str(theBJChainDef)))
     #----------------------------------------------------------------------------
 
 
     #----------------------------------------------------------------------------
     # --- build the jet chain, then pass JetChainDef and bjetchainDictionaries to build bjet chains ---
     theAllJetChainDef =  genJetChainDefs(jetchainDict)
-    logBjetDef.debug("Jet ChainDef for b-jet chain: \n %s" % (str(theAllJetChainDef)))
+    log.debug("Jet ChainDef for b-jet chain: \n %s" % (str(theAllJetChainDef)))
     #----------------------------------------------------------------------------
 
 
     #----------------------------------------------------------------------------
     # --- now merge chain defs so that last TE is from jet serving as input to bjet seq ---
     # DO NOT CHANGE THE MERGING ORDER PLEASE, OTHERWISE WRONG INPUTTE IS SELECTED
+    log.debug("Trying to merge chainDef for b-jet chain: \n %s " % (str(theBJChainDef) ))
+    log.debug("AllJetChainDef: \n %s" % str(theAllJetChainDef))
     theJetChainDef = mergeChainDefs([theAllJetChainDef, theBJChainDef], 'serial', -1, False)
-    logBjetDef.debug("Merged chainDef for b-jet chain: \n %s" % (str(theJetChainDef)))
+    log.debug("Merged chainDef for b-jet chain: \n %s" % (str(theJetChainDef)))
     #----------------------------------------------------------------------------
 
     
     #----------------------------------------------------------------------------
     # --- filtering b-tagged jets chainParts ---
     listofChainDicts = splitChainDict(chainDict_orig)
-    logBjetDef.debug("Split b-jet chainDict: \n %s" % (pp.pformat(listofChainDicts)))
+    log.debug("Split b-jet chainDict: \n %s" % (pp.pformat(listofChainDicts)))
 
     bjetchainDicts = [cdict for cdict in listofChainDicts if cdict['chainParts']['bTag']] 
-    logBjetDef.debug("Final b-jet chainDict: \n %s" % (pp.pformat(bjetchainDicts)))
+    log.debug("Final b-jet chainDict: \n %s" % (pp.pformat(bjetchainDicts)))
 
     theListOfChainDefs = []
     for subChainDict in bjetchainDicts:
@@ -86,11 +87,11 @@ def generateChainDefs(chainDict):
         theListOfChainDefs += [theBjetChainDef] 
 
 
-    logBjetDef.debug("----------------- Beginning of final individual chainDefs for b-jet chains printout -----------------")
+    log.debug("----------------- Beginning of final individual chainDefs for b-jet chains printout -----------------")
     for chainDef in theListOfChainDefs:
-        logBjetDef.debug(str(chainDef))        
+        log.debug(str(chainDef))        
 
-    logBjetDef.debug("----------------- End of final individual chainDefs for b-jet chains printout -----------------")
+    log.debug("----------------- End of final individual chainDefs for b-jet chains printout -----------------")
         
 
     if len(theListOfChainDefs)>1:
@@ -98,11 +99,11 @@ def generateChainDefs(chainDict):
     else:
         theFinalChainDef = theListOfChainDefs[0]
 
-    logBjetDef.debug("----------------- Beginning of final merged chainDefs for b-jet chains printout -----------------")
-    logBjetDef.debug(str(theFinalChainDef))
+    log.debug("----------------- Beginning of final merged chainDefs for b-jet chains printout -----------------")
+    log.debug(str(theFinalChainDef))
 
 
-    logBjetDef.debug("----------------- End of final merged chainDefs for b-jet chains printout -----------------")
+    log.debug("----------------- End of final merged chainDefs for b-jet chains printout -----------------")
         
 
     return theFinalChainDef
@@ -145,34 +146,48 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     btagcut = chainParts['bTag']
     btagcut = btagcut[1:]
     btracking = chainParts['bTracking']
+    bmatching = chainParts['bMatching']
 
     #-----------------------------------------------------------------------------------
     # Import of algs
     #-----------------------------------------------------------------------------------
 
+    algoInstance = "EF"
+
     #--------------------
     
-    # jet hypo (can re-use their code)
-    from TrigJetHypo.TrigJetHypoConfig import EFJetHypo
-    theJetHypo = EFJetHypo("30", 0.0, 2.5)
-
-    #--------------------
-
-    # Et hypo (doesn't work in superROI mode)
-    from TrigBjetHypo.TrigBjetEtHypoConfig import getBjetEtHypoInstance
-    theBjetEtHypo   = getBjetEtHypoInstance("EF", "Btagging", btagthresh+"GeV")
-
-    #--------------------
-
-    #jet splitting
-    from TrigBjetHypo.TrigJetSplitterAllTEConfig import getJetSplitterAllTEInstance
-    theJetSplit=getJetSplitterAllTEInstance()
-
-    #--------------------
-
     # super ROI building
     from TrigBjetHypo.TrigSuperRoiBuilderAllTEConfig import getSuperRoiBuilderAllTEInstance
     theSuperRoi=getSuperRoiBuilderAllTEInstance()
+
+    #--------------------
+
+    # jet splitting
+    from TrigBjetHypo.TrigJetSplitterAllTEConfig import getJetSplitterAllTEInstance
+    theJetSplit=getJetSplitterAllTEInstance()
+
+    #-------------------- 
+    
+    #find jets far away from a muon (for mu-jet chains with b-jet requirements only)
+    if any('antimatchdr' in bM for bM in chainParts['bMatching'] ):
+
+        # Extract the dR value from the chain name here.. the deltaR value has to consist of 2 numbers
+       deltaR = -1
+       for anti_match_part in chainParts['bMatching']:
+           if 'dr' in anti_match_part:
+               deltaR=anti_match_part.split('dr')[1][0:2]
+       if deltaR == -1: logCombined.error("No DeltaR cut could be extracted!")
+        
+       from TrigBjetHypo.TrigFarawayJetFinderAllTEConfig import getFarawayJetFinderAllTEInstance
+       theFarawayJet=getFarawayJetFinderAllTEInstance(str(deltaR))
+
+       algoInstance = "MuJetChain"
+
+    #--------------------
+    
+    # Et hypo (for b-tagging)
+    from TrigBjetHypo.TrigBjetEtHypoConfig import getBjetEtHypoInstance
+    theBjetEtHypo   = getBjetEtHypoInstance(algoInstance, "Btagging", btagthresh+"GeV" )
 
     #--------------------
 
@@ -199,55 +214,97 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     #--------------------
 
     # bjet fex
-    if ('boffperf' in chainParts['bTag']):
-        from TrigBjetHypo.TrigBtagFexConfig import getBtagFexInstance
-        theBjetFex = getBtagFexInstance("EF","2012","EFID")
+    if ('boffperf' in chainParts['bTag'] or 'bmv2c20' in chainParts['bTag']):
+        # Offline taggers
+        from TrigBjetHypo.TrigBtagFexConfig import getBtagFexSplitInstance 
+        theBjetFex = getBtagFexSplitInstance(algoInstance,"2012","EFID") 
     else:
+        # Run 1 style taggers
         from TrigBjetHypo.TrigBjetFexConfig  import getBjetFexSplitInstance
-        theBjetFex = getBjetFexSplitInstance("EF","2012","EFID")
+        theBjetFex = getBjetFexSplitInstance(algoInstance,"2012","EFID")
 
+    #--------------------
+
+    # bjet hypo 
     if ('bperf' in chainParts['bTag'] or 'boffperf' in chainParts['bTag']):
+        # Performance chains (run 1 and run 2 style)
+        # Runs in NoCut mode
         from TrigBjetHypo.TrigBjetHypoConfig import getBjetHypoSplitNoCutInstance
-        theBtagReq = getBjetHypoSplitNoCutInstance("EF")
-    else:
+        theBtagReq = getBjetHypoSplitNoCutInstance(algoInstance)
+    elif ('bmv2c20' in chainParts['bTag']):
+        # MV2c20 tagger series
         from TrigBjetHypo.TrigBjetHypoConfig import getBjetHypoSplitInstance
-        theBtagReq = getBjetHypoSplitInstance("EF","2012", btagcut)
+        theBtagReq = getBjetHypoSplitInstance(algoInstance,"2015", btagcut)
+    else:
+        # Run 1 style chains
+        from TrigBjetHypo.TrigBjetHypoConfig import getBjetHypoSplitInstance
+        theBtagReq = getBjetHypoSplitInstance(algoInstance,"2012", btagcut)
 
     #-----------------------------------------------------------------------------------
     # TE naming
     #-----------------------------------------------------------------------------------
     
-    tracking = "IDTrig"
+    tracking        = "IDTrig"
     jetEtHypoTE     = "HLT_j"+btagthresh
     jetHypoTE       = "HLT_j"+btagthresh+"_eta"
     jetSplitTE      = jetHypoTE+"_jsplit"
+    jetFarawayTE    = jetSplitTE+"_faraway"
     jetTrackTE      = jetSplitTE+"_"+tracking
+    
+    if any('antimatch' in bM for bM in chainParts['bMatching'] ) and  any('mu' in bM for bM in chainParts['bMatching'] ):
+
+        # extract muon threshold from chainname
+        allChainParts = chainDict['chainName'].split('_')
+        muonthr=-1
+        for cp in allChainParts:
+            if 'mu' in cp and not 'antimatch' in cp:
+                muonthr = cp.split('mu')[-1] # assume the last bit is the threshold
+                break
+        #print 'muon thr for antimatch:' + str(muonthr) 
+        muonTE      = "EF_SuperEF_mu{0}_MU{1}".format(muonthr,muonthr)
+        jetEtHypoTE = jetEtHypoTE+'_antimatchmu{0}'.format(muonthr)
+        jetHypoTE   = jetHypoTE+'_antimatchmu{0}'.format(muonthr)
+        jetTrackTE  = jetTrackTE +'_antimatchmu{0}'.format(muonthr)
+
     superTE         = "HLT_super"
     superTrackingTE = superTE+tracking
     prmVertexTE     = superTrackingTE+"_prmVtx"
     comboPrmVtxTE   = prmVertexTE+"Combo"
     secVtxTE        = jetTrackTE+"__"+"superVtx"
     lastTEout       = "HLT_bjet_"+chainParts['chainPartName'] if numberOfSubChainDicts>1 else EFChainName
-    topoStartFrom = chainDict['topoThreshold']
+
+    topoThresh = chainDict['topoThreshold']
+    topoStartFrom = setupTopoStartFrom(topoThresh,theChainDef) if topoThresh else None
+
     if topoStartFrom:
         lastTEout = lastTEout+'_tsf'
- 
+    
     #-----------------------------------------------------------------------------------
     # sequence assembling
     #-----------------------------------------------------------------------------------
 
     # Vertexing part of the chain
     theChainDef.addSequence(theSuperRoi,      inputTEsEF,   superTE)
-    theChainDef.addSequence(theVertexTracks,  superTE,      superTrackingTE) # old
+    theChainDef.addSequence(theVertexTracks,  superTE,      superTrackingTE) 
     theChainDef.addSequence([EFHistoPrmVtxAllTE_Jet()], superTrackingTE, prmVertexTE)
     theChainDef.addSequence([EFHistoPrmVtxCombo_Jet()], [superTrackingTE,prmVertexTE], comboPrmVtxTE)
 
     # b-tagging part of the chain (requires PV)
     theChainDef.addSequence(theJetSplit,    [inputTEsEF, comboPrmVtxTE], jetSplitTE)
-    theChainDef.addSequence(theBjetEtHypo,  jetSplitTE,  jetEtHypoTE)  # new
-    theChainDef.addSequence(theBjetTracks,  jetEtHypoTE, jetTrackTE)   # new
+
+    #theChainDef.addSequence(theFarawayJet,  [muonTE, jetSplitTE], jetFarawayTE)
+    #theChainDef.addSequence(theBjetEtHypo,  jetFarawayTE,  jetEtHypoTE)
+    #theChainDef.addSequence(theBjetEtHypo,  jetSplitTE,  jetEtHypoTE)
+    if any('antimatch' in bM for bM in chainParts['bMatching'] ) and  any('mu' in bM for bM in chainParts['bMatching'] ):
+        theChainDef.addSequence(theFarawayJet,  [muonTE, jetSplitTE], jetFarawayTE)
+        theChainDef.addSequence(theBjetEtHypo,  jetFarawayTE,  jetEtHypoTE)
+    else :
+        theChainDef.addSequence(theBjetEtHypo,  jetSplitTE,  jetEtHypoTE)
+
+    theChainDef.addSequence(theBjetTracks,  jetEtHypoTE, jetTrackTE)   
     theChainDef.addSequence(theVxSecondary, [jetTrackTE, comboPrmVtxTE], secVtxTE)
     theChainDef.addSequence([theBjetFex, theBtagReq], secVtxTE, lastTEout, topo_start_from = topoStartFrom)
+
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [lastTEout]*int(btagmult))
 
     return theChainDef
@@ -271,7 +328,9 @@ def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
     ef_bjetSequence=getEFBjetAllTEInstance()
 
     from TrigBjetHypo.TrigBjetEtHypoConfig          import getBjetEtHypoInstance
-    ef_ethypo_startseq = getBjetEtHypoInstance("EF","StartSequence","35GeV")
+    if   ( int(btagthresh) == 0) : ef_ethypo_startseq = getBjetEtHypoInstance("EF","StartSequence","0GeV")
+    elif ( int(btagthresh) < 35) : ef_ethypo_startseq = getBjetEtHypoInstance("EF","StartSequence","15GeV")
+    else                         : ef_ethypo_startseq = getBjetEtHypoInstance("EF","StartSequence","35GeV")
 
     # tracking
     from TrigInDetConf.TrigInDetSequence import TrigInDetSequence # new
@@ -287,20 +346,24 @@ def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
     from TrigBjetHypo.TrigBjetEtHypoConfig          import getBjetEtHypoInstance
     ef_EtHypo_Btagging = getBjetEtHypoInstance("EF","Btagging", btagthresh+"GeV")
 
-    if ('boffperf' in chainParts['bTag']):
+    # B-tagging
+    if ('boffperf' in chainParts['bTag'] or 'bmv2c20' in chainParts['bTag']):
         from TrigBjetHypo.TrigBtagFexConfig import getBtagFexInstance
         ef_bjet = getBtagFexInstance("EF","2012","EFID")
     else:
         from TrigBjetHypo.TrigBjetFexConfig  import getBjetFexInstance
         ef_bjet = getBjetFexInstance("EF","2012","EFID")
-    
+
+    # Hypo testing
     if ('bperf' in chainParts['bTag'] or 'boffperf' in chainParts['bTag']):
         from TrigBjetHypo.TrigBjetHypoConfig import getBjetHypoNoCutInstance
         ef_hypo = getBjetHypoNoCutInstance("EF")
+    elif ('bmv2c20' in chainParts['bTag']):
+        from TrigBjetHypo.TrigBjetHypoConfig import getBjetHypoInstance
+        ef_hypo = getBjetHypoInstance("EF","2015", btagcut)
     else:
         from TrigBjetHypo.TrigBjetHypoConfig import getBjetHypoInstance
         ef_hypo = getBjetHypoInstance("EF","2012", btagcut)
-
 
     #------- 2012 EF Sequences based on j35 intput TE-------
     # TE naming
@@ -319,6 +382,16 @@ def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
     else:
         ef7 = 'EF_%sb%s_%s_%s_SecVxBhypo' % (btagmult, btagthresh, btagcut, chainParts['chainPartName'].replace("_"+chainParts['bTracking'],""))
 
+    lastTEout = "EF_bj_"+chainParts['chainPartName'] if numberOfSubChainDicts>1 else EFChainName
+
+
+    topoThresh = chainDict['topoThreshold']
+    topoStartFrom = setupTopoStartFrom(topoThresh,theChainDef) if topoThresh else None
+    if topoStartFrom:
+        lastTEout = lastTEout+'_tsf'
+
+
+
     theChainDef.addSequence([ef_bjetSequence], inputTEsEF, ef2)
     theChainDef.addSequence(ef_ethypo_startseq, ef2, ef3)
     theChainDef.addSequence(ef_bjet_tracks, ef3 ,ef4)
@@ -326,14 +399,8 @@ def myBjetConfig1(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
     theChainDef.addSequence([EFHistoPrmVtxCombo_Jet()], [ef4, ef5], ef6)
     #theChainDef.addSequence([ef_EtHypo_Btagging], ef6, ef7) 
     theChainDef.addSequence([ef_VxSecondary_EF,ef_EtHypo_Btagging], ef6, ef7) 
-    lastTEout = "EF_bj_"+chainParts['chainPartName'] if numberOfSubChainDicts>1 else EFChainName
-    topoStartFrom = chainDict['topoThreshold']
-    if topoStartFrom:
-        lastTEout = lastTEout+'_tsf'
     theChainDef.addSequence([ef_bjet, ef_hypo], ef7, lastTEout, topo_start_from = topoStartFrom)
-
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [lastTEout]*int(btagmult))
-
     
 
     return theChainDef
@@ -357,7 +424,7 @@ def _prepareJetChainDict(cdict):
     duplicates = [val for val, count in counts.items() if count > 1]
 
     if duplicates:
-        logBjetDef.info('Duplicated thresholds in the jet and b-jet part')
+        log.info('Duplicated thresholds in the jet and b-jet part')
         
         # -- splitting chainparts dictioanries according to bjet and jet -- 
         bjetchainParts =[] 
@@ -396,7 +463,7 @@ def _prepareJetChainDict(cdict):
                         jpart['chainPartName'] = jpart['multiplicity']+jpart['trigType']+jpart['threshold']
                         mergedbjetpart.append(bjindex)
                     else:
-                        logBjetDef.info("Jet and underlying jet chain from bjet are not the same despite the same thresholds. Ignore and keep separate dictionaries. The difference is %s " % str(diff))
+                        log.info("Jet and underlying jet chain from bjet are not the same despite the same thresholds. Ignore and keep separate dictionaries. The difference is %s " % str(diff))
                         continue
 
 
@@ -415,9 +482,9 @@ def _prepareJetChainDict(cdict):
 
 
     else: 
-        logBjetDef.info('No duplicated thresholds in the jet/b-jet chain')
+        log.info('No duplicated thresholds in the jet/b-jet chain')
     
-    logBjetDef.debug("Prepared b-jet chainDict: \n %s" % (pp.pformat(cdict)))
+    log.debug("Prepared b-jet chainDict: \n %s" % (pp.pformat(cdict)))
 
     return cdict
 

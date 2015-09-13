@@ -35,6 +35,9 @@ def splitInterSignatureChainDict(chainDict):
                     orderedListOfSplitChainDicts += [splitChainDict]
             
         if not len(orderedListOfSplitChainDicts) == len(listOfSplitChainDicts):
+            #for chainPartName in chainDict["mergingOrder"]:
+            #    for splitChainDict in listOfSplitChainDicts:
+            #        print "BETTA", splitChainDict['chainParts'][0]['chainPartName'], chainPartName                    
             log.error("Ordering of split chain dicts failed. Please check that orderedListOfSplitChainDicts and listOfSplitChainDicts contain the same elements!!")
 
             
@@ -110,23 +113,21 @@ def _replicateMissingSignatures(listOfChainDefs,unevenSigs,level):
 
 
 
-def mergeChainDefs(listOfChainDefs,strategy="parallel",offset=-1,preserveL2EFOrder=True,removeDuplicateTEs=False):
+def mergeChainDefs(listOfChainDefs,strategy="parallel",offset=-1,preserveL2EFOrder=True,removeDuplicateTEs=False,doTopo=True):
 
-    log.info("Combine using %s  merging" %(strategy))
+    log.debug("Combine using %s  merging" %(strategy))
 
     if strategy=="parallel":
         return _mergeChainDefsParallel(listOfChainDefs,offset,removeDuplicateTEs)
     elif strategy=="serial":
-        return _mergeChainDefsSerial(listOfChainDefs,offset)
+        return _mergeChainDefsSerial(listOfChainDefs,offset,doTopo=doTopo)
     else:
         log.error("Merging failed for chain %s. Merging strategy '%s' not known." % (level, chainDef.chain_name))
         return -1
 
 
 
-
-
-def _mergeChainDefsSerial(listOfChainDefs,offset,preserveL2EFOrder=True):
+def _mergeChainDefsSerial(listOfChainDefs,offset,preserveL2EFOrder=True,doTopo=True):
 
     """
     serial merging of chain def objects for combined chains
@@ -134,9 +135,16 @@ def _mergeChainDefsSerial(listOfChainDefs,offset,preserveL2EFOrder=True):
     
     listOfChainDefs = deepcopy(listOfChainDefs) 
 
+    # get last TEs of all ChainDefs
+    for chainDef in listOfChainDefs:
+        lastTE = chainDef.signatureList[-1]
+
+    
+
     # copy the chaindef into which we want to merge the other chaindefs
     mergedChainDef = deepcopy(listOfChainDefs[0])
-    
+    firstChainDefLastTEs = mergedChainDef.signatureList[-1]['listOfTriggerElements']
+
 
     #remove the first chaindef from the list
     listOfChainDefs.pop(0)
@@ -144,30 +152,38 @@ def _mergeChainDefsSerial(listOfChainDefs,offset,preserveL2EFOrder=True):
     # Loop remaining chain defs to be merged
 
     
-    for chainDef in listOfChainDefs:  
+    for chainDef in listOfChainDefs:
+        currentLastTEs = mergedChainDef.signatureList[-1]['listOfTriggerElements']
+        
         for sequence in chainDef.sequenceList:
             mergedChainDef = _addSequence(mergedChainDef,sequence)
 
         for signatureIdx,signature in enumerate(chainDef.signatureList):
+            # if a topo is appended after the chain merging the replication of the last TEs is not necessary
+            signatureToAdd = signature['listOfTriggerElements'] if doTopo else signature['listOfTriggerElements'] + currentLastTEs 
             if preserveL2EFOrder:
                 if not offset == -1:
                     log.error("L2/EF preserving serial merging with offset not yet implemented.")
                 else:
                     if signature['listOfTriggerElements'][0].startswith("L2"):
-                        mergedChainDef.addSignatureL2(signature['listOfTriggerElements'])
+                        mergedChainDef.addSignatureL2(signatureToAdd)
                     elif signature['listOfTriggerElements'][0].startswith("EF") or signature['listOfTriggerElements'][0].startswith("HLT"):
-                        mergedChainDef.appendSignature(signature['listOfTriggerElements'])
+                        mergedChainDef.appendSignature(signatureToAdd)
+
                     else:
                         log.error("Unknown TE naming :",str(signature['listOfTriggerElements'][0]))
             else:
                 if offset ==-1:
-                    mergedChainDef.appendSignature(signature['listOfTriggerElements'])
+                    mergedChainDef.appendSignature(signatureToAdd)
                 else:
                     if offset+signatureIdx > len(mergedChainDef.signatureList):
-                        mergedChainDef.signatureList[offset+signatureIdx]['listOfTriggerElements'] += signature['listOfTriggerElements']
+                        mergedChainDef.signatureList[offset+signatureIdx]['listOfTriggerElements'] += signatureToAdd
                     else:
-                        mergedChainDef.appendSignature(signature['listOfTriggerElements'])
+                        mergedChainDef.appendSignature(signatureToAdd)
 
+
+
+                        
 
     return mergedChainDef
         
@@ -293,3 +309,51 @@ def _mergeChainDefsParallel(listOfChainDefs,offset=-1,removeDuplicateTEs=False):
         
     return mergedChainDef
         
+
+
+def setupTopoStartFrom(topoThresholds, theChainDef):
+
+    from TrigGenericAlgs.TrigGenericAlgsConf import MergeTopoStarts
+
+    if len(topoThresholds) > 1:
+        from TrigGenericAlgs.TrigGenericAlgsConfig import MergeTopoStartsConfig
+        m = MergeTopoStartsConfig("testInstance")
+        log.debug(m)
+
+
+    te0 = None
+    te1 = None 
+    outTE = None
+    topoStartFrom = None
+    
+    for i in range(len(topoThresholds)):
+        if i == 0:
+            te0 = topoThresholds[i]
+            continue
+        te1 = topoThresholds[i]
+        combTes = te0+"_"+te1
+        outTE = "L2_merged_"+combTes
+        theMergeTopoStarts = MergeTopoStarts("MergeTopoStarts_"+combTes)
+        theChainDef.addSequence( theMergeTopoStarts,[te0,te1], outTE)   
+        theChainDef.addSignatureL2([outTE])   
+        te0=outTE
+
+    return te0
+
+
+    # if ntopoTes ==1:
+    #     topoStartFrom = str(chainDict['topoThreshold'][0])
+    # elif ntoppoTes == 2:
+
+
+    #     te1= str(topoThresholds[0])
+    #     te2=str(topoThresholds[1])
+    #     from TrigGenericAlgs import MergeTopoStarts
+    #     theMergeTopoStarts = MergeTopoStarts("MergeTopoStarts_"+te1+"_"+te2)
+    #     theChainDef.addSequence([te1,te2], theMergeTopoStarts, "merged_"+te1+"_"+te2)
+    #     topoStartFrom = "merged_"+te1+"_"+te2
+    # else:
+    #     log.error('3 topo Tes to merge not implemented (can be done though!')                    
+
+
+

@@ -9,7 +9,7 @@ import ROOT
 from ROOT import *
 
 output_file = TFile("L1Summary.root","recreate")
-allItems = TH1F("AllItems", "AllItems", 256, 0, 256)
+allItems = TH1F("AllItems", "AllItems", 512, 0, 512)
 
 EM  = TH1F("EM",  "EM",  20,0,20)
 MU  = TH1F("MU",  "MU",  20,0,20)
@@ -84,7 +84,7 @@ print
 
 
 
-for i_ in range(256):
+for i_ in range(512):
     i=str(i_)
     if not info_xml[1].has_key(i):
         info_xml[1][i]={'**NONE**':'**NONE'}

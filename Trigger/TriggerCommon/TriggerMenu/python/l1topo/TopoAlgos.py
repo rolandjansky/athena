@@ -82,10 +82,10 @@ class SortingAlgo(TopoAlgo):
         s+='    <Variable>\n'
 
         for (pos, variable) in enumerate(self.variables):
-            # scale MinEt if outputs match with EM or TAU
-            if variable.name=="MinEt" and (self.outputs.find("TAU")>=0 or self.outputs.find("EM")>=0):
+            # scale MinET if outputs match with EM or TAU
+            if variable.name=="MinET" and (self.outputs.find("TAU")>=0 or self.outputs.find("EM")>=0):
                 variable.value = variable.value * _emscale_for_decision
-            if variable.name=="MinEt" and self.outputs.find("MU")>=0:
+            if variable.name=="MinET" and self.outputs.find("MU")>=0:
                 variable.value = ((variable.value - _mu_for_decision) if variable.value>0 else variable.value)
             s+='      <Parameter pos="%i" name="%s" value="%i"/>\n' % ( pos, variable.name, variable.value )
         s+='    </Variable>\n'    
@@ -100,7 +100,6 @@ class DecisionAlgo(TopoAlgo):
         self.outputs = outputs if type(outputs)==list else [outputs]
         
     def xml(self): 
-
         _emscale_for_decision=2
         _mu_for_decision=1 
         if hasattr(TriggerFlags, 'useRun1CaloEnergyScale'):
@@ -132,7 +131,7 @@ class DecisionAlgo(TopoAlgo):
 
         for (pos, variable) in enumerate(self.variables):
             # scale MinET if inputs match with EM or TAU
-            for _minet in ["MinET", "MinEt"]:
+            for _minet in ["MinET"]:
                 if variable.name==_minet+"1" or variable.name==_minet+"2" or variable.name==_minet+"3" or variable.name==_minet:
                     for (tobid, _input) in enumerate(self.inputs):
                         if (_input.find("TAU")>=0 or _input.find("EM")>=0):
