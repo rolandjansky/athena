@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonStationIndex.h 681315 2015-07-08 12:01:51Z neldik $
+// $Id: MuonStationIndex.h 681314 2015-07-08 12:01:26Z neldik $
 #ifndef MUONIDHELPERS_MUONSTATIONINDEX_H
 #define MUONIDHELPERS_MUONSTATIONINDEX_H
 
