@@ -7,7 +7,6 @@
 #include "Pythia8_i/UserHooksFactory.h"
 #include "Pythia8_i/UserResonanceFactory.h"
 
-#include "PathResolver/PathResolver.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
@@ -127,7 +126,7 @@ StatusCode Pythia8_i::genInitialize() {
   }
 
   foreach(const string &param, m_userParams){
-    std::vector<string> splits;
+    vector<string> splits;
     boost::split(splits, param, boost::is_any_of("="));
     if(splits.size() != 2){
       ATH_MSG_ERROR("Cannot interpret user param command: " + param);
@@ -140,7 +139,7 @@ StatusCode Pythia8_i::genInitialize() {
   }
 
   foreach(const string &mode, m_userModes){
-    std::vector<string> splits;
+    vector<string> splits;
     boost::split(splits, mode, boost::is_any_of("="));
     if(splits.size() != 2){
       ATH_MSG_ERROR("Cannot interpret user mode command: " + mode);
@@ -240,7 +239,7 @@ StatusCode Pythia8_i::genInitialize() {
 
   if(m_userResonances != ""){
    
-    std::vector<string> resonanceArgs;
+    vector<string> resonanceArgs;
     
     boost::split(resonanceArgs, m_userResonances, boost::is_any_of(":"));
     if(resonanceArgs.size() != 2){
@@ -249,7 +248,7 @@ StatusCode Pythia8_i::genInitialize() {
       ATH_MSG_ERROR("Where name is the name of your UserResonance, and id1,id2,id3 are a comma separated list of PDG IDs to which it is applied");
       canInit = false;
     }
-    std::vector<string> resonanceIds;
+    vector<string> resonanceIds;
     boost::split(resonanceIds, resonanceArgs.back(), boost::is_any_of(","));
     if(resonanceIds.size()==0){
       ATH_MSG_ERROR("You did not specifiy any PDG ids to which your user resonance width should be applied!");
@@ -258,13 +257,13 @@ StatusCode Pythia8_i::genInitialize() {
       canInit=false;
     }
     
-    for(std::vector<string>::const_iterator sId = resonanceIds.begin();
+    for(vector<string>::const_iterator sId = resonanceIds.begin();
         sId != resonanceIds.end(); ++sId){
       int idResIn = boost::lexical_cast<int>(*sId);
       m_userResonancePtrs.push_back(Pythia8_UserResonance::UserResonanceFactory::create(resonanceArgs.front(), idResIn));
     }
     
-    for(std::vector<Pythia8::ResonanceWidths*>::const_iterator resonance = m_userResonancePtrs.begin();
+    for(vector<Pythia8::ResonanceWidths*>::const_iterator resonance = m_userResonancePtrs.begin();
         resonance != m_userResonancePtrs.end(); ++resonance){
       m_pythia.setResonancePtr(*resonance);
     }
@@ -376,14 +375,15 @@ StatusCode Pythia8_i::callGenerator(){
        returnCode = this->callGenerator();
      }else{
        m_nMerged += eventWeight;
-       ++m_internal_event_number;
      }
   
+  ++m_internal_event_number;
+
   return returnCode;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
+StatusCode Pythia8_i::fillEvt(GenEvent *evt){
 
   ATH_MSG_DEBUG(">>> Pythia8_i from fillEvt");
 
@@ -422,10 +422,10 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
   // set the event weight
   evt->weights().clear();
   
-  std::vector<string>::const_iterator id = m_weightIDs.begin();
+  vector<string>::const_iterator id = m_weightIDs.begin();
   
   if(m_pythia.info.getWeightsDetailedSize() != 0){
-    for(std::map<string, Pythia8::LHAwgt>::const_iterator wgt = m_pythia.info.rwgt->wgts.begin();
+    for(map<string, Pythia8::LHAwgt>::const_iterator wgt = m_pythia.info.rwgt->wgts.begin();
         wgt != m_pythia.info.rwgt->wgts.end(); ++wgt){
       
       if(m_internal_event_number == 1){
@@ -439,7 +439,7 @@ StatusCode Pythia8_i::fillEvt(HepMC::GenEvent *evt){
         ++id;
       }
       
-      std::map<string, Pythia8::LHAweight>::const_iterator weightName = m_pythia.info.init_weights->find(wgt->first);
+      map<string, Pythia8::LHAweight>::const_iterator weightName = m_pythia.info.init_weights->find(wgt->first);
       if(weightName != m_pythia.info.init_weights->end()){
         evt->weights()[weightName->second.contents] = mergingWeight * wgt->second.contents;
       }else{
@@ -498,7 +498,7 @@ StatusCode Pythia8_i::genFinalize(){
     std::cout<<"MetaData: weights = ";
     foreach(const string &id, m_weightIDs){
       
-      std::map<string, Pythia8::LHAweight>::const_iterator weight = m_pythia.info.init_weights->find(id);
+      map<string, Pythia8::LHAweight>::const_iterator weight = m_pythia.info.init_weights->find(id);
       
       if(weight != m_pythia.info.init_weights->end()){
         std::cout<<weight->second.contents<<" | ";
@@ -521,7 +521,7 @@ double Pythia8_i::pythiaVersion()const{
 string Pythia8_i::findValue(const string &command, const string &key){
   if(command.find(key) == std::string::npos) return "";
   
-  std::vector<string> splits;
+  vector<string> splits;
   boost::split(splits, command, boost::is_any_of("="));
   if(splits.size() != 2){
     throw Pythia8_i::CommandException(command);
@@ -542,12 +542,12 @@ string Pythia8_i::xmlpath(){
   
   if(cmtpath != 0 && cmtconfig != 0){
     
-    std::vector<string> cmtpaths;
+    vector<string> cmtpaths;
     boost::split(cmtpaths, cmtpath, boost::is_any_of(string(":")));
     
     string installPath = "/InstallArea/" + string(cmtconfig) + "/share/Pythia8/xmldoc";
     
-    for(std::vector<string>::const_iterator path = cmtpaths.begin();
+    for(vector<string>::const_iterator path = cmtpaths.begin();
         path != cmtpaths.end() && foundpath == ""; ++path){
       string testPath = *path + installPath;
       std::ifstream testFile(testPath.c_str());
@@ -555,18 +555,14 @@ string Pythia8_i::xmlpath(){
       testFile.close();
     }
     
-  } else {
-     // If the CMT environment is missing, try to find the xmldoc directory
-     // using PathResolver:
-     foundpath = PathResolverFindCalibDirectory( "Pythia8/xmldoc" );
   }
-
+  
   return foundpath;
 }
 
   ////////////////////////////////////////////////////////////////////////////////
 int Pythia8_i::s_allowedTunes(double version){
-  static std::map<double, int> allowedTunes;
+  static map<double, int> allowedTunes;
   if(allowedTunes.size()==0){
     allowedTunes[0.]    = 0;
     allowedTunes[8.126] = 1;
@@ -582,7 +578,7 @@ int Pythia8_i::s_allowedTunes(double version){
     allowedTunes[8.205] = 32;
   }
   
-  std::map<double, int>::const_iterator maxTune = allowedTunes.upper_bound(version + 0.0000001);
+  map<double, int>::const_iterator maxTune = allowedTunes.upper_bound(version + 0.0000001);
   
   if(maxTune != allowedTunes.begin()) --maxTune;
   
