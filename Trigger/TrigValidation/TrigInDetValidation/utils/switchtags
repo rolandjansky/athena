@@ -1,0 +1,23 @@
+#!/bin/csh 
+
+foreach git ( $*  ) 
+
+    echo 
+    echo $git
+
+   sed 's|\(L2Star\S*\)_EFID|\1 SAVEDUMMY|g' $git > $git.tmp
+
+
+   sed 's|_EFID|_IDTrig|g' $git.tmp > $git.ttmp
+
+   sed 's| SAVEDUMMY|_EFID|g' $git.ttmp > $git.new
+
+
+   cp  $git      $git.bak 
+   cp  $git.new  $git 
+
+   rm $git.tmp
+   rm $git.ttmp
+
+
+end

@@ -16,13 +16,13 @@
 
 JOBS =  \
         TrigInDetValidation_el_single_e_7-80_larged0.xml                \
-        TrigInDetValidation_el_single_e_7-80_pu40_run1.xml              \
+#        TrigInDetValidation_el_single_e_7-80_pu40_run1.xml              \
         TrigInDetValidation_el_single_e_7-80_pu40.xml                   \
-        TrigInDetValidation_el_single_e_7-80_pu40_robustness.xml        \
+#        TrigInDetValidation_el_single_e_7-80_pu40_robustness.xml        \
         TrigInDetValidation_el_single_e_7-80_IBL.xml                    \
         TrigInDetValidation_el_single_e_7-80_IBL_pu40.xml               \
-        TrigInDetValidation_el_single_e_7-80_IBL_pu40_robustness.xml    \
-        TrigInDetValidation_el_Zee_pu46_run1.xml                        \
+#        TrigInDetValidation_el_single_e_7-80_IBL_pu40_robustness.xml    \
+#        TrigInDetValidation_el_Zee_pu46_run1.xml                        \
         TrigInDetValidation_el_Zee_IBL_pu40.xml                         \
         TrigInDetValidation_el_single_e_5.xml                           \
         TrigInDetValidation_el_Zee_pu46_run1.xml                        \
@@ -36,7 +36,7 @@ JOBS =  \
         TrigInDetValidation_bjet_pu46.xml                               \
         TrigInDetValidation_bjet_IBL_pu40.xml                           \
                                                                         \
-        TrigInDetValidation_tau_pu46_run1.xml                           \
+#        TrigInDetValidation_tau_pu46_run1.xml                           \
         TrigInDetValidation_tau_pu46.xml                                \
         TrigInDetValidation_tau_IBL_pu46.xml                            \
                                                                         \
@@ -54,7 +54,7 @@ JOBS =  \
         TrigInDetValidation_minBias_pileUp.xml                          \
                                                                         \
         TrigInDetValidation_FTK_mu_ttbar.xml                            \
-        TrigInDetValidation_FTK_mu_tautau.xml                           \
+        TrigInDetValidation_FTK_tau_tautau.xml                           \
 									\
         TrigInDetValidation_aux.xml
 

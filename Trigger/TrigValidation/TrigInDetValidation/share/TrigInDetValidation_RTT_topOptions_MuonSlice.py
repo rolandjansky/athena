@@ -47,19 +47,24 @@ def resetSigs():
 
 PdgId=13
 
+from AthenaCommon.AppMgr import release_metadata
+d = release_metadata()
+##TestMonTool.releaseMetaData = d['nightly name'] + " " + d['nightly release'] + " " + d['date'] + " " + d['platform'] + " " + d['release']
+print d['nightly name']
+if d['nightly name']=='20.1.X.Y.Z-VAL-TrigMC':
+  print '***JK This is TrigMC '
+else:
+  print '***JK This is NOT TrigMC will set doFTK=False'
+  doFTK=False
+
+
+
 if 'doFTK' in dir() and doFTK==True:
   from TriggerJobOpts.TriggerFlags import TriggerFlags
   TriggerFlags.doFTK=True
 
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
 
-# JK Need to check if FTKDataProviderSvc is available in this release.
-import imp
-try:
-  imp.find_module('TrigFTK_DataProviderSvc')
-except:
-  print 'FTK_DataProviderSvc not available, will switch to FTF'
-  doFTK=False
 
 
 if 'doFTK' in dir() and doFTK==True:
@@ -70,5 +75,5 @@ if 'doFTK' in dir() and doFTK==True:
   ServiceMgr.TrigFTK_DataProviderSvc.TrainingBeamspotTiltX= 0.0 # -1.51489e-05
   ServiceMgr.TrigFTK_DataProviderSvc.TrainingBeamspotTiltY= 0.0 # -4.83891e-05
 ##  topSequence.TrigSteer_HLT.TrigFastTrackFinder_Muon.OutputLevel=DEBUG
-  topSequence.TrigSteer_HLT.TrigFastTrackFinder_Muon.FTK_Mode=True
-  topSequence.TrigSteer_HLT.TrigFastTrackFinder_Muon.FTK_Refit=False
+  topSequence.TrigSteer_HLT.TrigFastTrackFinder_Muon_IDTrig.FTK_Mode=True
+  topSequence.TrigSteer_HLT.TrigFastTrackFinder_Muon_IDTrig.FTK_Refit=False

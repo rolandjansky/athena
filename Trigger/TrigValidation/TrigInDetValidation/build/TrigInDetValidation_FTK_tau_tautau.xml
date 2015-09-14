@@ -1,13 +1,13 @@
-         <athena trendId='FTKMergingTrend' userJobId='TrigInDetValidation_FTK_mu_ttbar'>
-            <doc>Muon slice FTK ttbar sample</doc>
-            <displayName>MuonSlice FTK ttbar sample</displayName>
+         <athena trendId='FTKMergingTrend' userJobId='TrigInDetValidation_FTK_tau_tautau'>
+            <doc>Tau slice FTK tautau sample</doc>
+            <displayName>TauSlice FTK tautau sample</displayName>
 	    <commandLineFlags>EventMax=5000;runMergedChain=True;doFTK=True</commandLineFlags>
-            <options>TrigInDetValidation_RTT_topOptions_MuonSlice</options>
+            <options>TrigInDetValidation_RTT_topOptions_TauSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
 
-#          include "samples/TrigInDetValidation_FTK_sample1.xml"
+#          include "samples/TrigInDetValidation_FTK_sample2.xml"
 
 
             <action position="1">
@@ -19,7 +19,7 @@
                 </arg>
                 <arg>
                     <argname>exeParamString</argname>
-                    <argvalue>TIDAdata11-rtt.dat -f data-muon-FTK.root -p 13  -b Test_bin.dat </argvalue>
+                    <argvalue>TIDAdata11-rtt.dat -f data-muon-FTK.root   -b Test_bin.dat </argvalue>
                 </arg>
             </action>
 
@@ -33,7 +33,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-muon-FTK.root data-FTK_mu_ttbar-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF   -d HLTL2-plots </argvalue>
+                <argvalue>data-muon-FTK.root data-FTK_mu_tautau-reference.root HLT_mu6_idperf_InDetTrigTrackingxAODCnv_Muon_FTF HLT_mu24_idperf_InDetTrigTrackingxAODCnv_Muon_FTF   -d HLTL2-plots </argvalue>
               </arg>
             </action>
 
@@ -49,8 +49,8 @@
             </testToRemove>
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
-	    <auxFilePattern>data-FTK_mu_ttbar-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-FTK_mu_ttbar-ref.root</auxFilePattern>
+	    <auxFilePattern>data-FTK_mu_tautau-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-FTK_mu_tautau-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
 
