@@ -37,34 +37,34 @@ inline const std::vector<ROIB::CTPRoI> ROIB::CTPResult::TBP() const {
   // adding some safety protection by restriction index range
   return std::vector<ROIB::CTPRoI>(m_CTPResultRoIVec.begin() + 
 				   std::min(m_CTPResultRoIVec.size(), 
-				   static_cast<size_t>(((m_useRoIB) ? m_ctpDataformat.getRoIBTBPpos():m_ctpDataformat.getTBPpos()))),
+				   static_cast<size_t>(((m_useRoIB) ? m_ctpDataformat.getRoIBTBPpos():m_l1aBunch*m_ctpDataformat.getDAQwordsPerBunch()+m_ctpDataformat.getTBPpos()))),
 				   m_CTPResultRoIVec.begin() + 
 				   std::min(m_CTPResultRoIVec.size(), 
-				   static_cast<size_t>(((m_useRoIB) ? m_ctpDataformat.getRoIBTBPpos():m_ctpDataformat.getTBPpos())+m_ctpDataformat.getTBPwords())));
+				   static_cast<size_t>(((m_useRoIB) ? m_ctpDataformat.getRoIBTBPpos():m_l1aBunch*m_ctpDataformat.getDAQwordsPerBunch()+m_ctpDataformat.getTBPpos())+m_ctpDataformat.getTBPwords())));
 }
 
 inline const std::vector<ROIB::CTPRoI> ROIB::CTPResult::TAP() const {
   // adding some safety protection by restriction index range
   return std::vector<ROIB::CTPRoI>(m_CTPResultRoIVec.begin() + 
-				   std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(m_ctpDataformat.getTAPpos())),
+				   std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(m_l1aBunch*m_ctpDataformat.getDAQwordsPerBunch() + m_ctpDataformat.getTAPpos())),
 				   m_CTPResultRoIVec.begin() + 
-				   std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(m_ctpDataformat.getTAPpos()+((m_useRoIB) ? m_ctpDataformat.getRoIBTAPwords():m_ctpDataformat.getTAPwords()))));
+				   std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(m_ctpDataformat.getTAPpos()+((m_useRoIB) ? m_ctpDataformat.getRoIBTAPwords():m_l1aBunch*m_ctpDataformat.getDAQwordsPerBunch()+m_ctpDataformat.getTAPwords()))));
 }
 
 inline const std::vector<ROIB::CTPRoI> ROIB::CTPResult::TAV() const {
   // adding some safety protection by restriction index range
   return std::vector<ROIB::CTPRoI>(m_CTPResultRoIVec.begin() + 
-				   std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(((m_useRoIB) ? m_ctpDataformat.getRoIBTAVpos():m_ctpDataformat.getTAVpos()))),
+				   std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(((m_useRoIB) ? m_ctpDataformat.getRoIBTAVpos():m_l1aBunch*m_ctpDataformat.getDAQwordsPerBunch()+m_ctpDataformat.getTAVpos()))),
 				   m_CTPResultRoIVec.begin() + 
-				   std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(((m_useRoIB) ? m_ctpDataformat.getRoIBTAVpos():m_ctpDataformat.getTAVpos())+m_ctpDataformat.getTAVwords())));
+				   std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(((m_useRoIB) ? m_ctpDataformat.getRoIBTAVpos():m_l1aBunch*m_ctpDataformat.getDAQwordsPerBunch()+m_ctpDataformat.getTAVpos())+ m_ctpDataformat.getTAVwords())));
 }
 
 inline bool ROIB::CTPResult::acceptBP() const {
   // adding some safety protection by restriction index range
 
-  for (size_t i(std::min(m_CTPResultRoIVec.size(),static_cast<size_t>(((m_useRoIB) ? m_ctpDataformat.getRoIBTBPpos():m_ctpDataformat.getTBPpos()))));
+  for (size_t i(std::min(m_CTPResultRoIVec.size(),static_cast<size_t>(((m_useRoIB) ? m_ctpDataformat.getRoIBTBPpos():m_l1aBunch*m_ctpDataformat.getDAQwordsPerBunch()+m_ctpDataformat.getTBPpos()))));
        i < std::min(m_CTPResultRoIVec.size(), 
-                    static_cast<size_t>(((m_useRoIB) ? m_ctpDataformat.getRoIBTBPpos():m_ctpDataformat.getTBPpos())+m_ctpDataformat.getTBPwords()));
+                    static_cast<size_t>(((m_useRoIB) ? m_ctpDataformat.getRoIBTBPpos():m_l1aBunch*m_ctpDataformat.getDAQwordsPerBunch()+m_ctpDataformat.getTBPpos())+m_ctpDataformat.getTBPwords()));
        ++i) {
     if (m_CTPResultRoIVec[i].roIWord() != 0) return true;
   }
@@ -75,9 +75,9 @@ inline bool ROIB::CTPResult::acceptBP() const {
 inline bool ROIB::CTPResult::acceptAP() const {
   // adding some safety protection by restriction index range
 
-  for (size_t i(std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(m_ctpDataformat.getTAPpos())));
+  for (size_t i(std::min(m_CTPResultRoIVec.size(), static_cast<size_t>(m_l1aBunch*m_ctpDataformat.getDAQwordsPerBunch()+m_ctpDataformat.getTAPpos())));
        i < std::min(m_CTPResultRoIVec.size(), 
-                    static_cast<size_t>(m_ctpDataformat.getTAPpos()+((m_useRoIB) ? m_ctpDataformat.getRoIBTAPwords():m_ctpDataformat.getTAPwords())));
+                    static_cast<size_t>(m_l1aBunch*m_ctpDataformat.getDAQwordsPerBunch()+m_ctpDataformat.getTAPpos()+((m_useRoIB) ? m_ctpDataformat.getRoIBTAPwords():m_ctpDataformat.getTAPwords())));
        ++i) {
     if (m_CTPResultRoIVec[i].roIWord() != 0) return true;
   }
@@ -89,9 +89,9 @@ inline bool ROIB::CTPResult::acceptAV() const {
   // adding some safety protection by restriction index range
 
   for (size_t i(std::min(m_CTPResultRoIVec.size(), 
-                         static_cast<size_t>(((m_useRoIB) ? m_ctpDataformat.getRoIBTAVpos():m_ctpDataformat.getTAVpos()))));
+                         static_cast<size_t>(((m_useRoIB) ? m_ctpDataformat.getRoIBTAVpos():m_l1aBunch*m_ctpDataformat.getDAQwordsPerBunch()+m_ctpDataformat.getTAVpos()))));
        i < std::min(m_CTPResultRoIVec.size(), 
-                    static_cast<size_t>(((m_useRoIB) ? m_ctpDataformat.getRoIBTAVpos():m_ctpDataformat.getTAVpos())+m_ctpDataformat.getTAVwords()));
+                    static_cast<size_t>(((m_useRoIB) ? m_ctpDataformat.getRoIBTAVpos():m_l1aBunch*m_ctpDataformat.getDAQwordsPerBunch()+m_ctpDataformat.getTAVpos())+m_ctpDataformat.getTAVwords()));
        ++i) {
     if (m_CTPResultRoIVec[i].roIWord() != 0) return true;
   }
