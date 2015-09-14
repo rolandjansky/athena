@@ -439,8 +439,12 @@ StatusCode Pythia8_i::fillEvt(GenEvent *evt){
         ++id;
       }
       
-      //evt->weights().push_back(mergingWeight * wgt->second.contents);
-      evt->weights()[wgt->first] = mergingWeight * wgt->second.contents;
+      map<string, Pythia8::LHAweight>::const_iterator weightName = m_pythia.info.init_weights->find(wgt->first);
+      if(weightName != m_pythia.info.init_weights->end()){
+        evt->weights()[weightName->second.contents] = mergingWeight * wgt->second.contents;
+      }else{
+        evt->weights()[wgt->first] = mergingWeight * wgt->second.contents;
+      }
       
     }
   }else{
