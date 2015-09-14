@@ -29,8 +29,10 @@ namespace ROIB {
       m_CTPResultRoIVec(),
       m_ctpVersionNumber(0),
       m_ctpDataformat(0),
-      m_useRoIB(false)
-   {}
+      m_useRoIB(false),
+      m_l1aBunch(0)
+   {
+   }
 
 
    CTPResult::CTPResult(unsigned int ctpVersion,  const Header& head, const Trailer& trail, const std::vector<CTPRoI>& rois) :
@@ -39,9 +41,11 @@ namespace ROIB {
       m_CTPResultRoIVec( rois ),
       m_ctpVersionNumber( ctpVersion ),
       m_ctpDataformat( ctpVersion ),
-      m_useRoIB(false)
+      m_useRoIB(false),
+      m_l1aBunch(0)
    {
       m_useRoIB = (head.sourceID() == 0x770001);
+      if (!m_useRoIB) m_l1aBunch = (head.formatVersion() >> m_ctpDataformat.getL1APositionShift()) & m_ctpDataformat.getL1APositionMask();
    }
 
 
@@ -50,10 +54,12 @@ namespace ROIB {
       m_CTPResultTrailer( trail ),
       m_ctpVersionNumber( ctpVersion ),
       m_ctpDataformat( ctpVersion ),
-      m_useRoIB(false)
+      m_useRoIB(false),
+      m_l1aBunch(0)
    {
       m_useRoIB = (head.sourceID() == 0x770001);
       std::copy(v.begin(), v.end(), back_inserter(m_CTPResultRoIVec));
+      if (!m_useRoIB) m_l1aBunch = (head.formatVersion() >> m_ctpDataformat.getL1APositionShift()) & m_ctpDataformat.getL1APositionMask();
    }
 
 
@@ -102,7 +108,7 @@ namespace ROIB {
       }
 
       // TIP
-      for (size_t i(0), p(m_ctpDataformat.getTIPpos());
+      for (size_t i(0), p(((m_useRoIB) ? m_ctpDataformat.getTIPpos():m_l1aBunch*m_ctpDataformat.getDAQwordsPerBunch())+m_ctpDataformat.getTIPpos());
            (i < ((m_useRoIB) ? m_ctpDataformat.getRoIBTIPwords():m_ctpDataformat.getTIPwords())) && (p < data.size()); 
            ++i, ++p) {
          if (longFormat) s << "\n";
@@ -124,7 +130,7 @@ namespace ROIB {
       //    }
 
       // TBP
-      for (size_t i(0), p(((m_useRoIB) ? m_ctpDataformat.getRoIBTBPpos():m_ctpDataformat.getTBPpos()));
+      for (size_t i(0), p(((m_useRoIB) ? m_ctpDataformat.getRoIBTBPpos():m_l1aBunch*m_ctpDataformat.getDAQwordsPerBunch()+m_ctpDataformat.getTBPpos()));
            (i < m_ctpDataformat.getTBPwords()) && (p < data.size()); 
            ++i, ++p) {
          if (longFormat) s << "\n";
@@ -135,7 +141,7 @@ namespace ROIB {
       }
 
       // TAP
-      for (size_t i(0), p(m_ctpDataformat.getTAPpos());
+      for (size_t i(0), p(((m_useRoIB) ? m_ctpDataformat.getTAPpos():m_l1aBunch*m_ctpDataformat.getDAQwordsPerBunch())+m_ctpDataformat.getTAPpos());
            (i < ((m_useRoIB) ? m_ctpDataformat.getRoIBTAPwords():m_ctpDataformat.getTAPwords())) && (p < data.size()); 
            ++i, ++p) {
          if (longFormat) s << "\n";
@@ -146,7 +152,7 @@ namespace ROIB {
       }
 
       // TAV
-      for (size_t i(0), p(((m_useRoIB) ? m_ctpDataformat.getRoIBTAVpos():m_ctpDataformat.getTAVpos()));
+      for (size_t i(0), p(((m_useRoIB) ? m_ctpDataformat.getRoIBTAVpos():m_l1aBunch*m_ctpDataformat.getDAQwordsPerBunch()+m_ctpDataformat.getTAVpos()));
            (i < m_ctpDataformat.getTAVwords()) && (p < data.size()); 
            ++i, ++p) {
          if (longFormat) s << "\n";

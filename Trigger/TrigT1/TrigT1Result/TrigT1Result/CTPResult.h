@@ -131,6 +131,10 @@ namespace ROIB {
 
      // flag to tell if this is a RoIB result or a DAQ result
      bool m_useRoIB;
+
+     // the L1 accept bunch for the DAQ CTP result
+     unsigned int m_l1aBunch;
+
   }; // class CTPResult
 
   // converter functions
