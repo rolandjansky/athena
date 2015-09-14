@@ -23,8 +23,10 @@ macro QGSJet_linkopts "-L$(QGSJet_lib) -lCrmcBasic -lQgsjetII04
 include_path none
 include_dirs "$(QGSJet_home)/$(QGSJet_version)/$(QGSJet_system)/include"
 
-macro QGSJet_export_paths \
-	"$(QGSJet_home)/$(QGSJet_version)/$(QGSJet_system)"
+# commented to avoid duplicate exports with Epos (should be uncommented if Epos not present or different crmc 
+version used)
+# macro QGSJet_export_paths \
+#	"$(QGSJet_home)/$(QGSJet_version)/$(QGSJet_system)"
 
 macro QGSJetExternalFiles \
 	"$(QGSJet_home)/$(QGSJet_version)/$(QGSJet_system)/"
