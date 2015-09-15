@@ -3,13 +3,13 @@ package G4TruthStrategies
 public
 use AtlasPolicy         AtlasPolicy-*
 
-use MCTruthBase         MCTruthBase-*           Simulation/G4Sim
+use MCTruth 		MCTruth-*		Simulation/G4Sim
+use MCTruthBase 	MCTruthBase-*		Simulation/G4Sim
 
 private
-use AtlasCLHEP          AtlasCLHEP-*            External
 use Geant4              Geant4-*                External
-use MCTruth             MCTruth-*               Simulation/G4Sim
-#use SimHelpers          SimHelpers-*            Simulation/G4Sim
+use SimHelpers          SimHelpers-*         Simulation/G4Sim
+use AtlasCLHEP			AtlasCLHEP-*			External
 end_private
 
 include_dirs "$(G4TruthStrategies_root)"
