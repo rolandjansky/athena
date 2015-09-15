@@ -50,7 +50,7 @@ StatusCode FTK_UncertaintyTool::initialize() {
     LoadConstants();
 
 
-  athenaLog << MSG::INFO << "FTK_UncertaintyTool initialized "<< endmsg;
+  athenaLog << MSG::INFO << "FTK_UncertaintyTool initialized "<< endreq;
   return sc;
 }
 
@@ -66,7 +66,7 @@ double FTK_UncertaintyTool::getParamCovMtx(const FTK_RawTrack &trk, bool hasIBL,
 {
   MsgStream athenaLog(msgSvc(), name());
   int outputLevel = msgSvc()->outputLevel( name() );
-  athenaLog << MSG::VERBOSE << "In getParamCovMtx: id0: " << id0 << " id1: " << id1 << endmsg; 
+  athenaLog << MSG::VERBOSE << "In getParamCovMtx: id0: " << id0 << " id1: " << id1 << endreq; 
 
 
   //
@@ -77,15 +77,15 @@ double FTK_UncertaintyTool::getParamCovMtx(const FTK_RawTrack &trk, bool hasIBL,
   }
 
   if(outputLevel <= MSG::DEBUG)
-    athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: has BL " << hasIBL << endmsg; 
+    athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: has BL " << hasIBL << endreq; 
   
-  double trkIpt = trk.getInvPt();  
+  double trkIpt (0.5*trk.getInvPt());  // NOTE: this is 1./(2xpt)
   double trkTheta = atan2(1.0,trk.getCotTh());
   double trkEta = -log(tan(trkTheta/2));
 
   if(outputLevel <= MSG::VERBOSE){
-    athenaLog << MSG::VERBOSE << "FTK_UncertaintyTool:: trkIpt " << trkIpt << endmsg; 
-    athenaLog << MSG::VERBOSE << "FTK_UncertaintyTool:: trkEta " << trkEta << endmsg; 
+    athenaLog << MSG::VERBOSE << "FTK_UncertaintyTool:: trkIpt " << trkIpt << endreq; 
+    athenaLog << MSG::VERBOSE << "FTK_UncertaintyTool:: trkEta " << trkEta << endreq; 
   }
 
   double sigmaTP = -1.0;
@@ -114,8 +114,8 @@ double FTK_UncertaintyTool::getParamCovMtx(const FTK_RawTrack &trk, bool hasIBL,
     if(outputLevel <= MSG::DEBUG){
       athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: sigmaTP ("   
 		<< sigmaTP <<") = sqrt("<<allConsts[hasIBL].par0(lookUpParam,trkEta) 
-		<< "+" << allConsts[hasIBL].par1(lookUpParam,trkEta) << "*" << trkIpt << "**2)" <<  endmsg; 
-      athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: (sqrt)cov "   << sigmaTP*sigmaTP << endmsg; 
+		<< "+" << allConsts[hasIBL].par1(lookUpParam,trkEta) << "*" << trkIpt << "**2)" <<  endreq; 
+      athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: (sqrt)cov "   << sigmaTP*sigmaTP << endreq; 
     }
     
   //
@@ -126,13 +126,13 @@ double FTK_UncertaintyTool::getParamCovMtx(const FTK_RawTrack &trk, bool hasIBL,
     if(outputLevel <= MSG::DEBUG){
       athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: sigmaTP ("   
 		<< sigmaTP <<") = "<<allConsts[hasIBL].par0(lookUpParam,trkEta) 
-		<< "+" << allConsts[hasIBL].par1(lookUpParam,trkEta) << "*" << fabs(trkIpt) <<  endmsg; 
-      athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: (linear)cov "   << sigmaTP*sigmaTP << endmsg; 
+		<< "+" << allConsts[hasIBL].par1(lookUpParam,trkEta) << "*" << fabs(trkIpt) <<  endreq; 
+      athenaLog << MSG::DEBUG << "FTK_UncertaintyTool:: (linear)cov "   << sigmaTP*sigmaTP << endreq; 
     }
   }
 
   if(sigmaTP < 0)
-    athenaLog << MSG::ERROR << " sigma TP" << sigmaTP << endmsg;
+    athenaLog << MSG::ERROR << " sigma TP" << sigmaTP << endreq;
 
   //
   // Convert eta to theta
