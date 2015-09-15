@@ -1256,6 +1256,19 @@ class WriteDAOD_IDTRKVALIDStream(JobProperty):
 jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_IDTRKVALIDStream)
 listESDtoDPD.append(WriteDAOD_IDTRKVALIDStream.StreamName)
 
+class WriteDAOD_SCTVALIDStream(JobProperty):
+    """ Produce the DPD for DAOD_SCTVALID - AOD with PrepRawData """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    StreamName   = "StreamDAOD_SCTVALID"
+    FileName     = ""
+    isVirtual      = False
+    DPDMakerScript = "InDetPrepRawDataToxAOD/SCTxAOD.py"
+    pass
+jobproperties.PrimaryDPDFlags.add_JobProperty(WriteDAOD_SCTVALIDStream)
+listRAWtoDPD.append(WriteDAOD_SCTVALIDStream.StreamName)
+
 class WriteDAOD_IDTIDEStream(JobProperty):
     """ Produce the DPD for DAOD_IDTIDE - AOD with PrepRawData """
     statusOn     = True

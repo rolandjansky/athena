@@ -129,9 +129,9 @@ print JPsiTrigSkimmingTool
 
 # Final event selection filter : 
 
-EventFilterTool=DerivationFramework__FilterCombinationOR(name="EventFilterTool",FilterList=[DESDM_EGAMMA_SkimmingTool,JPsiTrigSkimmingTool])
-ToolSvc+=EventFilterTool
-print EventFilterTool
+DESDM_EGAMMAEventFilterTool=DerivationFramework__FilterCombinationOR(name="DESDM_EGAMMAEventFilterTool",FilterList=[DESDM_EGAMMA_SkimmingTool,JPsiTrigSkimmingTool])
+ToolSvc+=DESDM_EGAMMAEventFilterTool
+print DESDM_EGAMMAEventFilterTool
 
 # =================================================================================
 # Agmentation starts here
@@ -261,7 +261,7 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("DESDM_EGAMMAKernel",
                                                                        AugmentationTools = augmentationToolsList ,
-                                                                       SkimmingTools = [EventFilterTool],
+                                                                       SkimmingTools = [DESDM_EGAMMAEventFilterTool],
                                                                        ThinningTools = thinningToolsList
                                                                        )
 
