@@ -87,7 +87,8 @@ def updateTCTCastor(runnumber,trigStream,castordir,nfiles,listlb):
     elif 'castor' in castordir:
         ffilelist = os.popen('xrd castoratlas ls %s' % (castordir))
     elif 'eos' in castordir:
-        ffilelist = os.popen('xrd eosatlas ls %s' % (castordir))
+        #ffilelist = os.popen('xrd eosatlas ls %s' % (castordir))
+	ffilelist = os.popen('/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select ls %s' % (castordir))
     nGoodFiles = 0
     print "tct_recotrf.py : updateTCTCastor : look for files in:", castordir
     for ifile,filestr in enumerate(ffilelist):
@@ -243,7 +244,7 @@ def parseCmdLine(args):
     parser.add_option("--autoConfiguration", dest="autoConfiguration", help="autoConfiguration", default='')
     parser.add_option("--geometryVersion", dest="geometryVersion", help="geometryVersion", default='')
     parser.add_option("--conditionsTag", dest="conditionsTag", help="conditionsTag", default='')
-    parser.add_option("--ignoreErrors", dest="ignoreErrors", help="ignoreErrors", action='store_true', default='True')
+    parser.add_option("--ignoreErrors", dest="ignoreErrors", help="ignoreErrors", action='store_true', default='False')
     #parser.add_option("--ignoreerrors", dest="ignoreerrors", help="ignoreErrors", action='store_true', default='NONE')
     #parser.add_option("--beamType", dest="beamType", help="Beam type", default='')
     parser.add_option("--preExec", dest="preExec", help="Pre-execute options (overwrite)", default='')
