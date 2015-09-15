@@ -2,13 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4ATLASCONTROL_SIMPLEG4MENU
-#define G4ATLASCONTROL_SIMPLEG4MENU
+#ifndef SIMPLEG4MENU
+#define SIMPLEG4MENU
 
 #include "GaudiKernel/MsgStream.h"
 #include <string>
 
-/// NEEDS DOCUMENTATION
 class SimpleMenu {
  protected:
   MsgStream * m_log;

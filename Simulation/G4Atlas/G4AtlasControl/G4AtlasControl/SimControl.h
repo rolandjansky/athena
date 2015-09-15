@@ -2,43 +2,59 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4AtlasControl_SimControl_H
-#define G4AtlasControl_SimControl_H
+#ifndef SimControl_H
+#define SimControl_H
 
 #include <string>
+#include "G4AtlasControl/GeometryMenu.h"
+#include "G4AtlasControl/SenDetectorMenu.h"
+#include "G4AtlasControl/PhysicsMenu.h"
 #include "G4AtlasControl/MCTruthMenu.h"
+//#include "G4AtlasControl/ActionMenu.h"
+#include "G4AtlasControl/FieldMenu.h"
+#include "G4AtlasControl/FieldIntegrationMenu.h"
+#include "G4AtlasControl/RandomNrMenu.h"
 
-/// @class SimControl
-/// @brief C++ class used for passing configuration
-/// from the python layer to C++ layer.
-///
-/// This code was originally written to allow configuration of G4 from
-/// the python layer prior to the introduction of configurable
-/// properties in Athena classes. Once the FADS migration
-/// (ATLASSIM-2256) is complete all of this code should be obsolete.
-class SimControl
-{
+class DataCardSvc;
+
+class SimControl {
 public:
-  /// Empty Constructor
-  SimControl();
-  /// Empty Destructor
-  virtual ~SimControl();
-  /// Pass a command to the G4UIManager from the python layer
-  void G4Command(const std::string&) const;
-  /// Start a UIsession. FIXME not used anywhere - already obsolete? ATLASSIM-2766
-  void UIsession() const;
-  /// Used to load libraries for G4Extentions using FadsPackageLoader. FIXME Drop this. ATLASSIM-2768
-  void load(const std::string&) const;
-  /// Used to read XML configuration by FadsXMLParser. FIXME Migrate remaining clients so this can be dropped. ATLASSIM-2769
-  void ReadXML(const std::string&) const;
-  /// Access the MCTruthMenu. FIXME Migrate TruthStrategy configuration. ATLASSIM-2767
-  const MCTruthMenu& mcMenu() const ;
-  /// Still used from PyG4Atlas.G4AtlasEngine to initialize Geant4.
-  void initializeG4(bool isMT=false) const;
-  /// Still used from PyG4Atlas.menu_Visualization used by PyG4Atlas.G4AtlasEngine._init_Graphics. FIXME Drop this - obsolete.
-  void initializeGraphics() const;
-  /// Currently used to configure TruthStrategies for AtlasG4 jobs. FIXME Migrate TruthStrategy configuration. ATLASSIM-2767
-  MCTruthMenu          mctruthMenu;
+	SimControl();
+	virtual ~SimControl();
+	void G4Command(const std::string&) const;
+	void UIsession() const;
+	void load(const std::string&) const;
+	void ReadXML(const std::string&) const;
+	const GeometryMenu& geomMenu() const;
+	const SenDetectorMenu& sdMenu() const ;	
+	const PhysicsMenu& physMenu() const ;	
+	const MCTruthMenu& mcMenu() const ;	
+	//const ActionMenu& actionMenu() const;
+	const FieldMenu& fieldMenu() const;
+	const RandomNrMenu& randomMenu() const;
+	const FieldIntegrationMenu& fieldIntegrationMenu() const;
+	void initializeG4() const;
+	void initializeGraphics() const;
+	
+	void DefineCard(const std::string name, const std::string type, int defValue);
+	void DefineCard(const std::string name, const std::string type, double defValue);
+	void DefineCard(const std::string name, const std::string type, const std::string defValue);
+	
+	void SetCard(const std::string name, int Value);
+	void SetCard(const std::string name, double Value);
+	void SetCard(const std::string name, const std::string Value);
+	
+	GeometryMenu    	 geometryMenu;
+	SenDetectorMenu 	 sendetectorMenu;
+	PhysicsMenu     	 physicsMenu;
+    MCTruthMenu     	 mctruthMenu;
+	//ActionMenu      	 actMenu;
+    FieldMenu       	 fldMenu;
+	FieldIntegrationMenu fldIntMenu;
+	RandomNrMenu		 rndMenu;
+	
+private:
+	DataCardSvc *dCard;
 };
 
 #endif

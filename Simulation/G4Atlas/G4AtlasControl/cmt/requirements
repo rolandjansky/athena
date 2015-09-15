@@ -3,16 +3,28 @@ package G4AtlasControl
 public
 use AtlasPolicy         AtlasPolicy-*
 
-use GaudiInterface      GaudiInterface-*        External
+use Geant4	Geant4-*	External
+
+use FadsGeometry	FadsGeometry-*          Simulation/G4Sim/FADS
+use FadsField		FadsField-*		Simulation/G4Sim/FADS
+use FadsMaterial	FadsMaterial-*		Simulation/G4Sim/FADS
+use GaudiInterface      GaudiInterface-*     External
 
 private
-use AtlasCLHEP          AtlasCLHEP-*            External
-use Geant4              Geant4-*                External
+use AtlasCLHEP			AtlasCLHEP-*			External
+use G4AtlasAlg      G4AtlasAlg-*        Simulation/G4Atlas
+use FadsKinematics      FadsKinematics-*        Simulation/G4Sim/FADS
 use FadsPackageLoader   FadsPackageLoader-*     Simulation/G4Sim/FADS
+use FadsPhysics         FadsPhysics-*           Simulation/G4Sim/FADS
+use FadsRun             FadsRun-*               Simulation/G4Sim/FADS
+use FadsSensitiveDetector FadsSensitiveDetector-* Simulation/G4Sim/FADS
 use FadsUtilities       FadsUtilities-*         Simulation/G4Sim/FADS
 use FadsXMLParser       FadsXMLParser-*         Simulation/G4Sim/FADS
+use G4Field             G4Field-*               Simulation/G4Utilities
+
+use MCTruth             MCTruth-*               Simulation/G4Sim
 use MCTruthBase         MCTruthBase-*           Simulation/G4Sim
-use PathResolver        PathResolver-*          Tools
+use PathResolver	PathResolver-*		Tools
 end_private
 
 ####include_dirs "$(G4AtlasControl_root)"
@@ -22,10 +34,9 @@ apply_pattern installed_library
 
 private
 
-use AtlasReflex         AtlasReflex-*           External
+use AtlasReflex         AtlasReflex-*		External
 
 apply_pattern lcgdict dict=G4AtlasControl \
                 headerfiles="../G4AtlasControl/G4AtlasControlDict.h" \
                 selectionfile=selection.xml
 macro_prepend G4AtlasControlDict_shlibflags " -lG4AtlasControl "
-end_private
