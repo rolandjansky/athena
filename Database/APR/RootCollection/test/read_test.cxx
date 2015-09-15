@@ -21,7 +21,6 @@
 #include "PersistentDataModel/Token.h"
 #include <stdexcept>
 #include <cstdlib>
-#include <memory>
 #include "CoralBase/Attribute.h"
 
 #include "TInterpreter.h"
@@ -189,7 +188,7 @@ void
 TestDriver::write()
 {
    cout << "Creating CollectionService" << endl;
-   unique_ptr<CollectionService> serviceHandle(new CollectionService());
+   pool::ICollectionService *serviceHandle = new pool::CollectionService();
    cout << "Creating Collection Description" << endl;
    pool::CollectionDescription description( m_name, "RootCollection", m_connection );
    description.insertColumn( "attr1", "int", "integer test attribute" );
@@ -272,8 +271,8 @@ void
 TestDriver::read()
 {
    cout << "Creating CollectionService" << endl;
-   unique_ptr<CollectionService> serviceHandle(new CollectionService());
-
+   pool::ICollectionService* serviceHandle = new pool::CollectionService();
+   
   cout << "Getting handle to existing collection ( opened for read-only transactions by default )" << endl;
   pool::ICollection* collection = serviceHandle->handle( m_name, "RootCollection" , m_connection );
 
