@@ -13,7 +13,7 @@ use AtlasROOT           AtlasROOT-*   	        External
 apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS MathCore Hist Tree TreePlayer Net RIO)"
 
 apply_pattern have_root_headers root_headers="AttributeListLayout.h LinkDef.h" \
-                                headers_lib=RootCollection
+                                extra_includes=" -p " headers_lib=RootCollection
 
 macro_append RootCollection_shlibflags " -lTree -lTreePlayer -lHist -lMatrix -lGraf -lGraf3d -lNet -lGpad "
 library RootCollection "*.cpp"

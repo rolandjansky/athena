@@ -2,9 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
 #  include "TTreeFormulaManager.h"
-#undef private
 
 #include "APRTreeFormula.h"
 
@@ -26,7 +24,7 @@
 using namespace std;
 
 APRTreeFormula::~APRTreeFormula() {
-   delete[] aprConst;
+   delete[] m_aprConst;
 }
 
 
@@ -34,13 +32,13 @@ void    APRTreeFormula::readConstants()
 {
    // we may need more space than fNconst in case Tformula discarded some constants as duplicates due to loss of precision
    // using "oper" is index to constants
-   aprConst = new LDouble_t[fNoper];
+   m_aprConst = new LDouble_t[fNoper];
    
    for (Int_t i=0; i<fNoper ; ++i) {
       const Int_t oper = GetOper()[i];
       if( (oper >> kTFOperShift) == kConstant ) {
          // copy the value as read by TFormula
-         aprConst[i] = fConst[oper & kTFOperMask];
+         m_aprConst[i] = fConst[oper & kTFOperMask];
          // check for large integers and re-read them with bigger precision
          bool exit = false;
          const char* numstr = fExpr[i];
@@ -59,10 +57,10 @@ void    APRTreeFormula::readConstants()
             // hex.  use sscanf - could not make streamstring read hex (???) MN
             unsigned long long lval(0);
             sscanf(numstr, "%llx", &lval);
-            aprConst[i] = lval;
+            m_aprConst[i] = lval;
          } else {
             std::stringstream ss(numstr);
-            ss >> aprConst[i]; 
+            ss >> m_aprConst[i]; 
          }
       }
    }
@@ -290,7 +288,7 @@ Double_t APRTreeFormula::EvalInstance(Int_t instance, const char *stringStackArg
          case kIndexOfEntry: return (LDouble_t)fTree->GetReadEntry();
          case kIndexOfLocalEntry: return (LDouble_t)fTree->GetTree()->GetReadEntry();
          case kEntries:      return (LDouble_t)fTree->GetEntries();
-         case kLength:       return fManager->fNdata;
+         case kLength:       return fManager->GetNdata();
          case kLengthFunc:   return ((TTreeFormula*)fAliases.UncheckedAt(0))->GetNdata();
          case kIteration:    return instance;
          case kSum:          return Summing((TTreeFormula*)fAliases.UncheckedAt(0));
@@ -339,8 +337,8 @@ Double_t APRTreeFormula::EvalInstance(Int_t instance, const char *stringStackArg
          // TFormula operands.
 
          // one of the most used cases
-         // aprConst[] is indexed by "i"!!   (see readConstants())
-         if (newaction==kConstant) { tab[pos++] = aprConst[i]; continue; }
+         // m_aprConst[] is indexed by "i"!!   (see readConstants())
+         if (newaction==kConstant) { tab[pos++] = m_aprConst[i]; continue; }
          
          switch(newaction) {
             case kEnd        : return tab[0];
@@ -521,7 +519,7 @@ Double_t APRTreeFormula::EvalInstance(Int_t instance, const char *stringStackArg
                case kIndexOfEntry: tab[pos++] = (LDouble_t)fTree->GetReadEntry(); continue;
                case kIndexOfLocalEntry: tab[pos++] = (LDouble_t)fTree->GetTree()->GetReadEntry(); continue;
                case kEntries:      tab[pos++] = (LDouble_t)fTree->GetEntries(); continue;
-               case kLength:       tab[pos++] = fManager->fNdata; continue;
+               case kLength:       tab[pos++] = fManager->GetNdata(); continue;
                case kLengthFunc:   tab[pos++] = ((TTreeFormula*)fAliases.UncheckedAt(i))->GetNdata(); continue;
                case kIteration:    tab[pos++] = instance; continue;
                case kSum:          tab[pos++] = Summing((TTreeFormula*)fAliases.UncheckedAt(i)); continue;
