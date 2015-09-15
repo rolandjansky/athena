@@ -11,7 +11,14 @@ opts = None
 def filledBins(h):
     N = h.GetSize()
     return sum([1 for i in range(N) if h.At(i)!=0])
-        
+
+def hasLabels(h):
+    return (h.GetXaxis().GetLabels()!=None)
+
+def missingLabels(h):
+    l = h.GetXaxis().GetLabels()    
+    return (l!=None and h.GetXaxis().GetNbins()!=l.GetSize())
+            
 def addDirList(dir,path,hists):
     list=dir.GetListOfKeys()
     for key in list:
@@ -22,6 +29,8 @@ def addDirList(dir,path,hists):
         else:
             h = key.ReadObj()
             if not h.InheritsFrom('TH1'): continue
+            if opts.labeled==True and not hasLabels(h): continue
+            if opts.misslabel==True and not missingLabels(h): continue
             b = filledBins(h) if opts.filled else h.GetSize()
             hists[path+name]=(cname,b)
         
@@ -71,6 +80,12 @@ def main():
 
    parser.add_option('-f', '--filled', action='store_true',      
                      help='Show number of filled bins instead of total bins')
+
+   parser.add_option('-l', '--labeled', action='store_true',      
+                     help='Only show histograms with text labels')
+
+   parser.add_option('-m', '--misslabel', action='store_true',      
+                     help='Only show labeled histograms with at least one unlabeled bin')
    
    global opts
    (opts, args) = parser.parse_args()

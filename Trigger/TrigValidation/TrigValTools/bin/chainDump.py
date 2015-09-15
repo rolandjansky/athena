@@ -120,7 +120,7 @@ class chainDump:
             chainCounts =  hst.GetBinContent(j+1)
             pairedList +=[[char_label,chainCounts]]
             if self.verbose:
-                print char_label.ljust(lenMax) + "%6.0f" % hst.GetBinContent(j+1)
+                print char_label.ljust(lenMax) + "%15.0f" % hst.GetBinContent(j+1)
 
         return pairedList
 
@@ -304,7 +304,7 @@ class chainDump:
                     print chains
                 for  name,count in chains:
                     if self.saveToFile:
-                        f.write( name + "%6.0f" % count+"\n" )
+                        f.write( name + "%15.0f" % count+"\n" )
                     else:
                         print name, count
 

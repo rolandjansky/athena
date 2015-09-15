@@ -44,14 +44,14 @@ for p in path.split(':'):
         if basename in ["trigp1test_testconfiguration_work", "triggertest_testconfiguration_work", "triganalysistest_testconfiguration_work"]:
             if testname == "-l":
                 conf = { "trigp1test_testconfiguration_work" : "TrigP1Test.conf",
-                         "triggertest_testconfiguration_work" : "TriggerTest",
-                         "triganalysistest_testconfiguration_work" : "TrigAnalysisTest" }[basename]
+                         "triggertest_testconfiguration_work" : "TriggerTest.conf",
+                         "triganalysistest_testconfiguration_work" : "TrigAnalysisTest.conf" }[basename]
                 # list all tests
                 print "\n"+basename+":"
                 print len(basename)*"=" + "="
                 w = max(len(x) for x in subdirs)
                 for test in sorted(subdirs):
-                    print "%-*s   ==>  trigtest.pl --cleardir --test %s --rundir %s --conf %s.conf" % (w, test,test,test,conf)
+                    print "%-*s   ==>  trigtest.pl --cleardir --test %s --rundir %s --conf %s" % (w, test,test,test,conf)
                 continue
 
         if basename == testname:
