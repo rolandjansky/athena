@@ -10,7 +10,7 @@
  * $Id: TFileLooper.cxx,v 1.2 2008-09-08 13:49:16 fwinkl Exp $
  */
 
-#include "TrigValTools/TFileLooper.h"
+#include "TFileLooper.h"
 
 #include <iostream>
 #include <sstream>
