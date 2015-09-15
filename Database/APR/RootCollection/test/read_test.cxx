@@ -231,7 +231,7 @@ TestDriver::write()
       char s[20];
       ::sprintf( s, "%s_%d", "testString", i );
       rowBuffer.attributeList()[ "attr2" ].data<std::string>() = string( s );
-      rowBuffer.attributeList()[ "attr3" ].data<double>() = double( i ) / 3;
+      rowBuffer.attributeList()[ "attr3" ].data<double>() = double( i ) * (1./3);
       rowBuffer.attributeList()[ "attr4" ].data<bool>() = ((i%3)!=0);
 
       rowBuffer.attributeList()[ "attr64bit" ].data<unsigned long long>() = ntab[i];

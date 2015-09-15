@@ -95,7 +95,7 @@ TestDriver::write()
       char s[20];
       ::sprintf( s, "%s_%d", "testString", i );
       rowBuffer.attributeList()[ "attr2" ].data<std::string>() = string( s );
-      rowBuffer.attributeList()[ "attr3" ].data<double>() = double( i ) / 3;
+      rowBuffer.attributeList()[ "attr3" ].data<double>() = double( i ) * (1./3);
       rowBuffer.attributeList()[ "64bitint" ].data<unsigned long long>() = 0x200000000ULL * (i==102 || i==104);
       rowBuffer.attributeList()[ "attr4" ].data<bool>() = ((i%3)!=0);
 
@@ -174,7 +174,7 @@ TestDriver::update()
       char s[20];
       ::sprintf( s, "%s_%d", "testString", i );
       rowBuffer.attributeList()[ "attr2" ].data<std::string>() = string( s );
-      rowBuffer.attributeList()[ "attr3" ].data<double>() = double( i ) / 3;
+      rowBuffer.attributeList()[ "attr3" ].data<double>() = double( i ) * (1./3);
       rowBuffer.attributeList()[ "64bitint" ].data<unsigned long long>() = 0x200000000ULL * (i==122 || i==124);
       rowBuffer.attributeList()[ "attr4" ].data<bool>() = ((i%3)!=0);
 

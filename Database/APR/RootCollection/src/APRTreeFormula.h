@@ -10,7 +10,7 @@ public:
   
   APRTreeFormula(const std::string& exp, TTree *tree) :
         TTreeFormula("APRTreeFormula", exp.c_str(), tree),
-        aprConst( 0 )
+        m_aprConst( 0 )
   {
      readConstants();
   }
@@ -28,6 +28,6 @@ public:
 
 protected:
 
-  LDouble_t     *aprConst;
+  LDouble_t     *m_aprConst;
 };
 
