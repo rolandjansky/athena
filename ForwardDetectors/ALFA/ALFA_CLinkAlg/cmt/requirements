@@ -20,16 +20,12 @@ public
 use AthenaBaseComps         AthenaBaseComps-*           Control
 use AthenaKernel            AthenaKernel-*              Control
 use DataModel               DataModel-*                 Control
+use xAODForward				xAODForward-*				Event/xAOD
 end_public
 
 private
 use EventInfo               EventInfo-*                 Event
 end_private
-
-#use ALFA_RawEv		ALFA_RawEv-*		ForwardDetectors/ALFA
-#use ALFA_LocRecEv	ALFA_LocRecEv-*		ForwardDetectors/ALFA/ALFA_RecEv
-#use ALFA_LocRecCorrEv	ALFA_LocRecCorrEv-*	ForwardDetectors/ALFA/ALFA_RecEv
-#use ALFA_GloRecEv	ALFA_GloRecEv-*		ForwardDetectors/ALFA/ALFA_RecEv
 
 use ALFA_CLinkEv	ALFA_CLinkEv-*		ForwardDetectors/ALFA
 
