@@ -44,14 +44,15 @@ if __name__ == "__main__":
 
   resultsurl = "https://atlas-rtt.cern.ch/index.php?q=%28release="+releaseArr[9]+";packagename=Tier0ChainTests;branch="+releaseArr[7]+";cmtconfig="+cmtconfig+";project=AtlasProduction;verbosity=vvv;%29"
 
-  comparisonlogurl = "https://atlas-rtt.cern.ch/prod/tct/%s/%s/build/%s/offline/Tier0ChainTests/ESDTAGCOMM_comparison/ESDTAGCOMM_comparison_log" % (releaseArr[9], releaseArr[7],cmtconfig)
+  comparisonlogurl = "https://atlas-rtt.cern.ch/prod/tct/%s/%s/build/x86_64-slc6-gcc48-opt/offline/Tier0ChainTests/ESDTAGCOMM_comparison/ESDTAGCOMM_comparison_log" % (releaseArr[9], releaseArr[7])
 
   msgbody = """<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
 <html>
 <body>
 <h1></h1>
 <p style=\"font-family: monospace;\">
-The results from the Tier0ChainTests are available <a href=\"%s\">here</a>
+The results from the Tier0ChainTests are available <a
+href=\"%s\">here</a>
 <br><br>
 (Note that results may be published on the web with a slight delay)
 </p>
@@ -133,7 +134,7 @@ The results from the Tier0ChainTests are available <a href=\"%s\">here</a>
 
   ## send emails
   print "Sending email(s) to: " + emailAddresses
-  msg = "From: rtt@mail.cern.ch\nSubject: Finished TCT for nightly: %s\nTo: %s\nContent-Type: text/html\n\n%s\n" % (release, emailAddresses, msgbody)
+  msg = "From: rtt@mail.cern.ch\nSubject: Finished TCT for nightly: %s\nTo: %s\nContent-Type: text/html\n%s\n" % (release, emailAddresses, msgbody)
 
   recipients = emailAddresses.split(',')
   for recipient in recipients:
