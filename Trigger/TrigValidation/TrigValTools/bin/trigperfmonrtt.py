@@ -27,7 +27,7 @@ opts = None
 class Config:
    memImgWidth = 800
    memImgHeight = 600
-   defaultPlatform = 'x86_64-slc6-gcc47-opt'
+   defaultPlatform = 'x86_64-slc6-gcc48-opt'
    
 class Build:
    def __init__(self, name, branch, platform, project = "offline"):
@@ -117,7 +117,7 @@ class Rtt:
             sh = projshort.get(prj,prj)
             if len(sh)>0: alias += '/'+sh
             if platform != Config.defaultPlatform:
-               try: alias += (' [%s]') % platform.split('-')[0]
+               try: alias += (' [%s]') % platform.split('-')[2]
                except: pass
                   
             b = Build(alias, branch, platform, rttprj)
