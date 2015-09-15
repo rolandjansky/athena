@@ -5,8 +5,6 @@
 
 #include "HistoPile.h"
 
-using namespace std;
-
 //______________________________________________________________________________
 void HistoPile::Push(const char *str) 
 {

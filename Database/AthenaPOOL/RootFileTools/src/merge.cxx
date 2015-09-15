@@ -35,7 +35,6 @@ public:
   explicit MergingError(): runtime_error("") {}
   explicit MergingError( const std::string& msg ): runtime_error("") { m_stream << msg; }
   MergingError( const MergingError& err ): runtime_error("") { m_stream << err.str(); }
-  MergingError& operator= ( const MergingError& err ) = delete;
   virtual ~MergingError() throw() {}
   virtual const char* what() const throw() { m_string = m_stream.str(); return m_string.c_str();  }
   std::string str() const { return m_stream.str(); }
@@ -100,7 +99,7 @@ void addBranch( ::TTree* otree, ::TBranch* ibranch )
    // Get the type of the branch:
    TClass* cl = 0;
    EDataType dt = kOther_t;
-   (void)ibranch->GetExpectedType( cl, dt );
+   ibranch->GetExpectedType( cl, dt );
 	
    // Pointer to the output branch:
    ::TBranch* obranch = 0;
@@ -274,11 +273,20 @@ bool DbDatabaseMerger::empty(const std::string& fid, const std::set<std::string>
 /// Check if a database exists
 bool DbDatabaseMerger::exists(const std::string& fid, bool dbg) const {
   Bool_t result = gSystem->AccessPathName(fid.c_str(), kFileExists);
+  if ( result == kFALSE ) {
+    if ( s_dbg ) cout << "file " << fid << " EXISTS!" << endl;
+  } else if ( dbg ) {
+    cout << "file " << fid << " DOES NOT EXIST!" << endl;
+  }
   return result == kFALSE;
 }
 
 /// Attach to existing output file for further merging
 DbStatus DbDatabaseMerger::attach(const string& fid) {
+  if ( !exists(fid) ) {
+    cout << "+++ Cannot attach output file " << fid << " --- file does not exist." << endl;
+    return ERROR;
+  }
   if ( !m_output ) {
     m_output = TFile::Open(fid.c_str(),"UPDATE");
     if ( !m_output ) {
@@ -333,6 +341,9 @@ DbStatus DbDatabaseMerger::attach(const string& fid) {
 DbStatus DbDatabaseMerger::create(const string& fid) {
   if ( m_output ) {
     cout << "+++ Another output file " << m_output->GetName() << " is already open. Request denied." << endl;
+    return ERROR;
+  } else if ( exists(fid) ) {
+    cout << "+++ Cannot create output file " << fid << " --- file already exists." << endl;
     return ERROR;
   }
   m_output = TFile::Open(fid.c_str(),"RECREATE");
@@ -554,7 +565,6 @@ DbStatus DbDatabaseMerger::merge(const string& fid, const std::set<std::string>&
                      }
                   }
                }
-               delete src_tree;
             }
             else   {
                cout << "+++ Ignore key " << key->GetName() << endl;
