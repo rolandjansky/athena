@@ -15,7 +15,6 @@
 #include "StorageSvc/pool.h"
 #include "FileCatalog/IFileCatalog.h"
 #include "FileCatalog/IFCAction.h"
-#include "CoralBase/MessageStream.h"
 
 static const std::string& emptyString = "";
 
@@ -295,24 +294,16 @@ pool::PersistencySvc::UserDatabase::fid() const
           m_alreadyConnected = true;
         }
         else {
-           if( m_transaction.type() != pool::ITransaction::UPDATE ) { // Fetch the FID from the db itself !
-              if( !m_technologySet ) {
-                 coral::MessageStream log( "PersistencySvc::UserDatabase::fid()" );
-                 log << coral::Debug << "Opening database '" << m_name
-                     << "' with no catalog entry and no technology set - assuming ROOT storage"
-                     << coral::MessageStream::endmsg;
-                 m_technology = pool::ROOT_StorageType.type();
-                 m_technologySet = true;
-              }
-              pool::PersistencySvc::MicroSessionManager& sessionManager = m_technologyDispatcher.microSessionManager( m_technology );
-              m_the_fid = sessionManager.fidForPfn( m_name );
-              if ( ! m_the_fid.empty() ) {
-                 m_the_pfn = m_name;
-                 m_alreadyConnected = true;
-              }
-           }
+          if ( m_technologySet && m_transaction.type() != pool::ITransaction::UPDATE ) { // Fetch the FID from the file itself !
+            pool::PersistencySvc::MicroSessionManager& sessionManager = m_technologyDispatcher.microSessionManager( m_technology );
+            m_the_fid = sessionManager.fidForPfn( m_name );
+            if ( ! m_the_fid.empty() ) {
+              m_the_pfn = m_name;
+              m_alreadyConnected = true;
+            }
+          }
         }
-      } /* not PFN */
+      }
       else if ( m_nameType == pool::DatabaseSpecification::LFN ) {
         pool::IFCAction action;
         fileCatalog.setAction( action );
@@ -414,6 +405,17 @@ pool::PersistencySvc::UserDatabase::containerHandle( const std::string& name )
     container = m_databaseHandler->container( name );
   }
   return container;
+}
+
+
+pool::Placement
+pool::PersistencySvc::UserDatabase::placementHint() const
+{
+  Placement placement;
+  if ( m_databaseHandler ) {
+    placement = m_databaseHandler->placementHint();
+  }
+  return placement;
 }
 
 
