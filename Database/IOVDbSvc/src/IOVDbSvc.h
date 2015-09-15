@@ -82,7 +82,7 @@ class IOVDbSvc : public virtual IIOVCondDbSvc,
   // Forward declarations
   template <class TYPE> class SvcFactory;
   
-public:
+ public:
   
   IOVDbSvc( const std::string& name, ISvcLocator* svc );
   virtual ~IOVDbSvc();
@@ -132,8 +132,7 @@ public:
                                const std::string& dbKey, 
                                const IOVTime& time,
                                IOVRange& range,
-                               std::string& tag,
-                               IOpaqueAddress*& ioa);
+                               std::string& tag );
 
 
 
@@ -167,8 +166,8 @@ public:
   // (if not, range and tag may not be meaningful)
   // return false if this key is not known to IOVDbSvc
   bool getKeyInfo(const std::string& key, std::string& foldername,
-                  std::string& tag, IOVRange& range, bool& retrieved,
-                  unsigned long long& bytesRead, float& readTime);
+		  std::string& tag, IOVRange& range, bool& retrieved,
+		  unsigned long long& bytesRead, float& readTime);
 
 
   // drop an IOVDbSvc-managed object from Storegate, indicating we will
@@ -179,7 +178,7 @@ public:
   bool dropObject(const std::string& key,const bool resetCache=false);
 
 
-private:
+ private:
   // internal methods
   StatusCode checkEventSel();
   StatusCode setupFolders();

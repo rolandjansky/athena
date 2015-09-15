@@ -75,4 +75,3 @@ macro poolcondfile  "" \
 
 apply_pattern generic_declare_for_link kind=runtime \
   files='$(poolcondfile)' prefix=share
-
