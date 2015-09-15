@@ -47,7 +47,6 @@ FPEAuditor::FPEAuditor( const std::string& name,
   Auditor     ( name, pSvcLocator  ),
   AthMessaging(msgSvc(), name),
   m_fpe_stack(),
-  m_CountFPEs(),
   m_NstacktracesOnFPE(0),
   m_SigHandInstalled(false),
   //m_flagp(),
@@ -74,7 +73,7 @@ FPEAuditor::FPEAuditor( const std::string& name,
 #include <iomanip>
 FPEAuditor::~FPEAuditor()
 { 
-  //m_msg << MSG::DEBUG << "Calling destructor" << endmsg;
+  //m_msg << MSG::DEBUG << "Calling destructor" << endreq;
 }
 
 StatusCode FPEAuditor::initialize()
@@ -277,7 +276,7 @@ FPEAuditor::report_fpe(const std::string& step,
 	      this->msg(MSG::INFO) << "FPE stacktrace " << j << " :\n";
 	      FPEAudit::resolve(FPEAudit::s_array_O[j],this->msg());
 	      FPEAudit::s_array_O[j]=NULL;
-	      this->msg(MSG::INFO) << endmsg;
+	      this->msg(MSG::INFO) << endreq;
 	    }
 	}
     }
@@ -293,7 +292,7 @@ FPEAuditor::report_fpe(const std::string& step,
 	    this->msg(MSG::INFO) << "FPE stacktrace " << j << " :\n";
 	    FPEAudit::resolve(FPEAudit::s_array_I[j],this->msg());
 	    FPEAudit::s_array_I[j]=NULL;
-	    this->msg(MSG::INFO) << endmsg;
+	    this->msg(MSG::INFO) << endreq;
 	  }
       }
     if (raised & FE_DIVBYZERO) {
@@ -307,7 +306,7 @@ FPEAuditor::report_fpe(const std::string& step,
 	      this->msg(MSG::INFO) << "FPE stacktrace " << j << " :\n";
 	      FPEAudit::resolve(FPEAudit::s_array_D[j],this->msg());
 	      FPEAudit::s_array_D[j]=NULL;
-	      this->msg(MSG::INFO) << endmsg;
+	      this->msg(MSG::INFO) << endreq;
 	    }
 	}
     }

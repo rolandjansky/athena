@@ -10,7 +10,6 @@ use GaudiInterface                 GaudiInterface-*  	            External
 use AtlasGdb                       AtlasGdb-*                       External
 use AtlasBoost			   AtlasBoost-*			    External
 use AtlasLibUnwind		   AtlasLibUnwind-*		    External
-use AtlasGPerfTools		   AtlasGPerfTools-*		    External
 
 private
 use CoWTools			   CoWTools-*			    Control
