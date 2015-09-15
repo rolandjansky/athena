@@ -17,7 +17,7 @@ class NeutronFastSim: public G4VFastSimulationModel
 {
 public:
 
-  NeutronFastSim(const std::string& name, const std::string& fsSDname, const double etaCut, const double timeCut);
+  NeutronFastSim(const std::string& name, const std::string& fsSDname);
   ~NeutronFastSim() {}
 
   // Fast Sim Methods
@@ -31,8 +31,6 @@ protected:
   TrackFastSimSD * m_fsSD;
   bool m_init;
   std::string m_fsSDname;
-  double m_etaCut;
-  double m_timeCut;
 };
 
 #endif //TRACKWRITEFASTSIM_NeutronFastSim_h

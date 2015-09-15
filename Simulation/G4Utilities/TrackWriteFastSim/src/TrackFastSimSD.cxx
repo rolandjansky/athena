@@ -25,6 +25,7 @@ TrackFastSimSD::TrackFastSimSD(const std::string& name, const std::string& outpu
   , m_trackRecordCollection( outputCollectionName )
   , m_SD_type( SD_type )
 {
+  std::cout << "TrackWriteFastSim Constructor: name" << name << std::endl;
 }
 
 // Initialize from G4 - necessary to new the write handle for now
