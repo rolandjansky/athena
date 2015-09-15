@@ -242,15 +242,15 @@ path_remove  PATH "" Linux "/gfortran/"
 #### For SL4 native gfortran compiler one has to add /usr/lib64 to LD_LIBRARY_PATH
 cmtpath_pattern \
   path_remove LD_LIBRARY_PATH "" \
-              slc4&64 "/usr/lib64" \
-              slc5&64 "/usr/lib64" \
-	      slc6&64 "/usr/lib64"
+              slc4&64 "^/usr/lib64$" \
+              slc5&64 "^/usr/lib64$" \
+              slc6&64 "^/usr/lib64$"
 
 cmtpath_pattern \
   path_append LD_LIBRARY_PATH "" \
               slc4&64 "/usr/lib64" \
               slc5&64 "/usr/lib64" \
-	      slc6&64 "/usr/lib64"
+              slc6&64 "/usr/lib64"
 
 apply_pattern pgi_gfo_g95_macro name=for90   pgivalue="pgf90" gforvalue="$(f90_home)gfortran" g95value="i686-pc-linux-gnu-g95"
 #### Only the 32-bit gfortran compiler is available and it doesn't have support for generating 64-bit binaries built in
