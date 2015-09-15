@@ -15,11 +15,11 @@
  *****************************************************************************/
 
 #ifndef IOVSVC_CBTREE_H
-#include "IOVSvc/CBTree.h"
+ #include "IOVSvc/CBTree.h"
 #endif
 
 #ifndef SGTOOLS_DATAPROXY_H
-#include "SGTools/DataProxy.h"
+ #include "SGTools/DataProxy.h"
 #endif
 
 #include <iostream>
@@ -80,13 +80,13 @@ CBNode* CBTree::addNode(const std::string& name, CBNode* parent) {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 CBNode* CBTree::addNode(BFCN* fcn, const CallBackID& cb, 
-                        const SG::DataProxy* proxy) {
+			const SG::DataProxy* proxy) {
 
   CBNode* parent = findNode(proxy);
 
   if (parent == 0) {
     cout << "ERROR: no parent proxy found in tree for " << proxy->name()
-         << endl;
+	 << endl;
     return 0;
   }
 
@@ -104,7 +104,7 @@ CBNode* CBTree::addNode(BFCN* fcn, const CallBackID& cb, BFCN* parent_fcn) {
 
   if (parent == 0) {
     cout << "ERROR: no parent function found in tree for " << parent_fcn
-         << endl;
+	 << endl;
     return 0;
   }
 
@@ -113,35 +113,6 @@ CBNode* CBTree::addNode(BFCN* fcn, const CallBackID& cb, BFCN* parent_fcn) {
   m_allNodes.insert( n );
 
   return n;
-}
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-bool CBTree::delNode(const SG::DataProxy* prx) {
-  CBNode *n = findNode(prx);
-  if (n == 0) {
-    cout << "ERROR: no node with DataProxy " << prx->name() << " found in tree"
-         << endl;
-    return false;
-  }
-  
-  bool b(true);
-  for ( auto p : n->parents() ) {
-    if (!p->delChild( n )) {
-      cout << "ERROR: CBTree::delNode : unable to delete child " 
-           << n->name() << " from parent " << p->name() << endl;
-      b = false;
-    }
-  }
-  
-  for (auto c : n->children()) {
-    if (!c->delParent( n )) {
-      cout << "ERROR: CBTree::delNode : unable to delete parent " 
-           << n->name() << " from child " << c->name() << endl;
-      b = false;
-    }
-  }
-  
-  return b;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
@@ -152,8 +123,8 @@ void CBTree::connectNode(CBNode* node, CBNode* parent) {
   cascadeFlag(true, node);
   if (parent->flag()) {
     cout << "ERROR: cannot connect " << node->name() << " to "
-         << parent->name() << " as a loop would be formed"
-         << endl;
+	 << parent->name() << " as a loop would be formed"
+	 << endl;
     return;
   }
   clearFlag();
@@ -187,23 +158,10 @@ void CBTree::connectNode(const std::string& name, CBNode* parent) {
 
 CBNode* CBTree::findNode(const SG::DataProxy* proxy) const {
 
-  return findNode(proxy, m_root);
-
-}
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-CBNode* CBTree::findNode(const SG::DataProxy* proxy, CBNode* start) const {
-
-  if ( start->proxy() == proxy ) {
-    return start;
-  } else {
-
-    for ( auto c : start->children() ) {
-      c = findNode(proxy, c);
-      if (c != 0) {
-        return c;
-      }
+  std::set<CBNode*>::const_iterator citr = m_root->children().begin();
+  for (;citr != m_root->children().end(); ++citr) {
+    if ( (*citr)->proxy() == proxy ) {
+      return (*citr);
     }
   }
 
@@ -230,7 +188,7 @@ CBNode* CBTree::findNode(BFCN* fcn, CBNode* start) const {
     for (; citr != start->children().end(); ++citr) {
       c = findNode(fcn,*citr);
       if (c != 0) {
-        return c;
+	return c;
       }
     }
   }
@@ -257,7 +215,7 @@ CBNode* CBTree::findNode(const std::string& name, CBNode* start) const {
     for (; citr != start->children().end(); ++citr) {
       c = findNode(name,*citr);
       if (c != 0) {
-        return c;
+	return c;
       }
     }
   }
@@ -344,15 +302,15 @@ void CBTree::listNodes() const {
   nodeSet::const_iterator citr = m_allNodes.begin();
   for (; citr != m_allNodes.end(); ++citr) {
     cout << (*citr)->name()  << "  " << *citr << "  " << (*citr)->level() 
-         << "  " << (*citr)->trigger() << endl;
+	 << "  " << (*citr)->trigger() << endl;
   }
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 void CBTree::listNodes(const int& level, 
-                       nodeSet::const_iterator& start, 
-                       nodeSet::const_iterator& end) const {
+		       nodeSet::const_iterator& start, 
+		       nodeSet::const_iterator& end) const {
 
   bool s = false;
 
@@ -522,7 +480,7 @@ void CBTree::traverse(void(*pf) (CBNode*,CBNode*)) const {
 }
 
 void CBTree::traverse(CBNode* current, CBNode* parent, 
-                      void(*pf) (CBNode*, CBNode*)) const {
+		      void(*pf) (CBNode*, CBNode*)) const {
 
   if (current == 0) { return; }
   
@@ -536,7 +494,7 @@ void CBTree::traverse(CBNode* current, CBNode* parent,
 }
 
 void CBTree::traverseR(CBNode* current, CBNode* child, 
-                       void(*pf) (CBNode*, CBNode*)) const {
+		      void(*pf) (CBNode*, CBNode*)) const {
 
   if (current == 0) { return; }
   
@@ -560,6 +518,7 @@ CBNode* CBTree::traverse(CBNode* (*pf) (CBNode*)) const {
 
 }
 
+
 CBNode* CBTree::traverse(CBNode* current, CBNode* (*pf) (CBNode*)) const {
 
   CBNode *n = (*pf)(current);
@@ -573,7 +532,7 @@ CBNode* CBTree::traverse(CBNode* current, CBNode* (*pf) (CBNode*)) const {
     for (; citr != current->children().end(); ++citr) {
       c = traverse(*citr, pf );
       if (c != 0) {
-        return c;
+	return c;
       }
     }
   }
@@ -595,7 +554,7 @@ CBNode* CBTree::traverseR(CBNode* current, CBNode* (*pf) (CBNode*)) const {
     for (; citr != current->parents().end(); ++citr) {
       c = traverseR(*citr, pf );
       if (c != 0) {
-        return c;
+	return c;
       }
     }
   }
