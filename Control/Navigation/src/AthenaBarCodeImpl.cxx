@@ -294,7 +294,7 @@ AthenaBarCodeImpl::setBits(unsigned short startbit, unsigned short nbits,
       MsgStream msg(msgsvc, "AthenaBarCodeImpl");
       msg << MSG::WARNING << "setBits::bit to be set:" << id
           << " is larger than limit:" << ((~tmp2) >> (TotalBits - nbits))
-          << endmsg;
+          << endreq;
     }
     else {
       std::cout << "setBits::bit to be set:" << id << " is larger than limit:"
