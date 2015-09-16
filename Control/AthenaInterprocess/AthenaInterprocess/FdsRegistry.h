@@ -11,9 +11,9 @@
 namespace AthenaInterprocess {
 
   struct FdsRegistryEntry {
-    FdsRegistryEntry(int _fd, std::string _name)
-    : fd(_fd)
-    , name(_name) {}
+    FdsRegistryEntry(int the_fd, std::string the_name)
+    : fd(the_fd)
+    , name(the_name) {}
 
     int fd;
     std::string name;

@@ -45,8 +45,8 @@ namespace AthenaInterprocess {
   
   inline const std::string& UpdateAfterFork::type()
   {
-    static const std::string _type("UpdateAfterFork");
-    return _type;
+    static const std::string type("UpdateAfterFork");
+    return type;
   }
 }
 #endif
