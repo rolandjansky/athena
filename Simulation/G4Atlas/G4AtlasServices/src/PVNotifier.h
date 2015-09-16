@@ -6,18 +6,18 @@
 #define PVNotifier_H
 
 // Notifier class to prepend detector name to all G4 Physical Volumes
-// Only to be used by the G4GeometryNotifierSvc
+// Only to be used by the DetectorGeometrySvc
 
 #include "G4VNotifier.hh"
 
-class G4GeometryNotifierSvc;
+class DetectorGeometrySvc;
 
   class PVNotifier: public G4VNotifier {
-  friend class G4GeometryNotifierSvc;
+  friend class DetectorGeometrySvc;
   private:
-    PVNotifier(G4GeometryNotifierSvc*);
-
-    G4GeometryNotifierSvc* m_notifierSvc;
+    PVNotifier(DetectorGeometrySvc*);
+	
+	DetectorGeometrySvc* m_detGeoSvc;
   public:
     void NotifyRegistration();
     void NotifyDeRegistration();

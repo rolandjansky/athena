@@ -7,14 +7,14 @@
 
 #include "G4VNotifier.hh"
 
-class G4GeometryNotifierSvc;
+class DetectorGeometrySvc;
 
   class LVNotifier: public G4VNotifier {
-    friend class G4GeometryNotifierSvc;
+    friend class DetectorGeometrySvc;
   private:
-    LVNotifier(G4GeometryNotifierSvc *);
-
-    G4GeometryNotifierSvc* m_notifierSvc;
+    LVNotifier(DetectorGeometrySvc *);
+	
+	DetectorGeometrySvc* m_detGeoSvc;
   public:
     void NotifyRegistration();
     void NotifyDeRegistration();
