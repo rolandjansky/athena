@@ -172,6 +172,8 @@ LOBJECTS  = \
         $(OBJDIR)/ChainString.o \
         $(OBJDIR)/TrigInDetAnalysisDict.o
 
+LROBJECTS  = \
+	$(OBJDIR)/listroot.o \
 
 
 DICTHEADERS = \
@@ -241,6 +243,10 @@ $(EXEDIR)/cpucost : $(CCOBJECTS)  lib
 chains : $(EXEDIR)/chains  
 $(EXEDIR)/chains : $(CHOBJECTS)  lib
 	$(CXX) $(LDFLAGS) -o $@ $(CHOBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
+
+listroot : $(EXEDIR)/listroot  
+$(EXEDIR)/listroot : $(LROBJECTS)  lib
+	$(CXX) $(LDFLAGS) -o $@ $(LROBJECTS) $(LIBS) $(RLIBS) $(GLIBS)
 
 
 makeSmallRefFile : $(EXEDIR)/makeSmallRefFile

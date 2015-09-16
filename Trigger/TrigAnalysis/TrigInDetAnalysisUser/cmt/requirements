@@ -69,6 +69,17 @@ macro_append TIDArefit_cppflags      " -I../Resplot/src "
 macro_append TIDArefitlinkopts       " -lResplot  -lTIDA"
 macro_append TIDArefit_dependencies  " Resplot TIDA "
 
+application  TIDAlistroot  "../Analysis/src/listroot.cxx"
+macro_append TIDAlistroot_cppflags      " -I../Readcards/src "
+macro_append TIDAlistrootlinkopts       " -lReadcards "
+macro_append TIDAlistroot_dependencies  " Readcards " 
+
+# macro_append TIDAlistrootlinkopts       " -lResplot  -lTIDA"
+# macro_append TIDAlistroot_dependencies  " Resplot TIDA "
+
+
+
+
 
 application  TIDAmakeSmallRefFile       "../Analysis/src/makeSmallRefFile.cxx "
 macro_append TIDAmakeSmallRefFile_cppflags     " "

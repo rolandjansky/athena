@@ -1,6 +1,6 @@
 // emacs: this is -*- c++ -*-
 
-a0=5.;
+a0=4.;
 
 pT     = 3000;
 eta    = 2.5;
@@ -96,10 +96,14 @@ testChains = {
     "HLT_e24_medium_idperf:TrigFastTrackFinder_eGamma",
     "HLT_e24_medium_idperf:InDetTrigParticleCreation_Electron_EFID",
     "HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_EFID",
+    "HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig",
+    "HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
 
     "HLT_e5_loose_idperf:TrigFastTrackFinder_eGamma",
     "HLT_e5_loose_idperf:InDetTrigParticleCreation_Electron_EFID",
     "HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_EFID",
+    "HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig",
+    "HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_FTF",
 
     "HLT_mu24_L2Star_idperf:TrigL2SiTrackFinder_Muon:0",
     "HLT_mu24_L2Star_idperf:TrigL2SiTrackFinder_Muon:1",
