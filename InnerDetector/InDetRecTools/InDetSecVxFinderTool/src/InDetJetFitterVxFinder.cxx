@@ -98,43 +98,43 @@ namespace InDet
     StatusCode sc = AthAlgTool::initialize();
     if(sc.isFailure())
       {
-	msg(MSG::ERROR) << " Unable to initialize the AlgTool" << endmsg;
+	msg(MSG::ERROR) << " Unable to initialize the AlgTool" << endreq;
 	return sc;
       }
     
     //retrieving the udator itself 	 
     sc =  m_helper.retrieve();
     if(sc.isFailure()) 	  { 	 
-      msg(MSG::ERROR) << " Unable to retrieve "<<m_helper<<endmsg; 	 
+      msg(MSG::ERROR) << " Unable to retrieve "<<m_helper<<endreq; 	 
       return StatusCode::FAILURE; 	 
-    }else msg(MSG::INFO) << "JetFitter Helper retrieved"<<endmsg; 
+    }else msg(MSG::INFO) << "JetFitter Helper retrieved"<<endreq; 
     
     
     sc = m_initializationHelper.retrieve();
     if(sc.isFailure()) 	  { 	 
-      msg(MSG::ERROR) << " Unable to retrieve "<<m_initializationHelper<<endmsg; 	 
+      msg(MSG::ERROR) << " Unable to retrieve "<<m_initializationHelper<<endreq; 	 
       return StatusCode::FAILURE; 	 
-    }else msg(MSG::INFO) << "JetFitter Initialization Helper retrieved"<<endmsg; 
+    }else msg(MSG::INFO) << "JetFitter Initialization Helper retrieved"<<endreq; 
     
     sc = m_routines.retrieve();
     if(sc.isFailure()) 	  { 	 
-      msg(MSG::ERROR) << " Unable to retrieve the JetFitter routines"<<m_routines<<endmsg; 	 
+      msg(MSG::ERROR) << " Unable to retrieve the JetFitter routines"<<m_routines<<endreq; 	 
       return StatusCode::FAILURE; 	 
-    }else msg(MSG::INFO) << "JetFitter Routines class retrieved"<<endmsg; 
+    }else msg(MSG::INFO) << "JetFitter Routines class retrieved"<<endreq; 
 
     if(m_trkFilter.retrieve().isFailure()) {
-      msg(MSG::ERROR) << " Unable to retrieve "<<m_trkFilter<<endmsg;
+      msg(MSG::ERROR) << " Unable to retrieve "<<m_trkFilter<<endreq;
       return StatusCode::FAILURE;
-    } else msg(MSG::INFO) << "Track filter retrieved"<<endmsg; 
+    } else msg(MSG::INFO) << "Track filter retrieved"<<endreq; 
     
-    msg(MSG::INFO) << "Initialize successful" << endmsg;
+    msg(MSG::INFO) << "Initialize successful" << endreq;
     return StatusCode::SUCCESS;
   }
   
 
    StatusCode InDetJetFitterVxFinder::finalize() {
 
-    msg(MSG::INFO) <<  "Finalize successful" << endmsg;
+    msg(MSG::INFO) <<  "Finalize successful" << endreq;
     return StatusCode::SUCCESS;
 
   } 
@@ -165,11 +165,11 @@ namespace InDet
     std::vector<TrackParticle_pair>::const_iterator tracks2End=tracks.end();
     for (std::vector<TrackParticle_pair>::const_iterator tracks2Iter=tracks2Begin;
 	 tracks2Iter!=tracks2End;++tracks2Iter) {
-      	if (msgLvl(MSG::VERBOSE)) msg() << " track: " << (*tracks2Iter).first << " and : " <<  (*tracks2Iter).second << endmsg;
+      	if (msgLvl(MSG::VERBOSE)) msg() << " track: " << (*tracks2Iter).first << " and : " <<  (*tracks2Iter).second << endreq;
       
       tracksToAdd.push_back((*tracks2Iter).second);
       if (tracksToAdd.size() % m_maxTracksToFitAtOnce == 0) {
-        if (msgLvl(MSG::VERBOSE)) msg() << " new bunch " << endmsg;
+        if (msgLvl(MSG::VERBOSE)) msg() << " new bunch " << endreq;
 	bunchesOfTracks.push_back(tracksToAdd);
 	tracksToAdd.clear();
       }
@@ -191,12 +191,12 @@ namespace InDet
 	 BunchesIter!=BunchesEnd;++BunchesIter) {
       
       if (BunchesIter==BunchesBegin) {
-        if (msgLvl(MSG::VERBOSE)) msg() <<  " initial fit with  " << (*BunchesIter).size() << " tracks " << endmsg;
+        if (msgLvl(MSG::VERBOSE)) msg() <<  " initial fit with  " << (*BunchesIter).size() << " tracks " << endreq;
 	myJetCandidate=m_initializationHelper->initializeJetCandidate(*BunchesIter,&primaryVertex,&myDirection);
 	m_routines->initializeToMinDistancesToJetAxis(myJetCandidate);
 	doTheFit(myJetCandidate);
       } else {
-        if (msgLvl(MSG::VERBOSE)) msg() << " other fit with " << (*BunchesIter).size() << " tracks " << endmsg;
+        if (msgLvl(MSG::VERBOSE)) msg() << " other fit with " << (*BunchesIter).size() << " tracks " << endreq;
 	std::vector<Trk::VxVertexOnJetAxis*> setOfVertices=myJetCandidate->getVerticesOnJetAxis();
 	std::vector<Trk::VxTrackAtVertex*>* setOfTracks=myJetCandidate->vxTrackAtVertex();
 	tracksToAddBegin=(*BunchesIter).begin();
@@ -211,7 +211,7 @@ namespace InDet
 	  setOfTracks->push_back(newVxTrack);
 	  setOfVertices.push_back(new Trk::VxVertexOnJetAxis(temp_vector_tracksAtVertex));
 	}
-        if (msgLvl(MSG::VERBOSE)) msg() << " new overall number of tracks to fit : " << setOfVertices.size() << endmsg;
+        if (msgLvl(MSG::VERBOSE)) msg() << " new overall number of tracks to fit : " << setOfVertices.size() << endreq;
 	myJetCandidate->setVerticesOnJetAxis(setOfVertices);
 	m_initializationHelper->updateTrackNumbering(myJetCandidate);
 	doTheFit(myJetCandidate);
@@ -243,7 +243,7 @@ namespace InDet
     std::vector<const Trk::TrackParticleBase*>::const_iterator tracks2End=firstInputTracks.end();
     for (std::vector<const Trk::TrackParticleBase*>::const_iterator tracks2Iter=tracks2Begin;
 	 tracks2Iter!=tracks2End;++tracks2Iter) {
-      if (msgLvl(MSG::VERBOSE)) msg() << " adding track to fit " << endmsg;
+      if (msgLvl(MSG::VERBOSE)) msg() << " adding track to fit " << endreq;
       tracksToAdd.push_back(*tracks2Iter);
     }
     
@@ -254,7 +254,7 @@ namespace InDet
     std::vector<const Trk::TrackParticleBase*>::const_iterator tracks3End=secondInputTracks.end();
     for (std::vector<const Trk::TrackParticleBase*>::const_iterator tracks3Iter=tracks3Begin;
 	 tracks3Iter!=tracks3End;++tracks3Iter) {
-      if (msgLvl(MSG::VERBOSE)) msg() << " adding track to fit " << endmsg;
+      if (msgLvl(MSG::VERBOSE)) msg() << " adding track to fit " << endreq;
       tracksToAdd.push_back(*tracks3Iter);
     }
 
@@ -284,7 +284,7 @@ namespace InDet
 	 BunchesIter!=BunchesEnd;++BunchesIter) {
       
       if (BunchesIter==BunchesBegin) {
-        if (msgLvl(MSG::VERBOSE)) msg() << " initial fit with  " << (*BunchesIter).size() << " tracks " << endmsg;
+        if (msgLvl(MSG::VERBOSE)) msg() << " initial fit with  " << (*BunchesIter).size() << " tracks " << endreq;
 	myJetCandidate=m_initializationHelper->initializeJetCandidate(*BunchesIter,&primaryVertex,&myDirection,&vtxSeedDirection);
 	m_routines->initializeToMinDistancesToJetAxis(myJetCandidate);
         if ((*BunchesIter).size()>0) 
@@ -292,7 +292,7 @@ namespace InDet
           doTheFit(myJetCandidate,true);
         }
       } else {
-        if (msgLvl(MSG::VERBOSE)) msg() <<  " other fit with " << (*BunchesIter).size() << " tracks " << endmsg;
+        if (msgLvl(MSG::VERBOSE)) msg() <<  " other fit with " << (*BunchesIter).size() << " tracks " << endreq;
 	std::vector<Trk::VxVertexOnJetAxis*> setOfVertices=myJetCandidate->getVerticesOnJetAxis();
 	std::vector<Trk::VxTrackAtVertex*>* setOfTracks=myJetCandidate->vxTrackAtVertex();
 	tracksToAddBegin=(*BunchesIter).begin();
@@ -307,7 +307,7 @@ namespace InDet
 	  setOfTracks->push_back(newVxTrack);
 	  setOfVertices.push_back(new Trk::VxVertexOnJetAxis(temp_vector_tracksAtVertex));
 	}
-        if (msgLvl(MSG::VERBOSE)) msg() << " new overall number of tracks to fit : " << setOfVertices.size() << endmsg;
+        if (msgLvl(MSG::VERBOSE)) msg() << " new overall number of tracks to fit : " << setOfVertices.size() << endreq;
 	myJetCandidate->setVerticesOnJetAxis(setOfVertices);
 	m_initializationHelper->updateTrackNumbering(myJetCandidate);
 	m_routines->initializeToMinDistancesToJetAxis(myJetCandidate);
@@ -332,7 +332,7 @@ namespace InDet
 
     do {//reguards clustering
 
-      if (msgLvl(MSG::VERBOSE)) msg() << "InDetJetFitterVxFinder:      ------>>>>         new cycle of fit" << endmsg;
+      if (msgLvl(MSG::VERBOSE)) msg() << "InDetJetFitterVxFinder:      ------>>>>         new cycle of fit" << endreq;
 
       int numLoops=0;
       bool noMoreTracksToDelete(false);
@@ -352,7 +352,7 @@ namespace InDet
 	for (std::vector<Trk::VxVertexOnJetAxis*>::const_iterator verticesIter=verticesBegin;
 	     verticesIter!=verticesEnd;++verticesIter) {
 	  if (*verticesIter==0) {
-	    if (msgLvl(MSG::WARNING)) msg() <<  "One vertex is empy. Problem when trying to delete incompatible vertices. No further vertices deleted." << endmsg;
+	    if (msgLvl(MSG::WARNING)) msg() <<  "One vertex is empy. Problem when trying to delete incompatible vertices. No further vertices deleted." << endreq;
 	  } else {
 	    const Trk::FitQuality & fitQuality=(*verticesIter)->fitQuality();
 	    if (TMath::Prob(fitQuality.chiSquared(),(int)std::floor(fitQuality.numberDoF()+0.5))<max_prob) {
@@ -362,17 +362,17 @@ namespace InDet
 	  }
 	}
 	if (max_prob<m_vertexProbCut) {
-	  if (msgLvl(MSG::DEBUG)) msg() << "Deleted vertex " << worseVertex->getNumVertex() << " with probability " << max_prob << endmsg;
+	  if (msgLvl(MSG::DEBUG)) msg() << "Deleted vertex " << worseVertex->getNumVertex() << " with probability " << max_prob << endreq;
 	  //	  std::cout << "Deleted vertex " << worseVertex->getNumVertex() << " with probability " << max_prob << std::endl;
 	  if (worseVertex==myJetCandidate->getPrimaryVertex()) {
-            if (msgLvl(MSG::INFO)) msg() << " The most incompatible vertex is the primary vertex. Please check..." << endmsg;
+            if (msgLvl(MSG::INFO)) msg() << " The most incompatible vertex is the primary vertex. Please check..." << endreq;
 	  }
 
 	  m_routines->deleteVertexFromJetCandidate(worseVertex,myJetCandidate);
 
 	} else {
 	  noMoreTracksToDelete=true;
-	  if (msgLvl(MSG::VERBOSE)) msg() << "No tracks to delete: maximum probability is " << max_prob << endmsg;
+	  if (msgLvl(MSG::VERBOSE)) msg() << "No tracks to delete: maximum probability is " << max_prob << endreq;
 	}
 	
 	numLoops+=1;
@@ -391,11 +391,11 @@ namespace InDet
       
 
       if (clusteringTablePtr==0) {
-	if (msgLvl(MSG::WARNING)) msg() <<  " No Clustering Table while it should have been calculated... no more clustering performed during vertexing " << endmsg;
+	if (msgLvl(MSG::WARNING)) msg() <<  " No Clustering Table while it should have been calculated... no more clustering performed during vertexing " << endreq;
 	noMoreVerticesToCluster=true;
       } else {
 
-	if (msgLvl(MSG::VERBOSE)) msg() << " clustering table is " << *clusteringTablePtr << endmsg;
+	if (msgLvl(MSG::VERBOSE)) msg() << " clustering table is " << *clusteringTablePtr << endreq;
 
 	//now iterate over the full map and decide wether you want to do the clustering OR not...
 	float probVertex(0.);
@@ -404,7 +404,7 @@ namespace InDet
 	
 	if (probVertex>0.&&probVertex>m_vertexClusteringProbabilityCut) {
 	  if (msgLvl(MSG::VERBOSE)) msg() << " merging vtx number " << (*pairOfVxVertexOnJetAxis.first).getNumVertex() << 
-	    " and " << (*pairOfVxVertexOnJetAxis.second).getNumVertex() << endmsg;
+	    " and " << (*pairOfVxVertexOnJetAxis.second).getNumVertex() << endreq;
 	  //	  const Trk::VxVertexOnJetAxis & mergedVertex=
 	  m_helper->mergeVerticesInJetCandidate(*pairOfVxVertexOnJetAxis.first,
 						*pairOfVxVertexOnJetAxis.second,
