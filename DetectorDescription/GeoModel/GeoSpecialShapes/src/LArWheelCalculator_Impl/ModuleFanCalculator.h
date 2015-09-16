@@ -19,11 +19,11 @@ namespace LArWheelCalculator_Impl {
 	  ModuleFanCalculator(LArWheelCalculator* lwc, IRDBAccessSvc* rdbAccess, const DecodeVersionKey & larVersionKey);
 	  
   // geometry methods:
-	  virtual double DistanceToTheNearestFan(CLHEP::Hep3Vector &p) const;
+	  virtual double DistanceToTheNearestFan(CLHEP::Hep3Vector &p, int & out_fan_number) const;
 	  virtual int PhiGapNumberForWheel(int i) const;
 	  virtual std::pair<int, int> GetPhiGapAndSide(const CLHEP::Hep3Vector &p) const;
 
-	  inline LArWheelCalculator *lwc() const { return m_lwc; };
+	  inline const LArWheelCalculator *lwc() const { return m_lwc; };
 
 	private:
 	  LArWheelCalculator* m_lwc;

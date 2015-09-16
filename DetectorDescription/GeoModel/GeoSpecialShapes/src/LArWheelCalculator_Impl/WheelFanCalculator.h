@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __LArWheelCalculator_Impl_WheelFanCalculator_H__
-#define __LArWheelCalculator_Impl_WheelFanCalculator_H__
+#ifndef LARWHEELCALCULATOR_IMPL_WHEELFANCALCULATOR_H
+#define LARWHEELCALCULATOR_IMPL_WHEELFANCALCULATOR_H
 
 // This is an interface of distance calculation to parts of the LAr endcap.
 
@@ -13,7 +13,6 @@
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 
 #include "GaudiKernel/PhysicalConstants.h"
-using namespace Gaudi::Units;
 
 #ifdef HARDDEBUG
 #undef HARDDEBUG
@@ -32,17 +31,17 @@ class DistanceToTheNeutralFibre_OfFan {
 template<>
 class DistanceToTheNeutralFibre_OfFan<SaggingOn_t> {
   public:
-	static inline double calculate(LArWheelCalculator* _lwc, int fan_number,     CLHEP::Hep3Vector &p) {
-		_lwc->set_m_fan_number(fan_number);
-		return _lwc->DistanceToTheNeutralFibre(p);
+	static inline double calculate(const LArWheelCalculator* lwc, int fan_number,     CLHEP::Hep3Vector &p) {
+		//lwc->set_m_fan_number(fan_number);
+		return lwc->DistanceToTheNeutralFibre(p, lwc->adjust_fan_number(fan_number));
 	}
 };
 
 template<>
 class DistanceToTheNeutralFibre_OfFan<SaggingOff_t> {
   public:
-	static inline double calculate(LArWheelCalculator* _lwc, int /*fan_number*/, CLHEP::Hep3Vector &p) {
-		return _lwc->DistanceToTheNeutralFibre(p);
+	static inline double calculate(const LArWheelCalculator* lwc, int /*fan_number*/, CLHEP::Hep3Vector &p) {
+		return lwc->DistanceToTheNeutralFibre(p, -531135); // saggingOff distance calculations does not use fan_number, use arbitrary recognisible magic number
 	}
 };
 
@@ -106,11 +105,11 @@ template <>
 };
 
 template <typename SaggingType, FanSearchDirection_t dir, class NFDistance >
- inline void rotate_to_nearest_fan(LArWheelCalculator* _lwc, int &fan_number, const double angle, CLHEP::Hep3Vector &p) {
+ inline void rotate_to_nearest_fan(const LArWheelCalculator* lwc, int &fan_number, const double angle, CLHEP::Hep3Vector &p) {
 		p.rotateZ(angle);
 		StepFan<SaggingType, dir>::next(fan_number);
 		//fan_number += delta;
-		double d1 = NFDistance::calculate(_lwc, fan_number, p);
+		double d1 = NFDistance::calculate(lwc, fan_number, p);
 
 		//while(d0 * d1 > 0.) -> dir*d1 > 0 -> FORWARD: d1 > 0., BACKWARD: d1 < 0.
 
@@ -119,13 +118,10 @@ template <typename SaggingType, FanSearchDirection_t dir, class NFDistance >
 			StepFan<SaggingType, dir>::next(fan_number);
 			//fan_number += delta;
 
-			d1 = NFDistance::calculate(_lwc, fan_number, p);
+			d1 = NFDistance::calculate(lwc, fan_number, p);
 			//lwc()->set_m_fan_number(fan_number);
 			//d1 = lwc()->DistanceToTheNeutralFibre(p);
 
-	#ifdef HARDDEBUG
-		printf("DistanceToTheNearestFan: step FN %4d %4d\n", fan_number, _lwc->m_fan_number);
-	#endif
 		}
 	// if signs of d1 and d0 are different, the point is between current pair
 		StepFan<SaggingType, dir>::adjust(fan_number);
@@ -141,7 +137,8 @@ template <typename SaggingType, FanSearchDirection_t dir, class NFDistance >
 	  }
 
   // geometry methods:
-	  virtual double DistanceToTheNearestFan(CLHEP::Hep3Vector &p) const {
+	  virtual double DistanceToTheNearestFan(CLHEP::Hep3Vector &p, int & out_fan_number) const {
+                using Gaudi::Units::halfpi;
 		int fan_number = int((p.phi() - halfpi - lwc()->m_ZeroFanPhi_ForDetNeaFan) / lwc()->m_FanStepOnPhi);
 		const double angle = lwc()->m_FanStepOnPhi * fan_number + lwc()->m_ZeroFanPhi_ForDetNeaFan;
 	#ifdef HARDDEBUG
@@ -190,10 +187,8 @@ template <typename SaggingType, FanSearchDirection_t dir, class NFDistance >
 		printf("DistanceToTheNearestFan: final FN %4d\n", fan_number);
 	#endif
 
-		//return NFDistance::calculate(lwc(), fan_number, p);
-		// ensure the correct value of LArWheelCalculator::m_fan_number for code that relies on side effects
-		lwc()->set_m_fan_number(fan_number);
-		return lwc()->DistanceToTheNeutralFibre(p);
+		out_fan_number = lwc()->adjust_fan_number(fan_number);
+		return lwc()->DistanceToTheNeutralFibre(p, out_fan_number);
 	  }
 
 	  virtual int PhiGapNumberForWheel(int i) const {
@@ -201,6 +196,7 @@ template <typename SaggingType, FanSearchDirection_t dir, class NFDistance >
 	  }
 
 	  virtual std::pair<int, int> GetPhiGapAndSide(const CLHEP::Hep3Vector &p) const {
+                using Gaudi::Units::halfpi;
 		CLHEP::Hep3Vector p1 = p;
 
 		int fan_number = int((p.phi() - halfpi - lwc()->m_ZeroFanPhi) / lwc()->m_FanStepOnPhi);
@@ -231,17 +227,16 @@ template <typename SaggingType, FanSearchDirection_t dir, class NFDistance >
 
 		p1.rotateZ(-0.5 * step_angle);
 
-		// ensure the correct value of LArWheelCalculator::m_fan_number for code that relies on side effects
-		lwc()->set_m_fan_number(fan_number);
-		double dd = lwc()->DistanceToTheNeutralFibre(p1);
+		const int a_fan_number = lwc()->adjust_fan_number(fan_number);
+		double dd = lwc()->DistanceToTheNeutralFibre(p1, a_fan_number);
 		int side = dd < 0.? -1: 1;
 	#ifdef HARDDEBUG
-		printf("GetPhiGapAndSide: MFN %4d\n", lwc()->m_fan_number);
+		printf("GetPhiGapAndSide: MFN %4d\n", a_fan_number);
 	#endif
-		return std::pair<int, int>(lwc()->m_fan_number, side);
+		return std::pair<int, int>(a_fan_number, side);
 	  }
 
-	  inline LArWheelCalculator *lwc() const { return m_lwc; };
+	  inline const LArWheelCalculator *lwc() const { return m_lwc; };
 
 	private:
 	  LArWheelCalculator* m_lwc;
@@ -249,4 +244,4 @@ template <typename SaggingType, FanSearchDirection_t dir, class NFDistance >
   };
 
 }
-#endif // __LArWheelCalculator_Impl_WheelFanCalculator_H__
+#endif // LARWHEELCALCULATOR_IMPL_WHEELFANCALCULATOR_H

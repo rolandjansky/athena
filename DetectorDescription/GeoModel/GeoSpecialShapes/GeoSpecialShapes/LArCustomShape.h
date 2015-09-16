@@ -6,16 +6,25 @@
 #define LArCustomShape_h
 
 #include <string>
+#include <map>
+
+#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/StatusCode.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include "GeoModelKernel/GeoShape.h"
+#include "GeoSpecialShapes/LArWheelCalculator.h"
+
 
 // Forward declaration
 class GeoShapeAction;
-class LArWheelCalculator;
+//class LArWheelCalculator;
 
-class LArCustomShape : public GeoShape
-{
+class LArCustomShape : public GeoShape {
  public:
+  	typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
+  	typedef std::pair<LArWheelCalculator::LArWheelCalculator_t, int> CalcDef_t;
+  	typedef std::map<std::string,  CalcDef_t> ShapeCalc_typemap;
 
   // The custom shape has only one property: a string that contains
   // the name of the particular shape.  In the GeoModel->Geant4
@@ -48,18 +57,25 @@ class LArCustomShape : public GeoShape
   //	Executes a GeoShapeAction
   virtual void exec(GeoShapeAction* action) const;
 
+  /** @brief The standard @c StoreGateSvc/DetectorStore
+    * Returns (kind of) a pointer to the @c StoreGateSvc
+    */
+   StoreGateSvc_t& detStore() const;
+
  protected:
   virtual ~LArCustomShape();
   
  private:
-  
+  StatusCode createCalculator(const CalcDef_t & cdef);
+	  
   // Prohibited operations.
   LArCustomShape(const LArCustomShape &right);
   const LArCustomShape & operator=(const LArCustomShape &right);
 
   // General GeoModel shape attributes.
-  static const std::string classType;
-  static const ShapeType classTypeID;
+  static const std::string s_classType;
+  static const ShapeType s_classTypeID;
+  static const ShapeCalc_typemap s_calculatorTypes;
 
   // Properties of the custom shape.
   const std::string m_shapeName;
@@ -68,16 +84,20 @@ class LArCustomShape : public GeoShape
   const LArWheelCalculator *m_calculator;
 
 
+   /// Pointer to StoreGate (detector store by default)
+   mutable StoreGateSvc_t m_detStore;
+
 };
 
-inline const std::string& LArCustomShape::getClassType()
-{
-  return classType;
+inline const std::string& LArCustomShape::getClassType() {
+  return s_classType;
 }
 
-inline ShapeType LArCustomShape::getClassTypeID()
-{
-  return classTypeID;
+inline ShapeType LArCustomShape::getClassTypeID() {
+  return s_classTypeID;
 }
 
+inline ServiceHandle<StoreGateSvc>& LArCustomShape::detStore() const  {
+	return m_detStore;
+}
 #endif 

@@ -19,11 +19,11 @@ namespace LArWheelCalculator_Impl {
 	  DistanceCalculatorSaggingOff(LArWheelCalculator* lwc, IRDBAccessSvc* rdbAccess, const DecodeVersionKey & larVersionKey);
 
   // geometry methods:
-	  virtual double DistanceToTheNeutralFibre(const CLHEP::Hep3Vector &p) const;
-	  virtual double DistanceToTheNeutralFibre_ref(const CLHEP::Hep3Vector &p) const;
-	  virtual CLHEP::Hep3Vector NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &p) const;
-	  virtual CLHEP::Hep3Vector NearestPointOnNeutralFibre_ref(const CLHEP::Hep3Vector &p) const;
-	  virtual double AmplitudeOfSurface(const CLHEP::Hep3Vector& P, int side) const;
+	  virtual double DistanceToTheNeutralFibre(const CLHEP::Hep3Vector &p, int fan_number) const;
+	  virtual double DistanceToTheNeutralFibre_ref(const CLHEP::Hep3Vector &p, int fan_number) const;
+	  virtual CLHEP::Hep3Vector NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &p, int fan_number) const;
+	  virtual CLHEP::Hep3Vector NearestPointOnNeutralFibre_ref(const CLHEP::Hep3Vector &p, int fan_number) const;
+	  virtual double AmplitudeOfSurface(const CLHEP::Hep3Vector& P, int side, int fan_number) const;
 
   // Return the calculator:
 	  inline const LArWheelCalculator *lwc() const { return m_lwc; };

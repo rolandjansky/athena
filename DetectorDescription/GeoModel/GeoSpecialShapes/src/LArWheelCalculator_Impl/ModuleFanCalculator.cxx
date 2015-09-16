@@ -19,7 +19,7 @@ namespace LArWheelCalculator_Impl {
     {
     }
 
-	double ModuleFanCalculator::DistanceToTheNearestFan(CLHEP::Hep3Vector &p) const {
+	double ModuleFanCalculator::DistanceToTheNearestFan(CLHEP::Hep3Vector &p, int & out_fan_number) const {
 		int fan_number = int((p.phi() - halfpi - lwc()->m_ZeroFanPhi_ForDetNeaFan) / lwc()->m_FanStepOnPhi);
 		double angle = lwc()->m_FanStepOnPhi * fan_number + lwc()->m_ZeroFanPhi_ForDetNeaFan;
 	#ifdef HARDDEBUG
@@ -27,8 +27,7 @@ namespace LArWheelCalculator_Impl {
 	#endif
 		p.rotateZ(-angle);
 	// determine search direction
-		lwc()->set_m_fan_number(fan_number);
-		double d0 = lwc()->DistanceToTheNeutralFibre(p);
+		double d0 = lwc()->DistanceToTheNeutralFibre(p, lwc()->adjust_fan_number(fan_number));
 		double d1 = d0;
 		int delta = 1;
 		if(d0 < 0.) delta = -1; // search direction has been determined
@@ -36,29 +35,23 @@ namespace LArWheelCalculator_Impl {
 		do { // search:
 			p.rotateZ(angle);
 			fan_number += delta;
-			lwc()->set_m_fan_number(fan_number);
-	#ifdef HARDDEBUG
-		printf("DistanceToTheNearestFan: step FN %4d %4d\n", fan_number, lwc()->m_fan_number);
-	#endif
-			d1 = lwc()->DistanceToTheNeutralFibre(p);
+			d1 = lwc()->DistanceToTheNeutralFibre(p, lwc()->adjust_fan_number(fan_number));
 		} while(d0 * d1 > 0.);
 	// if signs of d1 and d0 are different, the point is between current pair
 		if(delta > 0) fan_number --;
 
-		lwc()->m_fan_number = fan_number;
-		if(lwc()->m_fan_number < lwc()->m_FirstFan) {
-			p.rotateZ((lwc()->m_fan_number - lwc()->m_FirstFan) * lwc()->m_FanStepOnPhi);
-			lwc()->m_fan_number = lwc()->m_FirstFan;
-		} else if(lwc()->m_fan_number >= lwc()->m_LastFan) {
-			p.rotateZ((lwc()->m_fan_number - lwc()->m_LastFan + 1) * lwc()->m_FanStepOnPhi);
-			lwc()->m_fan_number = lwc()->m_LastFan - 1;
+		int adj_fan_number = fan_number;
+		if(adj_fan_number < lwc()->m_FirstFan) {
+			p.rotateZ((adj_fan_number - lwc()->m_FirstFan) * lwc()->m_FanStepOnPhi);
+			adj_fan_number = lwc()->m_FirstFan;
+		} else if(adj_fan_number >= lwc()->m_LastFan) {
+			p.rotateZ((adj_fan_number - lwc()->m_LastFan + 1) * lwc()->m_FanStepOnPhi);
+			adj_fan_number = lwc()->m_LastFan - 1;
 		}
 
 		p.rotateZ(-0.5 * angle);
-	#ifdef HARDDEBUG
-		printf("DistanceToTheNearestFan: final MFN %4d\n", lwc()->m_fan_number);
-	#endif
-		return lwc()->DistanceToTheNeutralFibre(p);
+		out_fan_number = adj_fan_number;
+		return lwc()->DistanceToTheNeutralFibre(p, adj_fan_number);
 	}
 
 	int ModuleFanCalculator::PhiGapNumberForWheel(int i) const {
@@ -78,8 +71,7 @@ namespace LArWheelCalculator_Impl {
 		double angle = lwc()->m_FanStepOnPhi * fan_number + lwc()->m_ZeroFanPhi;
 		p1.rotateZ(-angle);
 
-		lwc()->set_m_fan_number(fan_number);
-		double d0 = lwc()->DistanceToTheNeutralFibre(p1);
+		double d0 = lwc()->DistanceToTheNeutralFibre(p1, lwc()->adjust_fan_number(fan_number));
 		double d1 = d0;
 
 		int delta = 1;
@@ -88,22 +80,21 @@ namespace LArWheelCalculator_Impl {
 		do {
 			p1.rotateZ(angle);
 			fan_number += delta;
-			lwc()->set_m_fan_number(fan_number);
-			d1 = lwc()->DistanceToTheNeutralFibre(p1);
+			d1 = lwc()->DistanceToTheNeutralFibre(p1, lwc()->adjust_fan_number(fan_number));
 		} while(d0 * d1 > 0.);
 		if(delta > 0) fan_number --;
 		if(!lwc()->m_isElectrode) fan_number ++;
 
-		lwc()->m_fan_number = fan_number;
-		if(lwc()->m_fan_number < lwc()->m_FirstFan) lwc()->m_fan_number = lwc()->m_FirstFan - 1;
-		else if(lwc()->m_fan_number > lwc()->m_LastFan) lwc()->m_fan_number = lwc()->m_LastFan;
+		int adj_fan_number = fan_number;
+		if(adj_fan_number < lwc()->m_FirstFan) adj_fan_number = lwc()->m_FirstFan - 1;
+		else if(adj_fan_number > lwc()->m_LastFan) adj_fan_number = lwc()->m_LastFan;
 
 		p1.rotateZ(-0.5 * angle);
-		double dd = lwc()->DistanceToTheNeutralFibre(p1);
+		double dd = lwc()->DistanceToTheNeutralFibre(p1, adj_fan_number);
 		int side = dd < 0.? -1: 1;
 	#ifdef HARDDEBUG
-		printf("GetPhiGapAndSide: MFN %4d\n", lwc()->m_fan_number);
+		printf("GetPhiGapAndSide: MFN %4d\n", adj_fan_number);
 	#endif
-		return std::pair<int, int>(lwc()->m_fan_number, side);
+		return std::pair<int, int>(adj_fan_number, side);
 	}
 }

@@ -15,7 +15,7 @@ namespace LArWheelCalculator_Impl {
 	virtual ~IFanCalculator() {};
   // geometry methods:
 
-	virtual double DistanceToTheNearestFan(CLHEP::Hep3Vector &p) const = 0;
+	virtual double DistanceToTheNearestFan(CLHEP::Hep3Vector &p, int & out_fan_number) const = 0;
 	virtual int PhiGapNumberForWheel(int i) const = 0;
 	virtual std::pair<int, int> GetPhiGapAndSide(const CLHEP::Hep3Vector &p) const = 0;
 
