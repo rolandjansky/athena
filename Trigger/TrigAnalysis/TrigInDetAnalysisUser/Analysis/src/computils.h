@@ -15,13 +15,9 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <cstdio>
-#include <cstdlib>
 
 #include "label.h"
-#include "utils.h"
 #include "DrawLabel.h" 
-
 
 #include "TStyle.h"
 #include "TPad.h"
@@ -41,9 +37,7 @@ void myText( Double_t x, Double_t y, Color_t color, const std::string& text, Dou
 std::string stime();
 static std::string release;
 
-void Norm( TH1* h, double scale=1 );
 
-double Entries( TH1* h );
 
 /// does a string contain the substring
 bool contains( const std::string& s, const std::string& p);
@@ -69,11 +63,6 @@ void contents( std::vector<std::string>& keys,
 double realmax( TH1* h, bool include_error=true, double lo=0, double hi=0 );
 double realmin( TH1* h, bool include_error=true, double lo=0, double hi=0 );
 
-
-double plotable( TH1* h ); // , double xlo=-999, double xhi=-999 );
-
-
-
 template<typename T>
 std::ostream& operator<<( std::ostream& s, std::vector<T>& v) { 
   for ( unsigned i=0 ; i<v.size() ; i++ ) s << "\t" << v[i];
@@ -85,164 +74,8 @@ std::ostream& operator<<( std::ostream& s, std::vector<T>& v) {
 std::vector<int>    findxrange(TH1* h, bool symmetric=false );
 std::vector<double> findxrangeuser(TH1* h, bool symmetric=false );
 
-
-void xrange(TH1* h, bool symmetric=true );
-
-
-
-/// class to store information about axes, limits, whether it is 
-/// log or linear scale etc
-
-class AxisInfo { 
-
-public:
-
-  AxisInfo( const std::string& s ) : 
-    m_info(s), 
-    m_log(false),
-    m_autoset(false),
-    m_symmetric(false),
-    m_rangeset(false),
-    m_lo(0),
-    m_hi(0),
-    m_norm(false),
-    m_binwidth(false)
-  { 
-    //    std::cout << "AxisInfo::info" << m_info << std::endl;
-
-    std::vector<std::string> keys = split( s, ":" );
-    
-    //    std::cout << "\n\n" << s << "\nnkeys " << keys.size() << std::endl; 
-
-    if ( keys.size()>0 ) m_tag = keys[0];
-    
-    bool minset = false;
-    //  bool maxset = false;
-    
-    for ( size_t i=1 ; i<keys.size() ; i++ ) { 
-      
-      if       ( keys[i]=="lin" )   m_log       = false;
-      else if  ( keys[i]=="log" )   m_log       = true;
-      else if  ( keys[i]=="sym" )   m_symmetric = true; 
-      else if  ( keys[i]=="norm" )  m_norm      = true;
-      else if  ( keys[i]=="width" ) m_binwidth  = true;
-      else if  ( keys[i]=="auto" )  m_autoset   = true;
-      else if  ( keys[i]=="auton" )  {
-	m_autoset = true;
-	m_norm    = true;
-      }
-      else if  ( keys[i]=="autow" )  {
-	m_autoset  = true;
-	m_binwidth = true;
-      }
-      else if  ( keys[i]=="autown" || keys[i]=="autonw" ) {
-	m_autoset  = true;
-	m_norm     = true;
-	m_binwidth = true;
-      }
-      else if  ( keys[i]=="autosym" ) { 
-	m_autoset = true; 
-	m_symmetric = true; 
-      }
-      else if  ( keys[i]=="normw" ||  keys[i]=="widthn" )  {
-	m_norm     = true;
-	m_binwidth = true;
-      }
-      else if  ( !minset )  { 
-	m_lo = std::atof(keys[i].c_str());
-	i++;
-	if ( i<keys.size() ) m_hi = std::atof(keys[i].c_str());
-	else {
-	  std::cerr << "not enough values for the axis range: " << s << std::endl;
-	  std::exit(-1);
-	}
-	minset = true;
-	// maxset = true;
-	m_rangeset = true;
-      }
-    }
-        
-#if 0
-    std::cout << "AxisInfo::info" << m_info << "\n";
-    std::cout << "\tlog   " << m_log       << "\n";
-    std::cout << "\tauto  " << m_autoset   << "\n";
-    std::cout << "\tsym   " << m_symmetric << "\n";
-    std::cout << "\trange " << m_rangeset << " : " << m_lo << " - " << m_hi << std::endl;
-#endif
-
-  }
-  
-  /// accessors 
-
-  std::string tag() const { return m_tag; }
-
-  bool   log()  const { return m_log; }
-
-  bool   autoset() const { return m_autoset; }
-
-  bool   normset() const { return m_norm; }
-  
-  bool   symmetric() const { return m_symmetric; }
-
-  bool   rangeset() const { return m_rangeset; }
-
-  double lo() const { return m_lo; } 
-  double hi() const { return m_hi; } 
-  
-  double binwidth() const { return m_binwidth; }
-
-public:
-
-  static std::vector<std::string> split( const std::string& s, const std::string& t=":"  ) {
-    
-    std::string _s = s;
-    size_t pos = _s.find(t);
-    
-    std::vector<std::string> tags;
-    
-    while ( pos!=std::string::npos ) { 
-      tags.push_back( chop(_s,t) );
-      pos = _s.find(t);
-    }
-    
-    tags.push_back(_s);
-    
-    return tags;
-  } 
-  
-
-public:
-
-  std::string m_info;
-  
-  std::string m_tag;
-
-  bool   m_log;
-  bool   m_autoset;
-  bool   m_symmetric;
-
-  bool   m_rangeset;
-  double m_lo; 
-  double m_hi;
-
-  bool m_norm;
-  
-  bool m_binwidth;
-  
-};
-
-
-inline std::ostream& operator<<( std::ostream& s, const AxisInfo& a ) { 
-  s << "[ " << a.tag() << ( a.log() ? " : log" : "" ) << " ";
-  if      (  a.autoset() ) s << " : auto";
-  else if ( a.rangeset() ) s << " : range " << a.lo() << " - " << a.hi();
-  s << " ]";
-  return s; 
-}
-
-
-
-
+void xrange(TH1* h, bool symmetric=false );
+void xrangeuser(TH1* h, bool symmetric=false );
 
 
 
@@ -345,8 +178,6 @@ public:
 
     Legend leg = _leg;
 
-    //    std::cout << "\thref() " << href() << "\thtest() " << htest() << std::endl;  
-
     if ( htest() ) {
       gStyle->SetOptStat(0);
       if ( href() ) { 
@@ -360,13 +191,10 @@ public:
       htest()->SetMarkerColor(htest()->GetLineColor());
       htest()->SetMarkerStyle(markers[i%6]);
 
-      //      std::cout << "Draw() href() " << href() << "\thtest() " << htest() << "\ttgtest() " << tgtest();
-      if ( htest() ) std::cout << "\tentries " << plotable( htest() );
-      std::cout << std::endl;
+
 
       if(first)  { 
-	if ( plotref && href() ) {
-	  href()->GetXaxis()->SetMoreLogLabels(true);
+	if ( plotref && href() ) { 
 	  href()->Draw("hist][");
 	  //	  if ( tgref() ) { 
 	  //	    setParameters( href(), tgref() );
@@ -375,16 +203,12 @@ public:
 	else    {
 	  if ( tgtest() ) { 
 	    zeroErrors(htest());
-	    htest()->GetXaxis()->SetMoreLogLabels(true);
 	    htest()->Draw("ep");
 	    setParameters( htest(), tgtest() );
 	    // tgtest()->Draw("p1same");
 	    tgtest()->Draw("esame");
 	  }
-	  else { 
-	    htest()->GetXaxis()->SetMoreLogLabels(true);
-	    htest()->Draw("ep");
-	  }
+	  else htest()->Draw("ep");
 	}
       }
 
@@ -546,8 +370,7 @@ public:
   Plots(const std::string& s="") : 
     m_name(s), 
     m_logx(false), m_logy(false), 
-    m_maxset(false), m_max(0),
-    m_minset(false), m_min(0),
+    m_maxset(false), m_minset(false), 
     m_rangeset(false) 
   { }
 
@@ -590,7 +413,7 @@ public:
     if ( m_logy ) m_min = tmin;
 
     for ( unsigned i=0 ; i<size() ; i++ ) {
-      if ( at(i).href() ) at(i).href()->SetMaximum(scale*tmax);
+      at(i).href()->SetMaximum(scale*tmax);
       at(i).htest()->SetMaximum(scale*tmax);
 
       //      if ( m_logy ) {
@@ -611,7 +434,7 @@ public:
 
     if ( scale==0 ) { 
       for ( unsigned i=0 ; i<size() ; i++ ) {
-	if ( at(i).href() ) at(i).href()->SetMinimum(0);
+	at(i).href()->SetMinimum(0);
 	at(i).htest()->SetMinimum(0);
       }  
       return;
@@ -626,7 +449,7 @@ public:
     m_min = scale*tmin;
 
     for ( unsigned i=0 ; i<size() ; i++ ) {
-      if ( at(i).href() ) at(i).href()->SetMinimum(scale*tmin);
+      at(i).href()->SetMinimum(scale*tmin);
       at(i).htest()->SetMinimum(scale*tmin);
 
       //      if ( m_logy ) { 
@@ -645,10 +468,10 @@ public:
   void Min( double scale ) { 
     m_minset = true;
     for ( unsigned i=0 ; i<size() ; i++ ) {
-      if ( at(i).href() ) at(i).href()->SetMinimum(scale);
+      at(i).href()->SetMinimum(scale);
       at(i).htest()->SetMinimum(scale);
       if ( m_logy ) { 
-	if ( at(i).href() ) if ( at(i).href()->GetMinimum()<=0 )  at(i).href()->GetMinimum(1e-4);
+	if ( at(i).href()->GetMinimum()<=0 )  at(i).href()->GetMinimum(1e-4);
 	if ( at(i).htest()->GetMinimum()<=0 ) at(i).htest()->GetMinimum(1e-4);
       }
       
@@ -663,74 +486,17 @@ public:
   void Max( double scale ) { 
     m_maxset = true;
     for ( unsigned i=0 ; i<size() ; i++ ) {
-      if ( at(i).href() ) at(i).href()->SetMaximum(scale);
+      at(i).href()->SetMaximum(scale);
       at(i).htest()->SetMaximum(scale);
     }
   }
-
-  std::vector<double> findxrange( bool symmetric=false ) { 
-    std::vector<double> v(2,0);
-    for ( unsigned i=0 ; i<size() ; i++ ) { 
-      //      std::vector<int> limits = findxrange( at(i).htest(), symmetric );
-
-      //      double lo = at(i).htest()->GetBinLowEdge(limits[0]);
-      //     double hi = at(i).htest()->GetBinLowEdge(limits[1]+1);
-
-      std::vector<double> limits = ::findxrangeuser( at(i).htest(), symmetric );
-
-      double lo = limits[0];
-      double hi = limits[1];
-
-      if ( i==0 ) { 
-	v[0] = lo;
-	v[1] = hi;
-      }
-      else { 
-	if ( v[0]>lo ) v[0] = lo;
-	if ( v[1]<hi ) v[1] = hi;
-      }
-    }
-    
-    return v;
-  }
   
-
-
-  void sortx( const AxisInfo xinfo ) { // bool autoset=false, bool sym=false, bool logset=false, bool rangeset=false, double lo=0, double hi=0 ) { 
-    
-    if ( xinfo.rangeset() ) { 
-      m_lo = xinfo.lo();
-      m_hi = xinfo.hi();
-    }
-    
-    if ( xinfo.autoset() ) {
-      std::vector<double> limits = findxrange( xinfo.symmetric() );
-      if ( xinfo.rangeset() ) { 
-	if ( limits[0]<m_lo ) m_lo = limits[0];
-	if ( limits[1]>m_hi ) m_hi = limits[1];
-      }
-      else { 
-	m_lo = limits[0];
-	m_hi = limits[1];
-      }
-    }
-
-    if ( xinfo.rangeset() || xinfo.autoset() ) { 
-      SetRangeUser( m_lo, m_hi );
-      if ( xinfo.log() && m_lo>0 ) SetLogx(true);
-      else                         SetLogx(false);
-    }
-  }
-
-
-  double lo() const { return m_lo; }
-  double hi() const { return m_hi; }
 
 
   void xrange(bool symmetric=false) { 
     m_rangeset = false;
     for ( unsigned i=0 ; i<size() ; i++ ) { 
-      if ( at(i).href() ) ::xrange( at(i).href(), symmetric );
+      ::xrange( at(i).href(), symmetric );
       ::xrange( at(i).htest(), symmetric );
       // ::xrange( at(i).htest(), symmetric );
     }
@@ -741,7 +507,7 @@ public:
     m_lo = lo;
     m_hi = hi;
     for ( unsigned i=0 ; i<size() ; i++ ) { 
-      if ( at(i).href() ) at(i).href()->GetXaxis()->SetRangeUser( m_lo, m_hi );
+      at(i).href()->GetXaxis()->SetRangeUser( m_lo, m_hi );
       at(i).htest()->GetXaxis()->SetRangeUser( m_lo, m_hi );
     }
   }
@@ -760,26 +526,20 @@ public:
   void Draw( Legend& leg, bool means=false ) {  
     //   Max();
 
-    //    std::cout << "\thref() " << href() << "\thtest() " << htest() << std::endl;  
+    /// plotting range options etc  
+    //    std::cout << "Plotter::Draw() " << m_name << "\txaxis: log: " << m_logx;
 
-    ///  plotting range options etc  
-    //   std::cout << "Plotter::Draw() " << m_name << "\tsize " << size() << "\txaxis: log: " << m_logx;
+    //    if ( m_rangeset ) std::cout << "\trange: " << m_lo << " - " << m_hi;
 
-    //   if ( m_rangeset ) std::cout << "\trange: " << m_lo << " - " << m_hi;
-
-    //   std::cout << "\tyaxis: log:" << m_logy;
-    //   if ( m_minset )   std::cout << "\tymin: " << m_min;
-    //   if ( m_maxset )   std::cout << "\tymax: " << m_max;
-    //   std::cout << std::endl;
+    //    std::cout << "\tyaxis: log:" << m_logy;
+    //    if ( m_minset )   std::cout << "\tymin: " << m_min;
+    //    if ( m_maxset )   std::cout << "\tymax: " << m_max;
+    //    std::cout << std::endl;
     
     bool first = true;
-
     //  for ( unsigned i=size() ; i-- ; first=false ) at(i).Draw( i, leg, means, first );
     for ( unsigned i=0 ; i<size() ; i++, first=false ) at(i).Draw( i, leg, means, first );
     if ( watermark ) DrawLabel(0.1, 0.02, "built on "+stime()+release, kBlack, 0.03 );
-
-    ///    std::cout << "\txlimits : " << m_lo << " " << m_hi << std::endl; 
-
     gPad->SetLogy(m_logy);
     gPad->SetLogx(m_logx);
   }

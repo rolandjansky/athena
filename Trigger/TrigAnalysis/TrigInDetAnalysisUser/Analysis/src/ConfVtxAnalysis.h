@@ -21,7 +21,7 @@
 #include "Resplot.h"
 
 #include "Resplot.h"
-// #include "Contour.h"
+#include "Contour.h"
 
 
 class ConfVtxAnalysis : public VertexAnalysis {
@@ -35,23 +35,19 @@ public:
   void initialise();
 
   void execute(const std::vector<TIDA::Vertex*>& vtx0,
-	       const std::vector<TIDA::Vertex*>& vtx1,
-	       const TIDA::Event* tevt=0 );
+	       const std::vector<TIDA::Vertex*>& vtx1 );
   
   void finalise();
 
 private:
 
   bool m_initialised;
-  bool m_finalised;
 
   TIDDirectory* mdir;
 
   TH1F*    hnvtx;
   TH1F*    hzed;
   TH1F*    hntrax;
-  TH1F*    hmu;
-  TH1F*    hlb;
 
   TH1F*    hnvtx_rec;
   TH1F*    hzed_rec;
@@ -68,13 +64,8 @@ private:
   Efficiency* eff_ntrax;
   Efficiency* eff_nvtx;
   Efficiency* eff_mu;
-  Efficiency* eff_lb;
-
-  Resplot* rdx_vs_lb;
-  Resplot* rdy_vs_lb;
-  Resplot* rdz_vs_lb;
  
-  //  Contour<Efficiency>* eff_zed_vs_ntrax;
+  Contour<Efficiency>* eff_zed_vs_ntrax;
 
 };
 

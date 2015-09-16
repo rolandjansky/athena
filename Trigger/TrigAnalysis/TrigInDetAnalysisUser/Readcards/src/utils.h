@@ -22,7 +22,6 @@
 
 #include <string>
 #include <vector>
-#include <iostream>
 
 
 // get tokens off the front (chop) and back (chomp)  
@@ -43,7 +42,7 @@ void removespace(std::string& s, const std::string& s2=" \t");
 void replace(std::string& s, const std::string& s2=" \t", const std::string& s3="-");
 
 // chops s1 to the first not of s2
-std::string chopfirst(std::string& s1, const std::string& s2="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.:/");
+std::string chopfirst(std::string& s1, const std::string& s2="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_./");
 
 // chops s1 from the the last not of s2
 std::string choplast(std::string& s1, const std::string& s2="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_");
@@ -65,7 +64,6 @@ bool canopen(const std::string& );
 // converts number into integer string ...
 std::string number(const int& i,    const std::string& s="%d");
 std::string number(const double& d, const std::string& s="%lf");
-
 
 
 #endif  /* __UTILS_H */

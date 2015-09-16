@@ -65,8 +65,6 @@ std::ostream& operator<<( std::ostream& s, const histoinfo& h ) {
   return s << h.fname << " : " << h.dname; 
 }
 
-
-
 int main(int argc, char** argv) {
 
   if (argc < 4) { return usage(argv[0], -1); }
@@ -82,7 +80,6 @@ int main(int argc, char** argv) {
   gStyle->SetPadBottomMargin(0.14);
   //  gStyle->SetTitleXOffset(0.1);
   //  gStyle->SetTitleYOffset(0.1);
-
 
   TFile* ftest = 0;
   TFile* fref  = 0;
@@ -235,7 +232,7 @@ int main(int argc, char** argv) {
   }
 #endif
 
-  TFile fcck( "fcck.root", "recreate" );
+  TFile fcock( "fcock.root", "recreate" );
 
 
   std::vector<histoinfo> histograms;
@@ -259,7 +256,7 @@ int main(int argc, char** argv) {
     //    for (unsigned int algorithm = 0; algorithm < algorithms.size(); ++algorithm) {
     for (unsigned int algorithm = algorithms.size(); algorithm-- ; ) {
 
-      std::cout << "\nmain() processing algorithm : " << algorithms[algorithm] << std::endl;
+      std::cout << "main() processing algorithm : " << algorithms[algorithm] << std::endl;
 
       TCanvas* c1 = new TCanvas( label("canvas-%d",int(histogram)).c_str(), "histogram", 800, 600 );
       c1->cd();
@@ -327,25 +324,14 @@ int main(int argc, char** argv) {
 
       std::cout << "dir " << dir << "\tkey " << key << "\talgname " << algname << "\ttag " << tag << std::endl;  
 
-      //      std::cout << "testhist " << testhist << " " << refhist << std::endl;
-
 
       std::vector<std::string> chains;
       chains.push_back( algname + tag );
 
       bool _ylog = ylog;
       
-      double Nent     = plotable( testhist );
-      double Nent_ref = plotable( refhist ); 
-     
+      
       if ( fractional ) _ylog = false;
-
-      if ( Nent==0 || Nent_ref==0 ) { 
-	_ylog = false;
-	std::cerr << "histograms empty: " << testhist->GetName() << std::endl;
-	continue;
-      }
-
 
       //      if ( ylog || histograms.at(histogram).fname == "_TotalTime") {
         testhist->SetTitle("");
@@ -395,13 +381,13 @@ int main(int argc, char** argv) {
     std::cout << "done hist " << histogram << " " << histograms.at(histogram).dname << " " << std::endl;
   }
 
-  fcck.Write();
-  fcck.Close();
+  fcock.Write();
+  fcock.Close();
 
   tdir->cd();
 
 
-#ifdef RENE_IS_PROBABLY_AN_ARSE
+#ifdef RENE_IS_NOT_AN_ARSE
 
   std::cout << "deleting ftest" << std::endl;
 
