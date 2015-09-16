@@ -422,6 +422,7 @@ class Prescales:
         'larnoiseburst_rerun' : [ 1, 0 , 1, "LArNoiseBurst"],
         'larnoiseburst_loose_rerun' : [ 1, 0 , 1, "LArNoiseBurst"],
         }
-
+    L1Prescales_cosmics  = {}
+    HLTPrescales_cosmics = {}
 #StreamConfig = {}
 
