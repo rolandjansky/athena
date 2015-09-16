@@ -60,11 +60,8 @@ simFlags.EventFilter.set_On()
 
 ## Change the field stepper or use verbose G4 tracking
 #from G4AtlasApps import callbacks
-#callbacks.use_simplerunge_stepper()
+#simFlags.InitFunctions.add_function("postInit", callbacks.use_simplerunge_stepper)
 #simFlags.InitFunctions.add_function("postInit", callbacks.use_verbose_tracking)
-
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
 ## Add the G4 sim to the alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg

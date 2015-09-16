@@ -60,7 +60,7 @@ simFlags.EventFilter.set_On()
 
 ## Change the field stepper or use verbose G4 tracking
 #from G4AtlasApps import callbacks
-#callbacks.use_simplerunge_stepper()
+#simFlags.InitFunctions.add_function("postInit", callbacks.use_simplerunge_stepper)
 #simFlags.InitFunctions.add_function("postInit", callbacks.use_verbose_tracking)
 
 ## Use single particle generator
@@ -82,9 +82,6 @@ include('G4AtlasApps/fragment.SimCopyWeights.py')
 
 #from TruthExamples.TruthExamplesConf import DumpMC
 #topSeq += DumpMC()
-
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
 ## Add the G4 sim to the alg sequence after the generator
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg

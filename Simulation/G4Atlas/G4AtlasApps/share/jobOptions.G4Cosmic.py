@@ -61,9 +61,6 @@ if hasattr(topSeq, 'CosmicGenerator'):
 ## No magnetic field
 #simFlags.MagneticField.set_Off()
 
-from AthenaCommon.CfgGetter import getAlgorithm
-topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
-
 ## Add alg to alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
 topSeq += PyG4AtlasAlg()

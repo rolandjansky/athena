@@ -48,7 +48,10 @@ class Pixel(object):
     def _initSD(self):
         """ Describes the sensitive detector.
         """
-        pass
+        self.ctb_pixel.add_SenDetector('PixelG4_SD','PixelSensorSD',\
+                                        'PSD','Pixel::siBLayLog')
+        self.ctb_pixel.add_SenDetector('PixelG4_SD','PixelSensorSD',\
+                                        'PSD','Pixel::siLog')
 
 #-----------------------------------------------------------------------
 # -- SCT --
@@ -71,8 +74,8 @@ class SCT(object):
     def _initSD(self):
         """ Describes the sensitive detector.
         """
-        pass
-
+        self.ctb_sct.add_SenDetector('SCT_G4_SD','SctSensor_CTB','SCT_CTB_SD',\
+                                                     'SCT::ECSensor0')
     def _initPR(self):
         """ Describes the physics regions
         """
@@ -92,12 +95,11 @@ class TRT(object):
             to be added to the CTBTRT envelope from ctb_common.ctbtrt
         """
         self.ctb_trt=PyG4Atlas.DetFacility("GeoDetector","TRT:TRT")
-
     def _initSD(self):
         """ Describes the sensitive detector.
         """
-        pass
-
+        self.ctb_trt.add_SenDetector('TRT_G4Utilities:TRT_G4_SD',\
+                           'TRTSensitiveDetector','TRTSD','TRT::GasMA')
     def _initTRTProcess(self):
         """Activates the TRT process.
         """
