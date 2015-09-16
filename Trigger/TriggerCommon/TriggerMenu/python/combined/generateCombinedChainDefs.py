@@ -259,7 +259,8 @@ def _addMatching(theChainDef,chainDicts,listOfChainDefs):
     theJetSplit=getJetSplitterAllTEInstance()
 
     # Et hypo (doesn't work in superROI mode)
-    hypoThresh ='55GeV'
+    hypoThresh ='55GeV' 
+    
     from TrigBjetHypo.TrigBjetEtHypoConfig import getBjetEtHypoInstance
     theBjetEtHypo   = getBjetEtHypoInstance("EF", "Btagging", hypoThresh)
 
