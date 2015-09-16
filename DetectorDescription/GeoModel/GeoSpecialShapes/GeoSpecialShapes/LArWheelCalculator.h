@@ -12,19 +12,13 @@
 #include <vector>
 
 #include "CLHEP/Vector/ThreeVector.h"
-
-#define USE_DISTANCECALCULATOR_IMPL 1
-#define USE_FANCALCULATOR_IMPL 1
+#include "SGTools/CLASS_DEF.h"
 
 #define LARWC_SINCOS_POLY 5
 #define LARWC_DTNF_NEW
 
 class IRDBRecordset;
 class RDBParamRecords;
-
-// uncomment this to be able to select parameterized_slant_angle
-// calculation method in runtime
-//#define LARWHEELCALCULATOR_PSA_DEVELOPMENT
 
 //#define HARDDEBUG
 
@@ -74,33 +68,52 @@ class LArWheelCalculator
 	virtual LArWheelCalculator_t type() const { return m_type; }
   // "zShift" is the z-distance (cm) that the EM endcap is shifted
   // (due to cabling, etc.)
+	int GetAtlasZside() const { return m_AtlasZside; }
 	double zShift() const { return m_zShift; }
+	double GetFanFoldRadius() const { return m_FanFoldRadius; }
+	double GetZeroFanPhi() const { return m_ZeroFanPhi; }
 	int GetNumberOfWaves(void) const { return m_NumberOfWaves; }
 	int GetNumberOfHalfWaves(void) const { return m_NumberOfHalfWaves; }
 	int GetNumberOfFans(void) const { return m_NumberOfFans; }
+
+	double GetActiveLength() const { return m_ActiveLength; }
 	double GetFanStepOnPhi(void) const { return m_FanStepOnPhi; }
 	double GetHalfWaveLength(void) const { return m_HalfWaveLength; }
+	double GetQuarterWaveLength() const { return m_QuarterWaveLength; }
 	double GetWheelRefPoint(void) const { return m_zWheelRefPoint; }
 	double GetFanHalfThickness(void) const { return m_FanHalfThickness; }
-	bool GetisModule(void) const { return m_isModule; }
+	
+	bool GetisModule() const { return m_isModule; }
+	bool GetisElectrode() const { return m_isElectrode; }
+	bool GetisInner() const { return m_isInner; }
+	bool GetisBarrette() const { return m_isBarrette; }
+	bool GetisBarretteCalib() const { return m_isBarretteCalib; }
+
+	
 	double GetWheelInnerRadius(double *) const;
 	void GetWheelOuterRadius(double *) const;
 
+	double GetElecFocaltoWRP() const { return m_dElecFocaltoWRP; }
   // "set constant" method:
 
+	int GetFirstFan() const { return m_FirstFan; }
+	int GetLastFan() const { return m_LastFan; }
+
+	int GetStartGapNumber() const { return m_ZeroGapNumber; }
 	void SetStartGapNumber(int n) { m_ZeroGapNumber = n; }
 
   // geometry methods:
-
-	double DistanceToTheNearestFan(CLHEP::Hep3Vector &p);
-	double DistanceToTheNeutralFibre(const CLHEP::Hep3Vector &p) const;
-	CLHEP::Hep3Vector NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &p) const;
-	int GetPhiGap(const CLHEP::Hep3Vector &p){ return GetPhiGapAndSide(p).first; }
+// DistanceToTheNearestFan - rotates point p to the localFan coordinates and returns the fan number to out_fan_number parameter
+	double DistanceToTheNearestFan(CLHEP::Hep3Vector &p, int & out_fan_number) const;
+	double DistanceToTheNeutralFibre(const CLHEP::Hep3Vector &p, int fan_number) const;
+	CLHEP::Hep3Vector NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &p, int fan_number) const;
+	std::vector<double> NearestPointOnNeutralFibre_asVector(const CLHEP::Hep3Vector &p, int fan_number) const;
+	int GetPhiGap(const CLHEP::Hep3Vector &p) const { return GetPhiGapAndSide(p).first; }
 	int PhiGapNumberForWheel(int) const;
-	std::pair<int, int>GetPhiGapAndSide(const CLHEP::Hep3Vector &p);
-	double AmplitudeOfSurface(const CLHEP::Hep3Vector& P, int side) const;
+	std::pair<int, int> GetPhiGapAndSide(const CLHEP::Hep3Vector &p) const;
+	double AmplitudeOfSurface(const CLHEP::Hep3Vector& P, int side, int fan_number) const;
 
-  protected:
+  private:
 	LArWheelCalculator_t m_type;
 
 	int m_AtlasZside;
@@ -136,7 +149,7 @@ class LArWheelCalculator
 	int m_NumberOfWaves;
 	int m_NumberOfHalfWaves;
 	int m_NumberOfFans;
-	int m_HalfNumberOfFans;
+	//int m_HalfNumberOfFans; removed because unused. DM 2015-07-30
 	double m_FanHalfThickness;
 	int m_ZeroGapNumber;
 	int m_FirstFan;
@@ -148,46 +161,30 @@ class LArWheelCalculator
 	bool m_isBarrette;
 	bool m_isBarretteCalib;
 
-	int m_fan_number; // !
+	// int m_fan_number; // break thread-safety -> removed DM 2015-07-30
 
 	void outer_wheel_init(const RDBParamRecords &);
 	void inner_wheel_init(const RDBParamRecords &);
 	void module_init(void);
-#ifndef USE_DISTANCECALCULATOR_IMPL
-  double get_sagging(const CLHEP::Hep3Vector &P) const;
-#endif
 
-#ifdef LARWHEELCALCULATOR_PSA_DEVELOPMENT
-//optimized geom. param. for folding design
   public:
-	inline static void SetOptFoldA(std::string optFoldA) {OptFoldA=optFoldA;}
-	inline static std::string GetOptFoldA(void) {return OptFoldA;}
-
-  private:
-	static std::string OptFoldA; //"param" "table" "iter"
-	static double *FoldAInner, *FoldAOuter;
-	static bool FoldAInnerPrepared,FoldAOuterPrepared;
-	static double RminAInner,RminAOuter,RmaxAInner,RmaxAOuter,RstepA;
-	double * FoldA;
-	double RminA,RmaxA;
-	double AlfInt;
-	double AlfExt;
-	double ROpt[2];
-	double ZlOpt[2];
-	double AlphIter(double,double) const;
-#endif
-
-  protected:
-	void set_m_fan_number(const int &fan_number)
+	/*void set_m_fan_number(const int &fan_number)
 	{
 		m_fan_number = fan_number;
 		if(m_fan_number < 0) m_fan_number += m_NumberOfFans;
 		m_fan_number += m_ZeroGapNumber;
 		if(m_fan_number >= m_NumberOfFans) m_fan_number -= m_NumberOfFans;
+	}*/
+	int adjust_fan_number(int fan_number) const {
+		int res_fan_number = fan_number;
+		if(res_fan_number < 0) res_fan_number += m_NumberOfFans;
+		res_fan_number += m_ZeroGapNumber;
+		if(res_fan_number >= m_NumberOfFans) res_fan_number -= m_NumberOfFans;
+		return res_fan_number;
 	}
 
-  protected:
 	double parameterized_slant_angle(double) const;
+  private:
 	void parameterized_sincos(const double, double &, double &) const;
 	void parameterized_sin(const double, double &, double &) const;
 
@@ -197,5 +194,10 @@ class LArWheelCalculator
 
 	void fill_sincos_parameterization(void);
 };
+
+//using the macro below we can assign an identifier (and a version)
+//This is required and checked at compile time when you try to record/retrieve
+CLASS_DEF(LArWheelCalculator , 900345678 , 1)
+
 
 #endif // __LArWheelCalculator_H__

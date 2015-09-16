@@ -6,7 +6,6 @@
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 
 #include "GaudiKernel/PhysicalConstants.h"
-using namespace Gaudi::Units;
 #include<cassert>
 
 //#define LWC_PARAM_ANGLE
@@ -17,6 +16,9 @@ using namespace Gaudi::Units;
 
 #include<signal.h>
 
+using namespace Gaudi::Units;
+
+
 namespace LArWheelCalculator_Impl {
     	DistanceCalculatorSaggingOff::DistanceCalculatorSaggingOff(LArWheelCalculator* c, IRDBAccessSvc* /*rdbAccess*/, const DecodeVersionKey & /*larVersionKey*/) :
     		m_lwc(c)
@@ -25,9 +27,9 @@ namespace LArWheelCalculator_Impl {
     	}
 
 #ifndef LARWC_DTNF_NEW
-	double DistanceCalculatorSaggingOff::DistanceToTheNeutralFibre(const CLHEP::Hep3Vector& P) const
+	double DistanceCalculatorSaggingOff::DistanceToTheNeutralFibre(const CLHEP::Hep3Vector& P, int /*fan_number*/) const
 #else
-	double DistanceCalculatorSaggingOff::DistanceToTheNeutralFibre_ref(const CLHEP::Hep3Vector& P) const
+	double DistanceCalculatorSaggingOff::DistanceToTheNeutralFibre_ref(const CLHEP::Hep3Vector& P, int /*fan_number*/) const
 #endif
 	{
 		assert(P.y() > 0.);
@@ -138,9 +140,9 @@ namespace LArWheelCalculator_Impl {
 
 	// IMPROVED PERFORMANCE
 #ifdef LARWC_DTNF_NEW
-	double DistanceCalculatorSaggingOff::DistanceToTheNeutralFibre(const CLHEP::Hep3Vector& P) const
+	double DistanceCalculatorSaggingOff::DistanceToTheNeutralFibre(const CLHEP::Hep3Vector& P, int /*fan_number*/) const
 #else
-	double DistanceCalculatorSaggingOff::DistanceToTheNeutralFibre_ref(const CLHEP::Hep3Vector& P) const
+	double DistanceCalculatorSaggingOff::DistanceToTheNeutralFibre_ref(const CLHEP::Hep3Vector& P, int /*fan_number*/) const
 #endif
 	{
 		double z = P.z() - lwc()->m_StraightStartSection;
@@ -229,7 +231,7 @@ namespace LArWheelCalculator_Impl {
                 std::abort();
 	}
 
-	CLHEP::Hep3Vector DistanceCalculatorSaggingOff::NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &P) const
+	CLHEP::Hep3Vector DistanceCalculatorSaggingOff::NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &P, int /*fan_number*/) const
 	{
 		static CLHEP::Hep3Vector result;
 		double z = P.z() - lwc()->m_StraightStartSection;
@@ -313,7 +315,7 @@ namespace LArWheelCalculator_Impl {
 	}
 
 // IMPROVED VERSION
-	CLHEP::Hep3Vector DistanceCalculatorSaggingOff::NearestPointOnNeutralFibre_ref(const CLHEP::Hep3Vector &P) const
+	CLHEP::Hep3Vector DistanceCalculatorSaggingOff::NearestPointOnNeutralFibre_ref(const CLHEP::Hep3Vector &P, int /*fan_number*/) const
 	{
 		static CLHEP::Hep3Vector result;
 		double z = P.z() - lwc()->m_StraightStartSection;
@@ -402,7 +404,7 @@ namespace LArWheelCalculator_Impl {
 	      > 0 - greater phi
 		  = 0 - neutral fibre
 	*/
-	double DistanceCalculatorSaggingOff::AmplitudeOfSurface(const CLHEP::Hep3Vector& P, int side) const
+	double DistanceCalculatorSaggingOff::AmplitudeOfSurface(const CLHEP::Hep3Vector& P, int side, int /*fan_number*/) const
 	{
 		double result = 0.;
 		double rho = lwc()->m_FanFoldRadius;
