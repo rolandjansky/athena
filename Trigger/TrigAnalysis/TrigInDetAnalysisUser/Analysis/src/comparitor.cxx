@@ -22,6 +22,8 @@
 
 #include "TrigInDetAnalysis/Efficiency.h"
 
+#include "ReadCards.h"
+
 #include "Resplot.h"
 #include "utils.h"
 #include "label.h"
@@ -54,21 +56,22 @@ int usage(const std::string& name, int status) {
   //  s << "Configuration: \n";
   //  s << "    -o filename   \tname of output grid (filename required)\n\n";
   s << "Options: \n";
-  s << "    -t,  --tag value   \t appends tag 'value' to the end of output plot names, \n";
-  s << "    -k,  --key value   \t prepends key 'value' to the from of output plots name, \n";
-  s << "    -d,  --dir value   \t creates output files into directory, \"value\" \n";
-  s << "    -e,  --efficiencies\t make test efficiencies with respect to reference \n";
-  s << "    -r,  --refit       \t refit all resplots\n";
-  s << "    -l,  --labels      \t use specified labels for key\n";
-  s << "    -b   --bayes       \t calculate Basyesian efficiency iuncertaintiesr\n";
-  s << "    -as, --atlasstyle  \t use ATLAS style\n";
-  s << "    -ns, --nostats     \t do not show stats for mean and rms\n";
-  s << "    -nr, --noref       \t do not plot reference histograms\n";
-  s << "    -np, --noplots     \t do not actually make any plot\n";
-  s << "    -nw, --nowatermark \t do not plot the release watermark\n"; 
-  s << "         --nopng       \t do not print png files\n"; 
-  s << "         --deleteref   \t delete unused reference histograms\n"; 
-  s << "    -h,  --help        \t this help\n";
+  s << "    -c,  --config value \t configure which histograms to plot from config file,\n";
+  s << "    -t,  --tag value    \t appends tag 'value' to the end of output plot names, \n";
+  s << "    -k,  --key value    \t prepends key 'value' to the from of output plots name, \n";
+  s << "    -d,  --dir value    \t creates output files into directory, \"value\" \n";
+  s << "    -e,  --efficiencies \t make test efficiencies with respect to reference \n";
+  s << "    -r,  --refit        \t refit all resplots\n";
+  s << "    -l,  --labels       \t use specified labels for key\n";
+  s << "    -nb  --nobayes      \t do not calculate Basyesian efficiency uncertaintiesr\n";
+  s << "    -as, --atlasstyle   \t use ATLAS style\n";
+  s << "    -ns, --nostats      \t do not show stats for mean and rms\n";
+  s << "    -nr, --noref        \t do not plot reference histograms\n";
+  s << "    -np, --noplots      \t do not actually make any plot\n";
+  s << "    -nw, --nowatermark  \t do not plot the release watermark\n"; 
+  s << "         --nopng        \t do not print png files\n"; 
+  s << "         --deleteref    \t delete unused reference histograms\n"; 
+  s << "    -h,  --help         \t this help\n";
   //  s << "\nSee " << PACKAGE_URL << " for more details\n"; 
   //  s << "\nReport bugs to <" << PACKAGE_BUGREPORT << ">";
   s << std::endl;
@@ -221,7 +224,7 @@ int main(int argc, char** argv) {
   bool make_ref_efficiencies = false;
   bool refit_resplots        = false;
 
-  bool _bayes      = false;
+  bool _bayes      = true;
   bool nopng       = false;
   bool nostats     = false;
   bool noref       = false;
@@ -229,6 +232,8 @@ int main(int argc, char** argv) {
   bool deleteref   = false;
   bool nowatermark = false;
   bool noplots     = false;
+
+  std::string configfile = "";
 
   std::vector<std::string> chains;
   for(int i=1; i<argc; i++){
@@ -248,6 +253,10 @@ int main(int argc, char** argv) {
 
     if ( arg=="-h" || arg=="--help" ) { 
        return usage(argv[0], 0);
+    }
+    else if ( arg=="-c" || arg=="--config" ) { 
+      if ( ++i<argc ) configfile=argv[i];
+      else return usage(argv[0], -1);
     }
     else if ( arg=="-t" || arg=="--tag" ) { 
       if ( ++i<argc ) tag=std::string("-")+argv[i];
@@ -291,8 +300,8 @@ int main(int argc, char** argv) {
       Plotter::setplotref(false);
       noref = true;
     }
-    else if ( arg=="-b" || arg=="--bayes" ) { 
-      _bayes = true;
+    else if ( arg=="-nb" || arg=="--nobayes" ) { 
+      _bayes = false;
     }
     else if ( arg=="-np" || arg=="--noplots" ) { 
       noplots = true;
@@ -444,25 +453,27 @@ int main(int argc, char** argv) {
   savedhistos.push_back("event");
 
 
-  const int Nhistos = 47;
-  std::string _histos[Nhistos][6] = { 
+  int    Nhistos = 48;
+  const  int __Nhistos = 48;
+  std::string __histos[__Nhistos][6] = { 
 
     /// distributions - 4
-    //  { "pT",  "p_{T}",   "xaxis:lin:0.7:100",  "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
-    { "pT",      "p_{T}",   "xaxis:lin:auto",     "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
-    { "a0",      "a0",      "xaxis:lin:-2:2",     "Offline a_{0} [mm]",    "yaxis:log:auto",  ""  },
-    { "a0_rec",  "a0 rec",  "xaxis:lin:-2:2",     "Trigger a_{0} [mm]",    "yaxis:log:auto",  ""  },
-    { "z0",      "z0",      "xaxis:lin:-250:250", "z_{0} [mm]",            "yaxis:log:auto",  ""  },
+    //  { "pT",  "p_{T}",     "xaxis:lin:0.7:100",  "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
+    { "pT",      "p_{T}",     "xaxis:lin:auto",     "Offline p_{T} [GeV]",   "yaxis:log:auto",  ""  },
+    { "pT_rec",  "p_{T} rec", "xaxis:lin:20:300",     "Trigger p_{T} [GeV]",   "yaxis:log:auto",  ""  },
+    { "a0",      "a0",        "xaxis:lin:-2:2",     "Offline a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    { "a0_rec",  "a0 rec",    "xaxis:lin:-2:2",     "Trigger a_{0} [mm]",    "yaxis:log:auto",  ""  },
+    { "z0",      "z0",        "xaxis:lin:-250:250", "z_{0} [mm]",            "yaxis:log:auto",  ""  },
 
     /// efficiencies - 10 
     //    { "pT_eff", "Efficiency p_{T}", "xaxis:log:0.7:100",     "Offline p_{T} [GeV]",    "yaxis:lin:90:102",   "Efficiency [%]" },       
-    { "pT_eff",       "Efficiency p_{T}", "xaxis:log:auto",        "Offline track p_{T} [GeV]",    "yaxis:lin:90:102",   "Efficiency [%]" },       
-    { "eta_eff",      "Efficiency #eta",  "xaxis:lin",             "Offline track #eta",           "yaxis:lin:90:102",   "Efficiency [%]" },       
-    { "phi_eff",      "Efficiency #phi",  "xaxis:lin",             "Offline track #phi",           "yaxis:lin:90:102",   "Efficiency [%]" },       
-    { "d0_eff",       "Efficiency d0",    "xaxis:lin:autosym",        "Offline track d_{0} [mm]",     "yaxis:lin:90:102",   "Efficiency [%]" },       
-    { "a0_eff",       "Efficiency a0",    "xaxis:lin:-2:2",        "Offline track d_{0} [mm]",     "yaxis:lin:90:102",   "Efficiency [%]" },        
-    { "z0_eff",       "Efficiency z0",    "xaxis:lin:-250:250",    "Offline track z_{0} [mm]",     "yaxis:lin:90:102",   "Efficiency [%]" },       
- 
+    { "pT_eff",       "Efficiency p_{T}", "xaxis:log:auto",        "Offline track p_{T} [GeV]",    "yaxis:lin:auto",   "Efficiency [%]" },       
+    { "eta_eff",      "Efficiency #eta",  "xaxis:lin",             "Offline track #eta",           "yaxis:lin:auto",   "Efficiency [%]" },       
+    { "phi_eff",      "Efficiency #phi",  "xaxis:lin",             "Offline track #phi",           "yaxis:lin:auto",   "Efficiency [%]" },       
+    { "d0_eff",       "Efficiency d0",    "xaxis:lin:autosym",        "Offline track d_{0} [mm]",     "yaxis:lin:auto",   "Efficiency [%]" },       
+    //    { "a0_eff",       "Efficiency a0",    "xaxis:lin:-2:2",        "Offline track d_{0} [mm]",     "yaxis:lin:90:102",   "Efficiency [%]" },        
+    { "a0_eff",       "Efficiency a0",    "xaxis:lin:autosym",        "Offline track d_{0} [mm]",     "yaxis:lin:auto",   "Efficiency [%]" },      
+    { "z0_eff",       "Efficiency z0",    "xaxis:lin:-250:250",    "Offline track z_{0} [mm]",     "yaxis:lin:auto",   "Efficiency [%]" },        
     { "eff_vs_mu",    "Efficiency <#mu>",            "xaxis:lin:auto",       "<#mu>",              "yaxis:lin:90:102",   "Efficiency [%]" },       
     { "roi_dphi_eff", "Efficiency #Delta#phi(RoI)",  "xaxis:lin:-0.6:0.6",   "#Delta#phi (RoI)",   "yaxis:lin:90:102",   "Efficiency [%]" },
     { "roi_deta_eff", "Efficiency #Delta#eta(RoI)",  "xaxis:lin:-0.6:0.6",   "#Delta#eta (RoI)",   "yaxis:lin:90:102",   "Efficiency [%]" },       
@@ -541,8 +552,41 @@ int main(int argc, char** argv) {
   };
   
 
-  std::string histos[Nhistos];
-  
+  std::vector<std::vector<std::string> > _histos;
+
+  /// read config in from a file if requested ...
+
+  if ( configfile!="" ) { 
+
+    std::cout << argv[0] << ":\treading histogram configuration from file " << configfile << std::endl; 
+
+    ReadCards rc(configfile);
+    
+    std::vector<std::string> histos = rc.GetStringVector("histos");
+
+    //  std::string histos[Nhistos];
+    
+    for ( unsigned i=0 ; i<histos.size() ; ) { 
+      std::vector<std::string> duff;
+      for ( int j=0 ; j<6 && i<histos.size() ; j++, i++  ) duff.push_back( histos[i] );
+      _histos.push_back( duff );
+    }
+
+    for ( unsigned i=0 ; i<_histos.size() ; i++ ) std::cout << "histos: " << i << "\t" << _histos[i] << std::endl;
+    
+  }
+  else { 
+    for ( int i=0 ; i<__Nhistos ; i++ ) { 
+      std::vector<std::string> duff;
+      for ( int j=0 ; j<6 ; j++ ) duff.push_back( __histos[i][j] );
+      _histos.push_back( duff );
+    }
+  }
+
+  Nhistos = _histos.size();
+
+  if ( _histos.size()==0 ) return usage(argv[0], -1);
+
 
 
   const int Nhistos2D = 2;
@@ -639,6 +683,8 @@ int main(int argc, char** argv) {
 
   /// so we can easily limit the number of histograms drawn
   int _Nhistos = Nhistos;
+
+  std::vector<std::string> histos(_Nhistos);
 
   for ( int i=0 ; i<_Nhistos ; i++ ) {
 

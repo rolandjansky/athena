@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.cxx 689896 2015-08-18 08:15:28Z sutt $
+//   $Id: ConfAnalysis.cxx 695114 2015-09-16 06:59:12Z sutt $
 
 
 #include "ConfAnalysis.h"
@@ -138,8 +138,8 @@ void ConfAnalysis::initialiseInternal() {
   const double d0resMax  = 5;
 
   // beamspot corrected position
-  const int    a0Bins = int(100*_binConfig.a0_NScale);
-  const double a0Max  = 5;
+  const int    a0Bins = int(300*_binConfig.a0_NScale);
+  const double a0Max  = 15;
 
   const int    a0resBins = 100;      
   const double a0resMax  = 5;
@@ -1462,7 +1462,13 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
 	rDz0res[1]->Fill( etat, dz0r-dz0t );  
 	rDz0res[2]->Fill( z0t, dz0r-dz0t );  
 
-
+	if ( dumpflag ) { 
+	  if ( dz0t>0 && std::fabs( dz0r-dz0t )>0.04 ) { 
+	    dump = true;
+	  std:cout << "POOR sigma(z0) agreement \n\trefrack:  " << *reftracks[i] << "\n\ttestrack: " << *matchedreco << std::endl; 
+	  }  
+	}
+	
 	/// rDx0res[3] = { vs pt, vs eta, vs zed } 
 	rDd0res[0]->Fill( std::fabs(pTt), dd0r-dd0t );  
 	rDd0res[1]->Fill( etat, dd0r-dd0t );  

@@ -132,6 +132,7 @@ void ReadCards::clean() {
 
     //    cout << ">> " << line << endl;
 
+
     if ( (pos=line.find("//")) != std::string::npos ) {
 
       int quotecount = 0;
@@ -293,7 +294,7 @@ void ReadCards::parse()
         found = true;    
 	if      ( line[iq]=='\"' ) quotecount++;
 	else if ( line[iq]=='"' )  quotecount++;
-	if ( line[iq]=='{' ) break;
+	if ( line[iq]=='{' && ( quotecount==0 || quotecount%2==0 ) ) break;
         found = false;    
     }
     if ( found && quotecount>0 )  error("syntax error in tag name : " + input + " quotes" ); 
