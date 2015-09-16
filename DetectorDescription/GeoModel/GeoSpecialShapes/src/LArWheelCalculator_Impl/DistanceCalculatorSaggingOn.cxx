@@ -113,25 +113,25 @@ namespace LArWheelCalculator_Impl {
 // side of the fan; negative - lower phi.
 //
 // Uses m_fan_number to compute sagging.
-double DistanceCalculatorSaggingOn::DistanceToTheNeutralFibre(const CLHEP::Hep3Vector &p) const {
-	CLHEP::Hep3Vector sagging_corrected( p.x()+get_sagging(p), p.y(), p.z() );
-	return parent::DistanceToTheNeutralFibre(sagging_corrected);
+double DistanceCalculatorSaggingOn::DistanceToTheNeutralFibre(const CLHEP::Hep3Vector &p, int fan_number) const {
+	CLHEP::Hep3Vector sagging_corrected( p.x()+get_sagging(p, fan_number), p.y(), p.z() );
+	return parent::DistanceToTheNeutralFibre(sagging_corrected, fan_number);
 }
 
-CLHEP::Hep3Vector DistanceCalculatorSaggingOn::NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &p) const {
-	CLHEP::Hep3Vector sagging_corrected( p.x()+get_sagging(p), p.y(), p.z() );
-	return parent::NearestPointOnNeutralFibre(sagging_corrected);
+CLHEP::Hep3Vector DistanceCalculatorSaggingOn::NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &p, int fan_number) const {
+	CLHEP::Hep3Vector sagging_corrected( p.x()+get_sagging(p, fan_number), p.y(), p.z() );
+	return parent::NearestPointOnNeutralFibre(sagging_corrected, fan_number);
 }
 
-double DistanceCalculatorSaggingOn::AmplitudeOfSurface(const CLHEP::Hep3Vector& p, int side) const {
-	return parent::AmplitudeOfSurface(p, side) - get_sagging(p);
+double DistanceCalculatorSaggingOn::AmplitudeOfSurface(const CLHEP::Hep3Vector& p, int side, int fan_number) const {
+	return parent::AmplitudeOfSurface(p, side, fan_number) - get_sagging(p, fan_number);
 }
 
 
 // the function uses m_fan_number for phi-dependent sagging computation
-double DistanceCalculatorSaggingOn::get_sagging(const CLHEP::Hep3Vector &P) const {
+double DistanceCalculatorSaggingOn::get_sagging(const CLHEP::Hep3Vector &P, int fan_number) const {
 #ifdef HARDDEBUG
-	std::cout << "get_sagging: MFN = " << lwc()->m_fan_number << std::endl;
+	std::cout << "get_sagging: MFN = " << fan_number << std::endl;
 #endif
 	double dx = P.z() / lwc()->m_HalfWheelThickness - 1.;
 	dx *= dx;
@@ -142,7 +142,7 @@ double DistanceCalculatorSaggingOn::get_sagging(const CLHEP::Hep3Vector &P) cons
 	n += m_ZeroGapNumber;
 	if(n >= m_NumberOfFans) n -= m_NumberOfFans;
 	const std::vector<double>& sp = m_sagging_parameter[n];*/
-	const std::vector<double>& sp = m_sagging_parameter[lwc()->m_fan_number];
+	const std::vector<double>& sp = m_sagging_parameter[fan_number];
 	double R = P.r() / mm;
 	double r = R;
 	double result = sp[0];

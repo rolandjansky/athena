@@ -19,7 +19,6 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
 #include "GaudiKernel/PhysicalConstants.h"
-using namespace Gaudi::Units;
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 
@@ -29,28 +28,7 @@ using namespace Gaudi::Units;
 #include "./LArWheelCalculator_Impl/DistanceCalculatorFactory.h"
 #include "./LArWheelCalculator_Impl/FanCalculatorFactory.h"
 
-// uncomment this to activate test code for
-// styding EMEC geometry deformations
-//#define LARWHEELCALCULATOR_STUDY_DEFORMATIONS
-
-#ifdef LARWHEELCALCULATOR_STUDY_DEFORMATIONS
-#include <sys/time.h>
-#include <stdio.h>
-#endif
-
-#ifdef LARWHEELCALCULATOR_PSA_DEVELOPMENT
-//define table for folding angle computation, requested in LArEMECRunControl;
-std::string  LArWheelCalculator::OptFoldA="iter";
-bool    LArWheelCalculator::FoldAInnerPrepared=false;
-bool    LArWheelCalculator::FoldAOuterPrepared=false;
-double* LArWheelCalculator::FoldAInner=0; // table for folding angle computation
-double* LArWheelCalculator::FoldAOuter=0;
-double  LArWheelCalculator::RminAInner=300.*mm;  //limits for the elecric Field map
-double  LArWheelCalculator::RmaxAInner=800.*mm;
-double  LArWheelCalculator::RminAOuter=600.*mm;
-double  LArWheelCalculator::RmaxAOuter=2100.*mm;
-double  LArWheelCalculator::RstepA    =0.01*mm;
-#endif // LARWHEELCALCULATOR_PSA_DEVELOPMENT
+using namespace Gaudi::Units;
 
 // The radial boundaries of the inner and outer wheels are defined
 // by values of eta, the distance from z=0 to the front face of the
@@ -135,8 +113,7 @@ LArWheelCalculator::LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zsi
   IMessageSvc* msgSvc;
   StatusCode status = svcLocator->service("MessageSvc", msgSvc);
   if(status.isFailure()){
-    throw std::runtime_error("LArWheelCalculator constructor: \
-cannot initialze message service");
+    throw std::runtime_error("LArWheelCalculator constructor: cannot initialze message service");
   }
   MsgStream msg(msgSvc, "LArWheelCalculator");
   msg << MSG::VERBOSE << "LArWheelCalculator constructor at " << this
@@ -186,7 +163,7 @@ cannot initialze message service");
 
   rdbr.
     data( "EmecMagicNumbers", larVersionKey.tag(), larVersionKey.node() ).
-    fallback_to( "EmecMagicNumbers","EMECMagigNumbers-00" ).
+    fallback_to( "EmecMagicNumbers","EMECMagicNumbers-00" ).
     //          store to,                         name,     units
     param(m_ActiveLength,                   "ACTIVELENGTH",  mm).
     param(m_StraightStartSection,   "STRAIGHTSTARTSECTION",  mm).
@@ -230,12 +207,6 @@ cannot initialze message service");
       << "m_WheelThickness       : " << m_WheelThickness / cm << " [cm]" << std::endl
       << "m_dWRPtoFrontFace      : " << m_dWRPtoFrontFace / cm << " [cm]"
       << endreq;
-#ifdef LARWHEELCALCULATOR_PSA_DEVELOPMENT
-  msg << MSG::VERBOSE << "LARWHEELCALCULATOR_PSA_DEVELOPMENT defined, runtime selection allowed" << endreq;
-#else
-  msg << MSG::VERBOSE << "LARWHEELCALCULATOR_PSA_DEVELOPMENT is not defined, default method 'param' is used \
-in parameterized_slant_angle()" << endreq;
-#endif // LARWHEELCALCULATOR_PSA_DEVELOPMENT
 
   // Constructor initializes the geometry.
 
@@ -325,37 +296,12 @@ in parameterized_slant_angle()" << endreq;
   m_NumberOfHalfWaves = m_NumberOfWaves * 2;
   m_HalfWaveLength = m_ActiveLength / m_NumberOfHalfWaves;
   m_QuarterWaveLength = m_HalfWaveLength * 0.5;
-  m_HalfNumberOfFans = m_NumberOfFans / 2;
+  //m_HalfNumberOfFans = m_NumberOfFans / 2;
   m_FanHalfThickness = GetFanHalfThickness(m_type);
 
   // Init sagging
   // value read above
   // std::string sagging_opt_value = (*DB_EMECParams)[0]->getString("SAGGING");
-
-#ifdef LARWHEELCALCULATOR_STUDY_DEFORMATIONS
-#define EMECPARAMFILE "EMECPARAM"
-#define READEMECPARAM(a, key)                                           \
-  {                                                                     \
-    FILE *E = fopen(EMECPARAMFILE, "r");                                \
-    if(E != 0){                                                         \
-      char buf[1024];                                                   \
-      while(!feof(E)){                                                  \
-        fgets(buf, 1023, E);                                            \
-        char *b = strrchr(buf, '\n');                                   \
-        if(b) *b = 0;                                                   \
-        if(strncmp(key, buf, strlen(key)) == 0){                        \
-          a = buf + strlen(key);                                        \
-          msg << MSG::VERBOSE << "data from "                           \
-              << EMECPARAMFILE << " is used for " << key << "!!!"       \
-              << endreq;                                                \
-          break;                                                        \
-        }                                                               \
-      }                                                                 \
-      fclose(E);                                                        \
-    }                                                                   \
-  }
-  READEMECPARAM(sagging_opt_value, "sagging ")
-#endif // LARWHEELCALCULATOR_STUDY_DEFORMATIONS
 
     msg << MSG::VERBOSE << "SAGGING value = " << sagging_opt_value << endreq;
 
@@ -387,11 +333,6 @@ in parameterized_slant_angle()" << endreq;
   }
 
   msg << (m_isInner?" InnerWheel ":" OuterWheel ") << slant_params << endreq;
-
-#ifdef LARWHEELCALCULATOR_STUDY_DEFORMATIONS
-  if(m_isInner) READEMECPARAM(slant_params, "innerslant ")
-    else READEMECPARAM(slant_params, "outerslant ")
-#endif // LARWHEELCALCULATOR_STUDY_DEFORMATIONS
 
            if(slant_params != "" && slant_params != "default"){
              double a, b, c, d, e;
@@ -439,8 +380,9 @@ in parameterized_slant_angle()" << endreq;
         << endreq;
   }
 
-  m_fan_number = -1000;
+  //m_fan_number = -1000;
 
+// Is the following code fragment obsoleted? DM 2015-03-13
   /* to compare various methods of slant angle computation:
      if(isInner) return;
      FILE *O = fopen("slant_stat.table1.txt", "w");
@@ -468,18 +410,7 @@ in parameterized_slant_angle()" << endreq;
 /* converts module gap number into wheel gap number */
 int LArWheelCalculator::PhiGapNumberForWheel(int i) const
 {
-#ifdef USE_FANCALCULATOR_IMPL
-  return m_fanCalcImpl->PhiGapNumberForWheel(i);
-#else
-  if(m_isModule){
-    i += m_ZeroGapNumber;
-    i -= m_LastFan / 2;
-    if(i < 0) i += m_NumberOfFans;
-    if(i >= m_NumberOfFans) i -= m_NumberOfFans;
-    // i ++;
-  }
-  return i;
-#endif
+	return m_fanCalcImpl->PhiGapNumberForWheel(i);
 }
 
 void LArWheelCalculator::inner_wheel_init(const RDBParamRecords & EmecWheelParameters_recs)
@@ -497,55 +428,6 @@ void LArWheelCalculator::inner_wheel_init(const RDBParamRecords & EmecWheelParam
   m_FanStepOnPhi = twopi / m_NumberOfFans;
   m_isInner = true;
 
-#ifdef LARWHEELCALCULATOR_PSA_DEVELOPMENT
-  // optimized parameters for iterativ calculation of slant angle (see LAr report No:..)
-  //(JT)
-
-  AlfInt=107. *deg; //fold angle at inner radius at the middle of the wheel= ROPT[0]
-  AlfExt= 64.5*deg; //------        outer   -----------                    = ROPT[1]
-
-  double zmidle=m_dMechFocaltoWRP+m_dWRPtoFrontFace+m_HalfWheelThickness;
-  double tetint=2.*atan(exp(-m_eta_hi));
-  double tetext=2.*atan(exp(-m_eta_mid));
-  double hwl=m_ActiveLength/m_NumberOfWaves * 0.5;
-
-  ROpt[0]=zmidle*tan(tetint);
-  ROpt[1]=zmidle*tan(tetext);
-  // the length of the arc of the waves
-  ZlOpt[0]=hwl/sin(AlfInt/2.)-2.*m_FanFoldRadius/tan(AlfInt/2.)+(pi-AlfInt)*m_FanFoldRadius;
-  ZlOpt[1]=hwl/sin(AlfExt/2.)-2.*m_FanFoldRadius/tan(AlfExt/2.)+(pi-AlfExt)*m_FanFoldRadius;
-
-  FoldA = FoldAInner;
-  RminA = RminAInner;
-  RmaxA = RmaxAInner;
-
-  if(!FoldAInnerPrepared){
-
-    int length = int( (RmaxAInner-RminAInner)/RstepA ) + 2;
-    FoldAInner = new double [length];
-    FoldA = FoldAInner;
-
-    std::cout
-      <<" LArWheelCalculator::inner_wheel_ini: AlfInt,ext[deg]="
-      <<AlfInt/deg<<" "<<AlfExt/deg<<" ROpt[mm]="<<ROpt[0]<<" "<<ROpt[1]
-      <<" ZlOpt[mm]="<<ZlOpt[0]<<" "<<ZlOpt[1]
-      <<" RminA= "<<RminA<<" RmaxA= "<<RmaxA<<" RstepA= "<<RstepA
-      <<std::endl;
-
-    for(int i=0;i<length;++i){
-
-      FoldAInner[i]=( pi-AlphIter(hwl,RminA+i*RstepA) )/2.;
-      if( (100+i)%100 == 0 ) {
-        std::cout
-          <<" r="<<RminA+i*RstepA<<" FoldAInner[deg]="<< FoldAInner[i]/pi*180.
-          <<" alf[deg]="<< (pi-2*FoldAInner[i])/pi*180.
-          <<std::endl;
-      }
-    } // end of iteration
-
-    FoldAInnerPrepared=true;
-  } //end of defining the table
-#endif // LARWHEELCALCULATOR_PSA_DEVELOPMENT
 }
 
 void LArWheelCalculator::outer_wheel_init(const RDBParamRecords & EmecWheelParameters_recs)
@@ -557,59 +439,11 @@ void LArWheelCalculator::outer_wheel_init(const RDBParamRecords & EmecWheelParam
     param(m_NumberOfWaves, "NACC", 1)
     ;
 
-
   m_FanFoldRadius = 3.0*mm;
   m_ZeroGapNumber = 192; // internal constant, should not be taken from DB
   m_FanStepOnPhi = twopi / m_NumberOfFans;
   m_isInner = false;
 
-#ifdef LARWHEELCALCULATOR_PSA_DEVELOPMENT
-  // optimized parameters for iterativ calculation of slant angle (see LAr report No:..)
-  //(JT)
-
-  double zmidle=m_dMechFocaltoWRP+m_dWRPtoFrontFace+m_HalfWheelThickness;
-  double tetint=2.*atan(exp(-m_eta_mid));
-  double hwl=m_ActiveLength/m_NumberOfWaves * 0.5;
-
-  AlfInt=122.5*deg;
-  AlfExt= 59. *deg;
-  ROpt[0]=zmidle*tan(tetint);
-  ROpt[1]=m_rOuterCutoff;
-  ZlOpt[0]=hwl/sin(AlfInt/2.)-2.*m_FanFoldRadius/tan(AlfInt/2.)+(pi-AlfInt)*m_FanFoldRadius;
-  ZlOpt[1]=hwl/sin(AlfExt/2.)-2.*m_FanFoldRadius/tan(AlfExt/2.)+(pi-AlfExt)*m_FanFoldRadius;
-
-  FoldA = FoldAOuter;
-  RminA = RminAOuter;
-  RmaxA = RmaxAOuter;
-
-  if(!FoldAOuterPrepared){
-
-    int length = int( (RmaxAOuter-RminAOuter)/RstepA ) + 2;
-    FoldAOuter = new double [length];
-    FoldA = FoldAOuter;
-
-    std::cout
-      <<" LArWheelCalculator::outer_wheel_ini: AlfInt,ext[deg]="
-      <<AlfInt/deg<<" "<<AlfExt/deg<<" ROpt[mm]="<<ROpt[0]<<" "<<ROpt[1]
-      <<" ZlOpt[mm]="<<ZlOpt[0]<<" "<<ZlOpt[1]
-      <<" RminA= "<<RminA<<" RmaxA= "<<RmaxA<<" RstepA= "<<RstepA
-      <<std::endl;
-
-
-    for(int i=0;i<length;++i){
-
-      FoldAOuter[i]=( pi-AlphIter(hwl,RminA+i*RstepA) )/2.;
-
-      if( (100+i)%100 == 0 ) {
-        std::cout
-          <<" r="<<RminA+i*RstepA<<" FoldAOuter[deg]="<< FoldAOuter[i]/pi*180.
-          <<" alf[deg]="<< (pi-2*FoldAOuter[i])/pi*180.
-          <<std::endl;
-      }
-    }  // end of iteration
-    FoldAOuterPrepared=true;
-  } //end of defining the table
-#endif // LARWHEELCALCULATOR_PSA_DEVELOPMENT
 }
 
 double LArWheelCalculator::GetFanHalfThickness(LArWheelCalculator_t t)
@@ -648,8 +482,7 @@ double LArWheelCalculator::GetFanHalfThickness(LArWheelCalculator_t t)
   case OuterElectrodModule:
     return 0.275/1.0036256 *mm * 0.5;  //new values, 02.11.06 J.T
   }
-  throw std::runtime_error("LArWheelCalculator::GetFanHalfThickness:\
-wrong wheel type");
+  throw std::runtime_error("LArWheelCalculator::GetFanHalfThickness: wrong wheel type");
 }
 
 void LArWheelCalculator::module_init(void)
@@ -706,3 +539,4 @@ void LArWheelCalculator::GetWheelOuterRadius(double *r) const
     r[2] = m_rOuterCutoff;
   }
 }
+

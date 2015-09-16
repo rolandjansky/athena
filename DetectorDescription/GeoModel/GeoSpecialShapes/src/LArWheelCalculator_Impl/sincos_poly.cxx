@@ -17,8 +17,6 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 #define DEBUGPRINT 0
 
-using namespace CLHEP;
-
 template<typename T>
 std::ostream & operator << (std::ostream & ostr, const TVectorT<T> & v) {
   std::ios_base::fmtflags save_flags(ostr.flags());
@@ -67,6 +65,7 @@ static TVectorD findLinearApproximation(
 
 #include "GeoSpecialShapes/LArWheelCalculator.h"
 #include <CxxUtils/sincos.h>
+using namespace CLHEP;
 
 void LArWheelCalculator::fill_sincos_parameterization(void)
 {

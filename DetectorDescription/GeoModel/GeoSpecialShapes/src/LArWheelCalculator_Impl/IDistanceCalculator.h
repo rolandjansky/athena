@@ -15,9 +15,9 @@ namespace LArWheelCalculator_Impl {
 	virtual ~IDistanceCalculator() {};
   // geometry methods:
 
-	virtual double DistanceToTheNeutralFibre(const CLHEP::Hep3Vector &p) const = 0;  // depends on sagging flag
-	virtual CLHEP::Hep3Vector NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &p) const = 0; // depends on sagging flag
-	virtual double AmplitudeOfSurface(const CLHEP::Hep3Vector& p, int side) const = 0;  // depends on sagging flag
+	virtual double DistanceToTheNeutralFibre(const CLHEP::Hep3Vector &p, int fan_number) const = 0;  // depends on sagging flag
+	virtual CLHEP::Hep3Vector NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &p, int fan_number) const = 0; // depends on sagging flag
+	virtual double AmplitudeOfSurface(const CLHEP::Hep3Vector& p, int side, int fan_number) const = 0;  // depends on sagging flag
   };
 
 }
