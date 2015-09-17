@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Muon_v1.h 647346 2015-02-17 10:24:03Z emoyse $
+// $Id: Muon_v1.h 690346 2015-08-20 11:38:22Z emoyse $
 #ifndef XAODMUON_VERSIONS_MUON_V1_H
 #define XAODMUON_VERSIONS_MUON_V1_H
 
@@ -99,8 +99,8 @@ namespace xAOD {
     void setAuthor(Author auth);
     /// Get all the authors of this Muon.
     /// For example during overlap checking, the same Muon may have been reconstructed by many different algorithms. This method returns a 16bit
-    /// number, where each bit represents a muon algorithm, defined as follows (Muonboy is the lowest bit):
-    /// Muonboy | STACO | MuTag | Muid SA | Muid Co | MuGirl | MuGirlLowBeta | CaloMuon | CaloTag | CaloLikelihood | MuTagIMO | MuonCombinedRefit | ExtrapolateMuonToIP        
+    /// number, where each bit represents a muon algorithm, defined as follows (the lowest bit is indicates that something has gone wrong):
+    /// unknown | MuidCo | STACO | MuTag | MuTagIMO | MuidSA | MuGirl | MuGirlLowBeta | CaloTag | CaloLikelihood | ExtrapolateMuonToIP | MuonCombinedRefit | ExtrapolateMuonToIP        
     /// @returns  16-bit word, 1-bit reserved for each muon Algorithm: 
     uint16_t allAuthors() const;
     void setAllAuthors(uint16_t authors);
@@ -142,22 +142,22 @@ namespace xAOD {
     bool summaryValue(uint8_t& value, const SummaryType information) const;	     
     /// Set method for storing TrackSummary SummaryType information on the Muon (see Aux to see which is already defined as static)       
     void setSummaryValue(uint8_t value, const SummaryType information);  
-    /// @copydoc summaryValue(uint8_t& value, const SummaryType &information) const;
+    /// @copydoc bool summaryValue(uint8_t& value, const SummaryType information) const;
     bool summaryValue(float& value, const SummaryType information) const;        
     /// Accessor for MuonSummaryType.
     bool summaryValue(uint8_t& value, const MuonSummaryType information) const;
     /// Set method for MuonSummaryType.        
     void setSummaryValue(uint8_t value, const MuonSummaryType information); 
      
-	/// Same as bool summaryValue(float& value, const SummaryType &information) const , but without check (will throw exception if value isn't there)
-	/// Primarily for use in Python.
-	float floatSummaryValue(const SummaryType information) const;
-	/// Same as bool summaryValue(uint8_t& value, const SummaryType &information) const, but without check (will throw exception if value isn't there)
-	/// Primarily for use in Python.
-	uint8_t uint8SummaryValue(const SummaryType information) const;
-	/// Same as bool summaryValue(uint8_t& value, const MuonSummaryType &information) const, but without check (will throw exception if value isn't there)
-	/// Primarily for use in Python.
-	float uint8MuonSummaryValue(const MuonSummaryType information) const;
+    /// Same as bool summaryValue(float& value, const SummaryType &information) const , but without check (will throw exception if value isn't there)
+    /// Primarily for use in Python.
+    float floatSummaryValue(const SummaryType information) const;
+    /// Same as bool summaryValue(uint8_t& value, const SummaryType &information) const, but without check (will throw exception if value isn't there)
+    /// Primarily for use in Python.
+    uint8_t uint8SummaryValue(const SummaryType information) const;
+    /// Same as bool summaryValue(uint8_t& value, const MuonSummaryType &information) const, but without check (will throw exception if value isn't there)
+    /// Primarily for use in Python.
+    float uint8MuonSummaryValue(const MuonSummaryType information) const;
 	    
     /// Enum for parameter indexes 
     enum ParamDef {
@@ -194,7 +194,10 @@ namespace xAOD {
       EnergyLossSigma, //!< Sigma of Measured or parametrised energy loss used in the track fit [Mev]
       ParamEnergyLossSigmaPlus, //!< Sigma plus of Parametrised energy loss [Mev]
       ParamEnergyLossSigmaMinus, //!< Sigma minus of Parametrised energy loss [Mev]
-      MeasEnergyLossSigma //!< Sigma of Measured energy loss [Mev]
+      MeasEnergyLossSigma, //!< Sigma of Measured energy loss [Mev]
+      NearbyHitsInner,//!< Number of nearby (within a few cm) hits in the inner layer.
+      NearbyHitsMiddle,//!< Number of nearby (within a few cm) hits in the middle layer (including BEE and EES/L chambers).
+      NearbyHitsOuter//!< Number of nearby (within a few cm) hits in the outer layer nearby (within a few cm).
     };
         
     /// Get a parameter for this Muon - momentumBalanceSignificance for example 
@@ -220,10 +223,12 @@ namespace xAOD {
     /// Primarily for use in Python.
     int intParameter(const ParamDef parameter) const;
 
-    
-    /// The Muon Quality information is defined on the MCP twiki: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/MuonsQualityDefinition      
+    /// The Muon Quality information is defined on the MCP twiki: https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionTool#Quality_definition
     /// @todo Finish documentation
-    enum Quality {Tight, Medium, Loose, VeryLoose};
+    enum Quality {Tight, /// Highest purity, but lower efficiency
+                  Medium, /// Usual recommended working point - a good balance between purity and efficiency
+                  Loose, /// Adds segment tagged and calo tagged muons.
+                  VeryLoose}; /// Low purity.
     Quality quality() const;
     void setQuality(Quality);
           
@@ -243,42 +248,35 @@ namespace xAOD {
               
     /// @}
 	
-    /// @name xAOD::Muon Isolation value Accesors
-    /// If 'information' is stored in this xAOD::Muon and is of the correct type,
-    /// then the function fills 'value' and returns 'true', otherwise it returns 'false', and does not touch 'value'.
-    ///
+    /// @name Isolation information.
+    /// 
     /// @{   
 
-    /// @brief Accessor for Isolation values.
+    /// @brief Accessor for Isolation values. 
+    /// If 'information' is stored in this xAOD::Muon and is of the correct type,
+    /// then the function fills 'value' and returns 'true', otherwise it returns 'false', and does not touch 'value'.
     bool isolation(float& value,   const Iso::IsolationType information) const;
 
     /// Accessor to Isolation values , this just returns the value without internaly checking if it exists.
     /// Will lead to an exception if the information is not available
     float isolation(const Iso::IsolationType information) const;
 
-    /// @set method for Isolation values.
+    /// Set method for Isolation values.
     void setIsolation(float value, const Iso::IsolationType information);
     /// @}
 
-
-    /// @name xAOD::Egamma Isolation correction  Accesors
-    /// If 'information' is stored in this xAOD::Egamma and is of the correct type,
-    /// then the function fills 'value' and returns 'true', otherwise it returns 'false', and does not touch 'value'.
-    ///
-    /// @{   
-
     /// @brief Accessor for Isolation Calo correction.
+    /// If 'information' is stored in this xAOD::Muon and is of the correct type,
+    /// then the function fills 'value' and returns 'true', otherwise it returns 'false', and does not touch 'value'.
     bool isolationCaloCorrection(float& value, const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection type,
                                  const Iso::IsolationCorrectionParameter param) const;
-
-
 
     /// Accessor to Isolation Calo corrections , this just returns the correction without internaly checking if it exists.
     /// Will lead to an exception if the information is not available
     float isolationCaloCorrection(const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection type,
                                   const Iso::IsolationCorrectionParameter param) const;
 
-    /// @se method for Isolation Calo Corrections.
+    /// set method for Isolation Calo Corrections.
     bool setIsolationCaloCorrection(float value, const Iso::IsolationFlavour flavour, const Iso::IsolationCaloCorrection type,
                                     const Iso::IsolationCorrectionParameter param);
 
@@ -290,7 +288,7 @@ namespace xAOD {
     /// Will lead to an exception if the information is not available
     float isolationTrackCorrection(const Iso::IsolationFlavour flavour , const Iso::IsolationTrackCorrection type) const;
 
-    /// @Set method for Isolation Track Corrections.
+    /// Set method for Isolation Track Corrections.
     bool setIsolationTrackCorrection(float value, const Iso::IsolationFlavour flavour , const Iso::IsolationTrackCorrection type);
 
 
@@ -301,7 +299,7 @@ namespace xAOD {
     /// Will lead to an exception if the information is not available
     std::bitset<32> isolationCorrectionBitset(const Iso::IsolationFlavour flavour ) const;
 
-    /// @Set method for Isolation corection Bitset.
+    /// Set method for Isolation corection Bitset.
     bool setIsolationCorrectionBitset(uint32_t value, const Iso::IsolationFlavour flavour );
 
     /// @}
@@ -318,7 +316,9 @@ namespace xAOD {
     /// @brief Returns an ElementLink  to the primary TrackParticle corresponding to the MuonType of this muon. This is determined in the following order:
     ///  1. CombinedTrackParticle
     ///  2. InnerDetectorTrackParticle
-    ///  3. MuonSpectrometerTrackParticle
+    ///  3. (Extrapolated)MuonSpectrometerTrackParticle
+    /// This method can throw a std::runtime_error exception if either the 'muontype' is unknown, or if the type is MuonStandAlone, 
+    /// but there is no available extrapolatedMuonSpectrometerTrackParticleLink or muonSpectrometerTrackParticleLink to return.
     const ElementLink< TrackParticleContainer >& primaryTrackParticleLink() const;
 		
     /// @brief Returns a pointer (which should not usually be NULL, but might be if the muon has been stripped of information) to the
@@ -326,7 +326,7 @@ namespace xAOD {
     ///This is determined in the following order:
     ///  1. CombinedTrackParticle
     ///  2. InnerDetectorTrackParticle
-    ///  3. MuonSpectrometerTrackParticle
+    ///  3. (Extrapolated)MuonSpectrometerTrackParticle
     const TrackParticle* primaryTrackParticle() const; 
 
     /// @brief Returns an ElementLink to the InnerDetector TrackParticle used in identification of this muon.
