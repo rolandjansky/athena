@@ -22,7 +22,7 @@
 
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArHVLineID.h"
-#include "LArCabling/LArHVCablingTool.h"
+#include "LArTools/LArHVCablingTool.h"
 
 #include "Identifier/HWIdentifier.h"
 

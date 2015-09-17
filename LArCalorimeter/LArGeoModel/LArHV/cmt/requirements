@@ -16,7 +16,7 @@ use GaudiInterface       GaudiInterface-*           External
 use Identifier           Identifier-*               DetectorDescription
 use AthenaPoolUtilities  AthenaPoolUtilities-*      Database/AthenaPOOL
 use LArIdentifier        LArIdentifier-*            LArCalorimeter
-use LArCabling           LArCabling-*               LArCalorimeter
+use LArTools             LArTools-*                 LArCalorimeter
 end_private
 
 
