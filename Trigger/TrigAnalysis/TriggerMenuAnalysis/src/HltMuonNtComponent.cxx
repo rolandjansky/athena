@@ -42,13 +42,30 @@ HltMuonNtComponent::HltMuonNtComponent(NtupleAlgorithm* mainAlg,
   mMoore(0), 
   mMuid(0), 
   mTileL2Muon(0), 
-  mTileMuon(0) {
+  mTileMuon(0), mMuonChains() {
   //  declareProperty("EventInfoName", mEventInfoName = "McEventInfo", "EventInfo key");
   
+  mMuonDataVec = 0;
+  mTileMuDataVec = 0;
+
+  mTrigEventInfo = 0;
+  mTgcHptWire = 0;
+  mTgcHptStrip = 0;
+  mMoore = 0;
+  mMuid = 0;
+  mTileL2Muon = 0;
+  mTileMuon = 0;
+
+  m_activeStore = 0;
+  mTrigAccessTool = 0;
+  mEvent = 0;
+
   TrigMenuNtupleAlg* mymainAlg = dynamic_cast<TrigMenuNtupleAlg*>(mainAlg);
 
-  m_activeStore = mymainAlg->activeStoreSvc();
-  mTrigAccessTool = mymainAlg->trigAccessTool();
+  if (mymainAlg) {
+    m_activeStore = mymainAlg->activeStoreSvc();
+    mTrigAccessTool = mymainAlg->trigAccessTool();
+  }
 
   // Configure properties from the NtComponentParameters
   const std::string container_key = "EventInfo";
@@ -160,8 +177,10 @@ void HltMuonNtComponent::fillHltData() {
   for (p_roi=muonRoIs.begin(); p_roi!=muonRoIs.end(); ++p_roi) {
     RoIData_Muon x;
     MuonObjectsInRoI* x1 = dynamic_cast<MuonObjectsInRoI*>(*p_roi);
-    convertMuonData(x, *x1);
-    mMuonDataVec->push_back(x);
+    if (x1) {
+      convertMuonData(x, *x1);
+      mMuonDataVec->push_back(x);
+    }
   }
 }
 

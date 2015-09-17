@@ -17,10 +17,11 @@ TrigMenuNtComponent::TrigMenuNtComponent(NtupleAlgorithm* mainAlg,
   mTrigDecisionTool(0), mTrigAccessTool(0), mRoILinksCnvTool(0), 
   mChainEntries(0), mRoILinks(0) {
   TrigMenuNtupleAlg* mymainAlg = dynamic_cast<TrigMenuNtupleAlg*>(mainAlg);
-
-  mTrigDecisionTool = mymainAlg->trigDecisionTool();
-  mTrigAccessTool = mymainAlg->trigAccessTool();
-  mRoILinksCnvTool = mymainAlg->roILinksCnvTool();
+  if (mymainAlg) {
+    mTrigDecisionTool = mymainAlg->trigDecisionTool();
+    mTrigAccessTool = mymainAlg->trigAccessTool();
+    mRoILinksCnvTool = mymainAlg->roILinksCnvTool();
+  }
 }
 
 TrigMenuNtComponent::~TrigMenuNtComponent() {

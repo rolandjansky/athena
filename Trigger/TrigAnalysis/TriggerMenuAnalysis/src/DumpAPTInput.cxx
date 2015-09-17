@@ -17,9 +17,16 @@ using namespace std;
 DumpAPTInput::DumpAPTInput(const std::string& name, 
 				   ISvcLocator* svcloc) :
   AthAlgorithm(name, svcloc), 
-  mTrigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool") {
+  mOutputFile(), 
+  mTrigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"), 
+  mL1NameIdMap(), mL2NameIdMap(), mEFNameIdMap(), 
+  mL1_TBP(), mL1_TAP(), mL1_TAV(), 
+  mL2_Raw(), mL2_Rerun(), mEF_Raw(), mEF_Rerun() {
   declareProperty("OutputFileName", mOutputFileName="apt_input.txt", 
 		  "Output file name");
+  mChainGroup_AllL1 = 0;
+  mChainGroup_AllL2 = 0;
+  mChainGroup_AllEF = 0;
 }
 
 DumpAPTInput::~DumpAPTInput() {
@@ -63,19 +70,20 @@ StatusCode DumpAPTInput::execute() {
 void DumpAPTInput::readL1Map(const std::vector<std::string>& names, 
 			     std::map<int, std::string>& name_map) {
   Trig::ExpertMethods* m = mTrigDecisionTool->ExperimentalAndExpertMethods();
-  if (m) m->enable();
-  else {
+  if (m==0) {
     msg(MSG::WARNING) << "Cannot get TDT expert methods" << endreq;
-  }
-  std::vector<std::string>::const_iterator p;
-  for (p=names.begin(); p!=names.end(); ++p) {
-    const TrigConf::TriggerItem* item = m->getItemConfigurationDetails(*p);
-    if (item) {
-      int id = item->ctpId();
-      name_map[id] = *p;
-    } else {
-      msg(MSG::WARNING) << "Cannot find TrigConif::TriggerItem for " 
-			<< *p << endreq;
+  } else {
+    m->enable();
+    std::vector<std::string>::const_iterator p;
+    for (p=names.begin(); p!=names.end(); ++p) {
+      const TrigConf::TriggerItem* item = m->getItemConfigurationDetails(*p);
+      if (item) {
+	int id = item->ctpId();
+	name_map[id] = *p;
+      } else {
+	msg(MSG::WARNING) << "Cannot find TrigConif::TriggerItem for " 
+			  << *p << endreq;
+      }
     }
   }
 }
@@ -83,19 +91,20 @@ void DumpAPTInput::readL1Map(const std::vector<std::string>& names,
 void DumpAPTInput::readHLTMap(const std::vector<std::string>& names, 
 			    std::map<int, std::string>& name_map) {
   Trig::ExpertMethods* m = mTrigDecisionTool->ExperimentalAndExpertMethods();
-  if (m) m->enable();
-  else {
+  if (m==0) {
     msg(MSG::WARNING) << "Cannot get TDT expert methods for HLT" << endreq;
-  }
-  std::vector<std::string>::const_iterator p;
-  for (p=names.begin(); p!=names.end(); ++p) {
-    const TrigConf::HLTChain* chain = m->getChainConfigurationDetails(*p);
-    if (chain) {
-      int id = chain->chain_counter();
-      name_map[id] = *p;
-    } else {
-      msg(MSG::WARNING) << "Cannot find TrigConif::HLTDChain for " 
-			<< *p << endreq;
+  } else {
+    m->enable();
+    std::vector<std::string>::const_iterator p;
+    for (p=names.begin(); p!=names.end(); ++p) {
+      const TrigConf::HLTChain* chain = m->getChainConfigurationDetails(*p);
+      if (chain) {
+	int id = chain->chain_counter();
+	name_map[id] = *p;
+      } else {
+	msg(MSG::WARNING) << "Cannot find TrigConif::HLTDChain for " 
+			  << *p << endreq;
+      }
     }
   }
 }

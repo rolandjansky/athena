@@ -29,8 +29,8 @@ use  AnalysisTriggerEvent       AnalysisTriggerEvent-*          PhysicsAnalysis/
 
 #macro_append ROOT_linkopts " -lCintex"
 # macro_append TriggerMenuAnalysisLib_dependencies " TriggerMenuNtupleDict"
-macro_append TriggerMenuAnalysisLib_use_linkopts " -lTriggerMenuNtupleDict"
-macro_append TriggerMenuAnalysis_linkopts " -lTriggerMenuNtupleDict"
+#macro_append TriggerMenuAnalysisLib_use_linkopts " -lTriggerMenuNtupleDict"
+#macro_append TriggerMenuAnalysis_linkopts " -lTriggerMenuNtupleDict"
 
 
 apply_pattern dual_use_library files=*.cxx
@@ -53,7 +53,6 @@ use  MuonTrigCoinData           MuonTrigCoinData-*              MuonSpectrometer
 use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1
 use  TrigConfL1Data             TrigConfL1Data-*                Trigger/TrigConfiguration
 use  TrigMissingEtEvent         TrigMissingEtEvent-*            Trigger/TrigEvent
-use  TrigMinBiasNtuple          TrigMinBiasNtuple-*             Trigger/TrigAnalysis/TrigMinBiasAnalysis
 use  AtlasReflex                AtlasReflex-*                   External                                            -no_auto_imports
 use TrigConfigSvc    TrigConfigSvc-*  Trigger/TrigConfiguration
 

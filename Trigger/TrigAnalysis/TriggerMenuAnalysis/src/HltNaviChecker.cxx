@@ -46,7 +46,8 @@ HltNaviChecker::HltNaviChecker(const std::string& name, ISvcLocator* svcloc) :
   AthAlgorithm(name, svcloc), 
   mTrigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"), 
   mRoILinksCnvTool("RoILinksCnvTool/RoILinksCnvTool"), 
-  mFile(0), mTree(0), mEFElectronPassBitsIndex(0) {
+  mChainNames(), 
+  mFile(0), mTree(0), mNPassBits(0), mEFElectronPassBitsIndex(0) {
   declareProperty("ChainNames", mChainNames, "List of chains to inspect");
 }
 
@@ -184,7 +185,7 @@ void HltNaviChecker::checkFeatures(const std::string& chain_name) {
   msg(MSG::INFO) << "  N combinations: " << combs.size() << endreq;
   int icomb=0;
   for (p_comb=combs.begin(); p_comb!=combs.end(); ++p_comb, ++icomb) {
-    HLT::NavigationCore* navi = p_comb->navigation();
+    HLT::NavigationCore* navi = dynamic_cast<HLT::NavigationCore*>(p_comb->navigation());
     const std::vector<const HLT::TriggerElement*>& tes = p_comb->tes();
     msg(MSG::INFO) << "  Combinatation[" << icomb 
 		   << "] N TEs: " << tes.size()
@@ -256,7 +257,7 @@ void HltNaviChecker::checkFeatures(const HLT::TriggerElement* te,
   for (p_f=v.begin(); p_f!=v.end(); ++p_f, ++iii) {
     unsigned int clid = p_f->getCLID();
     const HLT::TriggerElement::ObjectIndex& oi = p_f->getIndex();
-    std::string feature_label = subTypeLabel(clid, oi.subTypeIndex(), navi);
+    std::string feature_label = navi->label(clid, oi.subTypeIndex());
     msg(MSG::INFO) << prefix << "  Feature[" << iii << "] :" 
 		   << " clid = " << p_f->getCLID()
 		   << " subType: " << oi.subTypeIndex() 
@@ -270,25 +271,4 @@ void HltNaviChecker::checkFeatures(const HLT::TriggerElement* te,
     checkFeatures(*p, navi, prefix+"  ");
   }
 }
-
-std::string HltNaviChecker::subTypeLabel(int clid, 
-					 short subtype_index, 
-					 HLT::NavigationCore* navi) {
-  
-  std::map<unsigned int, std::map< uint16_t, std::string> > lookup = 
-      navi->m_lookupLabels;
-  // lookup[clid][subtype][label]
-  std::map<unsigned int, std::map< uint16_t, std::string> >::const_iterator p1;
-  std::map< uint16_t, std::string >::const_iterator p2;
-  
-  if ( (p1=lookup.find(clid)) != lookup.end()) {
-    for (p2=p1->second.begin(); p2!=p1->second.end(); ++p2) {
-      if (p2->first == subtype_index) {
-	return p2->second;
-      }
-    }
-  }
-  return "???";
-}
-
 

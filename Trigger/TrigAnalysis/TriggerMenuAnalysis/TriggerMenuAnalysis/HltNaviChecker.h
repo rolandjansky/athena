@@ -30,9 +30,6 @@ private:
   void checkFeatures(const HLT::TriggerElement* te, 
 		     HLT::NavigationCore* navi, 
 		     const std::string& prefix="");
-  std::string subTypeLabel(int clid, short subtype_index, 
-			   HLT::NavigationCore* navi);
-
 private:
   ToolHandle<Trig::TrigDecisionTool> mTrigDecisionTool;
   ToolHandle<RoILinksCnvTool> mRoILinksCnvTool;

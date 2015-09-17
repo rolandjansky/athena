@@ -28,24 +28,7 @@ IndexFinderBase::IndexFinderBase() {
 
 int IndexFinderBase::subTypeIndex(unsigned int clid, const std::string& label, 
 				  const Trig::Combination& comb) const {
-  HLT::NavigationCore* navi = comb.navigation();
-
-  const std::map<unsigned int, std::map< uint16_t, std::string> >& lookup = 
-    navi->m_lookupLabels;
-  std::map<unsigned int, std::map< uint16_t, std::string> >::const_iterator p1;
-  std::map< uint16_t, std::string >::const_iterator p2;
-
-  int index=-1;
-  if ( (p1=lookup.find(clid)) != lookup.end()) {
-    for (p2=p1->second.begin(); p2!=p1->second.end(); ++p2) {
-      if (p2->second == label) {
-	index = p2->first;
-	break;
-      }
-    }
-  }
-
-  return index;
+  return comb.navigation()->subType(clid,label);
 }
 
 void IndexFinderBase::fillIndexes(std::vector<FeatureIndex>& index, 

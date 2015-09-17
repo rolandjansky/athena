@@ -166,11 +166,17 @@ void RoINtComponent::clear() {
 TrigMenuFlatNtComponent::TrigMenuFlatNtComponent(NtupleAlgorithm* mainAlg, 
 						 const NtComponent::NtComponentParameters& params) : 
   NtComponent::NtupleComponent(mainAlg, params), 
-  mTrigDecisionTool(0), mRoILinksCnvTool(0) {
+  mTrigDecisionTool(0), mRoILinksCnvTool(0), 
+  mChainEntries(), mRoILinks() {
   TrigMenuNtupleAlg* mymainAlg = dynamic_cast<TrigMenuNtupleAlg*>(mainAlg);
+  if (mymainAlg) {
+    mTrigDecisionTool = mymainAlg->trigDecisionTool();
+    mRoILinksCnvTool = mymainAlg->roILinksCnvTool();
+  }
+  mChainId = 0;
+  mRoIType = 0;
+  mRoIIndex = 0;
 
-  mTrigDecisionTool = mymainAlg->trigDecisionTool();
-  mRoILinksCnvTool = mymainAlg->roILinksCnvTool();
 }
 
 TrigMenuFlatNtComponent::~TrigMenuFlatNtComponent() {
