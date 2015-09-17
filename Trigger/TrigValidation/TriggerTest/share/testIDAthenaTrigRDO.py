@@ -18,6 +18,8 @@ if not ('OutputLevel' in dir()):
   rec.OutputLevel=INFO
 
 ###############################
+rec.doCBNT=False
+
 doTrigger=True
 rec.doESD.set_Value_and_Lock(False)
 
@@ -61,7 +63,7 @@ TriggerFlags.doHLT=True
 #TriggerFlags.doMuon=False
 
 #------------ This is for ATN/RTT tests only ---------
-TriggerFlags.triggerMenuSetup = 'Physics_pp_v6'
+TriggerFlags.triggerMenuSetup = 'Physics_pp_v5'
 #-------------end of flag for tests-------------------
 
 #------------ This is a temporary fix ---------------
