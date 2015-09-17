@@ -24,8 +24,10 @@ TrigDecNtComponent::TrigDecNtComponent(NtupleAlgorithm* mainAlg,
   mTrigDecisionTool(0), 
   mTrigDecSummary(0) {
   TrigMenuNtupleAlg* algo = dynamic_cast<TrigMenuNtupleAlg*>(mainAlg);
-  mTrigConfigSvc = algo->trigConfigSvc();
-  mTrigDecisionTool = algo->trigDecisionTool();
+  if (algo) {
+    mTrigConfigSvc = algo->trigConfigSvc();
+    mTrigDecisionTool = algo->trigDecisionTool();
+  }
 }
 
 TrigDecNtComponent::~TrigDecNtComponent() {

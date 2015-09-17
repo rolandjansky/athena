@@ -26,9 +26,12 @@ using namespace std;
 TestNewTDT::TestNewTDT(const std::string& name, ISvcLocator* svcloc) : 
   AthAlgorithm(name, svcloc), 
   mTrigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"), 
-  mClassIDSvc("ClassIDSvc/ClassIDSvc", this->name()) {
+  mClassIDSvc("ClassIDSvc/ClassIDSvc", this->name()), 
+  mChainGroupNames(), mChainGroups(), mChainCombMap() {
   declareProperty("ChainGroupNames", mChainGroupNames, 
 		  "List of chain groups to investigate");
+  mChainGroup_L2 = 0;
+  mChainGroup_EF = 0;
 }
 
 TestNewTDT::~TestNewTDT() {

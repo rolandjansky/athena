@@ -59,15 +59,17 @@ bool TrigMenuHists::fillMuonObjects(const std::vector<HLTObjectsInRoI*>& objs) {
 
   for(p=objs.begin(); p!=objs.end(); ++p) {
     MuonObjectsInRoI* mu_obj = dynamic_cast<MuonObjectsInRoI*>( (*p));
-    if (mu_obj->getMuonFeature()) {
-      log << MSG::INFO << "mufast pt: " << mu_obj->getMuonFeature()->pt()*0.001
-	  << endreq;
-      mHistMuFastPt->Fill(mu_obj->getMuonFeature()->pt()*0.001);
-    }
-    if (mu_obj->getCombinedMuonFeature()) {
-      log << MSG::INFO << "mufast pt: " 
-	  << mu_obj->getCombinedMuonFeature()->pt()*0.001 << endreq;
-      mHistMuCombPt->Fill(mu_obj->getCombinedMuonFeature()->pt());
+    if (mu_obj) {
+      if (mu_obj->getMuonFeature()) {
+	log << MSG::INFO << "mufast pt: " 
+	    << mu_obj->getMuonFeature()->pt()*0.001 << endreq;
+	mHistMuFastPt->Fill(mu_obj->getMuonFeature()->pt()*0.001);
+      }
+      if (mu_obj->getCombinedMuonFeature()) {
+	log << MSG::INFO << "mufast pt: " 
+	    << mu_obj->getCombinedMuonFeature()->pt()*0.001 << endreq;
+	mHistMuCombPt->Fill(mu_obj->getCombinedMuonFeature()->pt());
+      }
     }
   }
   return true;

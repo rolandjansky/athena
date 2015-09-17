@@ -60,9 +60,9 @@ StatusCode TrigAccessTool::finalize() {
 
 bool TrigAccessTool::decodeHLTResults() {
   return true;
-  decodeHLTResult("HLTResult_L2");
-  decodeHLTResult("HLTResult_EF");
-  return true;
+  // decodeHLTResult("HLTResult_L2");
+  // decodeHLTResult("HLTResult_EF");
+  // return true;
 }
 
 HLTObjectsInRoI* TrigAccessTool::findRoI(int isig, 
