@@ -52,17 +52,17 @@ StatusCode Trk::GsfMaterialEffectsUpdator::initialize ()
   if ( m_materialEffects.retrieve().isFailure() ){
     msg(MSG::FATAL)
 	  << "Could not retrieve Material Effects AlgTool: " << m_materialEffects.typeAndName()
-	  << "... Exiting!" << endmsg;
+	  << "... Exiting!" << endreq;
     return StatusCode::FAILURE;
   }
 
   // Retrieve an instance of the multi-component state assembler service
   if ( m_stateAssembler.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Could not retrieve multi-component state assembler tool... Exiting!" << endmsg;
+    msg(MSG::FATAL) << "Could not retrieve multi-component state assembler tool... Exiting!" << endreq;
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
+  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endreq;
 
   return StatusCode::SUCCESS;
 
@@ -71,7 +71,7 @@ StatusCode Trk::GsfMaterialEffectsUpdator::initialize ()
 StatusCode Trk::GsfMaterialEffectsUpdator::finalize()
 {
 
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
+  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endreq;
 
   return StatusCode::SUCCESS;
 
@@ -90,12 +90,12 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::updateState ( co
 {
   
   if (m_outputlevel < 0)
-    msg(MSG::VERBOSE) << "Material effects update using layer information and particle hypothesis: " << particleHypothesis << endmsg;
+    msg(MSG::VERBOSE) << "Material effects update using layer information and particle hypothesis: " << particleHypothesis << endreq;
    
   const Trk::TrackParameters* trackParameters = componentParameters.first;
   
   if (!trackParameters){
-    msg(MSG::ERROR) << "Trying to update component without trackParameters... returing component!" << endmsg;
+    msg(MSG::ERROR) << "Trying to update component without trackParameters... returing component!" << endreq;
     const Trk::ComponentParameters* clonedParameters = componentParameters.clone();
     const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState( *clonedParameters );
     delete clonedParameters;
@@ -133,7 +133,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::updateState ( co
   // Bail out if still no material properties can be found
   if ( !materialProperties ){
     if (m_outputlevel < 0)
-      msg(MSG::VERBOSE) << "No material properties found for this layer... cloning initial state" << endmsg;
+      msg(MSG::VERBOSE) << "No material properties found for this layer... cloning initial state" << endreq;
     const Trk::ComponentParameters* clonedParameters = componentParameters.clone();
     const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState( *clonedParameters );
     delete clonedParameters;
@@ -171,7 +171,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::updateState ( co
 {
   
   if (m_outputlevel < 0)
-    msg(MSG::VERBOSE) << "Material effects update using material properties and path length information" << endmsg;
+    msg(MSG::VERBOSE) << "Material effects update using material properties and path length information" << endreq;
   
   const Trk::MultiComponentState* updatedState = 0;
     
@@ -194,12 +194,12 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::preUpdateState( 
 {
   
   if (m_outputlevel < 0)
-    msg(MSG::VERBOSE) << "Material effects update prior to propagation using layer information and particle hypothesis: " << particleHypothesis << endmsg;
+    msg(MSG::VERBOSE) << "Material effects update prior to propagation using layer information and particle hypothesis: " << particleHypothesis << endreq;
    
   const Trk::TrackParameters* trackParameters = componentParameters.first;
   
   if (!trackParameters){
-    msg(MSG::ERROR) << "Trying to update component without trackParameters... returing 0!" << endmsg;
+    msg(MSG::ERROR) << "Trying to update component without trackParameters... returing 0!" << endreq;
     return 0;
   }
 
@@ -209,7 +209,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::preUpdateState( 
   // Bail if the pre-update factor is small
   if ( preUpdateFactor < 0.01 ){
     if (m_outputlevel < 0)
-      msg(MSG::VERBOSE) << "No pre-update necessary... return 0" << endmsg;
+      msg(MSG::VERBOSE) << "No pre-update necessary... return 0" << endreq;
     return 0;
   }
 
@@ -246,7 +246,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::preUpdateState( 
   // Bail out if still no material properties can be found
   if ( !materialProperties ){
     if (m_outputlevel < 0)
-      msg(MSG::VERBOSE) << "No material properties found for this layer... cloning initial state" << endmsg;
+      msg(MSG::VERBOSE) << "No material properties found for this layer... cloning initial state" << endreq;
     const Trk::ComponentParameters* clonedParameters = componentParameters.clone();
     const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState( *clonedParameters );
     delete clonedParameters;
@@ -265,7 +265,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::preUpdateState( 
   //std::cout << "2PL, PC, X0  :" << pathLength  << '\t' << pathCorrection<< '\t' <<pathLength / materialProperties->x0() <<std::endl;
 
   if (m_outputlevel <= 0)
-     msg(MSG::DEBUG) << "Calculated path-length (mm): " << pathLength << "\t" << pathLength / materialProperties->x0() << endmsg;
+     msg(MSG::DEBUG) << "Calculated path-length (mm): " << pathLength << "\t" << pathLength / materialProperties->x0() << endreq;
 
   const Trk::MultiComponentState* updatedState = compute( componentParameters, *materialProperties, pathLength, direction, particleHypothesis );
   
@@ -286,12 +286,12 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::postUpdateState 
 {
   
   if (m_outputlevel < 0)
-    msg(MSG::VERBOSE) << "Material effects update after propagation using layer information and particle hypothesis: " << particleHypothesis << endmsg;
+    msg(MSG::VERBOSE) << "Material effects update after propagation using layer information and particle hypothesis: " << particleHypothesis << endreq;
    
   const Trk::TrackParameters* trackParameters = componentParameters.first;
   
   if (!trackParameters){
-    msg(MSG::ERROR) << "Trying to update component without trackParameters... returing component!" << endmsg;
+    msg(MSG::ERROR) << "Trying to update component without trackParameters... returing component!" << endreq;
     const Trk::ComponentParameters* clonedParameters = componentParameters.clone();
     const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState( *clonedParameters );
     delete clonedParameters;
@@ -305,7 +305,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::postUpdateState 
   // Bail if the postUpdateFactor is small
   if ( postUpdateFactor < 0.01 ){
     if (m_outputlevel < 0)
-      msg(MSG::VERBOSE) << "No material properties could be retrieved for this layer... cloning initial state" << endmsg;
+      msg(MSG::VERBOSE) << "No material properties could be retrieved for this layer... cloning initial state" << endreq;
     //const Trk::ComponentParameters* clonedParameters = componentParameters.clone();
     //const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState( *clonedParameters );
     //delete clonedParameters;
@@ -343,7 +343,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::postUpdateState 
   // Bail out if still no material properties can be found
   if ( !materialProperties ){
     if (m_outputlevel < 0)
-      msg(MSG::VERBOSE) << "No material properties found for this layer... cloning initial state" << endmsg;
+      msg(MSG::VERBOSE) << "No material properties found for this layer... cloning initial state" << endreq;
     const Trk::ComponentParameters* clonedParameters = componentParameters.clone();
     const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState( *clonedParameters );
     delete clonedParameters;
@@ -386,7 +386,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const 
   if ( momentum <= m_momentumCut ){
 
     if (m_outputlevel <= 0)
-      msg(MSG::DEBUG) << "Ignoring material effects... Momentum too low" << endmsg;
+      msg(MSG::DEBUG) << "Ignoring material effects... Momentum too low" << endreq;
 
     const Trk::ComponentParameters* clonedParameters = componentParameters.clone();
     const Trk::MultiComponentState* clonedMultiComponentState = new Trk::MultiComponentState( *clonedParameters );
@@ -395,7 +395,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const 
 
   }
 
-  // msg(MSG::VERBOSE) << "Computing updated parameters, covariances and weights" << endmsg;
+  // msg(MSG::VERBOSE) << "Computing updated parameters, covariances and weights" << endreq;
 
   Trk::MultiComponentState* computedState = new Trk::MultiComponentState();
 
@@ -403,7 +403,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const 
   bool isAssemblerReset = m_stateAssembler->reset();
 
   if ( !isAssemblerReset ){
-    msg(MSG::ERROR) << "Could not reset the state assembler... returning 0" << endmsg;
+    msg(MSG::ERROR) << "Could not reset the state assembler... returning 0" << endreq;
     return 0;
   }
 
@@ -416,7 +416,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const 
   const Trk::TrackParameters* trackParameters = componentParameters.first;
   const AmgSymMatrix(5)* measuredCov = trackParameters->covariance();
 
-  // msg(MSG::VERBOSE) << "Calculating, weights, deltaP and delta-covariance" << endmsg;
+  // msg(MSG::VERBOSE) << "Calculating, weights, deltaP and delta-covariance" << endreq;
 
   const std::vector<double> componentWeights = m_materialEffects->weights(componentParameters, materialProperties, pathLength, direction, particleHypothesis );
   const std::vector<double> componentDeltaPs = m_materialEffects->deltaPs(componentParameters, materialProperties, pathLength, direction, particleHypothesis );
@@ -427,19 +427,19 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const 
     componentDeltaCovariances = m_materialEffects->deltaCovariances(componentParameters, materialProperties, pathLength, direction, particleHypothesis );
   else
     if (m_outputlevel < 0)
-      msg(MSG::VERBOSE) << "No covariance associated with this component... Cannot update covariance with material effects. Continuing" << endmsg;
+      msg(MSG::VERBOSE) << "No covariance associated with this component... Cannot update covariance with material effects. Continuing" << endreq;
   
   // check all vectors have the same size
   if ( componentWeights.size() != componentDeltaPs.size() ){
-    msg(MSG::ERROR) << "Inconsistent number of components in the updator... returning original component" << endmsg;
+    msg(MSG::ERROR) << "Inconsistent number of components in the updator... returning original component" << endreq;
     if (m_outputlevel <= 0)
       msg(MSG::DEBUG) << "Number of weights components: " << componentWeights.size() << " Number of deltaP entries: " << componentDeltaPs.size()
-	          << " number of deltaCovariance entries: " << componentDeltaCovariances.size() << endmsg;
+	          << " number of deltaCovariance entries: " << componentDeltaCovariances.size() << endreq;
     return new Trk::MultiComponentState( *( componentParameters.clone() ) );
   }
   
   if (m_outputlevel < 0)
-    msg(MSG::VERBOSE) << "Updator found: " << componentWeights.size() << " components" << endmsg;
+    msg(MSG::VERBOSE) << "Updator found: " << componentWeights.size() << " components" << endreq;
   
   // Prepare  an output state
   unsigned int componentIndex = 0;
@@ -451,14 +451,14 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const 
         << " ************* Component number: " << componentIndex << " *************" << std::endl
         << "* - Component weight: " << componentWeights[componentIndex] << std::endl
         << "* - Component deltaP: " << componentDeltaPs[componentIndex] << std::endl
-        << " **********************************************************************" << endmsg;
+        << " **********************************************************************" << endreq;
       }else{
         msg(MSG::VERBOSE) << "Printing updated parameters" << std::endl
         << " ************* Component number: " << componentIndex << " *************" << std::endl
         << "* - Component weight:     " << componentWeights[componentIndex] << std::endl
         << "* - Component deltaP:     " << componentDeltaPs[componentIndex] << std::endl
         << "* - Component deltaSigma: " << sqrt( (*componentDeltaCovariances[componentIndex])(Trk::qOverP,Trk::qOverP) )  << std::endl
-        << " **********************************************************************" << endmsg;
+        << " **********************************************************************" << endreq;
       }
     }
     const Amg::VectorX& stateVector = trackParameters->parameters();
@@ -468,7 +468,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const 
     // Adjust the momentum of the component's parameters vector here. Check to make sure update is good.
     if ( !updateP( updatedStateVector, componentDeltaPs[componentIndex] ) ){
       m_materialEffects->reset();
-      msg(MSG::ERROR) << "Cannot update state vector momentum... returning original component" << endmsg;
+      msg(MSG::ERROR) << "Cannot update state vector momentum... returning original component" << endreq;
       return new Trk::MultiComponentState( *(componentParameters.clone() ) );
     }
     
@@ -504,7 +504,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::compute ( const 
 bool Trk::GsfMaterialEffectsUpdator::updateP (Amg::VectorX& stateVector, double deltaP) const
 {
   
-  // msg(MSG::VERBOSE) << "Original q/p: " << stateVector[Trk::qOverP] << endmsg;
+  // msg(MSG::VERBOSE) << "Original q/p: " << stateVector[Trk::qOverP] << endreq;
 
   double p = 1./fabs( stateVector[Trk::qOverP] );
   p += deltaP;
@@ -516,7 +516,7 @@ bool Trk::GsfMaterialEffectsUpdator::updateP (Amg::VectorX& stateVector, double 
   
   stateVector[Trk::qOverP] = updatedIp;
 
-  //msg(MSG::VERBOSE) << "Updated q/p: " << stateVector[Trk::qOverP] << endmsg;
+  //msg(MSG::VERBOSE) << "Updated q/p: " << stateVector[Trk::qOverP] << endreq;
   
   return true;
 

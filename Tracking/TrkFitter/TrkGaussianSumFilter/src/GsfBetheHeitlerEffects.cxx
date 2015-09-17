@@ -33,11 +33,9 @@ Trk::GsfBetheHeitlerEffects::GsfBetheHeitlerEffects(const std::string& type, con
   MultiStateMaterialEffects(type, name, parent),
   m_parameterisationFileName("GeantSim_LT01_cdf_nC6_O5.par"),
   m_numberOfComponents(0),
-  m_transformationCode(0),
   m_correctionFlag(0),
   m_parameterisationFileNameHighX0("GeantSim_GT01_cdf_nC6_O5.par"),
-  m_numberOfComponentsHighX0(0),
-  m_transformationCodeHighX0(0)
+  m_numberOfComponentsHighX0(0)
 {
 
   declareInterface<IMultiStateMaterialEffects>(this);
@@ -77,7 +75,7 @@ StatusCode Trk::GsfBetheHeitlerEffects::initialize(){
   
   else {
 
-    msg(MSG::ERROR) << "Parameters could NOT be successfully imported from file" << endmsg;
+    msg(MSG::ERROR) << "Parameters could NOT be successfully imported from file" << endreq;
 
     return StatusCode::FAILURE;
 
@@ -101,7 +99,7 @@ bool Trk::GsfBetheHeitlerEffects::readParameters()
   if (resolvedFileName != "")
     ATH_MSG_INFO( "Parameterisation file found: " << resolvedFileName );
   else {
-    msg(MSG::ERROR) << "Parameterisation file not found" << endmsg;
+    msg(MSG::ERROR) << "Parameterisation file not found" << endreq;
     return false;
   }
 
@@ -110,7 +108,7 @@ bool Trk::GsfBetheHeitlerEffects::readParameters()
   std::ifstream fin(filename);
 
   if ( fin.bad() ){
-    msg(MSG::ERROR) << "Error opening file: " << resolvedFileName << endmsg;
+    msg(MSG::ERROR) << "Error opening file: " << resolvedFileName << endreq;
     return false;
   }
 
@@ -121,21 +119,21 @@ bool Trk::GsfBetheHeitlerEffects::readParameters()
   fin >> m_transformationCode;
   //
   if (not inRange(m_numberOfComponents, 0, 100)){
-      msg(MSG::ERROR) << "numberOfComponents Parameter out of range 0-100: " << m_numberOfComponents << endmsg;
+      msg(MSG::ERROR) << "numberOfComponents Parameter out of range 0-100: " << m_numberOfComponents << endreq;
       return false;
     }
     if (not inRange(orderPolynomial, 0, 10)){
-      msg(MSG::ERROR) << "orderPolynomial Parameter out of range 0-10: " << orderPolynomial << endmsg;
+      msg(MSG::ERROR) << "orderPolynomial Parameter out of range 0-10: " << orderPolynomial << endreq;
       return false;
     }
     if (not inRange(m_transformationCode, 0, 10)){
-      msg(MSG::ERROR) << "transformationCode Parameter out of range 0-10: " << m_transformationCode << endmsg;
+      msg(MSG::ERROR) << "transformationCode Parameter out of range 0-10: " << m_transformationCode << endreq;
       return false;
     }
   
   
   if (!fin) {
-    msg(MSG::ERROR) << "Error while reading file : " << resolvedFileName << endmsg;
+    msg(MSG::ERROR) << "Error while reading file : " << resolvedFileName << endreq;
     return false;
   }
 
@@ -153,7 +151,7 @@ bool Trk::GsfBetheHeitlerEffects::readParameters()
     if (resolvedFileName != "")
       ATH_MSG_INFO( "Parameterisation file found: " << resolvedFileName );
     else {
-      msg(MSG::ERROR) << "Parameterisation file not found" << endmsg;
+      msg(MSG::ERROR) << "Parameterisation file not found" << endreq;
       return false;
     }
   
@@ -162,7 +160,7 @@ bool Trk::GsfBetheHeitlerEffects::readParameters()
     std::ifstream fin(filename);
   
     if ( fin.bad() ){
-      msg(MSG::ERROR) << "Error opening file: " << resolvedFileName << endmsg;
+      msg(MSG::ERROR) << "Error opening file: " << resolvedFileName << endreq;
       return false;
     }
   
@@ -171,19 +169,19 @@ bool Trk::GsfBetheHeitlerEffects::readParameters()
     fin >> m_transformationCodeHighX0;
     //
     if (not inRange(m_numberOfComponentsHighX0, 0, 100)){
-      msg(MSG::ERROR) << "numberOfComponents Parameter out of range 0-100: " << m_numberOfComponentsHighX0 << endmsg;
+      msg(MSG::ERROR) << "numberOfComponents Parameter out of range 0-100: " << m_numberOfComponentsHighX0 << endreq;
       return false;
     }
     if (not inRange(orderPolynomial, 0, 10)){
-      msg(MSG::ERROR) << "orderPolynomial Parameter out of range 0-10: " << orderPolynomial << endmsg;
+      msg(MSG::ERROR) << "orderPolynomial Parameter out of range 0-10: " << orderPolynomial << endreq;
       return false;
     }
     if (not inRange(m_transformationCodeHighX0, 0, 10)){
-      msg(MSG::ERROR) << "transformationCode Parameter out of range 0-10: " << m_transformationCodeHighX0 << endmsg;
+      msg(MSG::ERROR) << "transformationCode Parameter out of range 0-10: " << m_transformationCodeHighX0 << endreq;
       return false;
     }
     if ( fin.bad() ){
-      msg(MSG::ERROR) << "Error reading file: " << resolvedFileName << endmsg;
+      msg(MSG::ERROR) << "Error reading file: " << resolvedFileName << endreq;
       return false;
     }
   
@@ -240,9 +238,9 @@ void Trk::GsfBetheHeitlerEffects::compute ( const Trk::ComponentParameters& comp
 
   if (msgLvl(MSG::VERBOSE)){ 
   
-    msg(MSG::VERBOSE) << "Bethe-Heitler parameters and weights calculated as a function of X/X0 = " << pathlengthInX0 << endmsg;
-    msg(MSG::VERBOSE) << "Global momentum: " << momentum << endmsg;
-    msg(MSG::VERBOSE) << "Component weighting: " << componentParameters.second << endmsg;
+    msg(MSG::VERBOSE) << "Bethe-Heitler parameters and weights calculated as a function of X/X0 = " << pathlengthInX0 << endreq;
+    msg(MSG::VERBOSE) << "Global momentum: " << momentum << endreq;
+    msg(MSG::VERBOSE) << "Component weighting: " << componentParameters.second << endreq;
   
   }
   
@@ -306,7 +304,7 @@ void Trk::GsfBetheHeitlerEffects::compute ( const Trk::ComponentParameters& comp
     if (m_correctionFlag == 2){
       mixture[0].mean     = correctedFirstMean(pathlengthInX0, mixture);
       mixture[0].variance = correctedFirstVariance(pathlengthInX0, mixture);
-      // msg(MSG::VERBOSE) << "Corrected mean/variance: " << mixture[0].mean << " / " << mixture[0].variance << endmsg;
+      // msg(MSG::VERBOSE) << "Corrected mean/variance: " << mixture[0].mean << " / " << mixture[0].variance << endreq;
     }
 
     int componentIndex = 0;
@@ -340,8 +338,8 @@ void Trk::GsfBetheHeitlerEffects::compute ( const Trk::ComponentParameters& comp
         // For forward propagation
         deltaP = momentum  * ( mixture[componentIndex].mean - 1.);
       
-        // msg(MSG::VERBOSE) << "Component mean: " << mixture[componentIndex].mean << endmsg;
-        // msg(MSG::VERBOSE) << "Forwards propagation delta P: " << deltaP << endmsg;
+        // msg(MSG::VERBOSE) << "Component mean: " << mixture[componentIndex].mean << endreq;
+        // msg(MSG::VERBOSE) << "Forwards propagation delta P: " << deltaP << endreq;
       
         m_deltaPs.push_back( deltaP );
         double f = 1./ (momentum * mixture[componentIndex].mean);
@@ -354,8 +352,8 @@ void Trk::GsfBetheHeitlerEffects::compute ( const Trk::ComponentParameters& comp
         // For backwards propagation
         deltaP = momentum * (1. / mixture[componentIndex].mean - 1.);
       
-        // msg(MSG::VERBOSE) <<  "Component mean: " << mixture[componentIndex].mean << endmsg;
-        // msg(MSG::VERBOSE) <<  "Backwards propagation delta P: " << deltaP << endmsg;
+        // msg(MSG::VERBOSE) <<  "Component mean: " << mixture[componentIndex].mean << endreq;
+        // msg(MSG::VERBOSE) <<  "Backwards propagation delta P: " << deltaP << endreq;
       
         m_deltaPs.push_back( deltaP );
         varianceInverseMomentum = mixture[componentIndex].variance / (momentum * momentum);
@@ -390,7 +388,7 @@ void Trk::GsfBetheHeitlerEffects::compute ( const Trk::ComponentParameters& comp
 void Trk::GsfBetheHeitlerEffects::getMixtureParameters(const double pathlengthInX0, Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture) const
 {
 
-  // msg(MSG::VERBOSE) <<  "Retrieving mixture parameters" << endmsg;
+  // msg(MSG::VERBOSE) <<  "Retrieving mixture parameters" << endreq;
 
   mixture.clear();
   mixture.reserve(m_numberOfComponents);
@@ -407,12 +405,12 @@ void Trk::GsfBetheHeitlerEffects::getMixtureParameters(const double pathlengthIn
 
     double updatedMean = m_polynomialMeans[componentIndex](pathlengthInX0);
     
-    // msg(MSG::VERBOSE) <<  "Updated mean: " << updatedMean << endmsg;
+    // msg(MSG::VERBOSE) <<  "Updated mean: " << updatedMean << endreq;
 
     if ( m_transformationCode )
       updatedMean = logisticFunction(updatedMean);
 
-    // msg(MSG::VERBOSE) <<  "Updated mean after update: " << updatedMean << endmsg;
+    // msg(MSG::VERBOSE) <<  "Updated mean after update: " << updatedMean << endreq;
 
     double updatedVariance = m_polynomialVariances[componentIndex](pathlengthInX0);
 
@@ -435,7 +433,7 @@ void Trk::GsfBetheHeitlerEffects::getMixtureParameters(const double pathlengthIn
 void Trk::GsfBetheHeitlerEffects::getMixtureParametersHighX0(const double pathlengthInX0, Trk::GsfBetheHeitlerEffects::MixtureParameters& mixture) const
 {
 
-  // msg(MSG::VERBOSE) <<  "Retrieving mixture parameters" << endmsg;
+  // msg(MSG::VERBOSE) <<  "Retrieving mixture parameters" << endreq;
 
   mixture.clear();
   mixture.reserve(m_numberOfComponentsHighX0);
@@ -452,12 +450,12 @@ void Trk::GsfBetheHeitlerEffects::getMixtureParametersHighX0(const double pathle
 
     double updatedMean = m_polynomialMeansHighX0[componentIndex](pathlengthInX0);
     
-    // msg(MSG::VERBOSE) <<  "Updated mean: " << updatedMean << endmsg;
+    // msg(MSG::VERBOSE) <<  "Updated mean: " << updatedMean << endreq;
 
     if ( m_transformationCodeHighX0 )
       updatedMean = logisticFunction(updatedMean);
 
-    // msg(MSG::VERBOSE) <<  "Updated mean after update: " << updatedMean << endmsg;
+    // msg(MSG::VERBOSE) <<  "Updated mean after update: " << updatedMean << endreq;
 
     double updatedVariance = m_polynomialVariancesHighX0[componentIndex](pathlengthInX0);
 

@@ -58,54 +58,54 @@ StatusCode Trk::GsfCombinedMaterialEffects::initialize()
   if ( m_multipleScatterEffects.retrieve().isFailure() ){
     msg(MSG::FATAL)
           << "Could not retrieve multiple scattering AlgTool: " << m_multipleScatterEffects.typeAndName()
-          << "... Exiting!" << endmsg;
+          << "... Exiting!" << endreq;
     return StatusCode::FAILURE;
   }
 
   // Retrieve and configure multiple scattering effects for multi-state operation
-  msg(MSG::INFO) << "Configuring for multiple scattering" << endmsg;
+  msg(MSG::INFO) << "Configuring for multiple scattering" << endreq;
 
   if ( m_multiStateMultipleScatteringEffects.retrieve().isFailure() ){
-    msg(MSG::WARNING) << "Cannot get the multiple scattering adapter... exiting" << endmsg;
+    msg(MSG::WARNING) << "Cannot get the multiple scattering adapter... exiting" << endreq;
     return StatusCode::FAILURE;
   } else {
       msg(MSG::INFO)
 				  << "Retrieved MS adapter AlgTool: " << m_multiStateMultipleScatteringEffects.typeAndName()
-			    << "... YAY!" << endmsg;
+			    << "... YAY!" << endreq;
   }
 
   m_multiStateMultipleScatteringEffects->setMaterialEffects( m_multipleScatterEffects );
   m_multiStateMultipleScatteringAdapter = dynamic_cast<const MultiStateMaterialEffectsAdapter*>(&(*m_multiStateMultipleScatteringEffects));
 
   if ( !m_multiStateMultipleScatteringAdapter ){
-    msg(MSG::WARNING) << "Error retrieving the multiple scattering adapter for multiple state configuration... exiting" << endmsg;
+    msg(MSG::WARNING) << "Error retrieving the multiple scattering adapter for multiple state configuration... exiting" << endreq;
     return StatusCode::FAILURE;
   }
 
   
   // Retrieve and configure the energy loss effects for multi-state operation
-  msg(MSG::INFO) << "Configuring for normal energy loss" << endmsg;
+  msg(MSG::INFO) << "Configuring for normal energy loss" << endreq;
 
   if ( m_energyLossEffects.retrieve().isFailure() ){
     msg(MSG::FATAL)
           << "Could not retrieve energy loss AlgTool: " << m_energyLossEffects.typeAndName()
-          << "... Exiting!" << endmsg;
+          << "... Exiting!" << endreq;
     return StatusCode::FAILURE;
   } else {
 		    msg(MSG::INFO)
 				  << "Retrieved energy loss AlgTool: " << m_energyLossEffects.typeAndName()
-			    << "... YAY!" << endmsg;
+			    << "... YAY!" << endreq;
 
   }
 
 
   if ( m_multiStateEnergyLossEffects.retrieve().isFailure() ){
-    msg(MSG::WARNING) << "Cannot get the energy loss adapter... exiting" << endmsg;
+    msg(MSG::WARNING) << "Cannot get the energy loss adapter... exiting" << endreq;
     return StatusCode::FAILURE;
   } else {
       msg(MSG::INFO)
 				  << "Retrieved energy adapter loss AlgTool: " << m_multiStateEnergyLossEffects.typeAndName()
-			    << "... YAY!" << endmsg;
+			    << "... YAY!" << endreq;
   }
 
   
@@ -113,22 +113,22 @@ StatusCode Trk::GsfCombinedMaterialEffects::initialize()
   m_multiStateEnergyLossAdapter = dynamic_cast<const MultiStateMaterialEffectsAdapter*>(&(*m_multiStateEnergyLossEffects));
 
   if ( !m_multiStateEnergyLossAdapter ){
-    msg(MSG::WARNING) << "Error retrieving the energy loss adapter for multiple state configuration... exiting" << endmsg;
+    msg(MSG::WARNING) << "Error retrieving the energy loss adapter for multiple state configuration... exiting" << endreq;
     return StatusCode::FAILURE;
   }
 
   
   // Retrieve and configure the Bethe-Heitler effects for energy loss
-  msg(MSG::INFO) << "Configuring for Bethe-Heitler energy loss" << endmsg;
+  msg(MSG::INFO) << "Configuring for Bethe-Heitler energy loss" << endreq;
 
   if ( m_betheHeitlerEffects.retrieve().isFailure() ){
     msg(MSG::FATAL)
           << "Could not retrieve energy loss AlgTool: " << m_betheHeitlerEffects.typeAndName()
-          << "... Exiting!" << endmsg;
+          << "... Exiting!" << endreq;
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
+  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -136,7 +136,7 @@ StatusCode Trk::GsfCombinedMaterialEffects::initialize()
 StatusCode Trk::GsfCombinedMaterialEffects::finalize()
 {
 
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
+  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endreq;
 
   return StatusCode::SUCCESS;
 
@@ -145,7 +145,7 @@ StatusCode Trk::GsfCombinedMaterialEffects::finalize()
 void Trk::GsfCombinedMaterialEffects::reset() const
 {
 
-  if (msgLvl(MSG::VERBOSE)) msg() << "Resetting the material effects " << name() << endmsg;
+  if (msgLvl(MSG::VERBOSE)) msg() << "Resetting the material effects " << name() << endreq;
 
   // Reset all effects
   m_multiStateMultipleScatteringAdapter->reset();
@@ -178,14 +178,14 @@ void Trk::GsfCombinedMaterialEffects::compute ( const Trk::ComponentParameters& 
             Trk::ParticleHypothesis particleHypothesis ) const
 {
   
-  if (msgLvl(MSG::VERBOSE)) msg() << "Computing combined material effects" << endmsg;
+  if (msgLvl(MSG::VERBOSE)) msg() << "Computing combined material effects" << endreq;
 
   // Reset everything before computation
   this->reset();
 
   const AmgSymMatrix(5)* measuredCov = componentParameters.first->covariance();
 
-  if (msgLvl(MSG::VERBOSE)) msg() << "Calculating multiple scattering material effects" << endmsg;
+  if (msgLvl(MSG::VERBOSE)) msg() << "Calculating multiple scattering material effects" << endreq;
 
   
   /* ========================================================================
@@ -215,13 +215,13 @@ void Trk::GsfCombinedMaterialEffects::compute ( const Trk::ComponentParameters& 
 
   // Protect if there are no new components
   if ( multipleScatter_weights.empty() ){
-    if (msgLvl(MSG::DEBUG)) msg() << "WARNING: Multiple scattering effects are not determined" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg() << "WARNING: Multiple scattering effects are not determined" << endreq;
     multipleScatter_weights.push_back(1.);
     multipleScatter_deltaPs.push_back(0.);
     multipleScatter_deltaCovariances.push_back( new AmgSymMatrix(5) );
   }
 
-  if (msgLvl(MSG::VERBOSE)) msg() << "Calculating energy loss material effects" << endmsg;
+  if (msgLvl(MSG::VERBOSE)) msg() << "Calculating energy loss material effects" << endreq;
 
   std::vector<double> energyLoss_weights;
   std::vector<double> energyLoss_deltaPs;
@@ -233,7 +233,7 @@ void Trk::GsfCombinedMaterialEffects::compute ( const Trk::ComponentParameters& 
 
   
   if ( particleHypothesis != electron ){
-	  if (msgLvl(MSG::VERBOSE)) msg() << "Considering standard energy loss effects" << endmsg;
+	  if (msgLvl(MSG::VERBOSE)) msg() << "Considering standard energy loss effects" << endreq;
 
     energyLoss_weights = m_multiStateEnergyLossAdapter->weights(componentParameters,
                 materialProperties,
@@ -256,7 +256,7 @@ void Trk::GsfCombinedMaterialEffects::compute ( const Trk::ComponentParameters& 
 
   } else {
      
-    if (msgLvl(MSG::VERBOSE)) msg() << "Considering Bethe-Heitler energy loss effects" << endmsg;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Considering Bethe-Heitler energy loss effects" << endreq;
 
     energyLoss_weights = m_betheHeitlerEffects->weights(componentParameters,
               materialProperties,
@@ -279,7 +279,7 @@ void Trk::GsfCombinedMaterialEffects::compute ( const Trk::ComponentParameters& 
 
   // Protect if there are no new components
   if ( energyLoss_weights.empty() ){
-    if (msgLvl(MSG::DEBUG)) msg() << "WARNING: Energy loss effects are not determined" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg() << "WARNING: Energy loss effects are not determined" << endreq;
     energyLoss_weights.push_back(1.);
     energyLoss_deltaPs.push_back(0.);
     AmgSymMatrix(5)* newCov = new AmgSymMatrix(5);
@@ -292,7 +292,7 @@ void Trk::GsfCombinedMaterialEffects::compute ( const Trk::ComponentParameters& 
   
   if (msgLvl(MSG::VERBOSE)) 
     for ( ; deltaPsIterator != energyLoss_deltaPs.end(); ++deltaPsIterator)
-      msg(MSG::VERBOSE) << "Energy loss deltaP: " << *deltaPsIterator << endmsg;
+      msg(MSG::VERBOSE) << "Energy loss deltaP: " << *deltaPsIterator << endreq;
   
   
 	
@@ -301,7 +301,7 @@ void Trk::GsfCombinedMaterialEffects::compute ( const Trk::ComponentParameters& 
      Combine the multiple scattering and energy loss components
      ======================================================================== */
   
-  if (msgLvl(MSG::VERBOSE)) msg() << "Combining the energy loss and multiple scattering components" << endmsg;
+  if (msgLvl(MSG::VERBOSE)) msg() << "Combining the energy loss and multiple scattering components" << endreq;
 
   // Iterators over the multiple scattering components
   std::vector<double>::const_iterator multipleScatter_weightsIterator = multipleScatter_weights.begin();
@@ -344,6 +344,6 @@ void Trk::GsfCombinedMaterialEffects::compute ( const Trk::ComponentParameters& 
   m_multiStateEnergyLossAdapter->reset();
   m_betheHeitlerEffects->reset();
 
-  if (msgLvl(MSG::VERBOSE)) msg() << "Successfully included combined material effects" << endmsg;
+  if (msgLvl(MSG::VERBOSE)) msg() << "Successfully included combined material effects" << endreq;
 
 }

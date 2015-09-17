@@ -31,7 +31,7 @@ StatusCode Trk::GsfOutlierLogic::initialize()
 
   m_outputlevel = msg().level()-MSG::DEBUG;   // save the threshold for debug printout in private member
   
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
+  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endreq;
 
   return StatusCode::SUCCESS;
 
@@ -40,7 +40,7 @@ StatusCode Trk::GsfOutlierLogic::initialize()
 StatusCode Trk::GsfOutlierLogic::finalize()
 {
 
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
+  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endreq;
 
   return StatusCode::SUCCESS;
 
@@ -49,7 +49,7 @@ StatusCode Trk::GsfOutlierLogic::finalize()
 const Trk::FitQuality* Trk::GsfOutlierLogic::fitQuality(const Trk::SmoothedTrajectory& smoothedTrajectory) const
 {
 
-  msg(MSG::VERBOSE) << "GsfOutlierLogic fitQuality" << endmsg;
+  msg(MSG::VERBOSE) << "GsfOutlierLogic fitQuality" << endreq;
 
   double chiSquared = 0.;
   int    numberDoF  = -5;

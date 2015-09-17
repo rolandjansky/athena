@@ -34,8 +34,7 @@ Trk::ForwardGsfFitter::ForwardGsfFitter(const std::string& type, const std::stri
   m_stateCombiner("Trk::MultiComponentStateCombiner/ForwardsFitterCombiner"),
   m_cutChiSquaredPerNumberDOF(50.),
   m_overideMaterialEffectsSwitch(false),
-  m_overideMaterialEffects(4),
-  m_overideParticleHypothesis(nonInteracting)
+  m_overideMaterialEffects(4)
 {
 
   declareInterface<IForwardGsfFitter>(this);
@@ -51,21 +50,21 @@ StatusCode Trk::ForwardGsfFitter::initialize()
  
   // Request an instance of the state combiner
   if ( m_stateCombiner.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Could not retrieve an instance of the multi component state combiner... Exiting!" << endmsg;
+    msg(MSG::FATAL) << "Could not retrieve an instance of the multi component state combiner... Exiting!" << endreq;
     return StatusCode::FAILURE;
   }
 
   if ( msgLvl(MSG::DEBUG)) 
-    msg(MSG::DEBUG) << "A cut on Chi2 / NDOF: " << m_cutChiSquaredPerNumberDOF <<  " will be applied" << endmsg;
+    msg(MSG::DEBUG) << "A cut on Chi2 / NDOF: " << m_cutChiSquaredPerNumberDOF <<  " will be applied" << endreq;
 
   Trk::ParticleSwitcher particleSwitcher;
   m_overideParticleHypothesis = particleSwitcher.particle[m_overideMaterialEffects];
 
   if (  m_overideMaterialEffectsSwitch )
-    msg(MSG::INFO) << "Material effects in forwards fitter have been overiden by jobOptions... New Trk::ParticleHypothesis: " << m_overideMaterialEffects << endmsg;
+    msg(MSG::INFO) << "Material effects in forwards fitter have been overiden by jobOptions... New Trk::ParticleHypothesis: " << m_overideMaterialEffects << endreq;
 
 
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
+  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endreq;
 
   return StatusCode::SUCCESS;
 
@@ -74,7 +73,7 @@ StatusCode Trk::ForwardGsfFitter::initialize()
 StatusCode Trk::ForwardGsfFitter::finalize()
 {
 
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
+  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endreq;
 
   return StatusCode::SUCCESS;
 
@@ -89,7 +88,7 @@ StatusCode Trk::ForwardGsfFitter::configureTools( const ToolHandle<IMultiStateEx
   m_updator           = measurementUpdator;
   m_rioOnTrackCreator = rioOnTrackCreator;
   
-  msg(MSG::INFO) << "Configuration of " << name() << " was successful" << endmsg;
+  msg(MSG::INFO) << "Configuration of " << name() << " was successful" << endreq;
 
   return StatusCode::SUCCESS;
 
@@ -108,26 +107,26 @@ const Trk::ForwardTrajectory* Trk::ForwardGsfFitter::fitPRD ( const Trk::PrepRaw
                     const Trk::ParticleHypothesis particleHypothesis ) const
 {
    
-  if (msgLvl(MSG::VERBOSE)) msg() << "Trk::ForwardGsfFitter::fitPRD()" << endmsg;
+  if (msgLvl(MSG::VERBOSE)) msg() << "Trk::ForwardGsfFitter::fitPRD()" << endreq;
 
   // Check that the updator is instansiated
   if (!m_updator) {
-    msg(MSG::ERROR) << "The measurement updator is not configured... Exiting!" << endmsg;
+    msg(MSG::ERROR) << "The measurement updator is not configured... Exiting!" << endreq;
     return 0;
   }
 
   if (!m_extrapolator) {
-    msg(MSG::ERROR) << "The extrapolator is not configured... Exiting!" << endmsg;
+    msg(MSG::ERROR) << "The extrapolator is not configured... Exiting!" << endreq;
     return 0;
   }
 
   if (!m_rioOnTrackCreator) {
-    msg(MSG::ERROR) << "The RIO_OnTrackCreator is not configured for use with the PrepRawData set... Exiting!" << endmsg;
+    msg(MSG::ERROR) << "The RIO_OnTrackCreator is not configured for use with the PrepRawData set... Exiting!" << endreq;
     return 0;
   }
 
   if ( inputPrepRawDataSet.empty() ) {
-    msg(MSG::ERROR) << "Input PrepRawDataSet is empty... Exiting!" << endmsg;
+    msg(MSG::ERROR) << "Input PrepRawDataSet is empty... Exiting!" << endreq;
     return 0;
   }
 
@@ -142,10 +141,10 @@ const Trk::ForwardTrajectory* Trk::ForwardGsfFitter::fitPRD ( const Trk::PrepRaw
   
   if ( msgLvl(MSG::VERBOSE) ){
     if ( configuredParticleHypothesis == Trk::nonInteracting )
-      msg(MSG::VERBOSE) << "Material effects are switched off in the Gsf Forwards Fitter" << endmsg;
+      msg(MSG::VERBOSE) << "Material effects are switched off in the Gsf Forwards Fitter" << endreq;
   
     else
-      msg(MSG::VERBOSE) << "Material effects are switched on in the Forward Gsf Fitter (type): " << configuredParticleHypothesis << endmsg;
+      msg(MSG::VERBOSE) << "Material effects are switched on in the Forward Gsf Fitter (type): " << configuredParticleHypothesis << endreq;
   }
   
   // Extract PrepRawDataSet into new local object and check that the PrepRawData is associated with a detector element
@@ -155,7 +154,7 @@ const Trk::ForwardTrajectory* Trk::ForwardGsfFitter::fitPRD ( const Trk::PrepRaw
   for ( ; prepRawData != inputPrepRawDataSet.end(); ++prepRawData ) {
 
     if ( !(*prepRawData)->detectorElement() )
-      msg(MSG::WARNING) << "PrepRawData has no Element link... disregard it" << endmsg;
+      msg(MSG::WARNING) << "PrepRawData has no Element link... disregard it" << endreq;
 
     else
       prepRawDataSet.push_back( *prepRawData );
@@ -184,7 +183,7 @@ const Trk::ForwardTrajectory* Trk::ForwardGsfFitter::fitPRD ( const Trk::PrepRaw
                                         configuredParticleHypothesis );
 
     if (!stepIsValid) {
-      if (msgLvl(MSG::DEBUG)) msg() << "Fitter step is not valid... Exiting!" << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg() << "Fitter step is not valid... Exiting!" << endreq;
       delete forwardTrajectory;
       return 0;
     }
@@ -211,21 +210,21 @@ const Trk::ForwardTrajectory* Trk::ForwardGsfFitter::fitMeasurements ( const Trk
 {
   
   if (msgLvl(MSG::VERBOSE))
-    msg() << "Entering GSF forward fitter... fitting with MeasurementSet" << endmsg;
+    msg() << "Entering GSF forward fitter... fitting with MeasurementSet" << endreq;
 
   // Check that the updator is instansiated
   if (!m_updator) {
-    msg(MSG::ERROR) << "The measurement updator is not configured... Exiting!" << endmsg;
+    msg(MSG::ERROR) << "The measurement updator is not configured... Exiting!" << endreq;
     return 0;
   }
 
   if (!m_extrapolator) {
-    msg(MSG::ERROR) << "The extrapolator is not configured... Exiting!" << endmsg;
+    msg(MSG::ERROR) << "The extrapolator is not configured... Exiting!" << endreq;
     return 0;
   }
 
   if ( inputMeasurementSet.empty() ) {
-    msg(MSG::ERROR) << "Input MeasurementSet is empty... Exiting!" << endmsg;
+    msg(MSG::ERROR) << "Input MeasurementSet is empty... Exiting!" << endreq;
     return 0;
   }
 
@@ -240,10 +239,10 @@ const Trk::ForwardTrajectory* Trk::ForwardGsfFitter::fitMeasurements ( const Trk
   
   if (msgLvl(MSG::VERBOSE)){
     if ( configuredParticleHypothesis == Trk::nonInteracting )
-      msg(MSG::VERBOSE) << "Material effects are switched off in the Forward Gsf Fitter" << endmsg;
+      msg(MSG::VERBOSE) << "Material effects are switched off in the Forward Gsf Fitter" << endreq;
   
     else
-      msg(MSG::VERBOSE) << "Material effects are switched on in the Forward Gsf Fitter (type): " << configuredParticleHypothesis << endmsg;
+      msg(MSG::VERBOSE) << "Material effects are switched on in the Forward Gsf Fitter (type): " << configuredParticleHypothesis << endreq;
   }
   
   // This memory should be freed by the fitter / smoother master method
@@ -271,7 +270,7 @@ const Trk::ForwardTrajectory* Trk::ForwardGsfFitter::fitMeasurements ( const Trk
                                         configuredParticleHypothesis );
 
     if (!stepIsValid){
-      if (msgLvl(MSG::DEBUG)) msg() << "Fitter step is not valid... Exiting!" << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg() << "Fitter step is not valid... Exiting!" << endreq;
       delete forwardTrajectory;
       if ( multiComponentStateNearOrigin ) delete multiComponentStateNearOrigin;
       return 0;
@@ -302,11 +301,11 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
 {
 
   if (msgLvl(MSG::VERBOSE))
-    msg() << "Trk::ForwardGsfFitter::stepForwardFit()" << endmsg;
+    msg() << "Trk::ForwardGsfFitter::stepForwardFit()" << endreq;
 
   // Protect against undefined Measurement or PrepRawData
   if ( !originalPrepRawData && !originalMeasurement ) {
-    msg(MSG::WARNING) << "No measurement information passed to StepForwardFit... Exiting!" << endmsg;
+    msg(MSG::WARNING) << "No measurement information passed to StepForwardFit... Exiting!" << endreq;
     if (updatedState){
       delete updatedState;
       updatedState=0; 
@@ -316,7 +315,7 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
 
   // Protect against ForwardTrajectory not defined
   if ( !forwardTrajectory ) {
-    msg(MSG::WARNING) << "ForwardTrajectory object is not defined... Exiting!" << endmsg;
+    msg(MSG::WARNING) << "ForwardTrajectory object is not defined... Exiting!" << endreq;
     if (updatedState){
       delete updatedState;
       updatedState=0; 
@@ -333,14 +332,14 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
     combinedState = m_stateCombiner->combine( *updatedState );
 
     if ( !combinedState ){
-      msg(MSG::WARNING) << "State combination failed... exiting" << endmsg;
+      msg(MSG::WARNING) << "State combination failed... exiting" << endreq;
       return false;
     }
  
     msg(MSG::DEBUG) << "Extrapolation started with (phi, theta, q/p):\t" 
           << combinedState->parameters()[Trk::phi] << "\t"
           << combinedState->parameters()[Trk::theta] << "\t" 
-          << combinedState->parameters()[Trk::qOverP] << endmsg;
+          << combinedState->parameters()[Trk::qOverP] << endreq;
 
     delete combinedState;
     combinedState = 0;
@@ -364,7 +363,7 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
   }
 
   if ( !extrapolatedState ){
-    if (msgLvl(MSG::DEBUG)) msg() << "Extrapolation failed... returning false" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg() << "Extrapolation failed... returning false" << endreq;
     delete updatedState;
     updatedState = 0;
     return false;
@@ -373,7 +372,7 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
   }
 
   if (msgLvl(MSG::VERBOSE)) 
-    msg() << "Number of components in extrapolated state: " << extrapolatedState->size() << endmsg;
+    msg() << "Number of components in extrapolated state: " << extrapolatedState->size() << endreq;
 
 
   // ===============
@@ -384,14 +383,14 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
     combinedState = m_stateCombiner->combine(*extrapolatedState);
 
     if ( !combinedState ){
-      msg(MSG::WARNING) << "State combination failed... exiting" << endmsg;
+      msg(MSG::WARNING) << "State combination failed... exiting" << endreq;
       return false;
     }
 
     msg() << "Extrapolation stopped with (phi, theta, q/p):\t" 
           << combinedState->parameters()[Trk::phi] << "\t"
           << combinedState->parameters()[Trk::theta] << "\t" 
-          << combinedState->parameters()[Trk::qOverP] << endmsg;
+          << combinedState->parameters()[Trk::qOverP] << endreq;
 
     delete combinedState;
     combinedState = 0;
@@ -404,7 +403,7 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
 
   if (originalMeasurement) {
 
-    if (msgLvl(MSG::VERBOSE)) msg() << "Measurement: " << *originalMeasurement << endmsg;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Measurement: " << *originalMeasurement << endreq;
 
     // Clone original MeasurementBase object (refit with no new calibration)
     measurement = originalMeasurement->clone();
@@ -414,14 +413,14 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
     combinedState = m_stateCombiner->combine(*extrapolatedState);
   
     if ( !combinedState ){
-      msg(MSG::WARNING) << "State combination failed... exiting" << endmsg;
+      msg(MSG::WARNING) << "State combination failed... exiting" << endreq;
       delete extrapolatedState;
       return false;
     }
 
     // Create a new MeasurementBase object from PrepRawData using new calibration
     if (msgLvl(MSG::VERBOSE)) 
-      msg() << "Create new Measurement object using predicted parameters... " << *combinedState << endmsg;
+      msg() << "Create new Measurement object using predicted parameters... " << *combinedState << endreq;
 
     measurement = m_rioOnTrackCreator->correct(*originalPrepRawData, *combinedState);
 
@@ -435,7 +434,7 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
   // ==========================
 
   if (!measurement) {
-    msg(MSG::WARNING) << "Cannot use MeasurementBase for measurement update, it is not defined... Exiting!" << endmsg;
+    msg(MSG::WARNING) << "Cannot use MeasurementBase for measurement update, it is not defined... Exiting!" << endreq;
     delete extrapolatedState;
     return false;
   }
@@ -446,12 +445,12 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
   if (!updatedState) {
     delete measurement;
     delete extrapolatedState;
-    if (msgLvl(MSG::DEBUG)) msg() << "Measurement update of the state failed... Exiting!" << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg() << "Measurement update of the state failed... Exiting!" << endreq;
     return false;
   }
 
   if (msgLvl(MSG::VERBOSE)) {
-    msg() << "Update of track parameters was successful: " << updatedState->size()<< endmsg;
+    msg() << "Update of track parameters was successful: " << updatedState->size()<< endreq;
 
   // ===============
   // Debug print-out
@@ -460,7 +459,7 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
     combinedState = m_stateCombiner->combine( *updatedState );
 
     if ( !combinedState ){
-      msg(MSG::WARNING) << "State combination failed... exiting" << endmsg;
+      msg(MSG::WARNING) << "State combination failed... exiting" << endreq;
       delete extrapolatedState;
       return false;
     }
@@ -468,8 +467,8 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
     msg(MSG::DEBUG) << "Update complete with (phi, theta, q/p):\t\t" 
           << combinedState->parameters()[Trk::phi] << "\t"
           << combinedState->parameters()[Trk::theta] << "\t" 
-          << combinedState->parameters()[Trk::qOverP] << endmsg;
-    msg(MSG::DEBUG) << "-----------------------------------------------------------------------------" << endmsg;
+          << combinedState->parameters()[Trk::qOverP] << endreq;
+    msg(MSG::DEBUG) << "-----------------------------------------------------------------------------" << endreq;
 
   
     delete combinedState;
@@ -483,7 +482,7 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
   // Bail if the fit quality is not defined:
   if ( !fitQuality ){
     if (msgLvl(MSG::DEBUG))
-      msg() << "Failed to make fit quality... rejecting forwards trajectory" << endmsg;
+      msg() << "Failed to make fit quality... rejecting forwards trajectory" << endreq;
     
     // Clean up objects associated with removed measurement
     delete measurement;
@@ -498,7 +497,7 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
   else if ( fitQuality->chiSquared() > m_cutChiSquaredPerNumberDOF * fitQuality->numberDoF() ) {
 
     if (msgLvl(MSG::DEBUG))
-      msg() << "Update with new measurement caused track to fail Chi Squared test, removing the object" << endmsg;
+      msg() << "Update with new measurement caused track to fail Chi Squared test, removing the object" << endreq;
     
     
     //
@@ -530,7 +529,7 @@ bool Trk::ForwardGsfFitter::stepForwardFit ( ForwardTrajectory* forwardTrajector
   
   } else {
     if (msgLvl(MSG::VERBOSE))
-      msg() << "Track with new measurement passed the chi squared test... adding state to trajectory" << endmsg;
+      msg() << "Track with new measurement passed the chi squared test... adding state to trajectory" << endreq;
 
     const Trk::MultiComponentStateOnSurface* multiComponentStateOnSurface = new MultiComponentStateOnSurface(measurement, extrapolatedState, fitQuality.release());
 

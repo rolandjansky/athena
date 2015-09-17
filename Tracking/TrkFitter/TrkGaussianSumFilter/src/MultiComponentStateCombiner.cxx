@@ -26,7 +26,6 @@ Trk::MultiComponentStateCombiner::MultiComponentStateCombiner (const std::string
   m_useModePhi(true),
   m_useModeTheta(true),
   m_useModeqOverP(true),
-  m_NumberOfCalls(0),
   m_fractionPDFused(1.0)
 {
 
@@ -47,7 +46,7 @@ StatusCode Trk::MultiComponentStateCombiner::initialize()
 
    // Request the mode calculator
   if ( m_modeCalculator.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Unable to retrieve the mode calculator... Exiting!" << endmsg;
+    msg(MSG::FATAL) << "Unable to retrieve the mode calculator... Exiting!" << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -63,7 +62,7 @@ StatusCode Trk::MultiComponentStateCombiner::initialize()
     m_fractionPDFused = 1;   
   }
   
-  if (msgLvl(MSG::VERBOSE)) msg() << "Initialisation of " << name() << " was successful" << endmsg;
+  if (msgLvl(MSG::VERBOSE)) msg() << "Initialisation of " << name() << " was successful" << endreq;
 
   return StatusCode::SUCCESS;
 
@@ -72,11 +71,11 @@ StatusCode Trk::MultiComponentStateCombiner::initialize()
 StatusCode Trk::MultiComponentStateCombiner::finalize()
 {
 
-  msg(MSG::INFO) << "-----------------------------------------------"<< endmsg;
-  msg(MSG::INFO) << "         GSF MCS Combiner  Statistics          "<< endmsg;
-  msg(MSG::INFO) << "-----------------------------------------------"<< endmsg;
-  msg(MSG::INFO) << "Number of Calls    " << m_NumberOfCalls          << endmsg;
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
+  msg(MSG::INFO) << "-----------------------------------------------"<< endreq;
+  msg(MSG::INFO) << "         GSF MCS Combiner  Statistics          "<< endreq;
+  msg(MSG::INFO) << "-----------------------------------------------"<< endreq;
+  msg(MSG::INFO) << "Number of Calls    " << m_NumberOfCalls          << endreq;
+  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endreq;
   
   return StatusCode::SUCCESS;
 
@@ -103,7 +102,7 @@ const Trk::ComponentParameters* Trk::MultiComponentStateCombiner::compute( const
 {
   ++m_NumberOfCalls;
   if ( uncombinedState->empty() ){
-    msg(MSG::WARNING) << "Trying to collapse state with zero components" << endmsg;
+    msg(MSG::WARNING) << "Trying to collapse state with zero components" << endreq;
     return 0;
   }
 
@@ -151,19 +150,8 @@ const Trk::ComponentParameters* Trk::MultiComponentStateCombiner::compute( const
     const TrackParameters* trackParameters = (*component).first;
     double weight                          = (*component).second;
     
-    AmgVector(5) parameters = trackParameters->parameters();
+    const AmgVector(5) parameters = trackParameters->parameters();
 
-   
-   
-    //Ensure that we don't have any problems with the cyclical nature of phi
-    //Use first state as reference poin
-    double deltaPhi = (*uncombinedState->begin()).first->parameters()[2] - parameters[2];
-   
-    if( deltaPhi > M_PI ){
-      parameters[2] += 2 * M_PI;
-    } else if ( deltaPhi < -M_PI ){
-      parameters[2] -= 2 * M_PI;
-    }
 
 
     sumW += weight;
@@ -206,15 +194,6 @@ const Trk::ComponentParameters* Trk::MultiComponentStateCombiner::compute( const
   } // end loop over all components
  
   mean /= sumW;
-  
-  //Ensure that phi is between -pi and pi 
-  //
-  if(  mean[2] > M_PI ){
-    mean[2] -= 2 * M_PI;
-  } else if (  mean[2] < -M_PI ){
-    mean[2] += 2 * M_PI;
-  } 
-
 
   (*covariance) = covariancePart1 / sumW + covariancePart2 / (sumW * sumW);
   
@@ -227,7 +206,7 @@ const Trk::ComponentParameters* Trk::MultiComponentStateCombiner::compute( const
       modes = m_modeCalculator->calculateMode( *uncombinedState );
 
       if (  msgLvl(MSG::VERBOSE) && modes[4] )
-        msg(MSG::VERBOSE) << "Calculated mode q/p is: " << modes[4] << endmsg;
+        msg(MSG::VERBOSE) << "Calculated mode q/p is: " << modes[4] << endreq;
   
       //  Replace mean with mode if qOverP mode is not 0
       if (modes[4] != 0){
@@ -294,7 +273,7 @@ const Trk::ComponentParameters* Trk::MultiComponentStateCombiner::compute( const
       }
     } else {
 
-      if (msgLvl(MSG::DEBUG)) msg() << " Dimension != 5 not updating q/p to mode q/p"<< endmsg;
+      if (msgLvl(MSG::DEBUG)) msg() << " Dimension != 5 not updating q/p to mode q/p"<< endreq;
 
     }
 
