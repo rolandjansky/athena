@@ -122,9 +122,6 @@ def minbiasEnhanced():
         if not HLTitem in TriggerFlags.MinBiasSlice.signatures():
             TriggerFlags.MinBiasSlice.signatures = TriggerFlags.MinBiasSlice.signatures() + [HLTitem]
 
-def combinedOnly():
-    TriggerFlags.Slices_all_setOff()
-    TriggerFlags.CombinedSlice.setAll()
 
 # Override list of signatures in e/gamma slice
 try:
@@ -160,11 +157,9 @@ if  ('sliceName' in dir()):
     elif sliceName == 'tau':
         GenerateMenu.overwriteSignaturesWith(tauOnly)
     elif sliceName == 'minbias':
-        GenerateMenu.overwriteSignaturesWith(minbiasOnly)    
+        GenerateMenu.overwriteSignaturesWith(minbiasOnly)
     elif sliceName == 'minbiasEnhanced':
-        GenerateMenu.overwriteSignaturesWith(minbiasEnhanced)    
-    elif sliceName == 'combined':
-        GenerateMenu.overwriteSignaturesWith(combinedOnly)
+        GenerateMenu.overwriteSignaturesWith(minbiasEnhanced)
     else:
         log.info("WARNING no sliceName given! pleace check this testconfiguration")
 

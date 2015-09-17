@@ -1,8 +1,5 @@
-
 ### usually ATN tests runs with following RDO input:
 #PoolRDOInput=["/afs/cern.ch/atlas/offline/ReleaseData/v3/testfile/valid1.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s488_d151_tid039414_RDO.039414._00001_extract_10evt.pool.root"]
-
-
 
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
@@ -11,7 +8,8 @@ if not acf.EvtMax.is_locked():
     acf.EvtMax=10
 if not ('OutputLevel' in dir()):
     rec.OutputLevel=INFO
-
+#scan for RTT files (only if dsName and fileRange set)
+include("TriggerTest/TrigScanFiles.py")
 ###############################
 
 doTrigger=True
@@ -27,7 +25,6 @@ rec.doCBNT=False
 
 #rec.doTruth=False
 rec.doTruth.set_Value_and_Lock(False)
-
 
 #-----------------------------------------------------------
 include("RecExCond/RecExCommon_flags.py")

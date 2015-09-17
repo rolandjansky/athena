@@ -45,15 +45,15 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="AthenaTrigRDO_standalone" type="script" suite="tapm_12"> 
-            <options_atn>trigtest.pl --test AthenaTrigRDO_standalone --run AthenaTrigRDO_standalone --conf TriggerTest.conf</options_atn> 
+        <!--TEST name="AthenaTrigRDO_standalone" type="script" suite="tapm_12"> 
+            <options_atn>trigtest.pl - -test AthenaTrigRDO_standalone - -run AthenaTrigRDO_standalone - -conf TriggerTest.conf</options_atn> 
             <timelimit>30</timelimit> 
             <author>TAPM validation</author> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
             </expectations> 
-        </TEST> 
+        </TEST--> 
         
         <!-- 2 -->
         <TEST name="AthenaTrigRDO_MC_pp_v5" type="script" suite="tapm_20">
@@ -68,7 +68,7 @@
         
         <TEST name="AthenaTrigRDO_Physics_pp_v5" type="script" suite="tapm_21">
             <options_atn>trigtest.pl --test AthenaTrigRDO_Physics_pp_v5 --run AthenaTrigRDO_Physics_pp_v5 --conf TriggerTest.conf</options_atn>
-            <timelimit>45</timelimit>
+            <timelimit>60</timelimit>
             <author>TAPM validation</author>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -261,16 +261,6 @@
             </expectations> 
         </TEST>
         
-        <TEST name="CombinedSliceAthenaTrigRDO_MC" type="script" suite="tapm_62"> 
-            <options_atn>trigtest.pl --test CombinedSliceAthenaTrigRDO_MC --run CombinedSliceAthenaTrigRDO_MC --conf TriggerTest.conf</options_atn> 
-            <timelimit>30</timelimit> 
-            <author>TAPM validation</author>
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST>
-        
         <!-- 7 -->
         <TEST name="BjetSliceAthenaTrigRDO" type="script" suite="tapm_71"> 
             <options_atn>trigtest.pl --test BjetSliceAthenaTrigRDO --run BjetSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
@@ -351,16 +341,6 @@
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST> 
-        
-        <TEST name="CombinedSliceAthenaTrigRDO" type="script" suite="tapm_72"> 
-            <options_atn>trigtest.pl --test CombinedSliceAthenaTrigRDO --run CombinedSliceAthenaTrigRDO --conf TriggerTest.conf</options_atn> 
-            <timelimit>30</timelimit> 
-            <author>TAPM validation</author>
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST>
         
         <!-- 8 -->
         <TEST name="MinBiasSliceAthenaTrigRDO_Enhanced" type="script" suite="tapm_80"> 
