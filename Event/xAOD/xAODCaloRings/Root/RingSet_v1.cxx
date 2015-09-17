@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingSet_v1.cxx 767576 2016-08-11 13:53:42Z ssnyder $ 
+// $Id: RingSet_v1.cxx 667903 2015-05-18 18:59:15Z wsfreund $ 
 #include "xAODCaloRings/versions/RingSet_v1.h"
 #include "xAODCaloRings/tools/PrintHelperFcns.h"
 
@@ -43,8 +43,7 @@ AUXSTORE_OBJECT_SETTER_AND_GETTER(RingSet_v1,
 // @name RingSet_v1 rings interation:
 //==============================================================================
 unsigned RingSet_v1::size() const { 
-  return (constAccRingsE.isAvailable( *this ) )?
-    constAccRingsE( *this ).size() : 0;
+  return constAccRingsE( *this ).size(); 
 }
 
 //==============================================================================
@@ -59,26 +58,22 @@ void RingSet_v1::addRing(float r) {
 
 //==============================================================================
 RingSet_v1::iterator RingSet_v1::begin() {
-  return (accRingsE.isAvailable( *this ) )?
-    accRingsE( *this ).begin() : RingSet_v1::iterator();
+  return accRingsE( *this ).begin();
 }
 
 //==============================================================================
 RingSet_v1::iterator RingSet_v1::end() {
-  return (accRingsE.isAvailable( *this ) )?
-    accRingsE( *this ).end() : RingSet_v1::iterator();
+  return accRingsE( *this ).end();
 }
 
 //==============================================================================
 RingSet_v1::const_iterator RingSet_v1::begin() const {
-  return (constAccRingsE.isAvailable( *this ) )?
-    constAccRingsE( *this ).begin() : RingSet_v1::const_iterator();
+  return constAccRingsE( *this ).begin();
 }
 
 //==============================================================================
 RingSet_v1::const_iterator RingSet_v1::end() const {
-  return (constAccRingsE.isAvailable( *this ) )?
-    constAccRingsE( *this ).end() : RingSet_v1::const_iterator();
+  return constAccRingsE( *this ).end();
 }
 
 //==============================================================================
@@ -92,7 +87,7 @@ void RingSet_v1::copyTo(std::vector<float> &vec) const {
 void RingSet_v1::print( MsgStream &stream, MSG::Level level ) const {
   const std::vector<float> &ringsE = constAccRingsE( *this );
   if( stream.level() <= level ) {
-    stream << ringsE << endmsg;
+    stream << ringsE << endreq;
   }
 }
 

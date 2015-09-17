@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingSetConf_v1.h 704590 2015-10-29 17:47:12Z wsfreund $
+// $Id: RingSetConf_v1.h 695475 2015-09-17 16:54:07Z wsfreund $
 #ifndef XAODCALORINGS_VERSIONS_RINGSETCONF_V1_H
 #define XAODCALORINGS_VERSIONS_RINGSETCONF_V1_H
 
@@ -35,8 +35,8 @@ typedef DataVector< xAOD::RingSetConf_v1 > RingSetConfContainer_v1;
  *
  * @author Werner Spolidoro Freund <wsfreund@cern.ch>
  *
- * $Revision: 704590 $
- * $Date: 2015-10-29 18:47:12 +0100 (Thu, 29 Oct 2015) $
+ * $Revision: 695475 $
+ * $Date: 2015-09-17 18:54:07 +0200 (Thu, 17 Sep 2015) $
  **/
 class RingSetConf_v1 : public SG::AuxElement {
 
@@ -61,10 +61,10 @@ class RingSetConf_v1 : public SG::AuxElement {
       float etaWidth;   
       /// Ring Width in phi
       float phiWidth;   
-      /// Maximum distance cell in eta to seed
-      float cellMaxDEtaDist;   
-      /// Maximum distance cell in phi to seed
-      float cellMaxDPhiDist;   
+      /// Maximun cell distance in eta to seed
+      float maxCellDEtaDist;   
+      /// Maximun cell distance in phi to seed
+      float maxCellDPhiDist;   
       /// The Calorimeter Joint Layer of this RingSet (see CaloRingsDefs.h)
       Ringer::CalJointLayer calJointLayer;
       /// The Calorimeter Joint Section (see CaloRingsDefs.h)
@@ -98,7 +98,7 @@ class RingSetConf_v1 : public SG::AuxElement {
       RawConf(const unsigned nRings, 
           const std::vector<CaloSampling::CaloSample> &layers,
           const float etaWidth, const float phiWidth,
-          const float cellMaxDEtaDist, const float cellMaxDPhiDist,
+          const float maxCellDEtaDist, const float maxCellDPhiDist,
           const Ringer::CalJointLayer calJointLayer,
           const Ringer::CalJointSection calJointSection,
           const bool doEtaAxesDivision = false,
@@ -109,7 +109,7 @@ class RingSetConf_v1 : public SG::AuxElement {
       RawConf(const unsigned nRings, 
           const std::vector<CaloSampling::CaloSample> &layers,
           const float etaWidth, const float phiWidth,
-          const float cellMaxDEtaDist, const float cellMaxDPhiDist,
+          const float maxCellDEtaDist, const float maxCellDPhiDist,
           const Ringer::CalJointLayer calJointLayer,
           const Ringer::CalJointSection calJointSection,
           const bool doEtaAxesDivision,
@@ -216,7 +216,7 @@ class RingSetConf_v1 : public SG::AuxElement {
     RingSetConf_v1(const unsigned nRings, 
         const std::vector<CaloSampling::CaloSample> &rsLayers,
         const float etaWidth, const float phiWidth,
-        const float cellMaxDEtaDist, const float cellMaxDPhiDist,
+        const float maxCellDEtaDist, const float maxCellDPhiDist,
         const Ringer::CalJointLayer calJointLayer,
         const Ringer::CalJointSection calJointSection,
         const bool doEtaAxesDivision, const bool doPhiAxesDivision,
@@ -316,25 +316,25 @@ class RingSetConf_v1 : public SG::AuxElement {
      *
      * Defined via AUXSTORE_PRIMITIVE_SETTER_AND_GETTER macro
      **/
-    float cellMaxDEtaDist() const; 
+    float maxCellDEtaDist() const; 
     /** 
      * @brief Return the maximun cell distance in phi w.r.t seed
      *
      * Defined via AUXSTORE_PRIMITIVE_SETTER_AND_GETTER macro
      **/
-    float cellMaxDPhiDist() const; 
+    float maxCellDPhiDist() const; 
     /** 
      * @brief Set maxCellDEtaDist. For more details, see maxCellDEtaDist()
      *
      * Defined via AUXSTORE_PRIMITIVE_SETTER_AND_GETTER macro
      **/
-    void setCellMaxDEtaDist(float cellMaxDEtaDist);
+    void setMaxCellDEtaDist(float maxCellDEtaDist);
     /** 
      * @brief Set maxCellDPhiDist. For more details, see maxCellDPhiDist()
      *
      * Defined via AUXSTORE_PRIMITIVE_SETTER_AND_GETTER macro
      **/
-    void setCellMaxDPhiDist(float cellMaxDPhiDist);
+    void setMaxCellDPhiDist(float maxCellDPhiDist);
     /** 
      * @brief Return the etaAxesDivision configuration 
      *
@@ -492,13 +492,9 @@ inline
 RingSetConf_v1::RawConf::RawConf()
   : nRings(0),
     etaWidth(0),   
-    phiWidth(0), 
-    cellMaxDEtaDist(0),
-    cellMaxDPhiDist(0),
+    phiWidth(0),  
     calJointLayer(Ringer::CalJointLayer::UnknownJointLayer),
     calJointSection(Ringer::CalJointSection::UnknownJointSection),
-    doEtaAxesDivision(false),
-    doPhiAxesDivision(false),
     layerStartIdx(0),
     layerEndIdx(0),
     sectionStartIdx(0),
