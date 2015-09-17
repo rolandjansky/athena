@@ -26,8 +26,11 @@ class MuonCombinedInDetCandidateAlg : public AthAlgorithm
 
  private:
   ToolHandle<MuonCombined::IInDetCandidateTool> m_indetCandidateTool;
+  ToolHandle<MuonCombined::IInDetCandidateTool> m_indetForwardCandidateTool;
   std::string m_indetTrackParticleLocation;
+  std::string m_indetForwardTrackParticleLocation;
   std::string m_candidateCollectionName;
+  bool m_doSiliconForwardMuons;
 
 };
 
