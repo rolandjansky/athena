@@ -8,6 +8,9 @@ __author__ = "Werner S. Freund"
 # Temporary solution just to emulate what was being done in egammaGetter.py
 from egammaRec.egammaKeys import egammaKeysDict
 
+from CaloRingerAlgs.CaloRingerFlags import jobproperties
+CaloRingerFlags = jobproperties.CaloRingerFlags
+
 def outputRingSetType():
   return 'xAOD::RingSetContainer'
 
@@ -36,14 +39,14 @@ class CaloRingerKeysDict:
 
   # Define new outputs here:
   _output_values = [
-      [outputRingSetType(),   'ElectronRingSets',      ''],
-      [outputRingSetType(),   'ElectronAsymRingSets',  ''],
-      [outputCaloRingsType(), 'ElectronCaloRings',     ''],
+      [outputRingSetType(), 'ElectronRingSets'     , ''],
+      [outputRingSetType(), 'ElectronAsymRingSets' , ''],
+      [outputCaloRingsType(), 'ElectronCaloRings'    , ''],
       [outputCaloRingsType(), 'ElectronCaloAsymRings', ''],
-      [outputRingSetType(),   'PhotonRingSets',        ''],
-      [outputRingSetType(),   'PhotonAsymRingSets',    ''],
-      [outputCaloRingsType(), 'PhotonCaloRings',       ''],
-      [outputCaloRingsType(), 'PhotonCaloAsymRings',   ''],
+      [outputRingSetType(), 'PhotonRingSets'       , ''],
+      [outputRingSetType(), 'PhotonAsymRingSets'   , ''],
+      [outputCaloRingsType(), 'PhotonCaloRings'      , ''],
+      [outputCaloRingsType(), 'PhotonCaloAsymRings'  , ''],
       ]
 
   # This will keep dict key equal to Container key:

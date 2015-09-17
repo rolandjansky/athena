@@ -4,7 +4,7 @@
 # File:  CaloRingerAlgs/python/CaloRingerFlags.py
 #=======================================================================
 __author__  = 'W. S. Freund'
-__version__="$Revision: 785784 $"
+__version__="$Revision: 695515 $"
 __doc__="CaloRinger flags."
 
 
@@ -13,6 +13,7 @@ __doc__="CaloRinger flags."
 #=======================================================================
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
+
 
 #=======================================================================
 # Defines a sub-container for the algorithm switches
@@ -27,7 +28,7 @@ class Enabled(JobProperty):
     """
     statusOn        = True
     allowedTypes    = ['bool']
-    StoredValue     = True
+    StoredValue     = False
 jobproperties.CaloRingerFlags.add_JobProperty(Enabled)
 
 #=======================================================================
@@ -43,15 +44,6 @@ class CaloRingerFlagsJobProperty(JobProperty):
         return False
 jobproperties.CaloRingerFlags.add_JobProperty(CaloRingerFlagsJobProperty)
 
-from AthenaCommon.Logging import logging
-class OutputLevel(CaloRingerFlagsJobProperty):
-    """ switch for all CaloRinger algorithms and tools
-    """
-    statusOn        = True
-    allowedTypes    = ['int']
-    StoredValue     = logging.INFO
-jobproperties.CaloRingerFlags.add_JobProperty(OutputLevel)
-
 #=======================================================================
 class buildElectronCaloRings(CaloRingerFlagsJobProperty):
     """ switch for building the CaloRings for electron candidates
@@ -62,31 +54,22 @@ class buildElectronCaloRings(CaloRingerFlagsJobProperty):
 jobproperties.CaloRingerFlags.add_JobProperty(buildElectronCaloRings)
 
 #=======================================================================
-class minElectronEnergy(CaloRingerFlagsJobProperty):
-    """ Minimum transverse energy (GeV) needed to build CaloRings for electrons
-    """
-    statusOn        = True
-    allowedTypes    = ['float', 'NoneType']
-    StoredValue     = 14
-jobproperties.CaloRingerFlags.add_JobProperty(minElectronEnergy)
-
-#=======================================================================
 class doElectronIdentification(CaloRingerFlagsJobProperty):
     """ switch for electron particle identification (PID), that is, whether to
     run or not Ringer selector for Electrons.
     """
     statusOn        = True
     allowedTypes    = ['bool']
-    StoredValue     = False
+    StoredValue     = True
 jobproperties.CaloRingerFlags.add_JobProperty(doElectronIdentification)
 
 #=======================================================================
 class buildPhotonCaloRings(CaloRingerFlagsJobProperty):
     """ switch for building the CaloRings for electron candidates
     """
-    statusOn       = True 
+    statusOn       = True
     allowedTypes   = ['bool']
-    StoredValue    = False
+    StoredValue    = True
 jobproperties.CaloRingerFlags.add_JobProperty(buildPhotonCaloRings)
 
 #=======================================================================
@@ -109,15 +92,6 @@ class doPhotonIdentification(CaloRingerFlagsJobProperty):
 jobproperties.CaloRingerFlags.add_JobProperty(doPhotonIdentification)
 
 #=======================================================================
-class minPhotonEnergy(CaloRingerFlagsJobProperty):
-    """ Minimum energy needed to build CaloRings for photons
-    """
-    statusOn        = True
-    allowedTypes    = ['float', 'NoneType']
-    StoredValue     = None
-jobproperties.CaloRingerFlags.add_JobProperty(minPhotonEnergy)
-
-#=======================================================================
 from RingerSelectorTools.ElectronRingerSelectorMapping import electronRingerPIDmenu
 class electronMenuToUse(CaloRingerFlagsJobProperty):
     """ which menu should be used for electron identification  """
@@ -138,14 +112,9 @@ jobproperties.CaloRingerFlags.add_JobProperty(ignoreRingerExistingDataObject)
 class buildCaloRingsOn(CaloRingerFlagsJobProperty):
     """ special flag to obtain whether it will run CaloRings Reconstruction
     """
-
     def get_Value(self):
         return jobproperties.CaloRingerFlags.buildElectronCaloRings() or \
             jobproperties.CaloRingerFlags.buildPhotonCaloRings()
-
-    def set_Value(self, val):
-        jobproperties.CaloRingerFlags.buildElectronCaloRings = val
-        jobproperties.CaloRingerFlags.buildPhotonCaloRings = val
 jobproperties.CaloRingerFlags.add_JobProperty(buildCaloRingsOn)
 
 #=======================================================================
@@ -155,9 +124,6 @@ class doIdentificationOn(CaloRingerFlagsJobProperty):
     def get_Value(self):
         return jobproperties.CaloRingerFlags.doElectronIdentification() or \
             jobproperties.CaloRingerFlags.doPhotonIdentification()
-    def set_Value(self, val):
-        jobproperties.CaloRingerFlags.doElectronIdentification = val
-        jobproperties.CaloRingerFlags.doPhotonIdentification = val
 jobproperties.CaloRingerFlags.add_JobProperty(doIdentificationOn)
 
 
@@ -169,4 +135,5 @@ class doWriteRingsToFile(CaloRingerFlagsJobProperty):
     StoredValue  = True
 jobproperties.CaloRingerFlags.add_JobProperty(doWriteRingsToFile)
 
-caloRingerFlags = jobproperties.CaloRingerFlags
+
+

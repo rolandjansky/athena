@@ -3,11 +3,11 @@
 
 ########################### SOME RINGER CONFIG ##########################
 #########################################################################
-from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
-caloRingerFlags.useAsymBuilder.set_Value_and_Lock(False)
-caloRingerFlags.doElectronIdentification.set_Value_and_Lock(False)
-caloRingerFlags.doPhotonIdentification.set_Value_and_Lock(False)
-caloRingerFlags.OutputLevel.set_Value_and_Lock(DEBUG)
+from CaloRingerAlgs.CaloRingerFlags import jobproperties
+CaloRingerFlags = jobproperties.CaloRingerFlags
+CaloRingerFlags.useAsymBuilder.set_Value_and_Lock(False)
+CaloRingerFlags.doElectronIdentification.set_Value_and_Lock(True)
+CaloRingerFlags.doPhotonIdentification.set_Value_and_Lock(True)
 #########################################################################
 
 ####################### CHANGE CONFIGURATION HERE  ######################
@@ -17,6 +17,7 @@ doCaloRinger = True
 doDumpStoreGate = False
 ManualDetDescrVersion = 'ATLAS-R2-2015-01-01-00' # Set to False or empty if you want it to be automatically set.
 ConditionsTag = "OFLCOND-RUN12-SDR-14"
+RingerOutputLevel = INFO
 ###########################  REC FLAGS  #################################
 from RecExConfig.RecFlags import rec
 rec.OutputLevel.set_Value_and_Lock(INFO)
@@ -100,13 +101,50 @@ include( "RecExCommon/RecExCommon_topOptions.py" )
 ###########################  Ringer!!! ##################################
 #########################################################################
 if doCaloRinger:
-  include('CaloRingerAlgs/CaloRinger_joboptions.py') 
+  include('CaloRingerAlgs/CaloRinger_reconstruction.py') 
+
+  if RingerOutputLevel:
+    # Set OutputLevel to RingerOutputLevel
+    if CRAlgBuilder.getCaloRingerAlgHandle():
+      CRAlgBuilder.getCaloRingerAlgHandle().OutputLevel = RingerOutputLevel
+    if CRAlgBuilder.getConfigWriterHandle():
+      CRAlgBuilder.getConfigWriterHandle().OutputLevel = RingerOutputLevel
+
+    from CaloRingerTools.CaloRingerInputReaderFactories import CaloRingerElectronsReaderTool
+    CaloRingerElectronsReaderTool().OutputLevel = RingerOutputLevel
+
+    if CaloRingerFlags.buildElectronCaloRings:
+      from CaloRingerTools.CaloRingerInputReaderFactories import CaloRingerElectronsReaderTool
+      CaloRingerElectronsReaderTool().OutputLevel = RingerOutputLevel
+      if CaloRingerFlags.useAsymBuilder():
+        from CaloRingerTools.CaloRingerBuilderFactories import ElectronCaloAsymRingsBuilder
+        ElectronCaloAsymRingsBuilder().OutputLevel = RingerOutputLevel
+      else:
+        from CaloRingerTools.CaloRingerBuilderFactories import ElectronCaloRingsBuilder
+        ElectronCaloRingsBuilder().OutputLevel = RingerOutputLevel
+
+    from CaloRingerTools.CaloRingerInputReaderFactories import CaloRingerPhotonsReaderTool
+    CaloRingerPhotonsReaderTool().OutputLevel = RingerOutputLevel
+
+    if CaloRingerFlags.buildPhotonCaloRings:
+      from CaloRingerTools.CaloRingerInputReaderFactories import CaloRingerPhotonsReaderTool
+      CaloRingerPhotonsReaderTool().OutputLevel = RingerOutputLevel
+      if CaloRingerFlags.useAsymBuilder():
+        from CaloRingerTools.CaloRingerBuilderFactories import PhotonCaloAsymRingsBuilder
+        PhotonCaloAsymRingsBuilder().OutputLevel = RingerOutputLevel
+      else:
+        from CaloRingerTools.CaloRingerBuilderFactories import PhotonCaloRingsBuilder
+        PhotonCaloRingsBuilder().OutputLevel = RingerOutputLevel
+
+    from CaloRingerAlgs.CaloRingerLocker import CaloRingerLocker
+    CaloRingerLocker.OutputLevel = RingerOutputLevel
 #########################################################################
 
 ########################### POST-INCLUDE ################################
 #########################################################################
 # Insert Reconstruction post-includes here.
 #########################################################################
+
 
 ########################### POST-EXEC ###################################
 #########################################################################
