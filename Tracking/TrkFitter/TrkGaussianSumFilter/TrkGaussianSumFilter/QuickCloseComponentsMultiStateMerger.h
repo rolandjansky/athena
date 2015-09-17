@@ -156,7 +156,7 @@ namespace Trk{
     Aligned(Aligned const&) = delete;
     Aligned& operator=(Aligned const&) = delete;
 
-    explicit Aligned(size_t n)
+    explicit Aligned(size_t n):m_ad(nullptr)
     {
       size_t const size = n*sizeof(T) + alignof(T);
       m_size = n;
