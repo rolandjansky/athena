@@ -1322,6 +1322,7 @@ TrigConfCoolWriter::readL1InputMapPayload( unsigned int run,
             foundTip[tipNumber] = true;
             pit->setPitNumber(tipNumber);
             tip->setTipNumber(tipNumber);
+            tip->setClock(tipNumber%2);
             pits.push_back(pit);
             tips.push_back(tip);
          }
@@ -1661,8 +1662,19 @@ TrigConf::TrigConfCoolWriter::HLTPrescaleFolderExists() {
 }
 
 
+/*------------------------------------------------------------
+   Shows status of all folders for a certain run
+   (starting at lb)
+  
+   displayMode : 0 - no indicator index
+                 1 - indicator index in front of empty 
+                     folders
+                 2 - indicator index in front of empty 
+                     and multiversion folders
+ *-----------------------------------------------------------*/
+
 vector<string>
-TrigConf::TrigConfCoolWriter::checkPayloadSize(unsigned int run, unsigned int lb) {
+TrigConf::TrigConfCoolWriter::checkPayloadSize(unsigned int run, unsigned int lb, int displayMode) {
    AutoDBOpen db(this, READ_ONLY);
 
    ValidityRange vr(run, lb); // 
@@ -1696,11 +1708,15 @@ TrigConf::TrigConfCoolWriter::checkPayloadSize(unsigned int run, unsigned int lb
       bool isSingleVersion = folder->versioningMode()==FolderVersioning::SINGLE_VERSION;
       bool needsFixing = (size == 0);
 
-      if(folderName=="/TRIGGER/LVL1/Thresholds" && size==2)
-         needsFixing = true;
+      bool displayFixing = false;
+      if(displayMode==1) { // only allow fixing of folders that are empty
+         displayFixing = (size == 0);
+      } else if(displayMode==2) { // allow fixing of folders that are empty or mv
+         displayFixing = (size == 0) || !isSingleVersion;
+      }
 
       string fn = folderName + (isSingleVersion ? " (sv)" : " (mv)");
-      if(needsFixing) {
+      if(displayFixing) {
          m_ostream << setw(2) << foldersToFix.size()+1 << ") ";
          foldersToFix.push_back(folderName);
       } else {
