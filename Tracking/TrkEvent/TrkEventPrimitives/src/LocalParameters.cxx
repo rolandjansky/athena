@@ -111,12 +111,8 @@ const Amg::MatrixX& Trk::LocalParameters::reductionMatrix() const
 const Amg::MatrixX& Trk::LocalParameters::expansionMatrix() const 
  { return s_projectionMatrices.expansionMatrix(m_parameterkey); }
 
-
-namespace Trk {
-
-
-/**Overload of << operator for both, MsgStream and std::ostream for debug output*/
-MsgStream& operator << ( MsgStream& sl, const Trk::LocalParameters& lp)
+/**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
+MsgStream& Trk::operator << ( MsgStream& sl, const Trk::LocalParameters& lp)
 { 
   std::streamsize ss = sl.precision();
   sl << std::setiosflags(std::ios::fixed)<< std::setprecision(3);
@@ -138,7 +134,7 @@ MsgStream& operator << ( MsgStream& sl, const Trk::LocalParameters& lp)
   return sl; 
 }
 
-std::ostream& operator << ( std::ostream& sl, const Trk::LocalParameters& lp)
+std::ostream& Trk::operator << ( std::ostream& sl, const Trk::LocalParameters& lp)
 { 
   std::streamsize ss = sl.precision();
   sl << std::setiosflags(std::ios::fixed)<< std::setprecision(3);
@@ -160,8 +156,5 @@ std::ostream& operator << ( std::ostream& sl, const Trk::LocalParameters& lp)
   
   return sl; 
 }     
-
-
-} // namespace Trk
-
+ 
  
