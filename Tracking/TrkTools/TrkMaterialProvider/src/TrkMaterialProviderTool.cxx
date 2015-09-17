@@ -716,6 +716,8 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
     if(parms) ATH_MSG_DEBUG("Parameters in MS provided : "<< *parms);
   }   
 
+  double pOri  = parm.momentum().mag();
+
   // Get TSOS from extrapolateM (from TG)
   const std::vector<const Trk::TrackStateOnSurface*>* caloTSOS = m_muonExtrapolator->extrapolateM(parm, surf, dir, boundaryCheck, mateffects);
   
@@ -775,19 +777,13 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
 
   DataVector<const Trk::TrackStateOnSurface>*  finalCaloTSOS = 0;
   if(caloTSOS->size()<1||Eloss<1000.) {
-    if(muonTrack.perigeeParameters()) {
-     if(muonTrack.perigeeParameters()->parameters()[Trk::qOverP]!=0) {
-      if(dir==Trk::alongMomentum&&fabs(1./muonTrack.perigeeParameters()->parameters()[Trk::qOverP])>4000.) {
+    if(dir==Trk::alongMomentum&&pOri>4000.) {
         ATH_MSG_WARNING("Unable to retrieve Calorimeter TSOS from extrapolateM caloTSOS->size() "<< caloTSOS->size() << " Eloss " << Eloss );
-        ATH_MSG_WARNING(" q*momentum of track " << 1./muonTrack.perigeeParameters()->parameters()[Trk::qOverP]);
+        ATH_MSG_WARNING(" momentum of track " << pOri);
         ATH_MSG_WARNING(" momentum extrapolated of track " << parm.momentum().mag() << " radius " << parm.position().perp() << " z " << parm.position().z() );
         ATH_MSG_WARNING(" surface radius " << surf.center().perp() << " z " << surf.center().z() );
         if(parms) ATH_MSG_WARNING(" momentum of MS track " << parms->momentum().mag());
-      } // else track did not have enough momentum
-     } else {
-       ATH_MSG_WARNING(" track without perigeeParameters ");
-     }
-    }
+    } // else track did not have enough momentum
     deleteTSOS(caloTSOS);
     return finalCaloTSOS;
   }
