@@ -31,6 +31,9 @@ namespace Trk{
     class Track;
 }
 
+
+
+
 class IegammaTrkRefitterTool : virtual public IAlgTool 
 {
     public:
@@ -58,6 +61,7 @@ class IegammaTrkRefitterTool : virtual public IAlgTool
     
     /** Returns the original track perigee*/
     virtual const Trk::Perigee* originalTrackPerigee() = 0;    
+
 
     /** Returns the refitted track end measurement parameters*/
     virtual const Trk::TrackParameters* refittedEndParameters() = 0;    

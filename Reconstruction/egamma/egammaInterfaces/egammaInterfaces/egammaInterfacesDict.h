@@ -41,7 +41,8 @@
 #include "egammaInterfaces/IegammaTrkRefitterTool.h"
 #include "egammaInterfaces/Iegammaqweta1c.h"
 #include "egammaInterfaces/Iegammaqweta2c.h"
-#include "egammaInterfaces/IelectronSuperClusterBuilder.h"
-#include "egammaInterfaces/IphotonSuperClusterBuilder.h"
-#include "egammaInterfaces/IegammaTopoClusterCopier.h"
+#include "egammaInterfaces/IegammaTopoClusterMap.h"
+#include "egammaInterfaces/IegammaSuperClusterBuilder.h"
+#include "egammaInterfaces/IegammaClusterOverlapMarker.h"
+
 #endif // EGAMMAINTERFACES_EGAMMAINTERFACESDICT_H

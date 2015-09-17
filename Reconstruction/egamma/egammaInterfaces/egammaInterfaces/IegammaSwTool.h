@@ -21,7 +21,6 @@ MODIFIED : Bruno Lenzi (02/2014): xAOD migration
 // INCLUDE HEADER FILES: 
 #include "GaudiKernel/IAlgTool.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
-#include "xAODEgamma/EgammaEnums.h"
 
 static const InterfaceID IID_IegammaSwTool("IegammaSwTool", 1, 0);
 
@@ -41,8 +40,8 @@ class IegammaSwTool : virtual public IAlgTool
   /** @brief finalize method*/
   virtual StatusCode finalize() = 0;
   /** @brief execute method*/
-  virtual StatusCode execute(xAOD::CaloCluster* cluster) = 0;
-  virtual StatusCode execute(xAOD::CaloCluster* cluster, xAOD::EgammaParameters::EgammaType egType , bool isBarrel) = 0;
+  virtual StatusCode execute(xAOD::CaloCluster*) = 0;
+
 };
 
 inline const InterfaceID& IegammaSwTool::interfaceID()
