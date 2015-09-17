@@ -10,7 +10,8 @@ from CaloRingerAlgs.CaloRingerAlgorithmBuilder import removeFromToolSvc
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
 
-from CaloRingerAlgs.CaloRingerFlags import caloRingerFlags
+from CaloRingerAlgs.CaloRingerFlags import jobproperties
+CaloRingerFlags = jobproperties.CaloRingerFlags
 
 mlog = logging.getLogger( 'CaloRingerSelectorsBuilders.py' )
 mlog.info("Entering")
@@ -92,7 +93,7 @@ class CaloRingerElectronSelectorsBuilder ( Configured ):
     conflog.info('entering')
 
     try:
-      menu = caloRingerFlags.electronMenuToUse()
+      menu = CaloRingerFlags.electronMenuToUse()
 
       from RingerSelectorTools.ConfiguredAsgElectronRingerSelector \
           import ConfiguredAsgElectronRingerSelector
@@ -129,7 +130,7 @@ class CaloRingerElectronSelectorsBuilder ( Configured ):
     except Exception:
       for selector in self._allSelectors:
         removeFromToolSvc(selector)
-      caloRingerFlags.doElectronIdentification = False
+      CaloRingerFlags.doElectronIdentification = False
       treatException(("An unexpected error occurred. Due to it, all "
                       "Ringer electron selectors won't be executed."))
       print traceback.format_exc()

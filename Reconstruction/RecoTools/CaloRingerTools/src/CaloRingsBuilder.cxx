@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingsBuilder.cxx 787812 2016-12-02 05:42:32Z ssnyder $
+// $Id: CaloRingsBuilder.cxx 695505 2015-09-17 16:59:37Z wsfreund $
 // =================================================================================
 #include "CaloRingsBuilder.h"
 
@@ -29,8 +29,7 @@
 #include "xAODCaloEvent/CaloCluster.h"
 
 // STL
-#include <algorithm>
-#include <limits>
+#include <algorithm> 
 #include <math.h>
 #include <cfloat>
 
@@ -40,21 +39,17 @@ namespace Ringer {
 CaloRingsBuilder::CaloRingsBuilder(const std::string& type,
                                  const std::string& name,
                                  const ::IInterface* parent)
-  : ::AthAlgTool(type, name, parent),
-    m_rsCont(nullptr),
-    m_crCont(nullptr),
-    m_cellCont(nullptr),
-    m_nRingSets(0)
+  : ::AthAlgTool(type, name, parent)
 {
 
   // declare interface
   declareInterface<ICaloRingsBuilder>(this);
-
-  declareProperty("RingSetContainerName",
+  
+  declareProperty("RingSetContainerName", 
       m_rsContName = "RingSets",
       "Name of the RingSets Container");
 
-  declareProperty("CaloRingsContainerName",
+  declareProperty("CaloRingsContainerName", 
       m_crContName = "CaloRings",
       "Name of the CaloRings Container");
 
@@ -66,23 +61,21 @@ CaloRingsBuilder::CaloRingsBuilder(const std::string& type,
       "Each RingSet ring eta width");
   declareProperty("PhiWidth", m_phiWidth,
       "Each RingSet ring phi width");
-  declareProperty("CellMaxDEtaDist", m_cellMaxDEtaDist = 0,
+  declareProperty("MaxCellDEtaDist", m_maxCellDEtaDist,
       "Maximum cell distance in eta to seed");
-  declareProperty("CellMaxDPhiDist", m_cellMaxDPhiDist = 0,
+  declareProperty("MaxCellDPhiDist", m_maxCellDPhiDist,
       "Maximum cell distance in phi to seed");
   declareProperty("NRings", m_nRings,
       "Each RingSet number of rings");
-  declareProperty("MinPartEnergy", m_minEnergy = std::numeric_limits<float>::lowest(),
-      "Minimum particle/cluster energy to build rings (GeV) ");
   declareProperty("Layers", m_layers,
-      "Concatenated list of layers which will be used "
+      "Concatenated list of layers which will be used " 
       "to build the RingSets");
   declareProperty("RingSetNLayers", m_nLayers,
       "Each RingSet number of layers from the Layers "
       "configurable property to use.");
 
   // Whether to use layer centers or cluster center:
-  declareProperty("useShowerShapeBarycenter", m_useShowShapeBarycenter = false,
+  declareProperty("useShowerShapeBarycenter", m_useShowShapeBarycenter = false, 
       "Switch to use shower barycenter for each layer, "
       "instead of the cluster center.");
 }
@@ -112,7 +105,7 @@ StatusCode CaloRingsBuilder::initialize()
     // convert the types:
     const auto& caloSampleItr = reinterpret_cast<
         std::vector<CaloSampling::CaloSample>::iterator&
-      >(itr);
+      >(itr); 
     const auto& caloSampleEndItr = reinterpret_cast<
         std::vector<CaloSampling::CaloSample>::iterator&
       >(end_itr);
@@ -122,11 +115,11 @@ StatusCode CaloRingsBuilder::initialize()
 
     itr += rsNLayers;
 
-    const auto rawConf = xAOD::RingSetConf::RawConf(
+    const auto rawConf = xAOD::RingSetConf::RawConf( 
           m_nRings[rsConfIdx],
           rsLayers,
           m_etaWidth[rsConfIdx], m_phiWidth[rsConfIdx],
-          m_cellMaxDEtaDist, m_cellMaxDPhiDist,
+          m_maxCellDEtaDist, m_maxCellDPhiDist,
           xAOD::RingSetConf::whichLayer(rsLayers),
           xAOD::RingSetConf::whichSection(rsLayers)
         );
@@ -159,7 +152,7 @@ StatusCode CaloRingsBuilder::finalize()
 }
 
 // =====================================================================================
-StatusCode CaloRingsBuilder::contExecute(const size_t nReserve)
+StatusCode CaloRingsBuilder::contExecute(const size_t nReserve) 
 {
 
   // Retrieve CaloCells
@@ -199,23 +192,10 @@ StatusCode CaloRingsBuilder::contExecute(const size_t nReserve)
 }
 
 // =====================================================================================
-StatusCode CaloRingsBuilder::execute(const xAOD::CaloCluster &cluster,
+StatusCode CaloRingsBuilder::execute(const xAOD::CaloCluster &cluster, 
     ElementLink<xAOD::CaloRingsContainer> &clRings)
-{
-  double et(0.);
-  const double eta2 = std::fabs(cluster.etaBE(2));
-  const double energy =  cluster.e();
-  if ( eta2 < 999.) {
-    const double cosheta = std::cosh(eta2);
-    et = (cosheta != 0.) ? energy /cosheta : 0.;
-  }
-  if ( et > m_minEnergy )
-  {
-    return executeTemp(cluster, clRings);
-  } else {
-    ATH_MSG_DEBUG( "Skipping cluster with low energy (" << et << " MeV) .");
-    return StatusCode::SUCCESS;
-  }
+{ 
+  return executeTemp(cluster, clRings);
 }
 
 // =====================================================================================
@@ -223,14 +203,7 @@ StatusCode CaloRingsBuilder::execute(
     const xAOD::IParticle &particle,
     ElementLink<xAOD::CaloRingsContainer> &clRings)
 {
-  double et = particle.pt();
-  if ( et > m_minEnergy )
-  {
-    return executeTemp(particle, clRings);
-  } else {
-    ATH_MSG_DEBUG( "Skipping particle with low energy (" << et << " MeV) .");
-    return StatusCode::SUCCESS;
-  }
+  return executeTemp(particle, clRings);
 }
 
 // =====================================================================================
@@ -285,7 +258,7 @@ StatusCode CaloRingsBuilder::executeTemp(
 }
 
 // =================================================================================
-StatusCode CaloRingsBuilder::getRingSetSeed(
+StatusCode CaloRingsBuilder::getRingSetSeed( 
     const xAOD::RingSetConf::RawConf &rawConf,
     const xAOD::CaloCluster &cluster,
     AtlasGeoPoint &seed )
@@ -303,19 +276,19 @@ StatusCode CaloRingsBuilder::getRingSetSeed(
 
     for ( const auto layer : rawConf.layers ) {
 
-      AtlasGeoPoint seedCandidate(
+      AtlasGeoPoint seedCandidate( 
           cluster.etaSample( layer ),
-          cluster.phiSample( layer )
+          cluster.phiSample( layer ) 
         );
 
-      ATH_MSG_DEBUG( "This layer (" << CaloSampling::getSamplingName(layer) <<
-          ") seedCandidate is: (" <<
+      ATH_MSG_DEBUG( "This layer (" << CaloSampling::getSamplingName(layer) << 
+          ") seedCandidate is: (" << 
           seedCandidate.eta() << "," <<
           seedCandidate.phi() << ")" );
 
       if ( seedCandidate.isValid() ){
         m_lastValidSeed = seedCandidate;
-        if ( foundValid )
+        if ( foundValid ) 
           foundMultipleValid = true;
         foundValid = true;
       }
@@ -331,7 +304,7 @@ StatusCode CaloRingsBuilder::getRingSetSeed(
 }
 
 // =================================================================================
-StatusCode CaloRingsBuilder::getRingSetSeed(
+StatusCode CaloRingsBuilder::getRingSetSeed( 
     const xAOD::RingSetConf::RawConf &/*rawConf*/,
     const xAOD::IParticle &part,
     AtlasGeoPoint &seed)
@@ -344,7 +317,7 @@ StatusCode CaloRingsBuilder::getRingSetSeed(
 }
 
 // =================================================================================
-StatusCode CaloRingsBuilder::buildRingSet(
+StatusCode CaloRingsBuilder::buildRingSet( 
     const xAOD::RingSetConf::RawConf &rawConf,
     const AtlasGeoPoint &seed,
     xAOD::RingSet *rs)
@@ -357,10 +330,10 @@ StatusCode CaloRingsBuilder::buildRingSet(
   // loop over cells
   for ( const int layer : rawConf.layers) { // We use int here because the
     // cells.select() method needs int as param
-    cells.select(seed.eta(), seed.phi(), m_cellMaxDEtaDist, m_cellMaxDPhiDist, layer );
+    cells.select(seed.eta(), seed.phi(), m_maxCellDEtaDist, m_maxCellDPhiDist, layer ); 
     for ( const CaloCell *cell : cells ) {
 
-      unsigned int ringNumber(0);
+      unsigned int ringNumber(0); 
 
       // calculate the normalised difference in eta
       const float deltaEta = fabs(
@@ -378,7 +351,7 @@ StatusCode CaloRingsBuilder::buildRingSet(
       ringNumber = static_cast<unsigned int>(std::floor(deltaGreater + .5));
       if ( ringNumber < nRings ){
         rs->at(ringNumber) += cell->energy()/cosh(cell->eta());
-      }
+      }   
     }
   }
 

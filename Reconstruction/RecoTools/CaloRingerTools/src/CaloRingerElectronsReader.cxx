@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRingerElectronsReader.cxx 786306 2016-11-24 13:40:42Z wsfreund $
+// $Id: CaloRingerElectronsReader.cxx 670916 2015-05-29 14:05:20Z wsfreund $
 // =============================================================================
 #include "CaloRingerElectronsReader.h"
 
@@ -19,9 +19,7 @@ CaloRingerElectronsReader::CaloRingerElectronsReader(const std::string& type,
                                  const std::string& name,
                                  const ::IInterface* parent) :
   CaloRingerInputReader(type, name, parent),
-  m_container(nullptr),
-  m_constContainer(nullptr),
-  m_clRingsBuilderElectronFctor(nullptr)
+  m_clRingsBuilderElectronFctor(0)
 {
 
   // declare interface
@@ -39,7 +37,7 @@ CaloRingerElectronsReader::CaloRingerElectronsReader(const std::string& type,
 // =============================================================================
 CaloRingerElectronsReader::~CaloRingerElectronsReader()
 { 
-  delete m_clRingsBuilderElectronFctor;
+  if (m_clRingsBuilderElectronFctor) delete m_clRingsBuilderElectronFctor;
 }
 
 // =============================================================================
@@ -94,20 +92,14 @@ StatusCode CaloRingerElectronsReader::execute()
 
   ATH_MSG_DEBUG("Entering " << name() << " execute.");
 
-  xAOD::ElectronAuxContainer* crAux{nullptr};
-
   // Retrieve electrons
   if ( m_builderAvailable ) {
-
     if ( evtStore()->retrieve( m_container, m_inputKey).isFailure() )
     {
       ATH_MSG_ERROR("Cannot retrieve electron container " << m_inputKey );
       return StatusCode::FAILURE;
     }
   } else {
-
-    ATH_MSG_DEBUG("No builder available, will work on copies!");
-
     if ( evtStore()->retrieve( m_constContainer, m_inputKey).isFailure() ){
       ATH_MSG_ERROR("Cannot retrieve electron container " << m_inputKey );
       return StatusCode::FAILURE;
@@ -118,7 +110,7 @@ StatusCode CaloRingerElectronsReader::execute()
     m_container->reserve( m_constContainer->size() );
 
     // Create its aux container and set it:
-    crAux = new xAOD::ElectronAuxContainer();
+    auto* crAux = new xAOD::ElectronAuxContainer();
     crAux->reserve( m_constContainer->size() );
     m_container->setStore( crAux );
 
@@ -127,6 +119,14 @@ StatusCode CaloRingerElectronsReader::execute()
       auto elCopy = new xAOD::Electron(*el);
       m_container->push_back( elCopy );
     }
+
+    // Overwrite container and set it to be const:
+    CHECK( evtStore()->overwrite( crAux, 
+          m_inputKey + "Aux.", 
+          /*allowMods = */ false) );
+    CHECK( evtStore()->overwrite( m_container, 
+          m_inputKey, 
+          /*allowMods = */ false) );
   }
 
   // Check if requested to run CaloRings Builder:
@@ -189,17 +189,6 @@ StatusCode CaloRingerElectronsReader::execute()
           selector->name() + std::string("_output")
         );
     }
-  }
-
-  if ( ! m_builderAvailable ) {
-    // In case we worked on copies, place the container on EventStore and set
-    // it to be const:
-    CHECK( evtStore()->overwrite( crAux, 
-          m_inputKey + "Aux.", 
-          /*allowMods = */ false) );
-    CHECK( evtStore()->overwrite( m_container, 
-          m_inputKey, 
-          /*allowMods = */ false) );
   }
 
   return sc;

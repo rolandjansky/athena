@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloAsymRingsBuilder.h 768540 2016-08-17 20:29:37Z ssnyder $
+// $Id: CaloAsymRingsBuilder.h 695505 2015-09-17 16:59:37Z wsfreund $
 #ifndef CALORINGERTOOLS_CALOASYMRINGSBUILDER_H
 #define CALORINGERTOOLS_CALOASYMRINGSBUILDER_H
 
@@ -53,10 +53,10 @@ class CaloAsymRingsBuilder : public CaloRingsBuilder
     /// @}
 
      **/
-    virtual StatusCode buildRingSet( 
-                                    const xAOD::RingSetConf::RawConf &rawConf,
-                                    const AtlasGeoPoint &seed,
-                                    xAOD::RingSet *rs) override;
+    StatusCode buildRingSet( 
+        const xAOD::RingSetConf::RawConf &rawConf,
+        const AtlasGeoPoint &seed,
+        xAOD::RingSet *rs);
     /// @}
 
     // Tool pro (python configurables):
