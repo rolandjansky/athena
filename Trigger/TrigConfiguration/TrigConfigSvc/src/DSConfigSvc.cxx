@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DSConfigSvc.cxx 692062 2015-08-29 21:31:16Z stelzer $
+// $Id: DSConfigSvc.cxx 695304 2015-09-17 08:06:56Z stelzer $
 
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
@@ -274,14 +274,14 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
    // read the runwise configuration keys (master + HLT prescales)
    if( update_HLTKEYS ) {
 
-      const DataHandle< AthenaAttributeList > keysAtrList;
-      CHECK( m_detstore->retrieve( keysAtrList, TRIGGER_CONF_HLTKEYS ) );
+      const DataHandle< AthenaAttributeList > keysAttrList;
+      CHECK( m_detstore->retrieve( keysAttrList, TRIGGER_CONF_HLTKEYS ) );
 
       ATH_MSG_INFO( "Updating trigger configuration: HLT keys" );
 
       uint32_t old_masterkey = m_masterKey;
 
-      readHltConfigKeys( *keysAtrList, m_masterKey, m_hltPsKey, m_configSrc );
+      readHltConfigKeys( *keysAttrList, m_masterKey, m_hltPsKey, m_configSrc );
 
       ATH_MSG_INFO( "  Configuration key : " << m_masterKey );
       ATH_MSG_INFO( "  Run-bound HLT prescale key (old style): " << m_hltPsKey );
@@ -297,17 +297,17 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
    // read the LVL1 Menu object
    if( update_LVL1MENU ) {
 
-      const DataHandle< CondAttrListCollection > lvl1MenuAtrColl;
-      CHECK( m_detstore->retrieve(lvl1MenuAtrColl, TRIGGER_CONF_LVL1MENU ) );
+      const DataHandle< CondAttrListCollection > lvl1MenuAttrColl;
+      CHECK( m_detstore->retrieve(lvl1MenuAttrColl, TRIGGER_CONF_LVL1MENU ) );
 
       ATH_MSG_INFO( "Updating trigger configuration: LVL1 menu" );
 
       m_ctpConfig.menu().clear();
 
-      CondAttrListCollection::size_type nCh = lvl1MenuAtrColl->size();
+      CondAttrListCollection::size_type nCh = lvl1MenuAttrColl->size();
 
-      CondAttrListCollection::const_iterator chIt = lvl1MenuAtrColl->begin();
-      for( ; chIt != lvl1MenuAtrColl->end(); ++chIt ) {
+      CondAttrListCollection::const_iterator chIt = lvl1MenuAttrColl->begin();
+      for( ; chIt != lvl1MenuAttrColl->end(); ++chIt ) {
 
          CondAttrListCollection::ChanAttrListPair idListPair = *chIt;
 
@@ -331,26 +331,31 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
    // read the LVL1 PITs
    if( update_LVL1PIT ) {
 
-      const DataHandle< CondAttrListCollection > lvl1PitAtrColl;
-      CHECK( m_detstore->retrieve( lvl1PitAtrColl, TRIGGER_CONF_LVL1PIT ) );
+      const DataHandle< CondAttrListCollection > lvl1PitAttrColl;
+      CHECK( m_detstore->retrieve( lvl1PitAttrColl, TRIGGER_CONF_LVL1PIT ) );
 
       ATH_MSG_INFO( "Updating trigger configuration: LVL1 PITs" );
 
-      CondAttrListCollection::size_type nCh = lvl1PitAtrColl->size();
+      CondAttrListCollection::size_type nCh = lvl1PitAttrColl->size();
 
-      CondAttrListCollection::const_iterator chIt = lvl1PitAtrColl->begin();
-      for( ; chIt != lvl1PitAtrColl->end(); ++chIt ) {
+      CondAttrListCollection::const_iterator chIt = lvl1PitAttrColl->begin();
+      for( ; chIt != lvl1PitAttrColl->end(); ++chIt ) {
 
          CondAttrListCollection::ChanAttrListPair idListPair = *chIt;
 
          // the attributeList for this channel (a channel corresponds to a PIT)
-         CondAttrListCollection::ChanNum       pitNumber = idListPair.first;
-         CondAttrListCollection::AttributeList atrList   = idListPair.second;
+         CondAttrListCollection::ChanNum       tipNumber = idListPair.first;
+         CondAttrListCollection::AttributeList attrList   = idListPair.second;
 
-         TrigConf::PIT* pit = readLvl1InputMap( atrList );
+         TrigConf::PIT* pit = readLvl1InputMap( attrList );
+         TrigConf::TIP* tip = readLvl1TIPMap( attrList );
+         
+         pit->setPitNumber( ( int ) tipNumber );   // ChanNum is a typedef of uint32
+         tip->setTipNumber( ( int ) tipNumber );
+         tip->setClock(tipNumber%2);
+         m_ctpConfig.menu().addPit( pit );  // the menu takes the ownership of the PIT and TIP
+         m_ctpConfig.menu().addTip( tip );
 
-         pit->setPitNumber( ( int ) pitNumber );   // ChanNum is a typedef of uint32
-         m_ctpConfig.menu().addPit( pit );  // the menu takes the ownership of the TI
       }
 
       ATH_MSG_INFO( "  Number of PITs: " << nCh );
@@ -362,8 +367,8 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
    // read the HLT Menu object
    if( update_HLTMENU ) {
 
-      const DataHandle< CondAttrListCollection > hltMenuAtrColl;
-      CHECK( m_detstore->retrieve( hltMenuAtrColl, TRIGGER_CONF_HLTMENU ) );
+      const DataHandle< CondAttrListCollection > hltMenuAttrColl;
+      CHECK( m_detstore->retrieve( hltMenuAttrColl, TRIGGER_CONF_HLTMENU ) );
 
       ATH_MSG_INFO( "Updating trigger configuration: HLT menu" );
 
@@ -371,7 +376,7 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
       m_hltFrame.theHLTSequenceList().clear();
 
       size_t nChains(0);
-      for(CondAttrListCollection::const_iterator attrListIt = hltMenuAtrColl->begin(); attrListIt != hltMenuAtrColl->end(); attrListIt++ ) {
+      for(CondAttrListCollection::const_iterator attrListIt = hltMenuAttrColl->begin(); attrListIt != hltMenuAttrColl->end(); attrListIt++ ) {
 
          CondAttrListCollection::AttributeList attrList = attrListIt->second;
 
@@ -389,11 +394,11 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
 
       const DataHandle< CondAttrListCollection > prescaleAL;
       const DataHandle< AthenaAttributeList > keysAL;
-      const DataHandle< CondAttrListCollection > hltMenuAtrColl;
+      const DataHandle< CondAttrListCollection > hltMenuAttrColl;
 
       CHECK( m_detstore->retrieve( prescaleAL, TRIGGER_CONF_HLTPS ) );
       CHECK( m_detstore->retrieve( keysAL,     TRIGGER_CONF_HLTPSK ) );
-      CHECK( m_detstore->retrieve( hltMenuAtrColl, TRIGGER_CONF_HLTMENU ) );
+      CHECK( m_detstore->retrieve( hltMenuAttrColl, TRIGGER_CONF_HLTMENU ) );
 
       ATH_MSG_INFO( "Updating trigger configuration: HLT prescale key and prescales" );
 
@@ -409,7 +414,7 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
 
       // set the HLT merged/not merged chains
       bool mergedHLT = false;
-      CondAttrListCollection::const_iterator attrListIt = hltMenuAtrColl->begin();
+      CondAttrListCollection::const_iterator attrListIt = hltMenuAttrColl->begin();
       CondAttrListCollection::AttributeList attrList = attrListIt->second;
       if (attrList["ChainName"].data<cool::String255>().find("HLT") != std::string::npos) mergedHLT=true;
 
@@ -429,10 +434,10 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
 
          // the attributeList for this channel (a channel corresponds to a triggerItem)
          CondAttrListCollection::ChanNum       ch      = idListPair.first;
-         CondAttrListCollection::AttributeList atrList = idListPair.second;
+         CondAttrListCollection::AttributeList attrList = idListPair.second;
 
          float ps, pt, rrps;
-         readHltPrescale( atrList, ps, pt, rrps);
+         readHltPrescale( attrList, ps, pt, rrps);
          TrigConf::HLTLevel level = (mergedHLT ? HLT :( ( ch % 2 ==0 ) ? L2 : EF));
          unsigned int cc = ch;
          if (! mergedHLT ) cc /= 2;
@@ -449,8 +454,8 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
       }
 
       ATH_MSG_INFO( "  Number of L2+EF HLT prescales: " << nCh );
-      ATH_MSG_INFO( "  Number of positive prescales at L2: " << npositivepsL2 );
-      ATH_MSG_INFO( "  Number of positive prescales at EF: " << npositivepsEF );
+      // ATH_MSG_INFO( "  Number of positive prescales at L2: " << npositivepsL2 );
+      // ATH_MSG_INFO( "  Number of positive prescales at EF: " << npositivepsEF );
       ATH_MSG_INFO( "  Number of positive prescales at HLT: " << npositivepsHLT );
 
       updated_newHLTPs = true;
@@ -462,11 +467,11 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
    // read the lb-wise configuration keys (LVL1 prescale key)
    if( update_LVL1KEY ) {
 
-      const DataHandle< AthenaAttributeList > keysAtrList;
-      CHECK( m_detstore->retrieve( keysAtrList, TRIGGER_CONF_LVL1KEY ) );
+      const DataHandle< AthenaAttributeList > keysAttrList;
+      CHECK( m_detstore->retrieve( keysAttrList, TRIGGER_CONF_LVL1KEY ) );
 
       ATH_MSG_INFO( "Updating trigger configuration: LVL1 keys" );
-      readLvl1ConfigKey( *keysAtrList, m_lvl1PsKey );
+      readLvl1ConfigKey( *keysAttrList, m_lvl1PsKey );
       ATH_MSG_INFO( "  LVL1 prescale key: " << m_lvl1PsKey );
    }
 
@@ -498,17 +503,16 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
 
          // the attributeList for this channel (a channel corresponds to a
          // single prescale, the channel id is the ctpid)
-         CondAttrListCollection::AttributeList atrList =
+         CondAttrListCollection::AttributeList attrList =
             lvl1PsAtrColl->chanAttrListPair( ch )->second;
          
-         readLvl1Prescale( atrList, ps );
+         readLvl1Prescale( attrList, ps );
 
          if( isRun2 ) {
             pss.setCut( ch, ps );
          } else {
             pss.setPrescale( ch, ps );
          }
-
       }
 
       if( msgLvl( MSG::DEBUG ) ) {
@@ -553,8 +557,8 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
 
       for( CondAttrListCollection::ChanNum ch = 0; ch != nCh; ++ch ) {
 
-         CondAttrListCollection::AttributeList atrList = l1thrAtrColl->chanAttrListPair( ch )->second;
-         tmpThrVector.push_back(createLvl1Threshold( atrList ) );
+         CondAttrListCollection::AttributeList attrList = l1thrAtrColl->chanAttrListPair( ch )->second;
+         tmpThrVector.push_back(createLvl1Threshold( attrList ) );
       }
 
 
@@ -619,25 +623,25 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
 
    if( update_LVL1ITD ) {
 
-      const DataHandle< CondAttrListCollection > l1itemdefAtrColl;
-      CHECK( m_detstore->retrieve( l1itemdefAtrColl, TRIGGER_CONF_LVL1ITD ) );
+      const DataHandle< CondAttrListCollection > l1itemdefAttrColl;
+      CHECK( m_detstore->retrieve( l1itemdefAttrColl, TRIGGER_CONF_LVL1ITD ) );
       ATH_MSG_INFO( "Updating trigger configuration: LVL1 item definition" );
 
-      CondAttrListCollection::const_iterator chIt = l1itemdefAtrColl->begin();
-      for( ; chIt != l1itemdefAtrColl->end(); ++chIt ) {
+      CondAttrListCollection::const_iterator chIt = l1itemdefAttrColl->begin();
+      for( ; chIt != l1itemdefAttrColl->end(); ++chIt ) {
 
          CondAttrListCollection::ChanAttrListPair idListPair = *chIt;
 
          // the attributeList for this channel (a channel corresponds to a triggerItem)
          CondAttrListCollection::ChanNum       ctpid   = idListPair.first;
-         CondAttrListCollection::AttributeList atrList = idListPair.second;
+         CondAttrListCollection::AttributeList attrList = idListPair.second;
 
          TrigConf::TriggerItem* l1item = m_ctpConfig.menu().findTriggerItem( ctpid );
 
-         addThresholdsToTriggerItem( atrList, l1item,
-                                                                      m_ctpConfig.menu().thresholdVector() );
+         addThresholdsToTriggerItem( attrList, l1item,
+                                     m_ctpConfig.menu().thresholdVector() );
       }
-      ATH_MSG_INFO( "  Number of items: " << l1itemdefAtrColl->size() );
+      ATH_MSG_INFO( "  Number of items: " << l1itemdefAttrColl->size() );
    }
 
 
@@ -731,6 +735,42 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
 
    if( updated_HLTMenu ) {
       setEFLowerChainCounter();
+   }
+
+   // for the direct inputs we currently don't have the clock stored in cool so we take them from the TIP map
+   if( (update_LVL1THR || update_LVL1PIT)  &&
+       m_ctpConfig.menu().tipVector().size() != 0 ) {
+
+      for( TriggerThreshold * const thr : m_ctpConfig.menu().thresholdConfig().getThresholdVector() ) {
+         if( (thr->ttype() != L1DataDef::TOPO) && (thr->ttype() != L1DataDef::ALFA) ) {
+            continue;
+         }
+
+         unsigned int connector = (thr->cableConnector()[3] - '0');
+         unsigned int startbit = thr->cableStart();
+
+         unsigned int thrTipNumber = 320 + 64 * connector + 2 * startbit;  // the tipNumber of the threshold is either this one or the next (depends on the clock)
+
+         // for each threshold we search the TIPs for a matching name
+         bool foundTipWithMatchingThrName ( false );
+         for ( const TIP * tip : m_ctpConfig.menu().tipVector() ) {
+            if(tip->thresholdName() == thr->name()) {
+               if( tip->tipNumber() == thrTipNumber || tip->tipNumber() == thrTipNumber+1 ) {
+                  thr->setClock( tip->clock() );
+               } else {
+                  ATH_MSG_INFO( "For the direct input " << thr->name() << " on bit " << startbit << " of connector " << connector
+                                << " a matching TIP was found but on a different tipNumber " << tip->tipNumber() << ". This affects CTP monitoring" );
+               }
+               foundTipWithMatchingThrName = true;
+               break;
+            }
+         }
+         if(!foundTipWithMatchingThrName) {
+            ATH_MSG_INFO( "Did not find TIP information for the direct input " << thr->name() << ". This affects CTP monitoring" );
+         } else {
+            ATH_MSG_DEBUG( "The direct input " << thr->name() << " was found to have clock  " << thr->clock() );
+         }
+      }
    }
 
    // Fire incident (used by TrigDecisionTool to update cached menu)
