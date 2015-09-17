@@ -3,9 +3,10 @@
 #=======================================================================
 # File:   egammaRec/python/egammaRecFlags.py
 #=======================================================================
-__author__  = 'C. Anastopoulos'
-__version__="$Revision: 2.0 $"
+__author__  = 'D. Rousseau'
+__version__="$Revision: 1.3 $"
 __doc__="egamma flags . "
+
 
 #=======================================================================
 # imports
@@ -14,21 +15,18 @@ from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
 
 class Enabled(JobProperty):
-    """ jobproperty to disable/enable the egamma algorithms as a group (container) in one go.
-    Can enable/disable the full egamma
+    """ govern all algorithms
     """
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
 
 class egammaRecFlagsJobProperty(JobProperty):
-    """ special flag . Subclass  which  has get_value depending on job properties.egammaRecFlags.Enabled
-    so properties inheriting from can be disabled in batch
+    """ special flag classing with job properties.egammaRecFlags.Enabled
     """
     def get_Value(self):
         return self.statusOn and self.StoredValue and jobproperties.egammaRecFlags.Enabled()
-
-#Different egamma seeding styles    
+    
 class doEgammaCaloSeeded (egammaRecFlagsJobProperty):
     """ switch for standard cluster-based egamma algorithm
     """
@@ -43,6 +41,13 @@ class doEgammaForwardSeeded (egammaRecFlagsJobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+class doEgammaTruthAssociation (egammaRecFlagsJobProperty):
+    """ switch for truth association alg
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
 class doTopoCaloSeeded (egammaRecFlagsJobProperty):
     """ switch for SW TopoCalo algorithm
     """
@@ -50,9 +55,8 @@ class doTopoCaloSeeded (egammaRecFlagsJobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-#Other options
-class doEgammaTruthAssociation (egammaRecFlagsJobProperty):
-    """ switch for truth association alg
+class doAODRender (JobProperty):
+    """ switch for egamma AOD render algorithm
     """
     statusOn=True
     allowedTypes=['bool']
@@ -65,6 +69,27 @@ class doConversions (JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+class doShowerBuilding (JobProperty):
+    """ switch for Shower Building
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
+class doAODRender (JobProperty):
+    """ switch for egamma AOD render algorithm
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+class useBremTracks (JobProperty):
+    """ switch using brem tracks
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
 class cellContainerName (JobProperty):
     """Allows overriding the name of the cell container used for building EM object clusters.
     """
@@ -72,6 +97,14 @@ class cellContainerName (JobProperty):
     allowedTypes=['str']
     StoredValue=''
  
+class makeNewConvContainer (JobProperty):
+    """ make a new conversion vertex container in conversion builder to be able to add single-track vertices built there
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
+
 class doSwitchTRTGas (JobProperty):
     """ switch using Xenon gas in TRT
     """
@@ -79,31 +112,20 @@ class doSwitchTRTGas (JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-# Super cluster options
+#New switch for turning off/on electron supercluster building.
 class doSuperclusters (egammaRecFlagsJobProperty):
-    """ switch to enable/disable the supercluster based algorithm
+    """ switch for supercluster TopoCalo algorithm
     """
-    statusOn=True
+    statusOn=False
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False
 
-class inputTopoClusterCollection (JobProperty):
-    """Name of input cluster container from which the topological cluster to be used during superclustering
-    are selected 
-    """
-    statusOn=True
-    allowedTypes=['str']
-    StoredValue='CaloTopoCluster'
+#
+# 
+# Defines a sub-container for the algorithm switches
+class egammaRecFlags(JobPropertyContainer):
+    """ egamma information """
 
-class egammaTopoClusterCollection (JobProperty):
-    """Name of cluster container containing the selected topological clusters 
-    used during superclustering
-    """
-    statusOn=True
-    allowedTypes=['str']
-    StoredValue='egammaTopoCluster'
-
-#Calibration Options
 class clusterCorrectionVersion (JobProperty):
     """Version of calo cluster corrections used for calibration.
     """
@@ -111,22 +133,13 @@ class clusterCorrectionVersion (JobProperty):
     allowedTypes=['str', 'None']
     StoredValue='v12phiflip_noecorrnogap'
 
-class calibMVAVersion (JobProperty):
-    """Version of calo cluster corrections used for calibration.
-    """
-    statusOn=True
-    allowedTypes=['str', 'None']
-    StoredValue="egammaMVACalib/offline/v5.0_rel21pre"
-
-# Defines a sub-container holding the jobProperties for egamma
-class egammaRecFlags(JobPropertyContainer):
-    """ egamma information """
 
 # add the egammaRec flags container to the top container 
 jobproperties.add_Container(egammaRecFlags)
 
-# I want always the following flags in the container  
-_list_Egamma=[Enabled,doEgammaCaloSeeded,doEgammaForwardSeeded,doConversions,doTopoCaloSeeded,cellContainerName,doSwitchTRTGas,doEgammaTruthAssociation,clusterCorrectionVersion,calibMVAVersion, doSuperclusters, inputTopoClusterCollection, egammaTopoClusterCollection]
+
+# I want always the following flags in the  container  
+_list_Egamma=[Enabled,doEgammaCaloSeeded,doEgammaForwardSeeded,doAODRender,doConversions,doShowerBuilding,doTopoCaloSeeded,useBremTracks,makeNewConvContainer,cellContainerName,doSwitchTRTGas,doEgammaTruthAssociation, clusterCorrectionVersion, doSuperclusters]
 
 for j in _list_Egamma: 
     jobproperties.egammaRecFlags.add_JobProperty(j)

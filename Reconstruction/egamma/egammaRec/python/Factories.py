@@ -2,52 +2,21 @@
 
 __doc__ = "Factories to instantiate Tools and Algorithms"
 __author__ = "Bruno Lenzi"
-from AthenaCommon.Logging import logging
-from AthenaCommon.Resilience import treatException
 
-def factoriesInfo ( log):
-  logFactories = logging.getLogger( 'Factories' )
-  logFactories.info(log)        
-
-def isAlreadyInToolSvc( name ):
-  "isAlreadyInToolSvc ( mane of the tool ) --> check if the tool with name is already in the service"
-  from AthenaCommon.AppMgr import ToolSvc
-  if hasattr(ToolSvc, name):
-    return True
-  else:
-    return False 
-
-def getFromToolSvc( name ):
-  "getFromToolSvc ( name of the tool ) --> Get the tool from toolSvc by name "
-  from AthenaCommon.AppMgr import ToolSvc
-  return getattr (ToolSvc,name)
-  
 def addToToolSvc( tool ):
   "addToToolSvc( tool ) --> add tool to ToolSvc"
   from AthenaCommon.AppMgr import ToolSvc
-  ToolSvc += tool
+  if not hasattr(ToolSvc, tool.getName()):
+    ToolSvc += tool
+    print tool
   return tool
-
-def isAlreadyInTopSequence( name ):
-  "isAlreadyInTopSequence ( mane of the alg ) --> check if the alg  with name is already in the Alg sequence"
-  from AthenaCommon.AlgSequence import AlgSequence
-  topSequence = AlgSequence()
-  if hasattr(topSequence, name):
-    return True
-  else:
-    return False 
-
-def getFromTopSequence( name ):
-  "getFromTopSequence ( name of the alg ) --> Get the alg  from TopSequence  by name "
-  from AthenaCommon.AlgSequence import AlgSequence
-  topSequence = AlgSequence()
-  return getattr (topSequence,name)
 
 def addToTopSequence( alg ):
   "addToTopSequence( alg ) --> add alg to TopSequence"
   from AthenaCommon.AlgSequence import AlgSequence
   topSequence = AlgSequence()
   topSequence += alg
+  print alg
   return alg
 
 def getPropertyValue(tool, property):
@@ -102,7 +71,7 @@ class Factory:
   
   tool2a = MyTool2('myTool2a') # create another instance with default properties set above ('x')
   tool3a = MyTool3('myTool3a', Tool1 = MyTool1('myTool1a', propertyA = 'B'),
-  NameOfTool2 = 'myTool2a') # create another instance overriding defaults of both properties set above
+    NameOfTool2 = 'myTool2a') # create another instance overriding defaults of both properties set above
   """
 
   def __init__(self, iclass, **defaults ):
@@ -110,10 +79,10 @@ class Factory:
     @param iclass Tool / Alg class
     @param defaults default values for configurables, can be overridden at instantiation.
      Special parameters: 
-    - preInit: list of functions to be called before tool/alg instantiation, take no arguments
+     - preInit: list of functions to be called before tool/alg instantiation, take no arguments
     - preInit: list of functions to be called after tool/alg instantiation, take tool/alg as argument
-    - doAdd: add tool (alg) to ToolSvc (TopSequence) (default: True)
     - doPrint: print tool/alg after instantiation (default: False)
+    - doAdd: add tool (alg) to ToolSvc (TopSequence) (default: True)
     """
     self.iclass = iclass
     self.defaults = defaults
@@ -128,40 +97,37 @@ class Factory:
        to ToolSvc (TopSequence)"""
     params = dict(self.defaults, **kw)
     params['name'] = name or params.get('name', self.iclass.__name__)
-    del name, kw # to avoid silly mistakes    
-
+    del name, kw # to avoid silly mistakes
+    
     # Get special parameters (or default values) and remove them from dictionary
     preInit = params.pop('preInit', [])
     postInit = params.pop('postInit', [])
+    doPrint = params.pop('doPrint', False)
     doAdd = params.pop('doAdd', True)
-    doPrint = params.pop('doPrint', False)  
     
     # Call preInit functions
     for fcn in preInit:
       try:
         fcn()
       except:
-       treatException('calling preInit function %s on %s instantiation\n' %  (fcn.__name__, params['name']))
-       raise
+        print '\nERROR calling preInit function %s on %s instantiation\n' % \
+          (fcn.__name__, params['name'])
+        raise
     
-    # Call FcnWrapper or ToolFactory parameters 
-    # (or if they are inside a list, for ToolHandleArray)
-    classes = (FcnWrapper, ToolFactory)
+    # Call FcnWrapper or ToolFactory parameters
     for paramName, value in params.items():
-      if isinstance(value, classes) or \
-        (isinstance(value, list) and any(isinstance(v, classes) for v in value) ):
+      if isinstance(value, (FcnWrapper, ToolFactory)):
         try:
-          params[paramName] = value() if not isinstance(value, list) else \
-            [v() if isinstance(v, classes) else v for v in value]
+          params[paramName] = value()
         except:
-          treatException('setting property %s :: %s\n' % (params['name'], paramName))
+          print '\nERROR setting property %s :: %s\n' % (params['name'], paramName)
           raise
     
     # Instantiate tool / alg
     try:
       obj = self.iclass(**params)
     except Exception:
-      treatException( 'instantiating %s, args: %s\n' % (self.iclass.__name__, params))
+      print '\nERROR instantiating %s, args: %s\n' % (self.iclass.__name__, params)
       raise
     
     # Call postInit methods
@@ -169,34 +135,26 @@ class Factory:
       try:
         fcn(obj)
       except:
-        treatException('calling postInit function %s on %s instantiation\n' % (fcn.__name__, params['name']))
-        raise    
-
+        print '\nERROR calling postInit function %s on %s instantiation\n' % \
+          (fcn.__name__, params['name'])
+        raise
+    
     # Add to ToolSvc or TopSequence
     if doAdd:
       self.add(obj)
-    
+    # Print
     if doPrint:
       print obj
-    
     return obj  
-
-  def add(self,obj):
-    pass
 
 class ToolFactory( Factory ):
   """ToolFactory: to instantiate tools and add them to TopSequence. See Factory"""
   def add(self, obj):
-    if not isAlreadyInToolSvc(obj.getName()):
-      factoriesInfo("Adding new Tool ===> %s" % obj.getFullName())
-      addToToolSvc(obj)
-    else :
-      factoriesInfo("Tool with name ==> %s  already in ToolSvc, use existing instance" %  obj.getFullName() )
+    addToToolSvc(obj)
 
 class AlgFactory( Factory ):
   """AlgFactory: to instantiate algs and add them to TopSequence. See Factory"""
   def add(self, obj):
-    factoriesInfo("Adding new Algorithm ==> %s " %obj.getFullName())
     addToTopSequence(obj)
 
 def instantiateAll(module = None):

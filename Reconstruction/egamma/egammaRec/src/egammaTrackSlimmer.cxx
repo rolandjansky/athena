@@ -120,15 +120,22 @@ StatusCode egammaTrackSlimmer::execute() {
     return StatusCode::SUCCESS;
   }
   
-  //Track Particles
+  //track Particles
+
   // The vector that we'll use to filter the track particles:
   IThinningSvc::VecFilter_t keptTrackParticles;
-  const xAOD::TrackParticleContainer* trackPC(0);
-  if(evtStore()->contains<xAOD::TrackParticleContainer >(m_TrackParticlesName)){
-    ATH_CHECK(evtStore()->retrieve(trackPC,m_TrackParticlesName ));
+  const xAOD::TrackParticleContainer* trackPC = evtStore()->retrieve< const xAOD::TrackParticleContainer >(m_TrackParticlesName );
+  if( ! trackPC ) {
+    REPORT_MESSAGE( MSG::WARNING )
+      << "Couldn't retrieve TrackParticle container with key: "
+      << m_TrackParticlesName;
+    return StatusCode::SUCCESS;
   }
-  else{
-    m_doThinning= false;
+  // Check that the auxiliary store association was made successfully:
+  if( ! trackPC->hasStore() ) {
+    REPORT_MESSAGE( MSG::WARNING )
+      << "No auxiliary store got associated to the TrackParticle container "
+      << "with key: " << m_TrackParticlesName;
     return StatusCode::SUCCESS;
   }
   
@@ -138,30 +145,50 @@ StatusCode egammaTrackSlimmer::execute() {
   }
 
   //Vertices
-  //The vector that we'll use to filter the vertices:
+  
+  // The vector that we'll use to filter the vertices:
   IThinningSvc::VecFilter_t keptVertices;
-  const xAOD::VertexContainer* vertices(0);
-  if(evtStore()->contains<xAOD::VertexContainer >(m_VertexName )){
-    ATH_CHECK(evtStore()->retrieve(vertices,m_VertexName ));
-  }
-  else{
-    m_doThinning= false;
+
+  const xAOD::VertexContainer* vertices = evtStore()->retrieve< const xAOD::VertexContainer >(m_VertexName );
+  if( ! vertices ) {
+    REPORT_MESSAGE( MSG::WARNING )
+      << "Couldn't retrieve Vertex container with key: "
+      << m_VertexName;
     return StatusCode::SUCCESS;
   }
-
+  // Check that the auxiliary store association was made successfully:
+  if( ! vertices->hasStore() ) {
+    REPORT_MESSAGE( MSG::WARNING )
+      << "No auxiliary store got associated to the Vertex container "
+      << "with key: " << m_VertexName;
+    return StatusCode::SUCCESS;
+  }
+  
   ATH_MSG_DEBUG("Number of Vertices "<< vertices->size());
   if( keptVertices.size() < vertices->size() ) {
     keptVertices.resize( vertices->size(), false );
   }
 
-  //Electron track particle Thinning
+  //electrons
+
   const xAOD::ElectronContainer* electrons =
     evtStore()->retrieve< const xAOD::ElectronContainer >( m_InputElectronContainerName );
   if( ! electrons ) {
-    ATH_MSG_ERROR( "Couldn't retrieve electron container with key: "<< m_InputElectronContainerName);
+    REPORT_MESSAGE( MSG::ERROR )
+      << "Couldn't retrieve electron container with key: "
+      << m_InputElectronContainerName;
     return StatusCode::FAILURE;
   }
 
+  // Check that the auxiliary store association was made successfully:
+  if( ! electrons->hasStore() ) {
+    REPORT_MESSAGE( MSG::ERROR )
+      << "No auxiliary store got associated to the electron container "
+      << "with key: " << m_InputElectronContainerName;
+    return StatusCode::FAILURE;
+  }
+
+  
   //Loop over electrons
   auto el_itr = electrons->begin();
   auto el_end = electrons->end();
@@ -176,14 +203,26 @@ StatusCode egammaTrackSlimmer::execute() {
       keptTrackParticles[link.index() ] = true;      
     }
   }
-  
-  //Photon vertex thinning
-  const xAOD::PhotonContainer* photons = evtStore()->retrieve< const xAOD::PhotonContainer >( m_InputPhotonContainerName );
+
+  //photons
+
+  const xAOD::PhotonContainer* photons =
+    evtStore()->retrieve< const xAOD::PhotonContainer >( m_InputPhotonContainerName );
   if( ! photons ) {
-    ATH_MSG_ERROR("Couldn't retrieve photon container with key " << m_InputPhotonContainerName);
+    REPORT_MESSAGE( MSG::ERROR )
+      << "Couldn't retrieve photon container with key: "
+      << m_InputPhotonContainerName;
     return StatusCode::FAILURE;
   }
-    
+
+  // Check that the auxiliary store association was made successfully:
+  if( ! photons->hasStore() ) {
+    REPORT_MESSAGE( MSG::ERROR )
+      << "No auxiliary store got associated to the photon container "
+      << "with key: " << m_InputPhotonContainerName;
+    return StatusCode::FAILURE;
+  }
+  
   //Loop over photons
   auto ph_itr = photons->begin();
   auto ph_end = photons->end();
@@ -211,6 +250,7 @@ StatusCode egammaTrackSlimmer::execute() {
       }
     }
   }
+ 
   //Do the Thinning
   ATH_MSG_DEBUG("Do the Thinning");
   CHECK( m_thinningSvc->filter( *trackPC,  keptTrackParticles ) );
