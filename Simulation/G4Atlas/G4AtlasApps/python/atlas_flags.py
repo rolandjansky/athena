@@ -421,3 +421,12 @@ class TwissFileVersion(JobProperty):
     allowedTypes = ['str']
     StoredValue = 'v01'
 
+class TRTRangeCut(JobProperty):
+    """
+    TRT Range cut in mm
+    """
+    statusOn = True
+    allowedTypes = ['float']
+    allowedValues = [0.05,30.0]
+    StoredValue = 0.05
+

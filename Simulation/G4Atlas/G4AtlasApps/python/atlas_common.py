@@ -314,9 +314,6 @@ class BeamPipe(object):
                 #if not hasattr(ServiceMgr, 'DeadMaterialFastSimSvc' ):
                 #    from LArG4FastSimSvc.LArG4FastSimSvcConfig import DeadMaterialFastSimSvc
                 #    ServiceMgr += DeadMaterialFastSimSvc()
-                self.atlas_SimpleFastKiller = PyG4Atlas.FastSimModel('G4FastSimulation', 'SimpleFastKiller')
-                self.atlas_SimpleFastKiller.add_Region(self.atlas_beampipe_PhysReg)
-                AtlasG4Eng.G4Eng.add_FastSimModel(self.atlas_SimpleFastKiller)
                 AtlasG4Eng.G4Eng.log.info('Adding fast sim model to the beampipe!')
             else:
                 assert simFlags.BeamPipeCut.statusOn
@@ -337,14 +334,9 @@ class BeamPipe(object):
 
         ## Set up the forward transport model
         if simFlags.ForwardDetectors.statusOn and simFlags.ForwardDetectors() == 2:
-            self.atlas_bPipe_FwdTransport = PyG4Atlas.FastSimModel('ForwardTransport','ForwardTransport')
             self.atlas_bPipe_PhysReg = PyG4Atlas.PhysicsReg('FWDBeamLine')
             self.atlas_bPipe_PhysReg.add_Volumes('BeamPipe::SectionF46')
             self.beampipe.add_PhysicsReg(self.atlas_bPipe_PhysReg)
-            ## Add region to fwd transport
-            self.atlas_bPipe_FwdTransport.add_Region(self.atlas_bPipe_PhysReg)
-            ## Add fwd transport to the G4Eng
-            AtlasG4Eng.G4Eng.add_FastSimModel(self.atlas_bPipe_FwdTransport)
 
 
 class AtlasCavernGeoModel(object):

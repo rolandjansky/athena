@@ -8,7 +8,7 @@ __author__  = 'A. Dell`Acqua, M. Gallas, A. Di Simone '
 
 import PyG4Atlas, AtlasG4Eng
 from PyG4Atlas import DetConfigurator
-from SimFlags import SimFlags
+from SimFlags import simFlags
 
 
 # -- LAr --
@@ -47,10 +47,10 @@ class PyLArG4RunControler(DetConfigurator):
         ROOT.SetOwnership(self.LArG4GlobalOptions, 0)
 
         ## Enable cond db reading in case we need HV maps
-        if hasattr(SimFlags, 'LArHighVoltage') and SimFlags.LArHighVoltage.statusOn:
-            if SimFlags.LArHighVoltage.get_Value() is not None:
+        if hasattr(simFlags, 'LArHighVoltage') and simFlags.LArHighVoltage.statusOn:
+            if simFlags.LArHighVoltage.get_Value() is not None:
                 for calo in ["EMB", "EMEC", "HEC", "FCAL"]:
-                    if calo in SimFlags.LArHighVoltage.get_Value():
+                    if calo in simFlags.LArHighVoltage.get_Value():
                         from IOVDbSvc.CondDB import conddb
                         conddb.addFolder("", "/LAR/DCS/HV/BARREl/I16")
                         conddb.addFolder("", "/LAR/DCS/HV/BARREL/I8" )
@@ -58,18 +58,18 @@ class PyLArG4RunControler(DetConfigurator):
 
         ## TODO: Tidy this... lots of reducible repetition of the same checks
         self.LArG4BarrelOptions = AtlasG4Eng.G4Eng.gbl.LArG4BarrelOptions()
-        self.LArG4BarrelOptions.EMBBirksLaw(SimFlags.DoLArBirk())
+        self.LArG4BarrelOptions.EMBBirksLaw(simFlags.DoLArBirk())
         self.LArG4EMECOptions = AtlasG4Eng.G4Eng.gbl.LArG4EMECOptions()
-        self.LArG4EMECOptions.EMECBirksLaw(SimFlags.DoLArBirk())
+        self.LArG4EMECOptions.EMECBirksLaw(simFlags.DoLArBirk())
         self.LArG4HECOptions = AtlasG4Eng.G4Eng.gbl.LArG4HECOptions()
-        self.LArG4HECOptions.HECBirksLaw(SimFlags.DoLArBirk())
+        self.LArG4HECOptions.HECBirksLaw(simFlags.DoLArBirk())
         self.LArG4FCALOptions=AtlasG4Eng.G4Eng.gbl.LArG4FCALOptions()
-        self.LArG4FCALOptions.FCALBirksLaw(SimFlags.DoLArBirk())
-        if hasattr(SimFlags, 'LArHighVoltage') and SimFlags.LArHighVoltage.statusOn and SimFlags.LArHighVoltage.get_Value() is not None:
-            self.LArG4BarrelOptions.EMBHVEnable("EMB" in SimFlags.LArHighVoltage.get_Value())
-            self.LArG4EMECOptions.EMECHVEnable("EMEC" in SimFlags.LArHighVoltage.get_Value())
-            self.LArG4HECOptions.HECHVEnable("HEC" in SimFlags.LArHighVoltage.get_Value())
-            self.LArG4FCALOptions.FCALEnableHV("FCAL" in SimFlags.LArHighVoltage.get_Value())
+        self.LArG4FCALOptions.FCALBirksLaw(simFlags.DoLArBirk())
+        if hasattr(simFlags, 'LArHighVoltage') and simFlags.LArHighVoltage.statusOn and simFlags.LArHighVoltage.get_Value() is not None:
+            self.LArG4BarrelOptions.EMBHVEnable("EMB" in simFlags.LArHighVoltage.get_Value())
+            self.LArG4EMECOptions.EMECHVEnable("EMEC" in simFlags.LArHighVoltage.get_Value())
+            self.LArG4HECOptions.HECHVEnable("HEC" in simFlags.LArHighVoltage.get_Value())
+            self.LArG4FCALOptions.FCALEnableHV("FCAL" in simFlags.LArHighVoltage.get_Value())
         self.LArG4BarrelOptions.saveMe()
         self.LArG4EMECOptions.saveMe()
         self.LArG4HECOptions.saveMe()
@@ -163,14 +163,6 @@ class LAr(object):
                                            'MiniFCAL::Wafer',
                                            'MiniFCAL::Wafer',
                                            'LArMgr::MiniFCAL::Wafer')
-            self.atlas_lar.add_SenDetector('MinBiasScintillator',
-                                           'MinBiasScintillatorSD',
-                                           'MBTS',
-                                           'LArMgr::MBTS1')
-            self.atlas_lar.add_SenDetector('MinBiasScintillator',
-                                           'MinBiasScintillatorSD',
-                                           'MBTS',
-                                           'LArMgr::MBTS2')
 
         elif mode == 1:
             # calibration mode
@@ -226,14 +218,6 @@ class LAr(object):
                                            'MiniFCALMult',
                                            'MiniFCALMult',
                                            'LArMgr::MiniFCAL::Wafer')
-            self.atlas_lar.add_SenDetector('MinBiasScintillator',
-                                           'MinBiasScintillatorSD',
-                                           'MBTS',
-                                           'LArMgr::MBTS1')
-            self.atlas_lar.add_SenDetector('MinBiasScintillator',
-                                           'MinBiasScintillatorSD',
-                                           'MBTS',
-                                           'LArMgr::MBTS2')
 
             # Calibration SDs
             """ LAr::BarrelCryostat::Dead
@@ -796,14 +780,6 @@ class LAr(object):
                                            'MiniFCAL::Wafer',
                                            'MiniFCAL::Wafer',
                                            'LArMgr::MiniFCAL::Wafer')
-            self.atlas_lar.add_SenDetector('MinBiasScintillator',
-                                           'MinBiasScintillatorSD',
-                                           'MBTS',
-                                           'LArMgr::MBTS1')
-            self.atlas_lar.add_SenDetector('MinBiasScintillator',
-                                           'MinBiasScintillatorSD',
-                                           'MBTS',
-                                           'LArMgr::MBTS2')
             """ LAr::BarrelCryostat::Dead
             """
             self.atlas_lar.add_SenDetector('LArG4SD',
@@ -1151,7 +1127,7 @@ class LAr(object):
         rangeEMEC = 0.03
         rangeHEC  = 0.03
         rangeFCAL = 0.03
-        if not '_EMV' in SimFlags.PhysicsList() and not '_EMX' in SimFlags.PhysicsList():
+        if not '_EMV' in simFlags.PhysicsList() and not '_EMX' in simFlags.PhysicsList():
             rangeEMB  = 0.1
             rangeEMEC = 0.1
             rangeHEC  = 1.
@@ -1205,7 +1181,7 @@ class LAr(object):
         # multiple scattering model in G4 9.2, can have bigger range cuts, and one for physics lists with
         # the old multiple scattering model, called EM variants.  As this is tied to EM physics, we really
         # just need to look for the existance of the variant string
-        if not '_EMV' in SimFlags.PhysicsList() and not '_EMX' in SimFlags.PhysicsList():
+        if not '_EMV' in simFlags.PhysicsList() and not '_EMX' in simFlags.PhysicsList():
             rangeEMB  = 0.1
             rangeEMEC = 0.1
             rangeHEC  = 1.
@@ -1265,25 +1241,12 @@ class LAr(object):
         self.atlas_FCAL2Para.add_Cuts('e+',rangeFCAL)
         self.atlas_FCAL2Para.add_Cuts('gamma',rangeFCAL)
 
-        # create the FastSimModel obj
-        self.atlas_EMBFastSimModel=PyG4Atlas.FastSimModel('LArG4FastSimulation','EMBFastShower')
-        self.atlas_EMECFastSimModel=PyG4Atlas.FastSimModel('LArG4FastSimulation','EMECFastShower')
-        self.atlas_FCALFastSimModel=PyG4Atlas.FastSimModel('LArG4FastSimulation','FCALFastShower')
-        self.atlas_FCAL2FastSimModel=PyG4Atlas.FastSimModel('LArG4FastSimulation','FCAL2FastShower')
+        #Note EMB physics region already added to atlas_lar
+        self.atlas_lar.add_PhysicsReg(self.atlas_EMECPara) #FIXME temporarily required until G4Atlas geometry migration
+        self.atlas_lar.add_PhysicsReg(self.atlas_FCALPara) #FIXME temporarily required until G4Atlas geometry migration
+        self.atlas_lar.add_PhysicsReg(self.atlas_FCAL2Para) #FIXME temporarily required until G4Atlas geometry migration
 
-        # add regions to the FastSimModel obj
-        self.atlas_EMBFastSimModel.add_Region(self.atlas_EMBPara)
-        self.atlas_EMECFastSimModel.add_Region(self.atlas_EMECPara)
-        self.atlas_FCALFastSimModel.add_Region(self.atlas_FCALPara)
-        self.atlas_FCAL2FastSimModel.add_Region(self.atlas_FCAL2Para)
-
-        # add the FastSimModel to the G4Eng
-        AtlasG4Eng.G4Eng.add_FastSimModel(self.atlas_EMBFastSimModel)
-        AtlasG4Eng.G4Eng.add_FastSimModel(self.atlas_EMECFastSimModel)
-        AtlasG4Eng.G4Eng.add_FastSimModel(self.atlas_FCALFastSimModel)
-        AtlasG4Eng.G4Eng.add_FastSimModel(self.atlas_FCAL2FastSimModel)
-
-        if SimFlags.LArParameterization.get_Value() > 1:
+        if simFlags.LArParameterization.get_Value() > 1:
             self.PreSampLAr = PyG4Atlas.PhysicsReg('PreSampLAr')
             self.PreSampLAr.add_Volumes('LArMgr::LAr::Endcap::Presampler::LiquidArgon')
             self.atlas_lar.add_PhysicsReg(self.PreSampLAr)
@@ -1303,44 +1266,11 @@ class LAr(object):
             self.atlas_DeadMat.add_Cuts('e-',1.0)
             self.atlas_DeadMat.add_Cuts('e+',1.0)
             self.atlas_DeadMat.add_Cuts('gamma',1.0)
-            self.atlas_DeadMatFastSimModel=PyG4Atlas.FastSimModel('LArG4FastSimulation','DeadMaterialShower')
-            self.atlas_DeadMatFastSimModel.add_Region(self.atlas_DeadMat)
-            AtlasG4Eng.G4Eng.add_FastSimModel(self.atlas_DeadMatFastSimModel)
+            self.atlas_lar.add_PhysicsReg(self.atlas_DeadMat) #FIXME temporarily required until G4Atlas geometry migration
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # -- Tile --
-
-
-class PyTileSimUtils(DetConfigurator):
-    """
-    Class that inherits from G4AtlasApps.PyG4Atlas.DetConfigurator
-    and it builds the TileSimUtils in accordance with the
-    user requirements.
-
-    It uses the TileSimUtilsDict dictionary.
-    """
-
-    ## __init__() method is not needed
-
-    def build(self, mode):
-        """
-        Builds the TileSimUtils configurator in different modes
-        Current modes are:
-          standard
-
-        All the information is saved in StoreGate. The options given
-        here can act only over the SD.
-        """
-        import ROOT
-        if mode == 'standard':
-            self.TileG4SimOptions = AtlasG4Eng.G4Eng.gbl.TileG4SimOptions()
-            self.TileG4SimOptions.saveMe()
-            ## We need the following line because otherwise StoreGate will
-            ## delete the object first and pylcgdict will complain.
-            ROOT.SetOwnership(self.TileG4SimOptions, 0)
-
-
 
 class Tile(object):
     """
@@ -1353,75 +1283,11 @@ class Tile(object):
         """
         self.atlas_tile=PyG4Atlas.DetFacility("GeoDetector","Tile:Tile",allowMods)
 
-    def _initSD(self,mode):
+    def _initSD(self):
         """
         Describes the sensitive detector.
 
           0 --> Normal Tile sensitive detector
           1 --> Tile sensitive detector for calibration hits
         """
-        if mode == 0:
-            # normal mode
-            self.atlas_tile.add_SenDetector('TileGeoG4SD','TileGeoG4SD', 'TileGeoG4SD', 'Tile::Scintillator')
-        elif mode == 1:
-            # calibration mode
-            self.atlas_tile.add_SenDetector('TileGeoG4SD:TileGeoG4Calib', 'TileGeoG4CalibSD',
-                                            'TileGeoG4CalibSD', 'Tile::Scintillator')
-            self.atlas_tile_SenDetectorCalib = AtlasG4Eng.G4Eng.Dict_SenDetector.get('TileGeoG4CalibSD')
-            tile_volumes = ['Tile::Tile',
-                            'Tile::TileCentralBarrel',
-                            'Tile::TileEndcapPos',
-                            'Tile::TileEndcapNeg',
-                            'Tile::Barrel',
-                            'Tile::BarrelModule',
-                            'Tile::FrontPlate',
-                            'Tile::EndPlate1',
-                            'Tile::EPHole1',
-                            'Tile::EndPlate2',
-                            'Tile::EPHole2',
-                            'Tile::GirderMother',
-                            'Tile::GirderIron',
-                            'Tile::GirderAluminium',
-                            'Tile::GirderElectronics',
-                            'Tile::Absorber',
-                            'Tile::AbsorberChild',
-                            'Tile::Period',
-                            'Tile::Glue',
-                            'Tile::Wrapper',
-                            'Tile::EBarrel',
-                            'Tile::EBarrelModule',
-                            'Tile::EndPlateSh',
-                            'Tile::ITC',
-                            'Tile::ITCModule',
-                            'Tile::Plug1Module',
-                            'Tile::FrontPlateSh',
-                            'Tile::Plug2Module',
-                            'Tile::Gap',
-                            'Tile::GapModule',
-                            'Tile::IrUp',
-                            'Tile::IrDw',
-                            'Tile::Iron4',
-                            'Tile::Iron3',
-                            'Tile::Iron2',
-                            'Tile::Iron1',
-                            'Tile::IrBox',
-                            'Tile::SaddleModule',
-                            'Tile::LArService',
-                            'Tile::LArCables',
-                            'Tile::ExtBarrelSaddleSupport',
-                            'Tile::Crack',
-                            'Tile::CrackModule',
-                            'Tile::FingerModule',
-                            'Tile::FingerIron',
-                            'Tile::FingerAluminum',
-                            'Tile::FingerElectronics',
-                            'Tile::EFinger',
-                            'Tile::EFingerModule',
-                            'Tile::FingerPos',
-                            'Tile::FingerNeg',
-                            'Tile::SaddlePos',
-                            'Tile::SaddleNeg',
-                            'Tile::ESaddlePos',
-                            'Tile::ESaddleNeg']
-            for i_v in tile_volumes:
-                self.atlas_tile_SenDetectorCalib.add_Volume(i_v)
+        pass # See G4AtlasTools/python/G4AtlasToolsConfig.py

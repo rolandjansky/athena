@@ -234,11 +234,6 @@ class AtlasSimSkeleton(SimSkeleton):
         ## Add configured GeoModelSvc to service manager
         ServiceMgr += gms
 
-        ## Service for the fast simulation
-        if simFlags.LArParameterization() != 0:
-            from LArG4FastSimSvc.LArG4FastSimSvcInit import LArG4FastSimSvcInit
-            LArG4FastSimSvcInit()
-
         ## Run the geometry envelope setup earlier than GeoSD
         self._do_GeoEnv()
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_external :: done')
@@ -409,17 +404,6 @@ class AtlasSimSkeleton(SimSkeleton):
                 rc = RecordingEnvelopes.AtlasMuonEntryLayer(recenv_level, allowSGMods)
                 menuRecordEnvelopes.add_RecEnvelope(rc.recenv)
 
-            ## set up PyTileSimUtils here, as it is used by both the
-            ## MinBiasScintillatorSD (under LAr) and the TileGeoG4SD
-            from atlas_calo import PyTileSimUtils
-            pyTileSimUtilsOptions = PyTileSimUtils('PyTileSimUtils', 'TileSimUtilsDict', 'standard')
-            ## Cosmic setup
-            if jobproperties.Beam.beamType() == 'cosmics' or (hasattr(simFlags, "ReadTR") and simFlags.ReadTR.statusOn):
-                pyTileSimUtilsOptions.TileG4SimOptions.SetDeltaTHit(1)
-                pyTileSimUtilsOptions.TileG4SimOptions.SetDoTOFCorrection(False)
-                if AtlasG4Eng.G4Eng.log.level <= AtlasG4Eng.G4Eng.log.info:
-                    pyTileSimUtilsOptions.TileG4SimOptions.printMe()
-
             ## LAr
             if DetFlags.geometry.LAr_on():
                 from atlas_calo import PyLArG4RunControler
@@ -458,10 +442,7 @@ class AtlasSimSkeleton(SimSkeleton):
             if DetFlags.geometry.Tile_on():
                 from atlas_calo import Tile
                 tile = Tile(allowSGMods)
-                if simFlags.CalibrationRun.statusOn and (simFlags.CalibrationRun.get_Value() in ['Tile', 'LAr+Tile']):
-                    tile._initSD(1)
-                else:
-                    tile._initSD(0)
+                tile._initSD()
                 AtlasG4Eng.G4Eng.add_DetFacility(tile.atlas_tile, calo)
 
         ## LUCID
@@ -526,10 +507,6 @@ class AtlasSimSkeleton(SimSkeleton):
             #AtlasG4Eng.G4Eng.add_DetFacility(muonq02, atlas)
             from atlas_muon import Muon
             muon = Muon(allowSGMods)
-            if hasattr(simFlags, 'SimulateNewSmallWheel'):
-                if simFlags.SimulateNewSmallWheel():
-                    muon.atlas_muon.add_SenDetector('MuonG4SD', 'sTGCSensitiveDetector' , 'NEW', 'Muon::sTGC_Sensitive')
-                    muon.atlas_muon.add_SenDetector('MuonG4SD', 'MicromegasSensitiveDetector' , 'NEU', 'Muon::MM_Sensitive')
             muon._initSD()
             muon._initPR()
             AtlasG4Eng.G4Eng.add_DetFacility(muon.atlas_muon, muonq02)
@@ -538,9 +515,7 @@ class AtlasSimSkeleton(SimSkeleton):
                 menuRecordEnvelopes.add_RecEnvelope(rc.recenv)
 
         if simFlags.StoppedParticleFile.statusOn:
-            theATLAS = AtlasG4Eng.G4Eng.Dict_DetFacility['Atlas']
-            theATLAS.add_SenDetector('TrackWriteFastSim','TrackFastSimSD','TrackFastSimSD',\
-                                            'Muon::DummyVolumeName')
+            theATLAS = AtlasG4Eng.G4Eng.Dict_DetFacility['Atlas'] #FIXME still needed?
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_GeoSD :: done')
 
     @classmethod
