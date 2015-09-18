@@ -976,7 +976,7 @@ SCT_ID::get_id          (const IdentifierHash& hash_id,
         }
         else if (m_STRIP_INDEX == end) {
             // Do not know how to calculate strip id from hash yet!!
-            std::cout << "Do not know how to calculate strip id from hash yet!!" << std::cout;
+            std::cout << "Do not know how to calculate strip id from hash yet!!" << std::endl;
         }
     }
     return (result);
