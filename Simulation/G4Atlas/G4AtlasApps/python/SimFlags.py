@@ -687,6 +687,14 @@ class SimBarcodeOffset(JobProperty):
     allowedTypes = ['int']
     StoredValue = 200000
 
+class ParticleID(JobProperty):
+    """
+    Add primary particle barcode signature to CaloCalibrationHits.
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
 
 ## Definition and registration of the simulation flag container
 class SimFlags(JobPropertyContainer):

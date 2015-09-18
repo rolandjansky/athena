@@ -498,21 +498,12 @@ class CtbSim(TBSimSkeleton):
                         AtlasG4Eng.G4Eng.add_DetFacility(LArMuC.MuonChamber,calo)
 
                 if(DetFlags.Tile_on()):
-                   # options for Tile simulation
-                   from atlas_calo import PyTileSimUtils
-                   PyTileSimUtilsOptions=PyTileSimUtils('PyTileSimUtils',\
-                                      'TileSimUtilsDict','standard')
                    from  ctb_calo import TileDet
                    if (simFlags.GeoModelTileVersion.get_Value()=='TileTB-3B-00'):
                        tiledet=TileDet('CTB-3B')
                    elif(simFlags.GeoModelTileVersion.get_Value()=='TileTB-3B3EB-00'):
                        tiledet=TileDet('CTB-3B3E')
-                   if (simFlags.CalibrationRun.statusOn and
-                       (simFlags.CalibrationRun.get_Value()=='Tile' or
-                        simFlags.CalibrationRun.get_Value()=='LAr+Tile')):
-                           tilesd=tiledet.SD(1)
-                   else:
-                     tilesd=tiledet.SD(0)
+                   tilesd=tiledet.SD()
                    AtlasG4Eng.G4Eng.add_DetFacility(tiledet.ctb_tile,calo)
             elif(eta<0 or eta>1.201):
                 raise ValueError,('THE ETA VALUE MUST BE IN  RANGE [0,1.2]!!!'+
@@ -869,19 +860,11 @@ class Tile2000_2003(TBSimSkeleton):
             calo.df.RotateY(ThetaY)
             calo.df.MoveTo(calo_pos)
             if(DetFlags.Tile_on()):
-               # options for Tile simulation
-               from atlas_calo import PyTileSimUtils
-               PyTileSimUtilsOptions=PyTileSimUtils('PyTileSimUtils',\
-                                      'TileSimUtilsDict','standard')
                from  ctb_calo import TileDet
                # different from CTB
                tiledet=TileDet('TB')
                AtlasG4Eng.G4Eng.add_DetFacility(tiledet.ctb_tile,calo)
-               if simFlags.CalibrationRun.statusOn:
-                   if(simFlags.CalibrationRun.get_Value()=='Tile'):
-                     tilesd=tiledet.SD(1)
-               else:
-                 tilesd=tiledet.SD(0)
+               tilesd=tiledet.SD()
             # ancillary: only the MuonWall
             from ctb_common import MuonWall
             MuonW=MuonWall(eta,ThetaY,DeltaF)

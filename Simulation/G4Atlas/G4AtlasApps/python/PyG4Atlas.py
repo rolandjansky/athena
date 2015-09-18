@@ -88,11 +88,9 @@ class G4AtlasEngine:
         G4AtlasEngine.Dict_MCTruthStrg['SecondarySavingPolicy'] = 'All'
         G4AtlasEngine.Dict_SenDetector = dict()
         G4AtlasEngine._List_SenDetector_dependence = list()
-        G4AtlasEngine.Dict_FastSimModel = dict()
         G4AtlasEngine.Dict_Fields = dict()
         G4AtlasEngine.Dict_UserAction = dict()
         G4AtlasEngine.Dict_Regions = dict()
-        G4AtlasEngine.Dict_Regions['fastSimModels'] = dict()
         G4AtlasEngine.Dict_Regions['physicsReg'] = dict()
         G4AtlasEngine.Dict_RecEnvelope = dict()
         G4AtlasEngine.Dict_FieldIntegrationParameters = dict()
@@ -204,30 +202,6 @@ class G4AtlasEngine:
                     G4AtlasEngine.log.error(' G4AtlasEngine: add_DetFacility: there is already a volume_world')
                     raise RuntimeError('PyG4Atlas: G4AtlasEngine: add_DetFacility')
         G4AtlasEngine._app_profiler('  add_DetFacility: ' + det_obj.Name)
-
-
-
-    def add_FastSimModel(self, model_obj):
-        """
-        Adds FastSimModel objects to the G4AtlasEngine.
-
-        The G4AtlasEngine.Dict_Regions gets also populated with the regions
-        associated to the FastSimModel.
-        """
-        if not isinstance(model_obj, FastSimModel):
-            G4AtlasEngine.log.error(' FastSimModel: add_PhysicsReg: This is not a PhysicsReg object!!!')
-            raise RuntimeError('PyG4Atlas: G4AtlasEngine: add_FastSimModel')
-
-        if model_obj.Name not in G4AtlasEngine.Dict_FastSimModel:
-            G4AtlasEngine.Dict_FastSimModel[model_obj.Name] = model_obj
-            for i in model_obj.Dict_Regions.keys():
-                i_r_obj = model_obj.Dict_Regions.get(i)
-                G4AtlasEngine.Dict_Regions.get('fastSimModels').update( { i_r_obj.Name : i_r_obj } )
-            G4AtlasEngine.log.debug('G4AtlasEngine: adding the FastSimModel %s with associated PhysRegions %s' %
-                                    (model_obj.Name, str(model_obj.Dict_Regions.keys())) )
-        else:
-            G4AtlasEngine.log.warning('G4AtlasEngine: adding the FastSimModel: the %s model has been already added to G4Eng with the regions %s' %
-                                      (model_obj.Name, str(model_obj.Dict_Regions.keys())) )
 
 
 
@@ -459,36 +433,6 @@ class G4AtlasEngine:
         G4AtlasEngine._app_profiler('_init_FieldIntegrationParameters: ')
 
 
-    def _init_FastSimModel(self):
-        """ Inits all the parametrization models defined.
-            (for internal use)
-
-            Creates also the Physics Regions used by the model (>=G4.8)
-        """
-        if 'init_FastSimModel' in self._InitList:
-            G4AtlasEngine.log.warning('G4AtlasEngine: init_FastSimModel is already done')
-            return
-        if 'init_G4' in self._InitList:
-            G4AtlasEngine.log.error('G4AtlasEngine: init_G4 is already done too late for _init_FastSimModel')
-            return
-
-        G4AtlasEngine.log.debug('G4AtlasEngine:_init_FastSimModel: init parametrization models')
-        if G4AtlasEngine.Dict_FastSimModel.keys():
-            G4AtlasEngine.load_Lib("G4FastSimulation")
-            G4AtlasEngine.load_Dict("G4FastSimulationDict")
-            fastmenu = G4AtlasEngine.gbl.FastSimMenu()
-            for fsm in G4AtlasEngine.Dict_FastSimModel.keys():
-                fsm_obj = G4AtlasEngine.Dict_FastSimModel.get(fsm)
-                if fsm_obj.Library not in G4AtlasEngine.List_LoadedLib:
-                    G4AtlasEngine.load_Lib(fsm_obj.Library)
-                for r_n in fsm_obj.Dict_Regions.keys():
-                    r_n_obj = fsm_obj.Dict_Regions.get(r_n)
-                    r_n_obj._construct_Region()
-                    fastmenu.AssignFsModel(r_n_obj.Name, fsm_obj.Name)
-        self._InitList.append('init_FastSimModel')
-        G4AtlasEngine._app_profiler('_init_FastSimModel: ')
-
-
     def _init_Graphics(self):
         """ Inits the G4 visualization stuff.
 
@@ -564,7 +508,6 @@ class G4AtlasEngine:
           pre/postInitDetFacility - called before/after the init_DetFacility method
           pre/postInitPhysics - called before/after the init_Physics method
           pre/postInitG4 - called before/after the init_G4 method
-          pre/postInitFastSimModel - called before/after the init_FastSimModel method
           pre/postInitPhysicsRegions - called before/after the init_PhysicsRegions method
           pre/postInitSenDetector - called before/after the init_SenDetector method
           pre/postInitMCTruth - called before/after the init_MCTruth method
@@ -599,7 +542,6 @@ class G4AtlasEngine:
             _run_init_callbacks(self.init_status)
 
         _run_init_stage("DetFacility")
-        _run_init_stage("FastSimModel")
         _run_init_stage("PhysicsRegions")
         _run_init_stage("SenDetector")
         _run_init_stage("Physics")
@@ -1342,20 +1284,18 @@ class DetFacility:
         """
         if isinstance(region_obj,PhysicsReg):
             if region_obj.Name not in self.Dict_Regions and \
-                    region_obj.Name not in G4AtlasEngine.Dict_Regions.get('fastSimModels') and \
                     region_obj.Name not in G4AtlasEngine.Dict_Regions.get('physicsReg'):
                 self.Dict_Regions[region_obj.Name] = region_obj
                 if self.Name in G4AtlasEngine.Dict_DetFacility:
                     ## If the DetFacility is already in G4Eng, we add the region immediately
                     G4AtlasEngine.Dict_Regions.get('physicsReg').update({region_obj.Name : region_obj})
                 G4AtlasEngine.log.debug(' DetFacility: add_PhysicsReg: adding to %s the PhysRegion %s' % (self.Name, region_obj.Name))
-            elif region_obj.Name in G4AtlasEngine.Dict_Regions.get('fastSimModels') or \
-                 region_obj.Name in G4AtlasEngine.Dict_Regions.get('physicsReg'):
+            elif region_obj.Name in G4AtlasEngine.Dict_Regions.get('physicsReg'):
                 G4AtlasEngine.log.warning(' DetFacility: add_PhysicsReg: %s is already used by somebody else -- nothing done' % region_obj.Name)
             else:
                 G4AtlasEngine.log.warning(' DetFacility: add_PhysicsReg: the %s'++' model already has the %s region' % (self.Name, region_obj.Name))
         else:
-            G4AtlasEngine.log.error(' FastSimModel: add_PhysicsReg: This is not a PhysicsReg object!!!')
+            G4AtlasEngine.log.error(' DetFacility: add_PhysicsReg: This is not a PhysicsReg object!!!')
 
 
     def add_SenDetector(self,lib,sdname,name,volume):
@@ -1498,64 +1438,6 @@ class DetConfigurator:
             classes you want to make available to the users
         """
         G4AtlasEngine.log.warning(' DetConfigurator:_build: nothing is done!!!, you have to overwrite it!')
-
-
-
-class FastSimModel:
-    """ FastSimulation model.
-
-    This object contains the name of the FastSimulation model,
-    and the C++ lib which is needed to load, together with the
-    regions in which it will be applied. These regions (class
-    PhysicsReg) must be added after the instantiation using the
-    method add_Region.
-
-    The FastSimulation object becomes active if it is added to
-    the simulation engine.
-
-    The regions associated to a given FastSimulation model object
-    are automatically added to the G4AtlasEngine at the time the
-    FastSimulation model is added to the G4AtlasEngine (except if
-    the model is already associated to G4Eng, in this case the
-    region is added inmediatelly to the G4Eng).
-
-    The construction of the regions here described is automatically
-    done at the time the FastSimModels are initialized
-    """
-
-    def __init__(self,lib,modelname):
-        self._Built=False
-        self.Name=modelname
-        self.Library=lib
-        self.Dict_Regions = dict()
-
-
-    def add_Region(self,region_obj):
-        """ Adds more region objects to the Dict_Regions in which the
-        FastSimModel will be applied.
-        """
-        if isinstance(region_obj,PhysicsReg):
-            if region_obj.Name not in self.Dict_Regions and \
-                    region_obj.Name not in G4AtlasEngine.Dict_Regions.get('fastSimModels') and \
-                    region_obj.Name not in G4AtlasEngine.Dict_Regions.get('physicsReg'):
-                self.Dict_Regions[region_obj.Name] = region_obj
-                ## We associated to the G4Eng at the time we add the FastSimModel, except if the
-                ## FastSimodel is already in G4Eng
-                if self.Name in G4AtlasEngine.Dict_FastSimModel:
-                    G4AtlasEngine.Dict_Regions.get('fastSimModels').update({region_obj.Name : region_obj})
-                G4AtlasEngine.log.debug(' FastSimModel: adding the region '+region_obj.Name+' to the FastSimModel' + self.Name + ' from lib '+self.Library)
-            elif region_obj.Name in self.Dict_Regions:
-                G4AtlasEngine.log.warning(' FastSimModel: add_PhysicsReg: the '+self.Name+' model already has the '+ region_obj.Name+' region')
-            elif region_obj.Name in G4AtlasEngine.Dict_Regions.get('fastSimModels') or \
-                    region_obj.Name in G4AtlasEngine.Dict_Regions.get('physicsReg'):
-                G4AtlasEngine.log.warning(' FastSimModel: add_PhysicsReg: the '+ region_obj.Name+' is already used by somebody else, nothing done ')
-        else:
-            G4AtlasEngine.log.error(' FastSimModel: add_PhysicsReg: This is not a PhysicsReg object!!!')
-
-
-    def _build(self):
-        pass
-
 
 
 
@@ -2613,15 +2495,6 @@ class SimSkeleton(object):
         """
         G4AtlasEngine.log.verbose('SimSkeleton._do_PreInit :: starting')
 
-        # Add core services
-        from AthenaCommon.AppMgr import ServiceMgr
-        if not hasattr(ServiceMgr, "SensitiveDetectorSvc"):
-            from AthenaCommon.CfgGetter import getService
-            sensitiveDetectorService = getService("SensitiveDetectorSvc")
-        if not hasattr(ServiceMgr, "FastSimulationSvc"):
-            from AthenaCommon.CfgGetter import getService
-            sensitiveDetectorService = getService("FastSimulationSvc")
-
         # use some different methods for ISF and G4 standalone run
         from G4AtlasApps.SimFlags import simFlags
         if simFlags.ISFRun:
@@ -2642,6 +2515,15 @@ class SimSkeleton(object):
                 import traceback,sys
                 traceback.print_exc(file=sys.stdout)
                 raise RuntimeError('SimSkeleton._do_PreInit :: found problems with the method  %s' % k)
+
+        # Add core services
+        from AthenaCommon.AppMgr import ServiceMgr
+        if not hasattr(ServiceMgr.ToolSvc, "SensitiveDetectorMasterTool"):
+            from AthenaCommon.CfgGetter import getPublicTool
+            sensitiveDetectorTool = getPublicTool("SensitiveDetectorMasterTool")
+        if not hasattr(ServiceMgr.ToolSvc, "FastSimulationMasterTool"):
+            from AthenaCommon.CfgGetter import getPublicTool
+            fastSimulationTool = getPublicTool("FastSimulationMasterTool")
 
         ## Run pre-init callbacks
         G4AtlasEngine.log.debug("G4AtlasEngine:init stage " + "preInit")

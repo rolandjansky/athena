@@ -26,14 +26,7 @@ class Muon(object):
     def _initSD(self):
         """ Describes the sensitive detector.
         """
-        sdsuffix = ""
-        if jobproperties.Beam.beamType() == 'cosmics':
-            sdsuffix = "_Cosmics"
-        self.atlas_muon.add_SenDetector('MuonG4SD', 'MDTSens'+sdsuffix, 'AMS', 'Muon::SensitiveGas')
-        self.atlas_muon.add_SenDetector('MuonG4SD', 'RPCSens'+sdsuffix, 'RMS', 'Muon::gazGap')
-        self.atlas_muon.add_SenDetector('MuonG4SD', 'TGCSens'+sdsuffix, 'TMS', 'Muon::muo::TGCGas')
-        self.atlas_muon.add_SenDetector('MuonG4SD', 'CSCSens'+sdsuffix, 'CMS', 'Muon::CscArCO2')
-
+        pass
 
     def _initPR(self):
         """ Describes the physics regions.
@@ -56,9 +49,6 @@ class Muon(object):
 
         # Add the cavern fast sim model if necessary
         if jobproperties.SimFlags.CavernBG.statusOn and jobproperties.SimFlags.CavernBG.get_Value() != 'Read':
-            # create the FastSimModel obj
-            self.atlas_NeutronFastSimModel=PyG4Atlas.FastSimModel('TrackWriteFastSim','NeutronFastSim')
-
             # add region to the FastSimModel obj
             self.atlas_muonFastRegion=PyG4Atlas.PhysicsReg('MuonSystemFastRegion')
             if 'World' in jobproperties.SimFlags.CavernBG.get_Value():
@@ -66,15 +56,5 @@ class Muon(object):
                 self.atlas_muonFastRegion.add_Volumes('IDET::IDET')
             self.atlas_muonFastRegion.add_Volumes('Muon::MuonSys')
             self.atlas_muon.add_PhysicsReg(self.atlas_muonFastRegion)
-            self.atlas_NeutronFastSimModel.add_Region(self.atlas_muonFastRegion)
-
-
-            # add the FastSimModel to the G4Eng
-            AtlasG4Eng.G4Eng.add_FastSimModel(self.atlas_NeutronFastSimModel)
-
-            # if we need it, add the SD to a dummy volume
-            if 'Write' in jobproperties.SimFlags.CavernBG.get_Value():
-                self.atlas_muon.add_SenDetector('TrackWriteFastSim','TrackFastSimSD','TrackFastSimSD',\
-                                                'Muon::DummyVolumeName')
 
 #=======================================================================

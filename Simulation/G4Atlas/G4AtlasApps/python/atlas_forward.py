@@ -153,10 +153,7 @@ class ZDC(object):
 
     def _initSD(self):
         """Describes the sensitive detector."""
-        AtlasG4Eng.G4Eng.log.debug("ZDC Simulation :: atlas_ZDC.py :: _initSD  about to make SenDetector")
-        self.atlas_ZDC.add_SenDetector('ZDC_SD', 'ZDCPixelSD', 'ZDCPixelSD', 'ZDC::Pixel_Logical')
-        self.atlas_ZDC.add_SenDetector('ZDC_SD', 'ZDCStripSD', 'ZDCStripSD', 'ZDC::Strip_Logical')
-        AtlasG4Eng.G4Eng.log.debug("ZDC Simulation :: atlas_ZDC.py :: _initSD  SenDetector Done")
+        pass
 
     def _initPR(self):
         """Describes the physics regions."""
@@ -172,21 +169,7 @@ class ALFA(object):
 
      def _initSD(self):
          """Describes the sensitive detector."""
-         self.alfa.add_SenDetector('ALFA_G4_SD','ALFA_SensitiveDetector', 'ALFA_SensitiveDetector','ALFA::logALFA_FiberU')
-         self.alfa.add_SenDetector('ALFA_G4_SD','ALFA_SensitiveDetector', 'ALFA_SensitiveDetector','ALFA::logALFA_FiberV')
-         for i_alfa_fiber in xrange(64):
-             self.alfa.add_SenDetector('ALFA_G4_SD', 'ALFA_SensitiveDetector',
-                                       'ALFA_SensitiveDetector', 'ALFA::logALFA_FiberU[%d]' % i_alfa_fiber)
-             self.alfa.add_SenDetector('ALFA_G4_SD', 'ALFA_SensitiveDetector',
-                                       'ALFA_SensitiveDetector', 'ALFA::logALFA_FiberV[%d]' % i_alfa_fiber)
-         self.alfa.add_SenDetector('ALFA_G4_SD','ALFA_SensitiveDetector', 'ALFA_SensitiveDetector', 'ALFA::logOD_FiberActive')
-         #print 'fiber %d' % i_alfa_fiber
-
-         # ALFA global vacuum sensors
-         self.alfa.add_SenDetector('ALFA_G4_SD','ALFA_SensitiveDetector', 'ALFA_SensitiveDetector','ALFA::B7L1_GVS')
-         self.alfa.add_SenDetector('ALFA_G4_SD','ALFA_SensitiveDetector', 'ALFA_SensitiveDetector','ALFA::A7L1_GVS')
-         self.alfa.add_SenDetector('ALFA_G4_SD','ALFA_SensitiveDetector', 'ALFA_SensitiveDetector','ALFA::A7R1_GVS')
-         self.alfa.add_SenDetector('ALFA_G4_SD','ALFA_SensitiveDetector', 'ALFA_SensitiveDetector','ALFA::B7R1_GVS')
+         pass
 
 
 class Lucid(object):
@@ -198,7 +181,7 @@ class Lucid(object):
 
      def _initSD(self):
          """Describes the sensitive detector."""
-         self.lucid.add_SenDetector('LUCID_G4_SD', 'LUCID_SensitiveDetector', 'LUCID_SensitiveDetector', 'LUCID::lvPmt')
+         pass
 
      def _initOpProcess(self):
          """Activates the optical process."""
@@ -214,14 +197,7 @@ class AFP(object):
 
      def _initSD(self):
          """Describes the SI sensitive detector."""
-         self.AFP.add_SenDetector('AFP_G4_SD','AFP_SensitiveDetector', 'AFP_SensitiveDetector','AFP::AFP*_LogSIDSensor*')
-         self.AFP.add_SenDetector('AFP_G4_SD','AFP_SensitiveDetector', 'AFP_SensitiveDetector','AFP::AFP*_LogSIDVacuumSensor*')
-
-         """Describes the T sensitive detector."""
-         self.AFP.add_SenDetector('AFP_G4_SD','AFP_SensitiveDetector', 'AFP_SensitiveDetector','AFP::AFP*_LogTDSensor*')
-         #self.AFP.add_SenDetector('AFP_G4_SD','AFP_SensitiveDetector', 'AFP_SensitiveDetector','AFP::AFP*_LogRadiator*')
-         #self.AFP.add_SenDetector('AFP_G4_SD','AFP_SensitiveDetector', 'AFP_SensitiveDetector','AFP::AFP*_LogVertBar*')
-         #self.AFP.add_SenDetector('AFP_G4_SD','AFP_SensitiveDetector', 'AFP_SensitiveDetector','AFP::AFP*_LogHorzBar*')
+         pass
 
      def _initOpProcess(self):
          """Activates the optical process."""

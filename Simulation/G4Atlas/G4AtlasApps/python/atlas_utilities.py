@@ -37,7 +37,7 @@ class ScintillatorSD(object):
         AtlasG4Eng.G4Eng.load_Lib('G4AncillarySD')
         AtlasG4Eng.G4Eng.load_Dict('G4AncillarySDDict')
         SD_HChandler = AtlasG4Eng.G4Eng.gbl.ScintillatorSD_PyHandler()
-        SD = PyG4Atlas.SenDetector('G4AncillarySD', 'ScintillatorSD', 'ScintillatorSD')
+        SD = PyG4Atlas.SenDetector('G4AncillarySD', 'ScintillatorSD', 'ScintillatorSD') #FIXME SD to be migrated ATLASSIM-1752
         # Make a ScintillatorSD hit collection and each associated volume has a
         # collection name
         for v_n in self.List_Volumes:

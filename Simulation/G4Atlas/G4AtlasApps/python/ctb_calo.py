@@ -204,34 +204,6 @@ class TileDet(object):
             self.ctb_tile_position=AtlasG4Eng.G4Eng.gbl.CLHEP.Hep3Vector(0.,0.,0.)
         self.ctb_tile.df.MoveTo(self.ctb_tile_position)
     # sensitive detector:
-    def SD(self,mode):
-        """
-           Implements the Tile SD.
-
-           0 --> Normal Tile sensitive detector
-           1 --> Tile sensitive detector for calibration hits
-        """
-        if(mode==0):
-            # normal mode
-            self.ctb_tile.add_SenDetector('TileGeoG4SD','TileCTBGeoG4SD',\
-                               'TileCTBGeoG4SD','Tile::Scintillator')
-        elif(mode==1):
-            # calibration mode
-            self.ctb_tile.add_SenDetector('TileGeoG4SD:TileGeoG4Calib',\
-             'TileCTBGeoG4CalibSD','TileCTBGeoG4CalibSD','Tile::Scintillator')
-            self.ctb_tile_SenDetectorCalib=AtlasG4Eng.G4Eng.Dict_SenDetector.get('TileCTBGeoG4CalibSD')
-            tile_volumes=['Tile::TileTBEnv','Tile::Barrel',
-            'Tile::BarrelModule','Tile::FrontPlate',
-            'Tile::EndPlate1','Tile::EPHole1','Tile::EndPlate2','Tile::EPHole2',
-            'Tile::GirderMother','Tile::GirderIron','Tile::GirderAluminium',
-            'Tile::GirderElectronics','Tile::Absorber','Tile::AbsorberChild',
-            'Tile::Period','Tile::Glue','Tile::Wrapper',
-            'Tile::EBarrel','Tile::EBarrelModule','Tile::EndPlateSh',
-            'Tile::ITC','Tile::ITCModule','Tile::Plug1Module',
-            'Tile::FrontPlateSh','Tile::Plug2Module',
-            'Tile::Finger','Tile::FingerModule','Tile::FingerIron',
-            'Tile::FingerAluminum','Tile::FingerElectronics']
-            for i_v in tile_volumes:
-                self.ctb_tile_SenDetectorCalib.add_Volume(i_v)
-
+    def SD(self):
+        pass
 #=======================================================================
