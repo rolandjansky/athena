@@ -2,7 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Include files
+
+// Include files 
 
 // local
 #include "G4AtlasTools/G4AtlasDetectorConstructionTool.h"
@@ -23,16 +24,15 @@
 // Standard constructor, initializes variables
 //=============================================================================
 G4AtlasDetectorConstructionTool::G4AtlasDetectorConstructionTool( const std::string& type,
-                                                                  const std::string& nam,const IInterface* parent )
-  : AthAlgTool( type, nam , parent )
-  , m_world(nullptr)
+                                    const std::string& nam,const IInterface* parent )
+  				  : AthAlgTool( type, nam , parent )
 {
-  ATH_MSG_INFO("G4AtlasDetectorConstructionTool "<<type<<" "<<nam);
-  declareInterface< IDetectorConstructionTool >( this ) ;
+	ATH_MSG_INFO("G4AtlasDetectorConstructionTool "<<type<<" "<<nam);
+	declareInterface< IDetectorConstructionTool >( this ) ;
 }
 
 //=============================================================================
-// Destructor
+// Destructor 
 //=============================================================================
 
 G4AtlasDetectorConstructionTool::~G4AtlasDetectorConstructionTool()
@@ -40,29 +40,22 @@ G4AtlasDetectorConstructionTool::~G4AtlasDetectorConstructionTool()
 }
 
 //=============================================================================
-// Initialize
+// Initialize 
 //=============================================================================
 StatusCode G4AtlasDetectorConstructionTool::initialize( )
 {
-  ATH_MSG_INFO("this is G4AtlasDetectorConstructionTool::initialize( )!!!");
-  return StatusCode::SUCCESS;
+	StatusCode sc = AthAlgTool::initialize( ) ;
+	if ( sc.isFailure() ) return sc ;
+
+	ATH_MSG_INFO("this is G4AtlasDetectorConstructionTool::initialize( )!!!");
+	return sc;
 }
 
-void G4AtlasDetectorConstructionTool::SetWorld(G4VPhysicalVolume *w)
+void G4AtlasDetectorConstructionTool::SetWorld(G4VPhysicalVolume *w) 
 {
-  m_world=w;
+	world=w;
 }
-G4VPhysicalVolume* G4AtlasDetectorConstructionTool::Construct()
+G4VPhysicalVolume* G4AtlasDetectorConstructionTool::Construct() 
 {
-  return m_world;
+	return world;
 }
-
-StatusCode G4AtlasDetectorConstructionTool::queryInterface(const InterfaceID& riid, void** ppvIf) {
-  if ( riid == IDetectorConstructionTool::interfaceID() ) {
-    *ppvIf = (IDetectorConstructionTool*)this;
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-  return AlgTool::queryInterface( riid, ppvIf );
-}
-

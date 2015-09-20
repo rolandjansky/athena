@@ -1,6 +1,5 @@
 package G4AtlasTools
 
-public
 # Required for all packages
 use AtlasPolicy          AtlasPolicy-*
 
@@ -11,14 +10,11 @@ use Geant4               Geant4-*                External
 
 # Member variables
 use SubDetectorEnvelopes SubDetectorEnvelopes-*  AtlasGeometryCommon
-use AtlasTBB             AtlasTBB-*              External
 
 private
-use AtlasBoost           AtlasBoost-*            External
-use AtlasCLHEP           AtlasCLHEP-*            External
 use GaudiInterface       GaudiInterface-*        External
+use AtlasCLHEP           AtlasCLHEP-*            External
 use Geo2G4               Geo2G4-*                Simulation/G4Utilities
-use G4PhysicsLists       G4PhysicsLists-*        Simulation/G4Utilities
 end_private
 
 apply_pattern declare_python_modules files="*.py"
