@@ -23,7 +23,9 @@
 
 #include "ElectronPhotonFourMomentumCorrection/EgammaFactory.h"
 
-void EgammaFactory::create_structure()
+
+EgammaFactory::EgammaFactory()
+: asg::AsgMessaging("EgammaFactory")
 {
   ATH_MSG_DEBUG("Creating calo cluster container");
   m_clusters = new xAOD::CaloClusterContainer();
@@ -59,13 +61,6 @@ void EgammaFactory::create_structure()
   m_electrons->setStore(m_electronsAux);
   if (!m_store.record(m_electrons, "Electrons").isSuccess()) { ATH_MSG_ERROR("Cannot create electron collection"); };
   if (!m_store.record(m_electronsAux, "ElectronsAux.").isSuccess()) { ATH_MSG_ERROR("Cannot create electron aux collection"); };
-}
-
-
-EgammaFactory::EgammaFactory()
-: asg::AsgMessaging("EgammaFactory")
-{
-  create_structure();
 
   ATH_MSG_DEBUG("opening average file");
   std::string fpath = "$ROOTCOREBIN/data/ElectronPhotonFourMomentumCorrection/average_layers.root";
@@ -109,7 +104,6 @@ std::array<double, 4> EgammaFactory::get_layers_fraction(const std::array<TProfi
 void EgammaFactory::clear()
 {
   m_store.clear();
-  create_structure();
 }
 
 
@@ -195,14 +189,10 @@ xAOD::Photon* EgammaFactory::create_converted_photon(float eta, float phi, float
 {
   assert(m_histo_rconv);
   assert(m_histo_zconv);
-  const int bin = m_histo_rconv->FindBin(e / cosh(eta), std::abs(eta));
-  if (m_histo_rconv->IsBinOverflow(bin)) { return create_photon(eta, phi, e, 0, 0); }
-  else {
-    const double rconv = m_histo_rconv->GetBinContent(bin);
-    const double zconv = m_histo_zconv->GetBinContent(m_histo_zconv->FindBin(e / cosh(eta), std::abs(eta)));
-    assert(rconv > 0);
-    return create_photon(eta, phi, e, rconv, zconv);
-  }
+  const double rconv = m_histo_rconv->GetBinContent(m_histo_rconv->FindBin(e / cosh(eta), std::abs(eta)));
+  const double zconv = m_histo_zconv->GetBinContent(m_histo_zconv->FindBin(e / cosh(eta), std::abs(eta)));
+  assert(rconv > 0);
+  return create_photon(eta, phi, e, rconv, zconv);
 }
 
 
