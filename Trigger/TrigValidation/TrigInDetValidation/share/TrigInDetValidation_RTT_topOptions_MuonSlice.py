@@ -51,8 +51,8 @@ from AthenaCommon.AppMgr import release_metadata
 d = release_metadata()
 ##TestMonTool.releaseMetaData = d['nightly name'] + " " + d['nightly release'] + " " + d['date'] + " " + d['platform'] + " " + d['release']
 print d['nightly name']
-if d['nightly name']=='20.1.X.Y.Z-VAL-TrigMC':
-  print '***JK This is TrigMC '
+if d['nightly name']=='20.1.X.Y.Z-VAL-TrigMC' or d['nightly name']=='20.X.Y-VAL':
+  print '***JK This is TrigMC or devval '
 else:
   print '***JK This is NOT TrigMC will set doFTK=False'
   doFTK=False
