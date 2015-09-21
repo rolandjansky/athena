@@ -38,31 +38,27 @@ def release_metadata():
    """
    import ConfigParser
    import os
+   release_data = None
+   for d in os.environ['LD_LIBRARY_PATH'].split(os.pathsep):
+      release_data = os.path.join(d, '..', 'ReleaseData')
+      if os.path.exists(release_data):
+         break
    d = {
       'project name': '?',
       'release': '?',
-      'base release': '?',
       'nightly release': '?',
       'nightly name': '?',
       'date': '?',
       'platform': os.getenv('CMTCONFIG', '?'),
       }
-
-   for ld_path in os.environ['LD_LIBRARY_PATH'].split(os.pathsep):
-      release_data = os.path.join(ld_path, '..', 'ReleaseData')
-      if os.path.exists(release_data):
-         d1=d
-         cfg = ConfigParser.SafeConfigParser()
-         try:
-            cfg.read( release_data )
-            if cfg.has_section( 'release_metadata' ):
-               d1.update( dict( cfg.items( 'release_metadata' ) ) )
-               release = d1['release'].split('.')
-               base_release = d1['base release'].split('.')
-               if len(release)>=3 or len(base_release)>=3:
-                  return d1
-         except Exception:
-            pass
+   if release_data:
+      cfg = ConfigParser.SafeConfigParser()
+      try:
+         cfg.read( release_data )
+         if cfg.has_section( 'release_metadata' ):
+            d.update( dict( cfg.items( 'release_metadata' ) ) )
+      except Exception:
+         pass
    return d
 
 ### associator for public tools ----------------------------------------------
@@ -414,12 +410,6 @@ class AthAppMgr( AppMgr ):
          fn = ConfigurationShelve.storeJobOptionsCatalogue( fn )
          del ConfigurationShelve
 
-         if self._opts.profile_python:
-            import cProfile, pstats
-            cProfile._athena_python_profiler.disable()
-            pstats.Stats(cProfile._athena_python_profiler,
-                         stream=open(self._opts.profile_python, 'w')).sort_stats("time").print_stats()
-
          if self._opts.drop_reload:
           # build the new set of options; replace the .py by the .pkl,
           # and remove '-c arg'
@@ -432,13 +422,6 @@ class AthAppMgr( AppMgr ):
                   idx = sys.argv.index( arg )
                   del sys.argv[ idx : idx + 2 ]
 
-          # dump profiling (if any) in temporary file
-            if self._opts.profile_python:
-               import cProfile
-               cProfile._athena_python_profiler.disable()
-               cProfile._athena_python_profiler.dump_stats(
-                  self._opts.profile_python + ".athena.tmp" )
-
           # fire ourselves up anew
             Logging.log.info( 'restarting athena.py from %s ... ', fn )
             sys.argv.insert( 1, fn )
@@ -447,7 +430,6 @@ class AthAppMgr( AppMgr ):
 
          else:
           # running config-only, so we're done
-            self.__report_python_profile()
             Logging.log.info( "configuration complete, now exiting ... " )
             os._exit( self._exitstate )
 
@@ -578,18 +560,6 @@ class AthAppMgr( AppMgr ):
    
  # redefines to take into acount setup of Configurables
    def initialize( self ):
-      # Touch these types early, before dictionaries are loaded,
-      # to prevent spurious error messages from ROOT.
-      # See ATLASRECTS-3486.
-      import cppyy
-      getattr(cppyy.gbl, 'vector<bool>')
-      getattr(cppyy.gbl, 'vector<float>')
-      getattr(cppyy.gbl, 'vector<unsigned short>')
-      getattr(cppyy.gbl, 'vector<short>')
-      getattr(cppyy.gbl, 'vector<unsigned long>')
-      getattr(cppyy.gbl, 'vector<ULong64_t>')
-      getattr(cppyy.gbl, 'map<string,string>')
-
     # build configuration
       self.setup()
 
@@ -604,11 +574,6 @@ class AthAppMgr( AppMgr ):
       return sc
 
    def reinitialize( self ):
-    # since we're going to run python again, may have to re-enable to profiler
-      if self._opts.profile_python:
-         import cProfile
-         cProfile._athena_python_profiler.enable()
-
     # first, rebuild configuration
       self.setup()
 
@@ -643,6 +608,7 @@ class AthAppMgr( AppMgr ):
       sc = self.start()
       if sc.isFailure():
          return sc
+      
 
     # determine number of events
       if nEvt == None:
@@ -771,7 +737,8 @@ class AthAppMgr( AppMgr ):
 
       return sc
 
-   def size( self ):
+
+   def size (self):
       try:
          return self._evtSize.size()
       except AttributeError:
@@ -785,26 +752,6 @@ class AthAppMgr( AppMgr ):
              Logging.log.info ("replacing PoolFileCataloG.xml by MP version")
              import shutil
              shutil.copy2("MP_PoolFileCatalog.xml", "PoolFileCatalog.xml")
-
-   def __report_python_profile( self ):
-      if self._opts.profile_python:
-         import cProfile, pstats
-         cProfile._athena_python_profiler.disable()
-         stats = pstats.Stats(cProfile._athena_python_profiler,
-                              stream=open(self._opts.profile_python, 'w'))
-       # NOTE: tmpname has to match same in setup()
-         tmpname = self._opts.profile_python + ".athena.tmp"
-         try:
-            added_stats = stats.add( tmpname )
-         except (OSError, IOError):
-            added_stats = None
-         pos = self._opts.profile_python.rfind('.')
-         if self._opts.profile_python[pos+1:] == "pkl":
-            stats.dump_stats( self._opts.profile_python )
-         else:
-            stats.strip_dirs().sort_stats("time").print_stats()
-         if added_stats:
-            os.remove( tmpname )
 
  # exit includes leaving python
    def exit( self, code = None ):
@@ -820,8 +767,6 @@ class AthAppMgr( AppMgr ):
             self._exitstate = ExitCodes.FIN_ALG_EXCEPTION
          import traceback
          traceback.print_exc()     # no re-raise to allow sys.exit next
-
-      self.__report_python_profile()
 
       Logging.log.info( 'leaving with code %d: "%s"',
          self._exitstate, ExitCodes.what( self._exitstate ) )

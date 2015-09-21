@@ -148,6 +148,8 @@ _help_and_exit = aop._help_and_exit
 
 ### remove preload hack for proper execution of child-processes --------------
 if ldpreload:
+
+   #print "LD_PRELOAD waz: ", ldpreload
    if 'TCMALLOCDIR' in os.environ:
        tcmlib = os.getenv( 'TCMALLOCDIR' ) +  "/libtcmalloc.so"
        ldpreload = string.replace( ldpreload, tcmlib, '' )
@@ -159,6 +161,7 @@ if ldpreload:
       os.unsetenv( 'ATHENA_ADD_PRELOAD' )
    ldpreload = string.replace( ldpreload, '::', ':')
    ldpreload = ldpreload.strip(':')
+   #print "LD_PRELOAD now: ", ldpreload
 
    if not ldpreload:
       del os.environ[ 'LD_PRELOAD' ]
@@ -166,16 +169,7 @@ if ldpreload:
       os.environ[ 'LD_PRELOAD' ] = ldpreload
 del ldpreload
 
-### start profiler, if requested
-if opts.profile_python:
-   import cProfile
- # profiler is created and controlled programmatically b/c a CLI profiling of
- # athena.py doesn't work (globals are lost from include() execfile() calls),
- # and because this allows easy excluding of the (all C++) Gaudi run
-   cProfile._athena_python_profiler = cProfile.Profile()
-   cProfile._athena_python_profiler.enable()
-
-### debugging setup
+### import goodies
 from AthenaCommon.Debugging import DbgStage
 DbgStage.value = opts.dbg_stage
 
@@ -199,7 +193,7 @@ try:
 except Exception:
    pass            # don't worry about it failing ...
 
-## user session history (deleted in Preparation.py)
+## user private settings
 fhistory = os.path.expanduser( '~/.athena.history' )
 
 

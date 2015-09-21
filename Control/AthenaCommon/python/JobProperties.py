@@ -476,16 +476,10 @@ class JobPropertyContainer (object):
           elif(self.__dict__.__contains__(name)): 
               pass 
           else:
-              errString="JobPropertyContainer:: %s does not have property %s" % (self._context_name, name)
-              try:
-                  from difflib import get_close_matches
-                  closestMatch=get_close_matches(name,self.__dict__.keys(),1)
-                  if len(closestMatch)>0:
-                      errString+=". Did you mean \'%s\'?" %  closestMatch[0] 
-              except:
-                  pass #No execption from here
-                  
-              raise AttributeError(errString)
+              raise AttributeError(
+                  "JobPropertyContainer:: %s does not have property %s" %
+                  (self._context_name, name)
+                  )
         try: 
             protected=hasattr(self.__dict__[name],'_context_name') 
         except:
@@ -496,8 +490,12 @@ class JobPropertyContainer (object):
             property_obj=self.__dict__.get(name)
             property_obj.StoredValue=n_value
             property_obj.statusOn=True
-
-
+   # NOT  
+   #def __getattribute__(self,name):
+   #    obj_JobProperty=object.__getattribute__(self,name) 
+   #    if isinstance(obj_JobProperty,JobProperty): 
+   #        return obj_JobProperty.__getattribute__('StoredValue')  
+   #    return obj_JobProperty
 
     def __str__(self): 
         if self._context_name.count('.')==0:
@@ -738,20 +736,6 @@ class JobPropertyContainer (object):
         else:
             raise ValueError('The received data is has not the expected'
                              'type/format') 
-
-    def __getattribute__(self,name):
-        try:
-            return object.__getattribute__(self, name)   
-        except AttributeError:
-            
-            errString="JobPropertyContainer:: %s does not have property %s" % (object.__getattribute__(self,'_context_name'), name)
-            allattrs=object.__getattribute__(self,'__dict__').keys()
-            from difflib import get_close_matches
-            closestMatch=get_close_matches(name,allattrs,1)
-            if len(closestMatch)>0:
-                errString+=". Did you mean \'%s\'?" %  closestMatch[0]
-            raise AttributeError(errString)
-        pass
     
 
 #=======================================================================
