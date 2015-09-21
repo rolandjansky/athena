@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CompositeParticle_v1.cxx 654494 2015-03-16 17:16:37Z kkoeneke $
+// $Id: CompositeParticle_v1.cxx 677733 2015-06-23 19:31:10Z kkoeneke $
 
 // standard includes
 #include <math.h>       /* remainder and M_PI */
@@ -35,6 +35,8 @@ namespace xAOD {
   static SG::AuxElement::Accessor< float > accPy( "py" );
   static SG::AuxElement::Accessor< float > accPz( "pz" );
   static SG::AuxElement::Accessor< float > accE(  "e"  );
+  static SG::AuxElement::Accessor< float > chargeAcc( "charge" );
+  static SG::AuxElement::Accessor< int > pdgAcc( "pdgId" );
 
 
   double CompositeParticle_v1::pt() const {
@@ -60,15 +62,21 @@ namespace xAOD {
   const CompositeParticle_v1::FourMom_t& CompositeParticle_v1::p4() const {
     // Check if we need to reset the cached object:
     if( ! m_p4Cached ) {
-      double px(0.0);
-      double py(0.0);
-      double pz(0.0);
-      double e(0.0);
-      if ( accPx.isAvailable(*this) ) { px = this->px(); }
-      if ( accPy.isAvailable(*this) ) { py = this->py(); }
-      if ( accPz.isAvailable(*this) ) { pz = this->pz(); }
-      if ( accE.isAvailable(*this)  ) { e  = this->e(); }
-      m_p4.SetPxPyPzE( px, py, pz, e );
+      if ( accPx.isAvailable(*this) && accPy.isAvailable(*this)
+           && accPz.isAvailable(*this) && accE.isAvailable(*this) ) {
+        // We have everything stored with this CompositeParticle. Just use it.
+        const double px = static_cast<double>(accPx(*this));
+        const double py = static_cast<double>(accPy(*this));
+        const double pz = static_cast<double>(accPz(*this));
+        const double e  = static_cast<double>(accE(*this));
+        m_p4.SetPxPyPzE( px, py, pz, e );
+      }
+      else {
+        // Not everything is stored, we need to re-calculate the p4 based on the constituents.
+        // Create an empty vector such that the subsequent call will use all constituents.
+        const std::vector<int> partIndices;
+        m_p4 = this->p4( partIndices );
+      }
       m_p4Cached = true;
     }
     // Return the cached object:
@@ -80,10 +88,24 @@ namespace xAOD {
   }
 
 
-  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( CompositeParticle_v1, float, double, e)
-  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( CompositeParticle_v1, float, double, px)
-  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( CompositeParticle_v1, float, double, py)
-  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( CompositeParticle_v1, float, double, pz)
+  double CompositeParticle_v1::e() const {
+    return p4().E();
+  }
+
+
+  double CompositeParticle_v1::px() const {
+    return p4().Px();
+  }
+
+
+  double CompositeParticle_v1::py() const {
+    return p4().Py();
+  }
+
+
+  double CompositeParticle_v1::pz() const {
+    return p4().Pz();
+  }
 
 
   double CompositeParticle_v1::et() const {
@@ -141,16 +163,46 @@ namespace xAOD {
   //
 
   bool CompositeParticle_v1::hasCharge() const {
-    static SG::AuxElement::Accessor< float > chargeAcc( "charge" );
     return chargeAcc.isAvailable( *this );
   }
 
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CompositeParticle_v1, float,
-                                        charge, setCharge )
+
+  float CompositeParticle_v1::charge() const {
+    if ( chargeAcc.isAvailable(*this) ) {
+      // If we have stored the charge with this CompositeParticle, just use it.
+      return chargeAcc(*this);
+    }
+    else {
+      // Otherwise, try to re-calculate it from the constituents
+      float charge = 0.0;
+      // Sum up the charges of all constituents, if all have it
+      std::size_t nParts = this->nParts();
+      for ( std::size_t i=0; i<nParts; ++i ) {
+        const xAOD::IParticle* part = this->part(i);
+        if (!part) {
+          throw std::runtime_error("Got a zero pointer to an xAOD::IParticle!");
+        }
+        if ( chargeAcc.isAvailable(*part) ) {
+          charge += chargeAcc(*part);
+        }
+        else if ( part->type() != xAOD::Type::CompositeParticle ) {
+          // We have an electron
+          const xAOD::CompositeParticle_v1* compPart = static_cast<const xAOD::CompositeParticle_v1*>(part);
+          charge += compPart->charge();
+        }
+      } // End: loop over all constituent particles
+      return charge;
+    }
+  }
+
+
+  void CompositeParticle_v1::setCharge( float charge ) {
+    chargeAcc(*this) = charge;
+    return;
+  }
 
 
   bool CompositeParticle_v1::hasPdgId() const {
-    static SG::AuxElement::Accessor< int > pdgAcc( "pdgId" );
     return pdgAcc.isAvailable( *this );
   }
 
@@ -169,9 +221,12 @@ namespace xAOD {
   //     information from constituents.
   //
 
-  CompositeParticle_v1::FourMom_t
+  const CompositeParticle_v1::FourMom_t&
   CompositeParticle_v1::p4( const std::vector<int>& partIndices ) const {
-    CompositeParticle_v1::FourMom_t fourMom(0.0, 0.0, 0.0, 0.0);
+    // We want a static here such that this TLorentzVector is only once in
+    // memory. We anyhow have to reset it every time this function is called.
+    static CompositeParticle_v1::FourMom_t fourMom;
+    fourMom.SetPxPyPzE(0.0, 0.0, 0.0, 0.0);
     // If the given vector of indices is an empty vector, run over all particles
     if ( partIndices.empty() ) {
       // Sum up the 4-momenta of all constituents
@@ -281,18 +336,20 @@ namespace xAOD {
         // This should not be... throw an error.
         throw std::runtime_error("Got a zero pointer to an xAOD::MissingET when calling mt");
       }
-      double mpx( metObj->mpx() );
-      double mpy( metObj->mpy() );
-      double met( metObj->met() );
+      const double mpx( metObj->mpx() );
+      const double mpy( metObj->mpy() );
+      const double met( metObj->met() );
 
       // Now, actually calculate the result (in two parts)
-      double px( fourMom.Px() );
-      double py( fourMom.Px() );
-      double part2 = (px+mpx)*(px+mpx) + (py+mpy)*(py+mpy);
+      const double px( fourMom.Px() );
+      const double py( fourMom.Py() );
+      const double part2 = (px+mpx)*(px+mpx) + (py+mpy)*(py+mpy);
 
       double mll2( fourMom.M2() );
-      double etll( std::sqrt( (px*px + py*py) + mll2 ) );
-      double part1( (etll+met)*(etll+met) );
+      // This is needed for rare cases when the TLorentzVector.M2 returns negative values
+      mll2 = mll2 < 0.0 ? -mll2 : mll2;
+      const double etll( std::sqrt( (px*px + py*py) + mll2 ) );
+      const double part1( (etll+met)*(etll+met) );
 
       // One last sanity check
       if ( part1 < part2 ) {
@@ -423,10 +480,7 @@ namespace xAOD {
     // Add the given ElementLink as a constituent of this composite particle
     const std::size_t partIdx = part->index();
     const xAOD::IParticleContainer* partCont =
-      dynamic_cast<const xAOD::IParticleContainer*>(part->container());
-    if ( !partCont ) {
-      throw std::runtime_error( "ERROR: Could not find the container for the particle when adding constituent" );
-    }
+      static_cast<const xAOD::IParticleContainer*>(part->container());
     constitLinks.push_back( IParticleLink( *partCont, partIdx ) );
     return;
   }
@@ -482,10 +536,7 @@ namespace xAOD {
     // Add the ElementLink of the given particle and pass it on
     const std::size_t partIdx = part->index();
     const xAOD::IParticleContainer* partCont =
-      dynamic_cast<const xAOD::IParticleContainer*>(part->container());
-    if ( !partCont ) {
-      throw std::runtime_error( "ERROR: Could not find the container for the particle when adding constituent" );
-    }
+      static_cast<const xAOD::IParticleContainer*>(part->container());
     this->removePart( IParticleLink( *partCont, partIdx ), updateFourMom );
     return;
   }
@@ -568,10 +619,7 @@ namespace xAOD {
     // Add the given ElementLink as a constituent of this composite particle
     const std::size_t metIdx = met->index();
     const xAOD::MissingETContainer* metCont =
-      dynamic_cast<const xAOD::MissingETContainer*>(met->container());
-    if ( !metCont ) {
-      throw std::runtime_error( "ERROR: Could not find the MissingETContainer when adding MET" );
-    }
+      static_cast<const xAOD::MissingETContainer*>(met->container());
     metLinkAcc(*this) = ElementLink<xAOD::MissingETContainer>( *metCont, metIdx );
     return;
   }
@@ -819,10 +867,7 @@ namespace xAOD {
     // Add the given ElementLink as a constituent of this composite particle
     const std::size_t partIdx = part->index();
     const xAOD::IParticleContainer* partCont =
-      dynamic_cast<const xAOD::IParticleContainer*>(part->container());
-    if ( !partCont ) {
-      throw std::runtime_error( "ERROR: Could not find the container for the particle when adding constituent" );
-    }
+      static_cast<const xAOD::IParticleContainer*>(part->container());
     otherPartLinks.push_back( IParticleLink( *partCont, partIdx ) );
     return;
   }
@@ -869,10 +914,7 @@ namespace xAOD {
     // Add the ElementLink of the given particle and pass it on
     const std::size_t partIdx = part->index();
     const xAOD::IParticleContainer* partCont =
-      dynamic_cast<const xAOD::IParticleContainer*>(part->container());
-    if ( !partCont ) {
-      throw std::runtime_error( "ERROR: Could not find the container for the particle when adding constituent" );
-    }
+      static_cast<const xAOD::IParticleContainer*>(part->container());
     this->removeOtherPart( IParticleLink( *partCont, partIdx ) );
     return;
   }

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CompositeParticle_v1.h 654497 2015-03-16 17:43:50Z kkoeneke $
+// $Id: CompositeParticle_v1.h 696023 2015-09-21 17:09:08Z kkoeneke $
 #ifndef XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLE_V1_H
 #define XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLE_V1_H
 
@@ -38,8 +38,8 @@ namespace xAOD {
   /// e.g., a Z boson that consists out of two muons.
   /// @author Karsten Koeneke <karsten.koeneke@cern.ch>
   ///
-  /// $Revision: 654497 $
-  /// $Date: 2015-03-16 18:43:50 +0100 (Mon, 16 Mar 2015) $
+  /// $Revision: 696023 $
+  /// $Date: 2015-09-21 19:09:08 +0200 (Mon, 21 Sep 2015) $
   ///
   class CompositeParticle_v1 : public IParticle {
 
@@ -132,8 +132,23 @@ namespace xAOD {
     /// @{
 
     /// The total 4-momentum
-    FourMom_t p4( const std::vector<int>& partIndices ) const;
+    const FourMom_t& p4( const std::vector<int>& partIndices ) const;
 
+    /// Get the four-momentum with two indices.
+    /// This specialization to the above method is needed since ROOT 6.02 doesn't
+    /// yet support C++11 in the TFormula stuff with JIT compilation, see:
+    /// https://sft.its.cern.ch/jira/browse/ROOT-5083
+    inline const FourMom_t& p4( int partIndexA, int partIndexB ) const {
+      return this->p4( std::vector<int>{partIndexA, partIndexB} );
+    }
+    /// Get the four-momentum with three indices.
+    inline const FourMom_t& p4( int partIndexA, int partIndexB, int partIndexC ) const {
+      return this->p4( std::vector<int>{partIndexA, partIndexB, partIndexC} );
+    }
+    /// Get the four-momentum with four indices.
+    inline const FourMom_t& p4( int partIndexA, int partIndexB, int partIndexC, int partIndexD ) const {
+      return this->p4( std::vector<int>{partIndexA, partIndexB, partIndexC, partIndexD} );
+    }
 
     /// The transverse momentum (\f$p_T\f$)
     double pt( const std::vector<int>& partIndices ) const;

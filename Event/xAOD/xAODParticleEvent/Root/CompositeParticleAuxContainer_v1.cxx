@@ -21,6 +21,7 @@ namespace xAOD {
     AUX_VARIABLE( pdgId );
 
     AUX_VARIABLE( partLinks );
+    AUX_VARIABLE( otherPartLinks );
     AUX_VARIABLE( missingETLink );
 
   }
