@@ -2,11 +2,6 @@
 
 set dir = .
 
-if ( -x /usr/local/bin/sed ) then 
-  set SED = /usr/local/bin/sed
-else
-  set SED = `which sed`
-endif
 
 if ( $#argv > 0 ) then 
    set dir = $1
@@ -15,41 +10,24 @@ endif
 set files = ""
 
 
-set outdir = "."
-set getoutdir = "0"
-
-set noglobbing = 0
 
 foreach arg ( $argv )
+  set   dir = $1
+  set   base = `basename $dir .xml`
+  set   basetail = ${dir:t}
 
-  if ( "$getoutdir" == "1" ) then 
-     set outdir = $1
-     set getoutdir = "0"
-  else    
-    if ( "$arg" == "-o" ) then
-      set getoutdir = "1"
-    else 
-      if ( "$arg" == "-noglob" ) then
-        set noglobbing = "1"
-      else 
-        set   dir = $1
-        set   base = `basename $dir .xml`
-        set   basetail = ${dir:t}
-
-        if ( "$base" != "$basetail" ) then 
-          set files = "$files $1"
-        else
-          set files = "$files $dir/*.xml"
-        endif
-      endif
-    endif
+  if ( "$base" != "$basetail" ) then 
+     set files = "$files $1"
+  else
+     set files = "$files $dir/*.xml"
   endif
+ 
+#  echo "files: $files" 
 
   shift
 end
 
-echo "files:  $files"
-# echo "outdir: $outdir"
+echo "files: $files"
 
 
 foreach xmlfile ( $files ) 
@@ -58,34 +36,28 @@ foreach xmlfile ( $files )
       
 #  echo "xmlfile $xmlfile  $_file"
 
-   set outfile = "$outdir/$_file.sh"
  
 #   if ( "$_file" != "TrigInDetValidation_TestConfiguration_main.xml" ) then 
-    if ( -e $outfile ) then 
-      if ( "$noglobbing" != "1" ) then 
-        echo "file $outfile already exists, moving to " $outfile.bak
-        mv $outfile{,.bak}
-      else      
-        echo "file $outfile already exists, move along, there's nothing to see here"
-        continue
-      endif
+    if ( -e $_file.sh ) then 
+      echo "file $_file.sh already exists"
+      continue
     endif
 
       set gpath = ${xmlfile:h}
 
-      cpp -traditional-cpp -I$gpath $xmlfile  | $SED 's|STAR|/*|g' | grep -v "\# " | grep -v "emacs:" > /tmp/$_file.xml
+      cpp -traditional-cpp -I$gpath $xmlfile  -DSTAR="*" | grep -v "\# " | grep -v "emacs:" > /tmp/$_file.xml
 
      set duff = `grep dataset /tmp/$_file.xml`
 
 
      if ( "$duff" != "" ) then 
- 
-      set file = `echo $_file | $SED 's/\.xml//g'`
 
-      echo "#\!/bin/sh" > $outfile
-      chmod u+x $outfile
+      set file = `echo $_file | sed 's/\.xml//g'`
 
-      grep "<argvalue>" /tmp/$_file.xml |  $SED 's|<argvalue>||g' | $SED 's|</argvalue>||g' > /tmp/_args
+      echo "#\!/bin/sh" > $_file.sh
+      chmod u+x $_file.sh
+
+      grep "<argvalue>" /tmp/$_file.xml |  sed 's|<argvalue>||g' | sed 's|</argvalue>||g' > /tmp/_args
 
 
 #     grep "<commandLineFlags>" $xmlfile |  sed 's|<commandLineFlags>||g' | sed 's|</commandLineFlags>||g'
@@ -111,16 +83,16 @@ foreach xmlfile ( $files )
 # #     echo "joboption $joboptions    cmdlineflags $cmdlineflags"
 
       if ( "$joboptions" != "" ) then 
-         echo "\nget_files -jo $joboptions.py" >> $outfile
+         echo "\nget_files -jo $joboptions.py" >> $_file.sh
 #        echo  "athena.py  -c 'include("\"$pyfile\"";$cmdlineflags' $joboptions.py \n\n" >> $_file.sh
-         echo  "athena.py  -c 'XMLDataSet="\"$jobid\"";$cmdlineflags' $joboptions.py \n\n" >> $outfile
+         echo  "athena.py  -c 'XMLDataSet="\"$jobid\"";$cmdlineflags' $joboptions.py \n\n" >> $_file.sh
       endif
   
 #     cat /tmp/_args
 
       set N = `cat /tmp/_args | wc -l`
 
-      echo "file: $outfile" 
+      echo "file: $_file.sh" 
 
       if ( $N > 0 ) then 
 
@@ -132,16 +104,14 @@ foreach xmlfile ( $files )
 
    	   if ( "$arg" == "TIDArdict.exe" || "$arg" == "TIDAcomparitor.exe" || "$arg" == "TIDAcpucost.exe" || "$arg" == "RunTrigCostD3PD.exe" ) then 
               if ( "$command" != "" ) then 
-                 echo "$command\n" >> $outfile
+                 echo "$command\n" >> $_file.sh
               endif
               set command = "$arg"
             else 
 
 	      if ( "$command" == "TIDAcpucost.exe" ) then 
-                 set auxfile = `grep auxFile /tmp/$_file.xml | grep expert | $SED 's|.*<auxFilePattern>||g' | $SED 's|</auxFilePattern>||g'`
-
-                 set arg = `echo "$arg" | $SED "s| \S*\*\S* | $auxfile |g"`
-
+                 set auxfile = `grep auxFile /tmp/$_file.xml | grep expert | sed 's|.*<auxFilePattern>||g' | sed 's|</auxFilePattern>||g'`
+                 set arg = `echo "$arg" | sed "s| \S*\*\S* | $auxfile |g"`
               endif
 
 	      foreach ffile ( $arg )
@@ -151,7 +121,7 @@ foreach xmlfile ( $files )
 #		 echo "ref: $ref     : ext: $ext"
                  if ( "$ext" == "dat" || "$ref" != "" )  then 
 #                   echo "   getting file $ffile"   
-		    echo "get_files -data $ffile" >> $outfile 
+		    echo "get_files -data $ffile" >> $_file.sh 
                  endif
               end
               set command = "$command $arg"
@@ -162,7 +132,7 @@ foreach xmlfile ( $files )
         end
 
         if ( "$command" != "" ) then 
-          echo  "$command\n\n"  >> $outfile
+          echo  "$command\n\n"  >> $_file.sh
         endif
 
       endif

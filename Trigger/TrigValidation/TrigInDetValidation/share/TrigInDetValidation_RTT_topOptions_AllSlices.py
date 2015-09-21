@@ -65,8 +65,6 @@ if athenaCommonFlags.FilesInput()==[]:
 
 
 rMC = False
-rID = False
-rFTK=False
 if 'runMergedChain' in dir() and runMergedChain==True:
   rMC = True
 if 'doIDNewTracking' in dir() and doIDNewTracking==True:
@@ -79,13 +77,13 @@ include("TrigInDetValidation/TrigInDetValidation_RTT_Chains.py")
 (electronChainlist, electronAnalysischains) = electronChains(rMC, rID)
 tidaAnalysischains += electronAnalysischains
 
-(muonChainlist, muonAnalysischains) = muonChains(rMC, rID, rFTK)
+(muonChainlist, muonAnalysischains) = muonChains(rMC, rID)
 tidaAnalysischains += muonAnalysischains
 
-(tauChainlist, tauAnalysischains) = tauChains(rMC, rID, rFTK)
+(tauChainlist, tauAnalysischains) = tauChains(rMC, rID)
 tidaAnalysischains += tauAnalysischains
 
-(bjetChainlist, bjetAnalysischains) = bjetChains(rMC, rID, rFTK)
+(bjetChainlist, bjetAnalysischains) = bjetChains(rMC, rID)
 tidaAnalysischains += bjetAnalysischains
 
 (minBiasChainlist, minBiasAnalysischains) = minBiasChains(rMC, rID)
