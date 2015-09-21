@@ -22,7 +22,6 @@ jobproperties.Global.DetDescrVersion='ATLAS-P2-ITK-01-00-00'
 
 from Digitization.DigitizationFlags import jobproperties 
 jobproperties.Digitization.doInDetNoise=False
-jobproperties.Digitization.dataRunNumber=240000
 
 include ( "Digitization/Digitization.py" )
 

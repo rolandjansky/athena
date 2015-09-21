@@ -56,9 +56,6 @@ if DetFlags.digitize.pixel_on():
         getPublicTool("IblPlanarChargeTool").DisableDistortions = True
         getPublicTool("Ibl3DChargeTool").DisableDistortions = True
 
-    if hasattr(pixeldigi,'OfflineCalibSvc') :
-       pixeldigi.OfflineCalibSvc=""
-
 ##     if DetFlags.pileup.pixel_on():
 ##         #changing the range of the Pixels
 ##         from AthenaCommon.AppMgr import ServiceMgr

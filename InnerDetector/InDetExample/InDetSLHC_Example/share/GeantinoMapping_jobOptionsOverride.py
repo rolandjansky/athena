@@ -5,7 +5,7 @@
 #		of the ATLAS detector and the GeantinoMapping.
 #		It can be run using athena.py
 #
-__version__="$Revision: 706440 $"
+__version__="$Revision: 590288 $"
 #==============================================================
 
 #--- Algorithm sequence ---------------------------------------
@@ -95,23 +95,15 @@ except:
     topSeq += CopyEventWeight(TruthCollKey="GEN_EVENT")
 
 ## Add an action
-try:
-    # Post UserAction Migration (ATLASSIM-1752)
-    # NB the migrated MaterialStepRecorder does not have any special
-    # properties, hence these are not set here.
-    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-    UAStore.addAction('MaterialStepRecorder',['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
-except:
-    # Pre UserAction Migration
-    def geantino_action():
-        from G4AtlasApps import AtlasG4Eng,PyG4Atlas
-        GeantinoAction = PyG4Atlas.UserAction('TrkG4UserActions','MaterialStepRecorder', ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
-        GeantinoAction.set_Properties({ "verboseLevel" : "1",
-                                        "recordELoss"  : "1",
-                                        "recordMSc"    : "1" })
-        AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(GeantinoAction)
+def geantino_action():
+    from G4AtlasApps import AtlasG4Eng,PyG4Atlas
+    GeantinoAction = PyG4Atlas.UserAction('TrkG4UserActions','MaterialStepRecorder', ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
+    GeantinoAction.set_Properties({ "verboseLevel" : "1",
+                                    "recordELoss"  : "1",
+                                    "recordMSc"    : "1" })
+    AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(GeantinoAction)
 
-    simFlags.InitFunctions.add_function('preInitG4', geantino_action)
+simFlags.InitFunctions.add_function('preInitG4', geantino_action)
 
 # suppress the enormous amount of MC output
 from TruthExamples.TruthExamplesConf import DumpMC

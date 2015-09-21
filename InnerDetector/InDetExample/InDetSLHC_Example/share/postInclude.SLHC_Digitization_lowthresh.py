@@ -65,10 +65,6 @@ if DetFlags.digitize.pixel_on():
         # calibSvc.IntimeThresh = 2500 # default 5000
         # calibSvc.ToTParE = -2000. # default -3561.25
 
-    if hasattr(pixeldigi,'OfflineCalibSvc') :
-       pixeldigi.OfflineCalibSvc=""
-
-
 ##     if DetFlags.pileup.pixel_on():
 ##         #changing the range of the Pixels
 ##         from AthenaCommon.AppMgr import ServiceMgr
