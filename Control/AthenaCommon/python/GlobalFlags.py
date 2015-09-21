@@ -58,14 +58,14 @@ class DetDescrVersion(JobProperty):
 #                  'Rome-Initial-v00','Rome-Final','DC1-Initial',\
 #                  'DC1-Final','CTB','Commissioning-Calo','Commissioning-Muon'\
 #                  'ATLAS-DC3-01','ATLAS-DC3-02','Default']   
-    StoredValue='ATLAS-GEO-16-00-00'
+    StoredValue='ATLAS-R2-2015-03-01-00'
 
 class ConditionsTag(JobProperty):
      """ See https://twiki.cern.ch/twiki/bin/view/Atlas/CoolProdTags
      """
      statusOn=True
      allowedTypes=['str']
-     StoredValue='OFLCOND-DR-BS7T-ANom-11'
+     StoredValue='OFLCOND-RUN12-SDR-25'
 
 #
 class DatabaseInstance(JobProperty):

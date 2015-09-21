@@ -173,6 +173,8 @@ def loadConfigurableDb():
          try:
             cfgDb._loadModule( confDb )
          except Exception, err:
+            import traceback
+            traceback.print_exc()
             log.warning( "Could not load file [%s] !", confDb )
             log.warning( "Reason: %s", err )
          nFiles += 1

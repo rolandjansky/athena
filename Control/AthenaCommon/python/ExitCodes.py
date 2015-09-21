@@ -42,6 +42,7 @@ DATA_OUTFILE_ERROR       = 0x05         # not implemented
 HISTO_OUTFILE_ERROR      = 0x06         # not implemented
 DATABASE_ERROR           = 0x07         # not implemented
 UNKNOWN_EXCEPTION        = 0x08
+CONFIGURATION_ERROR      = 0x09
 
 
 ### helper to get a human-readable string
