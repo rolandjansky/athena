@@ -50,7 +50,6 @@ inline FlexProfileArray::FlexProfileArray( unsigned nbins )
     m_errOpt(ERRORMEAN)
 {
   unsigned n(nGroups(nbins));
-  // cppcheck-suppress invalidPointerCast
   m_groups = reinterpret_cast<float**>(reinterpret_cast<char*>(this)+sizeof(*this));
   memset(m_groups,0,n*sizeof(m_groups[0]));
 }
