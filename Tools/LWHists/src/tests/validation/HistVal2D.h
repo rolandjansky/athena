@@ -20,6 +20,7 @@
 template <class TH_2D, class THLW_2D>
 class HistVal2D : public HistValBase {
 public:
+  typedef typename THLW_2D::bin_type_t bin_type_t;
 
   HistVal2D( const std::string& name, const std::string& title,
              int nbinsx, const double& xmin, const double& xmax,

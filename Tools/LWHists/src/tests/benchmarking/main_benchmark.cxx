@@ -76,7 +76,7 @@ long time_clock;
 void timerStart() { time_clock = clock(); }
 double timerEnd(const std::string& text, const unsigned& n, const unsigned estimatedOverheadToDiscount = 0)
 {
-  double t((clock()-time_clock-estimatedOverheadToDiscount)/double(CLOCKS_PER_SEC)*1.0e6/n);
+  double t((clock()-time_clock-estimatedOverheadToDiscount)*(1./double(CLOCKS_PER_SEC))*1.0e6/n);
   std::cout<<"  Timed ["<<text<<"]: "<<t<<" microsecond"<<std::endl;
   return t;
 }
@@ -261,7 +261,7 @@ int performBenchmark( const unsigned nhists,
     for (;it!=itE;++it)
       triggerConversion(it->second);
     long actual_t1(clock());
-    std::cout<<"Conversion took "<<((actual_t1-actual_t0)-(base_t1-base_t0))/double(CLOCKS_PER_SEC)/hists.size()*1.0e3<<" ms/hist"<<std::endl;
+    std::cout<<"Conversion took "<<((actual_t1-actual_t0)-(base_t1-base_t0))/(double(CLOCKS_PER_SEC)*hists.size())*1.0e3<<" ms/hist"<<std::endl;
   }
 
   //For valgrind we also delete the histograms again:

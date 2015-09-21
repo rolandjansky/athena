@@ -41,6 +41,7 @@ template <class T> inline bool bothNaN(const T&t1, const T&t2) { return isNaN(t1
 #include "FlexBinChunk.h"
 #include "LWHistBitUtils.h"
 #include <cmath>
+#include <cstdlib>
 #include <cassert>
 
 template <class T>

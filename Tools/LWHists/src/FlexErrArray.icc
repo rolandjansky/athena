@@ -300,7 +300,7 @@ inline void FlexErrArray<T>::fill(unsigned bin)
   getGroup(bin)->fill(groupBin(bin) STRICT_ROOT_PAR(m_pretendSumWMode));
 #ifndef NDEBUG
   T resval=getBinContent(bin);
-  assert(fabs(resval-expectedval)/(1.0+std::max<T>(fabs(resval),fabs(expectedval)))<1.0e-5);
+  assert(static_cast<double>(std::abs(resval-expectedval))/(1.0+std::max<T>(std::abs(resval),std::abs(expectedval)))<1.0e-5);
 #endif
 }
 
@@ -312,10 +312,13 @@ inline void FlexErrArray<T>::fill(unsigned bin, const double& weight)
   T expectedval = getBinContent(bin)+T(weight);
 #endif
   assert(bin<m_nbins);
+#ifdef LW_STRICT_ROOT_BEHAVIOUR
+  if (weight != 1) m_pretendSumWMode = true;
+#endif
   getGroup(bin)->fill(groupBin(bin),weight STRICT_ROOT_PAR(m_pretendSumWMode));
 #ifndef NDEBUG
   T resval=getBinContent(bin);
-  assert(fabs(resval-expectedval)/(1.0+std::max<T>(fabs(resval),fabs(expectedval)))<1.0e-5);
+  assert(static_cast<double>(std::abs(resval-expectedval))/(1.0+std::max<T>(std::abs(resval),std::abs(expectedval)))<1.0e-5);
 #endif
 }
 
