@@ -113,6 +113,14 @@ if hasattr(runArgs, "inputEVNT_CAVERNFile"):
 if hasattr(runArgs, "outputEVNT_CAVERNTRFile"):
     include('SimulationJobOptions/preInclude.G4WriteCavern.py')
 
+# temporary fix to ensure TRT will record hits if using FATRAS
+# this should eventually be removed when it is configured properly in ISF
+if hasattr(runArgs, 'simulator') and runArgs.simulator.find('ATLFASTIIF')>=0:
+    from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
+    TrkDetFlags.TRT_BuildStrawLayers=True
+    fast_chain_log.info('Enabled TRT_BuildStrawLayers to get hits in ATLFASTIIF')
+
+
 ## Select detectors
 
 
