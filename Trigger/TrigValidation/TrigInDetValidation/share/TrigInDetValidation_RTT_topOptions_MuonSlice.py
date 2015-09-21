@@ -51,8 +51,8 @@ from AthenaCommon.AppMgr import release_metadata
 d = release_metadata()
 ##TestMonTool.releaseMetaData = d['nightly name'] + " " + d['nightly release'] + " " + d['date'] + " " + d['platform'] + " " + d['release']
 print d['nightly name']
-if d['nightly name']=='20.1.X.Y.Z-VAL-TrigMC':
-  print '***JK This is TrigMC '
+if d['nightly name']=='20.1.X.Y.Z-VAL-TrigMC' or d['nightly name']=='20.X.Y-VAL':
+  print '***JK This is TrigMC or devval '
 else:
   print '***JK This is NOT TrigMC will set doFTK=False'
   doFTK=False
@@ -75,5 +75,5 @@ if 'doFTK' in dir() and doFTK==True:
   ServiceMgr.TrigFTK_DataProviderSvc.TrainingBeamspotTiltX= 0.0 # -1.51489e-05
   ServiceMgr.TrigFTK_DataProviderSvc.TrainingBeamspotTiltY= 0.0 # -4.83891e-05
 ##  topSequence.TrigSteer_HLT.TrigFastTrackFinder_Muon.OutputLevel=DEBUG
-  topSequence.TrigSteer_HLT.TrigFastTrackFinder_Muon.FTK_Mode=True
-  topSequence.TrigSteer_HLT.TrigFastTrackFinder_Muon.FTK_Refit=False
+  topSequence.TrigSteer_HLT.TrigFastTrackFinder_Muon_IDTrig.FTK_Mode=True
+  topSequence.TrigSteer_HLT.TrigFastTrackFinder_Muon_IDTrig.FTK_Refit=False

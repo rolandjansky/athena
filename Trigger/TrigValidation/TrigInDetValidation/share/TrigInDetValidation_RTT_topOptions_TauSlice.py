@@ -60,8 +60,28 @@ def resetSigs():
 
 PdgId=15
 
+from AthenaCommon.AppMgr import release_metadata
+d = release_metadata()
+##TestMonTool.releaseMetaData = d['nightly name'] + " " + d['nightly release'] + " " + d['date'] + " " + d['platform'] + " " + d['release']
+print d['nightly name']
+if d['nightly name']=='20.1.X.Y.Z-VAL-TrigMC' or d['nightly name']=='20.X.Y-VAL':
+  print '***JK This is TrigMC or devval '
+else:
+  print '***JK This is NOT TrigMC will set doFTK=False'
+  doFTK=False
+
+
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.doHypo.set_Value_and_Lock(True)
+
+if 'doFTK' in dir() and doFTK==True:
+  from TriggerJobOpts.TriggerFlags import TriggerFlags
+  TriggerFlags.doFTK=True
+
 include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
 
+if 'doFTK' in dir() and doFTK==True:
+  topSequence.TrigSteer_HLT.TrigFastTrackFinder_Tau_IDTrig.FTK_Mode=True
+  topSequence.TrigSteer_HLT.TrigFastTrackFinder_TauCore.FTK_Mode=True
+  topSequence.TrigSteer_HLT.TrigFastTrackFinder_TauIso.FTK_Mode=True
 
