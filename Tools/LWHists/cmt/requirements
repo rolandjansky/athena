@@ -33,7 +33,7 @@ apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Hist RIO)"
 #macro_append AtlasCxxPolicy_pp_cppflags " -DLW_DEBUG_POOLS_DEBUG_USAGE"
 #
 #*Jump through extra hoops to reproduce obscure ROOT behaviour:
-macro_append AtlasCxxPolicy_pp_cppflags " -DLW_STRICT_ROOT_BEHAVIOUR"
+macro_append LWHists_pp_cppflags " -DLW_STRICT_ROOT_BEHAVIOUR"
 
 #*To find users who really maybe shouldn't use LW histograms:
 #macro_append AtlasCxxPolicy_pp_cppflags " -DLW_DEBUG_HEAVY_USERS"

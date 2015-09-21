@@ -22,6 +22,7 @@ class TH1F;
 
 class TH1F_LW : public LWHist1D {
 public:
+  typedef float bin_type_t;
 
   //To allocate from pool - remember to delete with LWHist::safeDelete(..):
   static TH1F_LW * create( const char* name, const char* title,

@@ -344,7 +344,7 @@ void FlexBinChunk<T>::fill(unsigned bin, const double& weight)
     (getBinValRef<uint8_t>(offset)) = static_cast<uint8_t>(newval);
     assert(getBinContent(bin)==expectedval);
     assert(getBinContent(bin)==newval);
-    assert(fabs(getBinContent(bin)-expectedval)<1.0e-5);
+    assert(std::abs(getBinContent(bin)-expectedval)<1.0e-5);
     FLEXBINCHUNK_TESTMOVEALLBINS(newarrsize);
   } else {
     //not integer
@@ -355,7 +355,7 @@ void FlexBinChunk<T>::fill(unsigned bin, const double& weight)
     }
     assert(getStage(bin)==0x3);
     (getBinValRef<T>(offset)) += static_cast<T>(weight);
-    assert(fabs(getBinContent(bin)-expectedval)<1.0e-5);
+    assert(std::abs(getBinContent(bin)-expectedval)<1.0e-5);
     FLEXBINCHUNK_TESTMOVEALLBINS(newarrsize);
   }
 }

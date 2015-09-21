@@ -36,6 +36,9 @@
 #include <vector>
 #include <climits>
 #include <limits>
+#include <type_traits>
+
+#define LW_OLD_WEIGHTED_PROFILE_ERRORS 1
 
 std::vector<double> getXValues()//by value... because it doesn't matter
 {
@@ -49,7 +52,7 @@ std::vector<double> getXValues()//by value... because it doesn't matter
   return x;
 }
 
-std::vector<double> getWeights()
+std::vector<double> getWeights(bool is_int)
 {
   std::vector<double> w;
   w.push_back(1.0);//unit
@@ -63,8 +66,10 @@ std::vector<double> getWeights()
   w.push_back(4.251);//positive (different trunc vs. round from above)
   w.push_back(-4.257);//negativ (different trunc vs. round from above)
   w.push_back(2.251);//positive (different trunc vs. round from above)
-  w.push_back(5.0e9);//Out of int range
-  w.push_back(-8.0e9);//Out of int range
+  if (!is_int) {
+    w.push_back(5.0e9);//Out of int range
+    w.push_back(-8.0e9);//Out of int range
+  }
   return w;
 }
 
@@ -206,7 +211,7 @@ void fillInVariousWays(int nbins, double xmin, double xmax)
 template <class HistVal>
 void fillInVariousWays_int(HistVal&h,bool doUnitWeight, bool doFloatWeight)
 {
-  std::vector<double> w(getWeights());
+  std::vector<double> w(getWeights(std::is_integral<typename HistVal::bin_type_t>::value));
   std::vector<double> x(getXValues());
 
   //Fill(x):
@@ -227,7 +232,7 @@ void fillInVariousWays_int(HistVal&h,bool doUnitWeight, bool doFloatWeight)
 template <class HistVal>
 void fillInVariousWays_int2d(HistVal&h,bool doUnitWeight, bool doFloatWeight)
 {
-  std::vector<double> w(getWeights());
+  std::vector<double> w(getWeights(std::is_integral<typename HistVal::bin_type_t>::value));
   std::vector<double> x(getXValues());
 
   //Fill(x):
@@ -353,32 +358,26 @@ void basicValidation(bool do_systematic_tests =  true) {
         HistVal1D<T1,T2> h("systname","systtitle",nbins,xmin,xmax);
         h.setCompareBinContentsOnEachFill(expecterror);
 
-        bool allowSetBinError = true;//Work around missing fabs(..) bug in TH1::Sumw2()
-
         i=sys_ibin.at(ipoint1);x=sys_x.at(ipoint1); a=sys_args.at(iarg1);
-        if (a<0)
-          allowSetBinError = false;
 
         if (doFillX_1) { SYSTEST("Fill("<<x<<")"); h.fill(x); }
         if (doFillXW_1) { SYSTEST("Fill("<<x<<", "<<a<<")"); h.fill(x,a); }
         if (doSetBinContent_1) { SYSTEST("setBinContent("<<i<<", "<<a<<")"); h.setBinContent(i,a); }
 #ifdef LW_STRICT_ROOT_BEHAVIOUR
         //only compatible when SetBinError is last when not in strict mode
-        if (allowSetBinError&&doSetBinError_1) { SYSTEST("setBinError("<<i<<", "<<a<<")"); h.setBinError(i,a); }
+        if (doSetBinError_1) { SYSTEST("setBinError("<<i<<", "<<a<<")"); h.setBinError(i,a); }
 #endif
 
         i=sys_ibin.at(ipoint2);x=sys_x.at(ipoint2); a=sys_args.at(iarg2);
-        if (a<0)
-          allowSetBinError = false;
         if (doFillX_2) { SYSTEST("Fill("<<x<<")"); h.fill(x); }
         if (doFillXW_2) { SYSTEST("Fill("<<x<<", "<<a<<")"); h.fill(x,a); }
         if (doSetBinContent_2) { SYSTEST("setBinContent("<<i<<", "<<a<<")"); h.setBinContent(i,a); }
 #ifndef LW_STRICT_ROOT_BEHAVIOUR
         //only compatible when SetBinError is last when not in strict mode
-        if (allowSetBinError&&doSetBinError_1) { SYSTEST("setBinError("<<i<<", "<<a<<")"); h.setBinError(i,a); }
+        if (doSetBinError_1) { SYSTEST("setBinError("<<i<<", "<<a<<")"); h.setBinError(i,a); }
 #endif
-        if (allowSetBinError&&doSetBinError_2) { SYSTEST("setBinError("<<i<<", "<<a<<")"); h.setBinError(i,a); }
-        if (allowSetBinError&&doSetBinContentAndError_2)
+        if (doSetBinError_2) { SYSTEST("setBinError("<<i<<", "<<a<<")"); h.setBinError(i,a); }
+        if (doSetBinContentAndError_2)
           { SYSTEST("setBinContentAndError("<<i<<", "<<a<<", 17.0)"); h.setBinContentAndError(i,a,17.0); }
       }
     std::cout << " ---> Systematic tests ("<<itest<<") completed"<<std::endl;
@@ -465,13 +464,10 @@ void basicValidation2D() {
         ibinx=sys_ibin.at(ix);x=sys_x.at(ix);
         ibiny=sys_ibin.at(ix);y=sys_x.at(ix);
         a=sys_args.at(iarg);
-        bool allowSetBinError = true;
-        if (a<0)
-          allowSetBinError = false;
         if (doFillX_1) { SYSTEST("Fill("<<x<<", "<<y<<")"); h.fill(x,y); }
         if (doFillXW_1) { SYSTEST("Fill("<<x<<", "<<y<<", "<<a<<")"); h.fill(x,y,a); }
         if (doSetBinContent_1) { SYSTEST("setBinContent("<<ibinx<<", "<<ibiny<<", "<<a<<")"); h.setBinContent(ibinx,ibiny,a); }
-        if (allowSetBinError&&doSetBinError_1) { SYSTEST("setBinError("<<ibinx<<", "<<ibiny<<", "<<a<<")"); h.setBinError(ibinx,ibiny,a); }
+        if (doSetBinError_1) { SYSTEST("setBinError("<<ibinx<<", "<<ibiny<<", "<<a<<")"); h.setBinError(ibinx,ibiny,a); }
       }
     std::cout << " ---> Systematic tests ("<<itest<<") completed"<<std::endl;
   }
@@ -564,7 +560,7 @@ void stressTestValidation() {
     double avstep((u-l)/(rand()%maxbins+1));
     while(true) {
       xbins[ibin++] = v;
-      v+=avstep*((rand()*1.0/RAND_MAX)+0.001)*2;
+      v+=avstep*((rand()*1.0*(1./RAND_MAX))+0.001)*2;
       if (v>=u||ibin==maxbins) {
         xbins[ibin++] = u;
         break;
@@ -586,7 +582,7 @@ void stressTestValidation() {
     htest3.setCompareBinContentsOnEachFill(false);
     const int n(ih*ih*ih*ih);
     for (int i = 0; i < n; ++i) {
-      double x(((u-l)*1.2*(rand()%1000000/1.0e6-0.1)));
+      double x(((u-l)*1.2*(rand()%1000000*1.0e-6-0.1)));
       htest1.fill(x);
       htest2.fill(x,double(rand()%10-5+0.345));
       htest3.fill(x);
@@ -625,6 +621,12 @@ void basicValidation_Profile(bool do_systematic_tests =  true)
   a.setBinInfo(50, 1.0,2.0,3.0);
   a.compareAll();
 
+#ifdef LW_OLD_WEIGHTED_PROFILE_ERRORS
+  double weight = 1;
+#else
+  double weight = 3;
+#endif
+
   //test ranges on the profile par
   HistValProfile b("anotherprofilehist","another title for my profile hist",100, 0.0, 100.0 );
   b.fill(30.0,-1.0);
@@ -632,11 +634,11 @@ void basicValidation_Profile(bool do_systematic_tests =  true)
   b.fill(30.0,0.5);
   b.fill(30.0,1.0);
   b.fill(30.0,2.0);
-  b.fill(30.0,-1.0,3.0);
-  b.fill(30.0,0.0,3.0);
-  b.fill(30.0,0.5,3.0);
-  b.fill(30.0,1.0,3.0);
-  b.fill(30.0,2.0,3.0);
+  b.fill(30.0,-1.0,weight);
+  b.fill(30.0,0.0,weight);
+  b.fill(30.0,0.5,weight);
+  b.fill(30.0,1.0,weight);
+  b.fill(30.0,2.0,weight);
   b.compareAll();
 
   HistValProfile b2("yetanotherprofilehist","bla",100, 0.0, 100.0, -1.0,2.0 );
@@ -645,11 +647,11 @@ void basicValidation_Profile(bool do_systematic_tests =  true)
   b2.fill(30.0,0.5);
   b2.fill(30.0,1.0);
   b2.fill(30.0,2.0);
-  b2.fill(30.0,-1.0,3.0);
-  b2.fill(30.0,0.0,3.0);
-  b2.fill(30.0,0.5,3.0);
-  b2.fill(30.0,1.0,3.0);
-  b2.fill(30.0,2.0,3.0);
+  b2.fill(30.0,-1.0,weight);
+  b2.fill(30.0,0.0,weight);
+  b2.fill(30.0,0.5,weight);
+  b2.fill(30.0,1.0,weight);
+  b2.fill(30.0,2.0,weight);
   b2.compareAll();
 
   std::cout << " ---> Quick basic test completed"<<std::endl;
@@ -722,6 +724,9 @@ void basicValidation_Profile(bool do_systematic_tests =  true)
 
         bool cansetdirectly_2 = false;
         i=sys_ibin.at(ipoint2);x=sys_x.at(ipoint2); std::swap(a,a2);
+#ifdef LW_OLD_WEIGHTED_PROFILE_ERRORS
+        a2 = 1;
+#endif
 #ifdef LW_EXTRATESTS
         if (doFillX_2) { SYSTEST("Fill("<<x<<", "<<a<<")"); h.fill(x,a); cansetdirectly_2 = true; }
 #endif
@@ -743,7 +748,11 @@ void basicValidation_Profile(bool do_systematic_tests =  true)
   h_fp.setCompareBinContentsOnEachFill(false);
   for (long long unsigned i=0;i<1000000;++i)
     //h_fp.fill(0.5,1.0);
+#ifdef LW_OLD_WEIGHTED_PROFILE_ERRORS
+    h_fp.fill(0.5,1.2*(i%10));
+#else
     h_fp.fill(0.5,1.2*(i%10),0.5+i%3);
+#endif
   h_fp.compareAll();
   //Then a bit more systematic:
   std::vector<double> fptest_profpar, fptest_weight;
@@ -784,16 +793,25 @@ void basicValidation_Profile(bool do_systematic_tests =  true)
       if (HistValFunctions::verbose())
         std::cout<<"-----> FP Test #"<<ifptests<<std::endl;
       pp = fptest_profpar.at(ipp1); w = fptest_weight.at(iw1);
+#ifdef LW_OLD_WEIGHTED_PROFILE_ERRORS
+      w = 1;
+#endif
       if (HistValFunctions::verbose())
         std::cout<<"    --> Fill profpar = "<<pp<<", weight = "<<w<<std::endl;
       if (w!=1.0) h.fill(0.5,pp,w); else h.fill(0.5,pp);
 
       pp = fptest_profpar.at(ipp2); w = fptest_weight.at(iw2);
+#ifdef LW_OLD_WEIGHTED_PROFILE_ERRORS
+      w = 1;
+#endif
       if (HistValFunctions::verbose())
         std::cout<<"    --> Fill profpar = "<<pp<<", weight = "<<w<<std::endl;
       if (w!=1.0) h.fill(0.5,pp,w); else h.fill(0.5,pp);
 
       pp = fptest_profpar.at(ipp3); w = fptest_weight.at(iw3);
+#ifdef LW_OLD_WEIGHTED_PROFILE_ERRORS
+      w = 1;
+#endif
       if (HistValFunctions::verbose())
         std::cout<<"    --> Fill profpar = "<<pp<<", weight = "<<w<<std::endl;
       if (w!=1.0) h.fill(0.5,pp,w); else h.fill(0.5,pp);
@@ -813,8 +831,13 @@ void basicValidation_Profile(bool do_systematic_tests =  true)
   c.fill(2.6,2.0);c.compareAll();
   c.fill(2.7,2.0);c.compareAll();
   c.fill(0.0,2.0);c.compareAll();
-  c.fill(0.0,2.0,2.0);c.compareAll();
-  c.fill(10.0,1.2,2.0);c.compareAll();
+#ifdef LW_OLD_WEIGHTED_PROFILE_ERRORS
+  double weight2 = 1;
+#else
+  double weight2 = 2;
+#endif
+  c.fill(0.0,2.0,weight2);c.compareAll();
+  c.fill(10.0,1.2,weight2);c.compareAll();
   c.fill(-20.0,2.0);c.compareAll();
   c.fill(12.0,2.0);c.compareAll();
   c.fill(5.0,2.0);c.compareAll();
@@ -828,12 +851,21 @@ void basicValidation_Profile2D(bool do_systematic_tests =  true)
   HistValProfile2D a("a2dprofilehist","a title for my 2d profile hist",100, 0.0, 100.0,100, 0.0, 100.0 );
   setNamesAndTitles(a);
 
+
   a.compareAll();
   a.fill(7.0, 17.0,10.0);
   a.compareAll();
+#ifdef LW_OLD_WEIGHTED_PROFILE_ERRORS
+  a.fill(91.5,17.0, 20.0);
+#else
   a.fill(91.5,17.0, 20.0,5.0);
+#endif
   a.compareAll();
+#ifdef LW_OLD_WEIGHTED_PROFILE_ERRORS
+  a.fill(81.5,17.0,-20.0);
+#else
   a.fill(81.5,17.0,-20.0,-5.0);
+#endif
   a.compareAll();
   a.setBinEntries(20, 17,5.5);
   a.compareAll();
@@ -844,6 +876,12 @@ void basicValidation_Profile2D(bool do_systematic_tests =  true)
   a.setBinInfo(50, 17, 1.0,2.0,3.0);
   a.compareAll();
 
+#ifdef LW_OLD_WEIGHTED_PROFILE_ERRORS
+  double weight = 1;
+#else
+  double weight = 3;
+#endif
+
   //test ranges on the profile par
   HistValProfile2D b("another2dprofilehist","another title for my 2dprofile hist",
                      100, 0.0, 100.0, 100, 0.0, 100.0, 0.0,1.0 );
@@ -852,11 +890,11 @@ void basicValidation_Profile2D(bool do_systematic_tests =  true)
   b.fill(30.0,10.0,0.5);
   b.fill(30.0,10.0,1.0);
   b.fill(30.0,10.0,2.0);
-  b.fill(30.0,10.0,-1.0,3.0);
-  b.fill(30.0,10.0,0.0,3.0);
-  b.fill(30.0,10.0,0.5,3.0);
-  b.fill(30.0,10.0,1.0,3.0);
-  b.fill(30.0,10.0,2.0,3.0);
+  b.fill(30.0,10.0,-1.0,weight);
+  b.fill(30.0,10.0,0.0,weight);
+  b.fill(30.0,10.0,0.5,weight);
+  b.fill(30.0,10.0,1.0,weight);
+  b.fill(30.0,10.0,2.0,weight);
 
   std::cout << " ---> Quick basic test completed"<<std::endl;
   //Systematic:
@@ -904,6 +942,10 @@ void basicValidation_Profile2D(bool do_systematic_tests =  true)
         ibiny=sys_ibin.at(ix);y=sys_x.at(ix);
         a=sys_args.at(iarg);
         a2=sys_args.at(iarg2);
+#ifdef LW_OLD_WEIGHTED_PROFILE_ERRORS
+        a = 1;
+        a2 = 1;
+#endif
         if (doFillX_1) { SYSTEST("Fill("<<x<<", "<<y<<", "<<a2<<")"); h.fill(x,y,a2); }
         if (doFillXW_1) { SYSTEST("Fill("<<x<<", "<<y<<", "<<a2<<", "<<a<<")"); h.fill(x,y,a2,a); }
         //Fixme: setbinentries? setbininfo
@@ -937,7 +979,11 @@ void basicValidation_Profile2D(bool do_systematic_tests =  true)
   hvb.fill(2.6,1.0,2.0,2.0);  hvb.compareAll();
   hvb.fill(2.7+eps,1.0, 2.0);hvb.compareAll();
   hvb.fill(0.0+eps,1.0, 2.0);hvb.compareAll();
+#ifdef LW_OLD_WEIGHTED_PROFILE_ERRORS
+  hvb.fill(10.0-eps,1.0,  1.0);hvb.compareAll();
+#else
   hvb.fill(10.0-eps,1.0,  1.0,2.0);hvb.compareAll();
+#endif
   hvb.fill(-20.0,1.0, 2.0);hvb.compareAll();
   hvb.fill(12.0,1.0, 2.0);hvb.compareAll();
   hvb.fill(5.0,1.0, 2.0);hvb.compareAll();
@@ -1041,12 +1087,6 @@ int main (int argc, char** argv) {
     HistValFunctions::TH1_FieldsAccess::set_fgAddDirectory(false);//get rid of "possible memory leak" warnings
 
   std::cout<<"Starting tests"<<std::endl;
-
-  //   //NB Root bug in sumw2 method. (Needs an fabs around GetBinContent(bin)).
-  //   TH1F * h = new TH1F("lala","lulu",100,0.0,100.0);
-  //   h->SetBinContent(1, -4);
-  //   h->SetBinError(2, 17);
-  //   std::cout<<h->GetBinError(1)<<std::endl;
 
   std::cout<<"Testing types..."<<std::endl;
   HistValFunctions::testTypes();

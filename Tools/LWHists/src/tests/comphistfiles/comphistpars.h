@@ -70,13 +70,13 @@ template <>        bool varCompatible(TString var1,TString var2) { return var1 =
 template <class TContainedType>
 bool tlistsCompatible(const TList*h1,const TList*h2);//forward decl.
 
-template <>        bool varCompatible(const TFunction var1,const TFunction var2)
+template <>        bool varCompatible(TFunction var1,  TFunction var2)
 {
-  if (!varCompatible(var1.fMangledName,var2.fMangledName))
+  if (!varCompatible(var1.GetMangledName(), var2.GetMangledName()))
     return false;
-  if (!varCompatible(var1.fSignature,var2.fSignature))
+  if (!varCompatible(var1.GetSignature(), var2.GetSignature()))
     return false;
-  if (!tlistsCompatible<TString>(var1.fMethodArgs,var2.fMethodArgs))
+  if (!tlistsCompatible<TString>(var1.GetListOfMethodArgs(), var2.GetListOfMethodArgs()))
     return false;
   return true;
 }
@@ -84,6 +84,11 @@ template <>        bool varCompatible(const TFunction var1,const TFunction var2)
 #define TESTSIMPLEVAR(varname) \
   { if (!varCompatible(h1->varname,h2->varname)) { \
       REPORT("Incompatible values of "<<stringify(varname)<<" ("<<h1->varname<<" vs. "<<h2->varname<<")"); \
+      return false; } }
+
+#define TESTSIMPLEEXTVAR(var1,var2,varname) \
+  { if (!varCompatible(var1,var2)) { \
+      REPORT("Incompatible values of "<<stringify(varname)<<" ("<<var1<<" vs. "<<var2<<")"); \
       return false; } }
 
 #define TESTSIMPLEUNSUPPORTEDSTYLEVAR(varname) { if (!cfg_ignore_unsupported_style_vars)  { TESTSIMPLEVAR(varname); } }
@@ -115,37 +120,40 @@ bool arrayCompatible(const TArrayX* a1,const TArrayX* a2,const char*name) {
 
 #define TESTASARRAY() {ACTUALTESTARRAY(h1,h2,"")}
 #define TESTARRAY(varname) {ACTUALTESTARRAY(&(h1->varname),&(h2->varname),stringify(varname))}
+#define TESTARRAYPTR(varname) {ACTUALTESTARRAY((h1->varname),(h2->varname),stringify(varname))}
 
 bool axisCompatible(const TAxis* h1,const TAxis* h2) {
   //TAxis:
-  TESTSIMPLEVAR(fNbins);
-  TESTSIMPLEVAR(fXmin);
-  TESTSIMPLEVAR(fXmax);
-  TESTSIMPLEVAR(fFirst);
-  TESTSIMPLEVAR(fLast);
-  TESTSIMPLEVAR(fBits2);
-  TESTSIMPLEVAR(fTimeDisplay);
-  TESTSIMPLEVAR(fTimeFormat);
-  TESTARRAY(fXbins);
-  if (!tlistsCompatible<TString>((TList*)(h1->fLabels),(TList*)(h2->fLabels))) {
+  TESTSIMPLEVAR(GetNbins());
+  TESTSIMPLEVAR(GetXmin());
+  TESTSIMPLEVAR(GetXmax());
+  TESTSIMPLEVAR(GetFirst());
+  TESTSIMPLEVAR(GetLast());
+  //TESTSIMPLEVAR(IsAlphanumeric());
+  //TESTSIMPLEVAR(CanBeAlphanumeric());
+  TESTSIMPLEVAR(CanExtend());
+  TESTSIMPLEVAR(GetTimeDisplay());
+  TESTSIMPLEVAR(GetTimeFormat());
+  TESTARRAYPTR(GetXbins());
+  if (!tlistsCompatible<TString>((TList*)(h1->GetLabels()),(TList*)(h2->GetLabels()))) {
     REPORT("Incompatible fLabels");
     return false;
   }
    //TAttAxis:
-  TESTSIMPLEUNSUPPORTEDSTYLEVAR(fNdivisions);
-  TESTSIMPLEUNSUPPORTEDSTYLEVAR(fAxisColor);
-  TESTSIMPLEVAR(fLabelColor);
-  TESTSIMPLEVAR(fLabelFont);
-  TESTSIMPLEVAR(fLabelOffset);
-  TESTSIMPLEVAR(fLabelSize);
-  TESTSIMPLEUNSUPPORTEDSTYLEVAR(fTickLength);
-  TESTSIMPLEUNSUPPORTEDSTYLEVAR(fTitleOffset);
-  TESTSIMPLEVAR(fTitleSize);
-  TESTSIMPLEVAR(fTitleColor);
-  TESTSIMPLEVAR(fTitleFont);
+  TESTSIMPLEUNSUPPORTEDSTYLEVAR(GetNdivisions());
+  TESTSIMPLEUNSUPPORTEDSTYLEVAR(GetAxisColor());
+  TESTSIMPLEVAR(GetLabelColor());
+  TESTSIMPLEVAR(GetLabelFont());
+  TESTSIMPLEVAR(GetLabelOffset());
+  TESTSIMPLEVAR(GetLabelSize());
+  TESTSIMPLEUNSUPPORTEDSTYLEVAR(GetTickLength());
+  TESTSIMPLEUNSUPPORTEDSTYLEVAR(GetTitleOffset());
+  TESTSIMPLEVAR(GetTitleSize());
+  TESTSIMPLEVAR(GetTitleColor());
+  TESTSIMPLEVAR(GetTitleFont());
    //TNamed:
-  TESTSIMPLEVAR(fName);
-  TESTSIMPLEVAR(fTitle);
+  TESTSIMPLEVAR(GetName());
+  TESTSIMPLEVAR(GetTitle());
   return true;
 }
 
@@ -156,13 +164,14 @@ bool tlistsCompatible(const TList*h1,const TList*h2) {
   if (!h1||!h2)
     return false;
   //TCollection:
-  TESTSIMPLEVAR(fName);
-  TESTSIMPLEVAR(fSize);
+  TESTSIMPLEVAR(GetName());
+  TESTSIMPLEVAR(Capacity());
   //TSeqCollection:
-  TESTSIMPLEVAR(fSorted);
+  TESTSIMPLEVAR(IsSorted());
   //For the TList itself we loop, cast each element to TContainedType,
   //and compare using operator==.
-  for (int i = 0; i<h1->fSize; ++i) {
+  Int_t sz = h1->Capacity();
+  for (int i = 0; i<sz; ++i) {
     TContainedType * t1 = dynamic_cast<TContainedType*>(h1->At(i));
     TContainedType * t2 = dynamic_cast<TContainedType*>(h1->At(i));
     if (!t1&&!t2)
@@ -186,61 +195,76 @@ bool checkParameters(TH1*h1,TH1*h2)
   assert(h1&&h2);
   //TH1:
   //Ignore fDirectory and buffer related methods.
-  TESTSIMPLEVAR(fEntries);
-  TESTSIMPLEVAR(fMaximum);
-  TESTSIMPLEVAR(fMinimum);
-  TESTSIMPLEVAR(fNormFactor);
-  TESTSIMPLEVAR(fTsumw);
-  TESTSIMPLEVAR(fTsumw2);
-  TESTSIMPLEVAR(fTsumwx);
-  TESTSIMPLEVAR(fTsumwx2);
-  TESTSIMPLEVAR(fDimension);
-  TESTSIMPLEVAR(fNcells);
-  TESTSIMPLEVAR(fBarOffset);
-  TESTSIMPLEVAR(fBarWidth);
-  TESTARRAY(fContour);
+  TESTSIMPLEVAR(GetEntries());
+  TESTSIMPLEVAR(GetMaximumStored());
+  TESTSIMPLEVAR(GetMinimumStored());
+  TESTSIMPLEVAR(GetNormFactor());
+  Double_t stats1[20], stats2[20];
+  h1->GetStats(stats1);
+  h2->GetStats(stats2);
+  TESTSIMPLEEXTVAR(stats1[0], stats2[0], fTsumw);
+  TESTSIMPLEEXTVAR(stats1[1], stats2[1], fTsumw2);
+  TESTSIMPLEEXTVAR(stats1[2], stats2[2], fTsumwx);
+  TESTSIMPLEEXTVAR(stats1[3], stats2[3], fTsumwx2);
+  TESTSIMPLEVAR(GetDimension());
+  TESTSIMPLEVAR(GetNcells());
+  TESTSIMPLEVAR(GetBarOffset());
+  TESTSIMPLEVAR(GetBarWidth());
+
+  Int_t nlevels1 = h1->GetContour(nullptr);
+  Int_t nlevels2 = h2->GetContour(nullptr);
+  TESTSIMPLEEXTVAR (nlevels1, nlevels2, fContour.fN);
+  if (nlevels1 > 0) {
+    TArrayD levels1 (nlevels1);
+    TArrayD levels2 (nlevels1);
+    h1->GetContour (levels1.GetArray());
+    h2->GetContour (levels2.GetArray());
+    ACTUALTESTARRAY(&levels1, &levels2, "fContour");
+  }
+
   bool test_sumw2(true);
   if (cfg_ignore_errors_related_to_a_non_existant_sumw2_array) {
-    if ((h1->fSumw2.fN==0||h2->fSumw2.fN==0) && ((h1->fSumw2.fN==0)!=(h2->fSumw2.fN==0)))
+    if ((h1->GetSumw2()->fN==0||h2->GetSumw2()->fN==0) && ((h1->GetSumw2()->fN==0)!=(h2->GetSumw2()->fN==0)))
       test_sumw2 = false;
   }
   if (test_sumw2)
-    TESTARRAY(fSumw2);
-  TESTSIMPLEVAR(fOption);
-  if (!tlistsCompatible<TFunction>(h1->fFunctions,h2->fFunctions)) {
+    TESTARRAYPTR(GetSumw2());
+  TESTSIMPLEVAR(GetOption());
+  if (!tlistsCompatible<TFunction>(h1->GetListOfFunctions(),h2->GetListOfFunctions())) {
     REPORT("Incompatible fXaxis");
     return false;
   }
-  if (!axisCompatible(&(h1->fXaxis),&(h2->fXaxis))) {
+  if (!axisCompatible(h1->GetXaxis(), h2->GetYaxis())) {
     REPORT("Incompatible fXaxis");
     return false;
   }
-  if (!axisCompatible(&(h1->fYaxis),&(h2->fYaxis))) {
+  if (!axisCompatible(h1->GetYaxis(), h2->GetYaxis())) {
     REPORT("Incompatible fYaxis");
     return false;
   }
-  if (!axisCompatible(&(h1->fZaxis),&(h2->fZaxis))) {
+  if (!axisCompatible(h1->GetZaxis(), h2->GetZaxis())) {
     REPORT("Incompatible fZaxis");
     return false;
   }
 
   //TNamed:
   //Ignore fName
-  TESTSIMPLEVAR(fTitle);
+  TESTSIMPLEVAR(GetTitle());
   //TAttLine:
-  TESTSIMPLEVAR(fLineColor);
-  TESTSIMPLEVAR(fLineStyle);
-  TESTSIMPLEVAR(fLineWidth);
+  TESTSIMPLEVAR(GetLineColor());
+  TESTSIMPLEVAR(GetLineStyle());
+  TESTSIMPLEVAR(GetLineWidth());
   //TAttFill:
-  TESTSIMPLEVAR(fFillColor);
-  TESTSIMPLEVAR(fFillStyle);
+  TESTSIMPLEVAR(GetFillColor());
+  TESTSIMPLEVAR(GetFillStyle());
   //TAttMarker:
-  TESTSIMPLEVAR(fMarkerColor);
-  TESTSIMPLEVAR(fMarkerStyle);
-  TESTSIMPLEVAR(fMarkerSize);
+  TESTSIMPLEVAR(GetMarkerColor());
+  TESTSIMPLEVAR(GetMarkerStyle());
+  TESTSIMPLEVAR(GetMarkerSize());
   //TObject:
   //Ignore fUniqueID
-  TESTSIMPLEVAR(fBits);
+  for (int i=0; i < 32; i++)
+    TESTSIMPLEVAR(TestBit(i));
   return true;
 }
 
@@ -254,10 +278,13 @@ template <> bool checkParameters(TH1S*h1,TH1S*h2)  { TESTASARRAY(); return true;
 template <>
 bool checkParameters(TH2*h1,TH2*h2)
 {
-  TESTSIMPLEVAR(fScalefactor);
-  TESTSIMPLEVAR(fTsumwy);
-  TESTSIMPLEVAR(fTsumwy2);
-  TESTSIMPLEVAR(fTsumwxy);
+  //TESTSIMPLEVAR(fScalefactor);
+  Double_t stats1[20], stats2[20];
+  h1->GetStats(stats1);
+  h2->GetStats(stats2);
+  TESTSIMPLEEXTVAR(stats1[4], stats2[4], fTsumwy);
+  TESTSIMPLEEXTVAR(stats1[5], stats2[5], fTsumwy2);
+  TESTSIMPLEEXTVAR(stats1[6], stats2[6], fTsumwxy);
   return true;
 }
 
@@ -269,24 +296,36 @@ template <> bool checkParameters(TH2S*h1,TH2S*h2)  { TESTASARRAY(); return true;
 
 template <> bool checkParameters(TProfile*h1,TProfile*h2)
 {
-  TESTARRAY(fBinEntries);
-  TESTSIMPLEVAR(fErrorMode);
-  TESTSIMPLEVAR(fYmin);
-  TESTSIMPLEVAR(fYmax);
-  TESTSIMPLEVAR(fScaling);
-  TESTSIMPLEVAR(fTsumwy);
-  TESTSIMPLEVAR(fTsumwy2);
+  TESTSIMPLEVAR(GetNcells());
+  Int_t sz = h1->GetNcells();
+  for (Int_t i = 0; i < sz; i++)
+    TESTSIMPLEVAR (GetBinEntries(i));
+  TESTSIMPLEVAR(GetErrorOption());
+  TESTSIMPLEVAR(GetYmin());
+  TESTSIMPLEVAR(GetYmax());
+  //TESTSIMPLEVAR(fScaling);
+  Double_t stats1[20], stats2[20];
+  h1->GetStats(stats1);
+  h2->GetStats(stats2);
+  TESTSIMPLEEXTVAR(stats1[4], stats2[4], fTsumwy);
+  TESTSIMPLEEXTVAR(stats1[5], stats2[5], fTsumwy2);
   return true;
 }
 
 template <> bool checkParameters(TProfile2D*h1,TProfile2D*h2)
 {
-  TESTARRAY(fBinEntries);
-  TESTSIMPLEVAR(fErrorMode);
-  TESTSIMPLEVAR(fZmin);
-  TESTSIMPLEVAR(fZmax);
-  TESTSIMPLEVAR(fScaling);
-  TESTSIMPLEVAR(fTsumwz);
-  TESTSIMPLEVAR(fTsumwz2);
+  TESTSIMPLEVAR(GetNcells());
+  Int_t sz = h1->GetNcells();
+  for (Int_t i = 0; i < sz; i++)
+    TESTSIMPLEVAR (GetBinEntries(i));
+  TESTSIMPLEVAR(GetErrorOption());
+  TESTSIMPLEVAR(GetZmin());
+  TESTSIMPLEVAR(GetZmax());
+  //TESTSIMPLEVAR(fScaling);
+  Double_t stats1[20], stats2[20];
+  h1->GetStats(stats1);
+  h2->GetStats(stats2);
+  TESTSIMPLEEXTVAR(stats1[7], stats2[7], fTsumwz);
+  TESTSIMPLEEXTVAR(stats1[8], stats2[8], fTsumwz2);
   return true;
 }
