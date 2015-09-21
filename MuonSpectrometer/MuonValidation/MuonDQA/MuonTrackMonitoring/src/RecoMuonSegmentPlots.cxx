@@ -6,15 +6,10 @@
 #include "MuonIdHelpers/MuonStationIndex.h"
 
 
-RecoMuonSegmentPlots::RecoMuonSegmentPlots(PlotBase* pParent, std::string sDir, bool detail):PlotBase(pParent, sDir)
-  ,  m_oMuonSegmentPlots(NULL)
-  ,  m_oMuonSegmentSlimPlots(NULL)
+RecoMuonSegmentPlots::RecoMuonSegmentPlots(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir)
+  ,  m_oMuonSegmentPlots(this,"/")
   //declare the histograms
-{
-  Detail = detail;
-  if(Detail) m_oMuonSegmentPlots = new Muon::MuonSegmentPlots(this,"/");
-  else m_oMuonSegmentSlimPlots = new Muon::MuonSegmentSlimPlots(this,"/");
-}
+{}
 
 //when the plot function called with a Muon Container
 //loop through each muon, get the corresponding link and fill it
@@ -55,8 +50,7 @@ void RecoMuonSegmentPlots::fill(const std::vector<ElementLink<DataVector<xAOD::M
 
 void RecoMuonSegmentPlots::fill(const xAOD::MuonSegment& muonSeg) {
   //General Plots
-  if (Detail) m_oMuonSegmentPlots->fill(muonSeg);
-  else m_oMuonSegmentSlimPlots->fill(muonSeg);
+  m_oMuonSegmentPlots.fill(muonSeg);
 }
 
 void RecoMuonSegmentPlots::initializePlots()

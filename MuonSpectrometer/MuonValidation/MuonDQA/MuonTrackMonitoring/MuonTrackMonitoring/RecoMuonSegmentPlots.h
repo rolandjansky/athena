@@ -7,7 +7,6 @@
 
 #include "TrkValHistUtils/PlotBase.h"
 #include "MuonHistUtils/MuonSegmentPlots.h"
-#include "MuonHistUtils/MuonSegmentSlimPlots.h"
 
 #include "xAODMuon/Muon.h"
 #include "xAODMuon/MuonContainer.h"
@@ -23,7 +22,7 @@ namespace Muon {
 
 class RecoMuonSegmentPlots:public PlotBase {
  public:
-      RecoMuonSegmentPlots(PlotBase* pParent, std::string sDir, bool detail=false);
+      RecoMuonSegmentPlots(PlotBase* pParent, std::string sDir);
 
       //fill methods
       void fill(const xAOD::MuonContainer& muContainer);
@@ -32,11 +31,10 @@ class RecoMuonSegmentPlots:public PlotBase {
       void fill(const xAOD::MuonSegment& muonSeg);
 
       //generic plots from MuonHistUtils
-      Muon::MuonSegmentPlots *m_oMuonSegmentPlots;
-      Muon::MuonSegmentSlimPlots *m_oMuonSegmentSlimPlots;
+      Muon::MuonSegmentPlots m_oMuonSegmentPlots;
 
       //Monitoring justification plots
-      bool Detail;
+
 
 
  private:
