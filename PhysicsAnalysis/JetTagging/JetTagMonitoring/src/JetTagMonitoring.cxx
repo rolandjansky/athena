@@ -650,6 +650,7 @@ JetTagMonitoring::Jet_t JetTagMonitoring::applyQualityCuts(const xAOD::Jet *jet)
   for ( trkItr = trackVector.begin(); trkItr != trackVector.end() ; trkItr++ ) {
 
     const xAOD::TrackParticle* trackPart = dynamic_cast<const xAOD::TrackParticle*>(*trkItr);
+    if ( ! trackPart ) continue;
 
     double trk_eta = trackPart->eta();
     double trk_phi = trackPart->phi();
@@ -810,6 +811,7 @@ void JetTagMonitoring::fillTrackInJetHistograms(const xAOD::Jet *jet) {
     for ( trkItr = trackVector.begin(); trkItr != trackVector.end() ; trkItr++ ) {
 
       const xAOD::TrackParticle* trackPart = dynamic_cast<const xAOD::TrackParticle*>(*trkItr);
+      if ( ! trackPart ) continue;
 
       uint8_t nBLayerHits = 0;
       uint8_t nPixHits    = 0;
