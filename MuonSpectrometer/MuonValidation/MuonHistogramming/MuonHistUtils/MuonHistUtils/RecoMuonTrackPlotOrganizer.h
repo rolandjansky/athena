@@ -8,16 +8,15 @@
 #include "TrkValHistUtils/PlotBase.h"
 #include "TrkValHistUtils/ParamPlots.h"
 #include "TrkValHistUtils/RecoInfoPlots.h"
-
-#include "TrkValHistUtils/ImpactPlots.h"
 #include "TrkValHistUtils/MSHitPlots.h"
-#include "MuonHistUtils/IDHitSummaryPlots.h"
+#include "TrkValHistUtils/ImpactPlots.h"
+
 #include "xAODTracking/TrackParticle.h"
 #include <vector>
 
 namespace Muon {
 
-  enum RECOTRKPLOTCLASS {TRK_PARAM,TRK_RECOINFO,TRK_IMPACT,TRK_MSHITS,TRK_IDHITS, MAX_RECOTRKPLOTCLASS};
+  enum RECOTRKPLOTCLASS {TRK_PARAM,TRK_RECOINFO,TRK_IMPACT,/*TRK_MSHITS,*/MAX_RECOTRKPLOTCLASS};
   
   class RecoMuonTrackPlotOrganizer:public PlotBase {
   public:
@@ -33,8 +32,7 @@ namespace Muon {
     Trk::ParamPlots                 *m_oTrkParamPlots;
     Trk::RecoInfoPlots              *m_oTrkRecoInfoPlots;	  
     Trk::ImpactPlots                *m_oImpactPlots;
-    Trk::MSHitPlots                 *m_oMSHitPlots;
-    Muon::IDHitSummaryPlots         *m_oIDHitPlots;    
+    //Trk::MSHitPlots                 *m_oMSHitPlots;    
   };
  
 }

@@ -38,10 +38,10 @@ class MuonSegmentPlots:public PlotBase {
       TH1* nTrigEtaLayers;
       TH2* nPrecisionHits_nTriggerHits;
 
-      // TH2* B_MDT_nPhiLayers_phi;
-      // TH2* B_MDT_nPhiLayers_eta;
-      // TH2* B_MDT_zeroPhiLayers_eta_phi;
-      // TH2* B_MDT_withPhiLayers_eta_phi;
+      TH2* B_MDT_nPhiLayers_phi;
+      TH2* B_MDT_nPhiLayers_eta;
+      TH2* B_MDT_zeroPhiLayers_eta_phi;
+      TH2* B_MDT_withPhiLayers_eta_phi;
 
       TH1* etaIndex;
       TH1* sector;

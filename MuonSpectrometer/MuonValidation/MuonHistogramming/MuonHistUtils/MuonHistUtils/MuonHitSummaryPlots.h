@@ -7,8 +7,6 @@
 
 #include "TrkValHistUtils/PlotBase.h"
 #include "TrkValHistUtils/HitTypePlots.h"
-#include "TrkValHistUtils/MSHitPlots.h"
-#include "MuonHistUtils/IDHitSummaryPlots.h"
 #include "xAODMuon/Muon.h"
 #include "xAODTruth/TruthParticle.h"
 
@@ -22,8 +20,6 @@ class MuonHitSummaryPlots:public PlotBase {
   void fillPlot(Trk::HitTypePlots& hitPlots, xAOD::MuonSummaryType info, const xAOD::Muon& muon);
   void fillPlot(Trk::HitTypePlots& hitPlots, const std::string& sInfo, const xAOD::TruthParticle& truthprt);
 
-  Trk::MSHitPlots m_oMSHitPlots;
-  
   Trk::HitTypePlots innerSmallHits;
   Trk::HitTypePlots innerLargeHits;
   Trk::HitTypePlots middleSmallHits;
