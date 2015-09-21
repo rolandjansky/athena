@@ -527,13 +527,13 @@ class AthAppMgr( AppMgr ):
       names += map( lambda x: x[x.find( '/' )+1:], handle.OutStream )
       from OldStyleConfig import Algorithm
       for grc in Algorithm.configurables.values():
-         if not grc._setupOk:      # debugging variable
+         if not (grc._flags & Configurable.Configurable._fSetupOk):      # debugging variable
           # first, back-hack ... this will go rather wrong, so issue an error no matter what
             if grc.getName() in names:
                detail = 'type missing'
             else:
                detail = 'not in TopAlg or other known list'
-            Logging.log.debug( 'Algorithm "%s": %s, no properties set', grc.getFullName(), detail )
+            Logging.log.error( 'Algorithm "%s": %s, no properties set', grc.getFullName(), detail )
 
     # if requested, print a (summary of) the list of potential property clashes
       if self._opts and self._opts.check_properties:
