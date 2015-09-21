@@ -32,7 +32,7 @@ MuonSegmentPlots::MuonSegmentPlots(PlotBase* pParent, std::string sDir): PlotBas
 
   ,  etaIndex(NULL)
   ,  sector(NULL)
-  ,  sector_perStation(NULL)
+  //,  sector_perStation(NULL)
   
   ,  xypos_barrel(NULL)
   ,  xypos_endcap(NULL)
@@ -77,7 +77,7 @@ MuonSegmentPlots::MuonSegmentPlots(PlotBase* pParent, std::string sDir): PlotBas
 
   etaIndex = Book1D("etaIndex","Segment #eta Index ;#eta index;Entries",21,-10.5,10.5);
   sector = Book1D("sector","Segment phi sector;#phi sector;Entries",16,0.5,16.5);
-  sector_perStation = Book2D("sector_perStation","Segment #phi sector per station (I/M/O);#phi sector;station",16,0.5,16.5,Muon::MuonStationIndex::StIndexMax,0,Muon::MuonStationIndex::StIndexMax);
+  //sector_perStation = Book2D("sector_perStation","Segment #phi sector per station (I/M/O);#phi sector;station",16,0.5,16.5,Muon::MuonStationIndex::StIndexMax,0,Muon::MuonStationIndex::StIndexMax);
 
   xypos_barrel = Book2D("xypos_barrel","Segment position x-y, barrel;x_{pos};y_{pos}",150,-14000,14000,150,-14000,14000);
   xypos_endcap = Book2D("xypos_endcap","Segment position x-y, endcap;x_{pos};y_{pos}",150,-14000,14000,150,-14000,14000);
@@ -99,15 +99,18 @@ MuonSegmentPlots::MuonSegmentPlots(PlotBase* pParent, std::string sDir): PlotBas
   eff_chamberIndex_perSector = Book2D("eff_chamberIndex_perSector","precision layer hit efficiency per chamber; Sector; Chamber Index ", 33, -16.5, 16.5, Muon::MuonStationIndex::ChIndexMax,0,Muon::MuonStationIndex::ChIndexMax);
   //chamberIndex_dtheta = Book2D("chamberIndex_dtheta","Segment #Delta#theta between position and momentum; #Delta#theta; Chamber Index ", 180, -90.0, 90.0, Muon::MuonStationIndex::ChIndexMax,0,Muon::MuonStationIndex::ChIndexMax);
   for (int i=1; i<=chamberIndex->GetXaxis()->GetNbins(); i++){
-    chamberIndex->GetXaxis()->SetBinLabel(i,Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)chamberIndex->GetBinLowEdge(i)).c_str());
-    chamberIndex_perSector->GetYaxis()->SetBinLabel(i,Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)chamberIndex->GetBinLowEdge(i)).c_str());
-    eff_chamberIndex_perSector_numerator->GetYaxis()->SetBinLabel(i,Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)chamberIndex->GetBinLowEdge(i)).c_str());
-    eff_chamberIndex_perSector_denominator->GetYaxis()->SetBinLabel(i,Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)chamberIndex->GetBinLowEdge(i)).c_str());
-    eff_chamberIndex_perSector->GetYaxis()->SetBinLabel(i,Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)chamberIndex->GetBinLowEdge(i)).c_str());
-  }
-  for (int i = 0; i < Muon::MuonStationIndex::StIndexMax; i++){
-    sector_etaIndex.push_back(Book2D(Form("%s_etastation_Large", StationName[i]), Form("Number of Segment in %s Large; #phi Sector; #eta Index", StationName[i]), 18, -0.5, 17.5, 19, -9.5, 9.5));
-    sector_etaIndex.push_back(Book2D(Form("%s_etastation_Small", StationName[i]), Form("Number of Segment in %s Small; #phi Sector; #eta Index", StationName[i]), 18, -0.5, 17.5, 19, -9.5, 9.5));
+    const char *temp_chambername = Muon::MuonStationIndex::chName((Muon::MuonStationIndex::ChIndex)chamberIndex->GetBinLowEdge(i)).c_str();
+    chamberIndex->GetXaxis()->SetBinLabel(i, temp_chambername);
+    chamberIndex_perSector->GetYaxis()->SetBinLabel(i, temp_chambername);
+    eff_chamberIndex_perSector_numerator->GetYaxis()->SetBinLabel(i, temp_chambername);
+    eff_chamberIndex_perSector_denominator->GetYaxis()->SetBinLabel(i, temp_chambername);
+    eff_chamberIndex_perSector->GetYaxis()->SetBinLabel(i, temp_chambername);
+
+    sector_etaIndex.push_back(Book2D(Form("%s_etastation", temp_chambername), Form("Number of Segment in %s; #phi Sector; #eta Index", temp_chambername), 18, -0.5, 17.5, 19, -9.5, 9.5));
+    sector_etaIndex_nPrechit.push_back(Book2D(Form("%s_etastation_nPrechit", temp_chambername), Form("Number of Segment Prec hit in %s; #phi Sector; #eta Index", temp_chambername), 18, -0.5, 17.5, 19, -9.5, 9.5));
+    sector_etaIndex_nTrighit.push_back(Book2D(Form("%s_etastation_nTrighit", temp_chambername), Form("Number of Segment Phi + Trigeta hit in %s; #phi Sector; #eta Index", temp_chambername), 18, -0.5, 17.5, 19, -9.5, 9.5));
+    eff_sector_etaIndex_nPrechit.push_back(Book2D(Form("eff_%s_etastation_nPrechit", temp_chambername), Form("Segment Prec hit eff in %s; #phi Sector; #eta Index", temp_chambername), 18, -0.5, 17.5, 19, -9.5, 9.5));
+    eff_sector_etaIndex_nTrighit.push_back(Book2D(Form("eff_%s_etastation_nTrighit", temp_chambername), Form("Segment Phi + Trigeta hit eff in %s; #phi Sector; #eta Index", temp_chambername), 18, -0.5, 17.5, 19, -9.5, 9.5));
   }
 }
 
@@ -159,35 +162,44 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
   float chambernorm = 1/Chamberarea[chIndex];//weight of the segment using the chamber eta-phi area
   chamberIndex->Fill(chIndex);
   int sectorIndex = muSeg.sector();
+  int etaIndex = muSeg.etaIndex();
+  //fill the count of segments; switch the sign here to make the plots
   if (muSeg.z() < 0) { sectorIndex = - sectorIndex;}
-  //fill the count of segments
   chamberIndex_perSector->Fill(sectorIndex, chIndex, chambernorm);
   eff_chamberIndex_perSector_numerator->Fill(sectorIndex, chIndex, (muSeg.nPrecisionHits() > Chamberexpectedhits[chIndex]) ? Chamberexpectedhits[chIndex]:muSeg.nPrecisionHits());
   eff_chamberIndex_perSector_denominator->Fill(sectorIndex, chIndex, Chamberexpectedhits[chIndex]);
+  //update sector eta index plots; switch the sign back here to make the plots
+  sectorIndex = muSeg.sector(); 
+  sector_etaIndex[chIndex]->Fill(sectorIndex, etaIndex);//for weighted average
+  //double currentfill = sector_etaIndex[chIndex]->GetBinContent(sector_etaIndex[chIndex]->GetXaxis()->FindBin(sectorIndex), sector_etaIndex[chIndex]->GetYaxis()->FindBin(etaIndex));
+  sector_etaIndex_nPrechit[chIndex]->Fill(sectorIndex, etaIndex, muSeg.nPrecisionHits());
+  sector_etaIndex_nTrighit[chIndex]->Fill(sectorIndex, etaIndex, muSeg.nPhiLayers() + muSeg.nTrigEtaLayers());
+  eff_sector_etaIndex_nPrechit[chIndex]->Fill(sectorIndex, etaIndex, Chamberexpectedhits[chIndex]);
+  eff_sector_etaIndex_nTrighit[chIndex]->Fill(sectorIndex, etaIndex, Chamberexpectedtrighits[chIndex]);
   
   bool isBarrel = (chIndex<Muon::MuonStationIndex::BEE)? true: false; // BEE -> endcap
-  bool isSectorLarge = ( (isBarrel && chIndex%2==1) || (!isBarrel && chIndex%2==0 && chIndex!=Muon::MuonStationIndex::BEE) )? true : false; ////BEE only in small sectors
+  //bool isSectorLarge = ( (isBarrel && chIndex%2==1) || (!isBarrel && chIndex%2==0 && chIndex!=Muon::MuonStationIndex::BEE) )? true : false; ////BEE only in small sectors
 
-  if (isBarrel) {
-    if (chIndex==Muon::MuonStationIndex::BIL || chIndex==Muon::MuonStationIndex::BIS) 
-      sector_perStation->Fill(muSeg.sector(),Muon::MuonStationIndex::BI);  
-    else if (chIndex==Muon::MuonStationIndex::BML || chIndex==Muon::MuonStationIndex::BMS)
-      sector_perStation->Fill(muSeg.sector(),Muon::MuonStationIndex::BM);
-    else if (chIndex==Muon::MuonStationIndex::BOL || chIndex==Muon::MuonStationIndex::BOS)
-      sector_perStation->Fill(muSeg.sector(),Muon::MuonStationIndex::BO);
-  }
-  else { //endcap
-    if (chIndex==Muon::MuonStationIndex::EIL || chIndex==Muon::MuonStationIndex::EIS) 
-      sector_perStation->Fill(muSeg.sector(),Muon::MuonStationIndex::EI);  
-    else if (chIndex==Muon::MuonStationIndex::EML || chIndex==Muon::MuonStationIndex::EMS) 
-      sector_perStation->Fill(muSeg.sector(),Muon::MuonStationIndex::EM);
-    else if (chIndex==Muon::MuonStationIndex::EOL || chIndex==Muon::MuonStationIndex::EOS)
-      sector_perStation->Fill(muSeg.sector(),Muon::MuonStationIndex::EO);
-    else if (chIndex==Muon::MuonStationIndex::EEL || chIndex==Muon::MuonStationIndex::EES)
-      sector_perStation->Fill(muSeg.sector(),Muon::MuonStationIndex::EE);
-    else if (chIndex==Muon::MuonStationIndex::BEE) //BEE only in small sectors
-      sector_perStation->Fill(muSeg.sector(),Muon::MuonStationIndex::BE);
-  }
+  // if (isBarrel) {
+  //   if (chIndex==Muon::MuonStationIndex::BIL || chIndex==Muon::MuonStationIndex::BIS) 
+  //     sector_perStation->Fill(muSeg.sector(),Muon::MuonStationIndex::BI);  
+  //   else if (chIndex==Muon::MuonStationIndex::BML || chIndex==Muon::MuonStationIndex::BMS)
+  //     sector_perStation->Fill(muSeg.sector(),Muon::MuonStationIndex::BM);
+  //   else if (chIndex==Muon::MuonStationIndex::BOL || chIndex==Muon::MuonStationIndex::BOS)
+  //     sector_perStation->Fill(muSeg.sector(),Muon::MuonStationIndex::BO);
+  // }
+  // else { //endcap
+  //   if (chIndex==Muon::MuonStationIndex::EIL || chIndex==Muon::MuonStationIndex::EIS) 
+  //     sector_perStation->Fill(muSeg.sector(),Muon::MuonStationIndex::EI);  
+  //   else if (chIndex==Muon::MuonStationIndex::EML || chIndex==Muon::MuonStationIndex::EMS) 
+  //     sector_perStation->Fill(muSeg.sector(),Muon::MuonStationIndex::EM);
+  //   else if (chIndex==Muon::MuonStationIndex::EOL || chIndex==Muon::MuonStationIndex::EOS)
+  //     sector_perStation->Fill(muSeg.sector(),Muon::MuonStationIndex::EO);
+  //   else if (chIndex==Muon::MuonStationIndex::EEL || chIndex==Muon::MuonStationIndex::EES)
+  //     sector_perStation->Fill(muSeg.sector(),Muon::MuonStationIndex::EE);
+  //   else if (chIndex==Muon::MuonStationIndex::BEE) //BEE only in small sectors
+  //     sector_perStation->Fill(muSeg.sector(),Muon::MuonStationIndex::BE);
+  // }
 
 
   //position and direction plots
@@ -197,8 +209,8 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
   if ( (muSeg.px()==0) || (muSeg.py()==0) || (muSeg.pz()==0) ) return; 
 
   Amg::Vector3D globalPos(muSeg.x(),muSeg.y(),muSeg.z());
-  float r = globalPos.perp();
-  float z = globalPos.z();
+  // float r = globalPos.perp();
+  // float z = globalPos.z();
 
   Amg::Vector3D globalDir(muSeg.px(),muSeg.py(),muSeg.pz());
   float eta = globalDir.eta();
@@ -208,7 +220,7 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
   phidir->Fill(phi);
   etaphidir->Fill(eta,phi);
 
-  const int StIndex = Muon::MuonStationIndex::toStationIndex(muSeg.chamberIndex());
+  
   if (isBarrel) {
     xypos_barrel->Fill(x,y, chambernorm);
     etadir_barrel->Fill(eta);
@@ -216,15 +228,17 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
     xypos_endcap->Fill(x,y, chambernorm);
     etadir_endcap->Fill(eta);
   }
-  if (isSectorLarge) {
-    rzpos_sectorLarge->Fill(z,r, chambernorm);
-    //rzpos_sectorLarge_splitY->Fill(z,r*y/fabs(y));
-    sector_etaIndex[2*StIndex]->Fill(muSeg.sector(), muSeg.etaIndex());
-  } else {
-    rzpos_sectorSmall->Fill(z,r, chambernorm);
-    //rzpos_sectorSmall_splitY->Fill(z,r*y/fabs(y));
-    sector_etaIndex[2*StIndex + 1]->Fill(muSeg.sector(), muSeg.etaIndex());
-  }
+  
+  //const int StIndex = Muon::MuonStationIndex::toStationIndex(muSeg.chamberIndex());
+  // if (isSectorLarge) {
+  //   rzpos_sectorLarge->Fill(z,r, chambernorm);
+  //   //rzpos_sectorLarge_splitY->Fill(z,r*y/fabs(y));
+  //   sector_etaIndex[2*StIndex]->Fill(muSeg.sector(), muSeg.etaIndex());
+  // } else {
+  //   rzpos_sectorSmall->Fill(z,r, chambernorm);
+  //   //rzpos_sectorSmall_splitY->Fill(z,r*y/fabs(y));
+  //   sector_etaIndex[2*StIndex + 1]->Fill(muSeg.sector(), muSeg.etaIndex());
+  // }
 
 
   // float theta_pos = globalPos.theta();
