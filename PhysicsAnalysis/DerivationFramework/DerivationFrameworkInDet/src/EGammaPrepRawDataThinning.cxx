@@ -128,7 +128,7 @@ StatusCode DerivationFramework::EGammaPrepRawDataThinning::doThinning() const {
           VertexPos.setY(vertex->position().y());
           VertexPos.setZ(vertex->position().z());
           
-          ATH_MSG_INFO( "Primary Vetex found = " << vertex->position().x() 
+          ATH_MSG_DEBUG( "Primary Vetex found = " << vertex->position().x() 
                         << " " << vertex->position().y() 
                         << " " << vertex->position().z() ) ;
           
@@ -178,7 +178,7 @@ StatusCode DerivationFramework::EGammaPrepRawDataThinning::doThinning() const {
       if ( (*eleItr)->pt() > m_minEtEg ) 
         {
           
-          ATH_MSG_INFO(  "Electron at eta = " << (*eleItr)->eta() << " phi = " << (*eleItr)->phi() );          
+          ATH_MSG_DEBUG(  "Electron at eta = " << (*eleItr)->eta() << " phi = " << (*eleItr)->phi() );          
           
           // get the list of pixels clusters collections associated to this object
          
@@ -222,7 +222,7 @@ StatusCode DerivationFramework::EGammaPrepRawDataThinning::doThinning() const {
       if ( (*phoItr)->pt() > m_minEtEg ) 
         {
           
-          ATH_MSG_INFO(  "Photon at eta = " << (*phoItr)->eta() << " phi = " << (*phoItr)->phi() );          
+          ATH_MSG_DEBUG(  "Photon at eta = " << (*phoItr)->eta() << " phi = " << (*phoItr)->phi() );          
                       
           // get the list of pixels clusters collections associated to this object
           
@@ -307,7 +307,7 @@ std::vector<IdentifierHash> DerivationFramework::EGammaPrepRawDataThinning::find
 
   double roiPhi = candHepLorentz.Phi();
 
-  ATH_MSG_INFO (  "ROI range = " << candHepLorentz.Eta() << " " <<  roiEtaMin << " " << roiEtaMax << " " <<
+  ATH_MSG_DEBUG (  "ROI range = " << candHepLorentz.Eta() << " " <<  roiEtaMin << " " << roiEtaMax << " " <<
                   roiPhi << " " <<  roiPhiMin << " " <<  roiPhiMax << " " << 
                   primaryVertex.z() << " " <<  roiZMin << " " << roiZMax   ) ;
   
