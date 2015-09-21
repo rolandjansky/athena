@@ -189,3 +189,31 @@ if opts.do_leak_chk != False:
    svcMgr.AuditorSvc += HephaestusAuditor(
       mode = opts.memchk_mode, auditOn = opts.do_leak_chk )
 
+## basic job configuration for Hive and AthenaMP
+if not opts.minimal:
+   from AthenaCommon.ConcurrencyFlags import jobproperties as jps
+   if opts.nprocs and (opts.nprocs >= 1 or opts.nprocs==-1):
+      jps.ConcurrencyFlags.NumProcs = opts.nprocs
+      _msg.info ("configuring AthenaMP with [%s] sub-workers", 
+                 jps.ConcurrencyFlags.NumProcs())
+
+      if (opts.debug_worker == True) :
+         jps.ConcurrencyFlags.DebugWorkers = True
+         _msg.info ("   Workers will pause after fork until SIGUSR1 signal received")
+
+   if opts.threads and (opts.threads != 0):
+      jps.ConcurrencyFlags.NumThreads = opts.threads
+
+      if (jps.ConcurrencyFlags.NumProcs() > 0) :
+         _msg.info ("configuring hybrid AthenaMP/Hive with [%s] concurrent threads per AthenaMP worker", opts.threads)
+      elif (jps.ConcurrencyFlags.NumProcs() == 0) :
+         _msg.info ("configuring AthenaHive with [%s] concurrent threads", opts.threads)
+      else:
+         # we should never get here
+         _msg.error ("ConcurrencyFlags.NumProcs() cannot == -1 !!")
+         sys.exit()
+
+      import AthenaCommon.AtlasThreadedJob
+
+
+

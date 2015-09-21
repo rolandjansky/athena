@@ -38,6 +38,7 @@ excludeTracePattern = [
    '*/PyUtils/decorator.py',                      # very verbose
    '*/PyUtils/Decorators.py',                     # ditto
    '*/PyUtils/Helper*.py',                        # ditto
+   '*/lib/ROOT.py',                               # ROOT import hook gets executed very many times
    ]
 
 # unless they are explicitly included here:
