@@ -10,6 +10,7 @@
 #             Muon = MDT CSC TGC RPC sTGC Micromegas
 #             Truth
 #             BField
+#             FTK
 # tasks:
 #   geometry : setup the geometry
 #   dcs : DCS information is available
@@ -93,6 +94,8 @@ class DetFlags:
             self._flag_Truth   = False
             # BField
             self._flag_BField = False
+            # FTK
+            self._flag_FTK = False
 
             # create methods to set on/off sub-detectors
             
@@ -189,6 +192,7 @@ class DetFlags:
             self.Truth_setOn()            
             self.BField_setOn()
             self.LVL1_setOn()            
+            self.FTK_setOn()            
         def all_setOff (self):
             self.Forward_setOff()
             self.ID_setOff()
@@ -197,6 +201,7 @@ class DetFlags:
             self.Truth_setOff()
             self.BField_setOff()
             self.LVL1_setOff()            
+            self.FTK_setOff()            
 
         # get methods
         def Forward_on (self):
@@ -221,9 +226,9 @@ class DetFlags:
             return self.MDT_on() & self.CSC_on() & self.TGC_on() & self.RPC_on() & self.sTGC_on() & self.Micromegas_on()
 
         def any_on (self):
-            return self.ID_on() | self.Calo_on() | self.Muon_on() | self.Forward_on() | self.Truth_on() | self.BField_on()
+            return self.ID_on() | self.Calo_on() | self.Muon_on() | self.Forward_on() | self.Truth_on() | self.BField_on() | self.FTK_on()
         def allOn (self):
-            return self.ID_allOn() & self.Calo_allOn() & self.Muon_allOn() & self.Forward_on() & self.Truth_on() & self.BField_on()
+            return self.ID_allOn() & self.Calo_allOn() & self.Muon_allOn() & self.Forward_on() & self.Truth_on() & self.BField_on() & self.FTK_on()
 
     # ORed task
     class ORedTask:
@@ -411,6 +416,11 @@ class DetFlags:
     def BField_setOff (cls):
         cls._setAllTask('BField','setOff')
 
+    def FTK_setOn (cls):
+        cls._setAllTask('FTK','setOn')
+    def FTK_setOff (cls):
+        cls._setAllTask('FTK','setOff')
+
     def LVL1_setOn (cls):
         cls._setAllTask('LVL1','setOn')
     def LVL1_setOff (cls):
@@ -504,6 +514,9 @@ class DetFlags:
     def BField_on(cls):
         return cls._anyTask_on('BField')
 
+    def FTK_on(cls):
+        return cls._anyTask_on('FTK')
+
     def LVL1_on (cls):
         return cls._anyTask_on('LVL1')
 
@@ -531,12 +544,12 @@ class DetFlags:
         truth=["Truth"]
         l1=["LVL1"]
         bf=["BField"]
-
+        ftk=["FTK"]
         # crate detectors row and format
         item=[]
         item.append("")
         format = "%13s :"
-        alldets=id+forward+calo+muon+truth+l1+bf
+        alldets=id+forward+calo+muon+truth+l1+bf+ftk
         for det in alldets:
             format += "%"+str(max(6,len(det)+1))+"s" #"%10s"
             item.append(det)
@@ -608,6 +621,8 @@ class DetFlags:
     Truth_setOff = classmethod(Truth_setOff)
     BField_setOn = classmethod(BField_setOn)
     BField_setOff = classmethod(BField_setOff)
+    FTK_setOn = classmethod(FTK_setOn)
+    FTK_setOff = classmethod(FTK_setOff)
     LVL1_setOn  = classmethod(LVL1_setOn)
     LVL1_setOff = classmethod(LVL1_setOff)
     Forward_setOn     = classmethod(Forward_setOn)
@@ -648,7 +663,8 @@ class DetFlags:
 
     Truth_on     = classmethod(Truth_on)
     BField_on    = classmethod(BField_on)
-    LVL1_on     = classmethod(LVL1_on)
+    FTK_on       = classmethod(FTK_on)
+    LVL1_on      = classmethod(LVL1_on)
     Forward_on   = classmethod(Forward_on)
     ID_on        = classmethod(ID_on)
     Calo_on      = classmethod(Calo_on)
