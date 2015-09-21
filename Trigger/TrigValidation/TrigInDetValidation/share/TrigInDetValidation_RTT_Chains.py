@@ -42,9 +42,13 @@ def electronChains(runMergedChain, doIDNewTracking):
       tidaAnalysischains.append('HLT_e24_medium_idperf:TrigFastTrackFinder_eGamma')
       tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigParticleCreation_Electron_EFID')
       tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_EFID')
+      tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig')
+      tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_FTF')
       tidaAnalysischains.append('HLT_e5_loose_idperf:TrigFastTrackFinder_eGamma')
       tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigParticleCreation_Electron_EFID')
       tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_EFID')
+      tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_IDTrig')
+      tidaAnalysischains.append('HLT_e5_loose_idperf:InDetTrigTrackingxAODCnv_Electron_FTF')
     else:
       idTrigChainlist.append('e24vh_medium1_IDTrkNoCut_IDT')
       tidaAnalysischains.append('EF_e24vh_medium1_IDTrkNoCut_IDT:TrigFastTrackFinder_eGamma')
