@@ -41,6 +41,16 @@ TCS::METCut::initialize() {
 
 
 TCS::StatusCode
+TCS::METCut::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+                     const std::vector<TCS::TOBArray *> & output,
+                     Decision & decision )
+
+{
+	return process(input,output,decision);
+}
+
+
+TCS::StatusCode
 TCS::METCut::process( const std::vector<TCS::TOBArray const *> & input,
                       const std::vector<TCS::TOBArray *> & /*output*/,
                       Decision & decision )

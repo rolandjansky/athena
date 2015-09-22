@@ -89,6 +89,14 @@ TCS::RatioMatch::initialize() {
 }
 
 
+TCS::StatusCode
+TCS::RatioMatch::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+                     const std::vector<TCS::TOBArray *> & output,
+                     Decision & decision )
+
+{
+	return process(input,output,decision);
+}
 
 TCS::StatusCode
 TCS::RatioMatch::process( const std::vector<TCS::TOBArray const *> & input,

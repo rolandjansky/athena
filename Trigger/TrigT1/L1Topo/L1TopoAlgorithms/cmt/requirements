@@ -6,6 +6,7 @@ use  DetCommonPolicy    *
 # Trigger dependencies
 use L1TopoInterfaces    *      Trigger/TrigT1/L1Topo
 use L1TopoEvent         *      Trigger/TrigT1/L1Topo
+use L1TopoSimulationUtils         *      Trigger/TrigT1/L1Topo
 
 private
 use  ROOT                   *   LCG_Interfaces

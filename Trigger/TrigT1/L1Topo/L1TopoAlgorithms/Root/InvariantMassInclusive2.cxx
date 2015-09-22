@@ -13,6 +13,11 @@
 #include "L1TopoAlgorithms/InvariantMassInclusive2.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
+// Bitwise implementation utils
+#include "L1TopoSimulationUtils/L1TopoDataTypes.h"
+#include "L1TopoSimulationUtils/Trigo.h"
+#include "L1TopoSimulationUtils/Hyperbolic.h"
+//
 
 REGISTER_ALG_TCS(InvariantMassInclusive2)
 
@@ -37,6 +42,19 @@ namespace {
       double invmass2 = 2*tob1->Et()*tob2->Et()*(cosheta - cosphi);
       return round( invmass2 );
    }
+
+   unsigned int
+   calcInvMassBW(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+      auto bit_cosheta = TSU::L1TopoDataTypes<19,7>(TSU::Hyperbolic::Cosh.at(abs(tob1->eta() - tob2->eta())));
+      auto bit_cosphi = TSU::L1TopoDataTypes<9,7>(TSU::Trigo::Cos.at(abs(tob1->phi() - tob2->phi())));
+      TSU::L1TopoDataTypes<11,0> bit_Et1(tob1->Et());
+      TSU::L1TopoDataTypes<11,0> bit_Et2(tob2->Et());
+      auto bit_invmass2 = 2*bit_Et1*bit_Et2*(bit_cosheta - bit_cosphi);
+      
+      return int(bit_invmass2) ;
+  
+   }
+  
 }
 
 
@@ -108,6 +126,60 @@ TCS::InvariantMassInclusive2::initialize() {
 }
 
 
+
+TCS::StatusCode
+TCS::InvariantMassInclusive2::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+                             const std::vector<TCS::TOBArray *> & output,
+                             Decision & decison )
+{
+
+      
+   if( input.size() == 2) {
+      
+      for( TOBArray::const_iterator tob1 = input[0]->begin(); 
+           tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
+           ++tob1)
+         {
+
+
+            for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
+                 tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
+                 ++tob2) {
+
+               
+	       // Inv Mass calculation
+
+	       unsigned int invmass2 = calcInvMassBW( *tob1, *tob2 );
+
+
+               bool accept[6];
+               for(unsigned int i=0; i<numberOutputBits(); ++i) {
+                  if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
+                  if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
+
+               
+                  accept[i] = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i]; 
+                  if( accept[i] ) {
+                     decison.setBit(i, true);
+                     output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
+                  }
+                  TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " invmass2 = " << invmass2);
+
+               }
+  
+
+
+	    }
+         }
+
+   } else {
+
+      TCS_EXCEPTION("InvariantMassInclusive2 alg must have  2 inputs, but got " << input.size());
+
+   }
+   return TCS::StatusCode::SUCCESS;
+
+}
 
 TCS::StatusCode
 TCS::InvariantMassInclusive2::process( const std::vector<TCS::TOBArray const *> & input,
