@@ -28,10 +28,9 @@ namespace Athena_test {
   {
     double den = std::abs(x1+x2);
     if (den < thresh) return true;
-    double diff = std::abs (x1-x2) / den;
-    if (diff < thresh)
+    if (std::abs (x1-x2) / den < thresh)
       return true;
-    std::cout << "Match failure: " << x1 << " " << x2 << " (" << diff << ")\n";
+    std::cout << "Match failure: " << x1 << " " << x2 << "\n";
     return false;
   }
 
