@@ -26,32 +26,40 @@
 // The Athena and stand-alone G4 setups have different UserAction
 // classes (though they accomplish the same thing.
 
-#include "FadsActions/UserAction.h"
+#include "G4AtlasTools/UserActionBase.h"
+
 
 // Forward declarations
+class G4Run;
 class G4Step;
 class G4VSensitiveDetector;
 
 namespace CaloG4 {
 
-  class CalibrationDefaultProcessing : public FADS::UserAction {
+  class CalibrationDefaultProcessing final : public UserActionBase {
 
   public:
 
-    CalibrationDefaultProcessing();
+    CalibrationDefaultProcessing(const std::string& type, const std::string& name, const IInterface* parent);
     virtual ~CalibrationDefaultProcessing();
 
-    virtual void SteppingAction(const G4Step*);
-
+    virtual void Step(const G4Step*) override;
+    virtual void BeginOfEvent(const G4Event*) override;
+    
     // Make the default sensitive detector available to other routines.
-    static G4VSensitiveDetector* GetDefaultSD() { return m_defaultSD; }
-    static void SetDefaultSD( G4VSensitiveDetector* );
+    G4VSensitiveDetector* GetDefaultSD() { return m_defaultSD; }
+    //static void SetDefaultSD( G4VSensitiveDetector* );
+
+    virtual StatusCode queryInterface(const InterfaceID&, void**) override;
+
+    
 
   private:
 
     // The default sensitive detector to be applied to all G4Steps
     // in volumes without a CalibrationSensitiveDetector.
-    static G4VSensitiveDetector* m_defaultSD;
+    G4VSensitiveDetector* m_defaultSD;
+    std::string m_SDname;
 
   };
 
