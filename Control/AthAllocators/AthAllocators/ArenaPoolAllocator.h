@@ -14,8 +14,8 @@
  *        See Arena.h for an overview of the arena-based memory allocators.
  */
 
-#ifndef ATHALLOCATORS_ARENAPOOLALLOCATOR_H
-#define ATHALLOCATORS_ARENAPOOLALLOCATOR_H
+#ifndef ATLALLOCATORS_ARENAPOOLALLOCATOR_H
+#define ATLALLOCATORS_ARENAPOOLALLOCATOR_H
 
 
 #include "AthAllocators/ArenaBlockAllocatorBase.h"
@@ -155,29 +155,6 @@ public:
   ~ArenaPoolAllocator();
 
 
-  /// Don't allow copy construction or assignment.
-  ArenaPoolAllocator (const ArenaPoolAllocator&) = delete;
-  ArenaPoolAllocator& operator= (const ArenaPoolAllocator&) = delete;
-
-
-  /**
-   * @brief Move constructor.
-   */
-  ArenaPoolAllocator (ArenaPoolAllocator&& other);
-
-
-  /**
-   * @brief Move assignment.
-   */
-  ArenaPoolAllocator& operator= (ArenaPoolAllocator&& other);
-
-
-  /**
-   * @brief Swap.
-   */
-  void swap (ArenaPoolAllocator& other);
-
-
   /**
    * @brief Allocate a new element.
    *
@@ -276,4 +253,4 @@ private:
 #include "AthAllocators/ArenaPoolAllocator.icc"
 
 
-#endif // not ATHALLOCATORS_ARENAPOOLALLOCATOR_H
+#endif // not ATLALLOCATORS_ARENABLOCK_H

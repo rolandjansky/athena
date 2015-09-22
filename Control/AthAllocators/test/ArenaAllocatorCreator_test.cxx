@@ -18,13 +18,13 @@ class Test
   : public SG::ArenaAllocatorCreator
 {
 public:
-  virtual SG::ArenaAllocatorBase* create() override { return nullptr; }
+  virtual SG::ArenaAllocatorBase* create() { return 0; }
 };
   
 
 int main()
 {
   Test test;
-  assert (test.create() == nullptr);
+  assert (test.create() == 0);
   return 0;
 }

@@ -147,21 +147,12 @@ public:
   ArenaHeapAllocator* get_pool (size_t& index);
 
 
-  /**
-   * @brief Update the owner of this object.
-   * @param old_owner Object giving up ownership.
-   * @param new_owner Object acquiring ownership.
-   *
-   * If the current owner is @c old_owner then change the owner to @c new_owner.
-   */
-  void update_owner (const void* old_owner, const void* new_owner);
-
-
-  /**
-   * @brief Generate printable report for all contained allocators.
-   * @param os Stream to which to write the report.
-   */
-  void report (std::ostream& os) const;
+  void report (std::ostream& os) const
+  {
+    for (size_t i = 0; i < m_allocators.size(); i++)
+      if (m_allocators[i])
+        m_allocators[i]->report (os);
+  }
 
 
 private:
@@ -204,14 +195,7 @@ public:
   typedef size_t    size_type;
   typedef ptrdiff_t difference_type;
 
-  /// When we assign to a container, the target should retain its allocator.
-  typedef std::false_type propagate_on_container_copy_assignment;
 
-  /// Move allocators on move/swap.
-  typedef std::true_type propagate_on_container_move_assignment;
-  typedef std::true_type propagate_on_container_swap;
-
-  
   /// Standard STL allocator rebinder.
   template <class U> struct rebind {
     typedef ArenaSharedHeapSTLAllocator<U> other;
@@ -229,7 +213,7 @@ public:
 
 
   /**
-   * @brief Copy constructor.
+   * @brief Constructor from another @c ArenaHeapSTLAllocator.
    *
    * The new STL allocator will reference the same set of underlying
    * Arena allocators as the old one.
@@ -237,12 +221,8 @@ public:
   ArenaSharedHeapSTLAllocator (const ArenaSharedHeapSTLAllocator& a);
 
 
-  /// Move constructor is the same as the copy constructor.
-  ArenaSharedHeapSTLAllocator (ArenaSharedHeapSTLAllocator&& a) = default;
-
-
   /**
-   * @brief Constructor from another @c ArenaSharedHeapSTLAllocator.
+   * @brief Constructor from another @c ArenaHeapSTLAllocator.
    *
    * The new STL allocator will reference the same set of underlying
    * Arena allocators as the old one.
@@ -250,14 +230,9 @@ public:
   template <class U>
   ArenaSharedHeapSTLAllocator (const ArenaSharedHeapSTLAllocator<U>& a);
 
-
   // We don't bother to supply a more general constructor --- shouldn't
   // be needed.
 
-
-  /**
-   * @brief Destructor.
-   */
   ~ArenaSharedHeapSTLAllocator();
 
 
@@ -267,43 +242,16 @@ public:
    * We allow assignment only if the two objects involved represent
    * the same arena, in which case it's a no-op.
    * In other cases, we raise an exception.
+   *
+   * FIXME: By default, swap() is implemented in terms of this.
+   * It might be useful, though, to have a swap() that could
+   * handle different arenas.  We would need to be able handle
+   * updating the ownership back pointers from the headers, though;
+   * but that's much easier for swap than for the case of general
+   * assignments.
    */
   ArenaSharedHeapSTLAllocator&
   operator= (const ArenaSharedHeapSTLAllocator& a);
-
-
-  /**
-   * @brief Move assignment.
-   *
-   * This allows assignment between different arenas.
-   */
-  ArenaSharedHeapSTLAllocator& operator= (ArenaSharedHeapSTLAllocator&& a);
-
-
-  /**
-   * @brief Swap.
-   */
-  void swap (ArenaSharedHeapSTLAllocator& a);
-
-
-  /**
-   * @brief Equality test.
-   *
-   * Two allocators should compare equal if objects allocated by one
-   * can be deallocated by the other.  We check if they are referencing
-   * the same Header.
-   */
-  bool operator== (const ArenaSharedHeapSTLAllocator& other) const;
-
-
-  /**
-   * @brief Inquality test.
-   *
-   * Two allocators should compare equal if objects allocated by one
-   * can be deallocated by the other.  We check if they are referencing
-   * the same Header.
-   */
-  bool operator!= (const ArenaSharedHeapSTLAllocator& other) const;
 
 
   /// Convert a reference to an address.
@@ -423,11 +371,20 @@ public:
   ArenaHeapAllocator* poolptr() const;
 
 
+  void report (std::ostream& os) const
+  {
+    m_header->report(os);
+  }
+
+
+
   /**
-   * @brief Generate printable report for all contained allocators.
-   * @param os Stream to which to write the report.
+   * @brief Compare two allocators.  Needed by some @c swap implementations.
+   *
+   *        We consider two allocators to be the same if they're
+   *        referencing the same Header.
    */
-  void report (std::ostream& os) const;
+  bool operator!= (const ArenaSharedHeapSTLAllocator& other) const;
   
 
 private:
@@ -442,13 +399,6 @@ private:
 
   static size_t s_index;
 };
-
-
-template <class T>
-void swap (ArenaSharedHeapSTLAllocator<T>& a, ArenaSharedHeapSTLAllocator<T>& b)
-{
-  a.swap (b);
-}
 
 
 } // namespace SG

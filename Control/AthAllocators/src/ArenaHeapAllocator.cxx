@@ -28,7 +28,7 @@ namespace SG {
  */
 ArenaHeapAllocator::ArenaHeapAllocator (const Params& params)
   : ArenaBlockAllocatorBase (params),
-    m_freeptr (nullptr)
+    m_freeptr (0)
 {
   // Consistency check.
   assert (params.linkOffset + sizeof (pointer) <= params.eltSize);
@@ -45,46 +45,6 @@ ArenaHeapAllocator::~ArenaHeapAllocator()
 
 
 /**
- * @brief Move constructor.
- */
-ArenaHeapAllocator::ArenaHeapAllocator
-  (ArenaHeapAllocator&& other)
-    : ArenaBlockAllocatorBase (std::move (other)),
-      m_freeptr (other.m_freeptr)
-{
-  other.m_freeptr = nullptr;
-}
-
-
-/**
- * @brief Move assignment.
- */
-ArenaHeapAllocator&
-ArenaHeapAllocator::operator=
-  (ArenaHeapAllocator&& other)
-{
-  if (this != &other) {
-    ArenaBlockAllocatorBase::operator= (std::move (other));
-    m_freeptr = other.m_freeptr;
-    other.m_freeptr = nullptr;
-  }
-  return *this;
-}
-
-
-/**
- * @brief Swap.
- */
-void ArenaHeapAllocator::swap (ArenaHeapAllocator& other)
-{
-  if (this != &other) {
-    ArenaBlockAllocatorBase::swap (other);
-    std::swap (m_freeptr, other.m_freeptr);
-  }
-}
-
-
-/**
  * @brief Free all allocated elements.
  *
  * All elements allocated are returned to the free state.
@@ -96,7 +56,7 @@ void ArenaHeapAllocator::reset()
 {
   if (!m_blocks) return;
   if (m_params.clear) {
-    if (m_params.canReclear || m_freeptr == nullptr) {
+    if (m_params.canReclear || m_freeptr == 0) {
       // Just call clear() on all blocks --- allocated or not.
       ArenaBlock::applyList (m_blocks, m_params.clear, m_blocks->size());
     }
@@ -110,8 +70,8 @@ void ArenaHeapAllocator::reset()
   ArenaBlock::appendList (&m_freeblocks, m_blocks);
 
   // Reset state.
-  m_blocks = nullptr;
-  m_freeptr = nullptr;
+  m_blocks = 0;
+  m_freeptr = 0;
   m_stats.elts.inuse = 0;
   m_stats.blocks.free += m_stats.blocks.inuse;
   m_stats.blocks.inuse = 0;
@@ -129,7 +89,7 @@ void ArenaHeapAllocator::reset()
 void ArenaHeapAllocator::erase()
 {
   ArenaBlockAllocatorBase::erase();
-  m_freeptr = nullptr;
+  m_freeptr = 0;
 }
 
 
@@ -142,7 +102,7 @@ ArenaHeapAllocator::pointer ArenaHeapAllocator::refill()
   ArenaBlock* newblock = getBlock();
 
   // Set up the links for the new free elements.
-  pointer lastelt = nullptr;
+  pointer lastelt = 0;
   size_t sz = newblock->size();
   size_t elt_size = newblock->eltSize();
   for (size_t i=1; i < sz; i++) {

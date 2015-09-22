@@ -22,7 +22,6 @@ class Payload
 {
 public:
   Payload (int i) : m_x (i) {}
-  Payload& operator= (const Payload&) = default;
   int m_x;
 };
 
@@ -31,12 +30,12 @@ class TestAlloc
   : public SG::ArenaAllocatorBase
 {
 public:
-  TestAlloc (Params  params);
-  virtual void reset() override {}
-  virtual void erase() override {}
-  virtual void reserve(size_t) override {}
-  virtual const std::string& name() const override { return m_params.name; }
-  virtual const Stats& stats() const override { return m_stats; }
+  TestAlloc (const Params& params);
+  virtual void reset() {}
+  virtual void erase() {}
+  virtual void reserve(size_t) {}
+  virtual const std::string& name() const { return m_params.name; }
+  virtual const Stats& stats() const { return m_stats; }
   const Params& params() const { return m_params; }
   int foo() { return 42; }
   void free (pointer p) { ptmp = p; }
@@ -50,7 +49,7 @@ public:
   {
   public:
     iterator (std::vector<Payload>::iterator it)
-      : m_it (std::move(it)) {}
+      : m_it (it) {}
     reference operator*() const { return *m_it; }
     iterator& operator++() { m_it++; return *this; }
     bool operator== (const iterator& other) const
@@ -67,7 +66,7 @@ public:
   {
   public:
     const_iterator (std::vector<Payload>::const_iterator it)
-      : m_it (std::move(it)) {}
+      : m_it (it) {}
     const_iterator (TestAlloc::iterator it)
       : m_it (&*it) {}
     reference operator*() const { return *m_it; }
@@ -96,14 +95,14 @@ private:
 };
 
 
-TestAlloc::TestAlloc (Params  params)
-  : m_params (std::move(params))
+TestAlloc::TestAlloc (const Params& params)
+  : m_params (params)
 {
   for (int i = 0; i < 10; i++)
     m_vec.push_back (i);
 }
 
-TestAlloc::pointer TestAlloc::ptmp = nullptr;
+TestAlloc::pointer TestAlloc::ptmp = 0;
 
 class TestHandle
   : public SG::ArenaHandleBaseT<Payload, TestAlloc>
@@ -135,7 +134,7 @@ void test1()
   params.canReclear = false;
   params.mustClear = false;
 
-  TestHandle hand (&head, TestHandle::Creator (static_cast<TestAlloc*>(nullptr),
+  TestHandle hand (&head, TestHandle::Creator (static_cast<TestAlloc*>(0),
                                                params));
   assert (hand.params().name == "foo");
   TestHandle::pointer p = reinterpret_cast<TestHandle::pointer>(0x1234);

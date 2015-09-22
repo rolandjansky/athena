@@ -39,8 +39,8 @@ Arena::Arena (const std::string& name, ArenaHeader* header /*= 0*/)
 Arena::~Arena()
 {
   m_header->delArena (this);
-  for (ArenaAllocatorBase* alloc : m_allocs)
-    delete alloc;
+  for (size_t i = 0; i < m_allocs.size(); i++)
+    delete m_allocs[i];
 }
 
 
@@ -49,9 +49,9 @@ Arena::~Arena()
  */
 void Arena::reset()
 {
-  for (ArenaAllocatorBase* alloc : m_allocs) {
-    if (alloc)
-      alloc->reset();
+  for (size_t i = 0; i < m_allocs.size(); i++) {
+    if (m_allocs[i])
+      m_allocs[i]->reset();
   }
 }
 
@@ -62,9 +62,9 @@ void Arena::reset()
  */
 void Arena::erase()
 {
-  for (ArenaAllocatorBase* alloc : m_allocs) {
-    if (alloc)
-      alloc->erase();
+  for (size_t i = 0; i < m_allocs.size(); i++) {
+    if (m_allocs[i])
+      m_allocs[i]->erase();
   }
 }
 
@@ -76,14 +76,14 @@ void Arena::erase()
 void Arena::report (std::ostream& os) const
 {
   bool first = true;
-  for (ArenaAllocatorBase* alloc : m_allocs) {
-    if (alloc) {
+  for (size_t i = 0; i < m_allocs.size(); i++) {
+    if (m_allocs[i]) {
       if (first) {
         ArenaAllocatorBase::Stats::header (os);
         os << std::endl;
         first = false;
       }
-      alloc->report (os);
+      m_allocs[i]->report (os);
     }
   }
 }
@@ -95,9 +95,9 @@ void Arena::report (std::ostream& os) const
 const ArenaAllocatorBase::Stats& Arena::stats () const
 {
   m_stats = ArenaAllocatorBase::Stats();
-  for (ArenaAllocatorBase* alloc : m_allocs) {
-    if (alloc) {
-      m_stats += alloc->stats();
+  for (size_t i = 0; i < m_allocs.size(); i++) {
+    if (m_allocs[i]) {
+      m_stats += m_allocs[i]->stats();
     }
   }
   return m_stats;

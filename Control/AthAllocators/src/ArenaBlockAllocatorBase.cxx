@@ -25,72 +25,9 @@ namespace SG {
  */
 ArenaBlockAllocatorBase::ArenaBlockAllocatorBase (const Params& params)
   : m_params (params),
-    m_blocks (nullptr),
-    m_freeblocks (nullptr)
+    m_blocks (0),
+    m_freeblocks (0)
 {
-}
-
-
-/**
- * @brief Destructor.
- */
-ArenaBlockAllocatorBase::~ArenaBlockAllocatorBase()
-{
-  // Should be called by the derived class dtor.
-  // Can't do it from here since it may call reset(), which is
-  // pure virtual in this class.
-  //erase();
-}
-
-
-/**
- * @brief Move constructor.
- */
-ArenaBlockAllocatorBase::ArenaBlockAllocatorBase
-  (ArenaBlockAllocatorBase&& other)
-    : m_params (other.m_params),
-      m_blocks (other.m_blocks),
-      m_freeblocks (other.m_freeblocks),
-      m_stats (other.m_stats)
-{
-  other.m_blocks = nullptr;
-  other.m_freeblocks = nullptr;
-  other.m_stats.clear();
-}
-
-
-/**
- * @brief Move assignment.
- */
-ArenaBlockAllocatorBase&
-ArenaBlockAllocatorBase::operator=
-  (ArenaBlockAllocatorBase&& other)
-{
-  if (this != &other) {
-    erase();
-    m_params = other.m_params;
-    m_blocks = other.m_blocks;
-    m_freeblocks = other.m_freeblocks;
-    m_stats = other.m_stats;
-    other.m_blocks = nullptr;
-    other.m_freeblocks = nullptr;
-    other.m_stats.clear();
-  }
-  return *this;
-}
-
-
-/**
- * @brief Swap.
- */
-void ArenaBlockAllocatorBase::swap (ArenaBlockAllocatorBase& other)
-{
-  if (this != &other) {
-    std::swap (m_params, other.m_params);
-    std::swap (m_blocks, other.m_blocks);
-    std::swap (m_freeblocks, other.m_freeblocks);
-    std::swap (m_stats, other.m_stats);
-  }
 }
 
 
@@ -172,7 +109,7 @@ void ArenaBlockAllocatorBase::erase()
   // Kill the block lists (both free and in use).
   ArenaBlock::destroyList (m_blocks, m_params.destructor);
   ArenaBlock::destroyList (m_freeblocks, m_params.destructor);
-  m_blocks = m_freeblocks = nullptr;
+  m_blocks = m_freeblocks = 0;
 
   // Reset statistics.
   m_stats.clear();
