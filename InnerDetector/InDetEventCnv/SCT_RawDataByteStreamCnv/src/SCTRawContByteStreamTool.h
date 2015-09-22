@@ -2,40 +2,44 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTSERVICE_H
-#define SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTSERVICE_H
+#ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTTOOL_H
+#define SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTTOOL_H
 ///STL
 #include <stdint.h>
+#include <map>
 ///Base classes 
-#include "AthenaBaseComps/AthService.h"
-#include "SCT_RawDataByteStreamCnv/ISCTRawContByteStreamService.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "SCT_RawDataByteStreamCnv/ISCTRawContByteStreamTool.h"
 ///Gaudi
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
+///InDet
+#include "InDetRawData/InDetRawDataCLASS_DEF.h"
+#include "InDetRawData/SCT_RDO_Collection.h"
+#include "SCT_Cabling/ISCT_CablingSvc.h"
 ///other athena
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
+#include "ByteStreamCnvSvcBase/SrcIdMap.h" 
 
-class ISCT_RodEncoder;
 class ISCT_CablingSvc;
-class SrcIdMap;
 class SCT_ID;
+class ISCT_RodEncoder;
 namespace InDetDD {
   class SCT_DetectorManager;
 }
-class StoreGateSvc;
 
 #include <string>
 
 
-/** An AthService class to provide conversion from SCT RDO container
+/** An AthAlgTool class to provide conversion from SCT RDO container
  *  to ByteStream, and fill it in RawEvent
  *  created:  Oct 25, 2002, by Hong Ma 
  *  requirements:   typedef for CONTAINER class method 
  *   StatusCode convert(CONTAINER* cont, RawEvent* re, MsgStream& log ); 
- */
+  */
 
-class SCTRawContByteStreamService: virtual public ISCTRawContByteStreamService, virtual public AthService {
- public:
+class SCTRawContByteStreamTool: virtual public ISCTRawContByteStreamTool, virtual public AthAlgTool {
+public:
 
   // RawData type
   typedef SCT_RDORawData          RDO ;
@@ -46,12 +50,13 @@ class SCTRawContByteStreamService: virtual public ISCTRawContByteStreamService, 
 
 
   //! constructor
-  SCTRawContByteStreamService( const std::string& name, ISvcLocator* svcloc) ;
+  SCTRawContByteStreamTool( const std::string& type, const std::string& name,
+			    const IInterface* parent ) ;
   
   //! destructor 
-  virtual ~SCTRawContByteStreamService() ;
+  virtual ~SCTRawContByteStreamTool() ;
 
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
+  //  static const InterfaceID& interfaceID( ) ;
 
   virtual StatusCode initialize();
   virtual StatusCode finalize();
@@ -59,16 +64,17 @@ class SCTRawContByteStreamService: virtual public ISCTRawContByteStreamService, 
   //! New convert method which makes use of the encoder class (as done for other detectors)
   StatusCode convert(SCT_RDO_Container* cont, RawEventWrite* re, MsgStream& log); 
   
- private: 
+private: 
   
   ToolHandle<ISCT_RodEncoder> m_encoder;
   ServiceHandle<ISCT_CablingSvc> m_cabling;
-  ServiceHandle<StoreGateSvc> m_detStore;
   const InDetDD::SCT_DetectorManager* m_sct_mgr;
   const SCT_ID*                m_sct_idHelper;
   unsigned short               m_RodBlockVersion;
   FullEventAssembler<SrcIdMap> m_fea; 
 
 };
-
 #endif
+
+
+

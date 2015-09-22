@@ -18,8 +18,10 @@
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
-class ISCT_ByteStreamErrorsSvc;
 class ISCT_RodDecoder;
+class ISCT_RodEncoder;
+class ISCT_ByteStreamErrorsSvc;
+
 
 class SCTRawDataProviderTool : virtual public ISCTRawDataProviderTool, 
                                virtual public AthAlgTool, 

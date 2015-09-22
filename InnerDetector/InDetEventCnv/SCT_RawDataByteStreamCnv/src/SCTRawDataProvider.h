@@ -24,21 +24,22 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 /** other */
-#include "InDetRawData/InDetTimeCollection.h"
-#include "InDetRawData/SCT_RDO_Container.h"
-#include "StoreGate/WriteHandleKey.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "InDetRawData/InDetTimeCollection.h"
 /** STL */
 #include <string>
 
 /** forward declarations */
+
 class ISCTRawDataProviderTool;
 class ISCT_CablingSvc;
+class IRobDataProviderSvc;
 class SCT_ID;
+class ISCT_CablingSvc;
 
 class SCTRawDataProvider : public AthAlgorithm
 {
- public:
+public:
 
   //! Constructor.
   SCTRawDataProvider(const std::string &name, ISvcLocator *pSvcLocator);
@@ -51,21 +52,22 @@ class SCTRawDataProvider : public AthAlgorithm
 
   //! Finalize
   virtual StatusCode finalize()
-  { return StatusCode::SUCCESS;}
+    { return StatusCode::SUCCESS;}
 
   //! Destructur
   ~SCTRawDataProvider() 
     { }
 
- private:
+private:
 
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
   ToolHandle<ISCTRawDataProviderTool> m_rawDataTool;
   ServiceHandle<ISCT_CablingSvc>     m_cabling;
   const SCT_ID*                      m_sct_id; 
-  SG::WriteHandleKey<SCT_RDO_Container> m_rdoContainerKey;
-  SG::WriteHandleKey<InDetTimeCollection> m_lvl1CollectionKey;
-  SG::WriteHandleKey<InDetTimeCollection> m_bcidCollectionKey;
+  std::string                        m_RDO_Key;
+
+  InDetTimeCollection* m_LVL1Collection;
+  InDetTimeCollection* m_BCIDCollection;
 
 };
 

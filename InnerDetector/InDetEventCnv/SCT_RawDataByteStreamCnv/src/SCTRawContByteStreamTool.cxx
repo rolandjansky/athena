@@ -3,31 +3,28 @@
 */
 
 /** header file */
-#include "SCTRawContByteStreamService.h"
-
-#include "eformat/SourceIdentifier.h"
+#include "SCTRawContByteStreamTool.h"
 
 #include "ByteStreamData/RawEvent.h" 
-#include "ByteStreamCnvSvcBase/SrcIdMap.h" 
 
-///InDet
-#include "SCT_RawDataByteStreamCnv/ISCT_RodEncoder.h"
-#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "SCT_RawDataByteStreamCnv/ISCT_RodEncoder.h"
+
+#include "eformat/SourceIdentifier.h"
 
 /// ------------------------------------------------------------------------
 /// contructor 
 
-SCTRawContByteStreamService::SCTRawContByteStreamService
-( const std::string& name, ISvcLocator* svcloc) :
-     AthService(name, svcloc),
-     m_encoder   ("SCT_RodEncoder", this),
+SCTRawContByteStreamTool::SCTRawContByteStreamTool
+  ( const std::string& type, const std::string& name,const IInterface* parent )
+  :  AthAlgTool(type,name,parent),
+     m_encoder   ("SCT_RodEncoder"),
      m_cabling   ("SCT_CablingSvc",name),
-     m_detStore  ("StoreGateSvc/DetectorStore", name),
      m_sct_mgr(0),
      m_sct_idHelper(0)
 {
+  declareInterface< ISCTRawContByteStreamTool  >( this );
   declareProperty("Encoder",m_encoder);
   declareProperty("RodBlockVersion",m_RodBlockVersion=0);
   declareProperty("CablingSvc",m_cabling);
@@ -37,47 +34,35 @@ SCTRawContByteStreamService::SCTRawContByteStreamService
 /// ------------------------------------------------------------------------
 /// destructor 
 
-SCTRawContByteStreamService::~SCTRawContByteStreamService()
+SCTRawContByteStreamTool::~SCTRawContByteStreamTool()
 {
   return;
-}
-
-StatusCode
-SCTRawContByteStreamService::queryInterface( const InterfaceID& riid, void** ppvIf ) {
-  if ( ISCTRawContByteStreamService::interfaceID().versionMatch(riid) ) {
-    *ppvIf = dynamic_cast<ISCTRawContByteStreamService*>(this);
-  } else {
-    // Interface is not directly available : try out a base class
-    return AthService::queryInterface(riid, ppvIf);
-  }
-  addRef();
-  return StatusCode::SUCCESS;
 }
 
 /// ------------------------------------------------------------------------
 /// initialize the tool
 
 StatusCode
-SCTRawContByteStreamService::initialize() {
-  StatusCode sc = AthService::initialize(); 
+SCTRawContByteStreamTool::initialize() {
+  StatusCode sc = AthAlgTool::initialize(); 
   /** Retrieve id mapping  */
   if (m_cabling.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve service " << m_cabling << endmsg;
+    msg(MSG::FATAL) << "Failed to retrieve service " << m_cabling << endreq;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved service " << m_cabling << endmsg;
+    msg(MSG::INFO) << "Retrieved service " << m_cabling << endreq;
   }
   /** Retrieve detector manager */
-  sc = m_detStore->retrieve(m_sct_mgr,"SCT"); 
+  sc = detStore()->retrieve(m_sct_mgr,"SCT"); 
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Cannot retrieve SCT_DetectorManager!" << endmsg;
+    msg(MSG::FATAL) << "Cannot retrieve SCT_DetectorManager!" << endreq;
     return StatusCode::FAILURE;
   }
 
   /** Get the SCT Helper */
-  sc = m_detStore->retrieve(m_sct_idHelper,"SCT_ID"); 
+  sc = detStore()->retrieve(m_sct_idHelper,"SCT_ID"); 
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Cannot retrieve ID helper!" << endmsg;
+    msg(MSG::FATAL) << "Cannot retrieve ID helper!" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -85,7 +70,7 @@ SCTRawContByteStreamService::initialize() {
 
   sc = m_encoder.retrieve();
   if (sc.isFailure())
-    msg(MSG::FATAL) <<" Failed to retrieve tool "<< m_encoder <<endmsg;
+    msg(MSG::FATAL) <<" Failed to retrieve tool "<< m_encoder <<endreq;
   
   return sc;
 }
@@ -94,8 +79,8 @@ SCTRawContByteStreamService::initialize() {
 /// finalize the tool
 
 StatusCode
-SCTRawContByteStreamService::finalize() {
-  StatusCode sc = AthService::finalize(); 
+SCTRawContByteStreamTool::finalize() {
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 
@@ -105,13 +90,13 @@ SCTRawContByteStreamService::finalize() {
 /// ROD in turn.
 
 StatusCode
-SCTRawContByteStreamService::convert(SCT_RDO_Container* cont, RawEventWrite* re, MsgStream& log) {
+SCTRawContByteStreamTool::convert(SCT_RDO_Container* cont, RawEventWrite* re, MsgStream& log) {
   m_fea.clear();   
   FullEventAssembler<SrcIdMap>::RODDATA*  theROD ; 
   
   /** set ROD Minor version */
   m_fea.setRodMinorVersion(m_RodBlockVersion);
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<" Setting Minor Version Number to "<<m_RodBlockVersion<<endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<" Setting Minor Version Number to "<<m_RodBlockVersion<<endreq;
   
   /** mapping between ROD IDs and the hits in that ROD */
   std::map<uint32_t, std::vector<const RDO*> > rdoMap;
@@ -135,7 +120,7 @@ SCTRawContByteStreamService::convert(SCT_RDO_Container* cont, RawEventWrite* re,
   for( ; it_coll!=it_coll_end;++it_coll) {
     const SCTRawCollection* coll = (*it_coll) ;
     if (coll == 0) {
-      msg(MSG::WARNING) <<"Null pointer to SCT RDO collection."<<endmsg;
+      msg(MSG::WARNING) <<"Null pointer to SCT RDO collection."<<endreq;
       continue;
     } else {
       /** Collection Id */
