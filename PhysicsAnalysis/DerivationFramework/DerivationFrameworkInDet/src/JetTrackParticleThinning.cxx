@@ -31,8 +31,7 @@ m_npass(0),
 m_jetSGKey(""),
 m_inDetSGKey("InDetTrackParticles"),
 m_selectionString(""),
-m_and(false),
-m_parser(0)
+m_and(false)
 {
     declareInterface<DerivationFramework::IThinningTool>(this);
     declareProperty("ThinningService", m_thinningSvc);

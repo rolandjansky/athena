@@ -26,7 +26,6 @@ DerivationFramework::TrackParticleThinning::TrackParticleThinning(const std::str
                                                                   const IInterface* p ) :
 AthAlgTool(t,n,p),
 m_thinningSvc("ThinningSvc",n),
-m_parser(0),
 m_selectionString(""),
 m_ntot(0),
 m_npass(0),
@@ -220,7 +219,7 @@ StatusCode DerivationFramework::TrackParticleThinning::doThinning() const
       } else {
 	unsigned int size_measurements_pix = importedMeasurementsPix->size();
 	if (size_measurements_pix == 0) {
-	  ATH_MSG_WARNING("Pixel measurements container is empty: " << m_measurementsPixSGKey);
+	  ATH_MSG_WARNING("Pixel measurements container is empty: " << m_statesPixSGKey);
 	} else {
 	  maskMeasurementsPix.assign(size_measurements_pix,false); // default: don't keep any
 	  m_ntot_pix_measurements += size_measurements_pix;
@@ -270,7 +269,7 @@ StatusCode DerivationFramework::TrackParticleThinning::doThinning() const
       } else {
 	unsigned int size_measurements_trt = importedMeasurementsTrt->size();
 	if (size_measurements_trt == 0) {
-	  ATH_MSG_WARNING("TRT measurements container is empty: " << m_measurementsTrtSGKey);
+	  ATH_MSG_WARNING("TRT measurements container is empty: " << m_statesTrtSGKey);
 	} else {
 	  maskMeasurementsTrt.assign(size_measurements_trt,false); // default: don't keep any
 	  m_ntot_trt_measurements += size_measurements_trt;      

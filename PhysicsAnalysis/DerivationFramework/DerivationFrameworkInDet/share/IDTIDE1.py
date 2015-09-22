@@ -1,6 +1,6 @@
 #====================================================================
 # IDTIDE1.py
-# Contact: bnachman@cern.ch
+# Contact: Soshi.Tsuno@cern.ch
 # 
 # Caveat: This is still under development.
 #       - storing strategy: so far use AddItem() method. But in future,
@@ -18,13 +18,7 @@ idDxAOD_doPix=True
 idDxAOD_doSct=True
 idDxAOD_doTrt=False
 
-# IsMonteCarlo=(globalflags.DataSource == 'geant4')
-
-if 'DerivationFrameworkIsMonteCarlo' not in dir() :
-  DerivationFrameworkIsMonteCarlo=( globalflags.DataSource=='geant4' )
-
-IsMonteCarlo=DerivationFrameworkIsMonteCarlo
-
+IsMonteCarlo=(globalflags.DataSource == 'geant4')
 
 #====================================================================
 # CP GROUP TOOLS
@@ -222,9 +216,9 @@ if IsMonteCarlo:
   IDTIDE1TruthThinningTool = DerivationFramework__MenuTruthThinning(name = "IDTIDE1TruthThinningTool",
       ThinningService            = "IDTIDE1ThinningSvc",
       WritePartons               = True,
-      WriteHadrons               = True,
+      WriteHadrons               = False,
       WriteBHadrons              = True, 
-      WriteGeant                 = True,
+      WriteGeant                 = False,
       GeantPhotonPtThresh        = 20000,
       WriteTauHad                = True,
       PartonPtThresh             = -1.0,
@@ -233,13 +227,13 @@ if IsMonteCarlo:
       WriteBosonProducts         = True, 
       WriteBSMProducts           = True,
       WriteTopAndDecays          = True, 
-      WriteEverything            = True,
+      WriteEverything            = False,
       WriteAllLeptons            = True,
-      WriteLeptonsNotFromHadrons = True,
-      WriteStatus3               = True,
+      WriteLeptonsNotFromHadrons = False,
+      WriteStatus3               = False,
       WriteFirstN                = -1,
       PreserveAncestors          = True, 
-      PreserveGeneratorDescendants = True)
+      PreserveGeneratorDescendants = False)
   ToolSvc += IDTIDE1TruthThinningTool
   thinningTools.append(IDTIDE1TruthThinningTool)
 
@@ -251,7 +245,6 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("IDTIDE1K
                                                                        AugmentationTools = augmentationTools,
                                                                        SkimmingTools = skimmingTools,
                                                                        ThinningTools = thinningTools,
-                                                                       RunSkimmingFirst = True,
                                                                        OutputLevel =INFO)
 
 #====================================================================
@@ -265,11 +258,6 @@ fileName   = buildFileName( primDPD.WriteDAOD_IDTIDEStream )
 IDTIDE1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 IDTIDE1Stream.AcceptAlgs(["IDTIDE1Kernel"])
 
-#idtideSeq = CfgMgr.AthSequencer("IDTIDE1Sequence")
-#DerivationFrameworkJob += idtideSeq
-#addTrackSumMoments("AntiKt4EMTopo")
-#addDefaultTrimmedJets(idtideSeq,"IDTIDE1")
-
 # SPECIAL LINES FOR THINNING
 # Thinning service name must match the one passed to the thinning tools
 from AthenaServices.Configurables import ThinningSvc, createThinningSvc
@@ -282,8 +270,6 @@ svcMgr += createThinningSvc( svcName="IDTIDE1ThinningSvc", outStreams=[evtStream
 #====================================================================
 IDTIDE1Stream.AddItem("xAOD::EventInfo#*")
 IDTIDE1Stream.AddItem("xAOD::EventAuxInfo#*")
-IDTIDE1Stream.AddItem("xAOD::EventShape#*")
-IDTIDE1Stream.AddItem("xAOD::EventShapeAuxInfo#*")
 IDTIDE1Stream.AddItem("xAOD::TriggerMenuContainer#*")
 IDTIDE1Stream.AddItem("xAOD::TriggerMenuContainer#TriggerMenu")
 IDTIDE1Stream.AddItem("xAOD::TriggerMenuAuxContainer#*")
@@ -291,10 +277,10 @@ IDTIDE1Stream.AddItem("xAOD::TriggerMenuAuxContainer#TriggerMenuAux.")
 IDTIDE1Stream.AddItem("xAOD::TrigConfKeys#*")
 IDTIDE1Stream.AddItem("xAOD::TrigDecision#*")
 IDTIDE1Stream.AddItem("xAOD::TrigDecisionAuxInfo#*")
-#IDTIDE1Stream.AddItem("xAOD::TrigNavigation#*")
-#IDTIDE1Stream.AddItem("xAOD::TrigNavigationAuxInfo#*")
+IDTIDE1Stream.AddItem("xAOD::TrigNavigation#*")
+IDTIDE1Stream.AddItem("xAOD::TrigNavigationAuxInfo#*")
 IDTIDE1Stream.AddItem("xAOD::TrackParticleContainer#InDetTrackParticles")
-IDTIDE1Stream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition")
+IDTIDE1Stream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.")
 IDTIDE1Stream.AddItem("xAOD::TrackParticleClusterAssociationContainer#*")
 IDTIDE1Stream.AddItem("xAOD::TrackParticleClusterAssociationAuxContainer#*")
 IDTIDE1Stream.AddItem("xAOD::TrackStateValidationContainer#*")
@@ -302,7 +288,7 @@ IDTIDE1Stream.AddItem("xAOD::TrackStateValidationAuxContainer#*")
 IDTIDE1Stream.AddItem("xAOD::TrackMeasurementValidationContainer#*")
 IDTIDE1Stream.AddItem("xAOD::TrackMeasurementValidationAuxContainer#*")
 IDTIDE1Stream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-IDTIDE1Stream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
+IDTIDE1Stream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.")
 IDTIDE1Stream.AddItem("xAOD::ElectronContainer#Electrons")
 IDTIDE1Stream.AddItem("xAOD::ElectronAuxContainer#ElectronsAux.")
 IDTIDE1Stream.AddItem("xAOD::PhotonContainer#Photons")
@@ -315,22 +301,18 @@ IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt4EMTopoJets")
 IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.")
 IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt2PV0TrackJets")
 IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.")
-#IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt3PV0TrackJets")
-#IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt3PV0TrackJetsAux.")
-#IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets")
-#IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt10LCTopoTrimmedPtFrac5SmallR20JetsAux.")
+IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt3PV0TrackJets")
+IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt3PV0TrackJetsAux.")
 IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt4EMTopo")
 IDTIDE1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt4EMTopoAux.")
 IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt2Track")
 IDTIDE1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt2TrackAux.")
-#IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt3Track")
-#IDTIDE1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt3TrackAux.")
+IDTIDE1Stream.AddItem("xAOD::BTaggingContainer#BTagging_AntiKt3Track")
+IDTIDE1Stream.AddItem("xAOD::BTaggingAuxContainer#BTagging_AntiKt3TrackAux.")
 if IsMonteCarlo:
   IDTIDE1Stream.AddItem("xAOD::TruthParticleContainer#*")
   IDTIDE1Stream.AddItem("xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension")
   IDTIDE1Stream.AddItem("xAOD::TruthVertexContainer#*")
-  IDTIDE1Stream.AddItem("xAOD::TruthVertexAuxContainer#*-vxTrackAtVertex")
+  IDTIDE1Stream.AddItem("xAOD::TruthVertexAuxContainer#*")
   IDTIDE1Stream.AddItem("xAOD::TruthEventContainer#*")
   IDTIDE1Stream.AddItem("xAOD::TruthEventAuxContainer#*")
-  IDTIDE1Stream.AddItem("xAOD::JetContainer#AntiKt4TruthJets")
-  IDTIDE1Stream.AddItem("xAOD::JetAuxContainer#AntiKt4TruthJetsAux.")
