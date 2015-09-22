@@ -23,50 +23,54 @@
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODJet/JetContainer.h"
 
-class IMETMaker : virtual public asg::IAsgTool {
+class IMETMaker :  virtual public asg::IAsgTool {
   ASG_TOOL_INTERFACE(IMETMaker)
-  
+
 public:
-  
+
   ///////////////////////////////////////////////////////////////////
   // Ele/Gamma/Mu/Tau MET term rebuilding
   ///////////////////////////////////////////////////////////////////
-  
+
   // Convenience method that creates a MET term internally
   virtual StatusCode rebuildMET(const std::string& metKey,
                                 xAOD::Type::ObjectType metType,
                                 xAOD::MissingETContainer* metCont,
                                 const xAOD::IParticleContainer* collection,
                                 const xAOD::MissingETAssociationMap* map,
-                                std::vector<const xAOD::IParticle*>& uniques) = 0;
+                                std::vector<const xAOD::IParticle*>& uniques,
+                                MissingETBase::UsageHandler::Policy objScale=MissingETBase::UsageHandler::PhysicsObject) = 0;
   // Convenience method that doesn't return the uniques list
   virtual StatusCode rebuildMET(const std::string& metKey,
                                 xAOD::Type::ObjectType metType,
                                 xAOD::MissingETContainer* metCont,
                                 const xAOD::IParticleContainer* collection,
-                                const xAOD::MissingETAssociationMap* map) = 0;
+                                const xAOD::MissingETAssociationMap* map,
+                                MissingETBase::UsageHandler::Policy objScale=MissingETBase::UsageHandler::PhysicsObject) = 0;
   // Convenience method that doesn't return the uniques list
   virtual StatusCode rebuildMET(xAOD::MissingET* met,
                                 const xAOD::IParticleContainer* collection,
-                                const xAOD::MissingETAssociationMap* map) = 0;
+                                const xAOD::MissingETAssociationMap* map,
+                                MissingETBase::UsageHandler::Policy objScale=MissingETBase::UsageHandler::PhysicsObject) = 0;
   // Default method that uses standard overlap removal policy
   virtual StatusCode rebuildMET(xAOD::MissingET* met,
                                 const xAOD::IParticleContainer* collection,
                                 const xAOD::MissingETAssociationMap* map,
-                                std::vector<const xAOD::IParticle*>& uniques) = 0;
+                                std::vector<const xAOD::IParticle*>& uniques,
+                                MissingETBase::UsageHandler::Policy objScale=MissingETBase::UsageHandler::PhysicsObject) = 0;
   // Full implementation with option flags
   virtual StatusCode rebuildMET(xAOD::MissingET* met,
                                 const xAOD::IParticleContainer* collection,
                                 const xAOD::MissingETAssociationMap* map,
                                 std::vector<const xAOD::IParticle*>& uniques,
                                 MissingETBase::UsageHandler::Policy p,
-                                bool removeOverlap) = 0;
-  
+                                bool removeOverlap,
+                                MissingETBase::UsageHandler::Policy objScale=MissingETBase::UsageHandler::PhysicsObject) = 0;
+
   ///////////////////////////////////////////////////////////////////
   // Jet/soft MET term rebuilding
   ///////////////////////////////////////////////////////////////////
 
-  
   // Convenience methods that creates MET terms internally
   // Version with single soft term
   virtual StatusCode rebuildJetMET(const std::string& metJetKey,
@@ -141,7 +145,14 @@ public:
                                    bool doJetJVF,
                                    std::vector<const xAOD::IParticle*>& uniques) = 0;
 
-  
+  ///////////////////////////////////////////////////////////////////
+  // Additional utility commands
+  ///////////////////////////////////////////////////////////////////
+
+  virtual StatusCode markInvisible(const xAOD::IParticleContainer* collection,
+				   const xAOD::MissingETAssociationMap* map,
+				   MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::TrackCluster) = 0;
+
   virtual StatusCode buildMETSum(const std::string& totalName,
                                  xAOD::MissingETContainer* metCont,
                                  MissingETBase::Types::bitmask_t softTermsSource) = 0;
