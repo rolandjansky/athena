@@ -70,6 +70,7 @@ StatusCode MdtRawDataValAlg::binMdtGlobal( TH2* &h, char ecap ) {
   h->LabelsDeflate("X");
   h->LabelsDeflate("Y");
   h->LabelsOption("a", "Y");
+  h->GetYaxis()->SetLabelSize(0.025);
   h->Reset();
 
   //Place Bounding Lines around bins representing actual detector
@@ -1426,7 +1427,7 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
       TLine* l3 = new TLine(1,12,50,12);  h->GetListOfFunctions()->Add(l3);
       TLine* l4 = new TLine(1,24,50,24);  h->GetListOfFunctions()->Add(l4);
       TLine* l5 = new TLine(1,25,50,25);  h->GetListOfFunctions()->Add(l5);
-      TLine* l6 = new TLine(1,38,50,38);  h->GetListOfFunctions()->Add(l6);
+      TLine* l6 = new TLine(1,37,50,37);  h->GetListOfFunctions()->Add(l6);
       TLine* l8 = new TLine(1,49,50,49);  h->GetListOfFunctions()->Add(l8);
       TLine* l9 = new TLine(1,61,50,61);  h->GetListOfFunctions()->Add(l9);
     }
@@ -1459,46 +1460,63 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
       h->GetYaxis()->SetBinLabel(1,"BIL");
       h->GetYaxis()->SetBinLabel(7,"BIM");
       h->GetYaxis()->SetBinLabel(12,"BIR");
-      h->GetYaxis()->SetBinLabel(27,"BIS");
+      h->GetYaxis()->SetBinLabel(18,"BIS");
       h->GetYaxis()->SetBinLabel(30,"BMF");
       h->GetYaxis()->SetBinLabel(33,"BML");
       h->GetYaxis()->SetBinLabel(45,"BMS");
       h->GetYaxis()->SetBinLabel(51,"BOF");
       h->GetYaxis()->SetBinLabel(55,"BOG");
-      h->GetYaxis()->SetBinLabel(60,"BOL");
-      h->GetYaxis()->SetBinLabel(72,"BOS");
+      if(region == 0){
+        h->GetYaxis()->SetBinLabel(60,"BOL");
+        h->GetYaxis()->SetBinLabel(72,"BOS");
+      } else if (region == 1){
+        h->GetYaxis()->SetBinLabel(59,"BOL");
+        h->GetYaxis()->SetBinLabel(71,"BOS");    	  
+      }
       //Add lines
       h->GetYaxis()->SetTickLength(0);
       for(int i = 0; i < 77; i++){
-	TLine* l = new TLine(1,i,20,i);
-	h->GetListOfFunctions()->Add(l);
+	     TLine* l = new TLine(1,i,20,i);
+	     h->GetListOfFunctions()->Add(l);
       }
       TLine* l2 = new TLine(1,6,50,6); h->GetListOfFunctions()->Add(l2);
       TLine* l3 = new TLine(1,11,50,11);  h->GetListOfFunctions()->Add(l3);
+      TLine* l3b = new TLine(1,17,50,17);  h->GetListOfFunctions()->Add(l3b);
       TLine* l4 = new TLine(1,26,50,26);  h->GetListOfFunctions()->Add(l4);
       TLine* l5 = new TLine(1,29,50,29);  h->GetListOfFunctions()->Add(l5);
       TLine* l6 = new TLine(1,32,50,32);  h->GetListOfFunctions()->Add(l6);
       TLine* l7 = new TLine(1,44,50,44);  h->GetListOfFunctions()->Add(l7);
       TLine* l8 = new TLine(1,50,50,50);  h->GetListOfFunctions()->Add(l8);
       TLine* l9 = new TLine(1,54,50,54);  h->GetListOfFunctions()->Add(l9);
-      TLine* l10 = new TLine(1,59,50,59);  h->GetListOfFunctions()->Add(l10);
-      TLine* l11 = new TLine(1,71,50,71);  h->GetListOfFunctions()->Add(l11);
+      if(region == 0) {
+    	  TLine* l10 = new TLine(1,59,50,59);  h->GetListOfFunctions()->Add(l10);
+          TLine* l11 = new TLine(1,71,50,71);  h->GetListOfFunctions()->Add(l11);
+      } else if (region == 1){
+          TLine* l10 = new TLine(1,58,50,58);  h->GetListOfFunctions()->Add(l10);
+          TLine* l11 = new TLine(1,70,50,70);  h->GetListOfFunctions()->Add(l11);
+      }
     }
 
-    else if(crate ==3){ //BA04, BC04
+    else if(crate == 3){ //BA04, BC04
      //Add Labels
       h->SetBins(500,1,1501,76,0,76);
       h->GetYaxis()->SetBinLabel(1,"BIL");
       h->GetYaxis()->SetBinLabel(7,"BIM");
       h->GetYaxis()->SetBinLabel(12,"BIR");
-      h->GetYaxis()->SetBinLabel(27,"BIS");
+      h->GetYaxis()->SetBinLabel(18,"BIS");
       h->GetYaxis()->SetBinLabel(30,"BMF");
       h->GetYaxis()->SetBinLabel(33,"BML");
       h->GetYaxis()->SetBinLabel(44,"BMS");
       h->GetYaxis()->SetBinLabel(50,"BOF");
       h->GetYaxis()->SetBinLabel(54,"BOG");
-      h->GetYaxis()->SetBinLabel(59,"BOL");
-      h->GetYaxis()->SetBinLabel(71,"BOS");
+      if (region == 0){
+          h->GetYaxis()->SetBinLabel(59,"BOL");
+          h->GetYaxis()->SetBinLabel(72,"BOS");
+      } else if (region == 1){
+          h->GetYaxis()->SetBinLabel(58,"BOL");
+          h->GetYaxis()->SetBinLabel(71,"BOS");
+      }
+      
       //Add lines
       h->GetYaxis()->SetTickLength(0);
       for(int i = 0; i < 76; i++){
@@ -1507,14 +1525,20 @@ StatusCode MdtRawDataValAlg::binMdtOccVsLB_Crate(TH2* &h, int region, int crate)
       }
       TLine* l2 = new TLine(1,6,50,6); h->GetListOfFunctions()->Add(l2);
       TLine* l3 = new TLine(1,11,50,11);  h->GetListOfFunctions()->Add(l3);
+      TLine* l3b = new TLine(1,17,50,17);  h->GetListOfFunctions()->Add(l3b);
       TLine* l4 = new TLine(1,26,50,26);  h->GetListOfFunctions()->Add(l4);
       TLine* l5 = new TLine(1,29,50,29);  h->GetListOfFunctions()->Add(l5);
       TLine* l6 = new TLine(1,32,50,32);  h->GetListOfFunctions()->Add(l6);
       TLine* l7 = new TLine(1,43,50,43);  h->GetListOfFunctions()->Add(l7);
       TLine* l8 = new TLine(1,49,50,49);  h->GetListOfFunctions()->Add(l8);
       TLine* l9 = new TLine(1,53,50,53);  h->GetListOfFunctions()->Add(l9);
-      TLine* l10 = new TLine(1,58,50,58);  h->GetListOfFunctions()->Add(l10);
-      TLine* l11 = new TLine(1,70,50,70);  h->GetListOfFunctions()->Add(l11);
+      if(region == 0){
+    	  TLine* l10 = new TLine(1,58,50,58);  h->GetListOfFunctions()->Add(l10);
+          TLine* l11 = new TLine(1,71,50,71);  h->GetListOfFunctions()->Add(l11);
+      } else if (region == 1 ){
+    	  TLine* l10 = new TLine(1,57,50,57);  h->GetListOfFunctions()->Add(l10);
+          TLine* l11 = new TLine(1,70,50,70);  h->GetListOfFunctions()->Add(l11);
+      }
     }
   }
 
@@ -1646,10 +1670,10 @@ int MdtRawDataValAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, 
 	else if(chamber.substr(0,3)=="BML") binNum = 32 + 2*eta + (phi-9)/2-1;
 	else if(chamber.substr(0,3)=="BMS") binNum = 44 + eta;
 	else if(chamber.substr(0,3)=="BOF") binNum = 50 + (eta+1)/2;
-	else if(chamber.substr(0,4)=="BOG0") binNum = 55;
-	else if(chamber.substr(0,3)=="BOG") binNum = 55 + eta/2;
-	else if(chamber.substr(0,3)=="BOL") binNum = 59 + 2*eta + (phi-9)/2-1;
-	else if(chamber.substr(0,3)=="BOS") binNum = 71 + eta;
+	else if(chamber.substr(0,4)=="BOG0" && region == 0 ) binNum = 55;
+	else if(chamber.substr(0,3)=="BOG") binNum = 55 + eta/2 - region;
+	else if(chamber.substr(0,3)=="BOL") binNum = 59 + 2*eta + (phi-9)/2-1 - region;
+	else if(chamber.substr(0,3)=="BOS") binNum = 71 + eta - region;
 	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Bx03");
 	return binNum - 1;
     } else if(crate == 4){//BA04, BC04
@@ -1663,10 +1687,10 @@ int MdtRawDataValAlg::get_bin_for_LB_crate_hist(int region, int crate, int phi, 
 	else if(chamber.substr(0,7)=="BML6A15" || chamber.substr(0,7)=="BML6C15" ) binNum = 43;
 	else if(chamber.substr(0,3)=="BMS") binNum = 43 + eta;
 	else if(chamber.substr(0,3)=="BOF") binNum = 49 + (eta+1)/2;
-	else if(chamber.substr(0,4)=="BOG0") binNum = 54;
-	else if(chamber.substr(0,3)=="BOG") binNum = 54 + eta/2;
-	else if(chamber.substr(0,3)=="BOL") binNum = 58 + 2*eta + (phi-13)/2-1;
-	else if(chamber.substr(0,3)=="BOS") binNum = 70 + eta;
+	else if(chamber.substr(0,4)=="BOG0" && region == 0) binNum = 54;
+	else if(chamber.substr(0,3)=="BOG") binNum = 54 + eta/2 - region;
+	else if(chamber.substr(0,3)=="BOL") binNum = 58 + 2*eta + (phi-13)/2-1 - region;
+	else if(chamber.substr(0,3)=="BOS") binNum = 71 + eta - region;
 	else ATH_MSG_INFO("chamber " << chamber << " didn't exist in crate Bx04");
 	return binNum - 1;
     }

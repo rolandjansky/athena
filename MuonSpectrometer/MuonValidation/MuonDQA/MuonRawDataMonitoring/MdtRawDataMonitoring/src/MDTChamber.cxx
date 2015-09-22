@@ -94,7 +94,7 @@ MDTChamber::MDTChamber(std::string name) :
     
     //station_phi is used as an iterator, and is thus 1 less than its value (since it always starts at 01, not 00).
 
-    if((Barrel == 'B' && name.substr(0,3)!="BEE") || (name.substr(0,3) == "BIS" && m_station_eta < 7) ){
+    if((Barrel == 'B' && name.substr(0,3)!="BEE" && name.substr(0,3) != "BIS") || (name.substr(0,3) == "BIS" && m_station_eta < 6) ){
 	if(m_station_phi < 4 || name.substr(0,3) == "BME"){
 	    m_crate = 1;
 	    if(Side == 'A') m_crate_str = "BA01";
@@ -116,7 +116,7 @@ MDTChamber::MDTChamber(std::string name) :
 	    else if(Side == 'C') m_crate_str = "BC04";
 	}    
      }
-    else if( (Barrel == 'E') || name.substr(0,3)=="BEE" || (name.substr(0,3)=="BIS" && m_station_eta > 6) ){
+    else if( (Barrel == 'E') || name.substr(0,3)=="BEE" || (name.substr(0,3)=="BIS" && m_station_eta > 5) ){
 	if(m_station_phi < 4){
 	    m_crate = 1;
 	    if(Side == 'A') m_crate_str = "EA01";
@@ -165,11 +165,11 @@ void MDTChamber::SetMDTHitsPerChamber_IMO_Bin(TH2F* h){
     if(m_hardware_name == "BML5C13") ecap_layer_IMO = "BC6";
   }
 
-  if(m_hardware_name == "BME1A14"){
+  if(m_hardware_name == "BME1A14" || m_hardware_name == "BME1A13" ){ //protect against future fix in mdt helper
 	  ecap_layer_IMO = "BA4";
 	  statphi_s = "13";
   }
-  if(m_hardware_name == "BME1C14"){
+  if(m_hardware_name == "BME1C14" || m_hardware_name == "BME1C13"){
 	  ecap_layer_IMO = "BC4";
 	  statphi_s = "13";
   }
@@ -209,10 +209,10 @@ void MDTChamber::SetMDTHitsPerML_byLayer_Bins(TH2F* h_mdthitspermultilayerLumi, 
       if(m_hardware_name == "BML4C13") ecap_layer = "BMC5";
       if(m_hardware_name == "BML5C13") ecap_layer = "BMC6";
     }
-    if(m_hardware_name == "BME1A14"){
+    if(m_hardware_name == "BME1A14" || m_hardware_name == "BME1A13"){
   	  ecap_layer = "BMA4";
     }
-    if(m_hardware_name == "BME1C14"){
+    if(m_hardware_name == "BME1C14" || m_hardware_name == "BME1C13"){
   	  ecap_layer = "BMC4";
     }
 
