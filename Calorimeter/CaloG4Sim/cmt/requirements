@@ -6,18 +6,28 @@ author William Seligman <seligman@nevis.columbia.edu>
 # LAr and Tile.
 
 use AtlasPolicy    AtlasPolicy-*
-
-# Application Action - defined in FADS.
-use FadsActions	   FadsActions-*       Simulation/G4Sim/FADS
+use GaudiInterface      GaudiInterface-*     External
 
 use Geant4         Geant4-*            External
 
+use G4AtlasTools	   G4AtlasTools-*      Simulation/G4Atlas
+
 # Build the library (and export the headers)
-library CaloG4Sim *.cc
-apply_pattern installed_library
+#library CaloG4Sim "../src/*.cc ../src/components/*.cxx"
+
+#apply_pattern installed_library
+
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_joboptions files="*.py"
+
+
+# LArG4SD links against this library
+library CaloG4Sim
+apply_pattern dual_use_library files=*.cc *.cxx
+
 
 #=======================================================
 private
-
+#
 # Suppress warnings of unused variables.
 macro_append CaloG4Sim_cppflags  " -Wno-unused"
