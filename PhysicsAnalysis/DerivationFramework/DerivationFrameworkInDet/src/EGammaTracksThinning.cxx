@@ -232,7 +232,7 @@ StatusCode DerivationFramework::EGammaTracksThinning::thinTracks( const TrackCol
     } // End loop over Tracks
 
   // Write out a statistics message
-  ATH_MSG_INFO( " EGammaTracksThinning statistics: tracks processed " << nTotal 
+  ATH_MSG_DEBUG( " EGammaTracksThinning statistics: tracks processed " << nTotal 
                 << " kept = " << nKeep
                 << " rejected " << nReject );
   
