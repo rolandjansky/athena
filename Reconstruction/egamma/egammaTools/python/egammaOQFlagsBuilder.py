@@ -17,7 +17,6 @@ egammaOQFlagsBuilder = ToolFactory( egammaToolsConf.egammaOQFlagsBuilder,
   LArQCut = 0.8,
   TCut = 10.,
   TCutVsE = 2.,
-  RcellCut = 0.8,
   CellsName = egammaKeys.caloCellKey(),
   LArBadChannelTool = LArBadChanTool,
   affectedTool = CaloAffectedToolDefault)

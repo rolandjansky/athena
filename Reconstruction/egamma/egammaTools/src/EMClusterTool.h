@@ -60,9 +60,6 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   /** @brief finalize method */
   virtual StatusCode finalize();
   
-  void fillPositionsInCalo(xAOD::CaloCluster* cluster) const ;
- private:
-
   /** @brief Set new cluster to the egamma object, decorate the new cluster
     * with a link to the old one **/
   void setNewCluster(xAOD::Egamma *eg,
@@ -74,8 +71,7 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
     * applying cluster corrections and MVA calibration (requires the egamma object).
     * The cluster size depends on the given EgammaType
     */
-  virtual xAOD::CaloCluster* makeNewCluster(const xAOD::CaloCluster&, xAOD::Egamma *eg, 
-					    xAOD::EgammaParameters::EgammaType);
+  virtual xAOD::CaloCluster* makeNewCluster(const xAOD::CaloCluster&, xAOD::Egamma *eg, xAOD::EgammaParameters::EgammaType);
 
   /** @brief creation of new cluster based on existing one 
     * Return a new cluster with the given size using the seed eta0, phi0 from the
@@ -84,10 +80,13 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
     * and set the raw one to the cal e,eta,phi from the existing cluster
     */
   virtual xAOD::CaloCluster* makeNewCluster(const xAOD::CaloCluster&, 
-                                            const xAOD::CaloCluster::ClusterSize&);
+                                            const xAOD::CaloCluster::ClusterSize&,
+                                            bool doDecorate = true);
+  
+  void fillPositionsInCalo(xAOD::CaloCluster* cluster);
+ private:
+  /** @brief Position in Calo frame**/
 
-  /** @brief creation of new super cluster based on existing one */
-  xAOD::CaloCluster* makeNewSuperCluster(const xAOD::CaloCluster& cluster, xAOD::Egamma *eg);  
 
   /** @brief Name of the output cluster container **/
   std::string m_outputClusterContainerName;
@@ -110,13 +109,15 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   /** @brief Name of tool for cluster corrections */
   std::string            m_ClusterCorrectionToolName;
   
-  /** @brief do super clusters **/ 
-  bool m_doSuperClusters;
+  /** @brief Decorate clusters with positions in calo frame? **/
+  bool m_doPositionInCalo;
 
-  /** @brief flag to protect against applying the MVA to super Clusters **/ 
-  bool m_applySuperClusters;
+  /** @brief Call CaloClusterStoreHelper::finalizeClusters ? **/ 
+  bool m_finalizeClusters;
 
-  /** @brief Position in Calo frame**/  
+  /** @brief Needed for supercluster algorithm **/ 
+  bool m_outputContainerExists;
+  
   std::unique_ptr<CaloCellDetPos> m_caloCellDetPos;
 };
 

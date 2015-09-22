@@ -12,9 +12,9 @@
 #include "../egammaOQFlagsBuilder.h"
 #include "../EMPIDBuilder.h"
 #include "../egammaSwTool.h"
-#include "../electronSuperClusterBuilder.h"
-#include "../photonSuperClusterBuilder.h"
-#include "../egammaTopoClusterCopier.h"
+#include "../egammaTopoClusterMap.h"
+#include "../egammaSuperClusterBuilder.h"
+#include "../egammaClusterOverlapMarker.h"
 
 DECLARE_TOOL_FACTORY     ( EMBremCollectionBuilder      )
 DECLARE_TOOL_FACTORY     ( EMClusterTool                )
@@ -28,9 +28,9 @@ DECLARE_TOOL_FACTORY     ( egammaCheckEnergyDepositTool )
 DECLARE_TOOL_FACTORY     ( egammaOQFlagsBuilder         )
 DECLARE_TOOL_FACTORY     ( EMPIDBuilder                 )
 DECLARE_TOOL_FACTORY     ( egammaSwTool                 )
-DECLARE_TOOL_FACTORY     ( electronSuperClusterBuilder  )
-DECLARE_TOOL_FACTORY     ( photonSuperClusterBuilder    )
-DECLARE_TOOL_FACTORY     ( egammaTopoClusterCopier      )
+DECLARE_TOOL_FACTORY     ( egammaTopoClusterMap         )
+DECLARE_TOOL_FACTORY     ( egammaSuperClusterBuilder    )
+DECLARE_TOOL_FACTORY     ( egammaClusterOverlapMarker   )
 
 DECLARE_FACTORY_ENTRIES(egammaTools) {
     DECLARE_TOOL     ( EMBremCollectionBuilder      )
@@ -45,8 +45,8 @@ DECLARE_FACTORY_ENTRIES(egammaTools) {
     DECLARE_TOOL     ( egammaOQFlagsBuilder         )
     DECLARE_TOOL     ( EMPIDBuilder                 )
     DECLARE_TOOL     ( egammaSwTool                 )
-    DECLARE_TOOL     ( electronSuperClusterBuilder  )
-    DECLARE_TOOL     ( photonSuperClusterBuilder    )
-    DECLARE_TOOL     ( egammaTopoClusterCopier      )
+    DECLARE_TOOL     ( egammaTopoClusterMap         )
+    DECLARE_TOOL     ( egammaSuperClusterBuilder    )
+    DECLARE_TOOL     ( egammaClusterOverlapMarker   )
 }
 

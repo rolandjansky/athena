@@ -12,6 +12,8 @@
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "xAODTracking/VertexContainerFwd.h"
 
+class  StoreGateSvc;
+
 namespace InDet
 {
   class IVertexFinder;
@@ -45,6 +47,8 @@ class EMVertexBuilder : virtual public IEMVertexBuilder, public egammaBaseTool {
   float m_minPtCut_DoubleTrack;
   float m_minPtCut_SingleTrack;
 
+  StoreGateSvc          *m_storeGate;
+		
   /** @brief TrackParticle container input name*/
   std::string            m_inputTrackParticleContainerName;
 

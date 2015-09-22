@@ -15,18 +15,26 @@ changes :
 
 ***************************************************************************/
 
+#include "GaudiKernel/MsgStream.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
+
 #include "InDetRecToolInterfaces/IVertexFinder.h"
 #include "InDetConversionFinderTools/SingleTrackConversionTool.h"
+
 #include "xAODEgamma/EgammaxAODHelpers.h"
+#include "egammaUtils/EMConversionUtils.h"
+
 #include "egammaInterfaces/IEMExtrapolationTools.h"
+
 #include "EMVertexBuilder.h"
 
 EMVertexBuilder::EMVertexBuilder(const std::string& type, const std::string& name, const IInterface* parent) :
   egammaBaseTool(type, name, parent),
+  m_storeGate(0),
   m_vertexFinderTool("InDet::InDetConversionFinderTools"),
   m_EMExtrapolationTool("EMExtrapolationTools")
 {
@@ -60,6 +68,11 @@ StatusCode EMVertexBuilder::initialize() {
 
   ATH_MSG_DEBUG( "Initializing " << name() << "...");
   
+  // Get pointer to StoreGateSvc and cache it :
+  if ( !service( "StoreGateSvc", m_storeGate ).isSuccess() ) {
+    ATH_MSG_ERROR("Unable to retrieve pointer to StoreGateSvc");
+    return StatusCode::FAILURE;
+  }
 
   // Get the ID VertexFinderTool
   if ( m_vertexFinderTool.retrieve().isFailure() ) {
@@ -94,12 +107,14 @@ StatusCode EMVertexBuilder::contExecute()
   StatusCode sc;
 
   //retrieve TrackParticleContainer and cast into non-const
-  const xAOD::TrackParticleContainer* TPCol;
-  sc = evtStore()->retrieve(TPCol, m_inputTrackParticleContainerName);
-  if(sc.isFailure()  ||  !TPCol){
+  const xAOD::TrackParticleContainer* TrackParticleInputContainer;
+  sc = evtStore()->retrieve(TrackParticleInputContainer, m_inputTrackParticleContainerName);
+  if(sc.isFailure()  ||  !TrackParticleInputContainer){
     ATH_MSG_ERROR("No TrackParticleInputContainer found in TDS");
     return sc;
   }
+  
+  xAOD::TrackParticleContainer * TPCol = const_cast<xAOD::TrackParticleContainer*>(TrackParticleInputContainer);
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> vertices = m_vertexFinderTool->findVertex(TPCol);
   if (!vertices.first || !vertices.second){
@@ -122,13 +137,9 @@ StatusCode EMVertexBuilder::contExecute()
     for (unsigned int i = 0; i < vertex.nTrackParticles(); ++i){
       momentum += m_EMExtrapolationTool->getMomentumAtVertex(vertex, i);
     }
-
-    const static SG::AuxElement::Accessor<float> accPx("px");
-    const static SG::AuxElement::Accessor<float> accPy("py");
-    const static SG::AuxElement::Accessor<float> accPz("pz");
-    accPx(vertex) = momentum.x();
-    accPy(vertex) = momentum.y();
-    accPz(vertex) = momentum.z();
+    vertex.auxdata<float>("px") = momentum.x();
+    vertex.auxdata<float>("py") = momentum.y();
+    vertex.auxdata<float>("pz") = momentum.z();
     
     xAOD::EgammaParameters::ConversionType convType(xAOD::EgammaHelpers::conversionType((*itVtx)));
     bool vxDoubleTRT = (convType == xAOD::EgammaParameters::doubleTRT);
@@ -158,10 +169,8 @@ StatusCode EMVertexBuilder::contExecute()
     }
     
     // Decorate vertex with etaAtCalo, phiAtCalo
-    static const SG::AuxElement::Accessor<float> accetaAtCalo("etaAtCalo");
-    static const SG::AuxElement::Accessor<float> accphiAtCalo("phiAtCalo");
-    accetaAtCalo(*vertex) = etaAtCalo;
-    accphiAtCalo(*vertex) = phiAtCalo;
+    vertex->auxdata<float>("etaAtCalo") = etaAtCalo;
+    vertex->auxdata<float>("phiAtCalo") = phiAtCalo;
   }
   
   //put the new conversion vertex container and its aux container into StoreGate

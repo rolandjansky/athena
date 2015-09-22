@@ -39,11 +39,7 @@ EMShowerBuilder::EMShowerBuilder(const std::string& type,
                                  const std::string& name,
                                  const IInterface* parent)
   : egammaBaseTool(type, name, parent),
-    m_ShowerShapeTool("egammaShowerShape/egammashowershape"),
-    m_cellcoll(0),
-    m_clus(0),
-    m_caloSelection(false),
-    m_timingProfile(0)
+    m_ShowerShapeTool("egammaShowerShape/egammashowershape")
 {
   //
   // constructor
@@ -82,7 +78,8 @@ EMShowerBuilder::EMShowerBuilder(const std::string& type,
   declareProperty("Print",m_Print=false,"in case of extra prints");
 
   // in case we want some extra print
-  declareProperty("Timing",m_timing=false,"do extra timing");      
+  declareProperty("Timing",m_timing=false,"do extra timing");
+      
 }
 
 // ===============================================================
@@ -110,7 +107,7 @@ StatusCode EMShowerBuilder::initialize()
     return StatusCode::SUCCESS;
   } else if  (m_caloNums.size()>nSubCalo ) {
     ATH_MSG_ERROR(" More than "
-		  << nSubCalo << " calo specified. Must be wrong. Stop.");
+      << nSubCalo << " calo specified. Must be wrong. Stop.");
     return StatusCode::FAILURE;
   } else {
     m_caloSelection = true ;
@@ -118,16 +115,23 @@ StatusCode EMShowerBuilder::initialize()
     for (unsigned int index=0; index < m_caloNums.size() ; ++index) {
       if (m_caloNums[index]<0 ||  m_caloNums[index]>=(int)nSubCalo ) {
         ATH_MSG_ERROR("Invalid calo specification:"
-		      << m_caloNums[index] << "Stop.");
+          << m_caloNums[index] << "Stop.");
         return StatusCode::FAILURE;
   
       } else {
-	ATH_MSG_DEBUG(" Select calorimeter " << m_caloNums[index]);
+  ATH_MSG_DEBUG(" Select calorimeter " << m_caloNums[index]);
       }
     }
   }
+  
+  // Pointer to Tool Service
+  IToolSvc* p_toolSvc = 0;
+  StatusCode sc = service("ToolSvc", p_toolSvc);
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL(" Tool Service not found ");
+    return StatusCode::FAILURE;
+  } 
 
-  StatusCode sc = StatusCode::SUCCESS;
   //Retrieve shower shape Tool 
   if (m_UseShowerShapeTool) { 
     if ((sc = RetrieveShowerShapeTool()).isFailure()) { 
@@ -142,7 +146,9 @@ StatusCode EMShowerBuilder::initialize()
       return sc;
     }
   }
+
   // for measuring the timing
+  m_timingProfile = 0;
   if (m_timing) {
     sc = service("ChronoStatSvc",m_timingProfile);
     if(sc.isFailure() || m_timingProfile == 0) {
@@ -198,19 +204,22 @@ StatusCode EMShowerBuilder::RetrieveHadronicLeakageTool()
 }
 
 // ====================================================================
-StatusCode EMShowerBuilder::finalize(){
+StatusCode EMShowerBuilder::finalize()
+{
   //
   // finalize method
   //
+
   return StatusCode::SUCCESS;
 }
 
 // =====================================================================
-StatusCode EMShowerBuilder::execute(xAOD::Egamma* eg){ 
+StatusCode EMShowerBuilder::execute(xAOD::Egamma* eg)
+{ 
   // 
   // execute method as used in offline reconstruction
   // 
-  
+
   ATH_MSG_DEBUG("Executing EMShowerBuilder::execute");
   
   // protection against bad pointers
@@ -246,7 +255,7 @@ StatusCode EMShowerBuilder::recoExecute(xAOD::Egamma* eg, const CaloCellContaine
   m_cellcoll = cellcoll;
 
   // calculate shower shapes
-  CHECK(CalcShowerShape(eg));
+  CalcShowerShape(eg);
   
   ATH_MSG_DEBUG("Exiting recoExecute");
   
@@ -275,7 +284,7 @@ StatusCode EMShowerBuilder::retrieveContainers()
 }
 
 // =====================================================================
-StatusCode EMShowerBuilder::CalcShowerShape(xAOD::Egamma* eg)
+void EMShowerBuilder::CalcShowerShape(xAOD::Egamma* eg)
 { 
   // 
   // Estimate shower shapes and fill the EMShower object associated to eg
@@ -284,14 +293,14 @@ StatusCode EMShowerBuilder::CalcShowerShape(xAOD::Egamma* eg)
   ATH_MSG_DEBUG("Executing CalcShowerShape");
 
   // protection against bad pointers
-  if (eg==0) {return StatusCode::SUCCESS;}
+  if (eg==0) return;
 
   StatusCode sc = StatusCode::SUCCESS;
 
   // retrieve the cluster 
   m_clus = eg->caloCluster(); 
   // Protect against non-existent structures.
-  if (m_clus == 0) {return StatusCode::SUCCESS; }
+  if (m_clus == 0) return;  
 
   // call calorimeter isolation tool only if needed
   if (m_UseCaloIsoTool){
@@ -299,10 +308,10 @@ StatusCode EMShowerBuilder::CalcShowerShape(xAOD::Egamma* eg)
     if (m_timingProfile) {
       std::string chronoName = this->name()+"_CalcHadronicLeakage";         
       m_timingProfile->chronoStart(chronoName);
-      CHECK(CalcHadronicLeakage(eg));
+      CalcHadronicLeakage(eg);
       m_timingProfile->chronoStop(chronoName);
     } else {
-      CHECK(CalcHadronicLeakage(eg));
+      CalcHadronicLeakage(eg);
     }
   } 
 
@@ -318,7 +327,7 @@ StatusCode EMShowerBuilder::CalcShowerShape(xAOD::Egamma* eg)
       if ( sc.isFailure() ) {
 	ATH_MSG_WARNING("call to ShowerShape returns failure ");
       } else {
-	CHECK(FillEMShowerShape(eg));
+	FillEMShowerShape(eg);
       }
     }
     if (m_timingProfile) {
@@ -326,24 +335,25 @@ StatusCode EMShowerBuilder::CalcShowerShape(xAOD::Egamma* eg)
       m_timingProfile->chronoStop(chronoName);
     }
   }
-  return sc;
 }
 
 // ==========================================================================
-StatusCode EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg){
+void EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg)
+{
   //
   // Call calorimeter isolation tool
   //
+
   ATH_MSG_DEBUG("Executing CalcHadronicLeakage");
 
-  // protection in case tool does not exist
+   // protection in case tool does not exist
   if (m_HadronicLeakageTool.empty()) {
-    return StatusCode::SUCCESS;
+    return;
   }
 
   if ( m_caloNums.size() < 3 ) {
     ATH_MSG_WARNING("Less than 3 subCalos, skipping");
-    return StatusCode::SUCCESS;
+    return;
   }
 
   // define a new Calo Cell list corresponding to EM Calo
@@ -366,15 +376,17 @@ StatusCode EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg){
   theVecCalo.push_back(theCalo2);
   // define a new Calo Cell list
   CaloCellList* HADccl = new CaloCellList(m_cellcoll,theVecCalo); 
-  
+
+
   // calculate information concerning just the hadronic leakage
   StatusCode sc =  m_HadronicLeakageTool->execute(m_clus,HADccl);
+
   if ( sc.isFailure() ) {
     ATH_MSG_WARNING("call to Iso returns failure for execute");
     // delete ccls
     delete EMccl;
     delete HADccl;
-    return sc;
+    return;
   }
   
   float value=0;
@@ -391,29 +403,31 @@ StatusCode EMShowerBuilder::CalcHadronicLeakage(xAOD::Egamma* eg){
 
   value=static_cast<float>(m_HadronicLeakageTool->ehad1());
   eg->setShowerShapeValue(value, xAOD::EgammaParameters::ehad1);
-    
+  
+ 
+
+  
   // delete ccls
   delete EMccl;
   delete HADccl;
-
-  return StatusCode::SUCCESS;
-
 }
 
 
 // ==========================================================================
-StatusCode EMShowerBuilder::FillEMShowerShape(xAOD::Egamma* eg) const { 
+void EMShowerBuilder::FillEMShowerShape(xAOD::Egamma* eg)
+{ 
   //
   // retrieve information from shower shape calculation at ESD level
   //
+
   // protection in case Tool does not exist
-  if (m_ShowerShapeTool.empty()) {
-    return StatusCode::SUCCESS;
-  }
+  if (m_ShowerShapeTool.empty()) return;
+
   //
   // information in the presampler
   //
   // E in 1x1 cells in pre sampler
+
   float value=0;
   // E in 1x1 cells in pre sampler
   value=static_cast<float>(m_ShowerShapeTool->e011());
@@ -472,6 +486,7 @@ StatusCode EMShowerBuilder::FillEMShowerShape(xAOD::Egamma* eg) const {
   // total width in strips
   value=static_cast<float>(m_ShowerShapeTool->wtot());
   eg->setShowerShapeValue(value, xAOD::EgammaParameters::wtots1);
+
   //
   // information in the 2nd sampling
   //
@@ -520,6 +535,7 @@ StatusCode EMShowerBuilder::FillEMShowerShape(xAOD::Egamma* eg) const {
   // E in 7x7 cells in S3
   value=static_cast<float>(m_ShowerShapeTool->e377());
   eg->setShowerShapeValue(value, xAOD::EgammaParameters::e377);
+
   //
   // information combining all samplings
   //
@@ -529,6 +545,7 @@ StatusCode EMShowerBuilder::FillEMShowerShape(xAOD::Egamma* eg) const {
   // core energy
   value=static_cast<float>(m_ShowerShapeTool->ecore());
   eg->setShowerShapeValue(value, xAOD::EgammaParameters::ecore);
+
   //
   // information combining different shower shape
   //
@@ -548,6 +565,7 @@ StatusCode EMShowerBuilder::FillEMShowerShape(xAOD::Egamma* eg) const {
 
   value=static_cast<float>(m_ShowerShapeTool->emin());
   eg->setShowerShapeValue( (valueSecond-value), xAOD::EgammaParameters::DeltaE);
-  return StatusCode::SUCCESS;
+
+  return;
 }
 

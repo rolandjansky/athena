@@ -19,6 +19,7 @@ The matching of a track to a cluster is driven by the EMTrackMatchBuilder tool l
 #include "egammaBaseTool.h"
 #include "egammaInterfaces/IEMTrackMatchBuilder.h"
 #include "TrackMatchSorter.h"
+#include "CaloGeoHelpers/CaloPhiRange.h"
 #include "GaudiKernel/ToolHandle.h" 
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h" 
@@ -100,6 +101,8 @@ private:
   bool m_UseRescaleMetric;
   /** @brief Boolean to do second pass with Rescale*/
   bool m_SecondPassRescale;
+  /** @brief helper for */
+  CaloPhiRange          m_phiHelper;
   /** @brief TrackToCalo extrapolation tool. Handles Trk::ParametersBase as input.
       Extrapolation starts from the last measurement of the track. The
       InDetExtrapolator is used, with all proper material effects inside the

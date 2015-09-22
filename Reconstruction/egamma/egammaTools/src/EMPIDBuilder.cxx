@@ -12,8 +12,6 @@
 #include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
 #include "PATCore/IAsgSelectionTool.h"
 #include "LumiBlockComps/LumiBlockMuTool.h"
-#include "PATCore/TAccept.h"            // for TAccept
-#include "PATCore/TResult.h"            // for TResult
 
 // ===========================================================================
 EMPIDBuilder::EMPIDBuilder(const std::string& type,
