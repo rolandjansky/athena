@@ -97,6 +97,15 @@ TCS::DeltaRApproxBoxCutIncl1::initialize() {
 }
 
 
+TCS::StatusCode
+TCS::DeltaRApproxBoxCutIncl1::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+                     const std::vector<TCS::TOBArray *> & output,
+                     Decision & decision )
+
+{
+	return process(input,output,decision);
+}
+
 
 TCS::StatusCode
 TCS::DeltaRApproxBoxCutIncl1::process( const std::vector<TCS::TOBArray const *> & input,

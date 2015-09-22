@@ -92,6 +92,14 @@ TCS::JetHT::initialize() {
    return StatusCode::SUCCESS;
 }
 
+TCS::StatusCode
+TCS::JetHT::processBitCorrect( const std::vector<TCS::TOBArray const *> & input,
+                     const std::vector<TCS::TOBArray *> & output,
+                     Decision & decision )
+
+{
+	return process(input,output,decision);
+}
 
 
 TCS::StatusCode
