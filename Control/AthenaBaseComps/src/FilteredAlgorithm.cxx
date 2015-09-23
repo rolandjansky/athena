@@ -129,14 +129,7 @@ bool
 FilteredAlgorithm::isEventAccepted( ) const
 {
   bool result = true;
-  if (this->getContext()!=nullptr) {
-    result = m_decSvc->isEventAccepted(this->name(),*(this->getContext()));
-    //ATH_MSG_DEBUG("res=" << result << " n=" << this->name() << " sl=" << this->getContext()->slot() << " evt=" << this->getContext()->eventID().event_number());
-  } else {
-    ATH_MSG_DEBUG("Not a threaded app");
-    result = m_decSvc->isEventAccepted(this->name());
-  }
-
+  result = m_decSvc->isEventAccepted(this->name());
   return result;
 }
 

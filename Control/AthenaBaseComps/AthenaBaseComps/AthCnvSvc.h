@@ -13,7 +13,9 @@
 
 // STL includes
 #include <string>
-#include <unordered_map>
+
+// CxxUtils includes
+#include "CxxUtils/unordered_map.h" // move to STL when available
 
 // GaudiKernel
 #include "GaudiKernel/IConversionSvc.h"
@@ -102,7 +104,7 @@ public:
       return this->clID() < rhs.clID();
     }
   };
-  typedef std::unordered_map<CLID,WorkerEntry> Workers;
+  typedef SG::unordered_map<CLID,WorkerEntry> Workers;
 
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 

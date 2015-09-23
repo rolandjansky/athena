@@ -13,7 +13,6 @@
 
 // STL includes
 #include <string>
-#include <type_traits>
 
 // FrameWork includes
 #include "GaudiKernel/Algorithm.h"
@@ -25,10 +24,9 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/VarHandleProperty.h"
-#include "StoreGate/VarHandleKeyProperty.h"
-#include "StoreGate/VarHandleKeyArrayProperty.h"
-#include "StoreGate/VarHandleKey.h"
-#include "StoreGate/VarHandleKeyArray.h"
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+#include "StoreGate/UpdateHandle.h"
 #include "AthenaKernel/IUserDataSvc.h"
 
 // Forward declaration
@@ -102,138 +100,55 @@ class AthAlgorithm
    */
   ServiceHandle<IUserDataSvc>& userStore() const;
 
-private:
-  // to keep track of VarHandleKeyArrays for data dep registration
-  mutable std::vector<SG::VarHandleKeyArray*> m_vhka;
 
+#ifdef ATHENAHIVE
   /////////////////////////////////////////////////////////////////
   //
   //// For automatic registration of Handle data products
   //
 
 public:
-  /**
-   * @brief Declare a new Gaudi property.
-   * @param name Name of the property.
-   * @param property Object holding the property value.
-   * @param doc Documenation string for the property.
-   *
-   * This is the version for types that derive from @c SG::VarHandleKey.
-   * The property value object is put on the input and output lists as
-   * appropriate; then we forward to the base class.
-   */
-  Property* declareProperty(const std::string& name,
-                            SG::VarHandleKey& hndl,
-                            const std::string& doc,
-                            std::true_type,
-                            std::false_type)
-  {
-    this->declare(hndl);
-    hndl.setOwner(this);
 
-    return Algorithm::declareProperty(name,hndl,doc);
-  }
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-  Property* declareProperty(const std::string& name,
-                            SG::VarHandleKeyArray& hndArr,
-                            const std::string& doc,
-                            std::false_type,
-                            std::true_type)
-  {
-
-    // std::ostringstream ost;
-    // ost << Algorithm::name() << " VHKA declareProp: " << name 
-    //     << " size: " << hndArr.keys().size() 
-    //     << " mode: " << hndArr.mode() 
-    //     << "  vhka size: " << m_vhka.size()
-    //     << "\n";
-    // debug() << ost.str() << endmsg;
-
-    m_vhka.push_back(&hndArr);
-
-    Property* p =  Algorithm::declareProperty(name, hndArr, doc);
-    if (p != 0) {
-      p->declareUpdateHandler(&AthAlgorithm::updateVHKA, this);
-    } else {
-      ATH_MSG_ERROR("unable to call declareProperty on VarHandleKeyArray " 
-                    << name);
-    }
-
-    return p;
-
-  }
-
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-  // since the contents of the VarHandleKeyArrays have not been read 
-  // in from the configurables by the time that declareProperty is
-  // executed, we must cache them and loop through them later to
-  // register the data dependencies
-
-  void updateVHKA(Property& /*p*/) {
-    // debug() << "updateVHKA for property " << p.name() << " " << p.toString() 
-    //         << "  size: " << m_vhka.size() << endmsg;
-    for (auto &a : m_vhka) {
-      std::vector<SG::VarHandleKey*> keys = a->keys();
-      for (auto k : keys) {
-        this->declare(*k);
-        k->setOwner(this);
-      }
-    }
-  }
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-
-  /**
-   * @brief Declare a new Gaudi property.
-   * @param name Name of the property.
-   * @param property Object holding the property value.
-   * @param doc Documenation string for the property.
-   *
-   * This is the generic version, for types that do not derive
-   * from  @c SG::VarHandleKey.  It just forwards to the base class version
-   * of @c declareProperty.
-   */
+  using Algorithm::declareProperty;
   template <class T>
   Property* declareProperty(const std::string& name,
-                            T& property,
-                            const std::string& doc,
-                            std::false_type,
-                            std::false_type
-                            ) 
-  {
-    return Algorithm::declareProperty(name, property, doc);
+                            SG::ReadHandle<T>& hndl,
+                            const std::string& doc="none") const {
+
+    AthAlgorithm* aa = const_cast<AthAlgorithm*>(this);
+    aa->declareInput(&hndl);
+    hndl.setOwner(aa);
+
+    return m_propertyMgr->declareProperty(name,hndl,doc);
   }
 
-
-  /**
-   * @brief Declare a new Gaudi property.
-   * @param name Name of the property.
-   * @param property Object holding the property value.
-   * @param doc Documenation string for the property.
-   *
-   * This dispatches to either the generic @c declareProperty or the one
-   * for VarHandle/Key, depending on whether or not @c property
-   * derives from @c SG::VarHandleKey or @c SG::VarHandleKeyArray.
-   */
   template <class T>
   Property* declareProperty(const std::string& name,
-                            T& property,
-                            const std::string& doc="none") 
-  {
+                            SG::WriteHandle<T>& hndl,
+                            const std::string& doc="none") const {
 
-    return declareProperty (name, property, doc,
-                            std::is_base_of<SG::VarHandleKey, T>(),
-                            std::is_base_of<SG::VarHandleKeyArray,T>()
-    );
+    AthAlgorithm* aa = const_cast<AthAlgorithm*>(this);
+    aa->declareOutput(&hndl);
+    hndl.setOwner(aa);
 
+    return m_propertyMgr->declareProperty(name,hndl,doc);
   }
 
-  
+  template <class T>
+  Property* declareProperty(const std::string& name,
+                            SG::UpdateHandle<T>& hndl,
+                            const std::string& doc="none") const {
+
+    AthAlgorithm* aa = const_cast<AthAlgorithm*>(this);
+    aa->declareInput(&hndl);
+    aa->declareOutput(&hndl);
+    hndl.setOwner(aa);
+
+    return m_propertyMgr->declareProperty(name,hndl,doc);
+  }
+
+#endif
+
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
   /////////////////////////////////////////////////////////////////// 

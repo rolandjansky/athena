@@ -37,15 +37,9 @@ AthAlgTool::AthAlgTool( const std::string& type,
   // 
   //declareProperty( "Property", m_nProperty );
 
-  auto props = getProperties();
-  for( Property* prop : props ) {
-    if( prop->name() != "OutputLevel" ) {
-      continue;
-    }
-    prop->declareUpdateHandler
-      (&AthAlgTool::msg_update_handler, this);
-    break;
-  }
+  outputLevelProperty()
+    .declareUpdateHandler
+    (&AthAlgTool::msg_update_handler, this);
 
   declareProperty( "EvtStore",
                    m_evtStore = StoreGateSvc_t ("StoreGateSvc", name),
@@ -91,17 +85,8 @@ AthAlgTool::~AthAlgTool()
 /////////////////////////////////////////////////////////////////// 
 
 void 
-AthAlgTool::msg_update_handler( Property& outputLevel ) 
+AthAlgTool::msg_update_handler(Property& /*m_outputLevel*/) 
 {
-   // We can't just rely on the return value of msgLevel() here. Since it's
-   // not well defined whether the base class gets updated with the new
-   // output level first, or this class. So by default just use the property
-   // itself. The fallback is only there in case Gaudi changes its property
-   // type at one point, to be able to fall back on something.
-   IntegerProperty* iprop = dynamic_cast< IntegerProperty* >( &outputLevel );
-   if( iprop ) {
-      msg().setLevel( iprop->value() );
-   } else {
-      msg().setLevel( msgLevel() );
-   }
+  msg().setLevel (outputLevel());
 }
+
