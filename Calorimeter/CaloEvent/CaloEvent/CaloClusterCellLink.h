@@ -18,6 +18,9 @@
  *  Simplified replacement for CaloCellLink, CaloClusterNavigable and Navigable classes 
  *  used during run 1.
  */
+
+
+
 class CaloClusterCellLink {
   friend class CaloClusterCellLinksUpdater;
 
@@ -85,6 +88,9 @@ class CaloClusterCellLink {
     linkAndWeightCollType::const_iterator m_it;
   };//end class CaloClusterCellLink::const_iterator
 
+
+  /// Dummy iterator to be used as begin/end if no cell-links are present
+  const static CaloClusterCellLink::const_iterator dummyIt;
 
   /**@brief const begin method
    * @return const_iterator to the first cell belonging to this cluster
@@ -200,6 +206,8 @@ class CaloClusterCellLink {
  private:
   DataLink<CaloCellContainer> m_cellCont;
   linkAndWeightCollType m_indicesAndWeights;
+
+  const static linkAndWeightCollType m_dummyIndicesAndWeights; //0-size vector for dummy iterator
 
 };
 
