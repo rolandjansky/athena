@@ -14,7 +14,6 @@
 
 #include "TrigTSerializer.h"
 #include "SerializeCommon.h"
-#include "GaudiKernel/MsgStream.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "TROOT.h"
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,17,6)
@@ -68,25 +67,18 @@
 
 bool TrigTSerializer::s_decodingError;
 
-TrigTSerializer::TrigTSerializer(const std::string& toolname, const std::string& type, const IInterface* parent) : AlgTool(toolname, type, parent) {
+TrigTSerializer::TrigTSerializer(const std::string& toolname, const std::string& type, const IInterface* parent) : AthAlgTool(toolname, type, parent) {
   declareInterface<ITrigSerializerToolBase>( this );
   declareProperty("OnlineMode", m_onlineMode=false, "avoid initializations not needed in the online");
 
-  m_log = new MsgStream(msgSvc(), name());
-  m_outputlevel = msgSvc()->outputLevel(name());
   for (size_t i=0; i<4; i++) m_guid[i]=0;
 }
 
 TrigTSerializer::~TrigTSerializer(){
-  delete m_log;
 }
 
 StatusCode TrigTSerializer::initialize(){
-  m_outputlevel = msgSvc()->outputLevel(name());
-
-  if (m_outputlevel<=MSG::DEBUG)
-    *m_log << MSG::DEBUG  << "TrigTSerializer::initialize " << name() << " " << m_outputlevel <<  endreq;
-
+  ATH_MSG_DEBUG( "TrigTSerializer::initialize " << name() );
 
   if (!m_onlineMode)
     add_previous_streamerinfos();
@@ -104,12 +96,12 @@ StatusCode TrigTSerializer::finalize(){
   bool reported(false);
   while (mitr!=mend){
     reported=true;
-    *m_log << MSG::WARNING << "Could not interpret persistent object " << (*mitr).first
-	   << " /" << (*mitr).second << " times." << endreq;
+    ATH_MSG_WARNING( "Could not interpret persistent object " << (*mitr).first
+                     << " /" << (*mitr).second << " times." );
     ++mitr;
   }
   if (!reported)
-    *m_log << MSG::INFO << name() << " no problems encountered" << endreq;
+    ATH_MSG_INFO( name() << " no problems encountered" );
 
   return StatusCode::SUCCESS;
 }
@@ -118,8 +110,7 @@ void TrigTSerializer::add_previous_streamerinfos(){
   //temporary 
   std::string extStreamerInfos = "bs-streamerinfos.root";
   std::string m_extFile = PathResolver::find_file (extStreamerInfos, "DATAPATH");
-  if (m_outputlevel<=MSG::DEBUG)
-    *m_log << MSG::DEBUG << "Using " << m_extFile << endreq;
+  ATH_MSG_DEBUG( "Using " << m_extFile );
   TFile f(m_extFile.c_str());
   TList *a = f.GetStreamerInfoList();
   TIter nextinfo(a);
@@ -129,16 +120,16 @@ void TrigTSerializer::add_previous_streamerinfos(){
     TString t_name=inf->GetName();
 
     if (t_name.BeginsWith("listOfRules")){
-    	*m_log << MSG::WARNING << "Could not re-load  class " << t_name<< endreq;
+        ATH_MSG_WARNING( "Could not re-load  class " << t_name );
     	continue;
     }
 
     inf->BuildCheck();
     //this triggers a crash on lcg60
     TClass *cl = inf->GetClass();
-    if (cl && m_outputlevel<=MSG::DEBUG)
-      *m_log  << MSG::DEBUG << "external TStreamerInfo for " << cl->GetName()
-	      << " checksum: " << inf->GetCheckSum() << endreq;
+    if (cl)
+      ATH_MSG_DEBUG( "external TStreamerInfo for " << cl->GetName()
+                     << " checksum: " << inf->GetCheckSum()  );
   }
 
 }
@@ -170,8 +161,8 @@ void TrigTSerializer::restoreAfterTBuffer(const std::string &nameOfClass){
     if (m_errCount.find(nameOfClass)!=m_errCount.end()){
       ++m_errCount[nameOfClass];
     } else {
-      *m_log << MSG::ERROR << "Errors while decoding " << nameOfClass
-	     << " any further ROOT messages for this class will be suppressed" << endreq;
+      ATH_MSG_ERROR( "Errors while decoding " << nameOfClass
+                     << " any further ROOT messages for this class will be suppressed"  );
       m_errCount[nameOfClass] = 1;
     }
   }
@@ -192,8 +183,8 @@ void TrigTSerializer::serialize(const std::string &nameOfClass, void* instance, 
 
   size_t rootDebug = gDebug;
 
-  if (m_outputlevel<=MSG::DEBUG){
-    *m_log << MSG::DEBUG << "in serialize for " << nameOfClass  <<  endreq;
+  if (msgLvl(MSG::DEBUG)){
+    ATH_MSG_DEBUG( "in serialize for " << nameOfClass   );
     /*
     //cannot be used in production 
     //higher gDebug seems to interfere with ErrorHandler
@@ -218,13 +209,13 @@ void TrigTSerializer::serialize(const std::string &nameOfClass, void* instance, 
   if (pclass){
     //m_buff->StreamObject(instance, pclass);
     
-    *m_log << MSG::DEBUG << "writing instance " << instance << " to buffer for noc " << noc  <<  endreq;
+    ATH_MSG_DEBUG( "writing instance " << instance << " to buffer for noc " << noc   );
     
     prepareForTBuffer(noc);
     m_buff->WriteObjectAny(instance, pclass);
     restoreAfterTBuffer(noc);
     
-    *m_log << MSG::DEBUG << "wrote buffer of length " << m_buff->Length() <<  endreq;
+    ATH_MSG_DEBUG( "wrote buffer of length " << m_buff->Length()  );
 	
 
     const char *pbuff = m_buff->Buffer();
@@ -249,7 +240,7 @@ void TrigTSerializer::serialize(const std::string &nameOfClass, void* instance, 
       for (size_t j=0; j<4; j++){
 	*(pp+3-j) = pbuff[4*i+j];
       }
-      //      *m_log << MSG::DEBUG << "packed " << std::hex << pbytes <<  std::dec << endreq;
+      // ATH_MSG_DEBUG( "packed " << std::hex << pbytes <<  std::dec  );
       
       serialized.push_back(pbytes);
     }
@@ -262,16 +253,16 @@ void TrigTSerializer::serialize(const std::string &nameOfClass, void* instance, 
       serialized.push_back(pbytes);
     }
 
-    if (m_outputlevel<=MSG::VERBOSE){
-      *m_log << MSG::VERBOSE << "serialized dump: ";
+    if (msgLvl(MSG::VERBOSE)){
+      msg(MSG::VERBOSE) << "serialized dump: ";
       for (size_t i=0; i<serialized.size(); i++){
-	*m_log << MSG::VERBOSE << std::hex << serialized.at(i) <<std::dec << " ";
+	msg(MSG::VERBOSE) << std::hex << serialized.at(i) <<std::dec << " ";
       }
-      *m_log << MSG::VERBOSE << endreq;
+      msg(MSG::VERBOSE) << endreq;
     }
   }
   else {
-    *m_log << MSG::ERROR << "gROOT->GetClass failed for" << nameOfClass << endreq;
+    ATH_MSG_ERROR( "gROOT->GetClass failed for" << nameOfClass  );
   } 
   
   delete m_buff;
@@ -282,12 +273,9 @@ void TrigTSerializer::serialize(const std::string &nameOfClass, void* instance, 
 
 void* TrigTSerializer::deserialize(const std::string &nameOfClass, std::vector<uint32_t>& v){
 
-  m_outputlevel = msgSvc()->outputLevel(name());
-  m_log->setLevel(outputLevel());
-
   size_t rootDebug = gDebug;
-  if (m_outputlevel<=MSG::DEBUG){
-    *m_log << MSG::DEBUG << "in deserialize for " << nameOfClass  <<  endreq;
+  if (msgLvl(MSG::DEBUG)){
+    ATH_MSG_DEBUG( "in deserialize for " << nameOfClass   );
     /*
     //cannot be used in production 
     //higher gDebug seems to interfere with ErrorHandler
@@ -319,22 +307,21 @@ void* TrigTSerializer::deserialize(const std::string &nameOfClass, std::vector<u
 
       if (expectsize!=vsize){
 	newFormatOK = false;
-	*m_log << MSG::WARNING << "expected payload length "<<expectsize
-	       << "  does not match the container size " << vsize
-	       << " for " << nameOfClass << " fallback to the old format:"<<  endreq;
+	ATH_MSG_WARNING( "expected payload length "<<expectsize
+                         << "  does not match the container size " << vsize
+                         << " for " << nameOfClass << " fallback to the old format:" );
       }
-      if (m_outputlevel<=MSG::DEBUG)
-	*m_log << MSG::DEBUG << bufsiz << "bytes of payload version " << std::hex << rVersion << std::dec
-	       << " for " << nameOfClass  <<  endreq;
+      ATH_MSG_DEBUG( bufsiz << "bytes of payload version " << std::hex << rVersion << std::dec
+                     << " for " << nameOfClass   );
     }
     else {
-      *m_log << MSG::WARNING << "not a versioned payload of "
-	     <<  nameOfClass << " trying initial TrigTSerializer" <<  endreq;
+      ATH_MSG_WARNING( "not a versioned payload of "
+                       <<  nameOfClass << " trying initial TrigTSerializer"  );
       newFormatOK = false;
     }
  
   } else {
-    *m_log << MSG::WARNING << "zero bytes of payload for " << nameOfClass  <<  endreq;
+    ATH_MSG_WARNING( "zero bytes of payload for " << nameOfClass   );
     gDebug=rootDebug;
     return NULL;
   }
@@ -361,12 +348,12 @@ void* TrigTSerializer::deserialize(const std::string &nameOfClass, std::vector<u
       bufpos++;
     }
 
-    if (m_outputlevel<=MSG::VERBOSE){
-      *m_log << MSG::VERBOSE << "deserialized dump: ";
+    if (msgLvl(MSG::VERBOSE)){
+      msg(MSG::VERBOSE) << "deserialized dump: ";
       for (size_t i=0; i<v.size(); i++){
-	*m_log << MSG::VERBOSE << std::hex << v.at(i) <<std::dec << " ";
+	msg(MSG::VERBOSE) << std::hex << v.at(i) <<std::dec << " ";
       }
-      *m_log << MSG::VERBOSE << endreq;
+      msg(MSG::VERBOSE) << endreq;
     }
 
   } else if (!newFormatOK && decodeOldFormat){
@@ -406,7 +393,7 @@ void* TrigTSerializer::deserialize(const std::string &nameOfClass, std::vector<u
     //m_buff->StreamObject(instance, pclass);
   }
   else {
-    *m_log << MSG::ERROR << "gROOT->GetClass failed for" << nameOfClass << endreq;
+    ATH_MSG_ERROR( "gROOT->GetClass failed for" << nameOfClass  );
   }
   
   delete m_buff;   //this also deletes pbuf owned by m_buff
@@ -496,10 +483,8 @@ void TrigTSerializer::do_stl_workaround(const Type *, const Object *) { TrigTSer
 void TrigTSerializer::do_persistify(const std::string nameOfClass, void* instance){
 
   Type t = Type::ByName(nameOfClass);
-  if (m_outputlevel<=MSG::VERBOSE){
-    if (t.IsComplete() && m_outputlevel<=MSG::VERBOSE){
-      *m_log << MSG::VERBOSE << nameOfClass << ": type.IsComplete " << endreq;
-    }
+  if (t.IsComplete()){
+    ATH_MSG_VERBOSE( nameOfClass << ": type.IsComplete "  );
   }
 
   if (t.IsPointer()){
@@ -516,16 +501,14 @@ void TrigTSerializer::do_persistify(const std::string nameOfClass, void* instanc
       //do nothing
     }
     else if (t.IsTypedef()){
-      if (m_outputlevel<=MSG::VERBOSE){
-	*m_log << MSG::VERBOSE << "is typedef " <<  endreq;
-      }
+      ATH_MSG_VERBOSE( "is typedef "  );
       Type underlying = t.ToType();
       if (underlying){
 	do_persistify(underlying.Name(), instance);
       }
       else {
-	*m_log << MSG::WARNING << "typedef " << nameOfClass 
-	       <<  " has no underlying type" << endreq;
+	ATH_MSG_WARNING( "typedef " << nameOfClass 
+                         <<  " has no underlying type"  );
       }
     }
     else if (t.IsArray()){
@@ -533,8 +516,8 @@ void TrigTSerializer::do_persistify(const std::string nameOfClass, void* instanc
       /*
       StatusCode sc = do_serialize_array(&t1, instance);
       if (sc.isFailure())
-	*m_log << MSG::WARNING << "do_serialize_array "
-	       <<  nameOfClass << " failed " << endreq;
+        ATH_MSG_WARNING( "do_serialize_array "
+	       <<  nameOfClass << " failed "  );
       */
     }
     else {
@@ -546,10 +529,7 @@ void TrigTSerializer::do_persistify(const std::string nameOfClass, void* instanc
         t.UpdateMembers();     //get members of base classes too
 	*/
 
-      if (m_outputlevel<=MSG::VERBOSE)
-	*m_log << MSG::VERBOSE << " class with " << t.BaseSize()
-	       << " bases" << endreq;
-
+      ATH_MSG_VERBOSE( " class with " << t.BaseSize() << " bases"  );
 
       //iterate over bases and the class 
       for (size_t ib=0; ib<=t.BaseSize(); ib++){
@@ -563,12 +543,11 @@ void TrigTSerializer::do_persistify(const std::string nameOfClass, void* instanc
 	  nameOfBase = nameOfClass;
 	}
 	  
-	if (m_outputlevel<=MSG::VERBOSE)
-	  *m_log << MSG::VERBOSE << " basename " << endreq;
+        ATH_MSG_VERBOSE( " basename "  );
 
 	if (!tt.IsComplete()){
 	  //typically this happens for templates
-	  *m_log << MSG::DEBUG << "Incomplete type " << nameOfBase << endreq;
+	  ATH_MSG_DEBUG( "Incomplete type " << nameOfBase  );
 	  
 	  do_persistify_obj(nameOfBase, instance);
 	  
@@ -594,30 +573,24 @@ void TrigTSerializer::do_persistify(const std::string nameOfClass, void* instanc
 	  Type type = member.TypeOf();
 	  
 	  stype = type.Name();
-	  if (m_outputlevel<=MSG::VERBOSE){
-	    *m_log << MSG::VERBOSE << "membername: " << membername << " type: " ;
-	  }
+          ATH_MSG_VERBOSE( "membername: " << membername << " type: "   );
 	  
 	  //////////////////////////////       skip transient     //////////////////////////////
-	  if (member.IsTransient() && m_outputlevel<=MSG::VERBOSE){
-	    *m_log << MSG::VERBOSE << membername << " isTransient " << stype << endreq;
+	  if (member.IsTransient()){
+	    ATH_MSG_VERBOSE( membername << " isTransient " << stype  );
 	    continue;
 	  }
 	  //////////////////////////////       pointer     //////////////////////////////
 	  else if (type.IsPointer()){
 	    //pointers
-	    if (m_outputlevel<=MSG::VERBOSE){
-	      *m_log << MSG::VERBOSE << membername << " isPointer " << stype << endreq;
-	    }
+            ATH_MSG_VERBOSE( membername << " isPointer " << stype  );
 	    void *ptr = Reflex::Object_Cast <void *>(obj.Get(membername));
 	    do_follow_ptr(stype, ptr);
 	  } 
 	  //////////////////////////////       template      //////////////////////////////
 	  else if (type.IsTemplateInstance()){
 	    std::string classname = type.Name();
-	    if (m_outputlevel<=MSG::VERBOSE){
-	      *m_log << MSG::VERBOSE << " isTemplateInstance "  << classname << endreq;
-	    }	  
+            ATH_MSG_VERBOSE( " isTemplateInstance "  << classname  );
 	    
 	    Object o3 = member.Get(obj);
 	    void *ptr = o3.Address();
@@ -632,17 +605,13 @@ void TrigTSerializer::do_persistify(const std::string nameOfClass, void* instanc
 	    void *ptr = o3.Address();
 	    
 	    std::string classname = type.Name();
-	    if (m_outputlevel<=MSG::VERBOSE){
-	      *m_log << MSG::VERBOSE << " isClass "  << type.Name() << endreq;
-	    }
+            ATH_MSG_VERBOSE( " isClass "  << type.Name()  );
 	    do_persistify(classname, ptr );
 	    
 	  }
 	  //////////////////////////////       array       //////////////////////////////
 	  else if (type.IsArray()) {
-	    if (m_outputlevel<=MSG::VERBOSE){
-	      *m_log << MSG::VERBOSE << " isArray "  << stype << endreq;
-	    }
+            ATH_MSG_VERBOSE( " isArray "  << stype  );
 	    /*
 	      Object oa = member.Get(obj);
 	      void *po=     (obj.Get(membername)).Address();
@@ -660,32 +629,28 @@ void TrigTSerializer::do_persistify(const std::string nameOfClass, void* instanc
 	  }
 	  
 	  else if (type.IsTypedef()){
-	    *m_log << MSG::VERBOSE << stype << " is typedef " <<  endreq;
+	    ATH_MSG_VERBOSE( stype << " is typedef "  );
 	    void *pobj = (obj.Get(membername)).Address();
 	    do_persistify(stype, pobj);
 	    
 	    
 	    //////////////////////////////       what else?  //////////////////////////////
 	  } else if (type.IsPointerToMember()){
-	    if (m_outputlevel<=MSG::VERBOSE)
-	      *m_log << MSG::VERBOSE << "unsupported IsPointerToMember" << stype << endreq;
+            ATH_MSG_VERBOSE( "unsupported IsPointerToMember" << stype  );
 	    
 	  } else if (type.IsReference()){
-	    if (m_outputlevel<=MSG::VERBOSE)
-	      *m_log << MSG::VERBOSE << "unsupported IsReference" << stype << endreq;
+            ATH_MSG_VERBOSE( "unsupported IsReference" << stype  );
 	    
 	  } else if (type.IsStruct()){
-	    if (m_outputlevel<=MSG::VERBOSE)
-	      *m_log << MSG::VERBOSE << "unsupported IsStruct" << stype << endreq;
+            ATH_MSG_VERBOSE( "unsupported IsStruct" << stype  );
 	    
 	  } else if (type.IsUnqualified()){
-	    if (m_outputlevel<=MSG::VERBOSE)
-	      *m_log << MSG::VERBOSE << "unsupported IsUnqualified" << stype << endreq;
+            ATH_MSG_VERBOSE( "unsupported IsUnqualified" << stype  );
 	  }
 	  
 	  //////////////////////////////       unhandled   //////////////////////////////
 	  else {
-	    *m_log << MSG::WARNING << "unsupported type " << stype << endreq;
+	    ATH_MSG_WARNING( "unsupported type " << stype  );
 	  }
 	}
       }
@@ -697,24 +662,21 @@ void TrigTSerializer::do_persistify(const std::string nameOfClass, void* instanc
 void TrigTSerializer::do_persistify_obj(const std::string nameOfClass, void* instance){
 
   Type t = Type::ByName(nameOfClass);
-  if (t.IsComplete() && m_outputlevel<=MSG::DEBUG){
-    *m_log << MSG::DEBUG << nameOfClass << ": type.IsComplete failed" << endreq;
+  if (t.IsComplete()){
+    ATH_MSG_DEBUG( nameOfClass << ": type.IsComplete failed"  );
   }
   
   const std::string method = "toPersistent";
   Member toPers = t.FunctionMemberByName(method);
 
   if (toPers.Name() != method){
-    if (m_outputlevel<=MSG::DEBUG){
-      *m_log << MSG::DEBUG << nameOfClass << ": has no toPersistent()" << endreq;
-    }
+    ATH_MSG_DEBUG( nameOfClass << ": has no toPersistent()"  );
     return;
   }
 
   Object obj(t, instance);
   toPers.Invoke(obj);
-  if (m_outputlevel<=MSG::DEBUG)
-    *m_log << MSG::DEBUG << nameOfClass << ": toPersistent() invoked on " << instance << endreq;
+  ATH_MSG_DEBUG( nameOfClass << ": toPersistent() invoked on " << instance  );
 
 }
 
@@ -731,14 +693,14 @@ void TrigTSerializer::do_stl_workaround(const Type *mytype,
 
     size_t nfunc = mytype->FunctionMemberSize();
 	    
-    if (m_outputlevel<=MSG::VERBOSE){
-      *m_log << MSG::DEBUG << classname << ": trying STL container workaround" << endreq;
-      *m_log << MSG::DEBUG << "with " << nfunc << " function members" << endreq;
+    if (msgLvl(MSG::VERBOSE)){
+      ATH_MSG_DEBUG( classname << ": trying STL container workaround"  );
+      ATH_MSG_DEBUG( "with " << nfunc << " function members"  );
     
       for (size_t jf=0; jf<nfunc; jf++)
-	*m_log << MSG::DEBUG << mytype->FunctionMemberAt(jf).Name() << " ";
+	msg(MSG::DEBUG) << mytype->FunctionMemberAt(jf).Name() << " ";
     
-      *m_log << endreq;
+      msg() << endreq;
     }
     
     Member msize = mytype->FunctionMemberByName("size");
@@ -749,9 +711,7 @@ void TrigTSerializer::do_stl_workaround(const Type *mytype,
     size_t cont_siz = 0;
     msize.Invoke(*myobject, cont_siz);
 #endif
-    if (m_outputlevel<=MSG::VERBOSE){
-      *m_log << MSG::DEBUG << "container size  " << cont_siz << endreq;
-    }
+    ATH_MSG_DEBUG( "container size  " << cont_siz  );
 
     Member mat = mytype->FunctionMemberByName("at");
     Type templtype = mytype->TemplateArgumentAt(0);
@@ -767,13 +727,11 @@ void TrigTSerializer::do_stl_workaround(const Type *mytype,
      mat.Invoke(*myobject, elem, vec_args);
 #endif
       Type elemtype = elem.TypeOf();
-      if (m_outputlevel<=MSG::VERBOSE){
-	*m_log << MSG::DEBUG << "container elem is type of " << elemtype.Name() << endreq;
-	*m_log << MSG::DEBUG << "invoking at(" << is << ")=" << templtypename << endreq;
-      }
+      ATH_MSG_DEBUG( "container elem is type of " << elemtype.Name()  );
+      ATH_MSG_DEBUG( "invoking at(" << is << ")=" << templtypename  );
 
       //CHECK
-      //      *m_log << MSG::DEBUG << "ptr should yield " << (void *)(*(int *)rptr) << endreq;
+      // ATH_MSG_DEBUG( "ptr should yield " << (void *)(*(int *)rptr)  );
 
       void *rptr = elem.Address();
       if (elemtype.IsPointer()){
@@ -791,15 +749,12 @@ void TrigTSerializer::do_stl_workaround(const Type *mytype,
 
 void TrigTSerializer::do_follow_ptr(const std::string name, void *ptr){
 
-  if (m_outputlevel<=MSG::VERBOSE)
-    *m_log << MSG::VERBOSE <<"Entering do_follow_ptr for "  << name << " at " << ptr << endreq;
+  ATH_MSG_VERBOSE("Entering do_follow_ptr for "  << name << " at " << ptr  );
   
   
   if (ptr){
     const std::string classname = name.substr(0, name.find_last_of("*"));
-    if (m_outputlevel<=MSG::VERBOSE){
-      *m_log << MSG::DEBUG  << "going deeper for " << classname << " at " << ptr <<endreq;
-    }
+    ATH_MSG_DEBUG( "going deeper for " << classname << " at " << ptr  );
     do_persistify(classname, ptr);
   }
   

@@ -10,8 +10,9 @@ doEDM=False
 doxAODonly=False
 
 import ROOT
-from ROOT import Cintex, TClass, TFile
-Cintex.Enable()
+from ROOT import TClass, TFile
+import cppyy
+cppyy.Cintex.Enable()
 #Cintex.SetDebug(7)
 
 
@@ -164,6 +165,11 @@ for item in fulllist:
 
   if cls!=None:
     streamerinfo = cls.GetStreamerInfo()
+    if streamerinfo.GetCheckSum() == 0:
+      # try to patch missing checksum in DataVectors
+      print 'Warning: no checksum in streamerinfo for type: ', cls.GetName()
+      print 'Attempting to fix with %x' %  cls.GetCheckSum()
+      streamerinfo.SetCheckSum( cls.GetCheckSum() )
     print 'jmasik: ', cls.GetName(), streamerinfo.Sizeof(), streamerinfo.GetCheckSum()
     obj = cls.New()
     file.WriteObjectAny(obj, cls, cls.GetName())

@@ -14,6 +14,7 @@ apply_pattern declare_runtime files="bs-streamerinfos*.root"
 private
 
 use AthenaKernel        AthenaKernel-*               Control
+use AthenaBaseComps     AthenaBaseComps-*            Control
 use AtlasReflex	        AtlasReflex-*	             External 
 use DataModelRoot	DataModelRoot-*              Control
 use AtlasROOT	        AtlasROOT-*	             External 

@@ -14,7 +14,7 @@
 #ifndef TRIGTSERIALIZER_H
 #define TRIGTSERIALIZER_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigSerializeResult/ITrigSerializerToolBase.h"
 #include "RVersion.h"
 #include "Rtypes.h"
@@ -32,7 +32,7 @@ typedef RootDataMember  Member;
 typedef RootObject      Object;
 
 
-class TrigTSerializer : virtual public ITrigSerializerToolBase, public AlgTool {
+class TrigTSerializer : virtual public ITrigSerializerToolBase, public AthAlgTool {
 public:
   TrigTSerializer(const std::string& name, const std::string& type,
 		  const IInterface* parent);
@@ -76,8 +76,6 @@ private:
   void restoreAfterTBuffer(const std::string &nameOfClass);
 
   //  StatusCode persistifyEL(const TClass *cl, void* instance);
-  MsgStream *m_log;
-  size_t    m_outputlevel;
   bool      m_onlineMode;
   uint32_t  m_guid[4];  
 
