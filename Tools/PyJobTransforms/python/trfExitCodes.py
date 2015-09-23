@@ -6,7 +6,7 @@
 # @details Define all transform exit codes with their acronymns
 # @remarks Usual usage is to import @c trfExit from this module
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExitCodes.py 663754 2015-04-29 12:29:56Z lerrenst $
+# @version $Id: trfExitCodes.py 696484 2015-09-23 17:20:28Z graemes $
 # 
 
 import signal
@@ -137,6 +137,7 @@ class trfExitCodes(object):
     _errorCodeList.append(trfExitCode('TRF_OUTPUT_FILE_VALIDATION_FAIL' , 75, 'Output file failed validation'))
     _errorCodeList.append(trfExitCode('TRF_UNEXPECTED_TRF_EXCEPTION', 250, 'Transform exception raised which the transform did not handle'))
     _errorCodeList.append(trfExitCode('TRF_UNEXPECTED_OTHER_EXCEPTION', 251, 'General exception raised which the transform did not handle'))
+    _errorCodeList.append(trfExitCode('TRF_EXTERNAL', 251, 'Transform error in external call'))
     _errorCodeList.append(trfExitCode('TRF_INTERNAL', 252, 'Internal transform error'))
     _errorCodeList.append(trfExitCode('TRF_UNKOWN', 253, 'Unknown error code'))
     

@@ -5,7 +5,7 @@
 ## @Package test_trfArgs.py
 #  @brief Unittests for trfArgs.py
 #  @author maddocks.harvey@gmail.com, graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgs.py 684898 2015-07-22 15:31:17Z graemes $
+#  @version $Id: test_trfArgs.py 691581 2015-08-27 12:24:19Z lerrenst $
 
 import argparse
 import json
@@ -57,6 +57,16 @@ class trfArgsUnitTests(unittest.TestCase):
         properArgDict = {'r2e': ['stuff', 'somemorestuff'], 'e2e': ['something', 'somethingElse']}
         self.assertTrue(isinstance(myArgDict, dict))
         self.assertEquals(myArgDict['preExec']._value, properArgDict)
+
+    def test_triggerConfig(self):
+        myParser = trfArgParser()
+        addStandardTrfArgs(myParser)
+        addTriggerArguments(myParser)
+        args = ['--triggerConfig', 'r2e,e2e=MC:TRIGGERDB:124,154,132']
+        myArgDict = vars(myParser.parse_args(args))
+        properArgDict = {'r2e': 'MC:TRIGGERDB:124,154,132', 'e2e': 'MC:TRIGGERDB:124,154,132'}
+        self.assertTrue(isinstance(myArgDict, dict))
+        self.assertEquals(myArgDict['triggerConfig']._value, properArgDict)
         
     def test_Pickle(self):
         myParser = trfArgParser(description='test parser for pickled arguments, %s' % __name__)

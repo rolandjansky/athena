@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 679938 2015-07-02 22:09:59Z graemes $
+# @version $Id: trfArgClasses.py 693714 2015-09-08 13:36:11Z lerrenst $
 
 import argparse
 import bz2
@@ -1248,6 +1248,10 @@ class argAthenaFile(argFile):
         if aftype == 'POOL' and self._io == 'input':
             retrieveKeys = inpFileInterestingKeys
 
+        # get G4Version for HITSFiles
+        if self._type.upper() in ('HITS'):
+            retrieveKeys.append('G4Version')
+
         # N.B. Could parallelise here            
         for fname in myFiles:
             athFileMetadata = AthenaLiteFileInfo(fname, aftype, retrieveKeys=retrieveKeys)
@@ -1752,16 +1756,14 @@ class argSubstep(argument):
         if value is None:
             self._value = {}
         elif isinstance(value, str):
-            subStep, subStepValue = self._parseStringAsSubstep(value)
-            self._value = {subStep: subStepValue}
+            self._value = dict(self._parseStringAsSubstep(value))
         elif isinstance(value, (list, tuple)):
             # This is a list of strings to parse, so we go through them one by one
             self._value = {}
             for item in value:
                 if not isinstance(item, str):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
-                subStep, subStepValue = self._parseStringAsSubstep(item)
-                self._value[subStep] = subStepValue
+                self._value.update(dict(self._parseStringAsSubstep(item)))
         elif isinstance(value, dict):
             self._value = value
         else:
@@ -1774,15 +1776,18 @@ class argSubstep(argument):
     #  back as the value
     #  @param string The string which should be parsed
     def _parseStringAsSubstep(self, string):
-        subStepMatch = re.match(r'([a-zA-Z0-9]+)' + self._separator + r'(.*)', string)
+        subStepMatch = re.match(r'([a-zA-Z0-9,]+)' + self._separator + r'(.*)', string)
+        subStepList = []
         if subStepMatch:
-            subStep = subStepMatch.group(1)
+            subStep = subStepMatch.group(1).split(',')
             subStepValue = subStepMatch.group(2)
         else:
-            subStep = self._defaultSubstep
+            subStep = [self._defaultSubstep]
             subStepValue = string
         msg.debug('Parsed {0} as substep {1}, argument {2}'.format(string, subStep, subStepValue))
-        return subStep, subStepValue
+        for step in subStep:
+            subStepList.append((step, subStepValue))
+        return subStepList
     
     
     ## @brief Return the value of this substep arg for an executor with the given parameters
@@ -1864,19 +1869,19 @@ class argSubstepList(argSubstep):
         if value is None:
             self._value = {}
         elif isinstance(value, str):
-            subStep, subStepValue = self._parseStringAsSubstep(value)
-            self._value = {subStep: subStepValue}
+            self._value = dict(self._parseStringAsSubstep(value))
         elif isinstance(value, (list, tuple)):
             # This is a list of strings to parse
             self._value = {}
             for item in value:
                 if not isinstance(item, str):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
-                subStep, subStepValue = self._parseStringAsSubstep(item)
-                if subStep in self._value:
-                    self._value[subStep].extend(subStepValue)
-                else:
-                    self._value[subStep] = subStepValue
+                subStepList = self._parseStringAsSubstep(item)
+                for subStep in subStepList:
+                    if subStep[0] in self._value:
+                        self._value[subStep[0]].extend(subStep[1])
+                    else:
+                        self._value[subStep[0]] = subStep[1]
         elif isinstance(value, dict):
             for k, v in value.iteritems():
                 if not isinstance(k, str):
@@ -1890,12 +1895,12 @@ class argSubstepList(argSubstep):
     ## @brief Specialist parser for lists, which applies the splitter string, if defined
     #  @return Tuple of substep plus a list of strings
     def _parseStringAsSubstep(self, value):
-        subStep, subStepValue = super(argSubstepList, self)._parseStringAsSubstep(value)
+        subStepList = super(argSubstepList, self)._parseStringAsSubstep(value)
         if self._splitter:
-            return subStep, subStepValue.split(self._splitter)
+            subStepList = [(s[0], s[1].split(self._splitter)) for s in subStepList]
         else:
-            return subStep, [subStepValue]
-
+            subStepList = [(s[0], [s[1]]) for s in subStepList]
+        return subStepList
 
 ## @brief Boolean substep argument
 class argSubstepBool(argSubstep):
@@ -1919,16 +1924,17 @@ class argSubstepBool(argSubstep):
         elif isinstance(value, bool):
             self._value = {self._defaultSubstep: value}
         elif isinstance(value, str):
-            subStep, subStepValue = self._parseStringAsSubstep(value)
-            self._value = {subStep: strToBool(subStepValue)}
+            subStepList = self._parseStringAsSubstep(value)
+            self._value = dict([(subStep[0], strToBool(subStep[1])) for subStep in subStepList])
         elif isinstance(value, (list, tuple)):
             # This is a list of strings to parse
             self._value = {}
             for item in value:
                 if not isinstance(item, str):
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
-                subStep, subStepValue = self._parseStringAsSubstep(item)
-                self._value[subStep] = strToBool(subStepValue)
+                subStepList = self._parseStringAsSubstep(item)
+                for subStep in subStepList:
+                    self._value[subStep[0]] = strToBool(subStep[1])
         elif isinstance(value, dict):
             for k, v in value.iteritems():
                 if not isinstance(k, str):
@@ -1963,16 +1969,17 @@ class argSubstepInt(argSubstep):
             elif isinstance(value, int):
                 self._value = {self._defaultSubstep: value}
             elif isinstance(value, str):
-                subStep, subStepValue = self._parseStringAsSubstep(value)
-                self._value = {subStep: int(subStepValue)}
+                subStepList = self._parseStringAsSubstep(value)
+                self._value = dict([(subStep[0], int(subStep[1])) for subStep in subStepList])
             elif isinstance(value, (list, tuple)):
                 # This is a list of strings to parse
                 self._value = {}
                 for item in value:
                     if not isinstance(item, str):
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
-                    subStep, subStepValue = self._parseStringAsSubstep(item)
-                    self._value[subStep] = int(subStepValue)
+                    subStepList = self._parseStringAsSubstep(item)
+                    for subStep in subStepList:
+                        self._value[subStep[0]] = int(subStep[1])
             elif isinstance(value, dict):
                 for k, v in value.iteritems():
                     if not isinstance(k, str):
@@ -2021,8 +2028,8 @@ class argSubstepFloat(argSubstep):
             elif isinstance(value, float):
                 self._value = {self._defaultSubstep: value}              
             elif isinstance(value, str):
-                subStep, subStepValue = self._parseStringAsSubstep(value)
-                self._value = {subStep: float(subStepValue)}
+                subStepList = self._parseStringAsSubstep(value)
+                self._value = dict([(subStep[0], float(subStep[1])) for subStep in subStepList])
             elif isinstance(value, (list, tuple)):
                 # This is a list of strings to parse
                 self._value = {}
@@ -2030,8 +2037,9 @@ class argSubstepFloat(argSubstep):
                     if not isinstance(item, str):
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                                   'Failed to convert list item {0!s} to substep (should be a string)'.format(item))
-                    subStep, subStepValue = self._parseStringAsSubstep(item)
-                    self._value[subStep] = float(subStepValue)
+                    subStepList = self._parseStringAsSubstep(item)
+                    for subStep in subStepList:
+                        self._value[subStep[0]] = float(subStep[1])
             elif isinstance(value, dict):
                 for k, v in value.iteritems():
                     if not isinstance(k, str):
@@ -2114,8 +2122,8 @@ class argSubstepSteering(argSubstep):
                         else:
                             self._value[substep] = steerlist
                 else:
-                    subStep, subStepValue = self._parseStringAsSubstep(item)
-                    self._value.update({subStep: self._parseSteeringString(subStepValue)})
+                    subStepList = self._parseStringAsSubstep(item)
+                    self._value.update(dict([(subStep[0], self._parseSteeringString(subStep[1])) for subStep in subStepList]))
         else:
             raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                       'Setter value {0!s} (type {1}) for substep argument cannot be parsed'.format(value, type(value)))

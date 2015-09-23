@@ -3,7 +3,7 @@
 ## @Package PyJobTrasforms.trfDecorators
 #  @brief Some useful decorators used by the transforms
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfDecorators.py 623865 2014-10-24 12:39:44Z graemes $
+#  @version $Id: trfDecorators.py 696484 2015-09-23 17:20:28Z graemes $
 
 import functools
 import os
@@ -136,7 +136,7 @@ def timelimited(timeout=None, retry=1, timefactor=1.5, sleeptime=10, defaultrc=N
     import multiprocessing as mp
 
     from sys import exc_info
-    from PyJobTransforms.trfExceptions import TransformTimeoutException
+    from PyJobTransforms.trfExceptions import TransformTimeoutException, TransformInternalException
 
     msg = logging.getLogger(__name__)
 
@@ -216,6 +216,10 @@ def timelimited(timeout=None, retry=1, timefactor=1.5, sleeptime=10, defaultrc=N
                     n+=1
                     ltimeout*=ltimefactor
                     lsleeptime*=ltimefactor
+                except IOError:
+                    errMsg = "IOError while communicating with subprocess"
+                    msg.error(errMsg)
+                    raise TransformInternalException(trfExit.nameToCode("TRF_EXTERNAL"), errMsg)
 
             msg.warning('All %i tries failed!' % n)
             raise TransformTimeoutException(trfExit.nameToCode('TRF_EXEC_TIMEOUT'), 'Timeout in function %s' % (func.func_name))
