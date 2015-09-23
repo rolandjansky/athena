@@ -52,10 +52,10 @@ namespace Trk {
       TriangleBounds();
         
       /**Constructor with coordinates of vertices - floats*/
-      TriangleBounds( const std::vector< std::pair<float,float> >&  );
+      TriangleBounds( std::vector< std::pair<float,float> >  );
       
       /**Constructor with coordinates of vertices - double*/
-      TriangleBounds( const std::vector< std::pair<double,double> >&  );
+      TriangleBounds( std::vector< std::pair<double,double> >  );
       
       /**Constructor from three 2 Vectors */
       TriangleBounds( const Amg::Vector2D& p1, const Amg::Vector2D& p2, const Amg::Vector2D& p3);

@@ -10,7 +10,6 @@
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TriangleBounds.h"
-#include "TrkSurfaces/AnnulusBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 #include "TrkSurfaces/DiamondBounds.h"
@@ -65,20 +64,16 @@ Trk::PlaneSurface::PlaneSurface(const Amg::Vector3D& position, const Curvilinear
 }
 
 // construct form TrkDetElementBase
-Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement,Amg::Transform3D* transf) :
+Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement) :
   Trk::Surface(detelement),
   m_bounds()
-{
-  m_transform = transf;
-}
+{}
 
 // construct form SiDetectorElement
-Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement, const Identifier& id,Amg::Transform3D* transf) :
+Trk::PlaneSurface::PlaneSurface(const Trk::TrkDetElementBase& detelement, const Identifier& id) :
   Trk::Surface(detelement, id),
   m_bounds()
-{
-  m_transform = transf;
-}
+{}
 
 // construct planar surface without bounds
 Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans) :
@@ -102,12 +97,6 @@ Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, double halephi, double
 Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, double minhalephi, double maxhalephi, double haleta) :
   Trk::Surface(htrans),
   m_bounds(new Trk::TrapezoidBounds(minhalephi, maxhalephi, haleta))
-{}
-
-// construct annulus module with parameters
-Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, Trk::AnnulusBounds* tbounds) :
-  Trk::Surface(htrans),
-  m_bounds(tbounds)
 {}
 
 // construct rectangle surface by giving RectangleBounds

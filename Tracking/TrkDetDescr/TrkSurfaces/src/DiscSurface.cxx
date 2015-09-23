@@ -16,8 +16,8 @@
 //Gaudi
 #include "GaudiKernel/MsgStream.h"
 //STD
-//#include <iostream>
-//#include <iomanip>
+#include <iostream>
+#include <iomanip>
 
 //Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -127,13 +127,12 @@ const Amg::Vector3D& Trk::DiscSurface::globalReferencePoint() const
     const Trk::DiscBounds* dbo = dynamic_cast<const Trk::DiscBounds*>(&(bounds()));
     if (dbo) {
       double rMedium = bounds().r();
-      double phi     = dbo->averagePhi() ;
+      double phi     = dbo ? dbo->averagePhi() : 0.;
       Amg::Vector3D gp(rMedium*cos(phi), rMedium*sin(phi), 0.);
       m_referencePoint = new Amg::Vector3D(transform()*gp);
     } else {
       const Trk::DiscTrapezoidalBounds* dtbo = dynamic_cast<const Trk::DiscTrapezoidalBounds*>(&(bounds()));
-      //double rMedium = dtbo ? bounds().r() : dtbo->rCenter() ; //nonsense, or logic inverted?
-      double rMedium = bounds().r(); 
+      double rMedium = dtbo ? bounds().r() : dtbo->rCenter() ;
       double phi     = dtbo ? dtbo->averagePhi() : 0.;
       Amg::Vector3D gp(rMedium*cos(phi), rMedium*sin(phi), 0.);
       m_referencePoint = new Amg::Vector3D(transform()*gp);
@@ -169,11 +168,9 @@ const Amg::Vector2D* Trk::DiscSurface::localPolarToLocalCartesian(const Amg::Vec
     double phi     = dtbo->averagePhi();
 
     Amg::Vector2D polarCenter(rMedium, phi);
-    const Amg::Vector2D* cartCenter = localPolarToCartesian(polarCenter);
-    const Amg::Vector2D* cartPos = localPolarToCartesian(locpol);
-    Amg::Vector2D Pos = *cartPos - *cartCenter;
-
-    delete cartCenter; delete cartPos;
+    Amg::Vector2D cartCenter = *localPolarToCartesian(polarCenter);
+    Amg::Vector2D cartPos = *localPolarToCartesian(locpol);
+    Amg::Vector2D Pos = cartPos - cartCenter;
     
     Amg::Vector2D locPos(Pos[Trk::locX]*sin(phi) - Pos[Trk::locY]*cos(phi),
 			 Pos[Trk::locY]*sin(phi) + Pos[Trk::locX]*cos(phi)); 

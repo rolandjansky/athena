@@ -71,7 +71,7 @@ namespace Trk {
     DiscTrapezoidalBounds& operator=(const DiscTrapezoidalBounds& disctrbo);
      
     /**Equality operator*/
-    virtual bool operator==(const SurfaceBounds& sbo) const override;
+    bool operator==(const SurfaceBounds& sbo) const;
      
     /**Virtual constructor*/
     virtual DiscTrapezoidalBounds* clone() const override;

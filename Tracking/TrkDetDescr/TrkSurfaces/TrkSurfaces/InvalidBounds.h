@@ -80,7 +80,7 @@ namespace Trk {
  
   inline MsgStream& InvalidBounds::dump(MsgStream& sl) const
   {
-       sl << "Trk::InvalidBounds ... invalid surface" << endmsg;
+       sl << "Trk::InvalidBounds ... invalid surface" << endreq;
        return sl;
   }
    
