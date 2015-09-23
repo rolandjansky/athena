@@ -25,7 +25,8 @@
 #include "fastjet/JetDefinition.hh"
 #include "fastjet/SISConePlugin.hh"
 
-#include "TruthUtils/HepMCUtils.h"
+// #include "TruthUtils/HepMCUtils.h"
+#include "TruthUtils/HepMCHelpers.h"
 
 #include "../HepMCAnalysis_i/PdfAnalysis.h"
 
