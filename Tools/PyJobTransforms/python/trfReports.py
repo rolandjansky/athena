@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 681299 2015-07-08 11:28:37Z lerrenst $
+#  @version $Id: trfReports.py 696484 2015-09-23 17:20:28Z graemes $
 #
 
-__version__ = '$Revision: 681299 $'
+__version__ = '$Revision: 696484 $'
 
 import cPickle as pickle
 import json
@@ -105,7 +105,7 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '1.0.5'
+    _reportVersion = '1.0.6'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
@@ -157,7 +157,11 @@ class trfJobReport(trfReport):
             if fileReport[dataArg.io]:
                 entry = {"type": dataType}
                 entry.update(trfFileReport(dataArg).python(fast = fast, type = fileReport[dataArg.io]))
-                myDict['files'][dataArg.io].append(entry)
+                # Supress RAW if all subfiles had nentries == 0
+                if 'subFiles' in entry and len(entry['subFiles']) == 0 and isinstance(dataArg, trfArgClasses.argBSFile) :
+                    msg.info('No subFiles for entry {0}, suppressing from report.'.format(entry['argName']))
+                else:
+                    myDict['files'][dataArg.io].append(entry)
 
         # We report on all executors, in execution order
         myDict['executor'] = []
@@ -397,11 +401,20 @@ class trfFileReport(object):
             basenameReport = False
         else:
             basenameReport = True
+        suppressed = []
         for fname in self._fileArg.value:
+            subFile = None
             if basenameReport:
-                fileArgProps['subFiles'].append(self.singleFilePython(fname, fast = fast, type = type))
+                subFile = self.singleFilePython(fname, fast = fast, type = type)
             else:
-                fileArgProps['subFiles'].append(self.singleFilePython(fname, fast = fast, type = type, basename = False))
+                subFile = self.singleFilePython(fname, fast = fast, type = type, basename = False)
+            if subFile is not None:
+                # if nentries == 0 for DRAW, suppress subfile from report
+                if 'nentries' in subFile and subFile['nentries'] == 0 and isinstance(self._fileArg, trfArgClasses.argBSFile):
+                    msg.info('Suppressing file {0}, nentries is 0'.format(subFile['name']))
+                    suppressed.append(subFile['name'])
+                else:
+                    fileArgProps['subFiles'].append(subFile)
 
         if type == 'full':
             # move metadata to subFile dict, before it can be compressed
@@ -420,7 +433,10 @@ class trfFileReport(object):
                         break
 
                 if thisFile is None:
-                    raise trfExceptions.TransformReportException(trfExit.nameToCode('TRF_INTERNAL_REPORT_ERROR'),
+                    if searchFileName in suppressed:
+                        continue
+                    else:
+                        raise trfExceptions.TransformReportException(trfExit.nameToCode('TRF_INTERNAL_REPORT_ERROR'),
                                                                  'file metadata mismatch in subFiles dict')
 
                 # append metadata keys, except all existing, to subfile dict and ignore _exists
@@ -574,7 +590,7 @@ class machineReport(object):
             with open('/etc/machinefeatures/hs06') as hs:
                 machine['hepspec'] = hs.readlines()[0].strip()
         except IOError, e:
-            msg.info('Could not find HEPSPEC: {0}'.format(e))
+            pass
         return machine
 
 

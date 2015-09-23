@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 679938 2015-07-02 22:09:59Z graemes $
+# @version $Id: trfExe.py 696484 2015-09-23 17:20:28Z graemes $
 
 import copy
 import json
@@ -719,7 +719,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 679938 2015-07-02 22:09:59Z graemes $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 696484 2015-09-23 17:20:28Z graemes $')
         else:
             self._jobOptionsTemplate = None
 
@@ -1346,7 +1346,7 @@ class reductionFrameworkExecutor(athenaExecutor):
             outputName = 'DAOD_' + reduction + '.' + self.conf.argdict['outputDAODFile'].value[0]
             msg.info('Adding reduction output type {0}'.format(dataType))
             output.add(dataType)
-            newReduction = trfArgClasses.argPOOLFile(outputName, io='output', runarg=True, type='aod',
+            newReduction = trfArgClasses.argPOOLFile(outputName, io='output', runarg=True, type='AOD',
                                                      name=reduction)
             # References to _trf - can this be removed?
             self.conf.dataDictionary[dataType] = newReduction
