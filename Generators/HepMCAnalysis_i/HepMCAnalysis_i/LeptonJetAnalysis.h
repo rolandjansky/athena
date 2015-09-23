@@ -49,15 +49,20 @@ class LeptonJetAnalysis: public baseAnalysis
   TH1D *m_leptondR[nleptons][nleptons];
   TH1D *m_leptondPhi[nleptons][nleptons];
   TH1D *m_leptonMass[nleptons][nleptons];
+  TH1D *m_leptonLowMass[nleptons][nleptons];
+
 
   TH1D *m_electronPt;
   TH1D *m_electronNum;
+  TH1D *m_electronCharge;
 
   TH1D *m_muonPt;
   TH1D *m_muonNum;
+  TH1D *m_muonCharge;
 
   TH1D *m_tauPt;
   TH1D *m_tauNum;
+  TH1D *m_tauCharge;
 
   //********** jets with pT cut ***********//
 
@@ -66,6 +71,7 @@ class LeptonJetAnalysis: public baseAnalysis
   TH1D *m_jetNum;
 
   TH1D *m_jetPt[njets];
+  TH1D *m_jetPtHighRange[njets];
   TH1D *m_jetEta[njets];
   TH1D *m_jetMassPt[njets];
   TH1D *m_jetdR[njets][njets];
@@ -79,6 +85,7 @@ class LeptonJetAnalysis: public baseAnalysis
   TH1D *m_jetNum_nocuts;
 
   TH1D *m_jetPt_nocuts[njets];
+  TH1D *m_jetPtHighRange_nocuts[njets];
   TH1D *m_jetEta_nocuts[njets];
   TH1D *m_jetMassPt_nocuts[njets];
   TH1D *m_jetdR_nocuts[njets][njets];
@@ -92,6 +99,7 @@ class LeptonJetAnalysis: public baseAnalysis
   TH1D *m_jetNum_forward;
 
   TH1D *m_jetPt_forward[njets];
+  TH1D *m_jetPtHighRange_forward[njets];
   TH1D *m_jetEta_forward[njets];
   TH1D *m_jetMassPt_forward[njets];
   TH1D *m_jetdR_forward[njets][njets];
@@ -108,8 +116,10 @@ class LeptonJetAnalysis: public baseAnalysis
   //pT(jet)>20, eta(jet)<2.8
 
   TH1D *m_jet1Pt_tight;
+  TH1D *m_jet1PtHighRange_tight;
   TH1D *m_jet1Eta_tight;
   TH1D *m_jet2Pt_tight;
+  TH1D *m_jet2PtHighRange_tight;
   TH1D *m_jet2Eta_tight;
 
   TH1D *m_dR_jet1_to_lepton_tight;
@@ -120,6 +130,16 @@ class LeptonJetAnalysis: public baseAnalysis
   TH1D *m_dPhi_jet2_to_lepton_tight;
   TH1D *m_dPhi_lepton_to_closest_jet_tight;
 
+  //*********** vector boson plots **********//
+  TH1D *m_ZNum;
+  TH1D *m_Z1pt;
+  TH1D *m_Z1eta;
+  TH1D *m_WNum;
+  TH1D *m_W1pt;
+  TH1D *m_W1eta;
+  TH1D *m_gammaNum;
+  TH1D *m_gamma1pt;
+  TH1D *m_gamma1eta;
  
 };
 
