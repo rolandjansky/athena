@@ -1,18 +1,18 @@
 #!/usr/bin/env pyroot.py 
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-import PyCintex
+import cppyy
 
 class StreamerInfoGenerator:
   def __init__(self):
     self.debug = True
     self.classlist = []
     self.blacklist = ['std::']
-    PyCintex.Cintex.Enable()
-    PyCintex.loadDict('libSTLRflx')
-    PyCintex.loadDict('libSTLAddRflx')
-    PyCintex.loadDict('libAtlasSTLAddReflexDict')
-    self.type = PyCintex.makeClass("Reflex::Type")
+    cppyy.Cintex.Enable()
+    cppyy.loadDict('libSTLRflx')
+    cppyy.loadDict('libSTLAddRflx')
+    cppyy.loadDict('libAtlasSTLAddReflexDict')
+    self.type = cppyy.makeClass("Reflex::Type")
 
     
   def inspect(self, typename):
@@ -42,7 +42,7 @@ class StreamerInfoGenerator:
       pass
 
     try:
-      cl = PyCintex.makeClass(typename)
+      cl = cppyy.makeClass(typename)
       if not dontAdd: self.classlist.append(typename)
     except:
       print 'Cannot create class of ', typename
@@ -104,8 +104,8 @@ class StreamerInfoGenerator:
 
 
 if __name__ == '__main__':
-  from ROOT import Cintex, TClass, TFile
-  Cintex.Enable()
+  from ROOT import TClass, TFile
+  cppyy.Cintex.Enable()
   a = StreamerInfoGenerator()
   a.inspect('TrigTauClusterContainer_tlp1')
 
