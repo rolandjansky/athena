@@ -8,6 +8,13 @@ CaloClusterCellLink::~CaloClusterCellLink() {}
 
 CaloClusterCellLink::CaloClusterCellLink() {}
 		      
+//0-size vector for dummy iterator
+const CaloClusterCellLink::linkAndWeightCollType CaloClusterCellLink::m_dummyIndicesAndWeights(0);
+
+// Dummy iterator to be returned by begin/end if no cell-links are present
+const CaloClusterCellLink::const_iterator CaloClusterCellLink::dummyIt(nullptr, CaloClusterCellLink::m_dummyIndicesAndWeights.end());
+
+
 
 CaloClusterCellLink::CaloClusterCellLink(const CaloCellContainer* cellCont) :
   m_cellCont(cellCont)

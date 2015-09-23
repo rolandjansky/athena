@@ -359,7 +359,7 @@ void CaloCompactCellContainer::compact_output_iterator::set
   const int mask = static_cast<CaloCompactCell::value_type>(-1);
   const int ratio =
     sizeof(value_type) / sizeof(CaloCompactCell::value_type);
-  const int shift = 8*sizeof (CaloCompactCell::value_type) * m_count;
+  const int shift = 8*sizeof (CaloCompactCell::value_type) * (m_count%ratio);
 
   // Mask the value into the current word.
   *m_it = (*m_it & ~(mask<<shift)) | (x << shift);
