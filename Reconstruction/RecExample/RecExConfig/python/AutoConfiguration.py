@@ -38,10 +38,11 @@ KnownCollisionsProjects=["data08","data08_coll900","data09","data09_coll900","da
                          "data14_comm","data15_comm","data15_900GeV","data15_1beam","data15_13TeV"
                          ]
 
-KnownHeavyIonProjects=["data10_hi","data11_hi"]
+KnownHeavyIonProjects=["data10_hi","data11_hi","data15_hi"]
 
 KnownHeavyIonProtonProjects=["data12_hip","data13_hip"]
 
+KnownTestProjects=["data_test"]
 
 KnownProjects=[]
 AddValidItemToList(KnownCosmicsProjects,KnownProjects)
@@ -49,6 +50,7 @@ AddValidItemToList(Known1BeamProjects,KnownProjects)
 AddValidItemToList(KnownCollisionsProjects,KnownProjects)
 AddValidItemToList(KnownHeavyIonProjects,KnownProjects)
 AddValidItemToList(KnownHeavyIonProtonProjects,KnownProjects)
+AddValidItemToList(KnownTestProjects,KnownProjects)
 
 fullSolenoidCurrent=7730.0
 fullToroidCurrent=20500.0
@@ -109,7 +111,7 @@ def GetFieldFromInputFile():
             solenoidCurrent=inputFileSummary['metadata']['/EXT/DCS/MAGNETS/SENSORDATA']['CentralSol_Current']['value']
             toroidCurrent=inputFileSummary['metadata']['/EXT/DCS/MAGNETS/SENSORDATA']['Toroids_Current']['value']
         except:
-            logAutoConfiguration.warning("Unable to find solenoid & toroid currents in /EXT/DCS/MAGNETS/SENSORDATA")
+            logAutoConfiguration.warning("Unable to find solenoid and toroid currents in /EXT/DCS/MAGNETS/SENSORDATA")
 
         # consistency check of GEO and b field values in case of simulated data
         if inputFileSummary['evt_type'][0]=='IS_SIMULATION':
@@ -334,6 +336,7 @@ def ConfigureBeamType():
     if BeamType==None:
         project=GetProjectName()
         if ItemInList(project,KnownCosmicsProjects): BeamType='cosmics'
+        elif ItemInList(project,KnownTestProjects): BeamType='cosmics'
         elif ItemInList(project,Known1BeamProjects): BeamType='singlebeam'
         elif ItemInList(project,KnownCollisionsProjects): BeamType='collisions'
         elif ItemInList(project,KnownHeavyIonProjects): BeamType='collisions'
