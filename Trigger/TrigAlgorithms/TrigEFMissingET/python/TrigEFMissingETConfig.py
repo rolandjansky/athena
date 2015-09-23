@@ -1118,7 +1118,7 @@ class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
         clusterTool.SubtractPileup = True
         clusterTool.towerWidthInput = 0.7
         clusterTool.EtaRange = 5.0
-        clusterTool.ptmin = 4500.0
+        clusterTool.ptmin = 45000.0
         clusterTool.aveEclusPU = 4000.0
         clusterTool.resE = 15.81
 
