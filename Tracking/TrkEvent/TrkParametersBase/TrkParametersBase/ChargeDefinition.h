@@ -39,6 +39,9 @@ class ChargeDefinition
 	ChargeDefinition( const ChargeDefinition& chdef) :
      m_charge(chdef.m_charge)
      {}
+     
+  /// Assignment 
+  ChargeDefinition & operator=(const ChargeDefinition & rhs) = default;
 
 	/** Destructor */
 	virtual ~ChargeDefinition(){}
