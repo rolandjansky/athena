@@ -32,7 +32,7 @@ int main() {
   }  
   assert(pSvcLoc);
 
-  StoreGateSvc* pStore(nullptr);
+  StoreGateSvc* pStore(0);
   static const bool CREATE(true);
   assert((pSvcLoc->service("StoreGateSvc", pStore, CREATE)).isSuccess());
   assert(pStore);

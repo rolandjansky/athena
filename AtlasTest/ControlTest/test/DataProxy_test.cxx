@@ -96,7 +96,7 @@ int main() {
   assert( (DataProxy_cast<Bla>(transientProxy)).i == 77 );
 
 
-  IConversionSvc* pIConvSvc(nullptr);
+  IConversionSvc* pIConvSvc(0);
   StatusCode cs((pSvcLoc->service("EventPersistencySvc", pIConvSvc, CREATEIF)));
   assert(cs.isSuccess());
   assert(pIConvSvc);
@@ -126,7 +126,7 @@ int main() {
   fRef.doNothing(); //remove warning
 
 
-  IProxyProviderSvc* pIPPSvc(nullptr);
+  IProxyProviderSvc* pIPPSvc(0);
   StatusCode psc(pSvcLoc->service("ProxyProviderSvc", pIPPSvc, CREATEIF));
   assert( psc.isSuccess() );
   assert( pIPPSvc );
