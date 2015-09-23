@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 784023 2016-11-14 14:01:07Z mavogel $
+#  @version $Id: trfReports.py 696484 2015-09-23 17:20:28Z graemes $
 #
 
-__version__ = '$Revision: 784023 $'
+__version__ = '$Revision: 696484 $'
 
 import cPickle as pickle
 import json
@@ -105,12 +105,10 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '2.0.7'
+    _reportVersion = '1.0.6'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
-    _dbDataTotal = 0
-    _dbTimeTotal = 0.0
 
     ## @brief Constructor
     #  @param parentTrf Mandatory link to the transform this job report represents
@@ -139,6 +137,14 @@ class trfJobReport(trfReport):
         else:
             myDict['exitMsg'] = self._trf.exitMsg
             myDict['exitMsgExtra'] = ""
+            
+        # Iterate over argValues...
+        myDict['argValues'] = {}
+        for k, v in self._trf.argdict.iteritems():
+            if isinstance(v, trfArgClasses.argument):
+                myDict['argValues'][k] = v.value
+            else:
+                myDict['argValues'][k] = v
 
         # Iterate over files
         for fileType in ('input', 'output', 'temporary'):
@@ -165,57 +171,38 @@ class trfJobReport(trfReport):
                 myDict['executor'].append(trfExecutorReport(exe).python(fast = fast))
                 # Executor resources are gathered here to unify where this information is held
                 # and allow T0/PanDA to just store this JSON fragment on its own
-                myDict['resource']['executor'][exe.name] = exeResourceReport(exe, self)
-                for mergeStep in exe.myMerger:
-                    myDict['resource']['executor'][mergeStep.name] = exeResourceReport(mergeStep, self)
-            if self._dbDataTotal > 0 or self._dbTimeTotal > 0:
-                myDict['resource']['dbDataTotal'] = self._dbDataTotal
-                myDict['resource']['dbTimeTotal'] = self._dbTimeTotal
+                exeResource = {'cpuTime': exe.cpuTime, 
+                               'wallTime': exe.wallTime,}
+                if exe.memStats:
+                    exeResource['memory'] = exe.memStats
+                if exe.eventCount:
+                    exeResource['nevents'] = exe.eventCount
+                if exe.athenaMP:
+                    exeResource['mpworkers'] = exe.athenaMP
+                if exe.dbMonitor:
+                    exeResource['dbData'] = exe.dbMonitor['bytes']
+                    exeResource['dbTime'] = exe.dbMonitor['time']
+                myDict['resource']['executor'][executionStep['name']] = exeResource
+
         # Resource consumption
         reportTime = os.times()
- 
+
         # Calculate total cpu time we used -
         myCpuTime = reportTime[0] + reportTime[1]
         childCpuTime = reportTime[2] + reportTime[3]
         wallTime = reportTime[4] - self._trf.transformStart[4]
-        cpuTime = myCpuTime
-        cpuTimeTotal = 0
-        cpuTimePerWorker = myCpuTime
-        maxWorkers = 1
         msg.debug('Raw cpu resource consumption: transform {0}, children {1}'.format(myCpuTime, childCpuTime))
         # Reduce childCpuTime by times reported in the executors (broken for MP...?)
         for exeName, exeReport in myDict['resource']['executor'].iteritems():
-            if 'mpworkers' in exeReport:
-                if exeReport['mpworkers'] > maxWorkers : maxWorkers = exeReport['mpworkers']
             try:
                 msg.debug('Subtracting {0}s time for executor {1}'.format(exeReport['cpuTime'], exeName))
                 childCpuTime -= exeReport['cpuTime']
             except TypeError:
                 pass
-            try:
-                cpuTime += exeReport['cpuTime']
-                cpuTimeTotal += exeReport['total']['cpuTime']
-                if 'cpuTimePerWorker' in exeReport:
-                    msg.debug('Adding {0}s to cpuTimePerWorker'.format(exeReport['cpuTimePerWorker']))
-                    cpuTimePerWorker += exeReport['cpuTimePerWorker']
-                else:
-                    msg.debug('Adding nonMP cpuTime {0}s to cpuTimePerWorker'.format(exeReport['cpuTime']))
-                    cpuTimePerWorker += exeReport['cpuTime']
-            except TypeError:
-                pass
 
-        msg.debug('maxWorkers: {0}, cpuTimeTotal: {1}, cpuTimePerWorker: {2}'.format(maxWorkers, cpuTime, cpuTimePerWorker))
         myDict['resource']['transform'] = {'cpuTime': int(myCpuTime + 0.5),
-                              'cpuTimeTotal': int(cpuTimeTotal + 0.5),
                               'externalCpuTime': int(childCpuTime + 0.5),
                               'wallTime': int(wallTime + 0.5),}
-        if self._trf.processedEvents:
-            myDict['resource']['transform']['processedEvents'] = self._trf.processedEvents   
-        myDict['resource']['transform']['trfPredata'] = self._trf.trfPredata
-        # check for devision by zero for fast jobs, unit tests
-        if int(wallTime+0.5) > 0:
-            myDict['resource']['transform']['cpuEfficiency'] = round(int(cpuTime + 0.5)*1.0/maxWorkers/int(wallTime+0.5), 4)
-            myDict['resource']['transform']['cpuPWEfficiency'] = round(int(cpuTimePerWorker + 0.5)*1.0/int(wallTime+0.5), 4)
         myDict['resource']['machine'] = machineReport().python(fast = fast)
 
         return myDict
@@ -429,6 +416,34 @@ class trfFileReport(object):
                 else:
                     fileArgProps['subFiles'].append(subFile)
 
+        if type == 'full':
+            # move metadata to subFile dict, before it can be compressed
+            metaData = self._fileArg._fileMetadata
+            for fileName in metaData.keys():
+                msg.info("Examining metadata for file {0}".format(fileName))
+                if basenameReport == False:
+                    searchFileName = fileName
+                else:
+                    searchFileName = os.path.basename(fileName)
+
+                thisFile = None
+                for subFile in fileArgProps['subFiles']:
+                    if subFile['name'] == searchFileName:
+                        thisFile = subFile
+                        break
+
+                if thisFile is None:
+                    if searchFileName in suppressed:
+                        continue
+                    else:
+                        raise trfExceptions.TransformReportException(trfExit.nameToCode('TRF_INTERNAL_REPORT_ERROR'),
+                                                                 'file metadata mismatch in subFiles dict')
+
+                # append metadata keys, except all existing, to subfile dict and ignore _exists
+                for k, v in metaData[fileName].iteritems():
+                    if k not in thisFile.keys() and k != '_exists':
+                        thisFile[k] = v
+
         return fileArgProps
 
     ## @brief Return unique metadata for a single file in an argFile class
@@ -449,7 +464,7 @@ class trfFileReport(object):
             entry.update(self._fileArg.getMetadata(files = filename, populate = not fast, metadataKeys = ['file_guid'])[filename])
         elif type is 'full':
             # Suppress io because it's the key at a higher level and _exists because it's internal
-            entry.update(self._fileArg.getMetadata(files = filename, populate = not fast, maskMetadataKeys = ['io', '_exists', 'integrity', 'file_type'])[filename])
+            entry.update(self._fileArg.getMetadata(files = filename, populate = not fast, maskMetadataKeys = ['io', '_exists'])[filename])
         else:
             raise trfExceptions.TransformReportException(trfExit.nameToCode('TRF_INTERNAL_REPORT_ERROR'),
                                                          'Unknown file report type ({0}) in the file report for {1}'.format(type, self._fileArg))
@@ -590,39 +605,3 @@ def pyJobReportToFileDict(jobReport, io = 'all'):
             for filedata in jobReport['files'][iotype]:
                 dataDict[filedata['type']] = filedata
     return dataDict
-
-
-def exeResourceReport(exe, report):
-    exeResource = {'cpuTime': exe.cpuTime, 
-                   'wallTime': exe.wallTime,
-                   'preExe': {
-                       'cpuTime': exe.preExeCpuTime,
-                       'wallTime': exe.preExeWallTime,
-                       },
-                   'postExe': {
-                       'cpuTime': exe.postExeCpuTime,
-                       'wallTime': exe.postExeWallTime,
-                       },
-                   'validation': {
-                       'cpuTime': exe.validationCpuTime,
-                       'wallTime': exe.validationWallTime,
-                       },
-                   'total': {
-                       'cpuTime': exe.cpuTimeTotal,
-                       'wallTime': exe.wallTimeTotal,
-                       },
-                   }
-
-    if exe.memStats:
-        exeResource['memory'] = exe.memStats
-    if exe.eventCount:
-        exeResource['nevents'] = exe.eventCount
-    if exe.athenaMP:
-        exeResource['mpworkers'] = exe.athenaMP
-        exeResource['cpuTimePerWorker'] = float(exe.cpuTime)/exe.athenaMP
-    if exe.dbMonitor:
-        exeResource['dbData'] = exe.dbMonitor['bytes']
-        exeResource['dbTime'] = exe.dbMonitor['time']
-        report._dbDataTotal += exeResource['dbData']
-        report._dbTimeTotal += exeResource['dbTime']
-    return exeResource

@@ -5,7 +5,7 @@
 ## @Package test_trfMPTools.py
 #  @brief Unittests for trfMPTools.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfMPTools.py 772406 2016-09-09 12:10:12Z mavogel $
+#  @version $Id: test_trfMPTools.py 677748 2015-06-23 20:29:35Z graemes $
 
 import os
 import subprocess
@@ -16,7 +16,7 @@ msg = logging.getLogger(__name__)
 
 # Allowable to import * from the package for which we are the test suite
 from PyJobTransforms.trfMPTools import *
-from PyJobTransforms.trfArgClasses import argList, argSubstepList, argFile
+from PyJobTransforms.trfArgClasses import argList, argFile
 
 import PyJobTransforms.trfExceptions as trfExceptions
 
@@ -30,7 +30,7 @@ class AthenaMPProcTests(unittest.TestCase):
         self.assertEqual(detectAthenaMPProcs(), 0)
         
     def test_noMPwithArgdict(self):
-        argdict={'movealong': argList('nothing to see here'), 'athenaopts': argSubstepList(['some', 'random', 'values'])}
+        argdict={'movealong': argList('nothing to see here'), 'athenaopts': argList(['some', 'random', 'values'])}
         self.assertEqual(detectAthenaMPProcs(argdict), 0)
         
     def test_MPfromEnv(self):
@@ -48,34 +48,33 @@ class AthenaMPProcTests(unittest.TestCase):
         self.assertRaises(trfExceptions.TransformExecutionException, detectAthenaMPProcs)
         
     def test_MPfromArgdict(self):
-        argdict={'movealong': argList('nothing to see here'), 'athenaopts': argSubstepList(['--nprocs=8', 'random', 'values'])}
+        argdict={'movealong': argList('nothing to see here'), 'athenaopts': argList(['--nprocs=8', 'random', 'values'])}
         self.assertEqual(detectAthenaMPProcs(argdict), 8)
 
     def test_MPfromArgdictEmpty(self):
-        argdict={'movealong': argList('nothing to see here'), 'athenaopts': argSubstepList(['--nprocs=0', 'random', 'values'])}
+        argdict={'movealong': argList('nothing to see here'), 'athenaopts': argList(['--nprocs=0', 'random', 'values'])}
         self.assertEqual(detectAthenaMPProcs(argdict), 0)
 
     def test_MPfromArgdictBad(self):
-        argdict={'movealong': argList('nothing to see here'), 'athenaopts': argSubstepList(['--nprocs=-4', 'random', 'values'])}
+        argdict={'movealong': argList('nothing to see here'), 'athenaopts': argList(['--nprocs=-4', 'random', 'values'])}
         self.assertRaises(trfExceptions.TransformExecutionException, detectAthenaMPProcs, argdict)
-        argdict={'movealong': argList('nothing to see here'), 'athenaopts': argSubstepList(['--nprocs=notAnInt', 'random', 'values'])}
+        argdict={'movealong': argList('nothing to see here'), 'athenaopts': argList(['--nprocs=notAnInt', 'random', 'values'])}
         self.assertRaises(trfExceptions.TransformExecutionException, detectAthenaMPProcs, argdict)
-        argdict={'movealong': argList('nothing to see here'), 'athenaopts': argSubstepList(['--nprocs=4', '--nprocs=8', 'values'])}
+        argdict={'movealong': argList('nothing to see here'), 'athenaopts': argList(['--nprocs=4', '--nprocs=8', 'values'])}
         self.assertRaises(trfExceptions.TransformExecutionException, detectAthenaMPProcs, argdict)
 
     def test_MPfromBoth(self):
         # Env should have priority
         os.environ["ATHENA_PROC_NUMBER"] = "4"
-        argdict={'movealong': argList('nothing to see here'), 'athenaopts': argSubstepList(['--nprocs=2', 'random', 'values'])}
+        argdict={'movealong': argList('nothing to see here'), 'athenaopts': argList(['--nprocs=2', 'random', 'values'])}
         self.assertEqual(detectAthenaMPProcs(argdict), 4)
 
 
 class AthenaMPOutputParseTests(unittest.TestCase):
     def setUp(self):
-        # Gah, this is a pest to setup! Need to creat stub files for the mother outputs
-        # and the worker outputs
-        outputStruct = [('.', [], ['data15_13TeV.00267167.physics_Main.merge.RAW._lb0176._SFO-1._0001.1', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'tmp.HIST_ESD_INT', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002']),
-                         ('athenaMP-workers-RAWtoESD-r2e', ['worker_3', 'worker_7', 'worker_4', 'worker_5', 'worker_2', 'worker_6', 'evt_counter', 'worker_1', 'worker_0'], []), ('athenaMP-workers-RAWtoESD-r2e/worker_3', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'eventLoopHeartBeat.txt', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out']), ('athenaMP-workers-RAWtoESD-r2e/worker_7', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'eventLoopHeartBeat.txt', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out']), ('athenaMP-workers-RAWtoESD-r2e/worker_4', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'eventLoopHeartBeat.txt', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out']), ('athenaMP-workers-RAWtoESD-r2e/worker_5', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'eventLoopHeartBeat.txt', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out']), ('athenaMP-workers-RAWtoESD-r2e/worker_2', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'eventLoopHeartBeat.txt', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out']), ('athenaMP-workers-RAWtoESD-r2e/worker_6', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'eventLoopHeartBeat.txt', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out']), ('athenaMP-workers-RAWtoESD-r2e/evt_counter', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out']), ('athenaMP-workers-RAWtoESD-r2e/worker_1', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'eventLoopHeartBeat.txt', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out']), ('athenaMP-workers-RAWtoESD-r2e/worker_0', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'eventLoopHeartBeat.txt', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out'])]
+        # Gah, this is a pest to setup!
+        cwd = os.getcwd()
+        outputStruct = [('.', [], ['data15_13TeV.00267167.physics_Main.merge.RAW._lb0176._SFO-1._0001.1']), ('athenaMP-workers-RAWtoESD-r2e', ['worker_3', 'worker_7', 'worker_4', 'worker_5', 'worker_2', 'worker_6', 'evt_counter', 'worker_1', 'worker_0'], []), ('athenaMP-workers-RAWtoESD-r2e/worker_3', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'eventLoopHeartBeat.txt', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out']), ('athenaMP-workers-RAWtoESD-r2e/worker_7', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'eventLoopHeartBeat.txt', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out']), ('athenaMP-workers-RAWtoESD-r2e/worker_4', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'eventLoopHeartBeat.txt', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out']), ('athenaMP-workers-RAWtoESD-r2e/worker_5', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'eventLoopHeartBeat.txt', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out']), ('athenaMP-workers-RAWtoESD-r2e/worker_2', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'eventLoopHeartBeat.txt', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out']), ('athenaMP-workers-RAWtoESD-r2e/worker_6', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'eventLoopHeartBeat.txt', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out']), ('athenaMP-workers-RAWtoESD-r2e/evt_counter', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out']), ('athenaMP-workers-RAWtoESD-r2e/worker_1', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'eventLoopHeartBeat.txt', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out']), ('athenaMP-workers-RAWtoESD-r2e/worker_0', [], ['tmp.HIST_ESD_INT', 'AthenaMP.log', 'data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002', 'eventLoopHeartBeat.txt', 'ntuple_RAWtoESD.pmon.gz', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002', 'FileManagerLog', 'PoolFileCatalog.xml.BAK', 'PoolFileCatalog.xml', 'data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002', 'data15_13TeV.00267167.physics_Main.recon.DRAW_EMU.f594._lb0176._SFO-1._0002', 'AtRanluxGenSvc.out'])]
         for delement in outputStruct:
             try:
                 os.mkdir(delement[0])
@@ -126,7 +125,7 @@ class AthenaMPOutputParseTests(unittest.TestCase):
                     'DRAW_EGZ': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_EGZ.f594._lb0176._SFO-1._0002"),
                     'DRAW_TAUMUH': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002"),
                     'DRAW_ZMUMU': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002"),}
-        self.assertEqual(athenaMPOutputHandler("athenaMP-outputs-RAWtoESD-r2e", "athenaMP-workers-RAWtoESD-r2e", dataDict, 8, skipFileChecks=False), None)
+        self.assertEqual(athenaMPOutputHandler("athenaMP-outputs-RAWtoESD-r2e", "athenaMP-workers-RAWtoESD-r2e", dataDict, 8), None)
         
     def test_missingMPoutputs(self):
         dataDict = {'ESD': argFile("data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002"),
@@ -136,7 +135,7 @@ class AthenaMPOutputParseTests(unittest.TestCase):
                     'DRAW_TAUMUH': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002"),
                     'DRAW_NOTHERE': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_NOTHERE.f594._lb0176._SFO-1._0002"),
                     'DRAW_ZMUMU': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002"),}
-        self.assertRaises(trfExceptions.TransformExecutionException, athenaMPOutputHandler, "athenaMP-outputs-RAWtoESD-r2e", "athenaMP-workers-RAWtoESD-r2e", dataDict, 8, skipFileChecks=False)
+        self.assertRaises(trfExceptions.TransformExecutionException, athenaMPOutputHandler, "athenaMP-outputs-RAWtoESD-r2e", "athenaMP-workers-RAWtoESD-r2e", dataDict, 8)
 
     def test_wrongMPoutputs(self):
         dataDict = {'ESD': argFile("data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002"),
@@ -146,7 +145,7 @@ class AthenaMPOutputParseTests(unittest.TestCase):
                     'DRAW_TAUMUH': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002"),
                     'DRAW_NOTHERE': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_NOTHERE.f594._lb0176._SFO-1._0002"),
                     'DRAW_ZMUMU': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002"),}
-        self.assertRaises(trfExceptions.TransformExecutionException, athenaMPOutputHandler, "athenaMP-outputs-RAWtoESD-r2e", "athenaMP-workers-RAWtoESD-r2e", dataDict, 20, skipFileChecks=False)
+        self.assertRaises(trfExceptions.TransformExecutionException, athenaMPOutputHandler, "athenaMP-outputs-RAWtoESD-r2e", "athenaMP-workers-RAWtoESD-r2e", dataDict, 20)
         
     def test_wrongMPoutputDir(self):
         dataDict = {'ESD': argFile("data15_13TeV.00267167.physics_Main.recon.ESD.f594._lb0176._SFO-1._0002"),
@@ -156,7 +155,7 @@ class AthenaMPOutputParseTests(unittest.TestCase):
                     'DRAW_TAUMUH': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_TAUMUH.f594._lb0176._SFO-1._0002"),
                     'DRAW_NOTHERE': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_NOTHERE.f594._lb0176._SFO-1._0002"),
                     'DRAW_ZMUMU': argFile("data15_13TeV.00267167.physics_Main.recon.DRAW_ZMUMU.f594._lb0176._SFO-1._0002"),}
-        self.assertRaises(trfExceptions.TransformExecutionException, athenaMPOutputHandler, "athenaMP-outputs-RAWtoESD-r2e-missing", "athenaMP-workers-RAWtoESD-r2e", dataDict, 20, skipFileChecks=False)
+        self.assertRaises(trfExceptions.TransformExecutionException, athenaMPOutputHandler, "athenaMP-outputs-RAWtoESD-r2e-missing", "athenaMP-workers-RAWtoESD-r2e", dataDict, 20)
         
         
 if __name__ == '__main__':

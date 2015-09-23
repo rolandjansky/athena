@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 792052 2017-01-13 13:36:51Z mavogel $
+# @version $Id: trfExe.py 696484 2015-09-23 17:20:28Z graemes $
 
 import copy
 import json
@@ -20,12 +20,10 @@ import sys
 import time
 
 import logging
-from fnmatch import fnmatch
 msg = logging.getLogger(__name__)
 
 from PyJobTransforms.trfJobOptions import JobOptionsTemplate
-from PyJobTransforms.trfUtils import asetupReport, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum
-from PyJobTransforms.trfUtils import ValgrindCommand, isInteractiveEnv
+from PyJobTransforms.trfUtils import asetupReport, unpackDBRelease, setupDBRelease, cvmfsDBReleaseCheck, forceToAlphaNum, releaseIsOlderThan, ValgrindCommand
 from PyJobTransforms.trfExitCodes import trfExit
 from PyJobTransforms.trfLogger import stdLogLevels
 from PyJobTransforms.trfMPTools import detectAthenaMPProcs, athenaMPOutputHandler
@@ -47,11 +45,14 @@ class executorConfig(object):
     #  @param argdict Argument dictionary for this executor
     #  @param dataDictionary Mapping from input data names to argFile instances
     #  @param firstExecutor Boolean set to @c True if we are the first executor 
-    def __init__(self, argdict={}, dataDictionary={}, firstExecutor=False):
+    #  @param disableMP Ensure that AthenaMP is not used (i.e., also unset 
+    #  @c ATHENA_PROC_NUMBER before execution)
+    def __init__(self, argdict={}, dataDictionary={}, firstExecutor=False, disableMP=False):
         self._argdict = argdict
         self._dataDictionary = dataDictionary
         self._firstExecutor = firstExecutor
-       
+        self._disableMP = disableMP
+        
     @property
     def argdict(self):
         return self._argdict
@@ -75,6 +76,14 @@ class executorConfig(object):
     @firstExecutor.setter
     def firstExecutor(self, value):
         self._firstExecutor = value
+        
+    @property
+    def disableMP(self):
+        return self._disableMP
+    
+    @disableMP.setter
+    def disableMP(self, value):
+        self._disableMP = value
         
     ## @brief Set configuration properties from the parent transform
     #  @note  It's not possible to set firstExecutor here as the transform holds
@@ -106,8 +115,8 @@ class transformExecutor(object):
     #  @param outData List of outputs this transform can produce (list, tuple or set can be used)
     def __init__(self, name = 'Dummy', trf = None, conf = None, inData = set(), outData = set()):
         # Some information to produce helpful log messages
-        
         self._name = forceToAlphaNum(name)
+
         # Data this executor can start from and produce
         # Note we transform NULL to inNULL and outNULL as a convenience
         self._inData = set(inData)
@@ -152,23 +161,14 @@ class transformExecutor(object):
         ## @note Place holders for resource consumption. CPU and walltime are available for all executors
         #  but currently only athena is instrumented to fill in memory stats (and then only if PerfMonSD is
         #  enabled). 
-        self._preExeStart = None
         self._exeStart = self._exeStop = None
-        self._valStart = self._valStop = None
         self._memStats = {}
         self._eventCount = None
         self._athenaMP = None
         self._dbMonitor = None
         
-        # Holder for execution information about any merges done by this executor in MP mode
-        self._myMerger = []
-
         
     ## Now define properties for these data members
-    @property
-    def myMerger(self):
-        return self._myMerger
-
     @property
     def name(self):
         return self._name
@@ -285,10 +285,6 @@ class transformExecutor(object):
             return self._first
         else:
             return None
-
-    @property
-    def preExeStartTimes(self):
-        return self._preExeStart
     
     @property
     def exeStartTimes(self):
@@ -297,33 +293,11 @@ class transformExecutor(object):
     @property
     def exeStopTimes(self):
         return self._exeStop
-
-    @property
-    def valStartTimes(self):
-        return self._valStart
-
-    @property
-    def valStopTimes(self):
-        return self._valStop
     
-    @property
-    def preExeCpuTime(self):
-        if self._preExeStart and self._exeStart:
-            return self.calcCpuTime(self._preExeStart, self._exeStart)
-        else:
-            return None
-
-    @property
-    def preExeWallTime(self):
-        if self._preExeStart and self._exeStart:
-            return int(self._exeStart[4] - self._preExeStart[4] + 0.5)
-        else:
-            return None
-
     @property
     def cpuTime(self):
         if self._exeStart and self._exeStop:
-            return self.calcCpuTime(self._exeStart, self._exeStop)
+            return int(reduce(lambda x1, x2: x1+x2, map(lambda x1, x2: x2-x1, self._exeStart[2:4], self._exeStop[2:4])) + 0.5)
         else:
             return None
 
@@ -351,49 +325,7 @@ class transformExecutor(object):
     @property
     def memStats(self):
         return self._memStats
-
-    @property
-    def postExeCpuTime(self):
-        if self._exeStop and self._valStart:
-            return self.calcCpuTime(self._exeStop, self._valStart)
-        else:
-            return None
-
-    @property
-    def postExeWallTime(self):
-        if self._exeStop and self._valStart:
-            return int(self._valStart[4] - self._exeStop[4] + 0.5)
-        else:
-            return None
-
-    @property
-    def validationCpuTime(self):
-        if self._valStart and self._valStop:
-            return self.calcCpuTime(self._valStart, self._valStop)
-        else:
-            return None
     
-    @property
-    def validationWallTime(self):
-        if self._valStart and self._valStop:
-            return int(self._valStop[4] - self._valStart[4] + 0.5)
-        else:
-            return None
-
-    @property
-    def cpuTimeTotal(self):
-        if self._preExeStart and self._valStop:
-            return self.calcCpuTime(self._preExeStart, self._valStop)
-        else:
-            return None
-
-    @property
-    def wallTimeTotal(self):
-        if self._preExeStart and self._valStop:
-            return int(self._valStop[4] - self._preExeStart[4] + 0.5)
-        else:
-            return None
-        
     @property
     def eventCount(self):
         return self._eventCount
@@ -406,49 +338,26 @@ class transformExecutor(object):
     def dbMonitor(self):
         return self._dbMonitor
 
-    # calculate cpuTime from os.times() times tuple
-    def calcCpuTime(self, start, stop):
-        if start and stop:
-            return int(reduce(lambda x1, x2: x1+x2, map(lambda x1, x2: x2-x1, start[2:4], stop[2:4])) + 0.5)
-        else:
-            return None
-
-    # set start times, if not set already
-    def setPreExeStart(self):
-        if self._preExeStart is None:
-            self._preExeStart = os.times()
-            msg.debug('+++ preExeStart time is {0}'.format(self._preExeStart))
-    def setValStart(self):
-        if self._valStart is None:
-            self._valStart = os.times()
-            msg.debug('+++ valStart time is {0}'.format(self._valStart))
-
     def preExecute(self, input = set(), output = set()):
-        self.setPreExeStart()
         msg.info('Preexecute for %s' % self._name)
         
     def execute(self):
         self._exeStart = os.times()
-        msg.debug('+++ exeStart time is {0}'.format(self._exeStart))
         msg.info('Starting execution of %s' % self._name)
         self._hasExecuted = True
         self._rc = 0
         self._errMsg = ''
         msg.info('%s executor returns %d' % (self._name, self._rc))
         self._exeStop = os.times()
-        msg.debug('+++ preExeStop time is {0}'.format(self._exeStop))
         
     def postExecute(self):
         msg.info('Postexecute for %s' % self._name)
         
     def validate(self):
-        self.setValStart()
         self._hasValidated = True        
         msg.info('Executor %s has no validation function - assuming all ok' % self._name)
         self._isValidated = True
         self._errMsg = ''
-        self._valStop = os.times()
-        msg.debug('+++ valStop time is {0}'.format(self._valStop))
     
     ## Convenience function
     def doAll(self, input=set(), output=set()):
@@ -465,13 +374,11 @@ class logscanExecutor(transformExecutor):
         self._logFileName = None
 
     def preExecute(self, input = set(), output = set()):
-        self.estPreExeStart()
         msg.info('Preexecute for %s' % self._name)
         if 'logfile' in self.conf.argdict:
             self._logFileName = self.conf.argdict['logfile'].value
         
     def validate(self):
-        self.setValStart()
         msg.info("Starting validation for {0}".format(self._name))
         if self._logFileName:
             ## TODO: This is  a cut'n'paste from the athenaExecutor
@@ -521,9 +428,6 @@ class logscanExecutor(transformExecutor):
         self._isValidated = True
         self._errMsg = ''        
 
-        self._valStop = os.times()
-        msg.debug('+++ valStop time is {0}'.format(self._valStop))
-
 
 class echoExecutor(transformExecutor):
     def __init__(self, name = 'Echo', trf = None):
@@ -534,7 +438,6 @@ class echoExecutor(transformExecutor):
     
     def execute(self):
         self._exeStart = os.times()
-        msg.debug('+++ exeStart time is {0}'.format(self._exeStart))
         msg.info('Starting execution of %s' % self._name)        
         msg.info('Transform argument dictionary now follows:')
         for k, v in self.conf.argdict.iteritems():
@@ -544,7 +447,6 @@ class echoExecutor(transformExecutor):
         self._errMsg = ''
         msg.info('%s executor returns %d' % (self._name, self._rc))
         self._exeStop = os.times()
-        msg.debug('+++ exeStop time is {0}'.format(self._exeStop))
 
 
 class scriptExecutor(transformExecutor):
@@ -587,7 +489,6 @@ class scriptExecutor(transformExecutor):
 #        self._extraMetadata['scriptArgs'] = value
 
     def preExecute(self, input = set(), output = set()):
-        self.setPreExeStart()
         msg.debug('scriptExecutor: Preparing for execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
 
         self._input = input
@@ -610,7 +511,10 @@ class scriptExecutor(transformExecutor):
             msg.info('TRF_NOECHO envvar is set - disabling command echoing to stdout')
             self._echoOutput = False
         # PS1 is for sh, bash; prompt is for tcsh and zsh
-        elif isInteractiveEnv():
+        elif 'PS1' in os.environ or 'prompt' in os.environ: 
+            msg.info('Interactive environment detected (shell prompt) - enabling command echoing to stdout')
+            self._echoOutput = True
+        elif os.isatty(sys.stdout.fileno()) or os.isatty(sys.stdin.fileno()): 
             msg.info('Interactive environment detected (stdio or stdout is a tty) - enabling command echoing to stdout')
             self._echoOutput = True
         elif 'TZHOME' in os.environ:
@@ -655,7 +559,6 @@ class scriptExecutor(transformExecutor):
         msg.info('Starting execution of {0} ({1})'.format(self._name, self._cmd))
         
         self._exeStart = os.times()
-        msg.debug('+++ exeStart time is {0}'.format(self._exeStart))
         if ('execOnly' in self.conf.argdict and self.conf.argdict['execOnly'] == True):
             msg.info('execOnly flag is set - execution will now switch, replacing the transform')
             os.execvp(self._cmd[0], self._cmd)
@@ -685,7 +588,6 @@ class scriptExecutor(transformExecutor):
             self._rc = p.returncode
             msg.info('%s executor returns %d' % (self._name, self._rc))
             self._exeStop = os.times()
-            msg.debug('+++ exeStop time is {0}'.format(self._exeStop))
         except OSError as e:
             errMsg = 'Execution of {0} failed and raised OSError: {1}'.format(self._cmd[0], e)
             msg.error(errMsg)
@@ -716,9 +618,6 @@ class scriptExecutor(transformExecutor):
             
 
     def validate(self):
-        if self._valStart is None:
-            self._valStart = os.times()
-            msg.debug('+++ valStart time is {0}'.format(self._valStart))
         self._hasValidated = True
         
         ## Check rc
@@ -749,9 +648,6 @@ class scriptExecutor(transformExecutor):
             checkcount.decide()
             self._eventCount = checkcount.eventCount
             msg.info('Event counting for substep {0} passed'.format(self.name))
-
-        self._valStop = os.times()
-        msg.debug('+++ valStop time is {0}'.format(self._valStop))
 
 
 
@@ -785,8 +681,6 @@ class athenaExecutor(scriptExecutor):
     #  executor to the workflow graph, run the executor manually with these data parameters (useful for 
     #  post-facto executors, e.g., for AthenaMP merging)
     #  @param memMonitor Enable subprocess memory monitoring
-    #  @param disableMP Ensure that AthenaMP is not used (i.e., also unset 
-    #  @c ATHENA_PROC_NUMBER before execution)
     #  @note The difference between @c extraRunargs, @runtimeRunargs and @literalRunargs is that: @c extraRunargs 
     #  uses repr(), so the RHS is the same as the python object in the transform; @c runtimeRunargs uses str() so 
     #  that a string can be interpreted at runtime; @c literalRunargs allows the direct insertion of arbitary python
@@ -795,7 +689,7 @@ class athenaExecutor(scriptExecutor):
                  outData = set(), inputDataTypeCountCheck = None, exe = 'athena.py', exeArgs = ['athenaopts'], substep = None, inputEventTest = True,
                  perfMonFile = None, tryDropAndReload = True, extraRunargs = {}, runtimeRunargs = {},
                  literalRunargs = [], dataArgs = [], checkEventCount = False, errorMaskFiles = None,
-                 manualDataDictionary = None, memMonitor = True, disableMP = False):
+                 manualDataDictionary = None, memMonitor = True):
         
         self._substep = forceToAlphaNum(substep)
         self._inputEventTest = inputEventTest
@@ -806,7 +700,6 @@ class athenaExecutor(scriptExecutor):
         self._dataArgs = dataArgs
         self._errorMaskFiles = errorMaskFiles
         self._inputDataTypeCountCheck = inputDataTypeCountCheck
-        self._disableMP = disableMP
 
         if perfMonFile:
             self._perfMonFile = None
@@ -826,7 +719,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 792052 2017-01-13 13:36:51Z mavogel $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 696484 2015-09-23 17:20:28Z graemes $')
         else:
             self._jobOptionsTemplate = None
 
@@ -841,17 +734,8 @@ class athenaExecutor(scriptExecutor):
     @property
     def substep(self):
         return self._substep
-
-    @property
-    def disableMP(self):
-        return self._disableMP
-    
-    @disableMP.setter
-    def disableMP(self, value):
-        self._disableMP = value
         
     def preExecute(self, input = set(), output = set()):
-        self.setPreExeStart()
         msg.debug('Preparing for execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
         
         # Check we actually have events to process!
@@ -877,28 +761,20 @@ class athenaExecutor(scriptExecutor):
             myMaxEvents = self.conf.argdict['maxEvents'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor)
         else:
             myMaxEvents = -1
-        
+            
         # Any events to process...?
         if (self._inputEventTest and mySkipEvents > 0 and mySkipEvents >= inputEvents):
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_NOEVENTS'),
                                                            'No events to process: {0} (skipEvents) >= {1} (inputEvents of {2}'.format(mySkipEvents, inputEvents, dt))
         
-        try:
-            # Expected events to process
-            if (myMaxEvents != -1):
-                if (self.inData and next(iter(self.inData)) == 'inNULL'):
-                    expectedEvents = myMaxEvents
-                else:
-                    expectedEvents = min(inputEvents-mySkipEvents, myMaxEvents)
-            else:
-                expectedEvents = inputEvents-mySkipEvents
-        except TypeError as e:
-            # catching type error from UNDEFINED inputEvents count
-            msg.info('input event count is UNDEFINED, setting expectedEvents to 0')
-            expectedEvents = 0
+        # Expected events to process
+        if (myMaxEvents != -1):
+            expectedEvents = min(inputEvents-mySkipEvents, myMaxEvents)
+        else:
+            expectedEvents = inputEvents-mySkipEvents
         
         # Try to detect AthenaMP mode and number of workers
-        if self._disableMP:
+        if self.conf._disableMP:
             self._athenaMP = 0
         else:
             self._athenaMP = detectAthenaMPProcs(self.conf.argdict)
@@ -907,52 +783,22 @@ class athenaExecutor(scriptExecutor):
             # which also avoids issues with zero sized files
             if expectedEvents < self._athenaMP:
                 msg.info("Disabling AthenaMP as number of input events to process is too low ({0} events for {1} workers)".format(expectedEvents, self._athenaMP))
-                self._disableMP = True
+                self.conf._disableMP = True
                 self._athenaMP = 0
             
         # And if this is (still) athenaMP, then set some options for workers and output file report
         if self._athenaMP:
             self._athenaMPWorkerTopDir = 'athenaMP-workers-{0}-{1}'.format(self._name, self._substep)
             self._athenaMPFileReport = 'athenaMP-outputs-{0}-{1}'.format(self._name, self._substep)
-            self._athenaMPEventOrdersFile = 'athenamp_eventorders.txt.{0}'.format(self._name)
-            if 'athenaMPUseEventOrders' in self.conf.argdict and self.conf._argdict['athenaMPUseEventOrders'].value is True:
-                self._athenaMPReadEventOrders = True
-            else:
-                self._athenaMPReadEventOrders = False          
-            # Decide on scheduling
-            if ('athenaMPStrategy' in self.conf.argdict and 
-                (self.conf.argdict['athenaMPStrategy'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor) is not None)):
-                self._athenaMPStrategy = self.conf.argdict['athenaMPStrategy'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor)
-            else:
-                self._athenaMPStrategy = 'SharedQueue'
-
             # See if we have options for the target output file size
-            if 'athenaMPMergeTargetSize' in self.conf.argdict:
-                for dataType in output:
-                    if dataType in self.conf.argdict['athenaMPMergeTargetSize'].value:
-                        self.conf._dataDictionary[dataType].mergeTargetSize = self.conf.argdict['athenaMPMergeTargetSize'].value[dataType] * 1000000 # Convert from MB to B
+            if 'athenaMPMergeTargetSize' in self.conf._argdict:
+                for dataType, targetSize in self.conf._argdict['athenaMPMergeTargetSize'].value.iteritems():
+                    if dataType in self.conf._dataDictionary:
+                        self.conf._dataDictionary[dataType].mergeTargetSize = targetSize * 1000000 # Convert from MB to B
                         msg.info('Set target merge size for {0} to {1}'.format(dataType, self.conf._dataDictionary[dataType].mergeTargetSize))
-                    else:
-                        # Use a globbing strategy
-                        matchedViaGlob = False
-                        for mtsType, mtsSize in self.conf.argdict['athenaMPMergeTargetSize'].value.iteritems():
-                            if fnmatch(dataType, mtsType):
-                                self.conf._dataDictionary[dataType].mergeTargetSize = mtsSize * 1000000 # Convert from MB to B
-                                msg.info('Set target merge size for {0} to {1} from "{2}" glob'.format(dataType, self.conf._dataDictionary[dataType].mergeTargetSize, mtsType))
-                                matchedViaGlob = True
-                                break
-                        if not matchedViaGlob and "ALL" in self.conf.argdict['athenaMPMergeTargetSize'].value:
-                            self.conf._dataDictionary[dataType].mergeTargetSize = self.conf.argdict['athenaMPMergeTargetSize'].value["ALL"] * 1000000 # Convert from MB to B
-                            msg.info('Set target merge size for {0} to {1} from "ALL" value'.format(dataType, self.conf._dataDictionary[dataType].mergeTargetSize))
-         
-            # For AthenaMP jobs we ensure that the athena outputs get the suffix _000
-            # so that the mother process output file (if it exists) can be used directly
-            # as soft linking can lead to problems in the PoolFileCatalog (see ATLASJT-317)
-            for dataType in output:
-                self.conf._dataDictionary[dataType].originalName = self.conf._dataDictionary[dataType].value[0]
-                if 'eventService' not in self.conf.argdict or 'eventService' in self.conf.argdict and self.conf.argdict['eventService'].value==False:
-                    self.conf._dataDictionary[dataType].value[0] += "_000"
-                    msg.info("Updated athena output filename for {0} to {1}".format(dataType, self.conf._dataDictionary[dataType].value[0]))
+                    elif 'ALL' in self.conf._dataDictionary:
+                        self.conf._dataDictionary['ALL'].mergeTargetSize = targetSize * 1000000
+                        msg.info('Set target merge size for {0} to {1} (from ALL value)'.format(dataType, self.conf._dataDictionary[dataType].mergeTargetSize))
         else:
             self._athenaMPWorkerTopDir = self._athenaMPFileReport = None
 
@@ -1040,11 +886,7 @@ class athenaExecutor(scriptExecutor):
         # If this was an athenaMP run then we need to update output files
         if self._athenaMP:
             outputDataDictionary = dict([ (dataType, self.conf.dataDictionary[dataType]) for dataType in self._output ])
-            ## @note Update argFile values to have the correct outputs from the MP workers
-            skipFileChecks=False
-            if 'eventService' in self.conf.argdict and self.conf.argdict['eventService'].value:
-                skipFileChecks=True
-            athenaMPOutputHandler(self._athenaMPFileReport, self._athenaMPWorkerTopDir, outputDataDictionary, self._athenaMP, skipFileChecks)
+            athenaMPOutputHandler(self._athenaMPFileReport, self._athenaMPWorkerTopDir, outputDataDictionary, self._athenaMP)
             for dataType in self._output:
                 if self.conf.dataDictionary[dataType].io == "output" and len(self.conf.dataDictionary[dataType].value) > 1:
                     self._smartMerge(self.conf.dataDictionary[dataType])
@@ -1054,7 +896,6 @@ class athenaExecutor(scriptExecutor):
 
 
     def validate(self):
-        self.setValStart()
         self._hasValidated = True
         deferredException = None
         
@@ -1124,9 +965,6 @@ class athenaExecutor(scriptExecutor):
         msg.info('Executor {0} has validated successfully'.format(self.name))
         self._isValidated = True
 
-        self._valStop = os.times()
-        msg.debug('+++ valStop time is {0}'.format(self._valStop))
-
     ## @brief Prepare the correct command line to be used to invoke athena
     def _prepAthenaCommandLine(self):
         ## Start building up the command line
@@ -1136,59 +974,34 @@ class athenaExecutor(scriptExecutor):
             self._exe = self.conf.argdict['athena'].value
         self._cmd = [self._exe]
         
-        # Find options for the current substep. Name is prioritised (e.g. RAWtoESD) over alias (e.g. r2e). Last look for 'all'
-        currentSubstep = None
-        if 'athenaopts' in self.conf.argdict:
-            if self.name in self.conf.argdict['athenaopts'].value:
-                currentSubstep = self.name
-                if self.substep in self.conf.argdict['athenaopts'].value:
-                    msg.info('Athenaopts found for {0} and {1}, joining options. '
-                             'Consider changing your configuration to use just the name or the alias of the substep.'
-                             .format(currentSubstep, self.substep))
-                    self.conf.argdict['athenaopts'].value[currentSubstep].extend(self.conf.argdict['athenaopts'].value[self.substep])
-                    del self.conf.argdict['athenaopts'].value[self.substep]
-                    msg.debug('Athenaopts: {0}'.format(self.conf.argdict['athenaopts'].value))
-            elif self.substep in self.conf.argdict['athenaopts'].value:
-                currentSubstep = self.substep
-            elif 'all' in self.conf.argdict['athenaopts'].value:
-                currentSubstep = 'all'
-
         # See if there's a preloadlibs and a request to update LD_PRELOAD for athena
-        preLoadUpdated = dict()
         if 'LD_PRELOAD' in self._envUpdate._envdict:
-            preLoadUpdated[currentSubstep] = False
+            preLoadUpdated = False
             if 'athenaopts' in self.conf.argdict:
-                if currentSubstep is not None:
-                    for athArg in self.conf.argdict['athenaopts'].value[currentSubstep]:
-                        # This code is pretty ugly as the athenaopts argument contains
-                        # strings which are really key/value pairs
-                        if athArg.startswith('--preloadlib'):
-                            try:
-                                i = self.conf.argdict['athenaopts'].value[currentSubstep].index(athArg)
-                                v = athArg.split('=', 1)[1]
-                                msg.info('Updating athena --preloadlib option for substep {1} with: {0}'.format(self._envUpdate.value('LD_PRELOAD'), self.name))
-                                newPreloads = ":".join(set(v.split(":")) | set(self._envUpdate.value('LD_PRELOAD').split(":")))
-                                self.conf.argdict['athenaopts']._value[currentSubstep][i] = '--preloadlib={0}'.format(newPreloads)
-                            except Exception, e:
-                                msg.warning('Failed to interpret athena option: {0} ({1})'.format(athArg, e))
-                            preLoadUpdated[currentSubstep] = True
+                for athArg in self.conf.argdict['athenaopts'].value:
+                    # This code is pretty ugly as the athenaopts argument contains
+                    # strings which are really key/value pairs
+                    if athArg.startswith('--preloadlib'):
+                        try:
+                            i = self.conf.argdict['athenaopts'].value.index(athArg)
+                            v = athArg.split('=', 1)[1]
+                            msg.info('Updating athena --preloadlib option with: {0}'.format(self._envUpdate.value('LD_PRELOAD')))
+                            newPreloads = ":".join(set(v.split(":")) | set(self._envUpdate.value('LD_PRELOAD').split(":")))
+                            self.conf.argdict['athenaopts']._value[i] = '--preloadlib={0}'.format(newPreloads)
+                        except Exception, e:
+                            msg.warning('Failed to interpret athena option: {0} ({1})'.format(athArg, e))
+                        preLoadUpdated = True
                         break
-            if not preLoadUpdated[currentSubstep]:
-                msg.info('Setting athena preloadlibs for substep {1} to: {0}'.format(self._envUpdate.value('LD_PRELOAD'), self.name))
+            if not preLoadUpdated:
+                msg.info('Setting athena preloadlibs to: {0}'.format(self._envUpdate.value('LD_PRELOAD')))
                 if 'athenaopts' in self.conf.argdict:
-                    if currentSubstep is not None:
-                        self.conf.argdict['athenaopts'].value[currentSubstep].append("--preloadlib={0}".format(self._envUpdate.value('LD_PRELOAD')))
-                    else:
-                        self.conf.argdict['athenaopts'].value['all'] = ["--preloadlib={0}".format(self._envUpdate.value('LD_PRELOAD'))]
+                    self.conf.argdict['athenaopts'].append("--preloadlib={0}".format(self._envUpdate.value('LD_PRELOAD')))
                 else:
-                    self.conf.argdict['athenaopts'] = trfArgClasses.argSubstepList(["--preloadlib={0}".format(self._envUpdate.value('LD_PRELOAD'))])
+                    self.conf.argdict['athenaopts'] = trfArgClasses.argList(["--preloadlib={0}".format(self._envUpdate.value('LD_PRELOAD'))])
 
         # Now update command line with the options we have (including any changes to preload)
         if 'athenaopts' in self.conf.argdict:
-            if currentSubstep is None and "all" in self.conf.argdict['athenaopts'].value:
-                self._cmd.extend(self.conf.argdict['athenaopts'].value['all'])
-            elif currentSubstep in self.conf.argdict['athenaopts'].value:
-                self._cmd.extend(self.conf.argdict['athenaopts'].value[currentSubstep])
+            self._cmd.extend(self.conf.argdict['athenaopts'].value)
         
         ## Add --drop-and-reload if possible (and allowed!)
         if self._tryDropAndReload:
@@ -1197,17 +1010,11 @@ class athenaExecutor(scriptExecutor):
             elif 'athenaopts' in self.conf.argdict:
                 athenaConfigRelatedOpts = ['--config-only','--drop-and-reload','--drop-configuration','--keep-configuration']
                 # Note for athena options we split on '=' so that we properly get the option and not the whole "--option=value" string
-                if currentSubstep is None:
-                    currentSubstep = 'all'
-                if currentSubstep in self.conf.argdict['athenaopts'].value:
-                    conflictOpts = set(athenaConfigRelatedOpts).intersection(set([opt.split('=')[0] for opt in self.conf.argdict['athenaopts'].value[currentSubstep]]))
-                    if len(conflictOpts) > 0:
-                        msg.info('Not appending "--drop-and-reload" to athena command line because these options conflict: {0}'.format(list(conflictOpts)))
-                    else:
-                        msg.info('Appending "--drop-and-reload" to athena options')
-                        self._cmd.append('--drop-and-reload')
+                conflictOpts = set(athenaConfigRelatedOpts).intersection(set([opt.split('=')[0] for opt in self.conf.argdict['athenaopts'].value]))
+                if len(conflictOpts) > 0:
+                    msg.info('Not appending "--drop-and-reload" to athena command line because these options conflict: {0}'.format(list(conflictOpts)))
                 else:
-                    msg.info('No Athenaopts for substep {0}, appending "--drop-and-reload" to athena options'.format(self.name))
+                    msg.info('Appending "--drop-and-reload" to athena options')
                     self._cmd.append('--drop-and-reload')
             else:
                 # This is the 'standard' case - so drop and reload should be ok
@@ -1264,7 +1071,7 @@ class athenaExecutor(scriptExecutor):
                     print >>wrapper, 'export CORAL_DBLOOKUP_PATH={directory}'.format(directory = path.join(dbroot, 'XMLConfig'))
                     print >>wrapper, 'export TNS_ADMIN={directory}'.format(directory = path.join(dbroot, 'oracle-admin'))
                     print >>wrapper, 'DATAPATH={dbroot}:$DATAPATH'.format(dbroot = dbroot)
-                if self._disableMP:
+                if self.conf._disableMP:
                     print >>wrapper, "# AthenaMP explicitly disabled for this executor"
                     print >>wrapper, "export ATHENA_PROC_NUMBER=0"
                 if self._envUpdate.len > 0:
@@ -1285,20 +1092,20 @@ class athenaExecutor(scriptExecutor):
                     # Run Athena for generation of its serialised configuration.
                     print >>wrapper, ' '.join(self._cmd), "--config-only={0}".format(AthenaSerialisedConfigurationFile)
                     print >>wrapper, 'if [ $? != "0" ]; then exit 255; fi'
-                    # Generate a Valgrind command, suppressing or ussing default
+                    # Generate a Valgrind command, using default or basic
                     # options as requested and extra options as requested.
-                    if 'valgrindDefaultOpts' in self.conf._argdict:
-                        defaultOptions = self.conf._argdict['valgrindDefaultOpts'].value
+                    if 'valgrindbasicopts' in self.conf._argdict:
+                        basicOptionsList = self.conf._argdict['valgrindbasicopts'].value
                     else:
-                        defaultOptions = True
-                    if 'valgrindExtraOpts' in self.conf._argdict:
-                        extraOptionsList = self.conf._argdict['valgrindExtraOpts'].value
+                        basicOptionsList = None
+                    if 'valgrindextraopts' in self.conf._argdict:
+                        extraOptionsList = self.conf._argdict['valgrindextraopts'].value
                     else:
                         extraOptionsList = None
-                    msg.debug("requested Valgrind command basic options: {options}".format(options = defaultOptions))
+                    msg.debug("requested Valgrind command basic options: {options}".format(options = basicOptionsList))
                     msg.debug("requested Valgrind command extra options: {options}".format(options = extraOptionsList))
                     command = ValgrindCommand(
-                        defaultOptions = defaultOptions,
+                        basicOptionsList = basicOptionsList,
                         extraOptionsList = extraOptionsList,
                         AthenaSerialisedConfigurationFile = \
                             AthenaSerialisedConfigurationFile
@@ -1326,16 +1133,18 @@ class athenaExecutor(scriptExecutor):
     ## @brief Manage smart merging of output files
     #  @param fileArg File argument to merge
     def _smartMerge(self, fileArg):
+        ## @note Produce a list of merge jobs - this is a list of lists
+        #  @todo This should be configurable!
+        
         ## @note only file arguments which support selfMerge() can be merged
         if 'selfMerge' not in dir(fileArg):
             msg.info('Files in {0} cannot merged (no selfMerge() method is implemented)'.format(fileArg.name))
             return
         
         if fileArg.mergeTargetSize == 0:
-            msg.info('Files in {0} will not be merged as target size is set to 0'.format(fileArg.name))
+            msg.info('Files in {0} will not be merged as target size is set to 0)'.format(fileArg.name))
             return
 
-        ## @note Produce a list of merge jobs - this is a list of lists
         mergeCandidates = [list()]
         currentMergeSize = 0
         for fname in fileArg.value:
@@ -1362,31 +1171,21 @@ class athenaExecutor(scriptExecutor):
             
         msg.debug('First pass splitting will merge files in this way: {0}'.format(mergeCandidates))
         
-        if len(mergeCandidates) == 1:
-            # Merging to a single file, so use the original filename that the transform
-            # was started with
-            mergeNames = [fileArg.originalName]
-        else:
-            # Multiple merge targets, so we need a set of unique names
-            counter = 0
-            mergeNames = []
-            for mergeGroup in mergeCandidates:
-                # Note that the individual worker files get numbered with 3 digit padding,
-                # so these non-padded merges should be fine
+        counter = 0
+        for mergeGroup in mergeCandidates:
+            counter += 1
+            # If we only have one merge group, then preserve the original name (important for
+            # prodsys v1). Otherwise we use the new merged names.
+            if len(mergeCandidates) == 1:
+                mergeName = fileArg.originalName
+            else:
                 mergeName = fileArg.originalName + '_{0}'.format(counter)
-                while path.exists(mergeName):
-                    counter += 1
-                    mergeName = fileArg.originalName + '_{0}'.format(counter)
-                mergeNames.append(mergeName)
-                counter += 1
-        # Now actually do the merges
-        for targetName, mergeGroup, counter in zip(mergeNames, mergeCandidates, range(len(mergeNames))):
-            msg.info('Want to merge files {0} to {1}'.format(mergeGroup, targetName))
+            msg.info('Want to merge files {0} to {1}'.format(mergeGroup, mergeName))
             if len(mergeGroup) <= 1:
                 msg.info('Skip merging for single file')
             else:
                 ## We want to parallelise this part!
-                self._myMerger.append(fileArg.selfMerge(output=targetName, inputs=mergeGroup, counter=counter, argdict=self.conf.argdict))
+                fileArg.selfMerge(output=mergeName, inputs=mergeGroup, argdict=self.conf.argdict)
 
 
     def _targzipJiveXML(self):
@@ -1416,7 +1215,6 @@ class optionalAthenaExecutor(athenaExecutor):
 
     # Here we validate, but will suppress any errors
     def validate(self):
-        self.setValStart()
         try:
             super(optionalAthenaExecutor, self).validate()
         except trfExceptions.TransformValidationException, e:
@@ -1425,8 +1223,6 @@ class optionalAthenaExecutor(athenaExecutor):
             self._isValidated = False
             self._errMsg = e.errMsg
             self._rc = e.errCode
-        self._valStop = os.times()
-        msg.debug('+++ valStop time is {0}'.format(self._valStop))
 
 
 class hybridPOOLMergeExecutor(athenaExecutor):
@@ -1458,7 +1254,6 @@ class hybridPOOLMergeExecutor(athenaExecutor):
                                                       manualDataDictionary=manualDataDictionary, memMonitor=memMonitor)
     
     def preExecute(self, input = set(), output = set()):
-        self.setPreExeStart()
         # Now check to see if the fastPoolMerger option was set
         if 'fastPoolMerge' in self.conf.argdict:
             msg.info('Setting hybrid merge to {0}'.format(self.conf.argdict['fastPoolMerge'].value))
@@ -1500,7 +1295,7 @@ class hybridPOOLMergeExecutor(athenaExecutor):
         fastEventMerge1._cmd = ['mergePOOL.exe', '-o', self._hybridMergeTmpFile]
         for fname in self.conf.dataDictionary[list(self._input)[0]].value:
             fastEventMerge1._cmd.extend(['-i', fname])
-        fastEventMerge1._cmd.extend(['-e', 'MetaData', '-e', 'MetaDataHdrDataHeaderForm', '-e', 'MetaDataHdrDataHeader', '-e', 'MetaDataHdr', '-e', 'MetaDataHdrForm'])
+        fastEventMerge1._cmd.extend(['-e', 'MetaData', '-e', 'MetaDataHdrDataHeaderForm', '-e', 'MetaDataHdrDataHeader', '-e', 'MetaDataHdr'])
 
         msg.debug('Constructed this command line for fast event merge step 1: {0}'.format(fastEventMerge1._cmd))
         fastEventMerge1.doAll()
@@ -1516,7 +1311,6 @@ class hybridPOOLMergeExecutor(athenaExecutor):
         
         # Ensure we count all the mergePOOL.exe stuff in the resource report
         self._exeStop = os.times()
-        msg.debug('+++ exeStop time is {0}'.format(self._exeStop))
 
         # And finally...
         msg.info('Renaming {0} to {1}'.format(self._hybridMergeTmpFile, self.conf.dataDictionary[list(self._output)[0]].value[0]))
@@ -1538,39 +1332,34 @@ class reductionFrameworkExecutor(athenaExecutor):
     ## @brief Take inputDAODFile and setup the actual outputs needed
     #  in this job.
     def preExecute(self, input=set(), output=set()):
-        self.setPreExeStart()
         msg.debug('Preparing for execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
 
-        if 'NTUP_PILEUP' not in output:
-            if 'reductionConf' not in self.conf.argdict:
-                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_REDUCTION_CONFIG_ERROR'),
-                                                                'No reduction configuration specified')
-
-            if 'DAOD' not in output:
-                raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_REDUCTION_CONFIG_ERROR'),
-                                                                'No base name for DAOD reduction')
+        if 'reductionConf' not in self.conf.argdict:
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_REDUCTION_CONFIG_ERROR'),
+                                                            'No reduction configuration specified')
+        if 'DAOD' not in output:
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_REDUCTION_CONFIG_ERROR'),
+                                                            'No base name for DAOD reduction')
         
-            for reduction in self.conf.argdict['reductionConf'].value:
-                dataType = 'DAOD_' + reduction
-                outputName = 'DAOD_' + reduction + '.' + self.conf.argdict['outputDAODFile'].value[0]
-                msg.info('Adding reduction output type {0}'.format(dataType))
-                output.add(dataType)
-                newReduction = trfArgClasses.argPOOLFile(outputName, io='output', runarg=True, type='AOD',
+        for reduction in self.conf.argdict['reductionConf'].value:
+            dataType = 'DAOD_' + reduction
+            outputName = 'DAOD_' + reduction + '.' + self.conf.argdict['outputDAODFile'].value[0]
+            msg.info('Adding reduction output type {0}'.format(dataType))
+            output.add(dataType)
+            newReduction = trfArgClasses.argPOOLFile(outputName, io='output', runarg=True, type='AOD',
                                                      name=reduction)
-                # References to _trf - can this be removed?
-                self.conf.dataDictionary[dataType] = newReduction
+            # References to _trf - can this be removed?
+            self.conf.dataDictionary[dataType] = newReduction
             
-            # Clean up the stub file from the executor input and the transform's data dictionary
-            # (we don't remove the actual argFile instance)
-            output.remove('DAOD')
-            del self.conf.dataDictionary['DAOD']
-            del self.conf.argdict['outputDAODFile']
-        
-            msg.info('Data dictionary is now: {0}'.format(self.conf.dataDictionary))
-            msg.info('Input/Output: {0}/{1}'.format(input, output))
+        # Clean up the stub file from the executor input and the transform's data dictionary
+        # (we don't remove the actual argFile instance)
+        output.remove('DAOD')
+        del self.conf.dataDictionary['DAOD']
+        del self.conf.argdict['outputDAODFile']
         
         msg.info('Data dictionary is now: {0}'.format(self.conf.dataDictionary))
         msg.info('Input/Output: {0}/{1}'.format(input, output))
+        
         super(reductionFrameworkExecutor, self).preExecute(input, output)
 
 
@@ -1583,7 +1372,6 @@ class reductionFrameworkExecutorNTUP(athenaExecutor):
     ## @brief Take inputDNTUPFile and setup the actual outputs needed
     #  in this job.
     def preExecute(self, input=set(), output=set()):
-        self.setPreExeStart()
         msg.debug('Preparing for execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
 
         if 'reductionConf' not in self.conf.argdict:
@@ -1630,7 +1418,6 @@ class DQMergeExecutor(scriptExecutor):
 
 
     def preExecute(self, input = set(), output = set()):
-        self.setPreExeStart()
         msg.debug('Preparing for execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
 
         super(DQMergeExecutor, self).preExecute(input=input, output=output)
@@ -1654,54 +1441,11 @@ class DQMergeExecutor(scriptExecutor):
         # Set the run_post_processing to False
         self._cmd.append('False')
 
-    def validate(self):
-        self.setValStart()
-        super(DQMergeExecutor, self).validate()
-
-        exitErrorMessage = ''
-        # Base class validation successful, Now scan the logfile for missed errors.
-        try:
-            logScan = trfValidation.scriptLogFileReport(self._logFileName)
-            worstError = logScan.worstError()
-
-            # In general we add the error message to the exit message, but if it's too long then don't do
-            # that and just say look in the jobReport
-            if worstError['firstError']:
-                if len(worstError['firstError']['message']) > logScan._msgLimit:
-                    exitErrorMessage = "Long {0} message at line {1}" \
-                                       " (see jobReport for further details)".format(worstError['level'],
-                                        worstError['firstError']['firstLine'])
-                else:
-                    exitErrorMessage = "Logfile error in {0}: \"{1}\"".format(self._logFileName,
-                                                                              worstError['firstError']['message'])
-        except (OSError, IOError) as e:
-            exitCode = trfExit.nameToCode('TRF_EXEC_LOGERROR')
-            raise trfExceptions.TransformValidationException(exitCode,
-                  'Exception raised while attempting to scan logfile {0}: {1}'.format(self._logFileName, e))
-
-        if worstError['nLevel'] == stdLogLevels['ERROR'] and (
-                'ignoreErrors' in self.conf.argdict and self.conf.argdict['ignoreErrors'].value is True):
-            msg.warning('Found ERRORs in the logfile, but ignoring this as ignoreErrors=True (see jobReport for details)')
-
-        elif worstError['nLevel'] >= stdLogLevels['ERROR']:
-            self._isValidated = False
-            msg.error('Fatal error in script logfile (level {0})'.format(worstError['level']))
-            exitCode = trfExit.nameToCode('TRF_EXEC_LOGERROR')
-            raise trfExceptions.TransformLogfileErrorException(exitCode, 'Fatal error in script logfile: "{0}"'.format(exitErrorMessage))
-
-        # Must be ok if we got here!
-        msg.info('Executor {0} has validated successfully'.format(self.name))
-        self._isValidated = True
-
-        self._valStop = os.times()
-        msg.debug('+++ valStop time is {0}'.format(self._valStop))
-
 
 ## @brief Specialist execution class for merging NTUPLE files
 class NTUPMergeExecutor(scriptExecutor):
 
     def preExecute(self, input = set(), output = set()):
-        self.setPreExeStart()
         msg.debug('[NTUP] Preparing for execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
 
         # Basic command, and allow overwrite of the output file
@@ -1727,7 +1471,6 @@ class NTUPMergeExecutor(scriptExecutor):
 class bsMergeExecutor(scriptExecutor):
 
     def preExecute(self, input = set(), output = set()):
-        self.setPreExeStart()
         self._inputBS = list(input)[0]
         self._outputBS = list(output)[0]
         self._maskedFiles = []
@@ -1786,7 +1529,6 @@ class bsMergeExecutor(scriptExecutor):
         if self._useStubFile:
             # Need to fake execution!
             self._exeStart = os.times()
-            msg.debug('+++ exeStart time is {0}'.format(self._exeStart))
             msg.info("Using stub file for empty BS output - execution is fake")
             if self._outputFilename != self.conf.argdict['emptyStubFile'].value:
                 os.rename(self.conf.argdict['emptyStubFile'].value, self._outputFilename)            
@@ -1794,7 +1536,6 @@ class bsMergeExecutor(scriptExecutor):
             self._hasExecuted = True
             self._rc = 0
             self._exeStop = os.times()
-            msg.debug('+++ exeStop time is {0}'.format(self._exeStop))
         else:
             super(bsMergeExecutor, self).execute()
         
@@ -1816,7 +1557,6 @@ class bsMergeExecutor(scriptExecutor):
 class tagMergeExecutor(scriptExecutor):
     
     def preExecute(self, input = set(), output = set()):
-        self.setPreExeStart()
         # Just need to write the customised CollAppend command line
         self._cmd = [self._exe, '-src']
         for dataType in input:
@@ -1833,7 +1573,6 @@ class tagMergeExecutor(scriptExecutor):
 
         
     def validate(self):
-        self.setValStart()
         super(tagMergeExecutor, self).validate()
         
         # Now scan the logfile...
@@ -1853,15 +1592,12 @@ class tagMergeExecutor(scriptExecutor):
         except (OSError, IOError) as e:
                         raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_LOGERROR'),
                                                                          'Exception raised while attempting to scan logfile {0}: {1}'.format(self._logFileName, e))            
-        self._valStop = os.times()
-        msg.debug('+++ valStop time is {0}'.format(self._valStop))
 
 
 ## @brief Archive transform - use tar
 class archiveExecutor(scriptExecutor):
 
     def preExecute(self, input = set(), output = set()):
-        self.setPreExeStart()
         # Set the correct command for execution
         self._cmd = [self._exe, '-c', '-v',]
         if 'compressionType' in self.conf.argdict.keys():

@@ -99,7 +99,7 @@ class TrfConfig:
                     # athenaopts are special - space separated
                     if "athenaopts" in k:
                         string += " " + k + "=" + "'" + " ".join(v).replace("'", "\\'") + "'"
-                    elif "Exec" in k or "Include" in k:
+                    elif "Exec" in k:
                         # Special intermediate treatment for pre/postExec from prodsys
                         string += " " + k + " " + " ".join(["'"+element.replace("'", "\\'")+"'" for element in v])
                     else:
@@ -229,7 +229,7 @@ def getAMIClient():
         raise TransformAMIException(AMIerrorCode, 'Import of pyAMI modules failed.')
         
     msg.debug("Attempting to get AMI client for endpoint {0}".format(endpoint))
-    amiclient = Client(endpoint, ignore_proxy = True)
+    amiclient = Client(endpoint)
     return amiclient
 
 ## @brief Get list of characters of ProdSys tags
@@ -463,7 +463,7 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
                     execStrList = [execStr for execStr in convertToStr(v).replace('" "', '"" ""').split('" "')]
                     physics[convertToStr(k)] = [remove_enclosing_quotes(execStr).replace('\\"', '"') for execStr in execStrList]
                 elif '" "' in v:
-                    msg.info('found a quoted space (" ") in parameter value for %s, converting to list' % k)
+                    msg.info('found quote space quaote (" ") in parameter value for %s, converting to list' % k)
                     subStrList = [subStr for subStr in convertToStr(v).replace('" "', '"" ""').split('" "')]
                     physics[convertToStr(k)] = [remove_enclosing_quotes(subStr).replace('\\"', '"') for subStr in subStrList]
                 else:

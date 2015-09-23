@@ -5,7 +5,7 @@
 ## @Package test_trfArgClasses.py
 #  @brief Unittests for test_trfArgClasses.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgClasses.py 770616 2016-08-29 14:17:19Z uworlika $
+#  @version $Id: test_trfArgClasses.py 691581 2015-08-27 12:24:19Z lerrenst $
 #  @note Tests of ATLAS specific file formats moved to test_trfArgClassesATLAS.py
 
 import unittest
@@ -470,6 +470,11 @@ class argFileTests(unittest.TestCase):
         myInput = argFile('file?', io='input')
         self.assertEqual(myInput.value, ['file1', 'file2', 'file3', 'file4'])    
 
+    def test_argFileProdsysGlob(self):
+        myInput = argFile('prefix.prodsysfile._[001,002,003].suffix', io='input')
+        self.assertEqual(myInput.value, ['prefix.prodsysfile._001.suffix.1', 'prefix.prodsysfile._002.suffix.4', 
+                                         'prefix.prodsysfile._003.suffix.7'])
+        
     def test_argFileIO(self):
         self.assertEqual(self.mySingleFile.io, 'output')
         self.assertEqual(self.myMultiFile.io, 'input')

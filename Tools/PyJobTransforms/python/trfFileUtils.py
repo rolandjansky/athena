@@ -4,7 +4,7 @@
 # @brief Transform utilities to deal with files.
 # @details Mainly used by argFile class.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfFileUtils.py 780653 2016-10-27 08:25:09Z mavogel $
+# @version $Id: trfFileUtils.py 696484 2015-09-23 17:20:28Z graemes $
 # @todo make functions timelimited
 
 import logging
@@ -18,17 +18,111 @@ import PyUtils.Decorators as _decos
 from PyUtils.RootUtils import import_root
 from PyJobTransforms.trfDecorators import timelimited
 
-# Use a stripped down key list, as we retrieve only 'fast' metadata  
-athFileInterestingKeys = ['file_size', 'file_guid', 'file_type', 'nentries']
+## @note The 'AODFixVersion' is can appear for AOD or ESD files 
+athFileInterestingKeys = ['beam_energy', 'beam_type', 'conditions_tag', 'file_size',
+                          'file_guid', 'file_type', 'geometry', 'lumi_block', 'nentries', 'run_number', 
+                          'AODFixVersion']
+# Stripped down key list for files which are inputs
+inpFileInterestingKeys = ['file_size', 'file_guid', 'file_type', 'nentries']
+
+## @brief Determines metadata of BS, POOL or TAG file.
+#  @details Trivial wrapper around PyUtils.AthFile.
+#  @param fileName Path(s) to the file for which the metadata are determined
+#  @param retrieveKeys Keys to extract from the @c AthFile.infos dictionary
+#  @return 
+#  - Dictionary containing metadata of the file(s)
+#  - @c None if the determination failed.
+@timelimited()
+def AthenaFileInfo(fileNames, retrieveKeys = athFileInterestingKeys):
+    msg.debug('Calling AthenaFileInfo for {0}'.format(fileNames))
+
+    from PyUtils import AthFile
+    AthFile.server.flush_cache()
+    AthFile.server.disable_pers_cache()
+
+    if isinstance(fileNames, str):
+        fileNames = [fileNames,]
+
+    metaDict = {}
+    try:
+        ## @note This code is transitional, until all the versions of AthFile we
+        #  use support pfopen(). It should then be removed. Graeme, 2013-11-05.
+        #  Note to Future: Give it 6 months, then get rid of it!
+        if len(fileNames) > 1:
+            try:    
+                athFile = AthFile.pfopen(fileNames)
+            except AttributeError:  
+                msg.warning('This version of AthFile does not support "pfopen". Falling back to serial interface.')
+                athFile = AthFile.fopen(fileNames)
+        else:
+            athFile = AthFile.fopen(fileNames)
+        msg.debug('AthFile came back')
+        for fname, meta in zip(fileNames, athFile):
+            metaDict[fname] = {}
+            for key in retrieveKeys:
+                msg.debug('Looking for key {0}'.format(key))
+                try:
+                    # AODFix is tricky... it is absent in many files, but this is not an error
+                    if key is 'AODFixVersion':
+                        if 'tag_info' in meta.infos and isinstance('tag_info', dict) and 'AODFixVersion' in meta.infos['tag_info']:
+                            metaDict[fname][key] = meta.infos['tag_info'][key]
+                        else:
+                            metaDict[fname][key] = ''
+                    # beam_type seems odd for RAW - typical values seem to be [1] instead of 'collisions' or 'cosmics'.
+                    # So we use the same scheme as AutoConfiguration does, mapping project names to known values
+                    # It would be nice to import this all from AutoConfiguration, but there is no suitable method at the moment.
+                    # N.B. This is under discussion so this code is temporary fix (Captain's Log, Stardate 2012-11-28) 
+                    elif key is 'beam_type':
+                        try:
+                            if isinstance(meta.infos[key], list) and len(meta.infos[key]) > 0 and meta.infos[key][0] in ('cosmics' ,'singlebeam','collisions'):
+                                metaDict[fname][key] = meta.infos[key]
+                            else:
+                                from RecExConfig.AutoConfiguration import KnownCosmicsProjects, Known1BeamProjects, KnownCollisionsProjects, KnownHeavyIonProjects
+                                if 'bs_metadata' in meta.infos.keys() and isinstance(meta.infos['bs_metadata'], dict) and 'Project' in meta.infos['bs_metadata'].keys():
+                                    project = meta.infos['bs_metadata']['Project']
+                                elif 'tag_info' in meta.infos.keys() and isinstance(meta.infos['tag_info'], dict) and 'project_name' in meta.infos['tag_info'].keys():
+                                    project = meta.infos['tag_info']['project_name']
+                                else:
+                                    msg.info('AthFile beam_type was not a known value ({0}) and no project could be found for this file'.format(meta.infos[key]))
+                                    metaDict[fname][key] = meta.infos[key]
+                                    continue
+                                if project in KnownCollisionsProjects or project in KnownHeavyIonProjects:
+                                    metaDict[fname][key] = ['collisions']
+                                    continue
+                                if project in KnownCosmicsProjects:
+                                    metaDict[fname][key] = ['cosmics']
+                                    continue
+                                if project in Known1BeamProjects:
+                                    metaDict[fname][key] = ['singlebeam']
+                                    continue
+                                # Erm, so we don't know
+                                msg.info('AthFile beam_type was not a known value ({0}) and the file\'s project ({1}) did not map to a known beam type using AutoConfiguration'.format(meta.infos[key], project))
+                                metaDict[fname][key] = meta.infos[key]
+                        except Exception, e:
+                            msg.error('Got an exception while trying to determine beam_type: {0}'.format(e))
+                            metaDict[fname][key] = meta.infos[key]
+                    else:
+                        metaDict[fname][key] = meta.infos[key]
+                except KeyError:
+                    msg.warning('Missing key in athFile info: {0}'.format(key))
+            msg.debug('Found these metadata for {0}: {1}'.format(fname, metaDict[fname].keys()))
+        return metaDict
+    except ValueError, e:
+        msg.error('Problem in getting AthFile metadata for {0}'.format(fileNames))
+        return None
 
 ## @brief New lightweight interface to getting a single file's metadata
+#  @note Use this for now, but expect further evolution...
 def AthenaLiteFileInfo(filename, filetype, retrieveKeys = athFileInterestingKeys):
     msg.debug('Calling AthenaLiteFileInfo for {0} (type {1})'.format(filename, filetype))
     from subprocess import CalledProcessError 
 
     if filetype == 'POOL':
         # retrieve GUID and nentries without runMiniAthena subprocess
-        from PyUtils.AthFileLite import AthInpFile as AthFileLite
+        if set(retrieveKeys) == set(inpFileInterestingKeys):
+            from PyUtils.AthFileLite import AthInpFile as AthFileLite
+        else:
+            from PyUtils.AthFileLite import AthPoolFile as AthFileLite
     elif filetype == 'BS':
         from PyUtils.AthFileLite import AthBSFile as AthFileLite
     elif filetype == 'TAG':
@@ -45,7 +139,46 @@ def AthenaLiteFileInfo(filename, filetype, retrieveKeys = athFileInterestingKeys
         for key in retrieveKeys:
             msg.debug('Looking for key {0}'.format(key))
             try:
-                if key is 'G4Version':
+                # AODFix is tricky... it is absent in many files, but this is not an error
+                if key is 'AODFixVersion':
+                    if 'tag_info' in meta and isinstance('tag_info', dict) and 'AODFixVersion' in meta['tag_info']:
+                        metaDict[filename][key] = meta['tag_info'][key]
+                    else:
+                        metaDict[filename][key] = ''
+                # beam_type seems odd for RAW - typical values seem to be [1] instead of 'collisions' or 'cosmics'.
+                # So we use the same scheme as AutoConfiguration does, mapping project names to known values
+                # It would be nice to import this all from AutoConfiguration, but there is no suitable method at the moment.
+                # N.B. This is under discussion so this code is temporary fix (Captain's Log, Stardate 2012.11.28) 
+                elif key is 'beam_type':
+                    try:
+                        if isinstance(meta[key], list) and len(meta[key]) > 0 and meta[key][0] in ('cosmics' ,'singlebeam','collisions'):
+                            metaDict[filename][key] = meta[key]
+                        else:
+                            from RecExConfig.AutoConfiguration import KnownCosmicsProjects, Known1BeamProjects, KnownCollisionsProjects, KnownHeavyIonProjects
+                            if 'bs_metadata' in meta.keys() and isinstance(meta['bs_metadata'], dict) and 'Project' in meta['bs_metadata'].keys():
+                                project = meta['bs_metadata']['Project']
+                            elif 'tag_info' in meta.keys() and isinstance(meta['tag_info'], dict) and 'project_name' in meta['tag_info'].keys():
+                                project = meta['tag_info']['project_name']
+                            else:
+                                msg.info('AthFile beam_type was not a known value ({0}) and no project could be found for this file'.format(meta[key]))
+                                metaDict[filename][key] = meta[key]
+                                continue
+                            if project in KnownCollisionsProjects or project in KnownHeavyIonProjects:
+                                metaDict[filename][key] = ['collisions']
+                                continue
+                            if project in KnownCosmicsProjects:
+                                metaDict[filename][key] = ['cosmics']
+                                continue
+                            if project in Known1BeamProjects:
+                                metaDict[filename][key] = ['singlebeam']
+                                continue
+                            # Erm, so we don't know
+                            msg.info('AthFile beam_type was not a known value ({0}) and the file\'s project ({1}) did not map to a known beam type using AutoConfiguration'.format(meta[key], project))
+                            metaDict[filename][key] = meta[key]
+                    except Exception, e:
+                        msg.error('Got an exception while trying to determine beam_type: {0}'.format(e))
+                        metaDict[filename][key] = meta[key]
+                elif key is 'G4Version':
                     msg.debug('Searching for G4Version in metadata')
                     try: 
                         metaDict[filename][key] = meta['metadata']['/Simulation/Parameters']['G4Version']
@@ -220,24 +353,14 @@ def NTUPEntries(fileName, treeNames):
 #  a child process and will not 'pollute' the parent python process with unthread-safe
 #  bits of code (otherwise strange hangs are observed on subsequent uses of ROOT)
 #  @param filename Filename to get size of
-#  @return fileSize or None if there was a problem
+#  @return fileSize or None of there was a problem
 @_decos.forking
 def ROOTGetSize(filename):
     root = import_root()
     
     try:
         msg.debug('Calling TFile.Open for {0}'.format(filename))
-        extraparam = '?filetype=raw'
-        if filename.startswith("https"):
-            try:
-                pos = filename.find("?")
-                if pos>=0:
-                    extraparam = '&filetype=raw'
-                else:
-                    extraparam = '?filetype=raw'
-            except:
-                extraparam = '?filetype=raw'
-        fname = root.TFile.Open(filename + extraparam, 'READ')
+        fname = root.TFile.Open(filename + '?filetype=raw', 'READ')
         fsize = fname.GetSize()
         msg.debug('Got size {0} from TFile.GetSize'.format(fsize))
     except ReferenceError:
@@ -262,7 +385,5 @@ def urlType(filename):
         return 'rfio'
     if filename.startswith('file:'):
         return 'posix'
-    if filename.startswith('https:'):
-        return 'root'
     return 'posix'
 

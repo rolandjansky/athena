@@ -5,7 +5,7 @@
 # @brief Main package for new style ATLAS job transforms
 # @details Core class for ATLAS job transforms
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: transform.py 785618 2016-11-21 22:03:04Z uworlika $
+# @version $Id: transform.py 696484 2015-09-23 17:20:28Z graemes $
 # 
 
 __version__ = '$Revision'
@@ -28,7 +28,7 @@ from PyJobTransforms.trfArgs import addStandardTrfArgs, addFileValidationArgumen
 from PyJobTransforms.trfLogger import setRootLoggerLevel, stdLogLevels
 from PyJobTransforms.trfArgClasses import trfArgParser, argFile, argHISTFile, argument
 from PyJobTransforms.trfExitCodes import trfExit
-from PyJobTransforms.trfUtils import shQuoteStrings, infanticide, pickledDump, JSONDump, cliToKey, convertToStr, isInteractiveEnv
+from PyJobTransforms.trfUtils import shQuoteStrings, infanticide, pickledDump, JSONDump, cliToKey, convertToStr
 from PyJobTransforms.trfReports import trfJobReport, defaultFileReport
 from PyJobTransforms.trfExe import transformExecutor
 from PyJobTransforms.trfGraph import executorGraph
@@ -51,9 +51,6 @@ class transform(object):
         
         ## @brief Get starting timestamp as early as possible
         self._transformStart = os.times()
-        
-        ## @brief Get trf pre-data as early as possible
-        self._trfPredata = os.environ.get('TRF_PREDATA')
 
         ## Transform _name
         self._name = trfName        
@@ -95,9 +92,6 @@ class transform(object):
         ## Report object for this transform
         self._report = trfJobReport(parentTrf = self)
         
-        ## Transform processed events
-        self._processedEvents = None
-        
         # Setup standard signal handling if asked
         if standardSignalHandlers:
             setTrfSignalHandlers(self._exitWithReport)
@@ -111,15 +105,15 @@ class transform(object):
     @property
     def exitCode(self):
         if self._exitCode == None:
-            msg.warning('Transform exit code getter: _exitCode is unset, returning "TRF_UNKNOWN"')
-            return trfExit.nameToCode('TRF_UNKNOWN')
+            msg.warning('Transform exit code getter: _exitCode is unset, returning "TRF_UNKOWN"')
+            return trfExit.nameToCode('TRF_UNKOWN')
         else:
             return self._exitCode
         
     @property
     def exitMsg(self):
         if self._exitMsg == None:
-            msg.warning('Transform exit message getter: _exitMsg is unset, returning empty string')
+            msg.warning('Transform exit code getter: _exitMsg is unset, returning empty string')
             return ''
         else:
             return self._exitMsg
@@ -141,24 +135,8 @@ class transform(object):
         return self._transformStart
     
     @property
-    def trfPredata(self):
-        return self._trfPredata
-    
-    @property
     def executors(self):
         return self._executors
-    
-    @property
-    def processedEvents(self):
-        return self._processedEvents
-    
-    def getProcessedEvents(self):
-        nEvts = None
-        for executionStep in self._executorPath:
-            executor = self._executorDictionary[executionStep['name']]
-            if executor.conf.firstExecutor:
-                nEvts = executor.eventCount
-        return nEvts
 
     def appendToExecutorSet(self, executors):
         # Normalise to something iterable
@@ -223,7 +201,16 @@ class transform(object):
                         continue
                     updateDict[k] = v
                 extraParameters.update(updateDict)
-
+            # Pickled arguments?
+            if 'argdict' in self._argdict:
+                try:
+                    import cPickle as pickle
+                    msg.debug('Given pickled arguments in {0}'.format(self._argdict['argdict']))
+                    argfile = open(self._argdict['argdict'], 'r')
+                    extraParameters.update(pickle.load(argfile))
+                    argfile.close()
+                except Exception, e:
+                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'), 'Error when unpickling file {0}'.format(self._argdict['argdict']))
             # JSON arguments?
             if 'argJSON' in self._argdict:
                 try:
@@ -237,14 +224,8 @@ class transform(object):
                 except Exception, e:
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'), 'Error when deserialising JSON file {0} ({1})'.format(self._argdict['argJSON'], e))
             
-            # Event Service
-            if 'eventService' in self._argdict and self._argdict['eventService'].value:
-                updateDict = {}
-                updateDict['athenaMPMergeTargetSize'] = '*:0'
-                updateDict['checkEventCount'] = False
-                updateDict['outputFileValidation'] = False
-                extraParameters.update(updateDict)
-                
+            
+            
             # Process anything we found
             for k,v in extraParameters.iteritems():
                 msg.debug('Found this extra argument: {0} with value: {1} ({2})'.format(k, v, type(v)))
@@ -310,7 +291,7 @@ class transform(object):
         
     ## @brief Execute transform
     # @detailed This function calls the actual transform execution class and
-    # sets \c self.exitCode,  \c self.exitMsg and \c self.processedEvents transform data members.
+    # sets \c self.exitCode and \c self.exitMsg transform data members.
     # TODO: This method should be timed - try a decorator function for that 
     # @return None.
     def execute(self):
@@ -322,17 +303,16 @@ class transform(object):
                 self.parser.dumpArgs()
                 sys.exit(0)
                 
-            # Graph stuff!
-            msg.info('Resolving execution graph')
-            self._setupGraph()
-            
             if 'showSteps' in self._argdict:
                 for exe in self._executors:
                     print "Executor Step: {0} (alias {1})".format(exe.name, exe.substep)
-                    if msg.level <= logging.DEBUG:
-                        print " {0} -> {1}".format(exe.inData, exe.outData)
                 sys.exit(0)
                         
+            # Graph stuff!
+            msg.info('Starting to resolve execution graph')
+            self._setupGraph()
+            msg.info('Execution graph resolved')
+            
             if 'showGraph' in self._argdict:
                 print self._executorGraph
                 sys.exit(0)
@@ -380,19 +360,17 @@ class transform(object):
             for executor in self._executors:
                 executor.conf.setFromTransform(self)
 
+
             self.validateInFiles()
             
             for executionStep in self._executorPath:
                 msg.debug('Now preparing to execute {0}'.format(executionStep))
                 executor = self._executorDictionary[executionStep['name']]
                 executor.preExecute(input = executionStep['input'], output = executionStep['output'])
-                try:
-                    executor.execute()
-                    executor.postExecute()
-                finally:
-                    executor.validate()
-             
-            self._processedEvents = self.getProcessedEvents()
+                executor.execute()
+                executor.postExecute()
+                executor.validate()
+                
             self.validateOutFiles()
             
             msg.debug('Transform executor succeeded')
@@ -548,21 +526,17 @@ class transform(object):
             # (It causes spurious warnings for some grid jobs with background files (e.g., digitisation)
             if 'TZHOME' in os.environ:
                 reportType.append('gpickle')
-
-            if not isInteractiveEnv():
-                reportType.append('text')
-
+            
         if 'reportName' in self._argdict:
             baseName = classicName = self._argdict['reportName'].value
         else:
             baseName = 'jobReport'
             classicName = 'metadata'
-
+        
         try:
-            # Text: Writes environment variables and machine report in text format.
-            if reportType is None or 'text' in reportType:
-                envName = baseName if 'reportName' in self._argdict else 'env'  # Use fallback name 'env.txt' if it's not specified.
-                self._report.writeTxtReport(filename='{0}.txt'.format(envName), fast=fast, fileReport=fileReport)
+            # Text
+            if reportType is None or 'text' in reportType: 
+                self._report.writeTxtReport(filename='{0}.txt'.format(baseName), fast=fast, fileReport=fileReport)
             # JSON
             if reportType is None or 'json' in reportType:
                 self._report.writeJSONReport(filename='{0}.json'.format(baseName), fast=fast, fileReport=fileReport)

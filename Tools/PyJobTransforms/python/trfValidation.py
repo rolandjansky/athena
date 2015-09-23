@@ -6,7 +6,7 @@
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 782012 2016-11-03 01:45:33Z uworlika $
+# @version $Id: trfValidation.py 679715 2015-07-02 11:28:03Z lerrenst $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,
@@ -258,8 +258,8 @@ class athenaLogFileReport(logFileReport):
             self._errorDetails[level] = []
             # Format:
             # List of dicts {'message': errMsg, 'firstLine': lineNo, 'count': N}
-        self._dbbytes = 0
-        self._dbtime  = 0.0
+        self._dbbytes = None
+        self._dbtime = None
 
 
     def scanLogFile(self, resetReport=False):
@@ -310,15 +310,6 @@ class athenaLogFileReport(logFileReport):
                         msg.warning('Detected bad_alloc!')
                         self.badAllocExceptionParser(myGen, line, lineCounter)
                         continue
-                    # Parser for ROOT reporting a stale file handle (see ATLASG-448)
-                    if 'SysError in <TFile::ReadBuffer>: error reading from file' in line:
-                        self.rootSysErrorParser(myGen, line, lineCounter)
-                        continue
-
-                    if 'SysError in <TFile::WriteBuffer>' in line:
-                        self.rootSysErrorParser(myGen, line, lineCounter)
-                        continue
-
                     msg.debug('Non-standard line in %s: %s' % (log, line))
                     self._levelCounter['UNKNOWN'] += 1
                     continue
@@ -376,15 +367,15 @@ class athenaLogFileReport(logFileReport):
                     else:
                         # Overcounted
                         pass
-                if 'Total payload read from COOL' in fields['message']:
+                if self._dbbytes is None and 'Total payload read from COOL' in fields['message']:
                     msg.debug("Found COOL payload information at line {0}".format(line))
                     a = re.match(r'(\D+)(?P<bytes>\d+)(\D+)(?P<time>\d+[.]?\d*)(\D+)', fields['message'])
-                    self._dbbytes += int(a.group('bytes'))
-                    self._dbtime  += float(a.group('time'))
+                    self._dbbytes = int(a.group('bytes'))
+                    self._dbtime = float(a.group('time'))
 
-    ## Return data volume and time spend to retrieve information from the database
+    ## Return data volume and time spent to retrieve information from the database
     def dbMonitor(self):
-        return {'bytes' : self._dbbytes, 'time' : self._dbtime} if self._dbbytes > 0 or self._dbtime > 0 else None
+        return {'bytes' : self._dbbytes, 'time' : self._dbtime}
 
     ## Return the worst error found in the logfile (first error of the most serious type)
     def worstError(self):
@@ -422,50 +413,23 @@ class athenaLogFileReport(logFileReport):
     # There is a slight problem here in that the end of core dump trigger line will not get parsed
     # TODO: fix this (OTOH core dump is usually the very last thing and fatal!)
     def coreDumpSvcParser(self, lineGenerator, firstline, firstLineCount):
-        _eventCounter = _run = _event = _currentAlgorithm = _functionLine = _currentFunction = None
-        coreDumpReport = 'Core dump from CoreDumpSvc'
+        coreDumpReport = ''
         for line, linecounter in lineGenerator:
             m = self._regExp.match(line)
             if m == None:
-                if 'Caught signal 11(Segmentation fault)' in line:
-                    coreDumpReport = 'Segmentation fault'
                 if 'Event counter' in line:
-                    _eventCounter = line
-
-                #Lookup: 'EventID: [Run,Evt,Lumi,Time,BunchCross,DetMask] = [267599,7146597,1,1434123751:0,0,0x0,0x0,0x0]'
-                if 'EventID' in line:
-                    match = re.findall('\[.*?\]', line)
-                    if match and match.__len__() >= 2:      # Assuming the line contains at-least one key-value pair.
-                        brackets = "[]"
-                        commaDelimer = ','
-                        keys = (match[0].strip(brackets)).split(commaDelimer)
-                        values = (match[1].strip(brackets)).split(commaDelimer)
-
-                        if 'Run' in keys:
-                            _run = 'Run: ' + values[keys.index('Run')]
-
-                        if 'Evt' in keys:
-                            _event = 'Evt: ' + values[keys.index('Evt')]
-
+                    coreDumpReport += line + '; '
                 if 'Current algorithm' in line:
-                    _currentAlgorithm = line
-                if '<signal handler called>' in line:
-                    _functionLine = linecounter+1
-                if _functionLine and linecounter is _functionLine:
-                    _currentFunction = line
+                    coreDumpReport += line
             else:
                 # Can this be done - we want to push the line back into the generator to be
                 # reparsed in the normal way (might need to make the generator a class with the
                 # __exec__ method supported (to get the line), so that we can then add a
                 # pushback onto an internal FIFO stack
-                # lineGenerator.pushback(line)
+#                 lineGenerator.pushback(line)
                 break
-        _eventCounter = 'Event counter: unknown' if not _eventCounter else _eventCounter
-        _run = 'Run: unknown' if not _run else _run
-        _event = 'Evt: unknown' if not _event else _event
-        _currentAlgorithm = 'Current algorithm: unknown' if not _currentAlgorithm else _currentAlgorithm
-        _currentFunction = 'Current Function: unknown' if not _currentFunction else 'Current Function: '+_currentFunction.split(' in ')[1].split()[0]
-        coreDumpReport = '{0}: {1}; {2}; {3}; {4}; {5}'.format(coreDumpReport, _eventCounter, _run, _event, _currentAlgorithm, _currentFunction)
+        if coreDumpReport == '':
+            coreDumpReport = 'Event counter and current algorithm unknown.'
 
         # Core dumps are always fatal...
         msg.debug('Identified core dump - adding to error detail report')
@@ -494,6 +458,7 @@ class athenaLogFileReport(logFileReport):
         else:
             self._levelCounter['FATAL'] += 1
             self._errorDetails['FATAL'].append({'message': g4Report, 'firstLine': firstLineCount, 'count': 1})
+
 
     def g4ExceptionParser(self, lineGenerator, firstline, firstLineCount, g4ExceptionLineDepth):
         g4Report = firstline
@@ -546,77 +511,10 @@ class athenaLogFileReport(logFileReport):
         self._levelCounter['CATASTROPHE'] += 1
         self._errorDetails['CATASTROPHE'].append({'message': badAllocExceptionReport, 'firstLine': firstLineCount, 'count': 1})
 
-    def rootSysErrorParser(self, lineGenerator, firstline, firstLineCount):
-        msg.debug('Identified ROOT IO problem - adding to error detail report')
-        self._levelCounter['FATAL'] += 1
-        self._errorDetails['FATAL'].append({'message': firstline, 'firstLine': firstLineCount, 'count': 1})
 
     def __str__(self):
         return str(self._levelCounter) + str(self._errorDetails)
 
-
-class scriptLogFileReport(logFileReport):
-    def __init__(self, logfile=None, msgLimit=200, msgDetailLevel=stdLogLevels['ERROR']):
-        self._levelCounter = {}
-        self._errorDetails = {}
-        self.resetReport()
-        super(scriptLogFileReport, self).__init__(logfile, msgLimit, msgDetailLevel)
-
-    def resetReport(self):
-        self._levelCounter.clear()
-        for level in stdLogLevels.keys() + ['UNKNOWN', 'IGNORED']:
-            self._levelCounter[level] = 0
-
-        self._errorDetails.clear()
-        for level in self._levelCounter.keys():  # List of dicts {'message': errMsg, 'firstLine': lineNo, 'count': N}
-            self._errorDetails[level] = []
-
-    def scanLogFile(self, resetReport=False):
-        if resetReport:
-            self.resetReport()
-
-        for log in self._logfile:
-            msg.info('Scanning logfile {0}'.format(log))
-            try:
-                myGen = trfUtils.lineByLine(log)
-            except IOError, e:
-                msg.error('Failed to open transform logfile {0}: {1:s}'.format(log, e))
-                # Return this as a small report
-                self._levelCounter['ERROR'] = 1
-                self._errorDetails['ERROR'] = {'message': str(e), 'firstLine': 0, 'count': 1}
-                return
-
-            for line, lineCounter in myGen:
-                # TODO: This implementation currently only scans for Root SysErrors.
-                # General solution would be a have common error parser for all system level
-                # errors those all also handled by AthenaLogFileReport.
-                if line.__contains__('SysError in <TFile::ReadBuffer>') or \
-                   line.__contains__('SysError in <TFile::WriteBuffer>'):
-                    self.rootSysErrorParser(line, lineCounter)
-
-    # Return the worst error found in the logfile (first error of the most serious type)
-    def worstError(self):
-        worstlevelName = 'DEBUG'
-        worstLevel = stdLogLevels[worstlevelName]
-        for levelName, count in self._levelCounter.iteritems():
-            if count > 0 and stdLogLevels.get(levelName, 0) > worstLevel:
-                worstlevelName = levelName
-                worstLevel = stdLogLevels[levelName]
-
-        if len(self._errorDetails[worstlevelName]) > 0:
-            firstError = self._errorDetails[worstlevelName][0]
-        else:
-            firstError = None
-
-        return {'level': worstlevelName, 'nLevel': worstLevel, 'firstError': firstError}
-
-    def __str__(self):
-        return str(self._levelCounter) + str(self._errorDetails)
-
-    def rootSysErrorParser(self, line, lineCounter):
-        msg.debug('Identified ROOT IO problem - adding to error detail report')
-        self._levelCounter['FATAL'] += 1
-        self._errorDetails['FATAL'].append({'message': line, 'firstLine': lineCounter, 'count': 1})
 
 ## @brief return integrity of file using appropriate validation function
 #  @ detail This method returns the integrity of a specified file using a
@@ -659,9 +557,6 @@ def performStandardFileValidation(dictionary, io, parallelMode = False):
                         raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_FAIL'), 'File %s did not pass corruption test' % fname)
                     elif arg.getSingleMetadata(fname, 'integrity') == 'UNDEFINED':
                         msg.info('No corruption test defined.')
-                    elif arg.getSingleMetadata(fname, 'integrity') is None:
-                        msg.error('Could not check for file integrity')
-                        raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_FAIL'), 'File %s might be missing' % fname)
                     else:    
                         msg.error('Unknown rc from corruption test.')
                         raise trfExceptions.TransformValidationException(trfExit.nameToCode('TRF_EXEC_VALIDATION_FAIL'), 'File %s did not pass corruption test' % fname)
@@ -818,9 +713,9 @@ class eventMatch(object):
         self._eventCountConf['EVNT_COSMICS'] = {'HITS': simEventEff}
         self._eventCountConf['EVNT_Stopped'] = {'HITS': simEventEff}
         self._eventCountConf['HITS'] = {'RDO':"match", "HITS_MRG":"match", 'HITS_FILT': simEventEff, "RDO_FILT": "filter"}
-        self._eventCountConf['BS'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "BS_MRG":"match", 'DESD*': "filter", 'AOD':"match", 'DAOD*':"filter"}
-        self._eventCountConf['RDO*'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "RDO_MRG":"match", "RDO_TRIG":"match", 'AOD':"match", 'DAOD*':"filter"}
-        self._eventCountConf['ESD'] = {'ESD_MRG': "match", 'AOD':"match", 'DESD*':"filter", 'DAOD_*':"filter", 'NTUP_*':"filter"}
+        self._eventCountConf['BS'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "BS_MRG":"match", 'DESD_*': "filter"}
+        self._eventCountConf['RDO*'] = {'ESD': "match", 'DRAW_*':"filter", 'NTUP_*':"filter", "RDO_MRG":"match", "RDO_TRIG":"match"}
+        self._eventCountConf['ESD'] = {'ESD_MRG': "match", 'AOD':"match", 'DESD_*':"filter", 'DAOD_*':"filter", 'NTUP_*':"filter"}
         self._eventCountConf['AOD'] = {'AOD_MRG' : "match", 'TAG':"match", "NTUP_*":"filter", "DAOD_*":"filter", 'NTUP_*':"filter"}
         self._eventCountConf['AOD_MRG'] = {'TAG':"match"}
         self._eventCountConf['DAOD_*'] = {'DAOD_*_MRG' : "match"}

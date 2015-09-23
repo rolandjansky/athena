@@ -10,7 +10,7 @@ msg = logging.getLogger(__name__)
 
 import PyJobTransforms.trfExceptions as trfExceptions
 
-## @brief Integrity function for file class argPOOLFile, argHITSFile, argRDOFile and argEVNTFile
+## @brief Integrity function for file class argPOOLFile, argHITSFile and argRDOFile
 def returnIntegrityOfPOOLFile(fname):
     from PyJobTransforms.trfValidateRootFile import checkFile
     rc = checkFile(fileName = fname, type = 'event', requireTree = True)
@@ -46,10 +46,10 @@ def returnIntegrityOfBSFile(fname):
 
 ### @brief Integrity function for file class argTAGFile
 def returnIntegrityOfTAGFile(fname):
-    from PyJobTransforms.trfFileUtils import AthenaLiteFileInfo
-    dictionaryOfAthenaFileInfo = AthenaLiteFileInfo(fname, "TAG", retrieveKeys = ['nentries',])
+    from PyJobTransforms.trfFileUtils import AthenaFileInfo
+    dictionaryOfAthenaFileInfo = AthenaFileInfo([str(fname),], retrieveKeys = ['nentries',])
     msg.debug("dictionary of Athena file information: {a}".format(a = dictionaryOfAthenaFileInfo))
-    eventCount = dictionaryOfAthenaFileInfo[fname]['nentries']
+    eventCount = dictionaryOfAthenaFileInfo[str(fname)]['nentries']
     if eventCount is None:
         return (False, "integrity of {fileName} bad: got a bad event count in {fileName}: {eventCount}".format(fileName = str(fname), eventCount = eventCount))
     else:

@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 780423 2016-10-26 08:02:47Z mavogel $
+# @version $Id: trfArgClasses.py 693714 2015-09-08 13:36:11Z lerrenst $
 
 import argparse
 import bz2
@@ -21,7 +21,7 @@ msg = logging.getLogger(__name__)
 
 import PyJobTransforms.trfExceptions as trfExceptions
 
-from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaLiteFileInfo, NTUPEntries, HISTEntries, urlType, ROOTGetSize
+from PyJobTransforms.trfFileUtils import athFileInterestingKeys, AthenaLiteFileInfo, NTUPEntries, HISTEntries, urlType, ROOTGetSize, inpFileInterestingKeys
 from PyJobTransforms.trfUtils import call, cliToKey
 from PyJobTransforms.trfExitCodes import trfExit as trfExit
 from PyJobTransforms.trfDecorators import timelimited
@@ -511,7 +511,6 @@ class argFile(argList):
         self._guid = guid
         self._mergeTargetSize = mergeTargetSize
         self._auxiliaryFile = auxiliaryFile
-        self._originalName = None
         
         # User setter to get valid value check
         self.io = io
@@ -599,9 +598,11 @@ class argFile(argList):
         
     ## @brief Set the argFile value, but allow parameters here
     #  @note Normally athena only takes a single value for an output file, but when AthenaMP runs
-    #  it can produce multiple output files - this is allowed by setting  <tt>allowMultiOutputs = True</tt>
+    #  it can produce multiple output files - this is allowed by setting  <tt>allowMultiOutputs = False</tt>
     #  @note The setter protects against the same file being added multiple times
     def valueSetter(self, value):
+        prodSysPattern = re.compile(r'(?P<prefix>.*)\[(?P<expand>[\d\.,_]+)\](?P<suffix>.*)')
+
         ## @note First do parsing of string vs. lists to get list of files
         if isinstance(value, (list, tuple)):
             if len(value) > 0 and isinstance(value[0], dict): # Tier-0 style expanded argument with metadata
@@ -635,13 +636,11 @@ class argFile(argList):
             return
         else:
             try:
-                if value.lower().startswith('lfn'):
-                    # Resolve physical filename using pool file catalog.
-                    import PyUtils.AthFile as af
-                    protocol, pfn = af.fname(value)
-                    self._value = [pfn]
-                    self._getDatasetFromFilename(reset = False)
-                    self._resetMetadata()
+                # If there is a prodsys glob in the game we turn off splitting
+                prodsysGlob = prodSysPattern.match(value)
+                if prodsysGlob and self._splitter is ',':
+                    msg.debug('Detected prodsys glob - normal splitting is disabled')
+                    self._value = [value]
                 else:
                     self._value = value.split(self._splitter)
                     self._getDatasetFromFilename(reset = False)
@@ -679,15 +678,34 @@ class argFile(argList):
                 msg.debug('Found POSIX filesystem input - activating globbing')
                 newValue = []
                 for filename in self._value:
-                    # Simple case
-                    globbedFiles = glob.glob(filename)
-                    if len(globbedFiles) is 0:          # No files globbed for this 'filename' argument.
-                        raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
-                        'Input file argument {0} globbed to NO input files - probably the file(s) are missing'.format(filename))
-
-                    globbedFiles.sort()
-                    newValue.extend(globbedFiles)
-
+                    ## @note Weird prodsys style globbing...
+                    #  This has the format:
+                    #   @c prefix._[NNN,MMM,OOO,PPP].suffix  (@c NNN, etc. are numbers)
+                    #  However an invisible .N attempt number also needs to be appended before doing real globbing
+                    prodsysGlob = prodSysPattern.match(filename)
+                    if prodsysGlob:
+                        msg.debug('Detected [MMM,NNN,OOO] style prodsys globbing for {0}'.format(filename))
+                        msg.debug('Prefix: {0}; Numerical expansion: {1}; Suffix: {2}'.format(prodsysGlob.group('prefix'), prodsysGlob.group('expand'), prodsysGlob.group('suffix')))
+                        numbers = prodsysGlob.group('expand').split(',')
+                        for number in numbers:
+                            # Add a final '.*' to match against the .AttemptNumber invisible extension
+                            globName = prodsysGlob.group('prefix') + str(number) + prodsysGlob.group('suffix') + '*'
+                            msg.debug('Will try globbing against {0}'.format(globName))
+                            globbedNames = glob.glob(globName)
+                            if len(globbedNames) > 1:
+                                msg.warning('Warning - matched multiple filenames ({0}) when adding the .AttemptNumber to {1}'.format(globbedNames, globName))
+                            elif len(globbedNames) == 0:
+                                msg.warning('Warning - matched NO filenames when adding the .AttemptNumber to {0}'.format(globName))
+                            newValue.extend(globbedNames)
+                    else:
+                        # Simple case
+                        globbedFiles = glob.glob(filename)
+                        globbedFiles.sort()
+                        newValue.extend(globbedFiles)
+                if len(self._value) > 0 and len(newValue) is 0:
+                    # Woops - no files!
+                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'), 
+                                                              'Input file argument(s) {0!s} globbed to NO input files - probably the file(s) are missing'.format(self._value))
                 self._value = newValue
                 msg.debug ('File input is globbed to %s' % self._value)
 
@@ -695,55 +713,93 @@ class argFile(argList):
                 msg.debug('Found root filesystem input - activating globbing')
                 newValue = []
                 for filename in self._value:
-                    if str(filename).startswith("https") or not(str(filename).endswith('/')) and '*' not in filename and '?' not in filename:
-                        msg.debug('Seems that only one file was given: {0}'.format(filename))
-                        newValue.extend(([filename]))
-                    else:
-                        # Hopefully this recognised wildcards...
-                        path = filename
-                        fileMask = ''
-                        if '*' in filename or '?' in filename:
-                            msg.debug('Split input into path for listdir() and a filemask to select available files.')
-                            path = filename[0:filename.rfind('/')+1]
-                            msg.debug('path: {0}'.format(path))
-                            fileMask = filename[filename.rfind('/')+1:len(filename)]
-                            msg.debug('Will select according to: {0}'.format(fileMask))
 
-                        cmd = ['/afs/cern.ch/project/eos/installation/atlas/bin/eos.select' ]
-                        if not os.access ('/afs/cern.ch/project/eos/installation/atlas/bin/eos.select', os.X_OK ):
-                            raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
-                            'No execute access to "eos.select" - could not glob EOS input files.')
-
-                        cmd.extend(['ls'])
-                        cmd.extend([path])
-
-                        myFiles = []
-                        try:
-                            proc = subprocess.Popen(args = cmd,bufsize = 1, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
-                            rc = proc.wait()
-                            output = proc.stdout.readlines()
-                            if rc!=0:
-                                raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
-                                                            'EOS list command ("{0!s}") failed: rc {1}, output {2}'.format(cmd, rc, output))
-                            msg.debug("eos returned: {0}".format(output))
-                            for line in output:
-                                if "root" in line:
-                                    myFiles += [str(path)+str(line.rstrip('\n'))]
-
-                            patt = re.compile(fileMask.replace('*','.*').replace('?','.'))
-                            for srmFile in myFiles:
-                                if fileMask is not '':
-                                    if(patt.search(srmFile)) is not None:
-                                    #if fnmatch.fnmatch(srmFile, fileMask):
-                                        msg.debug('match: ',srmFile)
-                                        newValue.extend(([srmFile]))
-                                else:
-                                    newValue.extend(([srmFile]))
+                    ## @note Weird prodsys style globbing...
+                    #  This has the format:
+                    #   @c prefix._[NNN,MMM,OOO,PPP].suffix  (@c NNN, etc. are numbers)
+                    #  However an invisible .N attempt number also needs to be appended before doing real globbing
+                    prodsysGlob = prodSysPattern.match(filename)
+                    if prodsysGlob:
+                        theNameList = [filename]
+                        i = 0
+                        msg.debug('Try to split input string if more than one file is given')
+                        if ',root:' in filename:
+                            theNameList = filename.split(',root:')
+                            for name in theNameList:
+                                if not name.startswith('root:'):
+                                    name = 'root:'+name
+                                    theNameList[i] = name
+                                i = i + 1 
                                 
-                            msg.debug('Selected files: ', newValue)
-                        except (AttributeError, TypeError, OSError):
-                            raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_RUNTIME_ERROR'),
-                                                                      'Failed to convert %s to a list' % str(value))
+                            msg.debug('Split input string into files: {0}'.format(theNameList))
+                        for fileName in theNameList:
+                            prodsysGlob = prodSysPattern.match(fileName)
+                            msg.debug('Detected [MMM,NNN,OOO] style prodsys globbing for {0}'.format(fileName))
+                            msg.debug('Prefix: {0}; Numerical expansion: {1}; Suffix: {2}'.format(prodsysGlob.group('prefix'), prodsysGlob.group('expand'), prodsysGlob.group('suffix')))
+                            numbers = prodsysGlob.group('expand').split(',')
+                            for number in numbers:
+                                # Add a final '.*' to match against the .AttemptNumber invisible extension
+                                globName = prodsysGlob.group('prefix') + str(number) + prodsysGlob.group('suffix') 
+                                msg.debug('Will try globbing against {0}'.format(globName))
+                                globbedNames =[globName]# glob.glob(globName)
+                                if len(globbedNames) > 1:
+                                    msg.warning('Warning - matched multiple filenames ({0}) when adding the .AttemptNumber to {1}'.format(globbedNames, globName))
+                                elif len(globbedNames) == 0:
+                                    msg.warning('Warning - matched NO filenames when adding the .AttemptNumber to {0}'.format(globName))
+                                newValue.extend(globbedNames)
+
+                    else:
+                        # Simple case
+                        if not(str(filename).endswith('/')) and '*' not in filename and '?' not in filename:
+                            msg.debug('Seems that only one file was given: {0}'.format(filename))
+                            newValue.extend(([filename]))
+                        else:
+                            # Hopefully this recognised wildcards...
+                            path = filename
+                            fileMask = ''
+                            if '*' in filename or '?' in filename:
+                                msg.debug('Split input into path for listdir() and a filemask to select available files.')    
+                                path = filename[0:filename.rfind('/')+1]
+                                msg.debug('path: {0}'.format(path))
+                                fileMask = filename[filename.rfind('/')+1:len(filename)]
+                                msg.debug('Will select according to: {0}'.format(fileMask))
+
+                            msg.debug('eos command is hard coded - check if it is executable')
+                            cmd = ['/afs/cern.ch/project/eos/installation/atlas/bin/eos.select' ]
+                            if not os.access ('/afs/cern.ch/project/eos/installation/atlas/bin/eos.select', os.X_OK ):
+                                raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
+                                'No execute access to "eos.select" - could not glob EOS input files.')
+
+                            cmd.extend(['ls'])
+                            cmd.extend([path])
+
+                            myFiles = []
+                            try:
+                                proc = subprocess.Popen(args = cmd,bufsize = 1, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+                                rc = proc.wait()
+                                output = proc.stdout.readlines()
+                                if rc!=0:
+                                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
+                                                                'EOS list command ("{0!s}") failed: rc {1}, output {2}'.format(cmd, rc, output))
+                                msg.debug("eos returned: {0}".format(output))
+                                for line in output:
+                                    if "root" in line:
+                                        myFiles += [str(path)+str(line.rstrip('\n'))]
+
+                                patt = re.compile(fileMask.replace('*','.*').replace('?','.'))
+                                for srmFile in myFiles:
+                                    if fileMask is not '':
+                                        if(patt.search(srmFile)) is not None:
+                                        #if fnmatch.fnmatch(srmFile, fileMask):
+                                            msg.debug('match: ',srmFile)
+                                            newValue.extend(([srmFile]))
+                                    else:
+                                        newValue.extend(([srmFile]))
+                                
+                                msg.debug('Selected files: ', newValue)
+                            except (AttributeError, TypeError, OSError):
+                                raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_RUNTIME_ERROR'),
+                                                             'Failed to convert %s to a list' % str(value))
                 if len(self._value) > 0 and len(newValue) is 0:
                     # Woops - no files!
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
@@ -773,14 +829,6 @@ class argFile(argList):
     @dataset.setter
     def dataset(self, value):
         self._dataset = value
-    
-    @property
-    def orignalName(self):
-        return self._originalName
-    
-    @orignalName.setter
-    def originalName(self, value):
-        self._originalName = value
     
     @property
     def type(self):
@@ -979,7 +1027,6 @@ class argFile(argList):
                             msg.debug('No cached value for {0}:{1}. Calling generator function {2} ({3})'.format(fname, key, self._metadataKeys[key].func_name, self._metadataKeys[key]))
                             try:
                                 # For efficiency call this routine with all files we have
-                                msg.info("Metadata generator called to obtain {0} for {1}".format(key, files))
                                 self._metadataKeys[key](files)
                             except trfExceptions.TransformMetadataException, e:
                                 msg.error('Calling {0!s} raised an exception: {1!s}'.format(self._metadataKeys[key].func_name, e))
@@ -1162,13 +1209,12 @@ class argFile(argList):
         myargdict['checkEventCount'] = argSubstepBool('False', runarg=False)
         if 'athenaopts' in myargdict:
             # Need to ensure that "nprocs" is not passed to merger
-            for subStep in myargdict['athenaopts'].value:
-                newopts = []
-                for opt in myargdict['athenaopts'].value[subStep]:
-                    if opt.startswith('--nprocs'):
-                        continue
-                    newopts.append(opt)
-                myargdict['athenaopts'] = argSubstepList(newopts, runarg=False)
+            newopts = []
+            for opt in myargdict['athenaopts'].value:
+                if opt.startswith('--nprocs'):
+                    continue
+                newopts.append(opt)
+            myargdict['athenaopts'] = argList(newopts, runarg=False)
         return myargdict
 
 
@@ -1198,15 +1244,19 @@ class argAthenaFile(argFile):
         elif self._type.upper() in ('TAG'):
             aftype = 'TAG'
 
+        # retrieve GUID and nentries without runMiniAthena subprocess for input POOL files
+        if aftype == 'POOL' and self._io == 'input':
+            retrieveKeys = inpFileInterestingKeys
+
         # get G4Version for HITSFiles
-#         if self._type.upper() in ('HITS'):
-#             retrieveKeys.append('G4Version')
+        if self._type.upper() in ('HITS'):
+            retrieveKeys.append('G4Version')
 
         # N.B. Could parallelise here            
         for fname in myFiles:
             athFileMetadata = AthenaLiteFileInfo(fname, aftype, retrieveKeys=retrieveKeys)
             if athFileMetadata == None:
-                raise trfExceptions.TransformMetadataException(trfExit.nameToCode('TRF_METADATA_CALL_FAIL'), 'Call to AthenaLiteFileInfo failed')
+                raise trfExceptions.TransformMetadataException(trfExit.nameToCode('TRF_METADATA_CALL_FAIL'), 'Call to AthenaFileInfo failed')
             msg.debug('Setting metadata for file {0} to {1}'.format(fname, athFileMetadata[fname]))
             self._fileMetadata[fname].update(athFileMetadata[fname])
 
@@ -1244,12 +1294,10 @@ class argBSFile(argAthenaFile):
     ## @brief Method which can be used to merge files of this type
     #  @param output Target filename for this merge
     #  @param inputs List of files to merge
-    #  @param counter Index counter used as a suffix on the merge executor (sometimes we have
-    #   multiple merges per output file type)
     #  @param argdict argdict of the transform
     #  @note @c argdict is not normally used as this is a @em vanilla merge
-    def selfMerge(self, output, inputs, counter=0, argdict={}):
-        msg.debug('selfMerge attempted for {0} -> {1} with {2} (index {3})'.format(inputs, output, argdict, counter))
+    def selfMerge(self, output, inputs, argdict={}):
+        msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
         
         # First do a little sanity check
         for fname in inputs:
@@ -1263,15 +1311,15 @@ class argBSFile(argAthenaFile):
         myargdict = self._mergeArgs(argdict)
         myargdict['maskEmptyInputs'] = argBool(True)
         myargdict['allowRename'] = argBool(True)
-        myargdict['emptyStubFile'] = argString(inputs[0])
+        myargdict['emptyStubFile'] = argString(output)
         
         # We need a athenaExecutor to do the merge
         # N.B. We never hybrid merge AthenaMP outputs as this would prevent further merging in another
         # task (hybrid merged files cannot be further bybrid merged) 
         myDataDictionary = {'BS_MRG_INPUT' : argBSFile(inputs, type=self.type, io='input'),
                             'BS_MRG_OUTPUT' : argBSFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary)
-        myMerger = bsMergeExecutor(name='BSMergeAthenaMP{0}{1}'.format(self._subtype, counter), conf=myMergeConf, exe = 'file_merging',
+        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMerger = bsMergeExecutor(name='BSMerge_AthenaMP.{0}'.format(self._subtype), conf=myMergeConf, exe = 'file_merging',
                                   inData=set(['BS_MRG_INPUT']), outData=set(['BS_MRG_OUTPUT']))
         myMerger.doAll(input=set(['BS_MRG_INPUT']), output=set(['BS_MRG_OUTPUT']))
         
@@ -1283,7 +1331,6 @@ class argBSFile(argAthenaFile):
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
         self._resetMetadata(inputs + [output])
-        return myMerger
     
 
 ## @brief POOL file class.
@@ -1313,7 +1360,7 @@ class argPOOLFile(argAthenaFile):
     #  @param inputs List of files to merge
     #  @param argdict argdict of the transform
     #  @note @c argdict is not normally used as this is a @em vanilla merge
-    def selfMerge(self, output, inputs, counter=0, argdict={}):
+    def selfMerge(self, output, inputs, argdict={}):
         msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
         
         # First do a little sanity check
@@ -1332,10 +1379,10 @@ class argPOOLFile(argAthenaFile):
         # task (hybrid merged files cannot be further bybrid merged) 
         myDataDictionary = {'POOL_MRG_INPUT' : argPOOLFile(inputs, type=self.type, io='input'),
                             'POOL_MRG_OUTPUT' : argPOOLFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary)
-        myMerger = athenaExecutor(name='POOLMergeAthenaMP{0}{1}'.format(self._subtype, counter), conf=myMergeConf, 
+        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMerger = athenaExecutor(name='POOLMerge_AthenaMP.{0}'.format(self._subtype), conf=myMergeConf, 
                                   skeletonFile = 'RecJobTransforms/skeleton.MergePool_tf.py',
-                                  inData=set(['POOL_MRG_INPUT']), outData=set(['POOL_MRG_OUTPUT']), disableMP=True)
+                                  inData=set(['POOL_MRG_INPUT']), outData=set(['POOL_MRG_OUTPUT']), perfMonFile = 'ntuple_POOLMerge.pmon.gz')
         myMerger.doAll(input=set(['POOL_MRG_INPUT']), output=set(['POOL_MRG_OUTPUT']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1346,14 +1393,14 @@ class argPOOLFile(argAthenaFile):
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
         self._resetMetadata(inputs + [output])
-        return myMerger
+
 
 class argHITSFile(argPOOLFile):
 
     integrityFunction = "returnIntegrityOfPOOLFile"
 
     ## @brief Method which can be used to merge HITS files
-    def selfMerge(self, output, inputs, counter=0, argdict={}):
+    def selfMerge(self, output, inputs, argdict={}):
         msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
         
         # First do a little sanity check
@@ -1363,16 +1410,16 @@ class argHITSFile(argPOOLFile):
                                                             "File {0} is not part of this agument: {1}".format(fname, self))
         
         ## @note Modify argdict
-        mySubstepName = 'HITSMergeAthenaMP{0}'.format(counter)
+        mySubstepName = 'HITSMerge_AthenaMP'
         myargdict = self._mergeArgs(argdict)
         
         from PyJobTransforms.trfExe import athenaExecutor, executorConfig
         myDataDictionary = {'HITS' : argHITSFile(inputs, type=self.type, io='input'),
                             'HITS_MRG' : argHITSFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary)
+        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
         myMerger = athenaExecutor(name = mySubstepName, skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
                                   conf=myMergeConf, 
-                                  inData=set(['HITS']), outData=set(['HITS_MRG']), disableMP=True)
+                                  inData=set(['HITS']), outData=set(['HITS_MRG']), perfMonFile = 'ntuple_HITSMerge.pmon.gz')
         myMerger.doAll(input=set(['HITS']), output=set(['HITS_MRG']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1383,14 +1430,14 @@ class argHITSFile(argPOOLFile):
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
         self._resetMetadata(inputs + [output])
-        return myMerger
+    
 
 class argRDOFile(argPOOLFile):
 
     integrityFunction = "returnIntegrityOfPOOLFile"
 
     ## @brief Method which can be used to merge RDO files
-    def selfMerge(self, output, inputs, counter=0, argdict={}):
+    def selfMerge(self, output, inputs, argdict={}):
         msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
         
         # First do a little sanity check
@@ -1405,10 +1452,10 @@ class argRDOFile(argPOOLFile):
         from PyJobTransforms.trfExe import athenaExecutor, executorConfig
         myDataDictionary = {'RDO' : argHITSFile(inputs, type=self.type, io='input'),
                             'RDO_MRG' : argHITSFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary)
-        myMerger = athenaExecutor(name = 'RDOMergeAthenaMP{0}'.format(counter), skeletonFile = 'RecJobTransforms/skeleton.MergeRDO_tf.py',
+        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMerger = athenaExecutor(name = 'RDOMerge_AthenaMP', skeletonFile = 'RecJobTransforms/skeleton.MergeRDO_tf.py',
                                   conf=myMergeConf, 
-                                  inData=set(['RDO']), outData=set(['RDO_MRG']), disableMP=True)
+                                  inData=set(['RDO']), outData=set(['RDO_MRG']), perfMonFile = 'ntuple_RDOMerge.pmon.gz')
         myMerger.doAll(input=set(['RDO']), output=set(['RDO_MRG']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1419,45 +1466,11 @@ class argRDOFile(argPOOLFile):
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
         self._resetMetadata(inputs + [output])
-        return myMerger
     
-class argEVNTFile(argPOOLFile):
-
-    integrityFunction = "returnIntegrityOfPOOLFile"
-
-    ## @brief Method which can be used to merge EVNT files
-    def selfMerge(self, output, inputs, counter=0, argdict={}):
-        msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
-        
-        # First do a little sanity check
-        for fname in inputs:
-            if fname not in self._value:
-                raise trfExceptions.TransformMergeException(trfExit.nameToCode('TRF_FILEMERGE_PROBLEM'), 
-                                                            "File {0} is not part of this agument: {1}".format(fname, self))
-        
-        ## @note Modify argdict
-        mySubstepName = 'EVNTMergeAthenaMP{0}'.format(counter)
-        myargdict = self._mergeArgs(argdict)
-        
-        from PyJobTransforms.trfExe import athenaExecutor, executorConfig
-        myDataDictionary = {'EVNT' : argEVNTFile(inputs, type=self.type, io='input'),
-                            'EVNT_MRG' : argEVNTFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary)
-        myMerger = athenaExecutor(name = mySubstepName, skeletonFile = 'PyJobTransforms/skeleton.EVNTMerge.py',
-                                  conf=myMergeConf, 
-                                  inData=set(['EVNT']), outData=set(['EVNT_MRG']), disableMP=True)
-        myMerger.doAll(input=set(['EVNT']), output=set(['EVNT_MRG']))
-        
-        # OK, if we got to here with no exceptions, we're good shape
-        # Now update our own list of files to reflect the merge
-        for fname in inputs:
-            self._value.remove(fname)
-        self._value.append(output)
-
-        msg.debug('Post self-merge files are: {0}'.format(self._value))
-        self._resetMetadata(inputs + [output])
-        return myMerger
     
+
+    
+
 ## @brief TAG file class
 #  @details Has a different validation routine to ESD/AOD POOL files
 class argTAGFile(argPOOLFile):
@@ -1485,7 +1498,7 @@ class argTAGFile(argPOOLFile):
     #  @param inputs List of files to merge
     #  @param argdict argdict of the transform
     #  @note @c argdict is not normally used as this is a @em vanilla merge
-    def selfMerge(self, output, inputs, counter=0, argdict={}):
+    def selfMerge(self, output, inputs, argdict={}):
         msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
         
         # First do a little sanity check
@@ -1502,8 +1515,8 @@ class argTAGFile(argPOOLFile):
         # We need a tagMergeExecutor to do the merge
         myDataDictionary = {'TAG_MRG_INPUT' : argTAGFile(inputs, type=self.type, io='input'),
                             'TAG_MRG_OUTPUT' : argTAGFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary)
-        myMerger = tagMergeExecutor(name='TAGMergeAthenaMP{0}{1}'.format(self._subtype, counter), exe = 'CollAppend', 
+        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMerger = tagMergeExecutor(name='TAGMerge_AthenaMP.{0}'.format(self._subtype), exe = 'CollAppend', 
                                         conf=myMergeConf, 
                                         inData=set(['TAG_MRG_INPUT']), outData=set(['TAG_MRG_OUTPUT']),)
         myMerger.doAll(input=set(['TAG_MRG_INPUT']), output=set(['TAG_MRG_OUTPUT']))
@@ -1516,12 +1529,13 @@ class argTAGFile(argPOOLFile):
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
         self._resetMetadata(inputs + [output])
-        return myMerger
+
 
     @property
     def prodsysDescription(self):
         desc=super(argTAGFile, self).prodsysDescription
         return desc
+
 
 ## @brief Data quality histogram file class
 class argHISTFile(argFile):
@@ -1564,9 +1578,6 @@ class argNTUPFile(argFile):
 
     integrityFunction = "returnIntegrityOfNTUPFile"
 
-    ## @param treeNames @b list of ROOT trees which will be used for event counting this NTUP type. 
-    #  If @c None then event counting isn't possible for this job; if multiple trees are given then 
-    #  all are checked and they muct give the same answer.
     def __init__(self, value=list(), io = 'output', type=None, subtype=None, splitter=',', treeNames=None, runarg=True, multipleOK = None, 
                  name=None, mergeTargetSize=-1, auxiliaryFile=False):
         super(argNTUPFile, self).__init__(value=value, io=io, type=type, subtype=subtype, splitter=splitter, runarg=runarg, multipleOK=multipleOK, 
@@ -1604,7 +1615,7 @@ class argNTUPFile(argFile):
                 self._fileMetadata[fname]['integrity'] = False
                 
                 
-    def selfMerge(self, output, inputs, counter=0, argdict={}):
+    def selfMerge(self, output, inputs, argdict={}):
         msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
         
         # First do a little sanity check
@@ -1621,8 +1632,8 @@ class argNTUPFile(argFile):
         # We need a NTUPMergeExecutor to do the merge
         myDataDictionary = {'NTUP_MRG_INPUT' : argNTUPFile(inputs, type=self.type, io='input'),
                             'NYUP_MRG_OUTPUT' : argNTUPFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary)
-        myMerger = NTUPMergeExecutor(name='NTUPMergeAthenaMP{0}{1}'.format(self._subtype, counter), conf=myMergeConf, 
+        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMerger = NTUPMergeExecutor(name='NTUPMerge_AthenaMP.{0}'.format(self._subtype), conf=myMergeConf, 
                                      inData=set(['NTUP_MRG_INPUT']), outData=set(['NTUP_MRG_OUTPUT']))
         myMerger.doAll(input=set(['NTUP_MRG_INPUT']), output=set(['NYUP_MRG_OUTPUT']))
         
@@ -1634,7 +1645,7 @@ class argNTUPFile(argFile):
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
         self._resetMetadata(inputs + [output])
-        return myMerger
+
                 
     @property
     def prodsysDescription(self):
@@ -2058,29 +2069,16 @@ class argSubstepSteering(argSubstep):
     # "no" - a convenience null option for production managers, does nothing
     # "doRDO_TRIG" - run split trigger for Reco_tf and friends
     # "afterburn" - run the B decay afterburner for event generation
-    # "doRAWtoALL" - produce all DESDs and AODs directly from bytestream
     steeringAlises = {
                       'no': {},
                       'doRDO_TRIG': {'RAWtoESD': [('in', '-', 'RDO'), ('in', '+', 'RDO_TRIG'), ('in', '-', 'BS')]},
-                      'afterburn': {'generate': [('out', '-', 'EVNT')]},
-                      'doRAWtoALL': {'RAWtoALL': [('in', '+', 'BS'), ('in', '+', 'RDO'), ('in', '+', 'RDO_FTK'),
-                                                  ('in', '+', 'DRAW_ZMUMU'), ('in', '+', 'DRAW_ZEE'), ('in', '+', 'DRAW_EMU'), ('in', '+', 'DRAW_RPVLL'), 
-                                                  ('out', '+', 'ESD'), ('out', '+', 'AOD'), ('out', '+', 'HIST_R2A')],
-                                     'RAWtoESD': [('in', '-', 'BS'), ('in', '-', 'RDO'), ('in', '-', 'RDO_FTK'),
-                                                  ('out', '-', 'ESD'),],
-                                     'ESDtoAOD': [('in', '-', 'ESD'), ('out', '-', 'AOD'),]}
+                      'afterburn': {'generate': [('out', '-', 'EVNT')]}, 
                       }
     
     # Reset getter
     @property
     def value(self):
         return self._value
-    
-    # This argument gets dumped in a special way, using an alias directly
-    # instead of the expanded value
-    @property
-    def dumpvalue(self):
-        return self._dumpvalue
 
     @property
     def prodsysDescription(self):
@@ -2093,10 +2091,9 @@ class argSubstepSteering(argSubstep):
     #  This is then cast into a dictionary of tuples {substep: [('in/out', '+/-', DATATYPE), ...], ...}
     @value.setter
     def value(self, value):
-        msg.debug('Attempting to set argSubstepSteering from {0!s} (type {1})'.format(value, type(value)))
+        msg.debug('Attempting to set argSubstepSteering from {0!s} (type {1}'.format(value, type(value)))
         if value is None:
             self._value = {}
-            self._dumpvalue = [""]
         elif isinstance(value, dict):
             # OK, this should be the direct setable dictionary - but do a check of that
             for k, v in value.iteritems():
@@ -2108,15 +2105,9 @@ class argSubstepSteering(argSubstep):
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                                   'Failed to convert dict {0!s} to argSubstepSteering'.format(value))                    
             self._value = value
-            # Note we are a little careful here to never reset the dumpvalue - this is 
-            # because when processing the _list_ of steering arguments down to a single
-            # multi-valued argument we re-call value() with an expanded diectionary and
-            # one can nievely reset dumpvalue by mistake
-            self._dumpvalue = getattr(self, "_dumpvalue", value)
         elif isinstance(value, (str, list, tuple)):
             if isinstance(value, str):
                 value = [value,]
-            self._dumpvalue = getattr(self, "_dumpvalue", value)
             # Now we have a list of strings to parse
             self._value = {}
             for item in value:
