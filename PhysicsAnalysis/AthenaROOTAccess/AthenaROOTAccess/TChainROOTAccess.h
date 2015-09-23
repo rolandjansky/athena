@@ -59,13 +59,7 @@ public:
   /**
    * @brief Return the current entry number of the chain.
    */
-  virtual Long64_t  GetReadEntry() const override;
-
-
-  /**
-   * @brief Work around caching crash.
-   */
-  virtual Long64_t  LoadTree(Long64_t entry) override;
+  virtual Long64_t  GetReadEntry() const;
 
 
   /**
@@ -74,7 +68,7 @@ public:
   static void ResetAll();
 
 
-  ClassDefOverride (AthenaROOTAccess::TChainROOTAccess, 1);
+  ClassDef (AthenaROOTAccess::TChainROOTAccess, 1);
 };
 
 

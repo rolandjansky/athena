@@ -19,8 +19,7 @@
 namespace AthenaROOTAccess {
 
 
-void VertexAuxContainer_v1_fixup::fixupAfterAux (void* data,
-                                                 long long /*entry*/)
+void VertexAuxContainer_v1_fixup::fixupAfterAux (void* data)
 {
   xAOD::VertexAuxContainer_v1* aux =
     reinterpret_cast<xAOD::VertexAuxContainer_v1*> (data);
@@ -32,15 +31,15 @@ void VertexAuxContainer_v1_fixup::fixupAfterAux (void* data,
     typedef std::vector< ElementLink< xAOD::NeutralParticleContainer > >
       NeutralLink_t;
     SG::auxid_t auxid = reg.getAuxID<NeutralLink_t> ("neutralParticleLinks");
-    void* data1 = const_cast<void*> (aux->getIOData (auxid));
-    std::vector<NeutralLink_t>* vec = reinterpret_cast<std::vector<NeutralLink_t>*> (data1);
+    void* data = const_cast<void*> (aux->getIOData (auxid));
+    std::vector<NeutralLink_t>* vec = reinterpret_cast<std::vector<NeutralLink_t>*> (data);
     if (vec->size() != sz) vec->resize(sz);
   }
 
   {
     SG::auxid_t auxid = reg.getAuxID<std::vector<float> > ("neutralWeights");
-    void* data2 = const_cast<void*> (aux->getIOData (auxid));
-    std::vector<std::vector<float> >* vec = reinterpret_cast<std::vector<std::vector<float> >*> (data2);
+    void* data = const_cast<void*> (aux->getIOData (auxid));
+    std::vector<std::vector<float> >* vec = reinterpret_cast<std::vector<std::vector<float> >*> (data);
     if (vec->size() != sz) vec->resize(sz);
   }
 }

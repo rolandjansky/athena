@@ -15,12 +15,12 @@
 #include "SGTools/CurrentEventStore.h"
 #include "AthLinks/tools/DataProxyHolder.h"
 #include "PersistentDataModel/Token.h"
-#include "RootUtils/TBranchElementClang.h"
 #include "TError.h"
 #include "TTree.h"
 #include "TDirectory.h"
 #include "TPython.h"
 #include "TFile.h"
+#include "TBranchElement.h"
 #include "TVirtualCollectionProxy.h"
 
 
@@ -179,7 +179,7 @@ void TTreeTrans::resetBranch (sgkey_t sgkey)
  * The current tree is the one which gets installed as the source
  * when @c ElementLink's are constructed.
  */
-IProxyDict* TTreeTrans::setCurTree (IProxyDict* tree)
+IProxyDictWithPool* TTreeTrans::setCurTree (IProxyDictWithPool* tree)
 {
   return SG::CurrentEventStore::setStore (tree);
 }
@@ -224,15 +224,6 @@ bool TTreeTrans::sawFile (TFile* file)
 }
 
 
-/**
- * @brief Return the associated persistent tree.
- */
-TTree* TTreeTrans::getPersTree() const
-{
-  return m_pers_tree;
-}
-
-
 
 /**
  * @brief Standard Root method to read a new entry.
@@ -242,15 +233,10 @@ TTree* TTreeTrans::getPersTree() const
  */
 Int_t TTreeTrans::GetEntry (Long64_t entry, Int_t getall /*= 0*/)
 {
-  // We need to make sure that this instance is set as the current tree.
+  // We just need to make sure that this instance is set as the current tree.
+  // Then just do the standard stuff.
   Push save_tree (this);
-
-  setEntry (entry);
-
-  // Read pers tree first.
-  Int_t nbytes = m_pers_tree->GetEntry (entry);
-  nbytes += TTree::GetEntry (entry, getall);
-  return nbytes;
+  return TTree::GetEntry (entry, getall);
 }
 
 
@@ -315,16 +301,6 @@ void TTreeTrans::resetBranches()
       tpbr->Reset();
     }
   }
-}
-
-
-/**
- * @brief Set current entry; return local entry.
- */
-Long64_t TTreeTrans::LoadTree(Long64_t entry)
-{
-  TTree::LoadTree(entry);
-  return m_pers_tree->LoadTree(entry);
 }
 
 
@@ -399,15 +375,12 @@ TTreeTrans::addToStore (CLID id, SG::DataProxy* proxy)
  * @param obj The data object to store.
  * @param key The key as which it should be stored.
  * @param allowMods If false, the object will be recorded as const.
- * @param returnExisting If true, return proxy if this key already exists.
  *
  * This shouldn't be used from AthenaROOTAccess, and is unimplemented.
  */
-SG::DataProxy*
-TTreeTrans::recordObject (SG::DataObjectSharedPtr<DataObject> /*obj*/,
-                          const std::string& /*key*/,
-                          bool /*allowMods*/,
-                          bool /*returnExisting*/)
+SG::DataProxy* TTreeTrans::recordObject (std::unique_ptr<DataObject> /*obj*/,
+                                         const std::string& /*key*/,
+                                         bool /*allowMods*/)
 {
   std::abort();
 }

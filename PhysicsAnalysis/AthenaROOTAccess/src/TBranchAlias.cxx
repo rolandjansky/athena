@@ -19,12 +19,9 @@
 #include "AthenaROOTAccess/IARAFixup.h"
 #include "AthContainersInterfaces/IAuxStoreHolder.h"
 #include "AthContainers/AuxTypeRegistry.h"
-#include "AthContainers/tools/copyAuxStoreThinned.h"
-#include "RootUtils/TBranchElementClang.h"
 #include "TTree.h"
+#include "TBranchElement.h"
 #include "TError.h"
-#include "TList.h"
-#include "TLeafObject.h"
 
 
 #if ! (ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0)))
@@ -33,42 +30,6 @@ R__EXTERN TTree* gTree;
 
 
 namespace AthenaROOTAccess {
-
-
-void mergeAuxStore (const SG::IConstAuxStore& orig,
-                    SG::IAuxStore& copy)
-{
-  size_t size = orig.size();
-  if (size == 0) return;
-
-  // Access the auxiliary type registry:
-  SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
-
-  // The auxiliary IDs that the original container has:
-  SG::auxid_set_t auxids = orig.getAuxIDs();
-
-  copy.resize (size);
-  
-  // Loop over all the variables of the original container:
-  for (SG::auxid_t auxid : auxids) {
-    // Skip null auxids (happens if we don't have the dictionary)
-    if(auxid == SG::null_auxid) continue;
-
-    // Access the source variable:
-    const void* src = orig.getData (auxid);
-
-    if (!src) continue;
-
-    // Create the target variable:
-    void* dst = copy.getData (auxid, size, size);
-
-    // Copy over all elements.
-    for (std::size_t isrc = 0, idst = 0; isrc < size; ++isrc) {
-      r.copy (auxid, dst, idst, src, isrc);
-      ++idst;
-    }
-  }
-}
 
 
 class TBranchAccess : public TBranch
@@ -160,7 +121,7 @@ alias_fetch_classname (TTree* targ_tree, const char* targ_branchname)
  */
 TBranchAlias::~TBranchAlias()
 {
-  //setStore (true, -1);
+  setStore (true);
 }
 
 
@@ -239,11 +200,11 @@ Int_t TBranchAlias::GetEntry (Long64_t entry, Int_t /*getall = 0*/)
   // Read aux branch if needed.
   //if (m_dyn_store)
   //m_dyn_store->GetEntry (local_entry);
-  if (m_holder_offset_orig >= 0) {
-    char** auxptr = reinterpret_cast<char**> (m_aux_branch_orig->GetAddress());
+  if (m_holder_offset >= 0) {
+    char** auxptr = reinterpret_cast<char**> (m_aux_branch->GetAddress());
     if (auxptr && *auxptr) {
       SG::IAuxStoreHolder* holder =
-        reinterpret_cast<SG::IAuxStoreHolder*> (*auxptr + m_holder_offset_orig);
+        reinterpret_cast<SG::IAuxStoreHolder*> (*auxptr + m_holder_offset);
       AuxStoreARA* store = dynamic_cast<AuxStoreARA*>(holder->getStore());
       if (store) store->GetEntry (local_entry);
     }
@@ -251,18 +212,9 @@ Int_t TBranchAlias::GetEntry (Long64_t entry, Int_t /*getall = 0*/)
 
   if (m_aux_branch) {
     Long64_t ent = entry;
-    if (m_aux_branch == m_aux_branch_orig &&
-        dynamic_cast<TBranchTPConvert*>(m_aux_branch) == nullptr)
+    if (m_aux_branch == m_aux_branch_orig)
       ent = local_entry;
     branchSeek (m_aux_branch, ent);
-  }
-
-  // Update our cached address if needed.
-  if (m_targ_branch->GetAddress() == 0)
-    m_targ_branch->SetAddress(0);
-  if (GetAddress() != m_targ_branch->GetAddress()) {
-    TBranch::SetAddress (m_targ_branch->GetAddress());
-    fReadEntry = local_entry;
   }
 
   if (m_setStore_method.IsValid()) {
@@ -274,22 +226,14 @@ Int_t TBranchAlias::GetEntry (Long64_t entry, Int_t /*getall = 0*/)
     }
   }
 
-  // Let this be done by the branchSeek; otherwise, it might not
-  // go to the correct entry.
-  //m_targ_branch->SetStatus (true);
-  Int_t ret;
-  {
-    Long64_t ent = local_entry;
-    if (dynamic_cast<TBranchTPConvert*> (m_targ_branch))
-      ent = entry;
-    ret = branchSeek (m_targ_branch, ent);
-  }
+  m_targ_branch->SetStatus (true);
+  Int_t ret = branchSeek (m_targ_branch, local_entry);
   if (ret == AthenaROOTAccess::NOREAD)
     ret = 1;
 
   // Update our cached address if needed.
   if (GetAddress() != m_targ_branch->GetAddress()) {
-    TBranch::SetAddress (m_targ_branch->GetAddress());
+    TBranchObject::SetAddress (m_targ_branch->GetAddress());
     fReadEntry = local_entry;
   }
 
@@ -297,10 +241,10 @@ Int_t TBranchAlias::GetEntry (Long64_t entry, Int_t /*getall = 0*/)
   if (m_fixup) {
     void** objptr = reinterpret_cast<void**> (this->GetAddress());
     if (objptr && *objptr)
-      m_fixup->fixupBeforeAux (*objptr, entry);
+      m_fixup->fixupBeforeAux (*objptr);
   }
 
-  setStore (false, local_entry);
+  setStore (false);
   m_targ_branch->SetStatus (false);
 
   // Clear cached data.
@@ -315,10 +259,8 @@ Int_t TBranchAlias::GetEntry (Long64_t entry, Int_t /*getall = 0*/)
   // Run fixup, if needed.
   if (m_fixup) {
     void** objptr = reinterpret_cast<void**> (this->GetAddress());
-    if (objptr && *objptr) {
-      m_fixup->fixupAfterAux (*objptr, entry);
-      m_dyn_store = 0;  // Force this to be remade next time.
-    }
+    if (objptr && *objptr)
+      m_fixup->fixupAfterAux (*objptr);
   }
 
   // Done.
@@ -337,11 +279,11 @@ void TBranchAlias::SetAddress (void* addr)
   if (checkBranch()) {
     if (addr) {
       m_targ_branch->SetStatus (true);
-      TBranch::SetAddress (addr);
+      TBranchObject::SetAddress (addr);
       m_targ_branch->SetAddress (addr);
       m_targ_branch->SetStatus (false);
     }
-    setStore(false, this->GetReadEntry());
+    setStore(false);
   }
 
   // Clear cached data.
@@ -374,12 +316,6 @@ Bool_t TBranchAlias::Notify()
     return m_notify_chain->Notify();
 
   return true;
-}
-
-
-const char* TBranchAlias::GetClassName() const
-{
-  return m_className.c_str();
 }
 
 
@@ -426,50 +362,25 @@ TBranchAlias::TBranchAlias (TTreeTrans* tree,
                             TTree* targ_tree,
                             const char* targ_branchname,
                             const char* aux_branchname)
-  : TBranch(),
+  : TBranchObject (tree,
+                   name,
+                   alias_fetch_classname (targ_tree, targ_branchname),
+                   &(m_addrtmp = 0)),
     m_trans_tree (tree),
     m_targ_tree (targ_tree),
     m_targ_branchname (targ_branchname),
-    m_targ_branch (nullptr),
-    m_addrtmp (nullptr),
+    m_targ_branch (0),
     m_notify_chain (targ_tree->GetNotify()),
     m_sgkey (tree->stringToKey (key, clid)),
     m_aux_branchname (aux_branchname),
-    m_aux_branch (nullptr),
-    m_dyn_store (nullptr),
+    m_aux_branch (0),
+    m_dyn_store (0),
     m_aux_offset (-1),
     m_holder_offset (-1),
-    m_aux_branch_orig(nullptr),
+    m_aux_branch_orig(0),
     m_holder_offset_orig(-1),
     m_fixup(nullptr)
 {
-  fTree = tree;
-  fMother = this;
-  fParent = nullptr;
-
-  const char* classname = alias_fetch_classname (targ_tree, targ_branchname);
-  TClass* cl = TClass::GetClass (classname);
-  if (!cl) {
-    Error("TBranchAlias", "Cannot find class:%s", classname);
-    return;
-  }
-
-  SetName (name);
-  SetTitle (name);
-
-  fAddress = (char*) &m_addrtmp;
-  m_className = classname;
-
-  TLeaf* leaf = new TLeafObject (this, name, classname);
-  leaf->SetAddress (&m_addrtmp);
-  fNleaves = 1;
-  fLeaves.Add (leaf);
-  tree->GetListOfLeaves()->Add(leaf);
-
-  SetAutoDelete (kTRUE);
-  fDirectory = tree->GetDirectory();
-  fFileName = "";
-  
   // Set up the notification callback.
   targ_tree->SetNotify (this);
 
@@ -508,7 +419,6 @@ void TBranchAlias::findAux()
   TBranch* br_orig = m_targ_tree->GetBranch (m_aux_branchname.c_str());
   if (!br_orig) return;
   TBranch* br = m_trans_tree->GetBranch (m_aux_branchname.c_str());
-  // cppcheck-suppress incorrectLogicOperator
   if (!br || dynamic_cast<TBranchAlias*>(br) != 0)
     br = br_orig;
 
@@ -541,16 +451,15 @@ void TBranchAlias::findAux()
     }
   }
 
-  setStore (false, this->GetReadEntry());
+  setStore (false);
 }
 
 
 /**
  * @brief Set/clear the aux store for our object.
  * @param clear If true, clear the store; otherwise set it if possible.
- * @param entry Entry number being read.
  */
-void TBranchAlias::setStore (bool clear, long long entry)
+void TBranchAlias::setStore (bool clear)
 {
   // Create objects if needed.
   if (m_targ_branch->GetAddress() == 0)
@@ -564,7 +473,7 @@ void TBranchAlias::setStore (bool clear, long long entry)
   if (GetAddress() != m_targ_branch->GetAddress() &&
       m_targ_branch->GetAddress() != 0)
   {
-    TBranch::SetAddress (m_targ_branch->GetAddress());
+    TBranchObject::SetAddress (m_targ_branch->GetAddress());
   }
 
   if (!m_aux_branch || !m_setStore_method.IsValid()) return;
@@ -615,42 +524,15 @@ void TBranchAlias::setStore (bool clear, long long entry)
         reinterpret_cast<SG::IAuxStoreHolder*> (*auxptr + m_holder_offset);
       SG::IAuxStore* store = holder->getStore();
       if (store) store->clearDecorations();
-
-      // cppcheck-suppress incorrectLogicOperator
-      if (store && dynamic_cast<AuxStoreARA*> (store) == nullptr && entry >= 0 &&
-          m_aux_branch == m_aux_branch_orig)
-      {
-        bool standalone =
-          holder->getStoreType() == SG::IAuxStoreHolder::AST_ObjectStore;
-        AuxStoreARA tmpstore (*this,
-                              entry,
-                              standalone);
-        tmpstore.GetEntry (entry);
-        for (SG::auxid_t id : tmpstore.getAuxIDs())
-          tmpstore.getData(id);
-        mergeAuxStore (tmpstore, *store);
-        SG::IConstAuxStore* auxobj =
-          reinterpret_cast<SG::IConstAuxStore*> (*auxptr + m_aux_offset);
-        static_cast<SG::IAuxStore*>(auxobj)->clearDecorations(); // rebuild auxid set
-      }
     }
   }
 }
 
 
-const std::string& TBranchAlias::getName() const
-{
-  return m_targ_branchname;
-}
-
-
-std::vector<SG::IAuxBranches::auxpair_t> TBranchAlias::auxBranches() const
+std::vector<IAuxBranches::auxpair_t> TBranchAlias::auxBranches() const
 {
   std::vector<IAuxBranches::auxpair_t> out;
-  TTree* tree = m_targ_tree;
-  if (TTreeTrans* tt = dynamic_cast<TTreeTrans*> (tree))
-    tree = tt->getPersTree();
-  TIter bit (tree->GetListOfBranches());
+  TIter bit (m_targ_tree->GetListOfBranches());
   while (TObject* br = bit()) {
     if (strncmp (br->GetName(),
                  m_dyn_branch_prefix.c_str(),
@@ -664,7 +546,7 @@ std::vector<SG::IAuxBranches::auxpair_t> TBranchAlias::auxBranches() const
 }
 
 
-TBranch* TBranchAlias::findAuxBranch (SG::auxid_t auxid)
+TBranch* TBranchAlias::findAuxBranch (SG::auxid_t auxid) const
 {
   auto abr_it = m_dyn_branch_map.find(auxid);
   if( abr_it != m_dyn_branch_map.end() ) {
@@ -673,13 +555,6 @@ TBranch* TBranchAlias::findAuxBranch (SG::auxid_t auxid)
 
   std::string attr_name = SG::AuxTypeRegistry::instance().getName(auxid);
   TBranch* branch = m_targ_tree->GetBranch( (m_dyn_branch_prefix + attr_name).c_str() );
-  if (!branch) {
-    TTreeTrans* trans = dynamic_cast<TTreeTrans*> (m_targ_tree);
-    if (trans) {
-      TTree* pers = trans->getPersTree();
-      if (pers) branch = pers->GetBranch( (m_dyn_branch_prefix + attr_name).c_str() );
-    }
-  }
   // remember the result (even null) to not call GetBranch again
   m_dyn_branch_map[auxid] = branch;
   return branch;
@@ -699,12 +574,6 @@ StatusCode TBranchAlias::readAuxBranch (TBranch& br, void* p, long long entry)
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
-}
-
-
-StatusCode TBranchAlias::readAuxBranch (TBranch&, void*, const std::type_info&, long long)
-{
-  std::abort();
 }
 
 
@@ -735,14 +604,14 @@ TClass* TBranchAlias::Class()
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
 void TBranchAlias::ShowMembers (TMemberInspector& R__insp)
 {
-  TBranch::ShowMembers (R__insp);
+  TBranchObject::ShowMembers (R__insp);
 }
 #endif
 
 
 void TBranchAlias::Streamer (TBuffer& b)
 {
-  TBranch::Streamer (b);
+  TBranchObject::Streamer (b);
 }
 
 

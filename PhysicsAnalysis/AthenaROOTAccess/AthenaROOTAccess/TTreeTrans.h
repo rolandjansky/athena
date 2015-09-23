@@ -17,7 +17,7 @@
 #define ATHENAROOTACCESS_TTREETRANS_H
 
 #include "AthenaROOTAccess/TTreeBranchMap.h"
-#include "AthenaKernel/IProxyDict.h"
+#include "SGTools/IProxyDictWithPool.h"
 #include "Rtypes.h"
 #include <set>
 #include <string>
@@ -72,9 +72,12 @@ class TTreeTransDeleter;
  */
 class TTreeTrans
   : public TTreeBranchMap,
-    public IProxyDict
+    public IProxyDictWithPool
 {
 public:
+  /// TEMPORARY
+  using IProxyDict::proxy;
+
   //========================================================================
   /** @name Constructors, destructors, and TTreeTrans unique interface. */
   //@{
@@ -134,7 +137,7 @@ public:
    * The current tree is the one which gets installed as the source
    * when @c ElementLink's are constructed.
    */
-  static IProxyDict* setCurTree (IProxyDict* tree);
+  static IProxyDictWithPool* setCurTree (IProxyDictWithPool* tree);
 
 
   /**
@@ -151,7 +154,7 @@ public:
 
   private:
     /// The previous current tree.
-    IProxyDict* m_saved;
+    IProxyDictWithPool* m_saved;
   };
 
 
@@ -163,12 +166,6 @@ public:
    * On subsequent calls with that name, return true.
    */
   bool sawFile (TFile* file);
-
-
-  /**
-   * @brief Return the associated persistent tree.
-   */
-  TTree* getPersTree() const;
 
 
   //@}
@@ -200,15 +197,9 @@ public:
   void resetBranches();
 
 
-  /**
-   * @brief Set current entry; return local entry.
-   */
-  virtual Long64_t LoadTree(Long64_t entry) override;
-
-
   //@}
   //========================================================================
-  /** @name IProxyDict interface. */
+  /** @name IProxyDictWithPool interface. */
   //@{
 
 
@@ -260,14 +251,12 @@ public:
    * @param obj The data object to store.
    * @param key The key as which it should be stored.
    * @param allowMods If false, the object will be recorded as const.
-   * @param returnExisting If true, return proxy if this key already exists.
    *
    * This shouldn't be used from AthenaROOTAccess, and is unimplemented.
    */
-  virtual SG::DataProxy* recordObject (SG::DataObjectSharedPtr<DataObject> obj,
+  virtual SG::DataProxy* recordObject (std::unique_ptr<DataObject> obj,
                                        const std::string& key,
-                                       bool allowMods,
-                                       bool returnExisting) override;
+                                       bool allowMods) override;
 
 
   /**

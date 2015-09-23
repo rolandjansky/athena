@@ -19,7 +19,7 @@
 #include "AthenaROOTAccess/ISetSGKey.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/MsgStream.h"
-#include "AthenaKernel/IStringPool.h"
+#include "SGTools/IStringPool.h"
 #include "TBranchObject.h"
 #include <map>
 #include <string>
@@ -106,6 +106,9 @@ public:
 
   /**
    * @brief Standard Root notify routine.
+   *
+   * This will be called when we're part of an aux tree,
+   * and the primary tree has switched files.
    */
   virtual Bool_t      Notify();
 
