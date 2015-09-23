@@ -792,13 +792,6 @@ class doBTagging(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-class doFTK(JobProperty):
-    """If false switch off everything related to FTK
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
 
 class doTrigger(JobProperty):
     """ If false switch off everything related to Trigger
@@ -975,19 +968,6 @@ class doExpressProcessing(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-class doPersistencyOptimization(JobProperty):
-    """ Enable optimization POOL/ROOT configuration
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
-
-class doCaloRinger(JobProperty):
-    """ Enable ring-shaped calorimeter reconstruction
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
 
 #
 # Defines a sub-container for the algorithm switches
@@ -1017,9 +997,9 @@ doEdmMonitor, doHist, doJiveXML, doPersint,doVP1, doNameAuditor, \
 doRestrictedESD, doShowSizeStatistics, doTimeLimit, doTruth,\
 doWriteAOD, doWritexAOD, doWriteESD, doWriteBS, doWriteRDO, doWriteTAG, doWriteTAGCOM, PoolTAGCOMOutput, readAOD, readTAG, readRDO, \
 readESD, doDetStatus, AMITag, AutoConfiguration, RunNumber, triggerStream, projectName, \
-doInDet,doLArg,doTile,doCalo,doMuon,doForwardDet,doLucid,doZdc,doAlfa,doAFP,doFwdRegion,doJetMissingETTag,doEgamma,doMuonCombined,doTau,doFTK,doTrigger,doBTagging, Production, doPhysValMonHists, \
+doInDet,doLArg,doTile,doCalo,doMuon,doForwardDet,doLucid,doZdc,doAlfa,doAFP,doFwdRegion,doJetMissingETTag,doEgamma,doMuonCombined,doTau,doTrigger,doBTagging, Production, doPhysValMonHists, \
 doHeavyIon, doHIP, doLowPt, doMinimalRec, noESDTrigger,doFileMetaData,ScopingLevel, Commissioning, oldRecExCommissionConfig, mergingStreamName, LCGCMTVersion, \
-AtlasReleaseVersion, inputFileFromAthenaVersion, doApplyAODFix, doAODSelect, doRDOTrigger, doFastPhysMonitoring, RootFastPhysMonOutput,doWriteCalibHits, doTriggerFilter, triggerFilterList, doContainerRemapping, doPhysicsValidationAugmentation, doESDReconstruction, doExpressProcessing, doPersistencyOptimization, doCaloRinger]
+AtlasReleaseVersion, inputFileFromAthenaVersion, doApplyAODFix, doAODSelect, doRDOTrigger, doFastPhysMonitoring, RootFastPhysMonOutput,doWriteCalibHits, doTriggerFilter, triggerFilterList, doContainerRemapping, doPhysicsValidationAugmentation, doESDReconstruction, doExpressProcessing ]
 for j in _list_Rec:
     jobproperties.Rec.add_JobProperty(j)
 del _list_Rec
