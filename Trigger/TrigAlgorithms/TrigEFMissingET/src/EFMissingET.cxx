@@ -415,6 +415,8 @@ HLT::ErrorCode EFMissingET::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   m_tool_time_LoadCol = 0;
   m_tool_time_Loop = 0;
 
+  m_jets = 0;
+  m_caloCluster = 0;
 
   if(msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "Executing EFMissingET::hltExecute()" << endreq;
@@ -602,7 +604,12 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
 
     
   if(m_doTopoClusters && !m_caloCluster) {  // check if one should process topo. clusters and if pointer is present  
-     msg() << MSG::DEBUG << " Error: configured to run over topo. clusters but no TriggerElement was passed to the FEX -- check menu configuration!! " << endreq;
+     msg() << MSG::INFO << " Error: configured to run over topo. clusters but no TriggerElement was passed to the FEX -- check menu configuration!! " << endreq;
+     return HLT::ERROR;    
+  }
+
+  if(m_doJets && !m_jets) {  // check if one should process jets and if pointer is present  
+     msg() << MSG::INFO << " Error: configured to run over jets but no TriggerElement was passed to the FEX -- check menu configuration!! " << endreq;
      return HLT::ERROR;    
   }
       
