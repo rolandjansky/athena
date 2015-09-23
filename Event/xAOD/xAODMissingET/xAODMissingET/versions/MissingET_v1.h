@@ -24,7 +24,7 @@ namespace xAOD
 
     /*! @name Constructors and destructor */
     /*!@{*/
-    MissingET_v1(bool createStore=false);                                               /*!< @brief Default constructor */
+    explicit MissingET_v1(bool createStore=false);  /*!< @brief Default constructor */
     MissingET_v1(const std::string& name,
 		 MissingETBase::Types::bitmask_t src=MissingETBase::Source::unknown()); /*!< @brief Constructor with identifiers */
     MissingET_v1(const IParticle* particle, const std::string& name="MissingET",

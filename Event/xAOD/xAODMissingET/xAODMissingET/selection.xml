@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 641248 2015-01-23 12:58:17Z khoo $ -->
+<!-- $Id: selection.xml 693950 2015-09-09 15:29:18Z khoo $ -->
 <lcgdict>
 
   <!-- MissingET_v1 dictionaries: -->
@@ -29,12 +29,12 @@
 
   <!-- MissingETAssociation_v1/MissingETAssociationMap_v1 dictionaries: -->
   <class name="xAOD::MissingETAssociation_v1">
-    <field name="m_objsInSum" transient="true" />
     <field name="m_lastObjectPointer" transient="true" />
     <field name="m_lastObjectIndex" transient="true" />
     <field name="m_objConstLinks" transient="true" />
     <field name="m_contribObjects" transient="true" />
     <field name="m_useObjectFlags" transient="true" />
+    <field name="m_override" transient="true" />
   </class>
   <class name="xAOD::MissingETAssociation_v1::ConstVec">
     <field name="m_cpx" transient="true" />
@@ -51,7 +51,9 @@
     <field name="m_lastConstLink" transient="true" />
     <field name="m_miscAssocIndex" transient="true" />
   </class>
+  <!-- Schema evolve aux container -->
   <class name="xAOD::MissingETAuxAssociationMap_v1" id="48EEF1CD-F937-445C-A09C-B978D152868E" />
+  <class name="xAOD::MissingETAuxAssociationMap_v2" id="05184C74-A3CE-4C89-959E-D7E9F0A98D13" />
 
   <!-- Smart pointer dictionaries: -->
   <class name="DataLink<xAOD::MissingETContainer_v1>" />
@@ -72,8 +74,11 @@
   <class name="std::vector<ElementLink<xAOD::MissingETAssociationMap_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::MissingETAssociationMap_v1> > >" />
 
+  <class name="std::vector<std::vector<unsigned long long> >" />
+  <class name="std::vector<std::vector<std::vector<size_t> > >" />
   <class name="std::vector<std::vector<std::vector<unsigned long> > >" />
   <class name="std::vector<std::vector<std::vector<unsigned char> > >" />
+  <class name="std::vector<std::vector<std::vector<unsigned long long> > >" />
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->

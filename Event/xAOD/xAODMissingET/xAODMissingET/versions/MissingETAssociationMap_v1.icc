@@ -17,32 +17,32 @@ inline void xAOD::MissingETAssociationMap_v1::resetCache() const
 }
 
 inline void xAOD::MissingETAssociationMap_v1::resize(xAOD::MissingETAssociationMap_v1::size_type sz)
-{ this->resetCache(); DataVector::resize(sz); }
+{ this->resetCache(); this->resetAssocCache(); DataVector<MissingETAssociation_v1>::resize(sz); }
 
 inline void xAOD::MissingETAssociationMap_v1::pop_back()
-{ this->resetCache(); DataVector::pop_back(); }
+{ this->resetCache(); this->resetAssocCache(); DataVector<MissingETAssociation_v1>::pop_back(); }
 
 inline void xAOD::MissingETAssociationMap_v1::sort()
-{ this->resetCache(); DataVector::sort(); }
+{ this->resetCache(); this->resetAssocCache(); DataVector<MissingETAssociation_v1>::sort(); }
 
 template<class COMPARE> inline void xAOD::MissingETAssociationMap_v1::sort(COMPARE comp)
-{ this->resetCache(); DataVector::sort(comp); }
+{ this->resetCache(); this->resetAssocCache(); DataVector<MissingETAssociation_v1>::sort(comp); }
 
 inline void xAOD::MissingETAssociationMap_v1::clear()
-{ this->resetCache(); DataVector::clear(); }
+{ this->resetCache(); this->resetAssocCache(); DataVector<MissingETAssociation_v1>::clear(); }
 
 inline void xAOD::MissingETAssociationMap_v1::clear (SG::OwnershipPolicy ownPolicy)
-{ this->resetCache(); DataVector::clear(ownPolicy); }
+{ this->resetCache(); this->resetAssocCache(); DataVector<MissingETAssociation_v1>::clear(ownPolicy); }
 
 inline void xAOD::MissingETAssociationMap_v1::clear (SG::OwnershipPolicy ownPolicy,SG::IndexTrackingPolicy trackIndices)
-{ this->resetCache(); DataVector::clear(ownPolicy,trackIndices); }
+{ this->resetCache(); this->resetAssocCache(); DataVector<MissingETAssociation_v1>::clear(ownPolicy,trackIndices); }
 
 inline xAOD::MissingETAssociationMap_v1::iterator xAOD::MissingETAssociationMap_v1::erase(xAOD::MissingETAssociationMap_v1::iterator position)
-{ this->resetCache(); return DataVector::erase(position); }
+{ this->resetCache(); this->resetAssocCache(); return DataVector<MissingETAssociation_v1>::erase(position); }
 
 inline xAOD::MissingETAssociationMap_v1::iterator xAOD::MissingETAssociationMap_v1::erase(xAOD::MissingETAssociationMap_v1::iterator first,
 											  xAOD::MissingETAssociationMap_v1::iterator last)
-{ this->resetCache(); return DataVector::erase(first, last); }
+{ this->resetCache(); this->resetAssocCache(); return DataVector<MissingETAssociation_v1>::erase(first, last); }
 
 ///////////////////////////////////////////////////////////////
 // The rest of the file contains doxygen documentation only! //

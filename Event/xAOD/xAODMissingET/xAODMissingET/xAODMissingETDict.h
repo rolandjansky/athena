@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODMissingETDict.h 637597 2015-01-03 01:35:01Z khoo $
+// $Id: xAODMissingETDict.h 693950 2015-09-09 15:29:18Z khoo $
 #ifndef XAODMISSINGET_XAODMISSINGETDICT_H
 #define XAODMISSINGET_XAODMISSINGETDICT_H
 
@@ -27,6 +27,7 @@
 #include "xAODMissingET/MissingETAuxComponentMap.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODMissingET/MissingETAuxAssociationMap.h"
+#include "xAODMissingET/versions/MissingETAuxAssociationMap_v1.h"
 #include "xAODMissingET/versions/MissingETBase.h"
 
 namespace {
@@ -60,12 +61,16 @@ namespace {
       ElementLink< xAOD::IParticleContainer > el10;
       std::vector< ElementLink< xAOD::IParticleContainer > > el11;
       std::vector< std::vector< ElementLink< xAOD::IParticleContainer > > > el12;
+
       std::vector< MissingETBase::Types::bitmask_t > vec1;
       std::vector< unsigned long long > vec2;
       std::vector< std::vector< size_t > > vec3;
       std::vector< std::vector< unsigned char > > vec4;
-      std::vector< std::vector< std::vector< unsigned long > > > vec5;
-      std::vector< std::vector< std::vector< unsigned char > > > vec6;
+      std::vector< std::vector< unsigned long long > > vec5;
+      std::vector< std::vector< std::vector< size_t > > > vec6;
+      std::vector< std::vector< std::vector< unsigned long > > > vec7;
+      std::vector< std::vector< std::vector< unsigned char > > > vec8;
+      std::vector< std::vector<std::vector<unsigned long long> > > vec9;
    };
 }
 

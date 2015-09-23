@@ -158,11 +158,17 @@ namespace xAOD
     iterator erase(iterator position);
     iterator erase(iterator first, iterator last);
 
+    /*! @name Reset mutable map flags */
+    /*!@{*/
+    void resetObjSelectionFlags() const;
+    /*@}*/
+    void resetAssocCache() const;
+
   protected:
 
-    void f_setJetConstMap(std::map<ElementLink<IParticleContainer>, size_t/*, lessEL*/> map);
+    void f_setJetConstMap(std::map<ElementLink<IParticleContainer>, size_t> map);
     void f_clearJetConstMap();
-    mutable std::map<ElementLink<IParticleContainer>, size_t/*, lessEL*/> m_jetConstLinks;  /*!< @brief Map jet constituents to the jet index */
+    mutable std::map<ElementLink<IParticleContainer>, size_t> m_jetConstLinks;  /*!< @brief Map jet constituents to the jet index */
 
     /*! @name Internal find methods for constant access */
     /*!@{*/

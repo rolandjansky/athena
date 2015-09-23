@@ -7,12 +7,12 @@
 #ifndef XAODMISSINGET_MISSINGETAUXASSOCIATIONMAP_H
 #define XAODMISSINGET_MISSINGETAUXASSOCIATIONMAP_H
 
-#include "xAODMissingET/versions/MissingETAuxAssociationMap_v1.h"
+#include "xAODMissingET/versions/MissingETAuxAssociationMap_v2.h"
 
 namespace xAOD
 {
   /*! @brief Version control by type definition */
-  typedef MissingETAuxAssociationMap_v1 MissingETAuxAssociationMap;
+  typedef MissingETAuxAssociationMap_v2 MissingETAuxAssociationMap;
 }
 
 #include "xAODCore/CLASS_DEF.h"

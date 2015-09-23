@@ -114,7 +114,7 @@ void MissingETAssociationMap_v1::f_setCache(iterator fAssoc)
 // Cache of jet links //
 ////////////////////////
 
-void MissingETAssociationMap_v1::f_setJetConstMap(std::map<ElementLink<IParticleContainer>, size_t/*, lessEL*/> map)
+void MissingETAssociationMap_v1::f_setJetConstMap(std::map<ElementLink<IParticleContainer>, size_t> map)
 {
   m_jetConstLinks.clear();
   m_jetConstLinks = map;
@@ -143,16 +143,6 @@ bool MissingETAssociationMap_v1::setJetConstituents(const std::vector<ElementLin
   if(setConst) {
     for(std::vector<ElementLink<IParticleContainer> >::const_iterator iEL=constLinks.begin();
 	iEL!=constLinks.end(); ++iEL) {
-      // if((**iEL)->type()==xAOD::Type::CaloCluster) {
-      // 	printf("Jet %lu --> EL to cluster: pt %f eta %f phi %f\n",jetIndex,
-      // 	       (**iEL)->pt(),(**iEL)->eta(),(**iEL)->phi());
-      // } if((**iEL)->type()==xAOD::Type::TrackParticle) {
-      // 	printf("Jet %lu --> EL to track: pt %f eta %f phi %f\n",jetIndex,
-      // 	       (**iEL)->pt(),(**iEL)->eta(),(**iEL)->phi());
-      // } if((**iEL)->type()==xAOD::Type::ParticleFlow) {
-      // 	printf("Jet %lu --> EL to pfo: pt %f eta %f phi %f\n",jetIndex,
-      // 	       (**iEL)->pt(),(**iEL)->eta(),(**iEL)->phi());
-      // } 
       m_jetConstLinks[*iEL] = jetIndex;
     }
   }
@@ -215,11 +205,12 @@ size_t MissingETAssociationMap_v1::findIndexByJetConst(ElementLink<IParticleCont
   //   objindex = (*m_lastConstLink)->index();
   //   printf("METAssociationMap: Last constLink is to object type %i #%lu\n",objtype,objindex);
   // }
-  if(m_lastConstLink.isValid() && constLink==m_lastConstLink) {
+  if(m_lastConstLink.isValid() && *constLink==*m_lastConstLink) {
     // printf("METAssociationMap: Matched!");
     index = m_lastContribIndex;
   } else {
     std::map<ElementLink<IParticleContainer>, size_t>::const_iterator iConstMap = m_jetConstLinks.find(constLink);
+    if (iConstMap==m_jetConstLinks.end()) for (std::map<ElementLink<IParticleContainer>, size_t>::const_iterator jConstMap = m_jetConstLinks.begin(); jConstMap!=m_jetConstLinks.end(); jConstMap++) if (*(jConstMap->first)==*constLink) iConstMap = jConstMap;
     if(iConstMap!=m_jetConstLinks.end()) {
       index = iConstMap->second;
       m_lastConstLink = constLink;
@@ -293,10 +284,14 @@ const xAOD::IParticleContainer* MissingETAssociationMap_v1::getUniqueSignals(con
     case MissingETBase::UsageHandler::ParticleFlow:
       if((*iSig)->type()==xAOD::Type::ParticleFlow) {break;}
       else {continue;}
+    case MissingETBase::UsageHandler::TruthParticle:
+      if((*iSig)->type()==xAOD::Type::TruthParticle) {break;}
+      else {continue;}
     default: continue;
     }
 
     size_t assocIndex = findIndexByJetConst(*iSig);
+    // printf("Cluster %lu (%p) ==> assoc %lu\n",(*iSig)->index(), (void*) *iSig, assocIndex);
     if(assocIndex==MissingETBase::Numerical::invalidIndex()) {
       // test misc association
       const MissingETAssociation_v1* assoc = this->getMiscAssociation();
@@ -304,8 +299,11 @@ const xAOD::IParticleContainer* MissingETAssociationMap_v1::getUniqueSignals(con
       	uniques->push_back(*iSig);
       } else {
       	if(!assoc->containsSignal(*iSig)) {
+	  // printf("Cluster is unique\n");
       	  uniques->push_back(*iSig);
-      	}
+      	} else {
+	  // printf("Cluster is in misc\n");
+	}
       }
     } // add if not associated to any jet
   }
@@ -341,3 +339,16 @@ const xAOD::IParticleContainer* MissingETAssociationMap_v1::getOverlapRemovedSig
   return uniques->asDataVector();
 }
 
+void xAOD::MissingETAssociationMap_v1::resetObjSelectionFlags() const
+{
+  for(const auto& assoc : *this) {
+    assoc->resetObjSelectionFlags();
+  }
+}
+
+void xAOD::MissingETAssociationMap_v1::resetAssocCache() const
+{
+  for(const auto& assoc : *this) {
+    assoc->resetCache();
+  }
+}

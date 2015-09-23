@@ -504,6 +504,7 @@ namespace MissingETBase
 
       static bool unknown() { return UnknownCategory; }
     };
+
 } // namespace MissingETBase
 
 /* @file MissingETBase.h

@@ -114,14 +114,16 @@ MissingETComponent_v1::MissingETComponent_v1(const MissingETComponent_v1& compDe
 
 MissingETComponent_v1& MissingETComponent_v1::operator=(const MissingETComponent_v1& compDescr)
 { 
-  m_lastObjectPointer = compDescr.m_lastObjectPointer;
-  m_lastObjectIndex   = compDescr.m_lastObjectIndex;
-  this->setStatusWord(compDescr.statusWord());
-  this->setMetLink(compDescr.metLink());
-  this->setObjectLinks(compDescr.objectLinks());
-  this->setWpx(compDescr.wpx());
-  this->setWpy(compDescr.wpy());
-  this->setWet(compDescr.wet());  
+  if((&compDescr) != this) {
+    m_lastObjectPointer = compDescr.m_lastObjectPointer;
+    m_lastObjectIndex   = compDescr.m_lastObjectIndex;
+    this->setStatusWord(compDescr.statusWord());
+    this->setMetLink(compDescr.metLink());
+    this->setObjectLinks(compDescr.objectLinks());
+    this->setWpx(compDescr.wpx());
+    this->setWpy(compDescr.wpy());
+    this->setWet(compDescr.wet());  
+  }
   return  *this;
 }
 
