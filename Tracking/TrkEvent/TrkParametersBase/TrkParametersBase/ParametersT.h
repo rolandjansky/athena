@@ -11,6 +11,7 @@
 
 // Trk includes
 #include "TrkParametersBase/ParametersBase.h"
+#include "TrkParametersBase/SurfaceUniquePtrT.h"
 #include "TrkEventPrimitives/DefinedParameter.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -68,6 +69,13 @@ namespace Trk {
       /** Constructor with local arguments - uses global <-> local for parameters */
       ParametersT (const AmgVector(DIM)& parameters,
                    const S& surface,
+                   AmgSymMatrix(DIM)* covariance = 0);
+  
+      /** Constructor with local arguments - uses global <-> local for parameters.
+          Takes ownership of the surface.
+          Meant for use by P->T conversion. */
+      ParametersT (const AmgVector(DIM)& parameters,
+                   SurfaceUniquePtrT<const S> surface,
                    AmgSymMatrix(DIM)* covariance = 0);
   
       /** Constructor with mixed arguments 1 - uses global <-> local for parameters */

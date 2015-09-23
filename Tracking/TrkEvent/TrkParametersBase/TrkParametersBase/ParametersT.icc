@@ -123,6 +123,14 @@ template <int DIM, class T, class S> Trk::ParametersT<DIM, T, S>::ParametersT
    ParametersBase<DIM,T>::m_parameters << lPosition[Trk::loc1], lPosition[Trk::loc2], phi, theta, qop;   
 }
           
+template <int DIM, class T, class S> Trk::ParametersT<DIM, T, S>::ParametersT 
+    (const AmgVector(DIM)& parameters,
+     SurfaceUniquePtrT<const S> surface,
+     AmgSymMatrix(DIM)* covariance) :
+      ParametersT (parameters, surface.release(), covariance)
+{  
+}
+         
 // Constructor with mixed arguments 2 - uses global <-> local for parameters 
 template <int DIM, class T, class S> Trk::ParametersT<DIM, T, S>::ParametersT 
     (double loc1, double loc2,
@@ -211,7 +219,7 @@ template <int DIM, class T, class S> Trk::ParametersT<DIM, T, S>::~ParametersT (
     if ( m_surface && m_surface->isFree() ) delete m_surface; m_surface = 0;                  
 }
 
-// PROTECTED Constructor with local arguments - persistency only, ownersip of surface given
+// PROTECTED Constructor with local arguments - persistency only, ownership of surface given
 template <int DIM, class T, class S> Trk::ParametersT<DIM, T, S>::ParametersT 
     (const AmgVector(DIM)& parameters,
      const S* surface,

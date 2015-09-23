@@ -33,6 +33,9 @@ class Charged : public ChargeDefinition
     Charged( const Charged& chdef) :
      ChargeDefinition(chdef)
      {}
+     
+     ///Assignment
+     Charged & operator=(const Charged & rhs) = default; 
     
     /** Destructor */
     virtual ~Charged(){}

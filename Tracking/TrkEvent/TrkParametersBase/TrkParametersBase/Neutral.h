@@ -33,6 +33,9 @@ class Neutral : public ChargeDefinition
     Neutral( const Neutral& chdef) :
      ChargeDefinition(chdef)
      {}
+     
+    ///Assignment 
+    Neutral & operator=(const Neutral & rhs) = default;
 
     /** Destructor */
     virtual ~Neutral(){}

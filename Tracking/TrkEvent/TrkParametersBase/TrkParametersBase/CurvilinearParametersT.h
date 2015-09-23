@@ -120,14 +120,16 @@ template <int DIM, class T, class S> class CurvilinearParametersT : public Param
     /** --- PRIVATE METHOD: access is controlled via friend list 
         Update method for single defined parameters parameters,
         this deletes the covariance and overwrites if the pointer value differs  */ 
+    virtual
     void updateParameter(DefinedParameter updatedParameter,
-                         AmgSymMatrix(DIM)* updatedCovariance = 0) const;
+                         AmgSymMatrix(DIM)* updatedCovariance = 0) const override;
                                  
     /** ---- PRIVATE METHOD: access is controlled via friend list 
         Update method for measurement parameter update and material effects update,
         this deletes the covariance and overwrites if the pointer value differs  */ 
+    virtual
     void updateParameters(const AmgVector(DIM)& updatedParameters,
-                          AmgSymMatrix(DIM)* updatedCovariance = 0) const;
+                          AmgSymMatrix(DIM)* updatedCovariance = 0) const override;
 
     /** helper method for the curvilinear frame */
     mutable CurvilinearUVT  m_curvilinearFrame;  
