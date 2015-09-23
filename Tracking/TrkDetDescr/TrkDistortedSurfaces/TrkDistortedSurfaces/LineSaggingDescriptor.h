@@ -9,9 +9,9 @@
 #ifndef TRKDISTORTEDSURFACES_LINESAGGINGDESCRIPTOR_H
 #define TRKDISTORTEDSURFACES_LINESAGGINGDESCRIPTOR_H
 
-//STL
-#include <iosfwd>
-//#include <iomanip>
+//STD
+#include <iostream>
+#include <iomanip>
 
 //GaudiKernel
 #include "GaudiKernel/MsgStream.h"
@@ -35,9 +35,7 @@ namespace Trk {
     public:
 
       /**Default Constructor*/
-      LineSaggingDescriptor():m_wireLength{},m_wireTension{},m_linearDensity{}{
-        //nop
-      }
+      LineSaggingDescriptor(){}
 
       /** Constructor  with arguments */
       LineSaggingDescriptor(double wireLength, 
