@@ -264,7 +264,7 @@ TileCalibUtils::fixedPointPrecision(float val, unsigned int nBits)
   int   scale  = 0;
   float absVal = std::fabs(val);
   if(absVal != 0.){
-    scale = static_cast<int>( ::truncf(std::log((std::pow(2., static_cast<int>(nBits)) - 1.)/absVal)/std::log(2.)) );
+    scale = static_cast<int>( ::truncf(std::log((std::pow(2., static_cast<int>(nBits)) - 1.)/absVal)*(1./std::log(2.))) );
   }
   //=== return input value with fixed point precision
   return ::roundf(val * std::pow(2., scale)) / std::pow(2., scale);
