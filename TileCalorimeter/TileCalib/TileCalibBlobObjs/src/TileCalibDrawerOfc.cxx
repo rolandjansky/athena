@@ -113,13 +113,9 @@ void TileCalibDrawerOfc::init(uint16_t objVersion
   }
   
   //=== initialize rest of blob to zero
-  union {
-    unsigned int ii;
-    float ff;
-  } zero;
-  zero.ff = 0;
+  float* pf = reinterpret_cast<float*>(pi);
   for(unsigned int i = 0; i < blobLengthUint32 - (m_hdrSize32 + extraHeaderSize+phasesSize); ++i){
-    *(++pi) = zero.ii;
+    *(++pf) = float(0.); 
   }
 }
 
@@ -130,7 +126,7 @@ void TileCalibDrawerOfc::setPhases(unsigned int channel, unsigned int adc, const
 
   std::set<int32_t> phaseSet;
   for (const float phase : phases) {
-    phaseSet.insert((int32_t) std::round(phase * (1 / PHASE_PRECISION))); // Phases are stored as int(10*phase) in DB  
+    phaseSet.insert((int32_t) round(phase * (1 / PHASE_PRECISION))); // Phases are stored as int(10*phase) in DB  
   }
 
   if(int(phaseSet.size()) != std::abs(getNPhases())){
