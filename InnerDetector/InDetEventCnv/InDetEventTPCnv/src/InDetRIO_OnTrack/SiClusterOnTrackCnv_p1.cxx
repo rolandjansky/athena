@@ -8,7 +8,12 @@
 //
 //-----------------------------------------------------------------------------
 
+#define private public
+#define protected public
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
+#undef private
+#undef protected
+
 #include "InDetEventTPCnv/InDetRIO_OnTrack/SiClusterOnTrackCnv_p1.h"
 //#include "TrkEventTPCnv/helpers/CLHEPHelpers.h"
 //#include "CLHEP/Geometry/Point3D.h"

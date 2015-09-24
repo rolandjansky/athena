@@ -47,6 +47,7 @@ protected:
 
 private:
   const PixelID *m_pixId;
+  StoreGateSvc *m_storeGate;
   bool m_isInitialized;
   StatusCode initialize(MsgStream &log);
 

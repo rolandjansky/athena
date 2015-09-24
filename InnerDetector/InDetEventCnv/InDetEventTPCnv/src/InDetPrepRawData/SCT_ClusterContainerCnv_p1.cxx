@@ -2,10 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "InDetPrepRawData/SCT_Cluster.h"
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetEventTPCnv/InDetPrepRawData/SiCluster_p1.h"
 #include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Container_p1.h"
+#undef private
+#undef protected
+
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetEventTPCnv/InDetPrepRawData/SCT_ClusterCnv_p1.h"
@@ -55,11 +60,11 @@ void InDet::SCT_ClusterContainerCnv_p1::transToPers(const InDet::SCT_ClusterCont
     unsigned int chanBegin = 0;
     unsigned int chanEnd = 0;
     persCont->m_collections.resize(transCont->numberOfCollections());
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
+//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endreq;
   
     for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
         // Add in new collection
-//         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endmsg;
+//         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endreq;
         const InDet::SCT_ClusterCollection& collection = (**it_Coll);
         chanBegin  = chanEnd;
         chanEnd   += collection.size();
@@ -75,7 +80,7 @@ void InDet::SCT_ClusterContainerCnv_p1::transToPers(const InDet::SCT_ClusterCont
             persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)0, chan, log );
         }
     }
-//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing SCT_ClusterContainer ***" << endmsg;
+//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing SCT_ClusterContainer ***" << endreq;
 }
 
 void  InDet::SCT_ClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Container_p1* persCont, InDet::SCT_ClusterContainer* transCont, MsgStream &log) 
@@ -101,13 +106,13 @@ void  InDet::SCT_ClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Conta
     SCT_ClusterCnv_p1  chanCnv;
     typedef ITPConverterFor<Trk::PrepRawData> CONV;
 
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endmsg;
+//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endreq;
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {
 
         // Create trans collection - is NOT owner of SCT_Cluster (SG::VIEW_ELEMENTS)
 	// IDet collection don't have the Ownership policy c'tor
         const InDet::InDetPRD_Collection_p1& pcoll = persCont->m_collections[icoll];        
-        //Identifier collID(Identifier(pcoll.m_id));
+        Identifier collID(Identifier(pcoll.m_id));
         IdentifierHash collIDHash(IdentifierHash(pcoll.m_hashId));
         coll = new InDet::SCT_ClusterCollection(collIDHash);
         coll->setIdentifier(Identifier(pcoll.m_id));
@@ -129,11 +134,11 @@ void  InDet::SCT_ClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Conta
         }
 //         if (log.level() <= MSG::DEBUG) {
 //             log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << 
-// collID.get_compact() << ", added to Identifiable container." << endmsg;
+// collID.get_compact() << ", added to Identifiable container." << endreq;
 //         }
     }
 
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading SCT_ClusterContainer" << endmsg;
+//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading SCT_ClusterContainer" << endreq;
 }
 
 
@@ -143,7 +148,7 @@ InDet::SCT_ClusterContainer* InDet::SCT_ClusterContainerCnv_p1::createTransient(
 {
     if(!m_isInitialized) {
      if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize SCT_ClusterContainerCnv_p1 " << endmsg;
+      log << MSG::FATAL << "Could not initialize SCT_ClusterContainerCnv_p1 " << endreq;
      } 
     }
     std::auto_ptr<InDet::SCT_ClusterContainer> trans(new InDet::SCT_ClusterContainer(m_sctId->wafer_hash_max()));
@@ -160,7 +165,7 @@ StatusCode InDet::SCT_ClusterContainerCnv_p1::initialize(MsgStream &log) {
    // get StoreGate service
    StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
    if (sc.isFailure()) {
-      log << MSG::FATAL << "StoreGate service not found !" << endmsg;
+      log << MSG::FATAL << "StoreGate service not found !" << endreq;
       return StatusCode::FAILURE;
    }
 
@@ -168,29 +173,29 @@ StatusCode InDet::SCT_ClusterContainerCnv_p1::initialize(MsgStream &log) {
    StoreGateSvc *detStore;
    sc = svcLocator->service("DetectorStore", detStore);
    if (sc.isFailure()) {
-      log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
+      log << MSG::FATAL << "DetectorStore service not found !" << endreq;
       return StatusCode::FAILURE;
    } 
    //   else {
-   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
+   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endreq;
    //   }
 
    // Get the SCT helper from the detector store
    sc = detStore->retrieve(m_sctId, "SCT_ID");
    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get SCT_ID helper !" << endmsg;
+      log << MSG::FATAL << "Could not get SCT_ID helper !" << endreq;
       return StatusCode::FAILURE;
    } 
    //   else {
-   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the SCT_ID helper." << endmsg;
+   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the SCT_ID helper." << endreq;
    //   }
 
    sc = detStore->retrieve(m_sctMgr);
    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get SCT_DetectorDescription" << endmsg;
+      log << MSG::FATAL << "Could not get SCT_DetectorDescription" << endreq;
       return sc;
    }
 
-   //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
+   //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
    return StatusCode::SUCCESS;
 }

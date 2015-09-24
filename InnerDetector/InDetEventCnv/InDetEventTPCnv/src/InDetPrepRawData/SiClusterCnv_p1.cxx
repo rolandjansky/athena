@@ -8,14 +8,20 @@
 //
 //-----------------------------------------------------------------------------
 
+#define private public
+#define protected public
 #include "InDetPrepRawData/SiCluster.h"
+#undef private
+#undef protected
+
+
 #include "InDetEventTPCnv/InDetPrepRawData/SiClusterCnv_p1.h"
 
 
 void SiClusterCnv_p1::
 persToTrans( const InDet::SiCluster_p1 *persObj, InDet::SiCluster *transObj, MsgStream &log) 
 {
-//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In SiCluster::persToTrans" << endmsg;
+//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In SiCluster::persToTrans" << endreq;
   fillTransFromPStore( &m_rawDataCnv, persObj->m_rawData, transObj, log );
   fillTransFromPStore( &m_swCnv, persObj->m_width, &transObj->m_width, log );
 }
@@ -23,9 +29,9 @@ persToTrans( const InDet::SiCluster_p1 *persObj, InDet::SiCluster *transObj, Msg
 
 void SiClusterCnv_p1::transToPers( const InDet::SiCluster *transObj, InDet::SiCluster_p1 *persObj, MsgStream &log )
 {
-//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In SiCluster::transToPers" << endmsg;
+//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "In SiCluster::transToPers" << endreq;
    persObj->m_rawData = baseToPersistent( &m_rawDataCnv, transObj, log );
-   persObj->m_width = toPersistent( &m_swCnv, &transObj->width(), log );
+   persObj->m_width = toPersistent( &m_swCnv, &transObj->m_width, log );
 }
 
 

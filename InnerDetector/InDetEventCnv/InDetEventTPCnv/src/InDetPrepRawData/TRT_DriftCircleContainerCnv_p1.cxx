@@ -2,15 +2,19 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetEventTPCnv/InDetPrepRawData/TRT_DriftCircle_p1.h"
 #include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Container_p1.h"
+#undef private
+#undef protected
+
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetEventTPCnv/InDetPrepRawData/TRT_DriftCircleCnv_p1.h"
 #include "InDetEventTPCnv/InDetPrepRawData/TRT_DriftCircleContainerCnv_p1.h"
-#include "AthenaKernel/errorcheck.h"
 
 // Gaudi
 #include "GaudiKernel/ISvcLocator.h"
@@ -56,7 +60,7 @@ void InDet::TRT_DriftCircleContainerCnv_p1::transToPers(const InDet::TRT_DriftCi
     unsigned int chanBegin = 0;
     unsigned int chanEnd = 0;
     persCont->m_collections.resize(transCont->numberOfCollections());
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
+//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endreq;
   
     for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
         // Add in new collection
@@ -75,7 +79,7 @@ void InDet::TRT_DriftCircleContainerCnv_p1::transToPers(const InDet::TRT_DriftCi
             persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)0, chan, log );
         }
     }
-//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing TRT_DriftCircleContainer ***" << endmsg;
+//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing TRT_DriftCircleContainer ***" << endreq;
 }
 
 void  InDet::TRT_DriftCircleContainerCnv_p1::persToTrans(const InDet::InDetPRD_Container_p1* persCont, InDet::TRT_DriftCircleContainer* transCont, MsgStream &log) 
@@ -101,13 +105,13 @@ void  InDet::TRT_DriftCircleContainerCnv_p1::persToTrans(const InDet::InDetPRD_C
     TRT_DriftCircleCnv_p1  chanCnv;
     typedef ITPConverterFor<Trk::PrepRawData> CONV;
 
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endmsg;
+//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endreq;
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {
 
         // Create trans collection - is NOT owner of TRT_DriftCircle (SG::VIEW_ELEMENTS)
 	// IDet collection don't have the Ownership policy c'tor
         const InDet::InDetPRD_Collection_p1& pcoll = persCont->m_collections[icoll];        
-        //Identifier collID(Identifier(pcoll.m_id));
+        Identifier collID(Identifier(pcoll.m_id));
         IdentifierHash collIDHash(IdentifierHash(pcoll.m_hashId));
         coll = new InDet::TRT_DriftCircleCollection(collIDHash);
         coll->setIdentifier(Identifier(pcoll.m_id));
@@ -131,11 +135,11 @@ void  InDet::TRT_DriftCircleContainerCnv_p1::persToTrans(const InDet::InDetPRD_C
         }
 //         if (log.level() <= MSG::DEBUG) {
 //             log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << 
-// collID.get_compact() << ", added to Identifiable container." << endmsg;
+// collID.get_compact() << ", added to Identifiable container." << endreq;
 //         }
     }
 
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading TRT_DriftCircleContainer" << endmsg;
+//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading TRT_DriftCircleContainer" << endreq;
 }
 
 
@@ -144,7 +148,7 @@ void  InDet::TRT_DriftCircleContainerCnv_p1::persToTrans(const InDet::InDetPRD_C
 InDet::TRT_DriftCircleContainer* InDet::TRT_DriftCircleContainerCnv_p1::createTransient(const InDet::InDetPRD_Container_p1* persObj, MsgStream& log) {
     if(!m_isInitialized) {
      if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize TRT_DriftCircleContainerCnv_p1 " << endmsg;
+      log << MSG::FATAL << "Could not initialize TRT_DriftCircleContainerCnv_p1 " << endreq;
      } 
     }
     std::auto_ptr<InDet::TRT_DriftCircleContainer> trans(new InDet::TRT_DriftCircleContainer(m_trtId->module_hash_max()));
@@ -152,16 +156,46 @@ InDet::TRT_DriftCircleContainer* InDet::TRT_DriftCircleContainerCnv_p1::createTr
     return(trans.release());
 }
 
-StatusCode InDet::TRT_DriftCircleContainerCnv_p1::initialize(MsgStream &/*log*/) {
+StatusCode InDet::TRT_DriftCircleContainerCnv_p1::initialize(MsgStream &log) {
    // Do not initialize again:
    m_isInitialized=true;
    
    // Get Storegate, ID helpers, and so on
    ISvcLocator* svcLocator = Gaudi::svcLocator();
+   // get StoreGate service
+   StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
+   if (sc.isFailure()) {
+      log << MSG::FATAL << "StoreGate service not found !" << endreq;
+      return StatusCode::FAILURE;
+   }
 
-   StoreGateSvc *detStore = nullptr;
-   CHECK( svcLocator->service("DetectorStore", detStore) );
-   CHECK( detStore->retrieve(m_trtId, "TRT_ID") );
-   CHECK( detStore->retrieve(m_trtMgr) );
+   // get DetectorStore service
+   StoreGateSvc *detStore;
+   sc = svcLocator->service("DetectorStore", detStore);
+   if (sc.isFailure()) {
+      log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+      return StatusCode::FAILURE;
+   } 
+   //   else {
+   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endreq;
+   //   }
+
+   // Get the trt helper from the detector store
+   sc = detStore->retrieve(m_trtId, "TRT_ID");
+   if (sc.isFailure()) {
+      log << MSG::FATAL << "Could not get TRT_ID helper !" << endreq;
+      return StatusCode::FAILURE;
+   } 
+   //   else {
+   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the TRT_ID helper." << endreq;
+   //   }
+
+   sc = detStore->retrieve(m_trtMgr);
+   if (sc.isFailure()) {
+      log << MSG::FATAL << "Could not get TRT_DetectorDescription" << endreq;
+      return sc;
+   }
+
+   //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
    return StatusCode::SUCCESS;
 }

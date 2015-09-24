@@ -2,10 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelCluster_p1.h"
 #include "InDetEventTPCnv/InDetPrepRawData/InDetPRD_Container_p1.h"
+#undef private
+#undef protected
+
 #include "InDetIdentifier/PixelID.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetEventTPCnv/InDetPrepRawData/PixelClusterCnv_p1.h"
@@ -57,11 +62,11 @@ void InDet::PixelClusterContainerCnv_p1::transToPers(const InDet::PixelClusterCo
     unsigned int chanBegin = 0;
     unsigned int chanEnd = 0;
     persCont->m_collections.resize(transCont->numberOfCollections());
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endmsg;
+//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Preparing " << persCont->m_collections.size() << "Collections" << endreq;
   
     for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
         // Add in new collection
-//         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endmsg;
+//         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " New collection" << endreq;
         const InDet::PixelClusterCollection& collection = (**it_Coll);
         chanBegin  = chanEnd;
         chanEnd   += collection.size();
@@ -77,7 +82,7 @@ void InDet::PixelClusterContainerCnv_p1::transToPers(const InDet::PixelClusterCo
             persCont->m_PRD[i + chanBegin] = toPersistent((CONV**)0, chan, log );
         }
     }
-//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing PixelClusterContainer ***" << endmsg;
+//   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Writing PixelClusterContainer ***" << endreq;
 }
 
 void  InDet::PixelClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Container_p1* persCont, InDet::PixelClusterContainer* transCont, MsgStream &log) 
@@ -103,13 +108,13 @@ void  InDet::PixelClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Cont
     PixelClusterCnv_p1  chanCnv;
     typedef ITPConverterFor<Trk::PrepRawData> CONV;
 
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endmsg;
+//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " Reading " << persCont->m_collections.size() << "Collections" << endreq;
     for (unsigned int icoll = 0; icoll < persCont->m_collections.size(); ++icoll) {
 
         // Create trans collection - is NOT owner of PixelCluster (SG::VIEW_ELEMENTS)
 	// IDet collection don't have the Ownership policy c'tor
         const InDet::InDetPRD_Collection_p1& pcoll = persCont->m_collections[icoll];        
-        //Identifier collID(Identifier(pcoll.m_id));
+        Identifier collID(Identifier(pcoll.m_id));
         IdentifierHash collIDHash(IdentifierHash(pcoll.m_hashId));
         coll = new InDet::PixelClusterCollection(collIDHash);
         coll->setIdentifier(Identifier(pcoll.m_id));
@@ -131,11 +136,11 @@ void  InDet::PixelClusterContainerCnv_p1::persToTrans(const InDet::InDetPRD_Cont
         }
 //         if (log.level() <= MSG::DEBUG) {
 //             log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << 
-// collID.get_compact() << ", added to Identifiable container." << endmsg;
+// collID.get_compact() << ", added to Identifiable container." << endreq;
 //         }
     }
 
-//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading PixelClusterContainer" << endmsg;
+//     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading PixelClusterContainer" << endreq;
 }
 
 
@@ -145,7 +150,7 @@ InDet::PixelClusterContainer* InDet::PixelClusterContainerCnv_p1::createTransien
 {
     if(!m_isInitialized) {
      if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize PixelClusterContainerCnv_p1 " << endmsg;
+      log << MSG::FATAL << "Could not initialize PixelClusterContainerCnv_p1 " << endreq;
      } 
     }
     std::auto_ptr<InDet::PixelClusterContainer> trans(new InDet::PixelClusterContainer(m_pixId->wafer_hash_max()));
@@ -162,7 +167,7 @@ StatusCode InDet::PixelClusterContainerCnv_p1::initialize(MsgStream &log) {
    // get StoreGate service
    StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
    if (sc.isFailure()) {
-      log << MSG::FATAL << "StoreGate service not found !" << endmsg;
+      log << MSG::FATAL << "StoreGate service not found !" << endreq;
       return StatusCode::FAILURE;
    }
 
@@ -170,29 +175,29 @@ StatusCode InDet::PixelClusterContainerCnv_p1::initialize(MsgStream &log) {
    StoreGateSvc *detStore;
    sc = svcLocator->service("DetectorStore", detStore);
    if (sc.isFailure()) {
-      log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
+      log << MSG::FATAL << "DetectorStore service not found !" << endreq;
       return StatusCode::FAILURE;
    } 
    //   else {
-   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
+   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endreq;
    //   }
 
    // Get the pixel helper from the detector store
    sc = detStore->retrieve(m_pixId, "PixelID");
    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get PixelID helper !" << endmsg;
+      log << MSG::FATAL << "Could not get PixelID helper !" << endreq;
       return StatusCode::FAILURE;
    } 
    //   else {
-   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the PixelID helper." << endmsg;
+   //      if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the PixelID helper." << endreq;
    //   }
 
    sc = detStore->retrieve(m_pixMgr);
    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get PixelDetectorDescription" << endmsg;
+      log << MSG::FATAL << "Could not get PixelDetectorDescription" << endreq;
       return sc;
    }
 
-   //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
+   //   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
    return StatusCode::SUCCESS;
 }

@@ -39,6 +39,7 @@ private:
     LocalParametersCnv_p1*                                         m_localParCnv;
     ErrorMatrixCnv_p1*                                             m_errorMxCnv;
     const PixelID*                                                 m_pixId;
+    StoreGateSvc *                                                 m_storeGate;
     bool                                                           m_isInitialized;
     StatusCode initialize(MsgStream &log);
 

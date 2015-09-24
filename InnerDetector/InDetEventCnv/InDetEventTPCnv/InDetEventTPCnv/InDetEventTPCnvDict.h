@@ -40,6 +40,8 @@
 #include "InDetEventTPCnv/InDetLowBetaInfo/InDetLowBetaContainer_p1.h"
 #include "InDetEventTPCnv/InDetLowBetaInfo/InDetLowBetaCandidate_tlp1.h"
 #include "InDetEventTPCnv/InDetLowBetaInfo/InDetLowBetaContainer_tlp1.h"
+#include "InDetEventTPCnv/InDetLowBetaInfo/InDetLowBetaContainerCnv_tlp1.h"
+#include "InDetEventTPCnv/InDetLowBetaInfo/InDetLowBetaCandidateCnv_tlp1.h"
 
 namespace InDetEventTPCnvDict {
  struct tmp
