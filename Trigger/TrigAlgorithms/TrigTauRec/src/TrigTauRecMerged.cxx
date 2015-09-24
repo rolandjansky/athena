@@ -75,10 +75,12 @@ TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLoca
   declareProperty("minpt",m_minpt,"min pt for tau");
   
   /** list of tool names to be invoked */
-  declareProperty( "Tools", m_tools, "List of TauToolBase tools" );
+  declareProperty("Tools", m_tools, "List of ITauToolBase tools" );
   
   /** list of end tool names to be invoked */
-  declareProperty( "EndTools", m_endtools, "List of End TauToolBase tools" );
+  declareProperty("EndTools", m_endtools, "List of End ITauToolBase tools" );
+
+  declareProperty("BeamType", m_beamType = "collisions");
   
   /** cone for trk seed  */
   declareProperty("trkcone",m_trkcone,"max distance track seed from roi center");
@@ -162,6 +164,8 @@ TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLoca
   /** Number tau candidates */
   declareMonitoredVariable("EF_nCand",m_Ncand);
  
+  /** Actual number of interaction per bunch crossing */
+  declareMonitoredVariable("EF_ActualInteractions",m_ActualInteractions); 
   /** Average number of interaction per bunch crossing */
   declareMonitoredVariable("EF_AvgInteractions",m_AvgInteractions); 
 
@@ -207,6 +211,7 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 {
 	msg() << MSG::INFO << "TrigTauRecMerged::initialize()" << endreq;
 
+	m_tauEventData.setInTrigger(true);
 	////////////////////
 	// Allocate Tools //
 	////////////////////
@@ -218,8 +223,8 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 
 	// find tools
 	//-------------------------------------------------------------------------
-	ToolHandleArray<TauToolBase> ::iterator p_itT = m_tools.begin();
-	ToolHandleArray<TauToolBase> ::iterator p_itTE = m_tools.end();
+	ToolHandleArray<ITauToolBase> ::iterator p_itT = m_tools.begin();
+	ToolHandleArray<ITauToolBase> ::iterator p_itTE = m_tools.end();
 	msg() << MSG::INFO << "List of tools in execution sequence:" << endreq;
 	msg() << MSG::INFO << "------------------------------------" << endreq;
 
@@ -234,14 +239,15 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 			msg() << MSG::INFO << "REGTEST ";
 			msg() <<" add timer for tool "<< ( *p_itT )->type() <<" "<< ( *p_itT )->name() << endreq;
 			if(  doTiming() ) m_mytimers.push_back(addTimer((*p_itT)->name())) ;
+			(*p_itT)->setTauEventData(&m_tauEventData);
 		}
 	}
 
 	msg() << MSG::INFO << " " << endreq;
 	msg() << MSG::INFO << "------------------------------------" << endreq;
 
-	ToolHandleArray<TauToolBase> ::iterator p_itTe = m_endtools.begin();
-	ToolHandleArray<TauToolBase> ::iterator p_itTEe = m_endtools.end();
+	ToolHandleArray<ITauToolBase> ::iterator p_itTe = m_endtools.begin();
+	ToolHandleArray<ITauToolBase> ::iterator p_itTEe = m_endtools.end();
 
 	msg() << MSG::INFO << "List of end tools in execution sequence:" << endreq;
 	msg() << MSG::INFO << "------------------------------------" << endreq;
@@ -257,6 +263,7 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 			msg() << MSG::INFO << "REGTEST ";
 			msg() <<" add time for end tool "<< ( *p_itTe )->type() <<" "<< ( *p_itTe )->name() << endreq;
 			if(  doTiming() ) m_mytimers.push_back(addTimer((*p_itTe)->name())) ;
+			( *p_itTe )->setTauEventData(&m_tauEventData);
 		}
 	}
 
@@ -315,6 +322,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	m_trkAvgDist = -1.0;
 	m_etovPtLead = -10.0;
 	m_Ncand = 0;
+        m_ActualInteractions = -999.9; 
         m_AvgInteractions = -999.9; 
 
 	m_beamspot_x = -999.9;
@@ -541,6 +549,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 	  mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
 	  avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+          m_ActualInteractions = mu;
           m_AvgInteractions = avg_mu;
 	  msg() << MSG::DEBUG << "REGTEST: Retrieved Mu Value : " << mu << endreq;
 	  msg() << MSG::DEBUG << "REGTEST: Average Mu Value   : " << avg_mu << endreq;
@@ -648,7 +657,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	//-------------------------------------------------------------------------
 	// setup TauCandidate data
 	//-------------------------------------------------------------------------
-	TauCandidateData rTauData;
+	m_tauEventData.clear();
 	xAOD::TauJetContainer *pContainer = new xAOD::TauJetContainer();
 	xAOD::TauJetAuxContainer pAuxContainer;
 
@@ -656,27 +665,27 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	pContainer->setStore(&pAuxContainer);
 
 	// set TauCandidate properties (xAOD style)
-	rTauData.xAODTau = 0;
-	rTauData.xAODTauContainer = pContainer;
+	m_tauEventData.xAODTauContainer = pContainer;
 
-	// This is potentially a bit dangerous, but all the tools using rTauData
+	// This is potentially a bit dangerous, but all the tools using m_tauEventData
 	// are run in the current scope
-	rTauData.tauAuxContainer = &pAuxContainer;
+	m_tauEventData.tauAuxContainer = &pAuxContainer;
 
 	// Set the Objects that we can attach right now
-	rTauData.setObject("InTrigger?", true );
-	rTauData.setObject("TrackContainer", RoITrackContainer);
-	rTauData.setObject("VxPrimaryCandidate", RoIVxContainer);
-	if(m_lumiBlockMuTool) rTauData.setObject("AvgInteractions", mu);
-	if(m_beamSpotSvc) rTauData.setObject("Beamspot", ptrBeamspot);
-	
+	// m_tauEventData.setObject("InTrigger?", true ); Set this in initialize, now a member variable of TauEventData
+	m_tauEventData.setObject("TrackContainer", RoITrackContainer);
+	m_tauEventData.setObject("VxPrimaryCandidate", RoIVxContainer);
+	if(m_lumiBlockMuTool) m_tauEventData.setObject("AvgInteractions", avg_mu);
+	if(m_beamSpotSvc) m_tauEventData.setObject("Beamspot", ptrBeamspot);
+	if(m_beamType == ("cosmics")) m_tauEventData.setObject("IsCosmics?", true );
+
 	//-------------------------------------------------------------------------
 	// eventInitialize tauRec colls
 	//-------------------------------------------------------------------------
-	ToolHandleArray<TauToolBase> ::iterator firstTool = m_tools.begin();
-	ToolHandleArray<TauToolBase> ::iterator lastTool  = m_tools.end();
+	ToolHandleArray<ITauToolBase> ::iterator firstTool = m_tools.begin();
+	ToolHandleArray<ITauToolBase> ::iterator lastTool  = m_tools.end();
 	for ( ; firstTool != lastTool; firstTool++ ) {
-		processStatus = (*firstTool)->eventInitialize( &rTauData );
+		processStatus = (*firstTool)->eventInitialize();
 
 		if( processStatus != StatusCode :: SUCCESS ) {
 			msg() << MSG :: ERROR << "tool "<<(*firstTool)->name()<< "failed in eventInitialize" << endreq;
@@ -691,24 +700,24 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	//-------------------------------------------------------------------------
 	xAOD::Jet* p_seed =    (*theJetCollection->begin());  //there is only one jet stored
 
-	rTauData.xAODTau = new xAOD::TauJet();
-	pContainer->push_back(rTauData.xAODTau);
-	rTauData.xAODTau->setROIWord(roiDescriptor->roiWord());
-	rTauData.seed = p_seed;
-	rTauData.seedContainer = theJetCollection;
+	xAOD::TauJet* p_tau = new xAOD::TauJet();
+	pContainer->push_back(p_tau);
+	p_tau->setROIWord(roiDescriptor->roiWord());
+	p_tau->setJet(theJetCollection, p_seed);
+	m_tauEventData.seedContainer = theJetCollection;
 
 	if(p_seed->e()<=0) {
 		msg() << MSG::DEBUG << " Roi: changing eta due to energy " << p_seed->e() << endreq;
-		rTauData.xAODTau->setP4(rTauData.xAODTau->pt(), roiDescriptor->eta(), roiDescriptor->phi(), rTauData.xAODTau->m());
+		p_tau->setP4(p_tau->pt(), roiDescriptor->eta(), roiDescriptor->phi(), p_tau->m());
 		
 		msg() << MSG::DEBUG << "Roi: " << roiDescriptor->roiId()
-        		  << " Tau eta: " << rTauData.xAODTau->eta() << " Tau phi: " << rTauData.xAODTau->phi()
+        		  << " Tau eta: " << p_tau->eta() << " Tau phi: " << p_tau->phi()
         		  << endreq;
 	}
 
-	if( msgLvl() <= MSG::DEBUG ) msg() << MSG ::DEBUG <<" roidescriptor roiword " << roiDescriptor->roiWord() << " saved " << rTauData.xAODTau->ROIWord() << endreq;
+	if( msgLvl() <= MSG::DEBUG ) msg() << MSG ::DEBUG <<" roidescriptor roiword " << roiDescriptor->roiWord() << " saved " << p_tau->ROIWord() << endreq;
 
-	rTauData.setObject("JetCollection", theJetCollection );
+	m_tauEventData.setObject("JetCollection", theJetCollection );
 
 	//-------------------------------------------------------------------------
 	// loop over booked tau tools
@@ -730,13 +739,13 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 		++toolnum;
 		if ( doTiming() && itimer != m_mytimers.end() ) (*itimer)->start();
 
-		processStatus = (*firstTool)->execute( &rTauData);
+		processStatus = (*firstTool)->execute( *p_tau );
 		if ( !processStatus.isFailure() ) {
 			if( msgLvl() <= MSG::DEBUG ) {
 				msg() << MSG::DEBUG << "REGTEST: "<< (*firstTool)->name() << " executed successfully " << endreq;
 				msg() << MSG::DEBUG << "REGTEST: Roi: " << roiDescriptor->roiId()
-            						<< " Tau eta: " << rTauData.xAODTau->eta() << " Tau phi: " << rTauData.xAODTau->phi()
-            						<< " Tau pT : "<< rTauData.xAODTau->pt()<< endreq;
+            						<< " Tau eta: " << p_tau->eta() << " Tau phi: " << p_tau->phi()
+            						<< " Tau pT : "<< p_tau->pt()<< endreq;
 			}
 		}
 		else {
@@ -752,43 +761,42 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	if ( !processStatus.isSuccess() )  {   // some problem
 		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "the tau object has NOT been registered in the tau container" << endreq;
 
-		ToolHandleArray<TauToolBase> ::iterator tool = m_tools.begin();
-		for(; tool != firstTool; ++tool ) (*tool)->cleanup( &rTauData );
-		(*tool)->cleanup( &rTauData );
+		// ToolHandleArray<ITauToolBase> ::iterator tool = m_tools.begin();
+		// for(; tool != firstTool; ++tool ) (*tool)->cleanup( &m_tauEventData );
+		// (*tool)->cleanup( &m_tauEventData );
 
 		pContainer->pop_back();
-		rTauData.xAODTau = 0;
 
 		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "clean up done after jet seed" << endreq;
 	}
 	else if( processStatus.isSuccess()) {
 
-	  float fJetEnergy = (*rTauData.xAODTau->jetLink())->e();
+	  float fJetEnergy = (*p_tau->jetLink())->e();
 	  msg() << MSG::DEBUG << " Roi: jet e "<< fJetEnergy <<endreq;
 	  
 	  if( fJetEnergy < 0.00001 ) {
 	    msg() << MSG::DEBUG << " Roi: changing eta phi to L1 ones due to energy negative (PxPyPzE flips eta and phi)"<<endreq;
 	    msg() << MSG::DEBUG << " Roi: this is probably not needed anymore, method PxPyPzE has been corrected"<<endreq;
 	    
-	    //rTauData.xAODTau->setEta(roiDescriptor->eta0());
-	    //rTauData.xAODTau->setPhi(roiDescriptor->phi0());
+	    //p_tau->setEta(roiDescriptor->eta0());
+	    //p_tau->setPhi(roiDescriptor->phi0());
 	    // Direct accessors not available anymore
-	    rTauData.xAODTau->setP4(rTauData.xAODTau->pt(), roiDescriptor->eta(), roiDescriptor->phi(), rTauData.xAODTau->m());
+	    p_tau->setP4(p_tau->pt(), roiDescriptor->eta(), roiDescriptor->phi(), p_tau->m());
 	    
 	    msg() << MSG::DEBUG << " Roi: " << roiDescriptor->roiId()
-		  << " Tau eta: " << rTauData.xAODTau->eta()
-		  << " Tau phi: " << rTauData.xAODTau->phi()
-		  << " Tau pT : "<< rTauData.xAODTau->pt()<< endreq;
+		  << " Tau eta: " << p_tau->eta()
+		  << " Tau phi: " << p_tau->phi()
+		  << " Tau pT : "<< p_tau->pt()<< endreq;
 	  }
 	  
 	  // loop over end tools
-	  ToolHandleArray<TauToolBase> ::iterator p_itET = m_endtools.begin();
-	  ToolHandleArray<TauToolBase> ::iterator p_itETE = m_endtools.end();
+	  ToolHandleArray<ITauToolBase> ::iterator p_itET = m_endtools.begin();
+	  ToolHandleArray<ITauToolBase> ::iterator p_itETE = m_endtools.end();
 	  for (; p_itET != p_itETE; ++p_itET ) {
 	    msg() << MSG::VERBOSE << "Invoking endTool ";
 	    msg() << ( *p_itET )->name() << endreq;
 	    
-	    processStatus = ( *p_itET )->execute( &rTauData );
+	    processStatus = ( *p_itET )->execute( *p_tau);
 	    if( processStatus.isFailure() ) break;
 	  }
 	  
@@ -802,35 +810,35 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  }
 	  
 	  // get tau detail variables for Monitoring
-	  m_numTrack      = rTauData.xAODTau->nTracks();
-	  m_nWideTrk      = rTauData.xAODTau->nWideTracks();
-	  rTauData.xAODTau->detail(xAOD::TauJetParameters::trkAvgDist, m_trkAvgDist);
-	  rTauData.xAODTau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, m_etovPtLead);
-	  rTauData.xAODTau->detail(xAOD::TauJetParameters::EMRadius, m_emRadius);
-	  rTauData.xAODTau->detail(xAOD::TauJetParameters::hadRadius, m_hadRadius);
-	  rTauData.xAODTau->detail(xAOD::TauJetParameters::isolFrac, m_IsoFrac);
-	  rTauData.xAODTau->detail(xAOD::TauJetParameters::centFrac, m_centFrac);
-	  rTauData.xAODTau->detail(xAOD::TauJetParameters::ipSigLeadTrk, m_ipSigLeadTrk);
-	  rTauData.xAODTau->detail(xAOD::TauJetParameters::trFlightPathSig, m_trFlightPathSig);
-	  rTauData.xAODTau->detail(xAOD::TauJetParameters::dRmax, m_dRmax);
-	  rTauData.xAODTau->detail(xAOD::TauJetParameters::massTrkSys, m_massTrkSys);
+	  m_numTrack      = p_tau->nTracks();
+	  m_nWideTrk      = p_tau->nWideTracks();
+	  p_tau->detail(xAOD::TauJetParameters::trkAvgDist, m_trkAvgDist);
+	  p_tau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, m_etovPtLead);
+	  p_tau->detail(xAOD::TauJetParameters::EMRadius, m_emRadius);
+	  p_tau->detail(xAOD::TauJetParameters::hadRadius, m_hadRadius);
+	  p_tau->detail(xAOD::TauJetParameters::isolFrac, m_IsoFrac);
+	  p_tau->detail(xAOD::TauJetParameters::centFrac, m_centFrac);
+	  p_tau->detail(xAOD::TauJetParameters::ipSigLeadTrk, m_ipSigLeadTrk);
+	  p_tau->detail(xAOD::TauJetParameters::trFlightPathSig, m_trFlightPathSig);
+	  p_tau->detail(xAOD::TauJetParameters::dRmax, m_dRmax);
+	  p_tau->detail(xAOD::TauJetParameters::massTrkSys, m_massTrkSys);
 	  
-	  rTauData.xAODTau->detail(xAOD::TauJetParameters::PSSFraction, m_PSSFraction);
-	  rTauData.xAODTau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, m_EMPOverTrkSysP);
-	  rTauData.xAODTau->detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME, m_ChPiEMEOverCaloEME);
-	  rTauData.xAODTau->detail(xAOD::TauJetParameters::innerTrkAvgDist, m_innerTrkAvgDist);	 
-          rTauData.xAODTau->detail(xAOD::TauJetParameters::SumPtTrkFrac, m_SumPtTrkFrac);
+	  p_tau->detail(xAOD::TauJetParameters::PSSFraction, m_PSSFraction);
+	  p_tau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, m_EMPOverTrkSysP);
+	  p_tau->detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME, m_ChPiEMEOverCaloEME);
+	  p_tau->detail(xAOD::TauJetParameters::innerTrkAvgDist, m_innerTrkAvgDist);	 
+          p_tau->detail(xAOD::TauJetParameters::SumPtTrkFrac, m_SumPtTrkFrac);
 
 	  m_massTrkSys /= 1000.; // make GeV
-	  rTauData.xAODTau->detail(xAOD::TauJetParameters::etEMAtEMScale, m_EtEm);
+	  p_tau->detail(xAOD::TauJetParameters::etEMAtEMScale, m_EtEm);
 	  m_EtEm /= 1000.;  // make GeV
-	  rTauData.xAODTau->detail(xAOD::TauJetParameters::etHadAtEMScale, m_EtHad);
+	  p_tau->detail(xAOD::TauJetParameters::etHadAtEMScale, m_EtHad);
 	  m_EtHad /= 1000.; // make GeV
 	  m_Et            = m_EtEm + m_EtHad;
-	  m_EtFinal       = rTauData.xAODTau->pt()/1000.;
+	  m_EtFinal       = p_tau->pt()/1000.;
 	  
-	  m_EtaEF = rTauData.xAODTau->eta();
-	  m_PhiEF = rTauData.xAODTau->phi();
+	  m_EtaEF = p_tau->eta();
+	  m_PhiEF = p_tau->phi();
 	  
 	  if( m_Et !=0) m_EMFrac =  m_EtEm/ m_Et ;
 	  
@@ -868,14 +876,13 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	}
 	else {
 	  pContainer->pop_back();
-	  rTauData.xAODTau = 0;
 	  
 	  if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "deleted tau done after jet seed" << endreq;
 	}
 	
 	// call eventFinalize on the booked tau tools
 	for ( firstTool = m_tools.begin(); firstTool != lastTool; firstTool++ ) {
-	  processStatus = (*firstTool)->eventFinalize( &rTauData );
+	  processStatus = (*firstTool)->eventFinalize();
 	  if( processStatus != StatusCode :: SUCCESS ) {
 	    msg() << MSG :: INFO << "tool "<<(*firstTool)->name()<< "failed in eventFinalize" << endreq;
 	    return HLT :: TOOL_FAILURE;

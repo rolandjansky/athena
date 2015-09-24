@@ -55,6 +55,11 @@ class TrigTauRecMerged_Tau (TrigTauRecMerged) :
             
             self.Tools = tools
 
+            ## add beam type flag
+            from AthenaCommon.BeamFlags import jobproperties
+            self.BeamType = jobproperties.Beam.beamType()
+		    
+
 class TrigTauRecMerged_Tau2012 (TrigTauRecMerged) :
         __slots__ = [ '_mytools']
         def __init__(self, name = "TrigTauRecMerged_Tau2012"):
@@ -102,6 +107,10 @@ class TrigTauRecMerged_Tau2012 (TrigTauRecMerged) :
             #necessary to write out deltaZ0 between tracks and lead trk
             #self.theTauPVTool = taualgs.getTauPVTrackTool()
             #self.useTauPVTool = True;
+
+            ## add beam type flag
+            from AthenaCommon.BeamFlags import jobproperties
+            self.BeamType = jobproperties.Beam.beamType()
 
 
 class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
@@ -157,6 +166,10 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMerged) :
             #self.theTauPVTool = taualgs.getTauPVTrackTool()
             #self.useTauPVTool = True;
 
+            ## add beam type flag
+            from AthenaCommon.BeamFlags import jobproperties
+            self.BeamType = jobproperties.Beam.beamType()
+
 class TrigTauRecMerged_TauCaloOnly (TrigTauRecMerged) :
         __slots__ = [ '_mytools']
         def __init__(self, name = "TrigTauRecMerged_TauCaloOnly"):
@@ -192,6 +205,10 @@ class TrigTauRecMerged_TauCaloOnly (TrigTauRecMerged) :
             tools.append(taualgs.getCellVariables(cellConeSize=0.2, prefix="TrigTauCaloOnly_"))
 
             self.Tools = tools
+
+            ## add beam type flag
+            from AthenaCommon.BeamFlags import jobproperties
+            self.BeamType = jobproperties.Beam.beamType()
 
 
 class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
@@ -242,5 +259,9 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMerged) :
             tools.append(taualgs.getPileUpCorrection())
             
             self.Tools = tools
+
+            ## add beam type flag
+            from AthenaCommon.BeamFlags import jobproperties
+            self.BeamType = jobproperties.Beam.beamType()
             
 #end
