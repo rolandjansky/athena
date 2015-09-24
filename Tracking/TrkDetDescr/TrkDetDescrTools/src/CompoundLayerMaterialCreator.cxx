@@ -110,8 +110,6 @@ const Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createCom
 {
     
     
-    
-    
     // analyse the material bins
     double tMin   = 10e10, xMin  = 10e10, lMin  = 10e10, aMin   = 10e10, zMin   = 10e10, rMin = 10e10;
     double tMax   = 0., xMax  = 0., lMax  = 0., aMax   = 0., zMax   = 0., rMax = 0.;
@@ -131,12 +129,13 @@ const Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createCom
             }
     }    
     
-    ATH_MSG_VERBOSE( "Max values for t, x0, l0, a, z, rho estimated." );
+    ATH_MSG_DEBUG( "Preparing the store: min/max values for t, x0, l0, a, z, rho estimated." );
+
     
     // the bin matrices in the store    
     Trk::ValueMatrix binMatrix( lBinUtility.max(1)+1, Trk::ValueVector(lBinUtility.max(0)+1, static_cast<unsigned char>(0) ) );
     // 255 bins, the 0 bin indicates empy
-    Trk::ValueStore tStore, xStore, lStore, aStore, zStore, rStore;
+    Trk::ValueStore tStore, xStore, lStore, aStore, zStore, rStore;    
     // set the store min, max
     tStore.valueMin = tMin;  
     xStore.valueMin = xMin;  
@@ -144,14 +143,25 @@ const Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createCom
     aStore.valueMin = aMin;  
     zStore.valueMin = zMin;  
     rStore.valueMin = rMin;  
-    tStore.valueStep = (tMax-tMin)/double(static_cast<int>(UCHAR_MAX)-1);
+    tStore.valueStep = fabs(tMin-tMax)<10e-8 ? 0. : (tMax-tMin)/double(static_cast<int>(UCHAR_MAX)-1);
     xStore.valueStep = (xMax-xMin)/double(static_cast<int>(UCHAR_MAX)-1);
     lStore.valueStep = (lMax-lMin)/double(static_cast<int>(UCHAR_MAX)-1);
     aStore.valueStep = (aMax-aMin)/double(static_cast<int>(UCHAR_MAX)-1);
     zStore.valueStep = (zMax-zMin)/double(static_cast<int>(UCHAR_MAX)-1);
     rStore.valueStep = (rMax-rMin)/double(static_cast<int>(UCHAR_MAX)-1);
-    // set the initally empty 
-    tStore.valueBinMatrix = binMatrix;
+    
+    ATH_MSG_VERBOSE(" - t   [ min/max/step ] = "  << tMin  << " / " << tMax << " / " << tStore.valueStep );
+    ATH_MSG_VERBOSE(" - x0  [ min/max/step ] = "  << xMin  << " / " << xMax << " / " << xStore.valueStep );
+    ATH_MSG_VERBOSE(" - l0  [ min/max/step ] = "  << lMin  << " / " << lMax << " / " << lStore.valueStep );
+    ATH_MSG_VERBOSE(" - a   [ min/max/step ] = "  << aMin  << " / " << aMax << " / " << aStore.valueStep );
+    ATH_MSG_VERBOSE(" - z   [ min/max/step ] = "  << zMin  << " / " << zMax << " / " << zStore.valueStep );
+    ATH_MSG_VERBOSE(" - rho [ min/max/step ] = "  << rMin  << " / " << rMax << " / " << rStore.valueStep );
+    
+    // set the initally empty - thickness store can be empty
+    if (tStore.valueStep > 0.) 
+        tStore.valueBinMatrix = binMatrix;
+    else 
+        ATH_MSG_VERBOSE("Thickness has been estimated to be constant - matrix is not prepared.");
     xStore.valueBinMatrix = binMatrix;
     lStore.valueBinMatrix = binMatrix;
     aStore.valueBinMatrix = binMatrix;
@@ -172,15 +182,17 @@ const Trk::LayerMaterialProperties* Trk::CompoundLayerMaterialCreator::createCom
         for (auto& mi : mo) {
             if (mi){
               const Trk::MaterialProperties& mp = (*mi);
-              tStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(lrint(mp.thickness()/tStore.valueStep)+1); 
+              if (tStore.valueStep > 0.) tStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(lrint(mp.thickness()/tStore.valueStep)+1); 
               xStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(lrint(mp.x0()/xStore.valueStep)+1); 
               lStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(lrint(mp.l0()/lStore.valueStep)+1); 
               aStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(lrint(mp.averageA()/aStore.valueStep)+1); 
               zStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(lrint(mp.averageZ()/zStore.valueStep)+1); 
               rStore.valueBinMatrix[obin][ibin] = static_cast<unsigned char>(lrint(mp.averageRho()/rStore.valueStep)+1); 
               // set the material composition 
-              if (mp.material().composition)
+              if (mp.material().composition) {
                   compositionMatrix[obin][ibin] = Trk::MaterialComposition(*(mp.material().composition));
+                  ATH_MSG_VERBOSE(" - composition is copied.");
+              }
             }
             ++ibin;
        }
