@@ -24,11 +24,11 @@ namespace InDetDD {
 
 #include "SCT_ClusterContainerCnv_p0.h"
 #include "InDetEventTPCnv/SCT_ClusterContainerCnv_tlp1.h"
-#include "InDetEventTPCnv/SCT_ClusterContainerCnv_p2.h"
+#include "InDetEventTPCnv/SCT_ClusterContainerCnv_p3.h"
 
 
 // the latest persistent representation type of DataCollection:
-typedef  InDet::SCT_ClusterContainer_p2  SCT_ClusterContainer_PERS;
+typedef  InDet::SCT_ClusterContainer_p3  SCT_ClusterContainer_PERS;
 typedef  T_AthenaPoolCustomCnv<InDet::SCT_ClusterContainer, SCT_ClusterContainer_PERS >  SCT_ClusterContainerCnvBase;
 
 /**
@@ -45,7 +45,7 @@ class SCT_ClusterContainerCnv :
   // Thus they can't be local
   SCT_ClusterContainerCnv_p0   m_converter_p0;
   SCT_ClusterContainerCnv_tlp1 m_TPConverter;
-  SCT_ClusterContainerCnv_p2   m_TPConverter_p2;
+  SCT_ClusterContainerCnv_p3   m_TPConverter_p3;
 
   // Should not be needed at some point.
   StoreGateSvc*  m_storeGate;
