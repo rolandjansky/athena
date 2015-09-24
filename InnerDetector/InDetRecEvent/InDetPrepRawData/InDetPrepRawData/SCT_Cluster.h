@@ -57,7 +57,38 @@ class SCT_Cluster : public SiCluster {
     /** dump information about the PRD object. */
     virtual std::ostream& dump( std::ostream& stream) const;
 
+    /** Some information about timing - which strips had 010 and which 011 */
+    uint16_t hitsInThirdTimeBin() const;
+
+    void setHitsInThirdTimeBin(uint16_t hitsInThirdTimeBin);
+ 
+    int stripHasHitInThirdTimeBin(int stripNumberWithinCluster) const;
+    
+    
+ private:
+    uint16_t m_hitsInThirdTimeBin;
+    
+      
+
 };
+
+ inline uint16_t SCT_Cluster::hitsInThirdTimeBin() const
+ {
+   return m_hitsInThirdTimeBin;  
+ }
+ 
+ inline void SCT_Cluster::setHitsInThirdTimeBin(uint16_t hitsInThirdTimeBin) 
+ {
+   m_hitsInThirdTimeBin = hitsInThirdTimeBin;
+ }
+ 
+
+ inline int SCT_Cluster::stripHasHitInThirdTimeBin(int stripNumberWithinCluster) const {
+   return stripNumberWithinCluster <= 16 ? (int)((m_hitsInThirdTimeBin >> stripNumberWithinCluster) & 0x1): 0;
+   
+ }
+ 
+
 
  MsgStream&    operator << (MsgStream& stream,    const SCT_Cluster& prd);
  std::ostream& operator << (std::ostream& stream, const SCT_Cluster& prd);

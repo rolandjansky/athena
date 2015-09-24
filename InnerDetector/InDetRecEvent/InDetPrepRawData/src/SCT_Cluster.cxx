@@ -27,7 +27,10 @@ SCT_Cluster::SCT_Cluster(
             const InDet::SiWidth& width,
             const InDetDD::SiDetectorElement* detEl,
             const Amg::MatrixX* locErrMat
-          ) : SiCluster(RDOId, locpos, rdoList, width, detEl, locErrMat) {}
+          ) : SiCluster(RDOId, locpos, rdoList, width, detEl, locErrMat) 
+{
+  m_hitsInThirdTimeBin=0;
+}
 
 // Default constructor:
 SCT_Cluster::SCT_Cluster():
@@ -37,7 +40,9 @@ SCT_Cluster::SCT_Cluster():
 //copy constructor:
 SCT_Cluster::SCT_Cluster(const SCT_Cluster& RIO):
 	SiCluster(RIO)
-{}
+{
+  m_hitsInThirdTimeBin = RIO.hitsInThirdTimeBin();
+}
 
 //assignment operator
 SCT_Cluster& SCT_Cluster::operator=(const SCT_Cluster& RIO){
@@ -74,7 +79,6 @@ SCT_Cluster& SCT_Cluster::operator=(const SCT_Cluster& RIO){
 
         return stream;
     }
-
 
 
 }//end of ns
