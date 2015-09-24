@@ -18,9 +18,9 @@ class SingleVectorBosonDecorator(object) :
     decorated.run_card_decorators.append( self )
     self.decorated = decorated
 
-    self.decorated.fix_parameter( 'alphaem', ATLASCommonParameters.alphaem, desc='(default ATLAS) EM coupling' )
+    self.decorated.add_parameter( 'alphaem', ATLASCommonParameters.alphaem, desc='(default ATLAS) EM coupling' )
     self.decorated.add_parameter( 'running_width', -1,                      desc='(default -1, use Powheg default)' )
-    self.decorated.fix_parameter( 'Wmass', ATLASCommonParameters.mass_W,    desc='(default ATLAS) W mass in GeV' )
-    self.decorated.fix_parameter( 'Wwidth', ATLASCommonParameters.width_W,  desc='(default ATLAS) W width in GeV' )
-    self.decorated.fix_parameter( 'Zmass', ATLASCommonParameters.mass_Z,    desc='(default ATLAS) Z mass in GeV' )
-    self.decorated.fix_parameter( 'Zwidth', ATLASCommonParameters.width_Z,  desc='(default ATLAS) Z width in GeV' )
+    self.decorated.add_parameter( 'Wmass', ATLASCommonParameters.mass_W,    desc='(default ATLAS) W mass in GeV' )
+    self.decorated.add_parameter( 'Wwidth', ATLASCommonParameters.width_W,  desc='(default ATLAS) W width in GeV' )
+    self.decorated.add_parameter( 'Zmass', ATLASCommonParameters.mass_Z,    desc='(default ATLAS) Z mass in GeV' )
+    self.decorated.add_parameter( 'Zwidth', ATLASCommonParameters.width_Z,  desc='(default ATLAS) Z width in GeV' )

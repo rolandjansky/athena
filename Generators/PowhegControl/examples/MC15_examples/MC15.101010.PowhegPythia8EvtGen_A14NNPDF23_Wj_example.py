@@ -4,6 +4,7 @@
 # Powheg Wj setup starting from ATLAS defaults
 #--------------------------------------------------------------
 include('PowhegControl/PowhegControl_Wj_Common.py')
+# PowhegConfig.NNLO_reweighting_inputs = { 'DYNNLO':'Wp_CM8_MMHT14NNLO_11.top' }
 PowhegConfig.generate()
 
 #--------------------------------------------------------------

@@ -22,15 +22,15 @@ class PowhegConfig_tt(PowhegConfig_base) :
     self._powheg_executable += '/hvq/pwhg_main'
 
     ## Add process specific options
-    self.fix_parameter( 'tdec/bmass', ATLASCommonParameters.mass_b,            desc='b quark mass in t decay' )
-    self.fix_parameter( 'tdec/cmass', ATLASCommonParameters.mass_c,            desc='c quark mass' )
-    self.fix_parameter( 'tdec/dmass', ATLASCommonParameters.mass_d,            desc='d quark mass' )
-    self.fix_parameter( 'tdec/sin2cabibbo', ATLASCommonParameters.sin2cabibbo, desc='sine of Cabibbo angle squared' )
-    self.fix_parameter( 'tdec/smass', ATLASCommonParameters.mass_s,            desc='s quark mass' )
-    self.fix_parameter( 'tdec/twidth', ATLASCommonParameters.width_t,          desc='top width' )
-    self.fix_parameter( 'tdec/umass', ATLASCommonParameters.mass_u,            desc='u quark mass' )
-    self.fix_parameter( 'tdec/wmass', ATLASCommonParameters.mass_W,            desc='W mass for top decay' )
-    self.fix_parameter( 'tdec/wwidth', ATLASCommonParameters.width_W,          desc='W width' )
+    self.add_parameter( 'tdec/bmass', ATLASCommonParameters.mass_b,            desc='b quark mass in t decay' )
+    self.add_parameter( 'tdec/cmass', ATLASCommonParameters.mass_c,            desc='c quark mass' )
+    self.add_parameter( 'tdec/dmass', ATLASCommonParameters.mass_d,            desc='d quark mass' )
+    self.add_parameter( 'tdec/sin2cabibbo', ATLASCommonParameters.sin2cabibbo, desc='sine of Cabibbo angle squared' )
+    self.add_parameter( 'tdec/smass', ATLASCommonParameters.mass_s,            desc='s quark mass' )
+    self.add_parameter( 'tdec/twidth', ATLASCommonParameters.width_t,          desc='top width' )
+    self.add_parameter( 'tdec/umass', ATLASCommonParameters.mass_u,            desc='u quark mass' )
+    self.add_parameter( 'tdec/wmass', ATLASCommonParameters.mass_W,            desc='W mass for top decay' )
+    self.add_parameter( 'tdec/wwidth', ATLASCommonParameters.width_W,          desc='W width' )
 
     ## Decorate with generic option sets
     self.add_parameter_set( 'extra tests' )

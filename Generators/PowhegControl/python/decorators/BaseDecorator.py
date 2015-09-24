@@ -38,9 +38,9 @@ class BaseDecorator(object) :
     ## Integration parameters:
     #   The total number of calls is ncall2*itmx2*foldcsi*foldy*foldphi, with a typical call using 1/1400 seconds
     ## These are optimised in each process to ensure:
-    #   Upper bound failures      < 1% : to reduce, increase nubound, xupbound or ncall2*itmx2
     #   Cross section uncertainty < 1% : to reduce, increase ncall1*itmx1 or ncall2*itmx2
     #   Negative weight events    < 1% : to reduce, increase fold parameters
+    #   Upper bound failures      < 1% : to reduce, increase nubound, xupbound or ncall2*itmx2
     self.decorated.add_parameter( 'itmx1', 5,      desc='(default process-dependent) number of iterations for initializing the integration grid' )
     self.decorated.add_parameter( 'itmx2', 5,      desc='(default process-dependent) number of iterations for computing the integral and finding upper bound' )
     self.decorated.add_parameter( 'ncall1', 10000, desc='(default process-dependent) number of calls for initializing the integration grid' )
@@ -54,10 +54,10 @@ class BaseDecorator(object) :
     self.decorated.add_parameter( 'bornktmin', -1,                         desc='(default -1, use Powheg default) generation cut: minimum kt in underlying Born' )
     self.decorated.fix_parameter( 'bornonly', [0,1][self.decorated.is_LO], desc='(default process-dependent) calculate Born only' )
     self.decorated.add_parameter( 'bornsuppfact', -1,                      desc='(default -1, use Powheg default) mass parameter for Born suppression factor. If > 0 suppfact = 1' )
-    self.decorated.fix_parameter( 'bornzerodamp', 1,                       desc='(default 1, enabled) use damping in regions where the Born is strongly suppressed (or 0), such as W production.' )
+    self.decorated.add_parameter( 'bornzerodamp', 1,                       desc='(default 1, enabled) use damping in regions where the Born is strongly suppressed (or 0), such as W production.' )
     self.decorated.add_parameter( 'hdamp', -1,                             desc='(default -1, use Powheg default) deprecated, apply damping factor for high-pt radiation: h**2/(pt2+h**2)' )
     self.decorated.add_parameter( 'hfact', -1,                             desc='(default -1, use Powheg default) apply dumping factor for high-pt radiation: h**2/(pt2+h**2)' )
-    self.decorated.fix_parameter( 'ptsupp', -1,                            desc='(default -1, use Powheg default) deprecated, but some processes complain if it is missing' )
+    self.decorated.add_parameter( 'ptsupp', -1,                            desc='(default -1, use Powheg default) deprecated, but some processes complain if it is missing' )
     self.decorated.add_parameter( 'withdamp', -1,                          desc='(default process-dependetn)) use Born-zero damping factor.' )
     self.decorated.add_parameter( 'withnegweights', 1,                     desc='(default 1, enabled) allow negative weights' )
     # Parton splitting settings
@@ -77,14 +77,14 @@ class BaseDecorator(object) :
     self.decorated.fix_parameter( 'testsuda', 0,   desc='(default 0, disabled) test Sudakov form factor' )
     self.decorated.fix_parameter( 'withsubtr', 1,  desc='(default 1, enabled) subtract real counterterms' )
     # Parameters of unknown use
-    self.decorated.fix_parameter( 'flg_debug', 0,       desc='(default 0, disabled) write extra information on LHEF. Breaks PYTHIA showering.' )
-    self.decorated.fix_parameter( 'colltest', -1,       desc='(default -1, use Powheg default)' )
-    self.decorated.fix_parameter( 'softtest', -1,       desc='(default -1, use Powheg default)' )
-    self.decorated.fix_parameter( 'ubsigmadetails', -1, desc='(default -1, use Powheg default)' )
+    self.decorated.add_parameter( 'flg_debug', 0,       desc='(default 0, disabled) write extra information on LHEF. Breaks PYTHIA showering.' )
+    self.decorated.add_parameter( 'colltest', -1,       desc='(default -1, use Powheg default)' )
+    self.decorated.add_parameter( 'softtest', -1,       desc='(default -1, use Powheg default)' )
+    self.decorated.add_parameter( 'ubsigmadetails', -1, desc='(default -1, use Powheg default)' )
     ## Radiation settings for NLO processes
     if not self.decorated.is_LO :
-      self.decorated.fix_parameter( 'btlscalect', -1,    desc='(default -1, use Powheg default) use the scales of the underlying-Born configuration for the subtraction terms' )
-      self.decorated.fix_parameter( 'btlscalereal', -1,  desc='(default -1, use Powheg default)' )
+      self.decorated.add_parameter( 'btlscalect', -1,    desc='(default -1, use Powheg default) use the scales of the underlying-Born configuration for the subtraction terms' )
+      self.decorated.add_parameter( 'btlscalereal', -1,  desc='(default -1, use Powheg default)' )
       self.decorated.add_parameter( 'ixmax', 1,          desc='(default process-dependent) number of intervals (<= 10) in x (csi) grid to compute upper bounds', parameter='icsimax' )
       self.decorated.add_parameter( 'iymax', 1,          desc='(default process-dependent) number of intervals (<= 10) in y grid to compute upper bounds' )
       self.decorated.add_parameter( 'nubound', 10000,    desc='(default process-dependent) number of calls to setup upper bounds for radiation' )
@@ -96,11 +96,5 @@ class BaseDecorator(object) :
     ## Force parameters to integer values
     [ setattr( self.decorated, parameter, int( getattr(self.decorated, parameter) ) ) for parameter in ('nEvents','itmx1','itmx2','ncall1','ncall2','foldx','foldy','foldphi','random_seed') ]
 
-    ## Fix integration parameters before printing list for user
-    [ self.decorated.fix_parameter( parameter ) for parameter in ('beam_energy', 'manyseeds', 'random_seed', 'itmx1', 'itmx2', 'ncall1', 'ncall2', 'foldx', 'foldy', 'foldphi' ) ]
-
-    ## Same for NLO processes
-    if not self.decorated.is_LO :
-      for parameter in ('ixmax', 'iymax', 'nubound', 'xupbound') :
-        setattr( self.decorated, parameter, int( getattr(self.decorated, parameter) ) )
-        self.decorated.fix_parameter( parameter )
+    ## Fix parameters read from Generate_tf before printing list for user
+    [ self.decorated.fix_parameter( parameter ) for parameter in ('beam_energy', 'manyseeds', 'random_seed' ) ]

@@ -21,7 +21,6 @@ class PowhegConfig_Zj(PowhegConfig_base) :
     self._powheg_executable += '/Zj/pwhg_main'
 
     ## Decorate with generic option sets
-    self.add_parameter_set( 'extra tests' )
     self.add_parameter_set( 'lepton mass' )
     self.add_parameter_set( 'LHEv3' )
     self.add_parameter_set( 'MiNLO NNLL' )

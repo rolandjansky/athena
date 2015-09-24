@@ -26,7 +26,6 @@ class PowhegConfig_ZZ(PowhegConfig_base) :
     ## Decorate with generic option sets
     self.add_parameter_set( 'diboson' )
     self.add_parameter_set( 'diboson interference' )
-    self.add_parameter_set( 'extra tests' )
     self.add_parameter_set( 'fixed scale' )
     self.add_parameter_set( 'LHEv3' )
     self.add_parameter_set( 'running width' )
