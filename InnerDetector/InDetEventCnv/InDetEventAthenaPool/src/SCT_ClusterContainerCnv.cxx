@@ -71,13 +71,14 @@ InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv::createTransient() {
   static pool::Guid   p0_guid("A180F372-0D52-49C3-8AA0-0939CB0B8179"); // before t/p split
   static pool::Guid   p1_guid("657F6546-F5CD-4166-9567-16AD9C96D286"); // with SCT_Cluster_tlp1
   static pool::Guid   p2_guid("ECE7D831-0F31-4E6F-A6BE-2ADDE90083BA"); // with SCT_Cluster_p2
+  static pool::Guid   p3_guid("623F5836-369F-4A94-9DD4-DAD728E93C13"); // with SCT_Cluster_p3
 
   //ATH_MSG_DEBUG("createTransient(): main converter");
   InDet::SCT_ClusterContainer* p_collection(0);
-  if( compareClassGuid(p2_guid) ) {
-    //ATH_MSG_DEBUG("createTransient(): T/P version 2 detected");
+  if( compareClassGuid(p3_guid) ) {
+    //ATH_MSG_DEBUG("createTransient(): T/P version 3 detected");
     std::auto_ptr< SCT_ClusterContainer_PERS >  p_coll( poolReadObject< SCT_ClusterContainer_PERS >() );
-    p_collection = m_TPConverter_p2.createTransient( p_coll.get(), msg() );
+    p_collection = m_TPConverter_p3.createTransient( p_coll.get(), msg() );
    
   } else if( compareClassGuid(p1_guid) ) {
     //ATH_MSG_DEBUG("createTransient(): T/P version 1 detected");
@@ -101,7 +102,7 @@ InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv::createTransient() {
 
 
 SCT_ClusterContainer_PERS*    SCT_ClusterContainerCnv::createPersistent (InDet::SCT_ClusterContainer* transCont) {
-   SCT_ClusterContainer_PERS *sctdc_p= m_TPConverter_p2.createPersistent( transCont, msg() );
+   SCT_ClusterContainer_PERS *sctdc_p= m_TPConverter_p3.createPersistent( transCont, msg() );
    return sctdc_p;
 }
 
