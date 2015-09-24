@@ -170,9 +170,9 @@ StatusCode TileDetectorTool::create(StoreGateSvc* detStore)
 
 StatusCode TileDetectorTool::clear(StoreGateSvc* detStore)
 {
-  SG::DataProxy* _proxy = detStore->proxy(ClassID_traits<TileDetDescrManager>::ID(),m_manager->getName());
-  if(_proxy) {
-    _proxy->reset();
+  SG::DataProxy* proxy = detStore->proxy(ClassID_traits<TileDetDescrManager>::ID(),m_manager->getName());
+  if(proxy) {
+    proxy->reset();
     m_manager = 0;
   }
   return StatusCode::SUCCESS;
