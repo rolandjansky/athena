@@ -108,28 +108,19 @@ def getTauAxis():
 
 ########################################################################
 # Tau energy calibration
-def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='', caloOnly=False):
+def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix=''):
  
     _name = sPrefix +'EnergyCalibrationLC' + postfix
     
     if _name in cached_instances:
         return cached_instances[_name]
-
-
-##    calibFileName = "TES2015_LC_online.root"
-    calibFileName = "TES2016_LC_online.root"
-    if caloOnly == True :
-##        calibFileName = "TES2015_LC_online.root"
-        calibFileName = "TES2016_LC_online_inc.root"
     
     from tauRecTools.tauRecToolsConf import TauCalibrateLC
     TauCalibrateLC = TauCalibrateLC(name = _name,
                                     #calibrationFile = "EnergyCalibrationLC2012_retuned.root",
-                                    calibrationFile = calibFileName,
+                                    calibrationFile = "TES2015_LC_online.root",
                                     doEnergyCorrection = correctEnergy,
                                     doAxisCorrection = correctAxis)
-
-    TauCalibrateLC.isCaloOnly = caloOnly
             
     cached_instances[_name] = TauCalibrateLC                
     return TauCalibrateLC
@@ -523,31 +514,6 @@ def getTauShotFinder():
 
 
 
-#########################################################################
-def getInDetTrackSelectionToolForTJVA():
-    _name = sPrefix + 'InDetTrackSelectionToolForTJVA'  
-    
-    if _name in cached_instances:
-        return cached_instances[_name]
-    
-    #Configures tau track selector tool (should eventually check whether an existing one is available)
-    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
-    InDetTrackSelectionToolForTJVA = InDet__InDetTrackSelectionTool(name = _name,
-                                                                    minPt                = 1000.,
-                                                                    maxD0                = 9999.*mm,
-                                                                    maxZ0                = 9999.*mm,                                                                 
-                                                                    minNPixelHits        = 2,  # PixelHits + PixelDeadSensors
-                                                                    minNSctHits          = 0,  # SCTHits + SCTDeadSensors
-                                                                    minNSiHits           = 7,  # PixelHits + SCTHits + PixelDeadSensors + SCTDeadSensors
-                                                                    minNTrtHits          = 0)
-                                                                    #fitChi2OnNdfMax      = 99999,
-                                                                    #TrackSummaryTool     = None,
-                                                                    #Extrapolator         = getAtlasExtrapolator())
-    from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += InDetTrackSelectionToolForTJVA
-    
-    cached_instances[_name] = InDetTrackSelectionToolForTJVA
-    return InDetTrackSelectionToolForTJVA
 
 
 #########################################################################
@@ -640,10 +606,9 @@ def getTauVertexFinder(doUseTJVA=False):
     
     if _name in cached_instances:
         return cached_instances[_name]
-
-    # ATR-15665: commented out, track-vertex association done directly in TauVertexFinder    
-    #if doUseTJVA:
-    #    setupTauJVFTool()
+    
+    if doUseTJVA:
+        setupTauJVFTool()
     
     # Algorithm that overwrites numTrack() and charge() of all tauJets in the container
     from tauRecTools.tauRecToolsConf import TauVertexFinder
@@ -651,12 +616,8 @@ def getTauVertexFinder(doUseTJVA=False):
                                       UseTJVA                 = doUseTJVA,
                                       PrimaryVertexContainer  = _DefaultVertexContainer,
                                       AssociatedTracks="GhostTrack", # OK??
-                                      TrackVertexAssociation=sPrefix+"JetTrackVtxAssoc_forTaus",
-                                      InDetTrackSelectionToolForTJVA = getInDetTrackSelectionToolForTJVA(),
-                                      OnlineMaxTransverseDistance = 2.5*mm,   # ATR-15665
-                                      #OnlineMaxLongitudinalDistance = 2 *mm,
-                                      OnlineMaxZ0SinTheta = 3.0 *mm    
-                                  )
+                                      TrackVertexAssociation=sPrefix+"JetTrackVtxAssoc_forTaus"
+                                      )
     
     cached_instances[_name] = TauVertexFinder         
     return TauVertexFinder 

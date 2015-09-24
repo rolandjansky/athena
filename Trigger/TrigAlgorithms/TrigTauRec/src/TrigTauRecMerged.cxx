@@ -39,8 +39,6 @@
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
 #include "xAODTau/TauDefs.h"
-#include "xAODTau/TauTrackContainer.h"
-#include "xAODTau/TauTrackAuxContainer.h"
 
 #include "LumiBlockComps/ILumiBlockMuTool.h"
 
@@ -641,7 +639,8 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 	if( msgLvl() <= MSG::DEBUG ) msg() << MSG :: DEBUG << "jet formed"<< aJet->eta() <<" , " << aJet->phi() <<" , " << aJet->pt() << " , "<< aJet->e() << endreq;
 	
-	hltStatus=attachFeature(outputTE, theJetCollection, "TrigTauJet");
+	std::string tauKey = "";
+	hltStatus=recordAndAttachFeature(outputTE, theJetCollection,tauKey,"TrigTauJet");
 	
 	if (hltStatus!=HLT::OK ) {
 	  msg() << MSG::ERROR << "Unable to record JetCollection  in TDS" << endreq;
@@ -649,7 +648,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  return hltStatus;
 	}
 	else {
-	  if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " JetCollection is recorded with key " << "HLT_" << "_" << "TrigTauJet" << endreq;
+	  if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " JetCollection is recorded with key " << "HLT_" << tauKey << "_" << "TrigTauJet" << endreq;
 	}
 
 
@@ -662,15 +661,8 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	xAOD::TauJetContainer *pContainer = new xAOD::TauJetContainer();
 	xAOD::TauJetAuxContainer pAuxContainer;
 
-	xAOD::TauTrackContainer *pTrackContainer = new xAOD::TauTrackContainer();
-	xAOD::TauTrackAuxContainer pTrackAuxContainer;
-
 	// Set the store: eventually, we want to use a dedicated trigger version
 	pContainer->setStore(&pAuxContainer);
-
-	// Set the store: eventually, we want to use a dedicated trigger version
-	pTrackContainer->setStore(&pTrackAuxContainer);
-	m_tauEventData.setObject("TauTrackContainer", pTrackContainer);
 
 	// set TauCandidate properties (xAOD style)
 	m_tauEventData.xAODTauContainer = pContainer;
@@ -686,7 +678,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	if(m_lumiBlockMuTool) m_tauEventData.setObject("AvgInteractions", avg_mu);
 	if(m_beamSpotSvc) m_tauEventData.setObject("Beamspot", ptrBeamspot);
 	if(m_beamType == ("cosmics")) m_tauEventData.setObject("IsCosmics?", true );
-
 
 	//-------------------------------------------------------------------------
 	// eventInitialize tauRec colls
@@ -774,10 +765,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 		// for(; tool != firstTool; ++tool ) (*tool)->cleanup( &m_tauEventData );
 		// (*tool)->cleanup( &m_tauEventData );
 
-		xAOD::TauJet* bad_tau = pContainer->back();
-		ATH_MSG_DEBUG("Deleting " << bad_tau->nAllTracks() << "Tracks associated with tau: ");
-		pTrackContainer->erase(pTrackContainer->end()-bad_tau->nAllTracks(), pTrackContainer->end());
-
 		pContainer->pop_back();
 
 		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "clean up done after jet seed" << endreq;
@@ -824,7 +811,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  
 	  // get tau detail variables for Monitoring
 	  m_numTrack      = p_tau->nTracks();
-	  m_nWideTrk = p_tau->nTracksIsolation();
+	  m_nWideTrk      = p_tau->nWideTracks();
 	  p_tau->detail(xAOD::TauJetParameters::trkAvgDist, m_trkAvgDist);
 	  p_tau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, m_etovPtLead);
 	  p_tau->detail(xAOD::TauJetParameters::EMRadius, m_emRadius);
@@ -879,51 +866,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	   msg() << MSG::DEBUG << endreq;
 	   }
 	  */
-
-	  //
-	  // copy CaloOnly four vector, if present
-	  //
-
-	  std::vector<const xAOD::TauJetContainer*> tempCaloOnlyContVec;
-	  HLT::ErrorCode tmpCaloOnlyStatus = getFeatures(inputTE, tempCaloOnlyContVec, "TrigTauRecCaloOnly");
-
-	  if( tmpCaloOnlyStatus != HLT::OK){ 
-
-	    msg() << MSG::DEBUG << "Can't get container TrigTauRecCaloOnly to copy four-vector" << endreq;
-
-	  } else {
-
-	    msg() << MSG::DEBUG << "Got container TrigTauRecCaloOnly size :" << tempCaloOnlyContVec.size() << endreq;
-	     
-	    if ( tempCaloOnlyContVec.size() != 0 ) {
-
-	      // const xAOD::TauJetContainer* tempCaloOnlyTauCont = tempCaloOnlyContVec.back();
-	      // for(xAOD::TauJetContainer::const_iterator tauIt = tempCaloOnlyTauCont->begin(); tauIt != tempCaloOnlyTauCont->end(); tauIt++){ 
-
-	      // const xAOD::TauJetContainer* tempCaloOnlyTauCont = tempCaloOnlyContVec.back();
-
-	      for(xAOD::TauJetContainer::const_iterator tauIt = tempCaloOnlyContVec.back()->begin(); tauIt != tempCaloOnlyContVec.back()->end(); tauIt++){ 
-
-	   	msg() << MSG::DEBUG << "pT(tau) = " << (*tauIt)->pt() << " pT(caloOnly) = " << (*tauIt)->ptTrigCaloOnly() << endreq;
-	  	
-	   	p_tau->setP4(xAOD::TauJetParameters::TrigCaloOnly, (*tauIt)->ptTrigCaloOnly(), (*tauIt)->etaTrigCaloOnly(), (*tauIt)->phiTrigCaloOnly(), (*tauIt)->mTrigCaloOnly());
-
-	      }
-	      
-	    }
-	    
-	  }
-
-
-	  //
-	  // Set NUMVERTICES Aux variable
-	  //
-
-	  // static SG::AuxElement::Accessor<int> acc_nVertex("NUMVERTICES");
-	  // acc_nVertex(*p_tau) = avg_mu;
-
-
-
+	  
 	  msg() << MSG::DEBUG << "REGTEST: Roi: " << roiDescriptor->roiId()
 		<< " Tau being saved eta: " << m_EtaEF << " Tau phi: " << m_PhiEF
 		<< " wrt L1 dEta "<< m_dEta<<" dPhi "<<m_dPhi
@@ -932,9 +875,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  ++m_Ncand;
 	}
 	else {
-	  xAOD::TauJet* bad_tau = pContainer->back();
-	  ATH_MSG_DEBUG("Deleting " << bad_tau->nAllTracks() << "Tracks associated with tau: ");
-	  pTrackContainer->erase(pTrackContainer->end()-bad_tau->nAllTracks(), pTrackContainer->end());
 	  pContainer->pop_back();
 	  
 	  if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "deleted tau done after jet seed" << endreq;
@@ -955,15 +895,15 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	// all done, register the tau Container in TDS.
 	//-------------------------------------------------------------------------
 
-	hltStatus=attachFeature(outputTE, pContainer, m_outputName);
-	hltStatus=attachFeature(outputTE, pTrackContainer, m_outputName+"Tracks");
+	tauKey = "";
+	hltStatus=recordAndAttachFeature(outputTE, pContainer,tauKey,m_outputName);
 	if (hltStatus!=HLT::OK )  {
 		msg() << MSG::ERROR << "Unable to record tau Container in TDS" << endreq;
 		m_calo_errors.push_back(NoHLTtauAttach);
 		return hltStatus;
 	}
 	else {
-		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Recorded a tau container: " << "HLT_" << "TrigTauRecMerged" << endreq;
+		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Recorded a tau container: " << "HLT_" <<tauKey << "_" << "TrigTauRecMerged" << endreq;
 	}
 
 	if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "the tau object has been registered in the tau container" << endreq;
