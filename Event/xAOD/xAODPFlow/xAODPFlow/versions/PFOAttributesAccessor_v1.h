@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PFOAttributesAccessor_v1.h 625439 2014-10-31 15:02:45Z mhodgkin $
+// $Id: PFOAttributesAccessor_v1.h 696622 2015-09-24 14:26:43Z mhodgkin $
 #ifndef PFOATTRIBUTESACCESSOR_H
 #define PFOATTRIBUTESACCESSOR_H
 
@@ -60,6 +60,8 @@ namespace xAOD{
 	DEFINE_PFO_ACCESSOR(eflowRec_LAYERENERGY_Tile0);
 	DEFINE_PFO_ACCESSOR(eflowRec_LAYERENERGY_HEC);
 	DEFINE_PFO_ACCESSOR(eflowRec_TIMING);
+	DEFINE_PFO_ACCESSOR(eflowRec_tracksExpectedEnergyDeposit);
+	DEFINE_PFO_ACCESSOR(eflowRec_isInDenseEnvironment);
 	DEFINE_PFO_ACCESSOR(cellBased_FIRST_ETA); 
 	DEFINE_PFO_ACCESSOR(cellBased_SECOND_R); 
 	DEFINE_PFO_ACCESSOR(cellBased_SECOND_LAMBDA); 
