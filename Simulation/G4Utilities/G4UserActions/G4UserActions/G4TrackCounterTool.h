@@ -8,17 +8,16 @@
 // STL includes
 #include <string>
 
-// Infrastructure includes
+// Local includes
 #include "G4AtlasInterfaces/IBeginEventActionTool.h"
 #include "G4AtlasInterfaces/IPreTrackingActionTool.h"
 #include "G4AtlasTools/ActionToolBase.h"
-
-// Local includes
 #include "G4TrackCounter.h"
+
 
 namespace G4UA
 {
-
+  
   /// @class G4TrackCounterTool
   /// @brief Tool which manages the G4TrackCounter action.
   /// This tool creates the G4TrackCounter for each thread and merges the track
@@ -26,17 +25,17 @@ namespace G4UA
   ///
   /// @author Steve Farrell <Steven.Farrell@cern.ch>
   ///
-  class G4TrackCounterTool : public ActionToolBaseReport<G4TrackCounter>,
-                             public IBeginEventActionTool,
-                             public IPreTrackingActionTool
-  {
-
+  class G4TrackCounterTool : public ActionToolBase<G4TrackCounter>,
+    public IBeginEventActionTool,
+    public IPreTrackingActionTool
+    {
+      
     public:
-
+      
       /// Standard constructor
       G4TrackCounterTool(const std::string& type, const std::string& name,
                          const IInterface* parent);
-
+      
       /// Initialize tool - temporarily just for debugging
       virtual StatusCode initialize() override;
 
@@ -58,9 +57,9 @@ namespace G4UA
 
       /// Create action for this thread
       virtual std::unique_ptr<G4TrackCounter> makeAction() override final;
-
-  }; // class G4TrackCounterTool
-
+      
+    }; // class G4TrackCounterTool
+  
 } // namespace G4UA
 
 #endif

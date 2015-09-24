@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef G4UserActions_G4TrackCounter_H
-#define G4UserActions_G4TrackCounter_H
+#ifndef G4TrackCounter_H
+#define G4TrackCounter_H
 
 #include <string>
 
@@ -43,7 +43,7 @@ class G4TrackCounter final: public UserActionBase {
 #ifndef G4USERACTIONS__G4UA_G4TRACKCOUNTER_H
 #define G4USERACTIONS__G4UA_G4TRACKCOUNTER_H
 
-// Infrastructure includes
+// Local includes
 #include "G4AtlasInterfaces/IBeginEventAction.h"
 #include "G4AtlasInterfaces/IEndRunAction.h"
 #include "G4AtlasInterfaces/IPreTrackingAction.h"
@@ -68,21 +68,20 @@ namespace G4UA
     public:
 
       /// @brief Simple struct for holding the counts
-      /// Might want to use larger integral types for this...
-      struct Report
+      /// Might want to use a larger type for this...
+      struct TrackCounts
       {
+        TrackCounts();
         /// Event counter. Might want a larger int for this
-        unsigned int nEvents=0;
+        unsigned int nEvents;
         /// Total number of tracks
-        unsigned int nTotalTracks=0;
+        unsigned int nTotalTracks;
         /// Number of primary tracks
-        unsigned int nPrimaryTracks=0;
+        unsigned int nPrimaryTracks;
         /// Number of secondary tracks
-        unsigned int nSecondaryTracks=0;
+        unsigned int nSecondaryTracks;
         /// Number of tracks with kinetic E > 50 MeV
-        unsigned int n50MeVTracks=0;
-
-	void merge(const Report& rep);
+        unsigned int n50MeVTracks;
       };
 
       /// @brief Increments event counter.
@@ -94,16 +93,15 @@ namespace G4UA
       virtual void preTracking(const G4Track* track) override;
 
       /// Retrieve my counts
-      const Report& getReport() const
-      { return m_report; }
+      const TrackCounts& getCounts() const
+      { return m_counts; }
 
     private:
 
       /// Track counts for this thread.
-      Report m_report;
+      TrackCounts m_counts;
 
   }; // class G4TrackCounter
-
 } // namespace G4UA
 
 #endif
