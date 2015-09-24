@@ -245,8 +245,6 @@ if dumpTruthInfo:
   IDTRKLUMIStream.AddItem("xAOD::TruthVertexAuxContainer#*")
   IDTRKLUMIStream.AddItem("xAOD::TruthEventContainer#*")
   IDTRKLUMIStream.AddItem("xAOD::TruthEventAuxContainer#*")
-  IDTRKLUMIStream.AddItem("xAOD::TruthPileupEventContainer#*")
-  IDTRKLUMIStream.AddItem("xAOD::TruthPileupEventAuxContainer#*")
 
 # Add trigger information
 if dumpTriggerInfo:

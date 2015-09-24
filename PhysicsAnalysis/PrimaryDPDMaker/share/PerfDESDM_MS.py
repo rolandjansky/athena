@@ -76,201 +76,88 @@ from RecExConfig.ObjKeyStore import objKeyStore
 muonDPDStream_msg.debug("Items in objKeyStore[transient]: %s" %  objKeyStore['transient'].list() )
 #print "Items in objKeyStore[transient]:", objKeyStore['transient'].list()
 
-# ------------------------------------------------
+# ------------------------
 # String based reduction
-# ------------------------------------------------
+# ------------------------
+
+#Retain events with atleast one muon (this is neccessary for orthoganal triggers, not for mu triggers)
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationOR
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
 
-# ------------------------------------------------
-# All 'noalg' muon triggers
-# ------------------------------------------------
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
-MuonNoAlgTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "MuonNoAlgTrig_TriggerSkimmingTool",
-                                                                   TriggerListOR =  ["HLT_noalg_L1MU4", "HLT_noalg_L1MU6", "HLT_noalg_L1MU10",
-                                                                                     "HLT_noalg_L1MU11","HLT_noalg_L1MU15","HLT_noalg_L1MU20",
-                                                                                     "HLT_noalg_L12MU4","HLT_noalg_L12MU6","HLT_noalg_L12MU10"] )
-ToolSvc += MuonNoAlgTrig_TriggerSkimmingTool
-print MuonNoAlgTrig_TriggerSkimmingTool
-
-MuonNoAlgTrig_PrescaleSkimmingTool = DerivationFramework__PrescaleTool ( name = "MuonNoAlgTrig_PrescaleSkimmingTool",
-                                                                              Prescale = 1)
-
-ToolSvc += MuonNoAlgTrig_PrescaleSkimmingTool
-print MuonNoAlgTrig_PrescaleSkimmingTool
-
-MuonNoAlgTrig_EventSkimmingTool = DerivationFramework__FilterCombinationAND(name="MuonNoAlgTrig_EventSkimmingTool",FilterList=[MuonNoAlgTrig_TriggerSkimmingTool, MuonNoAlgTrig_PrescaleSkimmingTool])
-ToolSvc += MuonNoAlgTrig_EventSkimmingTool
-print MuonNoAlgTrig_EventSkimmingTool
-
-
-# ------------------------------------------------
-# Orthogonal triggers (RPC needs)
-# ------------------------------------------------
-OrthoTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "OrthoTrig_TriggerSkimmingTool",
-                                                                    TriggerListOR = ["HLT_xe.*",
-                                                                                     "HLT_[0-9]?j[0-9]*",
-                                                                                     "HLT_j[0-9]*_(jes|lcw|nojcalib|sub|L1RD0|280eta320|320eta490).*",
-                                                                                     "HLT_[0-9]?j[0-9]*_b.*|j[0-9]*_[0-9]j[0-9]*_b.*",
-                                                                                     "HLT_tau.*",
-                                                                                     "HLT_[0-9]?e[0-9]*_(iloose|loose|medium|lhloose|lhmedium|lhtight|etcut)",
-                                                                                     "HLT_[0-9]?e[0-9]*_(iloose|loose|medium|lhloose|lhmedium|lhtight|etcut)_(iloose|nod0|HLTCalo|cu\
-td0dphideta|smooth|L1EM[0-9]*VH|L1EM[0-9]*)",
-                                                                                     "HLT_[0-9]?e[0-9]*_(iloose|loose|medium|lhloose|lhmedium|lhtight)_(iloose|nod0|HLTCalo|cutd0dph\
-ideta|smooth)_(HLTCalo|iloose|L1EM[0-9]*VH|L1EM[0-9]*)",
-                                                                                     "HLT_[0-9]?g[0-9]*_(loose|medium|tight|etcut)",
-                                                                                     "HLT_g[0-9]*_(loose|etcut)_(L1EM[0-9]*|L1EM[0-9]*VH)",
-                                                                                     "HLT_(e|g)[0-9]*_(loose|medium|lhmedium|tight)_g.*",
-                                                                                     "HLT_ht.*",
-                                                                                     "HLT_te.*",
-                                                                                     "HLT_xs.*",
-                                                                                     "HLT_mb.*"] )
-
-ToolSvc += OrthoTrig_TriggerSkimmingTool
-print OrthoTrig_TriggerSkimmingTool
-
-# ------------------------------------------------
-# Offline orthogonal trigger selection (low pT)
-
-OrthoTrig_LowpTMuonEventStringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "OrthoTrig_LowpTMuonEventStringSkimmingTool",
+EventStringSkimmingTool1_sub = DerivationFramework__xAODStringSkimmingTool(name = "EventStringSkimmingTool1_sub",
                                                                 expression = "(count(Muons.muonType == 0 && Muons.pt > 4*GeV && Muons.pt < 15*GeV) > 0)")
-ToolSvc += OrthoTrig_LowpTMuonEventStringSkimmingTool
-print OrthoTrig_LowpTMuonEventStringSkimmingTool
+ToolSvc += EventStringSkimmingTool1_sub
+print EventStringSkimmingTool1_sub
 
-OrthoTrig_LowpTMuonPrescaleSkimmingTool = DerivationFramework__PrescaleTool(   name  = "OrthoTrig_LowpTMuonPrescaleSkimmingTool",
+LowpTMuonPrescaleSkimmingTool = DerivationFramework__PrescaleTool(   name  = "LowpTMuonPrescaleSkimmingTool",
                                                                     Prescale = 10)
-ToolSvc += OrthoTrig_LowpTMuonPrescaleSkimmingTool
-print OrthoTrig_LowpTMuonPrescaleSkimmingTool
+ToolSvc += LowpTMuonPrescaleSkimmingTool
+print LowpTMuonPrescaleSkimmingTool
 
-OrthoTrig_LowpTMuonEventSkimmingTool = DerivationFramework__FilterCombinationAND(name="OrthoTrig_LowpTMuonEventSkimmingTool",FilterList=[OrthoTrig_LowpTMuonEventStringSkimmingTool, OrthoTrig_LowpTMuonPrescaleSkimmingTool])
-ToolSvc += OrthoTrig_LowpTMuonEventSkimmingTool
-print OrthoTrig_LowpTMuonEventSkimmingTool
+EventStringSkimmingTool1 = DerivationFramework__FilterCombinationAND(name="EventStringSkimmingTool1",FilterList=[EventStringSkimmingTool1_sub, LowpTMuonPrescaleSkimmingTool])
+ToolSvc += EventStringSkimmingTool1
+print EventStringSkimmingTool1
 
-# ------------------------------------------------
-# Offline orthogonal trigger selection (mid pT)
-
-OrthoTrig_MidpTMuonEventStringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "OrthoTrig_MidpTMuonEventStringSkimmingTool",
+EventStringSkimmingTool2 = DerivationFramework__xAODStringSkimmingTool(name = "EventStringSkimmingTool2",
                                                                 expression = "(count(Muons.muonType == 0 && Muons.pt >= 15*GeV) > 0)")
-ToolSvc += OrthoTrig_MidpTMuonEventStringSkimmingTool
-print OrthoTrig_MidpTMuonEventStringSkimmingTool
+ToolSvc += EventStringSkimmingTool2
+print EventStringSkimmingTool2
 
-OrthoTrig_MidpTMuonPrescaleSkimmingTool = DerivationFramework__PrescaleTool ( name = "OrthoTrig_MidpTMuonPrescaleSkimmingTool",
-                                                                              Prescale = 1)
-
-ToolSvc += OrthoTrig_MidpTMuonPrescaleSkimmingTool
-print OrthoTrig_MidpTMuonPrescaleSkimmingTool
-
-OrthoTrig_MidpTMuonEventSkimmingTool = DerivationFramework__FilterCombinationAND(name="OrthoTrig_MidpTMuonEventSkimmingTool",FilterList=[OrthoTrig_MidpTMuonEventStringSkimmingTool, OrthoTrig_MidpTMuonPrescaleSkimmingTool])
-ToolSvc += OrthoTrig_MidpTMuonEventSkimmingTool
-print OrthoTrig_MidpTMuonEventSkimmingTool
-
-# ------------------------------------------------
-# Ortho trig events accepted if there is: 
-# [[a low pt (+ prescale) muon] OR [mid pt muon]] 
-# && [orthogonal trigger] event
-
-OrthoTrig_pTMuonEventSkimmingTool=DerivationFramework__FilterCombinationOR(name="OrthoTrig_pTMuonEventSkimmingTool",FilterList=[OrthoTrig_LowpTMuonEventSkimmingTool, OrthoTrig_MidpTMuonEventSkimmingTool])
-ToolSvc+=OrthoTrig_pTMuonEventSkimmingTool
-print OrthoTrig_pTMuonEventSkimmingTool
-
-OrthoTrig_EventSkimmingTool=DerivationFramework__FilterCombinationAND(name="OrthoTrig_EventSkimmingTool",FilterList=[OrthoTrig_pTMuonEventSkimmingTool, OrthoTrig_TriggerSkimmingTool])
-ToolSvc+=OrthoTrig_EventSkimmingTool
-print OrthoTrig_EventSkimmingTool
+EventStringSkimmingTool=DerivationFramework__FilterCombinationOR(name="EventStringSkimmingTool",FilterList=[EventStringSkimmingTool1, EventStringSkimmingTool2])
+ToolSvc+=EventStringSkimmingTool
+print EventStringSkimmingTool
 
 
-# ------------------------------------------------
-# JPsi Trigger selection
-# ------------------------------------------------
-JPsiTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "JPsiTrig_TriggerSkimmingTool",
+#Trigger selection
+#Muon triggers:
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+MuonTrigSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "MuonTrigSkimmingTool",
+                                                                   TriggerListOR =  ["HLT_noalg_L1MU4", "HLT_noalg_L1MU6", "HLT_noalg_L1MU10", 
+                                                                                     "HLT_noalg_L1MU15", "HLT_noalg_L1MU20", "HLT_noalg_L12MU4", 
+                                                                                     "HLT_noalg_L12MU6", "HLT_noalg_L12MU10"] )
+ToolSvc += MuonTrigSkimmingTool
+print MuonTrigSkimmingTool
+
+JPsiTrigSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "JPsiTrigSkimmingTool",
                                                                    TriggerListOR = ["HLT_mu20_2mu0noL1_JpsimumuFS", "HLT_mu18_2mu0noL1_JpsimumuFS", 
                                                                                     "HLT_mu20_2mu4_JpsimumuL2","HLT_mu18_2mu4_JpsimumuL2", 
                                                                                     "HLT_mu6_bJpsi_Trkloose", "HLT_mu18_bJpsi_Trkloose", 
                                                                                     "HLT_mu4_bJpsi_Trkloose", "HLT_mu20_msonly_mu6noL1_msonly_nscan05"] )
-ToolSvc += JPsiTrig_TriggerSkimmingTool
-print JPsiTrig_TriggerSkimmingTool
+ToolSvc += JPsiTrigSkimmingTool
+print JPsiTrigSkimmingTool
 
-
-JPsiTrig_PrescaleSkimmingTool = DerivationFramework__PrescaleTool(   name  = "JPsiTrig_PrescaleSkimmingTool",
-                                                                    Prescale = 2)
-ToolSvc += JPsiTrig_PrescaleSkimmingTool
-print JPsiTrig_PrescaleSkimmingTool
-
-# ------------------------------------------------
-# Jpsi trig events accepted if there is:
-# Jpsi trigger (+ prescale)
-JpsiTrig_EventSkimmingTool = DerivationFramework__FilterCombinationAND(name="JpsiTrig_EventSkimmingTool",FilterList=[JPsiTrig_PrescaleSkimmingTool, JPsiTrig_TriggerSkimmingTool])
-ToolSvc += JpsiTrig_EventSkimmingTool
-print JpsiTrig_EventSkimmingTool
-
-# ------------------------------------------------
-#For TGC, Muon HLT triggers:
-# ------------------------------------------------
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
-MuonHLTTrig_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "MuonHLTTrig_TriggerSkimmingTool",
-                                                                   TriggerListOR =  ["HLT_mu.*"] )
-
-ToolSvc += MuonHLTTrig_TriggerSkimmingTool
-print MuonHLTTrig_TriggerSkimmingTool
-
-# ------------------------------------------------
-# Dimuon selection
-MuonHLTTrig_DiMuonEventStringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "MuonHLTTrig_DiMuonEventStringSkimmingTool",
-                                                                expression = "( (count(Muons.muonType == 0 && Muons.pt > 25*GeV)  > 0) && (count(Muons.muonType == 0 && Muons.pt > 10*GeV)  > 1) )")
-ToolSvc += MuonHLTTrig_DiMuonEventStringSkimmingTool
-print MuonHLTTrig_DiMuonEventStringSkimmingTool
-
-MuonHLTTrig_DiMuonEventPrescaleSkimmingTool = DerivationFramework__PrescaleTool(   name  = "MuonHLTTrig_DiMuonEventPrescaleSkimmingTool",
+#from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__PrescaleTool
+JPsiTrigPrescaleSkimmingTool = DerivationFramework__PrescaleTool(   name  = "JPsiTrigPrescaleSkimmingTool",
                                                                     Prescale = 1)
-ToolSvc += MuonHLTTrig_DiMuonEventPrescaleSkimmingTool
-print MuonHLTTrig_DiMuonEventPrescaleSkimmingTool
+ToolSvc += JPsiTrigPrescaleSkimmingTool
 
+#Orthogonal triggers
+OrthoTrigSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "OrthoTrigSkimmingTool",
+                                                                    TriggerListOR = ["HLT_j.*", "HLT_[0-9]j.*",
+                                                                                     "HLT_ht.*", "HLT_xe.*",
+                                                                                     "HLT_te.*", "HLT_tau.*",
+                                                                                     "HLT_xs.*", "HLT_g.*",
+                                                                                     "HLT_[0-9]g.*","HLT_[0-9]e.*",
+                                                                                     "HLT_e.*", "HLT_b.*",
+                                                                                     "HLT_mb.*", "HLT_noalg_mb.*",
+                                                                                     "HLT_noalg_L1J30.0ETA49_2J20.0ETA49",
+                                                                                     "HLT_noalg_L1MJJ-100"] )
 
-MuonHLTTrig_DiMuonEventSkimmingTool = DerivationFramework__FilterCombinationAND(name="MuonHLTTrig_DiMuonEventSkimmingTool",FilterList=[MuonHLTTrig_DiMuonEventStringSkimmingTool,\
- MuonHLTTrig_DiMuonEventPrescaleSkimmingTool])
-ToolSvc+=MuonHLTTrig_DiMuonEventSkimmingTool
-print MuonHLTTrig_DiMuonEventSkimmingTool
+ToolSvc += OrthoTrigSkimmingTool
+print OrthoTrigSkimmingTool
 
-# ------------------------------------------------
-# Mid pT muon selection
-MuonHLTTrig_MidpTEventStringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "MuonHLTTrig_MidpTEventStringSkimmingTool",
-                                                                expression = "(count(Muons.muonType == 0 && Muons.pt > 25*GeV) > 0)")
-ToolSvc += MuonHLTTrig_MidpTEventStringSkimmingTool
-print MuonHLTTrig_MidpTEventStringSkimmingTool
+JPsiFilterTool = DerivationFramework__FilterCombinationAND(name="JPsiFilterTool",FilterList=[JPsiTrigPrescaleSkimmingTool, JPsiTrigSkimmingTool])
+ToolSvc += JPsiFilterTool
+print JPsiFilterTool
 
-MuonHLTTrig_MidpTMuonPrescaleSkimmingTool = DerivationFramework__PrescaleTool(   name  = "MuonHLTTrig_MidpTMuonPrescaleSkimmingTool",
-                                                                                 Prescale = 2) #okay with 2
-ToolSvc += MuonHLTTrig_MidpTMuonPrescaleSkimmingTool
-print MuonHLTTrig_MidpTMuonPrescaleSkimmingTool
+EventFilterTool_sub=DerivationFramework__FilterCombinationAND(name="EventFilterTool_sub",FilterList=[EventStringSkimmingTool, OrthoTrigSkimmingTool])
+ToolSvc+=EventFilterTool_sub
+print EventFilterTool_sub
 
-
-MuonHLTTrig_MidpTMuonEventSkimmingTool=DerivationFramework__FilterCombinationAND(name="MuonHLTTrig_MidpTMuonEventSkimmingTool",FilterList=[MuonHLTTrig_MidpTEventStringSkimmingTool, MuonHLTTrig_MidpTMuonPrescaleSkimmingTool])
-ToolSvc+=MuonHLTTrig_MidpTMuonEventSkimmingTool
-print MuonHLTTrig_MidpTMuonEventSkimmingTool
-
-
-# ------------------------------------------------
-# Muon HLT selection with combined logic
-
-MuonHLTTrig_pTMuonEventSkimmingTool=DerivationFramework__FilterCombinationOR(name="MuonHLTTrig_pTMuonEventSkimmingTool",FilterList=[MuonHLTTrig_MidpTMuonEventSkimmingTool, MuonHLTTrig_DiMuonEventSkimmingTool])
-ToolSvc+=MuonHLTTrig_pTMuonEventSkimmingTool
-print MuonHLTTrig_pTMuonEventSkimmingTool
-
-
-MuonHLTTrig_EventSkimmingTool=DerivationFramework__FilterCombinationAND(name="MuonHLTTrig_EventSkimmingTool",FilterList=[MuonHLTTrig_pTMuonEventSkimmingTool, MuonHLTTrig_TriggerSkimmingTool])
-ToolSvc+=MuonHLTTrig_EventSkimmingTool
-print MuonHLTTrig_EventSkimmingTool
-
-# ================================================
-# ------------------------------------------------
-# Final logical selection
-# ------------------------------------------------
-# ================================================
-
-#EventFilterTool=DerivationFramework__FilterCombinationOR(name="EventFilterTool",FilterList=[MuonNoAlgTrig_EventSkimmingTool, OrthoTrig_EventSkimmingTool])
-EventFilterTool=DerivationFramework__FilterCombinationOR(name="EventFilterTool",FilterList=[MuonNoAlgTrig_EventSkimmingTool, OrthoTrig_EventSkimmingTool, JpsiTrig_EventSkimmingTool, MuonHLTTrig_EventSkimmingTool])
+EventFilterTool=DerivationFramework__FilterCombinationOR(name="EventFilterTool",FilterList=[EventFilterTool_sub, JPsiFilterTool, MuonTrigSkimmingTool])
 ToolSvc+=EventFilterTool
 print EventFilterTool
 
@@ -287,7 +174,7 @@ if hasMuons:
 
     filAlg_CT=muonTrkTrackThinTool("muonTrkTrackThinTool_CT", TrackCollectionKey = "CombinedMuonTracks")
     desdAlignmentTriggerMuonSequence+=filAlg_CT
-    pass
+
     print topSequence
         
 ##====================================================================
@@ -307,20 +194,18 @@ else:
 
 if primDPDAlignTrigMu.ApplyThinning():
     AlignmentTriggerMuonStream.AcceptAlgs(["muonTrkTrackThinTool_MS"])
-    AlignmentTriggerMuonStream.AcceptAlgs(["muonTrkTrackThinTool_CT"])
+#    AlignmentTriggerMuonStream.AcceptAlgs(["muonTrkTrackThinTool_CT"])
     pass
 
 if primDPDAlignTrigMu.ApplySkimming():
     AlignmentTriggerMuonStream.AcceptAlgs(["EventSkimmingKernel"])
-    pass
+
 #---------------------------------------------------
 # Add the containers to the output stream
 #---------------------------------------------------
 #old way
 #AlignmentTriggerMuonStream.Stream.TakeItemsFromInput = True
 from PrimaryDPDMaker import PrimaryDPD_OutputDefinitions as dpdOutput
-
-trackParticleAuxExclusions="-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
 #General
 AlignmentTriggerMuonStream.AddItem(["xAOD::EventInfo#*"])
@@ -330,12 +215,9 @@ AlignmentTriggerMuonStream.AddItem(["xAOD::MuonAuxContainer#MuonsAux."])
 AlignmentTriggerMuonStream.AddItem(["xAOD::MuonSegmentContainer#MuonSegments"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::MuonSegmentAuxContainer#MuonSegmentsAux."])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#MuonSpectrometerTrackParticles"])
-AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux."+trackParticleAuxExclusions])
+AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux."])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#CombinedMuonTrackParticles"])
-AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#CombinedMuonTrackParticlesAux."+trackParticleAuxExclusions])
-AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#ExtrapolatedMuonTrackParticles"])
-AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#ExtrapolatedMuonTrackParticlesAux."+trackParticleAuxExclusions])
-
+AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#CombinedMuonTrackParticlesAux."])
 #Trigger General
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrigNavigation#TrigNavigation"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrigNavigationAuxInfo#TrigNavigationAux."])
@@ -350,7 +232,7 @@ AlignmentTriggerMuonStream.AddItem(["Muon::MdtPrepDataContainer#*"])
 #Alignment
 AlignmentTriggerMuonStream.AddItem(["Trk::SegmentCollection#MuonSegments"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::VertexContainer#PrimaryVertices"])
-AlignmentTriggerMuonStream.AddItem(["xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex"])
+AlignmentTriggerMuonStream.AddItem(["xAOD::VertexAuxContainer#PrimaryVerticesAux."])
 AlignmentTriggerMuonStream.AddItem(["TrackCollection#MuonSpectrometerTracks"])
 AlignmentTriggerMuonStream.AddItem(["TrackCollection#CombinedMuonTracks"])
 #AlignmentTriggerMuonStream.AddItem(["TrackCollection#Tracks"])
@@ -366,11 +248,8 @@ AlignmentTriggerMuonStream.AddItem(["Muon::TgcCoinDataContainer#TrigT1CoinDataCo
 AlignmentTriggerMuonStream.AddItem(["Muon::TgcCoinDataContainer#TrigT1CoinDataCollection"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TruthParticleContainer#MuonTruthParticles"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TruthParticleAuxContainer#MuonTruthParticlesAux."])
-AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#InDetTrackParticles"+trackParticleAuxExclusions]) #Really want to skim/slim this guy
-AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."+trackParticleAuxExclusions]) #Really want to skim/slim this guy
-AlignmentTriggerMuonStream.AddItem(["TileDigitsContainer#MuRcvDigitsCnt"])
-AlignmentTriggerMuonStream.AddItem(["TileRawChannelContainer#MuRcvRawChCnt"])
-AlignmentTriggerMuonStream.AddItem(["TileMuonReceiverContainer#TileMuRcvCnt"])
+AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#InDetTrackParticles"])
+AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."])
 #HLT
 AlignmentTriggerMuonStream.AddItem(["CosmicMuonCollection#HLT_CosmicMuons"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::L2StandAloneMuonContainer#HLT_xAOD__L2StandAloneMuonContainer_MuonL2SAInfo"])
@@ -407,4 +286,3 @@ AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#HLT_xAOD__T
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_FTFAux."])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_Muon_EFIDAux."])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_InDetTrigTrackingxAODCnv_MuonIso_FTFAux."])
-AlignmentTriggerMuonStream.AddItem(["Muon::CscStripPrepDataContainer#CSC_Measurements"])

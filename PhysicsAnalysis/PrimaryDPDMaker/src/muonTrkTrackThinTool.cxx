@@ -93,8 +93,7 @@ StatusCode muonTrkTrackThinTool::execute()
   const xAOD::MuonContainer* muons = 0;
   CHECK( evtStore()->retrieve( muons, "Muons" ) );
   if (!muons){
-    ATH_MSG_ERROR( "------------- No Muon Collection to filter tracks of type Muons");
-    return StatusCode::FAILURE;
+    ATH_MSG_DEBUG( "------------- No Muon Collection to filter tracks of type Muons");
   }
   m_All+=  muons->size();
 
