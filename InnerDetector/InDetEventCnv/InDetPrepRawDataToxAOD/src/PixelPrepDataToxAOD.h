@@ -23,11 +23,6 @@ class PixelID;
 class SiHit;
 class InDetSimDataCollection;
 
-class IdentifierHash;
-class IPixelCalibSvc;
-class IPixelDCSSvc;
-class IPixelByteStreamErrorsSvc;
-class ISiLorentzAngleSvc;
 
 namespace InDet
 {
@@ -54,23 +49,22 @@ public:
 
 private:
 
-  std::vector< std::vector< int > >  addSDOInformation( xAOD::TrackMeasurementValidation* xprd,
-							const InDet::PixelCluster* prd,
-							const InDetSimDataCollection* sdoCollection ) const;
+  void  addSDOInformation( xAOD::TrackMeasurementValidation* xprd,
+                           const InDet::PixelCluster* prd,
+                           const InDetSimDataCollection* sdoCollection ) const;
 
 
   void  addSiHitInformation( xAOD::TrackMeasurementValidation* xprd, 
                              const InDet::PixelCluster* prd,
-                             const std::vector<SiHit> & matchingHits ) const;
+                             const SiHitCollection* collection) const;
   
   std::vector<SiHit>  findAllHitsCompatibleWithCluster(const InDet::PixelCluster* prd,
-                                                       const SiHitCollection* collection,
-						       std::vector< std::vector< int > > & trkBCs) const;
+                                                       const SiHitCollection* collection) const;
 
 
   void  addNNTruthInfo( xAOD::TrackMeasurementValidation* xprd,
                         const InDet::PixelCluster* prd, 
-                        const std::vector<SiHit> & matchingHits ) const;
+                        const SiHitCollection* collection ) const;
 
   void  addNNInformation( xAOD::TrackMeasurementValidation* xprd, 
                          const InDet::PixelCluster* pixelCluster, 
@@ -100,12 +94,6 @@ private:
   bool  m_writeSiHits;
   bool  m_writeNNinformation;
   bool  m_writeRDOinformation;
-  bool m_useSiHitsGeometryMatching;
-
-  ServiceHandle<IPixelCalibSvc> m_calibSvc;
-  ServiceHandle<IPixelDCSSvc> m_pixelDCSSvc;
-  ServiceHandle<IPixelByteStreamErrorsSvc> m_pixelBSErrorsSvc;
-  ServiceHandle<ISiLorentzAngleSvc> m_lorentzAngleSvc;
 
   // -- Private members   
   bool m_firstEventWarnings;

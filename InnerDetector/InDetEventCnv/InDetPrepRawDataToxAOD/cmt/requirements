@@ -30,9 +30,8 @@ use  InDetSimEvent             InDetSimEvent-*        InnerDetector
 #use  EventPrimitives            EventPrimitives-*               Event
 use TrkSurfaces           TrkSurfaces-*          Tracking/TrkDetDescr
 
-use PixelConditionsServices 		PixelConditionsServices-* 	InnerDetector/InDetConditions
-use InDetCondServices           InDetCondServices-*         InnerDetector/InDetConditions
-use InDetReadoutGeometry        InDetReadoutGeometry-*      InnerDetector/InDetDetDescr
+
+use InDetReadoutGeometry InDetReadoutGeometry-* InnerDetector/InDetDetDescr
 
 use  AtlasHepMC                 AtlasHepMC-*           External
 use  AtlasCLHEP                 AtlasCLHEP-*           External
@@ -41,6 +40,5 @@ use  AtlasROOT                  AtlasROOT-*            External
 public
 apply_pattern component_library
 apply_pattern declare_joboptions files="*.py"
-apply_pattern declare_python_modules files="*.py"
 library InDetPrepRawDataToxAOD *.cxx components/*.cxx
 

@@ -30,10 +30,6 @@
 #include "TMath.h" 
 #include "CLHEP/Geometry/Point3D.h"
 
-#include "PixelConditionsServices/IPixelCalibSvc.h"
-#include "PixelConditionsServices/IPixelDCSSvc.h"
-#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
-#include "InDetCondServices/ISiLorentzAngleSvc.h"
 
 /////////////////////////////////////////////////////////////////////
 //
@@ -43,17 +39,11 @@
 PixelPrepDataToxAOD::PixelPrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
   m_PixelHelper(0),
-  m_useSiHitsGeometryMatching(true),
-  m_calibSvc("PixelCalibSvc", name),
-  m_pixelDCSSvc("PixelDCSSvc", name),
-  m_pixelBSErrorsSvc("PixelByteStreamErrorsSvc", name),
-  m_lorentzAngleSvc("PixelLorentzAngleSvc", name),
   m_firstEventWarnings(true)
 { 
   // --- Steering and configuration flags
  
   declareProperty("UseTruthInfo", m_useTruthInfo=false);
-  declareProperty("UseSiHitsGeometryMatching", m_useSiHitsGeometryMatching=true);
   declareProperty("WriteSDOs", m_writeSDOs = true);
   declareProperty("WriteSiHits", m_writeSiHits = true);
   declareProperty("WriteNNinformation", m_writeNNinformation = true);
@@ -84,14 +74,6 @@ StatusCode PixelPrepDataToxAOD::initialize()
     m_writeSiHits = false;
   }
 
-  CHECK(m_calibSvc.retrieve());
-
-  CHECK(m_pixelDCSSvc.retrieve());
-
-  CHECK(m_pixelBSErrorsSvc.retrieve());
-
-  CHECK(m_lorentzAngleSvc.retrieve());
-
   return StatusCode::SUCCESS;
 }
 
@@ -116,8 +98,8 @@ StatusCode PixelPrepDataToxAOD::execute()
       ATH_CHECK(evtStore()->retrieve(sihitCollection, m_sihitContainer));
     } else {
       if (m_firstEventWarnings) {
-        ATH_MSG_WARNING("Si Hit cotainer no found (" << m_sihitContainer << "). Skipping it although requested.");
-        sihitCollection = 0;
+	ATH_MSG_WARNING("Si Hit cotainer no found (" << m_sihitContainer << "). Skipping it although requested.");
+	sihitCollection = 0;
       }
     }
   }
@@ -129,8 +111,8 @@ StatusCode PixelPrepDataToxAOD::execute()
       ATH_CHECK(evtStore()->retrieve(sdoCollection, m_SDOcontainer));
     } else {
       if (m_firstEventWarnings) {
-        ATH_MSG_WARNING("SDO Collection not found (" << m_SDOcontainer << "). Skipping it although requested.");
-        sdoCollection = 0;
+	ATH_MSG_WARNING("SDO Collection not found (" << m_SDOcontainer << "). Skipping it although requested.");
+	sdoCollection = 0;
       }
     }
   }
@@ -198,16 +180,16 @@ StatusCode PixelPrepDataToxAOD::execute()
       const Amg::MatrixX& localCov = prd->localCovariance();
       //std::cout << localCov <<  std::endl;
       if(localCov.size() == 1){
-        //std::cout << "Size  == 1" << std::endl;
+	//std::cout << "Size  == 1" << std::endl;
         xprd->setLocalPositionError( localCov(0,0), 0., 0. ); 
       } else if(localCov.size() == 4){
-        //std::cout << "Size  == 2" << std::endl;
+	//std::cout << "Size  == 2" << std::endl;
         xprd->setLocalPositionError( localCov(0,0), localCov(1,1), localCov(0,1) );     
       } else {
-        //std::cout << "Size  == "<< localCov.size() << std::endl;
+	//std::cout << "Size  == "<< localCov.size() << std::endl;
         xprd->setLocalPositionError(0.,0.,0.);
       }
-
+         
       // Set vector of hit identifiers
       std::vector< uint64_t > rdoIdentifierList;
       for( const auto &hitIdentifier : prd->rdoList() ){
@@ -215,7 +197,7 @@ StatusCode PixelPrepDataToxAOD::execute()
         //May want to addinformation about the individual hits here
       }
       xprd->setRdoIdentifierList(rdoIdentifierList);
-
+   
       //Add pixel cluster properties
       xprd->auxdata<int>("bec")          =   m_PixelHelper->barrel_ec(clusterId)   ;
       xprd->auxdata<int>("layer")        =   m_PixelHelper->layer_disk(clusterId)  ;   
@@ -231,7 +213,7 @@ StatusCode PixelPrepDataToxAOD::execute()
       const InDet::SiWidth cw = prd->width();
       xprd->auxdata<int>("sizePhi") = (int)cw.colRow()[0];
       xprd->auxdata<int>("sizeZ")   = (int)cw.colRow()[1];
-      xprd->auxdata<int>("nRDO")    = (int)prd->rdoList().size();
+      xprd->auxdata<int>("size")    = (int)prd->rdoList().size();
    
       xprd->auxdata<float>("charge")  =  prd->totalCharge(); 
       xprd->auxdata<int>("ToT")       =  prd->totalToT(); 
@@ -247,18 +229,8 @@ StatusCode PixelPrepDataToxAOD::execute()
       if(m_writeNNinformation)addNNInformation( xprd,  prd, 7, 7);
       
       // Add information for each contributing hit
-      if(m_writeRDOinformation) {
-        IdentifierHash moduleHash = clusterCollection->identifyHash();
-        xprd->auxdata<int>("isBSError") = (int)m_pixelBSErrorsSvc->isActive(moduleHash);
-        xprd->auxdata<std::string>("DCSState") = (std::string)m_pixelDCSSvc->getFSMState(moduleHash);
-
-        xprd->auxdata<float>("BiasVoltage") = (float)m_lorentzAngleSvc->getBiasVoltage(moduleHash);
-        xprd->auxdata<float>("Temperature") = (float)m_lorentzAngleSvc->getTemperature(moduleHash);
-        xprd->auxdata<float>("DepletionVoltage") = (float)m_lorentzAngleSvc->getDepletionVoltage(moduleHash);
-        xprd->auxdata<float>("LorentzShift") = (float)m_lorentzAngleSvc->getLorentzShift(moduleHash);
-
-        addRdoInformation(xprd,  prd);
-      } 
+      if(m_writeRDOinformation) addRdoInformation(xprd,  prd);
+  
   
   
       // Add the Detector element ID  --  not sure if needed as we have the informations above
@@ -282,75 +254,23 @@ StatusCode PixelPrepDataToxAOD::execute()
         }
         xprd->auxdata< std::vector<int> >("truth_barcode") = barcodes;
       }
-      
-      std::vector< std::vector< int > > sdo_tracks;
+
       // Use the SDO Collection to get a list of all true particle contributing to the cluster per readout element
       //  Also get the energy deposited by each true particle per readout element   
       if( sdoCollection ){
-	  sdo_tracks = addSDOInformation( xprd, prd,sdoCollection);
+        addSDOInformation( xprd, prd,sdoCollection);
       }
     
       // Now Get the most detailed truth from the SiHits
       // Note that this could get really slow if there are a lot of hits and clusters
       if(  sihitCollection  ){
-	  const std::vector<SiHit> matched_hits = findAllHitsCompatibleWithCluster(  prd, sihitCollection, sdo_tracks );
-	  
-	  if(m_writeSiHits)
-	  {
-	      if ( ! sdoCollection )
-		  ATH_MSG_WARNING("Si hit truth information requested, but SDO collection not available!" );
-	      addSiHitInformation( xprd, prd, matched_hits ); 
-	  }
-	  if(m_writeNNinformation)
-	  {
-	      if ( ! sdoCollection )
-		  ATH_MSG_WARNING("Si hit truth information requested, but SDO collection not available!" );
-	      addNNTruthInfo(  xprd, prd, matched_hits );
-	  }
+        if(m_writeSiHits)
+          addSiHitInformation( xprd, prd, sihitCollection); 
+        if(m_writeNNinformation)
+          addNNTruthInfo(  xprd, prd, sihitCollection );
       }
     }
   }
-
-  for ( auto clusItr = xaod->begin(); clusItr != xaod->end(); clusItr++ )
-      (*clusItr)->auxdata<char>("broken") = false;
-
-  for ( auto clusItr = xaod->begin(); clusItr != xaod->end(); clusItr++ )
-  {
-      auto pixelCluster = *clusItr;
-      int layer = pixelCluster->auxdata< int >("layer");
-      std::vector<int> barcodes = pixelCluster->auxdata< std::vector< int > >("sihit_barcode");
-
-      for ( auto clusItr2 = clusItr + 1; clusItr2 != xaod->end(); clusItr2++ )
-      {
-	  auto pixelCluster2 = *clusItr2;
-	  if ( pixelCluster2->auxdata< int >("layer") != layer )
-	      continue;
-	  if ( pixelCluster->auxdata< int >("eta_module") != pixelCluster2->auxdata< int >("eta_module") )
-	      continue;
-	  if ( pixelCluster->auxdata< int >("phi_module") != pixelCluster2->auxdata< int >("phi_module") )
-	      continue;
-
-	  std::vector<int> barcodes2 = pixelCluster2->auxdata< std::vector< int > >("sihit_barcode");
-	  
-	  bool broken = false;
-	  for ( auto bc : barcodes )
-	  {
-	      for ( auto bc2 : barcodes2 )
-	      {
-		  if ( bc2 == bc )
-		  {
-		      broken = true;
-		      pixelCluster->auxdata<char>("broken")  = true;
-		      pixelCluster2->auxdata<char>("broken") = true;
-		      break;
-		  }
-	      }
-	      if ( broken ) 
-		  break;
-	  }
-      }
-  }
-
   ATH_MSG_DEBUG( " recorded PixelPrepData objects: size " << xaod->size() );
 
   m_firstEventWarnings = false;
@@ -359,9 +279,9 @@ StatusCode PixelPrepDataToxAOD::execute()
 }
 
 
-std::vector< std::vector< int > > PixelPrepDataToxAOD::addSDOInformation( xAOD::TrackMeasurementValidation* xprd,
-									  const InDet::PixelCluster* prd,
-									  const InDetSimDataCollection* sdoCollection ) const
+void PixelPrepDataToxAOD::addSDOInformation( xAOD::TrackMeasurementValidation* xprd,
+                                            const InDet::PixelCluster* prd,
+                                            const InDetSimDataCollection* sdoCollection ) const
 {
   std::vector<int> sdo_word;
   std::vector< std::vector< int > > sdo_depositsBarcode;
@@ -390,16 +310,18 @@ std::vector< std::vector< int > > PixelPrepDataToxAOD::addSDOInformation( xAOD::
   xprd->auxdata< std::vector<int> >("sdo_words")  = sdo_word;
   xprd->auxdata< std::vector< std::vector<int> > >("sdo_depositsBarcode")  = sdo_depositsBarcode;
   xprd->auxdata< std::vector< std::vector<float> > >("sdo_depositsEnergy") = sdo_depositsEnergy;
-  
-  return sdo_depositsBarcode;
 }
 
 
 
 void  PixelPrepDataToxAOD::addSiHitInformation( xAOD::TrackMeasurementValidation* xprd, 
-						const InDet::PixelCluster* prd,
-						const std::vector<SiHit> & matchingHits ) const
+                                               const InDet::PixelCluster* prd,
+                                               const SiHitCollection* sihitCollection) const
+                             
+                             
 {
+
+  std::vector<SiHit> matchingHits = findAllHitsCompatibleWithCluster(  prd, sihitCollection );
 
   int numHits = matchingHits.size();
 
@@ -467,8 +389,7 @@ void  PixelPrepDataToxAOD::addSiHitInformation( xAOD::TrackMeasurementValidation
 
 
 std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const InDet::PixelCluster* prd, 
-                                                                          const SiHitCollection* collection,
-									  std::vector< std::vector< int > > & trkBCs ) const
+                                                                          const SiHitCollection* collection) const
 {
   ATH_MSG_VERBOSE( "Got " << collection->size() << " SiHits to look through" );
   std::vector<SiHit>  matchingHits;
@@ -484,7 +405,7 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
     // Check if it is a Pixel hit
     if( !siHit.isPixel() )
       continue;
-    
+     
     //Check if it is on the correct module
     Identifier clusterId = prd->identify();
   
@@ -498,43 +419,26 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
     // Must be within +/- 1 hits of any hit in the cluster to be included
     ATH_MSG_DEBUG("Hit is on the same module");
     
-    if ( m_useSiHitsGeometryMatching )
-    {
-	HepGeom::Point3D<double>  averagePosition =  siHit.localStartPosition() + siHit.localEndPosition();
-	averagePosition *= 0.5;
-	Amg::Vector2D pos = de->hitLocalToLocal( averagePosition.z(), averagePosition.y() );
-	InDetDD::SiCellId diode = de->cellIdOfPosition(pos);
-	
-	for( const auto &hitIdentifier : prd->rdoList() ){
-	    ATH_MSG_DEBUG("Truth Phi " <<  diode.phiIndex() << " Cluster Phi " <<   m_PixelHelper->phi_index( hitIdentifier ) );
-	    ATH_MSG_DEBUG("Truth Eta " <<  diode.etaIndex() << " Cluster Eta " <<   m_PixelHelper->eta_index( hitIdentifier ) );
-	    if( abs( int(diode.etaIndex()) - m_PixelHelper->eta_index( hitIdentifier ) ) <=1  
-		&& abs( int(diode.phiIndex()) - m_PixelHelper->phi_index( hitIdentifier ) ) <=1 ) 
-	    {
-		multiMatchingHits.push_back(&siHit);   
-		break;
-	    }
-	}
-    }
-    else
-    {
-	bool foundHit = false;
-	for ( const auto barcodeSDOColl : trkBCs )
-	{
-	    for ( const auto barcode : barcodeSDOColl )
-	    {
-		if ( siHit.particleLink().barcode() == barcode )
-		{
-		    multiMatchingHits.push_back(&siHit);   
-		    foundHit = true;
-		    break;   
-		}
-	    }
-	    if ( foundHit )
-		break;
-	}
+    HepGeom::Point3D<double>  averagePosition =  siHit.localStartPosition() + siHit.localEndPosition();
+    averagePosition *= 0.5;
+    Amg::Vector2D pos = de->hitLocalToLocal( averagePosition.z(), averagePosition.y() );
+    InDetDD::SiCellId diode = de->cellIdOfPosition(pos);
+   
+    for( const auto &hitIdentifier : prd->rdoList() ){
+
+      ATH_MSG_DEBUG("Truth Phi " <<  diode.phiIndex() << " Cluster Phi " <<   m_PixelHelper->phi_index( hitIdentifier ) );
+      ATH_MSG_DEBUG("Truth Eta " <<  diode.etaIndex() << " Cluster Eta " <<   m_PixelHelper->eta_index( hitIdentifier ) );
+
+      if( abs( int(diode.etaIndex()) - m_PixelHelper->eta_index( hitIdentifier ) ) <=1  
+       && abs( int(diode.phiIndex()) - m_PixelHelper->phi_index( hitIdentifier ) ) <=1 ) 
+      {
+        multiMatchingHits.push_back(&siHit);   
+        break;   
+      }     
     }
   }
+  
+  
   //Now we will now make 1 SiHit for each true particle if the SiHits "touch" other 
   std::vector<const SiHit* >::iterator siHitIter  = multiMatchingHits.begin();
   std::vector<const SiHit* >::iterator siHitIter2 = multiMatchingHits.begin();
@@ -635,10 +539,6 @@ void PixelPrepDataToxAOD::addRdoInformation(xAOD::TrackMeasurementValidation* xp
   // std::vector<int>  colList;
   std::vector<int>  etaIndexList;
   std::vector<int>  phiIndexList;
-  std::vector<float> CTerm;
-  std::vector<float> ATerm;
-  std::vector<float> ETerm;
-
 
   ATH_MSG_VERBOSE( "Number of RDOs: " << rdos.size() );
   
@@ -655,12 +555,6 @@ void PixelPrepDataToxAOD::addRdoInformation(xAOD::TrackMeasurementValidation* xp
     // colList.push_back( m_PixelHelper->eta_index(rId) );  
     phiIndexList.push_back( m_PixelHelper->phi_index(rId) );
     etaIndexList.push_back( m_PixelHelper->eta_index(rId) );  
-
-    // charge calibration parameters
-    CTerm.push_back( m_calibSvc->getQ2TotC(rId) );
-    ATerm.push_back( m_calibSvc->getQ2TotA(rId) );
-    ETerm.push_back( m_calibSvc->getQ2TotE(rId) );
-
   }//end iteration on rdos
 
 
@@ -671,10 +565,6 @@ void PixelPrepDataToxAOD::addRdoInformation(xAOD::TrackMeasurementValidation* xp
   xprd->auxdata< std::vector<float> >("rdo_charge")  = chList;
   xprd->auxdata< std::vector<int> >("rdo_tot")  = totList;
   
-  xprd->auxdata< std::vector<float> >("rdo_Cterm") = CTerm;
-  xprd->auxdata< std::vector<float> >("rdo_Aterm") = ATerm;
-  xprd->auxdata< std::vector<float> >("rdo_Eterm") = ETerm;
-
 }
 
 
@@ -893,9 +783,10 @@ void PixelPrepDataToxAOD::addNNInformation(xAOD::TrackMeasurementValidation* xpr
 
 void  PixelPrepDataToxAOD::addNNTruthInfo(  xAOD::TrackMeasurementValidation* xprd,
                                             const InDet::PixelCluster* pixelCluster, 
-                                            const std::vector<SiHit> & matchingHits ) const
+                                            const SiHitCollection* sihitCollection ) const
 {
 
+  std::vector<SiHit> matchingHits = findAllHitsCompatibleWithCluster(  pixelCluster, sihitCollection );
 
   unsigned int numberOfSiHits = matchingHits.size();
   
@@ -949,7 +840,7 @@ void  PixelPrepDataToxAOD::addNNTruthInfo(  xAOD::TrackMeasurementValidation* xp
 
     if (fabs(YposC)>design->width()/2 && 
         fabs(averagePosition.y())<design->width()/2)
-   { 
+    {
       if (YposC>design->width()/2)
       {
         YposC=design->width()/2-1e-6;

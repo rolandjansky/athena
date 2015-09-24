@@ -5,42 +5,40 @@
 from AthenaCommon.JobProperties import jobproperties as athCommonFlags
 from DerivationFrameworkInDet.InDetCommon import *
 
-from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
-
 # Select active sub-systems
-dumpPixInfo = InDetDxAODFlags.DumpPixelInfo()
-dumpSctInfo = InDetDxAODFlags.DumpSctInfo()
-dumpTrtInfo = InDetDxAODFlags.DumpTrtInfo()
+dumpPixInfo=True
+dumpSctInfo=True
+dumpTrtInfo=False
 
 # Thin hits to store only the ones on-track
-thinHitsOnTrack= InDetDxAODFlags.ThinHitsOnTrack()
+thinHitsOnTrack=True
 
 # Thin track collection, if necessary
 # Example (p_T > 1.0 GeV && delta_z0 < 5 mm):
 # InDetTrackParticles.pt > 1*GeV && abs(DFCommonInDetTrackZ0AtPV) < 5.0
-thinTrackSelection = InDetDxAODFlags.ThinTrackSelection() ##"InDetTrackParticles.pt > 0.1*GeV"
+thinTrackSelection = "InDetTrackParticles.pt > 0.1*GeV"
 
 # Bytestream errors (for sub-systems who have implemented it)
-dumpBytestreamErrors=InDetDxAODFlags.DumpByteStreamErrors() #True
+dumpBytestreamErrors=True
 
 # Unassociated hits decorations
-dumpUnassociatedHits= InDetDxAODFlags.DumpUnassociatedHits() #True
+dumpUnassociatedHits=True
 
 # Add LArCollisionTime augmentation tool
-dumpLArCollisionTime=InDetDxAODFlags.DumpLArCollisionTime() #True
+dumpLArCollisionTime=True
 
 # Force to do not dump truth info if set to False
 #  (otherwise determined by autoconf below)
-dumpTruthInfo=InDetDxAODFlags.DumpTruthInfo() # True
+dumpTruthInfo=True
 
 # Saves partial trigger information in the output stream (none otherwise)
-dumpTriggerInfo= InDetDxAODFlags.DumpTriggerInfo()  #True
+dumpTriggerInfo=True
 
 # Print settings for main tools
-printIdTrkDxAODConf = InDetDxAODFlags.PrintIdTrkDxAODConf()  # True
+printIdTrkDxAODConf = True
 
 # Create split-tracks if running on cosmics
-makeSplitTracks = InDetDxAODFlags.MakeSplitCosmicTracks() and athCommonFlags.Beam.beamType() == 'cosmics'
+makeSplitTracks = True and athCommonFlags.Beam.beamType() == 'cosmics'
 
 ## Autoconfiguration adjustements
 isIdTrkDxAODSimulation = False
@@ -62,9 +60,6 @@ prefixName = ""
 #################
 ### Setup tools
 #################
-from AthenaCommon import CfgMgr
-IDDerivationSequence = CfgMgr.AthSequencer("InDetDxAOD_seq")
-
 if dumpTrtInfo:
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawNeighbourSvc
     TRTStrawNeighbourSvc=TRT_StrawNeighbourSvc()
@@ -74,11 +69,17 @@ if dumpTrtInfo:
     TRTCalibDBSvc=TRT_CalDbSvc()
     ServiceMgr += TRTCalibDBSvc
 
+    from TRT_ToT_Tools.TRT_ToT_ToolsConf import TRT_ToT_dEdx
+    TRT_dEdx_Tool = TRT_ToT_dEdx(name="TRT_ToT_dEdx")
+    ToolSvc += TRT_dEdx_Tool
+
 #Setup charge->ToT back-conversion to restore ToT info as well
 if dumpPixInfo: 
+    from AthenaCommon.AlgSequence import AlgSequence 
+    topSequence = AlgSequence() 
     from PixelCalibAlgs.PixelCalibAlgsConf import PixelChargeToTConversion 
     PixelChargeToTConversionSetter = PixelChargeToTConversion(name = "PixelChargeToTConversionSetter") 
-    IDDerivationSequence += PixelChargeToTConversionSetter 
+    topSequence += PixelChargeToTConversionSetter 
     if (printIdTrkDxAODConf):
         print PixelChargeToTConversionSetter
         print PixelChargeToTConversionSetter.properties()
@@ -102,8 +103,8 @@ if makeSplitTracks:
     splittercomb=InDet__InDetSplittedTracksCreator(name='CombinedTrackSplitter',
     TrackSplitterTool     = splittertoolcomb,
     TrackCollection       = "Tracks",
-    OutputTrackCollection = "Tracks_splitID")
-    IDDerivationSequence +=splittercomb
+    OutputTrackCollection = "Tracks_split")
+    topSequence+=splittercomb
     if (printIdTrkDxAODConf):
         print splittercomb
         print splittercomb.properties()
@@ -119,20 +120,20 @@ if makeSplitTracks:
     # The following adds truth information, but needs further testing
     #include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
     #if isIdTrkDxAODSimulation:
-    #    InDetSplitTracksTruth = ConfiguredInDetTrackTruth("Tracks_splitID",'SplitTrackDetailedTruth','SplitTrackTruth')
+    #    InDetSplitTracksTruth = ConfiguredInDetTrackTruth("Tracks_split",'SplitTrackDetailedTruth','SplitTrackTruth')
 
     xAODSplitTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg('InDetSplitTrackParticles')
     xAODSplitTrackParticleCnvAlg.xAODContainerName = 'InDetSplitTrackParticles'
     xAODSplitTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = 'InDetSplitTrackParticles'
     xAODSplitTrackParticleCnvAlg.TrackParticleCreator = InDetxAODSplitParticleCreatorTool
-    xAODSplitTrackParticleCnvAlg.TrackContainerName = 'Tracks_splitID'
+    xAODSplitTrackParticleCnvAlg.TrackContainerName = 'Tracks_split'
     xAODSplitTrackParticleCnvAlg.ConvertTrackParticles = False
     xAODSplitTrackParticleCnvAlg.ConvertTracks = True
     xAODSplitTrackParticleCnvAlg.AddTruthLink = False #isIdTrkDxAODSimulation
     if (isIdTrkDxAODSimulation):
         xAODSplitTrackParticleCnvAlg.TrackTruthContainerName = 'SplitTrackTruth'
     xAODSplitTrackParticleCnvAlg.PrintIDSummaryInfo = True
-    IDDerivationSequence += xAODSplitTrackParticleCnvAlg
+    topSequence += xAODSplitTrackParticleCnvAlg
 
 
 #################
@@ -147,7 +148,7 @@ if dumpTrtInfo:
     xAOD_TRT_PrepDataToxAOD.UseTruthInfo = dumpTruthInfo
     #xAOD_TRT_PrepDataToxAOD.WriteSDOs    = True
 
-    IDDerivationSequence += xAOD_TRT_PrepDataToxAOD
+    topSequence += xAOD_TRT_PrepDataToxAOD
     if (printIdTrkDxAODConf):
         print xAOD_TRT_PrepDataToxAOD
         print xAOD_TRT_PrepDataToxAOD.properties()
@@ -158,11 +159,11 @@ if dumpSctInfo:
     ## Content steering Properties (default value shown as comment)
     xAOD_SCT_PrepDataToxAOD.OutputLevel=INFO
     xAOD_SCT_PrepDataToxAOD.UseTruthInfo        = dumpTruthInfo
-    xAOD_SCT_PrepDataToxAOD.WriteRDOinformation = True
+    xAOD_SCT_PrepDataToxAOD.WriteRDOinformation = False
     #xAOD_SCT_PrepDataToxAOD.WriteSDOs           = True
     #xAOD_SCT_PrepDataToxAOD.WriteSiHits         = True # if available
 
-    IDDerivationSequence += xAOD_SCT_PrepDataToxAOD
+    topSequence += xAOD_SCT_PrepDataToxAOD
     if (printIdTrkDxAODConf):
         print xAOD_SCT_PrepDataToxAOD
         print xAOD_SCT_PrepDataToxAOD.properties()
@@ -173,14 +174,14 @@ if dumpPixInfo:
     ## Content steering Properties (default value shown as comment)
     xAOD_PixelPrepDataToxAOD.OutputLevel          = INFO
     xAOD_PixelPrepDataToxAOD.UseTruthInfo         = dumpTruthInfo
-    xAOD_PixelPrepDataToxAOD.WriteRDOinformation  = InDetDxAODFlags.DumpPixelRdoInfo()
-    xAOD_PixelPrepDataToxAOD.WriteNNinformation   = InDetDxAODFlags.DumpPixelNNInfo()
+    xAOD_PixelPrepDataToxAOD.WriteRDOinformation  = False
+    xAOD_PixelPrepDataToxAOD.WriteNNinformation   = False
     #xAOD_PixelPrepDataToxAOD.WriteSDOs            = True
     #xAOD_PixelPrepDataToxAOD.WriteSiHits          = True # if available
     if InDetFlags.doSLHC():
         xAOD_PixelPrepDataToxAOD.WriteNNinformation=False
 
-    IDDerivationSequence += xAOD_PixelPrepDataToxAOD
+    topSequence += xAOD_PixelPrepDataToxAOD
     if (printIdTrkDxAODConf):
         print xAOD_PixelPrepDataToxAOD
         print xAOD_PixelPrepDataToxAOD.properties()
@@ -210,6 +211,9 @@ DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateO
                                                           StorePixel = dumpPixInfo,
                                                           IsSimulation = isIdTrkDxAODSimulation,
                                                           OutputLevel = INFO)
+if dumpTrtInfo:
+    #Add tool to calculate TRT-based dEdx
+    DFTSOS.TRT_ToT_dEdx = TRT_dEdx_Tool
 
 ToolSvc += DFTSOS
 augmentationTools+=[DFTSOS]
@@ -277,7 +281,7 @@ if dumpLArCollisionTime:
     from RecExConfig.ObjKeyStore           import cfgKeyStore
     # We can only do this if we have the cell container.
     if cfgKeyStore.isInInput ('CaloCellContainer', 'AllCalo'):
-        LArCollisionTimeGetter (IDDerivationSequence)
+        LArCollisionTimeGetter (topSequence)
 
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__LArCollisionTimeDecorator
         lArCollisionTimeDecorator = DerivationFramework__LArCollisionTimeDecorator (name ='lArCollisionTimeDecorator',
@@ -290,15 +294,6 @@ if dumpLArCollisionTime:
             print lArCollisionTimeDecorator
             print lArCollisionTimeDecorator.properties()
 
-# Add decoration with truth parameters if running on simulation
-if isIdTrkDxAODSimulation:
-    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParametersForTruthParticles
-    TruthDecor = DerivationFramework__TrackParametersForTruthParticles( name = "TruthTPDecor",
-                                                                        TruthParticleContainerName = "TruthParticles",
-                                                                        DecorationPrefix = "")
-    ToolSvc += TruthDecor
-    augmentationTools.append(TruthDecor)
-    print TruthDecor
 
 #====================================================================
 # Skimming Tools
@@ -334,16 +329,18 @@ thinningTools.append(IDTRKThinningTool)
 #====================================================================
 # Add the derivation job to the top AthAlgSeqeuence
 # DerivationJob is COMMON TO ALL DERIVATIONS
-IDDerivationSequence += CfgMgr.DerivationFramework__DerivationKernel("DFTSOS_KERN",
+DerivationFrameworkJob = CfgMgr.AthSequencer("MySeq2")
+from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
+DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("DFTSOS_KERN",
                                                                        AugmentationTools = augmentationTools,
                                                                        SkimmingTools = skimmingTools,
                                                                        ThinningTools = thinningTools,
                                                                        OutputLevel = INFO)
 
-topSequence += IDDerivationSequence 
+topSequence += DerivationFrameworkJob
 if (printIdTrkDxAODConf):
-    print IDDerivationSequence 
-    print IDDerivationSequence.properties()
+    print DerivationFrameworkJob
+    print DerivationFrameworkJob.properties()
 
 #################
 ### Steer output file content
@@ -404,17 +401,12 @@ IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#GSFTrackParticlesAux."
 
 # Add truth-related information
 if dumpTruthInfo:
-    IDTRKVALIDStream.AddItem("xAOD::TruthParticleContainer#*")
-    IDTRKVALIDStream.AddItem("xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension")
-    IDTRKVALIDStream.AddItem("xAOD::TruthVertexContainer#*")
-    IDTRKVALIDStream.AddItem("xAOD::TruthVertexAuxContainer#*")
-    IDTRKVALIDStream.AddItem("xAOD::TruthEventContainer#*")
-    IDTRKVALIDStream.AddItem("xAOD::TruthEventAuxContainer#*")
-    IDTRKVALIDStream.AddItem("xAOD::TruthPileupEventContainer#*")
-    IDTRKVALIDStream.AddItem("xAOD::TruthPileupEventAuxContainer#*")
-    # add pseudo tracking in xAOD
-    IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetPseudoTrackParticles")
-    IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetPseudoTrackParticlesAux."+excludedAuxData)
+  IDTRKVALIDStream.AddItem("xAOD::TruthParticleContainer#*")
+  IDTRKVALIDStream.AddItem("xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension")
+  IDTRKVALIDStream.AddItem("xAOD::TruthVertexContainer#*")
+  IDTRKVALIDStream.AddItem("xAOD::TruthVertexAuxContainer#*")
+  IDTRKVALIDStream.AddItem("xAOD::TruthEventContainer#*")
+  IDTRKVALIDStream.AddItem("xAOD::TruthEventAuxContainer#*")
 
 # Add trigger information (including metadata)
 if dumpTriggerInfo:

@@ -37,7 +37,7 @@
 /////////////////////////////////////////////////////////////////////
 TRT_PrepDataToxAOD::TRT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
-  m_driftFunctionTool("TRT_DriftFunctionTool", this),
+  m_driftFunctionTool("TRT_DriftFunctionTool"),
   m_trtcaldbSvc("TRT_CalDbSvc", name),
   m_neighbourSvc("TRT_StrawNeighbourSvc", name),
   m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",name),
@@ -188,8 +188,8 @@ StatusCode TRT_PrepDataToxAOD::execute()
         chip=chip-20;
         board=1;
       }
-      xprd->auxdata<int>("TRTboard") =   board ; 
-      xprd->auxdata<int>("TRTchip")  =   chip  ;
+      xprd->auxdata<int>("board") =   board ; 
+      xprd->auxdata<int>("chip")  =   chip  ;
 
       
       //Set Local Position
@@ -208,9 +208,9 @@ StatusCode TRT_PrepDataToxAOD::execute()
       
       const Amg::MatrixX& localCov = prd->localCovariance();
       if(localCov.size() == 1){
-        xprd->setLocalPositionError( sqrt(localCov(0,0)), 0., 0. ); 
+        xprd->setLocalPositionError( localCov(0,0), 0., 0. ); 
       } else if(localCov.size() == 2){
-        xprd->setLocalPositionError( sqrt(localCov(0,0)), sqrt(localCov(1,1)), sqrt(localCov(0,1)) );     
+        xprd->setLocalPositionError( localCov(0,0), localCov(1,1), localCov(0,1) );     
       } else {
         xprd->setLocalPositionError(0.,0.,0.);
       }
@@ -272,17 +272,14 @@ StatusCode TRT_PrepDataToxAOD::execute()
       //Full bit patternword from the TRT
       xprd->auxdata<unsigned int>("bitPattern") = word;
       
-      char gas_type = kUnset;
+      char isArgonStraw = 0;
       if (!m_TRTStrawSummarySvc.empty()) {
-        int stat = m_TRTStrawSummarySvc->getStatusHT(surfaceID);
-        
-        if       ( stat==1 || stat==4 ) { gas_type = kArgon; }
-        else if  ( stat==5 )            { gas_type = kKrypton; }
-        else if  ( stat==2 || stat==3 ) { gas_type = kXenon; }
-        else if  ( stat==6 )              gas_type = kEmAr;
-        else if  ( stat==7 )              gas_type = kEmKr;
+        if (m_TRTStrawSummarySvc->getStatusHT(surfaceID) != TRTCond::StrawStatus::Good) {
+          isArgonStraw = 1;
+        }
       }
-      xprd->auxdata<char>("gasType")              = gas_type;
+      xprd->auxdata<char>("isArgon")              = isArgonStraw            ;
+
 
       // Use the MultiTruth Collection to get a list of all true particle contributing to the DC
       if(m_prdmtColl){

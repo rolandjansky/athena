@@ -242,7 +242,7 @@ StatusCode SCT_PrepDataToxAOD::execute()
 
       //Add SCT specific information
       const InDet::SiWidth cw = prd->width();
-      xprd->auxdata<int>("SiWidth") = (int)cw.colRow()[0];
+      xprd->auxdata<int>("size") = (int)cw.colRow()[0];
       xprd->auxdata<int>("hitsInThirdTimeBin") = (int)(prd->hitsInThirdTimeBin());
 
       xprd->auxdata<int>("bec")          =   m_SCTHelper->barrel_ec(clusterId)   ;
@@ -557,7 +557,7 @@ void SCT_PrepDataToxAOD::addRDOInformation(xAOD::TrackMeasurementValidation* xpr
       }
       timebin.push_back( tbin);
       groupsize.push_back( gs);
-      strip.push_back(m_SCTHelper->strip(sctRdo->identify())); 
+      strip.push_back(sctRdo->getStrip()); 
     } else {
       timebin.push_back( -1 );
       strip.push_back( -1 );
