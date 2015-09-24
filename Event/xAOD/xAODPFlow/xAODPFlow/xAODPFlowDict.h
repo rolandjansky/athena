@@ -42,8 +42,6 @@ namespace {
 
     std::vector<xAOD::PFODetails::PFOLeptonType> l11;
 
-    ElementLink< xAOD::VertexContainer > l12;
-    
    };
 }
 

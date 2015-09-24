@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PFO_v1.h 783497 2016-11-10 15:00:53Z mhodgkin $
+// $Id: PFO_v1.h 624626 2014-10-28 14:55:06Z mhodgkin $
 #ifndef XAODPFLOW_VERSIONS_PFO_V1_H
 #define XAODPFLOW_VERSIONS_PFO_V1_H
 
@@ -20,7 +20,7 @@
 #include "xAODPFlow/PFODefs.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
-#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
@@ -123,30 +123,16 @@ namespace xAOD {
     const CaloCluster* cluster(unsigned int index) const;
     /** Retrieve a const pointer to a Rec::TrackParticle */
     const TrackParticle* track(unsigned int index) const;
-    /** Retrieve a const pointer to the xAOD::Vertex a charged PFO is associated to */
-    const xAOD::Vertex* vertex() const;
-
-    /** Set a vertex link */
-    bool setVertexLink(const ElementLink< xAOD::VertexContainer>& theVertexLink);
-
-    /** Convert a generic link to an IParticleLink - perhaps this will go in a dedicated helper tool? */
-    template<class T> void convertLink(ElementLink<IParticleContainer>& IParticleLink, const ElementLink<T>& templateLink);
     
-    /** Set a track constituent - does NOT append to existing container  */
+    /** Set a track constituent */
     bool setTrackLink(const ElementLink<xAOD::TrackParticleContainer>& theTrack);
-    /** Set a cluster constituent - does NOT append to existing container  */
+    /** Set a cluster constituent */
     bool setClusterLink(const ElementLink<xAOD::CaloClusterContainer>& theCluster);
-    /** Add a cluster constituent  appends to existing container */
-    bool addClusterLink(const ElementLink<xAOD::CaloClusterContainer>& theCluster);
-    /** Set an IParticle constituent via enum - does NOT append to existing container */
+    /** Set an IParticle constituent via enum */
     bool setAssociatedParticleLink(PFODetails::PFOParticleType ParticleType, const ElementLink<IParticleContainer>& theParticle);
-    /** Set an IParticle constituent via string  - does NOT append to existing container */
+    /** Set an IParticle constituent via string */
     void setAssociatedParticleLink(const std::string& ParticleType, const ElementLink<IParticleContainer>& theParticle);
-    /** Add an IParticle constituent via enum - appends to existing container */
-    bool addAssociatedParticleLink(PFODetails::PFOParticleType ParticleType,  const ElementLink<IParticleContainer>& theParticle);
-     /** Add an IParticle constituent via enum - appends to existing container */
-    void addAssociatedParticleLink(const std::string& ParticleType,  const ElementLink<IParticleContainer>& theParticle);
-    
+
     //switch to elementlinkvector
     /** Set a vector of PFO constituent particle types via enum - overwrite is allowed */
     bool setAssociatedParticleLinks(PFODetails::PFOParticleType ParticleType,  const std::vector<ElementLink<IParticleContainer> >& theParticles) ;
@@ -196,6 +182,12 @@ namespace xAOD {
 
 } // namespace xAOD
 
+// Set up a CLID for the class:
+#ifndef XAOD_STANDALONE
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF( xAOD::PFO_v1, 104356027, 1 )
+#endif // not XAOD_STANDALONE
+
 // Declare IParticle as a base class of PFO_v1:
 #include "AthContainers/DataVector.h"
 DATAVECTOR_BASE( xAOD::PFO_v1, xAOD::IParticle );
@@ -203,3 +195,4 @@ DATAVECTOR_BASE( xAOD::PFO_v1, xAOD::IParticle );
 #include "xAODPFlow/versions/PFO_v1.icc"
 
 #endif // XAODPFLOW_VERSIONS_PFO_V1_H
+

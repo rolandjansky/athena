@@ -3,8 +3,6 @@
 */
 
 
-// -*-c++-*-
-
 #include "xAODPFlow/versions/PFOAttributesAccessor_v1.h"
 
 namespace xAOD{
@@ -27,27 +25,19 @@ namespace xAOD{
 
   template<class T> void PFO_v1::setAttribute(const std::string& AttributeType, const T& anAttribute) {
 
-    Accessor<T> acc(AttributeType);
+    static Accessor<T> acc(AttributeType);
     acc(*this) = anAttribute;
 
   }
 
   template<class T> bool PFO_v1::attribute(const std::string& AttributeType, T& anAttribute) const {
-    Accessor<T> acc(AttributeType);
+    static Accessor<T> acc(AttributeType);
     //Check if variable is available
     if( !acc.isAvailable( *this ) ) return false;
     else {
       anAttribute = acc(*this);
       return true;
     }
-  }
-
-  template<class T> void PFO_v1::convertLink(ElementLink<IParticleContainer>& IParticleLink, const ElementLink<T>& templateLink) {
-   ElementLink<T> tempLink;
-   tempLink.setElement(*templateLink);
-   tempLink.setStorableObject(templateLink.getStorableObjectRef());
-   tempLink.toPersistent();
-   IParticleLink.resetWithKeyAndIndex( tempLink.persKey(), tempLink.persIndex() ); 
   }
 
   
