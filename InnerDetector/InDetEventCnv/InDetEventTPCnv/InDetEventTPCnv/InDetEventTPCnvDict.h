@@ -27,6 +27,7 @@
 #include "InDetEventTPCnv/PixelClusterContainer_p2.h"
 #include "InDetEventTPCnv/PixelClusterContainer_p3.h"
 #include "InDetEventTPCnv/SCT_ClusterContainer_p2.h"
+#include "InDetEventTPCnv/SCT_ClusterContainer_p3.h"
 #include "InDetEventTPCnv/PixelClusterContainer_tlp1.h"
 #include "InDetEventTPCnv/SCT_ClusterContainer_tlp1.h"
 #include "InDetEventTPCnv/TRT_DriftCircleContainer_tlp1.h"
@@ -47,6 +48,7 @@ namespace InDetEventTPCnvDict {
 {
     std::vector< InDet::PixelCluster_p1>   		m_v1;
     std::vector< InDet::SCT_Cluster_p1>   		m_v2;
+    std::vector< InDet::SCT_Cluster_p3>   		m_v2a;
     std::vector< InDet::SiCluster_p1>   		m_v3;
     std::vector< InDet::TRT_DriftCircle_p1 >   		m_v6;
     std::vector< InDet::TRT_DriftCircle_p2 >   		m_v6a;
