@@ -11,7 +11,6 @@
 ################################################################################
 from RecExConfig.RecFlags import rec 
 from tauRec.tauRecFlags import jobproperties
-from DiTauRec.DiTauRecFlags import jobproperties
 from JetRec.JetRecFlags import jobproperties
 from AthenaCommon.BeamFlags import jobproperties
 
@@ -49,26 +48,19 @@ if jobproperties.tauRecFlags.doTauRec() and ( rec.readESD() or  ( DetFlags.haveR
         
         #jobproperties.tauRecFlags.doPanTau=False
         # call PanTau now
-        # if jobproperties.tauRecFlags.doPanTau():
-        #     try:
-        #         include("PanTauAnalysis/JobOptions_Main_PanTau.py")
-        #     except Exception:
-        #         treatException("Could not setup PanTau")
-        #         jobproperties.tauRecFlags.doPanTau = False
+        if jobproperties.tauRecFlags.doPanTau():
+            try:
+                include("PanTauAnalysis/JobOptions_Main_PanTau.py")
+            except Exception:
+                treatException("Could not setup PanTau")
+                jobproperties.tauRecFlags.doPanTau = False
         
         # call TauDiscriminant
-        # if jobproperties.tauRecFlags.doRunTauDiscriminant():
-        #     try:
-        #         include("TauDiscriminant/TauDiscri_jobOptions.py" )      
-        #     except Exception:
-        #         treatException("Could not set up TauDiscriminant. Switched off !")
-
-        # call DiTauRec
-        if jobproperties.DiTauRecFlags.doDiTauRec():
+        if jobproperties.tauRecFlags.doRunTauDiscriminant():
             try:
-                include("DiTauRec/DiTauRec_config.py")
+                include("TauDiscriminant/TauDiscri_jobOptions.py" )      
             except Exception:
-                treatException("Could not set up DiTauRec. Switched off!")
+                treatException("Could not set up TauDiscriminant. Switched off !")
 
     if _tauFail and jobproperties.tauRecFlags.doTauRec():
         jobproperties.tauRecFlags.doTauRec=False

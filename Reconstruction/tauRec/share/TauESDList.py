@@ -42,7 +42,7 @@ TauESDList += [ "xAOD::CaloClusterAuxContainer#TauPi0ClustersAux." ]
 #------------------------------------------------------------------------------
 # Tau Pi0 cluster cell container and links
 #------------------------------------------------------------------------------
-TauESDList += [ "CaloClusterCellLinkContainer#TauPi0Clusters_links" ]
+TauESDList += [ "CaloClusterCellLinkContainer#TauPi0ClusterLinks" ]
 TauESDList += [ "CaloCellContainer#TauCommonPi0Cells" ]
 
 #------------------------------------------------------------------------------
@@ -52,19 +52,12 @@ TauESDList += [ "xAOD::TauJetContainer#TauJets" ]
 TauESDList += [ "xAOD::TauJetAuxContainer#TauJetsAux." ]
 
 #------------------------------------------------------------------------------
-# TauRec tauTrack xAOD containers
-#------------------------------------------------------------------------------
-TauESDList += [ "xAOD::TauTrackContainer#TauTracks" ]
-TauESDList += [ "xAOD::TauTrackAuxContainer#TauTracksAux." ]
-
-#------------------------------------------------------------------------------
 # Secondary Vertex for Tau Decay
 #------------------------------------------------------------------------------
 TauESDList += [ "xAOD::VertexContainer#TauSecondaryVertices" ]
 TauESDList += [ "xAOD::VertexAuxContainer#TauSecondaryVerticesAux.-vxTrackAtVertex" ]
 
-TauESDList += [ "xAOD::ParticleContainer#finalTauPi0s" ]
-TauESDList += [ "xAOD::ParticleAuxContainer#finalTauPi0sAux." ]
+
 ##------------------------------------------------------------------------------
 ## Tau shot clusters
 ##------------------------------------------------------------------------------
@@ -116,8 +109,3 @@ TauESDList += [ "xAOD::PFOAuxContainer#TauHadronicParticleFlowObjectsAux." ]
 #TauESDList += [ "CaloShowerContainer#Tau1P3PCellEM012ClusterContainer_Data" ]
                                      
 
-from DiTauRec.DiTauRecFlags import jobproperties
-if jobproperties.DiTauRecFlags.doDiTauRec():
-    include("DiTauRec/DiTauESDList.py")
-    TauESDList += DiTauESDList
-    pass

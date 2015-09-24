@@ -81,7 +81,6 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
     LCClassify.MaxProbability = 0.5
     # add the moments EM_PROBABILITY, HAD_WEIGHT, OOC_WEIGHT, DM_WEIGHT to the AOD:
     LCClassify.StoreClassificationProbabilityInAOD = True
-    LCClassify.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
 
     LCWeight = CaloLCWeightTool("LCWeight")
     LCWeight.CorrectionKey       = "H1ClusterCellWeights"
@@ -111,14 +110,13 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
     LCDeadMaterial.ClusterRecoStatus   = 0
     LCDeadMaterial.WeightModeDM        = 2 
     LCDeadMaterial.UseHadProbability   = True
-    LCDeadMaterial.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
+
     # correction tools using tools
     LocalCalib = CaloClusterLocalCalib ("LocalCalibForTaus")
     LocalCalib.ClusterClassificationTool     = [LCClassify]
     #LocalCalib.ClusterRecoStatus             = [2]
     LocalCalib.ClusterRecoStatus             = [1,2]
     LocalCalib.LocalCalibTools               = [LCWeight]
-    LocalCalib.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
     
     LocalCalib += LCClassify
     LocalCalib += LCWeight
@@ -127,7 +125,6 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
     #OOCCalib.ClusterRecoStatus   = [2]
     OOCCalib.ClusterRecoStatus   = [1,2]
     OOCCalib.LocalCalibTools     = [LCOut]
-    OOCCalib.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
 
     OOCCalib += LCOut
 
@@ -135,8 +132,6 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
     #OOCPi0Calib.ClusterRecoStatus   = [1]
     OOCPi0Calib.ClusterRecoStatus   = [1,2]
     OOCPi0Calib.LocalCalibTools     = [LCOutPi0]
-
-    OOCPi0Calib.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
 
     OOCPi0Calib += LCOutPi0
 
@@ -146,13 +141,10 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
     #DMCalib += DMTool
     DMCalib.LocalCalibTools      = [LCDeadMaterial]
 
-    DMCalib.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
-
     DMCalib += LCDeadMaterial
 
 # correction tools not using tools
 TopoMomentsForTaus = CaloClusterMomentsMaker ("TauPi0TopoMoments")
-TopoMomentsForTaus.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
 TopoMomentsForTaus.MaxAxisAngle = 20*deg
 TopoMomentsForTaus.CaloNoiseTool = theCaloNoiseTool
 TopoMomentsForTaus.UsePileUpNoise = True
@@ -254,7 +246,6 @@ TopoSplitterForTaus.SamplingNames = ["EMB2","EME2"] # Do we want to use EMB3 and
 TopoSplitterForTaus.SecondarySamplingNames = ["EMB1","EME1"]
 TopoSplitterForTaus.ShareBorderCells = True
 TopoSplitterForTaus.RestrictHECIWandFCalNeighbors  = False
-TopoSplitterForTaus.WeightingOfNegClusters = jobproperties.CaloTopoClusterFlags.doTreatEnergyCutAsAbsolute()
 
 # cluster maker
 cluster_container = 'TauPi0SubtractedClusters'
@@ -294,7 +285,9 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
         OOCCalib.getFullName(),
         OOCPi0Calib.getFullName(),
         DMCalib.getFullName()]
-
+    CaloTopoForTausMaker.KeepCorrectionToolAndContainerNames += [
+        LocalCalib.getFullName(),"CaloTopoForTausMaker"]
+    #    CaloTopoForTausMaker.KeepEachCorrection=True
     CaloTopoForTausMaker += LocalCalib
     CaloTopoForTausMaker += OOCCalib
     CaloTopoForTausMaker += OOCPi0Calib

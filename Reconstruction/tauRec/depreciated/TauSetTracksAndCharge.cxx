@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "tauRec/TauEventData.h"
 #include "tauRec/TauSetTracksAndCharge.h"
 #include "tauEvent/TauJetParameters.h"

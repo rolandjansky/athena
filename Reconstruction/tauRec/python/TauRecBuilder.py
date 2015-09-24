@@ -50,7 +50,6 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
         self.do_TJVA = doTJVA
         TauRecConfigured.__init__(self, name)
 
-
  
     def configure(self):
         mlog = logging.getLogger ('TauCoreBuilder.py::configure:')
@@ -70,15 +69,13 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
         # TauBuilder
         # create the taus
         try:
-            from tauRec.tauRecFlags import tauFlags
             from tauRecTools.tauRecToolsConf import TauBuilderTool
             self._TauBuilderToolHandle = TauBuilderTool(
                 name = self.name,
                 SeedContainer            = _jet_collection,
                 TauContainer             = _outputKey,
                 TauAuxContainer          = _outputAuxKey,
-                #MaxEta = 2.5,
-                MaxEta = tauFlags.tauRecSeedMaxEta(),
+                MaxEta = 2.5,
                 MinPt = 10.*GeV,
                 doCreateTauContainers = True)
         except Exception:
@@ -99,14 +96,10 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
 
             # run vertex finder only in case vertexing is available. This check can also be done in TauAlgorithmsHolder instead doing it here. 
             from InDetRecExample.InDetJobProperties import InDetFlags
-            from tauRec.tauRecFlags import jobproperties
-            doMVATrackClassification = jobproperties.tauRecFlags.tauRecMVATrackClassification()
-
             if InDetFlags.doVertexFinding():
                 tools.append(taualgs.getTauVertexFinder(doUseTJVA=self.do_TJVA)) 
             tools.append(taualgs.getTauAxis())
-            tools.append(taualgs.getTauTrackFinder(removeDuplicateTracks=(not doMVATrackClassification) ))
-            if doMVATrackClassification : tools.append(taualgs.getTauTrackClassifier())
+            tools.append(taualgs.getTauTrackFinder())
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
             tools.append(taualgs.getCellVariables())
             tools.append(taualgs.getElectronVetoVars())
@@ -136,8 +129,6 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
             
             #tools.append(taualgs.getContainerLock())
             
-            from tauRec.tauRecFlags import tauFlags
-            tools+=tauFlags.tauRecToolsDevToolList()
             TauRecConfigured.AddToolsToToolSvc(self, tools)
             self.TauBuilderToolHandle().Tools = tools
             
@@ -282,34 +273,9 @@ class TauRecVariablesProcessor ( TauRecConfigured ) :
             ## for testing purpose
             #tools.append(taualgs.getTauTestDump())
             #
-
-            from tauRec.tauRecFlags import tauFlags
-
-            # PanTau:
-            if tauFlags.doPanTau() :
-                import PanTauAlgs.JobOptions_Main_PanTau as pantau
-                tools.append(pantau.getPanTau())
-                pass
-
-
-            #these tools need pantau info
-            tools.append(taualgs.getMvaTESVariableDecorator())
-            tools.append(taualgs.getMvaTESEvaluator())
-            tools.append(taualgs.getCombinedP4FromRecoTaus())
-
-            if tauFlags.doRunTauDiscriminant():
-                tools.append(taualgs.getTauIDVarCalculator())
-                tools.append(taualgs.getTauJetBDT())
-                tools.append(taualgs.getTauEleBDT())
-                tools.append(taualgs.getTauEleBDT(_n="TauEleBDT_run2", eBDT="TauDiscriminant/02-00-09/TauEleBDT_run2_test.bin", only_decorate=True, eBitsRoot="", eBits=""))
-                tools.append(taualgs.getTauEleOLRDecorator())
-                tools.append(taualgs.getTauWPDecorator())
-                tools.append(taualgs.getTauWPDecoratorEleBDT())
-                pass
-
-            tools+=tauFlags.tauRecToolsDevToolListProcessor()
             ## lock tau containers -> must be the last tau tool!!
             #tools.append(taualgs.getContainerLock())
+
             TauRecConfigured.AddToolsToToolSvc(self, tools)
             self.TauProcessorToolHandle().Tools = tools
         

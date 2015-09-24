@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 //-----------------------------------------------------------------------------
 // file:        TauPi0CreatorChooser.cxx
 // package:     Reconstruction/tauEvent

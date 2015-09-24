@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef TAUREC_TAUPI0CREATERCHOOSER_H
 #define	TAUREC_TAUPI0CREATERCHOOSER_H
 
