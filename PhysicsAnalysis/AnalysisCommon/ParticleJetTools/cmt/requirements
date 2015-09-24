@@ -7,16 +7,17 @@ use AtlasPolicy         AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*        External
 use JetRec		        JetRec-*		        Reconstruction/Jet
 use JetInterface	    JetInterface-*	        Reconstruction/Jet
-use JetTagInfo          JetTagInfo-*            PhysicsAnalysis/JetTagging
+#use JetTagInfo          JetTagInfo-*            PhysicsAnalysis/JetTagging
 use EventPrimitives     EventPrimitives-*       Event
 use xAODJet             xAODJet-*               Event/xAOD
 use xAODTruth           xAODTruth-*             Event/xAOD
 use AsgTools            AsgTools-*              Control/AthToolSupport
 use AtlasReflex         AtlasReflex-*           External
 
-use AthAnalysisBaseComps AthAnalysisBaseComps-* Control
+use MCTruthClassifier	 MCTruthClassifier-*	 PhysicsAnalysis
 
 private
+use AthAnalysisBaseComps AthAnalysisBaseComps-* Control
 use AthContainers        AthContainers-*         Control
 use TruthUtils           TruthUtils-*            Generators
 end_private
