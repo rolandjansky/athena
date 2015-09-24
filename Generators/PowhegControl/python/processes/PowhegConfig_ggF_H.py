@@ -47,5 +47,3 @@ class PowhegConfig_ggF_H(PowhegConfig_base) :
     ## Override defaults
     self.hfact = 104.16
     self.minlo = -1
-
-    self.populate_default_strings()

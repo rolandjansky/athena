@@ -43,5 +43,3 @@ class PowhegConfig_VBF_H(PowhegConfig_base) :
     ## Override defaults
     self.minlo    = -1
     self.withdamp = 1
-
-    self.populate_default_strings()

@@ -8,17 +8,16 @@
 
 #! /usr/bin/env python
 import subprocess, time
-from ..utility import FileParser, ProcessHandling, RepeatingTimer
+from ..utility import ProcessHandling, RepeatingTimer
 
-## Run multiple Powheg processes
+##  Run multiple Powheg processes
 def generate_v2_multi_core(configurator) :
   # Construct random seeds - increment by 1e6 each time
   configurator.logger.info( 'Running in multicore mode with {0} subjobs'.format(configurator.cores) )
   with open('pwgseeds.dat','wb') as random_seed_list : [ random_seed_list.write( str( configurator.random_seed + int(idx*1e6) )+'\n' ) for idx in range(configurator.cores) ]
 
   # Remove iseed if providing seeds from pwgseeds.dat
-  FileParser('powheg*.input').text_remove('^iseed' )
-
+  subprocess.call( 'sed -i "/^iseed/d" powheg*.input', shell=True )
   configurator.logger.debug( 'Disabling iseed variable when multiple seeds are used' )
 
   # Set up four passes to run each parallelstage
@@ -34,7 +33,7 @@ def generate_v2_multi_core(configurator) :
       # For stage 1, we need itmx1 iterations
       if idx_stage == 1 :
         current_xgriditeration += 1
-        FileParser('powheg.input').text_replace( 'xgriditeration.*', 'xgriditeration {0}'.format(current_xgriditeration) )
+        subprocess.call( 'sed -i "s/xgriditeration.*/xgriditeration {0}/g" powheg.input'.format(current_xgriditeration), shell=True )
         configurator.logger.info( 'Now running xgriditeration {0}/{1}'.format(current_xgriditeration,n_xgriditerations) )
 
       # Run the multiprocess step and wait for output collector to terminate
@@ -47,5 +46,5 @@ def generate_v2_multi_core(configurator) :
       if idx_stage != 1 or current_xgriditeration >= n_xgriditerations : break
 
     # Increment parallelstage and repeat
-    FileParser('powheg.input').text_replace( 'parallelstage {0}'.format(idx_stage), 'parallelstage {0}'.format(idx_stage+1) )
+    subprocess.call( 'sed -i "s/parallelstage {0}/parallelstage {1}/g" powheg.input'.format(idx_stage, idx_stage+1), shell=True )
     configurator.logger.info( 'Finished stage {0}/4 in {1}'.format( idx_stage, RepeatingTimer.human_readable_time_interval(time.time() - time_start)) )

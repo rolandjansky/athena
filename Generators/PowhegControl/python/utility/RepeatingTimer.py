@@ -8,11 +8,8 @@
 #! /usr/bin/env python
 import threading
 
-## Allow timing output in an additional thread.
-#  From http://stackoverflow.com/questions/5429577/
-class RepeatingTimer(threading._Timer) :
-
-  ## Override Thread.run with desired behaviour
+class RepeatingTimer(threading._Timer):
+  ## To allow timing output in an additional thread. From http://stackoverflow.com/questions/5429577/
   def run(self):
     while True:
       self.finished.wait(self.interval)
@@ -21,8 +18,6 @@ class RepeatingTimer(threading._Timer) :
       else:
         self.function( *self.args, **self.kwargs )
 
-  ## Return time interval in a human-readable form
-  #  @param seconds_elapsed Number of seconds to convert into time interval
   @classmethod
   def human_readable_time_interval( cls, seconds_elapsed ) :
     h = int( seconds_elapsed / (60 * 60) )

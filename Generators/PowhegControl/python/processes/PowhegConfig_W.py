@@ -41,5 +41,3 @@ class PowhegConfig_W(PowhegConfig_base) :
     self.withdamp        = 1
     self.withsubtr       = 1
     self.withnegweights  = 1
-
-    self.populate_default_strings()

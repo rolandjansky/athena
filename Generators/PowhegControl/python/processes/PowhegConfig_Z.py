@@ -41,5 +41,3 @@ class PowhegConfig_Z(PowhegConfig_base) :
     self.withnegweights = 1
     self.mass_low       = 60.0
     self.mass_high      = 2.0 * self.beam_energy
-
-    self.populate_default_strings()
