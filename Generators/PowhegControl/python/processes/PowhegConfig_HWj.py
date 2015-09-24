@@ -39,12 +39,12 @@ class PowhegConfig_HWj(PowhegConfig_base) :
     self.itmx1    = 2
     self.ncall1   = 50000
     self.ncall2   = 70000
-    self.nubound  = 60000
-    self.xupbound = 8 
+    self.nubound  = 150000
+    self.xupbound = 20 
     self.foldx    = 10
-    self.foldy    = 10 
+    self.foldy    = 5
     self.foldphi  = 5
-
+    
     ## Override defaults
     self.doublefsr   = 1
     self.mass_W_low  = 2.5

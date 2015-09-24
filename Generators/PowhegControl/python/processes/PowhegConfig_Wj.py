@@ -24,6 +24,7 @@ class PowhegConfig_Wj(PowhegConfig_base) :
     self.add_parameter_set( 'CKM' )
     self.add_parameter_set( 'LHEv3' )
     self.add_parameter_set( 'MiNLO NNLL' )
+    self.add_parameter_set( 'NNLO reweighting' )
     self.add_parameter_set( 'running scales' )
     self.add_parameter_set( 'sin**2 theta W' )
     self.add_parameter_set( 'single vector boson' )
@@ -34,12 +35,12 @@ class PowhegConfig_Wj(PowhegConfig_base) :
     self.add_parameter_set( 'W mass window' )
 
     ## Set optimised integration parameters
-    self.ncall1   = 60000
-    self.ncall2   = 80000
-    self.nubound  = 40000
-    self.xupbound = 3
-    self.foldx    = 10
-    self.foldy    = 10
+    self.ncall1   = 40000
+    self.ncall2   = 100000
+    self.nubound  = 60000
+    self.xupbound = 6
+    self.foldx    = 5
+    self.foldy    = 5
     self.foldphi  = 5
 
     ## Override defaults

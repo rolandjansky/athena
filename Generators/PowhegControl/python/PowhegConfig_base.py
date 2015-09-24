@@ -8,11 +8,11 @@
 #           Stephen Bieniek <stephen.paul.bieniek@cern.ch>
 
 #! /usr/bin/env python
-import os, subprocess, time
+import glob, os, subprocess, time
 import strategies
 from AthenaCommon import Logging
 from DecoratorFactory import decorate
-from utility import IntegrationGridTester, RepeatingTimer
+from utility import IntegrationGridTester, LHEHandler, RepeatingTimer
 
 ## Base class for configurable objects in the jobOptions
 #
@@ -35,27 +35,32 @@ class PowhegConfig_base(object) :
   _powheg_version_type = 1
 
 
+  ## Constructor
+  #  @param runArgs Generate_tf run arguments
+  #  @param opts athena run options
+  #  @param indicator that this is a leading-order process
   def __init__( self, runArgs=None, opts=None, LO_process=False ) :
-    ## Allow processes to indicate that they are leading order
+    # Allow processes to indicate that they are leading order
     self.__is_leading_order = LO_process
 
-    # ## Allow automatic configuration of multiple weights if specified
+    ## Dictionary of named groups of event weights
     self.reweight_groups = {}
     self.__enable_reweighting = False
 
-    ## This needs to be set so that Generate_trf finds an appropriate file format for showering
+    # This needs to be set so that Generate_trf finds an appropriate file format for showering
     self.__output_events_file_name = 'PowhegOTF._1.events'
+    self.__output_tarball_name = None
 
-    ## Set up lists of parameters and decorators
+    # Set up lists of parameters and decorators
     self.__fixed_parameters = []
     self.__configurable_parameters = {}
     self.__phantom_parameters = {}
     self.__run_card_decorators = []
 
-    ## Add universal functionality
+    # Add universal functionality
     self.add_parameter_set( 'base' )
 
-    ## Initialise values from runArgs
+    # Initialise values from runArgs
     if runArgs == None :
       self.logger.warning( 'No run arguments found! Using defaults.' )
     else :
@@ -67,60 +72,66 @@ class PowhegConfig_base(object) :
       if hasattr(runArgs,'randomSeed') :
         self.random_seed = runArgs.randomSeed
       if hasattr(runArgs,'outputTXTFile') :
-        self.__output_events_file_name = runArgs.outputTXTFile.split('.tar.gz')[0]+'.events'
-      ## Set inputGeneratorFile to match output events file. Otherwise Generate_trf check will fail.
+        for tarball_suffix in [ x for x in ['.tar.gz', '.tgz'] if x in runArgs.outputTXTFile ] :
+          self.__output_tarball_name = runArgs.outputTXTFile
+          self.__output_events_file_name = self.output_tarball_name.split(tarball_suffix)[0]+'.events'
+      # Set inputGeneratorFile to match output events file; otherwise Generate_tf check will fail
       runArgs.inputGeneratorFile = self.output_events_file_name
 
-    ## Enable parallel mode if AthenaMP mode is enabled
-    if 'ATHENA_PROC_NUMBER' in os.environ :
-      self.__n_cores = int( os.environ.pop('ATHENA_PROC_NUMBER') )
-      if self.cores > 1 :
-        self.manyseeds = 1
-        self.logger.info( 'This job is running with an athena MP-like whole-node setup. Will re-configure now to make sure that the remainder of the job runs serially.' )
-        # Try to modify the transform opts to suppress athenaMP mode
-        if hasattr(opts,'nprocs') : opts.nprocs = 0
-        else : self.logger.warning( 'No "nprocs" options provided!')
+    # Enable parallel mode if AthenaMP mode is enabled
+    self.__n_cores = int( os.environ.pop('ATHENA_PROC_NUMBER',1) )
+    if self.cores > 1 :
+      self.logger.info( 'This job is running with an athenaMP-like whole-node setup.' )
+      self.manyseeds = 1
+      # Try to modify the transform opts to suppress athenaMP mode
+      if hasattr(opts,'nprocs') :
+        self.logger.info( 'Re-configuring to keep athena running serially while parallelising Powheg generation.' )
+        opts.nprocs = 0
       else :
-        self.__ncores = 1
+        self.logger.warning( 'No "nprocs" option provided!')
 
 
   ## Run normal event generation
-  def generate( self, filter_name='', filter_args='' ) :
-    self.generateRunCard()
-    if filter_name == '' :
-      self.generateEvents()
-    else :
-      self.generateFilteredEvents( filter_name, filter_args )
+  #  @param external_run_card Use a user-provided run card
+  #  @param run_card_only Only generate the run card
+  def generate( self, external_run_card=False, run_card_only=False ) :
+    if not external_run_card :
+      self.__generate_run_card()
+    if not run_card_only :
+      self.__generate_events()
+    return
 
 
   ## Initialise runcard with generic options
-  def generateRunCard(self) :
-    ## Check that event generation is correctly set up
+  def __generate_run_card(self) :
+    # Check that event generation is correctly set up
     if (self.bornsuppfact > 0.0) and (self.bornktmin <= 0.0) :
-      self.logger.warning( 'These settings: bornsuppfact({0}) and bornktmin({1}) cannot be used to generate events! Only fixed-order distributions can be produced with these settings!'.format(self.bornsuppfact,self.bornktmin) )
+      self.logger.warning( 'These settings: bornsuppfact = {0} and bornktmin = {1} cannot be used to generate events!'.format(self.bornsuppfact,self.bornktmin) )
+      self.logger.warning( 'Only fixed-order distributions can be produced with these settings!' )
 
-    ## Scale-down number of events produced in each run if running in multicore mode
+    # Scale-down number of events produced in each run if running in multicore mode
     if self.cores > 1 :
-      self.logger.info( 'Scaling number of events per job from {0} down to {1}'.format( self.nEvents, int(self.nEvents / self.cores + 0.5) ) )
-      self.nEvents = 0.5 + self.nEvents / self.cores
-      self.ncall1 = 0.5 + self.ncall1 / self.cores
-      self.ncall2 = 0.5 + self.ncall2 / self.cores
-      self.nubound = 0.5 + self.nubound / self.cores
+      self.nEvents_unscaled = self.nEvents
+      self.nEvents = int( 0.5 + self.nEvents / self.cores )
+      self.ncall1 = int( 0.5 + self.ncall1 / self.cores )
+      self.ncall2 = int( 0.5 + self.ncall2 / self.cores )
+      self.nubound = int( 0.5 + self.nubound / self.cores )
+      self.logger.info( 'Scaling number of events per job from {0} down to {1}'.format(self.nEvents_unscaled, self.nEvents) )
 
-    ## Finalise registered decorators
+    # Finalise registered decorators
     for run_card_decorator in self.run_card_decorators :
       if hasattr( run_card_decorator, 'finalise' ) : run_card_decorator.finalise()
 
-    ## Print list of configurable parameters for users
+    # Print list of configurable parameters for users
     self.logger.info( '** User configurable parameters for this process **' )
     self.logger.info( ': Configurable parameter :   Current value   : Description' )
     for value_tuple in sorted( self.configurable_parameters.values()+self.phantom_parameters.values(), key=lambda x: x[0].lower() ) :
       self.logger.info( ': {0:<22} : {1:>17} : {2}'.format( value_tuple[0], getattr(self, value_tuple[0]), value_tuple[1] ) )
 
-    ## Add configurable parameters to fixed list
+    # Add configurable parameters to fixed list
     [ self.fix_parameter( parameter=value_tuple[0], desc=value_tuple[1] ) for value_tuple in self.configurable_parameters.values() ]
 
-    ## Write out final runcard
+    # Write out final runcard
     self.logger.info( 'Writing Powheg runcard to {0}'.format( self.run_card_path ) )
     with open( self.run_card_path, 'w' ) as f :
       for parameter_tuple in sorted( self.fixed_parameters, key=lambda x: x[0].lower() ) :
@@ -136,115 +147,131 @@ class PowhegConfig_base(object) :
         if name == 'bornsuppfact' and value > 0 :
           self.logger.warning( 'Born-level suppression is enabled: using this in conjunction with J-slicing may give problems.' )
 
-    ## Print final preparation message
+    # Print final preparation message
     self.logger.info( 'Using executable: {0}'.format( self._powheg_executable ) )
+    return
 
 
   ## Run normal event generation
-  def generateEvents(self) :
-    ## Initialise timer
+  def __generate_events(self) :
+    # Initialise timer
     time_start = time.time()
     self.logger.info( 'Starting Powheg LHEF event generation at {0}'.format( time.ctime( time_start ) ) )
 
-    ## Setup heartbeat thread
-    heartbeat = RepeatingTimer( 600., lambda: self.emit_heartbeat( time.time() - time_start ) )
+    # Setup heartbeat thread
+    heartbeat = RepeatingTimer( 600., lambda: self.__emit_heartbeat( time.time() - time_start ) )
     heartbeat.daemon = True # Allow program to exit if this is the only live thread
     heartbeat.start()
 
     # Remove any existing .lhe files to avoid repeated events
     self.logger.info( 'Removing old LHE files' )
-    try :
-      os.remove( '*.lhe *.ev*ts' )
-    except OSError :
-      pass
+    [ os.remove( LHE_file ) for LHE_file in glob.glob('*.lhe')+glob.glob('*.ev*ts') ]
 
-    ## Initialise generation process tracker
-    self.running_processes = []
+    # Run appropriate Powheg process and display generation output until finished
+    self.__run_generation_strategy()
 
-    ## Run appropriate Powheg process
-    self.runPowhegStrategy()
-
-    ## Display generation output until finished then kill heartbeat thread
-    heartbeat.cancel()
-
-    ## Print timing information
+    # Print timing information
     generation_end = time.time()
     elapsed_time = generation_end - time_start
     self.logger.info( 'Running nominal Powheg took {0} for {1} events => {2:6.3f} Hz'.format( RepeatingTimer.human_readable_time_interval(elapsed_time), self.nEvents, self.nEvents / elapsed_time ) )
 
-    ## Concatenate output events if running in multicore mode
-    if self.manyseeds >= 1 :
+    # Concatenate output events if running in multicore mode
+    if self.cores > 1 :
       self.logger.info( 'Concatenating {0} output LHE files'.format( self.cores ) )
-      subprocess.call( 'cat pwgevents*.lhe > pwgevents.lhe', shell=True )
+      LHEHandler(self.logger).merge( 'pwgevents.lhe', sorted( glob.glob('pwgevents*.lhe') ) )
       subprocess.call( 'rm pwgevents-*.lhe 2> /dev/null', shell=True )
+      # Unscale nEvents in case this is needed by afterburners
+      subprocess.call( 'sed -i "s/numevts.*/numevts {0}/g" powheg*.input'.format(self.nEvents_unscaled), shell=True )
 
-    ## Run Powheg afterburners
-    self.runPowhegAfterburners()
+    # Run Powheg afterburners
+    self.__run_afterburners()
     elapsed_time = time.time() - generation_end
     self.logger.info( 'Running Powheg afterburners took {0}'.format( RepeatingTimer.human_readable_time_interval(elapsed_time) ) )
 
-    ## Move output to correctly named file
+    # Move output to correctly named file
     try :
       os.rename( 'pwgevents.lhe', self.output_events_file_name )
       self.logger.info( 'Moved pwgevents.lhe to {0}'.format(self.output_events_file_name) )
     except OSError :
       self.logger.warning( 'No output LHEF file found! Probably because the Powheg process was killed before finishing.' )
 
-    ## Print finalisation message
+    # Tar events if LHE output is requested
+    if self.output_tarball_name is not None :
+      self.logger.info( 'Tar-ing output events into {0}'.format(self.output_tarball_name) )
+      [ self.logger.info(line) for line in subprocess.check_output( [ 'tar', 'cvzf', self.output_tarball_name, self.output_events_file_name ], stderr=subprocess.STDOUT ).splitlines() ]
+
+    # Print finalisation message
     IntegrationGridTester.output_results( self.logger )
     self.logger.info( 'Finished at {0}'.format( time.asctime() ) )
+
+    # Kill heartbeat thread
+    heartbeat.cancel()
     return
 
 
   ## Run external Powheg process
-  def runPowhegStrategy(self) :
-    ## Initialise reweighting
+  def __run_generation_strategy(self) :
+    # Initialise reweighting
     if self.__enable_reweighting :
-      strategies.initialisePowhegReweighting(self)
+      strategies.initialise_reweighting( self )
 
-    ## Run single core
+    # Run single core
     if self.cores == 1 :
-      strategies.runPowhegSingleThread(self)
+      strategies.generate_single_core( self )
 
-    ## Run multicore
+    # Run multicore
     else :
-      ## Run v1-style multiprocess (only needs one step)
+      # Run v1-style multicore (only needs one step)
       if self._powheg_version_type == 1 :
-        strategies.runPowhegV1Multicore(self)
-      ## Run v2-style multiprocess (needs four steps)
+        strategies.generate_v1_multi_core( self )
+      # Run v2-style multicore (needs four steps)
       else :
-        strategies.runPowhegV2Multicore(self)
+        strategies.generate_v2_multi_core( self )
+    return
 
 
   ## Run external Powheg process
-  def runPowhegAfterburners(self) :
-    ## Run scale/PDF/arbitrary reweighting if requested
+  def __run_afterburners(self) :
+    # Run scale/PDF/arbitrary reweighting if requested
     if self.__enable_reweighting :
-      strategies.runPowhegReweightingAfterburner( self )
+      strategies.afterburner_reweighting( self )
+    # Run NNLOPS if requested
+    if hasattr( self, 'NNLO_reweighting_inputs' ) and len(self.NNLO_reweighting_inputs) > 0 :
+      strategies.afterburner_NNLO_reweighting( self )
+    return
 
-    ## Run NNLOPS if requested
-    if hasattr( self, 'NNLOPS_input' ) and len(self.NNLOPS_input) > 0 :
-      strategies.runPowhegNNLOPSAfterburner( self )
 
-
-  ## Register configurable parameter
+  ## Register configurable parameter: exposed to the user and written to the run card
+  #  @param configurable_name Configurable parameter name exposed to the user
+  #  @param value Value of the parameter
+  #  @param desc Description for the run card
+  #  @param parameter Name used in the run card if different
   def add_parameter( self, configurable_name, value, desc='', parameter=None ) :
     setattr( self, configurable_name, value ) # add new attribute
     powheg_parameter = parameter if parameter is not None else configurable_name
     self.configurable_parameters[powheg_parameter] = ( configurable_name, desc )
+    return
 
 
-  ## Register configurable parameter
+  ## Register configurable parameter: exposed to the user but not written to the run card
+  #  @param name Configurable parameter name exposed to the user
+  #  @param value Value of the parameter
+  #  @param desc Description for the run card
   def add_phantom( self, name, value, desc='' ) :
     setattr( self, name, value ) # add new attribute
     self.phantom_parameters[name] = ( name, desc )
+    return
 
 
   ## Alias to PowhegDecorators.decorate
+  #  @param parameter_set Name of a set of parameter to add to this configurable
   def add_parameter_set( self, parameter_set, **kwargs ) :
     return decorate( self, parameter_set, **kwargs )
 
 
+  ## Add a new named group of event weights
+  #  @param group_name Name of the group of weights
+  #  @param parameter_set Names of the individual weights
   def define_weight_group( self, group_name, weight_names ) :
     self.logger.info( 'Defining new weight group {0} with {1} variations'.format( group_name, len(weight_names) ) )
     self.reweight_groups[group_name] = {}
@@ -257,16 +284,22 @@ class PowhegConfig_base(object) :
           parameter_values.append( getattr(self,name) )
     for idx, weight_name in enumerate( weight_names ) :
       self.reweight_groups[group_name][weight_name] = [ [n,v[idx]] for n,v in zip(parameter_names,parameter_values) ]
+    return
 
 
   ## Output a heartbeat message
-  def emit_heartbeat(self, duration) :
+  #  @param duration Time interval in seconds between output messages
+  def __emit_heartbeat(self, duration) :
     message = 'Heartbeat: Powheg generation has been running for {0} in total'.format( RepeatingTimer.human_readable_time_interval(duration) )
     self.logger.info( message )
     with open( '{0}/eventLoopHeartBeat.txt'.format( self.__base_directory ), 'w' ) as f : f.write( message )
+    return
 
 
-  ## Register non-configurable parameter
+  ## Register a parameter that is not user-configurable
+  #  @param parameter Parameter name
+  #  @param value Value of the parameter
+  #  @param desc Description for the run card
   def fix_parameter( self, parameter, value=None, desc='' ) :
     # Get previously set value if not overwriting
     if value is None : value = getattr( self, parameter )
@@ -278,6 +311,7 @@ class PowhegConfig_base(object) :
         self.configurable_parameters.pop(powheg_parameter)
         break
     self.fixed_parameters.append( (parameter, value, desc) )
+    return
 
 
   ## Get base directory
@@ -286,10 +320,11 @@ class PowhegConfig_base(object) :
     return self.__base_directory
 
 
-  ## Get dictionary of configurable parameters
+  ## Get dictionary of configurable parameters: visible to user and written to runcard
   @property
   def configurable_parameters(self) :
     return self.__configurable_parameters
+
 
   ## Get number of cores
   @property
@@ -297,13 +332,13 @@ class PowhegConfig_base(object) :
     return self.__n_cores
 
 
-  ## Get list of non-configurable parameters
+  ## Get dictionary of non-configurable parameters: not visible to user but written to runcard
   @property
   def fixed_parameters(self) :
     return self.__fixed_parameters
 
 
-  ## Determine whether this is a leading-order process
+  ## Get whether this is a leading-order process
   @property
   def is_LO(self) :
     return self.__is_leading_order
@@ -319,6 +354,12 @@ class PowhegConfig_base(object) :
   @property
   def output_events_file_name(self) :
     return self.__output_events_file_name
+
+
+  ## Get output tarball name
+  @property
+  def output_tarball_name(self) :
+    return self.__output_tarball_name
 
 
   ## Get dictionary of phantom parameters: visible to user but not written to runcard
@@ -345,51 +386,15 @@ class PowhegConfig_base(object) :
     return '{0}/powheg.input'.format( self.base_directory )
 
 
-  # ## Run filtered event generation
-  # def generateFilteredEvents(self, filter_name, filter_args) :
-  #   self.logger.info( 'Starting Powheg LHEF event generation at {0}'.format( time.asctime() ) )
-  #   filter_executable = os.environ['LHEFPATH'] + '/' + filter_name
-  #   filter_args.insert( 0, self.output_events_file_name )
-  #   filter_args.insert( 0, 'pwgevents.lhe' )
-  #   filter_args.insert( 0, str(filter_executable) )
-  #
-  #   ## Remove any existing .lhe files to avoid repeated events
-  #   try :
-  #     os.remove( '*.lhe *.ev*ts' )
-  #   except OSError :
-  #     pass
-  #
-  #   ## Generate the events
-  #   self.logger.info( 'Running ' + str(self._powheg_executable) )
-  #
-  #   ## Start FIFO
-  #   setuppipe = subprocess.Popen( ['mkfifo','pwgevents.lhe'] )
-  #   setuppipe.wait()
-  #
-  #   ## Start generation process
-  #   generate = subprocess.Popen( [self._powheg_executable,''] )
-  #
-  #   ## Start filter and wait until quota has been filled. LHEF_filter moves output to correctly named file
-  #   self.logger.info( 'Running filter with commmand: {0}'.format( filter_executable ) )
-  #   LHEF_filter = subprocess.Popen( filter_args )
-  #   LHEF_filter.wait()
-  #   LHEF_filter_output = LHEF_filter.communicate()
-  #   self.logger.info( LHEF_filter_output )
-  #
-  #   ## Once quota filled, kill generation process
-  #   generate.terminate()
-  #
-  #   ## Finish
-  #   self.logger.info( 'Finished at {0}'.format( time.asctime() ) )
-  #   return
+  ## Deprecated function - use generate() instead
+  def generateRunCard(self) :
+    self.logger.warning( 'This function is deprecated as of 2015-02-19' )
+    self.logger.warning( 'Please use generate() instead of generateRunCard() and generateEvents()' )
+    return self.__generate_run_card()
 
-  # ## Remove parameter from list
-  # def pop( self, name ) :
-  #   if name in self.configurable_parameters :
-  #     configurable_name = self.configurable_parameters.pop( name )[0]
-  #     return getattr( self, configurable_name )
-  #   for idx, parameter_set in enumerate( self.fixed_parameters ) :
-  #     if parameter_set[0] == name :
-  #       fixed_parameter_set = self.fixed_parameters.pop( idx )
-  #       return fixed_parameter_set[1]
-  #       break
+
+  ## Deprecated function - use generate() instead
+  def generateEvents(self) :
+    self.logger.warning( 'This function is deprecated as of 2015-02-19' )
+    self.logger.warning( 'Please use generate() instead of generateRunCard() and generateEvents()' )
+    return self.__generate_events()
