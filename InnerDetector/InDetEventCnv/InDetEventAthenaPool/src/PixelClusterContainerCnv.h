@@ -5,8 +5,12 @@
 #ifndef PIXELCLUSTERCONTAINERCNV_H
 #define PIXELCLUSTERCONTAINERCNV_H
 
+#define private public
+#define protected public
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
+#undef private
+#undef protected
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
 

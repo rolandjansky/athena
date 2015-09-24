@@ -20,8 +20,13 @@
 
 
 // the latest persistent representation type of DataCollection:
+#ifndef __IDENTIFIER_64BIT__
+typedef  InDetRawDataContainer_p1         TRT_RDO_Container_PERS;
+typedef  TRT_LoLumRawDataContainerCnv_p1  TRT_RDO_ContainerCnv_PERS;
+#else /* __IDENTIFIER_64BIT__ */
 typedef  InDetRawDataContainer_p2         TRT_RDO_Container_PERS;
 typedef  TRT_LoLumRawDataContainerCnv_p2  TRT_RDO_ContainerCnv_PERS;
+#endif /* __IDENTIFIER_64BIT__ */
 
 typedef  T_AthenaPoolCustomCnv<TRT_RDO_Container, TRT_RDO_Container_PERS >   TRT_RDO_ContainerCnvBase;
 
@@ -40,12 +45,7 @@ class TRT_RDO_ContainerCnv : public TRT_RDO_ContainerCnvBase {
   StoreGateSvc*  m_storeGate;
 
 protected:
-  TRT_RDO_ContainerCnv (ISvcLocator* svcloc)
-    : TRT_RDO_ContainerCnvBase(svcloc),
-      m_converter_p1(),
-      m_converter_p0(),
-      m_storeGate(nullptr)
-  {}
+  TRT_RDO_ContainerCnv (ISvcLocator* svcloc) : TRT_RDO_ContainerCnvBase(svcloc) {}
   virtual TRT_RDO_Container_PERS*   createPersistent (TRT_RDO_Container* transCont);
   virtual TRT_RDO_Container* createTransient ();
 

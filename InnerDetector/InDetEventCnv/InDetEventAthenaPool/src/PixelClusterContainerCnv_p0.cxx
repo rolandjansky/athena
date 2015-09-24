@@ -18,7 +18,6 @@
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
-#include "AthenaKernel/errorcheck.h"
 
 #include <string>
 #include <iostream>
@@ -31,12 +30,40 @@ StatusCode PixelClusterContainerCnv_p0::initialize(MsgStream &log ) {
 
    ISvcLocator* svcLocator = Gaudi::svcLocator();
 
-   log << MSG::INFO << "PixelClusterContainerCnv::initialize()" << endmsg;
+   // Get the messaging service, print where you are
+   log << MSG::INFO << "PixelClusterContainerCnv::initialize()" << endreq;
 
-   StoreGateSvc *detStore = nullptr;
-   CHECK( svcLocator->service("DetectorStore", detStore) );
-   CHECK( detStore->retrieve(m_pixId, "PixelID") );
-   CHECK( detStore->retrieve(m_pixMgr) );
+   // get StoreGate service
+   StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
+   if (sc.isFailure()) {
+      log << MSG::FATAL << "StoreGate service not found !" << endreq;
+      return StatusCode::FAILURE;
+   }
+
+   // get DetectorStore service
+   StoreGateSvc *detStore;
+   sc = svcLocator->service("DetectorStore", detStore);
+   if (sc.isFailure()) {
+      log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+      return StatusCode::FAILURE;
+   } else {
+      MSG_DEBUG(log,"Found DetectorStore.");
+   }
+
+   // Get the pixel helper from the detector store
+   sc = detStore->retrieve(m_pixId, "PixelID");
+   if (sc.isFailure()) {
+      log << MSG::FATAL << "Could not get PixelID helper !" << endreq;
+      return StatusCode::FAILURE;
+   } else {
+      MSG_DEBUG(log,"Found the PixelID helper.");
+   }
+
+   sc = detStore->retrieve(m_pixMgr);
+   if (sc.isFailure()) {
+      log << MSG::FATAL << "Could not get PixelDetectorDescription" << endreq;
+      return sc;
+   }
 
    MSG_DEBUG(log,"Converter initialized.");
 
@@ -46,19 +73,22 @@ StatusCode PixelClusterContainerCnv_p0::initialize(MsgStream &log ) {
 
 
 
-InDet::PixelClusterContainer* PixelClusterContainerCnv_p0::createTransient(PixelClusterContainer_p0* persObj, MsgStream& log) {
+InDet::PixelClusterContainer* PixelClusterContainerCnv_p0::createTransient(const PixelClusterContainer_p0* persObj, MsgStream& log) {
 
-  std::unique_ptr<InDet::PixelClusterContainer> trans(new InDet::PixelClusterContainer(m_pixId->wafer_hash_max()) );
+  std::auto_ptr<InDet::PixelClusterContainer> trans(new InDet::PixelClusterContainer(m_pixId->wafer_hash_max()) );
   MSG_DEBUG(log,"Read PRD vector, size " << persObj->size());
-
-  for (InDet::PixelClusterCollection* dcColl : *persObj) {
+  
+  PixelClusterContainer_p0::const_iterator it   = persObj->begin();
+  PixelClusterContainer_p0::const_iterator last = persObj->end();
+  for (; it != last; ++it) {
+      const InDet::PixelClusterCollection* dcColl = *it;
       // Add detElem to each drift circle
       IdentifierHash collHash = dcColl->identifyHash();
       const InDetDD::SiDetectorElement * de = m_pixMgr->getDetectorElement(collHash);
       MSG_DEBUG(log,"Set PixelCluster detector element to "<< de);
 
-      InDet::PixelClusterCollection::iterator itColl   = dcColl->begin();
-      InDet::PixelClusterCollection::iterator lastColl = dcColl->end();
+      InDet::PixelClusterCollection::const_iterator itColl   = dcColl->begin();
+      InDet::PixelClusterCollection::const_iterator lastColl = dcColl->end();
       for (int num = 0; itColl != lastColl; ++itColl, ++num) {
 	 MSG_DEBUG(log,"PRD " << num);
          (*itColl)->m_detEl = de;
@@ -68,7 +98,7 @@ InDet::PixelClusterContainer* PixelClusterContainerCnv_p0::createTransient(Pixel
       if (sc.isSuccess()){
 	 MSG_VERBOSE(log,"PixelClusterContainer successfully added to Container !");
       } else {
-         log << MSG::ERROR << "Failed to add PixelClusterContainer to container" << endmsg;
+         log << MSG::ERROR << "Failed to add PixelClusterContainer to container" << endreq;
          return 0;
       }
    }

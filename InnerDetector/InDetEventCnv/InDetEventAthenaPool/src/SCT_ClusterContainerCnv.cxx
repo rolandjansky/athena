@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #include "StoreGate/StoreGateSvc.h"
 #include "SCT_ClusterContainerCnv.h"
 #include "InDetIdentifier/SCT_ID.h"
@@ -12,11 +11,7 @@
 
 #include <iostream>
 
-  SCT_ClusterContainerCnv::SCT_ClusterContainerCnv (ISvcLocator* svcloc)
-    : SCT_ClusterContainerCnvBase(svcloc),
-      m_converter_p0(),
-      m_storeGate(nullptr)
-  {}
+  SCT_ClusterContainerCnv::SCT_ClusterContainerCnv (ISvcLocator* svcloc) : SCT_ClusterContainerCnvBase(svcloc) {}
   SCT_ClusterContainerCnv::~SCT_ClusterContainerCnv() {}
 
 
@@ -72,7 +67,7 @@ StatusCode SCT_ClusterContainerCnv::initialize() {
 
 
 InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv::createTransient() {
-  //  MsgStream log(msgSvc(), "SCT_ClusterContainerCnv" );
+  //  MsgStream log(messageService(), "SCT_ClusterContainerCnv" );
   static pool::Guid   p0_guid("A180F372-0D52-49C3-8AA0-0939CB0B8179"); // before t/p split
   static pool::Guid   p1_guid("657F6546-F5CD-4166-9567-16AD9C96D286"); // with SCT_Cluster_tlp1
   static pool::Guid   p2_guid("ECE7D831-0F31-4E6F-A6BE-2ADDE90083BA"); // with SCT_Cluster_p2
@@ -82,28 +77,20 @@ InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv::createTransient() {
   InDet::SCT_ClusterContainer* p_collection(0);
   if( compareClassGuid(p3_guid) ) {
     //ATH_MSG_DEBUG("createTransient(): T/P version 3 detected");
-    std::unique_ptr< SCT_ClusterContainer_PERS >  p_coll( poolReadObject< SCT_ClusterContainer_PERS >() );
+    std::auto_ptr< SCT_ClusterContainer_PERS >  p_coll( poolReadObject< SCT_ClusterContainer_PERS >() );
     p_collection = m_TPConverter_p3.createTransient( p_coll.get(), msg() );
    
   } else if( compareClassGuid(p1_guid) ) {
     //ATH_MSG_DEBUG("createTransient(): T/P version 1 detected");
     usingTPCnvForReading( m_TPConverter );
-    std::unique_ptr< InDet::SCT_ClusterContainer_tlp1 >  p_coll( poolReadObject< InDet::SCT_ClusterContainer_tlp1 >() );
+    std::auto_ptr< InDet::SCT_ClusterContainer_tlp1 >  p_coll( poolReadObject< InDet::SCT_ClusterContainer_tlp1 >() );
     p_collection = m_TPConverter.createTransient( p_coll.get(), msg() );
-
-  } else if( compareClassGuid(p2_guid) ) {
-    //ATH_MSG_DEBUG("createTransient(): T/P version 2 detected");
-    std::unique_ptr< InDet::SCT_ClusterContainer_p2 >  p_coll( poolReadObject< InDet::SCT_ClusterContainer_p2 >() );
-    p_collection = m_TPConverter_p2.createTransient( p_coll.get(), msg() );
   }
-
-
-
   //----------------------------------------------------------------
   else if( compareClassGuid(p0_guid) ) {
     //ATH_MSG_DEBUG("createTransient(): Old input file");
 
-    std::unique_ptr< SCT_ClusterContainer_p0 >   col_vect( poolReadObject< SCT_ClusterContainer_p0 >() );
+    std::auto_ptr< SCT_ClusterContainer_p0 >   col_vect( poolReadObject< SCT_ClusterContainer_p0 >() );
     p_collection = m_converter_p0.createTransient( col_vect.get(), msg() );
   }
   else {

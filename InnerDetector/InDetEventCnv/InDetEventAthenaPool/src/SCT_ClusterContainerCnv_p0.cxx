@@ -18,7 +18,6 @@
 
 // Athena
 #include "StoreGate/StoreGateSvc.h"
-#include "AthenaKernel/errorcheck.h"
 
 #include <string>
 #include <iostream>
@@ -32,12 +31,40 @@ StatusCode SCT_ClusterContainerCnv_p0::initialize(MsgStream &log ) {
    ISvcLocator* svcLocator = Gaudi::svcLocator();
 
    // Get the messaging service, print where you are
-   log << MSG::INFO << "SCT_ClusterContainerCnv::initialize()" << endmsg;
+   log << MSG::INFO << "SCT_ClusterContainerCnv::initialize()" << endreq;
 
-   StoreGateSvc *detStore = nullptr;
-   CHECK( svcLocator->service("DetectorStore", detStore) );
-   CHECK( detStore->retrieve(m_sctId, "SCT_ID") );
-   CHECK( detStore->retrieve(m_sctMgr) );
+   // get StoreGate service
+   StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
+   if (sc.isFailure()) {
+      log << MSG::FATAL << "StoreGate service not found !" << endreq;
+      return StatusCode::FAILURE;
+   }
+
+   // get DetectorStore service
+   StoreGateSvc *detStore;
+   sc = svcLocator->service("DetectorStore", detStore);
+   if (sc.isFailure()) {
+      log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+      return StatusCode::FAILURE;
+   } else {
+      MSG_DEBUG(log,"Found DetectorStore.");
+   }
+
+   // Get the sct helper from the detector store
+   sc = detStore->retrieve(m_sctId, "SCT_ID");
+   if (sc.isFailure()) {
+      log << MSG::FATAL << "Could not get SCT_ID helper !" << endreq;
+      return StatusCode::FAILURE;
+   } else {
+     MSG_DEBUG(log,"Found the SCT_ID helper.");
+   }
+
+   sc = detStore->retrieve(m_sctMgr);
+   if (sc.isFailure()) {
+      log << MSG::FATAL << "Could not get SCT_DetectorDescription" << endreq;
+      return sc;
+   }
+
    MSG_DEBUG(log,"Converter initialized.");
 
    return StatusCode::SUCCESS;
@@ -46,28 +73,32 @@ StatusCode SCT_ClusterContainerCnv_p0::initialize(MsgStream &log ) {
 
 
 
-InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv_p0::createTransient(SCT_ClusterContainer_p0* persObj, MsgStream& log) {
+InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv_p0::createTransient(const SCT_ClusterContainer_p0* persObj, MsgStream& log) {
 
-  std::unique_ptr<InDet::SCT_ClusterContainer> trans(new InDet::SCT_ClusterContainer(m_sctId->wafer_hash_max()) );
+  std::auto_ptr<InDet::SCT_ClusterContainer> trans(new InDet::SCT_ClusterContainer(m_sctId->wafer_hash_max()) );
   //  MSG_DEBUG(log,"Read PRD vector, size " << persObj->size());
   
-  for (InDet::SCT_ClusterCollection* dcColl : *persObj) {
+  SCT_ClusterContainer_p0::const_iterator it   = persObj->begin();
+  SCT_ClusterContainer_p0::const_iterator last = persObj->end();
+  for (; it != last; ++it) {
+      const InDet::SCT_ClusterCollection* dcColl = *it;
       // Add detElem to each drift circle
       IdentifierHash collHash = dcColl->identifyHash();
       const InDetDD::SiDetectorElement * de = m_sctMgr->getDetectorElement(collHash);
       //      MSG_DEBUG(log,"Set SCT_Cluster detector element to "<< de);
 
-      InDet::SCT_ClusterCollection::iterator itColl   = dcColl->begin();
-      InDet::SCT_ClusterCollection::iterator lastColl = dcColl->end();
-      for (; itColl != lastColl; ++itColl) {
-        (*itColl)->m_detEl = de;
+      InDet::SCT_ClusterCollection::const_iterator itColl   = dcColl->begin();
+      InDet::SCT_ClusterCollection::const_iterator lastColl = dcColl->end();
+      for (int num = 0; itColl != lastColl; ++itColl, ++num) {
+	//         MSG_DEBUG(log,"PRD " << num);
+         (*itColl)->m_detEl = de;
       }
 
       StatusCode sc= trans->addCollection(dcColl, collHash);
       if (sc.isSuccess()){
 	//         MSG_VERBOSE("SCT_ClusterContainer successfully added to Container !");
       } else {
-         log << MSG::ERROR << "Failed to add SCT_ClusterContainer to container" << endmsg;
+         log << MSG::ERROR << "Failed to add SCT_ClusterContainer to container" << endreq;
          return 0;
       }
    }

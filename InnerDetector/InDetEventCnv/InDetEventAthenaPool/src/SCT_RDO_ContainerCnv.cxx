@@ -14,7 +14,6 @@
 
 //================================================================
 namespace {
-#ifdef SCT_DEBUG
   std::string shortPrint(const SCT_RDO_Container *main_input_SCT, unsigned maxprint=25) {
     std::ostringstream os;
     if(main_input_SCT) {
@@ -33,14 +32,9 @@ namespace {
     }
     return os.str();
   }
-#endif
 }
 
-SCT_RDO_ContainerCnv::SCT_RDO_ContainerCnv (ISvcLocator* svcloc)
-  : SCT_RDO_ContainerCnvBase(svcloc),
-    m_converter_p0(),
-    m_storeGate(nullptr)
-{}
+SCT_RDO_ContainerCnv::SCT_RDO_ContainerCnv (ISvcLocator* svcloc) : SCT_RDO_ContainerCnvBase(svcloc) {}
 
 //================================================================
 StatusCode SCT_RDO_ContainerCnv::initialize() {
@@ -159,7 +153,7 @@ SCT_RDO_Container* SCT_RDO_ContainerCnv::createTransient() {
     ATH_MSG_DEBUG("createTransient(): New TP version - TP3 branch");
 #endif
 
-    std::unique_ptr< SCT_RawDataContainer_p3 >   col_vect( poolReadObject< SCT_RawDataContainer_p3 >() );
+    std::auto_ptr< SCT_RawDataContainer_p3 >   col_vect( poolReadObject< SCT_RawDataContainer_p3 >() );
     SCT_RDO_Container *res = m_converter_SCT_TP3.createTransient( col_vect.get(), msg() );
 #ifdef SCT_DEBUG
     ATH_MSG_DEBUG("createTransient(), TP3 branch: returns TRANS = "<<shortPrint(res));
@@ -172,7 +166,7 @@ SCT_RDO_Container* SCT_RDO_ContainerCnv::createTransient() {
     ATH_MSG_DEBUG("createTransient(): New TP version - TP2 branch");
 #endif
 
-    std::unique_ptr< SCT_RawDataContainer_p2 >   col_vect( poolReadObject< SCT_RawDataContainer_p2 >() );
+    std::auto_ptr< SCT_RawDataContainer_p2 >   col_vect( poolReadObject< SCT_RawDataContainer_p2 >() );
     SCT_RDO_Container *res = m_converter_SCT_TP2.createTransient( col_vect.get(), msg() );
 #ifdef SCT_DEBUG
     ATH_MSG_DEBUG("createTransient(), TP2 branch: returns TRANS = "<<shortPrint(res));
@@ -184,7 +178,7 @@ SCT_RDO_Container* SCT_RDO_ContainerCnv::createTransient() {
 #ifdef SCT_DEBUG
     ATH_MSG_DEBUG("createTransient(): New TP version - TP1 branch");
 #endif
-    std::unique_ptr< SCT_RawDataContainer_p1 >   col_vect( poolReadObject< SCT_RawDataContainer_p1 >() );
+    std::auto_ptr< SCT_RawDataContainer_p1 >   col_vect( poolReadObject< SCT_RawDataContainer_p1 >() );
     SCT_RDO_Container *res = m_converter_SCT_TP1.createTransient( col_vect.get(), msg() );
 #ifdef SCT_DEBUG
     ATH_MSG_DEBUG("createTransient(), TP1 branch: returns TRANS = "<<shortPrint(res));
@@ -196,7 +190,7 @@ SCT_RDO_Container* SCT_RDO_ContainerCnv::createTransient() {
   else if( compareClassGuid(TP1_guid) ) {
     ATH_MSG_DEBUG("createTransient(): New TP version - TP1 branch");
                                                                                                                                                              
-    std::unique_ptr< InDetRawDataContainer_p1 >   col_vect( poolReadObject< InDetRawDataContainer_p1 >() );
+    std::auto_ptr< InDetRawDataContainer_p1 >   col_vect( poolReadObject< InDetRawDataContainer_p1 >() );
     SCT_RDO_Container *res = m_converter_TP1.createTransient( col_vect.get(), msg() );
 #ifdef SCT_DEBUG
     ATH_MSG_DEBUG("createTransient(), TP1 branch: returns TRANS = "<<shortPrint(res));
@@ -209,7 +203,7 @@ SCT_RDO_Container* SCT_RDO_ContainerCnv::createTransient() {
 #ifdef SCT_DEBUG
     ATH_MSG_DEBUG("createTransient(): Old input file - p0 branch");
 #endif
-    std::unique_ptr< SCT_RDO_Container_p0 >   col_vect( poolReadObject< SCT_RDO_Container_p0 >() );
+    std::auto_ptr< SCT_RDO_Container_p0 >   col_vect( poolReadObject< SCT_RDO_Container_p0 >() );
     SCT_RDO_Container *res = m_converter_p0.createTransient( col_vect.get(), msg() );
 #ifdef SCT_DEBUG
     ATH_MSG_DEBUG("createTransient(), p0 branch: returns TRANS = "<<shortPrint(res));

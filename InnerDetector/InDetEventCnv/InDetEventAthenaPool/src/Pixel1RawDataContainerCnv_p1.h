@@ -25,7 +25,7 @@ class PixelID;
 class Pixel1RawDataContainerCnv_p1 : public T_AthenaPoolTPCnvBase<PixelRDO_Container, InDetRawDataContainer_p1>
 {
  private:
-  const PixelID *m_pixId = nullptr;
+  const PixelID *m_pixId;
  public:
   Pixel1RawDataContainerCnv_p1() {};
   

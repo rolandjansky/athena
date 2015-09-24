@@ -5,7 +5,7 @@
 #ifndef PIXELRDO_CONTAINERCNV_P0_H
 #define PIXELRDO_CONTAINERCNV_P0_H
 
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
 #include "InDetRawData/PixelRDO_Container.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"

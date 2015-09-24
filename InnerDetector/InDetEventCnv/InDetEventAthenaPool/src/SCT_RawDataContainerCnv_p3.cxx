@@ -2,10 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "InDetRawData/SCT3_RawData.h"
 #include "InDetEventAthenaPool/SCT3_RawData_p3.h"
 #include "InDetEventAthenaPool/InDetRawDataCollection_p1.h"
 #include "InDetRawData/SCT_RDO_Container.h"
+#undef private
+#undef protected
 #include "MsgUtil.h"
 
 #include "InDetIdentifier/SCT_ID.h"
@@ -13,6 +17,7 @@
 #include "SCT1_RawDataCnv_p2.h"
 #include "SCT3_RawDataCnv_p3.h"
 #include "SCT_RawDataContainerCnv_p3.h"
+#include "DataModel/DataPool.h"
 
 //#define SCT_DEBUG
 
@@ -88,11 +93,12 @@ void SCT_RawDataContainerCnv_p3::transToPers(const SCT_RDO_Container* transCont,
 	const SCT3_RawData* chan = dynamic_cast<const SCT3_RawData*>(collection[i]);
         if (0 == chan) throw std::runtime_error("SCT_RawDataContainerCnv_p3::transToPers: *** UNABLE TO DYNAMIC CAST TO SCT3_RawData");
         chan3Cnv.transToPers(chan, pchan, log);
-	const std::vector<int>& errHit = chan->getErrorCondensedHit();
-        persCont->m_numErrorsInRDO.push_back(errHit.size() );
-        persCont->m_allErrorsInContainer.insert (persCont->m_allErrorsInContainer.end(),
-                                                 errHit.begin(),
-                                                 errHit.end());
+        std::vector<int> *errHit = const_cast<std::vector<int>*>(&(chan->m_errorCondensedHit));
+        (persCont->m_numErrorsInRDO).push_back(errHit->size() );
+        std::vector<int>::iterator errIt = errHit->begin();
+        std::vector<int>::iterator errEnd = errHit->end();
+        for ( ; errIt != errEnd; ++errIt) 
+            (persCont->m_allErrorsInContainer).push_back(*errIt);       
       }
     }
   }
@@ -126,7 +132,7 @@ void  SCT_RawDataContainerCnv_p3::persToTrans(const SCT_RawDataContainer_p3* per
     /** check for the type of the contained objects: */
     
     if(persCont->m_rawdata.size() !=0 && persCont->m_sct3data.size() != 0) 
-       log << MSG::FATAL << "The collection has mixed SCT1 and SCT3 elements, this is not allowed " << endmsg;
+       log << MSG::FATAL << "The collection has mixed SCT1 and SCT3 elements, this is not allowed " << endreq;
     if(persCont->m_rawdata.size() != 0 ) m_type = 1;
     if(persCont->m_sct3data.size() != 0 ) m_type = 3;
 #ifdef SCT_DEBUG
@@ -158,15 +164,15 @@ void  SCT_RawDataContainerCnv_p3::persToTrans(const SCT_RawDataContainer_p3* per
             (*coll)[ichan] = chan;
           } else if (m_type == 3) {  
             const SCT3_RawData_p3* pchan = &(persCont->m_sct3data[ichan + pcoll.m_begin]);
+            SCT3_RawData* chan = new SCT3_RawData();
+            chan3Cnv.persToTrans(pchan, chan, log);
 	    /** now need to fill the vector of errors for the transient RDO
 	     *  using the vectors stored in the persistent collection */
-            std::vector<int> errorCondensedHit;
+	    (chan->m_errorCondensedHit).clear();
 	    int errEnd = errCount + persCont->m_numErrorsInRDO[ichan + pcoll.m_begin];
 	    for ( ; errCount < errEnd ; ++errCount) 
-	      errorCondensedHit.push_back(persCont->m_allErrorsInContainer[errCount]);
-            (*coll)[ichan] = new SCT3_RawData (Identifier (pchan->m_rdoId),
-                                               pchan->m_word,
-                                               std::move (errorCondensedHit));
+	      (chan->m_errorCondensedHit).push_back(persCont->m_allErrorsInContainer[errCount]);
+            (*coll)[ichan] = chan;
           }
         }
         
@@ -189,7 +195,7 @@ SCT_RDO_Container* SCT_RawDataContainerCnv_p3::createTransient(const SCT_RawData
 #ifdef SCT_DEBUG
   MSG_DEBUG(log,"creating transient SCT_RDO_Container");
 #endif
-  std::unique_ptr<SCT_RDO_Container> trans(new SCT_RDO_Container(m_sctId->wafer_hash_max()));
+  std::auto_ptr<SCT_RDO_Container> trans(new SCT_RDO_Container(m_sctId->wafer_hash_max()));
   persToTrans(persObj, trans.get(), log);
   return(trans.release());
 }

@@ -4,8 +4,13 @@
 
 #ifndef TRT_DRIFTCIRCLECONTAINERCNV_H
 #define TRT_DRIFTCIRCLECONTAINERCNV_H
+#define private public
+#define protected public
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 #include "InDetPrepRawData/TRT_DriftCircleCollection.h"
+#undef private
+#undef protected
+
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
 

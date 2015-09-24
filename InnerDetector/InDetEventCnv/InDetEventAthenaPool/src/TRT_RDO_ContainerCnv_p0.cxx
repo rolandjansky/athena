@@ -16,7 +16,7 @@
 
 //================================================================
 TRT_RDO_Container* TRT_RDO_ContainerCnv_p0::createTransient(const TRT_RDO_Container_p0* persObj, MsgStream& log) {
-  std::unique_ptr<TRT_RDO_Container> trans(new TRT_RDO_Container(m_trtId->straw_layer_hash_max()));
+  std::auto_ptr<TRT_RDO_Container> trans(new TRT_RDO_Container(m_trtId->straw_layer_hash_max()));
 
   MSG_DEBUG(log,"Read RDO vector, size " << persObj->size());
   
@@ -36,7 +36,7 @@ TRT_RDO_Container* TRT_RDO_ContainerCnv_p0::createTransient(const TRT_RDO_Contai
     
     // Add to the container
     if (trans->addCollection( rdoColl, rdoColl->identifyHash() ).isFailure()) {
-      log << MSG::FATAL << "[p0] TRT RDOs could not be added to the container!" << endmsg;
+      log << MSG::FATAL << "[p0] TRT RDOs could not be added to the container!" << endreq;
       throw std::runtime_error("TRT_RDO_ContainerCnv_p0::createTransient(): TRT RDOs could not be added to the container!");
     }
   }

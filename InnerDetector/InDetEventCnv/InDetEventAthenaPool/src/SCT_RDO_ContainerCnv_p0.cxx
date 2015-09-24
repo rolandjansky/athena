@@ -14,7 +14,7 @@
 
 //================================================================
 SCT_RDO_Container* SCT_RDO_ContainerCnv_p0::createTransient(const SCT_RDO_Container_p0* persObj, MsgStream& log) {
-  std::unique_ptr<SCT_RDO_Container> trans(new SCT_RDO_Container(m_sctId->wafer_hash_max()));
+  std::auto_ptr<SCT_RDO_Container> trans(new SCT_RDO_Container(m_sctId->wafer_hash_max()));
 
   //  MSG_DEBUG(log,"Read RDO vector, size " << persObj->size());
   
@@ -34,7 +34,7 @@ SCT_RDO_Container* SCT_RDO_ContainerCnv_p0::createTransient(const SCT_RDO_Contai
     
     // Add to the container
     if (trans->addCollection( rdoColl, rdoColl->identifyHash() ).isFailure()) {
-      log << MSG::FATAL << "[p0] SCT RDOs could not be added to the container!" << endmsg;
+      log << MSG::FATAL << "[p0] SCT RDOs could not be added to the container!" << endreq;
       throw std::runtime_error("SCT_RDO_ContainerCnv_p0::createTransient(): SCT RDOs could not be added to the container!");
     }
   }

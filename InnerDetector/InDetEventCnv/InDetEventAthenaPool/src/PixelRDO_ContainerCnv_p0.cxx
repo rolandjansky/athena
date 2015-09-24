@@ -16,7 +16,7 @@
 
 //================================================================
 PixelRDO_Container* PixelRDO_ContainerCnv_p0::createTransient(const PixelRDO_Container_p0* persObj, MsgStream& log) {
-  std::unique_ptr<PixelRDO_Container> trans(new PixelRDO_Container(m_pixId->wafer_hash_max()));
+  std::auto_ptr<PixelRDO_Container> trans(new PixelRDO_Container(m_pixId->wafer_hash_max()));
 
   MSG_DEBUG(log,"Read RDO vector, size " << persObj->size());
   
@@ -36,7 +36,7 @@ PixelRDO_Container* PixelRDO_ContainerCnv_p0::createTransient(const PixelRDO_Con
     
     // Add to the container
     if (trans->addCollection( rdoColl, rdoColl->identifyHash() ).isFailure()) {
-      log << MSG::FATAL << "[p0] Pixel RDOs could not be added to the container!" << endmsg;
+      log << MSG::FATAL << "[p0] Pixel RDOs could not be added to the container!" << endreq;
       throw std::runtime_error("PixelRDO_ContainerCnv_p0::createTransient(): Pixel RDOs could not be added to the container!");
     }
   }
