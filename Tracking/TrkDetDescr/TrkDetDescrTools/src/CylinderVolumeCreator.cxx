@@ -35,6 +35,7 @@ Trk::CylinderVolumeCreator::CylinderVolumeCreator(const std::string& t, const st
   m_layerArrayCreator("Trk::LayerArrayCreator/LayerArrayCreator"),
   m_trackingVolumeArrayCreator("Trk::TrackingVolumeArrayCreator/TrackingVolumeArrayCreator"),
   m_trackingVolumeHelper("Trk::TrackingVolumeHelper/TrackingVolumeHelper"),
+  m_passiveLayerThickness(1*Gaudi::Units::mm),
   m_passiveLayerPhiBins(1),
   m_passiveLayerRzBins(100)
 {
