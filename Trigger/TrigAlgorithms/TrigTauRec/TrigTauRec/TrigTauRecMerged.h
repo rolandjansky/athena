@@ -21,7 +21,7 @@
 #include "TrigInterfaces/FexAlgo.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "tauRec/TauToolBase.h"
+#include "tauRecTools/ITauToolBase.h"
 
 #include "LumiBlockComps/ILuminosityTool.h" 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
@@ -38,7 +38,7 @@ class TrigTauRecMerged: public HLT::FexAlgo {
 
   /**  type definitions for internal tool storage */
   typedef std::string                          tool_key;
-  typedef TauToolBase                          tool_type;
+  typedef ITauToolBase                         tool_type;
   typedef std::vector<tool_type*>              tool_store;
   typedef tool_store::const_iterator           tool_iterator;
   typedef std::map<tool_key,unsigned int>      tool_stats;
@@ -64,6 +64,8 @@ class TrigTauRecMerged: public HLT::FexAlgo {
 
  private:
 
+  TauEventData m_tauEventData;
+
   enum TAUEFCALOMON{
     NoROIDescr=0,
     NoCellCont=1,
@@ -87,10 +89,10 @@ class TrigTauRecMerged: public HLT::FexAlgo {
   std::string m_outputName;
 
   /** internal tool store */
-  ToolHandleArray<TauToolBase>  m_tools;
+  ToolHandleArray<ITauToolBase>  m_tools;
 
   /** internal tool store */
-  ToolHandleArray<TauToolBase>  m_endtools;
+  ToolHandleArray<ITauToolBase>  m_endtools;
 
   /** Luminosity Tool */
   ToolHandle<ILuminosityTool>  m_lumiTool; 
@@ -107,6 +109,9 @@ class TrigTauRecMerged: public HLT::FexAlgo {
 
   /** only build taus with track seed < 0.2 from roi center */
   float m_trkcone;
+
+  /** Store beam type  */
+  std::string m_beamType;
 
   /** vector of Timers */
   std::vector<TrigTimer* > m_mytimers;
@@ -160,6 +165,8 @@ class TrigTauRecMerged: public HLT::FexAlgo {
   /** number of tau candidates */
   int m_Ncand;
 
+  /** Monitoring: actual interaction per bunch crossing **/
+  double m_ActualInteractions;
   /** Monitoring: average interaction per bunch crossing **/
   double m_AvgInteractions;
 

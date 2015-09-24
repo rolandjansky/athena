@@ -13,7 +13,7 @@ author Richard Soluk <soluk@phys.ualberta.ca>
 public
 use AtlasPolicy             AtlasPolicy-*
 use GaudiInterface          GaudiInterface-*             External
-use tauRec                  tauRec-*                     Reconstruction
+use tauRecTools             tauRecTools-*                Reconstruction
 use TrigSteeringEvent       TrigSteeringEvent-*          Trigger/TrigEvent
 use TrigParticle 	    TrigParticle-*	         Trigger/TrigEvent
 use TrigInterfaces          TrigInterfaces-*             Trigger/TrigSteer
