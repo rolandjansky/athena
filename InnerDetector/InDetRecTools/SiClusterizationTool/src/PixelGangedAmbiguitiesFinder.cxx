@@ -20,6 +20,7 @@
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/AlgFactory.h"
+#include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/IToolSvc.h"
 #include <vector>
 #include <algorithm>
@@ -60,8 +61,8 @@ void PixelGangedAmbiguitiesFinder::execute(
     if (collection->size()<2) return;
 
     if (msgLvl(MSG::DEBUG)){
-        msg() << collection->size() << " clusters" << endmsg;
-        msg() << "The map has " << theMap.size() << " entries already" << endmsg;
+        msg() << collection->size() << " clusters" << endreq;
+        msg() << "The map has " << theMap.size() << " entries already" << endreq;
     }
 
     Identifier elementID = collection->identify();
@@ -119,7 +120,7 @@ void PixelGangedAmbiguitiesFinder::execute(
 
       if(hasGanged){
 
-	if(msgLvl(MSG::DEBUG)) msg() << "Ganged pixel, find combi..." << endmsg;
+	if(msgLvl(MSG::DEBUG)) msg() << "Ganged pixel, find combi..." << endreq;
 	std::vector<Identifier>::const_iterator gangedPixelsBegin = gangedPixels.begin();
 	std::vector<Identifier>::const_iterator gangedPixelsEnd = gangedPixels.end();
 	PixelClusterCollection::iterator cluster2=cluster+1;
@@ -127,7 +128,7 @@ void PixelGangedAmbiguitiesFinder::execute(
           if(msgLvl(MSG::DEBUG)) msg() << "Comparing " 
 	      << std::hex << (*cluster)->identify() 
 	      << " and " << (*cluster2)->identify()
-	      << std::dec << endmsg;
+	      << std::dec << endreq;
 	  bool sharedGanged = false;
           int rmin2=999, cmin2=999; // bottom left corner of cluster2
 	  const std::vector<Identifier>& rdos2 = (*cluster2)->rdoList();
@@ -166,7 +167,7 @@ void PixelGangedAmbiguitiesFinder::execute(
 		rmList.push_back(cluster);
 		if(msgLvl(MSG::DEBUG)) msg() << std::hex 
 		    << ": deleted " << (*cluster)->identify() 
-		    << std::dec << endmsg;
+		    << std::dec << endreq;
 		break;
 	      }
 	      else (*cluster)->setFake(true);
@@ -177,7 +178,7 @@ void PixelGangedAmbiguitiesFinder::execute(
 		rmList.push_back(cluster2);
 		if(msgLvl(MSG::DEBUG)) msg() << std::hex 
 		    << ": deleted " << (*cluster2)->identify() 
-		    << std::dec << endmsg;
+		    << std::dec << endreq;
 		continue;
 	      }
 	      else (*cluster2)->setFake(true);
@@ -242,7 +243,7 @@ void PixelGangedAmbiguitiesFinder::execute(
                     rmList.push_back(cluster2);
                     if(msgLvl(MSG::DEBUG)) msg() << std::hex
                                                  << ": deleted " << (*cluster2)->identify()
-                                                 << std::dec << endmsg;
+                                                 << std::dec << endreq;
                     continue;
                   }
                   else {
@@ -256,7 +257,7 @@ void PixelGangedAmbiguitiesFinder::execute(
 		    rmList.push_back(cluster);
 		    if(msgLvl(MSG::DEBUG)) msg() << std::hex 
                                                  << ": deleted " << (*cluster)->identify() 
-                                                 << std::dec << endmsg;
+                                                 << std::dec << endreq;
                     continue;
                   }
                   else {
@@ -286,7 +287,7 @@ void PixelGangedAmbiguitiesFinder::execute(
               theMap.insert(std::make_pair(*cluster2,*cluster));
               if(msgLvl(MSG::DEBUG)) msg() << std::hex 
                                            << ": added ambiguity entry"
-                                           << std::dec << endmsg;
+                                           << std::dec << endreq;
             }
 	  }
 	}
@@ -295,7 +296,7 @@ void PixelGangedAmbiguitiesFinder::execute(
     if (msgLvl(MSG::DEBUG))
     {
       msg(MSG::DEBUG) << "The map has " << theMap.size() << " entries " 
-                      << endmsg;
+                      << endreq;
     }
     
 
@@ -310,11 +311,11 @@ void PixelGangedAmbiguitiesFinder::execute(
       Identifier gangedID;
       if(msgLvl(MSG::DEBUG)) msg() << "Removed " << rmNumber+1 << " cluster: "  
 	  << std::hex << (*(*rmit-rmNumber))->identify() << std::dec
-	  << endmsg ; 
+	  << endreq ; 
       collection->erase(*rmit-rmNumber); // The position of the iterator
       rmNumber++;
     }    
-    if(msgLvl(MSG::DEBUG)) msg() << rmNumber << " fake clusters from ganged pixel have been removed" << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg() << rmNumber << " fake clusters from ganged pixel have been removed" << endreq;
 }
   
 

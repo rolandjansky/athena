@@ -34,7 +34,7 @@ InDet::NnPixelClusterSplitter::NnPixelClusterSplitter(const std::string &type,
         const std::string &name,
         const IInterface *parent) :
         AthAlgTool(type,name,parent),
-        m_NnClusterizationFactory("InDet::NnClusterizationFactory/NnClusterizationFactory", this),
+        m_NnClusterizationFactory("InDet::NnClusterizationFactory/NnClusterizationFactory"),
         m_iBeamCondSvc("BeamCondSvc",name),
         m_useBeamSpotInfo(true)
 {

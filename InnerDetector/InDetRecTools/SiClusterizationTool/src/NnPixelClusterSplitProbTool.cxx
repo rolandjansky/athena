@@ -28,7 +28,7 @@ namespace InDet
 
   NnPixelClusterSplitProbTool::NnPixelClusterSplitProbTool(const std::string& t, const std::string& n, const IInterface*  p)
           :AthAlgTool(t,n,p),
-           m_NnClusterizationFactory("InDet::NnClusterizationFactory/NnClusterizationFactory", this),
+           m_NnClusterizationFactory("InDet::NnClusterizationFactory/NnClusterizationFactory"),
            m_iBeamCondSvc("BeamCondSvc",n),
            m_useBeamSpotInfo(true)
   {
