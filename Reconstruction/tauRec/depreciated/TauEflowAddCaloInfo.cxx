@@ -98,7 +98,7 @@ StatusCode TauEflowAddCaloInfo::initialize() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode TauEflowAddCaloInfo::eventInitialize(TauCandidateData * /*data*/) 
+StatusCode TauEflowAddCaloInfo::eventInitialize(TauEventData * /*data*/) 
 {
     if (m_doCellCorrection) {
         // Cell Origin Correction Tool initializeEvent is not called automatically
@@ -112,7 +112,7 @@ StatusCode TauEflowAddCaloInfo::eventInitialize(TauCandidateData * /*data*/)
 // Execution
 //-------------------------------------------------------------------------
 
-StatusCode TauEflowAddCaloInfo::execute(TauCandidateData *data) {
+StatusCode TauEflowAddCaloInfo::execute(TauEventData *data) {
 
     Analysis::TauJet *pTau = data->tau;
     Analysis::TauCommonDetails *pDetails = dynamic_cast<Analysis::TauCommonDetails *> (data->details);

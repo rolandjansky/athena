@@ -26,7 +26,7 @@
 #include "xAODTau/TauDefs.h"
 
 #include "GaudiKernel/ListItem.h"
-#include "tauRec/TauCandidateData.h"
+#include "tauRecTools/TauEventData.h"
 
 //-----------------------------------------------------------------------------
 // Constructor
@@ -49,7 +49,7 @@ m_tools(this) //make tools private
     declareProperty("MaxEta", m_maxEta);
     declareProperty("MinPt", m_minPt);
     declareProperty("doCreateTauContainers", m_doCreateTauContainers);
-    declareProperty("Tools", m_tools, "List of TauToolBase tools");
+    declareProperty("Tools", m_tools, "List of ITauToolBase tools");
 }
 
 //-----------------------------------------------------------------------------
@@ -79,8 +79,8 @@ StatusCode TauBuilder::initialize() {
     //-------------------------------------------------------------------------
     // Allocate tools
     //-------------------------------------------------------------------------
-    ToolHandleArray<TauToolBase> ::iterator itT = m_tools.begin();
-    ToolHandleArray<TauToolBase> ::iterator itTE = m_tools.end();
+    ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
+    ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
     ATH_MSG_INFO("List of tools in execution sequence:");
     ATH_MSG_INFO("------------------------------------");
 
@@ -93,6 +93,10 @@ StatusCode TauBuilder::initialize() {
         } else {
             ++tool_count;
             ATH_MSG_INFO((*itT)->type() << " - " << (*itT)->name());
+	    //If you want to utlize TauCandidate In Tools, 
+	    //decalre TauCandidate in your class, and pass its address
+	    //to function below
+	    (*itT)->setTauEventData(&m_data);
         }
     }
     ATH_MSG_INFO(" ");
@@ -123,8 +127,7 @@ StatusCode TauBuilder::finalize() {
 StatusCode TauBuilder::execute() {
   //ATH_MSG_INFO("FF::TauBuilder :: execute()");
   StatusCode sc;
-
-  TauCandidateData rTauData;
+  m_data.clear();
 
   xAOD::TauJetContainer * pContainer = 0;
   xAOD::TauJetAuxContainer* pAuxContainer = 0;
@@ -174,22 +177,20 @@ StatusCode TauBuilder::execute() {
 
     }
 
-    // set TauCandidate properties
-    rTauData.xAODTau = 0;
-    rTauData.xAODTauContainer = pContainer;
-    rTauData.tauAuxContainer = pAuxContainer;
-    
-
-    rTauData.seed = 0;
-    rTauData.seedContainer = 0;
+    //not strictly necessary to set the containers
+    //but probably safer for tools to access
+    //the tau container via TauEventData than
+    //IParticle::container() (griffith)
+    m_data.xAODTauContainer = pContainer;
+    m_data.tauAuxContainer = pAuxContainer;
 
     //-------------------------------------------------------------------------
     // Initialize tools for this event
     //-------------------------------------------------------------------------
-    ToolHandleArray<TauToolBase> ::iterator itT = m_tools.begin();
-    ToolHandleArray<TauToolBase> ::iterator itTE = m_tools.end();
+    ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
+    ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
     for (; itT != itTE; ++itT) {
-        sc = (*itT)->eventInitialize(&rTauData);
+        sc = (*itT)->eventInitialize();
         if (sc != StatusCode::SUCCESS)
             return StatusCode::FAILURE;
     }
@@ -211,6 +212,11 @@ StatusCode TauBuilder::execute() {
         return StatusCode::FAILURE;
     }
 
+    //probably not necessary, but in case a tool wants this in the future
+    //probably safer to retrieve via TauEventData than 
+    //*(pTau->jetLink())->container()
+    m_data.seedContainer = pSeedContainer;
+
     //---------------------------------------------------------------------
     // Loop over seeds
     //---------------------------------------------------------------------
@@ -221,8 +227,6 @@ StatusCode TauBuilder::execute() {
     // INavigable4MomentumCollection::const_iterator itSE = pSeedContainer->end();
 
     ATH_MSG_VERBOSE("Number of seeds in the container: " << pSeedContainer->size());
-
-    rTauData.seedContainer = pSeedContainer;
 
     for (; itS != itSE; ++itS) {
       const xAOD::Jet *pSeed = (*itS);
@@ -238,19 +242,18 @@ StatusCode TauBuilder::execute() {
             continue;
         }
 
-        rTauData.seed = pSeed;
-
         //-----------------------------------------------------------------
         // Seed passed cuts --> create tau candidate
         //-----------------------------------------------------------------
-        rTauData.xAODTau          = new xAOD::TauJet();
-        rTauData.xAODTauContainer->push_back( rTauData.xAODTau );
+	xAOD::TauJet* pTau = new xAOD::TauJet();
+	pContainer->push_back( pTau );
+	pTau->setJet(pSeedContainer, pSeed);
 
         //-----------------------------------------------------------------
         // Process the candidate
         //-----------------------------------------------------------------
-        ToolHandleArray<TauToolBase>::iterator itT = m_tools.begin();
-        ToolHandleArray<TauToolBase>::iterator itTE = m_tools.end();
+        ToolHandleArray<ITauToolBase>::iterator itT = m_tools.begin();
+        ToolHandleArray<ITauToolBase>::iterator itTE = m_tools.end();
 
         //-----------------------------------------------------------------
         // Loop stops when Failure indicated by one of the tools
@@ -258,7 +261,7 @@ StatusCode TauBuilder::execute() {
         for (; itT != itTE; ++itT) {
             ATH_MSG_VERBOSE("Invoking tool " << (*itT)->name());
 
-            sc = (*itT)->execute(&rTauData);
+	    sc = (*itT)->execute(*pTau);
 
             if (sc.isFailure())
                 break;
@@ -274,11 +277,11 @@ StatusCode TauBuilder::execute() {
             //-----------------------------------------------------------------
             //keep this here for future use (in case more than one seeding algo exist)
             /*
-            ToolHandleArray<TauToolBase> ::iterator p_itET = m_endTools.begin();
-            ToolHandleArray<TauToolBase> ::iterator p_itETE = m_endTools.end();
+            ToolHandleArray<ITauToolBase> ::iterator p_itET = m_endTools.begin();
+            ToolHandleArray<ITauToolBase> ::iterator p_itETE = m_endTools.end();
             for (; p_itET != p_itETE; ++p_itET) {
                 ATH_MSG_VERBOSE("Invoking endTool " << (*p_itET)->name());
-                p_sc = (*p_itET)->execute(&rTauData);
+                p_sc = (*p_itET)->execute(&m_data);
                 if (p_sc.isFailure())
                     break;
             }
@@ -289,14 +292,16 @@ StatusCode TauBuilder::execute() {
             //TODO:cleanup of EndTools not necessary??
             //keep this here for future use (in case more than one seeding algo exist)
             /*
-            ToolHandleArray<TauToolBase> ::iterator p_itT1 = m_tools.begin();
+            ToolHandleArray<ITauToolBase> ::iterator p_itT1 = m_tools.begin();
             for (; p_itT1 != p_itT; ++p_itT1)
-                (*p_itT1)->cleanup(&rTauData);
-            (*p_itT1)->cleanup(&rTauData);
+                (*p_itT1)->cleanup(&m_data);
+            (*p_itT1)->cleanup(&m_data);
              */
-	  rTauData.xAODTauContainer->pop_back();
+	  //m_data.xAODTauContainer->pop_back();
+	  pContainer->pop_back();
         } else
-	  rTauData.xAODTauContainer->pop_back();
+	  //m_data.xAODTauContainer->pop_back();
+	  pContainer->pop_back();
     }
 
 
@@ -304,13 +309,11 @@ StatusCode TauBuilder::execute() {
     //-------------------------------------------------------------------------
     // Finalize tools for this event
     //-------------------------------------------------------------------------
-    //TODO: line below necessary?
-    rTauData.xAODTau = 0;
 
     itT = m_tools.begin();
     itTE = m_tools.end();
     for (; itT != itTE; ++itT) {
-        sc = (*itT)->eventFinalize(&rTauData);
+      sc = (*itT)->eventFinalize();
         if (sc != StatusCode::SUCCESS)
             return StatusCode::FAILURE;
     }
@@ -320,7 +323,7 @@ StatusCode TauBuilder::execute() {
     p_itET = m_endTools.begin();
     p_itETE = m_endTools.end();
     for (; p_itET != p_itETE; ++p_itET) {
-        p_sc = (*p_itET)->eventFinalize(&rTauData);
+        p_sc = (*p_itET)->eventFinalize(&m_data);
         if (p_sc != StatusCode::SUCCESS)
             return StatusCode::FAILURE;
     }

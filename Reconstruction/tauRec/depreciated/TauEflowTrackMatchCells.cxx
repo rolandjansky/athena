@@ -120,7 +120,7 @@ StatusCode TauEflowTrackMatchCells::initialize() {
 // Event Initializer
 //-----------------------------------------------------------------------------
 
-StatusCode TauEflowTrackMatchCells::eventInitialize(TauCandidateData *) {
+StatusCode TauEflowTrackMatchCells::eventInitialize(TauEventData *) {
     m_clusterMap.clear();
     
     if (m_doCellCorrection) {
@@ -136,7 +136,7 @@ StatusCode TauEflowTrackMatchCells::eventInitialize(TauCandidateData *) {
 // Event Finalizer
 //-------------------------------------------------------------------------
 
-StatusCode TauEflowTrackMatchCells::eventFinalize(TauCandidateData *data) {
+StatusCode TauEflowTrackMatchCells::eventFinalize(TauEventData *data) {
 
     MsgStream rLog(msgSvc(), name());
 
@@ -260,7 +260,7 @@ StatusCode TauEflowTrackMatchCells::eventFinalize(TauCandidateData *data) {
 // Cleanup, in case this candidate was rejected later
 //-----------------------------------------------------------------------------
 
-void TauEflowTrackMatchCells::cleanup(TauCandidateData *data) {
+void TauEflowTrackMatchCells::cleanup(TauEventData *data) {
 
     //-------------------------------------------------------------------------
     // Cleanup cluster
@@ -291,7 +291,7 @@ void TauEflowTrackMatchCells::cleanup(TauCandidateData *data) {
 // Execution
 //-------------------------------------------------------------------------
 
-StatusCode TauEflowTrackMatchCells::execute(TauCandidateData *data) {
+StatusCode TauEflowTrackMatchCells::execute(TauEventData *data) {
 
     // Analysis::TauJet *pTau = data->tau;
     // Analysis::TauCommonDetails *pDetails = dynamic_cast<Analysis::TauCommonDetails *> (data->details);

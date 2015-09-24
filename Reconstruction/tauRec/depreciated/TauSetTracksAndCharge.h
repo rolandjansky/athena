@@ -8,7 +8,7 @@
 #include "tauRec/TauToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
 
-class TauCandidateData;
+class TauEventData;
 
 /**
  * @brief      Class to set number of tracks and charge of the tau (depreciated!)
@@ -33,7 +33,7 @@ class TauSetTracksAndCharge: public TauToolBase
         //-------------------------------------------------------------
         virtual ~TauSetTracksAndCharge();
 
-        virtual StatusCode execute( TauCandidateData *data );
+        virtual StatusCode execute( TauEventData *data );
         virtual StatusCode initialize();
 
 

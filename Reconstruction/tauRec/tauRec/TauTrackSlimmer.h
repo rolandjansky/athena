@@ -9,6 +9,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IThinningSvc.h"
 #include "ParticleEvent/ParticleBase.h"
+#include "tauRecTools/TauEventData.h"
+
 #include <string>
 
 class StoreGateSvc;
@@ -45,7 +47,7 @@ class TauTrackSlimmer: public AthAlgorithm
         double                        m_maxEmRadius;
         double                        m_maxIsoFrac;
 
-
+	TauEventData              m_data;//not used
 };
 
 #endif // TAUREC_TRACKSLIMMER_TAU_H

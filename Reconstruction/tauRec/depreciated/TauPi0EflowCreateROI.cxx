@@ -86,7 +86,7 @@ TauPi0EflowCreateROI::~TauPi0EflowCreateROI() {
 // Event Initializer
 //-----------------------------------------------------------------------------
 
-StatusCode TauPi0EflowCreateROI::eventFinalize(TauCandidateData *) {
+StatusCode TauPi0EflowCreateROI::eventFinalize(TauEventData *) {
 
         
     if (m_fillCellContainer) {
@@ -128,7 +128,7 @@ StatusCode TauPi0EflowCreateROI::eventFinalize(TauCandidateData *) {
 // Event Initializer
 //-----------------------------------------------------------------------------
 
-StatusCode TauPi0EflowCreateROI::eventInitialize(TauCandidateData *) {
+StatusCode TauPi0EflowCreateROI::eventInitialize(TauEventData *) {
 
     StatusCode sc;
 
@@ -244,7 +244,7 @@ StatusCode TauPi0EflowCreateROI::initialize() {
 // Execution
 //-------------------------------------------------------------------------
 
-StatusCode TauPi0EflowCreateROI::execute(TauCandidateData *data) {
+StatusCode TauPi0EflowCreateROI::execute(TauEventData *data) {
     
   xAOD::TauJet *pTau = data->xAODTau;
 

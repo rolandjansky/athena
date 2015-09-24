@@ -125,7 +125,7 @@ m_tauOriginCorrTool("") {
 TauEflowVariables::~TauEflowVariables() {
 }
 
-StatusCode TauEflowVariables::eventFinalize(TauCandidateData *) {
+StatusCode TauEflowVariables::eventFinalize(TauEventData *) {
 
     std::vector<int>().swap(m_isTopoClusQualif);
     std::vector<int>().swap(m_closestTopoClusCell);
@@ -168,7 +168,7 @@ StatusCode TauEflowVariables::initialize() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode TauEflowVariables::eventInitialize(TauCandidateData * /*data*/) 
+StatusCode TauEflowVariables::eventInitialize(TauEventData * /*data*/) 
 {
     if (m_doCellCorrection) {
         // Cell Origin Correction Tool initializeEvent is not called automatically
@@ -182,7 +182,7 @@ StatusCode TauEflowVariables::eventInitialize(TauCandidateData * /*data*/)
 // Execution
 //-------------------------------------------------------------------------
 
-StatusCode TauEflowVariables::execute(TauCandidateData *data) {
+StatusCode TauEflowVariables::execute(TauEventData *data) {
 
     Analysis::TauJet *pTau = data->tau;
     Analysis::TauCommonDetails *pDetails = dynamic_cast<Analysis::TauCommonDetails *> (data->details);
@@ -707,7 +707,7 @@ StatusCode TauEflowVariables::execute(TauCandidateData *data) {
 // they should use uncorrected coordinates, or?
 //-------------------------------------------------------------------------
 
-StatusCode TauEflowVariables::fillTopoClusterInfo(TauCandidateData *data) {
+StatusCode TauEflowVariables::fillTopoClusterInfo(TauEventData *data) {
 
     StatusCode sc;
 

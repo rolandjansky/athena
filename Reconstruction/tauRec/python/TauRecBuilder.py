@@ -21,6 +21,7 @@ from AthenaCommon.BeamFlags import jobproperties
 import traceback
 
 from RecExConfig.Configured import Configured
+from TauRecConfigured import TauRecConfigured
 
 # global tauRec config keys
 _outputType = "xAOD::TauJetContainer"
@@ -34,7 +35,7 @@ _jet_collection = "AntiKt4LCTopoJets"
 ## @class TauRecCoreBuilder
 # Build proper tau candidates and associate tracks, vertex and cells
 ################################################################################
-class TauRecCoreBuilder ( Configured ) :
+class TauRecCoreBuilder ( TauRecConfigured ) :
     """Build proper tau candidates and associate tracks, vertex and cells. 
     Calculate properties based on cell informations. 
     Find clusters used for Pi0 identification and eflow variables.
@@ -43,12 +44,11 @@ class TauRecCoreBuilder ( Configured ) :
   
     _output     = { _outputType:_outputKey , _outputAuxType:_outputAuxKey }
     
-    def __init__(self, name = "TauCoreBuilder",doPi0Clus=False, doTJVA=False, msglevel=3, ignoreExistingDataObject=True):
+    def __init__(self, name = "TauCoreBuilder",doPi0Clus=False, doTJVA=False):
         self.name = name
         self.doPi0Clus = doPi0Clus
         self.do_TJVA = doTJVA
-        self.msglevel = msglevel
-        Configured.__init__(self, ignoreExistingDataObject=ignoreExistingDataObject)
+        TauRecConfigured.__init__(self, name)
 
  
     def configure(self):
@@ -63,17 +63,14 @@ class TauRecCoreBuilder ( Configured ) :
         objKeyStore.addManyTypesStreamESD(self._output)
         objKeyStore.addManyTypesStreamAOD(self._output)              
         
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        
         import tauRec.TauAlgorithmsHolder as taualgs
         
         ########################################################################
         # TauBuilder
         # create the taus
         try:
-            from tauRec.tauRecConf import TauBuilder 
-            self._TauBuilderHandle = TauBuilder(
+            from tauRecTools.tauRecToolsConf import TauBuilderTool
+            self._TauBuilderToolHandle = TauBuilderTool(
                 name = self.name,
                 SeedContainer            = _jet_collection,
                 TauContainer             = _outputKey,
@@ -131,7 +128,9 @@ class TauRecCoreBuilder ( Configured ) :
                 tools.append(tauRec.TauConversionAlgorithms.getTauConversionFinderTool())
             
             #tools.append(taualgs.getContainerLock())
-            self.TauBuilderHandle().Tools = tools
+            
+            TauRecConfigured.AddToolsToToolSvc(self, tools)
+            self.TauBuilderToolHandle().Tools = tools
             
         except Exception:
             mlog.error("could not append tools to TauBuilder")
@@ -139,14 +138,13 @@ class TauRecCoreBuilder ( Configured ) :
             return False
         
         # run first part of Tau Builder
-        topSequence += self.TauBuilderHandle()
-        
+        TauRecConfigured.WrapTauRecToolExecHandle(self, tool=self.TauBuilderToolHandle())
         return True
         
     # Helpers 
-    def TauBuilderHandle(self):
-        return self._TauBuilderHandle
-    
+    def TauBuilderToolHandle(self):
+        return self._TauBuilderToolHandle
+
     def outputKey(self):
          return self._output[self._outputType]
     
@@ -159,24 +157,20 @@ class TauRecCoreBuilder ( Configured ) :
 ## @class TauRecPi0EflowProcessor
 # Calculate eflow information and run the Pi0 finder algorithms
 ################################################################################
-class TauRecPi0EflowProcessor ( Configured ) :
+class TauRecPi0EflowProcessor ( TauRecConfigured ) :
     """Calculate eflow information and run the Pi0 finder algorithms.
     This needs to be done in a separate step, because first special cluster and cell container have to be build.
     """
        
-    def __init__(self, name = "TauProcessorPi0EflowTools",doPi0Clus=False, msglevel=3, ignoreExistingDataObject=True):
+    def __init__(self, name = "TauProcessorPi0EflowTools",doPi0Clus=False):
         self.name = name
         self.doPi0Clus = doPi0Clus
-        self.msglevel = msglevel
-        Configured.__init__(self,ignoreExistingDataObject=ignoreExistingDataObject)
+        TauRecConfigured.__init__(self, name)
     
     def configure(self):
         mlog = logging.getLogger ('TauRecPi0EflowProcessor::configure:')
         mlog.info('entering')
         
-        
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
         
         import tauRec.TauAlgorithmsHolder as taualgs
         
@@ -184,8 +178,8 @@ class TauRecPi0EflowProcessor ( Configured ) :
         # Tau Modifier Algos 
         ########################################################################
         try:
-            from tauRec.tauRecConf import TauProcessor
-            self._TauProcessorHandle = TauProcessor(
+            from tauRecTools.tauRecToolsConf import TauProcessorTool
+            self._TauProcessorToolHandle = TauProcessorTool(
                 name = self.name,
                 TauContainer             = _outputKey,
                 TauAuxContainer          = _outputAuxKey,
@@ -203,37 +197,37 @@ class TauRecPi0EflowProcessor ( Configured ) :
       
             if self.doPi0Clus: tools.append(taualgs.getPi0ClusterCreator())
             
-            self.TauProcessorHandle().Tools = tools
+            TauRecConfigured.AddToolsToToolSvc(self, tools)
+            self.TauProcessorToolHandle().Tools = tools
             
         except Exception:
             mlog.error("could not append tools to TauProcessor")
             print traceback.format_exc()
             return False   
         
-        topSequence += self.TauProcessorHandle()  
+        TauRecConfigured.WrapTauRecToolExecHandle(self, self.TauProcessorToolHandle())
         
         return True    
     
     # Helpers
-    def TauProcessorHandle(self):
-        return self._TauProcessorHandle
+    def TauProcessorToolHandle(self):
+        return self._TauProcessorToolHandle
 
 
 ################################################################################
 ## @class TauRecVariablesProcessor
 # Calculate remaining Tau variables and properties
 ################################################################################
-class TauRecVariablesProcessor ( Configured ) :
+class TauRecVariablesProcessor ( TauRecConfigured ) :
     """Calculate remaining Tau variables and properties. 
     Use informations available also in AODs, so no cell level is needed.
     """
     
-    def __init__(self, name = "TauRecVariablesProcessor", inAODmode=False, doPi0Clus=False, msglevel=3, ignoreExistingDataObject=True):
+    def __init__(self, name = "TauRecVariablesProcessor", inAODmode=False, doPi0Clus=False):
         self.name = name
         self.doPi0Clus = doPi0Clus
-        self.msglevel = msglevel
         self.AODmode = inAODmode 
-        Configured.__init__(self, ignoreExistingDataObject=ignoreExistingDataObject)
+        TauRecConfigured.__init__(self, name)
     
     
     def configure(self):
@@ -241,24 +235,21 @@ class TauRecVariablesProcessor ( Configured ) :
         mlog.info('entering')
         
         
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        
         import tauRec.TauAlgorithmsHolder as taualgs
         
         ########################################################################
         # Tau Modifier Algos 
         ########################################################################
         try:
-            from tauRec.tauRecConf import TauProcessor
-            self._TauProcessorHandle = TauProcessor(
+            from tauRecTools.tauRecToolsConf import TauProcessorTool
+            self._TauProcessorToolHandle = TauProcessorTool(
                 name = self.name,
                 TauContainer             = _outputKey,
                 TauAuxContainer          = _outputAuxKey,
                 runOnAOD                 = self.AODmode)
         
         except Exception:
-            mlog.error("could not get handle to TauProcessor")
+            mlog.error("could not get handle to TauProcessorTool")
             print traceback.format_exc()
             return False
              
@@ -284,20 +275,25 @@ class TauRecVariablesProcessor ( Configured ) :
             #
             ## lock tau containers -> must be the last tau tool!!
             #tools.append(taualgs.getContainerLock())
-                        
-            self.TauProcessorHandle().Tools = tools
+
+            TauRecConfigured.AddToolsToToolSvc(self, tools)
+            self.TauProcessorToolHandle().Tools = tools
         
         except Exception:
             mlog.error("could not append tools to TauProcessor")
             print traceback.format_exc()
             return False
+
+        self
+
+        TauRecConfigured.WrapTauRecToolExecHandle(self, self.TauProcessorToolHandle())
         
-        topSequence += self.TauProcessorHandle()  
         
         return True    
     
-    # Helpers
-    def TauProcessorHandle(self):
-        return self._TauProcessorHandle
+
+    #helpers
+    def TauProcessorToolHandle(self):
+        return self._TauProcessorToolHandle
 
 #end
