@@ -34,9 +34,9 @@ public:
     virtual ~TauPi0EflowCreateROI();
 
     virtual StatusCode initialize();
-    virtual StatusCode eventInitialize(TauCandidateData *data);
-    virtual StatusCode execute(TauCandidateData *data);
-    virtual StatusCode eventFinalize(TauCandidateData *data);
+    virtual StatusCode eventInitialize(TauEventData *data);
+    virtual StatusCode execute(TauEventData *data);
+    virtual StatusCode eventFinalize(TauEventData *data);
 
 
 private:

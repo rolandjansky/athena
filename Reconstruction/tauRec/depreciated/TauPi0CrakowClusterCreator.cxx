@@ -112,7 +112,7 @@ static void do_delete(CaloCluster *cluster) {
 // Event Initializer
 //-------------------------------------------------------------------------
 
-StatusCode TauPi0CrakowClusterCreator::eventInitialize(TauCandidateData *) {
+StatusCode TauPi0CrakowClusterCreator::eventInitialize(TauEventData *) {
     m_pi0Map.clear();
     return StatusCode::SUCCESS;
 }
@@ -123,7 +123,7 @@ StatusCode TauPi0CrakowClusterCreator::eventInitialize(TauCandidateData *) {
 // Event Finalizer
 //-------------------------------------------------------------------------
 
-StatusCode TauPi0CrakowClusterCreator::eventFinalize(TauCandidateData *) {
+StatusCode TauPi0CrakowClusterCreator::eventFinalize(TauEventData *) {
 
     MsgStream rLog(msgSvc(), name());
 
@@ -183,7 +183,7 @@ StatusCode TauPi0CrakowClusterCreator::eventFinalize(TauCandidateData *) {
 // Execution
 //-------------------------------------------------------------------------
 
-StatusCode TauPi0CrakowClusterCreator::execute(TauCandidateData *data) {
+StatusCode TauPi0CrakowClusterCreator::execute(TauEventData *data) {
 
     // Analysis::TauJet *pTau = data->tau;
     // Analysis::TauCommonDetails *pDetails = dynamic_cast<Analysis::TauCommonDetails *> (data->details);
@@ -437,7 +437,7 @@ StatusCode TauPi0CrakowClusterCreator::execute(TauCandidateData *data) {
 // Cleanup, in case this candidate was rejected later
 //-----------------------------------------------------------------------------
 
-void TauPi0CrakowClusterCreator::cleanup(TauCandidateData *data) {
+void TauPi0CrakowClusterCreator::cleanup(TauEventData *data) {
 
     Analysis::TauCommonDetails *pDetails = dynamic_cast<Analysis::TauCommonDetails *> (data->details);
     std::map<Analysis::TauCommonDetails *, std::vector<CaloCluster *> > ::iterator it;

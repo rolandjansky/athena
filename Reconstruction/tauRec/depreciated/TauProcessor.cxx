@@ -5,6 +5,10 @@
 #include "GaudiKernel/ListItem.h"
 
 #include "xAODTau/TauJetContainer.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODTracking/VertexAuxContainer.h"
+#include "xAODPFlow/PFOContainer.h"
+#include "xAODPFlow/PFOAuxContainer.h"
 
 #include "tauRec/TauProcessor.h"
 
@@ -21,9 +25,12 @@ m_tools(this) //make tools private
 {
     declareProperty("TauContainer", m_tauContainerName);
     declareProperty("TauAuxContainer", m_tauAuxContainerName);
-    declareProperty("Tools", m_tools, "List of TauToolBase tools");
+    declareProperty("Tools", m_tools, "List of ITauToolBase tools");
     declareProperty("runOnAOD", m_AODmode); //AODS are input file
-    
+    declareProperty("deepCopyChargedPFOContainer", m_deep_copy_chargedPFOContainer=true);
+    declareProperty("deepCopyHadronicPFOContainer", m_deep_copy_hadronicPFOContainer=true);
+    declareProperty("deepCopyNeutralPFOContainer", m_deep_copy_neutralPFOContainer=true);
+    declareProperty("deepCopySecVtxContainer", m_deep_copy_SecVtxContainer=true);
 }
 
 //-----------------------------------------------------------------------------
@@ -53,8 +60,8 @@ StatusCode TauProcessor::initialize() {
     //-------------------------------------------------------------------------
     // Allocate tools
     //-------------------------------------------------------------------------
-    ToolHandleArray<TauToolBase> ::iterator itT = m_tools.begin();
-    ToolHandleArray<TauToolBase> ::iterator itTE = m_tools.end();
+    ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
+    ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
     ATH_MSG_INFO("List of tools in execution sequence:");
     ATH_MSG_INFO("------------------------------------");
 
@@ -67,6 +74,10 @@ StatusCode TauProcessor::initialize() {
         } else {
             ++tool_count;
             ATH_MSG_INFO((*itT)->type() << " - " << (*itT)->name());
+	    //If you want to utlize TauCandidate In Tools, 
+	    //decalre TauCandidate in your class, and pass its address
+	    //to function below
+	    (*itT)->setTauEventData(&m_data);
         }
     }
     ATH_MSG_INFO(" ");
@@ -93,18 +104,57 @@ StatusCode TauProcessor::finalize() {
 // Execution
 //-----------------------------------------------------------------------------
 StatusCode TauProcessor::execute() {
-
+  
     StatusCode sc;
+    m_data.clear();
 
-    TauCandidateData rTauData;
+    if(m_AODmode){
+      //-------------------------------------------------------------------------
+      // In AODMode, deep copy all PFOs BEFORE reading in tau
+      //-------------------------------------------------------------------------
+      if(m_deep_copy_SecVtxContainer){
+      	xAOD::VertexContainer* pSecVtxContainer(0);
+      	xAOD::VertexAuxContainer* pSecVtxAuxContainer(0);
+      	xAOD::Vertex* v(0);
+      	ATH_CHECK(deepCopy(pSecVtxContainer, pSecVtxAuxContainer, v, "TauSecondaryVertices"));
+      }
 
-    const xAOD::TauJetContainer*     pContainer = 0;
-    const xAOD::TauJetAuxContainer*     pAuxContainer = 0;
+      if(m_deep_copy_neutralPFOContainer){
+      	xAOD::PFOContainer* neutralPFOContainer(0);
+      	xAOD::PFOAuxContainer* neutralPFOAuxStore(0);
+      	xAOD::PFO* p(0);
+      	//container name hard-coded, but configurable in tool where objects are created in core reco
+      	ATH_CHECK(deepCopy(neutralPFOContainer, neutralPFOAuxStore, p, "TauNeutralParticleFlowObjects"));
+      }
+
+      if(m_deep_copy_hadronicPFOContainer){
+      	xAOD::PFOContainer* hadronicPFOContainer(0);
+      	xAOD::PFOAuxContainer* hadronicPFOAuxStore(0);
+      	xAOD::PFO* p(0);
+      	//container name hard-coded, but configurable in tool where objects are created in core reco
+      	ATH_CHECK(deepCopy(hadronicPFOContainer, hadronicPFOAuxStore, p, "TauHadronicParticleFlowObjects"));
+      }
+
+      if(m_deep_copy_chargedPFOContainer){
+      	xAOD::PFOContainer* chargedPFOContainer(0);
+      	xAOD::PFOAuxContainer* chargedPFOAuxStore(0);
+      	xAOD::PFO* p(0);
+      	//container name hard-coded, but configurable in tool where objects are created in core reco
+      	ATH_CHECK(deepCopy(chargedPFOContainer, chargedPFOAuxStore, p, "TauChargedParticleFlowObjects"));
+      }
+      //-------------------------------------------------------------------------
+      // End pre-tau reading operations
+      //-------------------------------------------------------------------------
+    }
+
+
+    const xAOD::TauJetContainer*     pContainerOriginal(0);
+    const xAOD::TauJetAuxContainer*     pAuxContainerOriginal(0);
 
     //-------------------------------------------------------------------------
     // retrieve Tau Containers from StoreGate
     //-------------------------------------------------------------------------
-    sc = evtStore()->retrieve(pContainer, m_tauContainerName);
+    sc = evtStore()->retrieve(pContainerOriginal, m_tauContainerName);
     if (sc.isFailure()) {
       if (m_AODmode) {
         // don't exit Athena if there is no Tau Container in (D)AODs when running in AOD mode
@@ -118,9 +168,8 @@ StatusCode TauProcessor::execute() {
         return StatusCode::FAILURE;
       }
     } 
-    rTauData.xAODTauContainer = const_cast<xAOD::TauJetContainer*>(pContainer);  
 
-    sc = evtStore()->retrieve(pAuxContainer, m_tauAuxContainerName);
+    sc = evtStore()->retrieve(pAuxContainerOriginal, m_tauAuxContainerName);
     if (sc.isFailure()) {
       if (m_AODmode) {
         // don't exit Athena if there is no Tau AuxContainer in (D)AODs when running in AOD mode
@@ -134,26 +183,27 @@ StatusCode TauProcessor::execute() {
         return StatusCode::FAILURE;
       }
     } 
-    rTauData.tauAuxContainer = const_cast<xAOD::TauJetAuxContainer*>(pAuxContainer);  
 
-    // set TauCandidate properties
-    rTauData.xAODTau = 0;
-    /*
-    rTauData.tau = 0;
-    rTauData.details = 0;
-    rTauData.extraDetails = 0;
-    rTauData.pi0Details = 0;
-    */
-    rTauData.seed = 0;
-    rTauData.seedContainer = 0;
+    xAOD::TauJetContainer* pContainer = const_cast<xAOD::TauJetContainer*> (pContainerOriginal);
+    xAOD::TauJetAuxContainer* pAuxContainer = const_cast<xAOD::TauJetAuxContainer*> (pAuxContainerOriginal);
+
+    if(m_AODmode){
+      pContainer=0;
+      pAuxContainer=0;
+      xAOD::TauJet* tau(0);
+      ATH_CHECK(deepCopy(pContainer, pAuxContainer, tau, m_tauContainerName, m_tauAuxContainerName));
+    }
+
+    m_data.xAODTauContainer = pContainer;
+    m_data.tauAuxContainer = pAuxContainer;
 
     //-------------------------------------------------------------------------
     // Initialize tools for this event
     //-------------------------------------------------------------------------
-    ToolHandleArray<TauToolBase> ::iterator itT = m_tools.begin();
-    ToolHandleArray<TauToolBase> ::iterator itTE = m_tools.end();
+    ToolHandleArray<ITauToolBase> ::iterator itT = m_tools.begin();
+    ToolHandleArray<ITauToolBase> ::iterator itTE = m_tools.end();
     for (; itT != itTE; ++itT) {
-        sc = (*itT)->eventInitialize(&rTauData);
+        sc = (*itT)->eventInitialize();
         if (sc != StatusCode::SUCCESS)
             return StatusCode::FAILURE;
     }
@@ -161,22 +211,20 @@ StatusCode TauProcessor::execute() {
     ////////////////////////////////////////////////////////
 
     //loop over taus
-    xAOD::TauJetContainer::const_iterator tau_it  = pContainer->begin();
-    xAOD::TauJetContainer::const_iterator tau_end = pContainer->end();
+    xAOD::TauJetContainer::iterator tau_it  = pContainer->begin();
+    xAOD::TauJetContainer::iterator tau_end = pContainer->end();
     
     for(; tau_it != tau_end; ++tau_it) {
         
         //-----------------------------------------------------------------
         // set tau candidate data for easy handling
         //-----------------------------------------------------------------
-        rTauData.xAODTau          = const_cast<xAOD::TauJet * >( *tau_it);
-	rTauData.seed = ( *rTauData.xAODTau->jetLink() );
 
         //-----------------------------------------------------------------
         // Process the candidate
         //-----------------------------------------------------------------
-        ToolHandleArray<TauToolBase>::iterator itT = m_tools.begin();
-        ToolHandleArray<TauToolBase>::iterator itTE = m_tools.end();
+        ToolHandleArray<ITauToolBase>::iterator itT = m_tools.begin();
+        ToolHandleArray<ITauToolBase>::iterator itTE = m_tools.end();
 
         //-----------------------------------------------------------------
         // Loop stops when Failure indicated by one of the tools
@@ -184,7 +232,7 @@ StatusCode TauProcessor::execute() {
         for (; itT != itTE; ++itT) {
             ATH_MSG_VERBOSE("Invoking tool " << (*itT)->name());
 
-            sc = (*itT)->execute(&rTauData);
+            sc = (*itT)->execute(**tau_it);
 
             if (sc.isFailure())
                 break;
@@ -198,14 +246,14 @@ StatusCode TauProcessor::execute() {
             //TODO:cleanup of EndTools not necessary??
             //keep this here for future use (in case more than one seeding algo exist)
             /*
-            ToolHandleArray<TauToolBase> ::iterator p_itT1 = m_tools.begin();
+            ToolHandleArray<ITauToolBase> ::iterator p_itT1 = m_tools.begin();
             for (; p_itT1 != p_itT; ++p_itT1)
-                (*p_itT1)->cleanup(&rTauData);
-            (*p_itT1)->cleanup(&rTauData);
+                (*p_itT1)->cleanup(&m_data);
+            (*p_itT1)->cleanup(&m_data);
              */
-            //delete rTauData.tau;
+            //delete m_data.tau;
         } else  {
-            //delete rTauData.tau;
+            //delete m_data.tau;
             }
     }
 
@@ -218,7 +266,7 @@ StatusCode TauProcessor::execute() {
     itT = m_tools.begin();
     itTE = m_tools.end();
     for (; itT != itTE; ++itT) {
-        sc = (*itT)->eventFinalize(&rTauData);
+        sc = (*itT)->eventFinalize();
         if (sc != StatusCode::SUCCESS)
             return StatusCode::FAILURE;
     }

@@ -30,10 +30,10 @@ public:
     virtual ~TauPi0CreatorChooser();
 
     virtual StatusCode initialize();
-    virtual StatusCode eventInitialize(TauCandidateData *data);
-    virtual StatusCode execute(TauCandidateData *data);
-    virtual StatusCode eventFinalize(TauCandidateData *data);
-    virtual void cleanup(TauCandidateData *data);
+    virtual StatusCode eventInitialize(TauEventData *data);
+    virtual StatusCode execute(TauEventData *data);
+    virtual StatusCode eventFinalize(TauEventData *data);
+    virtual void cleanup(TauEventData *data);
 
 private:
 

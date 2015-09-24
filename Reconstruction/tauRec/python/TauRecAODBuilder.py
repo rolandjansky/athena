@@ -26,12 +26,13 @@ from AthenaCommon.AlgSequence import AlgSequence
 import traceback
 
 from RecExConfig.Configured import Configured
+from TauRecConfigured import TauRecConfigured
 
 ################################################################################
 ## @class TauRecAODProcessor
 # Calculate Tau variables and properties on AODs.
 ################################################################################
-class TauRecAODProcessor ( Configured ) :
+class TauRecAODProcessor ( TauRecConfigured ) :
     """Calculate remaining Tau variables and properties. Use informations available also in AODs, so no cell level is needed."""
     
     _outputType = "xAOD::TauJetContainer"
@@ -44,10 +45,10 @@ class TauRecAODProcessor ( Configured ) :
         self.doPi0Clus = doPi0Clus
         self.msglevel = msglevel
         self.AODmode = inAODmode
-        self.sequence = sequence
+        self.sequence = sequence #not used at the moment
         if sequence is None:
            self.sequence = AlgSequence() 
-        Configured.__init__(self, ignoreExistingDataObject=ignoreExistingDataObject)
+        TauRecConfigured.__init__(self, name)
     
     
     def configure(self):
@@ -60,13 +61,15 @@ class TauRecAODProcessor ( Configured ) :
         # Tau Modifier Algos 
         ########################################################################
         try:
-            from tauRec.tauRecConf import TauProcessor
+            from tauRecTools.tauRecToolsConf import TauProcessorTool
             #TauProcessor.OutputLevel = 2
-            self._TauProcessorHandle = TauProcessor(
+            self._TauProcessorHandle = TauProcessorTool(
                 name = self.name,
                 TauContainer             = self._outputKey,
-                TauDetailsContainer      = self._outputDetailsKey,
-                runOnAOD                 = self.AODmode)
+                #TauDetailsContainer      = self._outputDetailsKey,
+                TauAuxContainer          = self._outputDetailsKey,
+                runOnAOD                 = self.AODmode,
+                )
         
         except Exception:
             mlog.error("could not get handle to TauProcessor")
@@ -80,25 +83,45 @@ class TauRecAODProcessor ( Configured ) :
             ## ATTENTION ##################################################################################
             # running these tau tools on AODs will lead to inconsistency with standard tau reconstruction
             ###############################################################################################
-            #tools.append(taualgs.getTauVertexFinder(doUseTJVA=True)) 
+            if InDetFlags.doVertexFinding():
+                tools.append(taualgs.getTauVertexFinder(doUseTJVA=True)) 
             tools.append(taualgs.getTauAxis()) ##needed to set correct variables for energy calibration
             #tools.append(taualgs.getTauTrackFinder())
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
             
-            tools.append(taualgs.getTauVertexVariables())
-            tools.append(taualgs.getTauCommonCalcVars())
-            tools.append(taualgs.getTauSubstructure())
-            tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))                    
+            tools.append(taualgs.getTauTrackFilter())     #TauTrackFilter
+            tools.append(taualgs.getTauGenericPi0Cone())  #TauGenericPi0Cone
 
             # Run the conversion tagger if flagged to do so
             import tauRec.TauConversionAlgorithms
             from tauRec.tauRecFlags import jobproperties
             if jobproperties.tauRecFlags.useNewPIDBasedConvFinder():
                 tools.append(tauRec.TauConversionAlgorithms.getTauConversionTaggerTool())
+            else:
+                #Need to run together, they will select either PID or vertex based on another flag
+                tools.append(tauRec.TauConversionAlgorithms.getPhotonConversionTool())
+                tools.append(tauRec.TauConversionAlgorithms.getTauConversionFinderTool())
+                pass
 
+
+            #this tool cannot recreate a 2nd vertex w/o ESD style tracks
+            #tools.append(taualgs.getTauVertexVariables())
+            tools.append(taualgs.getTauCommonCalcVars())
+            tools.append(taualgs.getTauSubstructure())
+
+            #tools.append(taualgs.getPi0ClusterScaler())   #TauPi0ClusterScaler
+            tools.append(taualgs.getPi0ScoreCalculator()) #TauPi0ScoreCalculator
+            #tools.append(taualgs.getPi0Selector())        #TauPi0Selector
+
+            tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))                    
+
+            tools.append(taualgs.getIDPileUpCorrection())
+
+                
             # for testing purpose
             #tools.append(taualgs.getTauTestDump())
                         
+            TauRecConfigured.AddToolsToToolSvc(self, tools)
             self.TauProcessorHandle().Tools = tools
         
         except Exception:
@@ -106,8 +129,7 @@ class TauRecAODProcessor ( Configured ) :
             print traceback.format_exc()
             return False
         
-        self.sequence += self.TauProcessorHandle()  
-        
+        TauRecConfigured.WrapTauRecToolExecHandle(self, tool=self.TauProcessorHandle())        
         return True    
     
     #############################################################################################

@@ -35,7 +35,7 @@ TauAODList += [ "xAOD::CaloClusterAuxContainer#TauPi0ClustersAux." ]
 # TauRec main xAOD containers
 #------------------------------------------------------------------------------
 TauAODList += [ "xAOD::TauJetContainer#TauJets" ]
-TauAODList += [ "xAOD::TauJetAuxContainer#TauJetsAux." ]
+TauAODList += [ "xAOD::TauJetAuxContainer#TauJetsAux.-ABS_ETA_LEAD_TRACK.-CORRCENTFRAC.-CORRFTRK.-EMFRACTIONATEMSCALE_MOVEE3.-HADLEAKET.-NUMTRACK.-TAU_ABSDELTAETA.-TAU_ABSDELTAPHI.-TAU_SEEDTRK_SECMAXSTRIPETOVERPT.-TAU_TRT_NHT_OVER_NLT" ]
 
 #------------------------------------------------------------------------------
 # Secondary Vertex for Tau Decay
@@ -75,5 +75,4 @@ TauAODList += [ "xAOD::PFOAuxContainer#TauHadronicParticleFlowObjectsAux." ]
 #TauAODList += [ "xAOD::PFOAuxContainer#neutralTauPFO_eflowRecAux." ]
 #TauAODList += [ "xAOD::PFOContainer#chargedTauPFO_eflowRec" ]
 #TauAODList += [ "xAOD::PFOAuxContainer#chargedTauPFO_eflowRecAux." ]
-
 

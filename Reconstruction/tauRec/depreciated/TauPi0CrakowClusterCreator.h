@@ -30,12 +30,12 @@ public:
     virtual ~TauPi0CrakowClusterCreator();
     
     virtual StatusCode initialize();
-    virtual StatusCode eventInitialize(TauCandidateData *data);
-    virtual StatusCode execute(TauCandidateData *data);
-    virtual StatusCode eventFinalize(TauCandidateData *data);
+    virtual StatusCode eventInitialize(TauEventData *data);
+    virtual StatusCode execute(TauEventData *data);
+    virtual StatusCode eventFinalize(TauEventData *data);
     
-    virtual void cleanup(TauCandidateData *data);
-    StatusCode fillTopoClusterInfo(TauCandidateData *data);
+    virtual void cleanup(TauEventData *data);
+    StatusCode fillTopoClusterInfo(TauEventData *data);
 
 
 private:

@@ -8,7 +8,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
-#include "tauRec/TauToolBase.h"
+#include "tauRecTools/ITauToolBase.h"
 
 /**
  * @brief       Main class for tau candidate building and processing.
@@ -49,7 +49,8 @@ class TauBuilder : public AthAlgorithm
      */ 
     bool m_doCreateTauContainers;               
     
-    ToolHandleArray<TauToolBase> m_tools;  //!< tools to process tau candidates
+    ToolHandleArray<ITauToolBase> m_tools;  //!< tools to process tau candidates
+    TauEventData m_data;  // used
 } ;
 
 #endif // TAUREC_TAUBUILDER_H

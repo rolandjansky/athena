@@ -60,7 +60,7 @@ StatusCode TauPi0CreatorChooser::initialize() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode TauPi0CreatorChooser::eventInitialize(TauCandidateData* data) {
+StatusCode TauPi0CreatorChooser::eventInitialize(TauEventData* data) {
 
     StatusCode sc;
     sc = m_tau1p3pCreatePi0ClusTool->eventInitialize(data);
@@ -78,7 +78,7 @@ StatusCode TauPi0CreatorChooser::eventInitialize(TauCandidateData* data) {
     return StatusCode::SUCCESS;
 }
 
-StatusCode TauPi0CreatorChooser::execute(TauCandidateData* data) {
+StatusCode TauPi0CreatorChooser::execute(TauEventData* data) {
 
     StatusCode sc;
 
@@ -91,7 +91,7 @@ StatusCode TauPi0CreatorChooser::execute(TauCandidateData* data) {
     return sc;
 }
 
-void TauPi0CreatorChooser::cleanup(TauCandidateData* data) {
+void TauPi0CreatorChooser::cleanup(TauEventData* data) {
     if (data->tau->numTrack() != 1)
         m_tau1p3pCreatePi0ClusTool->cleanup(data);
     else
@@ -107,7 +107,7 @@ void TauPi0CreatorChooser::cleanup(TauCandidateData* data) {
     return;
 }
 
-StatusCode TauPi0CreatorChooser::eventFinalize(TauCandidateData* /* data */) {
+StatusCode TauPi0CreatorChooser::eventFinalize(TauEventData* /* data */) {
 
     // Do not call eventFinalize methods of the child tools. They would record
     // two CaloClusterContainers with the same name. Instead do the work here.

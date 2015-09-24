@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "tauRec/TauCandidateData.h"
+#include "tauRec/TauEventData.h"
 #include "tauRec/TauSetTracksAndCharge.h"
 #include "tauEvent/TauJetParameters.h"
 
@@ -39,7 +39,7 @@ StatusCode TauSetTracksAndCharge::initialize() {
 //-------------------------------------------------------------------------
 // Execution
 //-------------------------------------------------------------------------
-StatusCode TauSetTracksAndCharge::execute(TauCandidateData *data) {
+StatusCode TauSetTracksAndCharge::execute(TauEventData *data) {
 
     StatusCode sc;
     const Rec::TrackParticleContainer *trackContainer;

@@ -27,7 +27,7 @@ def getTauConversionFinderTool():
     else:
         inputConversionContainerName = "ConversionsPID_Container"
         minEProb = 0.9
-    from tauRec.tauRecConf import TauConversionFinder
+    from tauRecTools.tauRecToolsConf import TauConversionFinder
     TauConversionFinder = TauConversionFinder(
                               ConversionCandidatesName  = inputConversionContainerName,
                               TrackContainerName        = "InDetTrackParticles",
@@ -284,7 +284,7 @@ def getPhotonConversionTool():
         ToolSvc += MyInDetConversionFinderTools
         print      MyInDetConversionFinderTools
 
-        from tauRec.tauRecConf import PhotonConversionVertex
+        from tauRecTools.tauRecToolsConf import PhotonConversionVertex
         photonConv = PhotonConversionVertex(name                        = "PhotonConversionVertex",
                                     TauRecContainer                     = "TauJets",
                                     TrackParticleContainer              = "InDetTrackParticles",
@@ -295,7 +295,7 @@ def getPhotonConversionTool():
         return photonConv
 
     else:
-        from tauRec.tauRecConf import PhotonConversionPID
+        from tauRecTools.tauRecToolsConf import PhotonConversionPID
         photonConv = PhotonConversionPID(ConversionCandidatesName = "ConversionCandidate", 
                                          ConversionOutputName = "ConversionsPID_Container",
                                          ElectronProbability = 0.9)
@@ -310,7 +310,7 @@ def getTauConversionTaggerTool():
         #Anything we need to do to avoid running the tool goes here
         #Handled in TauRecBuilder.py
         pass
-    from tauRec.tauRecConf import TauConversionTagger
+    from tauRecTools.tauRecToolsConf import TauConversionTagger
     TauConversionTagger = TauConversionTagger(ConversionTaggerVersion = 1)
     return TauConversionTagger
 

@@ -29,8 +29,8 @@ public:
     virtual ~TauEflowAddCaloInfo();
     
     virtual StatusCode initialize();
-    virtual StatusCode execute(TauCandidateData *data);
-    virtual StatusCode eventInitialize(TauCandidateData *data);
+    virtual StatusCode execute(TauEventData *data);
+    virtual StatusCode eventInitialize(TauEventData *data);
 
 
 private:
