@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PFODefs.h 625439 2014-10-31 15:02:45Z mhodgkin $
+// $Id: PFODefs.h 696622 2015-09-24 14:26:43Z mhodgkin $
 #ifndef XAODPFLOW_PFODEFS_H
 #define XAODPFLOW_PFODEFS_H
 
@@ -56,6 +56,8 @@ namespace PFODetails
     eflowRec_LAYERENERGY_Tile0,
     eflowRec_LAYERENERGY_HEC,
     eflowRec_TIMING,
+    eflowRec_tracksExpectedEnergyDeposit,
+    eflowRec_isInDenseEnvironment,
     /** These variables belong to the cell-based particle flow algorithm */
     cellBased_FIRST_ETA = 400, 
     cellBased_SECOND_R, 
