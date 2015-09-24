@@ -42,45 +42,45 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 
 # Tag & Probe with central electrons
 
-TPMassTool1 = DerivationFramework__InvariantMassTool( name = "TPMassTool1",
-						      ContainerName              = "Electrons",
-						      SecondContainerName        = "Electrons",
-						      ObjectRequirements         = sel_tag_tp1,
-						      SecondObjectRequirements   = sel_probe_tp1,
-						      MassHypothesis             = 0.511,
-						      SecondMassHypothesis       = 0.511,
-						      StoreGateEntryName         = "TPMass1")
-ToolSvc += TPMassTool1
+DESDM_EGAMMATPMassTool1 = DerivationFramework__InvariantMassTool( name = "DESDM_EGAMMATPMassTool1",
+                                                                  ContainerName              = "Electrons",
+                                                                  SecondContainerName        = "Electrons",
+                                                                  ObjectRequirements         = sel_tag_tp1,
+                                                                  SecondObjectRequirements   = sel_probe_tp1,
+                                                                  MassHypothesis             = 0.511,
+                                                                  SecondMassHypothesis       = 0.511,
+                                                                  StoreGateEntryName         = "DESDM_EGAMMATPMass1")
+ToolSvc += DESDM_EGAMMATPMassTool1
 
 # Tag & Probe with 1 forward electron
 
-TPMassTool2 = DerivationFramework__InvariantMassTool( name = "TPMassTool2",
-                                                      ContainerName              = "Electrons",
-                                                      SecondContainerName        = "ForwardElectrons",
-                                                      ObjectRequirements         = sel_tag_tp2,
-                                                      SecondObjectRequirements   = sel_probe_tp2,
-                                                      MassHypothesis             = 0.511,
-                                                      SecondMassHypothesis       = 0.511,
-                                                      StoreGateEntryName         = "TPMass2")
-ToolSvc += TPMassTool2
+DESDM_EGAMMATPMassTool2 = DerivationFramework__InvariantMassTool( name = "DESDM_EGAMMATPMassTool2",
+                                                                  ContainerName              = "Electrons",
+                                                                  SecondContainerName        = "ForwardElectrons",
+                                                                  ObjectRequirements         = sel_tag_tp2,
+                                                                  SecondObjectRequirements   = sel_probe_tp2,
+                                                                  MassHypothesis             = 0.511,
+                                                                  SecondMassHypothesis       = 0.511,
+                                                                  StoreGateEntryName         = "DESDM_EGAMMATPMass2")
+ToolSvc += DESDM_EGAMMATPMassTool2
 
 # Tag & Probe with 1 electron and 1 photon
 
-TPMassTool3 = DerivationFramework__InvariantMassTool( name = "MassTool3",
-                                                      ContainerName              = "Electrons",
-                                                      SecondContainerName        = "Photons",
-                                                      ObjectRequirements         = sel_tag_tp3,
-                                                      SecondObjectRequirements   = sel_probe_tp3,
-                                                      MassHypothesis             = 0.511,
-                                                      SecondMassHypothesis       = 0.0,
-                                                      StoreGateEntryName         = "TPMass3")
-ToolSvc += TPMassTool3
+DESDM_EGAMMATPMassTool3 = DerivationFramework__InvariantMassTool( name = "DESDM_EGAMMATPMassTool3",
+                                                                  ContainerName              = "Electrons",
+                                                                  SecondContainerName        = "Photons",
+                                                                  ObjectRequirements         = sel_tag_tp3,
+                                                                  SecondObjectRequirements   = sel_probe_tp3,
+                                                                  MassHypothesis             = 0.511,
+                                                                  SecondMassHypothesis       = 0.0,
+                                                                  StoreGateEntryName         = "DESDM_EGAMMATPMass3")
+ToolSvc += DESDM_EGAMMATPMassTool3
 
 # Define the skimming
 
-desdm_egamma1 = '( count ( TPMass1 > 60*GeV)  >= 1 )'
-desdm_egamma2 = '( count ( TPMass2 > 60*GeV)  >= 1 )'
-desdm_egamma3 = '( count ( TPMass3 > 60*GeV)  >= 1 )'
+desdm_egamma1 = '( count ( DESDM_EGAMMATPMass1 > 60*GeV)  >= 1 )'
+desdm_egamma2 = '( count ( DESDM_EGAMMATPMass2 > 60*GeV)  >= 1 )'
+desdm_egamma3 = '( count ( DESDM_EGAMMATPMass3 > 60*GeV)  >= 1 )'
 
 desdm_egam = desdm_egamma1 + '||'+  desdm_egamma2 +'||'+  desdm_egamma3 
 
@@ -93,45 +93,45 @@ ToolSvc += DESDM_EGAMMA_SkimmingTool
 
 # Trigger based event selection tool
 
-JPsiTrigSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "JPsiTrigSkimmingTool",	
-                                                                   TriggerListOR =  ["HLT_e5_tight_e4_etcut",
-                                                                                     "HLT_e5_tight_e4_etcut_Jpsiee", 
-                                                                                     "HLT_e9_tight_e4_etcut_Jpsiee",
-                                                                                     "HLT_e9_etcut_e5_tight_Jpsiee",
-                                                                                     "HLT_e14_tight_e4_etcut_Jpsiee",
-                                                                                     "HLT_e14_etcut_e5_tight_Jpsiee",
-                                                                                     "HLT_e5_lhtight_e4_etcut",
-                                                                                     "HLT_e5_lhtight_e4_etcut_Jpsiee",
-                                                                                     "HLT_e9_lhtight_e4_etcut_Jpsiee",
-                                                                                     "HLT_e9_etcut_e5_lhtight_Jpsiee",            
-                                                                                     "HLT_e14_lhtight_e4_etcut_Jpsiee",
-                                                                                     "HLT_e14_etcut_e5_lhtight_Jpsiee",
-                                                                                     "HLT_e5_tight1_e4_etcut",
-                                                                                     "HLT_e5_tight1_e4_etcut_Jpsiee",
-                                                                                     "HLT_e5_tight_e4_etcut_L1JPSI-1M5",
-                                                                                     "HLT_e5_lhtight_e4_etcut_L1JPSI-1M5", 
-                                                                                     "HLT_e5_tight1_e4_etcut_L1JPSI-1M5",
-                                                                                     "HLT_e5_tight_e4_etcut_Jpsiee_L1JPSI-1M5",
-                                                                                     "HLT_e9_tight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7",                
-                                                                                     "HLT_e9_etcut_e5_tight_Jpsiee_L1JPSI-1M5-EM7",
-                                                                                     "HLT_e14_tight_e4_etcut_Jpsiee_L1JPSI-1M5-EM12",
-                                                                                     "HLT_e14_etcut_e5_tight_Jpsiee_L1JPSI-1M5-EM12",
-                                                                                     "HLT_e5_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5",
-                                                                                     "HLT_e9_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7",
-                                                                                     "HLT_e9_etcut_e5_lhtight_Jpsiee_L1JPSI-1M5-EM7",
-                                                                                     "HLT_e14_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM12",
-                                                                                     "HLT_e14_etcut_e5_lhtight_Jpsiee_L1JPSI-1M5-EM12",
-                                                                                     "HLT_e5_tight1_e4_etcut_Jpsiee_L1JPSI-1M5" ]) 
+DESDM_EGAMMAJPsiTrigSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "DESDM_EGAMMAJPsiTrigSkimmingTool",	
+                                                                               TriggerListOR =  ["HLT_e5_tight_e4_etcut",
+                                                                                                 "HLT_e5_tight_e4_etcut_Jpsiee", 
+                                                                                                 "HLT_e9_tight_e4_etcut_Jpsiee",
+                                                                                                 "HLT_e9_etcut_e5_tight_Jpsiee",
+                                                                                                 "HLT_e14_tight_e4_etcut_Jpsiee",
+                                                                                                 "HLT_e14_etcut_e5_tight_Jpsiee",
+                                                                                                 "HLT_e5_lhtight_e4_etcut",
+                                                                                                 "HLT_e5_lhtight_e4_etcut_Jpsiee",
+                                                                                                 "HLT_e9_lhtight_e4_etcut_Jpsiee",
+                                                                                                 "HLT_e9_etcut_e5_lhtight_Jpsiee",            
+                                                                                                 "HLT_e14_lhtight_e4_etcut_Jpsiee",
+                                                                                                 "HLT_e14_etcut_e5_lhtight_Jpsiee",
+                                                                                                 "HLT_e5_tight1_e4_etcut",
+                                                                                                 "HLT_e5_tight1_e4_etcut_Jpsiee",
+                                                                                                 "HLT_e5_tight_e4_etcut_L1JPSI-1M5",
+                                                                                                 "HLT_e5_lhtight_e4_etcut_L1JPSI-1M5", 
+                                                                                                 "HLT_e5_tight1_e4_etcut_L1JPSI-1M5",
+                                                                                                 "HLT_e5_tight_e4_etcut_Jpsiee_L1JPSI-1M5",
+                                                                                                 "HLT_e9_tight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7",                
+                                                                                                 "HLT_e9_etcut_e5_tight_Jpsiee_L1JPSI-1M5-EM7",
+                                                                                                 "HLT_e14_tight_e4_etcut_Jpsiee_L1JPSI-1M5-EM12",
+                                                                                                 "HLT_e14_etcut_e5_tight_Jpsiee_L1JPSI-1M5-EM12",
+                                                                                                 "HLT_e5_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5",
+                                                                                                 "HLT_e9_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7",
+                                                                                                 "HLT_e9_etcut_e5_lhtight_Jpsiee_L1JPSI-1M5-EM7",
+                                                                                                 "HLT_e14_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM12",
+                                                                                                 "HLT_e14_etcut_e5_lhtight_Jpsiee_L1JPSI-1M5-EM12",
+                                                                                                 "HLT_e5_tight1_e4_etcut_Jpsiee_L1JPSI-1M5" ]) 
 
 
-ToolSvc += JPsiTrigSkimmingTool
-print JPsiTrigSkimmingTool
+ToolSvc += DESDM_EGAMMAJPsiTrigSkimmingTool
+print DESDM_EGAMMAJPsiTrigSkimmingTool
 
 # Final event selection filter : 
 
-EventFilterTool=DerivationFramework__FilterCombinationOR(name="EventFilterTool",FilterList=[DESDM_EGAMMA_SkimmingTool,JPsiTrigSkimmingTool])
-ToolSvc+=EventFilterTool
-print EventFilterTool
+DESDM_EGAMMAEventFilterTool=DerivationFramework__FilterCombinationOR(name="DESDM_EGAMMAEventFilterTool",FilterList=[DESDM_EGAMMA_SkimmingTool,DESDM_EGAMMAJPsiTrigSkimmingTool])
+ToolSvc+=DESDM_EGAMMAEventFilterTool
+print DESDM_EGAMMAEventFilterTool
 
 # =================================================================================
 # Agmentation starts here
@@ -247,9 +247,9 @@ ToolSvc += DESDM_EGAMMAL1CaloThinning
 # Kernel algorithm
 # =================================================================================
 
-augmentationToolsList = [TPMassTool1,
-                         TPMassTool2,
-                         TPMassTool3,
+augmentationToolsList = [DESDM_EGAMMATPMassTool1,
+                         DESDM_EGAMMATPMassTool2,
+                         DESDM_EGAMMATPMassTool3,
                          DESDM_EGAMMACellsInConeThinningEl,
                          DESDM_EGAMMACellsInConeThinningPh]
 
@@ -261,7 +261,7 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 
 DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("DESDM_EGAMMAKernel",
                                                                        AugmentationTools = augmentationToolsList ,
-                                                                       SkimmingTools = [EventFilterTool],
+                                                                       SkimmingTools = [DESDM_EGAMMAEventFilterTool],
                                                                        ThinningTools = thinningToolsList
                                                                        )
 
