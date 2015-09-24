@@ -37,7 +37,7 @@ namespace {
 	inline double square(const double x){
 		return x*x;
 	}
-	const double ONE_TWELFTH = 1./12.;
+	constexpr double ONE_TWELFTH = 1./12.;
 }
 
 
@@ -184,6 +184,11 @@ PixelCluster* ClusterMakerTool::pixelCluster(
 
   const AtlasDetectorID* aid = element->getIdHelper();
   const PixelID* pid = dynamic_cast<const PixelID*>(aid);
+  if (not pid){
+  	ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of ClusterMakerTool.cxx.");
+  	return nullptr;
+  }
+  
   if ( errorStrategy==2 && forceErrorStrategy1 ) errorStrategy=1;
   // Fill vector of charges
   std::vector<float> chargeList;
@@ -195,8 +200,8 @@ PixelCluster* ClusterMakerTool::pixelCluster(
       int ToT=totList[i];
       float charge;
       if( m_IBLParameterSvc->containsIBL() && pid->barrel_ec(pixid) == 0 && pid->layer_disk(pixid) == 0 ) {
-	if (ToT >= m_overflowIBLToT ) ToT = m_overflowIBLToT;
-	msg(MSG::DEBUG) << "barrel_ec = " << pid->barrel_ec(pixid) << " layer_disque = " <<  pid->layer_disk(pixid) << " ToT = " << totList[i] << " Real ToT = " << ToT << endreq;
+	      if (ToT >= m_overflowIBLToT ) ToT = m_overflowIBLToT;
+	      msg(MSG::DEBUG) << "barrel_ec = " << pid->barrel_ec(pixid) << " layer_disque = " <<  pid->layer_disk(pixid) << " ToT = " << totList[i] << " Real ToT = " << ToT << endreq;
       }
       float A = m_calibSvc->getQ2TotA(pixid);
       if ( A>0. && (ToT/A)<1. ) {
@@ -231,11 +236,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   
   //const AtlasDetectorID* aid = element->getIdHelper();
   //const PixelID* pid = dynamic_cast<const PixelID*>(aid);
-  if (not pid){
-  	ATH_MSG_ERROR("Dynamic cast failed at "<<__LINE__<<" of ClusterMakerTool.cxx.");
-  	delete errorMatrix;errorMatrix=nullptr;
-  	return nullptr;
-  }
+  
   
   int layer = pid->layer_disk(clusterID);
   int phimod = pid->phi_module(clusterID);
