@@ -20,98 +20,65 @@
 
 namespace InDet{
 
-	SCT_Cluster::SCT_Cluster( 
-							const Identifier& RDOId,
-							const Amg::Vector2D& locpos, 
-							const std::vector<Identifier>& rdoList,
-							const InDet::SiWidth& width,
-							const InDetDD::SiDetectorElement* detEl,
-							const Amg::MatrixX* locErrMat
-						) : SiCluster(RDOId, locpos, rdoList, width, detEl, locErrMat) 
-	{
-		m_hitsInThirdTimeBin=0;
-	}
-
 SCT_Cluster::SCT_Cluster( 
             const Identifier& RDOId,
             const Amg::Vector2D& locpos, 
-            std::vector<Identifier>&& rdoList,
+            const std::vector<Identifier>& rdoList,
             const InDet::SiWidth& width,
             const InDetDD::SiDetectorElement* detEl,
-            std::unique_ptr<const Amg::MatrixX> locErrMat
-          ) : SiCluster(RDOId, locpos,
-                        std::move(rdoList), width, detEl,
-                        std::move(locErrMat)),
-              m_hitsInThirdTimeBin(0)
-        {
-        }
+            const Amg::MatrixX* locErrMat
+          ) : SiCluster(RDOId, locpos, rdoList, width, detEl, locErrMat) 
+{
+  m_hitsInThirdTimeBin=0;
+}
 
-	// Default constructor:
-	SCT_Cluster::SCT_Cluster():SiCluster()
-	{
-	  m_hitsInThirdTimeBin=0;
-	}
+// Default constructor:
+SCT_Cluster::SCT_Cluster():
+	SiCluster()
+{}
 
-	//copy constructor:
-	SCT_Cluster::SCT_Cluster(const SCT_Cluster& RIO):
-		SiCluster(RIO)
-	{
-		m_hitsInThirdTimeBin = RIO.hitsInThirdTimeBin();
-	}
+//copy constructor:
+SCT_Cluster::SCT_Cluster(const SCT_Cluster& RIO):
+	SiCluster(RIO)
+{
+  m_hitsInThirdTimeBin = RIO.hitsInThirdTimeBin();
+}
 
-        //move constructor:
-        SCT_Cluster::SCT_Cluster(SCT_Cluster&& RIO):
-          SiCluster(std::move(RIO)),
-          m_hitsInThirdTimeBin (RIO.m_hitsInThirdTimeBin)
-        {
-        }
+//assignment operator
+SCT_Cluster& SCT_Cluster::operator=(const SCT_Cluster& RIO){
+  if(&RIO != this) {
+    SiCluster::operator=(RIO);
+  }
+  return *this;
+}
 
-	//assignment operator
-	SCT_Cluster& SCT_Cluster::operator=(const SCT_Cluster& RIO){
-		if(&RIO != this) {
-                  SiCluster::operator=(RIO);
-                  m_hitsInThirdTimeBin = RIO.m_hitsInThirdTimeBin;
-		}
-		return *this;
-	}
+    MsgStream&    operator << (MsgStream& stream,    const SCT_Cluster& prd)
+    {
+        return prd.dump(stream);
+    }
 
-        //move operator
-        SCT_Cluster& SCT_Cluster::operator=(SCT_Cluster&& RIO) {
-          if(&RIO != this) {
-            SiCluster::operator=(std::move(RIO));
-            m_hitsInThirdTimeBin = RIO.m_hitsInThirdTimeBin;
-          }
-          return *this;
-        }
+    std::ostream& operator << (std::ostream& stream, const SCT_Cluster& prd)
+    {
+        return prd.dump(stream);
+    }
 
+    MsgStream& SCT_Cluster::dump( MsgStream&    stream) const
+    {
+        stream << "SCT_Cluster object"<<std::endl;
+        stream <<  "Base class (SiCluster):" << std::endl;
+        this->SiCluster::dump(stream);
 
-	MsgStream&    operator << (MsgStream& stream,    const SCT_Cluster& prd)
-	{
-			return prd.dump(stream);
-	}
+        return stream;
+    }
 
-	std::ostream& operator << (std::ostream& stream, const SCT_Cluster& prd)
-	{
-			return prd.dump(stream);
-	}
+    std::ostream& SCT_Cluster::dump( std::ostream&    stream) const
+    {
+        stream << "SCT_Cluster object"<<std::endl;
+        stream <<  "Base class (SiCluster):" << std::endl;
+        this->SiCluster::dump(stream);
 
-	MsgStream& SCT_Cluster::dump( MsgStream&    stream) const
-	{
-			stream << "SCT_Cluster object"<<std::endl;
-			stream <<  "Base class (SiCluster):" << std::endl;
-			this->SiCluster::dump(stream);
-
-			return stream;
-	}
-
-	std::ostream& SCT_Cluster::dump( std::ostream&    stream) const
-	{
-			stream << "SCT_Cluster object"<<std::endl;
-			stream <<  "Base class (SiCluster):" << std::endl;
-			this->SiCluster::dump(stream);
-
-			return stream;
-	}
+        return stream;
+    }
 
 
 }//end of ns
