@@ -25,9 +25,6 @@ class WWDecayDecorator(object) :
   def finalise( self ) :
     # Calculate appropriate decay mode numbers
     __decay_code_lookup = { 'e':-11, 'mu':-13, 'tau':-15, 'emu':-113, 'l':-135 }
-    # 11 e-; 13 mu-; 15 tau-; -11 e+; -13 mu+; -15 tau+;
-    # 113 e- and mu- together; -113 e+ and mu+ together;
-    # 135 e+, mu+ and tau+ together; -135 e-, mu- and tau- together (surely the other way around?)
     if self.decorated.decay_mode not in self.decorated.allowed_decay_modes :
       self.decorated.logger.warning( 'Decay mode {0} not recognised!'.format( self.decorated.decay_mode ) )
     __W_sign = [-1,+1][ 'WpWp' in self.decorated.decay_mode ]

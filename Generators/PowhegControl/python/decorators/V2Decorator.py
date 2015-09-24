@@ -28,10 +28,10 @@ class V2Decorator(object) :
     self.decorated.add_parameter( 'fixedgrid', -1,                              desc='(default -1, use Powheg default)' )
     self.decorated.add_parameter( 'itmx1rm', None,                              desc='(default None) number of iterations for initializing the integration grid for the remnant.' )
     self.decorated.add_parameter( 'itmx2rm', None,                              desc='(default None) number of iterations for computing the integral and finding upper bound for the remnant.' )
-    self.decorated.fix_parameter( 'lhrwgt_descr', 'nominal',                    desc='weight description.' )
-    self.decorated.fix_parameter( 'lhrwgt_id', 0,                               desc='weight ID.' )
-    self.decorated.fix_parameter( 'lhrwgt_group_combine', 'none',               desc='reweighting combination method.' )
-    self.decorated.fix_parameter( 'lhrwgt_group_name', 'none',                  desc='group description.' )
+    self.decorated.fix_parameter( 'lhrwgt_descr', 'nominal',                    desc='(default "nominal") weight description.' )
+    self.decorated.fix_parameter( 'lhrwgt_id', 0,                               desc='(default 0) weight ID.' )
+    self.decorated.fix_parameter( 'lhrwgt_group_combine', 'none',               desc='(default "none") reweighting combination method.' )
+    self.decorated.fix_parameter( 'lhrwgt_group_name', 'nominal',               desc='(default "nominal") group description.' )
     self.decorated.fix_parameter( 'LOevents', ['-1','1'][self.decorated.is_LO], desc='(default process-dependent) produce LOPS events (scalup=ptj); in this case bornonly should also be enabled.' )
     self.decorated.add_parameter( 'minlo', 1,                                   desc='(default enabled where available) use MiNLO.' ) # if minlo is set for unsupported processes, Powheg will crash with an 'st_bornorder' error
     self.decorated.add_parameter( 'ncall1rm', None,                             desc='(default None) number of calls for initializing the integration grid for the remant.' )
@@ -55,10 +55,10 @@ class V2Decorator(object) :
       self.decorated.fix_parameter( 'xgriditeration', 1,  desc='(default 1) iteration level for the calculation of the importance sampling grid (only relevant for parallelstage=1).' )
 
     ## Set remnant properties to be equal to regular properties if not set
-    if self.decorated.itmx1rm is None : self.decorated.itmx1rm = -1 #self.decorated.itmx1
-    if self.decorated.itmx2rm is None : self.decorated.itmx2rm = -1 #self.decorated.itmx2
-    if self.decorated.ncall1rm is None : self.decorated.ncall1rm = -1 #self.decorated.ncall1
-    if self.decorated.ncall2rm is None : self.decorated.ncall2rm = -1 #self.decorated.ncall2
+    if self.decorated.itmx1rm is None : self.decorated.itmx1rm = -1
+    if self.decorated.itmx2rm is None : self.decorated.itmx2rm = -1
+    if self.decorated.ncall1rm is None : self.decorated.ncall1rm = -1
+    if self.decorated.ncall2rm is None : self.decorated.ncall2rm = -1
 
     ## Fix integration parameters before printing list for user
-    [ self.decorated.fix_parameter( parameter ) for parameter in ('itmx1rm', 'itmx2rm', 'ncall1rm', 'ncall2rm', 'parallelstage') ]
+    [ self.decorated.fix_parameter( parameter ) for parameter in ['parallelstage'] ]

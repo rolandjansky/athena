@@ -20,4 +20,4 @@ class DarkMatterDecorator(object) :
     self.decorated.add_parameter( 'DM_mass', 10,   desc='(default, 10) DM-candidate mass', parameter='DMmass' )
     self.decorated.add_parameter( 'gDM', 1.0,      desc='(default, 1.0) X-Xbar-med coupling', parameter='DMgDM' )
     self.decorated.add_parameter( 'gSM', 1.0,      desc='(default, 1.0) q-q-med coupling', parameter='DMgSM' )
-    self.decorated.fix_parameter( 'idDM', 1000022, desc='(default, 1000022) id of DM particles' )
+    self.decorated.add_parameter( 'idDM', 1000022, desc='(default, 1000022) id of DM particles' )
