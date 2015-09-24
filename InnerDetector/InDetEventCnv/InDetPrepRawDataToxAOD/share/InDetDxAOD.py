@@ -3,11 +3,20 @@
 #################
 ## Load common flags
 from AthenaCommon.JobProperties import jobproperties as athCommonFlags
+from DerivationFrameworkInDet.InDetCommon import *
 
 # Select active sub-systems
 dumpPixInfo=True
 dumpSctInfo=True
 dumpTrtInfo=False
+
+# Thin hits to store only the ones on-track
+thinHitsOnTrack=True
+
+# Thin track collection, if necessary
+# Example (p_T > 1.0 GeV && delta_z0 < 5 mm):
+# InDetTrackParticles.pt > 1*GeV && abs(DFCommonInDetTrackZ0AtPV) < 5.0
+thinTrackSelection = "InDetTrackParticles.pt > 0.1*GeV"
 
 # Bytestream errors (for sub-systems who have implemented it)
 dumpBytestreamErrors=True
@@ -179,12 +188,11 @@ if dumpPixInfo:
 
 
 #################
-### Setup derivation framework
+### Setup Augmentation tools
 #################
-from AthenaCommon import CfgMgr
+augmentationTools=[]
 
-# DerivationJob is COMMON TO ALL DERIVATIONS
-DerivationFrameworkJob = CfgMgr.AthSequencer("MySeq2")
+from AthenaCommon import CfgMgr
 
 # Set up stream auditor
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -194,8 +202,6 @@ svcMgr.DecisionSvc.CalcStats = True
 
 
 # Add the TSOS augmentation tool to the derivation framework
-augmentationTools=[]
-
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackStateOnSurfaceDecorator
 DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateOnSurfaceDecorator",
                                                           ContainerName = "InDetTrackParticles",
@@ -289,12 +295,47 @@ if dumpLArCollisionTime:
             print lArCollisionTimeDecorator.properties()
 
 
+#====================================================================
+# Skimming Tools
+#====================================================================
+skimmingTools = []
 
+#minimumbiasTrig = '(L1_RD0_FILLED)'
+#
+#if not IsMonteCarlo:
+#  from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+#  TrigSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "TrigSkimmingTool", expression = minimumbiasTrig)
+#  ToolSvc += TrigSkimmingTool
+#  skimmingTools.append(TrigSkimmingTool)
+#  print "InDetDxAOD.py TrigSkimmingTool: ", TrigSkimmingTool
+
+#====================================================================
+# Thinning Tools
+#====================================================================
+thinningTools = []
+
+# TrackParticles directly
+from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
+IDTRKThinningTool = DerivationFramework__TrackParticleThinning(name = "IDTRKThinningTool",
+                                                                 ThinningService         = "IDTRKThinningSvc",
+                                                                 SelectionString         = thinTrackSelection,
+                                                                 InDetTrackParticlesKey  = "InDetTrackParticles",
+                                                                 ThinHitsOnTrack = thinHitsOnTrack)
+ToolSvc += IDTRKThinningTool
+thinningTools.append(IDTRKThinningTool)
+
+#====================================================================
+# Create the derivation Kernel and setup output stream
+#====================================================================
 # Add the derivation job to the top AthAlgSeqeuence
+# DerivationJob is COMMON TO ALL DERIVATIONS
+DerivationFrameworkJob = CfgMgr.AthSequencer("MySeq2")
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
-DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("DFTSOS_KERN",
-                                                                        AugmentationTools = augmentationTools,
-                                                                        OutputLevel =INFO)
+DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("DFTSOS_KERN",
+                                                                       AugmentationTools = augmentationTools,
+                                                                       SkimmingTools = skimmingTools,
+                                                                       ThinningTools = thinningTools,
+                                                                       OutputLevel = INFO)
 
 topSequence += DerivationFrameworkJob
 if (printIdTrkDxAODConf):
@@ -304,12 +345,25 @@ if (printIdTrkDxAODConf):
 #################
 ### Steer output file content
 #################
+## Add service for metadata
+ToolSvc += CfgMgr.xAODMaker__TriggerMenuMetaDataTool(
+"TriggerMenuMetaDataTool" )
+svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.TriggerMenuMetaDataTool ]
+
+
+## Steer output file
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 from D2PDMaker.D2PDHelpers import buildFileName
 from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteDAOD_IDTRKVALIDStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_IDTRKVALIDStream )
 IDTRKVALIDStream = MSMgr.NewPoolRootStream( streamName, fileName )
+IDTRKVALIDStream.AcceptAlgs(["DFTSOS_KERN"])
+from AthenaServices.Configurables import ThinningSvc, createThinningSvc
+augStream = MSMgr.GetStream( streamName )
+evtStream = augStream.GetEventStream()
+svcMgr += createThinningSvc( svcName="IDTRKThinningSvc", outStreams=[evtStream] )
+
 excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 
 # Add generic event information
@@ -354,8 +408,10 @@ if dumpTruthInfo:
   IDTRKVALIDStream.AddItem("xAOD::TruthEventContainer#*")
   IDTRKVALIDStream.AddItem("xAOD::TruthEventAuxContainer#*")
 
-# Add trigger information
+# Add trigger information (including metadata)
 if dumpTriggerInfo:
+    IDTRKVALIDStream.AddMetaDataItem("xAOD::TriggerMenuContainer#TriggerMenu")
+    IDTRKVALIDStream.AddMetaDataItem("xAOD::TriggerMenuAuxContainer#TriggerMenuAux.")
     IDTRKVALIDStream.AddItem("TileCellContainer#MBTSContainer")
     IDTRKVALIDStream.AddItem("xAOD::TrigDecision#xTrigDecision")
     IDTRKVALIDStream.AddItem("BCM_RDO_Container#BCM_RDOs")

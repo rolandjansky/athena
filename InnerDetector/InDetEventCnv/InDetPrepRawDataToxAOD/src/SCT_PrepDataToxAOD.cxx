@@ -221,6 +221,9 @@ StatusCode SCT_PrepDataToxAOD::execute()
       // Set local error matrix
       xprd->setLocalPosition(locX,locY); 
       
+
+      
+
       const Amg::MatrixX& localCov = prd->localCovariance();
       if(localCov.size() == 1){
         xprd->setLocalPositionError( localCov(0,0), 0., 0. ); 
@@ -240,6 +243,7 @@ StatusCode SCT_PrepDataToxAOD::execute()
       //Add SCT specific information
       const InDet::SiWidth cw = prd->width();
       xprd->auxdata<int>("size") = (int)cw.colRow()[0];
+      xprd->auxdata<int>("hitsInThirdTimeBin") = (int)(prd->hitsInThirdTimeBin());
 
       xprd->auxdata<int>("bec")          =   m_SCTHelper->barrel_ec(clusterId)   ;
       xprd->auxdata<int>("layer")        =   m_SCTHelper->layer_disk(clusterId)  ;   
