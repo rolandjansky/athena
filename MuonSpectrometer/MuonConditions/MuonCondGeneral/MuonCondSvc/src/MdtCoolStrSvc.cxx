@@ -89,7 +89,7 @@ StatusCode MdtCoolStrSvc::putFileT0(const std::string& folder,
   MuonCalib::MdtStringUtils::tokenize(filename,tokens,delimiter);
   sdata+=tokens[0]+deli_data;
 
-  if (f != NULL) {
+  if (f.good()) {
     std::string blobline;  
     std::string blob_header = "";
     std::string version, region, ntubes;
@@ -261,7 +261,7 @@ StatusCode MdtCoolStrSvc::putFileAlignCorr(const std::string& folder,
   std::ifstream f(filename.c_str());
   std::string sdata="";
 
-  if (f != NULL) {
+  if (f.good()) {
 
     std::string blobline;
     
