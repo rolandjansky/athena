@@ -22,6 +22,7 @@ namespace InDet { class TRT_DriftCircleOnTrack ; }
 static const InterfaceID IID_ITRT_ToT_dEdx("ITRT_ToT_dEdx", 1, 0);
   
 class ITRT_ToT_dEdx : virtual public IAlgTool {
+
   
  public:
 
@@ -30,18 +31,17 @@ class ITRT_ToT_dEdx : virtual public IAlgTool {
   
   /** AlgTool interface methods */
   static const InterfaceID& interfaceID() { return IID_ITRT_ToT_dEdx; };
-  
 
+  
 
   /**
    * @brief function to calculate sum ToT normalised to number of used hits
    * @param track pointer
-   * @param bool variable to specify whether data or MC correction
    * @param bool variable to decide wheter ToT or ToT/L should be used
-   * @param bool variable whether HT hits shoule be used
+   * @param bool variable whether HT hits shoule be used 
    * @return ToT
    */
-  virtual double dEdx(const Trk::Track*, bool data, bool DivideByL, bool useHThits= true, bool corrected = true, int nVtx=-1) const = 0;
+  virtual double dEdx(const Trk::Track*, bool DivideByL, bool useHThits= true, bool corrected = true) const = 0;
 
   /** 
    * @brief function to define what is a good hit to be used for dEdx calculation
@@ -68,7 +68,7 @@ class ITRT_ToT_dEdx : virtual public IAlgTool {
    * @param number of primary vertices per event
    * @return scaling variable
    */
-  virtual double correctNormalization(bool divideLength,bool scaledata, int nVtx=-1) const = 0;
+  virtual double correctNormalization(bool divideLength,bool scaledata, double nVtx=-1) const = 0;
 
 
   /**

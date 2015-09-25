@@ -10,6 +10,8 @@
 #include "AthenaBaseComps/AthAlgTool.h" //MJ
 #include "GaudiKernel/IToolSvc.h"  //MJ
 #include "TrkEventPrimitives/ParticleHypothesis.h"
+//#include "AthenaKernel/IIOVDbSvc.h"
+//#include "AthenaKernel/IIOVSvc.h"
 
 #include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"
 
@@ -53,18 +55,16 @@ class TRT_ToT_dEdx : virtual public ITRT_ToT_dEdx, public AthAlgTool
   //   
   IChronoStatSvc  *m_timingProfile;
 
-
   //bool m_DATA;
 
   /**
    * @brief function to calculate sum ToT normalised to number of used hits
    * @param track pointer
-   * @param bool variable to specify whether data or MC correction
    * @param bool variable to decide wheter ToT or ToT/L should be used
    * @param bool variable whether HT hits shoule be used
    * @return ToT
    */
-  double dEdx(const Trk::Track*, bool data, bool DivideByL, bool useHThits= true, bool corrected = true, int nVtx = -1) const;
+  double dEdx(const Trk::Track*, bool DivideByL, bool useHThits= true, bool corrected = true) const;
 
 
   /**
@@ -132,7 +132,7 @@ class TRT_ToT_dEdx : virtual public ITRT_ToT_dEdx, public AthAlgTool
    * @param number of primary vertices per event
    * @return scaling variable
    */
-  double correctNormalization(bool divideLength,bool scaleData, int nVtx=-1) const;
+  double correctNormalization(bool divideLength,bool scaleData, double nVtx=-1) const;
 
 
    /**
@@ -173,7 +173,11 @@ class TRT_ToT_dEdx : virtual public ITRT_ToT_dEdx, public AthAlgTool
    */
   double getToTonly1bits(unsigned int BitPattern) const;
  private:
-
+ 
+  /** callbacks for calibration constants DB **/
+  StatusCode update(int&, std::list<std::string>&); 
+  StatusCode update2(int&, std::list<std::string>&);
+  
   /** ID TRT helper */
   const TRT_ID* m_trtId;
   Trk::ParticleMasses        m_particlemasses;
@@ -245,8 +249,7 @@ class TRT_ToT_dEdx : virtual public ITRT_ToT_dEdx, public AthAlgTool
    * @return correction
    */
   double fitFuncBarrel_corrRZL(double driftRadius,double zPosition, int Layer, int StrawLayer, bool data) const;
-
-
+  
 };
 
 #endif // TRT_TOT_DEDX_H
