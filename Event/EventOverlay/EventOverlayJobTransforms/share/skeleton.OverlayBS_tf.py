@@ -202,6 +202,10 @@ ServiceMgr += getConfigurable(digitizationFlags.rndmSvc.get_Value())()
 digitizationFlags.rndmSeedList.addtoService()
 digitizationFlags.rndmSeedList.printSeeds()
 
+# Write Digitization MetaData
+from Digitization.DigitizationWriteMetaData import writeDigitizationMetadata
+writeDigitizationMetadata()
+
 #================================================================
 print "overlay_trf: final outStream = ", outStream
 

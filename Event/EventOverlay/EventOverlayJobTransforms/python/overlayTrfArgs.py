@@ -24,6 +24,9 @@ def addOverlayBSFilterArgs(parser):
     parser.add_argument('--inputZeroBiasBSFile', nargs='+',
                         type=argFactory(argBSFile, io='input', type='BS', subtype='BS_ZeroBias'),
                         help='Input overlay BS file(s)', group='Overlay Filter')
+    parser.add_argument('--inputFilterFile',
+                        type=argFactory(argString),
+                        help='Input overlay BS filter file (for HI)', group='Overlay Filter')
     parser.add_argument('--lumiBlockMapFile',
                         type=argFactory(argSubstep, defaultSubstep='overlayBSFilt'),
                         help='Lumi block information file', group='Overlay Filter')

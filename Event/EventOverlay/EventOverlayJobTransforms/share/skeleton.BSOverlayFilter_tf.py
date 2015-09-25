@@ -8,6 +8,11 @@ BSFilterLog.info( str(runArgs) )
 #---------------------------
 theApp.EvtMax = runArgs.maxEvents
 
+from AthenaCommon.GlobalFlags  import globalflags
+globalflags.InputFormat = "bytestream"
+globalflags.DataSource = "data"
+from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
+athenaCommonFlags.FilesInput=runArgs.inputZeroBiasBSFile
 #---------------------------
 ## Run performance monitoring (memory logging)
 from PerfMonComps.PerfMonFlags import jobproperties as perfmonjp
@@ -46,8 +51,25 @@ from TrigT1ResultByteStream.TrigT1ResultByteStreamConf import CTPByteStreamTool,
 if not hasattr( svcMgr, "ByteStreamAddressProviderSvc" ):
     from ByteStreamCnvSvcBase.ByteStreamCnvSvcBaseConf import ByteStreamAddressProviderSvc 
     svcMgr += ByteStreamAddressProviderSvc()
-svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["ROIB::RoIBResult/RoIBResult", "MuCTPI_RDO/MUCTPI_RDO", "CTP_RDO/CTP_RDO", "MuCTPI_RIO/MUCTPI_RIO", "CTP_RIO/CTP_RIO"]
+#svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["ROIB::RoIBResult/RoIBResult", "MuCTPI_RDO/MUCTPI_RDO", "CTP_RDO/CTP_RDO", "MuCTPI_RIO/MUCTPI_RIO", "CTP_RIO/CTP_RIO"]
+svcMgr.ByteStreamAddressProviderSvc.TypeNames += ["ROIB::RoIBResult/RoIBResult",  "HLT::HLTResult/HLTResult_EF","HLT::HLTResult/HLTResult_L2","HLT::HLTResult/HLTResult_HLT", "CTP_RDO/CTP_RDO", "CTP_RIO/CTP_RIO"]
 
+# https://twiki.cern.ch/twiki/bin/viewauth/Atlas/TrigDecisionTool
+from TriggerJobOpts.TriggerFlags import TriggerFlags
+TriggerFlags.configurationSourceList=['ds']
+from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+cfg = TriggerConfigGetter()
+#
+#from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+#tdt = Trig__TrigDecisionTool("TrigDecisionTool")
+#tdt.UseAODDecision=True
+#tdt.TrigDecisionKey = "TrigDecision"
+#ToolSvc += tdt
+#
+#from TrigDecisionMaker.TrigDecisionMakerConfig import WriteTrigDecision
+#trigDecWriter = WriteTrigDecision()
+
+# main alg
 from OverlayCommonAlgs.OverlayCommonAlgsConf import  BSFilter
 filAlg = BSFilter("BSFilter")
 topSequence += filAlg
@@ -61,8 +83,8 @@ if hasattr(runArgs, 'eventIdFile'):
 else:
     filAlg.EventIdFile=""
 
-if hasattr( runArgs, "FilterFile"): #TODO currently no such argument
-    filAlg.filterfile=runArgs.FilterFile # The thing made from the TAG files via "root -l -b -q HITAGprinter_run.C"
+if hasattr( runArgs, "inputFilterFile"):
+    filAlg.filterfile=runArgs.inputFilterFile # The thing made from the TAG files via "root -l -b -q HITAGprinter_run.C"
 else:
     filAlg.filterfile = ""
 
