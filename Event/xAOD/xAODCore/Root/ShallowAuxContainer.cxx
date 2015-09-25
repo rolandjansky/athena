@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ShallowAuxContainer.cxx 793737 2017-01-24 20:11:10Z ssnyder $
+// $Id: ShallowAuxContainer.cxx 690321 2015-08-20 08:16:46Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -24,7 +24,7 @@ namespace xAOD {
    ShallowAuxContainer::ShallowAuxContainer( bool standalone )
       : m_selection(), 
         m_store( new SG::AuxStoreInternal( standalone ) ),
-        m_storeIO( 0 ), m_ownsStore( true ), m_locked( false ),
+        m_storeIO( 0 ), m_ownsStore( true ),
         m_parentLink(), m_parentIO( 0 ), m_shallowIO( true ), m_tick( 1 ),
         m_name( "UNKNOWN" ) {
 
@@ -35,8 +35,7 @@ namespace xAOD {
       : SG::IAuxStore(), SG::IAuxStoreIO(), SG::IAuxStoreHolder(),
         m_selection( parent.m_selection ), 
         m_store( parent.m_store ), m_storeIO( parent.m_storeIO ),
-        m_ownsStore( false ), m_locked( parent.m_locked ),
-        m_parentLink( parent.m_parentLink ),
+        m_ownsStore( false ), m_parentLink( parent.m_parentLink ),
         m_parentIO( parent.m_parentIO ), m_shallowIO( parent.m_shallowIO ),
         m_tick( 1 ), m_name( parent.m_name ) {
 
@@ -51,7 +50,7 @@ namespace xAOD {
                         bool standalone )
       : m_selection(), 
         m_store( new SG::AuxStoreInternal( standalone ) ),
-        m_storeIO( 0 ), m_ownsStore( true ), m_locked( false ),
+        m_storeIO( 0 ), m_ownsStore( true ),
         m_parentLink( parent ), m_parentIO( 0 ), m_shallowIO( true ),
         m_tick( 1 ), m_name( "UNKNOWN" ) {
 
@@ -87,7 +86,6 @@ namespace xAOD {
       m_store      = rhs.m_store;
       m_storeIO    = rhs.m_storeIO;
       m_ownsStore  = false;
-      m_locked     = rhs.m_locked;
       m_parentLink = rhs.m_parentLink;
       m_parentIO   = rhs.m_parentIO;
       m_shallowIO  = rhs.m_shallowIO;
@@ -236,7 +234,7 @@ namespace xAOD {
       // SG::IConstAuxStore interface doesn't provide any other way of figuring
       // out whether a given variable is a regular variable or a decoration.
       //
-      if( m_locked && m_parentLink.isValid() &&
+      if( m_parentLink.isValid() &&
           ( m_parentLink->getAuxIDs().count( auxid ) > 0 ) ) {
          SG::IConstAuxStore* parent =
             const_cast< SG::IConstAuxStore* >( m_parentLink.cptr() );
@@ -258,7 +256,6 @@ namespace xAOD {
    void ShallowAuxContainer::lock()
    { 
      guard_t guard (m_mutex);
-     m_locked = true;
      m_store->lock();
    }
 
@@ -355,7 +352,7 @@ namespace xAOD {
       return m_store->getWritableAuxIDs();
    }
 
-   bool ShallowAuxContainer::resize( size_t /*size*/ ) {
+   void ShallowAuxContainer::resize( size_t /*size*/ ) {
 
       // Nope, not allowed...
       throw std::runtime_error( "Trying to call resize on a shallow copy "
@@ -373,15 +370,6 @@ namespace xAOD {
 
       // Nope, not allowed...
       throw std::runtime_error( "Trying to call shift on a shallow copy "
-                                "container" );
-   }
-
-   bool ShallowAuxContainer::insertMove( size_t /*pos*/,
-                                         IAuxStore& /*other*/,
-                                         const SG::auxid_set_t& /*ignore*/) {
-
-      // Nope, not allowed...
-      throw std::runtime_error( "Trying to call insertMove on a shallow copy "
                                 "container" );
    }
 
@@ -404,15 +392,8 @@ namespace xAOD {
       }
 
       // Do we have a parent that has it?
-      if( m_parentLink.isValid() ) {
-         if( ! m_parentIO ) {
-            const SG::IAuxStoreIO* temp =
-               dynamic_cast< const SG::IAuxStoreIO* >( m_parentLink.cptr() );
-            m_parentIO = const_cast< SG::IAuxStoreIO* >( temp );
-         }
-         if( m_parentIO ) {
-            return m_parentIO->getIOData( auxid );
-         }
+      if( m_parentIO ) {
+         return m_parentIO->getIOData( auxid );
       }
 
       // If not, then where did this variable come from?!?
@@ -434,15 +415,8 @@ namespace xAOD {
       }
 
       // Do we have a parent that has it?
-      if( m_parentLink.isValid() ) {
-         if( ! m_parentIO ) {
-            const SG::IAuxStoreIO* temp =
-               dynamic_cast< const SG::IAuxStoreIO* >( m_parentLink.cptr() );
-            m_parentIO = const_cast< SG::IAuxStoreIO* >( temp );
-         }
-         if( m_parentIO ) {
-            return m_parentIO->getIOType( auxid );
-         }
+      if( m_parentIO ) {
+         return m_parentIO->getIOType( auxid );
       }
 
       // If not, then where did this variable come from?!?
@@ -460,7 +434,7 @@ namespace xAOD {
          if( m_storeIO ) {
             return m_store->getAuxIDs();
          } else {
-            static const auxid_set_t dummy {};
+            static const auxid_set_t dummy;
             return dummy;
          }
       } else {
@@ -483,7 +457,7 @@ namespace xAOD {
          if( m_storeIO ) {
             return m_selection.getSelectedAuxIDs( m_store->getAuxIDs() );
          } else {
-            static const auxid_set_t dummy {};
+            static const auxid_set_t dummy;
             return dummy;
          }
       } else {

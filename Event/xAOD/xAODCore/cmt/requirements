@@ -1,5 +1,4 @@
 package xAODCore
-# $Id: requirements 793737 2017-01-24 20:11:10Z ssnyder $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -14,12 +13,13 @@ use AthContainers           AthContainers-*           Control
 
 use AtlasROOT               AtlasROOT-*               External
 
-use CxxUtils                CxxUtils-* 		      Control
-
 # This library and all its children have to use Cintex:
 apply_tag ROOTCintexLibs
 macro_append xAODCore_shlibflags $(rootCintexLibs)
 macro_append xAODCore_linkopts   $(rootCintexLibs)
+
+# Add cmake support for specifying the ROOT components that are needed (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS MathCore GenVector Cintex RIO Hist Tree)"
 
 library xAODCore ../Root/*.cxx
 apply_pattern installed_library
@@ -49,4 +49,3 @@ apply_pattern have_root_headers root_headers="tools/ReadStats.h \
 use TestTools               TestTools-*               AtlasTest
 apply_pattern UnitTest_run unit_test=ut_xaodcore_auxselection
 apply_pattern UnitTest_run unit_test=ut_xaodcore_printhelpers
-apply_pattern UnitTest_run unit_test=ut_xaodcore_auxcontainerbase

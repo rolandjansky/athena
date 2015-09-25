@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PrintHelpers.cxx 780624 2016-10-26 22:41:13Z ssnyder $
+// $Id: PrintHelpers.cxx 696794 2015-09-25 09:35:39Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -64,24 +64,15 @@ std::ostream& operator<< ( std::ostream& out, const SG::AuxElement& obj ) {
       ( obj.container()->getConstStore() ?
         obj.container()->getConstStore()->getAuxIDs() :
         obj.getConstStore()->getAuxIDs() );
-
-   // Sort auxids to get predictable ordering.
-   std::vector<SG::auxid_t> auxids_v (auxids.begin(), auxids.end());
-   std::sort (auxids_v.begin(), auxids_v.end());
-
-   for( SG::auxid_t auxid : auxids_v ) {
+   for( SG::auxid_t auxid : auxids ) {
 
       out << "\n    - type: " << reg.getTypeName( auxid )
           << ", \tname: \"" << reg.getName( auxid );
       out << "\", \tvalue: ";
 
 /// Helper macro to make the code slightly shorter
-#define PRINTER( TYPE )                                           \
-      do {                                                        \
-         if( obj.isAvailable< TYPE >( reg.getName( auxid ) ) ) {  \
-            out << obj.auxdata< TYPE >( reg.getName( auxid ) );   \
-         }                                                        \
-      } while( 0 )
+#define PRINTER( TYPE )                                   \
+   out << obj.auxdata< TYPE >( reg.getName( auxid ) )
 
       // The type of the variable:
       const std::type_info* ti = reg.getType( auxid );

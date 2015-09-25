@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ShallowAuxContainer.h 793737 2017-01-24 20:11:10Z ssnyder $
+// $Id: ShallowAuxContainer.h 652959 2015-03-10 14:03:11Z krasznaa $
 #ifndef XAODCORE_SHALLOWAUXCONTAINER_H
 #define XAODCORE_SHALLOWAUXCONTAINER_H
 
@@ -41,8 +41,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 793737 $
-   /// $Date: 2017-01-24 21:11:10 +0100 (Tue, 24 Jan 2017) $
+   /// $Revision: 652959 $
+   /// $Date: 2015-03-10 15:03:11 +0100 (Tue, 10 Mar 2015) $
    ///
    class ShallowAuxContainer : public SG::IAuxStore,
                                public SG::IAuxStoreIO,
@@ -123,16 +123,12 @@ namespace xAOD {
       virtual const auxid_set_t& getWritableAuxIDs() const;
 
       /// Resize the arrays to a given size
-      virtual bool resize( size_t size );
+      virtual void resize( size_t size );
       /// Reserve a given size for the arrays
       virtual void reserve( size_t size );
       /// Shift the contents of the stored arrays
       virtual void shift( size_t pos, ptrdiff_t offs );
-      /// Insert contents of another store via move.
-      virtual bool insertMove (size_t pos,
-                               IAuxStore& other,
-                               const SG::auxid_set_t& ignore);
- 
+
       /// @}
 
       /// @name Functions implementing the SG::IAuxStoreIO interface
@@ -175,13 +171,11 @@ namespace xAOD {
       SG::IAuxStoreIO* m_storeIO;
       /// Flag deciding if the object owns the dynamic store or not
       bool m_ownsStore;
-      /// Flag keeping track of whether this object is locked or not
-      bool m_locked;
 
       /// Link to the parent object
       DataLink< SG::IConstAuxStore > m_parentLink;
       /// Optional pointer to the IO interface of the parent object
-      mutable SG::IAuxStoreIO* m_parentIO;
+      SG::IAuxStoreIO* m_parentIO;
       /// Flag for whether to do "shallow IO" or not
       bool m_shallowIO;
 
