@@ -460,8 +460,10 @@ void SiTrkAlignDBTool::updateDB()
     double apRotZ = fullAlignPars->at(Trk::AlignModule::RotZ)->par();
     
     // Need to add something here for the bowing!!!
-    double apBowX = fullAlignPars->at(Trk::AlignModule::BowX)->par();
-    
+    // So far this is dummy value as not written to DB
+    // Need to make sure not to call SCT modules - only defined for PIX 
+    if(m_idHelper->is_pixel(modID))
+      double apBowX = fullAlignPars->at(Trk::AlignModule::BowX)->par();
     //tx ~ bowX (y^2/y_0^2 - 1) (ignoring that that local x does not quite equal stave x when you have a bowing)  
     //rz ~ atan( 2 bowX y/y_^2 ) 
     
