@@ -111,7 +111,7 @@ bool TileGeoG4CalibSD::FindTileCalibSection()
         logVol      = physSection->GetLogicalVolume();
         if (verboseLevel>10) G4cout << " Level--> "  << i
             << ", LogVol--> "   << (logVol->GetName()).c_str()
-            << ", PhysVol--> "  << (physSection->GetName()).c_str() << G4cout;
+            << ", PhysVol--> "  << (physSection->GetName()).c_str() << G4endl;
     }
 
     //Find envelope of TileCal. For Tile or TileCTB configuration setup
@@ -120,7 +120,7 @@ bool TileGeoG4CalibSD::FindTileCalibSection()
         level--;
         nameLogiVol = _StepTouchable->GetVolume(level-1)->GetLogicalVolume()->GetName();
     }
-    if (verboseLevel>10) G4cout << nameLogiVol <<" volume level --->" << level << G4cout;
+    if (verboseLevel>10) G4cout << nameLogiVol <<" volume level --->" << level << G4endl;
 
     //NEW FEATURE (SINCE RELEASE 11.1.0) - ATLAS TILECAL HAS ONE MORE
     //ENVELOPES FOR CENTRAL BARREL (INCLUDES ALSO FINGERS) AND FOR
@@ -203,7 +203,7 @@ bool TileGeoG4CalibSD::FindTileCalibSection()
             dm_region = 0;
         } else {
             G4cout << "ERROR: FindTileCalibSection : wrong name for "
-                     << "tile section --> " << namePhysSection.c_str() << G4cout;
+                     << "tile section --> " << namePhysSection.c_str() << G4endl;
             return false;
         }
 
@@ -225,7 +225,7 @@ bool TileGeoG4CalibSD::FindTileCalibSection()
 
     } else {  //(level!>1)
         if (verboseLevel>10) G4cout << "FindTileCalibSection : current Step "
-            << "is in Tile envelope " << " / Add Step energy to the Default Hit"<< G4cout;
+            << "is in Tile envelope " << " / Add Step energy to the Default Hit"<< G4endl;
         return false;
     }
 
@@ -321,8 +321,8 @@ Identifier TileGeoG4CalibSD::CellIDCalculator()
     _cell = _c_section->GetCell(nPeriod, nSamp);
 
     if(!_cell) {
-        G4cout << "ERROR: CellIDCalculator: zero pointer to the current cell"<< G4cout;
-        G4cout << "ERROR: " << nameVol<<" "<<nPeriod<<" "<<nSamp<< G4cout;
+        G4cout << "ERROR: CellIDCalculator: zero pointer to the current cell"<< G4endl;
+        G4cout << "ERROR: " << nameVol<<" "<<nPeriod<<" "<<nSamp<< G4endl;
         _DefaultHit = true;
 
         //return default hit DM Identifier
@@ -374,7 +374,7 @@ Identifier TileGeoG4CalibSD::ScintIDCalculator()
 {
     _cell = m_calc->_cell;  //retrieve Cell from TileGeoG4SDCalc
     if(!_cell) {
-        G4cout << "ERROR: ScintIDCalculator: zero pointer to the current cell!" << G4cout;
+        G4cout << "ERROR: ScintIDCalculator: zero pointer to the current cell!" << G4endl;
         _DefaultHit = true;
 
         //return default hit DM Identifier
@@ -444,7 +444,7 @@ Identifier TileGeoG4CalibSD::PlateCellIDCalculator()
             dm_nphi = _module ;
         }
         else {
-            G4cout << "ERROR: PlateCellIDCalculator: Ir* _module calculation error"<< G4cout;
+            G4cout << "ERROR: PlateCellIDCalculator: Ir* _module calculation error"<< G4endl;
             _id = this->DM_ID_Maker(5, 2, 0, 0, 0, 0);
             return _id;
         }
@@ -530,8 +530,8 @@ Identifier TileGeoG4CalibSD::PlateCellIDCalculator()
         }
 
         if(!_p_cell) {
-            G4cout << "ERROR: PlateCellIDCalculator: zero pointer to the current plate cell"<< G4cout;
-            G4cout <<nameVol<< G4cout;
+            G4cout << "ERROR: PlateCellIDCalculator: zero pointer to the current plate cell"<< G4endl;
+            G4cout <<nameVol<< G4endl;
             _DefaultHit = true;
 
             //return default hit DM Identifier
@@ -568,8 +568,8 @@ Identifier TileGeoG4CalibSD::PlateCellIDCalculator()
     if((AddToCell)&&((nameVol).find("Plate") != G4String::npos)) {
         //check Cell validity
         if(!_cell) {
-            G4cout << "ERROR: PlateCellIDCalculator: zero pointer to the current cell"<< G4cout;
-            G4cout <<nameVol<< G4cout;
+            G4cout << "ERROR: PlateCellIDCalculator: zero pointer to the current cell"<< G4endl;
+            G4cout <<nameVol<< G4endl;
             _DefaultHit = true;
 
             //return default hit DM Identifier
@@ -618,8 +618,8 @@ Identifier TileGeoG4CalibSD::PlateCellIDCalculator()
 
         //check Plate Cell validity
         if(!_p_cell) {
-            G4cout << "ERROR: PlateCellIDCalculator: zero pointer to the current plate cell"<< G4cout;
-            G4cout <<nameVol<< G4cout;
+            G4cout << "ERROR: PlateCellIDCalculator: zero pointer to the current plate cell"<< G4endl;
+            G4cout <<nameVol<< G4endl;
             _DefaultHit = true;
 
             //return default hit DM Identifier
@@ -732,7 +732,7 @@ Identifier TileGeoG4CalibSD::GirderCellIDCalculator()
 
     if(!_g_cell) {
         G4cout << "ERROR: GirderCellIDCalculator: zero pointer to the current girder cell"<< G4cout ;
-        G4cout <<nameVol<< G4cout;
+        G4cout <<nameVol<< G4endl;
         _DefaultHit = true;
 
         //return default hit DM Identifier
@@ -1109,7 +1109,7 @@ Identifier TileGeoG4CalibSD::DefaultHitIDCalculator()
 
 
     if (verboseLevel>5) 
-        G4cout << "Default Hit Calculator: processed" << G4cout;
+        G4cout << "Default Hit Calculator: processed" << G4endl;
 
     if(isDMHit) {  //dm hits
         if(dm_sample==2) DebugDMCellIDFields(2);
@@ -1168,7 +1168,7 @@ Identifier TileGeoG4CalibSD::DM_ID_Maker(int subDet, int nType, int nSample, int
     }
     catch(CaloID_Exception CalEx){
         DebugDMCellIDFields(nSample);
-        G4cout << "ERROR: M_ID_Maker() - WRONG ID -> " <<CalEx.message()<< G4cout;
+        G4cout << "ERROR: M_ID_Maker() - WRONG ID -> " <<CalEx.message()<< G4endl;
     }
 
     m_caloDM_ID->set_do_checks(doo_checks);
@@ -1223,20 +1223,20 @@ void TileGeoG4CalibSD::EnergiesSimpleCounter() {
 void TileGeoG4CalibSD::DebugCellIDFields()
 {
     if (verboseLevel>5) {
-        G4cout << "---- CELL INFO ----"            << G4cout;
-        G4cout << "Detector >> " << _cell->detector<< G4cout;
-        G4cout << "Numm     >> " << _cell->cellNum << G4cout;
-        G4cout << "Tower    >> " << _cell->tower   << G4cout;
-        G4cout << "Sample   >> " << _cell->sample  << G4cout;
+        G4cout << "---- CELL INFO ----"            << G4endl;
+        G4cout << "Detector >> " << _cell->detector<< G4endl;
+        G4cout << "Numm     >> " << _cell->cellNum << G4endl;
+        G4cout << "Tower    >> " << _cell->tower   << G4endl;
+        G4cout << "Sample   >> " << _cell->sample  << G4endl;
 
-        G4cout << "---- HIT INFO ----"        << G4cout;
-        G4cout << "Detector >> " << _detector << G4cout;
-        G4cout << "Side     >> " << _side     << G4cout;
-        G4cout << "Module   >> " << _module   << G4cout;
-        G4cout << "Tower    >> " << _tower    << G4cout;
-        G4cout << "Sample   >> " << _sample   << G4cout;
-        G4cout << "Energy   >> " << E_tot     << G4cout;
-        G4cout << "---- END ----"             << G4cout;
+        G4cout << "---- HIT INFO ----"        << G4endl;
+        G4cout << "Detector >> " << _detector << G4endl;
+        G4cout << "Side     >> " << _side     << G4endl;
+        G4cout << "Module   >> " << _module   << G4endl;
+        G4cout << "Tower    >> " << _tower    << G4endl;
+        G4cout << "Sample   >> " << _sample   << G4endl;
+        G4cout << "Energy   >> " << E_tot     << G4endl;
+        G4cout << "---- END ----"             << G4endl;
     }
 }
 
@@ -1257,19 +1257,19 @@ void TileGeoG4CalibSD::DebugDMCellIDFields(int sample)
     }
 
     if (verboseLevel>5) {
-        G4cout << "---- DM CELL INFO ----"      << G4cout;
-        G4cout << "Detector >> " << detector << G4cout;
-        G4cout << "Tower    >> " << tower    << G4cout;
+        G4cout << "---- DM CELL INFO ----"      << G4endl;
+        G4cout << "Detector >> " << detector << G4endl;
+        G4cout << "Tower    >> " << tower    << G4endl;
 
-        G4cout << "---- DM HIT INFO ----"        << G4cout;
-        G4cout << "SubDet   >> " << dm_subDet << G4cout;
-        G4cout << "Type     >> " << dm_type   << G4cout;
-        G4cout << "Sample   >> " << dm_sample << G4cout;
-        G4cout << "Region   >> " << dm_region << G4cout;
-        G4cout << "NEta     >> " << dm_neta   << G4cout;
-        G4cout << "NPhi     >> " << dm_nphi   << G4cout;
-        G4cout << "Energy   >> " << E_tot     << G4cout;
-        G4cout << "---- END INFO ----"        << G4cout;
+        G4cout << "---- DM HIT INFO ----"        << G4endl;
+        G4cout << "SubDet   >> " << dm_subDet << G4endl;
+        G4cout << "Type     >> " << dm_type   << G4endl;
+        G4cout << "Sample   >> " << dm_sample << G4endl;
+        G4cout << "Region   >> " << dm_region << G4endl;
+        G4cout << "NEta     >> " << dm_neta   << G4endl;
+        G4cout << "NPhi     >> " << dm_nphi   << G4endl;
+        G4cout << "Energy   >> " << E_tot     << G4endl;
+        G4cout << "---- END INFO ----"        << G4endl;
     }
 }
 
@@ -1280,20 +1280,20 @@ void TileGeoG4CalibSD::DebugEnergies()
     E_tot = E_em + E_nonem + E_invisible + E_escaped + m_tile_eep->GetEnergy5();
 
     if (verboseLevel>5) {
-        G4cout <<" EndOfEvent" << G4cout;
-        G4cout <<" ---------------------------------------------------------- "<< G4cout;
-        G4cout <<" TOTAL ENERGY OF EVENT         = "<<E_tot<<" ("<<E0+E1+E2+E3<<")"<< G4cout;
-        G4cout <<" ------------------------------------ "<< G4cout;
-        G4cout <<" EM COMPONENT OF ENERGY        = "<<E_em<<" ("<<E0<<") "<< G4cout;
-        G4cout <<" ------------------------------------ "<< G4cout;
-        G4cout <<" NON_EM COMPONENT OF ENERGY    = "<<E_nonem<<" ("<<E1<<")"<< G4cout;
-        G4cout <<" ------------------------------------ "<< G4cout;
-        G4cout <<" INVISIBLE COMPONENT OF ENERGY = "<<E_invisible<<" ("<<E2<<")"<< G4cout;
-        G4cout <<" ------------------------------------ "<< G4cout;
-        G4cout <<" ESCAPED COMPONENT OF ENERGY   = "<<E_escaped<<" ("<<E3<<")"<< G4cout;
-        G4cout <<" --------------------------------------------------------- "<< G4cout;
-        G4cout <<" energy5 (missed energy)       = "<<m_tile_eep->GetEnergy5()<< G4cout;
-        G4cout <<" --------------------------------------------------------- "<< G4cout;
+        G4cout <<" EndOfEvent" << G4endl;
+        G4cout <<" ---------------------------------------------------------- "<< G4endl;
+        G4cout <<" TOTAL ENERGY OF EVENT         = "<<E_tot<<" ("<<E0+E1+E2+E3<<")"<< G4endl;
+        G4cout <<" ------------------------------------ "<< G4endl;
+        G4cout <<" EM COMPONENT OF ENERGY        = "<<E_em<<" ("<<E0<<") "<< G4endl;
+        G4cout <<" ------------------------------------ "<< G4endl;
+        G4cout <<" NON_EM COMPONENT OF ENERGY    = "<<E_nonem<<" ("<<E1<<")"<< G4endl;
+        G4cout <<" ------------------------------------ "<< G4endl;
+        G4cout <<" INVISIBLE COMPONENT OF ENERGY = "<<E_invisible<<" ("<<E2<<")"<< G4endl;
+        G4cout <<" ------------------------------------ "<< G4endl;
+        G4cout <<" ESCAPED COMPONENT OF ENERGY   = "<<E_escaped<<" ("<<E3<<")"<< G4endl;
+        G4cout <<" --------------------------------------------------------- "<< G4endl;
+        G4cout <<" energy5 (missed energy)       = "<<m_tile_eep->GetEnergy5()<< G4endl;
+        G4cout <<" --------------------------------------------------------- "<< G4endl;
     }
 }
 
@@ -1317,7 +1317,7 @@ void TileGeoG4CalibSD::CellNumCorrectToHit(int nPeriod, int nSamp)
                 std::streamsize prec = G4cout.precision();
                 G4cout << "Det=" << _detector << " nSamp=" << nSamp << " >> WRONG CELL:" << _cellNum;
                 G4cout << " Period=" << nPeriod << " zMin,zMax,zGlobal: " << std::setprecision(16);
-                G4cout << _zMin << ", " << _zMax << ", " << zGlobal << G4cout;
+                G4cout << _zMin << ", " << _zMax << ", " << zGlobal << G4endl;
                 G4cout.precision(prec);
             }
             nPeriod--;
@@ -1329,7 +1329,7 @@ void TileGeoG4CalibSD::CellNumCorrectToHit(int nPeriod, int nSamp)
                 std::streamsize prec = G4cout.precision();
                 G4cout << "Det=" << _detector << " nSamp=" << nSamp << " >> WRONG CELL:" << _cellNum;
                 G4cout << " Period=" << nPeriod << " zMin,zMax,zGlobal: " << std::setprecision(16);
-                G4cout << _zMin << ", " << _zMax << ", " << zGlobal << G4cout;
+                G4cout << _zMin << ", " << _zMax << ", " << zGlobal << G4endl;
                 G4cout.precision(prec);
             }
             nPeriod++;
@@ -1347,7 +1347,7 @@ void TileGeoG4CalibSD::CellNumCorrectToHit(int nPeriod, int nSamp)
                 std::streamsize prec = G4cout.precision();
                 G4cout << "WARNING:  HIT IS OUTSIDE THE CELL:" << _cellNum << " Period=";
                 G4cout << nPeriod << " zMin,zMax,zGlobal: " << std::setprecision(16);
-                G4cout << _zMin<< ", " << _zMax << ", " << zGlobal << G4cout;
+                G4cout << _zMin<< ", " << _zMax << ", " << zGlobal << G4endl;
                 G4cout.precision(prec);
             }
             else {
