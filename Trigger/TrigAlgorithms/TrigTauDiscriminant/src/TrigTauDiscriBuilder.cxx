@@ -18,7 +18,6 @@
 #include "xAODTau/TauJetAuxContainer.h"
 #include "xAODTau/TauDefs.h"
 #include "TauDiscriminant/TauDiscriToolBase.h"
-#include "TauDiscriminant/FakeTauBits.h"
 #include "TrigTauDiscriminant/TrigTauDiscriBuilder.h"
 
 using namespace std;
@@ -27,8 +26,7 @@ using namespace std;
 // Invokes base class constructor.
 TrigTauDiscriBuilder::TrigTauDiscriBuilder(const std::string& name,ISvcLocator* pSvcLocator):
 		  HLT::FexAlgo(name, pSvcLocator),
-		  tools(this),
-		  manager(0)
+		  tools(this)
 {
 	declareProperty("Tools", tools, "List of TrigTauDiscriminantTools");
 
@@ -45,8 +43,6 @@ HLT::ErrorCode TrigTauDiscriBuilder::hltInitialize()
 {
 
 	msg() << MSG::INFO << "TrigTauDiscriBuilder::initialize()" << endreq;
-
-	this->manager = new TauDetailsManager(&*evtStore(), true);
 
 	///////////////////
 	// Allocate Tools //
@@ -74,16 +70,16 @@ HLT::ErrorCode TrigTauDiscriBuilder::hltInitialize()
 		}
 		else {
 			//add to manager
-			if( (*p_itT)->prepare(*this->manager).isFailure() ) {
-				msg() << MSG::FATAL << "Initialization failed in tool " << p_itT->name() << endreq;
-				return HLT::BAD_JOB_SETUP;
-			}
+			//if( (*p_itT)->prepare(*this->manager).isFailure() ) {
+			//	msg() << MSG::FATAL << "Initialization failed in tool " << p_itT->name() << endreq;
+			//	return HLT::BAD_JOB_SETUP;
+			//}
 			//add to timer
-			else {
-				msg() << MSG::INFO << "REGTEST ";
-				msg() <<" add timer for tool "<< ( *p_itT )->type() <<" "<< ( *p_itT )->name() << endreq;
-				if(  doTiming() ) m_mytimers.push_back(addTimer((*p_itT)->name())) ;
-			}
+			//else {
+		        msg() << MSG::INFO << "REGTEST ";
+			msg() <<" add timer for tool "<< ( *p_itT )->type() <<" "<< ( *p_itT )->name() << endreq;
+			if(  doTiming() ) m_mytimers.push_back(addTimer((*p_itT)->name())) ;
+			//}
 		}
 	}
 	msg() << MSG::INFO << " " << endreq;
@@ -96,7 +92,6 @@ HLT::ErrorCode TrigTauDiscriBuilder::hltInitialize()
 HLT::ErrorCode TrigTauDiscriBuilder::hltFinalize()
 {
 	msg() << MSG::DEBUG << "Finalizing TrigTauDiscriBuilder" << endreq;
-	if(this->manager) delete this->manager;
 	return HLT::OK;
 }
 
@@ -116,24 +111,21 @@ HLT::ErrorCode TrigTauDiscriBuilder::hltExecute(const HLT::TriggerElement* /*inp
 		return HLT::OK;
 	}
 
-	FakeTauBits* fakeBits(0);
-	FakeTauScores* fakeScores(0);
-
 	// Update event-based variables
-	if (!this->manager->updateEvent()) {
-		msg() << MSG::WARNING << "Updating event-based variables in TauDetailsManager failed! Do not trust discriminant outputs!" << endreq;
-		return HLT::OK;
-	}
+	//if (!this->manager->updateEvent()) {
+	//	msg() << MSG::WARNING << "Updating event-based variables in TauDetailsManager failed! Do not trust discriminant outputs!" << endreq;
+	//	return HLT::OK;
+	//}
 
 	xAOD::TauJetContainer::iterator tau_it(tau_container->begin());
 	xAOD::TauJetContainer::iterator tau_end(tau_container->end());
 	// Loop over tau's:
 	for (; tau_it != tau_end; ++tau_it) {
-		if (!this->manager->update(**tau_it)) {
-			msg() << MSG::WARNING << "Updating tau-based variables in TauDetailsManager failed! Do not trust discriminant outputs!" << endreq;
-			return HLT::OK;
-		}
-		msg() << MSG::VERBOSE << *this->manager << endreq;
+	        //if (!this->manager->update(**tau_it)) {
+		//	msg() << MSG::WARNING << "Updating tau-based variables in TauDetailsManager failed! Do not trust discriminant outputs!" << endreq;
+		//	return HLT::OK;
+		//}
+		//msg() << MSG::VERBOSE << *this->manager << endreq;
 
 		//-----------------------------------------------------------------
 		// Process the candidate
@@ -149,7 +141,7 @@ HLT::ErrorCode TrigTauDiscriBuilder::hltExecute(const HLT::TriggerElement* /*inp
 			msg() << MSG::VERBOSE << "Invoking tool " << tool_it->name() << endreq;
 			if ( doTiming() && itimer != m_mytimers.end() ) {  (*itimer)->start();}
 
-			StatusCode sc = (*tool_it)->execute( *tau_it, fakeBits, fakeScores);
+			StatusCode sc = (*tool_it)->execute( **tau_it);
 			if( sc.isFailure() ) {
 				msg() << MSG::FATAL << "Execute failed in tool " << tool_it->name() << endreq;
 				return HLT::ERROR;

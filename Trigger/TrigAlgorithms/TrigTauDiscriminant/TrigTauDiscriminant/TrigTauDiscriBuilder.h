@@ -51,8 +51,6 @@ class TrigTauDiscriBuilder: public HLT::FexAlgo {
   /** internal tool store */
   ToolHandleArray<TauDiscriToolBase>  tools;
 
-  TauDetailsManager*                  manager;
-
   /** vector of Timers */
   std::vector<TrigTimer* > m_mytimers;
 

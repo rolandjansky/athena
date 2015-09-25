@@ -46,22 +46,20 @@ class TrigTauDiscriGetter(TrigTauDiscriBuilder):
          
          self.AthenaMonTools = [ time, validation, online ]
          
-         self.Tools = [self.LLHtoolset(), self.BDTtoolset()]
+         self.Tools = [self.VarCalculatorSet(), self.BDTtoolset()]
     
-    def LLHtoolset(self):
-        tools = []
-        mlog = logging.getLogger('TrigTauDiscriGetter::configure LLH:')
-        from TauDiscriminant.TauDiscriminantConf import TauLLH
-        tauLLH = TauLLH()
-        tauLLH.FileNameTauPDF = "pdfs_tau_trigger.root"
-        tauLLH.FileNameJetPDF = "pdfs_jet_trigger.root"
-        return tauLLH
-
 
     def BDTtoolset(self):
         from TauDiscriminant.TauDiscriminantConf import TauJetBDT
         return TauJetBDT(jetBDT = "trigger.jet.BDT.bin",
                          jetSigBits = "trigger.sig.bits.jet.BDT.txt")
+
+    def VarCalculatorSet(self):
+        from TauDiscriminant.TauDiscriminantConf import TauIDVarCalculator
+        tauVarCalc = TauIDVarCalculator()
+        tauVarCalc.doTrigger = True
+        return tauVarCalc
+
 
 class TrigTauDiscriGetter2015(TrigTauDiscriBuilder):
     __slots__ = [ '_mytools']
@@ -78,19 +76,16 @@ class TrigTauDiscriGetter2015(TrigTauDiscriBuilder):
          
          self.AthenaMonTools = [ time, validation, online ]
          
-         self.Tools = [self.LLHtoolset(), self.BDTtoolset()]
+         self.Tools = [self.VarCalculatorSet(), self.BDTtoolset()]
     
-    def LLHtoolset(self):
-        tools = []
-        mlog = logging.getLogger('TrigTauDiscriGetter2015::configure LLH:')
-        from TauDiscriminant.TauDiscriminantConf import TauLLH
-        tauLLH = TauLLH()
-        tauLLH.FileNameTauPDF = "pdfs_tau_trigger.root"
-        tauLLH.FileNameJetPDF = "pdfs_jet_trigger.root"
-        return tauLLH
-
 
     def BDTtoolset(self):
         from TauDiscriminant.TauDiscriminantConf import TauJetBDT
         return TauJetBDT(jetBDT = "offline.jet.BDT.MC15.bin",
                          jetSigBits = "trigger.sig.bits.jet.BDT.MC15.ver1.txt")
+
+    def VarCalculatorSet(self):
+        from TauDiscriminant.TauDiscriminantConf import TauIDVarCalculator
+        tauVarCalc = TauIDVarCalculator()
+        tauVarCalc.doTrigger = True
+        return tauVarCalc
