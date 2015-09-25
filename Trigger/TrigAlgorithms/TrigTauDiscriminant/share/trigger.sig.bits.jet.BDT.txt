@@ -5,8 +5,8 @@ NUMTRACK I
 -3
 -1
 2
-BDT F
-ET F
+BDTJetScore F
+pt F
 3
 1.000000E+00
 -4	20
