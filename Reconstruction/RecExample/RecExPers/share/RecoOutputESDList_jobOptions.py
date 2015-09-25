@@ -91,6 +91,11 @@ if DetFlags.detdescr.ID_on():
                      "InDetEsd",
                      items = InDetESDList
                      )
+# FTK 
+if DetFlags.detdescr.FTK_on():
+    protectedInclude ("FTK_RecExample/WriteFTK_ESD.py") 
+    fullESDList += CfgItemList( "FTKEsd", items = FtkESDList )
+
 # Calorimeters 
 if DetFlags.detdescr.Calo_on():
     protectedInclude ("CaloRecEx/CaloRecOutputItemList_jobOptions.py") 
