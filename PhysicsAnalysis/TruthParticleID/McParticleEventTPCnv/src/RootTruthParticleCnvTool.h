@@ -8,17 +8,12 @@
 #define MCPARTICLEEVENTTPCNV_ROOTTRUTHPARTICLECNVTOOL_H
 
 #include "McParticleKernel/ITruthParticleCnvTool.h"
+#include "GaudiKernel/DataObjID.h"
 
 class RootTruthParticleCnvTool
   : public ITruthParticleCnvTool
 {
 public:
-  /// @name Function(s) inherited from ITruthParticleCnvTool
-  /// @{
-
-  /// A hook for Athena algorithms
-  virtual StatusCode execute();
-
   /** Converts a @c McEventCollection into an @c TruthParticleContainer (ie:
    *  converts it into an AOD compliant collection).
    *  @in  mcEvts the @c McEventCollection holding the @c HepMC::GenEvent we
@@ -28,42 +23,29 @@ public:
    *       be filled with adaptors to @c HepMC::GenParticles.
    */
   StatusCode convert( const McEventCollection* mcEvts,
-                      const unsigned int genEvtIndex,
-                      TruthParticleContainer* mcParts,
-                      const ITruthParticleVisitor* visitor ) const;
-
-  /// @}
+		      const unsigned int genEvtIndex,
+		      TruthParticleContainer* mcParts,
+		      const ITruthParticleVisitor* visitor ) const;
 
   /** Helper method to get the charge of a particle given its PDG Id.
    */
   double chargeFromPdgId( int pdgId ) const;
 
-
-  /// @name Function(s) inherited from IInterface
-  /// @{
-  virtual StatusCode queryInterface( const InterfaceID& riid,
-                                     void** ppvInterface );
+  virtual StatusCode queryInterface(const InterfaceID& riid,
+                                    void** ppvInterface);
   virtual unsigned long addRef();
   virtual unsigned long release();
-  virtual unsigned long refCount() const;
-  /// @}
-
-  /// @name Function(s) inherited from IProperty
-  /// @{
   virtual StatusCode setProperty( const Property& p );
   virtual StatusCode setProperty( const std::string& s );
   virtual StatusCode setProperty( const std::string& n, const std::string& v );
   virtual StatusCode getProperty( Property* p ) const;
-  virtual const Property& getProperty( const std::string& name ) const;
+  virtual const Property& getProperty( const std::string& name) const;
   virtual StatusCode getProperty( const std::string& n, std::string& v ) const;
   virtual const std::vector<Property*>& getProperties( ) const;
   virtual bool hasProperty(const std::string& name) const;
-  /// @}
 
-  /// @name Function(s) inherited from IAlgTool
-  /// @{
-  virtual const std::string& type() const;
-  virtual const IInterface* parent() const;
+  virtual const std::string&  type() const;
+  virtual const IInterface*   parent() const;
   virtual StatusCode configure();
   virtual StatusCode initialize();
   virtual StatusCode sysInitialize();
@@ -78,13 +60,18 @@ public:
   virtual StatusCode finalize();
   virtual StatusCode sysFinalize();
   virtual StatusCode terminate();
-  virtual Gaudi::StateMachine::State FSMState() const;
-  /// @}
-
-  /// @name Function(s) inherited from INamedInterface
-  /// @{
+  virtual unsigned long refCount() const;
   virtual const std::string& name() const;
-  /// @}
+  virtual StatusCode execute();
+#ifdef GAUDIKERNEL_STATEMACHINE_H_
+  virtual Gaudi::StateMachine::State FSMState() const;
+#endif
+
+#ifdef ATHENAHIVE
+  virtual const DataObjIDColl & inputDataObjs() const;
+  virtual const DataObjIDColl & outputDataObjs() const;
+#endif
+
 
 };
 

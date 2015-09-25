@@ -54,14 +54,14 @@ TruthParticleContainerCnv_p5::persToTrans( const TruthParticleContainer_p5* pers
 {
   msg << MSG::DEBUG 
       << "Loading TruthParticleContainer from persistent state..."
-      << endmsg;
+      << endreq;
 
   if ( 0 == m_cnvTool ) {
     msg << MSG::ERROR
 	<< "NULL pointer to ITruthParticleCnvTool !!" 
-	<< endmsg
+	<< endreq
 	<< "Can't create *ANY* TruthParticleContainer !!" 
-	<< endmsg;
+	<< endreq;
     throw std::runtime_error("NULL pointer to ITruthParticleCnvTool !!");
   }
 
@@ -74,7 +74,7 @@ TruthParticleContainerCnv_p5::persToTrans( const TruthParticleContainer_p5* pers
   if ( 0 == evt ) {
     const std::string error("NULL pointer to McEventCollection !!");
     msg << MSG::ERROR << error
-	<< endmsg;
+	<< endreq;
     throw std::runtime_error(error);
   }
 
@@ -86,13 +86,13 @@ TruthParticleContainerCnv_p5::persToTrans( const TruthParticleContainer_p5* pers
 	<< pers->m_genEvent.m_contName     << "][" 
 	<< pers->m_genEvent.m_elementIndex << "]"
 	<< " to TruthParticleContainer !"
-	<< endmsg;
+	<< endreq;
     throw std::runtime_error("No TruthParticleContainer created !!");
   }
 
   if ( !trans->m_genEvent.isValid() ) {
     const std::string err = "ElementLink to McEventCollection is not valid !";
-    msg << MSG::ERROR << err << endmsg;
+    msg << MSG::ERROR << err << endreq;
     throw std::runtime_error(err);
   }
 
@@ -104,7 +104,7 @@ TruthParticleContainerCnv_p5::persToTrans( const TruthParticleContainer_p5* pers
 
   msg << MSG::DEBUG 
       << "Loaded TruthParticleContainer from persistent state [OK]"
-      << endmsg;
+      << endreq;
   return;
 }
 
@@ -115,13 +115,13 @@ TruthParticleContainerCnv_p5::transToPers( const TruthParticleContainer*,
 {
   msg << MSG::DEBUG 
       << "Creating persistent state of TruthParticleContainer..."
-      << endmsg;
+      << endreq;
   
   msg << MSG::ERROR
       << "This transient-to-persistent converter method has been RETIRED !!"
-      << endmsg
+      << endreq
       << "You are not supposed to end-up here ! Go away !"
-      << endmsg;
+      << endreq;
 
   throw std::runtime_error( "Retired TruthParticleContainerCnv_p4::transToPers() !!" );
 

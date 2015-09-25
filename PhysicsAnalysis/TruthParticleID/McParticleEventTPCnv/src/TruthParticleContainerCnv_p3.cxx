@@ -55,23 +55,23 @@ TruthParticleContainerCnv_p3::persToTrans( const TruthParticleContainer_p3* pers
 {
   msg << MSG::DEBUG 
       << "Loading TruthParticleContainer from persistent state..."
-      << endmsg;
+      << endreq;
 
   if ( 0 == m_cnvTool ) {
     msg << MSG::ERROR
 	<< "NULL pointer to ITruthParticleCnvTool !!" 
-	<< endmsg
+	<< endreq
 	<< "Can't create *ANY* TruthParticleContainer !!" 
-	<< endmsg;
+	<< endreq;
     throw std::runtime_error("NULL pointer to ITruthParticleCnvTool !!");
   }
 
   if ( 0 == m_storeGate ) {
     msg << MSG::ERROR
 	<< "NULL pointer to StoreGateSvc !!" 
-	<< endmsg
+	<< endreq
 	<< "Can't create *ANY* TruthParticleContainer !!" 
-	<< endmsg;
+	<< endreq;
     throw std::runtime_error("NULL pointer to StoreGateSvc !!");
   }
 
@@ -84,7 +84,7 @@ TruthParticleContainerCnv_p3::persToTrans( const TruthParticleContainer_p3* pers
   if ( 0 == evt ) {
     const std::string error("NULL pointer to McEventCollection !!");
     msg << MSG::ERROR << error
-	<< endmsg;
+	<< endreq;
     throw std::runtime_error(error);
   }
 
@@ -96,7 +96,7 @@ TruthParticleContainerCnv_p3::persToTrans( const TruthParticleContainer_p3* pers
     msg << MSG::ERROR
 	<< "Could not record a TruthEtIsolationsContainer at ["
 	<< etIsolName << "] !!"
-	<< endmsg;
+	<< endreq;
     delete etIsols; etIsols = 0;
     throw std::runtime_error("No TruthEtIsolationsContainer could be stored !!");
   }
@@ -104,7 +104,7 @@ TruthParticleContainerCnv_p3::persToTrans( const TruthParticleContainer_p3* pers
     msg << MSG::WARNING
 	<< "Could not setConst the TruthEtIsolationsContainer at ["
 	<< etIsolName << "] !!"
-	<< endmsg;
+	<< endreq;
   }
 
   const unsigned int genEventIndex = pers->m_genEvent.m_elementIndex;
@@ -129,13 +129,13 @@ TruthParticleContainerCnv_p3::persToTrans( const TruthParticleContainer_p3* pers
 	<< pers->m_genEvent.m_contName     << "][" 
 	<< pers->m_genEvent.m_elementIndex << "]"
 	<< " to TruthParticleContainer !"
-	<< endmsg;
+	<< endreq;
     throw std::runtime_error("No TruthParticleContainer created !!");
   }
 
   if ( !trans->m_genEvent.isValid() ) {
     const std::string err = "ElementLink to McEventCollection is not valid !";
-    msg << MSG::ERROR << err << endmsg;
+    msg << MSG::ERROR << err << endreq;
     throw std::runtime_error(err);
   }
 
@@ -144,7 +144,7 @@ TruthParticleContainerCnv_p3::persToTrans( const TruthParticleContainer_p3* pers
 
   msg << MSG::DEBUG 
       << "Loaded TruthParticleContainer from persistent state [OK]"
-      << endmsg;
+      << endreq;
   return;
 }
 
@@ -155,13 +155,13 @@ TruthParticleContainerCnv_p3::transToPers( const TruthParticleContainer* /*trans
 {
   msg << MSG::DEBUG 
       << "Creating persistent state of TruthParticleContainer..."
-      << endmsg;
+      << endreq;
 
   msg << MSG::ERROR
       << "This transient-to-persistent converter method has been RETIRED !!"
-      << endmsg
+      << endreq
       << "You are not supposed to end-up here ! Go away !"
-      << endmsg;
+      << endreq;
 
   throw std::runtime_error( "Retired TruthParticleContainerCnv_p3::transToPers() !!" );
 

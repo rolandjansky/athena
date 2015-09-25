@@ -47,23 +47,23 @@ TruthParticleContainerCnv_p1::persToTrans( const TruthParticleContainer_p1* pers
 {
   log << MSG::DEBUG 
       << "Loading TruthParticleContainer from persistent state..."
-      << endmsg;
+      << endreq;
 
   if ( 0 == m_cnvTool ) {
     log << MSG::ERROR
 	<< "NULL pointer to ITruthParticleCnvTool !!" 
-	<< endmsg
+	<< endreq
 	<< "Can't create *ANY* TruthParticleContainer !!" 
-	<< endmsg;
+	<< endreq;
     throw std::runtime_error("NULL pointer to ITruthParticleCnvTool !!");
   }
 
   if ( 0 == m_storeGate ) {
     log << MSG::ERROR
 	<< "NULL pointer to StoreGateSvc !!" 
-	<< endmsg
+	<< endreq
 	<< "Can't create *ANY* TruthParticleContainer !!" 
-	<< endmsg;
+	<< endreq;
     throw std::runtime_error("NULL pointer to StoreGateSvc !!");
   }
 
@@ -74,7 +74,7 @@ TruthParticleContainerCnv_p1::persToTrans( const TruthParticleContainer_p1* pers
 	<< "Could not retrieve McEventCollection at ["
 	<< pers->m_parentKey
 	<< "] !!"
-	<< endmsg;
+	<< endreq;
     throw std::runtime_error("No McEventCollection retrieved !!");
   }
     
@@ -86,13 +86,13 @@ TruthParticleContainerCnv_p1::persToTrans( const TruthParticleContainer_p1* pers
 			    trans ).isSuccess() ) {
     log << MSG::ERROR
 	<< "Problem converting McEventCollection to TruthParticleContainer !"
-	<< endmsg;
+	<< endreq;
     throw std::runtime_error("No TruthParticleContainer created !!");
   }
 
   log << MSG::DEBUG 
       << "Loaded TruthParticleContainer from persistent state [OK]"
-      << endmsg;
+      << endreq;
   return;
 }
 
@@ -103,13 +103,13 @@ TruthParticleContainerCnv_p1::transToPers( const TruthParticleContainer* /*trans
 {
   log << MSG::DEBUG 
       << "Creating persistent state of TruthParticleContainer..."
-      << endmsg;
+      << endreq;
 
   log << MSG::ERROR
       << "This transient-to-persistent converter method has been RETIRED !!"
-      << endmsg
+      << endreq
       << "You are not supposed to end-up here ! Go away !"
-      << endmsg;
+      << endreq;
 
   throw std::runtime_error( "Retired TruthParticleContainerCnv_p1::transToPers() !!" );
   // not reached

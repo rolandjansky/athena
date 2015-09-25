@@ -34,13 +34,6 @@ static const boost::array<int, 100> qcharge = {
 
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-//         Implementation of the ITruthParticleCnvTool function(s)
-//
-
-StatusCode RootTruthParticleCnvTool::execute() { abort(); }
-
 StatusCode
 RootTruthParticleCnvTool::convert(const McEventCollection *mcCollection,
                                   const unsigned int genEventIndex,
@@ -115,7 +108,7 @@ RootTruthParticleCnvTool::convert(const McEventCollection *mcCollection,
     if ( etIsolName.empty() ) {
       m_msg << MSG::WARNING
 	    << "Could not retrieve the name of the TruthEtIsolations container"
-	    << endmsg;
+	    << endreq;
       return StatusCode::RECOVERABLE;
     }
 
@@ -124,7 +117,7 @@ RootTruthParticleCnvTool::convert(const McEventCollection *mcCollection,
       m_msg << MSG::WARNING
 	    << "Could not retrieve the TruthEtIsolations container at ["
 	    << etIsolName << "] !!"
-	    << endmsg;
+	    << endreq;
       return StatusCode::RECOVERABLE;
     }
 
@@ -137,17 +130,14 @@ RootTruthParticleCnvTool::convert(const McEventCollection *mcCollection,
   return StatusCode::SUCCESS;
 }
 
-//
-////////////////////////////////////////////////////////////////////////////////
 
 double RootTruthParticleCnvTool::chargeFromPdgId (int pdgId) const
 {
-  const double third = 1./3;
   if (0 == pdgId)
     return -999;
   TParticlePDG* ap = TDatabasePDG::Instance()->GetParticle (pdgId);
   if ( ap ) {
-    return ap->Charge()*third;
+    return ap->Charge()/3;
   } else {
     /** Set charge using PDG convention:
 	id = nnnnijkl
@@ -166,93 +156,64 @@ double RootTruthParticleCnvTool::chargeFromPdgId (int pdgId) const
       q = (abs(pdgId) / 10000) % 1000;
     }
     else if( idmod < 100 ) {
-      q = qcharge[idmod]*third;
+      q = qcharge[idmod]/3.;
     }
     else if ( idmod < 1000 ) {
-      q = (qcharge[q1]-qcharge[q2])*third;
+      q = (qcharge[q1]-qcharge[q2])/3.;
       if ( qcharge[q2] == 2 ) {
 	q *= -1.;
       }
     }
     else if( idmod < 10000 ) {
-      q = (qcharge[q3]+qcharge[q2]+qcharge[q1])*third;
+      q = (qcharge[q3]+qcharge[q2]+qcharge[q1])/3.;
     }
     if (q == 0) q = 0; // Change -0 to 0.
     return (pdgId < 0) ? -q : q;
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-//
-//              Implementation of the IInterface function(s)
 
-StatusCode RootTruthParticleCnvTool::queryInterface( const InterfaceID&,
-                                                     void** ) { abort(); }
-unsigned long RootTruthParticleCnvTool::addRef() { abort(); }
-unsigned long RootTruthParticleCnvTool::release() { abort(); }
-unsigned long RootTruthParticleCnvTool::refCount() const { abort(); }
+StatusCode RootTruthParticleCnvTool::queryInterface(const InterfaceID&,
+                                                    void** ){abort();}
+unsigned long RootTruthParticleCnvTool::addRef(){abort();}
+unsigned long RootTruthParticleCnvTool::release(){abort();}
+StatusCode RootTruthParticleCnvTool::setProperty( const Property& ){abort();}
 
-//
-////////////////////////////////////////////////////////////////////////////////
+StatusCode RootTruthParticleCnvTool::setProperty(const std::string&){abort();}
+StatusCode RootTruthParticleCnvTool::setProperty( const std::string&, const std::string& ){abort();}
+StatusCode RootTruthParticleCnvTool::getProperty( Property* ) const{abort();}
+const Property& RootTruthParticleCnvTool::getProperty( const std::string&) const{abort();}
+StatusCode RootTruthParticleCnvTool::getProperty( const std::string&, std::string& ) const{abort();}
+const std::vector<Property*>& RootTruthParticleCnvTool::getProperties( ) const{abort();}
+bool RootTruthParticleCnvTool::hasProperty(const std::string&) const {abort();}
 
-////////////////////////////////////////////////////////////////////////////////
-//
-//               Implementation of the IProperty function(s)
-//
+const std::string&  RootTruthParticleCnvTool::type() const{abort();}
+const IInterface*   RootTruthParticleCnvTool::parent() const{abort();}
 
-StatusCode RootTruthParticleCnvTool::setProperty( const Property& ) { abort(); }
-StatusCode RootTruthParticleCnvTool::setProperty( const std::string& ) {
-   abort(); }
-StatusCode RootTruthParticleCnvTool::setProperty( const std::string&,
-                                                  const std::string& ) {
-   abort(); }
-StatusCode RootTruthParticleCnvTool::getProperty( Property* ) const { abort(); }
-const Property&
-RootTruthParticleCnvTool::getProperty( const std::string& ) const{ abort(); }
-StatusCode RootTruthParticleCnvTool::getProperty( const std::string&,
-                                                  std::string& ) const {
-   abort(); }
-const std::vector< Property* >&
-RootTruthParticleCnvTool::getProperties() const { abort(); }
-bool RootTruthParticleCnvTool::hasProperty( const std::string& ) const {
-   abort(); }
-
-//
-////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//               Implementation of the IAlgTool function(s)
-//
-
-const std::string& RootTruthParticleCnvTool::type() const { abort(); }
-const IInterface* RootTruthParticleCnvTool::parent() const { abort(); }
-StatusCode RootTruthParticleCnvTool::configure() { abort(); }
-StatusCode RootTruthParticleCnvTool::initialize() { abort(); }
-StatusCode RootTruthParticleCnvTool::sysInitialize() { abort(); }
-StatusCode RootTruthParticleCnvTool::reinitialize() { abort(); }
-StatusCode RootTruthParticleCnvTool::sysReinitialize() { abort(); }
-StatusCode RootTruthParticleCnvTool::start() { abort(); }
-StatusCode RootTruthParticleCnvTool::sysStart() { abort(); }
-StatusCode RootTruthParticleCnvTool::restart() { abort(); }
-StatusCode RootTruthParticleCnvTool::sysRestart() { abort(); }
-StatusCode RootTruthParticleCnvTool::stop() { abort(); }
-StatusCode RootTruthParticleCnvTool::sysStop() { abort(); }
-StatusCode RootTruthParticleCnvTool::finalize() { abort(); }
-StatusCode RootTruthParticleCnvTool::sysFinalize() { abort(); }
-StatusCode RootTruthParticleCnvTool::terminate() { abort(); }
-Gaudi::StateMachine::State RootTruthParticleCnvTool::FSMState() const {
-   abort(); }
-
-//
-////////////////////////////////////////////////////////////////////////////////
-
-////////////////////////////////////////////////////////////////////////////////
-//
-//              Implementation of the INamedInterface function(s)
-//
-
+StatusCode RootTruthParticleCnvTool::configure(){abort();}
+StatusCode RootTruthParticleCnvTool::initialize(){abort();}
+StatusCode RootTruthParticleCnvTool::sysInitialize(){abort();}
+StatusCode RootTruthParticleCnvTool::reinitialize(){abort();}
+StatusCode RootTruthParticleCnvTool::sysReinitialize(){abort();}
+StatusCode RootTruthParticleCnvTool::start(){abort();}
+StatusCode RootTruthParticleCnvTool::sysStart(){abort();}
+StatusCode RootTruthParticleCnvTool::restart(){abort();}
+StatusCode RootTruthParticleCnvTool::sysRestart(){abort();}
+StatusCode RootTruthParticleCnvTool::stop(){abort();}
+StatusCode RootTruthParticleCnvTool::sysStop(){abort();}
+StatusCode RootTruthParticleCnvTool::finalize(){abort();}
+StatusCode RootTruthParticleCnvTool::sysFinalize(){abort();}
+StatusCode RootTruthParticleCnvTool::terminate(){abort();}
+unsigned long RootTruthParticleCnvTool::refCount() const{abort();}
 const std::string& RootTruthParticleCnvTool::name() const{abort();}
+StatusCode RootTruthParticleCnvTool::execute() {abort();}
+#ifdef GAUDIKERNEL_STATEMACHINE_H_
+Gaudi::StateMachine::State RootTruthParticleCnvTool::FSMState() const{abort();}
+#endif
 
-//
-////////////////////////////////////////////////////////////////////////////////
+#ifdef ATHENAHIVE
+const DataObjIDColl & 
+RootTruthParticleCnvTool::inputDataObjs() const { abort(); }
+const DataObjIDColl & 
+RootTruthParticleCnvTool::outputDataObjs() const { abort(); }
+#endif
