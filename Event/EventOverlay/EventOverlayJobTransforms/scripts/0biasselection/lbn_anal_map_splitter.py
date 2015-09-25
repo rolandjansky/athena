@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+import sys
 
 #get the list of special run,lbn with more than 1 file
 special_run_lbn = {}
@@ -25,7 +26,9 @@ with open("runs_lbn_files_lb.txt") as f:
     print "done with special_run_lbn"
 
 #do the work
-for s in range(0,50): #50
+maxstream = int(sys.argv[1])
+print "maxstream=",maxstream
+for s in range(0,maxstream+1): #50
     with open("/home/ahaas/nfs3/zerobias_skim/lbn_anal_map_"+str(s)+"wanted.txt") as f:
         tot=0
         nfile=1

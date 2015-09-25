@@ -30,7 +30,7 @@ void readeventcounts(int run){
   eventcounts.clear();
   char buf[50];
   sprintf(buf,"lbnevents_%d.txt",run);
-  if (debug) printf("Opening %s, eventcounts size is %d\n",buf,eventcounts.size());
+  if (debug) printf("Opening %s, eventcounts size is %lu\n",buf,eventcounts.size());
   FILE *fp = fopen(buf,"r");
   if (!fp) printf("Failed to open %s!!!\n",buf);
   char *line=new char[500];
@@ -48,7 +48,7 @@ void readeventcounts(int run){
        assert(false);
      }
   }
-  if (debug) printf("Closing %s, eventcounts size is %d\n",buf,eventcounts.size());
+  if (debug) printf("Closing %s, eventcounts size is %lu\n",buf,eventcounts.size());
   fclose(fp); 
 }
 
@@ -124,9 +124,9 @@ void lbn_analyze(int stream, int nwanted)
    gtotaltotallumi+=gtotallumi; gtotaltotallumiprescaled+=gtotallumiprescaled;
 
    fclose(fp);
-   printf("- %d runs, gtotaltotallumi=%f, gtotaltotallumiprescaled=%f\n",runmap.size(),gtotaltotallumi,gtotaltotallumiprescaled);
+   printf("- %lu runs, gtotaltotallumi=%f, gtotaltotallumiprescaled=%f\n",runmap.size(),gtotaltotallumi,gtotaltotallumiprescaled);
 
-   if (runmap.size()<1) {printf("- runmap size is %d, quitting!\n",runmap.size()); return;}
+   if (runmap.size()<1) {printf("- runmap size is %lu, quitting!\n",runmap.size()); return;}
    //return;
 
    //check the total lumi...
