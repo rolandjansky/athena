@@ -15,10 +15,17 @@
 #include "InDetIdentifier/TRT_ID.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "GaudiKernel/IChronoStatSvc.h"
 
 #include "TF1.h"
+
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "CoralBase/AttributeListSpecification.h"
+#include "AthenaPoolUtilities/CondAttrListVec.h"
+#include "StoreGate/DataHandle.h"
 
 // constructor
 TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t,n,p)
@@ -43,6 +50,7 @@ StatusCode TRT_ToT_dEdx::initialize() {
     log << MSG::ERROR << "Could not get DetectorStore" << endreq;
     return sc;
   }
+  
   sc = detStore->retrieve(m_trtId, "TRT_ID");
   if (sc.isFailure()){
     log << MSG::ERROR << "Could not get TRT_ID helper !" << endreq;
@@ -61,8 +69,23 @@ StatusCode TRT_ToT_dEdx::initialize() {
   if ( sc.isFailure() || 0 == m_timingProfile) {
     log<< MSG::DEBUG <<"Can not find ChronoStatSvc name="<<m_timingProfile << endreq;
   }
-  
+ 
+  const DataHandle<CondAttrListVec> aptr;
+  std::string folderName = {"/TRT/Calib/ToT/ToTVectors"};
+  if (StatusCode::SUCCESS == detStore->regFcn(&TRT_ToT_dEdx::update,this,aptr,folderName)){
+   ATH_MSG_DEBUG ("Registered callback for ToT");
+  }else{
+		ATH_MSG_ERROR ("Callback registration failed for /TRT/Calib/ToT/ToTVectors ");
+  }
 
+  const DataHandle<CondAttrListCollection> affectedRegionH;
+  if (detStore->regFcn(&TRT_ToT_dEdx::update2,this,affectedRegionH,"/TRT/Calib/ToT/ToTValue").isSuccess()){
+	ATH_MSG_DEBUG ( "Registered callback for  /TRT/Calib/ToT/ToTValue " );
+  }else{
+	ATH_MSG_WARNING ( "Cannot register callback for /TRT/Calib/ToT/ToTValue " );
+  }
+
+  
   log <<  MSG::INFO  << name() <<" initialize() successful" << endreq;    
   return StatusCode::SUCCESS;
 }
@@ -72,6 +95,140 @@ StatusCode TRT_ToT_dEdx::finalize() {
   log <<  MSG::VERBOSE  << "... in finalize() ..." << endreq ;
   if(m_timingProfile)m_timingProfile->chronoPrint("TRT_ToT_dEdx"); //MJ
   return StatusCode::SUCCESS;
+}
+
+
+StatusCode TRT_ToT_dEdx::update(int& i , std::list<std::string>& l)
+{
+
+StoreGateSvc* detStore = 0;
+StatusCode sc = service( "DetectorStore", detStore );
+
+std::vector<std::string>  dict_names = {"resolution","resolution_e","para_long_corrRZ_MC","para_short_corrRZ_MC","para_end_corrRZ_MC","para_long_corrRZL_MC","para_short_corrRZL_MC","para_end_corrRZL_MC"};
+std::map<std::string,std::vector<float> > result_dict;
+
+const DataHandle<CondAttrListVec> channel_values;
+
+if (StatusCode::SUCCESS == detStore->retrieve(channel_values, "/TRT/Calib/ToT/ToTVectors" )){
+
+CondAttrListVec::const_iterator first_channel = channel_values->begin();
+CondAttrListVec::const_iterator last_channel  = channel_values->end();
+
+unsigned int current_channel = 0;
+std::vector<float> current_array_values = {};
+
+  for (; first_channel != last_channel; ++first_channel) {
+   
+	if (current_channel != first_channel->first){
+	
+		result_dict[dict_names[current_channel]] = current_array_values;
+		current_channel = first_channel->first;      
+        current_array_values.clear();
+
+	}
+	current_array_values.push_back(first_channel->second["array_value"].data<float>());		
+   
+  }
+  result_dict[dict_names[current_channel]] = current_array_values;
+ 
+}else {
+       ATH_MSG_ERROR ("Problem reading condDB object. -");
+       return StatusCode::FAILURE;
+      }
+	  
+ 		for (unsigned int ind=0; ind < 4; ++ind) {
+			Dedxcorrection::resolution[ind]=result_dict["resolution"][ind];
+		}
+		
+		for (unsigned int ind=0; ind < 4; ++ind) {
+			Dedxcorrection::resolution_e[ind]=result_dict["resolution_e"][ind];
+		}
+
+		for (unsigned int ind=0; ind < 3240; ++ind) {
+			Dedxcorrection::para_long_corrRZ_MC[ind]=result_dict["para_long_corrRZ_MC"][ind];
+		}
+		
+		for (unsigned int ind=0; ind < 216; ++ind) {
+			Dedxcorrection::para_short_corrRZ_MC[ind]=result_dict["para_short_corrRZ_MC"][ind];
+		}
+
+		for (unsigned int ind=0; ind < 630; ++ind) {
+			Dedxcorrection::para_long_corrRZL_MC[ind]=result_dict["para_long_corrRZL_MC"][ind];
+		}
+
+		for (unsigned int ind=0; ind < 63; ++ind) {
+			Dedxcorrection::para_short_corrRZL_MC[ind]=result_dict["para_short_corrRZL_MC"][ind];
+		}
+		
+		for (unsigned int ind=0; ind < 252; ++ind) {
+			Dedxcorrection::para_end_corrRZL_MC[ind]=result_dict["para_end_corrRZL_MC"][ind];
+		}
+
+		for (unsigned int ind=0; ind < 3240; ++ind) {
+			Dedxcorrection::para_long_corrRZ[ind]=result_dict["para_long_corrRZ_MC"][ind];
+		}
+
+		for (unsigned int ind=0; ind < 216; ++ind) {
+			Dedxcorrection::para_short_corrRZ[ind]=result_dict["para_short_corrRZ_MC"][ind];
+		}
+
+		for (unsigned int ind=0; ind < 630; ++ind) {
+			Dedxcorrection::para_long_corrRZL_DATA[ind]=result_dict["para_long_corrRZL_MC"][ind];
+		}
+
+		for (unsigned int ind=0; ind < 63; ++ind) {
+			Dedxcorrection::para_short_corrRZL_DATA[ind]=result_dict["para_short_corrRZL_MC"][ind];
+		}
+
+		for (unsigned int ind=0; ind < 252; ++ind) {
+			Dedxcorrection::para_end_corrRZL_DATA[ind]=result_dict["para_end_corrRZL_MC"][ind];
+		}
+
+    return StatusCode::SUCCESS;
+}
+
+
+
+StatusCode TRT_ToT_dEdx::update2(int& i, std::list<std::string>& l ){
+
+const CondAttrListCollection* attrListColl = 0;
+StoreGateSvc* detStore = 0;
+StatusCode sc = service( "DetectorStore", detStore );
+
+if (StatusCode::SUCCESS == detStore->retrieve(attrListColl, "/TRT/Calib/ToT/ToTValue" )){
+CondAttrListCollection::const_iterator first = attrListColl->begin();
+CondAttrListCollection::const_iterator last  = attrListColl->end();
+
+
+  for (; first != last; ++first) {
+    
+	const coral::AttributeList& attrList = (*first).second;
+	Dedxcorrection::paraL_dEdx_p1 = attrList["paraL_dEdx_p1"].data<float>();
+	Dedxcorrection::paraL_dEdx_p2 = attrList["paraL_dEdx_p2"].data<float>();
+	Dedxcorrection::paraL_dEdx_p3 = attrList["paraL_dEdx_p3"].data<float>();
+	Dedxcorrection::paraL_dEdx_p4 = attrList["paraL_dEdx_p4"].data<float>();
+	Dedxcorrection::paraL_dEdx_p5 = attrList["paraL_dEdx_p5"].data<float>();
+
+	Dedxcorrection::para_dEdx_p1 = attrList["para_dEdx_p1"].data<float>();
+	Dedxcorrection::para_dEdx_p2 = attrList["para_dEdx_p2"].data<float>();
+	Dedxcorrection::para_dEdx_p3 = attrList["para_dEdx_p3"].data<float>();
+	Dedxcorrection::para_dEdx_p4 = attrList["para_dEdx_p4"].data<float>();
+	Dedxcorrection::para_dEdx_p5 = attrList["para_dEdx_p5"].data<float>();
+	  
+	Dedxcorrection::norm_offset_data = attrList["norm_offset_data"].data<float>();
+	Dedxcorrection::norm_slope_tot = attrList["norm_slope_tot"].data<float>();  
+	Dedxcorrection::norm_slope_totl = attrList["norm_slope_totl"].data<float>(); 
+	Dedxcorrection::norm_offset_tot = attrList["norm_offset_tot"].data<float>(); 
+	Dedxcorrection::norm_offset_totl = attrList["norm_offset_totl"].data<float>();		
+    Dedxcorrection::norm_nzero=attrList["norm_nzero"].data<int>();
+    
+  }
+}else {
+       ATH_MSG_ERROR ("Problem reading condDB object. -");
+       return StatusCode::FAILURE;
+      }
+ 
+ return StatusCode::SUCCESS;
 }
 
 
@@ -95,13 +252,24 @@ bool TRT_ToT_dEdx::isGood_Hit(const Trk::TrackStateOnSurface *itr, bool useHThit
   return true;
 }
 
-
-
-double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool data, bool DivideByL, bool useHThits, bool corrected, int nVtx) const
-
+double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool DivideByL, bool useHThits, bool corrected) const
 {
   //m_timingProfile->chronoStart("TRT_ToT_dEdx::dEdx");
-   std::vector<double> vecToT;
+  bool data=true;
+  double nVtx=-1.;
+	
+  // Event information 
+  const xAOD::EventInfo* eventInfo = 0;
+  ATH_CHECK( evtStore()->retrieve( eventInfo) );
+  
+ // check if data or MC 
+  if(eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION ) ){
+	data=false;
+  }
+  // 	Average interactions per crossing for the current BCID
+  nVtx = eventInfo->averageInteractionsPerCrossing();
+   
+  std::vector<double> vecToT;
   int nhits =0;
 
   double ToTsum = 0;
@@ -164,7 +332,7 @@ double TRT_ToT_dEdx::usedHits(const Trk::Track* track, bool DivideByL, bool useH
   return nhits;
 }
 
-double TRT_ToT_dEdx::correctNormalization(bool divideLength,bool scaledata, int nVtx) const{
+double TRT_ToT_dEdx::correctNormalization(bool divideLength,bool scaledata, double nVtx) const{
     if(nVtx<=0)nVtx=Dedxcorrection::norm_nzero;
     double slope = Dedxcorrection::norm_slope_tot;
     double offset = Dedxcorrection::norm_offset_tot;
