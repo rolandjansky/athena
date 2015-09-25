@@ -68,12 +68,12 @@ TileGeoG4Section::~TileGeoG4Section()
 
 void TileGeoG4Section::ScinToCell(bool gap_crack, int rowShift)
 {
-  
+
   int l_nRow = nrOfScintillators;             //Number of scintillators in the period
   int l_nPeriod = nrOfPeriods;                //Number of periods in the module
-  int l_indCurrentSample; 
+  int l_indCurrentSample;
   int l_rowShiftInSample;                     //Index of current row according to the current sample
-  
+
   int* l_indCurrentCell = new int[l_nRow];    //Index of current cell for each row
   int* l_currentBoundary = new int[l_nRow];   //Current boundary for the row
   int row, per;
@@ -166,7 +166,7 @@ void TileGeoG4Section::AddModuleToCell(bool negative)
 
       switch(current_cell->nrOfPMT)
       {
-      case 1:      
+      case 1:
         {
           // We are in GAP/CRACK Cell - use Up vectors only
           if(negative) {
@@ -218,8 +218,8 @@ void TileGeoG4Section::PrintScinToCell(std::string section_name)
   int l_nRow = nrOfScintillators;
   int i = 0;
 
-  G4cout << G4cout;
-  G4cout << "***********************************************************" << G4endl; 
+  G4cout << G4endl;
+  G4cout << "***********************************************************" << G4endl;
   G4cout << "* Printing Scintillator-to-Cell corespondence for section *" << G4endl;
   G4cout << "       " << section_name.c_str() << "           "            << G4endl;
   G4cout << "***********************************************************" << G4endl;
@@ -239,4 +239,3 @@ void TileGeoG4Section::PrintScinToCell(std::string section_name)
   G4cout << G4endl;
 
 }
-
