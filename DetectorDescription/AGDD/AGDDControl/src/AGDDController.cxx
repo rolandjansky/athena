@@ -56,68 +56,68 @@ void navigateVolumeContents(const GeoVPhysVol *pv, unsigned int ilev)
 
 AGDDController::~AGDDController()
 {
-	if (m_theParser) delete m_theParser;
-	if (m_theBuilder) delete m_theBuilder;
+	if (theParser) delete theParser;
+	if (theBuilder) delete theBuilder;
 }
 
-AGDDController::AGDDController():m_theBuilder(0),m_locked(false),m_disableSections(false),
-								m_printLevel(0)
+AGDDController::AGDDController():theBuilder(0),locked(false),disableSections(false),
+								printLevel(0)
 {
-//	m_theParser=new AMDBParser;
-	m_theParser=new XercesParser;
-	m_theBuilder=new AGDD2GeoModelBuilder;
+//	theParser=new AMDBParser;
+	theParser=new XercesParser;
+	theBuilder=new AGDD2GeoModelBuilder;
 }
 
 void AGDDController::SetBuilder(AGDDBuilder *b) 
 {
-	m_theBuilder=b;
+	theBuilder=b;
 }
 void AGDDController::SetParser(IAGDDParser *b) 
 {
-	m_theParser=b;
+	theParser=b;
 }
 AGDDBuilder* AGDDController::GetBuilder() 
 {
-	return m_theBuilder;
+	return theBuilder;
 }
 IAGDDParser* AGDDController::GetParser() 
 {
-	return m_theParser;
+	return theParser;
 }
 void AGDDController::AddFile(std::string fName) 
 {
-	m_filesToParse.push_back(fName);
+	filesToParse.push_back(fName);
 }
 void AGDDController::AddSection(std::string section) 
 {
-	m_sectionsToBuild.push_back(section);
+	sectionsToBuild.push_back(section);
 }
 void AGDDController::AddVolume(std::string section) 
 {
-	m_volumesToBuild.push_back(section);
+	volumesToBuild.push_back(section);
 }
 
 
 void AGDDController::ParseFiles()
 {
-	if (!m_theParser) m_theParser=new XercesParser;
-	for (unsigned int i=0;i<m_filesToParse.size();i++)
-		m_theParser->ParseFileAndNavigate(m_filesToParse[i]);
+	if (!theParser) theParser=new XercesParser;
+	for (unsigned int i=0;i<filesToParse.size();i++)
+		theParser->ParseFileAndNavigate(filesToParse[i]);
 }
 
 void AGDDController::BuildSections()
 {
-	for (unsigned int i=0;i<m_sectionsToBuild.size();i++)
+	for (unsigned int i=0;i<sectionsToBuild.size();i++)
 	{
-		if (m_printLevel) std::cout<< " -----> now building section "<<m_sectionsToBuild[i]<<std::endl;
-		m_theBuilder->BuildFromSection(m_sectionsToBuild[i]);
+		if (printLevel) std::cout<< " -----> now building section "<<sectionsToBuild[i]<<std::endl;
+		theBuilder->BuildFromSection(sectionsToBuild[i]);
 	} 
 }
 
 void AGDDController::BuildVolumes()
 {
-	for (unsigned int i=0;i<m_volumesToBuild.size();i++)
-		m_theBuilder->BuildFromVolume(m_volumesToBuild[i]);
+	for (unsigned int i=0;i<volumesToBuild.size();i++)
+		theBuilder->BuildFromVolume(volumesToBuild[i]);
 }
 
 void AGDDController::BuildAll()
@@ -134,8 +134,8 @@ void AGDDController::PrintSections() const
 
 void AGDDController::ParseString(std::string s)
 {
-	if (!m_theParser) m_theParser=new XercesParser;
-	m_theParser->ParseStringAndNavigate(s);
+	if (!theParser) theParser=new XercesParser;
+	theParser->ParseStringAndNavigate(s);
 }
 
 AGDDController* AGDDController::GetController()
@@ -166,7 +166,7 @@ void AGDDController::UseGeoModelDetector(std::string name)
 		if (theManager->getNumTreeTops()>1) std::cout<<"AGDDController: more than one treetop!!!"<<std::endl;
 		GeoPVConstLink pv=theManager->getTreeTop(0);
 		GeoVPhysVol* ppv=const_cast<GeoVPhysVol*>(&(*pv));
-		((AGDD2GeoModelBuilder*)(m_theBuilder))->SetMotherVolume((GeoPhysVol*)ppv);
+		((AGDD2GeoModelBuilder*)(theBuilder))->SetMotherVolume((GeoPhysVol*)ppv);
 	}
 
 }
@@ -193,13 +193,13 @@ void AGDDController::PrintVolumeHierarchy(std::string name, int ilevel)
 
 void AGDDController::Clean()
 {
-	delete m_theParser;
-	m_theParser=0;
+	delete theParser;
+	theParser=0;
 	
-	m_filesToParse.clear();
-	m_sectionsToBuild.clear();
-	m_volumesToBuild.clear();
-	m_structuresToBuild.clear();
+	filesToParse.clear();
+	sectionsToBuild.clear();
+	volumesToBuild.clear();
+	structuresToBuild.clear();
 	
 	AGDDSectionStore::GetSectionStore()->Clean();
 	AGDDVolumeStore::GetVolumeStore()->Clean();
