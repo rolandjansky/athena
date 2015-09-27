@@ -96,6 +96,18 @@ ElectronPIDBuilder = ToolFactory( EMPIDBuilderElectronBase, name = "ElectronPIDB
 from EMPIDBuilderBase import EMPIDBuilderPhotonBase
 PhotonPIDBuilder = ToolFactory( EMPIDBuilderPhotonBase, name = "PhotonPIDBuilder")
 
+# FarwardElectron Selectors
+from ElectronPhotonSelectorTools.ConfiguredAsgForwardElectronIsEMSelectors import ConfiguredAsgForwardElectronIsEMSelector
+
+import cppyy
+cppyy.loadDictionary('ElectronPhotonSelectorToolsDict')
+from ROOT import egammaPID
+
+LooseForwardElectronSelector = ToolFactory( ConfiguredAsgForwardElectronIsEMSelector, name="LooseForwardElectronSelector", quality = egammaPID.ForwardElectronIDLoose )
+MediumForwardElectronSelector = ToolFactory( ConfiguredAsgForwardElectronIsEMSelector, name="MediumForwardElectronSelector", quality = egammaPID.ForwardElectronIDMedium )
+TightForwardElectronSelector = ToolFactory( ConfiguredAsgForwardElectronIsEMSelector, name="TightForwardElectronSelector", quality = egammaPID.ForwardElectronIDTight )
+
+
 #-------------------------
 
 # Import the factories that are not defined here

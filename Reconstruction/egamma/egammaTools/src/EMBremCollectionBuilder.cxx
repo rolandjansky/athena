@@ -351,12 +351,6 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
     nSiliconHits_trk += dummy;
 
   ATH_MSG_DEBUG("Number of Silicon hits "<<nSiliconHits_trk);
-  //Get the vertex (may be pileup) and the vertex type that this track particle points to
-
-  const xAOD::Vertex* trkVtx(0);
-  if (tmpTrkPart->vertexLink().isValid()){ 
-    trkVtx = tmpTrkPart->vertex();
-  }
     
   //Get the original track that the track particle points to. Clone it in order to assume ownership
   
@@ -402,6 +396,12 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
   }
   m_finalTracks->push_back(slimmed);
 
+  //Get the vertex (may be pileup) and the vertex type that this track particle points to
+  const xAOD::Vertex* trkVtx(0);
+  if (tmpTrkPart->vertexLink().isValid()){ 
+    trkVtx = tmpTrkPart->vertex();
+  }
+
   // Use the the refitted track and the original vertex to construct a new track particle
   xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle( *trk_refit, m_finalTrkPartContainer, trkVtx, xAOD::electron );
   delete trk_refit; 
@@ -409,6 +409,7 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
 
     ElementLink<TrackCollection> trackLink( slimmed, *m_finalTracks);
     aParticle->setTrackLink( trackLink );     
+    aParticle->setVertexLink(tmpTrkPart->vertexLink()); 
 
     static SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
     auto tsos = slimmed->trackStateOnSurfaces()->rbegin();
