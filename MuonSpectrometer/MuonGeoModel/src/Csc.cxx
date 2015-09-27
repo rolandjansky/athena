@@ -30,7 +30,7 @@ namespace MuonGM {
 Csc::Csc(Component* ss): DetectorElement(ss->name)
 {
   CscComponent* s = (CscComponent*)ss;
-  m_component = s;
+  component = s;
   width = s->dx1;
   longWidth = s->dx2;
   thickness = s->GetThickness();

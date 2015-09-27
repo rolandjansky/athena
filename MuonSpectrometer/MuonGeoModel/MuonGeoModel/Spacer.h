@@ -27,7 +27,7 @@ public:
    void print();
 
 private:
-   SpacerComponent m_component;
+   SpacerComponent component;
 };
 
 } // namespace MuonGM

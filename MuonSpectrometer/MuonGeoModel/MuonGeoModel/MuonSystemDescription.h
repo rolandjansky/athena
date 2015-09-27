@@ -26,7 +26,7 @@ public:
     
     MuonSystemDescription(std::string n);
 private:
-	std::string m_name;
+	std::string name;
 };
 } // namespace MuonGM
 

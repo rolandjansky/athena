@@ -128,24 +128,24 @@ namespace MuonGM {
         virtual StatusCode ProcessDB() {return StatusCode::SUCCESS;};
         void setGeometryVersion(std::string s);
         std::string getGeometryVersion() const;
-        void setManager(MuonDetectorManager * detmgr) {m_mgr = detmgr;};
+        void setManager(MuonDetectorManager * detmgr) {_mgr = detmgr;};
 
         virtual ~DBReader(){};
 
     protected:
         DBReader(StoreGateSvc* );
         //
-        StatusCode m_SCdbaccess;
+        StatusCode SCdbaccess;
         std::string TGCreadoutName(int ichtyp);
         // tgc readout stuff
-        std::vector<std::string> m_tgcReadoutMapping;
-        MuonDetectorManager* m_mgr;
+        std::vector<std::string> _tgcReadoutMapping;
+        MuonDetectorManager* _mgr;
         
     private:
 
         // data 
 	IMessageSvc*    m_msgSvc;
-        std::string m_version;
+        std::string version;
 
     }; // end of class DBReader 
 
@@ -453,7 +453,7 @@ namespace MuonGM {
                     std::string s)
     {
         MsgStream log(Athena::getMessageSvc(), "MuGM:ProcessCSC");
-        log<<MSG::DEBUG<<" Enter in ProcessCSC"<<endmsg;
+        log<<MSG::DEBUG<<" Enter in ProcessCSC"<<endreq;
         
         Technology* t=NULL;
         t = MYSQL::GetPointer()->GetTechnology(s);
@@ -506,7 +506,7 @@ namespace MuonGM {
                     //std::cerr<<" csc->phireadoutpitch = "<<csc->phireadoutpitch<<"  csc->cathreadoutpitch "<< csc->cathreadoutpitch<<std::endl;
                     if (csc->phireadoutpitch == 0.)
                         log<<MSG::WARNING<<" csc->phireadoutpitch == 0 in layout "
-                           <<mysql->getGeometryVersion()<<endmsg;
+                           <<mysql->getGeometryVersion()<<endreq;
                     // number of strips / layer / view
                     if ((mysql->getGeometryVersion()).substr(0,3) == "P03") 
                     {
@@ -554,7 +554,7 @@ namespace MuonGM {
                 tname = "CSC"+MuonGM::buildString( MuonGM::strtoint(s,4,2)-1, 2);
                 log<<MSG::WARNING<<" No DB entry found for the current technology sub-type "<<s
                    <<"\n                using previous sub-type "<<tname<<" // Layout = "
-                   <<mysql->getGeometryVersion()<<endmsg;
+                   <<mysql->getGeometryVersion()<<endreq;
                 //                std::cerr<<"C) tname, s, csc->numOfLayers "<<tname<<" "<<s<<" "<<csc->numOfLayers<<std::endl;
             }
             else 
@@ -565,7 +565,7 @@ namespace MuonGM {
                 //
                 //                std::cerr<<"E) tname, s, csc->numOfLayers "<<tname<<" "<<s<<" "<<csc->numOfLayers<<std::endl;
                 log<<MSG::WARNING<<" update by hand a few numbers for the current technology sub-type "<<s
-                   <<" // Layout = "<<mysql->getGeometryVersion()<<" OK if layout is Q02, Q02_initial"<<endmsg;
+                   <<" // Layout = "<<mysql->getGeometryVersion()<<" OK if layout is Q02, Q02_initial"<<endreq;
                 // precision (Radial) strip pitch
                 csc->cathreadoutpitch  =5.31*CLHEP::mm;
                 // Azimuthal strip pitch
@@ -1012,9 +1012,9 @@ namespace MuonGM {
             }
             //std::cout<<std::endl;
         }
-        log<<MSG::INFO<<" *** N. of stations positioned in the setup "<<nswithpos<<endmsg;
-        log<<MSG::INFO<<" *** N. of stations described in mysql      "<<mysql->NStations()<<endmsg;
-        log<<MSG::INFO<<" *** N. of types  "<<njtyp<<" size of jtypvec "<<jtypvec.size()<<endmsg;
+        log<<MSG::INFO<<" *** N. of stations positioned in the setup "<<nswithpos<<endreq;
+        log<<MSG::INFO<<" *** N. of stations described in mysql      "<<mysql->NStations()<<endreq;
+        log<<MSG::INFO<<" *** N. of types  "<<njtyp<<" size of jtypvec "<<jtypvec.size()<<endreq;
 //         std::cerr<<" jtypvec \n";
 //         for (int i=0; i<jtypvec.size(); ++i) std::cerr<<i<<" "<<jtypvec[i]<<"\n";
 //         std::cerr<<std::endl;
@@ -1088,10 +1088,10 @@ namespace MuonGM {
         }
 
         log<<MSG::INFO<<" *** : "<<nstat
-                 <<" kinds of stations (type*sub_type) "<<endmsg;
+                 <<" kinds of stations (type*sub_type) "<<endreq;
         log<<MSG::INFO<<" *** : "<<nnodes
                  <<" physical stations in space - according to the MuonDD DataBase"
-                 <<endmsg;
+                 <<endreq;
 
         //     for (StationIterator  is = mysql->StationBegin(); is != mysql->StationEnd(); ++is)
         //     {
@@ -1262,7 +1262,7 @@ namespace MuonGM {
 			 const TYPEdhwmdt dhwmdt , const TYPEwmdt * wmdt)
     {
         MsgStream log(Athena::getMessageSvc(), "MuGM:ProcStations");
-        log<<MSG::INFO<<" Processing Stations and Components"<<endmsg;
+        log<<MSG::INFO<<" Processing Stations and Components"<<endreq;
 
         
         MYSQL* mysql = MYSQL::GetPointer();
@@ -1292,9 +1292,9 @@ namespace MuonGM {
         // loop over the banks of station components: ALMN
         for (unsigned int icomp=0; icomp<dnalmn->size(); ++icomp)
         {
-	  //log<<MSG::DEBUG<<" icomp = "<<icomp+1<<" out of "<<dnalmn->size()<<endmsg;
+	  //log<<MSG::DEBUG<<" icomp = "<<icomp+1<<" out of "<<dnalmn->size()<<endreq;
 	  //log<<MSG::DEBUG<<" type/subtype "<<almn[icomp].jtyp<<"/"<<almn[icomp].indx
-          //           <<"     previous are "<<previous_jtyp<<"/"<<previous_subt<<endmsg;
+          //           <<"     previous are "<<previous_jtyp<<"/"<<previous_subt<<endreq;
             // almn.jtyp  -> current component belong to a station of type = almn.jtyp
             // almn.indx ->                                    and subtyp = almn.indx
             // almn.job   ->                          is the object number   almn.job
@@ -1311,7 +1311,7 @@ namespace MuonGM {
                 // here define a new station
                 // std::cout<<"A  new station "<<std::endl;
                 unsigned int  type_ind=0;
-                //log<<MSG::DEBUG<<" Look for the index of the type "<<endmsg;
+                //log<<MSG::DEBUG<<" Look for the index of the type "<<endreq;
                 for (type_ind=0; type_ind<dnatyp->size(); ++type_ind)
                 {
                     if (almn[icomp].jtyp == atyp[type_ind].jtyp) break;
@@ -1324,14 +1324,14 @@ namespace MuonGM {
                     name = type_name+MuonGM::buildString(almn[icomp].indx, -1);
                     //log<<MSG::DEBUG<<" thus we can define the name "
 		    //<<name<<" while type_name = "<<type_name
-                    //   <<endmsg;
+                    //   <<endreq;
                     if (mysql->getGeometryVersion() == "CTB2004")
                     {
 		      if (mysql->getCtbBisFlag() == 0)
 			{
 			  if (type_name=="BEE" || type_name=="BIS") {
                             log<<MSG::WARNING<<" skipping type, subtype "
-                               <<name<<" "<<type_name<<" on purpose "<<endmsg;
+                               <<name<<" "<<type_name<<" on purpose "<<endreq;
                             continue;
 			  }
 			}
@@ -1344,7 +1344,7 @@ namespace MuonGM {
                 else
                 {
                     log<<MSG::ERROR<<" ProcessStations station-name not well defined "
-                             <<atyp[type_ind].type<<endmsg;
+                             <<atyp[type_ind].type<<endreq;
                     assert(0);
                     type_name = "XXX";  // just to take care of funny stuff
                     name = type_name+MuonGM::buildString(0, -1);
@@ -1352,7 +1352,7 @@ namespace MuonGM {
                 stat=new Station(name);
                 previous_stat = stat;
                 nstat++;
-                log<<MSG::DEBUG<<" a new station has been built with name "<<name<<" nstat = "<<nstat<<endmsg;
+                log<<MSG::DEBUG<<" a new station has been built with name "<<name<<" nstat = "<<nstat<<endreq;
                 
 		// ahead loop to determine halfpitch
 		halfpitch = default_halfpitch;
@@ -1564,7 +1564,7 @@ namespace MuonGM {
                     if ((name=="BMF1" || name=="BMF2" || name=="BMF3" || 
                          name=="BMF4" || name=="BMF5" || name=="BMF6") && derc->name=="LB02" ) {
                         log<<MSG::DEBUG<<"In this layout Station"<<name<<" has LB of type = "
-                           <<derc->name<<" ---- A problem in primary NUMBERS ? ---- resetting to LB01"<<endmsg;
+                           <<derc->name<<" ---- A problem in primary NUMBERS ? ---- resetting to LB01"<<endreq;
                         derc->name="LB01";
                     }
                 }
@@ -1593,7 +1593,7 @@ namespace MuonGM {
             previous_subt = almn[icomp].indx;
             previous_stat = stat;
         }
-        log<<MSG::INFO<<" Processing Stations and Components DONE"<<endmsg;
+        log<<MSG::INFO<<" Processing Stations and Components DONE"<<endreq;
 
     }//end of ProcessStations
     
@@ -1606,7 +1606,7 @@ template <class TYPEdnacut, class TYPEacut, class TYPEdnalin, class TYPEalin,
         MsgStream log(Athena::getMessageSvc(), "MuGM:ProcCutouts");
         MYSQL* mysql = MYSQL::GetPointer();
 
-        log<<MSG::INFO<<" Processing Cutouts for geometry layout "<<mysql->getLayoutName()<<endmsg;
+        log<<MSG::INFO<<" Processing Cutouts for geometry layout "<<mysql->getLayoutName()<<endreq;
     
         std::string name = "XXX0", type_name="XXX";
 
@@ -1620,7 +1620,7 @@ template <class TYPEdnacut, class TYPEacut, class TYPEdnalin, class TYPEalin,
 	       <<" station type index="<<acut[icomp].i
 	      << " cutout index: "<<acut[icomp].icut
 	       << " there are "<< acut[icomp].n
-	       << " cutouts in this station"<<endmsg;
+	       << " cutouts in this station"<<endreq;
 	    // loop over the banks of cutouts: ALIN
 	    if (countalin+acut[icomp].n<=(int)dnalin->size())
 	      for (int ialin=countalin; ialin<countalin+acut[icomp].n; ++ialin)
@@ -1635,7 +1635,7 @@ template <class TYPEdnacut, class TYPEacut, class TYPEdnalin, class TYPEalin,
 		     <<acut[icomp].icut<<")"
 		    // << " idnum2: "<<alin[ialin].idnum2
 		     << " component with subcut i="<<alin[ialin].i
-		     << endmsg;
+		     << endreq;
 		  Cutout *c = new Cutout();
 		  c->dx = alin[ialin].dx*CLHEP::cm;
 		  c->dy = alin[ialin].dy*CLHEP::cm;
@@ -1689,27 +1689,27 @@ template <class TYPEdnacut, class TYPEacut, class TYPEdnalin, class TYPEalin,
 			{
 			delete c; c = NULL;
 			log<<MSG::ERROR<<" station "
-			   <<name<<" not found! "<<endmsg;
+			   <<name<<" not found! "<<endreq;
 			continue;
 		      }
 		      stat->SetCutout(c);
                       log<<MSG::VERBOSE<<" adding a new cut-line to station "<<stat->GetName()
-                         <<" cutindex/Stsubtype/component "<<c->icut<<"/"<<c->subtype<<"/"<<c->ijob<<endmsg;
+                         <<" cutindex/Stsubtype/component "<<c->icut<<"/"<<c->subtype<<"/"<<c->ijob<<endreq;
 		      log<<MSG::VERBOSE<<" There are now "
                         <<stat->GetNrOfCutouts()
 			 <<" cutouts in station  " << stat->GetName()
-			 << endmsg;
+			 << endreq;
 
 //		      for (int iiii=0;iiii<stat->GetNrOfCutouts();iiii++)
 //		        log<<MSG::DEBUG<<"The "<<iiii<<"th one has ijob="
-//			   <<(stat->GetCutout(iiii))->ijob<<endmsg;
+//			   <<(stat->GetCutout(iiii))->ijob<<endreq;
 		    }
 		  else
 		    {
 		      delete c; c = NULL;
 		      log<<MSG::ERROR
 			 <<" ProcessCutouts station-name not well defined "
-			 <<atyp[type_ind].type<<endmsg;
+			 <<atyp[type_ind].type<<endreq;
 		      assert(0);
 		      type_name = "XXX";  // just to take care of funny stuff
 		      name = type_name+MuonGM::buildString(0, -1);
@@ -1719,7 +1719,7 @@ template <class TYPEdnacut, class TYPEacut, class TYPEdnalin, class TYPEalin,
 	    countalin=countalin+acut[icomp].n;
 	}
 	
-        log<<MSG::INFO<<" Processing Cutouts DONE"<<endmsg;
+        log<<MSG::INFO<<" Processing Cutouts DONE"<<endreq;
 
     }// end of ProcessCutouts
     

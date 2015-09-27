@@ -29,7 +29,7 @@ public:
    void print();
 
 private:
-   DedComponent* m_component;
+   DedComponent* component;
 
 };
 } // namespace MuonGM

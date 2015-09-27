@@ -29,7 +29,7 @@ public:
   void print();
 
 private:
-  MicromegasComponent* m_component;
+  MicromegasComponent* component;
 };
 
 } // namespace MuonGM

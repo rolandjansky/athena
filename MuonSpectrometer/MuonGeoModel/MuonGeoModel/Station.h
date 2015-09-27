@@ -97,19 +97,19 @@ public:
 private:
     double getYMin() const;
 
-	mutable double m_thickness;
-	mutable double m_length;
-        mutable double m_amdbOrigine_along_length;
-        mutable double m_amdbOrigine_along_thickness;
-	mutable double m_width1;
-	mutable double m_width2;
-	mutable double m_mdthalfpitch;
-	std::string m_name;
+	mutable double thickness;
+	mutable double length;
+        mutable double amdbOrigine_along_length;
+        mutable double amdbOrigine_along_thickness;
+	mutable double width1;
+	mutable double width2;
+	mutable double mdthalfpitch;
+	std::string name;
         bool m_hasMdts;
-	std::vector<Component *> m_components;
-	std::vector<Cutout *> m_cutouts;
-	PositionMap m_positions;
-	AlignPosMap m_alignpositions;
+	std::vector<Component *> components;
+	std::vector<Cutout *> cutouts;
+	PositionMap positions;
+	AlignPosMap alignpositions;
 	IMessageSvc*    m_msgSvc;
 	Station & operator=(const Station &right);
 };

@@ -31,7 +31,7 @@ namespace MuonGM {
 Micromegas::Micromegas(Component* ss): DetectorElement(ss->name)
 {
   MicromegasComponent* s = (MicromegasComponent*)ss;
-  m_component = s;
+  component = s;
   width = s->dx1;
   longWidth = s->dx2;
   length = s->dy;
@@ -60,7 +60,6 @@ Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
   thickness = t->Thickness();
   double gasTck=t->gasThickness;
   double pcbTck=t->pcbThickness;
-  double roTck=t->roThickness;
   double f1=t->f1Thickness;
   double f2=t->f2Thickness;
   double f3=t->f3Thickness;	
@@ -82,7 +81,7 @@ Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
   									
   
   logVolName=name;
-  if (!(m_component->subType).empty()) logVolName+=("-"+m_component->subType);
+  if (!(component->subType).empty()) logVolName+=("-"+component->subType);
   const GeoMaterial* mtrd = matManager->getMaterial("sct::PCB");
   GeoLogVol* ltrd = new GeoLogVol(logVolName, strd, mtrd);
   GeoFullPhysVol* ptrd = new GeoFullPhysVol(ltrd);
@@ -111,11 +110,8 @@ Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
     longWidthActive = longWidth;
     lengthActive = length;
 
-    if(i==0) newpos += gasTck/2.;
-    else newpos += gasTck;
-    if( (i+1) % 2 ) newpos += pcbTck;
-    else newpos += roTck;
-    double newXPos=newpos;
+    if(i==(t->nlayers/2)) newpos += pcbTck;
+    double newXPos=newpos+ gasTck/2.+ pcbTck;
  
     const GeoShape* sGasVolume = new GeoTrd(gasTck/2, gasTck/2, widthActive/2, 
                                               longWidthActive/2, lengthActive/2);
@@ -154,6 +150,7 @@ Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
 
       iSenLyr++;
 
+      newpos += gasTck+pcbTck;
   } // Loop over tgc layers
         
   return ptrd;	

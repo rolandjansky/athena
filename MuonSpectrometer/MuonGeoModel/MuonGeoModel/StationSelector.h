@@ -22,9 +22,9 @@ public:
 	StationIterator end();
 	static void SetSelectionType(int t);
 private: 
-	const StationIterator m_iterator;
-	std::vector<std::string> m_selector;
-	std::map<std::string,Station* ,std::less<std::string> > m_theMap;
+	const StationIterator iterator;
+	std::vector<std::string> selector;
+	std::map<std::string,Station* ,std::less<std::string> > theMap;
 	bool select(StationIterator it);
 	static int m_selectType;
 };

@@ -35,7 +35,7 @@ Rpc::Rpc(Component* ss): DetectorElement(ss->name)
    longWidth = s->dx2;
    thickness = s->GetThickness();
    length = s->dy - tol;
-   m_component = s;
+   component = s;
    idiv = s->ndivy;
    jdiv = s->ndivz;
 }

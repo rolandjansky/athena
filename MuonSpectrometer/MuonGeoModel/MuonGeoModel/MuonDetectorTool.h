@@ -75,7 +75,6 @@ private:
   int m_cachingFlag;
   int m_enableMdtDeformations;
   int m_enableMdtAsBuiltParameters;    
-  std::string m_altMdtAsBuiltFile;
 
   int m_switchOnOff_BUILDINERTMATERIALS;
   int m_switchOnOff_MINIMALGEO;

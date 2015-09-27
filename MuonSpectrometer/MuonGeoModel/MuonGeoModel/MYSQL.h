@@ -111,14 +111,14 @@ public:
 
 // singleton
 private:
-    static MYSQL* s_thePointer;
+    static MYSQL* thePointer;
     MYSQL();
-    std::map<int, std::string> m_allocatedpos;
-    std::map<std::string, int> m_allocPos;
-    std::map<std::string, Station* > m_stations;
-    std::map<std::string,Technology* > m_technologies;
-    std::map<std::string, TgcReadoutParams* > m_tgcReadouts;
-    TgcReadoutParams *m_tgcReadout[NTgcReadouts];
+    std::map<int, std::string> allocatedpos;
+    std::map<std::string, int> allocPos;
+    std::map<std::string, Station* > stations;
+    std::map<std::string,Technology* > technologies;
+    std::map<std::string, TgcReadoutParams* > tgcReadouts;
+    TgcReadoutParams *tgcReadout[NTgcReadouts];
     std::string m_geometry_version; //from our job-option 
     std::string m_layout_name;      //from nova 
     std::string m_DBMuonVersion;    //name of the MuonVersion table-collection in Oracle
@@ -134,56 +134,56 @@ private:
 void MYSQL::addAllocpos(int i, std::string str)
 {
     //    std::cout<<" trying to declare pos. at key "<<i<<" for station "<<str<<std::endl;
-    m_allocatedpos[i]= str;
+    allocatedpos[i]= str;
     //    std::cout<<" declaring pos. at key "<<i<<" allocated to station "<<str<<std::endl;
 }
 AllocposIterator MYSQL::AllocposEnd() 
 {
-    return m_allocatedpos.end();
+    return allocatedpos.end();
 }
 AllocposIterator MYSQL::AllocposBegin()
 {
-    return m_allocatedpos.begin();
+    return allocatedpos.begin();
 }
 AllocposIterator MYSQL::AllocposFind(int i)
 {
-    return m_allocatedpos.find(i);
+    return allocatedpos.find(i);
 }
 std::string MYSQL::AllocposFindName(int i)
 {
-    AllocposIterator it = m_allocatedpos.find(i);
+    AllocposIterator it = allocatedpos.find(i);
     // imt fix in case key is wrong:
-    if (it != m_allocatedpos.end())
+    if (it != allocatedpos.end())
       return (*it).second;
     else
       return "ERROR: bad key!";
 }
 StationIterator MYSQL::StationBegin()
 {
-    return m_stations.begin();
+    return stations.begin();
 }
 StationIterator MYSQL::StationEnd()
 {
-    return m_stations.end();
+    return stations.end();
 }
 TgcReadParsIterator MYSQL::TgcRParsBegin()
 {
-    return m_tgcReadouts.begin();
+    return tgcReadouts.begin();
 }
 
 TgcReadParsIterator MYSQL::TgcRParsend()
 {
-    return m_tgcReadouts.end();
+    return tgcReadouts.end();
 }
 
 int MYSQL::NStations()
 {
-    return m_stations.size();
+    return stations.size();
 }
 
 int MYSQL::NTgcReadTypes()
 {
-    return m_tgcReadouts.size();
+    return tgcReadouts.size();
 }
 int MYSQL::allocPosBuildValue(int subtype, int cutout)
 {
@@ -191,20 +191,20 @@ int MYSQL::allocPosBuildValue(int subtype, int cutout)
 }
 allocPosIterator MYSQL::allocPosBegin()
 {
-    return m_allocPos.begin();
+    return allocPos.begin();
 }
 allocPosIterator MYSQL::allocPosEnd()
 {
-    return m_allocPos.end();
+    return allocPos.end();
 }
 allocPosIterator MYSQL::allocPosFind(std::string key)
 {
-    return m_allocPos.find(key);
+    return allocPos.find(key);
 }
 int MYSQL::allocPosFindSubtype(std::string key)
 {
     int subtype = 0;
-    allocPosIterator it = m_allocPos.find(key);
+    allocPosIterator it = allocPos.find(key);
     if (it != allocPosEnd())
     {
         return allocPosFindSubtype(it);
@@ -221,7 +221,7 @@ int MYSQL::allocPosFindSubtype(allocPosIterator it)
 int MYSQL::allocPosFindCutout(std::string key)
 {
     int cutout = 0;
-    allocPosIterator it = m_allocPos.find(key);
+    allocPosIterator it = allocPos.find(key);
     if (it != allocPosEnd())
     {
         return allocPosFindCutout(it);
@@ -239,21 +239,21 @@ int MYSQL::allocPosFindCutout(allocPosIterator it)
 
 void MYSQL::addallocPos(std::string key, int value)
 {
-    m_allocPos[key]= value;    
+    allocPos[key]= value;    
 }
 void MYSQL::addallocPos(std::string key, int subtype, int cutout)
 {
-    m_allocPos[key]= allocPosBuildValue(subtype, cutout);
+    allocPos[key]= allocPosBuildValue(subtype, cutout);
 }
 void MYSQL::setGeometryVersion(std::string s)
 {
     if (m_geometry_version != "unknown") 
     {
         if (s == m_geometry_version) return;
-        reLog()<<MSG::WARNING<<"GeometryVersion already set to  <"<< m_geometry_version<<">"<<" resetting to <"<<s<<">"<<endmsg;
+        reLog()<<MSG::WARNING<<"GeometryVersion already set to  <"<< m_geometry_version<<">"<<" resetting to <"<<s<<">"<<endreq;
     }    
     m_geometry_version = s;
-    reLog()<<MSG::INFO<<"GeometryVersion set to <"<< m_geometry_version<<">"<<endmsg;
+    reLog()<<MSG::INFO<<"GeometryVersion set to <"<< m_geometry_version<<">"<<endreq;
 }
 
 std::string MYSQL::getGeometryVersion() const
@@ -270,7 +270,7 @@ int MYSQL::getCtbBisFlag() const
 void MYSQL::setNovaReadVersion(int i)
 {
     m_amdb_version = i;
-    if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"setNovaReadVersion to "<< m_amdb_version<<endmsg;
+    if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"setNovaReadVersion to "<< m_amdb_version<<endreq;
 }
 
 int MYSQL::getNovaReadVersion() const
@@ -281,10 +281,10 @@ void MYSQL::setLayoutName(std::string s)
     if (m_layout_name != "unknown") 
     {
         if (s == m_layout_name) return;
-        reLog()<<MSG::WARNING<<"LayoutName already set to  <"<< m_layout_name<<">"<<" resetting to <"<<s<<">"<<endmsg;
+        reLog()<<MSG::WARNING<<"LayoutName already set to  <"<< m_layout_name<<">"<<" resetting to <"<<s<<">"<<endreq;
     }    
     m_layout_name = s;
-    reLog()<<MSG::INFO<<"LayoutName (from DBAM) set to <"<< m_layout_name<<">  -- relevant for CTB2004"<<endmsg;
+    reLog()<<MSG::INFO<<"LayoutName (from DBAM) set to <"<< m_layout_name<<">  -- relevant for CTB2004"<<endreq;
 }
 std::string MYSQL::getLayoutName() const 
 {return m_layout_name;}
@@ -302,7 +302,7 @@ int  MYSQL::getCutoutsBogFlag() const
 void MYSQL::setNovaVersion(int i)
 {
     m_nova_version = i;
-    if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"setNovaVersion to "<< m_nova_version<<endmsg;
+    if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"setNovaVersion to "<< m_nova_version<<endreq;
 }
 int MYSQL::getNovaVersion() const
 {

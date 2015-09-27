@@ -14,7 +14,7 @@
 
 namespace MuonGM {
 
-MYSQL* MYSQL::s_thePointer=0;
+MYSQL* MYSQL::thePointer=0;
 
 MYSQL::MYSQL() : m_includeCutoutsBog(0), m_includeCtbBis(0), m_controlAlines(0)
 {
@@ -25,7 +25,7 @@ MYSQL::MYSQL() : m_includeCutoutsBog(0), m_includeCtbBis(0), m_controlAlines(0)
     m_amdb_from_rdb = false;
     IMessageSvc* msgSvc = Athena::getMessageSvc();
     m_MsgStream = new MsgStream(msgSvc ,"MuonGeoModel_MYSQL");
-    for(unsigned int i=0; i<NTgcReadouts; i++) m_tgcReadout[i]=NULL;
+    for(unsigned int i=0; i<NTgcReadouts; i++) tgcReadout[i]=NULL;
 
 }
     
@@ -33,39 +33,39 @@ MYSQL::~MYSQL()
 {
     //delete stations 
   std::map<std::string,Station*>::const_iterator it;
-    for (it=m_stations.begin();it!=m_stations.end();it++)
+    for (it=stations.begin();it!=stations.end();it++)
     {
         delete (*it).second;
     }
-    //delete m_technologies
+    //delete technologies
     std::map<std::string,Technology*>::const_iterator it1;
-    for (it1=m_technologies.begin();it1!=m_technologies.end();it1++)
+    for (it1=technologies.begin();it1!=technologies.end();it1++)
     {
         delete (*it1).second;
     }
     delete m_MsgStream;
     m_MsgStream = 0;
     // reset the pointer so that at next initialize the MYSQL object will be re-created
-    s_thePointer = 0;
+    thePointer = 0;
 }
 
 MYSQL* MYSQL::GetPointer()
 {
-	if (!s_thePointer) {
-            s_thePointer=new MYSQL;
-	    //            std::cout<<MSG::INFO<<"MYSQL singleton created from scratch at location <"<<s_thePointer<<std::endl;
+	if (!thePointer) {
+            thePointer=new MYSQL;
+	    //            std::cout<<MSG::INFO<<"MYSQL singleton created from scratch at location <"<<thePointer<<std::endl;
         }
-	return s_thePointer;
+	return thePointer;
 }
 
 Station* MYSQL::GetStation(std::string name)
 {
-  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<" looking for station "<<name<<endmsg;
-  std::map<std::string, Station* >::const_iterator it= m_stations.find(name);
-  if (it!=m_stations.end())
+  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<" looking for station "<<name<<endreq;
+  std::map<std::string, Station* >::const_iterator it= stations.find(name);
+  if (it!=stations.end())
     {
-      if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"found the station"<<endmsg;
-      //      std::cout<<" station with old method "<<m_stations[name]->GetName()<<" new method "<<(it->second)->GetName()<<std::endl;
+      if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"found the station"<<endreq;
+      //      std::cout<<" station with old method "<<stations[name]->GetName()<<" new method "<<(it->second)->GetName()<<std::endl;
       return it->second;
 
     }
@@ -75,19 +75,19 @@ Station* MYSQL::GetStation(std::string name)
 Position MYSQL::GetStationPosition(std::string nameType, int fi, int zi)
 {
     Position p;
-    if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<" MYSQL::GetStationPosition for "<<nameType<<" fi/zi "<<fi<<" "<<zi<<endmsg;
+    if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<" MYSQL::GetStationPosition for "<<nameType<<" fi/zi "<<fi<<" "<<zi<<endreq;
     int subtype = allocPosFindSubtype(nameType, fi, zi);
     std::string stname = nameType+MuonGM::buildString(subtype, 0);
     Station* st = GetStation(stname);
     if ( st != NULL ) {
         if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<" found in Station "<<st->GetName();
         p =  (*(st->FindPosition(zi, fi))).second;
-        if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<" at p.fi,zi "<<p.phiindex<<" "<<p.zindex<<" shift/z "<<p.shift<<" "<<p.z<<endmsg;
+        if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<" at p.fi,zi "<<p.phiindex<<" "<<p.zindex<<" shift/z "<<p.shift<<" "<<p.z<<endreq;
     }
     else
     {
       reLog()<<MSG::WARNING<<"::GetStationPosition nothing found for "
-	 <<nameType<<" at fi/zi "<<fi<<" "<<zi<<endmsg;
+	 <<nameType<<" at fi/zi "<<fi<<" "<<zi<<endreq;
     }
     return p;
 }
@@ -95,10 +95,10 @@ Position MYSQL::GetStationPosition(std::string nameType, int fi, int zi)
 
 TgcReadoutParams* MYSQL::GetTgcRPars(std::string name)
 {
-   if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"MYSQL::GetTgcRPars looking for a TgcRPars named <"<<name<<">"<<endmsg;
+   if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"MYSQL::GetTgcRPars looking for a TgcRPars named <"<<name<<">"<<endreq;
 
-   std::map<std::string, TgcReadoutParams* >::const_iterator it =m_tgcReadouts.find(name);
-    if (it!=m_tgcReadouts.end())
+   std::map<std::string, TgcReadoutParams* >::const_iterator it =tgcReadouts.find(name);
+    if (it!=tgcReadouts.end())
     {
         return it->second;
     }
@@ -108,62 +108,62 @@ TgcReadoutParams* MYSQL::GetTgcRPars(std::string name)
 TgcReadoutParams* MYSQL::GetTgcRPars(int jsta)
 {
   if (jsta-1<0 || jsta>=NTgcReadouts) {
-    reLog()<<MSG::ERROR<<"MYSQL::GetTgcRPars jsta = "<<jsta<<" out of range (0,"<<NTgcReadouts-1<<")"<<endmsg;
+    reLog()<<MSG::ERROR<<"MYSQL::GetTgcRPars jsta = "<<jsta<<" out of range (0,"<<NTgcReadouts-1<<")"<<endreq;
     return NULL;
   }  
-  return m_tgcReadout[jsta-1];
+  return tgcReadout[jsta-1];
 }
 
 Technology* MYSQL::GetTechnology(std::string name)
 {
-  std::map<std::string,Technology* >::const_iterator it =  m_technologies.find(name);
-	if (it!=m_technologies.end())
+  std::map<std::string,Technology* >::const_iterator it =  technologies.find(name);
+	if (it!=technologies.end())
 	{
-	  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"found the station technology name "<<name<<endmsg;
+	  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"found the station technology name "<<name<<endreq;
 	  return it->second;
 	}
 	else 
 	{
-	  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"MYSQL:: Technology "<<name<<"+++++++++ not found!"<<endmsg;
+	  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"MYSQL:: Technology "<<name<<"+++++++++ not found!"<<endreq;
 	  return 0;
 	}
 }
 
 void MYSQL::StoreTechnology(Technology* t)
 {
-  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"MYSQL::StoreTechnology /// techn. named "<<t->GetName()<<endmsg;
-  std::map<std::string,Technology* >::const_iterator it = m_technologies.find(t->GetName());
-  if (it!=m_technologies.end())
+  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"MYSQL::StoreTechnology /// techn. named "<<t->GetName()<<endreq;
+  std::map<std::string,Technology* >::const_iterator it = technologies.find(t->GetName());
+  if (it!=technologies.end())
     {
       reLog()<<MSG::ERROR
 	 <<"MYSQL::StoreTechnology ERROR /// This place is already taken !!! for "
-	 <<t->GetName()<<endmsg;
+	 <<t->GetName()<<endreq;
         assert(0);
     }
-    else m_technologies[t->GetName()]=t;
+    else technologies[t->GetName()]=t;
 }
 
 void MYSQL::StoreStation(Station* s)
 {
-  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"name "<<s->GetName()<<endmsg;
-  m_stations[s->GetName()]=s;
+  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"name "<<s->GetName()<<endreq;
+  stations[s->GetName()]=s;
 }
 void MYSQL::StoreTgcRPars(TgcReadoutParams* s)
 {
-  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"MYSQL::StoreTgcRPars named "<<s->GetName()<<" located @ "<<s<<" jsta = "<<s->chamberType()<<endmsg;
+  if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"MYSQL::StoreTgcRPars named "<<s->GetName()<<" located @ "<<s<<" jsta = "<<s->chamberType()<<endreq;
   if ( s->chamberType() >= NTgcReadouts)
   {
-    reLog()<<MSG::ERROR<<"MYSQL::StoreTgcRPars ChamberType(JSTA) "<<s->chamberType() <<" > NTgcReadouts="<<NTgcReadouts<<endmsg;
+    reLog()<<MSG::ERROR<<"MYSQL::StoreTgcRPars ChamberType(JSTA) "<<s->chamberType() <<" > NTgcReadouts="<<NTgcReadouts<<endreq;
     return;
   }
-  m_tgcReadout[s->chamberType()-1]=s;
+  tgcReadout[s->chamberType()-1]=s;
 }
 
 
 void MYSQL::PrintAllStations()
 {
 	std::map<std::string,Station*>::const_iterator it;
-	for (it=m_stations.begin();it!=m_stations.end();it++)
+	for (it=stations.begin();it!=stations.end();it++)
 	{
 		std::string key=(*it).first;
 		//Station *s=(*it).second;
@@ -174,7 +174,7 @@ void MYSQL::PrintAllStations()
 void MYSQL::PrintTechnologies()
 {
 	std::map<std::string,Technology* >::const_iterator it;
-	for (it=m_technologies.begin();it!=m_technologies.end();it++)
+	for (it=technologies.begin();it!=technologies.end();it++)
 	{
 		std::string key=(*it).first;
                 std::cout<<"---> Technology "<<key<<std::endl;
@@ -182,25 +182,25 @@ void MYSQL::PrintTechnologies()
 }
 Technology* MYSQL::GetATechnology(std::string name)
 {
-  std::map<std::string,Technology* >::const_iterator it = m_technologies.find(name);
-    if (it!=m_technologies.end())
+  std::map<std::string,Technology* >::const_iterator it = technologies.find(name);
+    if (it!=technologies.end())
     {
-      if (reLog().level()<=MSG::VERBOSE)  reLog()<<MSG::VERBOSE<<"found the station technology name "<<name<<endmsg;
+      if (reLog().level()<=MSG::VERBOSE)  reLog()<<MSG::VERBOSE<<"found the station technology name "<<name<<endreq;
       return it->second;
     }
     else 
     {
-        if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"MYSQL:: Technology "<<name<<"+++++++++ not found!"<<endmsg;
+        if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<"MYSQL:: Technology "<<name<<"+++++++++ not found!"<<endreq;
         for (unsigned int i=1; i<=20; i++)
         {
             char chindex[3];
-            sprintf(chindex,"%u",i);
+            sprintf(chindex,"%i",i);
             //std::string newname = name.substr(0,3)+chindex;
             std::string newname = name.substr(0,3)+MuonGM::buildString(i,2);
-	    it = m_technologies.find(newname);
-            if (it!=m_technologies.end()) {
+	    it = technologies.find(newname);
+            if (it!=technologies.end()) {
 	      if (reLog().level()<=MSG::VERBOSE) reLog()<<MSG::VERBOSE<<" Selecting a technology called <"<<newname
-		 		<<">"<<endmsg;
+		 		<<">"<<endreq;
                 return it->second;
             }
         }

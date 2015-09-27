@@ -16,9 +16,9 @@ typedef std::map<std::string,GeoVPhysVol* >::const_iterator DetectorIterator;
 class FPVMAP {
 // singleton
 private:
-    static FPVMAP* s_thePointer;
+    static FPVMAP* thePointer;
     FPVMAP();
-    std::map<std::string,GeoVPhysVol* > m_Detectors;
+    std::map<std::string,GeoVPhysVol* > Detectors;
     int m_nreused;
     
 
@@ -35,15 +35,15 @@ public:
 };
 DetectorIterator FPVMAP::Begin()
 {
-    return m_Detectors.begin();
+    return Detectors.begin();
 }
 DetectorIterator FPVMAP::End()
 {
-    return m_Detectors.end();
+    return Detectors.end();
 }
 int FPVMAP::NDetectors()
 {
-    return m_Detectors.size();
+    return Detectors.size();
 }
 int FPVMAP::NDetectorsReused()
 {

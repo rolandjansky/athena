@@ -12,52 +12,52 @@ namespace MuonGM {
     
 DBReader::DBReader(StoreGateSvc */*pDetStore*/)
     :
-    m_mgr(0)
+    _mgr(0)
 {
-    m_SCdbaccess = StatusCode::SUCCESS;
+    SCdbaccess = StatusCode::SUCCESS;
     m_msgSvc = Athena::getMessageSvc();
 }
     
 void DBReader::setGeometryVersion(std::string geoVersion)
 {
-    m_version = geoVersion;
+    version = geoVersion;
 }
 std::string DBReader::getGeometryVersion() const
 {
-    return m_version;
+    return version;
 }
 
 std::string DBReader::TGCreadoutName(int ichtyp) 
 {
-    if ( m_tgcReadoutMapping.size() == 0)
+    if ( _tgcReadoutMapping.size() == 0)
     { // first time fill the vector 
         //std::cout<<" filling the map "<<std::endl;
-        m_tgcReadoutMapping.push_back("T1F1");  // 1
+        _tgcReadoutMapping.push_back("T1F1");  // 1
 
-        m_tgcReadoutMapping.push_back("T1E1");  // 2
-        m_tgcReadoutMapping.push_back("T1E2");
-        m_tgcReadoutMapping.push_back("T1E3");
-        m_tgcReadoutMapping.push_back("T1E4");
+        _tgcReadoutMapping.push_back("T1E1");  // 2
+        _tgcReadoutMapping.push_back("T1E2");
+        _tgcReadoutMapping.push_back("T1E3");
+        _tgcReadoutMapping.push_back("T1E4");
 
-        m_tgcReadoutMapping.push_back("T2F1");  // 6
+        _tgcReadoutMapping.push_back("T2F1");  // 6
 
-        m_tgcReadoutMapping.push_back("T2E1");  // 7
-        m_tgcReadoutMapping.push_back("T2E2");
-        m_tgcReadoutMapping.push_back("T2E3");
-        m_tgcReadoutMapping.push_back("T2E4");
-        m_tgcReadoutMapping.push_back("T2E5");  // 11
+        _tgcReadoutMapping.push_back("T2E1");  // 7
+        _tgcReadoutMapping.push_back("T2E2");
+        _tgcReadoutMapping.push_back("T2E3");
+        _tgcReadoutMapping.push_back("T2E4");
+        _tgcReadoutMapping.push_back("T2E5");  // 11
 
-        m_tgcReadoutMapping.push_back("T3F1");  // 12 
+        _tgcReadoutMapping.push_back("T3F1");  // 12 
 
-        m_tgcReadoutMapping.push_back("T3E1");  // 13
-        m_tgcReadoutMapping.push_back("T3E2");
-        m_tgcReadoutMapping.push_back("T3E3");
-        m_tgcReadoutMapping.push_back("T3E4");
-        m_tgcReadoutMapping.push_back("T3E5");  // 17
+        _tgcReadoutMapping.push_back("T3E1");  // 13
+        _tgcReadoutMapping.push_back("T3E2");
+        _tgcReadoutMapping.push_back("T3E3");
+        _tgcReadoutMapping.push_back("T3E4");
+        _tgcReadoutMapping.push_back("T3E5");  // 17
         
-        m_tgcReadoutMapping.push_back("T4F1");  // 18 
+        _tgcReadoutMapping.push_back("T4F1");  // 18 
 
-        m_tgcReadoutMapping.push_back("T4E1");  // 19
+        _tgcReadoutMapping.push_back("T4E1");  // 19
     }
 
     if (ichtyp<1 || ichtyp>19) {
@@ -65,7 +65,7 @@ std::string DBReader::TGCreadoutName(int ichtyp)
                  <<ichtyp<<" out of range 1-19"<<std::endl;
         return "XXXY";
     }
-    return m_tgcReadoutMapping[ichtyp-1];
+    return _tgcReadoutMapping[ichtyp-1];
 }
 
 } // namespace MuonGM

@@ -33,7 +33,7 @@ public:
    void print();
 
 private:
-   RpcComponent* m_component;
+   RpcComponent* component;
 
 };
 } // namespace MuonGM
