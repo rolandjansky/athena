@@ -64,19 +64,9 @@ topoEgammaBuilder::topoEgammaBuilder(const std::string& name,
 		  "Tool to build topocluster map");
 
   // Tool to build superclusters
-  declareProperty("egammaSuperClusterBuilderName",
-		  m_egammaSuperClusterBuilderName="egammaSuperClusterBuilder/egammaSuperClusterBuilder",
-		  "Tool to build superclusters");
-
-  // Tool to build superclusters
   declareProperty("SuperClusterBuilder",
 		  m_egammaSuperClusterBuilder,
 		  "Tool to build superclusters");
-
-  // Tool to do overlap marking.
-  declareProperty("egammaClusterOverlapMarkerName",
-		  m_egammaClusterOverlapMarkerName="egammaClusterOverlapMarker/egammaClusterOverlapMarker",
-		  "Tool to do overlap marking");
 
   declareProperty("OverlapMarker",
 		  m_egammaClusterOverlapMarker,
@@ -208,9 +198,9 @@ StatusCode topoEgammaBuilder::initialize()
 
   //////////////////////////////////////////////////
   //
-  RetrieveegammaTopoClusterMap();
-  RetrieveegammaSuperClusterBuilder();
-  RetrieveegammaClusterOverlapMarker();
+  CHECK(RetrieveegammaTopoClusterMap());
+  CHECK(RetrieveegammaSuperClusterBuilder());
+  CHECK(RetrieveegammaClusterOverlapMarker());
   //
   //////////////////////////////////////////////////
 
@@ -396,7 +386,7 @@ StatusCode topoEgammaBuilder::execute()
   // athena execute method
   //
   
-  ATH_MSG_INFO("Executing topoEgammaBuilder");
+  ATH_MSG_DEBUG("Executing topoEgammaBuilder");
   
   // Chrono name for each Tool
   std::string chronoName;
@@ -425,18 +415,16 @@ StatusCode topoEgammaBuilder::execute()
 
   //Set & sort the topocluster map.
   //NOTE: Seed egammaRec container will be made here now, too.
-  ATH_MSG_INFO("Making topocluster map");
+  ATH_MSG_DEBUG("Making topocluster map");
   CHECK(ExecTopoClusterMap(topoclusters));
 
   EgammaRecContainer *egammaSeedRecs = 0;
   CHECK(evtStore()->retrieve(egammaSeedRecs, "TopoTrackClusterMatches"));
 
   //Do track refitting.
-  //WANT TO CHANGE THIS ROUTINE TO TAKE IN CLUSTER CONTAINER OUTPUT FROM
-  //MAP TOOL.
   if (m_doBremCollection){ 
     
-    ATH_MSG_INFO("Running BremCollectionBuilder");  
+    ATH_MSG_DEBUG("Running BremCollectionBuilder");  
     //
     std::string chronoName = this->name()+"_"+m_BremCollectionBuilderTool->name();         
     if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
@@ -465,7 +453,7 @@ StatusCode topoEgammaBuilder::execute()
   EgammaRecContainer *egammaSuperRecs = 0;
   CHECK(evtStore()->retrieve(egammaSuperRecs,  "egammaSuperRecCollection"));
 
-  ATH_MSG_INFO("Size of egammaSuperRecs: " << egammaSuperRecs->size());
+  ATH_MSG_DEBUG("Size of egammaSuperRecs: " << egammaSuperRecs->size());
 
   //Build egammaRec objects for superclusters.
   for (auto egRec : *egammaSuperRecs) {
@@ -477,7 +465,25 @@ StatusCode topoEgammaBuilder::execute()
   
   //Build xAOD::Electron objects from track-matched superclusters.
   for (const auto& egRec : *egammaSuperRecs) {
-    if (!getElectron(egRec,electronContainer, xAOD::EgammaParameters::AuthorPhoton))
+
+    ATH_MSG_INFO("Number of clusters in egRec: " << egRec->getNumberOfClusters());
+    
+    //Sanity check that we don't find any electron authors to be photons.
+    unsigned int author = m_ambiguityTool->ambiguityResolve(egRec->caloCluster(),
+                                                            egRec->vertex(),
+                                                            egRec->trackParticle());
+
+    if (author == xAOD::EgammaParameters::AuthorPhoton) {
+      ATH_MSG_INFO("WARNING: Supercluster electron called photon by ambiguity tool??");
+      //return StatusCode::FAILURE;
+    }
+    
+    if (author == xAOD::EgammaParameters::AuthorAmbiguous) {
+      ATH_MSG_INFO("WARNING: Supercluster electron called ambiguous by ambiguity tool??");
+      //return StatusCode::FAILURE;
+    }
+
+    if (!getElectron(egRec, electronContainer, author))
       return StatusCode::FAILURE;
   }
 
@@ -505,7 +511,7 @@ StatusCode topoEgammaBuilder::execute()
   }       
 
   // Loop over SW clusters to create photon egammaRec objects.
-  ATH_MSG_INFO("Creating egammaRec objects");
+  ATH_MSG_DEBUG("Creating egammaRec objects");
   const xAOD::CaloClusterContainer *clusters;
   if (evtStore()->retrieve(clusters, m_inputClusterContainerName).isFailure())
     {
@@ -525,7 +531,7 @@ StatusCode topoEgammaBuilder::execute()
 
   if (m_doConversions) {
 
-    ATH_MSG_INFO("Running VertexBuilder");  
+    ATH_MSG_DEBUG("Running VertexBuilder");  
     //
     std::string chronoName = this->name()+"_"+m_vertexBuilder->name();         
     if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
@@ -537,7 +543,7 @@ StatusCode topoEgammaBuilder::execute()
     //
     if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
   
-    ATH_MSG_INFO("Running ConversionBuilder");  
+    ATH_MSG_DEBUG("Running ConversionBuilder");  
     //
     chronoName = this->name()+"_"+m_conversionBuilder->name();         
     if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
@@ -552,7 +558,7 @@ StatusCode topoEgammaBuilder::execute()
 
   //Track matching for SW clusters. Not necessary anymore?
   // if (m_doTrackMatching){   
-  //   ATH_MSG_INFO("Running TrackMatchBuilder");  
+  //   ATH_MSG_DEBUG("Running TrackMatchBuilder");  
   //   //
   //   std::string chronoName = this->name()+"_"+m_trackMatchBuilder->name();         
   //   if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
@@ -567,47 +573,43 @@ StatusCode topoEgammaBuilder::execute()
     
   //Change in behaviour: No SW electrons built, mark photons overlapping
   //with superclusters as conflicting.
-
   for (const auto& egRec : *egammaRecs) {
 
-    const xAOD::Electron *elec = 0;
-
-    //First, check if cluster overlaps with a supercluster electron.
-    CHECK(m_egammaClusterOverlapMarker->execute(egRec->caloCluster()));
-
-    //If there is overlap, add the tracks to the egammaRec object.
-    if (electronContainer->size())
-      if (egRec->caloCluster()->auxdata<bool>("overlapSC")) {
-	ATH_MSG_INFO("SW cluster overlaps a SC electron!");
-	elec = *(egRec->caloCluster()->auxdata<ElementLink<xAOD::ElectronContainer> >("overlapLink"));
-	egRec->setTrackParticles(elec->trackParticleLinks());
-      }
-
-    ATH_MSG_INFO("Running AmbiguityTool");
+    ATH_MSG_DEBUG("Running AmbiguityTool");
     unsigned int author = m_ambiguityTool->ambiguityResolve(egRec->caloCluster(),
                                                             egRec->vertex(),
                                                             egRec->trackParticle());
-
-    //Set author for equivalent electron.
-    if (elec) {
-      unsigned int    index(elec->index());
-      xAOD::Electron *foundEl = electronContainer->at(index);
-      if (foundEl)
-	foundEl->setAuthor(author);
-    }
     
     if (author == xAOD::EgammaParameters::AuthorPhoton     || 
 	author == xAOD::EgammaParameters::AuthorAmbiguous)
       {
-	ATH_MSG_INFO("getPhoton");
+	ATH_MSG_DEBUG("getPhoton");
 	if ( !getPhoton(egRec, photonContainer, author) )
 	  return StatusCode::FAILURE;
       }
   }
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // Modification to algorithm to make input to 'addTopoSeededPhotons' be
+  // a container of SW + my supercluster electrons.
+  //////////////////////////////////////////////////////////////////////////
+
+  ATH_MSG_INFO("Adding topo-seeded photons ...");
   
-  // Add topo-seeded clusters to the photon collection
   if (m_doTopoSeededPhotons)
-    CHECK( addTopoSeededPhotons(photonContainer, clusters) );
+    CHECK( addTopoSeededPhotons(photonContainer, clusters, egammaSuperRecs) );
+
+  ATH_MSG_INFO("Done.");
+
+  //////////////////////////////////////////////////////////////////////////
+  // Check supercluster overlap with photons here.
+  //////////////////////////////////////////////////////////////////////////
+
+  //Check if photon clusters overlap with any supercluster electrons.
+  for (const auto &photon : *photonContainer) {
+    CHECK(m_egammaClusterOverlapMarker->execute(photon->caloCluster()));
+  }
   
   // Call tools
   for (const auto& tool : m_egammaTools)
@@ -625,7 +627,7 @@ StatusCode topoEgammaBuilder::execute()
       CHECK( CallTool(tool, 0, photonContainer) );
     }
 
-  ATH_MSG_INFO("execute completed successfully");
+  ATH_MSG_DEBUG("execute completed successfully");
 
   return StatusCode::SUCCESS;
 }
@@ -637,7 +639,7 @@ StatusCode topoEgammaBuilder::CallTool(const ToolHandle<IegammaBaseTool>& tool,
 {
   
 
-  ATH_MSG_INFO("Executing tool on containers: " << tool );
+  ATH_MSG_DEBUG("Executing tool on containers: " << tool );
   std::string chronoName = this->name()+"_"+tool->name();         
   if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
   
@@ -649,7 +651,7 @@ StatusCode topoEgammaBuilder::CallTool(const ToolHandle<IegammaBaseTool>& tool,
   
   if (electronContainer)
   {    
-    ATH_MSG_INFO("Executing tool on electrons: " << tool );
+    ATH_MSG_DEBUG("Executing tool on electrons: " << tool );
     for (const auto& electron : *electronContainer)
     {
       if (tool->execute(electron).isFailure() )
@@ -662,7 +664,7 @@ StatusCode topoEgammaBuilder::CallTool(const ToolHandle<IegammaBaseTool>& tool,
   
   if (photonContainer)
   {
-    ATH_MSG_INFO("Executing tool on photons: " << tool );
+    ATH_MSG_DEBUG("Executing tool on photons: " << tool );
     for (const auto& photon : *photonContainer)
     {
       if (tool->execute(photon).isFailure() )
@@ -779,14 +781,21 @@ bool topoEgammaBuilder::getPhoton(const egammaRec* egRec,
 }
 
 // =====================================================
-StatusCode topoEgammaBuilder::addTopoSeededPhotons(xAOD::PhotonContainer *photonContainer,
-                                               const xAOD::CaloClusterContainer *clusters)
+StatusCode topoEgammaBuilder::addTopoSeededPhotons(xAOD::PhotonContainer            *photonContainer,
+						   const xAOD::CaloClusterContainer *clusters,
+						   const EgammaRecContainer         *egammaSuperRecs)
+						   
 {
+
+  bool useSuperRecs(false);
+  if (egammaSuperRecs)
+    useSuperRecs = true;
+  
   // Retrieve the cluster container
   const xAOD::CaloClusterContainer *topoSeededClusters = 0;
   CHECK( evtStore()->retrieve(topoSeededClusters, m_topoSeededClusterContainerName) );
-  ATH_MSG_INFO("Number of photons (before topo-clusters): " << photonContainer->size() );
-  ATH_MSG_INFO("Number of topo-seeded clusters: " << topoSeededClusters->size() );
+  ATH_MSG_DEBUG("Number of photons (before topo-clusters): " << photonContainer->size() );
+  ATH_MSG_DEBUG("Number of topo-seeded clusters: " << topoSeededClusters->size() );
   
   // Create photon objects for the clusters that pass minimum Et and eta requirements and
   // do not overlap with egamma clusters
@@ -794,20 +803,26 @@ StatusCode topoEgammaBuilder::addTopoSeededPhotons(xAOD::PhotonContainer *photon
   
   std::vector<const xAOD::CaloCluster* > candidateTopoClusters;
   for (const auto topoCluster : *topoSeededClusters){
+
     if (topoCluster->et() < m_minEtTopo || 
         topoCluster->et() > m_maxEtTopo ||
         fabs(topoCluster->etaBE(2)) > 2.47 || 
         clustersOverlap(topoCluster, clusters))
       continue;
+
+    if (useSuperRecs && clustersOverlap(topoCluster, egammaSuperRecs))
+      continue;
  
-    candidateTopoClusters.push_back(topoCluster);                  
+    candidateTopoClusters.push_back(topoCluster);
+    
   }
 
   std::vector<const xAOD::CaloCluster* > finalTopoClusters= egammaDuplicateRemoval::getClusterDuplicateRemoval(candidateTopoClusters);
 
   for (const auto topoCluster : finalTopoClusters){
-  ATH_MSG_INFO("Creating topo-seeded photon, Et: " << topoCluster->et() <<
-		" eta: " << topoCluster->eta() << " phi: " << topoCluster->phi());
+
+  // ATH_MSG_DEBUG("Creating topo-seeded photon, Et: " << topoCluster->et() <<
+  // 		" eta: " << topoCluster->eta() << " phi: " << topoCluster->phi());
 
     xAOD::Photon *photon = new xAOD::Photon();
     photonContainer->push_back(photon);
@@ -816,7 +831,7 @@ StatusCode topoEgammaBuilder::addTopoSeededPhotons(xAOD::PhotonContainer *photon
     ClusterLink_t link(topoCluster, *topoSeededClusters );
     photon->setCaloClusterLinks( std::vector< ClusterLink_t>{ link } );
   }
-  ATH_MSG_INFO("Number of photons (after topo-clusters): " << photonContainer->size() );
+  ATH_MSG_DEBUG("Number of photons (after topo-clusters): " << photonContainer->size() );
   
   return StatusCode::SUCCESS;
 }
@@ -837,70 +852,85 @@ bool topoEgammaBuilder::clustersOverlap(const xAOD::CaloCluster *refCluster,
   return false;
 }
 
+bool topoEgammaBuilder::clustersOverlap(const xAOD::CaloCluster  *refCluster, 
+					const EgammaRecContainer *egammaSuperRecs)
+{
+  if (!refCluster || !egammaSuperRecs) return false;
+  CaloPhiRange phiHelper;
+  
+  for (const auto egRec: *egammaSuperRecs) {
+
+    //Get list of clusters from element links.
+    for (unsigned int i = 0 ; i < egRec->getNumberOfClusters(); ++i) {
+      const xAOD::CaloCluster *cluster(*(egRec->caloClusterElementLink(i)));
+    
+      if (fabs(refCluster->eta() - cluster->eta()) < m_minDeltaEta &&
+	  fabs(phiHelper.diff(refCluster->phi(), cluster->phi())) < m_minDeltaPhi)
+	return true;
+    }
+  }
+
+  return false;
+  
+}
+
 //  LocalWords:  newClus egc getCellLinks
 
 //////////////////////////////////////////////////////////////////////
-void topoEgammaBuilder::RetrieveegammaSuperClusterBuilder()
+StatusCode topoEgammaBuilder::RetrieveegammaSuperClusterBuilder()
 {
-
-  if (m_egammaSuperClusterBuilderName=="") {
-    ATH_MSG_INFO("m_egammaSuperClusterBuilder is disabled  " 
-     << m_egammaSuperClusterBuilderName);
-    return;
-  } 
  
   // create egammaTopoClusterTrackMatchTool Tool:
-  m_egammaSuperClusterBuilder=ToolHandle<IegammaSuperClusterBuilder>(m_egammaSuperClusterBuilderName);  // a priori this is not useful
+  //m_egammaSuperClusterBuilder=ToolHandle<IegammaSuperClusterBuilder>(m_egammaSuperClusterBuilderName); // Builds default instance
+
   if(m_egammaSuperClusterBuilder.retrieve().isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve "<< m_egammaSuperClusterBuilder);
+    return StatusCode::FAILURE;
   } 
   else ATH_MSG_INFO("Retrieved Tool " << m_egammaSuperClusterBuilder); 
   
-  return;
+  return StatusCode::SUCCESS;
   
 
 }
 
 //////////////////////////////////////////////////////////////////////
-void topoEgammaBuilder::RetrieveegammaClusterOverlapMarker()
+StatusCode topoEgammaBuilder::RetrieveegammaClusterOverlapMarker()
 {
-
-  if (m_egammaClusterOverlapMarkerName=="") {
-    ATH_MSG_INFO("m_egammaClusterOverlapMarker is disabled  " 
-     << m_egammaClusterOverlapMarkerName);
-    return;
-  } 
  
   // create egammaTopoClusterTrackMatchTool Tool:
-  m_egammaClusterOverlapMarker=ToolHandle<IegammaClusterOverlapMarker>(m_egammaClusterOverlapMarkerName);  // a priori this is not useful
+  //m_egammaClusterOverlapMarker=ToolHandle<IegammaClusterOverlapMarker>(m_egammaClusterOverlapMarkerName);
+
   if(m_egammaClusterOverlapMarker.retrieve().isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve "<< m_egammaClusterOverlapMarker);
+    return StatusCode::FAILURE;
   } 
   else ATH_MSG_INFO("Retrieved Tool " << m_egammaClusterOverlapMarker); 
   
-  return;
+  return StatusCode::SUCCESS;
   
 
 }
 
 //////////////////////////////////////////////////////////////////////
-void topoEgammaBuilder::RetrieveegammaTopoClusterMap()
+StatusCode topoEgammaBuilder::RetrieveegammaTopoClusterMap()
 {
 
   if (m_egammaTopoClusterMapToolName=="") {
     ATH_MSG_INFO("Map is disabled  " 
      << m_egammaTopoClusterMapToolName);
-    return;
+    return StatusCode::FAILURE;
   } 
  
   // create EMShowerBuilder Tool:
-  m_egammaTopoClusterMapTool=ToolHandle<IegammaTopoClusterMap>(m_egammaTopoClusterMapToolName);  // a priori this is not useful
+  m_egammaTopoClusterMapTool=ToolHandle<IegammaTopoClusterMap>(m_egammaTopoClusterMapToolName);
   if(m_egammaTopoClusterMapTool.retrieve().isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve "<<m_egammaTopoClusterMapTool);
+    return StatusCode::FAILURE;
   } 
   else ATH_MSG_INFO("Retrieved Tool " << m_egammaTopoClusterMapTool); 
   
-  return;
+  return StatusCode::SUCCESS;
   
 
 }

@@ -37,6 +37,8 @@
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
+#include "egammaRecEvent/egammaRecContainer.h"
+
 class IegammaBaseTool;
 class IEGammaAmbiguityTool;
 class IEMTrackMatchBuilder;
@@ -83,34 +85,39 @@ class topoEgammaBuilder : public AthAlgorithm
   /** Add topo-seeded photons (that do not overlap with other clusters) 
     * to the photon container **/
   StatusCode addTopoSeededPhotons(xAOD::PhotonContainer *photonContainer,
-                                  const xAOD::CaloClusterContainer *clusters);
+                                  const xAOD::CaloClusterContainer *clusters,
+				  const EgammaRecContainer *egammaSuperRecs = 0);
 
   /** Return true if refCluster overlaps with any cluster in the collection 
     * Used to select topo-seeded clusters **/
   bool clustersOverlap(const xAOD::CaloCluster *refCluster, 
                        const xAOD::CaloClusterContainer *clusters);
 
+  bool clustersOverlap(const xAOD::CaloCluster *refCluster, 
+                       const EgammaRecContainer *egammaSuperRecs);
+
 
  private:
-//   
-//   /** @brief perform the electron tool sequence; takes Electron ownership */
-//   StatusCode callElectronTools(xAOD::Electron*, const xAOD::CaloCluster*, 
-// 			       xAOD::CaloClusterContainer *, ElectronContainer *,
-// 			       bool& addedElectron);
-// 
-//   /** @brief perform the photon tool sequence; takes Photon ownership */
-//   StatusCode callPhotonTools(xAOD::Photon*, const xAOD::CaloCluster*, 
-// 			     CaloClusterContainer *, PhotonContainer *,
-// 			     bool& addedPhoton);
+
+  //   
+  //   /** @brief perform the electron tool sequence; takes Electron ownership */
+  //   StatusCode callElectronTools(xAOD::Electron*, const xAOD::CaloCluster*, 
+  // 			       xAOD::CaloClusterContainer *, ElectronContainer *,
+  // 			       bool& addedElectron);
+  // 
+  //   /** @brief perform the photon tool sequence; takes Photon ownership */
+  //   StatusCode callPhotonTools(xAOD::Photon*, const xAOD::CaloCluster*, 
+  // 			     CaloClusterContainer *, PhotonContainer *,
+  // 			     bool& addedPhoton);
 
 
 
   ///////////////////////////////////////////
   // Supercluster-specific stuff.
   //
-  void RetrieveegammaTopoClusterMap();
-  void RetrieveegammaSuperClusterBuilder();
-  void RetrieveegammaClusterOverlapMarker();
+  StatusCode RetrieveegammaTopoClusterMap();
+  StatusCode RetrieveegammaSuperClusterBuilder();
+  StatusCode RetrieveegammaClusterOverlapMarker();
 
   StatusCode ExecTopoClusterMap(const xAOD::CaloClusterContainer*);
   
