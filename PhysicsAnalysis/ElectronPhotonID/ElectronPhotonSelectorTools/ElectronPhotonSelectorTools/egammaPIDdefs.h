@@ -115,6 +115,7 @@ namespace egammaPID {
     PhotonIDLooseARIso,
     PhotonIDTightARIso,
     ForwardElectronIDLoose,
+    ForwardElectronIDMedium,
     ForwardElectronIDTight,
     NoIDCut,
     PhotonIDMedium,
