@@ -8,6 +8,7 @@ use AthenaBaseComps     AthenaBaseComps-*       Control
 use EventKernel         EventKernel-*           Event
 use xAODTruth           xAODTruth-*             Event/xAOD
 use MCTruthClassifier   MCTruthClassifier-*     PhysicsAnalysis
+use egammaRecEvent             egammaRecEvent-*  Reconstruction/egamma
 
 private
 use AtlasCLHEP                 AtlasCLHEP-*             External
@@ -23,7 +24,7 @@ use egammaInterfaces           egammaInterfaces-*       Reconstruction/egamma
 # EDM package(s):
 use xAODTracking               xAODTracking-*     Event/xAOD
 
-use egammaRecEvent             egammaRecEvent-*  Reconstruction/egamma
+
 use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-* PhysicsAnalysis/ElectronPhotonID
 
 apply_tag ROOTMathLibs
