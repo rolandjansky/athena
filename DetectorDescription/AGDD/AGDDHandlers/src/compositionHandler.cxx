@@ -11,8 +11,6 @@
 #include "AGDDKernel/AGDDVolumeStore.h"
 
 
-using namespace xercesc;
-
 compositionHandler::compositionHandler(std::string s):XMLHandler(s)
 {
 }

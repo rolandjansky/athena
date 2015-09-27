@@ -7,8 +7,6 @@
 #include <iostream>
 
 
-using namespace xercesc;
-
 foreachHandler::foreachHandler(std::string s):XMLHandler(s)
 {
 //	std::cout<<"Creating handler for foreach"<<std::endl;

@@ -13,9 +13,9 @@ class polyplaneHandler:public XMLHandler {
 public:
 	polyplaneHandler(std::string);
 	void ElementHandle();
-	static Polyplane CurrentPolyplane() {return s_pPlane;}
+	static Polyplane CurrentPolyplane() {return pPlane;}
 private:
-	static Polyplane s_pPlane;
+	static Polyplane pPlane;
 };
 
 #endif

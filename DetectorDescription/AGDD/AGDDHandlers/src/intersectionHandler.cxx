@@ -10,8 +10,6 @@
 #include "AGDDKernel/AGDDVolumeStore.h"
 #include "AGDDKernel/AGDDPositionerStore.h"
 
-using namespace xercesc;
-
 intersectionHandler::intersectionHandler(std::string s):XMLHandler(s)
 {
 }

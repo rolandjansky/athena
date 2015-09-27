@@ -13,9 +13,9 @@ class gvxy_pointHandler:public XMLHandler {
 public:
 	gvxy_pointHandler(std::string);
 	void ElementHandle();
-	static TwoPoint CurrentTwoPoint() {return s_point;}
+	static TwoPoint CurrentTwoPoint() {return point;}
 private:
-	static TwoPoint s_point;
+	static TwoPoint point;
 };
 
 #endif

@@ -9,8 +9,6 @@
 #include <iostream>
 
 
-using namespace xercesc;
-
 pconHandler::pconHandler(std::string s):XMLHandler(s)
 {
 }

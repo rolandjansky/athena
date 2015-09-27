@@ -12,8 +12,6 @@
 
 #include <vector>
 
-using namespace xercesc;
-
 snakeHandler::snakeHandler(std::string s):XMLHandler(s)
 {
 //	std::cout<<"Creating handler for snake"<<std::endl;

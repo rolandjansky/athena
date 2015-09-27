@@ -10,8 +10,6 @@
 #include "AGDDHandlers/globals.h"
 #include <iostream>
 
-using namespace xercesc;
-
 compositeHandler::compositeHandler(std::string s):XMLHandler(s)
 {
 }
