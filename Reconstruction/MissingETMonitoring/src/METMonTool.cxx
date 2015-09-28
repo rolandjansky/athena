@@ -235,13 +235,13 @@ StatusCode METMonTool::bookHistograms()
     }
 
     //MonGroup met_sources(this, "MET/Sources" + suffix, run, ATTRIB_MANAGED);
-    MonGroup met_sources(this, "MET/Sources" + suffix, lumiBlock);
-    MonGroup met_calos(this, "MET/Calos" + suffix, lumiBlock);//, run, ATTRIB_MANAGED);
-    MonGroup met_regions(this, "MET/Regions" + suffix, lumiBlock);//, run, ATTRIB_MANAGED);
-    MonGroup met_jets(this, "MET/Jets" + suffix, lumiBlock);//, run, ATTRIB_MANAGED);
-    MonGroup met_electrons(this, "MET/Electrons" + suffix, lumiBlock);//, run, ATTRIB_MANAGED);
-    MonGroup met_muons(this, "MET/Muons" + suffix, lumiBlock);//, run, ATTRIB_MANAGED);
-    MonGroup met_summary(this, "MET/Summary" + suffix, lumiBlock);//, run, ATTRIB_MANAGED);
+    MonGroup met_sources(this, "MET/Sources" + suffix, (m_environment == AthenaMonManager::online) ? run : lumiBlock);
+    MonGroup met_calos(this, "MET/Calos" + suffix, (m_environment == AthenaMonManager::online) ? run : lumiBlock);//, run, ATTRIB_MANAGED);
+    MonGroup met_regions(this, "MET/Regions" + suffix, (m_environment == AthenaMonManager::online) ? run : lumiBlock);//, run, ATTRIB_MANAGED);
+    MonGroup met_jets(this, "MET/Jets" + suffix, (m_environment == AthenaMonManager::online) ? run : lumiBlock);//, run, ATTRIB_MANAGED);
+    MonGroup met_electrons(this, "MET/Electrons" + suffix, (m_environment == AthenaMonManager::online) ? run : lumiBlock);//, run, ATTRIB_MANAGED);
+    MonGroup met_muons(this, "MET/Muons" + suffix, (m_environment == AthenaMonManager::online) ? run : lumiBlock);//, run, ATTRIB_MANAGED);
+    MonGroup met_summary(this, "MET/Summary" + suffix, (m_environment == AthenaMonManager::online) ? run : lumiBlock);//, run, ATTRIB_MANAGED);
 
     // Book histograms
 
@@ -901,6 +901,7 @@ StatusCode METMonTool::fillHistograms()
         }
     }
 
+
     fillSourcesHistograms().ignore();
     if (m_metCalKey != "") fillCalosHistograms().ignore();
     if (m_metRegKey != "") fillRegionsHistograms().ignore();
@@ -912,6 +913,7 @@ StatusCode METMonTool::fillHistograms()
 
 StatusCode METMonTool::fillSourcesHistograms()
 {
+
     // MET > 80 cut
 
     const xAOD::MissingETContainer* xMissEt80 = 0;
@@ -941,6 +943,7 @@ StatusCode METMonTool::fillSourcesHistograms()
     //msg_info// ATH_MSG_INFO("METMonTool::880");
 
     ATH_MSG_DEBUG("in fillSourcesHistograms()");
+
     const xAOD::Jet* xjet = 0;
     if (m_jetColKey != "")
     {
@@ -1126,7 +1129,6 @@ StatusCode METMonTool::fillSourcesHistograms()
         }
     }
 
-
     const xAOD::MuonContainer* xMuons = 0; // evtStore()->retrieve< const xAOD::ElectronContainer >("ElectronCollection");
     const xAOD::Muon* xhMuon = 0;
 
@@ -1303,6 +1305,7 @@ StatusCode METMonTool::fillSourcesHistograms()
         const xAOD::MissingETContainer* xMissEt = 0;
 
         bool sc_exists = evtStore()->contains<xAOD::MissingETContainer>(xaod_key);
+
         if (sc_exists)
         {
             ATH_CHECK(evtStore()->retrieve(xMissEt, xaod_key));
@@ -1315,7 +1318,7 @@ StatusCode METMonTool::fillSourcesHistograms()
             else
             {
                 ATH_MSG_DEBUG("Filling histograms for term " << m_metKeys[i]);
-
+		
 		if ((*xMissEt)[xaod_subkey]) {
                 float ex = (*xMissEt)[xaod_subkey]->mpx() / CLHEP::GeV;
                 float ey = (*xMissEt)[xaod_subkey]->mpy() / CLHEP::GeV;
@@ -1338,6 +1341,7 @@ StatusCode METMonTool::fillSourcesHistograms()
                         // Profile Histograms
 
                         //msg_info// ATH_MSG_INFO("METMonTool::FILL_ONE_ONE::1092");
+
                         if (TMath::Abs(et) < m_truncatedMean)
                         {
                             //msg_info// ATH_MSG_INFO("METMonTool::FILL_TWO_TWO::1095");
@@ -1347,6 +1351,7 @@ StatusCode METMonTool::fillSourcesHistograms()
 
                                 fillProfileHistograms(et, phi, jetP4.eta(), jetP4.phi(), m_iJet).ignore();
                             }
+
                             if (xhEle != 0) fillProfileHistograms(et, phi, xhEle->eta(), xhEle->phi(), m_iEle).ignore();
                             if (xhMuon != 0) fillProfileHistograms(et, phi, xhMuon->eta(), xhMuon->phi(), m_iMuo).ignore();
                         }
@@ -1357,20 +1362,19 @@ StatusCode METMonTool::fillSourcesHistograms()
                         m_exMean->Fill(i + 0.5, ex);
                         m_eyMean->Fill(i + 0.5, ey);
                         m_phiMean->Fill(i + 0.5, phi);
-
                     }
                 }
-
 		}// xaod_subket
             }
 
         }
-	
+
         else
         {
             ATH_MSG_DEBUG("Unable to retrieve MissingETContainer: " << xaod_key);
         }
     }
+
 
     return StatusCode::SUCCESS;
 }
