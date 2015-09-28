@@ -121,10 +121,13 @@ StatusCode CaloMonToolBase::checkFilters(bool& ifPass){
    if(sc.isFailure()){
      ATH_MSG_WARNING("Unable to retrieve BeamBackgroundData");
    }
-   //   ATH_MSG_INFO("BeamBackgroundData is retrieved");
-   if( beamBackgroundData->GetNumSegment() > 0 ) {
-     m_passBeamBackgroundRemoval = false;
-     h_EvtRejSumm->Fill(5);
+   else {
+     //   ATH_MSG_INFO("BeamBackgroundData is retrieved");
+     if( beamBackgroundData->GetNumSegment() > 0 ) {
+       m_passBeamBackgroundRemoval = false;
+       h_EvtRejSumm->Fill(5);
+       ATH_MSG_DEBUG("Identified background event");
+     }
    }
  }
  ATH_MSG_VERBOSE("CaloMonBase::checkFilters() is done");
