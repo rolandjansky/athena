@@ -32,8 +32,6 @@ addTool( "MuonRecExample.MuonRecTools.MdtTubeHitOnTrackCreator", "MdtTubeHitOnTr
 addTool( "MuonRecExample.MuonRecTools.AdjustableT0Tool", "AdjustableT0Tool" )
 
 addTool( "MuonRecExample.MuonRecTools.MdtDriftCircleOnTrackCreatorAdjustableT0",      "MdtDriftCircleOnTrackCreatorAdjustableT0")
-addTool( "MuonRecExample.MuonRecTools.MdtDriftCircleOnTrackCreatorAdjustableT0Mboy",  "MdtDriftCircleOnTrackCreatorAdjustableT0Mboy")
-addTool( "MuonRecExample.MuonRecTools.MdtDriftCircleOnTrackCreatorAdjustableT0Moore", "MdtDriftCircleOnTrackCreatorAdjustableT0Moore")
 
 addTool( "MuonRecExample.MuonRecTools.MuonRotCreator", "MuonRotCreator" )
 
@@ -50,14 +48,11 @@ addTool( "Trk::MaterialEffectsUpdator", "MuonMaterialEffectsUpdator" )
 addTool("MuonRecExample.MuonRecTools.MuonRK_Propagator","MuonRK_Propagator")
 addTool("MuonRecExample.MuonRecTools.MuonSTEP_Propagator","MuonSTEP_Propagator")
 addTool("MuonRecExample.MuonRecTools.MuonSTEP_Propagator","MuonPropagator")
-addTool("MuonRecExample.MuonRecTools.MuonSTEP_Propagator","MCTBPropagator") # for Moore
-#addTool("Trk::StraightLinePropagator", "MuonStraightLinePropagator")
+addTool("MuonRecExample.MuonRecTools.MuonSTEP_Propagator","MCTBPropagator") 
 addTool("Trk::STEP_Propagator", "MuonStraightLinePropagator")
 
 addTool("MuonRecExample.MuonRecTools.MuonExtrapolator", "MuonExtrapolator")
-addTool("MuonRecExample.MuonRecTools.MuonRK_Extrapolator", "MuonRK_Extrapolator")
-addTool("MuonRecExample.MuonRecTools.MuonSTEP_Extrapolator", "MuonSTEP_Extrapolator")
-addTool("MuonRecExample.MuonRecTools.MuonStraightLineExtrapolator", "MuonStraightLineExtrapolator")
+addTool("MuonRecExample.MuonRecTools.MuonExtrapolator", "MuonStraightLineExtrapolator")
 
 addTool("Trk::KalmanUpdator", "MuonMeasUpdator")
 
@@ -103,8 +98,6 @@ addTool( "MuonRecExample.MuonRecTools.MdtMathSegmentFinder", "MdtMathSegmentFind
 addTool( "MuonRecExample.MuonRecTools.DCMathSegmentMaker", "DCMathSegmentMaker" )
 
 addTool( "MuonRecExample.MuonRecTools.MuonClusterSegmentFinderTool", "MuonClusterSegmentFinderTool" )
-
-addTool( "MuonRecExample.MuonRecTools.MuonSegmentMerger", "MuonSegmentMerger" )
 
 addTool( "MuonRecExample.MuonRecTools.MuonLayerHoughTool","MuonLayerHoughTool" )
 
@@ -215,11 +208,6 @@ addTool( "MuonRecExample.MooreTools.MooTrackFitter", "MooSLTrackFitter",
          SLFit=True)
 
 addTool( "MuonRecExample.MooreTools.MooTrackBuilder", "MooTrackBuilderTemplate")
-
-addTool( "MuonRecExample.MooreTools.MooTrackSteering", "MooTrackSteering" )
-addTool( "MuonRecExample.MooreTools.MooreTrackSteering", "MooreTrackSteering" )
-
-
 
 
 addTool("MuonRecExample.CscTools.CscAlignmentTool","CscAlignmentTool")

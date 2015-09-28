@@ -6,22 +6,11 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 ## flag to set number of events to be processed
 EvtMax = -1
 
-## flag to run low-level muon D3PD making (temporary workaround until MuonD3PDMaker is fully migrated)
-## In Mig5: it requires to compile locally packages from ~mbellomo/public/muValid/eigen/setupToRunRecoD3PD
-## In devval : it requires to check-out and compile trunk of MuonRecoD3PDMaker 
-doD3PD = False
-
 ## flag for running in mig5
 doMig5 = False
 
-# flags to tweak standalone muon reconstruction
-from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
-
 # in Standalone mode, don't allow any configuration errors
 athenaCommonFlags.AllowIgnoreConfigError = False
-
-# add some more flags available for standalone running
-import MuonRecExample.MuonRecStandaloneFlags
 
 # configure flags so that only Muon Standalone reco is run
 import MuonRecExample.MuonRecStandaloneOnlySetup
@@ -61,15 +50,7 @@ muonRecFlags.doCalibNtuple = False # write calibration ntuple?
 #muonRecFlags.calibNtupleSegments = False # write segments to ntuple?
 #muonRecFlags.calibNtupleTracks = False # write tracks to ntuple?
 #muonRecFlags.calibNtupleTrigger = False # write trigger info to ntuple?
-#muonRecFlags.calibMoore = False   # write Moore tracks/segments to ntuple?
-#muonRecFlags.calibMuonboy = False # write Muonboy tracks/segments to ntuple?
-#muonRecFlags.doTrkD3PD = True # write d3PDs 
 ###
-#muonRecFlags.doMuonboy = False  # switch on or off Muonboy
-#muonRecFlags.doMoore = False    # switch on or off Moore
-
-### Switch on/off d3PDs
-#muonRecFlags.doTrkD3PD = False   
 
 #rec.doNameAuditor = True
 #muonRecFlags.doVP1 = True    # Decide whether to run Virtual Point1 graphical event display
@@ -81,8 +62,6 @@ rec.doTruth=True
 #muonRecFlags.useAlignmentCorrections = True
 rec.doTrigger = False
 #recFlags.doTruth.set_Value_and_Lock(False)
-muonRecFlags.doMoore.set_Value_and_Lock(False)
-muonRecFlags.doMuonboy.set_Value_and_Lock(False)
 muonRecFlags.doStandalone.set_Value_and_Lock(True)
 # Read geometry alignment corrections from DB
 #muonRecFlags.useAlignmentCorrections = True
@@ -124,11 +103,6 @@ try:
     #MyEDMTester.SummaryDumpFileName= DumpFileName+".summary.log" 
 
     ###### put any user finetuning before this line #####
-
-    # D3PD
-    if doD3PD:
-        from MuonRecoD3PDMaker.muonRecoD3PD import muonRecoD3PD
-        muonRecoD3PD ("muon_reco.root")
 
 ##### DO NOT ADD ANYTHING AFTER THIS LINE #####
 except:

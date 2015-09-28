@@ -36,33 +36,6 @@ if muonRecFlags.doTGCs() and DetFlags.makeRIO.TGC_on() and (DetFlags.haveRDO.TGC
 #
 if muonRecFlags.doPrdSelect():
     include("MuonPrdSelector/MuonPrdSelector_jobOptions.py")
-    # cut away part of simulation for Commissioning setups
-    if globalflags.DataSource() == 'geant4' and beamFlags.beamType() == 'cosmics':
-        ToolSvc.MuonIdCutTool.MdtBarrelEtaList = [] 
-        ToolSvc.MuonIdCutTool.MdtSectorList = []
-        ToolSvc.MuonIdCutTool.RpcEtaList = [] 
-        ToolSvc.MuonIdCutTool.RpcSectorList = []
-        if muonRecFlags.dataPeriod() == 'M3':
-            ToolSvc.MuonIdCutTool.MdtBarrelEtaList = [] 
-            ToolSvc.MuonIdCutTool.MdtSectorList = [5,6]
-            ToolSvc.MuonIdCutTool.RpcEtaList = [1,2,3,4,5,6,7,8]  #sec 5A used to trigger
-            ToolSvc.MuonIdCutTool.RpcSectorList = [5]
-        elif muonRecFlags.dataPeriod() == 'M4':
-            ToolSvc.MuonIdCutTool.MdtBarrelEtaList = [] 
-            ToolSvc.MuonIdCutTool.MdtSectorList = [3,4,5,6]
-            ToolSvc.MuonIdCutTool.RpcEtaList = [] 
-            ToolSvc.MuonIdCutTool.RpcSectorList = [4,5] 
-        elif muonRecFlags.dataPeriod() == 'M5':
-            ToolSvc.MuonIdCutTool.MdtBarrelEtaList = [] 
-            ToolSvc.MuonIdCutTool.MdtSectorList = [1,2,3,4,5,6,7,8,9,10]
-            ToolSvc.MuonIdCutTool.RpcEtaList = [] 
-            ToolSvc.MuonIdCutTool.RpcSectorList = [3,4,5,6]
-        elif muonRecFlags.dataPeriod() == 'M6':
-            ToolSvc.MuonIdCutTool.MdtBarrelEtaList = []
-            ToolSvc.MuonIdCutTool.MdtSectorList = [1,2,3,4,5,6,7,8,9,10,11,12]
-            ToolSvc.MuonIdCutTool.RpcEtaList = []
-            ToolSvc.MuonIdCutTool.RpcSectorList = [7,8]
-
 
 if muonRecFlags.doCSCs() and DetFlags.makeRIO.CSC_on():
     topSequence += getAlgorithm("CscThresholdClusterBuilder")

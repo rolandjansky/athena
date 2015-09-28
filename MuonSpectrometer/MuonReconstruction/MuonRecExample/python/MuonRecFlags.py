@@ -13,9 +13,7 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 from RecExConfig.RecFlags import rec
 from MuonRecUtils import logMuon,logMuonResil,RecConfigInfo,fillJobPropertyContainer,SummaryJobProperty
-# Load and give access to Muonboy and Moore flags (for convenience)
-from MuonboyFlags import muonboyFlags
-from MooreFlags import mooreFlags
+
 from MuonStandaloneFlags import muonStandaloneFlags
 
 from MuonCnvExample.MuonCalibFlags import mdtCalibFlags
@@ -24,19 +22,14 @@ import copy
 
 logMuon.info("Importing %s", __name__)
 
-
-## Run the Muonboy muon reconstruction algorithm
-class doMuonboy(JobProperty):
+## @brief Switch on VP1 event display. Only used in Muon Standalone.
+#
+# This flag should really be in AthenaCommon or RecExConfig
+class doVP1(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=False
 
-
-## Run the Moore muon reconstruction algorithm
-class doMoore(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
 
 ## Run the integrated muon reconstruction algorithm
 class doStandalone(JobProperty):
@@ -44,11 +37,6 @@ class doStandalone(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-## Run the new third chain configuration
-class doNewThirdChain(JobProperty):
-     StatusOn=True
-     allowedType=['bool']
-     StoredValue=False
 ## Run the new third chain configuration for the NSW
 class doNSWNewThirdChain(JobProperty):
      StatusOn=True
@@ -79,72 +67,6 @@ class doMSVertex(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-
-## @brief OBSOLETE. Use instead: doMoore, doMuonboy
-#
-#    List of top-level tags (strings) of pre-configured Muon reco configurations
-#    to be run. Only recos in this list are run. To switch off a certain reco,
-#    remove it from this list, e.g. with the remove() function.
-#    Format of the tags:
-#    \"[package].[module].[class]\"
-#    [class]             : the name of the configuration class
-#
-#    [module] (optional) : the name of the python module (inside package)
-#                 default: equal to <class>
-#    [package] (optional): the name of the package that contains the python module
-#                 default: MuonRecExample
-#    Examples of available tags:
-#    \"Muonboy\"
-#    \"Moore\" (currently equal to Moore.StandardMoore)
-#    \"Moore.StandardMoore\"
-#    \"Moore.MoMuMoore\"
-#    \"Moore.Csc4dMoore\"
-#    \"Moore.MoMu\"
-#    Note that one can choose only one among the Moore variants.
-class SelectReco(JobProperty):
-
-    statusOn=False
-    allowedTypes=['list']
-    StoredValue=['Muonboy','Moore']
-
-    def find(self,partOfTag,ignoreStatusOn=False):
-        """Check that the <partOfTag> string is part of one of the selected configuration tags.
-        It returns the full first matched tag, or an empty string if not found"""
-        if not self.statusOn and not ignoreStatusOn: return ''
-        for t in self.StoredValue:
-            if partOfTag in t: return t
-        return ''
-
-    def contains(self,partOfTag,ignoreStatusOn=False):
-        """Returns bool that indicated if the <partOfTag> string is part of one of the selected configuration tags."""
-        return self.find(partOfTag,ignoreStatusOn) != ''
-
-    def remove(self,partOfTag,ignoreStatusOn=True):
-        """Remove all entries that match <partOfTag>"""
-        if not self.statusOn and not ignoreStatusOn: return
-        oldList = self.StoredValue
-        newList = []
-        for t in oldList:
-            if partOfTag not in t: newList.append(t)
-        if newList != oldList:
-            self.set_Value(newList)
-
-    def _do_action(self):
-        """Load JobPropertyContainers and Modules associated to requested configs,
-        and unload all others (given in SelectReco.Containers)"""
-        print "muonRecFlags.SelectReco is obsolete. Please use muonRecFlags.doMoore and doMuonboy instead"
-        global muonRecFlags
-        fullTag = self.find("Muonboy")
-        if fullTag:
-            muonRecFlags.doMuonboy = True
-        else:
-            muonRecFlags.doMuonboy = False
-        fullTag = self.find("Moore")
-        if fullTag:
-            muonRecFlags.doMoore = True
-        else:
-            muonRecFlags.doMoore = False
-                
 
 ## Re-run muon digitization on-the-fly just before reconstruction. Needs DIGITS as input file.
 class doDigitization(JobProperty):
@@ -188,13 +110,6 @@ class doCalib(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-
-## Write Trk D3PDs
-class doTrkD3PD(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
 ## Write calibration ntuple
 class doCalibNtuple(JobProperty):
     statusOn=True
@@ -231,17 +146,6 @@ class calibNtupleRawTGC(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-## Write moore tracks and segment to calibration ntuple
-class calibMoore(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
-
-## Write muonboy tracks and segment to calibration ntuple
-class calibMuonboy(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
 
 ## Write muonboy tracks and segment to calibration ntuple
 class calibMuonStandalone(JobProperty):
@@ -265,20 +169,6 @@ class doSegmentsOnly(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-    def _change_action(self):
-        value = self.get_Value()
-        logMuon.info("Forwarding muonRecFlags.doSegmentsOnly = %r to muonboyFlags.doSegmentsOnly and mooreFlags.doSegmentsOnly", value )
-        muonboyFlags.doSegmentsOnly = value
-        mooreFlags.doSegmentsOnly = value
-        muonStandaloneFlags.doSegmentsOnly = value
-
-    def _do_action(self):
-        self._change_action()
-
-    def _undo_action(self):
-        self._change_action()
-
-
 
 ## @brief Fit MDT segments using a variable t0.
 #
@@ -288,26 +178,7 @@ class doSegmentT0Fit(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=False
-
-## @brief Force some reconstruction settings to be in collision mode.
-#
-# Used to test collisions-data mode with cosmics-data.
-# Affects MuonRecTools.py and Moore.py.
-class forceCollisionsMode(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-                 
-## @brief Force some reconstruction settings to be in data mode.
-#
-# Used to test collisions-data mode with collisions-simulation.
-# Affects MuonRecTools.py and Moore.py.
-class forceDataMode(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-    
-
+   
 ## turn on error tuning to account for misalignments
 class enableErrorTuning(JobProperty):
     statusOn=True
@@ -402,27 +273,9 @@ class doPrdSelect(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
-
-## @brief Choose data taking period.
-#
-# Possible values: Sector13,MU1,MU2,MU3,M3,M4,M5,M6,P1,P2,P3,P4,Reproc08,Reproc09,LHC
-# It indicates an old way (up to release 15.3.0) to access the calibration constants from
-# special <tags> from the Db on real data only.
-# Now we are accessing constants from the tag in the Db associated to a global conditions tag
-# for all cases, Data (online or offline) and MC
-# The flag  is set by default to "LHC" but it has no effect anymore
-#
-class dataPeriod(JobProperty):
-    statusOn=True
-    allowedTypes=['str']
-    allowedValues=["MU1","MU2","MU3","Sector13","M3","M4","M5","M6","M7","M8","P1","P2","P3","P4","LHC","Reproc08","Reproc09"]
-    StoredValue="LHC"
-
-
 # @brief run truth-matching on tracks to evaluate tracking performance
 #
-# It will enable matching for Moore and/or Muonboy depending on flags doMoore and doMuonboy
-# It uses MuonTrackPerformanceAlg
+# It will MuonTrackPerformanceAlg
 class doTrackPerformance(JobProperty):
     statusOn=True
     allowedTypes=['bool']
@@ -458,6 +311,12 @@ class writeSDOs(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
+# @brief Write out Muon RDOs into a file (i.e. ESDs)
+class writeRDOs(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
 # @brief Write out Muon exit layer and filter it
 class writeMuonExitLayer(JobProperty):
     statusOn=True
@@ -472,31 +331,19 @@ class makePRDs(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-# @brief Run in commissioning mode (looser cuts)
-#
-# Replaces rec.Commissioning (which is to be removed). The default is set equal to rec.Commissioning
-class Commissioning(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
 
 
 ## The flags to steer muon reconstruction
 class MuonRec(JobPropertyContainer):
     ##set defaults of the flags depending on type of input (MC, data, cosmics etc.)
     def setDefaults(self):
-        global globalflags,mooreFlags,muonboyFlags
-        mooreFlags.setDefaults()
-        muonboyFlags.setDefaults()
+        global globalflags
 
         from MuonRecUtils import setJobPropertyDefault as setDefault
 
         # as long as rec.Commissioning is alive, sync the default to it
-        setDefault(self.Commissioning,rec.Commissioning())
         # in case of BS->RDO, RDO->RDO, RDO->BS, BS->BS: don't run RIO (i.e RDO->PRD)
         setDefault(self.makePRDs, rec.readRDO() and not rec.doWriteRDO() and not rec.doWriteBS())
-        #setDefault(self.doMuonboy,True)
-        #setDefault(self.doMoore,True)
         setDefault(self.doStandalone,True)
         setDefault(self.doDigitization,False)
         setDefault(self.doCalib,False)
@@ -506,28 +353,13 @@ class MuonRec(JobPropertyContainer):
         setDefault(self.doRPCs,True)
         setDefault(self.doTGCs,True)
         setDefault(self.doCSCs,True)
-        setDefault(self.doMSVertex,False)
-        setDefault(self.forceDataMode,self.Commissioning())
-        setDefault(self.forceCollisionsMode,False)
+        setDefault(self.doMSVertex,True)
         setDefault(self.useWireSagCorrections,False)
         setDefault(self.enableErrorTuning,True)
         setDefault(self.useLooseErrorTuning,False)
         setDefault(self.useAlignmentCorrections,DetFlags.detdescr.Muon_on() and rec.doMuon())
         setDefault(self.writeSDOs, rec.doWriteESD() and globalflags.DataSource != 'data')
-        if globalflags.DataSource == 'data':
-            setDefault(self.useTGCPriorNextBC,True)
-#            setDefault(self.doCSCs,False)         
-        elif self.forceDataMode():
-            if beamFlags.beamType == 'collisions':
-                # NB: this is setting a flag from another container!!!
-                setDefault(mdtCalibFlags.correctMdtRtForBField,True)
-            setDefault(self.useTGCPriorNextBC,False)
-#            setDefault(self.doCSCs,False)
-            setDefault(self.useAlignmentCorrections,DetFlags.detdescr.Muon_on() and rec.doMuon())
-        else:
-            setDefault(self.useTGCPriorNextBC,False)
-#            setDefault(self.doCSCs,True)
-#            setDefault(self.useAlignmentCorrections,False)
+        setDefault(self.useTGCPriorNextBC,True)
 
         if beamFlags.beamType == 'cosmics' or beamFlags.beamType == 'singlebeam':
             setDefault(self.doSegmentT0Fit,True)
@@ -535,11 +367,8 @@ class MuonRec(JobPropertyContainer):
             setDefault(self.doSegmentT0Fit,False)
             
         setDefault(self.doPrdSelect,False)
-        setDefault(self.dataPeriod,"LHC")
 
         # Default for MuonCalibration ntuple
-        setDefault(self.calibMoore,   muonRecFlags.doMoore()   or rec.readESD() )
-        setDefault(self.calibMuonboy, muonRecFlags.doMuonboy() or rec.readESD() )
         setDefault(self.calibMuonStandalone, muonRecFlags.doStandalone() or rec.readESD() )
         try:
             from MuonCnvExample.MuonCalibFlags import muonCalibFlags
@@ -549,17 +378,8 @@ class MuonRec(JobPropertyContainer):
             self.doCalib = False
             self.doCalibNtuple = False
         else:
-            # for backwards compat: synchronise with muoncalibFlags
-            if not muonCalibFlags.EventTag.statusOn:
-                muonCalibFlags.EventTag = 'Moore'
-
-            if muonCalibFlags.EventTag == 'Muonboy':
-                logMuon.info("Setting muonRecFlags.calibMoore = False because muonCalibFlags.EventTag == \'Muonboy\'")
-                setDefault(self.calibMoore, False)
-                
-            doTracks = (muonRecFlags.calibMoore()   and not   mooreFlags.doSegmentsOnly()) or \
-                       (muonRecFlags.calibMuonboy() and not muonboyFlags.doSegmentsOnly()) or \
-		       self.calibMuonStandalone()
+               
+            doTracks = self.calibMuonStandalone()
             # chose a default
             if not muonCalibFlags.Mode.statusOn:
                 if doTracks:
@@ -725,10 +545,7 @@ muonRecFlags = jobproperties.MuonRec
 fillJobPropertyContainer(muonRecFlags,__name__)
 
 
-## @brief Enable or disable the Muon Reconstruction (Moore and Muonboy).
-#
-# True  : run Moore and/or Muonboy depending on the flags doMoore and doMuonboy
-# False : do not run Moore nor Muonboy
+## @brief Enable or disable the Muon Reconstruction
 class Enabled(SummaryJobProperty):
     statusOn=True
     allowedTypes=['bool']
@@ -736,10 +553,9 @@ class Enabled(SummaryJobProperty):
 
     # list of flags controlled by Enable flag
     _properties = [ muonRecFlags.makePRDs,
-                    muonRecFlags.doMuonboy,
-                    muonRecFlags.doMoore,
                     muonRecFlags.doStandalone,
-                    muonRecFlags.doDigitization ]
+                    muonRecFlags.doDigitization,
+                    muonRecFlags.doMSVertex ]
 
 muonRecFlags.add_JobProperty(Enabled)
 

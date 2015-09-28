@@ -3,7 +3,6 @@
 # @brief Main jobOptions to setup muon reconstruction. Main muon entry point for RecExCommon.
 #
 # Setup the data converters depending on the type of input file and run muon standalone reconstruction
-# depending on MuonRecFlags.doMuonboy and doMoore.
 # It can optionally write out the calibration ntuple (depending on muonRecFlags.doCalib)
 #
 # @author Martin Woudstra
@@ -102,21 +101,19 @@ if rec.doTruth() and DetFlags.makeRIO.Muon_on():
 
 
 #load default tools:
-if muonRecFlags.doMoore() or muonRecFlags.doMuonboy() or (muonRecFlags.doStandalone() and not muonStandaloneFlags.patternsOnly()) \
-        or muonRecFlags.doPseudoTracking():
+if muonRecFlags.doStandalone() or muonRecFlags.doPseudoTracking():
     include ("MuonRecExample/MuonRecLoadTools.py")
 
 
 if muonRecFlags.doPseudoTracking():
   include("MuonRecExample/MuonTrackTruthCreation.py")
 
-if muonRecFlags.doMoore() or muonRecFlags.doMuonboy() or muonRecFlags.doStandalone():
+if muonRecFlags.doStandalone():
     # 
-    # Load reconstruction algorithms (Muonboy,Moore,MuonStandalone)
+    # Load reconstruction algorithms (MuonStandalone)
     #
     from MuonRecExample.MuonRec import muonRec
 
-    muonRecFlags.doMSVertex = True
 
     if rec.doTruth():   
         from MuonTruthAlgs.MuonTruthAlgsConf import MuonDetailedTrackTruthMaker
@@ -152,12 +149,6 @@ if muonRecFlags.doCalib() or muonRecFlags.doCalibNtuple():
 #--------------------------------------------------------------------------
 if muonRecFlags.doTrackPerformance():
     include("MuonRecExample/MuonTrackPerformance_jobOptions.py")
-
-#--------------------------------------------------------------------------
-# Make D3PDs
-#--------------------------------------------------------------------------
-if muonRecFlags.doTrkD3PD():
-    include("MuonRecExample/MuonRecD3PDCreation.py")
 
 if muonRecFlags.doMSVertex():
     from MSVertexRecoAlg.MSVertexRecoAlgConf import MSVertexRecoAlg

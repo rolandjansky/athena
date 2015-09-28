@@ -12,6 +12,9 @@ if DetFlags.detdescr.Muon_on() and (rec.doWriteAOD() or rec.doWriteESD()):
    MuonAODList+=[ "xAOD::MuonSegmentContainer#MuonSegments" ]
    MuonAODList+=[ "xAOD::MuonSegmentAuxContainer#MuonSegmentsAux." ]
 
+   MuonAODList+=[ "xAOD::MuonSegmentContainer#NCB_MuonSegments" ]
+   MuonAODList+=[ "xAOD::MuonSegmentAuxContainer#NCB_MuonSegmentsAux." ]
+
    # TrackParticles 
    MuonAODList+=[ "xAOD::TrackParticleContainer#MuonSpectrometerTrackParticles" ]
    MuonAODList+=[ "xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux." ]
@@ -76,6 +79,7 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
 
    # Segments
    MuonESDList+=["Trk::SegmentCollection#MuonSegments"]
+   MuonESDList+=["Trk::SegmentCollection#NCB_MuonSegments"]
 
    # Tracks
    MuonESDList+=["TrackCollection#MuonSpectrometerTracks"] 
@@ -100,7 +104,7 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
          MuonESDList+=["MuonSimDataCollection#STGC_SDO"]
          MuonESDList+=["MuonSimDataCollection#MM_SDO"]
 
-   if muonRecFlags.Commissioning():
+   if muonRecFlags.writeRDOs():
       # Write out CSC, RPC, and MDT RDOs.
       # I'm wondering if we should be doing something in MuonCnvExample to ensure we have the right
       # configuration? See bug#59676

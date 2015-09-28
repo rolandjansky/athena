@@ -17,7 +17,6 @@ from AthenaCommon import CfgMgr
 
 from RecExConfig.RecFlags import rec
 
-from MooreFlags import mooreFlags
 from MuonRecFlags import muonRecFlags
 from MuonStandaloneFlags import muonStandaloneFlags
 
@@ -29,7 +28,6 @@ from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicT
 
 # call  setDefaults to update flags
 muonRecFlags.setDefaults()
-mooreFlags.setDefaults()
 
 class MuPatCandidateTool(CfgMgr.Muon__MuPatCandidateTool,ConfiguredBase):
     __slots__ = ()
@@ -37,14 +35,8 @@ class MuPatCandidateTool(CfgMgr.Muon__MuPatCandidateTool,ConfiguredBase):
     def __init__(self,name='MuPatCandidateTool',**kwargs):
         self.applyUserDefaults(kwargs,name)
         super(MuPatCandidateTool,self).__init__(name,**kwargs)
-if muonStandaloneFlags.trackBuilder == 'Muonboy': 
-    MuPatCandidateTool.setDefaultProperties( SegmentExtender = "MboyMuonTrackBuilder" )
-else:
-    MuPatCandidateTool.setDefaultProperties( SegmentExtender = "" )
+MuPatCandidateTool.setDefaultProperties( SegmentExtender = "" )
         
-if (globalflags.DataSource() == 'data' or muonRecFlags.forceDataMode()) and mooreFlags.rescaleCscClustersInTrackFinding():
-   MuPatCandidateTool.setDefaultProperties( DoCscRecreation = True,
-                                            CscRotCreator = "CscBroadClusterOnTrackCreator" )
 
 
 class MuPatHitTool(CfgMgr.Muon__MuPatHitTool,ConfiguredBase):
