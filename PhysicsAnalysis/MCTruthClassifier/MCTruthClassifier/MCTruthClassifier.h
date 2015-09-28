@@ -133,6 +133,8 @@ class MCTruthClassifier : public AthAlgTool, virtual public IMCTruthClassifier {
    MCTruthPartClassifier::ParticleOrigin  defOrigOfPhoton(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*);
    MCTruthPartClassifier::ParticleOutCome defOutComeOfPhoton(const xAOD::TruthParticle*);
    //
+   MCTruthPartClassifier::ParticleOrigin  defOrigOfNeutrino(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*);
+   //
    MCTruthPartClassifier::ParticleOrigin  defHadronType(long);
    bool isHadron(const xAOD::TruthParticle*);
    MCTruthPartClassifier::ParticleType    defTypeOfHadron(long);
