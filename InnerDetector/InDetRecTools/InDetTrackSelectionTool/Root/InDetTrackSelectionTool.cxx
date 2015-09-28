@@ -16,12 +16,8 @@
 #endif
 
 #include <memory>
-#include <limits>
 
 namespace {
-  constexpr Double_t LOCAL_MAX_DOUBLE = 1.0e16;
-  constexpr Int_t LOCAL_MAX_INT = std::numeric_limits<Int_t>::max();
-
   // define a local make_unique to use in gcc version < 4.9
 #if __cplusplus > 201103L
   using std::make_unique;
@@ -37,14 +33,9 @@ namespace {
 
 InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name, const std::string& cutLevel)
   : asg::AsgTool(name)
-  , m_isInitialized(false)
-  , m_numTracksProcessed(0)
-  , m_numTracksPassed(0)
   , m_accept( "InDetTrackSelection" )
   , m_cutLevel(cutLevel)
 #ifndef XAOD_ANALYSIS
-  , m_initTrkTools(false)
-  , m_trackSumToolAvailable(false)
   , m_trackSumTool("Trk::TrackSummaryTool/TrackSummaryTool", this)
   , m_extrapolator("Trk::Extrapolator/Extrapolator", this)
 #endif // XAOD_ANALYSIS
@@ -81,6 +72,8 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name,
 		  "Required hits on two innermost pixel layers");
   declareProperty("maxNInnermostLayerSharedHits", m_maxNInnermostLayerSharedHits,
 		  "Maximum shared hits in innermost pixel layer");
+  declareProperty("useMinBiasInnermostLayersCut", m_useMinBiasInnermostLayersCut,
+		  "IBL hit if expected, otherwise next layer hit if expected");
   declareProperty("minNSiHits", m_minNSiHits, "Minimum silicon (pixel + SCT) hits");
   declareProperty("maxNSiSharedHits", m_maxNSiSharedHits,
 		  "Maximum silicon (pixel + SCT) sensors shared with other track");
@@ -215,15 +208,15 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
   // tell the user which cuts are recognized.
   if (m_minPt > 0.) {
     ATH_MSG_INFO( "  Minimum Pt: " << m_minPt << " MeV" );
-    m_trackCuts["Pt"].push_back(make_unique<PtCut>(this, m_minPt));
+    m_trackCuts["Pt"].push_back(make_unique<MinCut<double, &xAOD::TrackParticle::pt> >(this, m_minPt, "pt"));
   }
   if (maxDoubleIsSet(m_maxAbsEta)) {
     ATH_MSG_INFO( "  Maximum |Eta|: " << m_maxAbsEta );
-    m_trackCuts["Eta"].push_back(make_unique<EtaCut>(this, m_maxAbsEta));
+    m_trackCuts["Eta"].push_back(make_unique< MaxAbsCut<double, &xAOD::TrackParticle::eta> >(this, m_maxAbsEta, "eta"));
   }
   if (m_minP > 0.) {
     ATH_MSG_INFO( "  Minimum P: " << m_minP << " MeV" );
-    m_trackCuts["P"].push_back(make_unique<PCut>(this, m_minP));
+    m_trackCuts["P"].push_back(make_unique< MaxAbsCut<float, &xAOD::TrackParticle::qOverP> >(this, 1./m_minP, "qOverP"));
   }
   if (maxDoubleIsSet(m_maxD0)) {
     ATH_MSG_INFO( "  Maximum d0: " << m_maxD0 << " mm" );
@@ -298,6 +291,18 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
 			       {return std::max(vals[0], (uint8_t) !vals[2])
 				   + std::max(vals[1], (uint8_t) !vals[3])
 				   >= m_minNBothInnermostLayersHits; } );
+    m_trackCuts["InnermostLayersHits"].push_back(std::move(minInnerHits));
+  }
+  if (m_useMinBiasInnermostLayersCut > 0 ) { // less than zero indicates this cut is manually turned off
+    ATH_MSG_INFO( "An innermost layer hit is required if expected, otherwise" );
+    ATH_MSG_INFO( "a next-to-innermost layer hit is required if it is expected." );
+    auto minInnerHits = make_unique< FuncSummaryValueCut<4> >
+      (this, std::array<xAOD::SummaryType,4>(  
+	{xAOD::numberOfInnermostPixelLayerHits, xAOD::numberOfNextToInnermostPixelLayerHits,
+	    xAOD::expectInnermostPixelLayerHit, xAOD::expectNextToInnermostPixelLayerHit}) );
+    minInnerHits->setFunction( [=](const std::array<uint8_t,4>& vals)
+			       {return (vals[2] > 0 && vals[0] >= 1) ||
+				   (vals[2] == 0 && (vals[3] == 0 || vals[1] >= 1));} );
     m_trackCuts["InnermostLayersHits"].push_back(std::move(minInnerHits));
   }
   if (maxIntIsSet(m_maxNInnermostLayerSharedHits)) {
@@ -397,11 +402,14 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
   if (m_minNSiHitsIfSiSharedHits > 0) {
     ATH_MSG_INFO( "  Minimum silicon hits if the track has shared hits: "
 		  << m_minNSiHitsIfSiSharedHits );
-    auto siHits = make_unique< FuncSummaryValueCut<4> >
-      (this, std::array<xAOD::SummaryType, 4>({xAOD::numberOfPixelHits, xAOD::numberOfSCTHits,
+    auto siHits = make_unique< FuncSummaryValueCut<6> >
+      (this, std::array<xAOD::SummaryType, 6>({xAOD::numberOfPixelHits, xAOD::numberOfSCTHits,
+	    xAOD::numberOfPixelDeadSensors, xAOD::numberOfSCTDeadSensors,
 	    xAOD::numberOfPixelSharedHits, xAOD::numberOfSCTSharedHits}) );
-    siHits->setFunction( [=] (const std::array<uint8_t, 4>& vals)
-			 {return (vals[2] + vals[3] == 0) || (vals[0] + vals[1] >= m_minNSiHitsIfSiSharedHits);} );
+    siHits->setFunction( [=] (const std::array<uint8_t, 6>& vals)
+			 {return (vals[4] + vals[5] == 0) ||
+			     (vals[0] + vals[1] + vals[2] + vals[3]
+			      >= m_minNSiHitsIfSiSharedHits);} );
     m_trackCuts["SiHits"].push_back(std::move(siHits));
   }
   if (maxDoubleIsSet(m_minEtaForStrictNSiHitsCut)
@@ -409,7 +417,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     ATH_MSG_INFO( "  Require " << m_minNSiHitsAboveEtaCutoff
 		  << " silicon hits above eta = " << m_minEtaForStrictNSiHitsCut );
     m_trackCuts["SiHits"].push_back(make_unique<MinNSiHitsAboveEta>(this, m_minNSiHitsAboveEtaCutoff,
-								    m_minEtaForStrictNSiHitsCut));
+    								    m_minEtaForStrictNSiHitsCut));
   }
 #ifndef XAOD_ANALYSIS
   if (m_minNSiHitsMod > 0) {
@@ -491,7 +499,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
       ATH_MSG_INFO( "    Maximum fraction of TRT hits that are outliers: " << m_maxTrtOutlierFraction );
       auto maxTrtRatio = make_unique<MaxTrtHitRatioCut>(this, m_maxTrtOutlierFraction,
 							m_maxTrtEtaAcceptance,
-							m_maxTrtOutlierFraction);
+							m_maxEtaForTrtHitCuts);
       maxTrtRatio->addSummaryTypeNumerator( xAOD::numberOfTRTOutliers );
       maxTrtRatio->addSummaryTypeDenominator( xAOD::numberOfTRTHits );
       maxTrtRatio->addSummaryTypeDenominator( xAOD::numberOfTRTOutliers );
@@ -518,19 +526,17 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     ATH_MSG_INFO( "  Minimum chi-sq probability of " << m_minProbAbovePtCutoff
 		  << " above pt of " << m_minPtForProbCut*1e-3 << " GeV." );
     auto lowPtOrAboveProb = make_unique< OrCut<2> >(this);
-    auto maxPt = make_unique<NotCut>(this);
-    maxPt->Cut() = make_unique<PtCut>(this, m_minPtForProbCut);
-    lowPtOrAboveProb->setCut(0, std::move(maxPt));
+    lowPtOrAboveProb->Cut(0) = make_unique< MaxCut<double, &xAOD::TrackParticle::pt> >(this, m_minPtForProbCut, "pt");
     lowPtOrAboveProb->Cut(1) = make_unique<MinProb>(this, m_minProbAbovePtCutoff);
     m_trackCuts["FitQuality"].push_back(std::move(lowPtOrAboveProb));
   }
   if (m_minNUsedHitsdEdx > 0) {
     ATH_MSG_INFO( "  Minimum used hits for dEdx: " << m_minNUsedHitsdEdx );
-    m_trackCuts["dEdxHits"].push_back(make_unique<MinUsedHitsdEdxCut>(this, m_minNUsedHitsdEdx));
+    m_trackCuts["dEdxHits"].push_back(make_unique< MinCut<uint8_t, &xAOD::TrackParticle::numberOfUsedHitsdEdx> >(this, m_minNUsedHitsdEdx, "usedHitsdEdx"));
   }
   if (m_minNOverflowHitsdEdx > 0) {
     ATH_MSG_INFO( "  Minimum IBL overflow hits for dEdx: " << m_minNOverflowHitsdEdx );
-    m_trackCuts["dEdxHits"].push_back(make_unique<MinOverflowHitsdEdxCut>(this, m_minNOverflowHitsdEdx));
+    m_trackCuts["dEdxHits"].push_back(make_unique< MinCut<uint8_t, &xAOD::TrackParticle::numberOfIBLOverflowsdEdx> >(this, m_minNOverflowHitsdEdx, "overflowHitsdEdx"));
   }
   if (m_minEProbabilityHT > 0) {
     ATH_MSG_INFO( "  Minimum high threshold electron probability: " << m_minEProbabilityHT );
@@ -570,6 +576,9 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
 StatusCode InDet::InDetTrackSelectionTool::finalize()
 {
   ATH_MSG_INFO("Finalizing track selection tool.");
+  if (!m_isInitialized) {
+    ATH_MSG_ERROR( "You are attempting to finalize a tool that has not been initialized()." );
+  }
   if (m_numTracksProcessed == 0) {
     ATH_MSG_INFO( "No tracks processed in selection tool." );
     return StatusCode::SUCCESS;
@@ -653,7 +662,12 @@ InDet::InDetTrackSelectionTool::accept( const xAOD::IParticle* p ) const
 const Root::TAccept& InDet::InDetTrackSelectionTool::accept( const xAOD::TrackParticle& trk,
 							     const xAOD::Vertex* vtx ) const
 {
-  if (!m_isInitialized) ATH_MSG_WARNING( "Tool is not initialized! Calling accept() will not be very helpful." );
+  if (!m_isInitialized) {
+    if (!m_warnInit) {
+      ATH_MSG_WARNING( "Tool is not initialized! Calling accept() will not be very helpful." );
+      m_warnInit = true;
+    }
+  }
 
   // Reset the result:
   m_accept.clear();
@@ -832,6 +846,7 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
       m_minNNextToInnermostLayerHits = -1;
       m_minNBothInnermostLayersHits = -1;
       m_maxNInnermostLayerSharedHits = LOCAL_MAX_INT;
+      m_useMinBiasInnermostLayersCut = 0;
       m_minNPixelHits = -1;
       m_minNPixelHitsPhysical = -1;
       m_maxNPixelSharedHits = LOCAL_MAX_INT;
@@ -877,77 +892,60 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
   case CutLevel::Loose :
     setCutLevelPrivate(CutLevel::NoCut, overwrite); // if hard overwrite, reset all cuts first. will do nothing if !overwrite
     // change the cuts if a hard overwrite is asked for or if the cuts are unset
-    if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE)
-      m_maxAbsEta = 2.5;
-    if (overwrite || m_minNSiHits < 0)
-      m_minNSiHits = 7;
+    if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 2.5;
+    if (overwrite || m_minNSiHits < 0) m_minNSiHits = 7;
     m_maxOneSharedModule = true;
-    if (overwrite || m_maxNSiHoles >= LOCAL_MAX_INT)
-      m_maxNSiHoles = 2;
-    if (overwrite || m_maxNPixelHoles >= LOCAL_MAX_INT)
-      m_maxNPixelHoles = 1;
+    if (overwrite || m_maxNSiHoles >= LOCAL_MAX_INT) m_maxNSiHoles = 2;
+    if (overwrite || m_maxNPixelHoles >= LOCAL_MAX_INT) m_maxNPixelHoles = 1;
     break;
   case CutLevel::LoosePrimary :
-    setCutLevelPrivate(CutLevel::Loose, overwrite); // implement loose cuts first
-    if (overwrite || m_minNSiHitsIfSiSharedHits < 0)
-      m_minNSiHitsIfSiSharedHits = 10;
+    setCutLevelPrivate(CutLevel::NoCut, overwrite); // implement loose cuts first
+    if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 2.5;
+    if (overwrite || m_minNSiHits < 0) m_minNSiHits = 7;
+    m_maxOneSharedModule = true;
+    if (overwrite || m_maxNSiHoles >= LOCAL_MAX_INT) m_maxNSiHoles = 2;
+    if (overwrite || m_maxNPixelHoles >= LOCAL_MAX_INT) m_maxNPixelHoles = 1;
+    if (overwrite || m_minNSiHitsIfSiSharedHits < 0) m_minNSiHitsIfSiSharedHits = 10;
     break;
   case CutLevel::TightPrimary :
-    setCutLevelPrivate(CutLevel::Loose, overwrite); // implement loose cuts first
-    if (overwrite || m_minNSiHits < 0)
-      m_minNSiHits = 9;
-    if (overwrite || m_minEtaForStrictNSiHitsCut >= LOCAL_MAX_DOUBLE)
-      m_minEtaForStrictNSiHitsCut = 1.65;
-    if (overwrite || m_minNSiHitsAboveEtaCutoff < 0)
-      m_minNSiHitsAboveEtaCutoff = 11;
-    if (overwrite || m_minNBothInnermostLayersHits < 0)
-      m_minNBothInnermostLayersHits = 1;
-    if (overwrite || m_maxNPixelHoles >= LOCAL_MAX_INT)
-      m_maxNPixelHoles = 0;
+    setCutLevelPrivate(CutLevel::NoCut, overwrite);
+    if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 2.5;
+    if (overwrite || m_minNSiHits < 0) m_minNSiHits = 9;
+    m_maxOneSharedModule = true;
+    if (overwrite || m_maxNSiHoles >= LOCAL_MAX_INT) m_maxNSiHoles = 2;
+    if (overwrite || m_maxNPixelHoles >= LOCAL_MAX_INT) m_maxNPixelHoles = 0;
+    if (overwrite || m_minEtaForStrictNSiHitsCut >= LOCAL_MAX_DOUBLE) m_minEtaForStrictNSiHitsCut = 1.65;
+    if (overwrite || m_minNSiHitsAboveEtaCutoff < 0) m_minNSiHitsAboveEtaCutoff = 11;
+    if (overwrite || m_minNBothInnermostLayersHits < 0) m_minNBothInnermostLayersHits = 1;
     break;
   case CutLevel::LooseMuon :
     setCutLevelPrivate(CutLevel::NoCut, overwrite); // reset cuts unless we are doing a soft set
-    if (overwrite || m_minNPixelHits < 0)
-      m_minNPixelHits = 1;
-    if (overwrite || m_minNSctHits < 0)
-      m_minNSctHits = 5;
-    if (overwrite || m_maxNSiHoles >= LOCAL_MAX_INT)
-      m_maxNSiHoles = 2;
-    if (overwrite || m_maxTrtEtaAcceptance >= LOCAL_MAX_DOUBLE )
-      m_maxTrtEtaAcceptance = 0.1;
-    if (overwrite || m_maxEtaForTrtHitCuts < 0.)
-      m_maxEtaForTrtHitCuts = 1.9;
-    if (overwrite || m_minNTrtHitsPlusOutliers < 0)
-      m_minNTrtHitsPlusOutliers = 6;
-    if (overwrite || m_maxTrtOutlierFraction < 1.)
-      m_maxTrtOutlierFraction = 0.9;
+    if (overwrite || m_minNPixelHits < 0) m_minNPixelHits = 1;
+    if (overwrite || m_minNSctHits < 0) m_minNSctHits = 5;
+    if (overwrite || m_maxNSiHoles >= LOCAL_MAX_INT) m_maxNSiHoles = 2;
+    if (overwrite || m_maxTrtEtaAcceptance >= LOCAL_MAX_DOUBLE ) m_maxTrtEtaAcceptance = 0.1;
+    if (overwrite || m_maxEtaForTrtHitCuts < 0.) m_maxEtaForTrtHitCuts = 1.9;
+    if (overwrite || m_minNTrtHitsPlusOutliers < 0) m_minNTrtHitsPlusOutliers = 6;
+    if (overwrite || m_maxTrtOutlierFraction >= LOCAL_MAX_DOUBLE) m_maxTrtOutlierFraction = 0.9;
     break;
   case CutLevel::LooseElectron :
     setCutLevelPrivate(CutLevel::NoCut, overwrite);
-    if (overwrite || m_minNSiHits < 0)
-      m_minNSiHits = 7;
-    if (overwrite || m_minNPixelHits < 0)
-      m_minNPixelHits = 1;
+    if (overwrite || m_minNSiHits < 0) m_minNSiHits = 7;
+    if (overwrite || m_minNPixelHits < 0) m_minNPixelHits = 1;
     break;
   case CutLevel::MinBias :
-    if (overwrite || m_minNBothInnermostLayersHits < 0)
-      m_minNBothInnermostLayersHits = 1;
-    if (overwrite || m_minNPixelHits < 0)
-      m_minNPixelHits = 1;
-    if (overwrite || m_minNSctHits < 0)
-      m_minNSctHits = 6;
+    setCutLevelPrivate(CutLevel::NoCut, overwrite);
+    if (overwrite || m_useMinBiasInnermostLayersCut >= 0) m_useMinBiasInnermostLayersCut = 1; // if this is less than 0, it is turned off
+    if (overwrite || m_minNPixelHits < 0) m_minNPixelHits = 1;
+    if (overwrite || m_minNSctHits < 0) m_minNSctHits = 6;
     if (overwrite || m_minProbAbovePtCutoff < 0.) {
       m_minPtForProbCut = 10000.;
       m_minProbAbovePtCutoff = .01;
     }
-    if (overwrite || m_maxD0 >= LOCAL_MAX_DOUBLE)
-      m_maxD0 = 1.5;
-    if (overwrite || m_maxZ0SinTheta >= LOCAL_MAX_DOUBLE)
-      m_maxZ0SinTheta = 1.5;
-    if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE)
-      m_maxAbsEta = 2.5;
-    if (overwrite || m_minPt < 0.)
-      m_minPt = 500.;
+    if (overwrite || m_maxD0 >= LOCAL_MAX_DOUBLE) m_maxD0 = 1.5;
+    if (overwrite || m_maxZ0SinTheta >= LOCAL_MAX_DOUBLE) m_maxZ0SinTheta = 1.5;
+    if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE) m_maxAbsEta = 2.5;
+    if (overwrite || m_minPt < 0.) m_minPt = 500.;
     break;
   default:
     ATH_MSG_ERROR("CutLevel not recognized. Cut selection will remain unchanged.");

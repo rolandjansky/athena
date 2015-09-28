@@ -41,13 +41,11 @@ namespace InDet {
 			       const Trk::TrackParameters* perigee = 0,
 			       const Trk::TrackSummary* summary = 0) = 0;
 #endif    
-    bool isValid() const {return m_valid;} // accessor to validity flag
-  protected:
-    bool m_valid; // whether to trust the value
   };
 
   // ---------------- SummaryAccessor ----------------
-  // summary values can be a uint8_t or a float: at some point may templatize
+  // summary values can be a uint8_t or a float: at some point may templatize,
+  //    but would require templatizing cuts first
   class SummaryAccessor : public virtual TrackAccessor {
   public:
     SummaryAccessor(const asg::IAsgTool*);
@@ -65,12 +63,14 @@ namespace InDet {
     xAOD::SummaryType m_summaryType;
   }; // class SummaryAccessor
 
-  // ---------------- ParamAccessor ----------------
 
+  // ---------------- ParamAccessor ----------------
+  // using a separate accessor that acquires parameter based on index
+  //   is useful because the index is the same in xAOD::TrackParticle and Trk::Track
+  template <size_t index>
   class ParamAccessor : public virtual TrackAccessor {
   public:
     ParamAccessor(const asg::IAsgTool*);
-    void setIndex(Int_t index);
     StatusCode access ( const xAOD::TrackParticle& track,
 			const xAOD::Vertex* vertex = 0 );
 #ifndef XAOD_ANALYSIS
@@ -81,16 +81,14 @@ namespace InDet {
     Double_t getValue() const {return m_paramValue;}
 
   private:
-    Int_t m_index;
     Double_t m_paramValue;
   }; // class ParamAccessor
 
   // ---------------- ParamCovAccessor ----------------
-
+  template <size_t index_i, size_t index_j>
   class ParamCovAccessor : public virtual TrackAccessor {
   public:
-    ParamCovAccessor(const asg::IAsgTool*);
-    void setIndices( Int_t, Int_t );
+    ParamCovAccessor<index_i, index_j>(const asg::IAsgTool*);
     StatusCode access ( const xAOD::TrackParticle& track,
 			const xAOD::Vertex* vertex = 0 );
 #ifndef XAOD_ANALYSIS
@@ -101,10 +99,9 @@ namespace InDet {
     Double_t getValue() const {return m_paramCovValue;}
 
   private:
-    Int_t m_index1;
-    Int_t m_index2;
     Double_t m_paramCovValue;
-  }; // class ParamAccessor
+  }; // class ParamCovAccessor
+
 
   // ---------------- FitQualityAccessor ----------------
   class FitQualityAccessor : public virtual TrackAccessor {
@@ -124,88 +121,27 @@ namespace InDet {
     Double_t m_chiSq;
     Double_t m_nDoF;
   };
+
   
-  // ---------------- PtAccessor ----------------
-  class PtAccessor : public virtual TrackAccessor {
+  // ---------------- FuncAccessor ----------------
+  // template class for accessing member functions of TrackParticles
+  template <typename T, T (xAOD::TrackParticle::*Func)() const>
+  class FuncAccessor : public virtual TrackAccessor {
   public:
-    PtAccessor(const asg::IAsgTool*);
+    FuncAccessor(const asg::IAsgTool*);
     StatusCode access ( const xAOD::TrackParticle& track,
 			const xAOD::Vertex* = 0 );
 #ifndef XAOD_ANALYSIS
+    // these will need specialization in InDetTrackAccessor.cxx
     StatusCode access ( const Trk::Track& track,
 			const Trk::TrackParameters* perigee = 0,
 			const Trk::TrackSummary* summary = 0 );
 #endif
-    Double_t getValue() const {return m_pt;}
+    T getValue() const {return m_value;}
   private:
-    Double_t m_pt;
+    T m_value;
   };
 
-
-  // ---------------- EtaAccessor ----------------
-  class EtaAccessor : public virtual TrackAccessor {
-  public:
-    EtaAccessor(const asg::IAsgTool*);
-    StatusCode access ( const xAOD::TrackParticle& track,
-			const xAOD::Vertex* = 0 );
-#ifndef XAOD_ANALYSIS
-    StatusCode access ( const Trk::Track& track,
-			const Trk::TrackParameters* perigee = 0,
-			const Trk::TrackSummary* summary = 0 );
-#endif
-    Double_t getValue() const {return m_eta;}
-  private:
-    Double_t m_eta;
-  };
-
-
-  // ---------------- PAccessor ----------------
-  class PAccessor : public virtual TrackAccessor {
-  public:
-    PAccessor(const asg::IAsgTool*);
-    StatusCode access ( const xAOD::TrackParticle& track,
-			const xAOD::Vertex* = 0 );
-#ifndef XAOD_ANALYSIS
-    StatusCode access ( const Trk::Track& track,
-			const Trk::TrackParameters* perigee = 0,
-			const Trk::TrackSummary* summary = 0 );
-#endif
-    Double_t getValue() const {return m_p;}
-  private:
-    Double_t m_p;
-  };
-
-  // ---------------- UsedHitsdEdxAccessor ----------------                                      
-  class UsedHitsdEdxAccessor : public virtual TrackAccessor {
-  public:
-    UsedHitsdEdxAccessor(const asg::IAsgTool*);
-    StatusCode access ( const xAOD::TrackParticle& track,
-			const xAOD::Vertex* = 0 );
-#ifndef XAOD_ANALYSIS
-    StatusCode access ( const Trk::Track& track,
-                        const Trk::TrackParameters* perigee = 0,
-                        const Trk::TrackSummary* summary = 0 );
-#endif
-    uint8_t getValue() const {return m_n;}
-  private:
-    uint8_t m_n;
-  };
-
-  // ---------------- OverflowHitsdEdxAccessor ----------------                                  
-  class OverflowHitsdEdxAccessor : public virtual TrackAccessor {
-  public:
-    OverflowHitsdEdxAccessor(const asg::IAsgTool*);
-    StatusCode access ( const xAOD::TrackParticle& track,
-			const xAOD::Vertex* = 0 );
-#ifndef XAOD_ANALYSIS
-    StatusCode access ( const Trk::Track& track,
-                        const Trk::TrackParameters* perigee = 0,
-                        const Trk::TrackSummary* summary = 0 );
-#endif
-    uint8_t getValue() const {return m_n;}
-  private:
-    uint8_t m_n;
-  };
 
   // ---------------- eProbabilityHTAccessor ----------------
   // unfortunately, for now we need a special case as it is not
@@ -246,5 +182,104 @@ namespace InDet {
 #endif
 
 } // namespace InDet
+
+
+// --------------------------------------------------------
+// ---------------- Template Implementations --------------
+// --------------------------------------------------------
+
+
+// ---------------- ParamAccessor ----------------
+
+template <size_t index>
+InDet::ParamAccessor<index>::ParamAccessor(const asg::IAsgTool* tool)
+  : InDet::TrackAccessor(tool)
+  , m_paramValue(0)
+{
+  static_assert(index < 5, "Index for parameter accessor must be less than 5");
+}
+
+template <size_t index>
+StatusCode InDet::ParamAccessor<index>::access( const xAOD::TrackParticle& track,
+						    const xAOD::Vertex* vertex )
+{
+  m_paramValue = track.definingParameters()[index];
+  if (index == 1) { // if this is a z-accessor (should be evaluated at compile-time)
+    if (vertex != nullptr) {
+      // if vertex is provided we need to cut w.r.t. the vertex
+      m_paramValue += track.vz() - vertex->z();
+    }
+  }
+  return StatusCode::SUCCESS;
+}
+
+#ifndef XAOD_ANALYSIS
+template <size_t index>
+StatusCode InDet::ParamAccessor<index>::access( const Trk::Track&,
+						const Trk::TrackParameters* perigee,
+						const Trk::TrackSummary* )
+{
+  if (perigee==nullptr) {
+    ATH_MSG_ERROR( "Zero pointer to perigee." );
+    m_paramValue = std::nan("");
+    return StatusCode::FAILURE;
+  }
+  m_paramValue = perigee->parameters()[index];
+  return StatusCode::SUCCESS;
+}
+#endif
+
+// ---------------- ParamCovAccessor ----------------
+template <size_t index_i, size_t index_j>
+InDet::ParamCovAccessor<index_i, index_j>::ParamCovAccessor(const asg::IAsgTool* tool)
+  : InDet::TrackAccessor(tool)
+  , m_paramCovValue(0)
+{
+  static_assert(index_i < 5, "Index for parameter covariance accessor must be less than 5");
+  static_assert(index_j < 5, "Index for parameter covariance accessor must be less than 5");
+}
+
+template <size_t index_i, size_t index_j>
+StatusCode InDet::ParamCovAccessor<index_i, index_j>::access( const xAOD::TrackParticle& track,
+							      const xAOD::Vertex* )
+{
+  m_paramCovValue = track.definingParametersCovMatrix()(index_i, index_j);
+  return StatusCode::SUCCESS;
+}
+
+#ifndef XAOD_ANALYSIS
+template <size_t index_i, size_t index_j>
+StatusCode InDet::ParamCovAccessor<index_i, index_j>::
+access( const Trk::Track&,
+	const Trk::TrackParameters* perigee,
+	const Trk::TrackSummary* )
+{
+  if (!perigee) {
+    ATH_MSG_ERROR( "Recieved zero pointer to perigee." );
+    m_paramCovValue = std::nan("");
+    return StatusCode::FAILURE;
+  }
+  m_paramCovValue = (*perigee->covariance())(index_i, index_j);
+  return StatusCode::SUCCESS;
+}
+#endif
+
+
+// ---------------- FuncAccessor ----------------
+template <typename T, T (xAOD::TrackParticle::*Func)() const>
+InDet::FuncAccessor<T,Func>::FuncAccessor(const asg::IAsgTool* tool)
+  : TrackAccessor(tool)
+  , m_value(false) // set to zero bits
+{
+}
+
+template <typename T, T (xAOD::TrackParticle::*Func)() const>
+StatusCode InDet::FuncAccessor<T,Func>::access( const xAOD::TrackParticle& track,
+						const xAOD::Vertex* )
+{
+  m_value = (track.*Func)();
+  return StatusCode::SUCCESS;
+}
+
 
 #endif // INDETTRACKSELECTIONTOOL_INDETTRACKACCESSOR_H

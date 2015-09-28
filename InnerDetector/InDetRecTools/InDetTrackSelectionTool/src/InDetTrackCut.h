@@ -50,22 +50,11 @@ namespace InDet {
     virtual StatusCode initialize();
     virtual bool result() const;
     void setCut(size_t i, std::unique_ptr<TrackCut>&& cut) {m_cuts.at(i).swap(cut);}
+    //    std::unique_ptr<TrackCut>& operator[](size_t i) {return m_cuts.at(i);}
     std::unique_ptr<TrackCut>& Cut(size_t i) {return m_cuts.at(i);}
   private:
     std::array< std::unique_ptr<TrackCut> , N > m_cuts;
   }; // class OrCut
-
-  // ---------------- NotCut ----------------
-  class NotCut : public TrackCut {
-  public:
-    NotCut(InDetTrackSelectionTool*);
-    virtual StatusCode initialize();
-    virtual bool result() const;
-    void setCut(std::unique_ptr<TrackCut>&& cut) {m_cut.swap(cut);}
-    std::unique_ptr<TrackCut>& Cut() {return m_cut;}
-  private:
-    std::unique_ptr<TrackCut> m_cut;
-  };
 
   // ---------------- MaxSummaryValueCut ----------------
   class MaxSummaryValueCut : public virtual TrackCut {
@@ -82,7 +71,7 @@ namespace InDet {
     std::vector< xAOD::SummaryType > m_summaryTypes;
     std::vector< std::shared_ptr<SummaryAccessor> > m_summaryAccessors;
   }; // class MaxSummaryValueCut
-
+  
   // ---------------- MinSummaryValueCut ----------------
 
   class MinSummaryValueCut : public virtual TrackCut {
@@ -145,7 +134,7 @@ namespace InDet {
   private:
     Double_t m_maxTrtEtaAcceptance;
     Double_t m_maxEtaForCut;
-    std::shared_ptr<EtaAccessor> m_etaAccessor;
+    std::shared_ptr< FuncAccessor<double, &xAOD::TrackParticle::eta> > m_etaAccessor;
   }; // class MinTrtHitCut
 
   // ---------------- MaxTrtHitRatioCut ----------------
@@ -159,34 +148,8 @@ namespace InDet {
   private:
     Double_t m_maxTrtEtaAcceptance;
     Double_t m_maxEtaForCut;
-    std::shared_ptr<EtaAccessor> m_etaAccessor;
+    std::shared_ptr< FuncAccessor<double, &xAOD::TrackParticle::eta> > m_etaAccessor;
   }; // class MaxTrtHitRatioCut
-
-  // ---------------- MinUsedHitsdEdxCut ----------------
-  class MinUsedHitsdEdxCut : public virtual TrackCut {
-  public:
-    MinUsedHitsdEdxCut(InDetTrackSelectionTool*, Int_t min=0);
-    void setMinValue(Int_t min) {m_minValue = min;}
-    virtual StatusCode initialize();
-    virtual bool result() const;
-  private:
-    Int_t m_minValue;
-    // will check the sum of all its accessors and compare to the max allowed value
-    std::shared_ptr<UsedHitsdEdxAccessor> m_accessor;
-  }; // class MinUsedHitsdEdxCut
-
-  // ---------------- MinOverflowHitsdEdxCut ----------------
-  class MinOverflowHitsdEdxCut : public virtual TrackCut {
-  public:
-    MinOverflowHitsdEdxCut(InDetTrackSelectionTool*, Int_t min=0);
-    void setMinValue(Int_t min) {m_minValue = min;}
-    virtual StatusCode initialize();
-    virtual bool result() const;
-  private:
-    Int_t m_minValue;
-    // will check the sum of all its accessors and compare to the max allowed value
-    std::shared_ptr<OverflowHitsdEdxAccessor> m_accessor;
-  }; // class MinOverflowHitsdEdxCut
 
   // ---------------- D0Cut ----------------
   class D0Cut : public virtual TrackCut {
@@ -197,7 +160,7 @@ namespace InDet {
     virtual bool result() const;
   private:
     Double_t m_maxValue;
-    std::shared_ptr<ParamAccessor> m_paramAccessor;
+    std::shared_ptr< ParamAccessor<0> > m_paramAccessor;
   }; // class D0Cut
 
   // ---------------- D0SigmaCut ----------------
@@ -209,7 +172,7 @@ namespace InDet {
     virtual bool result() const;
   private:
     Double_t m_maxValueSq;
-    std::shared_ptr<ParamCovAccessor> m_paramCovAccessor;
+    std::shared_ptr< ParamCovAccessor<0,0> > m_paramCovAccessor;
   }; // class D0SigmaCut
 
   // ---------------- D0SignificanceCut ----------------
@@ -221,8 +184,8 @@ namespace InDet {
     virtual bool result() const;
   private:
     Double_t m_maxValueSq;
-    std::shared_ptr<ParamAccessor> m_paramAccessor;
-    std::shared_ptr<ParamCovAccessor> m_paramCovAccessor;
+    std::shared_ptr< ParamAccessor<0> > m_paramAccessor;
+    std::shared_ptr< ParamCovAccessor<0,0> > m_paramCovAccessor;
   }; // class D0SignificanceCut
 
 
@@ -235,7 +198,7 @@ namespace InDet {
     virtual bool result() const;
   private:
     Double_t m_maxValue;
-    std::shared_ptr<ParamAccessor> m_paramAccessor;
+    std::shared_ptr< ParamAccessor<1> > m_paramAccessor;
   }; // class Z0Cut
 
   // ---------------- Z0SigmaCut ----------------
@@ -247,7 +210,7 @@ namespace InDet {
     virtual bool result() const;
   private:
     Double_t m_maxValueSq;
-    std::shared_ptr<ParamCovAccessor> m_paramCovAccessor;
+    std::shared_ptr< ParamCovAccessor<1,1> > m_paramCovAccessor;
   }; // class Z0SigmaCut
 
   // ---------------- Z0SignificanceCut ----------------
@@ -259,8 +222,8 @@ namespace InDet {
     virtual bool result() const;
   private:
     Double_t m_maxValueSq;
-    std::shared_ptr<ParamAccessor> m_paramAccessor;
-    std::shared_ptr<ParamCovAccessor> m_paramCovAccessor;
+    std::shared_ptr< ParamAccessor<1> > m_paramAccessor;
+    std::shared_ptr< ParamCovAccessor<1,1> > m_paramCovAccessor;
   }; // class Z0SignificanceCut
 
 
@@ -273,8 +236,8 @@ namespace InDet {
     virtual bool result() const;
   private:
     Double_t m_maxValue;
-    std::shared_ptr<ParamAccessor> m_Z0Accessor;
-    std::shared_ptr<ParamAccessor> m_ThetaAccessor;
+    std::shared_ptr< ParamAccessor<1> > m_Z0Accessor;
+    std::shared_ptr< ParamAccessor<3> > m_ThetaAccessor;
   }; // class Z0SinThetaCut
 
   // ---------------- Z0SinThetaSigmaCut ----------------
@@ -286,11 +249,11 @@ namespace InDet {
     virtual bool result() const;
   private:
     Double_t m_maxValueSq;
-    std::shared_ptr<ParamAccessor> m_Z0Accessor;
-    std::shared_ptr<ParamCovAccessor> m_Z0VarAccessor;
-    std::shared_ptr<ParamAccessor> m_ThetaAccessor;
-    std::shared_ptr<ParamCovAccessor> m_ThetaVarAccessor;
-    std::shared_ptr<ParamCovAccessor> m_CovAccessor;
+    std::shared_ptr< ParamAccessor<1> > m_Z0Accessor;
+    std::shared_ptr< ParamCovAccessor<1,1> > m_Z0VarAccessor;
+    std::shared_ptr< ParamAccessor<3> > m_ThetaAccessor;
+    std::shared_ptr< ParamCovAccessor<3,3> > m_ThetaVarAccessor;
+    std::shared_ptr< ParamCovAccessor<1,3> > m_CovAccessor;
   }; // class Z0SinThetaSigmaCut
 
   // ---------------- Z0SinThetaSignificanceCut ----------------
@@ -302,47 +265,67 @@ namespace InDet {
     virtual bool result() const;
   private:
     Double_t m_maxValueSq;
-    std::shared_ptr<ParamAccessor> m_Z0Accessor;
-    std::shared_ptr<ParamCovAccessor> m_Z0VarAccessor;
-    std::shared_ptr<ParamAccessor> m_ThetaAccessor;
-    std::shared_ptr<ParamCovAccessor> m_ThetaVarAccessor;
-    std::shared_ptr<ParamCovAccessor> m_CovAccessor;
+    std::shared_ptr< ParamAccessor<1> > m_Z0Accessor;
+    std::shared_ptr< ParamCovAccessor<1,1> > m_Z0VarAccessor;
+    std::shared_ptr< ParamAccessor<3> > m_ThetaAccessor;
+    std::shared_ptr< ParamCovAccessor<3,3> > m_ThetaVarAccessor;
+    std::shared_ptr< ParamCovAccessor<1,3> > m_CovAccessor;
   }; // class Z0SinThetaSignificanceCut
 
-  // ---------------- PtCut ----------------
-  class PtCut : public virtual TrackCut {
+  // ---------------- MinCut ----------------
+  template <typename T, T (xAOD::TrackParticle::*Func)() const>
+  class MinCut : public virtual TrackCut {
   public:
-    PtCut(InDetTrackSelectionTool*, Double_t min=0);
-    void setMinValue(Double_t min) {m_minValue = min;}
+    MinCut(InDetTrackSelectionTool*, T min, std::string accName);
+    void setMinValue(T min) {m_minValue = min;}
     virtual StatusCode initialize();
     virtual bool result() const;
   private:
-    Double_t m_minValue;
-    std::shared_ptr<PtAccessor> m_accessor;
+    T m_minValue;
+    std::string m_accName;
+    std::shared_ptr< FuncAccessor<T, Func> > m_accessor;
   };
 
-  // ---------------- EtaCut ----------------
-  class EtaCut : public virtual TrackCut {
+  // ---------------- MaxCut ----------------
+  template <typename T, T (xAOD::TrackParticle::*Func)() const>
+  class MaxCut : public virtual TrackCut {
   public:
-    EtaCut(InDetTrackSelectionTool*, Double_t max=0);
-    void setMaxValue(Double_t max) {m_maxValue = max;}
+    MaxCut(InDetTrackSelectionTool*, T max, std::string accName);
+    void setMaxValue(T max) {m_maxValue = max;}
     virtual StatusCode initialize();
     virtual bool result() const;
   private:
-    Double_t m_maxValue;
-    std::shared_ptr<EtaAccessor> m_accessor;
+    T m_maxValue;
+    std::string m_accName;
+    std::shared_ptr< FuncAccessor<T, Func> > m_accessor;
   };
 
-  // ---------------- PCut ----------------
-  class PCut : public virtual TrackCut {
+  // ---------------- MinAbsCut ----------------
+  template <typename T, T (xAOD::TrackParticle::*Func)() const>
+  class MinAbsCut : public virtual TrackCut {
   public:
-    PCut(InDetTrackSelectionTool*, Double_t min=0);
-    void setMinValue(Double_t min) {m_minValue = min;}
+    MinAbsCut(InDetTrackSelectionTool*, T min, std::string accName);
+    void setMinValue(T min) {m_minValue = min;}
     virtual StatusCode initialize();
     virtual bool result() const;
   private:
-    Double_t m_minValue;
-    std::shared_ptr<PAccessor> m_accessor;
+    T m_minValue;
+    std::string m_accName;
+    std::shared_ptr< FuncAccessor<T, Func> > m_accessor;
+  };
+
+  // ---------------- MaxAbsCut ----------------
+  template <typename T, T (xAOD::TrackParticle::*Func)() const>
+  class MaxAbsCut : public virtual TrackCut {
+  public:
+    MaxAbsCut(InDetTrackSelectionTool*, T max, std::string accName);
+    void setMaxValue(T max) {m_maxValue = max;}
+    virtual StatusCode initialize();
+    virtual bool result() const;
+  private:
+    T m_maxValue;
+    std::string m_accName;
+    std::shared_ptr< FuncAccessor<T, Func> > m_accessor;
   };
 
   // ---------------- EtaDependentChiSqCut ----------------
@@ -352,7 +335,7 @@ namespace InDet {
     virtual StatusCode initialize();
     virtual bool result() const;
   private:
-    std::shared_ptr<EtaAccessor> m_etaAccessor;
+    std::shared_ptr< FuncAccessor<double, &xAOD::TrackParticle::eta> > m_etaAccessor;
     std::shared_ptr<FitQualityAccessor> m_fitAccessor;
   };
 
@@ -368,8 +351,10 @@ namespace InDet {
     Double_t m_etaCutoff;
     Int_t m_minSiHits;
     std::shared_ptr<SummaryAccessor> m_pixAccessor;
+    std::shared_ptr<SummaryAccessor> m_pixDeadAccessor;
     std::shared_ptr<SummaryAccessor> m_sctAccessor;
-    std::shared_ptr<EtaAccessor> m_etaAccessor;
+    std::shared_ptr<SummaryAccessor> m_sctDeadAccessor;
+    std::shared_ptr< FuncAccessor<double, &xAOD::TrackParticle::eta> > m_etaAccessor;
   };
 
   // ---------------- MaxChiSq ----------------
@@ -441,5 +426,180 @@ namespace InDet {
 
 
 } // namespace InDet
+
+
+// -------------------------------------------------------
+// ---------------- template definitions -----------------
+// -------------------------------------------------------
+
+template <class AccessorType>
+StatusCode InDet::TrackCut::getAccessor(const std::string& accessorName,
+					std::shared_ptr<AccessorType>& accessor)
+{
+  // this function looks for the accessor indicated by "name" in the tool's
+  // track accessors and assigns "accessor" to it if it exists, creating
+  // the accessor if it does not.
+  std::unordered_map< std::string, std::shared_ptr<TrackAccessor> >::const_iterator it =
+    std::find_if(m_trackAccessors->begin(), m_trackAccessors->end(),
+		 [&] (std::pair< std::string, std::shared_ptr<TrackAccessor> > acc)
+		 {return acc.first == accessorName;} );
+  if (it == m_trackAccessors->end()) {
+    // if we can't find the accessor, add one to the tool
+    if (!m_selectionTool) {
+      ATH_MSG_ERROR( "Must initialize TrackCut with pointer to the selection tool before adding accessors." );
+      return StatusCode::FAILURE;
+    }
+    accessor = std::make_shared<AccessorType>(m_selectionTool);
+    (*m_trackAccessors)[accessorName] = accessor;
+    ATH_MSG_DEBUG( "Adding accessor " << accessorName );
+  } else {
+    accessor = std::dynamic_pointer_cast<AccessorType>(it->second);
+    if (accessor==nullptr) {
+      ATH_MSG_ERROR( "Logic error: could not cast accessor to type " << typeid(AccessorType).name() );
+      return StatusCode::FAILURE;
+    }
+  }
+
+  if (!accessor) {
+    // this could happen if the accessor indicated by "name" is not of type "AccessorType"
+    ATH_MSG_ERROR( "Could not instantiate "<< accessorName <<
+		   " accessor. Pointer to accessor is to type " <<
+		   typeid(AccessorType).name() << ". Is this correct?" );
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+
+// ---------------- MinCut ----------------
+template <typename T, T (xAOD::TrackParticle::*Func)() const>
+InDet::MinCut<T,Func>::MinCut(InDet::InDetTrackSelectionTool* tool, T min, std::string accName)
+  : InDet::TrackCut(tool)
+  , m_minValue(min)
+  , m_accName(accName)
+  , m_accessor(nullptr)
+{
+}
+
+template <typename T, T (xAOD::TrackParticle::*Func)() const>
+StatusCode InDet::MinCut<T,Func>::initialize()
+{
+  ATH_CHECK( TrackCut::initialize() );
+  if (m_accName.empty()) {
+    ATH_MSG_ERROR( "Accessor name string is empty!" );
+    return StatusCode::FAILURE;
+  }
+  ATH_CHECK( getAccessor(m_accName, m_accessor) );
+  return StatusCode::SUCCESS;
+}
+
+template <typename T, T (xAOD::TrackParticle::*Func)() const>
+bool InDet::MinCut<T,Func>::result() const
+{
+  if (!m_accessor) {
+    ATH_MSG_WARNING( m_accName << " accessor not valid. Track will not pass." );
+    return false;
+  }
+  return m_accessor->getValue() >= m_minValue;
+}
+
+// ---------------- MaxCut ----------------
+template <typename T, T (xAOD::TrackParticle::*Func)() const>
+InDet::MaxCut<T,Func>::MaxCut(InDet::InDetTrackSelectionTool* tool, T max, std::string accName)
+  : InDet::TrackCut(tool)
+  , m_maxValue(max)
+  , m_accName(accName)
+  , m_accessor(nullptr)
+{
+}
+
+template <typename T, T (xAOD::TrackParticle::*Func)() const>
+StatusCode InDet::MaxCut<T,Func>::initialize()
+{
+  ATH_CHECK( TrackCut::initialize() );
+  if (m_accName.empty()) {
+    ATH_MSG_ERROR( "Accessor name string is empty!" );
+    return StatusCode::FAILURE;
+  }
+  ATH_CHECK( getAccessor(m_accName, m_accessor) );
+  return StatusCode::SUCCESS;
+}
+
+template <typename T, T (xAOD::TrackParticle::*Func)() const>
+bool InDet::MaxCut<T,Func>::result() const
+{
+  if (!m_accessor) {
+    ATH_MSG_WARNING( m_accName << " accessor not valid. Track will not pass." );
+    return false;
+  }
+  return m_accessor->getValue() <= m_maxValue;
+}
+
+
+// ---------------- MinAbsCut ----------------
+template <typename T, T (xAOD::TrackParticle::*Func)() const>
+InDet::MinAbsCut<T,Func>::MinAbsCut(InDet::InDetTrackSelectionTool* tool, T min, std::string accName)
+  : InDet::TrackCut(tool)
+  , m_minValue(min)
+  , m_accName(accName)
+  , m_accessor(nullptr)
+{
+}
+
+template <typename T, T (xAOD::TrackParticle::*Func)() const>
+StatusCode InDet::MinAbsCut<T,Func>::initialize()
+{
+  ATH_CHECK( TrackCut::initialize() );
+  if (m_accName.empty()) {
+    ATH_MSG_ERROR( "Accessor name string is empty!" );
+    return StatusCode::FAILURE;
+  }
+  ATH_CHECK( getAccessor(m_accName, m_accessor) );
+  return StatusCode::SUCCESS;
+}
+
+template <typename T, T (xAOD::TrackParticle::*Func)() const>
+bool InDet::MinAbsCut<T,Func>::result() const
+{
+  if (!m_accessor) {
+    ATH_MSG_WARNING( m_accName << " accessor not valid. Track will not pass." );
+    return false;
+  }
+  return std::fabs(m_accessor)->getValue() >= m_minValue;
+}
+
+// ---------------- MaxAbsCut ----------------
+template <typename T, T (xAOD::TrackParticle::*Func)() const>
+InDet::MaxAbsCut<T,Func>::MaxAbsCut(InDet::InDetTrackSelectionTool* tool, T max, std::string accName)
+  : InDet::TrackCut(tool)
+  , m_maxValue(max)
+  , m_accName(accName)
+  , m_accessor(nullptr)
+{
+}
+
+template <typename T, T (xAOD::TrackParticle::*Func)() const>
+StatusCode InDet::MaxAbsCut<T,Func>::initialize()
+{
+  ATH_CHECK( TrackCut::initialize() );
+  if (m_accName.empty()) {
+    ATH_MSG_ERROR( "Accessor name string is empty!" );
+    return StatusCode::FAILURE;
+  }
+  ATH_CHECK( getAccessor(m_accName, m_accessor) );
+  return StatusCode::SUCCESS;
+}
+
+template <typename T, T (xAOD::TrackParticle::*Func)() const>
+bool InDet::MaxAbsCut<T,Func>::result() const
+{
+  if (!m_accessor) {
+    ATH_MSG_WARNING( m_accName << " accessor not valid. Track will not pass." );
+    return false;
+  }
+  return std::fabs(m_accessor->getValue()) <= m_maxValue;
+}
+
 
 #endif // INDETTRACKSELECTIONTOOL_INDETTRACKCUT_H
