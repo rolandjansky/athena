@@ -33,11 +33,12 @@ if jobproperties.Beam.beamType == "cosmics" :
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 from Digitization.DigitizationFlags import digitizationFlags
-job += CfgGetter.getAlgorithm(digitizationFlags.digiSteeringConf.get_Value(), tryDefaultConfigurable=True)
 if 'doFastPixelDigi' in digitizationFlags.experimentalDigi() or 'doFastSCT_Digi' in digitizationFlags.experimentalDigi() or 'doFastTRT_Digi' in digitizationFlags.experimentalDigi():
-    print "WARNING  Setting doFastPixelDigi ,doFastSCT_Digi or doFastTRT_Digi in digitizationFlags.experimentalDigi no longer overrides digitizationFlags.digiSteeringConf."
+    job += CfgGetter.getAlgorithm("FastPileUpToolsAlg", tryDefaultConfigurable=True)
 elif 'doSplitDigi' in digitizationFlags.experimentalDigi():
-    print "WARNING  Setting doSplitDigi in digitizationFlags.experimentalDigi no longer overrides digitizationFlags.digiSteeringConf. Use --digiSteeringConf 'Split' on the command-line instead."
+    job += CfgGetter.getAlgorithm("SplitPileUpToolsAlg", tryDefaultConfigurable=True)
+else: ## The above two options are just there for back-compatibility
+    job += CfgGetter.getAlgorithm(digitizationFlags.digiSteeringConf.get_Value(), tryDefaultConfigurable=True)
 
 
 # MC Truth info

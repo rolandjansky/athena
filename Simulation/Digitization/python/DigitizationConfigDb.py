@@ -18,9 +18,6 @@ addTool("Digitization.PileUpConfig.getCavernCache"                   , "CavernCa
 addTool("Digitization.PileUpConfig.getBeamGasCache"                  , "BeamGasCache")
 addTool("Digitization.PileUpConfig.getBeamHaloCache"                 , "BeamHaloCache")
 
-addTool("Digitization.DigiAlgConfig.getTestPileUpTool"               , "TestPileUpTool")
-addTool("Digitization.DigiAlgConfig.getTestFilterPileUpTool"         , "TestFilterPileUpTool")
-
 addService("Digitization.RunDependentConfig.getLumiProfileSvc"       , "LumiProfileSvc")
 addService("Digitization.RunDependentConfig.getNoProfileSvc"         , "NoProfileSvc")
 addService("Digitization.RunDependentConfig.getEvtIdModifierSvc"     , "EvtIdModifierSvc")
@@ -36,8 +33,5 @@ addAlgorithm("Digitization.DigiAlgConfig.getSplitNoMergePileUpToolsAlg"  , "Spli
 addAlgorithm("Digitization.DigiAlgConfig.getSplitNoMergeSFPileUpToolsAlg"  , "SplitNoMergeSFPileUpToolsAlg")
 addAlgorithm("Digitization.DigiAlgConfig.getSplitNoMergeFSPileUpToolsAlg"  , "SplitNoMergeFSPileUpToolsAlg")
 addAlgorithm("Digitization.DigiAlgConfig.getSplitNoMergeFFPileUpToolsAlg"  , "SplitNoMergeFFPileUpToolsAlg")
-addAlgorithm("Digitization.DigiAlgConfig.getTestPileUpToolsAlg"      , "TestPileUpToolsAlg")
-addAlgorithm("Digitization.DigiAlgConfig.getTestFilterPileUpToolsAlg"      , "TestFilterPileUpToolsAlg")
-addAlgorithm("Digitization.DigiAlgConfig.getTestTruthJetFilterPileUpToolsAlg" , "TestTruthJetFilterPileUpToolsAlg")
 
 addService("Digitization.PileUpMergeSvcConfig.getPileUpMergeSvc"     , "PileUpMergeSvc")
