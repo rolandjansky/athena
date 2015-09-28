@@ -132,8 +132,9 @@ const Trk::TrackParameters*  Trk::DummyMaterialEffectsUpdator::preUpdate(const T
       if (preFactor < 0.1) return (parm);
 
       double correctionFactor = fabs(lay.surfaceRepresentation().pathCorrection(parm->position(),parm->momentum()));
-      bool  surfaceValidaiton = false;
-      
+      /** surfaceValidation is never used
+      bool  surfaceValidation = false;
+      **/
       // get the material properties
       const Trk::MaterialProperties* updateProperties = lay.fullUpdateMaterialProperties(*parm);
       
@@ -162,12 +163,11 @@ const Trk::TrackParameters*  Trk::DummyMaterialEffectsUpdator::preUpdate(const T
           // record it
           m_materialMapper->recordMaterialHit(assMatHit,parm->momentum());
           // and if it was a reference material : the SurfaceValidation
-          if (surfaceValidaiton)  
-              m_materialMapper->recordSurfaceHit(parm->localPosition(),assMatHit);
-      }
-      else {
-          ATH_MSG_WARNING( "preUpdate() ... dynamic cast to MaterialProperties failed!" );
-      }
+          /** sroe: surfaceValidation must be false at this point, so the following line is redundant **/
+          //if (surfaceValidation)  m_materialMapper->recordSurfaceHit(parm->localPosition(),assMatHit);
+			} else {
+					ATH_MSG_WARNING( "preUpdate() ... dynamic cast to MaterialProperties failed!" );
+			}
    }
    return parm;
 }

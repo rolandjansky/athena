@@ -137,7 +137,8 @@ namespace Trk {
 			    double pathcorrection,
 			    PropDirection dir=alongMomentum,
 			    ParticleHypothesis particle=pion,
-			    bool mpv = false) const;   
+			    bool mpv = false,
+			    bool usePDGformula = false) const;   
     
 
      /** Method to recalculate Eloss values for the fit setting an elossFlag using as an input
@@ -166,7 +167,13 @@ namespace Trk {
                             double gamma,
                             double beta,
                             ParticleHypothesis particle=pion) const;
-                            
+      
+      Trk::EnergyLoss* ionizationEnergyLoss(const MaterialProperties& mat,
+					    double p,
+					    double pathcorrection,
+					    PropDirection dir=alongMomentum,
+					    ParticleHypothesis particle = pion) const;
+      
       /** dEdX BetheHeitler calculation: 
         Units: [MeV]
         */
