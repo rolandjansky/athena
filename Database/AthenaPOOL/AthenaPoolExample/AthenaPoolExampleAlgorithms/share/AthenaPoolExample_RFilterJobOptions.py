@@ -56,9 +56,9 @@ theApp.EvtMax = 200000
 #--------------------------------------------------------------
 import AthenaPoolCnvSvc.ReadAthenaPool
 
-svcMgr.EventSelector.InputCollections = [ "SimplePoolCollection5.root" ]; # ** mandatory parameter ** // The input file name
+svcMgr.EventSelector.InputCollections = [ "SimplePoolCollection3.root" ]; # ** mandatory parameter ** // The input file name
 svcMgr.EventSelector.CollectionType = "ExplicitROOT"
-#svcMgr.EventSelector.DerivedRefName = "Stream1_derived"
+svcMgr.EventSelector.DerivedRefName = "Stream1_derived"
 
 svcMgr.EventSelector.Query = "EventNumber > 9"
 svcMgr.EventSelector.ProcessMetadata = False
@@ -70,11 +70,11 @@ svcMgr.PoolSvc.WriteCatalog = "file:Catalog2.xml"
 
 svcMgr.AthenaPoolCnvSvc.CommitInterval = 10;
 
-#from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import TagRemappingTool
-#TagRemappingTool = TagRemappingTool("TagRemappingTool")
+from EventSelectorAthenaPool.EventSelectorAthenaPoolConf import TagRemappingTool
+TagRemappingTool = TagRemappingTool("TagRemappingTool")
 #TagRemappingTool.JoinListKey = "Stream1_ref"
-#TagRemappingTool.TargetTagFile = "SimplePoolCollection5.root"
-#svcMgr.EventSelector.HelperTools = [ TagRemappingTool ]
+TagRemappingTool.TargetTagFile = "SimplePoolCollection5.root"
+svcMgr.EventSelector.HelperTools = [ TagRemappingTool ]
 
 #--------------------------------------------------------------
 # Private Application Configuration options

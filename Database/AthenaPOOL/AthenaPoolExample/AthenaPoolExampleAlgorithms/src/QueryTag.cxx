@@ -43,11 +43,11 @@ StatusCode QueryTag::postInitialize() {
    return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________
-StatusCode QueryTag::preNext() const {
+StatusCode QueryTag::preNext() {
    return StatusCode::SUCCESS;
 }
 //__________________________________________________________________________
-StatusCode QueryTag::postNext() const {
+StatusCode QueryTag::postNext() {
    if (!evtStore()->contains<AthenaAttributeList>(m_attrListKey)) {
       ATH_MSG_DEBUG("Can't get attributeList for preselection");
       return StatusCode::SUCCESS;
