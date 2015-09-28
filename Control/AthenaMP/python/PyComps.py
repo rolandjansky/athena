@@ -38,7 +38,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
             self.IsPileup = False
         self.EventsBeforeFork = jp.AthenaMPFlags.EventsBeforeFork()
 
-        if self.Strategy=='EventService':
+        if self.Strategy=='TokenScatterer':
             self.EventsBeforeFork = 0
 
         from AthenaCommon.AppMgr import theApp as app
@@ -61,74 +61,69 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         event_range_channel = jp.AthenaMPFlags.EventRangeChannel()
         chunk_size = jp.AthenaMPFlags.ChunkSize()
         debug_worker = jp.ConcurrencyFlags.DebugWorkers()
-        use_shared_reader = jp.AthenaMPFlags.UseSharedReader()
-        use_shared_writer = jp.AthenaMPFlags.UseSharedWriter()
 
         if strategy=='SharedQueue' or strategy=='RoundRobin':
-            if use_shared_reader:
-                from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-                from AthenaIPCTools.AthenaIPCToolsConf import AthenaSharedMemoryTool
-                svcMgr.EventSelector.SharedMemoryTool = AthenaSharedMemoryTool("EventStreamingTool")
-                if sys.modules.has_key('AthenaPoolCnvSvc.ReadAthenaPool'):
-                    svcMgr.AthenaPoolCnvSvc.InputStreamingTool = AthenaSharedMemoryTool("InputStreamingTool")
-            if use_shared_writer:
-                if sys.modules.has_key('AthenaPoolCnvSvc.WriteAthenaPool'):
-                    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-                    from AthenaIPCTools.AthenaIPCToolsConf import AthenaSharedMemoryTool
-                    svcMgr.AthenaPoolCnvSvc.OutputStreamingTool = AthenaSharedMemoryTool("OutputStreamingTool")
-
             from AthenaMPTools.AthenaMPToolsConf import SharedEvtQueueProvider
-            self.Tools += [ SharedEvtQueueProvider(UseSharedReader=use_shared_reader,
-                                                   IsPileup=pileup,
+            self.Tools += [ SharedEvtQueueProvider(IsPileup=pileup,
                                                    EventsBeforeFork=events_before_fork,
                                                    ChunkSize=chunk_size) ]
 
             if (self.nThreads >= 1):
                 from AthenaMPTools.AthenaMPToolsConf import SharedHiveEvtQueueConsumer
-                self.Tools += [ SharedHiveEvtQueueConsumer(UseSharedReader=use_shared_reader,
-                                                           IsPileup=pileup,
-                                                           IsRoundRobin=(strategy=='RoundRobin'),
-                                                           EventsBeforeFork=events_before_fork,
-                                                           Debug=debug_worker)   ]
+                self.Tools += [ SharedHiveEvtQueueConsumer(UseSharedReader=False,
+                                                IsPileup=pileup,
+                                                IsRoundRobin=(strategy=='RoundRobin'),
+                                                EventsBeforeFork=events_before_fork,
+                                                Debug=debug_worker)   ]
             else:
                 from AthenaMPTools.AthenaMPToolsConf import SharedEvtQueueConsumer
-                self.Tools += [ SharedEvtQueueConsumer(UseSharedReader=use_shared_reader,
-                                                       IsPileup=pileup,
-                                                       IsRoundRobin=(strategy=='RoundRobin'),
-                                                       EventsBeforeFork=events_before_fork,
-                                                       ReadEventOrders=jp.AthenaMPFlags.ReadEventOrders(),
-                                                       EventOrdersFile=jp.AthenaMPFlags.EventOrdersFile(),
-                                                       Debug=debug_worker)   ]
-            if use_shared_writer:
-                from AthenaMPTools.AthenaMPToolsConf import SharedWriterTool
-                self.Tools += [ SharedWriterTool() ]
-
+                self.Tools += [ SharedEvtQueueConsumer(UseSharedReader=False,
+                                                IsPileup=pileup,
+                                                IsRoundRobin=(strategy=='RoundRobin'),
+                                                EventsBeforeFork=events_before_fork,
+                                                Debug=debug_worker)   ]
 
             # Enable seeking
-            if not use_shared_reader:
-                setupEvtSelForSeekOps()
+            setupEvtSelForSeekOps()
 
         elif strategy=='FileScheduling':
             from AthenaMPTools.AthenaMPToolsConf import FileSchedulingTool
-            self.Tools += [ FileSchedulingTool(IsPileup=pileup,
-                                               Debug=debug_worker) ]
+            self.Tools += [ FileSchedulingTool(IsPileup=pileup) ]
 
-        elif strategy=='EventService':
-            channelScatterer2Processor = "AthenaMP_Scatterer2Processor"
-            channelProcessor2EvtSel = "AthenaMP_Processor2EvtSel"
+        elif strategy=='SharedReader':
+            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
-            from AthenaMPTools.AthenaMPToolsConf import EvtRangeScatterer
-            self.Tools += [ EvtRangeScatterer(ProcessorChannel = channelScatterer2Processor,
-                                              EventRangeChannel = event_range_channel,
-                                              DoCaching=jp.AthenaMPFlags.EvtRangeScattererCaching()) ]
+            from AthenaServices.AthenaServicesConf import AthenaSharedMemoryTool
+            shm_name = "EvtSelSM_" + str(os.getpid())
+            svcMgr.EventSelector.SharedMemoryTool = AthenaSharedMemoryTool("EventStreamingTool")
+            if sys.modules.has_key('AthenaPoolCnvSvc.ReadAthenaPool'):
+                svcMgr.AthenaPoolCnvSvc.DataStreamingTool = AthenaSharedMemoryTool("DataStreamingTool")
 
-            from AthenaMPTools.AthenaMPToolsConf import EvtRangeProcessor
-            self.Tools += [ EvtRangeProcessor(IsPileup=pileup,
-                                              Channel2Scatterer = channelScatterer2Processor,
-                                              Channel2EvtSel = channelProcessor2EvtSel,
-                                              Debug=debug_worker) ]
-            # Enable seeking
-            setupEvtSelForSeekOps()
+            from AthenaMPTools.AthenaMPToolsConf import SharedReaderTool
+            self.Tools += [ SharedReaderTool() ]
+
+            from AthenaMPTools.AthenaMPToolsConf import SharedEvtQueueProvider
+            self.Tools += [ SharedEvtQueueProvider(IsPileup=pileup,EventsBeforeFork=0) ]
+
+            from AthenaMPTools.AthenaMPToolsConf import SharedEvtQueueConsumer
+            self.Tools += [ SharedEvtQueueConsumer(UseSharedReader=True,IsPileup=pileup,EventsBeforeFork=0) ]
+
+        elif strategy=='TokenScatterer':
+            from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+
+            from AthenaServices.AthenaServicesConf import AthenaYamplTool
+            channelScatterer2Processor = "AthenaMP_Scatterer2Processor_" + str(os.getpid())
+            channelProcessor2EvtSel = "AthenaMP_Processor2EvtSel_" + str(os.getpid())
+            svcMgr.EventSelector.SharedMemoryTool = AthenaYamplTool("AthenaYamplTool",ChannelName = channelProcessor2EvtSel,Many2One=False)
+
+            from AthenaMPTools.AthenaMPToolsConf import TokenScatterer
+            self.Tools += [ TokenScatterer(ProcessorChannel = channelScatterer2Processor,EventRangeChannel = event_range_channel,DoCaching=jp.AthenaMPFlags.TokenScattererCaching()) ]
+
+            from AthenaMPTools.AthenaMPToolsConf import TokenProcessor
+            self.Tools += [ TokenProcessor(IsPileup=pileup,
+                                           Channel2Scatterer = channelScatterer2Processor,
+                                           Channel2EvtSel = channelProcessor2EvtSel,
+                                           Debug=debug_worker) ]
 
         else:
             msg.warning("Unknown strategy. No MP tools will be configured")

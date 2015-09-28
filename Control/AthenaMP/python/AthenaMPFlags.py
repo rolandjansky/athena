@@ -35,7 +35,7 @@ class Strategy(JobProperty):
     """ Switch to choose event scheduling strategy"""
     statusOn = True
     allowedTypes = ['str']
-    allowedValues = ['SharedQueue','FileScheduling','EventService','RoundRobin']    
+    allowedValues = ['SharedQueue','FileScheduling','SharedReader','TokenScatterer','RoundRobin']    
     StoredValue = 'SharedQueue'
 
 class CollectSubprocessLogs(JobProperty):
@@ -74,8 +74,8 @@ class EventRangeChannel(JobProperty):
     allowedTypes = ['str']
     StoredValue = 'EventService_EventRanges'
 
-class EvtRangeScattererCaching(JobProperty):
-    """ For the Event Service: flag for activating extra event caching by the EvtRangeScatterer
+class TokenScattererCaching(JobProperty):
+    """ For the Event Service: flag for activating extra event caching by the TokenScatterer
     """
     statusOn = True
     allowedTypes = ['bool']
@@ -94,34 +94,6 @@ class ChunkSize(JobProperty):
     statusOn = True
     allowedTypes = ['int']
     StoredValue  = 1
-
-class ReadEventOrders(JobProperty):
-    """ Flag for reading event orders (Shared Queue) from an ASCII file for reproducibility
-    """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-
-class EventOrdersFile(JobProperty):
-    """ Name of the file for storing/reading event orders (Shared Queue)
-    """
-    statusOn = True
-    allowedTypes = ['str']
-    StoredValue = 'athenamp_eventorders.txt'
-
-class UseSharedReader(JobProperty):
-    """ Flag for activating shared reader process
-    """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-
-class UseSharedWriter(JobProperty):
-    """ Flag for activating shared writer process
-    """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
 
 # Defines the container for the performance monitoring flags  
 class AthenaMPFlags(JobPropertyContainer):
@@ -144,12 +116,8 @@ list_jobproperties = [
     EventsBeforeFork,
     EventRangeChannel,
     MemSamplingInterval,
-    EvtRangeScattererCaching,
+    TokenScattererCaching,
     ChunkSize,
-    ReadEventOrders,
-    EventOrdersFile,
-    UseSharedReader,
-    UseSharedWriter,
     ]
 
 for i in list_jobproperties:

@@ -6,11 +6,11 @@
 
 #include "AthenaMPTools/IAthenaMPTool.h"
 #include "AthenaInterprocess/SharedQueue.h"
-#include "AthenaInterprocess/Utilities.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIoComponentMgr.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "PersistentDataModel/Guid.h"
 
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -75,8 +75,8 @@ StatusCode AthMpEvtLoopMgr::initialize()
 {
   ATH_MSG_DEBUG("in initialize() ... ");
 
-  if(m_strategy=="EventServive" && m_nEventsBeforeFork!=0) {
-    ATH_MSG_ERROR("The EventService strategy cannot run with non-zero value for EventsBeforeFork");
+  if(m_strategy=="TokenScatterer" && m_nEventsBeforeFork!=0) {
+    ATH_MSG_ERROR("The TokenScatterer strategy cannot run with non-zero value for EventsBeforeFork");
     return StatusCode::FAILURE;
   }
 
@@ -131,8 +131,10 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 
   // Generate random component of the Shared Memory and Shared Queue names
   srand(time(NULL));
+  Guid uuid;
+  Guid::create(uuid);
   std::ostringstream randStream;
-  randStream << getpid() << '_' << AthenaInterprocess::randString();
+  randStream << getpid() << '_' << uuid.toString();
   ATH_MSG_INFO("Using random components for IPC object names: " << randStream.str());
 
   ServiceHandle<StoreGateSvc> pDetStore("DetectorStore",name());
@@ -140,6 +142,7 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
 
   // Create Shared Event queue if necessary and make it available to the tools
   if(m_strategy=="SharedQueue" 
+     || m_strategy=="SharedReader"
      || m_strategy=="RoundRobin") {
     AthenaInterprocess::SharedQueue* evtQueue = new AthenaInterprocess::SharedQueue("AthenaMPEventQueue_"+randStream.str(),2000,sizeof(long));
     if(pDetStore->record(evtQueue,"AthenaMPEventQueue_"+randStream.str()).isFailure()) {
@@ -149,9 +152,9 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
     }
   }
 
-  // For the Event Service: create a queue for connecting EvtRangeProcessor in the master with EvtRangeScatterer subprocess
+  // For the Event Service: create a queue for connecting TokenProcessor in the master with TokenScatterer subprocess
   // The TokenProcessor master will be sending pid-s of failed processes to Token Scatterer
-  if(m_strategy=="EventService") {
+  if(m_strategy=="TokenScatterer") {
     AthenaInterprocess::SharedQueue* failedPidQueue = new AthenaInterprocess::SharedQueue("AthenaMPFailedPidQueue_"+randStream.str(),100,sizeof(pid_t));
     if(pDetStore->record(failedPidQueue,"AthenaMPFailedPidQueue_"+randStream.str()).isFailure()) {
       ATH_MSG_FATAL("Unable to record the pointer to the Failed PID queue into Detector Store");
@@ -472,12 +475,11 @@ boost::shared_ptr<AthenaInterprocess::FdsRegistry> AthMpEvtLoopMgr::extractFds()
   // 2. Skip also stdout and stderr
 
   std::vector<std::string> excludePatterns;
-  excludePatterns.reserve(5);
+  excludePatterns.reserve(3);
   excludePatterns.push_back("/root/etc/plugins/");
   excludePatterns.push_back("/root/cint/cint/");
   excludePatterns.push_back("/root/include/");
   excludePatterns.push_back("/var/tmp/");
-  excludePatterns.push_back("/var/lock/");
 
   path fdPath("/proc/self/fd");
   for(directory_iterator fdIt(fdPath); fdIt!=directory_iterator(); fdIt++) {
