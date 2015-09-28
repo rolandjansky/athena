@@ -27,11 +27,19 @@ int main( int argc, char* argv[] ) {
    // The application's name:
    const char* APP_NAME = argv[ 0 ];
 
+   std::string fileName;
    // Check if we received a file name:
    if( argc < 2 ) {
-      Error( APP_NAME, "No file name received!" );
-      Error( APP_NAME, "  Usage: %s [xAOD file name]", APP_NAME );
-      return 1;
+     char* pFile = getenv("ROOTCORE_TEST_FILE");
+     if (pFile == nullptr) {
+       Error( APP_NAME, "No file name received!" );
+       Error( APP_NAME, "  Usage: %s [xAOD file name]", APP_NAME );
+       return 1;
+     } else {
+       fileName = pFile;
+     }
+   } else {
+     fileName = argv[ 1 ];
    }
 
    // fail on an unchecked StatusCode
@@ -41,7 +49,6 @@ int main( int argc, char* argv[] ) {
    ASG_CHECK_SA( APP_NAME, static_cast<StatusCode>(xAOD::Init( APP_NAME )) );
 
    // Open the input file:
-   const std::string fileName = argv[ 1 ];
    Info( APP_NAME, "Opening file: %s", fileName.data() );
    std::unique_ptr< TFile > ifile( TFile::Open( fileName.data(), "READ" ) );
    StatusCode gotFile = ifile.get()!=nullptr ? StatusCode::SUCCESS : StatusCode::FAILURE;
@@ -68,10 +75,12 @@ int main( int argc, char* argv[] ) {
    //selTool.setCutLevel( InDet::CutLevel::Loose ); // set tool to apply default loose cuts
    //   ASG_CHECK_SA( APP_NAME, selTool.setProperty( "CutLevel", "TightPrimary" ) ); // can set this in the constructor
    //ASG_CHECK_SA( APP_NAME, selTool.setProperty("minPt", 100.0) ); // the cuts can be modified from the pre-defined sets
-   //ASG_CHECK_SA( APP_NAME, selTool.setProperty("maxZ0", 10.) );
-   //ASG_CHECK_SA( APP_NAME, selTool.setProperty("maxD0", 1.5) );
+   ASG_CHECK_SA( APP_NAME, selTool.setProperty("maxZ0", 10.) );
+   ASG_CHECK_SA( APP_NAME, selTool.setProperty("maxD0", 1.5) );
    //ASG_CHECK_SA( APP_NAME, selTool.setProperty("minNTrtHits", 1); )
-   ASG_CHECK_SA( APP_NAME, selTool.setProperty("maxZ0SinTheta", -1.) ); // try to turn off this cut
+   //   ASG_CHECK_SA( APP_NAME, selTool.setProperty("maxZ0SinTheta", 1.5) ); // try to turn off this cut with -1
+   ASG_CHECK_SA( APP_NAME, selTool.setProperty("minNUsedHitsdEdx", 1) );
+   ASG_CHECK_SA( APP_NAME, selTool.setProperty("minNOverflowHitsdEdx", 1) );
    ASG_CHECK_SA( APP_NAME, selTool.setProperty("minEProbabilityHT", .01) );
    ASG_CHECK_SA( APP_NAME, selTool.setProperty("eProbHTonlyForXe", true) );   
    ASG_CHECK_SA( APP_NAME, selTool.initialize() );

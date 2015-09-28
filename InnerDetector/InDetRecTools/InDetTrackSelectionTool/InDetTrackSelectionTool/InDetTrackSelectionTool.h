@@ -20,6 +20,7 @@
 #endif
 
 #include <map>
+#include <limits>
 
 namespace InDet {
 
@@ -87,7 +88,8 @@ namespace InDet {
       __attribute__ ((deprecated("For consistency with the athena interface, the cut level is best set through the \"CutLevel\" property.")));
 
   private:
-    bool m_isInitialized; // flag whether or not the tool has been initialized, to check erroneous use cases.
+    bool m_isInitialized = false; // flag whether or not the tool has been initialized, to check erroneous use cases.
+    mutable bool m_warnInit = false; // flag to keep track of whether we have warned about a lack of initialization
 
     // this is the setCutLevel function that actually does the work, so that it doesn't warn if called in athena.
     void setCutLevelPrivate( InDet::CutLevel level, Bool_t overwrite = true );
@@ -97,65 +99,69 @@ namespace InDet {
     // first element is cut family, second is the set of cuts
     std::map< std::string, std::vector< std::unique_ptr<TrackCut> > > m_trackCuts; //!< First element is the name of the cut family, second element is the set of cuts
 
-    mutable ULong64_t m_numTracksProcessed; //!< a counter of the number of tracks proccessed
-    mutable ULong64_t m_numTracksPassed; //!< a counter of the number of tracks that passed all cuts
+    mutable ULong64_t m_numTracksProcessed = 0; //!< a counter of the number of tracks proccessed
+    mutable ULong64_t m_numTracksPassed = 0; //!< a counter of the number of tracks that passed all cuts
     mutable std::vector<ULong64_t> m_numTracksPassedCuts; //!< tracks the number of tracks that passed each cut family
 
-    Double_t m_minPt; //!< Minimum p_T of tracks
-    Double_t m_maxAbsEta; //!< Maximum magnitude of pseudorapidity
-    Double_t m_maxZ0SinTheta; //!< Maximum |z0*sin(theta)| of tracks
-    Double_t m_maxZ0; //!< Maximum |z0| of tracks
-    Double_t m_maxD0; //!< Maximum |d0| of tracks
-    Double_t m_maxSigmaD0; //!< Maximum sigma of d0
-    Double_t m_maxSigmaZ0; //!< Maximum sigma of z0
-    Double_t m_maxSigmaZ0SinTheta; //!< Maximum sigma of z0*sin(theta)
-    Double_t m_maxD0overSigmaD0; //!< Maximum |d0|/sigma_d0 of tracks
-    Double_t m_maxZ0overSigmaZ0; //!< Maximum |z0|/sigma_z0 of tracks
-    Double_t m_maxZ0SinThetaoverSigmaZ0SinTheta; //!< Maximum |z0*sin(theta)|/sigma_z0sinTheta
-    Int_t m_minNInnermostLayerHits; //!< Minimum number of innermost pixel layer hits
-    Int_t m_minNNextToInnermostLayerHits; //!< Minimum number of next to innermost pixel layer hits
-    Int_t m_minNBothInnermostLayersHits; //!< Minimum number of two innermost pixel layer hits
-    Int_t m_maxNInnermostLayerSharedHits; //!<  Maximum number of shared innermost pixel layer hits
-    Int_t m_minNSiHits; //!< Minimum number of silicon hits (pixel + SCT)
-    Int_t m_maxNSiSharedHits; //!< Maximum number of silicon sensors shared with other track
-    Int_t m_minNSiHitsIfSiSharedHits; //!< Minimum number of silicon hits if the track has shared hits
-    Int_t m_maxNSiHoles; //!< Maximum number of silicon sensors without a hit
-    Int_t m_minNPixelHits; //!< Minimum number of pixel hits
-    Int_t m_maxNPixelSharedHits; //!< Maximum number of pixels shared with other track
-    Int_t m_maxNPixelHoles; //!< Maximum number of pixel layers without a hit
-    Double_t m_minEtaForStrictNSiHitsCut; //!< Eta cutoff above which a tighter cut on NSiHits applies
-    Int_t m_minNSiHitsAboveEtaCutoff; //!< Tighter cut on NSiHits above a certain eta
-    Bool_t m_maxOneSharedModule; //!< Flag whether to reject if more than one of 1 shared pixel hit or 2 shared SCT hits.
-    Bool_t m_useEtaDependentMaxChiSq; //!< Flag whether we use the eta-dependent chi^2/dof cut
-    Double_t m_minP; //!< Minimum p = p_T/cos(theta)
-    Int_t m_minNSiHitsPhysical; //!< Minimum number of physical (pixel + SCT) hits (no dead sensors)
-    Int_t m_minNPixelHitsPhysical; //!< Minimum number of physical hits (no dead sensors)
-    Int_t m_minNSctHits; //!< Minimum number of SCT hits (plus dead sensors)
-    Int_t m_maxNSctSharedHits; //!< Maximum number of SCT sensors shared with another track
-    Int_t m_maxNSctHoles; //!< Maximum number of holes in SCT
-    Int_t m_maxNSctDoubleHoles; //!< Maximum number of double holes in SCT
-    Double_t m_maxTrtEtaAcceptance; //!< Pseudorapidity below which TRT hit cuts will not be applied
-    Double_t m_maxEtaForTrtHitCuts; //!< Pseudorapidity above which TRT hit cuts will not be applied
-    Int_t m_minNTrtHits; //!< Minimum number of TRT hits
-    Int_t m_minNTrtHitsPlusOutliers; //!< Minimum number of TRT hits plus outliers
-    Int_t m_minNTrtHighThresholdHits; //!< Minimum number of high E TRT hits
-    Int_t m_minNTrtHighThresholdHitsPlusOutliers; //!< Minimum number of high E TRT hits including outliers
-    Double_t m_maxTrtHighEFraction; //!< Maximum fraction of TRT hits that are high threshold
-    Double_t m_maxTrtHighEFractionWithOutliers; //!< Maximum fraction of TRT hits that are high threshold, including outliers
-    Double_t m_maxTrtOutlierFraction; //!< Maximum fraction of TRT outliers over TRT hits + outliers
-    Double_t m_maxChiSq; //!< Maximum fit chi squared
-    Double_t m_maxChiSqperNdf; //!< Maximum chi squared per degree of freedom
-    Double_t m_minProb; //!< Minimum fit probability
-    Double_t m_minPtForProbCut; //!< Pt above which a Prob(chiSq, ndf) cut is applied
-    Double_t m_minProbAbovePtCutoff; //!< Minimum probability above Pt cutoff
-    Int_t m_minNUsedHitsdEdx; //!< Minimum number of dEdx hits used
-    Int_t m_minNOverflowHitsdEdx; //!< Minimum number of IBL overflow hits for dEdx
-    Bool_t m_eProbHTonlyForXe; //!< Flag whether to only check eProbabilityHT if all TRT hits are Xenon hits
-    Double_t m_minEProbabilityHT; //!< Minimum eProbabiltyHT
+    constexpr static Double_t LOCAL_MAX_DOUBLE = 1.0e16;
+    constexpr static Int_t LOCAL_MAX_INT = std::numeric_limits<Int_t>::max();
+
+    Double_t m_minPt = -1.; //!< Minimum p_T of tracks
+    Double_t m_maxAbsEta = -1.; //!< Maximum magnitude of pseudorapidity
+    Double_t m_maxZ0SinTheta = LOCAL_MAX_DOUBLE; //!< Maximum |z0*sin(theta)| of tracks
+    Double_t m_maxZ0 = LOCAL_MAX_DOUBLE; //!< Maximum |z0| of tracks
+    Double_t m_maxD0 = LOCAL_MAX_DOUBLE; //!< Maximum |d0| of tracks
+    Double_t m_maxSigmaD0 = LOCAL_MAX_DOUBLE; //!< Maximum sigma of d0
+    Double_t m_maxSigmaZ0 = LOCAL_MAX_DOUBLE; //!< Maximum sigma of z0
+    Double_t m_maxSigmaZ0SinTheta = LOCAL_MAX_DOUBLE; //!< Maximum sigma of z0*sin(theta)
+    Double_t m_maxD0overSigmaD0 = LOCAL_MAX_DOUBLE; //!< Maximum |d0|/sigma_d0 of tracks
+    Double_t m_maxZ0overSigmaZ0 = LOCAL_MAX_DOUBLE; //!< Maximum |z0|/sigma_z0 of tracks
+    Double_t m_maxZ0SinThetaoverSigmaZ0SinTheta = LOCAL_MAX_DOUBLE; //!< Maximum |z0*sin(theta)|/sigma_z0sinTheta
+    Int_t m_minNInnermostLayerHits = -1; //!< Minimum number of innermost pixel layer hits
+    Int_t m_minNNextToInnermostLayerHits = -1; //!< Minimum number of next to innermost pixel layer hits
+    Int_t m_minNBothInnermostLayersHits = -1; //!< Minimum number of two innermost pixel layer hits
+    Int_t m_maxNInnermostLayerSharedHits = LOCAL_MAX_INT; //!<  Maximum number of shared innermost pixel layer hits
+    Int_t m_useMinBiasInnermostLayersCut = 0; //!< Use the Minimum-Bias definition of the IBL/BL cut
+    Int_t m_minNSiHits = -1; //!< Minimum number of silicon hits (pixel + SCT)
+    Int_t m_maxNSiSharedHits = LOCAL_MAX_INT; //!< Maximum number of silicon sensors shared with other track
+    Int_t m_minNSiHitsIfSiSharedHits = -1; //!< Minimum number of silicon hits if the track has shared hits
+    Int_t m_maxNSiHoles = LOCAL_MAX_INT; //!< Maximum number of silicon sensors without a hit
+    Int_t m_minNPixelHits = -1; //!< Minimum number of pixel hits
+    Int_t m_maxNPixelSharedHits = LOCAL_MAX_INT; //!< Maximum number of pixels shared with other track
+    Int_t m_maxNPixelHoles = LOCAL_MAX_INT; //!< Maximum number of pixel layers without a hit
+    Double_t m_minEtaForStrictNSiHitsCut = LOCAL_MAX_DOUBLE; //!< Eta cutoff above which a tighter cut on NSiHits applies
+    Int_t m_minNSiHitsAboveEtaCutoff = -1; //!< Tighter cut on NSiHits above a certain eta
+    Bool_t m_maxOneSharedModule = false; //!< Flag whether to reject if more than one of 1 shared pixel hit or 2 shared SCT hits.
+    Bool_t m_useEtaDependentMaxChiSq = false; //!< Flag whether we use the eta-dependent chi^2/dof cut
+    Double_t m_minP = -1.; //!< Minimum p = p_T/cos(theta)
+    Int_t m_minNSiHitsPhysical = -1; //!< Minimum number of physical (pixel + SCT) hits (no dead sensors)
+    Int_t m_minNPixelHitsPhysical = -1; //!< Minimum number of physical hits (no dead sensors)
+    Int_t m_minNSctHits = -1; //!< Minimum number of SCT hits (plus dead sensors)
+    Int_t m_maxNSctSharedHits = LOCAL_MAX_INT; //!< Maximum number of SCT sensors shared with another track
+    Int_t m_maxNSctHoles = LOCAL_MAX_INT; //!< Maximum number of holes in SCT
+    Int_t m_maxNSctDoubleHoles = LOCAL_MAX_INT; //!< Maximum number of double holes in SCT
+    Double_t m_maxTrtEtaAcceptance = LOCAL_MAX_DOUBLE; //!< Pseudorapidity below which TRT hit cuts will not be applied
+    Double_t m_maxEtaForTrtHitCuts = -1.; //!< Pseudorapidity above which TRT hit cuts will not be applied
+    Int_t m_minNTrtHits = -1; //!< Minimum number of TRT hits
+    Int_t m_minNTrtHitsPlusOutliers = -1; //!< Minimum number of TRT hits plus outliers
+    Int_t m_minNTrtHighThresholdHits = -1; //!< Minimum number of high E TRT hits
+    Int_t m_minNTrtHighThresholdHitsPlusOutliers = -1; //!< Minimum number of high E TRT hits including outliers
+    Double_t m_maxTrtHighEFraction = LOCAL_MAX_DOUBLE; //!< Maximum fraction of TRT hits that are high threshold
+    Double_t m_maxTrtHighEFractionWithOutliers = LOCAL_MAX_DOUBLE; //!< Maximum fraction of TRT hits that are high threshold, including outliers
+    Double_t m_maxTrtOutlierFraction = LOCAL_MAX_DOUBLE; //!< Maximum fraction of TRT outliers over TRT hits + outliers
+    Double_t m_maxChiSq = LOCAL_MAX_DOUBLE; //!< Maximum fit chi squared
+    Double_t m_maxChiSqperNdf = LOCAL_MAX_DOUBLE; //!< Maximum chi squared per degree of freedom
+    Double_t m_minProb = -1.; //!< Minimum fit probability
+    Double_t m_minPtForProbCut = LOCAL_MAX_DOUBLE; //!< Pt above which a Prob(chiSq, ndf) cut is applied
+    Double_t m_minProbAbovePtCutoff = -1.; //!< Minimum probability above Pt cutoff
+    Int_t m_minNUsedHitsdEdx = -1; //!< Minimum number of dEdx hits used
+    Int_t m_minNOverflowHitsdEdx = -1; //!< Minimum number of IBL overflow hits for dEdx
+    Bool_t m_eProbHTonlyForXe = false; //!< Flag whether to only check eProbabilityHT if all TRT hits are Xenon hits
+    Double_t m_minEProbabilityHT = -1.; //!< Minimum eProbabiltyHT
 #ifndef XAOD_ANALYSIS
-    Int_t m_minNSiHitsMod; //!< Minimum number of Si hits, with pixel hits counting twice
-    Int_t m_minNSiHitsModTop; //!< Min number of Si hits on top half (pixel counting twice)
-    Int_t m_minNSiHitsModBottom; //!< Min number of Si hits on bottom half (pixel counting twice)
+    Int_t m_minNSiHitsMod = -1; //!< Minimum number of Si hits, with pixel hits counting twice
+    Int_t m_minNSiHitsModTop = -1; //!< Min number of Si hits on top half (pixel counting twice)
+    Int_t m_minNSiHitsModBottom = -1; //!< Min number of Si hits on bottom half (pixel counting twice)
 #endif
 
     /// Object used to store the last decision
@@ -169,8 +175,8 @@ namespace InDet {
     static const std::unordered_map<std::string, CutLevel> s_mapCutLevel;
    
 #ifndef XAOD_ANALYSIS
-    Bool_t m_initTrkTools; //!< Whether to initialize the Trk::Track tools
-    Bool_t m_trackSumToolAvailable; //!< Whether the summary tool is available    
+    Bool_t m_initTrkTools = false; //!< Whether to initialize the Trk::Track tools
+    Bool_t m_trackSumToolAvailable = false; //!< Whether the summary tool is available    
     ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool; //!< Track summary tool
     ToolHandle<Trk::IExtrapolator> m_extrapolator; //!< Extrapolator tool
 

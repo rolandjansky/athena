@@ -34,15 +34,17 @@ alg = InDet__ToolTester()
 
 #alg.TrackSelectionTool.UseTrkTrackTools = True # set this to True if working with Trk::Track
 alg.TrackSelectionTool.CutLevel = "TightPrimary"
-alg.TrackSelectionTool.minPt = 100. # default is 400. this will not be overwritten.
+#alg.TrackSelectionTool.maxNSiHoles = -1
+#alg.TrackSelectionTool.maxNPixelHoles = 0
+#alg.TrackSelectionTool.minPt = 100. # default is 400. this will not be overwritten.
 #alg.TrackSelectionTool.minNBothInnermostLayersHits = 0
 #alg.TrackSelectionTool.minNUsedHitsdEdx = 1
 #alg.TrackSelectionTool.maxNInnermostLayerSharedHits = 1
-alg.TrackSelectionTool.minPtForProbCut = 1e4 # 10 GeV
-alg.TrackSelectionTool.minProbAbovePtCutoff = .01
+#alg.TrackSelectionTool.minPtForProbCut = 1e4 # 10 GeV
+#alg.TrackSelectionTool.minProbAbovePtCutoff = .01
 #alg.TrackSelectionTool.minEProbabilityHT = .01
 #alg.TrackSelectionTool.eProbHTonlyForXe = True
-alg.TrackSelectionTool.minNSiHitsIfSiSharedHits = 10
+#alg.TrackSelectionTool.minNSiHitsIfSiSharedHits = 10
 
 # control the loading of the TrackSummaryTool
 #from TrkTrackSummaryTool.AtlasTrackSummaryTool import AtlasTrackSummaryTool
