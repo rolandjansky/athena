@@ -12,17 +12,17 @@
 #ifndef TAUIDVARCALCULATOR_H
 #define TAUIDVARCALCULATOR_H
 
-#include "tauRecTools/TauRecToolBase.h"
+#include "TauDiscriminant/TauDiscriToolBase.h"
 #include "xAODTau/TauJet.h"
 #include <string>
 
-class TauIDVarCalculator: virtual public TauRecToolBase
+class TauIDVarCalculator: virtual public TauDiscriToolBase
 {
-  ASG_TOOL_CLASS2(TauIDVarCalculator, TauRecToolBase, ITauToolBase)
+  ASG_TOOL_CLASS2(TauIDVarCalculator, TauDiscriToolBase, ITauToolBase)
 
     public:
   
-  TauIDVarCalculator(const std::string& name = "TauIDVarCalculator");
+  TauIDVarCalculator(const std::string& name);
   
   virtual ~TauIDVarCalculator() {}
 
@@ -40,6 +40,7 @@ class TauIDVarCalculator: virtual public TauRecToolBase
 
   std::string m_vertexContainerKey;
   int m_nVtx;
+  bool m_doTrigger;
 };
 
 #endif

@@ -10,8 +10,6 @@
 
 #include "TauDiscriminant/BoostedDecisionTree.h"
 
-using namespace std;
-
 float BoostedDecisionTree::response() const {
 
     float sum = 0.;
@@ -19,8 +17,8 @@ float BoostedDecisionTree::response() const {
     Node* currentNode = 0;
     DecisionNode* decision = 0;
     LeafNode<float>* leafNode = 0;
-    vector<pair<Node*,float> >::const_iterator tree = this->m_trees.begin();
-    while(tree != this->m_trees.end()) {
+    vector<pair<Node*,float> >::const_iterator tree = this->trees.begin();
+    while(tree != this->trees.end()) {
         currentNode = (*tree).first;
         while (!currentNode->isLeaf()) {
             decision = static_cast<DecisionNode*>(currentNode);

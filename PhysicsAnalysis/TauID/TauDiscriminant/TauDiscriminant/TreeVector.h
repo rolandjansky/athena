@@ -13,7 +13,7 @@
 #include <utility>
 #include "TauDiscriminant/Node.h"
 
-//using namespace std;
+using namespace std;
 
 class TreeVector {
 
@@ -21,8 +21,8 @@ class TreeVector {
         
         //!< Destructor
         ~TreeVector() {
-            std::vector<std::pair<Node*,float> >::iterator it(this->m_trees.begin());
-            while (it != this->m_trees.end()) delete (*it++).first;
+            vector<pair<Node*,float> >::iterator it(this->trees.begin());
+            while (it != this->trees.end()) delete (*it++).first;
         }
        
         /**
@@ -31,12 +31,12 @@ class TreeVector {
          * @param weight the @c float weight of the decision tree.
          */
         void addTree(Node* root, float weight) {
-            this->m_trees.push_back(std::pair<Node*,float>(root,weight));
+            this->trees.push_back(pair<Node*,float>(root,weight));
         }
 
     protected:
 
-        std::vector<std::pair<Node*,float> > m_trees;
+        vector<pair<Node*,float> > trees;
 };
 
 #endif

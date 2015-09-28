@@ -10,7 +10,6 @@ use AthenaBaseComps     AthenaBaseComps-*    Control
 use AsgTools		AsgTools-*	     Control/AthToolSupport
 use PATInterfaces	PATInterfaces-*	     PhysicsAnalysis/AnalysisCommon
 use tauRecTools		tauRecTools-*	     Reconstruction
-use xAODEgamma          xAODEgamma-*         Event/xAOD
 
 apply_tag ROOTBasicLibs
 apply_tag ROOTMathLibs
@@ -36,15 +35,12 @@ apply_pattern declare_python_modules files="../python/*.py"
 # macro_remove componentshr_linkopts "-Wl,-s"
 
 private
-use xAODEventInfo xAODEventInfo-* Event/xAOD
 use AtlasReflex   AtlasReflex-*   External -no_auto_imports
 use xAODTracking        xAODTracking-*       Event/xAOD
 use StoreGate           StoreGate-*          Control
 use CxxUtils		CxxUtils-*	     Control
-use ElectronPhotonSelectorTools   ElectronPhotonSelectorTools-*   PhysicsAnalysis/ElectronPhotonID
 
 apply_pattern lcgdict dict=TauDiscriminant selectionfile=selection.xml headerfiles="../TauDiscriminant/TauDiscriminantDict.h"
-apply_pattern declare_calib files="../share/*"
 
 use AtlasPyROOT         AtlasPyROOT-*            External
 # should be package name itself

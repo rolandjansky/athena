@@ -4,11 +4,6 @@
 
 #include "TauDiscriminant/MethodBase.h"
 
-using std::string;
-using std::map;
-using std::pair;
-using std::vector;
-
 namespace TauID{
 
   void MethodBase::registerVariable(const string& name, char type){

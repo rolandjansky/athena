@@ -11,11 +11,10 @@
 #include "TauDiscriminant/MethodBDT.h"
 
 using namespace TauID;
-using namespace std;
 
 float MethodBDT::response(xAOD::TauJet& tau)
 {
-    if (!this->m_isBuilt) return -101.;
+    if (!this->isBuilt) return -101.;
     if(!updateVariables(tau)) return -201.;
     BoostedDecisionTree* bdt = getCurrentCategory();
     return bdt ? bdt->response() : -201.;
@@ -41,10 +40,10 @@ bool MethodBDT::build(const string& filename, bool checkTree)
     registerVariables(intNames, 'I');
     
     reader.setVariables(getFloatPointers(), getIntPointers());
-    this->m_categoryTree = reader.build(checkTree);
-    if (this->m_categoryTree != 0)
+    this->categoryTree = reader.build(checkTree);
+    if (this->categoryTree != 0)
     {
-        this->m_isBuilt = true;
+        this->isBuilt = true;
         return true;
     }
     return false;
@@ -54,7 +53,7 @@ BoostedDecisionTree* MethodBDT::getCurrentCategory() const
 {
     PointerLeafNode<BoostedDecisionTree>* leafNode;
     DecisionNode* decision;
-    Node* currentNode = this->m_categoryTree;
+    Node* currentNode = this->categoryTree;
     if (!currentNode) return 0;
     while (!currentNode->isLeaf())
     {

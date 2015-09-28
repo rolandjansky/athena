@@ -10,22 +10,22 @@
 
 #include "TauDiscriminant/TauIDVarCalculator.h"
 #include "xAODTracking/VertexContainer.h"  
-#include "xAODEventInfo/EventInfo.h"
-
 
 const float TauIDVarCalculator::LOW_NUMBER = -1111.;
 
 TauIDVarCalculator::TauIDVarCalculator(const std::string& name):
-  TauRecToolBase(name),
+  TauDiscriToolBase(name),
   m_vertexContainerKey("PrimaryVertices"),
-  m_nVtx(1)
+  m_nVtx(1),
+  m_doTrigger(false)
 {
   declareProperty("vertexContainerKey", m_vertexContainerKey);
+  declareProperty("doTrigger", m_doTrigger);
 }
 
 StatusCode TauIDVarCalculator::eventInitialize()
 {
-  if(!inTrigger()){
+  if(!m_doTrigger){
     m_nVtx = int(LOW_NUMBER);
     const xAOD::VertexContainer* vertexContainer = nullptr;
     if( evtStore()->retrieve( vertexContainer, m_vertexContainerKey ).isFailure() ){
@@ -60,35 +60,17 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   static SG::AuxElement::Accessor<int> acc_numTrack("NUMTRACK");
   acc_numTrack(tau) = tau.nTracks();
 
-
-  const xAOD::EventInfo* m_xEventInfo;  //!
-
-  static SG::AuxElement::Accessor<float> acc_mu("MU");
-  ATH_CHECK( evtStore()->retrieve(m_xEventInfo,"EventInfo") );
-  acc_mu(tau) = m_xEventInfo->averageInteractionsPerCrossing();
-
-  if(!inTrigger()){
-    static SG::AuxElement::Accessor<int> acc_nVertex("NUMVERTICES");
-    acc_nVertex(tau) = m_nVtx >= 0 ? m_nVtx : 0.;
-  }
-  
-  if(inTrigger()){
+  if(m_doTrigger){
     //for old trigger BDT:
     static SG::AuxElement::Accessor<int> acc_numWideTrk("NUMWIDETRACK");
-#ifdef XAODTAU_VERSIONS_TAUJET_V3_H
-    acc_numWideTrk(tau) = tau.nTracks(xAOD::TauJetParameters::classifiedIsolation);
-#else
     acc_numWideTrk(tau) = tau.nWideTracks();
-#endif
   }
   
   //don't calculate EleBDT variables if run from TrigTauDiscriminant:
-  if(inTrigger()) return StatusCode::SUCCESS;
+  if(m_doTrigger) return StatusCode::SUCCESS;
   
   //everything below is just for EleBDT!
-  static SG::AuxElement::Accessor<float> acc_absEtaLead("ABS_ETA_LEAD_TRACK"); 
-  static SG::AuxElement::Accessor<float> acc_leadTrackProbHT("leadTrackProbHT");
-  static SG::AuxElement::Accessor<float> acc_leadTrackEta("leadTrackEta");
+  static SG::AuxElement::Accessor<float> acc_absEtaLead("ABS_ETA_LEAD_TRACK");
   static SG::AuxElement::Accessor<float> acc_absDeltaEta("TAU_ABSDELTAETA");
   static SG::AuxElement::Accessor<float> acc_absDeltaPhi("TAU_ABSDELTAPHI");
   static SG::AuxElement::ConstAccessor<float> acc_sumEMCellEtOverLeadTrkPt("sumEMCellEtOverLeadTrkPt");
@@ -106,43 +88,31 @@ StatusCode TauIDVarCalculator::execute(xAOD::TauJet& tau)
   static SG::AuxElement::Accessor<float> acc_centFracCorrected("CORRCENTFRAC");
   
   if(tau.nTracks() > 0){
-    const xAOD::TrackParticle* track = 0;
-#ifdef XAODTAU_VERSIONS_TAUJET_V3_H
-    track = tau.track(0)->track();
-#else
-    track = tau.track(0);
-#endif
-    acc_absEtaLead(tau) = fabs( track->eta() );
-    acc_leadTrackEta(tau) = fabs( track->eta() );
-    acc_absDeltaEta(tau) = fabs( track->eta() - tau.eta() );
-    acc_absDeltaPhi(tau) = fabs( track->p4().DeltaPhi(tau.p4()) );
+    acc_absEtaLead(tau) = fabs( tau.track(0)->eta() );
+    acc_absDeltaEta(tau) = fabs( tau.track(0)->eta() - tau.eta() );
+    acc_absDeltaPhi(tau) = fabs( tau.track(0)->phi() - tau.phi() );
     //EMFRACTIONATEMSCALE_MOVEE3:
     float etEMScale1 = acc_etEMAtEMScale(tau);
     float etEMScale2 = acc_etHadAtEMScale(tau);
-    float tau_sumETCellsLAr = acc_sumEMCellEtOverLeadTrkPt(tau) * track->pt();
+    float tau_sumETCellsLAr = acc_sumEMCellEtOverLeadTrkPt(tau) * tau.track(0)->pt();
     float tau_E3 = tau_sumETCellsLAr - etEMScale1;
     float tau_seedCalo_etHadAtEMScale_noE3 = etEMScale2 - tau_E3;
     float tau_seedCalo_etEMAtEMScale_yesE3 = etEMScale1 + tau_E3;
     acc_EMFractionAtEMScaleMOVEE3(tau) = tau_seedCalo_etEMAtEMScale_yesE3 / (tau_seedCalo_etEMAtEMScale_yesE3 + tau_seedCalo_etHadAtEMScale_noE3);
     //TAU_SEEDTRK_SECMAXSTRIPETOVERPT:
-    acc_seedTrkSecMaxStripEtOverPt(tau) = (track->pt() != 0) ? acc_secMaxStripEt(tau) / track->pt() : LOW_NUMBER;
+    acc_seedTrkSecMaxStripEtOverPt(tau) = (tau.track(0)->pt() != 0) ? acc_secMaxStripEt(tau) / tau.track(0)->pt() : LOW_NUMBER;
     //TRT_NHT_OVER_NLT:
     uint8_t numberOfTRTHighThresholdHits;
-    track->summaryValue(numberOfTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdHits);
+    tau.track(0)->summaryValue(numberOfTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdHits);
     uint8_t numberOfTRTHits;
-    track->summaryValue(numberOfTRTHits, xAOD::numberOfTRTHits);
+    tau.track(0)->summaryValue(numberOfTRTHits, xAOD::numberOfTRTHits);
     uint8_t numberOfTRTHighThresholdOutliers;
-    track->summaryValue(numberOfTRTHighThresholdOutliers, xAOD::numberOfTRTHighThresholdOutliers);
+    tau.track(0)->summaryValue(numberOfTRTHighThresholdOutliers, xAOD::numberOfTRTHighThresholdOutliers);
     uint8_t numberOfTRTOutliers;
-    track->summaryValue(numberOfTRTOutliers, xAOD::numberOfTRTOutliers);
+    tau.track(0)->summaryValue(numberOfTRTOutliers, xAOD::numberOfTRTOutliers);
     acc_trtNhtOverNlt(tau) = (numberOfTRTHits + numberOfTRTOutliers) > 0 ?
       float( numberOfTRTHighThresholdHits + numberOfTRTHighThresholdOutliers) / float(numberOfTRTHits + numberOfTRTOutliers) : LOW_NUMBER;
     acc_newhadLeakEt(tau) = acc_hadLeakEt(tau);
-
-    float fTracksEProbabilityHT;
-    track->summaryValue( fTracksEProbabilityHT, xAOD::eProbabilityHT);
-    acc_leadTrackProbHT(tau) = fTracksEProbabilityHT;
-
   }else{
     acc_absEtaLead(tau) = LOW_NUMBER;
     acc_absDeltaEta(tau) = LOW_NUMBER;

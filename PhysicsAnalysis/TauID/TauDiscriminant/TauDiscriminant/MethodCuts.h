@@ -24,7 +24,7 @@
 #include "TauDiscriminant/Node.h"
 #include "TauDiscriminant/TreeReader.h"
 
-//using namespace std;
+using namespace std;
 
 namespace TauID
 {
@@ -33,20 +33,20 @@ namespace TauID
         public:
 
             //!< Default constructor
-            MethodCuts(const std::string& name = ""):
-                MethodBase(name),
-                m_isBuilt(false),
-                m_nLevels(0),
-                m_categoryTree(0)
+            MethodCuts(const string& _name = ""):
+                MethodBase(_name),
+                isBuilt(false),
+                nLevels(0),
+                categoryTree(0)
             {}
 
             //!< Destructor
             ~MethodCuts()
             {
-                delete this->m_categoryTree;
+                delete this->categoryTree;
             }
 
-            bool build(const std::string& filename, bool checkTree = false);
+            bool build(const string& filename, bool checkTree = false);
 
             float response(xAOD::TauJet& tau)
             {
@@ -57,7 +57,7 @@ namespace TauID
 
             unsigned int numLevels() const
             {
-                return this->m_nLevels;
+                return this->nLevels;
             }
 
             CutsDecisionTree* getCurrentCategory() const;
@@ -69,9 +69,9 @@ namespace TauID
 
         private:
 
-            bool m_isBuilt;
-            unsigned int m_nLevels;
-            Node* m_categoryTree;
+            bool isBuilt;
+            unsigned int nLevels;
+            Node* categoryTree;
     };
 }
 #endif

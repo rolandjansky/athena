@@ -5,16 +5,16 @@
 #ifndef TAUMUONVETO_H
 #define TAUMUONVETO_H
 
-#include "tauRecTools/TauRecToolBase.h"
+#include "TauDiscriminant/TauDiscriToolBase.h"
 #include <string>
 
-class TauMuonVeto: virtual public TauRecToolBase
+class TauMuonVeto: virtual public TauDiscriToolBase
 {
-  ASG_TOOL_CLASS2(TauMuonVeto, TauRecToolBase, ITauToolBase)
+  ASG_TOOL_CLASS2(TauMuonVeto, TauDiscriToolBase, ITauToolBase)
     public:
 
-        TauMuonVeto(const std::string& name = "TauMuonVeto"):
-            TauRecToolBase(name)
+        TauMuonVeto(const std::string& name):
+            TauDiscriToolBase(name)
         {
 	}
 

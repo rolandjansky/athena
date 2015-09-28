@@ -12,15 +12,6 @@
 #include "TauDiscriminant/MethodTransform.h"
 #include "TauDiscriminant/Types.h"
 
-#include "TauDiscriminant/TauDiscriToolBase.h"
-
-#include "TauDiscriminant/TauJetBDT.h"
-#include "TauDiscriminant/TauEleBDT.h"
-#include "TauDiscriminant/TauIDVarCalculator.h"
-#include "TauDiscriminant/TauEleOLRDecorator.h"
-#include "TauDiscriminant/TauScoreFlatteningTool.h"
-#include "TauDiscriminant/TauMuonVeto.h"
-
 #ifdef __CINT__
 
 #pragma link off all globals;
@@ -36,15 +27,6 @@
 #pragma link C++ class TauID::MethodTransform;
 #pragma link C++ class TauID::MethodBDT;
 #pragma link C++ class TauID::MethodCuts;
-
-#pragma link C++ class TauDiscriToolBase+;
-
-#pragma link C++ class TauJetBDT+;
-#pragma link C++ class TauEleBDT+;
-#pragma link C++ class TauIDVarCalculator+;
-#pragma link C++ class TauEleOLRDecorator+;
-#pragma link C++ class TauScoreFlatteningTool+;
-#pragma link C++ class TauMuonVeto+;
 
 #endif
 #endif

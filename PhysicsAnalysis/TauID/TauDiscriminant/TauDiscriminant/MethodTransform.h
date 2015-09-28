@@ -24,7 +24,7 @@
 #include "TauDiscriminant/Node.h"
 #include "TauDiscriminant/Transformation.h"
 
-//using namespace std;
+using namespace std;
 
 namespace TauID
 {
@@ -33,19 +33,19 @@ namespace TauID
         public:
 
             //!< Default constructor
-            MethodTransform(const std::string& name = ""):
-                MethodBase(name),
-                m_isBuilt(false),
-                m_categoryTree(0)
+            MethodTransform(const string& _name = ""):
+                MethodBase(_name),
+                isBuilt(false),
+                categoryTree(0)
             {}
 
             //!< Destructor
             ~MethodTransform()
             {
-                delete this->m_categoryTree;
+                delete this->categoryTree;
             }
 
-            bool build(const std::string& filename, bool check = false);
+            bool build(const string& filename, bool check = false);
 
             float response(xAOD::TauJet& tau);
 
@@ -67,8 +67,8 @@ namespace TauID
 
         private:
 
-            bool m_isBuilt;
-            Node* m_categoryTree;
+            bool isBuilt;
+            Node* categoryTree;
     };
 }
 #endif

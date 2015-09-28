@@ -11,11 +11,10 @@
 #include "TauDiscriminant/MethodCuts.h"
 
 using namespace TauID;
-using namespace std;
 
 float MethodCuts::response(xAOD::TauJet& tau, unsigned int level)
 {
-    if (!this->m_isBuilt) return 0.;
+    if (!this->isBuilt) return 0.;
     if(!updateVariables(tau)) return 0.;
     CutsDecisionTree* cuts = getCurrentCategory();
     return cuts ? cuts->response(level) : 0.;
@@ -41,10 +40,10 @@ bool MethodCuts::build(const string& filename, bool checkTree)
     registerVariables(intNames, 'I');
     
     reader.setVariables(getFloatPointers(), getIntPointers());
-    this->m_categoryTree = reader.build(checkTree);
-    if (this->m_categoryTree != 0)
+    this->categoryTree = reader.build(checkTree);
+    if (this->categoryTree != 0)
     {
-        this->m_isBuilt = true;
+        this->isBuilt = true;
         return true;
     }
     return false;
@@ -54,7 +53,7 @@ CutsDecisionTree* MethodCuts::getCurrentCategory() const
 {
     PointerLeafNode<CutsDecisionTree>* leafNode;
     DecisionNode* decision;
-    Node* currentNode = this->m_categoryTree;
+    Node* currentNode = this->categoryTree;
     while (!currentNode->isLeaf())
     {
         decision = static_cast<DecisionNode*>(currentNode);
