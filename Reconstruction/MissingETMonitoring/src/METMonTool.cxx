@@ -235,13 +235,13 @@ StatusCode METMonTool::bookHistograms()
     }
 
     //MonGroup met_sources(this, "MET/Sources" + suffix, run, ATTRIB_MANAGED);
-    MonGroup met_sources(this, "MET/Sources" + suffix, lumiBlock);
-    MonGroup met_calos(this, "MET/Calos" + suffix, lumiBlock);//, run, ATTRIB_MANAGED);
-    MonGroup met_regions(this, "MET/Regions" + suffix, lumiBlock);//, run, ATTRIB_MANAGED);
-    MonGroup met_jets(this, "MET/Jets" + suffix, lumiBlock);//, run, ATTRIB_MANAGED);
-    MonGroup met_electrons(this, "MET/Electrons" + suffix, lumiBlock);//, run, ATTRIB_MANAGED);
-    MonGroup met_muons(this, "MET/Muons" + suffix, lumiBlock);//, run, ATTRIB_MANAGED);
-    MonGroup met_summary(this, "MET/Summary" + suffix, lumiBlock);//, run, ATTRIB_MANAGED);
+    MonGroup met_sources(this, "MET/Sources" + suffix, (m_environment == AthenaMonManager::online) ? run : lumiBlock);
+    MonGroup met_calos(this, "MET/Calos" + suffix, (m_environment == AthenaMonManager::online) ? run : lumiBlock);//, run, ATTRIB_MANAGED);
+    MonGroup met_regions(this, "MET/Regions" + suffix, (m_environment == AthenaMonManager::online) ? run : lumiBlock);//, run, ATTRIB_MANAGED);
+    MonGroup met_jets(this, "MET/Jets" + suffix, (m_environment == AthenaMonManager::online) ? run : lumiBlock);//, run, ATTRIB_MANAGED);
+    MonGroup met_electrons(this, "MET/Electrons" + suffix, (m_environment == AthenaMonManager::online) ? run : lumiBlock);//, run, ATTRIB_MANAGED);
+    MonGroup met_muons(this, "MET/Muons" + suffix, (m_environment == AthenaMonManager::online) ? run : lumiBlock);//, run, ATTRIB_MANAGED);
+    MonGroup met_summary(this, "MET/Summary" + suffix, (m_environment == AthenaMonManager::online) ? run : lumiBlock);//, run, ATTRIB_MANAGED);
 
     // Book histograms
 
@@ -1318,6 +1318,8 @@ StatusCode METMonTool::fillSourcesHistograms()
             else
             {
                 ATH_MSG_DEBUG("Filling histograms for term " << m_metKeys[i]);
+		
+		if ((*xMissEt)[xaod_subkey]) {
                 float ex = (*xMissEt)[xaod_subkey]->mpx() / CLHEP::GeV;
                 float ey = (*xMissEt)[xaod_subkey]->mpy() / CLHEP::GeV;
                 float et = (*xMissEt)[xaod_subkey]->met() / CLHEP::GeV;
@@ -1362,7 +1364,7 @@ StatusCode METMonTool::fillSourcesHistograms()
                         m_phiMean->Fill(i + 0.5, phi);
                     }
                 }
-
+		}// xaod_subket
             }
 
         }
