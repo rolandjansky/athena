@@ -419,69 +419,72 @@ void iFatras::HitCreatorSilicon::createSimHit(const ISF::ISFParticle& isp, const
     if (!isActive || !isGood) return;
   }
 
- // intersection
-   const Amg::Vector2D& intersection = pars.localPosition();
-   double interX = intersection.x();
-   double interY = intersection.y();
-   // thickness of the module
-   double thickness = hitSiDetElement->thickness();
-   // get the momentum direction into the local frame
-   Amg::Vector3D particleDir = pars.momentum().unit();
-   const Amg::Transform3D& sTransform = hitSurface.transform();
-   Amg::Vector3D localDirection = sTransform.inverse().linear() * particleDir;   
-   localDirection *= thickness/cos(localDirection.theta());
-   // moving direction
-   int movingDirection = localDirection.z() > 0. ? 1 : -1;
-   // get he local distance of the intersection in x,y
-   double distX = localDirection.x();
-   double distY = localDirection.y();
-   // local entries in x,y
-   double localEntryX = interX-0.5*distX;
-   double localEntryY = interY-0.5*distY;
-   double localExitX  = interX+0.5*distX;
-   double localExitY  = interY+0.5*distY;
-   double   energyDeposit=0;   
-   //!< @TODO : fix edge effects 
-   const Amg::Transform3D &hitTransform = Amg::CLHEPTransformToEigen( hitSiDetElement->transformHit().inverse() );
-   // transform into the hit frame
-   Amg::Vector3D localEntry(hitTransform*(sTransform*Amg::Vector3D(localEntryX,localEntryY,-0.5*movingDirection*thickness)));
-   Amg::Vector3D localExit(hitTransform*(sTransform*Amg::Vector3D(localExitX,localExitY,0.5*movingDirection*thickness))); 
-
-   bool isPix = hitSiDetElement->isPixel();
-   bool isSCT = hitSiDetElement->isSCT(); 
-
-   // Landau approximation
-   double dEdX = m_fastEnergyDepositionModel ?
-                    energyDeposit_fast(isp,isPix,isSCT)
-                  : energyDeposit_exact(isp,isPix,isSCT);
-
-   energyDeposit = dEdX * (localExit - localEntry).mag();
- 
-   //!< barcode & time from current stack particle
-   //  double   energyDeposit = m_siPathToCharge*localDirection.mag()*CLHEP::RandLandau::shoot(m_randomEngine);
-   int    barcode       = isp.barcode();
-   
-   // create the silicon hit
-   const HepGeom::Point3D<double> localEntryHep( localEntry.x(), localEntry.y(), localEntry.z() );
-   const HepGeom::Point3D<double> localExitHep( localExit.x(), localExit.y(), localExit.z() );
- 
-   SiHit siHit(localEntryHep,
-	       localExitHep,
-	       energyDeposit,
-	       time,
-	       barcode,
-	       m_pixIdHelper ? 0 : 1,
-	       m_pixIdHelper ? m_pixIdHelper->barrel_ec(hitId)  : m_sctIdHelper->barrel_ec(hitId),
-	       m_pixIdHelper ? m_pixIdHelper->layer_disk(hitId) : m_sctIdHelper->layer_disk(hitId),
-	       m_pixIdHelper ? m_pixIdHelper->eta_module(hitId) : m_sctIdHelper->eta_module(hitId),
-	       m_pixIdHelper ? m_pixIdHelper->phi_module(hitId) : m_sctIdHelper->phi_module(hitId),
-	       m_pixIdHelper ? 0 : m_sctIdHelper->side(hitId)); 
-   
-   if ( isSiDetElement )
+  // intersection
+  const Amg::Transform3D& sTransform = hitSurface.transform();
+  Amg::Vector3D local3DPosition = sTransform.inverse() * pars.position();
+  const Amg::Vector2D  intersection(local3DPosition.x(), local3DPosition.y());
+  double interX = intersection.x();
+  double interY = intersection.y();
+  
+  // thickness of the module
+  double thickness = hitSiDetElement->thickness();
+  
+  // get the momentum direction into the local frame
+  Amg::Vector3D particleDir = pars.momentum().unit();
+  Amg::Vector3D localDirection = sTransform.inverse().linear() * particleDir;   
+  localDirection *= thickness/cos(localDirection.theta());
+  // moving direction
+  int movingDirection = localDirection.z() > 0. ? 1 : -1;
+  // get he local distance of the intersection in x,y
+  double distX = localDirection.x();
+  double distY = localDirection.y();
+  // local entries in x,y
+  double localEntryX = interX-0.5*distX;
+  double localEntryY = interY-0.5*distY;
+  double localExitX  = interX+0.5*distX;
+  double localExitY  = interY+0.5*distY;
+  double   energyDeposit=0;   
+  //!< @TODO : fix edge effects 
+  const Amg::Transform3D &hitTransform = Amg::CLHEPTransformToEigen( hitSiDetElement->transformHit().inverse() );
+  // transform into the hit frame
+  Amg::Vector3D localEntry(hitTransform*(sTransform*Amg::Vector3D(localEntryX,localEntryY,-0.5*movingDirection*thickness)));
+  Amg::Vector3D localExit(hitTransform*(sTransform*Amg::Vector3D(localExitX,localExitY,0.5*movingDirection*thickness))); 
+  
+  bool isPix = hitSiDetElement->isPixel();
+  bool isSCT = hitSiDetElement->isSCT(); 
+  
+  // Landau approximation
+  double dEdX = m_fastEnergyDepositionModel ?
+    energyDeposit_fast(isp,isPix,isSCT)
+    : energyDeposit_exact(isp,isPix,isSCT);
+  
+  energyDeposit = dEdX * (localExit - localEntry).mag();
+  
+  //!< barcode & time from current stack particle
+  //  double   energyDeposit = m_siPathToCharge*localDirection.mag()*CLHEP::RandLandau::shoot(m_randomEngine);
+  int    barcode       = isp.barcode();
+  
+  // create the silicon hit
+  const HepGeom::Point3D<double> localEntryHep( localEntry.x(), localEntry.y(), localEntry.z() );
+  const HepGeom::Point3D<double> localExitHep( localExit.x(), localExit.y(), localExit.z() );
+  
+  SiHit siHit(localEntryHep,
+	      localExitHep,
+	      energyDeposit,
+	      time,
+	      barcode,
+	      m_pixIdHelper ? 0 : 1,
+	      m_pixIdHelper ? m_pixIdHelper->barrel_ec(hitId)  : m_sctIdHelper->barrel_ec(hitId),
+	      m_pixIdHelper ? m_pixIdHelper->layer_disk(hitId) : m_sctIdHelper->layer_disk(hitId),
+	      m_pixIdHelper ? m_pixIdHelper->eta_module(hitId) : m_sctIdHelper->eta_module(hitId),
+	      m_pixIdHelper ? m_pixIdHelper->phi_module(hitId) : m_sctIdHelper->phi_module(hitId),
+	      m_pixIdHelper ? 0 : m_sctIdHelper->side(hitId)); 
+  
+  if ( isSiDetElement )
      ATH_MSG_VERBOSE("[ sihit ] Adding an SiHit SiDetElement to the SiHitCollection.");
-   else
-     ATH_MSG_VERBOSE("[ sihit ] Adding an SiHit PlanarDetElement to the SiHitCollection.");
-   
-   m_hitColl->Insert(siHit);
+  else
+    ATH_MSG_VERBOSE("[ sihit ] Adding an SiHit PlanarDetElement to the SiHitCollection.");
+  
+  m_hitColl->Insert(siHit);
   
 }
