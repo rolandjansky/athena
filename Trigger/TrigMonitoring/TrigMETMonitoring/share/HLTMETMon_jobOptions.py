@@ -12,27 +12,12 @@ import sys
 ##############
 #InputFiles = ['/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0331._0001.1']
 
-#InputFiles = ['/hep300/data/khamano/data16/data16_13TeV.00298967.physics_Main.merge.AOD.f696_m1588/data16_13TeV.00298967.physics_Main.merge.AOD.f696_m1588._lb0157._0006.1']
 
-#InputFiles = ['/hep300/data/khamano/data16/data16_13TeV.00298967.physics_EnhancedBias.merge.AOD.r8138_p2645/AOD.08788661._000026.pool.root.1','/hep300/data/khamano/data16/data16_13TeV.00298967.physics_EnhancedBias.merge.AOD.r8138_p2645/AOD.08788661._000309.pool.root.1','/hep300/data/khamano/data16/data16_13TeV.00298967.physics_EnhancedBias.merge.AOD.r8138_p2645/AOD.08788661._000352.pool.root.1','/hep300/data/khamano/data16/data16_13TeV.00298967.physics_EnhancedBias.merge.AOD.r8138_p2645/AOD.08788661._000447.pool.root.1','/hep300/data/khamano/data16/data16_13TeV.00298967.physics_EnhancedBias.merge.AOD.r8138_p2645/AOD.08788661._000476.pool.root.1']
+InputFiles = ['/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0331._0001.1', '/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0342._0007.1', '/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0350._0004.1', '/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0363._0001.1', '/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0373._0004.1']
 
-InputFiles = ['/hep300/data/khamano/data16/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646._lb0127._0004.1','/hep300/data/khamano/data16/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646._lb0405._0003.1','/hep300/data/khamano/data16/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646._lb0573._0002.1','/hep300/data/khamano/data16/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646._lb0947._0002.1','/hep300/data/khamano/data16/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646._lb0989._0001.1']
+#InputFiles = ['/hep300/data/khamano/data15/data15_13TeV.00267639.physics_Main.merge.AOD.f603_m1453_r6897_p2346_tid06023676_00/AOD.06023676._000004.pool.root.1']
 
-
-# xs trigger
-#InputFiles = ['/hep300/data/khamano/data15/data15_13TeV.00276952.physics_EnhancedBias.merge.AOD.r7124_p2424_tid06589898_00/AOD.06589898._000130.pool.root.1','/hep300/data/khamano/data15/data15_13TeV.00280500.physics_EnhancedBias.merge.AOD.r7128_p2424_tid06595858_00/AOD.06595858._000083.pool.root.1']
-
-#InputFiles = ['/hep300/data/khamano/data15/data15_13TeV.00276952.physics_EnhancedBias.merge.AOD.r7124_p2424_tid06589898_00/AOD.06589898._000130.pool.root.1']
-
-#InputFiles = ['/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0331._0001.1']
-
-#InputFiles = ['/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0331._0001.1', '/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0342._0007.1', '/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0350._0004.1', '/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0363._0001.1', '/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0373._0004.1']
-
-# PeriodA
-#InputFiles = ['/hep300/data/khamano/data15/data15_13TeV.00266904.physics_Main.merge.AOD.r6944_p2410_tid06296440_00/AOD.06296440._000566.pool.root.1']
-
-# PeriodC
-#InputFiles = ['/hep300/data/khamano/data15/data15_13TeV.00270816.physics_Main.merge.AOD.r6943_p2410_tid06297590_00/AOD.06297590._000005.pool.root.1']
+#InputFiles = ['/hep300/data/khamano/data15/data15_13TeV.00267639.physics_Main.merge.AOD.f603_m1453_r6897_p2346_tid06023676_00/AOD.06023676._000004.pool.root.1','/hep300/data/khamano/data15/data15_13TeV.00267639.physics_Main.merge.AOD.f603_m1453_r6897_p2346_tid06023676_00/AOD.06023676._000011.pool.root.1']
 
 #InputFiles = ['/hep300/data/khamano/mc15/mc15_13TeV.361100.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Wplusenu.merge.AOD.e3601_s2576_s2132_r6630_r6264_tid05371496_00/AOD.05371496._000392.pool.root.1']
 
@@ -121,7 +106,6 @@ globalflags.DetGeo = 'atlas'
 
 from RecExConfig.RecFlags import rec
 rec.readRDO = False
-rec.readESD = False
 rec.readAOD = True
 rec.doWriteESD = False
 rec.doWriteAOD = False
@@ -169,5 +153,4 @@ print HLTmetMonMan
 # Events to run over
 ##########################
 theApp.EvtMax = -1
-#theApp.EvtMax = 10
 
