@@ -87,9 +87,6 @@ HLTMonManager.AthenaMonTools += HLTMETMonitoringTool()
 from TrigTauMonitoring.TrigTauMonitoringConfig import TrigTauMonitoringTool
 HLTMonManager.AthenaMonTools += TrigTauMonitoringTool()
 
-from TrigJetMonitoring.TrigJetMonitoringConfig import TrigJetMonitoringTool
-HLTMonManager.AthenaMonTools += TrigJetMonitoringTool()
-
 from TrigBjetMonitoring.TrigBjetMonitoringConfig import TrigBjetMonitoringConfig
 HLTMonManager.AthenaMonTools += TrigBjetMonitoringConfig()
 
