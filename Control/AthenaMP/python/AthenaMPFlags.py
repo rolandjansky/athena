@@ -11,15 +11,6 @@ __doc__     = "A container of flags for AthenaMP"
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
 
-#not used since NbrProcs is CLI option
-class NbrProcs(JobProperty):
-    """ Flag to indicate nbr of parallel workers.
-    """
-    #import AthenaCommon.Logging as L
-    statusOn = True
-    allowedTypes = ['int']
-    StoredValue  = -1 
-
 class WorkerTopDir(JobProperty):
     """ Flag to set the location for worker's run dir
     """
@@ -46,13 +37,6 @@ class Strategy(JobProperty):
     allowedTypes = ['str']
     allowedValues = ['SharedQueue','FileScheduling','SharedReader','TokenScatterer','RoundRobin']    
     StoredValue = 'SharedQueue'
-
-class PreCountedEvents(JobProperty):
-    """ Flag to indicate nbr of parallel workers.
-    """
-    statusOn = True
-    allowedTypes = ['int']
-    StoredValue  = -1
 
 class CollectSubprocessLogs(JobProperty):
     """ Flag for including all sub-process logs in the master log file
@@ -122,12 +106,10 @@ jobproperties.add_Container(AthenaMPFlags)
 
 # We want the following flags in the container  
 list_jobproperties = [
-    NbrProcs,
     WorkerTopDir,
     OutputReportFile,
     AffinityCPUList,
     Strategy,
-    PreCountedEvents,
     CollectSubprocessLogs,
     Version,
     PollingInterval,
@@ -135,7 +117,7 @@ list_jobproperties = [
     EventRangeChannel,
     MemSamplingInterval,
     TokenScattererCaching,
-    ChunkSize
+    ChunkSize,
     ]
 
 for i in list_jobproperties:
