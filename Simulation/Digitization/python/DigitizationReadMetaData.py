@@ -240,6 +240,17 @@ def signalMetaDataCheck(metadatadict):
         else:
             logDigitizationReadMetadata.error("IOVDbGlobalTag key not found in Simulation MetaData!")
 
+    ## Set the TRTRangeCut digitizationFlag based on what was used during the simulation.
+    if not skipCheck('TRTRangeCut'):
+        if 'TRTRangeCut' in simkeys:
+            from Digitization.DigitizationFlags import digitizationFlags
+            if hasattr( digitizationFlags, 'TRTRangeCut'):
+                digitizationFlags.TRTRangeCut = metadatadict['TRTRangeCut']
+                logDigitizationReadMetadata.debug("Set Digitization properties to match Signal Simulation Metadata: [TRTRangeCut = %s]",
+                                            digitizationFlags.TRTRangeCut.get_Value())
+        else:
+            logDigitizationReadMetadata.warning("TRTRangeCut key not found in Simulation MetaData!")
+
     ## Record the G4Version used in the simulation, so that Digitization Algorithms can use this information
     if not skipCheck('G4Version'):
         if 'G4Version' in simkeys:

@@ -704,6 +704,15 @@ class SignalPatternForSteppingCache(JobProperty):
         else:
             JobProperty.print_JobProperty(self, mode)
 #
+class TRTRangeCut(JobProperty):
+    """ TRT Range cut used in simulation in mm
+    """
+    statusOn=True
+    allowedTypes=['float']
+    allowedValues = [0.05,30.0]
+    StoredValue=0.05
+
+#
 # Defines the container for the digitization flags
 class Digitization(JobPropertyContainer):
     """ The global Digitization flag/job property container.
@@ -774,7 +783,7 @@ list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,\
                     bunchSpacing,initialBunchCrossing,finalBunchCrossing,doXingByXingPileUp,\
                     simRunNumber,dataRunNumber,BeamIntensityPattern,FixedT0BunchCrossing,cavernIgnoresBeamInt,\
                     RunAndLumiOverrideList,SignalPatternForSteppingCache,
-                    experimentalDigi,specialConfiguration,digiSteeringConf]
+                    experimentalDigi,specialConfiguration,digiSteeringConf,TRTRangeCut]
 
 for i in list_jobproperties:
     jobproperties.Digitization.add_JobProperty(i)
