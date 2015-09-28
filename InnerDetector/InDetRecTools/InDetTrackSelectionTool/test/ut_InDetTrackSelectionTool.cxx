@@ -37,11 +37,7 @@ bool passLoosePrimary( const TrackParticle& trk, const xAOD::Vertex* vtx = nullp
 bool passTightPrimary( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 bool passLooseMuon( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 bool passLooseElectron( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
-bool passLooseTau( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 bool passMinBias( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
-bool passHILoose( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
-bool passHITight( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
-bool passExpPix( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 uint8_t getSum(const TrackParticle&, xAOD::SummaryType);
 void dumpTrack( const TrackParticle& );
 
@@ -65,8 +61,17 @@ int main( int argc, char* argv[] ) {
    // Initialise the application:
    ASG_CHECK_SA( APP_NAME, static_cast<StatusCode>(xAOD::Init( APP_NAME )) );
 
+   vector<string> cutLevels = {"NoCut", "Loose", "LoosePrimary", "TightPrimary", "LooseMuon", "LooseElectron", "MinBias"};
    map<string, tool_ptr> selTools;
    map<string, bool (*)(const TrackParticle&, const xAOD::Vertex*)> cutFuncs;
+
+   for (const auto& cutLevel : cutLevels) {
+     string toolName = "TrackSel";
+     toolName += cutLevel;
+     // won't use std::make_unique in case of 
+     selTools[cutLevel] = tool_ptr(new InDetTrackSelectionTool(toolName, cutLevel) );
+     CHECK( selTools[cutLevel]->initialize() );
+   }
 
 #define FUNC_HELP( CUT ) do {cutFuncs[ #CUT ] = pass##CUT;} while (false)
    FUNC_HELP( NoCut );
@@ -75,24 +80,8 @@ int main( int argc, char* argv[] ) {
    FUNC_HELP( TightPrimary );
    FUNC_HELP( LooseMuon );
    FUNC_HELP( LooseElectron );
-   FUNC_HELP( LooseTau );
    FUNC_HELP( MinBias );
-   FUNC_HELP( HILoose );
-   FUNC_HELP( HITight );
 #undef FUNC_HELP
-
-   for (const auto& cutLevelPair : cutFuncs) {
-     const auto& cutLevel = cutLevelPair.first;
-     string toolName = "TrackSel";
-     toolName += cutLevel;
-     selTools[cutLevel] = tool_ptr( new InDetTrackSelectionTool(toolName, cutLevel) );
-     CHECK( selTools[cutLevel]->initialize() );
-   }
-   // handle the experimental one differently: add the map entry after initializing the others because it is not a selection level
-   cutFuncs["ExpPix"] = passExpPix;
-   selTools["ExpPix"] = tool_ptr( new InDetTrackSelectionTool("TrackSelExpPix") );
-   CHECK( selTools["ExpPix"]->setProperty( "useExperimentalInnermostLayersCut", 1 ) );
-   CHECK( selTools["ExpPix"]->initialize() );
 
    // Open the input file:
    Info( APP_NAME, "Opening file: %s", filename.data() );
@@ -101,9 +90,8 @@ int main( int argc, char* argv[] ) {
    CHECK( gotFile );
 
    // Create a TEvent object:
-   // xAOD::TEvent event( static_cast<TFile*>(nullptr), xAOD::TEvent::kClassAccess );
-   // ASG_CHECK_SA( APP_NAME, static_cast<StatusCode>(event.readFrom( ifile.get() )) );
-   xAOD::TEvent event( ifile.get(), xAOD::TEvent::kAthenaAccess );
+   xAOD::TEvent event( static_cast<TFile*>(nullptr), xAOD::TEvent::kClassAccess );
+   ASG_CHECK_SA( APP_NAME, static_cast<StatusCode>(event.readFrom( ifile.get() )) );
    Info( APP_NAME, "Number of events in the file: %llu", event.getEntries() );
 
    // Decide how many events to run over:
@@ -138,8 +126,7 @@ int main( int argc, char* argv[] ) {
      }
 
      for (const auto track : *tracks) {
-       for (const auto& cutLevelPair : cutFuncs) {
-	 const auto& cutLevel = cutLevelPair.first;
+       for (const auto& cutLevel : cutLevels) {
 	 if ( selTools[cutLevel]->accept( *track, primaryVertex )
 	      != cutFuncs[cutLevel]( *track, primaryVertex ) ) {
 	   Error( APP_NAME, "Track selection tool at %s cut level does not", cutLevel.data() );
@@ -162,10 +149,11 @@ int main( int argc, char* argv[] ) {
 
    } // end loop over events
 
-   // finalize all the tools
-   for (const auto& cutLevelPair : cutFuncs) {
-     CHECK( selTools[cutLevelPair.first]->finalize() );
+
+   for (const auto& cutLevel : cutLevels) {
+     CHECK( selTools[cutLevel]->finalize() );
    }
+
 
    // Return gracefully:
    return 0;
@@ -265,23 +253,6 @@ bool passLooseElectron( const TrackParticle& trk, const xAOD::Vertex* )
   return true;
 }
 
-bool passLooseTau( const TrackParticle& trk, const xAOD::Vertex* vtx )
-{
-  if (trk.pt() < 1000.0) return false; // pT cut at 1 GeV
-
-  uint8_t nPixHits = getSum(trk, xAOD::numberOfPixelHits) + getSum(trk, xAOD::numberOfPixelDeadSensors);
-  if (nPixHits < 2) return false;
-  uint8_t nSctHits = getSum(trk, xAOD::numberOfSCTHits) + getSum(trk, xAOD::numberOfSCTDeadSensors);
-  if (nPixHits + nSctHits < 7) return false;
-
-  if (std::fabs(trk.d0()) > 1.0) return false;
-  if (vtx != nullptr) {
-    if (std::fabs(trk.z0() + trk.vz() - vtx->z()) > 1.5) return false;
-  }
-
-  return true;
-}
-
 bool passMinBias( const TrackParticle& trk, const xAOD::Vertex* vtx )
 {
   if (std::fabs(trk.eta()) > 2.5) return false;
@@ -312,90 +283,11 @@ bool passMinBias( const TrackParticle& trk, const xAOD::Vertex* vtx )
   return true;
 }
 
-bool passHILoose( const TrackParticle& trk, const xAOD::Vertex* vtx )
-{
-  if (std::fabs(trk.eta()) > 2.5) return false;
-  bool expectIBL = getSum(trk, xAOD::expectInnermostPixelLayerHit);
-  bool expectBL = getSum(trk, xAOD::expectNextToInnermostPixelLayerHit);
-  uint8_t nIBL = getSum(trk, xAOD::numberOfInnermostPixelLayerHits);
-  uint8_t nBL = getSum(trk, xAOD::numberOfNextToInnermostPixelLayerHits);
-  if (expectIBL) {
-    if (nIBL < 1) return false;
-  } else {
-    if (expectBL && nBL < 1) return false;
-  }
-
-  uint8_t nPixHits = getSum(trk, xAOD::numberOfPixelHits) + getSum(trk, xAOD::numberOfPixelDeadSensors);
-  if (nPixHits < 1) return false;
-  uint8_t nSctHits = getSum(trk, xAOD::numberOfSCTHits) + getSum(trk, xAOD::numberOfSCTDeadSensors);
-  auto pt = trk.pt()*1e-3;
-  if (pt >= 0.4 && nSctHits < 6) return false;
-  else if (pt >= 0.3 && nSctHits < 4) return false;
-  else if (nSctHits < 2) return false;
-  
-  if (std::fabs(trk.d0()) > 1.5) return false;
-  if (vtx != nullptr) {
-    if (std::fabs(trk.z0() + trk.vz() - vtx->z())*std::sin(trk.theta()) > 1.5) return false;
-  }
-
-  return true;
-}
-
-bool passHITight( const TrackParticle& trk, const xAOD::Vertex* vtx )
-{
-  if (std::fabs(trk.eta()) > 2.5) return false;
-  bool expectIBL = getSum(trk, xAOD::expectInnermostPixelLayerHit);
-  bool expectBL = getSum(trk, xAOD::expectNextToInnermostPixelLayerHit);
-  uint8_t nIBL = getSum(trk, xAOD::numberOfInnermostPixelLayerHits);
-  uint8_t nBL = getSum(trk, xAOD::numberOfNextToInnermostPixelLayerHits);
-  if (expectIBL) {
-    if (nIBL < 1) return false;
-  } else {
-    if (expectBL && nBL < 1) return false;
-  }
-
-  uint8_t nPixHits = getSum(trk, xAOD::numberOfPixelHits) + getSum(trk, xAOD::numberOfPixelDeadSensors);
-  if (nPixHits < 2) return false;
-  uint8_t nSctHits = getSum(trk, xAOD::numberOfSCTHits) + getSum(trk, xAOD::numberOfSCTDeadSensors);
-  auto pt = trk.pt()*1e-3;
-  if (pt >= 0.4 && nSctHits < 8) return false;
-  else if (pt >= 0.3 && nSctHits < 6) return false;
-  else if (nSctHits < 4) return false;
-  
-  if (std::fabs(trk.d0()) > 1.0) return false;
-  if (vtx != nullptr) {
-    if (std::fabs(trk.z0() + trk.vz() - vtx->z())*std::sin(trk.theta()) > 1.0) return false;
-  }
-
-  if (trk.chiSquared() / trk.numberDoF() > 6.0) return false;
-  
-  return true;
-}
-
-// whether the track passes the experimental pixel cut
-bool passExpPix( const TrackParticle& trk, const xAOD::Vertex* )
-{
-  uint8_t nPixHoles = getSum(trk, xAOD::numberOfPixelHoles);
-  if (nPixHoles == 0) return true; // if there are no pixel holes, then the track passes regardless
-  if (nPixHoles > 1) return false; // if there is more than 1 hole, the track fails regardless
-
-  uint8_t nIBLHits = getSum(trk, xAOD::numberOfInnermostPixelLayerHits);
-  uint8_t expectBL = getSum(trk, xAOD::expectNextToInnermostPixelLayerHit);
-  uint8_t nBLHits = getSum(trk, xAOD::numberOfNextToInnermostPixelLayerHits);
-  
-  // make an exception is there is an IBL hit, and the hole is in the BLayer
-  if (nIBLHits >= 1) {
-    if (expectBL && nBLHits ==0) return true;
-  }
-
-  return false;
-}
-
 uint8_t getSum( const TrackParticle& trk, xAOD::SummaryType sumType )
 {
   uint8_t sumVal=0;
   if (!trk.summaryValue(sumVal, sumType)) {
-    Error( "getSum()", "Could not get summary type %i", sumType );
+    Error( "summaryValue()", "Could not get summary type %i", sumType );
   }
   return sumVal;
 }
