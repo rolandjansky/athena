@@ -3,7 +3,7 @@
 __doc__ = """Set up the flags (for RecExCommon) so that only Muon Standalone Reconstruction is run.
 It sets default values for muonRecFlags, recFlags, globalflags, DetFlags."""
 
-from MuonRecExample.MuonRecStandaloneFlags import muonRecFlags
+from MuonRecExample.MuonRecFlags import muonRecFlags
 from MuonRecExample.MuonRecUtils import logMuon,logMuonResil
 from AthenaCommon.DetFlags import DetFlags 
 from AthenaCommon.GlobalFlags import globalflags

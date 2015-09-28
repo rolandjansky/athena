@@ -30,27 +30,9 @@ muonRecFlags.setDefaults()
 topSequence = AlgSequence()
 
 # return a list of dictionaires containing the calib config info (keys etc)
-# Each dictionary is typically returned by muonRec.Moore.getCalibConfig() and muonRec.Muonboy.getCalibConfig()
 def getCalibConfigs():
     global muonRecFlags,rec
     configs = []
-    if muonRecFlags.calibMoore and (muonRecFlags.doMoore or rec.readESD):
-        try:
-            configs.append( muonRec.getConfig("Moore").getCalibConfig() )
-        except KeyError:
-            logMuon.warning("Could not get calibration config for Moore - not adding Moore info to calibration")
-            muonRecFlags.calibMoore = False
-    else:
-        muonRecFlags.calibMoore = False
-            
-    if muonRecFlags.calibMuonboy and (muonRecFlags.doMuonboy or rec.readESD):
-        try:
-            configs.append( muonRec.getConfig("Muonboy").getCalibConfig() )
-        except KeyError:
-            logMuon.warning("Could not get calibration config for Muonboy - not adding Muonboy info to calibration")
-            muonRecFlags.calibMuonboy = False
-    else:
-        muonRecFlags.calibMuonboy = False
     if muonRecFlags.calibMuonStandalone and (muonRecFlags.doStandalone or rec.readESD):
 #        try:
             configs.append( muonRec.getConfig("MuonStandalone").getCalibConfig() )
@@ -79,7 +61,6 @@ def getMuonSegmentToCalibSegment():
         MuonSegmentToCalibSegment.DoTOF = getProperty(mdtCreator,"DoTofCorrection")
         # when doing segment fits with floating t0's
         MuonSegmentToCalibSegment.UpdateForT0Shift = type(MuonSegmentToCalibSegment.getDefaultProperty("UpdateForT0Shift")) (muonRecFlags.doSegmentT0Fit())
-        # only do CSC segments if Moore is running and CSCs are on
         MuonSegmentToCalibSegment.UseCscSegments = False
         MuonSegmentToCalibSegment.SegmentLocations = [ "MuonSegments" ]
         MuonSegmentToCalibSegment.SegmentAuthors = [ 4,8 ] 
@@ -132,13 +113,12 @@ def setupMuonCalibNtuple():
     try:
         configs = getCalibConfigs()
         # MuonSegmentToCalibSegment is only needed if we want segments
-        if muonRecFlags.calibNtupleSegments and (muonRecFlags.calibMoore or muonRecFlags.calibMuonboy or muonRecFlags.calibMuonStandalone):
+        if muonRecFlags.calibNtupleSegments and muonRecFlags.calibMuonStandalone:
             MuonSegmentToCalibSegment = getMuonSegmentToCalibSegment()
 
         # MuonCalibAlg is always needed
         eventTag="UNKNOWN"
-        if (muonRecFlags.calibNtupleSegments or muonRecFlags.calibNtupleTracks) and \
-               (muonRecFlags.calibMoore or muonRecFlags.calibMuonboy):
+        if (muonRecFlags.calibNtupleSegments or muonRecFlags.calibNtupleTracks) and muonRecFlags.calibMuonStandalone:
             if len(configs) >= 1:
                 eventTag = configs[0]["eventTag"]
         elif muonRecFlags.calibNtupleTrigger:
@@ -184,7 +164,6 @@ def setupMuonCalibNtuple():
                  tool_nr+=1
             # configure needed tools
 
-            # switch on hole search (Moore only)
 
             # add to topSequence
             topSequence += MuonCalibExtraTreeAlg

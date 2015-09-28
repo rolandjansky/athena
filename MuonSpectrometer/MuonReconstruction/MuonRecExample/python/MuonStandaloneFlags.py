@@ -7,6 +7,8 @@
 from AthenaCommon.JobProperties import JobProperty,JobPropertyContainer,jobproperties
 from MuonRecExample.MuonRecUtils import fillJobPropertyContainer
 from AthenaCommon.GlobalFlags import globalflags
+from AthenaCommon.BeamFlags import jobproperties
+beamFlags = jobproperties.Beam
 
 ## Print out a summary for each event at each reco stage
 class printSummary(JobProperty):
@@ -18,7 +20,13 @@ class segmentOrigin(JobProperty):
     statusOn=True
     allowedTypes=['str']
     StoredValue="Muon"
-    allowedValues=['Muon','Muonboy','Moore','TruthTracking']
+    allowedValues=['Muon','TruthTracking']
+
+class reconstructionMode(JobProperty):
+    statusOn=True
+    allowedTypes=['str']
+    StoredValue="collisions"
+    allowedValues=['collisions','cosmics']
 
 class strategy(JobProperty):
     """ Allowed options for the strategy currently are:
@@ -38,28 +46,13 @@ class trackBuilder(JobProperty):
     statusOn=True
     allowedTypes=['str']
     StoredValue="Moore"
-    allowedValues=['Muonboy','Moore','TruthTracking','None']
+    allowedValues=['Moore','TruthTracking','None']
             
 class refinementTool(JobProperty):
     statusOn=True
     allowedTypes=['str']
     StoredValue="Moore"
-    allowedValues=['Muonboy','Moore']
-
-class overwriteMoore(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
-class overwriteMuonboy(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
-class materialSourcePatRec(JobProperty):
-    statusOn=True
-    allowedTypes=['str']
-    StoredValue="TGMat"
+    allowedValues=['Moore']
 
 class optimiseMomentumResolutionUsingChi2(JobProperty):
     statusOn=True
@@ -76,11 +69,43 @@ class createTrackParticles(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+class straightLineFitMomentum(JobProperty):
+    statusOn=True
+    allowedTypes=['float']
+    StoredValue=2000.0
+
 ## stop reconstruction at segment level
 class doSegmentsOnly(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=False
+
+## chi-squared per degree of freedom cut in fitter.
+class Chi2NDofCut(JobProperty):
+    statusOn=True
+    allowedTypes=['float']
+    StoredValue=20.
+
+## flag to turn on curved segment finding
+class enableCurvedSegmentFinding(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+class updateSegmentSecondCoordinate(JobProperty):
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
+class useSegmentMatching(JobProperty) :
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
+class useTrackSegmentMatching(JobProperty) :
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
 
 ## Container with Configuration flags of %Standalone reconstruction
 class MuonStandalone(JobPropertyContainer):
@@ -88,7 +113,16 @@ class MuonStandalone(JobPropertyContainer):
     def setDefaults(self):
         from MuonRecUtils import setJobPropertyDefault as setDefault
 
-# add moore flags to container
+        global beamFlags
+        if beamFlags.beamType()=='cosmics' or beamFlags.beamType()=='singlebeam':
+            setDefault(self.reconstructionMode,'cosmics')
+            setDefault(self.useSegmentMatching,False)
+            setDefault(self.updateSegmentSecondCoordinate,False)
+        else:
+            setDefault(self.useSegmentMatching,True)
+            setDefault(self.updateSegmentSecondCoordinate,True)
+
+# add flags to container
 jobproperties.add_Container(MuonStandalone)
 
 ## shortcut to access flags
@@ -104,13 +138,3 @@ MoorelikeStrategy=[
      "BarrelCombined[CombineSegInStation,DoRefinement,DoAmbiSolving,CutSeedsOnTracks]:BML,BMS;BOL,BOS;BIL,BIS",
      "EndcapCombined[CombineSegInStation,DoRefinement,DoAmbiSolving,CutSeedsOnTracks]:EML,EMS;EOL,EOS;EIL,EIS;CSL,CSS;EEL,EES;BEE",
      "BarrelEndcap[CombineSegInStation,DoRefinement,DoAmbiSolving,CutSeedsOnTracks,BarrelEndcapFilter]:EML,EMS;EEL,EES;BML,BMS;EIL,EIS;BIL,BIS;BOL,BOS"]
-
-MuonboylikeStrategy=[
-     "BarrelCombinedLarge[DoRefinement,DoAmbiSolving]:BML;BOL;BIL" ,
-     "BarrelCombinedSmall[DoRefinement,DoAmbiSolving]:BMS;BOS;BIS" ,
-     "EndcapCombinedLarge[DoRefinement,DoAmbiSolving]:EML;EOL;EIL;CSL;EEL;BEE" ,
-     "EndcapCombinedSmall[DoRefinement,DoAmbiSolving]:EMS;EOS;EIS;CSS;EES;BEE" ,
-     "BarrelEndcapLarge[DoRefinement,DoAmbiSolving]:EML;BIL" ,
-     "BarrelEndcapSmall[DoRefinement,DoAmbiSolving]:EMS;BIS" ,
-     "EndcapBarrelLS[DoRefinement,DoAmbiSolving]:EML;EIS;BIS",
-     "EndcapBarrelSL[DoRefinement,DoAmbiSolving]:EMS;EIL;BIL"]

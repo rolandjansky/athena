@@ -31,14 +31,13 @@ from MuonRecTools import MuonExtrapolator, MuonChi2TrackFitter, MdtDriftCircleOn
 from MuonRecUtils import logMuon,ConfiguredBase,ExtraFlags
 
 
-from MooreFlags import mooreFlags
 from MuonRecFlags import muonRecFlags
 from MuonStandaloneFlags import muonStandaloneFlags
 #==============================================================
 
 # call  setDefaults to update flags
 muonRecFlags.setDefaults()
-mooreFlags.setDefaults()
+muonStandaloneFlags.setDefaults()
 
 #
 # Tools for Moore SegmentMaking
@@ -58,13 +57,12 @@ def MuonPatternSegmentMaker(name="MuonPatternSegmentMaker",extraFlags=None,**kwa
             if doSegmentT0Fit:
                 mdtCreator = getPublicToolClone( "MdtDriftCircleOnTrackCreatorSegmentFinding", "MdtDriftCircleOnTrackCreator", 
                                                  CreateTubeHit = False, TimeWindowSetting = mdtCalibWindowNumber('Collision_t0fit') )
-                print "CONFIGMuonPatternSegmentMaker: doT0fit?!?!"
             else:
                 mdtCreator = getPublicToolClone( "MdtDriftCircleOnTrackCreatorSegmentFinding", "MdtDriftCircleOnTrackCreator", 
                                                  CreateTubeHit = False, TimeWindowSetting = mdtCalibWindowNumber('Collision_data') )
             kwargs["MdtCreator"] = mdtCreator
 
-    if beamType == 'cosmics' or muonRecFlags.forceCollisionsMode():
+    if beamType == 'cosmics':
         kwargs.setdefault("AngleCutPhi", 1e9)
         kwargs.setdefault("DropDistance", 100000000.)
 
@@ -76,27 +74,24 @@ class MuonCurvedSegmentCombiner(CfgMgr.Muon__MuonCurvedSegmentCombiner,Configure
     __slots__ = ()
     def __init__(self,name="MuonCurvedSegmentCombiner",**kwargs):
         self.applyUserDefaults(kwargs,name)
-        super(MuonCurvedSegmentCombiner,self).__init__(name,**kwargs)
-
-MuonCurvedSegmentCombiner.setDefaultProperties(
-    MissedHitsCut = 4,
-    AddAll2DCscs = False,
-    UseCscSegments = muonRecFlags.doCSCs())
-if (beamFlags.beamType() == 'singlebeam' or beamFlags.beamType() == 'cosmics') and not muonRecFlags.forceCollisionsMode():
-    MuonCurvedSegmentCombiner.setDefaultProperties(
-        DoCosmics = True,
-        MissedHitsCut = 100)
-elif globalflags.DataSource() == 'data' or muonRecFlags.forceDataMode():  #collisions-data or simulation first data
-    MuonCurvedSegmentCombiner.setDefaultProperties(
-        DoCosmics = False,
-        MissedHitsCut = 100)
         
+        if (beamFlags.beamType() == 'singlebeam' or beamFlags.beamType() == 'cosmics'):
+            kwargs.setdefault( "MissedHitsCut", 100 )
+            kwargs.setdefault( "AddUnassociatedMiddleEndcapSegments", False )
+        elif globalflags.DataSource() == 'data':  #collisions-data or simulation first data
+            kwargs.setdefault( "MissedHitsCut", 100 )
+        else:
+            kwargs.setdefault( "MissedHitsCut", 4 )
+        
+        kwargs.setdefault("DoCosmics", muonStandaloneFlags.reconstructionMode() != 'collisions' )
+        kwargs.setdefault( "AddAll2DCscs", False )
+        kwargs.setdefault( "UseCscSegments", muonRecFlags.doCSCs() )
+        kwargs.setdefault( "AddUnassociatedMiddleEndcapSegments", True )
+
+        super(MuonCurvedSegmentCombiner,self).__init__(name,**kwargs)        
 
 # end of class MuonCurvedSegmentCombiner
 
-if mooreFlags.addEndcapMiddleSingleStationTracks():
-    MuonCurvedSegmentCombiner.setDefaultProperties(
-        AddUnassociatedMiddleEndcapSegments = True )
     
 
 # the segment making supertool
@@ -107,7 +102,7 @@ class MooSegmentCombinationFinder(CfgMgr.Muon__MooSegmentCombinationFinder,Confi
 
         kwargs.setdefault( "SegmentCombiner", "MuonCurvedSegmentCombiner" )
         kwargs.setdefault( "SegmentCombinationCleaner", "MuonSegmentCombinationCleanerTool" )
-        if( beamFlags.beamType() != 'cosmics' and beamFlags.beamType() != 'singlebeam'): 
+        if( muonStandaloneFlags.reconstructionMode() == 'collisions'): 
             kwargs.setdefault( "HoughPatternFinder", "MuonLayerHoughTool" )
         else:
             kwargs.setdefault( "HoughPatternFinder", "MuonHoughPatternFinderTool" )
@@ -142,7 +137,7 @@ def MooCandidateMatchingTool(name,extraFlags=None,**kwargs):
     namePrefix =getattr(extraFlags,"namePrefix","")
     namePostfix=getattr(extraFlags,"namePostfix","")
     doSegmentPhiMatching = getattr(extraFlags,"doSegmentPhiMatching",None)
-    useTrackSegmentMatching = getattr(extraFlags,"useTrackSegmentMatching",mooreFlags.useTrackSegmentMatching())
+    useTrackSegmentMatching = getattr(extraFlags,"useTrackSegmentMatching",muonStandaloneFlags.useTrackSegmentMatching())
     # segment-segment matching
     if doSegmentPhiMatching is not None:
         if not (namePrefix or namePostfix):
@@ -160,21 +155,19 @@ def MooCandidateMatchingTool(name,extraFlags=None,**kwargs):
     # track-segment matching
     kwargs.setdefault("DoTrackSegmentMatching", useTrackSegmentMatching)
 
-    if (beamFlags.beamType() == 'cosmics' or beamFlags.beamType() == 'singlebeam') and not muonRecFlags.forceCollisionsMode():
-        kwargs.setdefault("RequireSameSide", True)
+    kwargs.setdefault("RequireSameSide", muonStandaloneFlags.reconstructionMode() != "collisions")
 
-    if globalflags.DataSource() == 'data' or muonRecFlags.forceDataMode():
-        if muonRecFlags.useAlignmentCorrections():
-            kwargs.setdefault("AlignmentErrorPosX", 5.0)
-            kwargs.setdefault("AlignmentErrorPosY", 0.2)
-            kwargs.setdefault("AlignmentErrorAngleX", 0.002)
-            kwargs.setdefault("AlignmentErrorAngleY", 0.001)
+    if muonRecFlags.useAlignmentCorrections():
+        kwargs.setdefault("AlignmentErrorPosX", 5.0)
+        kwargs.setdefault("AlignmentErrorPosY", 0.2)
+        kwargs.setdefault("AlignmentErrorAngleX", 0.002)
+        kwargs.setdefault("AlignmentErrorAngleY", 0.001)
 
-        else: # no alignment corrections
-            kwargs.setdefault("AlignmentErrorPosX", 10.0)
-            kwargs.setdefault("AlignmentErrorPosY", 5.0)
-            kwargs.setdefault("AlignmentErrorAngleX", 0.004)
-            kwargs.setdefault("AlignmentErrorAngleY", 0.002)
+    else: # no alignment corrections
+        kwargs.setdefault("AlignmentErrorPosX", 10.0)
+        kwargs.setdefault("AlignmentErrorPosY", 5.0)
+        kwargs.setdefault("AlignmentErrorAngleX", 0.004)
+        kwargs.setdefault("AlignmentErrorAngleY", 0.002)
 
     return CfgMgr.Muon__MooCandidateMatchingTool(name,**kwargs)
 
@@ -185,12 +178,11 @@ def MooTrackFitter(name="MooTrackFitter", extraFlags=None, **kwargs):
 
     namePrefix =getattr(extraFlags,"namePrefix","")
     namePostfix=getattr(extraFlags,"namePostfix","")
-    materialSource=getattr(extraFlags,"materialSource",mooreFlags.materialSourcePatRec())
 
     kwargs.setdefault("Fitter",          "MCTBFitter")
     kwargs.setdefault("Propagator",      "MuonPropagator")
     kwargs.setdefault("SLFit" ,          not jobproperties.BField.allToroidOn())
-    kwargs.setdefault("ReducedChi2Cut",  mooreFlags.Chi2NDofCut())
+    kwargs.setdefault("ReducedChi2Cut",  muonStandaloneFlags.Chi2NDofCut())
     kwargs.setdefault("FitEtaStrips",    True)
     kwargs.setdefault("SegmentMomentum", "MuonSegmentMomentumFromField")
     kwargs.setdefault("CleanPhiHits",              True)
@@ -198,7 +190,7 @@ def MooTrackFitter(name="MooTrackFitter", extraFlags=None, **kwargs):
     kwargs.setdefault("UsePrefit",                 False)
     kwargs.setdefault("SeedAtStartOfTrack",        False)
 
-    if (beamFlags.beamType() == 'cosmics' or beamFlags.beamType() == 'singlebeam') and not muonRecFlags.forceCollisionsMode() :
+    if muonStandaloneFlags.reconstructionMode() == 'cosmics':
         kwargs.setdefault("SeedWithAvePhi",            True)
         kwargs.setdefault("SeedWithSegmentTheta",      False)
         kwargs.setdefault("Cosmics",                   True)
@@ -212,11 +204,11 @@ def MooTrackFitter(name="MooTrackFitter", extraFlags=None, **kwargs):
     if namePrefix or namePostfix:
         oldFitterName = getProperty(fitter,"Fitter").getName()
         newFitterName = namePrefix + oldFitterName + namePostfix
-        fitter.Fitter = getPublicToolClone(newFitterName,oldFitterName,materialSource=materialSource)
+        fitter.Fitter = getPublicToolClone(newFitterName,oldFitterName)
 
         oldFitterName = getProperty(fitter,"FitterPreFit").getName()
         newFitterName = namePrefix + oldFitterName + namePostfix
-        fitter.FitterPreFit = getPublicToolClone(newFitterName,oldFitterName,materialSource=materialSource)
+        fitter.FitterPreFit = getPublicToolClone(newFitterName,oldFitterName)
  
     return fitter 
     
@@ -230,14 +222,11 @@ def MooTrackBuilder(name="MooTrackBuilderTemplate",
 
     namePrefix =getattr(extraFlags,"namePrefix","")
     namePostfix=getattr(extraFlags,"namePostfix","")
-    optimiseMomentumResolutionUsingChi2=getattr(extraFlags,"optimiseMomentumResolutionUsingChi2",mooreFlags.optimiseMomentumResolutionUsingChi2())
+    optimiseMomentumResolutionUsingChi2=getattr(extraFlags,"optimiseMomentumResolutionUsingChi2",False)
     
     kwargs.setdefault("Fitter",   "MooTrackFitter")
     kwargs.setdefault("SLFitter", "MooSLTrackFitter")
-    if muonRecFlags.doSegmentT0Fit() and beamFlags.beamType() == 'cosmics' :
-      kwargs.setdefault("RecalibrateMDTHitsOnTrack", False)
-    else:
-      kwargs.setdefault("RecalibrateMDTHitsOnTrack", True)
+    kwargs.setdefault("RecalibrateMDTHitsOnTrack", ( (not muonRecFlags.doSegmentT0Fit()) and muonStandaloneFlags.reconstructionMode() == 'collisions') )
 
     # hardcode some properties before passing on to base class constructors
     if optimiseMomentumResolutionUsingChi2:
@@ -269,122 +258,6 @@ def MooTrackBuilder(name="MooTrackBuilderTemplate",
 # end of factory function MooTrackBuilder
 
 
-def MooTrackSteering(name="MooTrackSteering",
-                     extraFlags=None,
-                     **kwargs):
-    
-    # take defaults for extra args from MooreFlags
-    namePrefix     = getattr(extraFlags,"namePrefix", "")
-    beamType       = getattr(extraFlags,"beamType", beamFlags.beamType())
-    doSegmentT0Fit = getattr(extraFlags,"doSegmentT0Fit", muonRecFlags.doSegmentT0Fit())
-
-    optimiseMomentumResolutionUsingChi2 = getattr(extraFlags,"optimiseMomentumResolutionUsingChi2",
-                                                  mooreFlags.optimiseMomentumResolutionUsingChi2() or doSegmentT0Fit)
-    materialSourcePatRec   = getattr(extraFlags,"materialSourcePatRec",   mooreFlags.materialSourcePatRec())
-    materialSourceFinalFit = getattr(extraFlags,"materialSourceFinalFit", mooreFlags.materialSourceFinalFit())
-
-    kwargs.setdefault("AmbiguityTool",          "MuonAmbiProcessor")
-    kwargs.setdefault("EntryMatchingTool",      "MooCandidateMatchingTool")
-    kwargs.setdefault("Propagator",             "MCTBPropagator")
-    kwargs.setdefault("FindingMode",            2)
-    kwargs.setdefault("UseAllPhiHits",          True)
-    kwargs.setdefault("ExtrapolateToMuonEntry", True)
-    kwargs.setdefault("ResolveAmbiguities",     True)
-    kwargs.setdefault("CleanUpSeeds",           True)
-    kwargs.setdefault("CleanUpCandidates",      True)
-    kwargs.setdefault("HoleRecoveryTool",       "MuonEORecoveryTool")
-
-    if mooreFlags.addEndcapMiddleSingleStationTracks():
-        kwargs.setdefault("AddUnassociatedMiddleEndcapSegments", True)
-
-    if mooreFlags.printSummary():
-        kwargs.setdefault("DoSummary", True)
-
-    if beamType == 'collisions' or muonRecFlags.forceCollisionsMode() :
-        kwargs.setdefault("TrackExtrapolationTool",None)
-    else: # cosmics or single beam
-        kwargs.setdefault("TrackExtrapolationTool",             "MuonTrackExtrapolationTool")
-        kwargs.setdefault("MaximumNumberOfAmbiguitiesPerCombi", 500)
-        kwargs.setdefault("MaximumNumberOfCombisPerEvent",      5)
-        kwargs.setdefault("MaximumNumberOfSeedsPerCombi",       10)
-        kwargs.setdefault("MaximumNumberOfCandidatesPerSeed",   30)
-        kwargs.setdefault("RetryAllChamberLayers",              True)
-        kwargs.setdefault("SplitTracksCrossingCalo",            True)
-
-    if doSegmentT0Fit:
-        kwargs.setdefault("RecalibrateMDTHits", False)
-
-    if extraFlags is not None:
-        fitterFlags = copy.deepcopy(extraFlags)
-    else:
-        fitterFlags = ExtraFlags()
-    # use separate fitter if material different
-    if materialSourcePatRec != materialSourceFinalFit:
-        if "TrackBuilder" not in kwargs:
-            fitterFlags.materialSource = materialSourcePatRec
-            fitter = getPublicToolClone(namePrefix+"MooTrackBuilder", "MooTrackBuilderTemplate",
-                                        extraFlags=fitterFlags)
-            kwargs["TrackBuilder"] = fitter
-
-        if "TrackBuilderFinalFit" not in kwargs:
-            fitterFlags.materialSource = materialSourceFinalFit
-            fitterFlags.namePostfix="FinalFit"
-            fitter = getPublicToolClone(namePrefix+"MooTrackBuilderFinalFit", "MooTrackBuilderTemplate",
-                                        extraFlags=fitterFlags)
-
-            kwargs["TrackBuilderFinalFit"] = fitter
-
-    else: # same materialSource
-        if "TrackBuilder" not in kwargs or "TrackBuilderFinalFit" not in kwargs:
-            fitterFlags.materialSource = materialSourcePatRec
-            fitter = getPublicToolClone(namePrefix+"MooTrackBuilder", "MooTrackBuilderTemplate",
-                                        extraFlags=fitterFlags)
-            
-            kwargs.setdefault("TrackBuilder",         fitter)
-            kwargs.setdefault("TrackBuilderFinalFit", fitter)
-
-    return CfgMgr.Muon__MooTrackSteering(name,**kwargs)
-
-# end of factory function MooTrackSteering
-
-
-## Moore-only configuration version of MuonStandalone.MuonTrackSteering
-def MooreTrackSteering(name="MooreTrackSteering", extraFlags=None, **kwargs):
-    if extraFlags is None:
-        extraFlags = ExtraFlags()
-        
-    extraFlags.setFlagDefault("doSegmentPhiMatching", True)
-    extraFlags.setFlagDefault("materialSource",mooreFlags.materialSourcePatRec)
-    extraFlags.setFlagDefault(mooreFlags.optimiseMomentumResolutionUsingChi2)
-    extraFlags.setFlagDefault(mooreFlags.printSummary)
-    extraFlags.setFlagDefault(mooreFlags.strategy)
-                  
-    kwargs.setdefault("StrategyList", extraFlags.strategy)  
-    kwargs.setdefault("DoSummary", extraFlags.printSummary)
-
-    kwargs.setdefault("OutputSingleStationTracks", True)
-
-    if "TrackBuilderTool" not in kwargs:
-        extraFlags.setFlagDefault('UseTrackingHistory',True)
-        kwargs["TrackBuilderTool"] = getPublicToolClone("MooreTrackBuilder", "MooTrackBuilderTemplate",
-                                                        extraFlags=extraFlags)
-        if "TrackRefinementTool" not in kwargs:
-            kwargs["TrackRefinementTool"] = getPublicToolClone("MooreTrackRefiner","MooTrackBuilderTemplate")
-
-
-    kwargs.setdefault("SegSeedQCut", 2)
-    kwargs.setdefault("Seg2ndQCut", 1)
-
-    return CfgMgr.Muon__MuonTrackSteering(name,**kwargs)
-
-
-
-
-
-#
-# End of Moore track finding tools
-#
-
 
 
 #
@@ -394,19 +267,19 @@ class MuonSegmentSelectionTool(CfgMgr.Muon__MuonSegmentSelectionTool,ConfiguredB
     __slots__ = ()
     def __init__(self,name="MuonSegmentSelectionTool",**kwargs):
         self.applyUserDefaults(kwargs,name)
+        if globalflags.DataSource() == 'data':  #collisions-data or simulation first data
+            kwargs.setdefault("GoodADCFractionCut",  0.5 )
+            kwargs.setdefault("MinADCPerSegmentCut", 100 )
         super(MuonSegmentSelectionTool,self).__init__(name,**kwargs)
-
-if globalflags.DataSource() == 'data':  #collisions-data or simulation first data
-    MuonSegmentSelectionTool.setDefaultProperties( GoodADCFractionCut = 0.5, MinADCPerSegmentCut=100 )
     
 
 class MuonSegmentMatchingTool(CfgMgr.Muon__MuonSegmentMatchingTool):
     __slots__ = ()
 
     def __init__(self,name='MuonSegmentMatchingTool',**kwargs):
-        kwargs.setdefault( "doThetaMatching", mooreFlags.useSegmentMatching() )
+        kwargs.setdefault( "doThetaMatching", muonStandaloneFlags.useSegmentMatching() )
         kwargs.setdefault( "doPhiMatching", False )
-        if beamFlags.beamType() == 'cosmics' and not muonRecFlags.forceCollisionsMode():
+        if beamFlags.beamType() == 'cosmics':
             # switch off cut of phi hit pulls
             kwargs.setdefault("OverlapMatchAveragePhiHitPullCut", 200. )
 
@@ -424,43 +297,23 @@ def MCTBExtrapolator(name='MCTBExtrapolator',**kwargs):
 # end of factory function MCTBExtrapolator
 
 
-def MCTBFitter(name="MCTBFitter", materialSource=None, **kwargs):
-    if materialSource is None: materialSource = mooreFlags.materialSourcePatRec()
-
+def MCTBFitter(name="MCTBFitter", **kwargs):
     kwargs.setdefault("ExtrapolationTool", "MCTBExtrapolator")
     kwargs.setdefault("GetMaterialFromTrack", True)
-    
-    # setup track fitters to be used during track finding
-    if( materialSource == "MBoy" ):
-        #kwargs.setdefault("MboyMat", True)
-        #kwargs.setdefault("ExtrapolatorMaterial", False)
-        raise RuntimeError("Muonboy material no longer supported")
 
-    elif( materialSource == "TGMat" ):
-        #kwargs.setdefault("MboyMat", False)
-        #kwargs.setdefault("ExtrapolatorMaterial", True)
-        pass
-
-    elif( materialSource == "TGBlended" ):
-        #kwargs.setdefault("MboyMat", False)
-        #kwargs.setdefault("ExtrapolatorMaterial", True)
-        kwargs.setdefault("ExtrapolationTool", "MCTBExtrapolatorBlendedMat")
-
-    else:
-        raise RuntimeError("Unknown materialSource %r for MCTBFitter(%r)" % (materialSource,name) )
 
     return MuonChi2TrackFitter(name,**kwargs)
 # end of MCTBFitter()
 
-def MCTBSLFitter(name="MCTBFitter", materialSource=None, **kwargs):
+def MCTBSLFitter(name="MCTBSLFitter", **kwargs):
     kwargs["StraightLine"] = True # always set
-    kwargs.setdefault("Momentum", mooreFlags.straightLineFitMomentum()) #only set if not yet set
-    return MCTBFitter(name, materialSource=materialSource, **kwargs)
+    kwargs.setdefault("Momentum", muonStandaloneFlags.straightLineFitMomentum()) #only set if not yet set
+    return MCTBFitter(name, **kwargs)
 
 
 def MuonSeededSegmentFinder(name="MuonSeededSegmentFinder",**kwargs):
     if "SegmentMaker" not in kwargs or "SegmentMakerNoHoles" not in kwargs:
-        if beamFlags.beamType() == 'collisions' or muonRecFlags.forceCollisionsMode():
+        if beamFlags.beamType() == 'collisions':
             segMaker = getPublicToolClone("MCTBDCMathSegmentMaker", "DCMathSegmentMaker", 
                                           MdtSegmentFinder = "MCTBMdtMathSegmentFinder",
                                           SinAngleCut = 0.04, DoGeometry = True )
@@ -512,7 +365,7 @@ class MuonTrackCleaner(CfgMgr.Muon__MuonTrackCleaner,ConfiguredBase):
         
         getPublicTool("ResidualPullCalculator")
 
-MuonTrackCleaner.setDefaultProperties( Chi2Cut = mooreFlags.Chi2NDofCut(),
+MuonTrackCleaner.setDefaultProperties( Chi2Cut = muonStandaloneFlags.Chi2NDofCut(),
                                        MaxAvePullSumPerChamber = 6 )
 # end of class MuonTrackCleaner
 
@@ -593,13 +446,11 @@ class MuonTrackSelectorTool(CfgMgr.Muon__MuonTrackSelectorTool,ConfiguredBase):
         self.applyUserDefaults(kwargs,name)
         super(MuonTrackSelectorTool,self).__init__(name,**kwargs)
 
-if beamFlags.beamType() == 'cosmics' or beamFlags.beamType() == 'singlebeam' or globalflags.DataSource() == 'data' \
-       or muonRecFlags.forceDataMode():
+if beamFlags.beamType() == 'cosmics' or beamFlags.beamType() == 'singlebeam' or globalflags.DataSource() == 'data' :
     MuonTrackSelectorTool.setDefaultProperties( UseRPCHoles = False,
                                                 UseTGCHoles = False )
 
-if beamFlags.beamType() == 'cosmics' or beamFlags.beamType() == 'singlebeam' or globalflags.DataSource() == 'data' \
-       or muonRecFlags.forceDataMode():
+if beamFlags.beamType() == 'cosmics' or beamFlags.beamType() == 'singlebeam' or globalflags.DataSource() == 'data':
     MuonTrackSelectorTool.setDefaultProperties(
         MaxMdtHolesOnTwoStationTrack = 10,
         MaxMdtHolesOnTrack = 30,
@@ -619,7 +470,7 @@ class MuonTrackExtrapolationTool(CfgMgr.Muon__MuonTrackExtrapolationTool,Configu
         super(MuonTrackExtrapolationTool,self).__init__(name,**kwargs)
 
 MuonTrackExtrapolationTool.setDefaultProperties( TrackingGeometrySvc=ServiceMgr.AtlasTrackingGeometrySvc )
-if beamFlags.beamType() == 'cosmics' and not muonRecFlags.forceCollisionsMode():
+if beamFlags.beamType() == 'cosmics':
     MuonTrackExtrapolationTool.setDefaultProperties( Cosmics = True )
 
 # end of class MuonTrackExtrapolationTool

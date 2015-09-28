@@ -29,9 +29,6 @@ from RecExConfig.RecConfFlags import recConfFlags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.GlobalFlags import globalflags
 
-# add some more flags available for standalone running
-import MuonRecExample.MuonRecStandaloneFlags
-
 # configure flags so that only Muon Standalone reco is run
 import MuonRecExample.MuonRecStandaloneOnlySetup
 
@@ -113,16 +110,6 @@ else:
 if muonRecFlags.doVP1():
     from VP1Algs.VP1AlgsConf import VP1Alg
     topSequence += VP1Alg()
-
-
-if rec.doPersint():
-    from MboyView.MboyViewConf import MboyView
-    theMboyView = MboyView()
-    if muonRecFlags.doMuonboy():
-        theMboyView.TrkTrackCollectionLocationList+=["ConvertedMBoyTracks"]
-    if muonRecFlags.doMoore():
-        theMboyView.TrkTrackCollectionLocationList+=["MooreTracks"]
-        theMboyView.TrkSegmentCollectionLocationList+=["MooreSegments"]
 
 #--------------------------------------------------------------------------
 # Dump configuration to file
