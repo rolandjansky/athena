@@ -13,19 +13,18 @@
 #include <iostream>
 #include <map>
 #include <algorithm>
+#include <deque>
 #include "TauDiscriminant/Types.h"
 
-#ifndef __STANDALONE
-    //including the Message Stream Member
-    #include "AthenaKernel/MsgStreamMember.h"
-    #include "TauDiscriminant/TauDetailsManager.h"
-#endif
+#include "AsgTools/AsgMessaging.h"
+
+#include "xAODTau/TauJet.h"
 
 using namespace std;
 
 namespace TauID
 {
-    class MethodBase
+    class MethodBase : public asg::AsgMessaging
     {
         public:
 
@@ -33,23 +32,17 @@ namespace TauID
             /// The name is an arbitrary name set by the user and should
             /// have no influence on the behaviour of the method
             ////////////////////////////////////////////////////////////
-            #ifdef __STANDALONE
-            MethodBase(const string& _name = "", bool _verbose = false):
-                name(_name),
-                verbose(_verbose)
-            {}
-            #else
             MethodBase(const string& _name = ""):
+                AsgMessaging(_name),
                 name(_name)
             {}
-            #endif
 
             virtual ~MethodBase() {}
 
             ///////////////////////////////////////////////////////////
             /// Return the value of a continuous discriminant
             ///////////////////////////////////////////////////////////
-            virtual float response() const =0;
+            virtual float response(xAOD::TauJet& tau) =0;
 
             ///////////////////////////////////////////////////////////
             /// This method should only be used for cut-based
@@ -58,77 +51,22 @@ namespace TauID
             /// method should print a warning message and
             /// return the value of response() above.
             ///////////////////////////////////////////////////////////
-            virtual float response(unsigned int level) const =0;
+            virtual float response(xAOD::TauJet& tau, unsigned int level) =0;
 
             string getName() const
             {
                 return name;
             }
 
-            ///////////////////////////////////////////////////////////
-            /// Add a variable. You should not need to
-            /// override this method.
-            ///////////////////////////////////////////////////////////
-            void addVariable(const string& _name, const void* value, char type = 'F')
-            {
-                if (!value)
-                {
-                    print("Variable pointer is NULL!");
-                    return;
-                }
-                string localname = _name;
-                // Convert to uppercase:
-                std::transform(localname.begin(), localname.end(), localname.begin(), &upper);
-                if (type == 'F')
-                {
-                    this->floatVariables[localname] = (const float*)value;
-                }
-                else if (type == 'I')
-                {
-                    this->intVariables[localname] = (const int*)value;
-                }
-                else
-                {
-                    print("Unsupported variable type!");
-                }
-            }
+	    void registerVariable(const string& name, char type);
 
-            #ifndef __STANDALONE
-            //////////////////////////////////////////////////////////
-            /// This method is used in Athena to set the
-            /// variables instead of the addVariable method
-            //////////////////////////////////////////////////////////
-            void setDetails(const TauDetailsManager& manager)
-            {
-                const map<string,float*>* floatDetails = manager.getFloatDetails();
-                map<string,float*>::const_iterator it1(floatDetails->begin());
-                for (; it1 != floatDetails->end(); ++it1 )
-                {
-                    this->addVariable(it1->first,it1->second,'F');
-                }
-                const map<string,int*>* intDetails = manager.getIntDetails();
-                map<string,int*>::const_iterator it2(intDetails->begin());
-                for (; it2 != intDetails->end(); ++it2 )
-                {
-                    this->addVariable(it2->first,it2->second,'I');
-                }
-            }
-            #endif
+	    void registerVariables(vector<string>& names, char type);
 
-            void print(string message) const
-            {
-                #ifdef __STANDALONE
-                if (this->verbose)
-                {
-                    cout << message << endl;
-                }
-                #else
-                if (msgLvl(MSG::VERBOSE))
-                {
-                    msg(MSG::VERBOSE) << message << endreq;
-                }
-                #endif
-            }
+	    bool updateVariables(xAOD::TauJet& tau);
+
+	    const map<string, const float*>* getFloatPointers();
+
+	    const map<string, const int*>* getIntPointers();
 
             ////////////////////////////////////////////////////////////
             /// Build the discriminant from an input file
@@ -144,14 +82,6 @@ namespace TauID
 
             virtual Types::MethodType getType() const =0;
 
-            #ifndef __STANDALONE
-            //Declaring the Message method for further use
-            MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl ; }
-
-            //Declaring the Method providing Verbosity Level
-            bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl ; }
-            #endif
-
         private:
 
             static int upper(int c)
@@ -161,17 +91,15 @@ namespace TauID
 
             string name;
 
+	    deque<float> m_floatVariableStore;
+            deque<int> m_intVariableStore;
+
         protected:
 
-            #ifdef __STANDALONE
-            bool verbose;
-            #else
-            //Declaring private message stream member.
-            mutable Athena::MsgStreamMember m_msg ;
-            #endif
-
-            map<string,const float*> floatVariables;
-            map<string,const int*> intVariables;
+            map<string, const float*> m_floatVars;
+            map<string, const int*> m_intVars;
+	    map<string, SG::AuxElement::ConstAccessor<float>> m_floatAccessors;
+	    map<string, SG::AuxElement::ConstAccessor<int>> m_intAccessors;
     };
 }
 #endif

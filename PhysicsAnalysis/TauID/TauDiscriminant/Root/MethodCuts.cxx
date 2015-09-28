@@ -12,22 +12,35 @@
 
 using namespace TauID;
 
-float MethodCuts::response(unsigned int level) const
+float MethodCuts::response(xAOD::TauJet& tau, unsigned int level)
 {
     if (!this->isBuilt) return 0.;
+    if(!updateVariables(tau)) return 0.;
     CutsDecisionTree* cuts = getCurrentCategory();
     return cuts ? cuts->response(level) : 0.;
 }
 
 bool MethodCuts::build(const string& filename, bool checkTree)
 {    
-    #ifdef __STANDALONE
-    TreeReader reader(this->verbose);
-    #else
-    TreeReader reader;
-    #endif
-    reader.setVariables(&this->floatVariables,&this->intVariables);
-    this->categoryTree = reader.build(filename,checkTree);
+    TreeReader reader(filename);
+    reader.msg().setLevel( this->msg().level() );
+    auto floatNames = reader.getRequiredVariables('F');
+    auto intNames = reader.getRequiredVariables('I');
+
+    ATH_MSG_VERBOSE("##FLOATS");
+    for(auto const& name: floatNames){
+      ATH_MSG_VERBOSE(name);
+    }
+    ATH_MSG_VERBOSE("##INTS");
+    for(auto const& name: intNames){
+      ATH_MSG_VERBOSE(name);
+    }
+
+    registerVariables(floatNames, 'F');
+    registerVariables(intNames, 'I');
+    
+    reader.setVariables(getFloatPointers(), getIntPointers());
+    this->categoryTree = reader.build(checkTree);
     if (this->categoryTree != 0)
     {
         this->isBuilt = true;

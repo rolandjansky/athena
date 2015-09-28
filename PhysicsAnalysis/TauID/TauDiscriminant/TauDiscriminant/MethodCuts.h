@@ -33,21 +33,12 @@ namespace TauID
         public:
 
             //!< Default constructor
-            #ifdef __STANDALONE
-            MethodCuts(const string& _name = "", bool _verbose = false):
-                MethodBase(_name,_verbose),
-                isBuilt(false),
-                nLevels(0),
-                categoryTree(0)
-            {}
-            #else
             MethodCuts(const string& _name = ""):
                 MethodBase(_name),
                 isBuilt(false),
                 nLevels(0),
                 categoryTree(0)
             {}
-            #endif
 
             //!< Destructor
             ~MethodCuts()
@@ -57,12 +48,12 @@ namespace TauID
 
             bool build(const string& filename, bool checkTree = false);
 
-            float response() const
+            float response(xAOD::TauJet& tau)
             {
-                return response(0);
+	      return response(tau, 0);
             }
 
-            float response(unsigned int level) const;
+            float response(xAOD::TauJet& tau, unsigned int level);
 
             unsigned int numLevels() const
             {
@@ -75,18 +66,6 @@ namespace TauID
             {
                 return Types::CUTS;
             }
-
-            void addVariable(const string& _name, const void* _value, char type = 'F')
-            {
-                MethodBase::addVariable(_name,_value,type);
-            }
-
-            #ifndef __STANDALONE
-            void setDetails(const TauDetailsManager& manager)
-            {
-                MethodBase::setDetails(manager);
-            }
-            #endif
 
         private:
 

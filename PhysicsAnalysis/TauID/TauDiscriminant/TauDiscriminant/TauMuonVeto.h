@@ -6,39 +6,26 @@
 #define TAUMUONVETO_H
 
 #include "TauDiscriminant/TauDiscriToolBase.h"
-#include "TauDiscriminant/TauDetailsManager.h"
 #include <string>
 
-class TauMuonVeto: public TauDiscriToolBase
+class TauMuonVeto: virtual public TauDiscriToolBase
 {
+  ASG_TOOL_CLASS2(TauMuonVeto, TauDiscriToolBase, ITauToolBase)
     public:
 
-        //-----------------------------------------------------------------
-        // Contructor and destructor
-        //-----------------------------------------------------------------
-        TauMuonVeto(const string& type,
-                const string& name,
-                const IInterface* parent):
-            TauDiscriToolBase(type, name, parent),
-            detailsManager(0)
+        TauMuonVeto(const std::string& name):
+            TauDiscriToolBase(name)
         {
-            declareInterface<TauDiscriToolBase>(this);
-        }
+	}
 
         virtual ~TauMuonVeto() {}
 
-        //-----------------------------------------------------------------
-        // Gaudi algorithm hooks
-        //-----------------------------------------------------------------
-        virtual StatusCode prepare(const TauDetailsManager&);
-        
-        virtual StatusCode execute(xAOD::TauJet*, FakeTauBits*, FakeTauScores*);
-        
-        virtual StatusCode finalize();
+	virtual StatusCode initialize(){ return StatusCode::SUCCESS; }
+	
+        virtual StatusCode execute(xAOD::TauJet&);
 
-    private:
-
-        const TauDetailsManager*  detailsManager;
+	virtual StatusCode finalize(){ return StatusCode::SUCCESS; }
+        
 };
 
 #endif // TAUMUONVETO_H

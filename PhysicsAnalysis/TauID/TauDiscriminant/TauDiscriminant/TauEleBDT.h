@@ -16,7 +16,6 @@
 #include "TauDiscriminant/MethodBDT.h"
 #include "TauDiscriminant/MethodCuts.h"
 #include "TauDiscriminant/MethodTransform.h"
-#include "TauDiscriminant/TauDetailsManager.h"
 #include <string>
 #include <PathResolver/PathResolver.h>
 #include "xAODTau/TauJet.h"
@@ -26,15 +25,14 @@
 using namespace std;
 using namespace TauID;
 
-class TauEleBDT: public TauDiscriToolBase
+class TauEleBDT: virtual public TauDiscriToolBase
 {
+  ASG_TOOL_CLASS2(TauEleBDT, TauDiscriToolBase, ITauToolBase)
     public:
 
         //!< Constructor
-        TauEleBDT(const string& type,
-                const string& name,
-                const IInterface* parent):
-            TauDiscriToolBase(type, name, parent),
+        TauEleBDT(const string& name):
+            TauDiscriToolBase(name),
             eleBDTFile(""),
             eleBitsFile(""),
             eleBitsRootFile(""),
@@ -43,8 +41,6 @@ class TauEleBDT: public TauDiscriToolBase
             eleBDT(NULL),
             eleBits(NULL)
     {
-        declareInterface<TauDiscriToolBase>(this);
-
         declareProperty("eleBDT", this->eleBDTFile);
         declareProperty("eleBits", this->eleBitsFile);
         declareProperty("eleBitsRoot", this->eleBitsRootFile);
@@ -57,14 +53,14 @@ class TauEleBDT: public TauDiscriToolBase
          * @brief The boosted decision trees are built.
          * @return @c StatusCode StatusCode::FAILURE if there were problems and StatusCode::SUCCESS otherwise.
          */
-        virtual StatusCode prepare(const TauDetailsManager&);
+        virtual StatusCode initialize();
 
         /**
          * @brief Values of the tau parameters are extracted and a boosted decision tree score is retrieved.
          * @param tauJet a @c xAOD::TauJet pointer to a tau jet candidate.
          * @return @c StatusCode StatusCode::FAILURE if there were problems and StatusCode::SUCCESS otherwise.
          */
-        virtual StatusCode execute(xAOD::TauJet*, FakeTauBits*, FakeTauScores*);
+        virtual StatusCode execute(xAOD::TauJet&);
 
         /**
          * @brief Allocated memory is freed.

@@ -33,19 +33,11 @@ namespace TauID
         public:
 
             //!< Default constructor
-            #ifdef __STANDALONE
-            MethodBDT(const string& _name = "", bool _verbose = false):
-                MethodBase(_name,_verbose),
-                isBuilt(false),
-                categoryTree(0)
-            {}
-            #else
             MethodBDT(const string& _name = ""):
                 MethodBase(_name),
                 isBuilt(false),
                 categoryTree(0)
             {}
-            #endif
 
             //!< Destructor
             ~MethodBDT()
@@ -55,16 +47,16 @@ namespace TauID
 
             bool build(const string& filename, bool checkTree = false);
 
-            float response() const;
+            float response(xAOD::TauJet& tau);
 
-            float response(unsigned int level) const
+            float response(xAOD::TauJet& tau, unsigned int level)
             {
                 if (level != 0)
                 {
-                    print("MethodBDT does not output more than one possible response.");
-                    print("Use a MethodCuts on the MethodBDT response to determine loose, medium, and tight boolean values.");
+                    ATH_MSG_VERBOSE("MethodBDT does not output more than one possible response.");
+                    ATH_MSG_VERBOSE("Use a MethodCuts on the MethodBDT response to determine loose, medium, and tight boolean values.");
                 }
-                return response();
+                return response(tau);
             }
 
             BoostedDecisionTree* getCurrentCategory() const;
@@ -73,18 +65,6 @@ namespace TauID
             {
                 return Types::BDT;
             }
-
-            void addVariable(const string& _name, const void* _value, char type = 'F')
-            {
-                MethodBase::addVariable(_name,_value,type);
-            }
-
-            #ifndef __STANDALONE
-            void setDetails(const TauDetailsManager& manager)
-            {
-                MethodBase::setDetails(manager);
-            }
-            #endif
 
         private:
 

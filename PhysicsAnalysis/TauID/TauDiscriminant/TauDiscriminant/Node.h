@@ -107,6 +107,12 @@ class UnivariateCut: public DecisionNode
             this->rightChild = other.rightChild ? other.rightChild->clone() : 0;
         }
 
+	UnivariateCut<T>& operator=(UnivariateCut<T> other)
+	{
+	    swap(*this, other);
+	    return *this;
+	}
+
         //!< Destructor
         ~UnivariateCut()
         {
@@ -160,6 +166,12 @@ class UnivariateSlidingCut1D: public DecisionNode
             this->leftChild = other.leftChild ? other.leftChild->clone() : 0;
             this->rightChild = other.rightChild ? other.rightChild->clone() : 0;
         }
+
+	UnivariateSlidingCut1D<T,U,V>& operator=(UnivariateSlidingCut1D<T,U,V> other)
+	{
+	    swap(*this, other);
+	    return *this;
+	}
 
         //!< Destructor
         ~UnivariateSlidingCut1D()
@@ -216,6 +228,12 @@ class MultivariateCut2D: public DecisionNode
             this->rightChild = other.rightChild ? other.rightChild->clone() : 0;
         }
 
+	MultivariateCut2D<T,U,V,W>& operator=(MultivariateCut2D<T,U,V,W> other)
+	{
+	    swap(*this, other);
+	    return *this;
+	}
+
         //!< Destructor
         ~MultivariateCut2D()
         {
@@ -255,6 +273,12 @@ class LeafNode: public Node
 
         LeafNode(const LeafNode<T>& other) { this->value = other.value; }
 
+	LeafNode<T>& operator=(LeafNode<T> other)
+	{
+	    swap(*this, other);
+	    return *this;
+	}
+	
         ~LeafNode(){}
 
         Node* clone() const { return new LeafNode<T>(this->value); }
@@ -302,6 +326,13 @@ class TransformationNode: public LeafNode<float>
             this->transform = other.transform->Clone();
         }
 
+	TransformationNode<X,Y,G>& operator=(TransformationNode<X,Y,G> other)
+	{
+	    swap(*this, other);
+	    return *this;
+	}
+
+	
         ~TransformationNode()
         {
             //delete transform;
@@ -347,6 +378,12 @@ class PointerLeafNode: public Node
 
         PointerLeafNode(const PointerLeafNode<T>& other) { this->value = other.value; }
 
+	PointerLeafNode<T>& operator=(PointerLeafNode<T> other)
+	{
+	    swap(*this, other);
+	    return *this;
+	}
+	
         ~PointerLeafNode() { delete this->value; }
 
         Node* clone() const { return new PointerLeafNode<T>(this->value); }

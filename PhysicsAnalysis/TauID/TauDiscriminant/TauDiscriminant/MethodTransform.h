@@ -33,19 +33,11 @@ namespace TauID
         public:
 
             //!< Default constructor
-            #ifdef __STANDALONE
-            MethodTransform(const string& _name = "", bool _verbose = false):
-                MethodBase(_name,_verbose),
-                isBuilt(false),
-                categoryTree(0)
-            {}
-            #else
             MethodTransform(const string& _name = ""):
                 MethodBase(_name),
                 isBuilt(false),
                 categoryTree(0)
             {}
-            #endif
 
             //!< Destructor
             ~MethodTransform()
@@ -55,15 +47,15 @@ namespace TauID
 
             bool build(const string& filename, bool check = false);
 
-            float response() const;
+            float response(xAOD::TauJet& tau);
 
-            float response(unsigned int level) const
+            float response(xAOD::TauJet& tau, unsigned int level)
             {
                 if (level != 0)
                 {
-                    print("MethodTransform does not output more than one possible response.");
+                    ATH_MSG_VERBOSE("MethodTransform does not output more than one possible response.");
                 }
-                return response();
+                return response(tau);
             }
 
             Transformation* getCurrentCategory() const;
@@ -72,18 +64,6 @@ namespace TauID
             {
                 return Types::TRANSFORM;
             }
-
-            void addVariable(const string& _name, const void* _value, char type = 'F')
-            {
-                MethodBase::addVariable(_name,_value,type);
-            }
-
-            #ifndef __STANDALONE
-            void setDetails(const TauDetailsManager& manager)
-            {
-                MethodBase::setDetails(manager);
-            }
-            #endif
 
         private:
 

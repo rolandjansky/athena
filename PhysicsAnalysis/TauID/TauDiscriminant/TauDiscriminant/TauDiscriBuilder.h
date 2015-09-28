@@ -12,14 +12,13 @@
 #ifndef DISCRIBUILDER_TAU_H
 #define DISCRIBUILDER_TAU_H
 
-#include "GaudiKernel/ToolHandle.h"
+#include "AsgTools/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "TauDiscriminant/TauDetailsManager.h"
+#include "TauDiscriminant/TauDiscriToolBase.h"
 
 #include <string>
 
-class TauDiscriToolBase;
-class StoreGateSvc;
+class TauDiscriminantProcessor;
 
 class TauDiscriBuilder: public AthAlgorithm
 {
@@ -38,8 +37,8 @@ class TauDiscriBuilder: public AthAlgorithm
         virtual StatusCode finalize();
 
     private:
-        std::string                         tauInputContainerName;
-        ToolHandleArray<TauDiscriToolBase>  tools;
-        TauDetailsManager*                  manager;
+        std::string m_tauInputContainerName;
+        ToolHandleArray<TauDiscriToolBase> m_tools;
+	std::unique_ptr<TauDiscriminantProcessor> m_tauIDTool;
 };
 #endif // DISCRIBUILDER_TAU_H

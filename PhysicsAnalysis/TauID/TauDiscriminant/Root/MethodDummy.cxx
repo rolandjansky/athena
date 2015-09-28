@@ -12,7 +12,7 @@
 
 using namespace TauID;
 
-float MethodDummy::response() const
+float MethodDummy::response(xAOD::TauJet& /*tau*/)
 {    
     return 0.;
 }

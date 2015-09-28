@@ -22,16 +22,15 @@
 #include "TreeVector.h"
 #include "Node.h"
 #include "TFile.h"
-#ifndef __STANDALONE
-    #include "GaudiKernel/MsgStream.h"
-#endif
+#include "AsgTools/AsgMessaging.h"
 
 using namespace std;
 
 enum Format {
     ASCII,
     BINARY,
-    ROOTFILE
+    ROOTFILE,
+    UNKNOWN
 };
 
 enum {
@@ -43,48 +42,25 @@ enum {
     TRANS = -6
 };
 
-class TreeReader {
+class TreeReader : public asg::AsgMessaging {
 
     public:
 
-        #ifdef __STANDALONE
-        TreeReader(bool _verbose = false):
-            verbose(_verbose),
-            floatVariables(0),
-            intVariables(0)
-        {}
-        #else
-        TreeReader(bool _verbose = false, MsgStream* _log = 0):
-            verbose(_verbose),
-            floatVariables(0),
-            intVariables(0),
-            log(_log)
-        {}
-        #endif
+        TreeReader(const string& filename);
 
         ~TreeReader(){}
 
-        void setVariables(const map<string,const float*>* _floatVariables,
-                          const map<string,const int*>* _intVariables)
+        void setVariables(const map<string, const float*>* _floatVariables,
+                          const map<string, const int*>* _intVariables)
         {
             this->floatVariables = _floatVariables;
             this->intVariables = _intVariables;
         }
 
-        Node* build(const string& filename, bool checkTree = false);
+        Node* build(bool checkTree = false);
 
-        void print(string message) const
-        {
-            #ifndef __STANDALONE
-            if (log)
-            {
-                (*log) << "DEBUG" << message << endreq;
-            }
-            else
-            #endif
-                cout << message << endl;
-        }
-
+        vector<string> getRequiredVariables(char type);
+	
     private:
 
         Node* readTree(istream& treeFile,
@@ -93,12 +69,20 @@ class TreeReader {
                        vector<string>& variableList,
                        vector<char>& variableTypeList,
                        unsigned int& numNodes);
-        bool verbose;
-        const map<string,const float*>* floatVariables;
-        const map<string,const int*>* intVariables;
-        #ifndef __STANDALONE
-        MsgStream* log;
-        #endif
+        const string m_fileName;
+        const map<string, const float*>* floatVariables;
+        const map<string, const int*>* intVariables;
+        Format m_format = UNKNOWN;
+        int m_catTreePos = -1;
+        istream* m_treeInfo;
+        bool m_constructionFinished = false;
+        vector<string> m_binningVariableList;
+        vector<char> m_binningVariableTypeList;
+        vector<string> m_variableList;
+        vector<char> m_variableTypeList;
+        TFile* m_file = nullptr;
+        ifstream m_treeFile;
+        istringstream m_treeString;
 };
 
 /** This templated class is used to convert a string to various data types.
