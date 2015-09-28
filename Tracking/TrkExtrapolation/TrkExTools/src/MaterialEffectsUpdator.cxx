@@ -237,8 +237,9 @@ const Trk::TrackParameters*  Trk::MaterialEffectsUpdator::update( const TrackPar
   // initialize ErrorMatrix pointer
   if (mpars || (m_validationMode && !m_validationIgnoreUnmeasured) ){
     // the new CovarianceMatrix - a copy first
-    updatedCovariance = mpars->covariance() ? new AmgSymMatrix(5)(*mpars->covariance()) : 0;
-
+    if (mpars){
+      updatedCovariance = mpars->covariance() ? new AmgSymMatrix(5)(*mpars->covariance()) : 0;
+    } 
     double angularVariation = 0;
     double sigmaDeltaPhiSq = 0;
     double sigmaDeltaThetaSq = 0;
@@ -359,7 +360,7 @@ const Trk::TrackParameters*  Trk::MaterialEffectsUpdator::preUpdate(const TrackP
   // set the output if restricted to the validation direction 
   bool outputFlag = m_msgOutputValidationDirection ?  dir == int(m_validationDirection) : true;
 
-  mprop = mprop ? mprop : lay.fullUpdateMaterialProperties(*parm);
+  mprop = lay.fullUpdateMaterialProperties(*parm);
   double pathCorrection = fabs(lay.surfaceRepresentation().pathCorrection(parm->position(),parm->momentum()));
   pathCorrection *= preFactor;
 
@@ -403,7 +404,7 @@ const Trk::TrackParameters*  Trk::MaterialEffectsUpdator::postUpdate(const Track
   // set the output if restricted to the validation direction 
   bool outputFlag = m_msgOutputValidationDirection ?  dir == int(m_validationDirection) : true;
 
-  mprop = mprop ? mprop : lay.fullUpdateMaterialProperties(parm);
+  mprop = lay.fullUpdateMaterialProperties(parm);
   double pathCorrection = fabs(lay.surfaceRepresentation().pathCorrection(parm.position(),parm.momentum())); 
   pathCorrection *= postFactor;
   
@@ -486,7 +487,9 @@ const Trk::TrackParameters*  Trk::MaterialEffectsUpdator::update(const TrackPara
         AmgSymMatrix(5)* updatedCovariance =0;
       if (mpars || (m_validationMode && !m_validationIgnoreUnmeasured) ) {
         // the new CovarianceMatrix - a copy first
-         updatedCovariance = mpars->covariance() ? new AmgSymMatrix(5)(*mpars->covariance()) : 0;
+        if (mpars){
+          updatedCovariance = mpars->covariance() ? new AmgSymMatrix(5)(*mpars->covariance()) : 0;
+        } 
         // only update if msUpdator exists
         double angularVariation = (m_doMs) ? m_msUpdator->sigmaSquare(matprop, updateMomentum, pathcorrection, particle) : 0.;  
         // update the covariance entries - angular variation in phi has dependency on theta direction

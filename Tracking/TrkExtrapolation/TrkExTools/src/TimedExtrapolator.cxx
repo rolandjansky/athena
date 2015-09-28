@@ -397,7 +397,6 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
   // destination volume boundary ? 
   if ( destVol && m_navigator->atVolumeBoundary(currPar,destVol,dir,nextVol,m_tolerance) && nextVol != destVol ) { return &parm; }
   
-  bool resolveActive = true;
   if ( m_lastMaterialLayer && !m_lastMaterialLayer->isOnLayer(parm.position()) ) m_lastMaterialLayer = 0;  
   if (!m_highestVolume ) m_highestVolume = m_navigator->highestVolume();
 
@@ -554,12 +553,12 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
   gp = currPar->position();    
   std::vector<const Trk::DetachedTrackingVolume*>* detVols =  m_navigator->trackingGeometry()->lowestDetachedTrackingVolumes(gp);    
   std::vector<const Trk::DetachedTrackingVolume*>::iterator dIter = detVols->begin();
-  for (; dIter != detVols->end(); dIter++) {
+  for (; dIter != detVols->end(); ++dIter) {
     const Trk::Layer* layR = (*dIter)->layerRepresentation();
     bool active = ( layR && layR->layerType() ) ? true : false;
-    if (active && !resolveActive) continue; 
+    if (active && !m_resolveActive) continue; 
     if (!active && m_currentStatic->geometrySignature()==Trk::MS && 
-	m_useMuonMatApprox && (*dIter)->name().substr((*dIter)->name().size()-4,4)!="PERM") continue;
+	      m_useMuonMatApprox && (*dIter)->name().substr((*dIter)->name().size()-4,4)!="PERM") continue;
     const Trk::TrackingVolume* dVol = (*dIter)->trackingVolume();
     // detached volume exit ?
     bool dExit =  m_navigator->atVolumeBoundary(currPar,dVol,dir,nextVol,m_tolerance) && !nextVol;
@@ -835,6 +834,7 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
 	       m_parametersAtBoundary.resetBoundaryInformation();
 	       return returnParameters;
 	     }
+             throwIntoGarbageBin(nextPar);
 	   } else {    // material layer without material ?
 	     ATH_MSG_VERBOSE( " boundary layer without material:"<<mb->layerIndex() );
 	   }
@@ -893,6 +893,7 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
 	     return returnParameters;
 	   } else {  
              ATH_MSG_VERBOSE(" Layer energy loss:"<< nextPar->momentum().mag()- pIn << "at position:"<< nextPar->position()<<", current momentum:"<<nextPar->momentum());
+	     throwIntoGarbageBin(nextPar);
            }
 	 }   
          // active surface intersections ( Fatras hits ...)
@@ -1851,8 +1852,8 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
 
        bool matUp = nextLayer->layerMaterialProperties()->fullMaterial(nextPos) && m_includeMaterialEffects;
 
-       if (!matUp && !nextLayer->layerMaterialProperties()->fullMaterial(nextPos) )
-         ATH_MSG_WARNING("layer without material:"<< nextLayer->layerIndex());    
+       //if (!matUp && !nextLayer->layerMaterialProperties()->fullMaterial(nextPos) )
+       //  ATH_MSG_WARNING("layer without material:"<< nextLayer->layerIndex());    
 
        // identical to the last material layer ?
        if (matUp && nextLayer==m_lastMaterialLayer && nextLayer->surfaceRepresentation().type()!=Trk::Surface::Cylinder ) matUp = false;
@@ -2144,9 +2145,9 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(cons
       currLay=iis[is].identifier;
   
       if (m_hitVector && iis[is].identifier>0 ) {      // save entry to the next layer
-	ATH_MSG_VERBOSE("active layer entry:"<<currLay << " at R,z:"<<nextPos.perp()<<","<<nextPos.z());
-	Trk::CurvilinearParameters* nextPar = new Trk::CurvilinearParameters(nextPos,currPar->momentum(),0.);      
-	m_hitVector->push_back(Trk::HitInfo(nextPar,timeLim.time,iis[is].identifier,0.));
+				ATH_MSG_VERBOSE("active layer entry:"<<currLay << " at R,z:"<<nextPos.perp()<<","<<nextPos.z());
+				Trk::CurvilinearParameters* nextPar = new Trk::CurvilinearParameters(nextPos,currPar->momentum(),0.);      
+				m_hitVector->push_back(Trk::HitInfo(nextPar,timeLim.time,iis[is].identifier,0.));
       }
     }
   }   // end loop over intersections
@@ -2155,7 +2156,7 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(cons
 
   if (m_hitVector) {      // save volume exit /active layer only ? 
     ATH_MSG_VERBOSE("active layer/volume exit:"<<currLay << " at R,z:"<<nextPos.perp()<<","<<nextPos.z());
-    if (binIDMat->second>0) m_hitVector->push_back(Trk::HitInfo(nextPar->clone(),timeLim.time,currLay,0.));
+    if (binIDMat and (binIDMat->second>0)) m_hitVector->push_back(Trk::HitInfo(nextPar->clone(),timeLim.time,currLay,0.));
   }
   
   throwIntoGarbageBin(nextPar);

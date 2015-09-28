@@ -114,7 +114,8 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& ma
                                                     double pathcorrection,
                                                     PropDirection dir,
                                                     ParticleHypothesis particle,
-                                                    bool mpvSwitch) const
+                                                    bool mpvSwitch,
+						    bool usePDGformula) const
 { 
  
   if (particle == Trk::undefined ) {
@@ -122,32 +123,36 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& ma
     return 0;
   }
 
+  if (usePDGformula)
+    return ionizationEnergyLoss(mat, p, pathcorrection, dir, particle);
+
   double deltaE       = 0.;
   double sigmaDeltaE  = 0.;
   m_transKaz  = 0.;
   m_transTmax = 0.;
-
+  
   // preparation 
   double sign = (dir==Trk::oppositeMomentum) ? -1. : 1.;
-
+  
   double pathLength = pathcorrection * mat.thicknessInX0()*mat.x0();  
-
+  
   double sigIoni = 0.;
-  double sigRad = 0.;
-  double kazL = 0.;
+  double sigRad  = 0.;
+  double kazL    = 0.;
   double meanIoni  = m_matInt.dEdl_ionization(p, &(mat.material()), particle, sigIoni, kazL);
-  double meanRad  = m_matInt.dEdl_radiation(p, &(mat.material()), particle, sigRad);
-
+  double meanRad   = m_matInt.dEdl_radiation(p, &(mat.material()), particle, sigRad);
+  
   meanIoni = sign*pathLength*meanIoni;  
   meanRad = sign*pathLength*meanRad;  
   sigIoni = pathLength*sigIoni;  
   sigRad  = pathLength*sigRad;  
   kazL    = pathLength*kazL;
-//
-// include pathlength dependence of Landau ionization 
-//
+  
+  //
+  // include pathlength dependence of Landau ionization 
+  //
   sigIoni = sigIoni - kazL*log(pathLength);  
-
+  
   deltaE = meanIoni + meanRad;
   sigmaDeltaE = sqrt(sigIoni*sigIoni+sigRad*sigRad);
   ATH_MSG_DEBUG( " Energy loss updator deltaE " << deltaE << " meanIoni " << meanIoni << " meanRad " << meanRad << " sigIoni " << sigIoni << " sigRad " << sigRad << " sign " << sign  << " pathLength " << pathLength );   
@@ -550,4 +555,22 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss
 
 }
 
+Trk::EnergyLoss* Trk::EnergyLossUpdator::ionizationEnergyLoss(const MaterialProperties& mat,
+							      double p,
+							      double pathcorrection,
+							      PropDirection dir,
+							      ParticleHypothesis particle) const {
+  
+  
+  // preparation 
+  double sign = (dir==Trk::oppositeMomentum) ? -1. : 1.;
+  double pathLength = pathcorrection * mat.thicknessInX0()*mat.x0();  
+  
+  double sigIoni = 0.;
+  double kazL    = 0.;
+  
+  double meanIoni = sign*m_matInt.PDG_energyLoss_ionization(p, &(mat.material()), particle, sigIoni, kazL, pathLength);
 
+  return !m_detailedEloss ? new Trk::EnergyLoss(meanIoni,sigIoni):
+    new Trk::EnergyLoss(meanIoni, sigIoni, sigIoni, sigIoni, meanIoni, sigIoni, 0., 0., pathLength );
+}
