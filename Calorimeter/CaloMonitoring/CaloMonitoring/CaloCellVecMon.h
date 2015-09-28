@@ -332,11 +332,6 @@ class CaloCellVecMon : public CaloMonToolBase {
   ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
   bool m_useNoiseToolGlobal;
 
-  bool m_useBeamBackgroundRemoval; 
-  bool m_passBeamBackgroundRemoval;
-
-  // const Int_t flag = 7;
-  //char *Summary[flag] = {"TotalEvents","ReadyFilterTool","BadLBTool","LArCollisionTime","BeamBackgroundRemoval", "Trigger", "maskbadcel"};
 
   // Trigger Awareness:
   bool m_useTrigger;
