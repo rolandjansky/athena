@@ -2,11 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// Hide multi-threading classes from builds without G4MT
-#ifdef G4MULTITHREADED
-
-#include "G4AtlasUserWorkerThreadInitialization.h"
-#include "G4AtlasWorkerRunManager.h"
+#include "G4AtlasAlg/G4AtlasUserWorkerThreadInitialization.h"
+#include "G4AtlasAlg/G4AtlasWorkerRunManager.h"
 
 // Geant4 includes. They might not be stictly necessary.
 #include "globals.hh" // gives the G4Exception
@@ -80,5 +77,3 @@ CreateWorkerRunManager() const
   // TODO: maybe better to just use the pseudo-singleton mechanism
   return G4AtlasWorkerRunManager::GetG4AtlasWorkerRunManager();
 }
-
-#endif // G4MULTITHREADED

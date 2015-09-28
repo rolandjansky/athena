@@ -14,8 +14,7 @@ namespace G4UA
   AthenaStackingActionTool::
   AthenaStackingActionTool(const std::string& type, const std::string& name,
                            const IInterface* parent)
-    : ActionToolBase<AthenaStackingAction>(type, name, parent),
-      m_config { /*killAllNeutrinos*/ false, /*photonEnergyCut*/ -1.}
+    : ActionToolBase<AthenaStackingAction>(type, name, parent)
   {
     declareProperty("KillAllNeutrinos", m_config.killAllNeutrinos,
                     "Toggle killing of all neutrinos");

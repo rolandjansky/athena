@@ -5,16 +5,12 @@
 #ifndef G4ATLASALG_G4ATLASWORKERRUNMANAGER_H
 #define G4ATLASALG_G4ATLASWORKERRUNMANAGER_H
 
-// Hide multi-threading classes from builds without G4MT
-#ifdef G4MULTITHREADED
-
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "G4WorkerRunManager.hh"
 #include "AthenaKernel/MsgStreamMember.h"
 
-#include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 //#include "G4AtlasInterfaces/ISensitiveDetectorSvc.h"
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 //#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
@@ -31,21 +27,21 @@ public:
 
   /// We cram all of the necessary worker run manager initialization here.
   /// In G4 some of it is called instead under BeamOn
-  void Initialize() override final;
+  void Initialize();
 
   /// Random generation of a G4Event for simulation
-  G4Event* GenerateEvent(G4int iEvent) override final;
+  G4Event* GenerateEvent(G4int iEvent);
 
   /// Does the work of simulating an ATLAS event
   bool SimulateFADSEvent();
 
   /// G4 function called at end of run
-  void RunTermination() override final;
+  void RunTermination();
 
 protected:
 
   /// Initialize the geometry on the worker
-  void InitializeGeometry() override final;
+  void InitializeGeometry();
 
 private:
 
@@ -62,9 +58,6 @@ private:
   /// Private message stream member
   mutable Athena::MsgStreamMember m_msg;
 
-  /// Handle to the detector service
-  ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
-
   /// Handle to the SD tool
   ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
 
@@ -76,6 +69,5 @@ private:
 
 };
 
-#endif // G4MULTITHREADED
 
 #endif
