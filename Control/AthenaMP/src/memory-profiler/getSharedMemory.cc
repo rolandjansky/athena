@@ -80,8 +80,8 @@ main(int argc, char *argv[])
     {
       struct rusage r;
       getrusage(RUSAGE_SELF, &r);
-      float tu=float(r.ru_utime.tv_sec) + float(r.ru_utime.tv_usec)/1000000;
-      float ts=float(r.ru_stime.tv_sec) + float(r.ru_stime.tv_usec)/1000000;
+      float tu=float(r.ru_utime.tv_sec) + float(r.ru_utime.tv_usec) * 1e-6;
+      float ts=float(r.ru_stime.tv_sec) + float(r.ru_stime.tv_usec) * 1e-6;
       std::cout << "Used time (user/sys):  " << tu << " / " << ts << "\n";
     }
   
