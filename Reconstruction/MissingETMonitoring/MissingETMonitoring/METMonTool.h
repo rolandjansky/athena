@@ -13,8 +13,7 @@
 
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "JetInterface/IJetSelector.h"
+
 #include <string>
 #include <vector>
 
@@ -22,7 +21,7 @@
 #include "TH2.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
-#include "TDirectory.h"
+
 class IInterface;
 class StatusCode;
 
@@ -147,9 +146,6 @@ class METMonTool : public ManagedMonitorToolBase
     int m_ContainerWarnings_Muon, m_ContainerWarnings_Ele, m_ContainerWarnings_Jet;
     std::vector<int> m_ContainerWarnings_metKeys; 
 
-    ToolHandle<IJetSelector> m_selTool; /// used only if m_selType == FromTool
-
-    ITHistSvc * m_thistSvc;   
   private:
 
     float m_Pi;
