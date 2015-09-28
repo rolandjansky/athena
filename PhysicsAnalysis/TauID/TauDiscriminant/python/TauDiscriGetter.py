@@ -34,7 +34,6 @@ class TauDiscriGetter(Configured):
                        sequence = None,
                        do_upstream_algs = False,
                        do_only_fakebits = False,
-                       do_Pi0           = True, # Temporary, turns on the dumping of pi0 scores
                        msglevel = 3):
 
         self.sequence = sequence
@@ -44,7 +43,6 @@ class TauDiscriGetter(Configured):
         self.container = container
         self.upstream_algs = do_upstream_algs
         self.only_fakebits = do_only_fakebits # temporary hack
-        self.do_Pi0 = do_Pi0 # Temporary, turns on the dumping of pi0 scores
         self.msglevel = msglevel
         Configured.__init__(self)
 
@@ -69,27 +67,15 @@ class TauDiscriGetter(Configured):
 
         if not self.only_fakebits:
             """
-            Cut-based tau-jet identification
-            """
-#            try:
-#                from TauDiscriminant.TauDiscriminantConf import TauCuts
-#                TauCuts.OutputLevel = self.msglevel
-#                tauCuts = TauCuts(cuts = "cuts.txt")
-#                tools.append(tauCuts)
-#            except Exception:
-#                mlog.error("could not find TauCuts in TauDiscriminant")
-#                print traceback.format_exc()
-#                return False
-            """
-            Cut-based electron veto
+            ID variable calculator
             """
             try:
-                from TauDiscriminant.TauDiscriminantConf import TauCutsEleVeto
-                TauCutsEleVeto.OutputLevel = self.msglevel
-                tauCutsEleVeto = TauCutsEleVeto()
-                tools.append(tauCutsEleVeto)
+                from TauDiscriminant.TauDiscriminantConf import TauIDVarCalculator
+                TauIDVarCalculator.OutputLevel = self.msglevel
+                tauIDVarCalc = TauIDVarCalculator()
+                tools.append(tauIDVarCalc)
             except Exception:
-                mlog.error("could not find TauCutsEleVeto in TauDiscriminant")
+                mlog.error("could not find TauIDVarCalculator in TauDiscriminant")
                 print traceback.format_exc()
                 return False
             """
@@ -102,33 +88,6 @@ class TauDiscriGetter(Configured):
                 tools.append(tauMuonVeto)
             except Exception:
                 mlog.error("could not find TauMuonVeto in TauDiscriminant")
-                print traceback.format_exc()
-                return False
-
-
-            try:
-                from TauDiscriminant.TauDiscriminantConf import TauPi0BDT
-                TauPi0BDT.OutputLevel = self.msglevel
-                taupi0BDT = TauPi0BDT(pi0BDTPrimary="pi0Primary.BDT.bin",
-                                      pi0BDTSecondary="pi0Secondary.BDT.bin")
-                tools.append(taupi0BDT)
-            except Exception:
-                mlog.error("could not find TauPi0BDT in TauDiscriminant")
-                print traceback.format_exc()
-                return False
-
-
-
-            """
-            Likelihood tau-jet identification
-            """
-            try:
-                from TauDiscriminant.TauDiscriminantConf import TauLLH
-                TauLLH.OutputLevel = self.msglevel
-                tauLLH = TauLLH()
-                tools.append(tauLLH)
-            except Exception:
-                mlog.error("could not find TauLLH in TauDiscriminant")
                 print traceback.format_exc()
                 return False
             """

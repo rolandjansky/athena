@@ -25,15 +25,9 @@ namespace TauID
         public:
 
             //!< Default constructor
-            #ifdef __STANDALONE
-            MethodDummy(const string& _name = "", bool _verbose = false):
-                MethodBase(_name,_verbose)
-            {}
-            #else
             MethodDummy(const string& _name = ""):
                 MethodBase(_name)
             {}
-            #endif
 
             //!< Destructor
             ~MethodDummy()
@@ -41,15 +35,15 @@ namespace TauID
 
             bool build(const string& filename, bool checkTree = false);
 
-            float response() const;
+            float response(xAOD::TauJet& tau);
 
-            float response(unsigned int level) const
+            float response(xAOD::TauJet& tau, unsigned int level)
             {
                 if (level != 0)
                 {
-                    print("MethodDummy does not output more than one possible response.");
+                    ATH_MSG_VERBOSE("MethodDummy does not output more than one possible response.");
                 }
-                return response();
+                return response(tau);
             }
 
             Types::MethodType getType() const

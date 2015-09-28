@@ -16,42 +16,38 @@
 #include "TauDiscriminant/MethodBDT.h"
 #include "TauDiscriminant/MethodCuts.h"
 #include "TauDiscriminant/MethodTransform.h"
-#include "TauDiscriminant/TauDetailsManager.h"
 #include <string>
-#include <PathResolver/PathResolver.h>
 #include "xAODTau/TauJet.h"
 
 using namespace std;
 using namespace TauID;
 
-class TauJetBDT: public TauDiscriToolBase
+class TauJetBDT: virtual public TauDiscriToolBase
 {
+  ASG_TOOL_CLASS2(TauJetBDT, TauDiscriToolBase, ITauToolBase)
     public:
 
+  
         //!< Constructor
-        TauJetBDT(const string& type,
-                const string& name,
-                const IInterface* parent):
-            TauDiscriToolBase(type, name, parent),
-            jetBDTFile(""),
-            jetSigBitsFile(""),
-            jetBkgBitsFile(""),
-            jetSigTransFile(""),
-            jetBkgTransFile(""),
-            jetBDT(NULL),
-            jetSigBits(NULL),
-            jetBkgBits(NULL),
-            jetSigTrans(NULL),
-            jetBkgTrans(NULL)
-    {
-        declareInterface<TauDiscriToolBase>(this);
-
-        declareProperty("jetBDT", this->jetBDTFile);
+ TauJetBDT(const string& name):
+  TauDiscriToolBase(name),
+    jetBDTFile(""),
+    jetSigBitsFile(""),
+    jetBkgBitsFile(""),
+    jetSigTransFile(""),
+    jetBkgTransFile(""),
+    jetBDT(NULL),
+    jetSigBits(NULL),
+    jetBkgBits(NULL),
+    jetSigTrans(NULL),
+    jetBkgTrans(NULL)
+      {
+	declareProperty("jetBDT", this->jetBDTFile);
         declareProperty("jetSigBits",this->jetSigBitsFile);
         declareProperty("jetBkgBits",this->jetBkgBitsFile);
         declareProperty("jetSigTrans",this->jetSigTransFile);
         declareProperty("jetBkgTrans",this->jetBkgTransFile);
-    }
+      }
 
         //!< Destructor
         virtual ~TauJetBDT() {}
@@ -60,14 +56,14 @@ class TauJetBDT: public TauDiscriToolBase
          * @brief The boosted decision trees are built.
          * @return @c StatusCode StatusCode::FAILURE if there were problems and StatusCode::SUCCESS otherwise.
          */
-        virtual StatusCode prepare(const TauDetailsManager&);
+        virtual StatusCode initialize();
 
         /**
          * @brief Values of the tau parameters are extracted and a boosted decision tree score is retrieved.
          * @param tauJet a @c xAOD::TauJet pointer to a tau jet candidate.
          * @return @c StatusCode StatusCode::FAILURE if there were problems and StatusCode::SUCCESS otherwise.
          */
-        virtual StatusCode execute(xAOD::TauJet*, FakeTauBits*, FakeTauScores*);
+        virtual StatusCode execute(xAOD::TauJet&);
 
         /**
          * @brief Allocated memory is freed.

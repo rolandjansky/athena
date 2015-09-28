@@ -12,11 +12,11 @@
 
 using namespace xAOD;
 
-StatusCode TauJetBDT::prepare(const TauDetailsManager& manager)
+StatusCode TauJetBDT::initialize()
 {
     if (this->jetBDTFile != "")
     {
-        string jetBDTPath = PathResolver::find_file(this->jetBDTFile, "DATAPATH");
+        string jetBDTPath = find_calibFile(this->jetBDTFile);
     
         if(jetBDTPath == "")
         {
@@ -25,7 +25,6 @@ StatusCode TauJetBDT::prepare(const TauDetailsManager& manager)
         }
     
         this->jetBDT = new MethodBDT("TauBDT:JetBDT");
-        this->jetBDT->setDetails(manager);
     
         if (!this->jetBDT->build(jetBDTPath))
         {
@@ -35,7 +34,7 @@ StatusCode TauJetBDT::prepare(const TauDetailsManager& manager)
         
         if (this->jetSigBitsFile != "")
         {
-            string jetSigBitsPath = PathResolver::find_file(this->jetSigBitsFile, "DATAPATH");
+            string jetSigBitsPath = find_calibFile(this->jetSigBitsFile);
             if(jetSigBitsPath == "")
             {
                 msg(MSG::FATAL) << "File: " << this->jetSigBitsFile << " not found! " << endreq;
@@ -43,8 +42,7 @@ StatusCode TauJetBDT::prepare(const TauDetailsManager& manager)
             }
             
             this->jetSigBits = new MethodCuts("TauBDT:JetSigBits");
-            this->jetSigBits->setDetails(manager);
-            this->jetSigBits->addVariable("BDT",&(this->jetScore),'F');
+            //this->jetSigBits->addVariable("BDT",&(this->jetScore),'F');
 
             if (!this->jetSigBits->build(jetSigBitsPath))
             {
@@ -56,7 +54,7 @@ StatusCode TauJetBDT::prepare(const TauDetailsManager& manager)
         // Flat signal transformed jet score
         if (this->jetSigTransFile != "")
         {
-            string jetSigTransPath = PathResolver::find_file(this->jetSigTransFile, "DATAPATH");
+            string jetSigTransPath = find_calibFile(this->jetSigTransFile);
         
             if(jetSigTransPath == "")
             {
@@ -65,8 +63,7 @@ StatusCode TauJetBDT::prepare(const TauDetailsManager& manager)
             }
         
             this->jetSigTrans = new MethodTransform("TauBDT:JetBDT:SignalTranform");
-            this->jetSigTrans->setDetails(manager);
-            this->jetSigTrans->addVariable("BDT",&(this->jetScore),'F');
+            //this->jetSigTrans->addVariable("BDT",&(this->jetScore),'F');
         
             if (!this->jetSigTrans->build(jetSigTransPath))
             {
@@ -78,7 +75,7 @@ StatusCode TauJetBDT::prepare(const TauDetailsManager& manager)
         // Flat background transformed jet score
         if (this->jetBkgTransFile != "")
         {
-            string jetBkgTransPath = PathResolver::find_file(this->jetBkgTransFile, "DATAPATH");
+            string jetBkgTransPath = find_calibFile(this->jetBkgTransFile);
         
             if(jetBkgTransPath == "")
             {
@@ -87,8 +84,7 @@ StatusCode TauJetBDT::prepare(const TauDetailsManager& manager)
             }
         
             this->jetBkgTrans = new MethodTransform("TauBDT:JetBDT:BackgroundTranform");
-            this->jetBkgTrans->setDetails(manager);
-            this->jetBkgTrans->addVariable("BDT",&(this->jetScore),'F');
+            //this->jetBkgTrans->addVariable("BDT",&(this->jetScore),'F');
                     
             if (!this->jetBkgTrans->build(jetBkgTransPath))
             {
@@ -98,7 +94,7 @@ StatusCode TauJetBDT::prepare(const TauDetailsManager& manager)
         }
         if (this->jetBkgBitsFile != "")
         {
-            string jetBkgBitsPath = PathResolver::find_file(this->jetBkgBitsFile, "DATAPATH");
+            string jetBkgBitsPath = find_calibFile(this->jetBkgBitsFile);
             if(jetBkgBitsPath == "")
             {
                 msg(MSG::FATAL) << "File: " << this->jetBkgBitsFile << " not found! " << endreq;
@@ -106,8 +102,7 @@ StatusCode TauJetBDT::prepare(const TauDetailsManager& manager)
             }
             
             this->jetBkgBits = new MethodCuts("TauBDT:JetBkgBits");
-            this->jetBkgBits->setDetails(manager);
-            this->jetBkgBits->addVariable("BDT",&(this->jetScore),'F');
+            //this->jetBkgBits->addVariable("BDT",&(this->jetScore),'F');
                          
             if (!this->jetBkgBits->build(jetBkgBitsPath))
             {
@@ -125,35 +120,33 @@ StatusCode TauJetBDT::prepare(const TauDetailsManager& manager)
     return StatusCode::SUCCESS;
 }
 
-StatusCode TauJetBDT::execute(xAOD::TauJet *tauJet, FakeTauBits* /*bits*/, FakeTauScores* /*scores*/)
+StatusCode TauJetBDT::execute(xAOD::TauJet& tauJet)
 {
    
-//     Analysis::TauPID* tauJetID = tauJet->tauID();
+//     Analysis::TauPID* tauJetID = tauJet.tauID();
     bool loose, medium, tight;
 
     // Initialize scores
-    tauJet->setDiscriminant(TauJetParameters::BDTJetScore, static_cast<float>(0.));
-    tauJet->setDiscriminant(TauJetParameters::BDTJetScoreSigTrans, static_cast<float>(0.));
-    tauJet->setDiscriminant(TauJetParameters::BDTJetScoreBkgTrans, static_cast<float>(0.));
+    tauJet.setDiscriminant(TauJetParameters::BDTJetScore, static_cast<float>(0.));
+    tauJet.setDiscriminant(TauJetParameters::BDTJetScoreSigTrans, static_cast<float>(0.));
+    tauJet.setDiscriminant(TauJetParameters::BDTJetScoreBkgTrans, static_cast<float>(0.));
     
     // Initialize bits
-    tauJet->setIsTau(TauJetParameters::JetBDTSigLoose, false);
-    tauJet->setIsTau(TauJetParameters::JetBDTSigMedium, false);
-    tauJet->setIsTau(TauJetParameters::JetBDTSigTight, false);
+    tauJet.setIsTau(TauJetParameters::JetBDTSigLoose, false);
+    tauJet.setIsTau(TauJetParameters::JetBDTSigMedium, false);
+    tauJet.setIsTau(TauJetParameters::JetBDTSigTight, false);
     
-    tauJet->setIsTau(TauJetParameters::JetBDTBkgLoose, false);
-    tauJet->setIsTau(TauJetParameters::JetBDTBkgMedium, false);
-    tauJet->setIsTau(TauJetParameters::JetBDTBkgTight, false);
+    tauJet.setIsTau(TauJetParameters::JetBDTBkgLoose, false);
+    tauJet.setIsTau(TauJetParameters::JetBDTBkgMedium, false);
+    tauJet.setIsTau(TauJetParameters::JetBDTBkgTight, false);
 
-    // do not assign a meaningful score for tau1P3P-only candidates. return.
-    
 
     // Set the response of the jet BDT
     if (this->jetBDT)
     {
 
 
-        this->jetScore = this->jetBDT->response();
+        this->jetScore = this->jetBDT->response(tauJet);
         if (msgLvl(MSG::VERBOSE))
         {
             msg(MSG::VERBOSE) << "BDTJetScore: " << this->jetScore << endreq;
@@ -162,72 +155,72 @@ StatusCode TauJetBDT::execute(xAOD::TauJet *tauJet, FakeTauBits* /*bits*/, FakeT
         {
             msg(MSG::ERROR) << "Error in computing BDTJetScore!" << endreq;
         }
-        tauJet->setDiscriminant(TauJetParameters::BDTJetScore, this->jetScore);
+        tauJet.setDiscriminant(TauJetParameters::BDTJetScore, this->jetScore);
     }
     else
     {
-        tauJet->setDiscriminant(TauJetParameters::BDTJetScore, 0.);
+        tauJet.setDiscriminant(TauJetParameters::BDTJetScore, 0.);
     }
 
     if (this->jetBDT && this->jetSigBits)
     {
-        loose = this->jetSigBits->response(0);
-        medium = this->jetSigBits->response(1);
-        tight = this->jetSigBits->response(2);
-        tauJet->setIsTau(TauJetParameters::JetBDTSigLoose, loose);
-        tauJet->setIsTau(TauJetParameters::JetBDTSigMedium, medium);
-        tauJet->setIsTau(TauJetParameters::JetBDTSigTight, tight);
+        loose = this->jetSigBits->response(tauJet, 0);
+        medium = this->jetSigBits->response(tauJet, 1);
+        tight = this->jetSigBits->response(tauJet, 2);
+        tauJet.setIsTau(TauJetParameters::JetBDTSigLoose, loose);
+        tauJet.setIsTau(TauJetParameters::JetBDTSigMedium, medium);
+        tauJet.setIsTau(TauJetParameters::JetBDTSigTight, tight);
         if (msgLvl(MSG::DEBUG))
         {
             if (!((!loose && !medium && !tight) || (loose && !medium && !tight) || (loose && medium && !tight) || (loose && medium && tight)))
             {
                 msg(MSG::VERBOSE) << "Bad bits!" << endreq;
             }
-            msg(MSG::DEBUG) << "ET: " << tauJet->pt() << endreq;
-            msg(MSG::DEBUG) << "jet sig loose: " << tauJet->isTau(TauJetParameters::JetBDTSigLoose) << endreq;
-            msg(MSG::DEBUG) << "jet sig medium: " << tauJet->isTau(TauJetParameters::JetBDTSigMedium) << endreq;
-            msg(MSG::DEBUG) << "jet sig tight: " << tauJet->isTau(TauJetParameters::JetBDTSigTight) << endreq;
+            msg(MSG::DEBUG) << "ET: " << tauJet.pt() << endreq;
+            msg(MSG::DEBUG) << "jet sig loose: " << tauJet.isTau(TauJetParameters::JetBDTSigLoose) << endreq;
+            msg(MSG::DEBUG) << "jet sig medium: " << tauJet.isTau(TauJetParameters::JetBDTSigMedium) << endreq;
+            msg(MSG::DEBUG) << "jet sig tight: " << tauJet.isTau(TauJetParameters::JetBDTSigTight) << endreq;
         }
     }
 
     if (this->jetSigTrans)
     {
-        float jetSigTransScore(this->jetSigTrans->response());
+        float jetSigTransScore(this->jetSigTrans->response(tauJet));
         if (msgLvl(MSG::VERBOSE))
         {
             msg(MSG::VERBOSE) << "Signal Transformed BDTJetScore: " << jetSigTransScore << endreq;
         }
-        tauJet->setDiscriminant(TauJetParameters::BDTJetScoreSigTrans, jetSigTransScore);
+        tauJet.setDiscriminant(TauJetParameters::BDTJetScoreSigTrans, jetSigTransScore);
     }
     
     if (this->jetBkgTrans)
     {
-        float jetBkgTransScore(this->jetBkgTrans->response());
+        float jetBkgTransScore(this->jetBkgTrans->response(tauJet));
         if (msgLvl(MSG::VERBOSE))
         {
             msg(MSG::VERBOSE) << "Background Transformed BDTJetScore: " << jetBkgTransScore << endreq;
         }
-        tauJet->setDiscriminant(TauJetParameters::BDTJetScoreBkgTrans, jetBkgTransScore);
+        tauJet.setDiscriminant(TauJetParameters::BDTJetScoreBkgTrans, jetBkgTransScore);
     }
     
     if (this->jetBDT && this->jetBkgBits)
     {
-        loose = this->jetBkgBits->response(0);
-        medium = this->jetBkgBits->response(1);
-        tight = this->jetBkgBits->response(2);
-        tauJet->setIsTau(TauJetParameters::JetBDTBkgLoose, loose);
-        tauJet->setIsTau(TauJetParameters::JetBDTBkgMedium, medium);
-        tauJet->setIsTau(TauJetParameters::JetBDTBkgTight, tight);
+        loose = this->jetBkgBits->response(tauJet, 0);
+        medium = this->jetBkgBits->response(tauJet, 1);
+        tight = this->jetBkgBits->response(tauJet, 2);
+        tauJet.setIsTau(TauJetParameters::JetBDTBkgLoose, loose);
+        tauJet.setIsTau(TauJetParameters::JetBDTBkgMedium, medium);
+        tauJet.setIsTau(TauJetParameters::JetBDTBkgTight, tight);
         if (msgLvl(MSG::VERBOSE))
         {
             if (!((!loose && !medium && !tight) || (loose && !medium && !tight) || (loose && medium && !tight) || (loose && medium && tight)))
             {
                 msg(MSG::VERBOSE) << "Bad bits!" << endreq;
             }
-            msg(MSG::VERBOSE) << "ET: " << tauJet->pt() << endreq;
-            msg(MSG::VERBOSE) << "jet bkg loose: " << tauJet->isTau(TauJetParameters::JetBDTBkgLoose) << endreq;
-            msg(MSG::VERBOSE) << "jet bkg medium: " << tauJet->isTau(TauJetParameters::JetBDTBkgMedium) << endreq;
-            msg(MSG::VERBOSE) << "jet bkg tight: " << tauJet->isTau(TauJetParameters::JetBDTBkgTight) << endreq;
+            msg(MSG::VERBOSE) << "ET: " << tauJet.pt() << endreq;
+            msg(MSG::VERBOSE) << "jet bkg loose: " << tauJet.isTau(TauJetParameters::JetBDTBkgLoose) << endreq;
+            msg(MSG::VERBOSE) << "jet bkg medium: " << tauJet.isTau(TauJetParameters::JetBDTBkgMedium) << endreq;
+            msg(MSG::VERBOSE) << "jet bkg tight: " << tauJet.isTau(TauJetParameters::JetBDTBkgTight) << endreq;
         }
     }
 

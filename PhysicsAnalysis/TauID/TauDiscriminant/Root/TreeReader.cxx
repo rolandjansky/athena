@@ -14,14 +14,6 @@
 #include "TGraph2D.h"
 #include "TF1.h"
 
-bool isGoodTree(Node* node)
-{
-    if (!node) return false;
-    LeafNode<float> dummyLeafNode;
-    if (string(typeid(dummyLeafNode).name()).compare(typeid(*node).name())==0) return true;
-    return isGoodTree(node->getLeftChild()) && isGoodTree(node->getRightChild());
-}
-
 void findBadNodes(Node* node, vector<Node*>& badNodes)
 {
     if (!node) return;
@@ -70,77 +62,6 @@ void getIncompleteNodes(Node* node, vector<Node*>& incompleteNodes)
     getIncompleteNodes(node->getRightChild(),incompleteNodes);
 }
 
-void attachTree(Node* tree, Node* subtree)
-{
-    if (!tree || !subtree) return;
-    vector<Node*> incompleteNodes;
-    getIncompleteNodes(tree, incompleteNodes);
-    vector<Node*>::iterator it(incompleteNodes.begin());
-    for (;it != incompleteNodes.end(); ++it)
-    {
-        if(!(*it)) return;
-        if(!(*it)->getLeftChild()) static_cast<DecisionNode*>(*it)->setLeftChild(subtree->clone());
-        if(!(*it)->getRightChild()) static_cast<DecisionNode*>(*it)->setRightChild(subtree->clone());
-    }
-}
-
-Node* createBalancedTree(const vector<DecisionNode*>& nodes)
-{
-    if (nodes.size() == 0) return 0;
-    DecisionNode* root = nodes.at(nodes.size()/2);
-    if (!root) return 0;
-    vector<DecisionNode*>::const_iterator midpoint(nodes.begin()+nodes.size()/2);
-    vector<DecisionNode*> leftTree(nodes.begin(),midpoint);
-    vector<DecisionNode*> rightTree(midpoint+1,nodes.end());
-    root->setLeftChild(createBalancedTree(leftTree));
-    root->setRightChild(createBalancedTree(rightTree));
-    return root;
-}
-
-Node* createBinningTree(const void* variable, char type, const vector<float>& binCuts)
-{
-    vector<float>::const_iterator it(binCuts.begin());
-    vector<DecisionNode*> nodes;
-    for (;it != binCuts.end(); ++it)
-    {
-        if (type == 'F')
-        {
-            nodes.push_back(new UnivariateCut<float>((float*)variable,*it));
-        }
-        else if (type == 'I')
-        {
-            nodes.push_back(new UnivariateCut<int>((int*)variable,(int)*it));
-        }
-        else
-        {
-            return 0;
-        }
-    }
-    return createBalancedTree(nodes);
-}
-
-Node* buildCategoryTree(const vector<Node*>& binningTrees)
-{
-    vector<Node*>::const_iterator it(binningTrees.begin());
-    Node* tree = *(it++);
-    if (!tree) return 0;
-    tree = tree->clone();
-    for (;it != binningTrees.end(); ++it)
-    {
-        attachTree(tree,*(it));
-    }
-    vector<Node*> incompleteNodes;
-    getIncompleteNodes(tree,incompleteNodes);
-    it = incompleteNodes.begin();
-    for (;it != incompleteNodes.end(); ++it)
-    {
-        if(!(*it)) return 0;
-        if(!(*it)->getLeftChild()) static_cast<DecisionNode*>(*it)->setLeftChild(new PointerLeafNode<TreeVector>());
-        if(!(*it)->getRightChild()) static_cast<DecisionNode*>(*it)->setRightChild(new PointerLeafNode<TreeVector>());
-    }
-    return tree;
-}
-
 bool hasEnding(const string& fullString, const string& ending)
 {
     if (fullString.length() > ending.length())
@@ -185,7 +106,7 @@ Node* TreeReader::readTree(
     vector<char>& variableTypeList,
     unsigned int& numNodes)
 {
-    int variable;
+    int variable = 0;
     int idata;
     float fdata;
     string line;
@@ -195,7 +116,7 @@ Node* TreeReader::readTree(
     DecisionNode* parent(0);
     if (!read<int>(treeFile,variable,format))
     {
-        print("Failed extracting variable index from the discriminant file");
+        ATH_MSG_VERBOSE("Failed extracting variable index from the discriminant file");
         return 0;
     }
     while (variable != ENDOFTREE)
@@ -204,7 +125,7 @@ Node* TreeReader::readTree(
         {  // parsing leaf node
             if (!read<float>(treeFile,fdata,format))
             {
-                print("Failed extracting leaf node purity");
+                ATH_MSG_VERBOSE("Failed extracting leaf node purity");
                 return 0;
             }
             node = new LeafNode<float>(fdata);
@@ -224,12 +145,12 @@ Node* TreeReader::readTree(
             {
                 if (!read<int>(treeFile,numPoints,format))
                 {
-                    print("Failed extracting number of points for a UnivariateSlidingCut1D node");
+                    ATH_MSG_VERBOSE("Failed extracting number of points for a UnivariateSlidingCut1D node");
                     return 0;
                 }
                 if (numPoints < 2)
                 {
-                    print("Invalid number of points in UnivariateSlidingCut1D node");
+                    ATH_MSG_VERBOSE("Invalid number of points in UnivariateSlidingCut1D node");
                     return 0;
                 }
             }
@@ -242,12 +163,12 @@ Node* TreeReader::readTree(
             {
                 if (!rootFile)
                 {
-                    print("Requested a transformation but input file is not a ROOT file");
+                    ATH_MSG_VERBOSE("Requested a transformation but input file is not a ROOT file");
                     return 0;
                 }
                 if (!good_file(rootFile))
                 {
-                    print("Input ROOT file is not open while trying to get transformation!");
+                    ATH_MSG_VERBOSE("Input ROOT file is not open while trying to get transformation!");
                     return 0;
                 }
                 treeFile >> graphName;
@@ -256,33 +177,33 @@ Node* TreeReader::readTree(
             int varX, varY;
             if (!read<int>(treeFile,varX,format))
             {
-                print("Failed extracting X for a UnivariateSlidingCut1D node");
+                ATH_MSG_VERBOSE("Failed extracting X for a UnivariateSlidingCut1D node");
                 return 0;
             }
             if (variable == TRANS)
             {
                 if(!read<float>(treeFile,lowX,format) || !read<float>(treeFile,highX,format))
                 {
-                    print("Failed extracting bounds on X for transformation");
+                    ATH_MSG_VERBOSE("Failed extracting bounds on X for transformation");
                     return 0;
                 }
             }
             if (!read<int>(treeFile,varY,format))
             {
-                print("Failed extracting Y for a UnivariateSlidingCut1D node");
+                ATH_MSG_VERBOSE("Failed extracting Y for a UnivariateSlidingCut1D node");
                 return 0;
             }
             if (variable == TRANS)
             {
                 if(!read<float>(treeFile,lowY,format) || !read<float>(treeFile,highY,format))
                 {
-                    print("Failed extracting bounds on Y for transformation");
+                    ATH_MSG_VERBOSE("Failed extracting bounds on Y for transformation");
                     return 0;
                 }
             }
             if (varX < 0 || varY < 0)
             {
-                print("Invalid X or Y for UnivariateSlidingCut1D node");
+                ATH_MSG_VERBOSE("Invalid X or Y for UnivariateSlidingCut1D node");
                 return 0;
             }
             TObject* graph;
@@ -299,7 +220,7 @@ Node* TreeReader::readTree(
                 TGraph2D* tempgraph = dynamic_cast<TGraph2D*>(rootFile->Get(graphName.c_str()));
                 if (!tempgraph)
                 {
-                    print("Could not get transformation graph from ROOT file");
+                    ATH_MSG_VERBOSE("Could not get transformation graph from ROOT file");
                     return 0;
                 }
                 //tempgraph = dynamic_cast<TGraph2D*>(tempgraph->Clone());
@@ -310,13 +231,13 @@ Node* TreeReader::readTree(
                 map<string,const float*>::const_iterator it1(floatVariables->find(variableList[varX]));
                 if (it1 == floatVariables->end())
                 {
-                    print("A Did not find variable "+variableList[varX]+" in booked float variables!");
+                    ATH_MSG_VERBOSE("A Did not find variable "+variableList[varX]+" in booked float variables!");
                     return 0;
                 }
                 map<string,const int*>::const_iterator it2(intVariables->find(variableList[varY]));
                 if (it2 == intVariables->end())
                 {
-                    print("B Did not find variable "+variableList[varY]+" in booked float variables!");
+                    ATH_MSG_VERBOSE("B Did not find variable "+variableList[varY]+" in booked float variables!");
                     return 0;
                 }
                 if (variable == GRAPH)
@@ -337,13 +258,13 @@ Node* TreeReader::readTree(
                 map<string,const int*>::const_iterator it1(intVariables->find(variableList[varX]));
                 if (it1 == intVariables->end())
                 {
-                    print("Did not find variable "+variableList[varX]+" in booked int variables!");
+                    ATH_MSG_VERBOSE("Did not find variable "+variableList[varX]+" in booked int variables!");
                     return 0;
                 }
                 map<string,const float*>::const_iterator it2(floatVariables->find(variableList[varY]));
                 if (it2 == floatVariables->end())
                 {
-                    print("Did not find variable "+variableList[varY]+" in booked int variables!");
+                    ATH_MSG_VERBOSE("Did not find variable "+variableList[varY]+" in booked int variables!");
                     return 0;
                 }
                 if (variable == GRAPH)
@@ -364,13 +285,13 @@ Node* TreeReader::readTree(
                 map<string,const float*>::const_iterator it1(floatVariables->find(variableList[varX]));
                 if (it1 == floatVariables->end())
                 {
-                    print("D Did not find variable "+variableList[varX]+" in booked float variables!");
+                    ATH_MSG_VERBOSE("D Did not find variable "+variableList[varX]+" in booked float variables!");
                     return 0;
                 }
                 map<string,const float*>::const_iterator it2(floatVariables->find(variableList[varY]));
                 if (it2 == floatVariables->end())
                 {
-                    print("E Did not find variable "+variableList[varY]+" in booked float variables!");
+                    ATH_MSG_VERBOSE("E Did not find variable "+variableList[varY]+" in booked float variables!");
                     return 0;
                 }
                 if (variable == GRAPH)
@@ -391,13 +312,13 @@ Node* TreeReader::readTree(
                 map<string,const int*>::const_iterator it1(intVariables->find(variableList[varX]));
                 if (it1 == intVariables->end())
                 {
-                    print("Did not find variable "+variableList[varX]+" in booked int variables!");
+                    ATH_MSG_VERBOSE("Did not find variable "+variableList[varX]+" in booked int variables!");
                     return 0;
                 }
                 map<string,const int*>::const_iterator it2(intVariables->find(variableList[varY]));
                 if (it2 == intVariables->end())
                 {
-                    print("Did not find variable "+variableList[varY]+" in booked int variables!");
+                    ATH_MSG_VERBOSE("Did not find variable "+variableList[varY]+" in booked int variables!");
                     return 0;
                 }
                 if (variable == GRAPH)
@@ -415,7 +336,7 @@ Node* TreeReader::readTree(
             }
             else
             {
-                print("Unsupported variable type in list found in discriminant file!");
+                ATH_MSG_VERBOSE("Unsupported variable type in list found in discriminant file!");
                 return 0;
             }
             if (variable == GRAPH)
@@ -426,7 +347,7 @@ Node* TreeReader::readTree(
                 {
                     if (!read<float>(treeFile,X,format) || !read<float>(treeFile,Y,format))
                     {
-                        print("Failed extracting X,Y for a UnivariateSlidingCut1D node");
+                        ATH_MSG_VERBOSE("Failed extracting X,Y for a UnivariateSlidingCut1D node");
                         delete node;
                         delete rootNode;
                         return 0;
@@ -442,12 +363,12 @@ Node* TreeReader::readTree(
                 map<string,const float*>::const_iterator it(floatVariables->find(variableList[variable]));
                 if (it == floatVariables->end())
                 {
-                    print("F Did not find variable "+variableList[variable]+" in booked float variables!");
+                    ATH_MSG_VERBOSE("F Did not find variable "+variableList[variable]+" in booked float variables!");
                     return 0;
                 }
                 if (!read<float>(treeFile,fdata,format))
                 {
-                    print("Failed extracting internal float node cut");
+                    ATH_MSG_VERBOSE("Failed extracting internal float node cut");
                     return 0;
                 }
                 node = new UnivariateCut<float>(it->second,fdata);
@@ -457,19 +378,19 @@ Node* TreeReader::readTree(
                 map<string,const int*>::const_iterator it(intVariables->find(variableList[variable]));
                 if (it == intVariables->end())
                 {
-                    print("Did not find variable "+variableList[variable]+" in booked int variables!");
+                    ATH_MSG_VERBOSE("Did not find variable "+variableList[variable]+" in booked int variables!");
                     return 0;
                 }
                 if (!read<int>(treeFile,idata,format))
                 {
-                    print("Failed extracting internal int node cut");
+                    ATH_MSG_VERBOSE("Failed extracting internal int node cut");
                     return 0;
                 }
                 node = new UnivariateCut<int>(it->second,idata);
             }
             else
             { // unknown node type
-                print("Unsupported variable type in list found in discriminant file!");
+                ATH_MSG_VERBOSE("Unsupported variable type in list found in discriminant file!");
                 return 0;
             }
         }
@@ -479,7 +400,7 @@ Node* TreeReader::readTree(
         {
             if (variable == LEAF)
             {
-                print("Corrupt tree! Adding leaf node as root node.");
+                ATH_MSG_VERBOSE("Corrupt tree! Adding leaf node as root node.");
                 delete node;
                 return 0;
             }
@@ -493,7 +414,7 @@ Node* TreeReader::readTree(
                 parentNodeStack.pop();
                 if (parentNodeStack.empty())
                 {
-                    print("Corrupt tree! Expected a parent node.");
+                    ATH_MSG_VERBOSE("Corrupt tree! Expected a parent node.");
                     delete node;
                     delete rootNode;
                     return 0;
@@ -510,7 +431,7 @@ Node* TreeReader::readTree(
             }
             else
             {
-                print("Corrupt tree! Attempted to add a child to a complete node!");
+                ATH_MSG_VERBOSE("Corrupt tree! Attempted to add a child to a complete node!");
                 delete node;
                 delete rootNode;
                 return 0;
@@ -524,7 +445,7 @@ Node* TreeReader::readTree(
 
         if (!read<int>(treeFile,variable,format))
         {
-            print("Failed extracting variable index");
+            ATH_MSG_VERBOSE("Failed extracting variable index");
             delete rootNode;
             return 0;
         }
@@ -533,157 +454,177 @@ Node* TreeReader::readTree(
     return rootNode;
 }
 
-Node* TreeReader::build(
-    const string& filename,
-    bool checkTree)
+TreeReader::TreeReader(const string& filename):
+  AsgMessaging("TauDiscriminant:TreeReader"),
+  m_fileName(filename),
+  floatVariables(0),
+  intVariables(0)
 {
-
-    Format format;
-    if (hasEnding(filename, ".bin"))
+    if (hasEnding(m_fileName, ".bin"))
     {
-        format = BINARY;
-        if (verbose) print("Reading input as binary");
+        m_format = BINARY;
+        ATH_MSG_VERBOSE("Reading input as binary");
     }
-    else if (hasEnding(filename, ".txt"))
+    else if (hasEnding(m_fileName, ".txt"))
     {
-        format = ASCII;
-        if (verbose) print("Reading input as ASCII text");
+        m_format = ASCII;
+        ATH_MSG_VERBOSE("Reading input as ASCII text");
     }
-    else if (hasEnding(filename, ".root"))
+    else if (hasEnding(m_fileName, ".root"))
     {
-        format = ROOTFILE;
-        if (verbose) print("Reading input as ROOT file");
+        m_format = ROOTFILE;
+        ATH_MSG_VERBOSE("Reading input as ROOT file");
     }
     else
     {
-        print("Unknown discriminant format");
-        return 0;
+        m_format = UNKNOWN;
+        ATH_MSG_ERROR("Unknown discriminant format");
+	return;
     }
 
     unsigned int numVariables;
-    Node* categoryTree;
-    Node* rootNode;
-    vector<string> tokens;
-    string line;
-    string token;
-    vector<string> variableList;
-    vector<char> variableTypeList;
-    vector<string> binningVariableList;
-    vector<char> binningVariableTypeList;
+    unsigned int numBinningVariables = 0;
     char type;
-    unsigned int numNodes(0);
-
-    istream* treeInfoTemp;
-    ifstream treeFile;
-    istringstream treeString;
-    TFile* file(0);
-
-    if (format == ROOTFILE)
+    string line;
+    
+    if (m_format == ROOTFILE)
     {
         // read in tree data from ROOT file and place in stringstream
-        file = new TFile(filename.c_str(), "READ");
-        if (!good_file(file))
+        m_file = new TFile(m_fileName.c_str(), "READ");
+        if (!good_file(m_file))
         {
-            print("The discriminant ROOT file "+filename+" will not open!");
-            return 0;
+            ATH_MSG_ERROR("The discriminant ROOT file "+m_fileName+" will not open!");
+            return;
         }
-        TNamed* treeInfoText = (TNamed*)file->Get("TreeInfo");
+        TNamed* treeInfoText = (TNamed*)m_file->Get("TreeInfo");
         if (!treeInfoText)
         {
-            print("Could not find TreeInfo in discriminant ROOT file!");
-            file->Close();
-            return 0;
+            ATH_MSG_ERROR("Could not find TreeInfo in discriminant ROOT file!");
+            m_file->Close();
+            return;
         }
         string treeInfoTextString(treeInfoText->GetTitle());
-        treeString.str(treeInfoTextString);
+	m_treeString.str(treeInfoTextString);
         delete treeInfoText;
-        treeInfoTemp = &treeString;
+        m_treeInfo = &m_treeString;
     }
     else
     {
-        treeFile.open(filename.c_str(),ios::in);
-        if (!treeFile.is_open())
+        m_treeFile.open(m_fileName.c_str(),ios::in);
+        if (!m_treeFile.is_open())
         {
-            print("The discriminant file "+filename+" will not open!");
-            return 0;
+            ATH_MSG_ERROR("The discriminant file "+m_fileName+" will not open!");
+            return;
         }
-        treeInfoTemp = &treeFile;
+        m_treeInfo = &m_treeFile;
     }
-    istream& treeInfo(*treeInfoTemp);
 
-    unsigned int numBinningVariables = 0;
-    if ((treeInfo >> numBinningVariables).fail())
+    if ((*m_treeInfo >> numBinningVariables).fail())
     {
-        print("Failed extracting the number of binning variables in the discriminant file!");
-        return 0;
+        ATH_MSG_ERROR("Failed extracting the number of binning variables in the discriminant file!");
+        return;
     }
     
-    binningVariableList = vector<string>(numBinningVariables,"");
-    binningVariableTypeList = vector<char>(numBinningVariables,'F');
+    m_binningVariableList = vector<string>(numBinningVariables,"");
+    m_binningVariableTypeList = vector<char>(numBinningVariables,'F');
 
     for (unsigned int j(0); j < numBinningVariables; ++j)
     {
-        if ((treeInfo >> binningVariableList[j]).fail())
+        if ((*m_treeInfo >> m_binningVariableList[j]).fail())
         {
-            print("Failed extracting a variable name from the discriminant file");
-            return 0;
+            ATH_MSG_ERROR("Failed extracting a variable name from the discriminant file");
+            return;
         }
-        if ((treeInfo >> type).fail())
+        if ((*m_treeInfo >> type).fail())
         {
-            print("Failed extracting a variable type from the discriminant file");
-            return 0;
+            ATH_MSG_ERROR("Failed extracting a variable type from the discriminant file");
+            return;
         }
         if (type != 'F' && type != 'I')
         {
-            print("Unsupported variable type found in the discriminant file: "+std::to_string(type));
-            return 0;
+            ATH_MSG_ERROR("Unsupported variable type found in the discriminant file: "+std::to_string(type));
+            return;
         }
-        binningVariableTypeList[j] = type;
+        m_binningVariableTypeList[j] = type;
     }
-    getline(treeFile,line); // discard \n
+    getline(*m_treeInfo,line); // discard \n
 
-    if (numBinningVariables > 0)
+    //save stream pos with category tree info and skip
+    if (numBinningVariables > 0){
+      m_catTreePos = m_treeInfo->tellg();
+      int variable = 0;
+      do{
+	if (!read<int>(*m_treeInfo, variable, ASCII))
+	  {
+	    ATH_MSG_ERROR("Failed extracting variable index from the discriminant file");
+	    return;
+	  }
+	getline(*m_treeInfo, line);
+      }while (variable != ENDOFTREE);
+    }
+
+    if ((*m_treeInfo >> numVariables).fail())
     {
-        categoryTree = readTree(treeInfo,file,ASCII,binningVariableList,binningVariableTypeList,numNodes); 
+        ATH_MSG_ERROR("Failed extracting number of variables from the discriminant file!");
+        return;
+    }
+
+    m_variableList = vector<string>(numVariables,"");
+    m_variableTypeList = vector<char>(numVariables,'F');
+
+    for (unsigned int j(0); j < numVariables; ++j)
+    {
+        if ((*m_treeInfo >> m_variableList[j]).fail())
+        {
+            ATH_MSG_ERROR("Failed extracting a variable name from the discriminant file");
+            return;
+        }
+        if ((*m_treeInfo >> type).fail())
+        {
+            ATH_MSG_ERROR("Failed extracting a variable type from the discriminant file");
+            return;
+        }
+        if (type != 'F' && type != 'I')
+        {
+            ATH_MSG_ERROR("Unsupported variable type found in the discriminant file: "+std::to_string(type));
+            return;
+        }
+        m_variableTypeList[j] = type;
+    }
+    getline(*m_treeInfo,line); // discard \n
+    
+    m_constructionFinished = true;
+}
+
+Node* TreeReader::build(bool checkTree)
+{
+    Node* categoryTree;
+    Node* rootNode;
+    vector<string> tokens;
+    string token;
+    unsigned int numNodes(0);
+
+    if (m_format == UNKNOWN){
+      ATH_MSG_ERROR("Unknown discriminant format");
+      return nullptr;
+    }
+
+    if(!m_constructionFinished){
+      ATH_MSG_ERROR("TreeReader construction failed. Not constructing tree.");
+      return nullptr;
+    }  
+    
+    if (m_catTreePos > -1)
+    {
+        int save_pos = m_treeInfo->tellg();
+        m_treeInfo->seekg(m_catTreePos);
+        categoryTree = readTree(*m_treeInfo, m_file, ASCII, m_binningVariableList, m_binningVariableTypeList, numNodes);
+	m_treeInfo->seekg(save_pos);
     }
     else
     {
         categoryTree = new PointerLeafNode<TreeVector>();
     }
-
-    if ((treeInfo >> numVariables).fail())
-    {
-        print("Failed extracting number of variables from the discriminant file!");
-        delete categoryTree;
-        return 0;
-    }
-
-    variableList = vector<string>(numVariables,"");
-    variableTypeList = vector<char>(numVariables,'F');
-
-    for (unsigned int j(0); j < numVariables; ++j)
-    {
-        if ((treeInfo >> variableList[j]).fail())
-        {
-            print("Failed extracting a variable name from the discriminant file");
-            delete categoryTree;
-            return 0;
-        }
-        if ((treeInfo >> type).fail())
-        {
-            print("Failed extracting a variable type from the discriminant file");
-            delete categoryTree;
-            return 0;
-        }
-        if (type != 'F' && type != 'I')
-        {
-            print("Unsupported variable type found in the discriminant file: "+std::to_string(type));
-            delete categoryTree;
-            return 0;
-        }
-        variableTypeList[j] = type;
-    }
-    getline(treeInfo,line); // discard \n
 
     // Get vector of all leaf nodes of the category tree and initialize an iterator
     vector<Node*> categories;
@@ -691,7 +632,6 @@ Node* TreeReader::build(
     getLeafNodes(categoryTree, categories);
     category_it = categories.begin();
     category_end = categories.end();
-
     unsigned int numTrees = 0;
     float weight;
 
@@ -702,25 +642,23 @@ Node* TreeReader::build(
         numNodes = 0;
         treeVector = new TreeVector();
         static_cast<PointerLeafNode<TreeVector>* >(*category_it)->setValue(treeVector);
-
-        if (!read<unsigned int>(treeInfo,numTrees,format)) print("Failed extracting number of trees from the discriminant file!");
-
+        if (!read<unsigned int>(*m_treeInfo, numTrees, m_format)) ATH_MSG_VERBOSE("Failed extracting number of trees from the discriminant file!");
         for (unsigned int j(0); j < numTrees; ++j)
         {
             rootNode = 0;
 
-            if (!read<float>(treeInfo,weight,format))
+            if (!read<float>(*m_treeInfo, weight, m_format))
             {
-                print("Failed extracting tree weight from the discriminant file");
+                ATH_MSG_VERBOSE("Failed extracting tree weight from the discriminant file");
                 delete categoryTree;
-                return 0;
+                return nullptr;
             }
-            rootNode = readTree(treeInfo,file,format,variableList,variableTypeList,numNodes); 
+            rootNode = readTree(*m_treeInfo, m_file, m_format, m_variableList, m_variableTypeList, numNodes);
             if (!rootNode)
             {
-                print("Null tree!");
+                ATH_MSG_VERBOSE("Null tree!");
                 delete categoryTree;
-                return 0;
+                return nullptr;
             }
             if (checkTree)
             {
@@ -728,21 +666,36 @@ Node* TreeReader::build(
                 findBadNodes(rootNode,badNodes);
                 if (badNodes.size()>0)
                 {
-                    print("Tree is not well-formed!");
-                    print("Bad tree has signature: "+signature(rootNode,&badNodes));
+                    ATH_MSG_VERBOSE("Tree is not well-formed!");
+                    ATH_MSG_VERBOSE("Bad tree has signature: "+signature(rootNode,&badNodes));
                     delete categoryTree;
-                    return 0;
+                    return nullptr;
                 }
             }
             treeVector->addTree(rootNode,weight);
         }
-        if (verbose) print("Created a tree vector with "+to_string(numNodes)+" nodes");
+        ATH_MSG_VERBOSE("Created a tree vector with "+to_string(numNodes)+" nodes");
     }
-    treeFile.close();
-    if (file)
+    m_treeFile.close();
+    if (m_file)
     {
-        //file->Close();
+        //m_file->Close();
     }
-    //delete file;
+    //delete m_file;
     return categoryTree;
+}
+
+vector<string> TreeReader::getRequiredVariables(char type){
+  vector<string> variableNames;
+  for(unsigned int i = 0; i < m_binningVariableList.size(); ++i){
+    if(m_binningVariableTypeList[i] == type){
+      variableNames.push_back(m_binningVariableList[i]);
+    }
+  }
+  for(unsigned int i = 0; i < m_variableList.size(); ++i){
+    if(m_variableTypeList[i] == type){
+      variableNames.push_back(m_variableList[i]);
+    }
+  }
+  return variableNames;
 }
