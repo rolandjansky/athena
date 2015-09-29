@@ -84,12 +84,6 @@ class ExtrapolatedMSParticles(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'ExtrapolatedMuonTrackParticles'
 
-class ExtrapolatedMSOnlyParticles(JobProperty):
-    """StoreGate key for trackparticles from MS standalone tracking, expressed at IP"""
-    statusOn     = True
-    allowedTypes = ['str']
-    StoredValue  = 'MSOnlyExtrapolatedMuonTrackParticles'
-
 class CombinedFitParticles(JobProperty):
     """StoreGate key for trackparticles from combined muon track fit """
     statusOn     = True
@@ -235,7 +229,6 @@ jobproperties.MuonCombinedContainerKeys.add_JobProperty(RefittedExtrapolatedMSTr
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(StatCombinedTracks)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(SpectrometerParticles)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(ExtrapolatedMSParticles)
-jobproperties.MuonCombinedContainerKeys.add_JobProperty(ExtrapolatedMSOnlyParticles)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(CombinedFitParticles)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(RefittedExtrapolatedMSParticles)
 jobproperties.MuonCombinedContainerKeys.add_JobProperty(StatCombinedParticles)

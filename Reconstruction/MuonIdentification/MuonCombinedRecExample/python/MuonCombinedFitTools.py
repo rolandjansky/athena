@@ -24,7 +24,6 @@ beamFlags = jobproperties.Beam
 from AthenaCommon.DetFlags import DetFlags 
 from AthenaCommon.SystemOfUnits import meter
 
-from IOVDbSvc.CondDB import conddb
 from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.RecFlags import rec
 
@@ -33,7 +32,6 @@ mm = 1
 
 def MuidMaterialAllocator( name='MuidMaterialAllocator', **kwargs): 
     kwargs.setdefault("AggregateMaterial",True)
-    kwargs.setdefault("AllowReordering",False)
     kwargs.setdefault("Extrapolator", getPublicTool('AtlasExtrapolator') )
     kwargs.setdefault("SpectrometerExtrapolator", getPublicTool('AtlasExtrapolator'))
     kwargs.setdefault("TrackingGeometrySvc", getService("AtlasTrackingGeometrySvc") )
@@ -244,7 +242,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     kwargs.setdefault("LineMomentum"                  , muonStandaloneFlags.straightLineFitMomentum() )
     kwargs.setdefault("LowMomentum"                   , 10.*GeV )
     kwargs.setdefault("MinEnergy"                     , 0.3*GeV )
-    kwargs.setdefault("PerigeeAtSpectrometerEntrance" , False )
+    kwargs.setdefault("PerigeeAtSpectrometerEntrance" , True )
     kwargs.setdefault("ReallocateMaterial"            , False )
     kwargs.setdefault("Vertex2DSigmaRPhi"             , 100.*mm )
     kwargs.setdefault("Vertex3DSigmaRPhi"             , 6.*mm )
@@ -262,21 +260,14 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
 
     # configure tools for data reprocessing 
     if muonRecFlags.enableErrorTuning():
-       # use alignment effects on track for all algorithms
-
-       useAlignErrs = True
-       if conddb.dbdata == 'COMP200' or conddb.dbmc == 'COMP200' or 'HLT' in globalflags.ConditionsTag() or conddb.isOnline :
-            useAlignErrs = False
-
+       # enable error scaling for Muid/MuGirl
        kwargs.setdefault("MuonErrorOptimizer", getPublicToolClone("MuidErrorOptimisationTool",
                                                                   "MuonErrorOptimisationTool",
                                                                   PrepareForFit              = False,
                                                                   RecreateStartingParameters = False,
                                                                   RefitTool = getPublicToolClone("MuidRefitTool",
                                                                                                  "MuonRefitTool",
-                                                                  				 AlignmentErrors = useAlignErrs,
                                                                                                  Fitter = getPublicTool("iPatFitter"))))
-
 
     if muonRecFlags.doSegmentT0Fit():
         kwargs.setdefault("MdtRotCreator"                 , "" )
@@ -337,7 +328,6 @@ def OutwardsCombinedMuonTrackBuilder( name = 'OutwardsCombinedMuonTrackBuilder',
                                                                   PrepareForFit=False,RecreateStartingParameters=False,
                                                                   RefitTool = getPublicToolClone("OutwardsRefitTool",
                                                                                                  "MuonRefitTool",
-                                                                  				 AlignmentErrors = False,
                                                                                                  Fitter = getPublicTool("MuonCombinedTrackFitter"))))
 
     return CfgMgr.Rec__OutwardsCombinedMuonTrackBuilder(name,**kwargs)

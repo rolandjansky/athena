@@ -62,14 +62,6 @@ class doMuonSegmentTagger(JobProperty):
     StoredValue=True
 
 #
-# 'silicon-associated'muons, or muons which rely on special ID reconstruction because they're outside the usual acceptance.
-#
-class doSiAssocForwardMuons(JobProperty):
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
-
-#
 # Switch on/off algorithms that make Muons for the CaloMuonCollection
 #
 
@@ -283,7 +275,6 @@ class Enabled(SummaryJobProperty):
                     muonCombinedRecFlags.doAOD,
                     muonCombinedRecFlags.doxAOD,
                     muonCombinedRecFlags.doTrackPerformance,
-                    muonCombinedRecFlags.doSiAssocForwardMuons,
                     ]
 
 muonCombinedRecFlags.add_JobProperty(Enabled)
