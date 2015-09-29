@@ -7,7 +7,7 @@
 
 #include "MuonRecValidationNtuples/MuonInsideOutAnalysisPlots.h"
 #include "MuonRecValidationNtuples/MuonInsideOutValidationNtuple.h"
-#include "MuGirlStau/TimePointBetaFit.h"
+#include "MuonRecValidationNtuples/TimePointBetaFit.h"
 
 class TTree;
 class TDirectory;
@@ -41,15 +41,11 @@ namespace Muon {
                                  const std::vector<int>& indexVec, int stage, MuonInsideOutAnalysis::MatchingStrategy matchingStrategy,
                                  SegmentPlots& segmentPlots );
 
-    std::pair<unsigned int,unsigned int> handleCandidates( MuonInsideOutValidationNtuple& ntuple, unsigned int trkIndex,
-                                                           const std::vector<int>& indexVec, 
-                                                           StageSummaryPlots& plots, int stage );
-
     void handleTimes( MuonInsideOutValidationNtuple& ntuple, unsigned int trkIndex,
                       const std::vector<int>& indexVec, MuonInsideOutAnalysis::MatchingStrategy matchingStrategy, 
-                      TrackPlots& trackPlots );
+                      TimePlots& plotsType0, TimePlots& plotsType1 );
 
-    TimePointBetaFit::FitResult fitBeta( MuonInsideOutValidationNtuple& ntuple, const std::vector<int>& indexVec, std::set<int> type );
+    TimePointBetaFit::FitResult fitBeta( MuonInsideOutValidationNtuple& ntuple, const std::vector<int>& indexVec, int type );
     
     MuonInsideOutAnalysisPlots plots;
   };

@@ -80,7 +80,6 @@ namespace Muon {
     addBlock(&track,"");
     addBlock(&truth,"");
     addBlock(type,"type");
-    addBlock(stage,"stage");
     addBlock(gasgapId,"gasgapId");
     addBlock(r,"r");
     addBlock(z,"z");
@@ -117,7 +116,6 @@ namespace Muon {
   MuonValidationTruthBlock::MuonValidationTruthBlock() {
     addBlock(pdg,"pdg");
     addBlock(barcode,"barcode");
-    addBlock(beta,"beta");
   }
 
   MuonValidationSegmentBlock::MuonValidationSegmentBlock() {
@@ -158,25 +156,12 @@ namespace Muon {
     addBlock(&residuals,"");
   }
 
-  MuonValidationCandidateBlock::MuonValidationCandidateBlock() {
-    addBlock(ntimes,"ntimes");
-    addBlock(chi2ndof,"chi2ndof");
-    addBlock(beta,"beta");
-    addBlock(nseg,"nseg");
-    addBlock(nprec,"nprec");
-    addBlock(ntrigPhi,"ntrigPhi");
-    addBlock(ntrigEta,"ntrigEta");
-    addBlock(stage,"stage");
-    addBlock(&track,"");
-  }
-
   MuonInsideOutValidationNtuple::MuonInsideOutValidationNtuple() {
     addBlock(&trackParticleBlock,"trk_");
     addBlock(&segmentBlock,"seg_");
     addBlock(&houghBlock,"hou_");
     addBlock(&hitBlock,"hit_");
     addBlock(&timeBlock,"time_");
-    addBlock(&candidateBlock,"candidate_");
   }
 
 }
