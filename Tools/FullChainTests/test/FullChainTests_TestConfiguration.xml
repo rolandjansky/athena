@@ -64,27 +64,8 @@
           </chainElement>
 
           <!-- Run Reconstruction -->
-          <chainElement>
-            <jobTransform userJobId="cosmicsReco">
-              <doc>reco</doc>
-              <jobTransformJobName>cosmics_Reco_trf</jobTransformJobName>
-              <jobTransformCmd>
-                Reco_tf.py --inputRDOFile 'cosmics.RDO.pool.root' --preInclude 'RecExCommission/CosmicSimulationRecoSetup-HLT.py,RecExCommission/RecExCommission.py' --outputESDFile 'cosmics.ESD.pool.root' --outputAODFile 'cosmics.AOD.pool.root' --autoConfiguration 'everything' --conditionsTag 'OFLCOND-RUN12-SDR-21' --postInclude 'PyJobTransforms/UseFrontier.py'
-              </jobTransformCmd>
-              <group>FCTTransform</group>
-              <chaindataset_info>
-                <jobTransformData/>
-                <chaindatasetName>cosmics.RDO.pool.root</chaindatasetName>
-                <dataset_info>
-                  <jobTransformData/>
-                  <datasetName>/afs/cern.ch/atlas/offline/external/FullChainTest/long/rtt.fallback/MC12/cosmics.RDO.pool.root</datasetName>
-                </dataset_info>
-              </chaindataset_info>
-              <queue>long</queue>
-              <batchWallTime>300</batchWallTime>
-            </jobTransform>
-            <chainfileout>cosmics.AOD.pool.root</chainfileout>
-          </chainElement>
+		  <!-- retired, cosmics trigger menu is not prod rel [ATR-10605] -->
+
         </sequential>
       </chain>
 
@@ -98,7 +79,7 @@
               <doc>digireco</doc>
               <jobTransformJobName>MinBias_digi_Reco_trf</jobTransformJobName>
               <jobTransformCmd>
-                fct_trf.py --config=$AtlasBaseDir/AtlasOffline/$AtlasVersion/Tools/FullChainTests/test/digireco_MC12.cfg --runDigi --runReco
+                fct_trf.py --config=$AtlasArea/Tools/FullChainTests/test/digireco_MC12.cfg --runDigi --runReco
               </jobTransformCmd>
               <group>FCTTransform</group>
               <queue>long</queue>
@@ -125,7 +106,7 @@
                   <doc>evgen</doc>
                   <jobTransformJobName>Ztautau_evgen_trf</jobTransformJobName>
                   <jobTransformCmd>
-                    export JODIR=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest;export JOBOPTSEARCHPATH=$JODIR/share/tests:$JOBOPTSEARCHPATH;Generate_tf.py --ecmEnergy=8000. --runNumber=147818 --firstEvent=1 --maxEvents=5000 --randomSeed=54298752 --jobConfig=MC14.147818.Pythia8_AU2CTEQ6L1_Ztautau.py --outputEVNTFile=MC14.147818.Pythia8_AU2CTEQ6L1_Ztautau.8TeV.EVNT.pool.root
+                    export JODIR=/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest;export JOBOPTSEARCHPATH=$JODIR/share/tests:$JOBOPTSEARCHPATH;Generate_tf.py --ecmEnergy=8000. --runNumber=147818 --firstEvent=1 --maxEvents=5000 --randomSeed=54298752 --jobConfig=MC14.147818.Pythia8_AU2CTEQ6L1_Ztautau.py --outputEVNTFile=MC14.147818.Pythia8_AU2CTEQ6L1_Ztautau.8TeV.EVNT.pool.root --postExec='TestHepMC.EffFailThreshold=0.50'
                   </jobTransformCmd>
                   <group>FCTTransform</group>
                   <queue>short</queue>
