@@ -29,7 +29,7 @@ class TrfBuilder:
     def __init__(self, cfgFile):  # construct with a config file
         self.filename = cfgFile
         self.trfCommands = ['Generate_tf.py', 'AtlasG4_trf.py',
-                            'Digi_trf.py', 'Reco_trf.py']
+                            'Digi_tf.py', 'Reco_tf.py']
         self.DigiRecoConfig = ConfigParser.ConfigParser()
         self.commandList = []
         if not os.path.isfile(cfgFile):  # check if file exists first
@@ -51,7 +51,8 @@ class TrfBuilder:
                 if section == sectionName:  # take only our section for sectionName into account
                     sectionCounter = sectionCounter + 1
                     for option in self.DigiRecoConfig.options(section):  # loop over all settings in specified our section
-                        pfx += option + '=' \
+                        #pfx += option + '=' \
+                        pfx += ' --' + option + '=' \
                             + self.DigiRecoConfig.get(section, option) \
                             + ' '
             if sectionCounter == 0:
