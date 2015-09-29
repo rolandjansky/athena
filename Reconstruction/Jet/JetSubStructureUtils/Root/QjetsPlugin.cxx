@@ -9,19 +9,19 @@ using namespace std;
 using namespace JetSubStructureUtils;
 
 QjetsPlugin::QjetsPlugin(double zcut, double dcut_fctr, double exp_min, double exp_max, double rigidity, double truncation_fctr)
-: _rand_seed_set(false),
-  _zcut(zcut), 
-  _dcut_fctr(dcut_fctr), 
-  _exp_min(exp_min), 
-  _exp_max(exp_max),
-  _rigidity(rigidity), 
-  _truncation_fctr(truncation_fctr)
+: m_rand_seed_set(false),
+  m_zcut(zcut), 
+  m_dcut_fctr(dcut_fctr), 
+  m_exp_min(exp_min), 
+  m_exp_max(exp_max),
+  m_rigidity(rigidity), 
+  m_truncation_fctr(truncation_fctr)
 {
 } 
 
 void QjetsPlugin::SetRandSeed(unsigned int seed){
-  _rand_seed_set = true;
-  _seed = seed;
+  m_rand_seed_set = true;
+  m_seed = seed;
 }
 
 double QjetsPlugin::R()const{
@@ -34,8 +34,8 @@ string QjetsPlugin::description() const{
 }
 
 void QjetsPlugin::run_clustering(fastjet::ClusterSequence & cs) const{
-  Qjets qjets(_zcut, _dcut_fctr, _exp_min, _exp_max, _rigidity, _truncation_fctr);
-  if(_rand_seed_set)
-    qjets.SetRandSeed(_seed);
+  Qjets qjets(m_zcut, m_dcut_fctr, m_exp_min, m_exp_max, m_rigidity, m_truncation_fctr);
+  if(m_rand_seed_set)
+    qjets.SetRandSeed(m_seed);
   qjets.Cluster(cs);
 }
