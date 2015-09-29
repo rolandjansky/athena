@@ -565,7 +565,7 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 		}
 	    }
 	    
-	    if ( summary->get( ( m_doIBL ) ? Trk::expectNextToInnermostPixelLayerHit : Trk::expectInnermostPixelLayerHit ) && !summary->get( ( m_doIBL ) ? Trk::expectNextToInnermostPixelLayerHit : Trk::expectInnermostPixelLayerHit ) )
+	    if ( summary->get( ( m_doIBL ) ? Trk::expectNextToInnermostPixelLayerHit : Trk::expectInnermostPixelLayerHit ) && !summary->get( ( m_doIBL ) ? Trk::numberOfNextToInnermostPixelLayerHits : Trk::numberOfInnermostPixelLayerHits ) )
 	    {
 		nNoBL++;
 		m_Trk_noBLhits_frac_LB->Fill( m_manager->lumiBlockNumber(), 1 );
@@ -668,7 +668,7 @@ void InDetGlobalTrackMonTool::FillHits( const Trk::Track *track, const Trk::Trac
     if ( !perigee )
 	return;
 
-    if ( m_doIBL && summary->get( Trk::expectInnermostPixelLayerHit ) )
+    if ( m_doIBL )
     {
 	m_trk_hits_eta_phi[0]->Fill( perigee->eta(), perigee->parameters()[Trk::phi0], summary->get( Trk::numberOfInnermostPixelLayerHits ) );
 	m_trk_hits_LB[0]->Fill( m_manager->lumiBlockNumber(), summary->get( Trk::numberOfInnermostPixelLayerHits ) );
