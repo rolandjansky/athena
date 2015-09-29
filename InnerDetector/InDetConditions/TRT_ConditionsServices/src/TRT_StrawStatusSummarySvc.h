@@ -148,17 +148,13 @@ class TRT_StrawStatusSummarySvc: public AthService,
 
       int  *m_stw_total;
       int **m_stw_local;
-      int **m_stw_local_wheel;
-      int **m_stw_local_straw;
 
   void resetArrays();
 
 	// COPIED FROM TRT LOCAL OCCUPANCY TOOL NOT OPTIMAL!!!
   int findArrayTotalIndex(const int det, const int lay);
-  int findArrayLocalIndex(const int det, const int lay);
   int findArrayLocalWheelIndex(const int det, const int lay);
   int findArrayLocalStrawIndex(const int det, const int lay, const int strawlay);
-
 
 };
 
@@ -176,16 +172,6 @@ inline int*  TRT_StrawStatusSummarySvc::getStwTotal()
 inline int**  TRT_StrawStatusSummarySvc::getStwLocal()
 {
 	return m_stw_local;
-}
-
-inline int**  TRT_StrawStatusSummarySvc::getStwLocalWheel()
-{
-	return m_stw_local_wheel;
-}
-
-inline int**  TRT_StrawStatusSummarySvc::getStwLocalStraw()
-{
-	return m_stw_local_straw;
 }
 
 
@@ -221,6 +207,7 @@ inline StatusCode TRT_StrawStatusSummarySvc::queryInterface( const InterfaceID& 
     return StatusCode::SUCCESS;
   }
   return AthService::queryInterface( riid, ppvIf );
+
 }
 
 #endif 

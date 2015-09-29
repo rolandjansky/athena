@@ -56,12 +56,18 @@ class TRT_CalDbSvc: public AthService , virtual public ITRT_CalDbSvc
 
   /// get errors for an identifier
   const TRTCond::RtRelation* getErrors( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const ;
+
+  /// get errors for an identifier
+  const TRTCond::RtRelation* getSlopes( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW ) const ;
   
   /// get a drift radius for a given leading edge time
   double driftRadius(const double& time, float& t0, const Identifier& ident, bool& found) const;
 
   /// get a drift radius error for a given drifttime
   double driftError(const double& time, const Identifier& ident, bool& found) const;
+
+  /// get a drift radius error for a given drifttime
+  double driftSlope(const double& time, const Identifier& ident, bool& found) const;
 
   /// create an TRTCond::ExpandedIdentifier from a TRTID identifier
   TRTCond::ExpandedIdentifier trtcondid( const Identifier& id, int level = TRTCond::ExpandedIdentifier::STRAW) const;
@@ -71,11 +77,14 @@ class TRT_CalDbSvc: public AthService , virtual public ITRT_CalDbSvc
   /// set T0 for a TRTCond::ExpandedIdentifier
   void setT0( const TRTCond::ExpandedIdentifier& id,float t0, float t0err ) ;
   
-  /// set an rt-relation for a TRTCond::ExpandedIdentifier
+ // set an rt-relation for a TRTCond::ExpandedIdentifier
   void setRtRelation( const TRTCond::ExpandedIdentifier& id, const TRTCond::RtRelation* rtr) ;
 
   /// set  rt-errors for a TRTCond::ExpandedIdentifier
   void setRtErrors( const TRTCond::ExpandedIdentifier& id, const TRTCond::RtRelation* rtr) ;
+
+  /// set  rt-errors for a TRTCond::ExpandedIdentifier
+  void setRtSlopes( const TRTCond::ExpandedIdentifier& id, const TRTCond::RtRelation* rtr) ;
 
   
   // methods for persistence
@@ -85,13 +94,15 @@ class TRT_CalDbSvc: public AthService , virtual public ITRT_CalDbSvc
   StatusCode writeTextFile_Format0(std::ostream&) const;
   StatusCode writeTextFile_Format1(std::ostream&) const;
   StatusCode writeTextFile_Format2(std::ostream&) const;
+  StatusCode writeTextFile_Format3(std::ostream&) const;
 
   /// read calibration from text file into TDS
   StatusCode readTextFile(const std::string& file);
   StatusCode readTextFile_Format0(std::istream&) ;
   StatusCode readTextFile_Format1(std::istream&) ;
   StatusCode readTextFile_Format2(std::istream&) ;
-  
+  StatusCode readTextFile_Format3(std::istream&) ;
+
   /// write the calibration objects to output, after cleaning
   StatusCode streamOutCalibObjects () const;
   
@@ -105,23 +116,28 @@ class TRT_CalDbSvc: public AthService , virtual public ITRT_CalDbSvc
   /// access to containers (for calibration code)
   RtRelationContainer* getRtContainer() const ;
   RtRelationContainer* getErrContainer() const ;
+  RtRelationContainer* getSlopeContainer() const ;
   StrawT0Container* getT0Container() const ;
   
  private:
   std::string par_rtcontainerkey ;       //!< folder name for rt relation 
   std::string par_errcontainerkey ;       //!< folder name for rt errors
+  std::string par_slopecontainerkey ;       //!< folder name for rt slopes
   std::string par_t0containerkey ;       //!< folder name for t0 
-  std::string par_caltextfile;           //!< input text file
+  std::string par_caltextfile;           //!< input text error file
   ServiceHandle<StoreGateSvc> m_detstore;
   const TRT_ID* m_trtid;                 //!< id helper
   
   // pointers to calibration data
   const DataHandle<RtRelationContainer> m_rtcontainer ; //!< persistifiable rt constants
   const DataHandle<RtRelationContainer> m_errcontainer ; //!< persistifiable rt errors
+  const DataHandle<RtRelationContainer> m_slopecontainer ; //!< persistifiable rt slopes
   const DataHandle<StrawT0Container> m_t0container ;    //!< persistifiable t0 constants
   bool m_ownsrtcontainer ;
   bool m_ownserrcontainer ;
+  bool m_ownsslopecontainer ;
   bool m_existserrcontainer ;
+  bool m_existsslopecontainer ;
   bool m_ownst0container ;
 
 
@@ -149,6 +165,11 @@ inline TRT_CalDbSvc::RtRelationContainer* TRT_CalDbSvc::getErrContainer() const 
   return const_cast<RtRelationContainer*>(rc) ;
 }
 
+inline TRT_CalDbSvc::RtRelationContainer* TRT_CalDbSvc::getSlopeContainer() const {
+  const RtRelationContainer* rc = &(*m_slopecontainer) ;
+  return const_cast<RtRelationContainer*>(rc) ;
+}
+
 inline TRT_CalDbSvc::StrawT0Container* TRT_CalDbSvc::getT0Container() const {
   const StrawT0Container* rc = &(*m_t0container) ;
   return const_cast<StrawT0Container*>(rc) ; 
@@ -172,6 +193,12 @@ inline const TRTCond::RtRelation*
 TRT_CalDbSvc::getErrors( const Identifier& id, int level ) const 
 { 
   return m_errcontainer->get(trtcondid(id,level)) ; 
+}
+
+inline const TRTCond::RtRelation*
+TRT_CalDbSvc::getSlopes( const Identifier& id, int level ) const
+{
+  return m_slopecontainer->get(trtcondid(id,level)) ;
 }
 
 inline float 
@@ -202,6 +229,13 @@ TRT_CalDbSvc::setRtErrors( const TRTCond::ExpandedIdentifier& id, const TRTCond:
 {
   // Temporarily remove the const.
   getErrContainer()->set( id,const_cast<TRTCond::RtRelation*>(rtr));
+}
+
+inline void
+TRT_CalDbSvc::setRtSlopes( const TRTCond::ExpandedIdentifier& id, const TRTCond::RtRelation* rtr)
+{
+  // Temporarily remove the const.
+  getSlopeContainer()->set( id,const_cast<TRTCond::RtRelation*>(rtr));
 }
 
 /// Query Interface
