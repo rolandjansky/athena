@@ -12,7 +12,7 @@
 namespace JetSubStructureUtils {
   class SubjetFinder : public SubstructureCalculator<std::vector<fastjet::PseudoJet> > { 
     public:
-      SubjetFinder(fastjet::JetAlgorithm fj_jetalg = fastjet::kt_algorithm, float jet_radius = 0.3, float pt_min = 5000);
+      SubjetFinder(fastjet::JetAlgorithm fj_jetalg = fastjet::kt_algorithm, float jet_radius = 0.3, float pt_min = 5000, int exclusive_njets = -1);
 
       using SubstructureCalculator::result;
       virtual std::vector<fastjet::PseudoJet> result(const fastjet::PseudoJet &jet) const;
@@ -21,6 +21,7 @@ namespace JetSubStructureUtils {
       fastjet::JetAlgorithm m_fj_jetalg;
       float m_jetrad;
       float m_ptmin;
+      int m_exclusivenjets;
   };
 }
 

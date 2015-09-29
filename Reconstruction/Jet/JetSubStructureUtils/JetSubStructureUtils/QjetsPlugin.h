@@ -12,10 +12,10 @@
 namespace JetSubStructureUtils {
   class QjetsPlugin : public fastjet::JetDefinition::Plugin {
     private:
-      bool _rand_seed_set;
-      unsigned int _seed;
-      int _truncated_length;
-      double _zcut, _dcut_fctr, _exp_min, _exp_max, _rigidity, _truncation_fctr;
+      bool m_rand_seed_set;
+      unsigned int m_seed;
+      //int _truncated_length;
+      double m_zcut, m_dcut_fctr, m_exp_min, m_exp_max, m_rigidity, m_truncation_fctr;
     public:
       QjetsPlugin(double zcut, double dcut_fctr, double exp_min, double exp_max, double rigidity, double truncation_fctr = 0.);
       void SetRandSeed(unsigned int seed); /* In case you want reproducible behavior */

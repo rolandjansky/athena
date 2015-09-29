@@ -10,8 +10,8 @@
 using namespace std;
 using namespace JetSubStructureUtils;
 
-SubjetFinder::SubjetFinder(fastjet::JetAlgorithm fj_jetalg, float jet_radius, float pt_min) :
-  m_fj_jetalg(fj_jetalg), m_jetrad(jet_radius), m_ptmin(pt_min)
+SubjetFinder::SubjetFinder(fastjet::JetAlgorithm fj_jetalg, float jet_radius, float pt_min, int exclusive_njets) :
+  m_fj_jetalg(fj_jetalg), m_jetrad(jet_radius), m_ptmin(pt_min), m_exclusivenjets(exclusive_njets)
 {
 }
 
@@ -27,7 +27,20 @@ vector<fastjet::PseudoJet> SubjetFinder::result(const fastjet::PseudoJet &jet) c
   fastjet::JetDefinition jet_def = fastjet::JetDefinition(m_fj_jetalg, m_jetrad,
       fastjet::E_scheme, fastjet::Best);
   fastjet::ClusterSequence *clust_seq = new fastjet::ClusterSequence(constit_pseudojets, jet_def);
-  subjets = fastjet::sorted_by_pt(clust_seq->inclusive_jets(m_ptmin));
-  clust_seq->delete_self_when_unused();
+
+  if(m_exclusivenjets < 0) { // Inclusive
+    subjets = fastjet::sorted_by_pt(clust_seq->inclusive_jets(m_ptmin));
+  }
+  else {
+    subjets = fastjet::sorted_by_pt(clust_seq->exclusive_jets_up_to(m_exclusivenjets));
+  }
+
+  if(subjets.size() == 0) {
+    delete clust_seq;
+  }
+  else {
+    clust_seq->delete_self_when_unused();
+  }
+
   return subjets;
 }
