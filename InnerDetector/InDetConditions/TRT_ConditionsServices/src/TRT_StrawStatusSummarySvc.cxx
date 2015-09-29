@@ -60,13 +60,9 @@ TRT_StrawStatusSummarySvc::TRT_StrawStatusSummarySvc( const std::string& name,
 
     // create arrays for alive straws
   m_stw_total = new int[7];
-  m_stw_local = new int*[10];
-  m_stw_local_wheel = new int*[34];
-  m_stw_local_straw = new int*[36];
+  m_stw_local = new int*[6];
 
-  for (int i=0; i<10; ++i) m_stw_local[i] = new int[32];
-  for (int i=0; i<34; ++i) m_stw_local_wheel[i] = new int[32];
-  for (int i=0; i<36; ++i) m_stw_local_straw[i] = new int[32];
+  for (int i=0; i<6 ; ++i) m_stw_local[i] = new int[32];
                           
   resetArrays();//RM moved to c'tor from initialize() to avoid coverity defects
 }
@@ -202,26 +198,7 @@ StatusCode TRT_StrawStatusSummarySvc::initialize()
     if(msgLvl(MSG::VERBOSE)) msg() <<i<<" "<<ht_interval*(i+0.5)<<endreq;
   }
 
-/*
-    // create arrays for alive straws
-  m_stw_total = new int[7];
-  m_stw_local = new int*[10];
-  m_stw_local_wheel = new int*[34];
-  m_stw_local_straw = new int*[36];
-  for (int i=0; i<10; ++i){
-    m_stw_local[i] = new int[32];
-  }
 
-  m_stw_local_wheel = new int*[34];
-  for (int i=0; i<34; ++i){
-    m_stw_local_wheel[i] = new int[32];
-  }
-  m_stw_local_straw = new int*[36];
-  for (int i=0; i<36; ++i){
-    m_stw_local_straw[i] = new int[32];
-  }
-  resetArrays();//RM move to c'tor to avoid coverity defects
-*/
   msg(MSG::INFO) << "TRT_StrawStatusSummarySvc initialized successfully  " << endreq;
   return StatusCode::SUCCESS;
 }
@@ -232,20 +209,10 @@ StatusCode TRT_StrawStatusSummarySvc::initialize()
 StatusCode TRT_StrawStatusSummarySvc::finalize()
 {
   delete [] m_stw_total;
-  for (int i=0; i<10; ++i){
+  for (int i=0; i<6; ++i){
   	delete[] m_stw_local[i]; 
   }
   delete [] m_stw_local;
-
-  for (int i=0; i<34; ++i){
-   	delete []  m_stw_local_wheel[i];
-  }
-  delete [] m_stw_local_wheel;
-
-  for (int i=0; i<36; ++i){
-	delete[] m_stw_local_straw[i];
-  }
-  delete [] m_stw_local_straw;
 
   msg(MSG::INFO) << " in finalize() " << endreq;
   return StatusCode::SUCCESS;
@@ -569,7 +536,8 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
     }
     
     
-    std::ifstream ifs(filename.c_str()) ;
+   // std::ifstream ifs(filename.c_str()) ;
+    std::ifstream ifs(par_stattextfile.c_str()) ;
     if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Permanently dead straws are removed based on the txt file: "<<par_stattextfilepermanent<< endreq;
     
 
@@ -587,6 +555,11 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
       //txt file format : bec sector straw strawlayer layer dead/alive
       int line =0 ;
       while( ifs >> bec >> sector>> straw >> strawlayer >> layer >> status ) {
+	if ( (status == 3) || (status == 4)  || (status == 5) ) status = 1;
+	if (status!=1){
+		msg(MSG::FATAL) << " The Status Temp : " << status << " IS NOT ACCEPTED, Use 1 for dead " << endreq;
+		return StatusCode::FAILURE;	
+	}	
 	int level = TRTCond::ExpandedIdentifier::STRAW ;
 	line +=1;
 	//    std::cout<<"read "<< bec<<  " "<<layer<<" "<<sector<<" "<<strawlayer<<" "<<straw<<" "<<level<<" "<<std::endl;
@@ -652,7 +625,9 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
 
       int bec, layer, sector, strawlayer, straw, status ;
       //txt file format : bec sector straw strawlayer layer dead/alive
-	int line = 0; 
+      int line   = 0; 
+      int lineAr = 0; 
+      int lineKr = 0; 
 
       while( ifsHT >> bec >> sector>> straw >> strawlayer >> layer >> status ) {
         int level = TRTCond::ExpandedIdentifier::STRAW ;
@@ -664,15 +639,25 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
         if( layer<0      ) { level = TRTCond::ExpandedIdentifier::BARRELEC ;   layer = 0 ; }
         if( bec<-2       ) { level = TRTCond::ExpandedIdentifier::DETECTOR ;   bec = -2 ; }
 
-	      msg(MSG::WARNING) << "HT StrawRead FromText File: bec: "  << bec << " layer: " << layer << " phi: " << sector << " stl:  " << strawlayer << " stw: " << straw   << endreq;
+	msg(MSG::DEBUG) << "HT StrawRead FromText File: bec: "  << bec << " layer: " << layer << " phi: " << sector << " stl:  " << strawlayer << " stw: " << straw  << " status: "<< status << endreq;
 	TRTCond::ExpandedIdentifier id( bec,layer,sector,strawlayer,straw,level);
-        strawstatuscontainer->set(id,TRTCond::StrawStatus::Dead) ;
-        strawstatuscontainer->setStatus(id,TRTCond::StrawStatus::Dead );
+	if (status == 4){ // Argon
+                strawstatuscontainer->set(id,TRTCond::StrawStatus::Argon) ;
+                strawstatuscontainer->setStatus(id,TRTCond::StrawStatus::Argon);
+		lineAr+=1;
+       	}
+	else if (status == 5){ // Krypton 
+                strawstatuscontainer->set(id,TRTCond::StrawStatus::Krypton) ;
+                strawstatuscontainer->setStatus(id,TRTCond::StrawStatus::Krypton);
+		lineKr+=1;
+       	}
+        else{
+		msg(MSG::FATAL) << " The HT Status: " << status << " IS NOT ACCEPTED, 4 for Argon, 5 for Kryptoon!! " << endreq;
+		return StatusCode::FAILURE;	
+	}
 	
       }
-
-     msg(MSG::WARNING) << "HT Straw Status read from: "  << filename << " We read: " << line << " straws on it"  << endreq;
-
+     msg(MSG::INFO) << "HT Straw Status read from: "  << filename << " We read: " << line << " straws on it. Argon straws:  "<< lineAr << "  Krypton straws " << lineKr   << endreq;
     }
     
 
@@ -703,7 +688,11 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
       //txt file format : bec sector straw strawlayer layer dead/alive
 	int line = 0;
       while( ifspermanent >> bec >> sector>> straw >> strawlayer >> layer >> status ) {
-	
+        if ( (status == 3) || (status == 4)  || (status == 5) ) status = 1;
+	if (status!=1){
+		msg(MSG::FATAL) << " The Status Permanent: " << status << " IS NOT ACCEPTED, Use 1 for dead " << endreq;
+		return StatusCode::FAILURE;	
+	}	
 	int level = TRTCond::ExpandedIdentifier::STRAW ;
 	//    std::cout<<"read "<< bec<<  " "<<layer<<" "<<sector<<" "<<strawlayer<<" "<<straw<<" "<<level<<" "<<std::endl;
 	line +=1;
@@ -712,7 +701,7 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
 	if( sector<0     ) { level = TRTCond::ExpandedIdentifier::LAYERWHEEL ; sector = 0 ; }
 	if( layer<0      ) { level = TRTCond::ExpandedIdentifier::BARRELEC ;   layer = 0 ; }
 	if( bec<-2       ) { level = TRTCond::ExpandedIdentifier::DETECTOR ;   bec = -2 ; }
-              msg(MSG::WARNING) << "Permanent StrawRead FromText File: bec: "  << bec << " layer: " << layer << " phi: " << sector << " stl:  " << strawlayer << " stw: " << straw   << endreq;
+        msg(MSG::DEBUG) << "Permanent StrawRead FromText File: bec: "  << bec << " layer: " << layer << " phi: " << sector << " stl:  " << strawlayer << " stw: " << straw   << endreq;
 
 	TRTCond::ExpandedIdentifier id( bec,layer,sector,strawlayer,straw,level);
 	strawstatuspermanentcontainer->set(id,TRTCond::StrawStatus::Dead) ;
@@ -723,7 +712,7 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
 	set_status_permanent(ID,status==1?true:false);
 
       }
-     msg(MSG::WARNING) << "Permanent Straw Status read from: "  << filename << " We read: " << line << " straws on it"  << endreq;
+     msg(MSG::INFO) << "Permanent Straw Status read from: "  << filename << " We read: " << line << " straws on it"  << endreq;
 
     }
     
@@ -745,20 +734,57 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
 
 StatusCode TRT_StrawStatusSummarySvc::writeToTextFile(const std::string& filename ) const
 {
-
   std::ofstream outfile(filename.c_str());
-  TRTCond::StrawStatusLayerContainer::FlatContainer flatcontainer;
-  m_strawstatuscontainer->getall(flatcontainer) ;
 
-  
+
+   msg(MSG::INFO) << " Dump To File: StrawStatus "  << endreq;
+if(m_strawstatuscontainer->numObjects()>0){
+    outfile << " Status: " << std::endl;
+  TRTCond::StrawStatusLayerContainer::FlatContainer flatcontainer;
+  m_strawstatuscontainer                ->getall(flatcontainer) ;
   for( TRTCond::StrawStatusContainer::FlatContainer::const_iterator
          it = flatcontainer.begin() ; it != flatcontainer.end() ; ++it) {
     TRTCond::ExpandedIdentifier id = it->first ;
     const TRTCond::StrawStatus* status = it->second ;
     outfile << id << " " << int(status->getstatus()) << std::endl ;
   }
-                                                                                                                                                             
+}
+
+
+    msg(MSG::INFO) << " Dump To File: StrawStatus HT "  << endreq;
+if( m_strawstatusHTcontainer->numObjects()>0){
+  TRTCond::StrawStatusLayerContainer::FlatContainer flatcontainerHT;
+  m_strawstatusHTcontainer              ->getall(flatcontainerHT) ;
+
+
+    outfile << " HT Status: " << std::endl;
+  for( TRTCond::StrawStatusContainer::FlatContainer::const_iterator
+         it = flatcontainerHT.begin() ; it != flatcontainerHT.end() ; ++it) {
+    TRTCond::ExpandedIdentifier id = it->first ;
+    const TRTCond::StrawStatus* status = it->second ;
+    outfile << id << " " << int(status->getstatus()) << std::endl ;
+  }
+}
+
+
+if(m_strawstatuspermanentcontainer->numObjects()>0){
+    msg(MSG::INFO) << " Dump To File: StrawStatus permanent "  << endreq;
+  TRTCond::StrawStatusLayerContainer::FlatContainer flatcontainerpermanent;
+  m_strawstatuspermanentcontainer               ->getall(flatcontainerpermanent) ;
+
+
+    outfile << " permanent Status: " << std::endl;
+  for( TRTCond::StrawStatusContainer::FlatContainer::const_iterator
+         it = flatcontainerpermanent.begin() ; it != flatcontainerpermanent.end() ; ++it) {
+    TRTCond::ExpandedIdentifier id = it->first ;
+    const TRTCond::StrawStatus* status = it->second ;
+    outfile << id << " " << int(status->getstatus()) << std::endl ;
+  }
+}
   return StatusCode::SUCCESS ;
+
+
+
 }
 
 
@@ -777,20 +803,9 @@ void TRT_StrawStatusSummarySvc::resetArrays(){
     for (int i=0; i<7; ++i){
       m_stw_total[i]=0;
     }
-    for (int i=0; i<10; ++i){
+    for (int i=0; i<6; ++i){
       for (int j=0; j<32; ++j){
         m_stw_local[i][j]=0;
-      }
-    }
-
-    for (int i=0; i<34; ++i){
-      for (int j=0; j<32; ++j){
-        m_stw_local_wheel[i][j]=0;
-      }
-    }
-    for (int i=0; i<36; ++i){
-      for (int j=0; j<32; ++j){
-        m_stw_local_straw[i][j]=0;
       }
     }
   return;
@@ -811,33 +826,6 @@ void TRT_StrawStatusSummarySvc::resetArrays(){
     else if (det ==  2) {               // endcap side A
       if (lay < 6)      arrayindex = 5; //   wheel A
       else              arrayindex = 6; //   wheel B
-    }
-    else        ATH_MSG_WARNING(" detector value is: " << det << ", out of range -2, -1, 1, 2, so THIS IS NOT TRT!!!");
-    return arrayindex;
-  }
-
-
-
-
-  int TRT_StrawStatusSummarySvc::findArrayLocalIndex(const int det, const int lay){
-    int arrayindex = 9; // to be reset below
-    if      (det == -1) {                // barrel side C
-      if      (lay == 0) arrayindex = 0; // layer 0
-      else if (lay == 1) arrayindex = 1; // layer 1
-      else if (lay == 2) arrayindex = 2; // layer 2
-    }
-    else if (det == -2) {                // endcap side C
-      if (lay < 6)       arrayindex = 3; //   wheel A
-      else               arrayindex = 4; //   wheel B
-    }
-    else if (det ==  1) {                // barrel side A
-      if      (lay == 0) arrayindex = 5; // layer 0
-      else if (lay == 1) arrayindex = 6; // layer 1
-      else if (lay == 2) arrayindex = 7; // layer 2
-    }
-    else if (det ==  2) {                // endcap side A
-      if (lay < 6)       arrayindex = 8; //   wheel A
-      else               arrayindex = 9; //   wheel B
     }
     else        ATH_MSG_WARNING(" detector value is: " << det << ", out of range -2, -1, 1, 2, so THIS IS NOT TRT!!!");
     return arrayindex;
@@ -931,21 +919,19 @@ StatusCode TRT_StrawStatusSummarySvc::ComputeAliveStraws(){
       int det = m_trtid->barrel_ec(         id)     ;
       int lay = m_trtid->layer_or_wheel(    id)     ;
       int phi = m_trtid->phi_module(        id)     ;
+
       bool status               = get_status( id );
-      if ( status ) ATH_MSG_VERBOSE(" The sector " << det << " " << lay << " " << phi << " has status " << status);
-      if (status) continue;
+      if ( status ) {
+	ATH_MSG_VERBOSE(" The sector " << det << " " << lay << " " << phi << " has status " << status);
+	continue;
+      }
 
       int i_total = findArrayTotalIndex(det, lay);
-      int i_local = findArrayLocalIndex(det, lay);
-      int i_local_wheel = findArrayLocalWheelIndex(det, lay);
-      int strawlay = m_trtid->straw_layer(id);
-      int i_local_straw = findArrayLocalStrawIndex(det, lay, strawlay);
 
-      m_stw_total[0]            +=1;
-      m_stw_total[i_total]      +=1;
-      m_stw_local[i_local][phi] +=1;
-      m_stw_local_wheel[i_local_wheel][phi] +=1;
-      m_stw_local_straw[i_local_straw][phi] +=1;
+      m_stw_total[0]                        +=1;
+      m_stw_total[i_total]                  +=1;
+      m_stw_local[i_total-1][phi]           +=1;
+
     }//For
  }//For
 

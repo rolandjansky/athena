@@ -28,14 +28,17 @@ unsigned int TRT_CalDbSvc::s_numberOfInstances = 0;
 TRT_CalDbSvc::TRT_CalDbSvc( const std::string& name, ISvcLocator* pSvcLocator )
   : AthService(name,pSvcLocator),
     par_rtcontainerkey("/TRT/Calib/RT"),
-    par_errcontainerkey("/TRT/Calib/errors"),
+    par_errcontainerkey("/TRT/Calib/errors2d"),
+    par_slopecontainerkey("/TRT/Calib/slopes"),
     par_t0containerkey("/TRT/Calib/T0"),
     par_caltextfile(""),
     m_detstore("DetectorStore",name),
     m_trtid(0),
     m_ownsrtcontainer(false),
     m_ownserrcontainer(false),
+    m_ownsslopecontainer(false),
     m_existserrcontainer(false),
+    m_existsslopecontainer(false),
     m_ownst0container(false),
     m_streamer("AthenaPoolOutputStreamTool/CondStream1")
 {
@@ -119,6 +122,30 @@ StatusCode TRT_CalDbSvc::initialize()
     }
   }
 
+  // Register an IOV callback for the RT Slopes
+  bool slopecontainerexists = m_detstore->StoreGateSvc::contains<RtRelationContainer>(par_slopecontainerkey) ;
+  if( slopecontainerexists ) {
+    m_existsslopecontainer=true;
+    // register call back
+    if( (m_detstore->regFcn(&TRT_CalDbSvc::IOVCallBack,this,m_slopecontainer,par_slopecontainerkey)).isFailure()) {
+      msg(MSG::ERROR) << "Could not register IOV callback for key: " << par_slopecontainerkey << endreq;
+    }
+  } else {
+    // create, record and update data handle
+    msg(MSG::INFO) << "Creating new slope container" << endreq ;
+    m_ownsslopecontainer = true ;
+    const RtRelationContainer* slopecontainer = new RtRelationContainer() ;
+    if( (m_detstore->record(slopecontainer,par_slopecontainerkey))!=StatusCode::SUCCESS ) {
+      msg(MSG::ERROR) << "Could not record RtRelationContainer for key " << par_slopecontainerkey << endreq;
+    }
+    if(StatusCode::SUCCESS!=m_detstore->retrieve(m_slopecontainer,par_slopecontainerkey)) {
+      msg(MSG::FATAL) << "Could not retrieve data handle for Rt slope container " << endreq;
+      return StatusCode::FAILURE ;
+    }
+  }
+
+
+  // Register an IOV callback for the t0
   bool t0containerexists = m_detstore->StoreGateSvc::contains<StrawT0Container>(par_t0containerkey) ;
   if( t0containerexists ) {
     if( (m_detstore->regFcn(&TRT_CalDbSvc::IOVCallBack,this,m_t0container,par_t0containerkey)).isFailure()) 
@@ -139,12 +166,13 @@ StatusCode TRT_CalDbSvc::initialize()
   
   if( !par_caltextfile.empty() ) {
     if(StatusCode::SUCCESS!=this->readTextFile(par_caltextfile)) {
-      msg(MSG::FATAL) << "Could not read calibration objects from text file" << par_caltextfile << endreq;
+      msg(MSG::FATAL) << "Could not read calibration objects from text error file" << par_caltextfile << endreq;
       return StatusCode::FAILURE ;
     }
     m_existserrcontainer=true;
   }
   
+
   return StatusCode::SUCCESS;
 }
 
@@ -165,6 +193,7 @@ StatusCode TRT_CalDbSvc::writeTextFile(const std::string& filename, int format) 
   case 0: sc=writeTextFile_Format0(outfile) ; break ;
   case 1: sc=writeTextFile_Format1(outfile) ; break ;
   case 2: sc=writeTextFile_Format2(outfile) ; break ;
+  case 3: sc=writeTextFile_Format3(outfile) ; break ;
   default: msg(MSG::ERROR) << " Don't know how to write file in format = " << format << endreq ;
   }
   outfile.close() ;
@@ -199,6 +228,7 @@ StatusCode TRT_CalDbSvc::readTextFile(const std::string& filename)
     case 0: sc=readTextFile_Format0(infile) ; break ;
     case 1: sc=readTextFile_Format1(infile) ; break ;
     case 2: sc=readTextFile_Format2(infile) ; break ;
+    case 3: sc=readTextFile_Format3(infile) ; break ;
     }
   }
   infile.close() ;
@@ -367,7 +397,7 @@ StatusCode TRT_CalDbSvc::readTextFile_Format1(std::istream& infile)
 StatusCode TRT_CalDbSvc::writeTextFile_Format2(std::ostream& outfile) const
 {
   // first store rtrelations
-  outfile << "# Rtrelation" << std::endl ;
+  outfile << "# RtRelation" << std::endl ;
   RtRelationContainer::FlatContainer rtrelations ;
   m_rtcontainer->getall( rtrelations ) ;
   for( RtRelationContainer::FlatContainer::iterator it = rtrelations.begin() ;
@@ -470,6 +500,136 @@ StatusCode TRT_CalDbSvc::readTextFile_Format2(std::istream& infile)
 }
 
 
+StatusCode TRT_CalDbSvc::readTextFile_Format3(std::istream& infile)
+{
+
+
+  enum ReadMode { ReadingRtRelation, ReadingErrors, ReadingSlopes, ReadingStrawT0, ReadingGarbage } ;
+  ReadMode readmode =ReadingGarbage ;
+  char line[512] ;
+  int nrtrelations(0), nerrors(0), nslopes(0), nstrawt0(0) ;
+  RtRelationContainer* rtcontainer = getRtContainer() ;
+  RtRelationContainer* errcontainer = getErrContainer() ;
+  RtRelationContainer* slopecontainer = getSlopeContainer() ;
+  StrawT0Container* t0container = getT0Container() ;
+  while( infile.getline(line,512) ) {
+    if(line[0] == '#') {
+      // line with tag
+      std::string linestring(line) ;
+      if(     linestring.find("RtRelation") != std::string::npos) {
+        readmode = ReadingRtRelation ;
+        rtcontainer->clear() ;
+      } else if(linestring.find("RtErrors") != std::string::npos) {
+        readmode = ReadingErrors ;
+        errcontainer->clear() ;
+      } else if(linestring.find("RtSlopes") != std::string::npos) {
+        readmode = ReadingSlopes ;
+        slopecontainer->clear() ;
+      } else if(linestring.find("StrawT0") != std::string::npos) {
+        readmode = ReadingStrawT0 ;
+        t0container->clear() ;
+      } else { readmode = ReadingGarbage ; }
+    } else if( readmode != ReadingGarbage) {
+      std::istringstream is(line) ;
+      // read the id
+      TRTCond::ExpandedIdentifier id ;
+      is >> id ;
+      // read the semicolon that end the id
+      char dummy ;
+      is >> dummy ;
+      // read the object
+      if( readmode == ReadingRtRelation ) {
+
+        TRTCond::RtRelation* rt = TRTCond::RtRelationFactory::readFromFile(is) ;
+        setRtRelation(id,rt) ;
+        delete rt ;
+        ++nrtrelations ;
+
+      } else if( readmode == ReadingErrors ) {
+
+        TRTCond::RtRelation* err = TRTCond::RtRelationFactory::readFromFile(is) ;
+        setRtErrors(id,err) ;
+        delete err ;
+        ++nerrors ;
+
+      } else if( readmode == ReadingSlopes ) {
+
+        TRTCond::RtRelation* slope = TRTCond::RtRelationFactory::readFromFile(is) ;
+        setRtSlopes(id,slope) ;
+        delete slope ;
+        ++nslopes ;
+	
+      } else if( readmode == ReadingStrawT0 ) {
+
+        float t0(0), t0err(0) ;
+        is >> t0 >> t0err ;
+        setT0(id,t0,t0err) ;
+        ++nstrawt0 ;
+      }
+    }
+  }
+
+  msg(MSG::INFO) << "read " << nstrawt0 << " t0 and " << nerrors << " errors and " << nslopes << " slopes and " << nrtrelations << " rt from file. " << endreq;
+
+  return StatusCode::SUCCESS ;
+}
+
+StatusCode TRT_CalDbSvc::writeTextFile_Format3(std::ostream& outfile) const
+{
+  // first store rtrelations
+  outfile << "# Rtrelation" << std::endl ;
+  RtRelationContainer::FlatContainer rtrelations ;
+  m_rtcontainer->getall( rtrelations ) ;
+  for( RtRelationContainer::FlatContainer::iterator it = rtrelations.begin() ;
+       it != rtrelations.end(); ++it) {
+    // write the identifier
+    outfile << it->first << " : " ;
+    // write the rt-relation via the factory
+    TRTCond::RtRelationFactory::writeToFile(outfile,**(it->second)) ;
+    outfile << std::endl ;
+  }
+
+  // then store errors
+  outfile << "# RtErrors" << std::endl ;
+  RtRelationContainer::FlatContainer errors ;
+  m_errcontainer->getall( errors ) ;
+  for( RtRelationContainer::FlatContainer::iterator it = errors.begin() ;
+       it != errors.end(); ++it) {
+    // write the identifier
+    outfile << it->first << " : " ;
+    // write the errors via the factory
+    TRTCond::RtRelationFactory::writeToFile(outfile,**(it->second)) ;
+    outfile << std::endl ;
+  }
+
+  // then store slopes
+  outfile << "# RtSlopes" << std::endl ;
+  RtRelationContainer::FlatContainer slopes ;
+  m_slopecontainer->getall( slopes ) ;
+  for( RtRelationContainer::FlatContainer::iterator it = slopes.begin() ;
+       it != slopes.end(); ++it) {
+    // write the identifier
+    outfile << it->first << " : " ;
+    // write the slopes via the factory
+    TRTCond::RtRelationFactory::writeToFile(outfile,**(it->second)) ;
+    outfile << std::endl ;
+  }
+
+  // now store the t0s
+  outfile << "# StrawT0" << std::endl ;
+  StrawT0Container::FlatContainer packedstrawdata ;
+  m_t0container->getall( packedstrawdata ) ;
+  float t0(0), t0err(0);
+  for( TRTCond::StrawT0Container::FlatContainer::iterator it = packedstrawdata.begin() ;
+       it != packedstrawdata.end(); ++it) {
+    const TRTCond::ExpandedIdentifier& calid = it->first ;
+    m_t0container->unpack(calid,*it->second,t0,t0err) ;
+    outfile << calid << " : " << t0 << " " << t0err << std::endl ;
+  }
+  return StatusCode::SUCCESS ;
+}
+
+
 StatusCode TRT_CalDbSvc::streamOutCalibObjects() const
 {
   msg(MSG::INFO) << "entering streamOutCalibObjects "  << endreq;
@@ -495,6 +655,7 @@ StatusCode TRT_CalDbSvc::streamOutCalibObjects() const
   typeKeys.push_back( IAthenaOutputStreamTool::TypeKeyPair(StrawT0Container::classname(),par_t0containerkey)) ;
   typeKeys.push_back( IAthenaOutputStreamTool::TypeKeyPair(RtRelationContainer::classname(),par_rtcontainerkey)) ;
   typeKeys.push_back( IAthenaOutputStreamTool::TypeKeyPair(RtRelationContainer::classname(),par_errcontainerkey)) ;
+  typeKeys.push_back( IAthenaOutputStreamTool::TypeKeyPair(RtRelationContainer::classname(),par_slopecontainerkey)) ;
   //getRtContainer()->crunch() ;
   //getT0Container()->crunch() ;
   
@@ -540,6 +701,11 @@ StatusCode TRT_CalDbSvc::registerCalibObjects(std::string tag, int run1, int eve
   else 
     msg(MSG::ERROR) << "Could not register RtRelationContainer object with key " << par_errcontainerkey << endreq ;
   
+  if (StatusCode::SUCCESS==regsvc->registerIOV(RtRelationContainer::classname(),
+                                               par_slopecontainerkey,tag,run1,run2,event1,event2))
+    msg(MSG::INFO) << "Registered RtRelationContainer object with key " << par_slopecontainerkey << endreq ;
+  else
+    msg(MSG::ERROR) << "Could not register RtRelationContainer object with key " << par_slopecontainerkey << endreq ;
 
   if (StatusCode::SUCCESS==regsvc->registerIOV(StrawT0Container::classname(),
 					       par_t0containerkey,tag,run1,run2,event1,event2))
@@ -603,6 +769,26 @@ double TRT_CalDbSvc::driftError( const double& time, const Identifier& ident,boo
   return error;
 }
 
+double TRT_CalDbSvc::driftSlope( const double& time, const Identifier& ident,bool& found) const
+{
+  // Returns an error on drift radius and a success indicator,
+  // given an identifier and a drift-time in ns
+  found=true;
+  if(!m_existserrcontainer) {
+    found=false;
+    return 0.;
+  }
+  const TRTCond::RtRelation* rtr = getSlopes(ident) ;
+  double slope=0.;
+  if(rtr) {
+    slope = rtr->radius( time );
+  } else {
+    found=false;
+  }
+  if(msgLvl(MSG::VERBOSE)) msg() << " time " << time
+                                 << " slope on radius " << slope << endreq;
+  return slope;
+}
 
 
 StatusCode TRT_CalDbSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys))
@@ -613,7 +799,6 @@ StatusCode TRT_CalDbSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys))
   
   // if constants need to be read from textfile, we sue the call back routine to refill the IOV objects
   if(!par_caltextfile.empty()) return readTextFile( par_caltextfile ) ;
-  
   return StatusCode::SUCCESS;
 }
 
