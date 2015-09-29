@@ -751,10 +751,12 @@ namespace MuonGM {
       if (zPoint < zLow || zPoint > zUp) {
 	//MsgStream log(m_msgSvc, "MuGM:RpcReadoutElement");
 	const RpcIdHelper* idh = manager()->rpcIdHelper();
-	reLog()<<MSG::WARNING<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
+	reLog()<<MSG::DEBUG<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
 	       <<" ::distanceToPhiReadout --- z of the Point  "<<P.z()<<" is out of the rpc-module range ("<<zLow<<","<<zUp<<")"
 	       <<" /// input id(never used) = "<<idh->show_to_string(id)<<endreq;
-	return dist;
+	// return dist;
+	if( zPoint < zLow ) zPoint = zLow;
+	else if( zPoint > zUp ) zPoint = zUp;
       }
       if (sideC()) dist = zUp - zPoint;
       else dist = zPoint - zLow;
@@ -766,10 +768,12 @@ namespace MuonGM {
       if (zPoint < zLow || zPoint > zUp) {
 	//  MsgStream log(Athena::getMessageSvc(), "MuGM:RpcReadoutElement");
 	const RpcIdHelper* idh = manager()->rpcIdHelper();
-	reLog()<<MSG::WARNING<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
+	reLog()<<MSG::DEBUG<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
 	       <<" ::distanceToPhiReadout --- z of the Point  "<<P.z()<<" is out of the rpc-module range ("<<zLow<<","<<zUp<<")"
 	       <<" /// input id(never used) = "<<idh->show_to_string(id)<<endreq;
-	return dist;
+	// return dist;
+	if( zPoint < zLow ) zPoint = zLow;
+	else if( zPoint > zUp ) zPoint = zUp;
       }
       if (m_dbZ == 1 || m_dbZ == 3) {
 	if (sideC()) dist = zUp - zPoint;
@@ -809,14 +813,22 @@ namespace MuonGM {
       {
         //MsgStream log(m_msgSvc, "MuGM:RpcReadoutElement");
         const RpcIdHelper* idh = manager()->rpcIdHelper();
-        reLog()<<MSG::WARNING<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
+        reLog()<<MSG::DEBUG<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
 	       <<" ::distanceToEtaReadout --- in amdb local frame x of the point  "<<pAmdbL<<" is out of the rpc-module range ("
 	       <<myCenterAmdbL-getSsize()/2.<<","<<myCenterAmdbL+getSsize()/2.<<")"<<endreq;
-        if (fabs(sdistToCenter)-getSsize()/2.>5*CLHEP::cm) {
-	  reLog()<<MSG::WARNING<<"by more then 5cm - distance will be set to -999."<<endreq;
-	  return dist;
+        // if (fabs(sdistToCenter)-getSsize()/2.>5*CLHEP::cm) {
+        //   reLog()<<MSG::WARNING<<"by more then 5cm - distance will be set to -999999."<<endreq;
+        //   return dist;
+        // }
+        // else reLog()<<MSG::WARNING<<"computed distance might be negative"<<endreq;
+        if( sdistToCenter > 0 ) {
+          sdistToCenter = getSsize()/2.;
+          reLog()<<MSG::DEBUG<<"setting distance to "<< sdistToCenter <<endreq;
         }
-        else reLog()<<MSG::WARNING<<"computed distance might be negative"<<endreq;
+        else if ( sdistToCenter < 0 ) {
+          sdistToCenter = -getSsize()/2.;
+          reLog()<<MSG::DEBUG<<"setting distance to "<< sdistToCenter <<endreq;
+        }
       }    
     if (m_nphistrippanels == 2) {
       dist = getSsize()/2.-fabs(sdistToCenter);
