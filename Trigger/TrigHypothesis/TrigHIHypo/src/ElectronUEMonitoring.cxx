@@ -5,10 +5,6 @@
 //ElectronUEMonitoring.cxx
 //#include ""
 #include "ElectronUEMonitoring.h"
-#include "AthenaKernel/Units.h"
-
-using Athena::Units::GeV;
-using Athena::Units::TeV;
 
 
 ElectronUEMonitoring::ElectronUEMonitoring(const std::string& name, ISvcLocator* pSvcLocator) : HLT::FexAlgo(name, pSvcLocator){
@@ -96,7 +92,7 @@ HLT::ErrorCode ElectronUEMonitoring::hltExecute(const HLT::TriggerElement* /*inp
 
 
   double fcalEt = 0.;
-  for ( const xAOD::HIEventShape* slice : *evtShape ) {
+  for ( auto &slice: *evtShape ) {
     if ( withinFcalRange(slice->etaMin()) and withinFcalRange(slice->etaMax()) ) {
       fcalEt += slice->et();
     }

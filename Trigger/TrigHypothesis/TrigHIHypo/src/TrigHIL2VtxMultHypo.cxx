@@ -54,7 +54,7 @@ TrigHIL2VtxMultHypo::~TrigHIL2VtxMultHypo(){
 ///
 HLT::ErrorCode TrigHIL2VtxMultHypo::hltBeginRun(){
 
-  msg() << MSG::INFO << "TrigHIL2VtxMultHypo::beginRun()" << endmsg;
+  msg() << MSG::INFO << "TrigHIL2VtxMultHypo::beginRun()" << endreq;
   return HLT::OK;
 
 }
@@ -65,11 +65,11 @@ HLT::ErrorCode TrigHIL2VtxMultHypo::hltBeginRun(){
 ///
 HLT::ErrorCode TrigHIL2VtxMultHypo::hltInitialize() {
 
-  msg() << MSG::INFO << "TrigHIL2VtxMultHypo initialize()" << endmsg;
+  msg() << MSG::INFO << "TrigHIL2VtxMultHypo initialize()" << endreq;
 
   msg() << MSG::INFO
       << "Initialization of TrigHIL2VtxMultHypo completed successfully"
-      << endmsg;
+      << endreq;
 
   return HLT::OK;
 }
@@ -80,7 +80,7 @@ HLT::ErrorCode TrigHIL2VtxMultHypo::hltInitialize() {
 ///
 HLT::ErrorCode TrigHIL2VtxMultHypo::hltFinalize() {
 
-  msg() << MSG::INFO << "TrigHIL2VtxMultHypo finalize()" << endmsg;
+  msg() << MSG::INFO << "TrigHIL2VtxMultHypo finalize()" << endreq;
 
   return HLT::OK;
 }
@@ -96,19 +96,19 @@ HLT::ErrorCode TrigHIL2VtxMultHypo::hltExecute(const HLT::TriggerElement* output
 
   int outputLevel = msgLvl();
 
-  if(outputLevel <= MSG::DEBUG)  msg() << MSG::DEBUG << name() << ": in execute()" << endmsg;
+  if(outputLevel <= MSG::DEBUG)  msg() << MSG::DEBUG << name() << ": in execute()" << endreq;
 
   // AcceptAll property = true means selection cuts should not be applied
   if (m_acceptAll) {
     if(outputLevel <= MSG::DEBUG) 
-      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" << endmsg;
+      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" << endreq;
     pass=true;
     return HLT::OK;
   }
   else {
     if(outputLevel <= MSG::DEBUG) 
       msg() << MSG::DEBUG << "AcceptAll property not set: applying selection"
-	    << endmsg;
+	    << endreq;
   }
   
   /// select based on maximum allowed vertex multiplicity  
@@ -118,17 +118,17 @@ HLT::ErrorCode TrigHIL2VtxMultHypo::hltExecute(const HLT::TriggerElement* output
   const TrigVertexCollection* vertexCollection(0);
   
   if ( HLT::OK != getFeature(outputTE, vertexCollection) ) { 
-    msg() << MSG::ERROR << "Failed to get TrigVertexCollection from the TE " << endmsg;
+    msg() << MSG::ERROR << "Failed to get TrigVertexCollection from the TE " << endreq;
     return HLT::NAV_ERROR;
   }
   
   if ( !vertexCollection ) {
-    msg() << MSG::DEBUG << "No TrackVertexCollection" << endmsg;
+    msg() << MSG::DEBUG << "No TrackVertexCollection" << endreq;
     return HLT::OK;
   }
   
   if(outputLevel <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << " REGTEST: Got TrigVertexCollection associated with the TE " << endmsg;
+    msg() << MSG::DEBUG << " REGTEST: Got TrigVertexCollection associated with the TE " << endreq;
   }    
 
 
@@ -154,12 +154,12 @@ HLT::ErrorCode TrigHIL2VtxMultHypo::hltExecute(const HLT::TriggerElement* output
   if ( nVertices >= m_minVertices ) pass = true;
 
   if(outputLevel <= MSG::DEBUG) { 
-    msg() << MSG::DEBUG << " found " << nVertices << " vertices"  << endmsg;
+    msg() << MSG::DEBUG << " found " << nVertices << " vertices"  << endreq;
   }
 
   if(outputLevel <= MSG::DEBUG) { 
-    if ( pass ) msg() << MSG::DEBUG << " REGTEST: Event accepted " << endmsg;
-    else        msg() << MSG::DEBUG << " REGTEST: Event rejected " << endmsg;
+    if ( pass ) msg() << MSG::DEBUG << " REGTEST: Event accepted " << endreq;
+    else        msg() << MSG::DEBUG << " REGTEST: Event rejected " << endreq;
   }
   
   // Time total TrigHIL2VtxMultHypo execution time.

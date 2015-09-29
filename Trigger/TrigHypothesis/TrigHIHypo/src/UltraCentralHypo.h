@@ -24,6 +24,4 @@ private:
   // Configuration   
   float    m_FcalEt_min;
   float    m_FcalEt_max;
-  float    m_Eta_min;
-  float    m_Eta_max;
 };

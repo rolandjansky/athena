@@ -6,6 +6,9 @@
 #ifndef TrigHIHypo_ElectronUEMonitoring_h
 #define TrigHIHypo_ElectronUEMonitoring_h
 
+#include "GaudiKernel/SystemOfUnits.h"
+using Gaudi::Units::GeV;
+using Gaudi::Units::TeV;
 
 
 #include "GaudiKernel/ToolHandle.h"
