@@ -15,6 +15,7 @@
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
 		    or
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
+  report any issues on JIRA: https://its.cern.ch/jira/browse/TAUAT/?selectedTab=com.atlassian.jira.jira-projects-plugin:issues-panel
 */
 
 // Framework include(s):
@@ -67,18 +68,6 @@ public:
       double& eff );
   /// Decorate the tau with its efficiency
   virtual CP::CorrectionCode applyEfficiencyScaleFactor( const xAOD::TauJet& xTau );
-
-  /// Get the "tau efficiency stat uncertainty" as a return value
-  virtual CP::CorrectionCode getEfficiencyScaleFactorStatUnc( const xAOD::TauJet& xTau,
-      double& eff );
-  /// Decorate the tau with its efficiency stat uncertainty
-  virtual CP::CorrectionCode applyEfficiencyScaleFactorStatUnc( const xAOD::TauJet& xTau );
-
-  /// Get the "tau efficiency sys uncertainty" as a return value
-  virtual CP::CorrectionCode getEfficiencyScaleFactorSysUnc( const xAOD::TauJet& xTau,
-      double& eff );
-  /// Decorate the tau with its efficiency sys uncertainty
-  virtual CP::CorrectionCode applyEfficiencyScaleFactorSysUnc( const xAOD::TauJet& xTau );
 
   /// returns: whether this tool is affected by the given systematis
   virtual bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;

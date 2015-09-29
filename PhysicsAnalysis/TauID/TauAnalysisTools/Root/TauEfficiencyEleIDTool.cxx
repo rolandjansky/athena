@@ -59,7 +59,6 @@ CP::CorrectionCode TauEfficiencyEleIDTool::getEfficiencyScaleFactor(const xAOD::
       {
         ATH_MSG_VERBOSE("unsupported systematic variation: skipping this one, returning nominal SF");
         return GetEVetoSF(dEfficiencyScaleFactor, dLeadTrackEta, xTau.nTracks());
-        continue;
       }
 
       if (fabs(syst.parameter()) != 1)
@@ -92,55 +91,6 @@ CP::CorrectionCode TauEfficiencyEleIDTool::applyEfficiencyScaleFactor(const xAOD
   return tmpCorrectionCode;
 }
 
-//______________________________________________________________________________
-CP::CorrectionCode TauEfficiencyEleIDTool::getEfficiencyScaleFactorStatUnc(const xAOD::TauJet& xTau, double& dEfficiencyScaleFactorStatUnc)
-{
-  ATH_MSG_WARNING("Statistical uncertainty not supported for electron veto ID scale factors");
-  // useless function to avoid compiler warnings
-  dEfficiencyScaleFactorStatUnc = xTau.pt() * 0. + 1.;
-  return CP::CorrectionCode::Error;
-}
-
-//______________________________________________________________________________
-CP::CorrectionCode TauEfficiencyEleIDTool::applyEfficiencyScaleFactorStatUnc(const xAOD::TauJet& xTau)
-{
-  double dStatUnc = 0.;
-  return getEfficiencyScaleFactorStatUnc(xTau, dStatUnc);
-}
-
-//______________________________________________________________________________
-CP::CorrectionCode TauEfficiencyEleIDTool::getEfficiencyScaleFactorSysUnc(const xAOD::TauJet& xTau, double& dEfficiencyScaleFactorSysUnc)
-{
-  setupWorkingPointSubstrings();
-  // obtain ID SF value
-  double dLeadTrackEta = getLeadTrackEta(&xTau);
-  return this->GetEVetoSFUnc(dEfficiencyScaleFactorSysUnc, dLeadTrackEta, xTau.nTracks());
-}
-
-//______________________________________________________________________________
-CP::CorrectionCode TauEfficiencyEleIDTool::applyEfficiencyScaleFactorSysUnc(const xAOD::TauJet& xTau)
-{
-  double dSysUnc = 0.;
-  // retreive scale factor
-  CP::CorrectionCode tmpCorrectionCode = getEfficiencyScaleFactorSysUnc(xTau, dSysUnc);
-  // adding scale factor to auxdecor
-  std::string sVarName = m_tTECT->m_sVarNameBase + "SysUnc";
-
-  if (m_tTECT->m_iSysDirection == 1)
-    sVarName += "_Up";
-  else if (m_tTECT->m_iSysDirection == -1)
-    sVarName += "_Down";
-  else
-  {
-    ATH_MSG_WARNING("SysDirection "<<m_tTECT->m_iSysDirection<<" is not supported, need to be 1 or -1");
-    return CP::CorrectionCode::Error;
-  }
-
-  xTau.auxdecor< double >( sVarName ) = dSysUnc;
-  ATH_MSG_VERBOSE("Stored value " << dSysUnc << " as " << sVarName << " in auxdecor");
-  return tmpCorrectionCode;
-}
-
 bool TauEfficiencyEleIDTool::isAffectedBySystematic( const CP::SystematicVariation& systematic ) const
 {
   CP::SystematicSet sys = affectingSystematics();
@@ -163,7 +113,15 @@ CP::SystematicSet TauEfficiencyEleIDTool::recommendedSystematics() const
 
 CP::SystematicCode TauEfficiencyEleIDTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
 {
-  m_sSystematicSet = &sSystematicSet;
+  // first check if we already know this systematic configuration
+  auto itSystematicSet = m_mSystematicSets.find(sSystematicSet);
+  if (itSystematicSet != m_mSystematicSets.end())
+  {
+    m_sSystematicSet = &itSystematicSet->first;
+    return CP::SystematicCode::Ok;
+  }
+  // store this calibration for future use, and make it current
+  m_sSystematicSet = &m_mSystematicSets.insert(std::pair<CP::SystematicSet,std::string>(sSystematicSet, sSystematicSet.name())).first->first;
   return CP::SystematicCode::Ok;
 }
 

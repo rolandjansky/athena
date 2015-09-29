@@ -7,7 +7,11 @@
 #ifndef SELECTIONCUTS_CXX
 #define SELECTIONCUTS_CXX
 
+// local include(s)
 #include "TauAnalysisTools/SelectionCuts.h"
+
+// ROOT include(s)
+#include "TFile.h"
 
 using namespace TauAnalysisTools;
 
@@ -30,18 +34,15 @@ SelectionCut::~SelectionCut()
 //______________________________________________________________________________
 void SelectionCut::writeControlHistograms()
 {
-  if (m_tTST->m_bCreateControlPlots)
-  {
-    m_hHistCutPre->Write();
-    m_hHistCut->Write();
-  }
+  m_hHistCutPre->Write();
+  m_hHistCut->Write();
 }
 
 //______________________________________________________________________________
 TH1F* SelectionCut::CreateControlPlot(const char* sName, const char* sTitle, int iBins, double dXLow, double dXUp)
 {
   // hHist.SetDirectory(0);
-  if (m_tTST->m_fOutFile and m_tTST->m_bCreateControlPlots)
+  if (m_tTST->m_bCreateControlPlots)
   {
     TH1F* hHist = new TH1F(sName, sTitle, iBins, dXLow, dXUp);
     hHist->SetDirectory(0);
@@ -133,7 +134,7 @@ bool SelectionCutAbsEta::accept(const xAOD::TauJet& xTau)
   {
     if ( std::abs( xTau.eta() ) >= m_tTST->m_vAbsEtaRegion.at(iEtaRegion*2) and std::abs( xTau.eta() ) <= m_tTST->m_vAbsEtaRegion.at(iEtaRegion*2+1))
     {
-      m_tTST->m_aAccept.setCutResult( "Eta", true );
+      m_tTST->m_aAccept.setCutResult( "AbsEta", true );
       return true;
     }
   }
@@ -281,7 +282,7 @@ bool SelectionCutJetIDWP::accept(const xAOD::TauJet& xTau)
   m_tTST->m_aAccept.addCut( "JetIDWP",
                             "Selection of taus according to their JetIDScore" );
   bool pass = false;
-  if (m_tTST->m_iJetIDWP == JETIDNONE)
+  if (m_tTST->m_iJetIDWP == JETIDNONE or m_tTST->m_iJetIDWP == JETIDNONEUNCONFIGURED)
     pass = true;
   if (m_tTST->m_iJetIDWP == JETIDBDTLOOSE)
     if (xTau.isTau(xAOD::TauJetParameters::JetBDTSigLoose))
@@ -387,6 +388,8 @@ bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau)
   m_tTST->m_aAccept.addCut( "EleBDTWP",
                             "Selection of taus according to their EleBDTScore" );
   bool pass = false;
+  if (m_tTST->m_iEleBDTWP == ELEIDNONE or m_tTST->m_iEleBDTWP == ELEIDNONEUNCONFIGURED)
+    pass = true;
   if (m_tTST->m_iEleBDTWP == ELEIDBDTLOOSE)
     if (!xTau.isTau(xAOD::TauJetParameters::EleBDTLoose ))
       pass = true;
@@ -405,6 +408,109 @@ bool SelectionCutEleBDTWP::accept(const xAOD::TauJet& xTau)
   return false;
 }
 
+//___________________________SelectionCutEleOLR____________________________
+//______________________________________________________________________________
+SelectionCutEleOLR::SelectionCutEleOLR(TauSelectionTool* tTST)
+  : SelectionCut("CutEleOLR", tTST)
+  , m_tTOELLHDecorator(0)
+  , m_bCheckEleMatchLHScoreAvailable(true)
+  , m_bEleMatchLHScoreAvailable(true)
+{
+  m_hHistCutPre = CreateControlPlot("hEleOLR_pre","EleOLR_pre;Electron Likelihood Score; events",100,-4,4);
+  m_hHistCut = CreateControlPlot("hEleOLR_cut","EleOLR_cut;Electron Likelihood Score; events",100,-4,4);
+
+  TFile tmpFile(PathResolverFindCalibFile(tTST->m_sEleOLRFilePath).c_str());
+  m_hCutValues = (TH2D*) tmpFile.Get("eveto_cutvals");
+  m_hCutValues->SetDirectory(0);
+  tmpFile.Close();
+}
+
+SelectionCutEleOLR::~SelectionCutEleOLR()
+{
+  delete m_hCutValues;
+  delete m_tTOELLHDecorator;
+}
+
+//______________________________________________________________________________
+void SelectionCutEleOLR::fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist)
+{
+  hHist.Fill(getEvetoScore(xTau));
+}
+
+//______________________________________________________________________________
+bool SelectionCutEleOLR::accept(const xAOD::TauJet& xTau)
+{
+  m_tTST->m_aAccept.addCut( "EleOLR",
+                            "Selection of taus according to the LH score of a matched electron" );
+
+  if (xTau.nTracks() != 1)
+  {
+    m_tTST->m_aAccept.setCutResult( "EleOLR", true );
+    return true;
+  }
+
+  float fLHScore = getEvetoScore(xTau);
+  float fEtaTrk = xTau.track(0)->eta();
+
+  if (fLHScore <= getCutVal(fEtaTrk, xTau.pt()/1000.))
+  {
+    m_tTST->m_aAccept.setCutResult( "EleOLR", true );
+    return true;
+  }
+
+  return false;
+}
+
+//______________________________________________________________________________
+StatusCode SelectionCutEleOLR::createTOELLHDecorator()
+{
+  if (!m_tTOELLHDecorator)
+  {
+    m_tTOELLHDecorator = new TauOverlappingElectronLLHDecorator(m_tTST->name()+"_TOELLHDecorator");
+    m_tTOELLHDecorator->msg().setLevel( m_tTST->msg().level() );
+    return m_tTOELLHDecorator->initialize();
+  }
+  return StatusCode::SUCCESS;
+}
+
+//______________________________________________________________________________
+float SelectionCutEleOLR::getEvetoScore(const xAOD::TauJet& xTau)
+{
+
+  if (m_bCheckEleMatchLHScoreAvailable)
+  {
+    m_bCheckEleMatchLHScoreAvailable = false;
+    if (!xTau.isAvailable<float>("ele_match_lhscore"))
+    {
+      m_bEleMatchLHScoreAvailable = false;
+      if (createTOELLHDecorator().isFailure())
+        throw std::runtime_error ("TOELLHDecorator constructor failed\n");
+    }
+  }
+  if (!m_bEleMatchLHScoreAvailable)
+    if (m_tTOELLHDecorator->decorate(xTau).isFailure())
+      throw std::runtime_error ("TOELLHDecorator decoration failed\n");
+
+  return xTau.auxdata<float>("ele_match_lhscore");
+}
+
+//______________________________________________________________________________
+StatusCode SelectionCutEleOLR::initializeEvent()
+{
+  if (createTOELLHDecorator().isFailure())
+    return StatusCode::FAILURE;
+  return m_tTOELLHDecorator->initializeEvent();
+}
+
+//______________________________________________________________________________
+float SelectionCutEleOLR::getCutVal(float fEta, float fPt)
+{
+  if(fPt>250) fPt=250;
+  if(fabs(fEta)>2.465) fEta=2.465;
+
+  int iBin= m_hCutValues->FindBin(fPt, fabs(fEta));
+  return m_hCutValues->GetBinContent(iBin);
+}
 
 //____________________________SelectionCutMuonVeto______________________________
 //______________________________________________________________________________

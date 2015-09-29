@@ -15,6 +15,7 @@
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
 		    or
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
+  report any issues on JIRA: https://its.cern.ch/jira/browse/TAUAT/?selectedTab=com.atlassian.jira.jira-projects-plugin:issues-panel
 */
 
 // Local include(s):
@@ -39,13 +40,6 @@ public:
   CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& xTau,
       double& efficiencyScaleFactor);
   CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::TauJet& xTau);
-
-  CP::CorrectionCode getEfficiencyScaleFactorStatUnc(const xAOD::TauJet& xTau,
-      double& efficiencyScaleFactor);
-  CP::CorrectionCode applyEfficiencyScaleFactorStatUnc(const xAOD::TauJet& xTau);
-  CP::CorrectionCode getEfficiencyScaleFactorSysUnc(const xAOD::TauJet& xTau,
-      double& efficiencyScaleFactor);
-  CP::CorrectionCode applyEfficiencyScaleFactorSysUnc(const xAOD::TauJet& xTau);
 
   bool isAffectedBySystematic( const CP::SystematicVariation& systematic ) const;
   CP::SystematicSet affectingSystematics() const;
