@@ -22,6 +22,7 @@
 
 from FullChainTests.TrfBuilder import TrfBuilder
 
+
 #from TrfBuilder import TrfBuilder
 
 import optparse
@@ -64,10 +65,10 @@ if options.s:
   command=myconfig.buildCommand("AtlasG4_trf.py")
 if options.d:
   print 'fct_trf: INFO:: Will run digi...'
-  command=myconfig.buildCommand("Digi_trf.py")
+  command=myconfig.buildCommand("Digi_tf.py")
 if options.r:
   print 'fct_trf: INFO:: Will run reco...'
-  command=myconfig.buildCommand("Reco_trf.py")
+  command=myconfig.buildCommand("Reco_tf.py")
   
 if not (options.s or options.e or options.r or options.d):
   print "fct_trf: INFO:: Command Line Error... No trf type is supplied"
