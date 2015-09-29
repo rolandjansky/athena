@@ -4,6 +4,14 @@ from JetMonitoring.JetHistoTools import jhm, selectionAndHistos
 from JetMonitoring.JetMonitoringConf import JetAttributeHisto, HistoDefinitionTool, JetMonitoringTool, JetKinematicHistos, JetContainerHistoFiller
 from AthenaCommon.AppMgr import ToolSvc
 from JetRec.JetRecFlags import jetFlags
+from JetSelectorTools.JetSelectorToolsConf import JetCleaningTool
+from RecExConfig.ObjKeyStore import cfgKeyStore
+
+monitorTracks = cfgKeyStore.isInTransient('xAOD::JetContainer','AntiKt3PV0TrackJets')
+
+cleaningTool = JetCleaningTool( "LooseBadJets" , CutLevel = "LooseBad")
+jhm.addTool( cleaningTool )
+ToolSvc += cleaningTool
 
 def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
     filler = JetContainerHistoFiller(container+pathSuffix+"HistoFiller",JetContainer = container, HistoDir=container+pathSuffix+'/')
@@ -21,6 +29,8 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
         selectionAndHistos( "500000<pt<1000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_500_1000" ),
         selectionAndHistos( "1000000<pt<2000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_1000_2000" ),
         selectionAndHistos( "2000000<pt<8000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "CHF"], "highpt_2000_8000" ),
+        selectionAndHistos( "LooseBadJets" ,  [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)]),
+        selectionAndHistos( "1.0<eta<1.4" , [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematicsTileGap",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)], "eta_1_14" ),
 
         jhm.Width,
 
@@ -109,12 +119,16 @@ athenaMonTool = JetMonitoringTool(HistoTools = [  commonMonitoringTool( "AntiKt4
                                                   commonMonitoringTool( "AntiKt10LCTopoJets" ),       
                                                   ],
                                   IntervalType = 6,) # 6 is 'Interval_t::run' interval
-if jetFlags.useTracks:
-    athenaMonTool.HistoTools += [ commonMonitoringTool( "AntiKt3PV0TrackJets" ) ]
+if monitorTracks :
+     athenaMonTool.HistoTools += [ commonMonitoringTool( "AntiKt3PV0TrackJets" ) ]
+#if jetFlags.useTracks:
+#    athenaMonTool.HistoTools += [ commonMonitoringTool( "AntiKt3PV0TrackJets" ) ]
 
 ToolSvc += athenaMonTool
 
+athenaMonTool_LB = JetMonitoringTool("JetMonitoring_LB", HistoTools = [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True) ] ,IntervalType = 2)
 
+ToolSvc += athenaMonTool_LB
 
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 if DQMonFlags.useTrigger() :

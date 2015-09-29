@@ -17,6 +17,7 @@ HistosForJetSelection::HistosForJetSelection(const std::string &t) : JetHistoBas
   declareProperty("HistoTitleSuffix", m_titleSuffix);
   declareProperty("HistoNameSuffix", m_nameSuffix);
   declareProperty("JetSelectorTool", m_selTool);
+  declareProperty("InverseToolSelection", m_inverseToolSelection);
 }
   
 HistosForJetSelection::~HistosForJetSelection(){
@@ -109,7 +110,17 @@ int HistosForJetSelection::fillHistosFromContainer(const xAOD::JetContainer & co
     {
       // filter :
       for(const xAOD::Jet* jet : cont ) { 
-        if( m_selTool->keep(*jet) ) tmpCont.push_back(jet) ;
+	if( m_inverseToolSelection ) 
+	  {
+	    if(! m_selTool->keep(*jet) ) 
+	      {
+		tmpCont.push_back(jet) ;
+	      }
+	  }
+	else if( m_selTool->keep(*jet) ) 
+	  {
+	    tmpCont.push_back(jet) ;
+	  }
       }
       contPtr = tmpCont.asDataVector();
     }

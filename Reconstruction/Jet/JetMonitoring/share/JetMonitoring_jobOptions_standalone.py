@@ -2,9 +2,16 @@
 
 # Set up the reading of the input xAOD:
 FNAME = "AOD.pool.root"
-include( "AthenaPython/iread_file.py" )
-#import AthenaPoolCnvSvc.ReadAthenaPool
-#ServiceMgr.EventSelector.InputCollections = [ FNAME ]
+#include( "AthenaPython/iread_file.py" )
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+athenaCommonFlags.FilesInput=[FNAME]
+
+
+import AthenaPoolCnvSvc.ReadAthenaPool
+ServiceMgr.EventSelector.InputCollections = [ FNAME ]
+# Access the algorithm sequence:
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
 
 
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
@@ -40,7 +47,7 @@ akt4Filler.HistoTools += [
     
     
     # Or a JetAttributeHisto  :
-    JetAttributeHisto(  HistoDef = HistoDefinitionTool("BchCorrCell", title="Jet Bad channel correction;BchCorrCell", nbinsx=60,xlow=0,xup=1.0),
+    JetAttributeHisto(  HistoDef = HistoDefinitionTool("BchCorrCellDef", title="Jet Bad channel correction;BchCorrCell", nbinsx=60,xlow=0,xup=1.0),
                         AttributeTypes=["float"] , AttributeNames=["BchCorrCell"]),
     
     # **********************
