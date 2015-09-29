@@ -27,6 +27,7 @@ InDetGlobalPrimaryVertexMonTool::InDetGlobalPrimaryVertexMonTool( const std::str
    m_hPvN(0),
    m_hPvNPriVtx(0),
    m_hPvNPileupVtx(0),
+   m_hPvNaveMu(0),
    m_hPvX(0),
    m_hPvY(0),
    m_hPvZ(0),
@@ -102,11 +103,15 @@ StatusCode InDetGlobalPrimaryVertexMonTool::bookHistogramsRecurrent() {
     m_hPvN          = makeAndRegisterTH1F(al_primaryvertex_shift,"pvN","Total number of vertices (primary and pile up);Total number of vertices",20,0.,20.);
     m_hPvNPriVtx    = makeAndRegisterTH1F(al_primaryvertex_expert,"pvNPriVtx","Number of primary vertices;Number of primary vertices",3,0.,3.);
     m_hPvNPileupVtx = makeAndRegisterTH1F(al_primaryvertex_expert,"pvNPileupVtx","Number of pileup vertices;Number of pile up vertices",20,0.,20.);
+    if ( AthenaMonManager::environment() != AthenaMonManager::online )
+    {
+	m_hPvNaveMu     = makeAndRegisterTH2F(al_primaryvertex_shift,"m_hPvNaveMu","Number of vertices vs <#mu>", 50, 0.,50., 40, 0.,40.);
+    }
     m_hPvErrX       = makeAndRegisterTH1F(al_primaryvertex_expert,"pvErrX","Primary vertex: #sigma_{x}; #sigma_{x} (mm)",100,0.,.25);
     m_hPvErrY       = makeAndRegisterTH1F(al_primaryvertex_expert,"pvErrY","Primary vertex: #sigma_{y}; #sigma_{y} (mm)",100,0.,.25);
     m_hPvErrZ       = makeAndRegisterTH1F(al_primaryvertex_expert,"pvErrZ","Primary vertex: #sigma_{z}; #sigma_{z} (mm)",100,0.,.25);
     m_hPvChiSqDoF   = makeAndRegisterTH1F(al_primaryvertex_shift,"pvChiSqDof","Primary vertex: #Chi^{2}/DoF of vertex fit;#Chi^{2}/DoF",100,0.,5.);
-    m_hPvNTracks    = makeAndRegisterTH1F(al_primaryvertex_shift,"pvNTracks","Number of tracks in primary vertex;Number of tracks",75,0.,75.);
+    m_hPvNTracks    = makeAndRegisterTH1F(al_primaryvertex_shift,"pvNTracks","Number of tracks in primary vertex;Number of tracks",200,0.,200.);
     m_hPvTrackPt    = makeAndRegisterTH1F(al_primaryvertex_shift,"pvTrackPt","Primary vertex: original track p_{t};p_{t} (GeV)",100,0.,20.);
     m_hPvTrackEta   = makeAndRegisterTH1F(al_primaryvertex_shift,"pvTrackEta","Primary vertex: original track #eta; #eta",100,-3.,3.);
 
@@ -197,6 +202,10 @@ StatusCode InDetGlobalPrimaryVertexMonTool::fillHistograms() {
   }
 
   m_hPvN->Fill(vxContainer->size()-1);  // exclude dummy vertex
+  if ( AthenaMonManager::environment() != AthenaMonManager::online )
+  {
+      m_hPvNaveMu->Fill( lbAverageInteractionsPerCrossing(), vxContainer->size()-1 );
+  }
   int nPriVtx = 0;
   int nPileupVtx = 0;
   for (xAOD::VertexContainer_v1::const_iterator vxIter = vxContainer->begin(); vxIter != vxContainer->end(); ++vxIter)
