@@ -18,7 +18,6 @@
 
 \****************************************************************************************/
 #include "AthenaPoolUtilities/CondAttrListVec.h"
-#include "AthenaKernel/MsgStreamMember.h"
 #include <vector>
 
 class InDet::TRT_ElectronPidToolRun2::StorePIDinfo{
@@ -56,12 +55,9 @@ class InDet::TRT_ElectronPidToolRun2::HTcalculator : public InDet::BaseTRTPIDCal
   //void PrintBlob();
   //bool FillBlob(const unsigned char*);
 
-  float getProbHT( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkAnode, float Occupancy, bool hasTrackPars);
+  float getProbHT( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkAnode, float Occupancy);
 //  float pHTvsP(int TrtPart, float p, float mass);
   float pHTvsPGOG(int TrtPart, int GasType, float p, float mass, float occ);
-
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLvl (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
 
  private:
   // as long has reading from database does not work well yet, do this check:
@@ -96,6 +92,4 @@ class InDet::TRT_ElectronPidToolRun2::HTcalculator : public InDet::BaseTRTPIDCal
   static const int SIZE_OF_BLOB     = sizeof(float) *( (N_PAR2*N_DET));
 
   bool m_datainplace;
-
-  mutable Athena::MsgStreamMember m_msg;
 };  

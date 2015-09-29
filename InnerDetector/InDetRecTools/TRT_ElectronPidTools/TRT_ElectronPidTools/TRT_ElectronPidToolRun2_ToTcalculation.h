@@ -3,7 +3,7 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// TRT_ElectronPidTool_ToTcalculation.h, (c) ATLAS Detector software
+// TRT_ElectronPidToolRun2_ToTcalculation.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
 /****************************************************************************************\
@@ -17,7 +17,7 @@
 
 \****************************************************************************************/
 
-class InDet::TRT_ElectronPidTool::ToTcalculator : public InDet::BaseTRTPIDCalculator {
+class InDet::TRT_ElectronPidToolRun2::ToTcalculator : public InDet::BaseTRTPIDCalculator {
  public:
 
   static const int my_CurrentVersion = 4;

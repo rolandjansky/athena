@@ -12,7 +12,6 @@
 // #include "GaudiKernel/AlgTool.h"           // Exchange OUT
 // #include "GaudiKernel/MsgStream.h"         // Exchange OUT
 #include "AthenaBaseComps/AthAlgTool.h"       // Exchange IN
-#include "AthenaKernel/MsgStreamMember.h"
 //#include "TRT_ElectronPidTools/TRT_ElectronPidTool.h"
 
 #include <vector>
@@ -48,6 +47,7 @@ namespace InDet
   static const int OFF_UpperLim = 4;
   static const int OFF_LowerLim = 8;
 
+
  BaseTRTPIDCalculator(AthAlgTool & p, int size, const char * name):parent(p),
     my_name(name),
     BLOB_SIZE(size),
@@ -66,9 +66,6 @@ namespace InDet
   // set constants to hard coded defaults
   virtual void setDefaultCalibrationConstants()=0;
 
-  MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLvl (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
-
  public:
   void checkInitialization();
 
@@ -80,10 +77,6 @@ namespace InDet
 
   // Limit the allowed PID value to lie between a lower and an upper limt
    float Limit(float prob);      
-
- private:
-   mutable Athena::MsgStreamMember m_msg;
  };
 } 
-
 #endif 

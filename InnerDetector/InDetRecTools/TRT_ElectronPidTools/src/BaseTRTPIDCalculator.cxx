@@ -35,11 +35,11 @@
 
 void InDet::BaseTRTPIDCalculator::PrintBlob(){
   //Print out the array values that should be entered into the database
-  ATH_MSG_DEBUG("Now printing the contents of the "<<my_name<<" Calibration Blob, "<<BLOB_SIZE<<" chars");
-  ATH_MSG_DEBUG("[ ");
+  parent.msg(MSG::DEBUG)<<"Now printing the contents of the "<<my_name<<" Calibration Blob, "<<BLOB_SIZE<<" chars"<<endmsg;
+  parent.msg(MSG::DEBUG)<<"[ ";
   for(int i=0; i < BLOB_SIZE; i++)
-    ATH_MSG_DEBUG(int(Blob[i])<<", ");
-  ATH_MSG_DEBUG(" ]");
+    parent.msg(MSG::DEBUG)<<int(Blob[i])<<", ";
+  parent.msg(MSG::DEBUG)<<" ]"<<endmsg;
 }
 
 bool InDet::BaseTRTPIDCalculator::FillBlob(const unsigned char* source){
@@ -54,8 +54,8 @@ bool InDet::BaseTRTPIDCalculator::FillBlob(const unsigned char* source){
 
 void InDet::BaseTRTPIDCalculator::checkInitialization(){
   if( not HasBeenInitialized ) {
-    ATH_MSG_DEBUG("The "<<my_name<<"calculator is about to be used uninitialized");
-    ATH_MSG_DEBUG("Loading default calibration into memory.");
+    parent.msg(MSG::DEBUG)<<"The "<<my_name<<"calculator is about to be used uninitialized"<<endmsg;
+    parent.msg(MSG::DEBUG)<<"Loading default calibration into memory."<<endmsg;
     setDefaultCalibrationConstants();
     HasBeenInitialized=1;
     PrintBlob();
