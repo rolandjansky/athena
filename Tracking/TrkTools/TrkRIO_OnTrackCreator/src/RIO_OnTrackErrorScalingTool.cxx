@@ -68,6 +68,7 @@ Trk::RIO_OnTrackErrorScalingTool::RIO_OnTrackErrorScalingTool(const std::string&
      m_scaling_cscPhi(std::vector<double>(0)),
      m_scaling_cscEta(std::vector<double>(0)),
      m_override_database_id_errors(false),
+     m_doTRTScaling(false),
      m_override_scale_inflation_pix_bar_x(10.),
      m_override_scale_inflation_pix_bar_y(10.),
      m_override_scale_inflation_pix_ecs_x(10.),
@@ -92,6 +93,7 @@ Trk::RIO_OnTrackErrorScalingTool::RIO_OnTrackErrorScalingTool(const std::string&
  {
    declareInterface<IRIO_OnTrackErrorScalingTool>(this);
    declareProperty("overrideDatabaseID",m_override_database_id_errors,"inflate ID errors by multiplicative scale factor, overriding any database values");
+   declareProperty("doTRTErrorScaling",m_doTRTScaling,"Turn off or on the TRT Error scaling");
    declareProperty("overrideScalePix",m_override_scale_inflation_pix_bar_x,"factor to inflate pixel errors (barrel local x)");
    declareProperty("overrideScalePixBarX",m_override_scale_inflation_pix_bar_x,"factor to inflate pixel errors (barrel local x)");
    declareProperty("overrideScalePixBarY",m_override_scale_inflation_pix_bar_y,"factor to inflate pixel errors (barrel local y)");
@@ -153,7 +155,9 @@ StatusCode Trk::RIO_OnTrackErrorScalingTool::initialize()
   for (int i=0; i <kNPixParamTypes; ++i) {
     registerParameters(m_do_pix, &(m_scaling_pix[ s_pix_idx[i] ]), s_pix_names[i] );
   }
-                    
+                   
+ 
+  ATH_MSG_INFO( "Apply TRT error scaling? " << m_doTRTScaling );
 
   registerParameters(m_do_sct,
                     &m_scaling_sct_barrel,"SCT Barrel");
@@ -444,6 +448,7 @@ Trk::RIO_OnTrackErrorScalingTool::createScaledTrtCovariance
 
 
   Amg::MatrixX* newCov = new Amg::MatrixX(inputCov);
+  if (!m_doTRTScaling) 	return newCov;
   double a = (is_endcap) ? m_scaling_trt_endcap[0] : m_scaling_trt_barrel[0];
   double b = (is_endcap) ? m_scaling_trt_endcap[1] : m_scaling_trt_barrel[1];
   double c = (is_endcap) ? m_scaling_trt_endcap[2] : m_scaling_trt_barrel[2];

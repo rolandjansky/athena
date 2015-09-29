@@ -144,6 +144,7 @@ namespace Trk {
     std::vector<double>   m_scaling_cscPhi;
     std::vector<double>   m_scaling_cscEta;
     bool                  m_override_database_id_errors;
+    bool                  m_doTRTScaling;
     double                m_override_scale_inflation_pix_bar_x; // pixel barrel local x
     double                m_override_scale_inflation_pix_bar_y; // pixel barrel local y
     double                m_override_scale_inflation_pix_ecs_x; // pixel endcaps local x
