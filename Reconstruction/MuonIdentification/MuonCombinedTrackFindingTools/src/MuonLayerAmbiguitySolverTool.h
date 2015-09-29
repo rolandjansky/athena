@@ -22,7 +22,7 @@ namespace Muon {
   class IMuonSegmentMatchingTool;
   class IMuonSegmentTrackBuilder;
   class MuonEDMPrinterTool;
-  struct MuonCandidate;
+  class MuonCandidate;
 
   class MuonLayerAmbiguitySolverTool : virtual public IMuonLayerAmbiguitySolverTool,  public AthAlgTool {
   public:

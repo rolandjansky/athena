@@ -96,7 +96,7 @@ namespace Muon {
               msg(MSG::VERBOSE) << std::endl << "  " << m_printer->print(*entry.segment);
             }
           }
-          msg(MSG::VERBOSE) << endmsg;
+          msg(MSG::VERBOSE) << endreq;
         }
         resolvedCandidates.insert(resolvedCandidates.end(),candidates.begin(),candidates.end());
         
@@ -147,8 +147,7 @@ namespace Muon {
               candidate.layerIntersections.push_back(layerIntersection);
             }else{
               MuonCandidate newCandidate = candidate;
-              newCandidate.layerIntersections.back() = layerIntersection; // replace the last intersection on the original candidate 
-              //newCandidate.layerIntersections.push_back(layerIntersection);
+              newCandidate.layerIntersections.push_back(layerIntersection);
               newCandidates.push_back(std::move(newCandidate));
             }
             ++selectedSegmentsInLayer;
@@ -253,7 +252,7 @@ namespace Muon {
           msg(MSG::DEBUG) << std::endl << "  " << m_printer->print(*entry.segment);
         }
       }
-      msg(MSG::DEBUG) << endmsg;
+      msg(MSG::DEBUG) << endreq;
     }
 
   }

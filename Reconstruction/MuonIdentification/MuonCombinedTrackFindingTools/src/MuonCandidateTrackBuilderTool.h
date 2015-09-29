@@ -20,8 +20,7 @@ namespace Muon {
 
   class IMuonSegmentTrackBuilder;
   class MuonEDMPrinterTool;
-  class MuonIdHelperTool;
-  struct MuonCandidate;
+  class MuonCandidate;
 
   class MuonCandidateTrackBuilderTool : virtual public IMuonCandidateTrackBuilderTool,  public AthAlgTool {
   public:
@@ -39,8 +38,6 @@ namespace Muon {
 
     ToolHandle<IMuonSegmentTrackBuilder>       m_muonTrackBuilder; 
     ToolHandle<MuonEDMPrinterTool>             m_printer;
-    ToolHandle<MuonIdHelperTool>               m_idHelper;
-    bool                                       m_reOrderMeasurements;
     ToolHandle<Rec::ICombinedMuonTrackBuilder> m_trackFitter;
   };
 }
