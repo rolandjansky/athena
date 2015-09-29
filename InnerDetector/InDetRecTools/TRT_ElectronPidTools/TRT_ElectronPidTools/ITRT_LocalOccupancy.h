@@ -39,31 +39,35 @@ namespace InDet
    virtual StatusCode finalize()   = 0;
 
    /** Event Initiazliation, so we do not count several times the local volume occupancies. */
-   virtual StatusCode BeginEvent() = 0;
+   virtual StatusCode StartEvent() = 0;
 
    /** Return the local occupancy for the sectors crossed by a given track */ 
-   //virtual double LocalOccupancy( const Trk::Track track) = 0;
-   virtual std::vector<float> LocalOccupancy( const Trk::Track track) = 0;
+   virtual float LocalOccupancy( const Trk::Track& track) = 0;
+   virtual float LocalOccupancy(const double eta, const double phi) = 0;
     
+   //   virtual void countHitsNearTrack(int track_hit_array[6][32]) = 0;
+
    /** Return the global occupancy of the event*/ 
    virtual std::vector<float> GlobalOccupancy( ) = 0 ;
 
-   virtual int  *getOccTotal() = 0;
-   virtual int **getOccLocal() = 0;
-   virtual int  *getHitTotal() = 0;
-   virtual int **getHitLocal() = 0;
-   virtual int  *getStwTotal() = 0;
-   virtual int **getStwLocal() = 0;
+   virtual int  *getOccTotal()        = 0;
+   virtual int **getOccLocal()        = 0;
+   /* virtual int **getOccLocalWheel()   = 0; */
+   /* virtual int **getOccLocalStraw()   = 0; */
 
-   virtual int **getOccLocalWheel()   = 0;
-   virtual int **getOccLocalStraw()   = 0;
-   virtual int **getOccLocalPrivate() = 0;
-   virtual int **getHitLocalWheel()   = 0;
-   virtual int **getHitLocalStraw()   = 0;
-   virtual int **getHitLocalPrivate() = 0;
-   virtual int **getStwLocalWheel()   = 0;
-   virtual int **getStwLocalStraw()   = 0;
-   virtual int **getStwLocalPrivate() = 0;
+   /* virtual int  *getHitTotal()        = 0; */
+   /* virtual int **getHitLocal()        = 0; */
+   /* virtual int **getHitLocalWheel()   = 0; */
+   /* virtual int **getHitLocalStraw()   = 0; */
+
+   /* virtual int  *getStwTotal()        = 0; */
+   /* virtual int **getStwLocal()        = 0; */
+   /* virtual int **getStwLocalWheel()   = 0; */
+   /* virtual int **getStwLocalStraw()   = 0; */
+
+   /* virtual int **getOccLocalPrivate() = 0; */
+   /* virtual int **getHitLocalPrivate() = 0; */
+   /* virtual int **getStwLocalPrivate() = 0; */
   }; 
 
   inline const InterfaceID& InDet::ITRT_LocalOccupancy::interfaceID()
