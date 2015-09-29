@@ -72,12 +72,8 @@ StatusCode TauAnalysisToolsExampleAthena::execute()
     tau->makePrivateStore( **tau_itr );
 
     m_effTool->applyEfficiencyScaleFactor(*tau);
-    m_effTool->applyEfficiencyScaleFactorStatUnc(*tau);
-    m_effTool->applyEfficiencyScaleFactorSysUnc(*tau);
 
-    ATH_MSG_INFO( "  sf = " << tau->auxdata< double >( "TauScaleFactorJetID" ) <<
-                  ", sf stat unc = " << tau->auxdata< double >( "TauScaleFactorJetIDStatUnc_Up" ) <<
-                  ", sf sys unc = " << tau->auxdata< double >( "TauScaleFactorJetIDSysUnc_Up" ));
+    ATH_MSG_INFO( "  sf = " << tau->auxdata< double >( "TauScaleFactorJetID" ) );
 
     m_smearTool->applyCorrection(*tau);
     ATH_MSG_INFO( "Unsmeared tau pt " << tau->pt() << " Smeared tau pt: " << tau->p4().Pt());

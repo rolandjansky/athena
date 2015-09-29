@@ -98,11 +98,9 @@ int main( int argc, char* argv[] )
 
   // define selection tool
   TauAnalysisTools::TauSelectionTool* TauSelTool = new TauAnalysisTools::TauSelectionTool( "TauSelectionTool" );
-  TauSelTool->msg().setLevel( MSG::INFO );
-  // setting recommended cuts
-  TauSelTool->setRecommendedProperties();
+  TauSelTool->msg().setLevel( MSG::DEBUG );
   // loosening number of cuts
-  CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt | CutAbsEta | CutNTrack)));
+  CHECK(TauSelTool->setProperty("SelectionCuts", int(CutPt | CutAbsEta | CutNTrack | CutEleOLR)));
   // also accepting 2 track taus
   std::vector<size_t> vTracks = {1,2,3};
   CHECK(TauSelTool->setProperty("NTracks", vTracks ));
@@ -198,13 +196,10 @@ int main( int argc, char* argv[] )
           static_cast< int >( xTauJetContainer->size() ) );
 
     // create TruthTau Container in output file
-    CHECK(T2MT.setTruthParticleContainer(xTruthParticleContainer));
-    CHECK(T2MT.createTruthTauContainer());
-    xAOD::TruthParticleContainer* xTruthTauContainer = T2MT.getTruthTauContainer();
-    xAOD::TruthParticleAuxContainer* xTruthTauAuxContainer = T2MT.getTruthTauAuxContainer();
+    CHECK(T2MT.initializeEvent());
 
-    CHECK( xEvent.record(xTruthTauContainer, "TruthTau") );
-    CHECK( xEvent.record(xTruthTauAuxContainer, "TruthTauAux.") );
+    // intialize for electron OLR
+    CHECK(TauSelTool->initializeEvent());
 
     // // Print their properties, using the tools:
     for ( auto xTau : *xTauJetContainer )
@@ -217,12 +212,12 @@ int main( int argc, char* argv[] )
       Info( "TauAnalysisToolsExample", "Selected tau: pt = %g, eta = %g, phi = %g, prong = %i, charge = %i",
             xTau->pt(), xTau->eta(), xTau->phi(), int(xTau->nTracks()), int(xTau->charge()));
 
-      T2MT.applyTruthMatch(*xTau);
-      if (xTau->auxdata<bool>("IsTruthMatched"))
+      auto xTruthTau = T2MT.getTruth(*xTau);
+      if (xTau->auxdata<char>("IsTruthMatched"))
         Info( "TauAnalysisToolsExample",
               "Tau was matched to a truth tau, which has %i prongs and a charge of %i",
-              int(xTau->auxdata<size_t>("TruthProng")),
-              xTau->auxdata<int>("TruthCharge"));
+              int(xTruthTau->auxdata<size_t>("numCharged")),
+              int(xTruthTau->charge()));
       else
         Info( "TauAnalysisToolsExample", "Tau was not matched to truth" );
 
@@ -269,7 +264,7 @@ int main( int argc, char* argv[] )
       {
         const xAOD::TrackParticle* xTrack = xTau->track(iTrack);
         CHECK(T3MT.classifyTrack(*xTrack));
-        if (xTrack->auxdecor<bool>("IsHadronicTrack"))
+        if (xTrack->auxdecor<char>("IsHadronicTrack"))
           Info( "TauAnalysisToolsExample", "Track is matched to a hadronic tau decay, with decay depth %i",xTrack->auxdecor<int>("IsHadronicTrackDecayDepth"));
         else
           Info( "TauAnalysisToolsExample", "Track is not matched to a hadronic tau decay");

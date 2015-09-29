@@ -61,76 +61,6 @@ CP::CorrectionCode TauEfficiencyContJetIDTool::applyEfficiencyScaleFactor(const 
   return tmpCorrectionCode;
 }
 
-//______________________________________________________________________________
-CP::CorrectionCode TauEfficiencyContJetIDTool::getEfficiencyScaleFactorStatUnc(const xAOD::TauJet& xTau,
-    double& dEfficiencyScaleFactorStatUnc)
-{
-  m_iSysDirection = m_tTECT->m_iSysDirection;
-  if (!m_tTECT->m_bUseInclusiveEta)
-    return getBDTbinnedSFStatUnc(dEfficiencyScaleFactorStatUnc, xTau.nTracks(), xTau.eta(), xTau.discriminant(xAOD::TauJetParameters::TauID(15)));
-  // else
-  return getBDTbinnedSFStatUnc(dEfficiencyScaleFactorStatUnc, xTau.nTracks(), xTau.discriminant(xAOD::TauJetParameters::TauID(15)));
-}
-
-//______________________________________________________________________________
-CP::CorrectionCode TauEfficiencyContJetIDTool::applyEfficiencyScaleFactorStatUnc(const xAOD::TauJet& xTau)
-{
-  double dStatUnc = 0.;
-  CP::CorrectionCode tmpCorrectionCodeStat = getEfficiencyScaleFactorStatUnc(xTau, dStatUnc);
-
-  // adding scale factor to auxdecor
-  std::string sVarName = m_tTECT->m_sVarNameBase + "StatUnc";
-  if (m_iSysDirection == 1)
-    sVarName += "_Up";
-  else if (m_iSysDirection == -1)
-    sVarName += "_Down";
-  else
-  {
-    ATH_MSG_WARNING("SysDirection "<<m_iSysDirection<<" is not supported, need to be 1 or -1");
-    return CP::CorrectionCode::Error;
-  }
-
-  xTau.auxdecor< double >( sVarName ) = dStatUnc;
-  ATH_MSG_VERBOSE("Stored value " << dStatUnc << " as " << m_tTECT->m_sVarNameBase << " in auxdecor");
-
-  return tmpCorrectionCodeStat;
-}
-
-//______________________________________________________________________________
-CP::CorrectionCode TauEfficiencyContJetIDTool::getEfficiencyScaleFactorSysUnc(const xAOD::TauJet& xTau,
-    double& dEfficiencyScaleFactorSysUnc)
-{
-  m_iSysDirection = m_tTECT->m_iSysDirection;
-  if (!m_tTECT->m_bUseInclusiveEta)
-    return getBDTbinnedSFSysUnc(dEfficiencyScaleFactorSysUnc, xTau.nTracks(), xTau.eta(), xTau.discriminant(xAOD::TauJetParameters::BDTJetScore));
-  // else
-  return getBDTbinnedSFSysUnc(dEfficiencyScaleFactorSysUnc, xTau.nTracks(), xTau.discriminant(xAOD::TauJetParameters::BDTJetScore));
-}
-
-//______________________________________________________________________________
-CP::CorrectionCode TauEfficiencyContJetIDTool::applyEfficiencyScaleFactorSysUnc(const xAOD::TauJet& xTau)
-{
-  double dSysUnc = 0.;
-  CP::CorrectionCode tmpCorrectionCodeSys = getEfficiencyScaleFactorSysUnc(xTau, dSysUnc);
-
-  // adding scale factor to auxdecor
-  std::string sVarName = m_tTECT->m_sVarNameBase + "SysUnc";
-  if (m_iSysDirection == 1)
-    sVarName += "_Up";
-  else if (m_iSysDirection == -1)
-    sVarName += "_Down";
-  else
-  {
-    ATH_MSG_WARNING("SysDirection "<<m_iSysDirection<<" is not supported, need to be 1 or -1");
-    return CP::CorrectionCode::Error;
-  }
-
-  xTau.auxdecor< double >( sVarName ) = dSysUnc;
-  ATH_MSG_VERBOSE("Stored value " << dSysUnc << " as " << m_tTECT->m_sVarNameBase << " in auxdecor");
-
-  return tmpCorrectionCodeSys;
-}
-
 bool TauEfficiencyContJetIDTool::isAffectedBySystematic( const CP::SystematicVariation& systematic ) const
 {
   CP::SystematicSet sys = affectingSystematics();
@@ -155,7 +85,15 @@ CP::SystematicSet TauEfficiencyContJetIDTool::recommendedSystematics() const
 
 CP::SystematicCode TauEfficiencyContJetIDTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
 {
-  m_sSystematicSet = &sSystematicSet;
+  // first check if we already know this systematic configuration
+  auto itSystematicSet = m_mSystematicSets.find(sSystematicSet);
+  if (itSystematicSet != m_mSystematicSets.end())
+  {
+    m_sSystematicSet = &itSystematicSet->first;
+    return CP::SystematicCode::Ok;
+  }
+  // store this calibration for future use, and make it current
+  m_sSystematicSet = &m_mSystematicSets.insert(std::pair<CP::SystematicSet,std::string>(sSystematicSet, sSystematicSet.name())).first->first;
   return CP::SystematicCode::Ok;
 }
 

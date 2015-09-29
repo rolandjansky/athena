@@ -4,4 +4,15 @@
   <class name="TauAnalysisTools::TauSmearingTool" />
   <class name="TauAnalysisTools::TauTruthMatchingTool" />
   <class name="TauAnalysisTools::TauTruthTrackMatchingTool" />
+  <class name="TauAnalysisTools::TauOverlappingElectronLLHDecorator" />
+  <function pattern="TauAnalysisTools::split*"/>
+
+  <!-- Suppress the unwanted classes found by ROOT 6. -->
+  <!-- Hopefully we can remove these extra lines at one point... -->
+  <exclusion>
+    <class name="SG::IConstAuxStore" />
+    <class name="DataLink<SG::IConstAuxStore>" />
+    <class name="DataVector<xAOD::IParticle>" />
+    <class name="ElementLink<DataVector<xAOD::IParticle> >" />
+  </exclusion>
 </lcgdict>

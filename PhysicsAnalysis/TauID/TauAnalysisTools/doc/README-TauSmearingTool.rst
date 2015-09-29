@@ -45,7 +45,7 @@ The tool can be configured to use a specific set of systematic variations callin
 If you like to access a specific component of the TES uncertainty, i.e.
 statistical uncertainty of the in-situ measurement, you need to create a
 systematic set and add a systematic variation with the name TAUS_SME_INSITUSTAT
-and an integer corresponding to the up/downward variation (a possitive number
+and an integer corresponding to the up/downward variation (a positive number
 corresponds to upward, a negative to downward variation). So for an upward 1
 sigma variation one would write::
 

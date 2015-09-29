@@ -15,6 +15,7 @@
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
 		    or
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
+  report any issues on JIRA: https://its.cern.ch/jira/browse/TAUAT/?selectedTab=com.atlassian.jira.jira-projects-plugin:issues-panel
 */
 
 // Framework include(s):
@@ -44,6 +45,9 @@ public:
   /// Function initialising the tool
   virtual StatusCode initialize() = 0;
 
+  /// Function initialising the tool
+  virtual StatusCode initializeEvent() = 0;
+  
   /// Get an object describing the "selection steps" of the tool
   virtual const Root::TAccept& getTAccept() const = 0;
 
@@ -54,7 +58,7 @@ public:
   virtual const Root::TAccept& accept( const xAOD::TauJet& tau ) const = 0;
 
   // Set default recommended properties
-  virtual void setRecommendedProperties() = 0;
+  virtual void setRecommendedProperties() __attribute__ ((deprecated("This function is deprecated. Recommended properties are set now by default.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst"))) = 0;
 
   /// Set output file for histograms
   virtual void setOutFile( TFile* fOutFile ) = 0;

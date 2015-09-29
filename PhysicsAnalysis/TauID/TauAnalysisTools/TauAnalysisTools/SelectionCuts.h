@@ -15,6 +15,7 @@
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
 		    or
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
+  report any issues on JIRA: https://its.cern.ch/jira/browse/TAUAT/?selectedTab=com.atlassian.jira.jira-projects-plugin:issues-panel
 */
 
 // Framework include(s):
@@ -25,9 +26,11 @@
 
 // Local include(s):
 #include "TauAnalysisTools/TauSelectionTool.h"
+#include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
 
 // ROOT include(s):
 #include "TH1F.h"
+#include "TH2D.h"
 
 namespace TauAnalysisTools
 {
@@ -44,6 +47,10 @@ public:
   void writeControlHistograms();
   void fillHistogramCutPre(const xAOD::TauJet& xTau);
   void fillHistogramCut(const xAOD::TauJet& xTau);
+  virtual StatusCode initializeEvent()
+  {
+    return StatusCode::SUCCESS;
+  };
   virtual bool accept(const xAOD::TauJet& xTau) = 0;
   TH1F* CreateControlPlot(const char* sName, const char* sTitle, int iBins, double dXLow, double dXUp);
 
@@ -141,6 +148,27 @@ public:
   SelectionCutEleBDTWP(TauSelectionTool* tTST);
   bool accept(const xAOD::TauJet& xTau);
 private:
+  void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
+};
+
+class SelectionCutEleOLR
+  : public SelectionCut
+{
+public:
+  SelectionCutEleOLR(TauSelectionTool* tTST);
+  StatusCode initializeEvent();
+  bool accept(const xAOD::TauJet& xTau);
+  ~SelectionCutEleOLR();
+
+  float getEvetoScore(const xAOD::TauJet& xTau);
+private:
+  TH2D* m_hCutValues;
+  TauOverlappingElectronLLHDecorator* m_tTOELLHDecorator;
+  bool m_bCheckEleMatchLHScoreAvailable;
+  bool m_bEleMatchLHScoreAvailable;
+
+  float getCutVal(float fEta, float fPt);
+  StatusCode createTOELLHDecorator();
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
 };
 

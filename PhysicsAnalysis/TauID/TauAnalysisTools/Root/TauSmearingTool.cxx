@@ -229,8 +229,6 @@ StatusCode TauSmearingTool::loadInputHistograms()
   {
     for(int itrack = 0; itrack < 2; ++itrack)
     {
-      std::string prongPF = (itrack == 1) ? "_1p" : "_3p";
-
       getHist(fFile, convertConfigToString(FINAL,itrack, ieta));
       getHist(fFile, convertConfigToString(SINGLEPARTICLE,itrack, ieta));
       getHist(fFile, convertConfigToString(UE,itrack, ieta));
@@ -347,7 +345,7 @@ double TauSmearingTool::getTESUncertainty(double pt, // MeV
 
   if(std::fabs(eta)>2.5)
   {
-    ATH_MSG_WARNING("GetTESUncertainty: There is no TES uncertainty defined for |eta|>=2.5 (you gave " << eta << "). Returning 1.");
+    ATH_MSG_DEBUG("GetTESUncertainty: There is no TES uncertainty defined for |eta|>=2.5 (you gave " << eta << "). Returning 1.");
     return 1.;
   }
 
@@ -359,7 +357,7 @@ double TauSmearingTool::getTESUncertainty(double pt, // MeV
 
   unsigned int iE = 0;
   for(iE = 0; iE < m_iEtaBins; ++iE)
-    if(fabs(eta) >= m_vEtaBins.at(iE) && fabs(eta) < m_vEtaBins.at(iE + 1))
+    if(fabs(eta) >= m_vEtaBins.at(iE) && fabs(eta) <= m_vEtaBins.at(iE + 1))
       break;
   if(iComponent == INSITUSTAT)
     return getInSituStat(ntracks);

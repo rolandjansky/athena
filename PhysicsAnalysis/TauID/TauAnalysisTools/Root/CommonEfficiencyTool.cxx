@@ -22,6 +22,9 @@ CommonEfficiencyTool::CommonEfficiencyTool(std::string sName)
 
 CommonEfficiencyTool::~CommonEfficiencyTool()
 {
+  if (m_mSF)
+    for (auto mEntry : *m_mSF)
+      delete mEntry.second;
   delete m_mSF;
 }
 

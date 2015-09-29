@@ -13,6 +13,7 @@
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
 		    or
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
+  report any issues on JIRA: https://its.cern.ch/jira/browse/TAUAT/?selectedTab=com.atlassian.jira.jira-projects-plugin:issues-panel
 */
 
 // Framework include(s):
@@ -28,11 +29,15 @@
 #include "TauAnalysisTools/Enums.h"
 #include "TauAnalysisTools/ITauEfficiencyCorrectionsTool.h"
 
+// ROOT include(s):
 #include "TROOT.h"
 #include "TClass.h"
 #include "TFile.h"
 #include "TH1F.h"
 #include "TKey.h"
+
+// BOOST include(s):
+#include <boost/unordered_map.hpp>
 
 namespace TauAnalysisTools
 {
@@ -60,10 +65,6 @@ public:
 
   virtual CP::CorrectionCode getEfficiencyScaleFactor(const xAOD::TauJet& tau, double& dEfficiencyScaleFactor) = 0;
   virtual CP::CorrectionCode applyEfficiencyScaleFactor(const xAOD::TauJet& xTau) = 0;
-  virtual CP::CorrectionCode getEfficiencyScaleFactorStatUnc(const xAOD::TauJet& tau, double& efficiencyScaleFactorStatUnc) = 0;
-  virtual CP::CorrectionCode applyEfficiencyScaleFactorStatUnc(const xAOD::TauJet& tau) = 0;
-  virtual CP::CorrectionCode getEfficiencyScaleFactorSysUnc(const xAOD::TauJet& tau, double& efficiencyScaleFactorSysUnc) = 0;
-  virtual CP::CorrectionCode applyEfficiencyScaleFactorSysUnc(const xAOD::TauJet& tau) = 0;
 
   virtual void setParent(TauEfficiencyCorrectionsTool* tTECT);
 
@@ -89,6 +90,9 @@ protected:
   typedef std::map<std::string, TH1F*> SFMAP;
   SFMAP* m_mSF;
   TauEfficiencyCorrectionsTool* m_tTECT;
+#ifndef __MAKECINT__
+  boost::unordered_map < CP::SystematicSet, std::string > m_mSystematicSets;
+#endif // not __MAKECINT__
   const CP::SystematicSet* m_sSystematicSet;
   std::map<std::string, int> m_mSystematics;
 

@@ -73,7 +73,7 @@ StatusCode TauEfficiencyCorrectionsTool::initialize()
     // only set vars if they differ from "", which means they have been configured by the user
     if (m_sInputFilePath.empty()) m_sInputFilePath = sDirectory+"JetIDSF.root";
     if (m_sVarNameBase.length() == 0) m_sVarNameBase = "TauScaleFactorJetID";
-    m_tCommonEfficiencyTool = new TauEfficiencyJetIDTool("TauEfficiencyJetIDTool");
+    m_tCommonEfficiencyTool = new TauEfficiencyJetIDTool(name()+"_JetIDTool");
     // if ( sc.isFailure() ) return sc;
   }
   if (m_iEfficiencyCorrectionType == SFContJetID)
@@ -81,14 +81,14 @@ StatusCode TauEfficiencyCorrectionsTool::initialize()
     // only set vars if they differ from "", which means they have been configured by the user
     if (m_sInputFilePath.empty()) m_sInputFilePath = sDirectory+"ContJetIDSF.root";
     if (m_sVarNameBase.length() == 0) m_sVarNameBase = "TauScaleFactorContJetID";
-    m_tCommonEfficiencyTool = new TauEfficiencyContJetIDTool("TauEfficiencyContJetIDTool");
+    m_tCommonEfficiencyTool = new TauEfficiencyContJetIDTool(name()+"TauEfficiencyContJetIDTool");
   }
   if (m_iEfficiencyCorrectionType == SFEleID)
   {
     // only set vars if they differ from "", which means they have been configured by the user
     if (m_sInputFilePath.empty()) m_sInputFilePath = sDirectory+"EleIDSF.root";
     if (m_sVarNameBase.length() == 0) m_sVarNameBase = "TauScaleFactorEleID";
-    m_tCommonEfficiencyTool = new TauEfficiencyEleIDTool("TauEfficiencyEleIDTool");
+    m_tCommonEfficiencyTool = new TauEfficiencyEleIDTool(name()+"TauEfficiencyEleIDTool");
   }
 
   if (!m_tCommonEfficiencyTool)
@@ -140,32 +140,6 @@ CP::CorrectionCode TauEfficiencyCorrectionsTool::getEfficiencyScaleFactor( const
 CP::CorrectionCode TauEfficiencyCorrectionsTool::applyEfficiencyScaleFactor( const xAOD::TauJet& xTau )
 {
   return m_tCommonEfficiencyTool->applyEfficiencyScaleFactor(xTau);
-}
-
-CP::CorrectionCode TauEfficiencyCorrectionsTool::getEfficiencyScaleFactorStatUnc( const xAOD::TauJet& xTau,
-    double& eff )
-{
-  ATH_MSG_ERROR("getEfficiencyScaleFactorStatUnc: This function is deprecated, please use the recommendedSystematic() funtcionality in combination with applySystematicVariation(...) instead");
-  return m_tCommonEfficiencyTool->getEfficiencyScaleFactorStatUnc(xTau, eff);
-}
-
-CP::CorrectionCode TauEfficiencyCorrectionsTool::applyEfficiencyScaleFactorStatUnc( const xAOD::TauJet& xTau )
-{
-  ATH_MSG_ERROR("applyEfficiencyScaleFactorStatUnc: This function is deprecated, please use the recommendedSystematic() funtcionality in combination with applySystematicVariation(...) instead");
-  return m_tCommonEfficiencyTool->applyEfficiencyScaleFactorStatUnc(xTau);
-}
-
-CP::CorrectionCode TauEfficiencyCorrectionsTool::getEfficiencyScaleFactorSysUnc( const xAOD::TauJet& xTau,
-    double& eff )
-{
-  ATH_MSG_ERROR("getEfficiencyScaleFactorSysUnc: This function is deprecated, please use the recommendedSystematic() functionality in combination with applySystematicVariation(...) instead");
-  return m_tCommonEfficiencyTool->getEfficiencyScaleFactorSysUnc(xTau, eff);
-}
-
-CP::CorrectionCode TauEfficiencyCorrectionsTool::applyEfficiencyScaleFactorSysUnc( const xAOD::TauJet& xTau )
-{
-  ATH_MSG_ERROR("applyEfficiencyScaleFactorSysUnc: This function is deprecated, please use the recommendedSystematic() funtcionality in combination with applySystematicVariation(...) instead");
-  return m_tCommonEfficiencyTool->applyEfficiencyScaleFactorSysUnc(xTau);
 }
 
 /// returns: whether this tool is affected by the given systematis

@@ -4,6 +4,7 @@
 
 // Local include(s):
 #include "TauAnalysisTools/TauSelectionTool.h"
+#include "TauAnalysisTools/SharedFilesVersion.h"
 
 using namespace TauAnalysisTools;
 
@@ -17,9 +18,13 @@ TauSelectionTool::TauSelectionTool( const std::string& name )
 , m_vAbsCharges( {})
 , m_vNTracks( {})
 , m_vJetBDTRegion( {})
-, m_iJetIDWP(JETIDNONE)
+, m_sJetIDWP("JETIDNONE")
+, m_iJetIDWP(0)
 , m_vEleBDTRegion( {})
-, m_iEleBDTWP(ELEIDNONE)
+, m_sEleBDTWP("ELEIDNONE")
+, m_iEleBDTWP(0)
+, m_bEleOLR(false)
+, m_bMuonVeto(false)
 , m_dPtMin(NAN) // in GeV
 , m_dPtMax(NAN) // in GeV
 , m_dAbsEtaMin(NAN)
@@ -31,18 +36,56 @@ TauSelectionTool::TauSelectionTool( const std::string& name )
 , m_dEleBDTMin(NAN)
 , m_dEleBDTMax(NAN)
 , m_fOutFile(0)
-, m_hCutFlow(0)
+, m_sConfigPath("")
+, m_sCuts("")
+#if ROOTCORE_RELEASE_SERIES >= 22
+, m_sElectronContainerName("Electrons")
+#else
+, m_sElectronContainerName("ElectronCollection")
+#endif
+, m_xElectronContainer(0)
 , m_aAccept( "TauSelection" )
 {
-  declarePropertiesBaseline();
   declareProperty( "CreateControlPlots", m_bCreateControlPlots = false);
+  /*
+    Baseline properties declaration:
+    properties containing 'Region' are a vector of lower and upper bounds
+    other properties named in plural are a list of exact values to cut on
+    other properties are single cuts
+  */
+  declareProperty( "SelectionCuts", m_iSelectionCuts); // initialize with 'no' cuts
+  declareProperty( "PtRegion", m_vPtRegion ); // in GeV
+  declareProperty( "PtMin", m_dPtMin); // in GeV
+  declareProperty( "PtMax", m_dPtMax); // in GeV
+  declareProperty( "AbsEtaRegion", m_vAbsEtaRegion);
+  declareProperty( "AbsEtaMin", m_dAbsEtaMin);
+  declareProperty( "AbsEtaMax", m_dAbsEtaMax);
+  declareProperty( "AbsCharges", m_vAbsCharges);
+  declareProperty( "AbsCharge", m_iAbsCharge);
+  declareProperty( "NTracks", m_vNTracks);
+  declareProperty( "NTrack", m_iNTrack);
+  declareProperty( "JetBDTRegion", m_vJetBDTRegion);
+  declareProperty( "JetBDTMin", m_dJetBDTMin);
+  declareProperty( "JetBDTMax", m_dJetBDTMax);
+  declareProperty( "JetIDWP", m_iJetIDWP);
+  declareProperty( "EleBDTRegion", m_vEleBDTRegion);
+  declareProperty( "EleBDTMin", m_dEleBDTMin);
+  declareProperty( "EleBDTMax", m_dEleBDTMax);
+  declareProperty( "EleBDTWP", m_iEleBDTWP);
+  declareProperty( "EleOLR", m_bEleOLR);
+  declareProperty( "MuonVeto", m_bMuonVeto);
+
+  m_sConfigPath = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/Selection/recommended_selection_mc15.conf";
+  m_sEleOLRFilePath = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/Selection/eveto_cutvals.root";
+
+  declareProperty( "ConfigPath", m_sConfigPath);
+  declareProperty( "EleOLRFilePath", m_sEleOLRFilePath);
+  declareProperty( "ElectronContainerName", m_sElectronContainerName);
 }
 
 //______________________________________________________________________________
 TauSelectionTool::~TauSelectionTool()
 {
-  if (m_hCutFlow)
-    delete m_hCutFlow;
   for (auto entry : m_cMap)
     delete entry.second;
   m_cMap.clear();
@@ -51,6 +94,179 @@ TauSelectionTool::~TauSelectionTool()
 //______________________________________________________________________________
 StatusCode TauSelectionTool::initialize()
 {
+
+  std::string sDeprecatedProperty = "setting cut properties via setProperty is deprecated and will be removed in the future. Please switch to cut configuration via config files as explained in the documentation:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst\n";
+  if (m_iSelectionCuts != NoCut) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (!m_vPtRegion.empty()) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (!isnan(m_dPtMin)) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (!isnan(m_dPtMax)) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (!m_vAbsEtaRegion.empty()) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (isnan(m_dAbsEtaMin)) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (isnan(m_dAbsEtaMax)) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (!m_vAbsCharges.empty()) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (!isnan(m_iAbsCharge)) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (!m_vNTracks.empty()) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (!isnan(m_iNTrack)) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (!m_vJetBDTRegion.empty()) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (!isnan(m_dJetBDTMin)) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (!isnan(m_dJetBDTMax)) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (m_iJetIDWP != 0) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (!m_vEleBDTRegion.empty()) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (!isnan(m_dEleBDTMin)) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (!isnan(m_dEleBDTMax)) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (m_iEleBDTWP != 0) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (m_bEleOLR != false) ATH_MSG_WARNING(sDeprecatedProperty);
+  if (m_bMuonVeto != false) ATH_MSG_WARNING(sDeprecatedProperty);
+
+  TEnv rEnv;
+  rEnv.ReadFile(PathResolverFindCalibFile(m_sConfigPath).c_str(),
+                kEnvAll);
+
+  std::vector<std::string> m_vCuts;
+  // if Cuts are specified in the config file take these ones, if not take all
+  // specified in the config
+  if (rEnv.Defined("SelectionCuts"))
+    TauAnalysisTools::split(rEnv, "SelectionCuts", ' ', m_vCuts);
+  else
+  {
+    auto lList = rEnv.GetTable();
+    for( Int_t i = 0; i < lList->GetEntries(); ++i )
+    {
+      m_vCuts.push_back( lList->At( i )->GetName() );
+    }
+  }
+
+  int iSelectionCuts = 0;
+
+  for (auto sCut : m_vCuts)
+  {
+    if (sCut == "PtRegion")
+    {
+      iSelectionCuts = iSelectionCuts | CutPt;
+      if (m_vPtRegion.size() == 0)
+        TauAnalysisTools::split(rEnv,"PtRegion", ';', m_vPtRegion);
+    }
+    else if (sCut == "PtMin")
+    {
+      iSelectionCuts = iSelectionCuts | CutPt;
+      if (m_dPtMin != m_dPtMin)
+        m_dPtMin = rEnv.GetValue("PtMin",NAN);
+    }
+    else if (sCut == "PtMax")
+    {
+      iSelectionCuts = iSelectionCuts | CutPt;
+      if (m_dPtMax != m_dPtMax)
+        m_dPtMax = rEnv.GetValue("PtMax",NAN);
+    }
+    else if (sCut == "AbsEtaRegion")
+    {
+      iSelectionCuts = iSelectionCuts | CutAbsEta;
+      if (m_vAbsEtaRegion.size() == 0)
+        TauAnalysisTools::split(rEnv,"AbsEtaRegion", ';', m_vAbsEtaRegion);
+    }
+    else if (sCut == "AbsEtaMin")
+    {
+      iSelectionCuts = iSelectionCuts | CutAbsEta;
+      if (m_dAbsEtaMin != m_dAbsEtaMin)
+        m_dAbsEtaMin = rEnv.GetValue("AbsEtaMin",NAN);
+    }
+    else if (sCut == "AbsEtaMax")
+    {
+      iSelectionCuts = iSelectionCuts | CutAbsEta;
+      if (m_dAbsEtaMax != m_dAbsEtaMax)
+        m_dAbsEtaMax = rEnv.GetValue("AbsEtaMax",NAN);
+    }
+    else if (sCut == "AbsCharges")
+    {
+      iSelectionCuts = iSelectionCuts | CutAbsCharge;
+      if (m_vAbsCharges.size() == 0)
+        TauAnalysisTools::split(rEnv,"AbsCharges", ';', m_vAbsCharges);
+    }
+    else if (sCut == "AbsCharge")
+    {
+      iSelectionCuts = iSelectionCuts | CutAbsCharge;
+      if (m_iAbsCharge != m_iAbsCharge)
+        m_iAbsCharge = rEnv.GetValue("AbsCharge",NAN);
+    }
+    else if (sCut == "NTracks")
+    {
+      iSelectionCuts = iSelectionCuts | CutNTrack;
+      if (m_vNTracks.size() == 0)
+        TauAnalysisTools::split(rEnv,"NTracks", ';', m_vNTracks);
+    }
+    else if (sCut == "NTrack")
+    {
+      iSelectionCuts = iSelectionCuts | CutNTrack;
+      if (m_iNTrack != m_iNTrack)
+        m_iNTrack = rEnv.GetValue("NTrack",NAN);
+    }
+    else if (sCut == "JetBDTRegion")
+    {
+      iSelectionCuts = iSelectionCuts | CutJetBDTScore;
+      if (m_vJetBDTRegion.size() == 0)
+        TauAnalysisTools::split(rEnv,"JetBDTRegion", ';', m_vJetBDTRegion);
+    }
+    else if (sCut == "JetBDTMin")
+    {
+      iSelectionCuts = iSelectionCuts | CutJetBDTScore;
+      if (m_dJetBDTMin != m_dJetBDTMin)
+        m_dJetBDTMin = rEnv.GetValue("JetBDTMin",NAN);
+    }
+    else if (sCut == "JetBDTMax")
+    {
+      iSelectionCuts = iSelectionCuts | CutJetBDTScore;
+      if (m_dJetBDTMax != m_dJetBDTMax)
+        m_dJetBDTMax = rEnv.GetValue("JetBDTMax",NAN);
+    }
+    else if (sCut == "EleBDTRegion")
+    {
+      iSelectionCuts = iSelectionCuts | CutEleBDTScore;
+      if (m_vEleBDTRegion.size() == 0)
+        TauAnalysisTools::split(rEnv,"EleBDTRegion", ';', m_vEleBDTRegion);
+    }
+    else if (sCut == "EleBDTMin")
+    {
+      iSelectionCuts = iSelectionCuts | CutEleBDTScore;
+      if (m_dEleBDTMin != m_dEleBDTMin)
+        m_dEleBDTMin = rEnv.GetValue("EleBDTMin",NAN);
+    }
+    else if (sCut == "EleBDTMax")
+    {
+      iSelectionCuts = iSelectionCuts | CutEleBDTScore;
+      if (m_dEleBDTMax != m_dEleBDTMax)
+        m_dEleBDTMax = rEnv.GetValue("EleBDTMax",NAN);
+    }
+    else if (sCut == "JetIDWP")
+    {
+      iSelectionCuts = iSelectionCuts | CutJetIDWP;
+      if (m_iJetIDWP == JETIDNONEUNCONFIGURED)
+        m_iJetIDWP = convertStrToJetIDWP(rEnv.GetValue("JetIDWP","JETIDNONE"));
+    }
+    else if (sCut == "EleBDTWP")
+    {
+      iSelectionCuts = iSelectionCuts | CutEleBDTWP;
+      if (m_iEleBDTWP == ELEIDNONEUNCONFIGURED)
+        m_iEleBDTWP = convertStrToEleBDTWP(rEnv.GetValue("EleIDWP","ELEIDNONE"));
+    }
+    else if (sCut == "EleOLR")
+    {
+      iSelectionCuts = iSelectionCuts | CutEleOLR;
+      if (m_bEleOLR == false)
+        m_bEleOLR = rEnv.GetValue("EleOLR",false);
+    }
+    else if (sCut == "MuonVeto")
+    {
+      iSelectionCuts = iSelectionCuts | CutMuonVeto;
+      if (m_bMuonVeto == false)
+        m_bMuonVeto = rEnv.GetValue("MuonVeto",false);
+    }
+    else ATH_MSG_WARNING("Cut " << sCut << " is not available");
+  }
+
+  if (m_iSelectionCuts == NoCut)
+    m_iSelectionCuts = iSelectionCuts;
+
+  // specify all available cut descriptions
   m_cMap =
   {
     {CutPt, new TauAnalysisTools::SelectionCutPt(this)},
@@ -61,23 +277,29 @@ StatusCode TauSelectionTool::initialize()
     {CutJetIDWP, new TauAnalysisTools::SelectionCutJetIDWP(this)},
     {CutEleBDTScore, new TauAnalysisTools::SelectionCutBDTEleScore(this)},
     {CutEleBDTWP, new TauAnalysisTools::SelectionCutEleBDTWP(this)},
+    {CutEleOLR, new TauAnalysisTools::SelectionCutEleOLR(this)},
     {CutMuonVeto, new TauAnalysisTools::SelectionCutMuonVeto(this)}
   };
 
   ATH_MSG_INFO( "Initialising TauSelectionTool" );
-  FillRegionVector(&m_vPtRegion, m_dPtMin, m_dPtMax);
-  FillRegionVector(&m_vAbsEtaRegion, m_dAbsEtaMin, m_dAbsEtaMax);
-  FillRegionVector(&m_vJetBDTRegion, m_dJetBDTMin, m_dJetBDTMax );
-  FillRegionVector(&m_vEleBDTRegion, m_dEleBDTMin, m_dEleBDTMax );
-  FillValueVector(&m_vAbsCharges, m_iAbsCharge );
-  FillValueVector(&m_vNTracks, m_iNTrack );
-  // Greet the user:
-  PrintConfigRegion("Pt",&m_vPtRegion);
-  PrintConfigRegion("AbsEta",&m_vAbsEtaRegion);
-  PrintConfigValue("AbsCharge",&m_vAbsCharges);
-  PrintConfigValue("NTrack",&m_vNTracks);
-  PrintConfigRegion("BDTJetScore",&m_vJetBDTRegion);
-  PrintConfigRegion("BDTEleScore",&m_vEleBDTRegion);
+  FillRegionVector(m_vPtRegion, m_dPtMin, m_dPtMax);
+  FillRegionVector(m_vAbsEtaRegion, m_dAbsEtaMin, m_dAbsEtaMax);
+  FillRegionVector(m_vJetBDTRegion, m_dJetBDTMin, m_dJetBDTMax );
+  FillRegionVector(m_vEleBDTRegion, m_dEleBDTMin, m_dEleBDTMax );
+  FillValueVector(m_vAbsCharges, m_iAbsCharge );
+  FillValueVector(m_vNTracks, m_iNTrack );
+
+  PrintConfigRegion ("Pt",          m_vPtRegion);
+  PrintConfigRegion ("AbsEta",      m_vAbsEtaRegion);
+  PrintConfigValue  ("AbsCharge",   m_vAbsCharges);
+  PrintConfigValue  ("NTrack",      m_vNTracks);
+  PrintConfigRegion ("BDTJetScore", m_vJetBDTRegion);
+  PrintConfigRegion ("BDTEleScore", m_vEleBDTRegion);
+  PrintConfigValue  ("JetIDWP",     m_sJetIDWP);
+  PrintConfigValue  ("EleBDTDWP",   m_sEleBDTWP);
+  PrintConfigValue  ("EleOLR",      m_bEleOLR);
+  PrintConfigValue  ("MuonVeto",    m_bMuonVeto);
+
   std::string sCuts = "";
   if (m_iSelectionCuts & CutPt) sCuts+= "Pt ";
   if (m_iSelectionCuts & CutAbsEta) sCuts+= "AbsEta ";
@@ -87,20 +309,28 @@ StatusCode TauSelectionTool::initialize()
   if (m_iSelectionCuts & CutJetIDWP) sCuts+= "JetIDWP ";
   if (m_iSelectionCuts & CutEleBDTScore) sCuts+= "EleBDTScore ";
   if (m_iSelectionCuts & CutEleBDTWP) sCuts+= "EleBDTWP ";
+  if (m_iSelectionCuts & CutEleOLR) sCuts+= "EleOLR ";
   if (m_iSelectionCuts & CutMuonVeto) sCuts+= "CutMuonVeto ";
 
   ATH_MSG_DEBUG( "cuts: " << sCuts);
 
-  if (m_bCreateControlPlots and m_fOutFile)
+  if (m_bCreateControlPlots)
     setupCutFlowHistogram();
 
   return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
+StatusCode TauSelectionTool::initializeEvent()
+{
+  if (m_bEleOLR)
+    return (m_cMap[CutEleOLR])->initializeEvent();
+  return StatusCode::SUCCESS;
+}
+
+//______________________________________________________________________________
 const Root::TAccept& TauSelectionTool::getTAccept() const
 {
-
   return m_aAccept;
 }
 
@@ -135,9 +365,8 @@ const Root::TAccept& TauSelectionTool::accept( const xAOD::TauJet& xTau ) const
 {
   // Reset the result:
   m_aAccept.clear();
-
   int iNBin = 0;
-  if (m_bCreateControlPlots and m_fOutFile)
+  if (m_bCreateControlPlots)
   {
     // fill cutflow 'All' bin
     m_hCutFlow->Fill(iNBin);
@@ -145,23 +374,35 @@ const Root::TAccept& TauSelectionTool::accept( const xAOD::TauJet& xTau ) const
     for (auto entry : m_cMap)
       entry.second->fillHistogramCutPre(xTau);
   }
-  for (auto entry : m_cMap)
-    if (m_iSelectionCuts & entry.first)
+  if (m_iSelectionCuts & CutEleOLR)
+    dynamic_cast<SelectionCutEleOLR*>(m_cMap.at(CutEleOLR))->getEvetoScore(xTau);
+  try
+  {
+    for (auto entry : m_cMap)
     {
-      if (!entry.second->accept(xTau))
-        return m_aAccept;
-      else
+      if (m_iSelectionCuts & entry.first)
       {
-        if (m_bCreateControlPlots and m_fOutFile)
+        if (!entry.second->accept(xTau))
+          return m_aAccept;
+        else
         {
-          // fill cutflow after each passed cut
-          iNBin++;
-          m_hCutFlow->Fill(iNBin);
+          if (m_bCreateControlPlots)
+          {
+            // fill cutflow after each passed cut
+            iNBin++;
+            m_hCutFlow->Fill(iNBin);
+          }
         }
       }
     }
+  }
+  catch (const std::runtime_error& error)
+  {
+    ATH_MSG_ERROR("There was a problem runnning a cut, please contact the author.");
+  }
+
   // fill main distributions after all cuts
-  if (m_bCreateControlPlots and m_fOutFile)
+  if (m_bCreateControlPlots)
   {
     for (auto entry : m_cMap)
       entry.second->fillHistogramCut(xTau);
@@ -171,17 +412,9 @@ const Root::TAccept& TauSelectionTool::accept( const xAOD::TauJet& xTau ) const
   return m_aAccept;
 }
 
-//______________________________________________________________________________
 void TauSelectionTool::setRecommendedProperties()
 {
-  ATH_MSG_INFO( "setting recommended tau selection cuts" );
-  m_iSelectionCuts = SelectionCuts(CutPt | CutAbsEta | CutAbsCharge | CutNTrack | CutJetIDWP | CutEleBDTWP );
-  m_dPtMin = 20;
-  m_vAbsEtaRegion = {0,1.37,1.52,2.5};
-  m_iAbsCharge = 1;
-  m_vNTracks = {1,3};
-  m_iJetIDWP = JETIDBDTMEDIUM;
-  m_iEleBDTWP = ELEIDBDTLOOSE;
+  ATH_MSG_FATAL("This function is deprecated. Recommended properties are set now by default. For further information please refer to the README: https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst");
 }
 
 //______________________________________________________________________________
@@ -193,19 +426,20 @@ void TauSelectionTool::setOutFile( TFile* fOutFile )
 //______________________________________________________________________________
 void TauSelectionTool::writeControlHistograms()
 {
+  if (m_bCreateControlPlots and !m_fOutFile)
+    ATH_MSG_WARNING("CreateControlPlots was set to true, but no valid file pointer was provided");
   if (m_bCreateControlPlots and m_fOutFile)
   {
-    if (!m_fOutFile)
-      ATH_MSG_FATAL("CreateControlPlots was set to true, but no valid file pointer was provided");
     /// create output directory
     m_fOutFile->mkdir((this->name()+"_control").c_str());
     m_fOutFile->cd((this->name()+"_control").c_str());
     /// write cutflow histogram
     m_hCutFlow->Write();
+
+    for (auto entry : m_cMap)
+      entry.second->writeControlHistograms();
   }
   /// delete cut pointer, which in case m_bCreateControlPlots==true also writes histograms
-  for (auto entry : m_cMap)
-    entry.second->writeControlHistograms();
 }
 
 
@@ -218,7 +452,7 @@ void TauSelectionTool::setupCutFlowHistogram()
     if (m_iSelectionCuts & entry.first)
       iNBins++;
   // creat cutflow histogram with iNBins+1 bins, where first bin is 'All' bin
-  m_hCutFlow = new TH1F("hCutFlow","CutFlow;; events",iNBins+1,0,iNBins+1);
+  m_hCutFlow = std::make_shared<TH1F>("hCutFlow","CutFlow;; events",iNBins+1,0,iNBins+1);
   m_hCutFlow->GetXaxis()->SetBinLabel(1,"All");
 
   // reusing this variable to reduce overhead
@@ -233,79 +467,81 @@ void TauSelectionTool::setupCutFlowHistogram()
 }
 
 //______________________________________________________________________________
-void TauSelectionTool::declarePropertiesBaseline()
-{
-  /*
-    properties containing 'Region' are a vector of lower and upper bounds
-    other properties named in plural are a list of exact values to cut on
-    other properties are single cuts
-  */
-  declareProperty( "SelectionCuts", m_iSelectionCuts); // initialize with 'no' cuts
-  declareProperty( "PtRegion", m_vPtRegion ); // in GeV
-  declareProperty( "PtMin", m_dPtMin); // in GeV
-  declareProperty( "PtMax", m_dPtMax); // in GeV
-  declareProperty( "AbsEtaRegion", m_vAbsEtaRegion);
-  declareProperty( "AbsEtaMin", m_dAbsEtaMin);
-  declareProperty( "AbsEtaMax", m_dAbsEtaMax);
-  declareProperty( "AbsCharges", m_vAbsCharges);
-  declareProperty( "AbsCharge", m_iAbsCharge);
-  declareProperty( "NTracks", m_vNTracks);
-  declareProperty( "NTrack", m_iNTrack);
-  declareProperty( "JetBDTRegion", m_vJetBDTRegion);
-  declareProperty( "JetBDTMin", m_dJetBDTMin);
-  declareProperty( "JetBDTMax", m_dJetBDTMax);
-  declareProperty( "JetIDWP", m_iJetIDWP);
-  declareProperty( "EleBDTRegion", m_vEleBDTRegion);
-  declareProperty( "EleBDTMin", m_dEleBDTMin);
-  declareProperty( "EleBDTMax", m_dEleBDTMax);
-  declareProperty( "EleBDTWP", m_iEleBDTWP);
-}
-
-//______________________________________________________________________________
 template<typename T, typename U>
-void TauSelectionTool::FillRegionVector(std::vector<T>* vRegion, U tMin, U tMax)
+void TauSelectionTool::FillRegionVector(std::vector<T>& vRegion, U tMin, U tMax)
 {
-  if (vRegion->size()>0)
+  if (vRegion.size()>0)
     return;
   if (tMin == tMin) 		// if tMin is NAN, then this assumption fails and -inf is added to the vector
-    vRegion->push_back(tMin);
+    vRegion.push_back(tMin);
   else
-    // vRegion->push_back(-1./0.);
-    vRegion->push_back(-std::numeric_limits<T>::infinity());
+    vRegion.push_back(-std::numeric_limits<T>::infinity());
 
   if (tMax == tMax)		// if tMax is NAN, then this assumption fails and inf is added to the vector
-    vRegion->push_back(tMax);
+    vRegion.push_back(tMax);
   else
-    vRegion->push_back(std::numeric_limits<T>::infinity());
+    vRegion.push_back(std::numeric_limits<T>::infinity());
 }
 
 //______________________________________________________________________________
 template<typename T, typename U>
-void TauSelectionTool::FillValueVector(std::vector<T>* vRegion, U tVal)
+void TauSelectionTool::FillValueVector(std::vector<T>& vRegion, U tVal)
 {
-  if (vRegion->size()>0)
+  if (vRegion.size()>0)
     return;
   if (tVal == tVal)		// if tMax is NAN, then this assumption fails and nothing is added to the vector
-    vRegion->push_back(tVal);
+    vRegion.push_back(tVal);
 }
 
 //______________________________________________________________________________
 template<typename T>
-void TauSelectionTool::PrintConfigRegion(std::string sCutName, std::vector<T>* vRegion)
+void TauSelectionTool::PrintConfigRegion(std::string sCutName, std::vector<T>& vRegion)
 {
-  unsigned int iNumRegion = vRegion->size()/2;
+  unsigned int iNumRegion = vRegion.size()/2;
   for( unsigned int iRegion = 0; iRegion < iNumRegion; iRegion++ )
   {
-    ATH_MSG_DEBUG( sCutName<<": " << vRegion->at(iRegion*2) << " to " << vRegion->at(iRegion*2+1) );
+    ATH_MSG_DEBUG( sCutName<<": " << vRegion.at(iRegion*2) << " to " << vRegion.at(iRegion*2+1) );
   }
 }
 
 //______________________________________________________________________________
 template<typename T>
-void TauSelectionTool::PrintConfigValue(std::string sCutName, std::vector<T>* vRegion)
+void TauSelectionTool::PrintConfigValue(std::string sCutName, std::vector<T>& vRegion)
 {
-  for( unsigned int iRegion = 0; iRegion < vRegion->size(); iRegion++ )
-  {
-    ATH_MSG_DEBUG( sCutName<<": " << vRegion->at(iRegion) );
-  }
+  for (auto tVal : vRegion)
+    ATH_MSG_DEBUG( sCutName<<": " << tVal );
 }
+
+//______________________________________________________________________________
+template<typename T>
+void TauSelectionTool::PrintConfigValue(std::string sCutName, T& tVal)
+{
+  ATH_MSG_DEBUG( sCutName<<": " << tVal );
+}
+
+int TauSelectionTool::convertStrToJetIDWP(std::string sJetIDWP)
+{
+  if (sJetIDWP == "JETIDNONE") return int(JETIDNONE);
+  else if (sJetIDWP == "JETIDBDTLOOSE") return int(JETIDBDTLOOSE);
+  else if (sJetIDWP == "JETIDBDTMEDIUM") return int(JETIDBDTMEDIUM);
+  else if (sJetIDWP == "JETIDBDTTIGHT") return int(JETIDBDTTIGHT);
+  else if (sJetIDWP == "JETIDBDTLOOSENOTMEDIUM") return int(JETIDBDTLOOSENOTMEDIUM);
+  else if (sJetIDWP == "JETIDBDTLOOSENOTTIGHT") return int(JETIDBDTLOOSENOTTIGHT);
+  else if (sJetIDWP == "JETIDBDTMEDIUMNOTTIGHT") return int(JETIDBDTMEDIUMNOTTIGHT);
+  else if (sJetIDWP == "JETIDBDTNOTLOOSE") return int(JETIDBDTNOTLOOSE);
+
+  ATH_MSG_ERROR( "ID working point "<<sJetIDWP<<" is unknown, the cut JETIDWP will not accept any tau!" );
+  return -1;
+}
+
+int TauSelectionTool::convertStrToEleBDTWP(std::string sEleBDTWP)
+{
+  if (sEleBDTWP == "ELEIDNONE") return int(ELEIDNONE);
+  else if (sEleBDTWP == "ELEIDBDTLOOSE") return int(ELEIDBDTLOOSE);
+  else if (sEleBDTWP == "ELEIDBDTMEDIUM") return int(ELEIDBDTMEDIUM);
+  else if (sEleBDTWP == "ELEIDBDTTIGHT") return int(ELEIDBDTTIGHT);
+
+  ATH_MSG_ERROR( "ID working point "<<sEleBDTWP<<" is unknown, the cut EleBDTWP will not accept any tau!" );
+  return -1;
+}
+

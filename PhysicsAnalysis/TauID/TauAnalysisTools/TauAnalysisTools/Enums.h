@@ -13,12 +13,14 @@
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
 		    or
                     https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
+  report any issues on JIRA: https://its.cern.ch/jira/browse/TAUAT/?selectedTab=com.atlassian.jira.jira-projects-plugin:issues-panel
 */
 
 namespace TauAnalysisTools
 {
 typedef enum e_JETID
 {
+  JETIDNONEUNCONFIGURED  = 0,
   JETIDNONE              = 1,
   JETIDBDTLOOSE          = 2,
   JETIDBDTMEDIUM         = 3,
@@ -37,6 +39,7 @@ typedef enum e_JETID
 
 typedef enum e_ELEID
 {
+  ELEIDNONEUNCONFIGURED = 0,
   ELEIDNONE      = 1,
   ELEIDBDTLOOSE  = 2,
   ELEIDBDTMEDIUM = 3,
@@ -74,6 +77,16 @@ enum EfficiencyCorrectionSystematicType
   STAT = 1,
   SYST = 2
 };
+
+typedef enum e_TruthMatchedParticleType
+{
+  Unknown          = 0,
+  TruthHadronicTau = 1,
+  TruthLeptonicTau = 2,
+  TruthMuon        = 3,
+  TruthElectron    = 4,
+  TruthJet         = 5
+} TruthMatchedParticleType;
 
 }
 
