@@ -17,6 +17,27 @@
   Author: Troels Petersen (petersen@nbi.dk)
 
 \****************************************************************************************/
+#include "AthenaPoolUtilities/CondAttrListVec.h"
+#include <vector>
+
+class InDet::TRT_ElectronPidToolRun2::StorePIDinfo{
+  public:
+   StorePIDinfo();
+   StorePIDinfo(int nbins, float min, float max, std::vector<float> values);
+   ~StorePIDinfo();
+   void update (int nbins, float min, float max, std::vector<float> values );
+   void push_back ( float value );
+   StatusCode check ( int gas, int detpart); 
+   float GetValue ( float input	); 
+   float GetBinValue ( int bin ); 
+   int   GetBin   ( float input	); 
+  private:
+   unsigned int m_nbins		;
+   float m_min		;
+   float m_max		;
+   std::vector<float>  	m_values;
+};
+
 
 class InDet::TRT_ElectronPidToolRun2::HTcalculator : public InDet::BaseTRTPIDCalculator {
  public:
@@ -29,109 +50,46 @@ class InDet::TRT_ElectronPidToolRun2::HTcalculator : public InDet::BaseTRTPIDCal
   // set constants to hard coded defaults
   void setDefaultCalibrationConstants();
 
+  StatusCode ReadVectorDB( const DataHandle<CondAttrListVec> channel_values );
+
   //void PrintBlob();
   //bool FillBlob(const unsigned char*);
 
-  float getProbHT( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int StrawLayer, float ZRpos, float rTrkAnode, float Occupancy, bool UseOccupancy);
-  float pHTvsP(int etaBin, float p, float mass) ;
-  float Corr_el_SL(int part, float SL) ;
-  float Corr_el_SP(int part, float SP) ;
-  float Corr_el_RT(int part, float RT) ;
-  float Corr_el_PU(int part, float PU) ;
-  float Corr_el_OC(int part, float OC) ;
-  float Corr_mu_SL(int part, float SL) ;
-  float Corr_mu_SP(int part, float SP) ;
-  float Corr_mu_RT(int part, float RT) ;
-  float Corr_mu_PU(int part, float PU) ;
-  float Corr_mu_OC(int part, float OC) ;
-
-  //float Limit(float prob);
+  float getProbHT( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkAnode, float Occupancy);
+//  float pHTvsP(int TrtPart, float p, float mass);
+  float pHTvsPGOG(int TrtPart, int GasType, float p, float mass, float occ);
 
  private:
   // as long has reading from database does not work well yet, do this check:
   //bool HasDataBeenInitialized;
   //void checkIntialization();
 
-  static const int N_PAR = 6;
+  double inline sqr(double a) {return a*a;}
+
+  static const int N_GAS = 3;
   static const int N_DET = 3;
-  
-  float m_par_pHTvsP [N_DET][N_PAR];
-
-  static const int N_SL_B  = 73;
-  static const int N_SL_EA = 16;
-  static const int N_SL_EB =  8;
-
-	// SL corr:
-  float m_CpHT_B_Zee_SL	[N_SL_B]	 ;
-  float m_CpHT_EA_Zee_SL	[N_SL_EA]	 ;
-  float m_CpHT_EB_Zee_SL	[N_SL_EB]	 ;
-
-  	// ZR-position (ZR - Z in Barrel, R in Endcaps):
-
-  static const int N_ZRpos_B  = 36;
-  static const int N_ZRpos_EA = 50;
-  static const int N_ZRpos_EB = 50;
-
-  float m_CpHT_B_Zee_ZRpos	[N_ZRpos_B]  ;
-  float m_CpHT_EA_Zee_ZRpos	[N_ZRpos_EA] ;
-  float m_CpHT_EB_Zee_ZRpos	[N_ZRpos_EB] ;
+  static const int N_PAR2 = 10;
+  StorePIDinfo m_par_pHTvsPGOG_new [N_GAS][N_DET]; 	// New approach (useOccupancy = true)
 
 
+// Store in a compact way all the corrections
+  StorePIDinfo m_CpHT_B_Zee_SL_new  	[N_GAS]	[N_DET];
+  StorePIDinfo m_CpHT_B_Zmm_SL_new  	[N_GAS]	[N_DET];
 
-  // Track-to-Wire distance (TWdist):
-  static const int N_Rtrk_B  = 22;
-  static const int N_Rtrk_EA = 22;
-  static const int N_Rtrk_EB = 22;
-  float m_CpHT_B_Zee_Rtrk	[N_Rtrk_B]  ;
-  float m_CpHT_EA_Zee_Rtrk	[N_Rtrk_EA] ;
-  float m_CpHT_EB_Zee_Rtrk	[N_Rtrk_EB] ;
+  StorePIDinfo m_CpHT_B_Zee_ZR_new  	[N_GAS]	[N_DET];
+  StorePIDinfo m_CpHT_B_Zmm_ZR_new  	[N_GAS]	[N_DET];
 
-  //   // Pile-UP (PU):
-  static const int N_PU_B  = 40;
-  static const int N_PU_EA = 40;
-  static const int N_PU_EB = 40;
-  float m_CpHT_B_Zee_PU	[N_PU_B]   ;
-  float m_CpHT_EA_Zee_PU	[N_PU_EA]  ;
-  float m_CpHT_EB_Zee_PU	[N_PU_EB]  ;
+  StorePIDinfo m_CpHT_B_Zee_TW_new  	[N_GAS]	[N_DET];
+  StorePIDinfo m_CpHT_B_Zmm_TW_new  	[N_GAS]	[N_DET];
 
-  // Occupancy (OC):
-  static const int N_Occ_B  = 60;
-  static const int N_Occ_EA = 60;
-  static const int N_Occ_EB = 60;
-  float m_CpHT_B_Zee_Occ	[N_Occ_B]  ;
-  float m_CpHT_EA_Zee_Occ	[N_Occ_EA] ;
-  float m_CpHT_EB_Zee_Occ	[N_Occ_EB] ;
+  StorePIDinfo m_CpHT_B_Zee_OR_new  	[N_GAS]	[N_DET];
+  StorePIDinfo m_CpHT_B_Zmm_OR_new  	[N_GAS]	[N_DET];
 
-	// SL corr:
-  float m_CpHT_B_Zmm_SL	[N_SL_B]	 ;
-  float m_CpHT_EA_Zmm_SL	[N_SL_EA]	 ;
-  float m_CpHT_EB_Zmm_SL	[N_SL_EB]	 ;
-
-  	// ZR-position (ZR - Z in Barrel, R in Endcaps):
-  float m_CpHT_B_Zmm_ZRpos	[N_ZRpos_B]  ;
-  float m_CpHT_EA_Zmm_ZRpos	[N_ZRpos_EA] ;
-  float m_CpHT_EB_Zmm_ZRpos	[N_ZRpos_EB] ;
-
-  // Track-to-Wire distance (TWdist):
-  float m_CpHT_B_Zmm_Rtrk	[N_Rtrk_B] 	;
-  float m_CpHT_EA_Zmm_Rtrk	[N_Rtrk_EA] ;
-  float m_CpHT_EB_Zmm_Rtrk	[N_Rtrk_EB] ;
-
-  //   // Pile-UP (PU):
-  float m_CpHT_B_Zmm_PU	[N_PU_B]   ;
-  float m_CpHT_EA_Zmm_PU	[N_PU_EA]  ;
-  float m_CpHT_EB_Zmm_PU	[N_PU_EB]  ;
-
-  // Occupancy (OC):
-  float m_CpHT_B_Zmm_Occ	[N_Occ_B ] ;
-  float m_CpHT_EA_Zmm_Occ	[N_Occ_EA] ;
-  float m_CpHT_EB_Zmm_Occ	[N_Occ_EB] ;
 
   Trk::ParticleMasses        m_particlemasses;
 
   static const int SIZE_OF_HEADER = sizeof(float) * 4;
-
-  static const int SIZE_OF_BLOB = sizeof(float) *( (N_PAR*N_DET) + 2*(N_SL_B+N_SL_EA+N_SL_EB) + 2*(N_ZRpos_B+N_ZRpos_EA+N_ZRpos_EB) + 2*( N_Rtrk_B+N_Rtrk_EA+N_Rtrk_EB ) + 2*(N_PU_B + N_PU_EA + N_PU_EB) + 2*(N_Occ_B + N_Occ_EA + N_Occ_EB) );
+  static const int SIZE_OF_BLOB     = sizeof(float) *( (N_PAR2*N_DET));
 
   bool m_datainplace;
 };  

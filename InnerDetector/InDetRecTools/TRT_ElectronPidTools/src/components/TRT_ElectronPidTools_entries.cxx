@@ -12,7 +12,7 @@ DECLARE_FACTORY_ENTRIES( TRT_ElectronPidTools )
 {
 	DECLARE_NAMESPACE_TOOL( InDet, BaseTRTPIDCalculator)
 	DECLARE_NAMESPACE_TOOL( InDet, TRT_ElectronPidTool )
-  DECLARE_NAMESPACE_TOOL( InDet, TRT_ElectronPidToolRun2 )
+	DECLARE_NAMESPACE_TOOL( InDet, TRT_ElectronPidToolRun2 )
 	DECLARE_NAMESPACE_TOOL( InDet, TRT_LocalOccupancy )
 }
 

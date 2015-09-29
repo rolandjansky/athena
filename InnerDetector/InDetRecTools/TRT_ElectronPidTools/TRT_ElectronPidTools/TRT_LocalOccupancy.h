@@ -17,26 +17,26 @@
 #include "TrkTrack/Track.h"
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 
+#include "InDetPrepRawData/TRT_DriftCircleContainer.h"
+
 #include <vector>
 
 class AtlasDetectorID;
 class ITRT_StrawStatusSummarySvc ;
-class AtlasDetectorID;
 class TRT_ID;
-namespace InDetDD{ class TRT_DetectorManager; }
 
 namespace Trk{
 	class Track;
 }
 
-
 namespace InDet
 {
+
   /** @class TRT_LocalOccupancy 
 
       TRT_LocalOccupancy is a tool to compute the TRT occupancy for the elements crossed by a track.
 
-      This tool has to be called with: BeginEvent() before checking occupancy for a given track, so the different
+      This tool has to be called with: StartEvent() before checking occupancy for a given track, so the different
       volumes are computed.
 
       Then, for each track call LocalOccupancy( Track ) and a  will be returned. 
@@ -59,85 +59,70 @@ namespace InDet
    virtual StatusCode finalize  (); 
 
    /** Event Initiazliation, so we do not count several times the local volume occupancies. */
-   StatusCode BeginEvent();
+   StatusCode StartEvent();
 
    /** Return the local occupancy for the sectors crossed by a given track */ 
-   //virtual double LocalOccupancy( const Trk::Track track);
-   virtual std::vector<float> LocalOccupancy( const Trk::Track track);
+   virtual float LocalOccupancy( const Trk::Track& track);
+   virtual float LocalOccupancy(const double eta, const double phi);
 
 
    /** Return the global occupancy of the event*/ 
    /** 7 Floats: TRT, Barrel A / C, endcapA/B A/C */ 
    virtual std::vector<float> GlobalOccupancy( );
 
-   virtual int  *getOccTotal() {return m_occ_total;}
-   virtual int **getOccLocal() {return m_occ_local;}
-   virtual int  *getHitTotal() {return m_hit_total;}
-   virtual int **getHitLocal() {return m_hit_local;}
-   virtual int  *getStwTotal() {return m_stw_total;}
-   virtual int **getStwLocal() {return m_stw_local;}
 
-   virtual int **getOccLocalWheel()  {return m_occ_local_wheel;}
-   virtual int **getOccLocalStraw()	{return m_occ_local_straw;}
-   virtual int **getOccLocalPrivate(){return m_occ_local_private;}
-   virtual int **getHitLocalWheel()  {return m_hit_local_wheel;}
-   virtual int **getHitLocalStraw()	{return m_hit_local_straw;}
-   virtual int **getHitLocalPrivate(){return m_hit_local_private;}
-   virtual int **getStwLocalWheel()  {return m_stw_local_wheel;}
-   virtual int **getStwLocalStraw()	{return m_stw_local_straw;}
-   virtual int **getStwLocalPrivate(){return m_stw_local_private;}
-
+   virtual int  *getOccTotal()          {return m_occ_total;}
+   virtual int **getOccLocal()          {return m_occ_local;}
 
   private:
    /** Arrays to store the occupancy for each event */
-      // m_occ_total: 1d array: [7]; Element meanings in order:
-      // Total TRT, (B, ECA, ECB)side C, (B, ECA, ECB)side A
-      // m_occ_local: 2d array: [32][10]; 10 elements meaning:
-      // (barrel 0,1,2, ECA, ECB)side C, (barrel 0,1,2, ECA, ECB)side A
-      int  *m_occ_total;
-      int **m_occ_local;
+      // Comments show the meaning of each element in order:
+      int  *m_occ_total;       //Total TRT, (B, ECA, ECB)side C, (B, ECA, ECB)side A [7]
+      int **m_occ_local;       //(barrel, ECA, ECB)side C, (barrel, ECA, ECB)side A [6][32]
+
       int  *m_hit_total;
       int **m_hit_local;
+
       int  *m_stw_total;
       int **m_stw_local;
 
-      int **m_occ_local_wheel; // same as local above, split EC into wheels
-      // (barrel 0,1,2, EC 0,1,2, ..., 13) side C, side A ([32][34])
-      int **m_occ_local_straw; // same as local_wheel, split barrel into short, long straws
-      // (barrel 0short, 0long, 1,2, EC 0,1,2,...,13) side C, side A ([32][36])
-      int **m_occ_local_private;
-      // Very small granularity...still need to figure out how small. 
-      // Don't actually make m_occ_local_private yet.
-      int **m_hit_local_wheel;
-      int **m_stw_local_wheel;
-      int **m_hit_local_straw;
-      int **m_stw_local_straw;
-      int **m_hit_local_private;
-      int **m_stw_local_private;
-
       bool isMiddleBXOn(unsigned int word);
+      bool passValidityGate(unsigned int word, float t0);
+
+  void  countHitsNearTrack(int track_hit_array[6][32]);
+      //   void  countHitsNearTrack(std::vector<IdentifierHash>* hash_vec);
+  //   void  countHitsNearTrack(IdentifierHash hash);
 
    /** tools to deal with arrays */
    void resetOccArrays();
-   void resetArrays(float array_total [7], float array_local[10][32], float array_mod[34][32]);
-   void printArrays(float array_all [][14][32], float array_phi[][32], float array_det[]);
+   void resetArrays(float array_total [7], float array_local[6][32], float array_mod[34][32]);
+   void printArrays(float array_total [7], float array_local[6][32], float array_mod[34][32]);
   
 
    /** To convert from array index to det id and viceversa */
-   int detToArrayIndex (int det);
-   int ArrayIndexToDet (int arrayindex);
    int findArrayTotalIndex(const int det, const int lay);
-   int findArrayLocalIndex(const int det, const int lay);
    int findArrayLocalWheelIndex(const int det, const int lay);
    int findArrayLocalStrawIndex(const int det, const int lay, const int strawlay);
+   int detToArrayIndex (int det);
+   int ArrayIndexToDet (int arrayindex);
+
+   int mapPhiToPhisector(const double phi);
+   int mapEtaToPartition(const double eta);
+
 
    /** To prevent the creation of the maps more than 1 time per event, keep the event number */
    int m_eventnumber;
 
+   /** To keep track of sectors that have been calculated online */
+   bool m_sector_counted[6][32];
+
    /** External tools:  */
    const TRT_ID *m_TRTHelper;
    ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawStatusSummarySvc;
-   const InDetDD::TRT_DetectorManager* m_trtDetMgr; // TRT detector manager (to get ID helper)
+   std::string                    m_trt_rdo_location   ;
+
+   bool m_isTrigger;
+
    }; 
 }
 #endif 

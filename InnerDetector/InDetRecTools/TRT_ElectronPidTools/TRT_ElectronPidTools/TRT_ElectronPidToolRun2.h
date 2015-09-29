@@ -73,8 +73,10 @@ namespace InDet
       ---This part is currently not used
 
       The three estimators are independent, and can thus be combined directly. The tool returns
-      a vector with four floats, giving the probability of track being an electron based on:
-      0: All information combined, 1: HT information, 2: ToT/D, 3: Brem information
+      a vector with five floats, giving the probability of track being an electron based on:
+      0: All information combined, 1: HT information, 2: ToT/D, 3: Brem information. The last
+      entry in the vector returns the local occupancy along the track. This isn't a probability
+      calculation, but it is included in the vector for ease of input to the xAOD.
       
       the third value in the vector is the discriminator that is used in the determination of 
       the particle likelyhood based on ToT. 
@@ -153,8 +155,6 @@ namespace InDet
     Trk::ParticleMasses        m_particlemasses;      // Particle masses. (initalized in default constructor)
     unsigned int               m_minTRThits;          // Minimum number of TRT hits to give PID.
     bool                       m_bremFitterEnabled;   // jobOption whether or not brem Chi2 fitter is enabled.
-    bool                       m_OccupancyUsedInPID;  // jobOption whether occupancy is used in pHT calculation and thus PID.
-                                                      // Should be used offline but NOT for Triggering...
 
     //Some constants about the Bitpattern:
     static const unsigned int LTbits=0x3FDFEFF;
@@ -172,6 +172,11 @@ namespace InDet
     class HTcalculator;
    private:
     HTcalculator & HTcalc;
+
+
+    public:
+     class StorePIDinfo;
+
 
     ToolHandle<ITRT_ToT_dEdx> m_TRTdEdxTool;     //!< the track selector tool
 

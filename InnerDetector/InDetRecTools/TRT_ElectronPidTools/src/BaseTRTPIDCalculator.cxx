@@ -35,11 +35,11 @@
 
 void InDet::BaseTRTPIDCalculator::PrintBlob(){
   //Print out the array values that should be entered into the database
-  parent.msg(MSG::ERROR)<<"Now printing the contents of the "<<my_name<<" Calibration Blob, "<<BLOB_SIZE<<" chars"<<endmsg;
-  parent.msg(MSG::ERROR)<<"This should never appear in a production: [ ";
+  parent.msg(MSG::DEBUG)<<"Now printing the contents of the "<<my_name<<" Calibration Blob, "<<BLOB_SIZE<<" chars"<<endmsg;
+  parent.msg(MSG::DEBUG)<<"[ ";
   for(int i=0; i < BLOB_SIZE; i++)
-    parent.msg(MSG::ERROR)<<int(Blob[i])<<", ";
-  parent.msg(MSG::ERROR)<<" ]"<<endmsg;
+    parent.msg(MSG::DEBUG)<<int(Blob[i])<<", ";
+  parent.msg(MSG::DEBUG)<<" ]"<<endmsg;
 }
 
 bool InDet::BaseTRTPIDCalculator::FillBlob(const unsigned char* source){
@@ -54,8 +54,8 @@ bool InDet::BaseTRTPIDCalculator::FillBlob(const unsigned char* source){
 
 void InDet::BaseTRTPIDCalculator::checkInitialization(){
   if( not HasBeenInitialized ) {
-    parent.msg(MSG::ERROR)<<"The "<<my_name<<"calculator is about to be used uninitialized"<<endmsg;
-    parent.msg(MSG::ERROR)<<"Loading default calibration into memory."<<endmsg;
+    parent.msg(MSG::DEBUG)<<"The "<<my_name<<"calculator is about to be used uninitialized"<<endmsg;
+    parent.msg(MSG::DEBUG)<<"Loading default calibration into memory."<<endmsg;
     setDefaultCalibrationConstants();
     HasBeenInitialized=1;
     PrintBlob();
