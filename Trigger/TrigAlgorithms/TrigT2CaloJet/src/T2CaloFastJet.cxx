@@ -22,7 +22,7 @@
 
 T2CaloFastJet::T2CaloFastJet(const std::string & name, ISvcLocator* pSvcLocator)
   : HLT::AllTEAlgo(name, pSvcLocator),
-    m_cellMinEnergy(0.),
+    cellMinEnergy_(0.),
     m_tools(this),
     m_pTimerService(0),
     //m_total_timer(0),
@@ -32,10 +32,10 @@ T2CaloFastJet::T2CaloFastJet(const std::string & name, ISvcLocator* pSvcLocator)
     m_cleaning_timer(0),
     m_calibration_timer(0),
     m_RoI_timer(0),
-    m_jet_def(0),
-    m_cluster_sequence(0),
-    m_pu_cluster_sequence(0),
-    m_pu_area_cluster_sequence(0),
+    jet_def(0),
+    cluster_sequence(0),
+    pu_cluster_sequence(0),
+    pu_area_cluster_sequence(0),
     m_jet(0)
 {   
     // configurables
@@ -46,7 +46,7 @@ T2CaloFastJet::T2CaloFastJet(const std::string & name, ISvcLocator* pSvcLocator)
     declareProperty("inputType",               m_inputType = 1);
     declareProperty("outputType",              m_outputType = 1);
     declareProperty("T2JetTools",              m_tools, "list of Jet tools");
-    declareProperty("cellMinEnergy", m_cellMinEnergy=0.0);
+    declareProperty("cellMinEnergy", cellMinEnergy_=0.0);
     // cleaning:
     declareProperty("doCleaning",              m_doCleaning = false);
     declareProperty("doT2L1Cleaning",          m_doT2L1Cleaning = true);
@@ -86,19 +86,19 @@ HLT::ErrorCode T2CaloFastJet::hltInitialize()
     m_log = new MsgStream(msgSvc(), name());
     
     if((*m_log).level() <= MSG::INFO){
-        (*m_log) << MSG::INFO << " Initalizing FEX algorithm: " << name() << endmsg;
-        (*m_log) << MSG::DEBUG << "Options: " << endmsg;
-        (*m_log) << MSG::DEBUG << "   distanceParameter:       " << m_distanceParameter << endmsg;
-        (*m_log) << MSG::DEBUG << "   pTmin:                   " << m_pTmin << endmsg;
-        (*m_log) << MSG::DEBUG << "   doCleaning:              " << m_doCleaning << endmsg;
-        (*m_log) << MSG::DEBUG << "   doT2L1Cleaning:          " << m_doT2L1Cleaning << endmsg;
-        (*m_log) << MSG::DEBUG << "   leadingCellFraction:     " << m_leadingCellFraction << endmsg;
-        (*m_log) << MSG::DEBUG << "   cellQualityThresholdLAr: " << m_cellQualityThresholdLAr << endmsg;
-        (*m_log) << MSG::DEBUG << "   input type:              " << m_inputType << endmsg;
-        (*m_log) << MSG::DEBUG << "   output type:             " << m_outputType << endmsg;
-        (*m_log) << MSG::DEBUG << "   write multiple TEs:      " << m_writeMultipleOutputTEs << endmsg;
-        (*m_log) << MSG::DEBUG << "   secondary output type:   " << m_secondOutputType << endmsg;
-        (*m_log) << MSG::DEBUG << "   do pileup subtraction:   " << m_doPileupSubtraction << endmsg;
+        (*m_log) << MSG::INFO << " Initalizing FEX algorithm: " << name() << endreq;
+        (*m_log) << MSG::DEBUG << "Options: " << endreq;
+        (*m_log) << MSG::DEBUG << "   distanceParameter:       " << m_distanceParameter << endreq;
+        (*m_log) << MSG::DEBUG << "   pTmin:                   " << m_pTmin << endreq;
+        (*m_log) << MSG::DEBUG << "   doCleaning:              " << m_doCleaning << endreq;
+        (*m_log) << MSG::DEBUG << "   doT2L1Cleaning:          " << m_doT2L1Cleaning << endreq;
+        (*m_log) << MSG::DEBUG << "   leadingCellFraction:     " << m_leadingCellFraction << endreq;
+        (*m_log) << MSG::DEBUG << "   cellQualityThresholdLAr: " << m_cellQualityThresholdLAr << endreq;
+        (*m_log) << MSG::DEBUG << "   input type:              " << m_inputType << endreq;
+        (*m_log) << MSG::DEBUG << "   output type:             " << m_outputType << endreq;
+        (*m_log) << MSG::DEBUG << "   write multiple TEs:      " << m_writeMultipleOutputTEs << endreq;
+        (*m_log) << MSG::DEBUG << "   secondary output type:   " << m_secondOutputType << endreq;
+        (*m_log) << MSG::DEBUG << "   do pileup subtraction:   " << m_doPileupSubtraction << endreq;
         
     }
         
@@ -107,18 +107,18 @@ HLT::ErrorCode T2CaloFastJet::hltInitialize()
     
     // Create helper tools
     if ( m_tools.retrieve().isFailure() ) {
-        (*m_log) << MSG::ERROR << "Failed to retreive helper tools: " << m_tools << endmsg;
+        (*m_log) << MSG::ERROR << "Failed to retreive helper tools: " << m_tools << endreq;
     } else {
-        (*m_log) << MSG::INFO << "Retrieved " << m_tools << endmsg;
+        (*m_log) << MSG::INFO << "Retrieved " << m_tools << endreq;
     }    
     
     // Initialize timing service
     if( service( "TrigTimerSvc", m_pTimerService).isFailure() ) {
-        (*m_log) << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endmsg;
+        (*m_log) << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endreq;
     } 
     
     if (m_pTimerService){
-        (*m_log) << MSG::DEBUG << "Adding timers" << endmsg;
+        (*m_log) << MSG::DEBUG << "Adding timers" << endreq;
         //Add timers
         //m_total_timer          = addTimer("total_time");
         m_unpack_timer         = addTimer("unpack_time");
@@ -130,25 +130,25 @@ HLT::ErrorCode T2CaloFastJet::hltInitialize()
     }    
     
     // initialise fast jet
-    m_particles.reserve(100);
-    m_constituents.reserve(100);
-    m_jets.reserve(100);
+    particles.reserve(100);
+    constituents.reserve(100);
+    jets.reserve(100);
     
-    (*m_log) << MSG::INFO << "Setting up fastjet jet definition" << endmsg;
-    m_jet_def = new fastjet::JetDefinition(fastjet::antikt_algorithm, m_distanceParameter); // this should be made configurable in the future
+    (*m_log) << MSG::INFO << "Setting up fastjet jet definition" << endreq;
+    jet_def = new fastjet::JetDefinition(fastjet::antikt_algorithm, m_distanceParameter); // this should be made configurable in the future
     // dummy call to fast jet so it's internal initalize methods are set (and we don't print the banner during execute)
-    (*m_log) << MSG::INFO << "Making dummy call to fast jet cluster sequence" << endmsg;
-    m_particles.clear();
-    m_cluster_sequence = new fastjet::ClusterSequence(m_particles, *m_jet_def);
-    delete m_cluster_sequence;
+    (*m_log) << MSG::INFO << "Making dummy call to fast jet cluster sequence" << endreq;
+    particles.clear();
+    cluster_sequence = new fastjet::ClusterSequence(particles, *jet_def);
+    delete cluster_sequence;
     // pileup subtraction
     if (m_doPileupSubtraction) {
-        (*m_log) << MSG::INFO << "Setting up fastjet pileup subtraction" << endmsg;
+        (*m_log) << MSG::INFO << "Setting up fastjet pileup subtraction" << endreq;
         // define the jet algorithm
         double ktRadius(0.4);
-        m_pu_jet_def = new fastjet::JetDefinition(fastjet::kt_algorithm,ktRadius,fastjet::E_scheme,fastjet::Best);
+        pu_jet_def = new fastjet::JetDefinition(fastjet::kt_algorithm,ktRadius,fastjet::Best);
          // define jet area algorithm
-        m_pu_area_def = new fastjet::AreaDefinition(fastjet::VoronoiAreaSpec(0.9));
+        pu_area_def = new fastjet::AreaDefinition(fastjet::VoronoiAreaSpec(0.9));
     }
     
     // cleaning
@@ -190,9 +190,9 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
         m_RoI_timer->reset();
         //m_total_timer->start();
     }
-    m_particles.clear();
-    m_constituents.clear();
-    m_jets.clear();
+    particles.clear();
+    constituents.clear();
+    jets.clear();
     m_nJets = -99;
     m_nGrid = -99;
     //m_TotalTime = -99;
@@ -215,7 +215,7 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
 
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "================= Executing T2CaloFastJet FEX " << name() << endmsg;
+        (*m_log) << MSG::DEBUG << "================= Executing T2CaloFastJet FEX " << name() << endreq;
         
     }
 #endif
@@ -227,12 +227,12 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
     
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << tes_in.size() << " input TEs found" << endmsg;        
+        (*m_log) << MSG::DEBUG << tes_in.size() << " input TEs found" << endreq;        
     }
 #endif
     // error check, we should only have a single input TE
     if ( tes_in.size() != 1 ) {
-        msg() << MSG::WARNING << "Got more than one input TE" << endmsg;
+        msg() << MSG::WARNING << "Got more than one input TE" << endreq;
         afterExecMonitors().ignore();
         return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::USERDEF_1); 
     }
@@ -241,12 +241,12 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
         std::vector<HLT::TriggerElement*>& tes = tes_in.at(type);
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG << "  - TE[" << type << "]: " << tes.size() << " sub TEs found" << endmsg;        
+            (*m_log) << MSG::DEBUG << "  - TE[" << type << "]: " << tes.size() << " sub TEs found" << endreq;        
         }
 #endif
         // error check, we should only have a single sub TE
         if ( tes.size() != 1 ) {
-            msg() << MSG::WARNING << "Got more than one sub TE" << endmsg;
+            msg() << MSG::WARNING << "Got more than one sub TE" << endreq;
             afterExecMonitors().ignore();
             return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,  HLT::Reason::USERDEF_1); 
         }
@@ -255,22 +255,22 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
             HLT::ErrorCode ec = getFeature(tes.at(teIdx), inputGrid, m_jetInputKey);
             //seednode = tes.at(teIdx);
             if(ec!=HLT::OK) {
-                (*m_log) << MSG::WARNING << "Failed to get the input particles" << endmsg;
+                (*m_log) << MSG::WARNING << "Failed to get the input particles" << endreq;
                 return ec;
             }          
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-                (*m_log) << MSG::DEBUG  << "  - A total of " << inputGrid->grid()->size()  << " particles found in this TE" << endmsg;
+                (*m_log) << MSG::DEBUG  << "  - A total of " << inputGrid->grid()->size()  << " particles found in this TE" << endreq;
             }
 #endif
         } // end of loop on sub TEs
     } // end of loop on TEs
     
-    const std::vector<Trig3Momentum>* grid = inputGrid->grid();
+    std::vector<Trig3Momentum>* grid = inputGrid->grid();
     
 #ifndef NDEBUG
    if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG  << "A total of " << grid->size()  << " particles are to be clustered" << endmsg;
+        (*m_log) << MSG::DEBUG  << "A total of " << grid->size()  << " particles are to be clustered" << endreq;
     }
 #endif
     
@@ -288,13 +288,13 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
                                    << "]: Et: "         << begin_grid->e()/cosh(begin_grid->eta())
                                    << " MeV, eta: "     << begin_grid->eta() 
                                    << ", phi: "         << begin_grid->phi() 
-                                   << ", sampling: "    << std::hex << begin_grid->caloSample() << std::dec << endmsg;
+                                   << ", sampling: "    << std::hex << begin_grid->caloSample() << std::dec << endreq;
         }
 #endif
         
         // now fill fast jet particles
         double energy(begin_grid->e());
-        if(energy<m_cellMinEnergy) continue;
+        if(energy<cellMinEnergy_) continue;
         double eta(begin_grid->eta());
         double phi(begin_grid->phi());
         double transverse_energy = energy/cosh(eta);
@@ -304,7 +304,7 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
         
         fastjet::PseudoJet pseudo_jet( px, py, pz, energy);
         pseudo_jet.set_user_index(std::distance(begin_grid_fixed, begin_grid));
-        m_particles.push_back( pseudo_jet );
+        particles.push_back( pseudo_jet );
         
         jet_counter++;
     }
@@ -315,22 +315,22 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
     if(doTiming()) m_fastjet_timer->start();
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG <<  "=== Performing jet finding " << endmsg;
+        (*m_log) << MSG::DEBUG <<  "=== Performing jet finding " << endreq;
     }
 #endif        
     // run the clustering, extract the jets
-    m_cluster_sequence = 0;   
-    m_pu_cluster_sequence = 0;     
+    cluster_sequence = 0;   
+    pu_cluster_sequence = 0;     
     if (m_doPileupSubtraction){           
-        m_pu_cluster_sequence = new fastjet::ClusterSequenceArea(m_particles, *m_jet_def, *m_pu_area_def);
-        m_jets = fastjet::sorted_by_pt(m_pu_cluster_sequence->inclusive_jets(m_pTmin)); // sorted by decreasing pt
+        pu_cluster_sequence = new fastjet::ClusterSequenceArea(particles, *jet_def, *pu_area_def);
+        jets = fastjet::sorted_by_pt(pu_cluster_sequence->inclusive_jets(m_pTmin)); // sorted by decreasing pt
     } else {
-        m_cluster_sequence = new fastjet::ClusterSequence(m_particles, *m_jet_def);
-        m_jets = fastjet::sorted_by_pt(m_cluster_sequence->inclusive_jets(m_pTmin)); // sorted by decreasing pt
+        cluster_sequence = new fastjet::ClusterSequence(particles, *jet_def);
+        jets = fastjet::sorted_by_pt(cluster_sequence->inclusive_jets(m_pTmin)); // sorted by decreasing pt
     }
     
-    //std::reverse(m_jets.begin(),m_jets.end());  // sorted by increasing pt
-    m_nJets = m_jets.size();
+    //std::reverse(jets.begin(),jets.end());  // sorted by increasing pt
+    m_nJets = jets.size();
     if(doTiming()) m_fastjet_timer->stop();
     
     // pileup subtraction
@@ -338,23 +338,23 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
     if (m_doPileupSubtraction){
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG <<  "=== Performing pileup subtraction jet finding " << endmsg;
+            (*m_log) << MSG::DEBUG <<  "=== Performing pileup subtraction jet finding " << endreq;
         }
 #endif 
-        m_pu_area_cluster_sequence = 0;
-        m_pu_area_cluster_sequence = new fastjet::ClusterSequenceArea(m_particles, *m_pu_jet_def, *m_pu_area_def);
+        pu_area_cluster_sequence = 0;
+        pu_area_cluster_sequence = new fastjet::ClusterSequenceArea(particles, *pu_jet_def, *pu_area_def);
         // get rho in central eta range
-        m_rho = 0.;
-        m_sigma = 0.;
-        m_area = 0.;
+        rho = 0.;
+        sigma = 0.;
+        area = 0.;
         fastjet::RangeDefinition etaRange(-2.,2.);
-        m_pu_area_cluster_sequence->get_median_rho_and_sigma(etaRange,false,m_rho,m_sigma,m_area);
+        pu_area_cluster_sequence->get_median_rho_and_sigma(etaRange,false,rho,sigma,area);
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG <<  "   completed pileup subtraction jet finding" << endmsg;
-            (*m_log) << MSG::DEBUG <<  "   median rho:   " << m_rho << endmsg;
-            (*m_log) << MSG::DEBUG <<  "   median sigma: " << m_sigma << endmsg;
-            (*m_log) << MSG::DEBUG <<  "   area:         " << m_area << endmsg;
+            (*m_log) << MSG::DEBUG <<  "   completed pileup subtraction jet finding" << endreq;
+            (*m_log) << MSG::DEBUG <<  "   median rho:   " << rho << endreq;
+            (*m_log) << MSG::DEBUG <<  "   median sigma: " << sigma << endreq;
+            (*m_log) << MSG::DEBUG <<  "   area:         " << area << endreq;
             
         }
 #endif 
@@ -368,7 +368,7 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
     if (!m_writeMultipleOutputTEs){
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG <<  "Writing all jets to a single output TE" << endmsg;
+            (*m_log) << MSG::DEBUG <<  "Writing all jets to a single output TE" << endreq;
         }
 #endif
         outputTE = addRoI(type_out, new TrigRoiDescriptor(true)); // make a single output TE
@@ -376,7 +376,7 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
     } else {
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG <<  "Writing each jet to it's own output TE" << endmsg;
+            (*m_log) << MSG::DEBUG <<  "Writing each jet to it's own output TE" << endreq;
         }
 #endif
     }
@@ -387,24 +387,24 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
     // inspect the output jets, compute some cleaning variables then store
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG <<  "Found "<< m_jets.size() << " jets " << endmsg;
-        if (m_jets.size()) (*m_log) << MSG::DEBUG <<  "== Resultant jets " << endmsg;
+        (*m_log) << MSG::DEBUG <<  "Found "<< jets.size() << " jets " << endreq;
+        if (jets.size()) (*m_log) << MSG::DEBUG <<  "== Resultant jets " << endreq;
     }
 #endif
-    for (unsigned i = 0; i < m_jets.size(); ++i) {
+    for (unsigned i = 0; i < jets.size(); ++i) {
         if (m_doPileupSubtraction){
-            m_constituents = fastjet::sorted_by_pt(m_pu_cluster_sequence->constituents(m_jets[i]));
+            constituents = fastjet::sorted_by_pt(pu_cluster_sequence->constituents(jets[i]));
         } else {
-            m_constituents = fastjet::sorted_by_pt(m_cluster_sequence->constituents(m_jets[i]));
+            constituents = fastjet::sorted_by_pt(cluster_sequence->constituents(jets[i]));
         }
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
            (*m_log) << MSG::DEBUG << "  fastjet jet [" << i 
-                    << "]: Et: "            << m_jets[i].e()/cosh(m_jets[i].eta()) 
-                    << " MeV, eta: "        << m_jets[i].eta() 
-                    << ", phi: "            << m_jets[i].phi_std() 
-                    << ", rapidity: "       << m_jets[i].rapidity() 
-                    << ", n consituents: "  << m_constituents.size() << endmsg;
+                    << "]: Et: "            << jets[i].e()/cosh(jets[i].eta()) 
+                    << " MeV, eta: "        << jets[i].eta() 
+                    << ", phi: "            << jets[i].phi_std() 
+                    << ", rapidity: "       << jets[i].rapidity() 
+                    << ", n consituents: "  << constituents.size() << endreq;
         }
 #endif
         // === pileup subtraction
@@ -412,13 +412,13 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
         double et_offset = 0.;
         double e_offset = 0.;
         if (m_doPileupSubtraction){
-            double jet_area = m_pu_cluster_sequence->area(m_jets[i]);
-            et_offset = jet_area * m_rho;
-            e_offset = et_offset * cosh(m_jets[i].eta());
+            double jet_area = pu_cluster_sequence->area(jets[i]);
+            et_offset = jet_area * rho;
+            e_offset = et_offset * cosh(jets[i].eta());
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-               (*m_log) << MSG::DEBUG << "    - area: " << jet_area << ", offset (median m_rho * m_area): " << et_offset << endmsg;
-               (*m_log) << MSG::DEBUG << "    - offset ET: " << (m_jets[i].e()/cosh(m_jets[i].eta())) - et_offset << ", e: " << m_jets[i].e()-e_offset << endmsg;
+               (*m_log) << MSG::DEBUG << "    - area: " << jet_area << ", offset (median rho * area): " << et_offset << endreq;
+               (*m_log) << MSG::DEBUG << "    - offset ET: " << (jets[i].e()/cosh(jets[i].eta())) - et_offset << ", e: " << jets[i].e()-e_offset << endreq;
                
             }
 #endif
@@ -453,11 +453,11 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
         if (m_doCleaning) {
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-               (*m_log) << MSG::DEBUG  << "  Computing cleaning variables "<< endmsg;
+               (*m_log) << MSG::DEBUG  << "  Computing cleaning variables "<< endreq;
             }
 #endif
-            for (unsigned ii = 0; ii < m_constituents.size(); ++ii){
-                int grid_id = m_constituents[ii].user_index();
+            for (unsigned ii = 0; ii < constituents.size(); ++ii){
+                int grid_id = constituents[ii].user_index();
                 Trig3Momentum grid_element = grid->at(grid_id);
 #ifndef NDEBUG
                 if((*m_log).level() <= MSG::DEBUG){
@@ -466,11 +466,11 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
                                            << "]: Et: "         << grid_element.e()/cosh(grid_element.eta())
                                            << " MeV, eta: "     << grid_element.eta() 
                                            << ", phi: "         << grid_element.phi() 
-                                           << ", sampling: "    << std::hex << grid_element.caloSample() << std::dec << endmsg;
+                                           << ", sampling: "    << std::hex << grid_element.caloSample() << std::dec << endreq;
                     if (!m_doT2L1Cleaning){
                         (*m_log) << MSG::DEBUG << "        provenance: " << grid_element.provenance()
                                                << ", quality: "          << grid_element.quality()
-                                               << ", time: "             << grid_element.time() << endmsg;
+                                               << ", time: "             << grid_element.time() << endreq;
                     }
                 }
 #endif
@@ -506,7 +506,7 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
                     eta += tmpE*grid_element.eta();
                     tmpPhi = grid_element.phi();      
                     
-                    tmpdPhi = tmpPhi - m_jets[i].phi_std();   // w.r.t Jet
+                    tmpdPhi = tmpPhi - jets[i].phi_std();   // w.r.t Jet
                     if (tmpdPhi > M_PI) tmpdPhi -= 2*M_PI;    
                     if (tmpdPhi < -1*M_PI) tmpdPhi += 2*M_PI; 
                     
@@ -569,7 +569,7 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
             // -------------------------------------
             if(eThresh != 0) {
                 eta /= eThresh;
-                phi = dphi/eThresh + m_jets[i].phi_std(); // recover absolute value
+                phi = dphi/eThresh + jets[i].phi_std(); // recover absolute value
                 
                 // phi must be between -pi and pi :
                 if(phi > M_PI) phi -= 2.0* M_PI;
@@ -603,13 +603,13 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
             // === cleaning completed
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-                (*m_log) << MSG::DEBUG  << "  - EM energy [MeV]:  " << em_energy  << ", (ET: " << em_energy/cosh(m_jets[i].eta())  << ")" << endmsg;
-                (*m_log) << MSG::DEBUG  << "  - HAD energy [MeV]: " << had_energy << ", (ET: " << had_energy/cosh(m_jets[i].eta()) << ")" << endmsg;
-                (*m_log) << MSG::DEBUG  << "  - n leading cells:  " << nLeadingCells << endmsg;
-                (*m_log) << MSG::DEBUG  << "  - EM fraction:      " << emf << endmsg;
-                (*m_log) << MSG::DEBUG  << "  - HEC fraction:     " << hecf << endmsg;
-                (*m_log) << MSG::DEBUG  << "  - Jet quality:      " << jetQuality << endmsg;
-                (*m_log) << MSG::DEBUG  << "  - Jet time:         " << jetTimeCells << endmsg;
+                (*m_log) << MSG::DEBUG  << "  - EM energy [MeV]:  " << em_energy  << ", (ET: " << em_energy/cosh(jets[i].eta())  << ")" << endreq;
+                (*m_log) << MSG::DEBUG  << "  - HAD energy [MeV]: " << had_energy << ", (ET: " << had_energy/cosh(jets[i].eta()) << ")" << endreq;
+                (*m_log) << MSG::DEBUG  << "  - n leading cells:  " << nLeadingCells << endreq;
+                (*m_log) << MSG::DEBUG  << "  - EM fraction:      " << emf << endreq;
+                (*m_log) << MSG::DEBUG  << "  - HEC fraction:     " << hecf << endreq;
+                (*m_log) << MSG::DEBUG  << "  - Jet quality:      " << jetQuality << endreq;
+                (*m_log) << MSG::DEBUG  << "  - Jet time:         " << jetTimeCells << endreq;
             }
 #endif
 
@@ -620,14 +620,14 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
         if (m_doPileupSubtraction){
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG)
-                (*m_log) << MSG::DEBUG  << "  Recording with offset energy" << endmsg;
+                (*m_log) << MSG::DEBUG  << "  Recording with offset energy" << endreq;
 #endif
-            m_jet->setE(m_jets[i].e() - e_offset);
+            m_jet->setE(jets[i].e() - e_offset);
         } else {
-            m_jet->setE(m_jets[i].e());
+            m_jet->setE(jets[i].e());
         }
-        m_jet->setEta(m_jets[i].eta());
-        m_jet->setPhi(m_jets[i].phi_std());  
+        m_jet->setEta(jets[i].eta());
+        m_jet->setPhi(jets[i].phi_std());  
         m_jet->setEem0(em_energy);
         m_jet->setEhad0(had_energy);
         // cleaning:
@@ -640,14 +640,14 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
         m_jet->set_RoIword(m_t2l1_tools.BLANKWORD+m_t2l1_tools.SET_INPUT*m_inputType+m_t2l1_tools.SET_OUTPUT*m_outputType+i);
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG)
-            (*m_log) << MSG::DEBUG  << "  RoI word set to: " << m_jet->RoIword() << endmsg;
+            (*m_log) << MSG::DEBUG  << "  RoI word set to: " << m_jet->RoIword() << endreq;
 #endif
 
         // === calibration 
         if(doTiming()) m_calibration_timer->start();
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-           (*m_log) << MSG::DEBUG  << "  " << m_tools.size() << " calibration tools to be run"<< endmsg;
+           (*m_log) << MSG::DEBUG  << "  " << m_tools.size() << " calibration tools to be run"<< endreq;
            
         }
 #endif
@@ -658,11 +658,11 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
         for (; it != itToolEnd; ++it) {
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-               (*m_log) << MSG::DEBUG  << "  Executing tool [" << current << "]"<< endmsg;
+               (*m_log) << MSG::DEBUG  << "  Executing tool [" << current << "]"<< endreq;
             }
 #endif
             if ((*it)->execute(m_jet, TrigRoiDescriptor(true) ).isFailure()){    // the zeros are the unused eta phi coordinates used by many base tools to define the RoI region
-                msg() << MSG::WARNING << "T2CaloFastJet AlgToolJets returned Failure" << endmsg;
+                msg() << MSG::WARNING << "T2CaloFastJet AlgToolJets returned Failure" << endreq;
                 return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,HLT::Reason::USERDEF_1);
             }
             current++;
@@ -674,7 +674,7 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
                     << "]: Et: "            << m_jet->et()
                     << " MeV, eta: "        << m_jet->eta() 
                     << ", phi: "            << m_jet->phi() 
-                    << endmsg;
+                    << endreq;
         }
 #endif
         if(doTiming()) m_calibration_timer->stop();
@@ -692,7 +692,7 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
           
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG << "  recording T2CaloJet["<<recorded_jet_counter<<"]"<<endmsg;
+            (*m_log) << MSG::DEBUG << "  recording T2CaloJet["<<recorded_jet_counter<<"]"<<endreq;
         }
 #endif
         if (m_writeMultipleOutputTEs){
@@ -702,7 +702,7 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
             } 
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-                (*m_log) << MSG::DEBUG << "  preparing an output TE, using RoI word: " << secondary_roi_word <<endmsg;
+                (*m_log) << MSG::DEBUG << "  preparing an output TE, using RoI word: " << secondary_roi_word <<endreq;
             }
 #endif
             // addRoI implementation
@@ -725,20 +725,20 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
 	    /// HOW BIG IS THE ROI ???
             HLT::ErrorCode hltStatus = attachFeature(outputTE, newRoiDescriptor, m_jetOutputKey);            
             if ( hltStatus != HLT::OK ) {
-                (*m_log) << MSG::ERROR << "recording of RoiDescriptor into StoreGate failed" << endmsg;
+                (*m_log) << MSG::ERROR << "recording of RoiDescriptor into StoreGate failed" << endreq;
                 return hltStatus;
             }
 
             
             hltStatus = recordAndAttachFeature(outputTE, m_jet, key, m_jetOutputKey);
             if (hltStatus != HLT::OK){
-                (*m_log) << MSG::ERROR << "recording of TrigT2Jet into StoreGate failed" << endmsg;
+                (*m_log) << MSG::ERROR << "recording of TrigT2Jet into StoreGate failed" << endreq;
                 return hltStatus;
             }
         } else {
             HLT::ErrorCode hltStatus = recordAndAttachFeature(outputTE, m_jet, key, m_jetOutputKey);
             if (hltStatus != HLT::OK){
-                (*m_log) << MSG::ERROR << "recording of TrigT2Jet into StoreGate failed" << endmsg;
+                (*m_log) << MSG::ERROR << "recording of TrigT2Jet into StoreGate failed" << endreq;
                 return hltStatus;
             }
         }
@@ -752,10 +752,10 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
     
     // === post-execute admin
     if (m_doPileupSubtraction){
-        delete m_pu_cluster_sequence; 
-        delete m_pu_area_cluster_sequence; 
+        delete pu_cluster_sequence; 
+        delete pu_area_cluster_sequence; 
     } else {
-        delete m_cluster_sequence; 
+        delete cluster_sequence; 
     }
     if(doTiming()) {
         //m_total_timer->stop();
@@ -769,19 +769,19 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
     
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG << "Unpacking completed in      "     << m_unpack_timer->elapsed()         << " ms " << endmsg;
-            (*m_log) << MSG::DEBUG << "FastJet completed in        "     << m_fastjet_timer->elapsed()        << " ms " << endmsg;
-            (*m_log) << MSG::DEBUG << "PU subtraction completed in "     << m_pu_subtraction_timer->elapsed() << " ms " << endmsg;
-            (*m_log) << MSG::DEBUG << "Cleaning completed in       "     << m_cleaning_timer->elapsed()       << " ms " << endmsg;
-            (*m_log) << MSG::DEBUG << "Calibration completed in    "     << m_calibration_timer->elapsed()    << " ms " << endmsg;
-            (*m_log) << MSG::DEBUG << "RoI making completed in     "     << m_RoI_timer->elapsed()            << " ms " << endmsg;
-            //(*m_log) << MSG::DEBUG << "T2CaloFastJet completed in  "     << m_total_timer->elapsed()          << " ms " << endmsg;
+            (*m_log) << MSG::DEBUG << "Unpacking completed in      "     << m_unpack_timer->elapsed()         << " ms " << endreq;
+            (*m_log) << MSG::DEBUG << "FastJet completed in        "     << m_fastjet_timer->elapsed()        << " ms " << endreq;
+            (*m_log) << MSG::DEBUG << "PU subtraction completed in "     << m_pu_subtraction_timer->elapsed() << " ms " << endreq;
+            (*m_log) << MSG::DEBUG << "Cleaning completed in       "     << m_cleaning_timer->elapsed()       << " ms " << endreq;
+            (*m_log) << MSG::DEBUG << "Calibration completed in    "     << m_calibration_timer->elapsed()    << " ms " << endreq;
+            (*m_log) << MSG::DEBUG << "RoI making completed in     "     << m_RoI_timer->elapsed()            << " ms " << endreq;
+            //(*m_log) << MSG::DEBUG << "T2CaloFastJet completed in  "     << m_total_timer->elapsed()          << " ms " << endreq;
         }
 #endif
     }
     
 #ifndef NDEBUG
-    if((*m_log).level() <= MSG::DEBUG) (*m_log) << MSG::DEBUG << "================= Finished T2CaloFastJet " << name() << endmsg;
+    if((*m_log).level() <= MSG::DEBUG) (*m_log) << MSG::DEBUG << "================= Finished T2CaloFastJet " << name() << endreq;
 #endif
     // since this is an AllTEAlgo, we have to call the monitoring ourselves:
     afterExecMonitors().ignore();
@@ -793,12 +793,12 @@ HLT::ErrorCode T2CaloFastJet::hltExecute(std::vector<std::vector<HLT::TriggerEle
 HLT::ErrorCode T2CaloFastJet::hltFinalize()
 {
     if ( (*m_log).level() <= MSG::DEBUG )
-        (*m_log) << MSG::DEBUG << "Finalizing T2CaloFastJet FEX " << name() << endmsg;
+        (*m_log) << MSG::DEBUG << "Finalizing T2CaloFastJet FEX " << name() << endreq;
     
     delete m_log;
-    m_particles.clear();
-    m_jets.clear();
-    m_constituents.clear();
+    particles.clear();
+    jets.clear();
+    constituents.clear();
     m_et.clear();
     m_et_em.clear();
     m_et_had.clear();
@@ -810,13 +810,13 @@ HLT::ErrorCode T2CaloFastJet::hltFinalize()
     m_em_frac.clear();
     m_nLeadingTowers.clear();
     
-    if ( bool(m_jet_def) ){
-        delete m_jet_def;
+    if ( bool(jet_def) ){
+        delete jet_def;
     }
     
     if (m_doPileupSubtraction){
-        delete m_pu_jet_def;
-        delete m_pu_area_def;
+        delete pu_jet_def;
+        delete pu_area_def;
     }
     
           

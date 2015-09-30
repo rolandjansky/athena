@@ -34,8 +34,8 @@ class GridsHandler {
   void clearAllGrids();
   void appendAllGrids(Vt3m &output) const;
  private:
-  CsVmcMap m_grids;
-  std::vector< CaloSampling::CaloSample > m_allSamples;
+  CsVmcMap grids_;
+  std::vector< CaloSampling::CaloSample > allSamples_;
 };
 
 #endif

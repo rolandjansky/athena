@@ -48,13 +48,13 @@ StatusCode T2CaloJetGridFromFEBHeader::initialize()
 //  MsgStream mLog(msgSvc(), name());
   m_log = new MsgStream(AlgTool::msgSvc(), name());
 
-//  (*m_log) << MSG::INFO << " In initialize() of T2CaloJetGridFromFEBHeader " << endmsg;
+//  (*m_log) << MSG::INFO << " In initialize() of T2CaloJetGridFromFEBHeader " << endreq;
   int outputLevel = msgSvc()->outputLevel( name() );
   if(outputLevel <= MSG::VERBOSE)
-    (*m_log) << MSG::VERBOSE << "  In initalize() " << endmsg;
+    (*m_log) << MSG::VERBOSE << "  In initalize() " << endreq;
 
   if (toolSvc()->retrieveTool("TrigDataAccess", m_data).isFailure()) {
-    //    (*m_log) << MSG::ERROR << "Could not get m_data" << endmsg;
+    //    (*m_log) << MSG::ERROR << "Could not get m_data" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -66,7 +66,7 @@ StatusCode T2CaloJetGridFromFEBHeader::initialize()
     if (sc.isFailure()) {
       (*m_log) << MSG::ERROR << "unable to locate timing service TrigTimerSvc."
                << " Setting doTiming = false!!! " 
-               << endmsg;
+               << endreq;
       m_timerSvc = 0;
       m_doTiming=false;
       //return sc;
@@ -103,7 +103,7 @@ TrigTimer* T2CaloJetGridFromFEBHeader::getTimer(const std::string& timerName){
   std::map<std::string, TrigTimer*>::const_iterator t = m_timers.find(timerName);
   if (t == m_timers.end()) {
     if(outputLevel <= MSG::DEBUG)
-      (*m_log) << MSG::DEBUG << " Timer " << timerName << " not found."<< endmsg;
+      (*m_log) << MSG::DEBUG << " Timer " << timerName << " not found."<< endreq;
     return 0;
   }
 
@@ -132,7 +132,7 @@ StatusCode T2CaloJetGridFromFEBHeader::execute(TrigT2Jet
   int outputLevel = msgSvc()->outputLevel( name() );
 
   if(outputLevel <= MSG::DEBUG)
-     log << MSG::DEBUG << " executing T2CaloJetGridFromFEBHeader " << endmsg;
+     log << MSG::DEBUG << " executing T2CaloJetGridFromFEBHeader " << endreq;
 
 
   std::vector<Trig3Momentum>* grid = new std::vector<Trig3Momentum>();
@@ -163,7 +163,7 @@ StatusCode T2CaloJetGridFromFEBHeader::execute(TrigT2Jet
   StatusCode sc = addFebEnergies(etamin, etamax, phimin, phimax, grid);
   if(sc.isFailure()){
     if(outputLevel <= MSG::DEBUG)
-        log << MSG::DEBUG << " Failure of addFebEnergies. Empty grid! " << endmsg;
+        log << MSG::DEBUG << " Failure of addFebEnergies. Empty grid! " << endreq;
   }
 
 //  gridElement->setE(10000.);
@@ -322,7 +322,7 @@ StatusCode T2CaloJetGridFromFEBHeader::addLArFebEnergy(double etamin, double eta
   }
 
   if ( Athena::Timeout::instance().reached() ) {
-       (*m_log) << MSG::ERROR << "Timeout reached in addLArFebEnergy" << endmsg;
+       (*m_log) << MSG::ERROR << "Timeout reached in addLArFebEnergy" << endreq;
        return StatusCode::FAILURE;
   }
 //  if (m_timersvc) m_timer[4]->pause();
@@ -386,7 +386,7 @@ StatusCode T2CaloJetGridFromFEBHeader::addTileCells(double etamin, double etamax
   }
 
   if ( Athena::Timeout::instance().reached() ) {
-       (*m_log) << MSG::ERROR << "Timeout reached in addTileCells " << endmsg;
+       (*m_log) << MSG::ERROR << "Timeout reached in addTileCells " << endreq;
        return StatusCode::FAILURE;
   }
 

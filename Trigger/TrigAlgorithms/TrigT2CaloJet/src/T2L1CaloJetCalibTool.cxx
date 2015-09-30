@@ -54,16 +54,16 @@ T2L1CaloJetCalibTool::~T2L1CaloJetCalibTool()
 StatusCode T2L1CaloJetCalibTool::initialize() 
 {
     m_log = new MsgStream(msgSvc(), name());   
-    (*m_log) << MSG::INFO << " Initalizing Tool: " << name () << endmsg;
+    (*m_log) << MSG::INFO << " Initalizing Tool: " << name () << endreq;
     
     if ( m_eta_bin_lower_edges.empty() ) { 
-        (*m_log) << MSG::ERROR << name() << ": No eta bin edges provided " << endmsg;
+        (*m_log) << MSG::ERROR << name() << ": No eta bin edges provided " << endreq;
         return StatusCode::FAILURE;        
     } else { 
-        (*m_log) << MSG::INFO << " eta bin edges provided: " << m_eta_bin_lower_edges.size() << endmsg;
+        (*m_log) << MSG::INFO << " eta bin edges provided: " << m_eta_bin_lower_edges.size() << endreq;
         if((*m_log).level() <= MSG::DEBUG){
             for  ( unsigned i=0 ; i<m_eta_bin_lower_edges.size() ; i++ ) {
-                (*m_log) << MSG::DEBUG   << "    - bin[" << i << "] lower edge: " << m_eta_bin_lower_edges[i] << endmsg;
+                (*m_log) << MSG::DEBUG   << "    - bin[" << i << "] lower edge: " << m_eta_bin_lower_edges[i] << endreq;
             }
         }
     }
@@ -85,7 +85,7 @@ StatusCode T2L1CaloJetCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, doub
 
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "===== Executing: T2L1CaloJetCalibTool " << name() << endmsg;
+        (*m_log) << MSG::DEBUG << "===== Executing: T2L1CaloJetCalibTool " << name() << endreq;
     }
 #endif
 
@@ -97,11 +97,11 @@ StatusCode T2L1CaloJetCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, doub
         (*m_log) << MSG::DEBUG   << "  Initial TrigT2CaloJet Et: "  << jet->e()/cosh(jet->eta())
                                  << " MeV, eta: "     << jet->eta() 
                                  << ", phi: "         << jet->phi() 
-                                 << endmsg;
+                                 << endreq;
         (*m_log) << MSG::DEBUG   << "    - EM Et: "    << jet->eem0()/cosh(jet->eta())
                                  << " MeV, Had Et: "   << jet->ehad0()/cosh(jet->eta())
                                  << " MeV, emf: "      << jet->emf() 
-                                 << endmsg;
+                                 << endreq;
     }
 #endif
     // calibrate the jet
@@ -115,11 +115,11 @@ StatusCode T2L1CaloJetCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, doub
     
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "    - Eta Bin:                   " << eta_bin << endmsg;
-        (*m_log) << MSG::DEBUG << "    - CalibFactor:               " << CalibFactor << endmsg;
-        (*m_log) << MSG::DEBUG << "    - Multiplicative correction: " << correction_factor << endmsg;
-        (*m_log) << MSG::DEBUG << "    - em correction: "             << em_correction_factor << endmsg;
-        (*m_log) << MSG::DEBUG << "    - had correction: "            << had_correction_factor << endmsg;
+        (*m_log) << MSG::DEBUG << "    - Eta Bin:                   " << eta_bin << endreq;
+        (*m_log) << MSG::DEBUG << "    - CalibFactor:               " << CalibFactor << endreq;
+        (*m_log) << MSG::DEBUG << "    - Multiplicative correction: " << correction_factor << endreq;
+        (*m_log) << MSG::DEBUG << "    - em correction: "             << em_correction_factor << endreq;
+        (*m_log) << MSG::DEBUG << "    - had correction: "            << had_correction_factor << endreq;
         
     }
 #endif
@@ -147,18 +147,18 @@ StatusCode T2L1CaloJetCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, doub
         (*m_log) << MSG::DEBUG << "  Calibrated TrigT2CaloJet: Et: "         << jet->e()/cosh(jet->eta())
                                << " MeV, eta: "     << jet->eta() 
                                << ", phi: "         << jet->phi()
-                               << endmsg;
+                               << endreq;
         (*m_log) << MSG::DEBUG   << "    - EM Et: "    << jet->eem0()/cosh(jet->eta())
                                  << " MeV, Had Et: "   << jet->ehad0()/cosh(jet->eta())
                                  << " MeV, emf: "      << jet->emf() 
-                                 << endmsg;
+                                 << endreq;
     }
 #endif
    
 
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "===== Finished: T2L1CaloJetCalibTool " << name() << endmsg;
+        (*m_log) << MSG::DEBUG << "===== Finished: T2L1CaloJetCalibTool " << name() << endreq;
     }
 #endif
     
@@ -211,7 +211,7 @@ int T2L1CaloJetCalibTool::GetEtaBin(double jet_eta)
                (*m_log) << MSG::DEBUG << "      eta: "  << jet_eta
                                << " < bin edge["   << i 
                                << "]: "            << m_eta_bin_lower_edges[i]
-                               << endmsg;
+                               << endreq;
             }
 #endif
             return i-1;

@@ -76,7 +76,7 @@ HLT::ErrorCode T2AllRoiUnpacking::hltInitialize() {
   MsgStream &logStream = *m_log;
   
   if(logStream.level() <= MSG::INFO)
-    logStream << MSG::INFO << " Initalizing FEX algorithm: " << name() << endmsg;
+    logStream << MSG::INFO << " Initalizing FEX algorithm: " << name() << endreq;
 
   initializeTimers();    
   initializeHelperTools();
@@ -130,7 +130,7 @@ HLT::ErrorCode T2AllRoiUnpacking::hltExecute(std::vector<std::vector<HLT::Trigge
   logStream<<MSG::DEBUG
 	   <<"Processed "<<tev.size()<<" TriggerElements"
 	   <<" and filled the grid with "<<m_grid->size()<<" cells."
-	   <<endmsg;
+	   <<endreq;
   // finalize the output and the monitoring variables
   {
     HLT::ErrorCode stat(finalizeOutput(outputTE));
@@ -146,7 +146,7 @@ HLT::ErrorCode T2AllRoiUnpacking::hltFinalize()
 {
   MsgStream &logStream = *m_log;
     if ( logStream.level() <= MSG::DEBUG )
-        logStream << MSG::DEBUG << "Finalizing T2AllRoiUnpacking FEX " << name() << endmsg;
+        logStream << MSG::DEBUG << "Finalizing T2AllRoiUnpacking FEX " << name() << endreq;
 
     delete m_log;
           
@@ -160,7 +160,7 @@ HLT::ErrorCode T2AllRoiUnpacking::processTriggerElement(const HLT::TriggerElemen
   if(!te || !grid){
     logStream<<MSG::ERROR
 	     <<"Invalid TriggerElement ("<<te<<") or grid ("<<grid<<") pointers"
-	     <<endmsg;
+	     <<endreq;
     return HLT::ERROR;
   } // end if(!te || !grid)
 
@@ -169,7 +169,7 @@ HLT::ErrorCode T2AllRoiUnpacking::processTriggerElement(const HLT::TriggerElemen
   HLT::ErrorCode hltStatus = getFeature(te, roiDescriptor);
   if(HLT::OK != hltStatus){
     logStream<<MSG::ERROR
-	     <<" Failed to find RoiDescriptor "<<endmsg;
+	     <<" Failed to find RoiDescriptor "<<endreq;
     return hltStatus;
   } // end if(not OK)
   L2CaloRoiBoundsCalculator bcalc(roiDescriptor, m_roiEtaHalfWidth, m_roiPhiHalfWidth);
@@ -227,7 +227,7 @@ HLT::ErrorCode T2AllRoiUnpacking::processTriggerElement(const HLT::TriggerElemen
   if(sc.isFailure()){
     if(logStream.level() <= MSG::DEBUG)
       logStream<<MSG::DEBUG
-	       <<" Failure of addCells. Empty grid, or some missing cells! "<<endmsg;
+	       <<" Failure of addCells. Empty grid, or some missing cells! "<<endreq;
     return StatusCode::FAILURE;
   } // end if(isFailure)
   m_processedRegions.push_back(l2Roi);
@@ -241,10 +241,10 @@ bool T2AllRoiUnpacking::initializeTimers(){
       || !pTimerService){
     logStream<<MSG::ERROR
 	     <<name()<<": Unable to locate TrigTimer Service"
-	     <<endmsg;
+	     <<endreq;
     return false;
   }
-  logStream << MSG::DEBUG << " Adding timers" << endmsg;
+  logStream << MSG::DEBUG << " Adding timers" << endreq;
   //Add timers
   m_cell_unpacking_timer = addTimer("cell_unpacking_time");
   m_unpacking_timer    = addTimer("unpacking_time");
@@ -257,12 +257,12 @@ bool T2AllRoiUnpacking::initializeHelperTools(){
   using namespace boost::assign;
   MsgStream &logStream = *m_log;
   if ( m_caloGridFromCellsTool.retrieve().isFailure() ) {
-    logStream << MSG::ERROR << "Failed to retreive CaloGridFromCells tool: " << m_caloGridFromCellsTool << endmsg;
+    logStream << MSG::ERROR << "Failed to retreive CaloGridFromCells tool: " << m_caloGridFromCellsTool << endreq;
     m_retrievedGridTool = false;
     return false;
   }
   m_retrievedGridTool = true;
-  logStream << MSG::DEBUG << "Retrieved " << m_caloGridFromCellsTool << endmsg;
+  logStream << MSG::DEBUG << "Retrieved " << m_caloGridFromCellsTool << endreq;
 
   // not strictly 'helpers' but have to be initialized too
   m_ttEmSamplings += 0,1,2,3;
@@ -284,7 +284,7 @@ bool T2AllRoiUnpacking::inputIsValid(const std::vector<std::vector<HLT::TriggerE
   if(logStream.level() <= MSG::DEBUG)
     logStream<< MSG::DEBUG << "T2AllRoiUnpacking "<<name()<<"\n"
 	     <<input.size()<<" input trigger elements for T2AllRoiUnpacking"
-	     <<endmsg;
+	     <<endreq;
   // sanity check on the input
   if(1!=input.size()){
     logStream<<MSG::ERROR<<"T2AllRoiUnpacking "<<name()<<"\n"
@@ -292,7 +292,7 @@ bool T2AllRoiUnpacking::inputIsValid(const std::vector<std::vector<HLT::TriggerE
 	     <<" that should contain the L1 jets."
 	     <<" (got "<<input.size()<<" vectors instead)\n"
 	     <<"Exiting hltExecute."
-	     <<endmsg;
+	     <<endreq;
     return false;
   } // end if(1!=input.size())
   return true;
@@ -325,14 +325,14 @@ HLT::ErrorCode T2AllRoiUnpacking::finalizeOutput(HLT::TriggerElement* outputTE){
   if (stat != HLT::OK){
     logStream<<MSG::ERROR
 	     <<" recording of TrigT2Jets into StoreGate failed"
-	     <<endmsg;
+	     <<endreq;
     return stat;
   }
   if(m_RoI_timer) m_RoI_timer->stop();
   if(logStream.level() <= MSG::DEBUG)
     logStream<<MSG::DEBUG
 	     <<" Unpacking done. "<<name()
-	     <<endmsg;
+	     <<endreq;
   return stat;
 }
 //--------------------------------------------------------------
@@ -357,26 +357,26 @@ void T2AllRoiUnpacking::determineOverlaps(const EtaPhiRectangle &l2Roi)
 
 EtaPhiRectangle::EtaPhiRectangle(const double &etaMin, const double &etaMax,
 			       const double &phiMin, const double &phiMax){
-  m_etaMin = etaMin;
-  m_etaMax = etaMax;
-  m_phiMin = phiMin;
-  m_phiMax = phiMax;
-  m_wrapsAroundPi = std::abs(m_phiMax-m_phiMin) > M_PI;
+  etaMin_ = etaMin;
+  etaMax_ = etaMax;
+  phiMin_ = phiMin;
+  phiMax_ = phiMax;
+  wrapsAroundPi_ = std::abs(phiMax_-phiMin_) > M_PI;
   computeCenterCoord();
 }
 //--------------------------------------------------------------
 bool EtaPhiRectangle::contains(const EtaPhiPoint &point) const {
-  return ((fabs(point.first - m_etaCen) < m_etaHw)
-	  && fabs(phi_mpi_pi(point.second - m_phiCen)) < m_phiHw);
+  return ((fabs(point.first - etaCen_) < etaHw_)
+	  && fabs(phi_mpi_pi(point.second - phiCen_)) < phiHw_);
 }
 //--------------------------------------------------------------
 void EtaPhiRectangle::computeCenterCoord(){
-  m_etaCen = 0.5*(m_etaMin + m_etaMax);
+  etaCen_ = 0.5*(etaMin_ + etaMax_);
   // this takes care of the 2pi wrap
-  m_phiCen = atan2(sin(m_phiMin) + sin(m_phiMax),
-		  cos(m_phiMin) + cos(m_phiMax));
-  m_etaHw = 0.5*fabs(m_etaMax - m_etaMin);
-  m_phiHw = 0.5*fabs(phi_mpi_pi(m_phiMax - m_phiMin));
+  phiCen_ = atan2(sin(phiMin_) + sin(phiMax_),
+		  cos(phiMin_) + cos(phiMax_));
+  etaHw_ = 0.5*fabs(etaMax_ - etaMin_);
+  phiHw_ = 0.5*fabs(phi_mpi_pi(phiMax_ - phiMin_));
 }
 //--------------------------------------------------------------
 double EtaPhiRectangle::phi_mpi_pi(const double &val) {
@@ -447,7 +447,7 @@ EtaPhiRectangle EtaPhiRectangle::overlappingRectangle(const EtaPhiRectangle &lhs
 
 //--------------------------------------------------------------
 void EtaPhiRectangle::print(std::ostream& stream) const {
-  stream<<"eta ["<<m_etaMin<<", "<<m_etaMax<<"], phi ["<<m_phiMin<<", "<<m_phiMax<<"]";
+  stream<<"eta ["<<etaMin_<<", "<<etaMax_<<"], phi ["<<phiMin_<<", "<<phiMax_<<"]";
 }
 //--------------------------------------------------------------
 std::ostream& operator<< (std::ostream& stream, const EtaPhiRectangle &epr) {

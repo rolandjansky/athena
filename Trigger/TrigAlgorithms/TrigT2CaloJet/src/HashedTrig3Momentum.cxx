@@ -6,10 +6,10 @@
 
 #include <cmath> // fabs
 
-HashedTrig3Momentum::HashedTrig3Momentum() : Trig3Momentum(), m_hash(0) {}
+HashedTrig3Momentum::HashedTrig3Momentum() : Trig3Momentum(), hash_(0) {}
 //------------------------------------------------
 HashedTrig3Momentum::HashedTrig3Momentum(const Trig3Momentum &t3m, const u_int &hash) :
-  Trig3Momentum(t3m), m_hash(hash)
+  Trig3Momentum(t3m), hash_(hash)
 {
 }
 //------------------------------------------------
@@ -26,7 +26,7 @@ void HashedTrig3Momentum::addE(const double &eta, const double &phi,
 //------------------------------------------------
 void HashedTrig3Momentum::reset()
 {
-  m_hash = 0;
+  hash_ = 0;
   setE(0.);
   setEta(0.);
   setPhi(0.);

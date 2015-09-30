@@ -26,8 +26,8 @@ class Trig3MomentumMerger {
  private:
   unsigned int expectedLength(const Vt3m &input);
  private:
-  EtaPhiSampleHash m_hashMap;
-  GridsHandler m_gridsHandler;
+  EtaPhiSampleHash hashMap_;
+  GridsHandler gridsHandler_;
 };
 
 #endif

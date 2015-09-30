@@ -72,17 +72,17 @@ HLT::ErrorCode T2L1Unpacking::hltInitialize()
     m_log = new MsgStream(msgSvc(), name());
     
     if((*m_log).level() <= MSG::INFO){
-        (*m_log) << MSG::INFO << " Initalizing FEX algorithm: " << name() << endmsg;
-        //(*m_log) << MSG::DEBUG << "Options: " << endmsg;
+        (*m_log) << MSG::INFO << " Initalizing FEX algorithm: " << name() << endreq;
+        //(*m_log) << MSG::DEBUG << "Options: " << endreq;
     }
     
    // Initialize timing service
     if( service( "TrigTimerSvc", m_pTimerService).isFailure() ) {
-        (*m_log) << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endmsg;
+        (*m_log) << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endreq;
     } 
     
     if (m_pTimerService){
-        (*m_log) << MSG::DEBUG << " Adding timers" << endmsg;
+        (*m_log) << MSG::DEBUG << " Adding timers" << endreq;
         //Add timers
         //m_total_timer        = addTimer("total_time");
         m_l1_unpacking_timer = addTimer("l1_unpacking_time");
@@ -93,25 +93,25 @@ HLT::ErrorCode T2L1Unpacking::hltInitialize()
     
     // Create helper tools
     if ( m_dataL1.retrieve().isFailure() ) {
-        (*m_log) << MSG::ERROR << "Failed to retreive helper tools: " << m_dataL1 << endmsg;
+        (*m_log) << MSG::ERROR << "Failed to retreive helper tools: " << m_dataL1 << endreq;
         m_retrievedJetTool = false;
     } else {
         m_retrievedJetTool = true;
-        (*m_log) << MSG::DEBUG << "Retrieved " << m_dataL1 << endmsg;
+        (*m_log) << MSG::DEBUG << "Retrieved " << m_dataL1 << endreq;
     }
     
     if ( m_tools.retrieve().isFailure() ) {
-        (*m_log) << MSG::ERROR << "Failed to retreive helper tools: " << m_tools << endmsg;
+        (*m_log) << MSG::ERROR << "Failed to retreive helper tools: " << m_tools << endreq;
     } else {
-        (*m_log) << MSG::INFO << "Retrieved " << m_tools << endmsg;
+        (*m_log) << MSG::INFO << "Retrieved " << m_tools << endreq;
     }
     
     // settings for Trigger tower retrieval
-    m_etaMin = -5.;
-    m_etaMax = 5.;
-    m_phiMin = 0.;
-    m_phiMax = 2 * M_PI;
-    m_fullScan = true; 
+    etaMin = -5.;
+    etaMax = 5.;
+    phiMin = 0.;
+    phiMax = 2 * M_PI;
+    fullScan = true; 
  
     /// aha! fullscan should be from -pi to pi
    
@@ -160,7 +160,7 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
    
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "================= Executing T2L1Unpacking FEX " << name() << endmsg;
+        (*m_log) << MSG::DEBUG << "================= Executing T2L1Unpacking FEX " << name() << endreq;
         
     }
 #endif
@@ -187,7 +187,7 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
     if ( m_doTriggerTowers ){
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG << "Trigger tower version" <<endmsg;
+            (*m_log) << MSG::DEBUG << "Trigger tower version" <<endreq;
         }
 #endif
         // now get TT's    
@@ -195,14 +195,14 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
         if ( m_retrievedJetTool ){        
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-                (*m_log) << MSG::DEBUG   << "Loading the L1 data using ITrigT1CaloDataAccess tool"<< endmsg;
+                (*m_log) << MSG::DEBUG   << "Loading the L1 data using ITrigT1CaloDataAccess tool"<< endreq;
 		(*m_log) << MSG::DEBUG   << "Getting trigger towers using "
 			 << " roi: " << *roi 
-		   //         << "  etaMin: " << m_etaMin 
-		   //         << ", etaMax: " << m_etaMax
-		   //         << ", phiMin: " << m_phiMin
-		   //         << ", phiMax: " << m_phiMax
-                         << ", full: "   << m_fullScan << endmsg;
+		   //         << "  etaMin: " << etaMin 
+		   //         << ", etaMax: " << etaMax
+		   //         << ", phiMin: " << phiMin
+		   //         << ", phiMax: " << phiMax
+                         << ", full: "   << fullScan << endreq;
             }
 #endif
             if(doTiming()) m_l1_unpacking_timer->start();
@@ -211,26 +211,26 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
 						      roi->phiMinus(), roi->phiPlus(), roi->isFullscan() );
             if(doTiming()) m_l1_unpacking_timer->stop();
             if (sc.isFailure()) {
-                (*m_log) << MSG::WARNING << "Error accessing trigger tower data" << endmsg;
+                (*m_log) << MSG::WARNING << "Error accessing trigger tower data" << endreq;
                 return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,HLT::Reason::USERDEF_1);
             }
             
 #ifndef NDEBUG     
             if((*m_log).level() <= MSG::DEBUG){
-                (*m_log) << MSG::DEBUG  << "Loaded trigger towers in "<< m_l1_unpacking_timer->elapsed() << " ms" << endmsg;
-                (*m_log) << MSG::DEBUG  << "Looping over trigger towers"<< endmsg;
+                (*m_log) << MSG::DEBUG  << "Loaded trigger towers in "<< m_l1_unpacking_timer->elapsed() << " ms" << endreq;
+                (*m_log) << MSG::DEBUG  << "Looping over trigger towers"<< endreq;
             }
 #endif
         }
         for(; tt_begj!=tt_endj;++tt_begj){
-            const LVL1::TriggerTower* TT = (*tt_begj);
+            LVL1::TriggerTower* TT = (*tt_begj);
 #ifndef NDEBUG   
             if((*m_log).level() <= MSG::DEBUG){
                 (*m_log) << MSG::DEBUG  << "TriggerTower[" << counter
                          << "]: ETs [GeV]: EM: " << TT->emEnergy()
                          << ", HAD: "            << TT->hadEnergy()
                          << ", eta: "            << TT->eta()
-                         << ", phi: "            << TT->phi() << endmsg;
+                         << ", phi: "            << TT->phi() << endreq;
             }
 #endif    
             counter++;
@@ -314,7 +314,7 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
     } else { // if we aren't running on trigger towers we use jet elements instead    
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG << "Jet element version" <<endmsg;
+            (*m_log) << MSG::DEBUG << "Jet element version" <<endreq;
         }
 #endif
         DataVector<LVL1::JetElement>::const_iterator je_begj, je_endj;
@@ -322,27 +322,27 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
         if ( m_retrievedJetTool ){
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-                (*m_log) << MSG::DEBUG  << "Loading the L1 data using ITrigT1CaloDataAccess tool, this loads the jet elements for the entire event"<< endmsg;
+                (*m_log) << MSG::DEBUG  << "Loading the L1 data using ITrigT1CaloDataAccess tool, this loads the jet elements for the entire event"<< endreq;
             }
 #endif
             if(doTiming()) m_l1_unpacking_timer->start();
             StatusCode sc = m_dataL1->loadCollection(je_begj,je_endj);
             if(doTiming()) m_l1_unpacking_timer->stop();
             if (sc.isFailure()) {
-                (*m_log) << MSG::WARNING << "Error accessing jet element data" << endmsg;
+                (*m_log) << MSG::WARNING << "Error accessing jet element data" << endreq;
                 return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,HLT::Reason::USERDEF_1);
             }
             
 #ifndef NDEBUG     
             if((*m_log).level() <= MSG::DEBUG){
-                (*m_log) << MSG::DEBUG  << "Loaded jet elements in "<< m_l1_unpacking_timer->elapsed() << " ms" << endmsg;
-                (*m_log) << MSG::DEBUG  << "Looping over jet elements"<< endmsg;
+                (*m_log) << MSG::DEBUG  << "Loaded jet elements in "<< m_l1_unpacking_timer->elapsed() << " ms" << endreq;
+                (*m_log) << MSG::DEBUG  << "Looping over jet elements"<< endreq;
             }
 #endif
         }
         
         for(; je_begj!=je_endj;++je_begj){
-            const LVL1::JetElement* JE = (*je_begj); 
+            LVL1::JetElement* JE = (*je_begj); 
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
                (*m_log) << MSG::DEBUG  << "JetElement[" << counter
@@ -350,7 +350,7 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
                         << ", HAD: "            << JE->hadEnergy()
                         << ", Total: "          << JE->energy()
                         << ", eta: "            << JE->eta()
-                        << ", phi: "            << JE->phi() << endmsg;
+                        << ", phi: "            << JE->phi() << endreq;
             }        
 #endif
             counter++;
@@ -437,7 +437,7 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
     
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG  << "A total of " << grid->size()  << " L1 particles are to be clustered" << endmsg;
+        (*m_log) << MSG::DEBUG  << "A total of " << grid->size()  << " L1 particles are to be clustered" << endreq;
     }
     
     if((*m_log).level() <= MSG::VERBOSE){        
@@ -452,7 +452,7 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
                                      << "eta: "           << begin_jet->eta() 
                                      << ", phi: "         << begin_jet->phi() 
                                      << ", sampling: "    << std::hex << begin_jet->caloSample() << std::dec 
-                                     << ", provenance: "  << begin_jet->provenance() << endmsg;
+                                     << ", provenance: "  << begin_jet->provenance() << endreq;
             jet_counter++;
         }
     }
@@ -464,7 +464,7 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
     //// RoI word
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG  << "Making TrigT2Jet to save" << endmsg;
+        (*m_log) << MSG::DEBUG  << "Making TrigT2Jet to save" << endreq;
     }
 #endif  
     if(doTiming()) m_RoI_timer->pause();
@@ -474,7 +474,7 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
     if(doTiming()) m_calibration_timer->start();
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-       (*m_log) << MSG::DEBUG  << m_tools.size() << " calibration tools to be run"<< endmsg;
+       (*m_log) << MSG::DEBUG  << m_tools.size() << " calibration tools to be run"<< endreq;
        
     }
 #endif
@@ -485,11 +485,11 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
     for (; it != itToolEnd; ++it) {
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-           (*m_log) << MSG::DEBUG  << "Executing tool [" << current << "]"<< endmsg;
+           (*m_log) << MSG::DEBUG  << "Executing tool [" << current << "]"<< endreq;
         }
 #endif
         if ((*it)->execute(m_jet, TrigRoiDescriptor(true) ).isFailure()){    // the zeros are the unused eta phi coordinates used by many base tools to define the RoI region
-            msg() << MSG::WARNING << "T2CaloFastJet AlgToolJets returned Failure" << endmsg;
+            msg() << MSG::WARNING << "T2CaloFastJet AlgToolJets returned Failure" << endreq;
             return HLT::ErrorCode(HLT::Action::ABORT_CHAIN,HLT::Reason::USERDEF_1);
         }
         current++;
@@ -501,7 +501,7 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
     std::string key = "";
     HLT::ErrorCode stat = recordAndAttachFeature(outputTE, m_jet, key, m_jetOutputKey);
     if (stat != HLT::OK){
-        (*m_log) << MSG::ERROR << "recording of TrigT2Jets into StoreGate failed" << endmsg;
+        (*m_log) << MSG::ERROR << "recording of TrigT2Jets into StoreGate failed" << endreq;
         return stat;
     }
     if(doTiming()) m_RoI_timer->stop();
@@ -516,18 +516,18 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
         //m_TotalTime = m_total_timer->elapsed();
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG << "L1 unpacking completed in  " << m_l1_unpacking_timer->elapsed() << " ms " << endmsg;
-            (*m_log) << MSG::DEBUG << "All unpacking completed in " << m_unpacking_timer->elapsed()    << " ms " << endmsg;
-            (*m_log) << MSG::DEBUG << "Calibration completed in   " << m_calibration_timer->elapsed()  << " ms " << endmsg;
-            (*m_log) << MSG::DEBUG << "RoI making completed in    " << m_RoI_timer->elapsed()          << " ms " << endmsg;
-            //(*m_log) << MSG::DEBUG << "T2L1Unpacking completed in " << m_total_timer->elapsed()        << " ms " << endmsg;
+            (*m_log) << MSG::DEBUG << "L1 unpacking completed in  " << m_l1_unpacking_timer->elapsed() << " ms " << endreq;
+            (*m_log) << MSG::DEBUG << "All unpacking completed in " << m_unpacking_timer->elapsed()    << " ms " << endreq;
+            (*m_log) << MSG::DEBUG << "Calibration completed in   " << m_calibration_timer->elapsed()  << " ms " << endreq;
+            (*m_log) << MSG::DEBUG << "RoI making completed in    " << m_RoI_timer->elapsed()          << " ms " << endreq;
+            //(*m_log) << MSG::DEBUG << "T2L1Unpacking completed in " << m_total_timer->elapsed()        << " ms " << endreq;
         }
 #endif
     }
     
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "================= Finished T2L1Unpacking " << name() << endmsg;
+        (*m_log) << MSG::DEBUG << "================= Finished T2L1Unpacking " << name() << endreq;
     }
 #endif
     
@@ -541,7 +541,7 @@ HLT::ErrorCode T2L1Unpacking::hltExecute(std::vector<std::vector<HLT::TriggerEle
 HLT::ErrorCode T2L1Unpacking::hltFinalize()
 {
     if ( (*m_log).level() <= MSG::DEBUG )
-        (*m_log) << MSG::DEBUG << "Finalizing T2L1Unpacking FEX " << name() << endmsg;
+        (*m_log) << MSG::DEBUG << "Finalizing T2L1Unpacking FEX " << name() << endreq;
     
     m_et.clear();
     m_et_em.clear();
@@ -590,19 +590,19 @@ double T2L1Unpacking::determineTriggerTowerEta(double eta, bool isEM)
     
     if (fabs_eta > 4.5){
         if (isEM) return sign_eta*4.45;
-        return sign_eta*4.2;
+                  return sign_eta*4.2;
                   
     } else if (fabs_eta > 4.1){
         if (isEM) return sign_eta*3.75;
-        return sign_eta*4.2;
+                  return sign_eta*4.2;
                   
     } else if (fabs_eta > 3.6){
         if (isEM) return sign_eta*3.35;
-        return sign_eta*3.4;
+                  return sign_eta*3.4;
                   
     } else {
         if (isEM) return sign_eta*3.15;
-        return sign_eta*3.4;
+                  return sign_eta*3.4;
     }
 }
 

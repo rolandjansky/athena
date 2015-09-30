@@ -72,14 +72,14 @@ StatusCode T2CaloJetCalibTool::initialize()
   m_log = new MsgStream (msgSvc(), name());
   m_outputLevel = msgSvc()->outputLevel( name() );
   if(m_outputLevel <= MSG::DEBUG)
-     (*m_log) << MSG::DEBUG << "  In initalize() " << endmsg;
+     (*m_log) << MSG::DEBUG << "  In initalize() " << endreq;
 
   StatusCode sc;
   // Retrieve the jet calibration tool:
   if(m_doJetCalib) {
     sc = m_t2JetCalibTool.retrieve();
     if ( sc.isFailure() ) {
-      (*m_log) << MSG::ERROR << "Could not get T2JetCalibTool" << endmsg;
+      (*m_log) << MSG::ERROR << "Could not get T2JetCalibTool" << endreq;
       return  StatusCode::FAILURE;
     }
   }
@@ -88,42 +88,42 @@ StatusCode T2CaloJetCalibTool::initialize()
   if(m_doJetCorrTile1) {
     sc = m_t2JetCorrToolTile1.retrieve();
     if ( sc.isFailure() ) {
-      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolTile1" << endmsg;
+      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolTile1" << endreq;
     return  StatusCode::FAILURE;
     }
   }
   if(m_doJetCorrFcal1) {
     sc = m_t2JetCorrToolFcal1.retrieve();
     if ( sc.isFailure() ) {
-      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolFcal1" << endmsg;
+      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolFcal1" << endreq;
     return  StatusCode::FAILURE;
     }
   }
   if(m_doJetCorrEm3Bar) {
     sc = m_t2JetCorrToolEm3Bar.retrieve();
     if ( sc.isFailure() ) {
-      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolEm3Bar" << endmsg;
+      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolEm3Bar" << endreq;
     return  StatusCode::FAILURE;
     }
   }
   if(m_doJetCorrHec0) {
     sc = m_t2JetCorrToolHec0.retrieve();
     if ( sc.isFailure() ) {
-      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolHec0" << endmsg;
+      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolHec0" << endreq;
     return  StatusCode::FAILURE;
     }
   }
   if(m_doJetCorrEm3Fwd) {
     sc = m_t2JetCorrToolEm3Fwd.retrieve();
     if ( sc.isFailure() ) {
-      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolEm3Fwd" << endmsg;
+      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolEm3Fwd" << endreq;
     return  StatusCode::FAILURE;
     }
   }
   if(m_doJetCorrPsBar) {
     sc = m_t2JetCorrToolPsBar.retrieve();
     if ( sc.isFailure() ) {
-      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolPsBar" << endmsg;
+      (*m_log) << MSG::ERROR << "Could not get T2JetCorrToolPsBar" << endreq;
     return  StatusCode::FAILURE;
     }
   }
@@ -174,12 +174,12 @@ StatusCode T2CaloJetCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
   double jeta=jet->eta();
 //  sc = calculateHadEMEnergy(jet, &HadEn, &EMEn);
 //  if(sc.isFailure()){
-//    (*m_log) << MSG::WARNING << "It seems that the Had/EM energy was not properly calculated!" << endmsg;
+//    (*m_log) << MSG::WARNING << "It seems that the Had/EM energy was not properly calculated!" << endreq;
 //  }
 //
 //  if(m_outputLevel <= MSG::DEBUG){
 //    (*m_log) << MSG::DEBUG << " EM, Had energy components: " << EMEn << ", " 
-//             << HadEn << endmsg; 
+//             << HadEn << endreq; 
 //  }
 
   // Apply the calibration:
@@ -195,7 +195,7 @@ StatusCode T2CaloJetCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
       if(m_outputLevel <= MSG::DEBUG){
          (*m_log) << MSG::DEBUG 
                   << " JES Calibration failed. Jet energy is left uncalibrated: "
-                  << endmsg;
+                  << endreq;
       }
       corrEnergy = EMEn+HadEn ;
     } 
@@ -203,7 +203,7 @@ StatusCode T2CaloJetCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
     if(m_outputLevel <= MSG::DEBUG){
          (*m_log) << MSG::DEBUG 
                   << " Calibration not applied. Jet energy is left uncalibrated: "
-                  << endmsg;
+                  << endreq;
     }
     corrEnergy = EMEn+HadEn ;
   } 
@@ -218,7 +218,7 @@ StatusCode T2CaloJetCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
       m_doJetCorrPsBar//|| m_fillLayerInfo
     ) {
     if (calculateLayerFracs(jet, &fTile1, &fFcal1, &fEm3, &fHec0, &fPs).isFailure()){
-      (*m_log) << MSG::WARNING << "Layer Fractions not properly calculated!" << endmsg;
+      (*m_log) << MSG::WARNING << "Layer Fractions not properly calculated!" << endreq;
     }
     if(m_outputLevel <= MSG::DEBUG){
       (*m_log) << MSG::DEBUG << " Uncorr Jet E = " <<  EMEn+HadEn
@@ -227,7 +227,7 @@ StatusCode T2CaloJetCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
                              << " Em3 fraction = " << fEm3 
                              << " Hec0 fraction = " << fHec0
                              << " Ps fraction = " << fPs   
-                             << " Jet E before layer corr = " << corrEnergy << endmsg; 
+                             << " Jet E before layer corr = " << corrEnergy << endreq; 
     }
   }
 
@@ -238,7 +238,7 @@ StatusCode T2CaloJetCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
     if(response != 0 && response != 1 && response==response) corrEnergy = corrEnergy/response;
     if(m_outputLevel <= MSG::DEBUG){
       (*m_log) << MSG::DEBUG << "Tile1 response = " << response 
-                             << " corrected E = " << corrEnergy << endmsg; 
+                             << " corrected E = " << corrEnergy << endreq; 
     }
   }
   if(m_doJetCorrHec0) {
@@ -246,7 +246,7 @@ StatusCode T2CaloJetCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
     if(response != 0 && response != 1 && response==response) corrEnergy = corrEnergy/response;
     if(m_outputLevel <= MSG::DEBUG){
       (*m_log) << MSG::DEBUG << "Hec0 response = " << response 
-                             << " corrected E = " << corrEnergy << endmsg; 
+                             << " corrected E = " << corrEnergy << endreq; 
     }
   }
   if(m_doJetCorrEm3Fwd) {
@@ -254,7 +254,7 @@ StatusCode T2CaloJetCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
     if(response != 0 && response != 1 && response==response) corrEnergy = corrEnergy/response;
     if(m_outputLevel <= MSG::DEBUG){
       (*m_log) << MSG::DEBUG << "Em3Fwd response = " << response 
-                             << " corrected E = " << corrEnergy << endmsg; 
+                             << " corrected E = " << corrEnergy << endreq; 
     }
   }
   if(m_doJetCorrFcal1) {
@@ -262,7 +262,7 @@ StatusCode T2CaloJetCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
     if(response != 0 && response != 1 && response==response) corrEnergy = corrEnergy/response;
     if(m_outputLevel <= MSG::DEBUG){
       (*m_log) << MSG::DEBUG << "Fcal1 response = " << response 
-                             << " corrected E = " << corrEnergy << endmsg; 
+                             << " corrected E = " << corrEnergy << endreq; 
     }
   }
   if(m_doJetCorrEm3Bar) {
@@ -270,7 +270,7 @@ StatusCode T2CaloJetCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
     if(response != 0 && response != 1 && response==response) corrEnergy = corrEnergy/response;
     if(m_outputLevel <= MSG::DEBUG){
       (*m_log) << MSG::DEBUG << "Em3Bar response = " << response 
-                             << " corrected E = " << corrEnergy << endmsg; 
+                             << " corrected E = " << corrEnergy << endreq; 
     }
   }
   if(m_doJetCorrPsBar) {
@@ -278,7 +278,7 @@ StatusCode T2CaloJetCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
     if(response != 0 && response != 1 && response==response) corrEnergy = corrEnergy/response;
     if(m_outputLevel <= MSG::DEBUG){
       (*m_log) << MSG::DEBUG << "PsBar response = " << response 
-                             << " corrected E = " << corrEnergy << endmsg; 
+                             << " corrected E = " << corrEnergy << endreq; 
     }
   }
 
@@ -288,11 +288,11 @@ StatusCode T2CaloJetCalibTool::execute(TrigT2Jet* jet, double /*etamin*/, double
 
   if(m_outputLevel <= MSG::DEBUG){
     (*m_log) << MSG::DEBUG << " Uncorrected E = " << EMEn+HadEn << ", Fully corrected E = " 
-             << corrEnergy << ", eta = " << jet->eta() << endmsg; 
+             << corrEnergy << ", eta = " << jet->eta() << endreq; 
   }
 
   if ( Athena::Timeout::instance().reached() ) {
-       (*m_log) << MSG::ERROR << "Timeout reached in T2CaloJetCalibTool" << endmsg;
+       (*m_log) << MSG::ERROR << "Timeout reached in T2CaloJetCalibTool" << endreq;
        return StatusCode::FAILURE;
   }
 
@@ -434,7 +434,7 @@ StatusCode T2CaloJetCalibTool::calculateLayerFracs(TrigT2Jet* jet, double *fTile
         (*m_log) << MSG::WARNING
              << "Unknown CaloCell type "
              << s
-             << endmsg;
+             << endreq;
         break;
 
       }// end switch - Jet Sampling Layers
@@ -449,7 +449,7 @@ StatusCode T2CaloJetCalibTool::calculateLayerFracs(TrigT2Jet* jet, double *fTile
 //  if( eSum != jet->e()){ 
 //
 //    (*m_log) << MSG::WARNING << " HadEnergy+EMEnergy != jet->e() !!! HadEnergy, EMEnergy, eSum, jetEnergy =" 
-//             << (*HadEnergy) << ", " << (*EMEnergy) << ", " << eSum << ", " << jet->e() << endmsg;
+//             << (*HadEnergy) << ", " << (*EMEnergy) << ", " << eSum << ", " << jet->e() << endreq;
 //    std::cout << eSum << ", " << jet->e() << std::endl;
 //    return StatusCode::FAILURE;
 //  }

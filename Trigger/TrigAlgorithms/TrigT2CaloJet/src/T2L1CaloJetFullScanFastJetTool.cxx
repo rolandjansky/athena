@@ -38,7 +38,7 @@ T2L1CaloJetFullScanFastJetTool::T2L1CaloJetFullScanFastJetTool(const std::string
     m_unpacking_timer(0),
     m_load_collection_timer(0),
     m_jet_finding_timer(0),
-    m_jet_def(0)
+    jet_def(0)
   
 {
     declareInterface<T2L1CaloJetFullScanFastJetTool>( this );
@@ -65,23 +65,23 @@ StatusCode T2L1CaloJetFullScanFastJetTool::initialize()
     m_log = new MsgStream(msgSvc(), name());
     
     
-    (*m_log) << MSG::INFO << " Initalizing Tool: " << name () << endmsg;
-    (*m_log) << MSG::DEBUG << "Options: " << endmsg;
-    (*m_log) << MSG::DEBUG << "   doTriggerTowers:     " << m_doTriggerTowers << endmsg;
-    (*m_log) << MSG::DEBUG << "   coneRadius:          " << m_coneRadius << endmsg;
-    (*m_log) << MSG::DEBUG << "   pTmin:               " << m_pTmin << endmsg;
-    (*m_log) << MSG::DEBUG << "   inputType (hex):     " << std::hex << m_inputType << std::dec << endmsg;
-    (*m_log) << MSG::DEBUG << "   doCleaning:          " << m_doCleaning << endmsg;
-    (*m_log) << MSG::DEBUG << "   leadingCellFraction: " << m_leadingCellFraction << endmsg;
-    (*m_log) << MSG::DEBUG << "   doJetFinding:        " << m_doJetFinding << endmsg;
+    (*m_log) << MSG::INFO << " Initalizing Tool: " << name () << endreq;
+    (*m_log) << MSG::DEBUG << "Options: " << endreq;
+    (*m_log) << MSG::DEBUG << "   doTriggerTowers:     " << m_doTriggerTowers << endreq;
+    (*m_log) << MSG::DEBUG << "   coneRadius:          " << m_coneRadius << endreq;
+    (*m_log) << MSG::DEBUG << "   pTmin:               " << m_pTmin << endreq;
+    (*m_log) << MSG::DEBUG << "   inputType (hex):     " << std::hex << m_inputType << std::dec << endreq;
+    (*m_log) << MSG::DEBUG << "   doCleaning:          " << m_doCleaning << endreq;
+    (*m_log) << MSG::DEBUG << "   leadingCellFraction: " << m_leadingCellFraction << endreq;
+    (*m_log) << MSG::DEBUG << "   doJetFinding:        " << m_doJetFinding << endreq;
     
     // Initialize timing service
     if( service( "TrigTimerSvc", m_pTimerService).isFailure() ) {
-        (*m_log) << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endmsg;
+        (*m_log) << MSG::WARNING << name() << ": Unable to locate TrigTimer Service" << endreq;
     } 
     
     if (m_pTimerService){
-        (*m_log) << MSG::DEBUG << " Adding timers" << endmsg;
+        (*m_log) << MSG::DEBUG << " Adding timers" << endreq;
         //Add timers
         m_total_timer            = m_pTimerService->addItem("LVL1_5_total_time");
         m_unpacking_timer        = m_pTimerService->addItem("LVL1_5_FS_unpacking_time");
@@ -92,37 +92,37 @@ StatusCode T2L1CaloJetFullScanFastJetTool::initialize()
     
     // Create helper tools
     if ( m_dataL1.retrieve().isFailure() ) {
-        (*m_log) << MSG::ERROR << "Failed to retreive helper tools: " << m_dataL1 << endmsg;
+        (*m_log) << MSG::ERROR << "Failed to retreive helper tools: " << m_dataL1 << endreq;
         m_retrievedJetTool = false;
     } else {
         m_retrievedJetTool = true;
-        (*m_log) << MSG::DEBUG << "Retrieved " << m_dataL1 << endmsg;
+        (*m_log) << MSG::DEBUG << "Retrieved " << m_dataL1 << endreq;
     }
     
     // settings for Trigger tower retrieval
-    m_etaMin = -5.;
-    m_etaMax = 5.;
-    m_phiMin = 0.;
-    m_phiMax = 2 * M_PI;
-    m_fullScan = true; 
+    etaMin = -5.;
+    etaMax = 5.;
+    phiMin = 0.;
+    phiMax = 2 * M_PI;
+    fullScan = true; 
     
     // initialise storage for l1 towers
-    m_l1_tower_information.reserve(1000);
+    l1_tower_information.reserve(1000);
     m_cellenergies.reserve(100);
     
     // initialise fast jet
-    m_particles.reserve(100);
-    m_constituents.reserve(100);
-    m_jets.reserve(100);
+    particles.reserve(100);
+    constituents.reserve(100);
+    jets.reserve(100);
     
     if (m_doJetFinding){
-        (*m_log) << MSG::INFO << " Setting up fastjet jet definition" << endmsg;
-        m_jet_def = new fastjet::JetDefinition(fastjet::antikt_algorithm, m_coneRadius);
+        (*m_log) << MSG::INFO << " Setting up fastjet jet definition" << endreq;
+        jet_def = new fastjet::JetDefinition(fastjet::antikt_algorithm, m_coneRadius);
         // dummy call to fast jet so it's internal initalize methods are set (and we don't print the banner during execute)
-        (*m_log) << MSG::INFO << " Making dummy call to fast jet cluster sequence" << endmsg;
-        m_particles.clear();
+        (*m_log) << MSG::INFO << " Making dummy call to fast jet cluster sequence" << endreq;
+        particles.clear();
         fastjet::ClusterSequence* cs(0);
-        cs = new fastjet::ClusterSequence(m_particles, *m_jet_def);
+        cs = new fastjet::ClusterSequence(particles, *jet_def);
         delete cs;
     }
     
@@ -148,15 +148,15 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
     
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "===== Executing: T2L1CaloJetFullScanFastJetTool " << name() << endmsg;
+        (*m_log) << MSG::DEBUG << "===== Executing: T2L1CaloJetFullScanFastJetTool " << name() << endreq;
     }
 #endif
     
     // output_t2_jets->clear(); // this should be cleared when it arrives
-    m_particles.clear();
-    m_constituents.clear();
-    m_jets.clear();
-    m_l1_tower_information.clear(); 
+    particles.clear();
+    constituents.clear();
+    jets.clear();
+    l1_tower_information.clear(); 
     m_cellenergies.clear();
     
     n_towers = -9;
@@ -172,7 +172,7 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
     if ( m_doTriggerTowers ){
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG << "Trigger tower version" <<endmsg;
+            (*m_log) << MSG::DEBUG << "Trigger tower version" <<endreq;
         }
 #endif
 
@@ -182,38 +182,38 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
         if ( m_retrievedJetTool ){
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-                (*m_log) << MSG::DEBUG   << "Loading the L1 data using ITrigT1CaloDataAccess tool"<< endmsg;
-                (*m_log) << MSG::DEBUG   << "Getting trigger towers using m_etaMin: " << m_etaMin 
-                         << ", etaMax: " << m_etaMax
-                         << ", phiMin: " << m_phiMin
-                         << ", phiMax: " << m_phiMax
-                         << ", full: "   << m_fullScan << endmsg;
+                (*m_log) << MSG::DEBUG   << "Loading the L1 data using ITrigT1CaloDataAccess tool"<< endreq;
+                (*m_log) << MSG::DEBUG   << "Getting trigger towers using etaMin: " << etaMin 
+                         << ", etaMax: " << etaMax
+                         << ", phiMin: " << phiMin
+                         << ", phiMax: " << phiMax
+                         << ", full: "   << fullScan << endreq;
             }
 #endif
             m_load_collection_timer->start();
-            StatusCode sc = m_dataL1->loadCollection(tt_begj,tt_endj,m_etaMin,m_etaMax,m_phiMin,m_phiMax,m_fullScan);
+            StatusCode sc = m_dataL1->loadCollection(tt_begj,tt_endj,etaMin,etaMax,phiMin,phiMax,fullScan);
             if (sc.isFailure()) {
-                (*m_log) << MSG::WARNING << "Error accessing trigger tower data" << endmsg;
+                (*m_log) << MSG::WARNING << "Error accessing trigger tower data" << endreq;
                 return sc;
             }
             m_load_collection_timer->stop();
         }
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG  << "Loaded trigger towers in "<< m_load_collection_timer->elapsed() << " ms" << endmsg;
-            (*m_log) << MSG::DEBUG  << "Looping over trigger towers"<< endmsg;
+            (*m_log) << MSG::DEBUG  << "Loaded trigger towers in "<< m_load_collection_timer->elapsed() << " ms" << endreq;
+            (*m_log) << MSG::DEBUG  << "Looping over trigger towers"<< endreq;
         }
 #endif
 
         for(; tt_begj!=tt_endj;++tt_begj){
-            const LVL1::TriggerTower* TT = (*tt_begj);
+            LVL1::TriggerTower* TT = (*tt_begj);
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
                 (*m_log) << MSG::DEBUG  << "TriggerTower[" << counter
                          << "]: ETs [GeV]: EM: " << TT->emEnergy()
                          << ", HAD: "            << TT->hadEnergy()
                          << ", eta: "            << TT->eta()
-                         << ", phi: "            << TT->phi() << endmsg;
+                         << ", phi: "            << TT->phi() << endreq;
             }
 #endif
             // change to a more standard phi definition
@@ -233,16 +233,16 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
                 if (transverse_energy > 0.99){ // some Jet Elements have zero energy (this may also be true for trigger towers), there is no need to give these to fastjet
                     fastjet::PseudoJet pseudo_jet( px, py, pz, energy);
                     pseudo_jet.set_user_index(counter);
-                    m_particles.push_back( pseudo_jet );
+                    particles.push_back( pseudo_jet );
                 }
         
                 // now fill these into a vector of floats so we can construct cleaning variables later
                 if (m_doCleaning) {
-                    m_l1_tower_information.push_back(energy);
-                    m_l1_tower_information.push_back(TT->eta());
-                    m_l1_tower_information.push_back(TT->phi());
-                    m_l1_tower_information.push_back(TT->emEnergy()*cosh_eta*1000.);
-                    m_l1_tower_information.push_back(TT->hadEnergy()*cosh_eta*1000.);
+                    l1_tower_information.push_back(energy);
+                    l1_tower_information.push_back(TT->eta());
+                    l1_tower_information.push_back(TT->phi());
+                    l1_tower_information.push_back(TT->emEnergy()*cosh_eta*1000.);
+                    l1_tower_information.push_back(TT->hadEnergy()*cosh_eta*1000.);
                 }
             }
         
@@ -251,7 +251,7 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
     } else { // if we aren't running on trigger towers we use jet elements instead
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG << "Jet element version" <<endmsg;
+            (*m_log) << MSG::DEBUG << "Jet element version" <<endreq;
         }
 #endif
         DataVector<LVL1::JetElement>::const_iterator je_begj, je_endj;
@@ -259,13 +259,13 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
         if ( m_retrievedJetTool ){
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-                (*m_log) << MSG::DEBUG  << "Loading the L1 data using ITrigT1CaloDataAccess tool, this loads the jet elements for the entire event"<< endmsg;
+                (*m_log) << MSG::DEBUG  << "Loading the L1 data using ITrigT1CaloDataAccess tool, this loads the jet elements for the entire event"<< endreq;
             }
 #endif
             m_load_collection_timer->start();
             StatusCode sc = m_dataL1->loadCollection(je_begj,je_endj);
             if (sc.isFailure()) {
-                (*m_log) << MSG::WARNING << "Error accessing jet element data" << endmsg;
+                (*m_log) << MSG::WARNING << "Error accessing jet element data" << endreq;
                 return sc;
             }
             m_load_collection_timer->stop();
@@ -273,13 +273,13 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
 
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG  << "Loaded jet elements in "<< m_load_collection_timer->elapsed() << " ms" << endmsg;
-            (*m_log) << MSG::DEBUG  << "Looping over the jet elements"<< endmsg;
+            (*m_log) << MSG::DEBUG  << "Loaded jet elements in "<< m_load_collection_timer->elapsed() << " ms" << endreq;
+            (*m_log) << MSG::DEBUG  << "Looping over the jet elements"<< endreq;
         }
 #endif
 
         for(; je_begj!=je_endj;++je_begj){
-            const LVL1::JetElement* JE = (*je_begj); 
+            LVL1::JetElement* JE = (*je_begj); 
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
                (*m_log) << MSG::DEBUG  << "JetElement[" << counter
@@ -287,7 +287,7 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
                         << ", HAD: "            << JE->hadEnergy()
                         << ", Total: "          << JE->energy()
                         << ", eta: "            << JE->eta()
-                        << ", phi: "            << JE->phi() << endmsg;
+                        << ", phi: "            << JE->phi() << endreq;
             }        
 #endif
             
@@ -308,15 +308,15 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
                 if (JE->energy() > 0.99){ // some Jet Elements have zero energy, there is no need to give these to fastjet
                     fastjet::PseudoJet pseudo_jet( px, py, pz, energy);
                     pseudo_jet.set_user_index(counter);
-                    m_particles.push_back( pseudo_jet );
+                    particles.push_back( pseudo_jet );
                 }                   
                 // now fill these into a vector of floats so we can construct cleaning variables later
                 if (m_doCleaning) {
-                    m_l1_tower_information.push_back(energy);
-                    m_l1_tower_information.push_back(JE->eta());
-                    m_l1_tower_information.push_back(JE->phi());
-                    m_l1_tower_information.push_back(JE->emEnergy()*cosh_eta*1000.);
-                    m_l1_tower_information.push_back(JE->hadEnergy()*cosh_eta*1000.);
+                    l1_tower_information.push_back(energy);
+                    l1_tower_information.push_back(JE->eta());
+                    l1_tower_information.push_back(JE->phi());
+                    l1_tower_information.push_back(JE->emEnergy()*cosh_eta*1000.);
+                    l1_tower_information.push_back(JE->hadEnergy()*cosh_eta*1000.);
                 }
             }
             counter++;
@@ -325,8 +325,8 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
     m_unpacking_timer->stop();
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG  << "A total of " << m_particles.size()  << " L1 particles are to be clustered" << endmsg;
-        if (m_doCleaning) { (*m_log) << MSG::DEBUG  << "A total of " << m_l1_tower_information.size()/5. << " are saved as L1 towers for the cleaning" << endmsg; }
+        (*m_log) << MSG::DEBUG  << "A total of " << particles.size()  << " L1 particles are to be clustered" << endreq;
+        if (m_doCleaning) { (*m_log) << MSG::DEBUG  << "A total of " << l1_tower_information.size()/5. << " are saved as L1 towers for the cleaning" << endreq; }
     }
 #endif
     // ===== now find the jets
@@ -334,34 +334,34 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
     if (m_doJetFinding){
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG <<  "Performing jet finding " << endmsg;
+        (*m_log) << MSG::DEBUG <<  "Performing jet finding " << endreq;
         }
 #endif        
         // run the clustering, extract the jets
         m_fastjet_timer->start();
         fastjet::ClusterSequence* cs(0);
-        cs = new fastjet::ClusterSequence(m_particles, *m_jet_def);
+        cs = new fastjet::ClusterSequence(particles, *jet_def);
           
-        m_jets = fastjet::sorted_by_pt(cs->inclusive_jets(m_pTmin)); // sorted by increasing pt
+        jets = fastjet::sorted_by_pt(cs->inclusive_jets(m_pTmin)); // sorted by increasing pt
         m_fastjet_timer->stop();
-        std::reverse(m_jets.begin(),m_jets.end());  // sorted by decreasing pt
+        std::reverse(jets.begin(),jets.end());  // sorted by decreasing pt
           
         // inspect the output jets and make some cleaning variables
 #ifndef NDEBUG
         if((*m_log).level() <= MSG::DEBUG){
-            (*m_log) << MSG::DEBUG <<  "== Resultant jets " << endmsg;
+            (*m_log) << MSG::DEBUG <<  "== Resultant jets " << endreq;
         }
 #endif
-        for (unsigned i = 0; i < m_jets.size(); ++i) {
-            m_constituents = fastjet::sorted_by_pt(cs->constituents(m_jets[i]));
+        for (unsigned i = 0; i < jets.size(); ++i) {
+            constituents = fastjet::sorted_by_pt(cs->constituents(jets[i]));
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
                (*m_log) << MSG::DEBUG << " fastjet jet " << i 
-                        << ": Et: "             << m_jets[i].e()/cosh(m_jets[i].eta()) 
-                        << " MeV, eta: "        << m_jets[i].eta() 
-                        << ", phi: "            << m_jets[i].phi_std() 
-                        << ", rapidity: "       << m_jets[i].rapidity() 
-                        << ", n constituents: "  << m_constituents.size() << endmsg;
+                        << ": Et: "             << jets[i].e()/cosh(jets[i].eta()) 
+                        << " MeV, eta: "        << jets[i].eta() 
+                        << ", phi: "            << jets[i].phi_std() 
+                        << ", rapidity: "       << jets[i].rapidity() 
+                        << ", n consituents: "  << constituents.size() << endreq;
             }
 #endif
             int nLeadingCells = -9;
@@ -372,7 +372,7 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
             if (m_doCleaning) {
 #ifndef NDEBUG
                 if((*m_log).level() <= MSG::DEBUG){
-                   (*m_log) << MSG::DEBUG  << "Computing cleaning variables "<< endmsg;
+                   (*m_log) << MSG::DEBUG  << "Computing cleaning variables "<< endreq;
                 }
 #endif
                 float total_energy = 0.;
@@ -381,26 +381,26 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
                 em_frac = 0.;
                 had_energy = 0.;
                 //had_frac = 0.;
-                for (unsigned ii = 0; ii < m_constituents.size(); ++ii){
-                    int l1_id = m_constituents[ii].user_index();
-                    float energy = m_l1_tower_information.at((l1_id*5));
-                    float emEnergy = m_l1_tower_information.at((l1_id*5)+3);
-                    float hadEnergy = m_l1_tower_information.at((l1_id*5)+4);
+                for (unsigned ii = 0; ii < constituents.size(); ++ii){
+                    int l1_id = constituents[ii].user_index();
+                    float energy = l1_tower_information.at((l1_id*5));
+                    float emEnergy = l1_tower_information.at((l1_id*5)+3);
+                    float hadEnergy = l1_tower_information.at((l1_id*5)+4);
         
 #ifndef NDEBUG
-                    float eta = m_l1_tower_information.at((l1_id*5)+1);      
-                    float phi = m_l1_tower_information.at((l1_id*5)+2);
+                    float eta = l1_tower_information.at((l1_id*5)+1);      
+                    float phi = l1_tower_information.at((l1_id*5)+2);
                     float transverse_energy = energy / cosh(eta);
                     
                     if((*m_log).level() <= MSG::DEBUG){
                        (*m_log) << MSG::DEBUG << "      constituent[" << std::setw(3) << ii 
-                         << "]: Et: "         << std::setw(8) << m_constituents[ii].e()/cosh(m_constituents[ii].eta()) 
+                         << "]: Et: "         << std::setw(8) << constituents[ii].e()/cosh(constituents[ii].eta()) 
                          //<< " MeV (em,had) (" << std::setw(8) << emEnergy/cosh(eta)
                          //<<","                << std::setw(8) << hadEnergy/cosh(eta)
-                         << ", eta: "         << std::setw(8) << m_constituents[ii].eta() 
-                         << ", phi: "         << std::setw(8) << m_constituents[ii].phi_std() 
-                         << ", rapidity: "    << std::setw(6) << m_constituents[ii].rapidity() 
-                         << ", user index: "  << std::setw(5) << m_constituents[ii].user_index() << endmsg;
+                         << ", eta: "         << std::setw(8) << constituents[ii].eta() 
+                         << ", phi: "         << std::setw(8) << constituents[ii].phi_std() 
+                         << ", rapidity: "    << std::setw(6) << constituents[ii].rapidity() 
+                         << ", user index: "  << std::setw(5) << constituents[ii].user_index() << endreq;
                          
                        (*m_log) << MSG::VERBOSE << "  L1 tower[" << l1_id 
                          << "]: Et: "          << transverse_energy
@@ -408,7 +408,7 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
                          << ","                << hadEnergy / cosh(eta)
                          << "), energy: "      << energy
                          << ", eta: "          << eta 
-                         << ", phi: "          << phi << endmsg;
+                         << ", phi: "          << phi << endreq;
                     }
 #endif
             
@@ -438,13 +438,13 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
                 }
 #ifndef NDEBUG
                 if((*m_log).level() <= MSG::DEBUG){
-                   (*m_log) << MSG::DEBUG << " total Et: " << total_energy/cosh(m_jets[i].eta()) 
-                     << " MeV (em,had) ("   << em_energy/cosh(m_jets[i].eta()) 
-                     << ","                 << had_energy/cosh(m_jets[i].eta()) 
+                   (*m_log) << MSG::DEBUG << " total Et: " << total_energy/cosh(jets[i].eta()) 
+                     << " MeV (em,had) ("   << em_energy/cosh(jets[i].eta()) 
+                     << ","                 << had_energy/cosh(jets[i].eta()) 
                      << "), em frac: "      << em_frac 
                      << ", had frac: "      << (total_energy ? had_energy / total_energy : 0)
                      << ", nLeadingCells: " << nLeadingCells
-                     << endmsg;
+                     << endreq;
                 }
 #endif
             }
@@ -454,7 +454,7 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
             // =========================
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG){
-                 (*m_log) << MSG::DEBUG  << " making TrigT2Jet "<< endmsg;
+                 (*m_log) << MSG::DEBUG  << " making TrigT2Jet "<< endreq;
             }
 #endif
     
@@ -470,7 +470,7 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
                 } else {
 #ifndef NDEBUG
                     if((*m_log).level() <= MSG::DEBUG)
-                        (*m_log) << MSG::DEBUG  << " unable to determine RoI type from m_coneRadius = " << m_coneRadius << ", setting output RoI type to UNKNOWN" << endmsg;
+                        (*m_log) << MSG::DEBUG  << " unable to determine RoI type from m_coneRadius = " << m_coneRadius << ", setting output RoI type to UNKNOWN" << endreq;
 #endif
                     outputType = T2L1::UNKNOWN;
                 }
@@ -482,7 +482,7 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
                 } else {
 #ifndef NDEBUG
                     if((*m_log).level() <= MSG::DEBUG)
-                        (*m_log) << MSG::DEBUG  << " unable to determine RoI type from m_coneRadius = " << m_coneRadius << ", setting output RoI type to UNKNOWN" << endmsg;
+                        (*m_log) << MSG::DEBUG  << " unable to determine RoI type from m_coneRadius = " << m_coneRadius << ", setting output RoI type to UNKNOWN" << endreq;
 #endif
                     outputType = T2L1::UNKNOWN;
                 }
@@ -492,13 +492,13 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
         
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::DEBUG)
-                (*m_log) << MSG::DEBUG  << " RoI word set to: " << std::hex << m_jet->RoIword() << std::dec << endmsg;
+                (*m_log) << MSG::DEBUG  << " RoI word set to: " << std::hex << m_jet->RoIword() << std::dec << endreq;
 #endif
          
             // Set properties
-            m_jet->setE(m_jets[i].e());
-            m_jet->setEta(m_jets[i].eta());
-            m_jet->setPhi(m_jets[i].phi_std());    
+            m_jet->setE(jets[i].e());
+            m_jet->setEta(jets[i].eta());
+            m_jet->setPhi(jets[i].phi_std());    
             m_jet->setEem0(em_energy);
             m_jet->setEhad0(had_energy);
             m_jet->setEmf(em_frac);
@@ -507,11 +507,11 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
             // look at the jet produced
 #ifndef NDEBUG
             if((*m_log).level() <= MSG::VERBOSE){
-               (*m_log) << MSG::VERBOSE << " Values of T2CaloJet produced: " << endmsg;
-               (*m_log) << MSG::VERBOSE << " REGTEST: Jet eta = " << m_jet->eta() << endmsg;
-               (*m_log) << MSG::VERBOSE << " REGTEST: Jet phi = " << m_jet->phi() << endmsg;
-               (*m_log) << MSG::VERBOSE << " REGTEST: Jet energy = " << m_jet->e() << endmsg;
-               (*m_log) << MSG::VERBOSE << " REGTEST: Jet et = " << m_jet->et() << endmsg;
+               (*m_log) << MSG::VERBOSE << " Values of T2CaloJet produced: " << endreq;
+               (*m_log) << MSG::VERBOSE << " REGTEST: Jet eta = " << m_jet->eta() << endreq;
+               (*m_log) << MSG::VERBOSE << " REGTEST: Jet phi = " << m_jet->phi() << endreq;
+               (*m_log) << MSG::VERBOSE << " REGTEST: Jet energy = " << m_jet->e() << endreq;
+               (*m_log) << MSG::VERBOSE << " REGTEST: Jet et = " << m_jet->et() << endreq;
             }
 #endif
             output_t2_jets->push_back(m_jet);
@@ -523,8 +523,8 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
     m_jet_finding_timer->stop();
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG <<  "FastJet completed in "  << m_fastjet_timer->elapsed() << " ms " << endmsg;
-        (*m_log) << MSG::DEBUG <<  "Jet finding completed in "  << m_jet_finding_timer->elapsed() << " ms " << endmsg;
+        (*m_log) << MSG::DEBUG <<  "FastJet completed in "  << m_fastjet_timer->elapsed() << " ms " << endreq;
+        (*m_log) << MSG::DEBUG <<  "Jet finding completed in "  << m_jet_finding_timer->elapsed() << " ms " << endreq;
     }
 #endif
     m_total_timer->stop();
@@ -537,7 +537,7 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
   
 #ifndef NDEBUG
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << "================= Finished T2L1CaloFullScanFastJetTool " << name() << " in " << m_total_timer->elapsed() << " ms " << endmsg;
+        (*m_log) << MSG::DEBUG << "================= Finished T2L1CaloFullScanFastJetTool " << name() << " in " << m_total_timer->elapsed() << " ms " << endreq;
     }
 #endif
 
@@ -548,17 +548,17 @@ StatusCode T2L1CaloJetFullScanFastJetTool::execute(DataVector<TrigT2Jet>* output
 StatusCode T2L1CaloJetFullScanFastJetTool::finalize()
 {
     if((*m_log).level() <= MSG::DEBUG){
-        (*m_log) << MSG::DEBUG << " Finalising: T2L1CaloJetFullScanFastJetTool " << name() << endmsg;
+        (*m_log) << MSG::DEBUG << " Finalising: T2L1CaloJetFullScanFastJetTool " << name() << endreq;
     }
     delete m_log;
-    m_particles.clear();
-    m_jets.clear();
-    m_constituents.clear();
-    m_l1_tower_information.clear();
+    particles.clear();
+    jets.clear();
+    constituents.clear();
+    l1_tower_information.clear();
     m_cellenergies.clear();
     
-    if ( bool(m_jet_def) ){
-        delete m_jet_def;
+    if ( bool(jet_def) ){
+        delete jet_def;
     }
     return StatusCode::SUCCESS;
 }
