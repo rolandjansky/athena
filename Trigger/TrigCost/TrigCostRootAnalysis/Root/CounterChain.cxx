@@ -26,15 +26,16 @@
 namespace TrigCostRootAnalysis {
 
   Float_t CounterChain::s_eventTimeExecute = 0.; //Static timer for whole event
-  
+
   /**
    * Chain counter constructor. Sets values of internal variables and sets up data store.
    * @param _name Const ref to chain's name
    * @param _ID Chain's HLT ID number.
    */
-  CounterChain::CounterChain( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel ) : CounterBase(_costData, _name, _ID, _detailLevel),
+  CounterChain::CounterChain( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel, MonitorBase* _parent )
+    : CounterBase(_costData, _name, _ID, _detailLevel, _parent),
     m_prescaleWeight(1.) {
-   
+
     // Register variables to study.
     if (m_detailLevel == 0) {
       m_dataStore.setHistogramming( kFALSE );
@@ -65,16 +66,16 @@ namespace TrigCostRootAnalysis {
     if (getName() == Config::config().getStr(kDummyString)) return;
 
     // Get my prescale
-    m_prescaleWeight = TrigXMLService::trigXMLService().getHLTCostWeightingFactor( getName() ); 
+    m_prescaleWeight = TrigXMLService::trigXMLService().getHLTCostWeightingFactor( getName() );
     decorate(kEffectivePrescale, m_prescaleWeight);
   }
-  
+
   /**
    * Counter destructor. Nothing currently to delete.
    */
   CounterChain::~CounterChain() {
   }
-  
+
   /**
    * Reset per-event counter(s). This is a static so this needs to only be called on one instance of this class,
    * not all instances.
@@ -82,7 +83,7 @@ namespace TrigCostRootAnalysis {
   void CounterChain::startEvent() {
     s_eventTimeExecute = 0.; // Reset event chain timer (static)
   }
-  
+
   /**
    * Perform monitoring of a chain within an event.
    * @param _e Chain index in D3PD.
@@ -100,18 +101,18 @@ namespace TrigCostRootAnalysis {
 
     // Increase total time
     Float_t _chainTime = m_costData->getChainTimerFromSequences(_e);
-    
+
     //m_dataStore.store(kVarTotalPrescale, TrigConfInterface::getPrescale( m_name ), _weight);
     m_dataStore.store(kVarEventsActive, 1., _weight);
     m_dataStore.store(kVarEventsPassed, m_costData->getIsChainPassed(_e), _weight);
     m_dataStore.store(kVarTime, _chainTime, _weight);
-    
+
     s_eventTimeExecute += _chainTime * _weight; // Tabulate over all chains in event
-    
-    if ( _chainTime > Config::config().getInt(kSlowEventThreshold) ) {
+
+    if ( _chainTime > Config::config().getInt(kSlowThreshold) ) {
       m_dataStore.store(kVarEventsSlow, 1., _weight);
     }
-    
+
     m_dataStore.store(kVarAlgCalls, m_costData->getChainAlgCalls(_e), _weight);
     m_dataStore.store(kVarAlgCaches, m_costData->getChainAlgCaches(_e), _weight);
 
@@ -124,7 +125,7 @@ namespace TrigCostRootAnalysis {
       m_dataStore.store(kVarROBReqSize, m_costData->getChainROBRequestSize(_e), _weight);
     }
 
-    // We should have as many algs here as we recorded as "called" and "cached" 
+    // We should have as many algs here as we recorded as "called" and "cached"
     assert( m_costData->getChainAlgs(_e).size() == m_costData->getChainAlgCalls(_e) + m_costData->getChainAlgCaches(_e));
 
   }
@@ -140,7 +141,7 @@ namespace TrigCostRootAnalysis {
     UNUSED(_e);
     return m_prescaleWeight;
   }
-  
+
   /**
    * Perform end-of-event monitoring on the DataStore.
    */
@@ -148,9 +149,9 @@ namespace TrigCostRootAnalysis {
     UNUSED(_weight);
     m_dataStore.setVariableDenominator(kVarTime, s_eventTimeExecute);
     m_dataStore.endEvent();
-    
+
   }
-  
+
   /**
    * Output debug information on this call to the console
    */
@@ -172,6 +173,6 @@ namespace TrigCostRootAnalysis {
          m_costData->getChainAlgCaches(_e)
         );
   }
-  
-  
+
+
 } // namespace TrigCostRootAnalysis

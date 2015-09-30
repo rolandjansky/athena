@@ -17,6 +17,7 @@
 
 // Local include(s):
 #include "MonitorBase.h"
+#include "MonitorROSCommon.h"
 
 namespace TrigCostRootAnalysis {
 
@@ -26,9 +27,9 @@ namespace TrigCostRootAnalysis {
   /**
    * @class MonitorROS
    * ROS monitoring class, called per event if ROS monitoring is enabled.
-   * responsible for global ROS monitoring and individual ROB monitoring
+   * responsible for global ROS monitoring
    */
-  class MonitorROS : public MonitorBase {
+  class MonitorROS : public MonitorBase, public MonitorROSCommon {
   
    public:
     

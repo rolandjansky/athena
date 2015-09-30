@@ -31,9 +31,9 @@ namespace TrigCostRootAnalysis {
    *
    */
   class DataVariable {
-  
+
    public:
-   
+
     DataVariable(DataStore* _parent);
     ~DataVariable();
     void registerSaveState(VariableOption_t _vo, std::string& _title);
@@ -43,6 +43,7 @@ namespace TrigCostRootAnalysis {
     void endEvent();
     void endPeriod();
     Float_t getValue(VariableOption_t _vo);
+    Bool_t  getValueExists(VariableOption_t _vo);
     Float_t getValueError(VariableOption_t _vo);
     Int_t getEntries(VariableOption_t _vo);
     void setValue(VariableOption_t _vo, Float_t _val);
@@ -50,12 +51,13 @@ namespace TrigCostRootAnalysis {
     void setErrorSquared(VariableOption_t _vo, Float_t _val);
     TH1F* getHist(VariableOption_t _vo, Bool_t _silent = kFALSE);
     std::string* getHistTitle(VariableOption_t _vo);
+    void setHist(VariableOption_t _vo, TH1F* _hist);
     // TH2F* getHist2D(VariableOption_t _vo);
-    
+
     static UInt_t s_globalHistId;
 
    private:
-   
+
     /**
      * @struct Data
      * This structure contains the generic primitives and pointers to more complicated possible datastores
@@ -76,7 +78,7 @@ namespace TrigCostRootAnalysis {
       Data();
       ~Data();
     };
-    
+
     void makeHist(Data* _data);
     void dataSave(Data* _data, Float_t _value, Float_t _weight);
     void dataBuffer(Data* _data, Float_t _value, Float_t _weight);
@@ -84,12 +86,12 @@ namespace TrigCostRootAnalysis {
     void dataSaveFractionBuffer(Data* _data);
     Bool_t checkRegistered(VariableOption_t _vo, Bool_t _silent = kFALSE);
     DataVariable::Data* getData(VariableOption_t _vo);
-    
+
     std::map< VariableOption_t, Data* > m_dataMap; //!< Map of Data structs for each option
     DataStore* m_parentDataStore; //!< Pointer to my parent, used mostly for debug
-    
+
   }; //class DataVariable
-  
+
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_DataVariable_H

@@ -84,11 +84,22 @@ namespace TrigCostRootAnalysis {
     UNUSED( _map );
 
     UInt_t _nPUs = _TCCB->getValue(kVarHLTPUs, kSavePerCall); //Filled with '1' for every unique processing unit seen by this counter
-    UInt_t _lbTime = _TCCB->getDecoration(kDecLbLength); //Time in s of this counter's LB
+    Float_t _lbTime = _TCCB->getDecoration(kDecLbLength); //Time in s of this counter's LB
     Float_t _steeringTime = _TCCB->getValue(kVarSteeringTime, kSavePerEvent) / 1000.; // Total steering time, convert to seconds
     return 100. * (_steeringTime / static_cast<Float_t>( _nPUs * _lbTime )); // Convert to %
 
   }
+
+  Float_t tableFnGlobalGetHLTNodePrediction(CounterMap_t* _map, CounterBase* _TCCB) {
+    UNUSED( _map );
+
+    Float_t _lbTime = _TCCB->getDecoration(kDecLbLength); //Time in s of this counter's LB - taking into account how much of the run we've seen
+    Float_t _algTime = _TCCB->getValue(kVarAlgTime, kSavePerEvent) / 1000.; // Total alg wall time, convert to seconds  
+    if (isZero(_lbTime) == kTRUE) return 0.;
+    // We enough HLT XPUs to process algTime amount of info in lbTime. 
+    return _algTime / _lbTime;
+  }
+
 
   /////////////////////////////////////
   /// BEGIN RATES MONITOR FUNCTIONS ///

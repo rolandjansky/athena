@@ -33,11 +33,12 @@ namespace TrigCostRootAnalysis {
    * @param _name Name of TE counter
    * @param _ID ID number of TE counter.
    */
-  CounterFullEvent::CounterFullEvent( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel ) : CounterBase(_costData, _name, _ID, _detailLevel), 
+  CounterFullEvent::CounterFullEvent( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel, MonitorBase* _parent )
+    : CounterBase(_costData, _name, _ID, _detailLevel, _parent), 
     m_isRun(kFALSE),
     m_algCounters() {
   }
-  
+
   /**
    * Counter destructor. Delete my vector of counters
    */
@@ -47,13 +48,13 @@ namespace TrigCostRootAnalysis {
     }
     m_algCounters.clear();
   }
-  
+
   /**
    * Reset per-event counter(s). Not used currently for TriggerElement counter.
    */
   void CounterFullEvent::startEvent() {
   }
-  
+
   /**
    * Investigate the Trigger Element structure for a single event.
    * Not yet implemented.
@@ -63,10 +64,10 @@ namespace TrigCostRootAnalysis {
    */
   void CounterFullEvent::processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight) {
     ++m_calls;
-    
+
     UNUSED( _e );
     UNUSED( _f );
-    
+
     if (m_isRun == kTRUE) {
       Error("CounterFullEvent::processEventCounter", "Each FullEvent Counter should only be run on one event");
       return;
@@ -106,10 +107,10 @@ namespace TrigCostRootAnalysis {
       //Int_t _chainID = m_costData->getSequenceChannelCounter(_s);
       //const std::string _chainName = TrigConfInterface::getHLTNameFromChainID( _chainID, m_costData->getSequenceLevel(_s) );
       for (UInt_t _a = 0; _a < m_costData->getNSeqAlgs(_s); ++_a) {
-      
+
         Int_t _seqIndex = m_costData->getSequenceIndex(_s);
         Int_t _seqAlgPos = m_costData->getSeqAlgPosition(_s, _a);
-        
+
         const std::string _algName = TrigConfInterface::getHLTAlgNameFromSeqIDAndAlgPos( _seqIndex, _seqAlgPos );
         const std::string _algType = TrigConfInterface::getHLTAlgClassNameFromSeqIDAndAlgPos( _seqIndex, _seqAlgPos );
         Int_t _seqAlgNameHash = TrigConfInterface::getHLTAlgClassNameIDFromSeqIDAndAlgPos( _seqIndex, _seqAlgPos );
@@ -128,9 +129,9 @@ namespace TrigCostRootAnalysis {
 
     // Code here. Suppress warnings for now.
     debug(_e);
-    
+
   }
-  
+
   /**
    * Perform end-of-event monitoring. Does nothing for FullEvent
    */
@@ -148,7 +149,7 @@ namespace TrigCostRootAnalysis {
     UNUSED(_e);
     return 0.;
   }
-  
+
   /**
    * Output debug information on this call to the console
    */
@@ -159,24 +160,24 @@ namespace TrigCostRootAnalysis {
     fout << "digraph G{" << std::endl;
     for (UInt_t i = 0; i < m_costData->getNTEs(); ++i) {
       fout << "\t" << m_costData->getTEIndex(i) << "[label=\"<f0>" <<
-      
+
            (m_costData->getIsTERegularTe(i) ? "R|" : "" ) <<
            (m_costData->getIsTEInitial(i) ? " I|" : "" ) <<
            (m_costData->getIsTERoITe(i) ? "RoI|" : "" ) <<
            (m_costData->getIsTEL1Threshold(i) ? "L1|" : "") <<
-           
+
            "<f1> " <<
-           
+
            (m_costData->getIsTEActiveState(i) ? "A|" : "" ) <<
            (m_costData->getIsTEErrorState(i) ? "E|" : "" ) <<
            (m_costData->getIsTEOutputEFNode(i) ? "OEF|" : "" ) <<
            (m_costData->getIsTEOutputL2Node(i) ? "OL2|" : "" ) <<
            (m_costData->getIsTETerminalNode(i) ? "TRM|" : "" ) <<
            (m_costData->getIsTETopologicalTe(i) ? "TOPO|" : "" ) <<
-           
+
            "<f2> ";
-           
-           
+
+
       for (UInt_t c = 0; c < m_costData->getTERoIIDSize(i); ++c) {
         Int_t r = m_costData->getRoIIndexFromId( m_costData->getTERoIIDIndex(i, c) );
         if (r != -1 && r != 255) {
@@ -192,7 +193,7 @@ namespace TrigCostRootAnalysis {
       }
       fout << "\"";
       fout << std::endl << "\tshape = \"record\"];" << std::endl;
-      
+
       std::cout << "TE Index:" << m_costData->getTEIndex(i) << " ID:" << m_costData->getTEID(i) << " Children:{";
       for (UInt_t c = 0; c < m_costData->getTEChildSize(i); ++c) {
         std::cout << m_costData->getTEChildIndex(i, c) << ",";
@@ -238,5 +239,5 @@ namespace TrigCostRootAnalysis {
     fout << "}";
     fout.close();
   }
-  
+
 } // namespace TrigCostRootAnalysis

@@ -34,21 +34,22 @@ namespace TrigCostRootAnalysis {
   // Initialise statics
   D3PD::TrigDecisionToolD3PD* TrigConfInterface::m_tdt;
   D3PD::TrigConfigSvcD3PD* TrigConfInterface::m_tct;
-  
+
   Bool_t TrigConfInterface::m_isConfigured = kFALSE;
-  
+
   Bool_t TrigConfInterface::m_usingNtupleMetadata = kTRUE;
   Bool_t TrigConfInterface::m_usingNtuplePrescales = kTRUE;
-    
+
   DBKey TrigConfInterface::m_key(0, 0, 0);
-  
+  std::set<DBKey> TrigConfInterface::m_seenKeys;
+
   /**
    * Link tool to trigger meta data. Call once per chain.
    * @param _inputChain TChain pointer to input files
    * @return Returns kTRUE upon successful configuration.
    */
   Bool_t TrigConfInterface::configure( TChain* _inputChain ) {
-  
+
     TFile* _file = 0;
     TChain* _chain = dynamic_cast< TChain* >( _inputChain );
     if( _chain ) {
@@ -60,17 +61,17 @@ namespace TrigCostRootAnalysis {
       Info("TrigConfInterface::configure", "Opening a new file on PROOF...");
       _file = _inputChain->GetCurrentFile();
     }
-    
+
     TTree* _confTree = dynamic_cast< TTree* >( _file->Get( Config::config().getStr(kConfigPrefix).c_str() ) );
     if( ! _confTree ) {
       Error("TrigConfInterface::configure", "Couldn't retrieve configuration metadata tree!");
       m_isConfigured = kFALSE;
       return kFALSE;
     }
-    
+
     if (m_tdt) delete m_tdt;
     m_tdt = new D3PD::TrigDecisionToolD3PD();
-    
+
     if( ! m_tdt->SetEventTree( _inputChain ) ) {
       Error("TrigConfInterface::configure", "Problems with setting the event tree to the TrigDecisionTool.");
       m_isConfigured = kFALSE;
@@ -81,35 +82,40 @@ namespace TrigCostRootAnalysis {
       m_isConfigured = kFALSE;
       return kFALSE;
     }
-    
+    m_isConfigured = kTRUE;
+
+
+    Info("TrigConfInterface::configure", "Available configs:");
+    getTCT()->PrintSummary();
+
     m_isConfigured = kTRUE;
     return m_isConfigured;
   }
-  
+
   /**
    * @return When configured, returns the super-master key for the currently processing event.
    */
   Int_t TrigConfInterface::getCurrentSMK() {
     // XXX this is temporary
     Int_t _smk = getTDT()->GetSMK();
-    //if (_smk == 65535) return 0; 
+    //if (_smk == 65535) return 0;
     return _smk;
   }
-  
+
   /**
    * @return When configured, returns the level 1 prescale key for the currently processing event.
    */
   Int_t TrigConfInterface::getCurrentL1PSK() {
     return getTDT()->GetL1PSK();
   }
-  
+
   /**
    * @return When configured, returns the HLT prescale key for the currently processing event.
    */
   Int_t TrigConfInterface::getCurrentHLTPSK() {
     return getTDT()->GetHLTPSK();
   }
-  
+
   /**
    * @return When configured, returns the current HLT keyset in small wrapper object.
    */
@@ -117,7 +123,20 @@ namespace TrigCostRootAnalysis {
     m_key.set( getCurrentSMK(), getCurrentL1PSK(), getCurrentHLTPSK() );
     return m_key;
   }
-  
+
+  /**
+   * Check if we have seen this configuration before - and if we need to dump it
+   */
+  void TrigConfInterface::newEvent() {
+    bool _seen = (m_seenKeys.count( getCurrentDBKey() ) == 1);
+    if (_seen) return;
+    m_seenKeys.insert( getCurrentDBKey() );
+    if ( Config::config().getInt(kOutputMenus) == kTRUE) {
+      Info("TrigConfInterface::newEvent", "Exporting trigger configuration JSON file for %s", getCurrentDBKey().name().c_str() );
+      TrigConfInterface::dump();
+    }
+  }
+
   /**
    * Fetch the ID of L1 item from name.
    * @param _name Const reference to name of L1 chain.
@@ -127,7 +146,7 @@ namespace TrigCostRootAnalysis {
     if (_name == "NO_SEED") return -1;
     return getTCT()->GetCTPId( _name );
   }
-  
+
   /**
    * Fetch the name of a L1 item from its ID
    * @param _name CPT ID of L1 chain.
@@ -136,7 +155,7 @@ namespace TrigCostRootAnalysis {
   const std::string& TrigConfInterface::getNameFromCtpId( Int_t _ctpId ) {
     return getTCT()->GetNameFromCTPId( _ctpId );
   }
-  
+
   /**
    * Fetch the low chain name of a given chain, EF->L2, L2->L1, HLT->L1.
    * @param _name Const reference to higher chain name.
@@ -154,7 +173,7 @@ namespace TrigCostRootAnalysis {
   Float_t TrigConfInterface::getPassthrough( const std::string& _name ) {
     return getTCT()->GetPassthrough( _name );
   }
-  
+
   /**
    * Explicitly load given entry in tree. This should not be needed.
    * @param _entry Entry in tree to load.
@@ -167,7 +186,7 @@ namespace TrigCostRootAnalysis {
     return;
     //m_tdt->GetEntry( _entry );
   }
-  
+
   /**
    * Fetch HLT string name using currently configured access method. Supplying level helps but is not needed.
    * @param _chainID HLT ID number of chain
@@ -236,7 +255,7 @@ namespace TrigCostRootAnalysis {
     }
     return Config::config().getStr(kBlankString);
   }
-  
+
   /**
    * Fetch HLT sequence name from sequence index number. Uses advanced trigger configuration information.
    * @param _index Index number of sequence.
@@ -250,7 +269,7 @@ namespace TrigCostRootAnalysis {
     }
     return Config::config().getStr(kBlankString);
   }
-  
+
   /**
    * Fetch HLT algorithm name using the parents sequence index and position of algorithm within sequence.
    * @param _index Index number of parent sequence.
@@ -265,7 +284,7 @@ namespace TrigCostRootAnalysis {
     }
     return Config::config().getStr(kBlankString);
   }
-  
+
   /**
    * Fetch hash of HLT algorithm name using the parents sequence index and position of algorithm within sequence.
    * @param _index Index number of parent sequence.
@@ -280,7 +299,7 @@ namespace TrigCostRootAnalysis {
     }
     return 0;
   }
-  
+
   /**
    * Fetch HLT algorithm class type name using the parents sequence index and position of algorithm within sequence.
    * @param _index Index number of parent sequence.
@@ -295,7 +314,7 @@ namespace TrigCostRootAnalysis {
     }
     return Config::config().getStr(kBlankString);
   }
-  
+
   /**
    * Fetch hash of HLT algorithm class type name using the parents sequence index and position of algorithm within sequence.
    * @param _index Index number of parent sequence.
@@ -310,7 +329,7 @@ namespace TrigCostRootAnalysis {
     }
     return 0;
   }
-  
+
   /**
    * Fetch prescale factor for given chain name.
    * @param _chainName Name of chain to fetch prescale for.
@@ -373,7 +392,7 @@ namespace TrigCostRootAnalysis {
     }
     return Config::config().getStr(kBlankString);
   }
-  
+
   /**
    * Fetch a map which contains the bunch group information.
    * This may be fetched from the database or from the CTP
@@ -393,7 +412,7 @@ namespace TrigCostRootAnalysis {
         _BGDatabase[_ss.str()] = stringToInt( _BGDBVal );
         _BCIDCountDB += stringToInt( _BGDBVal );
       }
-      // CTP Config 
+      // CTP Config
       _ssCTPName << "CTPConfig:NAME:BGRP" << _bg;
       _ssCTPSize << "CTPConfig:SIZE:BGRP" << _bg;
       std::string _CTPBGName = getMetaStringVal( _ssCTPName.str() );
@@ -422,7 +441,7 @@ namespace TrigCostRootAnalysis {
     }
     return m_tdt;
   }
-  
+
   /**
    * Designed for internal use, get a pointer to the TriggerDescisionTool object.
    * @return Const pointer to configured D3PD::TrigConfigSvcD3PD.
@@ -434,21 +453,30 @@ namespace TrigCostRootAnalysis {
     }
     return m_tct;
   }
-  
+
+  D3PD::TrigConfigSvcD3PD* TrigConfInterface::getTCTNonConst() {
+    assert( m_isConfigured );
+    if ( !m_tct) {
+      m_tct = dynamic_cast<D3PD::TrigConfigSvcD3PD*>( &(m_tdt->GetConfigSvc()) );
+    }
+    return m_tct;
+  }
+
+
   /**
    * Export current trigger configuration to basic HTML page.
    */
   void TrigConfInterface::dump() {
 
     if (m_isConfigured == kFALSE) return;
-  
+
     const std::string _sm = intToString( getCurrentSMK() );
-    
-    const std::string _fileName = std::string( Config::config().getStr(kOutputDirectory) 
-      + "/TriggerConfiguration_" 
+
+    const std::string _fileName = std::string( Config::config().getStr(kOutputDirectory)
+      + "/TriggerConfiguration_"
       + getCurrentDBKey().name() + ".json" );
     if (Config::config().debug()) Info("TrigConfInterface::dump", "Saving trigger configuration to %s", _fileName.c_str() );
-    
+
     //std::ofstream _foutHtml( std::string(_fileName + ".htm").c_str() );
     std::ofstream _foutJson( _fileName.c_str() );
 
@@ -459,7 +487,7 @@ namespace TrigCostRootAnalysis {
     //_foutHtml << "<ul>" << std::endl;
 
     _json->addNode(_foutJson, "Trigger", "TRG");
-    _json->addNode(_foutJson, "LVL1", "LV1");     // BEGIN 
+    _json->addNode(_foutJson, "LVL1", "LV1");     // BEGIN
     Bool_t _jsonDoingL1 = kTRUE;
     // CHAIN
     for (UInt_t _c = 0; _c < getTCT()->GetChainN(); ++_c) {
@@ -521,7 +549,7 @@ namespace TrigCostRootAnalysis {
               //_foutHtml << "   <li>Algorithm Instance/Class:<b>" << getTCT()->GetAlgName(_seq, _a) << " </b>/<b> " << getTCT()->GetAlgTypeName(_seq, _a) << "</b></li>" << std::endl;
             }
             //_foutHtml << "   </ol>" << std::endl;
-            if (!_isL1) _json->endNode(_foutJson); // SEQ STEP 
+            if (!_isL1) _json->endNode(_foutJson); // SEQ STEP
           }
         }
         //_foutHtml << "  </ul>" << std::endl;
@@ -539,7 +567,7 @@ namespace TrigCostRootAnalysis {
     //_foutHtml.close();
 
   }
-  
+
   /**
    * Reset the configuration interface, removing any TriggerDescisionTool object.
    */
@@ -550,7 +578,7 @@ namespace TrigCostRootAnalysis {
     m_tct = 0;
     m_isConfigured = false;
   }
-  
+
   /**
    * Perform diagnostic dumping of configuration information to the terminal
    */
@@ -579,47 +607,48 @@ namespace TrigCostRootAnalysis {
     }
   }
 
-  UInt_t      TrigConfInterface::getChainN() { 
-    return getTCT()->GetChainN(); 
+  UInt_t      TrigConfInterface::getChainN() {
+    return getTCT()->GetChainN();
   }
 
   UInt_t      TrigConfInterface::getChainLevel(UInt_t _c) {
     return getTCT()->GetChainLevel(_c);
   }
 
-  UInt_t      TrigConfInterface::getChainCounter(UInt_t _c) { 
-    return getTCT()->GetChainCounter(_c); 
+  UInt_t      TrigConfInterface::getChainCounter(UInt_t _c) {
+    return getTCT()->GetChainCounter(_c);
   }
 
-  std::string TrigConfInterface::getChainName(UInt_t _c) { 
-    return getTCT()->GetChainName(_c); 
+  std::string TrigConfInterface::getChainName(UInt_t _c) {
+    return getTCT()->GetChainName(_c);
   }
 
   UInt_t      TrigConfInterface::getChainEBHypoNameSize(UInt_t _c) {
-    return getTCT()->GetChainEBHypoNameSize(_c); 
+    return getTCT()->GetChainEBHypoNameSize(_c);
   }
 
-  std::string TrigConfInterface::getChainEBHypoName(UInt_t _c, UInt_t _h) { 
-    return getTCT()->GetChainEBHypoName(_c, _h); 
-  }  
-
-  UInt_t      TrigConfInterface::getChainGroupsNameSize(UInt_t _c) { 
-    return getTCT()->GetChainGroupNameSize(_c); 
+  std::string TrigConfInterface::getChainEBHypoName(UInt_t _c, UInt_t _h) {
+    return getTCT()->GetChainEBHypoName(_c, _h);
   }
 
-  std::string TrigConfInterface::getChainGroupName(UInt_t _c, UInt_t _g) { 
-    return getTCT()->GetChainGroupName(_c, _g); 
+  UInt_t      TrigConfInterface::getChainGroupsNameSize(UInt_t _c) {
+    return getTCT()->GetChainGroupNameSize(_c);
   }
 
-  std::string TrigConfInterface::getChainRatesGroupName(UInt_t _c) { 
+  std::string TrigConfInterface::getChainGroupName(UInt_t _c, UInt_t _g) {
+    return getTCT()->GetChainGroupName(_c, _g);
+  }
+
+  std::vector<std::string> TrigConfInterface::getChainRatesGroupNames(UInt_t _c) {
+    std::vector<std::string> _groups;
     for (UInt_t _group = 0; _group < getTCT()->GetChainGroupNameSize(_c); ++_group) {
       std::string _groupName = getTCT()->GetChainGroupName(_c, _group);
       if (_groupName.find("Rate:") != std::string::npos || _groupName.find("RATE:") != std::string::npos) {
         std::replace( _groupName.begin(), _groupName.end(), ':', '_'); // A ":" can cause issues in TDirectory naming structure. "_" is safe.
-        return _groupName;
+        _groups.push_back(_groupName);
       }
     }
-    return Config::config().getStr(kBlankString);
+    return _groups;
   }
-  
+
 } // namespace TrigCostRootAnalysis

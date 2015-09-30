@@ -50,4 +50,6 @@ end_private
 ############# exec
 
 application RunTrigCostD3PD ../util/RunTrigCostD3PD.cxx
+application TrigCostD3PD_UserSkeleton ../util/TrigCostD3PD_UserSkeleton.cxx
 macro_append RunTrigCostD3PD_dependencies " TrigCostRootAnalysisLib"
+macro_append TrigCostD3PD_UserSkeleton_dependencies " TrigCostRootAnalysisLib"

@@ -11,6 +11,7 @@
 #include <assert.h>
 #include <fstream>
 #include <time.h>
+#include <set>
 #include <sys/resource.h> //system resource usage
 #include <stdio.h>
 #include <signal.h> // Catch
@@ -22,6 +23,7 @@
 #include <TError.h>
 #include <TSystem.h>
 #include <TROOT.h>
+#include <TInterpreter.h>
 
 // Local include(s):
 #include "TrigCostRootAnalysis/Config.h"
@@ -33,6 +35,7 @@
 #include "TrigCostRootAnalysis/TrigCostAtlasStyle.h"
 #include "TrigCostRootAnalysis/DataVariable.h"
 #include "TrigCostRootAnalysis/TrigXMLService.h"
+#include "TrigCostRootAnalysis/Config.h"
 
 /**
  *
@@ -50,27 +53,32 @@ void handlerFunctionTerm (Int_t _parameter) {
     abort();
   }
 }
- 
+
 using namespace TrigCostRootAnalysis;
-
-void loadEBWeights() {
-
-}
 
 int main(int argc, char* argv[]) {
 
   signal(SIGINT, handlerFunctionTerm);
 
+  Timer _timerSetup("Main","Setup");
+  Timer _timerLoop("Main","Event Loop");
+  Timer _timerFinalise("Main","Finalise");
+  Timer _timerWrite("Main","Writing");
+
   clock_t _tStart, _tEnd, _tProgress;
   _tStart = clock();
+  _timerSetup.start();
 
   SetTrigCostAtlasStyle();
 
+  // Dictionary issues with EOS
+  //gInterpreter->GenerateDictionary("vector<vector<float> >;vector<vector<vector<float> > >", "vector");
+
   Info("TrigCostD3PD", "Execute RunTrigCostD3PD");
-  
+
   Config& _config = Config::config();
   Bool_t _isConfigured = _config.parseCLI(argc, argv);
-  
+
   if (_isConfigured) {
     Info("TrigCostD3PD","All program options parsed, preparing event loop.");
   } else {
@@ -81,28 +89,29 @@ int main(int argc, char* argv[]) {
 
   // Master chain of all files to analyse
   TChain _chain( _config.getStr(kTreeName).c_str() );
-  
+  // Configuration tree chain
+
   // Add files to chain
   for (UInt_t _f = 0; _f < _config.getVecSize(kInputFiles); ++_f) {
-    _chain.Add( _config.getVecEntry(kInputFiles, _f).c_str() );
+    _chain.Add(       _config.getVecEntry(kInputFiles, _f).c_str() );
   }
 
   // 'event' is very important, it's used pass-by-reference and dictates which entry in the tree we're reading from.
   Long64_t _event = 0;
-  
+
   // Create readers for cost branches and attach them to the TChain
   // These readers are wrapped in a data access class which provides a more intuitive interface.
   TrigCostData _L2Data;
   TrigCostData _EFData;
-  TrigCostData _HLTData; 
-  
+  TrigCostData _HLTData;
+
   if ( _config.getInt(kDoL2) == kTRUE ) _L2Data.setup( _event, _config.getStr(kL2Prefix).c_str(), &_chain );
   if ( _config.getInt(kDoEF) == kTRUE ) _EFData.setup( _event, _config.getStr(kEFPrefix).c_str(), &_chain );
   if ( _config.getInt(kDoHLT) == kTRUE ) _HLTData.setup( _event, _config.getStr(kHLTPrefix).c_str(), &_chain );
-  
+
   // Create event processors. These hold individual monitors and distribute data in the event loop.
-  ProcessEvent* _processEventL2 = new ProcessEvent(&_L2Data, 2, _config.getStr(kL2String));
-  ProcessEvent* _processEventEF = new ProcessEvent(&_EFData, 3, _config.getStr(kEFString));
+  ProcessEvent* _processEventL2  = new ProcessEvent(&_L2Data,  2, _config.getStr(kL2String));
+  ProcessEvent* _processEventEF  = new ProcessEvent(&_EFData,  3, _config.getStr(kEFString));
   ProcessEvent* _processEventHLT = new ProcessEvent(&_HLTData, 2, _config.getStr(kHLTString));
 
   // Setup the monitors we'll be using within the ProcessEvents
@@ -116,12 +125,14 @@ int main(int argc, char* argv[]) {
     // If kAllMonitors was true we can stop here
     if (_monKey == kDoAllMonitor && _config.getInt(kDoAllMonitor) == kTRUE) break;
   }
-  
+
   _config.set(kEventsProcessed, 0, "EventsProcessed", kUnlocked);
   _config.set(kEventsSkipped, 0, "EventsSkipped", kUnlocked);
   UInt_t _eventsSinceLastPrint = 0, _messageNumber = 0;
-  UInt_t _reportAfter = CLOCKS_PER_SEC * 10;
+  UInt_t _reportAfter = CLOCKS_PER_SEC * _config.getInt(kMessageWait);
   time_t _onlineTime = 0;
+  Float_t _effectivePrescale = 0.;
+  std::set<UInt_t> _lbProcessed;
   std::string _onlineTimeStr;
   struct rusage _resources;
   std::string _outputProgressFile;
@@ -138,13 +149,13 @@ int main(int argc, char* argv[]) {
     // Returns the local entry number within the tree
     // (D3PD reader doesn't distinguish between TTree or TChain)
     _event = _chain.LoadTree( _masterEvent );
-    if (_event == 0 && _config.debug()) {
+    if (_event == 0) {
       Info("TrigCostD3PD","Opening new file: %s", _chain.GetFile()->GetName() );
     }
     assert( _event >= 0 ); // -1=Empty, -2=OutOfRange, -3=FileIOProblem, -4=TTreeMissing
 
     // If first event, perform configuration on loaded treesf
-    if (_masterEvent == 0)  {
+    if (_masterEvent == 0 && _config.getInt(kWriteEBWeightXML) == kFALSE)  {
       // Get the run number
       if ( _config.getInt(kDoL2) && _config.getIsSet(kRunNumber) == kFALSE ) {
         _config.set(kRunNumber, _L2Data.getRunNumber(), "RunNumber" );
@@ -185,10 +196,6 @@ int main(int argc, char* argv[]) {
       // Setup the trigger configuration
       TrigConfInterface::configure( &_chain );
       if ( _config.debug() ) TrigConfInterface::debug();
-      // TODO - for when we are using multiple menus, this should be moved on menu on-load
-      if ( _config.getInt(kOutputMenus) == kTRUE ) {
-        TrigConfInterface::dump();
-      }
       if ( _config.getInt(kWriteDummyPSXML) == kTRUE) {
         // Here the user has asked us to simple dump out the menu to a prescale XML file
         TrigXMLService::trigXMLService().writePrescaleXML();
@@ -201,20 +208,24 @@ int main(int argc, char* argv[]) {
       std::string _execPrescaleStr = TrigConfInterface::getMetaStringVal("ExecPrescale");
       if (_doOperationalInfoStr != _config.getStr(kBlankString)) _doOperationalInfo = stringToFloat( _doOperationalInfoStr );
       if (_execPrescaleStr != _config.getStr(kBlankString)) _execPrescale = stringToFloat( _execPrescaleStr );
-      Float_t _effectivePrescale = _doOperationalInfo * _execPrescale;
+      _effectivePrescale = _doOperationalInfo * _execPrescale;
       // This is for backward compatability for files without these data
       if ( isZero(_effectivePrescale) == kTRUE ) _effectivePrescale = 1.;
       _config.setFloat(kEffectivePrescale, _effectivePrescale, "EffectivePrescale");
       Float_t _basicWeight = _config.getFloat( kBasicEventWeight );
-      Float_t _eventWeight = _basicWeight * _effectivePrescale;
+      Float_t _lumiExtrapWeight = TrigXMLService::trigXMLService().getLumiExtrapWeight();
+      Float_t _eventWeight = _basicWeight * _effectivePrescale * _lumiExtrapWeight;
       if ( isZero(_eventWeight - 1.) == kTRUE) { // Info if weight == 1
-        Info("TrigCostD3PD","Will apply global weight %f to all events (BasicWeight:%.2f, EffectiveCostPrescale:%.2f)", _eventWeight, _basicWeight, _effectivePrescale);
+        Info("TrigCostD3PD","Will apply global weight %f to all events (BasicWeight:%.2f, EffectiveCostPrescale:%.2f, LumiExtrapWeight:%.2f)",
+         _eventWeight, _basicWeight, _effectivePrescale, _lumiExtrapWeight);
       } else { // If weight != 1, this should be bumped up to a warning
-        Warning("TrigCostD3PD","Will apply global weight %f to all events (BasicWeight:%.2f, EffectiveCostPrescale:%.2f)", _eventWeight, _basicWeight, _effectivePrescale);
+        Warning("TrigCostD3PD","Will apply global weight %f to all events (BasicWeight:%.2f, EffectiveCostPrescale:%.2f, LumiExtrapWeight:%.2f)",
+         _eventWeight, _basicWeight, _effectivePrescale, _lumiExtrapWeight);
       }
       _config.setFloat(kEventWeight, _eventWeight, "EventWeight");
+      _timerSetup.stop();
     }
-    
+
     // Get trigger configuration for current event
     //TrigConfInterface::getEntry( _event ); //not needed
 
@@ -223,39 +234,44 @@ int main(int argc, char* argv[]) {
       _config.increment(kEventsSkipped);
       continue;
     }
-    
-    // // Get event weight
-    Float_t _weight = _config.getFloat( kEventWeight ); // This is our base weight that we can apply additional weights on top of
+
+    _timerLoop.start();
+
+    // Get event weight
+    Float_t _weight = 1;
+    if (_config.getInt(kWriteEBWeightXML) == kFALSE) {
+      _weight =_config.getFloat( kEventWeight ); // This is our base weight that we can apply additional weights on top of
+    }
+
+    // Check / get menu configuration
+    if (_config.getInt(kWriteEBWeightXML) == kFALSE) TrigConfInterface::newEvent();
 
     Bool_t _eventAccepted = kFALSE;
-        
+
     // Execute L2 monitoring
     if (_config.getInt(kDoL2) && !isZero(_weight)) {
-      // Check lumi block 
+      // Check lumi block
       if ( _L2Data.getLumi() >= _config.getInt(kLumiStart) && _L2Data.getLumi() <= _config.getInt(kLumiEnd) ) {
-        _eventAccepted = kTRUE;
-        _processEventL2->newEvent( _weight );
+        _eventAccepted = _processEventL2->newEvent( _weight );
       }
     }
-    
+
     // Execute EF monitoring
     if (_config.getInt(kDoEF) && !isZero(_weight)) {
-      // Check lumi block 
+      // Check lumi block
       if ( _EFData.getLumi() >= _config.getInt(kLumiStart) && _EFData.getLumi() <= _config.getInt(kLumiEnd) ) {
-        _eventAccepted = kTRUE;
-        _processEventEF->newEvent( _weight );
+        _eventAccepted = _processEventEF->newEvent( _weight );
       }
     }
-    
+
     // Execute HLT monitoring
     if (_config.getInt(kDoHLT)  && !isZero(_weight) ) {
       if (_config.getInt(kWriteEBWeightXML) == kTRUE) {
-        TrigXMLService::trigXMLService().exportEnhancedBiasXML( _HLTData.getEventNumber(), _HLTData.getEBWeight(), _HLTData.getEBWeightBG() );
-      } else if ( _HLTData.getLumi() >= _config.getInt(kLumiStart) && _HLTData.getLumi() <= _config.getInt(kLumiEnd) ) {
-        _eventAccepted = kTRUE;
-        _processEventHLT->newEvent( _weight );
+        TrigXMLService::trigXMLService().exportEnhancedBiasXML( _HLTData.getEventNumber(), _HLTData.getEBWeight(), _HLTData.getEBWeightBG(), _HLTData.getEBUnbiased() );
+      } else if ( _HLTData.getLumi() >= _config.getInt(kLumiStart) && _HLTData.getLumi() <= _config.getInt(kLumiEnd) && TrigXMLService::trigXMLService().getIsLBFlaggedBad( _HLTData.getLumi() ) == kFALSE ) {
+        _lbProcessed.insert( _HLTData.getLumi() );
+        _eventAccepted = _processEventHLT->newEvent( _weight );
       }
-
     }
 
     if ( (clock() - _tProgress) >= _reportAfter ) {
@@ -269,19 +285,20 @@ int main(int argc, char* argv[]) {
       getrusage(RUSAGE_SELF, &_resources);
       Float_t _memoryUsage = (Float_t)_resources.ru_maxrss / 1024.;
       Float_t _timeSoFar = (Float_t)(_tProgress - _tStart)/CLOCKS_PER_SEC;
-      UInt_t _nEventsLeft = 
+      Int_t _nEventsProcessedOrSkipped = _config.getInt(kEventsProcessed)+_config.getInt(kEventsSkipped);
+      UInt_t _nEventsLeft =
         std::min(
-          _config.getInt(kNEvents) - (_config.getInt(kEventsProcessed)+_config.getInt(kEventsSkipped)),
-          _config.getInt(kEventsInFiles) - (_config.getInt(kEventsProcessed)+_config.getInt(kEventsSkipped)) );
+          _config.getInt(kNEvents) - _nEventsProcessedOrSkipped,
+          _config.getInt(kEventsInFiles) - _nEventsProcessedOrSkipped);
       UInt_t _minsLeft = 0;
-      if (_config.getInt(kEventsProcessed)) _minsLeft =(_nEventsLeft * ( _timeSoFar/(Float_t)_config.getInt(kEventsProcessed) )) / 60.;
+      if (_nEventsProcessedOrSkipped) _minsLeft = (_nEventsLeft * ( _timeSoFar/(Float_t)_nEventsProcessedOrSkipped )) / 60.;
       UInt_t _hoursLeft = _minsLeft / 60;
       _minsLeft = _minsLeft % 60;
       Float_t _timePerEventLastFewSecs = 0;
-      if (_config.getInt(kEventsProcessed) - _eventsSinceLastPrint) {
-        _timePerEventLastFewSecs = (_reportAfter/CLOCKS_PER_SEC)/(Float_t)(_config.getInt(kEventsProcessed) - _eventsSinceLastPrint) * 1000.;
+      if (_nEventsProcessedOrSkipped - _eventsSinceLastPrint) {
+        _timePerEventLastFewSecs = (_reportAfter/CLOCKS_PER_SEC)/(Float_t)(_nEventsProcessedOrSkipped - _eventsSinceLastPrint) * 1000.;
       }
-      Info("TrigCostD3PD","| %-*lli | %-*d | %-*d | %-*.2f | %-*.2f | %-*.2f | %*d:%-*d |", 
+      Info("TrigCostD3PD","| %-*lli | %-*d | %-*d | %-*.2f | %-*.2f | %-*.2f | %*d:%-*d |",
       8, _masterEvent,
       9, _config.getInt(kEventsProcessed),
       8, _config.getInt(kEventsSkipped),
@@ -289,7 +306,7 @@ int main(int argc, char* argv[]) {
       8, _timeSoFar,
       10, _timePerEventLastFewSecs,
       5, _hoursLeft, 6, _minsLeft);
-      _eventsSinceLastPrint = _config.getInt(kEventsProcessed);
+      _eventsSinceLastPrint = _nEventsProcessedOrSkipped;
       // Save partial result
       std::ofstream _fout(_outputProgressFile.c_str());
       JsonExport _json;
@@ -302,12 +319,14 @@ int main(int argc, char* argv[]) {
       _fout.close();
       _config.set(kWroteProgressFile, 1, "WroteProgressFile", kUnlocked);
     }
-    
+
     if (_eventAccepted == kTRUE) {
       _config.increment(kEventsProcessed);
     } else {
       _config.increment(kEventsSkipped);
     }
+
+    _timerLoop.stop();
 
     //Early exit from enough events or ctrl-C
     if (_config.getInt(kEventsProcessed) >= _config.getInt(kNEvents) || _terminateCalls) {
@@ -321,6 +340,17 @@ int main(int argc, char* argv[]) {
   Float_t _time = ((Float_t)_tEnd-(Float_t)_tStart)/CLOCKS_PER_SEC;
   getrusage(RUSAGE_SELF, &_resources);
   Info("TrigCostD3PD","End of Event Loop Processed:%i Skipped:%i", _config.getInt(kEventsProcessed), _config.getInt(kEventsSkipped));
+  // Do breakdown?
+  if (_config.getInt(kDoEBWeighting) != 0) {
+    IntIntMap_t _bgMap = TrigXMLService::trigXMLService().getBGMap();
+    IntIntMap_t _bgUbMap = TrigXMLService::trigXMLService().getBGUnbiasedMap();
+    for (IntIntMapIt_t _it = _bgMap.begin(); _it != _bgMap.end(); ++_it) {
+      Info("TrigCostD3PD","  Events from Bunch Group %s: %i (of which unbiased %i)",
+        BunchGroupNameStr[ (*_it).first ].c_str(),
+        (*_it).second,
+        _bgUbMap[ (*_it).first ]);
+    }
+  }
   if (_config.getInt(kEventsProcessed) != 0) {
     Info("TrigCostD3PD","Program execution CPU wall time:%.2f s, Per-Event:%.2f ms", _time, ( _time/(Float_t)_config.getInt(kEventsProcessed) ) * 1000. );
   }
@@ -328,9 +358,8 @@ int main(int argc, char* argv[]) {
     (Float_t)_resources.ru_maxrss / 1024.,
     DataVariable::s_globalHistId);
 
-  _tStart = clock();
-
   ///  --- OUTPUT SECTION ---  ///
+  _timerFinalise.start();
 
   if (_config.getInt(kWriteEBWeightXML) == kTRUE) TrigXMLService::trigXMLService().saveExportedEnhancedBiasXML();
 
@@ -346,34 +375,51 @@ int main(int argc, char* argv[]) {
   if (_config.getInt(kDoL2) == kTRUE ) _processEventL2->saveOutput();
 
   //LumiService::lumiService().saveOutput();
+  _timerFinalise.stop();
 
   if (_config.getInt(kOutputRoot) == kTRUE) {
-     Info("TrigCostD3PD","Closing output ROOT file. Now at the mercy of ROOT I/O. Hold tight.");
+    _timerWrite.start();
+    Info("TrigCostD3PD","Closing output ROOT file. Now at the mercy of ROOT I/O. Hold tight.");
     _outFile->Close();
+    _timerWrite.stop();
   }
 
   // Save metadata
-  const std::string _outputMetadata = _config.getStr(kOutputDirectory) + "/metadata.json";
-  std::ofstream _fout(_outputMetadata.c_str());
-  JsonExport _json;
-  _json.addNode(_fout, "metadata");
-  _json.addLeafCustom(_fout, "Date of Processing", _onlineTimeStr );
-  Config::config().dumpToMeta(_fout, _json);
-  // Get metadata from the last root file
-  if (_config.getInt(kWriteEBWeightXML) == kFALSE) {
-    for (UInt_t _m = 0; _m < TrigConfInterface::getMetaStringN(); ++_m) {
-      std::string _metaKey = TrigConfInterface::getMetaStringKey(_m);
-      //Info("TrigCostD3PD","Exporting metadata %s = %s", _metaKey.c_str(), TrigConfInterface::getMetaStringVal(_m).c_str());
-      _json.addLeafCustom(_fout, _metaKey, TrigConfInterface::getMetaStringVal(_m));
+  if (_config.getInt(kDoNotWriteMetadata) == kFALSE) {
+    // Update user details, fill in patterns
+    if (_config.getIsSet(kUserDetails) == kTRUE) {
+      std::string _userDetails = _config.getStr(kUserDetails);
+      if ( _userDetails.find("%l") != std::string::npos ) { //If this string is present, replace it with N LB
+        _userDetails.replace( _userDetails.find("%l"), 2, intToString( (Int_t) _lbProcessed.size() ) );
+      }
+      if ( _userDetails.find("%e") != std::string::npos ) { //If this string is present, replace it with n events
+        _userDetails.replace( _userDetails.find("%e"), 2, floatToString( Float_t (_config.getInt(kEventsProcessed) * _effectivePrescale) ) );
+      }
+      _config.set(kUserDetails, _userDetails, "Details", kLocked);
     }
+
+    const std::string _outputMetadata = _config.getStr(kOutputDirectory) + "/metadata.json";
+    std::ofstream _fout(_outputMetadata.c_str());
+    JsonExport _json;
+    _json.addNode(_fout, "metadata");
+    _json.addLeafCustom(_fout, "Date of Processing", _onlineTimeStr );
+    Config::config().dumpToMeta(_fout, _json);
+    // Get metadata from the last root file
+    if (_config.getInt(kWriteEBWeightXML) == kFALSE) {
+      for (UInt_t _m = 0; _m < TrigConfInterface::getMetaStringN(); ++_m) {
+        std::string _metaKey = TrigConfInterface::getMetaStringKey(_m);
+        //Info("TrigCostD3PD","Exporting metadata %s = %s", _metaKey.c_str(), TrigConfInterface::getMetaStringVal(_m).c_str());
+        _json.addLeafCustom(_fout, _metaKey, TrigConfInterface::getMetaStringVal(_m));
+      }
+    }
+    // Got metadata from the last root file
+    std::string _CLI;
+    for(Int_t _i = 0; _i < argc; ++_i) _CLI += std::string(argv[_i]) + std::string(" ");
+    while (_CLI.find("\"") != std::string::npos) _CLI.replace( _CLI.find("\""), 1, "'"); // Only single quotes
+    _json.addLeafCustom(_fout, "Command", _CLI);
+    _json.endNode(_fout);
+    _fout.close();
   }
-  // Got metadata from the last root file
-  std::string _CLI;
-  for(Int_t _i = 0; _i < argc; ++_i) _CLI += std::string(argv[_i]) + std::string(" ");
-  while (_CLI.find("\"") != std::string::npos) _CLI.replace( _CLI.find("\""), 1, "'"); // Only single quotes 
-  _json.addLeafCustom(_fout, "Command", _CLI);
-  _json.endNode(_fout);
-  _fout.close();
 
   // Remove progress file
   if ( _config.getIsSet(kWroteProgressFile) == kTRUE) {
@@ -384,8 +430,7 @@ int main(int argc, char* argv[]) {
 
   ///  --- OUTPUT SECTION ---  ///
 
-  _tEnd = clock();
-  Info("TrigCostD3PD","Result output CPU time: %.2f s", ((Float_t)_tEnd-(Float_t)_tStart)/CLOCKS_PER_SEC );
+  Timer::printAll();
 
   _config.messageSuppressionReport();
 

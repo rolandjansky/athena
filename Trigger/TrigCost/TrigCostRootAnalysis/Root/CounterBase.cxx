@@ -14,6 +14,7 @@
 
 // Local include(s):
 #include "../TrigCostRootAnalysis/CounterBase.h"
+#include "../TrigCostRootAnalysis/MonitorBase.h"
 #include "../TrigCostRootAnalysis/Utility.h"
 #include "../TrigCostRootAnalysis/Config.h"
 #include "../TrigCostRootAnalysis/TrigXMLService.h"
@@ -26,9 +27,10 @@ namespace TrigCostRootAnalysis {
   /**
    * Base class constructor. Sets name and ID.
    */
-  CounterBase::CounterBase(const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel) : 
+  CounterBase::CounterBase(const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel, MonitorBase* _parent) :
     m_costData(_costData),
     m_dataStore(this),
+    m_parent(_parent),
     m_strDecorations(),
     m_decorations(),
     m_detailLevel(_detailLevel),
@@ -42,9 +44,16 @@ namespace TrigCostRootAnalysis {
    */
   CounterBase::~CounterBase() {
   }
-  
+
   /**
-   * Return data for this counter from within the DataStore. 
+   * @return Pointer to the parent monitor.
+   */
+  MonitorBase* CounterBase::getParent() {
+    return m_parent;
+  }
+
+  /**
+   * Return data for this counter from within the DataStore.
    * @param _name The name of the variable required.
    * @param _vo The VariableOption_t requested for this variable.
    * @return The stored value requested.
@@ -54,7 +63,17 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * Return the error on data for this counter from within the DataStore. 
+   * Return if the key is registered in the data store.
+   * @param _name The name of the variable required.
+   * @param _vo The VariableOption_t requested for this variable.
+   * @return If the key is present in the data store for the given VO.
+   */
+  Bool_t CounterBase::getValueExists(ConfKey_t _name, VariableOption_t _vo) {
+    return m_dataStore.getValueExists(_name, _vo);
+  }
+
+  /**
+   * Return the error on data for this counter from within the DataStore.
    * @param _name The name of the variable required.
    * @param _vo The VariableOption_t requested for this variable.
    * @return The stored value requested.
@@ -62,7 +81,7 @@ namespace TrigCostRootAnalysis {
   Float_t CounterBase::getValueError(ConfKey_t _name, VariableOption_t _vo) {
     return m_dataStore.getValueError(_name, _vo);
   }
-  
+
   /**
    * Return data for this counter from within the DataStore, normalised to the number of entries.
    * @param _name The name of the variable required.
@@ -78,7 +97,7 @@ namespace TrigCostRootAnalysis {
     }
     return ( _nom / _denom );
   }
-  
+
   /**
    * Return data for this counter from within the DataStore.
    * @param _name The name of the variable required.
@@ -118,7 +137,7 @@ namespace TrigCostRootAnalysis {
   void CounterBase::setErrorSquared(ConfKey_t _name, VariableOption_t _vo, Float_t _val) {
     return m_dataStore.setErrorSquared(_name, _vo, _val);
   }
-  
+
   /**
    * Return data for this counter from within the DataStore.
    * @param _name The name of the variable required.
@@ -128,7 +147,7 @@ namespace TrigCostRootAnalysis {
   TH1F* CounterBase::getHist(ConfKey_t _name, VariableOption_t _vo) {
     return m_dataStore.getHist(_name, _vo);
   }
-  
+
   /**
    * Return data for this counter from within the DataStore.
    * NOTE: 2D historgams are currently not implemented. This will always return 0.
@@ -147,7 +166,7 @@ namespace TrigCostRootAnalysis {
   VariableOptionVector_t CounterBase::getAllHistograms() {
     return m_dataStore.getAllHistograms();
   }
-  
+
   /**
    * Statistics on how many times this Counter object has been called.
    * @return The number of calls.
@@ -155,7 +174,7 @@ namespace TrigCostRootAnalysis {
   UInt_t CounterBase::getCalls() {
     return m_calls;
   }
-  
+
   /**
    * Get the unique (within its parent Monitor) name of the counter.
    * @return Const reference to name of this counter.
@@ -163,7 +182,7 @@ namespace TrigCostRootAnalysis {
   const std::string& CounterBase::getName() {
     return m_name;
   }
-  
+
   /**
    * Get the ID number of the counter. Not used for bookkeeping.
    * @return Stored ID number of counter.
@@ -171,7 +190,7 @@ namespace TrigCostRootAnalysis {
   Int_t CounterBase::getID() {
     return getIntDecoration(kDecID);
   }
-  
+
   /**
    * Get the ID numbers of the counter. For counters with multiple IDs, like ROBINs with many ROBs.
    * @return Set of stored ID numbers of counter.
@@ -179,7 +198,7 @@ namespace TrigCostRootAnalysis {
   const std::set<UInt_t>& CounterBase::getMultiID() {
     return m_multiId;
   }
-  
+
   /**
    * Records additional ID number for counter. For counters with multiple IDs, like ROBINs with many ROBs.
    * @param _multiId The (additional) ID to store. Ignores duplicates.
@@ -187,7 +206,7 @@ namespace TrigCostRootAnalysis {
   void CounterBase::addMultiID(UInt_t _multiId) {
     m_multiId.insert( _multiId );
   }
-  
+
   /**
    * Alternate method format, passing both variable name and option in a pair.
    * @see getHist(std::string _name, VariableOption_t _vo)
@@ -196,7 +215,7 @@ namespace TrigCostRootAnalysis {
   TH1F* CounterBase::getHist( ConfVariableOptionPair_t _pair ) {
     return getHist(_pair.first, _pair.second);
   }
-  
+
   /**
    * For some counters, like algorithm ones, it is handy to decorate the counter with additional information.
    * Such as the algorithm class, the algorithm's chain.
@@ -224,14 +243,14 @@ namespace TrigCostRootAnalysis {
   void CounterBase::decorate( ConfKey_t _key, Int_t _value ) {
     m_intDecorations[_key] = _value;
   }
-  
+
   /**
    * Get a string decoration.
-   * @see decorate( ConfKey_t _key, const std::string _value ) 
+   * @see decorate( ConfKey_t _key, const std::string _value )
    * @return Const reference to decoration.
    */
   const std::string& CounterBase::getStrDecoration( ConfKey_t _key ) {
-    if ( m_strDecorations.count( _key ) == 0) { 
+    if ( m_strDecorations.count( _key ) == 0) {
       if (Config::config().getDisplayMsg(kMsgUnknownDecoration) == kTRUE) {
         Warning("CounterBase::getStrDecoration", "Unknown decoration %s requested in %s.", Config::config().getStr(_key).c_str(), getName().c_str());
       }
@@ -242,11 +261,11 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Get a float decoration.
-   * @see decorate( ConfKey_t _key, Float_t _value ) 
+   * @see decorate( ConfKey_t _key, Float_t _value )
    * @return Const reference to float decoration
    */
   Float_t CounterBase::getDecoration( ConfKey_t _key ) {
-    if ( m_decorations.count( _key ) == 0) { 
+    if ( m_decorations.count( _key ) == 0) {
       if (Config::config().getDisplayMsg(kMsgUnknownDecoration) == kTRUE) {
         Warning("CounterBase::getDecoration", "Unknown decoration %s requested in %s.", Config::config().getStr(_key).c_str(), getName().c_str());
       }
@@ -257,11 +276,11 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Get a int decoration.
-   * @see decorate( ConfKey_t _key, Int_t _value ) 
+   * @see decorate( ConfKey_t _key, Int_t _value )
    * @return Const reference to int decoration
    */
   Int_t CounterBase::getIntDecoration( ConfKey_t _key ) {
-    if ( m_intDecorations.count( _key ) == 0) { 
+    if ( m_intDecorations.count( _key ) == 0) {
       if (Config::config().getDisplayMsg(kMsgUnknownDecoration) == kTRUE) {
         Warning("CounterBase::getIntDecoration", "Unknown decoration %s requested in %s.", Config::config().getStr(_key).c_str(), getName().c_str());
       }
@@ -269,5 +288,5 @@ namespace TrigCostRootAnalysis {
     }
     return m_intDecorations[_key];
   }
-  
+
 } // namespace TrigCostRootAnalysis

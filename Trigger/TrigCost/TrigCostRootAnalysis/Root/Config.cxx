@@ -13,8 +13,10 @@
 #include <iostream>
 #include <sstream>
 #include <assert.h>
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
+#include <float.h> // FLT_MIN
 #include <getopt.h> //GCC CLI parsing
 #include "cstdlib" //std::getenv
 
@@ -42,7 +44,7 @@ namespace TrigCostRootAnalysis {
     static Config instance; // Guaranteed to be destroyed.
     return instance;        // Instantiated on first use.
   }
-  
+
   /**
    * Parse the command line options provided to the application. Setup all configuration keys which are expected to
    * be present by the application.
@@ -51,7 +53,7 @@ namespace TrigCostRootAnalysis {
    * @returns kTRUE if execution can continue. Or Error and kFALSE if vital information was not provided by the user.
    */
   Bool_t Config::parseCLI(int argc, char* argv[]) {
-  
+
     // Flags
 
     // Level
@@ -70,13 +72,20 @@ namespace TrigCostRootAnalysis {
     static Int_t _monitorSequences = kFALSE;
     static Int_t _monitorSequenceAlgs = kFALSE;
     static Int_t _monitorAlgs = kFALSE;
+    static Int_t _monitorAlgClass = kFALSE;
     static Int_t _monitorAllChainSeqAlgs = kFALSE;
     static Int_t _monitorROS = kFALSE;
+    static Int_t _monitorAllROS = kFALSE;
+    static Int_t _monitorROBIN = kFALSE;
+    static Int_t _monitorROSAlgs = kFALSE;
+    static Int_t _monitorROSChains = kFALSE;
     static Int_t _monitorL1 = kFALSE;
     static Int_t _monitorFullEvent = kFALSE;
     static Int_t _monitorGlobals = kFALSE;
+    static Int_t _monitorEventProfile = kFALSE;
     static Int_t _monitorROI = kFALSE;
     static Int_t _monitorRates = kFALSE;
+    static Int_t _monitorRatesUpgrade = kFALSE;
     // Output
     static Int_t _doOutputPng = kFALSE;
     static Int_t _doOutputPdf = kFALSE;
@@ -89,6 +98,11 @@ namespace TrigCostRootAnalysis {
     static Int_t _linkOutputDirectory = kFALSE;
     static Int_t _writeDummyPSXML = kFALSE;
     // Misc
+    static Int_t _ratesMode = kFALSE;
+    static Int_t _ratesUpgradeMode = kFALSE;
+    static Int_t _costMode = kFALSE;
+    static Int_t _onlineMode = kFALSE;
+    static Int_t _outputModeStandard = kFALSE;
     static Int_t _outputTagFromAthena = kFALSE;
     static Int_t _cleanAll = kFALSE;
     static Int_t _doEBWeighting = kFALSE;
@@ -96,16 +110,27 @@ namespace TrigCostRootAnalysis {
     static Int_t _debug = kFALSE;
     static Int_t _ratesForcePass = kFALSE;
     static Int_t _ratesScaleByPS = kFALSE;
+    static Int_t _matchL1RandomToOnline = kFALSE;
     static Int_t _doUniqueRates = kFALSE;
     static Int_t _doGroupOverlap = kFALSE;
     static Int_t _doAllOverlap = kFALSE;
     static Int_t _showVersion = kFALSE;
     static Int_t _extraplolate8To13 = kFALSE;
+    static Int_t _doNotWriteMetadata = kFALSE;
+    static Int_t _noMsgSup = kFALSE;
+    static Int_t _noOnlineDTCorrection = kFALSE;
+    static Int_t _noUpgradePileupScaling = kFALSE;
 
     // User options
     std::vector< std::string > _inputFiles;
     std::vector< std::string > _patternsMonitor;
     std::vector< std::string > _patternsOutput;
+    std::vector< std::string > _patternsUnique;
+    std::vector< std::string > _patternsExclude;
+    std::vector< std::string > _patternsOverlap;
+    std::vector< Int_t > _eventPicker;
+    std::string _fileList = "";
+    std::string _fullEventFileList = "";
     std::string _treeName = "trig_cost";
     std::string _L2Prefix = "TrigCostL2_";
     std::string _EFPrefix = "TrigCostEF_";
@@ -124,26 +149,35 @@ namespace TrigCostRootAnalysis {
     std::string _menuXML = "";//"HLTconfig_Physics_pp_v5_19.2.0.xml";
     std::string _prescaleXML1 = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
     std::string _prescaleXML2 = "";
-    std::string _ROSXML = "rob-ros-robin-2012.xml";
-    std::string _version = "TrigCostRootAnalysis-00-05-26";
+    std::string _ROSXML = "rob-ros-robin-2015.xml";
+    std::string _version = "TrigCostRootAnalysis-00-07-17";
+    std::string _upgradeScenario = "";
     Int_t _lbBegin = INT_MIN;
     Int_t _lbEnd = INT_MAX;
     UInt_t _nEvents = INT_MAX;
     UInt_t _nSkip = 0;
-    UInt_t _nLbFullSummary = 5;
-    UInt_t _nLbFullSkip = 10;
+    UInt_t _nThread = 5;
+    UInt_t _nLbFullSummary = 4;
+    UInt_t _nLbFullSkip = 50;
+    UInt_t _nHLTConfigSummary = 3;
+    UInt_t _nLbPerHLTConfig = 20;
     UInt_t _defaultLBLength = 30;
-    UInt_t _slowThreshold = 500;
+    UInt_t _slowThreshold = 1000;
+    UInt_t _slowEventThreshold = 120000;
     UInt_t _histogramBins = 50;
     UInt_t _maxNumberFullEvents = 10;
     UInt_t _ratesOverlapWarning = 80;
     UInt_t _maxMultiSeed = 1;
     UInt_t _runNumber = 0;
-    Float_t _rateFallbackPrescaleL1 = 1.;
-    Float_t _rateFallbackPrescaleHLT = 1.;
+    UInt_t _messageWait = 10;
+    Float_t _rateFallbackPrescaleL1 = FLT_MIN;
+    Float_t _rateFallbackPrescaleHLT = FLT_MIN;
     Float_t _basicWeight = 1.;
     Float_t _predictionLumi = 0.;
-    
+    Float_t _runLumi = 0.;
+    Float_t _binMin = FLT_MIN;
+    Float_t _binMax = FLT_MIN;
+
     // Parse CLI
     Int_t _status = 0;
     while (kTRUE) {
@@ -151,6 +185,7 @@ namespace TrigCostRootAnalysis {
         {"help",                   no_argument,       0,                        0},
         {"cleanAll",               no_argument,       &_cleanAll,               1},
         {"debug",                  no_argument,       &_debug,                  1},
+        {"noMsgSuppression",       no_argument,       &_noMsgSup,               1},
         {"doL2",                   no_argument,       &_doL2,                   1},
         {"doEF",                   no_argument,       &_doEF,                   1},
         {"doL2EF",                 no_argument,       &_doL2EF,                 1},
@@ -170,13 +205,21 @@ namespace TrigCostRootAnalysis {
         {"monitorSequences",       no_argument,       &_monitorSequences,       1},
         {"monitorSequenceAlgs",    no_argument,       &_monitorSequenceAlgs,    1},
         {"monitorAlgs",            no_argument,       &_monitorAlgs,            1},
-        {"monitorAllChainSeqAlgs", no_argument,       &_monitorAllChainSeqAlgs, 1},        
+        {"monitorAlgClass",        no_argument,       &_monitorAlgClass,        1},
+        {"monitorAllChainSeqAlgs", no_argument,       &_monitorAllChainSeqAlgs, 1},
+        {"monitorAllChainSeqAlg",  no_argument,       &_monitorAllChainSeqAlgs, 1}, // Back comp
         {"monitorROS",             no_argument,       &_monitorROS,             1},
+        {"monitorAllROS",          no_argument,       &_monitorAllROS,          1},
+        {"monitorROBIN",           no_argument,       &_monitorROBIN,           1},
+        {"monitorROSAlgs",         no_argument,       &_monitorROSAlgs,         1},
+        {"monitorROSChains",       no_argument,       &_monitorROSChains,       1},
         {"monitorROI",             no_argument,       &_monitorROI,             1},
         {"monitorL1",              no_argument,       &_monitorL1,              1},
         {"monitorFullEvent",       no_argument,       &_monitorFullEvent,       1},
         {"monitorGlobals",         no_argument,       &_monitorGlobals,         1},
+        {"monitorEventProfile",    no_argument,       &_monitorEventProfile,    1},
         {"monitorRates",           no_argument,       &_monitorRates,           1},
+        {"monitorRatesUpgrade",    no_argument,       &_monitorRatesUpgrade,    1},
         {"useEBWeight",            no_argument,       &_doEBWeighting,          1},
         {"writeEBXML",             no_argument,       &_writeEBWeightXML,       1},
         {"summaryPerHLTConfig",    no_argument,       &_summaryPerHLTConfig,    1},
@@ -191,6 +234,15 @@ namespace TrigCostRootAnalysis {
         {"version",                no_argument,       &_showVersion,            1},
         {"linkOutputDirectory",    no_argument,       &_linkOutputDirectory,    1},
         {"extrapolate8To13",       no_argument,       &_extraplolate8To13,      1},
+        {"doNotWriteMetadata",     no_argument,       &_doNotWriteMetadata,     1},
+        {"matchL1RandomToOnline",  no_argument,       &_matchL1RandomToOnline,  1},
+        {"ratesUpgradeMode",       no_argument,       &_ratesUpgradeMode,       1},
+        {"ratesMode",              no_argument,       &_ratesMode,              1},
+        {"costMode",               no_argument,       &_costMode,               1},
+        {"onlineMode",             no_argument,       &_onlineMode,             1},
+        {"outputModeStandard",     no_argument,       &_outputModeStandard,     1},
+        {"noOnlineDTCorrection",   no_argument,       &_noOnlineDTCorrection,   1},
+        {"noUpgradePileupScaling", no_argument,       &_noUpgradePileupScaling, 1},
         {"treeName",               required_argument, 0,                      't'},
         {"prescaleXML",            required_argument, 0,                      'M'},
         {"prescaleXML1",           required_argument, 0,                      'g'},
@@ -204,6 +256,8 @@ namespace TrigCostRootAnalysis {
         {"outputRootDirectory",    required_argument, 0,                      'O'},
         {"outputTag",              required_argument, 0,                      'T'},
         {"histogramBins",          required_argument, 0,                      'h'},
+        {"histogramBinMin",        required_argument, 0,                      'j'},
+        {"histogramBinMax",        required_argument, 0,                      'J'},
         {"prefixL2",               required_argument, 0,                      'l'},
         {"prefixEF",               required_argument, 0,                      'E'},
         {"prefixHLT",              required_argument, 0,                      'H'},
@@ -213,30 +267,42 @@ namespace TrigCostRootAnalysis {
         {"basicWeight",            required_argument, 0,                      'B'},
         {"nEvents",                required_argument, 0,                      'n'},
         {"nSkip",                  required_argument, 0,                      's'},
+        {"nThreads",               required_argument, 0,                      'W'},
         {"nFullEventSummaries",    required_argument, 0,                      'F'},
+        {"fullEvNumFilelist",      required_argument, 0,                      'V'},
         {"slowThreshold",          required_argument, 0,                      'S'},
+        {"slowEventThreshold",     required_argument, 0,                      'y'},
         {"defaultLBLength",        required_argument, 0,                      'd'},
         {"predictionLumi",         required_argument, 0,                      'D'},
+        {"runLumi",                required_argument, 0,                      'U'},
         {"nLbFullSummary",         required_argument, 0,                      'L'},
         {"nLbFullSkip",            required_argument, 0,                      'k'},
         {"ratesOverlapWarning",    required_argument, 0,                      'w'},
         {"files",                  required_argument, 0,                      'f'},
+        {"fileList",               required_argument, 0,                      'K'},
         {"patternsMonitor",        required_argument, 0,                      'p'},
         {"patternsOutput",         required_argument, 0,                      'P'},
+        {"patternsUnique",         required_argument, 0,                      'I'},
+        {"patternsExclude",        required_argument, 0,                      'v'},
+        {"patternsOverlap",        required_argument, 0,                      'Y'},
         {"userDetails",            required_argument, 0,                      'u'},
         {"maxMultiSeed",           required_argument, 0,                      'X'},
         {"runNumber",              required_argument, 0,                      'N'},
         {"rateFallbackPrescaleL1", required_argument, 0,                      'a'},
         {"rateFallbackPrescaleHLT",required_argument, 0,                      'A'},
+        {"nHLTConfigSummary",      required_argument, 0,                      'q'},
+        {"nLbPerHLTConfig",        required_argument, 0,                      'Q'},
+        {"upgradeScenario",        required_argument, 0,                      'm'},
+        {"messageWait",            required_argument, 0,                      'z'},
         {0, 0, 0, 0}
       };
-      
+
       Int_t _optionIndex = 0;
       _status = getopt_long_only(argc, argv, "betlEf:", _longOptions, &_optionIndex);
       if (_status == -1) {
         break;
       }
-      
+
       std::stringstream _ss;
       switch (_status) {
       case 0:
@@ -247,6 +313,11 @@ namespace TrigCostRootAnalysis {
         //std::cout << "Given option " << _longOptions[_optionIndex].name;
         if (std::string( _longOptions[_optionIndex].name ) == "help") {
           std::cout << "INFO: Trig Cost Root Analysis Program Usage:- " << std::endl;
+          std::cout << "\t~~~~~~~~~~~~~~~ OPERATING MODE ALIASES ~~~~~~~~~~~~~~~" << std::endl;
+          std::cout << "--costMode\t\t\t\t\tAlias for: --cleanAll --doHLT --summaryAll --monitorAllChainSeqAlgs --monitorAllROS --monitorROI --monitorGlobals --monitorFullEvent --monitorEventProfile --outputModeStandard" << std::endl;
+          std::cout << "--onlineMode\t\t\t\t\tAlias for: --cleanAll --summaryPerHLTConfig --summaryPerLumiBlock --monitorAllChainSeqAlg --monitorROS --monitorROBIN --monitorROI --monitorGlobals --monitorFullEvent --monitorEventProfile --outputModeStandard" << std::endl;
+          std::cout << "--ratesMode\t\t\t\t\tAlias for: --cleanAll --doHLT --summaryPerHLTConfig --monitorRates --useEBWeight --matchL1RandomToOnline --nLbPerHLTConfig=INT_MAX --outputModeStandard" << std::endl;
+          std::cout << "--outputModeStandard\t\t\t\tAlias for: --doOutputHist --doOutputCSV --doOutputRatesGraph --doOutputRatesXML --doOutputMenus" << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ HLT LEVELS TO PROCESS ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--doL2\t\t\t\t\t\tProcess just Level 2 cost data if present in ntuple." << std::endl;
           std::cout << "--doEF\t\t\t\t\t\tProcess just Event Filter cost data if present in ntuple." << std::endl;
@@ -263,56 +334,78 @@ namespace TrigCostRootAnalysis {
           std::cout << "--monitorSequences\t\t\t\tPerform cost monitoring for HLT sequences." << std::endl;
           std::cout << "--monitorSequenceAlgs\t\t\t\tPerform cost monitoring for Algorithms associated to HLT sequences." << std::endl;
           std::cout << "--monitorAlgs\t\t\t\t\tPerform cost monitoring for individual HLT algorithms." << std::endl;
-          std::cout << "--monitorAllChainSeqAlg\t\t\t\tEnables all of monitorChains, monitorChainAlgs, monitorSequences, monitorSequenceAlgs and monitorAlgs." << std::endl;
+          std::cout << "--monitorAlgClass\t\t\t\tPerform cost monitoring for HLT algorithm class types." << std::endl;
+          std::cout << "--monitorAllChainSeqAlgs\t\t\tEnables all of monitorChains, monitorChainAlgs, monitorSequences, monitorSequenceAlgs, monitorAlgs and monitorAlgClass." << std::endl;
           std::cout << "--monitorROS\t\t\t\t\tPerform cost monitoring for data flow and time in the Read Out System and enables ROS data association with algs." << std::endl;
+          std::cout << "--monitorROBIN\t\t\t\t\tPerform cost monitoring for data flow and time in the Read Out System at the ROBIN level." << std::endl;
+          std::cout << "--monitorROSAlgs\t\t\t\tPerform cost monitoring for data flow and time in the Read Out System subdivided per algorithm." << std::endl;
+          std::cout << "--monitorROSChains\t\t\t\tPerform cost monitoring for data flow and time in the Read Out System subdivided per chain." << std::endl;
+          std::cout << "--monitorAllROS\t\t\t\t\tEnables all of monitorROS, monitorROBIN, monitorROSAlgs and monitorROSChains." << std::endl;
           std::cout << "--monitorROI\t\t\t\t\tPerform cost monitoring for Regions of Interest in the trigger." << std::endl;
-          std::cout << "--monitorL1\t\t\t\t\t(Deprecated) Assess cost monitoring impact on HLT from L1 menu and prescales." << std::endl;
           std::cout << "--monitorGlobals\t\t\t\tRecord global monitoring quantities for the whole HLT per lumi block." << std::endl;
+          std::cout << "--monitorEventProfile\t\t\t\tBreakdown what an average event looks like, including with some (hardcoded) preselections." << std::endl;
           std::cout << "--monitorFullEvent\t\t\t\tFor select events, save detailed record of algorithm execution." << std::endl;
           std::cout << "--monitorRates\t\t\t\t\tPerform rate monitoring on chains and overlaps with other chains in the same group." << std::endl;
+          std::cout << "--monitorRatesUpgrade\t\t\t\tSpecialised rates mode for upgrade studies." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ OUTPUT TO GENERATE ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--doOutputCanvas\t\t\t\tSave results as decorated canvases in output ROOT file." << std::endl;
-          std::cout << "--doOutputHist\t\t\t\t\t[Default] Save results as raw histograms in output ROOT file." << std::endl;
+          std::cout << "--doOutputHist\t\t\t\t\tSave results as raw histograms in output ROOT file." << std::endl;
           std::cout << "--histogramBins "<< _histogramBins <<"\t\t\t\tNumber of bins to use per histogram." << std::endl;
           std::cout << "--doOutputPNG\t\t\t\t\tSave results as PNG images in folder structure (warning, best used with --patternsOutput)." << std::endl;
           std::cout << "--doOutputPDF\t\t\t\t\tSave results as PDF images in folder structure (warning, best used with --patternsOutput)." << std::endl;
-          std::cout << "--doOutputCSV\t\t\t\t\t[Default] Save results as CSV table summaries." << std::endl;
-          std::cout << "--doOutputRatesGraph\t\t\t\t[Default] Save rates chain-graphs in JSON format." << std::endl;
-          std::cout << "--doOutputRatesXML\t\t\t\t[Default] Save rates XML files for the Rulebook etc." << std::endl;
-          std::cout << "--doOutputMenus\t\t\t\t\t[Default] Save menu configurations in JSON format." << std::endl;
+          std::cout << "--doOutputCSV\t\t\t\t\tSave results as CSV table summaries." << std::endl;
+          std::cout << "--doOutputRatesGraph\t\t\t\tSave rates chain-graphs in JSON format." << std::endl;
+          std::cout << "--doOutputRatesXML\t\t\t\tSave rates XML files for the Rulebook etc." << std::endl;
+          std::cout << "--doOutputMenus\t\t\t\t\tSave menu configurations in JSON format." << std::endl;
           std::cout << "--linkOutputDirectory\t\t\t\tSoft link the output directory to 'costMon' in the run directory for automated scripts to use the data."<< std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ RUN CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
+#ifdef MTHREAD
+          std::cout << "--nThreads "<< _nThread <<"\t\t\t\tNumber of concurrent threads to use when running monitors. Setting to 1 disables multitasking." << std::endl;
+#endif
           std::cout << "--lbBegin INT_MIN\t\t\t\tLowest value luminosity block from input to use." << std::endl;
           std::cout << "--lbEnd INT_MAX\t\t\t\t\tHighest value luminosity block from input to use." << std::endl;
-          std::cout << "--nEvents INT_MAX\t\t\t\tNumber of input events from all files to run over." << std::endl;
           std::cout << "--basicWeight "<< _basicWeight <<"\t\t\t\t\tBase event weight. Can be used to apply global scaling factor to run." << std::endl;
           std::cout << "--extrapolate8To13\t\t\t\tExperimental parameter! Attempt to evolve 8 TeV data/MC to 13 TeV based on HLT result." << std::endl;
-          std::cout << "--nSkip 0\t\t\t\t\tNumber of events to skip." << std::endl;
+          std::cout << "--nEvents INT_MAX\t\t\t\tNumber of input events from all files to run over." << std::endl;
+          std::cout << "--nSkip "<< _nSkip <<"\t\t\t\t\tNumber of events to skip." << std::endl;
           std::cout << "--slowThreshold "<< _slowThreshold <<"\t\t\t\tTime in milliseconds. Execution times greater than this are flagged as slow." << std::endl;
+          std::cout << "--slowEventThreshold "<< _slowEventThreshold <<"\t\t\tTime in milliseconds. Full event executions times greater than this are flagged as slow." << std::endl;
           std::cout << "--nLbFullSummary " << _nLbFullSummary << "\t\t\t\tNumber of luminosity blocks, starting from lbBegin, to produce a full summary for." << std::endl;
           std::cout << "--nLbFullSkip " << _nLbFullSkip << "\t\t\t\tHow many luminosity blocks to skip per full lb summary." << std::endl;
+          std::cout << "--nHLTConfigSummary " << _nHLTConfigSummary << "\t\t\t\tHow many HLT configs to monitor." << std::endl;
+          std::cout << "--nLbPerHLTConfig " << _nLbPerHLTConfig << "\t\t\t\tHow many LB to process per key summary, counted from the LB of the 1st event seen with this config." << std::endl;
           std::cout << "--nFullEventSummaries " << _maxNumberFullEvents << "\t\t\tMax number of events (picked at random) to save full executions records for." << std::endl;
           std::cout << "--defaultLBLength " << _defaultLBLength << "\t\t\t\tDefault lumi block length in seconds. Used as an approximate fallback for inputs without LB length data." << std::endl;
           std::cout << "--patternsMonitor patt1 patt2 ...\t\tPatterns to match in names when running. Regex currently NOT supported. Partial matched allowed. Only entries which match will be analysed." << std::endl;
           std::cout << "--patternsOutput patt1 patt2 ...\t\tPatterns to match in names when saving results. Regex currently NOT supported. Partial matched allowed. Only entries which match will be included in the output." << std::endl;
+          std::cout << "--fullEvNumFilelist\t\t\t\tInput file list with one event number per line. If supplied, only HLT events matching will be used in Full Event Summaries." << std::endl;
           std::cout << "--debug\t\t\t\t\t\tEnable debug output." << std::endl;
+          std::cout << "--noMsgSuppression\t\t\tDo not suppress any output." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ TRIGGER RATES CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
-          std::cout << "--prescaleXML1 \"" << _prescaleXML1 << "\"\t\t\t\tPrescale/Menu XML file from which to read custom prescales for rates calculation (place in /data or current dir for Athena use)." << std::endl;      
-          std::cout << "--prescaleXML2 \"" << _prescaleXML2 << "\"\t\t\t\tSecond Prescale/Menu XML file. For if you have L1 and HLT values split over two files. (place in /data or current dir for Athena use)." << std::endl;                
-          std::cout << "--writeDummyPSXML\t\t\t\tGenerate a file Prescales.xml which contains all chains and can be editied to manually prescale the menu. Use the generated file with --prescaleXML1." << std::endl;                
+          std::cout << "--prescaleXML1 \"" << _prescaleXML1 << "\"\t\t\t\tPrescale/Menu/L1 XML file from which to read custom prescales for rates calculation (place in /data or current dir for Athena use)." << std::endl;
+          std::cout << "--prescaleXML2 \"" << _prescaleXML2 << "\"\t\t\t\tSecond Prescale/Menu/L1 XML file. For if you have L1 and HLT values split over two files. (place in /data or current dir for Athena use)." << std::endl;
+          std::cout << "--writeDummyPSXML\t\t\t\tGenerate a file Prescales.xml which contains all chains and can be edited to manually prescale the menu. Use the generated file with --prescaleXML1." << std::endl;
           std::cout << "--useEBWeight\t\t\t\t\tApply precalculated weights to un-weight EnhancedBias data to MinimumBias data." << std::endl;
-          std::cout << "--predictionLumi\t\t\t\tThe instantaneous luminosity being predicted by this processing." << std::endl;
+          std::cout << "--predictionLumi\t\t\t\tThe desired instantaneous luminosity to be predicted by this processing. In /cm2/s or in multiples of 1e30" << std::endl;
+          std::cout << "--runLumi\t\t\t\t\tOverride the effective instantaneous luminosity of the Enhanced Bias data being used. In /cm2/s or in multiples of 1e30" << std::endl;
           std::cout << "--forceAllPass\t\t\t\t\tForce all L1 and HLT chains to pass-raw in every event. Use to isolate the effect of prescales." << std::endl;
           std::cout << "--doUniqueRates\t\t\t\t\tCalculate unique rates for chains. Warning, this is slow." << std::endl;
-          std::cout << "--doGroupOverlap\t\t\t\tCalculate overlaps between all chains within each rate group." << std::endl;
-          std::cout << "--doAllOverlap\t\t\t\t\tCalculate overlaps between all chains. Warning, this is slow." << std::endl;
+          std::cout << "--patternsUnique patt1 patt2 ...\t\tPatterns to match in names doing unique rates, recommended to use this rather than doing unique for all." << std::endl;
+          std::cout << "--patternsExclude patt1 patt2 ...\t\tWhen doing unique rates, you may need to explicitly exclude some chains (PS:-1). Force this here." << std::endl;
+          std::cout << "--patternsOverlap patt1 patt2 ...\t\tPatterns to match in chain names when doing chain-overlap rates, recommended to use this rather than doing unique for all." << std::endl;
+          std::cout << "--doGroupOverlap\t\t\t\tCalculate overlaps between all chains within each rate group. Warning, this is slow." << std::endl;
+          std::cout << "--doAllOverlap\t\t\t\t\tCalculate overlaps between all chains. Warning, this is very slow.." << std::endl;
           std::cout << "--ratesOverlapWarning "<<_ratesOverlapWarning<<"%\t\t\tValue in percent (0-100) above which to warn about chain overlaps within rates groups." << std::endl;
-          std::cout << "--rateFallbackPrescaleL1 " << _rateFallbackPrescaleL1 << "\t\t\tIf prescales are not supplied for some or any items, what value to apply to L1 items." << std::endl;
-          std::cout << "--rateFallbackPrescaleHLT " << _rateFallbackPrescaleHLT <<"\t\t\tIf prescales are not supplied for some or any items, what value to apply to HLT items." << std::endl;
+          std::cout << "--rateFallbackPrescaleL1\t\t\tIf prescales are not supplied for some or any items, what value to apply to L1 items." << std::endl;
+          std::cout << "--rateFallbackPrescaleHLT\t\t\tIf prescales are not supplied for some or any items, what value to apply to HLT items." << std::endl;
           std::cout << "--scaleRatesByPS\t\t\t\tScale up chains by their L1 prescale to get their rate for L1 PS=1. Only for basic L1 and HLT chains, not combinations and global rates."<<std::endl;
           std::cout << "--maxMultiSeed "<< _maxMultiSeed <<"\t\t\t\tMaximum number of L1 seeds a chain can have before it is dropped from Union rate groups due to exploding (2^nL1) computational complexity." << std::endl;
+          std::cout << "--noOnlineDTCorrection\t\t\t\tFlag to prevent automated scaling to correct for L1 deadtime of EB data." << std::endl;
+          std::cout << "--upgradeScenario\t\t\t\tSpecify the name of the scenario to load when doing upgrade rate estimations." << std::endl;
+          std::cout << "--noUpgradePileupScaling\t\t\t\tWhen doing upgrade rates, use this flag to avoid scaling rates for increased <mu>." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ I/O CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--files file1 file2 ...\t\t\t\tInput ntuple files." << std::endl;
+          std::cout << "--fileList\t\t\t\t\tFile with full path of data, one entry per line. Can be EOS if at CERN and ROOT6." << std::endl;
           std::cout << "--ROSXML \"" << _ROSXML << "\"\t\tROS ID mapping file from which to map ROBIN IDs to subdetectors (place in /data)." << std::endl;
           std::cout << "--treeName \"" << _treeName << "\"\t\t\t\tName of TTree in ntuples containing cost data." << std::endl;
           std::cout << "--prefixL2 \"" << _L2Prefix << "\"\t\t\tPrefix of L2 cost branches." << std::endl;
@@ -327,12 +420,18 @@ namespace TrigCostRootAnalysis {
           std::cout << "--outputImageDirectory \"" << _outImageDirectory << "\"\t\t\tName of folder for image results." << std::endl;
           std::cout << "--outputCSVDirectory \"" << _outCSVDirectory << "\"\t\t\tName of folder for CSV results." << std::endl;
           std::cout << "--outputXMLDirectory \"" << _outXMLDirectory << "\"\t\t\tName of folder for XML results." << std::endl;
+          std::cout << "--messageWait "<< _messageWait <<"\t\t\t\tTime in seconds between progress reports." << std::endl;
           std::cout << "--writeEBXML\t\t\t\t\tWrite out EnhancedBias weights from D3PD to XML for future use (for use by rate experts)." << std::endl;
           std::cout << "--cleanAll\t\t\t\t\tRemove any old output directory before saving output." << std::endl;
           std::cout << "--userDetails \t\t\t\t\tUser supplied metadata string giving any extra details about this run." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ OTHER ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--help\t\t\t\t\t\tDisplays this very message and exits." << std::endl;
           std::cout << "--version\t\t\t\t\tDisplays the application version and exits." << std::endl;
+          // Hidden --runNumber
+          // Hidden --doNotWriteMetadata
+          // Hidden --histogramBinMin
+          // Hidden --histogramBinMax
+          // Hidden --ratesUpgradeMode
           abort();
         }
         // I did not set a flag, but was also not caught above. Require implementation
@@ -371,6 +470,36 @@ namespace TrigCostRootAnalysis {
           _patternsOutput.push_back( std::string( argv[optind++] ) );
         }
         break;
+      case 'I':
+        // I'm setting the chain pattern output
+        _patternsUnique.push_back( std::string( optarg ) );
+        while (optind < argc) {
+          if ( std::string( argv[optind] ).substr(0, 1) == "-") { //We're back to arguments
+            break;
+          }
+          _patternsUnique.push_back( std::string( argv[optind++] ) );
+        }
+        break;
+      case 'v':
+          // I'm setting the rate exclusion
+          _patternsExclude.push_back( std::string( optarg ) );
+          while (optind < argc) {
+            if ( std::string( argv[optind] ).substr(0, 1) == "-") { //We're back to arguments
+              break;
+            }
+            _patternsExclude.push_back( std::string( argv[optind++] ) );
+          }
+          break;
+      case 'Y':
+          // I'm setting the overlap list
+          _patternsOverlap.push_back( std::string( optarg ) );
+          while (optind < argc) {
+            if ( std::string( argv[optind] ).substr(0, 1) == "-") { //We're back to arguments
+              break;
+            }
+            _patternsOverlap.push_back( std::string( argv[optind++] ) );
+          }
+          break;
       case 'u':
         // I'm setting the user details string
         _userDetails = std::string( optarg );
@@ -401,15 +530,35 @@ namespace TrigCostRootAnalysis {
         _ss << optarg;
         _ss >> _histogramBins;
         break;
+      case 'j':
+        // Histogram bin min
+        _ss << optarg;
+        _ss >> _binMin;
+        break;
+      case 'J':
+        // N histogram bin max
+        _ss << optarg;
+        _ss >> _binMax;
+        break;
       case 's':
         // N Events to skip
         _ss << optarg;
         _ss >> _nSkip;
         break;
+      case 'W':
+        // N Threads
+        _ss << optarg;
+        _ss >> _nThread;
+        break;
       case 'S':
         // Slow threshold
         _ss << optarg;
         _ss >> _slowThreshold;
+        break;
+      case 'y':
+        // Slow event threshold
+        _ss << optarg;
+        _ss >> _slowEventThreshold;
         break;
       case 'F':
         // Max full event summaries
@@ -425,6 +574,11 @@ namespace TrigCostRootAnalysis {
         // Lumi block end
         _ss << optarg;
         _ss >> _lbEnd;
+        break;
+      case 'z':
+        // Message wait time
+        _ss << optarg;
+        _ss >> _messageWait;
         break;
       case 'B':
         // Basic event weight
@@ -451,6 +605,11 @@ namespace TrigCostRootAnalysis {
         _ss << optarg;
         _ss >> _predictionLumi;
         break;
+      case 'U':
+        // inst L of EB run
+        _ss << optarg;
+        _ss >> _runLumi;
+        break;
       case 'N':
         // User supplied run number
         _ss << optarg;
@@ -461,9 +620,31 @@ namespace TrigCostRootAnalysis {
         _ss << optarg;
         _ss >> _maxMultiSeed;
         break;
+      case 'q':
+        // nHLTConfigSummary
+        _ss << optarg;
+        _ss >> _nHLTConfigSummary;
+        break;
+      case 'Q':
+        // nLbPerHLTConfig
+        _ss << optarg;
+        _ss >> _nLbPerHLTConfig;
+        break;
+      case 'K':
+        // File list
+        _fileList = std::string( optarg );
+        break;
+      case 'V':
+        // Full Event File List
+        _fullEventFileList = std::string( optarg );
+        break;
       case 't':
         // Different tree name
         _treeName = std::string( optarg );
+        break;
+      case 'm':
+        // Specify upgrade scenario
+        _upgradeScenario = std::string( optarg );
         break;
       case 'T':
         // Different tag name
@@ -535,7 +716,7 @@ namespace TrigCostRootAnalysis {
         abort ();
       }
     }
-    
+
     // Settings read. Now to check them and store them for use
 
     Info("Config::parseCLI","Version %s", _version.c_str());
@@ -544,13 +725,94 @@ namespace TrigCostRootAnalysis {
     }
 
     //////////////////////////
+    //        ALIASES - how handy
+    //////////////////////////
+
+    if (_ratesMode == kTRUE || _ratesUpgradeMode == kTRUE) {
+      Info("Config::parseCLI","Setting up default options for a rates prediction job.");
+      _cleanAll = 1;
+      _doHLT = 1;
+      _summaryPerHLTConfig = 1;
+      if (_ratesMode) _monitorRates = 1;
+      if (_ratesUpgradeMode) _monitorRatesUpgrade = 1;
+      _doEBWeighting = 1;
+      _matchL1RandomToOnline = 1;
+      _nLbPerHLTConfig = INT_MAX;
+      _outputModeStandard = 1;
+    }
+
+    if (_costMode == kTRUE) {
+      Info("Config::parseCLI","Setting up default options for a cost job.");
+      _cleanAll = 1;
+      _doHLT = 1;
+      _summaryAll = 1;
+      _monitorAllChainSeqAlgs = 1;
+      _monitorAllROS = 1;
+      _monitorROI = 1;
+      _monitorGlobals = 1;
+      _monitorFullEvent = 1;
+      _monitorEventProfile = 1;
+      _outputModeStandard = 1;
+    }
+
+    if (_onlineMode == kTRUE) {
+      Info("Config::parseCLI","Setting up default options for a online job.");
+      _cleanAll = 1;
+      _doHLT = 1;
+      _summaryPerHLTConfig = 1;
+      _summaryPerLumiBlock = 1;
+      _monitorAllChainSeqAlgs = 1;
+      _monitorROS = 1;
+      _monitorROBIN = 1;
+      _monitorROI = 1;
+      _monitorGlobals = 1;
+      _monitorFullEvent = 1;
+      _monitorEventProfile = 1;
+      _outputModeStandard = 1;
+    }
+
+    if (_outputModeStandard == kTRUE) {
+      Info("Config::parseCLI","Setting up standard outputs.");
+      _doOutputHist = 1;
+      _doOutputCsv = 1;
+      _doOutputRatesGraph = 1;
+      _doOutputMenus = 1;
+      _doOutputXML = 1;
+    }
+
+    //////////////////////////
     //        ROOT FILES, CHAIN AND TREE NAMES
     //////////////////////////
 
-    if ( _inputFiles.size() == 0 ) {
-      Error("Config::parseCLI", "Please supply at least one input file with --file.");
+    if ( _inputFiles.size() == 0 && _fileList == m_blankString) {
+      Error("Config::parseCLI", "Please supply at least one input file with --files or --fileList");
       return kFALSE;
     }
+    // If we have a file list - fill the input files
+    if (_fileList != m_blankString) {
+      std::ifstream _ifs(_fileList.c_str());
+      std::string _line;
+      while(std::getline(_ifs, _line)) {
+        _inputFiles.push_back( _line );
+      }
+    }
+    // check names
+    for (UInt_t _n = 0; _n < _inputFiles.size(); ++_n) {
+      if (_inputFiles.at(_n).substr(0,5) == "/eos/") {
+        _inputFiles.at(_n) = std::string(  "root:://eosatlas/" + _inputFiles.at(_n) );
+      }
+    }
+
+    // If we have a full event list - fill the input files
+    if (_fullEventFileList != m_blankString) {
+      std::ifstream _ifs(_fullEventFileList.c_str());
+      std::string _line;
+      while(std::getline(_ifs, _line)) {
+        _eventPicker.push_back( stringToInt(_line) );
+      }
+      set(kEventPickList, _eventPicker, "EventPickList");
+    }
+
     set(kInputFiles, _inputFiles, "InputFiles");
     set(kNEvents, _nEvents, "NEvents");
     set(kNSkip, _nSkip, "NSkip");
@@ -558,7 +820,7 @@ namespace TrigCostRootAnalysis {
     set(kL2Prefix, _L2Prefix, "L2Prefix");
     set(kEFPrefix, _EFPrefix, "EFPrefix");
     set(kHLTPrefix, _HLTPrefix, "HLTPrefix");
-    set(kConfigPrefix, _configPrefix, "ConfigPrefix"); 
+    set(kConfigPrefix, _configPrefix, "ConfigPrefix");
 
     //////////////////////////
     //        HLT LEVELS AND RUN RANGES TO PROCESS
@@ -582,28 +844,19 @@ namespace TrigCostRootAnalysis {
       Warning("Config::parseCLI", "Not specified a time range to summaries. Will default to --summaryPerHLTConfig.");
       _summaryPerHLTConfig = 1;
     }
-    set(kDoAllSummary, _summaryAll, "DoSummaryAll"); 
+    set(kDoAllSummary, _summaryAll, "DoSummaryAll");
     set(kDoKeySummary, _summaryPerHLTConfig, "DoKeySummary");
     set(kDoLumiBlockSummary, _summaryPerLumiBlock, "DoLBSummary");
 
-    // Lumi block settings. Start, end, and number to fully summarise
-    if ( _lbEnd < _lbBegin ) {
-      Error("Config::parseCLI", "End lumi block number cannot be before starting lumi block number.");
-      return kFALSE;
-    }
-    set(kLumiStart, _lbBegin, "LumiBlockStart");
-    set(kLumiEnd, _lbEnd, "LumiBlockEnd");
-    set(kNLbFullSummary, _nLbFullSummary, "NLBFullSummary");
-    set(kNLbFullSkip, _nLbFullSkip, "NLBFullSkip");
-
     // Number of events to save full information for
-    set(kFullEventMaxNumToSave, _maxNumberFullEvents, "MaxNumberFullEvents"); 
+    set(kFullEventMaxNumToSave, _maxNumberFullEvents, "MaxNumberFullEvents");
+    set(kCurrentEventIsSlow, 0, "SlowFlag", kUnlocked);
     if (_nEvents != INT_MAX) {
       set(kFullEventSaveOnePer, (Int_t)( 1 + ( _nEvents / getInt(kFullEventMaxNumToSave) ) ), "FullEventSaveOncePer");
     } else {
-      set(kFullEventSaveOnePer, 1000, "FullEventSaveOncePer" );//This is just a generic fallback. We can update it later in the event loop if need be
-    } 
-    
+      set(kFullEventSaveOnePer, 1000000, "FullEventSaveOncePer", kUnlocked );//This is just a generic fallback. We can update it later in the event loop if need be
+    }
+
     //////////////////////////
     //        MONITORS TO INCLUDE
     //////////////////////////
@@ -615,23 +868,48 @@ namespace TrigCostRootAnalysis {
       _monitorSequences  = 1;
       _monitorSequenceAlgs = 1;
       _monitorAlgs = 1;
+      _monitorAlgClass = 1;
     }
 
-    if ( _monitorAll 
-      + _monitorChains 
+    if (_monitorAllROS == 1) {
+      _monitorROS = 1;
+      _monitorROBIN = 1;
+      _monitorROSAlgs = 1;
+      _monitorROSChains = 1;
+    }
+
+    int _nMon = _monitorAll
+      + _monitorChains
       + _monitorChainAlgs
-      + _monitorSequences 
+      + _monitorSequences
       + _monitorSequenceAlgs
-      + _monitorAlgs 
-      + _monitorROS 
+      + _monitorAlgs
+      + _monitorAlgClass
+      + _monitorROS
+      + _monitorROBIN
+      + _monitorROSAlgs
+      + _monitorROSChains
       + _monitorROI
-      + _monitorL1 
+      + _monitorL1
       + _monitorFullEvent
       + _monitorGlobals
-      + _monitorRates 
-      + _writeEBWeightXML == 0 ) {
+      + _monitorEventProfile
+      + _monitorRates
+      + _monitorRatesUpgrade
+      + _writeEBWeightXML;
+
+    if ( _nMon == 0 ) {
       Warning("Config::parseCLI", "Not specified a monitor to use. Will default to --monitorAll.");
       _monitorAll = 1;
+    }
+
+    // Check for rates only processing, and relax the LB requirement
+    if ((_monitorRates == 1 || _monitorRatesUpgrade == 1) && _nMon < 3) {
+      set(kRatesOnly, 1, "RatesOnly");
+      if (_nLbPerHLTConfig == 20 && _summaryAll == 0) {
+        Warning("Config::parseCLI", "Just doing rates, I'm pretty sure you want to process everything so I'm setting --nLbPerHLTConfig=INT_MAX");
+        _nLbPerHLTConfig = INT_MAX;
+      }
     }
 
     // We save monitorAll separately as it is picked up in a time saving loop later
@@ -641,16 +919,47 @@ namespace TrigCostRootAnalysis {
     set(kDoSequenceMonitor,          _monitorSequences, "SequenceMonitor");
     set(kDoSequenceAlgorithmMonitor, _monitorSequenceAlgs, "SequenceAlgorithmMonitor");
     set(kDoAlgorithmMonitor,         _monitorAlgs, "AlgorithmMonitor");
+    set(kDoAlgorithmClassMonitor,    _monitorAlgClass, "AlgorithmClassMonitor");
     set(kDoROSMonitor,               _monitorROS, "ROSMonitor");
+    set(kDoROBINMonitor,             _monitorROBIN, "ROBINMonitor");
+    set(kDoROSAlgorithmMonitor,      _monitorROSAlgs, "ROSAlgorithmMonitor");
+    set(kDoROSChainMonitor,          _monitorROSChains, "ROSChainMonitor");
     set(kDoROIMonitor,               _monitorROI, "ROIMonitor");
-    // set(kDoL1ChainMapMonitor,        _monitorL1, "L1ChainMapMonitor"); // obsolete
     set(kDoFullEventMonitor,         _monitorFullEvent, "FullEventMonitor");
     set(kDoGlobalsMonitor,           _monitorGlobals, "GlobalsMonitor");
+    set(kDoEventProfileMonitor,      _monitorEventProfile, "EventProfileMonitor");
     set(kDoRatesMonitor,             _monitorRates, "RatesMonitor");
+    set(kDoRatesUpgradeMonitor,      _monitorRatesUpgrade, "RatesUpgradeMonitor");
 
     // String patterns to match when doing monitoring
     set(kPatternsMonitor, _patternsMonitor, "PatternsMonitor", kUnlocked);
     set(kPatternsOutput, _patternsOutput, "PatternsOutput", kUnlocked);
+    set(kPatternsUnique, _patternsUnique, "PatternsUnique");
+    set(kPatternsExclude, _patternsExclude, "PatternsExclude");
+    set(kPatternsOverlap, _patternsOverlap, "PatternsOverlap");
+
+    // If there are patterns here, make sure we switch on unique rates
+    if ( _patternsUnique.size() > 0 && _doUniqueRates == kFALSE) {
+      _doUniqueRates = kTRUE;
+      Info("Config::parseCLI","Setting --doUniqueRates to TRUE because one or more --patternsUnique were supplied");
+    }
+
+    // Lumi block settings. Start, end, and number to fully summarise
+    if ( _lbEnd < _lbBegin ) {
+      Error("Config::parseCLI", "End lumi block number cannot be before starting lumi block number.");
+      return kFALSE;
+    }
+    set(kLumiStart, _lbBegin, "LumiBlockStart");
+    set(kLumiEnd, _lbEnd, "LumiBlockEnd");
+    set(kNLbFullSummary, _nLbFullSummary, "NLBFullSummary");
+    set(kNLbFullSkip, _nLbFullSkip, "NLBFullSkip");
+    set(kNLbPerHLTConfig, _nLbPerHLTConfig, "NLBPerHLTConfig");
+    set(kNHLTConfigSummary, _nHLTConfigSummary, "NHLTConfigSummary");
+
+    // Are we doing time consuming ROS matching?
+    Bool_t _matching = kFALSE;
+    if (_monitorROS || _monitorROBIN || _monitorROSChains || _monitorROSAlgs || _monitorEventProfile) _matching = kTRUE;
+    set(kEnableROSToAlgMatching, (Int_t) _matching, "RosToAlgMatching");
 
     //////////////////////////
     //        OUTPUT TO GENERATE
@@ -691,7 +1000,7 @@ namespace TrigCostRootAnalysis {
     set(kOutputCsv, _doOutputCsv, "DoOutputCSV");
     set(kOutputXML, _doOutputXML, "DoOutputXML");
     set(kOutputRatesGraph, _doOutputRatesGraph, "DoOutputRatesGraph");
-    set(kOutputMenus, _doOutputMenus, "DoOutputMenus");    
+    set(kOutputMenus, _doOutputMenus, "DoOutputMenus");
     set(kOutputDirectory, _outDirectory, "OutputDirectory", kUnlocked); // Do NOT lock this as we need to modify it to add the run number in
     set(kOutputTag, _outTag, "OutputTag");
     set(kOutputImageDirectory, _outImageDirectory, "OutputImageDirectory");
@@ -703,9 +1012,9 @@ namespace TrigCostRootAnalysis {
     set(kLinkOutputDir, _linkOutputDirectory, "LinkOutputDirectory");
     set(kWriteDummyPSXML, _writeDummyPSXML, "WriteDummyPSXML");
     if (_userDetails != "") {
-      set(kUserDetails, _userDetails, "Details");
+      set(kUserDetails, _userDetails, "Details", kUnlocked); // Modified later to include metadata
     }
-    
+
     //////////////////////////
     //        MISC SETTINGS
     //////////////////////////
@@ -723,11 +1032,25 @@ namespace TrigCostRootAnalysis {
     }
 
     setFloat(kBasicEventWeight, _basicWeight, "BasicEventWeight");
-    setFloat(kPredictionLumi, _predictionLumi, "PredictionLumi");
-    set(kSlowEventThreshold, _slowThreshold, "SlowThreshold"); 
+    if ( !isZero(_predictionLumi) ) {
+      // Allow either notation here. Either explicit or in multiples of 10^30
+      if (_predictionLumi < 1e20) _predictionLumi *= 1e30;
+      setFloat(kPredictionLumi, _predictionLumi, "PredictionLumi"); // The lumi we're currently predicting for (may be set in XML)
+    }
+    if ( !isZero(_runLumi)) {
+      if (_runLumi < 1e20) _runLumi *= 1e30;
+      setFloat(kRunLumi, _runLumi, "RunLumi"); // The lumi of the EB run online
+    }
+#ifdef MTHREAD
+    set(kNThread, _nThread, "NumberThreads"); 
+#else
+    set(kNThread, 1, "NumberThreads"); 
+#endif
+    set(kSlowThreshold, _slowThreshold, "SlowThreshold");
+    set(kSlowEvThreshold, _slowEventThreshold, "SlowEventThreshold");
     set(kDoEBWeighting, _doEBWeighting, "DoEBWeighting");
     set(kWriteEBWeightXML, _writeEBWeightXML, "WriteEBWeightXML");
-    set(kDefaultLBLength, _defaultLBLength, "DefaultLBLength"); 
+    set(kDefaultLBLength, _defaultLBLength, "DefaultLBLength");
     set(kDebug, _debug, "Debug");
     set(kCleanAll, _cleanAll, "CleanAll"); //Specifies if the output directory is to be regenerated
     set(kRatesForcePass, _ratesForcePass, "RatesForceAllChainsToPassRaw");
@@ -736,24 +1059,44 @@ namespace TrigCostRootAnalysis {
     set(kDoAllOverlap, _doAllOverlap, "DoAllOverlap");
     set(kHistBins, _histogramBins, "HistogramBins");
     set(kRatesOverlapWarning, _ratesOverlapWarning, "RatesOverlapWarning");
-    setFloat(kRateFallbackPrescaleL1, _rateFallbackPrescaleL1, "RatesFallbackPrescaleL1");
-    setFloat(kRateFallbackPrescaleHLT, _rateFallbackPrescaleHLT, "RatesFallbackPrescaleHLT");
     set(kRatesScaleByPS, _ratesScaleByPS, "RatesScaleByPS");
     set(kExtrapolate8To13, _extraplolate8To13, "Extrapolate8To13TeV");
-    if (isZero(_rateFallbackPrescaleL1 - 1.) == kFALSE) {
-      Warning("Config::parseCLI", "PLEASE NOTE: Setting fall-back prescale value for L1 items to %f.",_rateFallbackPrescaleL1);
-    }
-    if (isZero(_rateFallbackPrescaleHLT - 1.) == kFALSE) {
-      Warning("Config::parseCLI", "PLEASE NOTE: Setting fall-back prescale value for HLT items to %f.",_rateFallbackPrescaleHLT);
-    }
+    set(kDoNotWriteMetadata, _doNotWriteMetadata, "DoNotWriteMetadata");
+    set(kNoMsgSuppression, _noMsgSup, "NoMessageSuppression");
+    // If set to true, RD0/1/2/3 triggers will only be allowed to fire if the event was taken online with a random trigger
+    // This prevents the biased triggers inflating the rate of chains which are supposed to run off of the unbiased triggers
+    set(kMatchL1RandomToOnline, _matchL1RandomToOnline, "MatchL1RandomToOnline");
+    set(kNoOnlineDeadtimeCorrection, _noOnlineDTCorrection, "NoOnlineDeadtimeCorrection");
+    set(kUpgradeScenario, _upgradeScenario, "UpgradeScenario");
+    set(kNoUpgradePileupScaling, _noUpgradePileupScaling, "NoUpgradePileupScaling");
+    set(kMessageWait, _messageWait, "MessageWait");
+    setFloat(kEventElapsed, 0., "EventElasped", kUnlocked);
+
     set(kMaxMultiSeed, _maxMultiSeed, "MaxMultiSeed");
-    if (_runNumber != 0) set(kRunNumber, _runNumber, "RunNumber");
+    if (_runNumber != 0) set(kRunNumber, _runNumber, "RunNucmber");
 
     // Load files to be accessed
     // File Names
     if (_ROSXML != m_blankString) set(kROSXMLName, _ROSXML, "ROSXML");
     if (_prescaleXML1 != m_blankString) set(kPrescaleXMLName1, _prescaleXML1, "PrescaleXML1");
     if (_prescaleXML2 != m_blankString) set(kPrescaleXMLName2, _prescaleXML2, "PrescaleXML2");
+
+    // Choose sensible default PS behaviour. If XML supplied, default to -1, else to +1.
+    if (_prescaleXML1 != m_blankString || _prescaleXML2 != m_blankString) {
+      if ( _rateFallbackPrescaleL1  == FLT_MIN ) _rateFallbackPrescaleL1  = -1.;
+      if ( _rateFallbackPrescaleHLT == FLT_MIN ) _rateFallbackPrescaleHLT = -1.;
+    } else {
+      if ( _rateFallbackPrescaleL1  == FLT_MIN ) _rateFallbackPrescaleL1  = 1.;
+      if ( _rateFallbackPrescaleHLT == FLT_MIN ) _rateFallbackPrescaleHLT = 1.;
+    }
+    if (isZero(_rateFallbackPrescaleL1 - 1.) == kFALSE) {
+      Warning("Config::parseCLI", "PLEASE NOTE: Setting fall-back prescale value for unknown L1 items to %f.",_rateFallbackPrescaleL1);
+    }
+    if (isZero(_rateFallbackPrescaleHLT - 1.) == kFALSE) {
+      Warning("Config::parseCLI", "PLEASE NOTE: Setting fall-back prescale value for unknown HLT items to %f.",_rateFallbackPrescaleHLT);
+    }
+    setFloat(kRateFallbackPrescaleL1, _rateFallbackPrescaleL1, "RateFallbackPrescaleL1");
+    setFloat(kRateFallbackPrescaleHLT, _rateFallbackPrescaleHLT, "RateFallbackPrescaleHLT");
 
     //////////////////////////
     //        END OF USER SETTINGS
@@ -766,7 +1109,7 @@ namespace TrigCostRootAnalysis {
         Warning("Config::parseCLI", "  -> %s", argv[optind++]);
       }
     }
-  
+
     dump();
 
     //////////////////////////
@@ -782,8 +1125,8 @@ namespace TrigCostRootAnalysis {
       set(kIsRootCore, 1, "IsRootCore");
       set(kDataDir, std::string(_env) + std::string("/data/TrigCostRootAnalysis/"), "DataDir" );
       if (getIsSet(kROSXMLName)) set(kROSXMLPath, getStr(kDataDir) + getStr(kROSXMLName));
-      if (getIsSet(kPrescaleXMLName1)) set(kPrescaleXMLPath1, getStr(kDataDir) + getStr(kPrescaleXMLName1));     
-      if (getIsSet(kPrescaleXMLName2)) set(kPrescaleXMLPath2, getStr(kDataDir) + getStr(kPrescaleXMLName2));   
+      if (getIsSet(kPrescaleXMLName1)) set(kPrescaleXMLPath1, getStr(kDataDir) + getStr(kPrescaleXMLName1));
+      if (getIsSet(kPrescaleXMLName2)) set(kPrescaleXMLPath2, getStr(kDataDir) + getStr(kPrescaleXMLName2));
     } else {
 // CAUTION - "ATHENA ONLY" CODE
 #ifndef ROOTCORE
@@ -815,31 +1158,43 @@ namespace TrigCostRootAnalysis {
       }
 #endif // not ROOTCORE
     }
-    
-    // Internally used parameters - do not need to be included in dump 
+
+    // Internally used parameters - do not need to be included in dump
     set(kSloppyExit, 1, "SloppyExit");
     set(kOutputSummaryDirectory, "summary");
     set(kErrorIgnore, (Int_t) gErrorIgnoreLevel, "ErrorIgnoreLevel"); //Cache this internal ROOT variable
     set(kDirectlyApplyPrescales, 1, "DirectlyApplyPrescales");
     set(kNBunchGroups, 16, "NumberOfBunchGroups");
     set(kLinkOutputDirName, "costMon", "OutputDirLinkName");
+    setFloat(kUnbiasedWeightThreshold, 2.5e5, "kUnbiasedWeightThreshold"); // RUn1 ONLY: Events with w>this will be considered to be RD0 streamers (unbiased)
+    if ( _binMin != FLT_MIN && _binMax != FLT_MIN ) {
+      setFloat(kHistBinMin, _binMin, "HistogramBinMin");
+      setFloat(kHistBinMax, _binMax, "HistogramBinMax");
+    }
 
     // Maximum number of certain messages to show
-    set(kMsgDivZero, 5, "Division by zero");
-    set(kMsgBadROB, 10, "Bad ROB Data");
-    set(kMsgRoISize, 2, "RoI Container Size Missmatch");
-    set(kMsgRoIHack, 5, "RoI Hack");
-    set(kMsgCannotFindRoI, 2, "Cannot Find RoI");
-    set(kMsgUnknownRoIType, 2, "Unknown RoI Type");
-    set(kMsgHourBoundary, 10, "Hour boundary in ROS request association");
-    set(kMsgSaveFullEvent, 5, "Saving full event");
-    set(kMsgXMLWeight, 50, "Cannot find XML weight");    
-    set(kMsgXMLPrescale, 10, "Cannot find XML prescale");   
-    set(kMsgUnknownDecoration, 25, "Unknown decoration");
-    set(kMsgIllegalCharacters , 10, "Illegal character in output");
-    set(kMsgZeroRate, 1, "Chain with positive prescale but zero rate");
+    setDisplayMsg(kMsgDivZero, 5, "Division by zero");
+    setDisplayMsg(kMsgBadROB, 10, "Bad ROB Data");
+    setDisplayMsg(kMsgRoISize, 2, "RoI Container Size Missmatch");
+    setDisplayMsg(kMsgRoIHack, 5, "RoI Hack");
+    setDisplayMsg(kMsgCannotFindRoI, 2, "Cannot Find RoI");
+    setDisplayMsg(kMsgUnknownRoIType, 2, "Unknown RoI Type");
+    setDisplayMsg(kMsgHourBoundary, 10, "Hour boundary in ROS request association");
+    setDisplayMsg(kMsgSaveFullEvent, 10, "Saving full event");
+    setDisplayMsg(kMsgXMLWeight, 50, "Cannot find XML event weight");
+    setDisplayMsg(kMsgXMLPrescale, 50, "Cannot find XML prescale");
+    setDisplayMsg(kMsgUnknownDecoration, 25, "Unknown decoration");
+    setDisplayMsg(kMsgIllegalCharacters , 10, "Illegal character in output");
+    setDisplayMsg(kMsgZeroRate, 1, "Chain with positive prescale but zero rate");
+    setDisplayMsg(kMsgLargeSteerTime, 3, "Hour boundary in steering time calculation");
+    setDisplayMsg(kMsgNoLumiInfo, 3, "No luminosity block length info in file, using default value");
+    setDisplayMsg(kMsgCannotFindVar, 5, "Cannot find variable in data store");
+    setDisplayMsg(kMsgCannotFindVO, 5, "Cannot find variable option (VO) for variable in data store");
+    setDisplayMsg(kMsgNewUniqueCounter, 30, "Created new unique counter");
+    setDisplayMsg(kMsgLumiScaling, 1, "No XML to do partial run scaling (only important if processing an EB run)");
 
     // Const strings literals to be referenced throughout
+    set(kL0String,"L0");
     set(kL1String,"L1");
     set(kL2String,"L2");
     set(kEFString, "EF");
@@ -848,13 +1203,14 @@ namespace TrigCostRootAnalysis {
     set(kDelimatorString, "____");
     set(kLumiBlockString,"LumiBlock");
     set(kUnknownString, "UNKNOWN");
-    set(kBlankString, m_blankString);  
-    set(kDummyString, "dummy");  
+    set(kBlankString, m_blankString);
+    set(kDummyString, "dummy");
     set(kMultipleString, "Multiple");
-    set(kAndString,"__AND__");  
-    set(kRateGlobalHLTString,"RATE_GLOBAL_HLT");  
-    set(kRateGlobalL1String,"RATE_GLOBAL_L1"); 
-    set(kRateUniqueString,"UNIQUE_");  
+    set(kAndString,"__AND__");
+    set(kRateGlobalHLTString,"RATE_GLOBAL_HLT");
+    set(kRateGlobalL1String,"RATE_GLOBAL_L1");
+    set(kRateGlobalL0String,"RATE_GLOBAL_L0");
+    set(kRateUniqueString,"UNIQUE_");
     set(kCachedString, "Cached");
     set(kCalledString, "Called");
     set(kAllROIString, "All_ROIs");
@@ -869,7 +1225,9 @@ namespace TrigCostRootAnalysis {
     set(kAlwaysPassString, "UNSEEDED");
     set(kVersionString, _version, "Version");
 
+    // Different variables to save
     set(kVarTime, "Time");
+    set(kVarTimeElapsed, "TimeElapsed");
     set(kVarFirstTime, "FirstTime");
     set(kVarAlgTime, "AlgTime");
     set(kVarCPUTime, "CPUTime");
@@ -883,6 +1241,11 @@ namespace TrigCostRootAnalysis {
     set(kVarROBReqSize, "ROBCacheSize");
     set(kVarROBRetSize, "ROBRetrievalSize");
     set(kVarROBOther, "ROBOther");
+    set(kVarROBNotOK, "ROBNotOK");
+    set(kVarROBDisabled, "ROBDisabled");
+    set(kVarROBPrefetched, "ROBPrefetched");
+    set(kVarROBUnclassified, "ROBUnclassified");
+    set(kVarROBIgnored, "ROBIgnored");
     set(kVarCalls, "Calls");
     set(kVarCallsRaw, "CallsRaw");
     set(kVarCallsSlow, "CallsSlow");
@@ -893,6 +1256,8 @@ namespace TrigCostRootAnalysis {
     set(kVarEventsPassthrough, "EventsPassthrough");
     set(kVarEventsPassRawStat, "EventsPassedRawStatistics");
     set(kVarEventsRunRawStat, "EventsRunRawStatistics");
+    set(kVarUnbiasedPassed, "UnbiasedPassed");
+    set(kVarUnbiasedRun, "UnbiasedRun");
     set(kVarEventsRun, "EventsRun");
     set(kVarEventsSlow, "EventsSlow");
     set(kVarTotalPrescale, "TotalPrescale");
@@ -909,7 +1274,7 @@ namespace TrigCostRootAnalysis {
     set(kVarEventsPerLumiblock, "EventsPerLB");
     set(kVarOverlap, "Overlap");
     set(kVarOverlapDP, "OverlapDirectPrescale");
-    // Decoration ENUMs
+    // Different types of decoration
     set(kDecStartTime, "StartTime");
     set(kDecCallOrCache, "CallOrCache");
     set(kDecROIString, "ROIString");
@@ -919,25 +1284,32 @@ namespace TrigCostRootAnalysis {
     set(kDecSeqName, "SequenceName");
     set(kDecLbLength, "LBLength");
     set(kDecType, "Type");
+    set(kDecID, "ID");
+    set(kDecElapsedTime, "ElapsedTime");
     set(kDecRatesGroupName, "RatesGroupName");
     set(kDecPrescaleStr, "PrescaleString");
     set(kDecPrescaleVal, "PrescaleValue");
     set(kDecPrescaleValOnlineL1, "PrescaleValueOnlineL1");
+    set(kDecUniqueRate, "UniqueRate");
+    set(kDecUniqueFraction, "UniqueFraction");
+
     // End of option parsing
-    
+
     return kTRUE;
   }
-  
+
   /**
    * Prints the contents of the program configuration.
    */
   void Config::dump() {
     Info("Config::dump", "TrigCostD3PD has %i configuration settings saved for this processing.", Int_t (m_settingsStr.size() + m_settingsVecStr.size() + m_settingsInt.size()) );
-    
+
     std::map<ConfKey_t, Int_t>::iterator _itInt;
     std::map<ConfKey_t, Float_t>::iterator _itFloat;
     std::map<ConfKey_t, std::string>::iterator _itStr;
     std::map<ConfKey_t, std::vector<std::string> > ::iterator _itStrVec;
+    std::map<ConfKey_t, std::vector<Int_t> > ::iterator _itIntVec;
+
     Int_t _i = -1;
     for (_itInt = m_settingsInt.begin(); _itInt != m_settingsInt.end(); ++_itInt) {
       const std::string _name = m_settingsName[_itInt->first];
@@ -946,7 +1318,12 @@ namespace TrigCostRootAnalysis {
     _i = -1;
     for (_itFloat = m_settingsFloat.begin(); _itFloat != m_settingsFloat.end(); ++_itFloat) {
       const std::string _name = m_settingsName[_itFloat->first];
-      Info("Config::dump", " [FLOAT:%i]\t[LOCK:%i]\t%s = %f", ++_i, (Int_t) getIsLocked(_itFloat->first), _name.c_str(), _itFloat->second  );
+      // Big or small?
+      if ( _itFloat->second > 1e4 ) { //BIG
+        Info("Config::dump", " [FLOAT:%i]\t[LOCK:%i]\t%s = %e", ++_i, (Int_t) getIsLocked(_itFloat->first), _name.c_str(), _itFloat->second  );
+      } else { // small
+        Info("Config::dump", " [FLOAT:%i]\t[LOCK:%i]\t%s = %f", ++_i, (Int_t) getIsLocked(_itFloat->first), _name.c_str(), _itFloat->second  );
+      }
     }
     _i = -1;
     for (_itStr = m_settingsStr.begin(); _itStr != m_settingsStr.end(); ++_itStr) {
@@ -961,13 +1338,23 @@ namespace TrigCostRootAnalysis {
         Info("Config::dump", "\t\t\t\t  [%u] \"%s\"", _v, _itStrVec->second.at(_v).c_str() );
       }
     }
-    
+    _i = -1;
+    for (_itIntVec = m_settingsVecInt.begin(); _itIntVec != m_settingsVecInt.end(); ++_itIntVec) {
+      const std::string _name = m_settingsName[_itIntVec->first];
+      Info("Config::dump", " [VEC<INT>:%i]\t[LOCK:%i]\t%s, size %u", ++_i, (Int_t) getIsLocked(_itIntVec->first), _name.c_str(), (UInt_t) _itIntVec->second.size() );
+      for (UInt_t _v = 0; _v < _itIntVec->second.size(); ++_v) {
+        Info("Config::dump", "\t\t\t\t  [%u] \"%i\"", _v, _itIntVec->second.at(_v) );
+      }
+    }
   }
 
   void Config::dumpToMeta(std::ofstream& _fout, JsonExport& _json) {
     std::map<ConfKey_t, Int_t>::iterator _itInt;
     std::map<ConfKey_t, Float_t>::iterator _itFloat;
     std::map<ConfKey_t, std::string>::iterator _itStr;
+    std::map<ConfKey_t, std::vector<std::string> > ::iterator _itStrVec;
+    std::map<ConfKey_t, std::vector<Int_t> > ::iterator _itIntVec;
+
     for (_itInt = m_settingsInt.begin(); _itInt != m_settingsInt.end(); ++_itInt) {
       const std::string _name = m_settingsName[_itInt->first];
       _json.addLeafCustom(_fout, _name, intToString(_itInt->second));
@@ -979,24 +1366,34 @@ namespace TrigCostRootAnalysis {
       if (m_settingsName[_itStr->first] == _itStr->second) continue;
       _json.addLeafCustom(_fout, m_settingsName[_itStr->first], _itStr->second);
     }
+    for (_itStrVec = m_settingsVecStr.begin(); _itStrVec != m_settingsVecStr.end(); ++_itStrVec) {
+      for (UInt_t _v = 0; _v < _itStrVec->second.size(); ++_v) {
+        _json.addLeafCustom(_fout, std::string(m_settingsName[_itStrVec->first] + intToString(_v)), _itStrVec->second.at(_v).c_str() );
+      }
+    }
+    for (_itIntVec = m_settingsVecInt.begin(); _itIntVec != m_settingsVecInt.end(); ++_itIntVec) {
+      for (UInt_t _v = 0; _v < _itIntVec->second.size(); ++_v) {
+        _json.addLeafCustom(_fout, std::string(m_settingsName[_itIntVec->first] + intToString(_v)), intToString(_itIntVec->second.at(_v)) );
+      }
+    }
   }
 
   void Config::messageSuppressionReport() {
     for (std::map<ConfKey_t, Int_t>::iterator _itInt = m_settingsInt.begin(); _itInt != m_settingsInt.end(); ++_itInt) {
       ConfKey_t _key = _itInt->first;
-      if (m_settingsCalls[_key] == 0) {
-        continue; // If no message calls then continue
-      } 
-      if (m_settingsInt[_key] > m_settingsCalls[_key]) {
-        continue; // If no suppresion messages
+      if (m_settingsMaxCalls[_key] == 0) {
+        continue; // If no max message calls
+      }
+      if (m_settingsInt[_key] < m_settingsMaxCalls[_key]) {
+        continue; // If no overflow suppresion messages
       }
       const std::string _name = m_settingsName[_key];
-      UInt_t _suppressed = m_settingsCalls[_key] - m_settingsInt[_key];
+      UInt_t _suppressed = m_settingsInt[_key] - m_settingsMaxCalls[_key];
       Warning("Config::messageSuppressionReport","There were %i additional instances of message '%s' which were suppressed.", _suppressed, _name.c_str());
     }
   }
 
-  
+
   /**
    * Retrieve string configuration for given enum key.
    * @param _key enum key for this config.
@@ -1026,7 +1423,7 @@ namespace TrigCostRootAnalysis {
     // Return the requested string
     return m_settingsName[_key];
   }
-  
+
   /**
    * Retrieve integer configuration for given enum key.
    * @param _key enum key for this config.
@@ -1086,7 +1483,7 @@ namespace TrigCostRootAnalysis {
     }
     return m_settingsFloat[_key];
   }
-  
+
   /**
    * Retrieve size of vector storage for given enum key.
    * @param _key enum key for this config.
@@ -1101,7 +1498,7 @@ namespace TrigCostRootAnalysis {
     }
     return m_settingsVecStr[_key].size();
   }
-  
+
   /**
    * Retrieve vector configuration for given key.
    * @param _key enum key for this config.
@@ -1121,7 +1518,7 @@ namespace TrigCostRootAnalysis {
     }
     return m_settingsVecStr[_key].at(_location);
   }
-  
+
   /**
    * If a settings vector is registered with a given key, and it is unlocked, then append the given string.
    * @param _key enum key for this config.
@@ -1175,7 +1572,7 @@ namespace TrigCostRootAnalysis {
    */
   Bool_t Config::clearVec( ConfKey_t _key ) {
     Bool_t _entriesRemoved = kFALSE;
-    if ( m_settingsVecStr.count( _key ) == 0 ) {
+    if ( m_settingsVecStr.count( _key ) == 0 && m_settingsVecInt.count( _key ) == 0 ) {
       std::string _name;
       if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
       Error("Config::getVecEntry", "Unknown key %i %s", _key, _name.c_str() );
@@ -1184,6 +1581,8 @@ namespace TrigCostRootAnalysis {
     if ( getIsLocked( _key, kTRUE ) == kTRUE ) return kFALSE;
     if ( m_settingsVecStr[_key].size() ) _entriesRemoved = kTRUE;
     m_settingsVecStr[_key].clear();
+    if ( m_settingsVecInt[_key].size() ) _entriesRemoved = kTRUE;
+    m_settingsVecInt[_key].clear();
     return _entriesRemoved;
   }
 
@@ -1202,7 +1601,7 @@ namespace TrigCostRootAnalysis {
       Error("Config::getVecEntry", "Unknown key %i %s", _key, _name.c_str() );
       return kFALSE;
     }
-    
+
     for (UInt_t _i = 0; _i < m_settingsVecStr[_key].size(); ++_i) {
       if ( _entry.find( m_settingsVecStr[_key].at(_i) ) != std::string::npos ) {
         // This chain contains the correct string name
@@ -1211,7 +1610,24 @@ namespace TrigCostRootAnalysis {
     }
     return kFALSE;
   }
-  
+
+  /**
+   * Check if a vector of ints configuration contains a match to the given int.
+   * @param _key enum key for this config.
+   * @param _entry The int to match.
+   * @return kTRUE if matched.
+   */
+  Bool_t Config::getIntVecMatches( ConfKey_t _key, const Int_t _entry ) {
+    if ( m_settingsVecInt.count( _key ) == 0 ) {
+      std::string _name;
+      if (m_settingsName.count(_key) == 1) _name = m_settingsName[_key];
+      Error("Config::getIntVecMatches", "Unknown key %i %s", _key, _name.c_str() );
+      return kFALSE;
+    }
+    if ( std::find(m_settingsVecInt[_key].begin(), m_settingsVecInt[_key].end(), _entry) != m_settingsVecInt[_key].end()) return kTRUE;
+    return kFALSE;
+  }
+
   /**
    * Get if there is a setting stored with the given key. Regardless of type.
    * @param _key enum key for this config.
@@ -1219,8 +1635,10 @@ namespace TrigCostRootAnalysis {
    */
   Bool_t Config::getIsSet( ConfKey_t _key ) {
     if ( m_settingsVecStr.count( _key ) == 1 ) return kTRUE;
+    if ( m_settingsVecInt.count( _key ) == 1 ) return kTRUE;
     if ( m_settingsInt.count( _key ) == 1 ) return kTRUE;
     if ( m_settingsStr.count( _key ) == 1 ) return kTRUE;
+    if ( m_settingsFloat.count( _key ) == 1 ) return kTRUE;
     return kFALSE;
   }
 
@@ -1237,16 +1655,18 @@ namespace TrigCostRootAnalysis {
       return kFALSE;
     }
 
-    m_settingsCalls[_key]++;
-    if (m_settingsInt[_key] == m_settingsCalls[_key]) { // Warn of last time
+    if (getInt(kNoMsgSuppression) == kTRUE) return kTRUE;
+
+    m_settingsInt[_key]++;
+    if (m_settingsInt[_key] == m_settingsMaxCalls[_key]) { // Warn of last time
       Info("Config::getDisplayMsg","The following message has reached its suppression limit of %i and will not be displayed any more.", m_settingsInt[_key]);
-    } else if (m_settingsCalls[_key] > m_settingsInt[_key]) {
+    } else if (m_settingsInt[_key] > m_settingsMaxCalls[_key]) {
       return kFALSE;
     }
     return kTRUE;
 
   }
-  
+
   /**
    * Store or overwrite a string configuration with a enum key.
    * If no name is given, then it is assumed it is its name is its value
@@ -1260,7 +1680,7 @@ namespace TrigCostRootAnalysis {
     if (_name == m_blankString) m_settingsName[_key] = _value;
     m_settingsLock[_key] = _lock;
   }
-  
+
   /**
    * Store or overwrite a integer configuration with a enum key. Can be given an optional name.
    * @param _key enum key for this config.
@@ -1270,7 +1690,7 @@ namespace TrigCostRootAnalysis {
   void Config::set ( ConfKey_t _key, const Int_t _value, const std::string _name, LockStatus_t _lock ) {
     if ( getIsLocked( _key, kTRUE ) == kTRUE ) return;
     m_settingsInt[_key] = _value;
-    m_settingsCalls[_key] = 0;
+    m_settingsMaxCalls[_key] = 0;
     m_settingsName[_key] = _name;
     m_settingsLock[_key] = _lock;
     // This is a special flag, set for easy access.
@@ -1278,7 +1698,37 @@ namespace TrigCostRootAnalysis {
       m_debug = (Bool_t) _value;
     }
   }
-  
+
+  /**
+   * Store or overwrite a integer configuration with a enum key. This versions is without any method to name the var.
+   * @param _key enum key for this config.
+   * @param _value Const integer value to store.
+   */
+  void Config::set ( ConfKey_t _key, const Int_t _value, LockStatus_t _lock ) {
+    if ( getIsLocked( _key, kTRUE ) == kTRUE ) return;
+    m_settingsInt[_key] = _value;
+    m_settingsMaxCalls[_key] = 0;
+    m_settingsLock[_key] = _lock;
+    // This is a special flag, set for easy access.
+    if (_key == kDebug) {
+      m_debug = (Bool_t) _value;
+    }
+  }
+
+  /**
+   * Store or overwrite a integer configuration with a enum key. Can be given an optional name.
+   * This version is specific for config entries which will be used to restrict the display of error messages
+   * @param _key enum key for this config.
+   * @param _name Optional name for this entry.
+   * @param _value Maximum number of itmes to display this error/warning/info message.
+   */
+  void Config::setDisplayMsg ( ConfKey_t _key, const Int_t _value, const std::string _name ) {
+    m_settingsInt[_key] = 0;
+    m_settingsMaxCalls[_key] = _value;
+    m_settingsName[_key] = _name;
+    m_settingsLock[_key] = kUnlocked; // Must not be locked as needs to be increased
+  }
+
   /**
    * Store or overwrite a vector of strings configuration with a enum key.
    * @param _key enum key for this config.
@@ -1288,6 +1738,19 @@ namespace TrigCostRootAnalysis {
   void Config::set ( ConfKey_t _key, const std::vector< std::string > _value, const std::string _name, LockStatus_t _lock ) {
     if ( getIsLocked( _key, kTRUE ) == kTRUE ) return;
     m_settingsVecStr[_key] = _value;
+    m_settingsName[_key] = _name;
+    m_settingsLock[_key] = _lock;
+  }
+
+  /**
+   * Store or overwrite a vector of ints configuration with a enum key.
+   * @param _key enum key for this config.
+   * @param _name Optional name for this entry.
+   * @param _value Const vector of ints to store.
+   */
+  void Config::set ( ConfKey_t _key, const std::vector< Int_t > _value, const std::string _name, LockStatus_t _lock ) {
+    if ( getIsLocked( _key, kTRUE ) == kTRUE ) return;
+    m_settingsVecInt[_key] = _value;
     m_settingsName[_key] = _name;
     m_settingsLock[_key] = _lock;
   }
@@ -1306,7 +1769,7 @@ namespace TrigCostRootAnalysis {
     m_settingsLock[_key] = _lock;
   }
 
-  
+
   /**
    * Check if this key has been used before, and if so then whether the lock was set to true. Regardles of type.
    * @param _key enum key for this config.
@@ -1324,7 +1787,7 @@ namespace TrigCostRootAnalysis {
     }
     return kFALSE;
   }
-  
+
   /**
    * As checking the debug flag is such a common opertaion, we move it to having its own dedicated bool.
    * @return kTRUE if the debug flag is set.
@@ -1332,5 +1795,5 @@ namespace TrigCostRootAnalysis {
   Bool_t Config::debug() {
     return m_debug;
   }
-  
+
 } // namespace TrigCostRootAnalysis

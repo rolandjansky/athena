@@ -38,18 +38,27 @@ namespace TrigCostRootAnalysis {
     RatesChainItem(std::string _name, Int_t _level, Double_t _PS);
 
     void addLower(RatesChainItem* _lower);
+    void addUpper(RatesChainItem* _upper);
     void addCounter(CounterBaseRates* _client);
     ChainItemSetIt_t getLowerStart();
     ChainItemSetIt_t getLowerEnd();
     ChainItemSet_t& getLower();
+    ChainItemSetIt_t getUpperStart();
+    ChainItemSetIt_t getUpperEnd();
+    ChainItemSet_t& getUpper();
     Bool_t getLowerContains(RatesChainItem* _find);
     Bool_t getLowerContainsAll( std::set<RatesChainItem*>& _set );
+    Bool_t getUpperContains(RatesChainItem* _find);
+    Bool_t getUpperContainsAll( std::set<RatesChainItem*>& _set );
+    void setExtraEfficiency(Double_t _extraEfficiency);
+    void setRateReductionFactor(Double_t _reductionFactor);
 
     void beginEvent(Bool_t _passRaw, CounterBaseRatesSet_t& _counterSet);
     void endEvent();
     void newRandomPS();
 
     void classifyBunchGroup();
+    void classifyRandom();
 
     Bool_t getInEvent();
     Bool_t getPassRaw();
@@ -68,6 +77,7 @@ namespace TrigCostRootAnalysis {
     Int_t              m_level; //!> Which level this item's at
     Double_t           m_PS; //!< The prescale to be applied to this item
     Double_t           m_PSWeight; //!< The equivalent PS weight, = 1/PS
+    Double_t           m_extraEfficiency; //<! Extra factor which can be supplied to scale the rate of this triggeer
     TRandom3           m_R; //!< Random number generator for when applying the PS directly.
     UInt_t             m_ID; //!< ID number, sequential, used for random seed
     static UInt_t      s_chainCount; //!< Static counter of how many RatesChainItems have been made, used as random seed.
@@ -79,8 +89,11 @@ namespace TrigCostRootAnalysis {
     Bool_t        m_forcePassRaw; //!< A debug setting, when true all chains will always accept. Allow investigation of PS weighting.
     Bool_t        m_doEBWeighting; //!< If enhanced bias weights are to be applied
     Bool_t        m_doDirectPS; //<! True if calculating the direct application of prescales
+    Bool_t        m_matchRandomToOnline; //!< Butter setting, if true and I am a L1_RDX trigger then I should online fire when online unbiased fired
+    Bool_t        m_iAmRandom; //!< True if I am a L1 item of type L1_RDX
 
     ChainItemSet_t m_lower; //!< Pointers to seeding chains from lower levels
+    ChainItemSet_t m_upper; //!< Pointers to seeding chains from lower levels
 
     CounterBaseRatesSet_t m_clients; //!< Set of pointers to client rates counters which use this chain item.
 

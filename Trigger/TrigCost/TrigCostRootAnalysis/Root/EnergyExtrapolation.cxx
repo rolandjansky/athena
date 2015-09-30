@@ -68,17 +68,15 @@ namespace TrigCostRootAnalysis {
   }
 
   void EnergyExtrapolation::loadMenuV5() {
-    m_jettyItems["HLT_ht1000"] = 1000.;
-    m_jettyItems["HLT_ht850"] = 850.;
-    m_jettyItems["HLT_ht700"] = 700.;
-    m_jettyItems["HLT_ht550"] = 550.;
+    m_jettyItems["HLT_ht1000_L1J100"] = 1000.;
+    m_jettyItems["HLT_ht850_L1J100"] = 850.;
+    m_jettyItems["HLT_ht700_L1J100"] = 700.;
     m_jettyItems["HLT_3j175"] = 525.;
     m_jettyItems["HLT_j460"] = 460.;
     m_jettyItems["HLT_j440"] = 440.;
     m_jettyItems["HLT_j420"] = 420.;    
     m_jettyItems["HLT_5j85"] = 425.;    
     m_jettyItems["HLT_4j100"] = 400.;
-    m_jettyItems["HLT_ht400"] = 400.;
     m_jettyItems["HLT_j400"] = 400.;
     m_jettyItems["HLT_j380"] = 380.; 
     m_jettyItems["HLT_j360"] = 360.;           
@@ -93,20 +91,13 @@ namespace TrigCostRootAnalysis {
     m_jettyItems["HLT_5j45"] = 225.; 
     m_jettyItems["HLT_j200"] = 200.;       
     m_jettyItems["HLT_4j45"] = 180.;
-    m_jettyItems["HLT_7j25"] = 175.;
     m_jettyItems["HLT_j175"] = 175.;  
-    m_jettyItems["HLT_6j25"] = 150.;
     m_jettyItems["HLT_j150"] = 150.;
-    m_jettyItems["HLT_5j25"] = 125.;    
     m_jettyItems["HLT_j110"] = 110.;
-    m_jettyItems["HLT_4j25"] = 100.;    
     m_jettyItems["HLT_j100"] = 100.;    
     m_jettyItems["HLT_j55"] = 55.;
     m_jettyItems["HLT_j60"] = 60.;    
     m_jettyItems["HLT_j85"] = 85.; 
-    m_jettyItems["HLT_j35"] = 35.;    
-    m_jettyItems["HLT_j25"] = 25.;    
-    m_jettyItems["HLT_j15"] = 15.;    
 
     m_missingItems["HLT_xe100"] = 100.;
     m_missingItems["HLT_xe80"] = 80.;

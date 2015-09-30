@@ -20,12 +20,13 @@
 namespace TrigCostRootAnalysis {
 
   /**
-   * Region of Interest counter object. 
+   * Region of Interest counter object.
    * @param _name Const ref to name of the counter. Will only have one (plus a dummy).
    * @param _ID ID number of Read Out Buffer
    */
-  CounterROI::CounterROI( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel ) : CounterBase(_costData, _name, _ID, _detailLevel) {
-    
+  CounterROI::CounterROI( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel, MonitorBase* _parent ) 
+    : CounterBase(_costData, _name, _ID, _detailLevel, _parent) {
+
     m_dataStore.newVariable(kVarType).setSavePerCall("ROI Type;ROI Type;Calls");
     std::vector<std::string> _roiTypes;
     _roiTypes.push_back("None");
@@ -44,19 +45,19 @@ namespace TrigCostRootAnalysis {
     m_dataStore.newVariable(kVarCalls).setSavePerEvent("Number Of ROIs Per Event;N ROIs;Events");
 
   }
-  
+
   /**
    * Counter destructor.
    */
   CounterROI::~CounterROI() {
   }
-  
+
   /**
    * Reset per-event counter(s). Not used currently for ROI counter.
    */
   void CounterROI::startEvent() {
   }
-  
+
   /**
    * Perform monitoring of a RoI.
    * @param _e RoI to process.
@@ -84,7 +85,7 @@ namespace TrigCostRootAnalysis {
 
     if ( Config::config().debug() ) debug(_e);
   }
-  
+
   /**
    * Perform end-of-event monitoring on the DataStore.
    */
@@ -102,7 +103,7 @@ namespace TrigCostRootAnalysis {
     UNUSED(_e);
     return 0.;
   }
-  
+
   /**
    * Output debug information on this call to the console
    */
@@ -119,8 +120,8 @@ namespace TrigCostRootAnalysis {
       m_costData->getIsRoIMuon(_e),
       m_costData->getIsRoIEmTau(_e),
       m_costData->getIsRoIJet(_e),
-      m_costData->getIsRoIJetEt(_e), 
+      m_costData->getIsRoIJetEt(_e),
       m_costData->getIsRoIEnergy(_e) );
   }
-  
+
 } // namespace TrigCostRootAnalysis

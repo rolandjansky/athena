@@ -22,27 +22,27 @@
 #include "../TrigCostRootAnalysis/RatesChainItem.h"
 
 namespace TrigCostRootAnalysis {
-  
+
   /**
    * Counter to monitor the rates of a single chain.
    * @param _costData Const pointer to the data store, not used by this counter at the moment.
    * @param _name Const ref to chain's name
    * @param _ID Chain's ID number.
    */
-  CounterRatesChain::CounterRatesChain( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel ) : 
-    CounterBaseRates(_costData, _name, _ID, _detailLevel) {
+  CounterRatesChain::CounterRatesChain( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel, MonitorBase* _parent ) :
+    CounterBaseRates(_costData, _name, _ID, _detailLevel, _parent) {
   }
-  
+
   /**
    * Counter destructor. Nothing currently to delete.
    */
   CounterRatesChain::~CounterRatesChain() {
   }
-  
+
   /**
    * Return if this chain passes the HLT and at least one L1 by checking both pass-raw and pass-prescale bits.
    * This is the naive method.
-   * @param _usePrescale - if set to kTRUE (default) then the prescale will be simulated, otherwise the prescale is taken to be 1. 
+   * @param _usePrescale - if set to kTRUE (default) then the prescale will be simulated, otherwise the prescale is taken to be 1.
    * @return 1 if the chain passes, 0 if not.
    */
   Float_t CounterRatesChain::runDirect(Bool_t _usePrescale) {
@@ -87,7 +87,7 @@ namespace TrigCostRootAnalysis {
     // See Eq 33 from http://arxiv.org/abs/0901.4118
 
     assert( m_L2s.size() == 1 || m_L1s.size() == 1); // We should only be one chain
-    
+
     if (m_L2s.size() == 1) { // A HLT Chain
 
       RatesChainItem* _L2 = (*m_L2s.begin());
@@ -111,12 +111,12 @@ namespace TrigCostRootAnalysis {
 
     }
   }
-  
+
   /**
    * Output debug information on this call to the console
    */
   void CounterRatesChain::debug(UInt_t _e) {
     UNUSED(_e);
   }
-  
+
 } // namespace TrigCostRootAnalysis

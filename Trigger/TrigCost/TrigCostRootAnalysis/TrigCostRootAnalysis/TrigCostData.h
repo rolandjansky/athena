@@ -15,6 +15,7 @@
 #include <map>
 #include <set>
 #include <utility>
+#include <mutex>
 
 // ROOT include(s):
 #include <Rtypes.h>
@@ -24,6 +25,7 @@
 
 // Local include(s):
 #include "Utility.h" //Typedefs
+#include "Timer.h"
 
 //Forward declaration
 class TTree;
@@ -52,6 +54,7 @@ namespace TrigCostRootAnalysis {
     Int_t   getEventNumber() const;
     Float_t getEBWeight() const;
     UInt_t  getEBWeightBG() const;
+    Bool_t  getEBUnbiased() const;
     Bool_t  getIsMonitoringEvent() const;
     Int_t   getRunNumber() const;
     Int_t   getLumi() const;
@@ -111,8 +114,8 @@ namespace TrigCostRootAnalysis {
     Bool_t  getIsSequenceInitial(UInt_t _n) const;
     Bool_t  getIsSequencePrevious(UInt_t _n) const;
     // Cached
-    UInt_t  getSequenceAlgCalls (UInt_t _n, Bool_t _bufferHasBeenChecked = kFALSE) const;
-    UInt_t  getSequenceAlgCaches(UInt_t _n, Bool_t _bufferHasBeenChecked = kFALSE) const;
+    UInt_t  getSequenceAlgCalls (UInt_t _n) const;
+    UInt_t  getSequenceAlgCaches(UInt_t _n) const;
     //
     UInt_t  getSeqROSCalls(UInt_t _n) const;
     Float_t getSeqROSTime(UInt_t _n) const;
@@ -143,13 +146,13 @@ namespace TrigCostRootAnalysis {
     // Cached
     std::set<Int_t> getSeqAlgROBLocations(UInt_t _n, UInt_t _a) const;
     std::set<Int_t> getSeqAlgROBLocations(const std::pair<Int_t,Int_t>& _algLocation) const;
-    UInt_t  getSeqAlgROSCalls(UInt_t _n, UInt_t _a, Bool_t _bufferHasBeenChecked = kFALSE) const;
-    Float_t getSeqAlgROSTime(UInt_t _n, UInt_t _a, Bool_t _bufferHasBeenChecked = kFALSE) const;
-    UInt_t  getSeqAlgROBRequests(UInt_t _n, UInt_t _a, Bool_t _bufferHasBeenChecked = kFALSE) const;
-    Float_t getSeqAlgROBRequestSize(UInt_t _n, UInt_t _a, Bool_t _bufferHasBeenChecked = kFALSE) const;
-    UInt_t  getSeqAlgROBRetrievals(UInt_t _n, UInt_t _a, Bool_t _bufferHasBeenChecked = kFALSE) const;
-    Float_t getSeqAlgROBRetrievalSize(UInt_t _n, UInt_t _a, Bool_t _bufferHasBeenChecked = kFALSE) const;
-    UInt_t  getSeqAlgROBOthers(UInt_t _n, UInt_t _a, Bool_t _bufferHasBeenChecked = kFALSE) const;
+    UInt_t  getSeqAlgROSCalls(UInt_t _n, UInt_t _a) const;
+    Float_t getSeqAlgROSTime(UInt_t _n, UInt_t _a) const;
+    UInt_t  getSeqAlgROBRequests(UInt_t _n, UInt_t _a) const;
+    Float_t getSeqAlgROBRequestSize(UInt_t _n, UInt_t _a) const;
+    UInt_t  getSeqAlgROBRetrievals(UInt_t _n, UInt_t _a) const;
+    Float_t getSeqAlgROBRetrievalSize(UInt_t _n, UInt_t _a) const;
+    UInt_t  getSeqAlgROBOthers(UInt_t _n, UInt_t _a) const;
 
 
     //
@@ -166,6 +169,7 @@ namespace TrigCostRootAnalysis {
     Bool_t  getIsL1PassedAfterVeto (UInt_t _n) const;
     // Cached
     Bool_t  getIsL1PassedBeforePrescale(std::string& _n) const;
+    Int_t   getL1Location(const std::string& _n) const;
     
     //
     // READ OUT BUFFER VARIABLES
@@ -255,6 +259,8 @@ namespace TrigCostRootAnalysis {
     // Debug
     ProcessEvent* getParent() const;
     void setParent(ProcessEvent* _parent) const;
+
+    void bufferEvent() const;
     
    private:
    
@@ -267,12 +273,18 @@ namespace TrigCostRootAnalysis {
     void checkBuffers() const;
     void mapRosToAlgs() const;
     void mapChainAndSeqToAlg() const;
-    void bufferChainRosInformation(UInt_t _n) const;
-    void bufferSeqROSInformation(UInt_t _n) const;
-    void bufferAlgRosInformation(UInt_t _n, UInt_t _a) const;
+    void bufferSequenceAlgCallsCaches() const;
+    void bufferChainSeqTime() const;
+    void bufferChainAlgCalls() const;
+    void bufferChainPassed() const;
+    void bufferIsL1PassedBeforePrescale() const;
+    void bufferChainRosInformation() const;
+    void bufferSeqROSInformation() const;
+    void bufferAlgRosInformation() const;
     Bool_t getRosReqBelongsToAlg(UInt_t _seq, UInt_t _alg, UInt_t _ros) const;
     
     mutable ProcessEvent* m_parent;
+    mutable std::mutex m_mutex;
 
     mutable Int_t m_bufferEventNumber; //!< The event being buffered
 
@@ -322,6 +334,8 @@ namespace TrigCostRootAnalysis {
   
     const std::set<Int_t> m_emptySet; //!< Returned for cases where an alg has no ROBs
     mutable std::pair< Int_t, Int_t > _recyclablePair; // Re-usable pair object
+
+    mutable Bool_t m_rosMatching; //!< Match ROS to algorithms? Time consuming, only use when needed
 
     D3PDReader::TrigCostD3PDObject* m_trigCostObject; //!< The wrapped D3PDReader object
     
