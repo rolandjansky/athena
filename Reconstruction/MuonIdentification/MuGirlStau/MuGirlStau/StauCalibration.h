@@ -9,15 +9,15 @@
 #include <map>
 #include "TFile.h"
 
-//using namespace std;
+using namespace std;
 
 namespace MuGirlNS
 {
     struct StauCalibrationParameters
     {
-        float timeShift;
-        float error;
-        StauCalibrationParameters(float in_timeShift = 0, float in_error = 0) :
+        double timeShift;
+        double error;
+        StauCalibrationParameters(double in_timeShift = 0, double in_error = 0) :
                 timeShift(in_timeShift), error(in_error)
         {
         }
