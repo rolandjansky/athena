@@ -26,7 +26,8 @@
 
 EventTagReader::EventTagReader(const std::string& name,
                                ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator),
+  m_storeGateSvc(0)
 {
 }
 
@@ -37,32 +38,46 @@ EventTagReader::~EventTagReader()
 
 StatusCode EventTagReader::initialize()
 {
-  ATH_MSG_DEBUG( "Initializing " << name()  );
+  StatusCode sc = StatusCode::SUCCESS;
+
+  MsgStream log(messageService(), name());
+
+  log << MSG::DEBUG << "Initializing " << name() << endreq;
+
+  sc = service("StoreGateSvc", m_storeGateSvc);
+  if (sc.isFailure())
+  {
+    log << MSG::ERROR << "Cannot get StoreGate service." << endreq;
+    return sc;
+  }
+
   return StatusCode::SUCCESS;      
 }
 
 
 StatusCode EventTagReader::execute()
 { 
-  ATH_MSG_DEBUG( "Executing " << name()  );
+  MsgStream log(messageService(), name());   
+  
+  log << MSG::DEBUG << "Executing " << name() << endreq;
 
   const AthenaAttributeList* attribList;
-  StatusCode sc = evtStore()->retrieve(attribList, "Input");
-  //log << MSG::INFO << "BLARG " << m_storeGateSvc->dump() << endmsg;
+  StatusCode sc = m_storeGateSvc->retrieve(attribList, "Input");
+  //log << MSG::INFO << "BLARG " << m_storeGateSvc->dump() << endreq;
 
   if (sc.isSuccess()) {
   
      //const coral::AttributeList& attribList = cursor.currentRow().attributeList();
-     ATH_MSG_DEBUG( "Attribute list is: "  );
+     log << MSG::DEBUG << "Attribute list is: " << endreq;
      for (coral::AttributeList::const_iterator first = attribList->begin(); 
                                                first != attribList->end(); 
                                              ++first)
      {
        std::ostringstream value;
        (*first).toOutputStream(value);
-       ATH_MSG_DEBUG( "NAME " << (*first).specification().name() << " TYPE " 
-                      << (*first).specification().typeName() << " VALUE "
-                      << value.str()  );
+       log << MSG::DEBUG << "NAME " << (*first).specification().name() << " TYPE " 
+           << (*first).specification().typeName() << " VALUE "
+           << value.str() << endreq;
      }
   }
 
@@ -72,7 +87,10 @@ StatusCode EventTagReader::execute()
 
 StatusCode EventTagReader::finalize() 
 {
-  ATH_MSG_DEBUG( "Finalizing " << name()  );
+  MsgStream log(messageService(), name());
+
+  log << MSG::DEBUG << "Finalizing " << name() << endreq;
+
   return StatusCode::SUCCESS;
 }
 

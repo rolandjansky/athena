@@ -63,6 +63,10 @@ class TagEventTagWriter : public AthAlgorithm
     virtual StatusCode finalize();
 
   private:
+
+    /// StoreGate service accessor
+    StoreGateSvc* m_storeGateSvc;
+
     /// Specification of event tag metadata schema
     AthenaAttributeListSpecification* m_attribListSpec;
 

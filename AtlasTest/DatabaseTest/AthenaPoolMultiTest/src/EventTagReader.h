@@ -62,6 +62,12 @@ class EventTagReader : public AthAlgorithm
      * @return Status of method execution success
      */
     virtual StatusCode finalize();
+
+  private:
+
+    /// Store Gate service accessor
+    StoreGateSvc* m_storeGateSvc;
+
 };
 #endif
      

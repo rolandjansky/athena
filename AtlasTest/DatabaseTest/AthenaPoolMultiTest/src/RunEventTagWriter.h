@@ -16,12 +16,7 @@
 //#include "GaudiKernel/Algorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandleKey.h"
-
-#include "EventInfo/EventInfo.h"
 #include "xAODEventInfo/EventInfo.h"
-#include "PersistentDataModel/AthenaAttributeList.h"
 
 #include <string>
 
@@ -85,9 +80,8 @@ class RunEventTagWriter : public AthAlgorithm
     StatusCode fillTag(const EventInfo*, AthenaAttributeList*);
     StatusCode fillTag(const xAOD::EventInfo*, AthenaAttributeList*);
 
-    SG::ReadHandleKey<EventInfo> m_evt;
-    SG::ReadHandleKey<xAOD::EventInfo> m_evtx;
-    SG::WriteHandleKey<AthenaAttributeList> m_attribList;
+    /// StoreGate service accessor
+    StoreGateSvc* m_storeGateSvc;
 
     /// Specification of the event tag metadata schema
     coral::AttributeListSpecification* m_attribListSpec;

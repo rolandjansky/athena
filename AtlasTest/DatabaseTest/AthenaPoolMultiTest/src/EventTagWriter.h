@@ -14,6 +14,7 @@
 
 //#include "GaudiKernel/Algorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "StoreGate/StoreGateSvc.h"
 
 #include <string>
 
@@ -65,6 +66,10 @@ class EventTagWriter : public AthAlgorithm
     virtual StatusCode finalize();
 
   private:
+
+    /// StoreGate service accessor
+    StoreGateSvc* m_storeGateSvc;
+
     /// Specification of event tag metadata schema
     coral::AttributeListSpecification* m_attribListSpec;
 

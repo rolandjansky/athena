@@ -25,12 +25,6 @@
 
 //#include "GaudiKernel/Algorithm.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandleKey.h"
-#include "EventInfo/EventInfo.h"
-
-//#include "AthenaPoolTestData/TrigPath.h"
-#include "AthenaPoolTestData/FauxTriggerMap.h"
 
 class string;
 class ISvcLocator;
@@ -45,11 +39,8 @@ public:
   virtual StatusCode initialize(); 
   virtual StatusCode execute();
   virtual StatusCode finalize();
-
+                                                                
 private:
-  SG::ReadHandleKey<EventInfo> m_evt;
-  SG::WriteHandleKey<FauxTriggerMap> m_wftm;
-  SG::WriteHandleKey<FauxTriggerMap> m_wftm2;
-
+  StoreGateSvc* m_sGevent;  /// cache for efficiency.
 };
 #endif

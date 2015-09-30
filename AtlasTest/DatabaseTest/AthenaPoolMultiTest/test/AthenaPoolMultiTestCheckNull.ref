@@ -1,0 +1,62 @@
+AthAlgSeq            INFO Member list: AthPoolEx::ReadData/ReadData, RunEventTagWriter, RegistrationStreamDefMeta/DefaultCollMeta
+ReadData             INFO in initialize()
+EventSelector        INFO reinitialization...
+EventSelector        INFO EventSelection with query 
+EventSelector       DEBUG Try item: "PFN:NullableCollection.root" from the collection list.
+EventSelector        INFO Using standard collection ref 
+EventSelector       DEBUG Try item: "PFN:NullableCollection.root" from the collection list.
+AthRegSeq            INFO Member list: RegistrationStream/FullColl
+FullColl            DEBUG In initialize 
+FullColl            DEBUG Found IDecisionSvc.
+DecisionSvc          INFO Inserting stream: FullColl with no Algs
+FullColl            DEBUG End initialize 
+FullColl            DEBUG In initialize 
+FullColl            DEBUG Found  'StoreName':StoreGateSvc store.
+FullColl.Regist...  DEBUG In initialize 
+FullColl.Regist...  DEBUG Found  'StoreName':StoreGateSvc store.
+FullColl.Regist...  DEBUG Found metadata store.
+FullColl.Regist...  DEBUG  Got PoolSvc
+FullColl.Regist...  DEBUG streamProperty CollectionType = ExplicitROOT
+FullColl.Regist...  DEBUG streamProperty Connection = 
+FullColl.Regist...  DEBUG streamProperty OutputCollection = CheckNull.root
+FullColl.Regist...  DEBUG streamProperty CollectionOpenMode = CREATE_AND_OVERWRITE
+FullColl.Regist...  DEBUG streamProperty StoreName = StoreGateSvc
+FullColl.Regist...  DEBUG End initialize 
+FullColl            DEBUG  Tool initialized
+FullColl            DEBUG Retrieved IncidentSvc
+FullColl            DEBUG Added MetaDataStop listener
+FullColl            DEBUG  Not class requested by Tool, skipping (40774348,"RunEventTag") 
+FullColl            DEBUG  Not class requested by Tool, skipping (222376821,"*") 
+FullColl            DEBUG Adding cmd key Default
+FullColl            DEBUG End initialize 
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+EventSelector       DEBUG Try item: "PFN:NullableCollection.root" from the collection list.
+FullColl            DEBUG handle() incident type: MetaDataStop
+FullColl.Regist...   INFO Collection Events output: 0
+FullColl.Regist...  DEBUG Do initCollection in finalize for m_collection = 0
+FullColl.Regist...  DEBUG  ==> Probably had 0 accepted events
+FullColl.Regist...  DEBUG initCollection
+FullColl.Regist...  DEBUG Collection name:  'OutputCollection':CheckNull.root
+FullColl.Regist...  DEBUG Collection type RootCollection
+FullColl.Regist...  DEBUG Collection open mode  'CollectionOpenMode':CREATE_AND_OVERWRITE
+FullColl.Regist...  DEBUG  Created collection
+FullColl.Regist...  DEBUG pointer to collection is not null
+FullColl.Regist...  DEBUG Found metadata store, MetaDataStore
+FullColl.Regist...  DEBUG Looking for key Input
+FullColl.Regist...  DEBUG Found metadata object for Input in MetaDataStore
+FullColl.Regist...  DEBUG key = PFN:NullableCollection.root|Name; value = PFN:NullableCollection.root
+FullColl.Regist...  DEBUG key = PFN:NullableCollection.root|UnixTimestamp; value = 1415292750
+FullColl.Regist...  DEBUG Looking for key Default
+FullColl.Regist...  DEBUG Found metadata object for Default in MetaDataStore
+FullColl.Regist...  DEBUG key = ConfigTag; value = ATN
+FullColl.Regist...  DEBUG key = PassNumber; value = 2
+FullColl.Regist...  DEBUG key = Project; value = AthenaPoolMultiTest
+FullColl.Regist...  DEBUG key = Stream; value = CheckNull
+FullColl.Regist...  DEBUG Committed collection 
+FullColl.Regist...  DEBUG  Closed collection 
+ReadData             INFO in finalize()
+FullColl            DEBUG In finalize
+FullColl.Regist...  DEBUG In finalize: 0
+FullColl.Regist...  DEBUG Calling destructor
+DecisionSvc          INFO List of registered 1 Streams: FullColl 
+FullColl.FullCo...  DEBUG Calling destructor

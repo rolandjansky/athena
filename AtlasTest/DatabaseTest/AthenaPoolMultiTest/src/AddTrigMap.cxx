@@ -11,19 +11,21 @@
 
 // the user data-class defintions
 #include "AthenaPoolTestData/TrigPath.h"
-//#include "AthenaPoolTestData/FauxTriggerMap.h"
+#include "AthenaPoolTestData/FauxTriggerMap.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/AlgFactory.h"
+                                                          
+#include "StoreGate/StoreGateSvc.h"
 
 #include <string>
-//#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "CxxUtils/make_unique.h"
+
     
 AddTrigMap::AddTrigMap(const std::string& name, 
 			ISvcLocator* pSvcLocator) :
-              AthAlgorithm(name, pSvcLocator),
-              m_evt("McEventInfo"),
-              m_wftm("MultiTestTrigMap"),
-              m_wftm2("ExcludeTestTrigMap")
+              AthAlgorithm(name, pSvcLocator), m_sGevent(0)
 {}
 
 AddTrigMap::~AddTrigMap() 
@@ -31,57 +33,82 @@ AddTrigMap::~AddTrigMap()
 
 StatusCode AddTrigMap::initialize() 
 { 
-   ATH_MSG_INFO( "in initialize()"  );
-   ATH_CHECK( m_evt.initialize() );
-   ATH_CHECK( m_wftm.initialize() );
-   ATH_CHECK( m_wftm2.initialize() );
-   return StatusCode::SUCCESS;
+   MsgStream log(msgSvc(), name());
+   log << MSG::INFO << "in initialize()" << endreq;
+                                                                                
+   // Locate the StoreGateSvc and initialize our local ptr
+   StatusCode sc = service("StoreGateSvc", m_sGevent);
+   if (!sc.isSuccess() || 0 == m_sGevent) {
+            log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
+   } 
+   return sc;
 }
 
 StatusCode AddTrigMap::execute() 
 {
-   ATH_MSG_DEBUG( "in execute()"  );
+   StatusCode sc = StatusCode::SUCCESS;
+   MsgStream log(msgSvc(), name());
+   log << MSG::DEBUG << "in execute()" << endreq;
    
    // Check for event header
-   SG::ReadHandle<EventInfo> evt (m_evt);
-   if (!evt.isValid()) {
-       ATH_MSG_FATAL( "Could not find event"  );
+   //const DataHandle<xAOD::EventInfo> evt;
+   const DataHandle<EventInfo> evt;
+   sc = m_sGevent->retrieve(evt);
+   if (sc.isFailure()) {
+       log << MSG::FATAL << "Could not find event" << endreq;
        return(StatusCode::FAILURE);
    }
-
-   ATH_MSG_INFO( "EventInfo event: " << evt->event_ID()->event_number() 
-                         << " run: " << evt->event_ID()->run_number()  );
+   else {
+       log << MSG::INFO << "Found EventInfo in SG" << endreq;
+   }
+    
+   if (!evt.isValid()) {
+       log << MSG::FATAL << "Could not find event" << endreq;
+       return(StatusCode::FAILURE);
+   }
+   log << MSG::INFO << "EventInfo event: " << evt->event_ID()->event_number() 
+                    << " run: " << evt->event_ID()->run_number() << endreq;
    //
    // Since we have an event, add the dummy trigger object
    // 
-   int event = evt->event_ID()->event_number();
+   int m_event = evt->event_ID()->event_number();
+   //  Make event 5 an event with no splitting info
    FauxTriggerMap* ftm=0;
-   ftm = new FauxTriggerMap();
-   // Add some paths
-   ftm->addPath(TrigPath(event%3, 2,event%6)); // repeats with period 3
-   ftm->addPath(TrigPath(event%16,2,event%11+(event+1)%2)); // repeats with period 16
-   if (event==3) {
-     delete ftm ; ftm = new FauxTriggerMap();
-     ftm->addPath(TrigPath(8,2,1)); // non normal trigger
-   }
+   //if (m_event != 5) {
+     ftm = new FauxTriggerMap();
+     // Add some paths
+     ftm->addPath(TrigPath(m_event%3, 2,m_event%6)); // repeats with period 3
+     ftm->addPath(TrigPath(m_event%16,2,m_event%11+(m_event+1)%2)); // repeats with period 16
+     if (m_event==3) {
+       ftm = new FauxTriggerMap();
+       ftm->addPath(TrigPath(8,2,1)); // non normal trigger
+     }
+   //}
   
    // Extra map for testing exclude list 
    FauxTriggerMap* ftm2 = new FauxTriggerMap();
    // Add some paths
-   ftm2->addPath(TrigPath(event%4, 2,event%6)); // repeats with period 3
+   ftm2->addPath(TrigPath(m_event%4, 2,m_event%6)); // repeats with period 3
    
-   // Set up the writing
+   std::string keythis = "MultiTestTrigMap";
    if (ftm!=0) {
-     SG::WriteHandle<FauxTriggerMap> wftm(m_wftm);
-     ATH_CHECK( wftm.record (std::make_unique<FauxTriggerMap>(*ftm)) );
+     sc = m_sGevent->record(ftm,keythis);
+     if (sc.isFailure()) {
+       log << MSG::ERROR << "could not register FauxTrigger Object " << keythis << endreq;
+       return(StatusCode::FAILURE);
+     }
    }
    // Now add a copy for exclude list test
+   keythis = "ExcludeTestTrigMap";
    if (ftm2!=0) {
-     SG::WriteHandle<FauxTriggerMap> wftm2(m_wftm2);
-     ATH_CHECK( wftm2.record (std::make_unique<FauxTriggerMap>(*ftm2)) );
+     sc = m_sGevent->record(ftm2,keythis);
+     if (sc.isFailure()) {
+       log << MSG::ERROR << "could not register FauxTrigger Object " << keythis << endreq;
+       return(StatusCode::FAILURE);
+     }
    }
 
-   ATH_MSG_INFO( "registered all data"  );
+   log << MSG::INFO << "registered all data" << endreq;
    return(StatusCode::SUCCESS);
 }   
 

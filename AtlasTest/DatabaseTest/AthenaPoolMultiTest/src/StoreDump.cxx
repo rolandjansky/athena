@@ -9,6 +9,7 @@
   
 #include <string>
 #include "StoreDump.h"
+#include "StoreGate/StoreGateSvc.h"
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
     
 StoreDump::StoreDump(const std::string& name, 
@@ -26,13 +27,20 @@ StatusCode StoreDump::initialize() { return StatusCode::SUCCESS; }
 
 StatusCode StoreDump::execute() 
 {
-   StoreGateSvc* detStore = 0;
-   ATH_CHECK( service(m_storename,detStore) );
-   ATH_MSG_INFO( detStore->dump()  );
+   MsgStream log(msgSvc(), name());
+   StoreGateSvc* detStore;
+   StatusCode sc = service(m_storename,detStore);
+   if (sc.isFailure()) return StatusCode::FAILURE;
+   log << MSG::INFO << detStore->dump() << endreq;
 
-   AthenaAttributeList* test = 0;
-   ATH_CHECK( detStore->retrieve(test,m_key) );
-   ATH_MSG_INFO( "AttributeList has size " << test->size()  );
+   AthenaAttributeList* test;
+   sc = detStore->retrieve(test,m_key);
+   if (sc.isSuccess()) {
+      log << MSG::INFO << "AttributeList has size " << test->size() << endreq;
+   }
+   else {
+      log << MSG::ERROR << "AthenaAttributeList not retrievable" << endreq;
+   }
 
    return StatusCode::SUCCESS; 
 }

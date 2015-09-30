@@ -52,8 +52,7 @@ DummyLumirangeTool::DummyLumirangeTool(const std::string& name,
     m_firstrun(0),
     m_rangesize(40),
     m_blocksperrun(200),
-    m_lumitot(1000),
-    m_wcmd(name)
+    m_lumitot(1000)
 {
     declareProperty("StoreName",    m_storeName, "Store to find input metadata during finalize");
     declareProperty("Granularity",  m_lumigran,  "skip size");
@@ -72,8 +71,6 @@ StatusCode
 DummyLumirangeTool::initialize() 
 {
    ATH_MSG_DEBUG("In initialize ");
-
-   ATH_CHECK( m_wcmd.initialize() );
 
    std::map<std::string, std::string> defMeta;
 
@@ -119,15 +116,18 @@ DummyLumirangeTool::initialize()
    CollectionMetadata* def = new CollectionMetadata(defMeta);
    CollectionMetadataContainer* cont = new CollectionMetadataContainer();
    cont->push_back(def);
-
-   SG::WriteHandle<CollectionMetadataContainer> wcmd(m_wcmd);
-   ATH_CHECK( wcmd.record (std::make_unique<CollectionMetadataContainer>(*cont)) );
-   ATH_MSG_DEBUG("Stored CollectionMetadataContainer in " << m_storeName);
-   ATH_MSG_DEBUG("Size: " << def->size());
-   ATH_MSG_DEBUG("Contents: ");
-   CollectionMetadata::const_iterator i = def->begin();
-   for (CollectionMetadata::const_iterator j=i; j != def->end(); ++j) {
-     ATH_MSG_DEBUG("    "<<j->first<<" "<<j->second);
+   StatusCode rc = metadataStore->record(cont,this->name());
+   if (!rc.isSuccess()) {
+      ATH_MSG_ERROR("Unable to store Default CollectionMetadataContainer");
+   }
+   else {
+      ATH_MSG_DEBUG("Stored CollectionMetadataContainer in " << m_storeName);
+      ATH_MSG_DEBUG("Size: " << def->size());
+      ATH_MSG_DEBUG("Contents: ");
+      CollectionMetadata::const_iterator i = def->begin();
+      for (CollectionMetadata::const_iterator j=i; j != def->end(); ++j) {
+         ATH_MSG_DEBUG("    "<<j->first<<" "<<j->second);
+      }
    }
 
    return AthAlgorithm::initialize();
