@@ -15,7 +15,8 @@
 #include <string>
 
 //local includes
-#include "TrkValHistUtils/PlotBase.h"
+//#include "InDetPlotBase.h"
+#include "InDetPlotBase.h"
 #include "InDetPerfPlot_Pt.h"
 #include "TrkValHistUtils/ParamPlots.h"
 #include "TrkValHistUtils/ImpactPlots.h"
@@ -26,6 +27,8 @@
 #include "InDetPerfPlot_pull.h"
 #include "InDetPerfPlot_fakes.h"
 #include "InDetPerfPlot_Eff.h"
+#include "InDetPerfPlot_hitResidual.h"
+
 
 #include "TrkValHistUtils/IDHitPlots.h"
 #include "InDetPerfPlot_HitDetailed.h"
@@ -40,10 +43,11 @@
 #include "xAODEventInfo/EventInfo.h"
 
 ///class holding all plots for Inner Detector RTT Validation and implementing fill methods
-class InDetRttPlots:public PlotBase {
+class InDetRttPlots:public InDetPlotBase {
 public:
-	InDetRttPlots(PlotBase * pParent, const std::string & dirName);
+	InDetRttPlots(InDetPlotBase * pParent, const std::string & dirName);
   void SetFillExtraTIDEPlots( bool fillthem ) { m_moreJetPlots = fillthem; }
+  void SetPrimaryEtaCut( float eta );
 	///fill for things needing truth and track only
 	void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle);
 	///fill for things needing track only
@@ -52,14 +56,28 @@ public:
 	void fill(const xAOD::TruthParticle& particle);
 	///fill for things needing all truth - not just the ones from the reco tracks
 	void fillTruth(const xAOD::TruthParticle& particle);
+
+	//fill the duplicate plots
+	//void fillDupTruth(const xAOD::TruthParticle& particle);
+	//void fillDupTrack(const xAOD::TrackParticle& particle);
+
+
 	///fill reco-vertex related plots
 	void fill(const xAOD::VertexContainer& vertexContainer);
 	///fill reco-vertex related plots that need EventInfo 
 	void fill(const xAOD::VertexContainer& vertexContainer, const xAOD::EventInfo& ei);
 
   ///fill track-jet related plots
-  bool PassJetCuts( const xAOD::Jet& jet );
   void fillJetPlot(const xAOD::TrackParticle& particle, const xAOD::Jet& jet);
+
+  //New set to perhaps replace fillJetPlot
+  bool filltrkInJetPlot(const xAOD::TrackParticle& particle, const xAOD::Jet& jet);
+  void fillSimpleJetPlots(const xAOD::TrackParticle& particle);
+  void fillJetResPlots(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truth, const xAOD::Jet& jet);
+  void fillJetFakes(const xAOD::TrackParticle& particle);
+  void fillJetEffPlots(const xAOD::TruthParticle& truth, const xAOD::Jet& jet);
+
+
   void fillJetPlotCounter(const xAOD::Jet& jet);
   void fillJetTrkTruth(const xAOD::TruthParticle& truth, const xAOD::Jet& jet);
   void fillJetTrkTruthCounter(const xAOD::Jet& jet);
@@ -79,17 +97,22 @@ private:
 	Trk::TruthInfoPlots m_TrackTruthInfoPlots;
 	InDetPerfPlot_nTracks m_nTracks;
 	InDetPerfPlot_res m_resPlots;
-	InDetPerfPlot_pull m_pullPlots;
+	InDetPerfPlot_hitResidual m_hitResidualPlot;
+	//InDetPerfPlot_pull m_pullPlots;
 	InDetPerfPlot_fakes m_fakePlots; //fakes vs eta etc, as per original RTT code
 	Trk::IDHitPlots m_hitsPlots;
 	Trk::IDHitPlots m_hitsMatchedTracksPlots;
 	Trk::IDHitPlots m_hitsFakeTracksPlots;
 	InDetPerfPlot_HitDetailed m_hitsDetailedPlots;
-  InDetPerfPlot_Eff m_effPlots;
+	InDetPerfPlot_Eff m_effPlots;
 
 	InDetPerfPlot_VertexContainer m_verticesPlots;
 	InDetPerfPlot_Vertex m_vertexPlots;
 	InDetPerfPlot_Vertex m_hardScatterVertexPlots;	
+
+	//Set scripts to analyze the duplicates that appear
+	//InDetPerfPlot_truthDuplicates m_DuplicateTruth;
+	//InDetPerfPlot_trackDuplicates m_DuplicateTrack;
 
   bool m_moreJetPlots;
 	InDetPerfPlot_TrkInJet  m_trkInJetPlot;
@@ -110,13 +133,13 @@ private:
 	InDetPerfPlot_pull      m_trkInJetHighPtPullPlots;
 	Trk::IDHitPlots         m_trkInJetHitsFakeTracksPlots;
 	Trk::IDHitPlots         m_trkInJetHitsMatchedTracksPlots;
-  InDetPerfPlot_Eff       m_trkInJetEffPlots;
+	InDetPerfPlot_Eff       m_trkInJetEffPlots;
 	Trk::TruthInfoPlots     m_trkInJetTrackTruthInfoPlots;
 
 	std::string m_trackParticleTruthProbKey;
 	float m_truthProbThreshold;
 	float m_truthProbLowThreshold;
-	
+	float m_truthPrimaryEtaCut;
 };
 
 

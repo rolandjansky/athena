@@ -1,0 +1,45 @@
+TH1F num_truthmatch_match "num_truthmatch_match; evi match	" 10 0 10 "Num. matching truth" "Entries" default
+TH1F nparticle "Number of Truth Particles;Num. truth particles" 200 0 2000 "Num. truth particles"  "Entries" default
+TH1F ntracksel "Number of Selected Tracks;Num. tracks" 200 0 1000 "Num. tracks"  "Entries" default
+TH1F ntrack "Number of Tracks;Num. tracks" 200 0 1000 "Num. tracks"  "Entries" default
+#
+#testing
+TH1F    002_Al_N_01     "Test Case: Visible E_{T} (GeV)"  100       0     100     "Visible E_{T} (GeV)"  "Entries" default
+TH1F    test     "Test Case: Visible E_{T} (GeV)"  100       0     100     "Visible E_{T} (GeV)"  "Entries" default
+#
+#pT
+TH1F   recpT   "p_{T} of selected rec tracks (in GeV);p_{T}(GeV/c)"  200  0.  200 "E_{T} (GeV)" "Entries" default
+TH1F recpTlow  "p_{T} of selected rec tracks (in GeV);p_{T}(GeV/c)"  200  0.  20  "E_{T} (GeV)" "Entries" default
+#
+#fakes
+TH1F fakepT "p_{T} of selected fake tracks (in GeV);p_{T}(GeV/c)" 200 0. 200 "p_{T}(GeV/c)" "Entries" default
+TH1F fakepTlow "p_{T} of selected fake tracks (in GeV);p_{T}(GeV/c)" 200 0 20 "p_{T}(GeV/c)" "Entries" default
+TH1F fakephi "#phi of selected fake tracks;#phi" 100 0 6.283185 "#phi" "Entries" default
+TH1F fakeeta "#eta of selected fake tracks;#eta" 100 -5 5 "#eta" "Entries" default
+TH1F faked0  "d_{0} of selected fake tracks (in mm);d_{0}(mm)" 200 -5 5 "d_{0}(mm)" "Entries" default
+TH1F fakez0 "z_{0} of selected fake tracks (in mm);z_{0}(mm)" 120 -300 300 "z_{0}(mm)" "Entries" default
+TProfile track_fakerate_vs_eta "Fraction of tracks with <50% truth match probability ;#eta;Fake Rate" 20 -2.5 2.5 0 1 "#eta" "Fake Rate" default
+TProfile track_fakerate_vs_pt "Fraction of tracks with <50% truth match probability ;p_{T}(GeV/c);Fake Rate" 25 0 50 0 1 "p_{T}(GeV/c)" "Fake Rate" default
+TProfile track_fakerate_vs_phi "Fraction of tracks with <50% truth match probability ;#phi;Fake Rate" 24 -180 180 0 100 "#phi" "Fake Rate" default
+TProfile track_fakerate_vs_d0  "Fraction of tracks with <50% truth match probability ;Fake Rate"  20  -6  6  0  100  "d0"  "Fake Rate"   default
+TProfile  track_fakerate_vs_z0 "Fraction of tracks with <50% truth match probability ;Fake Rate" 20 -300 300 0 100 "z0"  "Fake Rate" default
+#
+#vertices
+TH1F vx_x "X position of vertex;X (mm);Entries" 200  -1.0 1.0 "X (mm)" "Entries" default
+TH1F vx_y  "Y position of vertex;Y (mm);Entries" 200  -1.0 1.0 "Y (mm)" "Entries" default
+TH1F vx_z  "Z position of vertex;Z (mm);Entries" 100 -300.0  300.0  "Z (mm)" "Entries" default
+TH1F vx_err_x "X position error of vertex;#sigma(X) (mm);Entries" 100 0.0 0.2 "#sigma(X) (mm)" "Entries" default
+TH1F vx_err_y "Y position error of vertex;#sigma(Y) (mm);Entries" 100 0.0 0.2 "#sigma(Y) (mm)" "Entries" default
+TH1F vx_err_z  "Z position error of vertex;#sigma(Z) (mm);Entries" 100 0.0 1.0 "#sigma(Z) (mm)" "Entries" default
+TH1F vx_chi2_over_ndf "vertex #chi^2 / ndf;#chi^{2}/ndf;Entries" 50 0 10. "#chi^{2}/ndf"  "Entries" default
+TH1F vx_type "Vertex type;Vertex type;Entries" 7 0 7 "Vertex type" "Entries" default
+TH1F vx_nTracks "Number of tracks at vertex;Number of Tracks;Entries" 150 0 150 "Number of Tracks" "Entries" default
+TH1F vx_track_weights "Weights of tracks at vertex;Weight;Entries" 100 0. 10.0 "Weight" "Entries" default
+TH1F vx_track_pt "Tracks at vertex p_{T};p_{T} (GeV);Entries" 100 0 20. "p_{T} (GeV)" "Entries" default
+TH1F vx_track_eta  "Tracks at vertex #eta;#eta;Entries" 100 -2.7 2.7 "#eta" "Entries" default
+TH1F vx_track_nSiHits  "Tracks at vertex number of Silicon Hits;N Si Hits;Entries" 15 5 20 "Num. Si Hits" "Entries" default
+TH1F vx_track_nSiHoles "Tracks at vertex number of Silicon Holes;N Si Holes;Entries" 5 0 5 "Num. Si Holes" "Entries" default
+TH1F vx_track_d0 "Tracks at vertex d_{0};d_{0} (mm);Entries" 100 -2.0 2.0 "d_{0} (mm)" "Entries" default
+TH1F vx_track_err_d0  "Tracks at vertex d_{0} error;#sigma(d_{0}) (mm);Entries" 50 0.0 1.0 "#sigma(d_{0}) (mm)" "Entries" default
+TH1F vx_track_z0 "Tracks at vertex z_{0} - z_{0}^{vertex};z_{0}-z_{0}^{vertex} (mm);Entries" 100 -5.0 5.0 "z_{0}-z_{0}^{vertex} (mm)" "Entries" default
+TH1F vx_track_err_z0 "Tracks at vertex z_{0} error;#sigma(z_{0}) (mm);Entries" 50 0.0 5.0 "#sigma(z_{0}) (mm)" "Entries" default

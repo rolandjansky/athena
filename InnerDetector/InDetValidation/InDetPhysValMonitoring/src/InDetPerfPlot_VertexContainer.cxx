@@ -15,7 +15,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-InDetPerfPlot_VertexContainer::InDetPerfPlot_VertexContainer(PlotBase* pParent, const std::string & sDir):PlotBase(pParent, sDir){
+InDetPerfPlot_VertexContainer::InDetPerfPlot_VertexContainer(InDetPlotBase* pParent, const std::string & sDir):InDetPlotBase(pParent, sDir){
   //nop
 }
 

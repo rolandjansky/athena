@@ -1,8 +1,14 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: PhysVal_jobOptions.py 659939 2015-04-10 13:20:44Z sroe $
+# $Id: PhysVal_jobOptions.py 697561 2015-09-30 11:21:59Z sroe $
 
 # Set up the reading of the input xAOD:
+
+#"AOD.05522648._000044.pool.root.1" K-short dataset
+#"ESD.05108991._000060.pool.root.1" original ttbar dataset 
+#"ESD.05297574._000081.pool.root.1" new ttbar dataset (this one should enable residuals)
+
+#FNAME = "ESD.05297574._000081.pool.root.1"
 FNAME = "AOD.pool.root"
 include( "AthenaPython/iread_file.py" )
 
@@ -10,6 +16,16 @@ include( "AthenaPython/iread_file.py" )
 # Access the algorithm sequence:
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
+
+from InDetPhysValMonitoring.InDetPhysValMonitoringConf import HistogramDefinitionSvc
+ToolSvc = ServiceMgr.ToolSvc
+ServiceMgr+=HistogramDefinitionSvc()
+ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/test.hdef"
+
+from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg
+decorators = InDetPhysValDecoratorAlg()
+topSequence += decorators
+
 
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
 monMan = AthenaMonManager( "PhysValMonManager" )
@@ -19,19 +35,22 @@ monMan.Environment         = "altprod"
 monMan.ManualRunLBSetup    = True
 monMan.Run                 = 1
 monMan.LumiBlock           = 1
-monMan.FileKey = "MyPhysVal"
+monMan.FileKey = "Mttbar_confirm"
 topSequence += monMan
+
+
 
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValMonitoringTool
 tool1 = InDetPhysValMonitoringTool()
+'''
 tool1.useTrackSelection = False
 #tool1.useTrackSelection = True
 #tool1.onlyInsideOutTracks = True
-#tool1.TrackSelectionTool.CutLevel         = "Loose"
-#tool1.TrackSelectionTool.UseTrkTrackTools = True
-#tool1.TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
-#tool1.TrackSelectionTool.Extrapolator     = InDetExtrapolator
-
+tool1.TrackSelectionTool.CutLevel         = "Loose"
+tool1.TrackSelectionTool.UseTrkTrackTools = True
+tool1.TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
+tool1.TrackSelectionTool.Extrapolator     = InDetExtrapolator
+'''
 
 ToolSvc += tool1
 monMan.AthenaMonTools += [tool1]
@@ -44,14 +63,14 @@ print InDetHoleSearchTool
 
 
 
-from AthenaCommon.AppMgr import ServiceMgr
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
-svcMgr.THistSvc.Output += ["MyPhysVal DATAFILE='MyPhysVal.root' OPT='RECREATE'"]
+svcMgr.THistSvc.Output += ["Mttbar_confirm DATAFILE='Mttbar_confirm.root' OPT='RECREATE'"]
 
 
 # Do some additional tweaking:
 from AthenaCommon.AppMgr import theApp
-ServiceMgr.MessageSvc.OutputLevel = INFO
+
+ServiceMgr.MessageSvc.OutputLevel = DEBUG
 ServiceMgr.MessageSvc.defaultLimit = 10000
-theApp.EvtMax = 40
+theApp.EvtMax = 1

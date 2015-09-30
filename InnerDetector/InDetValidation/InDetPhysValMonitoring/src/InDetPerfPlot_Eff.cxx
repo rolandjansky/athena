@@ -4,7 +4,7 @@
 
 #include "InDetPerfPlot_Eff.h"
 
-InDetPerfPlot_Eff::InDetPerfPlot_Eff(PlotBase* pParent, const std::string & sDir, std::string particleName):PlotBase(pParent, sDir),
+InDetPerfPlot_Eff::InDetPerfPlot_Eff(InDetPlotBase* pParent, const std::string & sDir, std::string particleName):InDetPlotBase(pParent, sDir),
   m_pDenomPlots(this, sDir+"Denom", particleName),
   m_pNumPlots(this, sDir+"Num", particleName)
 {

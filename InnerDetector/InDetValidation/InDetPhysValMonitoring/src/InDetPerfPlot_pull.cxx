@@ -6,8 +6,8 @@
 #include "xAODTracking/TrackingPrimitives.h"
 
 
-InDetPerfPlot_pull::InDetPerfPlot_pull(PlotBase* pParent, const std::string & sDir)
-   :PlotBase(pParent, sDir), 
+InDetPerfPlot_pull::InDetPerfPlot_pull(InDetPlotBase* pParent, const std::string & sDir)
+   :InDetPlotBase(pParent, sDir), 
    m_pullPlots(NPARAMS),
    m_pullPlotsWide(NPARAMS),
    m_paramNames{"d0","z0", "phi", "theta","qOverP"}
@@ -23,20 +23,21 @@ InDetPerfPlot_pull::initializePlots() {
   //Initialize the pull histograms: 
   //number of bins for each parameter
   //upper and lower histogram limits, from existing RTT code
+
   typedef std::pair<float, float> Limits_t;
   unsigned int nBins(200);
   Limits_t allLimits = Limits_t(-5.0, 5.0);
   Limits_t allWideLimits = Limits_t(-20.0, 20.0);
-  //
+  
 
   for (unsigned int var(0);var!=NPARAMS;++var){
     std::string hName = formName(var);
     std::string tName = formTitle(var);
     TH1 * pHisto = Book1D(hName,tName,nBins, allLimits.first, allLimits.second, prependDirectory);
-    std::string wName = hName + std::string("_widerange");
+    m_pullPlots[var] = pHisto;
+    std::string wName = hName + std::string(" widerange");
     TH1 * pwideHisto = Book1D(wName,tName,nBins, allWideLimits.first, allWideLimits.second, prependDirectory);
     //we already initialised the vector in the initialiser list, so don't push_back
-    m_pullPlots[var] = pHisto;
     m_pullPlotsWide[var] = pwideHisto;
   } 
 }
@@ -54,7 +55,7 @@ InDetPerfPlot_pull::fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthPar
   
   //checked the following, at line 2519 of IDStandardPerformance.cxx
   //https://svnweb.cern.ch/trac/atlasoff/browser/InnerDetector/InDetValidation/InDetPerformanceRTT/tags/InDetPerformanceRTT-01-00-05/src
-  trkParticleParams[QOVER_PT] = trkprt.qOverP();
+  trkParticleParams[QOVERP] = trkprt.qOverP();
   
   //
   //const float unfilledValue(0.0); //should be NaN?
@@ -71,6 +72,7 @@ InDetPerfPlot_pull::fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthPar
       const float truthParameter = (truthprt.auxdata< float >(varName));
       const float sigma = (trkprt.auxdata< float >(errName));
       (m_pullPlots[var])->Fill( (trackParameter - truthParameter) / sigma);
+      (m_pullPlotsWide[var])->Fill( (trackParameter - truthParameter)/sigma);
     } 
   }
 }

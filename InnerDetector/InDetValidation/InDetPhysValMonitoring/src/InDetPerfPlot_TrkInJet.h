@@ -5,16 +5,16 @@
 #ifndef INDETPERFPLOT_TRKINJET_H
 #define INDETPERFPLOT_TRKINJET_H
 
-#include "TrkValHistUtils/PlotBase.h"
+#include "InDetPlotBase.h"
 #include "TrkValHistUtils/EfficiencyPurityCalculator.h"
 #include "TProfile.h"
 #include "xAODTracking/TrackParticleFwd.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODJet/Jet.h"
 
-class InDetPerfPlot_TrkInJet: public PlotBase {
+class InDetPerfPlot_TrkInJet: public InDetPlotBase {
   public:
-    InDetPerfPlot_TrkInJet(PlotBase *pParent, std::string sDir);
+    InDetPerfPlot_TrkInJet(InDetPlotBase *pParent, std::string sDir);
     bool fill(const xAOD::TrackParticle& trk, const xAOD::Jet& jet);
     bool fillCounter(const xAOD::Jet& jet);
 
@@ -24,7 +24,6 @@ class InDetPerfPlot_TrkInJet: public PlotBase {
 
     void clearCounters();
     void clearEffCounters();
-    bool PassJetCuts( const xAOD::Jet& jet );
 
     ///@name Hit content of xAOD::TrackParticle as function of eta
     ///@{

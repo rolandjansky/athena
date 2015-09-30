@@ -19,16 +19,16 @@
 #include <string>
 
 //local includes
-#include "TrkValHistUtils/PlotBase.h"
+#include "InDetPlotBase.h"
 #include "TrkValHistUtils/ParamPlots.h"
 #include "TrkValHistUtils/EfficiencyPlots.h"
 #include "TrkValHistUtils/EfficiencyPurityCalculator.h"
 #include "xAODBase/IParticle.h"  
 
 ///class holding Pt plots for Inner Detector RTT Validation and implementing fill methods
-class InDetPerfPlot_Eff:public PlotBase {
+class InDetPerfPlot_Eff:public InDetPlotBase {
 public:
-	InDetPerfPlot_Eff(PlotBase * pParent, const std::string & dirName, std::string particleName = "Tracks");
+	InDetPerfPlot_Eff(InDetPlotBase * pParent, const std::string & dirName, std::string particleName = "Tracks");
 	void fillNumerator(const xAOD::IParticle& particle);
 	void fillDenominator(const xAOD::IParticle& particle);
 	
@@ -49,7 +49,7 @@ private:
 	
 	//plot base has nop default implementation of this; we use it to book the histos
 	void initializePlots();
-  void finalizePlots();
+	void finalizePlots();
 	
 };
 

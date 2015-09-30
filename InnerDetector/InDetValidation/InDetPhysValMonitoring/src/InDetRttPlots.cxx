@@ -12,13 +12,18 @@
 #include "xAODTruth/TruthParticleContainer.h"
 #include "xAODTruth/TruthParticle.h" 
 #include "xAODTruth/TruthVertex.h" 
+#include <cmath> //std::isnan()
+#include <limits>
+
+using std::cout;
+using std::endl;
+using std::string;
 
 namespace { //utility functions used in this area - stolen from InDetPhysValMonitoringTool and other places - not so nice as should be in a common header somewhere
   //get truth particle associated with a track particle
   const xAOD::TruthParticle * getTruthPtr(const xAOD::TrackParticle & trackParticle){
     typedef ElementLink<xAOD::TruthParticleContainer> ElementTruthLink_t;
-    const xAOD::TruthParticle * nullPtr(0);
-    const xAOD::TruthParticle * result(nullPtr);
+    const xAOD::TruthParticle * result(nullptr);
 		//0. is there any truth?
 		if (trackParticle.isAvailable<ElementTruthLink_t>("truthParticleLink")) {
 			//1. ..then get link
@@ -39,51 +44,65 @@ namespace { //utility functions used in this area - stolen from InDetPhysValMoni
   	return result;
   }
   
-  //is a number a NaN?
-  template <class T>
-  bool
-  is_nan(const T & aNumber){
-  	return (aNumber != aNumber);
-  }
-  
-// this has no business here - should be in a common header
-  bool isPrimary( const xAOD::TruthParticle* tp )
+// this has no business here - should be in a common header.  Soon to be replaced w/ TrackTruthSelectionTool
+// also not a nice way of configuring the eta cut..
+  bool isPrimary( const xAOD::TruthParticle* tp, float max_eta )
   {
-    if( tp->status() != 1 )     //Check to see if its a stable particle
-      return false;
+    /*Logically, the way to make this configurable between Forward/Backward/Min_Bias tracking is
+      with an appropriate if-statement setup.  For simplicity, place the common conditions, such as 
+      eta or Pt cuts, in front of the if-block, to minimize repetition.    
+    */
 
-    //Note this const cast will not  be required in the future -- there is bug in the truth edm
-    if( const_cast<xAOD::TruthParticle*>(tp)->isNeutral() )         //Clearly for tracking we don't care about Neutrals
-      return false;
+    //old: how it was originally set-up
+    //new: how I set it up.  In principle we can define a whole set of these to cover all the bases (Min_Bias, Backtracking, etc.)
+    
+    string Version = "old";
 
-    if( tp->barcode() == 0 ||   //Barcode of zero indicates there was no truth paticle found for this track
-        tp->barcode() >= 200e3)
-      return false;
+    if(Version == "new"){
+      int minPt = 400;
+      int maxBarcode = 200e3;
+      int pixelrange = 110;
+      
+      if((tp->pt() < minPt) || (fabs(tp->eta()) > max_eta)) return false; //Particle in fiducial region?
+      if(tp->status() != 1) return false;                                 //Particle is stable?
+      if(tp->isNeutral()) return false;                                   //Particle is not neutral?
+      if((tp->barcode() == 0) || (tp->barcode() >= maxBarcode)) return false;  //Particle has associated Truth & is not a designated secondary?
+      if((!tp->hasProdVtx()) || (tp->prodVtx()->perp() > pixelrange)) return false;  //Particle has a vertex within the acceptable radius?
 
-    if( tp->pt() < 500.   ||  fabs(tp->eta()) > 2.5 ) // Check the particle is within acceptance
-      return false;
+    }else if(Version == "old"){
+      if( tp->status() != 1 )  //Check to see if it's a stable particle
+	return false;
+      //Note this const cast will not be required in the future -- there is a bug in the truth edm
+      if( const_cast<xAOD::TruthParticle*>(tp)->isNeutral() )        //Clearly for tracking we don't care about Neutrals
+	return false;
 
-    // make sure particle decays before the last pixel layer
-    if( !tp->hasProdVtx() || tp->prodVtx()->perp() > 110)
-      return false;
+      if (tp->barcode() == 0 || tp->barcode() >= 200e3)
+	return false;
+      
+      if( tp->pt() < 400.   ||  fabs(tp->eta()) > max_eta ) // Check the particle is within acceptance
+	return false;
+     
+      // make sure particle decays before the last pixel layer
+      if( !tp->hasProdVtx() || tp->prodVtx()->perp() > 110)
+        return false;
+    }
 
     return true;
   }
 
-  bool isPrimary( const xAOD::TrackParticle* tp )
+  bool isPrimary( const xAOD::TrackParticle* tp, float max_eta )
   {
     const xAOD::TruthParticle* truth = getTruthPtr( *tp );
     if( !truth  ){
       return false;
     }
-
-    return isPrimary( truth );
+    return isPrimary( truth, max_eta );
   }
   
 }//namespace
 
 
-InDetRttPlots::InDetRttPlots(PlotBase* pParent, const std::string & sDir):PlotBase(pParent, sDir),
+InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string & sDir):InDetPlotBase(pParent, sDir),
     m_ptPlot(this,"Tracks/SelectedGoodTracks"),
     m_PtEtaPlots(this,"Tracks/SelectedGoodTracks","TrackParticle"),
     m_IPPlots(this,"Tracks/SelectedGoodTracks"),
@@ -91,7 +110,8 @@ InDetRttPlots::InDetRttPlots(PlotBase* pParent, const std::string & sDir):PlotBa
     m_TrackTruthInfoPlots(this,"Truth"),
     m_nTracks(this,"Tracks/SelectedGoodTracks"), 
     m_resPlots(this,"Tracks/SelectedGoodTracks"),
-    m_pullPlots(this, "Tracks/SelectedGoodTracks"),
+    m_hitResidualPlot(this, "Tracks/SelectedGoodTracks"),
+									  /*m_pullPlots(this, "Tracks/SelectedGoodTracks"),*/
     m_fakePlots(this,"Tracks/SelectedFakeTracks"),
     m_hitsPlots(this,"Tracks/SelectedGoodTracks"),
     m_hitsMatchedTracksPlots(this,"Tracks/SelectedMatchedTracks"),
@@ -101,6 +121,8 @@ InDetRttPlots::InDetRttPlots(PlotBase* pParent, const std::string & sDir):PlotBa
     m_verticesPlots(this, "Vertices/AllPrimaryVertices"),
     m_vertexPlots(this,"Vertices/AllPrimaryVertices"),
     m_hardScatterVertexPlots(this,"Vertices/HardScatteringVertex"),
+									  //m_DuplicateTruth(this, "Tracks/SelectedGoodTrack"),
+									  //m_DuplicateTrack(this, "Tracks/SelectedGoodTrack"),	       
     //
     m_trkInJetPlot(this,"Tracks/SelectedGoodJetTracks"),
     m_trkInJetPlot_highPt(this,"Tracks/SelectedGoodHighPtJetTracks"),
@@ -121,9 +143,12 @@ InDetRttPlots::InDetRttPlots(PlotBase* pParent, const std::string & sDir):PlotBa
     m_trkInJetTrackTruthInfoPlots(this,"TruthInJet")
 {
   m_moreJetPlots = false; // changed with setter function
+
+  //These settings are probably all redundant & can be removed from this script
   m_trackParticleTruthProbKey = "truthMatchProbability";
   m_truthProbThreshold = 0.8;
   m_truthProbLowThreshold = 0.5;
+  m_truthPrimaryEtaCut = 2.5;
 
   if(m_moreJetPlots) {
     m_trkInJetResPlotsDr0010 = new InDetPerfPlot_res(this,"Tracks/SelectedGoodJetDr0010Tracks");
@@ -136,35 +161,34 @@ InDetRttPlots::InDetRttPlots(PlotBase* pParent, const std::string & sDir):PlotBa
 
 void 
 InDetRttPlots::fill(const xAOD::TrackParticle& particle,const xAOD::TruthParticle& truthParticle){
-  //fill resolution plots
-	m_resPlots.fill(particle, truthParticle); 
-	//fill pull plots
-	m_pullPlots.fill(particle, truthParticle);
-	if (particle.isAvailable<float>(m_trackParticleTruthProbKey)) {
-		const float prob = particle.auxdata<float>(m_trackParticleTruthProbKey);
-		float barcode = truthParticle.barcode();
-		if (prob < m_truthProbLowThreshold) {
-			m_hitsFakeTracksPlots.fill(particle);
-		} else if (barcode < 100000 && barcode != 0) {
-			m_hitsMatchedTracksPlots.fill(particle);
-		}
-	}
+  //fill measurement bias, resolution, and pull plots
+  m_resPlots.fill(particle, truthParticle); 
+
+  //Not sure that the following hitsMatchedTracksPlots does anything...
+  float barcode = truthParticle.barcode();
+  if (barcode < 100000 && barcode != 0) { //Not sure why the barcode limit is 100k instead of 200k...
+    m_hitsMatchedTracksPlots.fill(particle);
+  }
 }
 
 void 
 InDetRttPlots::fill(const xAOD::TrackParticle& particle){
-    //fill pt plots
-    m_ptPlot.fill(particle);
-    m_PtEtaPlots.fill(particle);
-    m_IPPlots.fill(particle);
-    m_TrackRecoInfoPlots.fill(particle);
-    m_hitsPlots.fill(particle);
-    m_hitsDetailedPlots.fill(particle);    
+  m_hitResidualPlot.fill(particle); 
+  //fill pt plots
+  m_ptPlot.fill(particle);
+  m_PtEtaPlots.fill(particle);
+  m_IPPlots.fill(particle);
+  m_TrackRecoInfoPlots.fill(particle);
+  m_hitsPlots.fill(particle);
+  m_hitsDetailedPlots.fill(particle); 
 }
 
 void 
 InDetRttPlots::fillTruth(const xAOD::TruthParticle& truth){
-    if( isPrimary( &truth) ) { m_effPlots.fillDenominator(truth); }
+  m_effPlots.fillDenominator(truth);
+
+  //m_hitsDetailedPlots.fillDenom(truth);
+
 }
 
 void 
@@ -172,8 +196,22 @@ InDetRttPlots::fill(const xAOD::TruthParticle& truthParticle){
   //fill truth plots
   m_TrackTruthInfoPlots.fill(truthParticle);
   // this gets called for the truth particles associated to tracks - exactly what we need!
-  if( isPrimary( &truthParticle) ) { m_effPlots.fillNumerator(truthParticle); }
+  m_effPlots.fillNumerator(truthParticle);
 }
+
+/*I don't know that "Duplicate Truth" actually means anything...
+void
+InDetRttPlots::fillDupTruth(const xAOD::TruthParticle& truth){
+  //fill any duplicate plots that require truth only
+  m_DuplicateTruth.fill(truth);
+}
+
+void
+InDetRttPlots::fillDupTrack(const xAOD::TrackParticle& track){
+  //fill any duplicate plots requiring tracks only
+  m_DuplicateTrack.fill(track);
+}
+*/
 
 void 
 InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer){
@@ -194,18 +232,14 @@ InDetRttPlots::fill(const xAOD::VertexContainer& vertexContainer, const xAOD::Ev
 
 void 
 InDetRttPlots::fillCounter(const unsigned int freq, const InDetPerfPlot_nTracks::CounterCategory  counter){
-    m_nTracks.fill(freq,counter);
+  m_nTracks.fill(freq,counter);
 }
 
 void 
 InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& particle, const bool match, const InDetPerfPlot_fakes::Category c){
-	m_fakePlots.fill(particle,match, c);
+  m_fakePlots.fill(particle,match, c);
 }
 
-bool
-InDetRttPlots::PassJetCuts( const xAOD::Jet& jet ) {
-  return m_trkInJetPlot.PassJetCuts( jet );
-}
 
 void 
 InDetRttPlots::fillJetPlot(const xAOD::TrackParticle& particle, const xAOD::Jet& jet){
@@ -228,11 +262,12 @@ InDetRttPlots::fillJetPlot(const xAOD::TrackParticle& particle, const xAOD::Jet&
     const xAOD::TruthParticle * associatedTruth = getTruthPtr(particle); //get the associated truth      
     if (!associatedTruth){ return; }
 
+    //Fake-Finder, will be made irrelevant by changes in Monitoring Tool
     float prob(1); // does this run on data?
     if (particle.isAvailable<float>(m_trackParticleTruthProbKey)) {
       prob = getMatchingProbability(particle);
     }
-    if ( is_nan(prob) ) { return; }
+    if ( std::isnan(prob) ) { return; }
     const bool isFake=(prob<minProbEffLow);
     m_trkInJetFakePlots.fill(particle, isFake, InDetPerfPlot_fakes::ALL);
 
@@ -254,6 +289,7 @@ InDetRttPlots::fillJetPlot(const xAOD::TrackParticle& particle, const xAOD::Jet&
       }
     } // m_moreJetPlots
 
+    //Essentially a Fake-Finder, will be eliminated by changes in Monitoring Tool
     float barcode = associatedTruth->barcode();
     if (prob < m_truthProbLowThreshold) {
       m_trkInJetHitsFakeTracksPlots.fill(particle);
@@ -263,19 +299,105 @@ InDetRttPlots::fillJetPlot(const xAOD::TrackParticle& particle, const xAOD::Jet&
     m_trkInJetTrackTruthInfoPlots.fill(*associatedTruth);
 
     // if does not have truth particle - fails our primary definition
-    if( !isPrimary( &particle ) ) { return; }
-    m_trkInJetEffPlots.fillNumerator(*associatedTruth); // pT and eta efficiencies
-    m_trkInJetPlot.BookEffReco(*associatedTruth,jet); // fill hists with truth info!
-    m_trkInJetPlot_highPt.BookEffReco(*associatedTruth,jet); // fill hists with truth info!
+    //This if-statement will be made irrelevant by TTST
+    if( !isPrimary( &particle, m_truthPrimaryEtaCut  ) ) { return; }
+    //m_trkInJetEffPlots.fillNumerator(*associatedTruth);       // pT and eta efficiencies
+    m_trkInJetPlot.BookEffReco(*associatedTruth,jet);         // fill hists with truth info!
+    m_trkInJetPlot_highPt.BookEffReco(*associatedTruth,jet);  // fill hists with truth info!
+}
 
+
+bool
+InDetRttPlots::filltrkInJetPlot(const xAOD::TrackParticle& particle, const xAOD::Jet& jet){
+  //const float minProbEffLow(0.5); //if the probability of match is less than this, we call it a fake
+  bool pass = m_trkInJetPlot.fill(particle, jet);
+  m_trkInJetPlot_highPt.fill(particle, jet);
+  return pass;
 }
 
 void
+InDetRttPlots::fillSimpleJetPlots(const xAOD::TrackParticle& particle){
+  //The mysterious "pass" goes here...      
+  //bool pass = m_trkInJetPlot.fill(particle, jet);
+  //if(!pass) return;
+  //m_trkInJetPlot_highPt.fill(particle, jet);
+
+  // the full suit of track plots                                                                                              
+  m_trkInJetPtPlot.fill(particle);
+  m_trkInJetPtEtaPlots.fill(particle);
+  m_trkInJetIPPlots.fill(particle);
+  m_trkInJetTrackRecoInfoPlots.fill(particle);
+  m_trkInJetHitsPlots.fill(particle);
+  m_trkInJetHitsDetailedPlots.fill(particle);
+
+  float minProbEffLow(0.5);
+  float prob = getMatchingProbability(particle);
+
+  if ( std::isnan(prob) ) { return; }
+  const bool isFake=(prob<minProbEffLow);
+  m_trkInJetFakePlots.fill(particle, isFake, InDetPerfPlot_fakes::ALL);
+
+  const xAOD::TruthParticle * associatedTruth = getTruthPtr(particle);
+  float barcode = associatedTruth->barcode();
+  if (prob < m_truthProbLowThreshold) {
+    m_trkInJetHitsFakeTracksPlots.fill(particle);
+  } else if (barcode < 100000 && barcode != 0) {
+    m_trkInJetHitsMatchedTracksPlots.fill(particle);
+  }
+
+}
+
+
+void
+InDetRttPlots::fillJetResPlots(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truth, const xAOD::Jet& jet){
+  //The mysterious "pass" goes here...
+  //bool pass = m_trkInJetPlot.fill(particle, jet);
+  //  if(!pass) return;
+  //m_trkInJetPlot_highPt.fill(particle, jet);
+  
+  // fill pull and resolution plots                                                               
+  m_trkInJetResPlots.fill(particle, truth);
+  m_trkInJetPullPlots.fill(particle, truth);
+  if(particle.pt() > 10e3) { // 10 GeV       
+    m_trkInJetHighPtResPlots.fill(particle, truth);
+    m_trkInJetHighPtPullPlots.fill(particle, truth);
+  }
+  if(m_moreJetPlots) {
+    float dR( jet.p4().DeltaR( particle.p4() ) );
+    if( dR < 0.1 ) {
+      m_trkInJetResPlotsDr0010->fill(particle, truth);
+    } else if( dR < 0.2 ) {
+      m_trkInJetResPlotsDr1020->fill(particle, truth);
+    } else if( dR < 0.3 ) {
+      m_trkInJetResPlotsDr2030->fill(particle, truth);
+    }
+  } // m_moreJetPlots  
+}
+
+
+void 
+InDetRttPlots::fillJetFakes(const xAOD::TrackParticle& particle){
+  const bool isFake = true;
+  m_trkInJetFakePlots.fill(particle, isFake, InDetPerfPlot_fakes::ALL);
+  m_trkInJetHitsFakeTracksPlots.fill(particle);                        //How is this one different from the above one?!
+}
+
+
+void
+InDetRttPlots::fillJetEffPlots(const xAOD::TruthParticle& truth, const xAOD::Jet& jet){
+  //m_trkInJetEffPlots.fillNumerator(truth);       // pT and eta efficiencies                
+  m_trkInJetPlot.BookEffReco(truth,jet);         // fill hists with truth info!           
+  m_trkInJetPlot_highPt.BookEffReco(truth,jet);  // fill hists with truth info! 
+}
+
+
+void
 InDetRttPlots::fillJetTrkTruth(const xAOD::TruthParticle& truth, const xAOD::Jet& jet){
-  if( !isPrimary( &truth ) ) { return; }
+  //isPrimary will be replaced by TTST implementation in Monitoring Tool
+  //if( !isPrimary( &truth, m_truthPrimaryEtaCut  ) ) { return; }
   m_trkInJetPlot.BookEffTruth(truth,jet);
   m_trkInJetPlot_highPt.BookEffTruth(truth,jet);
-  m_trkInJetEffPlots.fillDenominator(truth);
+  // m_trkInJetEffPlots.fillDenominator(truth);
 }
 
 void 
@@ -290,3 +412,10 @@ InDetRttPlots::fillJetTrkTruthCounter(const xAOD::Jet& jet){
     m_trkInJetPlot_highPt.fillEff(jet);
 }
 
+void InDetRttPlots::SetPrimaryEtaCut( float eta/*, float pt*/ ) { 
+  m_truthPrimaryEtaCut = eta; 
+  m_resPlots.SetEtaBinning( int(2*eta/0.25), -1*eta, eta ); //Isn't this hard-coded into res.cxx anyway?
+
+  //  m_truthPrimaryPtCut = pt;
+  //m_resPlots.SetPtBinning( 20, pt, 25*pt );
+}

@@ -26,7 +26,7 @@ namespace {
   is_nan(const T & n){
     return (n!=n);
   }
-  
+  /** unused
   double chargeOnParticle(const int pid){
     if (pid == 1000010020) return 1.0; //deuteron
     if (pid == 1000010030) return 1.0; //triton
@@ -37,7 +37,7 @@ namespace {
       charge=ap->Charge()/3.0; //see :http://root.cern.ch/root/html/TParticlePDG.html#TParticlePDG:fCharge
     }
     return charge;
-  }
+  } **/
 }
 
 

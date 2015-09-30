@@ -22,6 +22,7 @@
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
+#include "InDetPrepRawData/SiCluster.h"
 //
 #include <tuple>
 #include <limits>
@@ -36,59 +37,34 @@ m_updatorHandle("Trk::KalmanUpdator/TrkKalmanUpdator"),
 m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
 m_ptThreshold(0.8), m_isUnbiased(false), m_doUpgrade(false){
 declareInterface<IInDetPhysValDecoratorTool>(this);
-//do I need to retrieve the 'Tracks' container?
+
+declareProperty("InDetTrackHoleSearchTool"     , m_holeSearchTool);
+declareProperty("Updator"     , m_updatorHandle);
+declareProperty("ResidualPullCalculator", m_residualPullCalculator);
+  //do I need to retrieve the 'Tracks' container?
 }
 
 InDetPhysHitDecoratorTool::~InDetPhysHitDecoratorTool (){
-	//delete m_idHelper;m_idHelper=0; doesnt even compile if you do this
+//nop
 }
 
 StatusCode 
 InDetPhysHitDecoratorTool::initialize(){
 	StatusCode sc = AlgTool::initialize();
   if (sc.isFailure()) return sc;
-  if ( m_holeSearchTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_holeSearchTool << endreq;
-    return StatusCode::FAILURE;
-  }
-  if ( not (m_updatorHandle.empty()) and  m_updatorHandle.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not retrieve measurement updator tool: "<< m_updatorHandle << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  if ( not (m_holeSearchTool.empty()) and  m_holeSearchTool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not retrieve m_holeSearchTool: "<< m_holeSearchTool << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_holeSearchTool.retrieve() );
+  if ( not (m_updatorHandle.empty())) {ATH_CHECK(m_updatorHandle.retrieve());}
+  if ( not (m_holeSearchTool.empty())) {ATH_CHECK(m_holeSearchTool.retrieve());}
   
    //ID Helper
   m_idHelper = new AtlasDetectorID;
 
   // Get the dictionary manager from the detector store
-  sc = detStore()->retrieve(m_idHelper, "AtlasID");
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get ID helper !" << endreq;
-    return sc;
-  }
+  ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
+  ATH_CHECK(detStore()->retrieve(m_pixelID, "PixelID"));
+  ATH_CHECK(detStore()->retrieve(m_sctID, "SCT_ID"));
   
-  sc = detStore()->retrieve(m_pixelID, "PixelID");
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get Pixel Detector ID helper!" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  sc = detStore()->retrieve(m_sctID, "SCT_ID");
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get SCT Detector ID helper!" << endreq;
-    return StatusCode::FAILURE;
-  }
-  if (!m_doUpgrade) {
-    sc = detStore()->retrieve(m_trtID, "TRT_ID");
-    if(sc.isFailure()) {
-      msg(MSG::FATAL) << "Could not get TRT Detector ID helper!" << endreq;
-      return StatusCode::FAILURE;
-    }
-  }
+  if (!m_doUpgrade) {ATH_CHECK(detStore()->retrieve(m_trtID, "TRT_ID"));}
   if (m_residualPullCalculator.empty()) {
     ATH_MSG_INFO("No residual/pull calculator for general hit residuals configured.");
     ATH_MSG_INFO("It is recommended to give R/P calculators to the det-specific tool handle lists then.");
@@ -96,54 +72,59 @@ InDetPhysHitDecoratorTool::initialize(){
     msg(MSG::FATAL) << "Could not retrieve "<< m_residualPullCalculator<<" (to calculate residuals and pulls) "<< endreq;
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_INFO("Generic hit residuals&pulls will be calculated in one or both available local coordinates");
+    ATH_MSG_INFO("Generic hit residuals & pulls will be calculated in one or both available local coordinates");
   }
 	return sc;
 }
 
 StatusCode 
 InDetPhysHitDecoratorTool::finalize  (){
-	StatusCode sc(StatusCode::SUCCESS);
-	return sc;
+	return StatusCode::SUCCESS;
 }
 
 bool
 InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle, const std::string& prefix){
-	typedef std::tuple<int, float, float, float, float, int> SingleResult_t;
+	typedef std::tuple<int,int,int, float, float, float, float, int> SingleResult_t;
 	typedef std::vector<SingleResult_t> TrackResult_t;
 	const float invalidFloat(std::numeric_limits<float>::quiet_NaN());
 	//const float invalidDouble(std::numeric_limits<double>::quiet_NaN());
 	const float invalidRes(invalidFloat), invalidPull(invalidFloat);
+	const int invalidDetector(-1);
+	const int invalidRegion(-1);
 	const int invalidLayer(-1);
 	const int invalidWidth(-1);
-	const SingleResult_t invalidResult=std::make_tuple(invalidLayer, invalidRes, invalidPull,invalidRes,invalidPull,invalidWidth);
+	const SingleResult_t invalidResult=std::make_tuple(invalidDetector,invalidRegion,invalidLayer, invalidRes, invalidPull,invalidRes,invalidPull,invalidWidth);
   //get element link to the original track
   const ElementLink< TrackCollection >& trackLink = particle.trackLink();//using xAODTracking-00-03-09, interface has changed later
-  unsigned int count(0);
   if (trackLink.isValid()){
     ATH_MSG_VERBOSE ("Track link found " );
     const double pt = particle.pt(); 
     if (pt > m_ptThreshold){
-    ATH_MSG_VERBOSE ("pt is over threshold " );
-			std::auto_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**trackLink));
-			const int numberOfHits((trackWithHoles->trackStateOnSurfaces())->size());
-			ATH_MSG_VERBOSE ("number of Hits "<<numberOfHits );
+    	ATH_MSG_VERBOSE ("pt is over threshold " );
+			std::unique_ptr<const Trk::Track> trackWithHoles(m_holeSearchTool->getTrackWithHoles(**trackLink));
+			const auto &allTrackStates = *((*trackLink)->trackStateOnSurfaces());
+			ATH_MSG_INFO("track "<< (*trackLink));
+
+			//const auto &allTrackStates = *(trackWithHoles->trackStateOnSurfaces());
+			const int numberOfHits(allTrackStates.size());
+			unsigned int trackParametersCounter(numberOfHits);
 			TrackResult_t result; result.reserve(numberOfHits);
-			for (auto thisTrackState: *(trackWithHoles->trackStateOnSurfaces())){
+			for (const auto &thisTrackState: allTrackStates){
 				SingleResult_t thisResult(invalidResult);
+				if (not thisTrackState) continue;
 				const Trk::MeasurementBase* mesb=thisTrackState->measurementOnTrack();
 				if (not mesb) {
-				  ATH_MSG_INFO ("intermediate mesb is NULL");
+				  ATH_MSG_DEBUG ("intermediate mesb is NULL");
 				} else {
-				  ATH_MSG_INFO ("intermediate mesb is ok");
+				  ATH_MSG_VERBOSE ("intermediate mesb is ok");
 				}
 				const Trk::RIO_OnTrack* hit = mesb ? dynamic_cast<const Trk::RIO_OnTrack*>(mesb) : 0;
 				const Trk::TrackParameters* biasedTrackParameters = thisTrackState->trackParameters();
-				if (biasedTrackParameters) ATH_MSG_INFO ("biased track parameters ok");
+				if (biasedTrackParameters) ATH_MSG_VERBOSE ("biased track parameters ok");
 				Identifier surfaceID;
 				if (mesb && mesb->associatedSurface().associatedDetectorElement()) {
           surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
-          ATH_MSG_VERBOSE("Surface ID found");
+          ATH_MSG_DEBUG("Surface ID found");
         } else { // holes, perigee
           if (not biasedTrackParameters ) {
             msg(MSG::DEBUG) << "The track parameters are not valid for this track state (the pointer is null)" << endreq;
@@ -151,23 +132,27 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle, c
           }
           surfaceID = biasedTrackParameters->associatedSurface().associatedDetectorElementIdentifier();
           ATH_MSG_VERBOSE("Surface ID found for holes etc");
-
         }
-				
+				ATH_MSG_VERBOSE("checking mesb and track parameters");
 				if (mesb && biasedTrackParameters) {
-					ATH_MSG_VERBOSE("mesb and track parameters are ok");
+					ATH_MSG_DEBUG("mesb and biased track parameters are ok");
 					const Trk::TrackParameters *trackParameters = (! thisTrackState->type(Trk::TrackStateOnSurface::Outlier)) ? getUnbiasedTrackParameters(biasedTrackParameters,mesb) : biasedTrackParameters;
+				  if (not trackParameters){
+				    ATH_MSG_DEBUG("unbiased track parameters pointer is NULL");
+				  }
 				  Trk::ResidualPull::ResidualType resType = (m_isUnbiased) ? (Trk::ResidualPull::Unbiased):(Trk::ResidualPull::Biased);
-				  const std::auto_ptr<const Trk::ResidualPull> residualPull(m_residualPullCalculator->residualPull(hit,trackParameters,resType));
+				  std::unique_ptr<const Trk::ResidualPull> residualPull(m_residualPullCalculator->residualPull(hit,trackParameters,resType));
+				  ATH_MSG_VERBOSE("checking residual pull");
+				  if (not residualPull){
+				    ATH_MSG_DEBUG("residualPull is NULL");
+				    continue;
+				  }
 				  float residualLocX = 1000.*residualPull->residual()[Trk::loc1]; // residuals in microns
 				  float pullLocX = residualPull->pull()[Trk::loc1];
-				  float residualLocY,  pullLocY;//should make NaN in initialization
+				  float residualLocY(invalidFloat),  pullLocY(invalidFloat);//NaN by default
 				  if (residualPull->dimension() > 1){
 				  	residualLocY = 1000.*residualPull->residual()[Trk::loc2];
 				  	pullLocY = residualPull->pull()[Trk::loc2];
-				  } else {
-				  	residualLocY= invalidFloat;
-				  	pullLocY = invalidFloat;
 				  }
 				  Subdetector det(INVALID_DETECTOR);
 				  Region r(INVALID_REGION);
@@ -177,45 +162,82 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle & particle, c
 				    ATH_MSG_DEBUG("Could not identify surface");
 				  	continue;
 				  }
-				  int width = 1;
-				  thisResult=std::make_tuple(iLayer, residualLocX, pullLocX, residualLocY, pullLocY, width);
-				  ATH_MSG_DEBUG ("result "<<iLayer<<", "<<residualLocX<<", "<<pullLocX<<", "<<residualLocY<<", "<<pullLocY<<", "<<width );
+				  //int width = 1; //check original code
+				  int phiWidth(-1);
+				  //int zWidth(-1);
+					//copy-paste from original
+					if (hit && m_isUnbiased) {
+						// Cluster width determination
+						if((det == PIXEL) or  (det==SCT)) {
+							const InDet::SiCluster* pCluster = dynamic_cast <const InDet::SiCluster*>(hit->prepRawData());
+							if(pCluster){
+								InDet::SiWidth width = pCluster->width();
+								phiWidth = int(width.colRow().x());
+								//zWidth = int(width.colRow().y());
+							}
+						}
+					}
+					//end copy-paste
+				  thisResult=std::make_tuple(det, r, iLayer, residualLocX, pullLocX, residualLocY, pullLocY, phiWidth);
+				  ATH_MSG_DEBUG ("**dimension: result "<<residualPull->dimension()<<":"<<iLayer<<", "<<residualLocX<<", "<<pullLocX<<", "<<residualLocY<<", "<<pullLocY<<", "<<phiWidth );
 				  result.push_back(thisResult);
-				  ++count;
 				  //must delete the pointers?
 				} else {
-					if (not mesb) ATH_MSG_INFO("mesb not ok");
-					if (not biasedTrackParameters) ATH_MSG_INFO("biasedTrackParameters were not found");
+					if (not mesb) ATH_MSG_VERBOSE("mesb not ok");
+					if (not biasedTrackParameters) ATH_MSG_VERBOSE("biasedTrackParameters were not found");
+					--trackParametersCounter;
 				}
 			}//end of for loop
-			particle.auxdecor<TrackResult_t>(prefix+"hitResiduals") = result;
-			return true;
+			ATH_MSG_INFO ("Out of "<<numberOfHits<<" hits, "<<trackParametersCounter<<" had track params, and "<<result.size()<<" had residuals." );
+			if (not result.empty()){
+			  particle.auxdecor<TrackResult_t>(prefix+"hitResiduals") = result;
+			  return true;
+			} 
 		} 
 	} else {
 	  ATH_MSG_DEBUG ("No valid track link found " );
-	}
+	} 
 	return false;
 }
 
 bool
-InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier & id, Subdetector & det, Region & r, int & /*layer*/){
+InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier & id, Subdetector & det, Region & r, int & layer){
 	bool success(false);
 	const int normalBarrel(0);
 	const int upgradedBarrel(1);
 	const int normalTrtBarrel(1);
+	const int dbm(2);
+
 	det = INVALID_DETECTOR;//default
 	r = INVALID_REGION;
 	int bec(-100);
 	
 	//following the logic in the original code, should be reviewed!
-	if (m_idHelper->is_pixel(id)) det=PIXEL;
+	if (m_idHelper->is_pixel(id)) {
+	  bec = abs(m_pixelID->barrel_ec(id));
+	  if (bec == dbm)
+	    det=DBM;
+	  else
+	    det=PIXEL;
+	}
 	if (m_idHelper->is_sct(id)) det=SCT;
 	if (not m_doUpgrade and m_idHelper->is_trt(id)) det=TRT;
 	//
+	//check this specifically
 	if (det==PIXEL) {
 		bec = abs(m_pixelID->barrel_ec(id));
 		r= (bec==normalBarrel)?(BARREL):(ENDCAP);
-		if (m_pixelID->layer_disk(id) == 0) det=BLAYER;
+		layer = m_pixelID->layer_disk(id);
+		if (layer == 0) det=BLAYER;
+	}
+	/** cf. Miriam's code 
+	if (det==PIXEL) {
+	  r= (bec==normalBarrel)?(BARREL):(ENDCAP);
+	  if (m_pixelID->layer_disk(id) == 0) det=BLAYER;
+	}
+	**/
+	if (det==DBM){
+	  r= (bec < 0) ? (BARREL) : (ENDCAP) ;
 	}
 	if (det==SCT) {
 		bec = abs(m_sctID->barrel_ec(id));
@@ -224,10 +246,12 @@ InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier & id, Subdetect
 		} else {
 			r = (bec==upgradedBarrel)?(BARREL):(ENDCAP);
 		}
+		layer = m_sctID->layer_disk(id);
 	}
 	if (det==TRT) {
 		bec = abs(m_trtID->barrel_ec(id));
 		r = (bec==normalTrtBarrel)?(BARREL):(ENDCAP);
+		layer = m_trtID->layer_or_wheel(id);
 	}
 	success = (det != INVALID_DETECTOR) and (r != INVALID_REGION);
 	

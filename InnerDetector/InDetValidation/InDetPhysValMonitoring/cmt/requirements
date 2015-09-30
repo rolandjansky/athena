@@ -19,10 +19,10 @@ use xAODTracking        xAODTracking-*          Event/xAOD
 use AtlasROOT           AtlasROOT-*             External
 use PATCore             PATCore-*               PhysicsAnalysis/AnalysisCommon
 use InDetTrackSelectionTool InDetTrackSelectionTool-*  InnerDetector/InDetRecTools   
+use AthenaBaseComps     AthenaBaseComps-*       Control
 
 private
 use TrkExInterfaces		TrkExInterfaces-*		Tracking/TrkExtrapolation
-use AthenaBaseComps     AthenaBaseComps-*       Control
 use TrkToolInterfaces           TrkToolInterfaces-*     Tracking/TrkTools
 use AtlasROOT           AtlasROOT-*             External
 use xAODBase            xAODBase-*             Event/xAOD
@@ -39,24 +39,27 @@ use InDetIdentifier             InDetIdentifier-*       InnerDetector/InDetDetDe
 use  MCTruthClassifier          MCTruthClassifier-*             PhysicsAnalysis 
 use InDetBeamSpotService InDetBeamSpotService-* InnerDetector/InDetConditions
 use xAODJet             xAODJet-*               Event/xAOD
+use AsgTools            AsgTools-*              Control/AthToolSupport
 
-end_private
-
-#private
-#macro_append ROOT_linkopts " -lEG"
-#end_private
-##
+use InDetPrepRawData            InDetPrepRawData-*      InnerDetector/InDetRecEvent
+use AthenaKernel     AthenaKernel-*       Control
 
 branches src src/components doc
+
 
 private
 ## default is to make component library
 library InDetPhysValMonitoring *.cxx components/*.cxx
+apply_tag ROOTEGLibs
 
 #macro_append cppflags ' -std=c++11 '
 #macro_append use_linkopts ' -std=c++11 ' 
-
+apply_pattern declare_python_modules files="*.py"
 apply_pattern component_library
 end_private
+
+# RTT requirement lines
+macro InDetPhysValMonitoring_TestConfiguration "../test/InDetPhysValMonitoring_TestConfiguration.xml"
+apply_pattern declare_runtime files="*.dat" extras="../test/InDetPhysValMonitoring_TestConfiguration.xml ../scripts/make*.C ../scripts/IDPerf*.py ../scripts/IDRTT_*.sh ../ExtraFiles/ALL*.html"
 
 
