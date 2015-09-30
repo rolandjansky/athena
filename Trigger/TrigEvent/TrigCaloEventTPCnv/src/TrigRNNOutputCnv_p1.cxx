@@ -15,7 +15,7 @@ void TrigRNNOutputCnv_p1::transToPers(const TrigRNNOutput *trans,
                                     TrigRNNOutput_p1 *pers,
 				    MsgStream &log) {
 
-  log << MSG::DEBUG << "TrigRNNOutputCnv_p1::tranToPers" << endmsg;
+  log << MSG::DEBUG << "TrigRNNOutputCnv_p1::tranToPers" << endreq;
   
   if ( (!trans) || (!pers) )
     return;
@@ -25,14 +25,14 @@ void TrigRNNOutputCnv_p1::transToPers(const TrigRNNOutput *trans,
     pers->m_output.push_back(trans->at(i));
   }
 
-  m_ELinkTrigEMClusterCnv.transToPers(&trans->clusterLink(), &pers->m_cluster, log);
+  ELinkTrigEMClusterCnv.transToPers(&trans->m_cluster, &pers->m_cluster, log);
 }
 
 void TrigRNNOutputCnv_p1::persToTrans(const TrigRNNOutput_p1 *pers, 
                                     TrigRNNOutput *trans,
 				    MsgStream &log) {
 
-  log << MSG::DEBUG << "TrigRNNOutputCnv_p1::persToTrans" << endmsg;
+  log << MSG::DEBUG << "TrigRNNOutputCnv_p1::persToTrans" << endreq;
 
   if ( (!pers) || (!trans) )
     return;
@@ -42,8 +42,6 @@ void TrigRNNOutputCnv_p1::persToTrans(const TrigRNNOutput_p1 *pers,
     trans->output().push_back(pers->m_output[i]);
   }
 
-  ElementLink<TrigEMClusterContainer> cluster;
-  m_ELinkTrigEMClusterCnv.persToTrans(&pers->m_cluster, &cluster, log);
-  trans->setCluster (cluster);
+  ELinkTrigEMClusterCnv.persToTrans(&pers->m_cluster, &trans->m_cluster, log);
 }
 

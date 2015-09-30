@@ -17,6 +17,9 @@
 #ifndef TRIGEVENTTPCNV_TRIGRNNOUTPUT_P1_H
 #define TRIGEVENTTPCNV_TRIGRNNOUTPUT_P1_H
 
+// needed to fix a Gaudi problem in SLC3 (should be removed eventually):
+#include <stdint.h>
+
 #include "DataModelAthenaPool/ElementLinkVector_p1.h"
 
 class TrigRNNOutput_p1 {

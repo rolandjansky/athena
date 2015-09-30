@@ -17,7 +17,7 @@
 #ifndef TRIGCALOEVENTTPCNV_TRIGT2ZDCSIGNALS_P1_H
 #define TRIGCALOEVENTTPCNV_TRIGT2ZDCSIGNALS_P1_H
 
-#include <vector>
+//#include "TrigCaloEvent/TrigT2ZdcSignals.h"
 
 class TrigT2ZdcSignals_p1
 {

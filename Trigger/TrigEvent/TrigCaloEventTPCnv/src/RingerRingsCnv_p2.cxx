@@ -2,7 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
 #include "TrigCaloEvent/RingerRings.h"
+#undef private
+
 #include "TrigCaloEventTPCnv/RingerRings_p2.h"
 #include "TrigCaloEventTPCnv/RingerRingsCnv_p2.h"
 
@@ -10,7 +13,7 @@ void RingerRingsCnv_p2::transToPers(const RingerRings *trans,
                                     RingerRings_p2 *pers,
 				    MsgStream &log) {
 
-  log << MSG::DEBUG << "RingerRingsCnv_p2::tranToPers" << endmsg;
+  log << MSG::DEBUG << "RingerRingsCnv_p2::tranToPers" << endreq;
   
   if ( (!trans) || (!pers) )
     return;
@@ -32,7 +35,7 @@ void RingerRingsCnv_p2::persToTrans(const RingerRings_p2 *pers,
                                     RingerRings *trans,
 				    MsgStream &log) {
 
-  log << MSG::DEBUG << "RingerRingsCnv_p2::persToTrans" << endmsg;
+  log << MSG::DEBUG << "RingerRingsCnv_p2::persToTrans" << endreq;
 
   if ( (!pers) || (!trans) )
     return;
