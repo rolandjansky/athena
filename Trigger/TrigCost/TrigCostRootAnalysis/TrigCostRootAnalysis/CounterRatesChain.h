@@ -24,27 +24,27 @@ namespace TrigCostRootAnalysis {
 
   //Forward declaration
   class TrigCostData;
-  
+
   /**
    * @class CounterRatesChain
    * Record rates for a single chain
    * @see CounterBase
    */
   class CounterRatesChain : public CounterBaseRates {
-  
+
    public:
-   
-    CounterRatesChain( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10 );
+
+    CounterRatesChain( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10, MonitorBase* _parent = 0 );
     ~CounterRatesChain();
     void debug(UInt_t _e);
 
-    Float_t runDirect(Bool_t _usePrescale = kTRUE); 
+    Float_t runDirect(Bool_t _usePrescale = kTRUE);
     Float_t runWeight();
 
    private:
-       
+
   }; //class CounterRatesChain
-  
+
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_CounterRatesChain_H

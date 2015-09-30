@@ -29,7 +29,7 @@ namespace TrigCostRootAnalysis {
    */
   DataStore::DataStore(CounterBase* _parent) : m_histogrammingEnabled(kTRUE), m_mostRecent(0), m_variableMap(), m_parent(_parent) {
   }
-  
+
   /**
    * DataStore destructor.
    */
@@ -40,7 +40,7 @@ namespace TrigCostRootAnalysis {
     }
     m_variableMap.clear();
   }
-  
+
   /**
    * Register a new monitored variable by name.
    * @see setSaveMode()
@@ -56,7 +56,7 @@ namespace TrigCostRootAnalysis {
     m_variableMap[_name] = m_mostRecent;
     return *this;
   }
-  
+
   /**
    * Must be called on all registered savePerEventFraction variables before endEvent() is called.
    * @see endEvent()
@@ -67,7 +67,7 @@ namespace TrigCostRootAnalysis {
     if ( checkRegistered(_name) == kFALSE ) return;
     m_mostRecent->setVariableDenominator(_denominator); // m_mostRecent is set by checkRegistered
   }
-  
+
   /**
    * Store a new value for a variable according to the variable's configuration.
    * Optimisation note: this is a very high-call-rate function.
@@ -102,7 +102,7 @@ namespace TrigCostRootAnalysis {
     m_mostRecent->setBinLabels(_vo, _titles); // m_mostRecent is set by checkRegistered
   }
 
-  
+
   /**
    * Flush buffers for all per-event quantities
    */
@@ -112,7 +112,7 @@ namespace TrigCostRootAnalysis {
       _it->second->endEvent();
     }
   }
-  
+
   /**
     * Get a value from the data store.
     * @param _name Name of variable to retrieve.
@@ -125,6 +125,17 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
+    * Check if a value key and variable option are available
+    * @param _name Name of variable to check for.
+    * @param _vo Variable option to check for.
+    * @return If the variable is stored with a given VO.
+    */
+  Bool_t DataStore::getValueExists(ConfKey_t _name, VariableOption_t _vo) {
+    if ( checkRegistered(_name, /*silent*/ kTRUE) == kFALSE ) return kFALSE;
+    return m_mostRecent->getValueExists(_vo); // m_mostRecent is set by checkRegistered
+  }
+
+  /**
     * Get a value error from the data store.
     * @param _name Name of variable to retrieve.
     * @param _vo Variable option to retrieve .
@@ -134,7 +145,7 @@ namespace TrigCostRootAnalysis {
     if ( checkRegistered(_name) == kFALSE ) return 0.;
     return m_mostRecent->getValueError(_vo); // m_mostRecent is set by checkRegistered
   }
-  
+
   /**
    * Get the number of filled entries.
    * @param _name Name of variable.
@@ -187,7 +198,7 @@ namespace TrigCostRootAnalysis {
     }
     m_mostRecent->setErrorSquared(_vo, _val);  // m_mostRecent is set by checkRegistered
   }
-  
+
   /**
    * Get the histogram for a monitored quantity.
    * @param _name Name of variable.
@@ -202,7 +213,23 @@ namespace TrigCostRootAnalysis {
     }
     return m_mostRecent->getHist(_vo, _silent); // m_mostRecent is set by checkRegistered
   }
-  
+
+  /**
+   * Set the histogram for a monitored quantity.
+   * This overwrites any current hist! Use with care!
+   * Object assumes ownership of the histogram
+   * @param _name Name of variable.
+   * @param _vo Variable option.
+   * @param _hist histogram pointer
+   */
+  void DataStore::setHist(ConfKey_t _name, VariableOption_t _vo, TH1F* _hist) {
+    if ( checkRegistered(_name, kFALSE) == kFALSE ) {
+      Error("DataStore::setHist", "Cannot find entry");
+      return;
+    }
+    return m_mostRecent->setHist(_vo, _hist); // m_mostRecent is set by checkRegistered
+  }
+
   /**
    * Get the histogram for a 2D monitored quantity.
    * @param _name Name of variable.
@@ -271,13 +298,15 @@ namespace TrigCostRootAnalysis {
   Bool_t DataStore::checkRegistered(ConfKey_t _name, Bool_t _silent) {
     VariableMapIt_t _location = m_variableMap.find(_name);
     if ( _location == m_variableMap.end() ) {
-      if (_silent == kFALSE) Error("DataStore::checkRegistered", "Unable to find variable with name %s", Config::config().getStr(_name).c_str() );
+      if (_silent == kFALSE && Config::config().getDisplayMsg(kMsgCannotFindVar) == kTRUE) {
+        Error("DataStore::checkRegistered", "Unable to find variable with name %s", Config::config().getStr(_name).c_str() );
+      }
       return kFALSE;
     }
     m_mostRecent = _location->second; //Cache the pointer to the DataVariable
     return kTRUE;
   }
-  
+
   /**
    * Internal function used to request new save option in DataVariable.
    * One name to be supplied or pointer m_mostRecent used.
@@ -300,7 +329,7 @@ namespace TrigCostRootAnalysis {
     m_mostRecent->registerSaveState(_vo, _title);
     return *this;
   }
-  
+
   /**
    * Non-chain version of SetSave which accepts a name argument.
    * @param _name Name of variable to modify.
@@ -311,7 +340,7 @@ namespace TrigCostRootAnalysis {
     // Manual method, pass to internal function.
     setSaveInternal(_vo, _title, _name);
   }
-  
+
   /**
    * Chain version of SetSave which enables saving per-call on most recently added variable.
    * @param _title Passing a non-empty string enables histograming, format "XAxisLabel;YAxisLabel"
@@ -320,7 +349,7 @@ namespace TrigCostRootAnalysis {
   DataStore& DataStore::setSavePerCall(std::string _title) {
     return setSaveInternal(kSavePerCall, _title);
   }
-  
+
   /**
    * Chain version of SetSave for most recently added variable which enables per-call addition to an
    * internal buffer which is stored at the end of the event.
@@ -330,7 +359,7 @@ namespace TrigCostRootAnalysis {
   DataStore& DataStore::setSavePerEvent(std::string _title) {
     return setSaveInternal(kSavePerEvent, _title);
   }
-  
+
   /**
    * Chain version of SetSave for most recently added variable which enables per-call addition to an
    * internal buffer which is stored at the end of the user-defined period.
@@ -340,7 +369,7 @@ namespace TrigCostRootAnalysis {
   DataStore& DataStore::setSavePerPeriod(std::string _title) {
     return setSaveInternal(kSavePerPeriod, _title);
   }
-  
+
   /**
    * Chain version of SetSave for most recently added variable which enables per-call addition to an
    * internal buffer which is divided by a denominator before being stored at the end of the event.
@@ -351,5 +380,5 @@ namespace TrigCostRootAnalysis {
   DataStore& DataStore::setSavePerEventFraction(std::string _title) {
     return setSaveInternal(kSavePerEventFraction, _title);
   }
-  
+
 } // namespace TrigCostRootAnalysis

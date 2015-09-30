@@ -25,16 +25,14 @@
 #include "TableValueFunctions.h"
 #include "LumiCollector.h"
 #include "Utility.h"
+#include "Timer.h"
+#include "TrigConfInterface.h"
 
 namespace TrigCostRootAnalysis {
 
   //Forward declaration
   class TrigCostData;
-  class DBKey;
-  
-  // Globally (within NS) scoped typedef's (used in derived classes and elsewhere)
 
-  
   /**
    * @class MonitorBase
    * Base collection class to hold monitors,
@@ -43,14 +41,16 @@ namespace TrigCostRootAnalysis {
    * This base class also contains much of hte heavy lifting for data output.
    */
   class MonitorBase {
-    
+
    public:
-   
+
     MonitorBase(const TrigCostData* _costData, std::string _name);
     virtual ~MonitorBase();
     virtual void newEvent(Float_t _weight = 1.) = 0;
     virtual Bool_t getIfActive(ConfKey_t _mode);
     virtual void saveOutput();
+    virtual Int_t getNCollectionsToProcess();
+    virtual Bool_t isThreadable();
     const std::string& getName();
     UInt_t getLevel();
     const std::string& getLevelStr();
@@ -58,30 +58,28 @@ namespace TrigCostRootAnalysis {
     void setLevel( UInt_t _l );
     CounterMap_t* getCounterCollection(const std::string& _identifier);
     UInt_t getNCounters();
-    void setEventProcessTime(Float_t _processTime);
-    Float_t getAverageProcessingTime();
-    
+
     struct TableColumnFormatter {
       TableColumnFormatter(const std::string& _title,
-        const std::string& _tooltip,  
-        ConfKey_t _dataVarialbe, 
-        VariableOption_t _vo, 
-        UInt_t _precision = 4, 
+        const std::string& _tooltip,
+        ConfKey_t _dataVarialbe,
+        VariableOption_t _vo,
+        UInt_t _precision = 4,
         FormatterOption_t _fo = kFormatOptionNone);
       TableColumnFormatter(const std::string& _title,
-        const std::string& _tooltip,  
-        ConfKey_t _dataVarialbeNominator, 
-        VariableOption_t _voNominator, 
-        ConfKey_t _dataVarialbeDenominator, 
-        VariableOption_t _voDenominator, 
-        UInt_t _precision = 4, 
+        const std::string& _tooltip,
+        ConfKey_t _dataVarialbeNominator,
+        VariableOption_t _voNominator,
+        ConfKey_t _dataVarialbeDenominator,
+        VariableOption_t _voDenominator,
+        UInt_t _precision = 4,
         FormatterOption_t _fo = kFormatOptionNone);
-      TableColumnFormatter(const std::string& _title, 
-        const std::string& _tooltip, 
-        Float_t (*_functionPtr)(CounterMap_t*, CounterBase*), 
+      TableColumnFormatter(const std::string& _title,
+        const std::string& _tooltip,
+        Float_t (*_functionPtr)(CounterMap_t*, CounterBase*),
         UInt_t _precision);
-      TableColumnFormatter(const std::string& _title, 
-        const std::string& _tooltip, 
+      TableColumnFormatter(const std::string& _title,
+        const std::string& _tooltip,
         std::string (*_functionPtr)(CounterMap_t*, CounterBase*) );
       mutable std::string m_columnName; //!< The name of the column, mutable as this may need to be cleaned of illegal characters
       mutable std::string m_tooltip; //!< The hover tooltip for the column, mutable as this may need to be cleaned of illegal characters
@@ -90,35 +88,37 @@ namespace TrigCostRootAnalysis {
       ConfKey_t m_dataVariableDenominator; //!< For a direct fetch, the name of the DataVariable to use as a denominator.
       VariableOption_t m_dataVODenominator; //!< For a direct fetch, the variable option to use for the DataVariable chosen as a denominator for this column.
       UInt_t m_precision; //!< How many digits after the decimal place to save.
-      Float_t (*m_functionPtr)(CounterMap_t*, CounterBase*); //!< For more complicated quantities, a pointer to a function to return a float  
+      Float_t (*m_functionPtr)(CounterMap_t*, CounterBase*); //!< For more complicated quantities, a pointer to a function to return a float
       std::string (*m_functionPtrStr)(CounterMap_t*, CounterBase*); //!< For more complicated quantities, a pointer to a function to return a string
       FormatterOption_t m_formatOption; //!< Additional post-processing or behaviour changing options are defined here. @see FormatterOption
     };
 
    protected:
-   
+
     const TrigCostData* m_costData; //!< Source of all data
     virtual CounterBase* newCounter( const std::string &_name, Int_t _ID ) = 0;
     std::string constructPlotName(CounterBase* _counter, ConfVariableOptionPair_t _variable);
     CounterBase* getCounter( CounterMap_t* _counterMap, const std::string &_name, Int_t _ID );
     CounterBase* addCounter( CounterMap_t* _counterMap, const std::string &_name, Int_t _ID );
-    void collateCounterCollectionsForEvent(UInt_t _lumiBlockNumber, DBKey _key);
-    void addToCollectionsToProcess(const std::string &_name, UInt_t _lumiBlockNumber, Float_t _lumiLength );
+    void collateCounterCollectionsForEvent();
+    void addToCollectionsToProcess(const std::string &_name, UInt_t _lumiBlockNumber, Float_t _lumiLength);
+    void recordLumi(const std::string &_name, UInt_t _lumiBlockNumber, Float_t _lumiLength);
     void sharedHistogramOutputRoutine(VariableOptionVector_t& _toSave);
     void sharedTableOutputRoutine( const std::vector<TableColumnFormatter> &_toSave );
     void outputTableRow(CounterBase* _TCCB, std::ofstream& _fout, const std::vector<TableColumnFormatter> &_toSave, CounterMap_t *_counterMap, std::string &_counterCollectionName);
     void setDetailLevel(UInt_t _detailLevel);
     void allowSameNamedCounters();
     void allowSameIDCounters();
+    void filterOutputOnStrDecoration(ConfKey_t _decoration, const std::string _value);
     void startEvent(CounterMap_t* _counters = 0);
     void endEvent(Float_t _weight = 1.);
     void enableROOTMsg();
     void disableROOTMsg();
     Bool_t checkPatternNameMonitor( const std::string& _patternName );
     Bool_t checkPatternNameOutput( const std::string& _patternName );
+    Bool_t checkPatternInternal( const std::string& _counterName, ConfKey_t _list );
     void checkForIllegalCharacters(std::string &_toClean, Bool_t _checkComma = kTRUE, Bool_t _checkApostrophe = kTRUE, Bool_t _checkColon = kFALSE);
 
-    
     std::string m_name; //<! Name of this monitor, for use in output.
     UInt_t m_level; //<! Level of monitor (2 or 3)
     UInt_t m_detailLevel; //!<< How detailed this monitor is to be, passed on to created Counters
@@ -127,20 +127,27 @@ namespace TrigCostRootAnalysis {
     Bool_t m_allowSameIDCounters; //<! For counters where there may be a many->one mapping of ID->name. Disable warning.
     Bool_t m_filterOutput; //!< Set if the user's supplied chain name filter is to be applied to this monitor's counters during the output routine.
     Bool_t m_invertFilter; //!< Set true to have the filter specify items *not* to be saved.
-    
-    CounterCollection_t m_counterCollections; //!< Map of string referenced collections of counters.
-    CounterMapSet_t     m_collectionsToProcess; //!< Pointers to the counter maps to be included in a given event.
+    ConfKey_t m_filterOnDecorationKey; //!< If the output is filtered by decoration, holds which decoration to use
+    std::string m_filterOnDecorationValue; //!< If output is filtered by decoration, holds string must be an exact match
+
+    CounterCollection_t   m_counterCollections; //!< Map of string referenced collections of counters.
+    CounterMapSet_t       m_collectionsToProcess; //!< Pointers to the counter maps to be included in a given event.
+    std::set<std::string> m_collectionsToProcessNames; //!< Names of the counter maps being processed
     std::map< std::string, LumiCollector* > m_collectionLumiCollector; //!< Map of string referenced collections to the lumi counter for that collection
-    
-    Float_t m_timeUsed; //!< Holds total time consumed by this monitor
-    Int_t   m_eventsProcessed; //!< Normalisation for m_timeUsed
 
     std::set< CounterBase* > m_countersInEvent; //!< Set of counters processed in an event. We need to run endEvent on these.
 
+    Int_t m_currentCollectionLBNumber; //!< Remember LB number that m_collectionsToProcess is currently calculated for
+    DBKey m_currentDBKey; //!< Remember database key that m_collectionsToProcess is currently calculated for
 
-    
+    std::set<DBKey>         m_perKeySummaries; //!< Set of keys we are at least part way through monitoring
+    std::map<DBKey, UInt_t> m_perKeySummaryLBStart; //!< Map of keys we are monitoring to the initial (seen) LB, so we can stop after kNLbPerHLTConfig LB
+
+    Timer m_timer; //<! Every monitor gets a timer to see how long it took
+
+
   }; //class MonitorBase
-  
+
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_MonitorBase_H

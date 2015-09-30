@@ -73,7 +73,8 @@ namespace TrigCostRootAnalysis {
     void addNodeWProperty(std::ostream& _fout, std::string _name, 
       std::string _p1name, std::string _p1data, 
       std::string _p2name ="", std::string _p2data ="",
-      std::string _p3name ="", std::string _p3data ="") { // node with two properties
+      std::string _p3name ="", std::string _p3data ="",
+      std::string _p4name ="", std::string _p4data ="") { // node with up to 3 properties
 
       if (!m_minimal) _fout << std::string(m_level*m_spaces, ' ');
 
@@ -81,7 +82,8 @@ namespace TrigCostRootAnalysis {
 
       if (_p1name != Config::config().getStr(kBlankString)) _fout << _p1name << "=\"" << _p1data << "\" ";
       if (_p2name != Config::config().getStr(kBlankString)) _fout << _p2name << "=\"" << _p2data << "\" ";
-      if (_p3name != Config::config().getStr(kBlankString)) _fout << _p3name << "=\"" << _p3data << "\"";
+      if (_p3name != Config::config().getStr(kBlankString)) _fout << _p3name << "=\"" << _p3data << "\" ";
+      if (_p4name != Config::config().getStr(kBlankString)) _fout << _p4name << "=\"" << _p4data << "\"";
 
       _fout << "/>" << std::endl;
 

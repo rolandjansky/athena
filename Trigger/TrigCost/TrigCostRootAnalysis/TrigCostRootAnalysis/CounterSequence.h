@@ -24,7 +24,7 @@ namespace TrigCostRootAnalysis {
 
   //Forward declaration
   class TrigCostData;
-  
+
   /**
    * @class CounterSequence
    * One counter is created for each sequence in the run, it records all monitoring information for each instance
@@ -32,24 +32,27 @@ namespace TrigCostRootAnalysis {
    * @see CounterBase
    */
   class CounterSequence : public CounterBase {
-  
+
    public:
-   
-    CounterSequence( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10 );
+
+    CounterSequence( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10, MonitorBase* _parent = 0 );
     ~CounterSequence();
     void startEvent();
     void processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight = 1.);
     void endEvent(Float_t _weight = 1.);
     void debug(UInt_t _e);
-    
+
    private:
 
     Double_t getPrescaleFactor(UInt_t _e = INT_MAX);
 
     static Float_t s_eventTimeExecute; //!< Global static tabulator of the total time for all sequences in an event.
-    
+
+    Float_t m_eventWeight; //<! What weight to use for the active events variable
+    std::set< std::string > m_chainsSeen; //<! List of chains which have used this in a given event
+
   }; //class CounterSequence
-  
+
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_CounterSequence_H

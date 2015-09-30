@@ -22,18 +22,20 @@ namespace TrigCostRootAnalysis {
 
   //Forward declaration
   class TableColumnFormatter;
-  
+
   /**
    * @class MonitorAlgorithmCommon
    * Some common code between different monitors which use Algorithm counters
    */
   class MonitorAlgorithmCommon {
-  
+
    public:
 
-    void addCommonTableEntries(std::vector<MonitorBase::TableColumnFormatter>& _toSaveTable);
+    static void getAllAlgsInEvent(UInt_t _level, const TrigCostData* _costData);
 
-    void getAllAlgsInEvent(Int_t _eventNumber, UInt_t _level, const TrigCostData* _costData);
+   protected:
+
+    void addCommonTableEntries(std::vector<MonitorBase::TableColumnFormatter>& _toSaveTable);
 
     struct AlgsInEvent {
       AlgsInEvent(const std::string& _algName,
@@ -46,7 +48,7 @@ namespace TrigCostRootAnalysis {
       std::string m_algName; //!< Buffered algorithm name
       std::string m_algClassName; //!< Buffered algorithm class name
       std::string m_seqName; //!< Buffered algorithm sequence name
-      std::string m_chainName; //!< Buffered algorithm chain name 
+      std::string m_chainName; //!< Buffered algorithm chain name
       Int_t m_algNameID; //!< Buffered hash of algorithm name
       Int_t m_seqD3PDIndex; //!< Buffered D3PD index of alg's sequence
       Int_t m_algD3PDIndex; //!< Buffered D3PD index of alg within sequence
@@ -55,9 +57,9 @@ namespace TrigCostRootAnalysis {
     static std::vector<AlgsInEvent> m_algsInEvent; //!< Static vector of buffered alg primary data for this event
     static Int_t m_eventNumber; //!< Static event number which is buffered
     static UInt_t m_level; //!< Static level which is buffered
-    
+
   }; //class MonitorAlgorithmCommon
-  
+
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_MonitorAlgorithmCommon_H

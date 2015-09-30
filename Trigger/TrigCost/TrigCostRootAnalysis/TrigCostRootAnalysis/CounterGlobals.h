@@ -24,17 +24,17 @@ namespace TrigCostRootAnalysis {
 
   //Forward declaration
   class TrigCostData;
-  
+
   /**
    * @class CounterGlobals
    * Counter to monitor overall statistics for a whole lumi block
    * @see CounterBase
    */
   class CounterGlobals : public CounterBase {
-  
+
    public:
-   
-    CounterGlobals( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10 );
+
+    CounterGlobals( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10, MonitorBase* _parent = 0 );
     ~CounterGlobals();
     void startEvent();
     void processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight = 1.);
@@ -57,7 +57,7 @@ namespace TrigCostRootAnalysis {
     std::map<UInt_t,UInt_t> m_processingUnits; //!< Keep track of processing units seen in this LB and how many events each processes
 
   }; //class CounterGlobals
-  
+
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_CounterGlobals_H

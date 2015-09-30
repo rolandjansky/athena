@@ -24,17 +24,18 @@
 #include "../TrigCostRootAnalysis/RatesChainItem.h"
 
 namespace TrigCostRootAnalysis {
-  
+
   /**
    * Counter to monitor the rates of the union of a group of chains
    * @param _costData Const pointer to the data store, not used by this counter at the moment.
    * @param _name Const ref to chain's name
    * @param _ID Chain's ID number.
    */
-  CounterRatesUnion::CounterRatesUnion( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel ) : 
-    CounterBaseRates(_costData, _name, _ID, _detailLevel), m_combinationClassification(kUnset) {
+  CounterRatesUnion::CounterRatesUnion( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel, MonitorBase* _parent ) :
+    CounterBaseRates(_costData, _name, _ID, _detailLevel, _parent), m_combinationClassification(kUnset) {
+    //Info("CounterRatesUnion::CounterRatesUnion","New CounterRatesUnion, %s", _name.c_str());
   }
-  
+
   /**
    * Counter destructor. Nothing currently to delete.
    */
@@ -42,7 +43,7 @@ namespace TrigCostRootAnalysis {
   }
 
   void CounterRatesUnion::finalise() {
-    
+
     // This step is only for unique counters
     if (getStrDecoration(kDecType) == "UniqueHLT" || getStrDecoration(kDecType) == "UniqueL1") {
       assert (m_globalRates != 0);
@@ -78,12 +79,12 @@ namespace TrigCostRootAnalysis {
     CounterBaseRates::finalise();
   }
 
-  
+
   /**
    * Return if this chain passes the HLT and at least one L1 by checking both pass-raw and pass-prescale bits.
    * For the union of triggers, at least one L2 chains must pass raw and pass PS, plus one of their L1 chains must too.
    * This is the naive method.
-   * @param _usePrescale - if set to kTRUE (default) then the prescale will be simulated, otherwise the prescale is taken to be 1. 
+   * @param _usePrescale - if set to kTRUE (default) then the prescale will be simulated, otherwise the prescale is taken to be 1.
    * @return 1 if the chain passes, 0 if not.
    */
   Float_t CounterRatesUnion::runDirect(Bool_t _usePrescale) {
@@ -113,7 +114,7 @@ namespace TrigCostRootAnalysis {
         if (_usePrescale == kTRUE && _L1->getPassPS() == kFALSE) continue; //PS did not pass, try next
 
         return 1;
-      } 
+      }
 
     }
     return 0.;
@@ -128,10 +129,10 @@ namespace TrigCostRootAnalysis {
     if (m_combinationClassification == kUnset) classify();
     if (m_cannotCompute == kTRUE) return 0.;
 
-    if      (m_combinationClassification == kOnlyL1) return runWeight_OnlyL1();
+    if      (m_combinationClassification == kAllOneToMany) return runWeight_AllOneToMany();
+    else if (m_combinationClassification == kOnlyL1) return runWeight_OnlyL1();
     else if (m_combinationClassification == kAllToAll) return runWeight_AllToAll();
     else if (m_combinationClassification == kAllOneToOne) return runWeight_AllOneToOne();
-    else if (m_combinationClassification == kAllOneToMany) return runWeight_AllOneToMany();
     else if (m_combinationClassification == kManyToMany) return runWeight_ManyToMany();
     return 0.;
   }
@@ -144,7 +145,7 @@ namespace TrigCostRootAnalysis {
     // See if L1 only, no HLT chains
     if (m_L2s.size() == 0) {
       if (Config::config().debug()) {
-        Info("CounterRatesUnion::classify","Chain %s topology classified as OnlyL1.", 
+        Info("CounterRatesUnion::classify","Chain %s topology classified as OnlyL1.",
           getName().c_str());
       }
       m_combinationClassification = kOnlyL1;
@@ -168,7 +169,7 @@ namespace TrigCostRootAnalysis {
     }
     if (_allToAll == kTRUE) {
       if (Config::config().debug()) {
-        Info("CounterRatesUnion::classify","Chain %s topology classified as All-To-All.", 
+        Info("CounterRatesUnion::classify","Chain %s topology classified as All-To-All.",
           getName().c_str());
       }
       m_combinationClassification = kAllToAll;
@@ -186,7 +187,7 @@ namespace TrigCostRootAnalysis {
       }
       // Check that no one else has the same L1 seed
       for (ChainItemSetIt_t _L2It = m_L2s.begin(); _L2It != m_L2s.end(); ++_L2It ) {
-        RatesChainItem* _L2 = (*_L2It);   
+        RatesChainItem* _L2 = (*_L2It);
         if (_L2 == _L2Test) continue; // Don't check against myself
 
         if (_L2->getLowerContains( (*_L2Test->getLowerStart()) ) == kTRUE) { // Remember that we know L2Test only has one lower
@@ -243,7 +244,7 @@ namespace TrigCostRootAnalysis {
    * This is the trivial case where we only have items at L1
    */
   Float_t CounterRatesUnion::runWeight_OnlyL1() {
-    Float_t _w = 1.;    
+    Float_t _w = 1.;
     for (ChainItemSetIt_t _L1It = m_L1s.begin(); _L1It != m_L1s.end(); ++_L1It) {
       RatesChainItem* _L1 = (*_L1It);
       _w *= (1. - _L1->getPassRawOverPS());
@@ -257,7 +258,7 @@ namespace TrigCostRootAnalysis {
    */
   Float_t CounterRatesUnion::runWeight_AllOneToOne() {
     Float_t _w = 1.;
-    
+
     for (ChainItemSetIt_t _L2It = m_L2s.begin(); _L2It != m_L2s.end(); ++_L2It) {
       RatesChainItem* _L2 = (*_L2It);
       RatesChainItem* _L1 = (*_L2->getLowerStart());
@@ -294,26 +295,28 @@ namespace TrigCostRootAnalysis {
    * This is an extension of runWeight_AllToAll, here though we have the common occurance in ATLAS
    * of each L1 item seeding one-or-more HLT items, but each HLT item is seeded by exactly one L1 item.
    * Therefore we can treat the situation as multiple AllToAll sub-cases and combine them together.
+   *
+   * Any optimisation of this function can save a whole load of time
    */
   Float_t CounterRatesUnion::runWeight_AllOneToMany() {
 
     Float_t _weightAllChains = 1.;
-
+    _weightAllChains = 1.;
     for (ChainItemSetIt_t _L1It = m_L1s.begin(); _L1It != m_L1s.end(); ++_L1It) {
       RatesChainItem* _L1 = (*_L1It);
       Float_t _weightL1 = (1. - _L1->getPassRawOverPS());
+       //     Info("CounterRatesUnion::runWeight_AllOneToMany","L1 item  %s has weight %f", _L1->getName().c_str(),  _L1->getPassRawOverPS());
+      if ( isEqual(_weightL1, 1.) ) continue; // If L1 failed, no point looking at HLT
       Float_t _weightL2 = 1.;
-      for (ChainItemSetIt_t _L2It = m_L2s.begin(); _L2It != m_L2s.end(); ++_L2It) {
-        RatesChainItem* _L2 = (*_L2It);
-        assert( _L2->getLower().size() == 1);
-        if ( _L2->getLowerContains(_L1) == kFALSE ) continue;
-        _weightL2 *= (1. - _L2->getPassRawOverPS());
+      for (ChainItemSetIt_t _L2It = _L1->getUpperStart(); _L2It != _L1->getUpperEnd(); ++_L2It) {
+        if ( m_L2s.count( (*_L2It) ) == 0 ) continue;
+        _weightL2 *= (1. - (*_L2It)->getPassRawOverPS());
+        // Info("CounterRatesUnion::runWeight_AllOneToMany","L2 item  %s has weight %f", (*_L2It)->getName().c_str(),  (*_L2It)->getPassRawOverPS());
       }
       Float_t _weightChain = (1. - _weightL1) * (1. - _weightL2);
       _weightAllChains *= (1. - _weightChain);
     }
-
-    return (1. - _weightAllChains);
+   return (1. - _weightAllChains);
   }
 
 
@@ -334,7 +337,7 @@ namespace TrigCostRootAnalysis {
       if ( (*_L2It)->getPassRaw() == kTRUE ) {
         _shouldRun = kTRUE;
         break;
-      } 
+      }
     }
     if (_shouldRun == kFALSE) return 0.;
 
@@ -349,7 +352,7 @@ namespace TrigCostRootAnalysis {
     for (UInt_t _pattern = 1; _pattern <= _nPatterns; ++_pattern) {
       // Get the pattern bit-map in a usable form
       std::bitset<32> _patternBits( _pattern );
-      
+
       // Step 1
       // Get the L1 probability for this pattern to pass
       Double_t _pOfBitPattern = 1.;
@@ -415,5 +418,5 @@ namespace TrigCostRootAnalysis {
   void CounterRatesUnion::debug(UInt_t _e) {
     UNUSED(_e);
   }
-  
+
 } // namespace TrigCostRootAnalysis

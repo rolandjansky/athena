@@ -1,0 +1,46 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// -------------------------------------------------------------
+//  author: Tim Martin <Tim.Martin@cern.ch>
+// -------------------------------------------------------------
+#ifndef TrigCostRootAnalysis_MonitorROSCommon_H
+#define TrigCostRootAnalysis_MonitorROSCommon_H
+
+// STL include(s):
+#include <map>
+#include <string>
+#include <vector>
+
+// Local include(s):
+#include "MonitorBase.h"
+
+namespace TrigCostRootAnalysis {
+
+  /**
+   * @class MonitorROSCommon
+   * Hold common code for different ROS monitors
+   */
+  class MonitorROSCommon {
+
+   public:
+
+    StringIntSetMap_t& getROSMapping(UInt_t _robReq);
+    static void collateROSRequests(UInt_t _level, const TrigCostData* _costData);
+
+   protected:
+
+    void addCommonTableEntries(std::vector<MonitorBase::TableColumnFormatter>& _toSaveTable);
+
+    static Int_t m_eventNumber; //!< Static event number which is buffered
+    static UInt_t m_level; //!< Static level which is buffered
+    static std::vector< StringIntSetMap_t > m_ROSRequestStorage; //!< For each ROS request, buffer which ROS are hit (integrate over ROBINs)
+
+  }; //class MonitorROSCommon
+
+} // namespace TrigCostRootAnalysis
+
+#endif //TrigCostRootAnalysis_MonitorROSCommon_H
