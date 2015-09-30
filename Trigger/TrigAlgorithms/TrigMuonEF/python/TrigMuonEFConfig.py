@@ -152,9 +152,9 @@ def TMEF_iPatFitter(name='TMEF_iPatFitter',**kwargs):
 
 
 def TMEF_iPatSLFitter(name='TMEF_iPatSLFitter',**kwargs):
-    from MuonRecExample.MuonRecFlags import mooreFlags
+    from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
     kwargs.setdefault("LineFit", True)
-    kwargs.setdefault("LineMomentum", mooreFlags.straightLineFitMomentum())
+    kwargs.setdefault("LineMomentum", muonStandaloneFlags.straightLineFitMomentum())
     # call the other factory function
     return TMEF_iPatFitter(name,**kwargs)
 
@@ -177,7 +177,7 @@ def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
 
 
 def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs):
-    from MuonRecExample.MuonRecFlags import mooreFlags
+    from MuonRecExample.MuonStandaloneFlags import muonStandaloneFlags
     kwargs.setdefault("CaloEnergyParam", "TMEF_CaloEnergyTool")
     kwargs.setdefault("CaloTSOS", "TMEF_CaloTrackStateOnSurface")
     kwargs.setdefault("CscRotCreator", "") # enabled with special version in Muid offline
@@ -192,7 +192,7 @@ def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs)
     kwargs.setdefault("CleanStandalone", True)
     kwargs.setdefault("BadFitChi2", 2.5)
     kwargs.setdefault("LargeMomentumError", 0.5)
-    kwargs.setdefault("LineMomentum", mooreFlags.straightLineFitMomentum())
+    kwargs.setdefault("LineMomentum", muonStandaloneFlags.straightLineFitMomentum())
     kwargs.setdefault("LowMomentum", 10.*GeV)
     kwargs.setdefault("MinEnergy", 0.3*GeV)
     kwargs.setdefault("PerigeeAtSpectrometerEntrance", True)
@@ -352,7 +352,7 @@ def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
     kwargs.setdefault('TrackParticleCreator','TMEF_TrkToTrackParticleConvTool')
     kwargs.setdefault('MakeTrackAtMSLink',True)
     kwargs.setdefault("CaloMaterialProvider", "TMEF_TrkMaterialProviderTool")
-    kwargs.setdefault("FillTimingInformation", False)
+    kwargs.setdefault("FillTimingInformation",False)
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
 # TrigMuonEF classes
@@ -384,19 +384,20 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFStandaloneTrackTool):
                                                                 HoughPatternFinder = CfgGetter.getPublicTool("MuonHoughPatternFinderTool") )
 
         CfgGetter.getPublicTool("MuonHoughPatternFinderTool").RecordAll=False
+        CfgGetter.getPublicTool("MooTrackFitter").SLFit=False
 
         # use seeded decoding
         if (TriggerFlags.MuonSlice.doEFRoIDrivenAccess()):
             self.useMdtSeededDecoding = True
             self.useRpcSeededDecoding = True
             self.useTgcSeededDecoding = True
-            self.useCscSeededDecoding = False # turned off for now, see ATR-10235
+            self.useCscSeededDecoding = True
             
             # use ROB based seeded decoding instead of PRD based
             self.useMdtRobDecoding = True
             self.useRpcRobDecoding = True
             self.useTgcRobDecoding = False # neither available nor needed
-            self.useCscRobDecoding = False # not available, see ATR-10235
+            self.useCscRobDecoding = False # neither available nor needed
 
 
         from MuonRecExample.MuonRecFlags import muonRecFlags
@@ -500,7 +501,7 @@ class TrigMuonEFTrackIsolationConfig (TrigMuonEFTrackIsolation):
         # ID tracks
         #self.IdTrackParticles = "InDetTrigParticleCreation_FullScan_EFID"
         #self.IdTrackParticles = "InDetTrigParticleCreation_MuonIso_EFID"
-        self.IdTrackParticles = "InDetTrigTrackingxAODCnv_MuonIso_EFID"
+        self.IdTrackParticles = "InDetTrigTrackingxAODCnv_Muon_IDTrig"
 
         # Only run algo on combined muons
         self.requireCombinedMuon = True

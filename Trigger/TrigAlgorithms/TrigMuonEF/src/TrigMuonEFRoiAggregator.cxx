@@ -22,6 +22,8 @@ TrigMuonEFRoiAggregator::TrigMuonEFRoiAggregator(const std::string & name, ISvcL
 {
   declareMonitoredVariable("nRoiIn", m_nRoiIn, IMonitoredAlgo::AutoClear);
   declareMonitoredVariable("nTrkIn", m_nTrkIn, IMonitoredAlgo::AutoClear);
+  m_PtLo=0;
+  m_PtHi=0;
 }
 
 /**

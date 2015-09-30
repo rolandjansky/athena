@@ -163,9 +163,9 @@ void TrigMuonEFCaloIsolation::fillCaloIsolation(const xAOD::MuonContainer *muons
         ATH_MSG_INFO("Cell isolation value: " << caloIsolation.etcones[2]);
 
         //Monitor the values
-        m_etiso_cone2.push_back( caloIsolation.etcones[2] / 1000.0 );
-        m_etiso_cone3.push_back( caloIsolation.etcones[1] / 1000.0 );
-        m_etiso_cone4.push_back( caloIsolation.etcones[0] / 1000.0 );
+        m_etiso_cone2.push_back( caloIsolation.etcones[2] * 1e-3 );
+        m_etiso_cone3.push_back( caloIsolation.etcones[1] * 1e-3 );
+        m_etiso_cone4.push_back( caloIsolation.etcones[0] * 1e-3 );
 
         if (m_debug) {
             ATH_MSG_DEBUG("Filled muon isolation information with:");

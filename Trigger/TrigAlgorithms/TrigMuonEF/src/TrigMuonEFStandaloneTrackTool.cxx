@@ -705,12 +705,10 @@ HLT::ErrorCode TrigMuonEFStandaloneTrackTool::findSegments(const IRoiDescriptor*
   // However now we have full scan chains where we ask for a dummy TE.
   // For these cases we for now set etaRoI=phiRoI=0
 
-  double etaRoI=0, phiRoI=0;
+
   if (muonRoI) {
     monVars.phiL2CosmicMuon = muonRoI->phi();
-    phiRoI = muonRoI->phi();
     monVars.etaL2CosmicMuon = muonRoI->eta();
-    etaRoI = muonRoI->eta();
   }
 
   //
@@ -969,13 +967,17 @@ if (m_useMdtData>0) {
         ATH_MSG_WARNING("PRD-based seeded decoding of CSC failed");
       }
       // get clusters out of PRD
-      if (m_cscClusterProvider->getClusters(csc_hash_ids, hash_ids_withData).isSuccess()) {
-        ATH_MSG_DEBUG("CSC clusters obtained successfully");
-        csc_hash_ids.clear();
-        csc_hash_ids = hash_ids_withData;
-        ATH_MSG_DEBUG("CscHashId vector resized to " << csc_hash_ids.size());
+      if(csc_hash_ids.size()!=0) { 
+	if (m_cscClusterProvider->getClusters(csc_hash_ids, hash_ids_withData).isSuccess()) { 
+	  ATH_MSG_DEBUG("CSC clusters obtained successfully"); 
+	  csc_hash_ids.clear(); 
+	  csc_hash_ids = hash_ids_withData; 
+	  ATH_MSG_DEBUG("CscHashId vector resized to " << csc_hash_ids.size()); 
+	} else { 
+	  ATH_MSG_WARNING("Preparing CSC clusters failed"); 
+	} 
       } else {
-        ATH_MSG_WARNING("Preparing CSC clusters failed");
+	ATH_MSG_DEBUG("CscHashId vector is empty - skipping cluster preparation"); 
       }
       
     }
@@ -1426,6 +1428,11 @@ if (m_useMdtData>0) {
     
     Muon::IMooSegmentCombinationFinder::Output* output = 0;
     output = m_segmentsFinderTool->findSegments(mdtCols, cscCols, tgcCols, rpcCols);
+    if ( !output ) {
+      if (segFinderTime) segFinderTime->stop();
+      ATH_MSG_DEBUG("Segment finder return nothing: stop here to process the RoI");
+      return HLT::MISSING_FEATURE;
+    }
     if (!output->segmentCombinations) {
       if (segFinderTime) segFinderTime->stop();
       ATH_MSG_WARNING("Segment finder returned an invalid pointer for the segmentCombinations");
@@ -1433,11 +1440,6 @@ if (m_useMdtData>0) {
       return HLT::ErrorCode(HLT::Action::ABORT_CHAIN);
     }
   
-    if ( !output ) {
-      if (segFinderTime) segFinderTime->stop();
-      ATH_MSG_DEBUG("Segment finder return nothing: stop here to process the RoI");
-      return HLT::MISSING_FEATURE;
-    }
     
     /// SegmentCache object takes pointers to be given to m_segmentCombiColl, m_patternCombiColl and segments
     ATH_MSG_DEBUG("SegmentCache object taking pointers");
@@ -1625,22 +1627,19 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
       // create track particle
       const ElementLink<TrackCollection> trackLink(*m_spectrometerTracks, nTrack);
       xAOD::TrackParticle* trackparticle = m_TrackToTrackParticleConvTool->createParticle( trackLink, m_spectrometerTrackParticles, 0, xAOD::muon);
+      if(trackparticle) ATH_MSG_VERBOSE("Trackparticle successfully created");
       ATH_MSG_DEBUG("REGTEST MuonEF - track " << nTrack
 		    << " has Author " << trk->info().dumpInfo());
       ++nTrack;
       const Trk::Perigee* perigee = trk->perigeeParameters ();
       
-      const Amg::Vector3D  pos = perigee->position();
-      double posx     = pos.x();
-      double posy     = pos.y();
-      double posz     = pos.z();
       
       const Amg::Vector3D mom = perigee->momentum();
       double z0 = perigee->parameters()[Trk::z0] ;
       double d0 = perigee->parameters()[Trk::d0] ;
       double phi = perigee->parameters()[Trk::phi0] ;
       double theta = perigee->parameters()[Trk::theta] ;
-      double charge = perigee->charge();
+      //      double charge = perigee->charge();
       double pt     = mom.perp();
       double chi2 = -999.;
       double chi2prob = -999.;
@@ -1653,7 +1652,7 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
 	else
 	  chi2prob = 0.;
       }
-      double eta =  -log(fabs(tan(theta/2.)));
+      double eta =  -log(fabs(tan(theta*0.5)));
       
       unsigned short int nRpcEtaHits = 0;
       unsigned short int nRpcPhiHits = 0;
@@ -1692,8 +1691,8 @@ TrigMuonEFStandaloneTrackTool::buildTracks(const MuonSegmentCombinationCollectio
                                      << " phi " << phi << " z0/d0 " << z0 << " " << d0 << endreq;
 
       monVars.chi2.push_back(chi2/ndof);
-      //    monVars.chi2Prob.push_back();
-      monVars.pt.push_back(fabs(pt/GeV));
+      monVars.chi2Prob.push_back(chi2prob);
+      monVars.pt.push_back(fabs(pt*(1./GeV)));
       monVars.phi.push_back(phi);
       monVars.eta.push_back(eta);
       monVars.d0.push_back(d0);
@@ -1770,7 +1769,7 @@ TrigMuonEFStandaloneTrackTool::extrapolate(const xAOD::TrackParticleContainer* s
     ATH_MSG_ERROR("Caching not currently working with new EDM?");
     // retrieve tracks from cache
     //m_extrapolatedTracks = makeViewContainerClone( cache->ExtrapolatedTrackColl() );
-    ATH_MSG_DEBUG("Caching active, n(trks) = " << m_extrapolatedTracks->size());
+    //    ATH_MSG_DEBUG("Caching active, n(trks) = " << m_extrapolatedTracks->size());
     ++m_cachedExtrapolatedCalls;
     monVars.wasCached = 1;
   } // no cached track found
@@ -1805,12 +1804,8 @@ TrigMuonEFStandaloneTrackTool::extrapolate(const xAOD::TrackParticleContainer* s
     double d0 = perigee->parameters()[Trk::d0] ;
     double phi = perigee->parameters()[Trk::phi0] ;
     double theta = perigee->parameters()[Trk::theta] ;
-    double charge = perigee->charge();
+    //    double charge = perigee->charge();
     
-    const Amg::Vector3D pos = perigee->position();
-    double posx     = pos.x();
-    double posy     = pos.y();
-    double posz     = pos.z();
     
     const Amg::Vector3D mom = perigee->momentum();
     double pt     = mom.perp();
@@ -1826,7 +1821,7 @@ TrigMuonEFStandaloneTrackTool::extrapolate(const xAOD::TrackParticleContainer* s
       else
 	chi2prob = 0.;
     }
-    double eta =  -log(fabs(tan(theta/2.)));
+    double eta =  -log(fabs(tan(theta*0.5)));
     
     unsigned short int nRpcEtaHits = 0;
     unsigned short int nRpcPhiHits = 0;
@@ -1886,7 +1881,8 @@ TrigMuonEFStandaloneTrackTool::extrapolate(const xAOD::TrackParticleContainer* s
 		  << " phi " << phi << " z0/d0 " << z0 << " " << d0);
     
     monVars.chi2.push_back(chi2/ndof);
-    monVars.pt.push_back(fabs(pt/GeV));
+    monVars.chi2Prob.push_back(chi2prob);
+    monVars.pt.push_back(fabs(pt*(1./GeV)));
     monVars.phi.push_back(phi);
     monVars.eta.push_back(eta);
     monVars.d0.push_back(d0);
