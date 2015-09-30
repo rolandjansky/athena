@@ -81,7 +81,7 @@ private:
   unsigned int m_BadChanPerFEB;
   int m_CellQualityCut;
   //unsigned int m_MinBadFEB;
-  xAOD::CaloClusterContainer* m_AllTECaloClusterContainer;
+  xAOD::CaloClusterContainer* AllTECaloClusterContainer;
   
 };
 #endif

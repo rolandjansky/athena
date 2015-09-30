@@ -107,8 +107,7 @@ StatusCode FullCaloCellContMaker::execute(CaloCellContainer &pCaloCellContainer)
 
   if (m_timersvc) (m_timer.at(0))->start();
   // reset error
-  //m_error=(EFFULLCALO<<28);
-  m_error = 0;
+  m_error=(EFFULLCALO<<28);
   
   /* use LoadFullCollections
      in TrigDataAccess */
@@ -185,7 +184,7 @@ StatusCode FullCaloCellContMaker::addFullLArCells(CaloCellContainer& pCaloCellCo
   //  if (m_timersvc) m_timer[iDet][1]->resume();
   if ( (m_data->LoadFullCollections(m_iBegin,m_iEnd, detectorID, prepare)).isFailure()) return StatusCode::FAILURE;
   if (m_data->report_error()) {
-    m_error |= m_data->report_error(); // + (EFFULLCALO<<28);
+    m_error |= m_data->report_error() + (EFFULLCALO<<28);
     //if (m_timersvc) m_timer[iDet][1]->stop();
     //return StatusCode::SUCCESS;  //don't return if problem with unpacking occurs
   }
@@ -200,7 +199,7 @@ StatusCode FullCaloCellContMaker::addFullLArCells(CaloCellContainer& pCaloCellCo
     //if ( m_CaloDetDescrManager == 0 )
     //  {
 	//std::cout << "ERROR : cannot allocate CaloDetDescrManager"
-	 //    << endmsg;
+	 //    << endreq;
 //	return StatusCode::FAILURE;
  //     }
 
@@ -248,7 +247,7 @@ StatusCode FullCaloCellContMaker::addFullTileCells(CaloCellContainer& pCaloCellC
     // if (m_timersvc) m_timer[iDet][1]->resume();
     if( (m_data->LoadFullCollections(m_itBegin,m_itEnd, iR, !iR)).isFailure()) return StatusCode::FAILURE;
      if (m_data->report_error()) {
-       m_error |= m_data->report_error(); // + (EFFULLCALO<<28);
+       m_error |= m_data->report_error() + (EFFULLCALO<<28);
        //  if (m_timersvc) m_timer[iDet][1]->pause();
        //continue; // do not stop and process other layer.
      }
@@ -299,7 +298,7 @@ StatusCode FullCaloCellContMaker::addFullDetCells(CaloCellContainer& pCaloCellCo
   // Prepare data, load collections
   if ( (m_data->LoadFullCollections(m_icBegin,m_icEnd)).isFailure()) return StatusCode::FAILURE;
   if (m_data->report_error()) {
-    m_error |= m_data->report_error(); // + (EFFULLCALO<<28);
+    m_error |= m_data->report_error() + (EFFULLCALO<<28);
     //if (m_timersvc) m_timer[iDet][1]->stop();
   }
 

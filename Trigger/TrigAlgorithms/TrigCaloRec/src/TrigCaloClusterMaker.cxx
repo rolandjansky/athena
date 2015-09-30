@@ -44,8 +44,7 @@
 #include "TrigCaloRec/TrigCaloQuality.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
-//#include "xAODCaloEvent/CaloClusterAuxContainer.h"
-#include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 //#include "xAODCaloEvent/CaloClusterChangeSignalState.h"
 
 //
@@ -59,7 +58,7 @@ class ISvcLocator;
 TrigCaloClusterMaker::TrigCaloClusterMaker(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::FexAlgo(name, pSvcLocator),
     m_pCaloClusterContainer(NULL),
-    m_pTrigCaloQuality(NULL)
+    pTrigCaloQuality(NULL)
 {
 
   // Eta and Phi size of the RoI window...
@@ -74,18 +73,23 @@ TrigCaloClusterMaker::TrigCaloClusterMaker(const std::string& name, ISvcLocator*
   // not needed since the key2key
   declareProperty("ClustersOutputName",m_clustersOutputName ="TriggerClusters");
 
-  // declare monitored variables
-  declareMonitoredVariable("container_size", m_container_size);
-  declareMonitoredVariable("algorithm_time", m_algorithm_time);
+  declareMonitoredVariable("ClusterContainerSize", m_ClusterContainerSize);
+
+  declareMonitoredVariable("L2Eta",       m_L2Eta);
+  declareMonitoredVariable("L2Phi",       m_L2Phi);
   
-  declareMonitoredStdContainer("et",           m_et);
-  declareMonitoredStdContainer("eta",          m_eta);
-  declareMonitoredStdContainer("phi",          m_phi);
-  declareMonitoredStdContainer("clusterSize",  m_clusterSize);
-  declareMonitoredStdContainer("signalState",  m_signalState);
-  declareMonitoredStdContainer("size",         m_size);
-  declareMonitoredStdContainer("N_BAD_CELLS",  m_N_BAD_CELLS);
-  declareMonitoredStdContainer("ENG_FRAC_MAX", m_ENG_FRAC_MAX);
+  // for leading cluster
+  declareMonitoredVariable("containBadCells",       m_containBadCells);
+  declareMonitoredVariable("eneFracMax",     m_eneFracMax);
+  declareMonitoredVariable("clusterTime",    m_clusterTime);
+  
+  declareMonitoredStdContainer("Eta", m_Eta);
+  declareMonitoredStdContainer("Phi", m_Phi);
+  declareMonitoredStdContainer("Et",  m_Et);
+
+  declareMonitoredStdContainer("EtaEFvsL2",   m_EtaEFvsL2);
+  declareMonitoredStdContainer("PhiEFvsL2",   m_PhiEFvsL2);
+
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -105,7 +109,7 @@ TrigCaloClusterMaker::TrigCaloClusterMaker(const std::string& name, ISvcLocator*
 
     HLT::ErrorCode TrigCaloClusterMaker::hltInitialize()
 {
-  msg() << MSG::DEBUG << "in initialize()" << endmsg;
+  msg() << MSG::DEBUG << "in initialize()" << endreq;
   
   // Global timers...
   if (timerSvc()) {
@@ -117,7 +121,7 @@ TrigCaloClusterMaker::TrigCaloClusterMaker(const std::string& name, ISvcLocator*
   // Cache pointer to ToolSvc
   IToolSvc* toolSvc = 0;// Pointer to Tool Service
   if (service("ToolSvc", toolSvc).isFailure()) {
-    msg() << MSG::FATAL << " Tool Service not found " << endmsg;
+    msg() << MSG::FATAL << " Tool Service not found " << endreq;
     return HLT::BAD_JOB_SETUP;
   }
 
@@ -139,10 +143,10 @@ TrigCaloClusterMaker::TrigCaloClusterMaker(const std::string& name, ISvcLocator*
       IAlgTool* algtool;
 
       if( toolSvc->retrieveTool(theItem.type(), theItem.name(), algtool,this).isFailure() ) {
-	msg() << MSG::FATAL << "Unable to find tool for " << (*itrName) << endmsg;
+	msg() << MSG::FATAL << "Unable to find tool for " << (*itrName) << endreq;
 	return HLT::BAD_JOB_SETUP;
       } else {
-	msg() << MSG::DEBUG << (*itrName) << " successfully retrieved" << endmsg;
+	msg() << MSG::DEBUG << (*itrName) << " successfully retrieved" << endreq;
 	if(iC==1) {
 	  m_clusterMakerPointers.push_back(dynamic_cast<CaloClusterCollectionProcessor*>(algtool) );
 	} else if (iC==2) {
@@ -158,7 +162,7 @@ TrigCaloClusterMaker::TrigCaloClusterMaker(const std::string& name, ISvcLocator*
   if (msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG
 	  << "Initialization of TrigCaloClusterMaker completed successfully"
-	  << endmsg;
+	  << endreq;
 
   return HLT::OK;
 }
@@ -167,7 +171,7 @@ TrigCaloClusterMaker::TrigCaloClusterMaker(const std::string& name, ISvcLocator*
 HLT::ErrorCode TrigCaloClusterMaker::hltFinalize()
 {
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "in finalize()" << endmsg;
+    msg() << MSG::DEBUG << "in finalize()" << endreq;
 
   return HLT::OK;
 }
@@ -180,27 +184,29 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
   if (timerSvc()) m_timer[0]->start();
 
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "in execute()" << endmsg;
+    msg() << MSG::DEBUG << "in execute()" << endreq;
 
+  // Monitoring initialization...
+  m_ClusterContainerSize = 0.;
   bool isSW=false;
-  
-  // initialise monitored variables
-  m_container_size = 0;
-  m_algorithm_time = 0;
 
-  m_et          .clear();
-  m_eta         .clear();
-  m_phi         .clear();  
-  m_clusterSize .clear();
-  m_signalState .clear();
-  m_size        .clear();
-  m_N_BAD_CELLS. clear();
-  m_ENG_FRAC_MAX.clear();
-    
+  m_L2Eta=0.;
+  m_L2Phi=0.;
+  m_containBadCells=0;
+  m_clusterTime=0;
+  m_eneFracMax=0;
+  m_Eta.clear();
+  m_Phi.clear();
+  m_Et.clear();
+
+  m_EtaEFvsL2.clear();
+  m_PhiEFvsL2.clear();
+
+
   // Some debug output:
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "outputTE->getId(): " << outputTE->getId() << endmsg;
-    msg() << MSG::DEBUG << "inputTE->getId(): " << inputTE->getId() << endmsg;
+    msg() << MSG::DEBUG << "outputTE->getId(): " << outputTE->getId() << endreq;
+    msg() << MSG::DEBUG << "inputTE->getId(): " << inputTE->getId() << endreq;
   }
   //
 
@@ -213,7 +219,7 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
   if (sc != HLT::OK || tmproi==0 ) return sc;
   roiDescriptor = tmproi;
   
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "roi " << *roiDescriptor << endmsg;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "roi " << *roiDescriptor << endreq;
 
 #if 0
   if (msgLvl() <= MSG::DEBUG) {
@@ -221,45 +227,47 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
     double   phi0 = roiDescriptor->phi();
     while (phi0 > 2.*M_PI) phi0 -= 2. * M_PI;
     while (phi0 < 0. )     phi0 += 2. * M_PI;
-    msg() << MSG::DEBUG << " eta0 = "<< eta0 << endmsg;
-    msg() << MSG::DEBUG << " phi0 = "<< phi0 << endmsg;
+    msg() << MSG::DEBUG << " eta0 = "<< eta0 << endreq;
+    msg() << MSG::DEBUG << " phi0 = "<< phi0 << endreq;
   }
 #endif
+
+  m_L2Eta = roiDescriptor->eta();
+  m_L2Phi = roiDescriptor->phi();
 
   // We now take care of the Cluster Making... 
 
   m_pCaloClusterContainer  = new xAOD::CaloClusterContainer();
   std::string clusterCollKey = "";
 
-  m_pTrigCaloQuality = 0;
+  pTrigCaloQuality = 0;
   std::string persKey = "";
   std::string persKeyLink = "";
   std::string cells_name = retrieveCellContName (outputTE);
-  if (store()->retrieve( m_pTrigCaloQuality, cells_name ).isFailure()) {
-    m_pTrigCaloQuality=0;
-    msg() << MSG::WARNING << "cannot retireve TrigCaloQuality with key=" << cells_name << endmsg;
+  if (store()->retrieve( pTrigCaloQuality, cells_name ).isFailure()) {
+    pTrigCaloQuality=0;
+    msg() << MSG::WARNING << "cannot retireve TrigCaloQuality with key=" << cells_name << endreq;
   } else {
-    persKey     = (m_pTrigCaloQuality->getPersistencyFlag() ? name() : "TrigCaloClusterMaker");
+    persKey     = (pTrigCaloQuality->getPersistencyFlag() ? name() : "TrigCaloClusterMaker");
     persKeyLink = persKey + "_Link";
   }
-  msg() << MSG::DEBUG << "CaloClusterContainer is stored with key  = " << persKey << endmsg;
-  msg() << MSG::DEBUG << "CaloCellLinkContainer is stored with key = " << persKeyLink << endmsg;
+  msg() << MSG::DEBUG << "CaloClusterContainer is stored with key  = " << persKey << endreq;
+  msg() << MSG::DEBUG << "CaloCellLinkContainer is stored with key = " << persKeyLink << endreq;
 
-  //  msg() << MSG::DEBUG << store()->dump() << endmsg;
+  //  msg() << MSG::DEBUG << store()->dump() << endreq;
   sc = getUniqueKey( m_pCaloClusterContainer, clusterCollKey, persKey );
   if (sc != HLT::OK) {
-    msg() << MSG::DEBUG << "Could not retrieve the cluster collection key" << endmsg;
+    msg() << MSG::DEBUG << "Could not retrieve the cluster collection key" << endreq;
     return sc;
   }
 
   if (store()->record (m_pCaloClusterContainer, clusterCollKey).isFailure()) {
-    msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << clusterCollKey << "> failed" << endmsg;
+    msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << clusterCollKey << "> failed" << endreq;
     delete m_pCaloClusterContainer;
     return HLT::TOOL_FAILURE;
   }
 
-  //xAOD::CaloClusterAuxContainer aux;
-  xAOD::CaloClusterTrigAuxContainer aux;
+  xAOD::CaloClusterAuxContainer aux;
   m_pCaloClusterContainer->setStore (&aux);
   
 
@@ -276,7 +284,7 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
       AlgTool* algtool = dynamic_cast<AlgTool*> (clproc);
       
       if(!algtool || algtool->setProperty( StringProperty("CellsName",retrieveCellContName(outputTE)) ).isFailure()) {
-        msg() << MSG::ERROR << "ERROR setting the CaloCellContainer name in the offline tool" << endmsg;
+        msg() << MSG::ERROR << "ERROR setting the CaloCellContainer name in the offline tool" << endreq;
         return HLT::TOOL_FAILURE;
       }
 
@@ -284,11 +292,11 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
     } else if(m_clusterMakerNames[index].find("trigslw") != std::string::npos){
       AlgTool* algtool = dynamic_cast<AlgTool*> (clproc);
       if(!algtool || algtool->setProperty( StringProperty("CaloCellContainer",retrieveCellContName(outputTE)) ).isFailure()) { 
-	msg() << MSG::ERROR << "ERROR setting the CaloCellContainer name in the offline tool" << endmsg; 
+	msg() << MSG::ERROR << "ERROR setting the CaloCellContainer name in the offline tool" << endreq; 
         return HLT::TOOL_FAILURE; 
       } 
       if(!algtool || algtool->setProperty( StringProperty("TowerContainer",retrieveTowerContName(outputTE))).isFailure()) {
-        msg() << MSG::ERROR << "ERROR setting the CaloCellContainer name in the offline tool" << endmsg;
+        msg() << MSG::ERROR << "ERROR setting the CaloCellContainer name in the offline tool" << endreq;
         return HLT::TOOL_FAILURE;
       }
     }
@@ -297,9 +305,9 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
     if (timerSvc()) m_timer[3+index]->start();
     if ( (clproc->name()).find("trigslw") != std::string::npos ) isSW=true;
     if ( clproc->execute(m_pCaloClusterContainer).isFailure() ) {
-      msg() << MSG::ERROR << "Error executing tool " << m_clusterMakerNames[index] << endmsg;
+      msg() << MSG::ERROR << "Error executing tool " << m_clusterMakerNames[index] << endreq;
     } else {
-      msg() << MSG::DEBUG << "Executed tool " << m_clusterMakerNames[index] << endmsg;
+      msg() << MSG::DEBUG << "Executed tool " << m_clusterMakerNames[index] << endreq;
     }
     if (timerSvc()) m_timer[3+index]->stop();
 
@@ -335,7 +343,7 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
     if (setter) {
       std::string cells_name = retrieveCellContName (outputTE);
       if(setter->setCaloCellContainerName(cells_name) .isFailure()) {
-        msg() << MSG::ERROR << "ERROR setting the CaloCellContainer name in the offline tool" << endmsg;
+        msg() << MSG::ERROR << "ERROR setting the CaloCellContainer name in the offline tool" << endreq;
         return HLT::BAD_JOB_SETUP;
       }
     }
@@ -349,10 +357,10 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
       if (!isSW) exec=true;
       if ( exec ) {
       if ( (*itrcct)->execute(cl).isFailure() ) {
-        msg() << MSG::ERROR << "Error executing correction tool " <<  m_clusterCorrectionNames[index] << endmsg;
+        msg() << MSG::ERROR << "Error executing correction tool " <<  m_clusterCorrectionNames[index] << endreq;
         return HLT::TOOL_FAILURE;
       } else {
-	msg() << MSG::DEBUG << "Executed correction tool " << m_clusterCorrectionNames[index] << endmsg;
+	msg() << MSG::DEBUG << "Executed correction tool " << m_clusterCorrectionNames[index] << endreq;
       }
       } // Check conditions
     }
@@ -364,7 +372,7 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
 
   // quality flag for clusters
 #if 0
-  if (m_pTrigCaloQuality &&  m_pTrigCaloQuality->getError()) { // conversion errors in this RoI
+  if (pTrigCaloQuality &&  pTrigCaloQuality->getError()) { // conversion errors in this RoI
     for (xAOD::CaloCluster* cl : *m_pCaloClusterContainer) {
       CaloClusterBadChannelData data(-999.,-999.,CaloSampling::Unknown,CaloBadChannel(4)); // unphysical data
       cl->addBadChannel(data);
@@ -372,32 +380,31 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
   }
 #endif
 
-  // fill monitored variables
   for (xAOD::CaloCluster* cl : *m_pCaloClusterContainer) {
-
-    m_et .push_back(cl->et() / 1000.0);
-    m_eta.push_back(cl->eta());
-    m_phi.push_back(cl->phi());
-    m_clusterSize.push_back(cl->clusterSize());
-    m_signalState.push_back(cl->signalState());
-    
-    CaloClusterCellLink* num_cell_links = cl->getCellLinks();
-    if(! num_cell_links) {
-    //m_size.push_back(0);
-    } else {
-      m_size.push_back(num_cell_links->size()); 
-    }
-    
-    m_N_BAD_CELLS .push_back(cl->getMomentValue(xAOD::CaloCluster::N_BAD_CELLS));
-    m_ENG_FRAC_MAX.push_back(cl->getMomentValue(xAOD::CaloCluster::ENG_FRAC_MAX));
+    m_Et.push_back(cl->et());
+    m_Eta.push_back(cl->eta());
+    m_Phi.push_back(cl->phi());
+    m_EtaEFvsL2.push_back(cl->eta()-m_L2Eta);
+    m_PhiEFvsL2.push_back(cl->phi()-m_L2Phi);    
+  }
+  
+  if( !m_pCaloClusterContainer->empty()) {
+    xAOD::CaloCluster* cl = m_pCaloClusterContainer->front();
+    double tmp = 0;
+    cl->retrieveMoment (xAOD::CaloCluster::N_BAD_CELLS, tmp);
+    m_containBadCells = tmp > 0;
+    m_clusterTime     = cl->time();
+    tmp = 0;
+    cl->retrieveMoment (xAOD::CaloCluster::ENG_FRAC_MAX, tmp);
+    m_eneFracMax = tmp;
   }
   
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << " REGTEST: Produced a Cluster Container of Size= " << m_pCaloClusterContainer->size() << endmsg;
+    msg() << MSG::DEBUG << " REGTEST: Produced a Cluster Container of Size= " << m_pCaloClusterContainer->size() << endreq;
     if(!m_pCaloClusterContainer->empty()) {
-      msg() << MSG::DEBUG << " REGTEST: Last Cluster Et  = " << (m_pCaloClusterContainer->back())->et() << endmsg;
-      msg() << MSG::DEBUG << " REGTEST: Last Cluster eta = " << (m_pCaloClusterContainer->back())->eta() << endmsg;
-      msg() << MSG::DEBUG << " REGTEST: Last Cluster phi = " << (m_pCaloClusterContainer->back())->phi() << endmsg;
+      msg() << MSG::DEBUG << " REGTEST: Last Cluster Et  = " << (m_pCaloClusterContainer->back())->et() << endreq;
+      msg() << MSG::DEBUG << " REGTEST: Last Cluster eta = " << (m_pCaloClusterContainer->back())->eta() << endreq;
+      msg() << MSG::DEBUG << " REGTEST: Last Cluster phi = " << (m_pCaloClusterContainer->back())->phi() << endreq;
     }
   }
   
@@ -407,19 +414,20 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
   std::stringstream strm; strm << roiDescriptor->roiId();
   m_pCaloClusterContainer->setROIAuthor(m_clustersOutputName + "_" + strm.str());
 #endif
-  
+
   // record and lock the Clusters Container with the new EDM helper... 
   bool status = CaloClusterStoreHelper::finalizeClusters( store(), m_pCaloClusterContainer,
                                                         clusterCollKey, msg());
-  
+
   if ( !status ) {  
-    msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << clusterCollKey << "> failed" << endmsg;
+    msg() << MSG::ERROR << "recording CaloClusterContainer with key <" << clusterCollKey << "> failed" << endreq;
     return HLT::TOOL_FAILURE;
   } else {
     if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " REGTEST: Recorded the cluster container in the RoI " << endmsg;
+      msg() << MSG::DEBUG << " REGTEST: Recorded the cluster container in the RoI " << endreq;
   }
-  
+    
+
   // Build the "uses" relation for the outputTE to the cell container
   std::string aliasKey = "";
   status = reAttachFeature(outputTE, m_pCaloClusterContainer, aliasKey, persKey );
@@ -427,32 +435,30 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
   if (status != (bool)HLT::OK) {
     msg() << MSG::ERROR
 	  << "Write of RoI Cluster Container into outputTE failed"
-	  << endmsg;
+	  << endreq;
     return HLT::NAV_ERROR;
   }
-  
-  m_container_size = m_pCaloClusterContainer->size(); // fill monitored variable
+
+  m_ClusterContainerSize = (float)m_pCaloClusterContainer->size();
   
   // get a pointer to caloclusterLink
   const CaloClusterCellLinkContainer* pCaloCellLinkContainer = 0;
   if (store()->retrieve( pCaloCellLinkContainer, clusterCollKey+"_links").isFailure()) {
-    msg() << MSG::WARNING << "cannot get CaloClusterCellLinkContainer (not return FAILURE) " << endmsg;
+    msg() << MSG::WARNING << "cannot get CaloClusterCellLinkContainer (not return FAILURE) " << endreq;
   }
   else {
     status = reAttachFeature(outputTE, pCaloCellLinkContainer, aliasKey, persKeyLink ); 
     if (status != (bool)HLT::OK) {
       msg() << MSG::ERROR
 	    << "Write of RoI CellLink Container into outputTE failed"
-	    << endmsg;
+	    << endreq;
     }
   }
   
   // Time total TrigCaloClusterMaker execution time.
   if (timerSvc()){
     m_timer[0]->stop();
-    m_algorithm_time = m_timer[0]->elapsed(); // fill monitored variable
   }
-
 
   return HLT::OK; 
 }
@@ -464,15 +470,15 @@ std::string TrigCaloClusterMaker::retrieveCellContName( HLT::TriggerElement* out
   std::vector<const CaloCellContainer*> vectorOfCellContainers;
 
   if( getFeatures(outputTE, vectorOfCellContainers, "") != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to get TrigCells" << endmsg;    
+    msg() << MSG::ERROR << "Failed to get TrigCells" << endreq;    
     return "";
   }
   
-  msg() << MSG::DEBUG << "Got vector with " << vectorOfCellContainers.size() << " CellContainers" << endmsg;
+  msg() << MSG::DEBUG << "Got vector with " << vectorOfCellContainers.size() << " CellContainers" << endreq;
   
   // if no containers were found, just leave the vector empty and leave
   if ( vectorOfCellContainers.size() < 1) {
-    msg() << MSG::ERROR << "No cells to analyse, leaving!" << endmsg;
+    msg() << MSG::ERROR << "No cells to analyse, leaving!" << endreq;
     return "";
   }
 
@@ -482,13 +488,13 @@ std::string TrigCaloClusterMaker::retrieveCellContName( HLT::TriggerElement* out
   // All this only to retrieve the key : 
   std::string cellCollKey;
   if ( getStoreGateKey( theCellCont, cellCollKey) != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to get key for TrigCells" << endmsg;    
+    msg() << MSG::ERROR << "Failed to get key for TrigCells" << endreq;    
     return "";
   }
 
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG  << " REGTEST: Retrieved the cell container in the RoI " << endmsg;
-    msg() << MSG::DEBUG << " REGTEST: Retrieved a Cell Container of Size= " << theCellCont->size() << endmsg;
+    msg() << MSG::DEBUG  << " REGTEST: Retrieved the cell container in the RoI " << endreq;
+    msg() << MSG::DEBUG << " REGTEST: Retrieved a Cell Container of Size= " << theCellCont->size() << endreq;
   }
 
   return cellCollKey;
@@ -501,15 +507,15 @@ std::string TrigCaloClusterMaker::retrieveTowerContName(HLT::TriggerElement* out
   std::vector<const CaloTowerContainer*> vectorOfTowerContainers;
 
   if ( getFeatures(outputTE, vectorOfTowerContainers, "") != HLT::OK ) {
-    msg() << MSG::ERROR << "Failed to get TrigTowers" << endmsg;
+    msg() << MSG::ERROR << "Failed to get TrigTowers" << endreq;
     return "";
   }
   
-  msg() << MSG::DEBUG << "Got vector with " << vectorOfTowerContainers.size() << " TowerContainers" << endmsg;
+  msg() << MSG::DEBUG << "Got vector with " << vectorOfTowerContainers.size() << " TowerContainers" << endreq;
   
   // if no containers were found, just leave the vector empty and leave
   if ( vectorOfTowerContainers.size() < 1) {
-    msg() << MSG::ERROR << "No towers to analyse, leaving!" << endmsg;
+    msg() << MSG::ERROR << "No towers to analyse, leaving!" << endreq;
     return "";
   }
 
@@ -519,13 +525,13 @@ std::string TrigCaloClusterMaker::retrieveTowerContName(HLT::TriggerElement* out
   // All this only to rebuild the key : 
   std::string towerCollKey;
   if ( getStoreGateKey( theCont, towerCollKey) != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to get key for TrigTowers" << endmsg;    
+    msg() << MSG::ERROR << "Failed to get key for TrigTowers" << endreq;    
     return "";
   }
 
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG  << " REGTEST: Retrieved the Tower container in the RoI " << endmsg;
-    msg() << MSG::DEBUG << " REGTEST: Retrieved a Tower Container of Size= " << theCont->size() << endmsg;
+    msg() << MSG::DEBUG  << " REGTEST: Retrieved the Tower container in the RoI " << endreq;
+    msg() << MSG::DEBUG << " REGTEST: Retrieved a Tower Container of Size= " << theCont->size() << endreq;
   }
 
   //std::cout << "@@ Got key " << towerCollKey << std::endl;
