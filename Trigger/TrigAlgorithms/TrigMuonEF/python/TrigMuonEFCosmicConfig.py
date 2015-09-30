@@ -368,13 +368,13 @@ class TrigMuonEFSegmentFinderCosmicConfig (TrigMuonEFSegmentFinder):
             self.useMdtSeededDecoding = True
             self.useRpcSeededDecoding = True
             self.useTgcSeededDecoding = True
-            self.useCscSeededDecoding = False # turned off for now, see ATR-10235
+            self.useCscSeededDecoding = True
             
             # use ROB based seeded decoding instead of PRD based
             self.useMdtRobDecoding = True
             self.useRpcRobDecoding = True
             self.useTgcRobDecoding = False # neither available nor needed
-            self.useCscRobDecoding = False # not available, see ATR-10235
+            self.useCscRobDecoding = False # neither available nor needed
             
 
         self.SegmentsFinderTool.HoughPatternFinder.RecordAll = False
