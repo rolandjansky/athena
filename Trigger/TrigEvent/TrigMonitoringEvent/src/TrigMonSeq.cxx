@@ -9,7 +9,6 @@
 
 // Local
 #include "TrigMonitoringEvent/TrigMonSeq.h"
-#include "TrigMonMSG.h"
 
 namespace SeqBits
 {
@@ -18,15 +17,7 @@ namespace SeqBits
   const uint32_t shiftIndex = 20;
 }
 
-namespace MSGService
-{
-  static TrigMonMSG msg("TrigMonSeq");
-}
-
 using namespace std;
-
-// This is to work around an edm change
-const static uint16_t LARGE_INDEX_SEQ_LOCATION = 321;
 
 //--------------------------------------------------------------------------------------  
 TrigMonSeq::TrigMonSeq()
@@ -49,9 +40,7 @@ TrigMonSeq::TrigMonSeq(const TrigConfChain &chn, const TrigConfSeq &seq)
   //
   const uint32_t index = seq.getIndex();
   if(index >= 4096) {
-    // EDM limitation workaround with big run-2 menus
-    m_var_key.push_back(LARGE_INDEX_SEQ_LOCATION);
-    m_var_val.push_back((float) index); // This is not going to get so large that we'll loose info in a float
+    cerr << "TrigMonSeq ctor error! Index is out of range: " << index << endl;
   }
   else {
     m_encoded |= (index << SeqBits::shiftIndex);
@@ -152,10 +141,6 @@ uint16_t TrigMonSeq::getSeqIndex() const
   //
   // Mask out SEQ State enum bits and return index
   // 
-  // Check it's not stored in the hack way first
-  for (uint32_t i=0; i < m_var_key.size(); ++i) {
-    if (m_var_key.at(i) == LARGE_INDEX_SEQ_LOCATION) return (uint16_t) m_var_val.at(i);
-  }
   return (m_encoded & SeqBits::maskIndex) >> SeqBits::shiftIndex;
 }
 

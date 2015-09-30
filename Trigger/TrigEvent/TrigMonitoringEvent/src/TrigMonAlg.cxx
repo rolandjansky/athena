@@ -9,17 +9,11 @@
 // Local
 #include "TrigMonitoringEvent/TrigMonAlg.h"
 #include "TrigMonitoringEvent/TrigMonRoi.h"
-#include "TrigMonMSG.h"
 
 namespace AlgBits
 {
   const uint32_t maskCache = 0x80; // bit used to set caching state
   const uint32_t maskPos   = 0x7f; // mask bottom 7 bits
-}
-
-namespace MSGService
-{
-  static TrigMonMSG msg("TrigMonAlg");
 }
 
 using namespace std;
@@ -38,7 +32,7 @@ TrigMonAlg::TrigMonAlg(unsigned int position, bool is_cached)
     m_byte[0] = position;
   }
   else {
-    MSGService::msg.Log("TrigMonAlg ctor error! Position is out of allowed range.", MSG::ERROR);
+    cerr << "TrigMonAlg ctor error! Position is out of allowed range: " << position << endl;
   }
 
   if(is_cached) {
@@ -56,11 +50,11 @@ void TrigMonAlg::addTimer(const TrigMonTimer &tbeg, const TrigMonTimer &tend)
   // Save start and stop time for one algorithm call
   //
   if(isCached()) {
-    MSGService::msg.Log("TrigMonAlg::addTimers error! Cached algorithm has no timers.", MSG::ERROR);
+    cerr << "TrigMonAlg::addTimers error! Cached algorithm has no timers." << endl;
     return;
   }
   else if(!m_word.empty()) {
-    MSGService::msg.Log("TrigMonAlg::addTimers error! Timers already added!", MSG::ERROR);
+    cerr << "TrigMonAlg::addTimers error! Timers already added!" << endl;
     return;
   }
 
@@ -77,8 +71,8 @@ void TrigMonAlg::addRoiId(unsigned int roi_id)
   if(roi_id < 256) {
     m_byte.push_back(static_cast<uint8_t>(roi_id)); 
   }
-  else if (roi_id == 256) {
-    MSGService::msg.Log("TrigMonAlg::addRoiId error! RoiId value is out of range! (only reported for ID=256)", MSG::WARNING);
+  else {
+    cerr << "TrigMonAlg::addRoiId error! RoiId value is out of range: " << roi_id << endl;
   }
 }
 
@@ -89,7 +83,7 @@ void TrigMonAlg::addWord(unsigned int word)
   // Save start and stop time for one algorithm call
   //
   if(m_word.size() != 2 && !isCached()) {
-    MSGService::msg.Log("TrigMonAlg::addWord error! Timers must be added first.", MSG::ERROR);
+    cerr << "TrigMonAlg::addWord error! Timers must be added first." << endl;
     return;
   }
 

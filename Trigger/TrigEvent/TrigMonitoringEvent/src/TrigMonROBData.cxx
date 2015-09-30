@@ -8,7 +8,6 @@
 
 // Local
 #include "TrigMonitoringEvent/TrigMonROB.h"
-#include "TrigMonMSG.h"
 
 namespace ROBbits
 {
@@ -17,11 +16,6 @@ namespace ROBbits
   uint32_t maskState   = 0x000000ff;
   uint32_t maskSize    = 0xffffff00;
   uint32_t shiftSize   = 8;
-}
-
-namespace MSGService
-{
-  static TrigMonMSG msg("TrigMonROBData");
 }
 
 //--------------------------------------------------------------------------------------  
@@ -37,7 +31,7 @@ TrigMonROBData::TrigMonROBData(uint32_t rob_id, uint32_t rob_size)
    m_word(0)
 {
   if(rob_size >= 16777215) {
-    MSGService::msg.Log("TrigMonROBData ctor error! Size out of range", MSG::ERROR);
+    std::cerr << "TrigMonROBData ctor error! Size out of range: " << rob_size<< std::endl;
   }
   else {
     m_word |= (rob_size << ROBbits::shiftSize);
