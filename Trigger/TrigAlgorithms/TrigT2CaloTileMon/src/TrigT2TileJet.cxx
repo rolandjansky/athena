@@ -9,14 +9,12 @@
 
 TrigT2TileJet::TrigT2TileJet()
 {
-   if ( !m_towercollection ) m_towercollection = new std::vector<TrigT2Tower>;
-   else m_towercollection->clear();
+   m_towercollection = new std::vector<TrigT2Tower>;
 }
 
 TrigT2TileJet::TrigT2TileJet(TrigT2TileJet& p)
 {
    std::vector<TrigT2Tower>* vec = p.towercollection();
-   if ( !m_towercollection ) m_towercollection = new std::vector<TrigT2Tower>;
    m_towercollection->clear();
    m_towercollection->insert(m_towercollection->end(),vec->begin(),vec->end() );
 }
@@ -26,8 +24,8 @@ void TrigT2TileJet::clearTowerCollection()
   std::vector<TrigT2Tower>::iterator i_begin;
   std::vector<TrigT2Tower>::iterator i_end;
   std::vector<TrigT2Tower>::iterator i_it;
-  i_begin = m_towercollection->begin();
-  i_end = m_towercollection->end();
+  m_towercollection->begin() = i_begin;
+  m_towercollection->end() = i_end;
   m_towercollection->erase(i_begin,i_end);
   m_towercollection->clear();
   delete m_towercollection;
@@ -36,7 +34,8 @@ void TrigT2TileJet::clearTowerCollection()
 
 TrigT2TileJet::~TrigT2TileJet()
 {
-  if ( m_towercollection ) clearTowerCollection();
+   m_towercollection->clear();
+   delete m_towercollection;
 }
 
 
@@ -60,7 +59,7 @@ void TrigT2TileJet::insertCell(Trig3Momentum newCell, MsgStream& log)
 {
    if ( log.level() <= MSG::DEBUG ){
    log << MSG::DEBUG << " REGTEST:     CELL: initial cell info:   eta:" << newCell.eta() << " phi:" << newCell.phi()
-             << " e:" << newCell.e() << " layer:" << newCell.caloSample() << endmsg;
+             << " e:" << newCell.e() << " layer:" << newCell.caloSample() << endreq;
    }
 
    // ONLY TILE BARREL AND EXTEND BARREL ALLOWED TO PASS HERE
@@ -111,7 +110,7 @@ void TrigT2TileJet::searchTowerAndInsert( Trig3Momentum cell, MsgStream& log, do
          }
          else
          {
-            log << MSG::WARNING << " REGTEST:     CELL: tried to insert Cell twice in a tower!" << endmsg;
+            log << MSG::WARNING << " REGTEST:     CELL: tried to insert Cell twice in a tower!" << endreq;
             flag=1; // do not insert in new tower
             break;
          }
@@ -121,7 +120,7 @@ void TrigT2TileJet::searchTowerAndInsert( Trig3Momentum cell, MsgStream& log, do
    if ( !flag )
    {
      if ( log.level() <= MSG::DEBUG )
-     log << MSG::DEBUG << " REGTEST:     CELL:          insert in NEW tower" << endmsg;
+     log << MSG::DEBUG << " REGTEST:     CELL:          insert in NEW tower" << endreq;
       m_towercollection->push_back( TrigT2Tower(cell, log, etaShift) );
 
    }
@@ -132,7 +131,7 @@ void TrigT2TileJet::print(MsgStream& log)
 {
    std::vector<TrigT2Tower>::iterator itt, itt_end;
    itt_end = m_towercollection->end();
-   log << MSG::DEBUG << " REGTEST: JET:  print jet:" << endmsg;
+   log << MSG::DEBUG << " REGTEST: JET:  print jet:" << endreq;
    for (itt = m_towercollection->begin(); itt!=itt_end; itt++)
    {
       (*itt).print(log,MSG::DEBUG);

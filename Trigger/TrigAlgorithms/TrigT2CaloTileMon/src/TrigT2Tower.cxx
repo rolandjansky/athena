@@ -85,7 +85,7 @@ bool TrigT2Tower::insertCell(Trig3Momentum cell, MsgStream& log)
    }
    else
    {
-      log << MSG::WARNING << " REGTEST:     CELL: is not in TILE. caloSample ID is: " << cell.caloSample() << endmsg;
+      log << MSG::WARNING << " REGTEST:     CELL: is not in TILE. caloSample ID is: " << cell.caloSample() << endreq;
       return 0;
    }
 
@@ -107,8 +107,8 @@ bool TrigT2Tower::isMember(Trig3Momentum cell, MsgStream& log, double etaShift)
    if ( fabs(eta()-(cell.eta()+etaShift))<delta && fabs(phi()-cell.phi())<delta )
    {
      if ( log.level()<MSG::DEBUG )
-      log << MSG::DEBUG << " REGTEST:     CELL:          insert in EXISTING tower:   eta" << eta() << "   phi:" << phi() << endmsg;
-     return 1;
+      log << MSG::DEBUG << " REGTEST:     CELL:          insert in EXISTING tower:   eta" << eta() << "   phi:" << phi() << endreq;
+      return 1;
    }
    else
    {
@@ -118,16 +118,16 @@ bool TrigT2Tower::isMember(Trig3Momentum cell, MsgStream& log, double etaShift)
 
 void TrigT2Tower::print(MsgStream& log, MSG::Level level)
 {
-   log << level << " REGTEST:   TOWER:  eta:" << eta() << " phi:" << phi() << " e:" << e() << endmsg;
+   log << level << " REGTEST:   TOWER:  eta:" << eta() << " phi:" << phi() << " e:" << e() << endreq;
    
    for( int i=0; i<3; i++ )
    {
       if ( m_cells[i].inCone() )
       {
          log << level << " REGTEST:     CELL " << i << " :  eta:" <<  m_cells[i].eta() << " phi:" << m_cells[i].phi()
-                  << " e:" << m_cells[i].e() << endmsg;
+                  << " e:" << m_cells[i].e() << endreq;
       }
-      else log << level << " REGTEST:     CELL " << i << " :  is NOT SET" << endmsg;
+      else log << level << " REGTEST:     CELL " << i << " :  is NOT SET" << endreq;
    }
 
 }
