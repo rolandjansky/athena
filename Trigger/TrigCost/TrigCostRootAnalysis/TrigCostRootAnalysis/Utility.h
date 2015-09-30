@@ -27,6 +27,19 @@
 class TH1F;
 class TFile;
 
+
+// Global compile switch to turn on multi threading
+//#define MTHREAD
+
+// The locking mechanism can be switched on here - but it's better to read in everything from the file in thread mode
+#ifdef MTHREAD
+  #define MUTEX_ON m_mutex.lock();
+  #define MUTEX_OFF m_mutex.unlock();
+#else
+  #define MUTEX_ON //noop
+  #define MUTEX_OFF //noop
+#endif
+
 /**
  * @def UNUSED(expr)
  * Preprocessed macro to mark deliberately unused variables and hide pedantic compiler warnings.
@@ -64,7 +77,7 @@ namespace TrigCostRootAnalysis {
     kSavePerEventFraction, //!< enum save once per event, divided by a per-event denominator
     kVariableOption_SIZE //!< Size of this enum, this entry must always come last.
   };
-  
+
   const static std::string VariableOptionStr[] = {
     "perCall",
     "perEvent",
@@ -93,18 +106,20 @@ namespace TrigCostRootAnalysis {
     kFormatOptionNone = 0, //!< No additional formatting
     kFormatOptionNormaliseEntriesWallTime, //!< Divide the cell entries through by the collection's walltime
     kFormatOptionNormaliseWallTime, //!< Divide the cell value through by the collection's walltime
+    kFormatOptionNormaliseLBTimeDec, //!< Divide the cell value through by the counter's kDecLbLength decoration
     kFormatOptionUseWallTime, //!< Display the walltime for this counter collection
     kFormatOptionNormaliseEntries, //!< Divide the cell value through by the number of entries
     kFormatOptionMiliSecToSec, //!< Convert cell from miliseconds to seconds
-    kFormatOptionUseEntries, //!< Use the numer of DataVariable etries rather than the DataVariable value 
+    kFormatOptionToPercentage, //!< Multiply by 100
+    kFormatOptionUseEntries, //!< Use the numer of DataVariable etries rather than the DataVariable value
     kFormatOptionUseStringDecoration, //!< Output a value not from the counter's DataStore, rather a string decoration instead.
     kFormatOptionUseFloatDecoration,//!< Output a value not from the counter's DataStore, rather a Float_t decoration instead.
     kFormatOptionUseIntDecoration//!< Output a value not from the counter's DataStore, rather a Int_t decoration instead.
   };
 
-  /** 
+  /**
    * @enum ConfKey_t
-   * Keys used with the config store. 
+   * Keys used with the config store.
    * This long list should be updated as needed.
    */
   enum ConfKey_t {
@@ -119,6 +134,7 @@ namespace TrigCostRootAnalysis {
     kDoL2,
     kDoEF,
     kDoHLT,
+    kNThread,
     kDoHLTOnline,
     kDoAllSummary,
     kDoKeySummary,
@@ -128,8 +144,11 @@ namespace TrigCostRootAnalysis {
     kLumiEnd,
     kNLbFullSummary,
     kNLbFullSkip,
+    kNLbPerHLTConfig,
+    kNHLTConfigSummary,
     kFullEventMaxNumToSave,
     kFullEventSaveOnePer,
+    kUpgradeScenario,
     kRatesForcePass,
     kRatesOverlapWarning,
     kRatesScaleByPS,
@@ -137,28 +156,40 @@ namespace TrigCostRootAnalysis {
     kMaxMultiSeed,
     kWroteProgressFile,
     kBasicEventWeight,
+    kOnlinePeakMuAverage,
     kEffectivePrescale,
     kEventWeight,
     kIsRootCore,
+    kCurrentEventIsSlow,
+    kEventTimeOffset,
+    kDoNotWriteMetadata,
     kCurrentEventBunchGroupID,
-    // <BEGIN> Monitors - ORDERING IS IMPORTANT HERE
-    kMonitorBegin, //!< This entry must be first (used in loops elsewhere)
-    // The rest of the monitors can technically come in any order, and new ones may be added
+    kCurrentEventEBWeight,
+    kCurrentEventWasRandomOnline, // <BEGIN> Monitors - ORDERING IS IMPORTANT HERE
+    kMonitorBegin, //!< This entry must be first (used in loops elsewhere). The rest of the monitors can technically come in any order, and new ones may be added
     kDoRatesMonitor, //<! Keep me first, breaks the partitioning (to be fixed :( ) but other monitors can read from this one
-    kDoChainMonitor, 
+    kDoRatesUpgradeMonitor,
+    kDoChainMonitor,
     kDoChainAlgorithmMonitor,
     kDoSequenceMonitor,
     kDoSequenceAlgorithmMonitor,
     kDoAlgorithmMonitor,
+    kDoAlgorithmClassMonitor,
     kDoROSMonitor,
+    kDoROBINMonitor,
+    kDoROSAlgorithmMonitor,
+    kDoROSChainMonitor,
     kDoROIMonitor,
-    //kDoL1ChainMapMonitor, obsolete
-    kDoFullEventMonitor,
     kDoGlobalsMonitor,
-    kDoAllMonitor, //!< This entry must be last
-    // <END> Monitors - ORDERING IS IMPORTANT HERE
+    kDoFullEventMonitor, //!< This entry must be after the GlobalsMonitor/ breaks the partitioning (to be fixed :( ) 
+    kDoEventProfileMonitor,
+    kDoAllMonitor, //!< This entry must be last // <END> Monitors - ORDERING IS IMPORTANT HERE
+    kEnableROSToAlgMatching,
     kPatternsMonitor,
     kPatternsOutput,
+    kPatternsUnique,
+    kPatternsExclude,
+    kPatternsOverlap,
     kOutputPng,
     kOutputPdf,
     kOutputImage,
@@ -182,17 +213,28 @@ namespace TrigCostRootAnalysis {
     kLinkOutputDirName,
     kUserDetails,
     kErrorIgnore,
-    kSlowEventThreshold,
+    kSlowThreshold,
+    kSlowEvThreshold,
+    kEventElapsed,
     kNBunchGroups,
     kDoEBWeighting,
     kDirectlyApplyPrescales,
+    kNoUpgradePileupScaling,
+    kNoOnlineDeadtimeCorrection,
+    kOnlineDeadtime,
     kDoUniqueRates,
+    kRatesOnly,
     kDoGroupOverlap,
     kDoAllOverlap,
     kRatesForNonPhysics,
     kDefaultLBLength,
     kPredictionLumi,
+    kPredictionLumiRunXML,
+    kPredictionLumiMenuXML,
+    kRunLumi,
+    kRunLumiXML,
     kDebug,
+    kMessageWait,
     kCleanAll,
     kSloppyExit,
     kROSXMLPath,
@@ -202,6 +244,7 @@ namespace TrigCostRootAnalysis {
     kPrescaleXMLName1,
     kPrescaleXMLName2,
     kPrescaleSetName,
+    kEventPickList,
     kMenuName,
     kEBXMLPath,
     kEBXMLName,
@@ -212,10 +255,13 @@ namespace TrigCostRootAnalysis {
     kOutputSummaryDirectory,
     kWriteEBWeightXML,
     kWriteDummyPSXML,
+    kNoMsgSuppression,
     kHistBins,
-    // Inernally used strings
-    kDataDir,
+    kHistBinMin,
+    kHistBinMax,
+    kDataDir, // Inernally used strings
     kAFSDataDir,
+    kL0String,
     kL1String,
     kL2String,
     kEFString,
@@ -230,9 +276,12 @@ namespace TrigCostRootAnalysis {
     kAndString,
     kRateGlobalHLTString,
     kRateGlobalL1String,
+    kRateGlobalL0String,
     kRateUniqueString,
     kRateFallbackPrescaleL1,
     kRateFallbackPrescaleHLT,
+    kMatchL1RandomToOnline,
+    kUnbiasedWeightThreshold,
     kCachedString,
     kCalledString,
     kAllROIString,
@@ -250,8 +299,8 @@ namespace TrigCostRootAnalysis {
     kEventsSkipped,
     kRunNumber,
     kVersionString,
-    // Study Variable ENUMs
-    kVarTime,
+    kVarTime,     // Study Variable ENUMs
+    kVarTimeElapsed,
     kVarFirstTime,
     kVarAlgTime,
     kVarCPUTime,
@@ -265,8 +314,13 @@ namespace TrigCostRootAnalysis {
     kVarROBReqSize,
     kVarROBRetSize,
     kVarROBOther,
+    kVarROBDisabled,
+    kVarROBIgnored,
+    kVarROBNotOK,
+    kVarROBUnclassified,
+    kVarROBPrefetched,
     kVarCalls,
-    kVarCallsRaw,   
+    kVarCallsRaw,
     kVarCallsSlow,
     kVarEventsActive,
     kVarEventsPassed,
@@ -274,6 +328,8 @@ namespace TrigCostRootAnalysis {
     kVarEventsPassedNoPS,
     kVarEventsPassthrough,
     kVarEventsRun,
+    kVarUnbiasedPassed,
+    kVarUnbiasedRun,
     kVarEventsPassRawStat,
     kVarEventsRunRawStat,
     kVarEventsSlow,
@@ -291,25 +347,27 @@ namespace TrigCostRootAnalysis {
     kVarEventsPerLumiblock,
     kVarOverlap,
     kVarOverlapDP,
-    // Decoration ENUMs
-    kDecStartTime,
+    kVarWeights,
+    kDecStartTime,     // Decoration ENUMs
     kDecCallOrCache,
     kDecROIString,
     kDecROSString,
     kDecAlgClassName,
+    kDecCounterClassification,
     kDecChainName,
     kDecSeqName,
     kDecLbLength,
     kDecType,
     kDecID,
+    kDecElapsedTime,
     kDecRatesGroupName,
     kDecPrescaleStr,
     kDecPrescaleVal,
     kDecPrescaleValOnlineL1,
     kDecUniqueRate,
     kDecUniqueFraction,
-    // Error message suppression ENUM
-    kMsgNonPhysics,
+    kDecMyROS,
+    kMsgNonPhysics,     // Error message suppression ENUM
     kMsgDivZero,
     kMsgRoISize,
     kMsgRoIHack,
@@ -323,8 +381,13 @@ namespace TrigCostRootAnalysis {
     kMsgUnknownDecoration,
     kMsgIllegalCharacters,
     kMsgZeroRate,
-    // END of config ENUM keys
-    kConfKey_SIZE //!< Number of configuration keys - keep me as last entry
+    kMsgLargeSteerTime,
+    kMsgNoLumiInfo,
+    kMsgCannotFindVar,
+    kMsgCannotFindVO,
+    kMsgNewUniqueCounter,
+    kMsgLumiScaling,
+    kConfKey_SIZE //!<  END of config. ENUM keysNumber of configuration keys - keep me as last entry
   };
 
   // Typedefs - used throughout
@@ -350,6 +413,9 @@ namespace TrigCostRootAnalysis {
 
   typedef std::map< std::pair<std::string, Float_t>, Int_t > PairStringFloat_Float_Map_t;
   typedef PairStringFloat_Float_Map_t::const_iterator        PairStringFloat_Float_MapIt_t;
+
+  typedef std::map< Int_t, std::pair<std::string, Int_t> > Int_PairStringInt_Map_t;
+  typedef Int_PairStringInt_Map_t::const_iterator          Int_PairStringInt_MapIt_t;
 
   typedef std::map< ConfKey_t, std::string> confStringMap_t;
   typedef confStringMap_t::const_iterator   confStringMapIt_t;
@@ -378,7 +444,7 @@ namespace TrigCostRootAnalysis {
 
   typedef std::pair< ConfKey_t, VariableOption_t >  ConfVariableOptionPair_t;
   typedef std::vector< ConfVariableOptionPair_t >   VariableOptionVector_t; //!< Structure to hold a reference to what is stored in a DataStore
-  
+
   typedef std::map< ConfKey_t, DataVariable* >::const_iterator VariableMapIt_t; //!< Internal use name to DataVariable pointer iterator typedef.
 
   typedef std::set<CounterBaseRates*>           CounterBaseRatesSet_t;
@@ -390,10 +456,17 @@ namespace TrigCostRootAnalysis {
   typedef std::map< std::string, RatesChainItem* > ChainItemMap_t;
   typedef ChainItemMap_t::const_iterator           ChainItemMapIt_t;
 
+  typedef std::set< Int_t >        IntSet_t;
+  typedef IntSet_t::const_iterator IntSetIt_t;
+
+  typedef std::map< std::string, IntSet_t > StringIntSetMap_t;
+  typedef StringIntSetMap_t::const_iterator StringIntSetMapIt_t;
+  typedef StringIntSetMap_t::iterator       StringIntSetMapNonConstIt_t;
+
 
   // Helper functions
   // These need to find a more permanent home
-  
+
   Int_t stringToInt(const std::string &_i);
   Float_t stringToFloat(const std::string &_i);
   Double_t stringToDouble(const std::string &_i);
@@ -408,7 +481,7 @@ namespace TrigCostRootAnalysis {
   ConfVariableOptionPair_t makePair(ConfKey_t _name, VariableOption_t _vo);
   Int_t stringToIntHash( std::string );
   const std::string& getLevelString(UInt_t _level);
-  
+
   class JsonExport {
   public:
 

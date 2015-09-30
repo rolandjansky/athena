@@ -29,26 +29,23 @@ namespace TrigCostRootAnalysis {
   MonitorROI::MonitorROI(const TrigCostData* _costData) : MonitorBase(_costData, "ROI") {
     m_dummyCounter = newCounter(Config::config().getStr(kDummyString), INT_MIN);
   }
-  
+
   /**
    * Process new event for this monitor.
    * We have one counter per ROI type and a global one
    * @param _weight The event weight.
    */
   void MonitorROI::newEvent(Float_t _weight) {
-  
+    m_timer.start();
     if ( Config::config().debug() ) Info("MonitorROI::newEvent", "*** Processing ROI ***");
-    
-    // Populate the counter collections we'll be using for this event.
-    collateCounterCollectionsForEvent( m_costData->getLumi(), TrigConfInterface::getCurrentDBKey() );
-    
+
     //Now loop over the counter collections;
-    
+
     for (CounterMapSetIt_t _cmsIt = m_collectionsToProcess.begin(); _cmsIt != m_collectionsToProcess.end(); ++_cmsIt) {
       CounterMap_t* _counterMap = *_cmsIt;
-      
+
       startEvent();
-      
+
       // Loop over all chains.
       for (UInt_t _r = 0; _r < m_costData->getNRoIs(); ++_r) {
 
@@ -67,6 +64,7 @@ namespace TrigCostRootAnalysis {
       endEvent(_weight);
 
     }
+    m_timer.stop();
   }
 
   /**
@@ -83,30 +81,30 @@ namespace TrigCostRootAnalysis {
     }
     return kFALSE;
   }
-  
+
   /**
    * Save the results from this monitors counters as specified in the configuration.
    */
   void MonitorROI::saveOutput() {
-  
+
     m_filterOutput = kFALSE; // Apply any user-specified name filter to output
-    
+
     // Specify what plots we wish to save from the counters
     VariableOptionVector_t _toSavePlots = m_dummyCounter->getAllHistograms();
     sharedHistogramOutputRoutine( _toSavePlots );
 
     std::vector<TableColumnFormatter> _toSaveTable;
     _toSaveTable.push_back( TableColumnFormatter("ROIs",
-      "Total number of ROIs of this type.", 
+      "Total number of ROIs of this type.",
       kVarCalls, kSavePerEvent, 0 ) );
 
-    _toSaveTable.push_back( TableColumnFormatter("ROIs/Event", 
-      "Average number of ROIs of this type per event.", 
+    _toSaveTable.push_back( TableColumnFormatter("ROIs/Event",
+      "Average number of ROIs of this type per event.",
       kVarCalls, kSavePerEvent, kVarEventsActive, kSavePerEvent, 2) );
 
-    _toSaveTable.push_back( TableColumnFormatter("L1Thresholds/ROI", 
+    _toSaveTable.push_back( TableColumnFormatter("L1Thresholds/ROI",
       "Average number of L1 Thresholds per ROI of this type.",
-       kVarL1Thresh, kSavePerCall, kVarCalls, kSavePerEvent, 2) );  
+       kVarL1Thresh, kSavePerCall, kVarCalls, kSavePerEvent, 2) );
 
     sharedTableOutputRoutine( _toSaveTable );
   }
@@ -121,8 +119,8 @@ namespace TrigCostRootAnalysis {
    * @returns Base class pointer to new counter object of correct serived type.
    */
   CounterBase* MonitorROI::newCounter(  const std::string &_name, Int_t _ID  ) {
-    return new CounterROI( m_costData, _name,  _ID, m_detailLevel );
+    return new CounterROI( m_costData, _name,  _ID, m_detailLevel, (MonitorBase*)this );
   }
-  
-  
+
+
 } // namespace TrigCostRootAnalysis

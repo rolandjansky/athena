@@ -31,17 +31,18 @@
 namespace TrigCostRootAnalysis {
 
   Float_t CounterAlgorithm::s_eventTimeExecute = 0.;
-  
+
   /**
    * Algorithm counter constructor. Sets values of internal variables and sets up data store.
    * @param _name Const ref to algorithm's name
    * @param _ID Algorithms ID number. As an algorithm has two ID numbers, we take a hash of its name as its ID.
    */
-  CounterAlgorithm::CounterAlgorithm( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel ) : 
-    CounterBase(_costData, _name, _ID, _detailLevel),
+  CounterAlgorithm::CounterAlgorithm( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel, MonitorBase* _parent) :
+    CounterBase(_costData, _name, _ID, _detailLevel, _parent),
     m_firstAlgStartTime(FLT_MAX),
     m_firstAlgTime(0.),
-    m_firstAlgTimeWeight(0.) {
+    m_firstAlgTimeWeight(0.),
+    m_eventWeight(1.) {
 
     if (m_detailLevel == 0) {
       // Detail 0 is no histograms and additional data cached from first execution
@@ -52,7 +53,7 @@ namespace TrigCostRootAnalysis {
     m_dataStore.newVariable(kVarCalls).setSavePerEvent();
     m_dataStore.newVariable(kVarCallsSlow).setSavePerEvent();
     m_dataStore.newVariable(kVarEventsActive).setSavePerEvent();
-    
+
     // Time variables
     m_dataStore.newVariable(kVarTime)
       .setSavePerCall("Algorithm Total Time Per Call;Algorithm Total Time per Call [ms];Calls")
@@ -79,7 +80,7 @@ namespace TrigCostRootAnalysis {
     m_dataStore.newVariable(kVarROBReqs)
       .setSavePerCall("Number Of Cached ROBs Per Call;Cached ROBs;Calls")
       .setSavePerEvent("Number Of Cached ROBs Per Event;Cached ROBs;Events");
-    
+
     m_dataStore.newVariable(kVarROBRets)
       .setSavePerCall("Number Of Retrieved ROBs Per Call;Retrieved ROBs;Calls")
       .setSavePerEvent("Number Of Retrieved ROBs Per Event;Retrieved ROBS;Events");
@@ -87,7 +88,7 @@ namespace TrigCostRootAnalysis {
     m_dataStore.newVariable(kVarROBReqSize)
       .setSavePerCall("Size Of Cached ROBs Per Call;Cached ROBs Size [kB];Calls")
       .setSavePerEvent("Size Of Cached ROBs Per Event;Cached ROBs Size [kB];Events");
-    
+
     m_dataStore.newVariable(kVarROBRetSize)
       .setSavePerCall("Size Of Retrieved ROBs Per Call;Retrieved ROBs Size [kB];Calls")
       .setSavePerEvent("Size Of Retrieved ROBs Per Event;Retrieved ROBs Size [kB];Events");
@@ -96,13 +97,13 @@ namespace TrigCostRootAnalysis {
 
 
   }
-  
+
   /**
    * Counter destructor. Nothing currently to delete.
    */
   CounterAlgorithm::~CounterAlgorithm() {
   }
-  
+
   /**
    * Reset per-event counter(s). This is a static so this needs to only be called on one instance of this class,
    * not all instances.
@@ -110,7 +111,7 @@ namespace TrigCostRootAnalysis {
   void CounterAlgorithm::startEvent() {
     s_eventTimeExecute = 0;
   }
-  
+
   /**
    * Perform monitoring of a single algorithm call within an event.
    * @param _e Sequence index in D3PD.
@@ -120,7 +121,8 @@ namespace TrigCostRootAnalysis {
   void CounterAlgorithm::processEventCounter(UInt_t _e, UInt_t _f, Float_t _weight) {
     ++m_calls;
 
-    _weight *= getPrescaleFactor(_e);
+    Float_t _prescaleFactor = getPrescaleFactor(_e);;
+    _weight *= _prescaleFactor;
 
     // Special case. If we are running as part of the FullEvent monitor, we should keep weight=1 to make the output readable
     if (m_detailLevel == 0 && m_calls == 1) _weight = 1.;
@@ -130,26 +132,32 @@ namespace TrigCostRootAnalysis {
     }
 
     if ( Config::config().debug() ) debug(_e, _f);
-    
+
+    const std::string _myChain = TrigConfInterface::getHLTNameFromChainID( m_costData->getSequenceChannelCounter(_e));
+    if ( m_chainsSeen.count( _myChain ) == 0) {
+      m_eventWeight *= (1. - _prescaleFactor);
+      m_chainsSeen.insert( _myChain );
+    }
+
     m_dataStore.store(kVarCalls, 1., _weight);
 
     m_dataStore.store(kVarAlgCalls, m_costData->getSeqAlgIsCalled(_e, _f), _weight);
     m_dataStore.store(kVarAlgCaches, m_costData->getSeqAlgIsCached(_e, _f), _weight);
-    
+
     m_dataStore.store(kVarROSCalls, m_costData->getSeqAlgROSCalls(_e, _f), _weight);
     if ( m_costData->getSeqAlgROBRequests(_e, _f) != 0 ) {
-      m_dataStore.store(kVarROBReqs, m_costData->getSeqAlgROBRequests(_e, _f, kTRUE), _weight); // Small optimisation, don't need to check the event buffer on futute calls
-      m_dataStore.store(kVarROBReqSize, m_costData->getSeqAlgROBRequestSize(_e, _f, kTRUE), _weight);
+      m_dataStore.store(kVarROBReqs, m_costData->getSeqAlgROBRequests(_e, _f), _weight);
+      m_dataStore.store(kVarROBReqSize, m_costData->getSeqAlgROBRequestSize(_e, _f), _weight);
     }
-    if ( m_costData->getSeqAlgROBRetrievals(_e, _f, kTRUE) != 0 ) {
-      m_dataStore.store(kVarROBRets, m_costData->getSeqAlgROBRetrievals(_e, _f, kTRUE), _weight);
-      m_dataStore.store(kVarROBRetSize, m_costData->getSeqAlgROBRetrievalSize(_e, _f, kTRUE), _weight);
+    if ( m_costData->getSeqAlgROBRetrievals(_e, _f) != 0 ) {
+      m_dataStore.store(kVarROBRets, m_costData->getSeqAlgROBRetrievals(_e, _f), _weight);
+      m_dataStore.store(kVarROBRetSize, m_costData->getSeqAlgROBRetrievalSize(_e, _f), _weight);
     }
-    if ( m_costData->getSeqAlgROBOthers(_e, _f, kTRUE) != 0 ) {
-      m_dataStore.store(kVarROBOther, m_costData->getSeqAlgROBOthers(_e, _f, kTRUE), _weight);
+    if ( m_costData->getSeqAlgROBOthers(_e, _f) != 0 ) {
+      m_dataStore.store(kVarROBOther, m_costData->getSeqAlgROBOthers(_e, _f), _weight);
     }
 
-    if ( m_costData->getSeqAlgTimer(_e, _f) > Config::config().getInt(kSlowEventThreshold) ) {
+    if ( m_costData->getSeqAlgTimer(_e, _f) > Config::config().getInt(kSlowThreshold) ) {
       m_dataStore.store(kVarCallsSlow, 1., _weight);
     }
 
@@ -158,9 +166,10 @@ namespace TrigCostRootAnalysis {
       m_firstAlgStartTime = m_costData->getSeqAlgTimeStart(_e, _f);
       m_firstAlgTime = m_costData->getSeqAlgTimer(_e, _f);
       m_firstAlgTimeWeight = _weight;
-    } 
+    }
 
     m_dataStore.store(kVarTime, m_costData->getSeqAlgTimer(_e, _f), _weight);
+
     Float_t _ROSTime = m_costData->getSeqAlgROSTime(_e, _f);
     if (isZero(_ROSTime) == kFALSE) {
       m_dataStore.store(kVarROSTime, m_costData->getSeqAlgROSTime(_e, _f), _weight);
@@ -181,9 +190,26 @@ namespace TrigCostRootAnalysis {
    * @return Multiplicative weighting factor
    */
   Double_t CounterAlgorithm::getPrescaleFactor(UInt_t _e) {
-    return TrigXMLService::trigXMLService().getHLTCostWeightingFactor( 
-      TrigConfInterface::getHLTNameFromChainID( m_costData->getSequenceChannelCounter(_e), 
+    return TrigXMLService::trigXMLService().getHLTCostWeightingFactor(
+      TrigConfInterface::getHLTNameFromChainID( m_costData->getSequenceChannelCounter(_e),
       m_costData->getSequenceLevel(_e) ) );
+  }
+
+  /**
+   * @param _e Sequence index in D3PD.
+   * @param _f Location of algorithm within parent sequence
+   * @return How much time has passed in seconds from the beginning of the event to this alg's execution
+   */
+  Float_t CounterAlgorithm::getElapsedTime(UInt_t _e, UInt_t _f) {
+    Float_t _t =  m_costData->getSeqAlgTimeStart(_e, _f);
+    if (isZero(_t) == kTRUE) { // Annoyingly - if alg was cached it will have a zero, need to look back for the last alg to actually run
+      _t = Config::config().getFloat(kEventElapsed);
+    } else {
+      Config::config().setFloat(kEventElapsed, _t, "EventElapsed", kUnlocked);
+    }
+    Float_t _elapsed = _t - m_costData->getSeqAlgTimeStart(0, 0);
+    if (_elapsed < 0) _elapsed += 3600.;
+    return _elapsed;
   }
 
   /**
@@ -197,9 +223,10 @@ namespace TrigCostRootAnalysis {
     UNUSED( _weight );
 
     decorate(kDecStartTime, m_costData->getSeqAlgTimeStart(_e, _f) );
+    decorate(kDecElapsedTime, getElapsedTime(_e, _f) );
     decorate(kDecCallOrCache, m_costData->getSeqAlgIsCalled(_e, _f) ? Config::config().getStr(kCalledString) : Config::config().getStr(kCachedString) );
 
-    //RoI Info 
+    //RoI Info
     std::string _roiString = "";
     if ( m_costData->getSeqAlgNRoI(_e, _f) == 0) {
       _roiString = "No RoI";
@@ -210,10 +237,10 @@ namespace TrigCostRootAnalysis {
         _roiString += m_costData->getRoITypeString( _roiLocation );
         if (_roiLocation != -1 && m_costData->getRoIEta(_roiLocation) > -9000) { // Some ROIs do not have a location - these return -9999 for these vars
           _roiString += std::string(" (&eta;");
-          _roiString += floatToString(m_costData->getRoIEta(_roiLocation), 1); 
+          _roiString += floatToString(m_costData->getRoIEta(_roiLocation), 1);
           _roiString += std::string(" - &phi;");
           _roiString += floatToString(m_costData->getRoIPhi(_roiLocation), 1);
-          _roiString += std::string(")"); 
+          _roiString += std::string(")");
         }
       }
     }
@@ -240,22 +267,27 @@ namespace TrigCostRootAnalysis {
     }
     decorate(kDecROSString, _rosString);
   }
-  
+
   /**
    * Perform end-of-event monitoring for this algorithm.
    * What was determined to be the first execution's time is saved, the total time for the event is used to calculate per-event averages.
    */
   void CounterAlgorithm::endEvent(Float_t _weight) {
-    m_dataStore.store(kVarEventsActive, 1., _weight);
-    m_dataStore.store(kVarFirstTime, m_firstAlgTime, m_firstAlgTimeWeight);
-    m_firstAlgStartTime = FLT_MAX; // Reset first-exec time
-    m_firstAlgTime = 0.;
-    m_firstAlgTimeWeight = 0.;
+    if (m_chainsSeen.size() > 0) {
+      m_eventWeight = 1. - m_eventWeight;
+      m_dataStore.store(kVarEventsActive, 1., m_eventWeight * _weight);
+      m_dataStore.store(kVarFirstTime, m_firstAlgTime, m_firstAlgTimeWeight);
+      m_firstAlgStartTime = FLT_MAX; // Reset first-exec time
+      m_firstAlgTime = 0.;
+      m_firstAlgTimeWeight = 0.;
+      m_eventWeight = 1.;
+      m_chainsSeen.clear();
+    }
 
     m_dataStore.setVariableDenominator(kVarTime, s_eventTimeExecute);
     m_dataStore.endEvent();
   }
-  
+
   /**
    * Output debug information on this call to the console
    */
@@ -273,5 +305,5 @@ namespace TrigCostRootAnalysis {
          m_costData->getSeqAlgTimer(_e, _a)
         );
   }
-  
+
 } // namespace TrigCostRootAnalysis

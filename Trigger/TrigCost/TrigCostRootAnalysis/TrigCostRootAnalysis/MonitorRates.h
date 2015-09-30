@@ -56,11 +56,16 @@ namespace TrigCostRootAnalysis {
     void createHLTCounters(CounterMap_t* _counterMap);
     void createOverlapCounters(CounterMap_t* _counterMap);
 
+    Bool_t checkPatternUnique( const std::string& _patternName );
+    Bool_t checkPatternOverlap( const std::string& _patternName );
+
     CounterRatesUnion* m_globalRateHLTCounter;
     CounterRatesUnion* m_globalRateL1Counter;
 
     ChainItemMap_t m_chainItemsL1;
     ChainItemMap_t m_chainItemsHLT;
+
+    Bool_t m_doingOverlaps; //!< Flag for if one or more overlaps is being calculated
 
     
   }; //class MonitorRates

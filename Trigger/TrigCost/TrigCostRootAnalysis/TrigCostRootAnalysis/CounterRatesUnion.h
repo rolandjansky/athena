@@ -36,22 +36,22 @@ namespace TrigCostRootAnalysis {
     kManyToMany, //!< Any arbitrary set of connections, inc. L1's which connect to many L2s and L2's which are seeded by many L1s
     kUnset //!< Topology has not yet been classified
   };
-  
+
   /**
    * @class CounterRatesUnion
    * Calculate and record rates for the union of multiple chains
    * @see CounterBase
    */
   class CounterRatesUnion : public CounterBaseRates {
-  
+
    public:
-   
-    CounterRatesUnion( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10 );
+
+    CounterRatesUnion( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10, MonitorBase* _parent = 0 );
     ~CounterRatesUnion();
     void debug(UInt_t _e);
 
     void    finalise();
-    Float_t runDirect(Bool_t _usePrescale = kTRUE); 
+    Float_t runDirect(Bool_t _usePrescale = kTRUE);
     Float_t runWeight();
 
    protected:
@@ -64,9 +64,9 @@ namespace TrigCostRootAnalysis {
     Float_t runWeight_ManyToMany();
 
     CombinationClassification m_combinationClassification; //!< Hold the classified topology of the set of chains in this Union.
-       
+
   }; //class CounterRatesUnion
-  
+
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_CounterRatesUnion_H

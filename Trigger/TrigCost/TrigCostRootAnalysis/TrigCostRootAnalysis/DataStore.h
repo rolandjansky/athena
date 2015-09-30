@@ -30,7 +30,7 @@ namespace TrigCostRootAnalysis {
   //Forward declaration
   class DataVariable;
   class CounterBase;
-  
+
   /**
    * @class DataStore
    *
@@ -45,9 +45,9 @@ namespace TrigCostRootAnalysis {
    *                         You must call setVariableDenominator(variableName,denominator) before endEvent() is called.
    * @see Utility.h
    */
-  
+
   class DataStore {
-  
+
    public:
 
     DataStore(CounterBase* _parent = 0);
@@ -64,12 +64,14 @@ namespace TrigCostRootAnalysis {
     void setVariableDenominator(ConfKey_t _name, Float_t _denominator);
     void store(ConfKey_t _name, Float_t _value, Float_t _weight = 1.);
     Float_t getValue(ConfKey_t _name, VariableOption_t _vo);
+    Bool_t  getValueExists(ConfKey_t _name, VariableOption_t _vo);
     Float_t getValueError(ConfKey_t _name, VariableOption_t _vo);
     Int_t getEntries(ConfKey_t _name, VariableOption_t _vo);
     void  setValue(ConfKey_t _name, VariableOption_t _vo, Float_t _val);
     void  setEntries(ConfKey_t _name, VariableOption_t _vo, UInt_t _val);
     void  setErrorSquared(ConfKey_t _name, VariableOption_t _vo, Float_t _val);
     TH1F* getHist(ConfKey_t _name, VariableOption_t _vo, Bool_t _silent = kFALSE);
+    void  setHist(ConfKey_t _name, VariableOption_t _vo, TH1F* _hist);
     // TH2F* getHist2D(ConfKey_t _name, VariableOption_t _vo);
     Bool_t getHistogramming() { return m_histogrammingEnabled; }
     CounterBase* getParent() { return m_parent; }
@@ -77,16 +79,16 @@ namespace TrigCostRootAnalysis {
     const std::string& getNameOfMostRecentCall();
 
    private:
-   
+
     Bool_t checkRegistered(ConfKey_t _name, Bool_t _silent = kFALSE);
     DataStore& setSaveInternal(VariableOption_t _vo, std::string& _title, ConfKey_t _name = kBlankString);
     Bool_t m_histogrammingEnabled; //!< If histograming is to be unsed on newly created VariableOptions. Designed to be toggled on and off.
     DataVariable* m_mostRecent; //!< Pointer to most recently created/modified variable, used with the chaining operators.
     std::map< ConfKey_t, DataVariable* > m_variableMap; //!< Internal map of DataVariable objects, these hold the primitive types and histograms.
     CounterBase* m_parent; //!< Pointer to the CounterBase which (may) own this object.
-    
+
   }; //class DataStore
-  
+
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_DataStore_H

@@ -22,27 +22,27 @@
 #include "../TrigCostRootAnalysis/RatesChainItem.h"
 
 namespace TrigCostRootAnalysis {
-  
+
   /**
    * Counter to monitor the rates of a single chain.
    * @param _costData Const pointer to the data store, not used by this counter at the moment.
    * @param _name Const ref to chain's name
    * @param _ID Chain's ID number.
    */
-  CounterRatesIntersection::CounterRatesIntersection( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel ) : 
-    CounterBaseRates(_costData, _name, _ID, _detailLevel), m_redundanciesRemoved(kFALSE) {
+  CounterRatesIntersection::CounterRatesIntersection( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel, MonitorBase* _parent ) :
+    CounterBaseRates(_costData, _name, _ID, _detailLevel, _parent), m_redundanciesRemoved(kFALSE) {
   }
-  
+
   /**
    * Counter destructor. Nothing currently to delete.
    */
   CounterRatesIntersection::~CounterRatesIntersection() {
   }
-  
+
   /**
    * This is the naive method.
    * All L2 chains must pass raw and pass PS, plus at least one of each of their L1 chains must pass raw and pass PS too
-   * @param _usePrescale - if set to kTRUE (default) then the prescale will be simulated, otherwise the prescale is taken to be 1. 
+   * @param _usePrescale - if set to kTRUE (default) then the prescale will be simulated, otherwise the prescale is taken to be 1.
    * @return 1 if all the chains passes, 0 if not.
    */
   Float_t CounterRatesIntersection::runDirect(Bool_t _usePrescale) {
@@ -79,7 +79,7 @@ namespace TrigCostRootAnalysis {
 
     if (m_redundanciesRemoved == kFALSE) removeRedundancies();
     Float_t _w = 1.;
-    
+
     for (ChainItemSetIt_t _L2It = m_L2s.begin(); _L2It != m_L2s.end(); ++_L2It) {
       RatesChainItem* _L2 = (*_L2It);
       if ( _L2->getPassRaw() == kFALSE ) return 0.;
@@ -114,8 +114,8 @@ namespace TrigCostRootAnalysis {
           _L2Set = m_L2s;
         }
 
-        if ( _L1ToTryRemoving != _N++ ) { // If I'm *not* the L1 we're querying 
-          
+        if ( _L1ToTryRemoving != _N++ ) { // If I'm *not* the L1 we're querying
+
           for (ChainItemSetIt_t _L2It = _L2Set.begin(); _L2It != _L2Set.end(); /*note no increment*/ ) {
             RatesChainItem* _L2 = (*_L2It);   // Look at this all L2s left in the list.
             Bool_t _isSeeded = kFALSE;
@@ -135,14 +135,14 @@ namespace TrigCostRootAnalysis {
             }
           }
 
-        } else { // If *am* the L1 we're querying, remember my location 
+        } else { // If *am* the L1 we're querying, remember my location
           _L1ToTryRemovingIt = _L1It;
         }
       }
       // We have looped over all but one of the list of L1 items, have we found one we can remove?
       if (_L2Set.size() == 0) { // If true we could still reach all the counters *without* this L1
         if (Config::config().debug()) {
-          Info("CounterRatesIntersection::removeRedundancies","Removing redundant L1 chain %s from %s", 
+          Info("CounterRatesIntersection::removeRedundancies","Removing redundant L1 chain %s from %s",
             (*_L1ToTryRemovingIt)->getName().c_str(), getName().c_str());
         }
         _L1Set.erase(_L1ToTryRemovingIt);
@@ -156,12 +156,12 @@ namespace TrigCostRootAnalysis {
     m_L1s = _L1Set;
     m_redundanciesRemoved = kTRUE;
   }
-  
+
   /**
    * Output debug information on this call to the console
    */
   void CounterRatesIntersection::debug(UInt_t _e) {
     UNUSED(_e);
   }
-  
+
 } // namespace TrigCostRootAnalysis

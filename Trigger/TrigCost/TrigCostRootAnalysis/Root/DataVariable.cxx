@@ -35,7 +35,7 @@ namespace TrigCostRootAnalysis {
       m_dataMap[ (VariableOption_t) i ] = NULL;
     }
   }
-  
+
   /**
    * DataVariable destructor. Frees memory from all Data*
    */
@@ -46,7 +46,7 @@ namespace TrigCostRootAnalysis {
     }
     m_dataMap.clear();
   }
-  
+
   /**
    * Data constructor, takes no arguments. Initialises to empty.
    */
@@ -54,7 +54,7 @@ namespace TrigCostRootAnalysis {
     m_sumw2(0), m_denominator(0), m_usedInEvent(kFALSE), m_histoTitle(), m_hist(0) {
     // Nothing here
   }
-  
+
   /**
    * Data destructor. Deletes internal histograms and string.
    */
@@ -63,7 +63,7 @@ namespace TrigCostRootAnalysis {
     // delete m_hist2D;
     delete m_histoTitle;
   }
-  
+
   /**
    * Add a new save state (VariableOption) to this DataVariable.
    * @param _vo Variable option defining which save state to add and enable.
@@ -85,8 +85,8 @@ namespace TrigCostRootAnalysis {
     _data->m_denominator = 0;
     _data->m_usedInEvent = kFALSE;
     _data->m_histoTitle = 0;
-    if (_title != Config::config().getStr(kBlankString) 
-      && m_parentDataStore->getHistogramming() == kTRUE 
+    if (_title != Config::config().getStr(kBlankString)
+      && m_parentDataStore->getHistogramming() == kTRUE
       && ( Config::config().getInt(kOutputRoot) || Config::config().getInt(kOutputImage) ) )
     {
       _data->m_histoTitle = new std::string( _title );
@@ -99,7 +99,7 @@ namespace TrigCostRootAnalysis {
     }
     if (m_dataMap.count(_vo) == 1 && m_dataMap[_vo] != NULL) {
       delete m_dataMap[_vo];
-      Warning("DataVariable::registerSaveState", "DataVariable %s in %s already exists. Replacing this DataVariable with a new one", 
+      Warning("DataVariable::registerSaveState", "DataVariable %s in %s already exists. Replacing this DataVariable with a new one",
         VariableOptionStr[_vo].c_str(),
         m_parentDataStore->getNameOfMostRecentCall().c_str());
     }
@@ -116,19 +116,23 @@ namespace TrigCostRootAnalysis {
       // If the histogram hasn't been made yet, then we need to make it now to set its bin properties.
       makeHist( getData(_vo) );
     } else if ( getHist(_vo) == 0) {
-      Error("DataVariable::setBinLabels","Cannot find a histogram for %s / %s", 
+      Error("DataVariable::setBinLabels","Cannot find a histogram for %s / %s",
         m_parentDataStore->getNameOfMostRecentCall().c_str(),
         VariableOptionStr[_vo].c_str() );
       return;
     }
     TH1F* _h = getHist(_vo);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+    _h->SetCanExtend(TH1::kNoAxis);
+#else
     _h->SetBit(TH1::kCanRebin, kFALSE);
+#endif
     _h->SetBins( (Int_t) _titles.size(), 0., (Float_t) _titles.size() );
     for (UInt_t _i = 0; _i < _titles.size(); ++_i) {
       _h->GetXaxis()->SetBinLabel( (Int_t) _i + 1, _titles.at(_i).c_str() );
     }
   }
-  
+
   /**
    * Record a value (see DataStore for what can be monitored).
    * @see DataStore()
@@ -151,7 +155,7 @@ namespace TrigCostRootAnalysis {
     dataBuffer( m_dataMap[kSavePerEventFraction], _value, _weight );
 
   }
-  
+
   /**
    * Used specifically with kSavePerEventFraction to set the denominator for this event.
    * @see DataStore()
@@ -160,31 +164,31 @@ namespace TrigCostRootAnalysis {
    */
   void DataVariable::setVariableDenominator(Float_t _denominator) {
     if (m_dataMap[kSavePerEventFraction] == 0) {
-      Error("DataVariable::setVariableDenominator", "Per event fractional output not setup for this variable, %s, call savePerEventFraction() first.", 
+      Error("DataVariable::setVariableDenominator", "Per event fractional output not setup for this variable, %s, call savePerEventFraction() first.",
         m_parentDataStore->getNameOfMostRecentCall().c_str() );
       return;
     }
     m_dataMap[kSavePerEventFraction]->m_denominator = _denominator;
   }
-  
+
   /**
    * Record per event values from internall buffers and clear buffers
    */
   void DataVariable::endEvent() {
-  
+
     // SavePerCall, nothing to do.
     // ~nothing here~
-    
+
     // SavePerEvent, save what's in the buffer
     dataSaveBuffer( m_dataMap[kSavePerEvent] );
-    
+
     // SavePerPeriod. nothing to do - invoked manually
     // ~nothing here~
-    
+
     // SavePerEventFraction. save what's in the buffer divided by the denominator
     dataSaveFractionBuffer( m_dataMap[kSavePerEventFraction] );
   }
-  
+
   /**
    * Record per-period (general use) values from internall buffers and clear buffers.
    */
@@ -192,9 +196,9 @@ namespace TrigCostRootAnalysis {
     // Like endEvent, but specific for user specified per-period monitor rather than generic per-event one
     dataSaveBuffer( m_dataMap[kSavePerPeriod] );
   }
-  
+
   /**
-   * Return the stored data for a VariableOption. 
+   * Return the stored data for a VariableOption.
    * @param _vo Which VariableOption_t to retrieve the stored data from.
    * @return The stored value.
    */
@@ -204,7 +208,16 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * Return the error on a stored data for a VariableOption. 
+   * Return if there is stored data for a VariableOption.
+   * @param _vo Which VariableOption_t to check
+   * @return If there is stored data
+   */
+  Bool_t DataVariable::getValueExists(VariableOption_t _vo) {
+    return checkRegistered(_vo, /*silent*/ kTRUE);
+  }
+
+  /**
+   * Return the error on a stored data for a VariableOption.
    * @param _vo Which VariableOption_t to retrieve the stored data from.
    * @return The stored value.
    */
@@ -216,7 +229,7 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * Set the stored data for a VariableOption (does not affect entries). 
+   * Set the stored data for a VariableOption (does not affect entries).
    * @param _vo Which VariableOption_t to retrieve the stored data from.
    * @param _val The value to set for the stored value.
    */
@@ -226,12 +239,12 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * Set the number of entries for a VariableOption. Be careful with this one. 
+   * Set the number of entries for a VariableOption. Be careful with this one.
    * @param _vo Which VariableOption_t to retrieve the stored data from.
    * @param _val The value to set for the numer of entries.
    */
   void DataVariable::setEntries(VariableOption_t _vo, UInt_t _val) {
-    if ( checkRegistered(_vo) == kFALSE) return; 
+    if ( checkRegistered(_vo) == kFALSE) return;
     m_dataMap[_vo]->m_entries = _val;
   }
 
@@ -241,10 +254,10 @@ namespace TrigCostRootAnalysis {
    * @param _val The value to use for sumw2.
    */
   void DataVariable::setErrorSquared(VariableOption_t _vo, Float_t _val) {
-    if ( checkRegistered(_vo) == kFALSE) return; 
+    if ( checkRegistered(_vo) == kFALSE) return;
     m_dataMap[_vo]->m_sumw2 = _val;
   }
-  
+
   /**
    * Return the number of stored entries VariableOption.
    * @param _vo Which VariableOption_t to retrieve the stored data from.
@@ -254,7 +267,7 @@ namespace TrigCostRootAnalysis {
     if ( checkRegistered(_vo) == kFALSE) return 0;
     return m_dataMap[_vo]->m_entries;
   }
-  
+
   /**
    * Get pointer to stored histogram for export.
    * @param _vo Which VariableOption_t to retrieve the stored data from.
@@ -264,7 +277,21 @@ namespace TrigCostRootAnalysis {
     if ( checkRegistered(_vo, _silent) == kFALSE) return 0;
     return m_dataMap[_vo]->m_hist;
   }
- 
+
+  /**
+   * Set pointer to stored histogram for export.
+   * @param _vo Which VariableOption_t to retrieve the stored data from.
+   * @param _hist TH1F histogram pointer.
+   */
+  void DataVariable::setHist(VariableOption_t _vo, TH1F* _hist) {
+    if ( checkRegistered(_vo, kFALSE) == kFALSE) return;
+    if (m_dataMap[_vo]->m_hist != 0) {
+      Warning("DataVariable::setHist","Overwriting existing hist!");
+      delete m_dataMap[_vo]->m_hist;
+    }
+    m_dataMap[_vo]->m_hist = _hist;
+  }
+
    /**
    * Get pointer to histo title string. This is !=0 if a histogram has been requested but has not yet
    * been made on the heap becasue no Fill call has propagated to it.
@@ -276,7 +303,6 @@ namespace TrigCostRootAnalysis {
     return m_dataMap[_vo]->m_histoTitle;
   }
 
-
   /**
    * Get pointer to stored histogram for export.
    * @param _vo Which VariableOption_t to retrieve the stored data from.
@@ -286,7 +312,7 @@ namespace TrigCostRootAnalysis {
   //   if ( checkRegistered(_vo) == kFALSE) return 0;
   //   return m_dataMap[_vo]->m_hist2D;
   // }
-  
+
   /**
    * Internal call to save a value.
    * @param _data Pointer to data struct.
@@ -300,10 +326,13 @@ namespace TrigCostRootAnalysis {
     _data->m_sumw2 += ( _value * _weight * _weight );
     if (_data->m_hist == 0 && _data->m_histoTitle != 0) makeHist(_data);
     if (_data->m_hist != 0) {
+      static std::mutex m_mutex;
+      MUTEX_ON
       _data->m_hist->Fill( _value, _weight );
+      MUTEX_OFF
     }
   }
-  
+
   /**
    * Internal call to buffered a value.
    * @param _data Pointer to data struct.
@@ -327,7 +356,7 @@ namespace TrigCostRootAnalysis {
 
     _data->m_usedInEvent = kTRUE;
   }
-  
+
   /**
    * Internal call flush the buffered values.
    * @param _data Pointer to data struct.
@@ -336,15 +365,18 @@ namespace TrigCostRootAnalysis {
     if (_data == 0 || _data->m_usedInEvent == kFALSE) return;
     _data->m_entries++;
 
-    _data->m_data  += _data->m_bufferValW; 
-    _data->m_sumw2 += _data->m_bufferValW2;  
+    _data->m_data  += _data->m_bufferValW;
+    _data->m_sumw2 += _data->m_bufferValW2;
 
     if (_data->m_hist == 0 && _data->m_histoTitle != 0) makeHist(_data);
     if (_data->m_hist != 0) {
       Float_t _effectiveWeight = 0;
       if (!isZero(_data->m_bufferVal)) _effectiveWeight = _data->m_bufferValW / _data->m_bufferVal;
       //TODO what if m_bufferVal is zero? Could still have a large weight we want on the histogram?
+      static std::mutex m_mutex;
+      MUTEX_ON
       _data->m_hist->Fill( _data->m_bufferVal, _effectiveWeight );  //TODO double check
+      MUTEX_OFF
     }
 
     _data->m_bufferVal = 0.;
@@ -352,7 +384,7 @@ namespace TrigCostRootAnalysis {
     _data->m_bufferValW2 = 0.;
     _data->m_usedInEvent = kFALSE;
   }
-  
+
   /**
    * Internal call flush the buffered values for averaged quantity.
    * @param _data Pointer to data struct.
@@ -362,7 +394,7 @@ namespace TrigCostRootAnalysis {
     if (isZero(_data->m_denominator) == kTRUE) {
       if (Config::config().getDisplayMsg(kMsgDivZero) == kTRUE) {
         Warning("DataVariable::dataSaveFractionBuffer", "Denominator of zero for per event fraction of %s [/0]."
-          "Make sure you call !=0 setVariableDenominator() before endEvent(). Save skipped.", 
+          "Make sure you call !=0 setVariableDenominator() before endEvent(). Save skipped.",
           m_parentDataStore->getNameOfMostRecentCall().c_str() );
       }
     } else {
@@ -377,8 +409,11 @@ namespace TrigCostRootAnalysis {
         if (!isZero(_data->m_bufferVal)) _effectiveWeight = _data->m_bufferValW / _data->m_bufferVal;
         //TODO what if m_bufferVal is zero? Could still have a large weight we want on the histogram?
         //NOTE We assume here that the demoninator is weighted hence take the weighted numerator too.
-        //If this is ever not the case, may want to put a flag in 
+        //If this is ever not the case, may want to put a flag in
+        static std::mutex m_mutex;
+        MUTEX_ON
         _data->m_hist->Fill( _data->m_bufferValW / _data->m_denominator , _effectiveWeight); //TODO check, do we divide effW by denom?
+        MUTEX_OFF
       }
     }
 
@@ -388,7 +423,7 @@ namespace TrigCostRootAnalysis {
     _data->m_denominator = 0.;
     _data->m_usedInEvent = kFALSE;
   }
-  
+
   /**
    * Static member variable to count the total number of histograms we have made.
    * Top tip: it's lots of histograms.
@@ -400,13 +435,29 @@ namespace TrigCostRootAnalysis {
    * @param _data Pointer to data struct.
    */
   void DataVariable::makeHist(Data* _data) {
+    static std::mutex m_mutex;
+    MUTEX_ON
     std::string _name;
     CounterBase* _holdingCounter = m_parentDataStore->getParent();
     if (_holdingCounter != 0) _name += _holdingCounter->getName();
     if (_name != "") _name = _name.substr(0,10); // Restrict to 10 characters
     _name += std::string("_h") + intToString( s_globalHistId++, 6);
-    _data->m_hist = new TH1F(_name.c_str(), _data->m_histoTitle->c_str() , Config::config().getInt(kHistBins), 0, 0);
-    _data->m_hist->SetBit(TH1::kCanRebin, kTRUE);
+    if (Config::config().getIsSet(kHistBinMin) == kTRUE && Config::config().getIsSet(kHistBinMax) == kTRUE) {
+      // Special mode - just for making custom plots - specify axis range used for every histo
+      _data->m_hist = new TH1F(_name.c_str(), _data->m_histoTitle->c_str(),
+        Config::config().getInt(kHistBins),
+        Config::config().getFloat(kHistBinMin),
+        Config::config().getFloat(kHistBinMax));
+    } else {
+      // Standard mode - automatic bin widths
+      _data->m_hist = new TH1F(_name.c_str(), _data->m_histoTitle->c_str() , Config::config().getInt(kHistBins), 0, 0);
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+      _data->m_hist->SetCanExtend(TH1::kAllAxes);
+#else
+      _data->m_hist->SetBit(TH1::kCanRebin, kTRUE);
+#endif 
+    }
+    MUTEX_OFF
     delete _data->m_histoTitle; //No longer need to keep this title floating about, it's stored in this histogram
     _data->m_histoTitle = 0;
   }
@@ -420,7 +471,7 @@ namespace TrigCostRootAnalysis {
    */
   Bool_t DataVariable::checkRegistered(VariableOption_t _vo, Bool_t _silent) {
     if (m_dataMap[_vo] == 0) {
-      if (_silent == kFALSE) {
+      if (_silent == kFALSE && Config::config().getDisplayMsg(kMsgCannotFindVO) == kTRUE) {
         Error("DataVariable::checkRegistered", "VariableOption_t %s is not registered for this DataStore entry: %s.",
           VariableOptionStr[_vo].c_str(),
           m_parentDataStore->getNameOfMostRecentCall().c_str());
@@ -440,5 +491,5 @@ namespace TrigCostRootAnalysis {
     return m_dataMap[_vo];
   }
 
-  
+
 } // namespace TrigCostRootAnalysis

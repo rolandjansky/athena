@@ -21,7 +21,7 @@
 #include "../TrigCostRootAnalysis/TrigCostData.h"
 #include "../TrigCostRootAnalysis/Utility.h"
 #include "../TrigCostRootAnalysis/Config.h"
-
+#include "../TrigCostRootAnalysis/TrigXMLService.h"
 
 namespace TrigCostRootAnalysis {
 
@@ -30,7 +30,8 @@ namespace TrigCostRootAnalysis {
    * @param _name Const ref to name of the counter, by default this is of the form 'LumiBlock_xxx'.
    * @param _ID Lumi block this counter is monitoring
    */
-  CounterGlobals::CounterGlobals( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel ) : CounterBase(_costData, _name, _ID, _detailLevel),
+  CounterGlobals::CounterGlobals( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel, MonitorBase* _parent )
+    : CounterBase(_costData, _name, _ID, _detailLevel, _parent),
     m_earliestTimestamp(0.),
     m_latestTimestamp(0.),
     m_steeringTime(0.),
@@ -39,7 +40,7 @@ namespace TrigCostRootAnalysis {
     m_cpuTime(0.),
     m_rosCalls(0),
     m_algCalls(0) {
-    
+
     m_dataStore.newVariable(kVarEventsActive).setSavePerCall();
 
     m_dataStore.newVariable(kVarL1PassEvents).setSavePerCall();
@@ -56,7 +57,7 @@ namespace TrigCostRootAnalysis {
     .setSavePerCall("Algorithm WallTime Per Algorithm Call;Algorithm Time [ms];Calls")
     .setSavePerEvent("Algorithm WallTime Per Event;Algorithm Time [ms];Events");
 
-    m_dataStore.newVariable(kVarAlgCalls).setSavePerEvent();
+    m_dataStore.newVariable(kVarAlgCalls).setSavePerEvent().setSavePerCall(); //TODO remove this latter one
 
     m_dataStore.newVariable(kVarROSTime).setSavePerEvent("Readout System Time Per Event;ROS Time [ms];Events");
 
@@ -67,19 +68,19 @@ namespace TrigCostRootAnalysis {
     m_dataStore.newVariable(kVarROI).setSavePerEvent("Number of Regions of Interest Per Event;RoIs;Events");
 
   }
-  
+
   /**
    * Counter destructor.
    */
   CounterGlobals::~CounterGlobals() {
   }
-  
+
   /**
    * Reset per-event counter(s). Not used currently for globals counter.
    */
   void CounterGlobals::startEvent() {
   }
-  
+
   /**
    * Add this event to the global monitor.
    * I am run once for every event in my assigned lumi block
@@ -110,7 +111,7 @@ namespace TrigCostRootAnalysis {
 
     //Did HLT pass?
     for (UInt_t _i = 0; _i < m_costData->getNChains(); ++_i) {
-      if ( m_costData->getIsChainPassedRaw( _i ) == kFALSE ) continue;
+      if ( m_costData->getIsChainPassed( _i ) == kFALSE ) continue;
       if ( TrigConfInterface::getHLTNameFromChainID( m_costData->getChainID( _i ) ).find("costmonitor") != std::string::npos ) continue; // This always passes!
       m_dataStore.store(kVarHLTPassEvents, 1., _weight);
       break;
@@ -121,11 +122,14 @@ namespace TrigCostRootAnalysis {
       // Loop over all algorithms in sequence
       for (UInt_t _a = 0; _a < m_costData->getNSeqAlgs(_s); ++_a) {
 
-        m_dataStore.store(kVarAlgCalls, 1., _weight);
-        m_dataStore.store(kVarROSCalls, m_costData->getSeqAlgROSCalls(_s, _a), _weight);
-        m_dataStore.store(kVarAlgTime, m_costData->getSeqAlgTimer(_s, _a), _weight);
-        m_dataStore.store(kVarROSTime, m_costData->getSeqAlgROSTime(_s, _a), _weight);
-        m_dataStore.store(kVarCPUTime, m_costData->getSeqAlgTimer(_s, _a) - m_costData->getSeqAlgROSTime(_s, _a), _weight);
+        Float_t _algWeight = _weight * getPrescaleFactor(_e);
+        if (isZero(_algWeight) == kTRUE) continue;
+
+        m_dataStore.store(kVarAlgCalls, 1., _algWeight);
+        m_dataStore.store(kVarROSCalls, m_costData->getSeqAlgROSCalls(_s, _a), _algWeight);
+        m_dataStore.store(kVarAlgTime, m_costData->getSeqAlgTimer(_s, _a), _algWeight);
+        m_dataStore.store(kVarROSTime, m_costData->getSeqAlgROSTime(_s, _a), _algWeight);
+        m_dataStore.store(kVarCPUTime, m_costData->getSeqAlgTimer(_s, _a) - m_costData->getSeqAlgROSTime(_s, _a), _algWeight);
 
         // Calculate the start and stop from the steering info
         if ( !isZero(m_costData->getSeqAlgTimeStart(_s, _a)) && m_costData->getSeqAlgTimeStart(_s, _a) < m_earliestTimestamp ) {
@@ -150,16 +154,20 @@ namespace TrigCostRootAnalysis {
     // Time variable goes up to 1 hour (3600s). We need to check for the case where event execution happens over the 1h mark.
     if (m_steeringTime > 1800.) { // If steering time apparently over 30m
       m_steeringTime = 3600 - m_steeringTime;
-      if (Config::config().debug()) {
+      if (Config::config().getDisplayMsg(kMsgLargeSteerTime) == kTRUE) {
         Warning("CounterGlobals::processEventCounter", "Excessivly large Steering Time Stamp - subtracting one hour: lowStamp%f, highStamp:%f, steeringTime:%f",
         m_earliestTimestamp,
         m_latestTimestamp,
         m_steeringTime);
       }
     }
+
     // Convert to milisec
     m_steeringTime *= 1000.;
-    m_dataStore.store(kVarSteeringTime, m_steeringTime, _weight); 
+    // Slow event? This sets a flag which other counters will use
+    if (m_steeringTime > Config::config().getInt(kSlowEvThreshold)) Config::config().set(kCurrentEventIsSlow, 1, kUnlocked);
+    else Config::config().set(kCurrentEventIsSlow, 0, kUnlocked);
+    m_dataStore.store(kVarSteeringTime, m_steeringTime, _weight);
 
     m_dataStore.store(kVarROI, m_costData->getNRoIs());
 
@@ -170,7 +178,7 @@ namespace TrigCostRootAnalysis {
     if (Config::config().debug()) debug(0);
 
   }
-  
+
   /**
    * Perform end-of-event monitoring on the DataStore.
    */
@@ -188,14 +196,15 @@ namespace TrigCostRootAnalysis {
 
   /**
    * When running with prescales applied. This function returns how the counter should be scaled for the current call.
-   * Could be used here. Currently is not
+   * Nees to be same as for alg
    * @return Multiplicitive weighting factor
    */
   Double_t CounterGlobals::getPrescaleFactor(UInt_t _e) {
-    UNUSED(_e);
-    return 0.;
+    return TrigXMLService::trigXMLService().getHLTCostWeightingFactor(
+      TrigConfInterface::getHLTNameFromChainID( m_costData->getSequenceChannelCounter(_e),
+      m_costData->getSequenceLevel(_e) ) );
   }
-  
+
   /**
    * Output debug information on this call to the console
    */
@@ -216,5 +225,5 @@ namespace TrigCostRootAnalysis {
       m_costData->getNRoIs(),
       m_algCalls);
   }
-  
+
 } // namespace TrigCostRootAnalysis

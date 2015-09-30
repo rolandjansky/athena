@@ -24,21 +24,21 @@ namespace TrigCostRootAnalysis {
 
   //Forward declaration
   class TrigCostData;
-  
+
   /**
    * @class CounterRatesIntersection
    * Record rates for the intersection of multiple chains
    * @see CounterBase
    */
   class CounterRatesIntersection : public CounterBaseRates {
-  
+
    public:
-   
-    CounterRatesIntersection( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10 );
+
+    CounterRatesIntersection( const TrigCostData* _costData, const std::string& _name, Int_t _ID, UInt_t _detailLevel = 10, MonitorBase* _parent = 0 );
     ~CounterRatesIntersection();
     void debug(UInt_t _e);
 
-    Float_t runDirect(Bool_t _usePrescale = kTRUE); 
+    Float_t runDirect(Bool_t _usePrescale = kTRUE);
     Float_t runWeight();
 
    private:
@@ -46,9 +46,9 @@ namespace TrigCostRootAnalysis {
     void removeRedundancies();
 
     Bool_t m_redundanciesRemoved;
-       
+
   }; //class CounterRatesIntersection
-  
+
 } // namespace TrigCostRootAnalysis
 
 #endif //TrigCostRootAnalysis_CounterRatesIntersection_H
