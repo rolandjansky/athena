@@ -54,6 +54,7 @@ class SharedEvtQueueConsumer : public AthenaMPToolBase
   bool m_isPileup;        // Are we doing pile-up digitization?
   bool m_isRoundRobin;    // Are we running in the "reproducible mode"?
   int  m_nEventsBeforeFork;
+  bool m_debug;
 
   int  m_rankId;          // Each worker has its own unique RankID from the range (0,...,m_nprocs-1) 
 

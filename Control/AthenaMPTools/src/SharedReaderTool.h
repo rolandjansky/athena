@@ -44,7 +44,7 @@ class SharedReaderTool : public AthenaMPToolBase
   SharedReaderTool(const SharedReaderTool&);
   SharedReaderTool& operator= (const SharedReaderTool&);
 
-  boost::shared_ptr<yampl::SharedMemory> m_shmemSegment; // Shared memory segment for getting maximum number of events to read
+  boost::interprocess::mapped_region* m_shmemSegment; // Shared memory segment for getting maximum number of events to read
 
   IEventShare*                   m_evtShare;
 };

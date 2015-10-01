@@ -18,6 +18,4 @@ macro_append AthenaMPTools_cppflags " -fno-strict-aliasing"
 private
 use AthenaKernel       AthenaKernel-*          Control
 use AthenaBaseComps    AthenaBaseComps-*       Control
-use EventInfo          EventInfo-*             Event
-use ByteStreamData     ByteStreamData-*        Event
 use yampl              yampl-*                 External
