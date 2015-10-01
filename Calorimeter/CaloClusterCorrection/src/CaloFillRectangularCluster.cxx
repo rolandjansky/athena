@@ -25,9 +25,19 @@
 #include <algorithm>
 
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 
 using xAOD::CaloCluster;
 using CLHEP::GeV;
+using CLHEP::pi;
+using CLHEP::twopi;
+
+namespace {
+const double deta = 0.2;
+const double dphi = twopi / 64. + pi / 64.; // ~ 0.15 rad
+} // anonymous namespace
+
+
 
 
 namespace CaloClusterCorr {
@@ -895,6 +905,63 @@ CaloFillRectangularCluster::makeCorrection1(CaloClusterCorr::SamplingHelper&
   phif = helper.cluster()->phiSample(samplings[2]);
   helper.calculate_and_set (eta2, phi2, m_deta3, m_dphi3, etaf, phif,
                             samplings[3]);
+
+  // Crack;
+  // Check if the cluster has TileGap3 sampling and avoid to calculate the TileGap3 energy twice
+  if ( helper.cluster()->hasSampling(CaloSampling::TileGap3) && samplings[0]==CaloSampling::PreSamplerE )
+  {
+    //By default, use the original cell container
+    const CaloCellContainer* cc = helper.cluster()->getCellLinks()->getCellContainer();
+
+    //Leave the option to use a different cell container
+    if (!m_cellsName.empty()) {
+      if ( ! evtStore()->retrieve (cc, m_cellsName).isSuccess()) {
+        REPORT_ERROR(StatusCode::FAILURE)
+          << "Can't retrieve cell container " << m_cellsName;
+        return;
+      }
+    }
+    
+    if(!cc) //cover the case when the cluster does not give a cell container and the name is empty
+    {
+      REPORT_ERROR(StatusCode::FAILURE)
+        << "Can't find cell container; cluster does not give a cell container";
+      return;
+    }
+
+    // Add up the tile scintillator energy in the region around the cluster.
+    double eh_scint = 0;
+    CaloCellContainer::const_iterator f_cell =
+      cc->beginConstCalo(CaloCell_ID::TILE);
+    CaloCellContainer::const_iterator l_cell =
+      cc->endConstCalo(CaloCell_ID::TILE);
+
+    for ( ; f_cell!=l_cell; ++f_cell)
+    {
+      const CaloCell* cell = (*f_cell) ;
+
+      if (CaloCell_ID::TileGap3 == cell->caloDDE()->getSampling()) {
+        // consider only E4 cell
+        if( fabs(cell->eta()) < 1.4 || fabs(cell->eta()) > 1.6 ) continue;
+        double phic = cell->phi();
+        double etac = cell->eta();
+
+        float diffeta = etac-eta2;
+        float diffphi = phic-phi2;
+        if (diffphi < -pi) diffphi += twopi;
+        if (diffphi > pi)  diffphi -= twopi;
+
+        if(fabs(diffeta)<deta && fabs(diffphi)<dphi){
+          eh_scint += cell->e();
+        }
+      }
+    }
+    //Set the TileGap3 sampling energy to the cluster; Needed for MVA calibration
+    helper.cluster()->setEnergy(CaloSampling::TileGap3,eh_scint);
+
+    helper.cluster()->setEta(CaloSampling::TileGap3, eta2);
+    helper.cluster()->setPhi(CaloSampling::TileGap3, phi2);
+  }
 }
 
 
@@ -979,11 +1046,15 @@ CaloFillRectangularCluster::makeCorrection2 (CaloClusterCorr::SamplingHelper&
   uint32_t samplingPattern_b=0xf;  //first four bits: The barrel sampling (PS to Back)
   uint32_t samplingPattern_e=0xf0; //bits 4-7: The EMEC samplings (PS to back)
   uint32_t samplingPattern=0;
+
   if (aeta < 1.6)
     samplingPattern |=samplingPattern_b;
 
   if (aeta > 1.3)
     samplingPattern |=samplingPattern_e;
+
+  if (aeta > 1.37 && aeta < 1.63)
+    samplingPattern |=(1<<(uint32_t)CaloSampling::TileGap3);
 
   cluster->setSamplingPattern(samplingPattern);
 
