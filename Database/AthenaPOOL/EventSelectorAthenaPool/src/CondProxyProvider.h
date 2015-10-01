@@ -61,6 +61,9 @@ private: // data
    mutable pool::ICollectionCursor* m_headerIterator;
 
 private: // properties
+   /// BackNavigation, switch on back navigation to find objects in input streams: default = false.
+   BooleanProperty m_backNavigationFlag;
+
    /// InputCollections, vector with names of the input collections.
    StringArrayProperty m_inputCollectionsProp;
    mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator;

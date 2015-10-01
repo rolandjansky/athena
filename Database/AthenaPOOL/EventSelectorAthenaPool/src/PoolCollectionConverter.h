@@ -43,7 +43,8 @@ public:
 		   const std::string& connection,
 		   const std::string& inputCollection,
 		   const std::string& query,
-		   const IPoolSvc* svc);
+		   const IPoolSvc* svc,
+		   unsigned long contextId = 0);
 
    /// Destructor
    virtual ~PoolCollectionConverter();
@@ -64,6 +65,9 @@ public:
    /// @return ICollectionCursor over the results of the query
    pool::ICollectionCursor& executeQuery() const;
 
+   /// Check whether a collection has a ref attribute with the given name
+   StatusCode checkRefName(const std::string& refName) const;
+
    /// @param it [IN] collection iterator.
    /// @param refName [IN] attribute name.
    std::string retrieveToken(const pool::ICollectionCursor* cursor, const std::string& refName) const;
@@ -81,6 +85,7 @@ private: // data
    pool::ICollection* m_poolCollection;
    mutable pool::ICollectionQuery* m_collectionQuery;
    std::string m_inputContainer;
+   unsigned long m_contextId;
 
 private: // hide copy and assignment
    PoolCollectionConverter(const PoolCollectionConverter& rhs);

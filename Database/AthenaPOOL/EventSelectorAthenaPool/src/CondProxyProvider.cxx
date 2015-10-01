@@ -33,6 +33,7 @@ CondProxyProvider::CondProxyProvider(const std::string& name, ISvcLocator* pSvcL
 	m_athenaPoolCnvSvc("AthenaPoolCnvSvc", name),
 	m_poolCollectionConverter(0),
 	m_headerIterator(0) {
+   declareProperty("BackNavigation", m_backNavigationFlag = false);
    declareProperty("InputCollections", m_inputCollectionsProp);
 }
 //________________________________________________________________________________
@@ -179,7 +180,8 @@ PoolCollectionConverter* CondProxyProvider::getCollectionCnv() {
 	   "",
 	   *m_inputCollectionsIterator,
 	   "",
-	   m_athenaPoolCnvSvc->getPoolSvc());
+	   m_athenaPoolCnvSvc->getPoolSvc(),
+	   IPoolSvc::kInputStream);
    if (!pCollCnv->initialize().isSuccess()) {
       // Close previous collection.
       delete pCollCnv; pCollCnv = 0;

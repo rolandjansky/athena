@@ -141,9 +141,6 @@ private: // internal member functions
    /// Search for event number evtNum.
    int findEvent(int evtNum);
 
-   /// Fires the EndInputFile incident (if there is an open file), EndTagFile incident, and LastInputFile incidents at end of selector
-   void fireEndFileIncidents(bool isLastFile, bool fireEndTagIncident) const;
-
 private: // data
    EventContextAthenaPool*      m_beginIter;
    EventContextAthenaPool*      m_endIter;
@@ -154,7 +151,6 @@ private: // data
    mutable PoolCollectionConverter* m_poolCollectionConverter;
    mutable pool::ICollectionCursor* m_headerIterator;
    mutable Guid m_guid;
-   mutable long long int m_satelliteOid1;
 
    ServiceHandle<IAthenaPoolCnvSvc> m_athenaPoolCnvSvc;
    ServiceHandle<IChronoStatSvc> m_chronoStatSvc;
@@ -163,35 +159,35 @@ private: // data
 
 private: // properties
    /// BackNavigation, switch on back navigation to find objects in input streams: default = false.
-   Gaudi::Property<bool> m_backNavigationFlag;
+   BooleanProperty m_backNavigationFlag;
    /// ProcessMetadata, switch on firing of FileIncidents which will trigger processing of metadata: default = true.
-   Gaudi::Property<bool> m_processMetadata;
+   BooleanProperty m_processMetadata;
    /// ShowSizeStat, show size statistics from POOL for all persistified objects: default = false.
-   Gaudi::Property<bool> m_showSizeStat;
+   BooleanProperty m_showSizeStat;
    /// CollectionType, type of the collection: default = "ImplicitROOT".
-   Gaudi::Property<std::string> m_collectionType;
+   StringProperty m_collectionType;
    /// CollectionTree, prefix of the collection TTree: default = "POOLContainer_".
-   Gaudi::Property<std::string> m_collectionTree;
+   StringProperty m_collectionTree;
    /// Connection, connection string.
-   Gaudi::Property<std::string> m_connection;
+   StringProperty m_connection;
    /// RefName, attribute name.
-   Gaudi::Property<std::string> m_refName;
-   Gaudi::Property<std::string> m_derRefName;
+   StringProperty m_refName;
+   StringProperty m_derRefName;
    /// AttributeList SG key
-   Gaudi::Property<std::string> m_attrListKey;
+   StringProperty m_attrListKey;
    /// InputCollections, vector with names of the input collections.
-   Gaudi::Property<std::vector<std::string>> m_inputCollectionsProp;
+   StringArrayProperty m_inputCollectionsProp;
    mutable std::vector<std::string>::const_iterator m_inputCollectionsIterator;
    void inputCollectionsHandler(Property&);
    /// Query, query string.
-   Gaudi::Property<std::string> m_query;
+   StringProperty m_query;
 
    /// SkipBadFiles, boolean flag to allow skipping of non-existing or corrupted files.
-   Gaudi::Property<bool> m_skipBadFiles;
+   BooleanProperty m_skipBadFiles;
 
    /// KeepInputFilesOpen, boolean flag to keep files open after PoolCollection reaches end: default = false.
    /// Needed for PilUp to run without PoolFileCatalog. Relies on POOL to close files when reaching DB_AGE_LIMIT.
-   Gaudi::Property<bool> m_keepInputFilesOpen;
+   BooleanProperty m_keepInputFilesOpen;
 
    /// HelperTools, vector of names of AlgTools that are executed by the EventSelector
    ToolHandleArray<IAthenaSelectorTool> m_helperTools;
@@ -201,33 +197,33 @@ private: // properties
    /// The following are included for compatibility with McEventSelector and are not really used.
    /// However runNo, oldRunNo and overrideRunNumberFromInput are used to reset run number for
    /// simulated events, needed to use conditions
-   Gaudi::CheckedProperty<int> m_runNo;
-   Gaudi::CheckedProperty<int> m_oldRunNo;
-   Gaudi::Property<bool> m_overrideRunNumberFromInput;
-   Gaudi::CheckedProperty<int> m_firstEventNo;
-   Gaudi::CheckedProperty<int> m_eventsPerRun;
-   Gaudi::CheckedProperty<int> m_firstLBNo;
-   Gaudi::CheckedProperty<int> m_eventsPerLB;
-   Gaudi::CheckedProperty<int> m_initTimeStamp;
-   Gaudi::Property<int> m_timeStampInterval;
+   IntegerProperty m_runNo;
+   IntegerProperty m_oldRunNo;
+   BooleanProperty m_overrideRunNumberFromInput;
+   IntegerProperty m_firstEventNo;
+   IntegerProperty m_eventsPerRun;
+   IntegerProperty m_firstLBNo;
+   IntegerProperty m_eventsPerLB;
+   IntegerProperty m_initTimeStamp;
+   IntegerProperty m_timeStampInterval;
 
    /// Flags to indicate override of run/event/time
    /// These are almost always false.
-   Gaudi::Property<bool> m_overrideRunNumber;
-   Gaudi::Property<bool> m_overrideEventNumber;
-   Gaudi::Property<bool> m_overrideTimeStamp;
+   BooleanProperty m_overrideRunNumber;
+   BooleanProperty m_overrideEventNumber;
+   BooleanProperty m_overrideTimeStamp;
 
    mutable long m_curCollection;
    mutable std::vector<int> m_numEvt;
    mutable std::vector<int> m_firstEvt;
 
    /// SkipEvents, numbers of events to skip: default = 0.
-   Gaudi::Property<int> m_skipEvents;
-   Gaudi::Property<std::vector<long>> m_skipEventSequenceProp;
+   IntegerProperty m_skipEvents;
+   LongArrayProperty m_skipEventSequenceProp;
    mutable std::vector<long> m_skipEventSequence;
 
    mutable int m_evtCount; // internal count of events
-   mutable bool m_firedIncident;
+   bool m_firedIncident;
 
 #ifdef ATHENAHIVE
    typedef tbb::recursive_mutex CallMutex;
