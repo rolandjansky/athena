@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 693714 2015-09-08 13:36:11Z lerrenst $
+# @version $Id: trfArgClasses.py 696789 2015-09-25 09:18:35Z graemes $
 
 import argparse
 import bz2
@@ -1578,6 +1578,9 @@ class argNTUPFile(argFile):
 
     integrityFunction = "returnIntegrityOfNTUPFile"
 
+    ## @param treeNames @b list of ROOT trees which will be used for event counting this NTUP type. 
+    #  If @c None then event counting isn't possible for this job; if multiple trees are given then 
+    #  all are checked and they muct give the same answer.
     def __init__(self, value=list(), io = 'output', type=None, subtype=None, splitter=',', treeNames=None, runarg=True, multipleOK = None, 
                  name=None, mergeTargetSize=-1, auxiliaryFile=False):
         super(argNTUPFile, self).__init__(value=value, io=io, type=type, subtype=subtype, splitter=splitter, runarg=runarg, multipleOK=multipleOK, 

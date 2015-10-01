@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 696484 2015-09-23 17:20:28Z graemes $
+# @version $Id: trfExe.py 697822 2015-10-01 11:38:06Z graemes $
 
 import copy
 import json
@@ -719,7 +719,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 696484 2015-09-23 17:20:28Z graemes $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 697822 2015-10-01 11:38:06Z graemes $')
         else:
             self._jobOptionsTemplate = None
 
@@ -761,17 +761,22 @@ class athenaExecutor(scriptExecutor):
             myMaxEvents = self.conf.argdict['maxEvents'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor)
         else:
             myMaxEvents = -1
-            
+        
         # Any events to process...?
         if (self._inputEventTest and mySkipEvents > 0 and mySkipEvents >= inputEvents):
             raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_NOEVENTS'),
                                                            'No events to process: {0} (skipEvents) >= {1} (inputEvents of {2}'.format(mySkipEvents, inputEvents, dt))
         
-        # Expected events to process
-        if (myMaxEvents != -1):
-            expectedEvents = min(inputEvents-mySkipEvents, myMaxEvents)
-        else:
-            expectedEvents = inputEvents-mySkipEvents
+        try:
+            # Expected events to process
+            if (myMaxEvents != -1):
+                expectedEvents = min(inputEvents-mySkipEvents, myMaxEvents)
+            else:
+                expectedEvents = inputEvents-mySkipEvents
+        except TypeError as e:
+            # catching type error from UNDEFINED inputEvents count
+            msg.info('input event count is UNDEFINED, setting expectedEvents to 0')
+            expectedEvents = 0
         
         # Try to detect AthenaMP mode and number of workers
         if self.conf._disableMP:
@@ -790,6 +795,19 @@ class athenaExecutor(scriptExecutor):
         if self._athenaMP:
             self._athenaMPWorkerTopDir = 'athenaMP-workers-{0}-{1}'.format(self._name, self._substep)
             self._athenaMPFileReport = 'athenaMP-outputs-{0}-{1}'.format(self._name, self._substep)
+            # Decide on scheduling
+            if ('athenaMPStrategy' in self.conf.argdict and 
+                (self.conf.argdict['athenaMPStrategy'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor) is not None)):
+                self._athenaMPStrategy = self.conf.argdict['athenaMPStrategy'].returnMyValue(name=self._name, substep=self._substep, first=self.conf.firstExecutor)
+            else:
+                # If we have n_inputs = n_workers, we set a flag to use 'FileScheduling' strategy
+                inputFiles = 0
+                for dataType in self._inputDataTypeCountCheck:
+                    inputFiles = max(inputFiles, len(self.conf.dataDictionary[dataType].value))
+                if inputFiles == self._athenaMP:
+                    self._athenaMPStrategy = 'FileScheduling'
+                else:
+                    self._athenaMPStrategy = None
             # See if we have options for the target output file size
             if 'athenaMPMergeTargetSize' in self.conf._argdict:
                 for dataType, targetSize in self.conf._argdict['athenaMPMergeTargetSize'].value.iteritems():

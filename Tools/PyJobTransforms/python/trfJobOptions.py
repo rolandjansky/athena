@@ -5,7 +5,7 @@
 # @brief Contains functions related Athena Job Options files 
 # @details Generates runArgs JobOptions and interfaces with skeleton
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfJobOptions.py 623865 2014-10-24 12:39:44Z graemes $
+# @version $Id: trfJobOptions.py 697822 2015-10-01 11:38:06Z graemes $
 # 
 
 import os
@@ -175,6 +175,10 @@ class JobOptionsTemplate(object):
                                                          'AthenaMPJobProps.AthenaMPFlags.OutputReportFile="{0}"'.format(self._exe._athenaMPFileReport),
                                                          'AthenaMPJobProps.AthenaMPFlags.CollectSubprocessLogs=True'
                                                          ))
+                    if self._exe._athenaMPStrategy:
+                        # Beware of clobbering a non default value (a feature used by EventService)
+                        print >>runargsFile, 'if AthenaMPJobProps.AthenaMPFlags.Strategy.isDefault():'
+                        print >>runargsFile, '\tAthenaMPJobProps.AthenaMPFlags.Strategy="{0}"'.format(self._exe._athenaMPStrategy)
                 msg.info('Successfully wrote runargs file {0}'.format(self._runArgsFile))
                 
             except (IOError, OSError) as e:
