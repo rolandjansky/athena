@@ -385,43 +385,17 @@ G4bool TileGeoG4CalibSD::ProcessHits(G4Step* step, G4TouchableHistory* /*ROhist*
     // G.P.: now comes new hit processing (see LArCalibHitMerger.cxx for details)
     // --------------------------------------------------------------------------
     int m_primary_id = 0;
-    if(m_calc->m_doCalibHitParticleID) {
-
-      if (!m_allowMods) {
-        if (m_event_info && m_event_info->GetCurrentPrimary()) 
-          m_primary_id = m_event_info->GetCurrentPrimary()->barcode();
+    if(m_calc->m_doCalibHitParticleID)
+      {
+        if (m_event_info && m_event_info->GetCurrentPrimary())
+          {
+            m_primary_id = m_event_info->GetCurrentPrimary()->barcode();
+          }
         else
-          throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
+          {
+            throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
+          }
       }
-      
-      /*
-      else {
-
-	// normal steps should have a G4Track:
-	if (step->GetTrack()) {
-	  const VTrackInformation* trackInfo=dynamic_cast<const VTrackInformation*>(step->GetTrack()->GetUserInformation());
-	  
-	  if (trackInfo && trackInfo->GetISFParticle()) {	
-	    const ISF::ISFParticle* isfp = trackInfo->GetISFParticle();
-	    m_primary_id = isfp->barcode();	
-	  }
-	  else
-	    throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");
-	}
-	
-	// escaped energy have fake steps with no G4Track, so get particle from m_event_info (retrieving it first if not done already)
-	else {
-	  if (NULL==m_event_info)  
-	    m_event_info = dynamic_cast<EventInformation*>(G4RunManager::GetRunManager()->GetCurrentEvent()->GetUserInformation());
-
-	  if (m_event_info && m_event_info->GetCurrentISFPrimary())
-	    m_primary_id = m_event_info->GetCurrentISFPrimary()->barcode();
-	  else
-	    throw std::runtime_error("CalibrationSensitiveDetector: Unable to retrieve barcode!");	    
-	}            
-      } 
-      */
-    }
 
     Identifier m_id = _id;
     if(_DefaultHit) {
