@@ -108,27 +108,24 @@ public:
   ElementLinkBaseT_test() {}
   ElementLinkBaseT_test(const std::string& key, CLID clid,
                         const index_type& index,
-                        IProxyDict* sg)
+                        IProxyDictWithPool* sg)
     : Base (key, clid, index, sg) {}
   ElementLinkBaseT_test(SG::sgkey_t key, CLID clid,
                         const index_type& index,
-                        IProxyDict* sg)
+                        IProxyDictWithPool* sg)
     : Base (key, clid, index, sg) {}
   ElementLinkBaseT_test(const std::string& key, CLID clid,
                         const index_type& index,
-                        const std::string& elt, IProxyDict* sg)
+                        const std::string& elt, IProxyDictWithPool* sg)
     : Base (key, clid, index, elt, sg) {}
   ElementLinkBaseT_test(SG::sgkey_t key, CLID clid,
                         const index_type& index,
-                        const std::string& elt, IProxyDict* sg)
+                        const std::string& elt, IProxyDictWithPool* sg)
     : Base (key, clid, index, elt, sg) {}
   ElementLinkBaseT_test(const void* obj, CLID clid,
                         const index_type& index,
-                        IProxyDict* sg)
+                        IProxyDictWithPool* sg)
     : Base (obj, clid, index, sg) {}
-  ElementLinkBaseT_test(const ElementLinkBaseT_test& other,
-                        const index_type& index)
-    : Base (other, index) {}
   template <class OTHER_POLICY, class FROM_STORABLE, class TO_STORABLE>
   ElementLinkBaseT_test (const SG::GenericElementLinkBase<OTHER_POLICY>& other,
                          FROM_STORABLE* from, TO_STORABLE* to)
@@ -142,9 +139,6 @@ public:
   using Base::setStorableObject;
   using Base::resetWithKeyAndIndex;
   using Base::proxyHolder;
-
-  // Keep coverity happy.
-  ElementLinkBaseT_test& operator=(const ElementLinkBaseT_test&) = default;
 
   void setLink (SG::sgkey_t key,
                 const std::string& index)
@@ -362,15 +356,6 @@ void test1()
   assert (el12.key() == sgkey);
   assert (el12.source() == &store);
   assert (el12.storableBase (0, clid) == cont);
-
-  Link el13 (el12, index1);
-  assert (!el13.hasCachedElement());
-  assert (!el13.isDefault());
-  assert (el13.index() == index1);
-  assert (el13.dataID() == key);
-  assert (el13.key() == sgkey);
-  assert (el13.source() == &store);
-  assert (el13.storableBase (0, clid) == cont);
 
   el12.reset();
   assert (el12.isDefault());

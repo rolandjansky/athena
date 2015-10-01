@@ -78,7 +78,7 @@ SG::DataProxy* DataLinkBase::proxy (bool nothrow /*= false*/) const
  * @brief Return the data source for this reference.
  */
 inline
-IProxyDict* DataLinkBase::source() const
+IProxyDictWithPool* DataLinkBase::source() const
 {
   return m_proxy.source();
 }
@@ -95,69 +95,9 @@ IProxyDict* DataLinkBase::source() const
  * If @c sg is 0, then we use the global default store.
  */
 inline
-bool DataLinkBase::toTransient (IProxyDict* sg /*= 0*/)
+bool DataLinkBase::toTransient (IProxyDictWithPool* sg /*= 0*/)
 {
   m_proxy.toTransient (m_persKey, sg);
-  return true;
-}
-
-
-/**
- * @brief Finish initialization after link has been read.
- * @param ctx Event context for this link.
- *
- * This should be called after a link has been read by root
- * in order to set the proxy pointer.
- * Returns true on success.
- */
-inline
-bool DataLinkBase::toTransient (const EventContext& ctx)
-{
-  m_proxy.toTransient (m_persKey, ctx.proxy());
-  return true;
-}
-
-
-/**
- * @brief Finish initialization like the link as just been read from root,
- *        but with a specified key.
- * @param dataID Key of the object.
- * @param link_clid CLID of the link being set.
- * @param sg Associated store.
- *
- * The link should be clear before this is called.
- * Returns true.
- *
- * If @c sg is 0, then we use the global default store.
- */
-inline
-bool DataLinkBase::toTransient (const ID_type& dataID,
-                                CLID link_clid,
-                                IProxyDict* sg /*= 0*/)
-{
-  if (!isDefault()) SG::throwExcBadToTransient();
-  m_persKey = m_proxy.toTransient (dataID, link_clid, sg);
-  return true;
-}
-
-
-/**
- * @brief Finish initialization like the link as just been read from root,
- *        but with a specified key.
- * @param dataID Key of the object.
- * @param link_clid CLID of the link being set.
- * @param ctx Event context for this link.
- *
- * The link should be clear before this is called.
- * Returns true.
- */
-inline
-bool DataLinkBase::toTransient (const ID_type& dataID,
-                                CLID link_clid,
-                                const EventContext& ctx)
-{
-  if (!isDefault()) SG::throwExcBadToTransient();
-  m_persKey = m_proxy.toTransient (dataID, link_clid, ctx.proxy());
   return true;
 }
 
@@ -256,7 +196,7 @@ DataLinkBase::DataLinkBase()
 inline
 DataLinkBase::DataLinkBase (const_pointer_t obj,
                             CLID link_clid,
-                            IProxyDict* sg)
+                            IProxyDictWithPool* sg)
 {
   toStorableObject (obj, link_clid, sg);
 }
@@ -275,7 +215,7 @@ DataLinkBase::DataLinkBase (const_pointer_t obj,
 inline
 DataLinkBase::DataLinkBase (const ID_type& dataID,
                             CLID link_clid,
-                            IProxyDict* sg)
+                            IProxyDictWithPool* sg)
 {
   toIdentifiedObject (dataID, link_clid, sg);
 }
@@ -292,7 +232,7 @@ DataLinkBase::DataLinkBase (const ID_type& dataID,
  * May throw @c ExcCLIDMismatch.
  */
 inline
-DataLinkBase::DataLinkBase (sgkey_t key, CLID link_clid, IProxyDict* sg)
+DataLinkBase::DataLinkBase (sgkey_t key, CLID link_clid, IProxyDictWithPool* sg)
 {
   toIdentifiedObject (key, link_clid, sg);
 }
@@ -328,7 +268,7 @@ DataLinkBase::DataLinkBase (sgkey_t key, const SG::DataProxyHolder& holder)
 inline
 void DataLinkBase::toStorableObject (const_pointer_t obj,
                                      CLID link_clid,
-                                     IProxyDict* sg)
+                                     IProxyDictWithPool* sg)
 {
   m_persKey = m_proxy.toStorableObject (obj, link_clid, sg);
 }
@@ -348,7 +288,7 @@ void DataLinkBase::toStorableObject (const_pointer_t obj,
 inline
 void DataLinkBase::toIdentifiedObject (const ID_type& dataID,
                                        CLID link_clid,
-                                       IProxyDict* sg)
+                                       IProxyDictWithPool* sg)
 {
   m_persKey = m_proxy.toIdentifiedObject (dataID, link_clid, sg);
 }
@@ -369,7 +309,7 @@ void DataLinkBase::toIdentifiedObject (const ID_type& dataID,
 inline
 void DataLinkBase::toIdentifiedObject (sgkey_t key,
                                        CLID link_clid,
-                                       IProxyDict* sg)
+                                       IProxyDictWithPool* sg)
 {
   m_persKey = key;
   m_proxy.toIdentifiedObject (key, link_clid, sg);

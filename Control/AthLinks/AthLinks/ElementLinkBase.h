@@ -79,9 +79,6 @@ public:
   typedef void* castfn_t (SG::DataProxy*);
 
 
-  // Try to avoid coverity warning.
-  ElementLinkBase& operator= (const ElementLinkBase&) = default;
-
 
   /**
    * @brief Test the index validity.
@@ -143,7 +140,7 @@ public:
   /**
    * @brief Return the data source for this reference.
    */
-  IProxyDict* source() const;
+  IProxyDictWithPool* source() const;
 
 
   /**
@@ -174,7 +171,7 @@ public:
    *
    * If @c sg is 0, then we use the global default store.
    */
-  bool toTransient (IProxyDict* sg = 0);
+  bool toTransient (IProxyDictWithPool* sg = 0);
 
 
   /**
@@ -224,7 +221,7 @@ protected:
   ElementLinkBase (const ID_type& dataID,
                    CLID link_clid,
                    index_type elemID,
-                   IProxyDict* sg);
+                   IProxyDictWithPool* sg);
 
 
   /**
@@ -239,7 +236,7 @@ protected:
   ElementLinkBase (sgkey_t key,
                    CLID link_clid,
                    index_type elemID,
-                   IProxyDict* sg);
+                   IProxyDictWithPool* sg);
 
 
 
@@ -259,7 +256,7 @@ protected:
                    CLID link_clid,
                    index_type elemID,
                    const void* elt,
-                   IProxyDict* sg);
+                   IProxyDictWithPool* sg);
 
 
   /**
@@ -278,7 +275,7 @@ protected:
                    CLID link_clid,
                    index_type elemID,
                    const void* elt,
-                   IProxyDict* sg);
+                   IProxyDictWithPool* sg);
 
 
   /**
@@ -293,18 +290,7 @@ protected:
   ElementLinkBase (const_pointer_t obj,
                    CLID link_clid,
                    index_type elemID,
-                   IProxyDict* sg);
-
-
-  /**
-   * @brief Construct a link from another link, changing the index.
-   * @param other The source link.
-   * @param elemID The index for the new link.
-   *
-   * The index being constructed will reference the same container
-   * as @c other, but it will refer to element @c elemID.
-   */
-  ElementLinkBase (const ElementLinkBase& other, index_type elemID);
+                   IProxyDictWithPool* sg);
 
 
   /**
@@ -355,7 +341,7 @@ protected:
   bool setStorableObject (const_pointer_t data,
                           CLID link_clid,
                           bool replace,
-                          IProxyDict* sg);
+                          IProxyDictWithPool* sg);
 
 
   /**
@@ -376,7 +362,7 @@ protected:
   bool toIndexedElement (const_pointer_t obj,
                          CLID link_clid,
                          index_type elemID,
-                         IProxyDict* sg);
+                         IProxyDictWithPool* sg);
 
 
   /**
@@ -393,7 +379,7 @@ protected:
   void resetWithKeyAndIndex (const ID_type& dataID,
                              CLID link_clid,
                              index_type elemID, 
-                             IProxyDict* sg);
+                             IProxyDictWithPool* sg);
 
 
   /**
@@ -410,7 +396,7 @@ protected:
   void resetWithKeyAndIndex (sgkey_t key,
                              CLID link_clid,
                              index_type elemID, 
-                             IProxyDict* sg);
+                             IProxyDictWithPool* sg);
 
 
   /**

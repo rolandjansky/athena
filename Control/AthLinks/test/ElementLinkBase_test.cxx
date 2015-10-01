@@ -112,22 +112,20 @@ class ElementLinkBase_test
 public:
   ElementLinkBase_test() {}
   ElementLinkBase_test(const std::string& key, CLID clid, unsigned index,
-                       IProxyDict* sg)
+                       IProxyDictWithPool* sg)
     : ElementLinkBase (key, clid, index, sg) {}
   ElementLinkBase_test(SG::sgkey_t key, CLID clid, unsigned index,
-                       IProxyDict* sg)
+                       IProxyDictWithPool* sg)
     : ElementLinkBase (key, clid, index, sg) {}
   ElementLinkBase_test(const std::string& key, CLID clid, unsigned index,
-                       const void* elt, IProxyDict* sg)
+                       const void* elt, IProxyDictWithPool* sg)
     : ElementLinkBase (key, clid, index, elt, sg) {}
   ElementLinkBase_test(SG::sgkey_t key, CLID clid, unsigned index,
-                       const void* elt, IProxyDict* sg)
+                       const void* elt, IProxyDictWithPool* sg)
     : ElementLinkBase (key, clid, index, elt, sg) {}
   ElementLinkBase_test(const void* obj, CLID clid, index_type index,
-                       IProxyDict* sg)
+                       IProxyDictWithPool* sg)
     : ElementLinkBase (obj, clid, index, sg) {}
-  ElementLinkBase_test(const ElementLinkBase& other, unsigned index)
-    : ElementLinkBase (other, index) {}
   template <class FROM_STORABLE, class TO_STORABLE>
   ElementLinkBase_test (const ElementLinkBase& other,
                         FROM_STORABLE* from, TO_STORABLE* to)
@@ -357,15 +355,6 @@ void test1()
   assert (el12.key() == sgkey);
   assert (el12.source() == &store);
   assert (el12.storableBase (0, fooclid) == foocont);
-
-  Link el13 (el12, index1);
-  assert (!el13.hasCachedElement());
-  assert (!el13.isDefault());
-  assert (el13.index() == index1);
-  assert (el13.dataID() == key);
-  assert (el13.key() == sgkey);
-  assert (el13.source() == &store);
-  assert (el13.storableBase (0, fooclid) == foocont);
 
   el12.reset();
   assert (el12.isDefault());

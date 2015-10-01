@@ -14,7 +14,6 @@
 #include "AthLinks/tools/DataProxyHolder.h"
 #include "AthLinks/exceptions.h"
 #include "SGTools/CLASS_DEF.h"
-#include "SGTools/StringPool.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/errorcheck.h"
 #include <iostream>
@@ -70,7 +69,6 @@ void test1()
   store.record (foo1, "foo1");
   TestStore::sgkey_t sgkey1 = store.stringToKey ("foo1", fooclid);
   TestStore::sgkey_t sgkey3 = store.stringToKey ("foo3", fooclid);
-  TestStore::sgkey_t sgkey3x = store.stringToKey ("foo3x", fooclid);
 
   // An object not in SG
   Foo* foo2 = new Foo(2);
@@ -113,14 +111,12 @@ void test1()
 
   // toIdentifiedObject with hashed key
 
-  store.m_missedProxies.clear();
   h1.toIdentifiedObject (sgkey1, fooclid, 0);
   assert (!h1.isDefault());
   assert (h1.dataID() == "foo1");
   assert (h1.storableBase (foocast, fooclid) == foo1);
   assert (h1.proxy()->name() == "foo1");
   assert (h1.source() == &store);
-  assert (store.m_missedProxies.empty());
 
   EXPECT_EXCEPTION (SG::ExcCLIDMismatch,
                     h1.toIdentifiedObject (sgkey1, barclid, 0));
@@ -131,16 +127,6 @@ void test1()
   assert (h1.storableBase (foocast, fooclid) == 0);
   assert (h1.proxy()->name() == "foo3");
   assert (h1.source() == &store);
-
-  h1.toIdentifiedObject (sgkey3x, fooclid, 0);
-  assert (!h1.isDefault());
-  assert (h1.dataID() == "foo3x");
-  assert (h1.storableBase (foocast, fooclid) == 0);
-  assert (h1.proxy()->name() == "foo3x");
-  assert (h1.source() == &store);
-  assert (store.m_missedProxies.size() == 1);
-  assert (store.m_missedProxies[0].first == fooclid);
-  assert (store.m_missedProxies[0].second == "foo3x");
 
   h1.clear();
   assert (h1.isDefault());
@@ -158,14 +144,7 @@ void test2()
 
   Foo* foo4 = new Foo(4);
   store.record (foo4, "foo4");
-  Foo* fooy = new Foo(99);
-  store.record (fooy, "fooy");
-  Foo* fooz = new Foo(999);
-  store.record (fooz, "fooz");
   TestStore::sgkey_t sgkey4 = store.stringToKey ("foo4", fooclid);
-  TestStore::sgkey_t sgkeyx = store.stringToKey ("foox", fooclid);
-  TestStore::sgkey_t sgkeyz = store.stringToKey ("fooz", fooclid);
-  /*TestStore::sgkey_t sgkeyy =*/ store.stringToKey ("fooy", fooclid);
 
   SG::DataProxyHolder h1;
   h1.toTransient  (sgkey4);
@@ -179,21 +158,6 @@ void test2()
   TestStore::sgkey_t sgkey = 0;
   h1.toPersistentNoRemap (sgkey);
   assert (sgkey == 0);
-
-  h1.toTransient  (sgkeyx);
-  assert (!h1.isDefault());
-  assert (h1.dataID() == "fooy");
-  assert (h1.storableBase (foocast, fooclid) == fooy);
-  assert (h1.proxy()->name() == "fooy");
-  assert (h1.source() == &store);
-
-  h1.clear();
-  assert (h1.toTransient ("fooz", fooclid) == sgkeyz);
-  assert (!h1.isDefault());
-  assert (h1.dataID() == "fooz");
-  assert (h1.storableBase (foocast, fooclid) == fooz);
-  assert (h1.proxy()->name() == "fooz");
-  assert (h1.source() == &store);
 
   Foo* foo5 = new Foo(5);
   h1.toStorableObject (foo5, fooclid, 0);
@@ -361,27 +325,11 @@ void test7()
 }
 
 
-SG::DataProxyHolder::InputRenameRCU_t inputRenameMap(1);
-
-
-void initInputRename()
-{
-  SG::StringPool sp;
-  auto m = std::make_unique<SG::DataProxyHolder::InputRenameMap_t>();
-  (*m)[sp.stringToKey("foox", fooclid)]
-    = sp.stringToKey("fooy", fooclid);
-  Athena::RCUUpdate<SG::DataProxyHolder::InputRenameMap_t> u (inputRenameMap);
-  u.update (std::move (m));
-  SG::DataProxyHolder::setInputRenameMap (&inputRenameMap);
-}
-
-
 int main()
 {
   errorcheck::ReportMessage::hideErrorLocus(true);
   Athena::getMessageSvcQuiet = true;
   SGTest::initTestStore();
-  initInputRename();
 
   test1();
   test2();

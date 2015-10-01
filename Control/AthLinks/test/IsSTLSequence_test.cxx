@@ -15,7 +15,7 @@
 
 
 #include "AthLinks/tools/IsSTLSequence.h"
-#include <type_traits>
+#include <boost/type_traits/integral_constant.hpp>
 #include <set>
 #include <cassert>
 #include <iostream>
@@ -55,7 +55,7 @@ struct Y1
   const_iterator begin() const;
   const_iterator end() const;
 
-  typedef std::true_type isSequence;
+  typedef boost::true_type isSequence;
 };
 
 

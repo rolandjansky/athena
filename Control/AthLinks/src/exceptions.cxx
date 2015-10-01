@@ -253,26 +253,4 @@ void throwExcIncomparableEL()
 }
 
 
-//*************************************************************************
-
-
-/**
- * @brief Constructor.
- */
-ExcBadToTransient::ExcBadToTransient()
-  : std::runtime_error ("SG::ExcBadToTransient: toTransient() called on an already-initialized link.")
-{
-  AthLinks_error();
-}
-
-
-/**
- * @brief Throw a SG::ExcBadToTransient exception.
- */
-void throwExcBadToTransient()
-{
-  throw ExcBadToTransient();
-}
-
-
 } // namespace SG

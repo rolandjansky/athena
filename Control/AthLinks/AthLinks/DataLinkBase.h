@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataLinkBase.h 783590 2016-11-11 00:38:09Z ssnyder $
+// $Id: DataLinkBase.h 676751 2015-06-19 16:07:18Z ssnyder $
 /**
  * @file AthLinks/DataLinkBase.h
  * @author scott snyder <snyder@bnl.gov>
@@ -18,14 +18,12 @@
 
 
 #include "AthLinks/tools/DataProxyHolder.h"
-#include "AthLinks/exceptions.h"
-#include "GaudiKernel/EventContext.h"
 
 
 namespace SG {
 class DataProxy;
 }
-class IProxyDict;
+class IProxyDictWithPool;
 
 
 /**
@@ -96,7 +94,7 @@ public:
   /**
    * @brief Return the data source for this reference.
    */
-  IProxyDict* source() const;
+  IProxyDictWithPool* source() const;
 
 
   
@@ -110,47 +108,7 @@ public:
    *
    * If @c sg is 0, then we use the global default store.
    */
-  bool toTransient (IProxyDict* sg = 0);
-
-
-  /**
-   * @brief Finish initialization after link has been read.
-   * @param ctx Event context for this link.
-   *
-   * This should be called after a link has been read by root
-   * in order to set the proxy pointer.
-   * Returns true.
-   */
-  bool toTransient (const EventContext& ctx);
-
-
-  /**
-   * @brief Finish initialization like the link as just been read from root,
-   *        but with a specified key.
-   * @param dataID Key of the object.
-   * @param link_clid CLID of the link being set.
-   * @param sg Associated store.
-   *
-   * The link should be clear before this is called.
-   * Returns true.
-   *
-   * If @c sg is 0, then we use the global default store.
-   */
-  bool toTransient (const ID_type& dataID, CLID link_clid, IProxyDict* sg = 0);
-
-
-  /**
-   * @brief Finish initialization like the link as just been read from root,
-   *        but with a specified key.
-   * @param dataID Key of the object.
-   * @param link_clid CLID of the link being set.
-   * @param ctx Event context for this link.
-   *
-   * The link should be clear before this is called.
-   * Returns true.
-   */
-  bool toTransient (const ID_type& dataID, CLID link_clid,
-                    const EventContext& ctx);
+  bool toTransient (IProxyDictWithPool* sg = 0);
 
 
   /**
@@ -222,7 +180,7 @@ protected:
    *
    * May throw @c ExcCLIDMismatch.
    */
-  DataLinkBase (const_pointer_t obj, CLID link_clid, IProxyDict* sg);
+  DataLinkBase (const_pointer_t obj, CLID link_clid, IProxyDictWithPool* sg);
 
 
   /**
@@ -233,7 +191,7 @@ protected:
    *
    * If @c sg is 0, we take the global default.
    */
-  DataLinkBase (const ID_type& dataID, CLID link_clid, IProxyDict* sg);
+  DataLinkBase (const ID_type& dataID, CLID link_clid, IProxyDictWithPool* sg);
 
 
   /**
@@ -246,7 +204,7 @@ protected:
    *
    * May throw @c ExcCLIDMismatch.
    */
-  DataLinkBase (sgkey_t key, CLID link_clid, IProxyDict* sg);
+  DataLinkBase (sgkey_t key, CLID link_clid, IProxyDictWithPool* sg);
 
 
   /**
@@ -273,7 +231,7 @@ protected:
    */
   void toStorableObject (const_pointer_t obj,
                          CLID clid_in,
-                         IProxyDict* sg);
+                         IProxyDictWithPool* sg);
 
 
   /**
@@ -289,7 +247,7 @@ protected:
    */
   void toIdentifiedObject (const ID_type& dataID,
                            CLID clid,
-                           IProxyDict* sg);
+                           IProxyDictWithPool* sg);
 
 
   /**
@@ -306,7 +264,7 @@ protected:
    */
   void toIdentifiedObject (sgkey_t key,
                            CLID clid,
-                           IProxyDict* sg);
+                           IProxyDictWithPool* sg);
 
 
   /**

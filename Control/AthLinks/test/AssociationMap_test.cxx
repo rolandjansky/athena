@@ -133,12 +133,7 @@ int main()
       try {
 	if ( 0 == tCtr ) {
 	  aMap->addAssociation(cCont,(*cCont)[cCtr],tCont,(*tCont)[tCtr]);
-	}
-	else if ( 1 == tCtr ) {
-	  aMap->addAssociation(ElementLink<ClusterContainer> ("cCont", cCtr),
-                               ElementLink<TrackContainer> ("tCont", tCtr));
-	}
-        else {
+	} else {
 	  aMap->addAssociation(cCont,cCtr,tCont,tCtr);
 	}
       } catch(std::exception& error) {
@@ -165,7 +160,6 @@ int main()
 	  cIter != cEnd;
 	  ++cIter ) {
       const Cluster * const theCluster = (*cIter).getObject();
-      assert (*(cIter.getObjectLink()) == theCluster);
       std::cout << "\tCluster "
 		<< ": " /*<< theCluster->getE()*/ << std::endl;
       PTAss::asso_iterator tEnd = cstMap->endAssociation(theCluster);
@@ -173,7 +167,6 @@ int main()
 	    tIter != tEnd;
 	    ++tIter ) {
 	const Track * const theTrack = *tIter;
-        assert (*(tIter.getLink()) == theTrack);
 	std::cout << "\t\tTrack "
 		  << ": " << theTrack->getP() << std::endl;
 	const Track * const assoTrack = cstMap->getAssociation( tIter );

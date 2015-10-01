@@ -14,24 +14,18 @@
 #include "AthLinks/tools/DataProxyHolder.h"
 #include "AthLinks/exceptions.h"
 #include "SGTools/DataProxy.h"
+#include "SGTools/IProxyDictWithPool.h"
 #include "SGTools/TransientAddress.h"
 #include "SGTools/CurrentEventStore.h"
-#include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IThinningSvc.h"
 #include "AthenaKernel/errorcheck.h"
 
 
-namespace {
-
-
-/// Current input renaming map.
-const SG::DataProxyHolder::InputRenameRCU_t* s_inputRenameMap = nullptr;
-
-
-}
-
-
 namespace SG {
+
+
+/// Pointer from which to fetch the default data source.
+IProxyDictWithPool** DataProxyHolder::s_cached_source = 0;
 
 
 /**
@@ -53,7 +47,7 @@ namespace SG {
 DataProxyHolder::sgkey_t
 DataProxyHolder::toStorableObject (const_pointer_t obj,
                                    CLID link_clid,
-                                   IProxyDict* sg)
+                                   IProxyDictWithPool* sg)
 {
   sgkey_t key = 0;
   if (obj == 0) {
@@ -78,18 +72,8 @@ DataProxyHolder::toStorableObject (const_pointer_t obj,
       // is consistent with the link type.
       SG::TransientAddress* tad = m_proxy->transientAddress();
       key = tad->sgkey();
-      if (link_clid != tad->clID() && !tad->transientID (link_clid)) {
-        if (tad->clID() != CLID_NULL)
-          throw SG::ExcCLIDMismatch (tad->clID(), link_clid);
-
-        // Transient clid was null.
-        // This can happen when reading a view vector with xAODRootAccess
-        // in an athena build, where the TAD may not get a CLID set.
-        // Check based on key.
-        sgkey_t link_sgkey = sg->stringToKey (tad->name(), link_clid);
-        if (link_sgkey != tad->sgkey())
-          throw SG::ExcCLIDMismatch (tad->clID(), link_clid);
-      }
+      if (link_clid != m_proxy->clID() && !tad->transientID (link_clid))
+        throw SG::ExcCLIDMismatch (m_proxy->clID(), link_clid);
     }
   }
   return key;
@@ -115,7 +99,7 @@ DataProxyHolder::toStorableObject (const_pointer_t obj,
 DataProxyHolder::sgkey_t
 DataProxyHolder::toIdentifiedObject (const ID_type& dataID,
                                      CLID link_clid,
-                                     IProxyDict* sg)
+                                     IProxyDictWithPool* sg)
 {
   // Find the store to use.
   if (sg == 0)
@@ -132,7 +116,7 @@ DataProxyHolder::toIdentifiedObject (const ID_type& dataID,
     // Didn't find a proxy; make a dummy.
     SG::TransientAddress* tad = new SG::TransientAddress (link_clid, dataID);
     tad->setSGKey (sg->stringToKey (dataID, link_clid));
-    m_proxy = new SG::DataProxy (tad, static_cast<IConverter*>(nullptr));
+    m_proxy = new SG::DataProxy (tad, (IConversionSvc*)0);
     if (sg->addToStore (link_clid, m_proxy).isFailure())
       std::abort();
   }
@@ -161,7 +145,7 @@ DataProxyHolder::toIdentifiedObject (const ID_type& dataID,
 void
 DataProxyHolder::toIdentifiedObject (sgkey_t sgkey,
                                      CLID link_clid,
-                                     IProxyDict* sg)
+                                     IProxyDictWithPool* sg)
 {
   if (!sgkey) return;
 
@@ -177,28 +161,21 @@ DataProxyHolder::toIdentifiedObject (sgkey_t sgkey,
   // Look up the proxy.
   m_proxy = sg->proxy_exact (sgkey);
 
-  CLID clid = CLID_NULL;
-  const std::string* key = nullptr;
   if (m_proxy == 0) {
-    // Didn't find it --- have SG query proxy providers.
+    // Didn't find it --- make a dummy.
     // Try to turn the hashed key into a string key + clid.
-    key = sg->keyToString (sgkey, clid);
+    CLID clid = CLID_NULL;
+    const std::string* key = sg->keyToString (sgkey, clid);
+    SG::TransientAddress* tad;
     if (key) {
       if (link_clid != CLID_NULL && clid != link_clid)
         throw SG::ExcCLIDMismatch (clid, link_clid);
-      m_proxy = sg->proxy (clid, *key);
-    }
-  }
-  
-  if (m_proxy == 0) {
-    // Still didn't find it --- make a dummy.
-    SG::TransientAddress* tad;
-    if (key)
       tad = new SG::TransientAddress (clid, *key);
+    }
     else
       tad = new SG::TransientAddress();
     tad->setSGKey (sgkey);
-    m_proxy = new SG::DataProxy (tad, static_cast<IConverter*>(nullptr));
+    m_proxy = new SG::DataProxy (tad, (IConversionSvc*)0);
     if (sg->addToStore (clid, m_proxy).isFailure())
       std::abort();
   }
@@ -280,7 +257,7 @@ void* DataProxyHolder::storableBase (castfn_t* castfn, CLID clid) const
  * If we're pointing at an object directly, then we return the default store
  * if the object is found in SG; otherwise, throw @c ExcPointerNotInSG.
  */
-IProxyDict* DataProxyHolder::source() const
+IProxyDictWithPool* DataProxyHolder::source() const
 {
   SG::DataProxy* dp = proxy();
   if (!dp)
@@ -301,56 +278,11 @@ IProxyDict* DataProxyHolder::source() const
  * If @c sg is 0, then we use the global default store.
  */
 void
-DataProxyHolder::toTransient (sgkey_t sgkey, IProxyDict* sg /*= 0*/)
+DataProxyHolder::toTransient (sgkey_t sgkey, IProxyDictWithPool* sg /*= 0*/)
 {
   m_proxy = 0;
-
-  // Find the store to use.
-  if (sg == 0)
-    sg = this->source1();
-  if (sg == 0)
-    sg = SG::CurrentEventStore::store();
-
-  // Do input renaming.
-  if (s_inputRenameMap) {
-    Athena::RCURead<InputRenameMap_t> r (*s_inputRenameMap);
-    auto it = r->find (sgkey);
-    if (it != r->end())
-      sgkey = it->second;
-  }
-
   if (sgkey)
     toIdentifiedObject (sgkey, CLID_NULL, sg);
-}
-
-
-/**
- * @brief Finish initialization after link has been read.
- * @param dataID Key of the object.
- * @param link_clid CLID of the link being set.
- * @param sg Associated store.
- * @returns The hashed SG key for this object.
- *
- * This should be called after a link has been read by root
- * in order to set the proxy pointer.  It calls @c toIdentifiedObject
- * with the provided hashed key.
- *
- * If @c sg is 0, then we use the global default store.
- */
-DataProxyHolder::sgkey_t
-DataProxyHolder::toTransient (const ID_type& dataID,
-                              CLID link_clid,
-                              IProxyDict* sg /*= 0*/)
-{
-  // Find the store to use.
-  if (sg == 0)
-    sg = this->source1();
-  if (sg == 0)
-    sg = SG::CurrentEventStore::store();
-
-  sgkey_t sgkey = sg->stringToKey (dataID, link_clid);
-  toTransient (sgkey, sg);
-  return sgkey;
 }
 
 
@@ -456,8 +388,7 @@ bool DataProxyHolder::tryRemap (sgkey_t& sgkey, size_t& index)
     // Check for remapping.
     sgkey_t sgkey_out;
     size_t index_out = 0;
-    IProxyDict* sg = this->source();
-    if (sg && sg->tryELRemap (sgkey, index, sgkey_out, index_out)) {
+    if (this->source()->tryELRemap (sgkey, index, sgkey_out, index_out)) {
       this->toIdentifiedObject (sgkey_out, CLID_NULL, this->source());
       sgkey = sgkey_out;
       index = index_out;
@@ -567,7 +498,7 @@ SG::DataProxy* DataProxyHolder::proxy1(bool nothrow) const
  * If we're holding a pointer directly, rather than a proxy,
  * then return 0 rather than raising an exception.
  */
-IProxyDict* DataProxyHolder::source1() const
+IProxyDictWithPool* DataProxyHolder::source1() const
 {
   if (!m_proxy || (reinterpret_cast<unsigned long>(m_proxy) & 1) == 1)
     return 0;
@@ -602,16 +533,6 @@ bool DataProxyHolder::operator== (const DataProxyHolder& other) const
     return true;
 
   return false;
-}
-
-
-/**
- * @brief Set map used for performing input renaming in toTransient.
- * @param map The new map, or nullptr for no renmaing.
- */
-void DataProxyHolder::setInputRenameMap (const InputRenameRCU_t* map)
-{
-  s_inputRenameMap = map;
 }
 
 

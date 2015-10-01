@@ -89,7 +89,7 @@ SG::ELVRef<DOBJ>::toPersistent
   else {
     MsgStream log(Athena::getMessageSvc(), "SG::ELVRef");
     log << MSG::WARNING
-	<< "link not found in ElemLinkVector" << endmsg;
+	<< "link not found in ElemLinkVector" << endreq;
     return false;
   }
 
@@ -134,7 +134,7 @@ SG::ELVRef<DOBJ>::toTransient
     log << MSG::ERROR
         << "ELVRef::toTransient: shortref index of " << m_shortRef
         << " is beyond the end of the host container (size "
-        << owner.endHostDObjs() - iHost << ")" << endmsg;
+        << owner.endHostDObjs() - iHost << ")" << endreq;
     m_link = ElemLink();
     return false;
   }

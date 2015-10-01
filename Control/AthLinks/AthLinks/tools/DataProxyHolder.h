@@ -18,11 +18,9 @@
 
 
 #include "SGTools/CurrentEventStore.h"
+#include "SGTools/IStringPool.h"
 #include "SGTools/DataProxy.h"
-#include "AthenaKernel/IStringPool.h"
-#include "AthenaKernel/RCUObject.h"
 #include <string>
-#include <unordered_map>
 
 
 namespace SG {
@@ -70,9 +68,6 @@ public:
   /// Function casting from a @c SG::DataProxy to a pointer.
   typedef void* castfn_t (SG::DataProxy*);
 
-  /// Input renaming map.
-  typedef std::unordered_map<SG::sgkey_t, SG::sgkey_t> InputRenameMap_t;
-  typedef Athena::RCUObject<InputRenameMap_t> InputRenameRCU_t;
 
 
   /**
@@ -95,10 +90,6 @@ public:
    */
   template <class FROM_STORABLE, class TO_STORABLE>
   DataProxyHolder (const DataProxyHolder& other, FROM_STORABLE*, TO_STORABLE*);
-
-
-  // Try to avoid coverity warning.
-  DataProxyHolder& operator= (const DataProxyHolder&) = default;
 
 
   /**
@@ -127,7 +118,7 @@ public:
    */
   sgkey_t toStorableObject (const_pointer_t obj,
                             CLID link_clid,
-                            IProxyDict* sg);
+                            IProxyDictWithPool* sg);
 
 
   /**
@@ -148,7 +139,7 @@ public:
    */
   sgkey_t toIdentifiedObject (const ID_type& dataID,
                               CLID link_clid,
-                              IProxyDict* sg);
+                              IProxyDictWithPool* sg);
 
 
   /**
@@ -169,7 +160,7 @@ public:
    */
   void toIdentifiedObject (sgkey_t key,
                            CLID link_clid,
-                           IProxyDict* sg);
+                           IProxyDictWithPool* sg);
 
 
   /**
@@ -222,7 +213,7 @@ public:
    * If we're pointing at an object directly, then we return the default store
    * if the object is found in SG; otherwise, throw @c ExcPointerNotInSG.
    */
-  IProxyDict* source() const;
+  IProxyDictWithPool* source() const;
 
 
   /**
@@ -236,25 +227,7 @@ public:
    *
    * If @c sg is 0, then we use the global default store.
    */
-  void toTransient (sgkey_t sgkey, IProxyDict* sg = 0);
-
-
-  /**
-   * @brief Finish initialization after link has been read.
-   * @param dataID Key of the object.
-   * @param link_clid CLID of the link being set.
-   * @param sg Associated store.
-   * @returns The hashed SG key for this object.
-   *
-   * This should be called after a link has been read by root
-   * in order to set the proxy pointer.  It calls @c toIdentifiedObject
-   * with the provided hashed key.
-   *
-   * If @c sg is 0, then we use the global default store.
-   */
-  sgkey_t toTransient (const ID_type& dataID,
-                       CLID link_clid,
-                       IProxyDict* sg = 0);
+  void toTransient (sgkey_t sgkey, IProxyDictWithPool* sg = 0);
 
 
   /**
@@ -371,13 +344,6 @@ public:
   void throwInvalidLink (sgkey_t sgkey) const;
 
 
-  /**
-   * @brief Set map used for performing input renaming in toTransient.
-   * @param map The new map, or nullptr for no renmaing.
-   */
-  static void setInputRenameMap (const InputRenameRCU_t* map);
-
-
 private:
   /**
    * @brief Test to see if we're pointing directly at an object.
@@ -424,7 +390,7 @@ private:
    * If we're holding a pointer directly, rather than a proxy,
    * then return 0 rather than raising an exception.
    */
-  IProxyDict* source1() const;
+  IProxyDictWithPool* source1() const;
 
 
   /**
@@ -443,6 +409,11 @@ private:
   /// The @c DataProxy referring to our object, if the LSB is clear;
   /// pointer to the object which we're referencing directly if the LSB is set.
   SG::DataProxy* m_proxy; //! Transient
+
+
+  /// Pointer from which to fetch the default data source.
+  /// Cached to avoid expensive lookups.
+  static IProxyDictWithPool** s_cached_source;
 };
 
 

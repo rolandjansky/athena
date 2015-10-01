@@ -28,7 +28,6 @@ void test1()
   std::cout << SG::ExcInvalidIndex ("test").what() << "\n";
   std::cout << SG::ExcIndexNotFound ("test").what() << "\n";
   std::cout << SG::ExcIncomparableEL().what() << "\n";
-  std::cout << SG::ExcBadToTransient().what() << "\n";
 }
 
 

@@ -11,9 +11,6 @@
  */
 
 
-#include <algorithm>
-
-
 namespace SG { 
 
 
