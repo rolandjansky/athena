@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTauDict.h 632166 2014-11-29 15:06:03Z krasznaa $
+// $Id: xAODTauDict.h 694851 2015-09-15 08:35:27Z dkirchme $
 #ifndef XAODTAU_XAODTAUDICT_H
 #define XAODTAU_XAODTAUDICT_H
 
@@ -26,8 +26,13 @@
 #include "xAODTau/versions/TauJetAuxContainer_v1.h"
 #include "xAODTau/versions/TauJetContainer_v2.h"
 #include "xAODTau/versions/TauJetAuxContainer_v2.h"
+#include "xAODTau/versions/DiTauJetContainer_v1.h"
+#include "xAODTau/versions/DiTauJetAuxContainer_v1.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
+#include "xAODTau/DiTauJetContainer.h"
+#include "xAODTau/DiTauJetAuxContainer.h"
+
 
 /// Declare a dummy CLID for xAOD::TauJetContainer_v1. This is only necessary
 /// to get DataLink<xAOD::TauJetContainer_v1> and
@@ -56,6 +61,14 @@ namespace {
     std::vector< std::vector< ElementLink< xAOD::TauJetContainer_v2 > > > l13;
     std::vector< ElementLinkVector< xAOD::TauJetContainer_v2 > > l14;
 
+    xAOD::DiTauJetContainer_v1 c3;
+    DataLink< xAOD::DiTauJetContainer_v1 > l15;
+    ElementLink< xAOD::DiTauJetContainer_v1 > l16;
+    ElementLinkVector< xAOD::DiTauJetContainer_v1 > l17;
+    std::vector< DataLink< xAOD::DiTauJetContainer_v1 > > l18;
+    std::vector< ElementLink< xAOD::DiTauJetContainer_v1 > > l19;
+    std::vector< std::vector< ElementLink< xAOD::DiTauJetContainer_v1 > > > l20;
+    std::vector< ElementLinkVector< xAOD::DiTauJetContainer_v1 > > l21;
 
     // Instantiate the classes used by xAOD::TauJetAuxContainer, so that
     // Reflex would see them with their "correct type". Note that the

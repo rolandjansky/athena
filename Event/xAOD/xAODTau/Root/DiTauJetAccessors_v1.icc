@@ -1,0 +1,58 @@
+// Dear emacs, this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// $Id: DiTauJetAccessors_v1.icc 631921 2015-09-23 23:30:59Z dkirchme $
+
+#ifndef XAODDITAU_DITAUACCESSORS_V1_ICC
+#define XAODDITAU_DITAUACCESSORS_V1_ICC
+
+// System include(s):
+#include <iostream>
+
+#define DEFINE_DITAUJETPARAMETER_ACCESSOR(TYPE, NAME )                               \
+  case xAOD::DiTauJetParameters::NAME:                                    \
+{                                                               \
+  static SG::AuxElement::Accessor< TYPE > a( #NAME );           \
+  return &a;                                                    \
+}                                                               \
+break;
+
+
+  template <class T>  SG::AuxElement::Accessor< T >* detailsAccessorV1( xAOD::DiTauJetParameters::Detail /*detail*/ ) {
+  }
+
+  template <> SG::AuxElement::Accessor< float >* detailsAccessorV1<float>( xAOD::DiTauJetParameters::Detail detail ) {
+    
+    switch( detail ) {
+      DEFINE_DITAUJETPARAMETER_ACCESSOR( float, TauJetVtxFraction );
+      
+      DEFINE_DITAUJETPARAMETER_ACCESSOR( float, R_jet );
+      DEFINE_DITAUJETPARAMETER_ACCESSOR( float, R_subjet );
+      DEFINE_DITAUJETPARAMETER_ACCESSOR( float, R_core );
+      DEFINE_DITAUJETPARAMETER_ACCESSOR( float, BDT );
+
+    default:
+      std::cerr << "xAOD::DiTauJetParameters ERROR Unknown float detail ("
+                << detail << ") requested" << std::endl;
+      return 0;
+    }
+  }
+
+  template <> SG::AuxElement::Accessor< int >* detailsAccessorV1<int>( xAOD::DiTauJetParameters::Detail detail ) {
+
+    switch( detail ) {
+
+      // DEFINE_DITAUJETPARAMETER_ACCESSOR( int, nCharged );
+
+    default:
+      std::cerr << "xAOD::DiTauJetParameters ERROR Unknown integer detail ("
+                << detail << ") requested" << std::endl;
+      return 0;
+    }
+  }
+
+
+#endif // XAODDITAU_DITAUJETACCESSORS_V1_ICC

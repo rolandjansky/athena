@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauDefs.h 638520 2015-01-09 13:21:05Z janus $
+// $Id: TauDefs.h 688432 2015-08-10 14:15:53Z lhauswal $
 #ifndef XAODTAU_TAUDEFS_H
 #define XAODTAU_TAUDEFS_H
 
@@ -59,7 +59,7 @@ namespace TauJetParameters
         //! discriminant for NN (used by tau1p3p)
         //DiscNN                = 1, 
         //! discriminant for LL (used by tauRec)
-        Likelihood            = 2,
+        Likelihood            = 2, //deprecated
         //! discriminant for PDRS (used by tau1p3p)
         //DiscPDERS             = 3,
         //! discriminant for jet-tau separation LL (used by tauRec) 
@@ -89,7 +89,7 @@ namespace TauJetParameters
         //! Boosted Decision Tree score for electron rejection
         BDTEleScore           = 16,
         //! Safe LLH
-        SafeLikelihood        = 17,
+        SafeLikelihood        = 17, //deprecated
         //! BDT score which is signal transformed/flattened
         BDTJetScoreSigTrans   = 18, // new
         //! BDT score which is background transformed/flattened
@@ -116,14 +116,14 @@ namespace TauJetParameters
     //-------------------------------------------------------------------------
     enum IsTauFlag
     {
-        TauCutLoose          = 0,
-        TauCutMedium         = 1,
-        TauCutTight          = 2,
+        TauCutLoose          = 0, //deprecated
+        TauCutMedium         = 1, //deprecated
+        TauCutTight          = 2, //deprecated
         ElectronVeto         = 3, //Obsolete, dont use
         MuonVeto             = 4,
-        TauLlhTight          = 5,
-        TauLlhMedium         = 6,
-        TauLlhLoose          = 7,
+        TauLlhTight          = 5, //deprecated
+        TauLlhMedium         = 6, //deprecated
+        TauLlhLoose          = 7, //deprecated
         //TauRecOld            = 8, //Obsolete, dont use?
         //Tau1P3POld           = 9, //Obsolete, dont use?
         //TauCutSafeLoose      = 10,
@@ -132,9 +132,9 @@ namespace TauJetParameters
         //TauCutSafeCaloLoose  = 13,
         //TauCutSafeCaloMedium = 14,
         //TauCutSafeCaloTight  = 15,
-        ElectronVetoLoose    = 16,
-        ElectronVetoMedium   = 17,
-        ElectronVetoTight    = 18,
+        ElectronVetoLoose    = 16, //deprecated
+        ElectronVetoMedium   = 17, //deprecated
+        ElectronVetoTight    = 18, //deprecated
         JetBDTSigLoose          = 19, // rename (add sig)
         JetBDTSigMedium         = 20, // rename (add sig)
         JetBDTSigTight          = 21, // rename (add sig)
@@ -276,7 +276,7 @@ namespace TauJetParameters
       nCharged,
       ptRatioEflow,
       
-      nPi0Topo,
+      nPi0Topo, //deprecated
       nChargedTopo,
       etEflowTopo,
       mEflowTopo,
