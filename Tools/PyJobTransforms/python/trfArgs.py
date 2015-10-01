@@ -3,7 +3,7 @@
 ## @Package PyJobTransforms.trfArgs
 #  @brief Standard arguments supported by trf infrastructure
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfArgs.py 682012 2015-07-10 07:44:44Z graemes $
+#  @version $Id: trfArgs.py 697822 2015-10-01 11:38:06Z graemes $
 
 import logging
 msg = logging.getLogger(__name__)
@@ -91,6 +91,11 @@ def addAthenaArguments(parser, maxEventsDefaultSubstep='first', addValgrind=True
                         'Note that the special value 0 means do not merge this output file; negative values mean '
                         'always merge to a single file. Note that the datatype "ALL" will be used as a default '
                         'for all datatypes not explicitly given their own value.')
+    parser.add_argument('--athenaMPStrategy', type=trfArgClasses.argFactory(trfArgClasses.argSubstep), nargs='+',
+                        metavar='substep:Strategy', group='Athena',
+                        help='Set the AthenaMP scheduling strategy for a particular substep. Default is unset, '
+                        'except when n_inputFiles = n_workers, when it is "FileScheduling" (useful for '
+                        'ephemeral outputs).')
     if addValgrind:
         addValgrindArguments(parser)
 
