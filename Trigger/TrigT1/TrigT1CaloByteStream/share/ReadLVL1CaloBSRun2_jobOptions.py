@@ -102,7 +102,7 @@ ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::CPMTobRoIAuxContainer/CPMTobR
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::JEMTobRoIContainer/JEMTobRoIs" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::JEMTobRoIAuxContainer/JEMTobRoIsAux." ]
 
-ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::JEMTobRoIAuxContainer/JEMTobRoIsRoIB" ]
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::JEMTobRoIContainer/JEMTobRoIsRoIB" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::JEMTobRoIAuxContainer/JEMTobRoIsRoIBAux." ]
 
 # =============================================================================
