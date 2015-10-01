@@ -82,10 +82,7 @@ namespace dqutils {
 
     TIter nextcd0(f->GetListOfKeys());
     while(TKey *key0 = dynamic_cast<TKey*> (nextcd0())){
-      // Following can never test true, since while would fail.
-      // In fact loop breaks at this point, may not be desired behavior.
-      // Coverity 16305
-      //if (key0 == 0) continue;
+      if (key0 == 0) continue;
       TDirectory *dir0= dynamic_cast<TDirectory*> (key0->ReadObj());
       if (dir0 == 0) return;
 
@@ -649,7 +646,7 @@ namespace dqutils {
 		    if( deadASD.Length() != 0 ) txtfile << " Dead ASD:         " << deadASD << std::endl;
 		    if( deadTubes.Length() != 0 ) txtfile << " Dead Tubes:       " << deadTubes << std::endl;
 		    if( noisyTubes_forCool.Length() != 0 ) txtfile << " Noisy Tubes (For COOL DB):      " << noisyTubes_forCool << std::endl;
-		    if( noisyTubes_forMasked.Length() != 0 ) txtfile << " Noisy Tubes (For our masked list):      " << noisyTubes_forMasked << std::endl;
+		    if( noisyTubes_forCool.Length() != 0 ) txtfile << " Noisy Tubes (For our masked list):      " << noisyTubes_forMasked << std::endl;
 		  }
 		  if(txtFileOutputType == 2) { //For creation of masked tube list, only output if less than 10% of chamber is noisy (to avoid masking whole noisy chambers)
 		    if(noisyTubes_forCool_v.size() < numTubesInChamber / 10.0 ) {
@@ -732,35 +729,37 @@ namespace dqutils {
 	    TString xAxis = dirName(0,1)+dirName(4,1)+dirName(3,1);
 	    TString yAxis = dirName(1,1)+","+dirName(5,2);
 	    //Seperate BIR/MXA11/15
-	    if( EffG && (dirName(0,3) == "BIR" || dirName(0,3) == "BIM") && (dirName(5,2) == "11" || dirName(5,2) == "15" ) && VolumeMapBCap->GetNbinsY() >= 58){
+	    if( (dirName(0,3) == "BIR" || dirName(0,3) == "BIM") && (dirName(5,2) == "11" || dirName(5,2) == "15" ) && VolumeMapBCap->GetNbinsY() >= 58){
 	      yAxis += ",";
 	      yAxis += dirName(2,1);
 	    }
 	    //BML[45][AC]13-->BML[56][AC]13
-	    if( EffG && dirName(0,3) == "BML" && TString(dirName(3,1)).Atoi() >= 4 && dirName(5,2) == "13" && VolumeMapBCap->GetNbinsY() >= 58 ){
+	    if( dirName(0,3) == "BML" && TString(dirName(3,1)).Atoi() >= 4 && dirName(5,2) == "13" && VolumeMapBCap->GetNbinsY() >= 58 ){
 	      xAxis = dirName(0,1) + dirName(4,1) + returnString( TString(dirName(3,1)).Atoi() + 1 );
 	    }
-            //BML1[AC]14-->BML4[AC]13
-	    if( dirName(0,3) == "BML" && TString(dirName(3,1)).Atoi() >= 4 && dirName(5,2) == "13" && VolumeMapBCap->GetNbinsY() >= 58 ){
-	      xAxis = dirName(0,1) + dirName(4,1) + returnString( 4 );
+            //BME1[AC]14 (mistake - is actually 13 - so account for both cases!) -->BML4[AC]13
+	    if( dirName(0,3) == "BME" && VolumeMapBCap->GetNbinsY() >= 58 ){
+	      xAxis = dirName(0,1) + dirName(4,1) + "4";
+	      yAxis = "M,13";
 	    }
 	    double tubeLength = 4.9615;
+	    double tubeRadiusScale = 1;
 // 	    double maxTubeLengthBarrel = 4961.5;  // just FYI
 // 	    double maxTubeLengthEndcap = 5941.5;  // just FYI 
 	    GetTubeLength(tubeLength,dirName);    // should always fill tubeLength
-	    double chamb_vol = (double)numTubesInChamber*tubeLength*0.0006881;   // 0.0006881 m2 = pi*tube_r^2
-	    double noiseCut_vol = (double)nTubes_noiseCut*tubeLength*0.0006881; // these represent the total volume in (m3) covered by the tubes in the chamber
+	    if(dirName(0,3) == "BME") tubeRadiusScale = 0.25;
+	    double chamb_vol = (double)numTubesInChamber*tubeLength*0.0006881*tubeRadiusScale;   // 0.0006881 m2 = pi*tube_r^2
+	     // BME tubes are half the radius = 1/4 the volume/
+	    double noiseCut_vol = (double)nTubes_noiseCut*tubeLength*0.0006881*tubeRadiusScale; // these represent the total volume in (m3) covered by the tubes in the chamber
 
 	    // Fill volume maps regardless of whether the chamber is called dead
-	    if (EffG) {
-	      if(xAxis.BeginsWith("B")) {
-		VolumeMapBCap->Fill(xAxis,yAxis,chamb_vol);
-		VolumeMapBCap_noisecut->Fill(xAxis,yAxis,noiseCut_vol);
-	      }
-	      else {
-		VolumeMapECap->Fill(xAxis,yAxis,chamb_vol);
-		VolumeMapECap_noisecut->Fill(xAxis,yAxis,noiseCut_vol);
-	      }
+	    if(xAxis.BeginsWith("B")) {
+	      VolumeMapBCap->Fill(xAxis,yAxis,chamb_vol);
+	      VolumeMapBCap_noisecut->Fill(xAxis,yAxis,noiseCut_vol);
+	    }
+	    else {
+	      VolumeMapECap->Fill(xAxis,yAxis,chamb_vol);
+	      VolumeMapECap_noisecut->Fill(xAxis,yAxis,noiseCut_vol);
 	    }
 
 	    // Only do the rest if chamber is not called dead
@@ -785,19 +784,17 @@ namespace dqutils {
 		}	 
 	      }
 	      
-	      if (EffG) {
-		if(xAxis.BeginsWith("B")) {
-		  NoiseBCap->Fill(xAxis, yAxis, noise_hits / ((double)nTriggers) );
-		  BkgrdBCap->Fill(xAxis, yAxis, bkgrd_hits / ((double)nTriggers) );     
-		  EvtOccBCap->Fill(        xAxis, yAxis, nHits          / ((double)nTriggers) );
-		  EvtOccNoiseCutBCap->Fill(xAxis, yAxis, nHits_noiseCut / ((double)nTriggers) );
-		}
-		else {
-		  NoiseECap->Fill(xAxis, yAxis, noise_hits / ((double)nTriggers) );
-		  BkgrdECap->Fill(xAxis, yAxis, bkgrd_hits / ((double)nTriggers) );     
-		  EvtOccECap->Fill(        xAxis, yAxis, nHits          / ((double)nTriggers) );
-		  EvtOccNoiseCutECap->Fill(xAxis, yAxis, nHits_noiseCut / ((double)nTriggers) );
-		}
+	      if(xAxis.BeginsWith("B")) {
+		NoiseBCap->Fill(xAxis, yAxis, noise_hits / ((double)nTriggers) );
+		BkgrdBCap->Fill(xAxis, yAxis, bkgrd_hits / ((double)nTriggers) );     
+		EvtOccBCap->Fill(        xAxis, yAxis, nHits          / ((double)nTriggers) );
+		EvtOccNoiseCutBCap->Fill(xAxis, yAxis, nHits_noiseCut / ((double)nTriggers) );
+	      }
+	      else {
+		NoiseECap->Fill(xAxis, yAxis, noise_hits / ((double)nTriggers) );
+		BkgrdECap->Fill(xAxis, yAxis, bkgrd_hits / ((double)nTriggers) );     
+		EvtOccECap->Fill(        xAxis, yAxis, nHits          / ((double)nTriggers) );
+		EvtOccNoiseCutECap->Fill(xAxis, yAxis, nHits_noiseCut / ((double)nTriggers) );
 	      }
 	      
 	      std::map<TString,float>::iterator noise_itr = noise_map.find(eta_ring);
@@ -918,8 +915,8 @@ namespace dqutils {
 	  EffMiddle->Write("",TObject::kOverwrite);
 	  EffOuter->Write("",TObject::kOverwrite);
 	  EffExtra->Write("",TObject::kOverwrite);
-  	  hTubeOcc->Fill("%_Tubes_On", totalTube_region > 0 ? 1-totalDead_region*1./totalTube_region : 0);
-	  hTubeOcc->Fill("%_Dead_Frac", totalTube_region > 0 ? totalDead_region*1./totalTube_region : 0);
+	  hTubeOcc->Fill("%_Tubes_On", 1-totalDead_region*1./totalTube_region);
+	  hTubeOcc->Fill("%_Dead_Frac", totalDead_region*1./totalTube_region);
 	  hTubeOcc->LabelsDeflate("x");
 	  hTubeOcc->Write("",TObject::kOverwrite);
 	}
@@ -1030,11 +1027,11 @@ namespace dqutils {
 	  txtfile.precision(3);
 	  txtfile << "************************************************************************************************" << std::endl;
 	  txtfile << "**** Global summary of dead/noisy analysis: " << std::endl;
-	  txtfile << "******** Tubes:       " << std::setw(8) << numAllTubes << ",  Dead: " << std::setw(8) << std::fixed << 100.0 * (double)numDeadTubes / (double)numAllTubes << "%,  Noisy: " << std::setw(8) << 100.0 * (numAllTubes > 0 ? (double)numNoisyTubes / (double)numAllTubes : 0) << "%" << std::endl;
-	  txtfile << "******** Mezzanines:  " << std::setw(8) << numAllMezz << ",  Dead: " << std::setw(8) << std::fixed << 100.0 * (numAllMezz > 0 ? (double)numDeadMezz / (double)numAllMezz : 0) << "%,  Noisy: " << std::setw(9) << "n/a" << std::endl;
-	  txtfile << "******** Layers:      " << std::setw(8) << numAllLayers << ",  Dead: " << std::setw(8) << std::fixed << 100.0 * (numAllLayers > 0 ? (double)numDeadLayers / (double)numAllLayers : 0) << "%,  Noisy: " << std::setw(9) << "n/a" << std::endl;
-	  txtfile << "******** Multilayers: " << std::setw(8) << numAllML << ",  Dead: " << std::setw(8) << std::fixed << 100.0 * (numAllML > 0 ? (double)numDeadML / (double)numAllML : 0) << "%,  Noisy: " << std::setw(9) << "n/a" << std::endl;	  
-	  txtfile << "******** Chambers:    " << std::setw(8) << numAllChambers << ",  Dead: " << std::setw(8) << std::fixed << 100.0 * (numAllChambers > 0 ? (double)numDeadChambers / (double)numAllChambers : 0) << "%,  Noisy: " << std::setw(9) << "n/a" << std::endl;	    
+	  txtfile << "******** Tubes:       " << std::setw(8) << numAllTubes << ",  Dead: " << std::setw(8) << std::fixed << 100.0 * (double)numDeadTubes / (double)numAllTubes << "%,  Noisy: " << std::setw(8) << 100.0 * (double)numNoisyTubes / (double)numAllTubes << "%" << std::endl;
+	  txtfile << "******** Mezzanines:  " << std::setw(8) << numAllMezz << ",  Dead: " << std::setw(8) << std::fixed << 100.0 * (double)numDeadMezz / (double)numAllMezz << "%,  Noisy: " << std::setw(9) << "n/a" << std::endl;
+	  txtfile << "******** Layers:      " << std::setw(8) << numAllLayers << ",  Dead: " << std::setw(8) << std::fixed << 100.0 * (double)numDeadLayers / (double)numAllLayers << "%,  Noisy: " << std::setw(9) << "n/a" << std::endl;
+	  txtfile << "******** Multilayers: " << std::setw(8) << numAllML << ",  Dead: " << std::setw(8) << std::fixed << 100.0 * (double)numDeadML / (double)numAllML << "%,  Noisy: " << std::setw(9) << "n/a" << std::endl;	  
+	  txtfile << "******** Chambers:    " << std::setw(8) << numAllChambers << ",  Dead: " << std::setw(8) << std::fixed << 100.0 * (double)numDeadChambers / (double)numAllChambers << "%,  Noisy: " << std::setw(9) << "n/a" << std::endl;	    
 	  txtfile.close();
 	}
       }
@@ -1083,53 +1080,37 @@ namespace dqutils {
 	nTubes_overall+=nTubes;
 	if(eta_ring(0,1)=="B" && eta_ring(2,1)=="A") {
 	  bkgrd_BA+=bkgrd; noise_BA+=noise; nTubes_BA+=nTubes;
-	  if( eta_ring.Sizeof() >= 5 && eta_ring(1,1)!="E" && nTubes>0) {
+	  if( eta_ring.Sizeof() >= 5 && eta_ring(1,1)!="E") {
 	    BA_bkgrd->Fill(eta_ring, bkgrd/nTubes);
 	    BA_noise->Fill(eta_ring, noise/nTubes);
 	  }
 	}
 	if(eta_ring(0,1)=="B" && eta_ring(2,1)=="C") {
 	  bkgrd_BC+=bkgrd; noise_BC+=noise; nTubes_BC+=nTubes;
-	  if( eta_ring.Sizeof() >= 5 && eta_ring(1,1)!="E" && nTubes>0) {
+	  if( eta_ring.Sizeof() >= 5 && eta_ring(1,1)!="E") {
 	    BC_bkgrd->Fill(eta_ring, bkgrd/nTubes);
 	    BC_noise->Fill(eta_ring, noise/nTubes);
 	  }
 	}
 	if(eta_ring(0,1)=="E" && eta_ring(2,1)=="A") {
 	  bkgrd_EA+=bkgrd; noise_EA+=noise; nTubes_EA+=nTubes;
-	  if( eta_ring.Sizeof() >= 5 && eta_ring(1,1)!="E" && nTubes>0) {
+	  if( eta_ring.Sizeof() >= 5 && eta_ring(1,1)!="E") {
 	    EA_bkgrd->Fill(eta_ring, bkgrd/nTubes);
 	    EA_noise->Fill(eta_ring, noise/nTubes);
 	  }
 	}
 	if(eta_ring(0,1)=="E" && eta_ring(2,1)=="C") {
 	  bkgrd_EC+=bkgrd; noise_EC+=noise; nTubes_EC+=nTubes;
-	  if( eta_ring.Sizeof() >= 5 && eta_ring(1,1)!="E" && nTubes>0) {
+	  if( eta_ring.Sizeof() >= 5 && eta_ring(1,1)!="E") {
 	    EC_bkgrd->Fill(eta_ring, bkgrd/nTubes);
 	    EC_noise->Fill(eta_ring, noise/nTubes);
 	  }
 	}
       }
-      if (nTubes_overall>0) {
-        bkgrd_summary->Fill("Overall",bkgrd_overall/nTubes_overall); 
-        noise_summary->Fill("Overall",noise_overall/nTubes_overall); 
-      }
-      if (nTubes_BA>0) {
-        bkgrd_summary->Fill("BA",bkgrd_BA/nTubes_BA); 
-        noise_summary->Fill("BA",noise_BA/nTubes_BA); 
-      }
-      if (nTubes_BC>0) {
-        bkgrd_summary->Fill("BC",bkgrd_BC/nTubes_BC); 
-        noise_summary->Fill("BC",noise_BC/nTubes_BC); 
-      }
-      if (nTubes_EA>0) {
-        bkgrd_summary->Fill("EA",bkgrd_EA/nTubes_EA); 
-        noise_summary->Fill("EA",noise_EA/nTubes_EA); 
-      }
-      if (nTubes_EC>0) {
-        bkgrd_summary->Fill("EC",bkgrd_EC/nTubes_EC); 
-        noise_summary->Fill("EC",noise_EC/nTubes_EC); 
-      }
+      bkgrd_summary->Fill("Overall",bkgrd_overall/nTubes_overall); bkgrd_summary->Fill("BA",bkgrd_BA/nTubes_BA); 
+      bkgrd_summary->Fill("BC",bkgrd_BC/nTubes_BC); bkgrd_summary->Fill("EA",bkgrd_EA/nTubes_EA); bkgrd_summary->Fill("EC",bkgrd_EC/nTubes_EC); 
+      noise_summary->Fill("Overall",noise_overall/nTubes_overall); noise_summary->Fill("BA",noise_BA/nTubes_BA); 
+      noise_summary->Fill("BC",noise_BC/nTubes_BC); noise_summary->Fill("EA",noise_EA/nTubes_EA); noise_summary->Fill("EC",noise_EC/nTubes_EC); 
 
       EffVSNoise_num->Sumw2();
       EffVSNoise_den->Sumw2();
@@ -1189,13 +1170,11 @@ namespace dqutils {
       if(dir_Overview_expert_reco && dir_Overview_expert) {
 	dir_Overview_expert_reco->cd();	
 	// 2D eff histos -- divide and change metadata before writing to new reco dir
-	if (EffECap && EffBCap) {
-	  EffECap->Divide(EffECap_N);
-	  EffBCap->Divide(EffBCap_N);
-	  mf.setMetaData(dir_Overview_expert_reco, EffECap, EffBCap);
-	  EffECap->Write("",TObject::kOverwrite); 
-	  EffBCap->Write("",TObject::kOverwrite); 	  
-	}
+	EffECap->Divide(EffECap_N);
+	EffBCap->Divide(EffBCap_N);
+	mf.setMetaData(dir_Overview_expert_reco, EffECap, EffBCap);
+	EffECap->Write("",TObject::kOverwrite); 
+	EffBCap->Write("",TObject::kOverwrite); 	  
       }
 
       if(coolmdt_dead){delete coolmdt_dead;}
@@ -1268,24 +1247,22 @@ namespace dqutils {
 	TH2F* OccECap = 0; mf.get("NumberOfHitsInEndCapPerChamber_onSegm_ADCCut",OccECap,dir_Overview_expert_reco); 
 	TH2F* VolumeMapBCap = 0; mf.get("VolumeMapBarrel",VolumeMapBCap,dir_Overview_expert); 
 	TH2F* VolumeMapECap = 0; mf.get("VolumeMapEndcap",VolumeMapECap,dir_Overview_expert); 
-	if( OccBCap && OccECap && VolumeMapBCap && VolumeMapECap ){
+	if( OccECap && OccECap && VolumeMapBCap && VolumeMapECap ){
 	  TH2F* OccBCap_norm = dynamic_cast<TH2F*> (OccBCap->Clone());
 	  TH2F* OccECap_norm = dynamic_cast<TH2F*> (OccECap->Clone());
-	  if (OccBCap_norm && OccECap_norm) {
-	    OccBCap_norm->Scale(1./nTriggers);
-	    OccBCap_norm->Divide(VolumeMapBCap);
-	    OccBCap_norm->SetName("HitsPerEventInBarrelPerChamber_onSegm_ADCCut");
-	    OccBCap_norm->SetTitle("Avg # hits-on-segm/evt/m^3 Barrel");
-	    OccECap_norm->Scale(1./nTriggers);	  
-	    OccECap_norm->Divide(VolumeMapECap);
-	    OccECap_norm->SetName("HitsPerEventInEndCapPerChamber_onSegm_ADCCut");
-	    OccECap_norm->SetTitle("Avg # hits-on-segm/evt/m^3 Endcap");
-	    MDTSet2DRangeZ(OccBCap_norm);
-	    MDTSet2DRangeZ(OccECap_norm);
-	    mf.setMetaData(dir_Overview_expert_reco, OccBCap_norm, OccECap_norm);
-	    OccBCap_norm->Write("",TObject::kOverwrite);
-	    OccECap_norm->Write("",TObject::kOverwrite);	
-	  }
+	  OccBCap_norm->Scale(1./nTriggers);
+	  OccBCap_norm->Divide(VolumeMapBCap);
+	  OccBCap_norm->SetName("HitsPerEventInBarrelPerChamber_onSegm_ADCCut");
+	  OccBCap_norm->SetTitle("Avg # hits-on-segm/evt/m^3 Barrel");
+	  OccECap_norm->Scale(1./nTriggers);	  
+	  OccECap_norm->Divide(VolumeMapECap);
+	  OccECap_norm->SetName("HitsPerEventInEndCapPerChamber_onSegm_ADCCut");
+	  OccECap_norm->SetTitle("Avg # hits-on-segm/evt/m^3 Endcap");
+	  MDTSet2DRangeZ(OccBCap_norm);
+	  MDTSet2DRangeZ(OccECap_norm);
+	  mf.setMetaData(dir_Overview_expert_reco, OccBCap_norm, OccECap_norm);
+	  OccBCap_norm->Write("",TObject::kOverwrite);
+	  OccECap_norm->Write("",TObject::kOverwrite);	
 	}
       }
 
@@ -1371,7 +1348,6 @@ namespace dqutils {
 	  sumtdrift->SetMarkerStyle(20);
 	  sumtdrift->SetMarkerColor(42);
 	  sumtdrift->SetAxisRange(0,1500,"y");
-	  // Ultraparanoia ...
 	  if(!(sumtdrift && sumt0 && sumtmax)) {
 	    std::cerr << "No Summary Histograms" << std::endl;
 	    mf.error();
@@ -1528,11 +1504,6 @@ namespace dqutils {
     TIter nextcd0(mf.GetListOfKeys());
     TKey *key0 = (TKey*)nextcd0();
     TDirectory *dir0= dynamic_cast<TDirectory*>(key0->ReadObj());
-    if (!dir0) {
-      std::cerr << "MDTPostProcess(): "
-		<< "Unable to find run directory in input file\n";
-      return;
-    }
     ///
 
     TIter next_run ( dir0->GetListOfKeys() );
@@ -1746,6 +1717,14 @@ namespace dqutils {
     TString Side = hardware_name(4,1);
     TString hwname = hardware_name(1,1);
 
+    TString eta_s = hardware_name(3,1);
+
+    //BME1[AC]14 (mistake - is actually 13 - so account for both cases!) -->BME4[AC]13 in histogram position
+    if( hardware_name(0,3) == "BME" ){
+      eta_s = "4";
+      statphi_s = "13";
+    }    
+        
     statphi_c = statphi_s+",1";
     statphi_c2 = statphi_s+",2";
 
@@ -1753,8 +1732,12 @@ namespace dqutils {
       statphi_c = statphi_c +","+hardware_name(2,1);
       statphi_c2 = statphi_c2 +","+hardware_name(2,1);
     }
-
-    TString eta_s = hardware_name(3,1);
+    
+    //BML[45][AC]13-->BML[56][AC]13
+    if( hardware_name(0,3) == "BML" && TString(hardware_name(3,1)).Atoi() >= 4 && hardware_name(5,2) == "13" ){
+      eta_s = returnString( TString(hardware_name(3,1)).Atoi() + 1 );
+    }
+    
     stateta_c = hardware_name(0,2);
     stateta_c += hardware_name(4,1);
     stateta_c+=eta_s;
@@ -1828,69 +1811,69 @@ namespace dqutils {
     return;
   }
 
-  void MonitoringFile::MDTSetMetaData(TDirectory* /*targetDir*/, TH1* /*h1*/, TH1* /*h2*/, TH1* /*h3*/){
+  void MonitoringFile::MDTSetMetaData(TDirectory* targetDir, TH1* h1, TH1* h2, TH1* h3){
     return;
-    // TTree* metadata_overview_tr = 0;
-    // if(!targetDir || !h1) return;
-    // targetDir->GetObject("metadata",metadata_overview_tr);
-    // //Fill Metadata for new objs.
-    // std::string name_;
-    // std::string intervalData_="run";
-    // std::string chainData_="<none>";
-    // std::string mergeData_="<default>";
-    // if(metadata_overview_tr){
-    //   OutputMetadata metadata_overview(metadata_overview_tr);
-    //   char name[99];
-    //   char intervalData[99];
-    //   char chainData[99];
-    //   char mergeData[99];
-    //   TBranch* b_name;
-    //   TBranch* b_intervalData;
-    //   TBranch* b_chainData;
-    //   TBranch* b_mergeData;
-    //   TTree* tClone = (TTree*) metadata_overview_tr->Clone();
-    //   metadata_overview_tr->SetDirectory(0);
-    //   tClone->SetBranchAddress("Name",name,&b_name);
-    //   tClone->SetBranchAddress("Interval",intervalData,&b_intervalData);
-    //   tClone->SetBranchAddress("TriggerChain",chainData,&b_chainData);
-    //   tClone->SetBranchAddress("MergeMethod",mergeData,&b_mergeData);
-    //   //Check if Metadata Already Exists
-    //   bool isMeta = false;
-    //   for(int i = 0; i != tClone->GetEntries(); ++i){
-    // 	tClone->GetEntry(i);
-    // 	intervalData_ = intervalData;
-    // 	chainData_ = chainData;
-    // 	mergeData_ = mergeData;
-    // 	name_ = name;
-    // 	if(name_ == (std::string) h1->GetName()) isMeta = true;
-    //   }
-    //   delete tClone;
-    //   if(isMeta) {
-    // 	metadata_overview_tr->SetDirectory(0);
-    // 	delete metadata_overview_tr;
-    // 	return;
-    //   }
-    //   metadata_overview.fill(h1->GetName(), intervalData_.c_str(), chainData_.c_str(), mergeData_.c_str());
-    //   if(h2) metadata_overview.fill(h2->GetName(), intervalData_.c_str(), chainData_.c_str(), mergeData_.c_str());
-    //   if(h3) metadata_overview.fill(h3->GetName(), intervalData_.c_str(), chainData_.c_str(), mergeData_.c_str());
-    //   //set new hists to 0 dir
-    //   TDirectory* tempDir = gDirectory;
-    //   targetDir->cd();
-    //   metadata_overview_tr->Write("",TObject::kOverwrite);
-    //   tempDir->cd();
-    // }
-    // else {
-    //   TTree*  metadata_overview_tr = new TTree( "metadata", "Monitoring Metadata" );
-    //   OutputMetadata metadata_overview(metadata_overview_tr);      
-    //   if(h1) metadata_overview.fill( h1->GetName(), intervalData_.c_str(), chainData_.c_str(), mergeData_.c_str());
-    //   TDirectory* tempDir = gDirectory;
-    //   targetDir->cd();
-    //   h1->SetDirectory(0);
-    //   metadata_overview_tr->Write("",TObject::kOverwrite);
-    //   metadata_overview_tr->SetDirectory(0);//make this safe to delete
-    //   delete metadata_overview_tr;
-    //   tempDir->cd();      
-    // }
+    TTree* metadata_overview_tr = 0;
+    if(!targetDir || !h1) return;
+    targetDir->GetObject("metadata",metadata_overview_tr);
+    //Fill Metadata for new objs.
+    std::string name_;
+    std::string intervalData_="run";
+    std::string chainData_="<none>";
+    std::string mergeData_="<default>";
+    if(metadata_overview_tr){
+      OutputMetadata metadata_overview(metadata_overview_tr);
+      char name[99];
+      char intervalData[99];
+      char chainData[99];
+      char mergeData[99];
+      TBranch* b_name;
+      TBranch* b_intervalData;
+      TBranch* b_chainData;
+      TBranch* b_mergeData;
+      TTree* tClone = (TTree*) metadata_overview_tr->Clone();
+      metadata_overview_tr->SetDirectory(0);
+      tClone->SetBranchAddress("Name",name,&b_name);
+      tClone->SetBranchAddress("Interval",intervalData,&b_intervalData);
+      tClone->SetBranchAddress("TriggerChain",chainData,&b_chainData);
+      tClone->SetBranchAddress("MergeMethod",mergeData,&b_mergeData);
+      //Check if Metadata Already Exists
+      bool isMeta = false;
+      for(int i = 0; i != tClone->GetEntries(); ++i){
+	tClone->GetEntry(i);
+	intervalData_ = intervalData;
+	chainData_ = chainData;
+	mergeData_ = mergeData;
+	name_ = name;
+	if(name_ == (std::string) h1->GetName()) isMeta = true;
+      }
+      delete tClone;
+      if(isMeta) {
+ 	metadata_overview_tr->SetDirectory(0);
+	delete metadata_overview_tr;
+	return;
+      }
+      metadata_overview.fill(h1->GetName(), intervalData_.c_str(), chainData_.c_str(), mergeData_.c_str());
+      if(h2) metadata_overview.fill(h2->GetName(), intervalData_.c_str(), chainData_.c_str(), mergeData_.c_str());
+      if(h3) metadata_overview.fill(h3->GetName(), intervalData_.c_str(), chainData_.c_str(), mergeData_.c_str());
+      //set new hists to 0 dir
+      TDirectory* tempDir = gDirectory;
+      targetDir->cd();
+      metadata_overview_tr->Write("",TObject::kOverwrite);
+      tempDir->cd();
+    }
+    else {
+      TTree*  metadata_overview_tr = new TTree( "metadata", "Monitoring Metadata" );
+      OutputMetadata metadata_overview(metadata_overview_tr);      
+      if(h1) metadata_overview.fill( h1->GetName(), intervalData_.c_str(), chainData_.c_str(), mergeData_.c_str());
+      TDirectory* tempDir = gDirectory;
+      targetDir->cd();
+      h1->SetDirectory(0);
+      metadata_overview_tr->Write("",TObject::kOverwrite);
+      metadata_overview_tr->SetDirectory(0);//make this safe to delete
+      delete metadata_overview_tr;
+      tempDir->cd();      
+    }
   }
 
   void MonitoringFile::MDTFinalizeWriteTH1FChar(TH1F* h){
@@ -1909,6 +1892,7 @@ namespace dqutils {
     else if( dirName(0,4) == "BIR1" ) tubeLength = 2.6715;
     else if( dirName(0,4) == "BIR2" || dirName(0,4) == "BIR4" || dirName(0,4) == "BIR5" ) tubeLength = 1.5365;
     else if( dirName(0,4) == "BIR3" || dirName(0,4) == "BIR6" ) tubeLength = 1.1055;
+    else if( dirName(0,3) == "BME" ) tubeLength = 2.15; //approximate!
     else if( dirName(0,3) == "BML" ) tubeLength = 3.5515;
     else if( dirName(0,3) == "BMS" || dirName(0,3) == "BMF" ) tubeLength = 3.0715;
     else if( dirName(0,3) == "BOL" ) tubeLength = 4.9615;

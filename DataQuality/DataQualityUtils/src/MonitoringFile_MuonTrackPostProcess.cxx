@@ -36,6 +36,10 @@
 #include "TProfile.h"
 #include "TMinuit.h"
 
+const char *SegStationName[17] = {"BIS", "BIL", "BMS", "BML", "BOS", "BOL", "BEE", 
+                              "EIS", "EIL", "EMS", "EML", "EOS", "EOL", "EES", 
+                              "EEL", "CSS", "CSL"};//For filling in monitoring plots
+
 void TwoDto2D_Eff(TH2 * Numerator, TH2 * Denominator, TH2 * Efficiency, bool rebin2d = false){
   //the input histograms must have the same dimension!
   if (Numerator == NULL || Denominator == NULL || Efficiency == NULL) {return;}
@@ -165,6 +169,21 @@ namespace dqutils {
       TH2F* m_Efficiency = (TH2F*)dir1->Get(Form("%sSegments_%s_eff_chamberIndex_perSector", plotdirname.Data(), recalg_path.Data()));
       
       TwoDto2D_Eff(m_EffNumerator, m_EffDenominator, m_Efficiency);
+
+      //add the efficiency for precision
+      for(int i=0; i < 17; i++){
+        TH2F* m_seg_prec_EffNumerator = (TH2F*)dir1->Get(Form("%sSegments_%s_%s_etastation_nPrechit", plotdirname.Data(), recalg_path.Data(), SegStationName[i]));
+        TH2F* m_seg_prec_EffDenominator = (TH2F*)dir1->Get(Form("%sSegments_%s_eff_%s_etastation_nPrechit", plotdirname.Data(), recalg_path.Data(), SegStationName[i]));
+        TH2F* m_seg_prec_Efficiency = (TH2F*)dir1->Get(Form("%sSegments_%s_eff_%s_etastation_nPrechit", plotdirname.Data(), recalg_path.Data(), SegStationName[i]));
+        
+        TwoDto2D_Eff(m_seg_prec_EffNumerator, m_seg_prec_EffDenominator, m_seg_prec_Efficiency);
+
+        TH2F* m_seg_trig_EffNumerator = (TH2F*)dir1->Get(Form("%sSegments_%s_%s_etastation_nTrighit", plotdirname.Data(), recalg_path.Data(), SegStationName[i]));
+        TH2F* m_seg_trig_EffDenominator = (TH2F*)dir1->Get(Form("%sSegments_%s_eff_%s_etastation_nTrighit", plotdirname.Data(), recalg_path.Data(), SegStationName[i]));
+        TH2F* m_seg_trig_Efficiency = (TH2F*)dir1->Get(Form("%sSegments_%s_eff_%s_etastation_nTrighit", plotdirname.Data(), recalg_path.Data(), SegStationName[i]));
+        
+        TwoDto2D_Eff(m_seg_trig_EffNumerator, m_seg_trig_EffDenominator, m_seg_trig_Efficiency);
+      }
     }//ends different subfolder for segment efficiency
     
     //Do the muon part
