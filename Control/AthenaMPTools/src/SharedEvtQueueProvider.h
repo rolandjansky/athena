@@ -44,27 +44,21 @@ class SharedEvtQueueProvider : public AthenaMPToolBase
 
   // Properties
   bool m_isPileup;        // Are we doing pile-up digitization?
-  int  m_preCountedEvents; // Somebody (TF) has already counted the events, no need to do that again
   int  m_nEventsBeforeFork;
-  int  m_chunkSize;
+  int  m_nChunkSize;
+  int  m_nChunkStart;      // The beginning of the current chunk
+  int  m_nPositionInChunk; // Position within the current chunk
+  
 
   int  m_nEvtRequested;    // Max event received from AppMgr
   int  m_skipEvents;       // SkipEvent property value of the Event Selectors
   int  m_nEvtCounted;      // The number of events this tool has counted itself in the input files 
-  int  m_nEvtAddPending;   // Number of pending events to be added to the queue
-  bool m_needCountEvents;  // Flag indicating whether or not it is necessary to keep counting events
-  int  m_nEventsInInpFiles;// Total number of events in the input files opened so far
+  
 
   AthenaInterprocess::SharedQueue*  m_sharedEventQueue;          
 
-  // Get number of events in the current input file and store it in m_nEvtAddPending
-  // It also determines whether or not we need to keep counting events
-  // Returns 0 if success, 1 if failure   
-  int nEventsInFile();              
-
-  // Add pending events to the shared queue
-  // Returns 0 if success, 1 if failure 
-  int addEventsToQueue(); 
+  // Add next event chunk to the queue
+  void addEventsToQueue(); 
 
   // Update shared memory segment
   void updateShmem(int eventCount, bool countFinal);

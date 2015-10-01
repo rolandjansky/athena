@@ -30,6 +30,7 @@ SharedReaderTool::SharedReaderTool(const std::string& type
 
 SharedReaderTool::~SharedReaderTool()
 {
+  delete m_shmemSegment; m_shmemSegment = 0;
 }
 
 StatusCode SharedReaderTool::initialize()
@@ -190,7 +191,9 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::bootstrap_f
 
   // Instantiate shared memory segment in the reader
   try {
-    m_shmemSegment = boost::shared_ptr<yampl::SharedMemory>(new yampl::SharedMemory("/athmp-shmem-"+m_randStr,2*sizeof(int)));
+    std::string shmemName("/athmp-shmem-"+m_randStr);
+    boost::interprocess::shared_memory_object shmemSegment(boost::interprocess::open_only, shmemName.c_str(), boost::interprocess::read_write);
+    m_shmemSegment = new boost::interprocess::mapped_region(shmemSegment,boost::interprocess::read_write);
   }
   catch(yampl::ErrnoException& ex) {
     msg(MSG::ERROR) << "Exception caught when trying to acquire shared memory segment: " << ex.what() << endreq;
@@ -207,7 +210,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> SharedReaderTool::exec_func()
   msg(MSG::INFO) << "Exec function in the AthenaMP Shared Reader PID=" << getpid() << endreq;
 
   int eventsRead(0);
-  int* shmemCountedEvts = (int*)m_shmemSegment->getMemory();
+  int* shmemCountedEvts = (int*)m_shmemSegment->get_address();
   int* shmemCountFinal = shmemCountedEvts+1;
 
   int ctFinal(*shmemCountFinal), evtCounted(*shmemCountedEvts);

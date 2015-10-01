@@ -24,8 +24,20 @@
 #include <stdint.h>
 #include <stdexcept>
 #include <queue>
+#include <signal.h>
 
 #include "yampl/SocketFactory.h"
+
+namespace TokenProcessor_d {
+  bool sig_done = false;
+  void pauseForDebug(int /*sig*/) {
+    // std::cout << "Continuing after receiving signal " 
+    // 	    << sig << std::endl;
+    sig_done = true;
+  }
+}
+
+
 
 struct ShareEventHeader {
   long evtSeqNumber;
@@ -53,6 +65,7 @@ TokenProcessor::TokenProcessor(const std::string& type
   , m_sharedFailedPidQueue(0)
   , m_socketFactory(0)
   , m_socket2Scatterer(0)
+  , m_debug(false)
 {
   declareInterface<IAthenaMPTool>(this);
 
@@ -60,6 +73,7 @@ TokenProcessor::TokenProcessor(const std::string& type
   declareProperty("EventsBeforeFork",m_nEventsBeforeFork);
   declareProperty("Channel2Scatterer", m_channel2Scatterer);
   declareProperty("Channel2EvtSel", m_channel2EvtSel);
+  declareProperty("Debug", m_debug);
 
   m_subprocDirPrefix = "worker_";
 }
@@ -246,6 +260,23 @@ AthenaMP::AllWorkerOutputs_ptr TokenProcessor::generateOutputReport()
 
 std::unique_ptr<AthenaInterprocess::ScheduledWork> TokenProcessor::bootstrap_func()
 {
+
+  if (m_debug) {
+    ATH_MSG_INFO("Bootstrap worker PID " << getpid() << " - waiting for SIGUSR1");
+    sigset_t mask, oldmask;
+    
+    signal(SIGUSR1, TokenProcessor_d::pauseForDebug);
+    
+    sigemptyset (&mask);
+    sigaddset (&mask, SIGUSR1);
+    
+    sigprocmask (SIG_BLOCK, &mask, &oldmask);
+    while (!TokenProcessor_d::sig_done)
+      sigsuspend (&oldmask);
+    sigprocmask (SIG_UNBLOCK, &mask, NULL);
+  }
+
+
   std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
   outwork->data = malloc(sizeof(int));
   *(int*)(outwork->data) = 1; // Error code: for now use 0 success, 1 failure
