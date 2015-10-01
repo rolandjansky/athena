@@ -5,7 +5,7 @@
 # @brief Main package for new style ATLAS job transforms
 # @details Core class for ATLAS job transforms
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: transform.py 679938 2015-07-02 22:09:59Z graemes $
+# @version $Id: transform.py 697388 2015-09-29 13:38:46Z graemes $
 # 
 
 __version__ = '$Revision'
@@ -105,15 +105,15 @@ class transform(object):
     @property
     def exitCode(self):
         if self._exitCode == None:
-            msg.warning('Transform exit code getter: _exitCode is unset, returning "TRF_UNKOWN"')
-            return trfExit.nameToCode('TRF_UNKOWN')
+            msg.warning('Transform exit code getter: _exitCode is unset, returning "TRF_UNKNOWN"')
+            return trfExit.nameToCode('TRF_UNKNOWN')
         else:
             return self._exitCode
         
     @property
     def exitMsg(self):
         if self._exitMsg == None:
-            msg.warning('Transform exit code getter: _exitMsg is unset, returning empty string')
+            msg.warning('Transform exit message getter: _exitMsg is unset, returning empty string')
             return ''
         else:
             return self._exitMsg
@@ -521,7 +521,7 @@ class transform(object):
             reportType = self._argdict['reportType'].value
 
         if reportType is None:
-            reportType = ['text', 'json', 'classic', 'pilotPickle']
+            reportType = ['json', ]
             # Only generate the Tier0 report at Tier0 ;-)
             # (It causes spurious warnings for some grid jobs with background files (e.g., digitisation)
             if 'TZHOME' in os.environ:

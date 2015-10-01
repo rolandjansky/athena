@@ -5,11 +5,12 @@
 ## @Package test_trfArgs.py
 #  @brief Unittests for trfArgs.py
 #  @author maddocks.harvey@gmail.com, graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgs.py 682012 2015-07-10 07:44:44Z graemes $
+#  @version $Id: test_trfArgs.py 691581 2015-08-27 12:24:19Z lerrenst $
 
 import argparse
 import json
 import os
+import os.path as path
 import subprocess
 import unittest
 
@@ -56,6 +57,16 @@ class trfArgsUnitTests(unittest.TestCase):
         properArgDict = {'r2e': ['stuff', 'somemorestuff'], 'e2e': ['something', 'somethingElse']}
         self.assertTrue(isinstance(myArgDict, dict))
         self.assertEquals(myArgDict['preExec']._value, properArgDict)
+
+    def test_triggerConfig(self):
+        myParser = trfArgParser()
+        addStandardTrfArgs(myParser)
+        addTriggerArguments(myParser)
+        args = ['--triggerConfig', 'r2e,e2e=MC:TRIGGERDB:124,154,132']
+        myArgDict = vars(myParser.parse_args(args))
+        properArgDict = {'r2e': 'MC:TRIGGERDB:124,154,132', 'e2e': 'MC:TRIGGERDB:124,154,132'}
+        self.assertTrue(isinstance(myArgDict, dict))
+        self.assertEquals(myArgDict['triggerConfig']._value, properArgDict)
         
     def test_Pickle(self):
         myParser = trfArgParser(description='test parser for pickled arguments, %s' % __name__)
@@ -120,7 +131,12 @@ class configureFromJSON(unittest.TestCase):
                 pass 
 
     def test_configFromJSON(self):
-        cmd = ['Athena_tf.py', '--argJSON', 'argdict.json', '--dumpJSON', 'rewrite.json']
+        if 'ATN_PACKAGE' in os.environ:
+            # While running in ATN Athena_tf.py is not yet in the PATH
+            cmd = [path.join(os.environ['ATN_PACKAGE'], 'scripts', 'Athena_tf.py')]
+        else:
+            cmd = ['Athena_tf.py']
+        cmd.extend(['--argJSON', 'argdict.json', '--dumpJSON', 'rewrite.json'])
         self.assertEqual(subprocess.call(cmd), 0)
         self.maxDiff = None
         with open('rewrite.json') as rewritten_json:

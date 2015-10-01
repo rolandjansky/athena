@@ -5,7 +5,7 @@
 ## @Package test_trfArgClasses.py
 #  @brief Unittests for test_trfArgClasses.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgClasses.py 678200 2015-06-25 10:29:34Z graemes $
+#  @version $Id: test_trfArgClasses.py 691581 2015-08-27 12:24:19Z lerrenst $
 #  @note Tests of ATLAS specific file formats moved to test_trfArgClassesATLAS.py
 
 import unittest
@@ -284,6 +284,10 @@ class argSubstepTests(unittest.TestCase):
     def test_substepBasicAll(self):
         ss = argSubstep('all:free biscuits')
         self.assertEqual(ss.value, {'all': 'free biscuits'})
+
+    def test_substepMultiple(self):
+        ss = argSubstep('fruit,color:orange')
+        self.assertEqual(ss.value, {'fruit': 'orange', 'color': 'orange'})
 
     def test_substepFromList(self):
         ss = argSubstep(['free biscuits', 'fruit:apple', 'drink:lemonade'])

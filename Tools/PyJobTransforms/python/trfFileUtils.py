@@ -4,7 +4,7 @@
 # @brief Transform utilities to deal with files.
 # @details Mainly used by argFile class.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfFileUtils.py 675949 2015-06-17 12:12:29Z graemes $
+# @version $Id: trfFileUtils.py 696484 2015-09-23 17:20:28Z graemes $
 # @todo make functions timelimited
 
 import logging
@@ -178,6 +178,13 @@ def AthenaLiteFileInfo(filename, filetype, retrieveKeys = athFileInterestingKeys
                     except Exception, e:
                         msg.error('Got an exception while trying to determine beam_type: {0}'.format(e))
                         metaDict[filename][key] = meta[key]
+                elif key is 'G4Version':
+                    msg.debug('Searching for G4Version in metadata')
+                    try: 
+                        metaDict[filename][key] = meta['metadata']['/Simulation/Parameters']['G4Version']
+                        msg.debug('Setting G4Version to {0}'.format(meta['metadata']['/Simulation/Parameters']['G4Version']))
+                    except (KeyError, TypeError) as e:
+                        msg.debug('Could not find G4Version information in metadata for file {0}'.format(filename))
                 else:
                     metaDict[filename][key] = meta[key]
             except KeyError:
