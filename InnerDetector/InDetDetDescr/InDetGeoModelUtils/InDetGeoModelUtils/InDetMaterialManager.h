@@ -49,6 +49,7 @@ public:
   ~InDetMaterialManager();
 
   void addWeightTable(IRDBRecordset_ptr weightTable, const std::string & space = "");
+  void addWeightMaterial(std::string materialName, std::string materialBase, double weight, int linearWeightFlag);
   void addCompositionTable(IRDBRecordset_ptr compositionTable, const std::string & space = "");
   void addScalingTable(IRDBRecordset_ptr scalingTable);
 

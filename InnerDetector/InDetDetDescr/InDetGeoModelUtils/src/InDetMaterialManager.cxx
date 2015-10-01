@@ -383,6 +383,24 @@ InDetMaterialManager::addWeightTable(IRDBRecordset_ptr weightTable, const std::s
   }
 }
 
+
+void
+InDetMaterialManager::addWeightMaterial(std::string materialName, std::string materialBase, double weight, int linearWeightFlag)
+{
+  // Weight in gr
+  weight = weight * CLHEP::gram;
+
+  if (m_weightMap.find(materialName) != m_weightMap.end()) {
+    msg(MSG::WARNING) << "Material: " << materialName << " already exists in weight table" << endreq;
+  } else {
+    msg(MSG::INFO) << "Adding " << materialName 
+		    << " weight " << weight
+		    << " linearWeightFlag " << linearWeightFlag
+		    << " to weight table" << endreq;
+    m_weightMap[materialName] = MaterialByWeight(materialBase, weight, linearWeightFlag);
+  }
+}
+
 void
 InDetMaterialManager::addWeightTableOld(IRDBRecordset_ptr weightTable, const std::string & space)
 {
