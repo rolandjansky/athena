@@ -28,7 +28,6 @@
 #include "MCTruth/TrackBarcodeInfo.h"
 #include "MCTruth/TrackHelper.h"
 #include "MCTruth/TrackInformation.h"
-#include "MCTruth/TruthStrategyManager.h"
 #include "MCTruth/VTrackInformation.h"
 
 #include "SimHelpers/StepHelper.h"

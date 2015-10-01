@@ -178,6 +178,7 @@ HepMC::GenParticle* ISF::Geant4TruthIncident::parentParticleAfterIncident(Barcod
     TrackHelper       tHelper(track);
     TrackInformation *tInfo = tHelper.GetTrackInformation();
     if (tInfo) {
+      tInfo->SetParticle( m_parentParticleAfterIncident );
       int regenerationNr = tInfo->GetRegenerationNr();
       regenerationNr++;
       tInfo->SetRegenerationNr(regenerationNr);
