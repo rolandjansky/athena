@@ -15,14 +15,14 @@ namespace yampl {
   class ISocket;
 }
 
-class EvtRangeScatterer : public AthenaMPToolBase
+class TokenScatterer : public AthenaMPToolBase
 {
  public:
-  EvtRangeScatterer(const std::string& type
-		    , const std::string& name
-		    , const IInterface* parent);
+  TokenScatterer(const std::string& type
+		 , const std::string& name
+		 , const IInterface* parent);
 
-  virtual ~EvtRangeScatterer();
+  virtual ~TokenScatterer();
   
   StatusCode initialize();
   StatusCode finalize();
@@ -40,9 +40,9 @@ class EvtRangeScatterer : public AthenaMPToolBase
   std::unique_ptr<AthenaInterprocess::ScheduledWork> fin_func();
 
  private:
-  EvtRangeScatterer();
-  EvtRangeScatterer(const EvtRangeScatterer&);
-  EvtRangeScatterer& operator= (const EvtRangeScatterer&);
+  TokenScatterer();
+  TokenScatterer(const TokenScatterer&);
+  TokenScatterer& operator= (const TokenScatterer&);
 
   // Get rid of
   // 1. Leading and trailing spaces
@@ -63,7 +63,7 @@ class EvtRangeScatterer : public AthenaMPToolBase
   StringProperty           m_processorChannel;
   StringProperty           m_eventRangeChannel;
   bool                     m_doCaching;
-  Pid2RangeID              m_pid2RangeID;        // Current RangeID-s by PIDs
+  Pid2RangeID              m_pid2RangeID; // Current RangeID-s by PIDs
 };
 
 #endif

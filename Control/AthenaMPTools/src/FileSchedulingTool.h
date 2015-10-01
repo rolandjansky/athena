@@ -36,9 +36,8 @@ class FileSchedulingTool : public AthenaMPToolBase
   FileSchedulingTool(const FileSchedulingTool&);
   FileSchedulingTool& operator= (const FileSchedulingTool&);
 
-  int   m_nevts;           // Number of events to be processed
-  int   m_rankId;          // Each worker has its own unique RankID from the range (0,...,m_nprocs-1) 
-  bool  m_debug;
+  int         m_nevts;           // Number of events to be processed
+  int         m_rankId;          // Each worker has its own unique RankID from the range (0,...,m_nprocs-1) 
 
   AthenaInterprocess::SharedQueue*  m_sharedRankQueue;          
   AthenaInterprocess::SharedQueue*  m_sharedFinQueue;   // Shared queue for scheduling worker finalizations (fighting memory spikes)

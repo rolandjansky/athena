@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "EvtRangeScatterer.h"
+#include "TokenScatterer.h"
 #include "AthenaInterprocess/ProcessGroup.h"
 #include "AthenaInterprocess/SharedQueue.h"
 
@@ -22,7 +22,7 @@
 #include <fstream>
 #include <cstdlib>
 
-EvtRangeScatterer::EvtRangeScatterer(const std::string& type
+TokenScatterer::TokenScatterer(const std::string& type
 			       , const std::string& name
 			       , const IInterface* parent)
   : AthenaMPToolBase(type,name,parent)
@@ -30,19 +30,19 @@ EvtRangeScatterer::EvtRangeScatterer(const std::string& type
   , m_eventRangeChannel("")
   , m_doCaching(false)
 {
-  m_subprocDirPrefix = "range_scatterer";
+  m_subprocDirPrefix = "token_scatterer";
   declareProperty("ProcessorChannel", m_processorChannel);
   declareProperty("EventRangeChannel", m_eventRangeChannel);
   declareProperty("DoCaching",m_doCaching);
 }
 
-EvtRangeScatterer::~EvtRangeScatterer()
+TokenScatterer::~TokenScatterer()
 {
 }
 
-StatusCode EvtRangeScatterer::initialize()
+StatusCode TokenScatterer::initialize()
 {
-  ATH_MSG_DEBUG("In initialize");
+  msg(MSG::DEBUG) << "In initialize" << endreq;
 
   StatusCode sc = AthenaMPToolBase::initialize();
   if(!sc.isSuccess()) return sc;
@@ -50,22 +50,22 @@ StatusCode EvtRangeScatterer::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode EvtRangeScatterer::finalize()
+StatusCode TokenScatterer::finalize()
 {
   return StatusCode::SUCCESS;
 }
 
-int EvtRangeScatterer::makePool(int maxevt, int nprocs, const std::string& topdir)
+int TokenScatterer::makePool(int maxevt, int nprocs, const std::string& topdir)
 {
-  ATH_MSG_DEBUG("In makePool " << getpid());
+  msg(MSG::DEBUG) << "In makePool " << getpid() << endreq;
 
   if(maxevt < -1) {
-    ATH_MSG_ERROR("Invalid number of events requested: " << maxevt);
+    msg(MSG::ERROR) << "Invalid number of events requested: " << maxevt << endreq;
     return -1;
   }
 
   if(topdir.empty()) {
-    ATH_MSG_ERROR("Empty name for the top directory!");
+    msg(MSG::ERROR) << "Empty name for the top directory!" << endreq;
     return -1;
   }
 
@@ -74,29 +74,29 @@ int EvtRangeScatterer::makePool(int maxevt, int nprocs, const std::string& topdi
 
   // Create the process group with only one process and map_async bootstrap
   m_processGroup = new AthenaInterprocess::ProcessGroup(1);
-  ATH_MSG_INFO("Token Scatterer process created");
+  msg(MSG::INFO) << "Token Scatterer process created" << endreq;
   if(mapAsyncFlag(AthenaMPToolBase::FUNC_BOOTSTRAP))
     return -1;
 
   return 1;  
 }
 
-StatusCode EvtRangeScatterer::exec()
+StatusCode TokenScatterer::exec()
 {
-  ATH_MSG_DEBUG("In exec " << getpid());
+  msg(MSG::DEBUG) << "In exec " << getpid() << endreq;
 
   if(mapAsyncFlag(AthenaMPToolBase::FUNC_EXEC))
     return StatusCode::FAILURE;
 
   // Set exit flag on reader
   if(m_processGroup->map_async(0,0)){
-    ATH_MSG_ERROR("Unable to set exit to the reader");
+    msg(MSG::ERROR) << "Unable to set exit to the reader" << endreq;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
 }
 
-void EvtRangeScatterer::subProcessLogs(std::vector<std::string>& filenames)
+void TokenScatterer::subProcessLogs(std::vector<std::string>& filenames)
 {
   filenames.clear();
   boost::filesystem::path reader_rundir(m_subprocTopDir);
@@ -104,13 +104,13 @@ void EvtRangeScatterer::subProcessLogs(std::vector<std::string>& filenames)
   filenames.push_back(reader_rundir.string()+std::string("/AthenaMP.log"));
 }
 
-AthenaMP::AllWorkerOutputs_ptr EvtRangeScatterer::generateOutputReport()
+AthenaMP::AllWorkerOutputs_ptr TokenScatterer::generateOutputReport()
 {
   AthenaMP::AllWorkerOutputs_ptr jobOutputs(new AthenaMP::AllWorkerOutputs());
   return jobOutputs;
 }
 
-std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::bootstrap_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> TokenScatterer::bootstrap_func()
 {
   std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
   outwork->data = malloc(sizeof(int));
@@ -127,7 +127,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::bootstrap_
   reader_rundir /= boost::filesystem::path(m_subprocDirPrefix);
 
   if(mkdir(reader_rundir.string().c_str(),S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH)==-1) {
-    ATH_MSG_ERROR("Unable to make reader run directory: " << reader_rundir.string() << ". " << strerror(errno));
+    msg(MSG::ERROR) << "Unable to make reader run directory: " << reader_rundir.string() << ". " << strerror(errno) << endreq;
     return outwork;
   }
 
@@ -135,13 +135,13 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::bootstrap_
   if(redirectLog(reader_rundir.string()))
     return outwork;
 
-  ATH_MSG_INFO("Logs redirected in the AthenaMP Event Range Scatterer PID=" << getpid());
+  msg(MSG::INFO) << "Logs redirected in the AthenaMP ByteStream reader PID=" << getpid() << endreq;
      
   // Update Io Registry   
   if(updateIoReg(reader_rundir.string()))
     return outwork;
 
-  ATH_MSG_INFO("Io registry updated in the AthenaMP Event Range Scatterer PID=" << getpid());
+  msg(MSG::INFO) << "Io registry updated in the AthenaMP ByteStream reader PID=" << getpid() << endreq;
 
   // _______________________ Handle saved PFC (if any) ______________________
   boost::filesystem::path abs_reader_rundir = boost::filesystem::absolute(reader_rundir);
@@ -152,32 +152,32 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::bootstrap_
   if(reopenFds())
     return outwork;
 
-  ATH_MSG_INFO("File descriptors re-opened in the AthenaMP Event Range Scatterer PID=" << getpid());
+  msg(MSG::INFO) << "File descriptors re-opened in the AthenaMP ByteStream reader PID=" << getpid() << endreq;
 
   // ________________________ I/O reinit ________________________
   if(!m_ioMgr->io_reinitialize().isSuccess()) {
-    ATH_MSG_ERROR("Failed to reinitialize I/O");
+    msg(MSG::ERROR) << "Failed to reinitialize I/O" << endreq;
     return outwork;
   } else {
-    ATH_MSG_DEBUG("Successfully reinitialized I/O");
+    msg(MSG::DEBUG) << "Successfully reinitialized I/O" << endreq;
   }
 
   // Start the event selector 
   IService* evtSelSvc = dynamic_cast<IService*>(m_evtSelector);
   if(!evtSelSvc) {
-    ATH_MSG_ERROR("Failed to dyncast event selector to IService");
+    msg(MSG::ERROR) << "Failed to dyncast event selector to IService" << endreq;
     return outwork;
   }
   if(!evtSelSvc->start().isSuccess()) {
-    ATH_MSG_ERROR("Failed to restart the event selector");
+    msg(MSG::ERROR) << "Failed to restart the event selector" << endreq;
     return outwork;
   } else {
-    ATH_MSG_DEBUG("Successfully restarted the event selector");
+    msg(MSG::DEBUG) << "Successfully restarted the event selector" << endreq;
   }
 
   // Reader dir: chdir 
   if(chdir(reader_rundir.string().c_str())==-1) {
-    ATH_MSG_ERROR("Failed to chdir to " << reader_rundir.string());
+    msg(MSG::ERROR) << "Failed to chdir to " << reader_rundir.string() << endreq;
     return outwork;
   }
 
@@ -186,25 +186,27 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::bootstrap_
   return outwork;
 }
 
-std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> TokenScatterer::exec_func()
 {
-  ATH_MSG_INFO("Exec function in the AthenaMP Token Scatterer PID=" << getpid());
+  msg(MSG::INFO) << "Exec function in the AthenaMP Token Scatterer PID=" << getpid() << endreq;
 
   yampl::ISocketFactory* socketFactory = new yampl::SocketFactory();
   // Create a socket to communicate with the Pilot
   yampl::ISocket* socket2Pilot = socketFactory->createClientSocket(yampl::Channel(m_eventRangeChannel.value(),yampl::LOCAL),yampl::MOVE_DATA);
-  ATH_MSG_INFO("Created CLIENT socket for communicating Event Ranges with the Pilot");
-  // Create a socket to communicate with EvtRangeProcessors
-  std::string socket2ProcessorName = m_processorChannel.value() + std::string("_") + m_randStr;
-  yampl::ISocket* socket2Processor = socketFactory->createServerSocket(yampl::Channel(socket2ProcessorName,yampl::LOCAL),yampl::MOVE_DATA);
-  ATH_MSG_INFO("Created SERVER socket to token processors: " << socket2ProcessorName);
+  msg(MSG::DEBUG) << "Created CLIENT socket for communicating Event Ranges with the Pilot" << endreq;
+  // Create a socket to communicate with TokenProcessors
+  yampl::ISocket* socket2Processor = socketFactory->createServerSocket(yampl::Channel(m_processorChannel.value(),yampl::LOCAL),yampl::MOVE_DATA);
+  msg(MSG::DEBUG)<< "Created SERVER socket to token processors: " << m_processorChannel.value() << endreq;
+  // Create a socket to communicate with the token extractor
+  yampl::ISocket* socket2Extractor = socketFactory->createClientSocket(yampl::Channel("TokenExtractorChannel",yampl::LOCAL_PIPE),yampl::MOVE_DATA);
+  msg(MSG::DEBUG) << "Created CLIENT socket to the extractor: TokenExtractorChannel" << endreq;
 
   bool all_ok=true;
   int procReportPending(0);  // Keep track of how many output files are yet to be reported by Token Processors
 
   AthenaInterprocess::SharedQueue*  sharedFailedPidQueue(0);
   if(detStore()->retrieve(sharedFailedPidQueue,"AthenaMPFailedPidQueue_"+m_randStr).isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve the pointer to Shared Failed PID Queue");
+    msg(MSG::ERROR) << "Unable to retrieve the pointer to Shared Failed PID Queue" << endreq;
     all_ok=false;
   }
 
@@ -213,18 +215,16 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
   std::string strStopProcessing("No more events");
   std::string processorWaitRequest("");
 
-  ATH_MSG_INFO("Starting main loop");
-
   while(all_ok) {
     // NO CACHING MODE: first get a request from one of the processors and only after that request the next event range from the pilot
     if(!m_doCaching && processorWaitRequest.empty()) {
-      ATH_MSG_DEBUG("Waiting for event range request from one of the processors ... ");
+      msg(MSG::DEBUG) << "Start waiting for event range request from one of the processors" << endreq;
       while(processorWaitRequest.empty()) {
 	processorWaitRequest = getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending);
 	pollFailedPidQueue(sharedFailedPidQueue,socket2Pilot,procReportPending);
 	usleep(1000);
       }
-      ATH_MSG_INFO("One of the processors is ready for the next range");
+      msg(MSG::DEBUG) << "One of the processors is ready for the next range" << endreq;
     }    
 
     // Signal the Pilot that AthenaMP is ready for event processing
@@ -240,10 +240,10 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
 
     // Break the loop if no more ranges are expected
     if(eventRange.compare(strStopProcessing)==0) {
-      ATH_MSG_INFO("Stopped the loop. Last message from the Event Range Channel: " << eventRange);
+      msg(MSG::DEBUG) << "Stopped the loop. Last message from the Event Range Channel: " << eventRange << endreq;
       break;
     }
-    ATH_MSG_INFO("Got Event Range from the pilot: " << eventRange);
+    msg(MSG::DEBUG) << "Got Event Range from the pilot: " << eventRange << endreq;
 
     // Parse the Event Range string 
     // Expected the following format: [{KEY:VALUE[,KEY:VALUE]}]
@@ -281,20 +281,20 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
        || eventRangeMap.find("lastEvent")==eventRangeMap.end()
        || eventRangeMap.find("GUID")==eventRangeMap.end()) {
       std::string errorStr("ERR_ATHENAMP_PARSE \"" + eventRange + "\": Wrong format");
-      ATH_MSG_ERROR(errorStr);
-      ATH_MSG_INFO("Ignoring this event range ");
+      msg(MSG::ERROR) << errorStr << endreq;
+      msg(MSG::INFO) << "Ignoring this event range " << endreq;
       void* errorMessage = malloc(errorStr.size());
       memcpy(errorMessage,errorStr.data(),errorStr.size());
       socket2Pilot->send(errorMessage,errorStr.size());
       continue;
     }
     else {
-      ATH_MSG_DEBUG("*** Decoded Event Range ***");
+      msg(MSG::DEBUG) << "*** Decoded Event Range ***" << endreq;
       std::map<std::string,std::string>::const_iterator it = eventRangeMap.begin(),
 	itEnd = eventRangeMap.end();
       for(;it!=itEnd;++it)
-	ATH_MSG_DEBUG(it->first << ":" << it->second);
-      ATH_MSG_DEBUG("*** ***");
+	msg(MSG::DEBUG) << it->first << ":" << it->second << endreq;
+      msg(MSG::DEBUG) << "*** ***" << endreq;
     }
 
     std::string rangeID = eventRangeMap["eventRangeID"];
@@ -305,39 +305,77 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
        || guid.empty()
        || lastEvent < startEvent) {
       std::string errorStr("ERR_ATHENAMP_PARSE \"" + eventRange + "\": Wrong values of range fields");
-      ATH_MSG_ERROR(errorStr);
-      ATH_MSG_INFO("Ignoring this event range ");
+      msg(MSG::ERROR) << errorStr << endreq;
+      msg(MSG::INFO) << "Ignoring this event range " << endreq;
       void* errorMessage = malloc(errorStr.size());
       memcpy(errorMessage,errorStr.data(),errorStr.size());
       socket2Pilot->send(errorMessage,errorStr.size());
       continue;
     }
 
-    std::string message2ProcessorStr;
-    char* message2Processor(0);
+    // Compose a string to be sent to the TokenExtractor
+    // Format GUID,Event1,Event2,...EventN
+    std::ostringstream streamMessage2Extractor;
+    for(int i(startEvent); i<=lastEvent; ++i)
+      streamMessage2Extractor << "," << i;
+    std::string message2Extractor = guid + streamMessage2Extractor.str();
+    msg(MSG::DEBUG) << "Composed a message to Token Extractor : " << message2Extractor << endreq;
 
-    std::ostringstream ostr;
-    ostr << rangeID;
-    if(eventRangeMap.find("PFN")!=eventRangeMap.end()) {
-      ostr << "," << "PFN:" << eventRangeMap["PFN"];
+    // Send the message to Token Extractor
+    char *requestBuffer(0), *responseBuffer(0), *message2Processor(0);
+    requestBuffer = (char*)malloc(message2Extractor.size());
+    memcpy(requestBuffer,message2Extractor.data(),message2Extractor.size());
+    socket2Extractor->send(requestBuffer,message2Extractor.size());
+    msg(MSG::DEBUG) << "Sent message to the Token Extractor" << endreq;
+    
+    // Get the response: list of tokens
+    ssize_t responseSize = socket2Extractor->recv(responseBuffer);    
+    if(responseSize==sizeof(unsigned)) {
+      // Token Extractor reported an error. In such cases the Token Extractor sends two messages
+      // 1. Error code: 0 - Global, 1 - Range-specific
+      unsigned* errorCode = (unsigned*)responseBuffer;
+      bool globalTEError = (*errorCode==0?true:false);
+      // 2. Error message
+      responseSize = socket2Extractor->recv(responseBuffer);
+      std::string errorString(responseBuffer,responseSize);
+      msg(MSG::ERROR) << "Token Extractor reporting an error: " << errorString << endreq;
+
+      if(globalTEError) {
+	std::string errorStr("ERR_TE_FATAL " + rangeID + ": " + errorString);
+	void* errorMessage = malloc(errorStr.size());
+	memcpy(errorMessage,errorStr.data(),errorStr.size());
+	socket2Pilot->send(errorMessage,errorStr.size());
+	msg(MSG::ERROR) << "This is a FATAL error! Stopping the event loop" << endreq;
+	all_ok = false;
+	break;
+      }
+      else {
+	// Range specific error
+	std::string errorStr("ERR_TE_RANGE " + rangeID + ": " + errorString);
+	void* errorMessage = malloc(errorStr.size());
+        memcpy(errorMessage,errorStr.data(),errorStr.size());
+        socket2Pilot->send(errorMessage,errorStr.size());
+	msg(MSG::INFO) << "Ignoring this event range " << endreq;
+	continue;
+      }
     }
-    ostr << "," << eventRangeMap["startEvent"]
-         << "," << eventRangeMap["lastEvent"];
-    message2ProcessorStr = ostr.str();
+    std::string responseStr(responseBuffer,responseSize);
+    msg(MSG::DEBUG) << "Received response from the token extractor with the tokens: " << responseStr << endreq;
 
     // CACHING MODE: first get an event range from the pilot, transform it into the tokens
     // and only after that wait for a new range request by one of the processors
     if(m_doCaching) {
-      ATH_MSG_DEBUG("Waiting for event range request from one of the processors");
+      msg(MSG::DEBUG) << "Start waiting for event range request from one of the processors" << endreq;
       while(processorWaitRequest.empty()) {
 	processorWaitRequest = getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending);
 	pollFailedPidQueue(sharedFailedPidQueue,socket2Pilot,procReportPending);
 	usleep(1000);
       }
-      ATH_MSG_INFO("One of the processors is ready for the next range");
+      msg(MSG::DEBUG) << "One of the processors is ready for the next range" << endreq;
     }
     
     // Send to the Processor: RangeID,evtToken[,evtToken] 
+    std::string message2ProcessorStr(rangeID+std::string(",")+responseStr);
     message2Processor = (char*)malloc(message2ProcessorStr.size());
     memcpy(message2Processor,message2ProcessorStr.data(),message2ProcessorStr.size());
     socket2Processor->send(message2Processor,message2ProcessorStr.size());
@@ -348,8 +386,17 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
     m_pid2RangeID[pid] = rangeID;
     processorWaitRequest.clear();
 
-    ATH_MSG_INFO("Sent response to the processor : " << message2ProcessorStr);
+    msg(MSG::DEBUG) << "Sent response to the processor : " << message2ProcessorStr << endreq;
   }
+
+  // Send an empty message to the Token Extractor, by this way informing that it can exit
+  // Here (and everywhere) the empty message is in fact a dummy message with size=1, as I'm having troubles sending 0 size messages
+  //
+  // NB!!! This should be done only IF Token Scatterer and Token Extractor run on the same machine.
+  //       I.e. we have one extractor for each scatterer. Otherwise the scatterer should not be stopping the extractor
+  //
+  void* emptyMessage = malloc(1);
+  socket2Extractor->send(emptyMessage,1);
 
   if(all_ok) {
     // We are done distributing event tokens. 
@@ -360,26 +407,26 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
       // We already have one processor waiting for the answer
       emptyMess4Processor = malloc(1);
       socket2Processor->send(emptyMess4Processor,1);
-      ATH_MSG_INFO("Set one processor free");
+      msg(MSG::DEBUG) << "Set one processor free" << endreq;
     }
     for(int i(0); i<(processorWaitRequest.empty()?m_nprocs:m_nprocs-1); ++i) {
-      ATH_MSG_DEBUG("Going to set another processor free");
+      msg(MSG::DEBUG) << "Going to set another processor free" << endreq;
       while(getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending).empty()) {
 	pollFailedPidQueue(sharedFailedPidQueue,socket2Pilot,procReportPending);
 	usleep(1000);
       }
       emptyMess4Processor = malloc(1);
       socket2Processor->send(emptyMess4Processor,1);
-      ATH_MSG_INFO("Set one processor free");
+      msg(MSG::DEBUG) << "DONE" << endreq;
     }
 
-    ATH_MSG_INFO("Still " << procReportPending << " pending reports");
+    msg(MSG::DEBUG) << "Still " << procReportPending << " pending reports" << endreq;
     
     // Final round of colecting output file names from processors
     while(procReportPending>0) {
       std::string strProcessorRequest = getNewRangeRequest(socket2Processor,socket2Pilot,procReportPending);
       if(!strProcessorRequest.empty()) {
-	ATH_MSG_WARNING("Unexpected message received from a processor at this stage : " << strProcessorRequest);
+	msg(MSG::WARNING) << "Unexpected message received from a processor at this stage : " << strProcessorRequest << endreq;
       }
       pollFailedPidQueue(sharedFailedPidQueue,socket2Pilot,procReportPending);
       usleep(1000);
@@ -387,12 +434,12 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
   }
 
   if(m_appMgr->stop().isFailure()) {
-    ATH_MSG_ERROR("Unable to stop AppMgr"); 
+    msg(MSG::ERROR) << "Unable to stop AppMgr" << endreq; 
     all_ok=false;
   }
   else { 
     if(m_appMgr->finalize().isFailure()) {
-      ATH_MSG_ERROR("Unable to finalize AppMgr");
+      msg(MSG::ERROR) << "Unable to finalize AppMgr" << endreq;
       all_ok=false;
     }
   }
@@ -406,6 +453,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
   // (possible) TODO: extend outwork with some error message, which will be eventually
   // reported in the master proces
   // ...
+  delete socket2Extractor;
   delete socket2Processor;
   delete socket2Pilot;
   delete socketFactory;
@@ -413,7 +461,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::exec_func(
   return outwork;
 }
 
-std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::fin_func()
+std::unique_ptr<AthenaInterprocess::ScheduledWork> TokenScatterer::fin_func()
 {
   // Dummy
   std::unique_ptr<AthenaInterprocess::ScheduledWork> outwork(new AthenaInterprocess::ScheduledWork);
@@ -423,7 +471,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeScatterer::fin_func()
   return outwork;
 }
 
-void EvtRangeScatterer::trimRangeStrings(std::string& str)
+void TokenScatterer::trimRangeStrings(std::string& str)
 {
   size_t i(0);
   // get rid of leading spaces
@@ -456,38 +504,37 @@ void EvtRangeScatterer::trimRangeStrings(std::string& str)
   }
 }
 
-std::string EvtRangeScatterer::getNewRangeRequest(yampl::ISocket* socket2Processor
+std::string TokenScatterer::getNewRangeRequest(yampl::ISocket* socket2Processor
 					       , yampl::ISocket* socket2Pilot
 					       , int& procReportPending)
 {
-//  ATH_MSG_DEBUG("In getNewRangeRequest ..." );
+//  msg(MSG::DEBUG) << "In getNewRangeRequest ..."  << endreq;
   void* processor_request(0);
   ssize_t processorRequestSize = socket2Processor->tryRecv(processor_request);
 
   if(processorRequestSize==-1) return std::string("");
   std::string strProcessorRequest((const char*)processor_request,processorRequestSize);
-  ATH_MSG_INFO("Received request from a processor: " << strProcessorRequest);
+  msg(MSG::DEBUG) << "Received request from a processor: " << strProcessorRequest << endreq;
   // Decode the request. If it contains output file name then pass it over to the pilot and return empty string
   if(strProcessorRequest.find('/')==0) {
     void* outpFileNameMessage = malloc(strProcessorRequest.size());
     memcpy(outpFileNameMessage,strProcessorRequest.data(),strProcessorRequest.size());
     socket2Pilot->send(outpFileNameMessage,strProcessorRequest.size());
     procReportPending--;
-    ATH_MSG_INFO("Output file reported to the pilot. Reports pending: " << procReportPending);
     return std::string("");
   }
   return strProcessorRequest;
 }
 
-void EvtRangeScatterer::pollFailedPidQueue(AthenaInterprocess::SharedQueue*  sharedFailedPidQueue
+void TokenScatterer::pollFailedPidQueue(AthenaInterprocess::SharedQueue*  sharedFailedPidQueue
 					, yampl::ISocket* socket2Pilot
 					, int& procReportPending)
 {
   pid_t pid;
   if(sharedFailedPidQueue->try_receive_basic<pid_t>(pid)) {
-    ATH_MSG_INFO("Procesor with PID=" << pid << " has failed!");
+    msg(MSG::INFO) << "Procesor with PID=" << pid << " has failed!" << endreq;
     if(m_pid2RangeID.find(pid)!=m_pid2RangeID.end()) {
-      ATH_MSG_WARNING("The failed RangeID = " << m_pid2RangeID[pid] << " will be reported to Pilot");
+      msg(MSG::WARNING) << "The failed RangeID = " << m_pid2RangeID[pid] << " will be reported to Pilot" << endreq;
 
       std::string errorStr("ERR_ATHENAMP_PROCESS " + m_pid2RangeID[pid] + ": Failed to process event range");
       void* errorMessage = malloc(errorStr.size());
@@ -495,6 +542,5 @@ void EvtRangeScatterer::pollFailedPidQueue(AthenaInterprocess::SharedQueue*  sha
       socket2Pilot->send(errorMessage,errorStr.size());
     }
     procReportPending--;
-    ATH_MSG_INFO("Reports pending: " << procReportPending);
   } 
 }

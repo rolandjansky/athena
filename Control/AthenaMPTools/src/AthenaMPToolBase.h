@@ -64,12 +64,10 @@ class AthenaMPToolBase : public AthAlgTool
   };
 
   int mapAsyncFlag(Func_Flag flag, pid_t pid=0);
-  int redirectLog(const std::string& rundir, bool addTimeStamp = true);
+  int redirectLog(const std::string& rundir);
   int updateIoReg(const std::string& rundir);
   int reopenFds();
   int handleSavedPfc(const boost::filesystem::path& dest_path);
-
-  void waitForSignal();
 
   int         m_nprocs;           // Number of workers spawned by the master process
   std::string m_subprocTopDir;    // Top run directory for subprocesses
