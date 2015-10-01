@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CaloClusterLogPos.h"
+#include "CaloClusterCorrection/CaloClusterLogPos.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -33,7 +33,7 @@ StatusCode CaloClusterLogPos::initialize() {
   StatusCode sc = service("GeoModelSvc", geoModel);
   if(sc.isFailure())
   {
-    msg( MSG::ERROR )  << "Could not locate GeoModelSvc" << endmsg;
+    msg( MSG::ERROR )  << "Could not locate GeoModelSvc" << endreq;
     return sc;
   }
 
@@ -52,7 +52,7 @@ StatusCode CaloClusterLogPos::initialize() {
 			  &CaloClusterLogPos::geoInit,this);
     if(sc.isFailure())
     {
-      msg(  MSG::ERROR ) << "Could not register geoInit callback" << endmsg;
+      msg(  MSG::ERROR ) << "Could not register geoInit callback" << endreq;
       return sc;
     }
   }
@@ -63,7 +63,7 @@ StatusCode
 CaloClusterLogPos::geoInit(IOVSVC_CALLBACK_ARGS)
 {
 
-  ATH_MSG_DEBUG("Initializing " << name() << endmsg ) ;
+  ATH_MSG_DEBUG("Initializing " << name() << endreq ) ;
 
   // pointer to detector manager:
   m_calo_dd_man = CaloDetDescrManager::instance(); 
@@ -72,14 +72,14 @@ CaloClusterLogPos::geoInit(IOVSVC_CALLBACK_ARGS)
   return StatusCode::SUCCESS;
 }
    
-StatusCode  CaloClusterLogPos::execute(const EventContext& /*ctx*/,
-                                       xAOD::CaloCluster* theCluster) const
-{
+StatusCode  CaloClusterLogPos::execute(xAOD::CaloCluster* theCluster) {
   
+  static CaloPhiRange range;
+
   if ( msgSvc()->outputLevel(name()) <= MSG::DEBUG ) {
 
     msg(MSG::DEBUG) << " old cluster eta = " << theCluster->eta() 
-		    << " phi = " << theCluster->phi() << endmsg;
+		    << " phi = " << theCluster->phi() << endreq;
 
     // std::vector<double> theEtas;
     // std::vector<double> thePhis;
@@ -87,7 +87,7 @@ StatusCode  CaloClusterLogPos::execute(const EventContext& /*ctx*/,
     // theCluster->getPhiInSamples(thePhis);
     // for(int i=0;i<CaloCell_ID::Unknown;i++) {
     //   report << MSG::DEBUG << " old sampling " << i << " eta = " << theEtas[i]
-    // 	     << " phi = " << thePhis[i] << endmsg;
+    // 	     << " phi = " << thePhis[i] << endreq;
     //}
   }
 
@@ -128,12 +128,12 @@ StatusCode  CaloClusterLogPos::execute(const EventContext& /*ctx*/,
 	  // need to be normalized to the range [-pi,+pi] in the end
 	  
 	  if ( weightAll > 0 
-	       && phiAll/weightAll < CaloPhiRange::phi_min() + 90*deg
-	       && thisCell->phi() > CaloPhiRange::phi_max() - 90*deg)
+	       && phiAll/weightAll < range.phi_min() + 90*deg
+	       && thisCell->phi() > range.phi_max() - 90*deg)
 	    phiAll    += (thisCell->phi()-360*deg)*lw;
 	  else if ( weightAll > 0 
-		    && phiAll/weightAll > CaloPhiRange::phi_max() - 90*deg
-		    && thisCell->phi() < CaloPhiRange::phi_min() + 90*deg)
+		    && phiAll/weightAll > range.phi_max() - 90*deg
+		    && thisCell->phi() < range.phi_min() + 90*deg)
 	    phiAll    += (thisCell->phi()+360*deg)*lw;
 	  else
 	    phiAll    += thisCell->phi()*lw;
@@ -143,13 +143,13 @@ StatusCode  CaloClusterLogPos::execute(const EventContext& /*ctx*/,
 	  etaSample[theSample]    += thisCell->eta()*lw;
 	  if ( weightSample[theSample] > 0 
 	       && phiSample[theSample]/weightSample[theSample] 
-	       < CaloPhiRange::phi_min() + 90*deg
-	       && thisCell->phi() > CaloPhiRange::phi_max() - 90*deg)
+	       < range.phi_min() + 90*deg
+	       && thisCell->phi() > range.phi_max() - 90*deg)
 	    phiSample[theSample]    += (thisCell->phi()-360*deg)*lw;
 	  else if ( weightSample[theSample] > 0 
 		    && phiSample[theSample]/weightSample[theSample] 
-		    > CaloPhiRange::phi_max() - 90*deg
-		    && thisCell->phi() < CaloPhiRange::phi_min() + 90*deg)
+		    > range.phi_max() - 90*deg
+		    && thisCell->phi() < range.phi_min() + 90*deg)
 	    phiSample[theSample]    += (thisCell->phi()+360*deg)*lw;
 	  else
 	    phiSample[theSample]    += thisCell->phi()*lw;
@@ -162,7 +162,7 @@ StatusCode  CaloClusterLogPos::execute(const EventContext& /*ctx*/,
     if ( weightAll > 0 ) {
       const double inv_weightAll = 1. / weightAll;
       theCluster->setEta(etaAll * inv_weightAll);
-      theCluster->setPhi(CaloPhiRange::fix(phiAll * inv_weightAll));
+      theCluster->setPhi(range.fix(phiAll * inv_weightAll));
     }
     
     // std::vector<double> theEtas(CaloCell_ID::Unknown,0);
@@ -180,7 +180,7 @@ StatusCode  CaloClusterLogPos::execute(const EventContext& /*ctx*/,
 	float phiSample=theCluster->phiSample(s);
 	etaSample /= weightSample[i];
 	phiSample /= weightSample[i];
-	phiSample = CaloPhiRange::fix(phiSample);
+	phiSample = range.fix(phiSample);
 	theCluster->setEta(s,etaSample);
 	theCluster->setPhi(s,phiSample);
       }
@@ -199,7 +199,7 @@ StatusCode  CaloClusterLogPos::execute(const EventContext& /*ctx*/,
     // theCluster->getPhiInSamples(thePhis);
     // for(int i=0;i<CaloCell_ID::Unknown;i++) {
     //   msg(MSG::DEBUG) << " new sampling " << i << " eta = " << theEtas[i]
-    // 		      << " phi = " << thePhis[i] << endmsg;
+    // 		      << " phi = " << thePhis[i] << endreq;
     // }
   }
 

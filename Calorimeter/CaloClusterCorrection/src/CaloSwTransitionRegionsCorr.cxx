@@ -18,7 +18,7 @@ PURPOSE:  Effective corrections for transition regions like eta=0
 ********************************************************************/
 
 
-#include "CaloSwTransitionRegionsCorr.h"
+#include "CaloClusterCorrection/CaloSwTransitionRegionsCorr.h"
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGate.h" 
 #include "GaudiKernel/MsgStream.h"
@@ -51,7 +51,6 @@ CaloSwTransitionRegionsCorr::CaloSwTransitionRegionsCorr (const std::string& typ
 
 /**
  * @brief Virtual function for the correction-specific code.
- * @param ctx     The event context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -70,8 +69,7 @@ CaloSwTransitionRegionsCorr::CaloSwTransitionRegionsCorr (const std::string& typ
  *                the calorimeter region and sampling encoded.
  */
 
-void CaloSwTransitionRegionsCorr::makeTheCorrection (const EventContext&/*ctx*/,
-                                      CaloCluster* cluster,
+void CaloSwTransitionRegionsCorr::makeTheCorrection (CaloCluster* cluster,
                                       const CaloDetDescrElement*/*elt*/,
                                       float eta,
                                       float adj_eta,
@@ -109,7 +107,7 @@ void CaloSwTransitionRegionsCorr::makeTheCorrection (const EventContext&/*ctx*/,
 
 
   ATH_MSG_DEBUG( "the_aeta ::::: " << the_aeta
-         << "   cluster->eta() ::::: " << the_aeta << endmsg);
+         << "   cluster->eta() ::::: " << the_aeta << endreq);
 
   double corr = 1 ;
 
@@ -119,9 +117,9 @@ void CaloSwTransitionRegionsCorr::makeTheCorrection (const EventContext&/*ctx*/,
 
   if (the_aeta < m_etamax_TR00 && the_aeta > m_etamin_TR00 ) {
     ATH_MSG_DEBUG( " -------------------------- "
-           << "Applying correction for eta = 0 (loose) " << endmsg);
+           << "Applying correction for eta = 0 (loose) " << endreq);
     ATH_MSG_DEBUG( tr00[0] << " " <<  tr00[1] << " "
-           <<  tr00[2] << endmsg);
+           <<  tr00[2] << endreq);
 
     corr = ( tr00[0] - tr00[1] /
              (exp( tr00[2] - the_aeta ) + 
@@ -136,7 +134,7 @@ void CaloSwTransitionRegionsCorr::makeTheCorrection (const EventContext&/*ctx*/,
   else if ( the_aeta < m_etamin_TR00 ) {
     corr = tr00[6];
     ATH_MSG_DEBUG( " -------------------------- "
-           << "Applying correction for eta = 0 (tight) " << endmsg);
+           << "Applying correction for eta = 0 (tight) " << endreq);
   }
 
 // -------------------------------------------------------------
@@ -145,9 +143,9 @@ void CaloSwTransitionRegionsCorr::makeTheCorrection (const EventContext&/*ctx*/,
 
   if ( the_aeta < m_etamax_TR08 &&  the_aeta > m_etamin_TR08 ) {
     ATH_MSG_DEBUG( " -------------------------- "
-           << "Applying correction for eta =0.8 " << endmsg);
+           << "Applying correction for eta =0.8 " << endreq);
     ATH_MSG_DEBUG( tr08[0] << " " <<  tr08[1] << " "
-           <<  tr08[2] << endmsg);     
+           <<  tr08[2] << endreq);     
 
     corr = (tr08[0] - tr08[1] / (exp( tr08[2] - the_aeta ) + 
                                  exp( tr08[3] *( the_aeta - tr08[4] )) +
@@ -161,7 +159,7 @@ void CaloSwTransitionRegionsCorr::makeTheCorrection (const EventContext&/*ctx*/,
   }
 
   ATH_MSG_DEBUG( "CaloSwTransitionRegionsCorr::Energy before correction --> "
-         <<  cluster->e() << " Correction --> " << corr << endmsg);
+         <<  cluster->e() << " Correction --> " << corr << endreq);
 
   if (corr == 1)
     return;
@@ -169,7 +167,7 @@ void CaloSwTransitionRegionsCorr::makeTheCorrection (const EventContext&/*ctx*/,
 /*  
   for (int sampling=0; sampling<=3; sampling++){
     for (int si=0; si<2; ++si) {
-       ATH_MSG_DEBUG( "Before correction " << samps[si][sampling] << "   " << cluster->eSample(samps[si][sampling]) << endmsg);
+       ATH_MSG_DEBUG( "Before correction " << samps[si][sampling] << "   " << cluster->eSample(samps[si][sampling]) << endreq);
     }
   }
 */
@@ -192,12 +190,12 @@ void CaloSwTransitionRegionsCorr::makeTheCorrection (const EventContext&/*ctx*/,
   cluster->setE ( cluster->e() / corr );
 
   ATH_MSG_DEBUG( "CaloSwTransitionRegionsCorr::Energy after  correction --> "
-         <<  cluster->e() << endmsg);
+         <<  cluster->e() << endreq);
 
 /*
   for (int sampling=0; sampling<=3; sampling++){
     for (int si=0; si<2; ++si) {
-       ATH_MSG_DEBUG( "After correction " << samps[si][sampling] << "   " << cluster->eSample(samps[si][sampling]) << endmsg);
+       ATH_MSG_DEBUG( "After correction " << samps[si][sampling] << "   " << cluster->eSample(samps[si][sampling]) << endreq);
     }
   }
 */

@@ -32,7 +32,7 @@
  */
 
 
-#include "CaloSwGap_v2.h"
+#include "CaloClusterCorrection/CaloSwGap_v2.h"
 #include "CaloClusterCorrection/interpolate.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -68,7 +68,8 @@ const double dphi = twopi / 64. ;
 CaloSwGap_v2::CaloSwGap_v2 (const std::string& type,
                             const std::string& name,
                             const IInterface* parent)
-  : CaloClusterCorrectionCommon(type, name, parent)
+  : CaloClusterCorrectionCommon(type, name, parent),
+    m_sg ("StoreGateSvc", name)
 {
   declareConstant ("etamin_crack", m_etamin_crack);
   declareConstant ("etamax_crack", m_etamax_crack);
@@ -77,23 +78,12 @@ CaloSwGap_v2::CaloSwGap_v2 (const std::string& type,
   declareConstant ("use_raw_eta",  m_use_raw_eta);
 
   declareProperty ("cells_name",   m_cells_name = "AllCalo");
-}
-
-
-/**
- * @brief Standard Gaudi initialize method.
- */
-StatusCode CaloSwGap_v2::initialize()
-{
-  ATH_CHECK( CaloClusterCorrectionCommon::initialize() );
-  ATH_CHECK( m_cells_name.initialize() );
-  return StatusCode::SUCCESS;
+  declareProperty ("event_store",  m_sg);
 }
 
 
 /**
  * @brief Virtual function for the correction-specific code.
- * @param ctx     The event context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -111,8 +101,7 @@ StatusCode CaloSwGap_v2::initialize()
  *                @c CaloSampling::CaloSample; i.e., it has both
  *                the calorimeter region and sampling encoded.
  */
-void CaloSwGap_v2::makeTheCorrection (const EventContext& ctx,
-                                      CaloCluster* cluster,
+void CaloSwGap_v2::makeTheCorrection (CaloCluster* cluster,
                                       const CaloDetDescrElement*/*elt*/,
                                       float eta,
                                       float adj_eta,
@@ -132,11 +121,13 @@ void CaloSwGap_v2::makeTheCorrection (const EventContext& ctx,
   if (the_aeta < m_etamin_crack || the_aeta > m_etamax_crack) 
     return; // no correction required
 
-  SG::ReadHandle<CaloCellContainer> cc (m_cells_name, ctx);
+  // retrieve Tile Cell container
+  const CaloCellContainer* cc;
+  StatusCode sc = m_sg->retrieve(cc, m_cells_name);
 
   // Add up the tile scintillator energy in the region around the cluster.
   double eh_scint = 0;
-  if(cc.isValid())
+  if(StatusCode::SUCCESS==sc)
   {
     CaloCellContainer::const_iterator f_cell =
       cc->beginConstCalo(CaloCell_ID::TILE);

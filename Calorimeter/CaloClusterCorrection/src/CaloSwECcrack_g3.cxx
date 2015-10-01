@@ -28,7 +28,7 @@ Updated:  May 5, 2004    (Sven Menke)
 
 ********************************************************************/
 
-#include "CaloSwECcrack_g3.h"
+#include "CaloClusterCorrection/CaloSwECcrack_g3.h"
 
 // constants from atrecon/emreco/qecrack.F 
 using xAOD::CaloCluster;
@@ -45,8 +45,7 @@ CaloSwECcrack_g3::CaloSwECcrack_g3(const std::string& type,
 CaloSwECcrack_g3::~CaloSwECcrack_g3()
 { }
 
-void CaloSwECcrack_g3::makeCorrection(const EventContext& /*ctx*/,
-                                      CaloCluster* cluster) const
+void CaloSwECcrack_g3::makeCorrection(CaloCluster* cluster)
 {
 
   float eta = cluster->etaBE(2);   // use second sampling 

@@ -23,7 +23,7 @@ Updated:  January 17, 2008 (LC)
 
 ********************************************************************/
 
-#include "CaloSwCalibHitsCalibration.h"
+#include "CaloClusterCorrection/CaloSwCalibHitsCalibration.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 
@@ -60,7 +60,6 @@ CaloSwCalibHitsCalibration::CaloSwCalibHitsCalibration
 
 /**
   * @brief Virtual function for the correction-specific code.
-  * @param ctx     The event context.
   * @param cluster The cluster to correct.
   *                It is updated in place.
   * @param elt     The detector description element corresponding
@@ -81,8 +80,7 @@ CaloSwCalibHitsCalibration::CaloSwCalibHitsCalibration
 
 
 void CaloSwCalibHitsCalibration::makeTheCorrection
-(const EventContext& /*ctx*/,
-    CaloCluster* cluster,
+   (CaloCluster* cluster,
     const CaloDetDescrElement* /*elt*/,
     float eta,
     float adj_eta,
@@ -114,10 +112,10 @@ void CaloSwCalibHitsCalibration::makeTheCorrection
 //   the_aeta = std::abs (cluster->eta() );
 
 
-   ATH_MSG_DEBUG(  "************************************************************************************************" << endmsg);
-   ATH_MSG_DEBUG(  " USING CALIBHITS CALIBRATION " << endmsg);
-   ATH_MSG_DEBUG(  " Tool Name   " << name() << endmsg);
-   ATH_MSG_DEBUG(  "************************************************************************************************" << endmsg);  	
+   ATH_MSG_DEBUG(  "************************************************************************************************" << endreq);
+   ATH_MSG_DEBUG(  " USING CALIBHITS CALIBRATION " << endreq);
+   ATH_MSG_DEBUG(  " Tool Name   " << name() << endreq);
+   ATH_MSG_DEBUG(  "************************************************************************************************" << endreq);  	
 
    unsigned int shape[] = {2};
    CaloRec::WritableArrayData<1> interp_barriers (shape);
@@ -142,25 +140,25 @@ void CaloSwCalibHitsCalibration::makeTheCorrection
    CaloRec::Array<1> frslope  = m_correction[4][ibin_frontCorr];
    CaloRec::Array<1> sec      = m_correction[5][ibin_frontCorr];
 
-   ATH_MSG_DEBUG( "Check etas -------------------------------------------------------------------"<< endmsg);
-   ATH_MSG_DEBUG( "Eta --> " << the_aeta << "  Bin --> " << ibin <<" Cluster eta = " << cluster->eta() << endmsg);
-   ATH_MSG_DEBUG( "ETA = " << std::abs (adj_eta) << "    ADJ_ETA = " << std::abs (eta)<<  endmsg);
+   ATH_MSG_DEBUG( "Check etas -------------------------------------------------------------------"<< endreq);
+   ATH_MSG_DEBUG( "Eta --> " << the_aeta << "  Bin --> " << ibin <<" Cluster eta = " << cluster->eta() << endreq);
+   ATH_MSG_DEBUG( "ETA = " << std::abs (adj_eta) << "    ADJ_ETA = " << std::abs (eta)<<  endreq);
 
-   ATH_MSG_DEBUG( "Check calibration coefficients -----------------------------------------------"<< endmsg);
+   ATH_MSG_DEBUG( "Check calibration coefficients -----------------------------------------------"<< endreq);
    ATH_MSG_DEBUG( "Accordion   :  " << acc[0] <<"  " << acc[1]
-          << " "  << acc[2] << " "  << acc[3] << endmsg);
+          << " "  << acc[2] << " "  << acc[3] << endreq);
    ATH_MSG_DEBUG( "OutOfCOne   :  " << ooc[0] <<"  " << ooc[1]
-          << " "  << ooc[2] << " "  << ooc[3] << endmsg);
+          << " "  << ooc[2] << " "  << ooc[3] << endreq);
    ATH_MSG_DEBUG( "Leakage     :  " << lleak[0] <<"  " << lleak[1]
-          << " " << lleak[2] << " "  << lleak[3] << endmsg);
+          << " " << lleak[2] << " "  << lleak[3] << endreq);
    ATH_MSG_DEBUG( "Front offset:  " << froffset[0] <<"  " 
-          <<froffset[1]  << " " << froffset[2] << " "  << froffset[3] <<endmsg);
+          <<froffset[1]  << " " << froffset[2] << " "  << froffset[3] <<endreq);
    ATH_MSG_DEBUG( "Front Slope  :  " << frslope[0] <<"  " << frslope[1]
-          << " " << frslope[2] << " "  << frslope[3] <<  endmsg);
+          << " " << frslope[2] << " "  << frslope[3] <<  endreq);
    ATH_MSG_DEBUG( "Second order:  " << sec[0] << "  " << sec[1]
-          << "  "  << sec[2] << " " << sec[3] << endmsg);
+          << "  "  << sec[2] << " " << sec[3] << endreq);
 
-   static const CaloSampling::CaloSample samps[2][4] = {
+   static CaloSampling::CaloSample samps[2][4] = {
      { CaloSampling::PreSamplerB,
        CaloSampling::EMB1,
        CaloSampling::EMB2,
@@ -178,7 +176,7 @@ double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
 
    if (shower_lbary < 5. || shower_lbary > 25.) {
     shower_lbary =15.;
-    ATH_MSG_DEBUG( " replace pathological depth by 15 X0" << endmsg); 
+    ATH_MSG_DEBUG( " replace pathological depth by 15 X0" << endreq); 
    }
 
    // Compute total energy in the accordion (eacc_base) and
@@ -187,26 +185,26 @@ double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
    double eacc_base = 0;
    for (int sampling=1; sampling<4; sampling++) {
        eacc_base += cluster->eSample(samps[si][sampling]);
-       ATH_MSG_DEBUG( "Barrel/endcap = " << si << "  Sampling = " <<   sampling << "   Energy -->> " <<  cluster->eSample(samps[si][sampling]) << endmsg);
+       ATH_MSG_DEBUG( "Barrel/endcap = " << si << "  Sampling = " <<   sampling << "   Energy -->> " <<  cluster->eSample(samps[si][sampling]) << endreq);
    }
    double eps_base = cluster->eSample (samps[si][0]);
 
-   ATH_MSG_DEBUG( "E accordion base --->>>> "  << eacc_base <<  "  Eps base " << eps_base << endmsg);
+   ATH_MSG_DEBUG( "E accordion base --->>>> "  << eacc_base <<  "  Eps base " << eps_base << endreq);
 
    // Add a protection against large longitudinal barycenter for clusters from
    // hadrons which may cause over-calibration. A energy dependent upper limit
    // on the long bary is introduced (from 20 at 0 to 23 at 1 TeV)    
 
    double depth_max = 20. + (eacc_base+eps_base)*(3./TeV) ;
-   ATH_MSG_DEBUG( "Raw energy ---->> " << (eacc_base+eps_base) << endmsg) ;
+   ATH_MSG_DEBUG( "Raw energy ---->> " << (eacc_base+eps_base) << endreq) ;
    ATH_MSG_DEBUG( "Bary max for this event ---->> " << depth_max
-       << endmsg) ;
+       << endreq) ;
 
    if ( shower_lbary > depth_max ) {
      shower_lbary = 15.;
      //shower_lbary = depth_max;
      ATH_MSG_DEBUG( " replace pathological depth by 15 X0 " 
-         << endmsg); 
+         << endreq); 
    } 
 
 
@@ -264,16 +262,15 @@ double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
      if (the_aeta < m_eta_start_crack) {
        double WpsOff      = froffset[1] + froffset[2]     * raw_energy + 
                             froffset[3] * raw_energy * raw_energy;
-       double WpsSlo      = frslope[1]  * pow(log(raw_energy),
-                                              static_cast<double>(frslope[2])) +
+       double WpsSlo      = frslope[1]  * pow(log(raw_energy),frslope[2]) +
                             frslope[3] *sqrt( raw_energy );
        e_front_reco=WpsOff + WpsSlo*(eps_base );
 
-       ATH_MSG_DEBUG( " raw event  " << raw_energy << endmsg);
-       ATH_MSG_DEBUG( " froffset coeff " << froffset[1] << " " << froffset[2] << " " << froffset[3]  << endmsg);
-       ATH_MSG_DEBUG( " frslope coeff  " << frslope[1] << " " << frslope[2] << " " << frslope[3] << endmsg);
-       ATH_MSG_DEBUG( " WpsOff,WpsSlo " << WpsOff << " " << WpsSlo << endmsg);
-        ATH_MSG_DEBUG( " eps_base, efront_reco " << eps_base << " " << e_front_reco << endmsg);
+       ATH_MSG_DEBUG( " raw event  " << raw_energy << endreq);
+       ATH_MSG_DEBUG( " froffset coeff " << froffset[1] << " " << froffset[2] << " " << froffset[3]  << endreq);
+       ATH_MSG_DEBUG( " frslope coeff  " << frslope[1] << " " << frslope[2] << " " << frslope[3] << endreq);
+       ATH_MSG_DEBUG( " WpsOff,WpsSlo " << WpsOff << " " << WpsSlo << endreq);
+        ATH_MSG_DEBUG( " eps_base, efront_reco " << eps_base << " " << e_front_reco << endreq);
      }
      else{
 
@@ -288,15 +285,15 @@ double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
        e_front_reco=WpsOff + WpsSlo*(eps_base) + WpsSlo2*(eps_base)*(eps_base);
        if (e_front_reco<0.) e_front_reco= eps_base;
           
-       ATH_MSG_DEBUG( " raw energy " << raw_energy << endmsg);
+       ATH_MSG_DEBUG( " raw energy " << raw_energy << endreq);
        ATH_MSG_DEBUG( "p1 " << froffset[1] << " "
-              << froffset[2] << " " << froffset[3] <<  " " << WpsOff << endmsg);
+              << froffset[2] << " " << froffset[3] <<  " " << WpsOff << endreq);
        ATH_MSG_DEBUG( "p2 " << frslope[1] << " "
-              << frslope[2] << " " << frslope[3] << " " << WpsSlo << endmsg);
+              << frslope[2] << " " << frslope[3] << " " << WpsSlo << endreq);
        ATH_MSG_DEBUG( "p3 " << sec[1] << " "
-              << sec[2] << " " << sec[3] << " " << WpsSlo2 << endmsg);
-       ATH_MSG_DEBUG( " WpsOff, WpsSlo, WpsSlo2 " << WpsOff << " " << WpsSlo << " " << WpsSlo2 << endmsg);
-       ATH_MSG_DEBUG( " eps_base, efront_reco " << eps_base << " " <<  e_front_reco << endmsg);
+              << sec[2] << " " << sec[3] << " " << WpsSlo2 << endreq);
+       ATH_MSG_DEBUG( " WpsOff, WpsSlo, WpsSlo2 " << WpsOff << " " << WpsSlo << " " << WpsSlo2 << endreq);
+       ATH_MSG_DEBUG( " eps_base, efront_reco " << eps_base << " " <<  e_front_reco << endreq);
 
      }
 
@@ -311,11 +308,11 @@ double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
                   sec[3] * raw_energy  * raw_energy ;
 
      ATH_MSG_DEBUG( "p1 " << froffset[1] << " "
-            << froffset[2] << " " << froffset[3] << endmsg);
+            << froffset[2] << " " << froffset[3] << endreq);
      ATH_MSG_DEBUG( "p2 " << frslope[1] << " "
-            << frslope[2] << " " << frslope[3] << endmsg);
+            << frslope[2] << " " << frslope[3] << endreq);
      ATH_MSG_DEBUG( "p3 " << sec[1] << " "
-            << sec[2] << " " << sec[3] << endmsg);
+            << sec[2] << " " << sec[3] << endreq);
 
      e_front_reco= (p1 + p2 * shower_lbary + p3 * shower_lbary * shower_lbary);
      if (e_front_reco<0.) e_front_reco=eps_base;
@@ -327,11 +324,11 @@ double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
 
    double e_calo_reco =e_front_reco + e_leak_reco + e_acc_reco;
 
-   ATH_MSG_DEBUG( "CaloSwCalibrationHits::Final reco energy ---------------------- " << e_calo_reco << endmsg);
-   ATH_MSG_DEBUG( "CaloSwCalibrationHits::Front ---------------------- " <<  e_front_reco << endmsg);
-   ATH_MSG_DEBUG( "CaloSwCalibrationHits::Accordion ------------------ " <<  e_acc_reco << endmsg);
-   ATH_MSG_DEBUG( "CaloSwCalibrationHits::out of cone ---------------- " <<  acc_corr*(eacc_base )*(e_out_perc)*0.01 << endmsg);      
-   ATH_MSG_DEBUG( "CaloSwCalibrationHits::Leakage -------------------- " <<  e_leak_reco << endmsg);
+   ATH_MSG_DEBUG( "CaloSwCalibrationHits::Final reco energy ---------------------- " << e_calo_reco << endreq);
+   ATH_MSG_DEBUG( "CaloSwCalibrationHits::Front ---------------------- " <<  e_front_reco << endreq);
+   ATH_MSG_DEBUG( "CaloSwCalibrationHits::Accordion ------------------ " <<  e_acc_reco << endreq);
+   ATH_MSG_DEBUG( "CaloSwCalibrationHits::out of cone ---------------- " <<  acc_corr*(eacc_base )*(e_out_perc)*0.01 << endreq);      
+   ATH_MSG_DEBUG( "CaloSwCalibrationHits::Leakage -------------------- " <<  e_leak_reco << endreq);
    
    
 
@@ -369,11 +366,11 @@ double shower_lbary = m_showerDepth.depth (the_aeta, cluster, msg() );
    double e_temp = 0;
    for (int nl = 0 ; nl< 4 ; nl++) e_temp +=  cluster->eSample (samps [si][nl]);
    
-   ATH_MSG_DEBUG( "----------  Sum of the sampling energy ---  >> " << e_temp << "  EcaloReco = " << e_calo_reco << endmsg);
+   ATH_MSG_DEBUG( "----------  Sum of the sampling energy ---  >> " << e_temp << "  EcaloReco = " << e_calo_reco << endreq);
 
    cluster->setE (e_calo_reco);
    
-   ATH_MSG_DEBUG( "CaloSwCalibHitsCalibration::Energy after  correction --> " <<  cluster->e() << endmsg);
+   ATH_MSG_DEBUG( "CaloSwCalibHitsCalibration::Energy after  correction --> " <<  cluster->e() << endreq);
 
 }
 

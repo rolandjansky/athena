@@ -41,8 +41,6 @@
 #include "CaloInterface/ISetCaloCellContainerName.h"
 #include <string>
 #include "AthenaKernel/IOVSvcDefs.h"
-#include "StoreGate/ReadHandleKey.h"
-#include "GaudiKernel/ThreadLocalContext.h"
 
 // Helper object used for the per-sampling calculations.
 namespace CaloClusterCorr {
@@ -51,7 +49,6 @@ class SamplingHelper;
 //class StoreGateSvc;
 //class CaloCluster;
 class CaloCell;
-class CaloCellContainer;
 
 
 class CaloFillRectangularCluster
@@ -74,7 +71,7 @@ public:
    *
    * Derived classes can extend this to change the sampling window sizes.
    */
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize();
 
   /** Callback added to handle Data-driven GeoModel initialization
    */
@@ -82,18 +79,10 @@ public:
   
   /**
    * @brief CaloClusterCorrection virtual method
-   * @param ctx     The event context.
    * @param cluster The cluster on which to operate.
    */
-  virtual void makeCorrection(const EventContext& ctx,
-                              xAOD::CaloCluster* cluster) const override;
+  virtual void makeCorrection(xAOD::CaloCluster* cluster);
 
-
-  // Temp workaround to keep IsolationTools happy.
-  void makeCorrection(xAOD::CaloCluster* cluster) const
-  {
-    return makeCorrection (Gaudi::Hive::currentContext(), cluster);
-  }
 
   /*
    * @brief Return the seed position of a cluster.
@@ -108,44 +97,40 @@ public:
    */
   virtual void get_seed (const xAOD::CaloCluster* cluster,
                          const CaloCell* max_et_cell,
-                         double& eta, double& phi) const;
+                         double& eta, double& phi);
 
 
   /**
    * @brief Change the name of the CaloCellContainer used by this tool.
    * @param name The new container name.
    */
-  virtual StatusCode setCaloCellContainerName (const std::string& name) override;
+  virtual StatusCode setCaloCellContainerName (const std::string& name);
 
 
 private:
 
   /// This isn't allowed.
-  CaloFillRectangularCluster() = delete;
+  CaloFillRectangularCluster();
 
 
   /*
    * @brief Actually make the correction for one region (barrel or endcap).
-   * @param ctx     The event context.
    * @param helper Sampling calculation helper object.
    * @param eta The @f$\eta$@f seed of the cluster.
    * @param phi The @f$\phi$@f seed of the cluster.
    * @param samplings List of samplings for this region.
    */
-  void makeCorrection1 (const EventContext& ctx,
-                        CaloClusterCorr::SamplingHelper& helper,
+  void makeCorrection1 (CaloClusterCorr::SamplingHelper& helper,
                         double eta,
                         double phi,
-                        const CaloSampling::CaloSample samplings[4]) const;
+                        const CaloSampling::CaloSample samplings[4]);
 
 
   /*
    * @brief Execute the correction, given a helper object.
-   * @param ctx     The event context.
    * @param helper Sampling calculation helper object.
    */
-  void makeCorrection2 (const EventContext& ctx,
-                        CaloClusterCorr::SamplingHelper& helper) const;
+  void makeCorrection2 (CaloClusterCorr::SamplingHelper& helper);
 
 
 protected:
@@ -173,7 +158,7 @@ protected:
 private:
   /// The StoreGate key for the container of our input cells.
   /// This is a property.
-  SG::ReadHandleKey<CaloCellContainer> m_cellsName;
+  std::string  m_cellsName;
 };
 
 #endif // not CALOCLUSTERCORRECTION_CALOFILLRECTANGULARCLUSTER_H

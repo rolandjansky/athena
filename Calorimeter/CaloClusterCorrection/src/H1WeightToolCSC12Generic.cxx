@@ -9,7 +9,7 @@ Created  : Feb 2007
 
 ***********************************************************************/
 
-#include "H1WeightToolCSC12Generic.h"
+#include "CaloClusterCorrection/H1WeightToolCSC12Generic.h"
 #include "CaloEvent/CaloCell.h"
 //#include "CaloEvent/CaloSampling.h"
 
@@ -101,7 +101,7 @@ double H1WeightToolCSC12Generic::etCell(const CaloCell* thisCell, double weight)
 }
 
 
-double H1WeightToolCSC12Generic::wtCell(const CaloCell* thisCell) const
+double H1WeightToolCSC12Generic::wtCell(const CaloCell* thisCell)
 {
 
 

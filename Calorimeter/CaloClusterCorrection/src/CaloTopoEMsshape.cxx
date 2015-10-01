@@ -17,7 +17,7 @@ Updated:  March 12, 2005   (MB)
           corrections for the TopoCluster 
 ********************************************************************/
 
-#include "CaloTopoEMsshape.h"
+#include "CaloClusterCorrection/CaloTopoEMsshape.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "GaudiKernel/MsgStream.h"
 #include <math.h> 
@@ -46,20 +46,19 @@ CaloTopoEMsshape::~CaloTopoEMsshape()
 // Initialization
 /*StatusCode CaloTopoEMsshape::initialize()
 {
-  ATH_MSG_DEBUG( " S-shape parameters : " << endmsg);
-  ATH_MSG_DEBUG( "   P0 =             " << m_P0 << endmsg);
-  ATH_MSG_DEBUG( "   P1 =             " << m_P1 << endmsg);
-  ATH_MSG_DEBUG( "   P2 =             " << m_P2 << endmsg);
-  ATH_MSG_DEBUG( "   P3 =             " << m_P3 << endmsg);
-  ATH_MSG_DEBUG( "   P4 =             " << m_P4 << endmsg);
-  ATH_MSG_DEBUG( "   Granularity =    " << m_Granularity << endmsg);
-  ATH_MSG_DEBUG( "   Eta frontiers =  " << m_EtaFrontier << endmsg);
+  ATH_MSG_DEBUG( " S-shape parameters : " << endreq);
+  ATH_MSG_DEBUG( "   P0 =             " << m_P0 << endreq);
+  ATH_MSG_DEBUG( "   P1 =             " << m_P1 << endreq);
+  ATH_MSG_DEBUG( "   P2 =             " << m_P2 << endreq);
+  ATH_MSG_DEBUG( "   P3 =             " << m_P3 << endreq);
+  ATH_MSG_DEBUG( "   P4 =             " << m_P4 << endreq);
+  ATH_MSG_DEBUG( "   Granularity =    " << m_Granularity << endreq);
+  ATH_MSG_DEBUG( "   Eta frontiers =  " << m_EtaFrontier << endreq);
   return StatusCode::SUCCESS;
 }*/
 
 // make correction to one cluster 
-void CaloTopoEMsshape::makeTheCorrection(const EventContext& /*ctx*/,
-                                         xAOD::CaloCluster* cluster,
+void CaloTopoEMsshape::makeTheCorrection(xAOD::CaloCluster* cluster,
 					 const CaloDetDescrElement* elt,
 					 float eta,
 					 float adj_eta,
@@ -79,8 +78,8 @@ void CaloTopoEMsshape::makeTheCorrection(const EventContext& /*ctx*/,
   // compute CaloSampling
   CaloSampling::CaloSample samp = (CaloSampling::CaloSample)elt->getSampling();
 
-  ATH_MSG_DEBUG( " ... s-shapes BEGIN ; u = " << u << " " << eta << " " << adj_eta << " " << elt->eta() << " " << elt->deta() << endmsg);
-  ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << samp << endmsg);
+  ATH_MSG_DEBUG( " ... s-shapes BEGIN ; u = " << u << " " << eta << " " << adj_eta << " " << elt->eta() << " " << elt->deta() << endreq);
+  ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << samp << endreq);
 
   // Compute the correction
   if (aeta < m_EtaFrontier[0] || (aeta > m_EtaFrontier[1] && aeta < m_EtaFrontier[2])) 
@@ -102,7 +101,7 @@ void CaloTopoEMsshape::makeTheCorrection(const EventContext& /*ctx*/,
   
   // Print out the function for debugging
   ATH_MSG_DEBUG( " ... S shape " << qsshape << " " << u << " " << eta << " " << elt->eta() 
-      << " " << adj_eta << " " << aeta << " " << iEtaBin << " " << samp << endmsg);
+      << " " << adj_eta << " " << aeta << " " << iEtaBin << " " << samp << endreq);
 
   // Apply the correction
   // ... there was a sign mistake here
@@ -110,8 +109,8 @@ void CaloTopoEMsshape::makeTheCorrection(const EventContext& /*ctx*/,
   if (eta > 0) qsshape = -qsshape;
   cluster->setEta(samp, eta + qsshape);
 
-  ATH_MSG_DEBUG( " ... s-shapes END" << endmsg);
-  ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << samp << endmsg);
+  ATH_MSG_DEBUG( " ... s-shapes END" << endreq);
+  ATH_MSG_DEBUG( " ... e, eta, phi " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() << " " << samp << endreq);
 
   // Done
   return ; 

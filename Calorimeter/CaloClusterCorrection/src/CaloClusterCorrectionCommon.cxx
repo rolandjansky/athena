@@ -17,12 +17,10 @@
 #include "CaloDetDescr/CaloDetectorElements.h"
 #include "CaloGeoHelpers/CaloPhiRange.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "CxxUtils/make_unique.h"
 #include <cmath>
 #include <cassert>
 
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ThreadLocalContext.h"
 
 using xAOD::CaloCluster;
 using CaloClusterCorr::interpolate;
@@ -139,62 +137,6 @@ const CaloDetDescrElement* find_dd_elt1 (int region,
 
 
 /**
- * @brief Construct dummy DDEs used to work around innermost strip problem
- *        (see below).
- * @param dd_man Detector descriptor manager.
- */
-std::vector<std::unique_ptr<const CaloDetDescrElement> >
-dd_make_dummy_elts (const CaloDetDescrManager* dd_man)
-{
-  std::vector<std::unique_ptr<const CaloDetDescrElement> > elts;
-  const CaloDetDescriptor* descr = dd_man->get_descriptor (CaloCell_ID::LAREM,
-                                                           1, true, 0.05, 0);
-  if (descr) {
-    int nphi = descr->n_phi();
-    elts.resize (nphi*2);
-    for (int etasgn = 1; etasgn >= -1; etasgn -= 2) {
-      for (int iphi = 0; iphi < nphi; iphi++) {
-        // Make a new dummy cell.
-        // First, try to find the adjacent strip.  Punt if we can't
-        // find _that_!
-        const CaloCell_ID* cellid_mgr = dd_man->getCaloCell_ID();
-        Identifier cellId2 = cellid_mgr->cell_id (descr->identify(),
-                                                  1, iphi);
-        IdentifierHash cellIdHash2 = cellid_mgr->calo_cell_hash (cellId2);
-        // Verify that we don't have another nonexistent cell!
-        if (cellid_mgr->cell_id (cellIdHash2) != cellId2)
-          continue;
-        const CaloDetDescrElement* elt2 = dd_man->get_element (cellIdHash2);
-        if (!elt2) continue;
-
-        auto elt = CxxUtils::make_unique<DummyDetDescrElement>
-          (descr->subcalo_hash(),
-           0,
-           0,
-           descr);
-
-        // Copy geometry from the adjacent cell, shifting eta.
-        elt->set_cylindric_size (elt2->deta(),
-                                 elt2->dphi(),
-                                 elt2->dr());
-        elt->set_cylindric (elt2->eta() - etasgn * elt2->deta(),
-                            elt2->phi(),
-                            elt2->r());
-        elt->set_cylindric_raw (elt2->eta_raw() - etasgn * elt2->deta(),
-                                elt2->phi_raw(),
-                                elt2->r_raw());
-
-        int index = iphi;
-        if (etasgn < 0) index += nphi;
-        elts[index] = std::move(elt);
-      }
-    }
-  }
-  return elts;
-}
-
-
-/**
  * @brief Work around innermost strip problem.
  * @param region A region code, as defined in the header.
  * @param dd_man Detector descriptor manager.
@@ -216,7 +158,7 @@ dd_inner_strip_fixup (int region,
                       const CaloDetDescrManager* dd_man,
                       float eta,
                       float phi,
-                      const std::vector<std::unique_ptr<const CaloDetDescrElement> >& dummy_elts)
+                      std::vector<CaloDetDescrElement*>& dummy_elts)
 {
   if (region == CaloClusterCorrectionCommon::EMB1 && fabs(eta) < 0.1) {
     const CaloDetDescriptor* descr = dd_man->get_descriptor (CaloCell_ID::LAREM,
@@ -231,8 +173,41 @@ dd_inner_strip_fixup (int region,
       if (eta < 0)
         index += descr->n_phi();
       if (dummy_elts.size() <= index)
-        return 0;
-      return dummy_elts[index].get();
+        dummy_elts.resize (index+1);
+      if (!dummy_elts[index]) {
+        // Make a new dummy cell.
+        // First, try to find the adjacent strip.  Punt if we can't
+        // find _that_!
+        const CaloCell_ID* cellid_mgr = dd_man->getCaloCell_ID();
+        Identifier cellId2 = cellid_mgr->cell_id (descr->identify(),
+                                                  ieta+1, iphi);
+        IdentifierHash cellIdHash2 = cellid_mgr->calo_cell_hash (cellId2);
+        // Verify that we don't have another nonexistent cell!
+        if (cellid_mgr->cell_id (cellIdHash2) != cellId2)
+          return 0;
+        const CaloDetDescrElement* elt2 = dd_man->get_element (cellIdHash2);
+        if (!elt2) return 0;
+
+        DummyDetDescrElement* elt =
+          new DummyDetDescrElement (descr->subcalo_hash(),
+				    0,
+				    0,
+				    descr);
+
+        // Copy geometry from the adjacent cell, shifting eta.
+        elt->set_cylindric_size (elt2->deta(),
+                                 elt2->dphi(),
+                                 elt2->dr());
+        int sign = (eta >= 0) ? 1 : -1;
+        elt->set_cylindric (elt2->eta() - sign * elt2->deta(),
+                            elt2->phi(),
+                            elt2->r());
+        elt->set_cylindric_raw (elt2->eta_raw() - sign * elt2->deta(),
+                                elt2->phi_raw(),
+                                elt2->r_raw());
+        dummy_elts[index] = elt;
+      }
+      return dummy_elts[index];
     }
   }
 
@@ -288,7 +263,7 @@ CaloClusterCorrectionCommon::find_dd_elt
              const CaloCluster* cluster,
              float eta,
              float phi,
-             const std::vector<std::unique_ptr<const CaloDetDescrElement> >& dummy_elts)
+             std::vector<CaloDetDescrElement*>& dummy_elts)
 {
   const CaloDetDescrElement* elt = 0;
   float eta_offs = 0;
@@ -297,8 +272,10 @@ CaloClusterCorrectionCommon::find_dd_elt
   int good = 0;
   
   while (good != 2) {
+    static CaloPhiRange range; // I shouldn't have to allocate
+                               // an object for this
     elt = find_dd_elt1 (region, dd_man, cluster,
-                        eta + eta_offs, CaloPhiRange::fix (phi + phi_offs));
+                        eta + eta_offs, range.fix (phi + phi_offs));
 
     if (!elt) {
       elt = dd_inner_strip_fixup (region, dd_man, eta, phi, dummy_elts);
@@ -370,6 +347,8 @@ CaloClusterCorrectionCommon::CaloClusterCorrectionCommon
  */
 CaloClusterCorrectionCommon::~CaloClusterCorrectionCommon ()
 {
+  for (unsigned int i=0; i < m_dummy_elts.size(); i++)
+    delete m_dummy_elts[i];
 }
 
 
@@ -379,15 +358,12 @@ CaloClusterCorrectionCommon::~CaloClusterCorrectionCommon ()
  */
 StatusCode CaloClusterCorrectionCommon::initialize()
 {
-  m_calo_dd_man = CaloDetDescrManager::instance();
-  m_dummy_elts = dd_make_dummy_elts (m_calo_dd_man);
   return CaloClusterCorrection::initialize();
 }
 
 
 /**
  * @brief Perform the correction.  Called by the tool.
- * @param ctx     The event context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  *
@@ -397,17 +373,19 @@ StatusCode CaloClusterCorrectionCommon::initialize()
  *  - Computes quantities to pass to @c makeTheCorrection.
  *  - Calls @c makeTheCorrection.
  */
-void CaloClusterCorrectionCommon::makeCorrection (const EventContext& ctx,
-                                                  CaloCluster* cluster) const
+void CaloClusterCorrectionCommon::makeCorrection (CaloCluster* cluster)
 {
+  if (!m_calo_dd_man)
+    m_calo_dd_man = CaloDetDescrManager::instance();
+
   // This causes a lot of overhead (mostly from the MsgStream ctor).
   // Comment out when not needed.
   //MsgStream log( msgSvc(), name() );
-  //log << MSG::DEBUG << "Entering makeCorrection" << endmsg;
+  //log << MSG::DEBUG << "Entering makeCorrection" << endreq;
   //log << MSG::DEBUG << "e, eta, phi, etasize, phisize" << " " << cluster->e() << " " << cluster->eta() << " " << cluster->phi() 
-  //  << " " <<  cluster->etasize(CaloSampling::EMB2) << " " << cluster->phisize(CaloSampling::EMB2) << endmsg;
-  //log << MSG::DEBUG << "B / E  " << cluster->inBarrel() << " " << cluster->inEndcap() << endmsg;
-  //log << MSG::DEBUG << "region " << m_region << endmsg;
+  //  << " " <<  cluster->etasize(CaloSampling::EMB2) << " " << cluster->phisize(CaloSampling::EMB2) << endreq;
+  //log << MSG::DEBUG << "B / E  " << cluster->inBarrel() << " " << cluster->inEndcap() << endreq;
+  //log << MSG::DEBUG << "region " << m_region << endreq;
 
   float eta;
   float phi;
@@ -467,7 +445,8 @@ void CaloClusterCorrectionCommon::makeCorrection (const EventContext& ctx,
 
   // Sometimes unnormalized @f$\phi@f$ values still come through.
   // Make sure this is in the proper range before calling the correction.
-  phi = CaloPhiRange::fix (phi);
+  static CaloPhiRange range; // I shouldn't have to allocate an object for this
+  phi = range.fix (phi);
 
   // Look up the DD element.
   // Give up if we can't find one.
@@ -481,10 +460,10 @@ void CaloClusterCorrectionCommon::makeCorrection (const EventContext& ctx,
   // Compute the adjusted eta and phi --- the coordinates shifted
   // from the actual to the nominal coordinate system.
   float adj_eta = eta - elt->eta() + elt->eta_raw();
-  float adj_phi = CaloPhiRange::fix (phi - elt->phi() + elt->phi_raw());
+  float adj_phi = range.fix (phi - elt->phi() + elt->phi_raw());
 
   // Call the actual correction.
-  makeTheCorrection (ctx, cluster, elt, eta, adj_eta, phi, adj_phi, samp);
+  makeTheCorrection (cluster, elt, eta, adj_eta, phi, adj_phi, samp);
 }
 
 

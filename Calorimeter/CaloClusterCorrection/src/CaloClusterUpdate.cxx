@@ -38,7 +38,7 @@ Updated:  May 5, 2004    (Sven Menke)
 
 ********************************************************************/
 // include header files
-#include "CaloClusterUpdate.h"
+#include "CaloClusterCorrection/CaloClusterUpdate.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "CaloGeoHelpers/proxim.h" 
@@ -56,9 +56,11 @@ CaloClusterUpdate::CaloClusterUpdate(const std::string& type,
 CaloClusterUpdate::~CaloClusterUpdate()
 { }
 
-void CaloClusterUpdate::makeCorrection(const EventContext& /*ctx*/,
-                                       CaloCluster* cluster) const
+void CaloClusterUpdate::makeCorrection(CaloCluster* cluster)
 {
+
+  static CaloPhiRange range;
+
   float energy=0; 
   float eta=0; 
   float phi2=0; 
@@ -66,7 +68,7 @@ void CaloClusterUpdate::makeCorrection(const EventContext& /*ctx*/,
   float wphi=0; 
   // set eta to be weighted average of eta1 and eta2 
  
-  ATH_MSG_DEBUG(" inBarrel "<<cluster->inBarrel() << " inEndcap "<<cluster->inEndcap() << endmsg) ;
+  ATH_MSG_DEBUG(" inBarrel "<<cluster->inBarrel() << " inEndcap "<<cluster->inEndcap() << endreq) ;
 
   for(int i=0; i<5; i=i+4 )
   { 
@@ -146,7 +148,7 @@ void CaloClusterUpdate::makeCorrection(const EventContext& /*ctx*/,
 
   if (phi2 != -999. && wphi != 0) {
     phi2 = phi2/wphi ; 
-    phi2 = CaloPhiRange::fix (phi2);
+    phi2 = range.fix (phi2);
   }
   else {
       if (cluster->inBarrel() && ! cluster->inEndcap()) phi2 = cluster->phiSample(CaloSampling::EMB2);      

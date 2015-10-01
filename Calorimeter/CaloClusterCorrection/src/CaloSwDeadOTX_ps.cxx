@@ -18,7 +18,7 @@ PURPOSE:  Apply specif calibration for the energy lost in front
 
 ********************************************************************/
 
-#include "CaloSwDeadOTX_ps.h"
+#include "CaloClusterCorrection/CaloSwDeadOTX_ps.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 using xAOD::CaloCluster;
@@ -53,21 +53,20 @@ StatusCode CaloSwDeadOTX_ps::initialize()
   //  CHECK( setProperty ("isDummy", std::string("1")) );
 
 
-  ATH_MSG_DEBUG( " --------------->>>>> CaloSwDeadOTX_ps :: retrieving affectedTool" << endmsg);
+  ATH_MSG_DEBUG( " --------------->>>>> CaloSwDeadOTX_ps :: retrieving affectedTool" << endreq);
 
   if (m_affectedTool.retrieve().isFailure()){
-      ATH_MSG_DEBUG( " --------------->>>>> CaloSwDeadOTX_ps :: failure retrieving affectedTool !! " << endmsg);
+      ATH_MSG_DEBUG( " --------------->>>>> CaloSwDeadOTX_ps :: failure retrieving affectedTool !! " << endreq);
       return StatusCode::FAILURE;
   } 
 
-  ATH_MSG_DEBUG( " --------------->>>>> CaloSwDeadOTX_ps :: affectedTool successfully retrieved" << endmsg);
+  ATH_MSG_DEBUG( " --------------->>>>> CaloSwDeadOTX_ps :: affectedTool successfully retrieved" << endreq);
 
   return StatusCode::SUCCESS;;
 }
 
 void CaloSwDeadOTX_ps::makeTheCorrection
-   (const EventContext& /*ctx*/,
-    CaloCluster* cluster,
+   (CaloCluster* cluster,
     const CaloDetDescrElement* /*elt*/,
     float eta,
     float adj_eta,
@@ -99,16 +98,16 @@ void CaloSwDeadOTX_ps::makeTheCorrection
    } 
 
 
-   ATH_MSG_DEBUG(  "************************************************************************************************" << endmsg);
-   ATH_MSG_DEBUG(  " USING CALIBHITS CALIBRATION : apply correction for dead OTX in the presampler" << endmsg);
-   ATH_MSG_DEBUG(  " Tool Name   " << name() << endmsg);
-   ATH_MSG_DEBUG(  "************************************************************************************************" << endmsg);  	
+   ATH_MSG_DEBUG(  "************************************************************************************************" << endreq);
+   ATH_MSG_DEBUG(  " USING CALIBHITS CALIBRATION : apply correction for dead OTX in the presampler" << endreq);
+   ATH_MSG_DEBUG(  " Tool Name   " << name() << endreq);
+   ATH_MSG_DEBUG(  "************************************************************************************************" << endreq);  	
 
 // -------------------------------------------------------------
 // check if the cluster is in an affected region
 // -------------------------------------------------------------
 
-   static const CaloSampling::CaloSample samps[2][4] = {
+   static CaloSampling::CaloSample samps[2][4] = {
       { CaloSampling::PreSamplerB,
         CaloSampling::EMB1,
         CaloSampling::EMB2,
@@ -137,10 +136,10 @@ void CaloSwDeadOTX_ps::makeTheCorrection
 // if a cluster is in an affected region set the PS energy to zero else return
 
    if (check) { 
-       ATH_MSG_DEBUG(  "The cluster is in an affected region, apply corrections" << endmsg);
+       ATH_MSG_DEBUG(  "The cluster is in an affected region, apply corrections" << endreq);
        cluster->setEnergy (samps[si][0], 0 );
    } else { 
-       ATH_MSG_DEBUG(  "The cluster is NOT in an affected region, skip correction" << endmsg);
+       ATH_MSG_DEBUG(  "The cluster is NOT in an affected region, skip correction" << endreq);
        return; 
    }
 
@@ -171,14 +170,14 @@ void CaloSwDeadOTX_ps::makeTheCorrection
    if (raw_energy == 0) return;
    double shower_lbary = shower_lbary_raw / raw_energy;
 	
-   ATH_MSG_DEBUG( "Shower longitudinal barycenter ---->> " << shower_lbary << endmsg);
+   ATH_MSG_DEBUG( "Shower longitudinal barycenter ---->> " << shower_lbary << endreq);
 
    double depth_max = 20. + raw_energy*(3./TeV);
 
    if ( shower_lbary > depth_max || shower_lbary<0.) {
      shower_lbary = 15.;
      ATH_MSG_DEBUG( " replace pathological depth by 15 X0 "
-         << endmsg);
+         << endreq);
    }
 
    raw_energy = raw_energy * 1e-3;
@@ -192,16 +191,16 @@ void CaloSwDeadOTX_ps::makeTheCorrection
    double p2 = frslope[1]  + frslope[2]  * raw_energy + frslope[3]  * raw_energy * raw_energy ; 
    double p3 = sec[1]      + sec[2]      * raw_energy + sec[3]      * raw_energy * raw_energy ; 
 
-   ATH_MSG_DEBUG( "p1 " << froffset[1] << " " << froffset[2] << " " << froffset[3] << endmsg); 
-   ATH_MSG_DEBUG( "p2 " << frslope[1] << " " << frslope[2] << " " << frslope[3] << endmsg); 
-   ATH_MSG_DEBUG( "p3 " << sec[1] << " " << sec[2] << " " << sec[3] << endmsg); 
+   ATH_MSG_DEBUG( "p1 " << froffset[1] << " " << froffset[2] << " " << froffset[3] << endreq); 
+   ATH_MSG_DEBUG( "p2 " << frslope[1] << " " << frslope[2] << " " << frslope[3] << endreq); 
+   ATH_MSG_DEBUG( "p3 " << sec[1] << " " << sec[2] << " " << sec[3] << endreq); 
   
    double e_front_reco= (p1 + p2 * shower_lbary + p3 * shower_lbary * shower_lbary); 
 
 // If something goes wrong keep the old energy
    if (e_front_reco<0.) {
        e_front_reco= enePSold; 
-       ATH_MSG_DEBUG( "CaloSwDeadOTX_ps:: new E front is negative, no correction!" << endmsg); 
+       ATH_MSG_DEBUG( "CaloSwDeadOTX_ps:: new E front is negative, no correction!" << endreq); 
    }
 // -------------------------------------------------------------
 // Now set the energies of the cluster  
@@ -212,16 +211,16 @@ void CaloSwDeadOTX_ps::makeTheCorrection
    
 // take the cluster energy, subtract the old PS energy and add the new one
  
-   ATH_MSG_DEBUG( "CaloSwDeadOTX_ps:: cluster energy before correction --> " <<  cluster->e() << endmsg);
-   ATH_MSG_DEBUG( "CaloSwDeadOTX_ps:: subtracting PS energy --> " << enePSold << endmsg);
-   ATH_MSG_DEBUG( "CaloSwDeadOTX_ps:: adding new PS energy -->> " <<  e_front_reco << endmsg);
+   ATH_MSG_DEBUG( "CaloSwDeadOTX_ps:: cluster energy before correction --> " <<  cluster->e() << endreq);
+   ATH_MSG_DEBUG( "CaloSwDeadOTX_ps:: subtracting PS energy --> " << enePSold << endreq);
+   ATH_MSG_DEBUG( "CaloSwDeadOTX_ps:: adding new PS energy -->> " <<  e_front_reco << endreq);
                       
    float e_temp = cluster->e() - enePSold + e_front_reco ; 
 
 // set the energy of the cluster
    cluster->setE (e_temp); 
  
-   ATH_MSG_DEBUG( "CaloSwDeadOTX_ps::Energy after  correction --> " <<  cluster->e() << endmsg); 
+   ATH_MSG_DEBUG( "CaloSwDeadOTX_ps::Energy after  correction --> " <<  cluster->e() << endreq); 
 
 }
 

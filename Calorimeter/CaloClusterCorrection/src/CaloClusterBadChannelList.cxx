@@ -13,7 +13,7 @@ PURPOSE: Fill bad channels in cluster
 
 ********************************************************************/
 // include header files
-#include "CaloClusterBadChannelList.h"
+#include "CaloClusterCorrection/CaloClusterBadChannelList.h"
 
 #include "AthenaKernel/errorcheck.h"
 #include "CaloEvent/CaloClusterBadChannelData.h"
@@ -39,9 +39,8 @@ StatusCode CaloClusterBadChannelList::initialize()
 }
 
 
-void CaloClusterBadChannelList::makeCorrection(const EventContext& /*ctx*/,
-                                               CaloCluster* cluster) const
-{
+void CaloClusterBadChannelList::makeCorrection(CaloCluster* cluster) {
+
   xAOD::CaloClusterBadChannelList badChanList;
 
   CaloCluster::cell_iterator cellIter    = cluster->cell_begin();

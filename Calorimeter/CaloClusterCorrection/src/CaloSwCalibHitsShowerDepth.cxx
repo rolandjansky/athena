@@ -68,7 +68,7 @@ double CaloSwCalibHitsShowerDepth::depth (float aeta,
   else
     return 0;
 
-  static const CaloSampling::CaloSample samps[2][4] = {
+  static CaloSampling::CaloSample samps[2][4] = {
     { CaloSampling::PreSamplerB,
       CaloSampling::EMB1,
       CaloSampling::EMB2,
@@ -92,7 +92,7 @@ double CaloSwCalibHitsShowerDepth::depth (float aeta,
 
   double depth = rsum / esum;
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Shower barycenter ---->> " << depth << endmsg;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Shower barycenter ---->> " << depth << endreq;
 
   return depth;
 }

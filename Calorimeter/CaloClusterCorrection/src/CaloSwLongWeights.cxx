@@ -19,7 +19,7 @@ PURPOSE:  Optimization correction for the weights in the
           Uses ToolWithConstants to get corrections constants
 
 ********************************************************************/
-#include "CaloSwLongWeights.h"
+#include "CaloClusterCorrection/CaloSwLongWeights.h"
 #include "CaloClusterCorrection/interpolate.h"
 
 
@@ -46,7 +46,6 @@ CaloSwLongWeights::CaloSwLongWeights(const std::string& type,
  
 /**
  * @brief Virtual function for the correction-specific code.
- * @param ctx     The event context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -65,8 +64,7 @@ CaloSwLongWeights::CaloSwLongWeights(const std::string& type,
  *                the calorimeter region and sampling encoded.
  */
 void CaloSwLongWeights::makeTheCorrection
-  (const EventContext& /*ctx*/,
-   CaloCluster* cluster,
+  (CaloCluster* cluster,
    const CaloDetDescrElement* /*elt*/,
    float eta,
    float adj_eta,

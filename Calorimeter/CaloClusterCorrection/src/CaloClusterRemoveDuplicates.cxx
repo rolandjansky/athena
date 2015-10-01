@@ -3,14 +3,14 @@
 */
 
 // include header files
-#include "CaloClusterRemoveDuplicates.h"
+#include "CaloClusterCorrection/CaloClusterRemoveDuplicates.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "GaudiKernel/MsgStream.h"
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
 /********************************************************************
 
@@ -40,17 +40,15 @@ CaloClusterRemoveDuplicates::CaloClusterRemoveDuplicates(const std::string& type
   declareProperty ("order",    m_order = 0);
 }
 
-StatusCode
-CaloClusterRemoveDuplicates::execute(const EventContext& /*ctx*/,
-                                     xAOD::CaloClusterContainer*  clusColl) const
+StatusCode CaloClusterRemoveDuplicates::execute(xAOD::CaloClusterContainer*  clusColl)
 {
   
-  ATH_MSG_DEBUG( "Executing CaloClusterRemoveDuplicates" << endmsg); 
+  ATH_MSG_DEBUG( "Executing CaloClusterRemoveDuplicates" << endreq); 
   
   typedef xAOD::CaloClusterContainer::iterator clus_iterator;
   clus_iterator iter1 = clusColl->begin();
     
-  ATH_MSG_DEBUG( "Collection has before dup rem size: " << clusColl->size() << endmsg);
+  ATH_MSG_DEBUG( "Collection has before dup rem size: " << clusColl->size() << endreq);
   for( ;iter1!=clusColl->end(); ) {
     int comparison = 0;
     
@@ -83,14 +81,13 @@ CaloClusterRemoveDuplicates::execute(const EventContext& /*ctx*/,
       iter1++;
     }
   } 
-  ATH_MSG_DEBUG( "Collection has after dup rem size: " << clusColl->size() << endmsg);
+  ATH_MSG_DEBUG( "Collection has after dup rem size: " << clusColl->size() << endreq);
 
   return StatusCode::SUCCESS;
 }
 
 
-int CaloClusterRemoveDuplicates::compare( xAOD::CaloCluster* clus1 ,
-                                          xAOD::CaloCluster* clus2 ) const
+int CaloClusterRemoveDuplicates::compare( xAOD::CaloCluster* clus1 , xAOD::CaloCluster* clus2 )
 {
   
   double deta = fabs ( clus1->eta() - clus2->eta() );

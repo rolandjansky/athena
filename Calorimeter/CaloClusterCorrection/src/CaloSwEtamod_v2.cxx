@@ -33,7 +33,7 @@
  */
 
 
-#include "CaloSwEtamod_v2.h"
+#include "CaloClusterCorrection/CaloSwEtamod_v2.h"
 #include "CaloClusterCorrection/interpolate.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include <cmath>
@@ -65,7 +65,6 @@ CaloSwEtamod_v2::CaloSwEtamod_v2 (const std::string& type,
 
 /**
  * @brief Virtual function for the correction-specific code.
- * @param ctx     The event context.
  * @param cluster The cluster to correct.
  *                It is updated in place.
  * @param elt     The detector description element corresponding
@@ -83,8 +82,7 @@ CaloSwEtamod_v2::CaloSwEtamod_v2 (const std::string& type,
  *                @c CaloSampling::CaloSample; i.e., it has both
  *                the calorimeter region and sampling encoded.
  */
-void CaloSwEtamod_v2::makeTheCorrection (const EventContext& /*ctx*/,
-                                         CaloCluster* cluster,
+void CaloSwEtamod_v2::makeTheCorrection (CaloCluster* cluster,
                                          const CaloDetDescrElement* elt,
                                          float eta,
                                          float adj_eta,

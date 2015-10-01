@@ -13,7 +13,7 @@ CREATED:  Jan 25, 2006
 PURPOSE:  corrects for the parabolic behavior in the E vs Phi curve
 
 ********************************************************************/
-#include "CaloPhiParabola.h"
+#include "CaloClusterCorrection/CaloPhiParabola.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloClusterCorrection/interpolate.h"
 #include "CLHEP/Units/PhysicalConstants.h"
@@ -34,8 +34,7 @@ CaloPhiParabola::CaloPhiParabola (const std::string& type,
 }
 
 
-void CaloPhiParabola::makeTheCorrection (const EventContext& /*ctx*/,
-                                         CaloCluster* cluster,
+void CaloPhiParabola::makeTheCorrection (CaloCluster* cluster,
                                          const CaloDetDescrElement* /*elt*/,
                                          float /*eta*/,
                                          float /*adj_eta*/,

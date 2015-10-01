@@ -55,13 +55,13 @@ class CaloClusterCorrection
 
  public:
   // Destructor 
-  virtual ~CaloClusterCorrection() override;
+  virtual ~CaloClusterCorrection();
 
 
   /**
    * @brief Standard initialization method.
    */
-  virtual StatusCode initialize() override;
+  virtual StatusCode initialize();
 
 
   using CaloClusterProcessor::setProperty;
@@ -73,7 +73,7 @@ class CaloClusterCorrection
    * Defined here as required by @c ToolWithConstantsMixin.
    */
   virtual StatusCode setProperty (const std::string& propname,
-                                  const std::string& value) override;
+                                  const std::string& value);
 
   /**
    * @brief Method to set a property value.
@@ -81,7 +81,7 @@ class CaloClusterCorrection
    *
    * Defined here as required by @c ToolWithConstantsMixin.
    */
-  virtual StatusCode setProperty (const Property& p) override;
+  virtual StatusCode setProperty (const Property& p);
 
 
   // modifying CaloCluster object 
@@ -89,19 +89,17 @@ class CaloClusterCorrection
                          CaloSampling::CaloSample sampling,
 			 float em, float etam, float phim, 
 			 float emax, float etamax, float phimax, 
-			 float etas, float phis) const;
+			 float etas, float phis);
 
   // set energy of cluster.  if samplings=true, rescale the energy
   // in each sampling accordingly.  default is to do the rescaling.
   virtual void setenergy(xAOD::CaloCluster* cluster, float energy) const;
 
   // derived class implement the real correction.
-  virtual void makeCorrection(const EventContext& ctx,
-                              xAOD::CaloCluster*) const = 0;
+  virtual void makeCorrection(xAOD::CaloCluster*)=0 ;
 
   using CaloClusterProcessor::execute;
-  StatusCode execute(const EventContext& ctx,
-                     xAOD::CaloCluster* cluster) const override;
+  StatusCode execute(xAOD::CaloCluster* cluster);
 
  protected:
   /**

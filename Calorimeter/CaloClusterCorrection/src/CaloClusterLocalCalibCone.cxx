@@ -19,7 +19,7 @@
 //-----------------------
 // This Class's Header --
 //-----------------------
-#include "CaloClusterLocalCalibCone.h"
+#include "CaloClusterCorrection/CaloClusterLocalCalibCone.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -87,7 +87,7 @@ StatusCode CaloClusterLocalCalibCone::initialize()
   StatusCode sc = service("GeoModelSvc", geoModel);
   if(sc.isFailure())
   {
-    msg (MSG::ERROR)  << "Could not locate GeoModelSvc" << endmsg;
+    msg (MSG::ERROR)  << "Could not locate GeoModelSvc" << endreq;
     return sc;
   }
 
@@ -106,7 +106,7 @@ StatusCode CaloClusterLocalCalibCone::initialize()
 			  &CaloClusterLocalCalibCone::geoInit,this);
     if(sc.isFailure())
     {
-      msg( MSG::ERROR )<< "Could not register geoInit callback" << endmsg;
+      msg( MSG::ERROR )<< "Could not register geoInit callback" << endreq;
       return sc;
     }
   }
@@ -117,7 +117,7 @@ StatusCode
 CaloClusterLocalCalibCone::geoInit(IOVSVC_CALLBACK_ARGS)
 {
 
-  msg(MSG::INFO) << "Initializing " << name() << endmsg;
+  msg(MSG::INFO) << "Initializing " << name() << endreq;
 
 
   // pointer to detector manager:
@@ -131,7 +131,7 @@ CaloClusterLocalCalibCone::geoInit(IOVSVC_CALLBACK_ARGS)
   if (sc.isFailure()) {
     msg(MSG::FATAL)
 	<< " Tool Service not found "
-	<< endmsg;
+	<< endreq;
     return StatusCode::FAILURE;
   }
    
@@ -141,7 +141,7 @@ CaloClusterLocalCalibCone::geoInit(IOVSVC_CALLBACK_ARGS)
   if (sc.isFailure()) {
     msg(MSG::INFO)
 	<< "Unable to find noise tool" 
-	<< endmsg;
+	<< endreq;
   }  
    
   m_noiseTool=dynamic_cast<ICalorimeterNoiseTool*>(algtool); 
@@ -151,19 +151,19 @@ CaloClusterLocalCalibCone::geoInit(IOVSVC_CALLBACK_ARGS)
     m_coneSchema = Angle;
     msg( MSG::INFO)
         << "Angle schema with Delta Angle = " << m_coneDistance << " is set!"
-	<< endmsg;
+	<< endreq;
   }
   else if ( m_coneSchemaName == "DeltaR" ) {
     m_coneSchema = DeltaR;
     msg( MSG::INFO) 
         << "DeltaR schema with Delta R = " << m_coneDistance << " is set!"
-	<< endmsg;
+	<< endreq;
   }
   else {
     msg(MSG::ERROR)
         << "Unknown cone schema <" << m_coneSchemaName << "> selected. "
 	<< "Please specify Angle or DeltaR and try again!"
-	<< endmsg;
+	<< endreq;
     return StatusCode::FAILURE;
   }
 
@@ -172,42 +172,42 @@ CaloClusterLocalCalibCone::geoInit(IOVSVC_CALLBACK_ARGS)
     msg(  MSG::ERROR )
         << "You need to specify name of the file holding the data "
 	<< "with the property HadWeightFileName in order to use this tool!"
-	<< endmsg;
+	<< endreq;
     return StatusCode::FAILURE;
   }
   if ( m_etaBins.size() <= 1 ) {
     msg( MSG::ERROR)
         << "You need to specify the |eta| bins with the property "
 	<< "EtaBins in order to use this tool!"
-	<< endmsg;
+	<< endreq;
     return StatusCode::FAILURE;
   }
   if ( m_caloIndices.size() == 0 ) {
     msg(MSG::ERROR)
         << "You need to specify the calorimeter indices with the property "
 	<< "CaloIndices in order to use this tool!"
-	<< endmsg;
+	<< endreq;
     return StatusCode::FAILURE;
   }
   if ( m_samplingIndices.size() == 0 ) {
     msg(MSG::ERROR)
         << "You need to specify the sampling indices with the property "
 	<< "SamplingIndices in order to use this tool!"
-	<< endmsg;
+	<< endreq;
     return StatusCode::FAILURE;
   }
   if ( m_caloIndices.size() != m_samplingIndices.size() ) {
     msg(MSG::ERROR)
         << "You need to specify the same number of entries with the properties "
 	<< "CaloIndices and SamplingIndices in order to use this tool!"
-	<< endmsg;
+	<< endreq;
     return StatusCode::FAILURE;
   }
   sc = initDataFromFile(m_hadWeightFileName);
   if ( sc.isFailure() ) {
     msg(MSG::ERROR)
         << "Unable to initialize hadronic weights from file <" 
-	<< m_hadWeightFileName << ">" << endmsg;
+	<< m_hadWeightFileName << ">" << endreq;
   }
 
   return sc;
@@ -218,7 +218,7 @@ StatusCode CaloClusterLocalCalibCone::initDataFromFile(std::string hadWeightFile
   
   // Find the full path to filename:
   std::string file = PathResolver::find_file (hadWeightFileName, "DATAPATH");
-  msg(MSG::INFO) << "Reading file  " << file << endmsg;
+  msg(MSG::INFO) << "Reading file  " << file << endreq;
   m_hadWeightFile = new TFile(file.c_str());
   if ( !m_hadWeightFile ) {
     return StatusCode::FAILURE;
@@ -244,9 +244,7 @@ StatusCode CaloClusterLocalCalibCone::initDataFromFile(std::string hadWeightFile
   return StatusCode::SUCCESS;
 }
 
-StatusCode
-CaloClusterLocalCalibCone::execute(const EventContext& /*ctx*/,
-                                   xAOD::CaloClusterContainer*  clusColl) const
+StatusCode CaloClusterLocalCalibCone::execute(xAOD::CaloClusterContainer*  clusColl)
 {
   // make jets
   std::vector<TLorentzVector *> jets;
@@ -280,7 +278,7 @@ CaloClusterLocalCalibCone::execute(const EventContext& /*ctx*/,
 	      << "/" << jets[ijet]->Eta()
 	      << "/" << jets[ijet]->Phi()
 	      << "/" << jets[ijet]->M()
-	      << endmsg);
+	      << endreq);
 	}
 	break;
       }
@@ -300,7 +298,7 @@ CaloClusterLocalCalibCone::execute(const EventContext& /*ctx*/,
 	  << "/" << theJet->Eta()
 	  << "/" << theJet->Phi()
 	  << "/" << theJet->M()
-	  << endmsg);
+	  << endreq);
     }
   }
   clusIter = clusColl->begin();
@@ -367,7 +365,7 @@ CaloClusterLocalCalibCone::execute(const EventContext& /*ctx*/,
 		      << "/" << thisJet->Phi()
 		      << "/" << thisJet->M()
 		      << " weighted with w = " << weight
-		      << endmsg);
+		      << endreq);
 		}
 	      }
 	    }//end if density >0

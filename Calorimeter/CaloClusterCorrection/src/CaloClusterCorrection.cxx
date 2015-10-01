@@ -40,7 +40,6 @@ Updated:  February, 2006 (DLelas)
 #include "CaloClusterCorrection/CaloClusterCorrection.h"
 #include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ThreadLocalContext.h"
 
 using xAOD::CaloCluster;
 
@@ -112,21 +111,20 @@ CaloClusterCorrection::setProperty (const Property& p)
 }
 
 
-StatusCode CaloClusterCorrection::execute(const EventContext& /*ctx*/,
-                                          CaloCluster *cluster) const
+StatusCode CaloClusterCorrection::execute(CaloCluster *cluster)
 {
-  this->makeCorrection(Gaudi::Hive::currentContext(), cluster);
+  this->makeCorrection(cluster);
 
 #if 0
-  ATH_MSG_DEBUG( " ...... e, et " << cluster->e() << " " << cluster->et() << endmsg);
+  ATH_MSG_DEBUG( " ...... e, et " << cluster->e() << " " << cluster->et() << endreq);
   ATH_MSG_DEBUG( " ...... eta, etaBE, etaSmp " << cluster->eta() << " " << cluster->etaBE(2) 
       << " " << cluster->etaSample(CaloSampling::EMB1) 
       << " " << cluster->etaSample(CaloSampling::EMB2) 
-      << " " << cluster->etaSample(CaloSampling::EMB3) << endmsg);
+      << " " << cluster->etaSample(CaloSampling::EMB3) << endreq);
   ATH_MSG_DEBUG( " ...... phi, phiBE, phiSmp " << cluster->phi() << " " << cluster->phiBE(2) 
       << " " << cluster->phiSample(CaloSampling::EMB1) 
       << " " << cluster->phiSample(CaloSampling::EMB2) 
-      << " " << cluster->phiSample(CaloSampling::EMB3) << endmsg);
+      << " " << cluster->phiSample(CaloSampling::EMB3) << endreq);
 #endif
   
   return StatusCode::SUCCESS;
@@ -137,7 +135,7 @@ void CaloClusterCorrection::setsample(CaloCluster* cluster,
 				      CaloCluster::CaloSample sampling,
 				      float em, float etam, float phim, 
 				      float emax, float etamax, float phimax, 
-				      float etas, float phis) const
+				      float etas, float phis)
 {
   cluster->setEnergy(sampling, em);
   cluster->setEta(sampling, etam);

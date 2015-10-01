@@ -22,7 +22,7 @@ PURPOSE:  - Compute simple cell weights for Sliding Window
 *********************************************************************/
 
 // include header files
-#include "CaloComputeSWcellWeights.h"
+#include "CaloClusterCorrection/CaloComputeSWcellWeights.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloClusterContainer.h"
 //#include "CaloDetDescr/CaloDetDescrElement.h"
@@ -44,13 +44,11 @@ CaloComputeSWcellWeights::CaloComputeSWcellWeights(const std::string& type,
 }
 
 // Make Corrections for SW cell weights 
-StatusCode
-CaloComputeSWcellWeights::execute(const EventContext& /*ctx*/,
-                                  xAOD::CaloClusterContainer*  clusColl) const
+StatusCode CaloComputeSWcellWeights::execute(xAOD::CaloClusterContainer*  clusColl)
 {
  
 
-  ATH_MSG_DEBUG( "Executing CaloComputeSWcellWeights" << endmsg) ; 
+  ATH_MSG_DEBUG( "Executing CaloComputeSWcellWeights" << endreq) ; 
   
   std::map<IdentifierHash,double> WeightMap; //FIXME: use a vector!
 

@@ -24,7 +24,7 @@ Updated:  June, 2004    (sss)
           Use ToolWithConstants to get correction constants.
 ********************************************************************/
 
-#include "CaloSwGap_g3.h"
+#include "CaloClusterCorrection/CaloSwGap_g3.h"
                    
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -51,7 +51,8 @@ const double dphi = twopi / 64. ;
 CaloSwGap_g3::CaloSwGap_g3(const std::string& type,
                            const std::string& name,
                            const IInterface* parent)
-  : CaloClusterCorrection(type, name, parent)
+  : CaloClusterCorrection(type, name, parent),
+    m_sg ("StoreGateSvc", name)
 {
   declareConstant ("etamin_crack", m_etamin_crack);
   declareConstant ("etamax_crack", m_etamax_crack);
@@ -59,25 +60,13 @@ CaloSwGap_g3::CaloSwGap_g3(const std::string& type,
   declareConstant ("correction",   m_correction);
 
   declareProperty ("cells_name",   m_cells_name = "AllCalo");
+  declareProperty ("event_store",  m_sg);
 }
 
 CaloSwGap_g3::~CaloSwGap_g3()
 { }
 
-
-/**
- * @brief Standard Gaudi initialize method.
- */
-StatusCode CaloSwGap_g3::initialize()
-{
-  ATH_CHECK( CaloClusterCorrection::initialize() );
-  ATH_CHECK( m_cells_name.initialize() );
-  return StatusCode::SUCCESS;
-}
-
-
-void CaloSwGap_g3::makeCorrection(const EventContext& ctx,
-                                  CaloCluster* cluster) const
+void CaloSwGap_g3::makeCorrection(CaloCluster* cluster)
 {
   assert (m_scint_weight.size() == m_correction.size());
   if (m_correction.size() == 0) return;
@@ -90,10 +79,12 @@ void CaloSwGap_g3::makeCorrection(const EventContext& ctx,
   if (aeta < m_etamin_crack || aeta > m_etamax_crack) 
     return; // no correction required
 
-  SG::ReadHandle<CaloCellContainer> cc (m_cells_name, ctx);
+  // retrieve Tile Cell container
+  const CaloCellContainer* cc;
+  StatusCode sc = m_sg->retrieve(cc, m_cells_name);
 
   double eh_scint = 0;
-  if(cc.isValid())
+  if(StatusCode::SUCCESS==sc)
   {
     CaloCellContainer::const_iterator f_cell =
       cc->beginConstCalo(CaloCell_ID::TILE);
@@ -122,17 +113,17 @@ void CaloSwGap_g3::makeCorrection(const EventContext& ctx,
 
   // make the correction
   double granularity = (m_etamax_crack - m_etamin_crack)/m_correction.size();  
-  int ind = static_cast<int> ((aeta - m_etamin_crack)/granularity);
+  int m_ind = static_cast<int> ((aeta - m_etamin_crack)/granularity);
 
 // Scintillator energy calibration
-  eh_scint = eh_scint * m_scint_weight[ind];
+  eh_scint = eh_scint * m_scint_weight[m_ind];
  
 //Correct for normalization factor total cluster energy and samplings energies 
-  double energy = (cluster->e())*m_correction[ind];
+  double energy = (cluster->e())*m_correction[m_ind];
   setenergy(cluster,energy);
 
 // Add the scintillator energy to the cluster and correct the total energy
-  energy += eh_scint * m_correction[ind]; 
+  energy += eh_scint * m_correction[m_ind]; 
   cluster->setE(energy);  
 }
 
