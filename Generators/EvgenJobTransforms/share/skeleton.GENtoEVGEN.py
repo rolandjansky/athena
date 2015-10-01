@@ -120,11 +120,7 @@ if not hasattr(postSeq, "CopyEventWeight"):
 # TODO: Rewrite in Python?
 from EvgenProdTools.EvgenProdToolsConf import CountHepMC
 svcMgr.EventSelector.FirstEvent = runArgs.firstEvent
-
-# This is necessary for athenaMP
-if hasattr(runArgs, "maxEvents"):
-  theApp.EvtMax = runArgs.maxEvents
-
+theApp.EvtMax = -1
 if not hasattr(postSeq, "CountHepMC"):
     postSeq += CountHepMC()
 #postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1 else runArgs.maxEvents
@@ -143,11 +139,6 @@ if hasattr(runArgs, "printEvts") and runArgs.printEvts > 0:
     postSeq.PrintMC.PrintStyle = "Barcode"
     postSeq.PrintMC.FirstEvent = 1
     postSeq.PrintMC.LastEvent  = runArgs.printEvts
-
-## Estimate time needed for Simulation
-from EvgenProdTools.EvgenProdToolsConf import SimTimeEstimate
-if not hasattr(postSeq, "SimTimeEstimate"):
-    postSeq += SimTimeEstimate()
 
 ## Add Rivet_i to the job
 # TODO: implement auto-setup of analyses triggered on evgenConfig.keywords (from T Balestri)
@@ -210,8 +201,7 @@ if joparts[0].startswith("MC") and all(c in string.digits for c in joparts[0][2:
         if runArgs.runNumber != jo_dsidpart:
             raise Exception()
     except:
-        evgenLog.error("Expected dataset ID part of JO name to be '%s', but found '%s'" % 
-(str(runArgs.runNumber), jo_dsidpart))
+        evgenLog.error("Expected dataset ID part of JO name to be '%s', but found '%s'" % (str(runArgs.runNumber), jo_dsidpart))
         sys.exit(1)
     ## Check the length limit on the physicsShort portion of the filename
     jo_physshortpart = joparts[2]
@@ -254,22 +244,21 @@ gennames = sorted(evgenConfig.generators, key=gen_sortkey)
 ## Check that the actual generators, tune, and main PDF are consistent with the JO name
 if joparts[0].startswith("MC"): #< if this is an "official" JO
     genpart = jo_physshortparts[0]
-#    genpart = genpart.replace("Py8", "Pythia8").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp",Herwigpp").replace("H7",Herwig7").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("Py","Pythia").replace("EG","EvtGen").replace("PG","ParticleGun")
+#    genpart = genpart.replace("Py8", "Pythia8").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp",Herwigpp").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("Py","Pythia").replace("EG","EvtGen").replace("PG","ParticleGun")
     expectedgenpart = ''.join(gennames)
     ## We want to record that HERWIG was used in metadata, but in the JO naming we just use a "Herwig" label
     expectedgenpart = expectedgenpart.replace("HerwigJimmy", "Herwig")
     def _norm(s):
         # TODO: add EvtGen to this normalization for MC14?
-        return s.replace("Photospp", "").replace("Photos", "").replace("Tauola", "").replace("Tauolapp", "").replace("TauolaPP", "")
+        return s.replace("Photospp", "").replace("Photos", "").replace("Tauola", "")
     def _norm2(s):
-        return s.replace("Py", "Pythia").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp","Herwigpp").replace("H7","Herwig7").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("EG","EvtGen").replace("PG","ParticleGun")
+        return s.replace("Py", "Pythia").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp","Herwigpp").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("EG","EvtGen").replace("PG","ParticleGun")
         
     def _short2(s):
-         return s.replace("Pythia","Py").replace("MadGraph","MG").replace("Powheg","Ph").replace("Herwigpp","Hpp").replace("Herwig7","H7").replace("Sherpa","Sh").replace("Alpgen","Ag").replace("EvtGen","EG").replace("PG","ParticleGun")
+         return s.replace("Pythia","Py").replace("MadGraph","MG").replace("Powheg","Ph").replace("Herwigpp","Hpp").replace("Sherpa","Sh").replace("Alpgen","Ag").replace("EvtGen","EG").replace("PG","ParticleGun")
      
     if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart) and _norm2(genpart) != expectedgenpart and _norm2(genpart) != _norm(expectedgenpart):
         evgenLog.error("Expected first part of JO name to be '%s' or '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, _short2(expectedgenpart), genpart))
-        evgenLog.error("gennames '%s' " %(expectedgenpart))
         sys.exit(1)
     del _norm
     ## Check if the tune/PDF part is needed, and if so whether it's present
@@ -319,12 +308,12 @@ if evgenConfig.keywords:
     if kwpath:
         kwf = open(kwpath, "r")
         for l in kwf:
-            allowed_keywords += l.strip().lower().split()
+            allowed_keywords += l.strip().split()
         #allowed_keywords.sort()
         ## Check the JO keywords against the allowed ones
         evil_keywords = []
         for k in evgenConfig.keywords:
-            if k.lower() not in allowed_keywords:
+            if k not in allowed_keywords:
                 evil_keywords.append(k)
         if evil_keywords:
             msg = "evgenConfig.keywords contains non-standard keywords: %s. " % ", ".join(evil_keywords)
@@ -381,7 +370,6 @@ svcMgr.TagInfoMgr.ExtraTagValuePairs += ["evgenProcess", evgenConfig.process]
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["evgenTune", evgenConfig.tune]
 if hasattr( evgenConfig, "hardPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs += ["hardPDF", evgenConfig.hardPDF]
 if hasattr( evgenConfig, "softPDF" ) : svcMgr.TagInfoMgr.ExtraTagValuePairs += ["softPDF", evgenConfig.softPDF]
-if hasattr( runArgs, "randomSeed") :  svcMgr.TagInfoMgr.ExtraTagValuePairs += ["randomSeed", str(runArgs.randomSeed)]
 
 ## Handle beam info
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["beam_energy", str(int(runArgs.ecmEnergy*Units.GeV/2.0))]
@@ -548,17 +536,12 @@ if _checkattr("hardPDF"):
 if _checkattr("softPDF"):
     print "MetaData: %s = %s" % ("softPDF", evgenConfig.softPDF)
 if _checkattr("keywords"):
-    print "MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower())      
+    print "MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower())
 if _checkattr("specialConfig"):
    print "MetaData: %s = %s" % ("specialConfig", evgenConfig.specialConfig)
 # TODO: Require that a contact / JO author is always set
 if _checkattr("contact"):
     print "MetaData: %s = %s" % ("contactPhysicist", ", ".join(evgenConfig.contact))
-#if _checkattr( "randomSeed") :
-print "MetaData: %s = %s" % ("randomSeed", str(runArgs.randomSeed))
- 
-    
-    
 
 # Output list of generator filters used
 filterNames = [alg.getType() for alg in acas.iter_algseq(filtSeq)]

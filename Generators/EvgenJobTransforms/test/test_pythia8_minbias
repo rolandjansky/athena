@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+xe#! /usr/bin/env bash
 
 ## Any arguments are considered overrides, and will be added at the end
 export TRF_ECHO=True;
