@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJet_v2.h 632784 2014-12-01 17:45:25Z janus $
+// $Id: TauJet_v2.h 665021 2015-05-05 15:52:38Z janus $
 #ifndef XAODTAU_VERSIONS_TAUJET_V2_H
 #define XAODTAU_VERSIONS_TAUJET_V2_H
 
@@ -441,11 +441,6 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up a CLID for the class:
-#ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TauJet_v2, 23821073, 1 )
-#endif // not XAOD_STANDALONE
 
 // Declare IParticle as a base class of TauJet_v2:
 #include "AthContainers/DataVector.h"

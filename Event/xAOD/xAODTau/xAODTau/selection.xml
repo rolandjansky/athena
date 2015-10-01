@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 632166 2014-11-29 15:06:03Z krasznaa $ -->
+<!-- $Id: selection.xml 694851 2015-09-15 08:35:27Z dkirchme $ -->
 <lcgdict>
 
   <!-- TauJet_v1 dictionaries: -->
@@ -58,6 +58,36 @@
   <read sourceClass="ElementLink<xAOD::TauJetContainer_v1>" version="[1-]"
         targetClass="ElementLink<xAOD::TauJetContainer_v2>"
         source="" target="" />
+
+
+  <!-- DiTauJet_v1 dictionaries: -->
+  <class name="xAOD::DiTauJet_v1" >
+   <field name="m_p4" transient="true" />
+   <field name="m_p4Cached" transient="true" />
+  </class>
+  <read sourceClass="xAOD::DiTauJet_v1" version="[1-]"
+       targetClass="xAOD::DiTauJet_v1" source="" target="m_p4Cached" >
+   <![CDATA[
+      m_p4Cached = false;
+   ]]>
+  </read>
+
+  <class name="xAOD::DiTauJetContainer_v1"
+        id="0AD18017-0347-4F89-976E-6DA3149DA622" />
+  <class name="xAOD::DiTauJetAuxContainer_v1"
+        id="52A49486-FE88-4448-87E0-5878B69975D1" />
+
+  <class name="DataLink<xAOD::DiTauJetContainer_v1>" />
+  <class name="std::vector<DataLink<xAOD::DiTauJetContainer_v1> >" />
+
+  <class name="ElementLink<xAOD::DiTauJetContainer_v1>" />
+  <class name="std::vector<ElementLink<xAOD::DiTauJetContainer_v1> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::DiTauJetContainer_v1> > >" />
+
+
+  <!--Add the DiTauJetParameter enums -->
+  <enum pattern="xAOD::DiTauJetParameters::*"/>
+  <variable pattern="xAOD::DiTauJetParameters::*"/>
 
   <!--Add Helper Functions -->
   <function pattern="xAOD::TauHelpers::*" />

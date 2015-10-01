@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJetAuxContainer.h 631748 2014-11-28 09:58:13Z janus $
+// $Id: TauJetAuxContainer.h 653631 2015-03-12 13:40:02Z janus $
 #ifndef XAODTAU_TAUJETAUXCONTAINER_H
 #define XAODTAU_TAUJETAUXCONTAINER_H
 
@@ -24,7 +24,7 @@ namespace xAOD {
 
 // Set up a CLID and StoreGate inheritance for the class:
 #ifndef XAOD_STANDALONE
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::TauJetAuxContainer, 1307768555 , 1 )
 #endif // not XAOD_STANDALONE
 
