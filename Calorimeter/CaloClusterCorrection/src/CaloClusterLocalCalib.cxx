@@ -50,7 +50,7 @@ StatusCode  CaloClusterLocalCalib::initialize() {
   }
 
   //Retrieve calibration tools
-  for (auto tool : m_calibTools) {
+  for (ToolHandle<IClusterCellWeightTool>& tool : m_calibTools) {
     if(tool.retrieve().isFailure()) {
       msg(MSG::ERROR) << "Failed to retrieve calibration tool " << m_classificationTool << endreq;
       return StatusCode::FAILURE;
@@ -142,7 +142,7 @@ StatusCode  CaloClusterLocalCalib::execute(CaloCluster* theCluster) {
         myCluster->insertMoment(xAOD::CaloCluster::ISOLATION,isolation);
         
 //         Weight the new cluster
-        for (auto tool : m_calibTools) { 
+        for (ToolHandle<IClusterCellWeightTool>& tool : m_calibTools) {
           if (tool->weight(myCluster).isFailure())
             msg(MSG::ERROR) << " failed to weight cluster " << endreq;
         }
@@ -194,7 +194,7 @@ StatusCode  CaloClusterLocalCalib::execute(CaloCluster* theCluster) {
 //    else, what as was always done     
       else{ 
         
-        for (auto tool : m_calibTools) {  
+        for (ToolHandle<IClusterCellWeightTool>& tool : m_calibTools) {
           if (tool->weight(theCluster).isFailure())
             msg(MSG::ERROR) << " failed to weight cluster " << endreq;
         }       
