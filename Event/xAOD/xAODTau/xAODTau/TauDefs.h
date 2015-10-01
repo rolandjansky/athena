@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauDefs.h 784645 2016-11-16 16:36:25Z griffith $
+// $Id: TauDefs.h 688432 2015-08-10 14:15:53Z lhauswal $
 #ifndef XAODTAU_TAUDEFS_H
 #define XAODTAU_TAUDEFS_H
 
@@ -41,53 +41,62 @@ namespace TauJetParameters
     //-------------------------------------------------------------------------
 
     //-------------------------------------------------------------------------
+    //! Enum for author of TauJet.
+    //-------------------------------------------------------------------------
+    enum Author
+    {
+        unknown = 0,
+        tauRec  = 1,
+        tau1P3P = 2,
+        PanTau  = 3
+    };
+
+    //-------------------------------------------------------------------------
     //! Enum for discriminants
     //-------------------------------------------------------------------------
     enum TauID
-      {
-	//!
-	// = 0,
-        //! Likelihood of matched electron (PassEleOLR)
-	EleMatchLikelihoodScore = 1, 
-        //! needed by TauJet_v1/2
-        Likelihood = 2, //deprecated
-        //!
-        // = 3,
-        //!
-        // = 4,
-        //!
-        // = 5,
-        //! 
-        // = 6,
-        //!
-        // = 7,
-        //!
-        // = 8,
-        //!
-        // = 9,
-        //!
-        // = 10,
-        //!
-        // = 11,
-        //!
-        // = 12,
-        //!
-        // = 13,
-        //!
-        // = 14,
+    {
+        //! discriminant for NN (used by tau1p3p)
+        //DiscNN                = 1, 
+        //! discriminant for LL (used by tauRec)
+        Likelihood            = 2, //deprecated
+        //! discriminant for PDRS (used by tau1p3p)
+        //DiscPDERS             = 3,
+        //! discriminant for jet-tau separation LL (used by tauRec) 
+        //TauJetLikelihoodOld   = 4,
+        //! old discriminant for electron-tau separation LL (used by tauRec)
+        //TauElLikelihoodOld    = 5,
+        //! discriminant for NN (used by tauRec)
+        //TauJetNeuralNetwork   = 6,
+        //! discriminant for NN electron-tau separation (used by tauRec)   
+        //TauENeuralNetwork     = 7,
+        //! discriminant for flat acceptance NN (used by tau1p3p)
+        //EfficNN               = 8,
+        //! discriminant for flat acceptance PDERS (not used currently)
+        //EfficPDERS            = 9,
+        //! new ie july 2008 discriminant for electron-tau separation LL (used by tauRec)
+        //TauElTauLikelihood    = 10,
+        //! acceptance flag for cut analysis (used by tau1p3p)
+        //DiscCut               = 11,
+        //! acceptance flag for cuts optimized with TMVA (used by tau1p3p)
+        //DiscCutTMVA           = 12,
+        //! discriminant for LL (used by tau1p3p)
+        //DiscLL                = 13,
+        //! discriminant for flat acceptance LL (not used currently)
+        //EfficLL               = 14,
         //! Boosted Decision Tree socre for Jet rejection (not transformed)
         BDTJetScore           = 15,
         //! Boosted Decision Tree score for electron rejection
         BDTEleScore           = 16,
-        //! needed by TauJet_v1/2
-        SafeLikelihood = 17, //deprecated
+        //! Safe LLH
+        SafeLikelihood        = 17, //deprecated
         //! BDT score which is signal transformed/flattened
         BDTJetScoreSigTrans   = 18, // new
-        //!
-        // = 19,  // new
-        //! needed by TauJet_v1/2
-        PanTauScore= 20 //deprecated
-      };
+        //! BDT score which is background transformed/flattened
+        BDTJetScoreBkgTrans   = 19,  // new
+        //! PanTau's Score
+        PanTauScore           = 20   //deprecated
+    };
 
     //-------------------------------------------------------------------------
     //! Enum for Veto flags
@@ -106,40 +115,42 @@ namespace TauJetParameters
     //! Enum for IsTau flags
     //-------------------------------------------------------------------------
     enum IsTauFlag
-      {
-	PassEleOLR = 0, 
-	// = 1, 
-	// = 2, 
-	// = 3, 
-        MuonVeto   = 4,
-	// = 5, 
-	// = 6, 
-	// = 7, 
-        // = 8, 
-        // = 9, 
-        // = 10,
-        // = 11,
-        // = 12,
-        // = 13,
-        // = 14,
-        // = 15,
-        // = 16,
-        // = 17,
-        // = 18,
+    {
+        TauCutLoose          = 0, //deprecated
+        TauCutMedium         = 1, //deprecated
+        TauCutTight          = 2, //deprecated
+        ElectronVeto         = 3, //Obsolete, dont use
+        MuonVeto             = 4,
+        TauLlhTight          = 5, //deprecated
+        TauLlhMedium         = 6, //deprecated
+        TauLlhLoose          = 7, //deprecated
+        //TauRecOld            = 8, //Obsolete, dont use?
+        //Tau1P3POld           = 9, //Obsolete, dont use?
+        //TauCutSafeLoose      = 10,
+        //TauCutSafeMedium     = 11,
+        //TauCutSafeTight      = 12,
+        //TauCutSafeCaloLoose  = 13,
+        //TauCutSafeCaloMedium = 14,
+        //TauCutSafeCaloTight  = 15,
+        ElectronVetoLoose    = 16, //deprecated
+        ElectronVetoMedium   = 17, //deprecated
+        ElectronVetoTight    = 18, //deprecated
         JetBDTSigLoose          = 19, // rename (add sig)
         JetBDTSigMedium         = 20, // rename (add sig)
         JetBDTSigTight          = 21, // rename (add sig)
         EleBDTLoose          = 22,
         EleBDTMedium         = 23,
         EleBDTTight          = 24,
+        //SafeLlhLoose         = 25,
+        //SafeLlhMedium        = 26,
+        //SafeLlhTight         = 27
         JetBDTBkgLoose       = 25, // new
         JetBDTBkgMedium      = 26, // new
-        JetBDTBkgTight       = 27, // new
-	// = 28,
-	// = 29,
-	// = 30, 
-	// = 31,
-      };
+        JetBDTBkgTight       = 27,  // new
+        PanTauScoreLoose     = 28, //deprecated
+        PanTauScoreMedium    = 29, //deprecated
+        PanTauScoreTight     = 30  //deprecated
+    };
 
     //-------------------------------------------------------------------------
     //! Enum for tau parameters - used mainly for backward compatibility with
@@ -147,87 +158,93 @@ namespace TauJetParameters
     //-------------------------------------------------------------------------
     enum Detail
     {
-      ipZ0SinThetaSigLeadTrk=0,
-      etOverPtLeadTrk=1,
-      leadTrkPt=2,
-      ipSigLeadTrk=3,
-      massTrkSys=4,
-      trkWidth2=5,
-      trFlightPathSig=6,
-      // etEflow=7,//r21 cleanup
-      // mEflow=8,//r21 cleanup
-      // /// name accessors for electron LLH variables
-      // ele_E237E277=9,//r21 cleanup
-      // ele_PresamplerFraction=10,//r21 cleanup
-      // ele_ECALFirstFraction=11,//r21 cleanup
+      ipZ0SinThetaSigLeadTrk,
+      etOverPtLeadTrk,
+      leadTrkPt,
+      ipSigLeadTrk,
+      // ipSigLeadLooseTrk,
+      // etOverPtLeadLooseTrk,
+      // leadLooseTrkPt,
+      // chrgLooseTrk,
+      massTrkSys,
+      trkWidth2,
+      trFlightPathSig,
+      etEflow,
+      mEflow,
+      /// name accessors for electron LLH variables
+      ele_E237E277,
+      ele_PresamplerFraction,
+      ele_ECALFirstFraction,
       //name accessors for topocluster ID variables
-      numCells=12,
+      numCells,
       /// get number of topocluster constituents of jet associated to tau candidate
-      numTopoClusters=13,
+      numTopoClusters,
       /// get number of effective topocluster constituents of jet associated to tau candidate !!! is a std::vector< float >
-      numEffTopoClusters=14,
+      numEffTopoClusters,
       /// get invariant mass from topoclusters of jet associated to tau candidate 
-      topoInvMass=15,
+      topoInvMass,
       /// get invariant mass from effective topoclusters of jet associated to tau candidate 
-      effTopoInvMass=16,
+      effTopoInvMass,
       /// get mean distance to leading topocluster for topoclusters of jet associated to tau candidate
-      topoMeanDeltaR=17,
+      topoMeanDeltaR,
       /// get mean distance to leading topocluster for effective topoclusters of jet associated to tau candidate 
-      effTopoMeanDeltaR=18,
+      effTopoMeanDeltaR,
       /////////////////////////////////////////////////////////////////////
       //
       // Applicable for calo seeded tau reconstruction
       //
       /////////////////////////////////////////////////////////////////////
       /// Get E_T radius
-      EMRadius=19,
+      EMRadius,
       /// Get hadron calorimeter radius
-      hadRadius=20,
+      hadRadius,
       /// Get EM energy at EM scale
-      etEMAtEMScale=21,
+      etEMAtEMScale,
       /// Get Hadronic energy at EM scale
-      etHadAtEMScale=22,
+      etHadAtEMScale,
       /// Get isolation fraction
-      isolFrac=23,
+      isolFrac,
       /// Get centrality fraction
-      centFrac=24,
+      centFrac,
       /// Get strip width ^2
-      stripWidth2=25,
+      stripWidth2,
       /// Get number of strips
-      nStrip=26,
-      /// Get calibrated EM transverse energy (DEPRECATED since r19)
-      // etEMCalib=27,//r21 cleanup
-      /// Get calibrated hadronic transverse energy (DEPRECATED since r19)
-      // etHadCalib=28,//r21 cleanup
+      nStrip,
+      /// Get calibrated EM transverse energy
+      etEMCalib,
+      /// Get calibrated hadronic transverse energy
+      etHadCalib,
       /// Get eta of TauJet calculated from calorimeter
-      //      seedCalo_eta=29,//r21 cleanup same as detectorAxis Eta
+      seedCalo_eta,
       /// Get phi of TauJet calculated from calorimeter
-      //      seedCalo_phi=30,//r21 cleanup same as detectorAxis Phi
+      seedCalo_phi,
+      /// Get number of isolated tracks
+      // nIsolLooseTrk,
       /// Get the average track distance to calorimeter seed
-      trkAvgDist=31,
+      trkAvgDist,
       /// Get the RMS of track distance to calorimeter seed
-      trkRmsDist=32,
+      trkRmsDist,
       ///  Get sum of 2 leading cluster energy over all cluster energy
-      lead2ClusterEOverAllClusterE=33,
+      lead2ClusterEOverAllClusterE,
       ///  Get sum of 3 leading cluster energy over all cluster energy
-      lead3ClusterEOverAllClusterE=34,
+      lead3ClusterEOverAllClusterE,
       ///  Get sum of transvers energy of clusters around jet seed within 0.2 < dR < 0.4  
-      caloIso=35,
+      caloIso,
       ///  Get sum of transvers energy of clusters around jet seed within 0.2 < dR < 0.4  (pile up corrected)
-      caloIsoCorrected=36,
+      caloIsoCorrected,
       ///  Get maximal dR of tracks associated to calo-seeded tau
-      dRmax=37,
+      dRmax,
     
 
       ///migrate only seedTrk_ variables which are used in reco and ID and without prefix
-      secMaxStripEt=38,
-      sumEMCellEtOverLeadTrkPt=39,
-      hadLeakEt=40,
+      secMaxStripEt,
+      sumEMCellEtOverLeadTrkPt,
+      hadLeakEt,
 
       /// EM+TES final scale
-      //EM_TES_scale=41,//r21 cleanup
+      EM_TES_scale,
       /// LC+TES precalibration
-      //LC_TES_precalib=42,//r21 cleanup
+      LC_TES_precalib,
 
  
       //////////////////////////////////////////////////////////////////////
@@ -236,92 +253,79 @@ namespace TauJetParameters
       //
       //////////////////////////////////////////////////////////////////////
       /// Ring 1: 0.00  < R < 0.05
-      cellBasedEnergyRing1=43,
+      cellBasedEnergyRing1,
       /// Ring 2: 0.05  < R < 0.075
-      cellBasedEnergyRing2=44,
+      cellBasedEnergyRing2,
       /// Ring 3: 0.075 < R < 0.10
-      cellBasedEnergyRing3=45,
+      cellBasedEnergyRing3,
       /// Ring 4: 0.10  < R < 0.125
-      cellBasedEnergyRing4=46,
+      cellBasedEnergyRing4,
       /// Ring 5: 0.125 < R < 0.15
-      cellBasedEnergyRing5=47,
+      cellBasedEnergyRing5,
       /// Ring 6: 0.15  < R < 0.2
-      cellBasedEnergyRing6=48,
+      cellBasedEnergyRing6,
       /// Ring 7: 0.2   < R < 0.4
-      cellBasedEnergyRing7=49,
+      cellBasedEnergyRing7,
       /// TRT hits high threshold over low threshold
-      TRT_NHT_OVER_NLT=50,
+      TRT_NHT_OVER_NLT,
       /// @Tau Jet Vertex Fraction
-      TauJetVtxFraction=51,
+      TauJetVtxFraction,
 
       //substructure details
-      //nPi0=52,//r21 cleanup
-      nCharged=53,
-      //ptRatioEflow=54,//r21 cleanup
+      nPi0,
+      nCharged,
+      ptRatioEflow,
       
-      //nPi0Topo=55, //deprecated//r21 cleanup
-      //nChargedTopo=56,//r21 cleanup
-      //etEflowTopo=57,//r21 cleanup
-      //mEflowTopo=58,//r21 cleanup
-      //ptRatioEflowTopo=59,//r21 cleanup
+      nPi0Topo, //deprecated
+      nChargedTopo,
+      etEflowTopo,
+      mEflowTopo,
+      ptRatioEflowTopo,
       
 
       //trigger details
-      PSSFraction=60,
-      ChPiEMEOverCaloEME=61,
-      EMPOverTrkSysP=62,
+      PSSFraction,
+      ChPiEMEOverCaloEME,
+      EMPOverTrkSysP,
       
       //for TES parameters
-      TESOffset=63,
-      TESCalibConstant=64,
+      TESOffset,
+      TESCalibConstant,
 
-      centFracCorrected=65,
-      etOverPtLeadTrkCorrected=66,
-      innerTrkAvgDist=67,
-      innerTrkAvgDistCorrected=68,
-      SumPtTrkFrac=69,
-      SumPtTrkFracCorrected=70,
+      centFracCorrected,
+      etOverPtLeadTrkCorrected,
+      innerTrkAvgDist,
+      innerTrkAvgDistCorrected,
+      SumPtTrkFrac,
+      SumPtTrkFracCorrected,
       
-      mEflowApprox=71,
-      ptRatioEflowApprox=72,
+      mEflowApprox,
+      ptRatioEflowApprox,
 
       /// pileup-corrected ID variables
-      ipSigLeadTrkCorrected=73,
-      trFlightPathSigCorrected=74,
-      massTrkSysCorrected=75,
-      dRmaxCorrected=76,
-      ChPiEMEOverCaloEMECorrected=77,
-      EMPOverTrkSysPCorrected=78,
-      ptRatioEflowApproxCorrected=79,
-      mEflowApproxCorrected=80,
+      ipSigLeadTrkCorrected,
+      trFlightPathSigCorrected,
+      massTrkSysCorrected,
+      dRmaxCorrected,
+      ChPiEMEOverCaloEMECorrected,
+      EMPOverTrkSysPCorrected,
+      ptRatioEflowApproxCorrected,
+      mEflowApproxCorrected
 
-
-
-      //currently dynamic enums
-      // CaloSamplingEtaEM
-      // CaloSamplingEtaHad
-      // CaloSamplingPhiEM
-      // CaloSamplingPhiHad
-      ClustersMeanCenterLambda=100,
-      ClustersMeanEMProbability=101,
-      ClustersMeanFirstEngDens=102,
-      ClustersMeanSecondLambda=103,
-      ClustersMeanPresamplerFrac=104,
-      GhostMuonSegmentCount=105,//this is just a copy of the jet-seed detail
-      PFOEngRelDiff=106,
-      LC_pantau_interpolPt=107,
-      electronLink=108,
-      
-      nChargedTracks=109,
-      nIsolatedTracks=110,
-
-      //Tau/Ele BDTVars
 
     };
 
+    //-------------------------------------------------------------------------
+    //! Enum for tau seed type
+    //-------------------------------------------------------------------------
+    enum SeedTypes
+    {
+        CaloObject = 0,
+        Track      = 1
+    };
 
   //-------------------------------------------------------------------------
-    //! Enum for tau calib type
+    //! Enum for tau seed type
     //-------------------------------------------------------------------------
     enum TauCalibType
     {
@@ -330,59 +334,110 @@ namespace TauJetParameters
         IntermediateAxis=2,
         TauEnergyScale=3,
         TauEtaCalib=4,
-        // =5,  
-        // =6,   
-        PanTauCellBasedProto=7, //4-vector by using CellBased pfos in seed
-        PanTauCellBased=8,  //4-vector by adjusting CellBased pfos using decay mode
-        TrigCaloOnly=9,
-        FinalCalib=10,
+	PanTauEFlowRecProto=5,  //4-vector by using eflowRec pfos in seed
+	PanTauEFlowRec=6,   //4-vector by adjusting eflowRec pfos using decay mode
+	PanTauCellBasedProto=7, //4-vector by using CellBased pfos in seed
+	PanTauCellBased=8  //4-vector by adjusting CellBased pfos using decay mode
     };
 
 
-   
+ 
+
+  //! ===== PanTau related code ====
+  
+  //-------------------------------------------------------------------------
+  //! Enum for tau 4-vector type
+  //-------------------------------------------------------------------------
+  enum TauHLVType
+    {
+      Pantau_JetSeed=0,
+      //other hlv variants I don't know about
+      PanTau_eflowRec_Proto=1,  //4-vector by using eflowRec pfos in seed
+      PanTau_eflowRec=2,   //4-vector by adjusting eflowRec pfos using decay mode
+      PanTau_CellBased_Proto=3, //4-vector by using CellBased pfos in seed
+      PanTau_CellBased=4  //4-vector by adjusting CellBased pfos using decay mode
+    };
+  
+  
   //-------------------------------------------------------------------------
   //! Enum for tau details (scalar) calculated by pantau
   //-------------------------------------------------------------------------
   enum PanTauDetails
     {
+      //!PanTau variables when using CellBased pfos
       //Flag whether this seed has pantau info
-      PanTau_isPanTauCandidate=0,
+      pantau_CellBasedInput_isPanTauCandidate,
       //decay modes (input mode [proto] and output mode )
-      PanTau_DecayModeProto=1,
-      PanTau_DecayMode=2,
+      pantau_CellBasedInput_DecayModeProto,
+      pantau_CellBasedInput_DecayMode,
       //BDT output distributions
-      PanTau_BDTValue_1p0n_vs_1p1n=3,
-      PanTau_BDTValue_1p1n_vs_1pXn=4,
-      PanTau_BDTValue_3p0n_vs_3pXn=5,
+      pantau_CellBasedInput_BDTValue_1p0n_vs_1p1n,
+      pantau_CellBasedInput_BDTValue_1p1n_vs_1pXn,
+      pantau_CellBasedInput_BDTValue_3p0n_vs_3pXn,
       //Variables used in BDTs
-      PanTau_BDTVar_Basic_NNeutralConsts=6,
-      PanTau_BDTVar_Charged_JetMoment_EtDRxTotalEt=7,
-      PanTau_BDTVar_Charged_StdDev_Et_WrtEtAllConsts=8,
-      PanTau_BDTVar_Neutral_HLV_SumM=9,
-      PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_1=10,
-      PanTau_BDTVar_Neutral_PID_BDTValues_BDTSort_2=11,
-      PanTau_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts=12,
-      PanTau_BDTVar_Neutral_Ratio_EtOverEtAllConsts=13,
-      PanTau_BDTVar_Neutral_Shots_NPhotonsInSeed=14,
-      PanTau_BDTVar_Combined_DeltaR1stNeutralTo1stCharged=15,
-      PanTau_DecayModeExtended=16,
+      pantau_CellBasedInput_BDTVar_Basic_NNeutralConsts,
+      pantau_CellBasedInput_BDTVar_Charged_JetMoment_EtDRxTotalEt,
+      pantau_CellBasedInput_BDTVar_Charged_StdDev_Et_WrtEtAllConsts,
+      pantau_CellBasedInput_BDTVar_Neutral_HLV_SumM,
+      pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_1,
+      pantau_CellBasedInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2,
+      pantau_CellBasedInput_BDTVar_Neutral_Ratio_1stBDTEtOverEtAllConsts,
+      pantau_CellBasedInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts,
+      pantau_CellBasedInput_BDTVar_Neutral_Shots_NPhotonsInSeed,
+      pantau_CellBasedInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged,
       
+      //!PanTau variables when using eflowRec pfos
+      //Flag whether this seed has pantau info
+      pantau_eflowRecInput_isPanTauCandidate,
+      //decay modes (input mode [proto] and output mode )
+      pantau_eflowRecInput_DecayModeProto,
+      pantau_eflowRecInput_DecayMode,
+      //BDT output distributions
+      pantau_eflowRecInput_BDTValue_1p0n_vs_1p1n,
+      pantau_eflowRecInput_BDTValue_1p1n_vs_1pXn,
+      pantau_eflowRecInput_BDTValue_3p0n_vs_3pXn,
+      //Variables used in BDTs
+      //NOTE: They are different from the CellBased ones in general!
+      pantau_eflowRecInput_BDTVar_Basic_NPi0NeutConsts,
+      pantau_eflowRecInput_BDTVar_Basic_NNeutralConsts,
+      pantau_eflowRecInput_BDTVar_Charged_HLV_SumPt,
+      pantau_eflowRecInput_BDTVar_Charged_Ratio_EtOverEtAllConsts,
+      pantau_eflowRecInput_BDTVar_Neutral_HLV_SumM,
+      pantau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_EtSort_1,
+      pantau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2,
+      pantau_eflowRecInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts,
+      pantau_eflowRecInput_BDTVar_Neutral_Mean_DRToLeading_WrtEtAllConsts,
+      pantau_eflowRecInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged,
+      
+
       // new variables for pantau BDT
-      PanTau_BDTVar_Charged_HLV_SumM=32,
+      pantau_CellBasedInput_BDTVar_Charged_HLV_SumM
 
     };
   
   
+  //-------------------------------------------------------------------------
+  //! Enum for tau constituents as used in PanTau 
+  //-------------------------------------------------------------------------
+  //NOTE: Not sure if we need those. They return the pfos used in PanTau, but this should be the same as the pfos linked to the tau
+  enum PanTau_Constituents
+    {
+      //!Tau constituents based on cell based
+      //Flag whether this seed has pantau info
+      pantau_CellBasedInput_ChargedConstituents,
+      pantau_CellBasedInput_Neutral
+    };
+
   enum DecayMode 
     {
-      Mode_1p0n=0,
-      Mode_1p1n=1,
-      Mode_1pXn=2,
-      Mode_3p0n=3,
-      Mode_3pXn=4,
-      Mode_Other=5,   // for 2p, 4p, 5p taus
-      Mode_NotSet=6,  // for 0p, >= 6p
-      Mode_Error=7,    // use this as initialisation
+      Mode_1p0n,
+      Mode_1p1n,
+      Mode_1pXn,
+      Mode_3p0n,
+      Mode_3pXn,
+      Mode_Other,   // for 2p, 4p, 5p taus
+      Mode_NotSet,  // for 0p, >= 6p
+      Mode_Error    // use this as initialisation
     };
 
   //-------------------------------------------------------------------------
@@ -390,30 +445,10 @@ namespace TauJetParameters
   //-------------------------------------------------------------------------
   enum TauTrackFlag
     {
-      isConversionOld    = 0,
-      failTrackFilter = 1,
-      coreTrack = 2, //all tracks dR<0.2
-      wideTrack = 3, //all tracks 0.2<dR<0.4
-      passTrkSelector = 4, // pass the old track selector tool;  old tau tracks are coreTrack&passTrkSelector
-      classifiedCharged    = 5, // classified as charged track from tau decay
-      classifiedIsolation  = 6, // track from the same interaction as the tau candidate: to be used for isolation
-      classifiedConversion = 7, // classified as conversion by the global track classifier
-      classifiedFake       = 8, // track classified as pileup or fake tracks (should not be used for isolation computation)
-      unclassified         = 9,  // helper enum for not yet classified tracks
-      passTrkSelectionTight = 10, //pass the xAOD Tight track selection
-      //if you add another flag, you'll need to check the track sorting alg, it assumes unclassified is the last flag *This should be fixed in TauTrackClassifier now*
-      //Track sorting just requires that the classifiedXXX bits are consecutive, charged is first (of classifiedXXX), and fake is last (of classifiedXXX)
+      isConversion    = 0,
+      failTrackFilter = 1
     };
 
-  enum TrackDetail
-    {
-      CaloSamplingEtaEM = 0,
-      CaloSamplingEtaHad = 1,
-      CaloSamplingPhiEM = 2,
-      CaloSamplingPhiHad = 3,
-    };
-
-  struct ROOT6_NamespaceAutoloadHook{};
 }//end namespace TauJetParameters
 
 }

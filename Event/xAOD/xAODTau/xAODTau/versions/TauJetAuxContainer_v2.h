@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJetAuxContainer_v2.h 750177 2016-05-27 08:12:45Z krasznaa $
+// $Id: TauJetAuxContainer_v2.h 638520 2015-01-09 13:21:05Z janus $
 #ifndef XAODTAU_VERSIONS_TAUJETAUXCONTAINER_V2_H
 #define XAODTAU_VERSIONS_TAUJETAUXCONTAINER_V2_H
 
@@ -13,6 +13,7 @@
 extern "C" {
 #   include <stdint.h>
 }
+
 
 //local includes
 #include "xAODTau/TauDefs.h"
@@ -93,11 +94,6 @@ namespace xAOD {
     std::vector< float > etaPanTauCellBased;
     std::vector< float > phiPanTauCellBased;
     std::vector< float > mPanTauCellBased;
-
-    std::vector< float > ptTrigCaloOnly;
-    std::vector< float > etaTrigCaloOnly;
-    std::vector< float > phiTrigCaloOnly;
-    std::vector< float > mTrigCaloOnly;
    
         
              
@@ -117,6 +113,7 @@ namespace xAOD {
     //additional discriminant output
     std::vector< float > BDTJetScoreSigTrans;
     std::vector< float > BDTJetScoreBkgTrans;
+
 
     typedef std::vector< ElementLink< TrackParticleContainer > > TrackLink_t;
     std::vector< TrackLink_t > trackLinks;
@@ -329,8 +326,10 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up the StoreGate inheritance for the class:
-#include "xAODCore/BaseInfo.h"
+// Set up a CLID and StoreGate inheritance for the class:
+#ifndef XAOD_STANDALONE
+#include "SGTools/BaseInfo.h"
 SG_BASE( xAOD::TauJetAuxContainer_v2, xAOD::AuxContainerBase );
+#endif // not XAOD_STANDALONE
 
 #endif // XAODTAU_VERSIONS_TAUJETAUXCONTAINER_V2_H

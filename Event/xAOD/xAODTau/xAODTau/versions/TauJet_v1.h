@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJet_v1.h 740338 2016-04-14 16:03:58Z griffith $
+// $Id: TauJet_v1.h 665021 2015-05-05 15:52:38Z janus $
 #ifndef XAODTAU_VERSIONS_TAUJET_V1_H
 #define XAODTAU_VERSIONS_TAUJET_V1_H
 
@@ -90,15 +90,15 @@ namespace xAOD {
     double phiTauEtaCalib() const;
     double mTauEtaCalib() const;
 
-    // double ptPanTauEFlowRecProto() const;
-    // double etaPanTauEFlowRecProto() const;
-    // double phiPanTauEFlowRecProto() const;
-    // double mPanTauEFlowRecProto() const;
+    double ptPanTauEFlowRecProto() const;
+    double etaPanTauEFlowRecProto() const;
+    double phiPanTauEFlowRecProto() const;
+    double mPanTauEFlowRecProto() const;
 
-    // double ptPanTauEFlowRec() const;
-    // double etaPanTauEFlowRec() const;
-    // double phiPanTauEFlowRec() const;
-    // double mPanTauEFlowRec() const;
+    double ptPanTauEFlowRec() const;
+    double etaPanTauEFlowRec() const;
+    double phiPanTauEFlowRec() const;
+    double mPanTauEFlowRec() const;
 
     double ptPanTauCellBasedProto() const;
     double etaPanTauCellBasedProto() const;

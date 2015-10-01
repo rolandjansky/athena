@@ -6,6 +6,7 @@ author Michel Janus <janus@cern.ch>
 
 # Central package(s):
 use AtlasPolicy   AtlasPolicy-*
+use SGTools       SGTools-*       Control
 use AthContainers AthContainers-* Control
 use AtlasROOT 	  AtlasROOT-*     External
 
@@ -22,6 +23,7 @@ use AthLinks      		  AthLinks-*      	   Control
 use xAODTruth         		  xAODTruth-*              Event/xAOD
 
 library xAODTau ../Root/*.cxx
+library xAODDiTau ../Root/*.cxx
 apply_pattern installed_library
 
 private
@@ -30,9 +32,6 @@ use AtlasReflex   AtlasReflex-*   External
 apply_pattern lcgdict dict=xAODTau selectionfile=selection.xml \
                       headerfiles="../xAODTau/xAODTauDict.h" \
 		      extralibfiles=../Root/dict/*.cxx
-
-apply_pattern lcgdict dict=xAODTau_c selectionfile=selection_c.xml \
-                      headerfiles="../xAODTau/xAODTau_cDict.h"
 
 use TestTools TestTools-* AtlasTest
 apply_pattern UnitTest_run unit_test=xAODTau_TauJet

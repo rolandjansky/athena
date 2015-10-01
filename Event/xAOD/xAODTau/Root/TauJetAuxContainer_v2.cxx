@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJetAuxContainer_v2.cxx 747258 2016-05-15 02:57:19Z griffith $
+// $Id: TauJetAuxContainer_v2.cxx 638520 2015-01-09 13:21:05Z janus $
 
 
 // Local include(s):
@@ -63,11 +63,6 @@ namespace xAOD {
     AUX_VARIABLE( etaPanTauCellBased );
     AUX_VARIABLE( phiPanTauCellBased );
     AUX_VARIABLE( mPanTauCellBased );
-
-    AUX_VARIABLE( ptTrigCaloOnly );
-    AUX_VARIABLE( etaTrigCaloOnly );
-    AUX_VARIABLE( phiTrigCaloOnly );
-    AUX_VARIABLE( mTrigCaloOnly );
    
 
     

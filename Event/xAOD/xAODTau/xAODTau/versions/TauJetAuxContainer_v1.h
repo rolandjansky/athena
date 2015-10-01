@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJetAuxContainer_v1.h 750177 2016-05-27 08:12:45Z krasznaa $
+// $Id: TauJetAuxContainer_v1.h 629816 2014-11-20 14:55:09Z janus $
 #ifndef XAODTAU_VERSIONS_TAUJETAUXCONTAINER_V1_H
 #define XAODTAU_VERSIONS_TAUJETAUXCONTAINER_V1_H
 
@@ -13,6 +13,7 @@
 extern "C" {
 #   include <stdint.h>
 }
+
 
 //local includes
 #include "xAODTau/TauDefs.h"
@@ -331,8 +332,11 @@ namespace xAOD {
 
 } // namespace xAOD
 
-// Set up the StoreGate inheritance for the class:
-#include "xAODCore/BaseInfo.h"
+// Set up a CLID and StoreGate inheritance for the class:
+#ifndef XAOD_STANDALONE
+#include "SGTools/BaseInfo.h"
 SG_BASE( xAOD::TauJetAuxContainer_v1, xAOD::AuxContainerBase );
+#endif // not XAOD_STANDALONE
+
 
 #endif // XAODTAU_VERSIONS_TAUJETAUXCONTAINER_V1_H

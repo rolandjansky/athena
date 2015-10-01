@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJet_v2.cxx 747258 2016-05-15 02:57:19Z griffith $
+// $Id: TauJet_v2.cxx 631921 2014-11-28 16:11:59Z janus $
 
 
 // System include(s):
@@ -62,17 +62,17 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, phiTauEtaCalib)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, mTauEtaCalib)
 
-  // //primitive setters and getters for jetseed 4-vector
-  // AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, ptPanTauEFlowRecProto)
-  // AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, etaPanTauEFlowRecProto)
-  // AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, phiPanTauEFlowRecProto)
-  // AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, mPanTauEFlowRecProto)
+  //primitive setters and getters for jetseed 4-vector
+  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, ptPanTauEFlowRecProto)
+  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, etaPanTauEFlowRecProto)
+  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, phiPanTauEFlowRecProto)
+  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, mPanTauEFlowRecProto)
 
-  // //primitive setters and getters for jetseed 4-vector
-  // AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, ptPanTauEFlowRec)
-  // AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, etaPanTauEFlowRec)
-  // AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, phiPanTauEFlowRec)
-  // AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, mPanTauEFlowRec)
+  //primitive setters and getters for jetseed 4-vector
+  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, ptPanTauEFlowRec)
+  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, etaPanTauEFlowRec)
+  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, phiPanTauEFlowRec)
+  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, mPanTauEFlowRec)
 
   //primitive setters and getters for jetseed 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, ptPanTauCellBasedProto)
@@ -85,12 +85,6 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, etaPanTauCellBased)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, phiPanTauCellBased)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, mPanTauCellBased)
-
-  //primitive setters and getters for HLT 4-vector
-  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, ptTrigCaloOnly)
-  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, etaTrigCaloOnly)
-  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, phiTrigCaloOnly)
-  AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v2, float, double, mTrigCaloOnly)
 
 
   double TauJet_v2::e() const {
@@ -144,20 +138,17 @@ namespace xAOD {
       case TauJetParameters::TauEtaCalib:
 	m_p4.SetPtEtaPhiM( ptTauEtaCalib(), etaTauEtaCalib(), phiTauEtaCalib(), mTauEtaCalib());
 	break;
-      // case TauJetParameters::PanTauEFlowRecProto:
-      // 	m_p4.SetPtEtaPhiM( ptPanTauEFlowRecProto(), etaPanTauEFlowRecProto(), phiPanTauEFlowRecProto(), mPanTauEFlowRecProto());
-      // 	break;
-      // case TauJetParameters::PanTauEFlowRec:
-      // 	m_p4.SetPtEtaPhiM( ptPanTauEFlowRec(), etaPanTauEFlowRec(), phiPanTauEFlowRec(), mPanTauEFlowRec());
-      // 	break;
+      case TauJetParameters::PanTauEFlowRecProto:
+	m_p4.SetPtEtaPhiM( ptPanTauEFlowRecProto(), etaPanTauEFlowRecProto(), phiPanTauEFlowRecProto(), mPanTauEFlowRecProto());
+	break;
+      case TauJetParameters::PanTauEFlowRec:
+	m_p4.SetPtEtaPhiM( ptPanTauEFlowRec(), etaPanTauEFlowRec(), phiPanTauEFlowRec(), mPanTauEFlowRec());
+	break;
       case TauJetParameters::PanTauCellBasedProto:
 	m_p4.SetPtEtaPhiM( ptPanTauCellBasedProto(), etaPanTauCellBasedProto(), phiPanTauCellBasedProto(), mPanTauCellBasedProto());
 	break;
       case TauJetParameters::PanTauCellBased:
 	m_p4.SetPtEtaPhiM( ptPanTauCellBased(), etaPanTauCellBased(), phiPanTauCellBased(), mPanTauCellBased());
-	break;
-      case TauJetParameters::TrigCaloOnly:
-	m_p4.SetPtEtaPhiM( ptTrigCaloOnly(), etaTrigCaloOnly(), phiTrigCaloOnly(), mTrigCaloOnly());
 	break;
       default:
 	m_p4.SetPtEtaPhiM( pt(), eta(), phi(), m());
@@ -368,6 +359,10 @@ namespace xAOD {
   }
 
 
+
+
+
+
   // setters and getters for the track links
   AUXSTORE_OBJECT_SETTER_AND_GETTER( TauJet_v2,
   				     TauJet_v2::TrackParticleLinks_t,
@@ -381,7 +376,7 @@ namespace xAOD {
   }
   
   size_t TauJet_v2::nTracks() const {
-    return trackAcc( *this ).size();
+   return trackAcc( *this ).size();
   }
   
   void TauJet_v2::addTrackLink( const ElementLink< TrackParticleContainer >& tr) {
