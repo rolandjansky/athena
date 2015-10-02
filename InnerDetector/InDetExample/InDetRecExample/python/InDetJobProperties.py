@@ -98,6 +98,11 @@ class InDetFlagsJobProperty(JobProperty):
 ## 1st step: define JobProperty classes
 
 
+class doDBMstandalone(InDetFlagsJobProperty):
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doDBM(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
@@ -207,10 +212,10 @@ class doVtxLumi(InDetFlagsJobProperty):
     StoredValue  = False
 
 class doVtxBeamSpot(InDetFlagsJobProperty):
-    """Turn running of vertex BeamSpot reconstruction on and off"""
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
+   """Turn running of vertex BeamSpot reconstruction on and off"""
+   statusOn     = True
+   allowedTypes = ['bool']
+   StoredValue  = False
 
 class doMinimalReco(InDetFlagsJobProperty):
     """Turn running of minimal reconstruction on and off"""
@@ -1006,6 +1011,12 @@ class ForceCoraCool(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class ForceCoolVectorPayload(InDetFlagsJobProperty):
+  """ Use new (CoolVectorPayload) SCT Conditions """
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = False
+
 class doTrackSegmentsPixelPrdAssociation(InDetFlagsJobProperty):
     """Turn running of track segment creation in pixel after NewTracking, and with PRD association, on and off"""
     statusOn     = True
@@ -1297,7 +1308,7 @@ class InDetJobProperties(JobPropertyContainer):
        DetFlags.detdescr.TRT_setOn()
        DetFlags.dcs.TRT_setOff()
 
-    # --- special setup for vtxbeamspot stream processing   
+# --- special setup for vtxbeamspot stream processing   
     elif (self.doVtxBeamSpot()):
        print "----> InDetJobProperties for vertex lumi"
        self.checkThenSet(self.doNewTracking          , True )
@@ -1311,14 +1322,14 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doTRTStandalone        , False)
        self.checkThenSet(self.doForwardTracks        , False)
        self.checkThenSet(self.doVertexFinding        , True)
-       self.checkThenSet(self.primaryVertexSetup     , "IterativeFinding") 
-       self.checkThenSet(self.primaryVertexCutSetup  , "Offline") 
-       self.checkThenSet(self.secondaryVertexCutSetup, "PileUp") 
+       self.checkThenSet(self.primaryVertexSetup     , "IterativeFinding")
+       self.checkThenSet(self.primaryVertexCutSetup  , "Offline")
+       self.checkThenSet(self.secondaryVertexCutSetup, "PileUp")
        self.checkThenSet(self.vertexSeedFinder       , "SlidingWindowMultiSeedFinder")
        self.checkThenSet(self.doV0Finder             , False)
-       self.checkThenSet(self.doSimpleV0Finder       , False)      
-       self.checkThenSet(self.doConversions          , False )        
-       self.checkThenSet(self.doStatistics           , False) 
+       self.checkThenSet(self.doSimpleV0Finder       , False)     
+       self.checkThenSet(self.doConversions          , False )       
+       self.checkThenSet(self.doStatistics           , False)
        self.checkThenSet(self.doTrackSegmentsPixel   , False )
        self.checkThenSet(self.doTrackSegmentsSCT     , False )
        self.checkThenSet(self.doTrackSegmentsTRT     , False )
@@ -1466,7 +1477,7 @@ class InDetJobProperties(JobPropertyContainer):
         self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
 
     if rec.doExpressProcessing() :
-        self.checkThenSet(self.useBeamConstraint,False)
+       self.checkThenSet(self.useBeamConstraint,False)
 
   def init(self):
     #Method to do the final setup of the flags according to user input before.
@@ -1873,6 +1884,10 @@ class InDetJobProperties(JobPropertyContainer):
     if self.doDBM() :
        print '*'
        print '* --------------------> Special reconstruction for DBM !'
+       print '*'
+    if self.doDBMstandalone() :
+       print '*'
+       print '* --------------------> Standalone reconstruction for DBM !'
        print '*'
     if self.doHighPileup() :
        print '*'
@@ -2442,12 +2457,14 @@ _list_InDetJobProperties = [Enabled,
                             doSSSfilter,
                             pT_SSScut,
                             ForceCoraCool,
+                            ForceCoolVectorPayload,
                             doTrackSegmentsPixelPrdAssociation,
                             doSLHCVeryForward,
                             doTRTOccupancyEventInfo,
                             doNNToTCalibration,
                             keepAdditionalHitsOnTrackParticle,
                             doSCTModuleVeto,
+                            doDBMstandalone,
                             doDBM
                            ]
 for j in _list_InDetJobProperties: 

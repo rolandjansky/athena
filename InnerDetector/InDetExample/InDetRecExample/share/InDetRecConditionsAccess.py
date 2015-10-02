@@ -71,6 +71,16 @@ if DetFlags.haveRIO.pixel_on():
                 conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATUS")
             if not conddb.folderRequested('/PIXEL/DCS/FSMSTATE'):
                 conddb.addFolder("DCS_OFL","/PIXEL/DCS/FSMSTATE")
+            from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
+            if (globalflags.DataSource() == 'data' and geoFlags.Run() == "RUN2" and conddb.dbdata == "CONDBR2"): # geoFlags.isIBL() == True may work too instead of geoFlags.Run() == "RUN2"
+                if not conddb.folderRequested('/PIXEL/DCS/PIPES'):
+                    conddb.addFolder("DCS_OFL","/PIXEL/DCS/PIPES")
+                if not conddb.folderRequested('/PIXEL/DCS/LV'):
+                    conddb.addFolder("DCS_OFL","/PIXEL/DCS/LV")
+                if not conddb.folderRequested('/PIXEL/DCS/HVCURRENT'):
+                    conddb.addFolder("DCS_OFL","/PIXEL/DCS/HVCURRENT")
+                if not conddb.folderRequested('/PIXEL/DCS/PLANTS'):
+                    conddb.addFolder("DCS_OFL","/PIXEL/DCS/PLANTS")
             
             InDetPixelDCSSvc =  PixelDCSSvc(RegisterCallback     = TRUE,
                                             TemperatureFolder    = "/PIXEL/DCS/TEMPERATURE",
@@ -333,9 +343,24 @@ if DetFlags.haveRIO.TRT_on():
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/T0","/TRT/Calib/T0")
 
     # --- reenambe new TRT errors      
-    if not conddb.folderRequested('/TRT/Calib/errors'):
-        conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors","/TRT/Calib/errors")
-#        conddb.addOverride('/TRT/Calib/errors','TrtCalibErrors-ErrorVal-00-00')
+    if not conddb.folderRequested('/TRT/Calib/errors2d'):
+        conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/errors2d","/TRT/Calib/errors2d")
+            #FIXME: overrides
+        if (globalflags.DataSource() == 'data'): 
+                conddb.addOverride("/TRT/Calib/errors2d"      ,"TrtCalibErrors2d-data_25ns-2Dfit-00-00")
+                conddb.addOverride("/TRT/Onl/Calib/errors2d"  ,"TrtOnlCalibErrors2d-data_25ns-2Dfit-00-00")
+        else:
+                conddb.addOverride("/TRT/Calib/errors2d"      ,"TrtCalibErrors2d-IOVdep-2Dfit-00-00")
+          
+
+    if not conddb.folderRequested('/TRT/Calib/slopes'):
+        conddb.addFolderSplitOnline ("TRT","/TRT/Onl/Calib/slopes","/TRT/Calib/slopes")
+            #FIXME: overrides
+        if (globalflags.DataSource() == 'data'): 
+                conddb.addOverride("/TRT/Calib/slopes"      ,"TrtCalibSlopes-data_25ns-2Dfit-00-00")
+                conddb.addOverride("/TRT/Onl/Calib/slopes"  ,"TrtOnlCalibSlopes-data_25ns-2Dfit-00-00")
+        else:
+                conddb.addOverride("/TRT/Calib/slopes"      ,"TrtCalibSlopes-IOVdep-2Dfit-00-00")
         
     if not conddb.folderRequested('/TRT/Calib/ToTCalib'):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/ToTCalib","/TRT/Calib/ToTCalib")
@@ -377,6 +402,28 @@ if DetFlags.haveRIO.TRT_on():
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PIDver_New","/TRT/Calib/PIDver_New")
     if not conddb.folderRequested( "/TRT/Calib/PID_RToTver_New" ):
         conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_RToTver_New","/TRT/Calib/PID_RToTver_New")
+
+		# Added for run2. Clean the unsed ones!!!
+    if not conddb.folderRequested( "/TRT/Calib/PID_vector" ):
+        conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector", "/TRT/Calib/PID_vector")
+	## FIXME!! Clean overrides!!
+        if globalflags.DataSource() == 'data':
+                conddb.addOverride("/TRT/Calib/PID_vector"	,"TRTCalibPID_vector_Data_OnSetMC_CorrData_noZR_00-01")	
+                conddb.addOverride("/TRT/Onl/Calib/PID_vector"	,"TRTOnlCalibPID_vector-ES1-UPD1-00-00-01")
+        else:
+                conddb.addOverride("/TRT/Calib/PID_vector","TRTCalibPID_vector_MC_OnSetMC_CorrMC_noZR_00-01")
+
+    if not conddb.folderRequested( "/TRT/Calib/ToT/ToTVectors"):
+       conddb.addFolder( "TRT_OFL", "/TRT/Calib/ToT/ToTVectors") 
+       #FIXME: 
+       conddb.addOverride("/TRT/Calib/ToT/ToTVectors"	,	"TRTCalibToTToTVectors-000-01")
+
+    if not conddb.folderRequested( "/TRT/Calib/ToT/ToTValue"):
+       conddb.addFolder( "TRT_OFL", "/TRT/Calib/ToT/ToTValue") 
+       #FIXME: 
+       conddb.addOverride("/TRT/Calib/ToT/ToTValue"	,	"TRTCalibToTToTValue-000-01")
+
+
     #
     # now do the services
     #

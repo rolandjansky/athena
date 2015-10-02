@@ -26,6 +26,49 @@ from AthenaCommon.JobProperties import jobproperties
 
 ##-----------------------------------------------------------------------------
 ## 1st step: define JobProperty classes
+
+class DBMTrackParticles(JobProperty):
+    """StoreGate key for TrackParticles DBM"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'TrackParticleCandidateDBM'
+
+class DBMTrackParticlesTruth(JobProperty):
+    """StoreGate key for TrackParticles DBM"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'TrackParticleTruthCollectionDBM'
+
+class DBMDetailedTracksTruth(JobProperty): 
+    """StoreGate key for DetailedTrackTruth DBM""" 
+    statusOn     = True 
+    allowedTypes = ['str'] 
+    StoredValue  = 'DBMTracksDetailedTruth' 
+     
+class DBMTracksTruth(JobProperty): 
+    """StoreGate key for TracksTruth DBM""" 
+    statusOn     = True 
+    allowedTypes = ['str'] 
+    StoredValue  = 'DBMTracksTruthCollection' 
+     
+class SiSpSeededDBMTracks(JobProperty): 
+    """ Storegate key for new-tracking SP seeded DBM tracks""" 
+    statusOn     = True 
+    allowedTypes = ['str'] 
+    StoredValue  = 'SiSPSeededDBMTracks'
+
+class DBMTracks(JobProperty): 
+    """StoreGate key for DBM tracks """ 
+    statusOn     = True 
+    allowedTypes = ['str'] 
+    StoredValue  = 'ResolvedDBMTracks' 
+
+class xAODDBMTrackParticleContainer(JobProperty): 
+    """xAOD DBMTrackParticle""" 
+    statusOn = True 
+    allowedTypes = ['str'] 
+    StoredValue = "InDetDBMTrackParticles" 
+
 class PixelManager(JobProperty):
     """DetectorManager for Pixel"""
     statusOn     = True
@@ -405,6 +448,18 @@ class PixelPrdAssociationTracks(JobProperty):
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'ResolvedPixelPrdAssociationTracks'
+
+class ExtendedTracksPixelPrdAssociation(JobProperty):
+    """ Storegate key for new-tracking extended pixel tracks"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ExtendedTracksPixelPrdAssociation'
+
+class ExtendedTracksMapPixelPrdAssociation(JobProperty):
+    """ Storegate key for new-tracking extended pixel tracks map"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ExtendedTracksMapPixelPrdAssociation'
 
 class SCTTracks(JobProperty):
     """StoreGate key for resolved SCT standalone tracks """
@@ -852,6 +907,12 @@ class xAODPixelPrdAssociationTrackParticleContainer(JobProperty):
     allowedTypes = ['str']
     StoredValue = "InDetPixelPrdAssociationTrackParticles"
 
+class xAODPixelPrdAssociationExtendedTrackParticleContainer(JobProperty):
+    """xAOD Extended PixelTrackParticle with PRD association"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "InDetPixelPrdAssociationExtendedTrackParticles"
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -942,6 +1003,8 @@ jobproperties.InDetContainerKeys.add_JobProperty(PixelTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelDetailedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelPrdAssociationTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(ExtendedTracksPixelPrdAssociation)
+jobproperties.InDetContainerKeys.add_JobProperty(ExtendedTracksMapPixelPrdAssociation)
 jobproperties.InDetContainerKeys.add_JobProperty(SCTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(TRTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(TRTTracks_NewT)
@@ -1013,6 +1076,15 @@ jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelTrackParticleContainer
 jobproperties.InDetContainerKeys.add_JobProperty(xAODSCTTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODTRTTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelPrdAssociationTrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelPrdAssociationExtendedTrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(DBMDetailedTracksTruth) 
+jobproperties.InDetContainerKeys.add_JobProperty(DBMTracksTruth) 
+jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededDBMTracks) 
+jobproperties.InDetContainerKeys.add_JobProperty(DBMTracks) 
+jobproperties.InDetContainerKeys.add_JobProperty(xAODDBMTrackParticleContainer) 
+jobproperties.InDetContainerKeys.add_JobProperty(DBMTrackParticles)
+jobproperties.InDetContainerKeys.add_JobProperty(DBMTrackParticlesTruth)
+
 ##-----------------------------------------------------------------------------
 ## 5th step
 ## short-cut for lazy people

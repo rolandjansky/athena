@@ -68,7 +68,13 @@ if InDetFlags.doxAOD():
   if InDetFlags.doTrackSegmentsTRT():
     InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTRTTrackParticleContainer()]
     InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTRTTrackParticleContainer()+'Aux.' + excludedAuxData]
-
+  if InDetFlags.doDBMstandalone() or InDetFlags.doDBM(): 
+    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODDBMTrackParticleContainer()] 
+    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODDBMTrackParticleContainer()+'Aux.' + excludedAuxData] 
+    InDetAODList+=["TrackCollection#"+InDetKeys.DBMTracks()] 
+    if InDetFlags.doTruth(): 
+      InDetAODList += ["TrackTruthCollection#"+InDetKeys.DBMTracks()+'TruthCollection'] 
+      InDetAODList += ["DetailedTrackTruthCollection#"+InDetKeys.DBMTracks()+'DetailedTruth'] 
 
 # next is only for InDetRecExample stand alone! RecExCommon uses InDetAODList directly
 StreamAOD.ItemList += InDetAODList 

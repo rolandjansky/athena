@@ -140,7 +140,9 @@ class ConfiguredInDetPreProcessingTRT:
          #
          if InDetFlags.doTRTOccupancyEventInfo():
           from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
-          InDetTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy")
+          InDetTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(  name 		= "InDet_TRT_LocalOccupancy",
+								isTrigger	= False
+	  )
 
           ToolSvc += InDetTRT_LocalOccupancy
           if (InDetFlags.doPrintConfigurables()):

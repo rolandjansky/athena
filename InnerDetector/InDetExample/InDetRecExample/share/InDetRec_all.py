@@ -92,7 +92,7 @@ if doEdmMonitor:
   if (InDetFlags.doPrintConfigurables()):
     print          InDetEdmMonitor
 ## DBM TruthLinks
-if InDetFlags.doDBM() and InDetFlags.doTruth():
+if (InDetFlags.doDBMstandalone() or InDetFlags.doDBM()) and InDetFlags.doTruth():
   from AthenaCommon.Resilience import protectedInclude
   protectedInclude( "McParticleAlgs/TruthParticleBuilder_jobOptions_DBM.py" )
 
@@ -223,7 +223,9 @@ if doWriteESD or doWriteAOD or ('doCopyRDO' in dir() and doCopyRDO):
     StreamESD.ItemList += [ "HLT::HLTResult#HLTResult_L2" ]
     StreamESD.ItemList += [ "HLT::HLTResult#HLTResult_EF" ]
     StreamESD.ForceRead = True # otherwise unread stuff is not copied
-      
+    if InDetFlags.doDBMstandalone(): 
+      topSequence.StreamESD.ItemList+=["TrackCollection#SiSPSeededTracks"] 
+
   if doWriteAOD:
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
     # --- create *augmented* stream; this makes ROOT happy
@@ -241,7 +243,7 @@ if doWriteESD or doWriteAOD or ('doCopyRDO' in dir() and doCopyRDO):
     StreamAOD.ItemList += [ "TrigDec::TrigDecision#TrigDecision" ]
     StreamAOD.ItemList += [ "HLT::HLTResult#HLTResult_L2" ]
     StreamAOD.ItemList += [ "HLT::HLTResult#HLTResult_EF" ]
-    if InDetFlags.doDBM():
+    if InDetFlags.doDBMstandalone():
       topSequence.StreamESD.ItemList+=["TrackCollection#SiSPSeededTracks"]
     StreamAOD.ForceRead = True # otherwise unread stuff is not copied
   
