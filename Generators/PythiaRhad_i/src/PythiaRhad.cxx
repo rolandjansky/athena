@@ -131,6 +131,8 @@ PythiaRhad::PythiaRhad(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("RunSbottomHadrons",  m_run_sbottom_hadrons = false );
   declareProperty("GluinoBallProbability", m_gluino_ball_prob = 0.1 );
 
+  declareProperty("EnableAfterInitialize",m_enable_after_initialize = true);//new: if false, turn ourselves off after initialization, so execute (callGnerator) is not called by AthAlogithm  - important to do if we are only here to decay things!
+
 
   // For StoppedGluinos
   declareProperty("strip_out_rh",m_strip_out_rh=false);//Get rid of all but the RHadron decay products
@@ -746,6 +748,14 @@ StatusCode PythiaRhad::genuserInitialize() {
       this->pydat3().mdcy(pycomp_(&kfstbar),1)=0;
     }
 
+  //Done initializing
+
+  //Set myself off to prevent generation, if we are in the sim step!
+  if (!m_enable_after_initialize){
+    ATH_MSG_INFO("Setting Enable to False, at the end of initialization...");
+    setProperty("Enable", "False" );
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -754,7 +764,7 @@ StatusCode PythiaRhad::genuserInitialize() {
 
 
 StatusCode PythiaRhad::callGenerator() {
-  ATH_MSG_DEBUG(" PYTHIA generating.  \n");
+  ATH_MSG_INFO(" PYTHIA generating.  \n");
 
   int ierr=1;
 
@@ -914,7 +924,7 @@ StatusCode PythiaRhad::genFinalize() {
 
 
 StatusCode PythiaRhad::fillEvt(GenEvent* evt) {
-  ATH_MSG_DEBUG(" PYTHIA Atlas_HEPEVT Filling.  \n");
+  ATH_MSG_INFO(" PYTHIA Atlas_HEPEVT Filling.  \n");
   store_Atlas_HEPEVT();
 
   ATH_MSG_DEBUG(" PYTHIA Filling.  \n");
