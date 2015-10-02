@@ -51,6 +51,9 @@ namespace xAOD {
       /// Copy constructor
       Vertex_v1(const Vertex_v1& other);
 
+      /// Assignment operator. This can involve creating and copying an Auxilary store, and so should be used sparingly.
+      Vertex_v1& operator=(const Vertex_v1& tp );
+
       /// A little helper function for identifying the type in template code
       Type::ObjectType type() const;
 

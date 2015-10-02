@@ -41,6 +41,8 @@ namespace xAOD {
       TrackParticleAuxContainer_v2();
       /// Dumps contents (for debugging)
       void dump() const;
+      /// Function implementing soft schema evolution for the class
+      void toTransient();
 
    private:
 
@@ -119,6 +121,7 @@ namespace xAOD {
      std::vector< uint8_t >         numberOfGangedFlaggedFakes       ;
      std::vector< uint8_t >         numberOfPixelDeadSensors         ;
      std::vector< uint8_t >         numberOfPixelSpoiltHits          ;
+     std::vector< uint8_t >         numberOfDBMHits                  ;
      std::vector< uint8_t >         numberOfSCTHits                  ;
      std::vector< uint8_t >         numberOfSCTOutliers              ;
      std::vector< uint8_t >         numberOfSCTHoles                 ;
@@ -130,6 +133,7 @@ namespace xAOD {
      std::vector< uint8_t >         numberOfTRTOutliers              ;
      std::vector< uint8_t >         numberOfTRTHoles                 ;
      std::vector< uint8_t >         numberOfTRTHighThresholdHits     ;
+     std::vector< uint8_t >         numberOfTRTHighThresholdHitsTotal;
      std::vector< uint8_t >         numberOfTRTHighThresholdOutliers ;
      std::vector< uint8_t >         numberOfTRTDeadStraws            ;
      std::vector< uint8_t >         numberOfTRTTubeHits              ;
@@ -147,8 +151,8 @@ namespace xAOD {
      std::vector< uint8_t >         standardDeviationOfChi2OS        ;
      std::vector< float >           eProbabilityComb;
      std::vector< float >           eProbabilityHT;
-     std::vector< float >           eProbabilityToT;
-     std::vector< float >           eProbabilityBrem;
+     //     std::vector< float >           eProbabilityToT;
+     //     std::vector< float >           eProbabilityBrem;
      std::vector< float >           pixeldEdx;
      std::vector< uint8_t >         numberOfUsedHitsdEdx;
      std::vector< uint8_t >         numberOfIBLOverflowsdEdx;

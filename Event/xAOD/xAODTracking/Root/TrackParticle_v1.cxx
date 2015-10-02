@@ -31,7 +31,7 @@ namespace xAOD {
   }
   
   TrackParticle_v1::TrackParticle_v1(const TrackParticle_v1& tp ) 
-  : IParticle( tp ), m_p4(tp.m_p4), m_perigeeCached(tp.m_perigeeCached) {
+  : IParticle( tp ), m_p4(tp.m_p4), m_p4Cached( tp.m_p4Cached ), m_perigeeCached(tp.m_perigeeCached) {
     makePrivateStore( tp );
     #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
     m_perigeeParameters = tp.m_perigeeParameters;

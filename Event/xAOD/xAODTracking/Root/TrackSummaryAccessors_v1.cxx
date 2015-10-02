@@ -80,6 +80,7 @@ namespace xAOD {
         DEFINE_ACCESSOR( uint8_t, numberOfGangedFlaggedFakes        );
         DEFINE_ACCESSOR( uint8_t, numberOfPixelDeadSensors          );
         DEFINE_ACCESSOR( uint8_t, numberOfPixelSpoiltHits           );
+	DEFINE_ACCESSOR( uint8_t, numberOfDBMHits                   );
         DEFINE_ACCESSOR( uint8_t, numberOfSCTHits                   );
         DEFINE_ACCESSOR( uint8_t, numberOfSCTOutliers               );
         DEFINE_ACCESSOR( uint8_t, numberOfSCTHoles                  );
@@ -91,6 +92,7 @@ namespace xAOD {
         DEFINE_ACCESSOR( uint8_t, numberOfTRTOutliers               );
         DEFINE_ACCESSOR( uint8_t, numberOfTRTHoles                  );
         DEFINE_ACCESSOR( uint8_t, numberOfTRTHighThresholdHits      );
+        DEFINE_ACCESSOR( uint8_t, numberOfTRTHighThresholdHitsTotal );
         DEFINE_ACCESSOR( uint8_t, numberOfTRTHighThresholdOutliers  );
         DEFINE_ACCESSOR( uint8_t, numberOfTRTDeadStraws             );
         DEFINE_ACCESSOR( uint8_t, numberOfTRTTubeHits               );
@@ -117,8 +119,8 @@ namespace xAOD {
       switch( type ) {
         DEFINE_ACCESSOR( float, eProbabilityComb       ); 
         DEFINE_ACCESSOR( float, eProbabilityHT       );   
-        DEFINE_ACCESSOR( float, eProbabilityToT       );  
-        DEFINE_ACCESSOR( float, eProbabilityBrem       ); 
+        //        DEFINE_ACCESSOR( float, eProbabilityToT       );  
+        //        DEFINE_ACCESSOR( float, eProbabilityBrem       ); 
 	DEFINE_ACCESSOR( float, pixeldEdx       ); 
       default:                  
          std::cerr << "xAOD::TrackParticle_v1 ERROR Unknown SummaryType ("

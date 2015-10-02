@@ -234,6 +234,7 @@ namespace xAOD {
     numberOfNextToInnermostPixelLayerOutliers          =59,  //!< number of 1st pixel layer outliers  
     numberOfNextToInnermostPixelLayerSharedHits        =60,  //!< number of Pixel 1st layer hits shared by several tracks.
     numberOfNextToInnermostPixelLayerSplitHits         =61,  //!< number of Pixel 1st layer hits split by cluster splitting 
+    numberOfDBMHits                 = 63, //!< these are the number of DBM hits [unit8_t].
     numberOfPixelHits               = 2,  //!< these are the pixel hits, including the b-layer [unit8_t].
     numberOfPixelOutliers           =41,  //!< these are the pixel outliers, including the b-layer [unit8_t].
     numberOfPixelHoles              = 1,  //!< number of pixel layers on track with absence of hits [unit8_t].
@@ -254,6 +255,8 @@ namespace xAOD {
     numberOfTRTOutliers             =19,  //!< number of TRT outliers [unit8_t].
     numberOfTRTHoles                =40,  //!< number of TRT holes [unit8_t].
     numberOfTRTHighThresholdHits    = 6,  //!< number of TRT hits which pass the high threshold (only xenon counted) [unit8_t].
+    numberOfTRTHighThresholdHitsTotal= 64,  //!< total number of TRT hits which pass the high threshold  [unit8_t].
+    //    numberOfTRTHitsUsedFordEdx      = 65, //!< number of TRT hits used for dE/dx computation
     numberOfTRTHighThresholdOutliers=20,  //!< number of TRT high threshold outliers (only xenon counted) [unit8_t].
     numberOfTRTDeadStraws           =37,  //!< number of dead TRT straws crossed [unit8_t].
     numberOfTRTTubeHits             =38,  //!< number of TRT tube hits [unit8_t].
@@ -274,11 +277,11 @@ namespace xAOD {
     // --- float values
     eProbabilityComb                = 47, //!< Electron probability from combining the below probabilities [float].
     eProbabilityHT                  = 48, //!< Electron probability from  High Threshold (HT) information [float].   
-    eProbabilityToT                 = 49, //!< Electron probability from Time-Over-Threshold (ToT) information [float].    
-    eProbabilityBrem                = 50, //!< Electron probability from Brem fitting (DNA) [float].  
+    // removed:   eProbabilityToT                 = 49, //!< Electron probability from Time-Over-Threshold (ToT) information [float].    
+    // removed:   eProbabilityBrem                = 50, //!< Electron probability from Brem fitting (DNA) [float].  
     pixeldEdx                       = 51, //!< the dE/dx estimate, calculated using the pixel clusters [?]
     // -- numbers...
-    numberOfTrackSummaryTypes       = 63
+    numberOfTrackSummaryTypes       = 66
   };
 
   /// Enumerates the different types of information stored in Summary. 

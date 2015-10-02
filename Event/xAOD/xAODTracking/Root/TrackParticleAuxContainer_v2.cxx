@@ -67,6 +67,7 @@ namespace xAOD {
       AUX_VARIABLE( numberOfGangedFlaggedFakes        );
       AUX_VARIABLE( numberOfPixelDeadSensors          );
       AUX_VARIABLE( numberOfPixelSpoiltHits           );
+      AUX_VARIABLE( numberOfDBMHits                   );
       AUX_VARIABLE( numberOfSCTHits                   );
       AUX_VARIABLE( numberOfSCTOutliers               );
       AUX_VARIABLE( numberOfSCTHoles                  );
@@ -78,6 +79,7 @@ namespace xAOD {
       AUX_VARIABLE( numberOfTRTOutliers               );
       AUX_VARIABLE( numberOfTRTHoles                  );
       AUX_VARIABLE( numberOfTRTHighThresholdHits      );
+      AUX_VARIABLE( numberOfTRTHighThresholdHitsTotal );
       AUX_VARIABLE( numberOfTRTHighThresholdOutliers  );
       AUX_VARIABLE( numberOfTRTDeadStraws             );
       AUX_VARIABLE( numberOfTRTTubeHits               );
@@ -95,8 +97,8 @@ namespace xAOD {
       // Floats
       AUX_VARIABLE( eProbabilityComb                  );
       AUX_VARIABLE( eProbabilityHT                    ); 
-      AUX_VARIABLE( eProbabilityToT                   ); 
-      AUX_VARIABLE( eProbabilityBrem                  );
+      // AUX_VARIABLE( eProbabilityToT                   ); 
+      // AUX_VARIABLE( eProbabilityBrem                  );
       AUX_VARIABLE( pixeldEdx                 );
 #endif
 
@@ -128,6 +130,21 @@ namespace xAOD {
        std::ostream_iterator<float>(std::cout, ", "));
         std::cout<<std::endl;
      }
+   }
+
+   /// This function is used to implement simple schema evolution rules that
+   /// don't warrant creating a _v3 class yet.
+   void TrackParticleAuxContainer_v2::toTransient() {
+
+      // Make sure that the numberOfDBMHits variable is of the right size:
+      if( numberOfDBMHits.size() != phi.size() ) {
+         numberOfDBMHits.resize( phi.size(), 0 );
+      }
+      if( numberOfTRTHighThresholdHitsTotal.size() != phi.size() ) {
+         numberOfTRTHighThresholdHitsTotal.resize( phi.size(), 0 );
+      }
+
+      return;
    }
 
 } // namespace xAOD

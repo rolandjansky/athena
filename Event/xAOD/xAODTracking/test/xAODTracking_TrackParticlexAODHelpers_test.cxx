@@ -44,7 +44,7 @@ void testPtErr() {
        p->setDefiningParameters(0., 0., 0, theta[j], q_over_p[i]);
        xAOD::ParametersCovMatrix_t cov;
        float theta_uncert = std::abs(theta[j])*1e-3;
-       float q_over_p_uncert = std::abs(q_over_p_uncert)*1e-4;
+       float q_over_p_uncert = std::abs(q_over_p[i])*1e-4;
        float cov_theta_q_over_p =  q_over_p_uncert*theta_uncert*.2;
        cov(3,3)=xAOD::TrackingHelpers::sqr(theta_uncert);
        cov(4,4)=xAOD::TrackingHelpers::sqr(q_over_p_uncert);
@@ -178,11 +178,17 @@ void test_d0significance() {
   beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, -0.015*0.01) );
   valid.push_back(true);
 
-  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, -0.015*0.01*(1.+1e-6)) );
+  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, -(0.015*0.015+0.01*0.01)*0.5*(1.+1e-6)) );
   valid.push_back(false);
 
-  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, 0.015*0.01*(1.+1e-6)) );
+  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, (0.015*0.015+0.01*0.01)*0.5*(1.+1e-6)) );
   valid.push_back(false);
+
+  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, -(0.015*0.015+0.01*0.01)*0.5*(1.-1e-5)) );
+  valid.push_back(true);
+
+  beamspot_sigma_list.push_back( Cov_t(0.015, 0.01, (0.015*0.015+0.01*0.01)*0.5*(1.-1e-5)) );
+  valid.push_back(true);
 
   float ref_d0=1;
   float ref_z0=10;
@@ -224,6 +230,7 @@ void test_d0significance() {
         }
         double d0_significance = xAOD::TrackingHelpers::d0significance(p, beamspot_sigma.x(), beamspot_sigma.y(), beamspot_sigma.xy());
         assert( checkEqual<float>( d0_significance, expected_d0_significance ) );
+        assert( ( *valid_iter ) );
       }
       catch( std::exception &) {
         assert( !( *valid_iter ) );

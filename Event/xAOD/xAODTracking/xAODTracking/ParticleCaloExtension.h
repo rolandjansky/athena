@@ -121,6 +121,7 @@ namespace xAOD {
 
   inline void ParticleCaloExtension::setCaloCells(const std::vector<CaloCell*>& cells) {
     m_caloCells = cells;
+    m_cellsAreSet=true;
   }
 
 #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
