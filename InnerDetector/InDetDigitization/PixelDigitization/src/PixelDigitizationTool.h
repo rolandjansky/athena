@@ -133,6 +133,7 @@ class CalibSvc;
 class PixelRandomDisabledCellGenerator;
 class ISiChargedDiodeCollection;
 class SurfaceChargesTool;
+class IPixelOfflineCalibSvc;
 
 
 namespace CLHEP {
@@ -214,6 +215,9 @@ public:
 
 
 private:
+   mutable int                    m_overflowIBLToT;                                                                                          
+   ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
+  
    virtual StatusCode createOutputContainers();
    StatusCode getNextEvent();
    enum ReadoutTech {FEI3,FEI4};
@@ -261,8 +265,10 @@ private:
    PixelRDO_Container       *m_rdoContainerSPM;
    InDetSimDataCollection   *m_simDataColl;
 
-   int                       m_minToT;            /**< ToT for hit duplication */
-   int                       m_maxToT;            /**< LVL1 latency (max ToT readout from pixels) */
+   std::vector<int>          m_maxToT;            /**< LVL1 latency (max ToT readout from pixels) */
+   std::vector<int>          m_minToT;            /**< ToT cut */
+   std::vector<bool>         m_applyDupli;        /**< Apply hit duplication */
+   std::vector<int>          m_maxToTForDupli;    /**< Maximum ToT for hit duplication */
    bool			     m_IBLabsent;
   
    double                    m_time_y_eq_zero;

@@ -18,6 +18,7 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
+////#include "InDetIdentifier/PixelID.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
 using namespace InDetDD;
@@ -32,8 +33,9 @@ PixelCellDiscriminator::PixelCellDiscriminator(const std::string& type, const st
   m_CalibSvc("CalibSvc",name),
   m_rndmSvc("AtDSFMTGenSvc",name),
   m_rndmEngineName("PixelDigitization"),
-  m_rndmEngine(0)
-
+  m_rndmEngine(0),
+  m_IBLParameterSvc("IBLParameterSvc",name),
+  m_IBLabsent(true)
 {  
 	declareInterface< PixelCellDiscriminator >( this );
 	declareProperty("RndmSvc",m_rndmSvc,"Random Number Service used in Pixel digitization");
@@ -75,6 +77,12 @@ StatusCode PixelCellDiscriminator::initialize() {
 	ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
 	return StatusCode::FAILURE;
   }
+  if (m_IBLParameterSvc.retrieve().isFailure()) {
+	 ATH_MSG_WARNING("Could not retrieve IBLParameterSvc");
+  }
+  else {
+	 m_IBLParameterSvc->setBoolParameters(m_IBLabsent,"IBLAbsent");
+  }
 
   ATH_MSG_DEBUG ( "PixelCellDiscriminator::initialize()");
   return sc ;
@@ -96,6 +104,13 @@ StatusCode PixelCellDiscriminator::finalize() {
 // process the collection of charged diodes
 void PixelCellDiscriminator::process(SiChargedDiodeCollection &collection) const
 {   
+ 
+   bool ComputeTW = true;
+   //if (getReadoutTech(collection.element()) == FEI4)ComputeTW = false;
+   const PixelID* pixelId = static_cast<const PixelID *>((collection.element())->getIdHelper());
+   if ((!m_IBLabsent && pixelId->is_blayer(collection.element()->identify())) || 
+                      pixelId->barrel_ec(collection.element()->identify())==4 ||
+		      pixelId->barrel_ec(collection.element()->identify())==-4) ComputeTW = false;
   // discriminator is applied to all cells, even unconnected ones to be
   /// able to use the unconnected cells as well
 
@@ -136,7 +151,7 @@ void PixelCellDiscriminator::process(SiChargedDiodeCollection &collection) const
       if( (*i_chargedDiode).second.totalCharge().fromTrack()){
         bunch=m_TimeSvc->relativeBunch(threshold,
                                        intimethreshold,
-                                       (*i_chargedDiode).second.totalCharge());
+                                       (*i_chargedDiode).second.totalCharge(), ComputeTW);
       } else {
         bunch=CLHEP::RandFlat::shootInt(m_rndmEngine,BCN);
       }

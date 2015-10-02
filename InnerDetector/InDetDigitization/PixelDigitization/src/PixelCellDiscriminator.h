@@ -41,6 +41,7 @@
 // Base class
 #include "SiDigitization/ISiChargedDiodesProcessorTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
+#include "PixelGeoModel/IBLParameterSvc.h"
 
 namespace CLHEP {
   class HepRandomEngine;
@@ -83,6 +84,8 @@ private:
   ServiceHandle<IAtRndmGenSvc> m_rndmSvc;
   std::string m_rndmEngineName;
   CLHEP::HepRandomEngine* m_rndmEngine;
+  ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
+  bool m_IBLabsent;
 };
 
 #endif
