@@ -39,7 +39,7 @@ namespace Trk {
         int ncloseHits; //<! number of hits within a road around the track in the projection
       };
 
-      ChamberHitSummary(  ) {}
+      ChamberHitSummary(  ):m_chId{},m_isMdt{} {}
 
       /** constructor taking the Identifier of the chamber and a boolean whether we are dealing with a MDT chamber or not
 	  (the boolean is passed as the ChamberHitSummary cannot unpack the identifier and it needs to know whether it is dealing 

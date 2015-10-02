@@ -61,6 +61,7 @@ enum SummaryType {
         numberOfGangedFlaggedFakes      =32,  //!< number of Ganged Pixels flagged as fakes
         numberOfPixelDeadSensors        =33,  //!< number of dead pixel sensors crossed
         numberOfPixelSpoiltHits         =35,  //!< number of pixel hits with broad errors (width/sqrt(12))
+	numberOfDBMHits                 =63,  //!< number of DBM Hits
         numberOfSCTHits                 = 3,  //!< number of hits in SCT
         numberOfSCTOutliers             =39,  //!< number of SCT outliers
         numberOfSCTHoles                = 4,  //!< number of SCT holes
@@ -72,6 +73,8 @@ enum SummaryType {
         numberOfTRTOutliers             =19,  //!< number of TRT outliers
         numberOfTRTHoles                =40,  //!< number of TRT holes
         numberOfTRTHighThresholdHits    = 6,  //!< number of TRT hits which pass the high threshold (only xenon counted)
+        numberOfTRTHighThresholdHitsTotal= 64,//!< total number of TRT hits which pass the high threshold 
+        numberOfTRTHitsUsedFordEdx      = 65, //!< number of TRT hits used for dE/dx computation
         numberOfTRTHighThresholdOutliers=20,  //!< number of TRT high threshold outliers (only xenon counted)
         numberOfTRTDeadStraws           =37,  //!< number of dead TRT straws crossed
         numberOfTRTTubeHits             =38,  //!< number of TRT tube hits
@@ -107,7 +110,7 @@ enum SummaryType {
 	pixeldEdx_res                       = 51, //!< the dE/dx estimate, calculated using the pixel clusters [?]
 
  // -- numbers...
-        numberOfTrackSummaryTypes = 63
+        numberOfTrackSummaryTypes = 66
     };
 
 // Troels.Petersen@cern.ch:
@@ -116,8 +119,11 @@ enum SummaryType {
             eProbabilityHT              = 1,       //!< Electron probability from High Threshold (HT) information.
             eProbabilityToT             = 2,       //!< Electron probability from Time-Over-Threshold (ToT) information.
             eProbabilityBrem            = 3,       //!< Electron probability from Brem fitting (DNA).
-            numberOfeProbabilityTypes   = 4
-        };
+            numberOfeProbabilityTypes   = 4        
+        }; 
+  // the eProbability vector is abused to store : 
+  // [4] TRT local occupancy
+  // [5] TRT dE/dx
 
 /** enumerates the various detector types currently accessible from the isHit() method.
 \todo work out how to add muons to this*/
@@ -148,7 +154,13 @@ enum DetectorType {
 
         trtBarrel    = 20,
         trtEndCap    = 21,
-        numberOfDetectorTypes = 22
+
+	DBM0 = 22,
+	DBM1 = 23,
+	DBM2 = 24,
+
+        numberOfDetectorTypes = 25
+
     };//not complete yet
 
 
@@ -244,6 +256,13 @@ public:
     /** assignment operator */
     TrackSummary& operator=(const TrackSummary&);   
 
+   /** Update unset summary information.
+    * @param type the type of the summary information to be updated.
+    * @param new_value the value to be set for the given type.
+    * @return false in case the information was set alread.
+   */
+   bool update(Trk::SummaryType type, int new_value);
+
 private: // data members
 
     /** vector containing the persistent summary information. */
@@ -281,8 +300,15 @@ inline int Trk::TrackSummary::get(const Trk::SummaryType& type) const
 // Troels.Petersen@cern.ch:
 inline float Trk::TrackSummary::getPID(const Trk::eProbabilityType& PIDtype) const 
 {
-    return m_eProbability[PIDtype];
+  return (PIDtype < m_eProbability.size() ? m_eProbability[PIDtype] : 0.);
 }
+        
+inline bool Trk::TrackSummary::update(Trk::SummaryType type, int new_value)
+{     
+    if  (m_information.at(type) != SummaryTypeNotSet) return false;                                                                                                                                                                                               
+    m_information[type]=new_value;
+    return true;
+}                                                                                                                                                                                                                                                               
 
 inline float Trk::TrackSummary::getPixeldEdx() const
 {
