@@ -113,71 +113,78 @@ Trk::TrackSummary& Trk::TrackSummary::operator+=(const TrackSummary& ts)
 }
 
 
-std::ostream& Trk::operator<<( std::ostream& out, const TrackSummary& trackSum )
+namespace Trk {
+namespace {
+
+template <class T_out>
+inline
+T_out& dumpTrackSummary( T_out& out, const TrackSummary& trackSum )
 {
-  out << "Persistant track summary information:"<<std::endl;
-  out << " * Number of contrib. Pixel Layer: "<<trackSum.get(numberOfContribPixelLayers)<<std::endl;
-  out << " * Number of Innermost Pixel layer hits        : "<<trackSum.get(numberOfInnermostPixelLayerHits)<<std::endl;
-  out << " * Number of Innermost Pixel layer shared hits : "<<trackSum.get(numberOfInnermostPixelLayerSharedHits)<<std::endl;
-  out << " * Number of Innermost Pixel layer outliers    : "<<trackSum.get(numberOfInnermostPixelLayerOutliers)<<std::endl;
-  out << " * Expect Innermost Pixel layer hits (0/1)     : "<<trackSum.get(expectInnermostPixelLayerHit)<<endreq;
-  out << " * Number of Next-To-Innermost Pixel layer hits        : "<<trackSum.get(numberOfNextToInnermostPixelLayerHits)<<std::endl;
-  out << " * Number of Next-To-Innermost Pixel layer shared hits : "<<trackSum.get(numberOfNextToInnermostPixelLayerSharedHits)<<std::endl;
-  out << " * Number of Next-To-Innermost Pixel layer outliers    : "<<trackSum.get(numberOfNextToInnermostPixelLayerOutliers)<<std::endl;
-  out << " * Expect Next-To-Innermost Pixel layer hits (0/1)     : "<<trackSum.get(expectNextToInnermostPixelLayerHit)<<endreq;
-  out << " * Number of pixel hits          : "<<trackSum.get(numberOfPixelHits)<<std::endl;
-  out << " * Number of pixel outliers      : "<<trackSum.get(numberOfPixelOutliers)<<std::endl;
-  out << " * Number of spoilt pixel hits   : "<<trackSum.get(numberOfPixelSpoiltHits)<<std::endl;
-  out << " * Number of pixel holes         : "<<trackSum.get(numberOfPixelHoles)<<std::endl;
-  out << " * Number of pixel shared hits   : "<<trackSum.get(numberOfPixelSharedHits)<<std::endl;
-  out << " * Number of GangedPixels        : "<<trackSum.get(numberOfGangedPixels)<<std::endl;
-  out << " * Number of GangedFlaggedFakes  : "<<trackSum.get(numberOfGangedFlaggedFakes)<<std::endl;
-  out << " * Number of dead pixel sensors  : "<<trackSum.get(numberOfPixelDeadSensors)<<std::endl;
-  out << " * Number of SCT hits            : "<<trackSum.get(numberOfSCTHits)<<std::endl;
-  out << " * Number of SCT outliers        : "<<trackSum.get(numberOfSCTOutliers)<<std::endl;
-  out << " * Number of SCT holes           : "<<trackSum.get(numberOfSCTHoles)<<std::endl;
-  out << " * Number of SCT double Holes    : "<<trackSum.get(numberOfSCTDoubleHoles)<<std::endl;
-  out << " * Number of SCT shared hits     : "<<trackSum.get(numberOfSCTSharedHits)<<std::endl;
-  out << " * Number of dead SCT sensors    : "<<trackSum.get(numberOfSCTDeadSensors)<<std::endl;
-  out << " * Number of spoilt SCT hits     : "<<trackSum.get(numberOfSCTSpoiltHits)<<std::endl;
-  out << " * Number of TRT hits            : "<<trackSum.get(numberOfTRTHits)<<std::endl;
-  out << " * Number of TRT xenon hits      : "<<trackSum.get(numberOfTRTXenonHits)<<std::endl;
-  out << " * Number of TRT outliers        : "<<trackSum.get(numberOfTRTOutliers)<<std::endl;
-  out << " * Number of TRT TR hits         : "<<trackSum.get(numberOfTRTHighThresholdHits)<<std::endl;
-  out << " * Number of TRT TR outliers     : "<<trackSum.get(numberOfTRTHighThresholdOutliers)<<std::endl;
-  out << " * Number of TRT holes           : "<<trackSum.get(numberOfTRTHoles)<<std::endl;
-  out << " * Number of TRT tube hits       : "<<trackSum.get(numberOfTRTTubeHits)<<std::endl;
-  out << " * Number of TRT Shared hits     : "<<trackSum.get(numberOfTRTSharedHits)<<std::endl;
-  out << " * Number of dead TRT straws     : "<<trackSum.get(numberOfTRTDeadStraws)<<std::endl;
-  out << " * Number of MDT hits            : "<<trackSum.get(numberOfMdtHits)<<std::endl;
-  out << " * Number of MDT holes           : "<<trackSum.get(numberOfMdtHoles)<<std::endl;
+  out << "Persistant track summary information:"<<"\n";
+  out << " * Number of contrib. Pixel Layer: "<<trackSum.get(numberOfContribPixelLayers)<<"\n";
+  out << " * Number of Innermost Pixel layer hits        : "<<trackSum.get(numberOfInnermostPixelLayerHits)<<"\n";
+  out << " * Number of Innermost Pixel layer shared hits : "<<trackSum.get(numberOfInnermostPixelLayerSharedHits)<<"\n";
+  out << " * Number of Innermost Pixel layer outliers    : "<<trackSum.get(numberOfInnermostPixelLayerOutliers)<<"\n";
+  out << " * Expect Innermost Pixel layer hits (0/1)     : "<<trackSum.get(expectInnermostPixelLayerHit)<<"\n";
+  out << " * Number of Next-To-Innermost Pixel layer hits        : "<<trackSum.get(numberOfNextToInnermostPixelLayerHits)<<"\n";
+  out << " * Number of Next-To-Innermost Pixel layer shared hits : "<<trackSum.get(numberOfNextToInnermostPixelLayerSharedHits)<<"\n";
+  out << " * Number of Next-To-Innermost Pixel layer outliers    : "<<trackSum.get(numberOfNextToInnermostPixelLayerOutliers)<<"\n";
+  out << " * Expect Next-To-Innermost Pixel layer hits (0/1)     : "<<trackSum.get(expectNextToInnermostPixelLayerHit)<<"\n";
+  out << " * Number of pixel hits          : "<<trackSum.get(numberOfPixelHits)<<"\n";
+  out << " * Number of pixel outliers      : "<<trackSum.get(numberOfPixelOutliers)<<"\n";
+  out << " * Number of spoilt pixel hits   : "<<trackSum.get(numberOfPixelSpoiltHits)<<"\n";
+  out << " * Number of pixel holes         : "<<trackSum.get(numberOfPixelHoles)<<"\n";
+  out << " * Number of pixel shared hits   : "<<trackSum.get(numberOfPixelSharedHits)<<"\n";
+  out << " * Number of GangedPixels        : "<<trackSum.get(numberOfGangedPixels)<<"\n";
+  out << " * Number of GangedFlaggedFakes  : "<<trackSum.get(numberOfGangedFlaggedFakes)<<"\n";
+  out << " * Number of dead pixel sensors  : "<<trackSum.get(numberOfPixelDeadSensors)<<"\n";
+  out << " * Number of DBM hits            : "<<trackSum.get(numberOfDBMHits)<<"\n";
+  out << " * Number of SCT hits            : "<<trackSum.get(numberOfSCTHits)<<"\n";
+  out << " * Number of SCT outliers        : "<<trackSum.get(numberOfSCTOutliers)<<"\n";
+  out << " * Number of SCT holes           : "<<trackSum.get(numberOfSCTHoles)<<"\n";
+  out << " * Number of SCT double Holes    : "<<trackSum.get(numberOfSCTDoubleHoles)<<"\n";
+  out << " * Number of SCT shared hits     : "<<trackSum.get(numberOfSCTSharedHits)<<"\n";
+  out << " * Number of dead SCT sensors    : "<<trackSum.get(numberOfSCTDeadSensors)<<"\n";
+  out << " * Number of spoilt SCT hits     : "<<trackSum.get(numberOfSCTSpoiltHits)<<"\n";
+  out << " * Number of TRT hits            : "<<trackSum.get(numberOfTRTHits)<<"\n";
+  out << " * Number of TRT xenon hits      : "<<trackSum.get(numberOfTRTXenonHits)<<"\n";
+  out << " * Number of TRT outliers        : "<<trackSum.get(numberOfTRTOutliers)<<"\n";
+  out << " * Number of TRT TR hits         : "<<trackSum.get(numberOfTRTHighThresholdHits)<<"\n";
+  out << " * Number of TRT TR hits total   : "<<trackSum.get(numberOfTRTHighThresholdHitsTotal)<<"\n";
+  out << " * Number of TRT TR outliers     : "<<trackSum.get(numberOfTRTHighThresholdOutliers)<<"\n";
+  out << " * Number of TRT holes           : "<<trackSum.get(numberOfTRTHoles)<<"\n";
+  out << " * Number of TRT tube hits       : "<<trackSum.get(numberOfTRTTubeHits)<<"\n";
+  out << " * Number of TRT Shared hits     : "<<trackSum.get(numberOfTRTSharedHits)<<"\n";
+  out << " * Number of dead TRT straws     : "<<trackSum.get(numberOfTRTDeadStraws)<<"\n";
+  out << " * Number of MDT hits            : "<<trackSum.get(numberOfMdtHits)<<"\n";
+  out << " * Number of MDT holes           : "<<trackSum.get(numberOfMdtHoles)<<"\n";
   out << " * Number of TGC hits            : phi "<<trackSum.get(numberOfTgcPhiHits)
-      << " eta " <<trackSum.get(numberOfTgcEtaHits)<<std::endl;
+      << " eta " <<trackSum.get(numberOfTgcEtaHits)<<"\n";
   out << " * Number of TGC holes           : phi "<<trackSum.get(numberOfTgcPhiHoles)
-      << " eta  "<<trackSum.get(numberOfTgcEtaHoles)<<std::endl;
+      << " eta  "<<trackSum.get(numberOfTgcEtaHoles)<<"\n";
   out << " * Number of RPC hits            : phi "<<trackSum.get(numberOfRpcPhiHits)
-      << " eta " <<trackSum.get(numberOfRpcEtaHits) <<std::endl;
+      << " eta " <<trackSum.get(numberOfRpcEtaHits) <<"\n";
   out << " * Number of RPC holes           : phi "<<trackSum.get(numberOfRpcPhiHoles)
-      << " eta  "<<trackSum.get(numberOfRpcEtaHoles)<<std::endl;
+      << " eta  "<<trackSum.get(numberOfRpcEtaHoles)<<"\n";
   out << " * Number of CSC hits            : phi "<<trackSum.get(numberOfCscPhiHits)
-      << " eta " <<trackSum.get(numberOfCscEtaHits) <<std::endl;
-  out << " * Number of unspoilt CSC etahits:"<<trackSum.get(numberOfCscUnspoiltEtaHits) <<std::endl;
+      << " eta " <<trackSum.get(numberOfCscEtaHits) <<"\n";
+  out << " * Number of unspoilt CSC etahits:"<<trackSum.get(numberOfCscUnspoiltEtaHits) <<"\n";
   out << " * Number of CSC holes           : phi "<<trackSum.get(numberOfCscPhiHoles)
-      << " eta  "<<trackSum.get(numberOfCscEtaHoles)<<std::endl;
-  out << " * Number of Outliers            : "<<trackSum.get(numberOfOutliersOnTrack)<<std::endl;
-  out << "Transient track summary information:"<<std::endl;
-  out << " * scatter of chi2 on Surface    : "<<float(trackSum.get(standardDeviationOfChi2OS))/100.<<std::endl;
+      << " eta  "<<trackSum.get(numberOfCscEtaHoles)<<"\n";
+  out << " * Number of Outliers            : "<<trackSum.get(numberOfOutliersOnTrack)<<"\n";
+  out << "Transient track summary information:"<<"\n";
+  out << " * scatter of chi2 on Surface    : "<<float(trackSum.get(standardDeviationOfChi2OS))/100.<<"\n";
+    
+  out << " --------------------------------- " << "\n";
+  out << " * Electron probability combined:  " << trackSum.getPID(eProbabilityComb) << "\n";
+  out << " * Electron probability from HT:   " << trackSum.getPID(eProbabilityHT)   << "\n";
+  out << " * Electron probability from ToT:  " << trackSum.getPID(eProbabilityToT)  << "\n";
+  out << " * Electron probability from Brem: " << trackSum.getPID(eProbabilityBrem) << "\n";
+  out << " --------------------------------- " << "\n";
 
-  out << " --------------------------------- " << std::endl;
-  out << " * Electron probability combined:  " << trackSum.getPID(eProbabilityComb) << std::endl;
-  out << " * Electron probability from HT:   " << trackSum.getPID(eProbabilityHT)   << std::endl;
-  out << " * Electron probability from ToT:  " << trackSum.getPID(eProbabilityToT)  << std::endl;
-  out << " * Electron probability from Brem: " << trackSum.getPID(eProbabilityBrem) << std::endl;
-  out << " --------------------------------- " << std::endl;
-
-  out << " dE/dx from pixels               : " << trackSum.getPixeldEdx() << " MeV g^-1 cm^2" << std::endl;
-  out << " number of hits used for dE/dx   : " << trackSum.numberOfUsedHitsdEdx() << std::endl;
-  out << " number of overflow hits used for dE/dx   : " << trackSum.numberOfOverflowHitsdEdx() << std::endl;
+  out << " dE/dx from pixels               : " << trackSum.getPixeldEdx() << " MeV g^-1 cm^2" << "\n";
+  out << " number of hits used for dE/dx   : " << trackSum.numberOfUsedHitsdEdx() << "\n";
+  out << " number of overflow hits used for dE/dx   : " << trackSum.numberOfOverflowHitsdEdx() << "\n";
   //this is a bit nasty, but I don't have access to internal data members
   out << " Hit pattern (see DetectorType enum for meaning) : ";
   for (int i=0; i<Trk::numberOfDetectorTypes; ++i) 
@@ -188,7 +195,7 @@ std::ostream& Trk::operator<<( std::ostream& out, const TrackSummary& trackSum )
     out<<"0";
       }
     }
-    out << std::endl;
+    out << "\n";
     if (0!=trackSum.indetTrackSummary()){
         out<<*(trackSum.indetTrackSummary());
     }
@@ -197,87 +204,17 @@ std::ostream& Trk::operator<<( std::ostream& out, const TrackSummary& trackSum )
     }
   return out;
 }
+}
+}
+
+std::ostream& Trk::operator<<( std::ostream& out, const TrackSummary& trackSum )
+{
+  return dumpTrackSummary(out,trackSum);
+}
 
 MsgStream& Trk::operator<<( MsgStream& out, const TrackSummary& trackSum )
 {
-  out << "Track summary information:"<<endreq;
-  out << " * Number of contrib. Pixel Layer: "<<trackSum.get(numberOfContribPixelLayers)<<endreq;
-  out << " * Number of B layer hits        : "<<trackSum.get(numberOfBLayerHits)<<endreq;
-  out << " * Number of B layer outliers    : "<<trackSum.get(numberOfBLayerOutliers)<<endreq;
-  out << " * Number of B layer shared hits : "<<trackSum.get(numberOfBLayerSharedHits)<<endreq;
-  out << " * Expect B layer hits (0/1)     : "<<trackSum.get(expectBLayerHit)<<endreq;
-  out << " * Number of pixel hits          : "<<trackSum.get(numberOfPixelHits)<<endreq;
-  out << " * Number of pixel outliers      : "<<trackSum.get(numberOfPixelOutliers)<<endreq;
-  out << " * Number of spoilt pixel hits   : "<<trackSum.get(numberOfPixelSpoiltHits)<<endreq;
-  out << " * Number of pixel holes         : "<<trackSum.get(numberOfPixelHoles)<<endreq;
-  out << " * Number of pixel shared hits   : "<<trackSum.get(numberOfPixelSharedHits)<<endreq;
-  out << " * Number of GangedPixels        : "<<trackSum.get(numberOfGangedPixels)<<endreq;
-  out << " * Number of GangedFlaggedFakes  : "<<trackSum.get(numberOfGangedFlaggedFakes)<<endreq;
-  out << " * Number of dead pixel sensors  : "<<trackSum.get(numberOfPixelDeadSensors)<<endreq;
-  out << " * Number of SCT hits            : "<<trackSum.get(numberOfSCTHits)<<endreq;
-  out << " * Number of SCT outliers        : "<<trackSum.get(numberOfSCTOutliers)<<endreq;
-  out << " * Number of SCT holes           : "<<trackSum.get(numberOfSCTHoles)<<endreq;
-  out << " * Number of SCT double Holes    : "<<trackSum.get(numberOfSCTDoubleHoles)<<endreq;
-  out << " * Number of SCT shared hits     : "<<trackSum.get(numberOfSCTSharedHits)<<endreq;
-  out << " * Number of dead SCT sensors    : "<<trackSum.get(numberOfSCTDeadSensors)<<endreq;
-  out << " * Number of spoilt SCT hits     : "<<trackSum.get(numberOfSCTSpoiltHits)<<endreq;
-  out << " * Number of TRT hits            : "<<trackSum.get(numberOfTRTHits)<<endreq;
-  out << " * Number of TRT xenon hits      : "<<trackSum.get(numberOfTRTXenonHits)<<endreq;
-  out << " * Number of TRT outliers        : "<<trackSum.get(numberOfTRTOutliers)<<endreq;
-  out << " * Number of TRT TR hits         : "<<trackSum.get(numberOfTRTHighThresholdHits)<<endreq;
-  out << " * Number of TRT TR outliers     : "<<trackSum.get(numberOfTRTHighThresholdOutliers)<<endreq;
-  out << " * Number of TRT holes           : "<<trackSum.get(numberOfTRTHoles)<<endreq;
-  out << " * Number of TRT tube hits       : "<<trackSum.get(numberOfTRTTubeHits)<<endreq;
-  out << " * Number of dead TRT straws     : "<<trackSum.get(numberOfTRTDeadStraws)<<endreq;
-  out << " * Number of MDT hits            : "<<trackSum.get(numberOfMdtHits)<<endreq;
-  out << " * Number of MDT holes           : "<<trackSum.get(numberOfMdtHoles)<<endreq;
-  out << " * Number of TGC hits            : phi "<<trackSum.get(numberOfTgcPhiHits)
-      << " eta " <<trackSum.get(numberOfTgcEtaHits)<<endreq;
-  out << " * Number of TGC holes           : phi "<<trackSum.get(numberOfTgcPhiHoles)
-      << " eta " <<trackSum.get(numberOfTgcEtaHoles) <<endreq;
-  out << " * Number of RPC hits            : phi "<<trackSum.get(numberOfRpcPhiHits)
-      << " eta " <<trackSum.get(numberOfRpcEtaHits) <<endreq;
-  out << " * Number of RPC holes           : phi "<<trackSum.get(numberOfRpcPhiHoles)
-      << " eta " <<trackSum.get(numberOfRpcEtaHoles) <<endreq;
-  out << " * Number of CSC hits            : phi "<<trackSum.get(numberOfCscPhiHits)
-      << " eta " <<trackSum.get(numberOfCscEtaHits) <<endreq;
-  out << " * Number of unspoilt CSC etahits:"<<trackSum.get(numberOfCscUnspoiltEtaHits) <<endreq;
-  out << " * Number of CSC holes           : phi "<<trackSum.get(numberOfCscPhiHoles)
-      << " eta " <<trackSum.get(numberOfCscEtaHoles) <<endreq;
-  out << " * Number of Outliers            : "<<trackSum.get(numberOfOutliersOnTrack)<<endreq;
-  out << "Transient track summary information:"<<endreq;
-  out << " * scatter of chi2 on Surface    : "<<float(trackSum.get(standardDeviationOfChi2OS))/100.<<endreq;
-    
-  out << " --------------------------------- " << endreq;
-  out << " * Electron probability combined:  " << trackSum.getPID(eProbabilityComb) << endreq;
-  out << " * Electron probability from HT:   " << trackSum.getPID(eProbabilityHT)   << endreq;
-  out << " * Electron probability from ToT:  " << trackSum.getPID(eProbabilityToT)  << endreq;
-  out << " * Electron probability from Brem: " << trackSum.getPID(eProbabilityBrem) << endreq;
-  out << " --------------------------------- " << endreq;
-
-  out << " dE/dx from pixels               : " << trackSum.getPixeldEdx() << " MeV g^-1 cm^2" << endreq;
-  out << " number of hits used for dE/dx   : " << trackSum.numberOfUsedHitsdEdx() << endreq;
-  out << " number of overflow hits used for dE/dx   : " << trackSum.numberOfOverflowHitsdEdx() << std::endl;
-    
-  //this is a bit nasty, but I don't have access to internal data members
-  out << " Hit pattern (see DetectorType enum for meaning) : ";
-  for (int i=0; i<Trk::numberOfDetectorTypes; ++i) 
-    {
-      if (trackSum.isHit(static_cast<Trk::DetectorType>(i))) {
-    out<<"1";
-      }else{
-    out<<"0";
-      }
-    }
-    out << endreq;
-    if (0!=trackSum.indetTrackSummary()){
-        out<<*(trackSum.indetTrackSummary());
-    }
-    if (0!=trackSum.muonTrackSummary()){
-        out<<*(trackSum.muonTrackSummary());
-    }
-  
-  return out;
+  return dumpTrackSummary(out,trackSum);
 }
 
 unsigned int Trk::TrackSummary::numberOfInstantiations() 
