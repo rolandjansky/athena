@@ -12,8 +12,7 @@
 #include "PixelCellDiscriminator.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "SiDigitization/SiHelper.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
-#include "PixelConditionsServices/IPixelCalibSvc.h"
+#include "CalibSvc.h"
 #include "TimeSvc.h"
 // random number service
 #include "CLHEP/Random/RandomEngine.h"
@@ -31,17 +30,18 @@ const InterfaceID& PixelCellDiscriminator::interfaceID( ){ return IID_IPixelCell
 PixelCellDiscriminator::PixelCellDiscriminator(const std::string& type, const std::string& name,const IInterface* parent):
   AthAlgTool(type,name,parent),
   m_TimeSvc("TimeSvc",name),
-  m_pixelCalibSvc("PixelCalibSvc", name),
+  m_CalibSvc("CalibSvc",name),
   m_rndmSvc("AtDSFMTGenSvc",name),
   m_rndmEngineName("PixelDigitization"),
   m_rndmEngine(0),
-  m_timingTune(2015)
+  m_IBLParameterSvc("IBLParameterSvc",name),
+  m_IBLabsent(true)
 {  
 	declareInterface< PixelCellDiscriminator >( this );
 	declareProperty("RndmSvc",m_rndmSvc,"Random Number Service used in Pixel digitization");
 	declareProperty("RndmEngine",m_rndmEngineName,"Random engine name");
-	declareProperty("TimeSvc",m_TimeSvc);
-	declareProperty("TimingTune",m_timingTune,"Version of the timing tune");	
+	declareProperty("CalibSvc",m_CalibSvc);
+	declareProperty("TimeSvc",m_TimeSvc);	
 }
 
 // Destructor:
@@ -52,42 +52,67 @@ PixelCellDiscriminator::~PixelCellDiscriminator()
 // Initialize
 //----------------------------------------------------------------------
 StatusCode PixelCellDiscriminator::initialize() {
-
-  CHECK(m_TimeSvc.retrieve());
-
-  CHECK(m_pixelCalibSvc.retrieve());
-
-  CHECK(m_rndmSvc.retrieve());
+  StatusCode sc = AthAlgTool::initialize(); 
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL ( "PixelCellDiscriminator::initialize() failed");
+    return sc ;
+  }
+  if (m_TimeSvc.retrieve().isFailure()) {
+	ATH_MSG_ERROR("Can't get TimeSvc");
+	return StatusCode::FAILURE;
+  }
+  if (m_CalibSvc.retrieve().isFailure()) {
+	ATH_MSG_ERROR("Can't get CalibSvc");
+	return StatusCode::FAILURE;
+  }
+  if (m_rndmSvc.retrieve().isFailure()) {
+	ATH_MSG_ERROR("Can't get RndmSvc");
+	return StatusCode::FAILURE;
+  }
+  else {
+	ATH_MSG_DEBUG("Retrieved RndmSvc");
+  }
   m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (!m_rndmEngine) {
-    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
-    return StatusCode::FAILURE;
-  } 
-  else { 
-    ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);  
+  if (m_rndmEngine==0) {
+	ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
+	return StatusCode::FAILURE;
+  }
+  if (m_IBLParameterSvc.retrieve().isFailure()) {
+	 ATH_MSG_WARNING("Could not retrieve IBLParameterSvc");
+  }
+  else {
+	 m_IBLParameterSvc->setBoolParameters(m_IBLabsent,"IBLAbsent");
   }
 
   ATH_MSG_DEBUG ( "PixelCellDiscriminator::initialize()");
-  return StatusCode::SUCCESS;
+  return sc ;
 }
 
 //----------------------------------------------------------------------
 // finalize
 //----------------------------------------------------------------------
 StatusCode PixelCellDiscriminator::finalize() {
-  return StatusCode::SUCCESS;
+  StatusCode sc = AthAlgTool::finalize();
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL ( "PixelCellDiscriminator::finalize() failed");
+    return sc ;
+  }
+  ATH_MSG_DEBUG ( "PixelCellDiscriminator::finalize()");
+  return sc ;
 }
 
 // process the collection of charged diodes
 void PixelCellDiscriminator::process(SiChargedDiodeCollection &collection) const
 {   
-  bool ComputeTW = false;
-  const PixelModuleDesign *p_design = static_cast<const PixelModuleDesign*>(&(collection.element()->design()));
-  if (p_design->getReadoutTechnology()==PixelModuleDesign::FEI3) {
-    ComputeTW = true;
-  }
-
-  const PixelID* pixelId = static_cast<const PixelID *>((collection.element())->getIdHelper());
+ 
+   bool ComputeTW = true;
+   //if (getReadoutTech(collection.element()) == FEI4)ComputeTW = false;
+   const PixelID* pixelId = static_cast<const PixelID *>((collection.element())->getIdHelper());
+   if ((!m_IBLabsent && pixelId->is_blayer(collection.element()->identify())) || 
+                      pixelId->barrel_ec(collection.element()->identify())==4 ||
+		      pixelId->barrel_ec(collection.element()->identify())==-4) ComputeTW = false;
+  // discriminator is applied to all cells, even unconnected ones to be
+  /// able to use the unconnected cells as well
 
   for(SiChargedDiodeIterator i_chargedDiode=collection.begin() ;
       i_chargedDiode!=collection.end() ; ++i_chargedDiode) {
@@ -103,15 +128,15 @@ void PixelCellDiscriminator::process(SiChargedDiodeCollection &collection) const
     //    noise    : actually a noise level that logically should be added to
     //               the charge <- TODO!
     //
-    double th0  = m_pixelCalibSvc->getThreshold(diodeID);
-    double ith0 = m_pixelCalibSvc->getTimeWalk(diodeID);
+    double th0  = m_CalibSvc->getCalThreshold(diodeID);
+    double ith0 = m_CalibSvc->getCalIntimeThreshold(diodeID);
     // Flers: here I rely on CalibSvc providing correct values for th0, ith0
     // if that's not true, need to figure out if we are in dbm and set
     // th0, ith0, e.g.
     //                      if (dbm) { th0=1200.; ith0=1500.; }
     double threshold = th0 +
-      m_pixelCalibSvc->getThresholdSigma(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine) +
-      m_pixelCalibSvc->getNoise(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+      m_CalibSvc->getCalThresholdSigma(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine) +
+      m_CalibSvc->getCalNoise(diodeID)*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
      
     double intimethreshold  =  (ith0/th0)*threshold;
     // double overdrive        =  intimethreshold - threshold ;
@@ -124,17 +149,9 @@ void PixelCellDiscriminator::process(SiChargedDiodeCollection &collection) const
       // else (i.e. is a noise hit or ...) assigns a random BC
       int bunch;
       if( (*i_chargedDiode).second.totalCharge().fromTrack()){
-        if (m_timingTune==2015) {
-          // Timing tune from 2015 collision data.
-          int bec      = pixelId->barrel_ec(collection.element()->identify());
-          int layerID  = pixelId->layer_disk(collection.element()->identify());
-          int moduleID = pixelId->eta_module(collection.element()->identify());
-          bunch = m_TimeSvc->relativeBunch2015((*i_chargedDiode).second.totalCharge(),bec,layerID,moduleID);
-        }
-        else {
-          // Old tune from 2010 cosmic data.
-          bunch=m_TimeSvc->relativeBunch(threshold, intimethreshold, (*i_chargedDiode).second.totalCharge(), ComputeTW);
-        }
+        bunch=m_TimeSvc->relativeBunch(threshold,
+                                       intimethreshold,
+                                       (*i_chargedDiode).second.totalCharge(), ComputeTW);
       } else {
         bunch=CLHEP::RandFlat::shootInt(m_rndmEngine,BCN);
       }

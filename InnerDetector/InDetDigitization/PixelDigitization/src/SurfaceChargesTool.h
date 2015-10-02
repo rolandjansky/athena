@@ -23,6 +23,11 @@
 class PixelID;
 
 class SubChargesTool;
+class PixelBarrelChargeTool;
+class PixelECChargeTool;
+class IblPlanarChargeTool;
+class Ibl3DChargeTool;
+class DBMChargeTool;
 
 namespace InDetDD {
   class SiDetectorElement;
@@ -36,7 +41,7 @@ class SurfaceChargesTool : public AthAlgTool {
 
 public:
   //Defines the Technology variable type, used for labeling the different tools.  
-  enum Technology {IBL3D,IBLPLANAR,PIXELEC,PIXELBARREL,DBM,RD53};  //FIXME define this in a common location see ATLASSIM-2644
+  enum Technology {IBL3D,IBLPLANAR,PIXELEC,PIXELBARREL,DBM};
  
   // Constructor:
   SurfaceChargesTool( const std::string& type, const std::string& name,const IInterface* parent);
@@ -73,18 +78,14 @@ private:
   //eliminated and have getTechnology() become getTechnology(Module);
   InDetDD::SiDetectorElement * m_module;   
   bool m_IBLabsent;
-
-  //Phase-II upgrade ITk flag.
-  bool m_doITk;
-
   /** Tool handles for the technology-specific tools for generating 
     * surface charges. 
     */ 
-  ToolHandle<SubChargesTool> m_PixelBarrelChargeTool;
-  ToolHandle<SubChargesTool> m_PixelECChargeTool;
-  ToolHandle<SubChargesTool> m_DBMChargeTool;
-  ToolHandle<SubChargesTool> m_IblPlanarChargeTool;
-  ToolHandle<SubChargesTool> m_Ibl3DChargeTool;
+  ToolHandle<PixelBarrelChargeTool> m_PixelBarrelChargeTool;
+  ToolHandle<PixelECChargeTool> m_PixelECChargeTool;
+  ToolHandle<DBMChargeTool> m_DBMChargeTool;
+  ToolHandle<IblPlanarChargeTool> m_IblPlanarChargeTool;
+  ToolHandle<Ibl3DChargeTool> m_Ibl3DChargeTool;
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
   
   /** map connecting Technology to the relevant tool */

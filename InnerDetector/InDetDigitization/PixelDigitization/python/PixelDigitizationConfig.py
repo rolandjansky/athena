@@ -2,7 +2,6 @@
 
 from AthenaCommon import CfgMgr
 from Digitization.DigitizationFlags import digitizationFlags
-from AtlasGeoModel.InDetGMJobProperties import GeometryFlags
 
 # The earliest bunch crossing time for which interactions will be sent
 # to the Pixel Digitization code.
@@ -29,79 +28,12 @@ def ChargeCollProbSvc(name="ChargeCollProbSvc", **kwargs):
     return CfgMgr.ChargeCollProbSvc(name, **kwargs)
 
 def SurfaceChargesTool(name="SurfaceChargesTool", **kwargs):
-    if hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation():
-        kwargs.setdefault("PixelBarrelChargeTool","PixelBarrelBichselChargeTool")
-        kwargs.setdefault("PixelECChargeTool","PixelECBichselChargeTool")
-        kwargs.setdefault("IblPlanarChargeTool","IblPlanarBichselChargeTool")
-        kwargs.setdefault("Ibl3DChargeTool","Ibl3DBichselChargeTool")
-    else:
-        kwargs.setdefault("PixelBarrelChargeTool","PixelBarrelChargeTool")
-        kwargs.setdefault("PixelECChargeTool","PixelECChargeTool")
-        kwargs.setdefault("IblPlanarChargeTool","IblPlanarChargeTool")
-        kwargs.setdefault("Ibl3DChargeTool","Ibl3DChargeTool")
-    kwargs.setdefault("DBMChargeTool","DBMChargeTool") # No separate implementation when using Bichsel model
-    kwargs.setdefault("doITk", GeometryFlags.isSLHC())
     return CfgMgr.SurfaceChargesTool(name, **kwargs)
 
 def DBMChargeTool(name="DBMChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     return CfgMgr.DBMChargeTool(name, **kwargs)
-
-###############################################################################
-
-def BichselSimTool(name="BichselSimTool", **kwargs):
-    kwargs.setdefault("DeltaRayCut", 117.)
-    kwargs.setdefault("nCols", 5)
-    kwargs.setdefault("LoopLimit", 100000)
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
-    return CfgMgr.BichselSimTool(name, **kwargs)
-
-def PixelBarrelBichselChargeTool(name="PixelBarrelBichselChargeTool", **kwargs):
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
-    kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
-    kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
-    kwargs.setdefault("doDeltaRay", False)            # needs validation
-    kwargs.setdefault("doPU", True)
-    kwargs.setdefault("BichselSimTool", "BichselSimTool")
-    # kwargs.setdefault("OutputFileName", digitizationFlags.BichselOutputFileName())
-    # kwargs.setdefault("doHITPlots", True)
-    return CfgMgr.PixelBarrelBichselChargeTool(name, **kwargs)
-
-def PixelECBichselChargeTool(name="PixelECBichselChargeTool", **kwargs):
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
-    kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
-    kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
-    kwargs.setdefault("doPU", True)
-    kwargs.setdefault("BichselSimTool", "BichselSimTool")
-    return CfgMgr.PixelECBichselChargeTool(name, **kwargs)
-
-def IblPlanarBichselChargeTool(name="IblPlanarBichselChargeTool", **kwargs):
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
-    kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
-    kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
-    kwargs.setdefault("doDeltaRay", False)            # needs validation
-    kwargs.setdefault("doPU", True)
-    kwargs.setdefault("BichselSimTool", "BichselSimTool")
-    return CfgMgr.IblPlanarBichselChargeTool(name, **kwargs)
-
-def Ibl3DBichselChargeTool(name="Ibl3DBichselChargeTool", **kwargs):
-    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
-    kwargs.setdefault("RndmEngine", "PixelDigitization")
-    kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
-    kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
-    kwargs.setdefault("doDeltaRay", False)            # needs validation
-    kwargs.setdefault("doPU", True)
-    kwargs.setdefault("BichselSimTool", "BichselSimTool")
-    return CfgMgr.Ibl3DBichselChargeTool(name, **kwargs)
-
-
-###############################################################################
-
 
 def PixelBarrelChargeTool(name="PixelBarrelChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
@@ -186,6 +118,18 @@ def TimeSvc(name="TimeSvc", **kwargs):
     kwargs.setdefault("TimeBCN",timeBCN)
     return CfgMgr.TimeSvc(name, **kwargs)
 
+def CalibSvc(name="CalibSvc", **kwargs):
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
+    kwargs.setdefault("RndmEngine", "PixelDigitization")
+    from AthenaCommon.BeamFlags import jobproperties
+    from AthenaCommon.Resilience import protectedInclude
+    protectedInclude("PixelConditionsServices/PixelCalibSvc_jobOptions.py")
+    from IOVDbSvc.CondDB import conddb
+    conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed")
+    if jobproperties.Beam.beamType == "cosmics" :
+        kwargs.setdefault("UsePixMapCondDB", True)
+    return CfgMgr.CalibSvc(name, **kwargs)
+
 def PixelCellDiscriminator(name="PixelCellDiscriminator", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
@@ -205,53 +149,33 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     from AthenaCommon.BeamFlags import jobproperties
     from AthenaCommon.Resilience import protectedInclude
     from AthenaCommon.Include import include
-    from AthenaCommon.AppMgr import ServiceMgr
-    protectedInclude( "PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py" )
+    protectedInclude ("PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py")
     include.block( "PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py" )
     protectedInclude( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
     include.block( "PixelConditionsServices/PixelDCSSvc_jobOptions.py" )
-    protectedInclude("PixelConditionsServices/PixelCalibSvc_jobOptions.py")
-    from IOVDbSvc.CondDB import conddb
-    conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed")
-    kwargs.setdefault("PixelCablingSvc","PixelCablingSvc")
+    from AthenaCommon.AppMgr import ServiceMgr
     if not hasattr(ServiceMgr, "PixelSiPropertiesSvc"):
         from SiLorentzAngleSvc.LorentzAngleSvcSetup import lorentzAngleSvc
-        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc
+        from SiPropertiesSvc.SiPropertiesSvcConf import SiPropertiesSvc;
         pixelSiPropertiesSvc = SiPropertiesSvc(name = "PixelSiPropertiesSvc",DetectorName="Pixel",SiConditionsServices = lorentzAngleSvc.pixelSiliconConditionsSvc)
         ServiceMgr += pixelSiPropertiesSvc
     kwargs.setdefault("InputObjectName", "PixelHits")
-    pixTools = []
-    pixTools += ['PixelDiodeCrossTalkGenerator']
-    pixTools += ['PixelChargeSmearer']
-    pixTools += ['PixelNoisyCellGenerator']
-    pixTools += ['PixelGangedMerger']
-    pixTools += ['SpecialPixelGenerator']
-    pixTools += ['PixelRandomDisabledCellGenerator']
-    pixTools += ['PixelCellDiscriminator']
-    kwargs.setdefault("PixelTools", pixTools)
+    kwargs.setdefault("EnableNoise", digitizationFlags.doInDetNoise.get_Value())
     # Start of special cosmics tuning:
     if jobproperties.Beam.beamType == "cosmics" :
+        kwargs.setdefault("CosmicsRun", True)
         kwargs.setdefault("UseComTime", True)
-    if GeometryFlags.isSLHC():
-        LVL1Latency = [255, 255, 255, 255, 255, 16, 255]
-        ToTMinCut = [0, 0, 0, 0, 0, 0, 0]
-        ApplyDupli = [False, False, False, False, False, False, False]
-        LowTOTduplication = [0, 0, 0, 0, 0, 0, 0]
-        kwargs.setdefault("LVL1Latency", LVL1Latency)
-        kwargs.setdefault("ToTMinCut", ToTMinCut)
-        kwargs.setdefault("ApplyDupli", ApplyDupli)
-        kwargs.setdefault("LowTOTduplication", LowTOTduplication)
     else:
         # For LVL1Latency, ToTMinCut, ApplyDupli and LowTOTduplication, first component [0] is always for IBL, even for run 1 production.
-        # The order is IBL, BL, L1, L2, EC, DBM
-        # For IBL and DBM, values of LVL1Latency and LowToTDupli are superseded by values driven by HitDiscCnfg settings, in PixelDigitizationTool.cxx
-        LVL1Latency = [16, 150, 255, 255, 255, 16]
-        ToTMinCut = [0, 6, 6, 6, 6, 0]
-        ApplyDupli = [True, False, False, False, False, False]
-        LowTOTduplication = [0, 7, 7, 7, 7, 0]
+	# The order is IBL, BL, L1, L2, EC, DBM
+	# For IBL and DBM, values of LVL1Latency and LowToTDupli are superseded by values driven by HitDiscCnfg settings, in PixelDigitizationTool.cxx
+        LVL1Latency = [16, 255, 255, 255, 255, 16]
         kwargs.setdefault("LVL1Latency", LVL1Latency)
+        ToTMinCut = [0, 4, 4, 4, 4, 0]
         kwargs.setdefault("ToTMinCut", ToTMinCut)
+        ApplyDupli = [True, True, True, True, True, True]
         kwargs.setdefault("ApplyDupli", ApplyDupli)
+        LowTOTduplication = [0, 7, 7, 7, 7, 0]
         kwargs.setdefault("LowTOTduplication", LowTOTduplication)
     if digitizationFlags.doXingByXingPileUp(): # PileUpTool approach
         kwargs.setdefault("FirstXing", Pixel_FirstXing() )
@@ -260,11 +184,6 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
 
 def PixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
     kwargs.setdefault("HardScatterSplittingMode", 0)
-    from IOVDbSvc.CondDB import conddb
-    if conddb.dbmc == "OFLP200" and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
-      conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg")
-    if not conddb.folderRequested('PIXEL/PixReco'):
-      conddb.addFolder('PIXEL_OFL','/PIXEL/PixReco')
     return BasicPixelDigitizationTool(name, **kwargs)
 
 def PixelDigitizationToolHS(name="PixelDigitizationToolHS", **kwargs):
@@ -278,6 +197,7 @@ def PixelDigitizationToolPU(name="PixelDigitizationToolPU", **kwargs):
     return BasicPixelDigitizationTool(name, **kwargs)
 
 def PixelDigitizationToolSplitNoMergePU(name="PixelDigitizationToolSplitNoMergePU", **kwargs):
+    kwargs.setdefault("EnableNoise", False)
     kwargs.setdefault("HardScatterSplittingMode", 0)
     kwargs.setdefault("InputObjectName", "PileupPixelHits")
     kwargs.setdefault("RDOCollName", "Pixel_PU_RDOs")
@@ -285,11 +205,7 @@ def PixelDigitizationToolSplitNoMergePU(name="PixelDigitizationToolSplitNoMergeP
     return BasicPixelDigitizationTool(name, **kwargs)
 
 def PixelOverlayDigitizationTool(name="PixelOverlayDigitizationTool",**kwargs):
-    from OverlayCommonAlgs.OverlayFlags import overlayFlags
-    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
-    kwargs.setdefault("RDOCollName", overlayFlags.evtStore()+"/PixelRDOs")
-    kwargs.setdefault("RDOCollNameSPM", overlayFlags.evtStore()+"/PixelRDOs_SPM")
-    kwargs.setdefault("SDOCollName", overlayFlags.evtStore()+"/PixelSDO_Map")
+    kwargs.setdefault("EvtStore", "BkgEvent_0_SG")
     kwargs.setdefault("HardScatterSplittingMode", 0)
     return BasicPixelDigitizationTool(name,**kwargs)
 

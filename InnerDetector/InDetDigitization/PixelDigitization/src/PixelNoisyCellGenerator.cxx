@@ -20,10 +20,7 @@
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "TimeSvc.h"
-#include "PixelConditionsServices/IPixelCalibSvc.h"
-#include "InDetReadoutGeometry/PixelDetectorManager.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/PixelModuleDesign.h"
+#include "CalibSvc.h"
 
 #include<fstream>
 #include<sstream>
@@ -41,7 +38,7 @@ const InterfaceID& PixelNoisyCellGenerator::interfaceID( ){ return IID_IPixelNoi
 PixelNoisyCellGenerator::PixelNoisyCellGenerator(const std::string& type, const std::string& name,const IInterface* parent):
   AthAlgTool(type,name,parent),
   m_TimeSvc("TimeSvc",name),
-  m_pixelCalibSvc("PixelCalibSvc", name),
+  m_CalibSvc("CalibSvc",name),
   m_mergeCharge(false),
   m_pixelID(0),
   m_rndmSvc("AtDSFMTGenSvc",name),
@@ -49,7 +46,6 @@ PixelNoisyCellGenerator::PixelNoisyCellGenerator(const std::string& type, const 
   m_rndmEngine(0),
   m_spmNoiseOccu(1e-5),
   m_rndNoiseProb(5e-8)
-  //m_pixMgr(0)
 {
   declareInterface< PixelNoisyCellGenerator >( this );
   declareProperty("NoiseShape",m_noiseShape,"Vector containing noise ToT shape");
@@ -68,43 +64,66 @@ PixelNoisyCellGenerator::~PixelNoisyCellGenerator()
 // Initialize
 //----------------------------------------------------------------------
 StatusCode PixelNoisyCellGenerator::initialize() {
+  StatusCode sc = AthAlgTool::initialize(); 
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL ( "PixelNoisyCellGenerator::initialize() failed");
+    return sc ;
+  }
+  
+  if (m_TimeSvc.retrieve().isFailure()) {
+	ATH_MSG_ERROR("Can't get TimeSvc");
+	return StatusCode::FAILURE;
+  }
+  if (m_CalibSvc.retrieve().isFailure()) {
+	ATH_MSG_ERROR("Can't get CalibSvc");
+	return StatusCode::FAILURE;
+  }
+  if (m_rndmSvc.retrieve().isFailure()) {
+	ATH_MSG_ERROR("Can't get RndmSvc");
+	return StatusCode::FAILURE;
+  }
+  else {
+	ATH_MSG_DEBUG("Retrieved RndmSvc");
+  }
  
-  CHECK(m_TimeSvc.retrieve());
-
-  CHECK(m_pixelCalibSvc.retrieve());
-  ATH_MSG_DEBUG("Retrieved PixelCalibSvc");
-
-  CHECK(m_rndmSvc.retrieve());
+  ATH_MSG_DEBUG ( "Getting random number engine : <" << m_rndmEngineName << ">" );
   m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
-  if (!m_rndmEngine) {
-    ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
-    return StatusCode::FAILURE;
-  } 
-  else { 
-    ATH_MSG_DEBUG("Found RndmEngine : " << m_rndmEngineName);  
+  if (m_rndmEngine==0) {
+	ATH_MSG_ERROR ( "Could not find RndmEngine : " << m_rndmEngineName );
+	return StatusCode::FAILURE;
+  } else { 
+	ATH_MSG_DEBUG ( " Found RndmEngine : " << m_rndmEngineName ); 
   }
+  
 
-  std::string pixelHelperName("PixelID");
-  if ( StatusCode::SUCCESS!= detStore()->retrieve(m_pixelID,pixelHelperName) ) {
-    msg(MSG::FATAL) << "Pixel ID helper not found" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
-  std::string managerName("Pixel");
-  if ( StatusCode::SUCCESS!= detStore()->retrieve(m_pixMgr,managerName) ) {
-    msg(MSG::FATAL) << "PixelDetectorManager not found" << endmsg;
+  //  
+  // get PixelID
+  //
+  if ( detStore()->retrieve(m_pixelID,"PixelID").isFailure() ) {
+    // if this fails, it's probably a bug -> FATAL!
+    ATH_MSG_FATAL ( "Could not get Pixel ID helper" );
     return StatusCode::FAILURE;
   }
 
   ATH_MSG_DEBUG ( "PixelNoisyCellGenerator::initialize()");
   return StatusCode::SUCCESS;
+
 }
+
+  
+
 
 //----------------------------------------------------------------------
 // finalize
 //----------------------------------------------------------------------
 StatusCode PixelNoisyCellGenerator::finalize() {
-  return StatusCode::SUCCESS;
+  StatusCode sc = AthAlgTool::finalize();
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL ( "PixelNoisyCellGenerator::finalize() failed");
+    return sc ;
+  }
+  ATH_MSG_DEBUG ( "PixelNoisyCellGenerator::finalize()");
+  return sc ;
 }
 
 // process the collection of diode collection
@@ -146,7 +165,8 @@ void PixelNoisyCellGenerator::addNoisyPixels(SiChargedDiodeCollection &collectio
   //
   // get pixel module design and check it
   //
-  const PixelModuleDesign *p_design = static_cast<const PixelModuleDesign*>(&(collection.design()));
+  const PixelModuleDesign *p_design = dynamic_cast<const PixelModuleDesign*>(&(collection.design()));
+  if (!p_design) return;
 
   //
   // compute number of noisy cells
@@ -159,8 +179,9 @@ void PixelNoisyCellGenerator::addNoisyPixels(SiChargedDiodeCollection &collectio
 				      *p_design->rowsPerCircuit()     // =320
 				      *occupancy
                                       *static_cast<double>(bcn));
-  
+
   unsigned int imod = moduleHash;
+  ATH_MSG_DEBUG ( " Generating noisy pixels for module " << imod << "using map " << m_noisyPixel);
   std::map<unsigned int,std::vector<unsigned int> >::const_iterator mapit = m_noisyPixel->find(imod);
   std::vector<unsigned int> noisypixel;
   
@@ -192,30 +213,22 @@ void PixelNoisyCellGenerator::addNoisyPixels(SiChargedDiodeCollection &collectio
     }
     unsigned int noise_pixelID = noisypixel[irank];
     ATH_MSG_DEBUG ( " Noisy pixel = " << noise_pixelID);
+    ATH_MSG_DEBUG ( "********************** 0 ");
 #ifdef __PIXEL_DEBUG__
-    ATH_MSG_DEBUG ( "**********************");
+    ATH_MSG_DEBUG ( "********************** 1 ");
     ATH_MSG_DEBUG ( "Adding noisy pixel hit on: " 
 	  << std::hex << noise_pixelID << std::dec);
     ATH_MSG_DEBUG ( "********************** 1b ");
 #endif
-    ATH_MSG_DEBUG ( "**********************");
-    
-    const InDetDD::SiDetectorElement* element = m_pixMgr->getDetectorElement(moduleHash);
-    const InDetDD::PixelModuleDesign* p_design = static_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-    
-    unsigned int FE_Type = 0;
-    if ( p_design->getReadoutTechnology()!=PixelModuleDesign::FEI3 ) FE_Type = 1; // FE_Type = 1 for FEI4. ITK ?
-
-    std::vector<unsigned int> ChipColRow = ModuleSpecialPixelMap::decodePixelID( noise_pixelID, FE_Type );
-    
-    int chip   = ChipColRow.at(0);
-    int column = ChipColRow.at(1);
-    int row    = ChipColRow.at(2);
-    
+    ATH_MSG_DEBUG ( "********************** 2 ");
+    int chip = (noise_pixelID & 0xF);
     ATH_MSG_DEBUG ( "chip = " << chip);
+    noise_pixelID >>=4;
+    int column = (noise_pixelID & 0x1F);
     ATH_MSG_DEBUG ( "column = " << column);
+    noise_pixelID >>=5;
+    int row = noise_pixelID;
     ATH_MSG_DEBUG ( "row = " << row);
-
     int circuit;
     if(chip>=p_design->numberOfCircuits()) {
       circuit=chip-p_design->numberOfCircuits();
@@ -249,7 +262,8 @@ void PixelNoisyCellGenerator::addRandomNoise(SiChargedDiodeCollection &collectio
   //
   // get pixel module design and check it
   //
-  const PixelModuleDesign *p_design = static_cast<const PixelModuleDesign *>(&(collection.design()));
+  const PixelModuleDesign *p_design = dynamic_cast<const PixelModuleDesign *>(&(collection.design()));
+  if (!p_design) return;
 
   //
   // compute number of noisy cells
@@ -278,8 +292,7 @@ void PixelNoisyCellGenerator::addCell(SiChargedDiodeCollection &collection,const
 	<< circuit << "," << column << "," << row);
 #endif
     ATH_MSG_DEBUG ( "addCell 2 circuit = " << circuit << ", column = " << column << ", row = " << row);
-
-  if ( row > 159 && design->getReadoutTechnology() == PixelModuleDesign::FEI3 ) row = row+8; // jump over ganged pixels - rowsPerCircuit == 320 above
+  if (row>159) row = row+8; // jump over ganged pixels - rowsPerCircuit == 320 above
     ATH_MSG_DEBUG ( "addCell 3 circuit = " << circuit << ", column = " << column << ", row = " << row);
     
   SiReadoutCellId roCell(row, design->columnsPerCircuit() * circuit + column);
@@ -312,10 +325,9 @@ void PixelNoisyCellGenerator::addCell(SiChargedDiodeCollection &collection,const
     ATH_MSG_DEBUG ( "addCell 7b circuit = " << circuit << ", column = " << column << ", row = " << row);
     //
     // now, transform the noise ToT to charge. Kind of "inverted calibration"...:
-    double totA = m_pixelCalibSvc->getQ2TotA(noisyID);
-    double totE = m_pixelCalibSvc->getQ2TotE(noisyID);
-    double totC = m_pixelCalibSvc->getQ2TotC(noisyID);
-
+    double totA = m_CalibSvc->getCalQ2TotA( noisyID );
+    double totE = m_CalibSvc->getCalQ2TotE( noisyID );
+    double totC = m_CalibSvc->getCalQ2TotC( noisyID );
     ATH_MSG_DEBUG ( "addCell 7c circuit = " << circuit << ", column = " << column << ", row = " << row);
     const double chargeShape = (totA*totE - ToT*totC)/(ToT-totA); 
     ATH_MSG_DEBUG ( "addCell 7d circuit = " << circuit << ", column = " << column << ", row = " << row);

@@ -18,7 +18,7 @@ apply_pattern declare_joboptions files="PixelDigitization_jobOptions.py PixelDig
 
 apply_pattern declare_python_modules files="*.py"
 
-apply_pattern declare_runtime files="3DFEI3-3E-problist-1um_v1.txt 3DFEI4-2E-problist-1um_v0.txt Bichsel_*.dat"
+apply_pattern declare_runtime files="3DFEI3-3E-problist-1um_v1.txt 3DFEI4-2E-problist-1um_v0.txt"
 
 branches PixelDigitization src src/components share python
 
@@ -44,7 +44,7 @@ use  StoreGate                StoreGate-*             Control
 use HitManagement	    HitManagement-*	      Simulation
 use  InDetSimData             InDetSimData-*          InnerDetector/InDetRawEvent
 use PileUpTools             PileUpTools-*             Control
-use AtlasROOT		    AtlasROOT-*		External
+use AtlasROOT			AtlasROOT-*		External
 
 use PixelConditionsTools    PixelConditionsTools-*    InnerDetector/InDetConditions
 
@@ -53,6 +53,7 @@ use  InDetSimEvent            InDetSimEvent-*         InnerDetector
 use SiDigitization          SiDigitization-*          InnerDetector/InDetDigitization
 use InDetReadoutGeometry    InDetReadoutGeometry-*    InnerDetector/InDetDetDescr
 use InDetRawData            InDetRawData-*            InnerDetector/InDetRawEvent
+use PixelConditionsData     PixelConditionsData-*     InnerDetector/InDetConditions
 use AthenaKernel            AthenaKernel-*            Control
 use CommissionEvent         CommissionEvent-*         Commission
 use SiPropertiesSvc	    SiPropertiesSvc-*	      InnerDetector/InDetConditions
@@ -61,6 +62,5 @@ use  Identifier               Identifier-*            DetectorDescription
 use  InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
 use PixelConditionsServices PixelConditionsServices-* InnerDetector/InDetConditions
 use  PixelGeoModel             PixelGeoModel-*          InnerDetector/InDetDetDescr
-use  PathResolver               PathResolver-*                  Tools
+public
 use  AthenaBaseComps          AthenaBaseComps-*       Control
-use  CxxUtils                 CxxUtils-*              Control 

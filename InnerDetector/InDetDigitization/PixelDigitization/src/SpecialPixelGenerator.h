@@ -56,29 +56,17 @@
 #define PIXELDIGITIZATION_SPECIALPIXELGENERATOR_H
 
 // Base class
-#include "AthenaKernel/IAtRndmGenSvc.h"
 #include "SiDigitization/ISiChargedDiodesProcessorTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "PixelConditionsServices/ISpecialPixelMapSvc.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
-#include "Identifier/Identifier.h"
-#include "InDetIdentifier/PixelID.h"
+#include "PixelConditionsData/SpecialPixelMap.h"
+#include "CalibSvc.h"
 
 class Identifier;
 class PixelID;
 
-class DetectorSpecialPixelMap;
-class IInDetConditionsSvc;
-
 namespace CLHEP {
   class HepRandomEngine;
-}
-
-namespace InDetDD {
-  class PixelDetectorManager;
-  class SiDetectorElement;
-  class SiDetectorManager;
 }
 
 class SpecialPixelGenerator : public AthAlgTool, virtual public ISiChargedDiodesProcessorTool {
@@ -129,11 +117,6 @@ public:
 
   const DetectorSpecialPixelMap *getDetectorMap() const;
 
-
-protected:
-
-  void setManager(const InDetDD::SiDetectorManager *p_manager) {m_detManager = p_manager;}
-
   ///////////////////////////////////////////////////////////////////
   // Private methods:
   ///////////////////////////////////////////////////////////////////
@@ -141,7 +124,7 @@ private:
 
   SpecialPixelGenerator();
   int fillSpecialPixels( double prob, unsigned int status, bool merge ) const;
-  void getID( const Identifier & id, unsigned int & pixID, unsigned int mchips ) const;
+  void getID( const Identifier & id, unsigned int & pixID ) const;
   inline unsigned int setPixelStatus( unsigned int modID, unsigned int pixID, unsigned int status );
   inline unsigned int mergePixelStatus( unsigned int modID, unsigned int pixID, unsigned int status );
   inline unsigned int getPixelStatus( unsigned int modID, unsigned int pixID ) const;
@@ -152,8 +135,7 @@ private:
   ///////////////////////////////////////////////////////////////////
 private:
 
-//  mutable DetectorSpecialPixelMap   m_detectorMapGen; /** generated map, if applicable */
-  mutable DetectorSpecialPixelMap*   m_detectorMapGen; /** generated map, if applicable */
+  mutable DetectorSpecialPixelMap   m_detectorMapGen; /** generated map, if applicable */
   const DetectorSpecialPixelMap*    m_detectorMap;    /** map from DB, if applicable */
   unsigned int                      m_npixTot;        /** number pixels in geometry */
   unsigned int                      m_nmodTot;        /** number of modules */
@@ -169,40 +151,35 @@ private:
   ServiceHandle<ISpecialPixelMapSvc> m_specialPixelMapSvc;
   ServiceHandle<IAtRndmGenSvc>  m_rndmSvc;       /** Random number service */ 
   std::string               m_rndmEngineName;/** name of random engine, actual pointer in PixelDigitizationToolBaseAlg */ 
+  ServiceHandle<CalibSvc> m_CalibSvc;
   CLHEP::HepRandomEngine* m_rndmEngine;
-  const InDetDD::PixelDetectorManager* m_pixMgr;
 
-protected:
-  const InDetDD::SiDetectorManager *m_detManager;
 };
 
 unsigned int SpecialPixelGenerator::setPixelStatus( unsigned int modID, unsigned int pixID, unsigned int status ) {
-  unsigned int old = (*m_detectorMapGen)[modID]->pixelStatus(pixID);
-  (*m_detectorMapGen)[modID]->setPixelStatus(pixID,status);
+  unsigned int old = m_detectorMapGen[modID]->pixelStatus(pixID);
+  m_detectorMapGen[modID]->setPixelStatus(pixID,status);
   return old;
 }
 
 unsigned int SpecialPixelGenerator::mergePixelStatus( unsigned int modID, unsigned int pixID, unsigned int status ) {
-  unsigned int newstat = (*m_detectorMapGen)[modID]->pixelStatus(pixID) | status;
-  (*m_detectorMapGen)[modID]->setPixelStatus(pixID,newstat);
+  unsigned int newstat = m_detectorMapGen[modID]->pixelStatus(pixID) | status;
+  m_detectorMapGen[modID]->setPixelStatus(pixID,newstat);
   return newstat;
 }
 
 unsigned int SpecialPixelGenerator::getPixelStatus( unsigned int modID, unsigned int pixID ) const {
   const ModuleSpecialPixelMap *modmap=0;
-  if (m_usePixCondSum) { 
-    IdentifierHash moduleHash = modID;
-    modmap = m_detectorMap->module(moduleHash); 
-  }
-  else modmap=m_detectorMapGen->module(modID);
+  if(m_CalibSvc->usePixMapCDB()) modmap = m_detectorMap->module(modID);
+  else modmap=m_detectorMapGen.module(modID);
   if ( modmap ) return modmap->pixelStatus(pixID);
   else return 0;
 }
 
 bool SpecialPixelGenerator::pixelUseful( unsigned int modID, unsigned int pixID ) const {
   const ModuleSpecialPixelMap *modmap=0;
-  if (m_usePixCondSum) { modmap = m_detectorMap->module(modID); }
-  else modmap=m_detectorMapGen->module(modID);
+  if(m_CalibSvc->usePixMapCDB()) modmap = m_detectorMap->module(modID);
+  else modmap=m_detectorMapGen.module(modID);
   if ( modmap ) return modmap->pixelUseful(pixID);
   else return true;
 }
