@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
 /********************************************************************
 NAME:     TauConversionFinder.cxx
 PACKAGE:  offline/Reconstruction/tauRec
@@ -16,15 +15,13 @@ conversion track too.
 #include "TauConversionFinder.h"
 
 #include "xAODTracking/VertexContainer.h" 
-//#include "GaudiKernel/IToolSvc.h"
-//#include "TrkParticleBase/LinkToTrackParticleBase.h"
+#include "GaudiKernel/IToolSvc.h"
+#include "TrkParticleBase/LinkToTrackParticleBase.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
 /********************************************************************/
 TauConversionFinder::TauConversionFinder(const std::string& name) :
-  TauRecToolBase(name),
-  m_numProng(0)
-{
+  TauRecToolBase(name) {
 
     declareProperty("ConversionCandidatesName", m_ConversionCandidatesName = "ConversionsPID_Container"); //ConversionCandidate
     declareProperty("TrackContainerName", m_trackContainerName = "InDetTrackParticles");
@@ -120,24 +117,21 @@ StatusCode TauConversionFinder::eventFinalize() {
                 // Find conversion in normal tau tracks
                 if (m_do_normal) {
                     for (unsigned int j = 0; j < numTracks; ++j) {
-		        //const xAOD::TrackParticle *pTauTrack = pTau.track(j);
-		        xAOD::TauTrack *pTauTrack = pTau.trackNonConst(j);
-		        const Trk::Track* tau_trk_def = pTauTrack->track()->track();
+                        const xAOD::TrackParticle *pTauTrack = pTau.track(j);
+                        const Trk::Track* tau_trk_def = pTauTrack->track();
 
                         if (conv_trk == tau_trk_def) {
 
                             if (conv_trk->trackSummary()->getPID(Trk::eProbabilityHT) > m_eProb_cut) {
-                              //if (!pTau.trackFlag(pTauTrack, xAOD::TauJetParameters::isConversion)) {
-                              if (!pTauTrack->flag(xAOD::TauJetParameters::isConversionOld)) {
+                              if (!pTau.trackFlag(pTauTrack, xAOD::TauJetParameters::isConversion)) {
                                   ElementLink<xAOD::TrackParticleContainer> phoConvLink ;
-                                  //phoConvLink.setElement(pTauTrack) ;
-				  phoConvLink.setElement(pTauTrack->track()) ;
+                                  phoConvLink.setElement(pTauTrack) ;
                                   phoConvLink.setStorableObject( *trackContainer ) ;
-                                  //phoConvLink.index();
-				  pTauTrack->addTrackLink( phoConvLink );
-				  pTauTrack->setFlag(xAOD::TauJetParameters::isConversionOld, true);
+                                  phoConvLink.index();
+                                  pTau.addTrackLink( phoConvLink ) ;
+                                  pTau.setTrackFlag(pTauTrack, xAOD::TauJetParameters::isConversion, true);
                                     if (m_adjust_tau_charge)
-				      pTau.setCharge(pTau.charge() - pTau.track(j)->track()->charge());
+                                        pTau.setCharge(pTau.charge() - pTau.track(j)->charge());
 
                                     m_numProng--;
                                 }
@@ -158,4 +152,3 @@ StatusCode TauConversionFinder::eventFinalize() {
 }
 
 /********************************************************************/
-#endif

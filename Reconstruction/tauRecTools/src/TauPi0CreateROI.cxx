@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
 //-----------------------------------------------------------------------------
 // file:        TauPi0CreateROI.cxx
 // package:     Reconstruction/tauEvent
@@ -12,14 +11,14 @@
 
 #include <TString.h>
 
-//#include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/IToolSvc.h"
 
-//#include "CaloEvent/CaloCellContainer.h"
-//#include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloEvent/CaloCellContainer.h"
+#include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloUtils/CaloCellList.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 
-//#include "AthContainers/OwnershipPolicy.h"
+#include "AthContainers/OwnershipPolicy.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 
 #include "TauPi0CreateROI.h"
@@ -167,9 +166,8 @@ void TauPi0CreateROI::storeCell(const CaloCell* cell){
 
     if(isNewCell){
         CaloCell* copyCell = cell->clone();
-        m_pPi0CellContainer->push_back(copyCell);
+        m_pPi0CellContainer->push_back(const_cast<CaloCell*> (copyCell));
         m_addedCellsMap[cellHash] = copyCell;
     }
 }
 
-#endif

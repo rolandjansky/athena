@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
 /********************************************************************
 NAME:     TauCellVariables.cxx
 PACKAGE:  offline/Reconstruction/tauRec
@@ -42,20 +41,20 @@ Jan 2012   - (FF) add cellEnergyRing variables
 #include <vector>
 #include <sstream>
 
-//#include "GaudiKernel/Property.h"
-#include "GaudiKernel/SystemOfUnits.h"
+#include "GaudiKernel/Property.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
-//#include "AtlasDetDescr/AtlasDetectorID.h"
-//#include "CaloUtils/CaloCellList.h"
-//#include "CaloEvent/CaloCluster.h"
-//#include "CaloEvent/CaloCell.h"
-//#include "CaloEvent/CaloSamplingHelper.h"
+#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "CaloUtils/CaloCellList.h"
+#include "CaloEvent/CaloCluster.h"
+#include "CaloEvent/CaloCell.h"
+#include "CaloEvent/CaloSamplingHelper.h"
 #include "CaloUtils/CaloVertexedCell.h"
-//#include "CaloIdentifier/CaloID.h"
-//#include "CaloIdentifier/CaloCell_ID.h"
-//#include "CaloGeoHelpers/CaloSampling.h"
-//#include "Particle/TrackParticle.h"
-//#include "FourMom/P4EEtaPhiM.h"
+#include "CaloIdentifier/CaloID.h"
+#include "CaloIdentifier/CaloCell_ID.h"
+#include "CaloGeoHelpers/CaloSampling.h"
+#include "Particle/TrackParticle.h"
+#include "FourMom/P4EEtaPhiM.h"
 
 #include "xAODTau/TauJet.h"
 #include "xAODJet/Jet.h"
@@ -71,8 +70,6 @@ m_stripEthr(0.2 * GeV),
 m_EMSumThr(0.5 * GeV),
 m_EMSumR(0.2),
 m_cellCone(0.2),
-m_emid(0),
-m_tileid(0),
 m_doCellCorrection(false) //FF: don't do cell correction by default
 {
 
@@ -393,4 +390,3 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) {
 
 
 
-#endif

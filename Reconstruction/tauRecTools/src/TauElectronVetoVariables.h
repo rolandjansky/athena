@@ -20,7 +20,7 @@ namespace Trk {
  * @author Zofia Czyczula
  */
 
-class TauElectronVetoVariables : public TauRecToolBase {
+class TauElectronVetoVariables : virtual public TauRecToolBase {
 public:
 
     TauElectronVetoVariables(const std::string& name);

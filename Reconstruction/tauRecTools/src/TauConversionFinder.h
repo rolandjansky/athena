@@ -13,7 +13,7 @@
  * @author M. Boehler
  */
 
-class TauConversionFinder : public TauRecToolBase {
+class TauConversionFinder : virtual public TauRecToolBase {
 public:
     //-------------------------------------------------------------
     //! Constructor

@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
 //-----------------------------------------------------------------------------
 // file:        TauTestDump.cxx
 // package:     Reconstruction/tauRec
@@ -11,13 +10,13 @@
 // 
 //-----------------------------------------------------------------------------
 
-//#include <GaudiKernel/IToolSvc.h>
-//#include <GaudiKernel/ListItem.h>
+#include <GaudiKernel/IToolSvc.h>
+#include <GaudiKernel/ListItem.h>
 
-//#include "FourMomUtils/P4Helpers.h"
-//#include "FourMom/P4EEtaPhiM.h"
-//#include "CLHEP/Vector/LorentzVector.h"
-//#include "Particle/TrackParticle.h"
+#include "FourMomUtils/P4Helpers.h"
+#include "FourMom/P4EEtaPhiM.h"
+#include "CLHEP/Vector/LorentzVector.h"
+#include "Particle/TrackParticle.h"
 
 
 #include "tauRecTools/TauEventData.h"
@@ -111,4 +110,3 @@ StatusCode TauTestDump::execute(xAOD::TauJet& pTau) {
 }
 
 
-#endif

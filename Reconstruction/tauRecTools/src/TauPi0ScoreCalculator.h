@@ -6,11 +6,12 @@
 #define	TAUREC_TAUPI0SCORECALCULATOR_H
 
 #include <string>
-#include <map>
 #include "tauRecTools/TauRecToolBase.h"
 #include "xAODPFlow/PFO.h"
 
-#include "MVAUtils/BDT.h"
+namespace TMVA{
+    class Reader;
+}
 
 /**
  * @brief Selectes pi0Candidates (Pi0 Finder).
@@ -21,10 +22,10 @@
  * @author Stephanie Yuen <stephanie.yuen@cern.ch>
  */
 
-class TauPi0ScoreCalculator : public TauRecToolBase {
+class TauPi0ScoreCalculator : virtual public TauRecToolBase {
 public:
     TauPi0ScoreCalculator(const std::string& name);
-    ASG_TOOL_CLASS2(TauPi0ScoreCalculator, TauRecToolBase, ITauToolBase)
+    ASG_TOOL_CLASS2(TauPi0ScoreCalculator, TauRecToolBase, ITauToolBase);
     virtual ~TauPi0ScoreCalculator();
 
     virtual StatusCode initialize();
@@ -39,7 +40,7 @@ public:
 private:
 
     std::string m_readerOption;
-    MVAUtils::BDT* m_mvaBDT;
+    TMVA::Reader *m_tmvaReader;
 
     std::string m_weightfile;
 
@@ -66,14 +67,12 @@ private:
     float m_secondEtaWRTCluster_EM2;
     float m_energy_EM1;
     float m_energy_EM2;
-    
-    std::map<TString, float*> m_availableVars;//!< keeps track of available of availble floats
 
     /** @brief function used to calculate BDT score */
     float calculateScore(const xAOD::PFO* neutralPFO);
 
-    /* /\** @brief Book TMVA methods. *\/ */
-    /* StatusCode bookMethod(TMVA::Reader *reader, const std::string &methodName) const; */
+    /** @brief Book TMVA methods. */
+    StatusCode bookMethod(TMVA::Reader *reader, const std::string &methodName) const;
 
 };
 

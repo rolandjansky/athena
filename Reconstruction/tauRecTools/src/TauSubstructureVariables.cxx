@@ -13,26 +13,22 @@
 #include <math.h>
 #include <sstream>
 
-//#include "GaudiKernel/Property.h"
-//#include "FourMomUtils/P4Helpers.h"
+#include "GaudiKernel/Property.h"
+#include "FourMomUtils/P4Helpers.h"
 
-//#include "AnalysisUtils/AnalysisMisc.h"
+#include "AnalysisUtils/AnalysisMisc.h"
 
 #include "xAODJet/Jet.h"
 #include "xAODTau/TauJet.h"
 
-#include "tauRecTools/CaloClusterVariables.h"
-#include "tauRecTools/TauSubstructureVariables.h"
+#include "CaloClusterVariables.h"
+#include "TauSubstructureVariables.h"
 
 #include "tauRecTools/KineUtils.h"
-//#include "CaloUtils/CaloVertexedCluster.h"
+#include "CaloUtils/CaloVertexedCluster.h"
 //#include "CaloEvent/CaloVertexedCluster.h"
 
-#ifndef XAOD_ANALYSIS
 using CLHEP::GeV;
-#else
-#define GeV 1000
-#endif
 
 const double TauSubstructureVariables::DEFAULT = -1111.;
 
@@ -50,7 +46,6 @@ TauSubstructureVariables::TauSubstructureVariables( const std::string& name ) :
 	declareProperty("pileUpAlpha", m_pileUpAlpha);
 	declareProperty("VertexCorrection", m_doVertexCorrection);
 	declareProperty("inAODmode", m_inAODmode);
-	declareProperty("ConfigPath", m_configPath);
 }
 
 
@@ -110,7 +105,7 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 		if (!taujetseed) ATH_MSG_DEBUG("Taujet->jet() pointer is NULL: calo cluster variables will be set to -1111");
 		else ATH_MSG_DEBUG("problem in calculating calo cluster variables -> will be set to -1111");
 
-		if(!m_inAODmode) pTau.setDetail(xAOD::TauJetParameters::numCells , static_cast<int>(0) );
+		pTau.setDetail(xAOD::TauJetParameters::numCells , static_cast<int>(0) );
 		pTau.setDetail(xAOD::TauJetParameters::numTopoClusters , static_cast<int>(DEFAULT) );
 		pTau.setDetail(xAOD::TauJetParameters::numEffTopoClusters , static_cast<float>(DEFAULT) );
 		pTau.setDetail(xAOD::TauJetParameters::topoInvMass,  static_cast<float>(DEFAULT) );
@@ -202,13 +197,13 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 
 		// calc total energy
 		totalEnergy += incluster->e();
-		
+
 		//apply Vertex correction on a temporary
 		TLorentzVector tempclusvec;
 		if (m_doVertexCorrection && pTau.vertexLink())
-			tempclusvec = CaloVertexedClusterType(*incluster, (*pTau.vertexLink())->position()).p4();
+			tempclusvec = xAOD::CaloVertexedCluster(*incluster, (*pTau.vertexLink())->position()).p4();
 		else
-			tempclusvec = CaloVertexedClusterType(*incluster).p4();
+			tempclusvec = xAOD::CaloVertexedCluster(*incluster).p4();
 
 		dr = Tau1P3PKineUtils::deltaR(pTau.eta(),pTau.phi(), tempclusvec.Eta(), tempclusvec.Phi());
 		if (0.2 <= dr && dr < 0.4) 
@@ -248,9 +243,7 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	  }
 	
 	// now sort cluster by energy
-	// AnalysisUtils::Sort::e(&vClusters);
-	std::sort(vClusters.begin(), vClusters.end(), DefCaloClusterCompare());
-	
+	AnalysisUtils::Sort::e(&vClusters);
 
 	// determine energy sum of leading 2 and leading 3 clusters
 	float sum2LeadClusterE(0.);
@@ -312,7 +305,7 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) {
 	}
 
 	// set new approximate energy flow variables for tau ID
-	pTau.setDetail(xAOD::TauJetParameters::ptRatioEflowApprox, static_cast<float>(approxSubstructure4Vec.Pt()/ pTau.ptDetectorAxis()) );
+	pTau.setDetail(xAOD::TauJetParameters::ptRatioEflowApprox, static_cast<float>(approxSubstructure4Vec.Pt()/ pTau.detail<float>(xAOD::TauJetParameters::LC_TES_precalib)) );
 	pTau.setDetail(xAOD::TauJetParameters::mEflowApprox, static_cast<float>(approxSubstructure4Vec.M()) );
 
 

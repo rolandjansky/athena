@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
 #ifndef TAUREC_TAUCONVERSIONTAGGER_H
 #define	TAUREC_TAUCONVERSIONTAGGER_H
 
@@ -17,7 +16,7 @@
  */
 
 
-class TauConversionTagger : public TauRecToolBase {
+class TauConversionTagger : virtual public TauRecToolBase {
 public:
     //-------------------------------------------------------------
     //! Constructor
@@ -52,5 +51,4 @@ private:
 
 };
 
-#endif //TAUREC_TAUCONVERSIONTAGGER_H
-#endif //XAOD_ANALYSIS
+#endif

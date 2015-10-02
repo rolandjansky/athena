@@ -16,12 +16,12 @@
 
 #include "tauRecTools/TauRecToolBase.h"
 
-class TauTrackFilter : public TauRecToolBase {
+class TauTrackFilter : virtual public TauRecToolBase {
 public:
     //-------------------------------------------------------------
     //! Constructor
     //-------------------------------------------------------------
-    TauTrackFilter(const std::string& name="TauTrackFilter");
+    TauTrackFilter(const std::string& name);
     ASG_TOOL_CLASS2(TauTrackFilter, TauRecToolBase, ITauToolBase)
 
     //-------------------------------------------------------------
@@ -38,12 +38,12 @@ public:
     virtual void print() const { }
 
 private:
-    std::string m_configPath;
+    
     std::string m_trackContainerName;
-    std::string m_tauTrackConName;
     std::vector<bool> m_TrkPass;
     int m_nProng;
     int m_flag;
+    //TODO some of this probably need to be public to be useful...
 
 };
 

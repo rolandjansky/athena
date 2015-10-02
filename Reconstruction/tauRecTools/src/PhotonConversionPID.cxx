@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
 /********************************************************************
 NAME:     PhotonConversionPID.cxx
 PACKAGE:  offline/Reconstruction/tauRec
@@ -13,8 +12,8 @@ CREATED:  November 2008
 #include "PhotonConversionPID.h"
 
 #include "xAODTracking/VertexContainer.h" 
-//#include "TrkParticleBase/LinkToTrackParticleBase.h"
-//#include "TrkTrackSummary/TrackSummary.h"
+#include "TrkParticleBase/LinkToTrackParticleBase.h"
+#include "TrkTrackSummary/TrackSummary.h"
 #include "AthContainers/ConstDataVector.h"
 
 PhotonConversionPID::PhotonConversionPID(const std::string& name)
@@ -148,4 +147,3 @@ StatusCode PhotonConversionPID::eventFinalize() {
 }
 
 /********************************************************************/
-#endif

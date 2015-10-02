@@ -2,13 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
-//#include "CLHEP/Vector/LorentzVector.h"
-//#include "CLHEP/Units/SystemOfUnits.h"
-//#include "FourMomUtils/P4Helpers.h"
-//#include "FourMom/P4EEtaPhiM.h"
-//#include "JetEvent/Jet.h"
-//#include "CaloEvent/CaloCluster.h"
+#include "CLHEP/Vector/LorentzVector.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "FourMomUtils/P4Helpers.h"
+#include "FourMom/P4EEtaPhiM.h"
+#include "JetEvent/Jet.h"
+#include "CaloEvent/CaloCluster.h"
 
 //tau
 #include "tauRecTools/TauEventData.h"
@@ -89,10 +88,6 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau)
         if (BaryCenter.DeltaR(tempClusterVector) > m_clusterCone)
             continue;
 
-	ElementLink<xAOD::IParticleContainer> linkToCluster;
-	linkToCluster.toContainedElement( *(static_cast<const xAOD::IParticleContainer*> ((*cItr)->rawConstituent()->container())), (*cItr)->rawConstituent() );
-	pTau.addClusterLink(linkToCluster);
-
 	nConstituents++;
 	tauDetectorAxis += tempClusterVector;
     }
@@ -106,7 +101,7 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau)
 	}
 	 
 	// If running cosmic triggers, don't worry about not having clusters in tau
-	if(sc.isSuccess() && tauEventData()->inTrigger() && isCosmics){
+	if(tauEventData()->inTrigger() && isCosmics){
 	  ATH_MSG_WARNING("this tau candidate does not have any constituent clusters! breaking off tau tool chain and not recording this candidate!");
 	} else {
 	  ATH_MSG_DEBUG("this tau candidate does not have any constituent clusters! breaking off tau tool chain and not recording this candidate!");
@@ -116,6 +111,10 @@ StatusCode TauAxisSetter::execute(xAOD::TauJet& pTau)
 
     ATH_MSG_VERBOSE("jet axis:" << (*pTau.jetLink())->pt()<< " " << (*pTau.jetLink())->eta() << " " << (*pTau.jetLink())->phi()  << " " << (*pTau.jetLink())->e() );
     // save values for detector axis.
+    // FixMe: consider dropping these details variables as they are duplicated in the detector axis 4 vector
+    pTau.setDetail(xAOD::TauJetParameters::LC_TES_precalib , static_cast<float>( tauDetectorAxis.Pt() ) );		  
+    pTau.setDetail(xAOD::TauJetParameters::seedCalo_eta, static_cast<float>( tauDetectorAxis.Eta() ) );
+    pTau.setDetail(xAOD::TauJetParameters::seedCalo_phi, static_cast<float>( tauDetectorAxis.Phi() ) );
     ATH_MSG_VERBOSE("detector axis:" << tauDetectorAxis.Pt()<< " " << tauDetectorAxis.Eta() << " " << tauDetectorAxis.Phi()  << " " << tauDetectorAxis.E() );
 
     // detectorAxis (set default) 
@@ -167,4 +166,3 @@ StatusCode TauAxisSetter::finalize()
 {
     return StatusCode::SUCCESS;
 }
-#endif

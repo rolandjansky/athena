@@ -5,16 +5,12 @@
 //#include "CLHEP/Vector/LorentzVector.h"
 //#include "CLHEP/Units/SystemOfUnits.h"
 
-//c++
-#include <utility>
-
 // root
 #include "TFile.h"
 #include "TObject.h"
 #include "TCollection.h"
 #include "TF1.h"
 #include "TH1D.h"
-//#include "TFormula.h"
 #include "TKey.h"
 
 //tau
@@ -28,10 +24,8 @@
 
 /********************************************************************/
 TauIDPileupCorrection::TauIDPileupCorrection(const std::string& name) :
-  TauRecToolBase(name),
-  m_printMissingContainerINFO(true)
+TauRecToolBase(name)
 {
-    declareProperty("ConfigPath", m_configPath);
     declareProperty("averageEstimator", m_averageEstimator=20.);
     declareProperty("minNTrack", m_minNTrackAtVertex=2);
 
@@ -47,69 +41,57 @@ TauIDPileupCorrection::~TauIDPileupCorrection() {
 }
 
 /********************************************************************/
-StatusCode TauIDPileupCorrection::fillCalibMap( const std::string& fullPath, std::map<std::string, TF1*> &calib_map) {
-  TFile * file = TFile::Open(fullPath.c_str(), "READ");
-  
-  TString filename(fullPath.c_str());
-  filename.ToLower();
-  if(filename.Contains("_nvtx") && m_useMu==true) {
-    ATH_MSG_WARNING("TauIDPileupCorrection initialize() : calib file indicates nvtx based calibration, but use <mu> is set.  you should set useMu to false ");
-    //m_useMu=false;
-  }
-  else if((filename.Contains("_mu") || filename.Contains("_nmu")) && m_useMu==false) {
-    ATH_MSG_WARNING("TauIDPileupCorrection initialize() : calib file indicates mu based calibration, but use <mu> is not set.  you should set useMu to true ");
-    //m_useMu=true;
-  }
-
-  if (!file) {
-    ATH_MSG_FATAL("Failed to open " << fullPath);
-    return StatusCode::FAILURE;
-  }
-  
-  // Loop over file contents
-  TIter keyIterator(file->GetListOfKeys());
-  
-  TKey *myKey=0;
-  while (  (myKey = dynamic_cast<TKey*> (keyIterator())) != 0 )
-    {
-
-      TObject* obj = myKey->ReadObj();
-
-      ATH_MSG_DEBUG("Found a key of type: " << myKey->GetClassName());
-      
-      //      TFormula* form = dynamic_cast<TFormula*> (obj);//TF1, TF2 public TFormula Root<6.04.02, else
-      TF1* fnc = dynamic_cast<TF1*> (obj);//TF1, TF2 public TFormula Root<6.04.02, else
-//       if(fnc2==0){
-// #if ROOT_VERSION_CODE >= ROOT_VERSION(6,4,2)	
-// 	TF1* f1 = dynamic_cast<TF1*> (obj); // TF2 public TF1 in any case
-// 	if(f1){
-// 	  form = dynamic_cast<TFormula*> (f1->GetFormula()->Clone());
-// 	  delete f1;
-// 	}
-// #endif
-//       }
-      if(fnc==0) delete obj;
-      //TF1/TFormula not owned by file, used TKey::ReadObj() which means not owned by file
-      calib_map[myKey->GetName()] = fnc;
-    }
-  
-  file->Close();
-  delete file;
- 
-  return StatusCode::SUCCESS;
- 
-}
-
-/********************************************************************/
 StatusCode TauIDPileupCorrection::initialize() {
 
 
   // Open the 1P and 3P files
   std::string fullPath = find_file(m_file1P);
-  if(!fillCalibMap( fullPath, m_calibFunctions1P ).isSuccess()) return StatusCode::FAILURE;
+  TFile * file1P = TFile::Open(fullPath.c_str(), "READ");
+  
+  if (!file1P) {
+    ATH_MSG_FATAL("Failed to open " << fullPath);
+    return StatusCode::FAILURE;
+  }
+  
+  // Loop over file contents
+  TIter keyIterator1P(file1P->GetListOfKeys());
+  
+  while ( TObject *myObject = keyIterator1P() )
+    {
+      TKey* myKey = (TKey*)myObject;
+      
+      ATH_MSG_DEBUG("Found a key of type: " << myKey->GetClassName());
+      
+      if(std::string(myKey->GetClassName()) == "TF1")
+	{
+	  ATH_MSG_DEBUG("Key is a TF1: " << myKey->GetName());
+	  // Copy the function to local map
+	  m_calibFunctions1P[myKey->GetName()] = *((TF1*)file1P->Get(myKey->GetName()));
+	}
+    }
+  
+  file1P->Close();
   
   fullPath = find_file(m_file3P);
-  if(!fillCalibMap( fullPath, m_calibFunctions3P ).isSuccess()) return StatusCode::FAILURE;
+  TFile * file3P = TFile::Open(fullPath.c_str(), "READ");  
+
+  TIter keyIterator3P(file3P->GetListOfKeys());
+  
+  while ( TObject *myObject = keyIterator3P() )
+    {
+      TKey* myKey = (TKey*)myObject;
+      
+      ATH_MSG_DEBUG("Found a key of type: " << myKey->GetClassName());
+      
+      if(std::string(myKey->GetClassName()) == "TF1")
+	{
+	  ATH_MSG_DEBUG("Key is a TF1: " << myKey->GetName());
+	  // Copy the function to local map
+	  m_calibFunctions3P[myKey->GetName()] = *((TF1*)file3P->Get(myKey->GetName()));
+	}
+    }
+
+  file3P->Close();
 
   ATH_MSG_DEBUG("Found " << m_calibFunctions1P.size() << " variables to correct in 1P");
   ATH_MSG_DEBUG("Found " << m_calibFunctions3P.size() << " variables to correct in 3P");
@@ -212,7 +194,6 @@ StatusCode TauIDPileupCorrection::execute(xAOD::TauJet& pTau)
 	
 	ATH_MSG_DEBUG("Attempting to correct variable " << m_conversion[i].detailName);
 	float correction = 0;
-	float tau_pt = pTau.ptDetectorAxis();
 
 	if(pTau.nTracks() <= 1)
 	  {
@@ -223,7 +204,7 @@ StatusCode TauIDPileupCorrection::execute(xAOD::TauJet& pTau)
 	    ATH_MSG_DEBUG("Variable correction function found");
 	    
 	    // Calculate correction
-	    correction = m_calibFunctions1P[m_conversion[i].detailName]->Eval(nVertex, tau_pt) - m_calibFunctions1P[m_conversion[i].detailName]->Eval(averageEstimator, tau_pt);
+	    correction = m_calibFunctions1P[m_conversion[i].detailName].Eval(nVertex) - m_calibFunctions1P[m_conversion[i].detailName].Eval(averageEstimator);
 	  }
 
 	if(pTau.nTracks() > 1)
@@ -235,7 +216,7 @@ StatusCode TauIDPileupCorrection::execute(xAOD::TauJet& pTau)
 	    ATH_MSG_DEBUG("Variable correction function found");
 	    
 	    // Calculate correction
-	    correction = m_calibFunctions3P[m_conversion[i].detailName]->Eval(nVertex, tau_pt) - m_calibFunctions3P[m_conversion[i].detailName]->Eval(averageEstimator, tau_pt);
+	    correction = m_calibFunctions3P[m_conversion[i].detailName].Eval(nVertex) - m_calibFunctions3P[m_conversion[i].detailName].Eval(averageEstimator);
 	  }
 	
 	
@@ -267,10 +248,5 @@ StatusCode TauIDPileupCorrection::execute(xAOD::TauJet& pTau)
 //-----------------------------------------------------------------------------
 
 StatusCode TauIDPileupCorrection::finalize() {
-  for( std::pair<std::string,TF1*> form : m_calibFunctions1P ) delete form.second;
-  for( std::pair<std::string,TF1*> form : m_calibFunctions3P ) delete form.second;
-  m_calibFunctions1P.clear();
-  m_calibFunctions3P.clear();
-
     return StatusCode::SUCCESS;
 }

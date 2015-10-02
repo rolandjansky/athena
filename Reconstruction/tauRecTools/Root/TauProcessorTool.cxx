@@ -5,61 +5,27 @@
 #include "tauRecTools/TauProcessorTool.h"
 
 #include "xAODTau/TauJetContainer.h"
-#include "xAODTau/TauTrackContainer.h"
-#include "xAODTau/TauTrackAuxContainer.h"
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFOAuxContainer.h"
 
-// Used for configuration
-#include "PathResolver/PathResolver.h"
-#include "TEnv.h"
-#include "THashList.h"
-#include "TClass.h"
-#include "TROOT.h"
-
-// NOTE: for some reason the code crashes when asking evtStore() whether it
-// contains the aux container, it does not crash when asking it about the
-// non-aux container first
-// precompiler macro for 
-#define DEEPCOPY(CONTAINER,NAME)                                        \
-  {                                                                     \
-  xAOD::CONTAINER##Container* pContainer(0);                            \
-  xAOD::CONTAINER* v(0);                                                \
-  std::string sAuxContName=#NAME;                                       \
-  sAuxContName+="Aux.";                                                 \
-  if (evtStore()->contains<xAOD::CONTAINER##Container>(#NAME)           \
-      && evtStore()->contains<xAOD::CONTAINER##AuxContainer>(sAuxContName)){ \
-    xAOD::CONTAINER##AuxContainer* pAuxContainer(0);                    \
-    ATH_CHECK(deepCopy(pContainer, pAuxContainer, v, #NAME));           \
-  } else {                                                              \
-    xAOD::AuxContainerBase* pAuxContainer(0);                           \
-    ATH_CHECK(deepCopy(pContainer, pAuxContainer, v, #NAME));           \
-  }                                                                     \
-  }
 
 //________________________________________
 TauProcessorTool::TauProcessorTool(const std::string& type) :
   asg::AsgTool(type),
   m_tauContainerName("TauJets"),
   m_tauAuxContainerName("TauJetsAux."),
-  m_configured(false),
-  m_AODmode(false),
-  m_data()
+  m_AODmode(false)
 {
-  declareProperty("ConfigPath", m_ConfigPath="tauRecTools/TauProcessorTool.conf");
   declareProperty("TauContainer", m_tauContainerName);
   declareProperty("TauAuxContainer", m_tauAuxContainerName);
   declareProperty("Tools", m_tools, "List of ITauToolBase tools");
   declareProperty("runOnAOD", m_AODmode); //AODS are input file
-  declareProperty("deepCopyTauJetContainer", m_deep_copy_TauJetContainer=true);
   declareProperty("deepCopyChargedPFOContainer", m_deep_copy_chargedPFOContainer=true);
-  declareProperty("deepCopyTauShotPFOContainer", m_deep_copy_tauShotPFOContainer=true);
   declareProperty("deepCopyHadronicPFOContainer", m_deep_copy_hadronicPFOContainer=true);
   declareProperty("deepCopyNeutralPFOContainer", m_deep_copy_neutralPFOContainer=true);
-  declareProperty("deepCopySecVtxContainer", m_deep_copy_SecVtxContainer=false);  
-  declareProperty("deepCopyTauTrackContainer", m_deep_copy_TauTrackContainer=true);
+  declareProperty("deepCopySecVtxContainer", m_deep_copy_SecVtxContainer=true);  
 }
 
 //________________________________________
@@ -70,32 +36,6 @@ StatusCode TauProcessorTool::initialize(){
 
 
   //ATH_MSG_INFO("FF::TauProcessor :: initialize()");
-
-#ifdef ROOTCORE
-
-  if (!m_configured) {
-    if (!readConfig()) {
-      // TODO output some kind of error message before returning
-      return StatusCode::FAILURE;
-    }
-    for (unsigned i = 0 ; i < m_tools.size() ; ++i) {
-      ITauToolBase* tool = dynamic_cast<ITauToolBase*>(&*m_tools.at(i));
-      if (!tool->readConfig().isSuccess()) {
-        // TODO output some kind of error message before returning
-        return StatusCode::FAILURE;
-      }
-    }
-  }
-
-  for (unsigned i = 0 ; i < m_tools.size() ; ++i) {
-    // Tools are (normally) not already initialized when running in analysis mode
-    if (m_tools.at(i)->initialize().isFailure()) {
-      ATH_MSG_ERROR("Failed initializing tool "<<m_tools.at(i)->name());
-      return StatusCode::FAILURE;
-    }
-  }
-
-#endif //ROOTCORE
 
   //-------------------------------------------------------------------------
   // No tools allocated!
@@ -121,7 +61,6 @@ StatusCode TauProcessorTool::initialize(){
     sc = itT->retrieve();
     if (sc.isFailure()) {
       ATH_MSG_WARNING("Cannot find tool named <" << *itT << ">");
-      return StatusCode::FAILURE;
     } else {
       ++tool_count;
       ATH_MSG_INFO((*itT)->name());
@@ -154,19 +93,36 @@ StatusCode TauProcessorTool::execute(){
     //-------------------------------------------------------------------------
     // In AODMode, deep copy all PFOs BEFORE reading in tau
     //-------------------------------------------------------------------------
-    if(m_deep_copy_SecVtxContainer)
-      DEEPCOPY(Vertex,TauSecondaryVertices);
-    if(m_deep_copy_TauTrackContainer)
-      DEEPCOPY(TauTrack,TauTracks);
-    if(m_deep_copy_neutralPFOContainer)
-      DEEPCOPY(PFO,TauNeutralParticleFlowObjects);
-    if(m_deep_copy_hadronicPFOContainer)
-      DEEPCOPY(PFO,TauHadronicParticleFlowObjects);
-    if(m_deep_copy_chargedPFOContainer)
-      DEEPCOPY(PFO,TauChargedParticleFlowObjects);
-    if(m_deep_copy_tauShotPFOContainer)
-      DEEPCOPY(PFO,TauShotParticleFlowObjects);
+    if(m_deep_copy_SecVtxContainer){
+      xAOD::VertexContainer* pSecVtxContainer(0);
+      xAOD::VertexAuxContainer* pSecVtxAuxContainer(0);
+      xAOD::Vertex* v(0);
+      ATH_CHECK(deepCopy(pSecVtxContainer, pSecVtxAuxContainer, v, "TauSecondaryVertices"));
+    }
 
+    if(m_deep_copy_neutralPFOContainer){
+      xAOD::PFOContainer* neutralPFOContainer(0);
+      xAOD::PFOAuxContainer* neutralPFOAuxStore(0);
+      xAOD::PFO* p(0);
+      //container name hard-coded, but configurable in tool where objects are created in core reco
+      ATH_CHECK(deepCopy(neutralPFOContainer, neutralPFOAuxStore, p, "TauNeutralParticleFlowObjects"));
+    }
+
+    if(m_deep_copy_hadronicPFOContainer){
+      xAOD::PFOContainer* hadronicPFOContainer(0);
+      xAOD::PFOAuxContainer* hadronicPFOAuxStore(0);
+      xAOD::PFO* p(0);
+      //container name hard-coded, but configurable in tool where objects are created in core reco
+      ATH_CHECK(deepCopy(hadronicPFOContainer, hadronicPFOAuxStore, p, "TauHadronicParticleFlowObjects"));
+    }
+
+    if(m_deep_copy_chargedPFOContainer){
+      xAOD::PFOContainer* chargedPFOContainer(0);
+      xAOD::PFOAuxContainer* chargedPFOAuxStore(0);
+      xAOD::PFO* p(0);
+      //container name hard-coded, but configurable in tool where objects are created in core reco
+      ATH_CHECK(deepCopy(chargedPFOContainer, chargedPFOAuxStore, p, "TauChargedParticleFlowObjects"));
+    }
     //-------------------------------------------------------------------------
     // End pre-tau reading operations
     //-------------------------------------------------------------------------
@@ -212,120 +168,12 @@ StatusCode TauProcessorTool::execute(){
   xAOD::TauJetContainer* pContainer = const_cast<xAOD::TauJetContainer*> (pContainerOriginal);
   xAOD::TauJetAuxContainer* pAuxContainer = const_cast<xAOD::TauJetAuxContainer*> (pAuxContainerOriginal);
 
-  if(m_AODmode&&m_deep_copy_TauJetContainer){
+  if(m_AODmode){
     pContainer=0;
     pAuxContainer=0;
     xAOD::TauJet* tau(0);
     ATH_CHECK(deepCopy(pContainer, pAuxContainer, tau, m_tauContainerName, m_tauAuxContainerName));
   }
-
-#ifdef XAOD_ANALYSIS //perhaps this should be ROOTCORE
-
-  typedef std::vector< ElementLink< xAOD::PFOContainer > >  PFOLinks_t;
-  const xAOD::PFOContainer* hadronicPFOs(0);
-  const xAOD::PFOContainer* chargedPFOs(0);
-  const xAOD::PFOContainer* neutralPFOs(0);
-  //  const xAOD::PFOContainer* shotPFOs(0);
-
-  if(evtStore()->contains<xAOD::PFOContainer>("TauHadronicParticleFlowObjectsFix"))
-    ATH_CHECK(evtStore()->retrieve(hadronicPFOs, "TauHadronicParticleFlowObjectsFix"));
-  else
-    ATH_CHECK(evtStore()->retrieve(hadronicPFOs, "TauHadronicParticleFlowObjects"));
-
-  if(evtStore()->contains<xAOD::PFOContainer>("TauChargedParticleFlowObjectsFix"))
-    ATH_CHECK(evtStore()->retrieve(chargedPFOs, "TauChargedParticleFlowObjectsFix"));
-  else
-    ATH_CHECK(evtStore()->retrieve(chargedPFOs, "TauChargedParticleFlowObjects"));
-
-  if(evtStore()->contains<xAOD::PFOContainer>("TauNeutralParticleFlowObjectsFix"))
-    ATH_CHECK(evtStore()->retrieve(neutralPFOs, "TauNeutralParticleFlowObjectsFix"));
-  else
-    ATH_CHECK(evtStore()->retrieve(neutralPFOs, "TauNeutralParticleFlowObjects"));
-
-  // if(evtStore()->contains<xAOD::PFOContainer>("TauShotParticleFlowObjectsFix"))
-  //   ATH_CHECK(evtStore()->retrieve(shotPFOs, "TauShotParticleFlowObjectsFix"));
-  // else
-  //   ATH_CHECK(evtStore()->retrieve(neutralPFOs, "TauShotParticleFlowObjects"));
-
-
-  for(xAOD::TauJet* tau : *pContainer ) {    
-
-    const PFOLinks_t hadronicPFOLinks=tau->hadronicPFOLinks();
-    PFOLinks_t new_hadronicPFOLinks;
-    for( auto link : hadronicPFOLinks ){
-      ElementLink< xAOD::PFOContainer > new_link;
-      new_link.toContainedElement( *hadronicPFOs, hadronicPFOs->at(link.index()) );
-      new_hadronicPFOLinks.push_back(new_link);
-    }
-    tau->setHadronicPFOLinks(new_hadronicPFOLinks);    
-
-    const PFOLinks_t chargedPFOLinks=tau->chargedPFOLinks();
-    PFOLinks_t new_chargedPFOLinks;
-    for( auto link : chargedPFOLinks ){
-      ElementLink< xAOD::PFOContainer > new_link;
-      new_link.toContainedElement( *chargedPFOs, chargedPFOs->at(link.index()) );
-      new_chargedPFOLinks.push_back(new_link);
-    }
-    tau->setChargedPFOLinks(new_chargedPFOLinks);    
-
-    const PFOLinks_t neutralPFOLinks=tau->neutralPFOLinks();
-    PFOLinks_t new_neutralPFOLinks;
-    for( auto link : neutralPFOLinks ){
-      ElementLink< xAOD::PFOContainer > new_link;
-      new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
-      new_neutralPFOLinks.push_back(new_link);
-    }
-    tau->setNeutralPFOLinks(new_neutralPFOLinks);    
-
-    const PFOLinks_t pi0PFOLinks=tau->pi0PFOLinks();
-    PFOLinks_t new_pi0PFOLinks;
-    for( auto link : pi0PFOLinks ){
-      ElementLink< xAOD::PFOContainer > new_link;
-      new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
-      new_pi0PFOLinks.push_back(new_link);
-    }
-    tau->setPi0PFOLinks(new_pi0PFOLinks);    
-
-    const PFOLinks_t protoChargedPFOLinks=tau->protoChargedPFOLinks();
-    PFOLinks_t new_protoChargedPFOLinks;
-    for( auto link : protoChargedPFOLinks ){
-      ElementLink< xAOD::PFOContainer > new_link;
-      new_link.toContainedElement( *chargedPFOs, chargedPFOs->at(link.index()) );
-      new_protoChargedPFOLinks.push_back(new_link);
-    }
-    tau->setProtoChargedPFOLinks(new_protoChargedPFOLinks);    
-
-    const PFOLinks_t protoNeutralPFOLinks=tau->protoNeutralPFOLinks();
-    PFOLinks_t new_protoNeutralPFOLinks;
-    for( auto link : protoNeutralPFOLinks ){
-      ElementLink< xAOD::PFOContainer > new_link;
-      new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
-      new_protoNeutralPFOLinks.push_back(new_link);
-    }
-    tau->setProtoNeutralPFOLinks(new_protoNeutralPFOLinks);    
-
-    const PFOLinks_t protoPi0PFOLinks=tau->protoPi0PFOLinks();
-    PFOLinks_t new_protoPi0PFOLinks;
-    for( auto link : protoPi0PFOLinks ){
-      ElementLink< xAOD::PFOContainer > new_link;
-      new_link.toContainedElement( *neutralPFOs, neutralPFOs->at(link.index()) );
-      new_protoPi0PFOLinks.push_back(new_link);
-    }
-    tau->setProtoPi0PFOLinks(new_protoPi0PFOLinks);    
-
-    // const PFOLinks_t shotPFOLinks=tau->shotPFOLinks();
-    // PFOLinks_t new_shotPFOLinks;
-    // for( auto link : shotPFOLinks ){
-    //   ElementLink< xAOD::PFOContainer > new_link;
-    //   new_link.toContainedElement( *shotPFOs, shotPFOs->at(link.index()) );
-    //   new_shotPFOLinks.push_back(new_link);
-    // }
-    // tau->setShotPFOLinks(new_shotPFOLinks);    
-
-
-  }
-
-#endif
 
   m_data.xAODTauContainer = pContainer;
   m_data.tauAuxContainer = pAuxContainer;
@@ -418,193 +266,3 @@ StatusCode TauProcessorTool::finalize(){
   return StatusCode::SUCCESS;
 }
 
-//________________________________________
-//TODO: Inherit this, don't reimplement it
-std::string TauProcessorTool::find_file(const std::string& fname) const {
-  static const std::string m_tauRecToolsTag="tauRecTools/00-00-00/";
-  std::string full_path = PathResolverFindCalibFile(m_tauRecToolsTag+fname);
-  if(full_path=="") full_path = PathResolverFindCalibFile(fname);
-  return full_path;
-}
-
-//________________________________________
-StatusCode TauProcessorTool::readConfig() {
-  // Sanity check to see if property ConfigPath is declared for a tool. Might be
-  // removed once all tools are updated to have a config path declared.
-  // in athena getProperties returns std::vector<Property*>
-  // in rc     getProperties returns std::map<std::string,Property*>
-#ifdef ASGTOOL_ATHENA
-  bool configPathDeclared = false;
-  for (Property* property : getProperties())
-  {
-    if (property->name() == "ConfigPath")
-    {
-      configPathDeclared = true;
-      break;
-    }
-  }
-  if (!configPathDeclared)
-#elif defined(ASGTOOL_STANDALONE)
-  PropertyMgr::PropMap_t property_map = getPropertyMgr()->getProperties();
-  if (property_map.find("ConfigPath") == property_map.end())
-#else
-#   error "What environment are we in?!?"
-#endif // ASGTOOL_ATHENA
-  {
-    ATH_MSG_INFO("No config file path property declared yet, this is not recommended");
-    return StatusCode::SUCCESS;
-  }
-  
-  // get configured config path and load file via TEnv
-  const std::string* config_file_path_property;
-  // if (getProperty("ConfigPath", config_file_path).isFailure())
-  //   return StatusCode::FAILURE;
-  config_file_path_property = getProperty<std::string>("ConfigPath");
-  std::string config_file_path = find_file(*config_file_path_property);
-  TEnv env;
-  env.ReadFile(PathResolverFindCalibFile(config_file_path).c_str(),kEnvAll);
-
-  THashList* lList = env.GetTable();
-  std::vector<std::pair<std::string, std::string>> toolList;
-  for( Int_t i = 0; lList && i < lList->GetEntries(); ++i )
-  {
-    std::string name = lList->At( i )->GetName();
-    if (std::string::npos != name.rfind('.')) // FIXME this condition is a hack
-    {
-      std::pair<std::string, std::string> toolInfo;
-      toolInfo.first  = lList->At( i )->GetName();
-      toolInfo.second = env.GetValue(lList->At( i )->GetName(),"");
-      toolList.push_back(toolInfo);
-    }
-    else {
-      StatusCode sc;
-#ifdef ASGTOOL_ATHENA
-      // get type of variable with the entry name
-      const std::type_info* type = getProperty(lList->At( i )->GetName()).type_info();
-
-      // search for type is needed by env.GetValue function (needs a variable of the correct type as 2nd argument)
-      if (*type == typeid(bool))
-        sc = this->setProperty(lList->At( i )->GetName(),
-          bool(env.GetValue(lList->At( i )->GetName(),bool(true))));
-      else if (*type == typeid(int))
-        sc = this->setProperty(lList->At( i )->GetName(),
-          env.GetValue(lList->At( i )->GetName(),int(0)));
-      else if (*type == typeid(float))
-        sc = this->setProperty(lList->At( i )->GetName(),
-          env.GetValue(lList->At( i )->GetName(),float(0)));
-      else if (*type == typeid(double))
-        sc = this->setProperty(lList->At( i )->GetName(),
-          env.GetValue(lList->At( i )->GetName(),double(0)));
-      else if (*type == typeid(std::string))
-        sc = this->setProperty(lList->At( i )->GetName(),
-          env.GetValue(lList->At( i )->GetName(),""));
-#else
-    // get type of variable with the entry name
-      Property::Type type = getPropertyMgr()->getProperty(lList->At( i )->GetName())->type();
-
-      if (type == Property::BOOL)
-        sc = this->setProperty(lList->At( i )->GetName(),
-          bool(env.GetValue(lList->At( i )->GetName(),bool(true))));
-      else if (type == Property::INT)
-        sc = this->setProperty(lList->At( i )->GetName(),
-          env.GetValue(lList->At( i )->GetName(),int(0)));
-      else if (type == Property::FLOAT)
-        sc = this->setProperty(lList->At( i )->GetName(),
-          env.GetValue(lList->At( i )->GetName(),float(0)));
-      else if (type == Property::DOUBLE)
-        sc = this->setProperty(lList->At( i )->GetName(),
-          env.GetValue(lList->At( i )->GetName(),double(0)));
-      else if (type == Property::STRING)
-        sc = this->setProperty(lList->At( i )->GetName(),
-          env.GetValue(lList->At( i )->GetName(),""));
-#endif // ASGTOOL_ATHENA
-      else {
-        sc = StatusCode::FAILURE;
-      }
-      if (!sc.isSuccess()) {
-#ifdef ASGTOOL_ATHENA
-        ATH_MSG_FATAL("there was a problem to find the correct type enum: "<<type->name());
-#else
-        ATH_MSG_FATAL("there was a problem to find the correct type enum: "<<type);
-#endif // ASGTOOL_ATHENA
-        return StatusCode::FAILURE;
-      }
-    }
-  }
-
-  // At this point, the config file is read. Now we need to instantiate the tools.
-
-  //ToolHandleArray<ITauToolBase> tools;
-
-  for (unsigned i = 0 ; i < toolList.size() ; ++i)
-  {
-    std::pair<std::string, std::string> toolInfo = toolList.at(i);
-    std::string toolType = toolInfo.second;
-    std::string toolConfigPath = toolInfo.first;
-
-    // Going to get name from the basename of the config file
-    std::string toolName = toolConfigPath; 
-
-    // Remove directory if present.
-    // Do this before extension removal incase directory has a period character.
-    const size_t last_slash_idx = toolName.find_last_of("\\/");
-    if (std::string::npos != last_slash_idx) { toolName.erase(0, last_slash_idx + 1); }
-
-    // Remove extension if present.
-    const size_t period_idx = toolName.rfind('.');
-    if (std::string::npos != period_idx) { toolName.erase(period_idx); }
-
-    // Instantiate the tool
-    // TauRecToolBase* tool;
-    // if      (toolType == "TauCalibrateLC")        { tool = new TauCalibrateLC(toolName); }
-    // else if (toolType == "TauCommonCalcVars")     { tool = new TauCommonCalcVars(toolName); }
-    // else if (toolType == "TauTrackFilter")        { tool = new TauTrackFilter(toolName); }
-    // else if (toolType == "TauGenericPi0Cone")     { tool = new TauGenericPi0Cone(toolName); }
-    // else if (toolType == "TauIDPileupCorrection") { tool = new TauIDPileupCorrection(toolName); }
-    // else {
-    //   // TODO output some kind of error message before returning
-    //   return StatusCode::FAILURE;
-    // }
-
-    ITauToolBase* tool(0);
-    TClass* cl = gROOT->GetClass(toolType.c_str());
-    if(!cl) {
-      ATH_MSG_FATAL("No class " << toolType << " Found (is there a dictionary?)");
-      return StatusCode::FAILURE;
-    }
-    if( !cl->InheritsFrom("ITauToolBase") ){
-      ATH_MSG_FATAL("Class " << toolType << " Does not inherit from ITauToolBase");
-      return StatusCode::FAILURE;
-    }
-    tool = static_cast<ITauToolBase*> (cl->New());
-    if(tool==0){
-      ATH_MSG_FATAL("Couldn't allocate " << toolType << " Is there a default constructor?");
-      return StatusCode::FAILURE;      
-    }
-#ifdef ROOTCORE
-    asg::ToolStore::remove(toolType);// name of tool is name of class, in case we want multiple instances in store, 
-    //remove instance, rename tool, and put tool back in store
-    tool->setName(toolName);
-    asg::ToolStore::put(tool);
-#endif
-
-
-    // Set the configuration path for the tool
-    asg::AsgTool* asg_tool = dynamic_cast<asg::AsgTool*> (tool);
-    if (asg_tool && !asg_tool->setProperty("ConfigPath", toolConfigPath).isSuccess()) {
-      // TODO output some kind of error message before returning
-      ATH_MSG_FATAL("Tool should have ConfigPath defined");
-      return StatusCode::FAILURE;
-    }
-
-    // Schedule the tool
-    ToolHandle<ITauToolBase> handle(tool);
-    m_tools.push_back(handle);
-
-  }
-
-  // Configure the TauProcessorTool
-  m_configured = true;
-
-  return StatusCode::SUCCESS;
-}

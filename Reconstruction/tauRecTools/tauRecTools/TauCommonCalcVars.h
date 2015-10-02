@@ -17,12 +17,12 @@
  * @author Felix Friedrich
  */
 
-class TauCommonCalcVars : public TauRecToolBase {
+class TauCommonCalcVars : virtual public TauRecToolBase {
 public:
     //-----------------------------------------------------------------
     // Constructor and destructor
     //-----------------------------------------------------------------
-    TauCommonCalcVars(const std::string& name="TauCommonCalcVars");
+    TauCommonCalcVars(const std::string& name);
     ASG_TOOL_CLASS2(TauCommonCalcVars, TauRecToolBase, ITauToolBase)
     ~TauCommonCalcVars();
     
@@ -34,9 +34,6 @@ public:
     virtual StatusCode eventFinalize() { return StatusCode::SUCCESS; }
 
     virtual void print() const { }
-
-private:
-    std::string m_configPath;
 
 };
 

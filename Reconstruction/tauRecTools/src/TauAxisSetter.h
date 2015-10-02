@@ -21,7 +21,7 @@
  *                                                                              
  */
 
-class TauAxisSetter : public TauRecToolBase {
+class TauAxisSetter : virtual public TauRecToolBase {
 public:
 
     TauAxisSetter(const std::string& name);

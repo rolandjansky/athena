@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
 #ifndef TAUREC_TAUTRACKFINDER_H
 #define TAUREC_TAUTRACKFINDER_H
 
@@ -15,9 +14,6 @@
 #include "xAODTracking/TrackParticleContainer.h"
 
 #include "VxVertex/RecVertex.h"
-
-// xAOD Tracking Tool
-#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 namespace Trk {
   class ITrackSelectorTool;
@@ -36,7 +32,7 @@ namespace Trk {
  * @author Felix Friedrich
  */
 
-class TauTrackFinder : public TauRecToolBase {
+class TauTrackFinder : virtual public TauRecToolBase {
 public:
     //-------------------------------------------------------------
     //! Constructor and Destructor
@@ -114,7 +110,6 @@ private:
     std::string m_inputTauJetContainerName;
     std::string m_inputTrackParticleContainerName;
     std::string m_inputPrimaryVertexContainerName;
-    std::string m_inputTauTrackContainerName;
 
     //-------------------------------------------------------------
     //! tools
@@ -122,8 +117,6 @@ private:
     ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
     ToolHandle<Trk::ITrackSelectorTool> m_trackSelectorTool_tau;
     ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
-    ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectorTool_tau_xAOD;
-
     
     //-------------------------------------------------------------
     //! Input parameters for algorithm
@@ -137,7 +130,6 @@ private:
     float m_z0maxDelta;
     bool m_applyZ0cut;
     bool m_storeInOtherTrks;
-    bool m_removeDuplicateCoreTracks;
     std::vector<float> m_vDeltaZ0coreTrks;
     std::vector<float> m_vDeltaZ0wideTrks;
 
@@ -147,12 +139,6 @@ private:
 
     bool m_bypassSelector;
     bool m_bypassExtrapolator;
-
-    //-------------------------------------------------------------
-    // Sets of EM/Had samplings for track extrapolation 
-    //-------------------------------------------------------------
-    std::set<CaloSampling::CaloSample> m_EMSamplings;
-    std::set<CaloSampling::CaloSample> m_HadSamplings;
 
     //-------------------------------------------------------------
     //! Convenience functions to handle storegate objects
@@ -165,5 +151,4 @@ private:
 
 };
 
-#endif //TAUREC_TAUTRACKFINDER_H
-#endif //XAOD_ANALYSIS
+#endif

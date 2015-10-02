@@ -15,7 +15,7 @@
  * @author M. Boehler
  */
 
-class PhotonConversionPID : public TauRecToolBase {
+class PhotonConversionPID : virtual public TauRecToolBase {
 public:
     //-------------------------------------------------------------
     //! Constructor

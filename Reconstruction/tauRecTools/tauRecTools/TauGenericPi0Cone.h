@@ -16,12 +16,12 @@
 
 #include "tauRecTools/TauRecToolBase.h"
 
-class TauGenericPi0Cone : public TauRecToolBase {
+class TauGenericPi0Cone : virtual public TauRecToolBase {
 public:
     //-------------------------------------------------------------
     //! Constructor
     //-------------------------------------------------------------
-    TauGenericPi0Cone(const std::string& name="TauGenericPi0Cone");
+    TauGenericPi0Cone(const std::string& name);
     ASG_TOOL_CLASS2(TauGenericPi0Cone, TauRecToolBase, ITauToolBase)
 
     //-------------------------------------------------------------
@@ -38,7 +38,8 @@ public:
     virtual void print() const { }
 
 private:
-    std::string m_configPath;
+    
+    float m_pi0conedr;
 
 };
 

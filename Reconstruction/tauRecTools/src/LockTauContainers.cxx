@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauJetAuxContainer.h"
 
@@ -67,4 +66,3 @@ StatusCode LockTauContainers::eventFinalize() {
     ATH_MSG_VERBOSE("all tau containers are now locked");
     return StatusCode::SUCCESS;
 }
-#endif

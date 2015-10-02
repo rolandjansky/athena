@@ -26,7 +26,7 @@ namespace Trk {
  * @authors Stan Lai, Felix Friedrich
  */
 
-class TauVertexVariables : public TauRecToolBase {
+class TauVertexVariables : virtual public TauRecToolBase {
 public:
     //-----------------------------------------------------------------
     // Constructor and destructor

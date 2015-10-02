@@ -34,7 +34,7 @@ namespace TMVA{
  * @author Stephanie Yuen <stephanie.yuen@cern.ch> 
  */
 
-class TauShotFinder : public TauRecToolBase {
+class TauShotFinder : virtual public TauRecToolBase {
 public:
     TauShotFinder(const std::string& name);
     ASG_TOOL_CLASS2(TauShotFinder, TauRecToolBase, ITauToolBase);

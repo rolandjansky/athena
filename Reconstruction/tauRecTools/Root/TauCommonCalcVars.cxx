@@ -23,14 +23,13 @@
 
 #include "tauRecTools/TauCommonCalcVars.h"
 #include "tauRecTools/KineUtils.h"
-#include <vector>
+
 //-----------------------------------------------------------------------------
 // Constructor
 //-----------------------------------------------------------------------------
 
 TauCommonCalcVars::TauCommonCalcVars(const std::string &name) :
 TauRecToolBase(name) {
-    declareProperty("ConfigPath", m_configPath);
 }
 
 //-----------------------------------------------------------------------------
@@ -106,45 +105,54 @@ StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) {
     // }
 
     // invariant mass of track system
-    std::vector<const xAOD::TauTrack*> tauTracks = pTau.tracks(xAOD::TauJetParameters::TauTrackFlag::classifiedCharged);
-    for( const xAOD::TauTrack* trk : pTau.tracks(xAOD::TauJetParameters::TauTrackFlag::classifiedIsolation) ) tauTracks.push_back(trk);
-    // if ((pTau.nTracks() + pTau.nWideTracks()) > 0) {
-    if (tauTracks.size()> 0) {
+    if ((pTau.nTracks() + pTau.nWideTracks()) > 0) {
 
         TLorentzVector sumOfTrackVector;
 	TLorentzVector tempTrackVector;
 
-        for (const xAOD::TauTrack* tauTrk : tauTracks)
+        for (unsigned int i = 0; i != pTau.nTracks(); ++i)
 	  {
-	    tempTrackVector=tauTrk->p4();
+	    tempTrackVector.SetPtEtaPhiM( pTau.track(i)->pt(),  pTau.track(i)->eta(),  pTau.track(i)->phi(),  pTau.track(i)->m());
             sumOfTrackVector += tempTrackVector;
 	  }
+        for (unsigned int i = 0; i != pTau.nWideTracks(); ++i)
+	  {
+	    tempTrackVector.SetPtEtaPhiM( pTau.wideTrack(i)->pt(),  pTau.wideTrack(i)->eta(),  pTau.wideTrack(i)->phi(),  pTau.wideTrack(i)->m());
+            sumOfTrackVector += tempTrackVector;
+	  }
+
 	pTau.setDetail( xAOD::TauJetParameters::massTrkSys, static_cast<float>( sumOfTrackVector.M() ) );
 	float tempfloat = 0;
 	if ( pTau.detail( xAOD::TauJetParameters::massTrkSys, tempfloat ) )
-	  ATH_MSG_VERBOSE("set massTrkSys " << tempfloat);
+		ATH_MSG_VERBOSE("set massTrkSys " << tempfloat);
     }
 
     // width of track system squared (trkWidth2)
-    //    if (pTau.nTracks() > 1) {  // originally looped over core+wide tracks below
-    if (tauTracks.size()> 0 && pTau.nTracks()>1) {
+    if (pTau.nTracks() > 1) {
 
-      double leadTrkPhi = pTau.track(0)->phi();//fix this depending on how we choose to define this
-      double leadTrkEta = pTau.track(0)->eta();//dito. new TauJet_v3 track sorting doesn't guarantee this will be the same track
+        double leadTrkPhi = pTau.track(0)->phi();
+        double leadTrkEta = pTau.track(0)->eta();
 
         double ptSum = 0;
         double sumWeightedDR = 0;
         double sumWeightedDR2 = 0;
 
+        for (unsigned int i = 0; i != pTau.nTracks(); ++i) {
 
-        for (const xAOD::TauTrack* tauTrk : tauTracks){
+	  double deltaR = Tau1P3PKineUtils::deltaR(leadTrkEta, leadTrkPhi, pTau.track(i)->eta(), pTau.track(i)->phi() );     
 
-	  double deltaR = Tau1P3PKineUtils::deltaR(leadTrkEta, leadTrkPhi, tauTrk->eta(), tauTrk->phi() );     
+	  ptSum += pTau.track(i)->pt();
+	  sumWeightedDR += deltaR * (pTau.track(i)->pt());
+	  sumWeightedDR2 += deltaR * deltaR * (pTau.track(i)->pt());
+        }
 
-	  ptSum += tauTrk->pt();
-	  sumWeightedDR += deltaR * (tauTrk->pt());
-	  sumWeightedDR2 += deltaR * deltaR * (tauTrk->pt());
+        for (unsigned int i = 0; i != pTau.nWideTracks(); ++i) {
 
+	  double deltaR = Tau1P3PKineUtils::deltaR(leadTrkEta, leadTrkPhi, pTau.wideTrack(i)->eta(), pTau.wideTrack(i)->phi() );     
+	  
+	  ptSum += pTau.wideTrack(i)->pt();
+	  sumWeightedDR += deltaR * (pTau.wideTrack(i)->pt());
+	  sumWeightedDR2 += deltaR * deltaR * (pTau.wideTrack(i)->pt());
         }
 
         double trkWidth2 = sumWeightedDR2 / ptSum - sumWeightedDR * sumWeightedDR / ptSum / ptSum;
@@ -157,9 +165,8 @@ StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) {
     
     //FF: use now the 4-vector of the tau intermediate axis
     //P4EEtaPhiM P4CaloSeed(1., pDetails->seedCalo_eta(), pDetails->seedCalo_phi(), 0.);
-    
-    //    if ((pTau.nWideTracks() + pTau.nTracks()) > 0) {
-    if (tauTracks.size()> 0) {
+
+    if ((pTau.nWideTracks() + pTau.nTracks()) > 0) {
 
         double ptSum = 0;
         double innerPtSum = 0;
@@ -167,20 +174,26 @@ StatusCode TauCommonCalcVars::execute(xAOD::TauJet& pTau) {
         double innerSumWeightedDR = 0;
         double sumWeightedDR2 = 0;
 
+        for (unsigned int i = 0; i != pTau.nTracks(); ++i) {
 
-        for (const xAOD::TauTrack* tauTrk : tauTracks){
-
-          double deltaR = Tau1P3PKineUtils::deltaR(pTau.eta(), pTau.phi(), tauTrk->eta(), tauTrk->phi() );     
+          double deltaR = Tau1P3PKineUtils::deltaR(pTau.eta(), pTau.phi(), pTau.track(i)->eta(), pTau.track(i)->phi() );     
 	
-	  ptSum += tauTrk->pt();
-	  sumWeightedDR += deltaR * (tauTrk->pt());
-	  sumWeightedDR2 += deltaR * deltaR * (tauTrk->pt());
+	  ptSum += pTau.track(i)->pt();
+	  sumWeightedDR += deltaR * (pTau.track(i)->pt());
+	  sumWeightedDR2 += deltaR * deltaR * (pTau.track(i)->pt());
 
 	  //add calculation of innerTrkAvgDist
-	  if(tauTrk->flag(xAOD::TauJetParameters::TauTrackFlag::classifiedCharged)){
-	    innerPtSum += tauTrk->pt();
-	    innerSumWeightedDR += deltaR * (tauTrk->pt());
-	  }
+	  innerPtSum += pTau.track(i)->pt();
+	  innerSumWeightedDR += deltaR * (pTau.track(i)->pt());
+        }
+
+        for (unsigned int i = 0; i != pTau.nWideTracks(); ++i) {
+
+          double deltaR = Tau1P3PKineUtils::deltaR(pTau.eta(), pTau.phi(), pTau.wideTrack(i)->eta(), pTau.wideTrack(i)->phi() );     
+          
+	  ptSum += pTau.wideTrack(i)->pt();
+	  sumWeightedDR += deltaR * (pTau.wideTrack(i)->pt());
+	  sumWeightedDR2 += deltaR * deltaR * (pTau.wideTrack(i)->pt());
         }
 
         if (ptSum > 0.0001) {

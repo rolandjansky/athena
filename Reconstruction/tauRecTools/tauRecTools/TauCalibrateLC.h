@@ -20,12 +20,12 @@ class TF1;
  *                                                                              
  */
 
-class TauCalibrateLC : public TauRecToolBase {
+class TauCalibrateLC : virtual public TauRecToolBase {
 public:
 
   ASG_TOOL_CLASS2( TauCalibrateLC, TauRecToolBase, ITauToolBase )
 
-  TauCalibrateLC(const std::string& name="TauCalibrateLC");
+  TauCalibrateLC(const std::string& type);
     ~TauCalibrateLC();
 
     virtual StatusCode initialize();
@@ -38,7 +38,6 @@ public:
 
 
 private:
-    std::string m_configPath;
     std::string tauContainerKey;
     std::string vertexContainerKey;
     std::string calibrationFile; //!< energy calibration file
@@ -46,20 +45,19 @@ private:
     static const int nProngBins = 2;
 
     const TF1 * calibFunc[nProngBins][10]; //maximum 10 eta bins; might not be used on the whole 
-    const TH1 * slopeNPVHist[nProngBins]={0};
-    const TH1 * etaBinHist=0;
-    const TH1 * etaCorrectionHist=0;
+    const TH1 * slopeNPVHist[nProngBins];
+    const TH1 * etaBinHist;
+    const TH1 * etaCorrectionHist;
 
-    unsigned int m_minNTrackAtVertex=0;
-    int    m_nEtaBins=0;
-    double m_averageNPV=0;
+    unsigned int m_minNTrackAtVertex;
+    int    m_nEtaBins;
+    double m_averageNPV;
 
     bool m_doEnergyCorr; //!< switch for energy correction
     bool m_doAxisCorr;   //!< switch for eta correction
     bool m_printMissingContainerINFO;
-    bool m_isCaloOnly;   //!< switch for CaloOnly corrections
 
-    double m_clusterCone; //obsolete
+  double m_clusterCone; //obsolete
 };
 
 #endif

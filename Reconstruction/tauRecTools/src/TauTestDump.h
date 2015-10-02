@@ -16,7 +16,7 @@
  * @author Felix Friedrich
  */
 
-class TauTestDump : public TauRecToolBase {
+class TauTestDump : virtual public TauRecToolBase {
 public:
     //-----------------------------------------------------------------
     // Constructor and destructor

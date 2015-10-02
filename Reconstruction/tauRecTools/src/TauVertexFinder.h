@@ -9,7 +9,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODTracking/VertexContainer.h"
 #include "JetEDM/TrackVertexAssociation.h"
-#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -24,60 +23,52 @@
  * @author Felix Friedrich <Felix.Friedrich@cern.ch>
  */
 
-class TauVertexFinder : public TauRecToolBase {
+class TauVertexFinder : virtual public TauRecToolBase {
 public:
-  //-------------------------------------------------------------
-  //! Constructor and Destructor
-  //-------------------------------------------------------------
-  TauVertexFinder(const std::string& name);
-  ASG_TOOL_CLASS2(TauVertexFinder, TauRecToolBase, ITauToolBase);
-  ~TauVertexFinder();
+    //-------------------------------------------------------------
+    //! Constructor and Destructor
+    //-------------------------------------------------------------
+    TauVertexFinder(const std::string& name);
+    ASG_TOOL_CLASS2(TauVertexFinder, TauRecToolBase, ITauToolBase);
+    ~TauVertexFinder();
 
-  //-------------------------------------------------------------
-  //! Algorithm functions
-  //-------------------------------------------------------------
-  virtual StatusCode initialize();
-  virtual StatusCode eventInitialize();
-  virtual StatusCode execute(xAOD::TauJet& pTau);
-  virtual StatusCode eventFinalize();
-  virtual StatusCode finalize();
+    //-------------------------------------------------------------
+    //! Algorithm functions
+    //-------------------------------------------------------------
+    virtual StatusCode initialize();
+    virtual StatusCode eventInitialize();
+    virtual StatusCode execute(xAOD::TauJet& pTau);
+    virtual StatusCode eventFinalize();
+    virtual StatusCode finalize();
 
-  virtual void cleanup(xAOD::TauJet* ) { }
-  virtual void print() const { }
+    virtual void cleanup(xAOD::TauJet* ) { }
+    virtual void print() const { }
 
-  ElementLink<xAOD::VertexContainer> getPV_TJVA(const xAOD::TauJet& tauJet, const xAOD::VertexContainer& vertices);
-
-private:
-  float getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks, const jet::TrackVertexAssociation* tva) const;
-  // for online ATR-15665
-  float getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks) const;      
-  //-------------------------------------------------------------
-  //! Convenience functions to handle storegate objects
-  //-------------------------------------------------------------
-  template <class T>
-  bool openContainer(T* &container, std::string containerName, bool printFATAL=false);
-
-  template <class T>
-  bool retrieveTool(T &tool);
+    ElementLink<xAOD::VertexContainer> getPV_TJVA(const xAOD::TauJet& tauJet, const xAOD::VertexContainer& vertices);
 
 private:
-  bool m_printMissingContainerINFO;
-  float m_maxJVF;
-  ToolHandle< InDet::IInDetTrackSelectionTool > m_TrackSelectionToolForTJVA;
+    float getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks, const jet::TrackVertexAssociation* tva) const;
+        
+    //-------------------------------------------------------------
+    //! Convenience functions to handle storegate objects
+    //-------------------------------------------------------------
+    template <class T>
+    bool openContainer(T* &container, std::string containerName, bool printFATAL=false);
 
-  // for online
-  std::vector<const xAOD::Vertex*> m_matchedVertexOnline;
-  //-------------------------------------------------------------
-  //! Configureables
-  //-------------------------------------------------------------
-  bool m_useTJVA;
-  std::string m_inputPrimaryVertexContainerName;
-  std::string m_assocTracksName;
-  std::string m_trackVertexAssocName;    
-  // for online ATR-15665
-  float m_transDistMax;
-  float m_longDistMax;
-  float m_maxZ0SinTheta;
+    template <class T>
+    bool retrieveTool(T &tool);
+
+private:
+    bool m_printMissingContainerINFO;
+    float m_maxJVF;
+
+    //-------------------------------------------------------------
+    //! Configureables
+    //-------------------------------------------------------------
+    bool m_useTJVA;
+    std::string m_inputPrimaryVertexContainerName;
+    std::string m_assocTracksName;
+    std::string m_trackVertexAssocName;    
 };
 
 #endif // not TAUREC_TAUVERTEXFINDER_H

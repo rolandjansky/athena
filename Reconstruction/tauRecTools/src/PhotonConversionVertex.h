@@ -31,7 +31,7 @@ namespace InDet {
  * 
  */
 
-class PhotonConversionVertex : public TauRecToolBase {
+class PhotonConversionVertex : virtual public TauRecToolBase {
 public:
     //-------------------------------------------------------------
     //! Constructor and Destructor

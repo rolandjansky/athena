@@ -2,13 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
 #include "TFile.h"
 #include "TF1.h"
-//#include "GaudiKernel/Property.h"
-//#include "CLHEP/Units/SystemOfUnits.h"
-//#include "EventKernel/SignalStateHelper.h"
-//#include "JetEvent/Jet.h"
+#include "GaudiKernel/Property.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "EventKernel/SignalStateHelper.h"
+#include "JetEvent/Jet.h"
 
 #include "xAODTau/TauJet.h"
 #include "tauRecTools/TauEventData.h"
@@ -22,15 +21,7 @@ using CLHEP::GeV;
 //------------------------------------------------------------------------
 
 TauCalibrateEM::TauCalibrateEM(const std::string& name) :
-  TauRecToolBase(name),
-  m_f1_1p_lem(0),
-  m_f1_1p_hem_barrel(0),
-  m_f1_1p_hem_crack(0),
-  m_f1_1p_hem_endcap(0),
-  m_f1_mp_barrel(0),
-  m_f1_mp_crack(0),
-  m_f1_mp_endcap(0)  
-{
+TauRecToolBase(name) {
     declareProperty("response_functions_file", m_response_functions_file = "EMTES_Fits_Oct2010.root");
 }
 
@@ -111,7 +102,7 @@ StatusCode TauCalibrateEM::execute(xAOD::TauJet& pTau) {
 
     ATH_MSG_DEBUG("input variables: em_pt " << emscale_pt << " eta " << emscale_eta << " ntrack " << pTau.nTracks() << " emfrac " << emfrac);
 
-    /*double new_pt = */evaluate_new_pt(emscale_pt / GeV, fabs(emscale_eta), pTau.nTracks(), emfrac);
+    double new_pt = evaluate_new_pt(emscale_pt / GeV, fabs(emscale_eta), pTau.nTracks(), emfrac);
 
 
     // do NOT set TauJet energy, as this will be done in tauCalibrateLC
@@ -120,9 +111,7 @@ StatusCode TauCalibrateEM::execute(xAOD::TauJet& pTau) {
     // instead fill place holder in TauCommonDetails
     //pDetails->setSeedCalo_etEMCalib(new_pt * GeV);
     
-    //r21 cleanup
-    ATH_MSG_WARNING("EM_TES_scale removed");
-    //pTau.setDetail( xAOD::TauJetParameters::EM_TES_scale, static_cast<float>( new_pt * GeV ) );
+    pTau.setDetail( xAOD::TauJetParameters::EM_TES_scale, static_cast<float>( new_pt * GeV ) );
 
     return StatusCode::SUCCESS;
 }
@@ -196,4 +185,3 @@ double TauCalibrateEM::evaluate_new_pt(double pt, double eta, int ntrack, double
 // EOF
 
 
-#endif

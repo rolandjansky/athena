@@ -12,11 +12,10 @@
 
 #include <vector>
 
-#include "tauRecTools/TauPi0ScoreCalculator.h"
-#include "tauRecTools/HelperFunctions.h"
+#include "TauPi0ScoreCalculator.h"
 #include "xAODPFlow/PFO.h"
 
-#include "MVAUtils/BDT.h"
+#include "TMVA/Reader.h"
 
 using std::vector;
 using std::string;
@@ -26,32 +25,8 @@ using std::string;
 //-------------------------------------------------------------------------
 
 TauPi0ScoreCalculator::TauPi0ScoreCalculator( const string& name ) :
-  TauRecToolBase(name),
-  m_readerOption("Silent:!Color"),
-  m_mvaBDT(0),
-  m_Abs_FIRST_ETA(0),
-  m_SECOND_R(0),
-  m_SECOND_LAMBDA(0),
-  m_Abs_DELTA_PHI(0),
-  m_Abs_DELTA_THETA(0),
-  m_CENTER_LAMBDA_helped(0),
-  m_LATERAL(0),
-  m_LONGITUDINAL(0),
-  m_ENG_FRAC_EM(0),
-  m_ENG_FRAC_MAX(0),
-  m_ENG_FRAC_CORE(0),
-  m_log_SECOND_ENG_DENS(0),
-  m_EcoreOverEEM1(0),
-  m_NHitsInEM1(0),
-  m_NPosCells_PS(0),
-  m_NPosCells_EM1(0),
-  m_NPosCells_EM2(0),
-  m_firstEtaWRTCluster_EM1(0),
-  m_firstEtaWRTCluster_EM2(0),
-  m_secondEtaWRTCluster_EM1(0),
-  m_secondEtaWRTCluster_EM2(0),
-  m_energy_EM1(0),
-  m_energy_EM2(0)
+    TauRecToolBase(name)
+    , m_readerOption("Silent:!Color")
 {
     declareProperty("ReaderOption",            m_readerOption);
     declareProperty("BDTWeightFile",           m_weightfile);
@@ -71,35 +46,50 @@ StatusCode TauPi0ScoreCalculator::initialize()
   //---------------------------------------------------------------------
   // Create TMVA reader
   //---------------------------------------------------------------------
-  m_availableVars.insert( std::make_pair("Pi0Cluster_Abs_FIRST_ETA"         ,&m_Abs_FIRST_ETA) );
-  m_availableVars.insert( std::make_pair("Pi0Cluster_SECOND_R"              ,&m_SECOND_R) );
-  m_availableVars.insert( std::make_pair("Pi0Cluster_Abs_DELTA_THETA"       ,&m_Abs_DELTA_THETA) );
-  m_availableVars.insert( std::make_pair("Pi0Cluster_CENTER_LAMBDA_helped"  ,&m_CENTER_LAMBDA_helped) );
-  m_availableVars.insert( std::make_pair("Pi0Cluster_LONGITUDINAL"          ,&m_LONGITUDINAL) );
-  m_availableVars.insert( std::make_pair("Pi0Cluster_ENG_FRAC_EM"           ,&m_ENG_FRAC_EM) );
-  m_availableVars.insert( std::make_pair("Pi0Cluster_ENG_FRAC_CORE"         ,&m_ENG_FRAC_CORE) );
-  m_availableVars.insert( std::make_pair("Pi0Cluster_log_SECOND_ENG_DENS"   ,&m_log_SECOND_ENG_DENS) );
-  m_availableVars.insert( std::make_pair("Pi0Cluster_EcoreOverEEM1"         ,&m_EcoreOverEEM1) );
-  m_availableVars.insert( std::make_pair("Pi0Cluster_NPosECells_EM1"        ,&m_NPosCells_EM1) );
-  m_availableVars.insert( std::make_pair("Pi0Cluster_NPosECells_EM2"        ,&m_NPosCells_EM2) );
-  m_availableVars.insert( std::make_pair("Pi0Cluster_AbsFirstEtaWRTClusterPosition_EM1" ,&m_firstEtaWRTCluster_EM1) );
-  m_availableVars.insert( std::make_pair("Pi0Cluster_secondEtaWRTClusterPosition_EM2" ,&m_secondEtaWRTCluster_EM2) );
+  m_tmvaReader = new TMVA::Reader(TString(m_readerOption));
 
-  std::string weightFile = find_file(m_weightfile);
+  if (msgLvl(MSG::DEBUG)) m_tmvaReader->SetVerbose(true);
 
-  m_mvaBDT = tauRecTools::configureMVABDT(m_availableVars, weightFile);
-  if(m_mvaBDT==0) {
-    ATH_MSG_FATAL("Couldn't configure MVA");
-    return StatusCode::FAILURE;
-  }
+  int spectator = 1.;
+  m_tmvaReader->AddSpectator( "nTau"                            ,&spectator);
+  m_tmvaReader->AddSpectator( "nTau_test : = nTau%5"            ,&spectator);
+  m_tmvaReader->AddSpectator( "Sample"                          ,&spectator);
+  m_tmvaReader->AddSpectator( "Pi0Cluster_type"                 ,&spectator);
+  m_tmvaReader->AddSpectator( "Pi0Cluster_BDTScore_old"         ,&spectator);
+  m_tmvaReader->AddVariable( "Pi0Cluster_Abs_FIRST_ETA"         ,&m_Abs_FIRST_ETA);
+  m_tmvaReader->AddVariable( "Pi0Cluster_SECOND_R"              ,&m_SECOND_R);
+//  m_tmvaReader->AddVariable( "Pi0Cluster_SECOND_LAMBDA"         ,&m_SECOND_LAMBDA);
+//  m_tmvaReader->AddVariable( "Pi0Cluster_Abs_DELTA_PHI"         ,&m_Abs_DELTA_PHI);
+  m_tmvaReader->AddVariable( "Pi0Cluster_Abs_DELTA_THETA"       ,&m_Abs_DELTA_THETA);
+  m_tmvaReader->AddVariable( "Pi0Cluster_CENTER_LAMBDA_helped"  ,&m_CENTER_LAMBDA_helped);
+//  m_tmvaReader->AddVariable( "Pi0Cluster_LATERAL"               ,&m_LATERAL);
+  m_tmvaReader->AddVariable( "Pi0Cluster_LONGITUDINAL"          ,&m_LONGITUDINAL);
+  m_tmvaReader->AddVariable( "Pi0Cluster_ENG_FRAC_EM"           ,&m_ENG_FRAC_EM);
+//  m_tmvaReader->AddVariable( "Pi0Cluster_ENG_FRAC_MAX"          ,&m_ENG_FRAC_MAX);
+  m_tmvaReader->AddVariable( "Pi0Cluster_ENG_FRAC_CORE"         ,&m_ENG_FRAC_CORE);
+  m_tmvaReader->AddVariable( "Pi0Cluster_log_SECOND_ENG_DENS"   ,&m_log_SECOND_ENG_DENS);
+  m_tmvaReader->AddVariable( "Pi0Cluster_EcoreOverEEM1"         ,&m_EcoreOverEEM1);
+// m_tmvaReader->AddVariable( "Pi0Cluster_NHitsInEM1"             ,&m_NHitsInEM1);
+// m_tmvaReader->AddVariable( "Pi0Cluster_NPosECells_PS"          ,&m_NPosCells_PS);
+  m_tmvaReader->AddVariable( "Pi0Cluster_NPosECells_EM1"        ,&m_NPosCells_EM1);
+  m_tmvaReader->AddVariable( "Pi0Cluster_NPosECells_EM2"        ,&m_NPosCells_EM2);
+  m_tmvaReader->AddVariable( "Pi0Cluster_AbsFirstEtaWRTClusterPosition_EM1" ,&m_firstEtaWRTCluster_EM1);
+//  m_tmvaReader->AddVariable( "Pi0Cluster_AbsFirstEtaWRTClusterPosition_EM2" ,&m_firstEtaWRTCluster_EM2);
+//  m_tmvaReader->AddVariable( "Pi0Cluster_secondEtaWRTClusterPosition_EM1" ,&m_secondEtaWRTCluster_EM1);
+  m_tmvaReader->AddVariable( "Pi0Cluster_secondEtaWRTClusterPosition_EM2" ,&m_secondEtaWRTCluster_EM2);
+//  m_tmvaReader->AddVariable( "Pi0Cluster_energy_EM1"            ,&m_energy_EM1);
+//  m_tmvaReader->AddVariable( "Pi0Cluster_energy_EM2"            ,&m_energy_EM2);
+
+  if (bookMethod(m_tmvaReader, "BDT method").isFailure()) return StatusCode::FAILURE;
  
   return StatusCode::SUCCESS;
 }
 
 StatusCode TauPi0ScoreCalculator::finalize()
 {
-  delete m_mvaBDT;
-  return StatusCode::SUCCESS;
+  StatusCode sc = AlgTool::finalize();
+  delete m_tmvaReader;
+  return sc;
 }
 
 
@@ -116,15 +106,12 @@ StatusCode TauPi0ScoreCalculator::execute(xAOD::TauJet& pTau)
     //---------------------------------------------------------------------
     // retrieve neutral PFOs from tau, calculate BDT scores and store them in PFO
     //---------------------------------------------------------------------
-    for( auto neutralPFOLink : pTau.protoNeutralPFOLinks() )
-    {
-        if( not neutralPFOLink.isValid() ){
-            ATH_MSG_WARNING("Invalid protoNeutralPFOLink");
-            continue;
-        }
-        float BDTScore = calculateScore(*neutralPFOLink);
-        xAOD::PFO* neutralPFO = const_cast<xAOD::PFO*>(*neutralPFOLink);
-        neutralPFO->setBDTPi0Score((float) BDTScore);
+    unsigned nNeutPFO = pTau.nProtoNeutralPFOs();
+    for(unsigned int iNeutPFO=0; iNeutPFO<nNeutPFO; iNeutPFO++) {
+        const xAOD::PFO* curNeutPFO_const = pTau.protoNeutralPFO( iNeutPFO );
+        float BDTScore = calculateScore(curNeutPFO_const);
+        xAOD::PFO* curNeutPFO = const_cast<xAOD::PFO*>(curNeutPFO_const);
+        curNeutPFO->setBDTPi0Score((float) BDTScore);
     }
 
     ATH_MSG_DEBUG("End of TauPi0ScoreCalculator::execute");
@@ -222,25 +209,26 @@ float TauPi0ScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO)
     m_firstEtaWRTCluster_EM2 = fabs(m_firstEtaWRTCluster_EM2);
 
     // Calculate BDT score
-    float BDTScore = m_mvaBDT->GetGradBoostMVA(m_mvaBDT->GetPointers());
+    float BDTScore = m_tmvaReader->EvaluateMVA( "BDT method" );
      
     return BDTScore;
 }
 
-// StatusCode TauPi0ScoreCalculator::bookMethod(TMVA::Reader *reader, const std::string &methodName) const 
-// {
-    // if (m_weightfile == ""){
-    //     ATH_MSG_ERROR("No weight file given");
-    //     return StatusCode::FAILURE;
-    // }
-    // std::string resolvedFileName = find_file(m_weightfile);
-    // if (resolvedFileName != "") {
-    //     ATH_MSG_DEBUG( "Parameterisation file found: " << resolvedFileName );
-    // } 
-    // else {
-    //     ATH_MSG_ERROR( "Parameterisation file " << m_weightfile << " not found" );
-    //     return StatusCode::FAILURE;
-    // }
-    // reader->BookMVA( methodName, resolvedFileName);
-//     return StatusCode::SUCCESS;
-// }
+StatusCode TauPi0ScoreCalculator::bookMethod(TMVA::Reader *reader, const std::string &methodName) const 
+{
+    if (m_weightfile == ""){
+        ATH_MSG_ERROR("No weight file given");
+        return StatusCode::FAILURE;
+    }
+    std::string resolvedFileName = find_file(m_weightfile);
+    if (resolvedFileName != "") {
+        ATH_MSG_DEBUG( "Parameterisation file found: " << resolvedFileName );
+    } 
+    else {
+        ATH_MSG_ERROR( "Parameterisation file " << m_weightfile << " not found" );
+        return StatusCode::FAILURE;
+    }
+    reader->BookMVA( methodName, resolvedFileName);
+    return StatusCode::SUCCESS;
+}
+

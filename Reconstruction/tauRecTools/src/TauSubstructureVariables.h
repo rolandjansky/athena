@@ -15,14 +15,14 @@
  * 
  */
 
-class TauSubstructureVariables : public TauRecToolBase
+class TauSubstructureVariables : virtual public TauRecToolBase
 {
     public: 
         
         static const double DEFAULT;
 
-        TauSubstructureVariables(const std::string& name="TauSubstructureVariables");
-	ASG_TOOL_CLASS2(TauSubstructureVariables, TauRecToolBase, ITauToolBase)
+        TauSubstructureVariables(const std::string& name);
+	ASG_TOOL_CLASS2(TauSubstructureVariables, TauRecToolBase, ITauToolBase);
 	
         ~TauSubstructureVariables();
 
@@ -40,7 +40,6 @@ class TauSubstructureVariables : public TauRecToolBase
         /** Maximal pile up correction in GeV for a tau candidate.
          *  Used for the caloIso corrected variable.
          */
-	std::string m_configPath;
         double m_maxPileUpCorrection; 
         double m_pileUpAlpha;         //!< slope of the pileup correction
         
