@@ -53,7 +53,7 @@ namespace met{
 
     StatusCode extractTopoClusters(const xAOD::IParticle* obj,
 				   std::vector<const xAOD::IParticle*>& tclist,
-				   const xAOD::CaloClusterContainer* tcCont);
+				   const xAOD::CaloClusterContainer* tcCont) const;
     double m_tcMatch_dR;
     double m_tcMatch_maxRat;
     double m_tcMatch_tolerance;

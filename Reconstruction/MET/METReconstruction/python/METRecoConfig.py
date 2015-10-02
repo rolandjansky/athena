@@ -74,7 +74,7 @@ class BuildConfig:
         self.outputKey = outputKey
         self.inputKey = inputKey
 
-def getBuilder(config,suffix,doTracks,doCells):
+def getBuilder(config,suffix,doTracks,doCells,doTriggerMET):
     tool = None
     # Construct tool and set defaults for case-specific configuration
     if config.objType == 'Ele':
@@ -117,11 +117,13 @@ def getBuilder(config,suffix,doTracks,doCells):
     if suffix == 'Calo':
         tool = CfgMgr.met__METCaloRegionsTool('MET_CaloRegionsTool')
         if doCells:
-            tool.UseCells    = True                    
-            config.inputKey  = defaultInputKey['Calo'] 
+            tool.UseCells     = True
+            tool.DoTriggerMET = doTriggerMET
+            config.inputKey   = defaultInputKey['Calo'] 
         else:
-            tool.UseCells    = False                   
-            config.inputKey  = defaultInputKey['SoftClus']
+            tool.UseCells     = False                   
+            tool.DoTriggerMET = False
+            config.inputKey   = defaultInputKey['SoftClus']
         config.outputKey = config.objType
 
     # set input/output key names
@@ -182,6 +184,7 @@ def getRegions(config,suffix):
     tool.InputMETContainer = 'MET_'+suffix
     tool.InputMETMap = 'METMap_'+suffix
     tool.InputMETKey = config.outputKey
+    tool.RegionValues = [ 1.5, 3.2, 10 ]
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += tool
     return tool
@@ -203,7 +206,7 @@ class METConfig:
                 print prefix, 'Config '+self.suffix+' already contains a builder of type '+config.objType
                 raise LookupError
             else:
-                builder = getBuilder(config,self.suffix,self.doTracks,self.doCells)
+                builder = getBuilder(config,self.suffix,self.doTracks,self.doCells,self.doTriggerMET)
                 self.builders[config.objType] = builder
                 self.buildlist.append(builder)
                 print prefix, '  Added '+config.objType+' tool named '+builder.name()
@@ -235,13 +238,14 @@ class METConfig:
     #
     def __init__(self,suffix,buildconfigs=[],refconfigs=[],
                  doTracks=False,doSum=False,doRegions=False,
-                 doCells=False,duplicateWarning=True):
+                 doCells=False,doTriggerMET=True,duplicateWarning=True):
         print prefix, 'Creating MET config \''+suffix+'\''
         self.suffix = suffix
         self.doSum = doSum
         self.doTracks = doTracks
         self.doRegions = doRegions
         self.doCells = doCells
+        self.doTriggerMET = doTriggerMET
         self.duplicateWarning = duplicateWarning
         #
         self.builders = {}

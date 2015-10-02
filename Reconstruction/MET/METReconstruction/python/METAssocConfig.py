@@ -1,7 +1,8 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+
+
 from AthenaCommon import CfgMgr
-from GaudiKernel.Constants import *
 
 #################################################################################
 # Define some default values
@@ -73,6 +74,10 @@ def getAssociator(config,suffix,doPFlow):
         tool = CfgMgr.met__METMuonAssociator('MET_MuonAssociator_'+suffix)
     if config.objType == 'Soft':
         tool = CfgMgr.met__METSoftAssociator('MET_SoftAssociator_'+suffix)
+    if config.objType == 'Truth':
+        tool = CfgMgr.met__METTruthAssociator('MET_TruthAssociator_'+suffix)
+        ToolSvc == tool
+        tool.RecoJetKey = config.inputKey
     if doPFlow:
         pfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_'+suffix)
         ToolSvc += pfotool
@@ -89,8 +94,8 @@ def getAssociator(config,suffix,doPFlow):
 
     trkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_METAssoc",
                                                      CutLevel="TightPrimary",
-                                                     maxZ0SinTheta=1.5,
-                                                     maxD0overSigmaD0=3)
+                                                     maxZ0SinTheta=3,
+                                                     maxD0overSigmaD0=2)
     ToolSvc += trkseltool
     tool.TrackSelectorTool = trkseltool
     ToolSvc += tool
@@ -101,9 +106,11 @@ def getAssociator(config,suffix,doPFlow):
 
 class METAssocConfig:
     def outputCollections(self):
-        return 'MET_Core_'+self.suffix,'MET_Reference_'+self.suffix
+        if doTruth: return 'MET_Core_'+self.suffix
+        else: return 'MET_Core_'+self.suffix,'MET_Reference_'+self.suffix
     #
     def outputMap(self):
+        return 'METAssoc_'+self.suffix
         return 'METAssoc_'+self.suffix
     #
     def setupAssociators(self,buildconfigs):
@@ -119,10 +126,14 @@ class METAssocConfig:
                 print prefix, '  Added '+config.objType+' tool named '+associator.name()
     #
     def __init__(self,suffix,buildconfigs=[],
-                 doPFlow=False):
-        print prefix, 'Creating MET config \''+suffix+'\''
+                 doPFlow=False,doTruth=False):
+        if doTruth:
+            print prefix, 'Creating MET TruthAssoc config \''+suffix+'\''
+        else:
+            print prefix, 'Creating MET Assoc config \''+suffix+'\''
         self.suffix = suffix
         self.doPFlow = doPFlow
+        self.doTruth = doTruth
         self.associators = {}
         self.assoclist = [] # need an ordered list
         #
@@ -130,12 +141,18 @@ class METAssocConfig:
 
 # Set up a top-level tool with mostly defaults
 def getMETAssocTool(topconfig):
-    tcstate = clusterSigStates['LocHad']
-    if topconfig.suffix == 'AntiKt4EMTopo': tcstate = clusterSigStates['EMScale']
-    assocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_'+topconfig.suffix,
-                                               METAssociators = topconfig.assoclist,
-                                               METSuffix = topconfig.suffix,
-                                               TCSignalState=tcstate)
+    assocTool = None
+    if topconfig.doTruth:
+        assocTool = CfgMgr.met__METAssociationTool('MET_TruthAssociationTool_'+topconfig.suffix,
+                                                   METAssociators = topconfig.assoclist,
+                                                   METSuffix = topconfig.suffix)
+    else:
+        tcstate = clusterSigStates['LocHad']
+        if 'EMTopo' in topconfig.suffix: tcstate = clusterSigStates['EMScale']
+        assocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_'+topconfig.suffix,
+                                                   METAssociators = topconfig.assoclist,
+                                                   METSuffix = topconfig.suffix,
+                                                   TCSignalState=tcstate)
     return assocTool
 
 # Allow user to configure reco tools directly or get more default configurations
@@ -164,6 +181,3 @@ def getMETAssocAlg(algName='METAssociation',configs={},tools=[]):
                                       RecoTools=assocTools)
 #    assocAlg.OutputLevel=DEBUG
     return assocAlg
-
-# Allow user to configure reco tools directly or get more default configurations
-#def getMETMakerAlg(algName='METMaker'):

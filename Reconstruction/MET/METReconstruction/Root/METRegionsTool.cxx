@@ -49,9 +49,7 @@ namespace met {
     declareProperty( "InputMETContainer" , m_base_met_containerKey = ""  );
     declareProperty( "InputMETMap"       , m_base_met_mapKey       = ""  );
     declareProperty( "InputMETKey"       , m_base_met_inputKey     = ""  ); 
-    declareProperty( "CentralEtaMax"     , m_eta_centralMax        = 1.5 );   
-    declareProperty( "EndCapEtaMax"      , m_eta_endcapMax         = 3.2 );   
-    declareProperty( "ForwardEtaMax"     , m_eta_forwardMax        = 10. );   
+    declareProperty( "RegionValues"      , m_region_values               );
   }
 
   // Destructor
@@ -68,6 +66,43 @@ namespace met {
     if( m_base_met_containerKey.size()==0 || m_base_met_inputKey.size()==0 ) {
       ATH_MSG_FATAL("Both InputMETContainer or InputMETKey must be provided.");
       return StatusCode::FAILURE;
+    }
+
+    if( m_region_values.size() == 0) {
+      ATH_MSG_WARNING("Setting up default regions");
+      m_region_values.push_back( 1.5);
+      m_region_values.push_back( 3.2);
+      m_region_values.push_back(10.0);
+    } else {
+      std::sort(m_region_values.begin(), m_region_values.end()); // Default should be good enough
+    } 
+
+    // Set the names and eta ranges
+    float eta_min = 0., eta_max = 0.;
+    for(unsigned int index=0; index<m_region_values.size(); ++index) {
+      if(index == 0) { 
+        eta_min = 0.; 
+        eta_max = m_region_values.at(index);
+      } else {
+        eta_min = m_region_values.at(index-1);
+        eta_max = m_region_values.at(index);
+      }
+
+      // A few nice formatting
+      std::string lowerName = std::to_string(eta_min), higherName = std::to_string(eta_max);
+      lowerName.erase(lowerName.find_last_not_of('0') + 1, std::string::npos);
+      higherName.erase(higherName.find_last_not_of('0') + 1, std::string::npos);
+      if(lowerName[lowerName.size()-1] == '.') lowerName.append("0");
+      if(higherName[higherName.size()-1] == '.') higherName.append("0");
+      std::replace(lowerName.begin(),lowerName.end(),'.','p'); 
+      std::replace(higherName.begin(),higherName.end(),'.','p'); 
+
+      // Names
+      m_region_names.push_back(lowerName + "_" + higherName);
+
+      // Regions
+      std::pair<float, float> currentPair(eta_min,eta_max);
+      m_region_eta_values.push_back(currentPair);
     }
 
     return StatusCode::SUCCESS;
@@ -110,31 +145,12 @@ namespace met {
       return StatusCode::SUCCESS;
     }
 
-    // Create additional MET objects to hold EndCap and Forward
-    MissingET* metTerm_endcap  = new MissingET(0.,0.,0.);
-    MissingET* metTerm_forward = new MissingET(0.,0.,0.);
-
-    ATH_MSG_DEBUG("Check term pointers " << metTerm_central << "," << metTerm_endcap << "," << metTerm_forward);
-
-    // Set Names
-    metTerm_central->setName( m_base_met_inputKey + "_Central" );
-    metTerm_endcap ->setName( m_base_met_inputKey + "_EndCap"  );
-    metTerm_forward->setName( m_base_met_inputKey + "_Forward" );
-
-    ATH_MSG_DEBUG("Set up region terms, " << metTerm_central->name() << ", " << metTerm_endcap->name() << ", " << metTerm_forward->name());
-
     // Add to the Container 
     MissingETContainer* metCont = static_cast<MissingETContainer*>( metTerm_central->container() );
     if(!metCont) {
       ATH_MSG_DEBUG("METRegionsTool expecting a MissingETContainer given an inconsistent type.");
       return StatusCode::SUCCESS;
     }
-    metCont->push_back( metTerm_endcap  );
-    metCont->push_back( metTerm_forward );
-
-    // Add to the Composition
-    MissingETComposition::add( metMap, metTerm_endcap  );
-    MissingETComposition::add( metMap, metTerm_forward );
 
     // Get the components of the base MET
     MissingETContainer::const_iterator iterBaseCont = base_met_container->find( m_base_met_inputKey );
@@ -150,36 +166,44 @@ namespace met {
       return StatusCode::SUCCESS;
     }
 
+    // Create MET term, push to container and maps
+    for(unsigned int index=0; index<m_region_values.size(); ++index) {
+      MissingET* currentMetTerm;
+      if(index == 0) { 
+        currentMetTerm = metTerm_central; 
+        currentMetTerm->setName( m_base_met_inputKey + "_" + m_region_names.at(index) );
+      } else { 
+        currentMetTerm = new MissingET(0.,0.,0.);
+        currentMetTerm->setName( m_base_met_inputKey + "_" + m_region_names.at(index) );
+        ATH_MSG_DEBUG("Adding MET Term " << currentMetTerm->name() << " to MET container" );
+        metCont->push_back( currentMetTerm ); 
+        ATH_MSG_DEBUG("Adding MET Term " << currentMetTerm->name() << " to MET map" );
+        MissingETComposition::add( metMap, metCont->back() );
+      }
+      m_mapRangeToMET.insert(std::pair<std::pair<float,float>,MissingET*>(m_region_eta_values.at(index),metCont->back()));
+    }
+
+    // Fill the MET terms and maps
     if(!(*iterBaseConstit)->empty()) {
-      // Loop over component and add to appropriate MET and insert to METComposition
       vector<const IParticle*> objectList = (*iterBaseConstit)->objects();
       vector<const IParticle*> dummyList;
 
       for( vector<const IParticle*>::const_iterator iObj = objectList.begin(); iObj!=objectList.end(); ++iObj ) {
 	MissingETBase::Types::weight_t objWeight = (*iterBaseConstit)->weight(*iObj);
-	// Central
-	if     ( fabs((*iObj)->eta()) < m_eta_centralMax ) {
-	  metTerm_central->add((*iObj)->pt()*cos((*iObj)->phi())*objWeight.wpx(),
-			       (*iObj)->pt()*sin((*iObj)->phi())*objWeight.wpy(),
-			       (*iObj)->pt()*objWeight.wet());
-	  MissingETComposition::insert( metMap, metTerm_central, *iObj, dummyList, objWeight );
-	}
-	// EndCap 
-	else if( fabs((*iObj)->eta()) < m_eta_endcapMax ) {
-	  metTerm_endcap->add((*iObj)->pt()*cos((*iObj)->phi())*objWeight.wpx(),
-			      (*iObj)->pt()*sin((*iObj)->phi())*objWeight.wpy(),
-			      (*iObj)->pt()*objWeight.wet());
-	  MissingETComposition::insert( metMap, metTerm_endcap , *iObj, dummyList, objWeight  );
-	} 
-	// Forward 
-	else if( fabs((*iObj)->eta()) < m_eta_forwardMax ) {
-	  metTerm_forward->add((*iObj)->pt()*cos((*iObj)->phi())*objWeight.wpx(),
-			       (*iObj)->pt()*sin((*iObj)->phi())*objWeight.wpy(),
-			       (*iObj)->pt()*objWeight.wet());
-	  MissingETComposition::insert( metMap, metTerm_forward, *iObj, dummyList, objWeight );
-	}
-      }
+        for(std::map< std::pair<float,float>, MissingET* >::iterator it=m_mapRangeToMET.begin();
+            it!=m_mapRangeToMET.end(); ++it) {
+            if( fabs((*iObj)->eta()) > it->first.first && fabs((*iObj)->eta()) < it->first.second ) {
+              it->second->add((*iObj)->pt()*cos((*iObj)->phi())*objWeight.wpx(),
+                              (*iObj)->pt()*sin((*iObj)->phi())*objWeight.wpy(),
+                              (*iObj)->pt()*objWeight.wet());
+	      MissingETComposition::insert( metMap, it->second, *iObj, dummyList, objWeight );
+            }
+        } // end of loop over met terms
+      } // end of loop over constituents
     }
+
+    // Clean map for the next event
+    m_mapRangeToMET.clear();
 
     return StatusCode::SUCCESS;
   }

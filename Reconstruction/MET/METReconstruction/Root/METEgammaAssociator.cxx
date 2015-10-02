@@ -81,7 +81,7 @@ namespace met {
   // Get Egamma constituents
   StatusCode METEgammaAssociator::extractTopoClusters(const xAOD::IParticle* obj,
 					std::vector<const xAOD::IParticle*>& tclist,
-				        const xAOD::CaloClusterContainer* tcCont)
+				        const xAOD::CaloClusterContainer* tcCont) const
   {
     const Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
     // safe to assume a single SW cluster?

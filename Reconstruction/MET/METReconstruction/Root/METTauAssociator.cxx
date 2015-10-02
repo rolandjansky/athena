@@ -91,7 +91,7 @@ namespace met {
   // Get tau constituents
   StatusCode METTauAssociator::extractTopoClusters(const xAOD::IParticle *obj,
 						   std::vector<const xAOD::IParticle*>& tclist,
-				        	   const xAOD::CaloClusterContainer* /*tcCont*/)
+				        	   const xAOD::CaloClusterContainer* /*tcCont*/) const
   {  
     const TauJet* tau = static_cast<const TauJet*>(obj);
     const Jet* seedjet = *tau->jetLink();
@@ -119,44 +119,25 @@ namespace met {
   StatusCode METTauAssociator::extractTracks(const xAOD::IParticle *obj,
 					     std::vector<const xAOD::IParticle*>& constlist,
 					     const xAOD::CaloClusterContainer* tcCont,
-					     const xAOD::TrackParticleContainer* trkCont,
-					     const xAOD::Vertex* pv)
+					     const xAOD::Vertex* pv) const
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
     const Jet* jet = *tau->jetLink();
     for(size_t iTrk=0; iTrk<tau->nTracks(); ++iTrk) {
       const TrackParticle* tautrk = tau->track(iTrk);
-      if(acceptTrack(tautrk,pv) && isGoodEoverP(tautrk,tcCont,pv,trkCont)) {
-	//if(acceptTrack(tautrk,pv)) {
-	// bool matchedmu = false;
-	// for(const auto& mutrk : mutracks) {
-	//   if( (matchedmu = (tautrk == mutrk)) ) {
-	//     ATH_MSG_VERBOSE("Veto track matched to muon");
-	// 	break;
-	//   }
-	// }
-	// if(!matchedmu) {
+      if(acceptTrack(tautrk,pv) && isGoodEoverP(tautrk,tcCont)) {
+      // if(acceptTrack(tautrk,pv)) {
 	ATH_MSG_VERBOSE("Accept tau track " << tautrk << " px, py = " << tautrk->p4().Px() << ", " << tautrk->p4().Py());
 	constlist.push_back(tautrk);
-	// }
       }
     }
     for(size_t iTrk=0; iTrk<tau->nOtherTracks(); ++iTrk) {
       const TrackParticle* tautrk = tau->otherTrack(iTrk);
       double dR = jet->p4().DeltaR(tautrk->p4());
-      if(dR<0.2 && acceptTrack(tautrk,pv) && isGoodEoverP(tautrk,tcCont,pv,trkCont)) {
-	//if(dR<0.2 && acceptTrack(tautrk,pv)) {
-	// bool matchedmu = false;
-	// for(const auto& mutrk : mutracks) {
-	//   if( (matchedmu = (tautrk == mutrk)) ) {
-	//     ATH_MSG_VERBOSE("Veto track matched to muon");
-	// 	break;
-	//   }
-	// }
-	// if(!matchedmu) {
+      if(dR<0.2 && acceptTrack(tautrk,pv) && isGoodEoverP(tautrk,tcCont)) {
+      // if(dR<0.2 && acceptTrack(tautrk,pv)) {
 	ATH_MSG_VERBOSE("Accept track " << tautrk << " px, py = " << tautrk->p4().Px() << ", " << tautrk->p4().Py());
 	constlist.push_back(tautrk);
-	// }
       }
     }
     return StatusCode::SUCCESS;
@@ -167,7 +148,7 @@ namespace met {
 					  std::vector<const xAOD::IParticle*>& pfolist,
 					  const xAOD::PFOContainer* pfoCont,
 					  std::map<const IParticle*,MissingETBase::Types::constvec_t> &momenta,
-					  const xAOD::Vertex* pv)
+					  const xAOD::Vertex* pv) const
   {  
     const TauJet* tau = static_cast<const TauJet*>(obj);
     const Jet* seedjet = *tau->jetLink();
@@ -177,7 +158,7 @@ namespace met {
 	if(seedjet->p4().DeltaR(pfo->p4EM())<0.2 && pfo->eEM()>0) {
 	match = true;
 	}
-      } else if(pv) {
+      } else {
 	const TrackParticle* pfotrk = pfo->track(0);
 	for(size_t iTrk=0; iTrk<tau->nTracks(); ++iTrk) {
 	  const TrackParticle* tautrk = tau->track(iTrk);
@@ -196,9 +177,9 @@ namespace met {
       if(match) {
 	pfolist.push_back(pfo);
 	if(pfo->charge()==0) {
-	  TLorentzVector momentum = pv ? pfo->GetVertexCorrectedEMFourVec(*pv) : pfo->p4();
+	  TLorentzVector momentum = pfo->GetVertexCorrectedEMFourVec(*pv);
 	  momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
-							  momentum.E(),momentum.Pt());
+						     momentum.E(),momentum.Pt());
 	}
       }
     }

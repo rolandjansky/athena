@@ -12,7 +12,7 @@
 //
 //  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 //
-// Author: P Loch, S Resconi, TJ Khoo
+// Author: P Loch, S Resconi, TJ Khoo, AS Mete
 /////////////////////////////////////////////////////////////////// 
 #ifndef METRECONSTRUCTION_METTRUTHTOOL_H
 #define METRECONSTRUCTION_METTRUTHTOOL_H 1
@@ -29,7 +29,7 @@
 namespace met{
 
   class METTruthTool
-    : virtual public METBuilderTool
+    : public METBuilderTool
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METTruthTool, IMETToolBase)
@@ -89,10 +89,6 @@ namespace met{
     // We'll have to use this package when they work properly with xAOD.
   };
 
-  bool isStable(const xAOD::TruthParticle* p);
-  bool isInteracting( const xAOD::TruthParticle* const p);
-  bool isNonInteracting( const xAOD::TruthParticle* const p);
-  bool isMuon(const xAOD::TruthParticle* truthPart);
 }
 
 // I/O operators

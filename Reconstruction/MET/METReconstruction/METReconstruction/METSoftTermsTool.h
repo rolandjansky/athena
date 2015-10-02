@@ -34,7 +34,7 @@
 namespace met{
 
   class METSoftTermsTool
-    : virtual public METBuilderTool
+    : public METBuilderTool
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METSoftTermsTool, IMETToolBase)
