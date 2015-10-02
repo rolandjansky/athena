@@ -45,6 +45,7 @@ class IParticle;
 ///   FloatMoments: Names of the float moments to display
 ///   IntMoments: Names of the integer moments to display
 ///   BoolMoments: Names of the bool moments to display
+///   CBoolMoments: Names of the bool moments storaed as char to display
 ///   StringMoments: Names of the string moments to display
 ///   FourVectorMoments: Names of the four-vector moments to display
 ///   ElementLinkMoments: Names of the element link moments to display
@@ -156,6 +157,7 @@ private:  // data
   NameList m_fmoms;   /// Float moments
   NameList m_imoms;   /// Int moments
   NameList m_bmoms;   /// Bool moments
+  NameList m_cbmoms;  /// Bool stored as char moments
   NameList m_smoms;   /// String moments
   NameList m_fvmoms;  /// Four-vector moments
   NameList m_elmoms;  /// Element link moments
@@ -207,6 +209,7 @@ int JetDumper::dump_object_after_prefix(const T* pjet) const {
     NameList fnames = m_fmoms;
     NameList inames = m_imoms;
     NameList bnames = m_bmoms;
+    NameList cbnames = m_cbmoms;
     NameList snames = m_smoms;
     NameList fvnames = m_fvmoms;
     NameList elnames = m_elmoms;
@@ -238,6 +241,15 @@ int JetDumper::dump_object_after_prefix(const T* pjet) const {
     for ( NameList::const_iterator inam=bnames.begin(); inam!=bnames.end(); ++inam ) {
       Name name = *inam;
       bool val;
+      get_moment(pjet, name, val);
+      std::string sval = val ? "true" : "false";
+      ATH_MSG_INFO(std::setw(wname) << name << ":" << std::setw(6) << sval);
+    }
+    if ( cbnames.size() == 0 ) cbnames = get_moment_keys<T,int>(pjet);
+    ATH_MSG_INFO("    " << m_objtypename << " has " << cbnames.size() << " cbool attributes:");
+    for ( NameList::const_iterator inam=cbnames.begin(); inam!=cbnames.end(); ++inam ) {
+      Name name = *inam;
+      char val;
       get_moment(pjet, name, val);
       std::string sval = val ? "true" : "false";
       ATH_MSG_INFO(std::setw(wname) << name << ":" << std::setw(6) << sval);

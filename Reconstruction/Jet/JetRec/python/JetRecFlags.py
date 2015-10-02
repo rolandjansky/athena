@@ -202,6 +202,14 @@ class jetAODList(JobProperty):
   allowedTypes = ['list']  
   StoredValue  = []   
 
+class useTrackVertexTool(JobProperty):
+  """ Toggles whether to use track-vertex tool (only known client is currently pflow jet finding)
+  """
+  statusOn = True
+  allowedTypes = ['bool']
+  StoredValue = False
+
+
 jobproperties.add_Container(JetRecFlags)
 
 jobproperties.JetRecFlags.add_JobProperty(Enabled)
@@ -226,5 +234,6 @@ jobproperties.JetRecFlags.add_JobProperty(containerNamePrefix)
 jobproperties.JetRecFlags.add_JobProperty(separateJetAlgs)
 jobproperties.JetRecFlags.add_JobProperty(timeJetToolRunner)
 jobproperties.JetRecFlags.add_JobProperty(timeJetRecTool)
+jobproperties.JetRecFlags.add_JobProperty(useTrackVertexTool)
 
 jetFlags = jobproperties.JetRecFlags

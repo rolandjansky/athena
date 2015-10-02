@@ -377,7 +377,7 @@ if dumpGroomed:
   gdmp1.IntMoments += ["AlgorithmType", "InputType"]
   gdmp1.IntMoments += ["TransformType", "NSubjetMax"]
   gdmp1.IntMoments += ["NSubjet"]
-  gdmp1.BoolMoments = ["BDRS"]
+  gdmp1.CBoolMoments = ["BDRS"]
   gdmp1.FloatMoments = ["MuMax", "YMin", "RClus", 
                         "SizeParameter",
                         "DRFilt", "MuFilt", "YFilt"]

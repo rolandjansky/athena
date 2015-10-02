@@ -23,8 +23,11 @@ if not "UseTriggerStore " in locals():
 # get levels defined VERBOSE=1 etc.
 from GaudiKernel.Constants import *
 
+from eflowRec.eflowRecFlags import jobproperties
+
 from JetRec.JetRecStandardToolManager import jtm
 from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
 
 from PFlowUtils.PFlowUtilsConf import CP__RetrievePFOTool as RetrievePFOTool
 from JetRecTools.JetRecToolsConf import TrackPseudoJetGetter
@@ -102,13 +105,7 @@ if jtm.haveParticleJetTools:
 #jtm += InDet__InDetDetailedTrackSelectionTool(
 jtm += InDet__InDetTrackSelectionTool(
   "trk_trackselloose",
-  minPt                = 400.0,
-  maxAbsEta            = 2.5,
-  minNSiHits           = 7,
-  maxNPixelSharedHits  = 1,
-  maxOneSharedModule   = True,
-  maxNSiHoles          = 2,
-  maxNPixelHoles       = 1,
+  CutLevel                = "Loose"
 )
 
 jtm += JetTrackSelectionTool(
@@ -174,8 +171,17 @@ jtm += TrackVertexAssociationTool(
 #--------------------------------------------------------------
 
 if jetFlags.useTruth:
-    jtm += CopyTruthJetParticles("truthpartcopy", OutputName="JetInputTruthParticles" )
-    jtm += CopyTruthJetParticles("truthpartcopywz", OutputName="JetInputTruthParticlesNoWZ" ,IncludeWZLeptons=False, IncludeTauLeptons=False)
+
+  truthClassifier = MCTruthClassifier(name = "JetMCTruthClassifier",
+                                      ParticleCaloExtensionTool="")
+  jtm += truthClassifier
+
+  jtm += CopyTruthJetParticles("truthpartcopy", OutputName="JetInputTruthParticles",
+                               MCTruthClassifier=truthClassifier)
+  jtm += CopyTruthJetParticles("truthpartcopywz", OutputName="JetInputTruthParticlesNoWZ",
+                               MCTruthClassifier=truthClassifier,
+                               IncludePromptLeptons=False, 
+                               IncludeMuons=True,IncludeNeutrinos=True)
 
 
 #--------------------------------------------------------------
@@ -267,6 +273,15 @@ useVertices = True
 if False == jetFlags.useVertices:
   useVertices = False
 
+if True == jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
+  useChargedWeights = True
+else:
+  useChargedWeights = False
+
+useTrackVertexTool = False
+if True == jetFlags.useTrackVertexTool:
+  useTrackVertexTool = True
+
 # EM-scale pflow.
 jtm += PFlowPseudoJetGetter(
   "empflowget",
@@ -276,7 +291,9 @@ jtm += PFlowPseudoJetGetter(
   InputIsEM = True,
   CalibratePFO = False,
   SkipNegativeEnergy = True,
-  UseVertices = useVertices
+  UseChargedWeights = useChargedWeights,
+  UseVertices = useVertices,
+  UseTrackToVertexTool = useTrackVertexTool
 )
 
 # Calibrated EM-scale pflow.
@@ -288,7 +305,9 @@ jtm += PFlowPseudoJetGetter(
   InputIsEM = True,
   CalibratePFO = True,
   SkipNegativeEnergy = True,
-  UseVertices = useVertices
+  UseChargedWeights = useChargedWeights,
+  UseVertices = useVertices,
+  UseTrackToVertexTool = useTrackVertexTool
 )
 
 # LC-scale pflow.
@@ -299,8 +318,10 @@ jtm += PFlowPseudoJetGetter(
   RetrievePFOTool = jtm.pflowretriever,
   InputIsEM = False,
   CalibratePFO = False,
+  UseChargedWeights = useChargedWeights,
   SkipNegativeEnergy = True,
-  UseVertices = useVertices
+  UseVertices = useVertices,
+  UseTrackToVertexTool = useTrackVertexTool
 )
 
 # AntiKt2 track jets.
