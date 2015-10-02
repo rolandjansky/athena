@@ -39,49 +39,32 @@ elif InDetFlags.writePRDs():
 #
 # this is a hack for validating the NewT Cosmics tracks!!!!
 if InDetFlags.doCosmics():
-   if InDetFlags.doNewTracking() and InDetFlags.doWriteTracksToESD():
+   if InDetFlags.doNewTracking():
       InDetESDList+=["TrackCollection#"+InDetKeys.UnslimmedTracks()]
 
-if InDetFlags.doStoreTrackSeeds() and ( InDetFlags.doWriteTracksToESD() or  not InDetFlags.doxAOD() ) :
-   InDetESDList+=["TrackCollection#"+InDetKeys.SiSPSeedSegments()]
-   #if InDetFlags.doTruth():
-   #   InDetESDList += ["TrackTruthCollection#"+InDetKeys.SiSPSeedSegments()+'TruthCollection']
-   #   InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.SiSPSeedSegments()+'DetailedTruth']
-
-if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD() :
-   if InDetKeys.AliasToTracks() == 'none':
-      InDetESDList+=["TrackCollection#"+InDetKeys.Tracks()]
-   else:
-      InDetESDList+=["TrackCollection#"+InDetKeys.AliasToTracks()]
+if InDetKeys.AliasToTracks() == 'none':
+   InDetESDList+=["TrackCollection#"+InDetKeys.Tracks()]
+else:
+   InDetESDList+=["TrackCollection#"+InDetKeys.AliasToTracks()]
 
 if InDetFlags.doTrackSegmentsPixel():
-   if InDetFlags.doWriteTracksToESD() or  not InDetFlags.doxAOD() :
-      InDetESDList+=["TrackCollection#"+InDetKeys.PixelTracks()]
+   InDetESDList+=["TrackCollection#"+InDetKeys.PixelTracks()]
    if InDetFlags.doTruth():
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.PixelTracks()+'TruthCollection']
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.PixelTracks()+'DetailedTruth']     
 if InDetFlags.doTrackSegmentsSCT():
-   if InDetFlags.doWriteTracksToESD() or  not InDetFlags.doxAOD() :
-      InDetESDList+=["TrackCollection#"+InDetKeys.SCTTracks()]
+   InDetESDList+=["TrackCollection#"+InDetKeys.SCTTracks()]
    if InDetFlags.doTruth():
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.SCTTracks()+'TruthCollection']
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.SCTTracks()+'DetailedTruth']
 if InDetFlags.doTrackSegmentsTRT():
-   if InDetFlags.doWriteTracksToESD() or  not InDetFlags.doxAOD() :
-      InDetESDList+=["TrackCollection#"+InDetKeys.TRTTracks()]
+   InDetESDList+=["TrackCollection#"+InDetKeys.TRTTracks()]
    if InDetFlags.doTruth():
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.TRTTracks()+'TruthCollection']
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.TRTTracks()+'DetailedTruth']
-if InDetFlags.doPseudoTracking():
-   if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD():
-      InDetESDList+=["TrackCollection#"+InDetKeys.PseudoTracks()]
-   if InDetFlags.doTruth():
-      InDetESDList += ["TrackTruthCollection#"+InDetKeys.PseudoTracks()+'TruthCollection']
-      InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.PseudoTracks()+'DetailedTruth']
 
 if InDetFlags.doDBMstandalone() or InDetFlags.doDBM(): 
-   if InDetFlags.doWriteTracksToESD() or InDetFlags.doDBMstandalone() or not InDetFlags.doxAOD() :
-      InDetESDList+=["TrackCollection#"+InDetKeys.DBMTracks()] 
+   InDetESDList+=["TrackCollection#"+InDetKeys.DBMTracks()] 
    if InDetFlags.doTruth(): 
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.DBMTracks()+'TruthCollection'] 
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.DBMTracks()+'DetailedTruth'] 
@@ -92,8 +75,7 @@ if InDetFlags.doDBMstandalone() or InDetFlags.doDBM():
 
 # add the forward tracks for combined muon reconstruction
 if InDetFlags.doForwardTracks():
-   if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD():
-      InDetESDList+=["TrackCollection#"+InDetKeys.ResolvedForwardTracks()]
+   InDetESDList+=["TrackCollection#"+InDetKeys.ResolvedForwardTracks()]
    if InDetFlags.doTruth():
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.ResolvedForwardTracks()+'TruthCollection']
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.ResolvedForwardTracks()+'DetailedTruth']
@@ -101,13 +83,6 @@ if InDetFlags.doBeamGas():
    InDetESDList+=["TrackCollection#"+InDetBeamGasTRTExtension.ForwardTrackCollection()] #ExtendedHaloTracks
 if InDetFlags.doBeamHalo():
    InDetESDList+=["TrackCollection#"+InDetRecHaloTRTExtension.ForwardTrackCollection()] #ExtendedBeamGasTracks 
-
-if InDetFlags.doTrackSegmentsPixelPrdAssociation():
-  if InDetFlags.doWriteTracksToESD() or not InDetFlags.doxAOD():
-      InDetESDList+=["TrackCollection#"+InDetKeys.PixelPrdAssociationTracks()]
-  if InDetFlags.doTruth():
-      InDetESDList += ["TrackTruthCollection#"+InDetKeys.PixelPrdAssociationTracks()+'TruthCollection']
-      InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.PixelPrdAssociationTracks()+'DetailedTruth']   
    
 # Add TRT Segments (only if standalone is off).
 # -----------------
@@ -139,10 +114,6 @@ if InDetFlags.doxAOD():
    excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation"
   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
-
-  if InDetFlags.doStoreTrackSeeds():
-   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"]
-   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"+'Aux.' + excludedAuxData]
 
   if not InDetFlags.doSLHC():
      InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODForwardTrackParticleContainer()]
@@ -176,9 +147,6 @@ if InDetFlags.doxAOD():
   if InDetFlags.doTrackSegmentsTRT():
     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTRTTrackParticleContainer()]
     InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTRTTrackParticleContainer()+'Aux.' + excludedAuxData]
-  if InDetFlags.doPseudoTracking():
-    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPseudoTrackParticleContainer()]
-    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPseudoTrackParticleContainer()+'Aux.' + excludedAuxData]
 # next is only for InDetRecExample stand alone! RecExCommon uses InDetESDList directly
 # added to InDetRec_all.py after include WriteInDetESD!
 #StreamESD.ItemList += InDetESDList

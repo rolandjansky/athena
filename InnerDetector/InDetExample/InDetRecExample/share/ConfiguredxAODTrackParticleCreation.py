@@ -26,7 +26,6 @@ class ConfiguredxAODTrackParticleCreation:
          InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODParticleCreatorTool"+InputTrackCollection, 
                                                                       Extrapolator            = InDetExtrapolator,
                                                                       TrackSummaryTool        = InDetTrackSummaryToolSharedHits,
-                                                                      BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
                                                                       ForceTrackSummaryUpdate = False,
                                                                       KeepParameters          = True)
 

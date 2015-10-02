@@ -66,8 +66,7 @@ class ConfiguredTRTStandalone:
                                                                      minTRTonTrk         = NewTrackingCuts.minTRTonly(),
                                                                      maxEta              = 2.1,
                                                                      UseParameterization = NewTrackingCuts.useTRTonlyParamCuts(),
-                                                                     OldTransitionLogic  = NewTrackingCuts.useTRTonlyOldLogic(),
-                                                                     minTRTPrecisionFraction = NewTrackingCuts.minSecondaryTRTPrecFrac())
+                                                                     OldTransitionLogic  = NewTrackingCuts.useTRTonlyOldLogic())
     # InDetTRT_StandaloneScoringTool.OutputLevel = VERBOSE 
     ToolSvc += InDetTRT_StandaloneScoringTool
     if (InDetFlags.doPrintConfigurables()):

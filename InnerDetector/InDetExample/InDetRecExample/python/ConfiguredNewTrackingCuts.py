@@ -59,7 +59,7 @@ class ConfiguredNewTrackingCuts :
 
     # --- this is for the TRT-extension
     self.__minTRTonTrk             = 9
-    self.__minTRTPrecFrac          = 0.3
+    self.__minTRTPrecFrac          = 0.5
 
     # --- general pattern cuts for NewTracking
     self.__radMax                  = 600. * Units.mm # default R cut for SP in SiSpacePointsSeedMaker
@@ -173,7 +173,7 @@ class ConfiguredNewTrackingCuts :
       self.__maxSecondaryPixelHoles    = 1                # tighten hole cuts 
       self.__maxSecondarySCTHoles      = 1                # tighten hole cuts 
       self.__maxSecondaryDoubleHoles   = 0                # tighten hole cuts 
-      self.__minSecondaryTRTPrecFrac   = 0.3              # default for all tracking now, as well for BackTracking
+      self.__minSecondaryTRTPrecFrac   = 0.5              # default for all tracking now, as well for BackTracking
       self.__rejectShortExtensions     = True             # fall back onto segment if TRT extension is short
       self.__SiExtensionCuts           = True             # use cuts from ambi scoring already early
       # self.__maxSecondaryTRTShared     = 0.2              # tighen shared hit cut for segment maker ?
@@ -203,14 +203,11 @@ class ConfiguredNewTrackingCuts :
       self.__nHolesMax               = 2 # was 3
       self.__nHolesGapMax            = 2 # was 3
 
-    if self.__indetflags.cutLevel() >= 13 and DetFlags.detdescr.Calo_allOn():
+    if self.__indetflags.cutLevel() >= 13:
       # --- turn on RoI seeded for Back Tracking and TRT only
       self.__RoISeededBackTracking   = True
 
-    if self.__indetflags.cutLevel() >= 14 :
-      self.__minPT                   = 0.5 * Units.GeV
-
-    if self.__indetflags.cutLevel() >= 15:
+    if self.__indetflags.cutLevel() >= 14:
       print '--------> FATAL ERROR, cut level undefined, abort !'
       import sys
       sys.exit()
@@ -302,10 +299,7 @@ class ConfiguredNewTrackingCuts :
 
     # --- mode for min bias, commissioning or doRobustReco
     if mode == 'MinBias' or self.__indetflags.doRobustReco(): 
-      if self.__indetflags.doHIP300():
-       self.__minPT                     = 0.300 * Units.GeV
-      else:
-       self.__minPT                     = 0.100 * Units.GeV
+      self.__minPT                     = 0.100 * Units.GeV 
       self.__minClusters               = 5
       self.__minSecondaryPt            = 0.4 * Units.GeV  # Pt cut for back tracking + segment finding for these
       self.__minTRTonlyPt              = 0.4 * Units.GeV  # Pt cut for TRT only
@@ -315,30 +309,6 @@ class ConfiguredNewTrackingCuts :
       self.__useTRTonlyOldLogic        = True    # turn off ole overlap logic to reduce number of hits
       self.__maxSecondaryImpact        = 100.0 * Units.mm # low lumi
 
-    # --- mode for high-d0 tracks
-    if mode == "LargeD0": 
-      self.__extension          = "LargeD0" # this runs parallel to NewTracking
-      self.__maxPT              = 1.0 * Units.TeV
-      self.__minPT              = 500 * Units.MeV
-      self.__maxEta             = 5
-      self.__maxPrimaryImpact   = 300.0 * Units.mm
-      self.__maxZImpact         = 1500.0 * Units.mm
-      self.__maxSecondaryImpact = 300.0 * Units.mm
-      self.__minSecondaryPt     = 500.0 * Units.MeV
-      self.__minClusters        = 7
-      self.__minSiNotShared     = 5
-      self.__maxShared          = 2   # cut is now on number of shared modules
-      self.__minPixel           = 0   
-      self.__maxHoles           = 2
-      self.__maxPixelHoles      = 1
-      self.__maxSctHoles        = 2
-      self.__maxDoubleHoles     = 1
-      self.__radMax             = 600. * Units.mm
-      self.__nHolesMax          = self.__maxHoles
-      self.__nHolesGapMax       = self.__maxHoles # not as tight as 2*maxDoubleHoles  
-      self.__seedFilterLevel   = 1
-      self.__maxTracksPerSharedPRD = 2
-    
     # --- change defaults for low pt tracking  
     if mode == "LowPt": 
       self.__extension        = "LowPt" # this runs parallel to NewTracking
@@ -359,31 +329,6 @@ class ConfiguredNewTrackingCuts :
       if self.__indetflags.doMinBias():
         self.__maxPT            = 1000000 * Units.GeV # Won't accept None *NEEDS FIXING*
         self.__maxPrimaryImpact = 100.0 * Units.mm
- 
-    if mode == "SLHCConversionFinding":
-      self.__extension        = "SLHCConversionFinding" # this runs parallel to NewTracking
-      self.__minPT                   = 0.9 * Units.GeV
-      self.__maxPrimaryImpact        = 10.0 * Units.mm 
-      self.__maxZImpact              = 150.0 * Units.mm 
-      self.__minClusters             = 6 
-      self.__minSiNotShared          = 4 
-      #self.__maxShared               = 3 
-      self.__maxHoles                = 0 
-      #self.__maxPixelHoles           = D2
-      #self.__maxSctHoles             = 2
-      #self.__maxDoubleHoles          = 2
-      # --- also tighten pattern cuts
-      self.__radMax                  = 1000. * Units.mm 
-      self.__radMin                  = 0. * Units.mm # not turn on this cut for now 
-      #self.__seedFilterLevel         = 1
-      #self.__nHolesMax               = self.__maxHoles
-      #self.__nHolesGapMax            = self.__maxHoles
-      #self.__Xi2max                  = 15.0
-      #self.__Xi2maxNoAdd             = 35.0
-      #self.__nWeightedClustersMin    = self.__minClusters-1
-      # --- turn on Z Boundary seeding                                                                                                  
-      self.__doZBoundary              = False # 
-
 
     # --- change defaults for very low pt tracking  
     if mode == "VeryLowPt": 
@@ -524,14 +469,13 @@ class ConfiguredNewTrackingCuts :
 
     # --- changes for heavy ion
     if mode == "HeavyIon":
-      self.__maxZImpact       = 200. * Units.mm 
       self.__minPT            = 0.500 * Units.GeV
       self.__minClusters      = 9
       self.__minSiNotShared   = 7
-      self.__maxShared        = 2 # was 1, cut is now on number of shared modules
-      self.__maxHoles         = 0 # was 1
+      self.__maxShared        = 1   # cut is now on number of shared modules
+      self.__maxHoles         = 1 # was 2
       self.__maxPixelHoles    = 0 # was 2
-      self.__maxSctHoles      = 0 # was 1
+      self.__maxSctHoles      = 1 # was 2
       self.__maxDoubleHoles   = 0 # was 1
       self.__nHolesMax        = self.__maxHoles
       self.__nHolesGapMax     = self.__maxHoles      
@@ -542,15 +486,9 @@ class ConfiguredNewTrackingCuts :
       elif self.__indetflags.cutLevel() == 2:
         self.__seedFilterLevel  = 2
         self.__maxdImpactSSSSeeds        = 20.0 # apply cut on SSS seeds
-      elif self.__indetflags.cutLevel() == 3: # This is for MB data
-        self.__minPT            = 0.300 * Units.GeV
-        self.__seedFilterLevel  = 2
-        self.__maxdImpactSSSSeeds        = 20.0 # apply cut on SSS seeds
-        self.__useParameterizedTRTCuts   = False
-        self.__useNewParameterizationTRT = False
       self.__radMax           = 600. * Units.mm # restrict to pixels + first SCT layer
       self.__useTRT           = False 
-
+      
     # --- changes for Pixel/SCT segments
     from AthenaCommon.DetFlags    import DetFlags
     if ( DetFlags.haveRIO.pixel_on() and not DetFlags.haveRIO.SCT_on() ):
@@ -576,10 +514,7 @@ class ConfiguredNewTrackingCuts :
       self.__useTRT           = False 
 
       if self.__indetflags.doMinBias():
-        if self.__indetflags.doHIP300():
-          self.__minPT            = 0.300 * Units.GeV
-        else:
-          self.__minPT            = 0.05 * Units.GeV
+        self.__minPT            = 0.05 * Units.GeV
         self.__maxPT            = 100000 * Units.GeV # Won't accept None *NEEDS FIXING*
 
       if self.__indetflags.doHeavyIon():
@@ -649,10 +584,7 @@ class ConfiguredNewTrackingCuts :
       self.__useTRT           = False 
 
       if self.__indetflags.doMinBias():
-        if self.__indetflags.doHIP300():
-           self.__minPT            = 0.3 * Units.GeV
-        else:
-           self.__minPT            = 0.1 * Units.GeV
+        self.__minPT            = 0.1 * Units.GeV
 
       if self.__indetflags.doCosmics():
         self.__minPT            = 0.500 * Units.GeV

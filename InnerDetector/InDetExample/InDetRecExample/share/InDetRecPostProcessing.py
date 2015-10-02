@@ -464,23 +464,12 @@ if InDetFlags.doConversions():
   topSequence.InDetConversionFinder.doExtrapolation = True
 
 
-# [XXX JDC: problems with the association tool (Tracks already in SG)
-# @TODO needs to be fixed.
-if InDetFlags.doParticleCreation() and not InDetFlags.useExistingTracksAsInput():
- trackToVertexTool = None
- if InDetFlags.perigeeExpression() == 'Vertex' :
-     if hasattr(ToolSvc,'TrackToVertex') :
-        trackToVertexTool = ToolSvc.TrackToVertex
-     else :
-        from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
-        trackToVertexTool = Reco__TrackToVertex('TrackToVertex')
-        ToolSvc += trackToVertexTool
-     
+if InDetFlags.doParticleCreation():
+
  from InDetPriVxFinder.InDetPriVxFinderConf import InDet__InDetVxLinksToTrackParticles
  InDetVxLinkSetter = InDet__InDetVxLinksToTrackParticles(name          = "InDetVxLinkSetter",
                                                          TracksName    = InDetKeys.xAODTrackParticleContainer(),
-                                                         VerticesName  = InDetKeys.xAODVertexContainer(),
-                                                         TrackToVertex = trackToVertexTool)
+                                                         VerticesName  = InDetKeys.xAODVertexContainer())
 
  topSequence += InDetVxLinkSetter
 

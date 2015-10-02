@@ -1,10 +1,8 @@
 # configure the pixel main monitoring tool
 doAllHits          = True
 # online: only run pixel tracks, offline: only combined tracks available
-#doHitsOnPixelTrack = True if athenaCommonFlags.isOnline() else False
-#doHitsOnTrack      = False if athenaCommonFlags.isOnline() else True
-doHitsOnPixelTrack = False
-doHitsOnTrack      = True
+doHitsOnPixelTrack = True if athenaCommonFlags.isOnline() else False
+doHitsOnTrack      = False if athenaCommonFlags.isOnline() else True
 
 # switch on all modules histograms for all hits if pixel online monitoring
 if (not 'doPixelOnlyMon' in dir()):
@@ -15,9 +13,6 @@ from PixelMonitoring.PixelMonitoringConf import PixelMainMon
 from InDetRecExample.InDetKeys import InDetKeys                                                                                     
 
 if doAllHits:
-  doDCS = False
-  if  (globalflags.DataSource() == 'data' and geoFlags.Run() == "RUN2" and conddb.dbdata == "CONDBR2"):
-     doDCS = True 
   InDetPixelMainsMon=PixelMainMon(name                = "InDetPixelMonitoringAllHits",
                                   onTrack             = False,
                                   onPixelTrack        = False,
@@ -46,7 +41,6 @@ if doAllHits:
                                   doCluster           = True,       #Turn on/off histograms with Cluster information
                                   doTrack             = False,      #Turn on/off histograms with Track information                                 
                                   doStatus            = True,       #Turn on/off histograms with Module Status information
-                                  doDCS 	      = doDCS, 
                                   RDOName             = InDetKeys.PixelRDOs(),                                                                                
                                   RODErrorName        = "pixel_error_summary",                                                                                
                                   SpacePointName      = InDetKeys.PixelSpacePoints(),                                                                         
@@ -101,7 +95,6 @@ if doHitsOnTrack:
                                          doCluster           = True,      #Turn on/off histograms with Cluster information
                                          doTrack             = True,      #Turn on/off histograms with Track information                                   
                                          doStatus            = False,     #Turn on/off histograms with Module Status information                           
-                                         doDCS               = False,
                                         
                                          ##Names of storegate containers                                                                                                     
                                          RDOName             = InDetKeys.PixelRDOs(),                                                                         
@@ -158,7 +151,6 @@ if doHitsOnPixelTrack:
                                               doCluster           = True,      #Turn on/off histograms with Cluster information
                                               doTrack             = True,      #Turn on/off histograms with Track information                                   
                                               doStatus            = False,     #Turn on/off histograms with Module Status information                           
-                                              doDCS               = False,
                                              
                                               ##Names of storegate containers
                                               RDOName             = InDetKeys.PixelRDOs(),                                                                         
