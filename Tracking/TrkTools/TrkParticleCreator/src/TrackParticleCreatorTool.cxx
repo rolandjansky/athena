@@ -32,6 +32,16 @@
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkParameters/TrackParameters.h"
 
+#include "IdDictDetDescr/IdDictManager.h"
+#include "GeoPrimitives/GeoPrimitivesHelpers.h"
+
+//#include "TrkParameters/MeasuredPerigee.h"
+#include "InDetRIO_OnTrack/SiClusterOnTrack.h"
+#include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
+#include "InDetPrepRawData/SiCluster.h"
+#include "InDetPrepRawData/PixelCluster.h"
+#include "InDetPrepRawData/PixelClusterContainer.h"
+
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/Vertex.h"
@@ -39,9 +49,57 @@
 #include "EventPrimitives/EventPrimitivesToStringConverter.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 
+#include <map>
+#include <vector>
+#include <algorithm>
+
+// helper methods to print messages 
+template<class T>
+inline MsgStream& operator<<( MsgStream& msg_stream, const std::map<std::string, T>& elm_map)    {
+  for (const std::pair<const std::string, T> &elm : elm_map) {
+    msg_stream  << " " << elm.first;
+  }
+  return msg_stream;
+}
+
+template<class T>
+inline MsgStream& operator<<( MsgStream& msg_stream, const std::vector<std::string>& elm_vector)    {
+  for (const std::string &elm : elm_vector) {
+    msg_stream  << " " << elm;
+  }
+  return msg_stream;
+}
 
 namespace Trk
 {
+  const std::string TrackParticleCreatorTool::s_trtdEdxUsedHitsDecorationName {"TRTdEdxUsedHits"};
+
+  namespace {
+    void createEProbabilityMap(std::map<std::string,std::pair<Trk::eProbabilityType, bool> > &eprob_map) {
+      // key: name to be used to activate copying of the electron probability values to the xAOD TrackParticle
+      //      abd for those which are added as decoration the name to be used for the decoration
+      // value.first: enum of the electron probability value
+      // value.second: false is a non dynamic element of the xAOD TrackParticle and added via setTrackSummary
+      //               true  will be added as a decoration.
+      eprob_map.insert( std::make_pair("eProbabilityComb",std::make_pair(Trk::eProbabilityComb,false)) );
+      eprob_map.insert( std::make_pair("eProbabilityHT",std::make_pair(Trk::eProbabilityHT,false)) );
+
+      // added as decorations 
+      eprob_map.insert( std::make_pair("eProbabilityToT",std::make_pair(Trk::eProbabilityToT,true)) );
+      eprob_map.insert( std::make_pair("eProbabilityBrem",std::make_pair(Trk::eProbabilityBrem,true)) );
+      eprob_map.insert( std::make_pair("TRTLocalOccupancy",std::make_pair(Trk::numberOfeProbabilityTypes,true)) );
+      eprob_map.insert( std::make_pair("TRTdEdx",std::make_pair(static_cast<Trk::eProbabilityType>(Trk::numberOfeProbabilityTypes+1),
+                                                                true)) );
+    }
+
+    void createExtraSummaryTypeMap(std::map<std::string,Trk::SummaryType > &extra_summary_type_map) {
+      extra_summary_type_map.insert( std::make_pair("TRTdEdxUsedHits",Trk::numberOfTRTHitsUsedFordEdx));
+    }
+  }
+
+
+  const SG::AuxElement::Decorator<uint8_t> TrackParticleCreatorTool::s_trtdEdxUsedHitsDecoration(TrackParticleCreatorTool::trtdEdxUsedHitsAuxName()) ;
+
   TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t, const std::string& n, const IInterface*  p )
   : AthAlgTool(t,n,p),
     m_detID(0),
@@ -51,6 +109,8 @@ namespace Trk
     m_hitSummaryTool      ("Muon::MuonHitSummaryTool/MuonHitSummaryTool"),
     m_magFieldSvc         ("AtlasFieldSvc", n),
     m_beamConditionsService("BeamCondSvc", n),
+    m_IBLParameterSvc("IBLParameterSvc",n),
+    m_copyExtraSummaryName {"eProbabilityComb","eProbabilityHT","TRTLocalOccupancy","TRTdEdx","TRTdEdxUsedHits"},
     m_useTrackSummaryTool (true),
     m_useMuonSummaryTool  (false),
     m_forceTrackSummaryUpdate (false),
@@ -75,6 +135,8 @@ namespace Trk
     declareProperty("MinSiHitsForCaloExtrap",   m_minSiHits = 4 );
     declareProperty("MinPtForCaloExtrap",       m_minPt = 1000. );
     declareProperty("PerigeeExpression",     m_perigeeExpression);
+    declareProperty("BadClusterID",     m_badclusterID = 0); //0 = off, 1 = OOT, 2 = dE/dx, 3 = combination of OOT and dE/dx, 4 = combination of OOT, dE/dx, and size
+    declareProperty("ExtraSummaryTypes",  m_copyExtraSummaryName);
   }
   
   TrackParticleCreatorTool::~TrackParticleCreatorTool() {}
@@ -98,42 +160,60 @@ namespace Trk
     if (m_useTrackSummaryTool)
     {
       if ( m_trackSummaryTool.retrieve().isFailure() ) {
-        msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackSummaryTool << endreq;
+        ATH_MSG_FATAL("Failed to retrieve tool " << m_trackSummaryTool );
         return StatusCode::FAILURE;
       } else {
-        msg(MSG::DEBUG) << "Retrieved tool " << m_trackSummaryTool << endreq;
+        ATH_MSG_DEBUG( "Retrieved tool " << m_trackSummaryTool );
       }
     }
     
-
     /* Retrieve track extrapolator from ToolService */
     if ( m_extrapolator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+      ATH_MSG_FATAL( "Failed to retrieve tool " << m_extrapolator );
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::DEBUG) << "Retrieved tool " << m_extrapolator << endreq;
+      ATH_MSG_DEBUG( "Retrieved tool " << m_extrapolator );
     }
 
     if (detStore()->retrieve(m_detID, "AtlasID" ).isFailure()) {
       ATH_MSG_FATAL ("Could not get AtlasDetectorID ");
       return StatusCode::FAILURE;
     }
+
+    if (detStore()->retrieve(m_pixelID, "PixelID" ).isFailure()) {
+      ATH_MSG_FATAL ("Could not get PixelID ");
+      return StatusCode::FAILURE;
+    }
+
+    if (m_IBLParameterSvc.retrieve().isFailure()) {
+      ATH_MSG_FATAL( "Could not retrieve IBLParameterSvc" );
+      return StatusCode::FAILURE;
+    } else {
+      ATH_MSG_INFO( "Retrieved tool " << m_IBLParameterSvc );
+    }
+
+    m_doIBL = m_IBLParameterSvc->containsIBL();
+    ATH_MSG_INFO( "doIBL set to "<<m_doIBL );
+
+    if(m_doIBL && !m_IBLParameterSvc->contains3D()){
+      ATH_MSG_WARNING( "Assuming hybrid 2D/3D IBL module composition, but geometry is all-planar" );
+    }
     
     /* Retrieve track to vertex from ToolService */ 
     if ( m_trackToVertex.retrieve().isFailure() ) { 
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackToVertex << endreq; 
+      ATH_MSG_FATAL( "Failed to retrieve tool " << m_trackToVertex );
       return StatusCode::FAILURE; 
     } else { 
-      msg(MSG::DEBUG) << "Retrieved tool " << m_trackToVertex << endreq; 
+      ATH_MSG_DEBUG( "Retrieved tool " << m_trackToVertex ); 
     } 
 
     if (m_useMuonSummaryTool){
 	/* Retrieve hit summary tool from ToolService */
 	if ( m_hitSummaryTool.retrieve().isFailure() ) {
-	  msg(MSG::FATAL) << "Failed to retrieve tool " << m_hitSummaryTool << endreq;
+	  ATH_MSG_FATAL("Failed to retrieve tool " << m_hitSummaryTool );
 	  return StatusCode::FAILURE;
 	} else {
-	  msg(MSG::DEBUG) << "Retrieved tool " << m_hitSummaryTool << endreq;
+	  ATH_MSG_DEBUG( "Retrieved tool " << m_hitSummaryTool);
 	}
       }
 
@@ -145,15 +225,58 @@ namespace Trk
   
     if ( m_beamConditionsService.retrieve().isFailure() ){
       ATH_MSG_WARNING( "Failed to retrieve service " << m_beamConditionsService << " - Tilts will not be filled!" );
-    }	
-  
-    msg(MSG::VERBOSE)  << name() <<" initialize successful." << endreq;
-    return StatusCode::SUCCESS;
+    }
+
+    StatusCode sc(StatusCode::SUCCESS);
+    m_copyEProbabilities.clear();
+    m_decorateEProbabilities.clear();
+    m_decorateSummaryTypes.clear();
+
+    if (!m_copyExtraSummaryName.empty()) {
+      std::map<std::string,std::pair<Trk::eProbabilityType, bool> > eprob_map;
+      std::map<std::string,Trk::SummaryType > extra_summary_type_map;
+      createEProbabilityMap(eprob_map);
+      createExtraSummaryTypeMap(extra_summary_type_map);
+
+      std::vector<std::string> errors;
+      for( const std::string &eprob_to_copy : m_copyExtraSummaryName) {
+        std::map<std::string,std::pair<Trk::eProbabilityType, bool> >::const_iterator 
+          eprob_iter = eprob_map.find(eprob_to_copy);
+        if (eprob_iter == eprob_map.end()) {
+          std::map<std::string,Trk::SummaryType >::const_iterator
+            extra_summary_type_iter = extra_summary_type_map.find(eprob_to_copy);
+          if (extra_summary_type_iter == extra_summary_type_map.end()) {
+            errors.push_back(eprob_to_copy);
+          }
+          else {
+            m_decorateSummaryTypes.push_back( std::make_pair(SG::AuxElement::Decorator<uint8_t>(extra_summary_type_iter->first),
+                                                             extra_summary_type_iter->second));  
+          }
+        }
+        else {
+          if (!eprob_iter->second.second) {
+            m_copyEProbabilities.push_back(eprob_iter->second.first);
+          }
+          else{
+            m_decorateEProbabilities.push_back( std::make_pair(SG::AuxElement::Decorator<float>(eprob_iter->first),eprob_iter->second.first)); 
+          }
+        }
+      }
+
+      if (!errors.empty()) {
+        ATH_MSG_ERROR( "Error in configuration. Unknown electron probability name: " << errors << ". known are " <<  eprob_map << " " << extra_summary_type_map);
+        sc = StatusCode::FAILURE;
+      }
+    }
+
+
+    ATH_MSG_VERBOSE( " initialize successful." );
+    return sc;
   }
   
   StatusCode TrackParticleCreatorTool::finalize()
   {
-    msg(MSG::INFO)  << " finalize successful" << endreq;
+    ATH_MSG_INFO( " finalize successful" );
     return StatusCode::SUCCESS;
   }
   
@@ -161,7 +284,6 @@ namespace Trk
                                                                const Trk::VxCandidate*  vxCandidate,
                                                                Trk::TrackParticleOrigin prtOrigin)
   {
-    
     if (track == 0) return 0;
     const Trk::Perigee* aPer(0);
     
@@ -256,7 +378,7 @@ namespace Trk
       {
         ATH_MSG_DEBUG ("No proper TrackSummary was returned. Creating TrackParticle with a dummy TrackSummary");
         summary = new Trk::TrackSummary;
-      } // else msg(MSG::VERBOSE) << "Got Summary for Track" << endreq;
+      } // else ATH_MSG_VERBOSE("Got Summary for Track" );
     } else{
       ATH_MSG_VERBOSE ("No proper TrackSummaryTool found. Creating TrackParticle with a dummy TrackSummary");
       summary = new Trk::TrackSummary;
@@ -270,7 +392,6 @@ namespace Trk
     if (m_keepParameters)
     {
       const DataVector<const TrackStateOnSurface>* trackStates = track->trackStateOnSurfaces();
-      
       const Trk::TrackParameters* first(0) ;
       
       // search first valid TSOS first
@@ -354,7 +475,6 @@ namespace Trk
                                                                 const xAOD::Vertex* vxCandidate,
                                                                 xAOD::ParticleHypothesis prtOrigin) const {
     
-
     const Trk::Perigee* aPer(0);
     const Trk::TrackParameters* parsToBeDeleted = 0;
     // the default way; I left it as it was because it is working fine!!
@@ -429,22 +549,32 @@ namespace Trk
     // that way it is also ok on not slimmed tracks!
     std::vector<const Trk::TrackParameters*> parameters;
     std::vector<xAOD::ParameterPosition> parameterPositions;
+
+    int nbc_meas_A1=0;
+    int nbc_meas_B3=0;
+    int nbc_meas_A1_or_B3=0;
+    int nbc_meas_A1_or_B3_or_C=0;
+
+    int isBC_A1=0;
+    int isBC_B3=0;
+    int isBC_C=0;
+
+    const DataVector<const TrackStateOnSurface>* trackStates = track.trackStateOnSurfaces();
+    const Trk::TrackParameters* first(nullptr) ;
+    const Trk::TrackParameters* tp(nullptr) ;
+
     if (m_keepParameters) {
-      const DataVector<const TrackStateOnSurface>* trackStates = track.trackStateOnSurfaces();
-      
-      const Trk::TrackParameters* first(0) ;
-      
       // search first valid TSOS first
       for ( DataVector<const TrackStateOnSurface>::const_iterator itTSoS = trackStates->begin(); itTSoS != trackStates->end(); ++itTSoS) {
-        if ( (*itTSoS)->type(TrackStateOnSurface::Measurement) && (*itTSoS)->trackParameters()!=0 &&
-            (*itTSoS)->measurementOnTrack()!=0 && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*itTSoS)->measurementOnTrack())) {
-          first = (*itTSoS)->trackParameters();
+        if ( (*itTSoS)->type(TrackStateOnSurface::Measurement) && (*itTSoS)->trackParameters()!=0 &&  
+             (*itTSoS)->measurementOnTrack()!=0 && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*itTSoS)->measurementOnTrack())) {
+	  first = (*itTSoS)->trackParameters();
           parameters.push_back((*itTSoS)->trackParameters());
           parameterPositions.push_back(xAOD::FirstMeasurement);
           break;
         }
       }
-      
+
       // search last valid TSOS first
       for ( DataVector<const TrackStateOnSurface>::const_reverse_iterator rItTSoS = trackStates->rbegin(); rItTSoS != trackStates->rend(); ++rItTSoS) {
         if ( (*rItTSoS)->type(TrackStateOnSurface::Measurement) && (*rItTSoS)->trackParameters()!=0 &&
@@ -456,11 +586,124 @@ namespace Trk
           break;
         }
       }
-      
+
       // security check:
       if (parameters.size() > 2)
         ATH_MSG_WARNING ("More than two additional track parameters to be stored in TrackParticle!");
     }
+
+    if (m_badclusterID!=0) {
+    for ( DataVector<const TrackStateOnSurface>::const_iterator itTSoS = trackStates->begin(); itTSoS != trackStates->end(); ++itTSoS) {
+      if ( (*itTSoS)->type(TrackStateOnSurface::Measurement) && (*itTSoS)->trackParameters()!=0 &&
+           (*itTSoS)->measurementOnTrack()!=0 && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*itTSoS)->measurementOnTrack())) {
+	tp = (*itTSoS)->trackParameters();
+
+	const InDet::SiClusterOnTrack *clus = dynamic_cast< const InDet::SiClusterOnTrack*>((*itTSoS)->measurementOnTrack());
+	if(!clus){
+	  ATH_MSG_DEBUG( "Failed dynamic_cast to InDet::SiClusterOnTrack ");
+	  continue;
+	} 
+	const Trk::PrepRawData* prdc = 0;
+	prdc = clus->prepRawData();
+	if(!prdc){
+	  ATH_MSG_DEBUG( "No PRD for Si cluster" );
+	}
+	const InDet::SiCluster *RawDataClus = dynamic_cast< const InDet::SiCluster*>(clus->prepRawData());
+	if(!RawDataClus){
+	  ATH_MSG_DEBUG( "No RDC for Si cluster" );
+	  continue;
+	}
+	const Trk::MeasurementBase* mesb=(*itTSoS)->measurementOnTrack();
+	  
+	if(RawDataClus->detectorElement()->isPixel())
+	  {
+	    const InDetDD::SiDetectorElement* element = NULL;
+	    const InDet::PixelCluster* pixelCluster=dynamic_cast<const InDet::PixelCluster*>(RawDataClus);
+	    if(!pixelCluster){
+	      ATH_MSG_DEBUG( "Pixel cluster null though detector element matches pixel" );
+	    }
+
+	    else{
+	      float size = pixelCluster->rdoList().size();
+	      float tot = pixelCluster->totalToT();
+	      float charge = pixelCluster->totalCharge();
+	      float cotthetaz = -1;
+	      int zWidth   = -1;
+
+	      element = pixelCluster->detectorElement();
+	      if (!element) ATH_MSG_DEBUG(  "No element for track incidence angles!");
+	      float PixTrkAngle = -1000;
+	      float PixTrkThetaI = -1000;
+	      float theta = -1000;
+	      if (element)
+		{
+		  Amg::Vector3D my_track = tp->momentum();
+		  Amg::Vector3D my_normal = element->normal();
+		  Amg::Vector3D my_phiax = element->phiAxis();
+		  Amg::Vector3D my_etaax = element->etaAxis();
+		  // track component on etaAxis:
+		  float trketacomp = my_track.dot(my_etaax);
+		  // track component on phiAxis:
+		  float trkphicomp = my_track.dot(my_phiax);
+		  // track component on the normal to the module
+		  float trknormcomp = my_track.dot(my_normal);
+		  // Track angle
+		  PixTrkAngle = atan2(trkphicomp,trknormcomp);
+		  PixTrkThetaI = atan2(trketacomp,trknormcomp);
+		  float length=sqrt(trketacomp*trketacomp + trkphicomp*trkphicomp + trknormcomp*trknormcomp);
+		  theta=acos(trknormcomp/length);
+		  cotthetaz = 1./tan(PixTrkThetaI);
+
+		  // reducing the angle in the right quadrant
+		  if(PixTrkThetaI > M_PI / 2 ) PixTrkThetaI -= M_PI;
+		  else if(PixTrkThetaI < - M_PI / 2 ) PixTrkThetaI += M_PI;
+		  PixTrkThetaI = ( M_PI / 2 ) - PixTrkThetaI;
+		  if(PixTrkAngle > M_PI / 2 ) PixTrkAngle -= M_PI;
+		  else if(PixTrkAngle < - M_PI / 2 ) PixTrkAngle += M_PI;
+		  PixTrkAngle = ( M_PI / 2 ) - PixTrkAngle;
+		  if(theta>M_PI/2){theta = M_PI-theta;}
+		}
+	      
+	      Identifier surfaceID;
+	      surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
+	      if (m_detID->is_pixel(surfaceID))
+		{
+		  InDet::SiWidth width = pixelCluster->width();
+		  zWidth = int(width.colRow().y());
+		}
+
+	      int isIBLclus =false;
+	      if(m_doIBL && m_pixelID->barrel_ec(surfaceID) == 0 && m_pixelID->layer_disk(surfaceID) == 0){isIBLclus = true;}
+
+	      //count bad clusters
+	      if(!isIBLclus){
+		if((size==1 && tot<8) || (size==2 && tot<15)){
+		  isBC_A1=true;
+		  nbc_meas_A1++;
+		}
+		if(charge<13750/cos(theta)-22500){
+		  isBC_B3=true;
+		  nbc_meas_B3++;
+		}
+		if(isBC_A1 || isBC_B3){
+		  nbc_meas_A1_or_B3++;
+		}
+		if((zWidth==1 && cotthetaz>5.8) || (zWidth==2 && cotthetaz>5.8) || (zWidth==3 && cotthetaz>6.2) || (zWidth>3 && cotthetaz<2.5)){
+		  isBC_C=true;
+		}
+		if(isBC_A1 || isBC_B3 || isBC_C){
+		  nbc_meas_A1_or_B3_or_C++;
+		}
+	      }
+	    }
+	  }
+      }
+
+    }
+    }
+    
+
+
     // KeepAllPerigee will keep all perigee's on the track plus the parameters at the first measurement,
     // provided this measurement precedes any second perigee.
     // The track (initial) perigee is the 'defining parameter' for the TrackParticle,
@@ -500,11 +743,33 @@ namespace Trk
         if (parameters.size() > 0) haveFirstMeasurementParameters = true;
       }
     }
-    
+
     xAOD::TrackParticle* trackparticle = createParticle(aPer,track.fitQuality(),&track.info(),summary,parameters,parameterPositions,prtOrigin,container);
+    switch (m_badclusterID) {
+    case 1: {
+      trackparticle->auxdecor<int>("nBC_meas")=nbc_meas_A1;
+      break;
+    }
+    case 2: {
+      trackparticle->auxdecor<int>("nBC_meas")=nbc_meas_B3;
+      break;
+    }
+    case 3: {
+      trackparticle->auxdecor<int>("nBC_meas")=nbc_meas_A1_or_B3;
+      break;
+    }
+    case 4: {
+      trackparticle->auxdecor<int>("nBC_meas")=nbc_meas_A1_or_B3_or_C;
+      break;
+    }
+    default: {
+    }
+    }
+
     if (m_trackSummaryTool!=0 && m_useTrackSummaryTool) delete summary;
     delete parsToBeDeleted;
     return trackparticle;
+
   }
   
   xAOD::TrackParticle* TrackParticleCreatorTool::createParticle( const Rec::TrackParticle& trackParticle, xAOD::TrackParticleContainer* container ) const {
@@ -565,8 +830,7 @@ namespace Trk
                                                                 xAOD::ParticleHypothesis prtOrigin,
                                                                 xAOD::TrackParticleContainer* container ) const {
 
-    
-    xAOD::TrackParticle* trackparticle = new xAOD::TrackParticle();
+    xAOD::TrackParticle* trackparticle = new xAOD::TrackParticle;
    
 
      if(!trackparticle){
@@ -720,5 +984,75 @@ namespace Trk
   void TrackParticleCreatorTool::setNumberOfOverflowHits( xAOD::TrackParticle& tp, int overflows ) const {
     tp.setNumberOfIBLOverflowsdEdx(overflows);
   }
+
+void TrackParticleCreatorTool::setTrackSummary( xAOD::TrackParticle& tp, const TrackSummary& summary ) const {
+    // int types
+  unsigned int offset = 47;// where the floats start in xAOD::SummaryType
+
+  // ensure that xAOD TrackSummary and TrackSummary enums are in sync. 
+  assert(xAOD::pixeldEdx == Trk::pixeldEdx_res );
+
+  for (unsigned int i =0 ; i<Trk::numberOfTrackSummaryTypes ; i++){
+      // Only add values which are +ve (i.e., which were created)
+    if( i >= Trk::numberOfMdtHits && i <= Trk::numberOfRpcEtaHits ) continue;  
+    if( i == Trk::numberOfCscUnspoiltEtaHits ) continue;
+    if( i >= Trk::numberOfCscEtaHoles && i <= Trk::numberOfTgcPhiHoles ) continue;
+    if ( i >= offset && i < offset+Trk::numberOfeProbabilityTypes+1){
+      continue;
+    }
+    if (i == Trk::numberOfTRTHitsUsedFordEdx ) continue;
+
+    int value = summary.get(static_cast<Trk::SummaryType>(i));
+    uint8_t uvalue = static_cast<uint8_t>(value);
+    if (value>0) tp.setSummaryValue(uvalue, static_cast<xAOD::SummaryType>(i));
+  }
+
+  // first eProbabilities which are set in the xAOD track summary
+  for( Trk::eProbabilityType copy : m_copyEProbabilities ) {
+    float fvalue = summary.getPID(copy);
+    tp.setSummaryValue(fvalue, static_cast<xAOD::SummaryType>(copy+xAOD::eProbabilityComb));
+  }
+
+  // now the eProbabilities which are set as a decoration.
+  for( const std::pair<SG::AuxElement::Decorator<float>,Trk::eProbabilityType> &decoration :  m_decorateEProbabilities ) {
+    float fvalue = summary.getPID(decoration.second);
+    decoration.first(tp) = fvalue;
+  }
+
+  // now the extra summary types
+  for( const std::pair<SG::AuxElement::Decorator<uint8_t>,Trk::SummaryType>  &decoration :  m_decorateSummaryTypes) {
+    uint8_t summary_value = summary.get(decoration.second);
+    decoration.first(tp) = summary_value;
+  }
+
+  // // float types
+  // for (unsigned int i =0 ; i<Trk::numberOfeProbabilityTypes ; i++){
+  //   float fvalue = summary.getPID(static_cast<Trk::eProbabilityType>(i));
+  //   tp.setSummaryValue(fvalue, static_cast<xAOD::SummaryType>(i+offset));
+  // }
+
+  //this one is "special" so gets a different treatment...
+  float fvalue = summary.getPixeldEdx();
+  tp.setSummaryValue(fvalue, static_cast<xAOD::SummaryType>(51));
+
+  //muon hit info
+  if(m_useMuonSummaryTool){
+  ATH_MSG_DEBUG("now do muon hit info");
+  Muon::IMuonHitSummaryTool::CompactSummary msSummary = m_hitSummaryTool->summary(summary);
+  uint8_t numberOfPrecisionLayers = msSummary.nprecisionLayers;
+  ATH_MSG_DEBUG("# of prec layers: "<<numberOfPrecisionLayers);
+  uint8_t numberOfPrecisionHoleLayers = msSummary.nprecisionHoleLayers;
+  uint8_t numberOfPhiLayers = msSummary.nphiLayers;
+  uint8_t numberOfPhiHoleLayers = msSummary.nphiHoleLayers;
+  uint8_t numberOfTriggerEtaLayers = msSummary.ntrigEtaLayers;
+  uint8_t numberOfTriggerEtaHoleLayers = msSummary.ntrigEtaHoleLayers;
+  tp.setSummaryValue(numberOfPrecisionLayers,xAOD::numberOfPrecisionLayers);
+  tp.setSummaryValue(numberOfPrecisionHoleLayers,xAOD::numberOfPrecisionHoleLayers);
+  tp.setSummaryValue(numberOfPhiLayers,xAOD::numberOfPhiLayers);
+  tp.setSummaryValue(numberOfPhiHoleLayers,xAOD::numberOfPhiHoleLayers);
+  tp.setSummaryValue(numberOfTriggerEtaLayers,xAOD::numberOfTriggerEtaLayers);
+  tp.setSummaryValue(numberOfTriggerEtaHoleLayers,xAOD::numberOfTriggerEtaHoleLayers);
+  }
+}
 
 } // end of namespace Trk
