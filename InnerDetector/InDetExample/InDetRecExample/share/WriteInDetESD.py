@@ -5,8 +5,9 @@ InDetESDList = []
 
 # Save full and zero-suppressed BCM rdos
 # (the latter is needed to allow writting to AOD and the former will hopefully be removed in future):
-InDetESDList+=["BCM_RDO_Container#"+InDetKeys.BCM_RDOs()]
-InDetESDList+=["BCM_RDO_Container#"+InDetKeys.BCM_CompactDOs()]
+if not InDetFlags.doDBMstandalone(): 
+   InDetESDList+=["BCM_RDO_Container#"+InDetKeys.BCM_RDOs()]
+   InDetESDList+=["BCM_RDO_Container#"+InDetKeys.BCM_CompactDOs()]
 
 # In case of cosmics we save the RDOs as well
 if InDetFlags.writeRDOs():
@@ -61,6 +62,16 @@ if InDetFlags.doTrackSegmentsTRT():
    if InDetFlags.doTruth():
       InDetESDList += ["TrackTruthCollection#"+InDetKeys.TRTTracks()+'TruthCollection']
       InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.TRTTracks()+'DetailedTruth']
+
+if InDetFlags.doDBMstandalone() or InDetFlags.doDBM(): 
+   InDetESDList+=["TrackCollection#"+InDetKeys.DBMTracks()] 
+   if InDetFlags.doTruth(): 
+      InDetESDList += ["TrackTruthCollection#"+InDetKeys.DBMTracks()+'TruthCollection'] 
+      InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.DBMTracks()+'DetailedTruth'] 
+   if InDetFlags.doxAOD(): 
+      excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation" 
+      InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODDBMTrackParticleContainer()] 
+      InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODDBMTrackParticleContainer()+'Aux.' + excludedAuxData] 
 
 # add the forward tracks for combined muon reconstruction
 if InDetFlags.doForwardTracks():

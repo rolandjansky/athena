@@ -66,10 +66,11 @@ else:
     #
     # --- setup of cut values for NewTracking  
     #
+
     if (not 'InDetNewTrackingCuts' in dir()):
       print "InDetRec_jobOptions: InDetNewTrackingCuts not set before - import them now"
       from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
-      if InDetFlags.doDBM():
+      if InDetFlags.doDBMstandalone():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("DBM")
       elif InDetFlags.doVtxLumi():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("VtxLumi")
@@ -109,8 +110,12 @@ else:
     InDetSpSeededTracksKey    = InDetKeys.SiSpSeededTracks()
     InDetResolvedTracksKey    = InDetKeys.ResolvedTracks() 
     InDetExtendedTracksKey    = InDetKeys.ExtendedTracks()
-    InDetExtendedTracksMapKey = InDetKeys.ExtendedTracksMap()  
-    
+    InDetExtendedTracksMapKey = InDetKeys.ExtendedTracksMap()
+  
+    if InDetFlags.doDBMstandalone(): 
+      InDetSpSeededTracksKey    = InDetKeys.SiSpSeededDBMTracks() 
+      InDetResolvedTracksKey    = InDetKeys.DBMTracks()
+
     if InDetFlags.doSLHC():
       InDetSpSeededTracksKey    = InDetKeys.SiSpSeededSLHCTracks() 
       InDetResolvedTracksKey    = InDetKeys.ResolvedSLHCTracks() 
@@ -163,7 +168,7 @@ else:
     include ("InDetRecExample/InDetRecPreProcessingSilicon.py")
 
     # --- TRT, no drift information if cosmics, do not use extrenal phase in any case
-    if not InDetFlags.doDBM():
+    if not InDetFlags.doDBMstandalone():
       include ("InDetRecExample/ConfiguredInDetPreProcessingTRT.py")
       InDetPreProcessingTRT = ConfiguredInDetPreProcessingTRT(not InDetFlags.doTRTPhaseCalculation() or jobproperties.Beam.beamType()=="collisions",False)
 
@@ -176,8 +181,14 @@ else:
     # track collection keys for statistics
     if not 'TrackCollectionKeys' in dir():
       TrackCollectionKeys        = []
+
     if not 'TrackCollectionTruthKeys' in dir():
       TrackCollectionTruthKeys   = []
+
+    if InDetFlags.doDBM() and not 'TrackCollectionKeysDBM' in dir():
+      TrackCollectionKeysDBM = []
+    if InDetFlags.doDBM() and not 'TrackCollectionTruthKeysDBM' in dir():
+      TrackCollectionTruthKeysDBM = []
 
     # NewTracking collection keys
     InputCombinedInDetTracks = []
@@ -602,7 +613,15 @@ else:
                                                                  InDetNewTrackingCutsPixelPrdAssociation,
                                                                  TrackCollectionKeys,
                                                                  TrackCollectionTruthKeys)
-      
+
+      include ("InDetRecExample/ConfiguredNewTrackingTRTExtension.py")
+      InDetPixelTrackingTRTExtension = ConfiguredNewTrackingTRTExtension(InDetNewTrackingCutsPixelPrdAssociation,
+                                                                 InDetKeys.SiSpSeededPixelTracks(),
+                                                                 InDetKeys.ExtendedTracksPixelPrdAssociation(),
+                                                                 InDetKeys.ExtendedTracksMapPixelPrdAssociation(),
+                                                                 TrackCollectionKeys,
+                                                                 TrackCollectionTruthKeys)
+
     # ------------------------------------------------------------
     #
     # --- Beam Gas option (runs after NewT + LowPt)
@@ -643,6 +662,42 @@ else:
       # --- add into list for combination for single-beam mode (not if running after collisions)
       if jobproperties.Beam.beamType() == "singlebeam":
         InputCombinedInDetTracks += [ InDetBeamGasTRTExtension.ForwardTrackCollection() ]
+
+    # ------------------------------------------------------------                                                                                                                                                                          
+    # 
+    # --- DBM
+    #
+    # ------------------------------------------------------------
+
+    if InDetFlags.doDBM():
+      # --- cuts                                                                                                                                                                                                                                 
+      if (not 'InDetNewTrackingCutsDBM' in dir()):
+        print "InDetRec_jobOptions: InDetNewTrackingCutsDBM not set before - import them now"
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsDBM = ConfiguredNewTrackingCuts("DBM")
+        InDetNewTrackingCutsDBM.printInfo()
+
+      # --- DBM versions of tools
+      if InDetFlags.loadRotCreator():
+        InDetRotCreator = InDetRotCreatorDBM
+        if DetFlags.haveRIO.pixel_on():
+          PixelClusterOnTrackTool = PixelClusterOnTrackToolDBM
+      if InDetFlags.loadFitter():
+        InDetTrackFitter = InDetTrackFitterDBM
+      if InDetFlags.doPattern():
+        InDetSiComTrackFinder = InDetSiComTrackFinderDBM
+
+#      InDetSiTrackerSpacePointFinder = InDetSiTrackerSpacePointFinderDBM
+
+      # --- Si Pattern                                                                                                                                                                                                                           
+      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
+      DBMTrackingSiPattern = ConfiguredNewTrackingSiPattern([],InDetKeys.DBMTracks(),
+                                                                 InDetKeys.SiSpSeededDBMTracks(),
+                                                                 InDetNewTrackingCutsDBM,
+                                                                 TrackCollectionKeysDBM,
+                                                                 TrackCollectionTruthKeysDBM)
+    #  InputCombinedInDetTracks += [ DBMTrackingSiPattern.SiTrackCollection() ]
+
 
     # ------------------------------------------------------------
     #
@@ -798,42 +853,55 @@ else:
     # (this is because the track merger fills the prd association tool!)
     # *ME* fix, only merge if more than 1 track collection
     if InDetFlags.doNewTrackingPattern() or InDetFlags.doBeamHalo():
-      from TrkTrackCollectionMerger.TrkTrackCollectionMergerConf import Trk__TrackCollectionMerger
-      TrkTrackCollectionMerger = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger",
-                                                            TracksLocation          = InputCombinedInDetTracks,
-                                                            OutputTracksLocation    = InDetKeys.UnslimmedTracks(),
-                                                            AssoTool                = InDetPrdAssociationTool,
-                                                            UpdateSharedHitsOnly    = False,
-                                                            UpdateAdditionalInfo    = True,
-                                                            SummaryTool             = InDetTrackSummaryToolSharedHits)
-      topSequence += TrkTrackCollectionMerger
-      if (InDetFlags.doPrintConfigurables()):
-        print TrkTrackCollectionMerger
+
+      if (InDetFlags.doDBM() or InDetFlags.doDBMstandalone()):
+        if InDetFlags.doTruth():
+          include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+          InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.DBMTracks(),
+                                                       InDetKeys.DBMDetailedTracksTruth(),
+                                                       InDetKeys.DBMTracksTruth())
+
+      if InDetFlags.doDBMstandalone():
+        TrackCollectionKeys      += [ InDetKeys.DBMTracks() ]
+        TrackCollectionTruthKeys += [ InDetKeys.DBMTracksTruth() ]
+      else:
+        from TrkTrackCollectionMerger.TrkTrackCollectionMergerConf import Trk__TrackCollectionMerger
+        TrkTrackCollectionMerger = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger",
+                                                              TracksLocation          = InputCombinedInDetTracks,
+                                                              OutputTracksLocation    = InDetKeys.UnslimmedTracks(),
+                                                              AssoTool                = InDetPrdAssociationTool,
+                                                              UpdateSharedHitsOnly    = False,
+                                                              UpdateAdditionalInfo    = True,
+                                                              SummaryTool             = InDetTrackSummaryToolSharedHits)
+        topSequence += TrkTrackCollectionMerger
+
+        if (InDetFlags.doPrintConfigurables()):
+          print TrkTrackCollectionMerger
 
       # --- Delete unmerged tracks (Si, back-tracking, TRT)
-      from InDetRecExample.ConfiguredInDetSGDeletion import InDetSGDeletionAlg
-      if not InDetFlags.doMonitoringAlignment():
-        InDetSGDeletionAlg(key = InputCombinedInDetTracks)
-      else:
-        InDetSGDeletionAlg(key = [k for k in InputCombinedInDetTracks if not k == "ExtendedTracks"])
+        from InDetRecExample.ConfiguredInDetSGDeletion import InDetSGDeletionAlg
+        if not InDetFlags.doMonitoringAlignment():
+            InDetSGDeletionAlg(key = InputCombinedInDetTracks)
+        else:
+            InDetSGDeletionAlg(key = [k for k in InputCombinedInDetTracks if not k == "ExtendedTracks"])
       
 
       #
       # ------------ Track truth.
       #
-      if not InDetFlags.doSGDeletion():
-        TrackCollectionKeys      += [ InDetKeys.UnslimmedTracks() ]
+        if not InDetFlags.doSGDeletion():
+            TrackCollectionKeys      += [ InDetKeys.UnslimmedTracks() ]
         if InDetFlags.doTruth():
           # set up the truth info for this container
           #
-          include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
-          InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.UnslimmedTracks(),
-                                                       InDetKeys.UnslimmedDetailedTracksTruth(),
-                                                       InDetKeys.UnslimmedTracksTruth())
+            include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+            InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.UnslimmedTracks(),
+                                                         InDetKeys.UnslimmedDetailedTracksTruth(),
+                                                         InDetKeys.UnslimmedTracksTruth())
           #
           # add final output for statistics
           #
-          TrackCollectionTruthKeys += [ InDetKeys.UnslimmedTracksTruth() ]
+            TrackCollectionTruthKeys += [ InDetKeys.UnslimmedTracksTruth() ]
           
     # ------------------------------------------------------------
     #
@@ -845,7 +913,10 @@ else:
     # -- Pick one of the result collections and turn it into tracks
     #
     if InDetFlags.doNewTrackingPattern():
-      InputTrackCollection = InDetKeys.UnslimmedTracks()
+      if InDetFlags.doDBMstandalone(): 
+        InputTrackCollection = InDetKeys.DBMTracks() 
+      else: 
+        InputTrackCollection = InDetKeys.UnslimmedTracks() 
     elif InDetFlags.doPseudoTracking():
       InputTrackCollection = InDetKeys.PseudoTracks()
     elif InDetFlags.doiPatRec():
@@ -937,39 +1008,46 @@ else:
     #
     # ---------------------------------------------------------------- 
     elif InDetFlags.doPattern() :
+      if not InDetFlags.doDBMstandalone(): 
       #
       # --- configure Algorithm to create output alias
       #
-      from TrkCollectionAliasAlg.TrkCollectionAliasAlgConf import Trk__TrkCollectionAliasAlg
-      InDetCopyAlg = Trk__TrkCollectionAliasAlg (name             = "InDetCopyAlg",
-                                                 CollectionName   = InputTrackCollection,
-                                                 AliasName        = InDetKeys.Tracks()) 
-      topSequence += InDetCopyAlg
-      if (InDetFlags.doPrintConfigurables()):
-        print InDetCopyAlg
+        from TrkCollectionAliasAlg.TrkCollectionAliasAlgConf import Trk__TrkCollectionAliasAlg
+        InDetCopyAlg = Trk__TrkCollectionAliasAlg (name             = "InDetCopyAlg",
+                                                   CollectionName   = InputTrackCollection,
+                                                   AliasName        = InDetKeys.Tracks()) 
+        topSequence += InDetCopyAlg
+        if (InDetFlags.doPrintConfigurables()):
+          print InDetCopyAlg
       # --- for output
-      InDetKeys.AliasToTracks = InputTrackCollection
+          InDetKeys.AliasToTracks = InputTrackCollection
       # --- input for next algorithm
-      InputTrackCollection    = InDetKeys.Tracks()
+          InputTrackCollection    = InDetKeys.Tracks()
+
       if InDetFlags.doTruth():
-        InputDetailedTrackTruth   = InDetKeys.DetailedTracksTruth()
-        InputTrackCollectionTruth = InDetKeys.TracksTruth()
+        if InDetFlags.doDBMstandalone(): 
+          InputDetailedTrackTruth   = InDetKeys.DBMDetailedTracksTruth() 
+          InputTrackCollectionTruth = InDetKeys.DBMTracksTruth() 
+        else: 
+          InputDetailedTrackTruth   = InDetKeys.DetailedTracksTruth()
+          InputTrackCollectionTruth = InDetKeys.TracksTruth()
 
     # -----------------------------------------------------------------
     #
     # --- in case of slimming or alias creation of tracks container, do the truth association
     #
     # -----------------------------------------------------------------
-    if (InDetFlags.doRefit() or InDetFlags.doSlimming() or InDetFlags.doPattern()):
+    if (InDetFlags.doRefit() or InDetFlags.doSlimming() or InDetFlags.doPattern()) :
       ## ME drop this for tracks container # TrackCollectionKeys      += [ InputTrackCollection ]
       if InDetFlags.doTruth():
         #
         # set up the truth info for this container
         #
-        include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
-        InDetTracksTruth = ConfiguredInDetTrackTruth(InputTrackCollection,
-                                                     InputDetailedTrackTruth,
-                                                     InputTrackCollectionTruth)
+        if not InDetFlags.doDBMstandalone():
+          include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+          InDetTracksTruth = ConfiguredInDetTrackTruth(InputTrackCollection,
+                                                       InputDetailedTrackTruth,
+                                                       InputTrackCollectionTruth)
         #
         # add to keys lists for statistics
         #
@@ -987,7 +1065,8 @@ else:
       include("InDetRecExample/InDetxAODCreator.py")
 
     # Do post-processing algorithms (may depend on xAOD objects)
-    include("InDetRecExample/InDetRecPostProcessing.py")
+    if not InDetFlags.doDBMstandalone():
+      include("InDetRecExample/InDetRecPostProcessing.py")
 
     # ------------------------------------------------------------
     #
@@ -1006,6 +1085,8 @@ else:
         cuts = InDetNewTrackingCuts
       include("InDetRecExample/ConfiguredInDetValidation.py")
       InDetValidation = ConfiguredInDetValidation("",True,InDetFlags.doTruth(),cuts,TrackCollectionKeys,TrackCollectionTruthKeys)
+      if InDetFlags.doDBM():
+        InDetValidationDBM = ConfiguredInDetValidation("DBM",True,InDetFlags.doTruth(),InDetNewTrackingCutsDBM,TrackCollectionKeysDBM,TrackCollectionTruthKeysDBM)
 
     # ntuple creation for validation purposes    
     if (InDetFlags.doNtupleCreation() or InDetFlags.doStandardPlots()) or InDetFlags.doPhysValMon():

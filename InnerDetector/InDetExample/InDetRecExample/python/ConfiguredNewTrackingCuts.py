@@ -29,6 +29,7 @@ class ConfiguredNewTrackingCuts :
     self.__usePixel = DetFlags.haveRIO.pixel_on()
     self.__useSCT   = DetFlags.haveRIO.SCT_on()
     self.__useTRT   = DetFlags.haveRIO.TRT_on()
+    self.__useSCTSeeding = True
 
     # --------------------------------------
     # --- NEW TRACKING cuts
@@ -89,13 +90,13 @@ class ConfiguredNewTrackingCuts :
     
     # --- settings for segment finder 
     self.__TRTSegFinderPtBins        = 70
-    self.__maxSegTRTShared           = 0.3
+    self.__maxSegTRTShared           = 0.7
     self.__excludeUsedTRToutliers    = False
 
     # --- triggers SegmentFinder and BackTracking
     self.__useParameterizedTRTCuts   = False
     self.__useNewParameterizationTRT = False
-    self.__maxSecondaryTRTShared     = 0.3
+    self.__maxSecondaryTRTShared     = 0.7
 
     # --- defaults for secondary tracking
     self.__maxSecondaryImpact        = 100.0 * Units.mm # low lumi
@@ -127,7 +128,7 @@ class ConfiguredNewTrackingCuts :
     
     # --- TRT only
     self.__minTRTonly                = 15
-    self.__maxTRTonlyShared          = 0.3
+    self.__maxTRTonlyShared          = 0.7
     self.__useTRTonlyParamCuts       = False
     self.__useTRTonlyOldLogic        = True
     
@@ -433,7 +434,7 @@ class ConfiguredNewTrackingCuts :
       self.__nHolesGapMax            = 1
       self.__useTRT                  = False
 
-    # --- setup for beamspot determination based on vertices
+ # --- setup for beamspot determination based on vertices
     if mode == "VtxBeamSpot" :
       self.__extension               = "VtxBeamSpot"
       self.__seedFilterLevel         = 1
@@ -557,8 +558,11 @@ class ConfiguredNewTrackingCuts :
       self.__seedFilterLevel  = 2
       self.__nHolesMax        = self.__maxHoles
       self.__nHolesGapMax     = self.__maxHoles      
-      self.__useSCT           = False
-      self.__useTRT           = False 
+      # self.__useSCT           = False
+      self.__useSCT           = True
+      # self.__useTRT           = False
+      self.__useTRT           = True
+      self.__useSCTSeeding    = False
       self.__maxEta           = 2.2
 
 
@@ -607,7 +611,7 @@ class ConfiguredNewTrackingCuts :
     if mode == "TRT":
       self.__minPT                   = 0.4 * Units.GeV
       self.__minTRTonly              = 15
-      self.__maxTRTonlyShared        = 0.3
+      self.__maxTRTonlyShared        = 0.7
 
     # --- mode for SCT and TRT 
     if mode == "SCTandTRT":
@@ -649,6 +653,7 @@ class ConfiguredNewTrackingCuts :
           self.__rejectShortExtensions     = False
 
     if mode == "DBM":
+      self.__extension               = "DBM"
       self.__minEta                  = 3.05
       self.__maxEta                  = 3.45
       self.__Xi2maxNoAdd             = 10000
@@ -665,10 +670,10 @@ class ConfiguredNewTrackingCuts :
       self.__minSiNotShared   = 0
       self.__maxShared        = 1000   # cut is now on number of shared modules
       self.__minPixel         = 0   
-      self.__maxHoles         = 10000
-      self.__maxPixelHoles    = 10000
-      self.__maxSctHoles      = 20000
-      self.__maxDoubleHoles   = 10000
+      self.__maxHoles         = 0
+      self.__maxPixelHoles    = 0
+      self.__maxSctHoles      = 0
+      self.__maxDoubleHoles   = 0
       self.__radMax           = 600000. * Units.mm
       self.__nHolesMax        = self.__maxHoles
       self.__nHolesGapMax     = self.__maxHoles # not as tight as 2*maxDoubleHoles
@@ -874,6 +879,9 @@ class ConfiguredNewTrackingCuts :
   
   def useSCT( self ) :
     return self.__useSCT
+
+  def useSCTSeeding( self ) :
+    return self.__useSCTSeeding
 
   def useTRT( self ) :
     return self.__useTRT

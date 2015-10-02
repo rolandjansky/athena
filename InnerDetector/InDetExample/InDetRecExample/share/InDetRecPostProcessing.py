@@ -478,15 +478,15 @@ if InDetFlags.doParticleCreation():
 
 if rec.doPhysicsValidationAugmentation() :
   try:
-     import InDetPhysValMonitoring.InDetPhysValDecoration
-     InDetPhysValMonitoring.InDetPhysValDecoration.addDecoratorIfNeeded()
+    import InDetPhysValMonitoring.InDetPhysValDecoration
+    InDetPhysValMonitoring.InDetPhysValDecoration.addDecoratorIfNeeded()
   except ImportError:
-     from AthenaCommon.Logging import logging
-     log = logging.getLogger('InDetRecExample/InDetRecPostProcessing.py' )
-     log.info('Package InDetPhysValMonitoring.InDetPhysValDecoration is missing.'\
-              ' So, will not run the decoration. Module should become available in future'\
-              ' versions of InDetPhysValMonitoring')
-     import sys 
-     sys.exit(1)
-     pass
+    from AthenaCommon.Logging import logging
+    log = logging.getLogger('InDetRecExample/InDetRecPostProcessing.py' )
+    log.info('Package InDetPhysValMonitoring.InDetPhysValDecoration is missing.'\
+               ' So, will not run the decoration. Module should become available in future'\
+               ' versions of InDetPhysValMonitoring')
+    import sys 
+    sys.exit(1)
+    pass
 

@@ -232,7 +232,24 @@ if InDetFlags.doSpacePointFormation():
                                                                      ProcessPixels          = DetFlags.haveRIO.pixel_on(),
                                                                      ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
                                                                      ProcessOverlaps        = DetFlags.haveRIO.SCT_on())
-   if InDetFlags.doDBM():
+
+#   if InDetFlags.doDBM():
+#     InDetSiTrackerSpacePointFinderDBM = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinderDBM",
+#                                                                          SiSpacePointMakerTool  = InDetSiSpacePointMakerTool,
+#                                                                          PixelsClustersName     = InDetKeys.PixelClusters(),
+#                                                                          SCT_ClustersName       = InDetKeys.SCT_Clusters(),
+#                                                                          SpacePointsPixelName   = InDetKeys.PixelSpacePoints(),
+#                                                                          SpacePointsSCTName     = InDetKeys.SCT_SpacePoints(),
+#                                                                          SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
+#                                                                          ProcessPixels          = DetFlags.haveRIO.pixel_on(),
+#                                                                          ProcessSCTs            = DetFlags.haveRIO.SCT_on(),
+#                                                                          ProcessOverlaps        = DetFlags.haveRIO.SCT_on(),
+#                                                                          OverlapLimitEtaMax     = 5.0,
+#                                                                          OverlapLimitEtaMin     = 0
+#                                                                          )
+#     topSequence += InDetSiTrackerSpacePointFinderDBM
+
+   if InDetFlags.doDBMstandalone():
       InDetSiTrackerSpacePointFinder.OverlapLimitEtaMax = 5.0
       InDetSiTrackerSpacePointFinder.OverlapLimitEtaMin = 0
 
@@ -247,6 +264,8 @@ if InDetFlags.doSpacePointFormation():
    topSequence += InDetSiTrackerSpacePointFinder
    if (InDetFlags.doPrintConfigurables()):
      print InDetSiTrackerSpacePointFinder
+     if (InDetFlags.doDBM()):
+       print InDetSiTrackerSpacePointFinderDBM
 
 # this truth must only be done if you do PRD and SpacePointformation
 # If you only do the latter (== running on ESD) then the needed input (simdata)

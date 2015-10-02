@@ -184,7 +184,7 @@ class ConfiguredSecondaryVertexCuts :
         self.__TrkSel_RatioCut1                  = 0.0    # UNCHANGED, e-prob: Ntrt < 15
         self.__TrkSel_RatioCut2                  = 0.1    # UNCHANGED, e-prob: 15 < Ntrt < 25  
         self.__TrkSel_RatioCut3                  = 0.1    # UNCHANGED, e-prob: Ntrt > 25
-        self.__TrkSel_RatioTRT                   = 0.8    # new e-prob cut for TRT only from Bruno
+        self.__TrkSel_RatioTRT                   = 0.9    # new e-prob cut for TRT only from Bruno
         
         # Track pairs selector
         self.__TrkPairSel_MaxDistBetweenTracks   = [10.*Units.mm,50.*Units.mm,50.*Units.mm]       # UNCHANGED, minimum distance cut at vertex (Mauro 10,100,50)

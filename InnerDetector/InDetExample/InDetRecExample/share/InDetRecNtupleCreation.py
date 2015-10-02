@@ -304,7 +304,7 @@ if InDetFlags.doNtupleCreation():
 # --------------------------------------------      
 if InDetFlags.doStandardPlots():
   if len(TrackCollectionKeys) > 0:
-    if not InDetFlags.doDBM():
+    if not (InDetFlags.doDBMstandalone() or InDetFlags.doDBM()):
     #
     # -- track selections 
     #
@@ -392,15 +392,35 @@ if InDetFlags.doStandardPlots():
                                                             TruthToTrackTool   = TruthToTrackTool,
                                                             doUpgrade          = InDetFlags.doSLHC(),
                                                             DoTruth            = InDetFlags.doTruth())
-    
+
+    if InDetFlags.doDBMstandalone() or InDetFlags.doDBM(): 
+      InDetStandardPerformanceAll.tracksName = InDetKeys.DBMTracks() 
+      InDetStandardPerformanceAll.tracksTruthName = InDetKeys.DBMTracksTruth()
+
+#    if InDetFlags.doDBM():
+#      InDetStandardPerformanceDBM = InDetStandardPerformance (name               = "InDetStandardPerformanceDBM",
+#                                                            tracksName         = InDetKeys.DBMTracks(),
+#                                                            tracksTruthName    = InDetKeys.DBMTracksTruth(),
+#                                                            SummaryTool        = InDetTrackSummaryToolSharedHits,
+#                                                            HoleSearch         = InDetHoleSearchTool,
+#                                                            useTrackSelection  = False,
+#                                                            HistDirectoryName  = "DBMTracks",
+#                                                            TruthToTrackTool   = TruthToTrackTool,
+#                                                            doUpgrade          = False,
+#                                                            DoTruth            = InDetFlags.doTruth())
+#      ToolSvc += InDetStandardPerformanceDBM
+#      InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceDBM ]
+
     ToolSvc += InDetStandardPerformanceAll
     if (InDetFlags.doPrintConfigurables()):
       print    InDetStandardPerformanceAll
+#      if InDetFlags.doDBM():
+#        print InDetStandardPerformanceDBM
         
     InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceAll ]
     
     # selected tracks passing good quality cuts
-    if not InDetFlags.doDBM():
+    if not (InDetFlags.doDBMstandalone() or InDetFlags.doDBM()):
       InDetStandardPerformanceGood = InDetStandardPerformance (name                = "InDetStandardPerformanceGood",
                                                                tracksName          = InDetKeys.UnslimmedTracks(),
                                                                tracksTruthName     = InDetKeys.UnslimmedTracksTruth(),
@@ -482,12 +502,34 @@ if InDetFlags.doPhysValMon():
     print InDetPhysValMonManager
 
   from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValMonitoringTool
-  InDetPhysValMonTool = InDetPhysValMonitoringTool (useTrackSelection   = True,
-                                                    TrackSelectorTool   = InDetTrackSelectorTool)
+  if InDetFlags.doDBMstandalone():
+    InDetPhysValMonTool = InDetPhysValMonitoringTool (useTrackSelection   = False,
+                                                      TrackParticleContainerName = "InDetDBMTrackParticles", 
+                                                      TrackSelectionTool = None, 
+                                                      TruthSelectionTool = None, 
+                                                      jetContainerName = "")
+  else:
+    InDetPhysValMonTool = InDetPhysValMonitoringTool (useTrackSelection   = True,
+                                                      TrackSelectionTool   = InDetTrackSelectorTool)
+#                                                      TrackParticleContainerName      = InDetKeys.Tracks())
+#      InputTrackCollectionTruth = InDetKeys.TracksTruth()
+#  if InDetFlags.doDBM():
+#    InDetPhysValMonToolDBM = InDetPhysValMonitoringTool (useTrackSelection   = False,
+#                                                         TrackParticleContainerName   = "InDetDBMTrackParticles",
+#                                                         TruthParticleContainerName = "DBMTracksTruth",
+#                                                         TrackSelectionTool = None,
+#                                                         TruthSelectionTool = None,
+#                                                         jetContainerName = "")
+
+#    ToolSvc += InDetPhysValMonToolDBM
+#    InDetPhysValMonManager.AthenaMonTools += [InDetPhysValMonToolDBM]
+
   ToolSvc += InDetPhysValMonTool
   InDetPhysValMonManager.AthenaMonTools += [InDetPhysValMonTool]
   if (InDetFlags.doPrintConfigurables()):
     print InDetPhysValMonTool
+#    if InDetFlags.doDBM():
+#      print InDetPhysValMonToolDBM
 
   # --- Setup the output histogram file(s)
   if not hasattr(ServiceMgr, 'THistSvc'):
