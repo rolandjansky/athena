@@ -30,6 +30,9 @@
 // METRecoInterface includes
 #include "METRecoInterface/IMETToolBase.h"
 
+// CaloNoiseTool
+#include "CaloInterface/ICaloNoiseTool.h"
+
 // Forward declarations
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
@@ -39,7 +42,7 @@ class CaloCellContainer;
 namespace met{
 
   class METCaloRegionsTool
-    : virtual public asg::AsgTool,
+    : public asg::AsgTool,
       virtual public IMETToolBase
   { 
     // This macro defines the constructor with the interface declaration
@@ -78,6 +81,7 @@ namespace met{
     std::string      m_input_data_key;
     std::string      m_output_met_key;
     bool             m_calo_useCells;
+    bool             m_calo_doTriggerMet;
     // Accept functions
     bool             accept            (const xAOD::IParticle* object) const;
     // Overlap resolver function
@@ -111,6 +115,9 @@ namespace met{
   private:
     // Default constructor: 
     METCaloRegionsTool();
+
+    // Tool handle for CaloNoiseTool
+    ToolHandle<ICaloNoiseTool> m_caloNoiseTool;
   }; 
 
 }

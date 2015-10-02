@@ -21,9 +21,13 @@
 // Jet EDM
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetAttributes.h"
+#include "xAODJet/JetTypes.h"
 
 // Tracking EDM
 #include "xAODTracking/Vertex.h"
+
+// Cluster EDM
+#include "xAODCaloEvent/CaloCluster.h"
 
 namespace met {
 
@@ -80,6 +84,7 @@ namespace met {
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG("Successfully retrieved jet collection");
+
     const xAOD::CaloClusterContainer* tcCont;
     const xAOD::Vertex* pv;
     const xAOD::TrackParticleContainer* trkCont;
@@ -93,7 +98,10 @@ namespace met {
     MissingETBase::Types::constvec_t trkvec;
     for(const auto& jet : *jetCont) {
       std::vector<const IParticle*> selectedTracks;
-      if (m_pflow) {
+      bool mismatchedPFlow = m_pflow && jet->rawConstituent(0)->type()!=xAOD::Type::ParticleFlow;
+      bool mismatchedState = !m_pflow && jet->rawConstituent(0)->type()==xAOD::Type::CaloCluster && ((static_cast<const xAOD::CaloCluster*>(jet->rawConstituent(0))->signalState()==xAOD::CaloCluster::CALIBRATED && jet->getConstituentsSignalState()==xAOD::UncalibratedJetConstituent) || (static_cast<const xAOD::CaloCluster*>(jet->rawConstituent(0))->signalState()==xAOD::CaloCluster::UNCALIBRATED && jet->getConstituentsSignalState()==xAOD::CalibratedJetConstituent));
+      bool newConstVec = mismatchedPFlow || mismatchedState;
+      if (m_pflow && !mismatchedPFlow) {
         for (size_t consti = 0; consti < jet->numConstituents(); consti++) {
           const xAOD::PFO *pfo = static_cast<const xAOD::PFO*>(jet->rawConstituent(consti));
           if (pfo->charge()!=0) {
@@ -102,22 +110,25 @@ namespace met {
 	  }
         }
       } else {
-	if(pv) {
-	  std::vector<const IParticle*> jettracks;
-	  jet->getAssociatedObjects<IParticle>(JetAttribute::GhostTrack,jettracks);
+        std::vector<const IParticle*> jettracks;
+        jet->getAssociatedObjects<IParticle>(JetAttribute::GhostTrack,jettracks);
 
-	  selectedTracks.reserve(jettracks.size());
-	  for(const auto& trk : jettracks) {
-	    const TrackParticle* pTrk = static_cast<const TrackParticle*>(trk);
-	    if(acceptTrack(pTrk,pv) && isGoodEoverP(pTrk,tcCont,pv,trkCont)) {
-	      selectedTracks.push_back(trk);
-	      ATH_MSG_VERBOSE("Accept track " << trk << " px, py = " << trk->p4().Px() << ", " << trk->p4().Py());
-	    }
+	selectedTracks.reserve(jettracks.size());
+	for(const auto& trk : jettracks) {
+	  const TrackParticle* pTrk = static_cast<const TrackParticle*>(trk);
+	  if( acceptTrack(pTrk,pv) ) {
+	    selectedTracks.push_back(trk);
+	    ATH_MSG_VERBOSE("Accept track " << trk << " px, py = " << trk->p4().Px() << ", " << trk->p4().Py());
 	  }
 	}
       }
+      std::vector<const IParticle*> consts;
+      std::map<const IParticle*,MissingETBase::Types::constvec_t> momenta;
+
       MissingETComposition::add(metMap,jet,selectedTracks);
-      //if (m_pflow) metMap->back()->setJetTrkVec(trkvec);
+      if (mismatchedPFlow) getPFOs(jet,consts,pv,pfoCont,momenta);
+      if (mismatchedState) getClus(jet,consts);
+      if (newConstVec) MissingETComposition::setJetConstSum(metMap,jet,consts,momenta);
       ATH_MSG_VERBOSE("Added association " << metMap->findIndex(jet) << " pointing to jet " << jet);
       ATH_MSG_VERBOSE("Jet pt, eta, phi = " << jet->pt() << ", " << jet->eta() << "," << jet->phi() );
 
@@ -128,4 +139,34 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
+  void METJetAssocTool::getPFOs(const xAOD::Jet *jet,
+               std::vector<const xAOD::IParticle*> &consts,
+               const xAOD::Vertex *pv,
+               const xAOD::PFOContainer *pfoCont,
+               std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const {
+
+    std::vector<const IParticle*> jettracks;
+    jet->getAssociatedObjects<IParticle>(JetAttribute::GhostTrack,jettracks);
+    
+    for(const auto& pfo : *pfoCont) {
+      const TrackParticle* pfotrk = pfo->track(0);
+      if (pfo->charge()!=0) for(const auto& trk : jettracks) if (trk==pfotrk) consts.push_back(pfo);
+      if (pfo->charge()==0) {
+        bool marked = false;
+        for (size_t consti = 0; consti < jet->numConstituents(); consti++) if (pfo->p4EM().DeltaR(jet->rawConstituent(consti)->p4())<0.05) marked = true;
+        if (marked) {
+          consts.push_back(pfo);
+          TLorentzVector momentum = pfo->GetVertexCorrectedEMFourVec(*pv);
+          momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
+							  momentum.E(),momentum.Pt());
+        }
+      }
+    }
+  }
+
+  void METJetAssocTool::getClus(const xAOD::Jet *jet,
+               std::vector<const xAOD::IParticle*> &consts) const {
+    std::vector<ElementLink<IParticleContainer> > jetconst = jet->constituentLinks();
+    for(const auto& clus : jetconst) consts.push_back(*clus);
+  }
 }

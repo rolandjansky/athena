@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// METAssociator.cxx 
+// METAssociator.cxx
 // Implementation for class METAssociator
 //
 // This is the base class for tools that construct MET terms
@@ -13,7 +13,7 @@
 //  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 //
 // Author: P Loch, S Resconi, TJ Khoo, AS Mete
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
 
 // METReconstruction includes
 #include "METReconstruction/METAssociator.h"
@@ -32,9 +32,9 @@ namespace met {
 
   using namespace xAOD;
 
-  /////////////////////////////////////////////////////////////////// 
-  // Public methods: 
-  /////////////////////////////////////////////////////////////////// 
+  ///////////////////////////////////////////////////////////////////
+  // Public methods:
+  ///////////////////////////////////////////////////////////////////
 
   // Constructors
   ////////////////
@@ -54,7 +54,7 @@ namespace met {
   // Destructor
   ///////////////
   METAssociator::~METAssociator()
-  {} 
+  {}
 
   // Athena algtool's Hooks
   ////////////////////////////
@@ -79,11 +79,17 @@ namespace met {
       ATH_MSG_WARNING("Invalid pointer to MissingETAssociationMap supplied! Abort.");
       return StatusCode::FAILURE;
     }
+    if(m_pflow &&
+       m_trkcoll.empty()
+       ){
+      ATH_MSG_WARNING("Attempting to build PFlow without a track collection.");
+      return StatusCode::FAILURE;
+    }
 
     return this->executeTool(metCont, metMap);
   }
 
-  StatusCode METAssociator::retrieveConstituents(const xAOD::CaloClusterContainer*& tcCont,const xAOD::Vertex*& pv,const xAOD::TrackParticleContainer*& trkCont,const xAOD::PFOContainer*& pfoCont)
+  StatusCode METAssociator::retrieveConstituents(const xAOD::CaloClusterContainer*& tcCont,const xAOD::Vertex*& pv,const xAOD::TrackParticleContainer*& trkCont,const xAOD::PFOContainer*& pfoCont) const
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
     tcCont = 0;
@@ -95,39 +101,49 @@ namespace met {
 
     const VertexContainer *vxCont = 0;
     pv = 0;
-    if( evtStore()->retrieve(vxCont, m_pvcoll).isFailure() ) {
-      ATH_MSG_WARNING("Unable to retrieve primary vertex container " << m_pvcoll);
-    } else if(vxCont->empty()) {
-      ATH_MSG_WARNING("Event has no primary vertices!");
-    } else {
+
+    if( m_trkcoll.empty()){
+      //if you want to skip tracks, set the track collection empty manually
+      ATH_MSG_VERBOSE("Skipping tracks");
+    }else{
+      if( evtStore()->retrieve(vxCont, m_pvcoll).isFailure() ) {
+	ATH_MSG_WARNING("Unable to retrieve primary vertex container " << m_pvcoll);
+	return StatusCode::FAILURE;
+      } else if(vxCont->empty()) {
+	ATH_MSG_WARNING("Event has no primary vertices!");
+	return StatusCode::FAILURE;
+      }
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
       for(const auto& vx : *vxCont) {
 	if(vx->vertexType()==VxType::PriVtx)
 	  {pv = vx; break;}
       }
-    }
-    if(!pv) {
-      ATH_MSG_DEBUG("Failed to find primary vertex!");
-    } else {
-      ATH_MSG_VERBOSE("Primary vertex has z = " << pv->z());
-    }
-
-    trkCont=0;
-    ATH_CHECK( evtStore()->retrieve(trkCont, m_trkcoll) );
-
-    if(m_pflow) {
-      pfoCont = 0;
-      if( evtStore()->contains<xAOD::PFOContainer>("EtmissParticleFlowObjects") ) {
-	ATH_CHECK(evtStore()->retrieve(pfoCont,"EtmissParticleFlowObjects"));
-      } else {
-	pfoCont = m_pfotool->retrievePFO(CP::EM, CP::all);
-	ATH_CHECK( evtStore()->record( const_cast<xAOD::PFOContainer*>(pfoCont),"EtmissParticleFlowObjects"));
-      }
-      if(!pfoCont) {
-	ATH_MSG_WARNING("Unable to retrieve input pfo container");
+      if(!pv) {
+	ATH_MSG_WARNING("Failed to find primary vertex!");
 	return StatusCode::FAILURE;
+      } else {
+	ATH_MSG_VERBOSE("Primary vertex has z = " << pv->z());
       }
-    }
+
+      trkCont=0;
+      ATH_CHECK( evtStore()->retrieve(trkCont, m_trkcoll) );
+      // filterTracks(trkCont,pv);
+
+      if(m_pflow) {
+	pfoCont = 0;
+	if( evtStore()->contains<xAOD::PFOContainer>("EtmissParticleFlowObjects") ) {
+	  ATH_CHECK(evtStore()->retrieve(pfoCont,"EtmissParticleFlowObjects"));
+	} else {
+	  pfoCont = m_pfotool->retrievePFO(CP::EM, CP::all);
+	  ATH_CHECK( evtStore()->record( const_cast<xAOD::PFOContainer*>(pfoCont),"EtmissParticleFlowObjects"));
+	}
+	if(!pfoCont) {
+	  ATH_MSG_WARNING("Unable to retrieve input pfo container");
+	  return StatusCode::FAILURE;
+	}//pfoCont check
+      }//pflow
+    }//retrieve track/pfo containers
+
     return StatusCode::SUCCESS;
   }
 
@@ -137,13 +153,13 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  /////////////////////////////////////////////////////////////////// 
-  // Protected methods: 
-  /////////////////////////////////////////////////////////////////// 
+  ///////////////////////////////////////////////////////////////////
+  // Protected methods:
+  ///////////////////////////////////////////////////////////////////
 
   StatusCode METAssociator::fillAssocMap(xAOD::MissingETAssociationMap* metMap,
-					 const xAOD::IParticleContainer* hardObjs)
-  //					 std::vector<const xAOD::IParticle*>& mutracks)
+					 const xAOD::IParticleContainer* hardObjs) const
+  //					 std::vector<const xAOD::IParticle*>& mutracks) const
   {
     const CaloClusterContainer* tcCont;
     const Vertex* pv;
@@ -168,23 +184,63 @@ namespace met {
       constlist.clear();
       ATH_MSG_VERBOSE( "Object type, pt, eta, phi = " << obj->type() << ", " << obj->pt() << ", " << obj->eta() << "," << obj->phi() );
       if (m_pflow) {
-        std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;
-	ATH_CHECK( this->extractPFO(obj,constlist,pfoCont,momentumOverride,pv) );
-        MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
+	if(m_trkcoll.empty()){
+	  ATH_MSG_WARNING("Attempting to build PFlow without a track collection.");
+	  return StatusCode::FAILURE;
+	}else{
+	  std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;
+	  ATH_CHECK( this->extractPFO(obj,constlist,pfoCont,momentumOverride,pv) );
+	  MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
+	}
       } else {
         ATH_CHECK( this->extractTopoClusters(obj,constlist,tcCont) );
-        if(pv) { ATH_CHECK( this->extractTracks(obj,constlist,tcCont,trkCont,pv) ); }
+	if(!m_trkcoll.empty()) ATH_CHECK( this->extractTracks(obj,constlist,tcCont,pv) );
         MissingETComposition::insert(metMap,obj,constlist);
       }
     }
     return StatusCode::SUCCESS;
   }
-  
+
+  void METAssociator::filterTracks(const xAOD::TrackParticleContainer* tracks,
+				   const xAOD::Vertex* pv) {
+    for(const auto& trk : *tracks) {
+      m_goodtracks.clear();
+      if(acceptTrack(trk,pv)) m_goodtracks.push_back(trk);
+    }
+  }
+
   // Accept Track
   ////////////////
   bool METAssociator::acceptTrack(const xAOD::TrackParticle* trk, const xAOD::Vertex* vx) const
   {
+    //if(fabs(trk->pt())<500/*MeV*/ || fabs(trk->eta())>2.5) return false;
+    // could add some error checking to make sure we successfully read the details
+    //uint8_t nPixHits(0), nSctHits(0);
+    //trk->summaryValue(nPixHits,xAOD::numberOfPixelHits);
+    //if(nPixHits<1) return false;
+    //trk->summaryValue(nSctHits,xAOD::numberOfSCTHits);
+    //if(nSctHits<6) return false;
+    //if(fabs(trk->d0())>1.5) return false;
+    //if(fabs(trk->z0() + trk->vz() - vx->z()) > 1.5) return false;
+    //return true;
+
+    //todo check m_trkseltool exists
     const Root::TAccept& accept = m_trkseltool->accept( *trk, vx );
+    // uint8_t nBLHits(0), expectBLHit(false);
+    // if(trk->summaryValue(nBLHits,xAOD::numberOfBLayerHits)) {
+    //   ATH_MSG_VERBOSE("Track has " << (int) nBLHits << " b-layer hits");
+    // }
+    // if(trk->summaryValue(expectBLHit,xAOD::expectBLayerHit)) {
+    //   ATH_MSG_VERBOSE("Track expected b-layer hit: " << (bool) expectBLHit);
+    // }
+    // ATH_MSG_VERBOSE("From auxdata: expect hit ? " << (bool) trk->auxdata<uint8_t>("expectBLayerHit")
+    // 		    << " Nhits = " << (int) trk->auxdata<uint8_t>("numberOfBLayerHits"));
+
+    // if(!accept && fabs(trk->z0() + trk->vz() - vx->z())*sin(trk->theta()) < 1.5) {
+    //   for(size_t icut=0; icut<accept.getNCuts(); ++icut) {
+    // 	ATH_MSG_VERBOSE("Cut " << accept.getCutName(icut) << ": result = " << accept.getCutResult(icut));
+    //   }
+    // }
     return accept;
   }
 
@@ -196,7 +252,7 @@ namespace met {
   }
 
 
-  bool METAssociator::isGoodEoverP(const xAOD::TrackParticle* trk,const xAOD::CaloClusterContainer*& tcCont,const xAOD::Vertex*& pv,const xAOD::TrackParticleContainer*& trkCont) const
+  bool METAssociator::isGoodEoverP(const xAOD::TrackParticle* trk,const xAOD::CaloClusterContainer*& tcCont) const
   {
 
     if( (fabs(trk->eta())<1.5 && trk->pt()>200e3) ||
@@ -208,8 +264,8 @@ namespace met {
 
       // first compute track and calo isolation variables
       float ptcone20 = 0;
-      for(const auto& testtrk : *trkCont) {
-	if(testtrk==trk || !acceptTrack(testtrk,pv)) continue;
+      for(const auto& testtrk : m_goodtracks) {
+	if(testtrk==trk) continue;
 	if(testtrk->p4().DeltaR(trk->p4()) < 0.2) {
 	  ptcone20 += testtrk->pt();
 	}
@@ -233,7 +289,7 @@ namespace met {
       } else {
 	// non-isolated track cuts
 	float trkptsum = ptcone20+trk->pt();
-	if(EoverP/trkptsum<0.6 && ptcone20/trkptsum<0.6) return false;
+	if(etcone10/trkptsum<0.6 && trk->pt()/trkptsum>0.6) return false;
       }
     }
     return true;

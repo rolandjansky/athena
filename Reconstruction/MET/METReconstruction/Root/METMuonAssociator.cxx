@@ -84,7 +84,7 @@ namespace met {
   // Get constituents
   StatusCode METMuonAssociator::extractTopoClusters(const xAOD::IParticle* /*obj*/,
 						    std::vector<const xAOD::IParticle*>& /*tclist*/,
-						    const xAOD::CaloClusterContainer* /*tcCont*/)
+						    const xAOD::CaloClusterContainer* /*tcCont*/) const
   {
     return StatusCode::SUCCESS;
   }
@@ -92,13 +92,12 @@ namespace met {
   StatusCode METMuonAssociator::extractTracks(const xAOD::IParticle *obj,
 					      std::vector<const xAOD::IParticle*>& constlist,
 					      const xAOD::CaloClusterContainer* tcCont,
-					      const xAOD::TrackParticleContainer* trkCont,
-					      const xAOD::Vertex* pv)
+					      const xAOD::Vertex* pv) const
   {
     const xAOD::Muon *mu = static_cast<const xAOD::Muon*>(obj);
     const TrackParticle* idtrack = mu->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
-    if(idtrack && acceptTrack(idtrack,pv) && isGoodEoverP(idtrack,tcCont,pv,trkCont)) {
-      //if(idtrack && acceptTrack(idtrack,pv)) {
+    if(idtrack && acceptTrack(idtrack,pv) && isGoodEoverP(idtrack,tcCont)) {
+    // if(idtrack && acceptTrack(idtrack,pv)) {
       ATH_MSG_VERBOSE("Accept muon track " << idtrack << " px, py = " << idtrack->p4().Px() << ", " << idtrack->p4().Py());
       ATH_MSG_VERBOSE("Muon ID track ptr: " << idtrack);
       constlist.push_back(idtrack);
@@ -115,11 +114,11 @@ namespace met {
 					   std::vector<const xAOD::IParticle*>& pfolist,
 					   const xAOD::PFOContainer* pfoCont,
 					   std::map<const IParticle*,MissingETBase::Types::constvec_t>&,
-					   const xAOD::Vertex* pv)
+					   const xAOD::Vertex* pv) const
   {  
     const xAOD::Muon *mu = static_cast<const xAOD::Muon*>(obj);
     const TrackParticle* idtrack = mu->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
-    if(pv && idtrack && acceptChargedPFO(idtrack,pv)) {
+    if(idtrack && acceptChargedPFO(idtrack,pv)) {
       for(const auto& pfo : *pfoCont) {
 	if (pfo->charge()!=0 && pfo->track(0) == idtrack) {
 	  pfolist.push_back(pfo);

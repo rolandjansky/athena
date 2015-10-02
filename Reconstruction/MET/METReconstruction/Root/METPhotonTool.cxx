@@ -99,7 +99,7 @@ namespace met {
 				     MissingETBase::Types::weight_t& objWeight)
   {
 
-    if(!object->type() == xAOD::Type::Photon) {
+    if(object->type() != xAOD::Type::Photon) {
       ATH_MSG_WARNING("METPhotonTool::resolveOverlap given an object of type " << object->type());
       return false;
     }
@@ -144,9 +144,17 @@ namespace met {
   {
     for(size_t iVtx=0; iVtx<ph->nVertices(); ++iVtx) {
       const Vertex* phvx = ph->vertex(iVtx);
-      for(size_t iTrk=0; iTrk<phvx->nTrackParticles(); ++iTrk) {
-	const TrackParticle* phtrk = xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(phvx->trackParticle(iTrk));
-	trklist.push_back(phtrk);
+      if(phvx) {
+	for(size_t iTrk=0; iTrk<phvx->nTrackParticles(); ++iTrk) {
+	  const TrackParticle* phtrk = xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(phvx->trackParticle(iTrk));
+	  if(phtrk) {
+	    trklist.push_back(phtrk);
+	  } else {
+	    ATH_MSG_WARNING("Null pointer given for photon ID track!");
+	  }
+	}
+      } else {
+	ATH_MSG_WARNING("Null pointer given for photon vertex!");
       }
     }
     METEgammaTool::matchExtraTracks(ph,trklist);

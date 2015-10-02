@@ -3,9 +3,6 @@
 from METReconstruction.METRecoFlags import metFlags
 from METReconstruction.METAssocConfig import AssocConfig, METAssocConfig
 
-from RecExConfig.RecFlags import rec
-doInDet = rec.doInDet()
-
 ############################################################################
 # AntiKt4LCTopo
 JetType = 'LCJet'
@@ -44,7 +41,8 @@ metFlags.METAssocOutputList().append(cfg_akt4em.suffix)
 
 ############################################################################
 # PFlow
-if doInDet and metFlags.DoPFlow():
+from RecExConfig.RecFlags import rec
+if rec.doInDet() and metFlags.DoPFlow():
     JetType = 'PFlowJet'
     
     associators = [AssocConfig(JetType),

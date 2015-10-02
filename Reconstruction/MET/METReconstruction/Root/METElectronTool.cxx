@@ -150,7 +150,11 @@ namespace met {
   {
     for(size_t iTrk=0; iTrk<el->nTrackParticles(); ++iTrk) {
       const TrackParticle* eltrk = xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(el->trackParticle(iTrk));
-      trklist.push_back(eltrk);
+      if(eltrk) {
+	trklist.push_back(eltrk);
+      } else {
+	ATH_MSG_WARNING("Null pointer given for electron ID track!");
+      }
     }
     METEgammaTool::matchExtraTracks(el,trklist);
     ATH_MSG_VERBOSE("Electron has " << trklist.size() << " linked tracks");

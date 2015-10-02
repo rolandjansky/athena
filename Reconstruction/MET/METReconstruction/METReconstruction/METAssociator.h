@@ -71,31 +71,33 @@ namespace met {
 
     ToolHandle<CP::IRetrievePFOTool> m_pfotool;
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
+    std::vector<const xAOD::TrackParticle*> m_goodtracks;
 
     // reconstruction process to be defined in the individual tools
     // pure virtual -- we have no default
     virtual StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) = 0;
-    StatusCode retrieveConstituents(const xAOD::CaloClusterContainer*& tcCont,const xAOD::Vertex*& pv,const xAOD::TrackParticleContainer*& trkCont,const xAOD::PFOContainer*& pfoCont);
+    StatusCode retrieveConstituents(const xAOD::CaloClusterContainer*& tcCont,const xAOD::Vertex*& pv,const xAOD::TrackParticleContainer*& trkCont,const xAOD::PFOContainer*& pfoCont) const;
 
+    void filterTracks(const xAOD::TrackParticleContainer* tracks,
+		      const xAOD::Vertex* pv);
     bool acceptTrack (const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const;
     bool acceptChargedPFO(const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const;
-    bool isGoodEoverP(const xAOD::TrackParticle* trk,const xAOD::CaloClusterContainer*& tcCont,const xAOD::Vertex*& pv,const xAOD::TrackParticleContainer*& trkCont) const;
+    bool isGoodEoverP(const xAOD::TrackParticle* trk,const xAOD::CaloClusterContainer*& tcCont) const;
 
-    StatusCode fillAssocMap(xAOD::MissingETAssociationMap* metMap,
-			    const xAOD::IParticleContainer* hardObjs);
+    virtual StatusCode fillAssocMap(xAOD::MissingETAssociationMap* metMap,
+				    const xAOD::IParticleContainer* hardObjs) const;
     virtual StatusCode extractPFO(const xAOD::IParticle* obj,
 				  std::vector<const xAOD::IParticle*>& pfolist,
 				  const xAOD::PFOContainer* pfoCont,
 				  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
-				  const xAOD::Vertex* pv) = 0;
+				  const xAOD::Vertex* pv) const = 0;
     virtual StatusCode extractTracks(const xAOD::IParticle* obj,
 				     std::vector<const xAOD::IParticle*>& constlist,
 				     const xAOD::CaloClusterContainer* tcCont,
-				     const xAOD::TrackParticleContainer* trkCont,
-				     const xAOD::Vertex* pv) = 0;
+				     const xAOD::Vertex* pv) const = 0;
     virtual StatusCode extractTopoClusters(const xAOD::IParticle* obj,
 					   std::vector<const xAOD::IParticle*>& tclist,
-				           const xAOD::CaloClusterContainer* tcCont) = 0;
+				           const xAOD::CaloClusterContainer* tcCont) const = 0;
     static inline bool greaterPt(const xAOD::IParticle* part1, const xAOD::IParticle* part2) {
       return part1->pt()>part2->pt();
     }

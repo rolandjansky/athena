@@ -25,5 +25,6 @@ topSequence += assocAlg
 
 from METUtilities.METMakerConfig import getMETMakerAlg
 for key,conf in metFlags.METAssocConfigs().iteritems():
-    makerAlg = getMETMakerAlg(conf.suffix)
-    topSequence += makerAlg
+    if not conf.doTruth:
+        makerAlg = getMETMakerAlg(conf.suffix)
+        topSequence += makerAlg

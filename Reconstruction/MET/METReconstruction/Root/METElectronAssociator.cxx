@@ -87,14 +87,13 @@ namespace met {
   StatusCode METElectronAssociator::extractTracks(const xAOD::IParticle* obj,
 						  std::vector<const xAOD::IParticle*>& constlist,
 						  const xAOD::CaloClusterContainer* tcCont,
-						  const xAOD::TrackParticleContainer* trkCont,
-					          const xAOD::Vertex* pv)
+					          const xAOD::Vertex* pv) const
   {
     const Electron *el = static_cast<const Electron*>(obj);
     for(size_t iTrk=0; iTrk<el->nTrackParticles(); ++iTrk) {
       const TrackParticle* eltrk = EgammaHelpers::getOriginalTrackParticleFromGSF(el->trackParticle(iTrk));
-      if(acceptTrack(eltrk,pv) && isGoodEoverP(eltrk,tcCont,pv,trkCont)) {
-	// if(acceptTrack(eltrk,pv)) {
+      if(acceptTrack(eltrk,pv) && isGoodEoverP(eltrk,tcCont)) {
+      // if(acceptTrack(eltrk,pv)) {
 	ATH_MSG_VERBOSE("Accept electron track " << eltrk << " px, py = " << eltrk->p4().Px() << ", " << eltrk->p4().Py());
 	constlist.push_back(eltrk);
       }
@@ -108,7 +107,7 @@ namespace met {
 					       std::vector<const xAOD::IParticle*>& pfolist,
 					       const xAOD::PFOContainer* pfoCont,
 					       std::map<const IParticle*,MissingETBase::Types::constvec_t> &momenta,
-					       const xAOD::Vertex* pv)
+					       const xAOD::Vertex* pv) const
   {
     const Electron *el = static_cast<const Electron*>(obj);
     // safe to assume a single SW cluster?
@@ -127,7 +126,7 @@ namespace met {
         if (swclus->p4().DeltaR(pfo->p4EM())<m_tcMatch_dR && pfo->eEM()>0) {
 	  nearbyPFO.push_back(pfo);
 	}
-      } else if(pv) {
+      } else {
 	const TrackParticle* pfotrk = pfo->track(0);
 	for(size_t iTrk=0; iTrk<el->nTrackParticles(); ++iTrk) {
 	  const TrackParticle* eltrk = EgammaHelpers::getOriginalTrackParticleFromGSF(el->trackParticle(iTrk));
@@ -157,7 +156,7 @@ namespace met {
 	pfolist.push_back(pfo);
 	sumE_pfo += pfo_e;
 
-        TLorentzVector momentum = pv ? pfo->GetVertexCorrectedEMFourVec(*pv) : pfo->p4();
+        TLorentzVector momentum = pfo->GetVertexCorrectedEMFourVec(*pv);
 	momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
 							momentum.E(),momentum.Pt());
       } // if we will retain the topocluster

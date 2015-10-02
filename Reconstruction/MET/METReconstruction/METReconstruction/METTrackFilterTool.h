@@ -40,7 +40,7 @@
 namespace met{
 
   class METTrackFilterTool
-    : virtual public METRefinerTool
+    : public METRefinerTool
   { 
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METTrackFilterTool, IMETToolBase)
@@ -76,7 +76,8 @@ namespace met{
     // Accept functions
     // bool isPVTrack(const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const;
     bool isGoodEoverP(const xAOD::TrackParticle* trk,
-		      const std::vector<const xAOD::TrackParticle*>& trkList) const;
+		      const std::vector<const xAOD::IParticle*>& trkList,
+		      const xAOD::CaloClusterContainer* clusters) const;
 
   private:
     // Default constructor: 
