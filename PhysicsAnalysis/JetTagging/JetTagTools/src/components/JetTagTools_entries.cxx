@@ -6,7 +6,7 @@
 #include "JetTagTools/MultiSVTag.h"
 //#include "JetTagTools/JetProbTag.h"
 //#include "JetTagTools/SoftElectronTag.h"
-//#include "JetTagTools/SoftMuonTag.h"
+#include "JetTagTools/SoftMuonTag.h"
 //#include "JetTagTools/CombinerTool.h"
 //#include "JetTagTools/CombinerToolTag.h"
 //#include "JetTagTools/LikelihoodTool.h"
@@ -36,6 +36,10 @@
 #include "JetTagTools/MVbTag.h"
 
 #include "JetTagTools/JetVertexCharge.h"
+
+#include "JetTagTools/ExKtbbTag.h"
+#include "JetTagTools/ExKtbbTagTool.h"
+
 //
 //#include "JetTagTools/SharedHitMapper.h"
 //
@@ -49,7 +53,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SVTag )
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MultiSVTag )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetProbTag )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SoftElectronTag )
-//DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SoftMuonTag )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, SoftMuonTag )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, CombinerTool )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, CombinerToolTag )
 //DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, LikelihoodTool )
@@ -80,6 +84,10 @@ DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, MVbTag )
 
 
 DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, JetVertexCharge )
+
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, ExKtbbTag )
+DECLARE_NAMESPACE_TOOL_FACTORY( Analysis, ExKtbbTagTool )
+
 // Until we put it elsewhere
 //DECLARE_ALGORITHM_FACTORY( SharedHitMapper )
 
@@ -96,7 +104,7 @@ DECLARE_FACTORY_ENTRIES( JetTagTools )
   DECLARE_NAMESPACE_TOOL( Analysis, MultiSVTag );
   // DECLARE_NAMESPACE_TOOL( Analysis, JetProbTag );
   // DECLARE_NAMESPACE_TOOL( Analysis, SoftElectronTag );
-  // DECLARE_NAMESPACE_TOOL( Analysis, SoftMuonTag );
+  DECLARE_NAMESPACE_TOOL( Analysis, SoftMuonTag );
   // DECLARE_NAMESPACE_TOOL( Analysis, CombinerTool );
   // DECLARE_NAMESPACE_TOOL( Analysis, LikelihoodTool );
   // DECLARE_NAMESPACE_TOOL( Analysis, CombinerToolTag );
@@ -125,6 +133,8 @@ DECLARE_FACTORY_ENTRIES( JetTagTools )
   // DECLARE_NAMESPACE_TOOL( Analysis, MV3Tag );
   DECLARE_NAMESPACE_TOOL( Analysis, MVbTag );
   DECLARE_NAMESPACE_TOOL( Analysis, JetVertexCharge );
+  DECLARE_NAMESPACE_TOOL( Analysis, ExKtbbTag );
+  DECLARE_NAMESPACE_TOOL( Analysis, ExKtbbTagTool );
   // //
   // DECLARE_ALGORITHM( SharedHitMapper );
   // //

@@ -99,6 +99,7 @@ namespace Analysis {
     float m_ip3;
     float m_ip3_c;
     float m_ip3_cu;
+    float m_ip3_2hitGradeFrac;
     //more sv1 variables
     float m_sv1;
     float m_sv1_c;
@@ -111,8 +112,11 @@ namespace Analysis {
     float m_sv1_L3d;
     float m_sv1_sig3;
     float m_sv1_dR;
+    float m_sv1_distmatlay;
     //more jf variables
     float m_jf_dR;
+    float m_jf_dR_flight;
+    float m_jf_mass_unco;
 
     /////////////////////////////////////////////////////////////////////
     //IP2D posteriors
@@ -158,6 +162,17 @@ namespace Analysis {
     float m_sv_scaled_efc;
     float m_jf_scaled_efc;
 
+    //soft muon variables
+    float m_sm_mu_pt          ;
+    float m_sm_dR             ;
+    float m_sm_qOverPratio    ;
+    float m_sm_mombalsignif   ;
+    float m_sm_scatneighsignif;
+    float m_sm_pTrel          ;
+    float m_sm_mu_d0          ;
+    float m_sm_mu_z0          ;
+    float m_sm_ID_qOverP      ;
+
     std::map<std::string, TMVA::Reader*> m_tmvaReaders;
     std::map<std::string, TMVA::MethodBase*> m_tmvaMethod; 
     std::map<std::string, egammaMVACalibNmsp::BDT*> m_egammaBDTs;
@@ -170,6 +185,7 @@ namespace Analysis {
     std::string m_sv0_infosource;
     std::string m_jftNN_infosource;
     std::string m_jfprob_infosource;
+    std::string m_softmuon_infosource;
 
     std::string m_trainingConfig;
     float d0sgn_wrtJet(const TLorentzVector& jet, const TLorentzVector& trk, float d0sig);

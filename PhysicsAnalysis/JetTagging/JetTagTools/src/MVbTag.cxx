@@ -378,10 +378,8 @@ StatusCode MVbTag::finalize() {
 
     /* compute MVb: */
     double mvb = -1.;
-    int binnb = -1;
-    if (std::fabs(m_eta)<0.6){
-      binnb=0;
-    } else if (std::fabs(m_eta)>=0.6 && std::fabs(m_eta)<1.2) {
+    int binnb = 0; //if (std::fabs(m_eta)<0.6)
+    if (std::fabs(m_eta)>=0.6 && std::fabs(m_eta)<1.2) {
       binnb=1;
     } else if (std::fabs(m_eta)>=1.2 && std::fabs(m_eta)<1.8) {
       binnb=2;
