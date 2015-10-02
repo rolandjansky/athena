@@ -92,6 +92,8 @@ TrigALFAROBMonitor::TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSv
   declareProperty("MonitorALFATracks",                  m_doALFATracking=true);
   declareProperty("MonitorPMFactivity",                 m_doPMFMonitoring=true);
   declareProperty("DoTiming",                           m_doTiming=true);
+  declareProperty("DoGoodDataMonitoring",               m_doDataGoodMonitoring=true);
+  declareProperty("DoODDistanceHistograming",           m_doODDistance=true);
   declareProperty("HistTimeMuCTPiMonitor",              m_histProp_timeALFA, "Timing for ALFA monitoring algorithm");
 
   declareProperty("keyRBResult",  m_keyRBResult = "");
@@ -122,6 +124,40 @@ TrigALFAROBMonitor::TrigALFAROBMonitor(const std::string& name, ISvcLocator* pSv
   m_vec_SpecificStatus.push_back("FRAGMENT_LOST");
   m_vec_SpecificStatus.push_back("FRAGMENT_PENDING");
   m_vec_SpecificStatus.push_back("ROL_DISABLED");
+
+ // fill vectors with names of trigger items
+ m_map_TrgNamesToHistGroups["L1_ALFA_ELAST15"] = 0;
+ m_map_TrgNamesToHistGroups["L1_ALFA_ELAST18"] = 0;
+
+ m_map_TrgNamesToHistGroups["L1_ALFA_ELAST15_Calib"] = 1;
+ m_map_TrgNamesToHistGroups["L1_ALFA_ELAST18_Calib"] = 1;
+
+ m_map_TrgNamesToHistGroups["L1_ALFA_SDIFF5"] = 2;
+ m_map_TrgNamesToHistGroups["L1_ALFA_SDIFF6"] = 2;
+ m_map_TrgNamesToHistGroups["L1_ALFA_SDIFF7"] = 2;
+ m_map_TrgNamesToHistGroups["L1_ALFA_SDIFF8"] = 2;
+
+ m_map_TrgNamesToHistGroups["L1_MBTS_1_A_ALFA_C"] = 3;
+ m_map_TrgNamesToHistGroups["L1_MBTS_1_C_ALFA_A"] = 3;
+
+ m_map_TrgNamesToHistGroups["L1_LUCID_A_ALFA_C"] = 4;
+ m_map_TrgNamesToHistGroups["L1_LUCID_C_ALFA_A"] = 4;
+
+ m_map_TrgNamesToHistGroups["L1_EM3_ALFA_ANY"] = 5;
+
+ m_map_TrgNamesToHistGroups["L1_J12_ALFA_ANY"] = 6;
+
+ m_map_TrgNamesToHistGroups["L1_TRT_ALFA_ANY"] = 7;
+
+ m_map_TrgNamesToHistGroups["L1_ALFA_ANY"] = 8;
+
+ m_map_TrgNamesToHistGroups["L1_ALFA_ANY_UNPAIRED_ISO"] = 9;
+
+ m_map_TrgNamesToHistGroups["L1_ALFA_ANY_CALIB"] = 10;
+
+ m_map_TrgNamesToHistGroups["L1_ALFA_ANY_A_EMPTY"] = 11;
+ m_map_TrgNamesToHistGroups["L1_ALFA_ANY_C_EMPTY"] = 11;
+
 
   //declareInterface< RoIBResultByteStreamTool >( this );
 
@@ -286,6 +322,23 @@ StatusCode TrigALFAROBMonitor::execute() {
     }
     return StatusCode::SUCCESS;
   } 
+ 
+    // get EventInfo
+    const EventInfo* p_EventInfo(0);
+    sc = m_storeGateSvc->retrieve(p_EventInfo);
+    if(sc.isFailure()){
+      logStream() << MSG::ERROR << "Can't get EventIinfo object" <<endreq;
+    } else {
+       // get EventID
+       const EventID* p_EventID = p_EventInfo->event_ID();
+       m_LB = p_EventID->lumi_block();
+       //logStream() << MSG::INFO << "Got EventID object with LB: " <<m_LB<<endreq;
+    }
+
+  // initialize to positive values arrays which will be used in distance measurements with ODs - data needed accross both ROBs (RODs).
+  for (int detector=0; detector <8; detector++)
+    for (int side=0; side<2; side++)
+         m_ODtracks[detector][side] = 1.;
 
   // loop over retrieved ROBs and do checks
   for (std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::iterator it = ALFARobFragmentVec.begin();
@@ -303,7 +356,22 @@ StatusCode TrigALFAROBMonitor::execute() {
     if (! event_with_checksum_failure) {
        decodeALFA(logStream(), **it );
 
-       findALFATracks();
+       LVL1CTP::Lvl1Result resultL1(true);
+       if (getLvl1Result(resultL1)) {
+       		std::vector<uint32_t> itemsBP = resultL1.itemsBeforePrescale();
+                for (std::map<int, int>::iterator it = m_map_TrgItemNumbersToHistGroups.begin(); it != m_map_TrgItemNumbersToHistGroups.end(); ++it) {
+                    int word = it->first>>5;
+                    int offset = (it->first)%32;
+                    if (itemsBP.at(word) & 1<<offset) {
+                       //ATH_MSG_INFO ("found item: "<<it->first<<" in word: "<<word<<" offset: "<<offset);
+                    }
+                }
+       		for(std::vector<uint32_t>::iterator it = itemsBP.begin(); it != itemsBP.end(); ++it) {
+          		//ATH_MSG_INFO ("triggerWord: "<<*it);
+       		}
+       findALFATracks(resultL1);
+       }
+       findODTracks ();
     }
   }
 
@@ -392,6 +460,16 @@ StatusCode TrigALFAROBMonitor::beginRun() {
        continue;
      }
      logStream() << MSG::INFO << " triggerItem "<<item->name().c_str()<< "ctpId "<<item->ctpId()<<endreq;
+     std::map<std::string, int>::iterator it = m_map_TrgNamesToHistGroups.find(item->name());
+     if (it != m_map_TrgNamesToHistGroups.end()) {
+       m_map_TrgItemNumbersToHistGroups[item->ctpId()] = it->second;
+     }
+     // locate golden alfa triggers for data quality assesment base on the ratio of tracks in elastic triggered events
+     if (item->name().compare("L1_ALFA_ELAST15") == 0) m_elast15 = item->ctpId();
+     if (item->name().compare("L1_ALFA_ELAST18") == 0) m_elast18 = item->ctpId();
+  }
+  for (std::map<int, int>::iterator it=m_map_TrgItemNumbersToHistGroups.begin(); it != m_map_TrgItemNumbersToHistGroups.end(); ++it) {
+          logStream() << MSG::INFO << " triggerItem number: "<<it->first<< " histo group: "<<it->second<<endreq;
   }
  
   // Define histograms only when checks are requested
@@ -428,6 +506,27 @@ StatusCode TrigALFAROBMonitor::beginRun() {
     }
   }
 
+  if ( m_doDataGoodMonitoring.value() ) {
+    // *-- book histo to assess fraction of elastic triggered events with elastic tracks candidates
+    std::string histTitle = "goodDataAssessment";
+    m_hist_goodData = new TH1F (histTitle.c_str(), (histTitle + " elastics").c_str(), 10, -0.5, 9.5);
+    if (m_hist_goodData) {
+      m_hist_goodData->SetBit(TH1::kCanRebin);
+      if( rootHistSvc->regHist(path + "common/" + m_hist_goodData->GetName(), m_hist_goodData).isFailure() ) {
+	logStream() << MSG::WARNING << "Can not register ALFA ROB good data elastic monitoring histogram: " << m_hist_goodData->GetName() <<endreq;
+      }
+    }
+    histTitle = "goodDataAssessmentLB15";
+    m_hist_goodDataLB15 = new TH2F (histTitle.c_str(), (histTitle + " elasticsLB").c_str(), 1000, -0.5, 999.5, 2, 0.5, 2.5);
+    if( rootHistSvc->regHist(path + "common/" + m_hist_goodDataLB15->GetName(), m_hist_goodDataLB15).isFailure() ) {
+	logStream() << MSG::WARNING << "Can not register ALFA ROB good data elastic LB 15 monitoring histogram: " << m_hist_goodDataLB15->GetName() <<endreq;
+    }
+    histTitle = "goodDataAssessmentLB18";
+    m_hist_goodDataLB18 = new TH2F (histTitle.c_str(), (histTitle + " elasticsLB").c_str(), 1000, -0.5, 999.5, 2, 0.5, 2.5);
+    if( rootHistSvc->regHist(path + "common/" + m_hist_goodDataLB18->GetName(), m_hist_goodDataLB18).isFailure() ) {
+	logStream() << MSG::WARNING << "Can not register ALFA ROB good data elastic LB 18 monitoring histogram: " << m_hist_goodDataLB18->GetName() <<endreq;
+    }
+  }
 
      std::vector<std::string> stationNames;
      std::vector<std::string> trigConditions;
@@ -441,14 +540,18 @@ StatusCode TrigALFAROBMonitor::beginRun() {
      stationNames.push_back("B7R1U");
      stationNames.push_back("B7R1L");
 
-     trigConditions.push_back("elast");
-     trigConditions.push_back("anyPaired");
-     trigConditions.push_back("anyUnpaired");
-     trigConditions.push_back("anyFirstEmpty");
-     trigConditions.push_back("anyEmpty");
-     trigConditions.push_back("jet");
-     trigConditions.push_back("singleDiff");
-     trigConditions.push_back("notDefined");
+     trigConditions.push_back("elastic");
+     trigConditions.push_back("elastic_ALFA_BG");
+     trigConditions.push_back("singleDiffr");
+     trigConditions.push_back("ALFA_MBTS_singleDiffr");
+     trigConditions.push_back("ALFA_LUCID_singleDiffr");
+     trigConditions.push_back("ALFA_EM3");
+     trigConditions.push_back("ALFA_J12");
+     trigConditions.push_back("ALFA_TRT");
+     trigConditions.push_back("ANY");
+     trigConditions.push_back("ANY_UNPAIRED_ISO");
+     trigConditions.push_back("ANY_ALFA_BG");
+     trigConditions.push_back("ALFA_EMPTY");
 
      float y_min[2] = {0.,-35.};
      float y_max[2] = {35.,0.};
@@ -456,10 +559,10 @@ StatusCode TrigALFAROBMonitor::beginRun() {
   if ( m_doALFATracking.value() ) {
      std::string histTitle;
 
-     for (uint32_t trgCond = 0; trgCond < 8; trgCond++) {
+     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
          for (uint32_t station = 0; station < 8; station++) {
-              histTitle = "RP_" + std::to_string(station+1) + " " + trigConditions[trgCond];
-              m_hist_ALFA_trig_validated_tracks[trgCond][station] = new TH2F (histTitle.c_str(), (histTitle + " all tracks").c_str(),
+              histTitle = stationNames[station] + "_" + trigConditions[trgCond];
+              m_hist_ALFA_trig_validated_tracks[trgCond][station] = new TH2F (histTitle.c_str(), (histTitle).c_str(),
                                                                                     260,-23,23,175,y_min[station%2],y_max[station%2]); 
               if (m_hist_ALFA_trig_validated_tracks[trgCond][station]) {
                  if( rootHistSvc->regHist(path + "tracking/" + trigConditions[trgCond] + "/" + stationNames[station] , 
@@ -486,6 +589,39 @@ StatusCode TrigALFAROBMonitor::beginRun() {
                                    << (m_hist_pmfMonitoring[station])->GetName() <<endreq;
                  }
               }
+     }
+  }
+
+  if ( m_doODDistance.value() ) {
+
+     std::string histTitle;
+
+     for (uint32_t iDet = 0; iDet < 8; iDet++) {
+      for (uint32_t iSide=0; iSide<2; iSide++) {
+         histTitle = "RP_" + std::to_string(iDet+1) + "_" + std::to_string(iSide) + " position";
+         m_hist_PosDetector[iDet][iSide] = new TH1F (histTitle.c_str(), (histTitle).c_str(), 200.,-145.0,-125.0);
+         if (m_hist_PosDetector[iDet][iSide]) {
+             if( rootHistSvc->regHist(path + "OD/"+ stationNames[iDet] + "/" + (m_hist_PosDetector[iDet][iSide])->GetName(), 
+                     m_hist_PosDetector[iDet][iSide]).isFailure() ) {
+                     logStream() << MSG::WARNING << "Can not register ALFA PMT monitoring histogram: " 
+                                 << (m_hist_PosDetector[iDet][iSide])->GetName() <<endreq;
+             }
+         }
+       }
+     }
+     for (uint32_t iStation = 0; iStation < 4; iStation++) {
+       for (uint32_t iSide=0; iSide<2; iSide++) {
+         histTitle = "RP_" + std::to_string(iStation+1) + "_" + std::to_string(iSide) + " distance";
+         m_hist_DistStation[iStation][iSide] = new TH1F (histTitle.c_str(), (histTitle).c_str(), 401.,-20.05,20.05);
+         if (m_hist_DistStation[iStation][iSide]) {
+             if( rootHistSvc->regHist(path + "OD/"+ stationNames[iStation] + "/" + (m_hist_DistStation[iStation][iSide])->GetName(),                   
+                     m_hist_DistStation[iStation][iSide]).isFailure() ) {
+                     logStream() << MSG::WARNING << "Can not register ALFA PMT monitoring histogram: "  
+                                 << (m_hist_DistStation[iStation][iSide])->GetName() <<endreq;
+             }
+         }
+  
+       }
      }
   }
 
@@ -680,6 +816,16 @@ void TrigALFAROBMonitor::decodeALFA(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE:
             m_pU[station][layer].clear();
         }
     }
+   m_triggerHitPatternReady.clear();
+   m_triggerHitPattern.clear();
+
+    for (int station=0; station<8; station++)
+        for (int layer=0; layer<3; layer++)
+            for (int fiber=0; fiber<30; fiber++) {
+                m_FiberHitsODPos[station][layer][fiber] = false;
+                m_FiberHitsODNeg[station][layer][fiber] = false;
+            }
+
     
     while ( 1 ) {
         // check consistency of the ROD data - if data from LWC point to TWC
@@ -754,6 +900,11 @@ void TrigALFAROBMonitor::decodeALFA(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE:
                           //  AlfaEventObj->synchMBvsPMF[mbNb-1] |= (0x1)<<(pmf-1);
                         } else {
                             //decodePMT24 (data16channels, quarter, mbNb);
+                            if (quarter == 0) {
+                                  m_triggerHitPattern[mbNb-1] = data16channels & 0xFFFF;
+                                  m_triggerHitPatternReady[mbNb-1] = 1;
+                            } else {
+                            } 
                         }
                       }
                   }
@@ -794,6 +945,10 @@ void TrigALFAROBMonitor::decodeRealPMT (MsgStream& log, uint32_t dataWord, uint3
   std::ios_base::fmtflags log_flags_save = (log.stream()).flags();
   //char log_fill_char_save = (log.stream()).fill();
 
+    int layerNb = pmf2layer[pmf];
+    int RPNumber = mbNb2RP[mbNb];
+        RPNumber = RPNumber - 1;  // to access data from array in C - which starts with index 0
+	
     int mask = 0x1;
 	//ATH_MSG_DEBUG( "decodeRealPMT - dataWord: " << dataWord << " quarter: " << quarter << " mbNb: " << mbNb << " pmf: " << pmf );
     for (int offset = 0 ; offset <= 15; offset++) {
@@ -802,7 +957,6 @@ void TrigALFAROBMonitor::decodeRealPMT (MsgStream& log, uint32_t dataWord, uint3
 
            m_hist_pmfMonitoring[mbNb]->Fill(double(channel),double(pmf)); 
 
-	   int layerNb = pmf2layer[pmf];
            if (layerNb >= 0) {
 
 		//std::cout <<"mbNb " << mbNb << " layerNb: " << layerNb << " channel: " << channel << " maroc2fib: " << maroc2fiber[channel] << std::endl;
@@ -815,6 +969,21 @@ void TrigALFAROBMonitor::decodeRealPMT (MsgStream& log, uint32_t dataWord, uint3
 	   	}else {
 	   		m_pU[mbNb][layerNb>>1].push_back(data);
 	   	}
+           } else {
+               // OD data
+               int od_offset = (4 - pmf) * 64 + maroc2mapmt[channel];
+               int side = od_channel2side[RPNumber][od_offset];
+
+               if (od_channel2fiber[RPNumber][od_offset]<35) {
+                  if (side==1) {
+                          m_FiberHitsODPos[mbNb][od_channel2layer[RPNumber][od_offset]-1][od_channel2fiber[RPNumber][od_offset]-1] = true;
+                   } else { 
+                          m_FiberHitsODNeg[mbNb][od_channel2layer[RPNumber][od_offset]-1][od_channel2fiber[RPNumber][od_offset]-1] = true;
+                  }
+	   	  //ATH_MSG_INFO( "OD hit "<< "mbNb [counts from 0]: " << mbNb << "side: "<< side << " RPNumber: " << RPNumber << " od_offset: " << od_offset << " chan2layer: " << od_channel2layer[RPNumber][od_offset]-1  << 
+                                            //"chan2fiber: "<<od_channel2fiber[RPNumber][od_offset]-1) ;
+            }
+
            }
        }
        mask <<= 1;
@@ -873,7 +1042,33 @@ void TrigALFAROBMonitor::dumpRoIBDataWord( MsgStream& log, uint32_t data_word ) 
   return;
 }
 
-void TrigALFAROBMonitor::findALFATracks(  ) {
+bool TrigALFAROBMonitor::getLvl1Result(LVL1CTP::Lvl1Result &resultL1) {
+
+   if(m_storeGateSvc->contains<LVL1CTP::Lvl1Result>("Lvl1Result")) {
+
+	const LVL1CTP::Lvl1Result* l1ptr = 0;    
+	if(m_storeGateSvc->retrieve<LVL1CTP::Lvl1Result>(l1ptr, "Lvl1Result").isSuccess() && l1ptr) {
+		resultL1 = *l1ptr;
+                //ATH_MSG_INFO ("Success in retrieving Lvl1Result from StoreGate");
+		return true;
+	}
+	else {
+		//log() << MSG::WARNING << "Error retrieving Lvl1Result from StoreGate" << endreq;
+                ATH_MSG_INFO ("Error retrieving Lvl1Result from StoreGate");
+		return false;
+	}
+    }
+    else {
+	if(1) /* outputLevel() <= MSG::DEBUG) */ {
+		//log() << MSG::DEBUG << "Lvl1Result does not exist with key: " << m_keyL1Result << endreq;
+		ATH_MSG_INFO ("Lvl1Result does not exist with key: " << "Lvl1Result");
+                return false;
+	}
+  }
+
+}
+
+void TrigALFAROBMonitor::findALFATracks( LVL1CTP::Lvl1Result &resultL1 ) {
 	float x_Rec[8];
 	float y_Rec[8];
 	
@@ -915,6 +1110,8 @@ void TrigALFAROBMonitor::findALFATracks(  ) {
 
                 u_hits.clear();
                 v_hits.clear();
+
+                m_nbOfTracksInDetectors[iDet] = 0;                
 
                 ATH_MSG_DEBUG( "findALFATracks starts" );
 
@@ -1008,7 +1205,16 @@ void TrigALFAROBMonitor::findALFATracks(  ) {
                                 x_Rec[iDet] = (RecPos_U-RecPos_V)/2.;
                                 y_Rec[iDet] = sign*(-(RecPos_V+RecPos_U)/2.-115.);
 
-                                m_hist_ALFA_trig_validated_tracks[0][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
+       		                std::vector<uint32_t> itemsBP = resultL1.itemsBeforePrescale();
+                                for (std::map<int, int>::iterator it = m_map_TrgItemNumbersToHistGroups.begin(); it != m_map_TrgItemNumbersToHistGroups.end(); ++it) {
+                                       int word = it->first>>5;
+                                       int offset = (it->first)%32;
+                                       if (itemsBP.at(word) & 1<<offset) {
+                                             m_hist_ALFA_trig_validated_tracks[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
+                                             //ATH_MSG_INFO ("found track in det: "<<iDet<<" item: "<<it->first<<" in word: "<<word<<" offset: "<<offset);
+                    			}
+                		}
+                                m_nbOfTracksInDetectors[iDet]++;
                                 //HitMapAggr[iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
                         }
                         else {
@@ -1021,6 +1227,26 @@ void TrigALFAROBMonitor::findALFATracks(  ) {
                           y_Rec[iDet] = -9999.;
                 }
 
+        }
+
+        std::vector<uint32_t> itemsBP = resultL1.itemsBeforePrescale();
+        if (itemsBP.at(m_elast15>>5) & (1 <<(m_elast15%32))) {
+           m_hist_goodData->Fill(1.);
+           m_hist_goodDataLB15->Fill(m_LB, 1.);
+           if ((m_nbOfTracksInDetectors[0] <=2) && (m_nbOfTracksInDetectors[2] <=2) && (m_nbOfTracksInDetectors[5]<=2) && (m_nbOfTracksInDetectors[7] <= 2) &&
+                 (m_nbOfTracksInDetectors[0]>0) && (m_nbOfTracksInDetectors[2] >0) && (m_nbOfTracksInDetectors[5]>0) && (m_nbOfTracksInDetectors[7] > 0) ) {
+              m_hist_goodData->Fill(2.);
+              m_hist_goodDataLB15->Fill(m_LB, 2.);
+           }
+        }
+        if (itemsBP.at(m_elast18>>5) & (1 <<(m_elast18%32))) {
+           m_hist_goodData->Fill(4.);
+           m_hist_goodDataLB18->Fill(m_LB, 1.);
+           if ((m_nbOfTracksInDetectors[1] <=2) && (m_nbOfTracksInDetectors[3] <=2) && (m_nbOfTracksInDetectors[4]<=2) && (m_nbOfTracksInDetectors[6] <= 2) &&
+                 (m_nbOfTracksInDetectors[1]>0) && (m_nbOfTracksInDetectors[3] >0) && (m_nbOfTracksInDetectors[4]>0) && (m_nbOfTracksInDetectors[6] > 0) ) {
+              m_hist_goodData->Fill(5.);
+              m_hist_goodDataLB18->Fill(m_LB, 2.);
+           }
         }
 
 /*
@@ -1067,3 +1293,202 @@ void TrigALFAROBMonitor::findALFATracks(  ) {
 
    return;
 }  
+
+void TrigALFAROBMonitor::findODTracks( ) {
+
+    int Multiplicity[3], FibHit, Index=10;
+    bool FoundTrack[2];
+    double Pos[2];
+
+    //I don't know if you loop over detectors....
+    for (int iStation=0;iStation<4;iStation++){
+        for (int iSide=0;iSide<2;iSide++){
+            FibHit=-1;
+
+            FoundTrack[0] = false;
+            FoundTrack[1] = false;
+            if (iSide==0){//If we are in the positive side of the detectors
+
+                //IMPORTANT: Here you have to require a fired trigger in the relevant OD. I do it via the variable TrigPat but I don't know how it works in your code.
+                //Loop over Upper and Lower detector of a station. Both detectors should have a track
+                for (int iUL=0;iUL<2;iUL++){
+                    Pos[iUL]=0;
+                    if ( ! (m_triggerHitPatternReady[iStation*2+iUL])) {
+                        continue;
+                    } else {
+                        if ( !(m_triggerHitPattern[iStation*2+iUL] &0x8000))
+                            continue;
+                    }
+                    //ATH_MSG_INFO ("in DO search tracks : "<<m_triggerHitPattern[iStation*2+iUL] );
+                    int MinMultipl = 60;
+
+                    //Loop over OD layers to search for tracks where at least one layer has only one hit.
+                    for (int iLay=0;iLay<3;iLay++){
+
+                        Multiplicity[iLay]=0;
+                        for (int iFib=0;iFib<30;iFib++){
+                           if (m_FiberHitsODPos[iStation*2+iUL][iLay][iFib]){
+                                FibHit = iFib;
+                                Multiplicity[iLay] ++;
+                           }
+                        }
+                        if (Multiplicity[iLay] < MinMultipl) MinMultipl = Multiplicity[iLay];
+                           // hMultipl[iStation*2+iUL][iSide][iLay]->Fill(Multiplicity[iLay]);
+                        if (FibHit==-1) continue;
+
+                        //Go through the LookUpTable for this fiber hit: (the multiplicity for the layer MUST be equal to one.
+                        //In all the following places where I have "sFiberHitsODPos" we need to rewrite it with the fiber_to_maroc variables
+                        if (FoundTrack[iUL]) continue;
+                        for (int iFib1 = (FibHit>0 ? FibHit-1 : 0); iFib1< (FibHit<29 ? FibHit+2 : 30) && Multiplicity[iLay]==1;iFib1++){
+                            for (int iFib2 = (FibHit>0 ? FibHit-1 : 0); iFib2< (FibHit<29 ? FibHit+2 : 30);iFib2++){
+                                if (abs(iFib1-iFib2)>1) continue;
+                                if((FibHit-iFib1 == -1) && (FibHit-iFib2 == -1)) Index = 6;
+                                if((FibHit-iFib1 == -1) && (FibHit-iFib2 == 0)) Index = 5;
+                                if((FibHit-iFib1 == 0) && (FibHit-iFib2 == -1)) Index = 4;
+                                if((FibHit-iFib1 == 0) && (FibHit-iFib2 == 0)) Index = 3;
+                                if((FibHit-iFib1 == 0) && (FibHit-iFib2 == 1)) Index = 2;
+                                if((FibHit-iFib1 == 1) && (FibHit-iFib2 == 0)) Index = 1;
+                                if((FibHit-iFib1 == 1) && (FibHit-iFib2 == 1)) Index = 0;
+                                if (m_FiberHitsODPos[iStation*2+iUL][(iLay+1)%3][iFib1] && m_FiberHitsODPos[iStation*2+iUL][(iLay+2)%3][iFib2]){
+                                    if (iFib1<29 && m_FiberHitsODPos[iStation*2+iUL][(iLay+1)%3][iFib1+1]){
+                                        if (iFib2<29 && m_FiberHitsODPos[iStation*2+iUL][(iLay+2)%3][iFib2+1]){
+                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+3*7+Index];
+                                            if (Pos[iUL]>-10){
+                                                Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
+                                                if (Pos[iUL]>-10){
+                                                    Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
+                                                    if (Pos[iUL]>-10){
+                                                        Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else{
+                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
+                                            if (Pos[iUL]>-10) Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                        }
+                                    }
+                                    else{
+                                        if (iFib2<29 && m_FiberHitsODPos[iStation*2+iUL][(iLay+2)%3][iFib2+1]){
+                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
+                                            if (Pos[iUL]>-10) Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                        }
+                                        else Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                    }
+                                }
+                                if (Pos[iUL]<-10) { 
+                                    FoundTrack[iUL]=true;
+                                    break;
+                                }
+                                if (FoundTrack[iUL]) break;
+                            }
+                            if (FoundTrack[iUL]) break;
+                        }
+                    }//end of iLay-loop
+                    // hMinMultipl[iStation*2+iUL][iSide]->Fill(MinMultipl);
+                    // hMultipl2D[iStation*2+iUL][iSide][0]->Fill(Multiplicity[0],Multiplicity[1]);
+                    // hMultipl2D[iStation*2+iUL][iSide][1]->Fill(Multiplicity[0],Multiplicity[2]);
+                    // hMultipl2D[iStation*2+iUL][iSide][2]->Fill(Multiplicity[1],Multiplicity[2]);
+                }//end of iUL-loop
+
+            } else {//The same just for the negative side
+                   
+                for (int iUL=0;iUL<2;iUL++){
+                    Pos[iUL]=0;
+                 FoundTrack[iUL] = false;
+                    if ( ! (m_triggerHitPatternReady[iStation*2+iUL])) {
+                        continue;
+                    } else {
+                       if ( !(m_triggerHitPattern[iStation*2+iUL] &0x2000))
+                        continue;
+                       }
+                    int MinMultipl = 60;
+                    for (int iLay=0;iLay<3;iLay++){
+                        Multiplicity[iLay]=0;
+                        for (int iFib=0;iFib<30;iFib++){
+                            if (m_FiberHitsODNeg[iStation*2+iUL][iLay][iFib]){
+                                FibHit = iFib;
+                                Multiplicity[iLay] ++;
+                            }
+                        }
+
+                        if (Multiplicity[iLay] < MinMultipl) MinMultipl = Multiplicity[iLay];
+                               //           hMultipl[iStation*2+iUL][iSide][iLay]->Fill(Multiplicity[iLay]);
+                        if (FibHit==-1) continue;
+
+                        if (FoundTrack[iUL]) continue;
+                        for (int iFib1 = (FibHit>0 ? FibHit-1 : 0); iFib1< (FibHit<29 ? FibHit+2 : 30) && Multiplicity[iLay]==1;iFib1++){
+                            for (int iFib2 = (FibHit>0 ? FibHit-1 : 0); iFib2< (FibHit<29 ? FibHit+2 : 30);iFib2++){
+                                if (abs(iFib1-iFib2)>1) continue;
+                                if((FibHit-iFib1 == -1) && (FibHit-iFib2 == -1)) Index = 6;
+                                if((FibHit-iFib1 == -1) && (FibHit-iFib2 == 0)) Index = 5;
+                                if((FibHit-iFib1 == 0) && (FibHit-iFib2 == -1)) Index = 4;
+                                if((FibHit-iFib1 == 0) && (FibHit-iFib2 == 0)) Index = 3;
+                                if((FibHit-iFib1 == 0) && (FibHit-iFib2 == 1)) Index = 2;
+                                if((FibHit-iFib1 == 1) && (FibHit-iFib2 == 0)) Index = 1;
+                                if((FibHit-iFib1 == 1) && (FibHit-iFib2 == 1)) Index = 0;
+                                if (m_FiberHitsODNeg[iStation*2+iUL][(iLay+1)%3][iFib1] && m_FiberHitsODNeg[iStation*2+iUL][(iLay+2)%3][iFib2]){
+                                    if (iFib1<29 && m_FiberHitsODNeg[iStation*2+iUL][(iLay+1)%3][iFib1+1]){
+                                        if (iFib2<29 && m_FiberHitsODNeg[iStation*2+iUL][(iLay+2)%3][iFib2+1]){
+                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+3*7+Index];
+                                            if (Pos[iUL]>-10){
+                                                Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
+                                                if (Pos[iUL]>-10){
+                                                    Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
+                                                    if (Pos[iUL]>-10){
+                                                        Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        else{
+                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+1*7+Index];
+                                            if (Pos[iUL]>-10) Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                        }
+                                    }
+                                    else{
+                                        if (iFib2<29 && m_FiberHitsODNeg[iStation*2+iUL][(iLay+2)%3][iFib2+1]){
+                                            Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+2*7+Index];
+                                            if (Pos[iUL]>-10) Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                        }
+                                        else Pos[iUL] = LUT[(iStation*2+iUL)*6+iSide*3+iLay][FibHit*28+0*7+Index];
+                                    }
+                                }
+                                if (Pos[iUL]<-10) {
+                                   FoundTrack[iUL]=true;
+                                   break;
+                                }
+                            }
+                            if (FoundTrack[iUL]) break;
+                        }
+                        if (FoundTrack[iUL]) break;
+                    }//end of iLay-loop
+                    // hMinMultipl[iStation*2+iUL][iSide]->Fill(MinMultipl);
+                    // hMultipl2D[iStation*2+iUL][iSide][0]->Fill(Multiplicity[0],Multiplicity[1]);
+                    // hMultipl2D[iStation*2+iUL][iSide][1]->Fill(Multiplicity[0],Multiplicity[2]);
+                    // hMultipl2D[iStation*2+iUL][iSide][2]->Fill(Multiplicity[1],Multiplicity[2]);
+                }//end of iUL-loop
+            }
+
+            //If we have a track in both upper and lower detector, we fill the histograms
+            if (FoundTrack[0]) { 
+                 m_hist_PosDetector[iStation*2][iSide]->Fill(Pos[0]);
+                 m_ODtracks[iStation*2][iSide] = Pos[0];
+            }
+            if (FoundTrack[1]) {
+                 m_hist_PosDetector[iStation*2+1][iSide]->Fill(Pos[1]);
+                 m_ODtracks[iStation*2+1][iSide] = Pos[1];
+            }
+            //if (FoundTrack[0] && FoundTrack[1]){
+            if( (m_ODtracks[iStation*2][iSide] < 0) && (m_ODtracks[iStation*2+1][iSide] < 0) ) {
+                 m_hist_DistStation[iStation][iSide]->Fill(-m_ODtracks[iStation*2][iSide] - m_ODtracks[iStation*2+1][iSide] + alfa_edge[iStation*2] + alfa_edge[iStation*2+1]);
+            }
+
+        }//end of iSide-loop
+    }//end of iStation-loop
+    ATH_MSG_INFO ("end of findOD tracks");
+}
+
+
+
+
