@@ -45,3 +45,5 @@ apply_pattern UnitTest_run unit_test="xAODTracking_TrackParticlexAODHelpers" ext
 private
 # macro cppdebugflags '$(cppdebugflags_s)'
 # macro_remove componentshr_linkopts "-Wl,-s"
+
+apply_pattern do_genCLIDDB library=xAODTracking

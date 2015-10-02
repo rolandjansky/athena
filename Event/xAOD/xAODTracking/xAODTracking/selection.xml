@@ -59,7 +59,15 @@
 
   <class name="xAOD::TrackParticleAuxContainer_v2"
          id="53031BE5-2156-41E8-B70C-41A1C0572FC5"/>
-  
+
+  <read sourceClass="xAOD::TrackParticleAuxContainer_v2" version="[1-]"
+        targetClass="xAOD::TrackParticleAuxContainer_v2"
+        source="" target="" >
+    <![CDATA[
+      newObj->toTransient();
+     ]]>
+  </read>
+
   <!-- NeutralParticle_v1 dictionaries: -->
   <class name="xAOD::NeutralParticle_v1">
          <field name="m_p4" transient="true"/>

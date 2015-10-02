@@ -35,6 +35,15 @@ namespace xAOD {
       this->makePrivateStore( other );
    }
 
+   Vertex_v1& Vertex_v1::operator=(const Vertex_v1& tp ){
+     if(this == &tp) return *this;
+  
+     if( ( ! hasStore() ) && ( ! container() ) ) {
+       makePrivateStore();
+     }
+     return *this;
+   }
+
    Type::ObjectType Vertex_v1::type() const {
 
       return Type::Vertex;
