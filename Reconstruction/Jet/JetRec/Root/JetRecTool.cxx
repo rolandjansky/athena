@@ -14,6 +14,7 @@
 #include <fstream>
 //#include "AthenaKernel/errorcheck.h"
 
+#include "xAODBase/IParticleHelpers.h"
 #include "xAODCore/ShallowCopy.h"
 #include "JetEDM/FastJetLink.h"
 #include "xAODJet/Jet_PseudoJet.icc"
@@ -43,6 +44,7 @@ xAOD::JetContainer* shallowCopyJets(const xAOD::JetContainer& jetsin,
       if ( ppj != nullptr ) outjets[ijet]->setPseudoJet(ppj);
     }
   }
+  xAOD::setOriginalObjectLink(jetsin, outjets);
   return &outjets;
 } 
 
@@ -104,6 +106,7 @@ StatusCode JetRecTool::initialize() {
     }
   }
   m_shallowCopy &= m_copy; // m_shallowCopy is false if not copy mode
+  m_shallowCopy &= m_incoll != m_outcoll; // m_shallowCopy is false for update mode
 
   // Retrieve or create pseudojet retrieval tool.
   if ( m_hpjr.empty() ) {
@@ -418,7 +421,7 @@ const JetContainer* JetRecTool::build() const {
   if ( m_outcoll.size() ) {
     m_actclock.Start(false);
     ATH_MSG_DEBUG("Creating output container.");
-    if ( evtStore()->contains<JetContainer>(m_outcoll) ) {
+    if ( (m_outcoll != m_incoll) && evtStore()->contains<JetContainer>(m_outcoll) ) {
       ATH_MSG_ERROR("Jet collection already exists: " << m_outcoll);
       m_totclock.Stop();
       m_actclock.Stop();
@@ -427,6 +430,13 @@ const JetContainer* JetRecTool::build() const {
 
     if ( m_shallowCopy ) {
       ATH_MSG_DEBUG("Shallow-copying jets.");
+      if ( m_outcoll == m_incoll ) {
+        // This should never happen.
+        ATH_MSG_ERROR("Update of existing collection requires deep copy: " << m_outcoll);
+        m_totclock.Stop();
+        m_actclock.Stop();
+        return 0;
+      }
       pjets = shallowCopyJets(*pjetsin, m_ppjr);
       ++naction;
     } else {
@@ -462,8 +472,8 @@ const JetContainer* JetRecTool::build() const {
       for ( const Jet* poldjet : *pjetsin ) {
 #endif
         Jet* pnewjet = new Jet;
-        *pnewjet = *poldjet;
         pjets->push_back(pnewjet);
+        *pnewjet = *poldjet;
       }
       ++naction;
     }  // End list of options.
@@ -544,6 +554,7 @@ int JetRecTool::execute() const {
 
 template <typename TAux>
 int JetRecTool::record(const xAOD::JetContainer* pjets) const {
+  bool overwrite = m_outcoll == m_incoll;
   TAux* pjetsaux =
     dynamic_cast<TAux*>(pjets->getStore());
     ATH_MSG_DEBUG("Check Aux store: " << pjets << " ... " << &pjets->auxbase() << " ... " << pjetsaux );
@@ -551,25 +562,46 @@ int JetRecTool::record(const xAOD::JetContainer* pjets) const {
     ATH_MSG_ERROR("Unable to retrieve Aux container");
    return 2;
   }
-  ATH_MSG_VERBOSE("Recording new Jet Aux container.");
-  StatusCode sca = evtStore()->record(pjetsaux, m_outcoll+"Aux.");
-  if ( sca.isFailure() ) {
-    ATH_MSG_ERROR("Unable to write new Aux Jet collection to event store: " << m_outcoll);
-    return 3;
-  }
-  ATH_MSG_VERBOSE("Recording new Jet container.");
+  if ( overwrite ) {
 #ifdef XAOD_STANDALONE
-  // TEvent only records mutable containers.
-  xAOD::JetContainer* pmutjets = const_cast<xAOD::JetContainer*>(pjets);
-  StatusCode sc = evtStore()->record(pmutjets, m_outcoll);
+    ATH_MSG_ERROR("Conatainer overwrite is not supported in Root.");
 #else
-  StatusCode sc = evtStore()->record(pjets, m_outcoll);
+    ATH_MSG_VERBOSE("Overwiting Jet Aux container.");
+    StatusCode sca = evtStore()->overwrite(pjetsaux, m_outcoll+"Aux.", false, false);
+    if ( sca.isFailure() ) {
+      ATH_MSG_ERROR("Unable to overwrite Aux Jet collection in event store: " << m_outcoll);
+      return 3;
+    }
+    ATH_MSG_VERBOSE("Overwriting Jet container.");
+    xAOD::JetContainer* pmutjets = const_cast<xAOD::JetContainer*>(pjets);
+    StatusCode sc = evtStore()->overwrite(pmutjets, m_outcoll, false, false);
+    if ( sc.isFailure() ) {
+      ATH_MSG_ERROR("Unable to overwrite Jet collection in event store: " << m_outcoll);
+      return 4;
+    }
+    ATH_MSG_DEBUG("Created new Jet collection in event store: " << m_outcoll);
 #endif
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Unable to write new Jet collection to event store: " << m_outcoll);
-    return 4;
+  } else {
+    ATH_MSG_VERBOSE("Recording new Jet Aux container.");
+    StatusCode sca = evtStore()->record(pjetsaux, m_outcoll+"Aux.");
+    if ( sca.isFailure() ) {
+      ATH_MSG_ERROR("Unable to write new Aux Jet collection to event store: " << m_outcoll);
+      return 3;
+    }
+    ATH_MSG_VERBOSE("Recording new Jet container.");
+#ifdef XAOD_STANDALONE
+    // TEvent only records mutable containers.
+    xAOD::JetContainer* pmutjets = const_cast<xAOD::JetContainer*>(pjets);
+    StatusCode sc = evtStore()->record(pmutjets, m_outcoll);
+#else
+    StatusCode sc = evtStore()->record(pjets, m_outcoll);
+#endif
+    if ( sc.isFailure() ) {
+      ATH_MSG_ERROR("Unable to write new Jet collection to event store: " << m_outcoll);
+      return 4;
+    }
+    ATH_MSG_DEBUG("Created new Jet collection in event store: " << m_outcoll);
   }
-  ATH_MSG_DEBUG("Created new Jet collection in event store: " << m_outcoll);
   return 0;
 }
 

@@ -102,6 +102,9 @@ if jetFlags.useTracks():
 if jetFlags.useMuonSegments():
   emgetters += [jtm.gmusegget]
   lcgetters += [jtm.gmusegget]
+  empfgetters  += [jtm.gmusegget]
+  emcpfgetters += [jtm.gmusegget]
+  lcpfgetters += [jtm.gmusegget]
 # Add jet ghosts.
 if 1:
   for gettername in jetFlags.additionalTopoGetters():

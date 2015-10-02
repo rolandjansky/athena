@@ -1,10 +1,10 @@
-# myjets.py
+# cpjets.py
 #
 # David Adams
-# May 2014
+# May 2015
 #
-# These top-level job options demonstrate how a user can configure
-# jet finding
+# These top-level job options demonstrate how a user can copy and update
+# or directly update an existing jet container.
 
 #--------------------------------------------------------------
 # Input stream
@@ -101,9 +101,49 @@ if makeMyJets:
   jtm.addJetFinder("MyAntiKt4LCTopoJets", "AntiKt", 0.4, "mygetters", "mymods",
                    ghostArea=0.01 , ptmin=2000, ptminFilter=7000)
 
+# Dump the input jets before making modifications.
+from JetRec.JetRecConf import JetDumper
+jtm += JetDumper(
+  "in0jetdumper",
+  ContainerName = "AntiKt4LCTopoJets",
+  MaxObject = 500
+)
+jtm.jetrecs += [jtm.in0jetdumper]
+
 # Copy and calibrate jets.
 jtm.addJetCopier("NewAntiKt4LCTopoJets", "AntiKt4LCTopoJets", "cpmods",
                  ptminFilter=10000, alg="AntiKt", radius=0.4, inp ="LCTopo", shallow =False)
+
+# Dump originals after copy--there should be no change.
+from JetRec.JetRecConf import JetDumper
+jtm += JetDumper(
+  "in1jetdumper",
+  ContainerName = "AntiKt4LCTopoJets",
+  MaxObject = 500
+)
+jtm.jetrecs += [jtm.in1jetdumper]
+
+# Dump copies--they should be different
+from JetRec.JetRecConf import JetDumper
+jtm += JetDumper(
+  "newjetdumper",
+  ContainerName = "NewAntiKt4LCTopoJets",
+  MaxObject = 500
+)
+jtm.jetrecs += [jtm.newjetdumper]
+
+# Calibrate directly. Note that input and output container names are the same.
+jtm.addJetCopier("AntiKt4LCTopoJets", "AntiKt4LCTopoJets", "cpmods",
+                 ptminFilter=10000, alg="AntiKt", radius=0.4, inp ="LCTopo")
+
+# Dump originals again--Now they should have changed.
+from JetRec.JetRecConf import JetDumper
+jtm += JetDumper(
+  "in2jetdumper",
+  ContainerName = "AntiKt4LCTopoJets",
+  MaxObject = 500
+)
+jtm.jetrecs += [jtm.in2jetdumper]
 
 #--------------------------------------------------------------
 # Add jet reco to the algorithm sequence.
@@ -111,28 +151,3 @@ jtm.addJetCopier("NewAntiKt4LCTopoJets", "AntiKt4LCTopoJets", "cpmods",
 #--------------------------------------------------------------
 from JetRec.JetAlgorithm import addJetRecoToAlgSequence
 addJetRecoToAlgSequence()
-
-#--------------------------------------------------------------
-# Add tool to dump the new jet container to the log.
-#--------------------------------------------------------------
-from JetRec.JetRecConf import JetDumper
-from JetRec.JetAlgorithm import jetalg
-
-ToolSvc += JetDumper("inijetdumper")
-inijetdumper = ToolSvc.inijetdumper
-inijetdumper.ContainerName = "AntiKt4LCTopoJets"
-inijetdumper.MaxObject = 500
-jetalg.Tools += [inijetdumper]
-
-if makeMyJets:
-  ToolSvc += JetDumper("oldjetdumper")
-  oldjetdumper = ToolSvc.oldjetdumper
-  oldjetdumper.ContainerName = "MyAntiKt4LCTopoJets"
-  oldjetdumper.MaxObject = 500
-  jetalg.Tools += [oldjetdumper]
-
-ToolSvc += JetDumper("newjetdumper")
-newjetdumper = ToolSvc.newjetdumper
-newjetdumper.ContainerName = "NewAntiKt4LCTopoJets"
-newjetdumper.MaxObject = 500
-jetalg.Tools += [newjetdumper]

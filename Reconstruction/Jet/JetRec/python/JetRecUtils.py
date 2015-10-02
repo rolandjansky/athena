@@ -8,22 +8,27 @@ def retrieveAODList():
 
     if rec.doESD():
         return jetFlags.jetAODList()
+    # then we are merging or doing a AOD ?
+    # We can not simply copy what we have from input since some
+    # jobs starts from empty files. See ATEAM-191.
+    # We hard code the list here while waiting for a more robust solution
+    l = [
+        # event shape objects
+    'xAOD::EventShape#Kt4EMPFlowEventShape', 'xAOD::EventShape#Kt4EMTopoEventShape', 'xAOD::EventShape#Kt4LCTopoEventShape', 'xAOD::EventShape#NeutralParticleFlowIsoCentralEventShape', 'xAOD::EventShape#NeutralParticleFlowIsoForwardEventShape', 'xAOD::EventShape#ParticleFlowIsoCentralEventShape', 'xAOD::EventShape#ParticleFlowIsoForwardEventShape', 'xAOD::EventShape#TopoClusterIsoCentralEventShape', 'xAOD::EventShape#TopoClusterIsoForwardEventShape', 'xAOD::EventShapeAuxInfo#Kt4EMPFlowEventShapeAux.', 'xAOD::EventShapeAuxInfo#Kt4EMTopoEventShapeAux.', 'xAOD::EventShapeAuxInfo#Kt4LCTopoEventShapeAux.', 'xAOD::EventShapeAuxInfo#NeutralParticleFlowIsoCentralEventShapeAux.', 'xAOD::EventShapeAuxInfo#NeutralParticleFlowIsoForwardEventShapeAux.', 'xAOD::EventShapeAuxInfo#ParticleFlowIsoCentralEventShapeAux.', 'xAOD::EventShapeAuxInfo#ParticleFlowIsoForwardEventShapeAux.', 'xAOD::EventShapeAuxInfo#TopoClusterIsoCentralEventShapeAux.', 'xAOD::EventShapeAuxInfo#TopoClusterIsoForwardEventShapeAux.',
 
-    # else : just copy what's in input.
-    from RecExConfig.ObjKeyStore import objKeyStore
+     'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.',  'xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.', 'xAOD::JetAuxContainer#AntiKt3PV0TrackJetsAux.', 'xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.', 'xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.', 'xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.', 'xAOD::JetAuxContainer#AntiKt4PV0TrackJetsAux.', 'xAOD::JetAuxContainer#CamKt12LCTopoJetsAux.',
 
-    inputcontent = objKeyStore['inputFile'].list()
-    typeToSave = [ 'xAOD::JetContainer', 'xAOD::JetAuxContainer', 'xAOD::JetTrigAuxContainer' , 'xAOD::EventShape', 'xAOD::EventShapeAuxInfo' ]
+     'xAOD::JetContainer#AntiKt10LCTopoJets',  'xAOD::JetContainer#AntiKt2PV0TrackJets', 'xAOD::JetContainer#AntiKt3PV0TrackJets', 'xAOD::JetContainer#AntiKt4EMPFlowJets', 'xAOD::JetContainer#AntiKt4EMTopoJets', 'xAOD::JetContainer#AntiKt4LCTopoJets', 'xAOD::JetContainer#AntiKt4PV0TrackJets',  'xAOD::JetContainer#CamKt12LCTopoJets', 
+     ]
 
-    def saveThisObject(o):
-        # return True if o is of a desired type
-        if  "HLT_" in o:
-            return False
-        return any( o.startswith( typ ) for typ in typeToSave )
+    if rec.doTruth():
+        l += [
+            'xAOD::JetAuxContainer#AntiKt10TruthJetsAux.', 'xAOD::JetAuxContainer#AntiKt10TruthWZJetsAux.', 'xAOD::JetAuxContainer#AntiKt4TruthJetsAux.', 'xAOD::JetAuxContainer#AntiKt4TruthWZJetsAux.', 'xAOD::JetAuxContainer#CamKt12TruthJetsAux.', 'xAOD::JetAuxContainer#CamKt12TruthWZJetsAux.',
+            'xAOD::JetContainer#AntiKt10TruthJets', 'xAOD::JetContainer#AntiKt10TruthWZJets', 'xAOD::JetContainer#AntiKt4TruthJets', 'xAOD::JetContainer#AntiKt4TruthWZJets', 'xAOD::JetContainer#CamKt12TruthJets', 'xAOD::JetContainer#CamKt12TruthWZJets'            
+            ]
 
-    esdjets = [ o for o in inputcontent if saveThisObject(o) ]
+    return l 
 
-    return esdjets
 
 def buildJetAlgName(finder, mainParam):
     return finder + str(int(mainParam*10))

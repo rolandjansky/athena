@@ -33,6 +33,7 @@ JetDumper::JetDumper(std::string myname)
   declareProperty("FloatMoments", m_fmoms);
   declareProperty("IntMoments", m_imoms);
   declareProperty("BoolMoments", m_bmoms);
+  declareProperty("CBoolMoments", m_cbmoms);
   declareProperty("StringMoments", m_smoms);
   declareProperty("FourVectorMoments", m_fvmoms);
   declareProperty("ElementLinkMoments", m_elmoms);

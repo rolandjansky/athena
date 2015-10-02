@@ -237,14 +237,15 @@ class JetToolManager:
         outmods += [self.tools[tname]]
       # btag - btagging
       elif mod == "btag":
-        from BTagging.BTaggingConfiguration import setupJetBTaggerTool
+        from BTagging.BTaggingConfiguration import getConfiguration
+        ConfInstance = getConfiguration()
         from AthenaCommon.AppMgr import ToolSvc 
         sinp = getters[0].Label
         salg = finder.JetAlgorithm
         srad = str(int(10*finder.JetRadius))
         bspec = salg + srad + sinp
         print self.prefix + "Scheduling btagging for " + bspec
-        btagger = setupJetBTaggerTool(ToolSvc, bspec)
+        btagger = ConfInstance.setupJetBTaggerTool(ToolSvc, jet)
         print btagger
         self.add(btagger)
         outmods += [btagger]

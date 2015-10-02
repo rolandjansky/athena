@@ -48,13 +48,6 @@ class JetRecCalibrationFinder:
     "pflow"           : "PFlowJES_September2014.config"
   }
 
-  # Array of configurations for which which we must flip "EMTopo" --> "TopoEM"
-  emFlipConfigs = [
-    "JES_Full2012dataset_Preliminary_Jan13.config",
-    "JES_Full2012dataset_Preliminary_Trigger.config",
-    "JES_Full2012dataset_Preliminary_Trigger_NoPileup.config"
-  ]
-
   def find(self, alg, rad, inpin, seq, configkeyin, evsprefix):
     from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
     from JetRec.JetRecStandardToolManager import jtm
@@ -66,9 +59,6 @@ class JetRecCalibrationFinder:
       configfile = self.configDict[configkey]
     else:
       configfile = configkey
-    # If needed, flip RMTopo --> TopoEM
-    if configfile in self.emFlipConfigs:
-      if inp == "EMTopo": inp = "TopoEM"
     # Assign name for tool
     jetdefn = alg + str(int(10*rad+0.1)) + inp
     tname = "calib_" + jetdefn + "_" + configkey.replace(".","_") + "_" + seq
