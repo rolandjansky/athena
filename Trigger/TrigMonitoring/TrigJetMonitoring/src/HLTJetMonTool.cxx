@@ -1740,7 +1740,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
      
      for(auto jcont : JetFeatureContainers) {
 
-       ATH_MSG_INFO("Loop Over Features");
+       // ATH_MSG_INFO("Loop Over Features");
 
        for (auto j : *jcont.cptr()) {
 
@@ -2898,7 +2898,7 @@ StatusCode HLTJetMonTool::proc( ) {
 // LS 24 Jan 2014 - Interval checking now managed in ManagedMonitorTool so do nothing.
 //  if(isEndOfEventsBlock){}
 //  if(isEndOfLumiBlock){}
- 
+    
     if (endOfRun){
 
     TH1      *h(0);
@@ -2917,10 +2917,10 @@ StatusCode HLTJetMonTool::proc( ) {
 	setCurrentMonGroup(mgrp);
 	
 	if((h  = hist(Form("%sSigma_vs_LB",lvl.c_str())))){      
-	  h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
+	  if (v_lbn.size()>0) h->GetXaxis()->SetRangeUser((*std::min_element(v_lbn.begin(),v_lbn.end()))-1,(*std::max_element(v_lbn.begin(),v_lbn.end()))+1);
 	}
 
-
+ 
 	//::::::::::::::::::::::::::::::::FILL TURN-ON CURVES::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 	std::string malg = Form("%s%d",m_OFpfx.c_str(),k);
@@ -3019,7 +3019,7 @@ StatusCode HLTJetMonTool::proc( ) {
 	    }
 	  }
 	} //End Loop over HLT
-	
+
 	//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 	
       }//if jetcoll
@@ -3028,17 +3028,19 @@ StatusCode HLTJetMonTool::proc( ) {
 
     //::::::::::::::::::::::::::::::::::::::SET HISTOGRAM PROPERTIES:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
+ 
+
 
     setCurrentMonGroup(m_monGroups["L1"]);
-  
+ 
     if((h = hist("L1Sigma_vs_LB"))) { //basic L1
-      h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
-    }
+           if (v_lbn.size()>0) h->GetXaxis()->SetRangeUser((*std::min_element(v_lbn.begin(),v_lbn.end()))-1,(*std::max_element(v_lbn.begin(),v_lbn.end()))+1);
+     }
 
     for(JetSigIter l1 = m_basicL1Trig.begin(); l1 != m_basicL1Trig.end(); ++l1) { //L1 Chain
       setCurrentMonGroup(m_monGroups[(*l1).first]);
       if((h  = hist("L1Sigma_vs_LB"))){
-	h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
+	if (v_lbn.size()>0) h->GetXaxis()->SetRangeUser((*std::min_element(v_lbn.begin(),v_lbn.end()))-1,(*std::max_element(v_lbn.begin(),v_lbn.end()))+1);
       }     
     }
 
@@ -3054,7 +3056,7 @@ StatusCode HLTJetMonTool::proc( ) {
 	setCurrentMonGroup(mgrp);
 	
 	if((h  = hist(Form("%sSigma_vs_LB",lvl.c_str())))){    
-	  h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
+	  if (v_lbn.size()>0) h->GetXaxis()->SetRangeUser((*std::min_element(v_lbn.begin(),v_lbn.end()))-1,(*std::max_element(v_lbn.begin(),v_lbn.end()))+1);
 	}
       }
     }
@@ -3063,13 +3065,13 @@ StatusCode HLTJetMonTool::proc( ) {
       setCurrentMonGroup(m_monGroups[(*hltit).first]);
         
       if((h  = hist("HLTSigma_vs_LB"))){
-	h->GetXaxis()->SetRangeUser(*std::min_element(v_lbn.begin(),v_lbn.end())-1,*std::max_element(v_lbn.begin(),v_lbn.end())+1);
+	if (v_lbn.size()>0) h->GetXaxis()->SetRangeUser((*std::min_element(v_lbn.begin(),v_lbn.end()))-1,(*std::max_element(v_lbn.begin(),v_lbn.end()))+1);
       } 
     } 
     
     //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
- 
-
+    
+    
     } //if endOfRun
     
     return StatusCode::SUCCESS;
