@@ -116,7 +116,7 @@ namespace met {
   // }
 
   bool METTrackFilterTool::isGoodEoverP(const xAOD::TrackParticle* trk,
-					const std::vector<const xAOD::TrackParticle*>& trkList,
+					const std::vector<const xAOD::IParticle*>& trkList,
 					const xAOD::CaloClusterContainer* clusters) const {
 
     if( (fabs(trk->eta())<1.5 && trk->pt()>200e3) ||
@@ -157,7 +157,7 @@ namespace met {
       } else {
 	// non-isolated track cuts
 	float trkptsum = ptcone20+trk->pt();
-	if(etcone10/trkptsum<0.6 && trk->pt()/trkptsum>0.6) return false;
+	if(EoverP/trkptsum<0.6 && ptcone20/trkptsum<0.6) return false;
       }
 
     }
@@ -281,7 +281,6 @@ namespace met {
 					       const std::vector<const xAOD::TrackParticle*>& softTracks) const {
 
     vector<const IParticle*> dummyList;
-    MissingETBase::Types::weight_t unitWeight(1.,1.,1.);
 
     const MissingETComponent* metComp = MissingETComposition::getComponent(metMap,metTerm);
     if(!metComp) {
@@ -290,15 +289,11 @@ namespace met {
     }
     // Loop over the tracks and select only good ones
     for( const auto& trk : softTracks ) {
+      MissingETBase::Types::weight_t trackWeight = metComp->weight(trk);
       // Could/should use common implementation of addToMET here -- derive builder and refiner from a common base tool?
       bool passFilters = true;
       //      if(m_trk_doPVsel && !isPVTrack(trk,(*vxCont)[0])) passFilters = false;
-      const CaloClusterContainer* tcCont(0);
-      if( evtStore()->retrieve(tcCont, m_cl_inputkey).isFailure() ) {
-	ATH_MSG_WARNING("Unable to retrieve topocluster container " << m_cl_inputkey << " for overlap removal");
-	return StatusCode::FAILURE;
-      }
-      if(m_trk_doEoverPsel && !isGoodEoverP(trk,softTracks,tcCont)) passFilters = false;
+      //      if(m_trk_doEoverPsel && !isGoodEoverP(trk,softTracks,cl_cont)) passFilters = false;
       if(m_trk_doPVsel) {
 	if(!(m_trkseltool->accept( *trk, pv ))) passFilters=false;
       } else {
@@ -321,14 +316,16 @@ namespace met {
 	  //electron track fails, replace with electron pt
           const Electron* el = selElectrons[el_index];
 
-          metTerm->add(el->pt()*cos(trk->phi()),
-              el->pt()*sin(trk->phi()),
-              el->pt());
-          MissingETComposition::insert(metMap,metTerm,el,dummyList,unitWeight);
+          metTerm->add(el->pt()*cos(trk->phi())*trackWeight.wpx(),
+              el->pt()*sin(trk->phi())*trackWeight.wpy(),
+              el->pt()*trackWeight.wet());
+          MissingETComposition::insert(metMap,metTerm,el,dummyList,trackWeight);
         } else {
-	  metTerm->add(trk->pt()*cos(trk->phi()),trk->pt()*sin(trk->phi()),trk->pt());
-	  MissingETComposition::insert(metMap,metTerm,trk,dummyList,unitWeight);
-	  ATH_MSG_VERBOSE("METTerm " << metTerm->name() <<" sumpt: " << metTerm->sumet());
+	  ATH_MSG_VERBOSE("Add track with pt " << trk->pt() <<" to MET.");
+	  metTerm->add(trk->pt()*cos(trk->phi())*trackWeight.wpx(),
+		       trk->pt()*sin(trk->phi())*trackWeight.wpy(),
+		       trk->pt()*trackWeight.wet());
+	  MissingETComposition::insert(metMap,metTerm,trk,dummyList,trackWeight);
         }
       }
     }
