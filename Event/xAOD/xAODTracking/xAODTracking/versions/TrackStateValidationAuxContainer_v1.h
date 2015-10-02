@@ -35,7 +35,7 @@ namespace xAOD {
       TrackStateValidationAuxContainer_v1();
 
    private:
-      std::vector< int >       type;
+      std::vector< char >      type;
       std::vector< uint64_t >  detElementId;
       std::vector< char >      detType;
 

@@ -35,9 +35,9 @@ namespace xAOD {
     /// @name Identification 
     /// @{
     /// Returns the type (measurement, outlier, hole)
-    int type() const;
+    char type() const;
     /// Sets the type (measurement, outlier, hole)
-    void setType(int type);
+    void setType(char type);
     /// Returns the detector element identifier
     uint64_t detElementId() const;
     /// Sets the detector element identifier
