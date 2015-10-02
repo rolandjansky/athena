@@ -35,15 +35,25 @@ def Initiate(ConfInstance=None):
     return True
   
   from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-  # The Run() parameter only exists for ATLAS-R1(...) and ATLAS-R2(...) geo tags,
-  # not for ATLAS-GEO(...) and ATLAS-IBL(...) ones. Hence if Run() is undefined,
-  # presence of IBL is used to switch between Run1/Run2
-  if (geoFlags.Run() == "RUN1" or (geoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False)):
+  from IOVDbSvc.CondDB import conddb
+  btagrun1=False
+  if conddb.dbdata == 'COMP200':
+    btagrun1=True
+  elif conddb.isMC:
+    # The Run() parameter only exists for ATLAS-R1(...) and ATLAS-R2(...) geo tags,
+    # not for ATLAS-GEO(...) and ATLAS-IBL(...) ones. Hence if Run() is undefined,
+    # presence of IBL is used to switch between Run1/Run2
+    btagrun1 = (geoFlags.Run() == "RUN1" or (geoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
+  if (btagrun1):
     print ConfInstance.BTagTag()+' - INFO - Setting up Run 1 configuration'
     BTaggingFlags.JetFitterNN=True
     BTaggingFlags.SV2    =True
     BTaggingFlags.JetFitterCharm=False
-    
+    BTaggingFlags.JetVertexCharge=False
+    BTaggingFlags.MVb=False
+  else:
+    print ConfInstance.BTagTag()+' - INFO - Setting up Run 2 configuration'
+
   if ConfInstance.getTool("BTagCalibrationBrokerTool"):
     print ConfInstance.BTagTag()+' - INFO - BTagCalibrationBrokerTool already exists prior to default initialization; assuming user set up entire initialization him/herself. Note however that if parts of the initalization were not set up, and a later tool requires them, they will be set up at that point automatically with default settings.'
     ConfInstance._Initialized = True
@@ -360,8 +370,8 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
 
 #          if BTaggingFlags.SoftEl:
 #            addTool('SoftElectronTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-#          if BTaggingFlags.SoftMu:
-#            addTool('SoftMuonTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if BTaggingFlags.SoftMu:
+    ConfInstance.addTool('SoftMuonTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 #          if BTaggingFlags.SoftMuChi2:
 #            addTool('SoftMuonTagChi2', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 
@@ -431,10 +441,24 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
     ConfInstance.addTool('MV2mTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
   if 'MV2mFlip' in TaggerList:
     ConfInstance.addTool('MV2mFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV2c10hp' in TaggerList:
+    ConfInstance.addTool('MV2c10hpTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'MV2c10hpFlip' in TaggerList:
+    ConfInstance.addTool('MV2c10hpFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
   if 'JetVertexCharge' in TaggerList:
     ConfInstance.addTool('JetVertexCharge', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'ExKtbb_Hbb_MV2Only' in TaggerList:
+    ConfInstance.addTool('ExKtbb_Hbb_MV2OnlyTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'ExKtbb_Hbb_MV2andJFDRSig' in TaggerList:
+    ConfInstance.addTool('ExKtbb_Hbb_MV2andJFDRSigTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+  if 'ExKtbb_Hbb_MV2andTopos' in TaggerList:
+    ConfInstance.addTool('ExKtbb_Hbb_MV2andToposTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 #          if BTaggingFlags.MV2Flip:
 #            addTool('MV2FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+#  if 'DL1' in TaggerList:
+#    ConfInstance.addTool('DL1Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+#  if 'DL1Flip' in TaggerList:
+#    ConfInstance.addTool('DL1FlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 
   # -- b-tagging tool is now fully configured.
 
@@ -682,6 +706,10 @@ def SetupJetCollectionTrig(JetCollection, TaggerList, ConfInstance = None):
     ConfInstance.addTool('MV2mFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
   if 'JetVertexCharge' in TaggerList:   #LC FIXME
     ConfInstance.addTool('JetVertexCharge', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+#  if 'DL1Tag' in TaggerList:   
+#    ConfInstance.addTool('DL1Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+#  if 'DL1FlipTag' in TaggerList:   
+#    ConfInstance.addTool('DL1Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 
   if BTaggingFlags.OutputLevel < 3:
     ConfInstance.printAllTools()

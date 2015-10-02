@@ -258,7 +258,7 @@ namespace Analysis {
 
 
     std::vector<ElementLink<xAOD::TrackParticleContainer> > TrkList;
-    float    mass = -1., energyfrc = -1., energyTrk=-1;
+    float    mass = -1., energyfrc = -1., energyTrk=-1, dsttomatlayer = -1; 
     int  n2trk = -1, npsec = -1; //npprm = -1;
 
     std::vector< ElementLink< xAOD::VertexContainer > > SVertexLinks;
@@ -297,11 +297,13 @@ namespace Analysis {
         energyfrc = myVertexInfoVKal->energyFraction();
         n2trk = myVertexInfoVKal->n2trackvertices();
         energyTrk =  myVertexInfoVKal->energyTrkInJet();
+	dsttomatlayer= myVertexInfoVKal->dstToMatLay();
       }
 
 
 
       newBTag->setVariable<float>(basename, "energyTrkInJet", energyTrk);
+      newBTag->setVariable<float>(basename, "dstToMatLay", dsttomatlayer);
 
       if("SV1" == basename){
         //newBTag->setTaggerInfo(npprm, xAOD::BTagInfo::SV0_NGTinJet);

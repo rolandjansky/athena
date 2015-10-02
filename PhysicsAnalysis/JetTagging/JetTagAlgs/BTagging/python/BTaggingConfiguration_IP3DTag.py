@@ -5,7 +5,12 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 from AtlasGeoModel.InDetGMJobProperties import GeometryFlags as geoFlags
-btagrun1 = (geoFlags.Run() == "RUN1" or (geoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
+from IOVDbSvc.CondDB import conddb
+btagrun1=False
+if conddb.dbdata == 'COMP200':
+    btagrun1=True
+elif conddb.isMC:
+    btagrun1 = (geoFlags.Run() == "RUN1" or (geoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
 
 metaIP3DTag = { 'IsATagger'         : True,
                 'xAODBaseName'      : 'IP3D',

@@ -10,9 +10,11 @@ metaJetVertexCharge = { 'IsATagger'           : True,
                                                  'BTagTrackToVertexTool',   #LC FIXME  check if it works  
                                                  'NewJetFitterVxFinder',
                                                  'BTagCalibrationBrokerTool',
+                                                 'MuonSelectorTool',
                                                  ],
                         'CalibrationFolders'  : ['JetVertexCharge',], 
-                        'PassByPointer'       : {'calibrationTool' : 'BTagCalibrationBrokerTool'},
+                        'PassByPointer'       : {'calibrationTool' : 'BTagCalibrationBrokerTool',
+                                                 'muonSelectorTool': 'MuonSelectorTool' },
                         'ToolCollection'      : 'JetVertexCharge' }
 
 def toolJetVertexCharge(name, useBTagFlagsDefaults = True, **options):
@@ -37,6 +39,7 @@ def toolJetVertexCharge(name, useBTagFlagsDefaults = True, **options):
     CutIBLHits                          default: 0
     CutSCTHits                          default: 4
     CutSharedHits                       default: 2
+    MuonQuality                         default: xAOD::Muon::Medium
 
 
     input:             name: The name of the tool (should be unique).
@@ -61,6 +64,7 @@ def toolJetVertexCharge(name, useBTagFlagsDefaults = True, **options):
                      'CutIBLHits'                       : 0,
                      'CutSCTHits'                       : 4,
                      'CutSharedHits'                    : 2,
+                     'MuonQuality'                      : 2,
                     }
         if(BTaggingFlags.Runmodus == 'reference'): 
             defaults['BTagJetEtamin'] = 2.5  
@@ -70,3 +74,25 @@ def toolJetVertexCharge(name, useBTagFlagsDefaults = True, **options):
     from JetTagTools.JetTagToolsConf import Analysis__JetVertexCharge
     return Analysis__JetVertexCharge(**options)
 
+
+
+
+metaMuonSelectorTool = {  'ToolCollection' : 'JetVertexCharge' }
+
+def toolMuonSelectorTool(name, useBTagFlagsDefaults = True, **options):
+    """Sets up the CP MuonSelector tool and returns it.
+
+    The following options have BTaggingFlags defaults:
+
+    OutputLevel                         default: BTaggingFlags.OutputLevel
+    MaxEta                              default: 2.7"""
+    
+    if useBTagFlagsDefaults:
+        defaults = { 'OutputLevel'            : BTaggingFlags.OutputLevel,
+                     'MaxEta'                 : 2.7 ,
+                     }
+        for option in defaults:
+            options.setdefault(option, defaults[option])
+    options['name'] = name
+    from MuonSelectorTools.MuonSelectorToolsConf import CP__MuonSelectionTool 
+    return CP__MuonSelectionTool(**options)
