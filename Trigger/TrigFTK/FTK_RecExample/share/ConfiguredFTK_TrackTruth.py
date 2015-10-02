@@ -20,6 +20,7 @@ class  ConfiguredFTK_TrackTruth:
         #
         # --- Enable the detailed track truth
         #
+        print ' ConfiguredFTK_TrackTruth Tracks: ', Tracks, ' DetailedTruth ', DetailedTruth, ' TracksTruth ', TracksTruth
         
         from InDetTruthAlgs.InDetTruthAlgsConf import InDet__InDetDetailedTrackTruthMaker
         theFTK_DetailedTruthMaker = InDet__InDetDetailedTrackTruthMaker(name                   = DetailedTruth+"Maker",
@@ -30,7 +31,7 @@ class  ConfiguredFTK_TrackTruth:
                                                                         TruthNameTRT           = "")
         topSequence += theFTK_DetailedTruthMaker
         
-
+        print theFTK_DetailedTruthMaker        
         #
         # --- Detailed to old TrackTruth
         #
@@ -44,7 +45,7 @@ class  ConfiguredFTK_TrackTruth:
         # --- only add this once !!!
         if not hasattr(ToolSvc, "FTK_TruthMatchTool"):
             ToolSvc += theFTK_TruthMatchSimilarityTool
-
+            print theFTK_TruthMatchSimilarityTool
 
         from TrkTruthAlgs.TrkTruthAlgsConf import TrackTruthSimilaritySelector
         theFTK_TruthSimilaritySelector = TrackTruthSimilaritySelector(name                     = TracksTruth+"Selector",
@@ -52,7 +53,7 @@ class  ConfiguredFTK_TrackTruth:
                                                                       OutputName               = TracksTruth,
                                                                       TrackTruthSimilarityTool = theFTK_TruthMatchSimilarityTool)
         topSequence += theFTK_TruthSimilaritySelector
-
+        print theFTK_TruthSimilaritySelector
 
         # --- remember imput
         self.__Tracks        = Tracks
