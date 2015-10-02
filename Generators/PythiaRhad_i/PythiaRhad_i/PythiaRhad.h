@@ -71,6 +71,7 @@ public:
   bool m_run_stop_hadrons;
   bool m_run_sbottom_hadrons;
   double m_gluino_ball_prob;
+  bool m_enable_after_initialize;
 
   /// @name For StoppedGluino simulation ...
 
