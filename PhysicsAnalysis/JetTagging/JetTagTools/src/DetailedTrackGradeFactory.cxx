@@ -258,12 +258,10 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
       if (!track.summaryValue(nps, xAOD::numberOfPixelSharedHits)){
 	ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfPixelSharedHists for TrackGrade!");
       }
-      if(nps < 0) nps = 0;
 
       if (!track.summaryValue(nss, xAOD::numberOfSCTSharedHits)){
 	ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfSCTSharedHists for TrackGrade!");
       }
-      if(nss < 0) nss = 0;
       int nsht =  nps+nss ;
       if(nbs>m_nSharedBLayer) {
 	sharedClass = true;

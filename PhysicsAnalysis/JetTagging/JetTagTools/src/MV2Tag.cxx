@@ -52,6 +52,7 @@ namespace Analysis {
     declareProperty("inputIP3DSourceName", m_ip3d_infosource = "IP3D");
     declareProperty("inputJFSourceName", m_jftNN_infosource = "JetFitter");
     declareProperty("inputJFProbSourceName", m_jfprob_infosource = "JetFitterCombNN");
+    declareProperty("inputSoftMuonSourceName", m_softmuon_infosource = "SMT");
     declareProperty("xAODBaseName",      m_xAODBaseName);//"MV2c20" or etc.
     // which calibration folder to use 
     declareProperty("taggerNameBase", m_taggerNameBase = "MV2");
@@ -253,7 +254,7 @@ namespace Analysis {
 	return StatusCode::SUCCESS;	
       }
 
-      ATH_MSG_WARNING("#BTAG# MV2 m_useEgammaMethodMV2= "<<m_useEgammaMethodMV2 );
+      ATH_MSG_VERBOSE("#BTAG# MV2 m_useEgammaMethodMV2= "<<m_useEgammaMethodMV2 );
 
       if (!m_useEgammaMethodMV2) {
 	// now configure the TMVAReaders:
@@ -323,6 +324,7 @@ namespace Analysis {
 	else {
 	  ATH_MSG_WARNING("#BTAG# No TTree with name: "<<m_treeName<<" exists in the calibration file.. Disabling algorithm.");
 	  m_disableAlgo=true;
+	  delete bdt;
 	  return StatusCode::SUCCESS;
 	}
 	
@@ -419,6 +421,7 @@ namespace Analysis {
       m_ip3   =BTag->calcLLR(ip3_pb,ip3_pu);
       m_ip3_c =BTag->calcLLR(ip3_pb,ip3_pc);
       m_ip3_cu=BTag->calcLLR(ip3_pc,ip3_pu);
+      /// compute the new variable here
     }
 
     /*** Accessing SV1 output variables ***/
@@ -531,6 +534,7 @@ namespace Analysis {
 	status &= BTag->variable<int>(m_sv1_infosource  , "NGTinSvx", sv1_ntkv);
 	status &= BTag->variable<float>(m_sv1_infosource, "normdist" , m_sv1_sig3);
       }
+      status &= BTag->variable<float>(m_sv1_infosource, "dstToMatLay" , m_sv1_distmatlay);
       m_sv1_n2t   = sv1_n2t;
       m_sv1_ntkv  = sv1_ntkv;
     }
@@ -576,6 +580,9 @@ namespace Analysis {
       m_jf_ntrkv  = jf_ntrkv;
       m_jf_n2tv   = jf_n2tv;
       m_jf_dR     = m_jf_dphi==-10 and m_jf_deta==-10 ? -1 : m_jf_dR = hypot(m_jf_dphi,m_jf_deta);
+      // new jf variables
+      status &= BTag->variable<float>(m_jftNN_infosource, "massUncorr" , m_jf_mass_unco);
+      status &= BTag->variable<float>(m_jftNN_infosource, "dRFlightDir", m_jf_dR_flight);
     }
 
     /*** Generating MVb variables ***/
@@ -642,6 +649,17 @@ namespace Analysis {
       m_sv_scaled_efc  = m_sv1_ntkv>0               ? m_sv1_efrc * (static_cast<float>(ntrks) / m_sv1_ntkv)                : -1;
       m_jf_scaled_efc  = m_jf_ntrkv + m_jf_nvtx1t>0 ? m_jf_efrc * (static_cast<float>(ntrks) / (m_jf_ntrkv + m_jf_nvtx1t)) : -1;
     }
+
+    /*** Retrieving soft muon variables ***/
+    BTag->variable<float>(m_softmuon_infosource, "mu_pt"           , m_sm_mu_pt          );
+    BTag->variable<float>(m_softmuon_infosource, "dR"              , m_sm_dR             );
+    BTag->variable<float>(m_softmuon_infosource, "qOverPratio"     , m_sm_qOverPratio    );
+    BTag->variable<float>(m_softmuon_infosource, "mombalsignif"    , m_sm_mombalsignif   );
+    BTag->variable<float>(m_softmuon_infosource, "scatneighsignif" , m_sm_scatneighsignif);
+    BTag->variable<float>(m_softmuon_infosource, "pTrel"           , m_sm_pTrel          );
+    BTag->variable<float>(m_softmuon_infosource, "mu_d0"           , m_sm_mu_d0          );
+    BTag->variable<float>(m_softmuon_infosource, "mu_z0"           , m_sm_mu_z0          );
+    BTag->variable<float>(m_softmuon_infosource, "ID_qOverP"       , m_sm_ID_qOverP      );
 
     //add additional variables to b-tagging object
     if(m_decorateBTaggingObj) {
@@ -781,6 +799,7 @@ namespace Analysis {
      m_ip3=-30;
      m_ip3_c=-30;
      m_ip3_cu=-30;
+     m_ip3_2hitGradeFrac=-0.1;
      m_sv1=-10;
      m_sv1_c=-10;
      m_sv1_cu=-10;
@@ -792,7 +811,10 @@ namespace Analysis {
      m_sv1_L3d=-100;
      m_sv1_sig3=-100;
      m_sv1_dR=-1;
+     m_sv1_distmatlay=-1;
      m_jf_dR=-1;
+     m_jf_dR_flight=-1;
+     m_jf_mass_unco=-1000;
      m_ip2_pu=-1; 
      m_ip2_pb=-1; 
      m_ip2_pc=-1; 
@@ -879,7 +901,8 @@ namespace Analysis {
 		  ", sv1_Lxy= "    << m_sv1_Lxy    <<
 		  ", sv1_L3d= "    << m_sv1_L3d    << 
 		  ", sv1_sig3= "   << m_sv1_sig3   <<
-		  ", sv1_dR= "     << m_sv1_dR);
+		  ", sv1_dR= "     << m_sv1_dR	   <<
+		  ", sv1_distmatlay= "     << m_sv1_distmatlay);
     ATH_MSG_DEBUG("#BTAG# MV2 jf inputs: " <<
 		  "  jf_mass= "    << m_jf_mass    <<
 		  ", jf_efrc= "    << m_jf_efrc    <<
@@ -890,7 +913,10 @@ namespace Analysis {
 		  ", jf_dphi= "    << m_jf_dphi    <<
 		  ", jf_deta= "    << m_jf_deta    <<
 		  ", jf_dR= "      << m_jf_dR      <<
-		  ", jf_sig3= "    << m_jf_sig3);
+		  ", jf_sig3= "    << m_jf_sig3    <<
+		  ", jf_dR_flight= " << m_jf_dR_flight <<
+		  ", jf_mass_unco= " << m_jf_mass_unco
+		  );
     ATH_MSG_DEBUG("#BTAG# MV2 mvb inputs: " <<
 		  "  width= "         <<m_width         <<
 		  ", n_trk_sigd0cut= "<<m_n_trk_sigd0cut<<
@@ -963,6 +989,7 @@ namespace Analysis {
       else if (inputVars.at(ivar)=="sv1_L3d"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_L3d  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_L3d  ); nConfgVar++; }
       else if (inputVars.at(ivar)=="sv1_sig3" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_sig3 ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_sig3 ); nConfgVar++; }
       else if (inputVars.at(ivar)=="sv1_dR"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_dR   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_dR   ); nConfgVar++; }
+      else if (inputVars.at(ivar)=="sv1_distmatlay"   ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv1_distmatlay   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv1_distmatlay   ); nConfgVar++; }
       //JetFitter input variables		  			                                       	  								      
       else if (inputVars.at(ivar)=="jf_mass"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_mass  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_mass  ); nConfgVar++; }
       else if (inputVars.at(ivar)=="jf_efrc"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_efrc  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_efrc  ); nConfgVar++; }
@@ -974,6 +1001,9 @@ namespace Analysis {
       else if (inputVars.at(ivar)=="jf_deta"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_deta  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_deta  ); nConfgVar++; }
       else if (inputVars.at(ivar)=="jf_dR"    ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_dR    ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_dR    ); nConfgVar++; }
       else if (inputVars.at(ivar)=="jf_sig3"  ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_sig3  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_sig3  ); nConfgVar++; }
+      //new jf variables
+      else if (inputVars.at(ivar)=="jf_dR_flight") { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_dR_flight) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_dR_flight); nConfgVar++; }
+      else if (inputVars.at(ivar)=="jf_mass_unco") { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_mass_unco) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_mass_unco); nConfgVar++; }
       //MVb input variables		  			                                       	  								      
       else if (inputVars.at(ivar)=="width"         ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_width           ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_width           ); nConfgVar++; }
       else if (inputVars.at(ivar)=="n_trk_sigd0cut") { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_n_trk_sigd0cut  ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_n_trk_sigd0cut  ); nConfgVar++; }
@@ -981,6 +1011,16 @@ namespace Analysis {
       else if (inputVars.at(ivar)=="trk3_z0sig"    ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_trk3_z0sig      ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_trk3_z0sig      ); nConfgVar++; }
       else if (inputVars.at(ivar)=="sv_scaled_efc" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sv_scaled_efc   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sv_scaled_efc   ); nConfgVar++; }
       else if (inputVars.at(ivar)=="jf_scaled_efc" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_jf_scaled_efc   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_jf_scaled_efc   ); nConfgVar++; }
+      //soft muon input variables		  			                                       	  								      
+      else if (inputVars.at(ivar)=="sm_mu_pt"           ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_mu_pt          ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_mu_pt          ); nConfgVar++; }
+      else if (inputVars.at(ivar)=="sm_dR"              ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_dR             ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_dR             ); nConfgVar++; }
+      else if (inputVars.at(ivar)=="sm_qOverPratio"     ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_qOverPratio    ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_qOverPratio    ); nConfgVar++; }
+      else if (inputVars.at(ivar)=="sm_mombalsignif"    ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_mombalsignif   ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_mombalsignif   ); nConfgVar++; }
+      else if (inputVars.at(ivar)=="sm_scatneighsignif" ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_scatneighsignif) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_scatneighsignif); nConfgVar++; }
+      else if (inputVars.at(ivar)=="sm_pTrel"           ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_pTrel          ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_pTrel          ); nConfgVar++; }
+      else if (inputVars.at(ivar)=="sm_mu_d0"           ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_mu_d0          ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_mu_d0          ); nConfgVar++; }
+      else if (inputVars.at(ivar)=="sm_mu_z0"           ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_mu_z0          ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_mu_z0          ); nConfgVar++; }
+      else if (inputVars.at(ivar)=="sm_ID_qOverP"       ) { m_useEgammaMethodMV2 ? inputPointers.push_back(&m_sm_ID_qOverP      ) : tmvaReader->AddVariable(inputVars.at(ivar).data(),&m_sm_ID_qOverP      ); nConfgVar++; }
       else {
 	ATH_MSG_WARNING( "#BTAG# \""<<inputVars.at(ivar)<<"\" <- This variable found in xml/calib-file does not match to any variable declared in MV2... the algorithm will be 'disabled'.");//<<alias<<" "<<author);
 	badVariableFound=true;

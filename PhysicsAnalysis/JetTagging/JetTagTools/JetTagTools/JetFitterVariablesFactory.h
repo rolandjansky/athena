@@ -58,7 +58,7 @@ namespace Analysis {
     
     void fill(xAOD::BTagging* BTag, const std::string& basename, float mass_uncorr,
               int nVTX, int nSingleTracks, int nTracksAtVtx, float mass, float energyFraction,
-              float significance3d, float deltaeta, float deltaphi, float chi2, int ndof) const;
+              float significance3d, float deltaeta, float deltaphi, float chi2, int ndof, float deltaRFlightDir) const;
 
   };
   

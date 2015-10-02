@@ -26,6 +26,7 @@
 
 #include "JetTagTools/JetTagUtils.h"
 #include "JetTagCalibration/CalibrationBroker.h"
+#include "MuonSelectorTools/IMuonSelectionTool.h" 
 #include "TMVA/Reader.h"
 #include "TMVA/Types.h"
 #include "TList.h"
@@ -48,6 +49,7 @@ namespace Analysis {
   JetVertexCharge::JetVertexCharge(const std::string& t, const std::string& n, const IInterface*  p) :
     AthAlgTool(t,n,p),
     m_runModus("analysis"), 
+    m_muonSelectorTool("JVC_MuonSelectorTool"),
     m_calibrationTool("BTagCalibrationBroker")
   { 
 
@@ -55,6 +57,7 @@ namespace Analysis {
     declareProperty("Runmodus",                 m_runModus);
 
     declareProperty("calibrationTool", 		m_calibrationTool);
+    declareProperty("muonSelectorTool", 	m_muonSelectorTool);
     declareProperty("taggerNameBase",		m_taggerNameBase = "JetVertexCharge");
 
     declareProperty("useForcedCalibration",  	m_doForcedCalib = false);
@@ -78,6 +81,8 @@ namespace Analysis {
     declareProperty("CutSCTHits",		m_CutSCTHits= 4  ); 
     declareProperty("CutSharedHits",		m_CutSharedHits= 2 ); 
 
+    declareProperty("MuonQuality",		m_muonQualityCut = xAOD::Muon::Medium ); 
+
     declareInterface< ITagTool >(this);
 
   }
@@ -97,6 +102,15 @@ namespace Analysis {
       return sc;
     } else {
       ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_calibrationTool);
+    }
+
+    //Retrieve the Muon Selectot tool
+    sc = m_muonSelectorTool.retrieve();
+    if ( sc.isFailure() ) {
+      ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_muonSelectorTool);
+      return sc;
+    } else {
+      ATH_MSG_INFO("#BTAG# Retrieved tool " << m_muonSelectorTool);  
     }
 
    //MVA xml files
@@ -139,6 +153,7 @@ namespace Analysis {
     m_histoList_pos.clear();
     m_histoList_neg.clear();
 
+    initializeVariablePtrs();
 
     return StatusCode::SUCCESS;
   }
@@ -422,6 +437,11 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
      for( unsigned int mu=0; mu< muonsInJet.size(); mu++)  {
         const xAOD::Muon *m = *(muonsInJet.at(mu));
 
+         xAOD::Muon::Quality quality = m_muonSelectorTool->getQuality(*m);
+
+         //just added this cut         
+         if( quality > m_muonQualityCut ) continue; 
+
         //cuts on muons:
         if( m->muonType() != xAOD::Muon::MuonType::Combined) continue; 
         if( m->pt() < 5.0 ) continue;
@@ -464,6 +484,22 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
      m_mu_ptLong = muon.P()*cos( muon.Angle( jet.Vect() + muon.Vect() ) )/1000.;
      m_mu_jet_dR  = muon.DeltaR( jet );
 
+     double deltaR = 0.08;
+     double deltaPt = 0.15*myMuon->pt();
+     for( uint ivx=0; ivx< myVector.size(); ivx++) {
+        for( uint itrk=0; itrk< myVector.at(ivx).tracks.size(); itrk++) {
+          const xAOD::TrackParticle *tp =  myVector.at(ivx).tracks.at(itrk);
+
+          double rtu = myMuon->p4().DeltaR( tp->p4()  );
+          double ptu = fabs( myMuon->pt() - tp->pt() );  
+          if ( rtu < deltaR && ptu<deltaPt  )   {
+             deltaR = rtu;
+             deltaPt = ptu;
+             m_mu_vtx = ivx +1.;
+          }
+        }
+     }
+     if( m_mu_vtx < 0) m_mu_vtx = 0.; 
 
 
      const xAOD::TrackParticle *trackMuon = myMuon->primaryTrackParticle();
@@ -473,8 +509,6 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
       ATH_MSG_DEBUG("#BTAG# No muon passed the selection. ");
    }     //closes if I have myMuon
         
-//  m_mu_jet_dR = mu_dR;  //FIXME
-//  m_mu_iso = mu_iso_ptvar40;
 
 
    //==============================================================
@@ -562,6 +596,7 @@ StatusCode JetVertexCharge::tagJet( xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
       BTag->setVariable<float>(m_taggerNameBase, "mu_ptLong", m_mu_ptLong);
       BTag->setVariable<float>(m_taggerNameBase, "mu_iso_ptvar40", m_mu_iso);
       BTag->setVariable<float>(m_taggerNameBase, "mu_jet_dR", m_mu_jet_dR);
+      BTag->setVariable<float>(m_taggerNameBase, "mu_vtx", m_mu_vtx);
 
       BTag->setVariable<int>(m_taggerNameBase, "category", mvaCat );
       BTag->setVariable<double>(m_taggerNameBase, "discriminant", -3. ); 
@@ -867,6 +902,12 @@ StatusCode JetVertexCharge::SetupReaders( std::string author, std::string alias 
       // //now the new part istringstream
       // TList* list = calib.first; 
 
+   // Note: the variables and their ranges (to be used in TMVA::Reader::AddVariable() calls) are extracted from the XML object itself.
+   // This is somewhat fragile, as it assumes that the expressions used are either simple variable names or expressions implementing a minimum or maximum bound, like
+   //         "(distSV&gt;105.)?105.:distSV"
+   // where it is assumed that the actual variable name follows the ":", and the "&gt;" is an XML representation of ">" (and hence needs to be replaced with the latter)
+   
+   std::vector<std::string> inputVars;
    std::ostringstream iss;
    for(int i=0; i<list->GetSize(); ++i) {
      TObjString* ss = (TObjString*)list->At(i);
@@ -875,6 +916,25 @@ StatusCode JetVertexCharge::SetupReaders( std::string author, std::string alias 
      int posi = sss.find('<')!=-1 ? sss.find('<') : sss.find_first_not_of(" ");
      std::string tmp = sss.erase(0,posi);
      iss << tmp.data(); 
+     if (tmp.find("<Variable")!=std::string::npos ) {
+       if ( tmp.find("Variable VarIndex")!=std::string::npos ) {
+	 // Retrieve the original expression for use with a new TMVA::Reader object
+	 std::string varIndex  =tmp.substr(tmp.find("=\"")+2, tmp.find("\" ")-(tmp.find("=\"")+2));
+	 std::string tmpVar  = tmp.erase(0,tmp.find("Expression=\"")+12);
+	 std::string varExpress=tmp.substr(0, tmp.find("\""));
+	 posi = varExpress.find("&lt;");
+	 while (posi != std::string::npos) {
+	   varExpress.replace(posi, 4, "<");
+	   posi = varExpress.find("&lt;");
+	 }
+	 posi = varExpress.find("&gt;");
+	 while (posi != std::string::npos) {
+	   varExpress.replace(posi, 4, ">");
+	   posi = varExpress.find("&gt;");
+	 }
+	 inputVars.push_back(varExpress);
+       }
+     }
    }
 
 
@@ -883,67 +943,79 @@ StatusCode JetVertexCharge::SetupReaders( std::string author, std::string alias 
    // now configure the TMVAReaders:
    TMVA::Reader* tmvaReader = new TMVA::Reader();
 
-   if( mvaCat == JC_SVC_noMu ) { 
-     tmvaReader->AddVariable( "JC",		&m_jc );
-     tmvaReader->AddVariable( "SVC", 	&m_svc );
-     tmvaReader->AddVariable( "(track_good_pt>90000.)?90000.:track_good_pt", 	&m_jc_track_pt );
-     tmvaReader->AddVariable( "(ntrk0>14.)?14.:ntrk0",	&m_sv_ntrk );
-     tmvaReader->AddVariable( "(distSV>105.)?105.:distSV",  	&m_sv_dist );
-     tmvaReader->AddVariable( "(errSV>5.)?5.:errSV", 	&m_sv_err );
-     tmvaReader->AddVariable( "(track_sv_pt>200000.)?200000.:track_sv_pt", 	&m_sv_track_pt );
+   std::vector<float*> varptrs;
+   for (auto expression : inputVars) {
+     std::string var = expression.find_last_of(":") == std::string::npos ? expression : expression.substr(expression.find_last_of(":")+1);
+     if (m_variablePtr.find(var) == m_variablePtr.end()) {
+       ATH_MSG_WARNING("#BTAG#  cannot interpret variable name " << var << " in category " << m_catNames[mvaCat] << " for tagger instance " << m_taggerNameBase);
+       delete tmvaReader;
+       return StatusCode::FAILURE;
+     }
+     ATH_MSG_DEBUG("#BTAG# adding variable " << var << " in category " << m_catNames[mvaCat] << " for tagger instance " << m_taggerNameBase);
+     tmvaReader->AddVariable(expression.c_str(), m_variablePtr[var]);
    }
-   else if( mvaCat == JC_SVC_incMu ) {
-     tmvaReader->AddVariable( "JC",	&m_jc );
-     tmvaReader->AddVariable( "SVC", 	&m_svc );
-     tmvaReader->AddVariable( "mu_charge",  	&m_mu_charge );
-     tmvaReader->AddVariable( "(track_good_pt>120000.)?120000.:track_good_pt", 	&m_jc_track_pt );
-     tmvaReader->AddVariable( "(ntrk0>13.)?13.:ntrk0", 	&m_sv_ntrk );
-     tmvaReader->AddVariable( "(distSV>120.)?120.:distSV", 	&m_sv_dist );
-     tmvaReader->AddVariable( "(errSV>5.)?5.:errSV",  	&m_sv_err );
-     tmvaReader->AddVariable( "(mu_ptRel>20.)?20.:mu_ptRel",	&m_mu_ptRel );
-     tmvaReader->AddVariable( "(mu_ptLong>500.)?500.:mu_ptLong", 	&m_mu_ptLong );
-   }
-   else if( mvaCat == JC_SVC_TVC_noMu ) {
-     tmvaReader->AddVariable( "JC",	&m_jc );
-     tmvaReader->AddVariable( "SVC",	&m_svc );
-     tmvaReader->AddVariable( "TVC",	&m_tvc ); 
-     tmvaReader->AddVariable( "(track_good_pt>100000.)?100000.:track_good_pt", &m_jc_track_pt );
-     tmvaReader->AddVariable( "(ntrk0>10.)?10.:ntrk0", &m_sv_ntrk );
-     tmvaReader->AddVariable( "(distSV>90.)?90.:distSV", &m_sv_dist );
-     tmvaReader->AddVariable( "(errSV>5.)?5.:errSV", &m_sv_err );
-     tmvaReader->AddVariable( "(track_sv_pt>250000.)?250000.:track_sv_pt", &m_sv_track_pt );
-     tmvaReader->AddVariable( "(massSV_pions>6000.)?6000.:massSV_pions", &m_sv_mass_pions );
-     tmvaReader->AddVariable( "(ntrk1_used>10.)?10.:ntrk1_used", &m_tv_ntrk ); 
-     tmvaReader->AddVariable( "(distTV>200.)?200.:distTV", &m_tv_dist );
-     tmvaReader->AddVariable( "(errTV>5.)?5.:errTV", &m_tv_err );
-     tmvaReader->AddVariable( "(massTV_kaons>6000.)?6000.:massTV_kaons", &m_tv_mass_kaons );
-   }
-   else if(mvaCat == JC_SVC_TVC_incMu) {	
-     tmvaReader->AddVariable( "JC",	&m_jc );
-     tmvaReader->AddVariable( "SVC",	&m_svc );
-     tmvaReader->AddVariable( "TVC",	&m_tvc );  
-     tmvaReader->AddVariable( "mu_charge",  	&m_mu_charge );
-     tmvaReader->AddVariable( "(track_good_pt>120000.)?120000.:track_good_pt", &m_jc_track_pt );
-     tmvaReader->AddVariable( "(ntrk0>10.)?10.:ntrk0", &m_sv_ntrk );
-     tmvaReader->AddVariable( "(distSV>90.)?90.:distSV", &m_sv_dist );
-     tmvaReader->AddVariable( "(errSV>5.)?5.:errSV", &m_sv_err ); 
-     tmvaReader->AddVariable( "(ntrk1_used>10.)?10.:ntrk1_used", &m_tv_ntrk ); 
-     tmvaReader->AddVariable( "(distTV>200.)?200.:distTV", &m_tv_dist );
-     tmvaReader->AddVariable( "(errTV>5.)?5.:errTV", &m_tv_err );
-     tmvaReader->AddVariable( "(massTV_kaons>6000.)?6000.:massTV_kaons", &m_tv_mass_kaons );
-     tmvaReader->AddVariable( "(mu_ptRel>12.)?12.:mu_ptRel",	&m_mu_ptRel );
-     tmvaReader->AddVariable( "(mu_ptLong>400.)?400.:mu_ptLong",	&m_mu_ptLong );
-   }
-   else if(mvaCat == JC_incMu) {	
-     tmvaReader->AddVariable( "JC",	&m_jc );
-     tmvaReader->AddVariable( "mu_charge",	&m_mu_charge );
-     tmvaReader->AddVariable( "(ngoodtrk>28.)?28.:ngoodtrk",	&m_ngoodtrk );
-     tmvaReader->AddVariable( "(track_good_pt>120000.)?120000.:track_good_pt",	&m_jc_track_pt );
-     tmvaReader->AddVariable( "(mu_ptRel>20.)?20.:mu_ptRel",	&m_mu_ptRel );
-     tmvaReader->AddVariable( "(mu_ptLong>400.)?400.:mu_ptLong",	&m_mu_ptLong );
-     tmvaReader->AddVariable( "(mu_iso_ptvar40>700000.)?700000.:mu_iso_ptvar40",	&m_mu_iso );
-     tmvaReader->AddVariable( "mu_jet_dR",	&m_mu_jet_dR );
-   }              
+
+   // if( mvaCat == JC_SVC_noMu ) { 
+   //   tmvaReader->AddVariable( "JC",		&m_jc );
+   //   tmvaReader->AddVariable( "SVC", 	&m_svc );
+   //   tmvaReader->AddVariable( "(track_good_pt>90000.)?90000.:track_good_pt", 	&m_jc_track_pt );
+   //   tmvaReader->AddVariable( "(ntrk0>14.)?14.:ntrk0",	&m_sv_ntrk );
+   //   tmvaReader->AddVariable( "(distSV>105.)?105.:distSV",  	&m_sv_dist );
+   //   tmvaReader->AddVariable( "(errSV>5.)?5.:errSV", 	&m_sv_err );
+   //   tmvaReader->AddVariable( "(track_sv_pt>200000.)?200000.:track_sv_pt", 	&m_sv_track_pt );
+   // }
+   // else if( mvaCat == JC_SVC_incMu ) {
+   //   tmvaReader->AddVariable( "JC",	&m_jc );
+   //   tmvaReader->AddVariable( "SVC", 	&m_svc );
+   //   tmvaReader->AddVariable( "mu_charge",  	&m_mu_charge );
+   //   tmvaReader->AddVariable( "(track_good_pt>120000.)?120000.:track_good_pt", 	&m_jc_track_pt );
+   //   tmvaReader->AddVariable( "(ntrk0>13.)?13.:ntrk0", 	&m_sv_ntrk );
+   //   tmvaReader->AddVariable( "(distSV>120.)?120.:distSV", 	&m_sv_dist );
+   //   tmvaReader->AddVariable( "(errSV>5.)?5.:errSV",  	&m_sv_err );
+   //   tmvaReader->AddVariable( "(mu_ptRel>20.)?20.:mu_ptRel",	&m_mu_ptRel );
+   //   tmvaReader->AddVariable( "(mu_ptLong>500.)?500.:mu_ptLong", 	&m_mu_ptlong );
+   // }
+   // else if( mvaCat == JC_SVC_TVC_noMu ) {
+   //   tmvaReader->AddVariable( "JC",	&m_jc );
+   //   tmvaReader->AddVariable( "SVC",	&m_svc );
+   //   tmvaReader->AddVariable( "TVC",	&m_tvc ); 
+   //   tmvaReader->AddVariable( "(track_good_pt>100000.)?100000.:track_good_pt", &m_jc_track_pt );
+   //   tmvaReader->AddVariable( "(ntrk0>10.)?10.:ntrk0", &m_sv_ntrk );
+   //   tmvaReader->AddVariable( "(distSV>90.)?90.:distSV", &m_sv_dist );
+   //   tmvaReader->AddVariable( "(errSV>5.)?5.:errSV", &m_sv_err );
+   //   tmvaReader->AddVariable( "(track_sv_pt>250000.)?250000.:track_sv_pt", &m_sv_track_pt );
+   //   tmvaReader->AddVariable( "(massSV_pions>6000.)?6000.:massSV_pions", &m_sv_mass_pions );
+   //   tmvaReader->AddVariable( "(ntrk1_used>10.)?10.:ntrk1_used", &m_tv_ntrk ); 
+   //   tmvaReader->AddVariable( "(distTV>200.)?200.:distTV", &m_tv_dist );
+   //   tmvaReader->AddVariable( "(errTV>5.)?5.:errTV", &m_tv_err );
+   //   tmvaReader->AddVariable( "(massTV_kaons>6000.)?6000.:massTV_kaons", &m_tv_mass_kaons );
+   // }
+   // else if(mvaCat == JC_SVC_TVC_incMu) {	
+   //   tmvaReader->AddVariable( "JC",	&m_jc );
+   //   tmvaReader->AddVariable( "SVC",	&m_svc );
+   //   tmvaReader->AddVariable( "TVC",	&m_tvc );  
+   //   tmvaReader->AddVariable( "mu_charge",  	&m_mu_charge );
+   //   tmvaReader->AddVariable( "(track_good_pt>120000.)?120000.:track_good_pt", &m_jc_track_pt );
+   //   tmvaReader->AddVariable( "(ntrk0>10.)?10.:ntrk0", &m_sv_ntrk );
+   //   tmvaReader->AddVariable( "(distSV>90.)?90.:distSV", &m_sv_dist );
+   //   tmvaReader->AddVariable( "(errSV>5.)?5.:errSV", &m_sv_err ); 
+   //   tmvaReader->AddVariable( "(ntrk1_used>10.)?10.:ntrk1_used", &m_tv_ntrk ); 
+   //   tmvaReader->AddVariable( "(distTV>200.)?200.:distTV", &m_tv_dist );
+   //   tmvaReader->AddVariable( "(errTV>5.)?5.:errTV", &m_tv_err );
+   //   tmvaReader->AddVariable( "(massTV_kaons>6000.)?6000.:massTV_kaons", &m_tv_mass_kaons );
+   //   tmvaReader->AddVariable( "(mu_ptRel>12.)?12.:mu_ptRel",	&m_mu_ptRel );
+   //   tmvaReader->AddVariable( "(mu_ptLong>400.)?400.:mu_ptLong",	&m_mu_ptLong );
+   // }
+   // else if(mvaCat == JC_incMu) {	
+   //   tmvaReader->AddVariable( "JC",	&m_jc );
+   //   tmvaReader->AddVariable( "mu_charge",	&m_mu_charge );
+   //   tmvaReader->AddVariable( "(ngoodtrk>28.)?28.:ngoodtrk",	&m_ngoodtrk );
+   //   tmvaReader->AddVariable( "(track_good_pt>120000.)?120000.:track_good_pt",	&m_jc_track_pt );
+   //   tmvaReader->AddVariable( "(mu_ptRel>20.)?20.:mu_ptRel",	&m_mu_ptRel );
+   //   tmvaReader->AddVariable( "(mu_ptLong>400.)?400.:mu_ptLong",	&m_mu_ptLong );
+   //   tmvaReader->AddVariable( "(mu_iso_ptvar40>700000.)?700000.:mu_iso_ptvar40",	&m_mu_iso );
+   //   tmvaReader->AddVariable( "mu_jet_dR",	&m_mu_jet_dR );
+   // }              
 
  
    TMVA::IMethod* method= tmvaReader->BookMVA(TMVA::Types::kMLP, iss.str().data());  
@@ -977,7 +1049,7 @@ void JetVertexCharge::PrintVariables()  {
    ATH_MSG_DEBUG("#BTAG# ngood trk="<<m_ngoodtrk<<"  JC pt="<<m_jc_track_pt<<"  SV pt= "<<m_sv_track_pt); 
    ATH_MSG_DEBUG("#BTAG# ntrkSV="<<m_sv_ntrk<<"  distSV="<<m_sv_dist<<"  errSV="<<m_sv_err<<" mass SV="<<m_sv_mass_pions);
    ATH_MSG_DEBUG("#BTAG# ntrkTV="<<m_tv_ntrk<<"  distTV="<<m_tv_dist<<"  errTV="<<m_tv_err<<" mass TV="<<m_tv_mass_kaons);
-   ATH_MSG_DEBUG("#BTAG# mu ptRel="<<m_mu_ptRel<<"  mu_ptLong="<<m_mu_ptLong<<"  mu dR="<< m_mu_jet_dR<<"  mu_isolation="<<m_mu_iso);
+   ATH_MSG_DEBUG("#BTAG# mu ptRel="<<m_mu_ptRel<<"  mu_ptLong="<<m_mu_ptLong<<"  mu dR="<< m_mu_jet_dR<<"  mu_isolation="<<m_mu_iso<<"  mu_vtx="<<m_mu_vtx);
    ATH_MSG_DEBUG("#BTAG# ===============================================================================");
 
 }
@@ -997,6 +1069,29 @@ std::string JetVertexCharge::categoryToString(int cat) const {
   default:
     return "unknown";
   };
+}
+
+void JetVertexCharge::initializeVariablePtrs() {
+  // The only purpose of this method is to determine the mapping from string to member variable pointer.
+  m_variablePtr["mu_ptRel"]      = &m_mu_ptRel;
+  m_variablePtr["mu_ptLong"]     = &m_mu_ptLong;
+  m_variablePtr["mu_charge"]     = &m_mu_charge;
+  m_variablePtr["mu_jet_dR"]     = &m_mu_jet_dR;
+  m_variablePtr["mu_iso_ptvar40"]= &m_mu_iso;
+  m_variablePtr["TVC"]           = &m_tvc;
+  m_variablePtr["distTV"]        = &m_tv_dist;
+  m_variablePtr["errTV"]         = &m_tv_err;
+  m_variablePtr["massTV_kaons"]  = &m_tv_mass_kaons;
+  m_variablePtr["ntrk1_used"]    = &m_tv_ntrk;
+  m_variablePtr["SVC"]           = &m_svc;
+  m_variablePtr["distSV"]        = &m_sv_dist;
+  m_variablePtr["errSV"]         = &m_sv_err;
+  m_variablePtr["massSV_pions"]  = &m_sv_mass_pions;
+  m_variablePtr["ntrk0"]         = &m_sv_ntrk;
+  m_variablePtr["track_sv_pt"]   = &m_sv_track_pt;
+  m_variablePtr["JC"]            = &m_jc;
+  m_variablePtr["track_good_pt"] = &m_jc_track_pt;
+  m_variablePtr["ngoodtrk"]      = &m_ngoodtrk;
 }
 
 void JetVertexCharge::ClearVars()  {
@@ -1026,6 +1121,7 @@ void JetVertexCharge::ClearVars()  {
   m_mu_ptLong = -999.;
   m_mu_jet_dR = -1.;
   m_mu_iso = -1.;
+  m_mu_vtx = -1;
 
 }
 

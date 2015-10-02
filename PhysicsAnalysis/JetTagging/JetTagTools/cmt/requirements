@@ -15,6 +15,11 @@ use xAODBTagging         xAODBTagging-*          Event/xAOD
 use xAODTracking         xAODTracking-*          Event/xAOD
 use egammaMVACalib       egammaMVACalib-*        Reconstruction/egamma
 
+# for ExKtbbTagTool
+use JetRec               JetRec-*                Reconstruction/Jet
+use AsgTools             AsgTools-*              Control/AthToolSupport
+use JetSubStructureMomentTools JetSubStructureMomentTools-*    Reconstruction/Jet
+use JetSubStructureUtils       JetSubStructureUtils-*          Reconstruction/Jet
 
 
 private
@@ -53,6 +58,7 @@ use TrackVertexAssociationTool TrackVertexAssociationTool-* InnerDetector/InDetR
 
 #use JetTagEvent          JetTagEvent-*           PhysicsAnalysis/JetTagging
 use JetTagCalibration    JetTagCalibration-*     PhysicsAnalysis/JetTagging
+use MuonSelectorTools	MuonSelectorTools-*	PhysicsAnalysis/MuonID
 
 use TrkEventPrimitives   TrkEventPrimitives-*    Tracking/TrkEvent
 use TrkVertexFitterInterfaces  TrkVertexFitterInterfaces-*     Tracking/TrkVertexFitter
@@ -98,6 +104,8 @@ use AtlasFastJet        AtlasFastJet-*   External
 # for Gaia (re-enable once we actually have AGILEPack included...)
 # use AGILEPack  AGILEPack-*    
 
+# for ExKtbbTagTool
+use  JetEDM                     JetEDM-*                        Reconstruction/Jet
 
 end_private
 
@@ -107,7 +115,7 @@ macro DOXYGEN_IMAGE_PATH "../doc/images"
 #library JetTagTools *.cxx components/*.cxx
 #library JetTagTools DummyTag.cxx components/*.cxx
 #apply_pattern dual_use_library files="*.cxx"
-apply_pattern dual_use_library files="DummyTag.cxx TrackSelector.cxx HistoHelperRoot.cxx NewLikelihoodTool.cxx BasicTrackGradeFactory.cxx DetailedTrackGradeFactory.cxx GradedTrack.cxx IPTag.cxx JetTagUtils.cxx SVForIPTool.cxx SVTag.cxx JetFitterTag.cxx JetFitterNtupleWriter.cxx JetFitterNNTool.cxx MV1Tag.cxx MV1cTag.cxx MV2Tag.cxx MVbTag.cxx JetFitterVariablesFactory.cxx MSVVariablesFactory.cxx MultiSVTag.cxx JetVertexCharge.cxx" 
+apply_pattern dual_use_library files="DummyTag.cxx TrackSelector.cxx HistoHelperRoot.cxx NewLikelihoodTool.cxx BasicTrackGradeFactory.cxx DetailedTrackGradeFactory.cxx GradedTrack.cxx IPTag.cxx JetTagUtils.cxx SVForIPTool.cxx SVTag.cxx JetFitterTag.cxx JetFitterNtupleWriter.cxx JetFitterNNTool.cxx MV1Tag.cxx MV1cTag.cxx MV2Tag.cxx MVbTag.cxx JetFitterVariablesFactory.cxx MSVVariablesFactory.cxx MultiSVTag.cxx JetVertexCharge.cxx SoftMuonTag.cxx ExKtbbTag.cxx ExKtbbTagTool.cxx" 
 #apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_runtime files="-s=../share *.root *.txt"
 
