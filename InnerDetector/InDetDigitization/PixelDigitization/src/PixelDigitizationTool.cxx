@@ -52,6 +52,8 @@
 // DataHandle
 #include "StoreGate/DataHandle.h"
 
+#include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
+
 //
 #include <limits>
 #include <cstdint>
@@ -65,6 +67,8 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
 				     const std::string &name,
 				     const IInterface * pIID) :
   PileUpToolBase(type,name,pIID),
+  m_overflowIBLToT(0),
+  m_offlineCalibSvc("PixelOfflineCalibSvc", name),
   m_managerName("Pixel"),
   m_rdoCollName("PixelRDOs"),
   m_rdoCollNameSPM(),
@@ -72,8 +76,10 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   m_rdoContainer(NULL),
   m_rdoContainerSPM(NULL),
   m_simDataColl(NULL),
-  m_minToT(0),
-  m_maxToT(255),
+  //m_maxToT(255),
+  //m_minToT(0),
+  //m_applyDupli,
+  //m_maxToTForDupli(255),
   m_IBLabsent(true),
   m_time_y_eq_zero(0.0),
   m_ComTime(NULL),
@@ -142,8 +148,10 @@ PixelDigitizationTool::PixelDigitizationTool(const std::string &type,
   declareProperty("SDOCollName",        m_sdoCollName,          "SDO collection name");
   declareProperty("EventIOV",           m_eventIOV,             "Number of events per IOV");
   declareProperty("IOVFlag",            m_IOVFlag,              "IOV flag - how to simulate the validity period");
-  declareProperty("LowTOTduplication",  m_minToT,               "ToT value below which the hit is duplicated");
   declareProperty("LVL1Latency",        m_maxToT,               "LVL1 latency (max possible ToT)");
+  declareProperty("ToTMinCut",          m_minToT,               "Minimu ToT cut (online cut) ");
+  declareProperty("ApplyDupli",         m_applyDupli,           "Duplicate low ToT hits");
+  declareProperty("LowTOTduplication",  m_maxToTForDupli,       "ToT value below which the hit is duplicated");
 
   //
   // random number stream name
@@ -767,6 +775,18 @@ StatusCode PixelDigitizationTool::initServices()
 	ATH_MSG_ERROR("Could not find given CalibSvc" );
 	return StatusCode::FAILURE;
   }
+  // Remove comment when /PIXEL/HitDiscCnfg ready in OFLP200:
+  /*if ( !m_offlineCalibSvc.empty() ) {
+    StatusCode sc = m_offlineCalibSvc.retrieve();
+    if (sc.isFailure() || !m_offlineCalibSvc ) {
+      ATH_MSG_ERROR( m_offlineCalibSvc.type() << " not found! ");
+      return StatusCode::RECOVERABLE;
+    }
+    else{
+      ATH_MSG_INFO ( "Retrieved tool " <<  m_offlineCalibSvc.type() );
+    }
+  }*/
+  
   //
   // get SpecialPixelMapSvc
   //
@@ -942,12 +962,53 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
   //
   // Create the collection
   //
+  
   Identifier collID = collection->identify();
   ATH_MSG_DEBUG ( "PixelDigitizationTool::createRDO() collection : "
         << m_detID->show_to_string( collID ) );
   IdentifierHash idhash = collection->identifyHash();
   PixelRDO_Collection* PixelRDOColl = new PixelRDO_Collection(idhash);
   PixelRDOColl->setIdentifier(collID );
+
+  //
+  // Determine the Pixel Region (IBL, BL, L1, L2, EC or DBM), to be used for latency, ToT cut and duplication:
+  //
+  
+  const PixelID* pixelId = dynamic_cast<const PixelID *>(collection->element()->getIdHelper());
+  int barrel_ec  = pixelId->barrel_ec(collection->element()->identify());
+  int layer_disk = pixelId->layer_disk(collection->element()->identify());
+  int PixRegion = -1;
+  int ishift = 0;
+  if ( m_IBLabsent ) ishift = 1;
+  if ( barrel_ec == 0) PixRegion = layer_disk + ishift; // PixRegion = 0, 1, 2, or 3 for IBL, BL, L1 or L2
+  if ( barrel_ec == 2 || barrel_ec == -2 ) PixRegion = 4; // 4 for disks
+  if ( barrel_ec == 4 || barrel_ec == -4 ) PixRegion = 5; // 5 for DBM  
+  
+  if ( PixRegion < 0 || PixRegion > 5 ) {
+    ATH_MSG_ERROR ( "PixelDigitizationTool::createRDO() collection : " << " bad Barrel/EC or Layer/Disk " );
+  }
+	
+  //remove comment when /PIXEL/HitDiscCnfg ready in OFLP200:	  
+  //m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow();
+  
+  //
+  
+  const PixelModuleDesign *p_design = dynamic_cast<const PixelModuleDesign*>(&(collection->element())->design());
+  std::vector<Pixel1RawData*> p_rdo_small_fei4;
+  int maxFEI4SmallHit = 2;
+  int nSmallHitsFEI4 = 0;
+  std::vector<int> row;
+  std::vector<int> col;
+  const int maxRow = p_design->rowsPerCircuit();
+  const int maxCol = p_design->columnsPerCircuit();
+  std::vector < std::vector < int > > FEI4Map ( maxRow, std::vector < int > ( maxCol) );
+  ATH_MSG_DEBUG ( "PixRegion = " << PixRegion << " MaxRow = " << maxRow << " MaxCol = " << maxCol);
+  
+  //remove comment when /PIXEL/HitDiscCnfg ready in OFLP200:	  
+  //if ( m_overflowIBLToT == 14 ) maxFEI4SmallHit = 0;
+  //if ( m_overflowIBLToT == 15 ) maxFEI4SmallHit = 1;
+  //if ( m_overflowIBLToT == 16 ) maxFEI4SmallHit = 2;
+
   //
   // ToT scale, to be used for FEI4, which has at most 4 bits for ToT,
   // so physical ToT values are from 1 to 15
@@ -995,16 +1056,16 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
       // - ToT for that reference value
       
       if (getReadoutTech(collection->element()) == FEI4) {
-	// Flers: figure out if we are in dbm
         const PixelID* pixelId = dynamic_cast<const PixelID *>(collection->element()->getIdHelper());
-        // int barrel_ec = pixelId->barrel_ec(collection->element()->identify());
-        // bool dbm = barrel_ec == 4 || barrel_ec == -4;
 	if (pixelId->is_dbm(collection->element()->identify())) {
-	  // ATH_MSG_INFO ("Flers: in dbm tot conversion");
 	  nToT = 8*((*i_chargedDiode).second.charge() - 1200. )/(8000. - 1200.);
 	}
         if ( nToT<=0 ) nToT=1;
-	else if ( nToT>13 ) nToT=14;
+        // remove comment when /PIXEL/HitDiscCnfg ready in OFLP200:
+        //else if ( nToT == 2 && m_overflowIBLToT == 16) nToT = 1; 
+	//else if ( nToT >= m_overflowIBLToT ) nToT = m_overflowIBLToT;
+        else if ( nToT == 2) nToT = 1;
+	else if ( nToT >= 16 ) nToT = 16;
       }
       int flag   = (*i_chargedDiode).second.flag();
       int bunch  = (flag >>  8) & 0xff;
@@ -1014,8 +1075,10 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
             << nToT << "  "
             << bunch << "  "
             << flag << "  "
+            << PixRegion << " "
             );
-      if ( nToT > m_maxToT ) continue; // skip hits with ToT exceeding LVL1 Latency
+      if ( nToT > m_maxToT[PixRegion] ) continue; // skip hits with ToT exceeding LVL1 Latency
+      if ( nToT < m_minToT[PixRegion] ) continue; // skip hits with ToT less than ToT cut
 
       //       float kToT= m_totparA + m_totparB / ( m_totparC + (*i_chargedDiode).second.charge() ) ;
       //       float kToTs  =  CLHEP::RandGaussZiggurat::shoot( m_rndmEngine, kToT ,  m_totparP1 + m_totparP2 * kToT ) ; 
@@ -1031,22 +1094,89 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
       SiReadoutCellId cellId=(*i_chargedDiode).second.getReadoutCell();
       const Identifier id_readout = collection->element()->identifierFromCellId(cellId);
 
+      int iirow = cellId.phiIndex();
+      int iicol = cellId.etaIndex();
+      if ( PixRegion == 0 && iicol >= maxCol ) iicol = iicol - maxCol; // FEI4 copy mechanism works per FE.
+      
+      
       //
       //if (correct_id_readout!=diodeID) {
       //  ATH_MSG_DEBUG ( "correct_readout_id != diodeID" );
       // }
-      // Create hit only if bunch within the acceptance...
-      if (bunch>=0 && bunch<m_TimeSvc->getTimeBCN()) {
-	Pixel1RawData *p_rdo= new Pixel1RawData(id_readout, nToT, bunch, 0, bunch );
-	PixelRDOColl->push_back(p_rdo);
+      // Create hit only if bunch within the acceptance (not for IBL and DBM:
+      
+      if ( PixRegion != 0 ) {
+        if ( bunch >= 0 && bunch < m_TimeSvc->getTimeBCN()) {
+	  Pixel1RawData *p_rdo= new Pixel1RawData(id_readout, nToT, bunch, 0, bunch );
+	  PixelRDOColl->push_back(p_rdo);
+        }
+      } else {
+        // IBL: if big hit, create RDO and record it. If small hit, create RDO and store it in a vector:
+      
+        if ( nToT > maxFEI4SmallHit ) {
+          if ( bunch >= 0 && bunch < m_TimeSvc->getTimeBCN()) {
+	    Pixel1RawData *p_rdo= new Pixel1RawData(id_readout, nToT, bunch, 0, bunch );
+	    PixelRDOColl->push_back(p_rdo);
+            FEI4Map[iirow][iicol] = 2; //Flag for "big hits" 	   
+          } 
+        } else {
+          if ( bunch >= 0 && bunch < m_TimeSvc->getTimeBCN()) {
+            Pixel1RawData *p_rdo= new Pixel1RawData(id_readout, nToT, bunch, 0, bunch );
+	    p_rdo_small_fei4.push_back(p_rdo);            
+            row.push_back(iirow);
+            col.push_back(iicol);
+	    nSmallHitsFEI4++;
+	    FEI4Map[iirow][iicol] = 1; //Flag for low hits
+            ATH_MSG_DEBUG ( "Row small = " << iirow << " col small = " << iicol << " ToT = " << nToT << " Bunch = " << bunch << " ismallhits = " << nSmallHitsFEI4);
+          }
+	}      
       }
-      //
-      if ( nToT<=m_minToT && bunch>0 && bunch<=m_TimeSvc->getTimeBCN()) {
-	Pixel1RawData *p_rdo= new Pixel1RawData(id_readout, nToT, bunch-1, 0, bunch-1 );
-        PixelRDOColl->push_back(p_rdo);
+      // Duplication mechanism for FEI3 small hits :
+      
+      if ( PixRegion != 0 && PixRegion != 5 ) {
+        if ( m_applyDupli[PixRegion]) {
+          if ( nToT <= m_maxToTForDupli[PixRegion] && bunch > 0 && bunch <= m_TimeSvc->getTimeBCN()) {
+	    Pixel1RawData *p_rdo= new Pixel1RawData(id_readout, nToT, bunch-1, 0, bunch-1 );
+            PixelRDOColl->push_back(p_rdo);
+          }
+        }
       }
     }
   }
+  // Copy mechanism for IBL small hits:
+  
+  if ( PixRegion == 0 && m_applyDupli[PixRegion] && nSmallHitsFEI4 > 0 ){
+    bool recorded = false;
+    //First case: Record small hits which are in the same Pixel Digital Region than a big hit:
+    
+    for ( int ismall = 0; ismall != nSmallHitsFEI4; ++ismall ) {
+      int rowPDR = row[ismall]/2;
+      int colPDR = col[ismall]/2;
+      for ( int rowBigHit = 2*rowPDR; rowBigHit != 2*rowPDR+2 && rowBigHit < maxRow; ++rowBigHit ) {
+        for ( int colBigHit = 2*colPDR; colBigHit != 2*colPDR+2 && colBigHit < maxCol; ++colBigHit ) {
+          ATH_MSG_DEBUG ( "rowBig = " << rowBigHit << " colBig = " << colBigHit << " Map Content = " << FEI4Map[rowBigHit][colBigHit]);
+          if ( FEI4Map[rowBigHit][colBigHit] == 2 && !recorded) {
+	    PixelRDOColl->push_back(p_rdo_small_fei4[ismall]);
+	    recorded = true;
+	  }  
+        }
+      }	 
+      // Second case: Record small hits which are phi-neighbours with a big hit:
+      
+      if ( !recorded && row[ismall] < maxRow - 1 ) {
+        if ( FEI4Map[row[ismall]+1][col[ismall]] == 2 ) {
+          PixelRDOColl->push_back(p_rdo_small_fei4[ismall]);
+          recorded = true;
+	}
+      }
+      if ( !recorded && row[ismall] != 0 ) {
+        if ( FEI4Map[row[ismall]-1][col[ismall]] == 2 ) {
+          PixelRDOColl->push_back(p_rdo_small_fei4[ismall]);
+          recorded = true;
+	}
+      }
+    }
+  }  
   return PixelRDOColl;
 }
 //////////////////////////////////////////////////////////////////////////////

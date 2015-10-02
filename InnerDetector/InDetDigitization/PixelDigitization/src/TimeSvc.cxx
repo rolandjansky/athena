@@ -94,32 +94,35 @@ StatusCode TimeSvc::finalize() {
 
 int TimeSvc::relativeBunch(const double threshold,
 					  const double intimethreshold,
-					  const SiTotalCharge &totalCharge) const {
+					  const SiTotalCharge &totalCharge, bool CTW) const {
     int BCID=0;
-    double overdrive  = intimethreshold - threshold ;
+    double myTimeWalkEff = 0.;
+    if(CTW){
+      double overdrive  = intimethreshold - threshold ;
    
-    //my TimeWalk computation through PARAMETRIZATION (by Francesco De Lorenzi - Milan)
-    //double curvature  =  7.6e7*overdrive-2.64e10;
-    //double divergence = -1.6*overdrive+942 ;
+      //my TimeWalk computation through PARAMETRIZATION (by Francesco De Lorenzi - Milan)
+      //double curvature  =  7.6e7*overdrive-2.64e10;
+      //double divergence = -1.6*overdrive+942 ;
 
-    //double myTimeWalk    = curvature/(pow((totalCharge.charge()-divergence),2.5));
+      //double myTimeWalk    = curvature/(pow((totalCharge.charge()-divergence),2.5));
 
-    //my TimeWalk computation through PARAMETRIZATION from 2009 cosmic data (by I. Ibragimov and D. Miller)
-    double p1 = 20./log(intimethreshold/overdrive);
-    double p0 = p1 * log (1. - threshold/100000.);
+      //my TimeWalk computation through PARAMETRIZATION from 2009 cosmic data (by I. Ibragimov and D. Miller)
+      double p1 = 20./log(intimethreshold/overdrive);
+      double p0 = p1 * log (1. - threshold/100000.);
     
-    double myTimeWalk    = -p0 -p1 * log(1. - threshold/totalCharge.charge());
+      double myTimeWalk    = -p0 -p1 * log(1. - threshold/totalCharge.charge());
 
-    double myTimeWalkEff = myTimeWalk+myTimeWalk*0.2*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+      myTimeWalkEff = myTimeWalk+myTimeWalk*0.2*CLHEP::RandGaussZiggurat::shoot(m_rndmEngine);
+     } 
    
-    double randomjitter  = CLHEP::RandFlat::shoot(m_rndmEngine,(-m_timeJitter/2.0),(m_timeJitter/2.0));
-	
+    double randomjitter  = CLHEP::RandFlat::shoot(m_rndmEngine,(-m_timeJitter/2.0),(m_timeJitter/2.0));    	
+     
     //double G4Time	 = totalCharge.time();
     
     double G4Time = getG4Time(totalCharge);
     double timing        = m_timeZero+myTimeWalkEff+(randomjitter)+G4Time-m_comTime; 
     BCID                 = static_cast<int>(floor(timing/m_timePerBCO));
-    //ATH_MSG_DEBUG (  G4Time << " , " << timing << " , " << BCID );    
+    //ATH_MSG_DEBUG (  CTW << " , " << myTimeWalkEff << " , " << G4Time << " , " << timing << " , " << BCID );    
 
     return BCID;
 }

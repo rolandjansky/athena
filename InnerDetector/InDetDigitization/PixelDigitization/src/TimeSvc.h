@@ -115,7 +115,7 @@ virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
    */  
   int relativeBunch(const double threshold,
                     const double intimethreshold,
-                    const SiTotalCharge &totalCharge) const;
+                    const SiTotalCharge &totalCharge, bool CTW) const;
 
   /** sets the ComTime */
   void setComTime(const double cT ) { m_comTime = cT;  }
