@@ -99,6 +99,7 @@ BOOST_AUTO_TEST_CASE( testSourceTrackMet ){
 
   const xAOD::MissingETAssociationMap* metMap = nullptr;
   BOOST_REQUIRE( tool.evtStore()->retrieve(metMap, "METAssoc_" + jetType) );
+  metMap->resetObjSelectionFlags();
 
   const xAOD::MissingETContainer* coreMet  = nullptr;
   BOOST_REQUIRE( tool.evtStore()->retrieve(coreMet, "MET_Core_" + jetType) );

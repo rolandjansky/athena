@@ -8,7 +8,7 @@
 #include "xAODRootAccess/TStore.h"
 #endif
 
-// FrameWork includes                                                                                                                                          
+// FrameWork includes
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
 #include "xAODBase/IParticleContainer.h"
@@ -28,27 +28,28 @@
 #undef protected
 
 static std::string const toolname = "tool";
+static TFile * ifile;
+static xAOD::TEvent * event;
+static xAOD::TStore *  store;
 
-struct globalxAODSetup 
-{ 
-  TFile * ifile;
-  xAOD::TEvent * event;
-  xAOD::TStore store;
 
+struct globalxAODSetup
+{
 
   globalxAODSetup() {
     BOOST_TEST_MESSAGE("Setting up for ut_metSystematicsTool");
-   
-    xAOD::Init() ;                                                         
+
+    xAOD::Init() ;
     // CP::CorrectionCode::enableFailure();
     // StatusCode::enableFailure();                                                                                                                      // CP::SystematicCode::enableFailure();
     // xAOD::TReturnCode::enableFailure();
     //   TString const fileName = "AOD.pool.root";
 
     TString const fileName = "/afs/cern.ch/work/r/rsmith/public/METUtilities_testfiles/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.AOD.e3099_s1982_s1964_r6006_tid04628718_00/AOD.04628718._000158.pool.root.1";
-   
+
     ifile = new TFile( fileName, "READ" ) ;
     event = new xAOD::TEvent( ifile,  xAOD::TEvent::kClassAccess );
+    store = new xAOD::TStore;
   }
 
   ~globalxAODSetup(){
@@ -62,12 +63,15 @@ struct perTestSetup
   met::METSystematicsTool tool;
 
   perTestSetup() : tool(toolname)
-  { 
+  {
     BOOST_TEST_MESSAGE("starting test" );
-    //tool.msg().setLevel(MSG::VERBOSE);//if you are failing tests, this is helpful
-    tool.msg().setLevel(MSG::WARNING);
+    tool.msg().setLevel(MSG::VERBOSE);//if you are failing tests, this is helpful
+    //tool.msg().setLevel(MSG::WARNING);
+
+    Long64_t ievent = 1;//just check with one event
+    BOOST_REQUIRE(event->getEntry(ievent) >= 0 );
   }
- 
+
   ~perTestSetup()
   {
     BOOST_TEST_MESSAGE("ending test");
@@ -79,7 +83,7 @@ BOOST_GLOBAL_FIXTURE( globalxAODSetup )
 BOOST_FIXTURE_TEST_SUITE(Test_Met_Systematics_Tool , perTestSetup)
 
 BOOST_AUTO_TEST_CASE(testDynamicCast)
-{ 
+{
   xAOD::MissingET * testMET = new xAOD::MissingET("myMET");
 
   const xAOD::IParticleContainer* cont =   dynamic_cast<const xAOD::IParticleContainer*>(testMET->container());
@@ -98,7 +102,7 @@ BOOST_AUTO_TEST_CASE( testAddObjToCont ){
   xAOD::MissingETContainer * testMETcont  = new xAOD::MissingETContainer();
   BOOST_REQUIRE(testMETcont != nullptr);//passes
 
-  xAOD::MissingET * myObj  =  new xAOD::MissingET("myMETobj");  
+  xAOD::MissingET * myObj  =  new xAOD::MissingET("myMETobj");
   testMETcont->push_back(myObj);
   BOOST_REQUIRE(testMETcont->at(0) == myObj);//passes
   BOOST_REQUIRE(testMETcont->size() == 1); //one element passes
@@ -108,7 +112,7 @@ BOOST_AUTO_TEST_CASE( testAddObjToCont ){
   BOOST_REQUIRE(cont != nullptr );
   BOOST_REQUIRE(cont == testMETcont);
   BOOST_REQUIRE(*cont == *testMETcont);
-  
+
   delete testMETcont;
 }
 
@@ -122,7 +126,7 @@ BOOST_AUTO_TEST_CASE( testDefaultHistosFilled ){
 }
 
 BOOST_AUTO_TEST_CASE( testJetTrkHistosFilled ){
-  BOOST_REQUIRE(tool.setProperty("ConfigJetTrkFile" ,"METTrack_2012.config"));
+  BOOST_REQUIRE(tool.setProperty("ConfigJetTrkFile" ,"JetTrackSyst.config"));
   BOOST_REQUIRE(tool.initialize());
 
   BOOST_REQUIRE(tool.shiftpara_pthard_njet_mu!=nullptr);
@@ -150,7 +154,7 @@ BOOST_AUTO_TEST_CASE( testNonSoftTermFailure ){//test source checking
   BOOST_REQUIRE(jetMET.source() == MissingETBase::Source::jet());//check we don't change the source
 
 
-  
+
 }
 
 BOOST_AUTO_TEST_CASE( testGetEventInfo)   {
@@ -165,13 +169,13 @@ BOOST_AUTO_TEST_CASE( testSoftTermSuccess ){
 
   xAOD::MissingETContainer   * testMETcont    = new xAOD::MissingETContainer();
   xAOD::MissingETAuxContainer* testMETcontAux = new xAOD::MissingETAuxContainer();
-  testMETcont->setStore( testMETcontAux ); 
+  testMETcont->setStore( testMETcontAux );
   BOOST_REQUIRE(testMETcont != nullptr);//passes
 
   xAOD::MissingET * myObj  =  new xAOD::MissingET("myMETobj", MissingETBase::Source::softEvent());
   testMETcont->push_back(myObj);
   BOOST_REQUIRE(testMETcont->at(0) == myObj);//passes
-  BOOST_REQUIRE(testMETcont->size() == 1); //one element passes       
+  BOOST_REQUIRE(testMETcont->size() == 1); //one element passes
 
   BOOST_REQUIRE( tool.applyCorrection(*myObj));//this time, we should pass because our object is owned
 
@@ -185,7 +189,7 @@ BOOST_AUTO_TEST_CASE( testRetrieveMETTerms ){
 
   xAOD::MissingETContainer const * cont = nullptr;
 
-  BOOST_REQUIRE(  tool.evtStore()->retrieve(cont,"MET_Reference_AntiKt4LCTopo") ); 
+  BOOST_REQUIRE(  tool.evtStore()->retrieve(cont,"MET_Reference_AntiKt4LCTopo") );
 
   xAOD::MissingET const * refgamma = (*cont)["RefGamma"];
 
@@ -208,38 +212,41 @@ BOOST_AUTO_TEST_CASE( testAddAffectingSystematic ){
 BOOST_AUTO_TEST_CASE( testProjectST ){
   BOOST_REQUIRE(tool.initialize());
 
-  xAOD::MissingET yaxisSoftTerm (0., 15., 50.);
-  xAOD::MissingET xaxisHardTerm (10., 0., 50.);
+  met::missingEt yaxisSoftTerm (0., 15., 50.);
+  met::missingEt xaxisHardTerm (10., 0., 50.);
 
-  xAOD::MissingET proj = tool.projectST(yaxisSoftTerm, xaxisHardTerm);
+  met::missingEt proj = tool.projectST(yaxisSoftTerm, xaxisHardTerm);
 
-  BOOST_REQUIRE(proj.mpx() == yaxisSoftTerm.mpx() &&
-	 proj.mpy() == (-1)*yaxisSoftTerm.mpy() && //in this case, our "projection" will do a reflection over the x (ptHard) axis
-	 proj.sumet()== yaxisSoftTerm.sumet() 
+  BOOST_REQUIRE(proj.mpx == yaxisSoftTerm.mpx &&
+	 proj.mpy == (-1)*yaxisSoftTerm.mpy && //in this case, our "projection" will do a reflection over the x (ptHard) axis
+	 proj.sumet== yaxisSoftTerm.sumet
 	 );
 
-  xAOD::MissingET projectBack = tool.projectST(proj, xaxisHardTerm);
+  met::missingEt projectBack = tool.projectST(proj, xaxisHardTerm);
 
-  BOOST_REQUIRE(projectBack == yaxisSoftTerm);
+  BOOST_REQUIRE(projectBack.mpx == yaxisSoftTerm.mpx);
+  BOOST_REQUIRE(projectBack.mpy == yaxisSoftTerm.mpy);
+  BOOST_REQUIRE(projectBack.sumet == yaxisSoftTerm.sumet);
+
 }
 
 BOOST_AUTO_TEST_CASE( testProjectST2 ){
   BOOST_REQUIRE(tool.initialize());
 
-  xAOD::MissingET yaxisSoftTerm (0., 15., 50.);
-  xAOD::MissingET xaxisHardTerm (10., 0., 50.);
+  met::missingEt yaxisSoftTerm (0., 15., 50.);
+  met::missingEt xaxisHardTerm (10., 0., 50.);
 
-  xAOD::MissingET proj = tool.softTrkSyst_scale(yaxisSoftTerm, xaxisHardTerm, 0. );
-  BOOST_REQUIRE(proj == yaxisSoftTerm);
+  met::missingEt proj = tool.softTrkSyst_scale(yaxisSoftTerm, xaxisHardTerm, 0. );
+  BOOST_REQUIRE(proj.mpx  == yaxisSoftTerm.mpx);
+  BOOST_REQUIRE(proj.mpy  == yaxisSoftTerm.mpy);
+  BOOST_REQUIRE(proj.sumet  == yaxisSoftTerm.sumet);
 
   double shift = 1.;
   proj = tool.softTrkSyst_scale(yaxisSoftTerm, xaxisHardTerm, shift); //
-  BOOST_REQUIRE(proj.mpx()  == (yaxisSoftTerm.mpx()+shift)  &&
-	 proj.mpy()  ==  yaxisSoftTerm.mpy()         &&
-	 proj.sumet()==  yaxisSoftTerm.sumet() 
-	 );
-
-  
+  BOOST_REQUIRE(proj.mpx  == (yaxisSoftTerm.mpx+shift)  &&
+		proj.mpy  ==  yaxisSoftTerm.mpy         &&
+		proj.sumet==  yaxisSoftTerm.sumet
+		);
 }
 
 BOOST_AUTO_TEST_CASE( testCorrectedCopy ){
@@ -253,16 +260,16 @@ BOOST_AUTO_TEST_CASE( testCorrectedCopy ){
   xAOD::MissingET * myObj  =  new xAOD::MissingET("myMETobj", MissingETBase::Source::softEvent());
   testMETcont->push_back(myObj);
   BOOST_REQUIRE(testMETcont->at(0) == myObj);
-  BOOST_REQUIRE(testMETcont->size() == 1); //one element passes       
+  BOOST_REQUIRE(testMETcont->size() == 1); //one element passes
 
   xAOD::MissingET * correctedCopy = nullptr;
   BOOST_REQUIRE( tool.correctedCopy(*myObj, correctedCopy));
   BOOST_REQUIRE( correctedCopy != nullptr);
-  
+
   delete testMETcont;
   delete testMETcontAux;
 
-  
+
 }
 
 BOOST_AUTO_TEST_CASE( testRetrieveTruth ){
@@ -270,14 +277,14 @@ BOOST_AUTO_TEST_CASE( testRetrieveTruth ){
   BOOST_REQUIRE(testMETcont != nullptr);
 
   xAOD::MissingET * met = (*testMETcont)["NonInt"];
-  BOOST_REQUIRE(met == nullptr ); 
+  BOOST_REQUIRE(met == nullptr );
 
   delete testMETcont;
 }
 
 BOOST_AUTO_TEST_CASE( testSoftTrkPtHardScale ){
   BOOST_REQUIRE(tool.initialize());
-  
+
   CP::SystematicVariation softTrk_ScaleUp("MET_SoftTrk_ScaleUp");
   CP::SystematicSet applySys(softTrk_ScaleUp.name());
   BOOST_REQUIRE(  tool.applySystematicVariation(applySys ) );
@@ -295,18 +302,18 @@ BOOST_AUTO_TEST_CASE( testSoftTrkPtHardScale ){
 
   BOOST_REQUIRE(correctedCopy != nullptr);
   BOOST_REQUIRE(tool.applyCorrection(*myObj));
-  BOOST_REQUIRE( (int)correctedCopy->mpx()  ==  (int)myObj->mpx() && 
+  BOOST_REQUIRE( (int)correctedCopy->mpx()  ==  (int)myObj->mpx() &&
 	  (int)correctedCopy->mpy()         ==  (int)myObj->mpy() &&
 	  (int)correctedCopy->sumet()       ==  (int)myObj->sumet());
 
 
   delete testMETcont;
-  delete testMETcontAux;  
+  delete testMETcontAux;
 }
 
 BOOST_AUTO_TEST_CASE( testSoftTrkPtHardResoPara ){
   BOOST_REQUIRE(tool.initialize());
-  
+
   CP::SystematicVariation softTrk_ResoPara("MET_SoftTrk_ResoPara");
   CP::SystematicSet applySys(softTrk_ResoPara.name());
   BOOST_REQUIRE(  tool.applySystematicVariation(applySys ) );
@@ -326,7 +333,7 @@ BOOST_AUTO_TEST_CASE( testSoftTrkPtHardResoPara ){
   tool.setRandomSeed(199);//reset the random seed to redo the same calculation
   BOOST_REQUIRE(tool.applyCorrection(*myObj));
 
-  BOOST_REQUIRE( (int)correctedCopy->mpx()  ==  (int)myObj->mpx() && 
+  BOOST_REQUIRE( (int)correctedCopy->mpx()  ==  (int)myObj->mpx() &&
 	  (int)correctedCopy->mpy()  ==  (int)myObj->mpy() &&
 	  (int)correctedCopy->sumet()  ==  (int)myObj->sumet());
 
@@ -337,7 +344,7 @@ BOOST_AUTO_TEST_CASE( testSoftTrkPtHardResoPara ){
 
 BOOST_AUTO_TEST_CASE( testSoftTrkPtHardResoPerp ){
   BOOST_REQUIRE(tool.initialize());
-  
+
   CP::SystematicVariation softTrk_ResoPerp("MET_SoftTrk_ResoPerp");
   CP::SystematicSet applySys(softTrk_ResoPerp.name());
   BOOST_REQUIRE(  tool.applySystematicVariation(applySys ) );
@@ -358,7 +365,7 @@ BOOST_AUTO_TEST_CASE( testSoftTrkPtHardResoPerp ){
   tool.setRandomSeed(199);//reset the random seed to redo the same calculation
   BOOST_REQUIRE(tool.applyCorrection(*myObj));
 
-  BOOST_REQUIRE( (int)correctedCopy->mpx()  ==  (int)myObj->mpx() && 
+  BOOST_REQUIRE( (int)correctedCopy->mpx()  ==  (int)myObj->mpx() &&
 	  (int)correctedCopy->mpy()  ==  (int)myObj->mpy() &&
 	  (int)correctedCopy->sumet()  ==  (int)myObj->sumet());
 
@@ -370,7 +377,7 @@ BOOST_AUTO_TEST_CASE( testSoftTrkPtHardResoPerp ){
 
 BOOST_AUTO_TEST_CASE( testSoftCaloPtScale ){
   BOOST_REQUIRE(tool.initialize());
-  
+
   CP::SystematicVariation softCalo_scaleUp("MET_SoftCalo_ScaleUp");
   CP::SystematicSet recSys(softCalo_scaleUp.name());
   BOOST_REQUIRE(  tool.applySystematicVariation(recSys) );
@@ -388,7 +395,7 @@ BOOST_AUTO_TEST_CASE( testSoftCaloPtScale ){
 
   BOOST_REQUIRE(correctedCopy != nullptr);
   BOOST_REQUIRE(tool.applyCorrection(*myObj));
-  BOOST_REQUIRE( (int)correctedCopy->mpx()  ==  (int)myObj->mpx() && 
+  BOOST_REQUIRE( (int)correctedCopy->mpx()  ==  (int)myObj->mpx() &&
 	  (int)correctedCopy->mpy()  ==  (int)myObj->mpy() &&
 	  (int)correctedCopy->sumet()  ==  (int)myObj->sumet());
 
@@ -398,7 +405,7 @@ BOOST_AUTO_TEST_CASE( testSoftCaloPtScale ){
 }
 
 BOOST_AUTO_TEST_CASE( testJetTrackMET ){
-  BOOST_REQUIRE(tool.setProperty("ConfigJetTrkFile" ,"METTrack_2012.config") );
+  BOOST_REQUIRE(tool.setProperty("ConfigJetTrkFile" ,"JetTrackSyst.config") );
   BOOST_REQUIRE(tool.initialize());
 
   CP::SystematicVariation jetTrk_scaleUp("MET_JetTrk_ScaleUp");
@@ -415,10 +422,10 @@ BOOST_AUTO_TEST_CASE( testJetTrackMET ){
 
   xAOD::MissingET * correctedCopy = nullptr;
   BOOST_REQUIRE( tool.correctedCopy(*myObj, correctedCopy));
-  
+
   BOOST_REQUIRE(correctedCopy != nullptr);
   BOOST_REQUIRE(tool.applyCorrection(*myObj));
-  BOOST_REQUIRE( (int)correctedCopy->mpx()  ==  (int)myObj->mpx() && 
+  BOOST_REQUIRE( (int)correctedCopy->mpx()  ==  (int)myObj->mpx() &&
 	  (int)correctedCopy->mpy()  ==  (int)myObj->mpy() &&
 	  (int)correctedCopy->sumet()  ==  (int)myObj->sumet());
 
@@ -435,8 +442,41 @@ BOOST_AUTO_TEST_CASE( testNoConfigFiles ){
 
   BOOST_REQUIRE(tool.initialize());
 
-  
+
 }
+
+//todo reinclude this when we have the files in PathResolver space
+// BOOST_AUTO_TEST_CASE( testPrecommendationFiles) {
+//   BOOST_REQUIRE(  tool.setProperty("ConfigPrefix", "METUtilities/data15_13TeV/prerecommendations/"));
+//   // BOOST_REQUIRE(  tool.setProperty("ConfigSoftTrkFile","TrackSoftTerms.config") );
+
+//   BOOST_REQUIRE(  tool.initialize() ) ;
+
+//   CP::SystematicVariation softCalo_scaleUp("MET_SoftCalo_ScaleUp");
+//   CP::SystematicSet recSys(softCalo_scaleUp.name());
+//   BOOST_REQUIRE(  tool.applySystematicVariation(recSys) );
+
+//   xAOD::MissingETContainer *   testMETcont    = new xAOD::MissingETContainer();
+//   xAOD::MissingETAuxContainer* testMETcontAux = new xAOD::MissingETAuxContainer();
+//   testMETcont->setStore( testMETcontAux );
+//   BOOST_REQUIRE(testMETcont != nullptr);//passes
+
+//   xAOD::MissingET * myObj  =  new xAOD::MissingET(10., 15., 20., "myMETobj", MissingETBase::Source::softEvent());
+//   testMETcont->push_back(myObj);
+
+//   xAOD::MissingET * correctedCopy = nullptr;
+//   BOOST_REQUIRE( tool.correctedCopy(*myObj, correctedCopy));
+
+//   BOOST_REQUIRE(correctedCopy != nullptr);
+//   BOOST_REQUIRE(tool.applyCorrection(*myObj));
+//   BOOST_REQUIRE( (int)correctedCopy->mpx()  ==  (int)myObj->mpx() &&
+// 	  (int)correctedCopy->mpy()  ==  (int)myObj->mpy() &&
+// 	  (int)correctedCopy->sumet()  ==  (int)myObj->sumet());
+
+//   delete testMETcont;
+//   delete testMETcontAux;
+//   delete correctedCopy;
+// }
 
 
 BOOST_AUTO_TEST_SUITE_END() //Test_Met_Systematics_Tool

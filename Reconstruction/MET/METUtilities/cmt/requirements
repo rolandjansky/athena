@@ -18,16 +18,20 @@ use METInterface	METInterface-*		Reconstruction/MET
 use xAODJet             xAODJet-*               Event/xAOD
 use xAODTracking        xAODTracking-*          Event/xAOD
 use xAODMissingET	xAODMissingET-*		Event/xAOD
+use xAODEgamma          xAODEgamma-*            Event/xAOD
+use xAODMuon            xAODMuon-*              Event/xAOD
+use xAODTau             xAODTau-*               Event/xAOD
 
 use InDetTrackSelectionTool InDetTrackSelectionTool-* InnerDetector/InDetRecTools
 
 private
-use xAODEgamma          xAODEgamma-*            Event/xAOD
-use xAODMuon            xAODMuon-*              Event/xAOD
-use xAODTau             xAODTau-*               Event/xAOD
 use xAODCore		xAODCore-*		Event/xAOD
 
 use PathResolver	PathResolver-*		Tools
+
+use ElectronPhotonSelectorTools          ElectronPhotonSelectorTools-*          PhysicsAnalysis/ElectronPhotonID
+use MuonSelectorTools         MuonSelectorTools-*         PhysicsAnalysis/MuonID
+#use TauAnalysisTools TauAnalysisTools-* PhysicsAnalysis/TauID
 
 # needed for track momentum errors
 use EventPrimitives	EventPrimitives-*	Event

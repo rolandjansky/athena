@@ -7,7 +7,7 @@
 // METSystematicsTool.h
 // Header file for class METSystematicsTool
 // Author: Russell Smith <rsmith@cern.ch>
-/////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////
 #ifndef METUTILITIES_METSYSTEMATICSTOOL_H
 #define METUTILITIES_METSYSTEMATICSTOOL_H
 
@@ -29,52 +29,56 @@ class TH1D;
 
 namespace met {
 
-  namespace softCaloAffSyst {
-    const static CP::SystematicVariation MET_SoftCalo_ScaleUp  ("MET_SoftCalo_ScaleUp"  );
-    const static CP::SystematicVariation MET_SoftCalo_ScaleDown("MET_SoftCalo_ScaleDown");
-    const static CP::SystematicVariation MET_SoftCalo_Reso     ("MET_SoftCalo_Reso");
-  }
+  typedef ElementLink<xAOD::IParticleContainer> obj_link_t;
 
-  namespace softTrkAffSyst {
-    const static CP::SystematicVariation MET_SoftTrk_ScaleUp  ("MET_SoftTrk_ScaleUp"  );
-    const static CP::SystematicVariation MET_SoftTrk_ScaleDown("MET_SoftTrk_ScaleDown");
-    const static CP::SystematicVariation MET_SoftTrk_ResoPara ("MET_SoftTrk_ResoPara" );
-    const static CP::SystematicVariation MET_SoftTrk_ResoPerp ("MET_SoftTrk_ResoPerp" );
-    const static CP::SystematicVariation MET_SoftTrk_ResoCorr ("MET_SoftTrk_ResoCorr" );
-  }
+  //we create this to avoid calling the xAOD::MissingET constructor
+  //since it creates a private store which is slow
+  //please forgive the code duplication :)
+  struct missingEt {
+    missingEt() : mpx(0), mpy(0), sumet(0), name(""), source(MissingETBase::Source::UnknownType){}
+    missingEt(double _mpx, double _mpy, double _sumet) :
+      mpx(_mpx),
+      mpy(_mpy),
+      sumet(_sumet),
+      name(""),
+      source(MissingETBase::Source::UnknownType)
+    {}
+    missingEt(double _mpx, double _mpy, double _sumet, std::string const & iname, MissingETBase::Types::bitmask_t const & isource ) :
+      mpx(_mpx),
+      mpy(_mpy),
+      sumet(_sumet),
+      name(iname),
+      source(isource)
+    {}
 
-  namespace jetTrkAffSyst {
-    const static CP::SystematicVariation MET_JetTrk_ScaleUp   ("MET_JetTrk_ScaleUp"  );
-    const static CP::SystematicVariation MET_JetTrk_ScaleDown ("MET_JetTrk_ScaleDown");
-  }
-
-  enum SystType {
-    SOFTCALO,
-    SOFTTRK,
-    JETTRK
+    double mpx;
+    double mpy;
+    double sumet;
+    std::string name;
+    MissingETBase::Types::bitmask_t  source;
   };
 
   //this is to speed up applyCorrection lookup.
   //we still store the full list in appliedSystematics()/m_appliedSystematics
-  enum SystApplied {      
+  enum SystApplied {
     NONE              ,
-    MET_SOFTTRK_SCALEUP   , 
+    MET_SOFTTRK_SCALEUP   ,
     MET_SOFTTRK_SCALEDOWN ,
     MET_SOFTTRK_RESOPARA  ,
     MET_SOFTTRK_RESOPERP  ,
     MET_SOFTTRK_RESOCORR  ,
-    MET_SOFTCALO_SCALEUP  , 
+    MET_SOFTCALO_SCALEUP  ,
     MET_SOFTCALO_SCALEDOWN,
     MET_SOFTCALO_RESO     ,
     MET_JETTRK_SCALEUP    ,
-    MET_JETTRK_SCALEDOWN  
+    MET_JETTRK_SCALEDOWN
   };
 
-  class METSystematicsTool : public virtual IMETSystematicsTool, 
-			     public virtual asg::AsgTool,
-			     public virtual CP::SystematicsTool
+  class METSystematicsTool : public virtual IMETSystematicsTool,
+			     public asg::AsgTool,
+			     public CP::SystematicsTool
   {
-    // This macro defines the constructor with the interface declaration                                                                              
+    // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METSystematicsTool, IMETSystematicsTool)
 
     public:
@@ -82,7 +86,7 @@ namespace met {
     //Constructor
     METSystematicsTool(const std::string& name);
 
-    //Destructor 
+    //Destructor
     virtual ~METSystematicsTool(){}
 
 
@@ -96,7 +100,7 @@ namespace met {
 
     //required correction tool functions
     //we don't inherit from CorrectionTool directly, since we don't want to implement applyContainerCorrection
-    CP::CorrectionCode applyCorrection(xAOD::MissingET& inputMet, 
+    CP::CorrectionCode applyCorrection(xAOD::MissingET& inputMet,
 				       const xAOD::MissingETAssociationMap * map = nullptr,
 				       const xAOD::JetContainer *        jetCont = nullptr ) const;
     CP::CorrectionCode correctedCopy(const xAOD::MissingET& met, xAOD::MissingET*& outputmet,
@@ -124,21 +128,22 @@ namespace met {
     SystApplied m_appliedSystEnum;
 
     //these are the internal computation functions
-    CP::CorrectionCode internalSoftTermApplyCorrection(xAOD::MissingET& softMet,   
+    CP::CorrectionCode internalSoftTermApplyCorrection(xAOD::MissingET& softMet,
 						       xAOD::MissingETContainer const * METcont,
 						       xAOD::EventInfo          const & eInfo,
 						       xAOD::JetContainer       const * jetCont
 						       ) const;
     CP::CorrectionCode calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationMap* map, const xAOD::Jet* jet) const;
+    CP::CorrectionCode calcJetTrackMETWithSyst(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationMap* map, const xAOD::JetContainer* jetCont) const;
     CP::CorrectionCode getCorrectedJetTrackMET(xAOD::MissingET& jettrkmet, const xAOD::MissingETAssociationMap* map, const xAOD::JetContainer* jetCont) const;
 
-    //declared properties 
+    //declared properties
     std::string m_jetColl;
     std::string m_configPrefix;
     std::string m_configSoftTrkFile;
     std::string m_configJetTrkFile;
     std::string m_configSoftCaloFile;
-    std::string m_truthCont; 
+    std::string m_truthCont;
     std::string m_truthObj;
     std::string m_vertexCont;
     std::string m_eventInfo;
@@ -153,19 +158,26 @@ namespace met {
 
     mutable TRandom3 m_rand;//so that we can call this from applyCorrection
 
+    SG::AuxElement::ConstAccessor<obj_link_t>  m_objLinkAcc;
+
+    //internal property
+    int m_units;//by default = -1, not set.  Set to 1 (MeV) if not value found in config file
+
     int getNPV() const;
     xAOD::EventInfo const * getDefaultEventInfo() const;
 
     StatusCode addMETAffectingSystematics();
     StatusCode extractHistoPath(std::string & histfile, std::string & systpath, std::string & configdir, std::string & suffix, SystType const & type);
-    
-    xAOD::MissingET calcPtHard(xAOD::MissingETContainer const * const cont) const;
-    xAOD::MissingET caloSyst_scale(xAOD::MissingET const &softTerms , double const scale) const;
-    xAOD::MissingET caloSyst_reso (xAOD::MissingET const &softTerms) const;
-    xAOD::MissingET softTrkSyst_scale (xAOD::MissingET const & softTerms, xAOD::MissingET const & ptHard, double const shift) const;
-    xAOD::MissingET softTrkSyst_reso  (xAOD::MissingET const & softTerms, xAOD::MissingET const & ptHard, double const shift, double const smearpara,
+
+    missingEt calcPtHard(xAOD::MissingETContainer const * const cont) const;
+    missingEt caloSyst_scale(missingEt const &softTerms , double const scale) const;
+    missingEt caloSyst_reso (missingEt const &softTerms) const;
+    missingEt softTrkSyst_scale (missingEt const & softTerms, missingEt const & ptHard, double const shift) const;
+    missingEt softTrkSyst_reso  (missingEt const & softTerms, missingEt const & ptHard, double const shift, double const smearpara,
 				       double const smearperp) const;
-    xAOD::MissingET projectST     (xAOD::MissingET const & softTerms, xAOD::MissingET const & ptHard) const;
+    missingEt projectST     (missingEt const & softTerms, missingEt const & ptHard) const;
+
+
 
   };//METSystematicsTool
 
