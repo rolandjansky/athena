@@ -32,17 +32,16 @@ class TTree;
 class TLeaf;
 class TClass;
 
-class IRootAuxDynReader;
-
-
 /*
  * POOL namespace declaration
  */
 namespace pool  { 
 
   // Forward declaration
-   class DbColumn;
-   class RootDatabase;
+  class DbColumn;
+  class RootDatabase;
+  class IClassHandler;
+   class AuxStoreAPR;
 
   /** @class RootTreeContainer RootTreeContainer.h src/RootTreeContainer.h
     *
@@ -60,6 +59,7 @@ namespace pool  {
     */
   class RootTreeContainer : public DbContainerImp
   {
+ friend class AuxStoreAPR;
     /// Definiton of a branch descriptor
     struct BranchDesc {
     public:
@@ -69,10 +69,10 @@ namespace pool  {
       void*             object;
       void*             buffer;
       const DbColumn*   column;
+      IClassHandler*    handler;
       // extra variables used by Aux dynamic
       size_t            rows_written = 0;
-      // AuxDyn reader if used by this branch
-      IRootAuxDynReader*aux_reader = 0;
+      int               aux_storehdl_IFoffset = -1;
       int               aux_iostore_IFoffset = -1;
       bool              is_basic_type = false;
       bool              written = false;
@@ -83,20 +83,23 @@ namespace pool  {
               leaf(0),
               object(0),
               buffer(0),
-              column(0)
+              column(0),
+              handler(0)
       {}
       
       BranchDesc( TClass* cl, 
                   TBranch* b,
                   TLeaf* l,
                   void* o,
-                  const DbColumn* c)
+                  const DbColumn* c,
+                  IClassHandler* h)
             : clazz(cl), 
               branch(b),
               leaf(l),
               object(0),
               buffer(o),
-              column(c)
+              column(c),
+              handler(h) 
       {}
       // difference for branch.setAddress() for objects and basic types, used by Aux dynamic 
       void*     objectAddr() { return is_basic_type? object : &object; }
@@ -126,6 +129,7 @@ namespace pool  {
 
     /// aux branches by auxid, used for AuxStore I/O
     std::map<SG::auxid_t, BranchDesc>   m_auxBranchMap;
+    std::map<std::string, TBranch*>     m_auxBranches;
     
   private:
 
@@ -155,6 +159,9 @@ namespace pool  {
     // Routine needed for TRANSACT_FLUSH, if branch is specified by user.
     DbStatus finishTransAct();
 
+    /// construct branch name for dynamic aux attribute
+    std::string         auxBranchName(const std::string& attr_name);
+    
     /// Access branch by name
     TBranch* branch(const std::string& nam)  const;
 
@@ -239,6 +246,15 @@ namespace pool  {
                                 Token::OID_t& oid,
                                 DbAccessMode  mode);
 
+
+    /// Find (in the current open file) TBranch for AUX attribute auxid
+    TBranch* findAuxBranch(const SG::auxid_t& auxid);
+
+    /// Read entry from a branch for AUX attribute auxid into data buffer
+    DbStatus readAuxBranch(const SG::auxid_t &auxid, void* data, long long entry);
+
+    /// Read entry from an AUX branch into data buffer
+    DbStatus readAuxBranch(TBranch& branch, void* data, long long entry);
 
     /// Create TBranch for a basic type (ROOT type notation given in the leafname)
     void createBasicAuxBranch(const std::string& branchname,

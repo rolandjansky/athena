@@ -13,6 +13,7 @@
 #include "RootTreeContainer.h"
 #include "POOLCore/strcasecmp.h"
 #include "StorageSvc/DbInstanceCount.h"
+#include "StorageSvc/IClassLoader.h"
 #include "StorageSvc/IOODatabase.h"
 #include "StorageSvc/DbDatabase.h"
 #include "StorageSvc/DbOption.h"
@@ -49,7 +50,7 @@ RootDatabase::RootDatabase(IOODatabase* idb)
   m_defBufferSize(16*1024),
   m_defWritePolicy(TObject::kOverwrite),   // On write create new versions
   m_branchOffsetTabLen(0),
-  m_defTreeCacheLearnEvents(100),
+  m_defTreeCacheLearnEvents(5),
   m_fileMgr(0)
 {
   m_version = "1.1";
@@ -238,7 +239,7 @@ DbStatus RootDatabase::open(const DbDomain& domH,const std::string& nam,DbAccess
         << DbPrint::endmsg;
   }
   if ( m_file )   {
-    log << DbPrintLvl::Info <<  fname << " File version:" << m_file->GetVersion() << DbPrint::endmsg;
+    log << DbPrintLvl::Always << fname << " File version:" << m_file->GetVersion() << DbPrint::endmsg;
     if ( !m_file->IsOpen() )   {
       log << DbPrintLvl::Error << "Failed to open file:" << nam << DbPrint::endmsg;
       deletePtr(m_file);
@@ -599,26 +600,17 @@ DbStatus RootDatabase::setOption(const DbOption& opt)  {
           }
           return sc;
        }
-       else if ( !strcasecmp(n+5,"AUTO_FLUSH") )  {
+       else if( !strcasecmp(n+5,"AUTO_FLUSH") )  {
           return setAutoFlush(opt);
        }
        else if ( !strcasecmp(n+5,"CACHE_LEARN_EVENTS") )  {
-          DbStatus s = opt._getValue(m_defTreeCacheLearnEvents);
-          if( s.isSuccess() ) {
-             DbPrint log("RootDatabase.setOption");
-             if ( m_file->GetListOfKeys()->Contains("CollectionTree") )  {
-                TTree *tree = (TTree*)m_file->Get("CollectionTree");
-                if (tree != 0 && tree->GetAutoFlush() > 0) {
-                   if (m_defTreeCacheLearnEvents < tree->GetAutoFlush()) {
-                      log << DbPrintLvl::Info << n << ": Overwriting LearnEvents with CollectionTree AutoFlush" << DbPrint::endmsg;
-                      m_defTreeCacheLearnEvents = tree->GetAutoFlush();
-                   }
-                }
-             }
-             TTreeCache::SetLearnEntries(m_defTreeCacheLearnEvents);
-             log << DbPrintLvl::Debug << n << " = " << m_defTreeCacheLearnEvents << DbPrint::endmsg;
-          }
-          return s;
+           DbStatus s = opt._getValue(m_defTreeCacheLearnEvents);
+           if( s.isSuccess() ) {
+              TTreeCache::SetLearnEntries(m_defTreeCacheLearnEvents);
+              DbPrint log("RootDatabase.setOption");
+              log << DbPrintLvl::Debug << n << " = " << m_defTreeCacheLearnEvents << DbPrint::endmsg; 
+           }
+           return s;
        }
        else if ( !strcasecmp(n+5,"CACHE") )  {
            DbPrint log("RootDatabase.setOption");
@@ -628,6 +620,10 @@ DbStatus RootDatabase::setOption(const DbOption& opt)  {
 
            int cacheSize = 0;
            opt._getValue(cacheSize);
+           if (cacheSize == 0) {
+               log << DbPrintLvl::Error << "Must set cache size != 0 to start TREE_CACHE " << DbPrint::endmsg;
+               return Error;
+           }
            if (!opt.option().size()) {
                log << DbPrintLvl::Error << "Must set option to tree name to start TREE_CACHE " << DbPrint::endmsg;
                return Error;
@@ -648,7 +644,7 @@ DbStatus RootDatabase::setOption(const DbOption& opt)  {
                log << DbPrintLvl::Debug << "Using Tree cache. Size: " << cacheSize 
                    << " Nevents to learn with: " << m_defTreeCacheLearnEvents << DbPrint::endmsg;
            }
-           else if (cacheSize != 0) {
+           else {
                log << DbPrintLvl::Error << "Could not get cache " << DbPrint::endmsg;
                return Error;
            }
