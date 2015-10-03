@@ -7,7 +7,7 @@
  * @brief Utility to list the metadata of a POOL collection
  * @author K. Karr <Kristo.Karr@cern.ch>
  * @author Marcin.Nowak@cern.ch
- * $Id: CollListAttrib.cpp 726582 2016-02-27 11:23:37Z krasznaa $
+ * $Id: CollListAttrib.cpp 506773 2012-06-21 15:40:21Z gemmeren $
  */
 
 #include "PersistentDataModel/Token.h"
