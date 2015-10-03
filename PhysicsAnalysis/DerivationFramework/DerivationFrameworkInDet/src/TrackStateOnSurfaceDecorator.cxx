@@ -59,9 +59,9 @@ namespace DerivationFramework {
     AthAlgTool(t,n,p),
     m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
+    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
     m_trtcaldbSvc("TRT_CalDbSvc",n),
-    m_TRTdEdxTool("InDet::TRT_ToT_Tools/TRT_ToT_dEdx"),
-    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
+    m_TRTdEdxTool("InDet::TRT_ToT_Tools/TRT_ToT_dEdx")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     // --- Steering and configuration flags
@@ -94,9 +94,9 @@ namespace DerivationFramework {
     // -- Tools 
     declareProperty("ResidualPullCalculator", m_residualPullCalculator);
     declareProperty("HoleSearch",             m_holeSearchTool);
+    declareProperty("TrackExtrapolator",      m_extrapolator);
     declareProperty("TRT_CalDbSvc",           m_trtcaldbSvc);
     declareProperty("TRT_ToT_dEdx",           m_TRTdEdxTool);
-    declareProperty("TrackExtrapolator",      m_extrapolator);
   }
 
   StatusCode TrackStateOnSurfaceDecorator::initialize()
@@ -309,7 +309,7 @@ namespace DerivationFramework {
 
       //Calculate and decorate track particle with TRT dEdx value    
       if (m_storeTRT) {
-        decoratorTRTdEdx (*track)     = m_TRTdEdxTool->dEdx( trkTrack, !m_isSimulation, true, true, true, numberOfPrimaryVertices);
+        decoratorTRTdEdx (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, true, true ) ;
         decoratorTRTusedHits (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, true);
       };
 
