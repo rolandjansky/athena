@@ -4,7 +4,6 @@
 
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "AthenaKernel/errorcheck.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -30,14 +29,22 @@ ActiveStoreSvc::~ActiveStoreSvc()
 /// Service initialisation
 StatusCode ActiveStoreSvc::initialize()    {
 
-  CHECK( Service::initialize() );
+  // Initialize service:
+  if(!(Service::initialize()).isSuccess()) return StatusCode::FAILURE;
 
-  msg() << MSG::VERBOSE << "Initializing " << name() 
-      << " - package version " << PACKAGE_VERSION << endmsg ;
+  MsgStream log( messageService(), name() );
+  log << MSG::INFO << "Initializing " << name() 
+      << " - package version " << PACKAGE_VERSION << endreq ;
 
   const bool CREATEIF(true);
-  CHECK(  service(m_storeName, p_activeStore, CREATEIF) );
+  StatusCode sc = service(m_storeName, p_activeStore, CREATEIF);
+  if ( !sc.isSuccess() ) {
+    log << MSG::ERROR << "Could not locate default store" << endreq;
+    return sc;
+  }
+
   return StatusCode::SUCCESS;
+
 }
 
 ///set the active store pointer: used by the event loop mgrs
@@ -84,24 +91,17 @@ StatusCode ActiveStoreSvc::addToStore (CLID id, SG::DataProxy* proxy)
  * @param obj The data object to store.
  * @param key The key as which it should be stored.
  * @param allowMods If false, the object will be recorded as const.
- * @param returnExisting If true, return proxy if this key already exists.
  *
  * Full-blown record.  @c obj should usually be something
  * deriving from @c SG::DataBucket.
  *
  * Returns the proxy for the recorded object; nullptr on failure.
- * If the requested CLID/key combination already exists in the store,
- * the behavior is controlled by @c returnExisting.  If true, then
- * the existing proxy is returned; otherwise, nullptr is returned.
- * In either case, @c obj is destroyed.
  */
-SG::DataProxy*
-ActiveStoreSvc::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
-                              const std::string& key,
-                              bool allowMods,
-                              bool returnExisting)
+SG::DataProxy* ActiveStoreSvc::recordObject (std::unique_ptr<DataObject> obj,
+                                             const std::string& key,
+                                             bool allowMods)
 {
-  return p_activeStore->recordObject (obj, key, allowMods, returnExisting);
+  return p_activeStore->recordObject (std::move(obj), key, allowMods);
 }
 
 
@@ -189,6 +189,9 @@ StatusCode ActiveStoreSvc::queryInterface(const InterfaceID& riid, void** ppvInt
   }
   else if ( IProxyDict::interfaceID().versionMatch(riid) )    {
     *ppvInterface = (IProxyDict*)this;
+  }
+  else if ( IProxyDictWithPool::interfaceID().versionMatch(riid) )    {
+    *ppvInterface = (IProxyDictWithPool*)this;
   }
   else  {
     // Interface is not directly available: try out a base class

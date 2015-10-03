@@ -17,8 +17,6 @@ namespace Athena_test {
 
     int* p_int = new ( p_sms->allocate<int>(SegMemSvc::EVENT) ) int(1001);
 
-    // cppcheck doesn't seem to understand placement new.
-    // cppcheck-suppress uninitdata
     assert ( *p_int == 1001 );
 
   }

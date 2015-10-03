@@ -10,7 +10,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/TransientAddress.h"
 #include "SGTools/DataProxy.h"
-#include "SGTools/TestStore.h"
 
 #include <cassert>
 #include <iostream>
@@ -41,7 +40,7 @@ bool operator==(const MyDataObj& lhs, const MyDataObj& rhs) {
 typedef std::list<int> IntList;
 /** @file DataHandle_test.cxx  unit test for DataHandle
  * @author ATLAS Collaboration
- * $Id: VarHandles_test.cxx 781577 2016-11-01 14:41:16Z ssnyder $
+ * $Id: VarHandles_test.cxx 696279 2015-09-22 20:24:53Z ssnyder $
  ***************************************************************************/
 
 #include "SGTools/CLASS_DEF.h"
@@ -61,19 +60,18 @@ namespace Athena_test {
     assert(copy==empty);
 
     //init with an empty proxy
-    ReadHandle<IntList> emptyProxy("foo");
+    ReadHandle<IntList> emptyProxy;
     assert(!emptyProxy.isInitialized());
     assert(emptyProxy.setState(new DataProxy()).isFailure()); //we are friends
     assert(!emptyProxy.isInitialized());
     assert(!emptyProxy.isSet());
     assert(!emptyProxy.isConst());
     assert(emptyProxy.cachedPtr() == nullptr);
-    assert(!emptyProxy.isValid());
+    SGASSERTERROR(emptyProxy.isValid());
 
     //init with a valid proxy
     DataProxy* pMyProxy(new DataProxy(StoreGateSvc::asStorable(new MyDataObj),
 				      new TransientAddress(CLID(8000), "foo")));
-    pMyProxy->addRef();
     ReadHandle<MyDataObj> hMyR;
     assert(!hMyR.isInitialized());
     assert(hMyR.setState(pMyProxy).isSuccess());
@@ -97,41 +95,39 @@ namespace Athena_test {
     assert(*hMyU.cachedPtr() == 3);
     assert(hMyU!=empty);
 
-    WriteHandle<MyDataObj> hMy ("hMy");
+    WriteHandle<MyDataObj> hMy;
     assert(!hMy.isInitialized());
     assert(hMy.cachedPtr() == nullptr);
-    hMy.setProxyDict (&SGTest::store);
-    hMy = std::make_unique<MyDataObj>(4);
-    //assert(hMy.setState(pMyProxy).isSuccess());
+    assert(hMy.setState(pMyProxy).isSuccess());
     assert(hMy.isInitialized());
     assert(hMy.isSet());
     assert(!hMy.isConst());
     assert(hMy.isValid());
-    assert(hMy->m_i==4);
-    assert(*hMy.cachedPtr() == 4);
+    assert(hMy->m_i==3);
+    assert(*hMy.cachedPtr() == 3);
     assert(hMy!=empty);
 
     //copy it and test
     WriteHandle<MyDataObj> hMyCopy(hMy);
     assert(hMyCopy.isInitialized());
     assert(hMyCopy.isSet());
-    assert(*hMyCopy.cachedPtr() == 4);
+    assert(*hMyCopy.cachedPtr() == 3);
     assert(!hMyCopy.isConst());
     assert(hMyCopy.isValid());
-    assert(hMyCopy->m_i==4);
+    assert(hMyCopy->m_i==3);
     assert(hMy==hMyCopy);
 
     //assign it and test
     WriteHandle<MyDataObj> hMyCopy2;
     hMyCopy2 = hMyCopy;
     assert(hMyCopy2.isValid());
-    assert(hMyCopy2->m_i==4);
+    assert(hMyCopy2->m_i==3);
     assert(hMy==hMyCopy2);
 
     //move it and test
     WriteHandle<MyDataObj> hMove(std::move(hMyCopy2));
     assert(hMove.isValid());
-    assert(hMove->m_i==4);
+    assert(hMove->m_i==3);
     assert(hMy==hMove);
 
     //assign from a temp and test
@@ -146,7 +142,7 @@ namespace Athena_test {
       WriteHandle<MyDataObj> hMove21;
       hMove21 = sillyFunc(std::move(hMyCopy));
       assert(hMove21.isValid());
-      assert(hMove21->m_i==4);
+      assert(hMove21->m_i==3);
       assert(hMy==hMove21);
     }
     {
@@ -169,7 +165,7 @@ namespace Athena_test {
     assert(hMy2.isValid());
     assert(hMy2->m_i==3);
     assert(hMy!=hMy2);
-    //assert(*hMy==*hMy2);
+    assert(*hMy==*hMy2);
 
     const bool CONSTPROXY(true);
     DataProxy* pMyProxy3(new DataProxy(StoreGateSvc::asStorable(new MyDataObj),
@@ -183,16 +179,16 @@ namespace Athena_test {
     assert(hMy3->f()==3.14); 
 #endif
     assert(hMy!=hMy3);
-    //assert(*hMy==*hMy3);
+    assert(*hMy==*hMy3);
 
 
     //init with another proxy referring to the same object and compare
     WriteHandle<MyDataObj> hMySameProxy;
     assert(hMySameProxy.setState(pMyProxy).isSuccess());
-    assert(!hMySameProxy.isValid());
-    //assert(hMySameProxy->m_i==3);
-    //assert(hMy==hMySameProxy);
-    //assert(*hMy==*hMySameProxy);
+    assert(hMySameProxy.isValid());
+    assert(hMySameProxy->m_i==3);
+    assert(hMy==hMySameProxy);
+    assert(*hMy==*hMySameProxy);
     cout << "*** VarHandles_test static handle test OK ***" <<endl;
     return;
   }  
@@ -204,13 +200,13 @@ namespace Athena_test {
     DataProxy* pNR(new DataProxy(StoreGateSvc::asStorable(new MyDataObj(33)),
 				 new TransientAddress(CLID(8000), "noReset"),
 				 CONSTPROXY, !RESETONLY) );
-    ReadHandle<MyDataObj> hNR ("noReset");
+    ReadHandle<MyDataObj> hNR;
     assert(hNR.setState(pNR).isSuccess());
     assert(hNR.isValid());
     assert(33 == hNR->i());
     hNR.reset(true);
     assert(!hNR.isInitialized());
-    assert(!hNR.isValid());
+    SGASSERTERROR(hNR.isValid());
 
     pNR = new DataProxy(StoreGateSvc::asStorable(new MyDataObj(33)),
                         new TransientAddress(CLID(8000), "noReset"),
@@ -220,14 +216,14 @@ namespace Athena_test {
     assert(33 == hNR->i());
     hNR.reset(false);
     assert(!hNR.isInitialized());
-    assert(!hNR.isValid());
+    SGASSERTERROR(hNR.isValid());
 
     //now with the RESETONLY
     DataProxy* pRO(new DataProxy(StoreGateSvc::asStorable(new MyDataObj(44)),
 				 new TransientAddress(CLID(8000), "noReset"),
 				 !CONSTPROXY, RESETONLY) );  
     pRO->addRef();
-    UpdateHandle<MyDataObj> hRO ("noReset");
+    UpdateHandle<MyDataObj> hRO; 
     assert(hRO.setState(pRO).isSuccess());
     assert(hRO.isValid());
     assert(44 == hRO->i());
@@ -302,8 +298,7 @@ using namespace Athena_test;
 
 //#include "Reflex/PluginService.h"
 
-int main() {
-  SGTest::initTestStore();
+int main() { 
   ISvcLocator* pDum;
   initGaudi(pDum); //need MessageSvc
   cout << "*** VarHandles_test starts ***" <<endl;

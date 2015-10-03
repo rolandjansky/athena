@@ -29,12 +29,12 @@
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/SGWPtr.h"
 #include "StoreGate/WriteHandle.h"
-#include "StoreGate/ReadHandle.h"
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "SGTools/DataStore.h"
 #include "SGTools/SGVersionedKey.h"
 #include "AthenaKernel/IProxyProviderSvc.h"
+#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 
@@ -42,20 +42,20 @@ using namespace std;
 using namespace SG;
 
 using SG::DataStore;
-using std::make_unique;
+#if __cplusplus > 201100
+using CxxUtils::make_unique;
+#endif
 
 class Base {};
 class Foo : public Base {
 public:
-  static std::vector<int> dtor_log;
   Foo() : m_i(0), m_d(0.0) {}
   Foo(int i) : m_i(i), m_d(0.0) {}
   int i() const { return m_i; }
   ~Foo() {
-    dtor_log.push_back (m_i);
 #ifdef MAKEITBOMB
-    //int* ifg(0);
-    //std::cout << *ifg << std::endl; 
+    int* ifg(0);
+    std::cout << *ifg << std::endl; 
 #endif
     //    std::cout << "~Foo @" << this << " i() " << i() << std::endl;
   }
@@ -63,7 +63,6 @@ private:
   int m_i;
   double m_d;
 };
-std::vector<int> Foo::dtor_log;
 class Bar : public Base {};
 class NotThere {};
 
@@ -98,16 +97,14 @@ struct BX
   : public IAuxElement
 {
   int x;
-  BX(int the_x=0) : x(the_x), m_store(0), m_constStore(nullptr) {}
+  BX(int the_x=0) : x(the_x), m_store(0) {}
 
   bool hasStore() const { return m_store != 0; }
   void setStore (SG::IAuxStore* store) { m_store = store; }
-  void setStore (SG::IConstAuxStore* store) { m_constStore = store; }
   bool usingStandaloneStore() const { return hasStore(); }
   SG::IAuxStore* getStore() { return m_store; }
 
   SG::IAuxStore* m_store;
-  SG::IConstAuxStore* m_constStore;
 };
 struct BBX
   : public IAuxElement
@@ -133,25 +130,20 @@ CLASS_DEF( TestVector<BX> , 82735621, 1 )
 CLASS_DEF( TestVector<BBX> , 125040193 , 1 )
 
 class TestAuxStore
-  : public SG::IAuxStore, public ILockable
+  : public SG::IAuxStore
 {
 public:
-  TestAuxStore() : m_locked(false) {}
   virtual const void* getData (SG::auxid_t /*auxid*/) const { return 0; }
   virtual const SG::auxid_set_t& getAuxIDs() const { return m_set; }
   virtual void* getData (auxid_t /*auxid*/, size_t /*size*/, size_t /*capacity*/) { return 0; }
   virtual const SG::auxid_set_t& getWritableAuxIDs() const { return m_set; }
-  virtual bool resize (size_t /*sz*/) { return false; }
+  virtual void resize (size_t /*sz*/) {}
   virtual void reserve (size_t /*sz*/) {}
   virtual void shift (size_t /*pos*/, ptrdiff_t /*offs*/) {}
-  virtual bool insertMove (size_t, IAuxStore&, const SG::auxid_set_t&) { std::abort(); }
   virtual void* getDecoration (auxid_t /*auxid*/, size_t /*size*/, size_t /*capacity*/) { std::abort(); }
-  virtual void lock() { m_locked = true; }
+  virtual void lock() { std::abort(); }
   virtual void clearDecorations() { std::abort(); }
   virtual size_t size() const { std::abort(); }
-
-  bool m_locked;
-
 private:
   SG::auxid_set_t m_set;
 };
@@ -383,7 +375,7 @@ namespace Athena_test
     SG::DataProxy* dp = sg.proxy (ClassID_traits<D1>::ID(), std::string("d1"));
     assert (dp != 0);
     assert (dp->refCount() == 2); // since auto-symLink made
-    std::cout << dp->store() << std::endl;
+    std::cout << dp->store() << dp->store()->name() << std::endl;
     std::cout << &sg << sg.name()  << std::endl;
     //    assert (dp->store() == &sg);
 
@@ -941,7 +933,7 @@ namespace Athena_test {
     DataHandle<TestVector<BBX> > hBBX;
     assert(rSG.retrieve(hBBX, "BBVec").isSuccess());    
 #endif
-    
+
     // Test standalone object.
     BX* pb = new BX;
     assert(rSG.record(pb, "BStand").isSuccess());
@@ -989,7 +981,7 @@ namespace Athena_test {
 
     {
       SG::WriteHandle<int> h ("testBoundReset", rSG.name());
-      h = std::make_unique<int> (10);
+      h = CxxUtils::make_unique<int> (10);
       assert (h.isValid());
       assert (*h.cachedPtr() == 10);
       rSG.commitNewDataObjects();
@@ -997,13 +989,13 @@ namespace Athena_test {
     }
 
     {
-      SG::ReadHandle<int> h ("testBoundReset", rSG.name());
+      SG::WriteHandle<int> h ("testBoundReset", rSG.name());
       assert (h.isValid());
       assert (*h.cachedPtr() == 10);
     }
 
     // Force the existing proxy to be deleted.
-    assert (rSG.overwrite (std::make_unique<int> (20),
+    assert (rSG.overwrite (CxxUtils::make_unique<int> (20),
                            "testBoundReset",
                            true));
     rSG.commitNewDataObjects();
@@ -1011,100 +1003,6 @@ namespace Athena_test {
     cout << "\n*** StoreGateSvcClient_test testBoundReset OK ***\n\n" << endl;
   }
 
-
-  void testRecordObject(StoreGateSvc& rSG)
-  {
-    cout << "\n*** StoreGateSvcClient_test testRecordObject BEGINS ***" << endl;
-    Foo::dtor_log.clear();
-
-    SG::DataObjectSharedPtr<DataObject> obj101 =
-      SG::asStorable (std::make_unique<Foo> (101));
-    SG::DataProxy* proxy101 = rSG.recordObject (obj101, "obj101", false, false);
-    assert (proxy101->name() == "obj101");
-    assert (proxy101->object() == obj101.get());
-    assert (obj101->refCount() == 2);
-    assert (proxy101->refCount() == 1);
-    assert (proxy101->isConst());
-
-    SG::DataObjectSharedPtr<DataObject> obj102 =
-      SG::asStorable (std::make_unique<Foo> (102));
-    SG::DataProxy* proxy102 = rSG.recordObject (obj102, "obj102", true, false);
-    assert (proxy102->name() == "obj102");
-    assert (proxy102->object() == obj102.get());
-    assert (obj102->refCount() == 2);
-    assert (!proxy102->isConst());
-
-    assert (Foo::dtor_log.empty());
-
-    std::cout << ">>> test duplicate record1\n";
-    SG::DataObjectSharedPtr<DataObject> obj103 =
-      SG::asStorable (std::make_unique<Foo> (103));
-    SG::DataProxy* proxy103 = rSG.recordObject (obj103, "obj101", false, false);
-    assert (proxy103 == nullptr);
-    assert (obj103->refCount() == 2); // Held by m_trash
-    std::cout << "<<< test duplicate record1\n";
-
-    SG::DataObjectSharedPtr<DataObject> obj104=
-      SG::asStorable (std::make_unique<Foo> (104));
-    SG::DataProxy* proxy104 = rSG.recordObject (obj104, "obj101", false, true);
-    assert (proxy104 == proxy101);
-    assert (obj104->refCount() == 1);
-
-    std::cout << ">>> test duplicate record2\n";
-    SG::DataProxy* proxy999 = rSG.recordObject (obj101, "obj999", false, false);
-    assert (proxy999 == nullptr);
-    assert (obj101->refCount() == 3); // Held by m_trash
-    std::cout << "<<< test duplicate record2\n";
-
-    assert (proxy101->refCount() == 1);
-    proxy999 = rSG.recordObject (obj101, "obj999", false, true);
-    assert (proxy999 == proxy101);
-    assert (proxy101->refCount() == 2);
-    assert (obj101->refCount() == 3);
-
-    rSG.clearStore();
-    assert (obj101->refCount() == 1);
-    assert (obj102->refCount() == 1);
-    assert (obj103->refCount() == 1);
-    assert (obj104->refCount() == 1);
-
-    SG::DataProxy* proxy101a= rSG.recordObject (obj101, "obj101", false, false);
-    assert (proxy101 == proxy101a);
-    assert (proxy101->name() == "obj101");
-    assert (proxy101->object() == obj101.get());
-    assert (obj101->refCount() == 2);
-    assert (proxy101->refCount() == 2);
-    assert (proxy101->isConst());
-
-    rSG.clearStore();
-
-    SG::DataProxy* proxy101b = rSG.recordObject (obj101, "obj101", false, true);
-    assert (proxy101 == proxy101b);
-    assert (proxy101->name() == "obj101");
-    assert (proxy101->object() == obj101.get());
-    assert (obj101->refCount() == 2);
-    assert (proxy101->refCount() == 2);
-    assert (proxy101->isConst());
-
-    cout << "\n*** StoreGateSvcClient_test testRecordObject OK ***" << endl;
-  }
-
-
-  void testWriteAux(StoreGateSvc& rSG)
-  {
-    cout << "\n*** StoreGateSvcClient_test testWriteAux BEGINS ***" << endl;
-
-    TestAuxStore* paux = nullptr;
-    {
-      SG::WriteHandle<BX> h ("testWriteAux", rSG.name());
-      auto obj = std::make_unique<BX> (10);
-      auto objAux = std::make_unique<TestAuxStore>();
-      paux = objAux.get();
-      assert (h.record (std::move(obj), std::move(objAux)).isSuccess());
-      assert (!paux->m_locked);
-    }
-    cout << "\n*** StoreGateSvcClient_test testWriteAux OK ***" << endl;
-  }
 
 } //end namespace
 #endif /*NOGAUDI*/

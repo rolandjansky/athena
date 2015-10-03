@@ -1,3 +1,0 @@
-test1.k1 = "FooSvc/aaa";
-test1.k2 = "bbb";
-test1.k3 = "BarSvc/ccc";
