@@ -32,51 +32,51 @@
 // Forward declaration
 
 namespace met {
-  
+
   // typedefs
   typedef ElementLink<xAOD::IParticleContainer> obj_link_t;
-  
+
   class METRebuilder
-  : virtual public asg::AsgTool,
+  : public asg::AsgTool,
   virtual public IMETRebuilder
-  
+
   {
     // This macro defines the constructor with the interface declaration
     ASG_TOOL_CLASS(METRebuilder, IMETRebuilder)
-    
+
     ///////////////////////////////////////////////////////////////////
     // Public methods:
     ///////////////////////////////////////////////////////////////////
   public:
-    
+
     // Copy constructor:
-    
+
     /// Constructor with parameters:
     METRebuilder(const std::string& name);
-    
+
     /// Destructor:
     virtual ~METRebuilder();
-    
+
     // Athena algtool's Hooks
     StatusCode  initialize();
     StatusCode  finalize();
     StatusCode  execute();
-    
+
     StatusCode copyMET(const std::string& metKey,
                        xAOD::MissingETContainer* metCont,
                        const xAOD::MissingETComponentMap* metMap);
-    
+
     StatusCode rebuildMET(const std::string& metKey,
                           xAOD::MissingETContainer* metCont,
                           const xAOD::IParticleContainer* collection,
                           const xAOD::MissingETComponentMap* metMap,
                           bool doTracks=true);
-    
+
     StatusCode rebuildMET(xAOD::MissingET* met,
                           const xAOD::IParticleContainer* collection,
                           const xAOD::MissingETComponent* component,
                           bool doTracks=true);
-    
+
     StatusCode rebuildJetMET(const std::string& jetKey,
                              const std::string& softKey,
                              xAOD::MissingETContainer* metCont,
@@ -86,7 +86,7 @@ namespace met {
       return rebuildJetMET(jetKey,softKey,metCont,jets,metMap,doTracks,
                            m_jetDoJvf,m_pureTrkSoft,m_softJetScale);
     }
-    
+
     StatusCode rebuildJetMET(const std::string& jetKey,
                              const std::string& softKey,
                              xAOD::MissingETContainer* metCont,
@@ -95,8 +95,19 @@ namespace met {
                              bool doTracks,
                              bool doJvfCut,
                              bool pureTrkSoft,
-                             const std::string& jetScale);
-    
+                             const std::string& softJetScale);
+
+    StatusCode rebuildJetMET(const std::string& jetKey,
+                             const std::string& softKey,
+                             xAOD::MissingETContainer* metCont,
+                             const xAOD::JetContainer* jets,
+                             const xAOD::MissingETComponentMap* metMap,
+                             bool doTracks,
+                             bool doJvfCut,
+                             bool pureTrkSoft,
+                             const std::string& softJetScale,
+			     float& stvf);
+
     StatusCode rebuildJetMET(xAOD::MissingET* metJet,
                              xAOD::MissingET* metSoft,
                              const xAOD::JetContainer* jets,
@@ -104,18 +115,21 @@ namespace met {
                              bool doTracks,
                              bool doJvfCut,
                              bool pureTrkSoft,
-                             const std::string& jetScale);
+                             const std::string& softJetScale,
+			     float& stvf,
+			     const xAOD::MissingETComponent* comp_softtrk=0);
+
     StatusCode buildMETSum(const std::string& totalName,
                            xAOD::MissingETContainer* metCont);
-    
+
     ///////////////////////////////////////////////////////////////////
     // Const methods:
     ///////////////////////////////////////////////////////////////////
-    
+
     ///////////////////////////////////////////////////////////////////
     // Non-const methods:
     ///////////////////////////////////////////////////////////////////
-    
+
     ///////////////////////////////////////////////////////////////////
     // Private data:
     ///////////////////////////////////////////////////////////////////
@@ -123,10 +137,16 @@ namespace met {
     bool acceptTrack(const xAOD::TrackParticle* trk,
                      const xAOD::Vertex* pv) const;
     void associateTracks(const xAOD::IParticle* obj);
-    
+    StatusCode fillMET(xAOD::MissingET *& met,
+		       xAOD::MissingETContainer * metCont,
+		       const std::string& metKey,
+		       const MissingETBase::Types::bitmask_t metSource);
+
+
+
     /// Default constructor:
     METRebuilder();
-    
+
     std::string m_eleColl;
     std::string m_gammaColl;
     std::string m_tauColl;
@@ -145,17 +165,17 @@ namespace met {
     std::string m_outMETCont;
     std::string m_outMETTerm;
     bool m_warnOfDupes;
-    
+
     bool m_doEle;
     bool m_doGamma;
     bool m_doTau;
     bool m_doMuon;
-    
+
     bool m_rebuildEle;
     bool m_rebuildGamma;
     bool m_rebuildTau;
     bool m_rebuildMuon;
-    
+
     // For jet/soft term -- eventually break off into a separate tool
     double m_jetPtCut;
     bool m_jetDoJvf;
@@ -163,15 +183,16 @@ namespace met {
     std::string m_softJetScale;
     bool m_doTracks;
     bool m_pureTrkSoft;
-    
+    bool m_doSTVF;
+
     // Decorate tracks to state that they have been used for a MET calc
     SG::AuxElement::Decorator<char>  m_trkUsedDec;
-    
+
     bool m_trk_doPVsel;
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
     std::string m_vtxColl;
     std::string m_clusColl;
-  }; 
-  
+  };
+
 } //> end namespace met
 #endif //> !METUTILITIES_MET_METREBUILDER_H

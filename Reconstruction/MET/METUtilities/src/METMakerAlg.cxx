@@ -18,6 +18,11 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTau/TauJetContainer.h"
 
+#include "MuonSelectorTools/IMuonSelectionTool.h"
+#include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
+#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+// #include "TauAnalysisTools/ITauSelectionTool.h"
+
 using std::string;
 using namespace xAOD;
 
@@ -27,17 +32,33 @@ namespace met {
 
   METMakerAlg::METMakerAlg(const std::string& name,
 			   ISvcLocator* pSvcLocator )
-    : ::AthAlgorithm( name, pSvcLocator ) {
-    declareProperty( "Maker",          m_metmaker                       );
+    : ::AthAlgorithm( name, pSvcLocator ),
+    m_muonSelTool(""),
+    m_elecSelLHTool(""),
+    m_photonSelIsEMTool("")
+    // m_tauSelTool("")
+ {
+    declareProperty( "Maker",          m_metmaker                        );
     declareProperty( "METMapName",     m_mapname   = "METAssoc"          );
     declareProperty( "METCoreName",    m_corename  = "MET_Core"          );
     declareProperty( "METName",        m_outname   = "MET_Reference"     );
+
+    declareProperty( "METSoftClName",  m_softclname  = "SoftClus"        );
+    declareProperty( "METSoftTrkName", m_softtrkname = "PVSoftTrk"       );
 
     declareProperty( "InputJets",      m_jetColl   = "AntiKt4LCTopoJets" );
     declareProperty( "InputElectrons", m_eleColl   = "Electrons"         );
     declareProperty( "InputPhotons",   m_gammaColl = "Photons"           );
     declareProperty( "InputTaus",      m_tauColl   = "TauJets"           );
     declareProperty( "InputMuons",     m_muonColl  = "Muons"             );
+
+    declareProperty( "MuonSelectionTool",        m_muonSelTool           );
+    declareProperty( "ElectronLHSelectionTool",  m_elecSelLHTool         );
+    declareProperty( "PhotonIsEMSelectionTool" , m_photonSelIsEMTool     );
+    // declareProperty( "TauSelectionTool",         m_tauSelTool            );
+
+    declareProperty( "DoTruthLeptons", m_doTruthLep = false              );
+
   }
 
   //**********************************************************************
@@ -55,7 +76,27 @@ namespace met {
       ATH_MSG_ERROR("Failed to retrieve tool: " << m_metmaker->name());
       return StatusCode::FAILURE;
     };
-  
+
+    if( m_muonSelTool.retrieve().isFailure() ) {
+      ATH_MSG_ERROR("Failed to retrieve tool: " << m_muonSelTool->name());
+      return StatusCode::FAILURE;
+    };
+
+    if( m_elecSelLHTool.retrieve().isFailure() ) {
+      ATH_MSG_ERROR("Failed to retrieve tool: " << m_elecSelLHTool->name());
+      return StatusCode::FAILURE;
+    };
+
+    if( m_photonSelIsEMTool.retrieve().isFailure() ) {
+      ATH_MSG_ERROR("Failed to retrieve tool: " << m_photonSelIsEMTool->name());
+      return StatusCode::FAILURE;
+    };
+
+    // if( m_tauSelTool.retrieve().isFailure() ) {
+    //   ATH_MSG_ERROR("Failed to retrieve tool: " << m_tauSelTool->name());
+    //   return StatusCode::FAILURE;
+    // };
+
     return StatusCode::SUCCESS;
   }
 
@@ -68,14 +109,28 @@ namespace met {
 
   //**********************************************************************
 
-  StatusCode METMakerAlg::execute() { 
+  StatusCode METMakerAlg::execute() {
     ATH_MSG_VERBOSE("Executing " << name() << "...");
+
+    // Create a MissingETContainer with its aux store
+    MissingETContainer* newMet = new MissingETContainer();
+    if( evtStore()->record(newMet, m_outname).isFailure() ) {
+      ATH_MSG_WARNING("Unable to record MissingETContainer: " << m_outname);
+      return StatusCode::SUCCESS;
+    }
+    MissingETAuxContainer* metAuxCont = new MissingETAuxContainer();
+    if( evtStore()->record(metAuxCont, m_outname+"Aux.").isFailure() ) {
+      ATH_MSG_WARNING("Unable to record MissingETAuxContainer: " << m_outname+"Aux.");
+      return StatusCode::SUCCESS;
+    }
+    newMet->setStore(metAuxCont);
 
     const MissingETAssociationMap* metMap = 0;
     if( evtStore()->retrieve(metMap, m_mapname).isFailure() ) {
       ATH_MSG_WARNING("Unable to retrieve MissingETAssociationMap: " << m_mapname);
       return StatusCode::SUCCESS;
     }
+    metMap->resetObjSelectionFlags();
 
     // Retrieve containers ***********************************************
 
@@ -84,7 +139,7 @@ namespace met {
     if( evtStore()->retrieve(coreMet, m_corename).isFailure() ) {
       ATH_MSG_WARNING("Unable to retrieve MissingETContainer: " << m_corename);
       return StatusCode::SUCCESS;
-    }    
+    }
 
     /// Jets
     const JetContainer* jetCont(0);
@@ -134,38 +189,27 @@ namespace met {
       ATH_MSG_DEBUG("Successfully retrieved muon collection");
     }
 
-    // Create a MissingETContainer with its aux store
-    MissingETContainer* newMet = new MissingETContainer();
-    if( evtStore()->record(newMet, m_outname).isFailure() ) {
-      ATH_MSG_WARNING("Unable to record MissingETContainer: " << m_outname);
-      return StatusCode::SUCCESS;
-    }
-    MissingETAuxContainer* metAuxCont = new MissingETAuxContainer();
-    if( evtStore()->record(metAuxCont, m_outname+"Aux.").isFailure() ) {
-      ATH_MSG_WARNING("Unable to record MissingETAuxContainer: " << m_outname+"Aux.");
-      return StatusCode::SUCCESS;
-    }
-    newMet->setStore(metAuxCont);
-
     std::vector<const xAOD::IParticle*> uniques;
     // Select and flag objects for final MET building ***************************
 
+    MissingETBase::UsageHandler::Policy objScale = MissingETBase::UsageHandler::PhysicsObject;
+    if(m_doTruthLep) objScale = MissingETBase::UsageHandler::TruthParticle;
     // Electrons
     if(!m_eleColl.empty()) {
       uniques.clear();
       ConstDataVector<ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
       for(const auto& el : *elCont) {
-	if(accept(el)) {
-	  metElectrons.push_back(el);
-	}
+    	if(accept(el)) {
+    	  metElectrons.push_back(el);
+    	}
       }
       if( m_metmaker->rebuildMET("RefEle", xAOD::Type::Electron, newMet,
-				 metElectrons.asDataVector(),
-				 metMap, uniques).isFailure() ) {
-	ATH_MSG_WARNING("Failed to build electron term.");
+    				 metElectrons.asDataVector(),
+    				 metMap, uniques, objScale).isFailure() ) {
+    	ATH_MSG_WARNING("Failed to build electron term.");
       }
       ATH_MSG_DEBUG("Selected " << metElectrons.size() << " MET electrons. "
-		    << uniques.size() << " are non-overlapping.");
+    		    << uniques.size() << " are non-overlapping.");
     }
 
     // Photons
@@ -173,17 +217,17 @@ namespace met {
       uniques.clear();
       ConstDataVector<PhotonContainer> metPhotons(SG::VIEW_ELEMENTS);
       for(const auto& ph : *phCont) {
-	if(accept(ph)) {
-	  metPhotons.push_back(ph);
-	}
+    	if(accept(ph)) {
+    	  metPhotons.push_back(ph);
+    	}
       }
       if( m_metmaker->rebuildMET("RefGamma", xAOD::Type::Photon, newMet,
-				 metPhotons.asDataVector(),
-				 metMap, uniques).isFailure() ) {
-	ATH_MSG_WARNING("Failed to build photon term.");
+    				 metPhotons.asDataVector(),
+    				 metMap, uniques, objScale).isFailure() ) {
+    	ATH_MSG_WARNING("Failed to build photon term.");
       }
       ATH_MSG_DEBUG("Selected " << metPhotons.size() << " MET photons. "
-		    << uniques.size() << " are non-overlapping.");
+    		    << uniques.size() << " are non-overlapping.");
     }
 
     // Taus
@@ -191,17 +235,17 @@ namespace met {
       uniques.clear();
       ConstDataVector<TauJetContainer> metTaus(SG::VIEW_ELEMENTS);
       for(const auto& tau : *tauCont) {
-	if(accept(tau)) {
-	  metTaus.push_back(tau);
-	}
+    	if(accept(tau)) {
+    	  metTaus.push_back(tau);
+    	}
       }
       if( m_metmaker->rebuildMET("RefTau", xAOD::Type::Tau, newMet,
-				 metTaus.asDataVector(),
-				 metMap, uniques).isFailure() ){
-	ATH_MSG_WARNING("Failed to build tau term.");
+    				 metTaus.asDataVector(),
+    				 metMap, uniques, objScale).isFailure() ){
+    	ATH_MSG_WARNING("Failed to build tau term.");
       }
       ATH_MSG_DEBUG("Selected " << metTaus.size() << " MET taus. "
-		    << uniques.size() << " are non-overlapping.");
+    		    << uniques.size() << " are non-overlapping.");
     }
 
     // Muons
@@ -209,128 +253,60 @@ namespace met {
       uniques.clear();
       ConstDataVector<MuonContainer> metMuons(SG::VIEW_ELEMENTS);
       for(const auto& mu : *muonCont) {
-	if(accept(mu)) {
-	  metMuons.push_back(mu);
-	}
+    	if(accept(mu)) {
+    	  metMuons.push_back(mu);
+    	}
       }
+      
+      if(m_doTruthLep) objScale = MissingETBase::UsageHandler::OnlyTrack;
       if( m_metmaker->rebuildMET("Muons", xAOD::Type::Muon, newMet,
-				 metMuons.asDataVector(),
-				 metMap, uniques).isFailure() ) {
-	ATH_MSG_WARNING("Failed to build muon term.");
+    				 metMuons.asDataVector(),
+    				 metMap, uniques, objScale).isFailure() ) {
+    	ATH_MSG_WARNING("Failed to build muon term.");
       }
       ATH_MSG_DEBUG("Selected " << metMuons.size() << " MET muons. "
-		    << uniques.size() << " are non-overlapping.");
+    		    << uniques.size() << " are non-overlapping.");
     }
 
-    if( m_metmaker->rebuildJetMET("RefJet", "SoftClus", "PVSoftTrk", newMet,
+    if( m_metmaker->rebuildJetMET("RefJet", m_softclname, m_softtrkname, newMet,
 				  jetCont, coreMet, metMap, false, uniques ).isFailure() ) {
       ATH_MSG_WARNING("Failed to build jet and soft terms.");
     }
     ATH_MSG_DEBUG("Of " << jetCont->size() << " jets, "
-		  << uniques.size() << " are non-overlapping.");    
+		  << uniques.size() << " are non-overlapping.");
 
-    if( m_metmaker->buildMETSum("FinalTrk", newMet, MissingETBase::Source::Track).isFailure() ){
+    if( m_metmaker->buildMETSum("FinalTrk", newMet, (*newMet)[m_softtrkname] ? (*newMet)[m_softtrkname]->source() : MissingETBase::Source::Track).isFailure() ){
       ATH_MSG_WARNING("Building MET FinalTrk sum failed.");
     }
-    if( m_metmaker->buildMETSum("FinalClus", newMet, MissingETBase::Source::LCTopo).isFailure() ) {
+    if( m_metmaker->buildMETSum("FinalClus", newMet, (*newMet)[m_softtrkname] ? (*newMet)[m_softclname]->source() : MissingETBase::Source::LCTopo).isFailure() ) {
       ATH_MSG_WARNING("Building MET FinalClus sum failed.");
     }
 
     return StatusCode::SUCCESS;
   }
-    
+
   //**********************************************************************
 
   bool METMakerAlg::accept(const xAOD::Muon* mu)
   {
-
-    if(mu->pt()<2.5e3 || mu->pt()/cosh(mu->eta())<4e3) return false;
-    if(mu->muonType()==xAOD::Muon::MuonStandAlone) {
-      // only take forward SA -- need a max eta cut?
-      if(fabs(mu->eta())<2.5) return false;
-      uint8_t nPrecision=0;
-      if(!mu->primaryTrackParticleLink().isValid()) return false;
-      mu->primaryTrackParticle()->summaryValue(nPrecision,xAOD::numberOfPrecisionLayers);
-      if(nPrecision<3) return false;
-    } // selection for StandAlone muons
-    else if(mu->muonType()==xAOD::Muon::Combined || mu->muonType()==xAOD::Muon::SegmentTagged) {
-      if(fabs(mu->eta())>2.5) return false;
-      
-      // could add some error checking to make sure we successfully read the details
-      uint8_t nPixHits(0), nSctHits(0);
-      if(!mu->primaryTrackParticleLink().isValid()) return false;
-      mu->primaryTrackParticle()->summaryValue(nPixHits,xAOD::numberOfPixelHits);
-      mu->primaryTrackParticle()->summaryValue(nSctHits,xAOD::numberOfSCTHits);
-
-      if(nPixHits<3) return false;
-      if(nPixHits+nSctHits<5) return false;
-    } // selection for SegmentTagged and Combined muons
-    else {return false;} // don't accept forward muons or calo tagged
-
-    return true;
+    if( mu->pt()<2.5e3 || mu->pt()/cosh(mu->eta())<4e3 ) return false;
+    return m_muonSelTool->accept(*mu);
   }
 
   bool METMakerAlg::accept(const xAOD::Electron* el)
   {
-
-    ATH_MSG_VERBOSE("Test electron quality." 
-		    << " pT = " << el->pt()
-		    << " eta = " << el->eta()
-		    << " phi = " << el->phi());
-
-    bool testPID = 0;
-    el->passSelection(testPID,"Medium");
-    ATH_MSG_VERBOSE("Electron PID \"Medium\" tests " << (testPID ? " GOOD" : "BAD") );
-    if( !testPID ) return false;
-
-    ATH_MSG_VERBOSE("Electron author = " << el->author() << " test " << (el->author()&17));
-    if( !(el->author()&17) ) return false;
-
-    if( el->pt()<10e3 ) return false;
-    if( fabs(el->eta())>2.47 ) return false;
-
-    // if( m_el_rejectCrack ) {
-    //   if( fabs(el->eta())>1.37 &&
-    // 	  fabs(el->eta())<1.52 ) return false;
-    // }
-
-    ATH_MSG_VERBOSE("Accepted this electron");
-
-    return true;
+    if( fabs(el->eta())>2.47 || el->pt()<10e3 ) return false;
+    return m_elecSelLHTool->accept(*el);
   }
 
   bool METMakerAlg::accept(const xAOD::Photon* ph)
   {
-
-    ATH_MSG_VERBOSE("Test photon quality." 
-		    << " pT = " << ph->pt()
-		    << " eta = " << ph->eta()
-		    << " phi = " << ph->phi());
-
-    bool testPID = 0;
-    ph->passSelection(testPID,"Tight");
-    ATH_MSG_VERBOSE("Photon PID \"Tight\" tests " << (testPID ? " GOOD" : "BAD") );
-    if( !testPID ) return false;
-
-    ATH_MSG_VERBOSE("Photon author = " << ph->author() << " test " << (ph->author()&20));
-    if( !(ph->author()&20) ) return false;
-
-    if( ph->pt()<10e3 ) return false;
-    if( fabs(ph->eta())>2.47 ) return false;
-
-    ATH_MSG_VERBOSE("Accepted this photon");
-
-    return true;
+    if( !(ph->author()&20) || fabs(ph->eta())>2.47 || ph->pt()<10e3 ) return false;
+    return m_photonSelIsEMTool->accept(ph);
   }
 
   bool METMakerAlg::accept(const xAOD::TauJet* tau)
   {
-    ATH_MSG_VERBOSE("Testing tau with pt " << tau->pt() << ", eta " << tau->eta());
-    ATH_MSG_VERBOSE("Tau ID discriminants:"
-		    << " jet " << tau->discriminant(xAOD::TauJetParameters::BDTJetScore)
-		    << " el " << tau->discriminant(xAOD::TauJetParameters::BDTEleScore)
-		    << " mu " << tau->flag(xAOD::TauJetParameters::MuonFlag));
-
     if(tau->pt()<20e3 || fabs(tau->eta())>2.5) return false;
     // need to accommodate more than one of these?
     if(!tau->isTau( xAOD::TauJetParameters::IsTauFlag(xAOD::TauJetParameters::JetBDTSigMedium) )) return false;
@@ -339,6 +315,6 @@ namespace met {
 
     return true;
   }
+  //  { return m_tauSelTool->accept( *tau ); }
 
 }
-
