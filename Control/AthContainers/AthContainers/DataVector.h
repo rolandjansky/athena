@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataVector.h 794114 2017-01-26 22:01:53Z ssnyder $
+// $Id: DataVector.h 676636 2015-06-19 12:07:12Z ssnyder $
 
 /**
  * @file  AthContainers/DataVector.h
@@ -238,28 +238,6 @@
  * Using @c DATAVECTOR_BASE will also set up the corresponding @c SG::BaseInfo
  * definitions, both for the vectors themselves and for the contained objects.
  *
- * Forward declaration of inheritance
- * ==================================
- *
- * Sometimes it is necessary to reference a specialization @c DataVector<T>
- * where @c isn't completely defined  (this can happen for example if a class
- * has an @c ElementLink its own container type).  The @c DATAVECTOR_BASE
- * macro needs to come before the first reference to the specialization,
- * but it also needs to have a complete declaration for @c T.
- *
- * There is a way to get around this, but it requires splitting up
- * the @c DATAVECTOR_BASE declaration.  Before the first reference
- * to the @c DataVector<T> specialization, use
- *
- *@code
- *  DATAVECTOR_BASE_FWD(T, B);
- @endcode
- *
- * where here @c does not need to be completely defined.  Then, where
- * you would normally have @c DATAVECTOR_BASE, write instead
- * @c DATAVECTOR_BASE_FIN.
- *
- *
  * Auxiliary data
  * ==============
  *
@@ -279,11 +257,11 @@
  * public:
  *   // A getter for an aux data item.
  *   float foo() const
- *   { const static ConstAccessor<float> acc ("foo");  return acc(*this); }
+ *   { static ConstAccessor<float> acc ("foo");  return acc(*this); }
  *
  *   // A setter for an aux data item.
  *   void foo(float x)
- *   { const static Accessor<float> acc ("foo");  acc(*this) = x; }
+ *   { static Accessor<float> acc ("foo");  acc(*this) = x; }
  * };
  *
  * ...
@@ -542,8 +520,8 @@
 #include "AthContainers/tools/IsMostDerivedFlag.h"
 #include "AthLinks/tools/selection_ns.h"
 #include <boost/static_assert.hpp>
+#include <boost/type_traits.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
-#include <type_traits>
 #include <vector>
 #include <typeinfo>
 #include <functional>
@@ -551,7 +529,9 @@
 #include <algorithm>
 #include <stdexcept>
 #include <iterator>
+#if __cplusplus > 201100
 #include <initializer_list>
+#endif
 
 
 
@@ -726,17 +706,6 @@ SG_BASES3(DataVector<T>, SG_VIRTUAL(DataVector<B1>),        \
                          SG_VIRTUAL(DataVector<B3>))
 
 
-
-/**
- * @brief Used to finish up a forward declaration.
- *
- * The @c B parameter is not actually used, but is retained for
- * consistency and documentation.
- */
-#define DATAVECTOR_BASE_FIN(T, B) \
-template struct DataVector_detail::DVLEltBaseInit<T>
-
-
 template <class DV> class ConstDataVector;
 template <class DV> void test2_assignelement1();
 template <class DV> void test2_assignelement2();
@@ -807,8 +776,6 @@ public:
   /// yield an @c ElementProxy, not a @c reference.
   typedef typename std::reverse_iterator<iterator>
     reverse_iterator;
-
-  typedef DataVector base_data_vector;
 
 
   //========================================================================
@@ -906,8 +873,9 @@ public:
    * @param trackIndices The index tracking policy.
    * @param store An associated auxiliary data store.
    *
-   * A @c DataVector constructed this way will *not* own its elements
-   * by default.  To change this, pass @c SG::OWN_ELEMENTS for @a ownPolicy.
+   * By default, a @c DataVector will own its elements (and take ownership
+   * of the pointers passed to this constructor).
+   * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
    */
   DataVector(std::initializer_list<value_type> l,
 	     SG::OwnershipPolicy ownPolicy = SG::VIEW_ELEMENTS,
@@ -1434,34 +1402,6 @@ public:
 #endif
 
 
-  /**
-   * @brief Insert the contents of another @c DataVector,
-   *        with auxiliary data copied via move semantics.
-   * @param position Iterator before which the new elements will be added.
-   * @param other The vector to add.
-   *
-   * The ownership mode of this vector must be the same as @c other;
-   * otherwise, an exception will be thrown.
-   *
-   * If both vectors are view vectors, then this is the same
-   * as <code> insert (position, other.begin(), other.end()) </code>.
-   *
-   * Otherwise, the elements from @c other will be inserted into this vector.
-   * This vector will take ownership of the elements, and the ownership
-   * mode of @c other will be changed to @c VIEW_ELEMENTS.
-   * Auxiliary data for these elements will be transferred,
-   * using move semantics if possible.  (Thus, the auxiliary store
-   * for @c other may be modified and must not be locked.)
-   * Finally, the auxiliary store pointer for @c other will be cleared
-   * (but the store itself will not be deleted since it's not owned
-   * by the vector).
-   *
-   * Note: this method may only be called using the most derived
-   * @c DataVector in the hierarchy.
-   */
-  void insertMove (iterator position, DataVector& other);
-
-
   //@}
   //========================================================================
   /** @name Erasure operations. */
@@ -1833,8 +1773,7 @@ public:
 
 private:
   friend class DataModel_detail::ElementProxy<DataVector>;
-  template <class DV>
-  friend class ConstDataVector;
+  friend class ConstDataVector<DataVector>;
   friend void test2_assignelement1<DataVector>();
   friend void test2_assignelement2<DataVector>();
 
@@ -1991,7 +1930,7 @@ public:
   typedef DataModel_detail::NoBase DVL_BASE;
 
   /// Mark as a sequence, for DataLink / ElementLink.
-  typedef std::true_type isSequence;
+  typedef boost::true_type isSequence;
 
   /// This is the type of the underlying @c std::vector
   /// (what @c stdcont returns).
@@ -2045,7 +1984,6 @@ public:
   typedef typename std::reverse_iterator<iterator>
     reverse_iterator;
 
-  typedef DataVector base_data_vector;
 
   //========================================================================
   /** @name Constructors, destructors, assignment. */
@@ -2130,8 +2068,9 @@ public:
    * @param trackIndices The index tracking policy.
    * @param store An associated auxiliary data store.
    *
-   * A @c DataVector constructed this way will *not* own its elements
-   * by default.  To change this, pass @c SG::OWN_ELEMENTS for @a ownPolicy.
+   * By default, a @c DataVector will own its elements (and take ownership
+   * of the pointers passed to this constructor).
+   * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
    */
   DataVector(std::initializer_list<value_type> l,
 	     SG::OwnershipPolicy ownPolicy = SG::VIEW_ELEMENTS,
@@ -2678,34 +2617,6 @@ public:
 #endif
 
 
-  /**
-   * @brief Insert the contents of another @c DataVector,
-   *        with auxiliary data copied via move semantics.
-   * @param position Iterator before which the new elements will be added.
-   * @param other The vector to add.
-   *
-   * The ownership mode of this vector must be the same as @c other;
-   * otherwise, an exception will be thrown.
-   *
-   * If both vectors are view vectors, then this is the same
-   * as <code> insert (position, other.begin(), other.end()) </code>.
-   *
-   * Otherwise, the elements from @c other will be inserted into this vector.
-   * This vector will take ownership of the elements, and the ownership
-   * mode of @c other will be changed to @c VIEW_ELEMENTS.
-   * Auxiliary data for these elements will be transferred,
-   * using move semantics if possible.  (Thus, the auxiliary store
-   * for @c other may be modified and must not be locked.)
-   * Finally, the auxiliary store pointer for @c other will be cleared
-   * (but the store itself will not be deleted since it's not owned
-   * by the vector).
-   *
-   * Note: this method may only be called using the most derived
-   * @c DataVector in the hierarchy.
-   */
-  void insertMove (iterator position, DataVector& other);
-
-
   //@}
   //========================================================================
   /** @name Erasure operations. */
@@ -3042,8 +2953,7 @@ public:
 
 private:
   friend class DataModel_detail::ElementProxy<DataVector>;
-  template <class DV>
-  friend class ConstDataVector;
+  friend class ConstDataVector<DataVector>;
   friend void test2_assignelement1<DataVector>();
   friend void test2_assignelement2<DataVector>();
 

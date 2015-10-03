@@ -4,5 +4,4 @@ test_get_types
 test_decoration
 test_move
 test_setoption
-test_storelink
 test_threading

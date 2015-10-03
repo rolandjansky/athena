@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxVectorData.h 793052 2017-01-19 15:05:28Z ssnyder $
+// $Id: AuxVectorData.h 676542 2015-06-19 02:49:50Z ssnyder $
 /**
  * @file AthContainers/AuxVectorData.h
  * @author scott snyder <snyder@bnl.gov>
@@ -222,15 +222,6 @@ public:
    * is associated with this object.
    */
   const SG::IConstAuxStore* getConstStore() const;
-
-
-  /**
-   * @brief Return the data link to the current store, as a const interface.
-   *
-   * This is set by persistency when reading an object, but it may
-   * be overridden by setting the store pointer directly.
-   */
-  const DataLink<SG::IConstAuxStore> getConstStoreLink() const;
 
 
   /**
@@ -736,7 +727,7 @@ private:
 
 
     /**
-     * @brief Clear the cache (and free any old cache vectors).
+     * @brief Clear the cache (and free allocated memory).
      */
     void clear();
 

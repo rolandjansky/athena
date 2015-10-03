@@ -104,7 +104,6 @@ struct DerivedFluff : public AbsFluff {
     AbsFluff(), 
     m_int(rhs.m_int), m_float(-379.456f), 
     m_string("this is the Fluff struct") { }
-  DerivedFluff& operator= (const DerivedFluff&) = delete;
 
   virtual void foo() { /* std::cout << "foo called" << std::endl; */ }
   virtual void cfoo() const { /* std::cout << "foo called" << std::endl; */ }
@@ -3410,7 +3409,6 @@ void test_copyconvert()
     MM* mm = *it;
     assert (mm->mm == i + 100);
     P* pp = dynamic_cast<P*> (mm);
-    if (!pp) std::abort();
     assert (pp->x == i);
     ++it;
   }
@@ -3425,7 +3423,6 @@ void test_copyconvert()
     MM* mm = *it;
     assert (mm->mm == i + 100);
     P* pp = dynamic_cast<P*> (mm);
-    if (!pp) std::abort();
     assert (pp->x == i);
     ++it;
   }
@@ -3445,8 +3442,7 @@ void test_iterate()
   int ii = 0;
   while (const void* p = iterator->next()) {
     const P* pp = reinterpret_cast<const P*> (p);
-    assert (pp->x == ii);
-    ++ii;
+    assert (pp->x == ii++);
   }
   delete iterator;
 

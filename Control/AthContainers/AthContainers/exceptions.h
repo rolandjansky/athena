@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: exceptions.h 794114 2017-01-26 22:01:53Z ssnyder $
+// $Id: exceptions.h 602555 2014-06-19 03:09:29Z ssnyder $
 /**
  * @file AthContainers/exceptions.h
  * @author scott snyder <snyder@bnl.gov>
@@ -18,6 +18,7 @@
 
 
 #include "AthContainersInterfaces/AuxTypes.h"
+#include "CxxUtils/noreturn.h"
 #include <stdexcept>
 #include <typeinfo>
 #include <string>
@@ -216,8 +217,7 @@ public:
 /**
  * @brief Throw a SG::ExcNonowningContainer exception.
  */
-[[noreturn]]
-void throwExcNonowningContainer();
+ATH_NORETURN(void throwExcNonowningContainer());
 
 
 /**
@@ -249,120 +249,9 @@ public:
  * @param clsname Class name of the aux data item, or an empty string.
  * @param typ Type of the item, if provided.
  */
-[[noreturn]]
-void throwExcUnknownAuxItem (const std::string& name,
-                             const std::string& clsname = "",
-                             const std::type_info* typ = 0);
-
-
-/**
- * @brief Exception --- Can't convert DataVector to vector of ElementLinks.
- *
- * Thrown by @c dataVectorAsELV when trying to convert a view vector
- * and the contained objects either do not derive from @c AuxElement
- * or are not part of a container.
- */
-class ExcDVToELV
-  : public std::runtime_error
-{
-public:
-  /**
-   * @brief Constructor.
-   * @param detail More information about the error.
-   */
-  ExcDVToELV (const std::string& detail);
-};
-
-
-/**
- * @brief Exception --- ViewVector not in view mode.
- *
- * A ViewVector may only be created with an ownership mode of SG::VIEW_ELEMENTS.
- */
-class ExcViewVectorNotView
-  : public std::runtime_error
-{
-public:
-  /**
-   * @brief Constructor.
-   */
-  ExcViewVectorNotView();
-};
-
-
-/**
- * @brief Throw a SG::ExcViewVectorNotView exception.
- */
-[[noreturn]]
-void throwExcViewVectorNotView();
-
-
-/**
- * @brief Exception --- Missing CLID for @c ViewVector.
- *
- * A @c ViewVector was used in a context that requires a CLID, but no CLID
- * was available.  Make sure a VIEWVECTOR_CLASS_DEF declaration exists
- * for the class in a library that has been loaded.
- */
-class ExcMissingViewVectorCLID
-  : public std::runtime_error
-{
-public:
-  /**
-   * @brief Constructor.
-   * @param ti @c type_info for the class with the missing CLID.
-   */
-  ExcMissingViewVectorCLID (const std::type_info& ti);
-};
-
-
-/**
- * @brief Throw a SG::ExcMissingViewVectorCLID exception.
- * @param ti @c type_info for the class with the missing CLID.
- */
-[[noreturn]]
-void throwExcMissingViewVectorCLID (const std::type_info& ti);
-
-
-/**
- * @brief Exception --- Missing BaseInfo.
- *
- * Can't find BaseInfo for CLASS.
- */
-class ExcMissingBaseInfo
-  : public std::runtime_error
-{
-public:
-  /**
-   * @brief Constructor.
-   * @param ti @c type_info for the class with the missing base info.
-   */
-  ExcMissingBaseInfo (const std::type_info& ti);
-};
-
-
-/**
- * @brief Throw a SG::ExcMissingBaseInfo exception.
- * @param ti @c type_info for the class with the missing base info.
- */
-[[noreturn]]
-void throwExcMissingBaseInfo (const std::type_info& ti);
-
-
-/**
- * @brief Exception --- Ownership mismatch for insertMove.
- *
- * For insertMove, both vectors must have the same ownership mode.
- */
-class ExcInsertMoveOwnershipMismatch
-  : public std::runtime_error
-{
-public:
-  /**
-   * @brief Constructor.
-   */
-  ExcInsertMoveOwnershipMismatch();
-};
+ATH_NORETURN(void throwExcUnknownAuxItem (const std::string& name,
+                                          const std::string& clsname = "",
+                                          const std::type_info* typ = 0));
 
 
 } // namespace SG

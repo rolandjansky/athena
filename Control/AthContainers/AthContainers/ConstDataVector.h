@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ConstDataVector.h 777302 2016-10-08 21:24:41Z ssnyder $
+// $Id: ConstDataVector.h 610620 2014-08-06 21:15:52Z ssnyder $
 /**
  * @file AthContainers/ConstDataVector.h
  * @author scott snyder <snyder@bnl.gov>
@@ -66,7 +66,6 @@
 #define ATHCONTAINERS_CONSTDATAVECTOR_H
 
 #include "AthContainers/DataVector.h"
-#include "AthLinks/ElementLink.h"
 #if __cplusplus > 201100
 #include <initializer_list>
 #endif
@@ -116,8 +115,6 @@ public:
   /// yield an @c ElementProxy, not a @c reference.
   typedef typename std::reverse_iterator<iterator>
     reverse_iterator;
-
-  typedef boost::true_type isSequence;
 
   /// Expose methods from the base that don't allow getting back
   /// non-const pointers.
@@ -194,9 +191,9 @@ public:
    * @param last The end of the range to put in the new container.
    * @param ownPolicy The ownership mode for the container.
    *
-   * By default, a view container is made, which does not own its elements.
-   * To have the container take ownership of the pointers passed
-   * to this constructor, pass @c SG::OWN_ELEMENTS for @a ownPolicy.
+   * By default, a @c DataVector will own its elements (and take ownership
+   * of the pointers passed to this constructor).
+   * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
    */
   template <class InputIterator>
   ConstDataVector(InputIterator first, InputIterator last,
@@ -238,9 +235,9 @@ public:
    * @param l An initializer list.
    * @param ownPolicy The ownership mode for the container.
    *
-   * By default, a view container is made, which does not own its elements.
-   * To have the container take ownership of the pointers passed
-   * to this constructor, pass @c SG::OWN_ELEMENTS for @a ownPolicy.
+   * By default, a @c DataVector will own its elements (and take ownership
+   * of the pointers passed to this constructor).
+   * To avoid this, pass @c SG::VIEW_ELEMENTS for @a ownPolicy.
    */
   ConstDataVector(std::initializer_list<value_type> l,
                   SG::OwnershipPolicy ownPolicy = SG::VIEW_ELEMENTS);
@@ -248,16 +245,6 @@ public:
 
 
   /**
-   * @brief Constructor from a vector of ElementLinks.
-   * @param v The vector from which to initialize.
-   *
-   * This will make a view container.
-   */
-  template <class CONTAINER>
-  ConstDataVector (const std::vector<ElementLink<CONTAINER> >& v);
-
-
- /**
    * @brief Assignment operator.
    * @param rhs The DataVector from which to assign.
    * @return This object.
@@ -320,16 +307,6 @@ public:
    */
   void assign(std::initializer_list<value_type> l);
 #endif
-
-
-  /**
-   * @brief Assign from a vector of ElementLinks.
-   * @param v The vector from which to initialize.
-   *
-   * This will change the container to a view container.
-   */
-  template <class CONTAINER>
-  void assign (const std::vector<ElementLink<CONTAINER> >& v);
 
 
   //@}
@@ -760,21 +737,6 @@ public:
    * but don't rely on this.
    */
   void clear (SG::OwnershipPolicy ownPolicy);
-
-
-  /**
-   * @fn void clear
-   * @brief Erase all the elements in the collection, and reset
-   *        the ownership mode.
-   * @param ownPolicy The new ownership policy of the container.
-   * @param trackIndices The index tracking policy.
-   *
-   * If the container owns its elements, then the removed elements
-   * will be deleted.  Any duplicates will be removed in this process,
-   * but don't rely on this.
-   */
-  void clear (SG::OwnershipPolicy ownPolicy,
-              SG::IndexTrackingPolicy trackIndices);
 
 
   /**

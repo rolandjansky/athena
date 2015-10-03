@@ -4,7 +4,7 @@
 
 // $Id$
 /**
- * @file AthContainers/test/AuxElementComplete_test.cxx
+ * @file DataModel/test/AuxElementComplete_test.cxx
  * @author scott snyder <snyder@bnl.gov>
  * @date Apr, 2013
  * @brief Regression tests for AuxElementComplete
@@ -27,8 +27,6 @@ public:
     : SG::AuxElement(other),
       x(other.x)
   {}
-  
-  Elt& operator= (const Elt&) = default;
 
   int& ityp1()
   {

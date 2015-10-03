@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxElement.h 741471 2016-04-19 20:58:27Z ssnyder $
+// $Id: AuxElement.h 627784 2014-11-12 04:32:14Z ssnyder $
 /**
  * @file AthContainers/AuxElement.h
  * @author scott snyder <snyder@bnl.gov>
@@ -95,10 +95,10 @@ class AuxVectorBase_test;
  *  class Myclass {
  *    ...
  *    int get_x() const
- *    { const static ConstAccessor<int> acc ("x", "Myclass");
+ *    { static ConstAccessor<int> acc ("x", "Myclass");
  *      return acc (*this); }
  *    int& get_x()
- *    { const static Accessor<int> acc ("x", "Myclass");
+ *    { static Accessor<int> acc ("x", "Myclass");
  *      return acc (*this); }
  @endcode
  *
@@ -459,10 +459,10 @@ public:
    *  class Myclass {
    *    ...
    *    int get_x() const
-   *    { const static Accessor<int> acc ("x", "Myclass");
+   *    { static Accessor<int> acc ("x", "Myclass");
    *      return acc (*this); }
    *    int& get_x()
-   *    { const static Accessor<int> acc ("x", "Myclass");
+   *    { static Accessor<int> acc ("x", "Myclass");
    *      return acc (*this); }
    @endcode
    */

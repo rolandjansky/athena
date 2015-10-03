@@ -451,7 +451,7 @@ AuxVectorData::Cache& AuxVectorData::Cache::operator= (Cache&& rhs)
  */
 AuxVectorData::Cache::~Cache()
 {
-  for (size_t i=0; i < m_allcache.size(); i++) delete [] m_allcache[i];
+  clear();
 }
 
 
@@ -468,19 +468,15 @@ void AuxVectorData::Cache::swap (Cache& other)
 
 
 /**
- * @brief Clear the cache (and free any old cache vectors).
+ * @brief Clear the cache (and free allocated memory).
  */
 void AuxVectorData::Cache::clear()
 {
-  if (m_cache_len > 0) {
-    if (m_allcache.size() > 1) {
-      for (size_t i=0; i < m_allcache.size()-1; i++)
-        delete [] m_allcache[i];
-      m_allcache[0] = m_allcache.back();
-      m_allcache.resize(1);
-}
-    std::fill (m_cache[0], m_cache[0] + m_cache_len, static_cast<void*>(0));
-  }
+  for (size_t i=0; i < m_allcache.size(); i++) delete [] m_allcache[i];
+  m_allcache.clear();
+  m_cache[0] = 0;
+  m_cache[1] = 0;
+  m_cache_len = 0;
 }
 
 
@@ -589,7 +585,7 @@ StatusCode thinningHook (const SG::AuxVectorData* in,
                          const IThinningSvc::Operator::Type op )
 {
   const SG::IConstAuxStore* store = in->getConstStore();
-  if (store && svc->proxy (store))
+  if (store && svc->deep_proxy (store))
     return svc->typelessFilter (store, filter, op);
   return StatusCode::SUCCESS;
 }

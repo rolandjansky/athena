@@ -10,16 +10,12 @@
  * @brief Regression tests for AuxVectorData
  */
 
-// Disable this test in standalone mode:
-#ifndef XAOD_STANDALONE
-
 #undef NDEBUG
 #include "AthContainers/AuxVectorData.h"
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/exceptions.h"
 #include "AthContainers/tools/foreach.h"
-#include "SGTools/TestStore.h"
 #include "TestTools/expect_exception.h"
 #ifndef ATHCONTAINERS_NO_THREADS
 #include "boost/thread/shared_mutex.hpp"
@@ -379,10 +375,9 @@ public:
   virtual size_t size() const { std::abort(); }
   virtual void* getData (SG::auxid_t, size_t, size_t) { std::abort(); }
   virtual const SG::auxid_set_t& getWritableAuxIDs() const { std::abort(); }
-  virtual bool resize (size_t) { std::abort(); }
+  virtual void resize (size_t) { std::abort(); }
   virtual void reserve (size_t) { std::abort(); }
   virtual void shift (size_t, ptrdiff_t) { std::abort(); }
-  virtual bool insertMove (size_t, IAuxStore&, const SG::auxid_set_t&) { std::abort(); }
 
   virtual bool setOption (SG::auxid_t auxid, const SG::AuxDataOption&  option)
   {
@@ -442,18 +437,6 @@ void test_setoption()
 }
 
 
-void test_storelink()
-{
-  std::cout << "test_storelink\n";
-
-  AuxVectorData_test b1;
-  assert (!b1.hasStore());
-
-  b1.setStore (DataLink<SG::IConstAuxStore> ("foo"));
-  assert (b1.getConstStoreLink().dataID() == "foo");
-}
-
-
 void test_threading()
 {
   std::cout << "test_threading\n";
@@ -473,13 +456,11 @@ double test_code (SG::auxid_t auxid, AuxVectorData_test& b)
 double test_code (SG::auxid_t auxid, const AuxVectorData_test& b)
 {
   return b.getData<double> (auxid, 0) + b.getData<double> (auxid, 1);
-}
+}  
 
 
 int main()
 {
-  SGTest::initTestStore();
-
   // Make reallocations more frequent (the better to exercise them).
   AuxVectorData_test::s_minCacheLen = 1;
   test_get_data();
@@ -488,15 +469,6 @@ int main()
   test_decoration();
   test_move();
   test_setoption();
-  test_storelink();
   test_threading();
   return 0;
 }
-
-#else
-
-int main() {
-   return 0;
-}
-
-#endif // not XAOD_STANDALONE

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxStoreInternal.h 793732 2017-01-24 19:42:30Z ssnyder $
+// $Id: AuxStoreInternal.h 628020 2014-11-12 21:32:04Z ssnyder $
 /**
  * @file AthContainers/AuxStoreInternal.h
  * @author scott snyder <snyder@bnl.gov>
@@ -22,7 +22,6 @@
 #include "AthContainers/tools/threading.h"
 #include "CxxUtils/override.h"
 #include <vector>
-#include <memory>
 
 
 namespace SG {
@@ -67,10 +66,6 @@ public:
   AuxStoreInternal (const AuxStoreInternal& orig);
 
 
-  /// Don't allow assignment.
-  AuxStoreInternal& operator= (const AuxStoreInternal&) = delete;
-  
-
   /**
    * @brief Return the standalone flag.
    */
@@ -87,7 +82,7 @@ public:
    *
    * This should return 0 if the item doesn't exist.
    */
-  virtual const void* getData (SG::auxid_t auxid) const override;
+  virtual const void* getData (SG::auxid_t auxid) const ATH_OVERRIDE;
 
 
   /**
@@ -107,7 +102,7 @@ public:
    * new aux data item vector.
    */
   virtual void* getData (SG::auxid_t auxid, size_t size, size_t capacity)
-    override;
+    ATH_OVERRIDE;
 
 
   /**
@@ -132,7 +127,7 @@ public:
    * Otherwise we throw an exception.
    */
   virtual void* getDecoration (auxid_t auxid, size_t size, size_t capacity)
-    override;
+    ATH_OVERRIDE;
 
 
   /**
@@ -145,12 +140,8 @@ public:
    * If the size of the container grows, the new elements should
    * be default-initialized; if it shrinks, destructors should
    * be run as appropriate.
-   *
-   * Should return @c true if it is known that none of the data pointers
-   * changed (and thus the cache does not need to be cleared), false
-   * otherwise.
    */
-  virtual bool resize (size_t sz) override;
+  virtual void resize (size_t sz) ATH_OVERRIDE;
 
 
   /**
@@ -161,7 +152,7 @@ public:
    * (by @c reserve).  This should change the capacity for the vectors
    * for all aux data items.
    */
-  virtual void reserve (size_t sz) override;
+  virtual void reserve (size_t sz) ATH_OVERRIDE;
 
 
   /**
@@ -186,31 +177,7 @@ public:
    * The container should then be shrunk by @c -offs elements
    * (running destructors as appropriate).
    */
-  virtual void shift (size_t pos, ptrdiff_t offs) override;
-
-
-  /**
-   * @brief Move all elements from @c other to this store.
-   * @param pos The starting index of the insertion.
-   * @param other Store from which to do the move.
-   * @param ignore Set of variables that should not be added to the store.
-   *
-   * Let @c len be the size of @c other.  The store will be increased
-   * in size by @c len elements, with the elements at @c pos being
-   * copied to @c pos+len.  Then, for each auxiliary variable, the
-   * entire contents of that variable for @c other will be moved to
-   * this store at index @c pos.  This will be done via move semantics
-   * if possible; otherwise, it will be done with a copy.  Variables
-   * present in this store but not in @c other will have the corresponding
-   * elements default-initialized.  Variables in @c other but not in this
-   * store will be added unless they are in @c ignore.
-   *
-   * Returns true if it is known that none of the vectors' memory moved,
-   * false otherwise.
-   */
-  virtual bool insertMove (size_t pos,
-                           IAuxStore& other,
-                           const SG::auxid_set_t& ignore = SG::auxid_set_t()) override;
+  virtual void shift (size_t pos, ptrdiff_t offs) ATH_OVERRIDE;
 
 
   /**
@@ -220,7 +187,7 @@ public:
    *        This should include identifiers for all items,
    *        const and non-const.
    */
-  virtual const SG::auxid_set_t& getAuxIDs() const override;
+  virtual const SG::auxid_set_t& getAuxIDs() const ATH_OVERRIDE;
 
 
   /**
@@ -229,7 +196,7 @@ public:
    *
    *        This should include only non-const identifiers.
    */
-  virtual const SG::auxid_set_t& getWritableAuxIDs() const override;
+  virtual const SG::auxid_set_t& getWritableAuxIDs() const ATH_OVERRIDE;
 
 
   /**
@@ -242,7 +209,7 @@ public:
    * Returns 0 and reports an error if the requested aux data item
    * does not exist.
    */
-  virtual const void* getIOData (SG::auxid_t auxid) const override;
+  virtual const void* getIOData (SG::auxid_t auxid) const ATH_OVERRIDE;
 
 
   /**
@@ -256,13 +223,13 @@ public:
    *
    * Returns 0 if the requested aux data item does not exist.
    */
-  virtual const std::type_info* getIOType (SG::auxid_t auxid) const override;
+  virtual const std::type_info* getIOType (SG::auxid_t auxid) const ATH_OVERRIDE;
 
 
   /**
    * @brief Get the list of all variables that need to be handled.
    */
-  virtual const SG::auxid_set_t& getDynamicAuxIDs() const override;
+  virtual const SG::auxid_set_t& getDynamicAuxIDs() const ATH_OVERRIDE;
 
 
   /**
@@ -271,7 +238,7 @@ public:
    * After this, only decorations can be changed/modified.
    * If the container is already locked, this is a no-op.
    */
-  virtual void lock() override;
+  virtual void lock() ATH_OVERRIDE;
 
 
   /**
@@ -281,7 +248,7 @@ public:
    * @c lock was called.  Be sure to clear the cache of the referencing
    * container!
    */
-  virtual void clearDecorations() override;
+  virtual void clearDecorations() ATH_OVERRIDE;
 
 
   /**
@@ -289,7 +256,7 @@ public:
    *
    * May return 0 for a store with no aux data.
    */
-  virtual size_t size() const override;
+  virtual size_t size() const ATH_OVERRIDE;
 
 
   /**
@@ -301,7 +268,7 @@ public:
    * See PackedParameters.h for option settings for writing packed data.
    * Returns @c true on success, @c false otherwise.
    */
-  virtual bool setOption (auxid_t id, const AuxDataOption& option) override;
+  virtual bool setOption (auxid_t id, const AuxDataOption& option) ATH_OVERRIDE;
 
 
 protected:
@@ -349,29 +316,7 @@ protected:
                                  bool no_lock_check);
 
 
-  /**
-   * @brief Explicitly add a vector to the store.
-   * @param auxid The identifier of the aux data item being added.
-   * @param vec Vector data being added.
-   * @param isDecoration Should this variable be marked as a decoration?
-   *
-   * For internal use.  The @c auxid must not already exist in the store.
-   */
-  void addVector (SG::auxid_t auxid,
-                  std::unique_ptr<IAuxTypeVector> vec,
-                  bool isDecoration);
-
-
 private:
-  /// Implementation of getDataInternal; no locking.
-  virtual void* getDataInternal_noLock (SG::auxid_t auxid,
-                                        size_t size,
-                                        size_t capacity,
-                                        bool no_lock_check);
-
-  /// Return the number of elements in the store; no locking.
-  size_t size_noLock() const;
-
   /// Are we being written in standalone mode?
   bool m_standalone;
 
@@ -409,6 +354,11 @@ private:
       : m_tick (tick), m_set (set) {}
   };
   mutable AthContainers_detail::thread_specific_ptr<TSAuxidSet> m_tsAuxids;
+
+
+private:
+  // Don't allow assignment.
+  AuxStoreInternal& operator= (const AuxStoreInternal&);
 };
 
 
