@@ -32,8 +32,6 @@
 #include "RootKeyContainer.h"
 #include "RootKeyIOHandler.h"
 
-using namespace pool;
-
 // Root include files
 #include "TROOT.h"
 #include "TFile.h"
@@ -41,6 +39,8 @@ using namespace pool;
 #include "TKey.h"
 
 #include "RootDataPtr.h"
+
+using namespace pool;
 
 RootKeyContainer::RootKeyContainer(IOODatabase* idb)
 : DbContainerImp(idb), m_dbH(POOL_StorageType) {
