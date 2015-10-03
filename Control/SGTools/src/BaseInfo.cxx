@@ -15,7 +15,7 @@
 #include "SGTools/BaseInfo.h"
 #include "SGTools/CLIDRegistry.h"
 #include "GaudiKernel/System.h"
-#include <mutex>
+//#include "boost/thread/mutex.hpp"
 #include <map>
 #include <unordered_map>
 #include "string.h"
@@ -95,9 +95,7 @@ struct BaseInfoBaseImpl {
   static Deleter s_deleter;
 
   /// For thread-safety.
-  typedef std::recursive_mutex mutex_t;
-  typedef std::lock_guard<mutex_t> lock_t;
-  static mutex_t s_mutex;
+  //static boost::mutex s_mutex;
 
 
   /**
@@ -509,7 +507,7 @@ BaseInfoBase::BaseInfoBase (const std::type_info& tinfo)
   m_impl->m_typeinfo = &tinfo;
   m_impl->m_needs_init = true;
 
-  BaseInfoBaseImpl::lock_t lock (BaseInfoBaseImpl::s_mutex);
+  //boost::mutex::scoped_lock lock (BaseInfoBaseImpl::s_mutex);
   if (!BaseInfoBaseImpl::s_bi_by_ti)
     BaseInfoBaseImpl::s_bi_by_ti   = new BaseInfoBaseImpl::bi_by_ti_map_type;
   if (!BaseInfoBaseImpl::s_ti_by_name)
@@ -545,7 +543,7 @@ BaseInfoBase::~BaseInfoBase()
  */
 const BaseInfoBase* BaseInfoBase::find (CLID clid)
 {
-  BaseInfoBaseImpl::lock_t lock (BaseInfoBaseImpl::s_mutex);
+  //boost::mutex::scoped_lock lock (BaseInfoBaseImpl::s_mutex);
   const std::type_info* ti = CLIDRegistry::CLIDToTypeinfo (clid);
   if (ti)
     return BaseInfoBase::find (*ti);
@@ -562,7 +560,7 @@ const BaseInfoBase* BaseInfoBase::find (CLID clid)
  */
 const BaseInfoBase* BaseInfoBase::find1 (const std::type_info& tinfo)
 {
-  BaseInfoBaseImpl::lock_t lock (BaseInfoBaseImpl::s_mutex);
+  //boost::mutex::scoped_lock lock (BaseInfoBaseImpl::s_mutex);
   if (!BaseInfoBaseImpl::s_bi_by_ti) return 0;
   BaseInfoBaseImpl::bi_by_ti_map_type::iterator i = 
     BaseInfoBaseImpl::s_bi_by_ti->find (&tinfo);
@@ -630,7 +628,7 @@ const BaseInfoBase* BaseInfoBase::find (const std::type_info& tinfo)
 void BaseInfoBase::addInit (const std::type_info* tinfo,
                             init_func_t* init_func)
 {
-  BaseInfoBaseImpl::lock_t lock (BaseInfoBaseImpl::s_mutex);
+  //boost::mutex::scoped_lock lock (BaseInfoBaseImpl::s_mutex);
   if (!BaseInfoBaseImpl::s_init_list)
     BaseInfoBaseImpl::s_init_list =
       new BaseInfoBaseImpl::init_list_t;
@@ -663,7 +661,7 @@ void BaseInfoBase::maybeInit()
 BaseInfoBaseImpl::bi_by_ti_map_type*        BaseInfoBaseImpl::s_bi_by_ti = 0;
 BaseInfoBaseImpl::ti_by_name_map_type*        BaseInfoBaseImpl::s_ti_by_name = 0;
 BaseInfoBaseImpl::init_list_t*               BaseInfoBaseImpl::s_init_list = 0;
-BaseInfoBaseImpl::mutex_t                    BaseInfoBaseImpl::s_mutex;
+//boost::mutex                                BaseInfoBaseImpl::s_mutex;
 
 // To get them deleted.
 BaseInfoBaseImpl::Deleter BaseInfoBaseImpl::s_deleter;

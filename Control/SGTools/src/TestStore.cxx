@@ -59,34 +59,18 @@ void TestStore::registerKey (sgkey_t /*key*/,
 }
 
 
-SG::DataProxy* TestStore::recordObject (SG::DataObjectSharedPtr<DataObject> obj,
-                                        const std::string& key,
-                                        bool allowMods,
-                                        bool returnExisting)
+SG::DataProxy* TestStore::recordObject (std::unique_ptr<DataObject> /*obj*/,
+                                        const std::string& /*key*/,
+                                        bool /*allowMods*/)
 {
-  const void* raw_ptr = obj.get();
-  CLID clid = obj->clID();
-  SG::DataProxy* proxy = this->proxy (clid, key);
-  if (proxy) {
-    if (returnExisting)
-      return proxy;
-    else
-      return nullptr;
-  }
-  proxy = record1 (raw_ptr, obj.get(), clid, key);
-  if (!allowMods)
-    proxy->setConst();
-  return proxy;
+  std::cout << "recordObject\n"; std::abort();
 }
 
 
 StatusCode TestStore::updatedObject (CLID /*id*/,
-                                     const std::string& key)
+                                     const std::string& /*key*/)
 {
-  m_updated.push_back (key);
-  if (m_failUpdatedObject)
-    return StatusCode::FAILURE;
-  return StatusCode::SUCCESS;
+  std::cout << "updatedObject\n"; std::abort();
 }
 
 
@@ -112,7 +96,6 @@ SG::DataProxy* TestStore::proxy(const CLID& id, const std::string& key) const
   kmap_t::const_iterator i = m_kmap.find (sgkey);
   if (i != m_kmap.end())
     return i->second;
-  m_missedProxies.emplace_back (id, key);
   return 0;
 }
 
@@ -153,7 +136,6 @@ StatusCode TestStore::addToStore (CLID /*id*/, SG::DataProxy* proxy)
 {
   proxy->setStore (this);
   m_kmap[proxy->transientAddress()->sgkey()] = proxy;
-  proxy->addRef();
   return StatusCode::SUCCESS;
 }
 
@@ -173,8 +155,8 @@ void TestStore::unboundHandle (IResetable* handle)
 }
 
 
-SG::DataProxy* TestStore::record1 (const void* p, DataObject* obj,
-                                   CLID clid, const std::string& key)
+void TestStore::record1 (const void* p, DataObject* obj,
+                         CLID clid, const std::string& key)
 {
   sgkey_t sgkey = stringToKey (key, clid);
   if (m_kmap.find (sgkey) != m_kmap.end()) {
@@ -183,7 +165,7 @@ SG::DataProxy* TestStore::record1 (const void* p, DataObject* obj,
     if (dp->transientAddress()->clID() == CLID_NULL)
       dp->transientAddress()->setID (clid, key);
     m_tmap[p] = dp;
-    return dp;
+    return;
   }
 
   SG::TransientAddress* tAddr = new SG::TransientAddress(clid, key);
@@ -192,9 +174,7 @@ SG::DataProxy* TestStore::record1 (const void* p, DataObject* obj,
   m_tmap[p] = dp;
 
   m_kmap[sgkey] = dp;
-  dp->addRef();
   tAddr->setSGKey (sgkey);
-  return dp;
 }
 
 

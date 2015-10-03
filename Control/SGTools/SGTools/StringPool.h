@@ -24,7 +24,6 @@
 
 #include <stdint.h>
 #include <string>
-#include <memory>
 
 namespace SG {
 
@@ -50,14 +49,6 @@ public:
 
   /// Destructor.
   ~StringPool();
-
-  /// Copy/move constructors.
-  StringPool (const StringPool& other);
-  StringPool (StringPool&& other);
-
-  /// Assignment/move operators.
-  StringPool& operator= (const StringPool& other);
-  StringPool& operator= (StringPool&& other);
 
   /**
    * @brief Find the key for a string.
@@ -103,12 +94,6 @@ public:
                     const std::string& str,
                     sgaux_t aux = 0);
 
-
-  /**
-   * @brief Number of registered mappings.
-   */
-  size_t size() const;
-
   /**
    * @brief Debugging dump.  Write to cout.
    */
@@ -116,12 +101,20 @@ public:
 
 
   /**
-   * @brief Empty the pool.
+   * @brief Empty the pool and release all allocated memory.
    */
   void clear();
 
 private:
-  std::unique_ptr<StringPoolImpl> m_impl;
+  /// Helpers to retrieve the impl object, creating it if needed.
+  const StringPoolImpl* impl() const;
+  StringPoolImpl* impl();
+
+  mutable StringPoolImpl* m_impl;
+
+  // Don't allow copying.
+  StringPool (const StringPool&);
+  StringPool& operator= (const StringPool&);
 };
 
 

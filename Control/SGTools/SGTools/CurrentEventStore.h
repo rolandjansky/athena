@@ -17,7 +17,7 @@
 #define SGTOOLS_CURRENTEVENTSTORE_H
 
 
-class IProxyDict;
+class IProxyDictWithPool;
 
 
 namespace SG {
@@ -28,26 +28,25 @@ namespace SG {
  * @brief Hold a pointer to the current event store.
  *
  * Athena has a notion of a `current' event store.  This is used, for example,
- * when @c ElementLinks are initialized without explicitly specifying the store.
+ * when @c ElementLinks are initialized without explictly specifying the store.
  *
  * Be aware that the current event store is thread-specific and thus
  * fetching it is relatively expensive.  It would be better to move
  * calls to store() outside of loops.
+ *
+ * XXX Temporarily, we don't use TSS, and the fetch function is out-of-line.
+ * XXX To be cleaned up later.
  */
 class CurrentEventStore
 {
 public:
   /// Fetch the current store.
-  static IProxyDict* store();
-
-
-  /// Fetch the current store (out-of-line version).
-  static IProxyDict* storeOol();
+  static IProxyDictWithPool* store();
 
 
   /// Set the current store.
   /// Returns the previous store.
-  static IProxyDict* setStore (IProxyDict* store);
+  static IProxyDictWithPool* setStore (IProxyDictWithPool* store);
 
 
   /**
@@ -58,17 +57,23 @@ public:
   class Push
   {
   public:
-    Push (IProxyDict* store);
+    Push (IProxyDictWithPool* store);
     ~Push();
 
   private:
-    IProxyDict* m_oldStore;
+    IProxyDictWithPool* m_oldStore;
   };
 
 
 private:
   /// The current event store.
-  static thread_local IProxyDict* m_curStore;
+  // FIXME: Get rid of this conditional once all the changes to reduce the
+  // number of default store lookups are in.
+#ifdef ATHENAHIVE
+  static thread_local IProxyDictWithPool* m_curStore;
+#else
+  static IProxyDictWithPool* m_curStore;
+#endif
 };
 
 

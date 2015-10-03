@@ -20,6 +20,7 @@
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/ILockable.h"
 #include "AthenaKernel/IResetable.h"
+#include "CxxUtils/make_unique.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/IOpaqueAddress.h"
 #include <iostream>
@@ -202,14 +203,14 @@ public:
     return StatusCode::SUCCESS;
   }
 
-  IProxyDict* m_store;
+  IProxyDictWithPool* m_store;
   SG::DataBucket<X1>* m_bucket;
 };
 
 
 Test3Loader::Test3Loader()
   : m_store(nullptr),
-    m_bucket (new SG::DataBucket<X1>(std::make_unique<X1>()))
+    m_bucket (new SG::DataBucket<X1>(CxxUtils::make_unique<X1>()))
 {
 }
 
@@ -223,7 +224,7 @@ void test3()
   SGTest::TestStore store2;
   Test3Loader loader;
   TestOpaqueAddress address;
-  auto tad = std::make_unique<SG::TransientAddress>();
+  auto tad = CxxUtils::make_unique<SG::TransientAddress>();
   tad->setAddress (&address);
   SG::DataProxy dp1 (tad.release(), &loader);
   dp1.setStore (&store1);

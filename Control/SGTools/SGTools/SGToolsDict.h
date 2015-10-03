@@ -8,6 +8,7 @@
 #define SGTOOLS_SGTOOLSDICT_H
 
 #include <vector>
+#include "SGTools/IProxyDictWithPool.h"
 #include "SGTools/DataBucket.h"
 #include "SGTools/DataProxy.h"
 #include "SGTools/BaseInfo.h"

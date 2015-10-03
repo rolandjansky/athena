@@ -16,7 +16,7 @@
 #include "SGTools/DataProxy.h"
 #include "SGTools/TestStore.h"
 #include "SGTools/TransientAddress.h"
-#include "AthenaKernel/IProxyDict.h"
+#include "SGTools/IProxyDictWithPool.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "AthenaKernel/IAddressProvider.h"
 #include <iostream>
@@ -37,7 +37,7 @@ public:
 SG::DataProxy* make_proxy (CLID clid, const std::string& name)
 {
   SG::TransientAddress* tad = new SG::TransientAddress (clid, name);
-  return new SG::DataProxy (tad, static_cast<IConverter*>(nullptr));
+  return new SG::DataProxy (tad, (IConversionSvc*)0);
 }
 
 

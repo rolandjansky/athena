@@ -244,7 +244,6 @@
       typedef NoBase Base2;      \
       typedef NoBase Base3;      \
     };                           \
-    template struct RegisterBaseInit<D >; \
     template struct BaseInit<D >; \
 } struct sg_dummy // to swallow semicolon
 
@@ -267,7 +266,6 @@
       typedef B2 Base2;          \
       typedef NoBase Base3;      \
     };                           \
-    template struct RegisterBaseInit<D >; \
     template struct BaseInit<D >; \
 } struct sg_dummy // to swallow semicolon
 
@@ -291,7 +289,6 @@
       typedef B2 Base2;          \
       typedef B3 Base3;          \
     };                           \
-    template struct RegisterBaseInit<D >; \
     template struct BaseInit<D >; \
 } struct sg_dummy // to swallow semicolon
 

@@ -12,7 +12,6 @@
 #include <set>
 #include <list>
 #include <typeinfo>
-#include <memory>
 #include "GaudiKernel/IRegistry.h"
 #include "GaudiKernel/ClassID.h"
 #include "AthenaKernel/getMessageSvc.h" /*Athena::IMessageSvcHolder*/
@@ -23,9 +22,9 @@
 
 // forward declarations:
 class DataObject;
-class IConverter;
+class IConversionSvc;
 class IResetable;
-class IProxyDict;
+class IProxyDictWithPool;
 
 /** @class DataProxy 
  *  @brief DataProxy provides the registry services for StoreGate
@@ -53,13 +52,13 @@ namespace SG {
 
     ///build from TransientAddress
     DataProxy(TransientAddress* tAddr, 
-              IConverter* pDataLoader,
-              bool constFlag=false, bool resetOnly=true);
+	      IConversionSvc* pDataLoader,
+	      bool constFlag=false, bool resetOnly=true);
 
     ///build from DataObject
     DataProxy(DataObject* dObject, 
-              TransientAddress* tAddr,
-              bool constFlag=false, bool resetOnly=true);
+	      TransientAddress* tAddr,
+	      bool constFlag=false, bool resetOnly=true);
 
     // Destructor
     virtual ~DataProxy();
@@ -131,19 +130,6 @@ namespace SG {
     ///@throws runtime_error when converter fails
     DataObject* accessData();
 
-    /**
-     * @brief Read in a new copy of the object referenced by this proxy.
-     * @param errNo If non-null, set to the resulting error code.
-     *
-     * If this proxy has an associated loader and address, then load
-     * a new copy of the object and return it.  Any existing copy
-     * held by the proxy is unaffected.
-     *
-     * This will fail if the proxy does not refer to an object read from an
-     * input file.
-     */
-    std::unique_ptr<DataObject> readData (ErrNo* errNo) const;
-
     ErrNo errNo() const { return m_errno; }
  
     /// Retrieve clid
@@ -189,18 +175,10 @@ namespace SG {
     virtual void registerTransient (void* p);
 
     /// Set the store of which we're a part.
-    void setStore (IProxyDict* store) { m_store = store; }
+    void setStore (IProxyDictWithPool* store) { m_store = store; }
 
     /// Return the store of which we're a part.
-    IProxyDict* store() const { return m_store; }
-
-    /// reset the bound DataHandles
-    /// If HARD is true, then the bound objects should also
-    /// clear any data that depends on the identity
-    /// of the current event store.  (See IResetable.h.)
-    void resetBoundHandles (bool hard);
-
-    IConverter* loader() const { return m_dataLoader; }
+    IProxyDictWithPool* store() const { return m_store; }
 
   private:
     DataProxy(const DataProxy&);
@@ -211,7 +189,7 @@ namespace SG {
     unsigned long m_refCount;
 
     DataObject* m_dObject;
-    IConverter* m_dataLoader;
+    IConversionSvc* m_dataLoader;
 
     /// Is the proxy currently const?
     bool m_const;
@@ -233,7 +211,13 @@ namespace SG {
     enum ErrNo m_errno;
 
     /// The store of which we are a part.
-    IProxyDict* m_store;
+    IProxyDictWithPool* m_store;
+
+    /// reset the bound DataHandles
+    /// If HARD is true, then the bound objects should also
+    /// clear any data that depends on the identity
+    /// of the current event store.  (See IResetable.h.)
+    void resetBoundHandles (bool hard);
 
     /**
      * @brief Lock the data object we're holding, if any.

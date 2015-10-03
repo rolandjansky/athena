@@ -25,11 +25,11 @@ namespace SG {
 // If T is a DataObject, increment its reference count.
 // The second parameter tells whether or not T is a DataObject.
 template <class T>
-void db_maybe_ref (T*, std::false_type)
+void db_maybe_ref (T*, type_tools::false_tag)
 {
 }
 template <class T>
-void db_maybe_ref (T* ptr, std::true_type)
+void db_maybe_ref (T* ptr, type_tools::true_tag)
 {
   ptr->addRef();
 }
@@ -40,13 +40,13 @@ void db_maybe_ref (T* ptr, std::true_type)
 // otherwise, just delete it.
 // The second parameter tells whether or not T is a DataObject.
 template <class T>
-void db_free_ptr (T* ptr, std::false_type)
+void db_free_ptr (T* ptr, type_tools::false_tag)
 {
   //  std::cout << "db_free_ptr: deleting ptr @" << ptr << " of type " << ClassID_traits<T>::typeName() << std::endl;
   delete ptr;
 }
 template <class T>
-void db_free_ptr (T* ptr, std::true_type)
+void db_free_ptr (T* ptr, type_tools::true_tag)
 {
   typedef typename std::remove_const<T>::type T_nc;
   //  std::cout << "db_free_ptr: releasing ptr @" << ptr << " of type " << ClassID_traits<T>::typeName() << std::endl;
@@ -89,12 +89,6 @@ SG::DataBucket<T>::DataBucket(std::unique_ptr<T> data)
     SG::db_maybe_ref (m_ptr, tag());
 }
 
-template <typename T> 
-SG::DataBucket<T>::DataBucket(SG::DataObjectSharedPtr<T> data)
-  : m_ptr(data.detach())
-{
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // DATAOBJECT
 ///////////////////////////////////////////////////////////////////////////////
@@ -134,8 +128,8 @@ SG::DataBucket<T>::cast (CLID clid,
     for (vec_t::iterator it = m_cnvcopies.begin(); it != end; ++it) {
       if (cc == it->first) {
         cc->convertUntyped (m_ptr, it->second);
-        return it->second;
       }
+      return it->second;
     }
 
     void* newcont = cc->create();
@@ -175,8 +169,8 @@ void* SG::DataBucket<T>::cast (const std::type_info& tinfo,
     for (vec_t::iterator it = m_cnvcopies.begin(); it != end; ++it) {
       if (cc == it->first) {
         cc->convertUntyped (m_ptr, it->second);
-        return it->second;
       }
+      return it->second;
     }
 
     void* newcont = cc->create();

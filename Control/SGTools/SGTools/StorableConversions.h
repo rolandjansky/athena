@@ -17,7 +17,6 @@
 #include "SGTools/ClassID_traits.h"
 #include "SGTools/DataBucketTraitFwd.h"
 #include "AthenaKernel/tools/type_tools.h"
-#include "AthenaKernel/DataObjectSharedPtr.h"
 #include "GaudiKernel/DataObject.h"
 
 #ifndef NDEBUG
@@ -195,17 +194,13 @@ namespace SG {
     return new bucket_t (pObject);
   }  
 
+#if __cplusplus > 201100
   template <typename T>
   DataObject* asStorable(std::unique_ptr<T> pObject) {
     typedef typename DataBucketTrait<T>::type bucket_t;
     return new bucket_t (std::move(pObject));
   }  
-
-  template <typename T>
-  DataObject* asStorable(SG::DataObjectSharedPtr<T> pObject) {
-    typedef typename DataBucketTrait<T>::type bucket_t;
-    return new bucket_t (std::move(pObject));
-  }  
+#endif
 
   // get a dobj pointer from a bucket as appropriate
   //the DataObject must be a DataBucket<DATA>*.
@@ -227,7 +222,7 @@ namespace SG {
       pTrans=0;
 #ifndef NDEBUG
       MsgStream gLog(Athena::getMessageSvc(), "SG::fromStorable");
-      gLog << MSG::WARNING << "null input pointer " << endmsg;
+      gLog << MSG::WARNING << "null input pointer " << endreq;
 #endif
       return false;
     }
@@ -257,7 +252,7 @@ namespace SG {
 		<< ")\n Unless you are following a symlink,"
 	        << " it probably means you have a duplicate "
 		<< "CLID = "  << pDObj->clID() 
-		<< endmsg;
+		<< endreq;
     }
 #endif
     return success;

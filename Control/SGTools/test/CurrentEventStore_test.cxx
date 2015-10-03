@@ -23,14 +23,14 @@ void test1()
   std::cout << "test1\n";
 
 
-  IProxyDict* s1 = reinterpret_cast<IProxyDict*>(0x1000);
+  IProxyDictWithPool* s1 = reinterpret_cast<IProxyDictWithPool*>(0x1000);
 
   assert (SG::CurrentEventStore::store() == 0);
   assert (SG::CurrentEventStore::setStore(s1) == 0);
   assert (SG::CurrentEventStore::store() == s1);
 
   {
-    IProxyDict* s2 = reinterpret_cast<IProxyDict*>(0x2000);
+    IProxyDictWithPool* s2 = reinterpret_cast<IProxyDictWithPool*>(0x2000);
     SG::CurrentEventStore::Push p (s2);
     assert (SG::CurrentEventStore::store() == s2);
   }

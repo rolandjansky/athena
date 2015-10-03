@@ -12,9 +12,10 @@
 
 #include "SGTools/ProxyMap.h"
 #include "SGTools/T2pMap.h"
-#include "AthenaKernel/IProxyDict.h"
+#include "SGTools/IProxyDictWithPool.h"
 #include "AthenaKernel/DefaultKey.h"
 #include "AthenaKernel/IProxyRegistry.h"
+#include "CxxUtils/unordered_map.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/StatusCode.h"
 #include <boost/array.hpp>
@@ -26,7 +27,6 @@
 #include <string>
 #include <typeinfo> /*typeid*/
 #include <utility>  /*std::pair*/
-#include <unordered_map>
 
 
 class ISvcLocator;
@@ -78,7 +78,7 @@ namespace SG {
      * @brief Constructor.
      * @param pool The string pool associated with this store.
      */
-    DataStore (IProxyDict& pool);
+    DataStore (IProxyDictWithPool& pool);
     virtual ~DataStore();
 
     void setStoreID(StoreID::type id) { m_storeID = id;}
@@ -157,12 +157,12 @@ namespace SG {
   private:
 
     /// The string pool associated with this store.
-    IProxyDict& m_pool;
+    IProxyDictWithPool& m_pool;
 
     StoreMap m_storeMap;
 
     /// Map of hashed sgkey -> DataProxy.
-    typedef std::unordered_map<sgkey_t, DataProxy*> KeyMap_t;
+    typedef SG::unordered_map<sgkey_t, DataProxy*> KeyMap_t;
     KeyMap_t m_keyMap;
 
     StoreID::type m_storeID;

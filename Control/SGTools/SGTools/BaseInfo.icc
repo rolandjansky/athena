@@ -101,7 +101,7 @@ public:
    * @param is_virtual True if the derivation from @a B to @a T
    *                   is via virtual derivation.
    */
-#if defined(__REFLEX__) || defined(__COVERITY__)
+#ifdef __REFLEX__
   template <class B>
   void add_base (bool is_virtual);
 #else
@@ -319,7 +319,7 @@ T* BaseInfo<T>::castTo (void* p, const std::type_info& tinfo)
 }
 
 
-#if !defined(__REFLEX__) && !defined(__COVERITY__)
+#ifndef __REFLEX__
 /**
  * @brief Return a function for casting to a base pointer.
  * @param clid ID of the class to which to cast.
@@ -516,7 +516,7 @@ struct RegisterBaseInit
 };
 
 
-#if !defined(__REFLEX__) && !defined(__COVERITY__)
+#ifndef __REFLEX__
 template <class T>
 RegisterBaseInit<T>::RegisterBaseInit()
 {
@@ -554,7 +554,7 @@ struct RegisterAddBaseInit
 };
 
 
-#if !defined(__REFLEX__) && !defined(__COVERITY__)
+#ifndef __REFLEX__
 /**
  * @brief Init callback: add the new base to the BIB.
  */
@@ -618,7 +618,7 @@ struct RegisterAddCopyConversionInit
 };
 
 
-#if !defined(__REFLEX__) && !defined(__COVERITY__)
+#ifndef __REFLEX__
 /**
  * @brief Init callback: add the new conversion to the BIB.
  */

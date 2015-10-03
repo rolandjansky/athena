@@ -17,9 +17,6 @@
 #define SGTOOLS_PTRHASH_H
 
 
-#include <cstdlib>
-
-
 namespace SG {
 
 
