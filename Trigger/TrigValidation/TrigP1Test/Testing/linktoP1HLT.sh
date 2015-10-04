@@ -35,9 +35,9 @@ echo "rel of saved BS",$savedbsrel
 echo "$savedbsrel" | grep T0
 if [[ $? == 0 ]] 
 then
-  sname="/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/online/references/ATN/${savedbsrel}/latest/*${type}-*.data"
+  sname="/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/online/references/ATN/${savedbsrel}/latest/*${type}.*.data"
 else
-  sname="/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/online/references/ATN/${savedbsrel}-T0/latest/*${type}-*.data"
+  sname="/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/online/references/ATN/${savedbsrel}-T0/latest/*${type}.*.data"
 fi
 #
 ls -lrt $sname 

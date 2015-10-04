@@ -90,6 +90,11 @@ from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
 tdt = Trig__TrigDecisionTool("TrigDecisionTool")
 ToolSvc += tdt
 
+
+from TrigEDMConfig.TriggerEDM import EDMLibraries
+ToolSvc.TrigDecisionTool.Navigation.Dlls = EDMLibraries 
+
+
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo = 'atlas'
 
