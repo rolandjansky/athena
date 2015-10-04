@@ -12,7 +12,7 @@ fi
 get_files -data -symlink TrigDb.jar
 get_files -data -symlink TriggerTool.jar
 source /afs/cern.ch/sw/lcg/external/Java/bin/setup.sh
-export _JAVA_OPTIONS="-Xms256m -Xmx1048m"
+export _JAVA_OPTIONS="-Xms512m -Xmx1048m"
 export DBConn="TRIGGERDBATN"
 
 
@@ -21,25 +21,43 @@ if [ "$type" == "HLT_LS1V1" ]; then
   stump="LS1_v1"
 elif [ "$type" == "HLT_physicsV5" ]; then
   stump="Physics_pp_v5"
+elif [ "$type" == "HLT_physicsV5_rerunLvL1" ]; then
+  stump="Physics_pp_v5"
 else 
   stump=""
 fi
 
 #get the L1 file (common) cosmic and IB the same
-get_files -xmls -copy LVL1config_"${stump}_"\*.xml
-l1menu=`find .  -name LVL1config_${stump}_\*.xml` 
+get_files -xmls -copy LVL1config_"${stump}".xml
+l1menu=`find .  -name LVL1config_${stump}.xml` 
 
 #get the L1 Topo configuration
 
-#get_files -xmls -copy L1Topoconfig_"${stump}_"\*.xml 
-l1topo=`find ../"${type}"_menu/ -name L1Topoconfig_\*.xml` 
+
+get_files -xmls -copy L1Topoconfig_"${stump}".xml 
+l1topo=`find . -name L1Topoconfig_${stump}.xml` 
 
 #prepare files for first key: l2 and ef menus are the same (full menu)
 hltmenu1=`find ../"${type}"_menu/ -name outputHLTconfig_\*.xml`
 
- 
-ConvertHLTSetup_txt2xml.py ../"${type}"_menu/ef_Default_setup.txt ../"${type}"_menu/ef_Default_setup_setup.txt > convertHLT1
-hlt__setup1=../"${type}"_menu/ef_Default_setup.xml
+
+# copy the setup files to the local directory to have tests independent of each other
+cp ../"${type}"_menu/ef_Default_setup.txt ../"${type}"_menu/ef_Default_setup_setup.txt .
+ConvertHLTSetup_txt2xml.py ef_Default_setup.txt ef_Default_setup_setup.txt > convertHLT1
+
+convertLog=convertHLT1
+
+if grep -q /afs/ "$convertLog" || grep -q /cvmfs/ "$convertLog" ; then
+   echo "afs or cvmfs path found in setup, upload failed, please check the logfiles "
+   exit 1
+fi
+
+hlt__setup1=ef_Default_setup.xml
+
+
+# get dtd file for L1 menu
+get_files -xmls LVL1config.dtd
+
 
 
 p1_rel="P1HLT"
@@ -60,13 +78,12 @@ then
     rel=$NICOS_PROJECT_RELNAME_COPY
 fi
 
-echo "before grep"
 #menuname=`grep menu_name $hltmenu1 | cut -f2 -d= | cut -f1 -d" "`
 rundate=`date +%F" "%H:%M" "`
 
 # Upload SMK
 
-cmd="java -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest'  -l FINE --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 25 -w_t 60  >& uploadSMK1"
+cmd="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest'  -l FINE --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 25 -w_t 60  >& uploadSMK1"
 
 echo $cmd
 eval $cmd &> uploadSMK.log
