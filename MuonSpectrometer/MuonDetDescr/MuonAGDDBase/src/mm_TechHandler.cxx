@@ -26,8 +26,7 @@ void mm_TechHandler::ElementHandle()
 	tech->nlayers=getAttributeAsInt("nLayers",ret);
 	tech->thickness=getAttributeAsDouble("Tck",ret);
 	tech->gasThickness=getAttributeAsDouble("gasTck",ret);
-	tech->pcbThickness=getAttributeAsDouble("driftPcbTck",ret);
-	tech->roThickness=getAttributeAsDouble("ROPcbTck",ret);
+        tech->pcbThickness=getAttributeAsDouble("pcbTck",ret);
         
 	tech->f1Thickness=getAttributeAsDouble("f1",ret);
         tech->f2Thickness=getAttributeAsDouble("f2",ret);
