@@ -73,6 +73,9 @@ class eflowObjectCreatorTool : virtual public eflowBaseAlgTool, public AthAlgToo
   /* Bool to toggle which jetetmiss configuration we are in - EM cluster input or LC cluster input */
   bool m_LCMode;
 
+  /** Flag to toggle usage of updated 2015 charged shower subtraction - this disabled charged shower subtraction for tracks found to be in dense environments */
+  bool m_useUpdated2015ChargedShowerSubtraction;
+
 };
 
 inline const InterfaceID& eflowObjectCreatorTool::interfaceID() { return IID_eflowObjectCreatorTool; }

@@ -22,7 +22,7 @@ CREATED:  14th September, 2006
 #include <iomanip>
 #include <sstream>
 
-eflowCellEOverPTool::eflowCellEOverPTool(const std::string& type,const std::string& name,const IInterface* parent) : IEFlowCellEOverPTool( type, name, parent), m_nEBins(4),m_nEtaBins(25),m_nFirstIntLayerBins(eflowFirstIntRegions::nRegions),m_nCaloRegionBins(eflowCalo::nRegions){
+eflowCellEOverPTool::eflowCellEOverPTool(const std::string& type,const std::string& name,const IInterface* parent) : IEFlowCellEOverPTool( type, name, parent) {
 
   declareInterface<IEFlowCellEOverPTool>(this);
 

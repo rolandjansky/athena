@@ -34,7 +34,7 @@ using namespace std;
 
 
 eflowParamEtaBin::eflowParamEtaBin() :
-    m_parentSystem(0), m_ringThicknesses(eflowCalo::nRegions) {
+  m_ringThicknesses(eflowCalo::nRegions) {
   int nSubtRegions = eflowFirstIntRegions::nRegions;
   m_firstIntBins.resize(nSubtRegions);
   for (int i = 0; i < nSubtRegions; i++) {
@@ -42,8 +42,8 @@ eflowParamEtaBin::eflowParamEtaBin() :
   }
 }
 
-eflowParamEtaBin::eflowParamEtaBin(const eflowBinnedParameters* parentSystem) :
-  m_parentSystem(parentSystem),
+eflowParamEtaBin::eflowParamEtaBin(const eflowBinnedParameters* /*parentSystem*/) :
+  //m_parentSystem(parentSystem),
   m_ringThicknesses(eflowCalo::nRegions) {
   int nSubtRegions = eflowFirstIntRegions::nRegions;
   m_firstIntBins.resize(nSubtRegions);

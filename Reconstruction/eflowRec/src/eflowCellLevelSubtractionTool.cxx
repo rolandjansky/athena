@@ -46,7 +46,7 @@ CREATED:  25th January, 2005
 
 eflowCellLevelSubtractionTool::eflowCellLevelSubtractionTool(const std::string& type,const std::string& name,const IInterface* parent) :
   AthAlgTool( type, name, parent),
-  m_rCell(0.75),
+  //m_rCell(0.75),
   m_subtractionSigmaCut(1.5),
   m_consistencySigmaCut(1.0),
   m_calcEOverP(false),
@@ -106,7 +106,7 @@ StatusCode eflowCellLevelSubtractionTool::execute(eflowCaloObject *energyFlowCal
     const std::vector<eflowTrackClusterLink*>& matchedTrackList = thisEfRecCluster->getTrackMatches();
     unsigned int nTrackMatches = thisEfRecCluster->getNTracks();
     for (unsigned int iTrack = 0; iTrack < nTrackMatches; ++iTrack){
-      matchedTrackList[iTrack]->getTrack()->setSubtracted();
+      if (!matchedTrackList[iTrack]->getTrack()->isInDenseEnvironment()) matchedTrackList[iTrack]->getTrack()->setSubtracted();
     }
   }
 
@@ -137,6 +137,8 @@ void eflowCellLevelSubtractionTool::subtractTracksFromCluster(eflowRecCluster* t
   for (int iTrack = 0; iTrack < nTrackMatches; ++iTrack){
 
     eflowRecTrack* efRecTrack = matchedTrackList[iTrack]->getTrack();
+
+    if (efRecTrack->isInDenseEnvironment()) continue;
 
     /* Can't subtract without e/p */
     if (!efRecTrack->hasBin()){ continue; }

@@ -21,14 +21,14 @@ eflowRecCluster::eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& 
 eflowRecCluster::eflowRecCluster(const eflowRecCluster& anEFlowRecCluster){
   m_cluster = anEFlowRecCluster.m_cluster;
   m_clusElementLink = anEFlowRecCluster.m_clusElementLink;
-  m_isTouchable = m_isTouchable;
+  m_isTouchable = anEFlowRecCluster.m_isTouchable;
   m_matchCluster = new eflowMatchCluster(this);
 }
 
 void eflowRecCluster::operator=(const eflowRecCluster& anEFlowRecCluster){
   m_cluster = anEFlowRecCluster.m_cluster;
   m_clusElementLink = anEFlowRecCluster.m_clusElementLink;
-  m_isTouchable = m_isTouchable;
+  m_isTouchable = anEFlowRecCluster.m_isTouchable;
   m_matchCluster = new eflowMatchCluster(this);
 }
 
@@ -72,7 +72,7 @@ double eflowRecCluster::getSumExpectedEnergy() {
   double expectedEnergy(0);
   int nTrk = getNTracks();
   for (int iTrk = 0; iTrk < nTrk; ++iTrk){
-    expectedEnergy += m_trackMatches[iTrk]->getTrack()->getEExpect();
+    if (!m_trackMatches[iTrk]->getTrack()->isInDenseEnvironment()) expectedEnergy += m_trackMatches[iTrk]->getTrack()->getEExpect();
   }
   return expectedEnergy;
 }
@@ -80,7 +80,7 @@ double eflowRecCluster::getVarianceOfSumExpectedEnergy() {
   double varianceExpectedEnergy(0);
   int nTrk = getNTracks();
   for (int iTrk = 0; iTrk < nTrk; ++iTrk){
-    varianceExpectedEnergy += m_trackMatches[iTrk]->getTrack()->getVarEExpect();
+    if (!m_trackMatches[iTrk]->getTrack()->isInDenseEnvironment()) varianceExpectedEnergy += m_trackMatches[iTrk]->getTrack()->getVarEExpect();
   }
   return varianceExpectedEnergy;
 }

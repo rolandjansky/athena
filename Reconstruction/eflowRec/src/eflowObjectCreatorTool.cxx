@@ -51,7 +51,8 @@ eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const st
     m_eOverPMode(false),
     m_goldenModeString(""),
     m_debug(0),
-    m_LCMode(false)
+    m_LCMode(false),
+    m_useUpdated2015ChargedShowerSubtraction(true)
 {
   declareInterface<eflowObjectCreatorTool>(this);
   /* Name of  eflow Container to be created */
@@ -59,6 +60,8 @@ eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const st
   declareProperty("EOverPMode", m_eOverPMode);
   declareProperty("goldenModeString",m_goldenModeString,"run in golden match mode only?");
   declareProperty("LCMode", m_LCMode, "Whether we are in LC or EM mode");
+  declareProperty("useUpdated2015ChargedShowerSubtraction",m_useUpdated2015ChargedShowerSubtraction);
+
 }
 
 StatusCode eflowObjectCreatorTool::initialize(){
@@ -195,6 +198,17 @@ void eflowObjectCreatorTool::createChargedEflowObject(eflowRecTrack* efRecTrack,
   }
   myEflowObject->setP4(efRecTrack->getTrack()->pt(), etaPhi.first, etaPhi.second, efRecTrack->getTrack()->m());
 
+  //These variables are only needed for the improved 2015 shower subtraction
+  if (true == m_useUpdated2015ChargedShowerSubtraction){
+    xAOD::PFODetails::PFOAttributes myAttribute_tracksExpectedEnergyDeposit = xAOD::PFODetails::PFOAttributes::eflowRec_tracksExpectedEnergyDeposit;
+    myEflowObject->setAttribute<float>(myAttribute_tracksExpectedEnergyDeposit,efRecTrack->getEExpect() );
+
+    xAOD::PFODetails::PFOAttributes myAttribute_isInDenseEnvironment = xAOD::PFODetails::PFOAttributes::eflowRec_isInDenseEnvironment;
+    //There is some issue using bools - when written to disk they convert to chars. So lets store the bool as an int.
+    myEflowObject->setAttribute<int>(myAttribute_isInDenseEnvironment, (efRecTrack->isInDenseEnvironment()));
+  }  
+  
+
   if (addClusters){
     const std::vector<eflowTrackClusterLink*>& clusterLinks = efRecTrack->getClusterMatches();
     unsigned int nClusters = clusterLinks.size();
@@ -292,19 +306,19 @@ void eflowObjectCreatorTool::createNeutralEflowObjects(eflowCaloObject* energyFl
 
     xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_EM3 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_EM3;
 
-    thisEflowObject->setAttribute<float>( myAttribute_layerEnergy_EM3, layerEnergy_EM3);
+    thisEflowObject->setAttribute( myAttribute_layerEnergy_EM3, layerEnergy_EM3);
 
     float layerEnergy_TileBar0 = cluster->eSample(xAOD::CaloCluster::CaloSample::TileBar0);
     float layerEnergy_TileExt0 = cluster->eSample(xAOD::CaloCluster::CaloSample::TileExt0);
     float layerEnergy_Tile0 = layerEnergy_TileBar0 + layerEnergy_TileExt0;
 
     xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_Tile0 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_Tile0;
-    thisEflowObject->setAttribute<float>(myAttribute_layerEnergy_Tile0, layerEnergy_Tile0);
+    thisEflowObject->setAttribute(myAttribute_layerEnergy_Tile0, layerEnergy_Tile0);
 
     float layerEnergy_HEC0 = cluster->eSample(xAOD::CaloCluster::CaloSample::HEC0);
 
     xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_HEC0 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC0;
-    thisEflowObject->setAttribute<float>(myAttribute_layerEnergy_HEC0, layerEnergy_HEC0);
+    thisEflowObject->setAttribute(myAttribute_layerEnergy_HEC0, layerEnergy_HEC0);
 
     //now set properties that are required for jet cleaning
     float layerEnergy_HEC1 = cluster->eSample(xAOD::CaloCluster::CaloSample::HEC1);
@@ -314,12 +328,12 @@ void eflowObjectCreatorTool::createNeutralEflowObjects(eflowCaloObject* energyFl
     float layerEnergy_HEC = layerEnergy_HEC0 + layerEnergy_HEC1 + layerEnergy_HEC2 + layerEnergy_HEC3;
 
     xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_HEC = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC;
-    thisEflowObject->setAttribute<float>(myAttribute_layerEnergy_HEC, layerEnergy_HEC);
+    thisEflowObject->setAttribute(myAttribute_layerEnergy_HEC, layerEnergy_HEC);
 
     float clusterTiming = cluster->time();
 
     xAOD::PFODetails::PFOAttributes myAttribute_TIMING = xAOD::PFODetails::PFOAttributes::eflowRec_TIMING;
-    thisEflowObject->setAttribute<float>(myAttribute_TIMING, clusterTiming);
+    thisEflowObject->setAttribute(myAttribute_TIMING, clusterTiming);
 
 
     if (m_debug){
@@ -335,7 +349,7 @@ void eflowObjectCreatorTool::addMoment(xAOD::CaloCluster::MomentType momentType,
   if (true == isRetrieved) {
     xAOD::PFODetails::PFOAttributes myAttribute = pfoAttribute;
     float float_moment = static_cast<float>(moment);    
-    thePFO->setAttribute<float>(myAttribute, float_moment);
+    thePFO->setAttribute(myAttribute, float_moment);
   }
   else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Could not retrieve moment from the CaloCluster " << endreq;
   

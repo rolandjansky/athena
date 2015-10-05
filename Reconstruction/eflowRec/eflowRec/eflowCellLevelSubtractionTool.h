@@ -52,7 +52,7 @@ public:
   void makeOrderedCellList(const eflowTrackCaloPoints& trackCalo, xAOD::CaloCluster* cluster);
   bool runInGoldenMode() { return ((m_goldenModeString == "golden1") || (m_goldenModeString == "golden2")); }
 
-  double m_rCell;
+  //double m_rCell;
 
   eflowCellList m_orderedCells;
 

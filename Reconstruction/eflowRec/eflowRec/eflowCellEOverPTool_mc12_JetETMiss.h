@@ -45,10 +45,10 @@ class eflowCellEOverPTool_mc12_JetETMiss : public IEFlowCellEOverPTool {
   std::vector<std::vector<std::vector<double> > >  m_theEnergyEtaFirstIntLayerEOverPStandardDeviations;
   std::vector<std::vector<double> > m_test2;
 
-  const int m_nEBins;
-  const int m_nEtaBins;
-  const int m_nFirstIntLayerBins;
-  const int m_nCaloRegionBins;
+  //const int m_nEBins;
+  //const int m_nEtaBins;
+  //const int m_nFirstIntLayerBins;
+  //const int m_nCaloRegionBins;
 
   enum E_BINS        { E001bin = 0, E003point5bin, E010bin, E020bin, E032point5bin, E040bin };
     

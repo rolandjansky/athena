@@ -16,7 +16,7 @@
 //user.mhodgkin.mc12_8TeV.159038.e1189_s1620_s1622_r3586.17289_Tag98_LC.D3PD/
 //user.mhodgkin.mc12_8TeV.159039.e1189_s1620_s1622_r3586.17289_Tag98_LC.D3PD/
 
-eflowCellEOverPTool_mc12_LC::eflowCellEOverPTool_mc12_LC(const std::string& type,const std::string& name,const IInterface* parent) : IEFlowCellEOverPTool( type, name, parent), m_nEBins(4),m_nEtaBins(25),m_nFirstIntLayerBins(eflowFirstIntRegions::nRegions),m_nCaloRegionBins(eflowCalo::nRegions){
+eflowCellEOverPTool_mc12_LC::eflowCellEOverPTool_mc12_LC(const std::string& type,const std::string& name,const IInterface* parent) : IEFlowCellEOverPTool( type, name, parent){
 
   declareInterface<IEFlowCellEOverPTool>(this);
 
