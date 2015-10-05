@@ -187,8 +187,6 @@
 <!-- ========== MicroMegas ============================== -->
 
 <section name="NSW_MM_Parameters" version="1" top_volume="useless" date="December 16 2014" author="S.Chen" >
-
-<array name="NSW_MM_ReadoutSide" values="-1;1;-1;1"/>
 <!-- Frames. "f1": frame width close to the trapezium large side. "f2": frame width close to the trapezium small side. "f3": frame width close to the trapezium oblique side  -->
 <var name="NSW_MM_f1" value="30"/>
 <var name="NSW_MM_f2" value="30"/>
