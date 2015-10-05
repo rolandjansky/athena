@@ -44,7 +44,8 @@ SCT_RodDecoder::SCT_RodDecoder
      m_cabling("SCT_CablingSvc",name),
      m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name),
      m_condensedMode(false),
-     m_superCondensedMode(false)
+     m_superCondensedMode(false),
+     m_incidentSvc("IncidentSvc", name)
 {
   declareProperty("CablingSvc",m_cabling);
   declareProperty("ByteStreamErrContainer",m_bsErrContainerName="SCT_ByteStreamErrs");
@@ -117,6 +118,8 @@ StatusCode SCT_RodDecoder::initialize() {
   m_maskedRODNumber      = 0 ;
   m_RODClockErrorNumber  = 0 ;
   m_truncatedRODNumber   = 0 ;
+  m_numMissingLinkHeader = 0 ;
+  
 
   m_errorHit = new std::vector<int>;
   return StatusCode::SUCCESS ;
@@ -168,6 +171,10 @@ SCT_RodDecoder::finalize() {
   if (m_truncatedRODNumber > 0)   msg(MSG::INFO)<<"SCT BytestreamCnv summary: ROB status word-> " <<m_truncatedRODNumber<<" truncated ROBFragments"<<endreq;
   msg(MSG::INFO)<<"Number of SCT hits in ByteStream-> "<<m_nHits<<endreq;
   msg(MSG::INFO)<<"Number of SCT RDOs created->       "<<m_nRDOs<<endreq;
+
+  if (m_numMissingLinkHeader > 0) msg(MSG::ERROR)<<"SCT Missing Link Headers found "<<m_numMissingLinkHeader<<endreq;
+  
+
 
   StatusCode sc = AlgTool::finalize();
   if (sc.isFailure()) return sc ;
@@ -274,6 +281,8 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
   
   /** now look at the data words */
 
+  bool foundHeader = false;
+  
   OFFLINE_FRAGMENTS_NAMESPACE::PointerType vRobData;
   int vRobDataSize = robFrag->rod_ndata();
   robFrag->rod_data( vRobData ); 
@@ -291,6 +300,14 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
       /// hit element
       ///---------------------------------------------------------------------
       if (d[n]&0x8000) {
+	if (!foundHeader) {
+	  msg(MSG::INFO)<<" Missing link header in ROD "<<std::hex<<robid<<std::dec<<endreq;
+	  addRODError(robid,SCT_ByteStreamErrors::MissingLinkHeaderError);
+	  m_numMissingLinkHeader++;
+	  sc = StatusCode::RECOVERABLE;
+	  continue;
+	}
+
         m_nHits++;
         if (m_superCondensedMode) {
 
@@ -566,6 +583,8 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
       /// Header
       ///---------------------------------------------------------------------
       else if (((d[n]>>13)&0x7) == 0x1) {
+	foundHeader=true;
+	
         m_headnumber++ ;
         if (saved[strip]==false && oldstrip>=0) {
     int rdoMade = this->makeRDO(strip, groupSize++, tbin, onlineId, ERRORS,rdoIdc,vecHash,skipHash,lastHash); 
@@ -650,6 +669,8 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
       /// trailer
       ///---------------------------------------------------------------------
       else if (((d[n]>>13)&0x7) == 0x2) { 
+	foundHeader=false;
+	
   m_trailnumber++ ;
   //ErrorTrailer = false;
   
@@ -747,6 +768,8 @@ SCT_RodDecoder::fillCollection( const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* 
 
 int SCT_RodDecoder::makeRDO(int strip, int groupSize,int tbin, uint32_t onlineId, int ERRORS, SCT_RDO_Container* rdoIdc, std::vector<IdentifierHash>* vecHash,IdentifierHash& skipHash, IdentifierHash& lastHash){
 
+  // IIncidentSvc* incsvc;
+
   if (onlineId == 0x0) {
     msg(MSG::WARNING)<<"No link header found, possibly corrupt ByteStream.  Will not try to make RDO"<<endreq;
     return -1;
@@ -755,6 +778,8 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize,int tbin, uint32_t onlineId
   IdentifierHash idCollHash =  m_cabling->getHashFromOnlineId(onlineId) ;
   if (idCollHash==0xffffffff) {
     msg(MSG::ERROR) <<"Unknown offlineId for OnlineId 0x"<<std::hex<<onlineId <<" -> cannot create RDO"<<std::dec<<endreq ;
+    //fire an incident whenever there is a "unknown offline id..." so they are listened by /InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/src/SCT_CalibEventInfo
+    m_incidentSvc->fireIncident(Incident(name(), "UnknownOfflineId"));
     return -1;
   }
 
