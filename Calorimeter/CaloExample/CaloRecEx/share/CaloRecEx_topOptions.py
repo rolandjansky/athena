@@ -30,16 +30,10 @@ rec.doTrigger=False
 rec.doAOD=False
 #doTruth=False
 
-doMuid=False
-
-muonRecFlags.doMoore=False
-muonRecFlags.doMuonboy=False
-recAlgs.doMuGirl=False
-doMuonIdCombined=False
-doMuonIdStandalone=False
 recAlgs.doMuTag=False
 
-doTopoClusterCBNT=True
+from JetRec.JetRecFlags import jetFlags
+jetFlags.Enabled=False
 
 rec.CBNTAthenaAware=True
 
