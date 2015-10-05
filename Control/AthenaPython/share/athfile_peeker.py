@@ -34,4 +34,5 @@ import IOVDbSvc.IOVDb
 ## evt-max
 theApp.EvtMax = vars().get('EVTMAX', 1)
 
+svcMgr.AthenaRootStreamerSvc.OutputLevel = Lvl.ERROR
 svcMgr.MessageSvc.OutputLevel = Lvl.ERROR

@@ -7,7 +7,6 @@
 // PyAthenaAud.cxx 
 // Implementation file for class PyAthena::Aud
 // Author: S.Binet<binet@cern.ch>
-// Modified: Wim Lavrijsen <WLavrijsen@lbl.gov>
 /////////////////////////////////////////////////////////////////// 
 
 // Python includes
@@ -19,7 +18,6 @@
 // AthenaPython includes
 #include "AthenaPython/PyAthenaUtils.h"
 #include "AthenaPython/PyAthenaAud.h"
-#include "PyAthenaGILStateEnsure.h"
 
 // STL includes
 
@@ -40,18 +38,14 @@ namespace PyAthena {
 
 Aud::Aud( const std::string& name, ISvcLocator* svcLocator ) :
   ::Auditor( name, svcLocator ),
-  m_self   ( nullptr )
+  m_self   ( 0 )
 {}
 
 // Destructor
 ///////////////
 Aud::~Aud()
 { 
-  if ( m_self ) {
-    PyGILStateEnsure ensure;
-    Py_DECREF( m_self );
-    m_self = nullptr;
-  }
+  Py_XDECREF( m_self );
 }
 
 // Athena Auditor's Hooks
@@ -295,7 +289,6 @@ bool
 Aud::setPyAttr( PyObject* o )
 {
   // now we tell the PyObject which C++ object it is the cousin of.
-  PyGILStateEnsure ensure;
   PyObject* pyobj = TPython::ObjectProxy_FromVoidPtr
     ( (void*)this, this->typeName() );
   if ( !pyobj ) {
@@ -306,9 +299,9 @@ Aud::setPyAttr( PyObject* o )
     msg << MSG::INFO
         << "could not dyncast component [" << name() << "] to a python "
         << "object of type [" << this->typeName() << "] (probably a missing "
-        << "dictionary)" << endmsg
+        << "dictionary)" << endreq
         << "fallback to [PyAthena::Aud]..."
-        << endmsg;
+        << endreq;
   }
   if ( !pyobj ) {
     PyErr_Clear();
@@ -316,7 +309,7 @@ Aud::setPyAttr( PyObject* o )
     msg << MSG::WARNING << "Could not dyncast component ["
         << name() << "] to a pyobject of type [" 
         << this->typeName() << "]"
-        << endmsg;
+        << endreq;
   } else {
     if ( -1 == PyObject_SetAttrString(o, "_cppHandle", pyobj) ) {
       PyErr_Clear();
@@ -324,13 +317,13 @@ Aud::setPyAttr( PyObject* o )
       msg << MSG::WARNING 
           << "Could not attach C++ handle [" << name() << "] to its python "
           << "cousin !"
-          << endmsg;
+          << endreq;
       if ( -1 == PyObject_SetAttrString(o, "_cppHandle", Py_None) ) {
         PyErr_Clear();
         msg << MSG::WARNING
             << "could not attach a dummy C++ handle [" << name() << "] to its "
             << "python cousin !"
-            << endmsg;
+            << endreq;
       }
     } else {
       return true;
@@ -340,3 +333,4 @@ Aud::setPyAttr( PyObject* o )
 }
 
 } //> end namespace PyAthena
+

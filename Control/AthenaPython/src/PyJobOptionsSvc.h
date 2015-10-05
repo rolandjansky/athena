@@ -22,9 +22,7 @@
 // GaudiKernel
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/IProperty.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/PropertyHolder.h"
-//#include "GaudiKernel/PropertyMgr.h"
+#include "GaudiKernel/PropertyMgr.h"
 
 // AthenaPython includes
 #include "PyJobOptionsCatalogue.h"
@@ -33,7 +31,7 @@
 class ISvcLocator;
 template <class TYPE> class SvcFactory;
 class IProperty;
-//class  Property;
+class  Property;
 struct _object; 
 typedef _object PyObject;
 
@@ -67,10 +65,10 @@ class PyJobOptionsSvc
 
   /// Gaudi Service Implementation
   //@{
-  virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
+  virtual StatusCode initialize();
+  virtual StatusCode finalize();
   virtual StatusCode queryInterface( const InterfaceID& riid, 
-                                     void** ppvInterface ) override;
+                                     void** ppvInterface );
   //@}
 
   /// @c IJobOptionsSvc interface
@@ -80,31 +78,25 @@ class PyJobOptionsSvc
       @param me Address of the interface IProperty of the client
   */
   virtual 
-  StatusCode setMyProperties (const std::string& client, IProperty* me) override;
+  StatusCode setMyProperties (const std::string& client, IProperty* me);
   
   /// Add a property into the JobOptions catalog
   virtual 
   StatusCode addPropertyToCatalogue (const std::string& client, 
-				     const Property& property ) override;
+				     const Property& property );
   /// Remove a property from the JobOptions catalog
   virtual 
   StatusCode removePropertyFromCatalogue (const std::string& client, 
-					  const std::string& name ) override;
+					  const std::string& name );
 
   /// Get the properties associated to a given client
   virtual 
-  //  const std::vector<const Property*>* 
-  const std::vector<const Gaudi::Details::PropertyBase*>* 
-  getProperties (const std::string& client) const override;
-
-  /// Get a property for a client
-  const Gaudi::Details::PropertyBase* 
-  getClientProperty( const std::string& client,
-                     const std::string& name ) const override;
+  const std::vector<const Property*>* 
+  getProperties (const std::string& client) const;
 
   /// Get the list of clients
   virtual 
-  std::vector<std::string> getClients() const override;
+  std::vector<std::string> getClients() const;
   
   /** look for file 'File' into search path 'Path' 
    *  and read it to update existing JobOptionsCatalogue 
@@ -114,13 +106,13 @@ class PyJobOptionsSvc
    */
   virtual 
   StatusCode readOptions (const std::string& file,
-			  const std::string& path) override;
+			  const std::string& path);
 
   ///@}
 
   /// IProperty implementation (needed for initialisation)
-  // StatusCode setProperty(const Property& p);
-  // StatusCode getProperty(Property *p) const;
+  StatusCode setProperty(const Property& p);
+  StatusCode getProperty(Property *p) const;
 
   /////////////////////////////////////////////////////////////////// 
   // Const methods: 
@@ -140,23 +132,18 @@ class PyJobOptionsSvc
   /// Default constructor: 
   PyJobOptionsSvc();
 
-  // PropertyMgr m_pmgr;
+  /// Property manager (where we store our properties - chicken/egg pb)
+  PropertyMgr m_pmgr;
 
-  // /// path to joboption file
-  // std::string m_source_path;
-  // /// source type (old-txt, py, pickle?)
-  // std::string m_source_type;
-  // /// list of paths to directories to look for joboptions
-  // std::string m_dir_search_path;
+  /// path to joboption file
+  std::string m_source_path;
+  /// source type (old-txt, py, pickle?)
+  std::string m_source_type;
+  /// list of paths to directories to look for joboptions
+  std::string m_dir_search_path;
 
-  // /// optional output file to dump all properties 
-  // std::string m_dump;
-
-  Gaudi::Property<std::string> m_source_type{this, "TYPE"};
-  Gaudi::Property<std::string> m_source_path{this, "PATH"};
-  Gaudi::Property<std::string> m_dir_search_path{this, "SEARCHPATH"};
-  Gaudi::Property<std::string> m_dump{this, "DUMPFILE"};
-
+  /// optional output file to dump all properties 
+  std::string m_dump;
 
   /// catalogue holding the properties
   PyJobOptionsCatalogue m_catalogue;

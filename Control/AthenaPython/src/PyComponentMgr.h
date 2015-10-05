@@ -13,7 +13,7 @@
 
 // STL includes
 #include <string>
-#include <unordered_map>
+#include "CxxUtils/unordered_map.h"
 
 // FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
@@ -97,7 +97,7 @@ class PyComponentMgr : virtual public IPyComponentMgr,
    */
   PyObject* m_dict;
 
-  typedef std::unordered_map<std::string, PyObject*> PyComponents_t;
+  typedef SG::unordered_map<std::string, PyObject*> PyComponents_t;
   /** @brief A fast look-up hash-map for python components
    *         { 'name' : PyObject* }
    *         PyObject* is NULL if not yet instantiated

@@ -7,7 +7,6 @@
 // PyAthenaAlg.cxx 
 // Implementation file for class PyAthena::Alg
 // Author: S.Binet<binet@cern.ch>
-// Modified: Wim Lavrijsen <WLavrijsen@lbl.gov>
 /////////////////////////////////////////////////////////////////// 
 
 // Python includes
@@ -19,7 +18,6 @@
 // AthenaPython includes
 #include "AthenaPython/PyAthenaUtils.h"
 #include "AthenaPython/PyAthenaAlg.h"
-#include "PyAthenaGILStateEnsure.h"
 
 // STL includes
 
@@ -39,7 +37,7 @@ namespace PyAthena {
 ////////////////
 Alg::Alg( const std::string& name, ISvcLocator* svcLocator ) :
   AlgBase_t( name, svcLocator ),
-  m_self   ( nullptr )
+  m_self   ( 0 )
 {}
 
 // Destructor
@@ -47,11 +45,7 @@ Alg::Alg( const std::string& name, ISvcLocator* svcLocator ) :
 Alg::~Alg()
 { 
   ATH_MSG_DEBUG("Calling destructor");
-  if ( m_self ) {
-    PyGILStateEnsure ensure;
-    Py_DECREF( m_self );
-    m_self = nullptr;
-  }
+  Py_XDECREF( m_self );
 }
 
 // Framework's Hooks
@@ -144,7 +138,6 @@ bool
 Alg::setPyAttr( PyObject* o )
 {
   // now we tell the PyObject which C++ object it is the cousin of.
-  PyGILStateEnsure ensure;
   PyObject* pyobj = TPython::ObjectProxy_FromVoidPtr
     ( (void*)this, this->typeName() );
   if ( !pyobj ) {
@@ -154,7 +147,7 @@ Alg::setPyAttr( PyObject* o )
     ATH_MSG_INFO
       ("could not dyncast component [" << name() << "] to a python "
        << "object of type [" << this->typeName() << "] (probably a missing "
-       << "dictionary)" << endmsg
+       << "dictionary)" << endreq
        << "fallback to [PyAthena::Alg]...");
   }
   if ( !pyobj ) {

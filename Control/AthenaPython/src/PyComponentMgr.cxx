@@ -7,7 +7,6 @@
 // PyComponentMgr.cxx 
 // Implementation file for class PyComponentMgr
 // Author: S.Binet<binet@cern.ch>
-// Modified: Wim Lavrijsen <WLavrijsen@lbl.gov>
 /////////////////////////////////////////////////////////////////// 
 
 // Python includes
@@ -20,7 +19,6 @@ SG_BASES1(PyObject, SG::NoBase);
 
 // AthenaPython includes
 #include "PyComponentMgr.h"
-#include "PyAthenaGILStateEnsure.h"
 
 // STL includes
 
@@ -44,7 +42,7 @@ using namespace PyAthena;
 PyComponentMgr::PyComponentMgr( const std::string& name, 
 				ISvcLocator* pSvcLocator ) : 
   AthService  ( name,     pSvcLocator ),
-  m_dict      ( nullptr ),
+  m_dict      ( 0 ),
   m_components(   )
 {
   //
@@ -61,23 +59,16 @@ PyComponentMgr::~PyComponentMgr()
   ATH_MSG_DEBUG("Calling destructor");
 
   // we own the repository of instances' description
-  if ( m_dict ) {
-    PyGILStateEnsure ensure;
-    Py_DECREF( m_dict );
-    m_dict = nullptr;
-  }
+  Py_XDECREF( m_dict );
 
   // as well as the one of corresponding instances
-  if ( m_components.size() ) {
-    PyGILStateEnsure ensure;
-    for ( PyComponents_t::iterator
-            i    = m_components.begin(),
-            iEnd = m_components.end();
-          i != iEnd;
-          ++i ) {
-      ATH_MSG_VERBOSE("__del__(" << i->first << ")...");
-      Py_XDECREF( i->second );
-    }
+  for ( PyComponents_t::iterator 
+	  i    = m_components.begin(), 
+	  iEnd = m_components.end();
+	i != iEnd;
+	++i ) {
+    ATH_MSG_VERBOSE("__del__(" << i->first << ")...");
+    Py_XDECREF( i->second );
   }
 
 }
@@ -92,7 +83,6 @@ PyComponentMgr::initialize()
   const std::string pyModuleName = "AthenaPython.Configurables";
 
   // import the module holding the dictionary of component instances
-  PyGILStateEnsure ensure;
   ATH_MSG_DEBUG("Importing module [" << pyModuleName << "]...");
   PyObject* module = PyImport_ImportModule( const_cast<char*>(pyModuleName.c_str()) );
   if ( !module || !PyModule_Check( module ) ) {
@@ -158,7 +148,7 @@ PyComponentMgr::initialize()
   if ( !rootFixes || !PyModule_Check( rootFixes ) ) {
     PyErr_Clear();
     ATH_MSG_WARNING("Could not import [" << pyRootFixes << "] !!"
-                    << endmsg
+                    << endreq
                     << "Some problem may appear wit some C++->python binded classes (YMMV)");
   }
   Py_XDECREF(rootFixes);
@@ -204,7 +194,6 @@ PyComponentMgr::pyObject( IPyComponent* cppComp )
   const std::string& name = cppComp->name();
 
   // Check if we already have instantiated that component
-  PyGILStateEnsure ensure;
   PyComponents_t::iterator comp = m_components.find( name );
   if ( comp != m_components.end() && comp->second ) {
     Py_INCREF (comp->second);

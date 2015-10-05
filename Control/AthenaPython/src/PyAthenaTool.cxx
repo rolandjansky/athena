@@ -7,7 +7,6 @@
 // Tool.cxx 
 // Implementation file for class Tool
 // Author: S.Binet<binet@cern.ch>
-// Modified: Wim Lavrijsen <WLavrijsen@lbl.gov>
 /////////////////////////////////////////////////////////////////// 
 
 // Python includes
@@ -19,7 +18,6 @@
 // AthenaPython includes
 #include "AthenaPython/PyAthenaTool.h"
 #include "AthenaPython/PyAthenaUtils.h"
-#include "PyAthenaGILStateEnsure.h"
 
 // STL includes
 
@@ -40,7 +38,7 @@ Tool::Tool( const std::string& type,
 	    const std::string& name, 
 	    const IInterface* parent ) : 
   ToolBase_t( type, name, parent ),
-  m_self    ( nullptr )
+  m_self    ( 0 )
 {
   //
   // Property declaration
@@ -54,11 +52,8 @@ Tool::Tool( const std::string& type,
 Tool::~Tool()
 { 
   ATH_MSG_DEBUG("Calling destructor");
-  if ( m_self ) {
-    PyGILStateEnsure ensure;
-    Py_DECREF( m_self );
-    m_self = nullptr;
-  }
+
+  Py_XDECREF( m_self );
 }
 
 // Athena AlgTool's Hooks
@@ -135,7 +130,6 @@ bool
 Tool::setPyAttr( PyObject* o )
 {
   // now we tell the PyObject which C++ object it is the cousin of.
-  PyGILStateEnsure ensure;
   PyObject* pyobj = TPython::ObjectProxy_FromVoidPtr
     ( (void*)this, this->typeName() );
   if ( !pyobj ) {
@@ -145,7 +139,7 @@ Tool::setPyAttr( PyObject* o )
     ATH_MSG_INFO
       ("could not dyncast component [" << name() << "] to a python "
        << "object of type [" << this->typeName() << "] (probably a missing "
-       << "dictionary)" << endmsg
+       << "dictionary)" << endreq
        << "fallback to [PyAthena::Tool]...");
   }
   if ( !pyobj ) {

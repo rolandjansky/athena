@@ -14,7 +14,9 @@
 // STL includes
 #include <vector>
 #include <string>
-#include <unordered_map>
+
+// CxxUtils includes
+#include "CxxUtils/unordered_map.h" // move to STL-impl when available
 
 // Gaudi includes
 #include "GaudiKernel/StatusCode.h"
@@ -30,9 +32,8 @@ class PyJobOptionsCatalogue
   /////////////////////////////////////////////////////////////////// 
 public: 
   
-  typedef Gaudi::Details::PropertyBase Property_t;
-  typedef std::vector<const Property_t*> Properties_t;
-  typedef std::unordered_map<std::string, Properties_t> Objects_t;
+  typedef std::vector<const Property*> Properties_t;
+  typedef SG::unordered_map<std::string, Properties_t> Objects_t;
   
   /////////////////////////////////////////////////////////////////// 
   // Public methods: 
@@ -58,9 +59,6 @@ public:
   /// FIXME: slow and inefficient
   std::vector<std::string> clients() const;
 
-  const Property_t* getProperty(const std::string& client, 
-                                const std::string& prop_name) const;
-  
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
   /////////////////////////////////////////////////////////////////// 
