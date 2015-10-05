@@ -17,13 +17,9 @@ namespace MuonGM {
 
   struct MuonChannelDesign {
   public:
-    enum Type {
-      etaStrip=0, ///< 0 (eta strips, locX || eta, including stereo angle - MM, sTGC strips)
-      phiStrip=1, ///< 1 (phi strips  locX || phi, no stereo angle        - sTGC wire/gangs)
-      pad=2       ///< 2 (pads        locX || eta,                        - sTGC pads)
-    };
-  public:
-    int    type;
+    int    type;         // 0 (eta strips, locX || eta, including stereo angle - MM, sTGC strips)
+                         // 1 (phi strips  locX || phi, no stereo angle        - sTGC wire/gangs)
+                         // 2 (pads        locX || eta,                        - sTGC pads)
     int    nch;
     double sAngle;        //  
     double inputPitch;
@@ -121,7 +117,7 @@ namespace MuonGM {
 
   inline int MuonChannelDesign::channelNumber( const Amg::Vector2D& pos ) const {
  
-    if (type==MuonChannelDesign::etaStrip) {      // "eta"  orientation , assumes constant stereo angle
+    if (type==0) {      // "eta"  orientation , assumes constant stereo angle 
 
       double xMfirst = firstPos;
       double xMid = pos.x() - pos.y()*tan(sAngle);
@@ -130,7 +126,7 @@ namespace MuonGM {
       if (chNum>nch) return -1;     // used also for calculation of the number of strips
       return chNum;
 
-    } else if (type==MuonChannelDesign::phiStrip) {   // "phi" orientation, local coordinates rotated
+    } else if (type==1) {   // "phi" orientation, local coordinates rotated
 
       // find transverse pannel size for a given locX 
       int chNum = int( (pos.x()-firstPos)/inputPitch +1.5 ) ;
@@ -138,10 +134,8 @@ namespace MuonGM {
       if (chNum>nch) return -1;  
       return chNum;   
 
-    } else if(type==MuonChannelDesign::pad) {
-      // DG-2015-11-27 to be implemented
-      return -1;
     }
+
     return -1;
 
   }
@@ -153,7 +147,7 @@ namespace MuonGM {
 
     double dY = 0.5*(maxYSize-minYSize-2.*deadS);
 
-    if ( type==MuonChannelDesign::phiStrip ) {   // swap coordinates on return
+    if ( type==1 ) {   // swap coordinates on return
 
       double locY = firstPos+ (st-1)*inputPitch;
 
@@ -172,7 +166,7 @@ namespace MuonGM {
  
       return true; 
 
-    } else if ( type==MuonChannelDesign::etaStrip ) {
+    } else if ( type==0 ) {
 
       if (sAngle==0.) {
 
@@ -213,9 +207,7 @@ namespace MuonGM {
 	return true;
       } else return false;
 
-    } else if(type==MuonChannelDesign::pad) {
-      // DG-2015-11-27 todo
-    }
+    } 
 
     return false;       
 
@@ -239,7 +231,7 @@ namespace MuonGM {
 
     double dY = 0.5*(maxYSize-minYSize-2*deadS);
     
-    if ( type==MuonChannelDesign::phiStrip ) {
+    if ( type==1 ) {  
 
       double locY = firstPos+ (st-1)*inputPitch;
 
@@ -253,7 +245,7 @@ namespace MuonGM {
  
       return gangLength; 
       
-    } else if ( type==MuonChannelDesign::etaStrip ) {
+    } else if ( type==0 ) {
  
       if (sAngle==0.)  return inputLength +2*(st-0.5)*dY/nch;
 
@@ -284,9 +276,7 @@ namespace MuonGM {
  
       } else return inputLength; 
 
-    } else if(type==MuonChannelDesign::pad) {
-      // DG-2015-11-23 todo
-    }
+    } 
 
     return inputLength;     
 

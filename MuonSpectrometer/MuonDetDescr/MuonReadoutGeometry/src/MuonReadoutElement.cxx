@@ -40,15 +40,15 @@ namespace MuonGM {
     m_statname = "XXX0";
     m_techname = "TTT0";
     m_descratzneg  = false;
-    m_parentStationPV = PVConstLink(0);
-    m_parentMuonStation = 0;
-    m_indexOfREinMuonStation = -999;
-    m_hasCutouts = false;
+    _parentStationPV = PVConstLink(0);
+    _parentMuonStation = 0;
+    _indexOfREinMuonStation = -999;
+    _hasCutouts = false;
 
-    m_nMDTinStation = 0;
-    m_nCSCinStation = 0;
-    m_nRPCinStation = 0;
-    m_nTGCinStation = 0;
+    _nMDTinStation = 0;
+    _nCSCinStation = 0;
+    _nRPCinStation = 0;
+    _nTGCinStation = 0;
   }
 
 
@@ -102,13 +102,13 @@ namespace MuonGM {
 
   void MuonReadoutElement::setParentStationPV(PVConstLink x)
   {
-    m_parentStationPV = x;
+    _parentStationPV = x;
     setIndexOfREinMuonStation();
   }
 
   void MuonReadoutElement::setParentStationPV()
   {
-    if ( m_parentStationPV ) return;
+    if ( _parentStationPV ) return;
 
     std::string::size_type npos;
     PVConstLink pStat = PVConstLink(0);
@@ -130,7 +130,7 @@ namespace MuonGM {
 	  myphysvol =  pStat;
         }
 
-    m_parentStationPV = pStat;
+    _parentStationPV = pStat;
     setIndexOfREinMuonStation();
   }
 
@@ -140,7 +140,7 @@ namespace MuonGM {
     //           <<getStationName()<<"/"<<getTechnologyName()
     //           <<" located at zi/fi "<<getAmdbZi()<<"/"<<getAmdbFi()<<std::endl;
 
-    return m_parentStationPV;
+    return _parentStationPV;
   }
 
   // Amg::Vector3D MuonReadoutElement::parentStationPos() const
@@ -170,7 +170,7 @@ namespace MuonGM {
 
   int MuonReadoutElement::getIndexOfREinMuonStation() const
   {
-    return m_indexOfREinMuonStation;
+    return _indexOfREinMuonStation;
   }
 
   void MuonReadoutElement::setIndexOfREinMuonStation() 
@@ -183,9 +183,9 @@ namespace MuonGM {
     Query<unsigned int > c = par->indexOf(getMaterialGeom());
     if (c.isValid())
       {
-        m_indexOfREinMuonStation = (int)c;
+        _indexOfREinMuonStation = (int)c;
       }
-    else m_indexOfREinMuonStation = -999;
+    else _indexOfREinMuonStation = -999;
   }
 
   Amg::Transform3D MuonReadoutElement::toParentStation() const
@@ -200,11 +200,11 @@ namespace MuonGM {
     
     HepGeom::Transform3D par_to_child = HepGeom::Transform3D::Identity;    
 
-    if ( m_indexOfREinMuonStation >=0 ) par_to_child = par->getXToChildVol( (unsigned int)m_indexOfREinMuonStation );
+    if ( _indexOfREinMuonStation >=0 ) par_to_child = par->getXToChildVol( (unsigned int)_indexOfREinMuonStation );
 #ifndef NDEBUG
     else
       {
-        reLog()<<MSG::ERROR<<"No index to REinMuonStation computed/found until now"<<endmsg;
+        reLog()<<MSG::ERROR<<"No index to REinMuonStation computed/found until now"<<endreq;
       }
 #endif
     return Amg::CLHEPTransformToEigen(par_to_child);
@@ -213,14 +213,14 @@ namespace MuonGM {
   void
   MuonReadoutElement::setParentMuonStation(const MuonStation* mstat)
   {
-    m_parentMuonStation = mstat;
+    _parentMuonStation = mstat;
   }
 
 
   const MuonStation*
   MuonReadoutElement::parentMuonStation() const 
   {
-    return m_parentMuonStation;
+    return _parentMuonStation;
   }
 
 

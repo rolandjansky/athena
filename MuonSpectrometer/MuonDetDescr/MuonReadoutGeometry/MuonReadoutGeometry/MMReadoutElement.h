@@ -54,10 +54,9 @@ namespace MuonGM {
 	If the local position is outside the active volume, the function first shift the position back into the active volume */
     int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const;
 
-    /** strip position -- local or global
+    /** strip position 
 	If the strip number is outside the range of valid strips, the function will return false */
-    bool stripPosition(       const Identifier& id, Amg::Vector2D& pos )  const;
-    bool stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const;
+    bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const;
 
     /** number of layers in phi/eta projection */
     int numberOfLayers( bool ) const;
@@ -117,7 +116,7 @@ namespace MuonGM {
     void setIdentifier(Identifier id);
     
     /** set methods only to be used by MuonGeoModel */
-    void setChamberLayer(int ml) {m_ml=ml;}
+    void setChamberLayer(int ml) {_ml=ml;}
   private:
 
     //MuonChannelDesign m_phiDesign;
@@ -126,7 +125,7 @@ namespace MuonGM {
     std::vector<int> m_nStrips;
     int m_nlayers;
     
-    int m_ml; 
+    int _ml; 
     Identifier m_parentId;
  
     // surface dimensions
@@ -135,7 +134,7 @@ namespace MuonGM {
     double m_maxHalfY;
 
     // transforms (RE->layer)
-    Amg::Transform3D m_Xlg[4];
+    Amg::Transform3D _Xlg[4];
   };
 
   inline int MMReadoutElement::surfaceHash( const Identifier& id ) const {
@@ -184,13 +183,6 @@ namespace MuonGM {
     const MuonChannelDesign* design = getDesign(id);
     if( !design ) return false;
     return design->channelPosition(manager()->mmIdHelper()->channel(id),pos);
-  }
-
-  inline bool MMReadoutElement::stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const {
-    Amg::Vector2D lpos(0., 0.);
-    if (!stripPosition(id, lpos)) return false;
-    surface(id).localToGlobal(lpos, Amg::Vector3D(0., 0., 0.), gpos);
-    return true;
   }
 
   inline int MMReadoutElement::numberOfLayers( bool ) const { return m_nlayers; }

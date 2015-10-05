@@ -87,8 +87,6 @@ public:
   
     const Amg::Vector3D& center(const Identifier& id) const;
 
-    const std::vector<const Trk::Surface*>& surfaces() const;
-
    unsigned int nMDTinStation() const {return nReadoutElements();} 
    unsigned int nCSCinStation() const {return 0;}
    unsigned int nTGCinStation() const {return 0;}
@@ -111,10 +109,8 @@ public:
 protected:    
 
 private:
-   const MdtReadoutElement *m_mdtRE[maxMdtREinDE];
+   const MdtReadoutElement *_mdtRE[maxMdtREinDE];
    unsigned int m_nRE;
-
-   mutable std::vector<const Trk::Surface*> m_detectorSurfaces;
 
 };
 

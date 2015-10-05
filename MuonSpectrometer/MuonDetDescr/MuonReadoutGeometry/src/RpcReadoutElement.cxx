@@ -78,7 +78,7 @@ namespace MuonGM {
 		//       <<ngv<<" is a gas volume  with tag "<<lgg<<std::endl;
 		PVConstLink pcgg = pcgv->getChildVol(0);
 		HepGeom::Transform3D trans = pvc->getXToChildVol(ich)*pc->getXToChildVol(ngv)*pcgv->getXToChildVol(0);
-		m_Xlg[llay-1][lgg-1] = Amg::CLHEPTransformToEigen(trans);
+		_Xlg[llay-1][lgg-1] = Amg::CLHEPTransformToEigen(trans);
 	      }
 	    }
 	  }
@@ -134,13 +134,13 @@ namespace MuonGM {
     double local_s=0.;
     int dbphi = doubletPhi-1;
     if (m_nphistrippanels == 1) dbphi=0;
-    if (measphi == 1) local_s = m_first_phistrip_s[dbphi]+(strip-1)*StripPitch(measphi);
-    else  local_s = m_etastrip_s[dbphi];
+    if (measphi == 1) local_s = first_phistrip_s[dbphi]+(strip-1)*StripPitch(measphi);
+    else  local_s = etastrip_s[dbphi];
 
     if (RpcReadout_verbose)
       std::cout<<"RpcReadoutElement:: Ssize, ndvs, nstr/pan, spitch, 1st-strp "<<m_Ssize<<" "
 	       <<m_nphistrippanels<<" "<<m_nphistripsperpanel<<" "<< m_phistrippitch
-	       <<" "<<m_first_phistrip_s[doubletPhi-1]<<std::endl;
+	       <<" "<<first_phistrip_s[doubletPhi-1]<<std::endl;
     if (RpcReadout_verbose)
       std::cout<<"RpcReadoutElement::localStripSCoord local_s is "<<local_s<<" for dbZ/dbP/mphi/strip "
 	       <<doubletZ<<" "<<doubletPhi<<" "<<measphi<<"/"<<strip<<std::endl;
@@ -182,20 +182,20 @@ namespace MuonGM {
     
     double local_z=0.;
     if (measphi == 0) {
-      double xx = m_first_etastrip_z[0];
-      if (m_netastrippanels>1 && doubletZ>1)  xx = m_first_etastrip_z[doubletZ-1];
+      double xx = first_etastrip_z[0];
+      if (m_netastrippanels>1 && doubletZ>1)  xx = first_etastrip_z[doubletZ-1];
       local_z = xx + (strip-1)*StripPitch(measphi);
     }
     else  {
-      double xx = m_phistrip_z[0];
-      if (m_netastrippanels>1 && doubletZ>1)  xx =  m_phistrip_z[doubletZ-1];
+      double xx = phistrip_z[0];
+      if (m_netastrippanels>1 && doubletZ>1)  xx =  phistrip_z[doubletZ-1];
       local_z = xx;
     }
     
     if (RpcReadout_verbose) std::cout<<"RpcReadoutElement:: Zsize, ndvz, nstr/pan, zpitch, 1st-strp "
                                      <<m_Zsize<<" "
                                      <<m_netastrippanels<<" "<<m_netastripsperpanel<<" "<< m_etastrippitch
-                                     <<" "<<m_first_etastrip_z[doubletZ-1]<<std::endl;
+                                     <<" "<<first_etastrip_z[doubletZ-1]<<std::endl;
     if (RpcReadout_verbose) std::cout<<"RpcReadoutElement::localStripZCoord local_z is "
                                      <<local_z<<" for dbZ/dbP/mphi/strip "
                                      <<doubletZ<<" "<<doubletPhi<<" "<<measphi<<"/"<<strip<<std::endl;
@@ -543,22 +543,22 @@ namespace MuonGM {
     Amg::Vector3D localP1 = localPold;
     if (manager()->MinimalGeoFlag() == 0)
       {
-       localP1 = m_Xlg[lgg-1][lggPhi-1].translation();
+       localP1 = _Xlg[lgg-1][lggPhi-1].translation();
         if ( fabs(localP1.x()-localPold.x())>0.01 || fabs(localP1.y()-localPold.y())>0.01 || fabs(localP1.z()-localPold.z())>0.01 )
 	  {
             const RpcIdHelper* idh = manager()->rpcIdHelper();
             reLog()<<MSG::WARNING
                    <<"LocalGasGapPos computed here doesn't match the one retrieved from the GeoPhysVol for rpc RE "
-                   <<idh->show_to_string(identify())<<" and dbZ/dbPhi/gg "<<doubletZ<<"/"<<doubletPhi<<"/"<<gasgap<<endmsg;
-            reLog()<<" Computed here "<<localPold<<" from GeoPhysVol "<<localP1<<endmsg; 
+                   <<idh->show_to_string(identify())<<" and dbZ/dbPhi/gg "<<doubletZ<<"/"<<doubletPhi<<"/"<<gasgap<<endreq;
+            reLog()<<" Computed here "<<localPold<<" from GeoPhysVol "<<localP1<<endreq; 
 	  }
         else 
 	  {
             if (reLog().level() <= MSG::VERBOSE) {
 	      reLog()<<MSG::VERBOSE
 		     <<"LocalGasGapPos computed here matches the one retrieved from the GeoPhysVol for rpc RE "
-		     <<manager()->rpcIdHelper()->show_to_string(identify())<<" and dbZ/dbPhi/gg "<<doubletZ<<"/"<<doubletPhi<<"/"<<gasgap<<endmsg;
-	      reLog()<<MSG::VERBOSE<<"Computed here "<<localPold<<" from GeoPhysVol "<<localP1<<endmsg; 
+		     <<manager()->rpcIdHelper()->show_to_string(identify())<<" and dbZ/dbPhi/gg "<<doubletZ<<"/"<<doubletPhi<<"/"<<gasgap<<endreq;
+	      reLog()<<MSG::VERBOSE<<"Computed here "<<localPold<<" from GeoPhysVol "<<localP1<<endreq; 
             }
 	  }
         
@@ -730,7 +730,7 @@ namespace MuonGM {
     if (gethash_code != 0) 
       reLog()<<MSG::WARNING
 	     <<"RpcReadoutElement --  detectorElement hash Id NOT computed for id = "
-	     <<idh->show_to_string(id)<<endmsg;
+	     <<idh->show_to_string(id)<<endreq;
     m_detectorElIdhash = detIdhash;
   }
 
@@ -753,7 +753,7 @@ namespace MuonGM {
 	const RpcIdHelper* idh = manager()->rpcIdHelper();
 	reLog()<<MSG::DEBUG<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
 	       <<" ::distanceToPhiReadout --- z of the Point  "<<P.z()<<" is out of the rpc-module range ("<<zLow<<","<<zUp<<")"
-	       <<" /// input id(never used) = "<<idh->show_to_string(id)<<endmsg;
+	       <<" /// input id(never used) = "<<idh->show_to_string(id)<<endreq;
 	// return dist;
 	if( zPoint < zLow ) zPoint = zLow;
 	else if( zPoint > zUp ) zPoint = zUp;
@@ -770,7 +770,7 @@ namespace MuonGM {
 	const RpcIdHelper* idh = manager()->rpcIdHelper();
 	reLog()<<MSG::DEBUG<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
 	       <<" ::distanceToPhiReadout --- z of the Point  "<<P.z()<<" is out of the rpc-module range ("<<zLow<<","<<zUp<<")"
-	       <<" /// input id(never used) = "<<idh->show_to_string(id)<<endmsg;
+	       <<" /// input id(never used) = "<<idh->show_to_string(id)<<endreq;
 	// return dist;
 	if( zPoint < zLow ) zPoint = zLow;
 	else if( zPoint > zUp ) zPoint = zUp;
@@ -815,19 +815,19 @@ namespace MuonGM {
         const RpcIdHelper* idh = manager()->rpcIdHelper();
         reLog()<<MSG::DEBUG<<"RpcReadoutElement with id "<<idh->show_to_string(identify())
 	       <<" ::distanceToEtaReadout --- in amdb local frame x of the point  "<<pAmdbL<<" is out of the rpc-module range ("
-	       <<myCenterAmdbL-getSsize()/2.<<","<<myCenterAmdbL+getSsize()/2.<<")"<<endmsg;
+	       <<myCenterAmdbL-getSsize()/2.<<","<<myCenterAmdbL+getSsize()/2.<<")"<<endreq;
         // if (fabs(sdistToCenter)-getSsize()/2.>5*CLHEP::cm) {
-        //   reLog()<<MSG::WARNING<<"by more then 5cm - distance will be set to -999999."<<endmsg;
+        //   reLog()<<MSG::WARNING<<"by more then 5cm - distance will be set to -999999."<<endreq;
         //   return dist;
         // }
-        // else reLog()<<MSG::WARNING<<"computed distance might be negative"<<endmsg;
+        // else reLog()<<MSG::WARNING<<"computed distance might be negative"<<endreq;
         if( sdistToCenter > 0 ) {
           sdistToCenter = getSsize()/2.;
-          reLog()<<MSG::DEBUG<<"setting distance to "<< sdistToCenter <<endmsg;
+          reLog()<<MSG::DEBUG<<"setting distance to "<< sdistToCenter <<endreq;
         }
         else if ( sdistToCenter < 0 ) {
           sdistToCenter = -getSsize()/2.;
-          reLog()<<MSG::DEBUG<<"setting distance to "<< sdistToCenter <<endmsg;
+          reLog()<<MSG::DEBUG<<"setting distance to "<< sdistToCenter <<endreq;
         }
       }    
     if (m_nphistrippanels == 2) {
@@ -956,7 +956,7 @@ namespace MuonGM {
 
     if( !m_surfaceData ) m_surfaceData = new SurfaceData();
     else{
-      reLog()<<MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
+      reLog()<<MSG::WARNING<<"calling fillCache on an already filled cache" << endreq;
       return;
       //clearCache();
       //m_surfaceData = new SurfaceData();

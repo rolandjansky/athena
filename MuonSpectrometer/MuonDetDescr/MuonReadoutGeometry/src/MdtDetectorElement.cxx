@@ -29,10 +29,10 @@ MdtDetectorElement::MdtDetectorElement(GeoVFullPhysVol* pv,
   //  m_debug = m_MsgStream->level() <= MSG::DEBUG;
   //  m_verbose = m_MsgStream->level() <= MSG::VERBOSE;
   //  if (m_debug) reLog() << MSG::DEBUG << "A new MdtDetectorElement was born: idhash = "
-  //                      << (int)idHash << endmsg;
+  //                      << (int)idHash << endreq;
 
   for (unsigned int i=0; i<maxMdtREinDE; ++i) {
-    m_mdtRE[i] = 0;
+    _mdtRE[i] = 0;
   }
   m_nRE=0;
 }
@@ -43,14 +43,14 @@ MdtDetectorElement::addMdtReadoutElement (const MdtReadoutElement* x, int ml)
 {
 //   if (m_verbose) reLog() << MSG::VERBOSE << "Adding RE for multilayer " << ml
 //                          << " to MdtDetectorElement with idhash = " << (int)m_idhash
-//                          << endmsg;
+//                          << endreq;
   if( msgLevel(MSG::VERBOSE) ) msg( MSG::VERBOSE ) << "Adding RE for multilayer " << ml
 						   << " to MdtDetectorElement with idhash = " << (int)m_idhash
-						   << endmsg;
+						   << endreq;
   //std::cout<<" adding mdtRE with ml = "<<ml<<" to MdtDE with id hash "<< (int)m_idhash<<std::endl;
  
-  m_mdtRE[ml-1] = x;
-  ++m_nREinDetectorElement;
+  _mdtRE[ml-1] = x;
+  ++_nREinDetectorElement;
 }
 
 
@@ -66,13 +66,13 @@ MdtDetectorElement::getMdtReadoutElement(Identifier id) const
 	    <<"getMdtReadoutElement("<<idh->show_to_string(id)
 	    <<"): multilayer out of range 1-"
 	    <<nReadoutElements()
-	    <<" for MdtDetectorElement "<<idh->show_to_string(identify())<<endmsg;
+	    <<" for MdtDetectorElement "<<idh->show_to_string(identify())<<endreq;
 #ifndef NDEBUG
         throw std::out_of_range("multiLayer, in input Id, out or range");
 #endif
         return 0;
     }
-    return m_mdtRE[ml-1];
+    return _mdtRE[ml-1];
 }
 
 
@@ -85,30 +85,30 @@ MdtDetectorElement::getMdtReadoutElement(int ml) const
 		       << "): multilayer out of range 1-"
 		       << nReadoutElements() << " for MdtDetectorElement "
 		       << (manager()->mdtIdHelper())->show_to_string(identify()) 
-		       << endmsg;
+		       << endreq;
 #ifndef NDEBUG
     throw std::out_of_range("input multiLayer out or range");
 #endif
     return 0;
   }
-  return m_mdtRE[ml-1];
+  return _mdtRE[ml-1];
 }
 
 
 const Amg::Transform3D& MdtDetectorElement::transform() const
-{return m_mdtRE[0]->transform();}
+{return _mdtRE[0]->transform();}
 
 const Trk::Surface& MdtDetectorElement::surface() const
-{return m_mdtRE[0]->surface();}
+{return _mdtRE[0]->surface();}
 
 const Trk::SurfaceBounds& MdtDetectorElement::bounds() const
-{return m_mdtRE[0]->bounds();}
+{return _mdtRE[0]->bounds();}
 
 const Amg::Vector3D& MdtDetectorElement::center() const
-{return m_mdtRE[0]->center();}
+{return _mdtRE[0]->center();}
 
 const Amg::Vector3D& MdtDetectorElement::normal() const
-{return m_mdtRE[0]->normal();}
+{return _mdtRE[0]->normal();}
 
 const Trk::Surface& 
 MdtDetectorElement::surface(const Identifier& id) const
@@ -127,22 +127,12 @@ MdtDetectorElement::center(const Identifier& id) const
 {
   const MdtIdHelper* idh = manager()->mdtIdHelper();
   int ml = idh->multilayer(id);
-  return m_mdtRE[ml-1]->center(idh->tubeLayer(id), idh->tube(id));
+  return _mdtRE[ml-1]->center(idh->tubeLayer(id), idh->tube(id));
 }
 
 const Amg::Vector3D& 
 MdtDetectorElement::normal(const Identifier& id) const
-  {return m_mdtRE[0]->normal(id);}
-
-const std::vector<const Trk::Surface*>&  MdtDetectorElement::surfaces() const
-{
-   // needs to be created each time because there's no clearCache() method
-   m_detectorSurfaces.clear();
-   for (unsigned int i=0; i<maxMdtREinDE; ++i) {
-     m_detectorSurfaces.insert(m_detectorSurfaces.end(),m_mdtRE[i]->surfaces().begin(),m_mdtRE[i]->surfaces().end());
-   }
-   return m_detectorSurfaces;
-}
+  {return _mdtRE[0]->normal(id);}
 
 MsgStream& MdtDetectorElement::msg( MSG::Level lvl ) const { return m_msg << lvl ; }
 bool MdtDetectorElement::msgLevel( MSG::Level lvl ) { return m_msg.get().level() <= lvl ; }

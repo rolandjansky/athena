@@ -22,41 +22,41 @@
 namespace MuonGM {
 
 TgcDetectorElement::TgcDetectorElement(GeoVFullPhysVol* pv, MuonDetectorManager* mgr,Identifier id, IdentifierHash 
-idHash) : MuonDetectorElement(pv,mgr,id,idHash), m_tgcre(NULL)
+idHash) : MuonDetectorElement(pv,mgr,id,idHash), _tgcre(NULL)
 {
     //m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:TgcDetectorElement");
-  m_nREinDetectorElement=1; 
+  _nREinDetectorElement=1; 
 }
 
 const Amg::Transform3D& TgcDetectorElement::transform() const
-{return m_tgcre->transform();}
+{return _tgcre->transform();}
 
 const Trk::Surface& TgcDetectorElement::surface() const
-{return m_tgcre->surface();}
+{return _tgcre->surface();}
 
 const Trk::SurfaceBounds& TgcDetectorElement::bounds() const
-{return m_tgcre->bounds();}
+{return _tgcre->bounds();}
 
 const Amg::Vector3D& TgcDetectorElement::center() const
 {
-    //    msg(MSG::INFO)<<"Test from TgcDetectorElement::center()"<<endmsg;
+    //    msg(MSG::INFO)<<"Test from TgcDetectorElement::center()"<<endreq;
     
-return m_tgcre->center();}
+return _tgcre->center();}
 
 const Amg::Vector3D& TgcDetectorElement::normal() const
-{return m_tgcre->normal();}
+{return _tgcre->normal();}
 
 const Trk::Surface& 
 TgcDetectorElement::surface(const Identifier& id) const
-{return m_tgcre->surface(id);}
+{return _tgcre->surface(id);}
 
 const Trk::SurfaceBounds& 
 TgcDetectorElement::bounds(const Identifier& id) const
-{return m_tgcre->bounds(id);}
+{return _tgcre->bounds(id);}
 
 const Amg::Transform3D& 
 TgcDetectorElement::transform(const Identifier& id) const
-{return m_tgcre->transform(id);}
+{return _tgcre->transform(id);}
 
 const Amg::Vector3D& 
 TgcDetectorElement::center(const Identifier& id) const
@@ -67,10 +67,6 @@ TgcDetectorElement::center(const Identifier& id) const
 
 const Amg::Vector3D& 
 TgcDetectorElement::normal(const Identifier& id) const
-  {return m_tgcre->normal(id);}
-
-const std::vector<const Trk::Surface*>& 
-TgcDetectorElement::surfaces() const
-{return m_tgcre->surfaces();}
+  {return _tgcre->normal(id);}
 
 }

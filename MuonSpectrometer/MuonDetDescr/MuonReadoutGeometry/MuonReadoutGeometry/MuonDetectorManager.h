@@ -23,7 +23,6 @@
 #include "MuonReadoutGeometry/GenericCSCCache.h"
 #include "MuonAlignmentData/CorrContainer.h"
 #include <iostream>
-#include <sstream>
 #include <map>
 #include <vector>
 
@@ -32,7 +31,6 @@
 typedef std::map<Identifier,ALinePar*>::const_iterator ciALineMap;
 typedef std::map<Identifier,BLinePar*>::const_iterator ciBLineMap;
 typedef std::map<Identifier,CscInternalAlignmentPar*>::const_iterator ciCscInternalAlignmentMap;
-typedef std::map<Identifier,MdtAsBuiltPar*>::const_iterator ciMdtAsBuiltMap;
 
 class IMessageSvc;
 
@@ -100,8 +98,6 @@ namespace MuonGM {
     
     // storeCscInternalAlignmentParams
     void storeCscInternalAlignmentParams(CscInternalAlignmentPar* x);
-
-    void storeMdtAsBuiltParams(MdtAsBuiltPar* x);
     
     // access to Readout Elements
     const MdtReadoutElement* getMdtReadoutElement(Identifier) const;//!< access via extended identifier (requires unpacking)
@@ -344,24 +340,17 @@ namespace MuonGM {
     inline ALineMapContainer * ALineContainer() const;
     inline BLineMapContainer * BLineContainer() const;
     inline CscInternalAlignmentMapContainer * CscInternalAlignmentContainer() const;
-    inline MdtAsBuiltMapContainer* MdtAsBuiltContainer() const;
     inline ciALineMap ALineMapBegin() const;
     inline ciBLineMap BLineMapBegin() const;
     inline ciALineMap ALineMapEnd() const;
     inline ciBLineMap BLineMapEnd() const;
     inline ciCscInternalAlignmentMap CscALineMapBegin() const;
     inline ciCscInternalAlignmentMap CscALineMapEnd() const;
-    inline ciMdtAsBuiltMap MdtAsBuiltMapBegin() const;
-    inline ciMdtAsBuiltMap MdtAsBuiltMapEnd() const;
     StatusCode updateAlignment(const ALineMapContainer* a) const; 
     StatusCode updateDeformations(const BLineMapContainer* a) const;
-    StatusCode updateAsBuiltParams(const MdtAsBuiltMapContainer* a) const;
     StatusCode initCSCInternalAlignmentMap() const;
     StatusCode updateCSCInternalAlignmentMap(const CscInternalAlignmentMapContainer* cscIntAline) const;
     void initABlineContainers() const;
-
-    // get Mdt AsBuilt parameters for chamber specified by Identifier
-    MdtAsBuiltPar* getMdtAsBuiltParams(Identifier id);
 
     //!< provide a pointer to the msg svc to all readout geometry 
     inline IMessageSvc* msgSvc() const;    
@@ -380,7 +369,7 @@ namespace MuonGM {
     int m_controlCscIlines;
     bool m_useCscIlinesFromGM;
     
-    std::vector<PVLink> m_envelope;  // Tree-top...
+    std::vector<PVLink> _envelope;  // Tree-top...
     
     GenericCSCCache m_genericCSC;
     GenericMDTCache m_genericMDT;
@@ -402,46 +391,45 @@ namespace MuonGM {
     const MmIdHelper* m_mmIdHelper;
 
     // 115.6 kBytes.  
-    const MdtReadoutElement*   m_mdtArray[NMdtStatType][NMdtStatEta][NMdtStatPhi][NMdtMultilayer];
-    const CscReadoutElement*   m_cscArray[NCscStatType][NCscStatEta][NCscStatPhi][NCscChamberLayer];
-    const RpcReadoutElement*   m_rpcArray[NRpcStatType][NRpcStatEta][NRpcStatPhi][NDoubletR][NDoubletZ];
-    const TgcReadoutElement*   m_tgcArray[NTgcStatType][NTgcStatEta][NTgcStatPhi];
-    const sTgcReadoutElement*  m_stgArray[NsTgStatType][NsTgStatEta][NsTgStatPhi][NsTgChamberLayer];
-    const MMReadoutElement*    m_mmcArray[NMMcStatType][NMMcStatEta][NMMcStatPhi][NMMcChamberLayer];
+    const MdtReadoutElement*   _mdtArray[NMdtStatType][NMdtStatEta][NMdtStatPhi][NMdtMultilayer];
+    const CscReadoutElement*   _cscArray[NCscStatType][NCscStatEta][NCscStatPhi][NCscChamberLayer];
+    const RpcReadoutElement*   _rpcArray[NRpcStatType][NRpcStatEta][NRpcStatPhi][NDoubletR][NDoubletZ];
+    const TgcReadoutElement*   _tgcArray[NTgcStatType][NTgcStatEta][NTgcStatPhi];
+    const sTgcReadoutElement*  _stgArray[NsTgStatType][NsTgStatEta][NsTgStatPhi][NsTgChamberLayer];
+    const MMReadoutElement*    _mmcArray[NMMcStatType][NMMcStatEta][NMMcStatPhi][NMMcChamberLayer];
     //
-    const MdtReadoutElement *m_mdtArrayByHash[MdtRElMaxHash];
-    const CscReadoutElement *m_cscArrayByHash[CscRElMaxHash];
-    const RpcReadoutElement *m_rpcArrayByHash[RpcRElMaxHash];
-    const TgcReadoutElement *m_tgcArrayByHash[TgcRElMaxHash];
+    const MdtReadoutElement *_mdtArrayByHash[MdtRElMaxHash];
+    const CscReadoutElement *_cscArrayByHash[CscRElMaxHash];
+    const RpcReadoutElement *_rpcArrayByHash[RpcRElMaxHash];
+    const TgcReadoutElement *_tgcArrayByHash[TgcRElMaxHash];
     
-    std::map< std::string, MuonStation * > m_MuonStationMap;
+    std::map< std::string, MuonStation * > _MuonStationMap;
     
-    unsigned int m_n_mdtRE;
-    unsigned int m_n_cscRE;
-    unsigned int m_n_rpcRE;
-    unsigned int m_n_tgcRE;
-    unsigned int m_n_stgRE;    
-    unsigned int m_n_mmcRE;
+    unsigned int n_mdtRE;
+    unsigned int n_cscRE;
+    unsigned int n_rpcRE;
+    unsigned int n_tgcRE;
+    unsigned int n_stgRE;    
+    unsigned int n_mmcRE;
     
-    unsigned int m_n_mdtDE;
-    unsigned int m_n_cscDE;
-    unsigned int m_n_rpcDE;
-    unsigned int m_n_tgcDE;
+    unsigned int n_mdtDE;
+    unsigned int n_cscDE;
+    unsigned int n_rpcDE;
+    unsigned int n_tgcDE;
 
     // pointers to the XxxDetectorElements (with granularity a la EDM)
-    std::vector<TgcReadoutParams*> m_TgcReadoutParamsVec;
+    std::vector<TgcReadoutParams*> _TgcReadoutParamsVec;
     // vector of CSC Internal Alignment parameters (just for init purposes) filled from file or Oracle table (RDBReaderAccess) and then deleted by the factory; 
     
-    MdtDetectorElement* m_mdtDEArray[MdtDetElMaxHash];
-    RpcDetectorElement* m_rpcDEArray[RpcDetElMaxHash];
-    TgcDetectorElement* m_tgcDEArray[TgcDetElMaxHash];
-    CscDetectorElement* m_cscDEArray[CscDetElMaxHash];
+    MdtDetectorElement* _mdtDEArray[MdtDetElMaxHash];
+    RpcDetectorElement* _rpcDEArray[RpcDetElMaxHash];
+    TgcDetectorElement* _tgcDEArray[TgcDetElMaxHash];
+    CscDetectorElement* _cscDEArray[CscDetElMaxHash];
 
     mutable  ALineMapContainer * m_aLineContainer;
     mutable  BLineMapContainer * m_bLineContainer;
     // CscInternalAlignmentMapContainer (pointers) will be created by RDBReaderAccess at the first attempt to store a CscInternalAlignmentPar -rot and transl parameters are held by the CSCredoutElements and the corresponding A-line is provided with this map (key Identifier) by the manager - the manager is responsible to delete the CscInternalAlignmentPar
     mutable  CscInternalAlignmentMapContainer * m_cscALineContainer;
-    mutable  MdtAsBuiltMapContainer* m_AsBuiltParamsMap;
 
     //!< hold a pointer to the message svc to be used by all readout geometry 
     IMessageSvc* m_msgSvc;
@@ -525,17 +513,17 @@ namespace MuonGM {
   void MuonDetectorManager::set_DBMuonVersion(std::string version)
   {m_DBMuonVersion = version;}  
 
-  unsigned int MuonDetectorManager::nMuonStation() const {return m_MuonStationMap.size();} 
-  unsigned int MuonDetectorManager::nMdtRE() const  {return m_n_mdtRE;}
-  unsigned int MuonDetectorManager::nCscRE() const  {return m_n_cscRE;}    
-  unsigned int MuonDetectorManager::nRpcRE() const  {return m_n_rpcRE;}    
-  unsigned int MuonDetectorManager::nTgcRE() const  {return m_n_tgcRE;}    
-  unsigned int MuonDetectorManager::nsTgcRE() const {return m_n_stgRE;}
-  unsigned int MuonDetectorManager::nMMRE() const   {return m_n_mmcRE;}
-  unsigned int MuonDetectorManager::nMdtDE() const  {return m_n_mdtDE;}
-  unsigned int MuonDetectorManager::nCscDE() const  {return m_n_cscDE;}    
-  unsigned int MuonDetectorManager::nRpcDE() const  {return m_n_rpcDE;}    
-  unsigned int MuonDetectorManager::nTgcDE() const  {return m_n_tgcDE;}    
+  unsigned int MuonDetectorManager::nMuonStation() const {return _MuonStationMap.size();} 
+  unsigned int MuonDetectorManager::nMdtRE() const  {return n_mdtRE;}
+  unsigned int MuonDetectorManager::nCscRE() const  {return n_cscRE;}    
+  unsigned int MuonDetectorManager::nRpcRE() const  {return n_rpcRE;}    
+  unsigned int MuonDetectorManager::nTgcRE() const  {return n_tgcRE;}    
+  unsigned int MuonDetectorManager::nsTgcRE() const {return n_stgRE;}
+  unsigned int MuonDetectorManager::nMMRE() const   {return n_mmcRE;}
+  unsigned int MuonDetectorManager::nMdtDE() const  {return n_mdtDE;}
+  unsigned int MuonDetectorManager::nCscDE() const  {return n_cscDE;}    
+  unsigned int MuonDetectorManager::nRpcDE() const  {return n_rpcDE;}    
+  unsigned int MuonDetectorManager::nTgcDE() const  {return n_tgcDE;}    
 
   ALineMapContainer* 
     MuonDetectorManager::ALineContainer() const
@@ -549,18 +537,12 @@ namespace MuonGM {
     MuonDetectorManager::CscInternalAlignmentContainer() const
     {return  m_cscALineContainer;}
 
-  MdtAsBuiltMapContainer* 
-    MuonDetectorManager::MdtAsBuiltContainer() const
-    {return m_AsBuiltParamsMap;}
-
   ciALineMap MuonDetectorManager::ALineMapBegin() const {return m_aLineContainer->begin();}
   ciBLineMap MuonDetectorManager::BLineMapBegin() const {return m_bLineContainer->begin();}
   ciALineMap MuonDetectorManager::ALineMapEnd() const  {return m_aLineContainer->end();}
   ciBLineMap MuonDetectorManager::BLineMapEnd() const  {return m_bLineContainer->end();}
   ciCscInternalAlignmentMap MuonDetectorManager::CscALineMapBegin() const {return  m_cscALineContainer->begin();}
   ciCscInternalAlignmentMap MuonDetectorManager::CscALineMapEnd() const {return  m_cscALineContainer->end();}
-  ciMdtAsBuiltMap MuonDetectorManager::MdtAsBuiltMapBegin() const {return  m_AsBuiltParamsMap->begin();}
-  ciMdtAsBuiltMap MuonDetectorManager::MdtAsBuiltMapEnd() const {return  m_AsBuiltParamsMap->end();}
 
 
   void MuonDetectorManager::setCacheFillingFlag(int value){m_cacheFillingFlag = value;}
@@ -576,11 +558,11 @@ namespace MuonGM {
 	{
 	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	  log <<MSG::WARNING<<" try to getMdtReadoutElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<MdtRElMaxHash-1<<endmsg;
+	      <<(unsigned int)id<<" outside range 0-"<<MdtRElMaxHash-1<<endreq;
 	  return 0;
 	}
 #endif 
-      return m_mdtArrayByHash[id];
+      return _mdtArrayByHash[id];
     }
 
   const RpcReadoutElement* 
@@ -591,11 +573,11 @@ namespace MuonGM {
 	{
 	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	  log <<MSG::WARNING<<" try to getRpcReadoutElement with hashId "	
-	      <<(unsigned int)id<<" outside range 0-"<<RpcRElMaxHash-1<<endmsg;
+	      <<(unsigned int)id<<" outside range 0-"<<RpcRElMaxHash-1<<endreq;
 	  return 0;
 	}
 #endif 
-      return  m_rpcArrayByHash[id];
+      return  _rpcArrayByHash[id];
     }
 
   const TgcReadoutElement* 
@@ -606,11 +588,11 @@ namespace MuonGM {
 	{
 	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	  log <<MSG::WARNING<<" try to getTgcReadoutElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<TgcRElMaxHash-1<<endmsg;
+	      <<(unsigned int)id<<" outside range 0-"<<TgcRElMaxHash-1<<endreq;
 	  return 0;
 	}
 #endif 
-      return m_tgcArrayByHash[id];
+      return _tgcArrayByHash[id];
     }
 
   const CscReadoutElement* 
@@ -621,11 +603,11 @@ namespace MuonGM {
 	{
 	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	  log <<MSG::WARNING<<" try to getCscReadoutElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<CscRElMaxHash-1<<endmsg;
+	      <<(unsigned int)id<<" outside range 0-"<<CscRElMaxHash-1<<endreq;
 	  return 0;
 	}
 #endif
-      return m_cscArrayByHash[id];
+      return _cscArrayByHash[id];
     }
     
   const MdtDetectorElement* 
@@ -636,11 +618,11 @@ namespace MuonGM {
 	{
 	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");	
 	  log <<MSG::WARNING<<" try to getMdtDetectorElement with hashId "	
-	      <<(unsigned int)id<<" outside range 0-"<<MdtDetElMaxHash-1<<endmsg;
+	      <<(unsigned int)id<<" outside range 0-"<<MdtDetElMaxHash-1<<endreq;
 	  return 0;
 	}
 #endif 
-      return m_mdtDEArray[id];
+      return _mdtDEArray[id];
     }
 
   const TgcDetectorElement*
@@ -651,11 +633,11 @@ namespace MuonGM {
 	{
 	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	  log <<MSG::WARNING<<" try to getTgcDetectorElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<TgcDetElMaxHash-1<<endmsg;
+	      <<(unsigned int)id<<" outside range 0-"<<TgcDetElMaxHash-1<<endreq;
 	  return 0;
 	}
 #endif 
-      return m_tgcDEArray[id];
+      return _tgcDEArray[id];
     }
 
   const CscDetectorElement*
@@ -666,11 +648,11 @@ namespace MuonGM {
 	{
 	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	  log <<MSG::WARNING<<" try to getCscDetectorElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<CscDetElMaxHash-1<<endmsg;
+	      <<(unsigned int)id<<" outside range 0-"<<CscDetElMaxHash-1<<endreq;
 	  return 0;
 	}
 #endif 
-      return m_cscDEArray[id];
+      return _cscDEArray[id];
     }
 
   const RpcDetectorElement*
@@ -681,11 +663,11 @@ namespace MuonGM {
 	{
 	  MsgStream log(m_msgSvc, "MGM::MuonDetectorManager");
 	  log <<MSG::WARNING<<" try to getRpcDetectorElement with hashId "
-	      <<(unsigned int)id<<" outside range 0-"<<RpcDetElMaxHash-1<<endmsg;
+	      <<(unsigned int)id<<" outside range 0-"<<RpcDetElMaxHash-1<<endreq;
 	  return 0;
 	}
 #endif 
-      return m_rpcDEArray[id];
+      return _rpcDEArray[id];
     }
     
 } // namespace MuonGM

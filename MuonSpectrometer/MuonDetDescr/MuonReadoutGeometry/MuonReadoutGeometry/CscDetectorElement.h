@@ -43,9 +43,9 @@ public:
 
 
    // access to the readout-elements in this DetectorElement
-   const CscReadoutElement* readoutElement() const {return m_cscre;}
+   const CscReadoutElement* readoutElement() const {return _cscre;}
    
-   void setReadoutElement(const CscReadoutElement *re) {m_cscre=re; ++m_nREinDetectorElement;}
+   void setReadoutElement(const CscReadoutElement *re) {_cscre=re; ++_nREinDetectorElement;}
    // access to the MuonStation this DetectorElement belongs to
    MuonStation* parentMuonStation() const;
 
@@ -71,10 +71,8 @@ public:
   
     const Amg::Vector3D& center(const Identifier& id) const;
 
-    const std::vector<const Trk::Surface*>& surfaces() const;
-
 private:
-   const CscReadoutElement *m_cscre;
+   const CscReadoutElement *_cscre;
 
 
 };

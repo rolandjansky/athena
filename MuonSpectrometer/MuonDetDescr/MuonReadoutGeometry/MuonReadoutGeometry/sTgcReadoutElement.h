@@ -67,9 +67,6 @@ namespace MuonGM {
     /** pad position */
     bool padPosition( const Identifier& id, Amg::Vector2D& pos) const;
 
-    /** pad corners */
-    bool padCorners ( const Identifier& id, std::vector<Amg::Vector2D> &corners) const;
-
     /** number of layers in phi/eta projection */
     int numberOfLayers( bool ) const;
 
@@ -136,9 +133,7 @@ namespace MuonGM {
     void setIdentifier(Identifier id);
     
     /** set methods only to be used by MuonGeoModel */
-    void setChamberLayer(int ml) {m_ml=ml;}
-
-    //double getSectorOpeningAngle(bool isLargeSector);
+    void setChamberLayer(int ml) {_ml=ml;}
 
   private:
 
@@ -151,10 +146,7 @@ namespace MuonGM {
     std::vector<int> m_nPads;
     int m_nlayers;
     
-    int m_ml;  
-
-    //const double m_largeSectorOpeningAngle = 28.0;
-    //const double m_smallSectorOpeningAngle = 17.0;
+    int _ml;  
 
     // surface dimensions
     std::vector<double> m_halfX;
@@ -162,7 +154,7 @@ namespace MuonGM {
     std::vector<double> m_maxHalfY;
 
     // transforms (RE->layer)
-    Amg::Transform3D m_Xlg[4];
+    Amg::Transform3D _Xlg[4];
   };
 
   inline int sTgcReadoutElement::surfaceHash( const Identifier& id ) const {
@@ -235,11 +227,11 @@ namespace MuonGM {
 
     const MuonPadDesign* design = getPadDesign(id);
     if( !design ) {
-      *m_MsgStream << MSG::WARNING << "no pad Design" << endmsg;
+      *m_MsgStream << MSG::WARNING << "no pad Design" << endreq;
       return -1;
     }
     std::pair<int,int> pad(design->channelNumber(pos));
-    *m_MsgStream << MSG::DEBUG << "pad numbers from MuonPadDesign " <<pad.first <<"  " << pad.second << "  "<<endmsg;
+    *m_MsgStream << MSG::DEBUG << "pad numbers from MuonPadDesign " <<pad.first <<"  " << pad.second << "  "<<endreq;
 
     if (pad.first>0 && pad.second>0) {
 
@@ -253,12 +245,12 @@ namespace MuonGM {
       int padEta = manager()->stgcIdHelper()->padEta(padID);
       int padPhi = manager()->stgcIdHelper()->padPhi(padID);
       if( padEta != pad.first || padPhi != pad.second ){
-	*m_MsgStream << MSG::WARNING << " bad pad indices: input " << pad.first << " " << pad.second << " from ID " << padEta << " " << padPhi << endmsg;
+	*m_MsgStream << MSG::WARNING << " bad pad indices: input " << pad.first << " " << pad.second << " from ID " << padEta << " " << padPhi << endreq;
 	return -1;
       }
       return channel;
     } 
-    *m_MsgStream << MSG::WARNING << "bad channelNumber" << endmsg;
+    *m_MsgStream << MSG::WARNING << "bad channelNumber" << endreq;
 
     return -1; 
   }
@@ -276,24 +268,12 @@ namespace MuonGM {
   inline bool sTgcReadoutElement::padPosition( const Identifier& id, Amg::Vector2D& pos ) const {
 
     const MuonPadDesign* design = getPadDesign(id);
-    if( !design ) return false;
+    if( !design ) return -1;
     
     int padEta = manager()->stgcIdHelper()->padEta(id);
     int padPhi = manager()->stgcIdHelper()->padPhi(id);
 
     return design->channelPosition(std::pair<int,int>(padEta,padPhi),pos);
-
-  }
-
-  inline bool sTgcReadoutElement::padCorners( const Identifier& id, std::vector<Amg::Vector2D> &corners ) const {
-
-    const MuonPadDesign* design = getPadDesign(id);
-    if( !design ) return false;
-    
-    int padEta = manager()->stgcIdHelper()->padEta(id);
-    int padPhi = manager()->stgcIdHelper()->padPhi(id);
-
-    return design->channelCorners(std::pair<int,int>(padEta,padPhi),corners);
 
   }
 

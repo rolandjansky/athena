@@ -187,9 +187,6 @@ public:
     virtual const Amg::Vector3D tubeNormal(int, int ) const;
     virtual const Amg::Vector3D& normal() const;
       
-    /** returns all the surfaces contained in this detector element */
-    virtual const std::vector<const Trk::Surface*>& surfaces() const;
-
     // methods handling deformations
     const Amg::Transform3D& fromIdealToDeformed(const Identifier&) const;
     const Amg::Transform3D& fromIdealToDeformed(int multilayer, int tubelayer, int tube) const;
@@ -197,14 +194,17 @@ public:
 private:
 
     double getTubeLengthForCaching(int tubeLayer, int tube) const;
-    double getNominalTubeLengthWoCutouts(int tubeLayer, int tube) const;
-    Amg::Vector3D localNominalTubePosWoCutouts(int tubelayer, int tube) const;
 
     Amg::Vector3D posOnDefChamWire(const Amg::Vector3D& locAMDBPos, double, double, double, double, 
 	double, double, double, double, double, double, double, double,
 	double, double, double, const Amg::Vector3D fixedPoint) const;
     Amg::Vector3D posOnDefChamWire(const Amg::Vector3D& locAMDBPos, const BLinePar* bLine, const Amg::Vector3D fixedPoint) const;
-    void wireEndpointsAsBuilt(Amg::Vector3D& locAMDBWireEndP, Amg::Vector3D& locAMDBWireEndN, int multilayer, int tubelayer, int tube) const;
+    Amg::Vector3D positionOnDeformedChamber(const Amg::Vector3D& locAMDBPos, double, double, double, double, 
+					    double, double, double, double, double, double, double, double,
+                                            double, double, double, const Amg::Vector3D fixedPoint) const;
+    Amg::Vector3D positionOnDeformedChamber(const Amg::Vector3D& locAMDBPos, const BLinePar* bLine, const Amg::Vector3D fixedPoint) const;
+    Amg::Vector3D afterAsBuiltParamsInAmdbFrame(const Amg::Vector3D& locAMDBPos, int multilayer, int tubelayer, int tube) const;
+    Amg::Vector3D  afterAsBuiltParamsInAmdbFrameEIEM(const Amg::Vector3D& locAMDBPos, int multilayer, int tubelayer, int tube) const;
 
     // methods used only by friend class MdtAlignModule to shift chambers
     void shiftTube(const Identifier& id) const;
@@ -228,7 +228,7 @@ private:
     double m_firstwire_y[maxnlayers];
     double m_innerRadius;
     double m_tubeWallThickness;
-    mutable int m_zsignRO_tubeFrame; // comes from AMDB CRO location in the station
+    mutable int _zsignRO_tubeFrame; // comes from AMDB CRO location in the station
 
     mutable std::vector<Amg::Transform3D*> * m_deformTransfs;
     mutable BLinePar* m_BLinePar;
@@ -241,8 +241,6 @@ private:
     mutable std::vector<Amg::Transform3D *>         * m_backupTubeTransf;  // one per tube
     mutable std::vector<Amg::Transform3D *>         * m_backupDeformTransf;  // one per tube
     
-    /** these are all surfaces represented by this detector element : it's for visualization without casting */
-    mutable std::vector<const Trk::Surface*>  m_elementSurfaces;
 
     // the single surface information representing the DetElement
     mutable Trk::Surface*           m_associatedSurface; 
@@ -286,19 +284,6 @@ double MdtReadoutElement::getActiveTubeLength(int tubeLayer, int tube) const
 {
   //std::cout<<" in getActiveTubeLength going to compute 2*bounds.halflength for tLayer,tube="<<tubeLayer<<" "<<tube<<" "<<std::endl;
   return 2.*(bounds(tubeLayer,tube).halflengthZ());
-}
-
-inline const std::vector<const Trk::Surface*>& MdtReadoutElement::surfaces() const {
-    // create when first time requested and when possible
-    if (!m_elementSurfaces.size() && ( m_associatedSurface || m_tubeSurfaces ) ){
-        if (m_associatedSurface) m_elementSurfaces.push_back(m_associatedSurface);
-        if (m_tubeSurfaces){
-            for (auto& sf : (*m_tubeSurfaces) )
-                m_elementSurfaces.push_back(sf);
-        }
-    }
-    // return the element surfaces
-    return m_elementSurfaces;
 }
 
 } // namespace MuonGM

@@ -13,6 +13,8 @@
 //<version>	$Name: not supported by cvs2svn $
 
 #include "MuonReadoutGeometry/MMReadoutElement.h"
+#include "MuonReadoutGeometry/NSWenumeration.h"
+#include "MuonReadoutGeometry/NSWgeometry.h"
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoShapeSubtraction.h"
@@ -36,7 +38,7 @@ namespace MuonGM {
 				     MuonDetectorManager* mgr)
     : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr)
   {
-    m_ml = mL;
+    _ml = mL;
     m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:MMReadoutElement");
     //MsgStream log(Athena::getMessageSvc(), "MuGM:MMReadoutElement");
 
@@ -82,7 +84,7 @@ namespace MuonGM {
 	    //std::cerr<<" navigating MM named "
 	    //       <<childname<<" child "
 	    //       <<ich<<" is a layer with tag "<<llay<<std::endl;
-	    m_Xlg[llay-1] = Amg::CLHEPTransformToEigen(pvc->getXToChildVol(ich));
+	    _Xlg[llay-1] = Amg::CLHEPTransformToEigen(pvc->getXToChildVol(ich));
             // save layer dimensions
             if (llay==1) {
               if (pc->getLogVol()->getShape()->type()=="Trd") {
@@ -126,11 +128,11 @@ namespace MuonGM {
 	}
         m_nlayers=llay;
       } else {
-	std::cerr<<"Cannot perform a dynamic cast ! "<<std::endl;
+	std::cerr<<"Cannot perform a dinamic cast ! "<<std::endl;
       }
     }
     if( !foundShape ){
-      *m_MsgStream << MSG::WARNING << " failed to initialize dimensions of this chamber " << endmsg;
+      *m_MsgStream << MSG::WARNING << " failed to initialize dimensions of this chamber " << endreq;
     }
     //fillCache();
 
@@ -160,7 +162,7 @@ namespace MuonGM {
     if (gethash_code != 0) 
        reLog()<<MSG::WARNING
 	      <<"MMReadoutElement --  detectorElement hash Id NOT computed for id = "
-	      <<manager()->mmIdHelper()->show_to_string(id)<<endmsg;
+	      <<manager()->mmIdHelper()->show_to_string(id)<<endreq;
     m_detectorElIdhash = detIdhash;
   }
 
@@ -175,14 +177,14 @@ namespace MuonGM {
     for (int il=0; il<m_nlayers; il++) {
 
       // identifier of the first channel to retrieve max number of strips
-      Identifier id = manager()->mmIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),m_ml, il+1, 1);
+      Identifier id = manager()->mmIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),_ml, il+1, 1);
       int chMax =  manager()->mmIdHelper()->channelMax(id);
       if ( chMax < 0 ) chMax = 2500;
       
       char side = getStationEta() < 0 ? 'C' : 'A';
       char sector_l = getStationName().substr(2,1)=="L" ? 'L' : 'S';
       MMDetectorHelper aHelper;
-      MMDetectorDescription* mm = aHelper.Get_MMDetector(sector_l, abs(getStationEta()), getStationPhi(), m_ml, side);
+      MMDetectorDescription* mm = aHelper.Get_MMDetector(sector_l, abs(getStationEta()), getStationPhi(), _ml, side);
       MMReadoutParameters roParam = mm->GetReadoutParameters();
 
       m_etaDesign[il].type=0;
@@ -201,10 +203,10 @@ namespace MuonGM {
       m_etaDesign[il].inputWidth = pitch;
       m_etaDesign[il].thickness = roParam.gasThickness;
 
-      if (m_ml == 1) m_etaDesign[il].sAngle = (roParam.stereoAngel).at(il);
-      else if (m_ml == 2) m_etaDesign[il].sAngle = (roParam.stereoAngel).at(il);
+      if (_ml == 1) m_etaDesign[il].sAngle = (roParam.stereoAngel).at(il);
+      else if (_ml == 2) m_etaDesign[il].sAngle = (roParam.stereoAngel).at(il);
       else reLog()<<MSG::WARNING
-	          <<"MMReadoutElement -- Unexpected Multilayer: m_ml= " << m_ml <<endmsg;
+	          <<"MMReadoutElement -- Unexpected Multilayer: _ml= " << _ml <<endreq;
       
       if (m_etaDesign[il].sAngle == 0.) {    // stereo angle 0.
 	
@@ -248,7 +250,7 @@ namespace MuonGM {
       m_nStrips.push_back(m_etaDesign[il].nch);
 
       reLog()<<MSG::INFO 
-	     <<"initDesign:" << getStationName()<< " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch << ", nstrips " << m_etaDesign[il].nch << endmsg;
+	     <<"initDesign:" << getStationName()<< " layer " << il << ", strip pitch " << m_etaDesign[il].inputPitch << ", nstrips " << m_etaDesign[il].nch << endreq;
 
     }
 
@@ -258,7 +260,7 @@ namespace MuonGM {
   {
     if( !m_surfaceData ) m_surfaceData = new SurfaceData();
     else{
-      reLog()<<MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
+      reLog()<<MSG::WARNING<<"calling fillCache on an already filled cache" << endreq;
       return;
     }
 
@@ -267,7 +269,7 @@ namespace MuonGM {
     for( int layer = 0; layer < m_nlayers; ++layer ){
 
       // identifier of the first channel
-      Identifier id = manager()->mmIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),m_ml, layer+1, 1);
+      Identifier id = manager()->mmIdHelper()->channelID(getStationName(),getStationEta(),getStationPhi(),_ml, layer+1, 1);
 
       // move the readout plane to the sensitive volume boundary 
       double shift = 0.5*m_etaDesign[layer].thickness;
@@ -275,7 +277,7 @@ namespace MuonGM {
 
       // need to operate switch x<->z because of GeoTrd definition
       m_surfaceData->m_layerSurfaces.push_back( new Trk::PlaneSurface(*this, id) );
-      m_surfaceData->m_layerTransforms.push_back(absTransform()*m_Xlg[layer]*Amg::Translation3D(rox,0.,0.)*
+      m_surfaceData->m_layerTransforms.push_back(absTransform()*_Xlg[layer]*Amg::Translation3D(rox,0.,0.)*
 						 Amg::AngleAxis3D(-90.*CLHEP::deg,Amg::Vector3D(0.,1.,0.)) );
 
       // surface info (center, normal) 
@@ -291,7 +293,7 @@ namespace MuonGM {
     if (manager()->mmIdHelper()->stationEta(id)!= getStationEta() ) return false;
     if (manager()->mmIdHelper()->stationPhi(id)!= getStationPhi() ) return false;
 
-    if (manager()->mmIdHelper()->multilayerID(id)!= m_ml ) return false;
+    if (manager()->mmIdHelper()->multilayerID(id)!= _ml ) return false;
     
     int gasgap     = manager()->mmIdHelper()->gasGap(id);
     if (gasgap  <1 || gasgap > m_nlayers) return false;
@@ -306,8 +308,8 @@ namespace MuonGM {
   {
     int gg = manager()->mmIdHelper()->gasGap(id);
     
-    //    Amg::Vector3D  locP = (m_Xlg[gg-1].inverse())*locPos;
-    Amg::Vector3D  locP = (m_Xlg[gg-1])*locPos;
+    //    Amg::Vector3D  locP = (_Xlg[gg-1].inverse())*locPos;
+    Amg::Vector3D  locP = (_Xlg[gg-1])*locPos;
     std::cout<<"locPos in the gg      r.f. "<<locPos<<std::endl;
     std::cout<<"locP in the multilayer r.f. "<<locP<<std::endl;
     

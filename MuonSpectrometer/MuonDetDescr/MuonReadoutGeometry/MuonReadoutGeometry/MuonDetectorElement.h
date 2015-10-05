@@ -70,7 +70,7 @@ public:
    virtual int getStationPhi() const = 0; //!< returns stationPhi
     
    // DetectorElement content
-   unsigned int nReadoutElements() const {return m_nREinDetectorElement ;}
+   unsigned int nReadoutElements() const {return _nREinDetectorElement ;}
    //!< returns the number of ReadoutElements collected under this detector
    // Common tracking generic interfaces
 
@@ -92,7 +92,7 @@ protected:
    Identifier        m_id;       //!< extended data-collection identifier 
    IdentifierHash    m_idhash;   //!< data-collection hash identifier
 
-   unsigned int m_nREinDetectorElement;
+   unsigned int _nREinDetectorElement;
     
     //Declaring private message stream member.
     mutable Athena::MsgStreamMember m_msg ;

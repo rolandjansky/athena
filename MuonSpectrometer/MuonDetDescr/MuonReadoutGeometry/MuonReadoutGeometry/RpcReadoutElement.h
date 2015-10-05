@@ -263,11 +263,11 @@ namespace MuonGM {
     double m_etastriplength;
     double m_phipaneldead,  m_etapaneldead;
     double m_exthonthick;
-    double m_first_phistrip_s[maxphipanels];
-    double m_first_etastrip_z[maxetapanels];
-    double m_etastrip_s[maxphipanels];
-    double m_phistrip_z[maxetapanels];    
-    Amg::Transform3D m_Xlg[2][2];
+    double first_phistrip_s[maxphipanels];
+    double first_etastrip_z[maxetapanels];
+    double etastrip_s[maxphipanels];
+    double phistrip_z[maxetapanels];    
+    Amg::Transform3D _Xlg[2][2];
 
     const Amg::Transform3D localToGlobalStripPanelTransf(int dbZ, int dbPhi, int gasGap) const;
     const Amg::Vector3D localStripPanelPos(int dbZ, int dbP, int gg) const; 
@@ -322,7 +322,7 @@ namespace MuonGM {
     if ( m_nphistrippanels == 1 ) dbPhi = 1;
     if( dbPhi > NphiStripPanels() || gasGap > numberOfLayers(true) ) {
       reLog() << MSG::WARNING << " surfaceHash: identifier out of range dbphi " << dbPhi << " max " << NphiStripPanels() 
-	      << " ch dbphi " << getDoubletPhi() << " gp " << gasGap << " max " << numberOfLayers() << endmsg;
+	      << " ch dbphi " << getDoubletPhi() << " gp " << gasGap << " max " << numberOfLayers() << endreq;
       return -1;
     }
     return  (dbPhi-1)*(2*NphiStripPanels()) + 2*(gasGap-1) + (measPhi ? 0 : 1);
@@ -343,7 +343,7 @@ namespace MuonGM {
 
     if( dbPhi > NphiStripPanels() || gasGap > numberOfLayers(true) ) {
       reLog() << MSG::WARNING << " layerHash: identifier out of range dbphi " << dbPhi << " max " << NphiStripPanels() 
-	      << " ch dbphi " << getDoubletPhi() << " gp " << gasGap << " max " << numberOfLayers() << endmsg;
+	      << " ch dbphi " << getDoubletPhi() << " gp " << gasGap << " max " << numberOfLayers() << endreq;
       return -1;
     }
     return (dbPhi-1)*(NphiStripPanels()) + (gasGap-1);
@@ -361,7 +361,7 @@ namespace MuonGM {
   inline const MuonStripDesign* RpcReadoutElement::getDesign( const Identifier& id ) const {
     int phipanel = m_nphistrippanels == 1 ? 1 : manager()->rpcIdHelper()->doubletPhi(id);
     if( phipanel > (int)m_phiDesigns.size() ) {
-      reLog() << MSG::WARNING << " bad identifier, no MuonStripDesign found " << endmsg;
+      reLog() << MSG::WARNING << " bad identifier, no MuonStripDesign found " << endreq;
       return 0;
     }
     return manager()->rpcIdHelper()->measuresPhi(id) ? &m_phiDesigns[phipanel-1] : &m_etaDesigns[phipanel-1];
