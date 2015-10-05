@@ -207,7 +207,9 @@ void SCT_RodEncoder::fillROD(std::vector<uint32_t>&  v32rod, uint32_t robid,
       
     }  // End of (else) Expanded
   } //end of RDO loop
-  
+  if (!firstInRod && lastTrailer !=0) {
+    v16data.push_back(lastTrailer);
+  }
   /** 16 bits TO 32 bits and pack into 32 bit vectors */
   packFragments(v16data,v32rod) ;
   
