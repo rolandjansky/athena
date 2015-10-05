@@ -28,6 +28,8 @@
 //#include "InDetRawData/SCT_RDO_Container.h" Already in interface
 #include "InDetByteStreamErrors/InDetBSErrContainer.h"
 
+
+
 class ISCT_CablingSvc;
 class SCT_ID;
 class ISCT_ByteStreamErrorsSvc;
@@ -117,10 +119,15 @@ public:
   unsigned int m_maskedRODNumber;
   unsigned int m_RODClockErrorNumber;
   unsigned int m_truncatedRODNumber;
+  unsigned int m_numMissingLinkHeader;
+  
   InDetBSErrContainer* m_bsErrCont;
   std::string m_bsErrContainerName;
 
   bool m_triggerMode;
+
+  ServiceHandle<IIncidentSvc> m_incidentSvc;
+
 };
 
 
