@@ -22,8 +22,8 @@
 #include "G4VUserPhysicsList.hh"
 #include "G4UserSteppingAction.hh"
 
-#include "G4AtlasInterfaces/ISensitiveDetectorSvc.h"
-#include "G4AtlasInterfaces/IFastSimulationSvc.h"
+#include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
+#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 
 
 namespace ISF {
@@ -33,32 +33,32 @@ namespace ISF {
 namespace iGeant4
 {
   /** @class G4AtlasRunManager
-      
+
       @author Robert Harrington
   */
 
   class TrackProcessor;
 
   class G4AtlasRunManager : public G4RunManager {
-    
+
     friend class G4TransportTool;
-    
+
   public:
     virtual ~G4AtlasRunManager() {}
-    
+
     static G4AtlasRunManager* GetG4AtlasRunManager();
 
     //    void SetPhysicsList(G4VUserPhysicsList* p) { m_pl = p; }
-    
+
     void SetUserSteppingAction(G4UserSteppingAction* p) { m_steppingActions.push_back(p); }
 
     bool ProcessEvent(G4Event* event);
 
-    void RunTermination(); 
+    void RunTermination();
     void SetCurrentG4Event(int);
 
     //void setParticleBroker(ServiceHandle<ISF::IParticleBroker>* stackSvc) { m_trackProcessorUserAction->setParticleBroker(stackSvc); }
-    
+
     //void setParticleHelper(ToolHandle<ISF::IParticleHelper>* particleHelper) { m_trackProcessorUserAction->setParticleHelper(particleHelper); }
 
     /// Log a message using the Athena controlled logging system
@@ -67,16 +67,16 @@ namespace iGeant4
     bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 
   protected:
-    
+
     void InitializeGeometry();
     void InitializePhysics();
-    
+
   private:
     G4AtlasRunManager();
     void EndEvent();
 
     void SetReleaseGeo(bool b) { m_releaseGeo = b; }
-    
+
     //    G4VUserPhysicsList * m_pl;
 
     std::vector<G4UserSteppingAction*> m_steppingActions;
@@ -88,8 +88,8 @@ namespace iGeant4
     /// Private message stream member
     mutable Athena::MsgStreamMember m_msg;
 
-    ISensitiveDetectorSvc* m_senDetSvc;
-    IFastSimulationSvc* m_fastSimSvc;
+    ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
+    ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
   };
 
 }
