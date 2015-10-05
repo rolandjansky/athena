@@ -32,9 +32,12 @@ class ISCT_SensorsSvc: virtual public IInterface{
 public:
   virtual ~ISCT_SensorsSvc(){}
   static const InterfaceID & interfaceID(); //!< reimplemented from IInterface
- 
+  virtual StatusCode fillSensorsData(int&  i  , std::list<std::string>& keys)=0;
+
   ///Fill vector with sensors info
   virtual void getSensorsData(std::vector<std::string> & userVector)=0;
+  //virtual std::string getManufacturer(const IdentifierHash &hashId)=0;
+  virtual std::string getManufacturer(unsigned int i)=0;
 };
 
 
