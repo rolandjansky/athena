@@ -95,6 +95,10 @@ namespace MuonCombined {
     uint8_t numberOfPhiHoleLayers = 0;
     uint8_t numberOfTriggerEtaLayers = 0;
     uint8_t numberOfTriggerEtaHoleLayers = 0;
+    
+    uint8_t  nearbyHitsInner = 0;
+    uint8_t  nearbyHitsMiddle = 0;
+    uint8_t  nearbyHitsOuter = 0;
 
     if( !trackSummary ){
       // get link to track particle
@@ -102,8 +106,8 @@ namespace MuonCombined {
       if( !tpLink.isValid() ) tpLink = muon.muonSpectrometerTrackParticleLink();
       if( tpLink.isValid() ){
 	
-	// check link to track
-	if( (*tpLink)->trackLink().isValid() ) trackSummary = (*tpLink)->track()->trackSummary();
+    	// check link to track
+    	if( (*tpLink)->trackLink().isValid() ) trackSummary = (*tpLink)->track()->trackSummary();
       }
     }
     
@@ -113,7 +117,7 @@ namespace MuonCombined {
       mainSector = summary.mainSector;
       secondSector = mainSector;
       for( auto sec : summary.sectors ){
-	if( sec != summary.mainSector ) secondSector = sec;
+	      if( sec != summary.mainSector ) secondSector = sec;
       }
 
       numberOfPrecisionLayers = summary.nprecisionLayers;
@@ -127,113 +131,124 @@ namespace MuonCombined {
       ElementLink< xAOD::TrackParticleContainer > tpLink = muon.combinedTrackParticleLink();
       if( !tpLink.isValid() ) tpLink = muon.muonSpectrometerTrackParticleLink();
       if( tpLink.isValid() ){
-	xAOD::TrackParticle* tp = const_cast<xAOD::TrackParticle*>(*tpLink);
-	if( tp ){
-	  uint8_t numberOfPrecisionLayers = summary.nprecisionLayers;
-	  uint8_t numberOfPrecisionHoleLayers = summary.nprecisionHoleLayers;
-	  uint8_t numberOfPhiLayers = summary.nphiLayers;
-	  uint8_t numberOfPhiHoleLayers = summary.nphiHoleLayers;
-	  uint8_t numberOfTriggerEtaLayers = summary.ntrigEtaLayers;
-	  uint8_t numberOfTriggerEtaHoleLayers = summary.ntrigEtaHoleLayers;
-	  tp->setSummaryValue(numberOfPrecisionLayers,xAOD::numberOfPrecisionLayers);
-	  tp->setSummaryValue(numberOfPrecisionHoleLayers,xAOD::numberOfPrecisionHoleLayers);
-	  tp->setSummaryValue(numberOfPhiLayers,xAOD::numberOfPhiLayers);
-	  tp->setSummaryValue(numberOfPhiHoleLayers,xAOD::numberOfPhiHoleLayers);
-	  tp->setSummaryValue(numberOfTriggerEtaLayers,xAOD::numberOfTriggerEtaLayers);
-	  tp->setSummaryValue(numberOfTriggerEtaHoleLayers,xAOD::numberOfTriggerEtaHoleLayers);
-	}
+        xAOD::TrackParticle* tp = const_cast<xAOD::TrackParticle*>(*tpLink);
+        if( tp ){
+          uint8_t numberOfPrecisionLayers = summary.nprecisionLayers;
+          uint8_t numberOfPrecisionHoleLayers = summary.nprecisionHoleLayers;
+          uint8_t numberOfPhiLayers = summary.nphiLayers;
+          uint8_t numberOfPhiHoleLayers = summary.nphiHoleLayers;
+          uint8_t numberOfTriggerEtaLayers = summary.ntrigEtaLayers;
+          uint8_t numberOfTriggerEtaHoleLayers = summary.ntrigEtaHoleLayers;
+          tp->setSummaryValue(numberOfPrecisionLayers,xAOD::numberOfPrecisionLayers);
+          tp->setSummaryValue(numberOfPrecisionHoleLayers,xAOD::numberOfPrecisionHoleLayers);
+          tp->setSummaryValue(numberOfPhiLayers,xAOD::numberOfPhiLayers);
+          tp->setSummaryValue(numberOfPhiHoleLayers,xAOD::numberOfPhiHoleLayers);
+          tp->setSummaryValue(numberOfTriggerEtaLayers,xAOD::numberOfTriggerEtaLayers);
+          tp->setSummaryValue(numberOfTriggerEtaHoleLayers,xAOD::numberOfTriggerEtaHoleLayers);
+        }
       }
 
       if( trackSummary->muonTrackSummary() ){
-	const Trk::MuonTrackSummary& mts = *trackSummary->muonTrackSummary();
+        const Trk::MuonTrackSummary& mts = *trackSummary->muonTrackSummary();
 	
-	// loop over chambers
-	std::vector<Trk::MuonTrackSummary::ChamberHitSummary>::const_iterator chit = mts.chamberHitSummary().begin();
-	std::vector<Trk::MuonTrackSummary::ChamberHitSummary>::const_iterator chit_end = mts.chamberHitSummary().end();
-	for( ;chit!=chit_end;++chit ) {
-	  const Identifier& chId = chit->chamberId();
-	  bool isMdt = m_idHelper->isMdt(chId);
-	  bool isCsc = m_idHelper->isCsc(chId);
-	  bool isMM   = m_idHelper->isMM(chId);
-	  bool issTgc = m_idHelper->issTgc(chId);
-	  if( isMdt || isMM || isCsc || issTgc ){
-	    Muon::MuonStationIndex::ChIndex index = m_idHelper->chamberIndex(chId);
-	    uint8_t* hits = 0;
-	    uint8_t* holes = 0;
-            if( index == Muon::MuonStationIndex::BIS || index == Muon::MuonStationIndex::EIS || index == Muon::MuonStationIndex::CSS ) {
-	      hits = &innerSmallHits;
-	      holes = &innerSmallHoles;
-	    }else if( index == Muon::MuonStationIndex::BIL || index == Muon::MuonStationIndex::EIL || index == Muon::MuonStationIndex::CSL ){
-	      hits = &innerLargeHits;
-	      holes = &innerLargeHoles;
-	    }else if( index == Muon::MuonStationIndex::BMS || index == Muon::MuonStationIndex::EMS ){
-	      hits = &middleSmallHits;
-	      holes = &middleSmallHoles;
-	    }else if( index == Muon::MuonStationIndex::BML || index == Muon::MuonStationIndex::EML ){
-	      hits = &middleLargeHits;
-	      holes = &middleLargeHoles;
-	    }else if( index == Muon::MuonStationIndex::BOS || index == Muon::MuonStationIndex::EOS ){
-	      hits = &outerSmallHits;
-	      holes = &outerSmallHoles;
-	    }else if( index == Muon::MuonStationIndex::BOL || index == Muon::MuonStationIndex::EOL ){
-	      hits = &outerLargeHits;
-	      holes = &outerLargeHoles;
-	    }else if( index == Muon::MuonStationIndex::BEE || index == Muon::MuonStationIndex::EES ){
-	      hits = &extendedSmallHits;
-	      holes = &extendedSmallHoles;
-	    }else if( index == Muon::MuonStationIndex::EEL ){
-	      hits = &extendedLargeHits;
-	      holes = &extendedLargeHoles;
-	    }else{
-	      ATH_MSG_WARNING("Unknown ChamberIndex" << Muon::MuonStationIndex::chName(index) );
-	    }
-	    if( hits ){
-	      *hits  += chit->netaHits();
-	      *holes += chit->etaProjection().nholes;
-	    }
-	  }
-	  if( !isMdt && !isMM ){
+        // loop over chambers
+        std::vector<Trk::MuonTrackSummary::ChamberHitSummary>::const_iterator chit = mts.chamberHitSummary().begin();
+        std::vector<Trk::MuonTrackSummary::ChamberHitSummary>::const_iterator chit_end = mts.chamberHitSummary().end();
+        for( ;chit!=chit_end;++chit ) {
+          const Identifier& chId = chit->chamberId();
+          bool isMdt = m_idHelper->isMdt(chId);
+          bool isCsc = m_idHelper->isCsc(chId);
+          bool isMM   = m_idHelper->isMM(chId);
+          bool issTgc = m_idHelper->issTgc(chId);
 
-	    uint8_t* phiHits = 0;
-	    uint8_t* phiHoles = 0;
-	    uint8_t* etaHits = 0;
-	    uint8_t* etaHoles = 0;
-	    Muon::MuonStationIndex::PhiIndex index = m_idHelper->phiIndex(chId);
-	    if( index == Muon::MuonStationIndex::BM1 || index == Muon::MuonStationIndex::T4 || 
-		index == Muon::MuonStationIndex::CSC || index == Muon::MuonStationIndex::STGC1 ||
-		index == Muon::MuonStationIndex::STGC2 ) {
-	      phiHits = &phiLayer1Hits;
-	      phiHoles = &phiLayer1Holes;
-	      etaHits = &etaLayer1Hits;
-	      etaHoles = &etaLayer1Holes;
-	    }else if( index == Muon::MuonStationIndex::BM2 || index == Muon::MuonStationIndex::T1 ){
-	      phiHits = &phiLayer2Hits;
-	      phiHoles = &phiLayer2Holes;
-	      etaHits = &etaLayer2Hits;
-	      etaHoles = &etaLayer2Holes;
-	    }else if( index == Muon::MuonStationIndex::BO1 || index == Muon::MuonStationIndex::T2 ){
-	      phiHits = &phiLayer3Hits;
-	      phiHoles = &phiLayer3Holes;
-	      etaHits = &etaLayer3Hits;
-	      etaHoles = &etaLayer3Holes;
-	    }else if( index == Muon::MuonStationIndex::T3 ){
-	      phiHits = &phiLayer4Hits;
-	      phiHoles = &phiLayer4Holes;
-	      etaHits = &etaLayer4Hits;
-	      etaHoles = &etaLayer4Holes;
-	    }else{
-	      ATH_MSG_WARNING("Unknown ChamberIndex" << Muon::MuonStationIndex::phiName(index) );
-	    }
-	    if( phiHits ){
-	      *phiHits += chit->nphiHits();
-	      *phiHoles += chit->phiProjection().nholes;
-	    }
-	    if( etaHits && !isCsc && !issTgc ){
-	      *etaHits += chit->netaHits();
-	      *etaHoles += chit->etaProjection().nholes;
-	    }
-	  }
-	}
+          if( isMdt || isMM || isCsc || issTgc ){
+            Muon::MuonStationIndex::ChIndex index = m_idHelper->chamberIndex(chId);
+            uint8_t* hits = 0;
+            uint8_t* holes = 0;
+
+            
+            if( index == Muon::MuonStationIndex::BIS || index == Muon::MuonStationIndex::EIS || index == Muon::MuonStationIndex::CSS ) {
+              hits = &innerSmallHits;
+              holes = &innerSmallHoles;
+              nearbyHitsInner+=chit->ncloseHits();
+            }else if( index == Muon::MuonStationIndex::BIL || index == Muon::MuonStationIndex::EIL || index == Muon::MuonStationIndex::CSL ){
+              hits = &innerLargeHits;
+              holes = &innerLargeHoles;
+              nearbyHitsInner+=chit->ncloseHits();
+            }else if( index == Muon::MuonStationIndex::BMS || index == Muon::MuonStationIndex::EMS ){
+              hits = &middleSmallHits;
+              holes = &middleSmallHoles;
+              nearbyHitsMiddle+=chit->ncloseHits();
+            }else if( index == Muon::MuonStationIndex::BML || index == Muon::MuonStationIndex::EML ){
+              hits = &middleLargeHits;
+              holes = &middleLargeHoles;
+              nearbyHitsMiddle+=chit->ncloseHits();
+            }else if( index == Muon::MuonStationIndex::BOS || index == Muon::MuonStationIndex::EOS ){
+              hits = &outerSmallHits;
+              holes = &outerSmallHoles;
+              nearbyHitsOuter+=chit->ncloseHits();
+            }else if( index == Muon::MuonStationIndex::BOL || index == Muon::MuonStationIndex::EOL ){
+              hits = &outerLargeHits;
+              holes = &outerLargeHoles;
+              nearbyHitsOuter+=chit->ncloseHits();
+            }else if( index == Muon::MuonStationIndex::BEE || index == Muon::MuonStationIndex::EES ){
+              hits = &extendedSmallHits;
+              holes = &extendedSmallHoles;
+              nearbyHitsMiddle+=chit->ncloseHits();
+            }else if( index == Muon::MuonStationIndex::EEL ){
+              hits = &extendedLargeHits;
+              holes = &extendedLargeHoles;
+              nearbyHitsMiddle+=chit->ncloseHits();
+            }else{
+              ATH_MSG_WARNING("Unknown ChamberIndex" << Muon::MuonStationIndex::chName(index) );
+            }
+            if( hits ){
+              *hits  += chit->netaHits();
+              *holes += chit->etaProjection().nholes;
+            }
+          }
+          if( !isMdt && !isMM ){
+
+            uint8_t* phiHits = 0;
+            uint8_t* phiHoles = 0;
+            uint8_t* etaHits = 0;
+            uint8_t* etaHoles = 0;
+            Muon::MuonStationIndex::PhiIndex index = m_idHelper->phiIndex(chId);
+            if( index == Muon::MuonStationIndex::BM1 || index == Muon::MuonStationIndex::T4 || 
+              index == Muon::MuonStationIndex::CSC || index == Muon::MuonStationIndex::STGC1 ||
+            index == Muon::MuonStationIndex::STGC2 ) {
+              phiHits = &phiLayer1Hits;
+              phiHoles = &phiLayer1Holes;
+              etaHits = &etaLayer1Hits;
+              etaHoles = &etaLayer1Holes;
+            }else if( index == Muon::MuonStationIndex::BM2 || index == Muon::MuonStationIndex::T1 ){
+              phiHits = &phiLayer2Hits;
+              phiHoles = &phiLayer2Holes;
+              etaHits = &etaLayer2Hits;
+              etaHoles = &etaLayer2Holes;
+            }else if( index == Muon::MuonStationIndex::BO1 || index == Muon::MuonStationIndex::T2 ){
+              phiHits = &phiLayer3Hits;
+              phiHoles = &phiLayer3Holes;
+              etaHits = &etaLayer3Hits;
+              etaHoles = &etaLayer3Holes;
+            }else if( index == Muon::MuonStationIndex::T3 ){
+              phiHits = &phiLayer4Hits;
+              phiHoles = &phiLayer4Holes;
+              etaHits = &etaLayer4Hits;
+              etaHoles = &etaLayer4Holes;
+            }else{
+              ATH_MSG_WARNING("Unknown ChamberIndex" << Muon::MuonStationIndex::phiName(index) );
+            }
+            if( phiHits ){
+              *phiHits += chit->nphiHits();
+              *phiHoles += chit->phiProjection().nholes;
+            }
+            if( etaHits && !isCsc && !issTgc ){
+              *etaHits += chit->netaHits();
+              *etaHoles += chit->etaProjection().nholes;
+            }
+          }
+        }
       }
     }
 
@@ -263,6 +278,10 @@ namespace MuonCombined {
     muon.setSummaryValue(outerLargeHoles,xAOD::outerLargeHoles);
     muon.setSummaryValue(extendedSmallHoles,xAOD::extendedSmallHoles);
     muon.setSummaryValue(extendedLargeHoles,xAOD::extendedLargeHoles);
+
+    muon.setParameter(nearbyHitsInner,xAOD::Muon::NearbyHitsInner);
+    muon.setParameter(nearbyHitsMiddle,xAOD::Muon::NearbyHitsMiddle);
+    muon.setParameter(nearbyHitsOuter,xAOD::Muon::NearbyHitsOuter);
 
     muon.setSummaryValue(phiLayer1Hits,xAOD::phiLayer1Hits);
     muon.setSummaryValue(phiLayer2Hits,xAOD::phiLayer2Hits);

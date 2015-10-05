@@ -45,6 +45,7 @@ namespace MuonCombined {
 
     double m_deltaEtaPreSelection;
     double m_deltaPhiPreSelection;
+    double m_ptBalance;
     bool m_runMuonCombinedDebugger;
   };
 

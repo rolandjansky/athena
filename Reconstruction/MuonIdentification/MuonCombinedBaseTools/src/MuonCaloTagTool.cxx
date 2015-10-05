@@ -21,15 +21,23 @@
 #include "RecoToolInterfaces/IsolationCommon.h"
 #include <vector>
 
+#include "TrackToCalo/CaloCellHelpers.h"
+
+#include "CaloEvent/CaloCellContainer.h"
+#include "TrkCaloExtension/CaloExtension.h"
+#include "TrkCaloExtension/CaloExtensionHelpers.h"
+
+#include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackingPrimitives.h"
+#include "ParticleTruth/TrackParticleTruthCollection.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticle.h"
 
 // --- HepMC Includes ---
 #include "HepMC/GenParticle.h"
 #include "HepMC/GenVertex.h"
 #include "CLHEP/Vector/LorentzVector.h"
-#include "ParticleTruth/TrackParticleTruthCollection.h"
 
-#include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTruth/TruthParticle.h"
 
 namespace MuonCombined {
  
@@ -37,8 +45,9 @@ namespace MuonCombined {
 
   MuonCaloTagTool::MuonCaloTagTool (const std::string& type, const std::string& name, const IInterface* parent)
     :	AthAlgTool(type, name, parent),
-	m_nTracksTaggedLowPt(0),
+	m_nTrueMuons(0),
 	m_nTracksTagged(0),
+	m_nMuonsTagged(0),
 	m_caloMuonLikelihood("CaloMuonLikelihoodTool/CaloMuonLikelihoodTool",this),
         m_caloMuonTagLoose("CaloMuonTag/CaloMuonTagLoose"),
         m_caloMuonTagTight("CaloMuonTag/CaloMuonTag"),
@@ -74,7 +83,8 @@ namespace MuonCombined {
     declareProperty("doCaloMuonTag",                     m_doCaloMuonTag        =  true );
     declareProperty("doCaloLR",                          m_doCaloLR             =  true );
     declareProperty("ShowTruth",                         m_doTruth              =  true);
-    declareProperty("DebugMode",                         m_debugMode            =  true); //change
+    declareProperty("DebugMode",                         m_debugMode            =  false); 
+    declareProperty("doOldExtrapolation",                m_doOldExtrapolation   =  true); //change
     declareProperty("ShowCutFlow",                       m_showCutFlow          =  true);
     declareProperty("CaloMuonLikelihoodTool",            m_caloMuonLikelihood           );
     declareProperty("CaloLRLikelihoodCut",               m_CaloLRlikelihoodCut  =  0.5  );  //Likelihood ratio hard cut
@@ -115,7 +125,6 @@ namespace MuonCombined {
     }
     if(m_doTrkSelection && m_doCosmicTrackSelection) {
       ATH_MSG_WARNING("Inconsistent setup: track selection for collisions AND cosmics requested.");
-      ATH_MSG_WARNING("Will use track selection for collisions wrt to primary vertex.");
     } 
     
     return StatusCode::SUCCESS;
@@ -123,9 +132,10 @@ namespace MuonCombined {
 
   StatusCode MuonCaloTagTool::finalize() {
     
-    ATH_MSG_DEBUG("MuonCaloTagTool::finalize()");
+    
+    ATH_MSG_INFO("Number of true muons               : " << m_nTrueMuons);
     ATH_MSG_INFO("Number of tracks tagged            : " << m_nTracksTagged);
-    ATH_MSG_INFO("Number of tracks tagged pT < 4 GeV : " << m_nTracksTaggedLowPt);
+    ATH_MSG_INFO("Number of muons tagged             : " << m_nMuonsTagged);
     
     return StatusCode::SUCCESS;
   
@@ -147,6 +157,11 @@ namespace MuonCombined {
 //    const Trk::TrackParticleOrigin prtOrigin =  Trk::TrackParticleOrigin::PriVtx; // we only consider trks form primary vtx
     
     // --- Big loop over all the particles in the container ---                                                                                                              
+//-- make sure CaloCellContainer is there
+    if (!caloCellCont){
+      ATH_MSG_VERBOSE("Called with no CaloCellContainer in argument");
+    }
+
     for( auto idTP : inDetCandidates ){
       
       // ensure that the id trackparticle has a track
@@ -165,34 +180,37 @@ namespace MuonCombined {
 
       // --- Get pdgId (when requested) ---
       int pdgId = 0;
-/*
-       if(m_doTruth&&m_debugMode){
-        if( tp->isAvailable< ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink") ) {
-          ElementLink< xAOD::TruthParticleContainer > truthLink = tp->auxdata<ElementLink< xAOD::TruthParticleContainer > >("truthParticleLink");
-        // pdgId = (*truthLink)->pdgId();
-        }
-         else {
-         ATH_MSG_WARNING(" TruthParticleContainer NOT retrieved ");
-        }
-       }
-*/
+
+//      bool truthMuon = false;
+      ElementLink< xAOD::TruthParticleContainer > truthLink;
+      // const xAOD::TrackParticle* tp  = ElementLink< xAOD::TruthParticleContainer > truthLink;
+      if( tp->isAvailable< ElementLink< xAOD::TruthParticleContainer > > ("truthParticleLink") ){
+	truthLink = tp->auxdata< ElementLink< xAOD::TruthParticleContainer >  >("truthParticleLink");
+	if(m_doTruth && truthLink.isValid()) {
+	  //         truthMuon = (  abs((*truthLink)->pdgId())==13 && ((*truthLink)->auxdata<int>("truthType") == 6 ||
+	  //           (*truthLink)->auxdata<int>("truthType") == 7 )  && // prompt muon
+	  //           (*truthLink)->auxdata<int>("truthOrigin") > 0 && (*truthLink)->auxdata<int>("truthOrigin") <= 34 );
+	  // no decay in flight
+	  pdgId = (*truthLink)->pdgId();
+	} else {
+	  ATH_MSG_WARNING(" TruthParticleContainer NOT retrieved ");
+	}
+      }
 
       // --- Track selection ---
-      if(!selectTrack(track, vertex)) continue;
+//      if(!selectTrack(track, vertex)) continue;
 
-/*
       if(!selectTrack(track, vertex)){                                                                                                                           
 	// --- in debug mode, monitor the number of muons rejected by track selection ---
 	if (m_debugMode) {
 	  // --- Truth info == 0 when doTruth is false ---
 	  if (abs(pdgId)==13) {
 	    //MUST BE DEFINE track pt
-	    ATH_MSG_INFO("Cutflow CaloTrkMuId >>> Muon rejected by track selection."); //(pt = " << track->pt() << ")" << "<<<"); to update
+	    ATH_MSG_DEBUG("Cutflow MuonCaloTag  >>> Muon rejected by track selection."); //(pt = " << track->pt() << ")" << "<<<"); to update
 	  }
 	}       
         continue;
-	}
-*/
+      }
 
       // --- Track isolation --- -> SEE DETAILS IN corresponding method
       if(!applyTrackIsolation(*tp)){
@@ -200,7 +218,7 @@ namespace MuonCombined {
         if(m_debugMode){
           // --- Truth info == 0 when doTruth is false ---
           if (abs(pdgId)==13) {
-            ATH_MSG_INFO("Cutflow CaloTrkMuId >>> Muon rejected by track isolation. <<<");
+            ATH_MSG_DEBUG("Cutflow MuonCaloTag  >>> Muon rejected by track isolation. <<<");
           }                                                                                                                                                              
         }                                                                                                                                                                  
         continue;                                                                                                                                                            
@@ -212,61 +230,40 @@ namespace MuonCombined {
 	if (pdgId)
 	  ATH_MSG_DEBUG("  pdgId = " << pdgId);
       }
+	if (abs(pdgId)==13) m_nTrueMuons++;
 
       // --- Muon tagging ---
       float likelihood = 0;                                                                                                                                                    
       int tag = 0;
       std::vector<DepositInCalo> deposits;
       if (m_doCaloMuonTag) {
-	deposits = m_trkDepositInCalo->getDeposits(par, caloCellCont);
+        if (m_doOldExtrapolation)  {
+	   deposits = m_trkDepositInCalo->getDeposits(par, caloCellCont);
+        } else {
+	   deposits = m_trkDepositInCalo->getDeposits(tp, caloCellCont);
+        }
 	tag = m_caloMuonTagLoose->caloMuonTag(deposits, par->eta(), par->pT());
 	tag += 10*m_caloMuonTagTight->caloMuonTag(deposits, par->eta(), par->pT());
       }
       if(m_doCaloLR)
 	likelihood = m_caloMuonLikelihood->getLHR(par, caloClusterCont);
-  //    if (m_debugMode)
 	ATH_MSG_DEBUG("Track found with tag " << tag << " and LHR " << likelihood);
-//	ATH_MSG_INFO("Track found with tag " << tag << " and LHR " << likelihood);
       // --- If both the taggers do not think it's a muon, forget about it ---
       if (tag == 0 && likelihood <= m_CaloLRlikelihoodCut) {
 	continue;                                                                                                                                                            
       }
       // --- Only accept tight tagged muons if pT is below 4 GeV ---
-      if (tag<10&& par->pT()<4000) {                                                                                                                                     
+      if (tag<10&& par->pT()<4000) {
 	continue;
       }
-      
-      
-      /* WE SHOULD FIND A WAY NOT TO USE MuonCandidate but the track
-      // --- Muon isolation ---
-      if (!applyEnergyIsolation(muonCandidate)) {
-	// --- in debug mode, monitor the number of muons rejected by track selection ---
-	if (m_debugMode) { 
-	  // --- Truth info == 0 when doTruth is false ---
-	  if (abs(pdgId)==13) {         
-            msg(MSG::DEBUG) << "Cutflow CaloTrkMuId >>> Muon rejected by energy isolation. <<<" << endreq;
-	  }
-	}
-	delete muonCandidate;
-	continue;
-      }
-      */
       
 	createMuon(*idTP,  deposits, tag, likelihood);
-//      if ( par->pT()<4000) {                                                                                                                                     
-//	m_nTracksTaggedLowPt++;
-//      }
-//      m_nTracksTagged++;
-//        delete trackParticle;
-      /* WE CAN JUST DO A counting here, but using the TRACK instead of particle
+
       // --- Count number of muons written to container 
-      if ( particle->pt()<4000 ) {
-	m_nTracksTaggedLowPt++;
-      }
-      */
-
-     }	
-
+      if ( abs(pdgId) == 13 )  m_nMuonsTagged++;
+      m_nTracksTagged++;
+//        delete trackParticle;
+    }
     
   } //end of the extend method
 
@@ -400,7 +397,7 @@ namespace MuonCombined {
     double momEta = par->momentum().eta();
     double momPhi = par->momentum().phi();
     ATH_MSG_DEBUG("*** Analysing track with parameters: ***");
-    ATH_MSG_DEBUG("  position:  r = " << r  << ", eta = " << eta    << ", phi = " << phi/3.1415);
+    ATH_MSG_VERBOSE("  position:  r = " << r  << ", eta = " << eta    << ", phi = " << phi/3.1415);
     ATH_MSG_DEBUG("  momentum: pt = " << pt << ", eta = " << momEta << ", phi = " << momPhi/3.1415);
     
     return;
