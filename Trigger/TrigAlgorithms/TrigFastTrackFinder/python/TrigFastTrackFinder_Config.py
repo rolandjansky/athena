@@ -300,8 +300,6 @@ def remapper(type):
         "BeamSpot" : "beamSpot",
         "Bphysics" : "bphysics",
         "Cosmic"   : "cosmics",
-        "FTK"      : "ftk",
-        "FTKrefit" : "ftkrefit",
     }
     if type in remap.keys():
       return remap[type]
@@ -314,7 +312,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
     def __init__(self, name, type):
         TrigFastTrackFinder.__init__(self,name)
         remapped_type = remapper(type)
-        
+
         self.retrieveBarCodes = False#Look at truth information for spacepoints from barcodes
         #self.SignalBarCodes = [10001] #single particles
         self.SignalBarCodes = [11 ,12] #z->mumu
@@ -399,8 +397,13 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
                                                 Xi2maxMultiTracks         = TrackingCuts.Xi2max(),
                                                 UseAssociationTool       = False)
 
+        from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+        if type=='eGamma' and InDetTrigFlags.doBremRecovery():
+          TrackMaker_FTF.useBremModel = True
+  
         if remapped_type=="cosmics":
           TrackMaker_FTF.RoadTool.CosmicTrack=True
+
         ToolSvc += TrackMaker_FTF
         self.initialTrackMaker = TrackMaker_FTF
 
@@ -408,12 +411,18 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         theTrigInDetTrackFitter = TrigInDetTrackFitter()
         theTrigInDetTrackFitter.correctClusterPos = False #Flag to control whether to correct cluster position
 
-        from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigRotCreator
-        ToolSvc += InDetTrigRotCreator
+            
 
+        from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigRotCreator
         theTrigInDetTrackFitter.ROTcreator = InDetTrigRotCreator
         ToolSvc += theTrigInDetTrackFitter
         self.trigInDetTrackFitter = theTrigInDetTrackFitter
+        from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+        if type=='eGamma' and InDetTrigFlags.doBremRecovery():
+            theTrigInDetTrackFitterBrem = TrigInDetTrackFitter(name='theTrigInDetTrackFitterBrem',
+                                                               doBremmCorrection = True)
+            ToolSvc += theTrigInDetTrackFitterBrem
+            self.trigInDetTrackFitter = theTrigInDetTrackFitterBrem
 
         self.doZFinder = InDetTrigSliceSettings[('doZFinder',remapped_type)]
         if (self.doZFinder):
@@ -425,12 +434,12 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
           self.trigZFinder = theTrigZFinder
 
         
-        if remapped_type=="ftk" or remapped_type=="ftkrefit":
-            from FTK_DataProviderSvc.FTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
-            self.FTK_DataProviderSvc = TrigFTK_DataProviderSvc()
-            self.FTK_Mode=True
-        if remapped_type=="ftkrefit":    
-            self.FTK_Refit=True
+        if type=="FTK" or type=="FTKrefit":
+          from FTK_DataProviderSvc.FTK_DataProviderSvc_Config import TrigFTK_DataProviderSvc
+          self.FTK_DataProviderSvc = TrigFTK_DataProviderSvc()
+          self.FTK_Mode=True
+        if type=="FTKrefit":    
+          self.FTK_Refit=True
 
         from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
         self.TrackSummaryTool = InDetTrigFastTrackSummaryTool
