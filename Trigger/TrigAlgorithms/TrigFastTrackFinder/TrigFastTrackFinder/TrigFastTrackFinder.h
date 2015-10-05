@@ -134,8 +134,6 @@ protected:
   float m_tripletMinPtFrac;
   float m_pTmin;
   float m_initialD0Max;
-  float m_doublet_dR_Max;
-  float m_seedRadBinWidth;
 
   bool m_checkSeedRedundancy;
 
