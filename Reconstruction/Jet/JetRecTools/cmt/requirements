@@ -4,12 +4,12 @@ package JetRecTools
 private
 
 #use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
-use AthenaKernel        AthenaKernel-*          Control
-use LArRecConditions    LArRecConditions-*      LArCalorimeter 
+#use AthenaKernel        AthenaKernel-*          Control
+#use LArRecConditions    LArRecConditions-*      LArCalorimeter 
     
 
-use CaloEvent           CaloEvent-*             Calorimeter
-use CaloDetDescr        CaloDetDescr-*          Calorimeter
+#use CaloEvent           CaloEvent-*             Calorimeter
+#use CaloDetDescr        CaloDetDescr-*          Calorimeter
 
 public
 
@@ -17,10 +17,10 @@ use AtlasPolicy		AtlasPolicy-*
 use GaudiInterface	GaudiInterface-* 	External
 use AthContainers       AthContainers-*         Control
 
-use CxxUtils            CxxUtils-*              Control
+#use CxxUtils            CxxUtils-*              Control
 
-use TileConditions      TileConditions-*        TileCalorimeter
-use CaloIdentifier      CaloIdentifier-*        Calorimeter
+#use TileConditions      TileConditions-*        TileCalorimeter
+#use CaloIdentifier      CaloIdentifier-*        Calorimeter
 
 use InDetTrackSelectionTool   InDetTrackSelectionTool-*   InnerDetector/InDetRecTools
 use TrackVertexAssociationTool   TrackVertexAssociationTool-*   InnerDetector/InDetRecTools
@@ -28,7 +28,7 @@ use TrackVertexAssociationTool   TrackVertexAssociationTool-*   InnerDetector/In
 #use xAODJet             xAODJet-*               Event/xAOD
 use JetEDM              JetEDM-*                Reconstruction/Jet
 use JetInterface        JetInterface-*          Reconstruction/Jet
-use JetUtils            JetUtils-*              Reconstruction/Jet
+#use JetUtils            JetUtils-*              Reconstruction/Jet
 use JetRec              JetRec-*              Reconstruction/Jet
 
 use AsgTools            AsgTools-*              Control/AthToolSupport
@@ -39,7 +39,7 @@ use PFlowUtils          PFlowUtils-*            Reconstruction/PFlow
 private
 # Add explicit dependency against xAODPFlow to avoid indirect dependency from PFlowUtils
 # which creates a component library and cmake (correctly) does not propagate such dependencies
-use xAODPFlow           xAODPFlow-*             Event/xAOD
+#use xAODPFlow           xAODPFlow-*             Event/xAOD
 end_private
 
 
