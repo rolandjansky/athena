@@ -12,8 +12,13 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
 
-#include <iostream>
-#include <iomanip>
+#ifdef HAVE_NEW_IOSTREAMS
+    #include <iostream>
+    #include <iomanip>
+#else
+    #include <iostream.h>
+    #include <iomanip.h>
+#endif
 
 
 CaloSubdetNames::~CaloSubdetNames() 
