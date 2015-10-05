@@ -24,6 +24,9 @@
 #include "xAODTruth/TruthParticle.h"
 #include "AthLinks/ElementLink.h"
 
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+
 #include "TrkToolInterfaces/ITruthToTrack.h"
 
 

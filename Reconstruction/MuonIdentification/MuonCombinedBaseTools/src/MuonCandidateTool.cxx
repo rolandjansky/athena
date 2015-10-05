@@ -15,8 +15,6 @@
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
-#include "xAODEventInfo/EventInfo.h"
-
 namespace MuonCombined {
  
   //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
@@ -46,6 +44,7 @@ namespace MuonCombined {
     if( !m_trackBuilder.empty() )           ATH_CHECK(m_trackBuilder.retrieve());
     if( !m_trackExtrapolationTool.empty() ) ATH_CHECK(m_trackExtrapolationTool.retrieve());
     ATH_CHECK(m_ambiguityProcessor.retrieve());
+
     return StatusCode::SUCCESS;
   }
 
@@ -53,22 +52,10 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuonCandidateTool::create( const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection ) {
+  void MuonCandidateTool::create( const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection ) const {
     ATH_MSG_DEBUG("Producing MuonCandidates for " << tracks.size() );
     unsigned int ntracks = 0;
-    const xAOD::EventInfo* eventInfo; 
-    float beamSpotX = 0.;
-    float beamSpotY = 0.;
-    float beamSpotZ = 0.;
-
-    if(evtStore()->retrieve(eventInfo).isSuccess()){
-      beamSpotX = eventInfo->beamPosX();
-      beamSpotY = eventInfo->beamPosY();
-      beamSpotZ = eventInfo->beamPosZ();
-    } 
-    ATH_MSG_DEBUG( " Beamspot position  bs_x " << beamSpotX << " bs_y " << beamSpotY << " bs_z " << beamSpotZ);  
-
-      
+    
     // Temporary collection for extrapolated tracks and links with correspondent MS tracks
     std::map<const Trk::Track*, std::pair<ElementLink<xAOD::TrackParticleContainer>, const Trk::Track*> > trackLinks;
     TrackCollection* extrapTracks = new TrackCollection(SG::VIEW_ELEMENTS);
@@ -90,8 +77,7 @@ namespace MuonCombined {
 
       ATH_MSG_VERBOSE("Re-Fitting track " << std::endl << m_printer->print(msTrack) << std::endl << m_printer->printStations(msTrack));
       Trk::Track* standaloneTrack = 0;
-      const Trk::Vertex* vertex = 0;
-      if( m_extrapolationStrategy == 0 ) standaloneTrack = m_trackBuilder->standaloneFit(msTrack, vertex, beamSpotX, beamSpotY, beamSpotZ);
+      if( m_extrapolationStrategy == 0 ) standaloneTrack = m_trackBuilder->standaloneFit(msTrack);
       else                               standaloneTrack = m_trackExtrapolationTool->extrapolate(msTrack);
       if (standaloneTrack) {
 	standaloneTrack->info().setParticleHypothesis(Trk::muon);

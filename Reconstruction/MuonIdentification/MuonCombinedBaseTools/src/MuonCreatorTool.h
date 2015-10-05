@@ -52,7 +52,6 @@ namespace Rec {
   class IMuonMeanMDTdADCFiller;  
   class IParticleCaloClusterAssociationTool;
   class IParticleCaloCellAssociationTool;
-  class IMuonTrackQuery;
 }
 namespace MuonCombined {
   class IMuonCombinedTagTool;
@@ -111,16 +110,10 @@ namespace MuonCombined {
         xAOD::MuonSegmentContainer& xaodSegments,
         Trk::SegmentCollection* muonSegmentCollection = 0 ) const ;
 
-  private:
     void resolveOverlaps( const InDetCandidateCollection* inDetCandidates, const MuonCandidateCollection* muonCandidates, 
-			  std::vector<const MuonCombined::InDetCandidate*>& resolvedInDetCandidates,
-                          std::vector<const MuonCombined::MuonCandidate*>& resolvedMuonCandidates) const;
+        InDetCandidateCollection& resolvedInDetCandidates, MuonCandidateCollection& resolvedMuonCandidates) const;
     
     void selectStaus( const InDetCandidateCollection* inDetCandidates, InDetCandidateCollection& resolvedInDetCandidates) const;
-
-  public:
-    void selectStaus( const InDetCandidateCollection* inDetCandidates,
-                      std::vector<const MuonCombined::InDetCandidate*>& resolvedInDetCandidates) const;
 
     Trk::Track* createDummyTrack( std::vector<const Muon::MuonSegment*> segments, const Trk::Track& indetTrack ) const;
     void setMuonHitCounts( xAOD::Muon& muon ) const;
@@ -135,16 +128,8 @@ namespace MuonCombined {
 
     void collectCells( xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer ) const;
 
-    void getRpcTiming(const xAOD::TrackParticle& tp,
-		      std::vector<unsigned int>& rpcHitIdentifier,
-		      std::vector<float>& rpcHitPositionX,
-		      std::vector<float>& rpcHitPositionY,
-		      std::vector<float>& rpcHitPositionZ,
-		      std::vector<float>& rpcHitTime) const;
-    void addRpcTiming( const xAOD::TrackParticle& track ) const;
     void addRpcTiming( xAOD::Muon& muon ) const;
     void addSegmentsOnTrack( xAOD::Muon& muon ) const;
-    void addAlignmentEffectsOnTrack( xAOD::TrackParticleContainer* trkCont ) const;
 
     /// flag to decide whether or not to make link to MS track before extrapolation
     bool m_makeMSPreExtrapLink;
@@ -154,9 +139,6 @@ namespace MuonCombined {
     
     /// Decide whether to try to extract the calo energy loss from tracks 
     bool m_fillEnergyLossFromTrack;
-
-    /// Decide whether to add alignment effects on track to the muon (available for CB and SA tracks)
-    bool m_fillAlignmentEffectsOnTrack;
     
     /// Can enabled this for debugging - will add extra information not for production
     bool m_fillExtraELossInfo;
@@ -178,10 +160,9 @@ namespace MuonCombined {
     
     /// enable filling of timing information
     bool m_fillTimingInformation;
-    bool m_fillTimingInformationOnMuon;
 
     /// copy truth links from primary track particle (or put dummy link if this is missing)
-    //bool m_fillMuonTruthLinks;
+    bool m_fillMuonTruthLinks;
     
     // helpers, managers, tools
     ToolHandle<Muon::MuonIdHelperTool>            m_idHelper;
@@ -190,8 +171,7 @@ namespace MuonCombined {
     ToolHandle<Rec::IMuonPrintingTool>            m_muonPrinter;
     ToolHandle<Trk::IParticleCaloExtensionTool>   m_caloExtTool;
     ToolHandle<Trk::ITrackParticleCreatorTool>    m_particleCreator;
-    // FIXME mutable
-    mutable ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor;
+    ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor;
     ToolHandle<Trk::IPropagator>                  m_propagator;
     ToolHandle<xAOD::IMuonDressingTool>           m_muonDressingTool;
     ToolHandle<Rec::IMuonMomentumBalanceSignificance> m_momentumBalanceTool;
@@ -202,7 +182,6 @@ namespace MuonCombined {
     ToolHandle <ICaloNoiseTool>                   m_caloNoiseTool; 
     ToolHandle<Trk::ITrkMaterialProviderTool>     m_caloMaterialProvider;
     ToolHandle<Muon::TrackSegmentAssociationTool> m_trackSegmentAssociationTool;
-    ToolHandle<Rec::IMuonTrackQuery>              m_trackQuery;
     Rec::CaloCellCollector                        m_cellCollector;
     std::string                                   m_cellContainerName;
   };

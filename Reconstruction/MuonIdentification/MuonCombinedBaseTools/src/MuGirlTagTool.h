@@ -20,13 +20,13 @@ namespace MuonCombined {
 
   public:
     MuGirlTagTool(const std::string& type, const std::string& name, const IInterface* parent);
-    virtual ~MuGirlTagTool(void); // destructor
+    ~MuGirlTagTool(void); // destructor
   
-    virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
+    StatusCode initialize();
+    StatusCode finalize();
 
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate */    
-    virtual void extend( const InDetCandidateCollection& inDetCandidates ) override;
+    void extend( const InDetCandidateCollection& inDetCandidates ) const;
 
 
   private:

@@ -83,9 +83,8 @@ namespace MuonCombined {
     declareProperty("doCaloMuonTag",                     m_doCaloMuonTag        =  true );
     declareProperty("doCaloLR",                          m_doCaloLR             =  true );
     declareProperty("ShowTruth",                         m_doTruth              =  true);
-    declareProperty("DebugMode",                         m_debugMode            =  false);
-    declareProperty("doOldExtrapolation",                m_doOldExtrapolation   =  false);
-    declareProperty("IgnoreSiAssociatedCandidates",      m_ignoreSiAssocated    =  true );
+    declareProperty("DebugMode",                         m_debugMode            =  false); 
+    declareProperty("doOldExtrapolation",                m_doOldExtrapolation   =  true); //change
     declareProperty("ShowCutFlow",                       m_showCutFlow          =  true);
     declareProperty("CaloMuonLikelihoodTool",            m_caloMuonLikelihood           );
     declareProperty("CaloLRLikelihoodCut",               m_CaloLRlikelihoodCut  =  0.5  );  //Likelihood ratio hard cut
@@ -113,7 +112,7 @@ namespace MuonCombined {
     // --- Get an Identifier helper object ---
     //StoreGateSvc* detStore(0);
     //if (service("DetectorStore", detStore).isFailure()) {
-    //  msg(MSG::ERROR) << "Detector service not found !" << endmsg;
+    //  msg(MSG::ERROR) << "Detector service not found !" << endreq;
     //  return StatusCode::FAILURE;
     //}
     if( true ){
@@ -121,7 +120,7 @@ namespace MuonCombined {
       ATH_CHECK( m_caloMuonTagLoose.retrieve()   );
       ATH_CHECK( m_caloMuonTagTight.retrieve()   );
       ATH_CHECK( m_trkDepositInCalo.retrieve()   );
-      if(!m_trackIsolationTool.empty()) ATH_CHECK( m_trackIsolationTool.retrieve() );
+      ATH_CHECK( m_trackIsolationTool.retrieve() );
       ATH_CHECK( m_trkSelTool.retrieve()         );
     }
     if(m_doTrkSelection && m_doCosmicTrackSelection) {
@@ -142,13 +141,13 @@ namespace MuonCombined {
   
   }
 
-  void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates ) {
+  void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates ) const {
     extend(inDetCandidates, nullptr, nullptr);
   }
 
   void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates,
                                 const CaloCellContainer* caloCellCont,
-                                const xAOD::CaloClusterContainer* caloClusterCont) {
+                                const xAOD::CaloClusterContainer* caloClusterCont) const {
 
 
     //return;
@@ -165,11 +164,6 @@ namespace MuonCombined {
 
     for( auto idTP : inDetCandidates ){
       
-      // skip track particles which are no complete ID track
-      if ( m_ignoreSiAssocated && idTP->isSiliconAssociated() ){
-        ATH_MSG_DEBUG("Associated track is just tracklet. Skipping this particle.");
-        continue;
-      }
       // ensure that the id trackparticle has a track
       const Trk::Track* track = idTP->indetTrackParticle().track(); //->originalTrack()
       //const xAOD::TrackParticle& tp =  (*idTP).indetTrackParticle(); //->originalTrackParticle()
@@ -199,7 +193,7 @@ namespace MuonCombined {
 	  // no decay in flight
 	  pdgId = (*truthLink)->pdgId();
 	} else {
-	  ATH_MSG_DEBUG("No TruthLink available.");
+	  ATH_MSG_WARNING(" TruthParticleContainer NOT retrieved ");
 	}
       }
 
@@ -246,7 +240,7 @@ namespace MuonCombined {
         if (m_doOldExtrapolation)  {
 	   deposits = m_trkDepositInCalo->getDeposits(par, caloCellCont);
         } else {
-	   deposits = m_trkDepositInCalo->getDeposits(tp);
+	   deposits = m_trkDepositInCalo->getDeposits(tp, caloCellCont);
         }
 	tag = m_caloMuonTagLoose->caloMuonTag(deposits, par->eta(), par->pT());
 	tag += 10*m_caloMuonTagTight->caloMuonTag(deposits, par->eta(), par->pT());
@@ -361,7 +355,7 @@ namespace MuonCombined {
   
   // applyTrackIsolation check 
   
-  bool MuonCaloTagTool::applyTrackIsolation(const xAOD::TrackParticle& tp ) {
+  bool MuonCaloTagTool::applyTrackIsolation(const xAOD::TrackParticle& tp ) const {
 
     if( m_trackIsolationTool.empty() ) return true;
 
@@ -378,7 +372,7 @@ namespace MuonCombined {
     double ptIso = trackIsolation.ptcones[0];
     double ptIsoRatio = -9999;
     if (ptIso>0) {
-      double pt = tp.pt();
+      double pt = 0;//ptcl->pt(); check
       if (pt>0) // ---> just for safety (pt can never be 0 actually)
   	ptIsoRatio = ptIso/pt;
     } 

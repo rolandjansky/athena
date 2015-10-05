@@ -32,7 +32,6 @@ namespace MuonCombined {
 
   private:
     ToolHandle <Trk::ITrackSelectorTool>               m_trackSelector; //!< Tool to select tracks
-    bool m_flagCandidateAsSiAssociated;
 
   };
 

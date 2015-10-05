@@ -55,7 +55,7 @@ namespace MuonCombined {
     return StatusCode::SUCCESS;
   }
 
-  void MuonCombinedStacoTagTool::combine( const MuonCandidate& muonCandidate, const std::vector<InDetCandidate*>& indetCandidates ) const {  
+  void MuonCombinedStacoTagTool::combine( const MuonCandidate& muonCandidate, const std::vector<InDetCandidate*>& indetCandidates ) {  
 
     // only combine if the back extrapolation was successfull
     if( !muonCandidate.extrapolatedTrack() ||
@@ -69,9 +69,6 @@ namespace MuonCombined {
     // loop over ID candidates
     for( auto idTP : indetCandidates ){
       
-      //skip tracklets
-      if(idTP->isSiliconAssociated()) continue;
-
       // ensure that also the id has a perigee with covariance
       if( !idTP->indetTrackParticle().perigeeParameters().covariance() ) continue;
 

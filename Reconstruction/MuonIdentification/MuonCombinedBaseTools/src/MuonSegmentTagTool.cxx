@@ -101,7 +101,6 @@ namespace MuonCombined {
     declareProperty("nmdtHitsML"                      , m_nmdtHitsML = 2 );
     declareProperty("TriggerHitCut"                   , m_triggerHitCut = true );
     declareProperty("MakeMuons"                       , m_makeMuons = false );
-    declareProperty("IgnoreSiAssociatedCandidates"    , m_ignoreSiAssocated = true );
     m_extrapolated.resize(15,0);
     m_goodExtrapolated.resize(15,0);
 
@@ -276,10 +275,6 @@ namespace MuonCombined {
       
       // ensure that the id trackparticle has a track
       if( ! idTP->indetTrackParticle().track() ) continue;
-
-      // Ignore if this is a siAssociated disk (and property set).
-      if ( m_ignoreSiAssocated && idTP->isSiliconAssociated() ) continue;
-
       ++trackCount;
        
       matchedSegment = false ;
@@ -817,7 +812,7 @@ namespace MuonCombined {
     for( unsigned int segment_counter = 0; segment_counter < segStation.size() ; ++segment_counter ){
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << std::setw(10) << segStation[segment_counter] ;
     } 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endreq;
 
     unsigned int extrapolation_counter(0);
     std::string signstr("");
@@ -828,7 +823,7 @@ namespace MuonCombined {
       for( unsigned int segment_counter = 0; segment_counter < segStation.size() ; ++segment_counter ){
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << std::setw(10) << (segToSurf[extrapolation_counter])[segment_counter];
       } //end loop segments
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endmsg;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endreq;
       ++extrapolation_counter;
     } //end loop surfaces
 
@@ -839,7 +834,7 @@ namespace MuonCombined {
 	for( unsigned int segment_counter = 0; segment_counter < segStation.size() ; ++segment_counter ){
 	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << std::setw(10) << (segToSurf[extrapolation_counter])[segment_counter];
 	} //end loop segments
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endmsg;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endreq;
 	++extrapolation_counter;
       } //end loop surfaces
     }
