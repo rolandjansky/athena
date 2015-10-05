@@ -144,7 +144,7 @@ def badresult(result, checkForValidRows=True, expectCommandStatus=True):
 ## @brief Convert the AMI result rows into a list of dictionaries
 #  @param take_rowsets List of rowsets to use: 
 #    None=use all
-#    list of strings=take rowset if type matches the string
+#    string=take rowset if type matches the string
 #  @note The rowset type is added to each element dictionary
 def amijsontodict(result, take_rowsets=None):
     take_rowset_indexes = []
@@ -165,19 +165,6 @@ def amijsontodict(result, take_rowsets=None):
                     answer_dict[element['@name']] = element['$']
             answer.append(answer_dict)
     return answer
-
-## @brief Iterator over a 'tree' AMI result set
-#  @param tree Root of AMI tree dictionary
-def tree_iter(tree):
-    for d in tree:        
-        y = {}
-        for k,v in d.iteritems():
-            if k=='treeBranch': 
-                for sub in tree_iter(v):
-                    yield sub
-            else:
-                y[k] = v
-        yield y
 
 ### classes -------------------------------------------------------------------
 
@@ -333,7 +320,7 @@ class Client(object):
         if bad:
             errmsg = "Bad AMI result for projects of package {0}: {1}".format(full_pkg_name, msg)
             self.msg.error(errmsg)
-        raw_result_list = amijsontodict(result,['Package_version_history'])
+        raw_result_list = amijsontodict(result)
         self.msg.debug(pprint.pformat(raw_result_list))
         
         # Use a set to remove duplicated results in the key we're interested in
@@ -431,12 +418,14 @@ class Client(object):
         return self.get_releases(project, lambda x : x!='terminated')
         
     def get_releases(self, project, relStatusCond=lambda x : True):        
-        """return the list of releases for a given ``project``"""
+        """return the list of open releases for a given ``project``"""
 
-        result = self.exec_cmd(cmd='TCFormGetReleaseTreeDevView', 
-                               args={'-groupName' : project,
-                                     '-expandedRelease' : '*',
-                               })
+        result = self.exec_cmd(cmd='SearchQuery', 
+                               args={'-sql': '"select * from releases r,groups g where g.identifier=r.groupFK and g.groupName=\'{0}\'"'.format(project),
+                                     '-project': 'TagCollector',
+                                     '-processingStep': 'production'},
+                               defaults=False
+                               )
         
         bad, msg = badresult(result) 
         if bad:
@@ -444,12 +433,11 @@ class Client(object):
             self.msg.error(errmsg)
             raise PyUtilsAMIException(errmsg)
 
+        result_list = amijsontodict(result)
         releases = []
-        for r in tree_iter(result['AMIMessage'][0]['Result'][0]['tree']):
-            if not '@releaseName' in r: continue
-            if relStatusCond(r['@status']): 
-                releases.append(r['@releaseName'])
-
+        for release in result_list:
+            if 'releaseName' in release and '-' not in release['releaseName']:
+                releases.append(release['releaseName'])
         releases.sort(key=lambda x: [int(y) if y.isdigit() else 0 for y in x.split('.')])
         self.msg.debug(pprint.pformat(releases))
         return releases
