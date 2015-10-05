@@ -22,12 +22,20 @@
 // #include "IsolationTool/ITrackIsolationTool.h"
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
 
+// - NEW
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
+//
 #include "muonEvent/DepositInCalo.h"
 
 #include "ICaloTrkMuIdTools/ICaloMuonLikelihoodTool.h"
 #include "ICaloTrkMuIdTools/ICaloMuonTag.h"
 #include "ICaloTrkMuIdTools/ITrackDepositInCaloTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
+
+// - STL
+#include <vector>
+
 
 namespace MuonCombined {
 
@@ -59,6 +67,7 @@ namespace MuonCombined {
     bool selectCosmic(const Trk::Track* ptcl) const;
     bool applyTrackIsolation(const xAOD::TrackParticle& tp) const;
     void showTrackInfo(const Trk::TrackParameters* par) const;
+//    std::vector<DepositInCalo> getDeposits(const xAOD::TrackParticle* tp, const CaloCellContainer* caloCellCont) const;
     
     // --- StoreGate keys ---
     std::string m_TrackParticleName;                 //!< TrackParticle container name
@@ -67,8 +76,9 @@ namespace MuonCombined {
     //std::string m_muonCaloEnergyCollectionName;      //!< Muon CaloEnergy Collection
     
     // --- Internal cache ---
-    int                                m_nTracksTaggedLowPt;  //!< Counts the number of tracks tagged with pT < 4 GeV
-    int                                m_nTracksTagged;       //!< Counts the number of tracks tagged
+    mutable int m_nTrueMuons;          //!< Counts the number true muons
+    mutable int m_nTracksTagged;       //!< Counts the number of tracks tagged
+    mutable int m_nMuonsTagged;        //!< Counts the number of truth muons tagged
     
     // --- Set up what to do and what not to do ---
     bool m_doCaloMuonTag;               //!< run CaloMuonTag Tool
@@ -80,6 +90,7 @@ namespace MuonCombined {
     bool m_showCutFlow;                 //!< Verbose track selection and track isolation
     bool m_doTruth;                     //!< Display truth info for each analysed track
     bool m_debugMode;                   //!< Switch for extra printout
+    bool m_doOldExtrapolation;          //!< In doubt ? >
     //bool m_doDressing;                  //!< This is to speed up tests where high fake rate is expected. Should be true by default
     
     // --- Isolation cuts ---

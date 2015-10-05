@@ -82,16 +82,16 @@ namespace MuonCombined {
     xAOD::Muon* create( const InDetCandidate& candidate, OutputData& outputData ) const final;
 
   private:
-    void addStatisticalCombination( xAOD::Muon& muon, const InDetCandidate& candidate, const StacoTag& tag, OutputData& outputData ) const;
+    void addStatisticalCombination( xAOD::Muon& muon, const InDetCandidate& candidate, const StacoTag* tag, OutputData& outputData ) const;
 
-    void addCombinedFit( xAOD::Muon& muon, const CombinedFitTag& tag, OutputData& outputData ) const; 
+    void addCombinedFit( xAOD::Muon& muon, const CombinedFitTag* tag, OutputData& outputData ) const; 
 
-    void addMuGirl( xAOD::Muon& muon, const MuGirlTag& tag, OutputData& outputData ) const;
+    void addMuGirl( xAOD::Muon& muon, const MuGirlTag* tag, OutputData& outputData ) const;
 
-    void addMuGirlLowBeta( xAOD::Muon& muon, MuGirlLowBetaTag& tag, xAOD::SlowMuon* slowMuon, OutputData& outputData ) const;
+    void addMuGirlLowBeta( xAOD::Muon& muon, MuGirlLowBetaTag* tag, xAOD::SlowMuon* slowMuon, OutputData& outputData ) const;
 
-    void addSegmentTag( xAOD::Muon& muon, const SegmentTag& tag ) const;
-    void addCaloTag( xAOD::Muon& muon, const CaloTag& tag ) const;
+    void addSegmentTag( xAOD::Muon& muon, const SegmentTag* tag ) const;
+    void addCaloTag( xAOD::Muon& muon, const CaloTag* tag ) const;
     
     /** add muon candidate info to a muon, if an updateExtrapolatedTrack is provided, the routine takes ownership of the track.
         The track will be used instead of the extrapolatedTrack of the MuonCandidate. The extrapolatedTrack of the MuonCandidate will be release during the operation.
@@ -122,11 +122,11 @@ namespace MuonCombined {
 
     void addEnergyLossToMuon( xAOD::Muon& muon ) const;
 
-    void fillEnergyLossFromTrack(xAOD::Muon& muon, const std::vector<const Trk::TrackStateOnSurface*>& tsosVector) const;
+    void fillEnergyLossFromTrack(xAOD::Muon& muon, const std::vector<const Trk::TrackStateOnSurface*>* tsosVector) const;
 
     void setP4( xAOD::Muon& muon, const xAOD::TrackParticle& tp ) const;
 
-    void collectCells( xAOD::Muon& muon, xAOD::CaloClusterContainer& clusterContainer ) const;
+    void collectCells( xAOD::Muon& muon, xAOD::CaloClusterContainer* clusterContainer ) const;
 
     void addRpcTiming( xAOD::Muon& muon ) const;
     void addSegmentsOnTrack( xAOD::Muon& muon ) const;
@@ -161,6 +161,9 @@ namespace MuonCombined {
     /// enable filling of timing information
     bool m_fillTimingInformation;
 
+    /// copy truth links from primary track particle (or put dummy link if this is missing)
+    bool m_fillMuonTruthLinks;
+    
     // helpers, managers, tools
     ToolHandle<Muon::MuonIdHelperTool>            m_idHelper;
     ToolHandle<Muon::MuonEDMPrinterTool>          m_printer;

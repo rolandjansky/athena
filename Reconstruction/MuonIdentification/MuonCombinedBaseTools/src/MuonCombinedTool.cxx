@@ -35,6 +35,7 @@ namespace MuonCombined {
     declareProperty("MuonCombinedTagTools",     m_muonCombinedTagTools);
     declareProperty("DeltaEtaPreSelection",     m_deltaEtaPreSelection = 0.5 );
     declareProperty("DeltaPhiPreSelection",     m_deltaPhiPreSelection = 1.  );
+    declareProperty("PtBalancePreSelection",    m_ptBalance = 1.  );
     declareProperty("RunMuonCombinedDebugger",  m_runMuonCombinedDebugger = false );
   }
 
@@ -94,6 +95,7 @@ namespace MuonCombined {
     // define muon (eta,phi)
     double muonEta = 0.;
     double muonPhi = 0.;
+    double muonPt = 0.;
     bool hasExtr = muonCandidate.extrapolatedTrack();
     const Trk::TrackParameters* muonPars = hasExtr ? 
       muonCandidate.extrapolatedTrack()->perigeeParameters() : muonCandidate.muonSpectrometerTrack().perigeeParameters();
@@ -103,16 +105,21 @@ namespace MuonCombined {
     }
     muonEta = hasExtr ? muonPars->momentum().eta() : muonPars->position().eta();
     muonPhi = hasExtr ? muonPars->momentum().phi() : muonPars->position().phi();
+    muonPt  = muonPars->momentum().perp();
 
     associatedIdCandidates.clear();
     for( auto x : inDetCandidates ){
       double indetEta                         = x->indetTrackParticle().eta();
+      double indetPt                          = x->indetTrackParticle().pt();
       double deltaEta                         = fabs(muonEta - indetEta);
       double deltaPhi                         = muonPhi - x->indetTrackParticle().phi();
+      double ptBal                            = 1;
+      if(muonPt>0) ptBal                      = (muonPt - indetPt)/muonPt;
       if (deltaPhi    > M_PI)  deltaPhi = deltaPhi - 2.*M_PI;
       if (deltaPhi    < -M_PI) deltaPhi = deltaPhi + 2.*M_PI;
       if (deltaEta            > m_deltaEtaPreSelection)  continue;
       if (fabs(deltaPhi)      > m_deltaPhiPreSelection)  continue;
+      if (ptBal               > m_ptBalance) continue;
       associatedIdCandidates.push_back(x);
     }
   }
