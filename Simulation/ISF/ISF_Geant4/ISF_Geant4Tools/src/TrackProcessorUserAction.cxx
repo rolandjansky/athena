@@ -28,7 +28,6 @@
 #include "MCTruth/TrackBarcodeInfo.h"
 #include "MCTruth/TrackHelper.h"
 #include "MCTruth/TrackInformation.h"
-#include "MCTruth/TruthStrategyManager.h"
 #include "MCTruth/VTrackInformation.h"
 
 #include "SimHelpers/StepHelper.h"
@@ -336,12 +335,12 @@ void iGeant4::TrackProcessorUserAction::SteppingAction(const G4Step* aStep)
     //
     const std::vector<const G4Track*> *secondaryVector = aStep->GetSecondaryInCurrentStep();
     // loop over new secondaries
-   	for ( const G4Track* aConstTrack_2nd : *secondaryVector ) {
+       for ( const G4Track* aConstTrack_2nd : *secondaryVector ) {
       // get a non-const G4Track for current secondary (nasty!)
       G4Track *aTrack_2nd = const_cast<G4Track*>( aConstTrack_2nd );
 
       // check if new secondary position is behind boundary
-   	  const G4ThreeVector&             pos_2nd = aTrack_2nd->GetPosition();
+         const G4ThreeVector&             pos_2nd = aTrack_2nd->GetPosition();
       AtlasDetDescr::AtlasRegion nextGeoID_2nd = m_geoIDSvcQuick->identifyGeoID( pos_2nd.x(),
                                                                                  pos_2nd.y(),
                                                                                  pos_2nd.z() );
@@ -550,6 +549,7 @@ iGeant4::TrackProcessorUserAction::newISFParticle(G4Track* aTrack,
     }
   }
 
+
   ISF::ISFParticle* isp= new ISF::ISFParticle( position,
                                                momentum,
                                                mass,
@@ -585,7 +585,7 @@ iGeant4::TrackProcessorUserAction::newISFParticle(G4Track* aTrack,
   int trackID = aTrack->GetTrackID();
   if (m_geant4OnlyMode) {
     if (trackInfo && trackInfo->GetISFParticle()) {
-      trackInfo->SetISFParticle(isp);
+     trackInfo->SetISFParticle(isp);
     }
     m_parentISPmap[trackID] = isp;
   } else {
