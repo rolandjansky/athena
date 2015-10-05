@@ -92,7 +92,9 @@ eflowCaloObjectBuilder::eflowCaloObjectBuilder(const std::string& name, ISvcLoca
   m_storeLeptonCells(false),
   m_eflowElectronsName("eflowRec_selectedElectrons_EM"),
   m_eflowLeptonCellsName("eflowRec_leptonCellContainer_EM"),
-  m_nMatches(0)
+  m_nMatches(0),
+  m_useUpdated2015LeptonID(false),
+  m_useUpdated2015ChargedShowerSubtraction(true)
 {
 // The following properties can be specified at run-time
 // (declared in jobOptions file)
@@ -111,6 +113,8 @@ eflowCaloObjectBuilder::eflowCaloObjectBuilder(const std::string& name, ISvcLoca
   declareProperty("eflowElectronsName", m_eflowElectronsName);
   declareProperty("eflowLeptonCellsName", m_eflowLeptonCellsName);
   declareProperty("TrackSelectionTool", m_selTool);
+  declareProperty("useUpdated2015LeptonID",m_useUpdated2015LeptonID);
+  declareProperty("useUpdated2015ChargedShowerSubtraction",m_useUpdated2015ChargedShowerSubtraction);
 }
 
 eflowCaloObjectBuilder::~eflowCaloObjectBuilder() {
@@ -308,7 +312,7 @@ StatusCode eflowCaloObjectBuilder::makeTrackList() {
 }
 
 bool eflowCaloObjectBuilder::selectTrack(const xAOD::TrackParticle* track) {
-  if (track->pt()*0.001 < 40.0) return m_selTool->accept(*track, track->vertex());
+  if (track->pt()*0.001 < 100.0) return m_selTool->accept(*track, track->vertex());
   else return false;
 }
 
@@ -376,7 +380,27 @@ std::string eflowCaloObjectBuilder::printCluster(const xAOD::CaloCluster* cluste
 }
 
 void eflowCaloObjectBuilder::simulateShower(eflowTrackClusterLink* trackClusterLink) {
+
   eflowRecTrack* efRecTrack(trackClusterLink->getTrack());
+
+  std::vector<eflowRecCluster*>::iterator itCluster = m_eflowClusterList.begin();
+  std::vector<eflowRecCluster*>::iterator endCluster = m_eflowClusterList.end();
+  
+  std::vector<eflowRecCluster*> RSSclusters;
+
+  float totalE=0.0;
+  float trkEta=efRecTrack->getTrackCaloPoints().getEM2etaPhiPos().getEta();//get EM2 eta
+  for(; itCluster != endCluster; ++itCluster) {
+    if ((*itCluster)->getCluster()->e()>0.){
+      float disphi=efRecTrack->getTrackCaloPoints().getEM2etaPhiPos().getPhi().getAbsDifference((*itCluster)->getCluster()->phi());
+      float diseta = trkEta - (*itCluster)->getCluster()->eta();
+      if (0.15*0.15>disphi*disphi+diseta*diseta) totalE += (*itCluster)->getCluster()->e(); 
+      if (0.2*0.2>disphi*disphi+diseta*diseta) {
+	eflowRecCluster* thisEfRecCluster = *itCluster;
+	RSSclusters.push_back(thisEfRecCluster); 
+      }//make list of clusters in 0.2 cone
+    }//+ve energy clusters only are considered
+  }//cluster loop
 
   double trackEM1eta = efRecTrack->getTrackCaloPoints().getEM1eta();
   double trackE = efRecTrack->getTrack()->e();
@@ -399,7 +423,24 @@ void eflowCaloObjectBuilder::simulateShower(eflowTrackClusterLink* trackClusterL
   /* Set expected energy in the eflowRecTrack object */
   const double eExpect = cellSubtractionManager.fudgeMean() * trackE;
   const double sigmaEExpect = cellSubtractionManager.fudgeStdDev() * trackE;
-  efRecTrack->setEExpect(eExpect, sigmaEExpect*sigmaEExpect);
+
+  float pull=(totalE-eExpect)/sigmaEExpect;
+  double trackPt = efRecTrack->getTrack()->pt();
+  efRecTrack->setpull15(pull);
+  if (pull>0.0+(log10(40000)-log10(trackPt))*33.2 && sigmaEExpect!=0.0 && true == m_useUpdated2015ChargedShowerSubtraction){ 
+    efRecTrack->setSubtracted(); //this tricks eflowRec into thinking this track was subtracted, and hence no further subtraction will be done
+    efRecTrack->setIsInDenseEnvironment();
+    //recalculate the LHED and the ordering  and find the new  expected E + sigma of expected E (the new LHED can change the latter two values we find in the look up tables)
+    m_integrator->measureNewClus(RSSclusters, efRecTrack);
+    j1st = m_integrator->getFirstIntLayer();
+    eflowCellSubtractionManager ranking;
+    m_binnedParameters->getOrdering(ranking, trackE, trackEM1eta, j1st);
+    efRecTrack->setEExpect(ranking.fudgeMean() * trackE, fabs(ranking.fudgeStdDev()*trackE)*fabs(ranking.fudgeStdDev()*trackE)); 
+  }//if the cut in the pull vs track pt plane tells us the environment is too dense for the charged shower subtraction to work
+  else {
+    efRecTrack->setEExpect(eExpect, sigmaEExpect*sigmaEExpect);
+  }//ok to do subtraction, and so we just set the usual expected E + sigma of expected E needed for subtraction
+
 }
 
 void eflowCaloObjectBuilder::printAllClusters() {
@@ -463,30 +504,49 @@ StatusCode eflowCaloObjectBuilder::selectMuons() {
 
   for (; firstMuon != lastMuon; ++firstMuon) {
     const xAOD::Muon* theMuon = *firstMuon;
-    xAOD::Muon::MuonType muonType = theMuon->muonType();
-    if (xAOD::Muon::Combined == muonType && theMuon->pt() > 5000.) {
 
-      const ElementLink<xAOD::TrackParticleContainer> theLink = theMuon->primaryTrackParticleLink();
-      if (theLink.isValid()) {
-        const xAOD::TrackParticle* primary_track = *theLink;
-        if (primary_track) {
+    if (true == m_useUpdated2015LeptonID){
+      //Details of medium muons are here:
+      //https://twiki.cern.ch/twiki/bin/view/Atlas/MuonSelectionTool
+      //No need to ask for combined muon, by construction other muons will not have ID track - we just ask for medium muons
 
-          float chi2 = primary_track->chiSquared();
-          float numberOfDoF = primary_track->numberDoF();
-          float chi2OverDoF = chi2 / numberOfDoF;
-          if (chi2OverDoF < 10) {
-            if (m_selectedMuons) {
-              m_selectedMuons->push_back(const_cast<xAOD::Muon*>(theMuon));
-            } else if (msgLvl(MSG::WARNING)) {
-              msg(MSG::WARNING) << " Invalid pointer to m_selectedMuons in selectMuons " << std::endl;
-            }
-            if (true == m_storeLeptonCells) this->storeMuonCells(theMuon);
-          } //chi2 cut
-        } else if (msgLvl(MSG::WARNING))
-          msg(MSG::WARNING) << " This muon has an invalid pointer to its primary track " << endreq;
-      } else if (msgLvl(MSG::WARNING))
-        msg(MSG::WARNING) << " This muon has an invalid link to its primary track " << endreq;
-    } //isCombinedMuon with pt > 5 GeV
+      xAOD::Muon::Quality muonQuality = theMuon->quality();
+      if( muonQuality <= xAOD::Muon::Medium) {    
+	if (m_selectedMuons) {
+	  m_selectedMuons->push_back(const_cast<xAOD::Muon*>(theMuon));
+	} else if (msgLvl(MSG::WARNING)) {
+	  msg(MSG::WARNING) << " Invalid pointer to m_selectedMuons in selectMuons " << std::endl;
+	}
+	if (true == m_storeLeptonCells) this->storeMuonCells(theMuon);
+      }//Medium muons
+    }//new lepton ID
+    else {
+      //This is what was used in 20.1.X 2015 data taking
+      xAOD::Muon::MuonType muonType = theMuon->muonType();
+      if (xAOD::Muon::Combined == muonType && theMuon->pt() > 5000.) {
+
+	const ElementLink<xAOD::TrackParticleContainer> theLink = theMuon->primaryTrackParticleLink();
+	if (theLink.isValid()) {
+	  const xAOD::TrackParticle* primary_track = *theLink;
+	  if (primary_track) {
+
+	    float chi2 = primary_track->chiSquared();
+	    float numberOfDoF = primary_track->numberDoF();
+	    float chi2OverDoF = chi2 / numberOfDoF;
+	    if (chi2OverDoF < 10) {
+	      if (m_selectedMuons) {
+		m_selectedMuons->push_back(const_cast<xAOD::Muon*>(theMuon));
+	      } else if (msgLvl(MSG::WARNING)) {
+		msg(MSG::WARNING) << " Invalid pointer to m_selectedMuons in selectMuons " << std::endl;
+	      }
+	      if (true == m_storeLeptonCells) this->storeMuonCells(theMuon);
+	    } //chi2 cut
+	  } else if (msgLvl(MSG::WARNING))
+	    msg(MSG::WARNING) << " This muon has an invalid pointer to its primary track " << endreq;
+	} else if (msgLvl(MSG::WARNING))
+	  msg(MSG::WARNING) << " This muon has an invalid link to its primary track " << endreq;
+      } //isCombinedMuon with pt > 5 GeV
+    }//old lepton ID
   } //muon loop
 
   return StatusCode::SUCCESS;
@@ -649,7 +709,9 @@ StatusCode eflowCaloObjectBuilder::selectElectrons(){
     if (theElectron){
       if (theElectron->pt() > 10000){
         bool val_med = false;
-	bool gotID = theElectron->passSelection(val_med, "Medium");
+	bool gotID = false;
+	if (true == m_useUpdated2015LeptonID) gotID = theElectron->passSelection(val_med, "LHMedium");
+	else gotID = theElectron->passSelection(val_med, "Medium");
 	if (!gotID) {
 	  if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get Electron ID " << endreq;
 	  continue;

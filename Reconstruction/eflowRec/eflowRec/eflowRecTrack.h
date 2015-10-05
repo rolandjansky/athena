@@ -72,11 +72,19 @@ public:
     m_isSubtracted = true;
   }
 
+  bool isInDenseEnvironment() const { return m_isInDenseEnvironment;}
+  void setIsInDenseEnvironment() { m_isInDenseEnvironment = true; }
+
+  void setpull15(double pull15){ m_pull15 = pull15; }
+  double getpull15() const { return m_pull15; }
+
 private:
   ElementLink<xAOD::TrackParticleContainer> m_trackElemLink;
   const xAOD::TrackParticle* m_track;
   int m_type;
+  double m_pull15;
 
+  bool m_isInDenseEnvironment;
   bool m_isSubtracted;
   bool m_hasBin;
   double m_eExpect;

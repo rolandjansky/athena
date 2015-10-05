@@ -99,6 +99,11 @@ def setup_eflowObjectBulderTools(Configured, nameModifier,mlog):
         ObjectBuilder_Tools.EflowClustersOutputName="PFOClusters_JetETMiss_LC"
         ObjectBuilder_Tools.EflowCaloObjectsName="eflowCaloObjects_LC"
 
+    if True == jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
+        ObjectCreatorTool.useUpdated2015ChargedShowerSubtraction = True
+    else:
+        ObjectCreatorTool.useUpdated2015ChargedShowerSubtraction = False
+
     ObjectBuilder_Tools.PrivateToolList += [ObjectCreatorTool]
 
     if jobproperties.eflowRecFlags.eflowAlgType == "EOverP":

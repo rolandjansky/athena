@@ -164,6 +164,13 @@ class eflowCaloObjectBuilder : public eflowBaseAlg {
   unsigned int m_nMatches;
 
   /** New track selection tool */
-    ToolHandle<InDet::IInDetTrackSelectionTool> m_selTool;
+  ToolHandle<InDet::IInDetTrackSelectionTool> m_selTool;
+
+  /** Flag to toggle usage of updated 2015 lepton ID */
+  bool m_useUpdated2015LeptonID;
+
+  /** Flag to toggle usage of updated 2015 charged shower subtraction - this disabled charged shower subtraction for tracks found to be in dense environments */
+  bool m_useUpdated2015ChargedShowerSubtraction;
+
 };
 #endif

@@ -63,7 +63,7 @@ class eflowLCCalibTool : virtual public eflowBaseAlgTool, public AthAlgTool {
   ToolHandle<CaloClusterCollectionProcessor> m_clusterLocalCalibDMTool;
 
   /** Turns on and off usage of the calibration tools - needed in case we only want to calculate the new cluster moments */
-  bool m_runCalibrationTools;
+  //bool m_runCalibrationTools;
 
 };
 

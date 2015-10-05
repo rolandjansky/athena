@@ -49,7 +49,7 @@ class eflowParamEtaBin {
   } 
 
  private:
-  const eflowBinnedParameters* m_parentSystem;
+  //const eflowBinnedParameters* m_parentSystem;
   std::vector<double> m_ringThicknesses;
   std::vector<eflowFirstIntParameters*> m_firstIntBins;
 };

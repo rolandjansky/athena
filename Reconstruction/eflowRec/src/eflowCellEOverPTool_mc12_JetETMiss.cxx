@@ -12,7 +12,7 @@
 #include <iomanip>
 #include <sstream>
 
-eflowCellEOverPTool_mc12_JetETMiss::eflowCellEOverPTool_mc12_JetETMiss(const std::string& type,const std::string& name,const IInterface* parent) : IEFlowCellEOverPTool( type, name, parent), m_nEBins(4),m_nEtaBins(25),m_nFirstIntLayerBins(eflowFirstIntRegions::nRegions),m_nCaloRegionBins(eflowCalo::nRegions){
+eflowCellEOverPTool_mc12_JetETMiss::eflowCellEOverPTool_mc12_JetETMiss(const std::string& type,const std::string& name,const IInterface* parent) : IEFlowCellEOverPTool( type, name, parent) {
 
   declareInterface<IEFlowCellEOverPTool>(this);
 

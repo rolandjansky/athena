@@ -98,6 +98,16 @@ def setup_eflowCaloObjectBulder(Configured, nameModifier,mlog):
 
     eflowCaloObjectBuilderAlgorithm.TrackSelectionTool = TrackSelectionTool
 
+    if True == jobproperties.eflowRecFlags.useUpdated2015LeptonID:
+        eflowCaloObjectBuilderAlgorithm.useUpdated2015LeptonID = True
+    else:
+        eflowCaloObjectBuilderAlgorithm.useUpdated2015LeptonID = False
+
+    if True == jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
+        eflowCaloObjectBuilderAlgorithm.useUpdated2015ChargedShowerSubtraction = True
+    else:
+        eflowCaloObjectBuilderAlgorithm.useUpdated2015ChargedShowerSubtraction = False
+
     from RecExConfig.ObjKeyStore import objKeyStore
     objKeyStore.addTransient(Configured.outputType(),Configured.outputKey())
 
