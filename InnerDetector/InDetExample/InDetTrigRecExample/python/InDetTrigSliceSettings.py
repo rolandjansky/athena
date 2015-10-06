@@ -58,7 +58,6 @@ class InDetTrigSliceSettingsDB:
     dozfinder = {}
     docloneremoval = {}
     doresmon = {}
-    dotrigindettrack = {}
 
     #ptmin
     for i in _slices:
@@ -95,10 +94,8 @@ class InDetTrigSliceSettingsDB:
 
     for i in _slices:
       dozfinder[i] = False 
-      dotrigindettrack[i] = False 
     dozfinder['beamSpot'] = True
     self.db['doZFinder']=dozfinder
-    self.db['doTrigInDetTrack']=dotrigindettrack
 
     for i in _slices:
       doresmon[i] = False 

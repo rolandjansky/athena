@@ -35,21 +35,10 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
       from AthenaCommon.AppMgr import ToolSvc
       # configure tools used
 
-      from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRodDecoder
-      InDetTrigPixelRodDecoder = PixelRodDecoder(name = "InDetTrigPixelRodDecoder")
-      #InDetTrigPixelRodDecoder.OutputLevel=2
-      ToolSvc += InDetTrigPixelRodDecoder
-
-      from PixelRawDataByteStreamCnv.PixelRawDataByteStreamCnvConf import PixelRawDataProviderTool
-      InDetTrigPixelRawDataProviderTool = PixelRawDataProviderTool(name    = "InDetTrigPixelRawDataProviderTool",
-                                                                   Decoder = InDetTrigPixelRodDecoder)
-      ToolSvc += InDetTrigPixelRawDataProviderTool
-
       from InDetTrigRawDataProvider.InDetTrigRawDataProviderConf import InDet__TrigPixRawDataProvider
 
       InDetTrigPixRawDataProvider = \
           InDet__TrigPixRawDataProvider(name="TrigPixRawDataProvider_EF",
-                                        RawDataProviderTool = InDetTrigPixelRawDataProviderTool,
                                         RDOKey = EF_PixRDOKey)
       ToolSvc += InDetTrigPixRawDataProvider
 
@@ -109,27 +98,16 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
       from AthenaCommon.AppMgr import ToolSvc
       from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
-
-      from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-      from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ByteStreamErrorsSvc
-      from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
-      InDetTrigBSErrorSvc = SCT_ByteStreamErrorsSvc(name=SCT_ConditionsSetup.instanceName("InDetSCT_ByteStreamErrorsSvc"))
-
       from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
       InDetTrigSCTRodDecoder = SCT_RodDecoder(name = "InDetTrigSCTRodDecoder",
-                                              ErrorsSvc = InDetTrigBSErrorSvc,
-                                              TriggerMode = True)
+                                              TriggerMode = False)
       ToolSvc += InDetTrigSCTRodDecoder
       if (InDetTrigFlags.doPrintConfigurables()):
         print      InDetTrigSCTRodDecoder
 
-
       from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool
-      from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
       InDetTrigSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetTrigSCTRawDataProviderTool",
-                                                               Decoder = InDetTrigSCTRodDecoder,
-                                                               ErrorsSvc = InDetTrigBSErrorSvc
-                                                               )
+                                                               Decoder = InDetTrigSCTRodDecoder)
       ToolSvc += InDetTrigSCTRawDataProviderTool
 
 
@@ -144,6 +122,7 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
 
       # SCT_ClusteringTool (public)
       from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
+      from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
       InDetTrigSCT_ClusteringTool = \
           InDet__SCT_ClusteringTool(name          = "InDetTrigSCT_ClusteringTool",
                                     globalPosAlg  = InDetTrigClusterMakerTool,
@@ -160,8 +139,9 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
       self.RawDataProvider   = InDetTrigSCTRawDataProvider
       self.clusteringTool = InDetTrigSCT_ClusteringTool
       self.SCT_RDOContainerName=EF_SCTRDOKey
+      from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
       self.conditionsSummarySvc="SCT_ConditionsSummarySvc/"+SCT_ConditionsSetup.instanceName("InDetSCT_ConditionsSummarySvc")
-      self.bytestreamErrorSvc=InDetTrigBSErrorSvc
+      self.bytestreamErrorSvc="SCT_ByteStreamErrorsSvc/"+SCT_ConditionsSetup.instanceName("InDetSCT_ByteStreamErrorsSvc")
       self.flaggedConditionsSvc="SCT_FlaggedConditionSvc/"+SCT_ConditionsSetup.instanceName("InDetSCT_FlaggedConditionSvc")
 
       from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings

@@ -10,7 +10,7 @@ from AthenaCommon.AppMgr import ToolSvc
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import \
     EFIDTrackingCuts,EFIDTrackingCutsCosmics,EFIDTrackingCutsBeamGas, \
-    EFIDTrackingCutsHeavyIon, FTKTrackingCuts
+    EFIDTrackingCutsHeavyIon
 InDetTrigCutValues = EFIDTrackingCuts
 
 from AthenaCommon.Logging import logging 
@@ -259,10 +259,6 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
    def __init__(self, name="TrigAmbiguitySolver_Electron_EF", type="electron", lowPt=False):
       super(InDet__InDetTrigAmbiguitySolver , self ).__init__( name )
 
-      slice = type
-      if name.find('FTK')>-1:
-        slice = 'FTK'
-
       from AthenaCommon.AppMgr import ToolSvc
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool, \
           InDetTrigTrackFitter, InDetTrigExtrapolator, InDetTrigTrackSummaryTool, \
@@ -275,13 +271,13 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
 
       from InDetTrackScoringTools.InDetTrackScoringToolsConf import InDet__InDetAmbiScoringTool
       #ptint
-      ptintcut = InDetTrigSliceSettings[('pTmin',slice)]
-      if slice=='minBias':
-        ptintcut = 0.95*InDetTrigSliceSettings[('pTmin',slice)]
-      elif slice=='minBias400':
-        ptintcut = 0.95*InDetTrigSliceSettings[('pTmin',slice)]
+      ptintcut = InDetTrigSliceSettings[('pTmin',type)]
+      if type=='minBias':
+        ptintcut = 0.95*InDetTrigSliceSettings[('pTmin',type)]
+      elif type=='minBias400':
+        ptintcut = 0.95*InDetTrigSliceSettings[('pTmin',type)]
 
-      InDetTrigScoringTool = InDet__InDetAmbiScoringTool(name         = 'InDetTrigScoringTool_'+slice,
+      InDetTrigScoringTool = InDet__InDetAmbiScoringTool(name         = 'InDetTrigScoringTool_'+type,
                                                          Extrapolator = InDetTrigExtrapolator,
                                                          SummaryTool  = InDetTrigTrackSummaryTool,
                                                          useAmbigFcn  = True,   # this is NewTracking
@@ -303,7 +299,7 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
                                                          #BeamPositionSvc = default instance ,
                                                          )
 
-      if slice=='beamgas':
+      if type=='beamgas':
         InDetTrigScoringTool.minPt          = EFIDTrackingCutsBeamGas.minPT()
         InDetTrigScoringTool.maxRPhiImp     = EFIDTrackingCutsBeamGas.maxPrimaryImpact()
         InDetTrigScoringTool.maxZImp        = EFIDTrackingCutsBeamGas.maxZImpact()
@@ -311,13 +307,7 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
         InDetTrigScoringTool.maxSiHoles     = EFIDTrackingCutsBeamGas.maxHoles()
         InDetTrigScoringTool.useTRT_AmbigFcn= False
         InDetTrigScoringTool.useSigmaChi2   = True
-
-      if slice=='FTK' or slice=='FTKRefit':
-        InDetTrigScoringTool.minSiClusters  = FTKTrackingCuts.minClusters()
-        InDetTrigScoringTool.maxSiHoles     = FTKTrackingCuts.maxHoles()
-        InDetTrigScoringTool.maxPixelHoles  = FTKTrackingCuts.maxPixelHoles()
-        InDetTrigScoringTool.maxSCTHoles    = FTKTrackingCuts.maxSCTHoles()
-        InDetTrigScoringTool.maxDoubleHoles = FTKTrackingCuts.maxDoubleHoles()
+         
          
       #
       ToolSvc += InDetTrigScoringTool
@@ -331,20 +321,20 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
       from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleAmbiguityProcessorTool
 
       InDetTrigAmbiguityProcessor = \
-          Trk__SimpleAmbiguityProcessorTool(name = 'InDetTrigAmbiguityProcessor_'+slice,
+          Trk__SimpleAmbiguityProcessorTool(name = 'InDetTrigAmbiguityProcessor_'+type,
                                             #AssoTool    = InDetTrigPrdAssociationTool,
                                             Fitter      = InDetTrigTrackFitter,
                                             SelectionTool = InDetTrigAmbiTrackSelectionTool,
                                             RefitPrds   = not InDetTrigFlags.refitROT()
                                             )
 
-      InDetTrigAmbiguityProcessor.ScoringTool = InDet__InDetAmbiScoringTool('InDetTrigScoringTool_'+slice)
-      if slice=='beamgas':
+      InDetTrigAmbiguityProcessor.ScoringTool = InDet__InDetAmbiScoringTool('InDetTrigScoringTool_'+type)
+      if type=='beamgas':
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsBeamGas import \
             InDetTrigAmbiTrackSelectionToolBeamGas
         InDetTrigAmbiguityProcessor.SelectionTool = InDetTrigAmbiTrackSelectionToolBeamGas
 
-      elif slice=='cosmicsN':
+      elif type=='cosmicsN':
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitterCosmics
         from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics \
             import InDetTrigScoringToolCosmics_SiPattern, InDetTrigAmbiTrackSelectionToolCosmicsN
@@ -356,15 +346,10 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
         #InDetTrigAmbiguityProcessor.SuppressTrackFit = True
         #InDetTrigAmbiguityProcessor.ForceRefit = False
         InDetTrigAmbiguityProcessor.RefitPrds =  False
-      elif slice=='electron' and InDetTrigFlags.doBremRecovery():
+      elif type=='electron' and InDetTrigFlags.doBremRecovery():
         InDetTrigAmbiguityProcessor.tryBremFit  = True
         import AthenaCommon.SystemOfUnits as Units
         InDetTrigAmbiguityProcessor.pTminBrem   = 5 * Units.GeV
-      elif slice=='FTK' or slice=='FTKRefit':
-        from TrigInDetConf.TrigInDetRecToolsFTK import InDetTrigAmbiTrackSelectionToolFTK,InDetTrigTrackFitterFTK
-        InDetTrigAmbiguityProcessor.SelectionTool = InDetTrigAmbiTrackSelectionToolFTK
-        InDetTrigAmbiguityProcessor.Fitter=InDetTrigTrackFitterFTK
-        #InDetTrigAmbiguityProcessor.RefitPrds = 
 
       if InDetTrigFlags.materialInteractions() and InDetTrigFlags.solenoidOn():
          InDetTrigAmbiguityProcessor.MatEffects = 3
@@ -393,7 +378,7 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
       from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
       ambtime = TrigTimeHistToolConfig("AmbTime")
       ambtime.TimerHistLimits = [0,100]
-      if InDetTrigSliceSettings[('doFullScan',slice)]:
+      if InDetTrigSliceSettings[('doFullScan',type)]:
         ambtime.TimerHistLimits = [0,500]
       self.AthenaMonTools = [InDetTrigAmbiguitySolverValidationMonitor(),
                              InDetTrigAmbiguitySolverOnlineMonitor(),

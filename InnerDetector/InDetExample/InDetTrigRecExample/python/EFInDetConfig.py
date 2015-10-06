@@ -90,9 +90,6 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
     """
     #print "TrigEFIDSequence  seqName=%s type=%s seqType=%s" % (seqName,type,seqType)
     algos = []
-
-    from TrigInDetConf.TrigInDetSequence import vertexXAODCnvNeeded
-    runvtxxaodcnv = vertexXAODCnvNeeded()
              
     if seqType=="InsideOut":
       algos = [("PixelClustering", ""),
@@ -108,13 +105,10 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
                ("InDetTrigTrackingxAODCnv",""),
 #               ("InDetTrigDetailedTrackTruthMaker",""),
                ("TrigVxPrimary",""),
-#               ("InDetTrigParticleCreation",""),
+               ("InDetTrigParticleCreation",""),
 #               ("InDetTrigTrackParticleTruthMaker",""),
+               ("InDetTrigVertexxAODCnv","")
                ]
-      
-      if runvtxxaodcnv:
-        algos += [("InDetTrigVertexxAODCnv","")]
-
       if type=="minBias" or type=="minBias400":
         algos = [("PixelClustering",""),
                  ("SCTClustering",""), 
@@ -125,11 +119,9 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
                  ("InDetTrigTrackSlimmer",""),
                  ("InDetTrigTrackingxAODCnv",""),
                  ("TrigVxPrimary",""),
-#                 ("InDetTrigParticleCreation",""),
+                 ("InDetTrigParticleCreation",""),
+                 ("InDetTrigVertexxAODCnv","")
                  ]
-        if runvtxxaodcnv:
-          algos += [("InDetTrigVertexxAODCnv","")]
-
       elif type=="bjet":
         #from InDetTrigVxSecondary.InDetTrigVxSecondary_LoadTools import TrigVxSecondary_EF
         #algos += [("TrigVxSecondary","")]
@@ -146,12 +138,10 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
                  ("InDetTrigTrackingxAODCnv",""),
                  ("InDetTrigDetailedTrackTruthMaker",""),
                  ("TrigVxPrimary",""),
-#                 ("InDetTrigParticleCreation",""),
+                 ("InDetTrigParticleCreation",""),
+                 ("InDetTrigVertexxAODCnv",""),
                  ("InDetTrigTrackParticleTruthMaker","")
                  ]
-        if runvtxxaodcnv:
-          algos += [("InDetTrigVertexxAODCnv","")]
-
 
     elif seqType=="InsideOutTrk":
       algos = [("PixelClustering", ""),
@@ -170,16 +160,14 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
     elif seqType=="Vtx":
       algos = [("TrigVxPrimary","")]
       if type=="bjet":
-        algos = [("TrigVxPrimaryAllTE","")]
-        if runvtxxaodcnv:
-          algos += [("InDetTrigVertexxAODCnv","")]
-
+        algos = [("TrigVxPrimaryAllTE",""),
+                 ("InDetTrigVertexxAODCnv","")
+                 ]
 
     elif seqType=="InsideOutPost":
-      algos = [
-        #("InDetTrigParticleCreation",""),
-        ("InDetTrigTrackingxAODCnv",""),
-        ("InDetTrigTrackParticleTruthMaker","")]
+      algos = [("InDetTrigParticleCreation",""),
+               ("InDetTrigTrackingxAODCnv",""),
+               ("InDetTrigTrackParticleTruthMaker","")]
 
     elif seqType=="InsideOutNoTRT":
       a1 = [("PixelClustering", ""),
@@ -191,13 +179,11 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
             ("InDetTrigTrackSlimmer",""),
             ("InDetTrigTrackingxAODCnv",""),
             ("InDetTrigDetailedTrackTruthMaker",""),]
-      av = [("TrigVxPrimary","")]
-      if runvtxxaodcnv:
-        av += [("InDetTrigVertexxAODCnv","")]
-
-      a2 = [
-        #("InDetTrigParticleCreation",""),
-        ("InDetTrigTrackParticleTruthMaker","")
+      av = [("TrigVxPrimary",""),
+            ("InDetTrigVertexxAODCnv",""),
+            ]
+      a2 = [("InDetTrigParticleCreation",""),
+            ("InDetTrigTrackParticleTruthMaker","")
             ]
       if type=="heavyIon" or type=="heavyIonFS":
         algos = a1 + a2
@@ -220,11 +206,9 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
                ("InDetTrigTrackSlimmer",""),
                ("InDetTrigTrackingxAODCnv",""),
                ("TrigVxPrimary",""),
-               #("InDetTrigParticleCreation",""),
+               ("InDetTrigParticleCreation",""),
+               ("InDetTrigVertexxAODCnv","")
                ]
-      if runvtxxaodcnv:
-        algos += [("InDetTrigVertexxAODCnv","")]
-
       
     elif seqType=="OutsideIn":
       algos = [("PixelClustering",""),
@@ -238,7 +222,7 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
                ("InDetTrigTrackSlimmer",""),
                ("InDetTrigTrackingxAODCnv",""),
                ("InDetTrigDetailedTrackTruthMaker",""),
-               #("InDetTrigParticleCreation",""),
+               ("InDetTrigParticleCreation",""),
                ("InDetTrigTrackParticleTruthMaker","")
                ]
 
@@ -252,11 +236,10 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
                ("InDetTrigTrackingxAODCnv",         "InDetTrigTrackingxAODCnvTRTOnly_%s_EFID"),
                ("InDetTrigDetailedTrackTruthMaker", "InDetTrigDetailedTrackTruthMakerTRTOnly_%s_EFID"),
                ("TrigVxPrimary",                    "TrigVxPrimaryTRTOnly_%s_EFID"),
-               #("InDetTrigParticleCreation",        "InDetTrigParticleCreationTRTOnly_%s_EFID"),
+               ("InDetTrigParticleCreation",        "InDetTrigParticleCreationTRTOnly_%s_EFID"),
+               ("InDetTrigVertexxAODCnv",           "InDetTrigVertexxAODCnvTRTOnly_%s_EFID"),
                ("InDetTrigTrackParticleTruthMaker", "InDetTrigTrackParticleTruthMakerTRTOnly_%s_EFID")
                ]
-      if runvtxxaodcnv:
-        algos += [("InDetTrigVertexxAODCnv","InDetTrigVertexxAODCnvTRTOnly_%s_EFID")]
 
     elif seqType=="Combined":
       algos = [("PixelClustering",""),
@@ -278,7 +261,7 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
                ("InDetTrigTrackSlimmer"       ,  "InDetTrigTrackSlimmerCombined_%s_EFID"),
                ("InDetTrigTrackingxAODCnv",      "InDetTrigTrackingxAODCnvCombined_%s_EFID"),
                ("InDetTrigDetailedTrackTruthMaker", "InDetTrigDetailedTrackTruthMakerCombined_%s_EFID"),
-               #("InDetTrigParticleCreation",      "InDetTrigParticleCreationCombined_%s_EFID"),
+               ("InDetTrigParticleCreation",      "InDetTrigParticleCreationCombined_%s_EFID"),
                ("InDetTrigTrackParticleTruthMaker", "InDetTrigTrackParticleTruthMakerCombined_%s_EFID")
                ]
 
@@ -302,7 +285,7 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
                ("InDetTrigTrackSlimmer"       ,  "InDetTrigTrackSlimmerCombined_%s_EFID"),
                ("InDetTrigTrackingxAODCnv",      "InDetTrigTrackingxAODCnvCombined_%s_EFID"),
                ("InDetTrigDetailedTrackTruthMaker", "InDetTrigDetailedTrackTruthMakerCombined_%s_EFID"),
-               #("InDetTrigParticleCreation",      "InDetTrigParticleCreationCombined_%s_EFID"),
+               ("InDetTrigParticleCreation",      "InDetTrigParticleCreationCombined_%s_EFID"),
                ("InDetTrigTrackParticleTruthMaker", "InDetTrigTrackParticleTruthMakerCombined_%s_EFID"),
                ("InDetTrigConversionFinder",      "InDetTrigConversionFinderCombined_%s_EFID")
                ]
@@ -324,13 +307,11 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
                ("InDetTrigTrackSlimmer",            "InDetTrigTrackSlimmerIOTRT_%s_EFID"),
                ("InDetTrigTrackingxAODCnv",         "InDetTrigTrackingxAODCnvIOTRT_%s_EFID"),
                ("InDetTrigDetailedTrackTruthMaker", "InDetTrigDetailedTrackTruthMakerIOTRT_%s_EFID"),
-               #("InDetTrigParticleCreation",        "InDetTrigParticleCreationIOTRT_%s_EFID"),
+               ("InDetTrigParticleCreation",        "InDetTrigParticleCreationIOTRT_%s_EFID"),
                ("InDetTrigTrackParticleTruthMaker", "InDetTrigTrackParticleTruthMakerIOTRT_%s_EFID"),
                ("TrigVxPrimary",""),
+               ("InDetTrigVertexxAODCnv",           "InDetTrigVertexxAODCnvIOTRT_%s_EFID"),
                ]
-      if runvtxxaodcnv:
-        algos += [("InDetTrigVertexxAODCnv","InDetTrigVertexxAODCnvIOTRT_%s_EFID")]
-
     elif seqType=="DataPrep":
       algos = [("PixelClustering", "PixelClustering_%s_IDTrig"),
                ("SCTClustering", "SCTClustering_%s_IDTrig"),
@@ -354,17 +335,14 @@ class TrigEFIDSequence(TrigInDetSequenceBase):
                ("InDetTrigTrackingxAODCnv",""),
                ("InDetTrigDetailedTrackTruthMaker",""),
                ("TrigVxPrimary",""),
-               #("InDetTrigParticleCreation",""),
+               ("InDetTrigParticleCreation",""),
                ("InDetTrigTrackParticleTruthMaker",""),
+               ("InDetTrigVertexxAODCnv","")
                ]
-      if runvtxxaodcnv:
-        algos += [("InDetTrigVertexxAODCnv","")]
-
     elif seqType=="StandAloneVtxAllTE":
       algos = [("TrigVxPrimaryAllTESG", ""),
+               ("InDetTrigVertexxAODCnv", ""),
                ]
-      if runvtxxaodcnv:
-        algos += [("InDetTrigVertexxAODCnv","")]
 
       
     #remove truth algorithms
