@@ -807,7 +807,7 @@ TriggerLvl1List=[
     ('xAOD::JEMTobRoIContainer#JEMTobRoIs',                     'ESD', 'L1'),
     ('xAOD::JEMTobRoIAuxContainer#JEMTobRoIsAux.',              'ESD', 'L1'),
     
-    ('xAOD::JEMTobRoIAuxContainer#JEMTobRoIsRoIB',              'ESD', 'L1'),
+    ('xAOD::JEMTobRoIContainer#JEMTobRoIsRoIB',                 'ESD', 'L1'),
     ('xAOD::JEMTobRoIAuxContainer#JEMTobRoIsRoIBAux.',          'ESD', 'L1'),
     
     ('xAOD::JetElementContainer#JetElements' ,                  'ESD', 'L1'),
@@ -1134,9 +1134,11 @@ EDMLibraries = [ 'TrigSteeringEvent', 'TrigMuonEvent',
                  'xAODCaloEvent', 'xAODEgamma', 'xAODTracking', 'xAODMuon', 'xAODTau', 'xAODJet',
                  'xAODTrigBphys', 'xAODTrigMissingET', 'xAODTrigEgamma', 'xAODTrigMuon', 'xAODTrigCalo',
                  'xAODTrigMinBias', 'xAODBTagging', 'xAODTrigRinger', 
+		 'xAODHIEvent',
                  'xAODCaloEventDict', 'xAODEgammaDict', 'xAODTrackingDict', 'xAODMuonDict', 'xAODTauDict', 'xAODJetDict',
                  'xAODTrigBphysDict', 'xAODTrigMissingETDict', 'xAODTrigEgammaDict', 'xAODTrigMuonDict', 'xAODTrigCaloDict',
-                 'xAODTrigMinBiasDict', 'xAODBTaggingDict'
+                 'xAODTrigMinBi`asDict', 'xAODBTaggingDict',
+		 'xAODHIEventDict'
 	         #'ARA_TrigMonitoringEventTPCnvDict',
                  #'ARA_TrigCaloEventTPCnv1Dict',      'ARA_TrigCosmicEventTPCnv1Dict',
                  #'ARA_TrigDecisionEventTPCnv1Dict',  #'ARA_TrigInDetEventTPCnv1Dict',
