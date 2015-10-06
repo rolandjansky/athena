@@ -48,6 +48,7 @@ namespace DerivationFramework {
     std::string m_metSGKey;
 
     double m_metCut;
+    double m_jetPtCut;
     bool m_applyDeltaPhiCut;
     double m_deltaPhiCut;
     std::string m_jetSGKey; // only needed if we want to cut on dphi(jet,MET)
