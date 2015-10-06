@@ -26,6 +26,7 @@ TrigEgammaNavTPAnalysisTool( const std::string& myname )
   declareProperty("CutLabels",m_cutlabels);
   declareProperty("ProbeLabels",m_probelabels);
   declareProperty("TagLabels",m_taglabels);
+  m_eventInfo=nullptr;
 }
 
 //**********************************************************************
@@ -63,6 +64,9 @@ StatusCode TrigEgammaNavTPAnalysisTool::childBook(){
     // Book histograms for average efficiencies and counters
     const int nTrigger = (int) m_trigList.size();
     addDirectory(m_dir+"/Counters");
+    addHistogram(new TH1F("ProbeCutCounter", "Number of Probes; Cut ; Count", 12, 0., 12));
+    addHistogram(new TH1F("TagCutCounter", "Number of Tags; Cut ; Count", 10, 0., 10));
+    addHistogram(new TH1F("Mee", "Offline M(ee); m_ee [GeV] ; Count", 50, m_ZeeMassMin, m_ZeeMassMax));
     addHistogram(new TH1I("CutCounter", "Event Selection; Cut ; Count", 6, 0., 6));
     addHistogram(new TH1F("nProbes", "Number of Probes; Trigger ; Count", nTrigger, 0., nTrigger));
     addHistogram(new TH1F("nProbesL1", "Number of L1 Probes; Trigger ; Count", nTrigger, 0., nTrigger));
@@ -102,9 +106,6 @@ StatusCode TrigEgammaNavTPAnalysisTool::childBook(){
 void TrigEgammaNavTPAnalysisTool::bookPerSignature(const std::string trigger){
     ATH_MSG_VERBOSE("Now booking histograms");
     std::string basePath = m_dir+"/"+trigger;
-    addDirectory(basePath);
-    addHistogram(new TH1F("ProbeCutCounter", "Number of Probes; Cut ; Count", 12, 0., 12));
-    addHistogram(new TH1F("TagCutCounter", "Number of Tags; Cut ; Count", 10, 0., 10));
     bookAnalysisHistos(basePath);
 }
 
@@ -113,23 +114,25 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
 {
 
     m_eventCounter++;
-    m_eventInfo=0;
     cd(m_dir+"/Counters");
     hist1("CutCounter")->Fill("Events",1);
 
-    if ( (m_storeGate->retrieve(m_eventInfo, "EventInfo")).isFailure() ){
-        ATH_MSG_ERROR("Failed to retrieve eventInfo ");
-        return StatusCode::FAILURE;
+    if ( !TrigEgammaNavTPBaseTool::EventWiseSelection() ){
+        ATH_MSG_DEBUG("Fails EventWise selection");
+        return StatusCode::SUCCESS;
     }
     unsigned int runNumber               = m_eventInfo->runNumber();
     unsigned int eventNumber             = m_eventInfo->eventNumber();
     // Event Wise Selection (independent of the required signatures)
-    if ( !TrigEgammaNavTPBaseTool::EventWiseSelection() ) return StatusCode::SUCCESS;
     hist1("CutCounter")->Fill("EventWise",1);
+    // Select TP Pairs
+    ATH_MSG_DEBUG("Execute TP selection");
+    TrigEgammaNavTPBaseTool::executeTandP();
+
     for(unsigned int ilist = 0; ilist != m_trigList.size(); ilist++) {
         std::string probeTrigger = m_trigList.at(ilist);
         const char * cprobeTrigger = m_trigList.at(ilist).c_str();
-
+        ATH_MSG_DEBUG("Start Chain Analysis ============================= " << probeTrigger);
         std::string type="";
         bool isL1=false;
         float etthr=0;
@@ -140,44 +143,46 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
         bool etcut=false;
         parseTriggerName(probeTrigger,m_defaultProbePid,isL1,type,etthr,l1thr,l1type,pidname,perf,etcut); // Determines probe PID from trigger
         std::string basePath = m_dir+"/"+probeTrigger +"/Efficiency/" ;
-	
-        /*std::string trigname="";
-	if (isL1) {
-	  trigname = probeTrigger;
-	} else {
-	  trigname = "HLT_"+probeTrigger;
-	}*/
-        if(isL1) etthr=l1thr;
+        std::string pidword="ElectronPass"+pidname;
+       
+        std::string trigName=probeTrigger;
+        if(isL1){ 
+            etthr=l1thr;
+            trigName=probeTrigger;
+        }
+        else trigName="HLT_"+probeTrigger;
         cd(m_dir+"/"+probeTrigger);
-        if ( executeTandP(probeTrigger).isFailure() )
-            return StatusCode::FAILURE;
+        ATH_MSG_DEBUG("Trigger " << probeTrigger << " pidword " << pidword << " threshold " << etthr);
+        TrigEgammaNavTPBaseTool::matchObjects(trigName);
+
         // Fill online disrtiubtions for Zee reco events
         if(m_probeElectrons.size() > 1)
             distribution(m_dir+"/"+probeTrigger+"/Distributions/",probeTrigger,type);
         // Just for counting
-        for(unsigned int i=0;i<m_probeElectrons.size();i++){
-            const xAOD::Electron* offEl = m_probeElectrons[i].first;
+        ATH_MSG_DEBUG("Probes " << m_probeElectrons.size() << " Pairs " << m_pairObj.size() );
+        for(unsigned int i=0;i<m_pairObj.size();i++){
+
+            const xAOD::Electron* offEl = static_cast<const xAOD::Electron *> (m_pairObj[i].first);
+            
+            // Final cuts done here
             float et = getEt(offEl)/1e3;//offEl->caloCluster()->et()/1e3;
-            float eta = offEl->eta();
-            float phi = offEl->phi();
-            float mass = m_mee[i]/1e3;
+            if(et < etthr-5.0) continue;
+            efficiency(m_dir+"/"+probeTrigger+"/Efficiency/",etthr,pidword,m_pairObj[i]); // Requires offline match
+            if(!offEl->auxdecor<bool>(pidword)) continue;
+            
             bool passedL1Calo=false;
             bool passedL2Calo=false;
             bool passedL2=false;
             bool passedEFCalo=false;
             bool passedEF=false;
-            const HLT::TriggerElement* feat = m_probeElectrons[i].second;
+            const HLT::TriggerElement* feat = m_pairObj[i].second;
             
-            inefficiency(m_dir+"/"+probeTrigger+"/Efficiency/HLT",runNumber,eventNumber,etthr,m_probeElectrons[i]); // Requires offline match
-            resolution(m_dir+"/"+probeTrigger,m_probeElectrons[i]); // Requires offline match
+            inefficiency(m_dir+"/"+probeTrigger+"/Efficiency/HLT",runNumber,eventNumber,etthr,m_pairObj[i]); // Requires offline match
+            resolution(m_dir+"/"+probeTrigger,m_pairObj[i]); // Requires offline match
             
             // Fill the offline distributions for selected Zee probe electrons
             fillShowerShapes(m_dir+"/"+probeTrigger+"/Distributions/Offline",offEl); // Fill Offline shower shapes
             fillTracking(m_dir+"/"+probeTrigger+"/Distributions/Offline",offEl); // Fill HLT shower shapes
-            
-            float avgmu=0.;
-            if(m_lumiTool)
-                avgmu = m_lumiTool->lbAverageInteractionsPerCrossing();
 
             cd(m_dir+"/Counters");
             if(et > etthr + 1.0)
@@ -228,38 +233,16 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
                 hist1("EffEFCalo")->Fill(cprobeTrigger,0);
                 hist1("EffHLT")->Fill(cprobeTrigger,0);
             }
-            fillEfficiency(basePath+"L1Calo",passedL1Calo,etthr,et,eta,phi,avgmu,mass);
-            fillEfficiency(basePath+"L2Calo",passedL2Calo,etthr,et,eta,phi,avgmu,mass);
-            fillEfficiency(basePath+"L2",passedL2,etthr,et,eta,phi,avgmu,mass);
-            fillEfficiency(basePath+"EFCalo",passedEFCalo,etthr,et,eta,phi,avgmu,mass);
-            fillEfficiency(basePath+"HLT",passedEF,etthr,et,eta,phi,avgmu,mass);
         } // End loop over electrons
     } // End loop over trigger list
     cd(m_dir+"/Counters");
     hist1("CutCounter")->Fill("Success",1);
+    ATH_MSG_DEBUG("Clear decorations");
+    //clearDecorations();
     return StatusCode::SUCCESS;
 }
 
 StatusCode TrigEgammaNavTPAnalysisTool::childFinalize()
 {
-   /* cd(m_dir+"/Counters");
-
-    hist1("nProbes")->Sumw2();
-    
-    hist1("nProbesL1")->Sumw2();
-    hist1("EffL1")->Divide(hist1("nProbesL1"),hist1("nProbes"),1,1,"b");
-    
-    hist1("nProbesL2Calo")->Sumw2();
-    hist1("EffL2Calo")->Divide(hist1("nProbesL2Calo"),hist1("nProbes"),1,1,"b");
-    
-    hist1("nProbesL2")->Sumw2();
-    hist1("EffL2")->Divide(hist1("nProbesL2"),hist1("nProbes"),1,1,"b");
-    
-    hist1("nProbesEFCalo")->Sumw2();
-    hist1("EffEFCalo")->Divide(hist1("nProbesEFCalo"),hist1("nProbes"),1,1,"b");
-    
-    hist1("nProbesHLT")->Sumw2();
-    hist1("EffHLT")->Divide(hist1("nProbesHLT"),hist1("nProbes"),1,1,"b");*/
-
     return StatusCode::SUCCESS;
 }

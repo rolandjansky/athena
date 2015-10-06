@@ -9,6 +9,7 @@
 #include "TrigEgammaAnalysisTools/TrigEgammaNavTPAnalysisTool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaNavNtuple.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaEmulationTool.h"
+#include "TrigEgammaAnalysisTools/EfficiencyTool.h"
 #include "../TrigEgammaAnalysisAlg.h"
 #include "../TrigEgammaTDToolTest.h"
 
@@ -22,6 +23,7 @@ DECLARE_TOOL_FACTORY(TrigEgammaNavAnalysisTool)
 DECLARE_TOOL_FACTORY(TrigEgammaNavTPAnalysisTool)
 DECLARE_TOOL_FACTORY(TrigEgammaNavNtuple)
 DECLARE_TOOL_FACTORY(TrigEgammaEmulationTool) 
+DECLARE_TOOL_FACTORY(EfficiencyTool) 
 DECLARE_ALGORITHM_FACTORY(TrigEgammaAnalysisAlg)
 DECLARE_ALGORITHM_FACTORY(TrigEgammaTDToolTest)
     
@@ -36,6 +38,7 @@ DECLARE_FACTORY_ENTRIES(TrigEgammaAnalysisTools) {
   DECLARE_TOOL(TrigEgammaNavTPAnalysisTool)
   DECLARE_TOOL(TrigEgammaNavNtuple)
   DECLARE_TOOL(TrigEgammaEmulationTool)
+  DECLARE_TOOL(EfficiencyTool)
   DECLARE_TOOL(TrigEgammaValidationTool)
   DECLARE_ALGORITHM(TrigEgammaAnalysisAlg)
   DECLARE_ALGORITHM(TrigEgammaTDToolTest)

@@ -57,9 +57,14 @@ class TrigEgammaNavTPNtuple : public TrigEgammaNavTPBaseTool,
     bool fillMonteCarlo   ( const xAOD::Egamma        *eg );
     bool fillElectron     ( const xAOD::Electron      *el );
     //bool fillPhoton       ( const xAOD::Photon        *ph );
+
     bool fillCaloRings    ( const xAOD::Electron      *el );
     bool fillTrigCaloRings( const xAOD::TrigEMCluster *emCluster );
- 
+    bool fillEmTauRoI     ( const xAOD::EmTauRoI *emTauRoI        );
+    bool fillTrigEMCluster( const xAOD::TrigEMCluster *emCluster  );
+    bool fillTrigElectron ( const xAOD::TrigElectron *trigEl      );
+
+
     /* Space memory manager */
     void alloc_space();
     void release_space();
@@ -78,7 +83,7 @@ class TrigEgammaNavTPNtuple : public TrigEgammaNavTPBaseTool,
     uint32_t            m_runNumber;
     unsigned long long  m_eventNumber;
     unsigned int        m_eventCounter;    
-    
+    float               m_avgmu;    
      /* Egamma */
     float               m_el_et;
     float               m_el_pt;
@@ -141,6 +146,8 @@ class TrigEgammaNavTPNtuple : public TrigEgammaNavTPBaseTool,
     float               m_calo_phi;
     
     // Level 1     
+    float               m_trig_L1_eta;
+    float               m_trig_L1_phi;
     float               m_trig_L1_emClus;
     float               m_trig_L1_tauClus;
     float               m_trig_L1_emIsol;
@@ -159,24 +166,23 @@ class TrigEgammaNavTPNtuple : public TrigEgammaNavTPBaseTool,
     float               m_trig_L2_calo_emaxs1;     
     float               m_trig_L2_calo_e2tsts1;    
     float               m_trig_L2_calo_wstot;      
+    std::vector<float> *m_trig_L2_calo_energySample;
     std::vector<float> *m_trig_L2_calo_rings;
     bool                m_trig_L2_calo_accept;     
-    // level 2 id+Calo
+    // level 2 id
+    std::vector<int>   *m_trig_L2_el_trackAlgID;          
     std::vector<float> *m_trig_L2_el_pt;          
+    std::vector<float> *m_trig_L2_el_caloEta;         
     std::vector<float> *m_trig_L2_el_eta;         
     std::vector<float> *m_trig_L2_el_phi;         
     std::vector<float> *m_trig_L2_el_charge;      
     std::vector<float> *m_trig_L2_el_nTRTHits;        
-    std::vector<float> *m_trig_L2_el_rcore;       
-    std::vector<float> *m_trig_L2_el_eratio;      
-    std::vector<float> *m_trig_L2_el_ethad;       
-    std::vector<float> *m_trig_L2_el_f0;          
-    std::vector<float> *m_trig_L2_el_f1;          
-    std::vector<float> *m_trig_L2_el_f2;          
-    std::vector<float> *m_trig_L2_el_f3;            
+    std::vector<float> *m_trig_L2_el_nTRTHiThresholdHits;        
     std::vector<float> *m_trig_L2_el_etOverPt;          
     std::vector<float> *m_trig_L2_el_trkClusDeta; 
-    std::vector<float> *m_trig_L2_el_trkClusDphi; 
+    std::vector<float> *m_trig_L2_el_trkClusDphi;
+
+
     bool                m_trig_L2_el_accept;
     // Level EF
     bool                m_trig_EF_calo_accept;
