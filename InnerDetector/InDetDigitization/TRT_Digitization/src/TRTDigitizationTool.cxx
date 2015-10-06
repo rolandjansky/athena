@@ -22,8 +22,6 @@
 
 #include "TRTNoise.h"
 
-#include "TRTDigSimpleTimer.h"
-
 #include "TRTElectronicsNoise.h"
 
 #include "Identifier/Identifier.h"
@@ -80,8 +78,9 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
 					 const std::string& name,
 					 const IInterface* parent)
   : PileUpToolBase(type, name, parent),
-    m_TRTpaiTool("TRT_PAI_Process"),
-    m_TRTpaiTool_optional("TRT_PAI_Process_optional"),
+    m_TRTpaiToolXe("TRT_PAI_Process_Xe"),
+    m_TRTpaiToolAr("TRT_PAI_Process_Ar"),
+    m_TRTpaiToolKr("TRT_PAI_Process_Kr"),
     m_TRTsimdrifttimetool("TRT_SimDriftTimeTool"),
     m_mergeSvc("PileUpMergeSvc",name),
     m_pElectronicsProcessing(NULL),
@@ -89,18 +88,15 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
     m_pDigConditions(NULL),
     m_pNoise(NULL),
     m_container(NULL),
-    m_timer_eventcount(0),
     m_atRndmGenSvc ("AtDSFMTGenSvc", name),
     m_TRTStrawNeighbourSvc("TRT_StrawNeighbourSvc",name),
     m_manager(NULL),
     m_trt_id(NULL),
     m_thpctrt(NULL),
-    m_deadstraws(false),
     m_alreadyPrintedPDGcodeWarning(false),
     m_minCrossingTimeSDO(0.0),
     m_maxCrossingTimeSDO(0.0),
     m_minpileuptruthEkin(0.0),
-    m_override_deadStrawFraction(0.0),
     //m_ComTime(NULL),
     m_particleTable(NULL),
     m_dig_vers_from_condDB(-1),
@@ -109,8 +105,7 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
     m_condDBdigverfoldersexists(false),
     m_HardScatterSplittingMode(0),
     m_HardScatterSplittingSkipper(false),
-    m_UseArgonStraws(false),         // Can use a postExec to set all straws to Argon
-    m_useConditionsHTStatus(true),   // We expect TRT/Cond/StatusHT to define the Xenon/Argon geometry.
+    m_UseGasMix(0),                  // postInclude UseGasMix for the whole detector: 0="default:use statusHT", 1="use Xe", 2="use Kr", 3="use Ar"
     m_cosmicEventPhase(0.0),
     m_particleFlag(0),
     m_sumSvc("TRT_StrawStatusSummarySvc","TRT_StrawStatusSummarySvc") // added by Sasha for Argon
@@ -118,15 +113,16 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
 {
 
   declareInterface<TRTDigitizationTool>(this);
-  declareProperty("PAI_Tool", m_TRTpaiTool, "The PAI model for ionisation in the TRT gas" );
-  declareProperty("PAI_Tool_optional", m_TRTpaiTool_optional, "The optional PAI model for ionisation in the TRT gas" );
+  declareProperty("PAI_Tool_Xe", m_TRTpaiToolXe, "The PAI model for ionisation in the TRT Xe gas" );
+  declareProperty("PAI_Tool_Ar", m_TRTpaiToolAr, "The PAI model for ionisation in the TRT Ar gas" );
+  declareProperty("PAI_Tool_Kr", m_TRTpaiToolKr, "The PAI model for ionisation in the TRT Kr gas" );
   declareProperty("SimDriftTimeTool", m_TRTsimdrifttimetool, "Drift time versus distance (r-t-relation) for TRT straws" );
   declareProperty("MergeSvc", m_mergeSvc, "Merge service" );
   declareProperty("DataObjectName", m_dataObjectName="TRTUncompressedHits", "Data Object Name" );
   declareProperty("OutputObjectName", m_outputRDOCollName="TRT_RDOs",            "Output Object name" );
   declareProperty("OutputSDOName", m_outputSDOCollName="TRT_SDO_Map",            "Output SDO container name");
 
-  declareProperty("PrintOverrideableSettings", m_printOverrideableSettings = true, "Print overrideable settings" );
+  declareProperty("PrintOverrideableSettings", m_printOverrideableSettings = false, "Print overrideable settings" );
   declareProperty("PrintDigSettings", m_printUsedDigSettings = true, "Print ditigization settings" );
 
   m_settings = new TRTDigSettings();
@@ -134,10 +130,9 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
   declareProperty("RndmSvc",                       m_atRndmGenSvc, "Random Number Service used in TRT digitization" );
   declareProperty("TRT_StrawNeighbourSvc",         m_TRTStrawNeighbourSvc);
   declareProperty("InDetTRTStrawStatusSummarySvc", m_sumSvc);  // need for Argon
-  declareProperty("UseArgonStraws",                m_UseArgonStraws); // need for Argon
-  declareProperty("UseConditionsHTStatus",         m_useConditionsHTStatus); // need for Argon
+  declareProperty("UseGasMix",                     m_UseGasMix);
   declareProperty("HardScatterSplittingMode",      m_HardScatterSplittingMode);
-  declareProperty("ParticleBarcodeVeto",m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
+  declareProperty("ParticleBarcodeVeto",           m_vetoThisBarcode=crazyParticleBarcode, "Barcode of particle to ignore");
 
 }
 
@@ -158,14 +153,7 @@ TRTDigitizationTool::~TRTDigitizationTool() {
 StatusCode TRTDigitizationTool::initialize()
 {
 
-  TRTDigSimpleTimer timer;//fixme - remove timer stuff (?)
-  TRTDigSimpleTimer timer_getpaiservice;
-  TRTDigSimpleTimer timer_getdrifttimetoolservice;
-  TRTDigSimpleTimer timer_getservices;
-
-  timer.start();
-  timer_getservices.start();
-
+  ATH_MSG_INFO ( "TRTDigitization::initialize() KryptonDev" );
   ATH_MSG_DEBUG ( "TRTDigitization::initialize() begin" );
 
   // Get the TRT Detector Manager
@@ -188,33 +176,34 @@ StatusCode TRTDigitizationTool::initialize()
     m_settings->printFlagsForOverrideableParameters("TRTDigSettings Overrideables : ");
   }
 
-  /// Get the PAI Tool:
+  /// Get the PAI Tool for Xe, Ar, Kr gas mixtures:
 
-  timer_getpaiservice.start();
-  if ( StatusCode::SUCCESS != m_TRTpaiTool.retrieve() ) {
-    ATH_MSG_ERROR ( "Can't get the PAI Tool" );
+  if ( StatusCode::SUCCESS != m_TRTpaiToolXe.retrieve() ) {
+    ATH_MSG_ERROR ( "Can't get the Xe PAI Tool" );
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_DEBUG ( "Retrieved the PAI Tool" );
+    ATH_MSG_DEBUG ( "Retrieved the PAI Tool for Xe straws" );
   }
 
-  if ( StatusCode::SUCCESS != m_TRTpaiTool_optional.retrieve() ) {
-    /// FIXME Sasha: this warning will appear every time when someone will run default setting for pure Xenon condition
-    ATH_MSG_WARNING ( "Can't get the optional PAI Tool --> default PAI tool will be used for all straws (okay, if you don't use Argon straws)" );
+  if ( StatusCode::SUCCESS != m_TRTpaiToolAr.retrieve() ) {
+    ATH_MSG_WARNING ( "Can't get the Ar PAI Tool --> default PAI tool will be used for all straws (okay, if you don't use Argon straws)" );
   } else {
-    ATH_MSG_DEBUG ( "Retrieved the optional PAI Tool for Argon straws" );
+    ATH_MSG_DEBUG ( "Retrieved the PAI Tool for Ar straws" );
   }
-  timer_getpaiservice.stop();
+
+  if ( StatusCode::SUCCESS != m_TRTpaiToolKr.retrieve() ) {
+    ATH_MSG_WARNING ( "Can't get the Kr PAI Tool --> default PAI tool will be used for all straws (okay, if you don't use Krypton straws)" );
+  } else {
+    ATH_MSG_DEBUG ( "Retrieved the PAI Tool for Kr straws" );
+  }
 
   /// Get the Sim-DriftTime Tool:
-  timer_getdrifttimetoolservice.start();
   if ( StatusCode::SUCCESS != m_TRTsimdrifttimetool.retrieve() ) {
     ATH_MSG_ERROR ( "Can't get the Sim. Drifttime Tool" );
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_DEBUG ( "Retrieved the Sim. Drifttime Tool" );
   }
-  timer_getdrifttimetoolservice.stop();
 
   // Get Random Service
   if (!m_atRndmGenSvc.retrieve().isSuccess()) {
@@ -246,8 +235,6 @@ StatusCode TRTDigitizationTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  timer_getservices.stop();
-
   //   // Create new  TRT_RDO_Container
   //   m_container = new TRT_RDO_Container(m_trt_id->straw_layer_hash_max());
   //   ATH_MSG_DEBUG ( " TRT_RDO_Container created " );
@@ -261,15 +248,6 @@ StatusCode TRTDigitizationTool::initialize()
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_DEBUG ( "Input hits: " << m_dataObjectName );
-  }
-
-  timer.stop();
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "Time spent in TRTDigitization::initialize was " << timer.check() << " seconds " << endreq;
-    msg(MSG::DEBUG) << "Time spent getting pai tool was " << timer_getpaiservice.check() <<" seconds " << endreq;
-    msg(MSG::DEBUG) << "Time spent getting sim. drifttime tool was " << timer_getdrifttimetoolservice.check() <<" seconds " << endreq;
-    msg(MSG::DEBUG) << "Time spent getting other services was " << timer_getservices.check()-timer_getpaiservice.check() << " seconds " << endreq;
-    msg(MSG::DEBUG) << "TRTDigitization::initialize() done" << endreq;
   }
 
   m_minpileuptruthEkin = m_settings->pileUpSDOsMinEkin();
@@ -362,19 +340,6 @@ StatusCode TRTDigitizationTool::lateInitialize() {
 
   m_first_event=false;
 
-/*
-  // This returns "true" even with an old full Xenon HITs file! FIXME; how can we properly test for this?
-  if (m_useConditionsHTStatus) {
-    bool strawstatusHTcontainerexists = detStore()->StoreGateSvc::contains<TRTCond::StrawStatusMultChanContainer>("/TRT/Cond/StatusHT") ;
-    if (!strawstatusHTcontainerexists) {
-      ATH_MSG_WARNING ("Configured to use folder /TRT/Cond/StatusHT, but it's not available!");
-      ATH_MSG_WARNING (".... setting m_useConditionsHTStatus to false, ALL straws are Xenon.");
-      m_useConditionsHTStatus = false;
-      if (m_UseArgonStraws) ATH_MSG_WARNING ("m_UseArgonStraws is true, so now ALL straws are Argon. Were you expecting to use /TRT/Cond/StatusHT?");
-    }
-  }
-*/
-
   if (m_condDBdigverfoldersexists) {
 
     if ( ConditionsDependingInitialization().isFailure() ) {
@@ -402,13 +367,10 @@ StatusCode TRTDigitizationTool::lateInitialize() {
 					   m_manager,
 					   m_atRndmGenSvc,
 					   m_trt_id,
-					   m_UseArgonStraws,
-					   m_useConditionsHTStatus,
+					   m_UseGasMix,
 					   m_sumSvc);
 
   m_pDigConditions->initialize();
-
-  m_deadstraws = ( m_pDigConditions->totalNumberOfDeadStraws() > 0 );
 
   if ( m_settings->noiseInUnhitStraws() || m_settings->noiseInSimhits() ) {
 
@@ -424,8 +386,7 @@ StatusCode TRTDigitizationTool::lateInitialize() {
 			     m_pElectronicsProcessing,
 			     electronicsNoise,
 			     m_trt_id,
-			     m_UseArgonStraws,
-			     m_useConditionsHTStatus,
+			     m_UseGasMix,
 			     m_sumSvc);
 
     ATH_MSG_DEBUG ( "Average straw noise level is " << m_pDigConditions->strawAverageNoiseLevel() );
@@ -434,15 +395,16 @@ StatusCode TRTDigitizationTool::lateInitialize() {
     m_pNoise = NULL;
   }
 
-  ITRT_PAITool *TRTpaiTool = &(* m_TRTpaiTool);
-  // optional PAI tool for Argon straws simulation
-  ITRT_PAITool *TRTpaiTool_optional = &(* m_TRTpaiTool_optional);
+  ITRT_PAITool *TRTpaiToolXe = &(* m_TRTpaiToolXe);
+  ITRT_PAITool *TRTpaiToolAr = &(* m_TRTpaiToolAr);
+  ITRT_PAITool *TRTpaiToolKr = &(* m_TRTpaiToolKr);
+
   ITRT_SimDriftTimeTool *pTRTsimdrifttimetool = &(*m_TRTsimdrifttimetool);
 
   m_pProcessingOfStraw =
     new TRTProcessingOfStraw( m_settings,
 			      m_manager,
-			      TRTpaiTool,
+			      TRTpaiToolXe,
 			      pTRTsimdrifttimetool,
 			      m_atRndmGenSvc,
 			      m_pElectronicsProcessing,
@@ -450,8 +412,11 @@ StatusCode TRTDigitizationTool::lateInitialize() {
 			      m_pDigConditions,
 			      m_particleTable,
 			      m_trt_id,
-			      m_UseArgonStraws,
-			      TRTpaiTool_optional);
+			      TRTpaiToolAr,
+			      TRTpaiToolKr);
+
+  ATH_MSG_INFO ( "Gas Property:             UseGasMix is " << m_UseGasMix );
+
   return StatusCode::SUCCESS;
 }
 
@@ -491,11 +456,6 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     //Safeguard against a rare case of hitID corruption found by Davide:
     if ( hitID & 0xc0000000 ) {
       ATH_MSG_ERROR ( "Hit ID not Valid (" << MSG::hex << hitID << ")" << MSG::dec );
-      continue;
-    }
-
-    if ( m_deadstraws && m_pDigConditions->strawIsDead(hitID) ) {
-      ATH_MSG_VERBOSE ( "Skipping simhit in dead straw" );
       continue;
     }
 
@@ -558,26 +518,14 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     // according to what types of particles hit the straw.
     m_particleFlag=0;
 
-    // fixme: do we need to pass the straw ID?
-    // Sasha: yes, we need to pass strawID (in such way we save some CPU time) otherwise we need to perform again the same
-    //        steps as in function TRTDigitization::getIdentifier(...) to extract strawID from hitID -> more CPU time
     m_pProcessingOfStraw->ProcessStraw(i, e, digit_straw,
                                        m_alreadyPrintedPDGcodeWarning,
                                        m_cosmicEventPhase, //m_ComTime,
-                                       IsArgonStraw(idStraw),
+                                       StrawGasType(idStraw),
                                        m_particleFlag);
 
 
 // Sorry, a lot of test code here before the output digit is saved.
-
-/*
-    unsigned int region = getRegion(hitID); // 1=barrelShort, 2=barrelLong, 3=ECA, 4=ECB
-    if (IsArgonStraw(idStraw)) {
-      std::cout << "AJB Argon " << region << std::endl;
-    } else {
-      std::cout << "AJB Xenon " << region << std::endl;
-    }
-*/
 
     // query m_particleFlag bits 0 to 15 (left-to-right)
     //std::cout << "AJB "; for (unsigned i=0;i<16;i++) std::cout << particleFlagQueryBit(i,m_particleFlag); std::cout << std::endl;
@@ -589,20 +537,24 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     //std::cout << "AJB "; bits27(mword);
 
 /*
-    if (particleFlagQueryBit(8,m_particleFlag)) { // Do this only for muons > 10 GeV
+    if (particleFlagQueryBit(10,m_particleFlag)) { // Do this only for pions > 10 GeV
       if ( digit_straw.GetDigit() ) {
-        bool HT=highLevel(mword);
-        if (HT) {
+        // bool HT=highLevel(mword);
+        // if (HT) {
           unsigned int region = getRegion(hitID); // 1=barrelShort, 2=barrelLong, 3=ECA, 4=ECB
-          bool HT1=highLevel1(mword); bool HT2=highLevel2(mword); bool HT3=highLevel3(mword);
-          std::cout << "AJB " << region << " " << HT1 << " " << HT2 << " " << HT3 << std::endl;
+          // bool HT1=highLevel1(mword); bool HT2=highLevel2(mword); bool HT3=highLevel3(mword);
+          std::cout << "AJB " << region
+                    <<    " " << timeOverThreshold(mword)
+                    <<    " " << rawDriftTime(mword)
+                    <<    " " << highLevel2(mword)
+                    << std::endl;
           //int ichip = 0; m_TRTStrawNeighbourSvc->getChip(idStraw, ichip);
           //int detid = m_trt_id->barrel_ec(idLayer); // +1=BA, -1=BC, +2=EA, -2=EC
           //if (detid==+1) std::cout << "AJBBA " << HT1 << " " << HT2 << " " << HT3 << std::endl;
           //if (detid==-1) std::cout << "AJBBC " << HT1 << " " << HT2 << " " << HT3 << std::endl;
           //if (detid==-2) std::cout << "AJBEC " << HT1 << " " << HT2 << " " << HT3 << std::endl;
           //if (detid==+2) std::cout << "AJBEA " << HT1 << " " << HT2 << " " << HT3 << std::endl;
-        }
+       // }
       }
     }
 */
@@ -619,9 +571,6 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
 
 //_____________________________________________________________________________
 StatusCode TRTDigitizationTool::processAllSubEvents() {
-
-  ++m_timer_eventcount;
-  m_timer_execute.start();
 
   if (m_first_event) {
     if(this->lateInitialize().isFailure()) {
@@ -652,8 +601,6 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
     ATH_MSG_DEBUG ( "Container " << m_outputRDOCollName << " registered in StoreGate" );
   }
 
-  m_timer_simhits.start();
-
   m_vDigits.clear();
 
   //Set of all hitid's with simhits (used for noise simulation).
@@ -679,7 +626,7 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
   //now merge all collections into one
   TimedHitCollList::iterator   iColl(hitCollList.begin());
   TimedHitCollList::iterator endColl(hitCollList.end()  );
-  m_HardScatterSplittingSkipper = false;
+
   // loop on the hit collections
   while ( iColl != endColl ) {
     //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
@@ -700,27 +647,20 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
   }
 
   // no more hits
-  m_timer_simhits.stop();
 
   //Noise in straws without simhits:
   if (m_settings->noiseInUnhitStraws()) {
     const int numberOfDigitsBeforeNoise(m_vDigits.size());
-    m_timer_purenoise.start();
 
     m_pNoise->appendPureNoiseToProperDigits(m_vDigits, sim_hitids);
     if (m_settings->doCrosstalk()) {
       m_pNoise->appendCrossTalkNoiseToProperDigits(m_vDigits, simhitsIdentifiers,m_TRTStrawNeighbourSvc);
     }
 
-    m_timer_purenoise.stop();
     ATH_MSG_DEBUG ( " Number of digits " << m_vDigits.size() << " (" << m_vDigits.size()-numberOfDigitsBeforeNoise << " of those are pure noise)" );
 
-    //Temporary resorting since code below assumes sorted digits. (fixme)
-    m_timer_stupidsort.start();
-    //Alas, we need them sorted...
     m_pNoise->sortDigits(m_vDigits);
-    m_timer_stupidsort.stop();
-    //End of temporary fix
+
   } else {
     ATH_MSG_DEBUG ( " Number of digits " << m_vDigits.size() );
   }
@@ -735,7 +675,6 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
   else {
     ATH_MSG_DEBUG ( "createAndStoreRDOs() succeeded" );
   }
-  m_timer_execute.stop();
 
   return StatusCode::SUCCESS;
 }
@@ -748,9 +687,6 @@ StatusCode TRTDigitizationTool::mergeEvent() {
     ATH_MSG_DEBUG( "mergeEvent: there are " << ii->first << " events in bunch xing " << ii->second );
     ++ii;
   }
-
-  ++m_timer_eventcount;
-  m_timer_execute.start();
 
   if (m_first_event) {
     if(this->lateInitialize().isFailure()) {
@@ -781,8 +717,6 @@ StatusCode TRTDigitizationTool::mergeEvent() {
     ATH_MSG_DEBUG ( "Container " << m_outputRDOCollName << " registered in StoreGate" );
   }
 
-  m_timer_simhits.start();
-
   //Set of all hitid's with simhits (used for noise simulation).
   std::set<int> sim_hitids;
   std::set<Identifier> simhitsIdentifiers;
@@ -804,26 +738,20 @@ StatusCode TRTDigitizationTool::mergeEvent() {
     }
   m_trtHitCollList.clear();
   // no more hits
-  m_timer_simhits.stop();
 
   //Noise in straws without simhits:
   if (m_settings->noiseInUnhitStraws()) {
     const unsigned int numberOfDigitsBeforeNoise(m_vDigits.size());
-    m_timer_purenoise.start();
 
     m_pNoise->appendPureNoiseToProperDigits(m_vDigits, sim_hitids);
     if (m_settings->doCrosstalk()) {
       m_pNoise->appendCrossTalkNoiseToProperDigits(m_vDigits, simhitsIdentifiers,m_TRTStrawNeighbourSvc);
     }
 
-    m_timer_purenoise.stop();
     ATH_MSG_DEBUG ( " Number of digits " << m_vDigits.size() << " (" << m_vDigits.size()-numberOfDigitsBeforeNoise << " of those are pure noise)" );
-    //Temporary resorting since code below assumes sorted digits. (fixme)
-    m_timer_stupidsort.start();
-    //Alas, we need them sorted...
+
     m_pNoise->sortDigits(m_vDigits);
-    m_timer_stupidsort.stop();
-    //End of temporary fix
+
   } else {
     ATH_MSG_DEBUG ( " Number of digits " << m_vDigits.size() );
   };
@@ -838,7 +766,6 @@ StatusCode TRTDigitizationTool::mergeEvent() {
   else {
     ATH_MSG_DEBUG ( "createAndStoreRDOs() succeeded" );
   }
-  m_timer_execute.stop();
 
   return StatusCode::SUCCESS;
 }
@@ -990,15 +917,7 @@ StatusCode TRTDigitizationTool::finalize() {
     m_settings->print("TRTDigSettings Settings : ");
   }
 
-  std::cout << "TRTDigitizationTool: Total time spent in execute() per event : " << m_timer_execute.check() / m_timer_eventcount << " seconds" << std::endl;
-
   ATH_MSG_INFO ( "TRTDigitizationTool::finalize()" );
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "Total time spent in execute() per event : " << m_timer_execute.check() / m_timer_eventcount << " seconds" << endreq;
-    msg(MSG::DEBUG) << "Total time spent processing simhits per event : " << m_timer_simhits.check() / m_timer_eventcount<< " seconds" << endreq;
-    msg(MSG::DEBUG) << "Total time spent adding noise in unhit straws per event : " << m_timer_purenoise.check() / m_timer_eventcount << " seconds" << endreq;
-    msg(MSG::DEBUG) << "Total time spent doing a temporary sort per event (to be fixed): " << m_timer_stupidsort.check() / m_timer_eventcount << " seconds" << endreq;
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -1029,18 +948,26 @@ StatusCode TRTDigitizationTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
 }
 
 //_____________________________________________________________________________
-bool TRTDigitizationTool::IsArgonStraw(Identifier& TRT_Identifier) const {
-  // EStatus { Undefined, Dead, Good(Xe) }
-  bool isArgonStraw = m_UseArgonStraws; // If this is true then ALL straws are Argon
-  // But TRT/Cond/StatusHT will override this with specific Xe/Ar geometry if available:
-  if (m_useConditionsHTStatus) {
-    if ( m_sumSvc->getStatusHT(TRT_Identifier) != TRTCond::StrawStatus::Good ) {
-       isArgonStraw = true;  // Argon straw
-    } else {
-       isArgonStraw = false; // Xenon straw
-    }
+int TRTDigitizationTool::StrawGasType(Identifier& TRT_Identifier) const {
+
+  // TRT/Cond/StatusHT provides: enum { Undefined, Dead(Ar), Good(Xe), Xenon(Xe), Argon(Ar), Krypton(Kr) }
+  // The m_UseGasMix default behaviour (0) is to use TRT/Cond/StatusHT, other values can be set to force
+  // the whole detector to (1)Xenon, (2)Krypton, (3)Argon:
+
+  int strawGasType=-1;
+
+  if (m_UseGasMix==0) { // use StatusHT
+    int stat =  m_sumSvc->getStatusHT(TRT_Identifier);
+    if       ( stat==2 || stat==3 ) { strawGasType = 0; } // Xe
+    else if  ( stat==5 )            { strawGasType = 1; } // Kr
+    else if  ( stat==1 || stat==4 ) { strawGasType = 2; } // Ar
   }
-  return isArgonStraw;
+  else if (m_UseGasMix==1) { strawGasType = 0; } // force whole detector to Xe
+  else if (m_UseGasMix==2) { strawGasType = 1; } // force whole detector to Kr
+  else if (m_UseGasMix==3) { strawGasType = 2; } // force whole detector to Ar
+
+  return strawGasType;
+
 }
 
 //_____________________________________________________________________________

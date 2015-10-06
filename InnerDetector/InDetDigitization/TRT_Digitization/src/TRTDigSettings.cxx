@@ -23,6 +23,7 @@
 #include "GaudiKernel/Algorithm.h"         //For adding properties to an algorithm
 #include "GaudiKernel/AlgTool.h"           //For adding properties to an algtool
 #include <iostream>
+#include <limits>
 
 //Geomodel
 #include "GeoModelUtilities/DecodeVersionKey.h"
@@ -64,26 +65,40 @@ void TRTDigSettings::defineVariables() {
   //doubles:
   defineNewVariable("ionisationPotential",&m_ionisationPotential,"Ionisation potential","eV",CLHEP::eV,1.0,50.0);
   defineNewVariable("ionisationPotentialArgon",&m_ionisationPotentialArgon,"Ionisation potential Argon","eV",CLHEP::eV,1.0,50.0);
-  defineNewVariable("smearingFactor",&m_smearingFactor,"Cluster energy smearing factor (if constant)","",1,0.1,1.0);
-  defineNewVariable("smearingFactorArgon",&m_smearingFactorArgon,"Cluster energy smearing factor (if constant)","",1,0.1,1.0);
+  defineNewVariable("ionisationPotentialKrypton",&m_ionisationPotentialKrypton,"Ionisation potential Krypton","eV",CLHEP::eV,1.0,50.0);
+  defineNewVariable("smearingFactor",&m_smearingFactor,"Cluster energy smearing factor","",1,0.1,1.0);
+  defineNewVariable("smearingFactorArgon",&m_smearingFactorArgon,"Cluster energy smearing factor Argon","",1,0.1,1.0);
+  defineNewVariable("smearingFactorKrypton",&m_smearingFactorKrypton,"Cluster energy smearing factor Krypton","",1,0.1,1.0);
   defineNewVariable("timeInterval",&m_timeInterval,"Time interval covered by each digit","ns",CLHEP::ns,1,200);
   defineNewVariable("minDiscriminatorWidth",&m_minDiscriminatorWidth,"Minimum discriminator time over threshold","ns",CLHEP::ns,0.5,20.0);
   defineNewVariable("discriminatorSettlingTime",&m_discriminatorSettlingTime,"Discriminator settling time","ns",CLHEP::ns,0.5,20.0);
   defineNewVariable("discriminatorDeadTime",&m_discriminatorDeadTime,"Discriminator dead time","ns",CLHEP::ns,0.5,20.0);
-  defineNewVariable("lowThresholdBar",&m_lowThresholdBar,"Low Threshold Barrel","eV",CLHEP::eV,50.0,800.0);
-  defineNewVariable("lowThresholdEC",&m_lowThresholdEC,"Low Threshold end-cap","eV",CLHEP::eV,50.0,800.0);
-  defineNewVariable("lowThresholdBarArgon",&m_lowThresholdBarArgon,"Low Threshold Barrel Argon","eV",CLHEP::eV,50.0,400.0);
-  defineNewVariable("lowThresholdECArgon",&m_lowThresholdECArgon,"Low Threshold end-cap Argon","eV",CLHEP::eV,50.0,400.0);
+  defineNewVariable("TrtRangeCutProperty",&m_trtRangeCutProperty,"Electrons range cut in TRT xenon simulation","mm",CLHEP::mm,0.05,30.00);
 
-  defineNewVariable("highThresholdBarShort",&m_highThresholdBarShort,"High Threshold short barrel straws","keV",CLHEP::keV,4.0,10.0);
-  defineNewVariable("highThresholdBarLong",&m_highThresholdBarLong,"High Threshold long barrel straws","keV",CLHEP::keV,4.0,10.0);
-  defineNewVariable("highThresholdECAwheels",&m_highThresholdECAwheels,"High Threshold A type wheels","keV",CLHEP::keV,4.0,10.0);
-  defineNewVariable("highThresholdECBwheels",&m_highThresholdECBwheels,"High Threshold B type wheels","keV",CLHEP::keV,4.0,10.0);
-
-  defineNewVariable("highThresholdBarShortArgon",&m_highThresholdBarShortArgon,"High Threshold short barrel straws Argon","keV",CLHEP::keV,1.0,5.0);
-  defineNewVariable("highThresholdBarLongArgon",&m_highThresholdBarLongArgon,"High Threshold long barrel straws Argon","keV",CLHEP::keV,1.0,5.0);
-  defineNewVariable("highThresholdECAwheelsArgon",&m_highThresholdECAwheelsArgon,"High Threshold A type wheels Argon","keV",CLHEP::keV,1.0,5.0);
-  defineNewVariable("highThresholdECBwheelsArgon",&m_highThresholdECBwheelsArgon,"High Threshold B type wheels Argon","keV",CLHEP::keV,1.0,5.0);
+  // LT Bar
+  defineNewVariable("lowThresholdBar",       &m_lowThresholdBar,       "Low Threshold Barrel",         "eV",CLHEP::eV,50.0,500.0);
+  defineNewVariable("lowThresholdBarArgon",  &m_lowThresholdBarArgon,  "Low Threshold Barrel Argon",   "eV",CLHEP::eV,50.0,500.0);
+  defineNewVariable("lowThresholdBarKrypton",&m_lowThresholdBarKrypton,"Low Threshold Barrel Krypton", "eV",CLHEP::eV,50.0,500.0);
+  // LT EC
+  defineNewVariable("lowThresholdEC",        &m_lowThresholdEC,        "Low Threshold end-cap",        "eV",CLHEP::eV,50.0,500.0);
+  defineNewVariable("lowThresholdECArgon",   &m_lowThresholdECArgon,   "Low Threshold end-cap Argon",  "eV",CLHEP::eV,50.0,500.0);
+  defineNewVariable("lowThresholdECKrypton", &m_lowThresholdECKrypton, "Low Threshold end-cap Krypton","eV",CLHEP::eV,50.0,500.0);
+  // HT Short
+  defineNewVariable("highThresholdBarShort",       &m_highThresholdBarShort,       "High Threshold short barrel straws",        "keV",CLHEP::keV,1.0,10.0);
+  defineNewVariable("highThresholdBarShortArgon",  &m_highThresholdBarShortArgon,  "High Threshold short barrel straws Argon",  "keV",CLHEP::keV,1.0,10.0);
+  defineNewVariable("highThresholdBarShortKrypton",&m_highThresholdBarShortKrypton,"High Threshold short barrel straws Krypton","keV",CLHEP::keV,1.0,10.0);
+  // HT Long
+  defineNewVariable("highThresholdBarLong",       &m_highThresholdBarLong,       "High Threshold long barrel straws",        "keV",CLHEP::keV,1.0,10.0);
+  defineNewVariable("highThresholdBarLongArgon",  &m_highThresholdBarLongArgon,  "High Threshold long barrel straws Argon",  "keV",CLHEP::keV,1.0,10.0);
+  defineNewVariable("highThresholdBarLongKrypton",&m_highThresholdBarLongKrypton,"High Threshold long barrel straws Krypton","keV",CLHEP::keV,1.0,10.0);
+  // HT EC-A
+  defineNewVariable("highThresholdECAwheels",       &m_highThresholdECAwheels,       "High Threshold A type wheels",        "keV",CLHEP::keV,1.0,10.0);
+  defineNewVariable("highThresholdECAwheelsArgon",  &m_highThresholdECAwheelsArgon,  "High Threshold A type wheels Argon",  "keV",CLHEP::keV,1.0,10.0);
+  defineNewVariable("highThresholdECAwheelsKrypton",&m_highThresholdECAwheelsKrypton,"High Threshold A type wheels Krypton","keV",CLHEP::keV,1.0,10.0);
+  // HT EC-B
+  defineNewVariable("highThresholdECBwheels",       &m_highThresholdECBwheels,       "High Threshold B type wheels",        "keV",CLHEP::keV,1.0,10.0);
+  defineNewVariable("highThresholdECBwheelsArgon",  &m_highThresholdECBwheelsArgon,  "High Threshold B type wheels Argon",  "keV",CLHEP::keV,1.0,10.0);
+  defineNewVariable("highThresholdECBwheelsKrypton",&m_highThresholdECBwheelsKrypton,"High Threshold B type wheels Krypton","keV",CLHEP::keV,1.0,10.0);
 
   defineNewVariable("strawLengthBarrel",&m_strawLengthBarrel,"Long barrel straw length","mm",CLHEP::mm,1400.0,1450.0); // 1425.5
   defineNewVariable("innerRadiusEndcap",&m_innerRadiusEndcap,"Inner radius of the endcap straws","mm",CLHEP::mm,600.0,640.0); // 621.18
@@ -102,16 +117,20 @@ void TRTDigSettings::defineVariables() {
   defineNewVariable("timeOffsetCalcVertexZ",&m_timeOffsetCalcVertexZ,"Z coord. of point where particles are assumed to originate from for time-shift","m",CLHEP::m,-150.0,150.0);
   defineNewVariable("pileUpSDOsMinEkin",&m_pileUpSDOsMinEkin,"Minimum kinetic energy for pile-up MC-truth (0.0=all, 999TeV=none)","GeV",CLHEP::GeV,0.0,999.0*CLHEP::TeV);
   defineNewVariable("trEfficiencyBarrel",&m_trEfficiencyBarrel,"Transition radiation efficiency barrel","%",0.01,0.0,100.0);
-  defineNewVariable("trEfficiencyEndCap",&m_trEfficiencyEndCap,"Transition radiation efficiency endcap","%",0.01,0.0,100.0);
+  defineNewVariable("trEfficiencyEndCapA",&m_trEfficiencyEndCapA,"Transition radiation efficiency endcap A","%",0.01,0.0,100.0);
+  defineNewVariable("trEfficiencyEndCapB",&m_trEfficiencyEndCapB,"Transition radiation efficiency endcap B","%",0.01,0.0,100.0);
   defineNewVariable("trEfficiencyBarrelArgon",&m_trEfficiencyBarrelArgon,"Transition radiation efficiency barrel Argon","%",0.01,0.0,100.0);
-  defineNewVariable("trEfficiencyEndCapArgon",&m_trEfficiencyEndCapArgon,"Transition radiation efficiency endcap Argon","%",0.01,0.0,100.0);
+  defineNewVariable("trEfficiencyEndCapAArgon",&m_trEfficiencyEndCapAArgon,"Transition radiation efficiency endcap A Argon","%",0.01,0.0,100.0);
+  defineNewVariable("trEfficiencyEndCapBArgon",&m_trEfficiencyEndCapBArgon,"Transition radiation efficiency endcap B Argon","%",0.01,0.0,100.0);
+  defineNewVariable("trEfficiencyBarrelKrypton",&m_trEfficiencyBarrelKrypton,"Transition radiation efficiency barrel Krypton","%",0.01,0.0,100.0);
+  defineNewVariable("trEfficiencyEndCapAKrypton",&m_trEfficiencyEndCapAKrypton,"Transition radiation efficiency endcap A Krypton","%",0.01,0.0,100.0);
+  defineNewVariable("trEfficiencyEndCapBKrypton",&m_trEfficiencyEndCapBKrypton,"Transition radiation efficiency endcap B Krypton","%",0.01,0.0,100.0);
   defineNewVariable("fastElectronicsNoisePulseDistance",&m_fastElectronicsNoisePulseDistance,"Fast electronics noise-pulse distance","ns",CLHEP::ns,0.01,20.0);
   defineNewVariable("slowPeriodicNoisePulseDistance",&m_slowPeriodicNoisePulseDistance,"Slow periodic electronics noise-pulse distance","ns",CLHEP::ns,1.0,500.0);
   defineNewVariable("slowPeriodicNoisePulseFraction",&m_slowPeriodicNoisePulseFraction,"Fraction of slow periodic pulses","%",0.01,0.0,1.0);
   defineNewVariable("averageNoiseLevel",&m_averageNoiseLevel,"Average noise level used for fake cond. map","%",0.01,0.0,10.0);
   defineNewVariable("crossTalkNoiseLevel",&m_crosstalkNoiseLevel,"Average crosstalk noise level used for fake cond. map","%",0.01,0.0,100.0);
   defineNewVariable("crossTalkNoiseLevelOtherEnd",&m_crosstalkNoiseLevelOtherEnd,"Average crosstalk noise level on the other end as straws with pad hits","%",0.01,0.0,100.0);
-  defineNewVariable("deadStrawFraction",&m_deadStrawFraction,"Fraction of dead/masked straws used for Fake Cond. Map","%",0.01,0.0,100.0);
   defineNewVariable("relativeLowThresholdFluctuation",&m_relativeLowThresholdFluctuation,"Relative LT fluct. (evt to evt & straw to straw)","%",0.01,0.0,35.0);
   defineNewVariable("relativeHighThresholdFluctuation",&m_relativeHighThresholdFluctuation,"Relative HT fluct. (evt to evt & straw to straw)","%",0.01,0.0,35.0);
   defineNewVariable("solenoidFieldStrength",&m_solenoidFieldStrength,"Solenoid Field Strength (assume perfect uniform field)","T",CLHEP::tesla,0.0,3.0);
@@ -131,7 +150,6 @@ void TRTDigSettings::defineVariables() {
   defineNewBoolVariable("noiseInSimhits",&m_noiseInSimhits,"Noise in straws passed by sim. particles");
   defineNewBoolVariable("electronicsAreAtFarEnd",&m_electronicsAreAtFarEnd,"Electronics assumed to be at the straw ends furthest from primary sim. vertex");
   defineNewBoolVariable("timeshiftsSymmetricForPhiSectors",&m_timeshiftsSymmetricForPhiSectors,"Electronics Time offsets are symmetric from phi-sector to phi-sector");
-  defineNewBoolVariable("useDriftTimeSpread",&m_useDriftTimeSpread,"Spread in Drift Time due to fluctuations in individual electron arrival times");
   defineNewBoolVariable("isCTB",&m_isCTB,"Flag set for CTB digitization");
   defineNewBoolVariable("killEndCap",&m_killEndCap,"Kill all EndCap straws");
   defineNewBoolVariable("killBarrel",&m_killBarrel,"Kill all Barrel straws");
@@ -140,7 +158,6 @@ void TRTDigSettings::defineVariables() {
   defineNewBoolVariable("useMagneticFieldMap",&m_useMagneticFieldMap,"Use magnetic field map in drifttime calculation");
   defineNewBoolVariable("useAttenuation",&m_useAttenuation,"Simulate attenuation of signal strength depending on propagation length in wire");
   defineNewBoolVariable("getT0FromData",&m_getT0FromData,"Shift the individual straw t0 according to data (conditions database)");
-  defineNewBoolVariable("smearingFactorDependsOnRadius",&m_smearingFactorDependsOnRadius,"Smearing Factor is a function of cluster radius");
 
   //ints:
   defineNewIntVariable("htT0shiftBarShort", &m_htT0shiftBarShort, "HT T0 delta shift in 0.78125 ns steps, short barrel straws",-32,32);
@@ -420,8 +437,6 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   m_solenoidFieldStrength = 2.0*CLHEP::tesla;
 
   // falses (unlikely to change)
-  m_smearingFactorDependsOnRadius=false;
-  m_useDriftTimeSpread = false;
   m_doCrosstalk = false;  //Crosstalk noise switched off by default (so far). Switch on by doCrosstalk() flag in j.o.
   m_crosstalkNoiseLevel = 0.01; // In cosmics: tuned to 0.01
   m_crosstalkNoiseLevelOtherEnd = 0.01;// In cosmics: tuned to 0.01
@@ -457,7 +472,6 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   // Fred: It would seem to me that the timing base for both low and high hits could
   //       be slightly different for the A & C sides and it would be wise to allow
   //       for the possibility in the code [FIXME].
-
   // We need to tune the T0shift separately the endcap and the barrel [FIXME].
   m_overallT0ShiftShortBarrel = 0.0*CLHEP::ns;
   m_overallT0Shift            = 1.0*CLHEP::ns;
@@ -466,10 +480,12 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   m_discriminatorDeadTime     = 6.0*CLHEP::ns;
   m_jitterTimeOffset          = 0.0*CLHEP::ns;
 
-  m_htT0shiftBarShort  = 0; // This is a delta shift w.r.t m_overallT0Shift (steps of 0.78125 ns).
-  m_htT0shiftBarLong   = 0; // It affects only HL threshold timing. The purpose is to
-  m_htT0shiftECAwheels = 0; // tune the middle HT bit fraction so that HT probability
-  m_htT0shiftECBwheels = 0; // can be based on the middle bit only at high occupancy.
+  // HT middle-bit fraction tune; KyungEon.Choi@cern.ch
+  // https://indico.cern.ch/event/389682/contribution/5/material/slides/0.pdf
+  m_htT0shiftBarShort  = -6; // This is a delta shift w.r.t m_overallT0Shift (steps of 0.78125 ns).
+  m_htT0shiftBarLong   = -6; // It affects only HL threshold timing. The purpose is to
+  m_htT0shiftECAwheels = -6; // tune the middle HT bit fraction so that HT probability
+  m_htT0shiftECBwheels = -6; // can be based on the middle bit only at high occupancy.
 
   // length
   m_strawLengthBarrel  = 1425.5*CLHEP::mm;
@@ -484,40 +500,75 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   m_timeOffsetCalcVertexY = 0.0*CLHEP::cm; // units!?
   m_timeOffsetCalcVertexZ = 0.0*CLHEP::cm; // units!?
 
-  // (Xenon) HT fine-tune on 2011 data tagged as 00-11-07
-  m_lowThresholdBar        = 0.260*CLHEP::keV;
-  m_lowThresholdEC         = 0.275*CLHEP::keV;
-  m_highThresholdBarShort  = 6.047*CLHEP::keV;
-  m_highThresholdBarLong   = 5.477*CLHEP::keV;
-  m_highThresholdECAwheels = 5.916*CLHEP::keV;
-  m_highThresholdECBwheels = 5.680*CLHEP::keV;
-  m_trEfficiencyBarrel = 0.95;
-  m_trEfficiencyEndCap = 1.00;
+  // (Xenon)
+  // HT fine-tune on 2011 data tagged as 00-11-07
+  // HT middle-bit fraction tune - wider shaping function; 01-00-24
+  // Delta-ray suppression tune tagged as 01-01-03
+  // Delta-ray suppression tune with backward compatibility with non suppressed delta-ray simulation tagged as 01-01-07
+  m_trtRangeCutProperty = m_doubleparMap["TrtRangeCutProperty"].valueSetByUser;//To avoid overwritting warning message and to use python configured value
+  if(fabs(m_trtRangeCutProperty-0.05) >= std::numeric_limits<double>::epsilon()){ 
+    m_lowThresholdBar        = 0.260*CLHEP::keV;
+    m_lowThresholdEC         = 0.275*CLHEP::keV;
+    m_highThresholdBarShort  = 5.412*CLHEP::keV;
+    m_highThresholdBarLong   = 4.949*CLHEP::keV;
+    m_highThresholdECAwheels = 5.251*CLHEP::keV;
+    m_highThresholdECBwheels = 5.072*CLHEP::keV;
+    m_trEfficiencyBarrel = 0.774;
+    m_trEfficiencyEndCapA = 0.932;
+    m_trEfficiencyEndCapB = 0.830;
+  }
+  else {
+    m_lowThresholdBar        = 0.260*CLHEP::keV;
+    m_lowThresholdEC         = 0.275*CLHEP::keV;
+    m_highThresholdBarShort  = 6.576*CLHEP::keV;
+    m_highThresholdBarLong   = 6.016*CLHEP::keV;
+    m_highThresholdECAwheels = 6.390*CLHEP::keV;
+    m_highThresholdECBwheels = 6.074*CLHEP::keV;
+    m_trEfficiencyBarrel = 0.95;
+    m_trEfficiencyEndCapA = 1.00;
+    m_trEfficiencyEndCapB = 1.00;
+    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Setting up non suppressed double counted delta-ray xenon tune"<<endreq;
+  }
 
   // (Argon) Initial tuning by Artem July 2014. See log file. Requires fine tuning.
-  m_lowThresholdBarArgon        = 0.070*CLHEP::keV; // Argon needs tuning
-  m_lowThresholdECArgon         = 0.070*CLHEP::keV; // Argon needs tuning
-  m_highThresholdBarShortArgon  = 2.446*CLHEP::keV; // Argon needs fine tuning
-  m_highThresholdBarLongArgon   = 2.141*CLHEP::keV; // Argon needs fine tuning
-  m_highThresholdECAwheelsArgon = 2.235*CLHEP::keV; // Argon needs fine tuning
-  m_highThresholdECBwheelsArgon = 2.146*CLHEP::keV; // Argon needs fine tuning
+  // HT middle-bit fraction tune - wider shaping function; 01-00-24
+  m_lowThresholdBarArgon        = 0.070*CLHEP::keV; // Argon needs tuning (0.100)
+  m_lowThresholdECArgon         = 0.070*CLHEP::keV; // Argon needs tuning (0.106)
+  m_highThresholdBarShortArgon  = 2.660*CLHEP::keV; // Argon needs fine tuning
+  m_highThresholdBarLongArgon   = 2.352*CLHEP::keV; // Argon needs fine tuning
+  m_highThresholdECAwheelsArgon = 2.414*CLHEP::keV; // Argon needs fine tuning
+  m_highThresholdECBwheelsArgon = 2.295*CLHEP::keV; // Argon needs fine tuning
   m_trEfficiencyBarrelArgon = 0.55; // Argon needs fine tuning
-  m_trEfficiencyEndCapArgon = 0.80; // Argon needs fine tuning
+  m_trEfficiencyEndCapAArgon = 0.80; // Argon needs fine tuning
+  m_trEfficiencyEndCapBArgon = 0.80; // Argon needs fine tuning
+
+  // (Krypton) Guess! pls tune in June 2015, and final tune Sept 2015
+  m_lowThresholdBarKrypton = 0.140*CLHEP::keV;
+  m_lowThresholdECKrypton  = 0.150*CLHEP::keV;
+  m_highThresholdBarShortKrypton  = 3.3*CLHEP::keV;
+  m_highThresholdBarLongKrypton   = 3.0*CLHEP::keV;
+  m_highThresholdECAwheelsKrypton = 3.2*CLHEP::keV;
+  m_highThresholdECBwheelsKrypton = 3.1*CLHEP::keV;
+  m_trEfficiencyBarrelKrypton = 0.6; // no idea!
+  m_trEfficiencyEndCapAKrypton = 0.9; // no idea!
+  m_trEfficiencyEndCapBKrypton = 0.9; // no idea!
 
   // Noise
   m_fastElectronicsNoisePulseDistance = 1.0*CLHEP::ns;
   m_slowPeriodicNoisePulseDistance   = 25.0*CLHEP::ns;
   m_slowPeriodicNoisePulseFraction   = 0.6;
   m_averageNoiseLevel = 0.02;
-  m_deadStrawFraction = 0.0;
   m_relativeLowThresholdFluctuation = 0.0;
   m_relativeHighThresholdFluctuation = 0.05;
 
   // Clusters
-  m_smearingFactor      = 0.4;
-  m_smearingFactorArgon = 0.4;
-  m_ionisationPotential      = 26.0*CLHEP::eV;
-  m_ionisationPotentialArgon = 28.3*CLHEP::eV; // according to thesis of Peter Cwetanski (TABLE 4-I)
+  // Note: smearingFactor is a possible candidate for tuning drift time accuracy
+  m_smearingFactor        = 0.4;
+  m_smearingFactorArgon   = 0.4;
+  m_smearingFactorKrypton = 0.4;
+  m_ionisationPotential        = 26.0*CLHEP::eV;
+  m_ionisationPotentialArgon   = 28.3*CLHEP::eV; // according to thesis of Peter Cwetanski (TABLE 4-I)
+  m_ionisationPotentialKrypton = 28.3*CLHEP::eV;
 
 }
 

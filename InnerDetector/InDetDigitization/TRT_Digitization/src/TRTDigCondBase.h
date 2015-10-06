@@ -32,8 +32,7 @@ public:
   TRTDigCondBase( const TRTDigSettings*,
 		  const InDetDD::TRT_DetectorManager*,
 		  const TRT_ID*,
-		  bool UseArgonStraws,   // added by Sasha for Argon
-		  bool useConditionsHTStatus, // added by Sasha for Argon
+		  int UseGasMix,
 		  ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc // added by Sasha for Argon
 		);
 
@@ -45,22 +44,11 @@ public:
    */
   void initialize();
 
-  /**
-   * Query whether this straw is flagged as dead.
-   */
-  bool strawIsDead(const int& hitID) const;  //[semi-fast]
-
   /** Get average noise level in straw */
   float strawAverageNoiseLevel() const;         //[first time slow, else fast]
 
-  /** Get total number of straws */
-  unsigned int totalNumberOfStraws() const;       //[fast]
-
   /** Get total number of active straws */
   unsigned int totalNumberOfActiveStraws() const; //[fast]
-
-  /** Get total number of dead straws */
-  unsigned int totalNumberOfDeadStraws() const;   //[fast]
 
   /**
    * Get straw data
@@ -144,8 +132,6 @@ public:
    * @note  This must be overriden by the actual map provider
    * @param TRT_Identifier: Identifier of straw (input)
    * @param strawlength: straw length (input)
-   * @param isdead: flag to tell whether straw is dead (if true, other outputs
-   *                not meaningful)
    * @param noiselevel: noise level this straw (e.g. 0.02 for 2%)
    * @param relative_noiseamplitude: the relative noise amplitude as compared
    *                                 to other straws. The overall normalization
@@ -155,7 +141,6 @@ public:
    */
   virtual void setStrawStateInfo(Identifier& TRT_Identifier,
 				  const double& strawlength,
-				  bool& isdead,
 				  double& noiselevel,
 				  double& relative_noiseamplitude ) = 0;
 
@@ -163,8 +148,9 @@ protected:
   const TRTDigSettings* m_settings;
   const InDetDD::TRT_DetectorManager* m_detmgr;
   const TRT_ID* m_id_helper;
-  /// define type of straw (Argon or Xenon)
-  bool IsArgonStraw(Identifier& TRT_Identifier) const;
+
+  // The straw's gas mix: 1=Xe, 2=Kr, 3=Ar
+  int StrawGasType(Identifier& TRT_Identifier) const;
 
 private:
   /** Straw state */
@@ -184,8 +170,6 @@ private:
   // for more info see info for setStrawStateInfo function, 28 lines above!
 
   std::map<int,StrawState> m_hitid_to_StrawState;  //<--------- 7MB!!!!
-  /** List of IDs for dead straws */
-  std::set<int> m_deadstraws_hitids;
 
   //--- iterators:
 
@@ -195,8 +179,6 @@ private:
   std::map<int,StrawState>::const_iterator m_it_hitid_to_StrawState_End;
   /** Iterator used for caching (ought to be called _Previous) */
   mutable std::map<int,StrawState>::const_iterator m_it_hitid_to_StrawState_Last;
-  /** Iterator pointing to end of dead channel list */
-  std::set<int>::const_iterator m_it_deadstraws_hitids_End;
 
   mutable float m_averageNoiseLevel; /**< Average noise level */
   double m_crosstalk_noiselevel;
@@ -209,9 +191,8 @@ private:
   std::map<int,StrawState>::iterator m_all_it_hitid_to_StrawState_previous;
 
   mutable Athena::MsgStreamMember m_msg;
-  
-  bool m_UseArgonStraws;   // added by Sasha for Argon
-  bool m_useConditionsHTStatus; // added by Sasha for Argon
+
+  int m_UseGasMix;
   ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc; // added by Sasha for Argon
 
 };
@@ -220,11 +201,6 @@ private:
 /// INLINES ////
 ////////////////
 //Fixme: cache last access!!
-
-//___________________________________________________________________________
-inline bool TRTDigCondBase::strawIsDead(const int& hitID) const {
-  return m_deadstraws_hitids.find(hitID) != m_it_deadstraws_hitids_End;
-}
 
 //___________________________________________________________________________
 inline void TRTDigCondBase::getStrawData( const int& hitID,
@@ -239,18 +215,8 @@ inline void TRTDigCondBase::getStrawData( const int& hitID,
 }
 
 //___________________________________________________________________________
-inline unsigned int TRTDigCondBase::totalNumberOfStraws() const {
-  return m_hitid_to_StrawState.size() + m_deadstraws_hitids.size();
-}
-
-//___________________________________________________________________________
 inline unsigned int TRTDigCondBase::totalNumberOfActiveStraws() const {
   return m_hitid_to_StrawState.size();
-}
-
-//___________________________________________________________________________
-inline unsigned int TRTDigCondBase::totalNumberOfDeadStraws() const {
-  return m_deadstraws_hitids.size();
 }
 
 //___________________________________________________________________________

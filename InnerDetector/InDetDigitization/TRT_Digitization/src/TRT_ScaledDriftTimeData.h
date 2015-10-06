@@ -22,8 +22,8 @@
 class TRT_ScaledDriftTimeData : public ITRT_DriftTimeData {
 
 public:
-  TRT_ScaledDriftTimeData( ITRT_DriftTimeData* pOriginalData,//NB: Assumes ownership of pOriginalData!!
-			   const double& scaleFactor );
+  // //NB: Assumes ownership of pOriginalData!!
+  TRT_ScaledDriftTimeData( ITRT_DriftTimeData* pOriginalData, const double& scaleFactor );
 
   ~TRT_ScaledDriftTimeData();
 
@@ -31,7 +31,6 @@ public:
   double MaxTabulatedField() const;
   double DriftTimeAtNoField(const double& distance) const;
   double DriftTimeAtMaxField(const double& distance) const;
-  double RMSofSpreadRelativeToDriftTime(const double& distance) const;
 
 private:
 

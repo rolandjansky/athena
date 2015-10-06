@@ -40,23 +40,13 @@ public:
   //This is the average drift time for a certain distance
   virtual double getAverageDriftTime( const double& dist,
                                       const double& effectivefield_squared,
-                                      bool isArgonStraw = false) const = 0; // last argument added by Sasha for Argon
-
-  //This returns a vector with N different drift times (i.e. including
-  //spread) for a certain distance. Each returned time can be
-  //interpreted as the time it takes a single electron to reach the
-  //wire.
-  virtual void getNDriftTimes( const unsigned int& N,
-			       std::vector<double>& drifttimes,
-			       const double& dist,
-			       const double& effectivefield_squared,
-                               bool isArgonStraw = false) = 0; // last argument added by Sasha for Argon
+                                      int strawGasType = 0) const = 0;
 
   // NB: The passed field value should be the magnitude of the field
-  // component that is ortogonal to the local straw E-field.
-  //
+  // component that is orthogonal to the local straw E-field.
   // It is assumed that the field in the barrel is parallel to the
   // wires and that the field in the endcap is orthogonal to them.
+  // Magnetic field mapping provides details.
 };
 
 #endif

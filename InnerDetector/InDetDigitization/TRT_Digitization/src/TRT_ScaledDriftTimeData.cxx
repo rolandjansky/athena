@@ -38,9 +38,3 @@ double TRT_ScaledDriftTimeData::DriftTimeAtNoField(const double& dist) const {
 double TRT_ScaledDriftTimeData::DriftTimeAtMaxField(const double& dist) const {
   return m_pOriginalData->DriftTimeAtMaxField(dist) * m_scaleFactor;
 }
-
-//______________________________________________________________________________
-double TRT_ScaledDriftTimeData::RMSofSpreadRelativeToDriftTime(const double& dist) const {
-  return m_pOriginalData->RMSofSpreadRelativeToDriftTime(dist);
-}
-

@@ -25,11 +25,8 @@ TRTElectronicsProcessing::TRTElectronicsProcessing( const TRTDigSettings* digset
     m_msg("TRTElectronicsProcessing")
 {
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTElectronicsProcessing::Constructor begin" << endreq;
-
   m_pHRengine  = atRndmGenSvc->GetEngine("TRT_ThresholdFluctuations");
-
   Initialize();
-
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTElectronicsProcessing::Constructor done" << endreq;
 }
 
@@ -75,23 +72,26 @@ void TRTElectronicsProcessing::Initialize() {
 
   m_minWidthMinusSettlingTimeInBinWidths = m_minDiscriminatorWidthInBinWidths - m_discriminatorSettlingTimeInBinWidths;
 
-  m_lowThresholdEC[0]  = m_settings->lowThresholdEC(false);
-  m_lowThresholdBar[0] = m_settings->lowThresholdBar(false);
-  m_lowThresholdEC[1]  = m_settings->lowThresholdEC(true);
-  m_lowThresholdBar[1] = m_settings->lowThresholdBar(true);
+  // low threshold settings for Xe, Kr and Ar
+  m_lowThresholdBar[0] = m_settings->lowThresholdBar(0);
+  m_lowThresholdBar[1] = m_settings->lowThresholdBar(1);
+  m_lowThresholdBar[2] = m_settings->lowThresholdBar(2);
+  m_lowThresholdEC[0]  = m_settings->lowThresholdEC(0);
+  m_lowThresholdEC[1]  = m_settings->lowThresholdEC(1);
+  m_lowThresholdEC[2]  = m_settings->lowThresholdEC(2);
 
   TabulateSignalShape();
 
-  // for (int j=0; j<4; j++) { for (int i=0; i<m_numberOfPostZeroBins; i++) std::cout << "AJB " << j << " " << m_lowThresholdSignalShape[j][i] << std::endl; }
-  // for (int j=0; j<4; j++) { for (int i=0; i<m_numberOfPostZeroBins; i++) std::cout << "AJB " << j << " " << m_highThresholdSignalShape[j][i] << std::endl; }
+  //for (int j=0; j<3; j++) { for (int i=0; i<m_numberOfPostZeroBins; i++) std::cout << "AJBLT " << j << " " << m_lowThresholdSignalShape[j][i] << std::endl; }
+  //for (int j=0; j<3; j++) { for (int i=0; i<m_numberOfPostZeroBins; i++) std::cout << "AJBHT " << j << " " << m_highThresholdSignalShape[j][i] << std::endl; }
 
   m_energyDistribution = new double[m_totalNumberOfBins];
   m_lowThresholdSignal.reserve(m_totalNumberOfBins);
   m_lowThresholdSignal.resize(m_totalNumberOfBins, 0.0);
   m_highThresholdSignal.reserve(m_totalNumberOfBins);
   m_highThresholdSignal.resize(m_totalNumberOfBins, 0.0);
-  m_lowThresholdDiscriminator = new int[m_totalNumberOfBins];//TK switch to boolean vector[fixme:not deleted]
-  m_highThresholdDiscriminator = new int[m_totalNumberOfBins];//[fixme:not deleted]
+  m_lowThresholdDiscriminator  = new int[m_totalNumberOfBins];
+  m_highThresholdDiscriminator = new int[m_totalNumberOfBins];
 
   m_maskA  = 0x03FC0000;
   m_maskB  = 0x0001FE00;
@@ -125,14 +125,45 @@ void TRTElectronicsProcessing::TabulateSignalShape() {
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
   };
 
-  const double pXeHT[160] = {
-    0.031250, 0.093941, 0.157311, 0.224553, 0.308086, 0.406172, 0.515030, 0.628505, 0.739303, 0.838516,
-    0.918813, 0.971938, 0.996352, 0.988461, 0.950406, 0.886352, 0.803148, 0.705500, 0.601875, 0.497383,
-    0.397172, 0.305766, 0.224766, 0.155939, 0.099530, 0.054139, 0.019225, -0.007841, -0.027986, -0.042395,
-    -0.052809, -0.060523, -0.065396, -0.067861, -0.069166, -0.068754, -0.067225, -0.064703, -0.061309, -0.057052,
-    -0.052265, -0.047181, -0.041933, -0.036656, -0.031588, -0.026811, -0.022384, -0.018355, -0.014849, -0.011875,
-    -0.009328, -0.007185, -0.005418, -0.004090, -0.003031, -0.002197, -0.001556, -0.001091, -0.000766, -0.000524,
-    -0.000350, -0.000227, -0.000150, -0.000052, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+  const double pXeHT[160] = { // widened for middle-bit HT fraction tuning
+    0.027700, 0.083200, 0.138700, 0.191900, 0.259700, 0.340300, 0.432000, 0.531200, 0.632900, 0.731400,
+    0.820500, 0.894900, 0.950600, 0.985600, 1.000000, 0.995700, 0.975800, 0.943900, 0.903700, 0.857900,
+    0.808500, 0.756500, 0.702400, 0.646200, 0.588000, 0.527900, 0.466600, 0.405000, 0.344100, 0.285200,
+    0.229400, 0.177700, 0.131000, 0.089700, 0.054000, 0.024000, -0.000800, -0.020600, -0.036000, -0.047600,
+    -0.055800, -0.061400, -0.064700, -0.066200, -0.066200, -0.065200, -0.063300, -0.060700, -0.057700, -0.054400,
+    -0.050800, -0.047200, -0.043500, -0.039800, -0.036200, -0.032800, -0.029400, -0.026300, -0.023300, -0.020600,
+    -0.018000, -0.015700, -0.013600, -0.011700, -0.010000, -0.008500, -0.007200, -0.006000, -0.005000, -0.004200,
+    -0.003400, -0.002800, -0.002300, -0.001900, -0.001500, -0.001200, -0.001000, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+  };
+
+  const double pKrLT[160] = {
+    0.061537, 0.182727, 0.297239, 0.412757, 0.538228, 0.663099, 0.776969, 0.875428, 0.944050, 0.984161,
+    0.993044, 0.966288, 0.913313, 0.856057, 0.794949, 0.730736, 0.666524, 0.602311, 0.536858, 0.471147,
+    0.406935, 0.342722, 0.286429, 0.232919, 0.180758, 0.134739, 0.093536, 0.054859, 0.021586, -0.003114,
+    -0.020773, -0.032170, -0.040197, -0.046147, -0.050428, -0.052697, -0.054131, -0.054672, -0.054255, -0.052971,
+    -0.051862, -0.050965, -0.050133, -0.049063, -0.047992, -0.046922, -0.045852, -0.044782, -0.043711, -0.042365,
+    -0.040850, -0.039084, -0.036943, -0.034803, -0.032809, -0.030865, -0.028922, -0.026979, -0.025035, -0.023092,
+    -0.021149, -0.019206, -0.017262, -0.015759, -0.014533, -0.013345, -0.011740, -0.010638, -0.009568, -0.008497,
+    -0.007427, -0.006357, -0.005287, -0.004217, -0.003146, -0.002076, -0.001006, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+  };
+
+  const double pKrHT[160] = {
+    0.027700, 0.083200, 0.138700, 0.191900, 0.259700, 0.340300, 0.432000, 0.531200, 0.632900, 0.731400,
+    0.820500, 0.894900, 0.950600, 0.985600, 1.000000, 0.995700, 0.975800, 0.943900, 0.903700, 0.857900,
+    0.808500, 0.756500, 0.702400, 0.646200, 0.588000, 0.527900, 0.466600, 0.405000, 0.344100, 0.285200,
+    0.229400, 0.177700, 0.131000, 0.089700, 0.054000, 0.024000, -0.000800, -0.020600, -0.036000, -0.047600,
+    -0.055800, -0.061400, -0.064700, -0.066200, -0.066200, -0.065200, -0.063300, -0.060700, -0.057700, -0.054400,
+    -0.050800, -0.047200, -0.043500, -0.039800, -0.036200, -0.032800, -0.029400, -0.026300, -0.023300, -0.020600,
+    -0.018000, -0.015700, -0.013600, -0.011700, -0.010000, -0.008500, -0.007200, -0.006000, -0.005000, -0.004200,
+    -0.003400, -0.002800, -0.002300, -0.001900, -0.001500, -0.001200, -0.001000, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -154,38 +185,37 @@ void TRTElectronicsProcessing::TabulateSignalShape() {
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
   };
 
-  const double pArHT[160] = {
-    0.031250, 0.093941, 0.157311, 0.224553, 0.308086, 0.406172, 0.515030, 0.628505, 0.739303, 0.838516,
-    0.918813, 0.971938, 0.996352, 0.988461, 0.950406, 0.886352, 0.803148, 0.705500, 0.601875, 0.497383,
-    0.397172, 0.305766, 0.224766, 0.155939, 0.099530, 0.054139, 0.019225, -0.007841, -0.027986, -0.042395,
-    -0.052809, -0.060523, -0.065396, -0.067861, -0.069166, -0.068754, -0.067225, -0.064703, -0.061309, -0.057052,
-    -0.052265, -0.047181, -0.041933, -0.036656, -0.031588, -0.026811, -0.022384, -0.018355, -0.014849, -0.011875,
-    -0.009328, -0.007185, -0.005418, -0.004090, -0.003031, -0.002197, -0.001556, -0.001091, -0.000766, -0.000524,
-    -0.000350, -0.000227, -0.000150, -0.000052, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+  const double pArHT[160] = { // widened for middle-bit HT fraction tuning
+    0.027700, 0.083200, 0.138700, 0.191900, 0.259700, 0.340300, 0.432000, 0.531200, 0.632900, 0.731400,
+    0.820500, 0.894900, 0.950600, 0.985600, 1.000000, 0.995700, 0.975800, 0.943900, 0.903700, 0.857900,
+    0.808500, 0.756500, 0.702400, 0.646200, 0.588000, 0.527900, 0.466600, 0.405000, 0.344100, 0.285200,
+    0.229400, 0.177700, 0.131000, 0.089700, 0.054000, 0.024000, -0.000800, -0.020600, -0.036000, -0.047600,
+    -0.055800, -0.061400, -0.064700, -0.066200, -0.066200, -0.065200, -0.063300, -0.060700, -0.057700, -0.054400,
+    -0.050800, -0.047200, -0.043500, -0.039800, -0.036200, -0.032800, -0.029400, -0.026300, -0.023300, -0.020600,
+    -0.018000, -0.015700, -0.013600, -0.011700, -0.010000, -0.008500, -0.007200, -0.006000, -0.005000, -0.004200,
+    -0.003400, -0.002800, -0.002300, -0.001900, -0.001500, -0.001200, -0.001000, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0
   };
 
-
-  // We need to build four LT\HT pairs of amplitudes
-  // isArgon = 0 : Xenon straw in proportional-mode
-  // isArgon = 1 : Argon straw in proportional-mode
-
   // Temporary vectors
   std::vector<double> vpXeLT(m_numberOfPostZeroBins), vpXeHT(m_numberOfPostZeroBins);
+  std::vector<double> vpKrLT(m_numberOfPostZeroBins), vpKrHT(m_numberOfPostZeroBins);
   std::vector<double> vpArLT(m_numberOfPostZeroBins), vpArHT(m_numberOfPostZeroBins);
 
   // Copy arrays elements to the temporary vectors
   for (int k=0; k<m_numberOfPostZeroBins; ++k) {
     vpXeLT.at(k)=pXeLT[k]; vpXeHT.at(k)=pXeHT[k];
+    vpKrLT.at(k)=pKrLT[k]; vpKrHT.at(k)=pKrHT[k];
     vpArLT.at(k)=pArLT[k]; vpArHT.at(k)=pArHT[k];
   }
 
   // Build the vectors of shaping amplitudes
   m_lowThresholdSignalShape[0] = vpXeLT; m_highThresholdSignalShape[0] = vpXeHT;
-  m_lowThresholdSignalShape[1] = vpArLT; m_highThresholdSignalShape[1] = vpArHT;
+  m_lowThresholdSignalShape[1] = vpKrLT; m_highThresholdSignalShape[1] = vpKrHT;
+  m_lowThresholdSignalShape[2] = vpArLT; m_highThresholdSignalShape[2] = vpArHT;
 
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTElectronicsProcessing::TabulateSignalShape() done" << endreq;
 }
@@ -197,13 +227,13 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
 						TRTDigit& outdigit,
 						double lowthreshold,
 						const double& noiseamplitude,
-						bool isArgonStraw,
+						int strawGasType,
 						double highthreshold
 					      ) {
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Process the timed energy deposits at the FE for this straw:                                            //
   // - Put energy deposits in a fine-time array 0.0 < time < m_timeInterval.                                //
-  // - Apply signal shaping with a Xenon or Argon function.                                                 //
+  // - Apply signal shaping with a Xenon, Krypton or Argon function.                                        //
   // - Add noise (LT only)                                                                                  //
   // - Apply (fine-bin) threshold discrimination; threshold fluctuations are already applied by this point. //
   // - Turn the fine discriminator array into a 27-bit output digit.                                        //
@@ -214,10 +244,10 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
   }
 
   if ( lowthreshold < 0 ) { // check if set to -1.0
-    lowthreshold = !(hitID & 0x00200000) ? m_lowThresholdBar[isArgonStraw] :  m_lowThresholdEC[isArgonStraw];
+    lowthreshold = !(hitID & 0x00200000) ? m_lowThresholdBar[strawGasType] :  m_lowThresholdEC[strawGasType];
   }
   if ( highthreshold < 0 ) { // check if set to -1.0
-    highthreshold = getHighThreshold(hitID,isArgonStraw);
+    highthreshold = getHighThreshold(hitID,strawGasType);
   }
 
   const double low_threshold_fluctuation(m_settings->relativeLowThresholdFluctuation());
@@ -252,7 +282,7 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
   //std::cout << std::endl;
 
   // Signal shaping; 4 different shaping functions for: LT, HT, Argon, Xenon
-  SignalShaping(isArgonStraw);
+  SignalShaping(strawGasType);
   //std::cout << "AJB after shaping ";
   //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout <<  m_lowThresholdSignal[i]*1.0e6 << " "; // (eV); or m_highThresholdSignal[i]
   //std::cout << std::endl;
@@ -287,7 +317,7 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
 } // end of ProcessDeposits
 
 //___________________________________________________________________________
-void TRTElectronicsProcessing::SignalShaping(bool isArgonStraw) {
+void TRTElectronicsProcessing::SignalShaping(int strawGasType) {
 
   // Build m_lowThresholdSignal[] and m_highThresholdSignal[] arrays by
   // convoluting the deposit m_energyDistribution[] with electronics shaping functions.
@@ -302,8 +332,8 @@ void TRTElectronicsProcessing::SignalShaping(bool isArgonStraw) {
       {
         k = j - i;
         if (k == m_numberOfPostZeroBins) { break; }
-        m_lowThresholdSignal[j]  +=  m_lowThresholdSignalShape[isArgonStraw][k] * energyInBin;
-        m_highThresholdSignal[j] += m_highThresholdSignalShape[isArgonStraw][k] * energyInBin;
+         m_lowThresholdSignal[j] +=  m_lowThresholdSignalShape[strawGasType][k] * energyInBin;
+        m_highThresholdSignal[j] += m_highThresholdSignalShape[strawGasType][k] * energyInBin;
       }
     }
   }
@@ -470,7 +500,7 @@ unsigned TRTElectronicsProcessing::EncodeDigit() const {
 }
 
 //_____________________________________________________________________________
-double TRTElectronicsProcessing::getHighThreshold ( int hitID, bool isArgonStraw ) {
+double TRTElectronicsProcessing::getHighThreshold ( int hitID, int strawGasType ) {
 
   const int mask(0x0000001F);
   const int word_shift(5);
@@ -484,7 +514,7 @@ double TRTElectronicsProcessing::getHighThreshold ( int hitID, bool isArgonStraw
     hitID >>= word_shift;
     hitID >>= word_shift;
     ringID = hitID & mask;
-    highthreshold = ( (layerID < 9) && (ringID == 0) ) ? m_settings->highThresholdBarShort(isArgonStraw) : m_settings->highThresholdBarLong(isArgonStraw) ;
+    highthreshold = ( (layerID < 9) && (ringID == 0) ) ? m_settings->highThresholdBarShort(strawGasType) : m_settings->highThresholdBarLong(strawGasType) ;
 
   } else { // endcap
 
@@ -492,7 +522,7 @@ double TRTElectronicsProcessing::getHighThreshold ( int hitID, bool isArgonStraw
     hitID >>= word_shift;
     hitID >>= word_shift;
     wheelID = hitID & mask;
-    highthreshold = wheelID < 8 ?  m_settings->highThresholdECAwheels(isArgonStraw) : m_settings->highThresholdECBwheels(isArgonStraw);
+    highthreshold = wheelID < 8 ?  m_settings->highThresholdECAwheels(strawGasType) : m_settings->highThresholdECBwheels(strawGasType);
 
   }
 

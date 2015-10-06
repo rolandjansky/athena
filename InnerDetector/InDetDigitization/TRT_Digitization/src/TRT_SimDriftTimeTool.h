@@ -23,7 +23,6 @@
 
 class IAtRndmGenSvc;
 
-
 class TRT_SimDriftTimeTool : public AthAlgTool,  virtual public ITRT_SimDriftTimeTool {
 
  public:
@@ -36,13 +35,7 @@ class TRT_SimDriftTimeTool : public AthAlgTool,  virtual public ITRT_SimDriftTim
   // ITRT_SimDriftTimeTool interface implementation:
   virtual double getAverageDriftTime( const double& distIndex,
 				      const double& effectivefield_squared,
-                                      bool isArgonStraw) const; // last argument added by Sasha for Argon
-
-  virtual void getNDriftTimes( const unsigned int& N,
-			       std::vector<double>& drifttimes,
-			       const double& dist,
-			       const double& effectivefield_squared,
-                               bool isArgonStraw); // last argument added by Sasha for Argon
+                                      int strawGasType) const;
 
   // override intialize() method:
   virtual StatusCode initialize();
@@ -62,13 +55,6 @@ class TRT_SimDriftTimeTool : public AthAlgTool,  virtual public ITRT_SimDriftTim
 
   std::vector < std::vector<double> > m_table_of_dist2meanDT_at_noField;
   std::vector < std::vector<double> > m_table_of_dist2meanDT_at_maxField;
-  std::vector < std::vector<double> > m_table_of_RMSdiffusionToDT;
-
-  const unsigned int m_numberGeneratedGaussians;
-  std::vector < std::vector<double> > m_generatedGaussians;
-
-  unsigned int m_runningGaussianIndex;
-  ServiceHandle <IAtRndmGenSvc> m_pAtRndmGenSvc;
 
 };
 

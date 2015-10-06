@@ -18,13 +18,13 @@
 #include <cassert>
 
 //______________________________________________________________________________
-TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData(unsigned int digversion, bool isArgonInFlag) { // second argument added by Sasha. implementation of Argon straws
+TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData(unsigned int digversion, int strawGasType) {
 
   ////////////////////////////////////////////////////////////////////////////
   // The data made available by Peter Cwetanski by detailed gas simulations //
   ////////////////////////////////////////////////////////////////////////////
 
-  isArgon = isArgonInFlag;
+  strawGas = strawGasType;
 
   //----------------------------//
   // Data for no external field //
@@ -39,10 +39,10 @@ TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData(unsigned int digversion, bool i
       throw;
   }
 
-  if (!isArgon) /// Added by Sasha. Using Argon or Xenon RT tables according to 'isArgon' flag.
-    {
+  if (strawGas==0) {
+
       //----------------------------//
-      // Data for no external field //
+      // Data for no external field // Xenon
       //----------------------------//
       m_tabdists_nofield.push_back( 15.5*CLHEP::micrometer);   m_tabdrifttime_nofield.push_back( 0*CLHEP::nanosecond/*at wire*/ );
       m_tabdists_nofield.push_back( 34.5*CLHEP::micrometer);   m_tabdrifttime_nofield.push_back(0.18332*CLHEP::nanosecond );
@@ -88,7 +88,7 @@ TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData(unsigned int digversion, bool i
       m_tabdists_nofield.push_back( 2000.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(40.6041*CLHEP::nanosecond ); //extrapolated
 
       //-----------------------------//
-      // Data for max external field //
+      // Data for max external field // Xenon
       //-----------------------------//
       m_tabdists_maxfield.push_back( 15.5*CLHEP::micrometer);   m_tabdrifttime_maxfield.push_back( 0*CLHEP::nanosecond/*at wire*/ );
       m_tabdists_maxfield.push_back( 34.5*CLHEP::micrometer);   m_tabdrifttime_maxfield.push_back(0.18464*CLHEP::nanosecond );
@@ -133,10 +133,108 @@ TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData(unsigned int digversion, bool i
       m_tabdists_maxfield.push_back( 1983.5*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(45.2038*CLHEP::nanosecond );
       m_tabdists_maxfield.push_back( 2000.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(45.7089*CLHEP::nanosecond ); //extrapolated
 
-    } else {
+    } else if (strawGas==1) {
+
+      //------------------------------------------//
+      // Data for no external field (Kr)          //
+      // Scaled to be 20% between Argon and Xenon //
+      // i.e. Kr = (Xe + 4*Ar)/5                  //
+      //------------------------------------------//
+      m_tabdists_nofield.push_back(15.5*CLHEP::micrometer);   m_tabdrifttime_nofield.push_back(0*CLHEP::nanosecond);//at wire
+      m_tabdists_nofield.push_back(35.0*CLHEP::micrometer);   m_tabdrifttime_nofield.push_back(0.0856*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(85.0*CLHEP::micrometer);   m_tabdrifttime_nofield.push_back(0.4278*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(135.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(0.9318*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(185.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(1.5370*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(235.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(2.1987*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(285.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(2.8919*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(335.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(3.5956*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(385.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(4.3102*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(435.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(5.0294*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(485.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(5.7586*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(535.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(6.4913*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(585.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(7.2375*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(635.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(7.9912*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(685.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(8.7534*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(735.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(9.5214*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(785.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(10.2960*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(835.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(11.0761*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(885.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(11.8643*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(935.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(12.6662*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(985.0*CLHEP::micrometer);  m_tabdrifttime_nofield.push_back(13.4447*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1035.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(14.2443*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1085.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(15.0411*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1135.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(15.8412*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1185.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(16.6474*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1235.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(17.4579*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1285.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(18.2673*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1335.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(19.0931*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1385.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(19.9144*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1435.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(20.7436*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1485.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(21.5890*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1535.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(22.4383*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1585.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(23.3031*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1635.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(24.1969*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1685.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(25.0659*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1735.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(26.1003*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1785.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(26.8906*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1835.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(27.8234*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1885.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(28.7769*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1935.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(29.7530*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(1985.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(30.4479*CLHEP::nanosecond);
+      m_tabdists_nofield.push_back(2000.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(31.1641*CLHEP::nanosecond); //extrapolated
+
+      //------------------------------------------//
+      // Data for max external field (Kr)         //
+      // Scaled to be 20% between Argon and Xenon //
+      // i.e. Kr = (Xe + 4*Ar)/5                  //
+      //------------------------------------------//
+      m_tabdists_maxfield.push_back(15.5*CLHEP::micrometer);   m_tabdrifttime_maxfield.push_back(0*CLHEP::nanosecond); // at wire
+      m_tabdists_maxfield.push_back(35.0*CLHEP::micrometer);   m_tabdrifttime_maxfield.push_back(0.0859*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(85.0*CLHEP::micrometer);   m_tabdrifttime_maxfield.push_back(0.4298*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(135.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(0.9371*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(185.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(1.5482*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(235.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(2.2178*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(285.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(2.9231*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(335.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(3.6466*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(385.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(4.3832*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(435.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(5.1298*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(485.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(5.8982*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(535.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(6.6690*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(585.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(7.4660*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(635.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(8.2874*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(685.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(9.1011*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(735.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(9.9434*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(785.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(10.7982*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(835.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(11.6711*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(885.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(12.5572*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(935.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(13.4608*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(985.0*CLHEP::micrometer);  m_tabdrifttime_maxfield.push_back(14.3742*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1035.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(15.3105*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1085.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(16.2479*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1135.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(17.2136*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1185.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(18.1902*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1235.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(19.1876*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1285.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(20.2066*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1335.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(21.2463*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1385.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(22.3139*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1435.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(23.4065*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1485.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(24.5178*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1535.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(25.6675*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1585.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(26.8492*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1635.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(28.1017*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1685.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(29.2983*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1735.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(30.5753*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1785.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(31.8975*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1835.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(33.2373*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1885.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(34.6227*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1935.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(36.0432*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(1985.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(37.0448*CLHEP::nanosecond);
+      m_tabdists_maxfield.push_back(2000.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(37.9298*CLHEP::nanosecond); //extrapolated
+
+    } else if (strawGas==2) {
 
       //----------------------------//
-      // Data for no external field //
+      // Data for no external field // Argon
       //----------------------------//
       m_tabdists_nofield.push_back(15.5*CLHEP::micrometer);   m_tabdrifttime_nofield.push_back(0*CLHEP::nanosecond/*at wire*/ );
       m_tabdists_nofield.push_back(35.0*CLHEP::micrometer);   m_tabdrifttime_nofield.push_back(0.06111*CLHEP::nanosecond);
@@ -182,7 +280,7 @@ TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData(unsigned int digversion, bool i
       m_tabdists_nofield.push_back(2000.0*CLHEP::micrometer); m_tabdrifttime_nofield.push_back(28.8041*CLHEP::nanosecond); //extrapolated
 
       //-----------------------------//
-      // Data for max external field //
+      // Data for max external field // Argon
       //-----------------------------//
       m_tabdists_maxfield.push_back(15.5*CLHEP::micrometer);   m_tabdrifttime_maxfield.push_back(0*CLHEP::nanosecond/*at wire*/ );
       m_tabdists_maxfield.push_back(35.0*CLHEP::micrometer);   m_tabdrifttime_maxfield.push_back(0.06122*CLHEP::nanosecond);
@@ -226,6 +324,11 @@ TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData(unsigned int digversion, bool i
       m_tabdists_maxfield.push_back(1935.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(34.1365*CLHEP::nanosecond);
       m_tabdists_maxfield.push_back(1985.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(35.0050*CLHEP::nanosecond);
       m_tabdists_maxfield.push_back(2000.0*CLHEP::micrometer); m_tabdrifttime_maxfield.push_back(35.9850*CLHEP::nanosecond); //extrapolated
+
+    } else {
+      std::cout << "FATAL TRT_BarrelDriftTimeData::TRT_BarrelDriftTimeData strawGas ("
+                << strawGas << ") must be 0(Xe), 1(Kr) or 2(Ar). The job will die now :(" << std::endl;
+      throw;
     }
 
   assert(m_tabdists_nofield.size()==m_tabdrifttime_nofield.size());
@@ -312,22 +415,6 @@ double TRT_BarrelDriftTimeData::DriftTimeAtMaxField(const double& dist) const {
 }
 
 //______________________________________________________________________________
-double TRT_BarrelDriftTimeData::RMSofSpreadRelativeToDriftTime(const double& dist) const {
-  //Returns the RMS of the diffusion spread relative to the average
-  //drifttime at a certain distance. This is an empirical formula
-  //found by fitting to Peters simulated data.
-
-  //Simple (12ns on my laptop):
-  /////    return 0.0282156*dist*dist*dist*dist-0.145674*dist*dist*dist+0.28297*dist*dist-0.257124*dist+0.130335;
-
-  // Reordered to save 6 multiplications (10mult,4add->4mult,4add). 9ns instead.
-  if (!isArgon){
-    return 0.130335 + dist*(-0.257124+dist*(0.28297 + dist*(0.0282156*dist-0.145674))) ;
-  }
-  else{
-    // added by Sasha. Obtained from Konstantin's diffusion tables
-    // FIXME Table with no magnetic field was used only!!! need to check table with max magnetic field!!!
-    return 0.171935 + dist*(-0.378806+dist*(0.444491 + dist*(0.0465891*dist-0.237386))) ;
-  }
-}
+// Diffusion code has been remove (June 2015), only represents a spread of a few ns.
+// That is much smaller than the signal shaping width.
 

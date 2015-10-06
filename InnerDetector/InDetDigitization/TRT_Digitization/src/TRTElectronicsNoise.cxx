@@ -25,9 +25,7 @@ TRTElectronicsNoise::TRTElectronicsNoise(const TRTDigSettings* digset,
 
   if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsNoise::Constructor begin"  << endreq;
 
-  //Need to initialize the signal shaping first as it is used in
-  //tabulateNoiseSignalShape()!
-
+  //Need to initialize the signal shaping first as it is used in tabulateNoiseSignalShape()!
   this->InitializeNoiseShaping();
 
   m_pHRengine = atRndmGenSvc->GetEngine("TRT_ElectronicsNoise");
@@ -36,7 +34,7 @@ TRTElectronicsNoise::TRTElectronicsNoise(const TRTDigSettings* digset,
 
   this->tabulateNoiseSignalShape();
 
-  this->reinitElectronicsNoise(200); //Just so it is never uninitialized: (fixme?)
+  this->reinitElectronicsNoise(200);
 
   const double slowPeriod(m_settings->slowPeriodicNoisePulseDistance());
   //Must be rounded to nearest multiple of binwidth... (fixme - from options)
@@ -113,8 +111,7 @@ void TRTElectronicsNoise::reinitElectronicsNoise(const unsigned int& numberOfDig
 
   //For consistency we start the arrays a little earlier than the bins we use -
   //the time back from where the signal shaping could carry a pulse:
-  unsigned int nbins = m_noiseSignalShape.size() +
-    numberOfDigitLengths * m_settings->numberOfBins();
+  unsigned int nbins = m_noiseSignalShape.size() + numberOfDigitLengths * m_settings->numberOfBins();
 
   m_cachedFastNoiseAfterSignalShaping.resize(nbins);
   m_cachedSlowNoiseAfterSignalShaping.resize(nbins);
@@ -127,7 +124,7 @@ void TRTElectronicsNoise::reinitElectronicsNoise(const unsigned int& numberOfDig
 
   //### Fast signal:
 
-  double fractionOfFastNoise = 1.-m_fractionOfSlowNoise;
+  double fractionOfFastNoise = 1.0-m_fractionOfSlowNoise;
 
   //### First we produce the noise as it is BEFORE signal shaping:
 
@@ -240,14 +237,13 @@ void TRTElectronicsNoise::addElectronicsNoise(std::vector<double>& signal,
 
   //Find array offset for fast signal:
   const unsigned int nsignalbins(signal.size());
-  const unsigned int offset_fast(CLHEP::RandFlat::shootInt(m_pHRengine,
-						    m_cachedFastNoiseAfterSignalShaping.size()-nsignalbins));
+  const unsigned int offset_fast(CLHEP::RandFlat::shootInt(m_pHRengine, m_cachedFastNoiseAfterSignalShaping.size()-nsignalbins));
 
   //Find array offset for slow periodic signal:
   int offset_slowperiodic(CLHEP::RandFlat::shootInt(m_pHRengine,
-					     m_cachedSlowNoiseAfterSignalShaping.size() -
-					     nsignalbins-n_slowperiodic_shift -
-					     slowperiodic_constshift));
+                          m_cachedSlowNoiseAfterSignalShaping.size()
+                          - nsignalbins-n_slowperiodic_shift
+                          - slowperiodic_constshift));
 
   offset_slowperiodic -= ( offset_slowperiodic % m_nbins_periodic );
   offset_slowperiodic -= slowperiodic_constshift;
@@ -262,8 +258,7 @@ void TRTElectronicsNoise::addElectronicsNoise(std::vector<double>& signal,
 
   //Fix for rare case when offset becomes negative
   if (offset_slowperiodic<0)
-    offset_slowperiodic +=
-      (((-offset_slowperiodic)%m_nbins_periodic)+1)*m_nbins_periodic;
+    offset_slowperiodic += (((-offset_slowperiodic)%m_nbins_periodic)+1)*m_nbins_periodic;
 
   //Add the two components to the signal:
   for ( unsigned int i(0); i<nsignalbins; ++i) {
@@ -278,7 +273,7 @@ void TRTElectronicsNoise::InitializeNoiseShaping() {
 
   // For now we hardcode the noise shape parameters here:
   // (I am not sure they make much sense in the DB in any case - a simple version flag should suffice).
-  // Fixme: should these be different for Argon?
+  // According to Anatoli, this shape can be the same for Xe, Kr and Ar.
   m_noisepars1.clear();
   m_noisepars1.push_back(263.1021);//N
   m_noisepars1.push_back(4.611810);//mu
