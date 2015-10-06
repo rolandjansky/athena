@@ -12,6 +12,7 @@ topSequence = AlgSequence()
 
 from egammaRec.Factories import ToolFactory, AlgFactory
 from egammaRec import egammaKeys
+from egammaTools.egammaToolsFactories import ElectronPIDBuilder, PhotonPIDBuilder, EMClusterTool
 
 from xAODEgammaCnv.xAODEgammaCnvConf import \
   xAODMaker__ElectronCnvTool, xAODMaker__ElectronCnvAlg, \
@@ -49,7 +50,9 @@ VertexCnvAlg = AlgFactory(xAODMaker__VertexCnvAlg,
 
 #Electron Converter
 Electrons2xAODTool=ToolFactory(xAODMaker__ElectronCnvTool,
-                               name = "Electrons2xAODTool")
+                               name = "Electrons2xAODTool",
+                               PIDBuilder = ElectronPIDBuilder,
+                               EMClusterTool = EMClusterTool)
 
 ElectronCnvAlg = AlgFactory(xAODMaker__ElectronCnvAlg, 
                             name = "Electrons2xAOD",
@@ -59,7 +62,9 @@ ElectronCnvAlg = AlgFactory(xAODMaker__ElectronCnvAlg,
 
 #Photon Converter
 Photons2xAODTool = ToolFactory(xAODMaker__PhotonCnvTool, 
-                               name="Photons2xAODTool")
+                               name="Photons2xAODTool",
+                               PIDBuilder = PhotonPIDBuilder,
+                               EMClusterTool = EMClusterTool)
 
 PhotonCnvAlg = AlgFactory(xAODMaker__PhotonCnvAlg,
                           name = "Photons2xAOD", 

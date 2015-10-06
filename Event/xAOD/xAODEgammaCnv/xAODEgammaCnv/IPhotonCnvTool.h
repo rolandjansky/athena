@@ -16,7 +16,7 @@
 #include "xAODEgamma/PhotonContainer.h"
 
 // Forward declaration(s):
-class egammaContainer; 
+class egamma; 
 
 namespace xAODMaker {
 
@@ -39,7 +39,7 @@ namespace xAODMaker {
 
    public:
      /// Function that fills an existing xAOD::PhotonContainer
-     virtual StatusCode convert( const egammaContainer* aod,
+     virtual StatusCode convert( const DataVector<egamma>* aod,
 				 xAOD::PhotonContainer* xaod ) const = 0;
      
      /// Gaudi interface definition

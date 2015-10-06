@@ -45,9 +45,9 @@ namespace xAODMaker {
   StatusCode ElectronCnvAlg::execute() {
     
     // Retrieve the AOD particles:
-    const egammaContainer* aod = evtStore()->tryConstRetrieve<egammaContainer>(m_aodContainerName); 
+    const ElectronContainer* aod = evtStore()->tryConstRetrieve<ElectronContainer>(m_aodContainerName); 
     if (!aod) { 
-      ATH_MSG_WARNING("No egammaContainer with key " << m_aodContainerName << " found. Do nothing."); 
+      ATH_MSG_WARNING("No ElectronCollection with key " << m_aodContainerName << " found. Do nothing."); 
       return StatusCode::SUCCESS; 
     } 
     ATH_MSG_DEBUG( "Retrieved particles with key: " << m_aodContainerName );

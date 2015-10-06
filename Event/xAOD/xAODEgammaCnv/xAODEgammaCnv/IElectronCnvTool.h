@@ -14,8 +14,9 @@
 
 // EDM include(s):
 #include "xAODEgamma/ElectronContainer.h"
+
 // Forward declaration(s):
-class egammaContainer;
+class egamma;
 
 namespace xAODMaker {
 
@@ -37,11 +38,8 @@ namespace xAODMaker {
    class IElectronCnvTool : public virtual IAlgTool {
 
    public:
-     /// Function that fills an existing xAOD::ElectronContainer (Trigger)
-     virtual StatusCode convert( const egammaContainer* aod,
-				 xAOD::ElectronContainer* xaod) const = 0;
      /// Function that fills an existing xAOD::ElectronContainer
-     virtual StatusCode convert( const egammaContainer* aod,
+     virtual StatusCode convert( const DataVector<egamma>* aod,
 				 xAOD::ElectronContainer* xaod,
 				 xAOD::ElectronContainer* xaodFrwd) const = 0;
      
