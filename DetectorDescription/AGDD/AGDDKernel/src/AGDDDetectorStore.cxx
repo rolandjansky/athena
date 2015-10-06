@@ -22,24 +22,24 @@ AGDDDetectorStore* AGDDDetectorStore::GetDetectorStore()
 void AGDDDetectorStore::RegisterDetector(AGDDDetector *s)
 {
 	std::string n=s->GetName();
-	if (m_the_detectors.find(n) != m_the_detectors.end())
+	if (the_detectors.find(n) != the_detectors.end())
 		std::cout<<" Detector "<<n<<" already in store "<<std::endl;
 	else
-                 m_the_detectors[n]=s;
+		the_detectors[n]=s;
 }
 
 void AGDDDetectorStore::RegisterTechnology(AGDDTechnology *s)
 {
 	std::string n=s->GetName();
-	if (m_the_technologies.find(n) != m_the_technologies.end())
+	if (the_technologies.find(n) != the_technologies.end())
 		std::cout<<" Technology "<<n<<" already in store "<<std::endl;
 	else
-		m_the_technologies[n]=s;
+		the_technologies[n]=s;
 }
 void AGDDDetectorStore::PrintAllDetectors()
 {
-    detectorList::const_iterator it = m_the_detectors.begin();
-    detectorList::const_iterator end = m_the_detectors.end();
+    detectorList::const_iterator it = the_detectors.begin();
+    detectorList::const_iterator end = the_detectors.end();
     std::cout<<"AGDDDetectorStore::PrintAllDetector"<<std::endl
              <<"[key] \t name \t subType \t tech"<<std::endl;
     for( ; it!=end; ++it) {

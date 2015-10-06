@@ -20,15 +20,15 @@ public:
 	std::string Volume();
 	AGDDVolume *GetVolume();
 	const HepGeom::Transform3D& Transform();
-    bool IsSensitiveDetector() {return m_isSensitiveDetector;}
-	void SensitiveDetector(bool a) {m_isSensitiveDetector=a;}
+    bool IsSensitiveDetector() {return isSensitiveDetector;}
+	void SensitiveDetector(bool a) {isSensitiveDetector=a;}
 	
 private:
 
-	bool m_isSensitiveDetector;
-	std::string m_volume;
-	AGDDVolume *m_theVolume;
-	HepGeom::Transform3D m_transform;
+	bool isSensitiveDetector;
+	std::string volume;
+	AGDDVolume *theVolume;
+	HepGeom::Transform3D transform;
 };
 
 #endif

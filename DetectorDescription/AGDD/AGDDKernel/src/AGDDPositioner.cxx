@@ -11,28 +11,28 @@
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/Rotation.h"
 
-AGDDPositioner::AGDDPositioner(std::string n,HepGeom::Transform3D t):m_isSensitiveDetector(false),m_volume(n),m_transform(t)
+AGDDPositioner::AGDDPositioner(std::string n,HepGeom::Transform3D t):isSensitiveDetector(false),volume(n),transform(t)
 {
 	AGDDPositionerStore::GetPositionerStore()->RegisterPositioner(this);
-	m_theVolume=AGDDVolumeStore::GetVolumeStore()->GetVolume(Volume());
+	theVolume=AGDDVolumeStore::GetVolumeStore()->GetVolume(Volume());
 }
-AGDDPositioner::AGDDPositioner(std::string n,CLHEP::HepRotation r,CLHEP::Hep3Vector v):m_isSensitiveDetector(false),m_volume(n)
+AGDDPositioner::AGDDPositioner(std::string n,CLHEP::HepRotation r,CLHEP::Hep3Vector v):isSensitiveDetector(false),volume(n)
 {
 	AGDDPositionerStore::GetPositionerStore()->RegisterPositioner(this);
-	m_transform=HepGeom::Transform3D(r,v);
-	m_theVolume=AGDDVolumeStore::GetVolumeStore()->GetVolume(Volume());
+	transform=HepGeom::Transform3D(r,v);
+	theVolume=AGDDVolumeStore::GetVolumeStore()->GetVolume(Volume());
 }
 std::string AGDDPositioner::Volume() 
 {
-	return m_volume;
+	return volume;
 }
 const HepGeom::Transform3D& AGDDPositioner::Transform() 
 {
-	return m_transform;
+	return transform;
 } 
 
 AGDDVolume* AGDDPositioner::GetVolume() 
 {
-	return m_theVolume;
+	return theVolume;
 } 
 

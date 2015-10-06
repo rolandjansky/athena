@@ -16,14 +16,14 @@ class AGDDSectionStore {
 public:
 	static AGDDSectionStore* GetSectionStore();
 	AGDDSection* GetSection(std::string);
-	AGDDSection* GetCurrentSection() {return m_currentSection;}
+	AGDDSection* GetCurrentSection() {return currentSection;}
 	void RegisterSection(AGDDSection*);
 	void PrintAllSections();
 	void Clean();
 private:
 	AGDDSectionStore();
-	AGDDSection* m_currentSection;
-	sectionList m_theSections;
+	AGDDSection* currentSection;
+	sectionList theSections;
 };
 
 #endif
