@@ -24,51 +24,37 @@ TRTDigCondFakeMap::TRTDigCondFakeMap( const TRTDigSettings* digset,
 				      const InDetDD::TRT_DetectorManager* detmgr,
 				      ServiceHandle <IAtRndmGenSvc> atRndmGenSvc,
 				      const TRT_ID* trt_id,
-				      bool UseArgonStraws,   // added by Sasha for Argon
-				      bool useConditionsHTStatus, // added by Sasha for Argon
+				      int UseGasMix,
 				      ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc // added by Sasha for Argon
 				    )
-  : TRTDigCondBase(digset, detmgr, trt_id, UseArgonStraws, useConditionsHTStatus, sumSvc)
+  : TRTDigCondBase(digset, detmgr, trt_id, UseGasMix, sumSvc)
 {
-  m_deadlevel = m_settings->deadStrawFraction();
   m_average_noiselevel = m_settings->averageNoiseLevel();
   m_pHRengine = atRndmGenSvc->GetEngine("TRT_FakeConditions");
 }
 
 
-/// Sasha: first argument was changed: "const unsigned int& hitid" -> "Identifier& TRT_Identifier"
+//________________________________________________________________________________
 void TRTDigCondFakeMap::setStrawStateInfo(Identifier& TRT_Identifier,
                                           const double& strawlength,
-					  bool& isdead, double& noiselevel,
+					  double& noiselevel,
 					  double& relative_noiseamplitude ) {
 
-  noiselevel = m_average_noiselevel; // Why is this an argument of setStrawStateInfo()?
-                                     // It is not used below and is simply a copy of m_settings->averageNoiseLevel().
-
-  if ( m_deadlevel > 0.0 ) { // 0.8% CPU saving :)
-    if ( CLHEP::RandFlat::shoot(m_pHRengine, 0.0, 1.0) < m_deadlevel ) {
-      isdead = true;
-      return;
-    }
-  }
-  isdead = false;
+  noiselevel = m_average_noiselevel; // Not used here, but returned to caller
 
   const double relfluct(0.05); // Hard coded! FIXME
-  double relnoiseamp = CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 1.0, relfluct );
-  while (relnoiseamp < 0.1) {
-    relnoiseamp = CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 1.0, relfluct );
-  }
+  double                      relnoiseamp = CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 1.0, relfluct );
+  while (relnoiseamp < 0.1) { relnoiseamp = CLHEP::RandGaussZiggurat::shoot(m_pHRengine, 1.0, relfluct ); }
 
+  // Anatoli says we need to scale the noise amplitude of Kr,Ar according to LT_(Kr,Ar)/LT_Xe
+  int strawGasType = StrawGasType(TRT_Identifier);
+  bool isBar = abs(m_id_helper->barrel_ec(TRT_Identifier))==1;
   double averagenoiseampforstrawlength = ( ( (800.)/(100*CLHEP::cm) ) * strawlength + 2100.0 ) / 2500.0;
 
-  /// Sasha: according to Anatoli, we need to scale the noise amplitude for Argon straws by factor LT_argon/LT_xenon
-  if ( IsArgonStraw(TRT_Identifier) ) { // Argon straw
-    int barrel_ec = m_id_helper->barrel_ec(TRT_Identifier);
-    if ( abs(barrel_ec) == 1 ) {
-      averagenoiseampforstrawlength *= ( m_settings->lowThresholdBar(true) / m_settings->lowThresholdBar(false) );
-    } else {
-      averagenoiseampforstrawlength *= ( m_settings->lowThresholdEC(true) / m_settings->lowThresholdEC(false) );
-    }
+  if ( isBar ) {
+    averagenoiseampforstrawlength *= ( m_settings->lowThresholdBar(strawGasType)/m_settings->lowThresholdBar(0) );
+  } else {
+    averagenoiseampforstrawlength *= ( m_settings->lowThresholdEC(strawGasType)/m_settings->lowThresholdEC(0) );
   }
 
   relative_noiseamplitude = relnoiseamp * averagenoiseampforstrawlength;

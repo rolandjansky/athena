@@ -68,11 +68,11 @@ public:
 			TRTDigit& outdigit,
 			double lowthreshold,
 			const double& noiseamplitude,
-			bool isArgonStraw,
+			int strawGasType,
 			double highthreshold = -1.0
 		      );
 
-  double getHighThreshold ( int hitID, bool isArgonStraw);
+  double getHighThreshold ( int hitID, int strawGasType);
   int getHTdeltaT0Shift   ( int hitID );
   unsigned int getRegion  ( int hitID );
   void HTdeltaShift       ( int hitID );
@@ -100,10 +100,10 @@ private:
   /**
    * Shape electron drift signal according to appropriate signal shapes.
    * - input: @c m_energyDistribution[]
-   * - @param isArgonStraw: straw type (Argon or Xenon)
+   * - @param strawGasType: straw type (1:Xe, 2:Kr, 3:Ar)
    * - output: @c m_lowThresholdSignal[], @c m_highThresholdSignal[]
    */
-  void SignalShaping(bool isArgonStraw);
+  void SignalShaping(int strawGasType);
 
   /**
    * Simulate discriminator response
@@ -144,20 +144,16 @@ private:
   int m_discriminatorDeadTimeInBinWidths;     /**< Discriminator dead time [int. bins] */
   int m_minWidthMinusSettlingTimeInBinWidths; /**< Min. discriminator time minus settling * time [internal bins] */
 
-  double m_lowThresholdBar[2]; /**<  Low threshold discriminator setting */
-  double m_lowThresholdEC[2];  /**<  Low threshold discriminator setting */
+  // 0:Xe,1:Kr,2:Ar
+  double m_lowThresholdBar[3];
+  double m_lowThresholdEC[3];
+  std::vector<double> m_lowThresholdSignalShape[3];
+  std::vector<double> m_highThresholdSignalShape[3];
 
   unsigned int m_maskA;   /**< mask - ever used? */
   unsigned int m_maskB;   /**< mask - ever used? */
   unsigned int m_maskC;   /**< mask - ever used? */
   unsigned int m_maskHT;  /**< mask - ever used? */
-
-  // Signal shaping functions for low and high thresholds are stored as discrete amplitudes.
-  // There are two LT\HT pairs of amplitudes:
-  // isArgon = 0 : Xenon straw in proportional-mode
-  // isArgon = 1 : Argon straw in proportional-mode
-  std::vector<double> m_lowThresholdSignalShape[4];
-  std::vector<double> m_highThresholdSignalShape[4];
 
   // Deposit energy in timed bins before shaping.
   double* m_energyDistribution;

@@ -25,7 +25,6 @@
 #include "AthenaKernel/MsgStreamMember.h"
 
 #include "InDetIdentifier/TRT_ID.h"
-// need for Argon: to get straw status for a given TRT_Identifier
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 
 class TRTDigit;
@@ -38,15 +37,11 @@ class IAtRndmGenSvc;
 class ITRT_PAITool;
 class ITRT_SimDriftTimeTool;
 
-namespace MagField {
-  class IMagFieldSvc;
-}
+namespace MagField { class IMagFieldSvc; }
 
-namespace InDetDD {
-  class TRT_DetectorManager;
-}
+namespace InDetDD { class TRT_DetectorManager; }
+
 class TRTDigSettings;
-
 
 /**
  * TRT Digitization: Processing of a TRT Straws. @n
@@ -66,8 +61,8 @@ public:
 			TRTDigCondBase* digcond,
 			const HepPDT::ParticleDataTable*,
 			const TRT_ID*,
-            		bool UseArgonStraws, // need for Argon
-		        ITRT_PAITool* = NULL); // second optional instance of TRT_PAI_tool for Argon straw simulation
+		        ITRT_PAITool* = NULL,
+		        ITRT_PAITool* = NULL);
   /** Destructor */
   ~TRTProcessingOfStraw();
 
@@ -98,11 +93,12 @@ public:
 		     TRTDigit& outdigit,
 		     bool & m_alreadyPrintedPDGcodeWarning,
 		     double m_cosmicEventPhase, //const ComTime* m_ComTime,
-                     bool UseArgonStraws,
+                     int strawGasType,
                      unsigned short & m_particleFlag );
 
   MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLvl (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
+  bool msgLvl (MSG::Level lvl) { return m_msg.get().level() <= lvl; }
+
 private:
 
   //NB copy-constructor and assignment operator declared, but not defined.
@@ -114,25 +110,23 @@ private:
 
   const TRTDigSettings* m_settings;
   const InDetDD::TRT_DetectorManager* m_detmgr;
-  ITRT_PAITool* m_pPAItool;
-  ITRT_PAITool* m_pPAItool_optional;
+  ITRT_PAITool* m_pPAItoolXe;
+  ITRT_PAITool* m_pPAItoolAr;
+  ITRT_PAITool* m_pPAItoolKr;
   ITRT_SimDriftTimeTool* m_pSimDriftTimeTool;
 
   /** TR efficiency: this fraction of TR photons will be kept */
-  double m_epsilonBarrel;
-  double m_epsilonEndCap;
-  double m_epsilonBarrelArgon;
-  double m_epsilonEndCapArgon;
+  double m_trEfficiencyBarrel;
+  double m_trEfficiencyEndCapA;
+  double m_trEfficiencyEndCapB;
 
-  /** Time to be corrected for flight and wire propagation delays
-      false when beamType='cosmics' */
+  /** Time to be corrected for flight and wire propagation delays false when beamType='cosmics' */
   bool m_timeCorrection;
 
   double m_ionisationPotential;
   double m_signalPropagationSpeed;
   double m_attenuationLength;
 
-  bool m_smearingFactorDependsOnRadius;
   bool m_useAttenuation;
   bool m_useMagneticFieldMap;
 
@@ -158,8 +152,6 @@ private:
   TRTDigCondBase*           m_pDigConditions;
 
   const HepPDT::ParticleDataTable* m_pParticleTable;
-
-  bool m_UseArgonStraws;
 
   /** Primary ionisation cluster */
   class cluster {
@@ -206,7 +198,7 @@ private:
 			     const double& posty,
 			     const double& postz,
 			     std::vector<cluster>& clusterlist,
-			     bool isArgonStraw);
+			     int strawGasType);
   /**
    * Transform the ioniation clusters along the particle trajectory inside a
    * straw to energy deposits (i.e. potential fluctuations) reaching the
@@ -227,15 +219,12 @@ private:
 			   const std::vector<cluster>& clusters,
 			   std::vector<TRTElectronicsProcessing::Deposit>& deposits,
 			   Amg::Vector3D TRThitGlobalPos,
-                           double m_cosmicEventPhase, // const ComTime* m_ComTime,
-                           bool UseArgonStraws);
+                           double m_cosmicEventPhase, // const ComTime* m_ComTime
+                           int strawGasType);
 
   std::vector<double> m_drifttimes;     // electron drift times
   std::vector<double> m_expattenuation; // tabulation of exp()
-  std::vector<double> m_depositEnergy;  // electron energy deposits
   unsigned int  m_maxelectrons;         // maximum number of them (minmum is 100 for the Gaussian approx to be ok);
-
-  bool m_usedrifttimespread;
 
   CLHEP::HepRandomEngine * m_pHRengine;
 
@@ -244,6 +233,7 @@ private:
   Amg::Vector3D getGlobalPosition( int hitID, const TimedHitPtr<TRTUncompressedHit> *theHit );
 
   void particleFlagSetBit(int bitposition, unsigned short &particleFlag) const;
+  unsigned int getRegion(int hitID);
 
   //Magnetic field stuff
   ServiceHandle < MagField::IMagFieldSvc > m_magneticfieldsvc;

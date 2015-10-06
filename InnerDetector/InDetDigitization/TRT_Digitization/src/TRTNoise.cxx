@@ -29,6 +29,7 @@
 struct TRTDigitSorter {
   bool operator() (TRTDigit digit1, TRTDigit digit2) { return (digit1.GetStrawID()<digit2.GetStrawID());}
 } TRTDigitSorterObject;
+
 //_____________________________________________________________________________
 TRTNoise::TRTNoise( const TRTDigSettings* digset,
 		    const InDetDD::TRT_DetectorManager* detmgr,
@@ -37,9 +38,8 @@ TRTNoise::TRTNoise( const TRTDigSettings* digset,
 		    TRTElectronicsProcessing * ep,
 		    TRTElectronicsNoise * electronicsnoise,
 		    const TRT_ID* trt_id,
-		    bool UseArgonStraws,   // need for Argon
-		    bool useConditionsHTStatus, // need for Argon
-		    ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc // need for Argon
+		    int UseGasMix,
+		    ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc
 		  )
   : m_settings(digset),
     m_detmgr(detmgr),
@@ -50,8 +50,7 @@ TRTNoise::TRTNoise( const TRTDigSettings* digset,
     m_digitPoolLength(5000),
     m_digitPoolLength_nextaccessindex(0),
     m_msg("TRTNoise"),
-    m_UseArgonStraws(UseArgonStraws),
-    m_useConditionsHTStatus(useConditionsHTStatus),
+    m_UseGasMix(UseGasMix),
     m_sumSvc(sumSvc)
 {
   if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "TRTNoise::Constructor begin" << endreq; }
@@ -101,9 +100,7 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
   ///////////////////////////////////////////////////////////////////
   // Step 1 - create lookup table for mapping: noiselevel -> LT/NA //
   ///////////////////////////////////////////////////////////////////
-
-  // According to Anatoli, the noise shaping function is not very different for Argon and Xenon.
-  // Fixme: This function used hardcoded noise signal shape in TRTSignalShape.cxx line 58.
+  // According to Anatoli, the noise shaping function is not very different for Argon and Xenon(and Krypton).
 
   std::vector<float> maxLTOverNoiseAmp;
   m_pElectronicsNoise->getSamplesOfMaxLTOverNoiseAmp(maxLTOverNoiseAmp,10000);
@@ -136,110 +133,126 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
 
   //Figure out <(LT/NA)_i * r_i>:
 
-  unsigned long nstrawsBar_Xenon(0), nstrawsEC_Xenon(0);
-  unsigned long nstrawsBar_Argon(0), nstrawsEC_Argon(0);
-  double sumBar_Xenon(0.), sumEC_Xenon(0.);
-  double sumBar_Argon(0.), sumEC_Argon(0.);
+  unsigned long nstrawsBa_Xe(0), nstrawsEC_Xe(0);
+  unsigned long nstrawsBa_Kr(0), nstrawsEC_Kr(0);
+  unsigned long nstrawsBa_Ar(0), nstrawsEC_Ar(0);
+  double sumBa_Xe(0.), sumEC_Xe(0.);
+  double sumBa_Kr(0.), sumEC_Kr(0.);
+  double sumBa_Ar(0.), sumEC_Ar(0.);
   int hitid(0);
   float noiselevel(0.), noiseamp(0.);
 
   m_pDigConditions->resetGetNextStraw();
 
-  /// Loop through all non-dead straws:
+  /// Loop through all non-dead straws (there are no dead straws since 2009!):
   while ( m_pDigConditions->getNextStraw(hitid, noiselevel, noiseamp) ) {
 
-    bool isArgonStraw = IsArgonStraw(getStrawIdentifier(hitid));
+    const bool isBarrel(!(hitid & 0x00200000));
+    int strawGasType = StrawGasType(getStrawIdentifier(hitid));
+    float lt = useLookupTable(noiselevel, maxLTOverNoiseAmp, 0., 1.) * noiseamp;
 
-    if (isArgonStraw){
-      if ( !(hitid & 0x00200000) ) {
-	++nstrawsBar_Argon;
-	sumBar_Argon += useLookupTable(noiselevel, maxLTOverNoiseAmp, 0., 1.) * noiseamp;
-      } else {
-	++nstrawsEC_Argon;
-	sumEC_Argon += useLookupTable(noiselevel, maxLTOverNoiseAmp, 0., 1.) * noiseamp;
-      }
+    if (strawGasType==0) {
+      if ( isBarrel ) { ++nstrawsBa_Xe; sumBa_Xe += lt; }
+      else            { ++nstrawsEC_Xe; sumEC_Xe += lt; }
     }
-    else{
-      if ( !(hitid & 0x00200000) ) {
-	++nstrawsBar_Xenon;
-	sumBar_Xenon += useLookupTable(noiselevel, maxLTOverNoiseAmp, 0., 1.) * noiseamp;
-      } else {
-	++nstrawsEC_Xenon;
-	sumEC_Xenon += useLookupTable(noiselevel, maxLTOverNoiseAmp, 0., 1.) * noiseamp;
-      }
+    else if (strawGasType==1) {
+      if ( isBarrel ) { ++nstrawsBa_Kr; sumBa_Kr += lt; }
+      else            {	++nstrawsEC_Kr; sumEC_Kr += lt; }
+    }
+    else if (strawGasType==2) {
+      if ( isBarrel ) { ++nstrawsBa_Ar; sumBa_Ar += lt; }
+      else            {	++nstrawsEC_Ar; sumEC_Ar += lt; }
     }
 
-  };
+  }; // end "Loop through all non-dead straws"
 
   //This gives us k right away:
-  double kBar_Argon(0.), kEC_Argon(0.), kBar_Xenon(0.), kEC_Xenon(0.);
-  if (sumBar_Argon !=0.) kBar_Argon = m_settings->lowThresholdBar(true)  * (nstrawsBar_Argon/sumBar_Argon);
-  if (sumEC_Argon  !=0.) kEC_Argon  = m_settings->lowThresholdEC(true)   * (nstrawsEC_Argon/sumEC_Argon);
-  if (sumBar_Xenon !=0.) kBar_Xenon = m_settings->lowThresholdBar(false) * (nstrawsBar_Xenon/sumBar_Xenon);
-  if (sumEC_Xenon  !=0.) kEC_Xenon  = m_settings->lowThresholdEC(false)  * (nstrawsEC_Xenon/sumEC_Xenon);
+  double kBa_Xe(0.), kEC_Xe(0.);
+  double kBa_Kr(0.), kEC_Kr(0.);
+  double kBa_Ar(0.), kEC_Ar(0.);
+  if (sumBa_Xe !=0.) kBa_Xe = m_settings->lowThresholdBar(0) * (nstrawsBa_Xe/sumBa_Xe);
+  if (sumBa_Kr !=0.) kBa_Kr = m_settings->lowThresholdBar(1) * (nstrawsBa_Kr/sumBa_Kr);
+  if (sumBa_Ar !=0.) kBa_Ar = m_settings->lowThresholdBar(2) * (nstrawsBa_Ar/sumBa_Ar);
+  if (sumEC_Xe !=0.) kEC_Xe = m_settings->lowThresholdEC(0)  * (nstrawsEC_Xe/sumEC_Xe);
+  if (sumEC_Kr !=0.) kEC_Kr = m_settings->lowThresholdEC(1)  * (nstrawsEC_Kr/sumEC_Kr);
+  if (sumEC_Ar !=0.) kEC_Ar = m_settings->lowThresholdEC(2)  * (nstrawsEC_Ar/sumEC_Ar);
 
   ///////////////////////////////////////////////////////////////////
   // Step 3 - Calculate and set actual LT_i and NA_i               //
   ///////////////////////////////////////////////////////////////////
 
   std::vector<float> actual_LTs, actual_noiseamps;
-  std::vector<bool> strawTypes;
+  std::vector<int> strawTypes;
   if ( m_settings->noiseInUnhitStraws() ) {
-    int ns = m_pDigConditions->totalNumberOfActiveStraws();
-    actual_LTs.reserve(ns);
-    actual_noiseamps.reserve(ns);
+    int nstraws = m_pDigConditions->totalNumberOfActiveStraws();
+    actual_LTs.reserve(nstraws);
+    actual_noiseamps.reserve(nstraws);
   };
 
   float actualLT, actualNA;
-  bool strawType; // true - Argon; false - Xenon
 
   m_pDigConditions->resetGetNextStraw();
-  double sumLT_Argon(0.), sumLTsq_Argon(0.), sumNA_Argon(0.), sumNAsq_Argon(0.);
-  double sumLT_Xenon(0.), sumLTsq_Xenon(0.), sumNA_Xenon(0.), sumNAsq_Xenon(0.);
+  double sumLT_Ar(0.), sumLTsq_Ar(0.), sumNA_Ar(0.), sumNAsq_Ar(0.);
+  double sumLT_Xe(0.), sumLTsq_Xe(0.), sumNA_Xe(0.), sumNAsq_Xe(0.);
+  double sumLT_Kr(0.), sumLTsq_Kr(0.), sumNA_Kr(0.), sumNAsq_Kr(0.);
   while ( m_pDigConditions->getNextStraw( hitid, noiselevel, noiseamp) ) {
-    bool isArgonStraw = IsArgonStraw(getStrawIdentifier(hitid));
-    if (isArgonStraw){
-      strawType = true; // Argon straw
-      actualNA = noiseamp*(  (!(hitid & 0x00200000)) ? kBar_Argon : kEC_Argon );
-    }
-    else{
-      strawType = false; // Argon straw
-      actualNA = noiseamp*(  (!(hitid & 0x00200000)) ? kBar_Xenon : kEC_Xenon );
-    }
+
+    int strawGasType = StrawGasType(getStrawIdentifier(hitid));
+
+    const bool isBarrel(!(hitid & 0x00200000));
+    if      (strawGasType==0) { actualNA = noiseamp*( isBarrel ? kBa_Xe : kEC_Xe ); }
+    else if (strawGasType==1) { actualNA = noiseamp*( isBarrel ? kBa_Kr : kEC_Kr ); }
+    else if (strawGasType==2) { actualNA = noiseamp*( isBarrel ? kBa_Ar : kEC_Ar ); }
+    else                      { actualNA = 0.0; } // should never happen
+
     actualLT = useLookupTable(noiselevel, maxLTOverNoiseAmp, 0., 1.)*actualNA;
-    if (isArgonStraw){
-      sumNA_Argon += actualNA; sumNAsq_Argon += actualNA*actualNA;
-      sumLT_Argon += actualLT; sumLTsq_Argon += actualLT*actualLT;
+
+    if      (strawGasType==0) {
+      sumNA_Xe += actualNA; sumNAsq_Xe += actualNA*actualNA;
+      sumLT_Xe += actualLT; sumLTsq_Xe += actualLT*actualLT;
     }
-    else{
-      sumNA_Xenon += actualNA; sumNAsq_Xenon += actualNA*actualNA;
-      sumLT_Xenon += actualLT; sumLTsq_Xenon += actualLT*actualLT;
+    else if (strawGasType==1) {
+      sumNA_Kr += actualNA; sumNAsq_Kr += actualNA*actualNA;
+      sumLT_Kr += actualLT; sumLTsq_Kr += actualLT*actualLT;
     }
+    else if (strawGasType==2) {
+      sumNA_Ar += actualNA; sumNAsq_Ar += actualNA*actualNA;
+      sumLT_Ar += actualLT; sumLTsq_Ar += actualLT*actualLT;
+    }
+
     m_pDigConditions->setRefinedStrawParameters( hitid, actualLT, actualNA );
     if ( m_settings->noiseInUnhitStraws() ) {
       actual_LTs.push_back(actualLT);
       actual_noiseamps.push_back(actualNA);
-      strawTypes.push_back(strawType);
-    };
+      strawTypes.push_back(strawGasType);
+    }
+
   };
 
 
-  if (msgLevel(MSG::DEBUG)) {
+  if (msgLevel(MSG::INFO)) {
 
-    unsigned long nstraws_Argon = nstrawsBar_Argon + nstrawsEC_Argon;
-    unsigned long nstraws_Xenon = nstrawsBar_Xenon + nstrawsEC_Xenon;
+    unsigned long nstraws_Kr = nstrawsBa_Kr + nstrawsEC_Kr;
+    unsigned long nstraws_Xe = nstrawsBa_Xe + nstrawsEC_Xe;
+    unsigned long nstraws_Ar = nstrawsBa_Ar + nstrawsEC_Ar;
 
-    if (nstraws_Argon!=0){
-      msg(MSG::DEBUG) << "TRTNoise:: Average LT is " << sumLT_Argon/nstraws_Argon/CLHEP::eV << " CLHEP::eV, with an RMS of "
-      << sqrt((sumLTsq_Argon/nstraws_Argon)-(sumLT_Argon/nstraws_Argon)*(sumLT_Argon/nstraws_Argon))/CLHEP::eV << " CLHEP::eV" << endreq;
-      msg(MSG::DEBUG) << "TRTNoise:: Average NA is "<<sumNA_Argon/nstraws_Argon/CLHEP::eV <<" CLHEP::eV, with an RMS of "
-      << sqrt((sumNAsq_Argon/nstraws_Argon)-(sumNA_Argon/nstraws_Argon)*(sumNA_Argon/nstraws_Argon))/CLHEP::eV << " CLHEP::eV" << endreq;
+    if (nstraws_Xe) {
+      msg(MSG::INFO) << "Xe Average LT is " << sumLT_Xe/nstraws_Xe/CLHEP::eV << " eV, with an RMS of "
+      << sqrt((sumLTsq_Xe/nstraws_Xe)-(sumLT_Xe/nstraws_Xe)*(sumLT_Xe/nstraws_Xe))/CLHEP::eV << " eV" << endreq;
+      msg(MSG::INFO) << "Xe Average NA is " << sumNA_Xe/nstraws_Xe/CLHEP::eV << " eV, with an RMS of "
+      << sqrt((sumNAsq_Xe/nstraws_Xe)-(sumNA_Xe/nstraws_Xe)*(sumNA_Xe/nstraws_Xe))/CLHEP::eV << " eV" << endreq;
     }
-    if (nstraws_Xenon!=0){
-      msg(MSG::DEBUG) << "TRTNoise:: Average LT is " << sumLT_Xenon/nstraws_Xenon/CLHEP::eV << " CLHEP::eV, with an RMS of "
-      << sqrt((sumLTsq_Xenon/nstraws_Xenon)-(sumLT_Xenon/nstraws_Xenon)*(sumLT_Xenon/nstraws_Xenon))/CLHEP::eV << " CLHEP::eV" << endreq;
-      msg(MSG::DEBUG) << "TRTNoise:: Average NA is "<<sumNA_Xenon/nstraws_Xenon/CLHEP::eV <<" CLHEP::eV, with an RMS of "
-      << sqrt((sumNAsq_Xenon/nstraws_Xenon)-(sumNA_Xenon/nstraws_Xenon)*(sumNA_Xenon/nstraws_Xenon))/CLHEP::eV << " CLHEP::eV" << endreq;
+    if (nstraws_Kr) {
+      msg(MSG::INFO) << "Kr Average LT is " << sumLT_Kr/nstraws_Kr/CLHEP::eV << " eV, with an RMS of "
+      << sqrt((sumLTsq_Kr/nstraws_Kr)-(sumLT_Kr/nstraws_Kr)*(sumLT_Kr/nstraws_Kr))/CLHEP::eV << " eV" << endreq;
+      msg(MSG::INFO) << "Kr Average NA is " << sumNA_Kr/nstraws_Kr/CLHEP::eV << " eV, with an RMS of "
+      << sqrt((sumNAsq_Kr/nstraws_Kr)-(sumNA_Kr/nstraws_Kr)*(sumNA_Kr/nstraws_Kr))/CLHEP::eV << " eV" << endreq;
+    }
+    if (nstraws_Ar) {
+      msg(MSG::INFO) << "Ar Average LT is " << sumLT_Ar/nstraws_Ar/CLHEP::eV << " eV, with an RMS of "
+      << sqrt((sumLTsq_Ar/nstraws_Ar)-(sumLT_Ar/nstraws_Ar)*(sumLT_Ar/nstraws_Ar))/CLHEP::eV << " eV" << endreq;
+      msg(MSG::INFO) << "Ar Average NA is " << sumNA_Ar/nstraws_Ar/CLHEP::eV << " eV, with an RMS of "
+      << sqrt((sumNAsq_Ar/nstraws_Ar)-(sumNA_Ar/nstraws_Ar)*(sumNA_Ar/nstraws_Ar))/CLHEP::eV << " eV" << endreq;
     }
 
   }
@@ -260,7 +273,7 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
 //_____________________________________________________________________________
 void TRTNoise::ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
 				      const std::vector<float>& noiseamps,
-				      const std::vector<bool>& strawType ) {
+				      const std::vector<int>& strawType ) {
 
   unsigned int nstraw = lowthresholds.size();
   unsigned int istraw;
@@ -272,7 +285,7 @@ void TRTNoise::ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
   std::vector<TRTElectronicsProcessing::Deposit> deposits;
   int dummyhitid(0);
   TRTDigit digit;
-  std::vector<int> m_highThresholdDiscriminator; 
+  std::vector<int> m_highThresholdDiscriminator;
   unsigned int nokdigits(0);
   unsigned int ntries(0);
   while ( nokdigits < m_digitPoolLength ) {
@@ -290,14 +303,13 @@ void TRTNoise::ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
     // Choose straw to simulate
     istraw = CLHEP::RandFlat::shootInt(m_noise_randengine, nstraw );
 
-    // Process deposits this straw. Since there are no deposits, only noise
-    //   will contrinute
+    // Process deposits this straw. Since there are no deposits, only noise will contrinute
     m_pElectronicsProcessing->ProcessDeposits( deposits,
 					       dummyhitid,
 					       digit,
 					       lowthresholds.at(istraw),
 					       noiseamps.at(istraw),
-					       strawType.at(istraw) /// true - Argon; false - Xenon
+					       strawType.at(istraw)
  					    );
 
     // If this process produced a digit, store in pool
@@ -322,8 +334,7 @@ void TRTNoise::ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
 }
 
 //_____________________________________________________________________________
-void TRTNoise::appendPureNoiseToProperDigits( std::vector<TRTDigit>& digitVect,
-					      const std::set<int>& sim_hitids)
+void TRTNoise::appendPureNoiseToProperDigits( std::vector<TRTDigit>& digitVect, const std::set<int>& sim_hitids )
 {
 
   const std::set<int>::const_iterator sim_hitids_end(sim_hitids.end());
@@ -332,15 +343,11 @@ void TRTNoise::appendPureNoiseToProperDigits( std::vector<TRTDigit>& digitVect,
   int hitid;
   float noiselevel;
 
-  while (m_pDigConditions->getNextNoisyStraw(m_noise_randengine,
-					     hitid,
-					     noiselevel) ) {
+  while (m_pDigConditions->getNextNoisyStraw(m_noise_randengine,hitid,noiselevel) ) {
     //returned noiselevel not used for anything right now (fixme?).
-
     // If this strawID does not have a sim_hit, add a pure noise digit
     if ( sim_hitids.find(hitid) == sim_hitids_end ) {
-      const int ndigit(m_digitPool[CLHEP::RandFlat::shootInt(m_noise_randengine,
-						m_digitPoolLength)]);
+      const int ndigit(m_digitPool[CLHEP::RandFlat::shootInt(m_noise_randengine,m_digitPoolLength)]);
       digitVect.push_back(TRTDigit(hitid,ndigit));
     }
   };
@@ -628,8 +635,7 @@ Identifier TRTNoise::getStrawIdentifier ( int hitID )
     if (trtID == 3) { trtID = 0; }
     else            { trtID = 1; }
 
-    endcapElement =
-      m_detmgr->getEndcapElement(trtID, wheelID, planeID, sectorID);
+    endcapElement = m_detmgr->getEndcapElement(trtID, wheelID, planeID, sectorID);
 
     if ( endcapElement ) {
       IdLayer = endcapElement->identify();
@@ -652,16 +658,24 @@ Identifier TRTNoise::getStrawIdentifier ( int hitID )
 
 
 //_____________________________________________________________________________
-bool TRTNoise::IsArgonStraw(Identifier TRT_Identifier) {
-  // EStatus { Undefined, Dead, Good(Xe) }
-  bool isArgonStraw = m_UseArgonStraws; // If this is true then ALL straws are Argon
-  // But TRT/Cond/StatusHT will override this with specific Xe/Ar geometry if available:
-  if (m_useConditionsHTStatus) {
-    if ( m_sumSvc->getStatusHT(TRT_Identifier) != TRTCond::StrawStatus::Good ) {
-       isArgonStraw = true;  // Argon straw
-    } else {
-       isArgonStraw = false; // Xenon straw
-    }
+int TRTNoise::StrawGasType(Identifier TRT_Identifier) {
+
+  // TRT/Cond/StatusHT provides: enum { Undefined, Dead(Ar), Good(Xe), Xenon(Xe), Argon(Ar), Krypton(Kr) }
+  // The m_UseGasMix default behaviour (0) is to use TRT/Cond/StatusHT, other values can be set to force
+  // the whole detector to (1)Xenon, (2)Krypton, (3)Argon:
+
+  int strawGasType=-1;
+
+  if (m_UseGasMix==0) { // use StatusHT
+    int stat =  m_sumSvc->getStatusHT(TRT_Identifier);
+    if       ( stat==2 || stat==3 ) { strawGasType = 0; } // Xe
+    else if  ( stat==5 )            { strawGasType = 1; } // Kr
+    else if  ( stat==1 || stat==4 ) { strawGasType = 2; } // Ar
   }
-  return isArgonStraw;
+  else if (m_UseGasMix==1) { strawGasType = 0; } // force whole detector to Xe
+  else if (m_UseGasMix==2) { strawGasType = 1; } // force whole detector to Kr
+  else if (m_UseGasMix==3) { strawGasType = 2; } // force whole detector to Ar
+
+  return strawGasType;
+
 }

@@ -13,7 +13,7 @@
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h" // added by Sasha for Argon
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 
 class TRTDigCondBase;
 class TRTElectronicsProcessing;
@@ -21,9 +21,8 @@ class TRTElectronicsNoise;
 class IAtRndmGenSvc;
 #include "AthenaKernel/MsgStreamMember.h"
 #include "CLHEP/Random/RandomEngine.h"
-class ITRT_PAITool;
 class Identifier;
-class TRT_ID; 
+class TRT_ID;
 
 namespace InDetDD {
   class TRT_DetectorManager;
@@ -48,8 +47,7 @@ public:
 	    TRTElectronicsProcessing * ep,
 	    TRTElectronicsNoise * electronicsnoise,
 	    const TRT_ID* trt_id,
-	    bool UseArgonStraws,   // added by Sasha for Argon
-	    bool useConditionsHTStatus, // added by Sasha for Argon
+	    int UseGasMix,
 	    ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc // added by Sasha for Argon
 	  );
 
@@ -127,7 +125,7 @@ public:
    */
   void ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
 			      const std::vector<float>& noiseamps,
-			      const std::vector<bool>& strawType
+			      const std::vector<int>& strawType
 			    );
 
   const TRT_ID* m_id_helper;
@@ -200,12 +198,13 @@ public:
   mutable Athena::MsgStreamMember m_msg;
 
   Identifier getStrawIdentifier (int hitID);
-  bool IsArgonStraw(Identifier TRT_Identifier);
-  
-  bool m_UseArgonStraws;   // need for Argon
-  bool m_useConditionsHTStatus; // need for Argon
+
+  // The straw's gas mix: 1=Xe, 2=Kr, 3=Ar
+  int StrawGasType(Identifier TRT_Identifier);
+
+  unsigned int getRegion(int hitID,const TRT_ID* trt_id);
+  int m_UseGasMix;
   ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc; // need for Argon
-  
 };
 
 #endif

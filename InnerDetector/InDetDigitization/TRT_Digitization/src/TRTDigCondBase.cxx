@@ -19,12 +19,14 @@
 // For the random numbers.
 #include "CLHEP/Random/RandFlat.h"
 
+// Logging
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
 //________________________________________________________________________________
 TRTDigCondBase::TRTDigCondBase( const TRTDigSettings* digset,
 				const InDetDD::TRT_DetectorManager* detmgr,
 				const TRT_ID* trt_id,
-				bool UseArgonStraws,   // added by Sasha for Argon
-				bool useConditionsHTStatus, // added by Sasha for Argon
+				int UseGasMix,
 				ServiceHandle<ITRT_StrawStatusSummarySvc> sumSvc // added by Sasha for Argon
 			      )
   : m_settings(digset), m_detmgr(detmgr), m_id_helper(trt_id),
@@ -32,8 +34,7 @@ TRTDigCondBase::TRTDigCondBase( const TRTDigSettings* digset,
     m_crosstalk_noiselevel(-1.0),
     m_crosstalk_noiselevel_other_end(-1.0),
     m_msg ("TRTDigCondBase"),
-    m_UseArgonStraws(UseArgonStraws),
-    m_useConditionsHTStatus(useConditionsHTStatus),
+    m_UseGasMix(UseGasMix),
     m_sumSvc(sumSvc)
 {
   m_crosstalk_noiselevel = m_settings->crossTalkNoiseLevel();
@@ -44,7 +45,7 @@ TRTDigCondBase::TRTDigCondBase( const TRTDigSettings* digset,
 
 //________________________________________________________________________________
 float TRTDigCondBase::strawAverageNoiseLevel() const {
-  
+
   if (m_averageNoiseLevel>=0.0) {
     return m_averageNoiseLevel;
   } else {
@@ -62,7 +63,7 @@ float TRTDigCondBase::strawAverageNoiseLevel() const {
 //________________________________________________________________________________
 void TRTDigCondBase::initialize() {
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTDigCondBase::initialize begin" << endreq;
+  ATH_MSG_INFO ( "TRTDigCondBase::initialize()" );
 
   //id helpers:
   TRTHitIdHelper *hitid_helper(TRTHitIdHelper::GetHelper());
@@ -72,141 +73,66 @@ void TRTDigCondBase::initialize() {
   InDetDD::TRT_DetElementCollection::const_iterator itE(m_detmgr->getDetectorElementEnd());
 
   unsigned int strawcount(0);
-  
-  for (;it!=itE;++it) {
-    const double strawLength((*it)->strawLength()); //Not used until much later..
+  unsigned int nBAA[3][3]  = { 0 }; // [ringwheel=0,1,2][strawGasType=0,1,2]
+  unsigned int nBAC[3][3]  = { 0 }; // [ringwheel=0,1,2][strawGasType=0,1,2]
+  unsigned int nECA[14][3] = { 0 }; // [ringwheel=0--13][strawGasType=0,1,2]
+  unsigned int nECC[14][3] = { 0 }; // [ringwheel=0--13][strawGasType=0,1,2]
 
+  for (;it!=itE;++it) { // loop over straws
+
+    const double strawLength((*it)->strawLength()); //Not used until much later..
     const Identifier id((*it)->identify());
 
-    int barrel_endcap, ispos;
-    //warning: It is quite likely that ispos should be called isneg,
-    //but it is really all rather confusing...
-    switch ( m_id_helper->barrel_ec(id) ) {
-      case -2:  barrel_endcap = 1; ispos = 1; break;
-      case -1:  barrel_endcap = 0; ispos = 1; break;
-      case  1:  barrel_endcap = 0; ispos = 0; break;
-      case  2:  barrel_endcap = 1; ispos = 0; break;
+    const int ringwheel(m_id_helper->layer_or_wheel(id));
+    const int phisector(m_id_helper->phi_module(id));
+    const int     layer(m_id_helper->straw_layer(id));
+    const int      side(m_id_helper->barrel_ec(id));
+
+    int endcap, isneg;
+    switch ( side ) {
+      case -2:  endcap = 1; isneg = 1; break;
+      case -1:  endcap = 0; isneg = 1; break;
+      case  1:  endcap = 0; isneg = 0; break;
+      case  2:  endcap = 1; isneg = 0; break;
       default:
         std::cout << "TRTDigitization::TRTDigCondBase::createListOfValidStraws "
 		  << "FATAL - identifier problems - skipping detector element!!" << std::endl;
  	continue;
     }
 
-    const int ringwheel(m_id_helper->layer_or_wheel(id));
-    int phisector(m_id_helper->phi_module(id));
-    const int layer(m_id_helper->straw_layer(id));
-
-
-
-    
     for (unsigned int iStraw(0); iStraw <(*it)->nStraws(); ++iStraw) {
-      ++strawcount;
-      
-      const int hitid(hitid_helper->buildHitId( barrel_endcap, ispos, ringwheel, phisector,layer, iStraw));
 
+      // get ID of the straw, and the gas mix
+      const int hitid(hitid_helper->buildHitId( endcap, isneg, ringwheel, phisector, layer, iStraw));
+      //Identifier strawId = m_id_helper->straw_id(m_id_helper->barrel_ec(id), phisector, ringwheel, layer, iStraw);
+      Identifier strawId = m_id_helper->straw_id(side, phisector, ringwheel, layer, iStraw);
+      int strawGasType = StrawGasType(strawId);
 
-    //<----------- Cosmic Hack ----------->
-      //If cosmic run, and not in one of the relevant barrel modules -
-      //we designate the straw as dead.
-
-      if ((m_settings->killEndCap()) && (!(m_id_helper->is_barrel(id)) )) {
-	m_deadstraws_hitids.insert( hitid );
-	continue;
-      } else if ((m_settings->killBarrel()) && ((m_id_helper->is_barrel(id)) )){
-	m_deadstraws_hitids.insert( hitid );
-	continue;
-      }
-
-      if (m_settings->cosmicFlag()) {
-	  bool activeincosmic = false;
-	  if (barrel_endcap==0) { // Barrel
-	    //FIXME (temporary):
-	    const int oldcalcmoduleID((hitid >> 10) & 0x0000001F);
-	    if (oldcalcmoduleID != phisector) {
-	      std::cout << "TRTDigitization::TRTDigCondBase:: ERROR in phisector calculation. OLD="
-			<< oldcalcmoduleID<<", NEW="<<phisector
-			<< " (please send this output line to kittel@nbi.dk !!!)."<<std::endl;
-	      phisector = oldcalcmoduleID;
-	    }
-	    if (m_settings->cosmicFlag() == 1) {
-	      if (phisector == 7 || phisector == 8 || phisector == 23 || phisector == 24)
-		activeincosmic = true;
-	    } else if (m_settings->cosmicFlag() == 2) {
-	      if (phisector == 6 || phisector == 7 || phisector == 22 || phisector == 23)
-		activeincosmic = true;
-	    } else if (m_settings->cosmicFlag() == 3) {
-	      if ( phisector == 6 || phisector == 7 )
-		activeincosmic = true;
-	    } else if (m_settings->cosmicFlag() == 4) {
-	      if (phisector == 6 || phisector == 7)
-		activeincosmic = true;
-	      else if ((phisector == 22 || phisector == 23)&&ispos==1)
-		activeincosmic = true;
-	    }
-	  }
-      	  if (!activeincosmic) {
-	    m_deadstraws_hitids.insert( hitid );
-	    continue;
-	  }
-	}
-
-      //<--------- Cosmic Hack End --------->
-      //<----------------------------------->
-
-      //<------------- CTB Hack ------------>
-      //If CTB, everything not in the positive(negative?) barrel will be declared dead.
-      if (m_settings->isCTB()){
-	if (!(barrel_endcap == 0 && ispos == 0)) {
-	  m_deadstraws_hitids.insert( hitid );
-	  continue;
-	}
-      }
-      //<----------- CTB Hack End ---------->
-      //<----------------------------------->
-
-      /// get ID of the straw
-      Identifier strawId = m_id_helper->straw_id(m_id_helper->barrel_ec(id), phisector, ringwheel, layer, iStraw);
-      
-      //Get info about the straw conditions:
-      bool isdead;
+      //Get info about the straw conditions, then create and fill the strawstate
       double noiselevel, relative_noiseamplitude;
-      setStrawStateInfo( strawId, strawLength, isdead, noiselevel, relative_noiseamplitude );
+      setStrawStateInfo( strawId, strawLength, noiselevel, relative_noiseamplitude );
+      StrawState strawstate;
+      strawstate.noiselevel = noiselevel; // same for all gas types
+      strawstate.lowthreshold = ( !(hitid & 0x00200000) ) ? m_settings->lowThresholdBar(strawGasType) : m_settings->lowThresholdEC(strawGasType);
+      strawstate.noiseamplitude= relative_noiseamplitude; // These two are later regulated noise code
+      m_hitid_to_StrawState[ hitid ] = strawstate; // Insert into the map:
 
-      if ( !isdead ) {
+      // Count the number of straws
+      ++strawcount;
 
-	//Create and fill strawstate for straw:
-	StrawState strawstate;
+      // Count the gas fraction in a number of regions:
+      // std::cout << "AJB  side=" << side << " ringwheel=" << ringwheel << " phisector=" << phisector << " layer=" << layer << " iStraw=" << iStraw << " strawGasType=" << strawGasType << std::endl;
+      if ( side==+1 && ringwheel>=0 && ringwheel<=2  ) nBAA[ringwheel][strawGasType]++; // [ringwheel=0,1,2][strawGasType=0,1,2]
+      if ( side==-1 && ringwheel>=0 && ringwheel<=2  ) nBAC[ringwheel][strawGasType]++; // [ringwheel=0,1,2][strawGasType=0,1,2]
+      if ( side==+2 && ringwheel>=0 && ringwheel<=13 ) nECA[ringwheel][strawGasType]++; // [ringwheel=0, 13][strawGasType=0,1,2]
+      if ( side==-2 && ringwheel>=0 && ringwheel<=13 ) nECC[ringwheel][strawGasType]++; // [ringwheel=0, 13][strawGasType=0,1,2]
 
-	/// Sasha: same for Argon and Xenon straws
- 	strawstate.noiselevel = noiselevel;
-	//  (These two are later regulated noise code):
-
-	/// Sasha: retrieve straw type (Argon or Xenon)
-	bool isArgonStraw = IsArgonStraw(strawId);
-	
-	/// Sasha: write proper lowthreshold (depends from straw type: Xenon, Argon)
-	strawstate.lowthreshold = ( !(hitid & 0x00200000) ) ? m_settings->lowThresholdBar(isArgonStraw) : m_settings->lowThresholdEC(isArgonStraw);
-
-	strawstate.noiseamplitude= relative_noiseamplitude;
-	
-	//Insert into map:
-	m_hitid_to_StrawState[ hitid ] = strawstate;
-
-      } else {
-	//Insert into map of active straws
-	m_deadstraws_hitids.insert( hitid );
-      }
     };
-    
-  };
 
-  if (strawcount != m_deadstraws_hitids.size() + m_hitid_to_StrawState.size() ) {
-    std::cout << "TRTDigitization::TRTDigCondBase::createListOfValidStraws FATAL - Two identical hitID's exists!!";
-  };
+  }; // end "loop over straws"
 
   m_it_hitid_to_StrawState = m_hitid_to_StrawState.begin();
   m_it_hitid_to_StrawState_End = m_hitid_to_StrawState.end();
-  m_it_deadstraws_hitids_End = m_deadstraws_hitids.end();
 
   //just put it to something:
   m_it_hitid_to_StrawState_Last = m_it_hitid_to_StrawState;
@@ -220,13 +146,39 @@ void TRTDigCondBase::initialize() {
   //just to avoid having an uninitialized iterator hanging around:
   m_all_it_hitid_to_StrawState_previous = m_hitid_to_StrawState.begin();
 
+  // Finally give some useful information about the gas mix chosen and that which we actually get!
+  if ( m_UseGasMix==0) std::cout << "TRTDigCondBase  INFO Gas Geometry: UseGasMix==0; using StatusHT to determine the gas geometry." << std::endl;
+  if ( m_UseGasMix==1) std::cout << "TRTDigCondBase  INFO Gas Geometry: UseGasMix==1; expect Xenon in the entire detector." << std::endl;
+  if ( m_UseGasMix==2) std::cout << "TRTDigCondBase  INFO Gas Geometry: UseGasMix==2; expect Krypton in the entire detector." << std::endl;
+  if ( m_UseGasMix==3) std::cout << "TRTDigCondBase  INFO Gas Geometry: UseGasMix==3; expect Argon in the entire detector." << std::endl;
+  if ( m_UseGasMix<0 || m_UseGasMix>3) {
+     std::cout << "TRTDigCondBase  ERROR Gas Geometry: UseGasMix==" << m_UseGasMix << ", must be 0,1,2or 3!" << std::endl;
+     throw std::exception();
+  }
+  std::cout << "TRTDigCondBase  INFO Gas Geometry: strawcount=" << strawcount << std::endl;
+
+  std::cout << "TRTDigCondBase  INFO Gas Geometry: BA_A[Xe] = " << nBAA[0][0] << " " << nBAA[1][0] << " " << nBAA[2][0] << std::endl;
+  std::cout << "TRTDigCondBase  INFO Gas Geometry: BA_A[Kr] = " << nBAA[0][1] << " " << nBAA[1][1] << " " << nBAA[2][1] << std::endl;
+  std::cout << "TRTDigCondBase  INFO Gas Geometry: BA_A[Ar] = " << nBAA[0][2] << " " << nBAA[1][2] << " " << nBAA[2][2] << std::endl;
+
+  std::cout << "TRTDigCondBase  INFO Gas Geometry: BA_C[Xe] = " << nBAC[0][0] << " " << nBAC[1][0] << " " << nBAC[2][0] << std::endl;
+  std::cout << "TRTDigCondBase  INFO Gas Geometry: BA_C[Kr] = " << nBAC[0][1] << " " << nBAC[1][1] << " " << nBAC[2][1] << std::endl;
+  std::cout << "TRTDigCondBase  INFO Gas Geometry: BA_C[Ar] = " << nBAC[0][2] << " " << nBAC[1][2] << " " << nBAC[2][2] << std::endl;
+
+  std::cout << "TRTDigCondBase  INFO Gas Geometry: EC_A[Xe] = "; for (int i=0;i<14;i++) std::cout << nECA[i][0] << " "; std::cout << std::endl;
+  std::cout << "TRTDigCondBase  INFO Gas Geometry: EC_A[Kr] = "; for (int i=0;i<14;i++) std::cout << nECA[i][1] << " "; std::cout << std::endl;
+  std::cout << "TRTDigCondBase  INFO Gas Geometry: EC_A[Ar] = "; for (int i=0;i<14;i++) std::cout << nECA[i][2] << " "; std::cout << std::endl;
+
+  std::cout << "TRTDigCondBase  INFO Gas Geometry: EC_C[Xe] = "; for (int i=0;i<14;i++) std::cout << nECC[i][0] << " "; std::cout << std::endl;
+  std::cout << "TRTDigCondBase  INFO Gas Geometry: EC_C[Kr] = "; for (int i=0;i<14;i++) std::cout << nECC[i][1] << " "; std::cout << std::endl;
+  std::cout << "TRTDigCondBase  INFO Gas Geometry: EC_C[Ar] = "; for (int i=0;i<14;i++) std::cout << nECC[i][2] << " "; std::cout << std::endl;
+
 }
 
 //________________________________________________________________________________
 void TRTDigCondBase::resetGetNextNoisyStraw() {
   m_it_hitid_to_StrawState = m_hitid_to_StrawState.begin();
 }
-
 
 //________________________________________________________________________________
 bool TRTDigCondBase::getNextNoisyStraw( CLHEP::HepRandomEngine* randengine, int& hitID, float& noiselvl ) {
@@ -241,38 +193,25 @@ bool TRTDigCondBase::getNextNoisyStraw( CLHEP::HepRandomEngine* randengine, int&
   return false;
 }
 
-
 //________________________________________________________________________________
 bool TRTDigCondBase::crossTalkNoise( CLHEP::HepRandomEngine* randengine ) {
-
   const float noise(- m_crosstalk_noiselevel * log(CLHEP::RandFlat::shoot(randengine, 0.0, 1.0)));
-  
   if ( CLHEP::RandFlat::shoot(randengine, 0.0, 1.0) < noise ) return true;
   return false;
 }
 
 //________________________________________________________________________________
 bool TRTDigCondBase::crossTalkNoiseOtherEnd( CLHEP::HepRandomEngine* randengine ) {
-
   const float noise(- m_crosstalk_noiselevel_other_end * log(CLHEP::RandFlat::shoot(randengine, 0.0, 1.0)));
-  
   if ( CLHEP::RandFlat::shoot(randengine, 0.0, 1.0) < noise ) return true;
   return false;
 }
 
 //________________________________________________________________________________
 
+void TRTDigCondBase::display (const std::string& msg, int lvl) const { this->msg() << static_cast<MSG::Level>(lvl) << msg << endreq; }
 
-
-void TRTDigCondBase::display (const std::string& msg, int lvl) const
-{
-  this->msg() << static_cast<MSG::Level>(lvl) << msg << endreq;
-}
-
-void TRTDigCondBase::setLvl (int lvl)
-{
-  msg().setLevel ((MSG::Level)lvl);
-}
+void TRTDigCondBase::setLvl (int lvl) { msg().setLevel ((MSG::Level)lvl); }
 
 void TRTDigCondBase::setLvl (const std::string& lvl)
 {
@@ -289,16 +228,33 @@ void TRTDigCondBase::setLvl (const std::string& lvl)
 }
 
 //_____________________________________________________________________________
-bool TRTDigCondBase::IsArgonStraw(Identifier& TRT_Identifier) const {
-  // EStatus { Undefined, Dead, Good(Xe) }
-  bool isArgonStraw = m_UseArgonStraws; // If this is true then ALL straws are Argon
-  // But TRT/Cond/StatusHT will override this with specific Xe/Ar geometry if available:
-  if (m_useConditionsHTStatus) {
-    if ( m_sumSvc->getStatusHT(TRT_Identifier) != TRTCond::StrawStatus::Good ) {
-       isArgonStraw = true;  // Argon straw
-    } else {
-       isArgonStraw = false; // Xenon straw
+int TRTDigCondBase::StrawGasType(Identifier& TRT_Identifier) const {
+
+  // TRT/Cond/StatusHT provides: enum { Undefined, Dead(Ar), Good(Xe), Xenon(Xe), Argon(Ar), Krypton(Kr) }
+  // The m_UseGasMix default behaviour (0) is to use TRT/Cond/StatusHT, other values can be set to force
+  // the whole detector to (1)Xenon, (2)Krypton, (3)Argon:
+
+  int strawGasType=-1;
+
+  if (m_UseGasMix==0) { // use StatusHT
+
+    int stat =  m_sumSvc->getStatusHT(TRT_Identifier);
+    if       ( stat==2 || stat==3 ) { strawGasType = 0; } // Xe
+    else if  ( stat==5 )            { strawGasType = 1; } // Kr
+    else if  ( stat==1 || stat==4 ) { strawGasType = 2; } // Ar
+    else { std::cout << "FATAL: TRTCond::StrawStatus, " << m_sumSvc->getStatusHT(TRT_Identifier)
+                     << ", must be 'Good(2)||Xenon(3)' or 'Dead(1)||Argon(4)' or 'Krypton(5)!'" << std::endl;
     }
   }
-  return isArgonStraw;
+  else if (m_UseGasMix==1) { strawGasType = 0; } // force whole detector to Xe
+  else if (m_UseGasMix==2) { strawGasType = 1; } // force whole detector to Kr
+  else if (m_UseGasMix==3) { strawGasType = 2; } // force whole detector to Ar
+
+  if ( strawGasType<0 || strawGasType>2 ) {
+      std::cout << "FATAL: strawGasType value " << strawGasType << " must be 0(Xe), 1(Kr) or 2(Ar)!" << std::endl;
+      throw std::exception();
+  }
+
+  return strawGasType;
+
 }

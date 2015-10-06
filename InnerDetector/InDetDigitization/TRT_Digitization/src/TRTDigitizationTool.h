@@ -24,7 +24,7 @@
 #include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 #include "HepPDT/ParticleDataTable.hh"
 
-#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h" // added by Sasha for Argon - FIXME just predeclare class in header?
+#include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 
@@ -39,7 +39,6 @@ class TRTDigCondBase;
 class TRTNoise;
 class ITRT_StrawNeighbourSvc;
 
-#include "TRTDigSimpleTimer.h"
 #include "HitManagement/TimedHitCollection.h"
 class TRTUncompressedHit;
 #include "InDetSimEvent/TRTUncompressedHitCollection.h"
@@ -103,8 +102,9 @@ private:
   StatusCode processStraws(std::set<int>& sim_hitids, std::set<Identifier>& simhitsIdentifiers);
   StatusCode createAndStoreRDOs();
 
-  // define type of straw (Argon or Xenon)
-  bool IsArgonStraw(Identifier& TRT_Identifier) const;
+  // The straw's gas mix: 1=Xe, 2=Kr, 3=Ar
+  int StrawGasType(Identifier& TRT_Identifier) const;
+
   bool particleFlagQueryBit(int bitposition, unsigned short particleFlag) const;
   unsigned int getRegion(int hitID);
   double getCosmicEventPhase();
@@ -116,8 +116,9 @@ private:
   std::string m_outputSDOCollName; /**< name of the output SDOs. */
   bool m_printOverrideableSettings;
   bool m_printUsedDigSettings;
-  ToolHandle<ITRT_PAITool> m_TRTpaiTool;
-  ToolHandle<ITRT_PAITool> m_TRTpaiTool_optional;
+  ToolHandle<ITRT_PAITool> m_TRTpaiToolXe;
+  ToolHandle<ITRT_PAITool> m_TRTpaiToolAr;
+  ToolHandle<ITRT_PAITool> m_TRTpaiToolKr;
   ToolHandle<ITRT_SimDriftTimeTool> m_TRTsimdrifttimetool;
   ServiceHandle<PileUpMergeSvc> m_mergeSvc;      /**< PileUp Merge service */
 
@@ -136,19 +137,10 @@ private:
   const TRT_ID* m_trt_id;       /**< TRT Id Helper */
   std::list<TRTUncompressedHitCollection*> m_trtHitCollList;
   TimedHitCollection<TRTUncompressedHit>* m_thpctrt;
-  bool m_deadstraws; /**< Any straws dead? */
   bool m_alreadyPrintedPDGcodeWarning;
   double m_minCrossingTimeSDO;
   double m_maxCrossingTimeSDO;
   double m_minpileuptruthEkin;
-
-  double m_override_deadStrawFraction;
-
-  TRTDigSimpleTimer m_timer_execute;
-  TRTDigSimpleTimer m_timer_simhits;
-  TRTDigSimpleTimer m_timer_purenoise;
-  TRTDigSimpleTimer m_timer_stupidsort;
-  // unsigned int m_timer_eventcount;
 
   // const  ComTime* m_ComTime;
 
@@ -161,8 +153,7 @@ private:
   int m_HardScatterSplittingMode;
   bool m_HardScatterSplittingSkipper;
 
-  bool m_UseArgonStraws; // added by Sasha for Argon
-  bool m_useConditionsHTStatus; // added by Sasha for Argon
+  int m_UseGasMix;
   double m_cosmicEventPhase;     // local replacement for the comTime service
   unsigned short m_particleFlag; // 16-bit flag indicating the presence of up to 16 types of particle hitting the straw.
   ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc; // added by Sasha for Argon

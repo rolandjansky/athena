@@ -22,7 +22,6 @@ public:
   virtual double MaxTabulatedField() const = 0;
   virtual double DriftTimeAtNoField(const double& distance) const = 0;
   virtual double DriftTimeAtMaxField(const double& distance) const = 0;
-  virtual double RMSofSpreadRelativeToDriftTime(const double& distance) const = 0;
 
   virtual ~ITRT_DriftTimeData() {};
 

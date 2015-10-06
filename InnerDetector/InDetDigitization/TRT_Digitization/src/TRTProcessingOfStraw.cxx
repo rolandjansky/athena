@@ -52,7 +52,7 @@
 //________________________________________________________________________________
 TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
                                            const InDetDD::TRT_DetectorManager* detmgr,
-                                           ITRT_PAITool* paitool,
+                                           ITRT_PAITool* paitoolXe,
                                            ITRT_SimDriftTimeTool* simdrifttool,
                                            ServiceHandle <IAtRndmGenSvc> atRndmGenSvc,
                                            TRTElectronicsProcessing * ep,
@@ -60,13 +60,14 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
                                            TRTDigCondBase* digcond,
                                            const HepPDT::ParticleDataTable* pdt,
                     			   const TRT_ID* trt_id,
-                                           bool UseArgonStraws,
-					   ITRT_PAITool* optionalPaitool) // optional TRT_PAITool to simulate Argon straws
+					   ITRT_PAITool* paitoolAr,
+					   ITRT_PAITool* paitoolKr)
 
   : m_settings(digset),
     m_detmgr(detmgr),
-    m_pPAItool(paitool),
-    m_pPAItool_optional(optionalPaitool), // additional tool for Argon
+    m_pPAItoolXe(paitoolXe),
+    m_pPAItoolAr(paitoolAr),
+    m_pPAItoolKr(paitoolKr),
     m_pSimDriftTimeTool(simdrifttool),
     // m_time_y_eq_zero(0.0),
     // m_ComTime(NULL),
@@ -75,7 +76,6 @@ TRTProcessingOfStraw::TRTProcessingOfStraw(const TRTDigSettings* digset,
     m_pNoise(noise),
     m_pDigConditions(digcond),
     m_pParticleTable(pdt),
-    m_UseArgonStraws(UseArgonStraws),     // need for PAITool_optional (Argon)
     m_alreadywarnedagainstpdg0(false),
     m_magneticfieldsvc("AtlasFieldSvc", "TRTProcessingOfStraw"),
     m_msg("TRTProcessingOfStraw"),
@@ -103,48 +103,43 @@ TRTProcessingOfStraw::~TRTProcessingOfStraw()
 //________________________________________________________________________________
 void TRTProcessingOfStraw::Initialize(ServiceHandle <IAtRndmGenSvc> atRndmGenSvc)
 {
-  m_smearingFactorDependsOnRadius = m_settings->smearingFactorDependsOnRadius();
+
   m_useMagneticFieldMap    = m_settings->useMagneticFieldMap();
   m_signalPropagationSpeed = m_settings->signalPropagationSpeed() ;
   m_attenuationLength      = m_settings->attenuationLength();
   m_useAttenuation         = m_settings->useAttenuation();
-  m_epsilonBarrel          = m_settings->trEfficiencyBarrel();
-  m_epsilonEndCap          = m_settings->trEfficiencyEndCap();
-  m_epsilonBarrelArgon     = m_settings->trEfficiencyBarrelArgon();
-  m_epsilonEndCapArgon     = m_settings->trEfficiencyEndCapArgon();
   m_innerRadiusOfStraw     = m_settings->innerRadiusOfStraw();
   m_outerRadiusOfWire      = m_settings->outerRadiusOfWire();
   m_outerRadiusEndcap      = m_settings->outerRadiusEndcap();
   m_innerRadiusEndcap      = m_settings->innerRadiusEndcap();
   m_strawLengthBarrel      = m_settings->strawLengthBarrel();
-  m_timeCorrection         = m_settings->timeCorrection();            // false for beamType='cosmics'
-  m_usedrifttimespread     = m_settings->useDriftTimeSpread();
+  m_timeCorrection         = m_settings->timeCorrection();        // false for beamType='cosmics'
   m_solenoidFieldStrength  = m_settings->solenoidFieldStrength();
 
-  m_ionisationPotential    = m_settings->ionisationPotential(false);  // isArgonStraw=false here just to initialize
-  m_smearingFactor         = m_settings->smearingFactor(false);       // to keep coverity happy. Reset correctly later.
+  m_ionisationPotential    = m_settings->ionisationPotential(0);  // strawGasType=0 here just to initialize
+  m_smearingFactor         = m_settings->smearingFactor(0);       // to keep coverity happy. Reset correctly later.
+  m_trEfficiencyBarrel     = m_settings->trEfficiencyBarrel(0);   //
+  m_trEfficiencyEndCapA     = m_settings->trEfficiencyEndCapA(0);   //
+  m_trEfficiencyEndCapB     = m_settings->trEfficiencyEndCapB(0);
 
   m_maxelectrons = 100; // 100 gives good Gaussian approximation
-  m_depositEnergy.reserve(m_maxelectrons);    // Electron energy deposits.
-  m_depositEnergy.resize(m_maxelectrons,0.0); // The size of this vector will be constant for the whole job.
 
-  if (m_UseArgonStraws == false){
-    ATH_MSG_DEBUG ( "TRTProcessingOfStraw::Initialize: Average value of barrel drift-time at r = "
-		  << m_innerRadiusOfStraw/CLHEP::mm << " CLHEP::mm is "
-		  << m_pSimDriftTimeTool->getAverageDriftTime(m_innerRadiusOfStraw, m_solenoidFieldStrength,false)/CLHEP::nanosecond
-		  << " CLHEP::ns at the solenoid field value of " << m_solenoidFieldStrength/CLHEP::tesla << " T" );
-  } else {
-    ATH_MSG_DEBUG ( "TRTProcessingOfStraw::Initialize: Average value of barrel drift-time at r = "
-		  << m_innerRadiusOfStraw/CLHEP::mm << " CLHEP::mm is "
-		  << m_pSimDriftTimeTool->getAverageDriftTime(m_innerRadiusOfStraw, m_solenoidFieldStrength,true)/CLHEP::nanosecond
-                  << " CLHEP::ns for Argon straws and "
-                  << m_pSimDriftTimeTool->getAverageDriftTime(m_innerRadiusOfStraw, m_solenoidFieldStrength,false)/CLHEP::nanosecond
-                  << " CLHEP::ns for Xenon straws" << " at the solenoid field value of " << m_solenoidFieldStrength/CLHEP::tesla << " T" );
-    if (m_pPAItool_optional==NULL){
-      ATH_MSG_ERROR ( "TRT_PAITool for Argon is not defined!!! Xenon TRT_PAITool will be used for Argon straws!!!" );
-      m_pPAItool_optional = m_pPAItool;
-    }
+  if (m_pPAItoolXe==NULL) {
+    ATH_MSG_FATAL ( "TRT_PAITool for Xenon not defined! no point in continuing!" );
+    // throw?
   }
+  if (m_pPAItoolKr==NULL) {
+    ATH_MSG_ERROR ( "TRT_PAITool for Krypton is not defined!!! Xenon TRT_PAITool will be used for Krypton straws!" );
+    m_pPAItoolKr = m_pPAItoolXe;
+  }
+  if (m_pPAItoolAr==NULL) {
+    ATH_MSG_ERROR ( "TRT_PAITool for Argon is not defined!!! Xenon TRT_PAITool will be used for Argon straws!" );
+    m_pPAItoolAr = m_pPAItoolXe;
+  }
+
+  ATH_MSG_INFO ( "Xe barrel drift-time at r = 2 mm is " << m_pSimDriftTimeTool->getAverageDriftTime(2.0, 0.002*0.002, 0) << " ns." );
+  ATH_MSG_INFO ( "Kr barrel drift-time at r = 2 mm is " << m_pSimDriftTimeTool->getAverageDriftTime(2.0, 0.002*0.002, 1) << " ns." );
+  ATH_MSG_INFO ( "Ar barrel drift-time at r = 2 mm is " << m_pSimDriftTimeTool->getAverageDriftTime(2.0, 0.002*0.002, 2) << " ns." );
 
   /* Get the magnetic field service */
   if ( m_magneticfieldsvc.retrieve().isFailure() ) {
@@ -247,17 +242,15 @@ void TRTProcessingOfStraw::addClustersFromStep ( const double& scaledKineticEner
 						 const double& timeOfHit,
 						 const double& prex, const double& prey, const double& prez,
 						 const double& postx, const double& posty, const double& postz,
-						 std::vector<cluster>& clusterlist, bool isArgonStraw)
+						 std::vector<cluster>& clusterlist, int strawGasType)
 {
 
-  // Sasha: choose proper PAITool (Argon or Xenon)
+  // Choose the appropriate ITRT_PAITool for this straw
   ITRT_PAITool* activePAITool;
-  if (!isArgonStraw){
-    activePAITool = m_pPAItool; // Xenon straw
-  }
-  else{
-    activePAITool = m_pPAItool_optional; // Argon straw
-  }
+  if      (strawGasType==0) { activePAITool = m_pPAItoolXe; }
+  else if (strawGasType==1) { activePAITool = m_pPAItoolKr; }
+  else if (strawGasType==2) { activePAITool = m_pPAItoolAr; }
+  else { activePAITool = m_pPAItoolXe; } // should never happen
 
   //Differences and steplength:
   const double deltaX(postx - prex);
@@ -290,19 +283,22 @@ void TRTProcessingOfStraw::addClustersFromStep ( const double& scaledKineticEner
 }
 
 //________________________________________________________________________________
-void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i, hitCollConstIter e,
+void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
+                                          hitCollConstIter e,
 					  TRTDigit& outdigit,
                                           bool & m_alreadyPrintedPDGcodeWarning,
                                           double m_cosmicEventPhase, // const ComTime* m_ComTime,
-                                          bool isArgonStraw,
+                                          int strawGasType,
                                           unsigned short & m_particleFlag )
-
 {
+
   //////////////////////////////////////////////////////////
   // We need the straw id several times in the following  //
   //////////////////////////////////////////////////////////
   const int hitID((*i)->GetHitID());
   const bool isBarrel(!(hitID & 0x00200000));
+  const bool isECA(getRegion(hitID)==3);
+  const bool isECB(getRegion(hitID)==4);
 
   //////////////////////////////////////////////////////////
   //======================================================//
@@ -318,7 +314,6 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i, hitCollConstIter e
   //////////////////////////////////////////////////////////
   //======================================================//
   //////////////////////////////////////////////////////////
-
   // TimeShift is the same for all the simhits in the straw.
   const double timeShift(m_pTimeCorrection->TimeShift(hitID)); // rename hitID to strawID
 
@@ -359,16 +354,14 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i, hitCollConstIter e
 	  //hadronic interactions. They therefore ought to be allowed to
 	  //contribute, but we ignore them for now - until it can be studied
 	  //that it is indeed safe to stop doing so
-	  if (!m_alreadywarnedagainstpdg0)
-	    {
+	  if (!m_alreadywarnedagainstpdg0) {
 	      m_alreadywarnedagainstpdg0 = true;
-	      ATH_MSG_WARNING ( "Ignoring sim. particle with pdgcode 0."
-				<<" This warning is only shown once per job" );
-	    }
+	      ATH_MSG_WARNING ( "Ignoring sim. particle with pdgcode 0. This warning is only shown once per job" );
+	  }
 	  continue;
 	}
 
-      // If it is a photon we assume it was absorbed entirely in a Xenon atom and so
+      // If it is a photon we assume it was absorbed entirely at the point of interaction.
       // we simply deposit the entire energy into the last point of the sim. step.
       if (particleEncoding == 22)
 	{
@@ -382,30 +375,35 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i, hitCollConstIter e
             particleFlagSetBit(2, m_particleFlag); // mostly brem.
           }
 
-          // Apply "fudge factor" to kill ~10% TR photons (for Xenon in the Barrel) to
-          // improve electron agreement. Avoid fudging non-TR photons (TR is < 30 keV).
-          // Similarly for Argon, but with different efficiency.
-          // Also:
-          // For |eta|<0.5 apply parabolic scale to m_epsilonBarrel (to kill more TR)
-          // see "Parabolic Fudge" https://indico.cern.ch/event/304066/
+          // Apply radiator efficiency "fudge factor" to ignore some TR photons (assuming they are over produced in the sim. step.
+          // The fraction removed is based on tuning pHT for electrons to data, after tuning pHT for muons (which do not produce TR).
+          // The efficiency is different for Xe, Kr and Ar. Avoid fudging non-TR photons (TR is < 30 keV).
+          // Also: for |eta|<0.5 apply parabolic scale; see "Parabolic Fudge" https://indico.cern.ch/event/304066/
           if ( energyDeposit<30.0 ) {
             if (isBarrel) { // Barrel
-              double TRfudge = isArgonStraw ? m_epsilonBarrelArgon : m_epsilonBarrel;
+              m_trEfficiencyBarrel = m_settings->trEfficiencyBarrel(strawGasType);
               double hitx = TRThitGlobalPos[0];
               double hity = TRThitGlobalPos[1];
               double hitz = TRThitGlobalPos[2];
               double hitEta = fabs(log(tan(0.5*atan2(sqrt(hitx*hitx+hity*hity),hitz))));
-              if ( hitEta < 0.5 ) { TRfudge = TRfudge * ( 0.833333+0.6666667*hitEta*hitEta ); }
-              if ( CLHEP::RandFlat::shoot(m_pHRengine) > TRfudge ) continue; // Skip this photon
-            } else { // Endcap
-              double TRfudge = isArgonStraw ? m_epsilonEndCapArgon : m_epsilonEndCap;
-              if ( CLHEP::RandFlat::shoot(m_pHRengine) > TRfudge ) continue; // Skip this photon
+              if ( hitEta < 0.5 ) { m_trEfficiencyBarrel *= ( 0.833333+0.6666667*hitEta*hitEta ); }
+              if ( CLHEP::RandFlat::shoot(m_pHRengine) > m_trEfficiencyBarrel ) continue; // Skip this photon
+            } else { // Endcap - no eta dependence here.
+                if (isECA) {
+                m_trEfficiencyEndCapA = m_settings->trEfficiencyEndCapA(strawGasType);
+                if ( CLHEP::RandFlat::shoot(m_pHRengine) > m_trEfficiencyEndCapA ) continue; // Skip this photon
+                }
+		if (isECB) {
+                m_trEfficiencyEndCapB = m_settings->trEfficiencyEndCapB(strawGasType);
+                if ( CLHEP::RandFlat::shoot(m_pHRengine) > m_trEfficiencyEndCapB ) continue; // Skip this photon
+                }
             }
           }
 
 	  // Append this (usually highly energetic) cluster to the list:
-	  m_clusterlist.push_back( cluster(energyDeposit*CLHEP::keV, timeOfHit,
-		(*theHit)->GetPostStepX(), (*theHit)->GetPostStepY(), (*theHit)->GetPostStepZ()) );
+	  m_clusterlist.push_back(
+             cluster( energyDeposit*CLHEP::keV, timeOfHit, (*theHit)->GetPostStepX(), (*theHit)->GetPostStepY(), (*theHit)->GetPostStepZ() )
+             );
 
 	  // Regarding the CLHEP::keV above: In TRT_G4_SD we converting the hits to keV,
 	  // so here we convert them back to CLHEP units by multiplying by CLHEP::keV.
@@ -417,8 +415,9 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i, hitCollConstIter e
                  (static_cast<int>((abs(particleEncoding))-10000000)/100>10)) )
         {
           particleFlagSetBit(15, m_particleFlag); // HIP
-	  m_clusterlist.push_back( cluster((*theHit)->GetEnergyDeposit()*CLHEP::keV, timeOfHit,
-		(*theHit)->GetPostStepX(), (*theHit)->GetPostStepY(), (*theHit)->GetPostStepZ()) );
+	  m_clusterlist.push_back(
+             cluster((*theHit)->GetEnergyDeposit()*CLHEP::keV, timeOfHit, (*theHit)->GetPostStepX(), (*theHit)->GetPostStepY(), (*theHit)->GetPostStepZ() )
+             );
         }
       else { // It's not a photon, monopole or Qball with charge > 10, so we proceed with regular ionization using the PAI model
 
@@ -521,7 +520,7 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i, hitCollConstIter e
 	  addClustersFromStep ( scaledKineticEnergy, particleCharge, timeOfHit,
 				(*theHit)->GetPreStepX(),(*theHit)->GetPreStepY(),(*theHit)->GetPreStepZ(),
 				(*theHit)->GetPostStepX(),(*theHit)->GetPostStepY(),(*theHit)->GetPostStepZ(),
-				m_clusterlist, isArgonStraw);
+				m_clusterlist, strawGasType);
 
 	}
     }//end of hit loop
@@ -542,8 +541,8 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i, hitCollConstIter e
   //////////////////////////////////////////////////////////
 
   m_depositList.clear();
-  // ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, m_ComTime, isArgonStraw ); // added last argument by Sasha for Argon
-  ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, m_cosmicEventPhase, isArgonStraw ); // added last argument by Sasha for Argon
+  // ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, m_ComTime, strawGasType );
+  ClustersToDeposits( hitID, m_clusterlist, m_depositList, TRThitGlobalPos, m_cosmicEventPhase, strawGasType );
 
   //////////////////////////////////////////////////////////
   //======================================================//
@@ -569,13 +568,12 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i, hitCollConstIter e
   if (m_settings->noiseInSimhits()) {
       m_pDigConditions->getStrawData( hitID, lowthreshold, noiseamplitude );
   } else {
-      lowthreshold = isBarrel ? m_settings->lowThresholdBar(isArgonStraw) : m_settings->lowThresholdEC(isArgonStraw);
+      lowthreshold = isBarrel ? m_settings->lowThresholdBar(strawGasType) : m_settings->lowThresholdEC(strawGasType);
       noiseamplitude = 0.0;
   }
 
   //Electronics processing:
-  m_pElectronicsProcessing->ProcessDeposits( m_depositList, hitID, outdigit, lowthreshold, noiseamplitude, isArgonStraw );
-
+  m_pElectronicsProcessing->ProcessDeposits( m_depositList, hitID, outdigit, lowthreshold, noiseamplitude, strawGasType );
   return;
 }
 
@@ -584,15 +582,15 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
 					       const std::vector<cluster>& clusters,
 					       std::vector<TRTElectronicsProcessing::Deposit>& deposits,
 					       Amg::Vector3D TRThitGlobalPos,
-					       double m_cosmicEventPhase, // const ComTime* m_ComTime,
-                                               bool isArgonStraw) // last argument was added by Sasha for Argon
+					       double m_cosmicEventPhase, // was const ComTime* m_ComTime,
+                                               int strawGasType)
 {
 
   // Some initial work before looping over the cluster
   deposits.clear();
   const bool isBarrel(!(hitID & 0x00200000));
-  m_ionisationPotential = m_settings->ionisationPotential(isArgonStraw);
-  m_smearingFactor      = m_settings->smearingFactor(isArgonStraw); // can change below if depends on radius of the cluster
+  m_ionisationPotential = m_settings->ionisationPotential(strawGasType);
+  m_smearingFactor      = m_settings->smearingFactor(strawGasType);
 
   std::vector<cluster>::const_iterator currentClusterIter(clusters.begin());
   const std::vector<cluster>::const_iterator endOfClusterList(clusters.end());
@@ -680,45 +678,29 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
       const double cluster_E(currentClusterIter->energy); // cluster energy
       const unsigned int nprimaryelectrons( static_cast<unsigned int>( cluster_E/m_ionisationPotential + 1.0 ) );
 
-      if (m_smearingFactorDependsOnRadius) // Survival prob is a function of cluster radius Page 102 of Esben's thesis.
-        {
-          m_smearingFactor = 1.03 - 0.6745*cluster_r + 0.8196*cluster_r2 - 0.5507*cluster_r2*cluster_r + 0.1187*cluster_r2*cluster_r2;
-          if (m_smearingFactor<0.1) m_smearingFactor=0.1; // Actually we don't expect such small values.
-          if (m_smearingFactor>1.0) m_smearingFactor=1.0; // A probability cannot be greater than 1.
-        }
+      // Determine the number of surviving electrons and their energy sum.
+      // If nprimaryelectrons > 100 then a Gaussian approximation is good (and much quicker)
 
-      // Determine the number of surviving electrons and their energies.
-      // We limit this to "maxelectrons" (100) electrons; that's more than enough to reveal the effects of diffusion.
-      // Note: If we completely do away with the option of diffusion then we could reduce a lot of the code below.
-
-      unsigned int nsurvivingprimaryelectrons;
+      double depositEnergy(0.); // This will be the energy deposited at the wire.
 
       if (nprimaryelectrons<m_maxelectrons) // Use the detailed Binomial and Exponential treatment at this low energy.
         {
-          nsurvivingprimaryelectrons = static_cast<unsigned int>(CLHEP::RandBinomial::shoot(m_pHRengine,nprimaryelectrons,m_smearingFactor) + 0.5);
+          unsigned int nsurvivingprimaryelectrons = static_cast<unsigned int>(CLHEP::RandBinomial::shoot(m_pHRengine,nprimaryelectrons,m_smearingFactor) + 0.5);
           if (nsurvivingprimaryelectrons==0) continue; // no electrons survived; move on to the next cluster.
           const double meanElectronEnergy(m_ionisationPotential/m_smearingFactor);
           for (unsigned int ielec(0); ielec<nsurvivingprimaryelectrons; ++ielec) {
-            m_depositEnergy[ielec] = CLHEP::RandExpZiggurat::shoot(m_pHRengine, meanElectronEnergy);
+            depositEnergy += CLHEP::RandExpZiggurat::shoot(m_pHRengine, meanElectronEnergy);
           }
         }
-      else // Use a Gaussian approximation and divide the energy equally amongst "maxelectrons" electrons.
+      else // Use a Gaussian approximation
         {
           const double fluctSigma(sqrt(cluster_E*m_ionisationPotential*(2-m_smearingFactor)/m_smearingFactor));
-          double depositE;
           do {
-            depositE = CLHEP::RandGaussZiggurat::shoot(m_pHRengine, cluster_E, fluctSigma);
-          } while(depositE<0.0); // very rare.
-
-          nsurvivingprimaryelectrons = m_maxelectrons;
-          const double Eshare(depositE/nsurvivingprimaryelectrons);
-          for (unsigned int ielec(0); ielec<nsurvivingprimaryelectrons; ++ielec) {
-            m_depositEnergy[ielec] = Eshare;
-          }
+            depositEnergy = CLHEP::RandGaussZiggurat::shoot(m_pHRengine, cluster_E, fluctSigma);
+          } while(depositEnergy<0.0); // very rare.
         }
 
-      // Now we have a list of eletrons and their energy deposits.
-      // We need to work out the timing and attenuation of the deposits.
+      // Now we have the depositEnergy, we need to work out the timing and attenuation
 
       // First calculate the "effective field" (it's never negative):
       // Electron drift time is prolonged by the magnetic field according to an "effective field".
@@ -760,7 +742,8 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
       if ( m_settings->doCosmicTimingPit() )
         { // make (x,y) dependent? i.e: + f(x,y).
           // clusterTime = clusterTime - m_time_y_eq_zero + m_settings->jitterTimeOffset()*( CLHEP::RandFlat::shoot(m_pHRengine) );
-          clusterTime = clusterTime + m_cosmicEventPhase + m_settings->jitterTimeOffset()*( CLHEP::RandFlat::shoot(m_pHRengine) ); // yes it is a '+' now.
+          clusterTime = clusterTime + m_cosmicEventPhase + m_settings->jitterTimeOffset()*( CLHEP::RandFlat::shoot(m_pHRengine) );
+          // yes it is a '+' now. Ask Alex Alonso.
         }
 
       // get the wire propagation times (for direct and reflected signals)
@@ -789,29 +772,11 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
            expreflect = m_expattenuation[kreflect];
         }
 
-      // Finally, deposit the energy on the wire using the drift-time tool with or without diffusion(drift-time spread).
-      double dt(0.0);
-      if (m_usedrifttimespread) // With diffusion
-        {
-	  m_pSimDriftTimeTool->getNDriftTimes(nsurvivingprimaryelectrons,m_drifttimes,cluster_r,effectiveField2,isArgonStraw); // last argument added by Sasha for Argon
-          for (unsigned int ielec(0); ielec<nsurvivingprimaryelectrons; ++ielec)
-            {
-	       dt = clusterTime + m_drifttimes[ielec];
-               deposits.push_back(TRTElectronicsProcessing::Deposit(0.5*m_depositEnergy[ielec]*expdirect, timedirect+dt));
-               deposits.push_back(TRTElectronicsProcessing::Deposit(0.5*m_depositEnergy[ielec]*expreflect, timereflect+dt));
-	    }
-	}
-      else // Without diffusion
-        {
-	  double commondrifttime = m_pSimDriftTimeTool->getAverageDriftTime(cluster_r,effectiveField2,isArgonStraw); // last argument added by Sasha for Argon
-	  dt = clusterTime + commondrifttime;
-          double Esum = 0.0;
-          for (unsigned int ielec(0); ielec<nsurvivingprimaryelectrons; ++ielec) {
-            Esum += m_depositEnergy[ielec];
-          }
-          deposits.push_back(TRTElectronicsProcessing::Deposit(0.5*Esum*expdirect,  timedirect+dt));
-          deposits.push_back(TRTElectronicsProcessing::Deposit(0.5*Esum*expreflect, timereflect+dt));
-        }
+      // Finally, deposit the energy on the wire using the drift-time tool (diffusion is no longer available).
+      double commondrifttime = m_pSimDriftTimeTool->getAverageDriftTime(cluster_r,effectiveField2,strawGasType);
+      double dt = clusterTime + commondrifttime;
+      deposits.push_back(TRTElectronicsProcessing::Deposit(0.5*depositEnergy*expdirect,  timedirect+dt));
+      deposits.push_back(TRTElectronicsProcessing::Deposit(0.5*depositEnergy*expreflect, timereflect+dt));
 
     } // end of cluster loop
 
@@ -912,4 +877,34 @@ void TRTProcessingOfStraw::particleFlagSetBit(int bitposition, unsigned short &p
   } else {
     ATH_MSG_WARNING ( "Trying to set bit position " << bitposition << " in unsigned short m_particleFlag !");
   }
+}
+
+unsigned int TRTProcessingOfStraw::getRegion(int hitID) {
+// 1=barrelShort, 2=barrelLong, 3=ECA, 4=ECB
+  const int mask(0x0000001F);
+  const int word_shift(5);
+  int layerID, ringID, wheelID;
+  unsigned int region(0);
+
+  if ( !(hitID & 0x00200000) ) { // barrel
+
+    hitID >>= word_shift;
+    layerID = hitID & mask;
+    hitID >>= word_shift;
+    hitID >>= word_shift;
+    ringID = hitID & mask;
+    region = ( (layerID < 9) && (ringID == 0) ) ? 1 : 2;
+
+  } else { // endcap
+
+    hitID >>= word_shift;
+    hitID >>= word_shift;
+    hitID >>= word_shift;
+    wheelID = hitID & mask;
+    region = wheelID < 8 ?  3 : 4;
+
+  }
+
+  return region;
+
 }

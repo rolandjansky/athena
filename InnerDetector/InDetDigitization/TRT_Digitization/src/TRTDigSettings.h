@@ -64,17 +64,21 @@ class TRTDigSettings {
 
   int digVers() const;
 
-  bool useDriftTimeSpread() const;
-  bool smearingFactorDependsOnRadius() const;
   bool useAttenuation() const;
   double attenuationLength() const;
 
-  //--- deposit energy smearing parameters:
+  /** Get assumed Transition Radiation efficiency in barrel */
+  double trEfficiencyBarrel(int strawGasType) const;
+
+  /** Get assumed Transition Radiation efficiency in end caps */
+  double trEfficiencyEndCapA(int strawGasType) const;
+  double trEfficiencyEndCapB(int strawGasType) const;
+
   /** Get ionisation potential */
-  double ionisationPotential(bool isArgonStraw) const;
+  double ionisationPotential(int strawGasType) const;
 
   /** Get smearing factor */
-  double smearingFactor(bool isArgonStraw) const;
+  double smearingFactor(int strawGasType) const;
 
   //--- Digitization parameters:
 
@@ -95,14 +99,14 @@ class TRTDigSettings {
   double discriminatorDeadTime() const;
 
   /** Get discriminator setting for low threshold */
-  double lowThresholdBar(bool isArgonStraw) const;
-  double lowThresholdEC(bool isArgonStraw) const;
+  double lowThresholdBar(int strawGasType) const;
+  double lowThresholdEC(int strawGasType) const;
 
   /** Get discriminator setting for high threshold */
-  double highThresholdBarShort(bool isArgonStraw) const;
-  double highThresholdBarLong(bool isArgonStraw) const;
-  double highThresholdECAwheels(bool isArgonStraw) const;
-  double highThresholdECBwheels(bool isArgonStraw) const;
+  double highThresholdBarShort(int strawGasType) const;
+  double highThresholdBarLong(int strawGasType) const;
+  double highThresholdECAwheels(int strawGasType) const;
+  double highThresholdECBwheels(int strawGasType) const;
 
   /** delta T0 for HT */
   int htT0shiftBarShort()  const;
@@ -121,7 +125,8 @@ class TRTDigSettings {
   double outerRadiusEndcap() const;
 
   /** Get radius of signal wire */
-  double outerRadiusOfWire() const; //fixme:still used?
+  double outerRadiusOfWire() const;
+
   /** Get length of dead region at end of straws */
   double lengthOfDeadRegion() const;
 
@@ -160,18 +165,6 @@ class TRTDigSettings {
   /** Get minimum Ekin for pileup track to enter MC-truth */
   double pileUpSDOsMinEkin() const;//MC Truth saving for pile-up events
 
-  //--- TR parameters:
-
-  /** Get assumed Transition Radiation efficiency in barrel */
-  double trEfficiencyBarrel() const;
-  /** Get assumed Transition Radiation efficiency in end caps */
-  double trEfficiencyEndCap() const;
-
-  /** Get assumed Transition Radiation efficiency in barrel */
-  double trEfficiencyBarrelArgon() const;
-  /** Get assumed Transition Radiation efficiency in end caps */
-  double trEfficiencyEndCapArgon() const;
-
   //--- Noise parameters:
 
   /** Query whether simulation of noise in unhit straws */
@@ -188,13 +181,8 @@ class TRTDigSettings {
   /** Get slow periodic noise pulse fraction */
   double slowPeriodicNoisePulseFraction() const;
 
-  //--- Basic Fake map settings:
-
   /** Get average noise level */
   double averageNoiseLevel() const;
-  /** Get dead straw fraction */
-  double deadStrawFraction() const;
-
 
   /** Get average cross talk noise level */
   double crossTalkNoiseLevel() const;
@@ -244,6 +232,9 @@ class TRTDigSettings {
   void setLvl  (int lvl = (int)MSG::INFO);
   void setLvl  (const std::string& lvl);
 
+  //Delta-ray suppression switch
+  double TrtRangeCutProperty() const;
+
  private:
   //==============================================================//
   //                           Private                            //
@@ -266,8 +257,10 @@ class TRTDigSettings {
 
   double m_ionisationPotential;       /**< Mean ionisation potential */
   double m_ionisationPotentialArgon;  /**< Mean ionisation potential for Argon mixture */
+  double m_ionisationPotentialKrypton;  /**< Mean ionisation potential for Krypton mixture */
   double m_smearingFactor;            /**< Cluster energy smearing factor */
   double m_smearingFactorArgon;       /**< Cluster energy smearing factor for Argon mixture */
+  double m_smearingFactorKrypton;       /**< Cluster energy smearing factor for Krypton mixture */
 
   double m_timeInterval;             /**< Time interval covered by each digit*/
   unsigned int m_numberOfBins;        /**< No. bins used internally */
@@ -280,10 +273,15 @@ class TRTDigSettings {
   double m_overallT0Shift;            /**< Overall T0 shift */
   double m_overallT0ShiftShortBarrel; /**< Overall T0 shift for short barrel */
   double m_distanceToTimeFactor; /**< Fudge factor: time to distance */
+
   double m_lowThresholdBar;         /**< Low threshold discriminator setting */
   double m_lowThresholdEC;         /**< Low threshold discriminator setting */
+
   double m_lowThresholdBarArgon;         /**< Low threshold discriminator setting for Argon mixture */
   double m_lowThresholdECArgon;         /**< Low threshold discriminator setting for Argon mixture */
+
+  double m_lowThresholdBarKrypton;         /**< Low threshold discriminator setting for Krypton mixture */
+  double m_lowThresholdECKrypton;         /**< Low threshold discriminator setting for Krypton mixture */
 
   double m_highThresholdBarShort;        /**< High threshold discriminator setting */
   double m_highThresholdBarLong;        /**< High threshold discriminator setting */
@@ -294,6 +292,11 @@ class TRTDigSettings {
   double m_highThresholdBarLongArgon;        /**< High threshold discriminator setting Argon */
   double m_highThresholdECAwheelsArgon;        /**< High threshold discriminator setting Argon */
   double m_highThresholdECBwheelsArgon;        /**< High threshold discriminator setting Argon */
+
+  double m_highThresholdBarShortKrypton;        /**< High threshold discriminator setting Krypton */
+  double m_highThresholdBarLongKrypton;        /**< High threshold discriminator setting Krypton */
+  double m_highThresholdECAwheelsKrypton;        /**< High threshold discriminator setting Krypton */
+  double m_highThresholdECBwheelsKrypton;        /**< High threshold discriminator setting Krypton */
 
   int m_htT0shiftBarShort; /** HT T0 delta shift */
   int m_htT0shiftBarLong;
@@ -317,14 +320,18 @@ class TRTDigSettings {
   bool m_timeshiftsSymmetricForPhiSectors;  /**< Time offset assumed phi symmetric */
 
   double m_trEfficiencyBarrel; /**< Transition Radiation efficiency, barrel */
-  double m_trEfficiencyEndCap; /**< Transition Radiation efficiency, end cap */
+  double m_trEfficiencyEndCapA; /**< Transition Radiation efficiency, end cap A*/
+  double m_trEfficiencyEndCapB; /**< Transition Radiation efficiency, end cap B*/
   double m_trEfficiencyBarrelArgon; /**< Transition Radiation efficiency, barrel, Argon */
-  double m_trEfficiencyEndCapArgon; /**< Transition Radiation efficiency, end cap, Argon */
+  double m_trEfficiencyEndCapAArgon; /**< Transition Radiation efficiency, end cap A, Argon */
+  double m_trEfficiencyEndCapBArgon; /**< Transition Radiation efficiency, end cap B, Argon */
+  double m_trEfficiencyBarrelKrypton; /**< Transition Radiation efficiency, barrel, Krypton */
+  double m_trEfficiencyEndCapAKrypton; /**< Transition Radiation efficiency, end cap A, Krypton */
+  double m_trEfficiencyEndCapBKrypton; /**< Transition Radiation efficiency, end cap B, Krypton */
 
   bool m_noiseInUnhitStraws;   /**< Simulate noise in unhit straws */
   bool m_noiseInSimhits;       /**< Simulate noise in hit straws */
 
-  bool m_useDriftTimeSpread;   /**< Simulte drift time spread */
   bool m_isCTB;                /**< Data is from CTB (Combined Test Beam) */
 
   bool m_killEndCap;           /**< Disable end cap */
@@ -339,7 +346,6 @@ class TRTDigSettings {
   double m_slowPeriodicNoisePulseDistance;    /**< Slow periodic noise pulse distance (time) */
   double m_slowPeriodicNoisePulseFraction;    /**< Slow periodic noise pulse fraction */
   double m_averageNoiseLevel;                 /**< Average noise level */
-  double m_deadStrawFraction;                 /**< Dead straw fraction */
   double m_crosstalkNoiseLevel;               /**< Average cross talk noise level */
   double m_crosstalkNoiseLevelOtherEnd;       /**< Average cross talk noise level - other end */
 
@@ -352,9 +358,10 @@ class TRTDigSettings {
   double m_innerRadiusEndcap;
   double m_outerRadiusEndcap;
 
-  bool m_smearingFactorDependsOnRadius;
   bool m_useAttenuation;
   double m_attenuationLength;
+
+  double m_trtRangeCutProperty; /**< Electrons xenon range cut in TRT simulation  */
 
   //Now follows infrastructure for handling all the parameters in a robust way:
 
