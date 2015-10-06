@@ -61,13 +61,14 @@ for j in _list_InDetJobProperties:
 
 from InDetTrigRecExample.InDetTrigJobProperties import \
     doMCBytestream, doDCSAccess, useConditionsClasses, \
-    doOverlapSP,doCommissioning,doSCTIntimeHits
+    doOverlapSP,doCommissioning,doSCTIntimeHits,TRTOff
 jobproperties.InDetTrigJobProperties.add_JobProperty(doMCBytestream)
 jobproperties.InDetTrigJobProperties.add_JobProperty(doDCSAccess)
 jobproperties.InDetTrigJobProperties.add_JobProperty(useConditionsClasses)
 jobproperties.InDetTrigJobProperties.add_JobProperty(doOverlapSP)
 jobproperties.InDetTrigJobProperties.add_JobProperty(doCommissioning)
 jobproperties.InDetTrigJobProperties.add_JobProperty(doSCTIntimeHits)   #temporary
+jobproperties.InDetTrigJobProperties.add_JobProperty(TRTOff)
 
 #define shortcut
 InDetTrigFlags = jobproperties.InDetTrigJobProperties

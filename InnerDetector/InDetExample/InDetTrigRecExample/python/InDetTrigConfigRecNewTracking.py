@@ -54,8 +54,8 @@ class SiTrigTrackFinder_EF( InDet__SiTrigSPSeededTrackFinder ):
                                                maxdImpact             = EFIDTrackingCutsCosmics.maxPrimaryImpact(),
                                                maxZ                   = EFIDTrackingCutsCosmics.maxZImpact(),
                                                minZ                   = -EFIDTrackingCutsCosmics.maxZImpact(),
-                                               SpacePointsPixelName   = 'SCT_TrigSpacePoints',
-                                               SpacePointsSCTName     = 'PixelTrigSpacePoints',
+                                               SpacePointsPixelName   = 'SCT_CosmicsTrigSpacePoints',
+                                               SpacePointsSCTName     = 'PixelCosmicsTrigSpacePoints',
                                                #SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                UseAssociationTool     = False,
                                                AssociationTool        =  InDetTrigPrdAssociationTool)
@@ -105,6 +105,9 @@ class SiTrigTrackFinder_EF( InDet__SiTrigSPSeededTrackFinder ):
       InDetTrigSiSpacePointsSeedMaker.maxRadius2 = InDetTrigCutValues.radMax()
       InDetTrigSiSpacePointsSeedMaker.maxRadius3 = InDetTrigCutValues.radMax()
       
+    # if type=="minBias":
+    #   InDetTrigSiSpacePointsSeedMaker.maxdImpact=5.
+
     ToolSvc += InDetTrigSiSpacePointsSeedMaker
     if (InDetTrigFlags.doPrintConfigurables()):
       print InDetTrigSiSpacePointsSeedMaker
@@ -168,7 +171,9 @@ class SiTrigTrackFinder_EF( InDet__SiTrigSPSeededTrackFinder ):
       InDetTrigSiTrackMaker.nHolesGapMax = EFIDTrackingCutsCosmics.nHolesGapMax() #3
       InDetTrigSiTrackMaker.CosmicTrack=True
       #InDetTrigSiTrackMaker.GoodSeedClusterCount = 3
-       
+    elif type=='electron' and InDetTrigFlags.doBremRecovery():
+      InDetTrigSiTrackMaker.useBremModel=True
+
     ToolSvc += InDetTrigSiTrackMaker
     
     if (InDetTrigFlags.doPrintConfigurables()):
@@ -268,9 +273,9 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
       #ptint
       ptintcut = InDetTrigSliceSettings[('pTmin',type)]
       if type=='minBias':
-        ptintcut = 0.8*InDetTrigSliceSettings[('pTmin',type)]
+        ptintcut = 0.95*InDetTrigSliceSettings[('pTmin',type)]
       elif type=='minBias400':
-        ptintcut = 0.9*InDetTrigSliceSettings[('pTmin',type)]
+        ptintcut = 0.95*InDetTrigSliceSettings[('pTmin',type)]
 
       InDetTrigScoringTool = InDet__InDetAmbiScoringTool(name         = 'InDetTrigScoringTool_'+type,
                                                          Extrapolator = InDetTrigExtrapolator,
@@ -341,6 +346,10 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
         #InDetTrigAmbiguityProcessor.SuppressTrackFit = True
         #InDetTrigAmbiguityProcessor.ForceRefit = False
         InDetTrigAmbiguityProcessor.RefitPrds =  False
+      elif type=='electron' and InDetTrigFlags.doBremRecovery():
+        InDetTrigAmbiguityProcessor.tryBremFit  = True
+        import AthenaCommon.SystemOfUnits as Units
+        InDetTrigAmbiguityProcessor.pTminBrem   = 5 * Units.GeV
 
       if InDetTrigFlags.materialInteractions() and InDetTrigFlags.solenoidOn():
          InDetTrigAmbiguityProcessor.MatEffects = 3

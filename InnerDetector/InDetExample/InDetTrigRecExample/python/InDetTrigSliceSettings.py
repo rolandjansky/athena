@@ -24,7 +24,9 @@ class InDetTrigSliceSettingsDB:
   """
   def __init__(self):
     from AthenaCommon.SystemOfUnits import GeV
-    _slices = ['electron','photon','muon','muonIso','tau','bjet','bphysics','fullScan','minBias','beamgas',
+    _slices = ['electron','photon',
+               'muon','muonCore','muonIso',
+               'tau','bjet','bphysics','fullScan','minBias','beamgas',
                'cosmicsN', 'lowPt',   #these are not real slices, rather different setups of tools
                'hadCalib', 'fullScan500',       #hadCalib instances
                'minBias2',            #two pass (low-pt tracking)
@@ -33,6 +35,7 @@ class InDetTrigSliceSettingsDB:
                'tauCore', 'tauIso',
                'beamSpot', 'cosmics',
                'bjetVtx',
+               'FTK', 'FTKRefit'
                ]
 
     self.db = {}
@@ -45,10 +48,16 @@ class InDetTrigSliceSettingsDB:
     monptmin = {}
 
     #FTF-specific settings
+    drdoubletmax = {}
+    seedradbinwidth = {}
     d0seedmax = {}
     d0seedppsmax = {}
     d0trackinitialmax = {}
     checkseedredundancy = {}
+    dospphifiltering = {}
+    dozfinder = {}
+    docloneremoval = {}
+    doresmon = {}
 
     #ptmin
     for i in _slices:
@@ -73,6 +82,7 @@ class InDetTrigSliceSettingsDB:
       d0trackinitialmax[i] = 20.0
     d0seedmax['bphysics'] = 10.0
     d0seedmax['muon'] = 10.0
+    d0seedmax['muonCore'] = 10.0
 
     d0seedmax['cosmics'] = 1000.0
     d0seedppsmax['cosmics'] = 1000.0
@@ -83,17 +93,53 @@ class InDetTrigSliceSettingsDB:
     self.db['d0TrackInitialMax']=d0trackinitialmax
 
     for i in _slices:
+      dozfinder[i] = False 
+    dozfinder['beamSpot'] = True
+    self.db['doZFinder']=dozfinder
+
+    for i in _slices:
+      doresmon[i] = False 
+    doresmon['muon'] = True
+    self.db['doResMon']=doresmon
+
+    for i in _slices:
+      dospphifiltering[i] = True
+    # Turn off spacepoint phi filtering for muons
+    dospphifiltering['muon'] = False
+    dospphifiltering['muonCore'] = False
+    dospphifiltering['bphysics'] = False
+    self.db['doSpPhiFiltering'] = dospphifiltering
+
+    for i in _slices:
+      docloneremoval[i] = True
+    docloneremoval['electron'] = False
+    self.db['doCloneRemoval'] = docloneremoval
+    
+
+
+    for i in _slices:
       checkseedredundancy[i] = False
     checkseedredundancy['electron'] = True
     checkseedredundancy['muon'] = True
+    checkseedredundancy['muonCore'] = True
     checkseedredundancy['bphysics'] = True
     self.db['checkRedundantSeeds'] = checkseedredundancy
+
+    
+    for i in _slices:
+      drdoubletmax[i] = 270
+      seedradbinwidth[i] = 2
+    drdoubletmax['beamSpot'] = 200
+    seedradbinwidth['beamSpot'] = 10
+    self.db['dRdoubletMax'] = drdoubletmax
+    self.db['seedRadBinWidth'] = seedradbinwidth
 
     #etaHalfWidth
     etahalf = {
       'electron'  : 0.1,
       'photon'    : 0.1,
       'muon'      : 0.1,
+      'muonCore'  : 0.1,
       'muonIso'   : 0.35,
       'tau'       : 0.4,
       'bjet'      : 0.2,
@@ -122,6 +168,7 @@ class InDetTrigSliceSettingsDB:
       'electron'  : 0.1,
       'photon'    : 0.1,
       'muon'      : 0.1,
+      'muonCore'  : 0.1,
       'muonIso'   : 0.35,
       'tau'       : 0.4,
       'bjet'      : 0.201,
@@ -177,14 +224,15 @@ class InDetTrigSliceSettingsDB:
 
   def __getitem__(self, (quantity, slice)):
     v = None
+    #print 'Getting quantity ', quantity, ' for ', slice 
     try:
       q = self.db[quantity]
       try:
         v = q[slice]
       except:
-        print 'get InDetTrigConfigRecSliceBased has no slice %s configured' % slice
+        print 'get InDetTrigSliceSettingsDB has no slice %s configured' % slice
     except:
-      print 'get InDetTrigConfigRecSliceBased has no quantity %s configured' % quantity
+      print 'get InDetTrigSliceSettingsDB has no quantity %s configured' % quantity
 
     return v
 
@@ -194,9 +242,9 @@ class InDetTrigSliceSettingsDB:
       try:
         q[slice] = value
       except:
-        print 'set InDetTrigConfigRecSliceBased has no slice %s configured' % slice
+        print 'set InDetTrigSliceSettingsDB has no slice %s configured' % slice
     except:
-      print 'set InDetTrigConfigRecSliceBased has no quantity %s configured' % quantity
+      print 'set InDetTrigSliceSettingsDB has no quantity %s configured' % quantity
 
 
 

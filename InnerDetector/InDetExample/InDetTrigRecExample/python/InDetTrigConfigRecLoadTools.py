@@ -429,7 +429,7 @@ if InDetTrigFlags.loadFitter():
                                                  RecalibrateSilicon    = True,
                                                  RecalibrateTRT        = True,
                                                  ReintegrateOutliers   = True,
-                                                 TrackChi2PerNDFCut    = 7,
+                                                 TrackChi2PerNDFCut    = 9,
                                                  TRTExtensionCuts      = True, 
                                                  MaxIterations         = 40,
                                                  Acceleration          = True,
@@ -685,19 +685,28 @@ if InDetTrigFlags.loadSummaryTool():
   if not (conddb.folderRequested("/TRT/Calib/PID_RToT") or \
             conddb.folderRequested("/TRT/Onl/Calib/PID_RToT")):
      conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_RToT","/TRT/Calib/PID_RToT")
-
-  # from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidTool
-  # InDetTrigTRT_ElectronPidTool = InDet__TRT_ElectronPidTool(name = "InDetTrigTRT_ElectronPidTool")
+  # if not (conddb.folderRequested("/TRT/Calib/PID_vector") or \
+  #           conddb.folderRequested("/TRT/Onl/Calib/PID_vector")):
+  #    conddb.addFolderSplitOnline("TRT","/TRT/Onl/Calib/PID_vector","/TRT/Calib/PID_vector")
+  #    from AthenaCommon.GlobalFlags import globalflags
+  #    if globalflags.DataSource() == 'data':
+  #      conddb.addOverride("/TRT/Onl/Calib/PID_vector"  ,"TRTOnlCalibPID_vector-ES1-UPD1-00-00-01")
+     #else:
+     #  conddb.addOverride("/TRT/Onl/Calib/PID_vector","TRTCalibPID_vector_MC_OnSetMC_CorrMC_noZR_00-01")
 
   from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2,InDet__TRT_LocalOccupancy
   from AthenaCommon.GlobalFlags import globalflags
+  from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
 
-  InDetTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDetTrigTRT_LocalOccupancy")
+  InDetTrigTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDetTrigTRT_LocalOccupancy",
+                                                          isTrigger=True,
+                                                          TRT_RDOContainerName="TRT_RDOs_EF",
+                                                          TRTStrawSummarySvc=TRT_ConditionsSetup.instanceName('InDetTRTStrawStatusSummarySvc'),
+                                                          )
   ToolSvc += InDetTrigTRT_LocalOccupancy
   
   InDetTrigTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "InDetTrigTRT_ElectronPidTool",
                                                                 TRT_LocalOccupancyTool = InDetTrigTRT_LocalOccupancy,
-                                                                OccupancyUsedInPID = False,
                                                                 isData = (globalflags.DataSource == 'data'))
 
   ToolSvc += InDetTrigTRT_ElectronPidTool

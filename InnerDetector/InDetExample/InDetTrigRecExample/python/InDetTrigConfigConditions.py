@@ -309,6 +309,10 @@ class SCT_ConditionsServicesSetup:
     else:
       sctdaqpath='/SCT/DAQ/Config'
 
+    if InDetTrigFlags.ForceCoolVectorPayload():
+      sctdaqpath='/SCT/DAQ/Config'
+
+
     if not self.condDB.folderRequested(sctdaqpath+'/Chip'):
       self.condDB.addFolderSplitMC("SCT",
                                    sctdaqpath+'/Chip',
