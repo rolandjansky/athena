@@ -46,7 +46,7 @@ SGInputLoader::~SGInputLoader()
 StatusCode 
 SGInputLoader::initialize()
 {
-  ATH_MSG_VERBOSE ("Initializing " << name() << "...");
+  ATH_MSG_INFO ("Initializing " << name() << "...");
 
   StatusCode sc(StatusCode::SUCCESS);
 
@@ -112,7 +112,6 @@ SGInputLoader::loader(Property& p ) {
 
   ATH_MSG_DEBUG("setting prop ExtraOutputs to " <<  p.toString());
 
-  if (!setProperty("ExtraOutputs", p).isSuccess()) {
-    ATH_MSG_WARNING("failed setting property ExtraOutputs");
-  }
+  setProperty("ExtraOutputs", p);
+
 }

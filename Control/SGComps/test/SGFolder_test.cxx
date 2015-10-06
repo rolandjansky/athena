@@ -41,7 +41,7 @@ namespace SG{
     ///add a data object identifier to the list
     StatusCode add(const CLID& clid, const std::string& skey, 
 		   bool checkValidCLID) {
-      return m_SGF.add(clid, skey, checkValidCLID, false);
+      return m_SGF.add(clid, skey, checkValidCLID);
     }
   };
 }
@@ -78,14 +78,9 @@ int main () {
   //added 558401/asdf
   assert( 6 == std::distance(ipFolder->begin(), ipFolder->end()) );
 
-  assert( (ipFolder->add("Bar!", "poiu")).isSuccess() );
-
   IFolder::const_iterator i(ipFolder->begin()), iEnd(ipFolder->end());
   while (i != iEnd) {
-    cout << i->id() << "/" << i->key();
-    if (i->exact())
-      cout << " [exact]";
-    cout << endl;
+    cout << i->id() << "/" << i->key() << endl;
     ++i;
   }
 

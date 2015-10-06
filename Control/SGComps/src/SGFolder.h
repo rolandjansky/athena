@@ -35,11 +35,6 @@ namespace SG {
    @code
     ItemList = [ "DataHeader#*", "AthenaAttributeList#SimpleTag", "8101/Foo" ]
    @endcode
-   *
-   * Normally, an object will be written as the type as which it was recorded
-   * in StoreGate, regardless of the type used to request it in the ItemList.
-   * But if the type name ends with a !, then the object will be written
-   * as the exact type which was requested in the ItemList.
    **/
   class Folder : public virtual IFolder, public virtual AthAlgTool
   {
@@ -49,7 +44,7 @@ namespace SG {
     Folder(const std::string& name, 
 	   const std::string& type,
 	   const IInterface* parent);
-    virtual ~Folder() override;
+    virtual ~Folder();
     //@}
 
     /// the list we manage
@@ -58,37 +53,36 @@ namespace SG {
     /// \name access the ItemList
     //@{
     typedef IFolder::const_iterator const_iterator;
-    virtual const_iterator begin() const override { return m_list.begin(); }
-    virtual const_iterator end() const override { return m_list.end(); }
+    virtual const_iterator begin() const { return m_list.begin(); }
+    virtual const_iterator end() const { return m_list.end(); }
     //@}
 
     ///add a data object identifier to the list. Notice that if the typename
     ///is not yet in the ClassIDSvc registry the entry will be ignored and
     ///and add will return StatusCode::FAILURE
-    virtual StatusCode add(const std::string& typeName, const std::string& skey) override;
+    virtual StatusCode add(const std::string& typeName, const std::string& skey);
     ///add a data object identifier to the list. The clid is not checked
     ///against the ClassIDSvc registry
-    virtual StatusCode add(const CLID& clid, const std::string& skey) override {
+    virtual StatusCode add(const CLID& clid, const std::string& skey) {
       const bool DONTCHECKVALIDCLID(false);
-      return add(clid, skey, DONTCHECKVALIDCLID, false);
+      return add(clid, skey, DONTCHECKVALIDCLID);
     }
 
     ///clear the folder contents
-    virtual void clear() override { m_list.clear(); }
+    virtual void clear() { m_list.clear(); }
 
 
     ///update contents of the ItemList
-    virtual void updateItemList(bool checkValidCLID) override;
+    virtual void updateItemList(bool checkValidCLID);
 
     /// \name AlgTool boilerplate 
     //@{
-    virtual StatusCode initialize() override;
+    virtual StatusCode initialize();
     /// Query for a given interface
-    virtual StatusCode queryInterface(const InterfaceID& , void** ) override;
+    virtual StatusCode queryInterface(const InterfaceID& , void** ); 
     //@}
 
   private:
-
     ServiceHandle<IClassIDSvc> m_pCLIDSvc;
     /// property: the list of items (data objects identified by a class name/key pair)
     StringArrayProperty m_itemList;
@@ -101,7 +95,7 @@ namespace SG {
     ///add a data object identifier to the list, optionally checking if
     ///the clid is known to ClassIDSvc.
     StatusCode add(const CLID& clid, const std::string& skey, 
-		   bool checkValidCLID, bool exact);
+		   bool checkValidCLID);
 
     ItemList m_list; 
     /// property: check if item types are known to ClassIDSvc
