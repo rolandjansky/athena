@@ -151,7 +151,7 @@ void ALFA_GeometryReader::TransformFiberPositionsFCSCladding(PFIBERPARAMS pFiber
 	case EFT_VFIBER:
 		if(pFiberParams->nPlateID<1 && pFiberParams->nPlateID>10)
 		{
-			LogStream<<MSG::ERROR<<"Wrong PlateID "<<pFiberParams->nPlateID<<" (RP no."<<eRPName<<")"<<endmsg;
+			LogStream<<MSG::ERROR<<"Wrong PlateID "<<pFiberParams->nPlateID<<" (RP no."<<eRPName<<")"<<endreq;
 			return;
 		}
 		else
@@ -165,7 +165,7 @@ void ALFA_GeometryReader::TransformFiberPositionsFCSCladding(PFIBERPARAMS pFiber
 		case EFT_ODFIBERV1:
 		if(pFiberParams->nPlateID<1 && pFiberParams->nPlateID>3)
 		{
-			LogStream<<MSG::ERROR<<"Wrong ODPlateID "<<pFiberParams->nPlateID<<" (RP no."<<eRPName<<")"<<endmsg;
+			LogStream<<MSG::ERROR<<"Wrong ODPlateID "<<pFiberParams->nPlateID<<" (RP no."<<eRPName<<")"<<endreq;
 			return;
 		}
 		else
@@ -694,11 +694,10 @@ bool ALFA_GeometryReader::Initialize(const PGEOMETRYCONFIGURATION pConfig, eFibe
 		if(InitializeDefault(pConfig))
 		{
 			MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::Initialize");
-			LogStream<<MSG::INFO<<"Metrology type:"<<pConfig->eRPMetrologyGeoType<<endmsg;
-			LogStream<<MSG::INFO<<"Metrology source:"<<pConfig->strRPMetrologyConnString<<endmsg;
+			LogStream<<MSG::INFO<<"Metrology type:"<<pConfig->eRPMetrologyGeoType<<endreq;
+			LogStream<<MSG::INFO<<"Metrology source:"<<pConfig->strRPMetrologyConnString<<endreq;
 
-			if(pConfig->bShiftToX97Pos)
-			{
+			if(pConfig->bShiftToX97Pos){
 				m_ASPosParams[EASN_B7L1].ASTransformInATLAS=HepGeom::TranslateX3D(-97.0*CLHEP::mm)*m_ASPosParams[EASN_B7L1].ASTransformInATLAS;
 				m_ASPosParams[EASN_A7L1].ASTransformInATLAS=HepGeom::TranslateX3D(-97.0*CLHEP::mm)*m_ASPosParams[EASN_A7L1].ASTransformInATLAS;
 				m_ASPosParams[EASN_A7R1].ASTransformInATLAS=HepGeom::TranslateX3D(-97.0*CLHEP::mm)*m_ASPosParams[EASN_A7R1].ASTransformInATLAS;
@@ -714,7 +713,7 @@ bool ALFA_GeometryReader::Initialize(const PGEOMETRYCONFIGURATION pConfig, eFibe
 
 				if(pConfig->strRPMetrologyConnString==std::string("")) FilePath = PathResolver::find_file(METROLOGYFILE,"DATAPATH", PathResolver::RecursiveSearch);
 				else FilePath=pConfig->strRPMetrologyConnString;
-				LogStream<<MSG::INFO<<"Metrology data loaded from file "<<FilePath<<endmsg;
+				LogStream<<MSG::INFO<<"Metrology data loaded from file "<<FilePath<<endreq;
 				bRes=ParseRPMetrology(EGST_FILE,FilePath.c_str());
 				if(bRes==true) {
 					UpdateStationsPosParams();
@@ -943,7 +942,7 @@ HepGeom::Transform3D ALFA_GeometryReader::ComputeTransformMatrix(const std::vect
 			C+=pYs[i]*pXs[i].T();
 		}
 		
-		//LogStream<<MSG::INFO<<"C="<<C<<endmsg;
+		//LogStream<<MSG::INFO<<"C="<<C<<endreq;
 		
 		double** ppfA=(double**)new char[3*sizeof(double*)];
 		double** ppfV=(double**)new char[3*sizeof(double*)];
@@ -977,11 +976,11 @@ HepGeom::Transform3D ALFA_GeometryReader::ComputeTransformMatrix(const std::vect
 		
 		R=U*W*V.T();
 		t=ymean-R*xmean;
-		//LogStream<<MSG::INFO<<"U="<<U<<endmsg;
-		//LogStream<<MSG::INFO<<"V="<<V<<endmsg;
-		//LogStream<<MSG::INFO<<"W="<<W<<endmsg;
-		//LogStream<<MSG::INFO<<"R="<<R<<endmsg;
-		//LogStream<<MSG::INFO<<"t="<<t<<endmsg;
+		//LogStream<<MSG::INFO<<"U="<<U<<endreq;
+		//LogStream<<MSG::INFO<<"V="<<V<<endreq;
+		//LogStream<<MSG::INFO<<"W="<<W<<endreq;
+		//LogStream<<MSG::INFO<<"R="<<R<<endreq;
+		//LogStream<<MSG::INFO<<"t="<<t<<endreq;
 
 		CLHEP::HepRep3x3 matAux;
 		matAux.xx_=R[0][0]; matAux.xy_=R[0][1]; matAux.xz_=R[0][2];
@@ -1017,7 +1016,7 @@ bool ALFA_GeometryReader::ReadFiberGeometry(const PGEOMETRYCONFIGURATION pConfig
 
 	if(pConfig!=NULL)
 	{
-		LogStream<<MSG::INFO<<"Number of active or inactive Romain Pots: "<<m_ListExistingRPots.size()<<endmsg;
+		LogStream<<MSG::INFO<<"Number of active or inactive Romain Pots: "<<m_ListExistingRPots.size()<<endreq;
 		
 		for(iterRPName=m_ListExistingRPots.begin();iterRPName!=m_ListExistingRPots.end();iterRPName++){
 			nRPCfgIndex=((int)(*iterRPName))-1;
@@ -1050,7 +1049,7 @@ bool ALFA_GeometryReader::ReadSource(const eGeoSourceType eSourceType, const eRP
 	
 	switch(eSourceType){
 	case EGST_IDEALGEOMETRY:
-		LogStream<<MSG::INFO<<"The IDEAL "<<strDetType<<" fiber geometry will be loaded for RP "<<GetRPotLabel(eRPName)<<endmsg;
+		LogStream<<MSG::INFO<<"The IDEAL "<<strDetType<<" fiber geometry will be loaded for RP "<<GetRPotLabel(eRPName)<<endreq;
 		bRes=SetIdealGeometry(eRPName, eFType);
 		break;
 	case EGST_FILE:
@@ -1059,11 +1058,11 @@ bool ALFA_GeometryReader::ReadSource(const eGeoSourceType eSourceType, const eRP
 		if(szDataSource==NULL || !strcmp(szDataSource,"")) FilePath = PathResolver::find_file(GeomFile,"DATAPATH", PathResolver::RecursiveSearch);
 		else FilePath=std::string(szDataSource);
 
-		LogStream<<MSG::INFO<<"The "<<strDetType<<" fiber geometry will be loaded from FILE "<<FilePath.c_str()<<" for RP "<<GetRPotLabel(eRPName)<<endmsg;
+		LogStream<<MSG::INFO<<"The "<<strDetType<<" fiber geometry will be loaded from FILE "<<FilePath.c_str()<<" for RP "<<GetRPotLabel(eRPName)<<endreq;
 		bRes=ReadFile(eRPName, eFType, FilePath.c_str());
 		break;
 	case EGST_DATABASE:
-		LogStream<<MSG::INFO<<"The "<<strDetType<<" fiber geometry will be loaded from DATABASE for RP "<<GetRPotLabel(eRPName)<<endmsg;
+		LogStream<<MSG::INFO<<"The "<<strDetType<<" fiber geometry will be loaded from DATABASE for RP "<<GetRPotLabel(eRPName)<<endreq;
 		bRes=ReadDatabase(eRPName, eFType, szDataSource);
 		break;
 	default:
@@ -1086,7 +1085,7 @@ bool ALFA_GeometryReader::ReadSource(const eGeoSourceType eSourceType, const eRP
 	else
 	{
 		MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::ReadSource");
-		LogStream << MSG::FATAL << " Could not load geometry! " << endmsg;
+		LogStream << MSG::FATAL << " Could not load geometry! " << endreq;
 		
 		throw GaudiException(" Could not load geometry ", "ALFA_GeometryReader::ReadSource", StatusCode::FAILURE);
 	}
@@ -1212,7 +1211,7 @@ bool ALFA_GeometryReader::ReadFile(const eRPotName eRPName, const eFiberType eFT
 	else if(eFType==EFT_FIBEROD) m_MapRPot[eRPName].eODGeometryType=EGST_FILE;
 
 	if((pFile=fopen(szFilename,"r"))==NULL){
-		LogStream<<MSG::ERROR<< "Could not open the file "<<szFilename<<endmsg;
+		LogStream<<MSG::ERROR<< "Could not open the file "<<szFilename<<endreq;
 		return false;
 	}
 	
@@ -1237,7 +1236,7 @@ bool ALFA_GeometryReader::ReadFile(const eRPotName eRPName, const eFiberType eFT
 				FiberParams.nPlateID=FiberParams.nLayerID/2+FiberParams.nLayerID%2;
 			}
 			else{
-				LogStream<<MSG::ERROR<< "Error at line "<<nLine<<" while reading the data file "<<szFilename<<endmsg;
+				LogStream<<MSG::ERROR<< "Error at line "<<nLine<<" while reading the data file "<<szFilename<<endreq;
 				bRes=false;
 				break;
 			}
@@ -1252,7 +1251,7 @@ bool ALFA_GeometryReader::ReadFile(const eRPotName eRPName, const eFiberType eFT
 				FiberParams.nFiberID=atoi(pch1);
 			}
 			else{
-				LogStream<<MSG::ERROR<< "Error at line "<<nLine<<" while reading the data file "<<szFilename<<endmsg;
+				LogStream<<MSG::ERROR<< "Error at line "<<nLine<<" while reading the data file "<<szFilename<<endreq;
 				bRes=false;
 				break;
 			}
@@ -1267,7 +1266,7 @@ bool ALFA_GeometryReader::ReadFile(const eRPotName eRPName, const eFiberType eFT
 				FiberParams.fSlope=atof(pch1);
 			}
 			else{
-				LogStream<<MSG::ERROR<< "Error at line "<<nLine<<" while reading the data file "<<szFilename<<endmsg;
+				LogStream<<MSG::ERROR<< "Error at line "<<nLine<<" while reading the data file "<<szFilename<<endreq;
 				bRes=false;
 				break;
 			}
@@ -1282,7 +1281,7 @@ bool ALFA_GeometryReader::ReadFile(const eRPotName eRPName, const eFiberType eFT
 				FiberParams.fOffset=atof(pch1);
 			}
 			else{
-				LogStream<<MSG::ERROR<< "Error at line "<<nLine<<" while reading the data file "<<szFilename<<endmsg;
+				LogStream<<MSG::ERROR<< "Error at line "<<nLine<<" while reading the data file "<<szFilename<<endreq;
 				bRes=false;
 				break;
 			}
@@ -1344,8 +1343,7 @@ bool ALFA_GeometryReader::ReadDatabase(const eRPotName eRPName, const eFiberType
 	char szSource[64];
 	char *pch;
 	
-	memset(szSource,0,sizeof(szSource));
-	if(szDataSource) strncpy(szSource, szDataSource, sizeof(szSource)-1);
+	if(szDataSource) strncpy(szSource, szDataSource, sizeof(szSource));
 	pch = strtok(szSource,":");
 	while (pch != NULL)
 	{
@@ -1353,7 +1351,7 @@ bool ALFA_GeometryReader::ReadDatabase(const eRPotName eRPName, const eFiberType
 		pch = strtok(NULL, ":");
 	}
 	
-	//	LogStream << MSG::INFO << "MARK - elements: " << strDBElements[0] << "  " << strDBElements[1] << "  " << strDBElements[2] << endmsg;
+	//	LogStream << MSG::INFO << "MARK - elements: " << strDBElements[0] << "  " << strDBElements[1] << "  " << strDBElements[2] << endreq;
 	
 	ALFA_RDBAccess* p_DBAccess = new ALFA_RDBAccess();
 	
@@ -1401,7 +1399,7 @@ bool ALFA_GeometryReader::ReadDatabase(const eRPotName eRPName, const eFiberType
 				if(FiberParams.nLayerID%2==0 && FiberParams.nFiberID<=15)								eType=EFT_ODFIBERU1;
 				if(FiberParams.nLayerID%2==0 && FiberParams.nFiberID>=16 && FiberParams.nFiberID<=30)	eType=EFT_ODFIBERV1;
 				
-				//				LogStream << MSG::INFO << "eType: " << eType << "   fSlope: " << FiberParams.fSlope << endmsg;
+				//				LogStream << MSG::INFO << "eType: " << eType << "   fSlope: " << FiberParams.fSlope << endreq;
 			}
 
 			//Transform & save values for RP
@@ -1436,7 +1434,7 @@ bool ALFA_GeometryReader::GetUFiberParams(PFIBERPARAMS pFiberParams, const eRPot
 		}
 		
 		if(iter==(*rpiter).second.ListUFibers.end()){
-			LogStream<<MSG::ERROR<<"Cannot find fiber PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endmsg;
+			LogStream<<MSG::ERROR<<"Cannot find fiber PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endreq;
 			//throw new Exception("Wrong U-fiber");
 		}
 		else{
@@ -1446,7 +1444,7 @@ bool ALFA_GeometryReader::GetUFiberParams(PFIBERPARAMS pFiberParams, const eRPot
 		}
 	}
 	else{
-		LogStream<<MSG::ERROR<<"Unknown Roman pot PotID="<<eRPName<<endmsg;
+		LogStream<<MSG::ERROR<<"Unknown Roman pot PotID="<<eRPName<<endreq;
 	}
 	
 	return bRes;
@@ -1467,7 +1465,7 @@ bool ALFA_GeometryReader::GetVFiberParams(PFIBERPARAMS pFiberParams, const eRPot
 		}
 		
 		if(iter==(*rpiter).second.ListVFibers.end()) {
-			LogStream<<MSG::ERROR<<"Cannot find fiber PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endmsg;
+			LogStream<<MSG::ERROR<<"Cannot find fiber PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endreq;
 			//throw new Exception("Wrong U-fiber");
 		}
 		else{
@@ -1477,7 +1475,7 @@ bool ALFA_GeometryReader::GetVFiberParams(PFIBERPARAMS pFiberParams, const eRPot
 		}
 	}
 	else{
-		LogStream<<MSG::ERROR<<"Unknown Roman pot PotID="<<eRPName<<endmsg;
+		LogStream<<MSG::ERROR<<"Unknown Roman pot PotID="<<eRPName<<endreq;
 	}
 
 	
@@ -1491,7 +1489,7 @@ double ALFA_GeometryReader::GetUFiberCentreXPos(const eRPotName eRPName, const i
 
 	if(m_eFCoordSystem!=EFCS_CLADDING){
 		MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::GetUFiberCentreXPos");
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 		return 0.0;
 	}
 
@@ -1509,7 +1507,7 @@ double ALFA_GeometryReader::GetVFiberCentreXPos(const eRPotName eRPName, const i
 
 	if(m_eFCoordSystem!=EFCS_CLADDING){
 		MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::GetVFiberCentreXPos");
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 		return 0.0;
 	}
 
@@ -1527,7 +1525,7 @@ double ALFA_GeometryReader::GetUFiberAngle(const eRPotName eRPName, const int nP
 
 	if(m_eFCoordSystem!=EFCS_CLADDING){
 		MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::GetUFiberAngle");
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 		return 0.0;
 	}
 
@@ -1545,7 +1543,7 @@ double ALFA_GeometryReader::GetVFiberAngle(const eRPotName eRPName, const int nP
 
 	if(m_eFCoordSystem!=EFCS_CLADDING){
 		MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::GetVFiberAngle");
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 		return 0.0;
 	}
 	
@@ -1565,7 +1563,7 @@ void ALFA_GeometryReader::SetUFiberPositionToMainReference(const eRPotName eRPNa
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::SetUFiberPositionToMainReference");
 
 	if(m_eFCoordSystem!=EFCS_CLADDING){
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 		return;
 	}
 	
@@ -1575,7 +1573,7 @@ void ALFA_GeometryReader::SetUFiberPositionToMainReference(const eRPotName eRPNa
 		}
 		
 		if(iter==(*rpiter).second.ListUFibers.end()) {
-			LogStream<<MSG::ERROR<<"Cannot find fiber PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endmsg;
+			LogStream<<MSG::ERROR<<"Cannot find fiber PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endreq;
 			//throw new Exception("Wrong U-fiber");
 		}
 		else{
@@ -1584,7 +1582,7 @@ void ALFA_GeometryReader::SetUFiberPositionToMainReference(const eRPotName eRPNa
 		}
 	}
 	else{
-		LogStream<<MSG::ERROR<<"Unknown Roman pot PotID="<<eRPName<<endmsg;
+		LogStream<<MSG::ERROR<<"Unknown Roman pot PotID="<<eRPName<<endreq;
 	}
 }
 
@@ -1597,7 +1595,7 @@ void ALFA_GeometryReader::SetVFiberPositionToMainReference(const eRPotName eRPNa
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::SetVFiberPositionToMainReference");
 
 	if(m_eFCoordSystem!=EFCS_CLADDING){
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 		return;
 	}
 	
@@ -1607,7 +1605,7 @@ void ALFA_GeometryReader::SetVFiberPositionToMainReference(const eRPotName eRPNa
 		}
 		
 		if(iter==(*rpiter).second.ListVFibers.end()){
-			LogStream<<MSG::ERROR<<"Cannot find fiber PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endmsg;
+			LogStream<<MSG::ERROR<<"Cannot find fiber PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endreq;
 			//throw new Exception("Wrong U-fiber");
 		}
 		else{
@@ -1616,7 +1614,7 @@ void ALFA_GeometryReader::SetVFiberPositionToMainReference(const eRPotName eRPNa
 		}
 	}
 	else{
-		LogStream<<MSG::ERROR<<"Unknown Roman pot PotID="<<eRPName<<endmsg;
+		LogStream<<MSG::ERROR<<"Unknown Roman pot PotID="<<eRPName<<endreq;
 	}
 }
 
@@ -1634,11 +1632,11 @@ bool ALFA_GeometryReader::GetPlateParams(PPLATEPARAMS pPlateParams, const eRPotN
 			bRes=true;
 		}
 		else{
-			LogStream<<MSG::ERROR<<"Unknown Ti plate ID "<<nPlateID<<endmsg;
+			LogStream<<MSG::ERROR<<"Unknown Ti plate ID "<<nPlateID<<endreq;
 		}
 	}
 	else{
-		LogStream<<MSG::ERROR<<"Unknown Roman pot PotID="<<eRPName<<endmsg;
+		LogStream<<MSG::ERROR<<"Unknown Roman pot PotID="<<eRPName<<endreq;
 	}
 	
 	return bRes;
@@ -1662,7 +1660,7 @@ void ALFA_GeometryReader::PrintFiberGeometry(std::ostream &OutStream)
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::PrintGeometry");
 
 	if(m_eFCoordSystem!=EFCS_CLADDING || m_eFCoordSystem!=EFCS_ATLAS){
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 		return;
 	}
 	
@@ -1739,7 +1737,7 @@ bool ALFA_GeometryReader::StoreReconstructionGeometry(const eRPotName eRPName, c
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::StoreReconstructionGeometry");
 
 	if(!(m_eFCoordSystem==EFCS_CLADDING || m_eFCoordSystem==EFCS_ATLAS)){
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 		return false;
 	}
 
@@ -1958,7 +1956,7 @@ bool ALFA_GeometryReader::GetRPPosParams(PRPPOSPARAMS pRPPosParams, const eRPotN
 		bRes=true;
 	}
 	else{
-		LogStream<<MSG::ERROR<<"Unknown Roma pot ID="<<eRPName<<endmsg;
+		LogStream<<MSG::ERROR<<"Unknown Roma pot ID="<<eRPName<<endreq;
 	}
 	
 	return bRes;
@@ -1977,7 +1975,7 @@ bool ALFA_GeometryReader::GetASPosParams(PASPOSPARAMS pASPosParams, const eAStat
 		bRes=true;
 	}
 	else{
-		LogStream<<MSG::ERROR<<"Unknown ALFA Station ID="<<eASName<<endmsg;
+		LogStream<<MSG::ERROR<<"Unknown ALFA Station ID="<<eASName<<endreq;
 	}
 	
 	return bRes;
@@ -1993,7 +1991,7 @@ eGeoSourceType ALFA_GeometryReader::GetRPGeometryType(const eRPotName eRPName, e
 	}
 	else{
 		MsgStream LogStream(Athena::getMessageSvc(),"ALFA_GeometryReader::GetRPGeometryType");
-		LogStream<<MSG::ERROR<<"Unknown Roman pot ID="<<eRPName<<endmsg;
+		LogStream<<MSG::ERROR<<"Unknown Roman pot ID="<<eRPName<<endreq;
 	}
 	
 	
@@ -2008,11 +2006,11 @@ bool ALFA_GeometryReader::GetMDFiberParams(PFIBERPARAMS pFiberParams, const eFib
 
 	if(pFiberParams==NULL)
 	{
-		LogStream<<MSG::ERROR<<"pFiberParams points to NULL"<<endmsg;
+		LogStream<<MSG::ERROR<<"pFiberParams points to NULL"<<endreq;
 	}
 	else if(m_eFCoordSystem!=EFCS_ATLAS)
 	{
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 	}
 	else{
 		switch(eFType){
@@ -2023,7 +2021,7 @@ bool ALFA_GeometryReader::GetMDFiberParams(PFIBERPARAMS pFiberParams, const eFib
 			bRes=GetVFiberParams(pFiberParams, eRPName, nPlateID, nFiberID);
 			break;
 		default:
-			LogStream<<MSG::ERROR<<"Invalid fiber type"<<endmsg;
+			LogStream<<MSG::ERROR<<"Invalid fiber type"<<endreq;
 			break;
 		}
 	}
@@ -2054,7 +2052,7 @@ bool ALFA_GeometryReader::GetODFiberParams(PFIBERPARAMS pFiberParams, const eFib
 
 				if (iter==(*rpiter).second.ListODFibersU0.end())
 				{
-					LogStream<<MSG::ERROR<<"Cannot find ODFiberU0 PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endmsg;
+					LogStream<<MSG::ERROR<<"Cannot find ODFiberU0 PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endreq;
 					//throw new G4Exception("Wrong ODFiberU0");
 				}
 				else
@@ -2075,7 +2073,7 @@ bool ALFA_GeometryReader::GetODFiberParams(PFIBERPARAMS pFiberParams, const eFib
 
 				if (iter==(*rpiter).second.ListODFibersV0.end())
 				{
-					LogStream<<MSG::ERROR<<"Cannot find ODFiberV0 PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endmsg;
+					LogStream<<MSG::ERROR<<"Cannot find ODFiberV0 PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endreq;
 					//throw new G4Exception("Wrong ODFiberV0");
 				}
 				else
@@ -2096,7 +2094,7 @@ bool ALFA_GeometryReader::GetODFiberParams(PFIBERPARAMS pFiberParams, const eFib
 
 				if (iter==(*rpiter).second.ListODFibersU1.end())
 				{
-					LogStream<<MSG::ERROR<<"Cannot find ODFiberU1 PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endmsg;
+					LogStream<<MSG::ERROR<<"Cannot find ODFiberU1 PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endreq;
 					//throw new G4Exception("Wrong ODFiberU1");
 				}
 				else
@@ -2117,7 +2115,7 @@ bool ALFA_GeometryReader::GetODFiberParams(PFIBERPARAMS pFiberParams, const eFib
 
 				if (iter==(*rpiter).second.ListODFibersV1.end())
 				{
-					LogStream<<MSG::ERROR<<"Cannot find ODFiberV1 PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endmsg;
+					LogStream<<MSG::ERROR<<"Cannot find ODFiberV1 PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endreq;
 					//throw new G4Exception("Wrong ODFiberV1");
 				}
 				else
@@ -2131,14 +2129,14 @@ bool ALFA_GeometryReader::GetODFiberParams(PFIBERPARAMS pFiberParams, const eFib
 			}
 		default:
 			{
-				LogStream<<MSG::ERROR<<"Unknown ODFiber eFType="<<eFType<<endmsg;
+				LogStream<<MSG::ERROR<<"Unknown ODFiber eFType="<<eFType<<endreq;
 				break;
 			}
 		}
 	}
 	else
 	{
-		LogStream<<MSG::ERROR<<"Unknown Roma pot PotID="<<eRPName<<endmsg;
+		LogStream<<MSG::ERROR<<"Unknown Roma pot PotID="<<eRPName<<endreq;
 	}
 	
 	return bRes;
@@ -2152,7 +2150,7 @@ void ALFA_GeometryReader::SetODFiberPositionToMainReference(const eRPotName eRPN
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::SetODFiberPositionToMainReference");
 
 	if(m_eFCoordSystem!=EFCS_CLADDING){
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 		return;
 	}
 
@@ -2169,7 +2167,7 @@ void ALFA_GeometryReader::SetODFiberPositionToMainReference(const eRPotName eRPN
 
 				if (iter==(*rpiter).second.ListODFibersU0.end())
 				{
-					LogStream<<MSG::ERROR<<"Cannot find ODFiberU0 PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endmsg;
+					LogStream<<MSG::ERROR<<"Cannot find ODFiberU0 PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endreq;
 					//throw new G4Exception("Wrong ODFiberU0");
 				}
 				else
@@ -2189,7 +2187,7 @@ void ALFA_GeometryReader::SetODFiberPositionToMainReference(const eRPotName eRPN
 
 				if (iter==(*rpiter).second.ListODFibersV0.end())
 				{
-					LogStream<<MSG::ERROR<<"Cannot find ODFiberV0 PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endmsg;
+					LogStream<<MSG::ERROR<<"Cannot find ODFiberV0 PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endreq;
 					//throw new G4Exception("Wrong ODFiberV0");
 				}
 				else
@@ -2209,7 +2207,7 @@ void ALFA_GeometryReader::SetODFiberPositionToMainReference(const eRPotName eRPN
 
 				if (iter==(*rpiter).second.ListODFibersU1.end())
 				{
-					LogStream<<MSG::ERROR<<"Cannot find ODFiberU1 PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endmsg;
+					LogStream<<MSG::ERROR<<"Cannot find ODFiberU1 PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endreq;
 					//throw new G4Exception("Wrong ODFiberU1");
 				}
 				else
@@ -2229,7 +2227,7 @@ void ALFA_GeometryReader::SetODFiberPositionToMainReference(const eRPotName eRPN
 
 				if (iter==(*rpiter).second.ListODFibersV1.end())
 				{
-					LogStream<<MSG::ERROR<<"Cannot find ODFiberV1 PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endmsg;
+					LogStream<<MSG::ERROR<<"Cannot find ODFiberV1 PotID="<<eRPName<<", PlateID="<<nPlateID<<" and FiberID="<<nFiberID<<endreq;
 					//throw new G4Exception("Wrong ODFiberV1");
 				}
 				else
@@ -2242,14 +2240,14 @@ void ALFA_GeometryReader::SetODFiberPositionToMainReference(const eRPotName eRPN
 			}
 		default:
 			{
-				LogStream<<MSG::ERROR<<"Unknown ODFiber eFType="<<eFType<<endmsg;
+				LogStream<<MSG::ERROR<<"Unknown ODFiber eFType="<<eFType<<endreq;
 				break;
 			}
 		}
 	}
 	else
 	{
-		LogStream<<MSG::ERROR<<"Unknown Roman pot PotID="<<eRPName<<endmsg;
+		LogStream<<MSG::ERROR<<"Unknown Roman pot PotID="<<eRPName<<endreq;
 	}
 
 }
@@ -2261,7 +2259,7 @@ double ALFA_GeometryReader::GetODFiberCentreYPos(const eRPotName eRPName, const 
 
 	if(m_eFCoordSystem!=EFCS_CLADDING){
 		MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::GetODFiberCentreYPos");
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 		return 0.0;
 	}
 
@@ -2280,7 +2278,7 @@ double ALFA_GeometryReader::GetODFiberAngle(const eRPotName eRPName, const eFibe
 
 	if(m_eFCoordSystem!=EFCS_CLADDING){
 		MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::GetODFiberAngle");
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 		return 0.0;
 	}
 	
@@ -2300,7 +2298,7 @@ double ALFA_GeometryReader::GetMDFiberSlope(const eRPotName eRPName, const eFibe
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::GetMDFiberSlope");
 	
 	if(m_eFCoordSystem!=EFCS_ATLAS){
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 		return 0.0;
 	}
 
@@ -2316,7 +2314,7 @@ double ALFA_GeometryReader::GetMDFiberSlope(const eRPotName eRPName, const eFibe
 		}
 		break;
 		default:
-		LogStream<<MSG::ERROR<<"Invalid fiber type"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid fiber type"<<endreq;
 		break;
 	}
 	
@@ -2331,7 +2329,7 @@ double ALFA_GeometryReader::GetMDFiberOffset(const eRPotName eRPName, const eFib
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::GetMDFiberOffset");
 	
 	if(m_eFCoordSystem!=EFCS_ATLAS){
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 		return 0.0;
 	}
 
@@ -2347,7 +2345,7 @@ double ALFA_GeometryReader::GetMDFiberOffset(const eRPotName eRPName, const eFib
 		}
 		break;
 		default:
-		LogStream<<MSG::ERROR<<"Invalid fiber type"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid fiber type"<<endreq;
 		break;
 	}
 	
@@ -2362,7 +2360,7 @@ double ALFA_GeometryReader::GetMDFiberZPos(const eRPotName eRPName, const eFiber
 	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::GetMDFiberZPos");
 	
 	if(m_eFCoordSystem!=EFCS_ATLAS){
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 		return 0.0;
 	}
 
@@ -2378,7 +2376,7 @@ double ALFA_GeometryReader::GetMDFiberZPos(const eRPotName eRPName, const eFiber
 		}
 		break;
 		default:
-		LogStream<<MSG::ERROR<<"Invalid fiber type"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid fiber type"<<endreq;
 		break;
 	}
 	
@@ -2392,7 +2390,7 @@ double ALFA_GeometryReader::GetODFiberSlope(const eRPotName eRPName, const eFibe
 
 	if(m_eFCoordSystem!=EFCS_ATLAS){
 		MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::GetODFiberSlope");
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 		return 0.0;
 	}
 	
@@ -2411,7 +2409,7 @@ double ALFA_GeometryReader::GetODFiberOffset(const eRPotName eRPName, const eFib
 
 	if(m_eFCoordSystem!=EFCS_ATLAS){
 		MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::GetODFiberOffset");
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 		return 0.0;
 	}
 	
@@ -2430,7 +2428,7 @@ double ALFA_GeometryReader::GetODFiberZPos(const eRPotName eRPName, const eFiber
 
 	if(m_eFCoordSystem!=EFCS_ATLAS){
 		MsgStream LogStream(Athena::getMessageSvc(), "ALFA_GeometryReader::GetODFiberZPos");
-		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endmsg;
+		LogStream<<MSG::ERROR<<"Invalid coordinate system"<<endreq;
 		return 0.0;
 	}
 	
@@ -2510,7 +2508,7 @@ bool ALFA_GeometryReader::ParseRPMetrology(eGeoSourceType eSourceType, const cha
 	}
 	else
 	{
-		LogStream<<MSG::ERROR<<"The file source is supported only."<<endmsg;
+		LogStream<<MSG::ERROR<<"The file source is supported only."<<endreq;
 		bRes=false;
 	}
 
@@ -2620,7 +2618,7 @@ bool ALFA_GeometryReader::ParseArrayOfValues(const char* szvalue, std::vector<do
 
 	vecValues.clear();
 	memset(szbuff,0,sizeof(szbuff));
-	if(szvalue) strncpy(szbuff,szvalue,sizeof(szbuff)-1);
+	if(szvalue) strncpy(szbuff,szvalue,sizeof(szbuff));
 
 	ppos1=szbuff;
 	ppos2=strchr(ppos1,',');
