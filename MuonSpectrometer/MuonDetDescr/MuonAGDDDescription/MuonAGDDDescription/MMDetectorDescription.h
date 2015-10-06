@@ -17,12 +17,7 @@ struct MMReadoutParameters {
     double stripPitch;
     double gasThickness;
     double pcbThickness;
-    double driftThickness;
     std::vector<double> stereoAngel;
-    std::vector<int> readoutSide;
-    double zpos;
-    double distanceFromZAxis;
-    double roLength;
 };
 
 class MMDetectorDescription: public AGDDDetector {
@@ -36,15 +31,6 @@ public:
 	double lWidth() {return _large_x;}
 	double Length() {return _y;}
 	double Tck()    {return _z;}
-
-	void xFrame(double y) {_xFrame=y;}
-	double xFrame() {return _xFrame;}
-	
-	void ysFrame(double y) {_ysFrame=y;}
-	double ysFrame() {return _ysFrame;}
-	
-	void ylFrame(double y) {_ylFrame=y;}
-	double ylFrame() {return _ylFrame;}
 	
 	MM_Technology* GetTechnology();
 
@@ -53,10 +39,6 @@ public:
 	MMReadoutParameters& GetReadoutParameters() {return roParameters;}
 
 protected:
-	double _xFrame;
-	double _ysFrame;
-	double _ylFrame;
-
 	void SetDetectorAddress(AGDDDetectorPositioner*);
 	static MMDetectorDescription* current;
 };

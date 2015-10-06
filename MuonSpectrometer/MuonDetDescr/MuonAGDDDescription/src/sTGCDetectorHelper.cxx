@@ -54,7 +54,6 @@ sTGCDetectorDescription* sTGCDetectorHelper::Get_sTGCDetector(char type,int ieta
 			
 			tgc=dynamic_cast<sTGCDetectorDescription*>(dp->theDetector);
 		}
-		if(tgc) break;
 	}
 	if (!tgc) std::cout<<" could not find a positioned sTGC!!!! "<<std::endl;
 	return tgc;
@@ -90,7 +89,6 @@ AGDDPositionedDetector sTGCDetectorHelper::Get_sTGCPositionedDetector(char type,
 			
 			tgc=dynamic_cast<sTGCDetectorDescription*>(dp->theDetector);
 		}
-		if(tgc) break;
 	}
 	if (!tgc) std::cout<<" could not find a positioned sTGC!!!! "<<std::endl;
 	AGDDPositionedDetector p_sTGC(tgc,dp);

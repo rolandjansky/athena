@@ -37,7 +37,7 @@ MMDetectorDescription* MMDetectorHelper::Get_MMDetector(char type,int ieta,int i
 		{
 			if (dp->ID.detectorType != "Micromegas") continue;
 			std::string dad=dp->ID.detectorAddress;
-
+		
 			char dtype=dad[3];
 			char dctype='L';
 			if (dtype=='3') dctype='S';
@@ -53,7 +53,6 @@ MMDetectorDescription* MMDetectorHelper::Get_MMDetector(char type,int ieta,int i
 			
 			mm=dynamic_cast<MMDetectorDescription*>(dp->theDetector);
 		}
-		if(mm) break;
 	}
 	if (!mm) std::cout<<" could not find a positioned Micromegas!!!! "<<std::endl;
 	return mm;
@@ -73,7 +72,7 @@ AGDDPositionedDetector MMDetectorHelper::Get_MMPositionedDetector(char type,int 
 		{
 			if (dp->ID.detectorType != "Micromegas") continue;
 			std::string dad=dp->ID.detectorAddress;
-
+		
 			char dtype=dad[3];
 			char dctype='L';
 			if (dtype=='3') dctype='S';
@@ -89,7 +88,6 @@ AGDDPositionedDetector MMDetectorHelper::Get_MMPositionedDetector(char type,int 
 			
 			mm=dynamic_cast<MMDetectorDescription*>(dp->theDetector);
 		}
-		if(mm) break;
 	}
 	if (!mm) std::cout<<" could not find a positioned Micromegas!!!! "<<std::endl;
 	AGDDPositionedDetector p_mm(mm,dp);
