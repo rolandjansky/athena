@@ -268,7 +268,9 @@ class SiTrigSpacePointFinder_EF( InDet__SiTrigSpacePointFinder ):
              InDetTrigSiSpacePointMakerToolCosmics, SCT_TrigSpacePointToolCosmics
          self.SiSpacePointMakerTool = InDetTrigSiSpacePointMakerToolCosmics
          self.SCTSpacePointTrigHelperTool = SCT_TrigSpacePointToolCosmics
-         
+         self.SpacePointsSCTName = "SCT_CosmicsTrigSpacePoints"
+         self.SpacePointsPixelName = "PixelCosmicsTrigSpacePoints"
+
 
       from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
       self.EtaHalfWidth = InDetTrigSliceSettings[('etaHalfWidth',type)]

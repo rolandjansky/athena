@@ -101,8 +101,7 @@ class InDetTrigTrackingCuts :
  #   else:
 
     # --- RegionSelector
-    #self.__RegSelZmax = 168. * Units.mm
-    self.__RegSelZmax = 225. * Units.mm
+    self.__RegSelZmax = 225. * Units.mm       #change in sync with RS, problems with strategyC?
 
     # --- pattern cuts for back tracking
     self.__SecondaryXi2max         = 15.0
@@ -184,7 +183,7 @@ class InDetTrigTrackingCuts :
       self.__maxPixelHoles             = 1                # was 2
     
     if self.__indetflags.cutLevel() >= 9:
-      self.__maxZImpact              = 250 * Units.mm     #this should come from RS/Roi
+      self.__maxZImpact              = 200. * Units.mm     #this should come from RS/Roi
 
     if self.__indetflags.cutLevel() >= 10:
       self.__doZBoundary              = True

@@ -89,6 +89,12 @@ class doSCTIntimeHits(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
+class TRTOff(InDetFlagsJobProperty):
+  """ Disable TRT (for upgrade studies) """
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = False
+
         
 ##-----------------------------------------------------------------------------
 ## 2nd step

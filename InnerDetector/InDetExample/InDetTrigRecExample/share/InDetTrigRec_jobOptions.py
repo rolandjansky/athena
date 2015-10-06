@@ -17,6 +17,7 @@ if not 'InDetTrigFlags' in dir():
    log.info("InDetTrigRec_jobOptions: InDetTrigFlags not set - setting to defaults")
    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
    InDetTrigFlags.doNewTracking = True
+   #InDetTrigFlags.InDet25nsec = True      #autoconfig and runHLT_standalone setting for BS 
    InDetTrigFlags.primaryVertexSetup = "IterativeFinding"
    #InDetTrigFlags.primaryVertexSetup = "DefaultFastFinding"
    InDetTrigFlags.doiPatRec = False
