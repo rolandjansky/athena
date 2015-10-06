@@ -105,8 +105,6 @@ GETTER(numberOfTRTXenonHits)
     else return -99; }
 GETTER(eProbabilityComb)
 GETTER(eProbabilityHT)
-GETTER(eProbabilityToT)
-GETTER(eProbabilityBrem)
 GETTER(pixeldEdx)    
 
 #undef GETTER
