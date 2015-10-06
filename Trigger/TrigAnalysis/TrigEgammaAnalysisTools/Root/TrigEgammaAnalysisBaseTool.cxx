@@ -50,6 +50,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool")
 {
     declareProperty("MatchTool",m_matchTool);
+    declareProperty("Util",m_util);
     declareProperty("ElectronKey",m_offElContKey="Electrons");
     declareProperty("PhotonKey",m_offPhContKey="Photons");
     declareProperty("File",m_file="Validation_Zee");
@@ -58,6 +59,8 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     declareProperty("DetailedHistograms", m_detailedHists=false);
     declareProperty("DefaultProbePid", m_defaultProbePid="Loose");
     declareProperty("doJpsiee",m_doJpsiee=false);
+    declareProperty("isEMResultNames",m_isemname,"isEM");
+    declareProperty("LHResultNames",m_lhname,"LH");
     m_storeGate = nullptr;
     m_histsvc = nullptr;
     m_parent = nullptr;
@@ -510,6 +513,7 @@ bool TrigEgammaAnalysisBaseTool::splitTriggerName(const std::string trigger, std
 
 
 }
+
 void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
     std::vector <std::string> dirnames;
     ATH_MSG_VERBOSE("Booking Path " << basePath);
@@ -530,8 +534,6 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
     // TH2 with variable bin x-Axis, but constant bin y-Axis takes only Double_t arrays
     float etbins[31];
 
-    float m_mee_down=50.;
-    float m_mee_up=150.;
     
     if(m_doJpsiee){
 
@@ -544,9 +546,6 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
                       25.};
       for (int i=0;i<31;i++)etbins[i]=temp[i];
 
-
-      m_mee_down=1.;
-      m_mee_up=8.;  
       
     }
     else
@@ -564,6 +563,7 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
     label_trigstep.push_back("L2Calo");
     label_trigstep.push_back("L2Cont"); 
     label_trigstep.push_back("L2");
+    label_trigstep.push_back("L2TrackCont");
     label_trigstep.push_back("EFCaloCont");   
     label_trigstep.push_back("EFCalo");
     label_trigstep.push_back("EFTrackCont");    
@@ -600,7 +600,6 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
     dirnames.push_back(basePath + "/Efficiency/L2Calo");
     dirnames.push_back(basePath + "/Efficiency/L2");
     dirnames.push_back(basePath + "/Efficiency/EFCalo");
-    dirnames.push_back(basePath + "/Efficiency/HLT");
 
     for (int i = 0; i < (int) dirnames.size(); i++) {
         ATH_MSG_VERBOSE(dirnames[i]);
@@ -611,7 +610,6 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH1F("match_eta", "Trigger Matched Offline #eta; #eta ; Count",20,etabins));
         addHistogram(new TH1F("match_phi", "Trigger Matched #phi; #phi ; Count", 20, -3.2, 3.2));
         addHistogram(new TH1F("match_mu", "Trigger Matched <#mu>; <#mu> ; Count", 50, 0, 100));
-        addHistogram(new TH1F("match_mee", "Trigger Matched Offline M(ee); m_ee [GeV] ; Count", 50, m_mee_down, m_mee_up));
         addHistogram(new TH2D("match_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
         addHistogram(new TH2D("match_coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
         
@@ -621,7 +619,42 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH1F("eta", "Offline #eta; #eta ; Count", 20,etabins)); 
         addHistogram(new TH1F("phi", "Offline #phi; #phi ; Count", 20, -3.2, 3.2));
         addHistogram(new TH1F("mu", "<#mu>; <#mu> ; Count", 50, 0, 100));
-        addHistogram(new TH1F("mee", "Offline M(ee); m_ee [GeV] ; Count", 50, m_mee_down, m_mee_up));
+        
+        addHistogram(new TH2D("et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
+        addHistogram(new TH2D("coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
+        
+        addHistogram(new TProfile("eff_pt", "#epsilon(p_T); p_{T} ; #epsilon",30,etbins)); 
+        addHistogram(new TProfile("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Count", 30,etbins)); 
+        addHistogram(new TProfile("eff_highet", "#epsilon(E_T); E_{T} [GeV] ; Count", 100, 0., 2000.));
+        addHistogram(new TProfile("eff_eta", "#epsilon(#eta); #eta ; Count", 20, etabins));
+        addHistogram(new TProfile("eff_phi", "#epsilon(#phi); #phi ; Count", 20, -3.2, 3.2));
+        addHistogram(new TProfile("eff_mu", "#epsilon(<#mu>; <#mu> ; Count", 50, 0, 100));
+        addHistogram(new TProfile2D("eff_et_eta","#epsilon(#eta,E_{T}); E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
+        addHistogram(new TProfile2D("eff_coarse_et_eta","#epsilon(#eta,E_{T}); E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
+    }
+    
+    dirnames.clear();
+    dirnames.push_back(basePath + "/Efficiency/HLT");
+    
+    for (int i = 0; i < (int) dirnames.size(); i++) {
+        ATH_MSG_VERBOSE(dirnames[i]);
+        addDirectory(dirnames[i]);
+        addHistogram(new TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", 30,etbins)); 
+        addHistogram(new TH1F("match_et", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 30,etbins));
+        addHistogram(new TH1F("match_highet", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 100, 0., 2000.));
+        addHistogram(new TH1F("match_eta", "Trigger Matched Offline #eta; #eta ; Count",20,etabins));
+        addHistogram(new TH1F("match_phi", "Trigger Matched #phi; #phi ; Count", 20, -3.2, 3.2));
+        addHistogram(new TH1F("match_mu", "Trigger Matched <#mu>; <#mu> ; Count", 50, 0, 100));
+        addHistogram(new TH2D("match_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
+        addHistogram(new TH2D("match_coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
+        
+        addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count",30,etbins)); 
+        addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", 30, etbins)); 
+        addHistogram(new TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 100, 0., 2000.));
+        addHistogram(new TH1F("eta", "Offline #eta; #eta ; Count", 20,etabins)); 
+        addHistogram(new TH1F("phi", "Offline #phi; #phi ; Count", 20, -3.2, 3.2));
+        addHistogram(new TH1F("mu", "<#mu>; <#mu> ; Count", 50, 0, 100));
+        
         addHistogram(new TH2D("et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
         addHistogram(new TH2D("coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
         
@@ -634,7 +667,7 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TProfile2D("eff_et_eta","#epsilon(#eta,E_{T}); E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
         addHistogram(new TProfile2D("eff_coarse_et_eta","#epsilon(#eta,E_{T}); E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
 
-        addHistogram(new TProfile("eff_triggerstep","eff_triggerstep",10,0,10));
+        addHistogram(new TProfile("eff_triggerstep","eff_triggerstep",11,0,11));
         addHistogram(new TProfile("eff_hltreco","eff_hltreco",12,0,12));
 
         addHistogram(new TH1F("IsEmFailLoose","IsEmFailLoose",36,0,36));
@@ -654,7 +687,55 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
         addHistogram(new TH1F("IsEmLHFailLoose","IsEmLHFailLoose",11,0,11));
         addHistogram(new TH1F("IsEmLHFailMedium","IsEmLHFailMedium",11,0,11));
         addHistogram(new TH1F("IsEmLHFailTight","IsEmLHFailTight",11,0,11));
+
+        if ( m_detailedHists ) {
+            std::vector<std::string> effdirs;
+            effdirs.push_back(basePath + "/Efficiency/HLT/Loose");
+            effdirs.push_back(basePath + "/Efficiency/HLT/Medium");
+            effdirs.push_back(basePath + "/Efficiency/HLT/Tight");
+            effdirs.push_back(basePath + "/Efficiency/HLT/LHLoose");
+            effdirs.push_back(basePath + "/Efficiency/HLT/LHMedium");
+            effdirs.push_back(basePath + "/Efficiency/HLT/LHTight");
+            effdirs.push_back(basePath + "/Efficiency/HLT/LooseIso");
+            effdirs.push_back(basePath + "/Efficiency/HLT/MediumIso");
+            effdirs.push_back(basePath + "/Efficiency/HLT/TightIso");
+            effdirs.push_back(basePath + "/Efficiency/HLT/LHLooseIso");
+            effdirs.push_back(basePath + "/Efficiency/HLT/LHMediumIso");
+            effdirs.push_back(basePath + "/Efficiency/HLT/LHTightIso");
+            for (int i = 0; i < (int) effdirs.size(); i++) {
+                ATH_MSG_VERBOSE(effdirs[i]);
+                addDirectory(effdirs[i]);
+                addHistogram(new TH1F("match_pt", "Trigger Matched Offline p_{T}; p_{T} [GeV] ; Count", 30,etbins)); 
+                addHistogram(new TH1F("match_et", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 30,etbins));
+                addHistogram(new TH1F("match_highet", "Trigger Matched Offline E_{T}; E_{T} [GeV]; Count", 100, 0., 2000.));
+                addHistogram(new TH1F("match_eta", "Trigger Matched Offline #eta; #eta ; Count",20,etabins));
+                addHistogram(new TH1F("match_phi", "Trigger Matched #phi; #phi ; Count", 20, -3.2, 3.2));
+                addHistogram(new TH1F("match_mu", "Trigger Matched <#mu>; <#mu> ; Count", 50, 0, 100));
+                addHistogram(new TH2D("match_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
+                addHistogram(new TH2D("match_coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
+
+                addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count",30,etbins)); 
+                addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", 30, etbins)); 
+                addHistogram(new TH1F("highet", "Offline E_{T}; E_{T} [GeV] ; Count", 100, 0., 2000.));
+                addHistogram(new TH1F("eta", "Offline #eta; #eta ; Count", 20,etabins)); 
+                addHistogram(new TH1F("phi", "Offline #phi; #phi ; Count", 20, -3.2, 3.2));
+                addHistogram(new TH1F("mu", "<#mu>; <#mu> ; Count", 50, 0, 100));
+
+                addHistogram(new TH2D("et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
+                addHistogram(new TH2D("coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins)); 
+
+                addHistogram(new TProfile("eff_pt", "#epsilon(p_T); p_{T} ; #epsilon",30,etbins)); 
+                addHistogram(new TProfile("eff_et", "#epsilon(E_T); E_{T} [GeV] ; Count", 30,etbins)); 
+                addHistogram(new TProfile("eff_highet", "#epsilon(E_T); E_{T} [GeV] ; Count", 100, 0., 2000.));
+                addHistogram(new TProfile("eff_eta", "#epsilon(#eta); #eta ; Count", 20, etabins));
+                addHistogram(new TProfile("eff_phi", "#epsilon(#phi); #phi ; Count", 20, -3.2, 3.2));
+                addHistogram(new TProfile("eff_mu", "#epsilon(<#mu>; <#mu> ; Count", 50, 0, 100));
+                addHistogram(new TProfile2D("eff_et_eta","#epsilon(#eta,E_{T}); E_{T} GeV ;#eta; Count",13, default_et_bins, 20, default_eta_bins)); 
+                addHistogram(new TProfile2D("eff_coarse_et_eta","#epsilon(#eta,E_{T}); E_{T} GeV ;#eta; Count",6, coarse_et_bins, 8, coarse_eta_bins));
+            }
+        }
     }
+    
     
     dirnames.clear();
     dirnames.push_back(basePath + "/Distributions/Offline");
@@ -1213,54 +1294,121 @@ void TrigEgammaAnalysisBaseTool::bookAnalysisHistos(const std::string basePath){
     }
 }
 
-void TrigEgammaAnalysisBaseTool::fillEfficiency(const std::string dir,bool isPassed,const float etthr,
-        const float et, const float eta, const float phi,const float avgmu /*=0.*/,const float mass /*=0.*/){
+void TrigEgammaAnalysisBaseTool::fillEfficiency(const std::string dir,bool isPassed,const float etthr, const std::string pidword, const xAOD::Egamma *eg){
 
     cd(dir);
-    hist1("et")->Fill(et);
-    hist1("highet")->Fill(et);
-    hist1("mee")->Fill(mass);
-    if(et > etthr+1.0){
-        hist1("eta")->Fill(eta);
-        hist1("phi")->Fill(phi);
-        hist1("mu")->Fill(avgmu);
-        hist2("et_eta")->Fill(et,eta);
-        hist2("coarse_et_eta")->Fill(et,eta);
+    float et=0.;
+    bool pid=true;
+    if(xAOD::EgammaHelpers::isElectron(eg)){
+        ATH_MSG_DEBUG("Offline Electron");
+        const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
+        pid=el->auxdecor<bool>(pidword);
+        et = getEt(el)/1e3;
     }
-    if(isPassed) {
-        hist1("match_et")->Fill(et);
-        hist1("match_highet")->Fill(et);
-        hist1("match_mee")->Fill(mass);
-        if(et > etthr+1.0){
-            hist1("match_eta")->Fill(eta);
-            hist1("match_phi")->Fill(phi);
-            hist1("match_mu")->Fill(avgmu);
-            hist2("match_et_eta")->Fill(et,eta);
-            hist2("match_coarse_et_eta")->Fill(et,eta);
+    else  et=eg->caloCluster()->et()/1e3;
 
-        }
-        hist1("eff_et")->Fill(et,1);
-        hist1("eff_highet")->Fill(et,1);
+    float eta = eg->caloCluster()->etaBE(2);
+    float phi = eg->phi();
+    float pt = eg->pt();
+    float avgmu=0.;
+    if(m_lumiTool)
+        avgmu = m_lumiTool->lbAverageInteractionsPerCrossing();
+   
+    ATH_MSG_DEBUG("PID decision efficiency " << eg->auxdecor<bool>(pidword));
+    if(pid){
+        hist1("et")->Fill(et);
+        hist1("pt")->Fill(pt);
+        hist1("highet")->Fill(et);
         if(et > etthr+1.0){
-            hist1("eff_eta")->Fill(eta,1);
-            hist1("eff_phi")->Fill(phi,1);
-            hist1("eff_mu")->Fill(avgmu,1);
-            hist2("eff_et_eta")->Fill(et,eta,1);
-            hist2("eff_coarse_et_eta")->Fill(et,eta,1);
+            hist1("eta")->Fill(eta);
+            hist1("phi")->Fill(phi);
+            hist1("mu")->Fill(avgmu);
+            hist2("et_eta")->Fill(et,eta);
+            hist2("coarse_et_eta")->Fill(et,eta);
         }
-    }
-    else {
-        hist1("eff_et")->Fill(et,0);
-        hist1("eff_highet")->Fill(et,0);
-        if(et > etthr+1.0){
-            hist1("eff_eta")->Fill(eta,0);
-            hist1("eff_phi")->Fill(phi,0);
-            hist1("eff_mu")->Fill(avgmu,0);
-            hist2("eff_et_eta")->Fill(et,eta,0);
-            hist2("eff_coarse_et_eta")->Fill(et,eta,0);
-        }
-    }
+        if(isPassed) {
+            hist1("match_et")->Fill(et);
+            hist1("match_pt")->Fill(pt);
+            hist1("match_highet")->Fill(et);
+            if(et > etthr+1.0){
+                hist1("match_eta")->Fill(eta);
+                hist1("match_phi")->Fill(phi);
+                hist1("match_mu")->Fill(avgmu);
+                hist2("match_et_eta")->Fill(et,eta);
+                hist2("match_coarse_et_eta")->Fill(et,eta);
 
+            }
+            hist1("eff_et")->Fill(et,1);
+            hist1("eff_pt")->Fill(pt,1);
+            hist1("eff_highet")->Fill(et,1);
+            if(et > etthr+1.0){
+                hist1("eff_eta")->Fill(eta,1);
+                hist1("eff_phi")->Fill(phi,1);
+                hist1("eff_mu")->Fill(avgmu,1);
+                hist2("eff_et_eta")->Fill(et,eta,1);
+                hist2("eff_coarse_et_eta")->Fill(et,eta,1);
+            }
+        }
+        else {
+            hist1("eff_et")->Fill(et,0);
+            hist1("eff_pt")->Fill(pt,0);
+            hist1("eff_highet")->Fill(et,0);
+            if(et > etthr+1.0){
+                hist1("eff_eta")->Fill(eta,0);
+                hist1("eff_phi")->Fill(phi,0);
+                hist1("eff_mu")->Fill(avgmu,0);
+                hist2("eff_et_eta")->Fill(et,eta,0);
+                hist2("eff_coarse_et_eta")->Fill(et,eta,0);
+            }
+        }
+    }
+}
+
+void TrigEgammaAnalysisBaseTool::efficiency(const std::string basePath,const float etthr,const std::string pidword,std::pair< const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
+
+    ATH_MSG_DEBUG("efficiency" << pidword);
+
+
+    ATH_MSG_DEBUG("Fill probe histograms");
+    bool passedL1Calo=false;
+    bool passedL2Calo=false;
+    bool passedL2=false;
+    bool passedEFCalo=false;
+    bool passedEF=false;
+    if ( pairObj.second ) {
+        ATH_MSG_DEBUG("Retrieve Ancestor passed");
+        passedL1Calo=ancestorPassed<xAOD::EmTauRoI>(pairObj.second);
+        passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(pairObj.second);
+        if(xAOD::EgammaHelpers::isElectron(pairObj.first))
+            passedL2 = ancestorPassed<xAOD::TrigElectronContainer>(pairObj.second);
+
+        else 
+            passedL2 = ancestorPassed<xAOD::TrigPhotonContainer>(pairObj.second);
+        
+        passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(pairObj.second);
+        
+        if(xAOD::EgammaHelpers::isElectron(pairObj.first))
+            passedEF = ancestorPassed<xAOD::ElectronContainer>(pairObj.second);
+        else 
+            passedEF = ancestorPassed<xAOD::PhotonContainer>(pairObj.second);
+
+    } // Features
+    fillEfficiency(basePath+"L1Calo",passedL1Calo,etthr,pidword,pairObj.first);
+    fillEfficiency(basePath+"L2Calo",passedL2Calo,etthr,pidword,pairObj.first);
+    fillEfficiency(basePath+"L2",passedL2,etthr,pidword,pairObj.first);
+    fillEfficiency(basePath+"EFCalo",passedEFCalo,etthr,pidword,pairObj.first);
+    fillEfficiency(basePath+"HLT",passedEF,etthr,pidword,pairObj.first);
+    if(m_detailedHists){
+        for(const auto pid : m_isemname) {
+            fillEfficiency(basePath+"HLT/"+pid,passedEF,etthr,"ElectronPass"+pid,pairObj.first);
+            if( pairObj.first->auxdecor<bool>("Isolated") ) fillEfficiency(basePath+"HLT/"+pid+"Iso",passedEF,etthr,"ElectronPass"+pid,pairObj.first);
+        }
+        for(const auto pid : m_lhname) {
+            fillEfficiency(basePath+"HLT/"+pid,passedEF,etthr,"ElectronPass"+pid,pairObj.first);
+            if( pairObj.first->auxdecor<bool>("Isolated") ) fillEfficiency(basePath+"HLT/"+pid+"Iso",passedEF,etthr,"ElectronPass"+pid,pairObj.first);
+        }
+    }
+    ATH_MSG_DEBUG("Complete efficiency"); 
 }
 
 void TrigEgammaAnalysisBaseTool::finalizeEfficiency(std::string dir){
@@ -1350,7 +1498,7 @@ void TrigEgammaAnalysisBaseTool::fillL2Calo(const std::string dir, const xAOD::T
 void TrigEgammaAnalysisBaseTool::fillShowerShapes(const std::string dir,const xAOD::Egamma *eg){
     cd(dir);
     ATH_MSG_DEBUG("Fill SS distributions " << dir);
-    if(!eg) ATH_MSG_DEBUG("Online pointer fails"); 
+    if(!eg) ATH_MSG_WARNING("Egamma pointer fails"); 
     else {
         ATH_MSG_DEBUG("Shower Shapes");
         hist1("e011")->Fill(getShowerShape_e011(eg)/1e3);
@@ -1368,19 +1516,9 @@ void TrigEgammaAnalysisBaseTool::fillShowerShapes(const std::string dir,const xA
         hist1("wtots1")->Fill(getShowerShape_wtots1(eg));
         hist1("f1")->Fill(getShowerShape_f1(eg));
         hist1("f3")->Fill(getShowerShape_f3(eg));
-        if(xAOD::EgammaHelpers::isElectron(eg)){
-            const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg);
-            hist1("et")->Fill(getEt(el)/1e3);
-            hist1("highet")->Fill(getEt(el)/1e3);
-            hist1("ptcone20")->Fill(getIsolation_ptcone20(el)/1e3);
-            if (getEt(el) > 0) {
-                hist1("ptcone20_rel")->Fill(getIsolation_ptcone20(el)/getEt(el));
-            }
-        }
-        else if(xAOD::EgammaHelpers::isPhoton(eg)){
-            hist1("et")->Fill(getCluster_et(eg)/1e3);
-            hist1("highet")->Fill(getCluster_et(eg)/1e3);
-        }
+        hist1("eratio")->Fill(getShowerShape_Eratio(eg));
+        hist1("et")->Fill(eg->pt()/1e3);
+        hist1("highet")->Fill(eg->pt()/1e3);
         hist1("eta")->Fill(eg->eta());
         hist1("phi")->Fill(eg->phi());
     }
@@ -1390,9 +1528,12 @@ void TrigEgammaAnalysisBaseTool::fillShowerShapes(const std::string dir,const xA
 void TrigEgammaAnalysisBaseTool::fillTracking(const std::string dir, const xAOD::Electron *eg){
     cd(dir);  
     ATH_MSG_DEBUG("Fill tracking");
-    if(!eg) ATH_MSG_DEBUG("Online pointer fails");
+    if(!eg) ATH_MSG_WARNING("Electron pointer fails");
     else {
-        float cleta = eg->caloCluster()->eta();
+        float cleta = 0.;
+        if(eg->caloCluster()) cleta=eg->caloCluster()->eta();
+        else cleta=eg->eta();
+        ATH_MSG_DEBUG("Calo-track match");
         hist1("deta1")->Fill(getCaloTrackMatch_deltaEta1(eg));
         if(cleta > 1.375 && cleta < 3.2)
             hist1("deta1_EMECA")->Fill(getCaloTrackMatch_deltaEta1(eg));
@@ -1405,17 +1546,25 @@ void TrigEgammaAnalysisBaseTool::fillTracking(const std::string dir, const xAOD:
         hist1("deta2")->Fill(getCaloTrackMatch_deltaEta2(eg));
         hist1("dphi2")->Fill(getCaloTrackMatch_deltaPhi2(eg));
         hist1("dphiresc")->Fill(getCaloTrackMatch_deltaPhiRescaled2(eg));
-        hist1("d0")->Fill(getTrack_d0(eg));
-        hist1("d0sig")->Fill(getD0sig(eg));
-        hist1("eratio")->Fill(getShowerShape_Eratio(eg));
+        
+        
         hist1("eprobht")->Fill(getTrackSummaryFloat_eProbabilityHT(eg));
         hist1("npixhits")->Fill(getTrackSummary_numberOfPixelHits(eg));
         hist1("nscthits")->Fill(getTrackSummary_numberOfSCTHits(eg));
         hist1("charge")->Fill(eg->charge());
+        hist1("ptcone20")->Fill(getIsolation_ptcone20(eg)/1e3);
+        // Quantities directly from tracks
+        ATH_MSG_DEBUG("Get track Quantities");
+        hist1("d0")->Fill(getTrack_d0(eg));
+        hist1("d0sig")->Fill(getD0sig(eg));
         hist1("pt")->Fill(getTrack_pt(eg)/1e3);
-        if (m_detailedHists ) {
-            hist2("deta1_vs_clusterEta")->Fill(getCluster_eta(eg),getCaloTrackMatch_deltaEta1(eg));
+        if (eg->pt() > 0) {
+            hist1("ptcone20_rel")->Fill(getIsolation_ptcone20(eg)/eg->pt());
         }
+        if (m_detailedHists ) {
+            hist2("deta1_vs_clusterEta")->Fill(cleta,getCaloTrackMatch_deltaEta1(eg));
+        }
+
     }
 }
 
@@ -1425,9 +1574,10 @@ void TrigEgammaAnalysisBaseTool::fillHLTResolution(const std::string dir,const x
     ATH_MSG_DEBUG("Fill Resolution");
     float getOnlEt=0;
     float val_off=0.;
-    const float feta = fabs(onl->eta());
+    const float onl_eta=onl->eta();
+    const float feta = fabs(onl_eta);
     val_off=off->eta();
-    if(val_off!=0.) hist1("eta")->Fill((onl->eta()-val_off)/val_off);
+    if(val_off!=0.) hist1("eta")->Fill((onl_eta-val_off)/val_off);
     val_off=off->phi();
     if(val_off!=0.) hist1("phi")->Fill((onl->phi()-val_off)/val_off);
     if(xAOD::EgammaHelpers::isElectron(onl)){
@@ -1441,7 +1591,7 @@ void TrigEgammaAnalysisBaseTool::fillHLTResolution(const std::string dir,const x
 
         val_off=getEt(eloff);
         if(val_off!=0.) {
-            hist2("res_etVsEta")->Fill(elonl->eta(),
+            hist2("res_etVsEta")->Fill(onl_eta,
                     (getEt(elonl)-val_off)/val_off);
             hist2("res_etVsEt")->Fill( getEt(elonl)/1e3,
                     (getEt(elonl)-val_off)/val_off);
@@ -1498,14 +1648,14 @@ void TrigEgammaAnalysisBaseTool::fillHLTResolution(const std::string dir,const x
         if(val_off!=0.){
             hist1("et")->Fill((getCluster_et(onl)-val_off)/val_off);
 
-            hist2("res_etVsEta")->Fill(onl->eta(),
+            hist2("res_etVsEta")->Fill(onl_eta,
                     (getCluster_et(onl)-val_off)/val_off);
             hist2("res_etVsEt")->Fill( getCluster_et(onl)/1e3,
                     (getCluster_et(onl)-val_off)/val_off);
             const xAOD::Photon* phoff =static_cast<const xAOD::Photon*> (off);
             if(xAOD::EgammaHelpers::isConvertedPhoton(phoff)) {
                 hist1("et_cnv")->Fill((getCluster_et(onl)-val_off)/val_off);
-                hist2("res_cnv_etVsEta")->Fill(onl->eta(),
+                hist2("res_cnv_etVsEta")->Fill(onl_eta,
                         (getCluster_et(onl)-val_off)/val_off);
                 hist2("res_cnv_etVsEt")->Fill( getCluster_et(onl)/1e3,
                         (getCluster_et(onl)-val_off)/val_off);
@@ -1687,8 +1837,12 @@ void TrigEgammaAnalysisBaseTool::fillHLTAbsResolution(const std::string dir,cons
         const xAOD::Electron* eloff =static_cast<const xAOD::Electron*> (off);
         hist1("pt")->Fill((getTrack_pt(elonl)-getTrack_pt(eloff)));
         hist1("et")->Fill((getEt(elonl)-getEt(eloff))/getEt(eloff));
-        hist1("eta")->Fill((elonl->trackParticle()->eta()-eloff->trackParticle()->eta()));
-        hist1("phi")->Fill((elonl->trackParticle()->phi()-eloff->trackParticle()->phi()));
+        
+        const float onl_eta=onl->eta();
+        const float feta = fabs(onl_eta);
+        const float off_eta=off->eta();
+        hist1("eta")->Fill(onl_eta-off_eta);
+        hist1("phi")->Fill((elonl->phi()-eloff->phi()));
 
         hist2("res_etVsEta")->Fill(elonl->trackParticle()->eta(),
                                    (getEt(elonl)-getEt(eloff)));
@@ -1717,7 +1871,6 @@ void TrigEgammaAnalysisBaseTool::fillHLTAbsResolution(const std::string dir,cons
                                               getIsolation_ptcone20(elonl)/getEt(elonl));
         }
 
-	float feta = fabs(elonl->trackParticle()->eta());
 	if( feta < 1.37 )
 	  hist1("res_etInEta0")->Fill((getEt(elonl)-getEt(eloff)));
 	else if( feta >=1.37 && feta <= 1.52 )
@@ -2058,9 +2211,13 @@ void TrigEgammaAnalysisBaseTool::inefficiency(const std::string basePath,
     const auto* EFPh = getFeature<xAOD::PhotonContainer>(feat);
     ATH_MSG_DEBUG("INEFF::Retrieve EF Cluster");
     const auto* EFClus = getFeature<xAOD::CaloClusterContainer>(feat);
-    ATH_MSG_DEBUG("INEFF::Retrieve EF Trk");
-    const auto* EFTrk = getFeature<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_EFID");
+    //ATH_MSG_DEBUG("INEFF::Retrieve EF Trk");
+    //const auto* L2Trk = getFeature<xAOD::TrackParticleContainer>(feat);
+    //const auto* L2Trk = getFeature<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_FTF");
+    //const auto* EFIDTrk = getFeature<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_EFID");
     //const auto* EFTrkIDTrig = getFeature<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_IDTrig");
+    
+
     //xAOD::TrackParticleContainer *EFTrk=0;
     //if(EFTrkEFID!=NULL) EFTrk=EFTrkEFID;
     //else if(EFTrkIDTrig!=NULL) EFTrk=EFTrkIDTrig;
@@ -2071,9 +2228,9 @@ void TrigEgammaAnalysisBaseTool::inefficiency(const std::string basePath,
     bool passedL2Calo = ancestorPassed<xAOD::TrigEMCluster>(feat);
     bool passedL2 = ancestorPassed<xAOD::TrigElectronContainer>(feat);
     bool passedEFCalo = ancestorPassed<xAOD::CaloClusterContainer>(feat,"TrigEFCaloCalibFex");
-    bool passedEFTrkEFID = ancestorPassed<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_EFID");
-    bool passedEFTrkIDTrig = ancestorPassed<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_IDTrig");
-    bool passedEFTrk = passedEFTrkEFID || passedEFTrkIDTrig;
+    //bool passedEFTrkEFID = ancestorPassed<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_EFID");
+    //bool passedEFTrkIDTrig = ancestorPassed<xAOD::TrackParticleContainer>(feat,"InDetTrigTrackingxAODCnv_Electron_IDTrig");
+    //bool passedEFTrk = passedEFTrkEFID || passedEFTrkIDTrig;
     bool passedEF = ancestorPassed<xAOD::ElectronContainer>(feat);
 
     // Ensure L1 passes
@@ -2081,7 +2238,7 @@ void TrigEgammaAnalysisBaseTool::inefficiency(const std::string basePath,
 
     if(passedL1Calo && et > etthr) {
         ATH_MSG_DEBUG("INEFF::Passed L1 and offline et");
-        ATH_MSG_DEBUG("INEFF:: " << passedL2Calo << passedL2 << passedEFCalo << passedEFTrk << passedEF);
+        ATH_MSG_DEBUG("INEFF:: " << passedL2Calo << passedL2 << passedEFCalo << passedEF);
         if(passedL2Calo){
             ATH_MSG_DEBUG("INEFF::Passes L2 Calo");
             hist1("eff_triggerstep")->Fill("L2Calo",1);
@@ -2094,52 +2251,54 @@ void TrigEgammaAnalysisBaseTool::inefficiency(const std::string basePath,
             ATH_MSG_DEBUG("INEFF::Passes L2");
             hist1("eff_triggerstep")->Fill("L2",1);
         }
-        else{
+        else {
             ATH_MSG_DEBUG("INEFF::Fails L2");
             hist1("eff_triggerstep")->Fill("L2",0);
         }
+        /*if(L2Trk==NULL){
+            hist1("eff_triggerstep")->Fill("L2TrackCont",0);
+        }
+        else{
+            hist1("eff_triggerstep")->Fill("L2TrackCont",1);
+        }*/
         if(passedEFCalo){
             ATH_MSG_DEBUG("INEFF::Passes EFCalo");
             hist1("eff_triggerstep")->Fill("EFCalo",1);
-            hist1("eff_triggerstep")->Fill("EFCaloCont",1);
         }
         else{
             ATH_MSG_DEBUG("INEFF::Fails EFCalo");
-            if(EFClus==NULL)    hist1("eff_triggerstep")->Fill("EFCaloCont",0);
-            else             hist1("eff_triggerstep")->Fill("EFCaloCont",1);
             hist1("eff_triggerstep")->Fill("EFCalo",0);
         }
-        if(passedEFTrk){
+        if(EFClus==NULL)    hist1("eff_triggerstep")->Fill("EFCaloCont",0);
+        else             hist1("eff_triggerstep")->Fill("EFCaloCont",1);
+        /*if(passedEFTrk){
             ATH_MSG_DEBUG("INEFF:: Passes Track Hypo!");
             hist1("eff_triggerstep")->Fill("EFTrack",1);
-            hist1("eff_triggerstep")->Fill("EFTrackCont",1);
+            //hist1("eff_triggerstep")->Fill("EFTrackCont",1);
         }
         else {
             //ATH_MSG_INFO("INEFF:: Fails Track Hypo!");
             //ATH_MSG_INFO("INEFF:: EFCalo result " << passedEFCalo);
             hist1("eff_triggerstep")->Fill("EFTrack",0);
-            if(EFTrk==NULL){
-                hist1("eff_triggerstep")->Fill("EFTrackCont",0);
-                //ATH_MSG_INFO("TRKTEST: NULL Track Container!");
-            }
-            else{
-                hist1("eff_triggerstep")->Fill("EFTrackCont",1);
-                ATH_MSG_INFO("TRKTEST: Container has " << EFTrk->size() << " ntracks");
-                //for(const auto& trk : *EFTrk)
-                    //ATH_MSG_INFO("Track eta, phi: " << trk->eta() << " " << trk->phi());
-            }
         }
+        if(EFTrk==NULL){
+            hist1("eff_triggerstep")->Fill("EFTrackCont",0);
+            ATH_MSG_WARNING("TRKTEST: NULL Track Container! Run, Event " << runNumber << " " << eventNumber);
+        }
+        else{
+            hist1("eff_triggerstep")->Fill("EFTrackCont",1);
+            ATH_MSG_DEBUG("TRKTEST: Container has " << EFTrk->size() << " ntracks");
+        }*/
         if(passedEF){
             ATH_MSG_DEBUG("INEFF::Passes EF");
             hist1("eff_triggerstep")->Fill("HLT",1);
-            hist1("eff_triggerstep")->Fill("HLTCont",1);
         }
         else{
             ATH_MSG_DEBUG("INEFF::Fails EF");
-            if(EFEl==NULL)    hist1("eff_triggerstep")->Fill("HLTCont",0);
-            else     hist1("eff_triggerstep")->Fill("HLTCont",1);
             hist1("eff_triggerstep")->Fill("HLT",0);
         }
+        if(EFEl==NULL)    hist1("eff_triggerstep")->Fill("HLTCont",0);
+        else     hist1("eff_triggerstep")->Fill("HLTCont",1);
 
         // Fill efficiency plot for HLT trigger steps
         if(!passedEF && passedEFCalo){
@@ -2184,7 +2343,7 @@ void TrigEgammaAnalysisBaseTool::inefficiency(const std::string basePath,
                 ATH_MSG_DEBUG("Closest cluster dR " << dRmax);
             }
             else ATH_MSG_DEBUG("CaloCluster Container NULL");
-            dRmax=0.15;
+            /*dRmax=0.15;
             if ( EFTrk != NULL ){
                 ATH_MSG_DEBUG("Retrieved TrackContainer for inefficiency " << EFTrk->size());
                 for(const auto& trk : *EFTrk){
@@ -2196,7 +2355,7 @@ void TrigEgammaAnalysisBaseTool::inefficiency(const std::string basePath,
                 } // loop over EFPh
                 ATH_MSG_DEBUG("Closest track dR " << dRmax);
             } //FC exists
-            else ATH_MSG_DEBUG("TrackParticle Container NULL");
+            else ATH_MSG_DEBUG("TrackParticle Container NULL");*/
             if(EFClus==NULL){
                 hist1("eff_hltreco")->Fill("ClusterCont",0);
                 hist1("eff_hltreco")->Fill("Cluster",0);
@@ -2215,7 +2374,7 @@ void TrigEgammaAnalysisBaseTool::inefficiency(const std::string basePath,
                 }
             }
 
-            if(EFTrk==NULL){
+            /*if(EFTrk==NULL){
                 hist1("eff_hltreco")->Fill("TrackCont",0);
                 hist1("eff_hltreco")->Fill("Track",0);
                 hist1("eff_hltreco")->Fill("TrackMatch",0);
@@ -2231,7 +2390,7 @@ void TrigEgammaAnalysisBaseTool::inefficiency(const std::string basePath,
                     hist1("eff_hltreco")->Fill("Track",0);
                     hist1("eff_hltreco")->Fill("TrackMatch",0);
                 }
-            }
+            }*/
 
             if(EFPh==NULL){
                 hist1("eff_hltreco")->Fill("PhotonCont",0);
@@ -2393,7 +2552,7 @@ void TrigEgammaAnalysisBaseTool::resolutionPhoton(const std::string basePath,std
     const auto* EFPh = getFeature<xAOD::PhotonContainer>(feat);
     const TrigPassBits *EFbits = getFeature<TrigPassBits>(feat);
     if(EFbits==NULL) ATH_MSG_DEBUG("PassBits NULL");
-    if(EFPh != NULL){
+    if(EFPh != NULL && EFbits!=NULL){
         if(passedEFPh){
             for(const auto& ph : *EFPh){
                 if( HLT::isPassing(EFbits,ph,EFPh)) ATH_MSG_DEBUG("Found passing Hypo object");
@@ -2405,7 +2564,10 @@ void TrigEgammaAnalysisBaseTool::resolutionPhoton(const std::string basePath,std
                     ATH_MSG_DEBUG("Photon from TE NULL");
                     continue;
                 }
-                deltaR = dR(phOff->caloCluster()->eta(),phOff->caloCluster()->phi(), ph->caloCluster()->eta(),ph->caloCluster()->phi());
+                if(ph->caloCluster() && phOff->caloCluster())
+                    deltaR = dR(phOff->caloCluster()->eta(),phOff->caloCluster()->phi(), ph->caloCluster()->eta(),ph->caloCluster()->phi());
+                else
+                    deltaR = dR(phOff->eta(),phOff->phi(),ph->eta(),ph->phi());
                 if (deltaR < dRMax) {
                     dRMax = deltaR;
                     phEF =ph;
@@ -2419,6 +2581,7 @@ void TrigEgammaAnalysisBaseTool::resolutionPhoton(const std::string basePath,std
     } // Feature Container
     else ATH_MSG_DEBUG("Feature Container NULL");
 }
+
 void TrigEgammaAnalysisBaseTool::resolutionElectron(const std::string basePath,std::pair<const xAOD::Egamma*,const HLT::TriggerElement*> pairObj){
     ATH_MSG_DEBUG("Resolution Electron " << basePath);
     std::string dir1 = basePath + "/Resolutions/HLT";
@@ -2452,7 +2615,10 @@ void TrigEgammaAnalysisBaseTool::resolutionElectron(const std::string basePath,s
                     ATH_MSG_DEBUG("Failed Hypo Selection");
                     continue;
                 }
-                deltaR = dR(elOff->trackParticle()->eta(),elOff->trackParticle()->phi(), el->trackParticle()->eta(),el->trackParticle()->phi());
+                if(el->trackParticle() && elOff->trackParticle())
+                        deltaR = dR(elOff->trackParticle()->eta(),elOff->trackParticle()->phi(), el->trackParticle()->eta(),el->trackParticle()->phi());
+                else 
+                    deltaR = dR(elOff->eta(),elOff->phi(),el->eta(),el->phi());
                 if (deltaR < dRMax) {
                     dRMax=deltaR;
                     elEF=el;
@@ -2500,12 +2666,12 @@ void TrigEgammaAnalysisBaseTool::resolution(const std::string basePath,std::pair
 
 void TrigEgammaAnalysisBaseTool::distribution(const std::string basePath, const std::string trigname, const std::string chainType){
     // Retrieve FeatureContainer for a given trigger
-    ATH_MSG_INFO("Distributions:: Retrieve features for chain " << trigname);
+    ATH_MSG_DEBUG("Distributions:: Retrieve features for chain " << trigname << " type " << chainType);
     if (boost::starts_with(trigname, "L1" )){
-        auto fc = (m_trigdec->features(trigname, TrigDefs::alsoDeactivateTEs));
-        auto initRois = fc.get<TrigRoiDescriptor>();
+        const auto fc = (m_trigdec->features(trigname, TrigDefs::alsoDeactivateTEs));
+        const auto initRois = fc.get<TrigRoiDescriptor>();
         ATH_MSG_DEBUG("Size of initialRoI" << initRois.size());
-        for(auto feat : initRois){
+        for(const auto feat : initRois){
             if(feat.te()==NULL) {
                 ATH_MSG_DEBUG("initial RoI feature NULL");
                 continue;
@@ -2514,7 +2680,7 @@ void TrigEgammaAnalysisBaseTool::distribution(const std::string basePath, const 
             cd(basePath+"RoI");
             hist1("roi_eta")->Fill(roi->eta());
             hist1("roi_phi")->Fill(roi->phi());
-            auto itEmTau = m_trigdec->ancestor<xAOD::EmTauRoI>(feat);
+            const auto itEmTau = m_trigdec->ancestor<xAOD::EmTauRoI>(feat);
             const xAOD::EmTauRoI *l1 = itEmTau.cptr();
             if(l1==NULL) continue;
             cd(basePath+"HLT");
@@ -2525,11 +2691,11 @@ void TrigEgammaAnalysisBaseTool::distribution(const std::string basePath, const 
     else {
         // Get the L1 features for all TEs
         const std::string l1trig=getL1Item(trigname);
-        auto fcl1 = (m_trigdec->features(l1trig, TrigDefs::alsoDeactivateTEs));
-        auto fc = (m_trigdec->features("HLT_"+trigname, TrigDefs::alsoDeactivateTEs));
-        auto initRois = fcl1.get<TrigRoiDescriptor>();
+        const auto fcl1 = (m_trigdec->features(l1trig, TrigDefs::alsoDeactivateTEs));
+        const auto fc = (m_trigdec->features("HLT_"+trigname, TrigDefs::alsoDeactivateTEs));
+        const auto initRois = fcl1.get<TrigRoiDescriptor>();
         ATH_MSG_DEBUG("Size of initialRoI" << initRois.size());
-        for(auto feat : initRois){
+        for(const auto feat : initRois){
             if(feat.te()==NULL) {
                 ATH_MSG_DEBUG("initial RoI feature NULL");
                 continue;
@@ -2546,7 +2712,7 @@ void TrigEgammaAnalysisBaseTool::distribution(const std::string basePath, const 
             fillL1Calo(basePath+"L1Calo",l1);
         }
         const auto vec_l2em = fc.get<xAOD::TrigEMCluster>("",TrigDefs::alsoDeactivateTEs);
-        for (auto feat : vec_l2em){
+        for (const auto feat : vec_l2em){
             if(feat.te()==NULL) continue;
             const auto* obj = getFeature<xAOD::TrigEMCluster>(feat.te());
             //const auto *bits = getFeature<TrigPassBits>(feat.te());
@@ -2560,10 +2726,10 @@ void TrigEgammaAnalysisBaseTool::distribution(const std::string basePath, const 
         }
         // Should monitor the selected objects
         // Currently not implemented for EFCalo
-        auto vec_clus = fc.get<xAOD::CaloClusterContainer>("TrigEFCaloCalibFex",TrigDefs::alsoDeactivateTEs);
-        for(auto feat : vec_clus){
+        const auto vec_clus = fc.get<xAOD::CaloClusterContainer>("TrigEFCaloCalibFex",TrigDefs::alsoDeactivateTEs);
+        for(const auto feat : vec_clus){
             if(feat.te()==NULL) continue;
-            const xAOD::CaloClusterContainer *cont = feat.cptr();
+            const auto *cont = getFeature<xAOD::CaloClusterContainer>(feat.te());
             if(cont==NULL) continue;
             cd(basePath+"HLT");
             if(ancestorPassed<xAOD::CaloClusterContainer>(feat.te()))
@@ -2578,7 +2744,7 @@ void TrigEgammaAnalysisBaseTool::distribution(const std::string basePath, const 
         // Loop over features, get PassBits from TE for Electron
         if(chainType=="electron"){
             const auto vec_l2el = fc.get<xAOD::TrigElectronContainer>("",TrigDefs::alsoDeactivateTEs);
-            for (auto feat : vec_l2el){
+            for (const auto feat : vec_l2el){
                 if(feat.te()==NULL) continue;
                 const auto* cont = getFeature<xAOD::TrigElectronContainer>(feat.te());
                 const auto *bits = getFeature<TrigPassBits>(feat.te());
@@ -2595,32 +2761,33 @@ void TrigEgammaAnalysisBaseTool::distribution(const std::string basePath, const 
                 }
             }
             const auto vec_el = fc.get<xAOD::ElectronContainer>("egamma_Electrons",TrigDefs::alsoDeactivateTEs);
-            for (auto feat : vec_el){
+            for (const auto feat : vec_el){
                 if(feat.te()==NULL) continue;
                 const auto* cont = getFeature<xAOD::ElectronContainer>(feat.te());
                 const auto *bits = getFeature<TrigPassBits>(feat.te());
-                if(bits==NULL) continue; 
-                if(cont==NULL) continue;
+                if(cont==NULL) continue; 
                 cd(basePath+"HLT");
                 if(ancestorPassed<xAOD::ElectronContainer>(feat.te()))
                     hist1("rejection")->Fill("HLT",1);
                 for(const auto& obj : *cont){
-                    // Only consider passing objects
                     if(!obj) continue;
-                    if(!HLT::isPassing(bits,obj,cont)) continue;
+                    if(bits==NULL){
+                        fillShowerShapes(basePath+"HLT",obj); // Fill HLT shower shapes
+                        fillTracking(basePath+"HLT",obj); // Fill HLT shower shapes
+                    }
+                    // Only consider passing objects if bits available
+                    else if(!HLT::isPassing(bits,obj,cont)) continue;
                     fillShowerShapes(basePath+"HLT",obj); // Fill HLT shower shapes
                     fillTracking(basePath+"HLT",obj); // Fill HLT shower shapes
                 }
             }
         }
-
-        if(chainType=="photon"){
+        else if(chainType=="photon"){
             const auto vec_ph = fc.get<xAOD::PhotonContainer>("egamma_Photons",TrigDefs::alsoDeactivateTEs);
-            for (auto feat : vec_ph){
+            for (const auto feat : vec_ph){
                 if(feat.te()==NULL) continue;
                 const auto* cont = getFeature<xAOD::PhotonContainer>(feat.te());
                 const auto *bits = getFeature<TrigPassBits>(feat.te());
-                if(bits==NULL) continue; 
                 if(cont==NULL) continue;
                 cd(basePath+"HLT");
                 if(ancestorPassed<xAOD::PhotonContainer>(feat.te()))
@@ -2628,7 +2795,11 @@ void TrigEgammaAnalysisBaseTool::distribution(const std::string basePath, const 
                 for(const auto& obj : *cont){
                     // Only consider passing objects
                     if(!obj) continue;
-                    if(!HLT::isPassing(bits,obj,cont)) continue;
+                    if(bits==NULL){
+                        fillShowerShapes(basePath+"HLT",obj); // Fill HLT shower shapes
+                    }
+                    // Only consider passing objects if bits available
+                    else if(!HLT::isPassing(bits,obj,cont)) continue;
                     fillShowerShapes(basePath+"HLT",obj); // Fill HLT shower shapes
                 }
             }
@@ -2680,8 +2851,10 @@ float TrigEgammaAnalysisBaseTool::getEta2(const xAOD::Egamma* eg){
 }
 float TrigEgammaAnalysisBaseTool::getEt(const xAOD::Electron* eg){
     if(eg && (eg->caloCluster()) && (eg->trackParticle())){
-        float eta   = fabs(eg->trackParticle()->eta()); 
-        return eg->caloCluster()->e()/cosh(eta);      
+        const xAOD::TrackParticle *trk=eg->trackParticle();
+        const xAOD::CaloCluster *clus=eg->caloCluster();
+        float eta   = fabs(trk->eta()); 
+        return clus->e()/cosh(eta);      
     }
     else return -99.;
 }
@@ -2879,7 +3052,7 @@ GETTER(z0)
     // GETTERs for Track details monitoring    
 #define GETTER(_name_) float TrigEgammaAnalysisBaseTool::getTrackSummary_##_name_(const xAOD::Electron* eg) \
 { uint8_t val_uint8{0}; \
-    if(eg && eg->trackParticle()){ \
+    if(eg){ \
         eg->trackParticleSummaryValue(val_uint8,xAOD::_name_); \
         return val_uint8; } \
     else return -99; }
@@ -2902,21 +3075,19 @@ GETTER(numberOfTRTXenonHits)
 
 #define GETTER(_name_) float TrigEgammaAnalysisBaseTool::getTrackSummaryFloat_##_name_(const xAOD::Electron* eg) \
 { float val_float{0}; \
-    if(eg && eg->trackParticle()){ \
+    if(eg){ \
         eg->trackParticleSummaryValue(val_float,xAOD::_name_); \
         return val_float; } \
     else return -99; }
     GETTER(eProbabilityComb)
     GETTER(eProbabilityHT)
-    GETTER(eProbabilityToT)
-    GETTER(eProbabilityBrem)
 GETTER(pixeldEdx)    
 
 #undef GETTER
     // GETTERs for Calo-Track monitoring
 #define GETTER(_name_) float TrigEgammaAnalysisBaseTool::getCaloTrackMatch_##_name_(const xAOD::Electron* eg) \
 { float val={-99.}; \
-    if(eg && eg->trackParticle()){ \
+    if(eg){ \
         eg->trackCaloMatchValue(val,xAOD::EgammaParameters::_name_);} \
     return val; }
     GETTER(deltaEta0)
@@ -3251,7 +3422,7 @@ bool TrigEgammaAnalysisBaseTool::getCaloRings( const xAOD::Electron *el, std::ve
   const xAOD::CaloRings *clrings = *(caloRingsELVec->at(0));
   // For now, we are using only the first cluster 
   
-  if(clrings) clrings->exportRingsTo(*ringsE);
+  if(clrings) clrings->exportRingsTo(ringsE);
   else{
     ATH_MSG_WARNING("There is a problem when try to attack the rings vector using exportRigsTo() method.");
     return false;

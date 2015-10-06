@@ -16,10 +16,18 @@
 # probeListAltSequence -- compare with same trigers without HLTCalo or L2EFCalo in name
 # probeListMisAlignmentTriggers -- comapre with same trigger without misalignment configuration in name
 
+default2 = ['e24_lhmedium_idperf_L1EM20VH',#,'e24_lhmedium_iloose_L1EM18VH','L1_EM18VH','e24_lhmedium_L1EM20VHI']# Primary LH electron triggers
+        'e24_medium_idperf_L1EM20VH']
+        #'e24_lhtight_iloose',
+        #'L1_EM18VH',
+        #'g20_tight',
+        #]
 default = ['e24_lhmedium_iloose_L1EM18VH',# Primary LH electron triggers
         'e24_lhmedium_iloose_L1EM20VH',
         'e24_lhtight_iloose',
+        'e24_lhtight_iloose_L1EM20VH',
         'e26_lhtight_iloose',
+        'e26_lhtight_smooth_iloose',
         'e60_lhmedium',
         'e120_lhloose',
         'e140_lhloose',
@@ -36,6 +44,7 @@ default = ['e24_lhmedium_iloose_L1EM18VH',# Primary LH electron triggers
         'e24_medium_L1EM18VH',
         'e24_lhtight_L1EM20VH',
         'e24_tight_L1EM20VH',
+        'e24_lhmedium_L1EM20VHI',
         # Single photon
         'g120_loose',
         'g140_loose',
@@ -62,13 +71,13 @@ default = ['e24_lhmedium_iloose_L1EM18VH',# Primary LH electron triggers
         'e60_lhmedium_nod0',
         'e60_lhmedium_cutd0dphideta',
         # Supporting trigger for background
-        'e24_vloose_L1EM18VH', 
-        'e24_vloose_L1EM20VH',  
-        'e24_lhvloose_L1EM18VH', 
-        'e24_lhvloose_L1EM20VH',  
-        'e26_lhvloose_L1EM20VH',
-        'e26_vloose_L1EM20VH',
-        'e60_lhvloose',
+        #'e24_vloose_L1EM18VH', 
+        #'e24_vloose_L1EM20VH',  
+        #'e24_lhvloose_L1EM18VH', 
+        #'e24_lhvloose_L1EM20VH',  
+        #'e26_lhvloose_L1EM20VH',
+        #'e26_vloose_L1EM20VH',
+        #'e60_lhvloose',
         # Rerun mode for diobject
         'e12_lhloose_L1EM10VH',
         'e15_lhloose_L1EM13VH',
@@ -89,25 +98,25 @@ default = ['e24_lhmedium_iloose_L1EM18VH',# Primary LH electron triggers
         'g50_loose',
         'g20_tight',
         # Performance and supporting triggers 
-        "g0_perf_L1EM3_EMPTY",
-        "e0_perf_L1EM3_EMPTY",
-        "e0_perf_L1EM15",
-        "g0_perf_L1EM15",
-        "g10_etcut",
-        "g10_loose",
-        "e5_etcut",
-        "e10_etcut_L1EM7",
-        "e5_lhloose_idperf",
-        "e5_loose_idperf",
-        "e5_loose_L2Star_idperf",
-        "e5_loose",
-        'e24_medium_idperf_L1EM20VH',
-        'e24_lhmedium_idperf_L1EM20VH',
-        'e25_etcut_L1EM15',
-        'e30_etcut_L1EM15',
-        'L1_EM18VH',
-        'L1_EM20VH',
-        'L1_EM20VHI',
+        #"g0_perf_L1EM3_EMPTY",
+        #"e0_perf_L1EM3_EMPTY",
+        #"e0_perf_L1EM15",
+        #"g0_perf_L1EM15",
+        #"g10_etcut",
+        #"g10_loose",
+        #"e5_etcut",
+        #"e10_etcut_L1EM7",
+        #"e5_lhloose_idperf",
+        #"e5_loose_idperf",
+        #"e5_loose_L2Star_idperf",
+        #"e5_loose",
+        #'e24_medium_idperf_L1EM20VH',
+        #'e24_lhmedium_idperf_L1EM20VH',
+        #'e25_etcut_L1EM15',
+        #'e30_etcut_L1EM15',
+        #'L1_EM18VH',
+        #'L1_EM20VH',
+        #'L1_EM20VHI',
        ]
 
 # ProbeList 1 - Low/mid pt supporting triggers
