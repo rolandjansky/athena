@@ -105,17 +105,17 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel as kernel
 
 # ##########################################################################################
-# Single photon filter
+# Single photon filter - removed 07/10/15 to reduce rate
 # ##########################################################################################
-
-DiLepSinglePhotonFilterTool = skimtool( name       = "DiLepSinglePhotonFilterTool",
-                                        expression = EgammaSelectionString(primRPVLLDESDM.DiLep_singlePhotonFilterFlags, photons, 1),
-                                      )
-ToolSvc     += DiLepSinglePhotonFilterTool
-topSequence += kernel( "RPVLL_DiLep_SinglePhotonFilterKernel",
-                       SkimmingTools = [DiLepSinglePhotonFilterTool],
-                     )
-RPVLLfilterNames.extend(["RPVLL_DiLep_SinglePhotonFilterKernel"])
+###
+###DiLepSinglePhotonFilterTool = skimtool( name       = "DiLepSinglePhotonFilterTool",
+###                                        expression = EgammaSelectionString(primRPVLLDESDM.DiLep_singlePhotonFilterFlags, photons, 1),
+###                                      )
+###ToolSvc     += DiLepSinglePhotonFilterTool
+###topSequence += kernel( "RPVLL_DiLep_SinglePhotonFilterKernel",
+###                       SkimmingTools = [DiLepSinglePhotonFilterTool],
+###                     )
+###RPVLLfilterNames.extend(["RPVLL_DiLep_SinglePhotonFilterKernel"])
 
 # ##########################################################################################
 # Single photon + X filter

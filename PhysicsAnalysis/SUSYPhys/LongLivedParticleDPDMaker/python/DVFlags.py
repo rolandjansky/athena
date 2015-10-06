@@ -82,7 +82,7 @@ class DV_PhotonFilterFlags(JobProperty):
     cutEtaMax=2.5
     cutIsEM="Loose"
     triggers=["HLT_g140_loose"]
-    prescale=1
+    prescale=20
     nPassed=1
     pass
 primRPVLLDESDM.add_JobProperty(DV_PhotonFilterFlags)
@@ -92,7 +92,7 @@ class DV_METFilterFlags(JobProperty):
     statusOn=True
     allowedTypes=["bool"]
     StoredValue=True
-    cutMetMin=100.0*Units.GeV
+    cutMetMin=130.0*Units.GeV
     deltaPhiCut=0.1
     triggers=["HLT_xe100","HLT_xe100_tc_lcw","HLT_xe100_tc_lcw_wEFMu","HLT_xe100_wEFMu"]
     pass
@@ -102,7 +102,7 @@ class DV_SingleTracklessJetFilterFlags(JobProperty):
     statusOn=True
     allowedTypes=["bool"]
     StoredValue=True
-    cutEtMin=50.0*Units.GeV
+    cutEtMin=70.0*Units.GeV
     cutEtaMax=2.5
     cutSumPtTrkMax=5.0*Units.GeV
     pass
@@ -112,7 +112,7 @@ class DV_DoubleTracklessJetFilterFlags(JobProperty):
     statusOn=True
     allowedTypes=["bool"]
     StoredValue=True
-    cutEtMin=20.0*Units.GeV
+    cutEtMin=25.0*Units.GeV
     cutEtaMax=2.5
     cutSumPtTrkMax=5.0*Units.GeV
     pass
@@ -123,10 +123,12 @@ class DV_MeffFilterFlags(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
     cutMeffMin=1.0*Units.TeV ##
-    cutMEToverMeffMin=0.3   ## note that these two cuts are ORed in the code!
+    cutMEToverMeffMin=0.3   ## 
+    cutMEToverMeffMax=0.7   ## 
     cutJetPtMin=40.0*Units.GeV
     cutJetEtaMax=2.5
     cutMETMin=100.0*Units.GeV
+    triggers=["HLT_j100_xe80"]
     pass
 primRPVLLDESDM.add_JobProperty(DV_MeffFilterFlags)
 
@@ -134,6 +136,6 @@ class DV_PrescalerFlags(JobProperty):
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
-    prescale=10
+    prescale=20
     pass
 primRPVLLDESDM.add_JobProperty(DV_PrescalerFlags)
