@@ -48,9 +48,9 @@ SimplePOSIXTimeKeeperSvc::nextIter() {
   //the end
   if ((msg().level() == MSG::INFO && timeOver()) ||
       msg().level()  < MSG::INFO) {
-    msg() << msg().level() << *this << endmsg;
+    msg() << msg().level() << *this << endreq;
   }
-  //FIXME       log.level()  < MSG::INFO)  log << *this << endmsg;
+  //FIXME       log.level()  < MSG::INFO)  log << *this << endreq;
   return doNext;
 }
 

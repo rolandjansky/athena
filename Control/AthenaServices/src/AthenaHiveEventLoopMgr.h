@@ -9,7 +9,7 @@
 /** @file AthenaHiveEventLoopMgr.h
     @brief The default ATLAS batch event loop manager.
 
-  * $Id: AthenaHiveEventLoopMgr.h 780883 2016-10-27 20:16:15Z leggett $
+  * $Id: AthenaHiveEventLoopMgr.h 671550 2015-06-01 23:14:55Z leggett $
 */
 
 #include <string>
@@ -44,7 +44,6 @@
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IHiveWhiteBoard.h"
 #include "GaudiKernel/IScheduler.h"
-#include "GaudiKernel/IAlgExecStateSvc.h"
 
 // Standard includes
 #include <functional>
@@ -197,11 +196,9 @@ protected:
   /// Reference to the Algorithm resource pool
   SmartIF<IAlgResourcePool>  m_algResourcePool;
 
-  /// Reference to the Algorithm Execution State Svc
-  SmartIF<IAlgExecStateSvc>  m_aess;
-
   /// Property interface of ApplicationMgr
   SmartIF<IProperty>        m_appMgrProperty;
+
 
   /// A shortcut for the scheduler
   SmartIF<IScheduler> m_schedulerSvc;
@@ -268,9 +265,9 @@ private:
   AthenaHiveEventLoopMgr(const AthenaHiveEventLoopMgr&); ///< no implementation
   AthenaHiveEventLoopMgr& operator= (const AthenaHiveEventLoopMgr&); ///< no implementation
 
-  unsigned int m_nevt;
+  int m_nevt;
   /// @property histogram write/update interval
-  UnsignedIntegerProperty m_writeInterval;
+  IntegerProperty m_writeInterval;
   bool m_writeHists;
 
   /// a @c std::cout like object
@@ -281,8 +278,6 @@ private:
   unsigned int m_proc;
   bool m_useTools;
   bool m_doEvtHeartbeat;
-
-  unsigned int m_flmbi;
 
   // from MinimalEventLoopMgr
 public:

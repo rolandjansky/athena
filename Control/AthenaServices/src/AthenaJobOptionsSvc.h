@@ -23,6 +23,7 @@
 // GaudiKernel
 #include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/PropertyMgr.h"
 
 // Forward declaration
 class ISvcLocator;
@@ -77,13 +78,8 @@ class JobOptionsSvc
   virtual StatusCode removePropertyFromCatalogue( const std::string& client, 
                                                   const std::string& name );
   /// Get the properties associated to a given client
-  virtual const std::vector<const Gaudi::Details::PropertyBase*>*
+  virtual const std::vector<const Property*>* 
   getProperties( const std::string& client) const; 
-
-  /// Get a property for a client
-  virtual const Gaudi::Details::PropertyBase*
-  getClientProperty( const std::string& client,
-		     const std::string& name ) const;
 
   /// Get the list of clients
   virtual std::vector<std::string> getClients() const;
@@ -128,6 +124,7 @@ class JobOptionsSvc
   std::string         m_dirSearchPath;
   // optional output file to dump all properties 
   std::string         m_dump   ; ///< optional output file to dump all properties 
+  PropertyMgr         m_pmgr;
 
   /// switch to dump the full python-like configuration table
   ///  if empty string (default) no dump

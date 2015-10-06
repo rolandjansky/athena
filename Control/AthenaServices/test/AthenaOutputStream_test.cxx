@@ -38,7 +38,7 @@ int main() {
   errorcheck::ReportMessage::hideErrorLocus();
   const std::string appName = "AthenaOutputStream_test";
   cout << "*** " << appName << " starts ***" <<endl;
-  ISvcLocator* pSvcLoc(nullptr);
+  ISvcLocator* pSvcLoc(0);
   if (!initGaudi("AthenaOutputStream_test.txt", pSvcLoc)) {
     cerr << "This test can not be run" << endl;
     return 0;
@@ -60,7 +60,7 @@ int main() {
   SmartIF<IAlgManager> algMan(IAlgManager::interfaceID(), pSvcLoc);
 #endif
   assert( algMan.isValid() );
-  IAlgorithm* pAlg(nullptr);
+  IAlgorithm* pAlg(0);
   assert( (algMan->createAlgorithm( "AthenaOutputStream", "AthenaOutputStream", pAlg)).isSuccess() );
 
   assert( (pAlg->sysInitialize()).isSuccess() );
@@ -69,11 +69,6 @@ int main() {
   assert( (pStore->record(new Foo(), "due")).isSuccess());
   assert( (pStore->record(new Bar(), "uno")).isSuccess());
   assert( (pStore->record(new Bar(), "due")).isSuccess());
-
-  assert( (pStore->record(new Bar(), "quattro")).isSuccess() );
-  assert( (pStore->record(new Bar(), "cinque")).isSuccess() );
-  assert( (pStore->symLink(8107, "quattro", 8108)).isSuccess() );
-  assert( (pStore->symLink(8107, "cinque", 8108)).isSuccess() );
   
   AthenaOutputStream* pStream(dynamic_cast<AthenaOutputStream*>(pAlg));
   assert( pStream );
@@ -85,15 +80,8 @@ int main() {
   //    pStream->selectedObjects()->begin() <<endl;
   // verify that we got the right objects in the list
   //  this of course depends on AthenaOutputStream_test.txt
-  assert( 6 == (pStream->selectedObjects()->end() - 
-  		pStream->selectedObjects()->begin()) );
-
-  for (DataObject* obj : *pStream->selectedObjects()) {
-    DataBucketBase* dbb = dynamic_cast<DataBucketBase*> (obj);
-    if (!dbb) std::abort();
-    const SG::DataProxy* proxy = pStore->proxy (dbb->object());
-    std::cout << dbb->clID() << " " << proxy->name() << "\n";
-  }
+  assert( 4 == (pStream->selectedObjects()->end() - 
+		pStream->selectedObjects()->begin()) );
   
   pStream->clearSelection();
   assert( 0 == (pStream->selectedObjects()->end() - 

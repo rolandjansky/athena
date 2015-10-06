@@ -1,7 +1,0 @@
-// $Id$
-// job opts for RCUSvc unit test
-
-MessageSvc.OutputLevel = 2;
-
-Athena::RCUSvc.HiveWhiteBoardSvc = "TestWhiteBoard";
-

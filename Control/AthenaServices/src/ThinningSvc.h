@@ -36,6 +36,7 @@
 #include "AthenaKernel/ISlimmingHdlr.h"
 #include "AthenaKernel/IThinningSvc.h"
 
+// DataModel includes
 #include <unordered_map>
 #include <unordered_set>
 
@@ -57,6 +58,9 @@ class ThinningSvc : virtual public IThinningSvc,
 { 
 
 protected:
+  /// TEMPORARY
+  using IProxyDict::proxy;
+    
   friend class SvcFactory<ThinningSvc>;
 
   /////////////////////////////////////////////////////////////////// 
@@ -110,22 +114,15 @@ protected:
    * @param obj The data object to store.
    * @param key The key as which it should be stored.
    * @param allowMods If false, the object will be recorded as const.
-   * @param returnExisting If true, return proxy if this key already exists.
    *
    * Full-blown record.  @c obj should usually be something
    * deriving from @c SG::DataBucket.
    *
    * Returns the proxy for the recorded object; nullptr on failure.
-   * If the requested CLID/key combination already exists in the store,
-   * the behavior is controlled by @c returnExisting.  If true, then
-   * the existing proxy is returned; otherwise, nullptr is returned.
-   * In either case, @c obj is destroyed.
    */
-  virtual
-  SG::DataProxy* recordObject (SG::DataObjectSharedPtr<DataObject> obj,
-                               const std::string& key,
-                               bool allowMods,
-                               bool returnExisting) override final;
+  virtual SG::DataProxy* recordObject (std::unique_ptr<DataObject> obj,
+                                       const std::string& key,
+                                       bool allowMods) override final;
 
   /**
    * @brief Inform HIVE that an object has been updated.

@@ -38,7 +38,7 @@ ThinningOutputTool::ThinningOutputTool( const std::string& type,
 					const IInterface* parent ) : 
   AthAlgTool( type, name, parent ),
   m_thinningSvc ( "ThinningSvc",  name ),
-  m_activeSvc   ( nullptr )
+  m_activeSvc   ( 0 )
 {
   //
   // Property declaration
@@ -135,11 +135,11 @@ StatusCode ThinningOutputTool::preExecute()
 	  ATH_MSG_DEBUG 
 	    ("force-loading proxy(clid=[" << p->clID() << "], "
 	     << "key=[" << p->name() << "])...");
-	  if ( nullptr == p->accessData() ) {
+	  if ( 0 == p->accessData() ) {
 	    ATH_MSG_WARNING
 	      ("Could not accessData(clid=[" << p->clID() << "], "
 	       << "key=[" << p->name() << "]) !" 
-	       << endmsg
+	       << endreq
 	       << "Thinning might segfault under certain conditions...");
 	  }
 	}
@@ -158,11 +158,11 @@ StatusCode ThinningOutputTool::preExecute()
 	    ATH_MSG_DEBUG
 	      ("force-loading proxy(clid=[" << p->clID() << "], "
 	       << "key=[" << p->name() << "])...");
-	    if ( nullptr == p->accessData() ) {
+	    if ( 0 == p->accessData() ) {
 	      ATH_MSG_WARNING
 		("Could not accessData(clid=[" << p->clID() << "], "
 		 << "key=[" << p->name() << "]) !" 
-		 << endmsg
+		 << endreq
 		 << "Thinning might segfault under certain conditions...");
 	    }
 	  }
@@ -174,7 +174,7 @@ StatusCode ThinningOutputTool::preExecute()
   // apply thinning only if needed
   if ( doThinning && !m_thinningSvc->commit().isSuccess() ) {
     ATH_MSG_ERROR
-      ("IThinningSvc::commit() failed !" << endmsg
+      ("IThinningSvc::commit() failed !" << endreq
        << "Containers (and ElementLinks pointing to their elements) are "
        << "most probably in a corrupted state !!");
     allGood = false;
@@ -194,7 +194,7 @@ StatusCode ThinningOutputTool::postExecute()
   const bool doThinning = m_thinningSvc->thinningOccurred();
   if ( doThinning && !m_thinningSvc->rollback().isSuccess() ) {
     ATH_MSG_ERROR
-      ("IThinningSvc::rollback() failed !" << endmsg
+      ("IThinningSvc::rollback() failed !" << endreq
        << "Containers (and ElementLinks pointing to their elements) are "
        << "most probably in a corrupted state !!");
     allGood = false;

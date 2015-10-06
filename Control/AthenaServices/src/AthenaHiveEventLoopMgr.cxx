@@ -30,7 +30,6 @@
 #include "GaudiKernel/AppReturnCode.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
-#include "GaudiKernel/EventIDBase.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
@@ -104,11 +103,6 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
 
   declareProperty("EventStore", m_eventStore);
 
-  declareProperty("FakeLumiBlockInterval", m_flmbi = 0,
-                  "Event interval at which to increment lumiBlock# when "
-                  "creating events without an EventSelector. Zero means " 
-                  "don't increment it");
-
   m_scheduledStop = false;
 
 }
@@ -130,7 +124,7 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
   m_msg.setLevel( m_outputLevel.value() );
 
   m_msg << MSG::INFO << "Initializing " << name()
-	<< " - package version " << PACKAGE_VERSION << endmsg ;
+	<< " - package version " << PACKAGE_VERSION << endreq ;
  
 
   StatusCode sc = MinimalEventLoopMgr::initialize();
@@ -138,7 +132,7 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
   {
     m_msg << MSG::ERROR
 	<< "Failed to initialize base class MinimalEventLoopMgr"
-	<< endmsg;
+	<< endreq;
     return sc;
   } else {
     // re-configure our MsgStream: 
@@ -170,18 +164,12 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
     return StatusCode::FAILURE;
   }
 
-  m_aess = serviceLocator()->service("AlgExecStateSvc");
-  if( !m_aess.isValid() ) {
-    fatal() << "Error retrieving AlgExecStateSvc" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
   sc = m_eventStore.retrieve();
   if( !sc.isSuccess() )  
   {
     m_msg << MSG::FATAL 
 	  << "Error retrieving pointer to StoreGateSvc"
-	  << endmsg;
+	  << endreq;
     return sc;
   }
 
@@ -192,7 +180,7 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
   sc = m_incidentSvc.retrieve();
   if( !sc.isSuccess() )  
   {
-    m_msg << MSG::FATAL << "Error retrieving IncidentSvc." << endmsg;
+    m_msg << MSG::FATAL << "Error retrieving IncidentSvc." << endreq;
     return sc;
   }
 
@@ -204,7 +192,7 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
   {
     m_msg << MSG::FATAL 
 	  << "IProperty interface not found in ApplicationMgr." 
-	  << endmsg;
+	  << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -217,7 +205,7 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
   {
     m_msg << MSG::FATAL 
 	  << "Error retrieving HistogramDataSvc" 
-	  << endmsg;
+	  << endreq;
     return sc;
   }
     
@@ -235,7 +223,7 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
     if( !sc.isSuccess() )  {
       m_msg << MSG::WARNING 
 	    << "Histograms cannot not be saved - though required." 
-	    << endmsg;
+	    << endreq;
     } else {
 
       IService *is = 0;
@@ -248,12 +236,12 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
       if (sc.isFailure()) {
 	m_msg << MSG::ERROR 
 	      << "could not locate actual Histogram persistency service"
-	      << endmsg;
+	      << endreq;
       } else {
 	Service *s = dynamic_cast<Service*>(is);
 	if (s == 0) {
 	  m_msg << MSG::ERROR << "Could not dcast HistPersSvc to a Service"
-		<< endmsg;
+		<< endreq;
 	} else {
 	  const Property &prop = s->getProperty("OutputFile");
 	  std::string val;
@@ -266,7 +254,7 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
 	    m_msg << MSG::VERBOSE
 		  << "could not dcast OutputFile property to a StringProperty."
 		  << " Need to fix Gaudi."
-		  << endmsg;
+		  << endreq;
 
 	    val = prop.toString();
 
@@ -288,7 +276,7 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
 
   }  else { if (m_msg.level() <= MSG::DEBUG) { m_msg << MSG::DEBUG 
 						     << "Histograms saving not required." 
-						     << endmsg; } }
+						     << endreq; } }
 //-------------------------------------------------------------------------
 // Setup EventSelector service
 //-------------------------------------------------------------------------
@@ -296,7 +284,7 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
   // the evt sel is usually specified as a property of ApplicationMgr
   if (selName.empty()) 
     sc = setProperty(prpMgr->getProperty("EvtSel"));
-  if (sc.isFailure()) m_msg << MSG::WARNING << "Unable to set EvtSel property" << endmsg;
+  if (sc.isFailure()) m_msg << MSG::WARNING << "Unable to set EvtSel property" << endreq;
 
   // We do not expect a Event Selector necessarily being declared
   if( !selName.empty() && selName != "NONE") {
@@ -309,7 +297,7 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
       // reset iterator
       if (m_evtSelector->createContext(m_evtContext).isFailure()) {
 	m_msg  << MSG::FATAL << "Can not create the event selector Context." 
-	       << endmsg;
+	       << endreq;
 	return StatusCode::FAILURE;
       }
       if (m_msg.level() <= MSG::INFO) {
@@ -317,12 +305,12 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
 	if (0 != named) {
 	  m_msg << MSG::INFO 
 		<< "Setup EventSelector service " << named->name( ) 
-		<< endmsg;
+		<< endreq;
 	}
       }
     } else if (sc.isFailure()) {
       m_msg  << MSG::FATAL << "No valid event selector called " << selName 
-	     << endmsg;
+	     << endreq;
       return StatusCode::FAILURE;
     }
   }  
@@ -348,7 +336,7 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
   sc = m_activeStoreSvc.retrieve();
   if( !sc.isSuccess() )  
   {
-    m_msg << MSG::FATAL << "Error retrieving ActiveStoreSvc." << endmsg;
+    m_msg << MSG::FATAL << "Error retrieving ActiveStoreSvc." << endreq;
     return sc;
   }
 
@@ -361,7 +349,7 @@ StatusCode AthenaHiveEventLoopMgr::initialize()
 inline
 StoreGateSvc* 
 AthenaHiveEventLoopMgr::eventStore() const {
-  return m_eventStore.get();
+  return &*m_eventStore;
 }
 
 //=========================================================================
@@ -373,11 +361,11 @@ AthenaHiveEventLoopMgr::setupTimeKeeper(Property&) {
   // We do not expect a TimeKeeper necessarily being declared  
   if( tkName != "NONE" && tkName.length() != 0) {
     if (!(serviceLocator()->service( tkName, m_pITK, true)).isSuccess()) 
-      m_msg << MSG::ERROR << "TimeKeeper not found." << endmsg;
+      m_msg << MSG::ERROR << "TimeKeeper not found." << endreq;
     else m_msg << MSG::INFO 
 	       << "No TimeKeeper selected. "
 	       << "No time limit control on event loop." 
-	       << endmsg;
+	       << endreq;
   }
 }
 
@@ -391,9 +379,9 @@ AthenaHiveEventLoopMgr::setClearStorePolicy(Property&) {
     m_msg  << MSG::FATAL 
 	   << "Unknown policy [" << policyName 
 	   << "] for the 'ClearStore-policy !"
-	   << endmsg
+	   << endreq
 	   << "Valid values are: BeginEvent, EndEvent"
-	   << endmsg;
+	   << endreq;
     throw GaudiException("Can not setup 'ClearStore'-policy",
 			 name(),
 			 StatusCode::FAILURE);
@@ -444,7 +432,7 @@ StatusCode AthenaHiveEventLoopMgr::finalize()
   {
     m_msg << MSG::ERROR 
 	  << "Error in Service base class Finalize" 
-	  << endmsg;
+	  << endreq;
   }
 
   StatusCode sc2 = writeHistograms(true);
@@ -452,7 +440,7 @@ StatusCode AthenaHiveEventLoopMgr::finalize()
   {
     m_msg << MSG::ERROR 
 	  << "Error in writing Histograms"
-	  << endmsg;
+	  << endreq;
   }
 
   // Release all interfaces (ignore StatusCodes)
@@ -480,9 +468,9 @@ StatusCode AthenaHiveEventLoopMgr::finalize()
     tool_iterator lastTool  = m_tools.end();
     unsigned int toolCtr = 0;
     m_msg << MSG::INFO
-	  << "Summary of AthenaEvtLoopPreSelectTool invocation: (invoked/success/failure)" << endmsg;
+	  << "Summary of AthenaEvtLoopPreSelectTool invocation: (invoked/success/failure)" << endreq;
     m_msg << MSG::INFO
-	   << "-----------------------------------------------------" << endmsg;
+	   << "-----------------------------------------------------" << endreq;
 
     for ( ; firstTool != lastTool; firstTool++ ) {
       m_msg  << MSG::INFO
@@ -500,7 +488,7 @@ StatusCode AthenaHiveEventLoopMgr::finalize()
              << "/"
              << m_toolReject[toolCtr]
              << ")"
-             << endmsg;
+             << endreq;
       toolCtr++;
     }
   }
@@ -524,13 +512,13 @@ StatusCode AthenaHiveEventLoopMgr::writeHistograms(bool force) {
       sc = iret;
       m_msg << MSG::ERROR 
 	    << "Error while traversing Histogram data store" 
-	    << endmsg;
+	    << endreq;
     }
     
     IDataSelector* objects = agent.selectedObjects();
     // skip /stat entry!
     if ( objects->size() > 0 ) {
-      unsigned int writeInterval(m_writeInterval.value());
+      int writeInterval(m_writeInterval.value());
       IDataSelector::iterator i;
       for ( i = objects->begin(); i != objects->end(); i++ ) {
 	StatusCode iret(StatusCode::SUCCESS);
@@ -548,7 +536,7 @@ StatusCode AthenaHiveEventLoopMgr::writeHistograms(bool force) {
 	      crt = true;
 	    } else {
 	      m_msg << MSG::ERROR << "calling createRep for " 
-		    << (*i)->registry()->identifier() << endmsg;
+		    << (*i)->registry()->identifier() << endreq;
 	    }	       
 	  }
 	  
@@ -570,7 +558,7 @@ StatusCode AthenaHiveEventLoopMgr::writeHistograms(bool force) {
       }    // end of loop over Objects
       
       if (force || (writeInterval != 0 && m_nevt%writeInterval == 0) ) {
-	if (m_msg.level() <= MSG::DEBUG) { m_msg << MSG::DEBUG << "committing Histograms" << endmsg; }
+	if (m_msg.level() <= MSG::DEBUG) { m_msg << MSG::DEBUG << "committing Histograms" << endreq; }
 	m_histoPersSvc->conversionSvc()->commitOutput("",true).ignore();
       }
       
@@ -641,7 +629,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
     m_msg << MSG::ALWAYS
 	  << "A stopRun was requested by an incidentListener. "
 	  << "Do not process this event." 
-	  << endmsg;
+	  << endreq;
     createdEvts = -1;
     return (StatusCode::SUCCESS);
   }
@@ -673,7 +661,7 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
 
     m_msg << MSG::INFO
 	  << "  ===>>>  start of run " << m_currentRun << "    <<<==="
-	  << endmsg;
+	  << endreq;
  
     if (!(this->beginRunAlgorithms(*pEvent)).isSuccess()) return (StatusCode::FAILURE);
   }
@@ -699,12 +687,6 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
 
 
   EventID::number_type evtNumber = pEvent->event_ID()->event_number();
-  // evtContext->setEventID(EventIDBase(pEvent->event_ID()->run_number(),
-  //       			     pEvent->event_ID()->event_number(),
-  //       			     pEvent->event_ID()->time_stamp(),
-  //       			     pEvent->event_ID()->time_stamp_ns_offset()));
-  evtContext->setEventID( *((EventIDBase*) pEvent->event_ID()) );
-
   m_doEvtHeartbeat = (m_eventPrintoutInterval.value() > 0 && 
 		 0 == (m_nev % m_eventPrintoutInterval.value()));
   if (m_doEvtHeartbeat)  {
@@ -712,13 +694,13 @@ StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
      m_msg << MSG::INFO
            << "  ===>>>  start processing event #" << evtNumber << ", run #" << m_currentRun 
            << " on slot " << evtContext->slot() << ",  " << m_proc 
-           << " events processed so far  <<<===" << endmsg;
+           << " events processed so far  <<<===" << endreq;
    else 
      m_msg << MSG::INFO
            << "  ===>>>  start processing event #" << evtNumber << ", run #" << m_currentRun 
            << " on slot " << evtContext->slot() << ",  " 
            << m_nev << " events read and " << m_proc 
-           << " events processed so far  <<<===" << endmsg;   
+           << " events processed so far  <<<===" << endreq;   
   }
 
   // Reset the timeout singleton
@@ -836,19 +818,19 @@ StatusCode AthenaHiveEventLoopMgr::nextEvent(int maxevt)
     return (tbb::tick_count::now()-start_time).seconds();
   };
 
-  while ( !loop_ended and ( (maxevt < 0) or (finishedEvts < maxevt) ) ){
+  while ( !loop_ended and (maxevt < 0 or finishedEvts < maxevt)){
     debug() << " -> createdEvts: " << createdEvts << endmsg;
     
-    if ( (createdEvts >= 0) && // The events are not finished with an unlimited number of events
-	 ( (createdEvts < maxevt) or (maxevt<0) ) &&  // The events are not finished with a limited number of events
-	 (m_schedulerSvc->freeSlots()>0) ){ // There are still free slots in the scheduler
+    if (createdEvts >= 0 && // The events are not finished with an unlimited number of events
+        (createdEvts < maxevt or maxevt<0) &&  // The events are not finished with a limited number of events
+        m_schedulerSvc->freeSlots()>0){ // There are still free slots in the scheduler
       
       debug() << "createdEvts: " << createdEvts << ", freeslots: " << m_schedulerSvc->freeSlots() << endmsg;
       
       sc = executeEvent(&createdEvts);
       if (sc.isFailure()) {
 	m_msg << MSG::ERROR 
-	      << "Terminating event processing loop due to errors" << endmsg;
+	      << "Terminating event processing loop due to errors" << endreq;
 	loop_ended = true;
       }
 
@@ -895,7 +877,7 @@ StatusCode AthenaHiveEventLoopMgr::seek (int evt)
   IEventSeek* is = dynamic_cast<IEventSeek*> (m_evtSelector);
   if (is == 0) {
     m_msg << MSG::ERROR << "Seek failed; unsupported by event selector"
-	  <<endmsg;
+	  <<endreq;
     return StatusCode::FAILURE;
   }
   StatusCode sc = is->seek(evt);
@@ -903,12 +885,12 @@ StatusCode AthenaHiveEventLoopMgr::seek (int evt)
     m_nevt = evt;
     if (m_evtSelector->createContext(m_evtContext).isFailure()) {
       m_msg  << MSG::FATAL << "Can not create the event selector Context."
-             << endmsg;
+             << endreq;
       return StatusCode::FAILURE;
     }
   }
   else {
-    m_msg << MSG::ERROR << "Seek failed." << endmsg;
+    m_msg << MSG::ERROR << "Seek failed." << endreq;
   }
   return sc;
 }
@@ -930,7 +912,7 @@ int AthenaHiveEventLoopMgr::size()
   ICollectionSize* cs = dynamic_cast<ICollectionSize*> (m_evtSelector);
   if (cs == 0) {
     m_msg << MSG::ERROR << "Collection size unsupported by event selector"
-	  <<endmsg;
+	  <<endreq;
     return -1;
   }
   return cs->size();
@@ -946,13 +928,13 @@ void AthenaHiveEventLoopMgr::handle(const Incident& inc)
     return;
 
   if(!m_evtContext || !m_firstRun) {
-    m_msg << MSG::WARNING << "Skipping BeforeFork handler. Either no event selector is provided or begin run has already passed" << endmsg;
+    m_msg << MSG::WARNING << "Skipping BeforeFork handler. Either no event selector is provided or begin run has already passed" << endreq;
   }
 
   // Initialize Algorithms and Output Streams
   StatusCode sc = initializeAlgorithms();
   if(sc.isFailure()) {
-    m_msg << MSG::ERROR << "Failed to initialize Algorithms" << endmsg;
+    m_msg << MSG::ERROR << "Failed to initialize Algorithms" << endreq;
     return; 
   }
 
@@ -961,38 +943,38 @@ void AthenaHiveEventLoopMgr::handle(const Incident& inc)
   IOpaqueAddress* addr = 0;
   sc = m_evtSelector->next(*m_evtContext);
   if(!sc.isSuccess()) {
-    m_msg << MSG::INFO << "No more events in event selection " << endmsg;
+    m_msg << MSG::INFO << "No more events in event selection " << endreq;
     return;
   }
   sc = m_evtSelector->createAddress(*m_evtContext, addr);
   if (sc.isFailure()) {
-    m_msg << MSG::ERROR << "Could not create an IOpaqueAddress" << endmsg;
+    m_msg << MSG::ERROR << "Could not create an IOpaqueAddress" << endreq;
     return; 
   }
   if (0 != addr) {
     //create its proxy
     sc = eventStore()->recordAddress(addr);
     if(!sc.isSuccess()) {
-      m_msg << MSG::ERROR << "Error declaring Event object" << endmsg;
+      m_msg << MSG::ERROR << "Error declaring Event object" << endreq;
       return;
     }
   } 
   
   if(eventStore()->loadEventProxies().isFailure()) {
-    m_msg << MSG::WARNING << "Error loading Event proxies" << endmsg;
+    m_msg << MSG::WARNING << "Error loading Event proxies" << endreq;
     return;
   }
 
   // Retrieve the Event object
   sc = eventStore()->retrieve(pEvent);
   if(!sc.isSuccess()) {
-    m_msg << MSG::ERROR << "Unable to retrieve Event root object" << endmsg;
+    m_msg << MSG::ERROR << "Unable to retrieve Event root object" << endreq;
     return;
   }
 
   sc = beginRunAlgorithms(*pEvent);
   if (!sc.isSuccess()) {
-    m_msg << MSG::ERROR << "beginRunAlgorithms() failed" << endmsg;
+    m_msg << MSG::ERROR << "beginRunAlgorithms() failed" << endreq;
     return;
   } 
 
@@ -1006,7 +988,7 @@ void AthenaHiveEventLoopMgr::handle(const Incident& inc)
   if(s_clearStore==ClearStorePolicy::EndEvent) {
     sc = eventStore()->clearStore();
     if(!sc.isSuccess()) {
-      m_msg << MSG::ERROR << "Clear of Event data store failed" << endmsg;
+      m_msg << MSG::ERROR << "Clear of Event data store failed" << endreq;
     }
   }
 }
@@ -1088,12 +1070,12 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(const EventContext* ctx){
     
     if ( !sc.isSuccess() ) {
       // This is the end of the loop. No more events in the selection
-      info() << "No more events in event selection " << endmsg;
+      info() << "No more events in event selection " << endreq;
       return 0;
     }
     
     if (m_evtSelector->createAddress(*m_evtContext, addr).isFailure()) {
-      error() << "Could not create an IOpaqueAddress" << endmsg;
+      error() << "Could not create an IOpaqueAddress" << endreq;
       return -1;
     }
     
@@ -1104,18 +1086,18 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(const EventContext* ctx){
       sc = eventStore()->recordAddress(addr);
       if( !sc.isSuccess() ) {
 	//! FIXME ???
-	warning() << "Error declaring Event object" << endmsg;
+	warning() << "Error declaring Event object" << endreq;
 	return 0;
       }
     } if ((sc=eventStore()->loadEventProxies()).isFailure()) {
-      error()    << "Error loading Event proxies" << endmsg;
+      error()    << "Error loading Event proxies" << endreq;
       return -1;
     } 
     
     // Retrieve the Event object
     sc = eventStore()->retrieve(pEvent);
     if( !sc.isSuccess() ) {
-      error() << "Unable to retrieve Event root object" << endmsg;
+      error() << "Unable to retrieve Event root object" << endreq;
       return -1;
     }
 
@@ -1124,17 +1106,8 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(const EventContext* ctx){
   }  else  {
 
     //with no iterator it's up to us to create an EventInfo
-    unsigned int runNmb{1}, evtNmb{m_nevt};
-
-    // increment the run/lumiBlock number if desired
-    if (m_flmbi != 0) {
-      runNmb = m_nevt / m_flmbi + 1;
-      evtNmb = m_nevt % m_flmbi;
-    }
-    pEvent = new EventInfo(new EventID(runNmb,evtNmb), new EventType());
-
-    // Change lumiBlock# to match runNumber
-    pEvent->event_ID()->set_lumi_block( runNmb );
+    pEvent = new EventInfo(new EventID(0,m_nevt), new EventType());
+    pEvent->event_ID()->set_lumi_block( m_nevt );
 
     m_pEvent = pEvent;
 
@@ -1146,7 +1119,7 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(const EventContext* ctx){
             << eventStore()->name() << endmsg;
     sc = eventStore()->record(pEvent,"McEventInfo");
     if( !sc.isSuccess() )  {
-      error() << "Error declaring event data object" << endmsg;
+      error() << "Error declaring event data object" << endreq;
       return -1;
     } 
   }
@@ -1165,8 +1138,6 @@ StatusCode  AthenaHiveEventLoopMgr::createEventContext(EventContext*& evtContext
 
   m_nevt = createdEvts;
   
-  m_aess->reset(*evtContext);
-
   StatusCode sc = m_whiteboard->selectStore(evtContext->slot());
   if (sc.isFailure()){
     warning() << "Slot " << evtContext->slot()
@@ -1219,10 +1190,8 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
       continue;
     }
 
-    if (m_aess->eventStatus(*thisFinishedEvtContext) != EventStatus::Success) {
-      fatal() << "Failed event detected on " << thisFinishedEvtContext 
-              << " w/ fail mode: "
-              << m_aess->eventStatus(*thisFinishedEvtContext) << endmsg;
+    if (thisFinishedEvtContext->evtFail()){
+      fatal() << "Failed event detected"<< endmsg;
       delete thisFinishedEvtContext;
       fail = true;
       continue;
@@ -1235,7 +1204,7 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
     const EventInfo* pEvent(0);
     if (m_whiteboard->selectStore(thisFinishedEvtContext->slot()).isSuccess()) {
       if (eventStore()->retrieve(pEvent).isFailure()) {
-        error() << "DrainSched: unable to get EventInfo obj" << endmsg;
+        error() << "DrainSched: unable to get EventInfo obj" << endreq;
 	delete thisFinishedEvtContext;
 	fail = true;
 	continue;
@@ -1245,15 +1214,11 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
       }
     } else {
       error() << "DrainSched: unable to select store "
-	      << thisFinishedEvtContext->slot() << endmsg;
+	      << thisFinishedEvtContext->slot() << endreq;
       delete thisFinishedEvtContext;
       fail = true;
       continue;
     }
-
-    m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent,
-					 *thisFinishedEvtContext ));
-
 
     info() << "Clearing slot " << thisFinishedEvtContext->slot() 
 	   << " (event " << thisFinishedEvtContext->evt()
@@ -1277,15 +1242,15 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
       if(!m_useTools) 
         info() << "  ===>>>  done processing event #" << n_evt << ", run #" << n_run 
                << " on slot " << thisFinishedEvtContext->slot() << ",  "
-               << m_proc << " events processed so far  <<<===" << endmsg;
+               << m_proc << " events processed so far  <<<===" << endreq;
       else 
 	info() << "  ===>>>  done processing event #" << n_evt << ", run #" << n_run 
 	       << " on slot " << thisFinishedEvtContext->slot() << ",  "          
 	       << m_nev << " events read and " << m_proc 
-	       << " events processed so far <<<===" << endmsg;
+	       << " events processed so far <<<===" << endreq;
       std::ofstream outfile( "eventLoopHeartBeat.txt");
       if ( !outfile ) {
-	error() << " unable to open: eventLoopHeartBeat.txt" << endmsg;
+	error() << " unable to open: eventLoopHeartBeat.txt" << endreq;
 	fail = true;
 	delete thisFinishedEvtContext;
 	continue;
@@ -1302,6 +1267,8 @@ AthenaHiveEventLoopMgr::drainScheduler(int& finishedEvts){
     
     m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndProcessing, 
 					 *thisFinishedEvtContext ));    
+    m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent,
+					 *thisFinishedEvtContext ));
 
     delete thisFinishedEvtContext;
 

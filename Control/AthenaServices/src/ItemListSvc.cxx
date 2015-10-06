@@ -147,7 +147,7 @@ StatusCode
 ItemListSvc::queryInterface( const InterfaceID& riid, void** ppvi )
 {
   // valid placeholder? 
-  if ( nullptr == ppvi ) { return StatusCode::FAILURE ; }  // RETURN 
+  if ( 0 == ppvi ) { return StatusCode::FAILURE ; }  // RETURN 
   if ( IItemListSvc::interfaceID() == riid ) 
     {
       *ppvi = static_cast<IItemListSvc*>(this);

@@ -8,19 +8,42 @@
 #define ATHENASERVICES_ATHENAOUTPUTSTREAM_H
 
 // STL include files
-#include <memory>
-#include <map>
-#include <set>
-#include <vector>
-#include <string>
+#ifndef _CPP_MEMORY
+ #include <memory>
+#endif
+#ifndef _CPP_MAP
+ #include <map>
+#endif
+#ifndef _CPP_SET
+ #include <set>
+#endif
+#ifndef _CPP_VECTOR
+ #include <vector>
+#endif
+#ifndef _CPP_STRING
+ #include <string>
+#endif
 
 // Required for inheritance
-#include "GaudiKernel/IDataSelector.h"
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ClassID.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/ToolHandle.h"
+#ifndef GAUDIKERNEL_IDATASELECTOR_H
+ #include "GaudiKernel/IDataSelector.h"
+#endif
+#ifndef GAUDIKERNEL_ALGORITHM_H
+ #include "GaudiKernel/Algorithm.h"
+#endif
+//get the CLID typedef
+#ifndef GAUDIKERNEL_CLASSID_H
+ #include "GaudiKernel/ClassID.h"
+#endif
+#ifndef GAUDIKERNEL_PROPERTY_H
+ #include "GaudiKernel/Property.h"
+#endif
+#ifndef GAUDIKERNEL_SERVICEHANDLE_H
+ #include "GaudiKernel/ServiceHandle.h"
+#endif
+#ifndef GAUDIKERNEL_TOOLHANDLE_H
+ #include "GaudiKernel/ToolHandle.h"
+#endif
 
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/FilteredAlgorithm.h"
@@ -93,14 +116,8 @@ protected:
    ToolHandle<SG::IFolder>  m_decoder;
    /// map of (clid,key) pairs to be excluded (comes from m_excludeList)
    std::multimap<CLID,std::string> m_CLIDKeyPairs;
-   /// Collection of objects being selected
-   IDataSelector m_objects;
-   /// Objects overridden by `exact' handling.
-   IDataSelector m_altObjects;
-   /// Collection of DataObject instances owned by this service.
-   /// FIXME: it would be simpler to just have m_objects be a vector
-   /// of DataObjectSharedPtr<DataObject>, but that implies interface changes.
-   std::vector<std::unique_ptr<DataObject> > m_ownedObjects;
+   /// Collection of objects beeing selected
+   IDataSelector            m_objects;
    /// Number of events written to this output stream
    int                      m_events;
    /// set to true to force read of data objects in item list

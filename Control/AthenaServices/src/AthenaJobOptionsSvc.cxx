@@ -40,7 +40,7 @@ JobOptionsSvc::JobOptionsSvc( const std::string& name,
 		      ISvcLocator* pSvcLocator ) : 
   ::AthService( name, pSvcLocator ),
   m_jobosvc("JobOptionsSvc/AthWrapped_JobOptionsSvc", name),
-  m_cat_fd (nullptr)
+  m_cat_fd (NULL)
 {
   //
   // Property declaration
@@ -94,7 +94,7 @@ StatusCode JobOptionsSvc::initialize()
     ATH_MSG_INFO("opening [" << m_cat_fname << "] to dump properties'"
                  " of all components");
     m_cat_fd = fopen(m_cat_fname.c_str(), "w+");
-    if (m_cat_fd == nullptr) {
+    if (m_cat_fd == 0) {
       ATH_MSG_ERROR("could not open the pythonized catalogue output file ["
                     << m_cat_fname << "] !");
       return StatusCode::FAILURE;
@@ -121,7 +121,7 @@ StatusCode JobOptionsSvc::finalize()
   //   return StatusCode::FAILURE;
   // }
 
-  if (m_cat_fd != nullptr) {
+  if (m_cat_fd != NULL) {
     fprintf(m_cat_fd,
             "%s",
             "\n"
@@ -206,7 +206,7 @@ JobOptionsSvc::setMyProperties( const std::string& client, IProperty* me )
   //ATH_MSG_INFO("::setMyProperties(" << client << ")... [done]");
 
   // no dumping was requested...
-  if (m_cat_fd == nullptr) {
+  if (m_cat_fd == 0) {
     return sc;
   }
 
@@ -316,17 +316,10 @@ JobOptionsSvc::removePropertyFromCatalogue( const std::string& client,
 }
 
 /// Get the properties associated to a given client
-const std::vector<const Gaudi::Details::PropertyBase*>*
+const std::vector<const Property*>* 
 JobOptionsSvc::getProperties( const std::string& client) const
 {
   return m_jobosvc->getProperties(client);
-}
-
-const Gaudi::Details::PropertyBase*
-JobOptionsSvc::getClientProperty( const std::string& client,
-                                  const std::string& name ) const 
-{
-  return m_jobosvc->getClientProperty(client, name);
 }
 
 /// Get the list of clients

@@ -62,7 +62,7 @@ namespace CoreDumpSvcHandler
   
   SigHandler_t oldSigHandler;       ///< old signal handlers
   bool callOldHandler(true);        ///< forward calls to old handlers?
-  CoreDumpSvc* coreDumpSvc(nullptr);      ///< pointer to CoreDumpSvc
+  CoreDumpSvc* coreDumpSvc(0);      ///< pointer to CoreDumpSvc
   
   /**
    * Signal handler for the CoreDumpSvc
@@ -106,9 +106,9 @@ namespace CoreDumpSvcHandler
 //================================================================================
 CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService( name, pSvcLocator ),
-  m_siginfo(nullptr),
+  m_siginfo(0),
   m_eventCounter(0),
-  m_abortTimer(0, 0, Athena::AlgorithmTimer::AlgorithmTimerConfig(Athena::AlgorithmTimer::USEREALTIME | Athena::AlgorithmTimer::DELIVERYBYTHREAD ) )
+  m_abortTimer(0, NULL, Athena::AlgorithmTimer::AlgorithmTimerConfig(Athena::AlgorithmTimer::USEREALTIME | Athena::AlgorithmTimer::DELIVERYBYTHREAD ) )
 {
   // Set us as the current instance
   CoreDumpSvcHandler::coreDumpSvc = this;
@@ -160,7 +160,7 @@ CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
 
 CoreDumpSvc::~CoreDumpSvc()
 {
-  CoreDumpSvcHandler::coreDumpSvc = nullptr;
+  CoreDumpSvcHandler::coreDumpSvc = 0;
 }
 
 void CoreDumpSvc::propertyHandler(Property& p)
@@ -245,7 +245,7 @@ StatusCode CoreDumpSvc::finalize()
 
 StatusCode CoreDumpSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) 
 {
-  if ( ppvInterface==nullptr ) return StatusCode::FAILURE;
+  if ( ppvInterface==0 ) return StatusCode::FAILURE;
   
   if ( ICoreDumpSvc::interfaceID().versionMatch(riid) )
     *ppvInterface = static_cast<ICoreDumpSvc*>(this);
@@ -291,7 +291,7 @@ void CoreDumpSvc::print()
 std::string CoreDumpSvc::dump() const
 {
   std::ostringstream os;
-  const time_t now = time(nullptr);
+  const time_t now = time(0);
   
   os << "-------------------------------------------------------------------------------------" << "\n";
   os << "Core dump from " << name() << " on " << System::hostName()
@@ -365,14 +365,14 @@ std::string CoreDumpSvc::dump() const
   }
 
   // Check if the AlgContextSvc is running
-  IAlgContextSvc* algContextSvc(nullptr);
+  IAlgContextSvc* algContextSvc(0);
   if (service("AlgContextSvc", algContextSvc, /*createIf=*/ false).isSuccess() && algContextSvc) {
 
     IAlgorithm* alg = algContextSvc->currentAlg();
     os << "Current algorithm: " << (alg ? alg->name() : "<NONE>") << "\n";
 
     os << "Algorithm stack: ";
-    if ( !alg || algContextSvc->algorithms().size()==0 ) os << "<EMPTY>" << "\n";
+    if ( algContextSvc->algorithms().size()==0 ) os << "<EMPTY>" << "\n";
     else {
       os << "\n";
       IAlgContextSvc::Algorithms::const_iterator iter;
@@ -393,7 +393,7 @@ std::string CoreDumpSvc::dump() const
   os << "  atlasAddress2Line --file <logfile>\n";
   os << "-------------------------------------------------------------------------------------";
 
-  IAthenaSummarySvc *iass(nullptr);
+  IAthenaSummarySvc *iass(0);
   if (service("AthenaSummarySvc",iass,false).isSuccess() && iass) {
     iass->addSummary("CoreDumpSvc",os.str());
     iass->setStatus(1);
@@ -412,8 +412,8 @@ void CoreDumpSvc::handle(const Incident& incident)
 {
   m_sysCoreDump["Last incident"] = incident.source() + ":" + incident.type();
 
-  const EventIncident* eventInc(nullptr);
-  if (nullptr != (eventInc = dynamic_cast<const EventIncident*>(&incident))) {
+  const EventIncident* eventInc(0);
+  if (0 != (eventInc = dynamic_cast<const EventIncident*>(&incident))) {
     const EventID* eventID = eventInc->eventInfo().event_ID();
     if (eventID) {
       std::ostringstream oss;
@@ -428,8 +428,6 @@ void CoreDumpSvc::handle(const Incident& incident)
   else if (incident.type() == "StoreCleared") {
     // Try to force reallocation.
     std::string newstr = m_sysCoreDump["EventID"];
-    // Intentional:
-    // cppcheck-suppress selfAssignment
     newstr[0] = newstr[0];
     m_sysCoreDump["EventID"] = newstr;
   }
@@ -489,7 +487,7 @@ StatusCode CoreDumpSvc::uninstallSignalHandler()
   for ( iter=CoreDumpSvcHandler::oldSigHandler.begin();
         iter!=CoreDumpSvcHandler::oldSigHandler.end(); ++iter ) {
     
-    int ret = sigaction(iter->first, &(iter->second), nullptr);
+    int ret = sigaction(iter->first, &(iter->second), 0);
     if ( ret!=0 ) {
       sc = StatusCode::FAILURE;
       ATH_MSG_WARNING

@@ -24,12 +24,13 @@
 #include "../AthenaSummarySvc.h"
 #include "../LoggedMessageSvc.h"
 #include "../AthenaJobOptionsSvc.h"
-#include "../RCUSvc.h"
 #include "../AthTPCnvSvc.h"
 #include "../EvtIdModifierSvc.h"
 #include "../TestRandomSeqAlg.h"
 #include "../MetaDataSvc.h"
 #include "../OutputStreamSequencerSvc.h"
+#include "../AthenaSharedMemoryTool.h"
+#include "../AthenaYamplTool.h"
 #include "../AthenaStopperAlg.h"
 #ifdef ATHENAHIVE
 #include "../AthenaHiveEventLoopMgr.h"
@@ -61,11 +62,12 @@ DECLARE_SERVICE_FACTORY( ItemListSvc )
 DECLARE_SERVICE_FACTORY( AthenaSummarySvc )
 DECLARE_SERVICE_FACTORY( LoggedMessageSvc )
 DECLARE_NAMESPACE_SERVICE_FACTORY( Athena, JobOptionsSvc )
-DECLARE_NAMESPACE_SERVICE_FACTORY( Athena, RCUSvc )
 DECLARE_SERVICE_FACTORY( AthTPCnvSvc )
 DECLARE_SERVICE_FACTORY( EvtIdModifierSvc )
 DECLARE_SERVICE_FACTORY( MetaDataSvc )
 DECLARE_SERVICE_FACTORY( OutputStreamSequencerSvc )
 DECLARE_TOOL_FACTORY( AthenaOutputStreamTool )
 DECLARE_TOOL_FACTORY( ThinningOutputTool )
+DECLARE_TOOL_FACTORY( AthenaSharedMemoryTool )
+DECLARE_TOOL_FACTORY( AthenaYamplTool )
 DECLARE_ALGORITHM_FACTORY( AthenaStopperAlg )

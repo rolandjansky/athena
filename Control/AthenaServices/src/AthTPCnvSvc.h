@@ -37,7 +37,7 @@ class AthTPCnvSvc
   AthTPCnvSvc( const std::string& name, ISvcLocator* pSvcLocator );
 
   /// Destructor: 
-  virtual ~AthTPCnvSvc() override; 
+  virtual ~AthTPCnvSvc(); 
 
   //@}
 
@@ -51,31 +51,28 @@ class AthTPCnvSvc
    */
   virtual
   ITPCnvBase*
-  load_tpcnv(const std::string& cls) override;
+  load_tpcnv(const std::string& cls);
 
   /** @brief return the T/P converter for a transient class (NULL if failure)
    *         `ITPCnvSvc` owns the `ITPCnvBase` pointer
    */ 
   virtual
   ITPCnvBase* 
-  t2p_cnv(const std::string& transClassName,
-          Athena::TPCnvType::Value type = Athena::TPCnvType::Athena) override;
+  t2p_cnv(const std::string& transClassName);
 
   /** @brief return the T/P converter for a transient class (NULL if failure)
    *         `ITPCnvSvc` owns the `ITPCnvBase` pointer
    */ 
   virtual
   ITPCnvBase* 
-  t2p_cnv(const CLID& transClid,
-          Athena::TPCnvType::Value type = Athena::TPCnvType::Athena) override;
+  t2p_cnv(const CLID& transClid);
 
   /** @brief return the T/P converter for a persistent class (NULL if failure)
    *         `ITPCnvSvc` owns the `ITPCnvBase` pointer
    */ 
   virtual
   ITPCnvBase* 
-  p2t_cnv(const std::string& persClassName,
-          Athena::TPCnvType::Value type = Athena::TPCnvType::Athena) override;
+  p2t_cnv(const std::string& persClassName);
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 

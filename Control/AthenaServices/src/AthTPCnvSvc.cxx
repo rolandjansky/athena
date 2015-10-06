@@ -12,25 +12,6 @@
 #include "AthTPCnvSvc.h"
 
 
-namespace {
-
-std::string prefix (Athena::TPCnvType::Value type)
-{
-  switch (type)
-  {
-  case Athena::TPCnvType::ARA:
-    return "_ARA";
-  case Athena::TPCnvType::Trigger:
-    return "_TRIG";
-  default:
-    break;
-  }
-  return "";
-}
-
-} // anonymous namespace
-
-
 // Constructors
 ////////////////
 AthTPCnvSvc::AthTPCnvSvc( const std::string& name, 
@@ -57,7 +38,7 @@ ITPCnvBase*
 AthTPCnvSvc::load_tpcnv(const std::string& cls)
 {
   ITPCnvBase* cnv = ITPCnvBase::Factory::create (cls);
-  if (cnv == nullptr) {
+  if (cnv == 0) {
     ATH_MSG_INFO("could not load class [" << cls
                  << "] via Reflex::PluginService");
   }
@@ -71,14 +52,10 @@ AthTPCnvSvc::load_tpcnv(const std::string& cls)
  *         `ITPCnvSvc` owns the `ITPCnvBase` pointer
  */ 
 ITPCnvBase* 
-AthTPCnvSvc::t2p_cnv(const std::string& transClassName,
-                     Athena::TPCnvType::Value type /*= Athena::TPCnvType::Athena*/)
-
+AthTPCnvSvc::t2p_cnv(const std::string& transClassName)
 {
-  ITPCnvBase* cnv = ITPCnvBase::Factory::create (prefix(type) + "_TRANS_" + transClassName);
-  if (cnv == nullptr && type != Athena::TPCnvType::Athena)
-    return t2p_cnv (transClassName);
-  if (cnv == nullptr) {
+  ITPCnvBase* cnv = ITPCnvBase::Factory::create ("_TRANS_" + transClassName);
+  if (cnv == 0) {
     ATH_MSG_WARNING("Could not load converter for transient class ["
                     << transClassName << "]");
   }
@@ -92,28 +69,25 @@ AthTPCnvSvc::t2p_cnv(const std::string& transClassName,
  *         `ITPCnvSvc` owns the `ITPCnvBase` pointer
  */ 
 ITPCnvBase* 
-AthTPCnvSvc::t2p_cnv(const CLID& transClid,
-                     Athena::TPCnvType::Value type /*= Athena::TPCnvType::Athena*/)
+AthTPCnvSvc::t2p_cnv(const CLID& transClid)
 {
   std::string trans_type;
   if (!m_clidSvc->getTypeNameOfID(transClid, trans_type).isSuccess()) {
     ATH_MSG_INFO("could not get a type-name for clid [" << transClid << "]");
-    return nullptr;
+    return 0;
   }
 
-  ITPCnvBase* cnv = ITPCnvBase::Factory::create (prefix(type) + "_TRANS_" + trans_type);
-  if (cnv == nullptr) {
+  ITPCnvBase* cnv = ITPCnvBase::Factory::create ("_TRANS_" + trans_type);
+  if (cnv == 0) {
     // try a typeinfo-name before bailing out...
     if (!m_clidSvc->getTypeInfoNameOfID(transClid, trans_type).isSuccess()) {
       ATH_MSG_INFO("could not get a typeinfo-name for clid ["
                    << transClid << "]");
-      return nullptr;
+      return 0;
     }
-    cnv = ITPCnvBase::Factory::create (prefix(type) + "_TRANS_" + trans_type);
+    cnv = ITPCnvBase::Factory::create ("_TRANS_" + trans_type);
   }
-  if (cnv == nullptr && type != Athena::TPCnvType::Athena)
-    return t2p_cnv (transClid);
-  if (cnv == nullptr) {
+  if (cnv == 0) {
     ATH_MSG_WARNING("could not load converter for transient CLID ["
                     << transClid << "] (" << trans_type << ")");
   }
@@ -127,13 +101,10 @@ AthTPCnvSvc::t2p_cnv(const CLID& transClid,
  *         `ITPCnvSvc` owns the `ITPCnvBase` pointer
  */ 
 ITPCnvBase* 
-AthTPCnvSvc::p2t_cnv(const std::string& persClassName,
-                     Athena::TPCnvType::Value type /*= Athena::TPCnvType::Athena*/)
+AthTPCnvSvc::p2t_cnv(const std::string& persClassName)
 {
-  ITPCnvBase* cnv = ITPCnvBase::Factory::create (prefix(type) + "_PERS_" + persClassName);
-  if (cnv == nullptr && type != Athena::TPCnvType::Athena)
-    return p2t_cnv (persClassName);
-  if (cnv == nullptr) {
+  ITPCnvBase* cnv = ITPCnvBase::Factory::create ("_PERS_" + persClassName);
+  if (cnv == 0) {
     ATH_MSG_WARNING("Could not load converter for persistent class ["
                     << persClassName << "]");
   }
