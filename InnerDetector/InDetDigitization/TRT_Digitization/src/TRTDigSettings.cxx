@@ -47,7 +47,7 @@ TRTDigSettings::TRTDigSettings()
 //_________________________________________________________________________________________________________
 void TRTDigSettings::initialize(const InDetDD::TRT_DetectorManager* detmgr) {
 
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing" << endmsg;
+  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing" << endreq;
 
   //1) Fill defaults based on digversion
   fillDefaults(detmgr);
@@ -158,7 +158,6 @@ void TRTDigSettings::defineVariables() {
   defineNewBoolVariable("useMagneticFieldMap",&m_useMagneticFieldMap,"Use magnetic field map in drifttime calculation");
   defineNewBoolVariable("useAttenuation",&m_useAttenuation,"Simulate attenuation of signal strength depending on propagation length in wire");
   defineNewBoolVariable("getT0FromData",&m_getT0FromData,"Shift the individual straw t0 according to data (conditions database)");
-  defineNewBoolVariable("isOverlay",&m_isOverlay,"Flag set for overlay jobs");
 
   //ints:
   defineNewIntVariable("htT0shiftBarShort", &m_htT0shiftBarShort, "HT T0 delta shift in 0.78125 ns steps, short barrel straws",-32,32);
@@ -227,7 +226,7 @@ StatusCode TRTDigSettings::DigSettingsFromCondDB(int m_dig_vers_from_condDB) {
   if (m_dig_vers_from_condDB==12) {
     // the settings are default now
   } else {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Error in settings / condDB" << endmsg;
+    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Error in settings / condDB" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -422,7 +421,7 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
 
   // After TRT_Digitization-00-10-74 (end of Run1) we will no longer support m_digversion<11
   if (m_digversion<11) {
-      if (msgLevel(MSG::FATAL)) msg(MSG::FATAL) << "digversion < 11 (" << m_digversion << ") is no longer supported. The job will die now :(" <<endmsg;
+      if (msgLevel(MSG::FATAL)) msg(MSG::FATAL) << "digversion < 11 (" << m_digversion << ") is no longer supported. The job will die now :(" <<endreq;
       throw;
   }
 
@@ -430,8 +429,8 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   if ( activegastype == InDetDD::TRT_DetectorManager::newgas ) gasok = true;
 
   if (!gasok) {
-    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Active gas setting seems incompatible with dig. version number."<<endmsg;
-    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "If not deliberate, it might indicate a configuration or DB problem."<<endmsg;
+    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Active gas setting seems incompatible with dig. version number."<<endreq;
+    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "If not deliberate, it might indicate a configuration or DB problem."<<endreq;
   }
 
   // miscellaneous
@@ -447,7 +446,6 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   m_killBarrel = false;
   m_cosmicFlag=0;
   m_isCTB = false;
-  m_isOverlay=false;
 
   // trues
   m_timeCorrection = true;
@@ -507,18 +505,17 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   // HT middle-bit fraction tune - wider shaping function; 01-00-24
   // Delta-ray suppression tune tagged as 01-01-03
   // Delta-ray suppression tune with backward compatibility with non suppressed delta-ray simulation tagged as 01-01-07
-  // Delta-ray suppression HT middle-bit fraction tune - 2015 data; 01-01-16
   m_trtRangeCutProperty = m_doubleparMap["TrtRangeCutProperty"].valueSetByUser;//To avoid overwritting warning message and to use python configured value
   if(fabs(m_trtRangeCutProperty-0.05) >= std::numeric_limits<double>::epsilon()){ 
     m_lowThresholdBar        = 0.260*CLHEP::keV;
     m_lowThresholdEC         = 0.275*CLHEP::keV;
-    m_highThresholdBarShort  = 5.195*CLHEP::keV;
-    m_highThresholdBarLong   = 4.751*CLHEP::keV;
-    m_highThresholdECAwheels = 5.513*CLHEP::keV;
-    m_highThresholdECBwheels = 5.326*CLHEP::keV;
+    m_highThresholdBarShort  = 5.412*CLHEP::keV;
+    m_highThresholdBarLong   = 4.949*CLHEP::keV;
+    m_highThresholdECAwheels = 5.251*CLHEP::keV;
+    m_highThresholdECBwheels = 5.072*CLHEP::keV;
     m_trEfficiencyBarrel = 0.774;
-    m_trEfficiencyEndCapA = 0.909;
-    m_trEfficiencyEndCapB = 0.809;
+    m_trEfficiencyEndCapA = 0.932;
+    m_trEfficiencyEndCapB = 0.830;
   }
   else {
     m_lowThresholdBar        = 0.260*CLHEP::keV;
@@ -530,35 +527,31 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
     m_trEfficiencyBarrel = 0.95;
     m_trEfficiencyEndCapA = 1.00;
     m_trEfficiencyEndCapB = 1.00;
-    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Setting up non suppressed double counted delta-ray xenon tune"<<endmsg;
+    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Setting up non suppressed double counted delta-ray xenon tune"<<endreq;
   }
 
   // (Argon) Initial tuning by Artem July 2014. See log file. Requires fine tuning.
   // HT middle-bit fraction tune - wider shaping function; 01-00-24
-  // HT middle-bit fraction tune - 2015 data; 01-01-16
-  // Argon LT tune to 2015 data; 01-02-06
-  m_lowThresholdBarArgon        = 0.150*CLHEP::keV; 
-  m_lowThresholdECArgon         = 0.150*CLHEP::keV;
-  m_highThresholdBarShortArgon  = 2.607*CLHEP::keV;
-  m_highThresholdBarLongArgon   = 2.540*CLHEP::keV;
-  m_highThresholdECAwheelsArgon = 2.414*CLHEP::keV;
-  m_highThresholdECBwheelsArgon = 2.295*CLHEP::keV;
-  m_trEfficiencyBarrelArgon = 0.61;
-  m_trEfficiencyEndCapAArgon = 0.80;
-  m_trEfficiencyEndCapBArgon = 0.80;
+  m_lowThresholdBarArgon        = 0.070*CLHEP::keV; // Argon needs tuning (0.100)
+  m_lowThresholdECArgon         = 0.070*CLHEP::keV; // Argon needs tuning (0.106)
+  m_highThresholdBarShortArgon  = 2.660*CLHEP::keV; // Argon needs fine tuning
+  m_highThresholdBarLongArgon   = 2.352*CLHEP::keV; // Argon needs fine tuning
+  m_highThresholdECAwheelsArgon = 2.414*CLHEP::keV; // Argon needs fine tuning
+  m_highThresholdECBwheelsArgon = 2.295*CLHEP::keV; // Argon needs fine tuning
+  m_trEfficiencyBarrelArgon = 0.55; // Argon needs fine tuning
+  m_trEfficiencyEndCapAArgon = 0.80; // Argon needs fine tuning
+  m_trEfficiencyEndCapBArgon = 0.80; // Argon needs fine tuning
 
-  // (Krypton) 
-  // Initial implementation in May 2015 - guess; 01-01-00
-  // Tuning from 2015 data by Kevin in April 2016, no LT tune; 01-02-01
+  // (Krypton) Guess! pls tune in June 2015, and final tune Sept 2015
   m_lowThresholdBarKrypton = 0.140*CLHEP::keV;
   m_lowThresholdECKrypton  = 0.150*CLHEP::keV;
-  m_highThresholdBarShortKrypton  = 3.07*CLHEP::keV;
-  m_highThresholdBarLongKrypton   = 2.90*CLHEP::keV;
-  m_highThresholdECAwheelsKrypton = 3.15*CLHEP::keV;
-  m_highThresholdECBwheelsKrypton = 3.02*CLHEP::keV;
-  m_trEfficiencyBarrelKrypton = 0.49; 
-  m_trEfficiencyEndCapAKrypton = 0.68;
-  m_trEfficiencyEndCapBKrypton = 0.68;
+  m_highThresholdBarShortKrypton  = 3.3*CLHEP::keV;
+  m_highThresholdBarLongKrypton   = 3.0*CLHEP::keV;
+  m_highThresholdECAwheelsKrypton = 3.2*CLHEP::keV;
+  m_highThresholdECBwheelsKrypton = 3.1*CLHEP::keV;
+  m_trEfficiencyBarrelKrypton = 0.6; // no idea!
+  m_trEfficiencyEndCapAKrypton = 0.9; // no idea!
+  m_trEfficiencyEndCapBKrypton = 0.9; // no idea!
 
   // Noise
   m_fastElectronicsNoisePulseDistance = 1.0*CLHEP::ns;
@@ -589,12 +582,12 @@ void TRTDigSettings::processOverrides() {
   for (;itd!=itdE;++itd) {
     if (itd->second.valueSetByUser != m_propertyNotSetMagicNumber) {
       if (itd->second.valueSetByUser < itd->second.okrange_low || itd->second.valueSetByUser > itd->second.okrange_high) {
-	if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not override value of "<<itd->first<<" : New value outside allowed range" << endmsg;
+	if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not override value of "<<itd->first<<" : New value outside allowed range" << endreq;
       } else {
         if ( static_cast<float>(*(itd->second.directvaraddress)) != static_cast<float>(itd->second.valueSetByUser) ) {
           if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itd->first<<" flag ("
                                                         << (*(itd->second.directvaraddress))/itd->second.unit<<" "<<itd->second.unitname<<" -> "
-                                                        << itd->second.valueSetByUser/itd->second.unit<<" "<<itd->second.unitname<<")"<<endmsg;
+                                                        << itd->second.valueSetByUser/itd->second.unit<<" "<<itd->second.unitname<<")"<<endreq;
           *(itd->second.directvaraddress) = itd->second.valueSetByUser;
           anyoverrides = true;
         }
@@ -608,13 +601,13 @@ void TRTDigSettings::processOverrides() {
   for (;itib!=itibE;++itib) {
     if (itib->second.valueSetByUser != m_propertyNotSetMagicNumber_int) {
       if (itib->second.valueSetByUser < itib->second.okrange_low || itib->second.valueSetByUser > itib->second.okrange_high) {
-	if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not override value of "<<itib->first<<" : New value outside allowed range" << endmsg;
+	if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not override value of "<<itib->first<<" : New value outside allowed range" << endreq;
       } else {
 	if (itib->second.directvaraddress_int) {
 	  //int
           if ( (*(itib->second.directvaraddress_int)) != itib->second.valueSetByUser ) {
 	    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itib->first<<" flag ("
-	  						  << *(itib->second.directvaraddress_int)<<" -> "<< itib->second.valueSetByUser<<")"<<endmsg;
+	  						  << *(itib->second.directvaraddress_int)<<" -> "<< itib->second.valueSetByUser<<")"<<endreq;
 	    *(itib->second.directvaraddress_int) = itib->second.valueSetByUser;
             anyoverrides = true;
           }
@@ -622,7 +615,7 @@ void TRTDigSettings::processOverrides() {
 	  //unsigned int
          if ( (*(itib->second.directvaraddress_uint)) != static_cast<unsigned int>(itib->second.valueSetByUser) ) {
 	    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itib->first<<" flag ("
-						 	  << *(itib->second.directvaraddress_uint)<<" -> "<< itib->second.valueSetByUser<<")"<<endmsg;
+						 	  << *(itib->second.directvaraddress_uint)<<" -> "<< itib->second.valueSetByUser<<")"<<endreq;
 	    *(itib->second.directvaraddress_uint) = itib->second.valueSetByUser;
             anyoverrides = true;
           }
@@ -632,7 +625,7 @@ void TRTDigSettings::processOverrides() {
           if ( (*(itib->second.directvaraddress_bool)) != itib->second.valueSetByUser ) {
 	    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itib->first<<" flag ("
 							  << (*(itib->second.directvaraddress_bool)?1:0)<<" -> "
-							  << (itib->second.valueSetByUser?1:0)<<")"<<endmsg;
+							  << (itib->second.valueSetByUser?1:0)<<")"<<endreq;
 	    *(itib->second.directvaraddress_bool) = itib->second.valueSetByUser == 1;
             anyoverrides = true;
 	  }
@@ -642,6 +635,6 @@ void TRTDigSettings::processOverrides() {
   }
 
   if (anyoverrides)
-    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Settings overridden from joboptions => possible deviation from version defaults." << endmsg;
+    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Settings overridden from joboptions => possible deviation from version defaults." << endreq;
 
 }

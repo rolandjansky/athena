@@ -24,16 +24,16 @@ TRTElectronicsProcessing::TRTElectronicsProcessing( const TRTDigSettings* digset
     m_pElectronicsNoise(electronicsnoise),
     m_msg("TRTElectronicsProcessing")
 {
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTElectronicsProcessing::Constructor begin" << endmsg;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTElectronicsProcessing::Constructor begin" << endreq;
   m_pHRengine  = atRndmGenSvc->GetEngine("TRT_ThresholdFluctuations");
   Initialize();
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTElectronicsProcessing::Constructor done" << endmsg;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTElectronicsProcessing::Constructor done" << endreq;
 }
 
 //___________________________________________________________________________
 TRTElectronicsProcessing::~TRTElectronicsProcessing() {
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsProcessing::Destructor begin" << endmsg;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsProcessing::Destructor begin" << endreq;
 
   delete [] m_energyDistribution;
   delete [] m_lowThresholdDiscriminator;
@@ -41,13 +41,13 @@ TRTElectronicsProcessing::~TRTElectronicsProcessing() {
 
   delete m_pElectronicsNoise;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsProcessing::Destructor done" << endmsg;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsProcessing::Destructor done" << endreq;
 }
 
 //___________________________________________________________________________
 void TRTElectronicsProcessing::Initialize() {
 
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTElectronicsProcessing::Initialize() begin" << endmsg;
+  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTElectronicsProcessing::Initialize() begin" << endreq;
 
   const int numberOfBins(static_cast<int>(m_settings->numberOfBins())); //returns unsigned int
   m_numberOfPostZeroBins = numberOfBins; //assigning to int
@@ -98,7 +98,7 @@ void TRTElectronicsProcessing::Initialize() {
   m_maskC  = 0x000000FF;
   m_maskHT = 0x04020100;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsProcessing::Initialize() done" << endmsg;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsProcessing::Initialize() done" << endreq;
 }
 
 //___________________________________________________________________________
@@ -107,7 +107,7 @@ void TRTElectronicsProcessing::TabulateSignalShape() {
   // Fixme: This assumes 0.78125 ns bin spacing and m_numberOfPostZeroBins=160 bins!
   // So we need to hard-code the processing to reflect that this is not a parameter!
 
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTElectronicsProcessing::TabulateSignalShape() begin" << endmsg;
+  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTElectronicsProcessing::TabulateSignalShape() begin" << endreq;
 
   // These arrays are cut and paste from the output of TRT_Digitization/share/signalShapes.cpp
 
@@ -217,7 +217,7 @@ void TRTElectronicsProcessing::TabulateSignalShape() {
   m_lowThresholdSignalShape[1] = vpKrLT; m_highThresholdSignalShape[1] = vpKrHT;
   m_lowThresholdSignalShape[2] = vpArLT; m_highThresholdSignalShape[2] = vpArHT;
 
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTElectronicsProcessing::TabulateSignalShape() done" << endmsg;
+  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTElectronicsProcessing::TabulateSignalShape() done" << endreq;
 }
 
 //___________________________________________________________________________
@@ -493,15 +493,6 @@ unsigned TRTElectronicsProcessing::EncodeDigit() const {
         digit += one << (26 - i * 9);
         break;
       }
-    }
-  }
-
-  if (m_settings->isOverlay()){//doing overlay
-    digit += (1<<31);//flag digit a "MC" one
-    static bool first = true;
-    if (first){
-      first=false;
-      msg(MSG::DEBUG) << "ACH666: Flagging digits as MC (for overlay)" << endmsg;
     }
   }
 

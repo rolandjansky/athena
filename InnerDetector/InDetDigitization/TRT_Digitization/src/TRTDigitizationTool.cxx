@@ -153,7 +153,7 @@ TRTDigitizationTool::~TRTDigitizationTool() {
 StatusCode TRTDigitizationTool::initialize()
 {
 
-  //ATH_MSG_INFO ( "TRTDigitization::initialize()" );
+  ATH_MSG_INFO ( "TRTDigitization::initialize() KryptonDev" );
   ATH_MSG_DEBUG ( "TRTDigitization::initialize() begin" );
 
   // Get the TRT Detector Manager
@@ -295,8 +295,8 @@ StatusCode TRTDigitizationTool::prepareEvent(unsigned int)
 
 //_____________________________________________________________________________
 StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
-						 SubEventIterator bSubEvents,
-						 SubEventIterator eSubEvents) {
+						 PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+						 PileUpEventInfo::SubEvent::const_iterator eSubEvents) {
 
   m_seen.push_back(std::make_pair(std::distance(bSubEvents,eSubEvents), bunchXing));
   //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
@@ -304,10 +304,10 @@ StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
   if (m_HardScatterSplittingMode == 1 && m_HardScatterSplittingSkipper )  { return StatusCode::SUCCESS; }
   if (m_HardScatterSplittingMode == 1 && !m_HardScatterSplittingSkipper ) { m_HardScatterSplittingSkipper = true; }
 
-  SubEventIterator iEvt(bSubEvents);
+  PileUpEventInfo::SubEvent::const_iterator iEvt(bSubEvents);
 
   while (iEvt != eSubEvents) {
-    StoreGateSvc& seStore(*iEvt->ptr()->evtStore());
+    StoreGateSvc& seStore(*iEvt->pSubEvtSG);
     PileUpTimeEventIndex thisEventIndex(PileUpTimeEventIndex(static_cast<int>(iEvt->time()),iEvt->index()));
     const TRTUncompressedHitCollection* seHitColl(NULL);
     if (!seStore.retrieve(seHitColl,m_dataObjectName).isSuccess()) {
@@ -440,9 +440,6 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
      //std::cout << "AJB " << m_cosmicEventPhase << std::endl;
   };
 
-  // Create  a vector of deposits 
-  std::vector<InDetSimData::Deposit> depositVector(100); 
-  
   // loop over all straws
   TimedHitCollection<TRTUncompressedHit>::const_iterator i, e;
   while (m_thpctrt->nextDetectorElement(i, e)) {
@@ -476,8 +473,8 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     simhitsIdentifiers.insert(idStraw);
 
     ///// START OF SDO CREATION
-    // Fill a vector of deposits
-    depositVector.clear();
+    // Create and fill a vector of deposits
+    std::vector<InDetSimData::Deposit> depositVector;
     depositVector.reserve(std::distance(i,e));
     for (TimedHitCollection<TRTUncompressedHit>::const_iterator hit_iter(i); hit_iter != e; ++hit_iter ) {
 
@@ -521,16 +518,10 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
     // according to what types of particles hit the straw.
     m_particleFlag=0;
 
-    // if StatusHT == 6 thats emulate argon, ==7 that's emulate krypton
-    bool emulateArFlag = m_sumSvc->getStatusHT(idStraw) == 6;
-    bool emulateKrFlag = m_sumSvc->getStatusHT(idStraw) == 7;
-
     m_pProcessingOfStraw->ProcessStraw(i, e, digit_straw,
                                        m_alreadyPrintedPDGcodeWarning,
                                        m_cosmicEventPhase, //m_ComTime,
                                        StrawGasType(idStraw),
-				       emulateArFlag,
-				       emulateKrFlag,
                                        m_particleFlag);
 
 
@@ -635,7 +626,7 @@ StatusCode TRTDigitizationTool::processAllSubEvents() {
   //now merge all collections into one
   TimedHitCollList::iterator   iColl(hitCollList.begin());
   TimedHitCollList::iterator endColl(hitCollList.end()  );
-  m_HardScatterSplittingSkipper = false;
+
   // loop on the hit collections
   while ( iColl != endColl ) {
     //decide if this event will be processed depending on HardScatterSplittingMode & bunchXing
@@ -945,7 +936,7 @@ StatusCode TRTDigitizationTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
     std::list<std::string>::const_iterator itr;
     if (msgLvl(MSG::INFO)) {
       for( itr=keys.begin(); itr !=keys.end(); ++itr) {
-	msg(MSG::INFO)<< "IOVCALLBACK for key "<< *itr << " number " << I << endmsg;
+	msg(MSG::INFO)<< "IOVCALLBACK for key "<< *itr << " number " << I << endreq;
       }
     }
     m_dig_vers_from_condDB =(*atrlist)["TRT_Dig_Vers"].data<int>();
@@ -963,18 +954,13 @@ int TRTDigitizationTool::StrawGasType(Identifier& TRT_Identifier) const {
   // The m_UseGasMix default behaviour (0) is to use TRT/Cond/StatusHT, other values can be set to force
   // the whole detector to (1)Xenon, (2)Krypton, (3)Argon:
 
-  int strawGasType=99;
+  int strawGasType=-1;
 
   if (m_UseGasMix==0) { // use StatusHT
     int stat =  m_sumSvc->getStatusHT(TRT_Identifier);
     if       ( stat==2 || stat==3 ) { strawGasType = 0; } // Xe
     else if  ( stat==5 )            { strawGasType = 1; } // Kr
     else if  ( stat==1 || stat==4 ) { strawGasType = 2; } // Ar
-    else if  ( stat==6 )            { strawGasType = 0; } // Xe
-    else if  ( stat==7 )            { strawGasType = 0; } // Xe
-    // stat==6 is emulate argon, make it xenon here,
-    // and emulate argon later with reduced TR eff.
-    // stat==7 is emulate krypton, make it xenon here too.
   }
   else if (m_UseGasMix==1) { strawGasType = 0; } // force whole detector to Xe
   else if (m_UseGasMix==2) { strawGasType = 1; } // force whole detector to Kr
