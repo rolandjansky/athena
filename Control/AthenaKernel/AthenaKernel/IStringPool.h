@@ -19,7 +19,12 @@
 
 #include "AthenaKernel/sgkey_t.h"
 #include "GaudiKernel/ClassID.h"
+#include "GaudiKernel/IInterface.h"
 #include <string>
+
+
+/// TEMPORARY
+static const InterfaceID IID_IStringPool ("IStringPool", 1, 0);
 
 
 /**
@@ -28,6 +33,9 @@
 class IStringPool
 {
 public:
+  /// TEMPORARY: this is overkill.
+  static const InterfaceID& interfaceID() { return IID_IStringPool; }
+
   /// Destructor.
   virtual ~IStringPool() {}
 
@@ -43,8 +51,10 @@ public:
    *         A given string will always return the same key.
    *         Will abort in case of a hash collision!
    */
+  /// TEMPORARY: This method is moving.  It eventually should be pure.
   virtual
-  sgkey_t stringToKey (const std::string& str, CLID clid) = 0;
+  sgkey_t stringToKey (const std::string& /*str*/, CLID /*clid*/)
+  { std::abort(); }
 
   /**
    * @brief Find the string corresponding to a given key.
@@ -53,8 +63,10 @@ public:
    *         We can find keys as long as the corresponding string
    *         was given to either @c stringToKey() or @c registerKey().
    */
+  /// TEMPORARY: This method is moving.  It eventually should be pure.
   virtual
-  const std::string* keyToString (sgkey_t key) const = 0;
+  const std::string* keyToString (sgkey_t /*key*/) const
+  { return nullptr; }
 
   /**
    * @brief Find the string and CLID corresponding to a given key.
@@ -64,9 +76,11 @@ public:
    *         We can find keys as long as the corresponding string
    *         was given to either @c stringToKey() or @c registerKey().
    */
+  /// TEMPORARY: This method is moving.  It eventually should be pure.
   virtual
-  const std::string* keyToString (sgkey_t key,
-                                  CLID& clid) const = 0;
+  const std::string* keyToString (sgkey_t /*key*/,
+                                  CLID& /*clid*/) const
+  { return nullptr; }
 
   /**
    * @brief Remember an additional mapping from key to string/CLID.
@@ -80,10 +94,12 @@ public:
    * it can be found later through @c lookup() on the string.
    * Logs an error if @c key already corresponds to a different string.
    */
+  /// TEMPORARY: This method is moving.  It eventually should be pure.
   virtual
-  void registerKey (sgkey_t key,
-                    const std::string& str,
-                    CLID clid) = 0;
+  void registerKey (sgkey_t /*key*/,
+                    const std::string& /*str*/,
+                    CLID /*clid*/)
+  {}
 };
 
 

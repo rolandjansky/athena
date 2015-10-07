@@ -18,6 +18,5 @@
    <class name="Ath::DsoDb::DsoMap_t" />
 
    <function name="Athena::DsoUtils::inDso" />
-   <function name="Athena::PackageInfo" />
 
 </lcgdict>

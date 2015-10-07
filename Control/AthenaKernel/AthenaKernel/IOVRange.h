@@ -30,7 +30,6 @@
 #endif
 
 class MsgStream;
-class EventIDRange;
 
 /**
  *  @class IOVRange
@@ -40,7 +39,6 @@ class IOVRange {
 public:
   IOVRange(): m_start(0),m_stop(0) {};
   IOVRange( const IOVTime& start, const IOVTime& stop );
-  IOVRange( const EventIDRange& eir);
   IOVRange( const IOVRange& r ):m_start(r.m_start),m_stop(r.m_stop) {};
   IOVRange& operator= (const IOVRange& r);
 

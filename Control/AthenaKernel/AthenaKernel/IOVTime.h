@@ -29,7 +29,6 @@
 #include <stdint.h>
 
 class MsgStream;
-class EventIDBase;
 
 /**
  *  @class IOVTime
@@ -97,7 +96,6 @@ public:
   IOVTime( const uint32_t& run, const uint32_t& event );
   IOVTime( const uint32_t& run, const uint32_t& event, 
 	   const uint64_t& timestamp );
-  IOVTime( const EventIDBase& eid);
 
   void setTimestamp( const uint64_t& timestamp );
   void setRETime( const uint64_t& time );

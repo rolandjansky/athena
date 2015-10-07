@@ -23,11 +23,17 @@
  * @brief Abstract interface for seeking within an event stream.
  */
 
+static const InterfaceID IID_IEventSeek("IEventSeek", 1 , 0);
+
 class IEventSeek : virtual public INamedInterface
 {
 public:
-  DeclareInterfaceID(IEventSeek, 1, 0);
+  /**
+   * @brief Destructor.
+   */
+  virtual ~IEventSeek ();
 
+  static const InterfaceID& interfaceID() { return IID_IEventSeek; }
 
   /**
    * @brief Seek to a given event number.

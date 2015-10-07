@@ -17,7 +17,7 @@
  *@code
  *  StatusCode sc = something();
  *  if (! sc.isSuccess() ) {
- *    log << "Some error message" << endmsg;
+ *    log << "Some error message" << endreq;
  *    return sc;
  *  }
  @endcode
@@ -62,7 +62,7 @@
  * error reporting provided here with the macro
  * @c REPORT_ERROR, which takes a @c StatusCode as an argument.
  * Additional text can be added with the output streaming operator,
- * as for @c MsgStream.  (No need to use @c endmsg.)
+ * as for @c MsgStream.  (No need to use @c endreq.)
  *
  *@code
  *  StatusCode sc = something();
@@ -257,17 +257,6 @@ public:
   static void hideErrorLocus (bool flag = true);
 
 
-  /**
-   * @brief If set to true, hide function names in the output.
-   *        in the output.
-   *
-   *        This is intended for use in regression tests, where
-   *        function names may be formatted differently on different
-   *        platforms.
-   */
-  static void hideFunctionNames (bool flag = true);
-
-
 private:
   /**
    * @brief Generate the common header for messages.
@@ -286,9 +275,6 @@ private:
 
   /// If true, hide the source file and line number in output messages.
   static bool s_hide_error_locus;
-
-  /// If true, hide the function names in output messages.
-  static bool s_hide_function_names;
 };
 
 

@@ -33,7 +33,6 @@ static const InterfaceID IID_IOVDbSvc("IOVDbSvc", 1 , 0);
 
 class IOVRange;
 class IOVTime;
-class IOpaqueAddress;
 
 /**
  *
@@ -51,8 +50,7 @@ public:
 				      const std::string& dbKey, 
 				      const IOVTime& time,
 				      IOVRange& range,
-				      std::string& tag,
-                                      IOpaqueAddress*& ioa) = 0;
+				      std::string& tag ) = 0;
 
     /// Set range for a particular data object
     virtual StatusCode setRange      (const CLID& clid,

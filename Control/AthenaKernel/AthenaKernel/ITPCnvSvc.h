@@ -15,7 +15,6 @@
  */
 
 
-#include "AthenaKernel/TPCnvFactory.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ClassID.h"
 #include <string>
@@ -51,24 +50,21 @@ class ITPCnvSvc
    */ 
   virtual
   ITPCnvBase* 
-  t2p_cnv(const std::string& transClassName,
-          Athena::TPCnvType::Value type = Athena::TPCnvType::Athena) = 0;
+  t2p_cnv(const std::string& transClassName) = 0;
 
   /** @brief return the T/P converter for a transient class (NULL if failure)
    *         `ITPCnvSvc` owns the `ITPCnvBase` pointer
    */ 
   virtual
   ITPCnvBase* 
-  t2p_cnv(const CLID& transClid,
-          Athena::TPCnvType::Value type = Athena::TPCnvType::Athena) = 0;
+  t2p_cnv(const CLID& transClid) = 0;
 
   /** @brief return the T/P converter for a persistent class (NULL if failure)
    *         `ITPCnvSvc` owns the `ITPCnvBase` pointer
    */ 
   virtual
   ITPCnvBase* 
-  p2t_cnv(const std::string& persClassName,
-          Athena::TPCnvType::Value type = Athena::TPCnvType::Athena) = 0;
+  p2t_cnv(const std::string& persClassName) = 0;
 
 }; 
 
