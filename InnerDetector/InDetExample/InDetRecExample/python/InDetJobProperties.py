@@ -1042,6 +1042,12 @@ class doSCTModuleVeto(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class doParticleConversion(InDetFlagsJobProperty): 
+  """In case anyone still wants to do Rec->xAOD TrackParticle Conversion""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = False
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -2448,7 +2454,8 @@ _list_InDetJobProperties = [Enabled,
                             doNNToTCalibration,
                             keepAdditionalHitsOnTrackParticle,
                             doSCTModuleVeto,
-                            doDBM
+                            doDBM,
+                            doParticleConversion
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

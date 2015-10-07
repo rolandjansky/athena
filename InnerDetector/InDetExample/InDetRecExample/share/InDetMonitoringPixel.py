@@ -41,6 +41,7 @@ if doAllHits:
                                   doCluster           = True,       #Turn on/off histograms with Cluster information
                                   doTrack             = False,      #Turn on/off histograms with Track information                                 
                                   doStatus            = True,       #Turn on/off histograms with Module Status information
+                                  doDCS = True if (globalflags.DataSource() == 'data' and geoFlags.Run() == "RUN2" and conddb.dbdata == "CONDBR2") else False,
                                   RDOName             = InDetKeys.PixelRDOs(),                                                                                
                                   RODErrorName        = "pixel_error_summary",                                                                                
                                   SpacePointName      = InDetKeys.PixelSpacePoints(),                                                                         
@@ -95,6 +96,7 @@ if doHitsOnTrack:
                                          doCluster           = True,      #Turn on/off histograms with Cluster information
                                          doTrack             = True,      #Turn on/off histograms with Track information                                   
                                          doStatus            = False,     #Turn on/off histograms with Module Status information                           
+                                         doDCS               = False,
                                         
                                          ##Names of storegate containers                                                                                                     
                                          RDOName             = InDetKeys.PixelRDOs(),                                                                         
@@ -151,6 +153,7 @@ if doHitsOnPixelTrack:
                                               doCluster           = True,      #Turn on/off histograms with Cluster information
                                               doTrack             = True,      #Turn on/off histograms with Track information                                   
                                               doStatus            = False,     #Turn on/off histograms with Module Status information                           
+                                              doDCS               = False,
                                              
                                               ##Names of storegate containers
                                               RDOName             = InDetKeys.PixelRDOs(),                                                                         
