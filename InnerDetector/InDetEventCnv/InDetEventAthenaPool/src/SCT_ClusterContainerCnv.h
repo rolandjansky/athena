@@ -25,6 +25,7 @@ namespace InDetDD {
 #include "SCT_ClusterContainerCnv_p0.h"
 #include "InDetEventTPCnv/SCT_ClusterContainerCnv_tlp1.h"
 #include "InDetEventTPCnv/SCT_ClusterContainerCnv_p3.h"
+#include "InDetEventTPCnv/SCT_ClusterContainerCnv_p2.h"
 
 
 // the latest persistent representation type of DataCollection:
@@ -46,6 +47,7 @@ class SCT_ClusterContainerCnv :
   SCT_ClusterContainerCnv_p0   m_converter_p0;
   SCT_ClusterContainerCnv_tlp1 m_TPConverter;
   SCT_ClusterContainerCnv_p3   m_TPConverter_p3;
+  SCT_ClusterContainerCnv_p2   m_TPConverter_p2;
 
   // Should not be needed at some point.
   StoreGateSvc*  m_storeGate;

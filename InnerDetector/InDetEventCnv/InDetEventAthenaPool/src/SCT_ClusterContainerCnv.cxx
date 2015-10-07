@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #include "StoreGate/StoreGateSvc.h"
 #include "SCT_ClusterContainerCnv.h"
 #include "InDetIdentifier/SCT_ID.h"
@@ -85,7 +86,15 @@ InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv::createTransient() {
     usingTPCnvForReading( m_TPConverter );
     std::auto_ptr< InDet::SCT_ClusterContainer_tlp1 >  p_coll( poolReadObject< InDet::SCT_ClusterContainer_tlp1 >() );
     p_collection = m_TPConverter.createTransient( p_coll.get(), msg() );
+
+  } else if( compareClassGuid(p2_guid) ) {
+    //ATH_MSG_DEBUG("createTransient(): T/P version 2 detected");
+    std::auto_ptr< InDet::SCT_ClusterContainer_p2 >  p_coll( poolReadObject< InDet::SCT_ClusterContainer_p2 >() );
+    p_collection = m_TPConverter_p2.createTransient( p_coll.get(), msg() );
   }
+
+
+
   //----------------------------------------------------------------
   else if( compareClassGuid(p0_guid) ) {
     //ATH_MSG_DEBUG("createTransient(): Old input file");
