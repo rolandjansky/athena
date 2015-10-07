@@ -57,11 +57,6 @@ void* AthenaRootSerializeSvc::serialize(const void* /*object*/, const std::strin
 //___________________________________________________________________________
 void* AthenaRootSerializeSvc::serialize(const void* object, const Guid& id, size_t& nbytes) {
    RootType cltype(pool::DbReflex::forGuid(id));
-   return(this->serialize(object, cltype, nbytes));
-}
-
-//___________________________________________________________________________
-void* AthenaRootSerializeSvc::serialize(const void* object, const RootType& cltype, size_t& nbytes) {
    TBufferFile writeBuffer(TBuffer::kWrite);
    writeBuffer.WriteObjectAny(object, cltype);
    void* buffer = writeBuffer.Buffer();
@@ -71,20 +66,14 @@ void* AthenaRootSerializeSvc::serialize(const void* object, const RootType& clty
 }
 
 //___________________________________________________________________________
-void* AthenaRootSerializeSvc::deserialize(void* /*buffer*/, size_t& /*nbytes*/, const std::string& /*name*/) {
+void* AthenaRootSerializeSvc::deserialize(void* /*buffer*/, size_t /*nbytes*/, const std::string& /*name*/) {
    return(0);
 }
 
 //___________________________________________________________________________
-void* AthenaRootSerializeSvc::deserialize(void* buffer, size_t& nbytes, const Guid& id) {
+void* AthenaRootSerializeSvc::deserialize(void* buffer, size_t nbytes, const Guid& id) {
    RootType cltype(pool::DbReflex::forGuid(id));
-   return(this->deserialize(buffer, nbytes, cltype));
-}
-
-//___________________________________________________________________________
-void* AthenaRootSerializeSvc::deserialize(void* buffer, size_t& nbytes, const RootType& cltype) {
    TBufferFile readBuffer(TBuffer::kRead, nbytes, buffer, kTRUE);
    void* obj = readBuffer.ReadObjectAny(cltype);
-   nbytes = readBuffer.Length();
    return(obj);
 }

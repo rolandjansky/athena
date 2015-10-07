@@ -33,12 +33,12 @@ CondAttrListCollCnv::~CondAttrListCollCnv() {
 }
 //__________________________________________________________________________
 StatusCode CondAttrListCollCnv::initialize() {
-   MsgStream log(msgSvc(), "CondAttrListCollCnv");
+   MsgStream log(messageService(), "CondAttrListCollCnv");
 
-   log << MSG::DEBUG << "initialize() in CondAttrListCollCnv" << endmsg;
+   log << MSG::DEBUG << "initialize() in CondAttrListCollCnv" << endreq;
    StatusCode status = Converter::initialize();
    if (!status.isSuccess()) {
-      log << MSG::ERROR << "Can not initialize Converter base class." << endmsg;
+      log << MSG::ERROR << "Can not initialize Converter base class." << endreq;
       return(status);
    }
    return(status);
@@ -50,8 +50,8 @@ StatusCode CondAttrListCollCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pO
     // we only extract an CondAttrListCollection pointer from an
     // CondAttrListCollAddress and return it
 
-    MsgStream log(msgSvc(), "CondAttrListCollCnv");
-    log << MSG::DEBUG << "Creating CondAttrListCollAddress Object" << endmsg;
+    MsgStream log(messageService(), "CondAttrListCollCnv");
+    log << MSG::DEBUG << "Creating CondAttrListCollAddress Object" << endreq;
 
     CondAttrListCollAddress* addr = dynamic_cast<CondAttrListCollAddress*>(pAddr);
 
@@ -59,12 +59,12 @@ StatusCode CondAttrListCollCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pO
 	// Successful cast
 	pObj = SG::asStorable(addr->attrListColl());
 	if (!pObj) {
-	    log << MSG::ERROR << "CondAttrListCollection ptr is 0 from CondAttrListCollAddress " << endmsg;
+	    log << MSG::ERROR << "CondAttrListCollection ptr is 0 from CondAttrListCollAddress " << endreq;
 	    return(StatusCode::FAILURE);       
 	}
     }
     else {
-	log << MSG::ERROR << "Could not extract ptr for CondAttrListCollAddress " << endmsg;
+	log << MSG::ERROR << "Could not extract ptr for CondAttrListCollAddress " << endreq;
 	return(StatusCode::FAILURE);       
     }
 
@@ -77,8 +77,8 @@ StatusCode CondAttrListCollCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAd
     // we only create an CondAttrListCollAddress and fill it with a
     // pointer to the CondAttrListCollection
 
-    MsgStream log(msgSvc(), "CondAttrListCollCnv");
-    log << MSG::DEBUG << "Copy CondAttrListCollection ptr into CondAttrListCollAddress" << endmsg;
+    MsgStream log(messageService(), "CondAttrListCollCnv");
+    log << MSG::DEBUG << "Copy CondAttrListCollection ptr into CondAttrListCollAddress" << endreq;
 
     CondAttrListCollection* list = 0; //dynamic_cast<CondAttrListCollection*>(pObj);
     SG::fromStorable(pObj, list);
@@ -88,7 +88,7 @@ StatusCode CondAttrListCollCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAd
     addr->setAttrListColl(list);
     pAddr = addr;
 
-    log << MSG::DEBUG << "Created CondAttrListCollAddress with list ptr: " << list << endmsg;
+    log << MSG::DEBUG << "Created CondAttrListCollAddress with list ptr: " << list << endreq;
     return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
