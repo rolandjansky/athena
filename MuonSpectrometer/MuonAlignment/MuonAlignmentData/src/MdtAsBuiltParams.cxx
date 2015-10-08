@@ -43,7 +43,7 @@ MdtAsBuiltParams::MdtAsBuiltParams():
   m_XTOMOML2PDELZ      (0.),  
   m_XTOMOML2PDELA      (0.),  
   m_XTOMOML2PYPIT      (0.),  
-  m_XTOMOML2PZPITbz    (0.)
+  m_XTOMOML2PZPIT      (0.)
 { }
 
 MdtAsBuiltParams::~MdtAsBuiltParams()
@@ -88,7 +88,7 @@ void MdtAsBuiltParams::setParameters(
     float       XTOMOML2PDELZ,   
     float       XTOMOML2PDELA,   
     float       XTOMOML2PYPIT,   
-    float       XTOMOML2PZPITbz)
+    float       XTOMOML2PZPIT)
 {
   m_XTOMOCHBERNAME     =XTOMOCHBERNAME     ; 
   m_XTOMOSITE          =XTOMOSITE          ; 	  
@@ -127,7 +127,7 @@ void MdtAsBuiltParams::setParameters(
   m_XTOMOML2PDELZ      =XTOMOML2PDELZ      ;  
   m_XTOMOML2PDELA      =XTOMOML2PDELA      ;  
   m_XTOMOML2PYPIT      =XTOMOML2PYPIT      ;  
-  m_XTOMOML2PZPITbz    =XTOMOML2PZPITbz    ;
+  m_XTOMOML2PZPIT      =XTOMOML2PZPIT      ;
 }
 
 void MdtAsBuiltParams::getParameters(
@@ -168,7 +168,7 @@ void MdtAsBuiltParams::getParameters(
     float&       XTOMOML2PDELZ,   
     float&       XTOMOML2PDELA,   
     float&       XTOMOML2PYPIT,   
-    float&       XTOMOML2PZPITbz)
+    float&       XTOMOML2PZPIT)
 {
   XTOMOCHBERNAME     =m_XTOMOCHBERNAME     ; 
   XTOMOSITE          =m_XTOMOSITE          ; 	  
@@ -207,6 +207,197 @@ void MdtAsBuiltParams::getParameters(
   XTOMOML2PDELZ      =m_XTOMOML2PDELZ      ;  
   XTOMOML2PDELA      =m_XTOMOML2PDELA      ;  
   XTOMOML2PYPIT      =m_XTOMOML2PYPIT      ;  
-  XTOMOML2PZPITbz    =m_XTOMOML2PZPITbz    ;
+  XTOMOML2PZPIT      =m_XTOMOML2PZPIT      ;
 }
 				     
+bool MdtAsBuiltParams::checkChamberID(std::string stationType, int eta, int phi) {
+  std::string stationName = stationType;
+  
+  // convert eta and phi from int to string
+  std::stringstream stationEtaString;
+  stationEtaString << eta;
+  std::string etaString = stationEtaString.str();
+  
+  stationName += etaString;
+  
+  if (eta < 0) {
+    stationName += "C";    
+  }
+  else if (eta > 0) {
+    stationName += "A";    
+  }
+  else {
+    stationName += "B";
+  }
+  
+  int phiTmp = phi*2;
+  std::stringstream stationPhiString;
+  stationPhiString << phiTmp;
+  
+  std::string stationNameTmp = stationName;
+  stationNameTmp += stationPhiString.str();
+  
+  if (stationName == m_XTOMOCHBERNAME) { return true; }
+  
+  phiTmp = 2*phi - 1;
+  std::stringstream stationPhiString2;
+  stationPhiString2 << phiTmp;
+  
+  stationName += stationPhiString2.str();
+  if (stationName == m_XTOMOCHBERNAME) { return true; }
+  
+  return false;
+}
+
+int MdtAsBuiltParams::whichMLtoMove(std::string stationName) {
+  /* According to Christoph Amelung the multilayer on which the alignment sensors 
+     are mounted shoul remaind fixed in space, so the other multilayer should be moved 
+     relative to this one. For the endcap chamber check the following reference for 
+     the positions of the alignment sensors (especially fig. 20):
+     http://iopscience.iop.org/1748-0221/3/11/P11005/
+   */
+  
+  // endcap
+  if (stationName.substr(0,1) == "E") {
+     if (stationName.substr(1,2) == "ML") { return 2; }
+     if (stationName.substr(1,2) == "OS") { return 2; }
+     if (stationName.substr(1,2) == "EL") { return 2; }
+     if (stationName.substr(1,2) == "ES") { return 2; }
+     if (stationName.substr(1,3) == "IL1") { return 2; }
+     if (stationName.substr(1,3) == "IL2") { return 2; }
+     if (stationName.substr(1,3) == "IL3") { return 2; }
+     if (stationName.substr(1,2) == "IS") { return 1; }
+     if (stationName.substr(1,2) == "MS") { return 1; }
+     if (stationName.substr(1,2) == "OL") { return 1; }
+     if (stationName.substr(1,3) == "IL4") { return 1; }
+     if (stationName.substr(1,3) == "IL5") { return 1; }
+  }
+  
+  // barrel
+  else if (stationName.substr(0,1) == "B") {
+     return 2;
+  }
+  
+  std::cerr << "Unknown station type for MDT chamber " << stationName << std::endl;
+  return -1;
+}
+
+std::string MdtAsBuiltParams::getChamberName() {
+  return m_XTOMOCHBERNAME;
+}
+
+bool MdtAsBuiltParams::wasTomographed() {
+  return m_XTOMOPASSED;
+}
+
+// ----- get functions for RO side -----
+
+float MdtAsBuiltParams::getDeltaZ_RO(int multilayer, std::string stationName) {
+   if (multilayer == 1) { return m_XTOMOML1PDELZ; }
+   if (multilayer == 2) { return m_XTOMOML2PDELZ; }
+   
+   std::cerr << "Unvalid number for multilayer " << multilayer << " in MDT chamber " << stationName << std::endl; 
+   return 0;
+}
+
+float MdtAsBuiltParams::getDeltaY_RO(int multilayer, std::string stationName) {
+   if (multilayer != 1 && multilayer != 2) {
+      std::cerr << "Unvalid number for multilayer " << multilayer << " in MDT chamber " << stationName << std::endl; 
+      return 0;
+   }
+   
+   float deltaY = m_XTOMOML1PDELY + m_XTOMOML2PDELY;
+   if (multilayer == whichMLtoMove(stationName)) {
+       if (multilayer == 1) { return deltaY * (-1); }
+       if (multilayer == 2) { return deltaY; }
+   }
+   
+   return 0;
+}
+
+float MdtAsBuiltParams::getZPitch_RO(int multilayer, std::string stationName) {
+   if (multilayer == 1) { return fabs(m_XTOMOML1PZPIT); }
+   if (multilayer == 2) { return fabs(m_XTOMOML2PZPIT); }
+   
+   std::cerr << "Unvalid number for multilayer " << multilayer << " in MDT chamber " << stationName << std::endl; 
+   return 0;
+}
+
+float MdtAsBuiltParams::getYPitch_RO(int multilayer, std::string stationName) {
+   if (multilayer == 1) { return fabs(m_XTOMOML1PYPIT); }
+   if (multilayer == 2) { return fabs(m_XTOMOML2PYPIT); }
+   
+   std::cerr << "Unvalid number for multilayer " << multilayer << " in MDT chamber " << stationName << std::endl; 
+   return 0;
+}
+
+float MdtAsBuiltParams::getDeltaAlpha_RO(int multilayer, std::string stationName) {
+   if (multilayer != 1 && multilayer != 2) {
+      std::cerr << "Unvalid number for multilayer " << multilayer << " in MDT chamber " << stationName << std::endl; 
+      return 0;
+   }
+   
+   float deltaA = m_XTOMOML1PDELA + m_XTOMOML2PDELA;
+   if (multilayer == whichMLtoMove(stationName)) {
+       if (multilayer == 1) { return deltaA * (-1); }
+       if (multilayer == 2) { return deltaA; }
+   }
+   
+   return 0;
+}
+
+// ----- get functions for HV side -----
+
+float MdtAsBuiltParams::getDeltaZ_HV(int multilayer, std::string stationName) {
+   if (multilayer == 1) { return m_XTOMOML1NDELZ; }
+   if (multilayer == 2) { return m_XTOMOML2NDELZ; }
+
+   std::cerr << "Unvalid number for multilayer " << multilayer << " in MDT chamber " << stationName << std::endl; 
+   return 0;
+}
+
+float MdtAsBuiltParams::getDeltaY_HV(int multilayer, std::string stationName) {
+   if (multilayer != 1 && multilayer != 2) {
+      std::cerr << "Unvalid number for multilayer " << multilayer << " in MDT chamber " << stationName << std::endl; 
+      return 0;
+   }
+   
+   float deltaY = m_XTOMOML1NDELY + m_XTOMOML2NDELY;
+   if (multilayer == whichMLtoMove(stationName)) {
+       if (multilayer == 1) { return deltaY * (-1); }
+       if (multilayer == 2) { return deltaY; }
+   }
+   
+   return 0;
+}
+
+float MdtAsBuiltParams::getZPitch_HV(int multilayer, std::string stationName) {
+   if (multilayer == 1) { return fabs(m_XTOMOML1NZPIT); }
+   if (multilayer == 2) { return fabs(m_XTOMOML2NZPIT); }
+
+   std::cerr << "Unvalid number for multilayer " << multilayer << " in MDT chamber " << stationName << std::endl; 
+   return 0;
+}
+
+float MdtAsBuiltParams::getYPitch_HV(int multilayer, std::string stationName) {
+   if (multilayer == 1) { return fabs(m_XTOMOML1NYPIT); }
+   if (multilayer == 2) { return fabs(m_XTOMOML2NYPIT); }
+
+   std::cerr << "Unvalid number for multilayer " << multilayer << " in MDT chamber " << stationName << std::endl; 
+   return 0;
+}
+
+float MdtAsBuiltParams::getDeltaAlpha_HV(int multilayer, std::string stationName) {
+   if (multilayer != 1 && multilayer != 2) {
+      std::cerr << "Unvalid number for multilayer " << multilayer << " in MDT chamber " << stationName << std::endl; 
+      return 0;
+   }
+   
+   float deltaA = m_XTOMOML1NDELA + m_XTOMOML2NDELA;
+   if (multilayer == whichMLtoMove(stationName)) {
+       if (multilayer == 1) { return deltaA * (-1); }
+       if (multilayer == 2) { return deltaA; }
+   }
+
+   return 0;
+}
