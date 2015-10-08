@@ -43,12 +43,12 @@ namespace TrigCostRootAnalysis {
     m_costData(_costData),
     m_name(_name),
     m_level(0),
-    m_pass(1),
     m_detailLevel(10),
     m_dummyCounter(0),
     m_allowSameNamedCounters(kFALSE),
     m_allowSameIDCounters(kFALSE),
     m_filterOutput(kFALSE),
+    m_invertFilter(kFALSE),
     m_filterOnDecorationKey(),
     m_filterOnDecorationValue(),
     m_counterCollections(),
@@ -57,17 +57,7 @@ namespace TrigCostRootAnalysis {
     m_currentCollectionLBNumber(-1),
     m_currentDBKey(-1, -1, -1),
     m_timer("Monitor",_name) {
-    m_invertFilter = Config::config().getInt(kPatternsInvert);
-    m_isCPUPrediction = (Bool_t) Config::config().getInt(kIsCPUPrediction);
-    m_doKeySummary = (Bool_t) Config::config().getInt(kDoKeySummary);
-    m_doLumiBlockSummary = (Bool_t) Config::config().getInt(kDoLumiBlockSummary);
-    m_doAllSummary = (Bool_t) Config::config().getInt(kDoAllSummary);
-    m_ratesOnly = (Bool_t) Config::config().getInt(kRatesOnly);
-    m_allString = Config::config().getStr(kAllString);
-    m_nLbFullSkip = Config::config().getInt(kNLbFullSkip);
-    m_nHLTConfigSummary = Config::config().getInt(kNHLTConfigSummary);
-    m_nLBPerHLTConfig = Config::config().getInt(kNLbPerHLTConfig);
-    m_lumiBlockString = Config::config().getStr(kLumiBlockString);
+      //Nothing here
   }
 
   /**
@@ -96,20 +86,6 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * @ param _pass Set which pass through the input files are we on.
-   */ 
-  void MonitorBase::setPass(UInt_t _pass) {
-    m_pass = _pass;
-  }
-
-  /**
-   * @return Which pass through the input files are we on.
-   */ 
-  UInt_t MonitorBase::getPass() {
-    return m_pass;
-  }
-
-  /**
    * Virtual function, overloaded by at least the MonitorFullEvent 
    * See how many CounterCollections are defined for this monitor to process for the current event.
    * This is based on LB number and keyset.
@@ -134,7 +110,7 @@ namespace TrigCostRootAnalysis {
     DBKey _key = TrigConfInterface::getCurrentDBKey();
 
     if (m_currentCollectionLBNumber == _lumiBlockNumber && m_currentDBKey == _key) {
-      // We do not need to recalculate the list of counter collections, but do still need to account for the lumi bookkeeping
+      // We do not need to recalculate the list of counter collections, but do still need to account for the lumi
       for (std::set<std::string>::const_iterator _it = m_collectionsToProcessNames.begin(); _it != m_collectionsToProcessNames.end(); ++_it) {
         recordLumi( *_it, _lumiBlockNumber, _lumiLength);
       }
@@ -149,12 +125,12 @@ namespace TrigCostRootAnalysis {
     m_collectionsToProcessNames.clear();
 
     // Add the "All" collection. Simplist, just runs over all the events. There may be a lot of events
-    if (getIfActive(kDoAllSummary) && m_doAllSummary) {
-      addToCollectionsToProcess( m_allString, _lumiBlockNumber, _lumiLength, kDoAllSummary );
+    if ( Config::config().getInt(kDoAllSummary) && getIfActive(kDoAllSummary)) {
+      addToCollectionsToProcess( Config::config().getStr(kAllString), _lumiBlockNumber, _lumiLength );
     }
 
     //Active for this monitor?
-    if (getIfActive(kDoLumiBlockSummary) && m_doLumiBlockSummary) {
+    if ( Config::config().getInt(kDoLumiBlockSummary) && getIfActive(kDoLumiBlockSummary) ) {
 
       // Do we look at this lumi block on its own?
       static Int_t _lbSummaryStart = INT_MIN, _lbSummaryEnd = INT_MIN;
@@ -180,42 +156,41 @@ namespace TrigCostRootAnalysis {
       // Does the current lumiblock fall in the range?
       if ( (Int_t) _lumiBlockNumber >= _lbSummaryStart && (Int_t) _lumiBlockNumber <= _lbSummaryEnd ) {
         // Is it a multiple of NLbFullSkip?
-        if ( (_lumiBlockNumber - _lbSummaryStart) % m_nLbFullSkip == 0) {
+        if ( (_lumiBlockNumber - _lbSummaryStart) % Config::config().getInt(kNLbFullSkip) == 0) {
           std::string _LBIdentifier;
           std::ostringstream _ss;
           _ss << std::setfill('0') << std::setw(5)  << _lumiBlockNumber;
-          _LBIdentifier = m_lumiBlockString + std::string("_") + _ss.str();
-          addToCollectionsToProcess( _LBIdentifier, _lumiBlockNumber, _lumiLength, kDoLumiBlockSummary );
+          _LBIdentifier = Config::config().getStr(kLumiBlockString) + std::string("_") + _ss.str();
+          addToCollectionsToProcess( _LBIdentifier, _lumiBlockNumber, _lumiLength );
         }
       }
     }
 
     // Are we providing a summary per keyset?
-    if (getIfActive(kDoKeySummary) && m_doKeySummary) {
+    if ( Config::config().getInt(kDoKeySummary) && getIfActive(kDoKeySummary) ) {
       Bool_t _doKeySummaryDesicion = kTRUE;
 
-      if (!m_ratesOnly) { // Only apply extra logic if this is not "rates mode"
-        if (m_perKeySummaries.count(_key) == 0) { // Do we not have this summary in the books?
-          if (m_perKeySummaries.size() < (size_t) m_nHLTConfigSummary) {
-            // We have not yet reached the max number of key summaries.
-            m_perKeySummaries.insert( _key );
-            m_perKeySummaryLBStart[ _key ] = _lumiBlockNumber;
-          } else {
-            _doKeySummaryDesicion = kFALSE;
-          }
+      // Do we not have this summary in the books?
+      if (m_perKeySummaries.count(_key) == 0) {
 
-        } else { // seen this one before
-
-          // Check LB range
-          Int_t _diff = _lumiBlockNumber - m_perKeySummaryLBStart[ _key ];
-          if (_diff < 0 || _diff >= m_nLBPerHLTConfig) {
-            _doKeySummaryDesicion = kFALSE;
-          }
-
+        if (m_perKeySummaries.size() < (size_t) Config::config().getInt(kNHLTConfigSummary)) {
+          // We have not yet reached the max number of key summaries.
+          m_perKeySummaries.insert( _key );
+          m_perKeySummaryLBStart[ _key ] = _lumiBlockNumber;
+        } else {
+          _doKeySummaryDesicion = kFALSE;
         }
+
+      } else { // seen this one before
+
+        // Check LB range
+        if (_lumiBlockNumber - m_perKeySummaryLBStart[ _key ] >= (UInt_t) Config::config().getInt(kNLbPerHLTConfig)) {
+          _doKeySummaryDesicion = kFALSE;
+        }
+
       }
 
-      if (_doKeySummaryDesicion == kTRUE) addToCollectionsToProcess( _key.name(), _lumiBlockNumber, _lumiLength, kDoKeySummary );
+      if (_doKeySummaryDesicion == kTRUE) addToCollectionsToProcess( _key.name(), _lumiBlockNumber, _lumiLength );
     }
 
     // m_collectionsToProcess has been populated, return
@@ -245,13 +220,9 @@ namespace TrigCostRootAnalysis {
 
   /**
    * Adds the counters for this monitor to be processed in this event
-   * @param _name reference to the name of counter collection to add (will be created if does not exist)
-   * @param _lumiBlockNumber Current LB, used for bookkeeping for this CounterCollection
-   * @param _lumiLength Length of current LB, used for bookkeeping for this CounterCollection
-   * @param _type Conf key specifying the type of this CounterCollection which may be queried later.
    */
-  void MonitorBase::addToCollectionsToProcess( const std::string &_name, UInt_t _lumiBlockNumber, Float_t _lumiLength, const ConfKey_t _type ) {
-    m_collectionsToProcess.insert( getCounterCollection( _name, _type ) );
+  void MonitorBase::addToCollectionsToProcess( const std::string &_name, UInt_t _lumiBlockNumber, Float_t _lumiLength ) {
+    m_collectionsToProcess.insert( getCounterCollection( _name ) );
     m_collectionsToProcessNames.insert( _name );
     recordLumi(_name, _lumiBlockNumber, _lumiLength);
   }
@@ -260,7 +231,6 @@ namespace TrigCostRootAnalysis {
    * Keep track on the event lumi
    */
   void MonitorBase::recordLumi( const std::string &_name, UInt_t _lumiBlockNumber, Float_t _lumiLength) {
-    if (m_pass != 1) return; // Only do lumi on the first pass
     if ( m_collectionLumiCollector.count( _name ) == 0)  {
       m_collectionLumiCollector.insert( std::make_pair( _name, new LumiCollector()) );
     }
@@ -391,7 +361,7 @@ namespace TrigCostRootAnalysis {
         CounterBase* _TCCB =  _mapIt->second;
 
         // Check if we are saving this
-        if ( m_filterOutput && checkPatternNameOutput( _TCCB->getName(), m_invertFilter ) == kFALSE ) continue;
+        if ( m_filterOutput && checkPatternNameOutput( _TCCB->getName() ) == kFALSE ) continue;
 
         // Check if there is any content
         if ( _TCCB->getValueExists(kVarCalls, kSavePerEvent) == kTRUE ) {
@@ -519,7 +489,7 @@ namespace TrigCostRootAnalysis {
       // Do the title line. First column is always the counter's name.
       _fout << "Name,";
       for (UInt_t _i = 0; _i < _toSave.size(); ++_i) {
-        checkForIllegalCharacters(_toSave[_i].m_columnName, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kFALSE);
+        checkForIllegalCharacters(_toSave[_i].m_columnName);
         _fout << _toSave[_i].m_columnName;
         if (_i != _toSave.size() - 1) _fout << ",";
         else _fout << std::endl;
@@ -528,7 +498,7 @@ namespace TrigCostRootAnalysis {
       // Do the second line, this contains the tooltip descriptions
       _fout << ",";
       for (UInt_t _i = 0; _i < _toSave.size(); ++_i) {
-        checkForIllegalCharacters(_toSave[_i].m_tooltip, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kFALSE);
+        checkForIllegalCharacters(_toSave[_i].m_tooltip);
         _fout << _toSave[_i].m_tooltip;
         if (_i != _toSave.size() - 1) _fout << ",";
         else _fout << std::endl;
@@ -594,7 +564,7 @@ namespace TrigCostRootAnalysis {
     std::ios::fmtflags _foutFlags( _fout.flags() );
 
     // Check if we are saving this
-    if ( m_filterOutput && checkPatternNameOutput( _TCCB->getName(), m_invertFilter ) == kFALSE ) return;
+    if ( m_filterOutput && checkPatternNameOutput( _TCCB->getName() ) == kFALSE ) return;
 
     if ( m_filterOutput && m_filterOnDecorationValue != Config::config().getStr(kBlankString) ) {
       if ( _TCCB->getStrDecoration(m_filterOnDecorationKey) != m_filterOnDecorationValue ) return;
@@ -607,7 +577,7 @@ namespace TrigCostRootAnalysis {
 
     // Output name
     std::string _rowName = _TCCB->getName();
-    checkForIllegalCharacters(_rowName, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kTRUE);
+    checkForIllegalCharacters(_rowName);
     _fout << _rowName << ",";
     // Output data
     for (UInt_t _i = 0; _i < _toSave.size(); ++_i) {
@@ -724,7 +694,7 @@ namespace TrigCostRootAnalysis {
 
       // Do the output
       if (_stringValue != "") {
-        checkForIllegalCharacters(_stringValue, /* , */ kTRUE, /* ' */ kTRUE, /* : */ kFALSE);
+        checkForIllegalCharacters(_stringValue);
         _fout << _stringValue;
       } else {
         _fout << std::setprecision( _toSave[_i].m_precision ) << _value;
@@ -743,13 +713,11 @@ namespace TrigCostRootAnalysis {
    * @param _identifier The name of the collection, "All" is used for the collection which runs on each event,
    *                    "LB:xxx" is used for individual lumi blocks, "SM:xxx_L1:xxx_HLT:xxx" for individual keysets.
    *                    Others can be added as and when needed.
-   * @param _type A key to specify what sort of counter collection this is rather than having to decude from the string
    * @return A pointer to the requested counter map.
    */
-  CounterMap_t* MonitorBase::getCounterCollection(const std::string& _identifier, const ConfKey_t _type) {
+  CounterMap_t* MonitorBase::getCounterCollection(const std::string& _identifier) {
     if ( m_counterCollections.count(_identifier) == 0) {
       m_counterCollections[_identifier] = CounterMap_t();
-      m_counterMapType[ &m_counterCollections[_identifier] ] = _type;
     }
     return &m_counterCollections[_identifier];
   }
@@ -802,6 +770,41 @@ namespace TrigCostRootAnalysis {
       _counterMap->insert( std::make_pair( _name, _tcc ) );
     }
     return _tcc;
+  }
+
+  /**
+   * Check to see if a counter name has been specified by the user as one we're interested in.
+   * Match it to the vector of chains to run over.
+   * @param _counterName Const reference to counter name to test.
+   * @result If the counter is in the list of counters to process in this run.
+   */
+  Bool_t MonitorBase::checkPatternNameMonitor( const std::string& _counterName ) {
+    return checkPatternInternal(_counterName, kPatternsMonitor);
+  }
+
+  /**
+   * Check to see if a counter name has been specified by the user as one we're interested in saving.
+   * Match it to the vector of chains to save.
+   * @param _counterName Const reference to counter name to test.
+   * @result If the counter is in the list of counters to output from this run.
+   */
+  Bool_t MonitorBase::checkPatternNameOutput( const std::string& _counterName ) {
+    return checkPatternInternal(_counterName, kPatternsOutput);
+  }
+
+  /**
+   * Code to actually perform the check if a counter is listed in a given vector
+   * @param _counterName Const reference to counter name to test.
+   * @param _list The key of the saved configuration vector to test in
+   * @result If the counter is in the list of counters to output from this run.
+   */
+  Bool_t MonitorBase::checkPatternInternal( const std::string& _counterName, ConfKey_t _list ) {
+    if ( Config::config().getVecSize(_list) > 0 ) {
+      Bool_t _result = Config::config().getVecMatches(_list, _counterName);
+      if (m_invertFilter == kTRUE) return !_result;
+      return _result;
+    }
+    return kTRUE;
   }
 
   /**

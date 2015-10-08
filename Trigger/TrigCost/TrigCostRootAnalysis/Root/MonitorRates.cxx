@@ -30,7 +30,6 @@
 #include "../TrigCostRootAnalysis/TrigXMLService.h"
 #include "../TrigCostRootAnalysis/RatesChainItem.h"
 #include "../TrigCostRootAnalysis/WriteXML_JSON.h"
-#include "../TrigCostRootAnalysis/RatesCPSGroup.h"
 
 namespace TrigCostRootAnalysis {
 
@@ -41,12 +40,10 @@ namespace TrigCostRootAnalysis {
     m_dummyCounter = static_cast<CounterBase*>(new CounterRatesChain(_costData, Config::config().getStr(kDummyString), INT_MIN));
     m_globalRateHLTCounter = nullptr;
     m_globalRateL1Counter = nullptr;
-    m_globalRatePhysicsMainCounter = nullptr;
     m_doingOverlaps = (Bool_t) (Config::config().getInt(kDoAllOverlap) 
       || Config::config().getInt(kDoGroupOverlap)
-      || Config::config().getVecSize(kPatternsOverlap) > 0);
-    if (m_doingOverlaps) Info("MonitorRates::MonitorRates", "Chain overlap monitoring is enabled for this processing.");
-    m_doCPS = (Bool_t) Config::config().getInt(kDoCPS);   }
+      || Config::config().getVecSize(kPatternsOverlap));
+  }
 
   /**
    * Destroy this monitor - note we have special RatesChainItems to destroy here too
@@ -58,6 +55,26 @@ namespace TrigCostRootAnalysis {
     for (ChainItemMapIt_t _it = m_chainItemsHLT.begin(); _it != m_chainItemsHLT.end(); ++_it) {
       delete _it->second;
     }
+  }
+
+  /**
+   * Check to see if a counter name has been specified by the user as one we're interested in
+   * doing unique rates for.
+   * @param _counterName Const reference to counter name to test.
+   * @result If the counter is in the list of counters to output from this run.
+   */
+  Bool_t MonitorRates::checkPatternUnique( const std::string& _counterName ) {
+    return checkPatternInternal(_counterName, kPatternsUnique);
+  }
+
+  /**
+   * Check to see if a counter name has been specified by the user as one we're interested in
+   * doing overlap rates for.
+   * @param _counterName Const reference to counter name to test.
+   * @result If the counter is in the list of counters to output from this run.
+   */
+  Bool_t MonitorRates::checkPatternOverlap( const std::string& _counterName ) {
+    return checkPatternInternal(_counterName, kPatternsOverlap);
   }
 
   /**
@@ -82,7 +99,7 @@ namespace TrigCostRootAnalysis {
         _chainPrescale = -1.;
       }
 
-      m_chainItemsL1[ _chainName ] = new RatesChainItem(_chainName, /*chainLevel=*/ 1, _chainPrescale, /*express prescale=*/ 1.);
+      m_chainItemsL1[ _chainName ] = new RatesChainItem(_chainName, /*chainLevel=*/ 1, _chainPrescale);
     }
     // We have one extra one, AlwaysPass - which will be used for HLT chains with no L1 seed
     RatesChainItem* _alwaysPass = new RatesChainItem(Config::config().getStr(kAlwaysPassString), 1 , 1.); // Set level to 1, PS to 1
@@ -96,13 +113,7 @@ namespace TrigCostRootAnalysis {
       if (TrigConfInterface::getChainLevel(_i) == 1) continue; // Only HLT chains
 
       const std::string _chainName = TrigConfInterface::getChainName(_i);
-      const std::string _chainCPSGroup = TrigConfInterface::getChainCPSGroup(_i);
       Double_t _chainPrescale = TrigXMLService::trigXMLService().getPrescale( _chainName );
-
-      Double_t _expressPS = 0.;
-      if (TrigXMLService::trigXMLService().hasExpressPrescaleInfo()) {
-        _expressPS = TrigXMLService::trigXMLService().getExpressPrescaleInfo(_chainName);
-      }
 
       // Check for explicit exclusion
       if (Config::config().getVecMatches(kPatternsExclude, _chainName) == kTRUE ) {
@@ -112,14 +123,8 @@ namespace TrigCostRootAnalysis {
         _chainPrescale = -1.;
       }
 
-      RatesChainItem* _chainItemHLT = new RatesChainItem(_chainName, 2, _chainPrescale, _expressPS);
+      RatesChainItem* _chainItemHLT = new RatesChainItem(_chainName, 2, _chainPrescale);
       m_chainItemsHLT[ _chainName ] = _chainItemHLT;
-
-      // Is this a CPS chain? Needs to go in an additional group if so.
-      if (m_doCPS == kTRUE && _chainCPSGroup != "") {
-        if (m_cpsGroups.count(_chainCPSGroup) == 0) m_cpsGroups[ _chainCPSGroup ] = new RatesCPSGroup(_chainCPSGroup);
-        m_cpsGroups[ _chainCPSGroup ]->add( _chainItemHLT );
-      } 
 
       // Now we link the seeding.
       // ################################################################################################################
@@ -151,25 +156,6 @@ namespace TrigCostRootAnalysis {
         }
       }
     }
-
-    for (const auto _chainItem : m_chainItemsHLT) _chainItem.second->classifyLumiAndRandom();
-    for (const auto _chainItem : m_chainItemsL1)  _chainItem.second->classifyLumiAndRandom();
-
-    if (Config::config().getVecSize(kListOfNoLumiWeightChains) > 0) {
-      Info("MonitorRates::populateChainItemMaps", "Special cases, these chains will get no luminosity extrapolation: %s", Config::config().getStr(kListOfNoLumiWeightChains).c_str());
-    }
-    if (Config::config().getVecSize(kListOfNoMuLumiWeightChains) > 0) {
-      Info("MonitorRates::populateChainItemMaps", "Special cases, these chains will only get lumi extrapolation based on number of bunches (not <mu>): %s", Config::config().getStr(kListOfNoMuLumiWeightChains).c_str());
-    }    
-    if (Config::config().getVecSize(kListOfNoBunchLumiWeightChains) > 0) {
-      Info("MonitorRates::populateChainItemMaps", "Special cases, these chains will only get lumi extrapolation based on change in <mu> (not change in bunches): %s", Config::config().getStr(kListOfNoBunchLumiWeightChains).c_str());
-    }
-    if (Config::config().getVecSize(kListOfExpoMuLumiWeightChains) > 0) {
-      Info("MonitorRates::populateChainItemMaps", "Special cases, these chains will get exponential extrapolation in <mu>: %s", Config::config().getStr(kListOfExpoMuLumiWeightChains).c_str());
-    }
-
-    // Get the common factor of all the CPS groups
-    for (const auto _cpsGroup : m_cpsGroups) _cpsGroup.second->calculateCPSFactor();
   }
 
   /**
@@ -185,38 +171,25 @@ namespace TrigCostRootAnalysis {
     createGlobalCounters(_counterMap);
     createL1Counters(_counterMap);
     createHLTCounters(_counterMap);
-    createCPSGroupCounters(_counterMap);
-    createGroupCounters(_counterMap);
     if (m_doingOverlaps == kTRUE) createOverlapCounters(_counterMap);
   }
 
   void MonitorRates::createGlobalCounters(CounterMap_t* _counterMap) {
-    UNUSED(_counterMap);
-
     // Crate the global rates counter, this will be the OR of everything HLT
-    m_globalRateHLTCounter = new CounterRatesUnion(m_costData, Config::config().getStr(kRateGlobalHLTString), 0, 0, (MonitorBase*)this); // Mint new counter
+    m_globalRateHLTCounter = new CounterRatesUnion(m_costData, Config::config().getStr(kRateGlobalHLTString), 0, 10, (MonitorBase*)this); // Mint new counter
     m_globalRateHLTCounter->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
     m_globalRateHLTCounter->decorate(kDecRatesGroupName, Config::config().getStr(kAllString));
     m_globalRateHLTCounter->decorate(kDecPrescaleValOnlineL1, (Float_t)0);
-    m_globalRateHLTCounter->decorate(kDecComment, "");
     m_globalRateHLTCounter->decorate(kDecType, "Union");
-
-    // I will be the OR of everything which has a stream tag of Main
-    m_globalRatePhysicsMainCounter = new CounterRatesUnion(m_costData, Config::config().getStr(kRateGlobalPhysicsMainString), 0, 0, (MonitorBase*)this); // Mint new counter
-    m_globalRatePhysicsMainCounter->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
-    m_globalRatePhysicsMainCounter->decorate(kDecRatesGroupName, Config::config().getStr(kAllString));
-    m_globalRatePhysicsMainCounter->decorate(kDecPrescaleValOnlineL1, (Float_t)0);
-    m_globalRatePhysicsMainCounter->decorate(kDecComment, "");
-    m_globalRatePhysicsMainCounter->decorate(kDecType, "Union");
+    (*_counterMap)[Config::config().getStr(kRateGlobalHLTString)] = static_cast<CounterBase*>(m_globalRateHLTCounter);
 
     // Crate the global L1 counter, this will be the OR of everything L1
-    m_globalRateL1Counter = new CounterRatesUnion(m_costData, Config::config().getStr(kRateGlobalL1String), 0, 0, (MonitorBase*)this); // Mint new counter
+    m_globalRateL1Counter = new CounterRatesUnion(m_costData, Config::config().getStr(kRateGlobalL1String), 0, 10, (MonitorBase*)this); // Mint new counter
     m_globalRateL1Counter->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
     m_globalRateL1Counter->decorate(kDecRatesGroupName, Config::config().getStr(kAllString));
     m_globalRateL1Counter->decorate(kDecPrescaleValOnlineL1, (Float_t)0);
-    m_globalRateL1Counter->decorate(kDecComment, "");
     m_globalRateL1Counter->decorate(kDecType, "Union");
-    m_chainItemsL1[ Config::config().getStr(kBlankString) ]->setProxy( m_globalRateL1Counter );
+    (*_counterMap)[Config::config().getStr(kRateGlobalL1String)] = static_cast<CounterBase*>(m_globalRateL1Counter);
   }
 
   void MonitorRates::createL1Counters(CounterMap_t* _counterMap) {
@@ -230,11 +203,11 @@ namespace TrigCostRootAnalysis {
         const UInt_t _chainID = TrigConfInterface::getChainCounter(_i);
         const std::string _chainName = TrigConfInterface::getChainName(_i);
 
-        if ( checkPatternUnique( _chainName, kFALSE ) == kFALSE ) continue; // In the list of unique counters? Does not get inverted
-        if ( checkPatternNameMonitor( _chainName, m_invertFilter ) == kFALSE ) continue;
+        if ( checkPatternUnique( _chainName ) == kFALSE ) continue; // In the list of unique counters?
+        if ( checkPatternNameMonitor( _chainName ) == kFALSE ) continue;
 
         const std::string _uniqueName = Config::config().getStr(kRateUniqueString) + _chainName;
-        CounterRatesUnion* _uniqueChain = new CounterRatesUnion(m_costData, _uniqueName, _chainID, 0, (MonitorBase*)this); // Mint new counter
+        CounterRatesUnion* _uniqueChain = new CounterRatesUnion(m_costData, _uniqueName, _chainID, 10, (MonitorBase*)this); // Mint new counter
         _uniqueChain->decorate(kDecRatesGroupName, Config::config().getStr(kNoneString));
         _uniqueChain->decorate(kDecType, "UniqueL1");
         _uniqueChain->setGlobalRateCounter(m_globalRateL1Counter);
@@ -244,7 +217,7 @@ namespace TrigCostRootAnalysis {
           Info("MonitorRates::createL1Counters", "Preparing unique rates for %s", _chainName.c_str());
         }
       }
-    } // End unique rates counter minting
+    } // End unique rates
 
     // ##################################################################################################################
     // Create and add the L1 rates counters while also filling in the L1 items to the unique counters
@@ -254,9 +227,8 @@ namespace TrigCostRootAnalysis {
       const UInt_t _chainID = TrigConfInterface::getChainCounter(_i);
       const std::string _chainName = TrigConfInterface::getChainName(_i);
       const std::string _uniqueName = Config::config().getStr(kRateUniqueString) + _chainName;
-      const std::string _comment = TrigXMLService::trigXMLService().getChainComment(_chainName);
 
-      if ( checkPatternNameMonitor( _chainName, m_invertFilter ) == kFALSE ) continue;
+      if ( checkPatternNameMonitor( _chainName ) == kFALSE ) continue;
 
       // Find the ChainItem for this chain
       ChainItemMapIt_t _it = m_chainItemsL1.find( _chainName );
@@ -284,19 +256,17 @@ namespace TrigCostRootAnalysis {
             _thisChainsUniqueCounter->decorate(kDecPrescaleStr, _prescaleStr);
             _thisChainsUniqueCounter->decorate(kDecPrescaleVal, (Float_t)_prescaleVal);
             _thisChainsUniqueCounter->decorate(kDecPrescaleValOnlineL1, (Float_t)_prescaleValOnlineL1);
-            _thisChainsUniqueCounter->decorate(kDecComment, _comment);
             continue; // I'm the unique counter for *this* chain - *don't* add me!
           }
           _counter->addL1Item( _chainItemL1 ); // Add *all other* L1 items [remember unique = global - (global except for one chain)]
         }
       }
 
-      CounterRatesChain* _L1Chain = new CounterRatesChain(m_costData, _chainName, _chainID, 0, (MonitorBase*)this); // Mint new counter
+      CounterRatesChain* _L1Chain = new CounterRatesChain(m_costData, _chainName, _chainID, 10, (MonitorBase*)this); // Mint new counter
       _L1Chain->decorate(kDecRatesGroupName, Config::config().getStr(kNoneString) );
       _L1Chain->decorate(kDecPrescaleStr, _prescaleStr);
       _L1Chain->decorate(kDecPrescaleVal, (Float_t)_prescaleVal);
       _L1Chain->decorate(kDecPrescaleValOnlineL1, _prescaleValOnlineL1);
-      _L1Chain->decorate(kDecComment, _comment);
       _L1Chain->decorate(kDecType, "L1");
       _L1Chain->addL1Item( _chainItemL1 ); // Link it to where it'll be getting its pass/fail info
       _L1Chain->setMyUniqueCounter( _thisChainsUniqueCounter ); // Link it to its corresponding unique counter.
@@ -319,16 +289,17 @@ namespace TrigCostRootAnalysis {
         const UInt_t _chainID = TrigConfInterface::getChainCounter(_i);
         const std::string _chainName = TrigConfInterface::getChainName(_i);
         const std::string _uniqueName = Config::config().getStr(kRateUniqueString) + _chainName;
-        if ( checkPatternUnique( _chainName, kFALSE ) == kFALSE ) continue; // In the list of unique counters?
-        if ( checkPatternNameMonitor( _chainName, m_invertFilter ) == kFALSE ) continue;
 
-        // LIMITATION - cannot do unique for CPS chains
-        if (m_doCPS == kTRUE && TrigConfInterface::getChainCPSGroup(_i) != "") {
-          Error("MonitorRates::createHLTCounters", "Unique rates for chains in CPS groups are not currently supported (%s) - bug atlas-trigger-rate-expert@cern.ch if you really need this", _chainName.c_str());
+        if ( checkPatternUnique( _chainName ) == kFALSE ) continue; // In the list of unique counters?
+        if ( checkPatternNameMonitor( _chainName ) == kFALSE ) continue;
+
+        const std::string _L1Name = TrigConfInterface::getLowerChainName(_chainName);
+        if ( _L1Name == Config::config().getStr(kBlankString) ) {
+          Warning("MonitorRates::createHLTCounters", "Skipping Chain %s. No L1 seed. Unsupported.", _uniqueName.c_str());
           continue;
         }
 
-        CounterRatesUnion* _uniqueChain = new CounterRatesUnion(m_costData, _uniqueName, _chainID, 0, (MonitorBase*)this); // Mint new counter
+        CounterRatesUnion* _uniqueChain = new CounterRatesUnion(m_costData, _uniqueName, _chainID, 10, (MonitorBase*)this); // Mint new counter
         _uniqueChain->decorate(kDecRatesGroupName, Config::config().getStr(kNoneString)); // Not needed
         _uniqueChain->decorate(kDecType, "UniqueHLT");
         _uniqueChain->setGlobalRateCounter(m_globalRateHLTCounter);
@@ -339,7 +310,7 @@ namespace TrigCostRootAnalysis {
         }
 
       }
-    } // End unique rates counter minting
+    } // End unique rates
 
     // ##################################################################################################################
     // STEP ONE: We populate the HLT items
@@ -348,7 +319,6 @@ namespace TrigCostRootAnalysis {
 
       const UInt_t _chainID = TrigConfInterface::getChainCounter(_i);
       const std::string _chainName = TrigConfInterface::getChainName(_i);
-      const std::string _comment = TrigXMLService::trigXMLService().getChainComment(_chainName);
       const std::string _uniqueName = Config::config().getStr(kRateUniqueString) + _chainName;
       const std::vector<std::string> _chainGroups = TrigConfInterface::getChainRatesGroupNames(_i);
       std::string _chainGroupsText = "";
@@ -356,7 +326,7 @@ namespace TrigCostRootAnalysis {
         _chainGroupsText += _chainGroups.at(_g);
         if (_g != _chainGroups.size()-1) _chainGroupsText += " ";
       }
-      //Add also the stream tags 
+      //Add also the stream tags // TODO come back to this when there are data here
       const std::vector<std::string> _chainStreams = TrigConfInterface::getChainStreamNames(_i);
 
       if ( _chainName == Config::config().getStr(kBlankString) ) {
@@ -364,22 +334,15 @@ namespace TrigCostRootAnalysis {
         continue;
       }
 
-      // HLT chains with no (see: all!) seeds need special treatment
+      // Currently veto HLT chains with no (see: all!) seeds
       const std::string _L1Name = TrigConfInterface::getLowerChainName(_chainName);
-
-      // Find the L1 Counter for this chain. We do this so we can query the counter for its rates
-      CounterMapIt_t _itCm = _counterMap->find( _L1Name );
-      CounterBaseRates* _L1Counter = nullptr;
-      if (_itCm != _counterMap->end()) _L1Counter = (CounterBaseRates*) _itCm->second;
-
-      //bool _hasL1Seed = kTRUE;
       if ( _L1Name == Config::config().getStr(kBlankString) ) {
-        //_hasL1Seed = kFALSE;
-        _L1Counter = m_globalRateL1Counter;
+        Warning("MonitorRates::createHLTCounters", "Skipping Chain %s. No L1 seed. Unsupported.", _chainName.c_str());
+        continue;
       }
 
       // Are we running over this chain?
-      if ( checkPatternNameMonitor( _chainName, m_invertFilter ) == kFALSE ) continue;
+      if ( checkPatternNameMonitor( _chainName ) == kFALSE ) continue;
 
       // Find the ChainItem for this chain
       ChainItemMapIt_t _it = m_chainItemsHLT.find( _chainName );
@@ -389,35 +352,31 @@ namespace TrigCostRootAnalysis {
       }
       RatesChainItem* _chainItemHLT = _it->second;
 
-      
       // Construct a string displaying the PS for this chain
-      Float_t _prescaleVal = 1.;
-      Float_t _prescaleValOnlineL1 = 1.;
-      Float_t _prescaleValOnlineHLT = TrigConfInterface::getPrescale( _chainItemHLT->getName() );
+      Float_t _prescaleVal = 0.;
+      Float_t _prescaleValOnlineL1 = 0.;
       std::string _L1PSString = Config::config().getStr(kMultipleString);
       if (_chainItemHLT->getLower().size() == 1) {
         _prescaleVal = (*(_chainItemHLT->getLowerStart()))->getPS();
         _prescaleValOnlineL1 = TrigConfInterface::getPrescale( (*(_chainItemHLT->getLowerStart()))->getName() );
 
         _L1PSString = floatToString( _prescaleVal, 2 );
-      } else if (_chainItemHLT->getLower().size() == 1 && (*(_chainItemHLT->getLower().begin()))->getName() == "") {
+      } else if (_chainItemHLT->getLower().size() == 0) {
         _L1PSString = Config::config().getStr(kAlwaysPassString); // "UNSEEDED"
       }
       const std::string _prescaleStr = Config::config().getStr(kL1String) + ":" + _L1PSString
         + " " + Config::config().getStr(kHLTString) + ":" + floatToString( _chainItemHLT->getPS(), 2 );
       _prescaleVal *= _chainItemHLT->getPS();
 
-      // Was this chain prescaled out online? 
-      if (isZero(_prescaleValOnlineHLT + 1.) == kTRUE) continue; // Don't need to process if prescaled out online EFFICIENCY
 
       // ################################################################################################################
-      // STEP TWO: Do the unique rate for this chain 
+      // STEP TWO: Do the unique rate for this chain and the Global rates
 
       // Each unique chain does the OR of _everything_ *EXCEPT* the chain we're interested in
       // Then at the end it subtracts this rate from the global rate. So we need to add *all* chains *but* this one.
 
       CounterBaseRates* _thisChainsUniqueCounter = 0;
-      if (Config::config().getInt(kDoUniqueRates) == kTRUE /*&& _hasL1Seed == kTRUE*/) {
+      if (Config::config().getInt(kDoUniqueRates) == kTRUE) {
         for (CounterMapIt_t _itA = _counterMap->begin(); _itA != _counterMap->end(); ++_itA) {
           CounterBaseRates* _counter = static_cast<CounterBaseRates*>( _itA->second );
           if ( _counter->getStrDecoration(kDecType) != "UniqueHLT" ) continue; // I'm not a unique counter - next
@@ -426,203 +385,60 @@ namespace TrigCostRootAnalysis {
             _thisChainsUniqueCounter->decorate(kDecPrescaleStr, _prescaleStr);
             _thisChainsUniqueCounter->decorate(kDecPrescaleVal, _prescaleVal);
             _thisChainsUniqueCounter->decorate(kDecPrescaleValOnlineL1, _prescaleValOnlineL1);
-            _thisChainsUniqueCounter->decorate(kDecComment, _comment);
             continue; // I'm the unique counter for *this* chain - *don't* add me!
           }
-          // Chain *may* be part of a CPS group
-          RatesCPSGroup* _cpsGroup = nullptr;
-          const std::string _chainCPSGroup = TrigConfInterface::getChainCPSGroup(_i);
-          if (m_doCPS && _chainCPSGroup != "") {
-            CPSGroupMapIt_t _it = m_cpsGroups.find( _chainCPSGroup );
-            if (_it != m_cpsGroups.end()) _cpsGroup = _it->second;
-          }
-          // Add this chain to it, or if it's in a CPS group add the group.
-          // This will result in the CPS group being added multiple times, but it's a set of pointers so this is fine.
-          if (_cpsGroup != nullptr) {
-            _counter->addCPSItem( _cpsGroup, _chainName );
-          } else {
-            _counter->addL2Item( _chainItemHLT );
-          }
+          _counter->addL2Item( _chainItemHLT );
         }
       }
+
+      // Insert into the global rates counter
+      m_globalRateHLTCounter->addL2Item( _chainItemHLT );
 
       // ################################################################################################################
       // STEP THREE: Make a new counter for this HLT Chain
 
       // And add a new counter to get the rates for this chainItem
-      CounterRatesChain* _ratesChain = new CounterRatesChain(m_costData, _chainName, _chainID, 0, (MonitorBase*)this); // Mint new counter
+      CounterRatesChain* _ratesChain = new CounterRatesChain(m_costData, _chainName, _chainID, 10, (MonitorBase*)this); // Mint new counter
       _ratesChain->decorate(kDecRatesGroupName, _chainGroupsText);
       _ratesChain->decorate(kDecPrescaleStr, _prescaleStr);
       _ratesChain->decorate(kDecPrescaleVal, _prescaleVal);
       _ratesChain->decorate(kDecPrescaleValOnlineL1, _prescaleValOnlineL1);
-      _ratesChain->decorate(kDecComment, _comment);
       _ratesChain->decorate(kDecType, "Chain");
       _ratesChain->setMyUniqueCounter( _thisChainsUniqueCounter ); // Link it to its corresponding unique counter.
       _ratesChain->setGlobalRateCounter(m_globalRateHLTCounter);
-      _ratesChain->setLowerRateCounter(_L1Counter);
       _ratesChain->addL2Item( _chainItemHLT ); // Link it to where it'll be getting its pass/fail info
       (*_counterMap)[_chainName] = static_cast<CounterBase*>(_ratesChain); // Insert into the counterMap
       //Info("MonitorRates::createHLTCounters","Created counter for: %s", _chainName.c_str() );
 
-      if (TrigXMLService::trigXMLService().hasExpressPrescaleInfo() && TrigXMLService::trigXMLService().getExpressPrescaleInfo(_chainName) > 0) {
-        _ratesChain->decorate(kDecDoExpressChain, 1);
-      }
-      
-    }
-  }
 
-  /**
-   * Create one union counter per CPS group and add the group to it. Nothing more than that here.
-   */
-  void MonitorRates::createCPSGroupCounters(CounterMap_t* _counterMap) {
-    if (m_doCPS == kFALSE) return;
-
-    for (UInt_t _i = 0; _i < TrigConfInterface::getChainN(); ++_i) {
-      if (TrigConfInterface::getChainLevel(_i) == 1) continue; // Only HLT chains
-      const std::string _chainName = TrigConfInterface::getChainName(_i);
-      if ( checkPatternNameMonitor( _chainName, m_invertFilter ) == kFALSE ) continue;
-
-      Float_t _prescaleValOnlineHLT = TrigConfInterface::getPrescale( _chainName );
-      //Double_t _prescaleValHLT = TrigXMLService::trigXMLService().getPrescale( TrigConfInterface::getChainName(_i) );
-      if (isZero(_prescaleValOnlineHLT + 1.) == kTRUE) continue; // Don't need to process if prescaled out online. EFFICIENCY CODE
-      //if (isZero(_prescaleValHLT + 1.) == kTRUE) continue; // Don't need to process if prescaled out in prediction. EFFICIENCY CODE
-
-      const std::string _chainCPSGroup = TrigConfInterface::getChainCPSGroup(_i);
-      if (_chainCPSGroup == "") continue; // Only chains in a CPS group
-
-      // Check we don't have a counter already
-      // (the chains are already grouped in a RatesCPSGroup so we don't need to add them all individually again here)
-      // But we do need to tell the group counter about this chain, so it knows that it's part of it.
-      // Otherwise it wouldn't know what part of the CPS group to process or not
-      if (_counterMap->count(_chainCPSGroup) == 1) {
-        CounterBaseRates* _ptr = dynamic_cast<CounterBaseRates*>(_counterMap->find(_chainCPSGroup)->second);
-        if (_ptr != nullptr) _ptr->addCPSItem(nullptr, _chainName );
-        else Error("MonitorRates::createCPSGroups", "Could not get the group counter for %s", _chainCPSGroup.c_str() );
-        continue;
-      }
-
-      CPSGroupMapIt_t _it = m_cpsGroups.find( _chainCPSGroup );
-      if (_it == m_cpsGroups.end()) {
-        Warning("MonitorRates::createCPSGroups", "Cannot find the CPS group for %s", _chainCPSGroup.c_str());
-        continue;
-      }
-      RatesCPSGroup* _cpsGroup = _it->second;
-
-      CounterRatesUnion* _ratesCpsGroup = new CounterRatesUnion(m_costData, _chainCPSGroup, 0, 0, (MonitorBase*)this); // Mint new counter
-      _ratesCpsGroup->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
-      _ratesCpsGroup->decorate(kDecPrescaleVal, (Float_t)0.);
-      _ratesCpsGroup->decorate(kDecPrescaleValOnlineL1, (Float_t)0.);
-      _ratesCpsGroup->decorate(kDecComment, "");
-      _ratesCpsGroup->decorate(kDecRatesGroupName, _chainCPSGroup);
-      _ratesCpsGroup->decorate(kDecType, "Union");
-      _ratesCpsGroup->setGlobalRateCounter(m_globalRateHLTCounter);
-      _ratesCpsGroup->addCPSItem( _cpsGroup, _chainName ); // Add the group
-      (*_counterMap)[_chainCPSGroup] = static_cast<CounterBase*>(_ratesCpsGroup); // Instert into the map
-
-
-
-
-    }
-  }
-
-  /**
-   * Create one counter per RATES group and add to it a combination of CPS groups and non-CPS chains.
-   */
-  void MonitorRates::createGroupCounters(CounterMap_t* _counterMap) {
-
-    CounterRatesUnion* _expressGroup = nullptr;
-    if (TrigXMLService::trigXMLService().hasExpressPrescaleInfo() == kTRUE) {
-      _expressGroup = new CounterRatesUnion(m_costData, Config::config().getStr(kRateExpressString), 0, 0, (MonitorBase*)this); // Mint new counter, kRateExpressString is a special string - it will trigger special behaviour
-      _expressGroup->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
-      _expressGroup->decorate(kDecRatesGroupName, Config::config().getStr(kAllString));
-      _expressGroup->decorate(kDecPrescaleValOnlineL1, (Float_t)0);
-      _expressGroup->decorate(kDecComment, "");
-      _expressGroup->decorate(kDecType, "Union");
-      (*_counterMap)[Config::config().getStr(kRateExpressString)] = static_cast<CounterBase*>(_expressGroup); // Instert into the map
-    }
-
-    for (UInt_t _i = 0; _i < TrigConfInterface::getChainN(); ++_i) {
-      if (TrigConfInterface::getChainLevel(_i) == 1) continue; // Only HLT chains
-      if ( checkPatternNameMonitor( TrigConfInterface::getChainName(_i), m_invertFilter ) == kFALSE ) continue;
-      const std::string _chainName = TrigConfInterface::getChainName(_i);
-
-      Float_t _prescaleValOnlineHLT = TrigConfInterface::getPrescale( _chainName );
-      if (isZero(_prescaleValOnlineHLT + 1.) == kTRUE) continue; // Don't need to process if prescaled out online. EFFICIENCY CODE
-
-      const Bool_t _isMain = TrigConfInterface::getChainIsMainStream(_i);
-      std::vector<std::string> _chainGroups = TrigConfInterface::getChainRatesGroupNames(_i);
-      const Bool_t _isExpress = (TrigXMLService::trigXMLService().hasExpressPrescaleInfo() && TrigXMLService::trigXMLService().getExpressPrescaleInfo( _chainName ) > 0);
-
-      RatesCPSGroup* _cpsGroup = nullptr;
-      const std::string _chainCPSGroup = TrigConfInterface::getChainCPSGroup(_i);
-      if (m_doCPS && _chainCPSGroup != "") {
-        CPSGroupMapIt_t _it = m_cpsGroups.find( _chainCPSGroup );
-        if (_it != m_cpsGroups.end()) _cpsGroup = _it->second;
-      }
-
-      // They are still groups, can still get their basic rate
-      if (m_doCPS == false && _chainCPSGroup != "") _chainGroups.push_back( _chainCPSGroup );
-
-      // Also add STREAM rates
-      std::vector<std::string> _chainStreams = TrigConfInterface::getChainStreamNames(_i);
-      _chainGroups.insert(_chainGroups.end(), _chainStreams.begin(), _chainStreams.end());
-
-      // Debug
-      // std::stringstream _ss;
-      // for (UInt_t _group = 0; _group < _chainGroups.size(); ++_group) _ss << _chainGroups.at(_group) << " ";
-      // _ss << TrigConfInterface::getChainCPSGroup(_i);
-      // Info("MonitorRates::createGroupCounters","Chain %s in groups: %s", TrigConfInterface::getChainName(_i).c_str(), _ss.str().c_str());
+      // Now we also want to do GroupRates
+      // ################################################################################################################
+      // STEP FOUR: Create a new group, or add this new chain rates counter to a pre-existing group
+      if (_chainGroups.size() == 0) continue;
 
       for (UInt_t _group = 0; _group < _chainGroups.size(); ++_group) {
         std::string _chainGroup = _chainGroups.at(_group);
-
-        ChainItemMapIt_t _it = m_chainItemsHLT.find( _chainName );
-        if (_it == m_chainItemsHLT.end()) {
-          Warning("MonitorRates::createGroups", "Cannot find a RatesChainItem for %s when doing group %s", TrigConfInterface::getChainName(_i).c_str(), _chainGroup.c_str());
-          continue;
-        }
-        RatesChainItem* _chainItemHLT = _it->second;
-
-        CounterRatesUnion* _ratesGroup = nullptr;
         // Do we have a counter for this group?
         CounterMapIt_t _findGroup = _counterMap->find( _chainGroup );
         if ( _findGroup != _counterMap->end() ) {
-          // We do have a group already!
-          _ratesGroup = static_cast<CounterRatesUnion*>( _findGroup->second );
+          // We do have a group already! Add to it.
+          (static_cast<CounterRatesUnion*>( _findGroup->second ))->addL2Item( _chainItemHLT );
         } else {
           // We need a new group counter, this should be of type Union
-          _ratesGroup = new CounterRatesUnion(m_costData, _chainGroup, 0, 0, (MonitorBase*)this); // Mint new counter
+          CounterRatesUnion* _ratesGroup = new CounterRatesUnion(m_costData, _chainGroup, 0, 10, (MonitorBase*)this); // Mint new counter
           _ratesGroup->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
           _ratesGroup->decorate(kDecPrescaleVal, (Float_t)0.);
           _ratesGroup->decorate(kDecPrescaleValOnlineL1, (Float_t)0.);
-          _ratesGroup->decorate(kDecComment, "");
           _ratesGroup->decorate(kDecRatesGroupName, _chainGroup);
           _ratesGroup->decorate(kDecType, "Union");
           _ratesGroup->setGlobalRateCounter(m_globalRateHLTCounter);
-          (*_counterMap)[_chainGroup] = static_cast<CounterBase*>(_ratesGroup); // Insert into the map
+          _ratesGroup->addL2Item( _chainItemHLT ); // Add initial counter
+          (*_counterMap)[_chainGroup] = static_cast<CounterBase*>(_ratesGroup); // Instert into the map
         }
+      }
 
-        // Add this chain to it, or if it's in a CPS group add the group.
-        // This will result in the CPS group being added multiple times, but it's a set of pointers so this is fine.
-        if (_cpsGroup != nullptr) {
-          _ratesGroup->addCPSItem( _cpsGroup, _chainName );
-          if (_group == 0) { // Might be adding to many groups, but only want (need) to add to the globals once
-            m_globalRateHLTCounter->addCPSItem( _cpsGroup, _chainName );
-            if (_isMain) m_globalRatePhysicsMainCounter->addCPSItem( _cpsGroup, _chainName );
-            if (_isExpress) _expressGroup->addCPSItem( _cpsGroup, _chainName );
-          }
-        } else {
-          _ratesGroup->addL2Item( _chainItemHLT );
-          if (_group == 0) {
-            m_globalRateHLTCounter->addL2Item( _chainItemHLT );
-            if (_isMain) m_globalRatePhysicsMainCounter->addL2Item( _chainItemHLT );
-            if (_isExpress) _expressGroup->addL2Item( _chainItemHLT );
-          }
-        }
-
-      } // loop over chain groups
-    } // loop over chains
-  } // createGroups
+    }
+  }
 
   void MonitorRates::createOverlapCounters(CounterMap_t* _counterMap) {
 
@@ -633,12 +449,9 @@ namespace TrigCostRootAnalysis {
         continue; // I'm not a HLT chain counter - next
       }
 
-      if (checkPatternOverlap(_counterA->getName(), kFALSE) == kFALSE) continue;
-
       // Now look at all other counters - find others in my group
-      for (CounterMapIt_t _itB = _counterMap->begin(); _itB != _counterMap->end(); ++_itB) {
-        if (_itA == _itB) continue;
-
+      CounterMapIt_t _itB = _itA;
+      for (++_itB; _itB != _counterMap->end(); ++_itB) {
         CounterBaseRates* _counterB = static_cast<CounterBaseRates*>( _itB->second );
         if ( _counterB->getStrDecoration(kDecType) != "Chain" ) {
           continue; // I'm not a HLT chain counter - next
@@ -653,15 +466,13 @@ namespace TrigCostRootAnalysis {
         // Construct name for overlap counter
         const std::string _name = _counterA->getName() + Config::config().getStr(kAndString) + _counterB->getName();
 
-        // check we don't have this already the other way around!
-        const std::string _altName = _counterB->getName() + Config::config().getStr(kAndString) + _counterA->getName();
-        if (_counterMap->count(_altName) > 0) continue;
+        // Does this name contain one of the two chains i'm investigating?
+        if (checkPatternOverlap(_name) == kFALSE) continue;
 
         // Add new overlap counter!
-        CounterRatesIntersection* _overlapCounter = new CounterRatesIntersection(m_costData, _name, 0, 0, (MonitorBase*)this); // Mint new counter
+        CounterRatesIntersection* _overlapCounter = new CounterRatesIntersection(m_costData, _name, 0, 10, (MonitorBase*)this); // Mint new counter
         _overlapCounter->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
         _overlapCounter->decorate(kDecPrescaleValOnlineL1, (Float_t)0.);
-        _overlapCounter->decorate(kDecComment, "");
         _overlapCounter->decorate(kDecRatesGroupName, _counterA->getStrDecoration(kDecRatesGroupName));
         _overlapCounter->decorate(kDecType, "Intersection");
         _overlapCounter->addL2Items( _counterA->getL2ItemSet() );
@@ -683,13 +494,8 @@ namespace TrigCostRootAnalysis {
    * @param _weight The event weight.
    */
   void MonitorRates::newEvent(Float_t _weight) {
-    if (getPass() == 2) return; // We don't do 2-pass
-
     m_timer.start();
     if ( Config::config().debug() ) Info("MonitorRates::newEvent", "*** Processing Chain Rates ***");
-
-    // IMPORTANT NOTE - we REMOVE the Lumi extrap weight as this is now added more intelligently (weighted average per chain combo)
-    _weight /= Config::config().getFloat(kLumiExtrapWeight);
 
     // First time? Setup the ChainItem maps to hold the decision and prescale information for the rates counters to use.
     if (m_chainItemsHLT.size() == 0 || m_chainItemsL1.size() == 0) populateChainItemMaps();
@@ -724,10 +530,7 @@ namespace TrigCostRootAnalysis {
         }
 
         RatesChainItem* _chainItem = _it->second;
-        Bool_t _desicison = kFALSE;
-        if (m_isCPUPrediction) _desicison = m_costData->getIsChainPassed(_c);
-        else                   _desicison = m_costData->getIsChainPassedRaw(_c);
-        _chainItem->beginEvent( _desicison, _inEventCounterMap );
+        _chainItem->beginEvent( m_costData->getIsChainPassedRaw(_c), _inEventCounterMap );
         _chainItemsInEvent.insert( _chainItem );
 
         if (Config::config().debug()) {
@@ -764,11 +567,7 @@ namespace TrigCostRootAnalysis {
 
         //XXX TODO READDRESS THIS - NO LONGER TRUE I THINK
 
-        // We definitly want to use TAV when prescales were applied to EB on the grid (CPU prediction mode)
-
-        Bool_t _desicison = kFALSE;
-        if (m_isCPUPrediction == kTRUE) _desicison = m_costData->getIsL1PassedAfterVeto(_c);
-        else                            _desicison = m_costData->getIsL1PassedBeforePrescale(_c);
+        Bool_t _desicison = m_costData->getIsL1PassedBeforePrescale(_c);
         // if ( Config::config().getInt(kDoEBWeighting) == 0) {
         //   _desicison = m_costData->getIsL1PassedAfterVeto(_c);
         // }
@@ -799,10 +598,6 @@ namespace TrigCostRootAnalysis {
       // ##################################################################################################################
       // PASS TWO: Now loop over all counters, they will use their pre-linked RatesChainItems to get their weights.
       // OLD - inefficient, does them all
-      // Do the globals first
-      m_globalRateL1Counter->processEventCounter(0, 1, _weight);
-      m_globalRateHLTCounter->processEventCounter(0, 1, _weight);
-      m_globalRatePhysicsMainCounter->processEventCounter(0, 1, _weight);
       CounterMapIt_t _it = _counterMap->begin();
       for (; _it != _counterMap->end(); ++_it) {
         _it->second->processEventCounter(0, 1, _weight);
@@ -820,7 +615,7 @@ namespace TrigCostRootAnalysis {
         _item->endEvent();
       }
       _chainItemsInEvent.clear();
-      m_countersInEvent.clear(); // unused at the moment
+      m_countersInEvent.clear();
 
     }
     m_timer.stop();
@@ -862,27 +657,13 @@ namespace TrigCostRootAnalysis {
           RatesChainItem* _L2 = (*_L2It);
           for (ChainItemSetIt_t _L1It = _L2->getLowerStart(); _L1It != _L2->getLowerEnd(); ++_L1It) {
             RatesChainItem* _L1 = (*_L1It);
+
             const std::string _source = _L1->getName() + " [PS:" + doubleToString(_L1->getPS()) + "]";
             const std::string _target = _L2->getName() + " [PS:" + doubleToString(_L2->getPS()) + "]";
             _json.addLeafCustom(_fout, "source", _source, "target", _target);
 
           }
         }
-
-        // Don't forget the CPS chain groups
-        for (CPSGroupSetIt_t _CPSIt = _counter->getCPSGroupSet().begin(); _CPSIt != _counter->getCPSGroupSet().end(); ++_CPSIt ) {
-          RatesCPSGroup* _cpsGroup = (*_CPSIt);
-          for (ChainItemSetIt_t _L2It = _cpsGroup->getChainStart(); _L2It != _cpsGroup->getChainEnd(); ++_L2It ) {
-            RatesChainItem* _L2 = (*_L2It);
-            for (ChainItemSetIt_t _L1It = _L2->getLowerStart(); _L1It != _L2->getLowerEnd(); ++_L1It) {
-              RatesChainItem* _L1 = (*_L1It);
-              const std::string _source = _L1->getName() + " [PS:" + doubleToString(_L1->getPS()) + "]";
-              const std::string _target = _L2->getName() + " [PS:" + doubleToString(_L2->getPS()) + "]";
-              _json.addLeafCustom(_fout, "source", _source, "target", _target);
-            }
-          }
-        }
-
         _json.endNode(_fout);
       }
     }
@@ -911,14 +692,7 @@ namespace TrigCostRootAnalysis {
   void MonitorRates::saveOutput() {
     // Send finalise calls
 
-    for (CounterCollectionNonConstIt_t _collectionIt = m_counterCollections.begin(); _collectionIt != m_counterCollections.end(); ++_collectionIt) {
-
-      // (Finally) add these to the maps such that they get exported with everything else
-      // We didn't add them so far so we could always process these three first.
-      (_collectionIt->second)[Config::config().getStr(kRateGlobalL1String)] = static_cast<CounterBase*>(m_globalRateL1Counter);
-      (_collectionIt->second)[Config::config().getStr(kRateGlobalHLTString)] = static_cast<CounterBase*>(m_globalRateHLTCounter);
-      (_collectionIt->second)[Config::config().getStr(kRateGlobalPhysicsMainString)] = static_cast<CounterBase*>(m_globalRatePhysicsMainCounter);
-
+    for (CounterCollectionIt_t _collectionIt = m_counterCollections.begin(); _collectionIt != m_counterCollections.end(); ++_collectionIt) {
       const std::string _counterCollectionName = _collectionIt->first;
       // Finalise unique counters
       if (Config::config().getInt(kDoUniqueRates) == kTRUE) {
@@ -941,17 +715,7 @@ namespace TrigCostRootAnalysis {
       }
     }
 
-    TrigXMLService::trigXMLService().saveRuleBookXML(m_counterCollections, getLevelStr());
-
-    // Also copy any PS files
-    if (Config::config().getIsSet(kPrescaleXMLPath1)) {
-      const std::string _outputFile = Config::config().getStr(kOutputDirectory) + "/" + Config::config().getStr(kOutputXMLDirectory) + "/prescales1.xml";
-      gSystem->CopyFile(Config::config().getStr(kPrescaleXMLPath1).c_str(), _outputFile.c_str());
-    }
-    if (Config::config().getIsSet(kPrescaleXMLPath2)) {
-      const std::string _outputFile = Config::config().getStr(kOutputDirectory) + "/" + Config::config().getStr(kOutputXMLDirectory) + "/prescales2.xml";
-      gSystem->CopyFile(Config::config().getStr(kPrescaleXMLPath2).c_str(), _outputFile.c_str());
-    }
+    saveRuleBookXML();
 
     if (Config::config().getInt(kOutputRatesGraph) == kTRUE) saveRateGraphs();
 
@@ -985,12 +749,6 @@ namespace TrigCostRootAnalysis {
         kDecUniqueFraction, kSavePerCall, 0, kFormatOptionUseStringDecoration) );
     }
 
-    if (TrigXMLService::trigXMLService().hasExpressPrescaleInfo() == kTRUE) {
-      _toSaveTable.push_back( TableColumnFormatter("Express Rate [Hz]",
-        "Rate to the express stream.",
-        kDecExpressRate, kSavePerCall, 0, kFormatOptionUseStringDecoration) );
-    }
-
     _toSaveTable.push_back( TableColumnFormatter("Prescale",
       "The prescale of this chain. Only displayed for simple combinations.",
       kDecPrescaleStr, kSavePerCall, 0, kFormatOptionUseStringDecoration) );
@@ -1019,8 +777,7 @@ namespace TrigCostRootAnalysis {
 
     _toSaveTable.push_back( TableColumnFormatter("Input Rate [Hz]",
       "Input rate to this chain or combination of chains. At L1 this will be the collision frequency for the bunch pattern.",
-      kDecInputRate, kSavePerCall, 0, kFormatOptionUseStringDecoration) );
-//    kVarEventsRun, kSavePerCall, 4, kFormatOptionNormaliseWallTime) );
+      kVarEventsRun, kSavePerCall, 4, kFormatOptionNormaliseWallTime) );
 
     _toSaveTable.push_back( TableColumnFormatter("Pass Fraction before PS [%]",
       "Fraction of events which pass this trigger before prescale.",
@@ -1033,12 +790,6 @@ namespace TrigCostRootAnalysis {
     _toSaveTable.push_back( TableColumnFormatter("Pass Weighted PS",
       "Number of events this chain or combination passed after applying prescales as weighting factors.",
       kVarEventsPassed, kSavePerCall, 4 ) );
-
-    if (TrigXMLService::trigXMLService().hasChainComments() == kTRUE) {
-      _toSaveTable.push_back( TableColumnFormatter("Comment",
-        "Comment from the rulebook.",
-        kDecComment, kSavePerCall, 0, kFormatOptionUseStringDecoration) );
-    }
 
 
 
@@ -1069,6 +820,188 @@ namespace TrigCostRootAnalysis {
     filterOutputOnStrDecoration(kDecType, "Union");
     sharedTableOutputRoutine( _toSaveTable );
     sharedHistogramOutputRoutine( _toSavePlots );
+
+  }
+
+  void MonitorRates::saveRuleBookXML() {
+
+    if (Config::config().getInt(kOutputXML) == kFALSE) return;
+
+    // Save tables. Loop over counter collections.
+    CounterCollectionIt_t _colIt = m_counterCollections.begin();
+    for (; _colIt != m_counterCollections.end(); ++_colIt) {
+      const std::string _counterCollectionName = _colIt->first;
+      const CounterMap_t* _counterMap = &(_colIt->second);
+      // Skip if there are no counters to process
+      if ( _counterMap->size() == 0) continue;
+
+      const std::string _outputFolder = Config::config().getStr(kOutputDirectory) + "/" + Config::config().getStr(kOutputXMLDirectory);
+      gSystem->mkdir( _outputFolder.c_str(), kTRUE);
+
+      const std::string _xmlName = _outputFolder
+        + "/TrigRate_"
+        + Config::config().getStr(kOutputTag) + "_"
+        + getLevelStr() + "_"
+        + _counterCollectionName
+        + ".xml";
+      std::ofstream _fout;
+      _fout.open( _xmlName.c_str() );
+      _fout << std::fixed; // Use fixed width output
+
+      if (Config::config().debug()) {
+        Info("MonitorRates::saveRuleBookXML","Doing XML output with path %s.", _xmlName.c_str());
+      }
+
+      XMLExport _xml(_fout);
+      _xml.setSpaces(2);
+      _xml.addNode(_fout, "trigger");
+
+      // Do General Info
+      _xml.addNode(_fout, "Xsection", intToString(0)); // TODO
+
+      Float_t _runLumi = 0.;
+      if ( Config::config().getIsSet(kRunLumi) ) _runLumi = Config::config().getFloat(kRunLumi);
+      else if ( Config::config().getIsSet(kRunLumiXML) ) _runLumi = Config::config().getFloat(kRunLumiXML);
+      _xml.addNode(_fout, "Luminosity", floatToString(_runLumi) );
+
+      _xml.addNode(_fout, "GenEff", intToString(0)); // TODO
+      _xml.addNode(_fout, "n_evts", intToString(Config::config().getInt(kEventsProcessed)) );
+
+      Float_t _predictionLumi = 0.;
+      if ( Config::config().getIsSet(kPredictionLumi) ) _predictionLumi = Config::config().getFloat(kPredictionLumi);
+      else if ( Config::config().getIsSet(kPredictionLumiMenuXML) ) _predictionLumi = Config::config().getFloat(kPredictionLumiMenuXML);
+      else if ( Config::config().getIsSet(kPredictionLumiRunXML) ) _predictionLumi = Config::config().getFloat(kPredictionLumiRunXML);
+      _xml.addNode(_fout, "PredictionLumi", floatToString(_predictionLumi) );
+
+      for (UInt_t _f = 0; _f < Config::config().getVecSize(kInputFiles); ++_f) {
+        _xml.addNode(_fout, "Dataset", Config::config().getVecEntry(kInputFiles, _f));
+      }
+      _xml.addNode(_fout, "AtlasProject", TrigConfInterface::getMetaStringVal("AtlasProject") );
+      _xml.addNode(_fout, "AtlasVersion", TrigConfInterface::getMetaStringVal("AtlasVersion") );
+      _xml.addNode(_fout, "triggerMenuSetup", TrigConfInterface::getMetaStringVal("triggerMenuSetup") );
+      _xml.addNode(_fout, "L1PrescaleSet", TrigConfInterface::getMetaStringVal("L1PrescaleSet") );
+      _xml.addNode(_fout, "HLTPrescaleSet", TrigConfInterface::getMetaStringVal("HLTPrescaleSet") );
+      _xml.addNode(_fout, "CMTPATH", TrigConfInterface::getMetaStringVal("CMTPATH") );
+
+      // Do Bunch Group info
+      // Currently we prefer XML
+      if ( TrigXMLService::trigXMLService().getParsedRunXML() == kTRUE ) {
+        _xml.addNode(_fout, "bunchgroup");
+        for (Int_t _bg = 0; _bg < TrigXMLService::trigXMLService().getNBunchGroups(); ++_bg) {
+          _xml.addNode(_fout, "bunchgrouptype");
+          _xml.addNode(_fout, "bunchgroup_keynum", intToString(_bg) );
+          _xml.addNode(_fout, "bunchgroup_key", TrigXMLService::trigXMLService().getBunchGroupName(_bg) );
+          _xml.addNode(_fout, "bunchgroup_size", intToString(TrigXMLService::trigXMLService().getBunchGroupSize(_bg)) );
+          _xml.endNode(_fout); // bunchgrouptype
+        }
+        _xml.endNode(_fout); //bunchgroup
+      } else {
+          // Otherwise try from ntuple (this is broken 06/15) TODO fix in athena
+        StringIntMap_t _bunchGroups = TrigConfInterface::getBunchGroupSetup();
+        UInt_t _bgCounter = 0;
+        _xml.addNode(_fout, "bunchgroup");
+        for (StringIntMapIt_t _it = _bunchGroups.begin(); _it != _bunchGroups.end(); ++_it) {
+          _xml.addNode(_fout, "bunchgrouptype");
+          _xml.addNode(_fout, "bunchgroup_keynum", intToString(_bgCounter++) );
+          _xml.addNode(_fout, "bunchgroup_key", _it->first );
+          _xml.addNode(_fout, "bunchgroup_size", intToString(_it->second) );
+          _xml.endNode(_fout); // bunchgrouptype
+        }
+        _xml.endNode(_fout); //bunchgroup
+      }
+
+      _xml.addNode(_fout, "level");
+      //Add L1 data
+      _xml.addNode(_fout, "lvl_name", "L1");
+      for (CounterMapIt_t _counterMapIt = _colIt->second.begin(); _counterMapIt != _colIt->second.end(); ++_counterMapIt ) {
+        CounterBaseRates* _counter = static_cast<CounterBaseRates*>( _counterMapIt->second );
+        if (_counter->getStrDecoration(kDecType) != "L1") continue;
+        saveXMLElement(_fout, _xml, _counter);
+      }
+      _xml.endNode(_fout); //level
+      _xml.addNode(_fout, "level");
+      //Add HLT data
+      _xml.addNode(_fout, "lvl_name", "HLT");
+      for (CounterMapIt_t _counterMapIt = _colIt->second.begin(); _counterMapIt != _colIt->second.end(); ++_counterMapIt ) {
+        CounterBaseRates* _counter = static_cast<CounterBaseRates*>( _counterMapIt->second );
+        if (_counter->getStrDecoration(kDecType) != "Chain") continue;
+        saveXMLElement(_fout, _xml, _counter);
+      }
+      _xml.endNode(_fout); //level
+      _xml.endNode(_fout); //trigger
+
+      _fout.close();
+    }
+  }
+
+  /**
+   * Save all rate data for a single chain into an output XML stream
+   * @param _fout Reference to output stream.
+   * @param _xml Reference to XML export engine.
+   * @returns _counter Counter to export.
+   */
+  void MonitorRates::saveXMLElement(std::ofstream& _fout, XMLExport& _xml, CounterBaseRates* _counter) {
+    const UInt_t _xmlPrecision = 7;
+
+    Float_t _evPassWeight = _counter->getValue(kVarEventsPassed, kSavePerCall);
+    Float_t _evPassWeightErr = _counter->getValueError(kVarEventsPassed, kSavePerCall); // Get sqrt(sumW2)
+
+    //Float_t _evPassDirect = _counter->getValue(kVarEventsPassedDP, kSavePerCall);
+    //Float_t _evPassDirectErr = _counter->getValueError(kVarEventsPassedDP, kSavePerCall); //unused
+
+    Float_t _evRun = _counter->getValue(kVarEventsRun, kSavePerCall); // EB Weighted
+    Float_t _evPassNoPS = _counter->getValue(kVarEventsPassedNoPS, kSavePerCall); // EB Weighted
+
+    Float_t _evPassRawStat = _counter->getValue(kVarEventsPassRawStat, kSavePerCall); // Not EB Weighted
+    //Float_t _evRunRawStat  = _counter->getValue(kVarEventsRunRawStat,  kSavePerCall); // Not EB Weighted
+
+    Float_t _walltime = _counter->getDecoration(kDecLbLength);
+
+    Float_t _rate = _evPassWeight / _walltime;
+    Float_t _rateErr = _evPassWeightErr / _walltime;    // B. Peterson # err = sqrt(events in time T)/T = sqrt(rate*T/T^2) = sqrt(rate/T)
+
+    Float_t _uniqueRate = _counter->getDecoration(kDecUniqueRate);
+    Float_t _uniqueFraction = _counter->getDecoration(kDecUniqueFraction); // Was in percent, change back to 0-1
+
+    Bool_t _isL1 = kFALSE;
+    if (_counter->getStrDecoration(kDecType) == "L1") _isL1 = kTRUE;
+
+    // TODO - THIS IS WRONG FOR WEIGHTED EVENTS
+    Float_t _eff = 0., _effErr = 0., _psEff = 0., _psEffErr = 0.;
+    if (_evRun) {
+      _eff = _evPassNoPS / _evRun;
+      _effErr = (1./_evRun) * TMath::Sqrt( _evPassNoPS * (1. - _eff) ); // Binomal
+      _psEff = _evPassWeight / _evRun;
+      _psEffErr =  (1./_evRun) * TMath::Sqrt( _evPassWeight * (1. - _psEff) ); // Binomal
+    }
+
+    UNUSED(_effErr);
+    UNUSED(_psEffErr);
+
+    _xml.addNode(_fout, "signature");
+    _xml.addNode(_fout, "sig_name", _counter->getName());
+    _xml.addNode(_fout, "express_stream", intToString(0) ); // TODO add me!
+    _xml.addNode(_fout, "chain_prescale", floatToString( _counter->getBasicPrescale() )); // This holds the *item* PS
+    if (_isL1) {
+      _xml.addNode(_fout, "passthrough", "0" );
+      _xml.addNode(_fout, "lower_chain_name", "" );
+    } else {
+      _xml.addNode(_fout, "passthrough", floatToString( TrigConfInterface::getPassthrough(_counter->getName()), _xmlPrecision ) );
+      _xml.addNode(_fout, "lower_chain_name", TrigConfInterface::getLowerChainName(_counter->getName()) );
+    }
+    _xml.addNode(_fout, "evts_passed", floatToString( _evPassRawStat, _xmlPrecision));
+    _xml.addNode(_fout, "evts_passed_weighted", floatToString( _evPassWeight, _xmlPrecision));
+    _xml.addNode(_fout, "efficiency", floatToString( _eff, _xmlPrecision));
+    //_xml.addNode(_fout, "efficiency_err", floatToString( _effErr, _xmlPrecision)); // TODO FIX ME
+    _xml.addNode(_fout, "efficiency_err", floatToString((Float_t)0.));
+    _xml.addNode(_fout, "prescaled_efficiency", floatToString( _psEff, _xmlPrecision));
+    //_xml.addNode(_fout, "prescaled_efficiency_err", floatToString( _psEffErr, _xmlPrecision)); // TODO FIX ME
+    _xml.addNode(_fout, "prescaled_efficiency_err",  floatToString((Float_t)0.));
+    _xml.addNode(_fout, "rate", floatToString( _rate, _xmlPrecision));
+    _xml.addNode(_fout, "rate_err", floatToString( _rateErr, _xmlPrecision));
+    _xml.addNode(_fout, "unique_fraction", floatToString(_uniqueFraction, _xmlPrecision));
+    _xml.addNode(_fout, "unique_rate", floatToString(_uniqueRate, _xmlPrecision));
+    _xml.endNode(_fout); //signature
 
   }
 

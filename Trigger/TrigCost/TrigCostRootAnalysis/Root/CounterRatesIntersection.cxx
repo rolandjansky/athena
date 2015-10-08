@@ -75,21 +75,15 @@ namespace TrigCostRootAnalysis {
    * This only needs to be done once per trigger configuration.
    * Then we simply check that all L1 and L2 items passed raw and tot up their prescale weights.
    */
-  Double_t CounterRatesIntersection::runWeight(Bool_t _includeExpress) {
-    m_eventLumiExtrapolation = 0;
-    m_cachedWeight = 0.;
-    Double_t _lumiExtrapNumerator = 0., _lumiExtrapDenominator = 0.; 
+  Float_t CounterRatesIntersection::runWeight() {
 
     if (m_redundanciesRemoved == kFALSE) removeRedundancies();
-    Double_t _w = 1.;
+    Float_t _w = 1.;
 
     for (ChainItemSetIt_t _L2It = m_L2s.begin(); _L2It != m_L2s.end(); ++_L2It) {
       RatesChainItem* _L2 = (*_L2It);
       if ( _L2->getPassRaw() == kFALSE ) return 0.;
-      _w *= _L2->getPSWeight(_includeExpress);
-
-      _lumiExtrapNumerator += _L2->getPassRawOverPS(_includeExpress) * _L2->getLumiExtrapolationFactor(m_costData->getLumi(), m_disableEventLumiExtrapolation);
-      _lumiExtrapDenominator += _L2->getPassRawOverPS(_includeExpress);
+      _w *= _L2->getPSWeight();
     }
 
     for (ChainItemSetIt_t _L1It = m_L1s.begin(); _L1It != m_L1s.end(); ++_L1It) {
@@ -98,9 +92,7 @@ namespace TrigCostRootAnalysis {
       _w *= _L1->getPSWeight();
     }
 
-    if (_lumiExtrapDenominator) m_eventLumiExtrapolation = _lumiExtrapNumerator / _lumiExtrapDenominator;
-    m_cachedWeight = _w;
-    return m_cachedWeight;
+    return _w;
   }
 
   /**

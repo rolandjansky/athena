@@ -69,7 +69,6 @@ namespace TrigCostRootAnalysis {
     m_bufferEventNumber(-1),
     m_hasLumiData(kTRUE),
     m_emptySet(),
-    m_rosMatching(kFALSE),
     m_trigCostObject(0)
   {
     //Nothing here
@@ -132,17 +131,6 @@ namespace TrigCostRootAnalysis {
   }
 
   /**
-   * @return The bunch crossing identifier number.
-   */
-  UInt_t TrigCostData::getBunchCrossingId() const {
-    MUTEX_ON
-    Int_t _R = m_trigCostObject->bunchCrossingId();
-    MUTEX_OFF
-    return _R;
-  }
-
-
-  /**
    * @return The enhanced bias weight from the ntuple - note this needs to be calculated explicitly when creating the D3PD.
    * Normally this will be done centally and distributed in this package.
    */
@@ -190,7 +178,7 @@ namespace TrigCostRootAnalysis {
    */
   Int_t TrigCostData::getRunNumber() const {
     MUTEX_ON
-    Int_t _R =  m_trigCostObject ? m_trigCostObject->runNumber() : 0;
+    Int_t _R = m_trigCostObject->runNumber();
     MUTEX_OFF
     return _R;
   }
@@ -931,7 +919,6 @@ namespace TrigCostRootAnalysis {
    */
   Bool_t TrigCostData::getIsROBDataRetrieved(UInt_t _n, UInt_t _r) const {
     MUTEX_ON
-      //   std::cout << "_n    " << _n << " ||||   _r   " << _r << std::endl;
     Bool_t _R = (Bool_t) m_trigCostObject->rob_data_isRetrieved()->at(_n).at(_r);
     MUTEX_OFF
     return _R;
@@ -1156,17 +1143,6 @@ namespace TrigCostRootAnalysis {
     MUTEX_OFF
     return _R;
   }
-
-  /**
-   * @param _n RoI index in D3PD.
-   * @return Disambiguate EM and tau
-   */
-  Bool_t TrigCostData::getIsRoITau(UInt_t _n) const {
-    MUTEX_ON
-    Bool_t _R = (Bool_t) m_trigCostObject->roi_isTau()->at(_n);
-    MUTEX_OFF
-    return _R;
-  }
   
   /**
    * @param _n RoI index in D3PD.
@@ -1219,73 +1195,6 @@ namespace TrigCostRootAnalysis {
   Bool_t TrigCostData::getIsRoINone(UInt_t _n) const {
     MUTEX_ON
     Bool_t _R = (Bool_t) m_trigCostObject->roi_isTypeNone()->at(_n);
-    MUTEX_OFF
-    return _R;
-  }  
-
-  /**
-   * @param _n RoI index in D3PD.
-   * @return ET or pT or total ET sum (depends on RoI type).
-   */
-  Float_t TrigCostData::getRoIEt(UInt_t _n) const {
-    MUTEX_ON
-    Float_t _R = m_trigCostObject->roi_et()->at(_n);
-    MUTEX_OFF
-    return _R;
-  }
-
-  Float_t TrigCostData::getRoIEtLarge(UInt_t _n) const {
-    MUTEX_ON
-    Float_t _R = m_trigCostObject->roi_etLarge()->at(_n);
-    MUTEX_OFF
-    return _R;
-  }
-
-  Int_t   TrigCostData::getRoIMuonCharge(UInt_t _n) const {
-    MUTEX_ON
-    Int_t _R = m_trigCostObject->roi_muCharge()->at(_n);
-    MUTEX_OFF
-    return _R;
-  }
-
-  Int_t   TrigCostData::getRoIEmTauIsoBits(UInt_t _n) const {
-    MUTEX_ON
-    Int_t _R = m_trigCostObject->roi_isoBits()->at(_n);
-    MUTEX_OFF
-    return _R;
-  }
-
-  Float_t TrigCostData::getRoIVectorEX(UInt_t _n) const {
-    MUTEX_ON
-    Float_t _R = m_trigCostObject->roi_vectorEX()->at(_n);
-    MUTEX_OFF
-    return _R;
-  }
-
-  Float_t TrigCostData::getRoIVectorEY(UInt_t _n) const {
-    MUTEX_ON
-    Float_t _R = m_trigCostObject->roi_vectorEY()->at(_n);
-    MUTEX_OFF
-    return _R;
-  }
-
-  Bool_t  TrigCostData::getRoIOverflowEX(UInt_t _n) const {
-    MUTEX_ON
-    Bool_t _R = (Bool_t) m_trigCostObject->roi_overflowEX()->at(_n);
-    MUTEX_OFF
-    return _R;
-  }
-
-  Bool_t  TrigCostData::getRoIOverflowEY(UInt_t _n) const {
-    MUTEX_ON
-    Bool_t _R = (Bool_t) m_trigCostObject->roi_overflowEY()->at(_n);
-    MUTEX_OFF
-    return _R;
-  }
-
-  Bool_t  TrigCostData::getRoIOverflowET(UInt_t _n) const {
-    MUTEX_ON
-    Bool_t _R = (Bool_t) m_trigCostObject->roi_overflowET()->at(_n);
     MUTEX_OFF
     return _R;
   }

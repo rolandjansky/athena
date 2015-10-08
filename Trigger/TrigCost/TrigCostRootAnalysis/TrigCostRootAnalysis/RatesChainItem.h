@@ -16,7 +16,6 @@
 
 // Local include(s):
 #include "Utility.h"
-#include "MonitorRatesUpgrade.h" // Special class defs
 
 // ROOT includes
 #include <TRandom3.h>
@@ -36,7 +35,7 @@ namespace TrigCostRootAnalysis {
   class RatesChainItem {
    public:
 
-    RatesChainItem(std::string _name, Int_t _level, Double_t _PS, Double_t _PSExpress = 1.);
+    RatesChainItem(std::string _name, Int_t _level, Double_t _PS);
 
     void addLower(RatesChainItem* _lower);
     void addUpper(RatesChainItem* _upper);
@@ -53,35 +52,24 @@ namespace TrigCostRootAnalysis {
     Bool_t getUpperContainsAll( std::set<RatesChainItem*>& _set );
     void setExtraEfficiency(Double_t _extraEfficiency);
     void setRateReductionFactor(Double_t _reductionFactor);
-    void setTriggerLogic(TriggerLogic* _tl);
-    void setProxy(CounterBaseRates* _c) { m_proxy = _c; }
-    void fillHistograms(DataStore& _dataStore, Float_t _weight, Float_t _bunchWeight);
 
     void beginEvent(Bool_t _passRaw, CounterBaseRatesSet_t& _counterSet);
-    void beginEvent(TOBAccumulator* _eventTOBs);
-
     void endEvent();
     void newRandomPS();
 
     void classifyBunchGroup();
-    void classifyLumiAndRandom();
+    void classifyRandom();
 
     Bool_t getInEvent();
     Bool_t getPassRaw();
     Bool_t getPassPS();
     // Bool_t getIsNotPhysics();
-    Double_t getPSWeight(Bool_t _includeExpress = kFALSE);
-    Double_t getPSReducedWeight(Bool_t _includeExpress = kFALSE);
+    Double_t getPSWeight();
     Double_t getPS();
-    void     setPS(Double_t _PS);
-    void     setPSReduced(Double_t _PSReduced);
-    Double_t getPassRawOverPS(Bool_t _includeExpress = kFALSE);
-    Double_t getPassRawOverPSReduced(Bool_t _includeExpress = kFALSE);
+    Double_t getPassRawOverPS();
     Bool_t getPassRawAndPS();
     const std::string& getName();
     UInt_t getID();
-    TriggerLogic* getTriggerLogic();
-    Double_t getLumiExtrapolationFactor(UInt_t _lb, Bool_t _disableEventLumiExtrapolation);
 
    private:
    
@@ -89,17 +77,11 @@ namespace TrigCostRootAnalysis {
     Int_t              m_level; //!> Which level this item's at
     Double_t           m_PS; //!< The prescale to be applied to this item
     Double_t           m_PSWeight; //!< The equivalent PS weight, = 1/PS
-    Double_t           m_PSReduced; //!< prescaled with any coherent part factored out
-    Double_t           m_PSReducedWeight; //!< = 1/PSReduced
-    Double_t           m_PSExpress; //!< Express stream prescale
-    Double_t           m_PSExpressWeight; //!< 1/Express stream presca;e
     Double_t           m_extraEfficiency; //<! Extra factor which can be supplied to scale the rate of this triggeer
     TRandom3           m_R; //!< Random number generator for when applying the PS directly.
     UInt_t             m_ID; //!< ID number, sequential, used for random seed
     static UInt_t      s_chainCount; //!< Static counter of how many RatesChainItems have been made, used as random seed.
     EBBunchGroupType_t m_bunchGroupType; //!< If L1 chain, what bunch group I have been identified to. Used with EB weighting.
-
-    IntDoubleMap_t*    m_lumiExtrapolationMap; //!< Luminosity scaling varies per LB
 
     Bool_t        m_passRaw; //!< If this chain item passed in this event
     Bool_t        m_passPS; //!< If this chain item passed just the PS check in this event
@@ -108,23 +90,13 @@ namespace TrigCostRootAnalysis {
     Bool_t        m_doEBWeighting; //!< If enhanced bias weights are to be applied
     Bool_t        m_doDirectPS; //<! True if calculating the direct application of prescales
     Bool_t        m_matchRandomToOnline; //!< Butter setting, if true and I am a L1_RDX trigger then I should online fire when online unbiased fired
-    Bool_t        m_advancedLumiScaling; //!< Use Mu and Bunches info in select cases
-    Bool_t        m_iAmRandom; //!< True if I am a L1 item of type L1_RDX or seed from one of these
+    Bool_t        m_iAmRandom; //!< True if I am a L1 item of type L1_RDX
 
     ChainItemSet_t m_lower; //!< Pointers to seeding chains from lower levels
     ChainItemSet_t m_upper; //!< Pointers to seeding chains from lower levels
 
-    TriggerLogic* m_triggerLogic; //!< If set, this logic is to be used to determine if the event passed or not.
-
-    CounterBaseRates* m_proxy; //!< Only currently used by the "UNSEEDED" item, this exceptionally gets its weight from the L1 rates counter. m_proxy should point to this counter.
-
     CounterBaseRatesSet_t m_clients; //!< Set of pointers to client rates counters which use this chain item.
 
-    std::vector<Float_t> m_bufferJetRoIEta; //!< For upgrade rates, eta of RoI(s) passing this item's threshold(s)
-    std::vector<Float_t> m_bufferMuRoIEta; //!< For upgrade rates, eta of RoI(s) passing this item's threshold(s)
-    std::vector<Float_t> m_bufferEmRoIEta; //!< For upgrade rates, eta of RoI(s) passing this item's threshold(s)
-    std::vector<Float_t> m_bufferTauRoIEta; //!< For upgrade rates, eta of RoI(s) passing this item's threshold(s)
-    Float_t              m_bufferMu;       //!< For upgrade rates, <mu> of the event
 
   }; // Class RatesChainItem
 

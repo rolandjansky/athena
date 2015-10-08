@@ -56,10 +56,8 @@ namespace TrigCostRootAnalysis {
     const std::string& getLevelStr();
     void setName( const std::string& _name );
     void setLevel( UInt_t _l );
-    CounterMap_t* getCounterCollection(const std::string& _identifier, const ConfKey_t _type);
+    CounterMap_t* getCounterCollection(const std::string& _identifier);
     UInt_t getNCounters();
-    void setPass(UInt_t _pass);
-    UInt_t getPass();
 
     struct TableColumnFormatter {
       TableColumnFormatter(const std::string& _title,
@@ -103,7 +101,7 @@ namespace TrigCostRootAnalysis {
     CounterBase* getCounter( CounterMap_t* _counterMap, const std::string &_name, Int_t _ID );
     CounterBase* addCounter( CounterMap_t* _counterMap, const std::string &_name, Int_t _ID );
     void collateCounterCollectionsForEvent();
-    void addToCollectionsToProcess(const std::string &_name, UInt_t _lumiBlockNumber, Float_t _lumiLength, const ConfKey_t _type);
+    void addToCollectionsToProcess(const std::string &_name, UInt_t _lumiBlockNumber, Float_t _lumiLength);
     void recordLumi(const std::string &_name, UInt_t _lumiBlockNumber, Float_t _lumiLength);
     void sharedHistogramOutputRoutine(VariableOptionVector_t& _toSave);
     void sharedTableOutputRoutine( const std::vector<TableColumnFormatter> &_toSave );
@@ -116,18 +114,19 @@ namespace TrigCostRootAnalysis {
     void endEvent(Float_t _weight = 1.);
     void enableROOTMsg();
     void disableROOTMsg();
-    void checkForIllegalCharacters(std::string &_toClean, Bool_t _checkComma = kTRUE, Bool_t _checkApostrophe = kTRUE, Bool_t _checkColon = kTRUE);
+    Bool_t checkPatternNameMonitor( const std::string& _patternName );
+    Bool_t checkPatternNameOutput( const std::string& _patternName );
+    Bool_t checkPatternInternal( const std::string& _counterName, ConfKey_t _list );
+    void checkForIllegalCharacters(std::string &_toClean, Bool_t _checkComma = kTRUE, Bool_t _checkApostrophe = kTRUE, Bool_t _checkColon = kFALSE);
 
     std::string m_name; //<! Name of this monitor, for use in output.
     UInt_t m_level; //<! Level of monitor (2 or 3)
-    UInt_t m_pass; //<! On rare occasions we may need more than one pass through the file, this holds which pass we're on
     UInt_t m_detailLevel; //!<< How detailed this monitor is to be, passed on to created Counters
     CounterBase* m_dummyCounter; //!< Counter of appropriate type which is not used for monitoring, but can be used to reset static tabulators & generate output patterns.
     Bool_t m_allowSameNamedCounters; //!< If true, one counter is registered per unique name. If false, every call to getCounter will assign a new counter.
     Bool_t m_allowSameIDCounters; //<! For counters where there may be a many->one mapping of ID->name. Disable warning.
     Bool_t m_filterOutput; //!< Set if the user's supplied chain name filter is to be applied to this monitor's counters during the output routine.
     Bool_t m_invertFilter; //!< Set true to have the filter specify items *not* to be saved.
-    Bool_t m_isCPUPrediction; //!< Flag implies prescales were applied to EB on the grid. Monitors should use after prescale bits rather than before
     ConfKey_t m_filterOnDecorationKey; //!< If the output is filtered by decoration, holds which decoration to use
     std::string m_filterOnDecorationValue; //!< If output is filtered by decoration, holds string must be an exact match
 
@@ -135,7 +134,6 @@ namespace TrigCostRootAnalysis {
     CounterMapSet_t       m_collectionsToProcess; //!< Pointers to the counter maps to be included in a given event.
     std::set<std::string> m_collectionsToProcessNames; //!< Names of the counter maps being processed
     std::map< std::string, LumiCollector* > m_collectionLumiCollector; //!< Map of string referenced collections to the lumi counter for that collection
-    CounterMapType_t m_counterMapType; //!< Map of a CounterMap pointer (i.e. the business end of a CounterCollection) to it's CounterCollection type
 
     std::set< CounterBase* > m_countersInEvent; //!< Set of counters processed in an event. We need to run endEvent on these.
 
@@ -146,16 +144,6 @@ namespace TrigCostRootAnalysis {
     std::map<DBKey, UInt_t> m_perKeySummaryLBStart; //!< Map of keys we are monitoring to the initial (seen) LB, so we can stop after kNLbPerHLTConfig LB
 
     Timer m_timer; //<! Every monitor gets a timer to see how long it took
-
-    Bool_t m_doKeySummary; //!< Cached for speed
-    Bool_t m_doLumiBlockSummary; //!< Cached for speed
-    Bool_t m_doAllSummary; //!< Cached for speed
-    Bool_t m_ratesOnly; //!< Cached for speed
-    std::string m_allString; //!< Cached for speed
-    std::string m_lumiBlockString; //!< Cached for speed
-    Int_t m_nLbFullSkip; //!< Cached for speed
-    Int_t m_nHLTConfigSummary; //!< Cached for speed
-    Int_t m_nLBPerHLTConfig; //!< Cached for speed
 
 
   }; //class MonitorBase
