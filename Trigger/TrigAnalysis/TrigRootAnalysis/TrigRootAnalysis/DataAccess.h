@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataAccess.h 726661 2016-02-28 01:18:32Z ssnyder $
+// $Id: DataAccess.h 581262 2014-02-03 17:23:31Z tamartin $
 #ifndef TRIGROOTANALYSIS_DATAACCESS_H
 #define TRIGROOTANALYSIS_DATAACCESS_H
 
@@ -30,8 +30,8 @@ class TBranch;
  *        stuck with using "D3PD". By idea was that this would make it clear
  *        that this code is meant for analyzing D3PD files.
  *
- * $Revision: 726661 $
- * $Date: 2016-02-28 02:18:32 +0100 (Sun, 28 Feb 2016) $
+ * $Revision: 581262 $
+ * $Date: 2014-02-03 18:23:31 +0100 (Mon, 03 Feb 2014) $
  */
 namespace D3PD {
 
@@ -43,8 +43,8 @@ namespace D3PD {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 726661 $
-    * $Date: 2016-02-28 02:18:32 +0100 (Sun, 28 Feb 2016) $
+    * $Revision: 581262 $
+    * $Date: 2014-02-03 18:23:31 +0100 (Mon, 03 Feb 2014) $
     */
    namespace Trig {
 
@@ -58,8 +58,8 @@ namespace D3PD {
        *
        * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
        *
-       * $Revision: 726661 $
-       * $Date: 2016-02-28 02:18:32 +0100 (Sun, 28 Feb 2016) $
+       * $Revision: 581262 $
+       * $Date: 2014-02-03 18:23:31 +0100 (Mon, 03 Feb 2014) $
        */
       class DataAccess : public virtual ::TNamed,
                          public virtual D3PD::Trig::IDataAccess {
@@ -81,21 +81,21 @@ namespace D3PD {
          ::Int_t GetEntry( ::Long64_t entry, ::Int_t getall = 0 );
 
          /// Get the detail level that the D3PD was produced with
-         virtual ::Int_t GetDetailLevel();
+         virtual ::Int_t GetDetailLevel() const;
 
          /// Get the Super Master Key of the current event
-         virtual ::Int_t GetSMK();
+         virtual ::Int_t GetSMK() const;
          /// Get the LVL1 prescale key of the current event
-         virtual ::Int_t GetL1PSK();
+         virtual ::Int_t GetL1PSK() const;
          /// Get the HLT prescale key of the current event
-         virtual ::Int_t GetHLTPSK() ;
+         virtual ::Int_t GetHLTPSK() const;
 
          /// Function for retrieving the encoded LVL1 result
-         virtual const std::vector< unsigned int >* GetL1Result( L1ResultType type );
+         virtual const std::vector< unsigned int >* GetL1Result( L1ResultType type ) const;
          /// Function for retrieving the encoded LVL2 result
-         virtual const std::vector< short >*        GetL2Result( HLTResultType type );
+         virtual const std::vector< short >*        GetL2Result( HLTResultType type ) const;
          /// Function for retrieving the encoded EF result
-         virtual const std::vector< short >*        GetEFResult( HLTResultType type );
+         virtual const std::vector< short >*        GetEFResult( HLTResultType type ) const;
 
       private:
          /// Initialize the object from the specified TTree

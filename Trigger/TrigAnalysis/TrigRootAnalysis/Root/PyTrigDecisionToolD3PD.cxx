@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PyTrigDecisionToolD3PD.cxx 726661 2016-02-28 01:18:32Z ssnyder $
+// $Id: PyTrigDecisionToolD3PD.cxx 502898 2012-05-29 11:15:13Z krasznaa $
 
 // Local include(s):
 #include "TrigRootAnalysis/PyTrigDecisionToolD3PD.h"
@@ -239,7 +239,7 @@ namespace D3PD {
     * 
     * Just forwards the call to the internal tool that does the actual work.
     */
-   Int_t PyTrigDecisionToolD3PD::GetDetailLevel() {
+   Int_t PyTrigDecisionToolD3PD::GetDetailLevel() const {
 
       return m_tdt.GetDetailLevel( );
    }
