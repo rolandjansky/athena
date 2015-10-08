@@ -110,7 +110,7 @@ class TRT_StrawStatusSummarySvc: public AthService,
 
   int  *getStwTotal()		;	 
   int **getStwLocal() 		;
-  int **getStwWheel()   	;
+  int **getStwLocalWheel()  	;
   int **getStwLocalStraw()  	; 
 
 
@@ -148,7 +148,6 @@ class TRT_StrawStatusSummarySvc: public AthService,
 
       int  *m_stw_total;
       int **m_stw_local;
-      int **m_stw_wheel;
 
   void resetArrays();
 
@@ -173,11 +172,6 @@ inline int*  TRT_StrawStatusSummarySvc::getStwTotal()
 inline int**  TRT_StrawStatusSummarySvc::getStwLocal()
 {
 	return m_stw_local;
-}
-
-inline int**  TRT_StrawStatusSummarySvc::getStwWheel()
-{
-	return m_stw_wheel;
 }
 
 

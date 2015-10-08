@@ -31,7 +31,6 @@ TRT_DAQ_ConditionsSvc::TRT_DAQ_ConditionsSvc( const std::string& name, ISvcLocat
   m_detStore("DetectorStore",name),
   m_EventInfoKey("ByteStreamEventInfo"),
   m_FolderName(run1FolderName),
-  m_TRT_ID_Helper(0),
   m_EnabledRods(0)
 {
   // Get properties from job options

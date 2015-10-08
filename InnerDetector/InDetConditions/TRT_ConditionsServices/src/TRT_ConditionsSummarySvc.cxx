@@ -20,9 +20,7 @@
 // Constructor
 TRT_ConditionsSummarySvc::TRT_ConditionsSummarySvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
-  m_svcCollection(name),
-  m_manager(0),
-  m_trtid(0)
+  m_svcCollection(name)
 {
   // Get properties from job options
   declareProperty( "ServiceList", m_svcCollection );
@@ -36,21 +34,21 @@ TRT_ConditionsSummarySvc::~TRT_ConditionsSummarySvc(){
 //Initialize
 StatusCode 
 TRT_ConditionsSummarySvc::initialize(){
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ConditionsSummarySvc::initialize." << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TRT_ConditionsSummarySvc::initialize." << endreq;
   StatusCode sc(StatusCode::SUCCESS);
 
   // Retrieve the services to be called.
   if ( m_svcCollection.size() == 0 ) {
-    msg(MSG::WARNING) << "No services to be called!" << endmsg;
+    msg(MSG::WARNING) << "No services to be called!" << endreq;
   } else {
     sc = m_svcCollection.retrieve();
     if ( sc.isFailure() ) {
       msg(MSG::ERROR) << "Couldn't retrieve services: "
-	   << m_svcCollection << endmsg;
+	   << m_svcCollection << endreq;
       return sc;
     } else {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successfully retrieved services: "
-	   << m_svcCollection << endmsg;
+	   << m_svcCollection << endreq;
     }
   }
 
@@ -58,7 +56,7 @@ TRT_ConditionsSummarySvc::initialize(){
   StoreGateSvc* detStore;
   sc = service("DetectorStore", detStore);
   if (sc.isFailure()){
-    msg(MSG::FATAL) << "DetectorStore service not found!" << endmsg;
+    msg(MSG::FATAL) << "DetectorStore service not found!" << endreq;
     return sc;
   }
   
@@ -68,7 +66,7 @@ TRT_ConditionsSummarySvc::initialize(){
   if (sc.isFailure() || !m_manager)
     {
       msg(MSG::FATAL) << "Could not find the Manager: "
-	    << managerName << " !" << endmsg;
+	    << managerName << " !" << endreq;
       return sc;
     }
 
@@ -114,7 +112,7 @@ TRT_ConditionsSummarySvc::isActive(const Identifier & elementId, const InDetCond
       }
     }
   }else{
-    msg(MSG::FATAL)<<"Hierarchy Level "<<h<<" not yet implemented!!!"<<endmsg;
+    msg(MSG::FATAL)<<"Hierarchy Level "<<h<<" not yet implemented!!!"<<endreq;
     result=false;
   }
 
@@ -199,7 +197,7 @@ TRT_ConditionsSummarySvc::isGood(const Identifier & elementId, const InDetCondit
       }
     }
   }else{
-    msg(MSG::FATAL)<<"Hierarchy Level "<<h<<" not yet implemented!!!"<<endmsg;
+    msg(MSG::FATAL)<<"Hierarchy Level "<<h<<" not yet implemented!!!"<<endreq;
     result=false;
   }
 

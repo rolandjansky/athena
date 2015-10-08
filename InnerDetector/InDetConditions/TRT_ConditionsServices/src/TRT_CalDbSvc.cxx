@@ -45,11 +45,6 @@ TRT_CalDbSvc::TRT_CalDbSvc( const std::string& name, ISvcLocator* pSvcLocator )
   declareProperty("StreamTool",m_streamer);
   declareProperty("calibTextFile",par_caltextfile);
   declareProperty("DetectorStore",m_detstore);
-  declareProperty("RtFolderName",par_rtcontainerkey);
-  declareProperty("T0FolderName",par_t0containerkey);
-  declareProperty("ErrorSlopeFolderName",par_slopecontainerkey);
-  declareProperty("ErrorFolderName",par_errcontainerkey);
-
   ++s_numberOfInstances;
 }
 
@@ -73,14 +68,14 @@ StatusCode TRT_CalDbSvc::initialize()
 
   // Get StoreGate access to DetectorStore
   if (StatusCode::SUCCESS!=m_detstore.retrieve()) {
-    msg(MSG::FATAL) << "Unable to retrieve " << m_detstore.name() << endmsg;
+    msg(MSG::FATAL) << "Unable to retrieve " << m_detstore.name() << endreq;
     return StatusCode::FAILURE;
   }
 
   // Get the TRT ID helper
   StatusCode sc = m_detstore->retrieve(m_trtid,"TRT_ID");
   if(sc.isFailure()) {
-    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endmsg;
+    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -89,18 +84,18 @@ StatusCode TRT_CalDbSvc::initialize()
   if( rtcontainerexists ) {
     // register call back
     if( (m_detstore->regFcn(&TRT_CalDbSvc::IOVCallBack,this,m_rtcontainer,par_rtcontainerkey)).isFailure()) {
-      msg(MSG::ERROR) << "Could not register IOV callback for key: " << par_rtcontainerkey << endmsg ;
+      msg(MSG::ERROR) << "Could not register IOV callback for key: " << par_rtcontainerkey << endreq ;
     }
   } else {
     // create, record and update data handle
-    msg(MSG::INFO) << "Creating new rt-relation container" << endmsg ;
+    msg(MSG::INFO) << "Creating new rt-relation container" << endreq ;
     m_ownsrtcontainer = true ;
     const RtRelationContainer* rtcontainer = new RtRelationContainer() ;
     if( (m_detstore->record(rtcontainer,par_rtcontainerkey))!=StatusCode::SUCCESS ) {
-      msg(MSG::ERROR) << "Could not record RtRelationContainer for key " << par_rtcontainerkey << endmsg;
+      msg(MSG::ERROR) << "Could not record RtRelationContainer for key " << par_rtcontainerkey << endreq;
     }
     if(StatusCode::SUCCESS!=m_detstore->retrieve(m_rtcontainer,par_rtcontainerkey)) {
-      msg(MSG::FATAL) << "Could not retrieve data handle for RtRelationContainer " << endmsg;
+      msg(MSG::FATAL) << "Could not retrieve data handle for RtRelationContainer " << endreq;
       return StatusCode::FAILURE ;
     }
   }
@@ -111,18 +106,18 @@ StatusCode TRT_CalDbSvc::initialize()
     m_existserrcontainer=true;
     // register call back
     if( (m_detstore->regFcn(&TRT_CalDbSvc::IOVCallBack,this,m_errcontainer,par_errcontainerkey)).isFailure()) {
-      msg(MSG::ERROR) << "Could not register IOV callback for key: " << par_errcontainerkey << endmsg;
+      msg(MSG::ERROR) << "Could not register IOV callback for key: " << par_errcontainerkey << endreq;
     }
   } else if( !par_caltextfile.empty() ) {
     // create, record and update data handle
-    msg(MSG::INFO) << "Creating new error container" << endmsg ;
+    msg(MSG::INFO) << "Creating new error container" << endreq ;
     m_ownserrcontainer = true ;
     const RtRelationContainer* errcontainer = new RtRelationContainer() ;
     if( (m_detstore->record(errcontainer,par_errcontainerkey))!=StatusCode::SUCCESS ) {
-      msg(MSG::ERROR) << "Could not record RtRelationContainer for key " << par_errcontainerkey << endmsg;
+      msg(MSG::ERROR) << "Could not record RtRelationContainer for key " << par_errcontainerkey << endreq;
     }
     if(StatusCode::SUCCESS!=m_detstore->retrieve(m_errcontainer,par_errcontainerkey)) {
-      msg(MSG::FATAL) << "Could not retrieve data handle for Rt error container " << endmsg;
+      msg(MSG::FATAL) << "Could not retrieve data handle for Rt error container " << endreq;
       return StatusCode::FAILURE ;
     }
   }
@@ -133,18 +128,18 @@ StatusCode TRT_CalDbSvc::initialize()
     m_existsslopecontainer=true;
     // register call back
     if( (m_detstore->regFcn(&TRT_CalDbSvc::IOVCallBack,this,m_slopecontainer,par_slopecontainerkey)).isFailure()) {
-      msg(MSG::ERROR) << "Could not register IOV callback for key: " << par_slopecontainerkey << endmsg;
+      msg(MSG::ERROR) << "Could not register IOV callback for key: " << par_slopecontainerkey << endreq;
     }
   } else {
     // create, record and update data handle
-    msg(MSG::INFO) << "Creating new slope container" << endmsg ;
+    msg(MSG::INFO) << "Creating new slope container" << endreq ;
     m_ownsslopecontainer = true ;
     const RtRelationContainer* slopecontainer = new RtRelationContainer() ;
     if( (m_detstore->record(slopecontainer,par_slopecontainerkey))!=StatusCode::SUCCESS ) {
-      msg(MSG::ERROR) << "Could not record RtRelationContainer for key " << par_slopecontainerkey << endmsg;
+      msg(MSG::ERROR) << "Could not record RtRelationContainer for key " << par_slopecontainerkey << endreq;
     }
     if(StatusCode::SUCCESS!=m_detstore->retrieve(m_slopecontainer,par_slopecontainerkey)) {
-      msg(MSG::FATAL) << "Could not retrieve data handle for Rt slope container " << endmsg;
+      msg(MSG::FATAL) << "Could not retrieve data handle for Rt slope container " << endreq;
       return StatusCode::FAILURE ;
     }
   }
@@ -154,24 +149,24 @@ StatusCode TRT_CalDbSvc::initialize()
   bool t0containerexists = m_detstore->StoreGateSvc::contains<StrawT0Container>(par_t0containerkey) ;
   if( t0containerexists ) {
     if( (m_detstore->regFcn(&TRT_CalDbSvc::IOVCallBack,this,m_t0container,par_t0containerkey)).isFailure()) 
-      msg(MSG::ERROR) << "Could not register IOV callback for key: " << par_t0containerkey << endmsg ;
+      msg(MSG::ERROR) << "Could not register IOV callback for key: " << par_t0containerkey << endreq ;
   } else {
     // create, record and update data handle
-    msg(MSG::INFO) << "Creating new t0 container" << endmsg ;
+    msg(MSG::INFO) << "Creating new t0 container" << endreq ;
     m_ownst0container = true ;
     const StrawT0Container* t0container = new StrawT0Container() ;
     if( (m_detstore->record(t0container,par_t0containerkey))!=StatusCode::SUCCESS ) {
-      msg(MSG::ERROR) << "Could not record StrawT0Container for key " << par_t0containerkey << endmsg;
+      msg(MSG::ERROR) << "Could not record StrawT0Container for key " << par_t0containerkey << endreq;
     }
     if(StatusCode::SUCCESS!=m_detstore->retrieve(m_t0container,par_t0containerkey)) {
-      msg(MSG::FATAL) << "Could not retrieve data handle for StrawT0Container " << endmsg;
+      msg(MSG::FATAL) << "Could not retrieve data handle for StrawT0Container " << endreq;
       return StatusCode::FAILURE ;
     }
   }
   
   if( !par_caltextfile.empty() ) {
     if(StatusCode::SUCCESS!=this->readTextFile(par_caltextfile)) {
-      msg(MSG::FATAL) << "Could not read calibration objects from text error file" << par_caltextfile << endmsg;
+      msg(MSG::FATAL) << "Could not read calibration objects from text error file" << par_caltextfile << endreq;
       return StatusCode::FAILURE ;
     }
     m_existserrcontainer=true;
@@ -190,7 +185,7 @@ StatusCode TRT_CalDbSvc::finalize()
 
 StatusCode TRT_CalDbSvc::writeTextFile(const std::string& filename, int format) const
 {
-  msg(MSG::INFO) << " Write calibration data to text file " << filename << endmsg ;
+  msg(MSG::INFO) << " Write calibration data to text file " << filename << endreq ;
   StatusCode sc=StatusCode::SUCCESS ;
   std::ofstream outfile(filename.c_str());
   outfile << "# Fileformat=" << format << std::endl ;
@@ -199,7 +194,7 @@ StatusCode TRT_CalDbSvc::writeTextFile(const std::string& filename, int format) 
   case 1: sc=writeTextFile_Format1(outfile) ; break ;
   case 2: sc=writeTextFile_Format2(outfile) ; break ;
   case 3: sc=writeTextFile_Format3(outfile) ; break ;
-  default: msg(MSG::ERROR) << " Don't know how to write file in format = " << format << endmsg ;
+  default: msg(MSG::ERROR) << " Don't know how to write file in format = " << format << endreq ;
   }
   outfile.close() ;
   return sc ;
@@ -211,7 +206,7 @@ StatusCode TRT_CalDbSvc::readTextFile(const std::string& filename)
   StatusCode sc=StatusCode::SUCCESS ;
   std::ifstream infile(filename.c_str()) ;
   if(!infile) {
-    msg(MSG::ERROR) << "Cannot find input file " << filename << endmsg ;
+    msg(MSG::ERROR) << "Cannot find input file " << filename << endreq ;
   } else {
     // read the format tag. if none, default to 0
     // very poor combination of c and C++ string handling
@@ -223,12 +218,12 @@ StatusCode TRT_CalDbSvc::readTextFile(const std::string& filename)
     if(pos != std::string::npos) {
       sscanf(line,"# Fileformat=%d",&format) ;
     } else {
-      msg(MSG::WARNING) << "Input file has no Fileformat identifier. Assuming format=0." << endmsg;
+      msg(MSG::WARNING) << "Input file has no Fileformat identifier. Assuming format=0." << endreq;
       // 'rewind' the file
       infile.close() ;
       infile.open(filename.c_str()) ;
     }
-    msg(MSG::INFO) << "Reading calibration data from text file " << filename << " format " << format << endmsg ;
+    msg(MSG::INFO) << "Reading calibration data from text file " << filename << " format " << format << endreq ;
     switch(format) {
     case 0: sc=readTextFile_Format0(infile) ; break ;
     case 1: sc=readTextFile_Format1(infile) ; break ;
@@ -308,8 +303,8 @@ StatusCode TRT_CalDbSvc::readTextFile_Format0(std::istream& infile)
   
   msg(MSG::INFO) << "read " << nentries << " from file. " 
 	<< " t0/rt footprints before " << t0footprint << " / " << rtfootprint << " and after "
-	<< t0container->footprint() << " / " << rtcontainer->footprint() << " compression." << endmsg ;
-  if(ninvalid>0) msg(MSG::WARNING) << "read " << ninvalid << " invalid lines from input file" << endmsg ;
+	<< t0container->footprint() << " / " << rtcontainer->footprint() << " compression." << endreq ;
+  if(ninvalid>0) msg(MSG::WARNING) << "read " << ninvalid << " invalid lines from input file" << endreq ;
 
   return StatusCode::SUCCESS ;
 }
@@ -395,7 +390,7 @@ StatusCode TRT_CalDbSvc::readTextFile_Format1(std::istream& infile)
   
   msg(MSG::INFO) << "read " << nstrawt0 << " t0 and " << nrtrelations << " rt from file. " 
 	<< " t0/rt footprints before " << t0footprint << " / " << rtfootprint << " and after "
-	<< t0container->footprint() << " / " << rtcontainer->footprint() << " compression." << endmsg ;
+	<< t0container->footprint() << " / " << rtcontainer->footprint() << " compression." << endreq ;
 
   return StatusCode::SUCCESS ;
 }
@@ -499,7 +494,7 @@ StatusCode TRT_CalDbSvc::readTextFile_Format2(std::istream& infile)
     }
   }
   
-  msg(MSG::INFO) << "read " << nstrawt0 << " t0 and " << nerrors << " errors and " << nrtrelations << " rt from file. " << endmsg;
+  msg(MSG::INFO) << "read " << nstrawt0 << " t0 and " << nerrors << " errors and " << nrtrelations << " rt from file. " << endreq;
 
   return StatusCode::SUCCESS ;
 }
@@ -574,7 +569,7 @@ StatusCode TRT_CalDbSvc::readTextFile_Format3(std::istream& infile)
     }
   }
 
-  msg(MSG::INFO) << "read " << nstrawt0 << " t0 and " << nerrors << " errors and " << nslopes << " slopes and " << nrtrelations << " rt from file. " << endmsg;
+  msg(MSG::INFO) << "read " << nstrawt0 << " t0 and " << nerrors << " errors and " << nslopes << " slopes and " << nrtrelations << " rt from file. " << endreq;
 
   return StatusCode::SUCCESS ;
 }
@@ -637,14 +632,14 @@ StatusCode TRT_CalDbSvc::writeTextFile_Format3(std::ostream& outfile) const
 
 StatusCode TRT_CalDbSvc::streamOutCalibObjects() const
 {
-  msg(MSG::INFO) << "entering streamOutCalibObjects "  << endmsg;
+  msg(MSG::INFO) << "entering streamOutCalibObjects "  << endreq;
   StatusCode sc;
   
    // Get Output Stream tool for writing
   sc = m_streamer.retrieve();
   
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to find AthenaOutputStreamTool" << endmsg;
+    msg(MSG::ERROR) << "Unable to find AthenaOutputStreamTool" << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -652,7 +647,7 @@ StatusCode TRT_CalDbSvc::streamOutCalibObjects() const
 
   sc = streamer->connectOutput();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) <<"Could not connect stream to output" <<endmsg;
+    msg(MSG::ERROR) <<"Could not connect stream to output" <<endreq;
     return( StatusCode::FAILURE);
   }
   
@@ -666,57 +661,57 @@ StatusCode TRT_CalDbSvc::streamOutCalibObjects() const
   
   sc = streamer->streamObjects(typeKeys);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) <<"Could not stream out Containers " <<endmsg;
+    msg(MSG::ERROR) <<"Could not stream out Containers " <<endreq;
     return( StatusCode::FAILURE);
   }
   
   sc = streamer->commitOutput();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) <<"Could not commit output stream" <<endmsg;
+    msg(MSG::ERROR) <<"Could not commit output stream" <<endreq;
     return( StatusCode::FAILURE);
   }
   
-  msg(MSG::INFO) << "   Streamed out and committed "  << typeKeys.size() << " objects " << endmsg;
+  msg(MSG::INFO) << "   Streamed out and committed "  << typeKeys.size() << " objects " << endreq;
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode TRT_CalDbSvc::registerCalibObjects(std::string tag, int run1, int event1, int run2, int event2) const 
 {
-  msg(MSG::INFO) << "registerCalibObjects with IOV " << endmsg;
-  msg(MSG::INFO) << "Run/evt1 [" << run1 << "," << event1 << "]" << endmsg;
-  msg(MSG::INFO) << "Run/evt2 [" << run2 << "," << event2 << "]" << endmsg;
+  msg(MSG::INFO) << "registerCalibObjects with IOV " << endreq;
+  msg(MSG::INFO) << "Run/evt1 [" << run1 << "," << event1 << "]" << endreq;
+  msg(MSG::INFO) << "Run/evt2 [" << run2 << "," << event2 << "]" << endreq;
   
   // get pointer to registration svc
   IIOVRegistrationSvc* regsvc;
   if (StatusCode::SUCCESS!=service("IOVRegistrationSvc",regsvc)) {
-    msg(MSG::FATAL) << "IOVRegistrationSvc not found" << endmsg;
+    msg(MSG::FATAL) << "IOVRegistrationSvc not found" << endreq;
     return( StatusCode::FAILURE);
   }
   
   if (StatusCode::SUCCESS==regsvc->registerIOV(RtRelationContainer::classname(),
 					       par_rtcontainerkey,tag,run1,run2,event1,event2))
-    msg(MSG::INFO) << "Registered RtRelationContainer object with key " << par_rtcontainerkey << endmsg ;
+    msg(MSG::INFO) << "Registered RtRelationContainer object with key " << par_rtcontainerkey << endreq ;
   else 
-    msg(MSG::ERROR) << "Could not register RtRelationContainer object with key " << par_rtcontainerkey << endmsg ;
+    msg(MSG::ERROR) << "Could not register RtRelationContainer object with key " << par_rtcontainerkey << endreq ;
 
   if (StatusCode::SUCCESS==regsvc->registerIOV(RtRelationContainer::classname(),
 					       par_errcontainerkey,tag,run1,run2,event1,event2))
-    msg(MSG::INFO) << "Registered RtRelationContainer object with key " << par_errcontainerkey << endmsg ;
+    msg(MSG::INFO) << "Registered RtRelationContainer object with key " << par_errcontainerkey << endreq ;
   else 
-    msg(MSG::ERROR) << "Could not register RtRelationContainer object with key " << par_errcontainerkey << endmsg ;
+    msg(MSG::ERROR) << "Could not register RtRelationContainer object with key " << par_errcontainerkey << endreq ;
   
   if (StatusCode::SUCCESS==regsvc->registerIOV(RtRelationContainer::classname(),
                                                par_slopecontainerkey,tag,run1,run2,event1,event2))
-    msg(MSG::INFO) << "Registered RtRelationContainer object with key " << par_slopecontainerkey << endmsg ;
+    msg(MSG::INFO) << "Registered RtRelationContainer object with key " << par_slopecontainerkey << endreq ;
   else
-    msg(MSG::ERROR) << "Could not register RtRelationContainer object with key " << par_slopecontainerkey << endmsg ;
+    msg(MSG::ERROR) << "Could not register RtRelationContainer object with key " << par_slopecontainerkey << endreq ;
 
   if (StatusCode::SUCCESS==regsvc->registerIOV(StrawT0Container::classname(),
 					       par_t0containerkey,tag,run1,run2,event1,event2))
-    msg(MSG::INFO) << "Registered StrawT0Container object with key " << par_t0containerkey << endmsg ;
+    msg(MSG::INFO) << "Registered StrawT0Container object with key " << par_t0containerkey << endreq ;
   else 
-    msg(MSG::ERROR) << "Could not register StrawT0Container object with key " << par_t0containerkey << endmsg ;
+    msg(MSG::ERROR) << "Could not register StrawT0Container object with key " << par_t0containerkey << endreq ;
   
   return( StatusCode::SUCCESS);
 }
@@ -733,23 +728,21 @@ double TRT_CalDbSvc::driftRadius(const double& time, float& t0, const Identifier
   if (rtr != 0)
      radius = rtr->radius( time - t0 );
   else
-     msg(MSG::FATAL) << " cannot find an rt-relation for TRT layer_or_wheel " <<  m_trtid->layer_or_wheel(ident) << " Please check IOV ranges " << endmsg ;
+     msg(MSG::FATAL) << " cannot find an rt-relation for TRT layer_or_wheel " <<  m_trtid->layer_or_wheel(ident) << " Please check IOV ranges " << endreq ;
   
   if(msgLvl(MSG::VERBOSE)) msg() << " time " << time << " t0 " << t0 << " t " << time-t0
-                                 << " radius " << radius << endmsg;
+                                 << " radius " << radius << endreq;
   //
   if(      radius<0 ) radius=0 ;
   else if( radius>2.) radius=2.;
 
   // add protection for the turnover:
   if (time - t0 > 55){
-    		if(msgLvl(MSG::VERBOSE)) msg() << " time " << time << " t0 " << t0 << " t " << time-t0  << " > 55, check Rt derivative" << endmsg;
+    		if(msgLvl(MSG::VERBOSE)) msg() << " time " << time << " t0 " << t0 << " t " << time-t0  << " > 55, check Rt derivative" << endreq;
 		// Check Second Derivative.
-		if (rtr != 0){
-			if (rtr->drdt( time - t0 ) < 0 ){
-	    		if(msgLvl(MSG::VERBOSE)) msg() << " time " << time << " t0 " << t0 << " t " << time-t0  << " and rt derivative: " <<  rtr->drdt( time - t0 )   << endmsg;
+		if (rtr->drdt( time - t0 ) < 0 ){
+	    		if(msgLvl(MSG::VERBOSE)) msg() << " time " << time << " t0 " << t0 << " t " << time-t0  << " and rt derivative: " <<  rtr->drdt( time - t0 )   << endreq;
 			radius=2.;
-			}
 		}
   }
   return radius;
@@ -772,7 +765,7 @@ double TRT_CalDbSvc::driftError( const double& time, const Identifier& ident,boo
     found=false;
   }
   if(msgLvl(MSG::VERBOSE)) msg() << " time " << time  
-				 << " error on radius " << error << endmsg;
+				 << " error on radius " << error << endreq;
   return error;
 }
 
@@ -793,7 +786,7 @@ double TRT_CalDbSvc::driftSlope( const double& time, const Identifier& ident,boo
     found=false;
   }
   if(msgLvl(MSG::VERBOSE)) msg() << " time " << time
-                                 << " slope on radius " << slope << endmsg;
+                                 << " slope on radius " << slope << endreq;
   return slope;
 }
 
@@ -802,7 +795,7 @@ StatusCode TRT_CalDbSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
   for (std::list<std::string>::const_iterator 
 	 itr=keys.begin(); itr!=keys.end(); ++itr) 
-    msg(MSG::INFO) << " IOVCALLBACK for key " << *itr << " number " << I << endmsg;
+    msg(MSG::INFO) << " IOVCALLBACK for key " << *itr << " number " << I << endreq;
   
   // if constants need to be read from textfile, we sue the call back routine to refill the IOV objects
   if(!par_caltextfile.empty()) return readTextFile( par_caltextfile ) ;

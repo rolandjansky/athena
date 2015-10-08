@@ -19,9 +19,6 @@
 
 #include "InDetReadoutGeometry/TRT_DetElementCollection.h"
 #include "InDetReadoutGeometry/TRT_BaseElement.h"
-#include "InDetReadoutGeometry/InDetDetectorManager.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
-#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
 #include "TRT_ConditionsData/FloatArrayStore.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
@@ -31,7 +28,6 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
-#include "GeoPrimitives/CLHEPtoEigenEulerAnglesConverters.h"
 
 TRT_AlignDbSvc::TRT_AlignDbSvc( const std::string& name, ISvcLocator* pSvcLocator )
   : AthService(name,pSvcLocator),
@@ -42,19 +38,13 @@ TRT_AlignDbSvc::TRT_AlignDbSvc( const std::string& name, ISvcLocator* pSvcLocato
     m_alignroot("/TRT/Align"),
     m_alignString("AL"),
     par_alitextfile(""),
-    m_streamer("AthenaPoolOutputStreamTool/CondStream1"),
-    m_alignDBprefix("/TRT/Align/"),
-    m_dynamicDB(false),
-    m_forceUserDBConfig(false)
+    m_streamer("AthenaPoolOutputStreamTool/CondStream1")
 {
   declareProperty("StreamTool",m_streamer);
-  declareProperty("alignroot",m_alignroot);
   declareProperty("alignTextFile",par_alitextfile);
   declareProperty("DetectorStore",m_detStore);
   declareProperty("TrtStrawAlignDbSvc",   m_trtStrawAlignDbSvc,"Service for interaction with the TRT straw alignment DB");
   declareProperty("alignString",m_alignString);
-  declareProperty("alignDBprefix",m_alignDBprefix);
-  declareProperty("forceUserDBConfig",m_forceUserDBConfig, "Set to true to override any DB auto-configuration");
 }
 
 //-------------------------------------------------------------------------
@@ -66,8 +56,8 @@ TRT_AlignDbSvc::~TRT_AlignDbSvc()
 //-----------------------------------------------------------------------------
 StatusCode TRT_AlignDbSvc::initialize() 
 {
-  msg(MSG::INFO) << " in initialize " << endmsg;
-  
+  msg(MSG::INFO) << " in initialize " << endreq;
+
   // Get the DetectorStore
   if (StatusCode::SUCCESS!=m_detStore.retrieve()) {
     ATH_MSG_FATAL( "Couldn't retrieve " << m_detStore.name() );
@@ -76,7 +66,7 @@ StatusCode TRT_AlignDbSvc::initialize()
 
   // get the straw db service 
   if( m_trtStrawAlignDbSvc.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << " Could not retrieve " << m_trtStrawAlignDbSvc << endmsg;
+    msg(MSG::FATAL) << " Could not retrieve " << m_trtStrawAlignDbSvc << endreq;
     return StatusCode::FAILURE;
   }
   else
@@ -86,7 +76,7 @@ StatusCode TRT_AlignDbSvc::initialize()
   InDetDD::TRT_DetElementCollection::const_iterator iter,itermin,itermax;
   if (StatusCode::SUCCESS!=m_detStore->retrieve(m_trtman,"TRT") || 
     m_trtman==0) {
-    msg(MSG::FATAL) << "Could not find TRT manager " << endmsg;
+    msg(MSG::FATAL) << "Could not find TRT manager " << endreq;
     return StatusCode::FAILURE;
   } else {
     
@@ -97,20 +87,8 @@ StatusCode TRT_AlignDbSvc::initialize()
       ATH_MSG_FATAL("Could not find TRT ID Helper.");
       return StatusCode::FAILURE;
     }
-    else msg(MSG::INFO) << "found all TRT services " << endmsg;
+    else msg(MSG::INFO) << "found all TRT services " << endreq;
   }
-
-  if (m_trtman->m_alignfoldertype == InDetDD::timedependent_run2 && !m_forceUserDBConfig){
-    m_dynamicDB = true;
-    m_alignroot = "/TRT/AlignL2";                                                         
-    m_alignDBprefix = "/TRT/AlignL2/";
-  }
-  if (m_trtman->m_alignfoldertype == InDetDD::static_run1 && !m_forceUserDBConfig){
-    m_dynamicDB = false;
-    m_alignroot = "/TRT/Align";
-    m_alignDBprefix = "/TRT/Align/";
-  }
-
 
   // setup list of TDS objects from geometry description
   m_alignobjs.clear();
@@ -118,11 +96,9 @@ StatusCode TRT_AlignDbSvc::initialize()
 
   // Include a level 1 alignment
   int ichan(0) ;
-  if (!m_dynamicDB){
-    m_alignobjs.push_back("/TRT/Align/TRT");
-    msg(MSG::INFO) << "Adding key: /TRT/Align/TRT --> We are using static DB folder scheme" << endmsg;
-    m_alignchans.push_back(ichan++);
-  }
+  m_alignobjs.push_back("/TRT/Align/TRT");
+  msg(MSG::INFO) << "Adding key: /TRT/Align/TRT " << endreq;
+  m_alignchans.push_back(ichan++);
   
   //Check all detector elements in the present geometry setup
   for (iter=itermin;iter!=itermax;++iter) {
@@ -134,7 +110,7 @@ StatusCode TRT_AlignDbSvc::initialize()
 	std::vector<std::string>::const_iterator ix = find(m_alignobjs.begin(),m_alignobjs.end(),key);
 	if (ix==m_alignobjs.end()) {
 	  m_alignobjs.push_back(key);
-	  msg(MSG::INFO) << "Adding key: " << key << endmsg;
+	  msg(MSG::INFO) << "Adding key: " << key << endreq;
 	  m_alignchans.push_back(ichan++);
 	}
       }
@@ -149,13 +125,11 @@ StatusCode TRT_AlignDbSvc::initialize()
     
     for(unsigned int i=0; i<14; ++i){
       std::string testA = "A"+intToString(i);
-      //m_alignobjs.push_back("/TRT/Align/"+testA);
-      m_alignobjs.push_back(m_alignDBprefix+testA);
+      m_alignobjs.push_back("/TRT/Align/"+testA);
       m_alignchans.push_back(ichan++);
       
       std::string testC = "C"+intToString(i);
-      //     m_alignobjs.push_back("/TRT/Align/"+testC);
-      m_alignobjs.push_back(m_alignDBprefix+testC);
+      m_alignobjs.push_back("/TRT/Align/"+testC);
       m_alignchans.push_back(ichan++);
     
     }
@@ -169,8 +143,7 @@ StatusCode TRT_AlignDbSvc::initialize()
       One can block this via: conddb.blockFolder("/TRT/Align") in the jobOptions
    */
   bool alignFolderExists = m_detStore->contains<AlignableTransformContainer>(m_alignroot) ;
-  if (m_dynamicDB) alignFolderExists = ( alignFolderExists && m_detStore->contains<CondAttrListCollection>("/TRT/AlignL1/TRT"));
-
+  
   /** This is the text files whence the constants.
   */
   bool alignTextFileExists = !par_alitextfile.empty();
@@ -179,36 +152,36 @@ StatusCode TRT_AlignDbSvc::initialize()
     
     /** register the callback */
     if( (m_detStore->regFcn(&TRT_AlignDbSvc::IOVCallBack,this,m_aligncontainerhandle,m_alignroot)).isFailure() ) {
-      msg(MSG::FATAL) << "cannot register callback for folder " << m_alignroot << endmsg ;
+      msg(MSG::FATAL) << "cannot register callback for folder " << m_alignroot << endreq ;
       return StatusCode::FAILURE ;
     }
     
     /** Reminder that the constants will be read from text file. */
     if( alignTextFileExists ) 
       msg(MSG::INFO) << "AlignableTransformContainer with name " << m_alignroot
-		     << " exists. Will read text file from callback function." << endmsg;
+		     << " exists. Will read text file from callback function." << endreq;
   
   } else if ( alignTextFileExists ) {
     
     /** create alignment objects */
     if(StatusCode::SUCCESS!=this->createAlignObjects()) {
-      msg(MSG::FATAL) << "Could not create and record new AlignableTransformContainer. Existing." << endmsg ;
+      msg(MSG::FATAL) << "Could not create and record new AlignableTransformContainer. Existing." << endreq ;
       return StatusCode::FAILURE ;
     }
-    
+
     /** Read the newly created objects */
     if(StatusCode::SUCCESS!=this->readAlignTextFile(par_alitextfile)) {
-      msg(MSG::FATAL) << "Could not read alignment objects. Existing." << endmsg;
+      msg(MSG::FATAL) << "Could not read alignment objects. Existing." << endreq;
       return StatusCode::FAILURE ;
     }
   
   } else {
-    msg(MSG::ERROR) << "AlignableTransformContainer not in IOV service and no textfile specified." << endmsg ;
+    msg(MSG::ERROR) << "AlignableTransformContainer not in IOV service and no textfile specified." << endreq ;
   }
   
   if(msgLvl(MSG::DEBUG)) msg() << "The TRT/Align keys and channels are:";
   for (unsigned int i=0;i<m_alignobjs.size();++i)
-    if(msgLvl(MSG::DEBUG)) msg() << " key " << m_alignobjs[i] << " chan " << m_alignchans[i] << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg() << " key " << m_alignobjs[i] << " chan " << m_alignchans[i] << endreq;
   
   return StatusCode::SUCCESS;
 }
@@ -217,7 +190,7 @@ StatusCode TRT_AlignDbSvc::initialize()
 
 StatusCode TRT_AlignDbSvc::finalize()
 {
-  msg(MSG::INFO) << "TRT_AlignDbSvc finalize method called" << endmsg;
+  msg(MSG::INFO) << "TRT_AlignDbSvc finalize method called" << endreq;
   for(std::vector<Amg::Transform3D*>::iterator it = amgTransformCache.begin(); it != amgTransformCache.end(); it++){
       delete *it;
   }
@@ -227,7 +200,7 @@ StatusCode TRT_AlignDbSvc::finalize()
 /** Call back function for alignment folders */
 StatusCode TRT_AlignDbSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
-  msg(MSG::DEBUG) << "In IOVCallBack" << endmsg;
+  msg(MSG::DEBUG) << "In IOVCallBack" << endreq;
   
   /** By the time this gets called the alignment transforms have been created. 
       Either by the create method in initialize, or from the align folder content from the cond db. 
@@ -237,39 +210,39 @@ StatusCode TRT_AlignDbSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys))
       for the old endcap keys. In which case we need to create the transforms for the new endcap keys
   */
   if(StatusCode::SUCCESS!=createAlignObjectsWhichDoNotAlreadyExist()){
-    msg(MSG::FATAL) << "Failed to create the alignable objects which did not already exist " << endmsg;
+    msg(MSG::FATAL) << "Failed to create the alignable objects which did not already exist " << endreq;
     return StatusCode::FAILURE ;
   }
   
   /** Print the keys were setting 
    */
   for (std::list<std::string>::const_iterator itr=keys.begin(); itr!=keys.end(); ++itr)
-    msg(MSG::INFO) << "IOVCALLBACK for key " << *itr<< " number " << I << endmsg;
+    msg(MSG::INFO) << "IOVCALLBACK for key " << *itr<< " number " << I << endreq;
   
   
   if(!par_alitextfile.empty()){
     if(StatusCode::SUCCESS!=this->readAlignTextFile(par_alitextfile)) {
-      msg(MSG::FATAL) << "Could not read alignment objects " << endmsg;
+      msg(MSG::FATAL) << "Could not read alignment objects " << endreq;
       return StatusCode::FAILURE ;
     }
   }else{
-    msg(MSG::INFO) << "Text file " << par_alitextfile << " is empty" << endmsg;
+    msg(MSG::INFO) << "Text file " << par_alitextfile << " is empty" << endreq;
   }
 
   /** print out the objects we have 
    */
   printCondObjects() ;
 
-  msg(MSG::DEBUG) << "Leaving IOVCallBack" << endmsg;
+  msg(MSG::DEBUG) << "Leaving IOVCallBack" << endreq;
   return StatusCode::SUCCESS;
 }
 
 /** write AlignableTransforms to flat text file */
 StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
 {
-  msg(MSG::DEBUG) << " in writeAlignTextFile " << endmsg;
+  msg(MSG::DEBUG) << " in writeAlignTextFile " << endreq;
   std::ofstream* outfile=0;
-  msg(MSG::INFO) << " Write AlignableTransforms to text file: "<< file << endmsg;
+  msg(MSG::INFO) << " Write AlignableTransforms to text file: "<< file << endreq;
   outfile=new std::ofstream(file.c_str());
 
   int ntrans=0;
@@ -288,14 +261,14 @@ StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
 
     /**  The object must exist in detector store */
     if (!pat){
-      msg(MSG::ERROR) << "Cannot find AlignableTransform for key "<< key << endmsg;
-      msg(MSG::ERROR) << "Skipping it. " << endmsg;
+      msg(MSG::ERROR) << "Cannot find AlignableTransform for key "<< key << endreq;
+      msg(MSG::ERROR) << "Skipping it. " << endreq;
       *outfile << key << std::endl;
       continue;
     }
     
     // first record is the name
-    msg(MSG::INFO) << " Write folder: " << key << endmsg;
+    msg(MSG::INFO) << " Write folder: " << key << endreq;
     *outfile << key << std::endl;
     ++nobj;
     
@@ -327,22 +300,12 @@ StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
 	printTransform(thisMess,trans);
       }
 
-
-      HepGeom::Transform3D transCLHEP  =  Amg::EigenTransformToCLHEP(trans);
-      CLHEP::HepRotation rot=transCLHEP.getRotation(); 
-      Amg::Vector3D eulerangles;
-      eulerangles[0] = rot.getPhi();
-      eulerangles[1] = rot.getTheta();
-      eulerangles[2] = rot.getPsi();
-
       Amg::Vector3D shift=trans.translation();
-      //Matthias: was initially 2,1,2 --> this should be equivalent to complicated method above
-      //Amg::Vector3D eulerangles = trans.rotation().eulerAngles(2,0,2) ; 
-
-      if(key == (m_alignDBprefix+"L2A") || key == (m_alignDBprefix+"L2C") ){
-
+      Amg::Vector3D eulerangles = trans.rotation().eulerAngles(2,1,2) ;
+      
+      if(key == "/TRT/Align/L2A" || key == "/TRT/Align/L2C"){
 	msg(MSG::INFO) << "   Write member: "
-		       << ident << " " << bec << " " << layer << " " << strawLayer << " "  << key << endmsg; 
+		       << ident << " " << bec << " " << layer << " " << strawLayer << " "  << key << endreq; 
 	
 	*outfile << bec << " " << layer << " " << strawLayer << " "
 		 << std::setprecision(10) << " "
@@ -350,17 +313,17 @@ StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
 		 << eulerangles[0] << " " << eulerangles[1] << " " << eulerangles[2]
 		 << std::endl;
 
-	msg(MSG::DEBUG) << "Writing transform to log file " << endmsg;
+	msg(MSG::DEBUG) << "Writing transform to log file " << endreq;
 	msg(MSG::DEBUG) << bec << " " << layer << " " << strawLayer << " "
 			<< std::setprecision(10) << " "
 			<< shift.x() << " " << shift.y() << " " << shift.z() << " "
 		        << eulerangles[0] << " " << eulerangles[1] << " " << eulerangles[2]
-			<< endmsg;
-
+			<< endreq;
+	
       }else{
 	//Need to validate this for writing out L1 Endcap alignments 
 	msg(MSG::INFO) << "   Write member: "
-		       << ident << " " << bec << " " << layer << " " << sector << " "  << key << endmsg; 
+		       << ident << " " << bec << " " << layer << " " << sector << " "  << key << endreq; 
 	
 	*outfile << bec << " " << layer << " " << sector << " "
 		 << std::setprecision(10) << " "
@@ -368,12 +331,12 @@ StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
 		 << eulerangles[0] << " " << eulerangles[1] << " " << eulerangles[2]
 		 << std::endl;
 
-	msg(MSG::DEBUG) << "Writing transform to log file " << endmsg;
+	msg(MSG::DEBUG) << "Writing transform to log file " << endreq;
 	msg(MSG::DEBUG) << bec << " " << layer << " " << sector << " "
 			<< std::setprecision(10) << " "
 			<< shift.x() << " " << shift.y() << " " << shift.z() << " "
 		        << eulerangles[0] << " " << eulerangles[1] << " " << eulerangles[2]
-			<< endmsg;
+			<< endreq;
       }
       
     }
@@ -383,27 +346,27 @@ StatusCode TRT_AlignDbSvc::writeAlignTextFile(std::string file) const
   delete outfile;
   
   msg(MSG::INFO) << "Written " << nobj << " AlignableTransform objects" << " with " << ntrans 
-		 << " transforms to text file" << endmsg;
+		 << " transforms to text file" << endreq;
   
-  msg(MSG::DEBUG) << " leaving writeAlignTextFile " << endmsg;
+  msg(MSG::DEBUG) << " leaving writeAlignTextFile " << endreq;
   return StatusCode::SUCCESS;
 }
 
 StatusCode TRT_AlignDbSvc::writeStrawAlignTextFile(std::string file) const
 {
-  msg(MSG::DEBUG) << " in writeAlignTextFile " << endmsg;
+  msg(MSG::DEBUG) << " in writeAlignTextFile " << endreq;
   
-  msg(MSG::INFO) << "Writing the straw  alignments " << endmsg;
+  msg(MSG::INFO) << "Writing the straw  alignments " << endreq;
   if( m_trtStrawAlignDbSvc -> writeTextFile(file) != StatusCode::SUCCESS )
-    msg(MSG::ERROR)<<"Cannot write to file "<< file << endmsg;   
+    msg(MSG::ERROR)<<"Cannot write to file "<< file << endreq;   
   
   return StatusCode::SUCCESS;
 }
 
 /** read AlignableTransforms from text file into TDS */
 StatusCode TRT_AlignDbSvc::readAlignTextFile(std::string file) {
-  msg(MSG::DEBUG) << " In  readAlignTextFile " << endmsg;
-  msg(MSG::INFO) << "Read alignment constants from text file: " << file << endmsg;
+  msg(MSG::DEBUG) << " In  readAlignTextFile " << endreq;
+  msg(MSG::INFO) << "Read alignment constants from text file: " << file << endreq;
   std::ifstream infile;
   infile.open(file.c_str());
 
@@ -437,10 +400,10 @@ StatusCode TRT_AlignDbSvc::readAlignTextFile(std::string file) {
       if( linestring.find('/') != std::string::npos) {
 	// this must be a line with a container name
 	atname = linestring ;
-	msg(MSG::INFO) << "now reading container: " << atname << endmsg ;
+	msg(MSG::INFO) << "now reading container: " << atname << endreq ;
 	pat=getTransPtr(atname);
 	if (!pat) {
-	  msg(MSG::ERROR) << "Cannot find AlignableTransform object for key " << atname << endmsg;
+	  msg(MSG::ERROR) << "Cannot find AlignableTransform object for key " << atname << endreq;
 	  return StatusCode::FAILURE;
 	} else {
 	  nobj++;
@@ -452,43 +415,36 @@ StatusCode TRT_AlignDbSvc::readAlignTextFile(std::string file) {
 	int bec(0),layer(0),sector(0),strawLayer(0);
 	double dx,dy,dz,phi,theta,psi;
 	
-	if(atname == (m_alignDBprefix+"L2A") || atname == (m_alignDBprefix+"L2C") ){
+	if(atname == "/TRT/Align/L2A" || atname == "/TRT/Align/L2C"){
 	  if( is >> bec >> layer >> strawLayer >> dx >> dy >> dz >> phi ) {
          CLHEP::Hep3Vector translation(dx, dy, dz);
          CLHEP::HepRotation rotation;
          if (is >> theta >> psi) {
             if (msgLvl(MSG::DEBUG))
                 msg() << "read a line with euler angles!" << phi
-                      << " " << theta << " " << psi << endmsg;
-            rotation.set(phi, theta, psi);
-         }
+                      << " " << theta << " " << psi << endreq;
+                rotation.set(phi, theta, psi);
+                        }
 	    //We have to give a phi sector, so we'll give 0.
 	    Identifier ident=m_trtid->layer_id(bec,0,layer,strawLayer);
 	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "The identifier is for bec " << bec 
-						   << " layer " << layer << " strawLayer " << strawLayer <<endmsg;
-	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "The code is  " << m_trtid->show_to_string(ident) << endmsg;
+						   << " layer " << layer << " strawLayer " << strawLayer <<endreq;
+	    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "The code is  " << m_trtid->show_to_string(ident) << endreq;
 	    if( pat->findIdent(ident)!=pat->end() ) {
 	      msg(MSG::WARNING) << "WARNING: read module from file which was already in AlignableTransform. Will skip it."
 				<< " bec,lay,sec,strawlay = " << bec << " " << layer << " " << sector << " " << std::endl;
 	    } else {
 	      pat->add(ident,HepGeom::Transform3D(rotation, translation));
-	      HepGeom::Transform3D testtrans = HepGeom::Transform3D(rotation, translation);
-	      if(msgLvl(MSG::DEBUG)){
-		std::string thisMess = atname+" for "+file;
-		printTransform(thisMess,Amg::CLHEPTransformToEigen(testtrans));
-	      }
-
-
 	      ++ntrans;
 	      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Set transform: "
 						     << " [" << bec << "," << layer << ","  << strawLayer 
 						     << "] key " << atname 
 						     << " rotation=(" << phi << "," << theta << "," << psi
 						     << "),  translation=(" << dx << "," << dy << "," << dz << "])" 
-						     << endmsg;
+						     << endreq;
 	    }
 	  } else if(!linestring.empty()) {
-	    msg(MSG::WARNING) << "Read invalid line from textfile. Line=\'" << line << "\'" << endmsg ;
+	    msg(MSG::WARNING) << "Read invalid line from textfile. Line=\'" << line << "\'" << endreq ;
 	  }
 	}//if endcap
 	else{
@@ -497,11 +453,11 @@ StatusCode TRT_AlignDbSvc::readAlignTextFile(std::string file) {
 	    CLHEP::HepRotation rotation;
 	    if( is >> theta >> psi ) {
 	      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "read a line with euler angles!" << phi << " " << theta << " " << psi 
-					   << endmsg ;
+					   << endreq ;
 	        rotation.set(phi,theta,psi) ;
 
 	    } else {
-	      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "read a line with angle in phi!" << phi << endmsg ;
+	      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "read a line with angle in phi!" << phi << endreq ;
 	      rotation = CLHEP::HepRotationZ(phi) ;
 	    }
 	    
@@ -515,10 +471,10 @@ StatusCode TRT_AlignDbSvc::readAlignTextFile(std::string file) {
 	      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Set transform: "
 						     << " [" << bec << "," << layer << "," << sector 
 						     << "] key " << atname << " rotation=(" << phi << "," << theta << "," << psi
-						     << "),  translation=(" << dx << "," << dy << "," << dz << "])" << endmsg;
+						     << "),  translation=(" << dx << "," << dy << "," << dz << "])" << endreq;
 	    }
 	  } else if(!linestring.empty()) {
-	    msg(MSG::WARNING) << "Read invalid line from textfile. Line=\'" << line << "\'" << endmsg ;
+	    msg(MSG::WARNING) << "Read invalid line from textfile. Line=\'" << line << "\'" << endreq ;
 	  }
 	}//if not the endcap
 
@@ -529,29 +485,29 @@ StatusCode TRT_AlignDbSvc::readAlignTextFile(std::string file) {
 
   infile.close() ;
   msg(MSG::INFO) << "Read " << nobj << " objects from file with " << ntrans << " transforms." 
-		 << " Now forcing callback in detector manager." << endmsg; 
+		 << " Now forcing callback in detector manager." << endreq; 
 
   /** force a call back */
   int i(0);
   std::list<std::string> keys;
   if((const_cast<InDetDD::TRT_DetectorManager*>(m_trtman))->align(i,keys).isFailure()){
-    msg(MSG::ERROR) <<"Failed to force the alignment callback!"<<endmsg;
+    msg(MSG::ERROR) <<"Failed to force the alignment callback!"<<endreq;
   }
   
-  msg(MSG::DEBUG) << " Leaving  readAlignTextFile " << endmsg;
+  msg(MSG::DEBUG) << " Leaving  readAlignTextFile " << endreq;
   return StatusCode::SUCCESS;
 }  
 
 /** write the alignment objects to output */
 StatusCode TRT_AlignDbSvc::streamOutAlignObjects() const{
-  msg(MSG::DEBUG) << "In streamOutAlignObjects "  << endmsg;
+  msg(MSG::DEBUG) << "In streamOutAlignObjects "  << endreq;
   StatusCode sc;
 
   // Get Output Stream tool for writing
   sc = m_streamer.retrieve();
   
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to find AthenaOutputStreamTool" << endmsg;
+    msg(MSG::ERROR) << "Unable to find AthenaOutputStreamTool" << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -559,7 +515,7 @@ StatusCode TRT_AlignDbSvc::streamOutAlignObjects() const{
   
   sc = streamer->connectOutput();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) <<"Could not connect stream to output" <<endmsg;
+    msg(MSG::ERROR) <<"Could not connect stream to output" <<endreq;
     return( StatusCode::FAILURE);
   }
   
@@ -568,49 +524,49 @@ StatusCode TRT_AlignDbSvc::streamOutAlignObjects() const{
   typeKeys.push_back(arraypair);
   if(!(m_detStore->contains<AlignableTransformContainer>(m_alignroot))) {
     msg(MSG::ERROR) << " Container " << m_alignroot << " not found "
-		    << endmsg;
+		    << endreq;
     return( StatusCode::FAILURE);
   }
   
   sc =streamer->streamObjects(typeKeys);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) <<"Could not stream out AlignableTransformContainer" <<endmsg;
+    msg(MSG::ERROR) <<"Could not stream out AlignableTransformContainer" <<endreq;
     return( StatusCode::FAILURE);
   }
   
   sc = streamer->commitOutput();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) <<"Could not commit output stream" <<endmsg;
+    msg(MSG::ERROR) <<"Could not commit output stream" <<endreq;
     return( StatusCode::FAILURE);
   }
   
-  msg(MSG::INFO) << "   Streamed out and committed AlignableTransformContainer" << endmsg;
+  msg(MSG::INFO) << "   Streamed out and committed AlignableTransformContainer" << endreq;
   printCondObjects() ;
 
-  msg(MSG::DEBUG) << "Leaving streamOutAlignObjects "  << endmsg;
+  msg(MSG::DEBUG) << "Leaving streamOutAlignObjects "  << endreq;
   return StatusCode::SUCCESS;
 }
 
 /** register alignment objects with the IoV service */
 StatusCode TRT_AlignDbSvc::registerAlignObjects(std::string tag, int run1, int event1, int run2, int event2) const{
   
-  msg(MSG::INFO) << "registerAlignObjects with IOV " << endmsg;
-  msg(MSG::INFO) << "Run/evt1 [" << run1 << "," << event1 << "]" << endmsg;
-  msg(MSG::INFO) << "Run/evt2 [" << run2 << "," << event2 << "]" << endmsg;
+  msg(MSG::INFO) << "registerAlignObjects with IOV " << endreq;
+  msg(MSG::INFO) << "Run/evt1 [" << run1 << "," << event1 << "]" << endreq;
+  msg(MSG::INFO) << "Run/evt2 [" << run2 << "," << event2 << "]" << endreq;
 
   // get pointer to registration svc
   IIOVRegistrationSvc* regsvc;
   if (StatusCode::SUCCESS!=service("IOVRegistrationSvc",regsvc)) {
-    msg(MSG::FATAL) << "IOVRegistrationSvc not found" << endmsg;
+    msg(MSG::FATAL) << "IOVRegistrationSvc not found" << endreq;
     return( StatusCode::FAILURE);
   }
   
   if (StatusCode::SUCCESS==regsvc->registerIOV("AlignableTransformContainer",m_alignroot,tag,run1,run2,event1,event2)){
     msg(MSG::INFO) << " Register AlignableTransformContainer object " 
-		   << m_alignroot << endmsg;
+		   << m_alignroot << endreq;
   } else {
     msg(MSG::ERROR) << " Failed to register AlignableTranformContainer " 
-		    << m_alignroot << endmsg;
+		    << m_alignroot << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -619,12 +575,12 @@ StatusCode TRT_AlignDbSvc::registerAlignObjects(std::string tag, int run1, int e
 
 /** get Level L2 Transform for an identifier */
 const Amg::Transform3D TRT_AlignDbSvc::getAlignmentTransform(const Identifier& ident, unsigned int level) const {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getAlignmentTransform" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getAlignmentTransform" << endreq;
   
   if(level != 1 && level != 2){
-    if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Call to trans wrong!" << endmsg;
-    if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Level must be 1 or 2!" << endmsg;
-    if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Returning NULL" << endmsg;
+    if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Call to trans wrong!" << endreq;
+    if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Level must be 1 or 2!" << endreq;
+    if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Returning NULL" << endreq;
     return Amg::Transform3D();
   }
 
@@ -633,7 +589,7 @@ const Amg::Transform3D TRT_AlignDbSvc::getAlignmentTransform(const Identifier& i
 
 /** get Level 1 AlignableTransform for an identifier */
 const Amg::Transform3D  TRT_AlignDbSvc::getAlignmentTransformL1(Identifier const& ident) const{
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getAlignmentTransformL1" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getAlignmentTransformL1" << endreq;
   // return level 1 AlignableTransform for the TRT subdetector bec (+-1,+-2)
   // or return null transform.
   
@@ -648,7 +604,7 @@ const Amg::Transform3D  TRT_AlignDbSvc::getAlignmentTransformL1(Identifier const
 
 /** get Level 2 AlignableTransform for an identifier */
 const Amg::Transform3D TRT_AlignDbSvc::getAlignmentTransformL2(Identifier const& ident) const{
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getAlignmentTransformL2" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getAlignmentTransformL2" << endreq;
   // return level 2 AlignableTransform for the module containing ident
   // or return null transform.
   
@@ -667,7 +623,7 @@ const Amg::Transform3D TRT_AlignDbSvc::getAlignmentTransformL2(Identifier const&
   int ring = getRingForStrawLayer(strawLayer);
 
   Identifier mid;
-  if(key == (m_alignDBprefix+"L2A") || key == (m_alignDBprefix+"L2C") )
+  if(key == "/TRT/Align/L2A" || key == "/TRT/Align/L2C")
     mid=m_trtid->layer_id(bec,0,layer,ring);
   else
     mid=m_trtid->module_id(bec,sector,layer);
@@ -679,12 +635,12 @@ const Amg::Transform3D TRT_AlignDbSvc::getAlignmentTransformL2(Identifier const&
 
 /** get Level L2 Transform for an identifier */
 const Amg::Transform3D* TRT_AlignDbSvc::getAlignmentTransformPtr(const Identifier& ident, unsigned int level) const {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getAlignmentTransformPtr" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getAlignmentTransformPtr" << endreq;
   
   if(level != 1 && level != 2){
-    if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Call to trans wrong!" << endmsg;
-    if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Level must be 1 or 2!" << endmsg;
-    if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Returning NULL" << endmsg;
+    if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Call to trans wrong!" << endreq;
+    if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Level must be 1 or 2!" << endreq;
+    if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Returning NULL" << endreq;
     return NULL;
   }
 
@@ -693,7 +649,7 @@ const Amg::Transform3D* TRT_AlignDbSvc::getAlignmentTransformPtr(const Identifie
 
 /** get Level L1 Transform for an identifier */
 const Amg::Transform3D*  TRT_AlignDbSvc::getAlignmentTransformL1Ptr(Identifier const& ident) const{
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getAlignmentTransformL1Ptr" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getAlignmentTransformL1Ptr" << endreq;
   // get level 1 (despite name, will change soon) AlignableTransform for the subdetector containing ident
   const Amg::Transform3D* rc(0) ;
   if( m_trtid->is_trt(ident) ) {
@@ -710,13 +666,13 @@ const Amg::Transform3D*  TRT_AlignDbSvc::getAlignmentTransformL1Ptr(Identifier c
     }
   }
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving getAlignmentTransformL1Ptr" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving getAlignmentTransformL1Ptr" << endreq;
   return rc ;
 }
 
 /** get Level L2 Transform for an identifier */
 const Amg::Transform3D* TRT_AlignDbSvc::getAlignmentTransformL2Ptr(Identifier const& ident) const{
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getAlignmentTransformL2Ptr" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getAlignmentTransformL2Ptr" << endreq;
   // set level 2 (despite name, will change soon) AlignableTransform for the module containing ident
   // or add a new one.
   const Amg::Transform3D* rc(0) ;
@@ -732,7 +688,7 @@ const Amg::Transform3D* TRT_AlignDbSvc::getAlignmentTransformL2Ptr(Identifier co
       int strawLayer=m_trtid->straw_layer(ident);
       int ring = getRingForStrawLayer(strawLayer);
       Identifier mid;
-      if(key == (m_alignDBprefix+"L2A") || key == (m_alignDBprefix+"L2C") ){
+      if(key == "/TRT/Align/L2A" || key == "/TRT/Align/L2C"){
 	mid =m_trtid->layer_id(bec,0,layer,ring);
       }else
 	mid =m_trtid->module_id(bec,sector,layer);
@@ -745,22 +701,23 @@ const Amg::Transform3D* TRT_AlignDbSvc::getAlignmentTransformL2Ptr(Identifier co
           rc = amgTransform;
       }
 
+
       else
-	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Did not find the transform for " << m_trtid->show_to_string(mid) << endmsg;
+	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Did not find the transform for " << m_trtid->show_to_string(mid) << endreq;
     }
   }
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving getAlignmentTransformL2Ptr" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving getAlignmentTransformL2Ptr" << endreq;
   return rc ;
 }
 
 /** set AlignableTransform for an identifier */
 StatusCode TRT_AlignDbSvc::setAlignTransform(Identifier ident, Amg::Transform3D trans, unsigned int level) {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getAlignmentTransform" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In getAlignmentTransform" << endreq;
   
   if(level != 1 && level != 2 && level != 3){
-    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Call to setAlignTransform wrong!" << endmsg;
-    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Level must be 1,2 or 3!" << endmsg;
+    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Call to setAlignTransform wrong!" << endreq;
+    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Level must be 1,2 or 3!" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -768,22 +725,22 @@ StatusCode TRT_AlignDbSvc::setAlignTransform(Identifier ident, Amg::Transform3D 
     
   case 1:
     if(setAlignTransformL1(ident,trans).isFailure()){
-      msg(MSG::FATAL)<<"Failed to set align Transform L1" << endmsg;
+      msg(MSG::FATAL)<<"Failed to set align Transform L1" << endreq;
       return StatusCode::FAILURE;
+      break;
     }
-    break;
   case 2:
     if(setAlignTransformL2(ident,trans).isFailure()){
-      msg(MSG::FATAL)<<"Failed to set align Transform L2" << endmsg;
+      msg(MSG::FATAL)<<"Failed to set align Transform L2" << endreq;
       return StatusCode::FAILURE;
+      break;
     }
-    break;
   case 3:
     if(setAlignTransformL3(ident,trans).isFailure()){
-      msg(MSG::FATAL)<<"Failed to set align Transform L3" << endmsg;
+      msg(MSG::FATAL)<<"Failed to set align Transform L2" << endreq;
       return StatusCode::FAILURE;
+      break;
     }
-    break;
   }
 
   return StatusCode::SUCCESS;
@@ -794,53 +751,42 @@ StatusCode TRT_AlignDbSvc::setAlignTransformL1(Identifier ident, Amg::Transform3
   /** AlignableTransform for the subdetector containing ident
    or add a new one.
   */
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In setAlignTransformL1" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In setAlignTransformL1" << endreq;
   if(msgLvl(MSG::DEBUG)){
     printTransform("Transform in setAlignTransformL1",trans);
   }
-
-  // New additions for new global folder structure
-  // No ATs exist for levels 1 & 2 --> need alternative
-  if (m_dynamicDB){
-    if(!tweakGlobalFolder(ident, trans)) {
-      ATH_MSG_ERROR( "Attempt tweak GlobalDB folder failed" );
-      return StatusCode::FAILURE;
-    }
-  }
-  else {
   
-    //does a folder exist corresponding to this identifier?
-    AlignableTransform* pat=getTransPtr("/TRT/Align/TRT");
-    if (!pat){
-      msg(MSG::FATAL) << "The AlignableTransform for key " << "/TRT/Align/TRT" << " does not exist " << endmsg;
-      msg(MSG::FATAL) << "Failing ... " << endmsg;
-      return StatusCode::FAILURE;
-    }
-    
-    // make sure the identifier is a "subdetector identifier"
-    if( !(m_trtid->is_trt(ident)) ){
-      msg(MSG::FATAL) << "The identifier " << ident << " is not from the TRT " << endmsg;
-      msg(MSG::FATAL) << "Failing ... " <<endmsg;
-      return StatusCode::FAILURE;
-    }
-    
-    int bec=m_trtid->barrel_ec(ident);
-    Identifier mid=m_trtid->module_id(bec,0,0);
-    // update or add (mid,trans) pair
-    HepGeom::Transform3D clhepTrans = Amg::EigenTransformToCLHEP(trans);
-    if( !(pat->update(mid,clhepTrans)) ) {
-      pat->add(mid,clhepTrans);
-      pat->sortv() ;
-    }
+  //does a folder exist corresponding to this identifier?
+  AlignableTransform* pat=getTransPtr("/TRT/Align/TRT");
+  if (!pat){
+    msg(MSG::FATAL) << "The AlignableTransform for key " << "/TRT/Align/TRT" << " does not exist " << endreq;
+    msg(MSG::FATAL) << "Failing ... " << endreq;
+    return StatusCode::FAILURE;
   }
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving setAlignTransformL1" << endmsg;
+  // make sure the identifier is a "subdetector identifier"
+  if( !(m_trtid->is_trt(ident)) ){
+    msg(MSG::FATAL) << "The identifier " << ident << " is not from the TRT " << endreq;
+    msg(MSG::FATAL) << "Failing ... " <<endreq;
+    return StatusCode::FAILURE;
+  }
+  
+  int bec=m_trtid->barrel_ec(ident);
+  Identifier mid=m_trtid->module_id(bec,0,0);
+  // update or add (mid,trans) pair
+  HepGeom::Transform3D clhepTrans = Amg::EigenTransformToCLHEP(trans);
+  if( !(pat->update(mid,clhepTrans)) ) {
+    pat->add(mid,clhepTrans);
+    pat->sortv() ;
+  }
+
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving setAlignTransformL1" << endreq;
   return StatusCode::SUCCESS;
 }
 
 /** set Level 2 AlignableTransform for an identifier */
 StatusCode TRT_AlignDbSvc::setAlignTransformL2 (Identifier ident, Amg::Transform3D trans) {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In setAlignTransformL2"  << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In setAlignTransformL2"  << endreq;
   /** AlignableTransform for the module containing ident
       or add a new one.
   */
@@ -861,18 +807,18 @@ StatusCode TRT_AlignDbSvc::setAlignTransformL2 (Identifier ident, Amg::Transform
 
   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Setting the L2 Alignment for: " 
 					 << " Bec= " << bec << " layer= " << layer << " sector= " << sector 
-					 << " strawLayer= " << strawLayer << endmsg;
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "The translations are: x= " << trans(0,3) << " y= "<<trans(1,3) << " z= "<<trans(2,3) << endmsg;
+					 << " strawLayer= " << strawLayer << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "The translations are: x= " << trans(0,3) << " y= "<<trans(1,3) << " z= "<<trans(2,3) << endreq;
 
-  if(key == (m_alignDBprefix+"L2A") || key == (m_alignDBprefix+"L2C"))
+  if(key == "/TRT/Align/L2A" || key == "/TRT/Align/L2C")
     m_ident=m_trtid->layer_id(bec,0,layer,ring);    
   else
     m_ident=m_trtid->module_id(bec,sector,layer);
 
   // make sure the identifier is a TRT identifier
   if( !(m_trtid->is_trt(m_ident)) ){
-    msg(MSG::FATAL) << "The identifier " << m_ident << " is not from the TRT " << endmsg;
-    msg(MSG::FATAL) << "Failing ... " <<endmsg;
+    msg(MSG::FATAL) << "The identifier " << m_ident << " is not from the TRT " << endreq;
+    msg(MSG::FATAL) << "Failing ... " <<endreq;
     return StatusCode::FAILURE;
   }
   
@@ -883,13 +829,13 @@ StatusCode TRT_AlignDbSvc::setAlignTransformL2 (Identifier ident, Amg::Transform
     pat->sortv() ;
   }
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving setAlignTransformL2 "  << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving setAlignTransformL2 "  << endreq;
   return StatusCode::SUCCESS;
 }
 
 /** set Level 3 AlignableTransform for an identifier */
 StatusCode TRT_AlignDbSvc::setAlignTransformL3 (Identifier ident, Amg::Transform3D trans) {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In setAlignTransformL3"  << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In setAlignTransformL3"  << endreq;
     
   // make sure the identifier is a "module identifier"
   if( !(m_trtid->is_trt(ident)) ) return StatusCode::FAILURE;
@@ -960,29 +906,29 @@ StatusCode TRT_AlignDbSvc::setAlignTransformL3 (Identifier ident, Amg::Transform
     m_trtStrawAlignDbSvc->setDx(ident, delta_dx_nearReadOut, delta_dx_nearBeamPipe, dxErr);
   }
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving setAlignTransformL3 "  << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving setAlignTransformL3 "  << endreq;
   return StatusCode::SUCCESS;
 }
 
 /** tweak AlignableTransform for an identifier */
 StatusCode TRT_AlignDbSvc::tweakAlignTransform(Identifier ident, Amg::Transform3D trans, unsigned int level) {
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In tweakAlignTransform" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In tweakAlignTransform" << endreq;
   
   if(level != 1 && level != 2 && level != 3){
-    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Incorrect call to tweakTrans" << endmsg;
-    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "level must be 1,2 or 3" << endmsg;
+    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Incorrect call to tweakTrans" << endreq;
+    if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "level must be 1,2 or 3" << endreq;
     return StatusCode::FAILURE;
   }
   
   if(level == 1){
     if(tweakAlignTransformL1(ident,trans).isFailure()){
       
-      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "tweak failed...just setting it." << endmsg;
+      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "tweak failed...just setting it." << endreq;
       
       if(setAlignTransformL1(ident,trans).isFailure()){
-	if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Set also failed!" << endmsg;
-	if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Fail for real." << endmsg;
+	if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Set also failed!" << endreq;
+	if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Fail for real." << endreq;
 	return StatusCode::FAILURE;
       }
     }
@@ -991,11 +937,11 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransform(Identifier ident, Amg::Transform3
   else if(level == 2){
     if(tweakAlignTransformL2(ident,trans).isFailure()){
       
-      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "tweak failed...just setting it." << endmsg;
+      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "tweak failed...just setting it." << endreq;
       
       if(setAlignTransformL2(ident,trans).isFailure()){
-	if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Set also failed!" << endmsg;
-	if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Fail for real." << endmsg;
+	if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Set also failed!" << endreq;
+	if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Fail for real." << endreq;
 	return StatusCode::FAILURE;
       }
     }    
@@ -1004,17 +950,17 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransform(Identifier ident, Amg::Transform3
   else if(level == 3){
     if(tweakAlignTransformL3(ident,trans).isFailure()){
       
-      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "tweak failed...just setting it." << endmsg;
+      if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "tweak failed...just setting it." << endreq;
       
       if(setAlignTransformL3(ident,trans).isFailure()){
-	if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Set also failed!" << endmsg;
-	if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Fail for real." << endmsg;
+	if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Set also failed!" << endreq;
+	if(msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Fail for real." << endreq;
 	return StatusCode::FAILURE;
       }
     }    
   }
     
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving tweakAlignTransform" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving tweakAlignTransform" << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -1023,53 +969,42 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransformL1(Identifier ident, Amg::Transfor
   /** multiply level 1 AlignableTransform for the module containing ident
       by an additional transform.
   */
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In tweakAlignTransformL1" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In tweakAlignTransformL1" << endreq;
 
-  // New additions for new global folder structure                                                                                                                    
-  // No ATs exist for levels 1 & 2 --> need alternative                                                                                                               
-  if (m_dynamicDB){
-    if(!tweakGlobalFolder(ident, trans)) {
-      ATH_MSG_ERROR( "Attempt tweak GlobalDB folder failed" );
-      return StatusCode::FAILURE;
-    }
+  /** does a folder exist corresponding to this identifier? */
+  AlignableTransform* pat=getTransPtr("/TRT/Align/TRT");
+  if (!pat){
+    msg(MSG::WARNING) << "The AlignableTransform for key " << "/TRT/Align/TRT" << " does not exist " << endreq;
+    msg(MSG::WARNING) << "Failing ... " << endreq;
+    return StatusCode::FAILURE;
   }
-  else {
-    
-    /** does a folder exist corresponding to this identifier? */
-    AlignableTransform* pat=getTransPtr("/TRT/Align/TRT");
-    if (!pat){
-      msg(MSG::WARNING) << "The AlignableTransform for key " << "/TRT/Align/TRT" << " does not exist " << endmsg;
-      msg(MSG::WARNING) << "Failing ... " << endmsg;
-      return StatusCode::FAILURE;
-    }
-    
-    /** OK the key exists
-	make sure the identifier is a "subdetector identifier"
-    */
-    if( !(m_trtid->is_trt(ident)) ){
-      msg(MSG::WARNING) << "The identifier " << ident << " is not from the TRT " << endmsg;
-      msg(MSG::WARNING) << "Failing ... " <<endmsg;
-      return StatusCode::FAILURE;
-    }
-    
-    int bec=m_trtid->barrel_ec(ident);
-    Identifier mid=m_trtid->module_id(bec,0,0);
-    
-    /** multiply the additional transformation */
-    if( !(pat->tweak(mid,Amg::EigenTransformToCLHEP(trans))) ){
-      msg(MSG::WARNING) << "The Alignable transfor tweek failed for " << mid << endmsg;
-      msg(MSG::WARNING) << "Failing ... " <<endmsg;
-      return StatusCode::FAILURE;
-    }
+  
+  /** OK the key exists
+   make sure the identifier is a "subdetector identifier"
+  */
+  if( !(m_trtid->is_trt(ident)) ){
+    msg(MSG::WARNING) << "The identifier " << ident << " is not from the TRT " << endreq;
+    msg(MSG::WARNING) << "Failing ... " <<endreq;
+    return StatusCode::FAILURE;
+  }
+  
+  int bec=m_trtid->barrel_ec(ident);
+  Identifier mid=m_trtid->module_id(bec,0,0);
+
+  /** multiply the additional transformation */
+  if( !(pat->tweak(mid,Amg::EigenTransformToCLHEP(trans))) ){
+    msg(MSG::WARNING) << "The Alignable transfor tweek failed for " << mid << endreq;
+    msg(MSG::WARNING) << "Failing ... " <<endreq;
+    return StatusCode::FAILURE;
   }
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving tweakAlignTransformL1" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving tweakAlignTransformL1" << endreq;
   return StatusCode::SUCCESS;
 }
 
 /** tweak Level 2 AlignableTransform for an identifier */
 StatusCode TRT_AlignDbSvc::tweakAlignTransformL2(Identifier ident, Amg::Transform3D trans) {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In tweakAlignTransformL2" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In tweakAlignTransformL2" << endreq;
   // multiply level 2 AlignableTransform for the module containing ident
   // by an additional transform.
 
@@ -1077,8 +1012,8 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransformL2(Identifier ident, Amg::Transfor
   std::string key=findkey(ident,m_alignString);
   AlignableTransform* pat=getTransPtr(key);
   if (!pat){
-    msg(MSG::WARNING) << "The transfor for key: " << key << "Does not exist" << endmsg;
-    msg(MSG::WARNING) << " Failing ... " << endmsg;
+    msg(MSG::WARNING) << "The transfor for key: " << key << "Does not exist" << endreq;
+    msg(MSG::WARNING) << " Failing ... " << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -1091,24 +1026,24 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransformL2(Identifier ident, Amg::Transfor
   int strawLayer=m_trtid->straw_layer(ident);
   int ring = getRingForStrawLayer(strawLayer);
   Identifier mid;
-  if(key == (m_alignDBprefix+"L2A") || key == (m_alignDBprefix+"L2C"))
+  if(key == "/TRT/Align/L2A" || key == "/TRT/Align/L2C")
     mid = m_trtid->layer_id(bec,0,layer,ring);
   else
     mid = m_trtid->module_id(bec,sector,layer);
 
   // multiply the additional transformation
   if( !(pat->tweak(mid,Amg::EigenTransformToCLHEP(trans))) ){
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Leaving tweakAlignTransformL2.  TWEAK FAILED!!" << endmsg;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Leaving tweakAlignTransformL2.  TWEAK FAILED!!" << endreq;
     return StatusCode::FAILURE;
   }
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving tweakAlignTransformL2" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving tweakAlignTransformL2" << endreq;
   return StatusCode::SUCCESS;
 }
 
 /** tweak Level 3 AlignableTransform for an identifier */
 StatusCode TRT_AlignDbSvc::tweakAlignTransformL3 (Identifier ident, Amg::Transform3D trans) {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In tweakAlignTransformL3"  << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In tweakAlignTransformL3"  << endreq;
     
   // make sure the identifier is a "module identifier"
   if( !(m_trtid->is_trt(ident)) ) return StatusCode::FAILURE;
@@ -1232,7 +1167,7 @@ StatusCode TRT_AlignDbSvc::tweakAlignTransformL3 (Identifier ident, Amg::Transfo
     m_trtStrawAlignDbSvc->setDx(ident, dx1_new, dx2_new, dxErr);
   }
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving tweakAlignTransformL3 "  << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Leaving tweakAlignTransformL3 "  << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -1265,10 +1200,9 @@ std::string TRT_AlignDbSvc::findkey(const Identifier& ident, std::string type) c
   */
   std::ostringstream result;
   if (!m_trtid->is_trt(ident)) return result.str();
-  
+
   if(type=="AL" || type=="ALold") {
-    //    result << "/TRT/Align/";
-    result << m_alignDBprefix;
+    result << "/TRT/Align/";
   } else if(type=="DF") {
     result << "/TRT/Calib/DF";
   } else return result.str();
@@ -1379,12 +1313,12 @@ StatusCode TRT_AlignDbSvc::createAlignObjects() const{
       Use when constants are read in from textfiles.
       Make sure that the objects are not read in by IOV before
   */
-  msg(MSG::DEBUG) << "createAlignObjects method called" << endmsg;
+  msg(MSG::DEBUG) << "createAlignObjects method called" << endreq;
 
   /** check if collection already exists */
   if (m_detStore->contains<AlignableTransformContainer>(m_alignroot)) {
     msg(MSG::WARNING) << "createAlignObjects: AlignableTransformContainer with name " << m_alignroot
-		      << " already exists." << endmsg;
+		      << " already exists." << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -1393,17 +1327,17 @@ StatusCode TRT_AlignDbSvc::createAlignObjects() const{
 
   /**  record it */
   if (StatusCode::SUCCESS!=m_detStore->record(patc,m_alignroot)) {
-    msg(MSG::ERROR) << "Could not record AlignableTransformContainer " << endmsg;
+    msg(MSG::ERROR) << "Could not record AlignableTransformContainer " << endreq;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Created and recorded in new AlignableTransformContainer" << endmsg;
+    msg(MSG::INFO) << "Created and recorded in new AlignableTransformContainer" << endreq;
   }
 
   /** set the data handle (can probably be done more efficiently). it
       is also not clear who is the owner now ...
   */
   if (StatusCode::SUCCESS!=m_detStore->retrieve(m_aligncontainerhandle,m_alignroot)) {
-    msg(MSG::ERROR) << "Could not retrieve data handle for AlignableTransformContainer " << endmsg;
+    msg(MSG::ERROR) << "Could not retrieve data handle for AlignableTransformContainer " << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -1411,10 +1345,10 @@ StatusCode TRT_AlignDbSvc::createAlignObjects() const{
     AlignableTransform* pat=new AlignableTransform(m_alignobjs[i]);
     patc->push_back(pat);
     patc->add(m_alignchans[i]);
-    msg(MSG::INFO) << " added empty AlignableTransform for key " << m_alignobjs[i] << endmsg;
+    msg(MSG::INFO) << " added empty AlignableTransform for key " << m_alignobjs[i] << endreq;
   }
 
-  msg(MSG::DEBUG) << "Leaving createAlignObjects" << endmsg;
+  msg(MSG::DEBUG) << "Leaving createAlignObjects" << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -1424,19 +1358,19 @@ StatusCode TRT_AlignDbSvc::createAlignObjectsWhichDoNotAlreadyExist(){
 
   /** Create empty alignment objects for the object which do do already exist
    */
-  msg(MSG::DEBUG) << "createAlignObjectsWhichDoNotAlreadyExist method called" << endmsg;
+  msg(MSG::DEBUG) << "createAlignObjectsWhichDoNotAlreadyExist method called" << endreq;
 
   /** check if collection already exists */
   if (!m_detStore->contains<AlignableTransformContainer>(m_alignroot)) {
     msg(MSG::FATAL) << "createAlignObjects: AlignableTransformContainer with name " << m_alignroot
-		    << " does not exists." << endmsg;
+		    << " does not exists." << endreq;
     return StatusCode::FAILURE;
   }
   
   /** Get the alignabletransformcontainer */
   const AlignableTransformContainer* patc= m_aligncontainerhandle;
   if (StatusCode::SUCCESS!=m_detStore->retrieve(patc,m_alignroot)) {
-    msg(MSG::ERROR) << "Could not retrieve data handle for AlignableTransformContainer " << endmsg;
+    msg(MSG::ERROR) << "Could not retrieve data handle for AlignableTransformContainer " << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -1454,48 +1388,48 @@ StatusCode TRT_AlignDbSvc::createAlignObjectsWhichDoNotAlreadyExist(){
 	AlignableTransform* pat=new AlignableTransform(m_alignobjs[i]);
 	patc_NonConst->push_back(pat);
 	patc_NonConst->add(m_alignchans[i]);
-	msg(MSG::INFO) << " added empty AlignableTransform for key " << m_alignobjs[i] << endmsg;
+	msg(MSG::INFO) << " added empty AlignableTransform for key " << m_alignobjs[i] << endreq;
 
       }
     }
   }
 
-  msg(MSG::DEBUG) << "Leaving createAlignObjectsWhichDoNotAlreadyExist" << endmsg;
+  msg(MSG::DEBUG) << "Leaving createAlignObjectsWhichDoNotAlreadyExist" << endreq;
   return StatusCode::SUCCESS;
 }
 
 /** Output the conditions objects currently in memory */
 void TRT_AlignDbSvc::printCondObjects() const {
-  msg(MSG::DEBUG) << " In printCondObjects " << endmsg;
-  msg(MSG::INFO) << " TRT Conditions DB contains " << m_alignobjs.size() <<" AlignableTransforms: " << endmsg;
+  msg(MSG::DEBUG) << " In printCondObjects " << endreq;
+  msg(MSG::INFO) << " TRT Conditions DB contains " << m_alignobjs.size() <<" AlignableTransforms: " << endreq;
   
   const AlignableTransform *pat;
   std::vector<std::string>::const_iterator iobj=m_alignobjs.begin();
   std::vector<std::string>::const_iterator iobjE=m_alignobjs.end();
   for (;iobj!=iobjE;++iobj) {
-    msg(MSG::INFO) << " " << *iobj << endmsg;
+    msg(MSG::INFO) << " " << *iobj << endreq;
     pat=cgetTransPtr(*iobj);
     if (pat) {
       pat->print2();
     } else {
-      msg(MSG::ERROR) << " Could not find key: " << *iobj << endmsg;
+      msg(MSG::ERROR) << " Could not find key: " << *iobj << endreq;
     }
   }
 
-  msg(MSG::DEBUG) << " Leaving printCondObjects" << endmsg;
+  msg(MSG::DEBUG) << " Leaving printCondObjects" << endreq;
   return;
 }
 
 /** get AlignableTransform pointer for an object key */
 AlignableTransform* TRT_AlignDbSvc::getTransPtr(const std::string key) const {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In (and leaving) getTransPtr" << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In (and leaving) getTransPtr" << endreq;
   return const_cast<AlignableTransform*>(cgetTransPtr(key)) ;
 }
 
 /** get const AlignableTransform pointer for an object key */
 const AlignableTransform* TRT_AlignDbSvc::cgetTransPtr(const std::string key) const {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In cgetTransPtr" << endmsg;
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Getting the poiter for key " << key << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In cgetTransPtr" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Getting the poiter for key " << key << endreq;
 
   // Retrieve AlignableTransform pointer for a given key - const version
   const AlignableTransform* pat=0;
@@ -1513,11 +1447,11 @@ const AlignableTransform* TRT_AlignDbSvc::cgetTransPtr(const std::string key) co
   }
   
   if(!pat){
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "AlignableTransform poiter is NULL!!!!!" << endmsg;
-    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to get the AlignableTransform for key " << key << endmsg;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "AlignableTransform poiter is NULL!!!!!" << endreq;
+    if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to get the AlignableTransform for key " << key << endreq;
   }
   
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "leaving cgetTransPtr " << endmsg;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "leaving cgetTransPtr " << endreq;
   return pat;
 }
 
@@ -1535,14 +1469,14 @@ bool TRT_AlignDbSvc::isOldKey(std::string input) const{
   for(unsigned int i=0; i<14; ++i){
     std::string testA = "A"+intToString(i);
     if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " The testA is " << testA << " " 
-					       << bool(input.find(testA)!=std::string::npos) << endmsg;
+					       << bool(input.find(testA)!=std::string::npos) << endreq;
     if(input.find(testA)!=std::string::npos){
       return true;
     }
 
     std::string testC = "C"+intToString(i);
     if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " The testC is " << testC << " " 
-					       << bool(input.find(testC)!=std::string::npos) << endmsg;
+					       << bool(input.find(testC)!=std::string::npos) << endreq;
     if(input.find(testC)!=std::string::npos){
       return true;
     }
@@ -1566,148 +1500,4 @@ void TRT_AlignDbSvc::printTransform(std::string thisName,  const Amg::Transform3
   std::cout << thisName << " " << transform(1,0) << " " << transform(1,1) << "  " << transform(1,2) << std::endl;
   std::cout << thisName << " " << transform(2,1) << " " << transform(2,1) << "  " << transform(2,2) << std::endl;
   return;
-}
-
-// write global DB to file
-StatusCode TRT_AlignDbSvc::writeGlobalFolderFile( const std::string file)
-  const {
-  std::ofstream* outfile=0;
-
-  if (m_dynamicDB){
-    ATH_MSG_DEBUG( "writeFile: Write GlobalFolder DB in text file: " << file );
-    outfile=new std::ofstream(file.c_str());
-    std::vector<std::string> folder_list = {"/TRT/AlignL1/TRT"};
-
-    for (std::vector<std::string>::iterator it = folder_list.begin(); it != folder_list.end(); ++it){
-
-      *outfile << *it << std::endl;
-      const CondAttrListCollection* atrlistcol=0;
-      if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol,*it)) {
-        // loop over objects in collection
-        for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
-
-          const coral::AttributeList& atrlist=citr->second;
-          *outfile  << atrlist["bec"].data<int>()
-                    << " "     << atrlist["layer"].data<int>()
-                    << " "     << atrlist["sector"].data<int>()
-                    << " "     << atrlist["Tx"].data<float>()
-                    << " "     << atrlist["Ty"].data<float>()
-                    << " "     << atrlist["Tz"].data<float>()
-                    << " "     << atrlist["phi"].data<float>()
-                    << " "     << atrlist["theta"].data<float>()
-                    << " "     << atrlist["psi"].data<float>() << std::endl;
-        }
-      }
-      else {
-        if (msgLvl(MSG::INFO)){
-          msg(MSG::INFO) << "Cannot find " << *it << " Container - cannot write DB in text file " << endmsg;
-	  return StatusCode::FAILURE;
-	}
-      }
-    }
-    outfile->close();
-    delete outfile;
-    return StatusCode::SUCCESS;
-  }
-  else {
-    ATH_MSG_DEBUG( "writeFile: No dynamic Run2 DB structure is present --> skipping writing file " << file );
-    return StatusCode::SUCCESS;
-  }
-}
-
-
-
-
-
-
-StatusCode TRT_AlignDbSvc::tweakGlobalFolder(Identifier ident, Amg::Transform3D trans ) {
-
-  // find transform key, then set appropriate transform
-  const CondAttrListCollection* atrlistcol1=0;
-  CondAttrListCollection* atrlistcol2=0;
-  bool result = false;
-  std::string key="/TRT/AlignL1/TRT";
-  msg(MSG::DEBUG) << " Identifier is valid: "<< ident.is_valid() << endmsg;
-  int bec=m_trtid->barrel_ec(ident);
-  const unsigned int DBident=1000+bec*100;
-  // so far not a very fancy DB identifier, but seems elaborate enough for this simple structure
-
-  if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol1,key)) {
-    // loop over objects in collection
-    atrlistcol2 = const_cast<CondAttrListCollection*>(atrlistcol1);
-    if (atrlistcol1!=0){
-      for (CondAttrListCollection::const_iterator citr=atrlistcol2->begin(); citr!=atrlistcol2->end();++citr) {
-
-        const coral::AttributeList& atrlist=citr->second;
-	coral::AttributeList& atrlist2  = const_cast<coral::AttributeList&>(atrlist);
-
-        if(citr->first!=DBident){
-          msg(MSG::DEBUG) << "tweakGlobalFolder fails due to identifier mismatch" << endmsg;
-          continue;
-	}
-        else {
-          msg(MSG::DEBUG) << "Tweak Old global DB -- channel: " << citr->first
-			  << " ,bec: "    << atrlist2["bec"].data<int>()
-                          << " ,layer: "  << atrlist2["layer"].data<int>()
-			  << " ,sector: " << atrlist2["sector"].data<int>()
-                          << " ,Tx: "     << atrlist2["Tx"].data<float>()
-                          << " ,Ty: "     << atrlist2["Ty"].data<float>()
-                          << " ,Tz: "     << atrlist2["Tz"].data<float>()
-                          << " ,phi: "    << atrlist2["phi"].data<float>()
-                          << " ,theta: "  << atrlist2["theta"].data<float>()
-                          << " ,psi: "    << atrlist2["psi"].data<float>() << endmsg;
-
-
-          // Follow same definitions as in TRT_AlignDbSvc.cxx                                                                                               
-	  CLHEP::Hep3Vector  oldtranslation(atrlist2["Tx"].data<float>(),atrlist2["Ty"].data<float>(),atrlist2["Tz"].data<float>());
-	  CLHEP::HepRotation oldrotation;
-	  oldrotation.set(atrlist["phi"].data<float>(),atrlist["theta"].data<float>(),atrlist["psi"].data<float>());
-	  HepGeom::Transform3D oldtransform(oldrotation, oldtranslation);
-	  	  
-          // get the new transform
-	  HepGeom::Transform3D newtrans = Amg::EigenTransformToCLHEP(trans)*oldtransform;
-	  Amg::Transform3D newtransAMG = trans*Amg::CLHEPTransformToEigen(oldtransform);
-
-          // Extract the values we need to write to DB
-	  Amg::Vector3D shift=newtransAMG.translation();
-	  CLHEP::HepRotation rot=newtrans.getRotation();
-	  Amg::Vector3D eulerangles;
-          eulerangles[0] = rot.getPhi();
-          eulerangles[1] = rot.getTheta();
-          eulerangles[2] = rot.getPsi();	  
-
-          atrlist2["Tx"].data<float>() = shift.x();
-          atrlist2["Ty"].data<float>() = shift.y();
-          atrlist2["Tz"].data<float>() = shift.z();
-          atrlist2["phi"].data<float>()   = eulerangles[0] ;
-          atrlist2["theta"].data<float>() = eulerangles[1] ;
-          atrlist2["psi"].data<float>()   = eulerangles[2] ;
-
-	  result = true;
-	  msg(MSG::DEBUG) << "Tweak New global DB -- channel: " << citr->first
-			  << " ,bec: "    << atrlist2["bec"].data<int>()
-                          << " ,layer: "  << atrlist2["layer"].data<int>()
-                          << " ,sector: " << atrlist2["sector"].data<int>()
-                          << " ,Tx: "     << atrlist2["Tx"].data<float>()
-                          << " ,Ty: "     << atrlist2["Ty"].data<float>()
-                          << " ,Tz: "     << atrlist2["Tz"].data<float>()
-                          << " ,phi: "    << atrlist2["phi"].data<float>()
-                          << " ,theta: "  << atrlist2["theta"].data<float>()
-                          << " ,psi: "    << atrlist2["psi"].data<float>() << endmsg;
-
-        }
-      }
-    }
-    else {
-      ATH_MSG_ERROR("tweakGlobalFolder: cast fails for DBident " << DBident );
-      return StatusCode::FAILURE;
-    }
-  }
-  else {
-    ATH_MSG_ERROR("tweakGlobalFolder: cannot retrieve CondAttrListCollection for key " << key );
-    return StatusCode::FAILURE;
-  }
-
-  if (result) return StatusCode::SUCCESS;
-  else return StatusCode::FAILURE;
 }

@@ -61,9 +61,8 @@ TRT_StrawStatusSummarySvc::TRT_StrawStatusSummarySvc( const std::string& name,
     // create arrays for alive straws
   m_stw_total = new int[7];
   m_stw_local = new int*[6];
-  m_stw_wheel = new int*[34];
+
   for (int i=0; i<6 ; ++i) m_stw_local[i] = new int[32];
-  for (int i=0; i<34; ++i) m_stw_wheel[i] = new int[32];
                           
   resetArrays();//RM moved to c'tor from initialize() to avoid coverity defects
 }
@@ -76,7 +75,7 @@ TRT_StrawStatusSummarySvc::~TRT_StrawStatusSummarySvc()
 
 StatusCode TRT_StrawStatusSummarySvc::initialize() 
 {
-  msg(MSG::INFO) << "TRT_StrawStatusSummarySvc initialize method called" << endmsg;
+  msg(MSG::INFO) << "TRT_StrawStatusSummarySvc initialize method called" << endreq;
 
   //  if (par_stattextfilepermanent=="") par_stattextfilepermanent=PathResolver::find_file ("strawstatuspermanent-01.txt", "DATAPATH");
 
@@ -88,94 +87,94 @@ StatusCode TRT_StrawStatusSummarySvc::initialize()
 
   // Find ToolService
   if (StatusCode::SUCCESS!=m_toolsvc.retrieve()) {
-    msg(MSG::FATAL) << "ToolSvc not found" << endmsg;
+    msg(MSG::FATAL) << "ToolSvc not found" << endreq;
     return StatusCode::FAILURE;
   }
 
   // Get the TRT ID helper
   if (StatusCode::SUCCESS!=m_detStore->retrieve(m_trtid,"TRT_ID")) {
-    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endmsg;
+    msg(MSG::FATAL) << "Problem retrieving TRTID helper" << endreq;
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << "TRT_StrawStatusSummarySvc::initialize " << par_stattextfile  << endmsg;
+  msg(MSG::INFO) << "TRT_StrawStatusSummarySvc::initialize " << par_stattextfile  << endreq;
   
-  if(msgLvl(MSG::DEBUG)) msg() <<"trying to read "<<par_strawstatuscontainerkey<< " from StoreGateSvc"<<endmsg;
+  if(msgLvl(MSG::DEBUG)) msg() <<"trying to read "<<par_strawstatuscontainerkey<< " from StoreGateSvc"<<endreq;
   strawstatuscontainerexists = m_detStore->StoreGateSvc::contains<TRTCond::StrawStatusMultChanContainer>(par_strawstatuscontainerkey) ;
 
   if( strawstatuscontainerexists ) {
-     if(msgLvl(MSG::DEBUG)) msg() << " strawstatuscontainerexists " <<endmsg; 
+     if(msgLvl(MSG::DEBUG)) msg() << " strawstatuscontainerexists " <<endreq; 
      if( (m_detStore->regFcn(&TRT_StrawStatusSummarySvc::IOVCallBack,this,m_strawstatuscontainer,par_strawstatuscontainerkey)).isFailure()) 
-        msg(MSG::ERROR) << "Could not register IOV callback for key: " << par_strawstatuscontainerkey << endmsg ;
+        msg(MSG::ERROR) << "Could not register IOV callback for key: " << par_strawstatuscontainerkey << endreq ;
   } else if (!par_stattextfile.empty()) {
      // create, record and update data handle
-     if(msgLvl(MSG::DEBUG)) msg() << "Creating new strawstatus container" << endmsg ;
+     if(msgLvl(MSG::DEBUG)) msg() << "Creating new strawstatus container" << endreq ;
      const TRTCond::StrawStatusMultChanContainer* strawstatuscontainer = new TRTCond::StrawStatusMultChanContainer() ; 
 
      if( (m_detStore->record(strawstatuscontainer,par_strawstatuscontainerkey))!=StatusCode::SUCCESS ) {
-        msg(MSG::ERROR) << "Could not record StrawStatusContainer for key " << par_strawstatuscontainerkey << endmsg;
+        msg(MSG::ERROR) << "Could not record StrawStatusContainer for key " << par_strawstatuscontainerkey << endreq;
      }
      else{ 
-        msg( MSG::VERBOSE) << "Got record StrawStatusContainer for key " << par_strawstatuscontainerkey << endmsg; 
+        msg( MSG::VERBOSE) << "Got record StrawStatusContainer for key " << par_strawstatuscontainerkey << endreq; 
         strawstatuscontainerexists = true;
      }
      if(StatusCode::SUCCESS!=m_detStore->retrieve(m_strawstatuscontainer,par_strawstatuscontainerkey)) {
-        msg(MSG::FATAL) << "Could not retrieve data handle for StrawStatusContainer " << endmsg;
+        msg(MSG::FATAL) << "Could not retrieve data handle for StrawStatusContainer " << endreq;
         return StatusCode::FAILURE ;
-     }else{if(msgLvl(MSG::VERBOSE)) msg() << "Retrieved data handle for StrawStatusContainer " << endmsg;}
+     }else{if(msgLvl(MSG::VERBOSE)) msg() << "Retrieved data handle for StrawStatusContainer " << endreq;}
     if(!par_stattextfile.empty()) return readFromTextFile( par_stattextfile ) ;
   }
 
-  if(msgLvl(MSG::DEBUG)) msg() <<"trying to read "<<par_strawstatuspermanentcontainerkey<< " from StoreGateSvc"<<endmsg;
+  if(msgLvl(MSG::DEBUG)) msg() <<"trying to read "<<par_strawstatuspermanentcontainerkey<< " from StoreGateSvc"<<endreq;
   strawstatuspermanentcontainerexists = m_detStore->StoreGateSvc::contains<TRTCond::StrawStatusMultChanContainer>(par_strawstatuspermanentcontainerkey) ;
 
   if( strawstatuspermanentcontainerexists ) {
-     if(msgLvl(MSG::DEBUG)) msg() << " strawstatuspermanentcontainerexists " <<endmsg; 
+     if(msgLvl(MSG::DEBUG)) msg() << " strawstatuspermanentcontainerexists " <<endreq; 
      if( (m_detStore->regFcn(&TRT_StrawStatusSummarySvc::IOVCallBack,this,m_strawstatuspermanentcontainer,par_strawstatuspermanentcontainerkey)).isFailure()) 
-        msg(MSG::ERROR) << "Could not register IOV callback for key: " << par_strawstatuspermanentcontainerkey << endmsg ;
+        msg(MSG::ERROR) << "Could not register IOV callback for key: " << par_strawstatuspermanentcontainerkey << endreq ;
   } else if (!par_stattextfilepermanent.empty()) {
      // create, record and update data handle
-     if(msgLvl(MSG::DEBUG)) msg() << "Creating new strawstatuspermanent container" << endmsg ;
+     if(msgLvl(MSG::DEBUG)) msg() << "Creating new strawstatuspermanent container" << endreq ;
 
      const TRTCond::StrawStatusMultChanContainer* strawstatuspermanentcontainer = new TRTCond::StrawStatusMultChanContainer() ; 
      if( (m_detStore->record(strawstatuspermanentcontainer,par_strawstatuspermanentcontainerkey))!=StatusCode::SUCCESS ) {
-        msg(MSG::ERROR) << "Could not record StrawStatuspermanentContainer for key " << par_strawstatuspermanentcontainerkey << endmsg;
+        msg(MSG::ERROR) << "Could not record StrawStatuspermanentContainer for key " << par_strawstatuspermanentcontainerkey << endreq;
      }
      else{ 
-        if(msgLvl(MSG::VERBOSE)) msg() << "Got record StrawStatuspermanentContainer for key " << par_strawstatuspermanentcontainerkey << endmsg; 
+        if(msgLvl(MSG::VERBOSE)) msg() << "Got record StrawStatuspermanentContainer for key " << par_strawstatuspermanentcontainerkey << endreq; 
         strawstatuspermanentcontainerexists = true;
      }
      if(StatusCode::SUCCESS!=m_detStore->retrieve(m_strawstatuspermanentcontainer,par_strawstatuspermanentcontainerkey)) {
-        msg(MSG::FATAL) << "Could not retrieve data handle for StrawStatuspermanentContainer " << endmsg;
+        msg(MSG::FATAL) << "Could not retrieve data handle for StrawStatuspermanentContainer " << endreq;
         return StatusCode::FAILURE ;
-     }else{if(msgLvl(MSG::VERBOSE)) msg() << "Retrieved data handle for StrawStatuspermanentContainer " << endmsg;}
+     }else{if(msgLvl(MSG::VERBOSE)) msg() << "Retrieved data handle for StrawStatuspermanentContainer " << endreq;}
      if(!par_stattextfilepermanent.empty()) return readFromTextFile( par_stattextfilepermanent ) ;
   }
 
 
   
-  if(msgLvl(MSG::DEBUG)) msg() <<"trying to read "<<par_strawstatusHTcontainerkey<< " from StoreGateSvc"<<endmsg;
+  if(msgLvl(MSG::DEBUG)) msg() <<"trying to read "<<par_strawstatusHTcontainerkey<< " from StoreGateSvc"<<endreq;
   strawstatusHTcontainerexists = m_detStore->StoreGateSvc::contains<TRTCond::StrawStatusMultChanContainer>(par_strawstatusHTcontainerkey) ;
   
   if( strawstatusHTcontainerexists ) {
-     if(msgLvl(MSG::DEBUG)) msg() << " strawstatusHTcontainerexists " <<endmsg; 
+     if(msgLvl(MSG::DEBUG)) msg() << " strawstatusHTcontainerexists " <<endreq; 
      if( (m_detStore->regFcn(&TRT_StrawStatusSummarySvc::IOVCallBack,this,m_strawstatusHTcontainer,par_strawstatusHTcontainerkey)).isFailure()) 
-        msg(MSG::ERROR) << "Could not register IOV callback for key: " << par_strawstatusHTcontainerkey << endmsg ;
+        msg(MSG::ERROR) << "Could not register IOV callback for key: " << par_strawstatusHTcontainerkey << endreq ;
   } else if (!par_stattextfileHT.empty()) {
      // create, record and update data handle
-     if(msgLvl(MSG::DEBUG)) msg() << "Creating new strawstatusHT container" << endmsg ;
+     if(msgLvl(MSG::DEBUG)) msg() << "Creating new strawstatusHT container" << endreq ;
      const TRTCond::StrawStatusMultChanContainer* strawstatusHTcontainer = new TRTCond::StrawStatusMultChanContainer() ; 
      if( (m_detStore->record(strawstatusHTcontainer,par_strawstatusHTcontainerkey))!=StatusCode::SUCCESS ) {
-        msg(MSG::ERROR) << "Could not record StrawStatusHTContainer for key " << par_strawstatusHTcontainerkey << endmsg;
+        msg(MSG::ERROR) << "Could not record StrawStatusHTContainer for key " << par_strawstatusHTcontainerkey << endreq;
      }
      else{ 
-        if(msgLvl(MSG::VERBOSE)) msg() << "Got record StrawStatusHTContainer for key " << par_strawstatusHTcontainerkey << endmsg; 
+        if(msgLvl(MSG::VERBOSE)) msg() << "Got record StrawStatusHTContainer for key " << par_strawstatusHTcontainerkey << endreq; 
         strawstatusHTcontainerexists = true;
      }
      if(StatusCode::SUCCESS!=m_detStore->retrieve(m_strawstatusHTcontainer,par_strawstatusHTcontainerkey)) {
-        msg(MSG::FATAL) << "Could not retrieve data handle for StrawStatusHTContainer " << endmsg;
+        msg(MSG::FATAL) << "Could not retrieve data handle for StrawStatusHTContainer " << endreq;
         return StatusCode::FAILURE ;
-     }else{if(msgLvl(MSG::VERBOSE)) msg() << "Retrieved data handle for StrawStatusHTContainer " << endmsg;}
+     }else{if(msgLvl(MSG::VERBOSE)) msg() << "Retrieved data handle for StrawStatusHTContainer " << endreq;}
      if(!par_stattextfileHT.empty()) return readFromTextFile( par_stattextfileHT ) ;
   }
 
@@ -187,20 +186,20 @@ StatusCode TRT_StrawStatusSummarySvc::initialize()
   for (unsigned int i = 0; i<128; i++ ) {
     if (i<64) {
       m_ltvaluevector.push_back(lt_interval_small*i+lt_interval_small/2.);
-      if(msgLvl(MSG::VERBOSE)) msg() <<i<<" "<<lt_interval_small*i+lt_interval_small/2.<<endmsg;
+      if(msgLvl(MSG::VERBOSE)) msg() <<i<<" "<<lt_interval_small*i+lt_interval_small/2.<<endreq;
     }
     else if (i<128) {
       m_ltvaluevector.push_back(0.05+lt_interval_large*(i-64)+lt_interval_large/2.);
-      if(msgLvl(MSG::VERBOSE)) msg() <<i<<" "<<0.05+lt_interval_large*(i-64)+lt_interval_large/2.<<endmsg;
+      if(msgLvl(MSG::VERBOSE)) msg() <<i<<" "<<0.05+lt_interval_large*(i-64)+lt_interval_large/2.<<endreq;
     }
   }
   for (unsigned int i = 0; i<64; i++ ) {
     m_htvaluevector.push_back(ht_interval*(i+0.5));
-    if(msgLvl(MSG::VERBOSE)) msg() <<i<<" "<<ht_interval*(i+0.5)<<endmsg;
+    if(msgLvl(MSG::VERBOSE)) msg() <<i<<" "<<ht_interval*(i+0.5)<<endreq;
   }
 
 
-  msg(MSG::INFO) << "TRT_StrawStatusSummarySvc initialized successfully  " << endmsg;
+  msg(MSG::INFO) << "TRT_StrawStatusSummarySvc initialized successfully  " << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -209,13 +208,13 @@ StatusCode TRT_StrawStatusSummarySvc::initialize()
 
 StatusCode TRT_StrawStatusSummarySvc::finalize()
 {
-  for (int i=0; i<6 ; ++i) delete[] m_stw_local[i]; 
-  for (int i=0; i<34; ++i) delete[] m_stw_wheel[i];
   delete [] m_stw_total;
+  for (int i=0; i<6; ++i){
+  	delete[] m_stw_local[i]; 
+  }
   delete [] m_stw_local;
-  delete [] m_stw_wheel;
 
-  msg(MSG::INFO) << " in finalize() " << endmsg;
+  msg(MSG::INFO) << " in finalize() " << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -230,7 +229,7 @@ int TRT_StrawStatusSummarySvc::getStatus(Identifier offlineID){
   static int countStrawStatusContainerError(0);
   if (!strawstatuscontainer) {
     if (countStrawStatusContainerError<5) { 
-      msg(MSG::WARNING) << "TRT_StrawStatusSummarySvc::getStatus, strawstatuscontainer == 0, dead straws not set" << endmsg; 
+      msg(MSG::WARNING) << "TRT_StrawStatusSummarySvc::getStatus, strawstatuscontainer == 0, dead straws not set" << endreq; 
       countStrawStatusContainerError++; 
     }
     return 0;
@@ -250,7 +249,7 @@ int TRT_StrawStatusSummarySvc::getStatusPermanent(Identifier offlineID){
   StrawStatusContainer* strawstatuspermanentcontainer = getStrawStatusPermanentContainer();
   static int countStrawStatusContainerError(0);
   if (!strawstatuspermanentcontainer) {
-    if (countStrawStatusContainerError<5) {       msg(MSG::WARNING) << "TRT_StrawStatusSummarySvc::getStatusPermanent, strawstatuspermanentcontainer == 0, dead straws not set" << endmsg; 
+    if (countStrawStatusContainerError<5) {       msg(MSG::WARNING) << "TRT_StrawStatusSummarySvc::getStatusPermanent, strawstatuspermanentcontainer == 0, dead straws not set" << endreq; 
       countStrawStatusContainerError++; 
     }
     return 0;
@@ -272,7 +271,7 @@ int TRT_StrawStatusSummarySvc::getStatusHT(Identifier offlineID){
  static int countStrawStatusContainerError(0);
  if (!strawstatusHTcontainer) {
    if (countStrawStatusContainerError<5) { 
-     msg(MSG::WARNING) << "TRT_StrawStatusSummarySvc::getStatusHT, strawstatusHTcontainer == 0, dead straws not set" << endmsg; 
+     msg(MSG::WARNING) << "TRT_StrawStatusSummarySvc::getStatusHT, strawstatusHTcontainer == 0, dead straws not set" << endreq; 
      countStrawStatusContainerError++; 
    }
     return 0;
@@ -402,7 +401,7 @@ void  TRT_StrawStatusSummarySvc::set_status_permanent(Identifier offlineID, bool
 
 bool TRT_StrawStatusSummarySvc::get_status(Identifier offlineID){
   const unsigned int m_statusbitmask = 1 << 8;// 0000001 00000000
-  if(msgLvl(MSG::VERBOSE)) msg() <<"offlineID "<<offlineID<<" "<<getStatus(offlineID)<<" "<<((getStatus(offlineID) & m_statusbitmask) >> 8)<<endmsg;
+  if(msgLvl(MSG::VERBOSE)) msg() <<"offlineID "<<offlineID<<" "<<getStatus(offlineID)<<" "<<((getStatus(offlineID) & m_statusbitmask) >> 8)<<endreq;
   bool st = false, stperm=false;
   if (getStatus(offlineID)==1) st = true;
   else if (getStatus(offlineID)==0) st = false;
@@ -425,7 +424,7 @@ bool TRT_StrawStatusSummarySvc::get_status(Identifier offlineID){
 
 bool TRT_StrawStatusSummarySvc::get_statusHT(Identifier offlineID){
   const unsigned int m_statusbitmask = 1 << 8;// 0000001 00000000
-  if(msgLvl(MSG::VERBOSE)) msg() <<"offlineID "<<offlineID<<" "<<getStatus(offlineID)<<" "<<((getStatus(offlineID) & m_statusbitmask) >> 8)<<endmsg;
+  if(msgLvl(MSG::VERBOSE)) msg() <<"offlineID "<<offlineID<<" "<<getStatus(offlineID)<<" "<<((getStatus(offlineID) & m_statusbitmask) >> 8)<<endreq;
   bool stHT=false;
 
   // Safety check: Won't do any good unless a somewhere a StatusHT
@@ -436,7 +435,7 @@ bool TRT_StrawStatusSummarySvc::get_statusHT(Identifier offlineID){
     else if (getStatusHT(offlineID)==0) stHT = false;
     else {stHT = bool( (getStatusHT(offlineID) & m_statusbitmask) >> 8);};
   }
-  else { if(msgLvl(MSG::WARNING)) msg() <<"Attempt to use get_statusHT flag, but CondDB folder not available. Returning StrawStatus::Good "<<endmsg; }
+  else { if(msgLvl(MSG::WARNING)) msg() <<"Attempt to use get_statusHT flag, but CondDB folder not available. Returning StrawStatus::Good "<<endreq; }
 
   return ( stHT );
 
@@ -512,7 +511,7 @@ myOCA                                      INFO 0: TRTCond::StrawStatusMultChanC
 ToolSvc.myOCATool                         DEBUG Found object for type TRTCond::StrawStatusMultChanContainer key /TRT/Cond/Status
 AthenaSealSvc                             DEBUG Checking members of type NestedContainerBase<2,TRTCond::NestedContainer<3,TRTCond::StrawStatus,TRTCond::DeadStrawTrait>,TRTCond::StrawStatus,TRTCond::DeadStrawTrait> for 2 members: ok  
 */
-  msg(MSG::INFO) << "TRT_StrawStatusSummarySvc::readFromTextFile " << filename << endmsg;
+  msg(MSG::INFO) << "TRT_StrawStatusSummarySvc::readFromTextFile " << filename << endreq;
 //  par_stattextfile = filename;
   if(!par_stattextfile.empty()) {
     StrawStatusContainer* strawstatuscontainer = getStrawStatusContainer();
@@ -520,7 +519,7 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
   
     const InDetDD::TRT_DetectorManager* m_TRTDetectorManager ;
     if ((m_detStore->retrieve(m_TRTDetectorManager)).isFailure()) {
-      msg(MSG::FATAL) << "Problem retrieving TRT_DetectorManager" << endmsg;
+      msg(MSG::FATAL) << "Problem retrieving TRT_DetectorManager" << endreq;
     }
 
     // initialize strawlayers with status 'good'
@@ -539,11 +538,11 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
     
    // std::ifstream ifs(filename.c_str()) ;
     std::ifstream ifs(par_stattextfile.c_str()) ;
-    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Permanently dead straws are removed based on the txt file: "<<par_stattextfilepermanent<< endmsg;
+    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Permanently dead straws are removed based on the txt file: "<<par_stattextfilepermanent<< endreq;
     
 
     if (!ifs)  { 
-    msg(MSG::ERROR) << "Cannot initialize TRT_StrawStatusSummarySvc: Read from text file chosen, but no text file is found. To resolve: copy strawstatus.txt from TRT_ConditionsAlgs/share to your run dir" << endmsg;
+    msg(MSG::ERROR) << "Cannot initialize TRT_StrawStatusSummarySvc: Read from text file chosen, but no text file is found. To resolve: copy strawstatus.txt from TRT_ConditionsAlgs/share to your run dir" << endreq;
     return StatusCode::FAILURE;
     }
 
@@ -558,7 +557,7 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
       while( ifs >> bec >> sector>> straw >> strawlayer >> layer >> status ) {
 	if ( (status == 3) || (status == 4)  || (status == 5) ) status = 1;
 	if (status!=1){
-		msg(MSG::FATAL) << " The Status Temp : " << status << " IS NOT ACCEPTED, Use 1 for dead " << endmsg;
+		msg(MSG::FATAL) << " The Status Temp : " << status << " IS NOT ACCEPTED, Use 1 for dead " << endreq;
 		return StatusCode::FAILURE;	
 	}	
 	int level = TRTCond::ExpandedIdentifier::STRAW ;
@@ -569,7 +568,7 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
 	if( sector<0     ) { level = TRTCond::ExpandedIdentifier::LAYERWHEEL ; sector = 0 ; }
 	if( layer<0      ) { level = TRTCond::ExpandedIdentifier::BARRELEC ;   layer = 0 ; }
 	if( bec<-2       ) { level = TRTCond::ExpandedIdentifier::DETECTOR ;   bec = -2 ; }
-              msg(MSG::INFO) << "StrawRead FromText File: bec: "  << bec << " layer: " << layer << " phi: " << sector << " stl:  " << strawlayer << " stw: " << straw   << endmsg;
+              msg(MSG::INFO) << "StrawRead FromText File: bec: "  << bec << " layer: " << layer << " phi: " << sector << " stl:  " << strawlayer << " stw: " << straw   << endreq;
 	TRTCond::ExpandedIdentifier id( bec,layer,sector,strawlayer,straw,level);
 	strawstatuscontainer->set(id,TRTCond::StrawStatus::Dead) ;
 	strawstatuscontainer->setStatus(id,TRTCond::StrawStatus::Dead );
@@ -581,11 +580,11 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
 	set_status_temp(ID,status==1?true:false);
 
       }
-     msg(MSG::INFO) << "Straw Status read from: "  <<  filename << " We read: " << line << " straws on it"  << endmsg;
+     msg(MSG::INFO) << "Straw Status read from: "  <<  filename << " We read: " << line << " straws on it"  << endreq;
 
     } else {
 
-      msg(MSG::ERROR) << "TRT_StrawStatusSummarySvc::readFromTextFile: can not read the file, file missing: " << filename << endmsg;
+      msg(MSG::ERROR) << "TRT_StrawStatusSummarySvc::readFromTextFile: can not read the file, file missing: " << filename << endreq;
     }
     
   }
@@ -597,7 +596,7 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
     strawstatuscontainer->clear();
     const InDetDD::TRT_DetectorManager* m_TRTDetectorManager ;
     if ((m_detStore->retrieve(m_TRTDetectorManager)).isFailure()) {
-      msg(MSG::FATAL) << "Problem retrieving TRT_DetectorManager" << endmsg;
+      msg(MSG::FATAL) << "Problem retrieving TRT_DetectorManager" << endreq;
     }
     // initialize strawlayers with status 'good'
     for( InDetDD::TRT_DetElementCollection::const_iterator it =  m_TRTDetectorManager->getDetectorElementBegin() ;
@@ -612,10 +611,10 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
       strawstatuscontainer->setStatus(id,TRTCond::StrawStatus::Good );
     }
     std::ifstream ifsHT(par_stattextfileHT.c_str()) ;
-    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "HT dead straws are removed based on the txt file: "<<par_stattextfileHT<< endmsg;
+    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "HT dead straws are removed based on the txt file: "<<par_stattextfileHT<< endreq;
 
     if (!ifsHT) {
-      msg(MSG::ERROR) << "Cannot initialize TRT_StrawStatusSummarySvc: Read from text file chosen, but no text file is found. To resolve: copy strawstatus.txt from TRT_ConditionsAlgs/share to your run dir" << endmsg;
+      msg(MSG::ERROR) << "Cannot initialize TRT_StrawStatusSummarySvc: Read from text file chosen, but no text file is found. To resolve: copy strawstatus.txt from TRT_ConditionsAlgs/share to your run dir" << endreq;
       return StatusCode::FAILURE;
     }
     
@@ -629,8 +628,6 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
       int line   = 0; 
       int lineAr = 0; 
       int lineKr = 0; 
-      int lineEAr = 0; 
-      int lineEKr = 0; 
 
       while( ifsHT >> bec >> sector>> straw >> strawlayer >> layer >> status ) {
         int level = TRTCond::ExpandedIdentifier::STRAW ;
@@ -642,7 +639,7 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
         if( layer<0      ) { level = TRTCond::ExpandedIdentifier::BARRELEC ;   layer = 0 ; }
         if( bec<-2       ) { level = TRTCond::ExpandedIdentifier::DETECTOR ;   bec = -2 ; }
 
-	msg(MSG::DEBUG) << "HT StrawRead FromText File: bec: "  << bec << " layer: " << layer << " phi: " << sector << " stl:  " << strawlayer << " stw: " << straw  << " status: "<< status << endmsg;
+	msg(MSG::DEBUG) << "HT StrawRead FromText File: bec: "  << bec << " layer: " << layer << " phi: " << sector << " stl:  " << strawlayer << " stw: " << straw  << " status: "<< status << endreq;
 	TRTCond::ExpandedIdentifier id( bec,layer,sector,strawlayer,straw,level);
 	if (status == 4){ // Argon
                 strawstatuscontainer->set(id,TRTCond::StrawStatus::Argon) ;
@@ -654,24 +651,13 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
                 strawstatuscontainer->setStatus(id,TRTCond::StrawStatus::Krypton);
 		lineKr+=1;
        	}
-	else if (status == 6){ // EmulateArgon 
-                strawstatuscontainer->set(id,TRTCond::StrawStatus::EmulateArgon) ;
-                strawstatuscontainer->setStatus(id,TRTCond::StrawStatus::EmulateArgon);
-		lineEAr+=1;
-       	}
-	else if (status == 7){ // EmulateKrypton 
-                strawstatuscontainer->set(id,TRTCond::StrawStatus::EmulateKrypton) ;
-                strawstatuscontainer->setStatus(id,TRTCond::StrawStatus::EmulateKrypton);
-		lineEKr+=1;
-       	}
         else{
-		msg(MSG::FATAL) << " The HT Status: " << status << " IS NOT ACCEPTED, 4 for Argon, 5 for Krypton!! " 
-				<< " Or 6 or 7 for emulated types!" << endmsg;
+		msg(MSG::FATAL) << " The HT Status: " << status << " IS NOT ACCEPTED, 4 for Argon, 5 for Kryptoon!! " << endreq;
 		return StatusCode::FAILURE;	
 	}
 	
       }
-      msg(MSG::INFO) << "HT Straw Status read from: "  << filename << " We read: " << line << " straws on it. Argon straws:  "<< lineAr << "  Krypton straws " << lineKr  << " EmulateArgon " << lineEAr << " EmulateKrypton " << lineEKr << endmsg;
+     msg(MSG::INFO) << "HT Straw Status read from: "  << filename << " We read: " << line << " straws on it. Argon straws:  "<< lineAr << "  Krypton straws " << lineKr   << endreq;
     }
     
 
@@ -704,7 +690,7 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
       while( ifspermanent >> bec >> sector>> straw >> strawlayer >> layer >> status ) {
         if ( (status == 3) || (status == 4)  || (status == 5) ) status = 1;
 	if (status!=1){
-		msg(MSG::FATAL) << " The Status Permanent: " << status << " IS NOT ACCEPTED, Use 1 for dead " << endmsg;
+		msg(MSG::FATAL) << " The Status Permanent: " << status << " IS NOT ACCEPTED, Use 1 for dead " << endreq;
 		return StatusCode::FAILURE;	
 	}	
 	int level = TRTCond::ExpandedIdentifier::STRAW ;
@@ -715,7 +701,7 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
 	if( sector<0     ) { level = TRTCond::ExpandedIdentifier::LAYERWHEEL ; sector = 0 ; }
 	if( layer<0      ) { level = TRTCond::ExpandedIdentifier::BARRELEC ;   layer = 0 ; }
 	if( bec<-2       ) { level = TRTCond::ExpandedIdentifier::DETECTOR ;   bec = -2 ; }
-        msg(MSG::DEBUG) << "Permanent StrawRead FromText File: bec: "  << bec << " layer: " << layer << " phi: " << sector << " stl:  " << strawlayer << " stw: " << straw   << endmsg;
+        msg(MSG::DEBUG) << "Permanent StrawRead FromText File: bec: "  << bec << " layer: " << layer << " phi: " << sector << " stl:  " << strawlayer << " stw: " << straw   << endreq;
 
 	TRTCond::ExpandedIdentifier id( bec,layer,sector,strawlayer,straw,level);
 	strawstatuspermanentcontainer->set(id,TRTCond::StrawStatus::Dead) ;
@@ -726,7 +712,7 @@ AthenaSealSvc                             DEBUG Checking members of type NestedC
 	set_status_permanent(ID,status==1?true:false);
 
       }
-     msg(MSG::INFO) << "Permanent Straw Status read from: "  << filename << " We read: " << line << " straws on it"  << endmsg;
+     msg(MSG::INFO) << "Permanent Straw Status read from: "  << filename << " We read: " << line << " straws on it"  << endreq;
 
     }
     
@@ -751,7 +737,7 @@ StatusCode TRT_StrawStatusSummarySvc::writeToTextFile(const std::string& filenam
   std::ofstream outfile(filename.c_str());
 
 
-   msg(MSG::INFO) << " Dump To File: StrawStatus "  << endmsg;
+   msg(MSG::INFO) << " Dump To File: StrawStatus "  << endreq;
 if(m_strawstatuscontainer->numObjects()>0){
     outfile << " Status: " << std::endl;
   TRTCond::StrawStatusLayerContainer::FlatContainer flatcontainer;
@@ -765,7 +751,7 @@ if(m_strawstatuscontainer->numObjects()>0){
 }
 
 
-    msg(MSG::INFO) << " Dump To File: StrawStatus HT "  << endmsg;
+    msg(MSG::INFO) << " Dump To File: StrawStatus HT "  << endreq;
 if( m_strawstatusHTcontainer->numObjects()>0){
   TRTCond::StrawStatusLayerContainer::FlatContainer flatcontainerHT;
   m_strawstatusHTcontainer              ->getall(flatcontainerHT) ;
@@ -782,7 +768,7 @@ if( m_strawstatusHTcontainer->numObjects()>0){
 
 
 if(m_strawstatuspermanentcontainer->numObjects()>0){
-    msg(MSG::INFO) << " Dump To File: StrawStatus permanent "  << endmsg;
+    msg(MSG::INFO) << " Dump To File: StrawStatus permanent "  << endreq;
   TRTCond::StrawStatusLayerContainer::FlatContainer flatcontainerpermanent;
   m_strawstatuspermanentcontainer               ->getall(flatcontainerpermanent) ;
 
@@ -820,11 +806,6 @@ void TRT_StrawStatusSummarySvc::resetArrays(){
     for (int i=0; i<6; ++i){
       for (int j=0; j<32; ++j){
         m_stw_local[i][j]=0;
-      }
-    }
-    for (int i=0; i<34; ++i){
-      for (int j=0; j<32; ++j){
-        m_stw_wheel[i][j]=0;
       }
     }
   return;
@@ -918,7 +899,7 @@ StatusCode TRT_StrawStatusSummarySvc::ComputeAliveStraws(){
    // The TRT helper:
   bool detectorManager = true;
   if (StatusCode::SUCCESS!=m_detStore->retrieve(m_trtDetMgr,"TRT")) {
-    msg(MSG::WARNING) << "Problem retrieving TRT Detector Manager. Computation will use IDhelper. CPU slower " << endmsg;
+    msg(MSG::WARNING) << "Problem retrieving TRT Detector Manager. Computation will use IDhelper. CPU slower " << endreq;
     detectorManager = false;
   }
 
@@ -946,12 +927,10 @@ StatusCode TRT_StrawStatusSummarySvc::ComputeAliveStraws(){
       }
 
       int i_total = findArrayTotalIndex(det, lay);
-      int i_wheel = findArrayLocalWheelIndex(det, lay);
 
       m_stw_total[0]                        +=1;
       m_stw_total[i_total]                  +=1;
       m_stw_local[i_total-1][phi]           +=1;
-      m_stw_wheel[i_wheel][phi]             +=1;
 
     }//For
  }//For
@@ -967,12 +946,12 @@ StatusCode TRT_StrawStatusSummarySvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys)
 {
   for (std::list<std::string>::const_iterator 
 	 itr=keys.begin(); itr!=keys.end(); ++itr) 
-    msg(MSG::INFO) << " IOVCALLBACK for key " << *itr << " number " << I << endmsg;
+    msg(MSG::INFO) << " IOVCALLBACK for key " << *itr << " number " << I << endreq;
   
   // if constants need to be read from textfile, we sue the call back routine to refill the IOV objects
    if(!par_stattextfile.empty()) return readFromTextFile( par_stattextfile) ;
 
-   msg(MSG::INFO) << " Compute Alive Straws " << endmsg;
+   msg(MSG::INFO) << " Compute Alive Straws " << endreq;
    StatusCode sc = ComputeAliveStraws();
    return sc ;
 }
@@ -981,21 +960,21 @@ StatusCode TRT_StrawStatusSummarySvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I,keys)
 
 StatusCode TRT_StrawStatusSummarySvc::streamOutStrawStatObjects() const
 {
-  msg(MSG::INFO) << "entering streamOutStatObjects "  << endmsg;
+  msg(MSG::INFO) << "entering streamOutStatObjects "  << endreq;
   StatusCode sc;
   
   // Get Output Stream tool for writing
   IAthenaOutputStreamTool*  streamer;
   sc = m_toolsvc->retrieveTool("AthenaOutputStreamTool",par_statstream,streamer);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to find AthenaOutputStreamTool" << endmsg;
+    msg(MSG::ERROR) << "Unable to find AthenaOutputStreamTool" << endreq;
     return StatusCode::FAILURE;
   }
  
   sc = streamer->connectOutput();
 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) <<"Could not connect stream to output" <<endmsg;
+    msg(MSG::ERROR) <<"Could not connect stream to output" <<endreq;
     return( StatusCode::FAILURE);
   }
  
@@ -1004,17 +983,17 @@ StatusCode TRT_StrawStatusSummarySvc::streamOutStrawStatObjects() const
 
   sc = streamer->streamObjects(typeKeys);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) <<"Could not stream out " <<endmsg;
+    msg(MSG::ERROR) <<"Could not stream out " <<endreq;
     return( StatusCode::FAILURE);
   }
     
   sc = streamer->commitOutput();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) <<"Could not commit output stream" <<endmsg;
+    msg(MSG::ERROR) <<"Could not commit output stream" <<endreq;
     return( StatusCode::FAILURE);
   }
   
-  msg(MSG::INFO) << "Streamed out and committed "  << typeKeys.size() << " objects " << endmsg;
+  msg(MSG::INFO) << "Streamed out and committed "  << typeKeys.size() << " objects " << endreq;
   return StatusCode::SUCCESS;
 }
 
@@ -1022,24 +1001,24 @@ StatusCode TRT_StrawStatusSummarySvc::streamOutStrawStatObjects() const
 
 StatusCode TRT_StrawStatusSummarySvc::registerObjects(std::string tag, int run1, int event1, int run2, int event2) const 
 {
-  msg(MSG::INFO) << "registerObjects with IOV " << endmsg;
-  msg(MSG::INFO) << "Run/evt1 [" << run1 << "," << event1 << "]" << endmsg;
-  msg(MSG::INFO) << "Run/evt2 [" << run2 << "," << event2 << "]" << endmsg;
+  msg(MSG::INFO) << "registerObjects with IOV " << endreq;
+  msg(MSG::INFO) << "Run/evt1 [" << run1 << "," << event1 << "]" << endreq;
+  msg(MSG::INFO) << "Run/evt2 [" << run2 << "," << event2 << "]" << endreq;
 
-  if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Registered StrawStatusContainer object with key " << par_strawstatuscontainerkey << endmsg;
+  if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Registered StrawStatusContainer object with key " << par_strawstatuscontainerkey << endreq;
   
   // get pointer to registration svc
   IIOVRegistrationSvc* regsvc;
   if (StatusCode::SUCCESS!=service("IOVRegistrationSvc",regsvc)) {
-    msg(MSG::FATAL) << "IOVRegistrationSvc not found" << endmsg;
+    msg(MSG::FATAL) << "IOVRegistrationSvc not found" << endreq;
     return( StatusCode::FAILURE);
   }
   
   if (StatusCode::SUCCESS==regsvc->registerIOV(StrawStatusContainer::classname(),
 					       par_strawstatuscontainerkey,tag,run1,run2,event1,event2))
-    msg(MSG::INFO) << "Registered StrawStatusContainer object with key " << par_strawstatuscontainerkey << endmsg ;
+    msg(MSG::INFO) << "Registered StrawStatusContainer object with key " << par_strawstatuscontainerkey << endreq ;
   else 
-    msg(MSG::ERROR) << "Could not register StrawStatusContainer object with key " << par_strawstatuscontainerkey << endmsg ;
+    msg(MSG::ERROR) << "Could not register StrawStatusContainer object with key " << par_strawstatuscontainerkey << endreq ;
   
   return( StatusCode::SUCCESS);
 }
