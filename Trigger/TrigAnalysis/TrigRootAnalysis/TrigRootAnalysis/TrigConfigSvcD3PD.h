@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfigSvcD3PD.h 684392 2015-07-20 16:18:20Z tamartin $
+// $Id: TrigConfigSvcD3PD.h 699559 2015-10-09 01:30:51Z tamartin $
 #ifndef TRIGROOTANALYSIS_TRIGCONFIGSVCD3PD_H
 #define TRIGROOTANALYSIS_TRIGCONFIGSVCD3PD_H
 
@@ -39,8 +39,8 @@ namespace D3PD {
     *
     * @author Attila Krasznahrokay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 684392 $
-    * $Date: 2015-07-20 18:18:20 +0200 (Mon, 20 Jul 2015) $
+    * $Revision: 699559 $
+    * $Date: 2015-10-09 03:30:51 +0200 (Fri, 09 Oct 2015) $
     */
    class TrigConfigSvcD3PD : public ::TNamed,
                              public IITrigConfigSvcD3PD {
@@ -121,6 +121,8 @@ namespace D3PD {
       std::string GetChainEBHypoName(UInt_t _c, UInt_t _h) const;
       UInt_t      GetChainGroupNameSize(UInt_t _c) const;
       std::string GetChainGroupName(UInt_t _c, UInt_t _g) const;
+      UInt_t      GetChainStreamNameSize(UInt_t _c) const;
+      std::string GetChainStreamName(UInt_t _c, UInt_t _g) const;
       // Chain->Sig
       UInt_t      GetSigN(UInt_t _c) const;
       UInt_t      GetSigCounter(UInt_t _c, UInt_t _s) const;
