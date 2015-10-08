@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfigSvcD3PD.cxx 690858 2015-08-24 09:08:55Z tamartin $
+// $Id: TrigConfigSvcD3PD.cxx 699559 2015-10-09 01:30:51Z tamartin $
 
 // ROOT include(s):
 #include <TTree.h>
@@ -1387,6 +1387,41 @@ namespace D3PD {
 
      if( _map == m_chainGroupNames.end() ) {
        Warning( "TrigConfigSvcD3PD::GetChainGroupName", "The requested information is not available" );
+       return 0;
+     }
+
+     return _map->second.at(_c).at(_g);
+   }
+
+    /**
+    * [TrigMonConf] Returns the size of the Stream Name vector of chain items for a given chain.
+    *
+    * @param _c D3PD index of chain.
+    * @returns The size of the Stream name vector.
+    */
+   UInt_t TrigConfigSvcD3PD::GetChainStreamNameSize(UInt_t _c) const {
+     std::map< DBKeys_t, std::vector< std::vector< std::string > > >::const_iterator _map = m_chainStreamNames.find( m_key );
+
+     if( _map == m_chainStreamNames.end() ) {
+       Warning( "TrigConfigSvcD3PD::GetChainStreamNameSize", "The requested information is not available" );
+       return 0;
+     }
+
+     return _map->second.at(_c).size();
+   }
+
+   /**
+    * [TrigMonConf] Returns the Stream Name for a given entry in the Stream name vector for the chain at given index.
+    *
+    * @param _c D3PD index of chain.
+    * @param _g Vector index in the Stream name vector.
+    * @returns The Stream name.
+    */
+   std::string TrigConfigSvcD3PD::GetChainStreamName(UInt_t _c, UInt_t _g) const {
+     std::map< DBKeys_t, std::vector< std::vector< std::string > > >::const_iterator _map = m_chainStreamNames.find( m_key );
+
+     if( _map == m_chainStreamNames.end() ) {
+       Warning( "TrigConfigSvcD3PD::GetChainStreamName", "The requested information is not available" );
        return 0;
      }
 
