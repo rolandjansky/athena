@@ -19,8 +19,8 @@
 //#include "LArG4ShowerLib/Shower.h"
 //#include "LArG4ShowerLib/ShowerLibList.h"
 
-#include "ISF_Event/FCS_StepInfo.h"
-#include "ISF_Event/FCS_StepInfoCollection.h"
+#include "ISF_FastCaloSimEvent/FCS_StepInfo.h"
+#include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
  
 // athena includes
 #include "GeoModelInterfaces/IGeoModelSvc.h"
