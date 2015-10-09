@@ -42,8 +42,8 @@
 // TileCAL calculators
 #include "TileGeoG4SD/TileGeoG4SDCalc.hh"
 
-#include "ISF_Event/FCS_StepInfo.h"
-#include "ISF_Event/FCS_StepInfoCollection.h"
+#include "ISF_FastCaloSimEvent/FCS_StepInfo.h"
+#include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
 
 // For MC Truth information:
 #include "GeneratorObjects/McEventCollection.h"
