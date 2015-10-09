@@ -16,7 +16,7 @@
 #include <iostream> 
 //using namespace std ;
 
-LArWFParams LArWFParamsComplete::dummyParams = LArWFParams() ;
+LArWFParams LArWFParamsComplete::s_dummyParams = LArWFParams() ;
 
 LArWFParamsComplete::LArWFParamsComplete()  
 {
@@ -53,21 +53,21 @@ const LArWFParams& LArWFParamsComplete::getParams(const Identifier&  CellID, int
   IToolSvc* toolSvc;
   StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
   if(sc.isSuccess()) {
-    LArCablingService* m_cablingService;
-    sc = toolSvc->retrieveTool("LArCablingService",m_cablingService);
+    LArCablingService* cablingService;
+    sc = toolSvc->retrieveTool("LArCablingService",cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArOFCComplete");
       logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endreq;
       //static std::vector<float> empty; 
-      return dummyParams; 
+      return s_dummyParams; 
     }
-    OnId = m_cablingService->createSignalChannelID(CellID);  
+    OnId = cablingService->createSignalChannelID(CellID);  
     
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArWFParamsComplete");
     logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
     //static std::vector<float> empty; 
-    return dummyParams ; 
+    return s_dummyParams ; 
   }
   return get(OnId, gain);
 } 

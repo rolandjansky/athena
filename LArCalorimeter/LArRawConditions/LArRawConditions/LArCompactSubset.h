@@ -631,7 +631,7 @@ public:
    * This is either the same as getChanSize(), or 0 if this channel
    * is empty.
    */
-  size_t getSize (unsigned int chan);
+  size_t getSize (unsigned int chan) const;
 
 
   /**
@@ -641,7 +641,7 @@ public:
    * We currently assume that this is the same for all channels,
    * so CHAN is ignored.
    */
-  float timeOffset (unsigned int chan);
+  float timeOffset (unsigned int chan) const;
 
 
   /**
@@ -651,7 +651,7 @@ public:
    * We currently assume that this is the same for all channels,
    * so CHAN is ignored.
    */
-  float timeBinWidth (unsigned int chan);
+  float timeBinWidth (unsigned int chan) const;
 
 
   /**
@@ -660,7 +660,8 @@ public:
    * @param chan The index of the channel to retrieve.
    * @param tbin The time bin index to retrieve.
    */
-  LArVectorProxy getData (unsigned int which, unsigned int chan, size_t tbin);
+  LArVectorProxy getData (unsigned int which, unsigned int chan, size_t tbin)
+    const;
 
 
   /**

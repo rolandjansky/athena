@@ -32,9 +32,10 @@ LArWave LArWaveHelper::Dtranslate(const LArWave& theWave, double tShift,
   std::vector<double> trWave ;
   trWave.resize( nsamples );
   int ibin = 0;
-  double Dt = theWave.getDt();
+  const double Dt = theWave.getDt();
+  const double inv_Dt = 1. / Dt;
   if(fabs(tShift) > Dt) { // move first a number of bins
-    ibin = int(tShift / Dt);
+    ibin = int(tShift * inv_Dt);
     for ( unsigned int i=0 ; i<theWave.getSize() ; ++i ) {
         if ( (int)i + ibin >= 0 && (int)i + ibin < (int)nsamples)   trWave[i+ibin] = theWave.getSample(i) ;
     }
@@ -58,12 +59,12 @@ LArWave LArWaveHelper::Dtranslate(const LArWave& theWave, double tShift,
   if(tmpshift > 0.) {
      tranWave[0] = baseline;
      for(unsigned int i=1; i<trWave.size(); ++i) {
-        tranWave[i] = trWave[i] - tmpshift * (trWave[i] - trWave[i-1]) / Dt;
+        tranWave[i] = trWave[i] - tmpshift * (trWave[i] - trWave[i-1]) * inv_Dt;
      }
   } else {
      tranWave[trWave.size() - 1] = baseline;
      for(int i=trWave.size()-2; i>=0; --i) {
-        tranWave[i] = trWave[i] - tmpshift * (trWave[i] - trWave[i+1]) / Dt;
+        tranWave[i] = trWave[i] - tmpshift * (trWave[i] - trWave[i+1]) * inv_Dt;
      }
   }
 
@@ -142,16 +143,17 @@ double LArWaveHelper::getArea(const LArWave& theWave) const
   const unsigned int N=theWave.getSize();
   double surf=0.;
   const unsigned Nbase=5;
-  double amax=-9.999E+99, asample;
+  double amax=-9.999E+99;
   double base = getBaseline(theWave,Nbase);
   for (unsigned int i=1; i<N ; i++) {
-    asample=theWave.getSample(i);
+    const double asample=theWave.getSample(i);
     if((asample-base)>amax)amax = asample-base;
   } 
-  
+
+  const double inv_amax = 1. / amax;
   for (unsigned int i=0; i<N ; i++){
-    asample=theWave.getSample(i)-base;  
-    if(asample>0)surf+=asample/amax;
+    const double asample=theWave.getSample(i)-base;  
+    if(asample>0)surf+=asample*inv_amax;
   }
   
   return surf;
@@ -250,16 +252,17 @@ double  LArWaveHelper::getWidth(const LArWave& theWave) const
 LArWave LArWaveHelper::derive(const LArWave& theWave) const
 {
   std::vector<double> wave = theWave.getWave() ;
-  double dt = theWave.getDt() ;
+  const double dt = theWave.getDt() ;
   unsigned int nsamples = theWave.getSize() ;
   std::vector<double> dwave ;
   dwave.resize(nsamples,0.0) ;
   if ( nsamples > 1 ) {
-    dwave[0] = ( wave[1] - wave[0] ) / dt ;
+    const double inv_dt = 1. / dt;
+    dwave[0] = ( wave[1] - wave[0] ) * inv_dt ;
     for ( unsigned int i=1 ; i<nsamples-1 ; i++ ) {
-      dwave[i] = ( wave[i+1] - wave[i-1] ) / (2.*dt) ;
+      dwave[i] = ( wave[i+1] - wave[i-1] ) * inv_dt * 0.5;
     }
-    dwave[nsamples-1] = ( wave[nsamples-1] - wave[nsamples-2] ) / dt ;
+    dwave[nsamples-1] = ( wave[nsamples-1] - wave[nsamples-2] ) * inv_dt ;
   }
   return LArWave(dwave,dt) ;
 }
@@ -287,7 +290,8 @@ LArWave LArWaveHelper::derive_smooth(const LArWave& theWave) const
   const int ipoly = m-2 ;
   //
   std::vector<double> wave = theWave.getWave() ;
-  double dt = theWave.getDt() ;
+  const double dt = theWave.getDt() ;
+  const double inv_dt = 1. / dt;
   unsigned int nsamples = theWave.getSize() ;
   std::vector<double> dwave ;
   dwave.resize(nsamples,0.0) ;
@@ -306,7 +310,7 @@ LArWave LArWaveHelper::derive_smooth(const LArWave& theWave) const
       for ( unsigned int j=i-3 ; j<=i+3 ; j++ ) 
 	dwave[i] +=  c[ipoly][ifilt][j-(i-3)] * wave[j] ;
     }
-    dwave[i] /= dt ;
+    dwave[i] *= inv_dt ;
   }  
   return LArWave( dwave , dt ) ;
 }
@@ -616,8 +620,9 @@ std::vector<double> LArWaveHelper::polyfit(const std::vector<double>& X,
                   a23 = a32 = sum3;
                   a33 = sum4;
                   // Inverse
-                  double det, ai11,ai12,ai13,ai21,ai22,ai23,ai31,ai32,ai33;
-                  det = a11*(a33*a22-a32*a23) - a21*(a33*a12-a32*a13) + a31*(a23*a12-a22*a13);
+                  double ai11,ai12,ai13,ai21,ai22,ai23,ai31,ai32,ai33;
+                  const double det =
+                    a11*(a33*a22-a32*a23) - a21*(a33*a12-a32*a13) + a31*(a23*a12-a22*a13);
                   if(fabs(det) < 1.e-6) return (dummy);  // Not invertable
                   ai11 = (a33*a22 - a32*a23);
                   ai12 = ai21 = -(a33*a12-a32*a13);
@@ -632,9 +637,10 @@ std::vector<double> LArWaveHelper::polyfit(const std::vector<double>& X,
                      sum3 += X[i]*X[i]*Y[i];
                   }
                   dummy.resize(3);
-                  dummy[0] = (ai11*sum + ai12*sum2 + ai13*sum3)/det;
-                  dummy[1] = (ai21*sum + ai22*sum2 + ai23*sum3)/det;
-                  dummy[2] = (ai31*sum + ai32*sum2 + ai33*sum3)/det;
+                  const double inv_det = 1. / det;
+                  dummy[0] = (ai11*sum + ai12*sum2 + ai13*sum3) * inv_det;
+                  dummy[1] = (ai21*sum + ai22*sum2 + ai23*sum3) * inv_det;
+                  dummy[2] = (ai31*sum + ai32*sum2 + ai33*sum3) * inv_det;
 
                   return (dummy);
                }

@@ -13,8 +13,9 @@ LArPedestalMC::~LArPedestalMC() {}
 
 /* Fill transient object in ATHENA *****************************************
  */
-void LArPedestalMC::set(std::vector<float> vPedestal, std::vector<float> vPedestalRMS ) {
-  
+void LArPedestalMC::set(const std::vector<float>& vPedestal,
+                        const std::vector<float>& vPedestalRMS )
+{
   m_vPedestal    = vPedestal;
   m_vPedestalRMS = vPedestalRMS;
 

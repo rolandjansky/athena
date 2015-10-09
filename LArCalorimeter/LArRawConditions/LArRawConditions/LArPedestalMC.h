@@ -40,14 +40,15 @@ class LArPedestalMC: public ILArPedestal {
   
   // set method filling the data members individually (if one
   // wants to fill this class not using the DB)
-  void set(std::vector<float> vPedestal, std::vector<float> vPedestalRMS);
+  void set(const std::vector<float>& vPedestal,
+           const std::vector<float>& vPedestalRMS);
 
 
  private: 
+  friend class LArPedestalMCCnv_p1;
 
   // data member simpler than for data: 1 single number is needed for MC  
   std::vector<float> m_vPedestal, m_vPedestalRMS;
-
 };
 
 CLASS_DEF( LArPedestalMC, 27770770,1)

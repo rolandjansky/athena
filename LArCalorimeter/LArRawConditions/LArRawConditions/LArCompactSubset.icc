@@ -674,7 +674,7 @@ size_t LArCompactSubsetVector::getChanSize() const
  * is empty.
  */
 inline
-size_t LArCompactSubsetVector::getSize (unsigned int chan)
+size_t LArCompactSubsetVector::getSize (unsigned int chan) const
 {
   int slot = m_slots[chan * m_chanSize];
   if (slot >= 0)
@@ -691,7 +691,7 @@ size_t LArCompactSubsetVector::getSize (unsigned int chan)
  * so CHAN is ignored.
  */
 inline
-float LArCompactSubsetVector::timeOffset (unsigned int /*chan*/)
+float LArCompactSubsetVector::timeOffset (unsigned int /*chan*/) const
 {
   return m_timeOffset;
 }
@@ -705,7 +705,7 @@ float LArCompactSubsetVector::timeOffset (unsigned int /*chan*/)
  * so CHAN is ignored.
  */
 inline
-float LArCompactSubsetVector::timeBinWidth (unsigned int /*chan*/)
+float LArCompactSubsetVector::timeBinWidth (unsigned int /*chan*/) const
 {
   return m_timeBinWidth;
 }
