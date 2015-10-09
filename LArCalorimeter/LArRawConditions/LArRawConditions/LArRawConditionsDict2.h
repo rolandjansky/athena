@@ -93,6 +93,6 @@ INSTAN_BOTH(LArPhysWave);
 #include "LArRawConditions/LArGlobalTimeOffset.h"
 
 namespace LArRawConditionsDict {
-  std::pair< HWIdentifier, LArCalibParams::CalibBoard>     m_pair0;
+  std::pair< HWIdentifier, LArCalibParams::CalibBoard>     pair0;
 }
 

@@ -186,6 +186,7 @@ LArWFParams::LArWFParams(unsigned flag,
 	m_Taur(taur), 
 	m_Tshaper(tshaper), 
 	m_Amplitude(ampli), 
+        m_Tdiff(0),
 	m_isValid(true) {}
 
 inline
@@ -195,6 +196,8 @@ LArWFParams::LArWFParams(HWIdentifier chID, CaloGain::CaloGain gain,
 	      const LArPhysCaliTdiffComplete& tdiff,
 	      const LArTdriftComplete& tdrift) 
 {
+    m_flag = 0;
+    m_Amplitude = 0;
     m_isValid = true ;
     int igain = (int)gain ;
 

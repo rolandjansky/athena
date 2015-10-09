@@ -121,7 +121,7 @@ void LArCompactSubsetVector::resizeChanVec (size_t febIndex, size_t sz)
 LArVectorProxy
 LArCompactSubsetVector::getData (unsigned int which,
                                  unsigned int chan,
-                                 size_t tbin)
+                                 size_t tbin) const
 {
   assert (which < nWaves);
   int slot = m_slots[chan * m_chanSize + tbin];

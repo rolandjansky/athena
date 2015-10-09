@@ -135,6 +135,10 @@ float LArOFCComplete::timeBinWidth(const Identifier&  CellID, int gain) const {
 // useful for debug
 void LArOFCComplete::dumpOFC(std::string output_file_name) const {
   FILE* f = fopen( output_file_name.c_str() , "w" ) ;
+  if (!f) {
+    std::cerr << "Can't open output file: " << output_file_name << "\n";
+    return;
+  }
 
   for (unsigned int iGain = minGain(); iGain < nGains(); ++iGain) {
 

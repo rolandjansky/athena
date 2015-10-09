@@ -51,9 +51,11 @@ class LArRawRamp
   inline CaloGain::CaloGain gain() const
     {return m_gain;}
 
+  inline const std::vector<RAMPPOINT_t>& theRamp() const
+    {return m_ramp;}
   inline std::vector<RAMPPOINT_t>& theRamp()
     {return m_ramp;}
-  inline int iSat()
+  inline int iSat() const
     {return m_iSat;}
 
  private:

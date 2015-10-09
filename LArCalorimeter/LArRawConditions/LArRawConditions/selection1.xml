@@ -34,7 +34,8 @@
   <class name="LArAutoCorrComplete" />
   <class name="LArAutoCorrMC" />
   <class name="LArAutoCorrP" />
-  <class name="LArAutoCorrP1" />
+  <!-- picked up by iterator pattern below. -->
+  <!-- <class name="LArAutoCorrP1" /> -->
   <class name="LArConditionsSubset<LArAutoCorrP>"  id="4E7E36E9-2121-4327-88C5-8A516D6D6D2A" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -47,7 +48,8 @@
 
   <!-- LArCaliPulseParamsP -->
   <class name="LArCaliPulseParamsComplete" />
-  <class name="LArCaliPulseParamsP" />
+  <!-- picked up through iterator pattern below. -->
+  <!-- <class name="LArCaliPulseParamsP" /> -->
 
   <class name="LArConditionsSubset<LArCaliPulseParamsP>"  id="D1D15524-04F0-4A75-ABC7-948D90491504" >
     <field name="m_subsetMap" transient="true" />
@@ -69,7 +71,8 @@
   <!-- LArDAC2uAP -->
   <class name="LArDAC2uAComplete" />
   <class name="LArDAC2uAMC" />
-  <class name="LArDAC2uAP" />
+  <!-- picked up through iterator pattern below. -->
+  <!-- <class name="LArDAC2uAP" /> -->
   <class name="LArConditionsSubset<LArDAC2uAP>"  id="00BB980F-D174-4AD7-A5C7-DC66BA71C4D2" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -83,7 +86,8 @@
 
   <!-- LArDetCellParamsP -->
   <class name="LArDetCellParamsComplete" />
-  <class name="LArDetCellParamsP" />
+  <!-- picked up through iterator pattern below. -->
+  <!-- <class name="LArDetCellParamsP" /> -->
   <class name="LArConditionsSubset<LArDetCellParamsP>"  id="11272A20-3A6B-4E1B-B96C-27117868ED09" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -97,7 +101,8 @@
   <!-- LArfSamplP -->
   <class name="LArfSamplComplete" />
   <class name="LArfSamplMC" />
-  <class name="LArfSamplP" />
+  <!-- picked up through iterator pattern below. -->
+  <!-- <class name="LArfSamplP" /> -->
   <class name="LArConditionsSubset<LArfSamplP>"  id="6E808031-FCAD-4DB6-9246-E5D926790FED" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -110,7 +115,8 @@
 
   <!-- LArH6OscillationP -->
   <class name="LArH6OscillationComplete" />
-  <class name="LArH6OscillationP" />
+  <!-- picked up through iterator pattern below. -->
+  <!-- <class name="LArH6OscillationP" /> -->
   <class name="LArConditionsSubset<LArH6OscillationP>"  id="425EBF82-9EC7-4A2E-A112-49439F26E45B" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -125,7 +131,8 @@
   <class name="LArHVScaleCorrComplete" />
 
   <!-- LArSingleFloat subset -->
-  <class name="LArSingleFloatP" />
+  <!-- picked up by iterator pattern below. -->
+  <!-- <class name="LArSingleFloatP" /> -->
   <class name="LArConditionsSubset<LArSingleFloatP>" />
   <class pattern="std::pair<unsigned*LArSingleFloatP*"/>
   <class name="std::vector<LArSingleFloatP>"/>
@@ -137,7 +144,8 @@
   <!-- LArMinBiasP -->
   <class name="LArMinBiasComplete" />
   <class name="LArMinBiasMC" />
-  <class name="LArMinBiasP" />
+  <!-- picked up through iterator pattern below. -->
+  <!-- <class name="LArMinBiasP" /> -->
   <class name="LArConditionsSubset<LArMinBiasP>"  id="71652545-4809-45A5-9125-5ACA8FB5AC0C" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -151,7 +159,8 @@
   <!-- LArMinBiasAverageP -->
   <class name="LArMinBiasAverageComplete" />
   <class name="LArMinBiasAverageMC" />
-  <class name="LArMinBiasAverageP" />
+  <!-- picked up through iterator pattern below. -->
+  <!-- <class name="LArMinBiasAverageP" /> -->
   <class name="LArConditionsSubset<LArMinBiasAverageP>"  id="3235F39A-7C1D-4FB9-9F56-6A6251AC3360" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -167,7 +176,8 @@
   <class name="LArMphysOverMcalComplete" />
   <class name="LArMphysOverMcalMC" />
   <class name="LArMphysOverMcalP" />
-  <class name="LArMphysOverMcalP1" />
+  <!-- picked up through iterator pattern below. -->
+  <!-- <class name="LArMphysOverMcalP1" /> -->
   <class name="LArConditionsSubset<LArMphysOverMcalP>"  id="9C53AC43-3FD6-470F-A6FF-1DF80E85ACBF" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -181,7 +191,8 @@
   <!-- LArNoiseP -->
   <class name="LArNoiseComplete" />
   <class name="LArNoiseMC" />
-  <class name="LArNoiseP" />
+  <!-- picked up through iterator pattern below. -->
+  <!-- <class name="LArNoiseP" /> -->
   <class name="LArConditionsSubset<LArNoiseP>"  id="A96F4520-9C5E-49E6-89A3-5E26A781CE11" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -218,7 +229,8 @@
   <class name="LArPedestalMC"
 	id="C147EFC8-5283-4DAE-AD20-0E2CB79E54B6" />
   <class name="LArPedestalP" />
-  <class name="LArPedestalP1" />
+  <!-- picked up through iterator pattern below. -->
+  <!-- <class name="LArPedestalP1" /> -->
   <class name="LArPedestalComplete" />
   <class name="LArConditionsSubset<LArPedestalP>"  id="E17191DD-4C0A-4B1A-AE49-7D587C6BE3EE" >
     <field name="m_subsetMap" transient="true" />
@@ -234,7 +246,8 @@
 
   <!-- LArPhysCaliTdiffP -->
   <class name="LArPhysCaliTdiffComplete" />
-  <class name="LArPhysCaliTdiffP" />
+  <!-- picked up through iterator pattern below. -->
+  <!-- <class name="LArPhysCaliTdiffP" /> -->
   <class name="LArConditionsSubset<LArPhysCaliTdiffP>"  id="A7FB91FF-4535-4EB7-87F8-A34BA477ECE0" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -250,7 +263,8 @@
   <class name="LArRampComplete" />
   <class name="LArRampMC" />
   <class name="LArRampP" />
-  <class name="LArRampP1" />
+  <!-- picked up through iterator pattern below. -->
+  <!-- <class name="LArRampP1" /> -->
   <class name="LArConditionsSubset<LArRampP>"  id="4019776D-D528-4401-9CBD-7956C4B00607" >
     <field name="m_subsetMap" transient="true" />
   </class>
@@ -264,7 +278,8 @@
   <!-- LAruA2MeVP -->
   <class name="LAruA2MeVComplete" />
   <class name="LAruA2MeVMC" />
-  <class name="LAruA2MeVP" />
+  <!-- picked up through iterator pattern below. -->
+  <!-- <class name="LAruA2MeVP" /> -->
   <class name="LArConditionsSubset<LAruA2MeVP>"  id="CBF815A2-F18C-4C18-9E93-A8EE67CEE59F" >
     <field name="m_subsetMap" transient="true" />
   </class>

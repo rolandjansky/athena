@@ -33,8 +33,8 @@ template class LArConditionsVsCalibDB<LArCaliPulseParamsP>;
 template class LArConditionsVsCalib<LArCaliPulseParamsP>;
 
 namespace LArRawConditionsDict {
-  LArConditionsVsCalibDB<LArCaliPulseParamsP>       m_vscalib001 ;
-  LArConditionsVsCalib<LArCaliPulseParamsP>         m_vscalib101 ;
+  LArConditionsVsCalibDB<LArCaliPulseParamsP>       vscalib001 ;
+  LArConditionsVsCalib<LArCaliPulseParamsP>         vscalib101 ;
 }
 
 //=== LArDAC2uAP
