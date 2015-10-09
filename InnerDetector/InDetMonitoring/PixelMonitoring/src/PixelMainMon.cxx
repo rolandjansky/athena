@@ -39,6 +39,9 @@
 #include <stdint.h>
 #include <vector>
 #include <sstream>
+#include <fstream> // kazuki
+#include <cstdlib> // kazuki
+#include <map> // kazuki
 
 #include "GaudiKernel/StatusCode.h"
 //#include "Identifier/Identifier.h"
@@ -54,6 +57,27 @@
 
 //////////////////////////////////////////////////////////////////////////////
 
+std::vector<std::string> &splitter(const std::string &s, char delim, std::vector<std::string> &elems) {
+  std::stringstream ss(s);
+  std::string item;
+  while (std::getline(ss, item, delim)) {
+    elems.push_back(item);
+  }
+  return elems;
+}
+
+std::vector<std::string> splitter(const std::string &s, char delim) {
+  std::vector<std::string> elems;
+  splitter(s, delim, elems);
+  return elems;
+}
+
+bool is_file_exist(const char *fileName)
+{
+  std::ifstream infile(fileName);
+  return infile.good();
+}
+
 PixelMainMon::PixelMainMon(const std::string & type, 
       const std::string & name,
       const IInterface* parent) :
@@ -63,7 +87,17 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_pixelCableSvc("PixelCablingSvc",name),
    m_IBLParameterSvc("IBLParameterSvc",name),
    m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
-   m_lumiTool("LuminosityTool")
+   m_lumiTool("LuminosityTool"),
+   m_moduleTemperature(new dcsDataHolder()),
+   m_coolingPipeTemperatureInlet(new dcsDataHolder()),
+   m_coolingPipeTemperatureOutlet(new dcsDataHolder()),
+   m_HV(new dcsDataHolder()),
+   m_HV_current(new dcsDataHolder()),
+   m_LV_voltage(new dcsDataHolder()),
+   m_LV_current(new dcsDataHolder()),
+   m_FSM_state(new dcsDataHolder()),
+   m_FSM_status(new dcsDataHolder()),
+   m_moduleDCSDataHolder(new moduleDcsDataHolder())
    //m_trkSummaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool")
 {                                                                        //all job options flags go here
    declareProperty("PixelConditionsSummarySvc", m_pixelCondSummarySvc);
@@ -104,6 +138,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("doTrack",         m_doTrack      = false);
    declareProperty("doHoleSearch",    m_doHoleSearch   = false);
    declareProperty("doStatus",        m_doStatus     = false);
+   declareProperty("doDCS",           m_doDCS        = false);
 
    declareProperty("doHeavyIonMon",   m_doHeavyIonMon = false);
 
@@ -159,6 +194,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_occupancy_10min = 0;
    //m_average_occupancy = 0;
    m_average_pixocc = 0;
+   m_hitmap_tmp = 0;
    m_FE_chip_hit_summary = 0;
    m_occupancy_time1 = 0;
    m_occupancy_time2 = 0;
@@ -496,9 +532,11 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_nGood_B2=0;
 
    for( int i=0; i<PixLayer::COUNT; i++){
+      m_nlargeevt_per_lumi_mod[i] = 0;
       m_ToT_etaphi_mod[i] = 0;
       m_occupancy_summary_mod[i] = 0;
       m_occupancy_summary_low_mod[i] = 0;
+      m_nhits_mod[i] = 0;
       m_diff_ROD_vs_Module_BCID_mod[i] = 0;
       m_Lvl1ID_diff_mod_ATLAS_mod[i] = 0;
       //m_Lvl1A_mod[i] = 0;
@@ -506,6 +544,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_hit_ToT_tmp_mod[i] = 0;
       m_hit_ToT_Mon_mod[i] = 0;
       m_avgocc_per_lumi_mod[i] = 0;
+      m_maxocc_per_lumi_mod[i] = 0;
       m_hits_per_lumi_mod[i] = 0;
       m_clusters_per_lumi_mod[i] = 0;
       m_totalclusters_per_lumi_mod[i] = 0;
@@ -514,19 +553,9 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_cluster_groupsize_mod[i] = 0;
       m_clusQ_vs_eta_mod[i] = 0;
       m_clussize_vs_eta_mod[i] = 0;
-      //m_errors_per_lumi_mod[i] = 0;
-      //m_SyncErrors_per_lumi_mod[i] = 0;
-      //m_OpticalErrors_per_lumi_mod[i] = 0;
-      //m_SEU_Errors_per_lumi_mod[i] = 0;
-      //m_TruncationErrors_per_lumi_mod[i] = 0;
-      //m_TimeoutErrors_per_lumi_mod[i] = 0;
       m_bad_mod_errors_mod[i] = 0;
       m_errors_etaid_mod[i] = 0;
-      //m_errors_etaid_per_evt_mod[i] = 0;
       m_hit_ToT_LB_mod[i] = 0;
-      //for( int j=0; j<ErrorCategory::COUNT; j++){
-      //   m_ErrorFraction_per_evt[j][i] = 0;
-      //}
    }
    for( int j=0; j<16; j++){
       m_errors_int_LB[j] = 0;
@@ -558,10 +587,117 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_ErrorStateMap[i] = 0;
       m_ErrorStateMap_per_LB[i] = 0;
    }
+
+  // DCS Monitorning
+  for( int ii = 0; ii < IBLStave::COUNT; ii++){
+    // TEMPERATURE
+    m_hist_moduleTemperature2Dscatter[ii] = 0;
+    m_hist_moduleTemperatureLB[ii] = 0;
+    m_hist_LB_moduleGroup_moduleTemperature[ii] = 0;
+    // HV
+    m_hist_HVoltage2Dscatter[ii] = 0;
+    m_hist_HVoltageLB[ii] = 0;
+    m_hist_LB_moduleGroup_HVoltage[ii] = 0;
+    // FSM state
+    m_hist_FSMstate2Dscatter[ii] = 0;
+    m_hist_FSMstateLB[ii] = 0;
+    m_hist_LB_moduleGroup_FSMstate[ii] = 0;
+    // FSM status
+    m_hist_FSMstatus2Dscatter[ii] = 0;
+    m_hist_FSMstatusLB[ii] = 0;
+    m_hist_LB_moduleGroup_FSMstatus[ii] = 0;
+    // PIPES Inlet
+    m_hist_Pipes_inletLB[ii] = 0;
+    //m_hist_LB_moduleGroup_coolingPipeInlet[ii] = 0;
+    // PIPES Outlet
+    m_hist_Pipes_outletLB[ii] = 0;
+    //m_hist_LB_moduleGroup_coolingPipeOutlet[ii] = 0;
+    // LV
+    m_hist_LVoltage2Dscatter[ii] = 0;
+    m_hist_LB_moduleGroup_LVoltage[ii] = 0;
+    m_hist_LB_moduleGroup_LVoltage[ii] = 0;
+    // LV current
+    m_hist_LVcurrent2Dscatter[ii] = 0;
+    m_hist_LVcurrentLB[ii] = 0;
+    m_hist_LB_moduleGroup_LVcurrent[ii] = 0;
+    // HV current
+    m_hist_HVcurrent2Dscatter[ii] = 0;
+    m_hist_HVcurrentLB[ii] = 0;
+    m_hist_LB_moduleGroup_HVcurrent[ii] = 0;
+    // dT
+    m_hist_LB_moduleGroup_dT[ii] = 0; // dT := module temp - cooling pipe outlet
+    // LV P C
+    m_hist_LB_moduleGroup_LVPowerConsumption[ii] = 0;
+    // HV P C
+    m_hist_LB_moduleGroup_HVPowerConsumption[ii] = 0;
+    // LV+HV P C
+    m_hist_LB_moduleGroup_LVHVPowerConsumption[ii] = 0;
+    // effective FLEX temp
+    m_hist_LB_moduleGroup_effFLEXtemp[ii] = 0;
+    // thermal figure of merit
+    m_hist_LB_moduleGroup_thermalFigureMerit[ii] = 0;
+  } // end for loop over IBLStave
+  // TEMPERATURE
+  m_hist_moduleTemperatureEtaPhi = 0;
+  m_hist_LB_staveID_moduleTemperature = 0;
+  // HV
+  m_hist_HVoltageEtaPhi = 0;
+  m_hist_LB_staveID_HVoltage = 0;
+  // FSM state
+  m_hist_FSMstateEtaPhi = 0;
+  m_hist_LB_staveID_FSMstate = 0;
+  // FSM status
+  m_hist_FSMstatusEtaPhi = 0;
+  m_hist_LB_staveID_FSMstatus = 0;
+  // PIPES Inlet
+  //m_hist_Pipes_inletEtaPhi = 0;
+  m_hist_Pipes_inlet2Dscatter = 0;
+  m_hist_LB_staveID_coolingPipeInlet = 0;
+  // PIPES Outlet
+  //m_hist_Pipes_outletEtaPhi = 0;
+  m_hist_Pipes_outlet2Dscatter = 0;
+  m_hist_LB_staveID_coolingPipeOutlet = 0;
+  // LV
+  m_hist_LVoltageEtaPhi = 0;
+  m_hist_LB_staveID_LVoltage = 0;
+  // LV current
+  m_hist_LVcurrentEtaPhi = 0;
+  m_hist_LB_staveID_LVcurrent = 0;
+  // HV current
+  m_hist_HVcurrentEtaPhi = 0;
+  m_hist_LB_staveID_HVcurrent= 0;
+  // dT
+  m_hist_dTEtaPhi = 0;
+  m_hist_LB_staveID_dT = 0;
+  // LV P C
+  m_hist_LVPowerConsumptionEtaPhi = 0;
+  m_hist_LB_staveID_LVPowerConsumption = 0;
+  // HV P C
+  m_hist_HVPowerConsumptionEtaPhi = 0;
+  m_hist_LB_staveID_HVPowerConsumption = 0;
+  // LV HV P C
+  m_hist_LVHVPowerConsumptionEtaPhi = 0;
+  m_hist_LB_staveID_LVHVPowerConsumption = 0;
+  // eff flex temp
+  m_hist_effFLEXtempEtaPhi = 0;
+  m_hist_LB_staveID_effFLEXtemp = 0;
+  // tfm
+  m_hist_thermalFigureMeritEtaPhi = 0;
+  m_hist_LB_staveID_thermalFigureMerit = 0;
 }
    
 PixelMainMon::~PixelMainMon()
 {
+    delete m_moduleTemperature;
+    delete m_coolingPipeTemperatureInlet;
+    delete m_coolingPipeTemperatureOutlet;
+    delete m_HV;
+    delete m_HV_current;
+    delete m_LV_voltage;
+    delete m_LV_current;
+    delete m_FSM_state;
+    delete m_FSM_status;
+    delete m_moduleDCSDataHolder;
 }
 
 
@@ -643,6 +779,125 @@ StatusCode PixelMainMon::initialize()
    //  if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Retrieved tool " << m_trkSummaryTool << endreq;
    //}
 
+  //m_elementsMap[std::string("/PIXEL/DCS/FSMSTATE")].push_back(std::string("FSM_state"));                    // type: String4k
+  //m_elementsMap[std::string("/PIXEL/DCS/FSMSTATUS")].push_back(std::string("FSM_status"));                  // type: String4k
+  //m_elementsMap[std::string("/PIXEL/DCS/HV")].push_back(std::string("HV"));                                 // type: Float
+  //m_elementsMap[std::string("/PIXEL/DCS/HVCURRENT")].push_back(std::string("hv_current"));                  // type: Float
+  //m_elementsMap[std::string("/PIXEL/DCS/LV")].push_back(std::string("lv_voltage"));                         // type: Float
+  //m_elementsMap[std::string("/PIXEL/DCS/LV")].push_back(std::string("lv_current"));                         // type: Float
+  //m_elementsMap[std::string("/PIXEL/DCS/PIPES")].push_back(std::string("temp_inlet"));                      // type: Float
+  //m_elementsMap[std::string("/PIXEL/DCS/PIPES")].push_back(std::string("temp_outlet"));                     // type: Float
+  //m_elementsMap[std::string("/PIXEL/DCS/PLANTS")].push_back(std::string("modbus_ack_user_setpoint_temp"));  // type: Float
+  //m_elementsMap[std::string("/PIXEL/DCS/PLANTS")].push_back(std::string("modbus_cooling_ready"));           // type: Bool
+  //m_elementsMap[std::string("/PIXEL/DCS/TEMPERATURE")].push_back("temperature");                            // type: Float
+
+  if (!m_doDCS) return StatusCode::SUCCESS;
+
+  m_atrcollist.push_back(std::string("/PIXEL/DCS/TEMPERATURE")); // module
+  m_atrcollist.push_back(std::string("/PIXEL/DCS/HV"));          // readout unit
+  m_atrcollist.push_back(std::string("/PIXEL/DCS/FSMSTATE"));    // readout unit
+  m_atrcollist.push_back(std::string("/PIXEL/DCS/FSMSTATUS"));   // readout unit
+  m_atrcollist.push_back(std::string("/PIXEL/DCS/PIPES"));       // IBL stave
+  m_atrcollist.push_back(std::string("/PIXEL/DCS/HVCURRENT"));   // IBL readout unit
+  m_atrcollist.push_back(std::string("/PIXEL/DCS/PLANTS"));      // 1
+  m_atrcollist.push_back(std::string("/PIXEL/DCS/LV"));          // IBL readout unit
+  m_currentLumiBlockNumber = 0;
+
+  //std::string testarea = std::getenv("TestArea");
+  //ifstream moduleMapfile((testarea + "/InstallArea/share/wincc2cool.csv").c_str());
+  //ifstream coolingPipeMapfile((testarea + "/InstallArea/share/coolingPipeMap.csv").c_str());
+  //ifstream lvMapfile((testarea + "/InstallArea/share/lvMap.csv").c_str());
+
+  //std::string cmtpath = std::getenv("CMTPATH");
+  std::string cmtpath = std::getenv("DATAPATH");
+  std::vector<std::string> paths = splitter(cmtpath, ':');
+  for (const auto& x : paths){
+    if(is_file_exist((x + "/wincc2cool.csv").c_str())){
+      ATH_MSG_INFO("initialising DCS channel maps using files in " << x);
+      std::ifstream moduleMapfile((x + "/wincc2cool.csv").c_str());
+      std::ifstream coolingPipeMapfile((x + "/coolingPipeMap.csv").c_str());
+      std::ifstream lvMapfile((x + "/lvMap.csv").c_str());
+      if( moduleMapfile.fail() || coolingPipeMapfile.fail() ) {
+        ATH_MSG_ERROR("initialize(): Map File do not exist.");
+      }
+      std::string line;
+      // make a dictionary to convert module name to channel number
+      int channel; std::string moduleName; std::string rest;
+      std::string inletName; std::string outletName;
+      std::string lvVoltageName; std::string lvCurrentName;
+      //while(getline(moduleMapfile, line)) 
+      while(moduleMapfile >> channel >> moduleName >> rest) {
+        // get channel number from wincc2cool.csv
+        //int channel; std::string moduleName; std::string rest;
+        //channel = atoi( ( line.substr(0, line.find(",")) ).c_str() );
+        //std::string tmp_line = line.substr(line.find(","), std::string::npos);
+        //// get the module name from wincc2cool.csv
+        //moduleName = tmp_line.substr(0, tmp_line.find(","));
+        m_moduleTemperature->m_maps->insert(std::make_pair(moduleName, channel));
+        m_HV->m_maps->insert(std::make_pair(moduleName, channel));
+        m_moduleDCSDataHolder->m_moduleMap->insert(std::make_pair(moduleName, channel));
+        ATH_MSG_DEBUG( "initialize(): channel " << channel << ", moduleName " << moduleName );
+      }
+      // for cooling pipe
+      while(coolingPipeMapfile >> channel >> inletName >> outletName) {
+        m_coolingPipeTemperatureInlet->m_maps->insert(std::make_pair(inletName, channel));
+        m_coolingPipeTemperatureOutlet->m_maps->insert(std::make_pair(outletName, channel));
+      }
+      while(lvMapfile >> channel >> lvVoltageName >> lvCurrentName) {
+        m_LV_voltage->m_maps->insert(std::make_pair(lvVoltageName, channel));
+        m_LV_current->m_maps->insert(std::make_pair(lvCurrentName, channel));
+      }
+      break;
+    }
+  }
+
+    m_name2etaIndex["A_M4_A8_2"] = 9;
+    m_name2etaIndex["A_M4_A8_1"] = 8;
+    m_name2etaIndex["A_M4_A7_2"] = 7;
+    m_name2etaIndex["A_M4_A7_1"] = 6;
+    m_name2etaIndex["A_M3_A6"] = 5;
+    m_name2etaIndex["A_M3_A5"] = 4;
+    m_name2etaIndex["A_M2_A4"] = 3;
+    m_name2etaIndex["A_M2_A3"] = 2;
+    m_name2etaIndex["A_M1_A2"] = 1;
+    m_name2etaIndex["A_M1_A1"] = 0;
+    m_name2etaIndex["C_M1_C1"] = -1;
+    m_name2etaIndex["C_M1_C2"] = -2;
+    m_name2etaIndex["C_M2_C3"] = -3;
+    m_name2etaIndex["C_M2_C4"] = -4;
+    m_name2etaIndex["C_M3_C5"] = -5;
+    m_name2etaIndex["C_M3_C6"] = -6;
+    m_name2etaIndex["C_M4_C7_1"] = -7;
+    m_name2etaIndex["C_M4_C7_2"] = -8;
+    m_name2etaIndex["C_M4_C8_1"] = -9;
+    m_name2etaIndex["C_M4_C8_2"] = -10;
+
+    m_name2moduleGroup["C_M4"] = 0;
+    m_name2moduleGroup["C_M3"] = 1;
+    m_name2moduleGroup["C_M2"] = 2;
+    m_name2moduleGroup["C_M1"] = 3;
+    m_name2moduleGroup["A_M1"] = 4;
+    m_name2moduleGroup["A_M2"] = 5;
+    m_name2moduleGroup["A_M3"] = 6;
+    m_name2moduleGroup["A_M4"] = 7;
+
+    m_fsmState2enum["READY"] = 0.;
+    m_fsmState2enum["ON"] = 1.;
+    m_fsmState2enum["STANDBY"] = 2.;
+    m_fsmState2enum["LV_ON"] = 3.;
+    m_fsmState2enum["TRANSITION"] = 4.;
+    m_fsmState2enum["UNDEFINED"] = 5.;
+    m_fsmState2enum["LOCKED_OUT"] = 6.;
+    m_fsmState2enum["DISABLED"] = 7.;
+    m_fsmState2enum["OFF"] = 8.;
+    m_fsmState2enum["DEAD"] = 9.;
+
+    m_fsmStatus2enum["OK"] = 0.;
+    m_fsmStatus2enum["WARNING"] = 1.;
+    m_fsmStatus2enum["ERROR"] = 2.;
+    m_fsmStatus2enum["UNINITIALIZED"] = 3.;
+    m_fsmStatus2enum["DEAD"] = 4.;
+
    return StatusCode::SUCCESS;
 }
 
@@ -652,6 +907,7 @@ StatusCode PixelMainMon::bookHistograms()
   // m_isNewRun = newRun;
   // m_isNewLumiBlock = newLumiBlock;
   // m_newLowStatInterval = newLowStatInterval;
+  //m_doOnline = true;
 
    const EventInfo* thisEventInfo;
    sc=evtStore()->retrieve(thisEventInfo);
@@ -695,6 +951,7 @@ StatusCode PixelMainMon::bookHistograms()
      m_doSpacePoint = false;
      m_doCluster    = false;
      m_doStatus     = false;
+     m_doDCS        = false;
      m_doTrack      = false;
    }
 
@@ -790,13 +1047,12 @@ StatusCode PixelMainMon::bookHistograms()
          if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Status" << endreq;  
       }
-      //if(m_doStatus)
-      //{
+      if(m_doDCS)
+      {
          sc=BookPixelDCSMon();
          if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
-         if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Status" << endreq;  
-      //}
-      //}
+         if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking DCS" << endreq;  
+      }
 
       return StatusCode::SUCCESS;
 }
@@ -913,13 +1169,13 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       m_storegate_errors->Fill(3.,1.);
    }
 
-   //if(m_doCluster&&evtStore()->contains<InDet::PixelClusterContainer>(m_Pixel_SiClustersName))
-   //{
-   //   sc=FillPixelDCSMon();
-      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
-   //}else{
-   //   m_storegate_errors->Fill(3.,1.);
-   //}
+   if(m_doDCS)
+   {
+      sc=FillPixelDCSMon();
+      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq;
+   }else{
+      m_storegate_errors->Fill(3.,1.);
+   }
    return StatusCode::SUCCESS;
 }
 
@@ -947,12 +1203,11 @@ StatusCode PixelMainMon::procHistograms()
       if (m_doRDO)     { sc=ProcHitsMon(); }
       if (m_doCluster) { sc=ProcClustersMon(); }
       if (m_doStatus)  { sc=ProcStatusMon(); }
-      /*if(....){*/ sc=ProcPixelDCSMon(); //}
+      if (m_doDCS) { sc=ProcPixelDCSMon(); }
       if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not proc histograms" << endreq; 
    }
   
    return StatusCode::SUCCESS;
 }
-
 
 
