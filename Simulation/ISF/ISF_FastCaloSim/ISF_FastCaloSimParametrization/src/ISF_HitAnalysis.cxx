@@ -32,7 +32,7 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "ISF_Event/FCS_StepInfoCollection.h"
+#include "ISF_FastCaloSimEvent/FCS_StepInfoCollection.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
