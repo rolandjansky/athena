@@ -1,5 +1,5 @@
 package xAODCoreAthenaPool
-# $Id: requirements 635273 2014-12-11 13:58:24Z krasznaa $
+# $Id: requirements 699727 2015-10-09 14:59:56Z will $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -15,6 +15,7 @@ use AthenaKernel        AthenaKernel-*        Control
 use AthContainers       AthContainers-*       Control
 
 # POOL package(s):
+use  AthenaPoolCnvSvc           AthenaPoolCnvSvc-*              Database/AthenaPOOL
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 
 # EDM package(s):
