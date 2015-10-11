@@ -13,30 +13,16 @@
 // Framework include(s):
 #include "PathResolver/PathResolver.h"
 
-// Root include(s)
-#include "TFile.h"
-
 using namespace TauAnalysisTools;
 
 //=================================PUBLIC-PART==================================
 //______________________________________________________________________________
 TauOverlappingElectronLLHDecorator::TauOverlappingElectronLLHDecorator( const std::string& name )
-  : asg::AsgMetadataTool( name )
+  : asg::AsgTool( name )
   , m_tEMLHTool(0)
   , m_xElectronContainer(0)
   , m_sElectronContainerName("Electrons")
   , m_bElectonsAvailable(true)
-  , m_hCutValues(0)
-  , m_bEleOLRMatchAvailable(false)
-  , m_bNewEvent(false)
-  // , m_sElectronPhotonSelectorToolsConfigFile("ElectronPhotonSelectorTools/offline/mc15_20150224/ElectronLikelihoodLooseOfflineConfig2015.conf")
-  , m_sElectronPhotonSelectorToolsConfigFile("ElectronPhotonSelectorTools/offline/mc15_20150712/ElectronLikelihoodLooseOfflineConfig2015.conf")
-  , m_sEleOlrPassDecorationName("ele_olr_pass_fix")
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
-  , m_sEleOlrLhScoreDecorationName("ele_match_lhscore_fix")
-#else
-  , m_sEleOlrLhScoreDecorationName("EleMatchLikelihoodScore")
-#endif
 {
   m_sEleOLRFilePath = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/Selection/eveto_cutvals.root";
 
@@ -54,16 +40,17 @@ TauOverlappingElectronLLHDecorator::~TauOverlappingElectronLLHDecorator()
 //______________________________________________________________________________
 StatusCode TauOverlappingElectronLLHDecorator::initialize()
 {
-  ATH_MSG_INFO( "Initializing TauOverlappingElectronLLHDecorator" );
+  ATH_MSG_INFO( "Initialising TauOverlappingElectronLLHDecorator" );
   // create a EM LH tool
+  std::string confDir = "ElectronPhotonSelectorTools/offline/mc15_20150224/";
   m_tEMLHTool = new AsgElectronLikelihoodTool (name()+"_ELHTool");
-  ATH_CHECK(m_tEMLHTool->setProperty("OutputLevel", msg().level() ));
+  m_tEMLHTool->msg().setLevel( msg().level() );
   if (m_tEMLHTool->setProperty("primaryVertexContainer","PrimaryVertices").isFailure())
   {
     ATH_MSG_FATAL("SelectionCutEleOLR constructor failed setting property primaryVertexContainer");
     return StatusCode::FAILURE;
   }
-  if (m_tEMLHTool->setProperty("ConfigFile", m_sElectronPhotonSelectorToolsConfigFile).isFailure())
+  if (m_tEMLHTool->setProperty("ConfigFile",confDir+"ElectronLikelihoodLooseOfflineConfig2015.conf").isFailure())
   {
     ATH_MSG_FATAL("SelectionCutEleOLR constructor failed setting property ConfigFile");
     return StatusCode::FAILURE;
@@ -74,7 +61,6 @@ StatusCode TauOverlappingElectronLLHDecorator::initialize()
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_INFO("Loading ele OLR cut file "<< m_sEleOLRFilePath);
   TFile tmpFile(PathResolverFindCalibFile(m_sEleOLRFilePath).c_str());
   m_hCutValues = (TH2D*) tmpFile.Get("eveto_cutvals");
   m_hCutValues->SetDirectory(0);
@@ -84,25 +70,20 @@ StatusCode TauOverlappingElectronLLHDecorator::initialize()
 }
 
 //______________________________________________________________________________
-StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau) const
+StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau)
 {
-  if (m_bNewEvent)
-  {
-    ATH_CHECK(retrieveElectrons());
-    m_bNewEvent = false;
-
-    m_bEleOLRMatchAvailable = (xTau.isAvailable<char>(m_sEleOlrPassDecorationName) || xTau.isAvailable<float>("EleMatchLikelihoodScore"));
-    if (m_bEleOLRMatchAvailable)
-      ATH_MSG_DEBUG("ele_olr_pass decoration is available in this event.");
-    else
-      ATH_MSG_DEBUG("ele_olr_pass decoration is not available in this event. Will decorated it.");
-  }
-  if (m_bEleOLRMatchAvailable)
-    return StatusCode::SUCCESS;
-
-
   const xAOD::Electron * xEleMatch = 0;
   float fLHScore = -4.; // default if no match was found
+
+  if (m_bElectonsAvailable)
+    if (!m_xElectronContainer)
+      m_bElectonsAvailable = false;
+  if (!m_bElectonsAvailable)
+    if ( evtStore()->retrieve( m_xElectronContainer , m_sElectronContainerName ).isFailure() )
+    {
+      ATH_MSG_FATAL("Electron container with name " << m_sElectronContainerName << "was not found in event store, but is needed for electron OLR. Ensure that it is there with the correct name");
+      return StatusCode::FAILURE;
+    }
 
   float fEleMatchPt = -1.;
   // find electron with pt>5GeV within 0.4 cone with largest pt
@@ -121,81 +102,50 @@ StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau
   if(xEleMatch!=0)
     fLHScore = (m_tEMLHTool->calculate(xEleMatch)).getMVAResponse ();
 
-  // static SG::AuxElement::Decorator< ElementLink< xAOD::ElectronContainer > > decElectronLink("electronLink");
-  // // create link to the matched electron
-  // if (xEleMatch)
-  // {
-  //   ElementLink < xAOD::ElectronContainer > lElectronMatchLink(xEleMatch, *(m_xElectronContainer));
-  //   decElectronLink(xTau) = lElectronMatchLink;
-  // }
-  // else
-  // {
-  //   ElementLink < xAOD::ElectronContainer > lElectronMatchLink;
-  //   decElectronLink(xTau) = lElectronMatchLink;
-  // }
+  // create link to the matched electron
+  if (xEleMatch)
+  {
+    ElementLink < xAOD::ElectronContainer > lElectronMatchLink(xEleMatch, *(m_xElectronContainer));
+    xTau.auxdecor< ElementLink< xAOD::ElectronContainer > >("electronLink" ) = lElectronMatchLink;
+  }
+  else
+  {
+    ElementLink < xAOD::ElectronContainer > lElectronMatchLink;
+    xTau.auxdecor< ElementLink< xAOD::ElectronContainer > >("electronLink" ) = lElectronMatchLink;
+  }
 
   // decorate tau with score
-  static SG::AuxElement::Decorator< float > decEleMatchLhscore(m_sEleOlrLhScoreDecorationName);
-  decEleMatchLhscore(xTau) = fLHScore;
+  xTau.auxdecor< float >( "ele_match_lhscore" ) = fLHScore;
 
   bool bPass = false;
   if (xTau.nTracks() == 1)
-  {
-#ifdef XAODTAU_VERSIONS_TAUJET_V3_H
-    static SG::AuxElement::Accessor< xAOD::TauJet::TauTrackLinks_t > trackAcc( "trackLinks" );
-#else
-    static SG::AuxElement::Accessor< xAOD::TauJet::TrackParticleLinks_t > trackAcc( "trackLinks" );
-#endif // XAODTAU_VERSIONS_TAUJET_V3_H
-    if (trackAcc(xTau)[0].isValid())
-      bPass = (fLHScore <= getCutVal(xTau.track(0)->eta(),
-                                     xTau.pt()/1000.));
-    else
-    {
-      ATH_MSG_DEBUG("Invalid track link, TauSelectionTool will discard this tau");
-      bPass = false;
-    }
-  }
+    bPass = (fLHScore <= getCutVal(xTau.track(0)->eta(),
+                                   xTau.pt()/1000.));
   else
     bPass = true;
-  static SG::AuxElement::Decorator< char > decEleOlrPass(m_sEleOlrPassDecorationName);
-  decEleOlrPass(xTau) = (char)bPass;
+  xTau.auxdecor< char >( "ele_olr_pass" ) = (char)bPass;
 
   return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 StatusCode TauOverlappingElectronLLHDecorator::initializeEvent()
 {
-  return beginEvent();
+  if ( evtStore()->retrieve(m_xElectronContainer,m_sElectronContainerName).isSuccess() )
+  {
+    return StatusCode::SUCCESS;
+  }
+  return StatusCode::FAILURE;
 }
-#pragma GCC diagnostic pop
+
 
 //=================================PRIVATE-PART=================================
 //______________________________________________________________________________
-float TauOverlappingElectronLLHDecorator::getCutVal(float fEta, float fPt) const
+float TauOverlappingElectronLLHDecorator::getCutVal(float fEta, float fPt)
 {
   if(fPt>250) fPt=250;
-  if(std::abs(fEta)>2.465) fEta=2.465;
+  if(fabs(fEta)>2.465) fEta=2.465;
 
-  int iBin= m_hCutValues->FindBin(fPt, std::abs(fEta));
+  int iBin= m_hCutValues->FindBin(fPt, fabs(fEta));
   return m_hCutValues->GetBinContent(iBin);
-}
-
-//______________________________________________________________________________
-StatusCode TauOverlappingElectronLLHDecorator::beginEvent()
-{
-  m_bNewEvent = true;
-  return StatusCode::SUCCESS;
-}
-
-//______________________________________________________________________________
-StatusCode TauOverlappingElectronLLHDecorator::retrieveElectrons() const
-{
-  if (evtStore()->contains<xAOD::ElectronContainer>(m_sElectronContainerName))
-    if ( evtStore()->retrieve(m_xElectronContainer,m_sElectronContainerName).isSuccess() )
-      return StatusCode::SUCCESS;
-  ATH_MSG_FATAL("Electron container with name " << m_sElectronContainerName << " was not found in event store, but is needed for electron OLR. Ensure that it is there with the correct name");
-  return StatusCode::FAILURE;
 }

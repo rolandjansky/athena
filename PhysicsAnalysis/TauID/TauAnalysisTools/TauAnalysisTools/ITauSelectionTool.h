@@ -43,7 +43,7 @@ public:
   virtual StatusCode initialize() = 0;
 
   /// Function initialising the tool
-  virtual StatusCode initializeEvent() __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst"))) = 0;
+  virtual StatusCode initializeEvent() = 0;
 
   /// Get an object describing the "selection steps" of the tool
   virtual const Root::TAccept& getTAccept() const = 0;
@@ -54,14 +54,14 @@ public:
   /// Get the decision for a specific TauJet object
   virtual const Root::TAccept& accept( const xAOD::TauJet& tau ) const = 0;
 
+  // Set default recommended properties
+  virtual void setRecommendedProperties() __attribute__ ((deprecated("This function is deprecated. Recommended properties are set now by default.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst"))) = 0;
+
   /// Set output file for histograms
   virtual void setOutFile( TFile* fOutFile ) = 0;
 
   /// Write control histograms to output file
   virtual void writeControlHistograms() = 0;
-
-  /// Call this for each new event.
-  virtual StatusCode beginEvent() __attribute__ ((deprecated("This function is deprecated and will be removed in the future without further notice. Please remove it from your code."))) = 0;
 
 }; // class ITauSelectionTool
 

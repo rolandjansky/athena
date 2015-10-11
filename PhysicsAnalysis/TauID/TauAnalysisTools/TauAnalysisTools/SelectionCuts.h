@@ -21,11 +21,12 @@
 #include "xAODTau/TauJet.h"
 #include "PATCore/TAccept.h"
 
+// Local include(s):
+#include "TauAnalysisTools/TauSelectionTool.h"
+#include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
+
 // ROOT include(s):
 #include "TH1F.h"
-
-// EDM include(s)
-#include "xAODMuon/MuonContainer.h"
 
 namespace TauAnalysisTools
 {
@@ -42,6 +43,10 @@ public:
   void writeControlHistograms();
   void fillHistogramCutPre(const xAOD::TauJet& xTau);
   void fillHistogramCut(const xAOD::TauJet& xTau);
+  virtual StatusCode initializeEvent()
+  {
+    return StatusCode::SUCCESS;
+  };
   virtual bool accept(const xAOD::TauJet& xTau) = 0;
   TH1F* CreateControlPlot(const char* sName, const char* sTitle, int iBins, double dXLow, double dXUp);
 
@@ -147,20 +152,18 @@ class SelectionCutEleOLR
 {
 public:
   SelectionCutEleOLR(TauSelectionTool* tTST);
+  StatusCode initializeEvent();
   bool accept(const xAOD::TauJet& xTau);
   ~SelectionCutEleOLR();
 
   bool getEvetoPass(const xAOD::TauJet& xTau);
 private:
-#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+  TauOverlappingElectronLLHDecorator* m_tTOELLHDecorator;
   bool m_bCheckEleMatchPassAvailable;
   bool m_bEleMatchPassAvailable;
-#endif // not XAODTAU_VERSIONS_TAUJET_V3_H
 
-  std::string m_sEleOlrPassDecorationName;
-
+  StatusCode createTOELLHDecorator();
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
-  const std::string m_sEleOlrLhScoreDecorationName;
 };
 
 class SelectionCutMuonVeto
@@ -172,21 +175,6 @@ public:
 private:
   void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
 };
-
-//added by Li-Gang Xia < ligang.xia@cern.ch >
-//to remove taus overlapping with mouns satisfying pt > 2 GeV and not calo-tagged
-class SelectionCutMuonOLR
-  : public SelectionCut
-{
-public:
-  SelectionCutMuonOLR(TauSelectionTool* tTST);
-  bool accept(const xAOD::TauJet& xTau);
-private:
-  bool m_bTauMuonOLR; //False: overlapped, the tau is not kept. True: not overlapped, the tau is kept.)
-  const xAOD::MuonContainer* m_xMuonContainer;
-  void fillHistogram(const xAOD::TauJet& xTau, TH1F& hHist);
-};
-
 
 }
 

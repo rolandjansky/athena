@@ -43,18 +43,12 @@ The tool can in general be used, including the header file::
 
   #include "TauAnalysisTools/TauSmearingTool.h"
 
-The tool is created and initialized by calling::
+and calling::
 
   TauAnalysisTools::TauSmearingTool TauSmeTool( "TauSmaringTool" );
   TauSmeTool.initialize();
 
-The smearing can be either applied to `non-const` taus::
-
   TauSmeTool.applyCorrection(xTau);
-
-or by obtaining a `non-const` copy from a `const` tau::
-
-  TauSmeTool.correctedCopy(xTauOrig, xTauCopy);
 
 The set of recommended systematic variations can in general be retrieved by
 calling::
@@ -70,23 +64,6 @@ The tool can be configured to use a specific set of systematic variations callin
 
   TauSmeTool.applySystematicVariation(customSystematicSet);
 
--------
-MVA TES
--------
-
-The MVA TES calibration can be applied as well with TauSmearingTool. In addition
-to your standard configuration set the option::
-
-  TauSmeTool.setProperty("ApplyMVATES", true );
-
-The MVA calibration will be applied to your taus, replacing the default
-four-momentum, when correcting your tau candidates via the standard
-``applyCorrection(xTau)`` and ``correctedCopy(xTauOrig, xTauCopy)``.
-
-Note: You must have at least tauRecTools-00-00-12-09. This package is only
-available in ABR since AnalysisBase-2.4.11. If you want to test the MVA
-calibration please update to that release or checkout and compile the package on
-your own..
 
 --------------------
 Available properties
@@ -98,43 +75,42 @@ Overview
 The tool can be used to apply tau pt smearing for a specific
 ``RecommendationTag``:
 
-.. list-table::
-   :header-rows: 1
-   :widths: 15 10 20 55
-      
-   * - property name
-     - type
-     - default value
-     - other sensible values
++-------------------------------+------------------+----------------------------+----------------------------+
+| property name                 | type             | default value              | other sensible values      |
++===============================+==================+============================+============================+
+| RecommendationTag             | std::string      | "mc15-pre-recommendations" | "mc12-final", "mc11-final" |
++-------------------------------+------------------+----------------------------+----------------------------+
 
-   * - ``RecommendationTag``
-     - ``std::string``
-     - ``"2016-ichep"``
-     - ``"mc15-moriond"``, ``"mc15-pre-recommendations"``, ``"mc12-final"``, ``"mc11-final"``
+For the default ``RecommendationTag`` "mc15-pre-recommendations" the following
+properties are available for tool steering:
 
-The following table lists other properties for further configurations:
++-------------------------------+------------------+-----------------------------------------------------------------------------------------+-------------------------------------------------------------------------------+
+| property name                 | type             | default value                                                                           | other sensible values                                                         |
++===============================+==================+=========================================================================================+===============================================================================+
+| InputFilePath                 | std::string      | "TauAnalysisTools/"+ ``SharedFilesVersion`` +"Smearing/TES_TrueHadTau_mc15_prerec.root" |                                                                               |
++-------------------------------+------------------+-----------------------------------------------------------------------------------------+-------------------------------------------------------------------------------+
 
+For the ``RecommendationTag`` "mc12-final" the following properties are
+available for tool steering:
 
-.. list-table::
-   :header-rows: 1
-   :widths: 15 10 20 55
-      
-   * - property name
-     - type
-     - default value
-     - comment
++-------------------------------+------------------+-----------------------------------------------------------------------------------------+-------------------------------------------------------------------------------+
+| property name                 | type             | default value                                                                           | other sensible values                                                         |
++===============================+==================+=========================================================================================+===============================================================================+
+| InputFilePath                 | std::string      | "TauAnalysisTools/"+ ``SharedFilesVersion`` +"Smearing/mc12_p1344_medium.root"          | "TauAnalysisTools/"+ ``SharedFilesVersion`` +"Smearing/mc12_p1344_tight.root" |
++-------------------------------+------------------+-----------------------------------------------------------------------------------------+-------------------------------------------------------------------------------+
+| IsData                        | bool             | false                                                                                   | true                                                                          |
++-------------------------------+------------------+-----------------------------------------------------------------------------------------+-------------------------------------------------------------------------------+
 
-   * - ``ApplyMVATES``
-     - ``bool``
-     - ``false``
-     - apply new MVA based TES, see section `MVA TES`_
+For the ``RecommendationTag`` "mc11-final" the following properties are
+available for tool steering:
 
-   * - ``IsData``
-     - ``bool``
-     - ``false``
-     - only for ``RecommendationTags`` ``"mc12-final"``, ``"mc11-final"``, if
-       set to ``true`` the tool applies a pT smearing aimed to correct for
-       differences in DATA vs. MC pT
++-------------------------------+------------------+-----------------------------------------------------------------------------------------+-------------------------------------------------------------------------------+
+| property name                 | type             | default value                                                                           | other sensible values                                                         |
++===============================+==================+=========================================================================================+===============================================================================+
+| InputFilePath                 | std::string      | "TauAnalysisTools/"+ ``SharedFilesVersion`` +"Smearing/mc11.root"                       |                                                                               |
++-------------------------------+------------------+-----------------------------------------------------------------------------------------+-------------------------------------------------------------------------------+
+| IsData                        | bool             | false                                                                                   | true                                                                          |
++-------------------------------+------------------+-----------------------------------------------------------------------------------------+-------------------------------------------------------------------------------+
 
 Notes for run 1 tau pt smearing
 ===============================
@@ -243,11 +219,6 @@ Navigation
   * `TauSelectionTool <README-TauSelectionTool.rst>`_
   * `TauSmearingTool <README-TauSmearingTool.rst>`_
   * `TauEfficiencyCorrectionsTool <README-TauEfficiencyCorrectionsTool.rst>`_
-
-    * `mc12 recommendations <README-TauEfficiencyCorrectionsTool-mc12.rst>`_
-    * `mc15 pre-recommendations <README-TauEfficiencyCorrectionsTool-mc15_pre-recommendations.rst>`_
-    * `TauEfficiencyCorrectionsTool Trigger <README-TauEfficiencyCorrectionsTool_Trigger.rst>`_
-
   * `TauTruthMatchingTool <README-TauTruthMatchingTool.rst>`_
   * `TauTruthTrackMatchingTool <README-TauTruthTrackMatchingTool.rst>`_
   * `TauOverlappingElectronLLHDecorator <README-TauOverlappingElectronLLHDecorator.rst>`_

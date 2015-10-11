@@ -18,19 +18,22 @@
 */
 
 // Framework include(s):
-#include "AsgTools/AsgMetadataTool.h"
-#include "AsgTools/AnaToolHandle.h"
+#include "AsgTools/AsgTool.h"
 #include "PATCore/IAsgSelectionTool.h"
 
 // Local include(s):
 #include "TauAnalysisTools/ITauSelectionTool.h"
+#include "TauAnalysisTools/SelectionCuts.h"
 #include "TauAnalysisTools/Enums.h"
 #include "TauAnalysisTools/HelperFunctions.h"
-// for some reason it's not enough to include interface
-#include "TauAnalysisTools/TauOverlappingElectronLLHDecorator.h"
+
+// EDM include(s):
+#include "xAODEgamma/ElectronContainer.h"
 
 // ROOT include(s):
 #include "TH1F.h"
+#include "TEnv.h"
+#include "THashList.h"
 
 namespace TauAnalysisTools
 {
@@ -47,28 +50,26 @@ class SelectionCutBDTEleScore;
 class SelectionCutEleBDTWP;
 class SelectionCutEleOLR;
 class SelectionCutMuonVeto;
-class SelectionCutMuonOLR;
 
 enum SelectionCuts
 {
-  NoCut           = 0,   	// 000000000000
-  CutPt           = 1,   	// 000000000001
-  CutAbsEta       = 1<<1,	// 000000000010
-  CutPhi          = 1<<2,	// 000000000100
-  CutNTrack       = 1<<3,	// 000000001000
-  CutAbsCharge    = 1<<4,	// 000000010000
-  CutJetBDTScore  = 1<<5,	// 000000100000
-  CutJetIDWP      = 1<<6,	// 000001000000
-  CutEleBDTScore  = 1<<7,	// 000010000000
-  CutEleBDTWP     = 1<<8,	// 000100000000
-  CutMuonVeto     = 1<<9,	// 001000000000
-  CutEleOLR       = 1<<10,	// 010000000000
-  CutMuonOLR      = 1<<11	// 100000000000
+  NoCut           = 0,   	// 00000000000
+  CutPt           = 1,   	// 00000000001
+  CutAbsEta       = 1<<1,	// 00000000010
+  CutPhi          = 1<<2,	// 00000000100
+  CutNTrack       = 1<<3,	// 00000001000
+  CutAbsCharge    = 1<<4,	// 00000010000
+  CutJetBDTScore  = 1<<5,	// 00000100000
+  CutJetIDWP      = 1<<6,	// 00001000000
+  CutEleBDTScore  = 1<<7,	// 00010000000
+  CutEleBDTWP     = 1<<8,	// 00100000000
+  CutMuonVeto     = 1<<9,	// 01000000000
+  CutEleOLR       = 1<<10	// 10000000000
 };
-  
+
 class TauSelectionTool : public virtual IAsgSelectionTool,
   public virtual ITauSelectionTool,
-  public asg::AsgMetadataTool
+  public asg::AsgTool
 {
   /// need to define cut classes to be friends to access protected variables,
   /// needed for access of cut thresholds
@@ -83,7 +84,6 @@ class TauSelectionTool : public virtual IAsgSelectionTool,
   friend class SelectionCutEleBDTWP;
   friend class SelectionCutEleOLR;
   friend class SelectionCutMuonVeto;
-  friend class SelectionCutMuonOLR;
 
   /// Create a proper constructor for Athena
   ASG_TOOL_CLASS2( TauSelectionTool,
@@ -103,7 +103,7 @@ public:
   virtual StatusCode initialize();
 
   /// Function initialising the tool
-  virtual StatusCode initializeEvent() __attribute__ ((deprecated("This function is deprecated. Please remove it from your code.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst")));
+  virtual StatusCode initializeEvent();
 
   /// Get an object describing the "selection steps" of the tool
   virtual const Root::TAccept& getTAccept() const;
@@ -114,6 +114,9 @@ public:
   /// Get the decision for a specific TauJet object
   virtual const Root::TAccept& accept( const xAOD::TauJet& tau ) const;
 
+  // Set default recommended properties
+  virtual void setRecommendedProperties() __attribute__ ((deprecated("This function is deprecated. Recommended properties are set now by default.\nFor further information please refer to the README:\nhttps://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst")));
+
   /// Set output file for control histograms
   void setOutFile( TFile* fOutFile );
 
@@ -121,10 +124,6 @@ public:
   void writeControlHistograms();
 
 private:
-
-  // Execute at each event
-  virtual StatusCode beginEvent();
-
   template<typename T, typename U>
   void FillRegionVector(std::vector<T>& vRegion, U tMin, U tMax);
   template<typename T, typename U>
@@ -139,20 +138,20 @@ private:
   // bitmask of tau selection cuts
   int m_iSelectionCuts;
   // vector of transverse momentum cut regions
-  std::vector<float> m_vPtRegion;
+  std::vector<double> m_vPtRegion;
   // vector of absolute eta cut regions
-  std::vector<float> m_vAbsEtaRegion;
+  std::vector<double> m_vAbsEtaRegion;
   // vector of absolute charge requirements
   std::vector<int> m_vAbsCharges;
   // vector of number of track requirements
   std::vector<size_t> m_vNTracks;
   // vector of JetBDT cut regions
-  std::vector<float> m_vJetBDTRegion;
+  std::vector<double> m_vJetBDTRegion;
   // JetID working point
   std::string m_sJetIDWP;
   int m_iJetIDWP;
   // vector of EleBDT cut regions
-  std::vector<float> m_vEleBDTRegion;
+  std::vector<double> m_vEleBDTRegion;
   // EleBDT working point
   std::string m_sEleBDTWP;
   int m_iEleBDTWP;
@@ -160,19 +159,17 @@ private:
   bool m_bEleOLR;
   // do muon veto
   bool m_bMuonVeto;
-  // do muon OLR
-  bool m_bMuonOLR;
 
-  float m_dPtMin;
-  float m_dPtMax;
-  float m_dAbsEtaMin;
-  float m_dAbsEtaMax;
-  float m_iAbsCharge;
-  float m_iNTrack;
-  float m_dJetBDTMin;
-  float m_dJetBDTMax;
-  float m_dEleBDTMin;
-  float m_dEleBDTMax;
+  double m_dPtMin;
+  double m_dPtMax;
+  double m_dAbsEtaMin;
+  double m_dAbsEtaMax;
+  double m_iAbsCharge;
+  double m_iNTrack;
+  double m_dJetBDTMin;
+  double m_dJetBDTMax;
+  double m_dEleBDTMin;
+  double m_dEleBDTMax;
 
 protected:
   TFile* m_fOutFile;//!
@@ -181,10 +178,10 @@ protected:
 private:
   std::string m_sConfigPath;
   std::string m_sEleOLRFilePath;
+  std::string m_sCuts;
   std::string m_sElectronContainerName;
-  std::string m_sMuonContainerName;
 
-  asg::AnaToolHandle<TauAnalysisTools::ITauOverlappingElectronLLHDecorator> m_tTOELLHDecorator;
+  const xAOD::ElectronContainer* m_xElectronContainer;
 
   std::map<SelectionCuts, TauAnalysisTools::SelectionCut*> m_cMap;
 

@@ -25,12 +25,10 @@ namespace TauAnalysisTools
 
 class TauEfficiencyContJetIDTool : public CommonEfficiencyTool
 {
-  ASG_TOOL_CLASS( TauEfficiencyContJetIDTool,
-                  TauAnalysisTools::ITauEfficiencyCorrectionsTool )
 
 public:
 
-  TauEfficiencyContJetIDTool(std::string sName);
+  TauEfficiencyContJetIDTool(std::string sName, std::string sInputFilePath, std::string sVarName);
 
   ~TauEfficiencyContJetIDTool();
 

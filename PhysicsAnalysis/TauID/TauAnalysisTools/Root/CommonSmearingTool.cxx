@@ -10,86 +10,21 @@
 #include "TauAnalysisTools/TauSmearingTool.h"
 #include "xAODTruth/TruthParticleContainer.h"
 
-// ROOT include(s)
-#include "TF1.h"
-
-// tauRecTools include(s)
-#include "tauRecTools/MvaTESVariableDecorator.h"
-#include "tauRecTools/MvaTESEvaluator.h"
-
 using namespace TauAnalysisTools;
-/*
-  This tool acts as a common tool to apply tau energy smearing and
-  uncertainties. By default, only nominal smearings without systematic
-  variations are applied. Unavailable systematic variations are ignored, meaning
-  that the tool only returns the nominal value. In case the one available
-  systematic is requested, the smeared scale factor is computed as:
-    - pTsmearing = pTsmearing_nominal +/- n * uncertainty
-
-  where n is in general 1 (representing a 1 sigma smearing), but can be any
-  arbitrary value. In case multiple systematic variations are passed they are
-  added in quadrature. Note that it's currently only supported if all are up or
-  down systematics.
-
-  The tool reads in root files including TH2 histograms which need to fulfill a
-  predefined structure:
-
-  nominal smearing:
-    - sf_<workingpoint>_<prongness>p
-  uncertainties:
-    - <NP>_<up/down>_<workingpoint>_<prongness>p (for asymmetric uncertainties)
-    - <NP>_<workingpoint>_<prongness>p (for symmetric uncertainties)
-
-  where the <workingpoint> (e.g. loose/medium/tight) fields may be
-  optional. <prongness> represents either 1 or 3, whereas 3 is currently used
-  for multiprong in general. The <NP> fields are names for the type of nuisance
-  parameter (e.g. STAT or SYST), note the tool decides whether the NP is a
-  recommended or only an available systematic based on the first character:
-    - uppercase -> recommended
-    - lowercase -> available
-  This magic happens here:
-    - CommonSmearingTool::generateSystematicSets()
-
-  In addition the root input file can also contain objects of type TF1 that can
-  be used to provide kind of unbinned smearings or systematics. Currently there
-  is no usecase for tau energy smearing
-
-  The files may also include TNamed objects which is used to define how x and
-  y-axes should be treated. By default the x-axis is given in units of tau-pT in
-  GeV and the y-axis is given as tau-eta. If there is for example a TNamed
-  object with name "Yaxis" and title "|eta|" the y-axis is treated in units of
-  absolute tau eta. All this is done in:
-    - void CommonSmearingTool::ReadInputs(TFile* fFile)
-
-  Other tools for scale factors may build up on this tool and overwrite or add
-  particular functionality.
-*/
 
 //______________________________________________________________________________
-CommonSmearingTool::CommonSmearingTool(std::string sName)
-  : asg::AsgMetadataTool( sName )
+CommonSmearingTool::CommonSmearingTool(std::string sName, std::string sInputFilePath, bool bSkipTruthMatchCheck)
+  : asg::AsgTool( sName )
   , m_mSF(0)
+  , m_tTST(0)
   , m_sSystematicSet(0)
-  , m_fX(&tauPt)
-  , m_fY(&tauEta)
-  , m_bIsData(false)
-  , m_bIsConfigured(false)
-  , m_tMvaTESVariableDecorator("MvaTESVariableDecorator", this)
-  , m_tMvaTESEvaluator("MvaTESEvaluator", this)
+  , m_sInputFilePath(sInputFilePath)
+  , m_bSkipTruthMatchCheck(bSkipTruthMatchCheck)
   , m_eCheckTruth(TauAnalysisTools::Unknown)
-  , m_bNoMultiprong(false)
 {
   m_mSystematics = {};
-
-  declareProperty("InputFilePath",       m_sInputFilePath       = "" );
-  declareProperty("SkipTruthMatchCheck", m_bSkipTruthMatchCheck = false );
-  declareProperty("ApplyFading",         m_bApplyFading         = true );
-  declareProperty("ApplyMVATES",         m_bApplyMVATES         = false );
 }
 
-/*
-  need to clear the map of histograms cause we have the ownership, not ROOT
-*/
 CommonSmearingTool::~CommonSmearingTool()
 {
   if (m_mSF)
@@ -98,17 +33,9 @@ CommonSmearingTool::~CommonSmearingTool()
   delete m_mSF;
 }
 
-/*
-  - Find the root files with smearing inputs on afs/cvmfs using PathResolver
-    (more info here:
-    https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PathResolver)
-  - Call further functions to process and define NP strings and so on
-  - Configure to provide nominal smearings by default
-*/
 StatusCode CommonSmearingTool::initialize()
 {
   ATH_MSG_INFO( "Initializing CommonSmearingTool" );
-
   // only read in histograms once
   if (m_mSF==nullptr)
   {
@@ -135,48 +62,12 @@ StatusCode CommonSmearingTool::initialize()
   if (applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok )
     return StatusCode::FAILURE;
 
-  if (m_bApplyMVATES)
-  {
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tMvaTESVariableDecorator, MvaTESVariableDecorator));
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tMvaTESEvaluator, MvaTESEvaluator));
-    ATH_CHECK(m_tMvaTESEvaluator.setProperty("WeightFileName", "LC.pantau.interpolPt250GeV_mediumTaus_BDTG.weights.xml"));
-    ATH_CHECK(m_tMvaTESVariableDecorator.initialize());
-    ATH_CHECK(m_tMvaTESEvaluator.initialize());
-  }
-
   return StatusCode::SUCCESS;
 }
 
-/*
-  Retrieve the smearing value and if requested the values for the NP's and add
-  this stuff in quadrature. Finally apply the correction to the tau pt of the
-  non-const tau.
-*/
 //______________________________________________________________________________
 CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
 {
-  if (m_bApplyMVATES)
-  {
-    // TODO: only call eventInitialize once per event, probably via migration to
-    // AsgMetadataTool
-    if (m_tMvaTESVariableDecorator->eventInitialize().isFailure())
-      return CP::CorrectionCode::Error;
-    if (m_tMvaTESVariableDecorator->execute(xTau).isFailure())
-      return CP::CorrectionCode::Error;
-    if (m_tMvaTESEvaluator->execute(xTau).isFailure())
-      return CP::CorrectionCode::Error;
-    if (xTau.nTracks() > 0 and xTau.nTracks() < 6)
-      xTau.setP4(xTau.auxdecor<float>("ptFinalCalib"),
-                 xTau.auxdecor<float>("etaFinalCalib"),
-                 xTau.auxdecor<float>("phiFinalCalib"),
-                 xTau.auxdecor<float>("mFinalCalib"));
-
-  }
-
-  // step out here if we run on data
-  if (m_bIsData)
-    return CP::CorrectionCode::Ok;
-
   // check which true state is requestet
   if (!m_bSkipTruthMatchCheck and checkTruthMatch(xTau) != m_eCheckTruth)
   {
@@ -240,10 +131,6 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
   return CP::CorrectionCode::Ok;
 }
 
-/*
-  Create a non-const copy of the passed const xTau object and apply the
-  correction to the non-const copy.
- */
 //______________________________________________________________________________
 CP::CorrectionCode CommonSmearingTool::correctedCopy( const xAOD::TauJet& xTau,
     xAOD::TauJet*& xTauCopy )
@@ -264,9 +151,6 @@ CP::CorrectionCode CommonSmearingTool::correctedCopy( const xAOD::TauJet& xTau,
   return applyCorrection( *xTauCopy );
 }
 
-/*
-  standard check if a systematic is available
-*/
 //______________________________________________________________________________
 bool CommonSmearingTool::isAffectedBySystematic( const CP::SystematicVariation& systematic ) const
 {
@@ -274,35 +158,24 @@ bool CommonSmearingTool::isAffectedBySystematic( const CP::SystematicVariation& 
   return sys.find (systematic) != sys.end ();
 }
 
-/*
-  standard way to return systematics that are available (including recommended
-  systematics)
-*/
 //______________________________________________________________________________
 CP::SystematicSet CommonSmearingTool::affectingSystematics() const
 {
   return m_sAffectingSystematics;
 }
 
-/*
-  standard way to return systematics that are recommended
-*/
 //______________________________________________________________________________
 CP::SystematicSet CommonSmearingTool::recommendedSystematics() const
 {
   return m_sRecommendedSystematics;
 }
 
-/*
-  Configure the tool to use a systematic variation for further usage, until the
-  tool is reconfigured with this function. The passed systematic set is checked
-  for sanity:
-    - unsupported systematics are skipped
-    - only combinations of up or down supported systematics is allowed
-    - don't mix recommended systematics with other available systematics, cause
-      sometimes recommended are a quadratic sum of the other variations,
-      e.g. TOTAL=(SYST^2 + STAT^2)^0.5
-*/
+//______________________________________________________________________________
+void CommonSmearingTool::setParent(TauSmearingTool* tTST)
+{
+  m_tTST = tTST;
+}
+
 //______________________________________________________________________________
 CP::SystematicCode CommonSmearingTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
 {
@@ -354,35 +227,12 @@ CP::SystematicCode CommonSmearingTool::applySystematicVariation ( const CP::Syst
 }
 
 //=================================PRIVATE-PART=================================
-/*
-  Executed at the beginning of each event. Checks if the tool is used on data or
-  MC, which is necessary in some cases, wher taus on data are corrected as
-  well. (e.g. when using the MVA TES)
-*/
-//______________________________________________________________________________
-StatusCode CommonSmearingTool::beginEvent()
-{
-  if (m_bIsConfigured)
-    return StatusCode::SUCCESS;
-
-  const xAOD::EventInfo* xEventInfo = 0;
-  ATH_CHECK(evtStore()->retrieve(xEventInfo,"EventInfo"));
-  m_bIsData = !(xEventInfo->eventType( xAOD::EventInfo::IS_SIMULATION));
-  m_bIsConfigured=true;
-
-  return StatusCode::SUCCESS;
-}
-
-/*
-  prongness converter, note that it returns "_3p" for all values, except
-  fProngness==1, i.e. for 0, 2, 3, 4, 5...
- */
 //______________________________________________________________________________
 std::string CommonSmearingTool::ConvertProngToString(const int& fProngness)
 {
   std::string prong = "";
   if (fProngness == 0)
-    ATH_MSG_DEBUG("passed tau with 0 tracks, which is not supported, taking multiprong SF for now");
+    ATH_MSG_WARNING("passed tau with 0 tracks, which is not supported, taking multiprong SF for now");
   fProngness == 1 ? prong = "_1p" : prong = "_3p";
   return prong;
 }
@@ -444,10 +294,10 @@ void CommonSmearingTool::ReadInputs(TFile* fFile, std::map<std::string, T>* mMap
 void CommonSmearingTool::generateSystematicSets()
 {
   // creation of basic string for all NPs, e.g. "TAUS_TRUEHADTAU_SME_TES_"
-  std::vector<std::string> vSplitInputFilePath = {};
-  split(m_sInputFileName,'_',vSplitInputFilePath);
-  std::string sEfficiencyType = vSplitInputFilePath.at(0);
-  std::string sTruthType = vSplitInputFilePath.at(1);
+  std::vector<std::string> m_vSplitInputFilePath = {};
+  split(m_sInputFileName,'_',m_vSplitInputFilePath);
+  std::string sEfficiencyType = m_vSplitInputFilePath.at(0);
+  std::string sTruthType = m_vSplitInputFilePath.at(1);
   std::transform(sEfficiencyType.begin(), sEfficiencyType.end(), sEfficiencyType.begin(), toupper);
   std::transform(sTruthType.begin(), sTruthType.end(), sTruthType.begin(), toupper);
   std::string sSystematicBaseString = "TAUS_"+sTruthType+"_SME_"+sEfficiencyType+"_";
@@ -462,10 +312,10 @@ void CommonSmearingTool::generateSystematicSets()
   for (auto mSF : *m_mSF)
   {
     // parse for nuisance parameter in histogram name
-    std::vector<std::string> vSplitNP = {};
-    split(mSF.first,'_',vSplitNP);
-    std::string sNP = vSplitNP.at(0);
-    std::string sNPUppercase = vSplitNP.at(0);
+    std::vector<std::string> m_vSplitNP = {};
+    split(mSF.first,'_',m_vSplitNP);
+    std::string sNP = m_vSplitNP.at(0);
+    std::string sNPUppercase = m_vSplitNP.at(0);
 
     // skip nominal scale factors
     if (sNP == "sf") continue;
@@ -520,19 +370,6 @@ CP::CorrectionCode CommonSmearingTool::getValue(const std::string& sHistName,
 
   int iBin = hHist->FindFixBin(dPt,dEta);
   dEfficiencyScaleFactor = hHist->GetBinContent(iBin);
-
-  if (m_bApplyFading)
-  {
-    std::string sTitle = hHist->GetTitle();
-    if (sTitle.size()>0)
-    {
-      TF1 f("",sTitle.c_str(), 0, 1000);
-      if (sHistName.find("sf_") != std::string::npos)
-        dEfficiencyScaleFactor = (dEfficiencyScaleFactor -1) *f.Eval(dPt) + 1;
-      else
-        dEfficiencyScaleFactor *= f.Eval(dPt);
-    }
-  }
   return CP::CorrectionCode::Ok;
 }
 
@@ -544,8 +381,7 @@ e_TruthMatchedParticleType CommonSmearingTool::checkTruthMatch(const xAOD::TauJe
   if (!xTau.isAvailable< Link_t >("truthParticleLink"))
     ATH_MSG_ERROR("No truth match information available. Please run TauTruthMatchingTool first.");
 
-  static SG::AuxElement::Accessor<Link_t> accTruthParticleLink("truthParticleLink");
-  const Link_t xTruthParticleLink = accTruthParticleLink(xTau);
+  const Link_t xTruthParticleLink = xTau.auxdata< Link_t > ("truthParticleLink");
 
   // if there is no link, then it is a truth jet
   e_TruthMatchedParticleType eTruthMatchedParticleType = TauAnalysisTools::TruthJet;
@@ -555,8 +391,7 @@ e_TruthMatchedParticleType CommonSmearingTool::checkTruthMatch(const xAOD::TauJe
     const xAOD::TruthParticle* xTruthParticle = *xTruthParticleLink;
     if (xTruthParticle->isTau())
     {
-      static SG::AuxElement::ConstAccessor<char> accIsHadronicTau("IsHadronicTau");
-      if ((bool)accIsHadronicTau(*xTruthParticle))
+      if ((bool)xTruthParticle->auxdata<char>("IsHadronicTau"))
       {
         eTruthMatchedParticleType = TruthHadronicTau;
       }

@@ -5,28 +5,45 @@
 // Local include(s):
 #include "TauAnalysisTools/TauSelectionTool.h"
 #include "TauAnalysisTools/SharedFilesVersion.h"
-#include "TauAnalysisTools/SelectionCuts.h"
 
 // Framework include(s):
 #include "PathResolver/PathResolver.h"
-
-// ROOT include(s)
-#include "TEnv.h"
-#include "THashList.h"
 
 using namespace TauAnalysisTools;
 
 //=================================PUBLIC-PART==================================
 //______________________________________________________________________________
 TauSelectionTool::TauSelectionTool( const std::string& name )
-  : asg::AsgMetadataTool( name )
-  , m_sJetIDWP("JETIDNONE")
-  , m_sEleBDTWP("ELEIDNONE")
-  , m_fOutFile(0)
-  , m_sElectronContainerName("Electrons")
-  , m_sMuonContainerName("Muons")
-  , m_tTOELLHDecorator(this->name()+"_TauOverlappingElectronLLHDecorator", this)
-  , m_aAccept( "TauSelection" )
+  : asg::AsgTool( name )
+  , m_iSelectionCuts(NoCut) // initialize with 'no' cuts
+  , m_vPtRegion( {})
+, m_vAbsEtaRegion( {})
+, m_vAbsCharges( {})
+, m_vNTracks( {})
+, m_vJetBDTRegion( {})
+, m_sJetIDWP("JETIDNONE")
+, m_iJetIDWP(0)
+, m_vEleBDTRegion( {})
+, m_sEleBDTWP("ELEIDNONE")
+, m_iEleBDTWP(0)
+, m_bEleOLR(false)
+, m_bMuonVeto(false)
+, m_dPtMin(NAN) // in GeV
+, m_dPtMax(NAN) // in GeV
+, m_dAbsEtaMin(NAN)
+, m_dAbsEtaMax(NAN)
+, m_iAbsCharge(NAN)
+, m_iNTrack(NAN)
+, m_dJetBDTMin(NAN)
+, m_dJetBDTMax(NAN)
+, m_dEleBDTMin(NAN)
+, m_dEleBDTMax(NAN)
+, m_fOutFile(0)
+, m_sConfigPath("")
+, m_sCuts("")
+, m_sElectronContainerName("Electrons")
+, m_xElectronContainer(0)
+, m_aAccept( "TauSelection" )
 {
   declareProperty( "CreateControlPlots", m_bCreateControlPlots = false);
   /*
@@ -35,36 +52,34 @@ TauSelectionTool::TauSelectionTool( const std::string& name )
     other properties named in plural are a list of exact values to cut on
     other properties are single cuts
   */
-  declareProperty( "SelectionCuts", m_iSelectionCuts = NoCut); // initialize with 'no' cuts
-  declareProperty( "PtRegion",      m_vPtRegion      = {}); // in GeV
-  declareProperty( "PtMin",         m_dPtMin         = NAN); // in GeV
-  declareProperty( "PtMax",         m_dPtMax         = NAN); // in GeV
-  declareProperty( "AbsEtaRegion",  m_vAbsEtaRegion  = {});
-  declareProperty( "AbsEtaMin",     m_dAbsEtaMin     = NAN);
-  declareProperty( "AbsEtaMax",     m_dAbsEtaMax     = NAN);
-  declareProperty( "AbsCharges",    m_vAbsCharges    = {});
-  declareProperty( "AbsCharge",     m_iAbsCharge     = NAN);
-  declareProperty( "NTracks",       m_vNTracks       = {});
-  declareProperty( "NTrack",        m_iNTrack        = NAN);
-  declareProperty( "JetBDTRegion",  m_vJetBDTRegion  = {});
-  declareProperty( "JetBDTMin",     m_dJetBDTMin     = NAN);
-  declareProperty( "JetBDTMax",     m_dJetBDTMax     = NAN);
-  declareProperty( "JetIDWP",       m_iJetIDWP       = 0);
-  declareProperty( "EleBDTRegion",  m_vEleBDTRegion  = {});
-  declareProperty( "EleBDTMin",     m_dEleBDTMin     = NAN);
-  declareProperty( "EleBDTMax",     m_dEleBDTMax     = NAN);
-  declareProperty( "EleBDTWP",      m_iEleBDTWP      = 0);
-  declareProperty( "EleOLR",        m_bEleOLR        = false);
-  declareProperty( "MuonVeto",      m_bMuonVeto      = false);
-  declareProperty( "MuonOLR",       m_bMuonOLR       = false);
+  declareProperty( "SelectionCuts", m_iSelectionCuts); // initialize with 'no' cuts
+  declareProperty( "PtRegion", m_vPtRegion ); // in GeV
+  declareProperty( "PtMin", m_dPtMin); // in GeV
+  declareProperty( "PtMax", m_dPtMax); // in GeV
+  declareProperty( "AbsEtaRegion", m_vAbsEtaRegion);
+  declareProperty( "AbsEtaMin", m_dAbsEtaMin);
+  declareProperty( "AbsEtaMax", m_dAbsEtaMax);
+  declareProperty( "AbsCharges", m_vAbsCharges);
+  declareProperty( "AbsCharge", m_iAbsCharge);
+  declareProperty( "NTracks", m_vNTracks);
+  declareProperty( "NTrack", m_iNTrack);
+  declareProperty( "JetBDTRegion", m_vJetBDTRegion);
+  declareProperty( "JetBDTMin", m_dJetBDTMin);
+  declareProperty( "JetBDTMax", m_dJetBDTMax);
+  declareProperty( "JetIDWP", m_iJetIDWP);
+  declareProperty( "EleBDTRegion", m_vEleBDTRegion);
+  declareProperty( "EleBDTMin", m_dEleBDTMin);
+  declareProperty( "EleBDTMax", m_dEleBDTMax);
+  declareProperty( "EleBDTWP", m_iEleBDTWP);
+  declareProperty( "EleOLR", m_bEleOLR);
+  declareProperty( "MuonVeto", m_bMuonVeto);
 
   m_sConfigPath = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/Selection/recommended_selection_mc15.conf";
   m_sEleOLRFilePath = "TauAnalysisTools/"+std::string(sSharedFilesVersion)+"/Selection/eveto_cutvals.root";
 
-  declareProperty( "ConfigPath",            m_sConfigPath);
-  declareProperty( "EleOLRFilePath",        m_sEleOLRFilePath);
+  declareProperty( "ConfigPath", m_sConfigPath);
+  declareProperty( "EleOLRFilePath", m_sEleOLRFilePath);
   declareProperty( "ElectronContainerName", m_sElectronContainerName);
-  declareProperty( "MuonContainerName",     m_sMuonContainerName);
 }
 
 //______________________________________________________________________________
@@ -78,71 +93,29 @@ TauSelectionTool::~TauSelectionTool()
 //______________________________________________________________________________
 StatusCode TauSelectionTool::initialize()
 {
-  bool bConfigViaConfigFile = !m_sConfigPath.empty();
-  bool bConfigViaProperties = false;
-  if (!bConfigViaProperties and !m_vPtRegion.empty())         bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_dPtMin == m_dPtMin)         bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_dPtMax == m_dPtMax)         bConfigViaProperties = true;
-  if (!bConfigViaProperties and !m_vAbsEtaRegion.empty())     bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_dAbsEtaMin == m_dAbsEtaMin) bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_dAbsEtaMax == m_dAbsEtaMax) bConfigViaProperties = true;
-  if (!bConfigViaProperties and !m_vAbsCharges.empty())       bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_iAbsCharge == m_iAbsCharge) bConfigViaProperties = true;
-  if (!bConfigViaProperties and !m_vNTracks.empty())          bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_iNTrack == m_iNTrack)       bConfigViaProperties = true;
-  if (!bConfigViaProperties and !m_vJetBDTRegion.empty())     bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_dJetBDTMin == m_dJetBDTMin) bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_dJetBDTMax == m_dJetBDTMax) bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_iJetIDWP != 0)              bConfigViaProperties = true;
-  if (!bConfigViaProperties and !m_vEleBDTRegion.empty())     bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_dEleBDTMin == m_dEleBDTMin) bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_dEleBDTMax == m_dEleBDTMax) bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_iEleBDTWP != 0)             bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_bEleOLR == true)            bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_bMuonVeto == true)          bConfigViaProperties = true;
-  if (!bConfigViaProperties and m_bMuonOLR == true)           bConfigViaProperties = true;
-
-  if (bConfigViaConfigFile and bConfigViaProperties)
-  {
-    ATH_MSG_WARNING("Configured tool via setProperty and configuration file, which may lead to unexpected configuration.");
-    ATH_MSG_WARNING("In doubt check the configuration that is printed when the tool is initialized and the message level is set to debug");
-    ATH_MSG_WARNING("For further details please refer to the documentation:");
-    ATH_MSG_WARNING("https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst");
-  }
-  if (!bConfigViaConfigFile and !bConfigViaProperties)
-  {
-    ATH_MSG_WARNING("No cut configuration provided, the tool will not do anything. For further details please refer to the documentation:");
-    ATH_MSG_WARNING("https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst");
-  }
-
-  if (bConfigViaConfigFile)
+  if (m_sConfigPath!="")
   {
     TEnv rEnv;
-    std::string sInputFilePath = PathResolverFindCalibFile(m_sConfigPath);
-
-    if (!testFileForEOFContainsCharacters(sInputFilePath))
-      ATH_MSG_WARNING("Config file for TauSelectionTool with path "<<sInputFilePath<<" does not contain an empty last line. The tool might be not properly configured!");
-
-    rEnv.ReadFile(sInputFilePath.c_str(),
+    rEnv.ReadFile(PathResolverFindCalibFile(m_sConfigPath).c_str(),
                   kEnvAll);
 
-    std::vector<std::string> vCuts;
+    std::vector<std::string> m_vCuts;
     // if Cuts are specified in the config file take these ones, if not take all
     // specified in the config
     if (rEnv.Defined("SelectionCuts"))
-      TauAnalysisTools::split(rEnv, "SelectionCuts", ' ', vCuts);
+      TauAnalysisTools::split(rEnv, "SelectionCuts", ' ', m_vCuts);
     else
     {
       auto lList = rEnv.GetTable();
       for( Int_t i = 0; i < lList->GetEntries(); ++i )
       {
-        vCuts.push_back( lList->At( i )->GetName() );
+        m_vCuts.push_back( lList->At( i )->GetName() );
       }
     }
 
     int iSelectionCuts = 0;
 
-    for (auto sCut : vCuts)
+    for (auto sCut : m_vCuts)
     {
       if (sCut == "PtRegion")
       {
@@ -264,12 +237,6 @@ StatusCode TauSelectionTool::initialize()
         if (m_bMuonVeto == false)
           m_bMuonVeto = rEnv.GetValue("MuonVeto",false);
       }
-      else if (sCut == "MuonOLR")
-      {
-        iSelectionCuts = iSelectionCuts | CutMuonOLR;
-        if (m_bMuonOLR == false)
-          m_bMuonOLR = rEnv.GetValue("MuonOLR",false);
-      }
       else ATH_MSG_WARNING("Cut " << sCut << " is not available");
     }
 
@@ -289,11 +256,10 @@ StatusCode TauSelectionTool::initialize()
     {CutEleBDTScore, new TauAnalysisTools::SelectionCutBDTEleScore(this)},
     {CutEleBDTWP, new TauAnalysisTools::SelectionCutEleBDTWP(this)},
     {CutEleOLR, new TauAnalysisTools::SelectionCutEleOLR(this)},
-    {CutMuonVeto, new TauAnalysisTools::SelectionCutMuonVeto(this)},
-    {CutMuonOLR, new TauAnalysisTools::SelectionCutMuonOLR(this)}
+    {CutMuonVeto, new TauAnalysisTools::SelectionCutMuonVeto(this)}
   };
 
-  ATH_MSG_INFO( "Initializing TauSelectionTool" );
+  ATH_MSG_INFO( "Initialising TauSelectionTool" );
   FillRegionVector(m_vPtRegion, m_dPtMin, m_dPtMax);
   FillRegionVector(m_vAbsEtaRegion, m_dAbsEtaMin, m_dAbsEtaMax);
   FillRegionVector(m_vJetBDTRegion, m_dJetBDTMin, m_dJetBDTMax );
@@ -316,7 +282,6 @@ StatusCode TauSelectionTool::initialize()
   PrintConfigValue  ("EleBDTDWP ENUM",m_iEleBDTWP);
   PrintConfigValue  ("EleOLR",      m_bEleOLR);
   PrintConfigValue  ("MuonVeto",    m_bMuonVeto);
-  PrintConfigValue  ("MuonOLR",    m_bMuonOLR);
 
   std::string sCuts = "";
   if (m_iSelectionCuts & CutPt) sCuts+= "Pt ";
@@ -328,37 +293,21 @@ StatusCode TauSelectionTool::initialize()
   if (m_iSelectionCuts & CutEleBDTScore) sCuts+= "EleBDTScore ";
   if (m_iSelectionCuts & CutEleBDTWP) sCuts+= "EleBDTWP ";
   if (m_iSelectionCuts & CutEleOLR) sCuts+= "EleOLR ";
-  if (m_iSelectionCuts & CutMuonVeto) sCuts+= "MuonVeto ";
-  if (m_iSelectionCuts & CutMuonOLR) sCuts+= "MuonOLR ";
+  if (m_iSelectionCuts & CutMuonVeto) sCuts+= "CutMuonVeto ";
 
   ATH_MSG_DEBUG( "cuts: " << sCuts);
 
   if (m_bCreateControlPlots)
     setupCutFlowHistogram();
 
-  if (m_iSelectionCuts & CutEleOLR or m_bCreateControlPlots)
-  {
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tTOELLHDecorator, TauAnalysisTools::TauOverlappingElectronLLHDecorator));
-    ATH_CHECK(m_tTOELLHDecorator.setProperty( "EleOLRFilePath", m_sEleOLRFilePath ));
-    ATH_CHECK(m_tTOELLHDecorator.setProperty( "ElectronContainerName", m_sElectronContainerName ));
-    ATH_CHECK(m_tTOELLHDecorator.initialize());
-  }
-
   return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 StatusCode TauSelectionTool::initializeEvent()
 {
-  return beginEvent();
-}
-#pragma GCC diagnostic pop
-
-//______________________________________________________________________________
-StatusCode TauSelectionTool::beginEvent()
-{
+  if (m_bEleOLR)
+    return (m_cMap[CutEleOLR])->initializeEvent();
   return StatusCode::SUCCESS;
 }
 
@@ -400,14 +349,8 @@ const Root::TAccept& TauSelectionTool::accept( const xAOD::TauJet& xTau ) const
   // Reset the result:
   m_aAccept.clear();
   int iNBin = 0;
-  if (m_iSelectionCuts & CutEleOLR or m_bCreateControlPlots)
-  {
-    if (m_tTOELLHDecorator->decorate(xTau).isFailure())
-    {
-      ATH_MSG_ERROR("Failed decorating information for CutEleOLR");
-      return m_aAccept;
-    }
-  }
+  if (m_iSelectionCuts & CutEleOLR)
+    dynamic_cast<SelectionCutEleOLR*>(m_cMap.at(CutEleOLR))->getEvetoPass(xTau);
 
   if (m_bCreateControlPlots)
   {
@@ -451,6 +394,11 @@ const Root::TAccept& TauSelectionTool::accept( const xAOD::TauJet& xTau ) const
 
   // // Return the result:
   return m_aAccept;
+}
+
+void TauSelectionTool::setRecommendedProperties()
+{
+  ATH_MSG_FATAL("This function is deprecated. Recommended properties are set now by default. For further information please refer to the README: https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/doc/README-TauSelectionTool.rst");
 }
 
 //______________________________________________________________________________

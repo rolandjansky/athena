@@ -2,16 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include <fstream>
-
 // local include(s)
 #include "TauAnalysisTools/HelperFunctions.h"
-
-#ifdef XAODTAU_VERSIONS_TAUJET_V3_H
-xAOD::TauJetParameters::PanTauDetails PANTAU_DECAYMODE=xAOD::TauJetParameters::PanTau_DecayMode;
-#else
-xAOD::TauJetParameters::PanTauDetails PANTAU_DECAYMODE=xAOD::TauJetParameters::pantau_CellBasedInput_DecayMode;
-#endif
 
 using namespace TauAnalysisTools;
 
@@ -94,7 +86,7 @@ double TauAnalysisTools::tauEta(const xAOD::TauJet& xTau)
 double TauAnalysisTools::tauAbsEta(const xAOD::TauJet& xTau)
 {
   // return absolute tau eta
-  return std::abs(xTau.eta());
+  return fabs(xTau.eta());
 }
 
 //______________________________________________________________________________
@@ -115,47 +107,13 @@ double TauAnalysisTools::tauLeadTrackEta(const xAOD::TauJet& xTau)
 }
 
 //______________________________________________________________________________
-bool TauAnalysisTools::testFileForEOFContainsCharacters(std::string sFileName)
-{
-  // returns true if last line in file is empty or the line starts with the
-  // number sign #
-
-  std::ifstream fInputFile;
-  fInputFile.open(sFileName);
-  if(!fInputFile.is_open())
-    return true;
-
-  fInputFile.seekg(-1,fInputFile.end);
-
-  bool bKeepLooping = true;
-  while(bKeepLooping)
-  {
-    char ch;
-    fInputFile.get(ch);
-
-    if((int)fInputFile.tellg() <= 1)
-    {
-      fInputFile.seekg(0);
-      bKeepLooping = false;
-    }
-    else if(ch == '\n')
-      bKeepLooping = false;
-    else
-      fInputFile.seekg(-2,fInputFile.cur);
-  }
-
-  std::string sLastLine;
-  getline(fInputFile,sLastLine);
-  fInputFile.close();
-
-  return (sLastLine.size() == 0 or sLastLine[0] == '#');
-}
-
-//______________________________________________________________________________
 void TauAnalysisTools::createPi0Vectors(const xAOD::TauJet* xTau, std::vector<TLorentzVector>& vPi0s)
 {
   // reset the pi0s
   vPi0s.clear();
+
+  // // not needed
+  // xAOD::Vertex xPrimaryVertex = *xTau->vertex();
 
   // Since the PFO links as they come out of reconstruction, only correspond to
   // calorimeter clusters, whereas we want the consts_pi0 vectors to correspond
@@ -164,12 +122,7 @@ void TauAnalysisTools::createPi0Vectors(const xAOD::TauJet* xTau, std::vector<TL
   size_t iNumPi0PFO = xTau->nPi0PFOs();
 
   int iDecayMode = -1;
-
-  if (!(xTau->panTauDetail(PANTAU_DECAYMODE, iDecayMode)))
-  {
-    std::cerr <<"Failed to retrieve panTauDetail decay mode\n";
-    return;
-  }
+  xTau->panTauDetail(xAOD::TauJetParameters::pantau_CellBasedInput_DecayMode, iDecayMode);
 
   if (iDecayMode == xAOD::TauJetParameters::DecayMode::Mode_1p1n && iNumPi0PFO > 1)
   {

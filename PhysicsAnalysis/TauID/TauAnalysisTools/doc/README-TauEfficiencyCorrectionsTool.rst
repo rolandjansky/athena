@@ -15,9 +15,8 @@ Preface
 ``truthParticleLink`` is available for each tau. Further this link should be a
 valid link, that means, that the linked truth particle needs to be
 accessible. I.e. if the linking is done in derivations to the TruthTau
-container, the ``TruthTaus`` and ``TruthElectrons`` container must be kept. For
-more information on how to achieve this, please refer to the `tau
-pre-recommendations TWiki
+container, the TruthTau container must be kept. For more information on how to
+achieve this, please refer to the `tau pre-recommendations TWiki
 <https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/TauPreRecommendations2015#Accessing_Tau_Truth_Information>`_
 
 **IMPORTANT: If you used TauTruthMatchingTool-00-01-06 or older, for example
@@ -35,15 +34,7 @@ Introduction
 ------------
 
 This tool aims to provide nominal and systematically varied efficiency scale
-factors for tau reconstruction, identification and overlap removal. Also tau
-trigger efficiency scale factors are provided by this tool, but there are some
-differences to the other scale factors. For more information on how to use the
-tool for trigger scale factors please refer to the `TauEfficiencyCorrectionsTool
--- Trigger readme <README-TauEfficiencyCorrectionsTool_Trigger.rst>`_. Please
-note that this documentation lists is only valid for the latest recommendations.
-More information for older recommendations can be found following the links
-listed in `Section Special Notes on older recommendations
-<README-TauEfficiencyCorrectionsTool.rst#special-notes-on-older-recommendations>`_.
+factors for tau reconstruction, identification and overlap removal.
 
 For the tool the following line needs to be added to include the header file::
 
@@ -60,18 +51,14 @@ Scale factors can be decorated to the tau or retrieved from the tool by::
   TauEffTool.getEfficiencyScaleFactor(xTau, dEfficiencyScaleFactor);               // or storing fake factors in variable dEfficiencyScaleFactor
 
 The variable names for the scale factors have default values, but can be
-configured. For information on this please refer to the `section Available
-properties <README-TauEfficiencyCorrectionsTool.rst#available-properties>`_
-below.
+configured. For information on this please refer to the section `Available
+properties` below.
+  
+In addition to the standard tool constructor, the TauEfficiencyCorrectionsTool
+can be constructed, passing the `TauSelectionTool
+<README-TauSelectionTool.rst>`_, which was used for the tau selection::
 
-The ``TauEfficiencyCorrectionsTool`` can be configured in an atomised way by
-passing a tool handle of the `TauSelectionTool <README-TauSelectionTool.rst>`_,
-which was used for the tau selection
-
-.. code-block:: python
-
-  ToolHandle < TauAnalysisTools::ITauSelectionTool > TauSelToolHandle = TauSelTool;
-  TauEffTool.setProperty( "TauSelectionTool" , TauSelToolHandle);
+  TauAnalysisTools::TauEfficiencyCorrectionsTool TauEffTool( "TauEfficiencyCorrectionsTool" , TauSelTool);
 
 This configures the set of ``EfficiencyCorrectionTypes`` and if needed the jet
 (electron) ID working points, depending on the applied cuts.  Please note, that
@@ -102,149 +89,73 @@ Overview
 ========
 
 The tool can be used to retrieve scale factors for a specific
-``RecommendationTag``.
+``RecommendationTag``:
 
-.. list-table::
-   :header-rows: 1
-   :widths: 15 10 20 55
-      
-   * - property name
-     - type
-     - default value
-     - other sensible values
++-------------------------------+------------------+----------------------------+-----------------------+
+| property name                 | type             | default value              | other sensible values |
++===============================+==================+============================+=======================+
+| RecommendationTag             | std::string      | "mc15-pre-recommendations" | "mc12-final"          |
++-------------------------------+------------------+----------------------------+-----------------------+
 
-   * - ``RecommendationTag``
-     - ``std::string``
-     - ``"2016-fall"``
-     - ``"2016-ichep"``, ``"mc15-moriond"``, ``"mc15-pre-recommendations"``, ``"mc12-final"``
+For the default ``RecommendationTag`` "mc15-pre-recommendations" the following
+properties are available for tool steering:
 
-For the default ``RecommendationTag`` "mc15-moriond" the following properties
-are available for tool steering:
++-------------------------------+------------------+---------------------------------------------------------------------------------------------------------+-----------------------+
+| property name                 | type             | default value                                                                                           | other sensible values |
++===============================+==================+=========================================================================================================+=======================+
+| EfficiencyCorrectionTypes     | std::vector<int> | {SFRecoHadTau, SFJetIDHadTau, SFEleOLRHadTau}                                                           |                       |
++-------------------------------+------------------+---------------------------------------------------------------------------------------------------------+-----------------------+
+| InputFilePathRecoHadTau       | std::string      | "TauAnalysisTools/"+ ``SharedFilesVersion`` +"EfficiencyCorrections/Reco_TrueHadTau_mc15-prerec.root"   |                       |
++-------------------------------+------------------+---------------------------------------------------------------------------------------------------------+-----------------------+
+| InputFilePathEleOLRHadTau     | std::string      | "TauAnalysisTools/"+ ``SharedFilesVersion`` +"EfficiencyCorrections/EleOLR_TrueHadTau_mc15-prerec.root" |                       |
++-------------------------------+------------------+---------------------------------------------------------------------------------------------------------+-----------------------+
+| InputFilePathJetIDHadTau      | std::string      | "TauAnalysisTools/"+ ``SharedFilesVersion`` +"EfficiencyCorrections/JetID_TrueHadTau_mc15-prerec.root"  |                       |
++-------------------------------+------------------+---------------------------------------------------------------------------------------------------------+-----------------------+
+| VarNameRecoHadTau             | std::string      | "TauScaleFactorReconstructionHadTau"                                                                    |                       |
++-------------------------------+------------------+---------------------------------------------------------------------------------------------------------+-----------------------+
+| VarNameEleOLRHadTau           | std::string      | "TauScaleFactorEleOLRHadTau"                                                                            |                       |
++-------------------------------+------------------+---------------------------------------------------------------------------------------------------------+-----------------------+
+| VarNameJetIDHadTau            | std::string      | "TauScaleFactorJetIDHadTau"                                                                             |                       |
++-------------------------------+------------------+---------------------------------------------------------------------------------------------------------+-----------------------+
 
-.. list-table::
-   :header-rows: 1
-   :widths: 25 10 55
+For the ``RecommendationTag`` "mc12-final" the following properties are
+available for tool steering:
 
-   * - property name
-     - type
-     - default value
- 
-   * - ``EfficiencyCorrectionTypes``
-     - ``std::vector<int>``
-     - ``{SFRecoHadTau, SFJetIDHadTau, SFEleOLRHadTau, SFEleOLRElectron}``
++-------------------------------+------------------+--------------------------------------------------------------------------------------------------------------------+-----------------------+
+| property name                 | type             | default value                                                                                                      | other sensible values |
++===============================+==================+====================================================================================================================+=======================+
+| EfficiencyCorrectionTypes     | std::vector<int> | {SFJetIDHadTau, SFEleIDHadTau}                                                                                     | SFContJetIDHadTau     |
++-------------------------------+------------------+--------------------------------------------------------------------------------------------------------------------+-----------------------+
+| InputFilePathJetIDHadTau      | std::string      | "TauAnalysisTools/"+ ``SharedFilesVersion`` +"EfficiencyCorrections/JetID_TrueHadTau_mc12-final_ptinc_etabin.root" |                       |
++-------------------------------+------------------+--------------------------------------------------------------------------------------------------------------------+-----------------------+
+| InputFilePathContJetIDHadTau  | std::string      | "TauAnalysisTools/"+ ``SharedFilesVersion`` +"EfficiencyCorrections/ContJetIDSF.root"                              |                       |
++-------------------------------+------------------+--------------------------------------------------------------------------------------------------------------------+-----------------------+
+| InputFilePathEleIDHadTau      | std::string      | "TauAnalysisTools/"+ ``SharedFilesVersion`` +"EfficiencyCorrections/EleID_TrueHadTau_mc12-final.root"              |                       |
++-------------------------------+------------------+--------------------------------------------------------------------------------------------------------------------+-----------------------+
+| VarNameJetIDHadTau            | std::string      | "TauScaleFactorJetIDHadTau"                                                                                        |                       |
++-------------------------------+------------------+--------------------------------------------------------------------------------------------------------------------+-----------------------+
+| VarNameContJetIDHadTau        | std::string      | "TauScaleFactorContJetIDHadTau"                                                                                    |                       |
++-------------------------------+------------------+--------------------------------------------------------------------------------------------------------------------+-----------------------+
+| VarNameEleIDHadTau            | std::string      | "TauScaleFactorEleIDHadTau"                                                                                        |                       |
++-------------------------------+------------------+--------------------------------------------------------------------------------------------------------------------+-----------------------+
 
-   * - ``InputFilePathRecoHadTau``
-     - ``std::string``
-     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/Reco_TrueHadTau_mc15-moriond.root"``
+Further comments
+================
 
-   * - ``InputFilePathEleOLRHadTau``
-     - ``std::string``
-     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/EleOLR_TrueHadTau_mc15-moriond.root"``
-
-   * - ``InputFilePathEleOLRHadTau``
-     - ``std::string``
-     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/EleOLR_TrueElectron_mc15-moriond.root"``
-
-   * - ``InputFilePathJetIDHadTau``
-     - ``std::string``
-     - ``"TauAnalysisTools/"+ <SharedFilesVersion> +"EfficiencyCorrections/JetID_TrueHadTau_mc15-moriond.root"``
-
-   * - ``VarNameRecoHadTau``
-     - ``std::string``
-     - ``"TauScaleFactorReconstructionHadTau"``
-
-   * - ``VarNameEleOLRHadTau``
-     - ``std::string``
-     - ``"TauScaleFactorEleOLRHadTau"``
-
-   * - ``VarNameEleOLRElectron``
-     - ``std::string``
-     - ``"TauScaleFactorEleOLRElectron"``
-
-   * - ``VarNameJetIDHadTau``
-     - ``std::string``
-     - ``"TauScaleFactorJetIDHadTau"``
-
-In addition the following properties are available for further configurations:
-     
-.. list-table::
-   :header-rows: 1
-   :widths: 5 10 5
-
-   * - property name
-     - type
-     - default value
-     
-   * - ``TauSelectionTool``
-     - ``ToolHandle<TauAnalysisTools::TauSelectionTool>``
-     - empty
-
-   * - ``PileupReweightingTool``
-     - ``ToolHandle<CP::PileupReweightingTool>``
-     - empty
-
-   * - ``TriggerName``
-     - ``std::string``
-     - ``""``
-
-   * - ``TriggerYear``
-     - ``std::string``
-     - ``"2016"``
-     
-   * - ``UseIDExclusiveSF``
-     - ``bool``
-     - ``false``
-
-   * - ``UseInclusiveEta``
-     - ``bool``
-     - ``false``
-
-   * - ``UseTriggerInclusiveEta``
-     - ``bool``
-     - ``true``
-
-   * - ``UsePtBinnedSF``
-     - ``bool``
-     - ``false``
-
-   * - ``UseHighPtUncert``
-     - ``bool``
-     - ``false``
-
-   * - ``IDLevel``
-     - ``int``
-     - ``JETIDBDTTIGHT``
-
-   * - ``EVLevel``
-     - ``int``
-     - ``ELEIDBDTLOOSE``
-
-   * - ``OLRLevel``
-     - ``int``
-     - ``TAUELEOLR``
-
-   * - ``ContSysType``
-     - ``int``
-     - ``TOTAL``
-
-   * - ``TriggerPeriodBinning``
-     - ``int``
-     - ``PeriodBinningAll``
-
-Details
-=======
-
-EfficiencyCorrectionTypes
--------------------------
-
-the default value for ``RecommendationTag`` the following enums for the property
-``EfficiencyCorrectionTypes`` can be used to obtain the corresponding scale
-factors:
+For the default value for `RecommendationTag` the following enums can be used to
+obtain the corresponding scale factors:
 
 * SFRecoHadTau: scale factors for tau reconstruction of true hadronic tau decays
 * SFEleOLRHadTau: scale factors for tau electron overlap removal of true hadronic tau decays
-* SFEleOLRElectron: scale factors for tau electron overlap removal of true electrons faking hadronic taus
 * SFJetIDHadTau: scale factors for tau jet identification of true hadronic tau decays
+
+Another sensible value for `RecommendationTag` is "mc12-final" which should be
+used for run 1 analyses. The following enums for this `RecommendationTag` are
+available:
+
+* SFJetIDHadTau: scale factors for tau jet identification of true hadronic tau decays
+* SFContJetIDHadTau: scale factors for jet identification of true hadronic tau decays (depending on continuous BDT score rather then ID working point)
+* SFEleIDHadTau: scale factors for tau electron identification of true hadronic tau decays
 
 The InputFilePath* strings are predefined to load the files in
 /afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData/ or
@@ -255,70 +166,155 @@ documentation on PathResolver please refer to
 https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PathResolver.
 
 The variable names VarName* for the scale factor decorations are only available
-if the corresponding type is requested in ``EfficiencyCorrectionTypes``.
+if the corresponding type is requested in `EfficiencyCorrectionTypes`.
+
+More configurations for specific EfficiencyCorrectionTypes
+==========================================================
 
 SFJetIDHadTau
 -------------
 
-Jet ID scale factors are provided for a couple of working points:
+There are a couple of working points provided for jet ID scale factors:
 
-.. list-table::
-   :header-rows: 1
-   :widths: 5 10
+* JETIDBDTLOOSE
+* JETIDBDTMEDIUM
+* JETIDBDTTIGHT
 
-   * - value
-     - description
+The following working points are only available for ``mc12-final``
 
-   * - ``JETIDBDTLOOSE``
-     - the TauWG jet ID loose working point
-
-   * - ``JETIDBDTMEDIUM``
-     - the TauWG jet ID medium working point
-
-   * - ``JETIDBDTTIGHT``
-     - the TauWG jet ID tight working point
+* JETIDNONE
+* JETIDBDTFAIL
+* JETIDBDTOTHER
+* JETIDLLHLOOSE
+* JETIDLLHMEDIUM
+* JETIDLLHTIGHT
+* JETIDLLHFAIL
 
 These can be accessed, for example via::
 
   TauEffTool.setProperty("IDLevel", (int)JETIDBDTLOOSE);
 
-SFEleOLRElectron
-----------------
+The default behaviour for ``mc12-final`` can be changed using the following
+property settings. Call::
 
-Electron overlap removal scale factors are provided for a couple of working
-points:
+  TauEffTool.setProperty("UseInclusiveEta", true);
 
-.. list-table::
-   :header-rows: 1
-   :widths: 5 10
+which will switch to eta inclusive scale factors. Call::
 
-   * - value
-     - description
+  TauEffTool.setProperty("UseIDExclusiveSF", true);
 
-   * - ``TAUELEOLR``
-     - the TauWG eVeto (OLR very loose e)
+to get exclusive ID (i.e. fail loose, loose not medium, medium not tight and
+tight) scale factors. Call::
 
-   * - ``ELELOOSELLHOLR``
-     - analysis OL with loose LLH electrons
-   
-   * - ``ELEMEDIUMLLHOLR``
-     - analysis OL with medium LLH electrons
+  TauEffTool.setProperty("UsePtBinnedSF", true);
+
+in order to access pt binned scale factors. Call::
+
+  TauEffTool.setProperty("UseHighPtUncert", true);
+
+in order to inflate uncertainty for pT > 100 GeV. For details please refer to
+these `slides
+<https://indico.cern.ch/event/304094/contribution/2/material/slides/0.pdf>`_.
+
+The default setup is:
+
++------------------+---------------+
+| property name    | default value |
++==================+===============+
+| IDLevel          | JETIDBDTTIGHT |
++------------------+---------------+
+| UseIDExclusiveSF | false         |
++------------------+---------------+
+| UseInclusiveEta  | false         |
++------------------+---------------+
+| UsePtBinnedSF    | false         |
++------------------+---------------+
+| UseHighPtUncert  | false         |
++------------------+---------------+
+
+SFContJetIDHadTau (mc12 only!!!)
+--------------------------------
+
+To obtain eta inclusive scale factors set property ``UseInclusiveEta`` to
+``true``, via::
+
+  TauEffTool.setProperty("UseInclusiveEta", true);
+
+To switch between different types of systematic uncertainties call for example::
+
+  TauEffTool.setProperty("ContSysType", QCD);
+
+The following types of systematic uncertainties are available as enums::
+
+* TOTAL
+* QCD
+* WJETS
+* TES
+* REMAIN
   
-   * - ``ELETIGHTLLHOLR``
-     - analysis OL with tight LLH electrons
+The default setup is:
 
-These can be accessed, for example via::
++------------------+---------------+
+| property name    | default value |
++==================+===============+
+| UseInclusiveEta  | false         |
++------------------+---------------+
+| ContSysType      | TOTAL         |
++------------------+---------------+
 
-  TauEffTool.setProperty("OLRLevel", (int)TAUELEOLR);
+SFEleIDHadTau (mc12 only!!!)
+----------------------------
 
+There are a couple of working points provided for electron ID scale factors,
+depending on the tau ID working point, electron veto working point and the level
+of overlap removal.
 
+The jet ID working points are stored as enums as follows:
 
---------------------------------------
-Special notes on older recommendations
---------------------------------------
+* JETIDNONE
+* JETIDBDTLOOSE
+* JETIDBDTMEDIUM
+* JETIDBDTTIGHT
+* JETIDBDTFAIL
+* JETIDBDTOTHER
+* JETIDLLHLOOSE
+* JETIDLLHMEDIUM
+* JETIDLLHTIGHT
+* JETIDLLHFAIL
 
-* mc12-final and mc11-final: `README-TauEfficiencyCorrectionsTool-mc12 <README-TauEfficiencyCorrectionsTool-mc12.rst>`_
-* mc15-prerecommendations: `README-TauEfficiencyCorrectionsTool-mc15_pre-recommendations <README-TauEfficiencyCorrectionsTool-mc15_pre-recommendations.rst>`_
+The electron ID working points are stored as enums as follows:
+
+* ELEIDNONE
+* ELEIDBDTLOOSE
+* ELEIDBDTMEDIUM
+* ELEIDBDTTIGHT
+* ELEIDOTHER
+
+The overlap removal levels are stored as enums as follows:
+
+* OLRNONE
+* OLRLOOSEPP
+* OLRMEDIUMPP
+* OLRTIGHTPP
+* OLROTHER
+
+E.g. these can be accessed via::
+
+  TauEffTool.setProperty("IDLevel", JETIDBDTLOOSE);
+  TauEffTool.setProperty("EVLevel", ELEIDBDTLOOSE);
+  TauEffTool.setProperty("OLRLevel", OLRLOOSEPP);
+  
+The default setup is:
+
++------------------+---------------+
+| property name    | default value |
++==================+===============+
+| IDLevel          | JETIDBDTTIGHT |
++------------------+---------------+
+| EVLevel          | ELEIDBDTLOOSE |
++------------------+---------------+
+| OLRLevel         | OLRLOOSEPP    |
++------------------+---------------+
 
 ---
 FAQ
@@ -398,6 +394,8 @@ FAQ
    truth matching for each tau. Note that you need to must set the property
    "WriteTruthTaus" to true to get it working.
 
+
+
 ----------
 Navigation
 ----------
@@ -407,11 +405,6 @@ Navigation
   * `TauSelectionTool <README-TauSelectionTool.rst>`_
   * `TauSmearingTool <README-TauSmearingTool.rst>`_
   * `TauEfficiencyCorrectionsTool <README-TauEfficiencyCorrectionsTool.rst>`_
-
-    * `mc12 recommendations <README-TauEfficiencyCorrectionsTool-mc12.rst>`_ 
-    * `mc15 pre-recommendations <README-TauEfficiencyCorrectionsTool-mc15_pre-recommendations.rst>`_
-    * `TauEfficiencyCorrectionsTool Trigger <README-TauEfficiencyCorrectionsTool_Trigger.rst>`_
-  
   * `TauTruthMatchingTool <README-TauTruthMatchingTool.rst>`_
   * `TauTruthTrackMatchingTool <README-TauTruthTrackMatchingTool.rst>`_
   * `TauOverlappingElectronLLHDecorator <README-TauOverlappingElectronLLHDecorator.rst>`_
