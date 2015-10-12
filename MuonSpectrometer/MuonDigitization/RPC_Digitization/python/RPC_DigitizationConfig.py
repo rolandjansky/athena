@@ -148,4 +148,10 @@ def RpcDigitizationTool(name="RpcDigitizationTool", **kwargs):
     
     return CfgMgr.RpcDigitizationTool(name, **kwargs)
 
+def Rpc_OverlayDigitizationTool(name="RpcDigitizationTool", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
+    return RpcDigitizationTool(name, **kwargs)
+
+
 
