@@ -18,8 +18,6 @@
 #include "AthLinks/ElementLinkVector.h"
 
 // Local include(s):
-// #include "xAODCutFlow/versions/CutBookkeeperContainer_v1.h"
-// #include "xAODCutFlow/versions/CutBookkeeperAuxContainer_v1.h"
 #include "xAODCutFlow/CutBookkeeperContainer.h"
 #include "xAODCutFlow/CutBookkeeperAuxContainer.h"
 
