@@ -76,10 +76,10 @@ void RecoLumiPlots::initializePlots()
   if (name != "other") m_hNMuon_Inst = Book2D("nMuon_Inst_2D", "Number of Muons vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};Nmuons", 150, -0.5, 10.5, 21, 0.5, 21.5);
   if (name == "Z" || name == "J/#psi"){m_hNResonance_Inst = Book2D("n" + type + "_Inst_2D", "Number of " + name + " vs Instant Lumi per BCID;Instant Lumi per BCID, 10^{30}cm^{-2}s^{-1};N " + name, 150, -0.5, 10.5, 5, 0.5, 5.5);}
 
-  m_hNSegment_IntLumi = Book2D("nSegment_IntLumi_2D", "Number of Muon Segments vs Average Inst Lumi per Sec;Average Inst Lumi per Sec, 10^{30}cm^{-2}s^{-1};Nsegments", 500, -0.5, 1000.5, 100, 0.5, 101.5);
-  m_hNMuonTrack_IntLumi = Book2D("nMuonTrack_IntLumi_2D", "Number of Muon MS Tracks vs Average Inst Lumi per Sec;Average Inst Lumi per Sec, 10^{30}cm^{-2}s^{-1};Ntracks", 500, -0.5, 1000.5, 21, 0.5, 21.5);
-  if (name != "other") m_hNMuon_IntLumi = Book2D("nMuon_IntLumi_2D", "Number of Muons vs Average Inst Lumi per Sec;Average Inst Lumi per Sec, 10^{30}cm^{-2}s^{-1};Nmuons", 500, -0.5, 1000.5, 21, 0.5, 21.5);
-  if (name == "Z" || name == "J/#psi"){m_hNResonance_IntLumi = Book2D("n" + type + "_IntLumi_2D", "Number of " + name + " vs Average Inst Lumi per Sec;Average Inst Lumi per Sec, 10^{30}cm^{-2}s^{-1};N " + name, 500, -0.5, 1000.5, 5, 0.5, 5.5);}
+  m_hNSegment_IntLumi = Book2D("nSegment_IntLumi_2D", "Number of Muon Segments vs Average Inst Lumi per Sec;Average Inst Lumi per Sec, 10^{30}cm^{-2}s^{-1};Nsegments", 600, -0.5, 5999.5, 100, 0.5, 101.5);
+  m_hNMuonTrack_IntLumi = Book2D("nMuonTrack_IntLumi_2D", "Number of Muon MS Tracks vs Average Inst Lumi per Sec;Average Inst Lumi per Sec, 10^{30}cm^{-2}s^{-1};Ntracks", 600, -0.5, 5999.5, 21, 0.5, 21.5);
+  if (name != "other") m_hNMuon_IntLumi = Book2D("nMuon_IntLumi_2D", "Number of Muons vs Average Inst Lumi per Sec;Average Inst Lumi per Sec, 10^{30}cm^{-2}s^{-1};Nmuons", 600, -0.5, 5999.5, 21, 0.5, 21.5);
+  if (name == "Z" || name == "J/#psi"){m_hNResonance_IntLumi = Book2D("n" + type + "_IntLumi_2D", "Number of " + name + " vs Average Inst Lumi per Sec;Average Inst Lumi per Sec, 10^{30}cm^{-2}s^{-1};N " + name, 600, -0.5, 5999.5, 5, 0.5, 5.5);}
 
   m_hNSegment_LB_BA = Book2D("nSegment_LB_BA_2D", "Number of Muon Segments in Barrel A side Per LumiBlock;LumiBlock;Number of Segments", 1600, -0.5, 1599.5, 80, 0.5, 81.5);
   m_hNSegment_LB_BC = Book2D("nSegment_LB_BC_2D", "Number of Muon Segments in Barrel C side Per LumiBlock;LumiBlock;Number of Segments", 1600, -0.5, 1599.5, 80, 0.5, 81.5);

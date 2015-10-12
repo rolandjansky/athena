@@ -27,6 +27,7 @@ class RecoMuonSegmentPlots:public PlotBase {
       //fill methods
       void fill(const xAOD::MuonContainer& muContainer);
       void fill(const xAOD::Muon& mu);
+      void fill(const std::vector<ElementLink<DataVector<xAOD::MuonSegment_v1>>> Mu_Segments);
       void fill(const xAOD::MuonSegment& muonSeg);
 
       //generic plots from MuonHistUtils
