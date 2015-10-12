@@ -31,4 +31,8 @@ def getTgcRange(name="TgcRange", **kwargs):
     kwargs.setdefault('ItemList', ["TGCSimHitCollection#TGC_Hits"] )
     return CfgMgr.PileUpXingFolder(name, **kwargs)
 
+def Tgc_OverlayDigitizationTool(name="Tgc_OverlayDigitizationTool", **kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
+    return TgcDigitizationTool(name,**kwargs)
 
