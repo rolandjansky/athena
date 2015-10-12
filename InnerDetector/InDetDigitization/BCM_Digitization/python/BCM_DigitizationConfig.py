@@ -50,3 +50,13 @@ def getBCM_Range(name="BCM_Range" , **kwargs):
     kwargs.setdefault('ItemList', ["SiHitCollection#BCMHits"] )
     from AthenaCommon import CfgMgr
     return CfgMgr.PileUpXingFolder(name, **kwargs)
+
+def BCM_OverlayDigitizationTool(name="BCM_OverlayDigitizationTool",**kwargs):
+    from OverlayCommonAlgs.OverlayFlags import overlayFlags
+    kwargs.setdefault("EvtStore", overlayFlags.evtStore())
+    return BCM_DigitizationTool(name,**kwargs)
+
+def BCM_OverlayDigitization(name="BCM_OverlayDigitization",**kwargs):
+     kwargs.setdefault("DigitizationTool", "BCM_OverlayDigitizationTool")
+     from AthenaCommon import CfgMgr
+     return CfgMgr.BCM_Digitization(name,**kwargs)
