@@ -48,7 +48,7 @@ public:
   enum PICKSTYLE { UNPICKABLE, ALL, COMPONENTS };
   void setPickable(PICKSTYLE);
   PICKSTYLE pickStyle() const { return m_pickStyle; }
-  void setVisible(bool);
+  virtual void setVisible(bool);
   bool visible() const { return m_visible; }
   void toggleVisible() { setVisible(!m_visible); }
 
