@@ -115,7 +115,7 @@ public:
   void recheckCutStatusOfAllVisibleHandles();
   void recheckCutStatusOfAllNotVisibleHandles();
   void recheckCutStatusOfAllHandles();
-  void update3DObjectsOfAllHandles(bool onlythosetouchingmuonchambers = false, bool invalidatePropagatedPoints = false );
+  void update3DObjectsOfAllHandles(bool onlythosetouchingmuonchambers = false, bool invalidatePropagatedPoints = false, float maxR = 0.0 ); // maxR being set will override the prop max value from the controller, e.g. for animations
   void updateMaterialOfAllHandles();
   void updateInDetProjectionsOfAllHandles();
   void updateMuonProjectionsOfAllHandles();
@@ -197,7 +197,7 @@ public slots:
   void setRequiredNHits(const QList<unsigned>&);
   void setOnlyVertexAssocTracks(bool);
   void extrapolateToThisVolumeChanged(void);
-  
+  void clipVolumeChanged(double);
 private:
 
   class Imp;

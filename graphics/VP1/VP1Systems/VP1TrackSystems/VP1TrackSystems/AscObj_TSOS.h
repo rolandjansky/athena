@@ -57,6 +57,8 @@ public:
   void zoomView(); //!< Depending on the controller settings, will attempt to zoom the view to this TSOS, for example in click()
   bool isShortMeasurement(); //!< Return true if TRT/MDT & shortened mode is on, false otherwise  
   
+  virtual void setVisible(bool);
+  
   TrackCommonFlags::TSOSPartsFlags parts() const { return m_parts; }
   bool hasParameters() const { return m_parts & TrackCommonFlags::TSOS_TrackPars; }
   bool hasParError() const { return m_parts & TrackCommonFlags::TSOS_AnyParsErrors; }

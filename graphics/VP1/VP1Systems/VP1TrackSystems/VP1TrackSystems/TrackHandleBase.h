@@ -60,7 +60,7 @@ public:
   bool visible() const { return m_visible; }
   TrackCollHandleBase * collHandle() const { return m_collhandle; }
   const std::set<GeoPVConstLink>& touchedMuonChambers() const;
-  void update3DObjects(bool invalidatePropagatedPoints = false);
+  void update3DObjects(bool invalidatePropagatedPoints = false, float maxR=0.0);
   void updateInDetProjections();
   void updateMuonProjections();
   void updateMaterial();

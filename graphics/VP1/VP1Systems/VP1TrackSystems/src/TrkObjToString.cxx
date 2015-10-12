@@ -172,6 +172,8 @@ TrkObjToString::name(const Trk::TrackParameters& tp){
   if (dynamic_cast<const Trk::AtaCylinder*>(&tp)) name+="AtaCylinder";
   if (dynamic_cast<const Trk::AtaStraightLine*>(&tp)) name+="AtaStraightLine";
   if (dynamic_cast<const Trk::AtaDisc*>(&tp)) name="AtaDisc";
+  if (dynamic_cast<const Trk::AtaCone*>(&tp)) name="AtaCone";
+  if (dynamic_cast<const Trk::CurvilinearParameters*>(&tp)) name="Curvilinear";
   if (name=="") std::cout<<"Unknown type of parameter"<<tp<<std::endl;
   return name+=QString(" Parameters");
 }
@@ -533,7 +535,7 @@ TrkObjToString::addFullInfo(QStringList& info, const Trk::RIO_OnTrack* rot){
 void
 TrkObjToString::addFullInfo(QStringList& info, const Trk::CompetingRIOsOnTrack* crot)
 {
-  info+="Contains";
+  info+="Contains IDs";
   unsigned int nrio = crot->numberOfContainedROTs();
   QString rots;
   for (unsigned int n = 0; n < nrio; n++)
