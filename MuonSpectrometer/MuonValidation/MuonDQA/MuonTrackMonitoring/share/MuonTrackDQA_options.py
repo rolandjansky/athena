@@ -35,7 +35,7 @@ MuonGenericTracksMon_L1Trig = MuonGenericTracksMon(name        = "MuonGenericTra
 if not hasattr(ToolSvc, 'monTrigDecTool'):
     print "MuonTrigTrackDQA_options.py: trigger decision tool not found: don't run trigger-aware monitoring"
 else:
-	MuonGenericTracksMon_L1Trig.TriggerChain = "L1_MU4, L1_MU6, L1_MU10, L1_MU15, L1_MU20, L1_2MU4, L1_2MU6, L1_2MU10"
+	MuonGenericTracksMon_L1Trig.TriggerChain = "L1_MU4, L1_MU6, L1_MU10, L1_MU11, L1_MU15, L1_MU20, L1_2MU4, L1_2MU6, L1_2MU10"
 	MuonGenericTracksMon_L1Trig.MuonTriggerChainName = ""
 	MuonGenericTracksMon_L1Trig.TrigDecisionTool = monTrigDecTool
 	ToolSvc += MuonGenericTracksMon_L1Trig
