@@ -65,8 +65,8 @@ public:
   template <class collT>
   void addHitCollections(std::map<SimBarCode,SimHitList> & hitLists);
 
-  //static SimHitHandleBase * createHitHandle( const TrackRecord * h ) { return new SimHitHandle_TrackRecord(h); } // OLD
-  static SimHitHandleBase * createHitHandle( const TrackRecord& h ) { return new SimHitHandle_TrackRecord(&h); } // NEW
+//  static SimHitHandleBase * createHitHandle( const TrackRecord * h ) { return new SimHitHandle_TrackRecord(h); }
+  static SimHitHandleBase * createHitHandle( const TrackRecord& h ) { return new SimHitHandle_TrackRecord(&h); }
   static SimHitHandleBase * createHitHandle( const TRTUncompressedHit& h ) { return new SimHitHandle_TRTHit(&h); }
   static SimHitHandleBase * createHitHandle( const SiHit& h ) { return new SimHitHandle_SiHit(&h); }
 

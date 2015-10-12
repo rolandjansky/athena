@@ -87,6 +87,9 @@
 
 #include <set>
 
+#include "EventPrimitives/EventPrimitivesToStringConverter.h"
+#include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
+
 //____________________________________________________________________
 AscObj_TSOS::AscObj_TSOS( TrackHandleBase *track,
               const Trk::TrackStateOnSurface * tsos,
@@ -429,21 +432,20 @@ void AscObj_TSOS::addTrackParamInfoToShapes( SoSeparator*&shape_simple,
     SoTransform* theHitTransform = VP1LinAlgUtils::toSoTransform(surface()->transform()); // FIXME - remove if working in local coords
     shape_detailed->addChild(theHitTransform);
     // Need to cast in order to get error Matrix
-    const Trk::TrackParameters * meas = dynamic_cast<const Trk::TrackParameters *>(trackParams);
-    if (meas) // Only draw error if point is a measurement
+    if (trackParams->covariance()) // Only draw error if point is a measurement
     {
       // fixme! This is really ugly - can't be cast to a base class? MeasuredTrackParameters doesn't know LP.
-      const Trk::AtaStraightLine * atas = dynamic_cast<const Trk::AtaStraightLine *>(meas);
-      const Trk::Perigee * per = dynamic_cast<const Trk::Perigee *>(meas);
-      const Trk::AtaPlane * aap = dynamic_cast<const Trk::AtaPlane *>(meas);
-      const Trk::AtaDisc * aad = dynamic_cast<const Trk::AtaDisc *>(meas);
+      const Trk::AtaStraightLine * atas = dynamic_cast<const Trk::AtaStraightLine *>(trackParams);
+      const Trk::Perigee * per = dynamic_cast<const Trk::Perigee *>(trackParams);
+      const Trk::AtaPlane * aap = dynamic_cast<const Trk::AtaPlane *>(trackParams);
+      const Trk::AtaDisc * aad = dynamic_cast<const Trk::AtaDisc *>(trackParams);
       if (per||atas||aap||aad){
         const Amg::Vector2D& localPos = atas ? atas->localPosition() : (per ? per->localPosition() : (aap ? aap->localPosition() : aad->localPosition()));
 //        addErrors(*(trackParams->associatedSurface()), meas->localErrorMatrix().covariance(), localPos, p1, showSurfaces, shape_simple, shape_detailed, false, false); //FIXME - last parameter false when working in correct local coords
-        addErrors(trackParams->associatedSurface(), *meas->covariance(), localPos, p1, showSurfaces, shape_simple, shape_detailed, false, false); //FIXME - last parameter false when working in correct local coords
+        addErrors(trackParams->associatedSurface(), *trackParams->covariance(), localPos, p1, showSurfaces, shape_simple, shape_detailed, false, false); //FIXME - last parameter false when working in correct local coords
       } else {
         VP1Msg::messageVerbose("Not a supported parameter for errors: ");
-        std::cout<<(*trackParams)<<std::endl;  
+        // std::cout<<(*trackParams)<<std::endl;
       }
     } 
   }
@@ -747,6 +749,7 @@ void AscObj_TSOS::addRIO_OnTrackInfoToShapes( SoSeparator*&shape_simple,
 void AscObj_TSOS::addCompetingRIO_OnTrackInfoToShapes( SoSeparator*&shape_simple,
                           SoSeparator*&shape_detailed)
 {
+  // std::cout<<"addCompetingRIO_OnTrackInfoToShapes"<<std::endl;
   const Trk::CompetingRIOsOnTrack * crio = competingRIOsOnTrack();
 
   ensureInitSeps(shape_simple,shape_detailed);
@@ -763,22 +766,36 @@ void AscObj_TSOS::addCompetingRIO_OnTrackInfoToShapes( SoSeparator*&shape_simple
   } 
 
   if (common()->controller()->drawMeasGlobalPositions()){
+    // std::cout<<"cROT - showing globalpositions."<<std::endl;
+    
     // if (surface()!=crio->rioOnTrack(crio->indexOfMaxAssignProb ())->associatedSurface())
     //   VP1Msg::message("AscObj_TSOS::addCompetingRIO_OnTrackInfoToShapes WARNING: cROT surface doesn't match one from surface()") ;
 //Draw cross marking global position of the rio on track
     SoTranslation * theTransform = new SoTranslation;
     Amg::Vector3D offset = crio->globalPosition() - crio->associatedSurface().center();
-    Amg::Vector3D locPos = (crio->associatedSurface().transform().inverse())*(offset);
+    // std::cout<<"globalPOS=("<<crio->globalPosition().x()<<","<<crio->globalPosition().y()<<","<<crio->globalPosition().z()<<")"<<std::endl;
+    // std::cout<<"associatedSurf centre =("<<crio->associatedSurface().center().x()<<","<<crio->associatedSurface().center().y()<<","<<crio->associatedSurface().center().z()<<")"<<std::endl;
+    // std::cout<<"offset=("<<offset.x()<<","<<offset.y()<<","<<offset.z()<<")"<<std::endl;
+    // theTransform->translation.setValue( offset.x(), offset.y(), offset.z());
+    
+    
+    Amg::Vector3D locPos = (crio->associatedSurface().transform().rotation().inverse())*(offset);
     theTransform->translation.setValue( locPos.x(), locPos.y(), locPos.z());
+    // std::cout<<"the GP Transform=("<<locPos.x()<<","<<locPos.y()<<","<<locPos.z()<<")"<<std::endl;
+    
     // double xoff= crio->localParameters().get(Trk::loc1);
     // double yoff= crio->localParameters().get(Trk::loc2);
     // double zoff= globalpos.z()-surface().center().z();
     // theTransform->translation.setValue(xoff,yoff,0.0);
-    SoTranslation * theTransformBack = new SoTranslation;
-    theTransformBack->translation.setValue(-locPos.x(), -locPos.y(), -locPos.z());
-    shape_detailed->addChild(theTransform); 
-    shape_detailed->addChild(common()->nodeManager().getShapeNode_Cross(10)); 
-    shape_detailed->addChild(theTransformBack);   
+    // SoTranslation * theTransformBack = new SoTranslation;
+    // theTransformBack->translation.setValue(-locPos.x(), -locPos.y(), -locPos.z());
+    // std::cout<<"theTransformBack="<<Amg::toString(*theTransformBack)<<std::endl;
+    
+    SoSeparator * gpSep = new SoSeparator;
+    
+    gpSep->addChild(theTransform); 
+    gpSep->addChild(common()->nodeManager().getShapeNode_Cross(50)); 
+    shape_detailed->addChild(gpSep);   
   }
 
   //Draw all contained rio on tracks
@@ -793,6 +810,7 @@ void AscObj_TSOS::addCompetingRIO_OnTrackInfoToShapes( SoSeparator*&shape_simple
     
     // std::cout<<"addCompetingRIO_OnTrackInfoToShapes: About to draw most probable ROT"<<std::endl;
     unsigned int maxProb = crio->indexOfMaxAssignProb ();
+    // std::cout<<"Drawing maxProb ["<<maxProb<<"] strip "<<std::endl;
     addRIO_OnTrackInfoToShapes(rotSepSimple,rotSepDetailed, &(crio->rioOnTrack(maxProb)), true);
     shape_detailed->addChild(rotSepDetailed); 
     shape_simple->addChild(rotSepSimple); 
@@ -826,11 +844,12 @@ void AscObj_TSOS::addCompetingRIO_OnTrackInfoToShapes( SoSeparator*&shape_simple
     
     const Trk::Surface* lastSurf=&(crio->rioOnTrack(maxProb).associatedSurface());
     
-    // std::cout<<"Last = ("<<lastPos<<") for most prob="<<rot->identify().get_compact()<<std::endl;
+    // std::cout<<"lastSurf = ("<<*lastSurf<<") for most prob="<<rot->identify().get_compact()<<std::endl;
     unsigned int nrio = crio->numberOfContainedROTs();
     for (unsigned int n = 0; n < nrio; n++)
     {
       if (n==maxProb) continue; // already drawn.
+      // std::cout<<"Strip #"<<n<<std::endl;
       const Trk::RIO_OnTrack* rot = &(crio->rioOnTrack(n));
       
       // SoTranslation * theTransform = new SoTranslation;
@@ -859,12 +878,17 @@ void AscObj_TSOS::addCompetingRIO_OnTrackInfoToShapes( SoSeparator*&shape_simple
       SoSeparator * rotSepDetailed = new SoSeparator;
       
       if ( &(rot->associatedSurface ())!=lastSurf) {
+        // std::cout<<"New surface!"<<std::endl;
         // Do transformation to centre of new surface, especially important if there is a zoffset.
         // NB we're assuming that the surfaces are aligned! Might not be entirely safe, but really should be! 
         // (I hate cROTs)
         Amg::Vector3D offset = rot->associatedSurface().center() - lastSurf->center();
+        // std::cout<<"new surf offset = "<<Amg::toString(offset)<<std::endl;
+        
         // lastSurf = &(rot->associatedSurface());
-        Amg::Vector3D locPos = (rot->associatedSurface().transform().inverse())*(offset);
+        Amg::Vector3D locPos = (rot->associatedSurface().transform().rotation().inverse())*(offset);
+        // std::cout<<"new surf locPos = "<<Amg::toString(locPos)<<std::endl;
+        
         SoTranslation * theTransform = new SoTranslation;
         theTransform->translation.setValue( locPos.x(), locPos.y(), locPos.z());
         rotSepDetailed->addChild(theTransform);      
@@ -1136,6 +1160,33 @@ QStringList AscObj_TSOS::clicked()
   return l;
 }
 
+void AscObj_TSOS::setVisible(bool vis) {
+  AssociatedObjectHandleBase::setVisible(vis);
+  
+  QTreeWidgetItem* trkObjBrowseritem = trackHandle()->browserTreeItem();
+  if (trkObjBrowseritem){ 
+    QTreeWidgetItem* me = trkObjBrowseritem->child(m_indexOfPointOnTrack); // I hope!
+    if (!me) {
+      VP1Msg::messageVerbose("ERROR! Can't find AscObj_TSOS item in track obj browser.");
+    } else {
+      QFont itemFont = me->font(1);
+      
+      if (!visible()) {
+        // std::cout<<"Hidden"<<std::endl;
+        me->setFlags(0); // not selectable, not enabled
+        itemFont.setStrikeOut(true);
+        
+      } else {
+        // std::cout<<"Vis"<<std::endl;
+        me->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled); //  selectable,  enabled
+        itemFont.setStrikeOut(false);
+        
+      }  
+    }
+  }
+}
+
+
 bool AscObj_TSOS::isShortMeasurement(){
   bool isShortMeasurement;
   
@@ -1204,10 +1255,10 @@ void AscObj_TSOS::zoomView() {
         for (it=cameras.begin();it!=itE;++it) {
           if (common()->controller()->assocObjDetailLevel()==TrackCommonFlags::SIMPLE)
           {
-            VP1CameraHelper::animatedZoomToSubTree(*it,common()->ascObjSelectionManager()->getAscObjAttachSep(),shapeSimple(),2.0,1.0,lookat0);
+            VP1CameraHelper::animatedZoomToSubTree(*it,common()->ascObjSelectionManager()->getAscObjAttachSep(),shapeSimple(),2.0,100.0,100.0,1.0,lookat0);
           } else
           {
-            VP1CameraHelper::animatedZoomToSubTree(*it,common()->ascObjSelectionManager()->getAscObjAttachSep(),shapeDetailed(),2.0,1.0,lookat0);
+            VP1CameraHelper::animatedZoomToSubTree(*it,common()->ascObjSelectionManager()->getAscObjAttachSep(),shapeDetailed(),2.0,100.0,100.0,1.0,lookat0);
           }
         }
       } else if ( strSurf )
@@ -1228,10 +1279,10 @@ void AscObj_TSOS::zoomView() {
           lookat1 = cameraDir.dot(lookat0) > 0 ? lookat0 : -lookat0;
           if (common()->controller()->assocObjDetailLevel()==TrackCommonFlags::SIMPLE)
           {
-            VP1CameraHelper::animatedZoomToSubTree(*it,common()->ascObjSelectionManager()->getAscObjAttachSep(),shapeSimple(),2.0,1.0,lookat1);
+            VP1CameraHelper::animatedZoomToSubTree(*it,common()->ascObjSelectionManager()->getAscObjAttachSep(),shapeSimple(),2.0,100.0,100.0,1.0,lookat1);
           } else
           {
-            VP1CameraHelper::animatedZoomToSubTree(*it,common()->ascObjSelectionManager()->getAscObjAttachSep(),shapeDetailed(),2.0,1.0,lookat1);
+            VP1CameraHelper::animatedZoomToSubTree(*it,common()->ascObjSelectionManager()->getAscObjAttachSep(),shapeDetailed(),2.0,100.0,100.0,1.0,lookat1);
           }
         }
       }

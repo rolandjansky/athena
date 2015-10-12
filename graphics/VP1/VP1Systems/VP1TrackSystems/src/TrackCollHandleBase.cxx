@@ -26,6 +26,7 @@
 #include "VP1Base/VP1QtInventorUtils.h"
 #include "VP1Base/VP1Serialise.h"
 #include "VP1Base/VP1Deserialise.h"
+#include "VP1Base/VP1CustomTourEditor.h"
 
 
 #include <Inventor/nodes/SoSeparator.h>
@@ -196,6 +197,8 @@ void TrackCollHandleBase::setupSettingsFromController(TrackSystemController* con
 
   assert(controller);
   largeChangesBegin();
+
+  connect(controller->customTourEditor(),SIGNAL(clipVolumeRadiusChanged(double)),this,SLOT(clipVolumeChanged(double)));
 
   connect(controller,SIGNAL(propagatorChanged(Trk::IExtrapolator *)),this,SLOT(setPropagator(Trk::IExtrapolator *)));
   setPropagator(controller->propagator());
@@ -423,7 +426,7 @@ void TrackCollHandleBase::recheckCutStatusOfAllHandles()
 }
 
 //____________________________________________________________________
-void TrackCollHandleBase::update3DObjectsOfAllHandles(bool onlythosetouchingmuonchambers, bool invalidatePropagatedPoints)
+void TrackCollHandleBase::update3DObjectsOfAllHandles(bool onlythosetouchingmuonchambers, bool invalidatePropagatedPoints, float maxR )
 {
   if (!isLoaded())
     return;
@@ -436,10 +439,10 @@ void TrackCollHandleBase::update3DObjectsOfAllHandles(bool onlythosetouchingmuon
   if (onlythosetouchingmuonchambers) {
     for (;it!=itE;++it)
       if (!(*it)->touchedMuonChambers().empty())
-        (*it)->update3DObjects(invalidatePropagatedPoints);
+        (*it)->update3DObjects(invalidatePropagatedPoints, maxR);
   } else {
     for (;it!=itE;++it)
-      (*it)->update3DObjects(invalidatePropagatedPoints);
+      (*it)->update3DObjects(invalidatePropagatedPoints, maxR);
   }
   largeChangesEnd();
   messageVerbose("update3DObjectsOfAllHandles end");
@@ -525,7 +528,7 @@ void TrackCollHandleBase::setPropagationOptions( TrackSystemController::Propagat
 }
 
 void TrackCollHandleBase::setPropMaxRadius( float radius){
-  messageVerbose("setPropMaxRadius  ==> Changed");
+  messageVerbose("setPropMaxRadius  ==> Changed to "+str(radius));
   m_propMaxRadius=radius;
   update3DObjectsOfAllHandles(false,true);
 }
@@ -533,6 +536,11 @@ void TrackCollHandleBase::setPropMaxRadius( float radius){
 void TrackCollHandleBase::extrapolateToThisVolumeChanged(void){
   messageVerbose("extrapolateToThisVolume  ==> Changed");
   update3DObjectsOfAllHandles(false,true);
+}
+
+void TrackCollHandleBase::clipVolumeChanged(double radius){
+  messageVerbose("clipVolumeChanged  ==> Changed");
+  update3DObjectsOfAllHandles(false, false, radius);
 }
 
 //____________________________________________________________________

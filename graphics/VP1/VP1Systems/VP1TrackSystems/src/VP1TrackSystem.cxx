@@ -81,6 +81,9 @@
 #include "MuonChamberT0s/ChamberT0s.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/MuonReadoutElement.h"
+#include "MuonReadoutGeometry/CscReadoutElement.h"
+#include "MuonReadoutGeometry/MdtReadoutElement.h"
+#include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -96,6 +99,13 @@
 #include "VP1Utils/VP1ToolAccessHelper.h"
 #include "VP1Utils/VP1AvailableToolsHelper.h"
 ////////////////////////////////////////////////////////
+
+
+// FOR DEBUG
+//#include "MuonIdHelpers/MdtIdHelper.h"
+//#include "MuonIdHelpers/MuonIdHelper.h"
+
+
 
 //____________________________________________________________________
 class VP1TrackSystem::Imp {
@@ -287,7 +297,13 @@ void VP1TrackSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root)
   // d->totmomsep->addChild(d->common->controller()->trackDrawStyle());
   root->addChild(d->totmomsep);
   
-  // FIXME! Allow this to be configured?
+  //
+  // Loading T0 measurements of muon chambers
+  //
+  // This will loop over all the T0 measurements found for muon chambers.
+  // And it will store them into the 'd->chamberT0s' vector.
+  // TODO! But do we still need it here?? Allow this to be configured?
+  //
   std::vector<std::string> key;
   key.push_back("MooreMuonChamberT0s");
   key.push_back("MboyMuonChamberT0s");
@@ -300,17 +316,49 @@ void VP1TrackSystem::buildEventSceneGraph(StoreGateSvc* sg, SoSeparator *root)
     const MuonGM::MuonDetectorManager * muonDetManager = VP1DetInfo::muonDetMgr();
 
     bool isThere = sg->contains<Muon::ChamberT0s>(key[i]);
-    if (isThere && sg->retrieve(chamberT0s, key[i]).isFailure()) 
+    if (isThere && sg->retrieve(chamberT0s, key[i]).isFailure())
       message("Problems loading ChamberT0s!");
     else
       if (!isThere) messageVerbose("No " +QString(key[i].c_str())+ " in event");
 
     if (chamberT0s ){
       messageVerbose("Found " +QString(key[i].c_str())+ " Chamber T0s");
+
       std::vector< std::pair< Identifier, float > >::const_iterator it, itEnd=chamberT0s->getAllT0s().end();
       for (it=chamberT0s->getAllT0s().begin(); it!=itEnd; it++){
-        const MuonGM::MuonReadoutElement* muonDetEl = dynamic_cast<const MuonGM::MuonReadoutElement*>(muonDetManager->getMdtReadoutElement (it->first));
-        if (muonDetEl) d->chamberT0s[i][muonDetEl->parentStationPV()]=it->second;
+
+    	  // chamber name
+    	  std::string stationName( muonDetManager->mdtIdHelper()->stationNameString (muonDetManager->mdtIdHelper()->stationName( it->first )) );
+    	  messageVerbose("station="+QString(stationName.c_str()));
+
+
+    	  if (muonDetManager->mdtIdHelper()->is_mdt(it->first)){
+    		  messageDebug("---> getting MDT T0s");
+
+    		  std::string techStr( muonDetManager->mdtIdHelper()->technologyString(muonDetManager->mdtIdHelper()->technology(it->first)) );
+    		  //int stName = muonDetManager->mdtIdHelper()->stationName(it->first);
+    		  float stEta  = muonDetManager->mdtIdHelper()->stationEta(it->first);
+    		  float stPhi  = muonDetManager->mdtIdHelper()->stationPhi(it->first);
+    		  int ml     = muonDetManager->mdtIdHelper()->multilayer(it->first);
+    		  //std::cout << "MDT chamber Info - Identifier: " << it->first << " - technology: " <<techStr <<   " - stName: " << stName << " - stEta: " << stEta << " - stPhi: " << stPhi << " - ml: " << ml << std::endl;
+    		  messageDebug( "MDT chamber Info - technology: " + QString::fromStdString(techStr) + " - stName: " +  QString::fromStdString(stationName) + " - stEta: " + QString::number(stEta) + " - stPhi: " + QString::number(stPhi) + " - ml: " + QString::number(ml) );
+
+    		  const MuonGM::MuonReadoutElement* muonDetEl = dynamic_cast<const MuonGM::MuonReadoutElement*>(muonDetManager->getMdtReadoutElement (it->first));
+    		  if (muonDetEl) d->chamberT0s[i][muonDetEl->parentStationPV()]=it->second;
+    	  }
+    	  else if (muonDetManager->cscIdHelper()->is_csc(it->first)){
+    		  messageDebug("---> getting CSC T0s");
+
+    		  std::string techStr( muonDetManager->cscIdHelper()->technologyString(muonDetManager->cscIdHelper()->technology(it->first)) );
+    		  //int stName = muonDetManager->cscIdHelper()->stationName(it->first);
+    		  float stEta  = muonDetManager->cscIdHelper()->stationEta(it->first);
+    		  float stPhi  = muonDetManager->cscIdHelper()->stationPhi(it->first);
+    		  //std::cout << "CSC chamber Info - Identifier: " << it->first << " - technology: " <<techStr <<   " - stName: " << stationName << " - stEta: " << stEta << " - stPhi: " << stPhi << std::endl;
+    		  messageDebug( "MDT chamber Info - technology: " + QString::fromStdString(techStr) + " - stName: " +  QString::fromStdString(stationName) + " - stEta: " + QString::number(stEta) + " - stPhi: " + QString::number(stPhi) );
+
+    		  const MuonGM::CscReadoutElement* muonDetEl = dynamic_cast<const MuonGM::CscReadoutElement*>(muonDetManager->getCscReadoutElement (it->first));
+    		  if (muonDetEl) d->chamberT0s[i][muonDetEl->parentStationPV()]=it->second;
+    	  }
       }
       emit muonChamberT0sChanged(d->chamberT0s[i],i);
     }
@@ -326,6 +374,8 @@ void VP1TrackSystem::systemerase()
   messageVerbose("systemErase begin");
 
   d->common->controller()->collWidget()->clear();
+  messageVerbose("collWidget cleared");
+
   if (d->common->controller()->trackObjBrowser()) d->common->controller()->trackObjBrowser()->clear();
 
   d->common->clearEventData();
