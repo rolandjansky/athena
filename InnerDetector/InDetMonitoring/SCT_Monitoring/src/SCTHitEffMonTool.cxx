@@ -81,26 +81,7 @@ namespace InDetDD{
 
 namespace{//anonymous namespace for functions at file scope
   const bool testOffline(false);
-  /**
-    void printContents( TH1 * aHisto){
-    const int nbins=aHisto->GetNbinsX()+1;
-    for(int i(0);i!=nbins;++i){
-    double contents=aHisto->GetBinContent(i);
-    std::cout<<i<<") "<<contents<<std::endl;
-    }
-    }
-
-    void printContents( TH2 * aHisto){
-    const int nbinsx=aHisto->GetNbinsX()+1;
-    const int nbinsy=aHisto->GetNbinsY()+1;
-    for(int i(0);i!=nbinsx;++i){
-    for(int j(0);j!=nbinsy;++j){
-    double contents=aHisto->GetBinContent(i,j);
-    std::cout<<i<<","<<j<<") "<<contents<<std::endl;
-    }
-    }
-    }
-   **/
+  
   std::string histogramPath[] = {"SCT/SCTEC/eff", "SCT/SCTB/eff", "SCT/SCTEA/eff", "SCT/GENERAL/eff"};
   std::string histogramPathRe[] = {"SCT/SCTEC/eff/perLumiBlock", "SCT/SCTB/eff/perLumiBlock", "SCT/SCTEA/eff/perLumiBlock"};//23.01.2015
 
