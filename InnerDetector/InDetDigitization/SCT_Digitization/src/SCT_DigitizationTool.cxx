@@ -815,7 +815,10 @@ SCT_RDO_Collection* SCT_DigitizationTool::createRDO(SiChargedDiodeCollection* co
 		      }
 		  }
 	      }
-	    unsigned int SCT_Word = (groupSize | (strip << 11) | (tbin <<22) | (ERRORS << 25)) ;
+	    int stripIn11bits = strip & 0x7ff;
+	    if (stripIn11bits != strip) ATH_MSG_ERROR("Strip number "<<strip<<" doesn't fit into 11 bits - will be truncated");
+
+	    unsigned int SCT_Word = (groupSize | (stripIn11bits << 11) | (tbin <<22) | (ERRORS << 25)) ;
 	    SCT3_RawData *p_rdo= new SCT3_RawData(id_readout, SCT_Word, &dummyvector);
 	    if (p_rdo) p_rdocoll->push_back(p_rdo); 
 	  }
