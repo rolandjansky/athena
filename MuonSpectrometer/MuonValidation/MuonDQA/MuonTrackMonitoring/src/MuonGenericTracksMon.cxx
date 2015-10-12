@@ -226,10 +226,10 @@ StatusCode MuonGenericTracksMon::bookHistograms()
     			m_oRecoMuonPlots.push_back(new RecoMuonPlots(0, dirpath));
     			bookInMongroup(*m_oRecoMuonPlots[i], mongroup_mutracks, sources[i], "").ignore();
 
-  		    dirpath = "TracksME/" + sources[i];
-  		    MonGroup mongroup_metracks(this, rootpath + dirpath, run, attr);
-  		    m_oRecoMuonMETrackPlots.push_back(new RecoMuonTrackPlots(0, dirpath));
-  		    bookInMongroup(*m_oRecoMuonMETrackPlots[i], mongroup_metracks, sources[i], "ME").ignore();
+	  		    dirpath = "TracksME/" + sources[i];
+	  		    MonGroup mongroup_metracks(this, rootpath + dirpath, run, attr);
+	  		    m_oRecoMuonMETrackPlots.push_back(new RecoMuonTrackPlots(0, dirpath));
+	  		    bookInMongroup(*m_oRecoMuonMETrackPlots[i], mongroup_metracks, sources[i], "ME").ignore();
 
     			dirpath = "TracksID/" + sources[i];
     			MonGroup mongroup_idtracks(this, rootpath + dirpath, run, attr);
@@ -303,6 +303,10 @@ StatusCode MuonGenericTracksMon::bookInMongroup(PlotBase& valPlots, MonGroup& mo
         hist.first->GetXaxis()->SetTitle("#eta");
         hist.first->GetYaxis()->SetTitle("#phi");
     }
+    else if (sHistName.EndsWith("_eta_pt")){
+        hist.first->GetXaxis()->SetTitle("p_{T} [GeV]");
+        hist.first->GetYaxis()->SetTitle("#eta");
+    }
     else if (sHistName.EndsWith("_eta")){
         hist.first->RebinX(2);
         hist.first->GetXaxis()->SetTitle("#eta");
@@ -313,7 +317,7 @@ StatusCode MuonGenericTracksMon::bookInMongroup(PlotBase& valPlots, MonGroup& mo
     }
     else if (sHistName.EndsWith("_pt")){
         hist.first->RebinX(2);
-        hist.first->GetXaxis()->SetRangeUser(0, 100);
+        hist.first->GetXaxis()->SetRangeUser(0, 100);//consider repace with SetLimits(0, 100)
         hist.first->GetXaxis()->SetTitle("p_{T} [GeV]");
     }
     else if (sHistName.EndsWith("_ddpt")){
