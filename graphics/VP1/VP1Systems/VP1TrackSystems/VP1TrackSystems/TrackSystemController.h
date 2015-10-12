@@ -226,7 +226,6 @@ private:
 
   class Imp;
   Imp * d;
-  ServiceHandle<Trk::ITrackingVolumesSvc>                  m_trackingVolumesSvc; //FIXME - move to Imp
 
   //For verbose output:
   template <class T> static QString toString( const T& t ) { return VP1Controller::toString(t); }//unhide base methods

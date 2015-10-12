@@ -42,7 +42,6 @@ use  MuonSimEvent               MuonSimEvent-*                  MuonSpectrometer
 use  Particle                   Particle-*                      Reconstruction
 use  StoreGate                  StoreGate-*                     Control
 use  TrkCompetingRIOsOnTrack    TrkCompetingRIOsOnTrack-*       Tracking/TrkEvent
-use  TrkDetDescrSvc             TrkDetDescrSvc-*                Tracking/TrkDetDescr
 use  TrkDetDescrUtils           TrkDetDescrUtils-*              Tracking/TrkDetDescr
 use  TrkDetElementBase          TrkDetElementBase-*             Tracking/TrkDetDescr
 use  TrkExInterfaces            TrkExInterfaces-*               Tracking/TrkExtrapolation

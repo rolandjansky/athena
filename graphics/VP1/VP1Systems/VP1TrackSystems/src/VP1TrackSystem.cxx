@@ -374,6 +374,8 @@ void VP1TrackSystem::systemerase()
   messageVerbose("systemErase begin");
 
   d->common->controller()->collWidget()->clear();
+  messageVerbose("collWidget cleared");
+
   if (d->common->controller()->trackObjBrowser()) d->common->controller()->trackObjBrowser()->clear();
 
   d->common->clearEventData();
