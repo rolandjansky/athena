@@ -60,6 +60,15 @@ def getSimHitService(name="ISF_SimHitService", **kwargs):
     from ISF_Services.ISF_ServicesConf import ISF__SimHitSvc
     return ISF__SimHitSvc(name, **kwargs)
 
+def getNoG4SimHitService(name="ISF_NoG4SimHitService", **kwargs):
+    #kwargs.setdefault("SensitiveDetectorMasterTool","EmptySensitiveDetectorMasterTool")
+    #kwargs.setdefault("FastSimulationMasterTool"   ,"EmptyFastSimulationMasterTool"   )
+    return getSimHitService(name, **kwargs)
+
+def getPileupSimHitService(name="ISF_PileupSimHitService", **kwargs):
+    kwargs.setdefault('SeparateInDetPileupHits'    , True )
+    return getNoG4SimHitService(name, **kwargs)
+
 def getISFEnvelopeDefSvc(name="ISF_ISFEnvelopeDefSvc", **kwargs):
     # ATLAS common envlope definitions
     kwargs.setdefault("ATLASEnvelopeDefSvc"    , "AtlasGeometry_EnvelopeDefSvc")
