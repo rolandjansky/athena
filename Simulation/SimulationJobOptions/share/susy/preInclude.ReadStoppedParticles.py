@@ -28,16 +28,15 @@ def readStoppedParticles():
         simFlags.RandomSeedList.addSeed( "COSMICS", 2040160768, 443921183 )
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
-    if not hasattr(topSequence, 'CosmicGenerator'):
-        from CosmicGenerator.CosmicGeneratorConf import CosmicGenerator
-        topSequence += CosmicGenerator()
+    if not hasattr(topSequence, 'TrackRecordGenerator'):
+        from TrackRecordGenerator.TrackRecordGeneratorConf import TrackRecordGenerator
+        topSequence += TrackRecordGenerator()
         
-    topSequence.CosmicGenerator.TRSmearing = -1 #in millimeters, e.g. 10
-    topSequence.CosmicGenerator.TRPSmearing = -1 #in radians, e.g. 0.01
-    topSequence.CosmicGenerator.TRCollection = "StoppingPositions"
-    topSequence.CosmicGenerator.ReadTR = True
-    topSequence.CosmicGenerator.StopParticles = True
-    topSequence.CosmicGenerator.AtRndmGenSvc = simFlags.RandomSvc.get_Value()
+    topSequence.TrackRecordGenerator.TRSmearing = -1 #in millimeters, e.g. 10
+    topSequence.TrackRecordGenerator.TRPSmearing = -1 #in radians, e.g. 0.01
+    topSequence.TrackRecordGenerator.TRCollection = "StoppingPositions"
+    topSequence.TrackRecordGenerator.StopParticles = True
+    topSequence.TrackRecordGenerator.AtRndmGenSvc = simFlags.RandomSvc.get_Value()
     
 simFlags.InitFunctions.add_function("preInit", readStoppedParticles)
 

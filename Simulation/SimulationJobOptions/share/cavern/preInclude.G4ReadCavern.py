@@ -13,11 +13,10 @@ ServiceMgr += PartPropSvc()
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
-from CosmicGenerator.CosmicGeneratorConf import CosmicGenerator
-topSequence += CosmicGenerator()
-topSequence.CosmicGenerator.TRSmearing = -1 #in millimeters, e.g. 10
-topSequence.CosmicGenerator.TRPSmearing = -1 #in radians, e.g. 0.01
-topSequence.CosmicGenerator.TRCollection = "NeutronBG"
-topSequence.CosmicGenerator.ReadTR = True
-topSequence.CosmicGenerator.AtRndmGenSvc = simFlags.RandomSvc.get_Value()
+from TrackRecordGenerator.TrackRecordGeneratorConf import TrackRecordGenerator
+topSequence += TrackRecordGenerator()
+topSequence.TrackRecordGenerator.TRSmearing = -1 #in millimeters, e.g. 10
+topSequence.TrackRecordGenerator.TRPSmearing = -1 #in radians, e.g. 0.01
+topSequence.TrackRecordGenerator.TRCollection = "NeutronBG"
+topSequence.TrackRecordGenerator.AtRndmGenSvc = simFlags.RandomSvc.get_Value()
 simFlags.RandomSeedList.addSeed( "COSMICS", 2040160768, 80 )

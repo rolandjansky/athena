@@ -10,8 +10,8 @@
 #
 #########################################################
 
-from CosmicGenerator.CosmicGeneratorConf import CosmicGenerator
-cg = CosmicGenerator()
+from TrackRecordGenerator.TrackRecordGeneratorConf import TrackRecordGenerator
+cg = TrackRecordGenerator()
 cg.TRSmearing = 10 #in millimeters
 cg.TRPSmearing = 0.001 #in radians
 
