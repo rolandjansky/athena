@@ -40,7 +40,6 @@ namespace ISF {
     
     private:
 
-      int  m_extrabc;     // extra barcode
       int  m_process;            // generating process
       int  m_generation;         // generation number (i.e. number of vertices separating vertex of origin
                                  //                    from the primary vertex (GenEvent input) 
@@ -48,13 +47,9 @@ namespace ISF {
 } // end of namespace
 
 
-inline int ISF::ParticleUserInformation::getExtraBC()             const { return m_extrabc; }
-
 inline int ISF::ParticleUserInformation::process()                const { return m_process; }
 
 inline int ISF::ParticleUserInformation::generation()             const { return m_generation; }
-
-inline void ISF::ParticleUserInformation::setExtraBC(int extrabc) { m_extrabc = extrabc; }
 
 inline void ISF::ParticleUserInformation::setProcess(int proc)    { m_process = proc; }
 
