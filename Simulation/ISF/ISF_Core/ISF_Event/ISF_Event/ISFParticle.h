@@ -151,18 +151,13 @@ namespace ISF {
     Barcode::ParticleBarcode getExtraBC() const;
 
     /** set extra barcode */
-    void setExtraBC(const Barcode::ParticleBarcode& bc) const; // MB: const hack, but need to be able to set this in const function
+    void setExtraBC(const Barcode::ParticleBarcode& bc);
 
     /** pointer to the simulation truth - optional, can be 0 */
     ITruthBinding* truthBinding() const;
 
     /** set the simulation truth */
     void setTruthBinding(ITruthBinding *truth);
-
-    /** dynamic routing behaviour: is the particle allowed to modify the
-        dynamic simulation selectors  */
-    bool allowsSelectorUpdates(   AtlasDetDescr::AtlasRegion geoID) const;
-    void disallowSelectorUpdates( AtlasDetDescr::AtlasRegion geoID);
 
     /** return the particle order (eg used to assure ID->Calo->MS simulation order) */
     ParticleOrder  getOrder() const;
@@ -188,8 +183,8 @@ namespace ISF {
     double                       m_tstamp;
     ParticleHistory              m_history;
     Barcode::ParticleBarcode     m_barcode;
+    Barcode::ParticleBarcode     m_extraBarcode;
     ITruthBinding*               m_truth;
-    bool                         m_allowSelectorUpdates[AtlasDetDescr::fNumAtlasRegions]; //!< allowed to update dynamic simulation selectors?
     ParticleOrder                m_order;                                      //!< particle simulation order
     mutable ParticleUserInformation *m_userInfo;                               //!< user information stored with the ISFParticle
   };
