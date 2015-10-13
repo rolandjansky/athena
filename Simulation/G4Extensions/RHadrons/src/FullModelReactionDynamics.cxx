@@ -1186,7 +1186,7 @@ G4bool FullModelReactionDynamics::GenerateXandPt(
 
   //    G4double ekin0 = pseudoParticle[3].GetKineticEnergy()/CLHEP::GeV;
 
-  G4ParticleDefinition * aOrgDef = modifiedOriginal.GetDefinition();
+  const G4ParticleDefinition * aOrgDef = modifiedOriginal.GetDefinition();
   G4int diff = 0;
   if(aOrgDef == G4Proton::Proton() || aOrgDef == G4Neutron::Neutron() )  diff = 1;
   if(numberofFinalStateNucleons == 1) diff = 0;
@@ -2104,7 +2104,7 @@ G4bool FullModelReactionDynamics::TwoCluster(
   pseudoParticle[4].SetTotalEnergy( etOriginal*CLHEP::GeV );
   pseudoParticle[4].SetMomentum( 0.0, 0.0, pOriginal*CLHEP::GeV );
 
-  G4ParticleDefinition * aOrgDef = modifiedOriginal.GetDefinition();
+  const G4ParticleDefinition * aOrgDef = modifiedOriginal.GetDefinition();
   G4int diff = 0;
   if(aOrgDef == G4Proton::Proton() || aOrgDef == G4Neutron::Neutron() )  diff = 1;
   if(numberofFinalStateNucleons == 1) diff = 0;

@@ -414,7 +414,7 @@ ReactionProduct G4ProcessHelper::GetFinalState(const G4Track& aTrack, G4Particle
   //  ReactionProductList::iterator prod_it;
 
   //Keep looping over the list until we have a choice, or until we have tried 100 times
-  unsigned int i;
+  unsigned int i=0;
   while(!selected && tries < 100){
     i=0;
     G4double dice = CLHEP::RandFlat::shoot();
