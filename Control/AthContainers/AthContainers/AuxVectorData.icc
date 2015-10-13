@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxVectorData.icc 634132 2014-12-05 19:25:02Z ssnyder $
+// $Id: AuxVectorData.icc 700415 2015-10-13 20:18:21Z ssnyder $
 /**
  * @file AthContainers/AuxVectorData.icc
  * @author scott snyder <snyder@bnl.gov>
@@ -267,6 +267,22 @@ AuxVectorData::getDataArray (SG::auxid_t auxid) const
 
 
 /**
+ * @brief Return a const pointer to the start of an aux data vector.
+ * @param auxid The desired aux data item.
+ *
+ * This will return a pointer to the start of the data for aux
+ * data item @c auxid.  If the item does not exist,
+ * this will return nullptr rather than raising an exception.
+ */
+inline
+const void*
+AuxVectorData::getDataArrayAllowMissing (SG::auxid_t auxid) const
+{
+  return m_constCache.getDataArrayAllowMissing (auxid, *this);
+}
+
+
+/**
  * @brief Return a pointer to the start of an aux data vector for a decoration.
  * @param auxid The desired aux data item.
  *
@@ -367,7 +383,7 @@ AuxVectorData::Cache::getDataArray (SG::auxid_t auxid,
   if (ATHCONTAINERS_UNLIKELY (ptr == 0)) {
     // We don't have the variable cached.
     // Call the out-of-line routine to get it cached.
-    ptr = parent.getDataOol (auxid);
+    ptr = parent.getDataOol (auxid, false);
 
     // These inform the compiler of what the previous call did.
     // They tell the optimizer that it can now assume that this cache
@@ -401,7 +417,7 @@ AuxVectorData::Cache::getDataArray (SG::auxid_t auxid,
   if (ATHCONTAINERS_UNLIKELY (ptr == 0)) {
     // We don't have the variable cached.
     // Call the out-of-line routine to get it cached.
-    ptr = parent.getDataOol (auxid);
+    ptr = parent.getDataOol (auxid, false);
 
     // These inform the compiler of what the previous call did.
     // They tell the optimizer that it can now assume that this cache
@@ -409,6 +425,30 @@ AuxVectorData::Cache::getDataArray (SG::auxid_t auxid,
     ATHCONTAINERS_ASSUME (ptr != 0);
     ATHCONTAINERS_ASSUME (cachePtr (auxid) != 0);
     ATHCONTAINERS_ASSUME (cachePtr (auxid) == ptr);
+  }
+  return ptr;
+}
+
+
+/**
+ * @brief Return a const pointer to the start of an aux data vector.
+ * @param auxid The desired aux data item.
+ * @param parent The containing @c AuxVectorData object.
+ *
+ * This will return a pointer to the start of the data for aux
+ * data item @c auxid.  If the item does not exist,
+ * this will return nullptr rather than raising an exception.
+ */
+inline
+const void*
+AuxVectorData::Cache::getDataArrayAllowMissing (SG::auxid_t auxid,
+                                                const AuxVectorData& parent)
+{
+  const void* ptr = cachePtr (auxid);
+  if (ATHCONTAINERS_UNLIKELY (ptr == 0)) {
+    // We don't have the variable cached.
+    // Call the out-of-line routine to get it cached.
+    ptr = parent.getDataOol (auxid, true);
   }
   return ptr;
 }

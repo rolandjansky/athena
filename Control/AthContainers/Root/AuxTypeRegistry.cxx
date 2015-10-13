@@ -757,10 +757,16 @@ void AuxTypeRegistry::setELFlags (upgrading_lock_t& /*lock*/, auxid_t auxid)
  *
  * ??? Should go away when we extend the factory interface.
  */
+#ifdef XAOD_STANDALONE
+void AuxTypeRegistry::applyELThinning (void*)
+{
+}
+#else
 void AuxTypeRegistry::applyELThinning (void* dst)
 {
   reinterpret_cast<ElementLinkBase*> (dst)->thin();
 }
+#endif
 
 
 /**
@@ -769,6 +775,11 @@ void AuxTypeRegistry::applyELThinning (void* dst)
  *
  * ??? Should go away when we extend the factory interface.
  */
+#ifdef XAOD_STANDALONE
+void AuxTypeRegistry::applyELVecThinning (void*)
+{
+}
+#else
 void AuxTypeRegistry::applyELVecThinning (void* dst)
 {
   std::vector<ElementLinkBase>& v = 
@@ -777,6 +788,7 @@ void AuxTypeRegistry::applyELVecThinning (void* dst)
   for (size_t i = 0; i < sz; i++)
     v[i].thin();
 }
+#endif
 
 
 } // namespace SG

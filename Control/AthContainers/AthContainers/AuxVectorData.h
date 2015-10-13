@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AuxVectorData.h 634132 2014-12-05 19:25:02Z ssnyder $
+// $Id: AuxVectorData.h 700415 2015-10-13 20:18:21Z ssnyder $
 /**
  * @file AthContainers/AuxVectorData.h
  * @author scott snyder <snyder@bnl.gov>
@@ -522,6 +522,17 @@ public:
   const void* getDataArray (SG::auxid_t auxid) const;
 
 
+  /**
+   * @brief Return a const pointer to the start of an aux data vector.
+   * @param auxid The desired aux data item.
+   *
+   * This will return a pointer to the start of the data for aux
+   * data item @c auxid.  If the item does not exist,
+   * this will return nullptr rather than raising an exception.
+   */
+  const void* getDataArrayAllowMissing (SG::auxid_t auxid) const;
+
+
 protected:
   /**
    * @brief Return a pointer to the start of an aux data vector.
@@ -678,6 +689,19 @@ private:
 
     
     /**
+     * @brief Return a const pointer to the start of an aux data vector.
+     * @param auxid The desired aux data item.
+     * @param parent The containing @c AuxVectorData object.
+     *
+     * This will return a pointer to the start of the data for aux
+     * data item @c auxid.  If the item does not exist,
+     * this will return nullptr rather than raising an exception.
+     */
+    const void* getDataArrayAllowMissing (SG::auxid_t auxid,
+                                          const AuxVectorData& parent);
+
+    
+    /**
      * @brief Return a pointer to the start of an aux decoration vector.
      * @param auxid The desired aux decoration item.
      * @param parent The containing @c AuxVectorData object.
@@ -771,23 +795,27 @@ private:
   /**
    * @brief Out-of-line portion of data access.
    * @param auxid aux data item being accessed.
+   * @param allowMissing If true, then return nullptr if the variable
+   *                     is missing rather than throwing an exception.
    *
    * When this function returns, the cache entry @c m_cache[auxid]
    * will be valid.  That entry is also returned.  If there's an error,
    * the function will throw  an exception rather than returning.
    */
-  void* getDataOol (SG::auxid_t auxid);
+  void* getDataOol (SG::auxid_t auxid, bool allowMissing);
 
 
   /**
    * @brief Out-of-line portion of data access (const version).
    * @param auxid aux data item being accessed.
+   * @param allowMissing If true, then return nullptr if the variable
+   *                     is missing rather than throwing an exception.
    *
    * When this function returns, the cache entry @c m_constCache[auxid]
    * will be valid.  That entry is also returned.  If there's an error,
    * the function will throw  an exception rather than returning.
    */
-  const void* getDataOol (SG::auxid_t auxid) const;
+  const void* getDataOol (SG::auxid_t auxid, bool allowMissing) const;
 
 
   /**

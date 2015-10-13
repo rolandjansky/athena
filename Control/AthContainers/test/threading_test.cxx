@@ -17,16 +17,6 @@
 #include <cassert>
 
 
-using AthContainers_detail::strict_shared_lock;
-using AthContainers_detail::upgrading_lock;
-using AthContainers_detail::upgrade_mutex;
-using AthContainers_detail::mutex;
-using AthContainers_detail::lock_guard;
-using AthContainers_detail::fence_acq_rel;
-using AthContainers_detail::fence_seq_cst;
-using AthContainers_detail::thread_specific_ptr;
-
-
 class test_mutex
 {
 public:
@@ -42,6 +32,8 @@ public:
 
 void test1()
 {
+  using AthContainers_detail::strict_shared_lock;
+
   std::cout << "test1\n";
   test_mutex m;
   strict_shared_lock<test_mutex> lock (m);
@@ -50,6 +42,9 @@ void test1()
 
 void test2()
 {
+  using AthContainers_detail::upgrading_lock;
+  using AthContainers_detail::upgrade_mutex;
+
   std::cout << "test2\n";
   test_mutex m;
   {
@@ -74,6 +69,11 @@ void test2()
 
 void test3()
 {
+  using AthContainers_detail::fence_acq_rel;
+  using AthContainers_detail::fence_seq_cst;
+  using AthContainers_detail::mutex;
+  using AthContainers_detail::lock_guard;
+
   std::cout << "test3\n";
 
   fence_acq_rel();
@@ -95,6 +95,8 @@ struct Payload
 
 void test4()
 {
+  using AthContainers_detail::thread_specific_ptr;
+
   std::cout << "test4\n";
   
   thread_specific_ptr<Payload> p;

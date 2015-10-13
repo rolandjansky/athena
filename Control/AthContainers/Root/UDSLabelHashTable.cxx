@@ -7,6 +7,17 @@
 #include "AthContainers/tools/UDSLabelHashTable.h"
 #include "AthenaKernel/getMessageSvc.h"
 
+void UDSLabelHashTable::addLabel(const std::string& label, hash_t hash)
+{
+  hash_t h = addLabel (label);
+  if (h != hash) {
+    MsgStream logstr(Athena::getMessageSvc(), "UDSLabelHashTable");
+    logstr << MSG::ERROR << "Hash mismatch for " << label
+           << ": " << hash << "/" << h << endreq;
+  }
+}
+
+
 UDSLabelHashTable::hash_t UDSLabelHashTable::addLabel(const std::string& label) {
   if (label.size()==0) {
     MsgStream logstr(Athena::getMessageSvc(), "UDSLabelHashTable");

@@ -62,6 +62,7 @@ apply_pattern UnitTest_run unit_test=copyThinned
 apply_pattern UnitTest_run unit_test=PackedParameters
 apply_pattern UnitTest_run unit_test=PackedConverter
 apply_pattern UnitTest_run unit_test=PackedContainer
+apply_pattern UnitTest_run unit_test=debug
 
 macro_append DOXYGEN_INPUT " ../doc" 
 

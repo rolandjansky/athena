@@ -22,7 +22,6 @@
 #include "SGTools/CLASS_DEF.h"
 #include "CxxUtils/unused.h"
 
-using boost::assign::list_of;
 
 class dl_test_err
   : public std::exception
@@ -69,6 +68,9 @@ void throw_dl_test_err (const char* file, int line, const char* what)
 
 
 Athena_test::RNG stlrand;
+
+
+using boost::assign::list_of;
 
 
 //************************************************************************

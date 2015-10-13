@@ -15,8 +15,12 @@
 #include "AthContainers/AuxStoreInternal.h"
 #include "AthContainers/exceptions.h"
 #include "TestTools/expect_exception.h"
+#include "CxxUtils/make_unique.h"
 #include <iostream>
 #include <cassert>
+#include <memory>
+#include <vector>
+#include <map>
 
 
 #include "auxid_set_equal.icc"
@@ -71,15 +75,36 @@ class ConstAuxStoreTest
   : public SG::IConstAuxStore
 {
 public:
-  virtual const void* getData (SG::auxid_t /*auxid*/) const { return 0; }
+  virtual const void* getData (SG::auxid_t auxid) const;
   virtual const SG::auxid_set_t& getAuxIDs() const { return m_set; }
   virtual void* getDecoration (SG::auxid_t /*auxid*/, size_t /*size*/, size_t /*capacity*/) { std::abort(); }
   virtual void lock() { std::abort(); }
   virtual void clearDecorations() { std::abort(); }
   virtual size_t size() const { std::abort(); }
-private:
+
+  void add (SG::auxid_t auxid, std::unique_ptr<std::vector<float> > vec);
+
   SG::auxid_set_t m_set;
+  typedef std::vector<float> vec_t;
+  typedef std::map<SG::auxid_t, std::unique_ptr<vec_t> > map_t;
+  map_t m_vecs;
 };
+
+
+const void* ConstAuxStoreTest::getData (SG::auxid_t auxid) const
+{
+  map_t::const_iterator it = m_vecs.find (auxid);
+  if (it != m_vecs.end())
+    return it->second->data();
+  return 0;
+}
+
+void ConstAuxStoreTest::add (SG::auxid_t auxid,
+                             std::unique_ptr<std::vector<float> > vec)
+{
+  m_vecs[auxid] = std::move(vec);
+}
+
 
 
 void test1()
@@ -410,6 +435,30 @@ void test_copy()
   assert (elt2.ityp1() == 10);
   assert (elt2.ftyp1() == 10.5);
   assert (ityp2(elt2) == 0);
+
+  const Elt& celt2 = elt2;
+  Elt::Accessor<int> ityp3 ("yetAnotherInt");
+  Elt elt5;
+  SG::AuxVectorBase dv5;
+  dv5.set (elt5, 1);
+  ConstAuxStoreTest store5;
+  dv5.setStore (&store5);
+  SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
+  SG::auxid_t ityp1_id = r.getAuxID<int> ("anInt");
+  SG::auxid_t ftyp1_id = r.getAuxID<float> ("aFloat");
+  SG::auxid_t ityp3_id = ityp3.auxid();
+  store5.m_set.insert (ityp1_id);
+  store5.m_set.insert (ityp3_id);
+  store5.m_set.insert (ftyp1_id);
+  auto vptr = CxxUtils::make_unique<std::vector<float> >();
+  vptr->resize(5);
+  (*vptr)[1] = 3.5;
+  store5.add (ftyp1_id, std::move(vptr));
+  EXPECT_EXCEPTION (SG::ExcBadAuxVar, ityp3(celt2));
+  SG::AuxVectorBase::copyAux (elt2, elt5);
+  assert (elt2.ityp1() == 0);
+  assert (elt2.ftyp1() == 3.5);
+  assert (ityp3(celt2) == 0);
 
   Elt elt4;
   elt4.releasePrivateStore();
