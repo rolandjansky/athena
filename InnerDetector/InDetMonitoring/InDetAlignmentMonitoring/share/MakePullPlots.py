@@ -95,15 +95,46 @@ TRTPULLR = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"trt_b_
 DrawPlots(TRTPULLR, outputDir+"/"+"TRTPULLR.png", "TRT Barrel", "Number of hits on tracks",
           "R pull", 0.2, 0.9, "",canvasText,makeOutput,0.63,0.86)
 
+TRTPULLNOTUBER = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"trt_b_pullR_notube","singleGaus",rootFiles,nFiles,normaliseHistos,unitArea)
+DrawPlots(TRTPULLNOTUBER, outputDir+"/"+"TRTPULLNOTUBER.png", "TRT Barrel", "Number of hits on tracks",
+          "R pull (no tube)", 0.2, 0.9, "",canvasText,makeOutput,0.63,0.86)
+
+
 # TRT end caps
 TRTECAPULLR = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"trt_ec_pullR_Endcap_A","singleGaus",rootFiles,nFiles,normaliseHistos)#,unitArea)
 DrawPlots(TRTECAPULLR, outputDir+"/"+"TRTECAPULLR.png", "TRT Endcap A", "Number of hits on tracks",
           "R pull", 0.2, 0.9, "",canvasText,makeOutput,0.63,0.86)
 
+TRTECAPULLR = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"trt_ec_pullR_notube_Endcap_A","singleGaus",rootFiles,nFiles,normaliseHistos)#,unitArea)
+DrawPlots(TRTECAPULLR, outputDir+"/"+"TRTECAPULLRNOTUBE.png", "TRT Endcap A", "Number of hits on tracks",
+          "R pull (no tube)", 0.2, 0.9, "",canvasText,makeOutput,0.63,0.86)
+
+
+
 TRTECCPULLR = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"trt_ec_pullR_Endcap_C","singleGaus",rootFiles,nFiles,normaliseHistos)#,unitArea)
 DrawPlots(TRTECCPULLR, outputDir+"/"+"TRTECCPULLR.png", "TRT Endcap C", "Number of hits on tracks",
           "R pull", 0.2, 0.9, "",canvasText,makeOutput,0.63,0.86)
 
+TRTECCPULLR = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"trt_ec_pullR_notube_Endcap_C","singleGaus",rootFiles,nFiles,normaliseHistos)#,unitArea)
+DrawPlots(TRTECCPULLR, outputDir+"/"+"TRTECCPULLRNOTUBE.png", "TRT Endcap C", "Number of hits on tracks",
+          "R pull (no tube)", 0.2, 0.9, "",canvasText,makeOutput,0.63,0.86)
+
 TRTECSPULLR = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"trt_ec_pullR","singleGaus",rootFiles,nFiles,normaliseHistos)#unitArea)
 DrawPlots(TRTECAPULLR, outputDir+"/"+"TRTECSPULLR.png", "TRT Endcaps", "Number of hits on tracks",
           "R pull", 0.2, 0.9, "",canvasText,makeOutput,0.63,0.86)
+
+TRTECSPULLR = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"trt_ec_pullR_notube","singleGaus",rootFiles,nFiles,normaliseHistos)#unitArea)
+DrawPlots(TRTECAPULLR, outputDir+"/"+"TRTECSPULLRNOTUBE.png", "TRT Endcaps", "Number of hits on tracks",
+          "R pull", 0.2, 0.9, "",canvasText,makeOutput,0.63,0.86)
+
+
+
+PullRes =  MakePlots(residualsDir, legendTitles, markerColors,markerStyles,"si_barrel_pullX_mean","noFit",rootFiles,nFiles,False)
+DrawPlots(PullRes, outputDir+"/"+"SiBarrelPullMean."+oFext, "PIX & SCT Barrel", "local x pull", "", 
+          0.18, 0.88, " ", canvasText,makeOutput,0.59, 0.87,False) 
+
+PullRes =  MakePlots(residualsDir, legendTitles, markerColors,markerStyles,"si_barrel_pullX_width","noFit",rootFiles,nFiles,False)
+DrawPlots(PullRes, outputDir+"/"+"SiBarrelPullWidth."+oFext, "PIX & SCT Barrel", "local x pull", "", 
+          0.18, 0.88, " ", canvasText,makeOutput,0.59, 0.87,False) 
+
+

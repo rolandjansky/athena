@@ -34,11 +34,11 @@
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 
-#include "VxVertex/VxContainer.h"
-#include "VxVertex/VxCandidate.h"
-#include "VxVertex/RecVertex.h"
-#include "VxVertex/Vertex.h"
-#include "VxVertex/VxTrackAtVertex.h"
+//#include "VxVertex/VxContainer.h"
+//#include "VxVertex/VxCandidate.h"
+//#include "VxVertex/RecVertex.h"
+//#include "VxVertex/Vertex.h"
+//#include "VxVertex/VxTrackAtVertex.h"
 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "EventInfo/EventID.h"
@@ -106,7 +106,7 @@ IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, cons
   declareProperty("applyHistWeight"      , m_applyHistWeight = false);
   declareProperty("hWeightInFileName"    , m_hWeightInFileName  = "hWeight.root" ); 
   declareProperty("hWeightHistName"      , m_hWeightHistName    = "trk_pT_vs_eta" );
-  declareProperty("doIP"                 , m_doIP = false);
+  declareProperty("doIP"                 , m_doIP = true);
 }
 
 
@@ -499,19 +499,17 @@ StatusCode IDAlignMonGenericTracks::initialize()
   if (m_doIP) {
     ATH_CHECK (m_trackToVertexIPEstimator.retrieve());
   }
-    
-  //if(m_extendedPlots){
+  
   if ( m_beamCondSvc.retrieve().isFailure() ) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve beamspot service " << m_beamCondSvc << " - will use nominal beamspot at (0,0,0)" << endreq;
     m_hasBeamCondSvc = false;
   } 
   else {
     m_hasBeamCondSvc = true;
-    msg(MSG::INFO) << "Retrieved service " << m_beamCondSvc << endreq;
+    ATH_MSG_DEBUG("Retrieved service " << m_beamCondSvc);
   }
-  //  }
-  //else
-  //m_hasBeamCondSvc = false;
+  
+ 
 
 
   if ( m_applyHistWeight ){
@@ -786,7 +784,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     m_trk_chi2Prob = new TProfile("trk_chi2Prob","chi2Prob versus eta",100,-2.5,2.5,-5,5);  
     RegisterHisto(al_mon,m_trk_chi2Prob) ;
 
-    m_nhits_per_event = new TH1F("Nhits_per_event","Number of hits per event",2000,-0.5,1999.5);  
+    m_nhits_per_event = new TH1F("Nhits_per_event","Number of hits per event",1024,-0.5,1023.5);  
     RegisterHisto(al_mon,m_nhits_per_event) ;  
     m_nhits_per_event->GetXaxis()->SetTitle("Number of Hits on Tracks per Event"); 
     m_nhits_per_event->GetYaxis()->SetTitle("Number of Events"); 
@@ -859,7 +857,13 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     m_eta = new TH1F("eta","eta",100,-2.5,2.5);  
     RegisterHisto(al_mon,m_eta) ;  
     m_eta->GetXaxis()->SetTitle("Track #eta"); 
-    m_eta->GetYaxis()->SetTitle("Number of Tracks");  
+    m_eta->GetYaxis()->SetTitle("Number of Tracks"); 
+    
+    m_d0_bscorr = new TH1F("d0_bscorr","d0 (corrected for beamspot); [mm]",400,-m_d0Range,m_d0Range);  
+    RegisterHisto(al_mon,m_d0_bscorr) ;  
+
+
+
     if(m_extendedPlots){
       
       //hits
@@ -1223,9 +1227,16 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     m_d0 = new TH1F("d0","d0;[mm]",400,-m_d0Range,m_d0Range);  
     RegisterHisto(al_mon,m_d0) ;  
     m_d0_pvcorr = new TH1F("d0_pvcorr","d0 (corrected for primVtx); [mm]",400,-m_d0Range,m_d0Range);  
-    RegisterHisto(al_mon,m_d0_pvcorr) ;  
-    m_d0_bscorr = new TH1F("d0_bscorr","d0 (corrected for beamspot); [mm]",400,-m_d0Range,m_d0Range);  
-    RegisterHisto(al_mon,m_d0_bscorr) ;  
+    RegisterHisto(al_mon,m_d0_pvcorr) ; 
+    
+
+
+    m_trk_d0_wrtPV = new TH1F("d0_pvcorr_est","d0 (corrected for primVtx v2); [mm]",400,-0.2,0.2);  
+    RegisterHisto(al_mon,m_trk_d0_wrtPV) ; 
+    m_trk_z0_wrtPV = new TH1F("z0_pvcorr_est","z0 (corrected for primVtx v2); [mm]",100,-1,1);  
+    RegisterHisto(al_mon,m_trk_z0_wrtPV ) ; 
+ 
+    
 
     m_phi_barrel_pos_2_5GeV = new TH1F("phi_barrel_pos_2_5GeV","phi_barrel_pos_2_5GeV",100,0,2*m_Pi);  m_phi_barrel_pos_2_5GeV->SetMinimum(0);
     RegisterHisto(al_mon,m_phi_barrel_pos_2_5GeV) ;  
@@ -1462,33 +1473,33 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
 
 
     //BeamSpot Position histos
-    m_YBs_vs_XBs = new TH2F("YBs_vs_XBs","BeamSpot Position: y vs x",100,-0.032,-0.02,100,1.078,1.09);
+    m_YBs_vs_XBs = new TH2F("YBs_vs_XBs","BeamSpot Position: y vs x",100, -0.9,-0.1, 100, -0.9,-0.1);
     RegisterHisto(al_mon,m_YBs_vs_XBs);
     m_YBs_vs_XBs->GetXaxis()->SetTitle("x coordinate (mm)");
     m_YBs_vs_XBs->GetYaxis()->SetTitle("y coordinate (mm)");
 
-    m_YBs_vs_ZBs = new TH2F("YBs_vs_ZBs","BeamSpot Position: y vs z",100,-14,-4,100,1.078,1.09);
+    m_YBs_vs_ZBs = new TH2F("YBs_vs_ZBs","BeamSpot Position: y vs z",100,-25., -5., 100, -0.9,-0.1);
     RegisterHisto(al_mon,m_YBs_vs_ZBs);
     m_YBs_vs_ZBs->GetXaxis()->SetTitle("z coordinate (mm)");
     m_YBs_vs_ZBs->GetYaxis()->SetTitle("y coordinate (mm)");
 
-    m_XBs_vs_ZBs = new TH2F("XBs_vs_ZBs","BeamSpot Position: x vs z",100,-14,-4,100,-0.032,-0.02);
+    m_XBs_vs_ZBs = new TH2F("XBs_vs_ZBs","BeamSpot Position: x vs z",100,-25., -5., 100, -0.9,-0.1);
     RegisterHisto(al_mon,m_XBs_vs_ZBs);
     m_XBs_vs_ZBs->GetXaxis()->SetTitle("z coordinate (mm)");
     m_XBs_vs_ZBs->GetYaxis()->SetTitle("x coordinate (mm)");
 
 
-    m_XBs = new TH1F("XBs","BeamSpot Position: x",100,-2,2);
+    m_XBs = new TH1F("XBs","BeamSpot Position: x",100,-1,0.);
     RegisterHisto(al_mon,m_XBs);
     m_XBs->GetXaxis()->SetTitle("x (mm)");
     m_XBs->GetYaxis()->SetTitle("#events");
 
-    m_YBs= new TH1F("YBs","BeamSpot Position: y",100,-2,2);
+    m_YBs= new TH1F("YBs","BeamSpot Position: y",100,-1,0.);
     RegisterHisto(al_mon,m_YBs);
     m_YBs->GetXaxis()->SetTitle("y (mm)");
     m_YBs->GetYaxis()->SetTitle("#events");
 
-    m_ZBs = new TH1F("ZBs","BeamSpot Position: z",100,-200,200);
+    m_ZBs = new TH1F("ZBs","BeamSpot Position: z",100,-50,50);
     RegisterHisto(al_mon,m_ZBs);
     m_ZBs->GetXaxis()->SetTitle("z (mm)");
     m_ZBs->GetYaxis()->SetTitle("#events");
@@ -1598,76 +1609,63 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
 {
   m_events++;
  
+  //if (!evtStore()->contains<TrackCollection>(m_tracksName)) {
   if (!evtStore()->contains<TrackCollection>(m_tracksName)) {
     if(m_events == 1) {if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to get " << m_tracksName << " TrackCollection" << endreq;}
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to get " << m_tracksName << " TrackCollection" << endreq;
+    else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to get " << m_tracksName << " TrackCollection" << endreq;
     return StatusCode::SUCCESS;
   }
+
   
   //get tracks
-  DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(m_tracksName);
+  const DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(m_tracksName);
+  //const DataVector<xAOD::TrackParticle>* trkPs = m_trackSelection->selectTracksParticle(m_tracksName);
+
+
+  
 
   float xv=-999;
   float yv=-999;
   float zv=-999;
 
-  if (evtStore()->contains<VxContainer>(m_VxPrimContainerName)) {
-    StatusCode scv = evtStore()->retrieve (m_vertices,m_VxPrimContainerName);
+  if (evtStore()->contains<xAOD::VertexContainer>(m_VxPrimContainerName)) {
+    StatusCode scv = evtStore()->retrieve(m_vertices,m_VxPrimContainerName);
     if (scv.isFailure()) {
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name  "<<m_VxPrimContainerName<<" found in StoreGate" << endreq;
       return StatusCode::SUCCESS;
     } else {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name  "<<m_VxPrimContainerName<< " with size " << m_vertices->size() <<" found  in StoreGate" << endreq;
   
-      VxContainer::const_iterator vxItr  = m_vertices->begin();
-      VxContainer::const_iterator vxItrE = m_vertices->end();    
+      xAOD::VertexContainer::const_iterator vxItr  = m_vertices->begin();
+      xAOD::VertexContainer::const_iterator vxItrE = m_vertices->end();    
       int ntrkMax=0;
       for (; vxItr != vxItrE; ++vxItr) {
-        int numTracksPerVertex = (*vxItr)->vxTrackAtVertex()->size();
+	const xAOD::Vertex* theVertex = (*vxItr);
+	if(!theVertex->vxTrackAtVertexAvailable()) continue;
+	const std::vector< Trk::VxTrackAtVertex >& theTrackAtVertex = theVertex->vxTrackAtVertex();
+        int numTracksPerVertex = theTrackAtVertex.size();
+	ATH_MSG_DEBUG("Size of TrackAtVertex: " << numTracksPerVertex);
         if (numTracksPerVertex>ntrkMax) {
           ntrkMax=numTracksPerVertex;
-          xv=(*vxItr)->recVertex().position()[0];
-          yv=(*vxItr)->recVertex().position()[1];
-          zv=(*vxItr)->recVertex().position()[2];
-        }
+          xv=theVertex->position()[0];
+          yv=theVertex->position()[1];
+          zv=theVertex->position()[2];
+	}
       }
     }
-  } else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "StoreGate does not contain VxPrimaryCandidate Container" << endreq;
+    //std::cout << "xv, yv, zv: " << xv << ", " << yv << ", " << zv << std::endl;
+  } else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "StoreGate does not contain VxPrimaryCandidate Container" << endreq;
 
   if (xv==-999 || yv==-999 || zv==-999) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No vertex found => setting it to 0"<<endreq;
+    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No vertex found => setting it to 0"<<endreq;
     xv=0;yv=0;zv=0;
   }
 
 
   // Code is able to get a weight from an external file and appy it to all histograms
   double hweight = 1.;
-//   if ( m_applyHistWeight ){
-//     ATH_MSG_INFO("applying a weight != 1 for this job");
-//     m_hWeightInFile =  new TFile( m_hWeightInFileName.c_str() ,"read");
-    
-//     if ( m_hWeightInFile->IsZombie() || !(m_hWeightInFile->IsOpen()) ) {
-//       ATH_MSG_FATAL( " Problem reading TFile " << m_hWeightInFileName );
-//       return StatusCode::FAILURE;
-//     }
-   
-//     ATH_MSG_INFO("Opened  file containing the contraints" << m_hWeightInFileName);
-    
-    
-//     m_etapTWeight = (TH2F*) m_hWeightInFile -> Get( m_hWeightHistName.c_str() );
-//     if( !m_etapTWeight ){
-//       ATH_MSG_FATAL( " Problem getting constraints Hist.  Name " << m_hWeightHistName );
-//       m_hWeightInFile -> Close();
-//       delete m_hWeightInFile;
-//       return StatusCode::FAILURE;
-//     }
-    
-//     ATH_MSG_INFO("Opened contraints histogram " << m_hWeightHistName);
-    
-//   }
-  
   // NB the weight is a "per track" weight, so histograms such as BS info are never weighted
-  
+ 
   if (m_doIP) fillVertexInformation();
 
   float beamSpotX = 0.;
@@ -1706,7 +1704,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
   const DataHandle<EventInfo> eventInfo;
   if (StatusCode::SUCCESS != evtStore()->retrieve( eventInfo ) ){
     msg(MSG::ERROR) << "Cannot get event info." << endreq;
-    delete trks;
+    //delete trkPs;
     return StatusCode::FAILURE;
   }
   //EventID* eventID = eventInfo->event_ID();
@@ -1737,9 +1735,16 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
 
   DataVector<Trk::Track>::const_iterator trksItr  = trks->begin();
   DataVector<Trk::Track>::const_iterator trksItrE = trks->end();
-  for (; trksItr != trksItrE; ++trksItr) {
-    nTracks++;  
+  
+  //DataVector<xAOD::TrackParticle>::const_iterator trkPsItr  = trkPs->begin();
+  //DataVector<xAOD::TrackParticle>::const_iterator trkPsItrE = trkPs->end();
 
+  
+
+  for (; trksItr != trksItrE; ++trksItr) {
+    
+    nTracks++;  
+    
     
     double chi2Prob=0.;
     float chisquared     = 0.;
@@ -1779,7 +1784,9 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
     
     if (m_doIP){
       const Trk::VxCandidate* vtx =  findAssociatedVertex( *trksItr );
+      //const xAOD::Vertex* vtx =  findAssociatedVertexTP(*trkPsItr);
       //Get unbiased impact parameter
+      
       if (vtx) myIPandSigma = m_trackToVertexIPEstimator->estimate(*trksItr, vtx, true);
     } 
     
@@ -1811,7 +1818,8 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
       // would rather corrected for the beamline but could not find beamline
       trkd0c=trkd0-(yv*cos(trkphi)-xv*sin(trkphi));
       trkz0c=trkz0-zv;
-      
+      ATH_MSG_DEBUG("trkd0, trkd0c" << trkd0 << ", " << trkd0c);
+
       // correct the track parameters for the beamspot position
       beamX = beamSpotX + tan(beamTiltX) * (trkz0-beamSpotZ);
       beamY = beamSpotY + tan(beamTiltY) * (trkz0-beamSpotZ);
@@ -1982,6 +1990,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
       m_trk_pT_vs_eta_barrel        -> Fill(trketa, trkpt         , hweight);
 
       if(m_doIP && myIPandSigma){
+		
         m_trk_d0_wrtPV_vs_phi_vs_eta_barrel->Fill(trketa, trkphi, myIPandSigma->IPd0, hweight);
         m_trk_z0_wrtPV_vs_phi_vs_eta_barrel->Fill(trketa, trkphi, myIPandSigma->IPz0, hweight);
       }
@@ -2066,8 +2075,12 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
     m_z0_pvcorr  -> Fill(trkz0c, hweight);
     m_z0sintheta_pvcorr -> Fill(trkz0c*(sin(trktheta)), hweight);
     m_d0        -> Fill(trkd0, hweight);
-    m_d0_pvcorr -> Fill(trkd0c      , hweight);
     m_d0_bscorr -> Fill(d0bscorr    , hweight);
+    m_d0_pvcorr -> Fill(trkd0c      , hweight);
+    if(m_doIP && myIPandSigma){
+      m_trk_d0_wrtPV -> Fill(myIPandSigma->IPd0, hweight);
+      m_trk_z0_wrtPV -> Fill(myIPandSigma->IPz0, hweight);
+      }
     m_pT        -> Fill(charge*trkpt, hweight);
     m_P         -> Fill(trkP        , hweight);
     if(charge>0) m_pT_p -> Fill(trkpt, hweight);
@@ -2267,6 +2280,8 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
   ptlast = 0;
   trksItr  = trks->begin();
   for (; trksItr != trksItrE; ++trksItr) {     
+    //const Trk::Track* trksItr = (*trkPsItr)->track();
+    
     float trkphi   = -999;
     float trktheta = -999;
     float trkpt    = -999;
@@ -2338,7 +2353,7 @@ StatusCode IDAlignMonGenericTracks::fillHistograms()
 
   }
 
-  delete trks;
+  //delete trkPs;
 
   return StatusCode::SUCCESS;
 }
@@ -2398,7 +2413,18 @@ void IDAlignMonGenericTracks::ProcessAsymHistograms(TH1F* m_neg, TH1F* m_pos, TH
 }
 
 
+const xAOD::Vertex* IDAlignMonGenericTracks::findAssociatedVertexTP(const xAOD::TrackParticle *track) const
+{
 
+  std::map<const xAOD::TrackParticle*, const xAOD::Vertex* >::iterator tpVx =  m_trackVertexMapTP.find( track);
+
+  if (tpVx == m_trackVertexMapTP.end() ){
+    ATH_MSG_VERBOSE("Did not find the vertex. Returning 0");
+    return 0;
+  } 
+  return (*tpVx).second;
+
+}
 
 
 const Trk::VxCandidate* IDAlignMonGenericTracks::findAssociatedVertex(const Trk::Track *track) const
@@ -2441,38 +2467,40 @@ const Trk::Track* IDAlignMonGenericTracks::getTrkTrack(const Trk::VxTrackAtVerte
 
 bool IDAlignMonGenericTracks::fillVertexInformation() const
 {
-  m_trackVertexMap.clear();
-  ATH_MSG_DEBUG( "fillVertexInformation()" );
-  const VxContainer* vxContainer(0);
+  ATH_MSG_DEBUG("Generic Tracks: fillVertexInformation(): Checking ");
+  m_trackVertexMapTP.clear();
+  const xAOD::VertexContainer* vxContainer(0);
   StatusCode sc = evtStore()->retrieve(vxContainer, m_VxPrimContainerName);
   if (sc.isFailure()) {
-    ATH_MSG_WARNING( "Could not retrieve primary vertex info: " << m_VxPrimContainerName );
+    ATH_MSG_WARNING("Could not retrieve primary vertex info: " << m_VxPrimContainerName);
     return false;
   }
   
   
   ATH_MSG_DEBUG( "Found primary vertex info: " << m_VxPrimContainerName );
   if(vxContainer) {
-    ATH_MSG_DEBUG("Nb of reco primary vertex for coll "
+    ATH_MSG_VERBOSE("Nb of reco primary vertex for coll "
                       << " = " << vxContainer->size() );
 
 
-    VxContainer::const_iterator vxI = vxContainer->begin();
-    VxContainer::const_iterator vxE = vxContainer->end();
+    xAOD::VertexContainer::const_iterator vxI = vxContainer->begin();
+    xAOD::VertexContainer::const_iterator vxE = vxContainer->end();
     for(; vxI!=vxE; ++vxI) {
-      int nbtk = 0;
-      const std::vector<Trk::VxTrackAtVertex*>* tracks = (*vxI)->vxTrackAtVertex();
-      if(tracks) nbtk = tracks->size();
-      if (nbtk > 4 ) {
-        for(int ivtk=0;ivtk<nbtk;ivtk++) {
-          Trk::VxTrackAtVertex* trk = tracks->at(ivtk);
-          if(trk) {
-            const Trk::Track* trktrk = getTrkTrack( trk );
-            m_trackVertexMap.insert( std::make_pair( trktrk, *vxI )  );
+      //int nbtk = 0;
+      //const std::vector<Trk::VxTrackAtVertex*>* tracks = (*vxI)->vxTrackAtVertex();
+      auto tpLinks = (*vxI)->trackParticleLinks();
+      ATH_MSG_DEBUG("tpLinks size " << tpLinks.size());
+
+      if (tpLinks.size() > 4 ) {
+	for(auto link: tpLinks) {
+	  const xAOD::TrackParticle *TP = *link;
+          if(TP) {
+            m_trackVertexMapTP.insert( std::make_pair( TP, *vxI )  );
           }
         }
       }
     }
   }
+ 
   return true;
 }
