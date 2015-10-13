@@ -38,7 +38,7 @@ addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getEtaGreater5Par
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getSubDetStickyGeant4SimSelector"        , "ISF_SubDetStickyGeant4SimSelector"       )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getGlobalStickyGeant4SimSelector"        , "ISF_GlobalStickyGeant4SimSelector"       )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultFastCaloSimSelector"           , "ISF_DefaultFastCaloSimSelector"          )
-addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastCaloSimPileupSelector"            , "ISF_FastCaloSimPileupSelector"          )
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastCaloSimPileupSelector"            , "ISF_FastCaloSimPileupSelector"           )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastHitConvAlgFastCaloSimSelector"    , "ISF_FastHitConvAlgFastCaloSimSelector"   )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultLegacyAFIIFastCaloSimSelector" , "ISF_DefaultLegacyAFIIFastCaloSimSelector")
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFastHitConvAlgLegacyAFIIFastCaloSimSelector" , "ISF_FastHitConvAlgLegacyAFIIFastCaloSimSelector")
@@ -49,7 +49,8 @@ addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultGeant4S
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultAFIIGeant4Selector"            , "ISF_DefaultAFIIGeant4Selector"           )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getDefaultLongLivedGeant4Selector"       , "ISF_DefaultLongLivedGeant4Selector"      )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFullGeant4Selector"                   , "ISF_FullGeant4Selector"                  )
-addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getPassBackGeant4Selector"               , "ISF_PassBackGeant4Selector"                  )
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getPassBackGeant4Selector"               , "ISF_PassBackGeant4Selector"              )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFatrasPileupSelector"                 , "ISF_FatrasPileupSelector"                )
+addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFatrasPileupSelector_noHits"          , "ISF_FatrasPileupSelector_noHits"         )
 addTool("ISF_SimulationSelectors.ISF_SimulationSelectorsConfig.getFatrasRandomSelector"                 , "ISF_FatrasRandomSelector"                )
 

@@ -1,11 +1,11 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
-#include "ISF_SimulationSelectors/DefaultSimSelector.h"
-#include "ISF_SimulationSelectors/KinematicSimSelector.h"
-#include "ISF_SimulationSelectors/TruthAssocSimSelector.h"
-#include "ISF_SimulationSelectors/HistorySimSelector.h"
-#include "ISF_SimulationSelectors/ConeSimSelector.h"
-#include "ISF_SimulationSelectors/PileupSimSelector.h"
-#include "ISF_SimulationSelectors/RandomSimSelector.h"
+#include "../DefaultSimSelector.h"
+#include "../KinematicSimSelector.h"
+#include "../TruthAssocSimSelector.h"
+#include "../HistorySimSelector.h"
+#include "../ConeSimSelector.h"
+#include "../PileupSimSelector.h"
+#include "../RandomSimSelector.h"
 
 DECLARE_NAMESPACE_TOOL_FACTORY( ISF , DefaultSimSelector         )
 DECLARE_NAMESPACE_TOOL_FACTORY( ISF , KinematicSimSelector       )

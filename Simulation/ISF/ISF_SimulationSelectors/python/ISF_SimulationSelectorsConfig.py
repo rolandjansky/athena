@@ -82,7 +82,13 @@ def getDefaultFatrasNewExtrapolationSelector(name="ISF_DefaultFatrasNewExtrapola
     return getDefaultSimSelector(name, **kwargs )
 
 def getFatrasPileupSelector(name="ISF_FatrasPileupSelector", **kwargs): 
+    kwargs.setdefault("PileupBCID"   , [1] )    
     kwargs.setdefault("Simulator"   , getService('ISF_FatrasPileupSimSvc'))
+    return getPileupSimSelector(name, **kwargs )
+
+def getFatrasPileupSelector_noHits(name="ISF_FatrasPileupSelector_noHits", **kwargs):    
+    kwargs.setdefault("PileupBCID"   , [2] )    
+    kwargs.setdefault("Simulator"   , getService('ISF_FatrasPileupSimSvc_noHits'))
     return getPileupSimSelector(name, **kwargs )
 
 def getFatrasRandomSelector(name="ISF_FatrasRandomSelector", **kwargs):
@@ -201,14 +207,8 @@ def getElectronsMuonsConeSimSelector(name="ISF_ElectronsMuonsConeSimSelector", *
     return ISF__ConeSimSelector(name, **kwargs)
 
 def getHiggsLeptonsConeGeant4CaloSelector(name="ISF_HiggsLeptonsConeGeant4CaloSelector", **kwargs):
-    # set tracking geometry (use Fatras for now)    
-    kwargs.setdefault( 'ExtrapolateToCaloEntry', 1 )
-    kwargs.setdefault( "TrackingGeometrySvc", getService("AtlasTrackingGeometrySvc") )
-
-    atlasExtrapolator = getPublicTool("AtlasExtrapolator")
-    atlasExtrapolator.ApplyMaterialEffects=False
-    kwargs.setdefault("Extrapolator" , atlasExtrapolator )      
-
+    kwargs.setdefault( 'ExtrapolateToCaloEntry', True                           )
+    kwargs.setdefault( 'Extrapolator'          , 'ISF_CaloEntryTrkExtrapolator' )
     return getHiggsLeptonsConeGeant4Selector(name, **kwargs)
 
 def getWLeptonsConeGeant4Selector(name="ISF_WLeptonsConeGeant4Selector", **kwargs):

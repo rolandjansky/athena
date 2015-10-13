@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class include
-#include "ISF_SimulationSelectors/HistorySimSelector.h"
+#include "HistorySimSelector.h"
 
 // ISF includes
 #include "ISF_Event/ISFParticle.h"

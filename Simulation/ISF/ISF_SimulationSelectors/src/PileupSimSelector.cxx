@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class include
-#include "ISF_SimulationSelectors/PileupSimSelector.h"
+#include "PileupSimSelector.h"
 // HepMC includes
 #include "ISF_Event/ISFParticle.h"
 // Units includes
@@ -52,7 +52,7 @@ bool  ISF::PileupSimSelector::passSelectorCuts(const ISFParticle& particle) cons
   // test to see if extra barcode BCID is in list to accept
   // if no ExtraBC present, default to BCID 0
 
-  int extrabc=particle.getUserInformation()!=0 ? particle.getUserInformation()->getExtraBC() : -1;
+  int extrabc = particle.getExtraBC();
   int bcid2=0;
   if (extrabc>=0) {
     bcid2=m_bitcalculator.GetBCID(extrabc);

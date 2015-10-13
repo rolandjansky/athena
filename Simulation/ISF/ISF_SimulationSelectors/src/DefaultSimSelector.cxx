@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class include
-#include "ISF_SimulationSelectors/DefaultSimSelector.h"
+#include "DefaultSimSelector.h"
 // HepMC includes
 #include "ISF_Event/ISFParticle.h"
 // Units includes
