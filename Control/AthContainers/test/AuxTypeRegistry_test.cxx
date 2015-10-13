@@ -15,10 +15,15 @@
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/exceptions.h"
 #include "AthLinks/ElementLink.h"
-#include "SGTools/CLASS_DEF.h"
-#include "TestStore.icc"
 #include <iostream>
 #include <cassert>
+
+
+#ifndef XAOD_STANDALONE
+#include "TestStore.icc"
+#include "SGTools/CLASS_DEF.h"
+CLASS_DEF (std::vector<int*>, 28374627, 0)
+#endif
 
 
 struct Payload
@@ -315,13 +320,11 @@ void test_get_by_ti()
 }
 
 
-CLASS_DEF (std::vector<int*>, 28374627, 0)
-
-
 void test_copyForOutput()
 {
   std::cout << "test_copyForOutput\n";
 
+#ifndef XAOD_STANDALONE
   typedef ElementLink<std::vector<int*> > EL;
   EL el1 (123, 10);
   EL el2;
@@ -356,12 +359,16 @@ void test_copyForOutput()
   assert (v2[0].index() == 5);
   assert (v2[1].key() == 456);
   assert (v2[1].index() == 12);
+#endif
 }
 
 
 int main()
 {
+#ifndef XAOD_STANDALONE
   SG::getDataSourcePointerFunc = getTestDataSourcePointer;
+#endif
+
   test2();
   test_placeholder();
   test_factories();

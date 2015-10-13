@@ -59,6 +59,8 @@ void test_get_data()
   const AuxVectorData& cb1 = b1;
   SG::auxid_t ityp = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt");
   EXPECT_EXCEPTION (SG::ExcNoAuxStore, b1.getData<int> (ityp, 0));
+  EXPECT_EXCEPTION (SG::ExcNoAuxStore, cb1.getDataArray (ityp));
+  EXPECT_EXCEPTION (SG::ExcNoAuxStore, cb1.getDataArrayAllowMissing (ityp));
 
   SG::AuxStoreInternal store;
   SG::IConstAuxStore* cstore = &store;
@@ -86,6 +88,8 @@ void test_get_data()
   assert (!b1.isAvailableWritableAsDecoration<int> ("anInt"));
   EXPECT_EXCEPTION (SG::ExcConstAuxData, b1.getData<int> (ityp, 0));
   EXPECT_EXCEPTION (SG::ExcBadAuxVar, cb1.getData<int> (ityp, 0));   
+  EXPECT_EXCEPTION (SG::ExcBadAuxVar, cb1.getDataArray (ityp));
+  assert (cb1.getDataArrayAllowMissing (ityp) == nullptr);
 
   b1.setStore (&store);
   assert (b1.getConstStore() == &store);
@@ -104,6 +108,8 @@ void test_get_data()
   assert (b1.isAvailable<int> ("anInt"));
   assert (b1.isAvailableWritable<int> ("anInt"));
   assert (b1.isAvailableWritableAsDecoration<int> ("anInt"));
+  assert (reinterpret_cast<const int*>(cb1.getDataArray (ityp))[1] == 2);
+  assert (reinterpret_cast<const int*>(cb1.getDataArrayAllowMissing (ityp))[1] == 2);
 
   b1.setStore (cstore);
   assert (!b1.hasNonConstStore());

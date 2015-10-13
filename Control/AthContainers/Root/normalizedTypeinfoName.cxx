@@ -33,15 +33,10 @@ namespace {
 
 typedef SG_STD_OR_SG::unordered_map<const std::type_info*, std::string>
   typemap_t;
-typemap_t normalizedTypemap;
 
 typedef AthContainers_detail::upgrade_mutex mutex_t;
 typedef AthContainers_detail::strict_shared_lock<mutex_t> lock_t;
 typedef AthContainers_detail::upgrading_lock<mutex_t> upgrading_lock_t;
-mutex_t normalizedTypemapMutex;
-
-
-CxxUtils::ClassName::Rules normalizeRules;
 
 
 void initRules (CxxUtils::ClassName::Rules& rules)
@@ -127,6 +122,9 @@ namespace SG {
  */
 std::string normalizedTypeinfoName (const std::type_info& info)
 {
+  static typemap_t normalizedTypemap;
+  static mutex_t normalizedTypemapMutex;
+
   // First test to see if we already have this mapping.
   // For this, use a read lock.
   {
@@ -135,6 +133,8 @@ std::string normalizedTypeinfoName (const std::type_info& info)
     if (it != normalizedTypemap.end())
       return it->second;
   }
+
+  static CxxUtils::ClassName::Rules normalizeRules;
 
   // Didn't find it.  Take out an upgrading lock.
   {

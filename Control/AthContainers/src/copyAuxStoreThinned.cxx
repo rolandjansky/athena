@@ -63,6 +63,9 @@ void copyAuxStoreThinned (const SG::IConstAuxStore& orig,
   
   // Loop over all the variables of the original container:
   ATHCONTAINERS_FOREACH (SG::auxid_t auxid, auxids) {
+    // Skip null auxids (happens if we don't have the dictionary)
+    if(auxid == SG::null_auxid) continue;
+
     // Skip non-selected dynamic variables.
     if (dyn_auxids.count(auxid) > 0 && sel_auxids.count(auxid) == 0)
       continue;

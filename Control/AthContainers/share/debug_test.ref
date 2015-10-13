@@ -1,0 +1,128 @@
+test1
+bar::foo
+test2
+... set ...
+2 ::xint [int]
+3 ::xfloat [float]
+... store ...
+2 ::xint [int]
+3 ::xfloat [float]
+2 ::xint [int]
+3 ::xfloat [float]
+... vec ...
+2 ::xint [int]
+3 ::xfloat [float]
+2 ::xint [int]
+3 ::xfloat [float]
+... elt ...
+2 ::xint [int]
+3 ::xfloat [float]
+2 ::xint [int]
+3 ::xfloat [float]
+test3
+a_int -2
+a_uint 10
+a_short 10
+a_ushort 20
+a_char a
+a_uchar b
+a_long 50
+a_ulong 60
+a_llong 50
+a_ullong 60
+a_float 123.500
+a_double 223.500
+a_bool 1
+a_intvec [1, -2, 3]
+a_uintvec [1, 2, 3]
+a_shortvec [4, 5, 6]
+a_ushortvec [7, 8, 9]
+a_chartvec [a, b, c]
+a_uchartvec [d, e, f]
+a_longvec [10, 11, 12]
+a_ulongvec [13, 14, 15]
+a_llongvec [16, 17, 18]
+a_ullongvec [19, 20, 21]
+a_floatvec [1.100, 1.200, 1.300]
+a_doublevec [2.100, 2.200, 2.300]
+a_boolvec [1, 0, 1]
+a_a <??? A>
+test4
+... print elt 1 from  store
+::xfloat 2.500
+::xint 2
+::xvint [13, 14, 15]
+... print elt 0 from  store
+::xfloat 1.500
+::xint 1
+::xvint [10, 11, 12]
+
+... print entire store
+=== Element 0
+::xfloat 1.500
+::xint 1
+::xvint [10, 11, 12]
+=== Element 1
+::xfloat 2.500
+::xint 2
+::xvint [13, 14, 15]
+=== Element 2
+::xfloat 3.500
+::xint 3
+::xvint [16, 17, 18]
+=== Element 0
+::xfloat 1.500
+::xint 1
+::xvint [10, 11, 12]
+=== Element 1
+::xfloat 2.500
+::xint 2
+::xvint [13, 14, 15]
+=== Element 2
+::xfloat 3.500
+::xint 3
+::xvint [16, 17, 18]
+
+... print elt 1 from  vec
+::xfloat 2.500
+::xint 2
+::xvint [13, 14, 15]
+... print elt 0 from  vec
+::xfloat 1.500
+::xint 1
+::xvint [10, 11, 12]
+
+... print entire vec
+=== Element 0
+::xfloat 1.500
+::xint 1
+::xvint [10, 11, 12]
+=== Element 1
+::xfloat 2.500
+::xint 2
+::xvint [13, 14, 15]
+=== Element 2
+::xfloat 3.500
+::xint 3
+::xvint [16, 17, 18]
+=== Element 0
+::xfloat 1.500
+::xint 1
+::xvint [10, 11, 12]
+=== Element 1
+::xfloat 2.500
+::xint 2
+::xvint [13, 14, 15]
+=== Element 2
+::xfloat 3.500
+::xint 3
+::xvint [16, 17, 18]
+
+... print elt 1
+::xfloat 2.500
+::xint 2
+::xvint [13, 14, 15]
+... print elt 0
+::xfloat 1.500
+::xint 1
+::xvint [10, 11, 12]

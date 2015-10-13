@@ -37,10 +37,15 @@ class UDSLabelHashTable {
   hash_t hash(const std::string& label) const;
   const std::string& getLabel(const hash_t number) const;
   hash_t addLabel(const std::string& label);
+  void addLabel(const std::string& label, hash_t hash);
 
   std::vector<const std::string*> getAllLabels() const;
 
   size_t size() const {return m_hashLabels.size();}
+
+  typedef std::map<hash_t, std::string>::const_iterator const_iterator;
+  const_iterator begin() const { return m_hashLabels.begin(); }
+  const_iterator end()   const { return m_hashLabels.end();   }
 
  private:
   std::map<hash_t, std::string> m_hashLabels;

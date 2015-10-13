@@ -472,9 +472,15 @@ void AuxElement::copyAux (const AuxElement& other)
   SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
 
   ATHCONTAINERS_FOREACH (SG::auxid_t auxid, other_ids) {
-    void* dst = m_container->getDataArray (auxid);
-    const void* src = ocont->getDataArray (auxid);
-    r.copy (auxid, dst, m_index, src, oindex);
+    const void* src = ocont->getDataArrayAllowMissing (auxid);
+    if (src) {
+      void* dst = m_container->getDataArray (auxid);
+      r.copy (auxid, dst, m_index, src, oindex);
+    }
+    else {
+      void* dst = m_container->getDataArray (auxid);
+      r.clear (auxid, dst, m_index);
+    }
   }
 
   ATHCONTAINERS_FOREACH (SG::auxid_t auxid, m_container->getWritableAuxIDs()) {

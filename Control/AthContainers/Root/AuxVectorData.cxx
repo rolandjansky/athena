@@ -233,11 +233,9 @@ bool AuxVectorData::isAvailableOol (auxid_t id) const
 {
   const SG::IConstAuxStore* store = getConstStore();
   if (!store) return false;
-  const SG::auxid_set_t& ids = store->getAuxIDs();
-  // Check if it's already in memory:
-  if( ids.find (id) != ids.end() ) return true;
 
-  // Check if it can be loaded from the input:
+  // Don't rely on getAuxIDs() --- the store can lie.
+  // Explicitly try to fetch the data.
   const void* ptr = store->getData (id);
   if (ptr) {
     m_constCache.store (id, const_cast<void*> (ptr));
@@ -283,12 +281,14 @@ bool AuxVectorData::isAvailableWritableAsDecorationOol (auxid_t id) const
 /**
  * @brief Out-of-line portion of data access.
  * @param auxid aux data item being accessed.
+ * @param allowMissing If true, then return nullptr if the variable
+ *                     is missing rather than throwing an exception.
  *
  * When this function returns, the cache entry @c m_cache[auxid]
  * will be valid.  That entry is also returned.  If there's an error,
  * the function will throw  an exception rather than returning.
  */
-void* AuxVectorData::getDataOol (SG::auxid_t auxid)
+void* AuxVectorData::getDataOol (SG::auxid_t auxid, bool allowMissing)
 {
   guard_t guard (m_mutex);
 
@@ -303,14 +303,15 @@ void* AuxVectorData::getDataOol (SG::auxid_t auxid)
     throw SG::ExcNoAuxStore (auxid);
 
   // Check that we got a good pointer back, otherwise throw.
-  if (!ptr)
+  if (ptr) {
+    m_cache.store (auxid, ptr);
+
+    // Set the same entry in the other caches as well.
+    m_constCache.store (auxid, ptr);
+    m_decorCache.store (auxid, ptr);
+  }
+  else if (!allowMissing)
     throw SG::ExcBadAuxVar (auxid);
-
-  m_cache.store (auxid, ptr);
-
-  // Set the same entry in the other caches as well.
-  m_constCache.store (auxid, ptr);
-  m_decorCache.store (auxid, ptr);
 
   return ptr;
 }
@@ -319,12 +320,15 @@ void* AuxVectorData::getDataOol (SG::auxid_t auxid)
 /**
  * @brief Out-of-line portion of data access (const version).
  * @param auxid aux data item being accessed.
+ * @param allowMissing If true, then return nullptr if the variable
+ *                     is missing rather than throwing an exception.
  *
  * When this function returns, the cache entry @c m_constCache[auxid]
  * will be valid.  That entry is also returned.  If there's an error,
  * the function will throw  an exception rather than returning.
  */
-const void* AuxVectorData::getDataOol (SG::auxid_t auxid) const
+const void* AuxVectorData::getDataOol (SG::auxid_t auxid,
+                                       bool allowMissing) const
 {
   guard_t guard (m_mutex);
 
@@ -337,10 +341,11 @@ const void* AuxVectorData::getDataOol (SG::auxid_t auxid) const
     throw SG::ExcNoAuxStore (auxid);
 
   // Check that we got a good pointer back, otherwise throw.
-  if (!ptr)
+  if (ptr)
+    m_constCache.store (auxid, const_cast<void*>(ptr));
+  else if (!allowMissing)
     throw SG::ExcBadAuxVar (auxid);
 
-  m_constCache.store (auxid, const_cast<void*>(ptr));
   return ptr;
 }
 
@@ -426,6 +431,7 @@ AuxVectorData::Cache::Cache (Cache&& rhs)
 AuxVectorData::Cache& AuxVectorData::Cache::operator= (Cache&& rhs)
 {
   if (this != &rhs) {
+    clear();
     m_cache_len = rhs.m_cache_len;
     m_allcache = std::move (rhs.m_allcache);
     
