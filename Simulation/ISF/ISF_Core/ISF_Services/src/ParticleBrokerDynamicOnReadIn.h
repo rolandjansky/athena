@@ -98,7 +98,6 @@ namespace ISF {
       /** Query the interfaces. **/
       StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
   
-      void registerParticle( ISFParticle* particle, ISF::EntryLayer layer=ISF::fUnsetEntryLayer, bool takeOwnership=false); // will register particle on entry layer of next region or exit layer if MS
 
     private:
       /** Default constructor */
@@ -183,8 +182,6 @@ namespace ISF {
       float                                     m_val_x, m_val_y, m_val_z;
 
       ISF::SimulationFlavor                     m_simflavor;
-
-      std::vector<ISF::ISFParticle*>            m_extraParticles;
   };
 
   /** Get the current stack size */
