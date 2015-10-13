@@ -221,7 +221,7 @@ def TrigIDtrkMonitoringTool():
 			"Offline",
 #			"HLT_tau.*idperf.*_track.*:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
 #			"HLT_tau.*idperf.*_track.*:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3"
-			"HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_TauIso_IDTrig:roi=forID3",
+			"HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
 			"HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3",
 			"HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1"
 			]
@@ -241,7 +241,7 @@ def TrigIDtrkMonitoringTool():
 			"Offline",
 #			"HLT_tau.*idperf.*_track.*:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
 #			"HLT_tau.*idperf.*_track.*:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3"
-			"HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_TauIso_IDTrig:roi=forID3",
+			"HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
 			"HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3",
 			"HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1"
 			]
