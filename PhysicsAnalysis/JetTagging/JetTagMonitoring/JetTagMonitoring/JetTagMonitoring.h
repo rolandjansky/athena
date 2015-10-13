@@ -86,6 +86,7 @@ private:
     void fillJetHistograms();
     void fillGoodJetHistos(const xAOD::Jet *jet);
     void fillSuspectJetHistos(const xAOD::Jet *jet);
+    void fillBadJetHistos(const xAOD::Jet *jet);
     void fillDetailedHistograms(const xAOD::Jet *jet);
     //void fillElectronHistograms(const xAOD::Jet *jet);
     //void fillMuonHistograms(const xAOD::Jet *jet);
@@ -175,7 +176,37 @@ private:
    
     /** @brief To monitor likelihood weight based on MV2c20 tagger. */
     TH1F_LW* m_tag_mv2c20_w = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_pT10_20 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_pT20_50 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_pT50_100 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_pT100_200 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_pT200 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta0_05 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta05_10 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta10_15 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta15_20 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta20_25 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi0_07 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi07_14 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi14_21 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi21_28 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_phi28 = nullptr;
     TH1F_LW* m_tag_mv2c20_w_sj = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_pT10_20 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_pT20_50 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_pT50_100 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_pT100_200 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_pT200 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta0_05 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta05_10 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta10_15 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta15_20 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_eta20_25 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi0_07 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi07_14 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi14_21 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi21_28 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_sj_phi28 = nullptr;
     /** @brief To monitor number of Jets. */
     TH1F_LW* m_jet_n = nullptr;
     /** @brief To monitor number of TrackParticles. */
@@ -258,6 +289,7 @@ private:
     TH2F_LW* m_jet_2D_kinematic_LS = nullptr;
     TH2F_LW* m_jet_2D_quality = nullptr;
     TH2F_LW* m_jet_2D_suspect = nullptr;
+    TH2F_LW* m_jet_2D_bad = nullptr;
 
     /** @brief 2D map of tag rates. */
     TH2F_LW* m_sv1ip3d_tag_pos_rate_2D = nullptr;
@@ -292,6 +324,8 @@ private:
     TH2F_LW* m_tracks_fitChi2_2D = nullptr;
     TH2F_LW* m_tracks_fitProb_2D = nullptr;
     TH2F_LW* m_tracks_fitChi2OnNdfMax_2D = nullptr;
+
+    TH2F_LW* m_tracks_passedCuts_2D = nullptr;
 
     TH2F_LW* m_tracks_all_2D_LS = nullptr;
     TH2F_LW* m_tracks_pTMin_2D_LS = nullptr;
