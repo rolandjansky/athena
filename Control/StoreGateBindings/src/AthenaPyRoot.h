@@ -30,15 +30,6 @@
 
 namespace PyROOT {
 
-class PyRootClass {
-public:
-  PyHeapTypeObject fType;      // placeholder, in a single block with the TClassRef
-  TClassRef fClass;
-
-private:
-  PyRootClass() {}
-};
-
 inline
 void throw_py_exception (bool display = true)
 {
@@ -56,21 +47,6 @@ void throw_py_exception (bool display = true)
   }
   throw PyROOT::TPyException();
 }
-
-class ObjectProxy {
-public:
-  TClass* ObjectIsA() const
-  {
-    return ((PyRootClass*)ob_type)->fClass.GetClass(); // may return null
-  }
-
-public:
-  PyObject_HEAD
-  void*     fObject;
-  int       fFlags;
-};
-
-PyObject* BindRootObject( void* object, TClass* klass, Bool_t isRef = kFALSE );
 
 } //> namespace PyROOT
 

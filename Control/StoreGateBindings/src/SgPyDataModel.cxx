@@ -8,6 +8,28 @@
 
 CLID PyCLID = 72785480;
 
+namespace {
+
+
+TClass* objectIsA (PyObject* obj)
+{
+  PyObject* repr = PyObject_Repr (obj);
+  if (!repr) return nullptr;
+  const char* s = PyString_AsString (repr);
+  if (*s == '<') ++s;
+  if (strncmp (s, "ROOT.", 5) == 0)
+    s += 5;
+  const char* p = strstr (s, " object ");
+  if (!p) return nullptr;
+  std::string name (s, p-s);
+  TClass* cls = TClass::GetClass (name.c_str());
+  Py_DECREF (repr);
+  return cls;
+}
+
+
+}
+
 namespace SG {
   IClassIDSvc* PyDataBucket::s_clidSvc = 0;
   IClassIDSvc* PyDataBucket::clidSvc()
@@ -60,8 +82,14 @@ namespace SG {
 
     // this will be a conversion for a class instance only (see below:
     // verified that only a ObjectProxy is expected), so bind with cast
-    PyObject* value = PyROOT::BindRootObject(
-       address, TClass::GetClass( PyString_AS_STRING(pytp) ));
+    TClass* cls = TClass::GetClass (PyString_AS_STRING(pytp));
+    if (!cls) {
+      PyErr_Format( PyExc_TypeError, "Can't find TClass for `%s'",
+		    PyString_AS_STRING(pytp) );
+      return 0;
+    }
+    TClass* act_class = cls->GetActualClass (address);
+    PyObject* value = TPython::ObjectProxy_FromVoidPtr (address, act_class->GetName());
 
     if ( value && TPython::ObjectProxy_Check(value) ) {
       return ObjectProxy_ASVOIDPTR(value);
@@ -81,7 +109,7 @@ namespace SG {
     }
 
     // if requested type is same than myself ==> no conversion needed
-    TClass* tcls = ((PyROOT::ObjectProxy*)m_pyObj)->ObjectIsA();
+    TClass* tcls = objectIsA (m_pyObj);
     if ( tcls && (tinfo == *(tcls->GetTypeInfo())) ) {
       return ObjectProxy_ASVOIDPTR(m_pyObj);
     }
@@ -95,7 +123,15 @@ namespace SG {
 
     // this will be a conversion for a class instance only (see below:
     // verified that only a ObjectProxy is expected), so bind with cast
-    PyObject* value = PyROOT::BindRootObject(address, TClass::GetClass( tinfo ));
+    TClass* clsnew = TClass::GetClass (tinfo);
+    if (!clsnew) {
+      PyErr_SetString
+        ( PyExc_RuntimeError, 
+          "SG::PyDataBucket::cast() can't find TClass" );
+      return 0;
+    }
+    TClass* act_class = clsnew->GetActualClass (address);
+    PyObject* value = TPython::ObjectProxy_FromVoidPtr (address, act_class->GetName());
     PyErr_Clear();
 
     if ( value && TPython::ObjectProxy_Check(value) ) {

@@ -379,8 +379,9 @@ namespace SG {
 
       PyObject* pyproxy = NULL;
 
-      CLID id = CLID_NULL;
-      PyArg_Parse( pyclid, "l", &id );
+      unsigned int id_tmp = 0;
+      PyArg_Parse( pyclid, "I", &id_tmp );
+      CLID id = id_tmp;
       const std::string skey = ( pykey == Py_None )
         ? ""
         : PyString_AS_STRING(pykey);
