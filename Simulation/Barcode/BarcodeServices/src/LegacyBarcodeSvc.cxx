@@ -26,7 +26,7 @@ Barcode::LegacyBarcodeSvc::LegacyBarcodeSvc(const std::string& name,ISvcLocator*
   m_doUnderOverflowChecks(true)
 {
   // python properties
-  declareProperty("FirstVertexBarcode"         ,  m_firstVertex=-200001                );
+  declareProperty("FirstSecondaryVertexBarcode",  m_firstVertex=-200001                );
   declareProperty("VertexIncrement"            ,  m_vertexIncrement=-1                 );
   declareProperty("FirstSecondaryBarcode"      ,  m_firstSecondary=200001              );
   declareProperty("SecondaryIncrement"         ,  m_secondaryIncrement=1               );
@@ -127,6 +127,18 @@ void Barcode::LegacyBarcodeSvc::registerLargestGenEvtParticleBC( Barcode::Partic
 
 
 void Barcode::LegacyBarcodeSvc::registerLargestGenEvtVtxBC( Barcode::VertexBarcode /* bc */) {
+}
+
+
+/** Return the secondary particle offset */
+Barcode::ParticleBarcode Barcode::LegacyBarcodeSvc::secondaryParticleBcOffset() const {
+  return m_firstSecondary;
+}
+
+
+/** Return the secondary vertex offset */
+Barcode::VertexBarcode Barcode::LegacyBarcodeSvc::secondaryVertexBcOffset() const {
+  return m_firstVertex;
 }
 
 

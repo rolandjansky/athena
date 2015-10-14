@@ -26,7 +26,7 @@ Barcode::GlobalBarcodeSvc::GlobalBarcodeSvc(const std::string& name,ISvcLocator*
   m_encodePhysicsProcess(true)
 {
   // python properties
-  declareProperty("FirstVertexBarcode"            ,  m_firstVertex=-200000        );
+  declareProperty("FirstSecondaryVertexBarcode"   ,  m_firstVertex=-200000        );
   declareProperty("VertexIncrement"               ,  m_vertexIncrement=-1000000   );
   declareProperty("FirstSecondaryBarcode"         ,  m_firstSecondary=200001      );
   declareProperty("SecondaryIncrement"            ,  m_secondaryIncrement=1       );
@@ -127,6 +127,18 @@ void Barcode::GlobalBarcodeSvc::registerLargestGenEvtParticleBC( Barcode::Partic
 
 
 void Barcode::GlobalBarcodeSvc::registerLargestGenEvtVtxBC( Barcode::VertexBarcode /* bc */) {
+}
+
+
+/** Return the secondary particle offset */
+Barcode::ParticleBarcode Barcode::GlobalBarcodeSvc::secondaryParticleBcOffset() const {
+  return m_firstSecondary;
+}
+
+
+/** Return the secondary vertex offset */
+Barcode::VertexBarcode Barcode::GlobalBarcodeSvc::secondaryVertexBcOffset() const {
+  return m_firstVertex;
 }
 
 

@@ -76,6 +76,10 @@ namespace Barcode {
       virtual ParticleBarcode incrementBarcode( ParticleBarcode oldBC,
                                                 PhysicsProcessCode process=Barcode::fUndefinedProcessCode );
 
+      /** Return the secondary particle and vertex offsets */
+      virtual Barcode::ParticleBarcode secondaryParticleBcOffset() const;
+      virtual Barcode::VertexBarcode   secondaryVertexBcOffset()  const;
+
       /** Inform the BarcodeSvc about the largest particle and vertex Barcodes
           in the event input */
       virtual void registerLargestGenEvtParticleBC( ParticleBarcode bc);
