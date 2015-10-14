@@ -214,6 +214,10 @@ StatusCode ISF::HepMC_TruthSvc::initializeTruthCollection()
     m_mcEventCollection->push_back( m_mcEvent);
   }
 
+  // retrieve secondary particle barcode and vertex barcode offsets from the BarcodeService
+  m_myLowestVertexBC          = m_barcodeSvcQuick->secondaryVertexBcOffset();
+  m_secondaryParticleBcOffset = m_barcodeSvcQuick->secondaryParticleBcOffset();
+
   return StatusCode::SUCCESS;
 }
 
@@ -289,13 +293,6 @@ void ISF::HepMC_TruthSvc::registerTruthIncident( ISF::ITruthIncident& ti) {
 
 /** Record the given truth incident to the MC Truth */
 void ISF::HepMC_TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
-  // FIXME: shouldn't we use the barcode service to get these numbers, rather
-  //        thank hard-code them?
-  static int myLowestVertex = -200000 , myFirstSecondary = 200000;
-  //if (myLowestVertex>0){ // first time only
-  //  myLowestVertex = m_barcodeSvcQuick->getProperty( "FirstVertexBarcode" ) + 1;
-  //  myFirstSecondary = m_barcodeSvcQuick->getProperty( "FirstSecondaryBarcode" ) - 1;
-  //}
 
   Barcode::PhysicsProcessCode processCode = ti.physicsProcessCode();
   Barcode::ParticleBarcode       parentBC = ti.parentBarcode();
@@ -354,11 +351,12 @@ void ISF::HepMC_TruthSvc::recordIncidentToMCTruth( ISF::ITruthIncident& ti) {
       vtx->add_particle_out( p);
 
       // Check to see if this is meant to be a "parent" vertex
-      if ( p && p->barcode() < myFirstSecondary){
-        vtx->suggest_barcode( myLowestVertex );
-        ++myLowestVertex;
+      if ( p && p->barcode() < m_secondaryParticleBcOffset ){
+        vtx->suggest_barcode( m_myLowestVertexBC );
+        ++m_myLowestVertexBC;
         if (m_quasiStableParticlesIncluded){
-          ATH_MSG_VERBOSE( "Found a case of low barcode (" << p->barcode() << " < " << myFirstSecondary << " changing vtx barcode to " << myLowestVertex+1 );
+          ATH_MSG_VERBOSE( "Found a case of low barcode (" << p->barcode() << " < " <<
+                           m_secondaryParticleBcOffset  << " changing vtx barcode to " << m_myLowestVertexBC+1 );
         } else {
           ATH_MSG_WARNING( "Modifying vertex barcode, but no apparent quasi-stable particle simulation enabled." );
           ATH_MSG_WARNING( "This means that you have encountered a very strange configuration.  Watch out!" );
