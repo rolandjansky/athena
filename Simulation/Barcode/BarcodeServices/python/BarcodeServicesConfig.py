@@ -13,7 +13,7 @@ from AthenaCommon.SystemOfUnits import *
 from AthenaCommon.DetFlags import DetFlags
 
 def getMC15BarcodeSvc(name="Barcode_MC15BarcodeSvc", **kwargs):
-    kwargs.setdefault("FirstVertexBarcode"            ,  -1000001 )
+    kwargs.setdefault("FirstSecondaryVertexBarcode"   ,  -1000001 )
     kwargs.setdefault("VertexIncrement"               ,        -1 )
     kwargs.setdefault("FirstSecondaryBarcode"         ,   1000001 )
     kwargs.setdefault("SecondaryIncrement"            ,         1 )
@@ -25,7 +25,7 @@ def getMC15BarcodeSvc(name="Barcode_MC15BarcodeSvc", **kwargs):
     return Barcode__GenericBarcodeSvc(name, **kwargs)
 
 def getMC12BarcodeSvc(name="Barcode_MC12BarcodeSvc", **kwargs):
-    kwargs.setdefault("FirstVertexBarcode"          , -200001)
+    kwargs.setdefault("FirstSecondaryVertexBarcode" , -200001)
     kwargs.setdefault("VertexIncrement"             , -1)
     kwargs.setdefault("FirstSecondaryBarcode"       , 200001)
     kwargs.setdefault("SecondaryIncrement"          , 1)
@@ -48,7 +48,7 @@ def getMC15aBarcodeSvc(name="Barcode_MC15aBarcodeSvc", **kwargs):
 
 def getPhysicsProcessBarcodeSvc(name="Barcode_PhysicsProcessBarcodeSvc", **kwargs):
     kwargs.setdefault("EncodePhysicsProcessInVertexBC",  False  )
-    kwargs.setdefault("FirstVertexBarcode"            , -200000 )
+    kwargs.setdefault("FirstSecondaryVertexBarcode"   , -200000 )
     kwargs.setdefault("VertexIncrement"               , -1000000)
     kwargs.setdefault("FirstSecondaryBarcode"         ,  200001 )
     kwargs.setdefault("SecondaryIncrement"            ,  1      )
@@ -57,7 +57,7 @@ def getPhysicsProcessBarcodeSvc(name="Barcode_PhysicsProcessBarcodeSvc", **kwarg
     getMC15BarcodeSvc(name, **kwargs)
 
 def getGlobalBarcodeSvc(name="Barcode_GlobalBarcodeSvc", **kwargs):
-    kwargs.setdefault("FirstVertexBarcode"            ,  -200000    );
+    kwargs.setdefault("FirstSecondaryVertexBarcode"   ,  -200000    );
     kwargs.setdefault("VertexIncrement"               ,  -1000000   );
     kwargs.setdefault("FirstSecondaryBarcode"         ,   200001    );
     kwargs.setdefault("SecondaryIncrement"            ,   1         );
@@ -69,7 +69,7 @@ def getGlobalBarcodeSvc(name="Barcode_GlobalBarcodeSvc", **kwargs):
 
 
 def getValidationBarcodeSvc(name="Barcode_ValidationBarcodeSvc", **kwargs):
-    kwargs.setdefault("FirstVertexBarcode"          , -200001)
+    kwargs.setdefault("FirstSecondaryVertexBarcode" , -200001)
     kwargs.setdefault("VertexIncrement"             , -1)
     kwargs.setdefault("FirstSecondaryBarcode"       , 200001)
     kwargs.setdefault("SecondaryIncrement"          , 1)

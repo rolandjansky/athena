@@ -84,6 +84,10 @@ namespace Barcode {
       virtual void registerLargestGenEvtParticleBC( ParticleBarcode bc);
       virtual void registerLargestGenEvtVtxBC( VertexBarcode bc);
 
+      /** Return the secondary particle and vertex offsets */
+      virtual Barcode::ParticleBarcode secondaryParticleBcOffset() const;
+      virtual Barcode::VertexBarcode   secondaryVertexBcOffset()  const;
+
     private:
       ServiceHandle<IIncidentSvc>                   m_incidentSvc;   //!< IncidentSvc to catch begin of event and end of envent
 
