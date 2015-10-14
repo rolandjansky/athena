@@ -35,7 +35,15 @@ public:
   /**
    * @brief Return the name of class @c T as a string.
    */
-  static std::string name();
+  static std::string name()
+#ifdef __GNUC__
+    // Force this function to appear as a symbol in the output file,
+    // even in an optimized build where it's always inlined.
+    // Otherwise, we get complaints from cling that it can't find the symbol
+    // (as of root 6.04).
+    __attribute__ ((used))
+#endif
+    ;
 };
 
 

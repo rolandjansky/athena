@@ -43,8 +43,8 @@ namespace SG {
   
     virtual ~DataBucket();
   
-    // DATAOBJECT METHODS --- FIXME not virtual! derived buckets?
-    const CLID& clID() const;  
+    // DATAOBJECT METHODS
+    virtual const CLID& clID() const ATH_OVERRIDE;
     static const CLID& classID();
 
     // return the pointer as a void*

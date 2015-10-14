@@ -263,6 +263,11 @@ DataObject* DataProxy::accessData()
     return 0;
   }
 
+  // An address provider called by isValidAddress may have set the object
+  // pointer directly, rather than filling in the address.  So check
+  // the cached object pointer again.
+  if (0 != m_dObject) return m_dObject;  // cached object
+
   DataObject* obj(0);
   StatusCode sc = m_dataLoader->createObj(m_tAddress->address(), obj);
 

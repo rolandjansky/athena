@@ -504,7 +504,15 @@ typename BaseInfo<T>::instance_holder BaseInfo<T>::s_instance;
 template <class T>
 struct RegisterBaseInit
 {
-  RegisterBaseInit();
+  RegisterBaseInit()
+#ifdef __GNUC__
+    // Force this function to appear as a symbol in the output file,
+    // even in an optimized build where it's always inlined.
+    // Otherwise, we get complaints from cling that it can't find the symbol
+    // (as of root 6.04).
+    __attribute__ ((used))
+#endif
+  ;
 };
 
 
