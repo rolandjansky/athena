@@ -239,7 +239,7 @@ namespace Trk {
   }
 
 
-//assignement operator changed
+//assignment operator changed
   VxTrackAtVertex & VxTrackAtVertex::operator= (const VxTrackAtVertex& rhs)
   {
     if (this!=&rhs)
@@ -262,6 +262,44 @@ namespace Trk {
       m_VertexCompatibility=rhs.m_VertexCompatibility;
       delete m_trackOrParticleLink;
       m_trackOrParticleLink = (rhs.m_trackOrParticleLink ? rhs.m_trackOrParticleLink->clone() : 0);
+    }
+    return *this;
+  }
+
+  VxTrackAtVertex & VxTrackAtVertex::operator= (VxTrackAtVertex&& rhs)
+  {
+    if (this!=&rhs)
+    {
+      m_fitQuality = rhs.m_fitQuality;
+      m_trkWeight = rhs.m_trkWeight;
+
+      delete m_perigeeAtVertex;
+      m_perigeeAtVertex = rhs.m_perigeeAtVertex;
+      rhs.m_perigeeAtVertex = nullptr;
+
+      delete m_neutralPerigeeAtVertex;
+      m_neutralPerigeeAtVertex = rhs.m_neutralPerigeeAtVertex;
+      rhs.m_neutralPerigeeAtVertex = nullptr;
+
+      delete m_linState;
+      m_linState = rhs.m_linState;
+      rhs.m_linState = nullptr;
+
+      m_initialPerigee = rhs.m_initialPerigee;
+      m_initialNeutralPerigee = rhs.m_initialNeutralPerigee;
+      m_VertexCompatibility=rhs.m_VertexCompatibility;
+
+      delete m_ImpactPoint3dAtaPlane;
+      m_ImpactPoint3dAtaPlane = rhs.m_ImpactPoint3dAtaPlane;
+      rhs.m_ImpactPoint3dAtaPlane = nullptr;
+
+      delete m_ImpactPoint3dNeutralAtaPlane;
+      m_ImpactPoint3dNeutralAtaPlane = rhs.m_ImpactPoint3dNeutralAtaPlane;
+      rhs.m_ImpactPoint3dNeutralAtaPlane = nullptr;
+
+      delete m_trackOrParticleLink;
+      m_trackOrParticleLink = rhs.m_trackOrParticleLink;
+      rhs.m_trackOrParticleLink = nullptr;
     }
     return *this;
   }
