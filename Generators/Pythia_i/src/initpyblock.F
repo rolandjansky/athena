@@ -6,7 +6,8 @@
       COMMON/PYDAT4/CHAF(500,2)
       CHARACTER CHAF*16
       integer LULIS,IERR
-      CHARACTER*60 FILLIS
+c      CHARACTER* FILLIS
+      character(len=*) FILLIS
 c       This is the listing filefile
 
 c      write(6,*) '<<<<<<<<< Hello from initpyblock >>>>>>>  ' 

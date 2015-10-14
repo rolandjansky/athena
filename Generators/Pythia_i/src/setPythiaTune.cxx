@@ -178,7 +178,5 @@ StatusCode Pythia::setPythiaTune()
 	}        
     }
   //-----------------------------------------------------------------------------------------
-  // should meet a return condition before this  
-  ATH_MSG_WARNING ("setPythiaTune: No action by setPythiaTune, exit.");       
-  return StatusCode::SUCCESS;
+
 }//end of setPythiaTune definition
