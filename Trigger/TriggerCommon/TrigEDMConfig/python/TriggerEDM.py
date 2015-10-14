@@ -494,6 +494,13 @@ TriggerHLTList = [
     (chooseOneWithDefinedCCLID('xAOD::HIEventShapeAuxContainer_v1', 
                                'xAOD::HIEventShapeAuxContainer')+'#HLT_HIUEAux.',                   'BS ESD AODFULL AODSLIM', 'HeavyIon'),
 
+    # R=0.4 jets
+    ('xAOD::JetContainer#HLT_a4ionemsubjesFS', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a4ionemsubjesFSAux.', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    # R=0.3 jets
+    ('xAOD::JetContainer#HLT_a3ionemsubjesFS', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a3ionemsubjesFSAux.', 'BS ESD AODFULL AODSLIM', 'Jet'),
+
     # start of L2+EF list
 
     # rois == L2 List
