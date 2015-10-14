@@ -9,10 +9,11 @@ use AtlasExternalArea          AtlasExternalArea-*     External
 
 ## Uncomment line below to test with YODA installation in /afs/.cern.ch
 #macro LCG_ROOT "/afs/.cern.ch/sw/lcg"
+#macro myLCG_config_version "67c"
 
-#macro YODA_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/yoda"
+#macro YODA_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(myLCG_config_version)/yoda"
 macro YODA_home "$(LCG_external)/MCGenerators/yoda"
-macro YODA_version "1.3.1"
+macro YODA_version "1.5.5"
 macro YODA_native_version "$(YODA_version)_lcgcmt$(LCG_config_version)"
 macro YODA_dir "$(YODA_home)/$(YODA_version)/$(LCG_ext_system)"
 macro YODA_lib "$(YODA_dir)/lib"
