@@ -13,12 +13,12 @@ use YODA                       YODA-*                  External
 ## Uncomment line below to test with Rivet installation in /afs/.cern.ch
 #macro LCG_ROOT "/afs/.cern.ch/sw/lcg"
 #macro LCG_external "$(LCG_ROOT)/external"
+#macro myLCG_config_version "67c"
 
-#macro Rivet_home "$(LCG_external)/MCGenerators_lcgcmt$(LCG_config_version)/rivet"
+#macro Rivet_home "$(LCG_external)/MCGenerators_lcgcmt$(myLCG_config_version)/rivet"
 macro Rivet_home "$(LCG_external)/MCGenerators/rivet"
-macro Rivet_version "2.2.1"
-# NOTE "a" added to the version number to ensure that it is picked up for pcache build - to be removed by version update
-macro Rivet_native_version "$(Rivet_version)a_lcgcmt$(LCG_config_version)"
+macro Rivet_version "2.4.0"
+macro Rivet_native_version "$(Rivet_version)_lcgcmt$(LCG_config_version)"
 macro Rivet_dir "$(Rivet_home)/$(Rivet_version)/$(LCG_ext_system)"
 macro Rivet_lib "$(Rivet_dir)/lib"
 macro Rivet_share "$(Rivet_dir)/share"
