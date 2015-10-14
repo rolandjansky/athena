@@ -21,6 +21,7 @@
  *  @author      Kirill Prokofiev <Kirill.Prokofiev@cern.ch>
  */
 
+class ExtendedVxCandidateCnv_p1;
 
 namespace Trk
 {
@@ -72,6 +73,7 @@ namespace Trk
    const Amg::MatrixX * fullCovariance(void) const;
   
   private:
+   friend class ::ExtendedVxCandidateCnv_p1;
  
 /**
  * Full covariance matrix of the vertex and all corresponding
