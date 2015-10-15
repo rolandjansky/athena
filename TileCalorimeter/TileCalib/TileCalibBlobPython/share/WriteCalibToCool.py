@@ -20,8 +20,10 @@ def usage():
     print "-c, --channel   if present, means that one constant per channel is expected (i.e. no gain field)"
     print "-d, --default   if present, means that also default values stored in AUX01-AUX20 should be updated"
     print "-a, --all       if present, means that all drawers are saved, otherwise only those which were updated"
-    print "-z, --zerp      if present, means that zero-sized blob is written for missing drawers"
-    print "-g, -gain=      specify number of gains to store to DB, default is 2"
+    print "-z, --zero      if present, means that zero-sized blob is written for missing drawers"
+    print "-Z, --allzero   if present, means that zero-sized blob is created for all drawers which are not present in input file"
+    print "-C, --nchannel= specify number of channels to store to DB, default is 48"
+    print "-G, --ngain=    specify number of gains to store to DB, default is 2"
     print "-n, --nval=     specify number of values to store to DB, default is 0 - means all"
     print "-v, --version=  specify blob version, by default version from input DB is used" 
     print "-x, --txtfile=  specify the text file with the new constants for reading"
@@ -31,8 +33,8 @@ def usage():
     print "-s, --schema=     specify input/output schema to use when both input and output schemas are the same"
     print "-u  --update      set this flag if output sqlite file should be updated, otherwise it'll be recreated"
     
-letters = "hr:l:s:i:o:t:T:f:F:g:n:v:x:p:dcazu"
-keywords = ["help","run=","lumi=","schema=","inschema=","outschema=","tag=","outtag=","folder=","outfolder=","gain=","nval=","version=","txtfile=","prefix=","default","channel","all","zero","update"]
+letters = "hr:l:s:i:o:t:T:f:F:C:G:n:v:x:p:dcazZu"
+keywords = ["help","run=","lumi=","schema=","inschema=","outschema=","tag=","outtag=","folder=","outfolder=","nchannel=","ngain=","nval=","version=","txtfile=","prefix=","default","channel","all","zero","allzero","update"]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
@@ -55,6 +57,7 @@ readGain=True
 rosmin = 1
 all=False
 zero=False
+allzero=False
 nchan = 48
 ngain = 2
 nval = 0
@@ -82,8 +85,10 @@ for o, a in opts:
         outSchema = a
     elif o in ("-n","--nval"):
         nval = int(a)
-    elif o in ("-g","--gain"):
+    elif o in ("-G","--ngain"):
         ngain = int(a)
+    elif o in ("-C","--nchannel"):
+        nchan = int(a)
     elif o in ("-v","--version"):
         blobVersion = int(a)
     elif o in ("-d","--default"):
@@ -94,6 +99,8 @@ for o, a in opts:
         all = True
     elif o in ("-z","--zero"):
         zero = True
+    elif o in ("-Z","--allzero"):
+        allzero = True
     elif o in ("-u","--update"):
         update = True
     elif o in ("-r","--run"):
@@ -140,13 +147,15 @@ log = getLogger("WriteCalibToCool")
 import logging
 log.setLevel(logging.DEBUG)
 
-if run<0:
+if run==0: begin=(0,0)
+if run<=0:
     run=TileCalibTools.getLastRunNumber()
     log.warning( "Run number is not specified, using current run number %d" %run )
     if run<0:
         log.error( "Bad run number" )
         sys.exit(2)
 since = (run, lumi)
+if not "begin" in dir(): begin=since
 until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)
 
 #=== set database
@@ -190,8 +199,8 @@ if flt:
     mval=flt.getObjSizeUint32()
     log.info( "Blob type: %d  version: %d  Nchannels: %d  Ngains: %d  Nval: %d" % (blobT,blobV,mchan,mgain,mval) )
     if blobVersion<0: blobVersion = blobV 
-    if nchan<mchan:   nchan=mchan
-    if ngain<mgain:   ngain=mgain
+    if nchan<1: nchan=mchan
+    if ngain<1: ngain=mgain
 else:
     if nchan<1: nchan=TileCalibUtils.max_chan()
     if ngain<1: ngain=TileCalibUtils.max_gain()
@@ -234,6 +243,8 @@ for ros in xrange(rosmin,5):
             #=== loop over gains
             for adc in xrange(ngain):
                 data = blobParser.getData(ros,mod,chn,adc)
+                if not len(data) and allzero:
+                    continue
                 if not len(data) and (not all or (not flt1 and not rosmin)):
                     if not rosmin: log.warning("%i/%2i/%2i/%i: No value found in file" % (ros,mod,chn,adc))
                     continue
@@ -306,9 +317,13 @@ for ros in xrange(rosmin,5):
                     nvdef+=1
                     val = calibDrawer.getData(chn,adc,n)
                     log.debug("%i/%2i/%2i/%i: def data[%i] = %s" % (ros,mod,chn,adc, n, val))
-        if zero and newDrawer:
+        if (zero or allzero) and newDrawer:
             blobWriter.zeroBlob(ros,mod)
-
+            if ros==0 and mod==0:
+                if blobVersion<0:
+                    blobVersion = flt.getObjVersion()
+                calibDrawer = blobWriter.getDrawer(ros,mod)
+                calibDrawer.init(defConst,1,blobVersion)
 
 log.info("%d/%d old channels*gains/values have been read from database" % (nold,nvold))
 log.info("%d/%d new channels*gains/values have been read from input ascii file" % (nnew,nvnew))
@@ -318,8 +333,8 @@ if ndef: log.info("%d/%d new channels*gains/values with default values have been
 
 #=== commit changes
 if mval:
-    blobWriter.setComment(os.getlogin(),("Update for run %i from file %s" % (run,txtFile)))
-    blobWriter.register(since, until, outfolderTag)
+    blobWriter.setComment(os.getlogin(),("Update for run %i from file %s" % (begin[0],txtFile)))
+    blobWriter.register(begin, until, outfolderTag)
 else:
     log.warning("Nothing to update")
 
