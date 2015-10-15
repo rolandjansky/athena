@@ -1,6 +1,7 @@
 #!/bin/env python
 # ReadBchFromCool.py  --schema='COOLOFL_TILE/CONDBR2'  --folder='OFL02' --tag='UPD4'
 # Sanya Solodkov 2011-07-15
+# change: Yuri Smirnov 2015-08-29, correction for EB* modules' nbad counter
 
 import getopt,sys,os,string
 os.environ['TERM'] = 'linux'
@@ -215,7 +216,7 @@ for ros in xrange(rosmin,5):
             print "%s ALL GOOD" % (modName)
         elif nBad==0:
             aff+=1
-        elif nBad==TileCalibUtils.max_gain()*TileCalibUtils.max_chan() or (nBad==90 and 'LB' in modName) or (nBad==32 and 'EB'in modName):
+        elif nBad==TileCalibUtils.max_gain()*TileCalibUtils.max_chan() or (nBad==90 and 'LB' in modName) or (nBad==64 and 'EB'in modName) or (nBad==60 and 'EBA15' in modName) or (nBad==60 and 'EBC18' in modName):
             bad+=1
 if warn<0: 
     if miss: print "%3i drawers are missing in DB" % miss
