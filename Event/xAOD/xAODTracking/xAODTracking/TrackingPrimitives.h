@@ -165,19 +165,21 @@ namespace xAOD {
     /// A track in a CaloROI 
     TrackInCaloROI              = 41,
     /// Entries allowing to distinguish different seed makers
-    SiSpacePointsSeedMaker_ForwardTracks        = 42,
+    SiSpacePointsSeedMaker_ForwardTracks   = 42,
     /// L2Star strategies 
-      strategyA                                   = 43,
-      strategyB                                   = 44,
-      strategyC                                   = 45,
+    strategyA                              = 43,
+    strategyB                              = 44,
+    strategyC                              = 45,
     ///   for tracks from FTK
-      FTK                                        = 46,
+    FTK                                    = 46,
     ///  for tracks seeded by the FastTrackFinder
-      FastTrackFinderSeed                        = 47,
+    FastTrackFinderSeed                    = 47,
     //    for tracks processed by the trigger version of the SiSPSeededFinder
-      SiSPSeededFinderSimple                     = 48,
+    SiSPSeededFinderSimple                 = 48,
+    // Large d0 for displaced vertex searches
+    SiSpacePointsSeedMaker_LargeD0         = 49,
     ///maximum number of enums 
-      NumberOfTrackRecoInfo       = 49
+    NumberOfTrackRecoInfo                  = 50
   };
 
   enum ParticleHypothesis { nonInteracting  = 0,
