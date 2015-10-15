@@ -97,10 +97,6 @@ if jtm.haveParticleJetTools:
   from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
   from ParticleJetTools.ParticleJetToolsConf import ParticleJetDeltaRLabelTool
 
-
-ghostScaleFactor = 1e-40
-
-
 #--------------------------------------------------------------
 # Track selection.
 #--------------------------------------------------------------
@@ -214,7 +210,7 @@ jtm += JetConstituentsRetriever(
   UseJetConstituents = True,
   PseudojetRetriever = jtm.jpjretriever,
   GhostLabels = labs,
-  GhostScale = ghostScaleFactor
+  GhostScale = 1.e-20
 )
 
 #--------------------------------------------------------------
@@ -260,7 +256,7 @@ jtm += TrackPseudoJetGetter(
   OutputContainer = "PseudoJetGhostTracks",
   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
   SkipNegativeEnergy = True,
-  GhostScale = ghostScaleFactor
+  GhostScale = 1e-20
 )
 
 # Muon segments
@@ -337,7 +333,7 @@ jtm += PseudoJetGetter(
   Label = "GhostAntiKt2TrackJet",   # this is the name you'll use to retrieve associated ghosts
   OutputContainer = "PseudoJetGhostAntiKt2TrackJet",
   SkipNegativeEnergy = True,
-  GhostScale = ghostScaleFactor,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
+  GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
 )
 
 # AntiKt3 track jets.
@@ -347,7 +343,7 @@ jtm += PseudoJetGetter(
   Label = "GhostAntiKt3TrackJet",   # this is the name you'll use to retrieve associated ghosts
   OutputContainer = "PseudoJetGhostAntiKt3TrackJet",
   SkipNegativeEnergy = True,
-  GhostScale = ghostScaleFactor,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
+  GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
 )
 
 # AntiKt4 track jets.
@@ -357,7 +353,7 @@ jtm += PseudoJetGetter(
   Label = "GhostAntiKt4TrackJet",   # this is the name you'll use to retrieve associated ghosts
   OutputContainer = "PseudoJetGhostAntiKt4TrackJet",
   SkipNegativeEnergy = True,
-  GhostScale = ghostScaleFactor,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
+  GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
 )
 
 # Truth.
@@ -385,7 +381,7 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
     Label = "GhostTruth",
     InputContainer = jtm.truthpartcopy.OutputName,
     OutputContainer = "PseudoJetGhostTruth",
-    GhostScale = ghostScaleFactor,
+    GhostScale = 1.e-20,
     SkipNegativeEnergy = True,
   )
 
@@ -397,7 +393,7 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
       Label = "Ghost" + ptype,
       OutputContainer = "PseudoJetGhost" + ptype,
       SkipNegativeEnergy = True,
-      GhostScale = ghostScaleFactor,
+      GhostScale = 1e-20
     )
 
   # ParticleJetTools tools may be omitted in analysi releases.
