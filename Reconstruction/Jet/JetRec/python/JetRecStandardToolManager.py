@@ -249,6 +249,8 @@ pflow_ungroomed_modifiers += topo_ungroomed_modifiers
 
 # Cluster moments.
 topo_ungroomed_modifiers += [jtm.clsmoms]
+topo_ungroomed_modifiers += [jtm.constfourmom]
+topo_ungroomed_modifiers += [jtm.ecpsfrac]
 
 # Modifiers for calibrated topo jets.
 calib_topo_ungroomed_modifiers = []
@@ -266,6 +268,16 @@ if jetFlags.useBTagging():
   topo_ungroomed_modifiers += btags
   calib_topo_ungroomed_modifiers += btags
 
+# EM only modifiers here
+emtopo_ungroomed_modifiers = []
+emtopo_ungroomed_modifiers += [jtm.constfourmom]
+emtopo_ungroomed_modifiers += topo_ungroomed_modifiers
+
+# LC-only modifiers here
+lctopo_ungroomed_modifiers = []
+lctopo_ungroomed_modifiers += [jtm.ecpsfrac]
+lctopo_ungroomed_modifiers += topo_ungroomed_modifiers
+
 # Filter out skipped tools.
 if len(jetFlags.skipTools()):
   print myname + "Tools to be skipped: " + str(jetFlags.skipTools())
@@ -277,6 +289,8 @@ if len(jetFlags.skipTools()):
   topo_groomed_modifiers          = filterout(jetFlags.skipTools(), topo_groomed_modifiers)
   groomed_modifiers               = filterout(jetFlags.skipTools(), groomed_modifiers)
   pflow_ungroomed_modifiers       = filterout(jetFlags.skipTools(), pflow_ungroomed_modifiers)
+  emtopo_ungroomed_modifiers        = filterout(jetFlags.skipTools(), emtopo_ungroomed_modifiers)
+  lctopo_ungroomed_modifiers        = filterout(jetFlags.skipTools(), lctopo_ungroomed_modifiers)
 
 # Add modifier lists to jtm indexed by modifier type name.
 jtm.modifiersMap["none"]                  = []
@@ -292,8 +306,8 @@ jtm.modifiersMap["groomed"]               =              list(groomed_modifiers)
 
 # Also index modifier type names by input type name.
 # These are used when the modifier list is omitted.
-jtm.modifiersMap["emtopo"]    =  list(topo_ungroomed_modifiers)
-jtm.modifiersMap["lctopo"]    =  list(topo_ungroomed_modifiers)
+jtm.modifiersMap["emtopo"]    =  list(emtopo_ungroomed_modifiers)
+jtm.modifiersMap["lctopo"]    =  list(lctopo_ungroomed_modifiers)
 jtm.modifiersMap["track"]     = list(track_ungroomed_modifiers)
 jtm.modifiersMap["ztrack"]    = list(track_ungroomed_modifiers)
 jtm.modifiersMap["pv0track"]  = list(track_ungroomed_modifiers)
