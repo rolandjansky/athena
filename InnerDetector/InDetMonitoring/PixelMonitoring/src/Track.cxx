@@ -153,6 +153,7 @@ StatusCode PixelMainMon::BookTrackMon(void)
      sc=trackHistos.regHist(m_track_eta       = TH1F_LW::create("m_Pixel_track_eta", ("Reconstructed eta of track" + m_histTitleExt + "; #eta;").c_str(), 40,-4.,4.));
      sc=trackHistos.regHist(m_tracks_per_lumi = TH1I_LW::create("tracks_per_lumi", ("Number of tracks per LB" + m_histTitleExt + ";lumi block;# tracks").c_str(),2500,-0.5,2499.5));
      sc=trackHistos.regHist(m_tracksPerEvt_per_lumi = TProfile_LW::create("tracksPerEvt_per_lumi", ("Number of tracks per event per LB" + m_histTitleExt + ";lumi block;tracks/event").c_str(),2500,-0.5,2499.5));
+     sc=trackHistos.regHist(m_tracksPerEvtPerMu_per_lumi = TProfile_LW::create("tracksPerEvtPerMu_per_lumi", ("Number of tracks per event per mu per LB (pixel tracks)" + m_histTitleExt + ";lumi block;tracks/event").c_str(),2500,-0.5,2499.5));
      sc=trackHistos.regHist(m_trackRate_per_lumi    = TH1F_LW::create("trackRate_per_lumi", ("Track rate per LB" + m_histTitleExt + ";lumi block;#tracks/sec").c_str(),2500,-0.5,2499.5));
      sc=trackHistos.regHist(m_track_dedx      = TH2F_LW::create("m_Pixel_track_dedx", ("Reconstructed dE/dx of track" + m_histTitleExt + "; momentum [MeV]; dE/dx [MeV g cm^{-2}]").c_str(),125,-2500,2500,100,0,10));
      sc=trackHistos.regHist(m_track_mass_dedx = TH1F_LW::create("m_Pixel_track_mass_dedx", ("Reconstructed mass using dE/dx of track" + m_histTitleExt + "; mass [MeV]; ").c_str(),125,0,2500));
@@ -436,6 +437,7 @@ StatusCode PixelMainMon::FillTrackMon(void)
       }
 
    if(m_tracksPerEvt_per_lumi) m_tracksPerEvt_per_lumi->Fill(m_manager->lumiBlockNumber(),nTracks);
+   if(m_tracksPerEvtPerMu_per_lumi) m_tracksPerEvtPerMu_per_lumi->Fill(m_manager->lumiBlockNumber(),nTracks/m_lumiTool->lbAverageInteractionsPerCrossing());
    if(m_doOnTrack || m_doOnPixelTrack)sort (m_RDOIDs.begin(), m_RDOIDs.end());
    if(m_doOnTrack || m_doOnPixelTrack)sort (m_ClusterIDs.begin(), m_ClusterIDs.end());
 

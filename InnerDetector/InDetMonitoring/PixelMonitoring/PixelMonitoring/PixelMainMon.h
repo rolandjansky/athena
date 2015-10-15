@@ -394,6 +394,7 @@ class PixelMainMon:public ManagedMonitorToolBase
     TH1I_LW*              m_tracks_per_lumi;
     TH1F_LW*              m_trackRate_per_lumi;
     TProfile_LW*          m_tracksPerEvt_per_lumi;
+    TProfile_LW*          m_tracksPerEvtPerMu_per_lumi;
     TH2F_LW*              m_track_dedx;
     TH1F_LW*              m_track_mass_dedx;
     TH2F_LW*              m_clustot_vs_pt;
@@ -588,7 +589,6 @@ class PixelMainMon:public ManagedMonitorToolBase
     TH1F_LW*              m_errorTypes;        
     TProfile_LW*          m_ErrorFraction_per_evt[ErrorCategory::COUNT][PixLayerIBL2D3D::COUNT];
     TProfile_LW*          m_errors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-    TProfile_LW*          m_Errors_per_lumi_IBL[32]; 
     TProfile_LW*          m_otherROD_per_lumi_IBL; 
     TProfile_LW*          m_chip_per_lumi_IBL; 
     TProfile_LW*          m_SyncErrors_per_lumi_mod[PixLayerIBL2D3D::COUNT];
@@ -605,31 +605,31 @@ class PixelMainMon:public ManagedMonitorToolBase
     PixelMon2DMapsLW*       m_ErrorStateMap[16];
     PixelMon2DLumiProfiles*       m_ErrorStateMap_per_LB[16];
     PixelMon2DMapsLW*       m_OpticalErrors;
-    PixelMon2DMapsLW*       m_OpticalErrors_per_evt;
+    //PixelMon2DMapsLW*       m_OpticalErrors_per_evt;
     PixelMon2DMapsLW*       m_SEU_Errors;
-    PixelMon2DMapsLW*       m_SEU_Errors_per_evt;
+    //PixelMon2DMapsLW*       m_SEU_Errors_per_evt;
     PixelMon2DMapsLW*       m_TimeoutErrors;
-    PixelMon2DMapsLW*       m_TimeoutErrors_per_evt;
+    //PixelMon2DMapsLW*       m_TimeoutErrors_per_evt;
     TH2F_LW*                m_SyncErrorsIBL; 
-    PixelMon2DMapsLW*       m_SyncErrors_per_evt;
+    //PixelMon2DMapsLW*       m_SyncErrors_per_evt;
     PixelMon2DMapsLW*       m_SyncErrors;  //to be removed ?
     PixelMon2DMapsLW*       m_SyncCategory;
     PixelMon2DMapsLW*       m_TruncationCategory;
     PixelMon2DMapsLW*       m_OpticalCategory;
     PixelMon2DMapsLW*       m_SEUCategory;
     PixelMon2DMapsLW*       m_TimeoutCategory;
-    PixelMon2DMapsLW*       m_TruncationErrors_per_evt;
+    //PixelMon2DMapsLW*       m_TruncationErrors_per_evt;
     PixelMon2DMapsLW*       m_TruncationErrors;  //to be removed ?
 
     TProfile_LW*          m_errorStates_per_lumi_mod[PixLayer::COUNT-1][16];
     TProfile2D_LW*        m_ErrorBit_per_lumi_mod[PixLayerIBL2D3D::COUNT];
     TProfile2D_LW*        m_Error_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-    TProfile_LW*          m_sync_rod_BCID_per_lumi_mod[PixLayer::COUNT-1];
+    //TProfile_LW*          m_sync_rod_BCID_per_lumi_mod[PixLayer::COUNT-1];
     TH1I_LW*              m_bad_mod_errors_mod[PixLayer::COUNT];
     TH2F_LW*              m_errors_etaid_mod[PixLayer::COUNT];
     //TH2F_LW*              m_errors_etaid_per_evt_mod[PixLayer::COUNT];
-    TH2F_LW*              m_mod_errormap_IBL;
-    TH1I_LW*              m_mod_errors_IBL;
+    //TH2F_LW*              m_mod_errormap_IBL;
+    //TH1I_LW*              m_mod_errors_IBL;
 
     PixelMon2DLumiMaps*        m_errors_int_LB[16];
 
@@ -743,20 +743,29 @@ class PixelMainMon:public ManagedMonitorToolBase
     TProfile2D_LW* m_hist_LB_moduleGroup_HVcurrent[IBLStave::COUNT];
     // FSMSTATE
     //TProfile2D_LW* m_hist_FSMstateEtaPhi;
-    TH2F_LW* m_hist_FSMstateEtaPhi;
+    //TH2F_LW* m_hist_FSMstateEtaPhi;
+    TH2F* m_hist_FSMstateEtaPhi;
     TH2F_LW* m_hist_FSMstate2Dscatter[IBLStave::COUNT];
     //TProfile_LW* m_hist_FSMstateLB[IBLStave::COUNT];
     TH2F_LW* m_hist_FSMstateLB[IBLStave::COUNT];
-    TProfile2D_LW* m_hist_LB_staveID_FSMstate;
-    TProfile2D_LW* m_hist_LB_moduleGroup_FSMstate[IBLStave::COUNT];
+    //TProfile2D_LW* m_hist_LB_staveID_FSMstate;
+    //TH2F_LW* m_hist_LB_staveID_FSMstate;
+    TH2F* m_hist_LB_staveID_FSMstate;
+    //TProfile2D_LW* m_hist_LB_moduleGroup_FSMstate[IBLStave::COUNT];
+    //TProfile2D* m_hist_LB_moduleGroup_FSMstate[IBLStave::COUNT];
+    TH2F* m_hist_LB_moduleGroup_FSMstate[IBLStave::COUNT];
     // FSMSTATUS
     //TProfile2D_LW* m_hist_FSMstatusEtaPhi;
-    TH2F_LW* m_hist_FSMstatusEtaPhi;
+    //TH2F_LW* m_hist_FSMstatusEtaPhi;
+    TH2F* m_hist_FSMstatusEtaPhi;
     TH2F_LW* m_hist_FSMstatus2Dscatter[IBLStave::COUNT];
     //TProfile_LW* m_hist_FSMstatusLB[IBLStave::COUNT];
     TH2F_LW* m_hist_FSMstatusLB[IBLStave::COUNT];
-    TProfile2D_LW* m_hist_LB_staveID_FSMstatus;
-    TProfile2D_LW* m_hist_LB_moduleGroup_FSMstatus[IBLStave::COUNT];
+    //TProfile2D_LW* m_hist_LB_staveID_FSMstatus;
+    //TH2F_LW* m_hist_LB_staveID_FSMstatus;
+    TH2F* m_hist_LB_staveID_FSMstatus;
+    //TProfile2D_LW* m_hist_LB_moduleGroup_FSMstatus[IBLStave::COUNT];
+    TH2F* m_hist_LB_moduleGroup_FSMstatus[IBLStave::COUNT];
     // PLANTS
 
     //// Combination histograms ////

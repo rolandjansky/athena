@@ -70,10 +70,10 @@ StatusCode PixelMainMon::BookPixelDCSMon(void)
   TString label_outletTemp = "Cooling Pipe Outlet Temperature [#circC]";
   TString label_HVoltage   = "HV [-V]";
   TString label_LVoltage   = "LV [V]";
-  TString label_HVcurrent  = "HV current [-A]";
+  TString label_HVcurrent  = "HV current [-mA]";
   TString label_LVcurrent  = "LV current [A]";
   TString label_dT  = "Module - Cooling Pipe Outlet Temperature [#circC]";
-  TString label_HVPC  = "HV Power Consumption [W]";
+  TString label_HVPC  = "HV Power Consumption [mW]";
   TString label_LVPC  = "LV Power Consumption [W]";
   TString label_LVHVPC  = "LV+HV Power Consumption [W]";
   TString label_effFLEXtemp  = "Effective FLEX Temperature [#circC]";
@@ -90,6 +90,8 @@ StatusCode PixelMainMon::BookPixelDCSMon(void)
   const int NUMFSM = 11;
   const char *FSMSTATE[NUMFSM]  = {"READY", "ON", "STANDBY", "LV_ON", "TRANSITION", "UNDEFINED", "LOCKED_OUT", "DISABLED", "OFF", "DEAD","UNKNOWN"};
   const char *FSMSTATUS[NUMFSM] = {"OK", "WARNING", "ERROR", "UNINITIALIZED", "DEAD", "5", "6", "7","8","9","UNKNOWN"};
+  TAxis *txaxis;
+  TAxis *tyaxis;
   LWHist::LWHistAxis *xaxis;
   LWHist::LWHistAxis *yaxis;
   for( int ii = 0; ii < IBLStave::COUNT; ii++){
@@ -141,7 +143,7 @@ StatusCode PixelMainMon::BookPixelDCSMon(void)
     }
     // pipe inlet
     sc = dcsExpert.regHist(m_hist_Pipes_inletLB[ii]
-        = TProfile_LW::create(Form("Pipes_inlet_temperature_S%02dvsLB",ii + 1), "Pipes_inlet_temperature vs LB; LB;"+label_inletTemp,nbins_LB,min_LB,max_LB));
+        = TProfile_LW::create(Form("Pipes_inlet_temperature_S%02dvsLB",ii + 1), "Pipes_inlet_temperature vs LB; LB;"+label_inletTemp+";Number of LBs",nbins_LB,min_LB,max_LB));
     //m_hist_Pipes_inletLB[ii]->SetLineColor(kGray);
     m_hist_Pipes_inletLB[ii]->SetMarkerSize(0.5);
     //sc = dcsExpert.regHist(m_hist_LB_moduleGroup_coolingPipeInlet[ii]
@@ -150,7 +152,7 @@ StatusCode PixelMainMon::BookPixelDCSMon(void)
     //m_hist_LB_moduleGroup_coolingPipeInlet[ii]->SetContour(99);
     // pipe outlet
     sc = dcsExpert.regHist(m_hist_Pipes_outletLB[ii]
-        = TProfile_LW::create(Form("Pipes_outlet_temperature_S%02dvsLB",ii + 1), "Pipes_outlet_temperature vs LB; LB;"+label_outletTemp,nbins_LB,min_LB,max_LB));
+        = TProfile_LW::create(Form("Pipes_outlet_temperature_S%02dvsLB",ii + 1), "Pipes_outlet_temperature vs LB; LB;"+label_outletTemp+";Number of LBs",nbins_LB,min_LB,max_LB));
     //m_hist_Pipes_outletLB[ii]->SetLineColor(kGray);
     m_hist_Pipes_outletLB[ii]->SetMarkerSize(0.5);
     //sc = dcsExpert.regHist(m_hist_LB_moduleGroup_coolingPipeOutlet[ii]
@@ -296,20 +298,24 @@ StatusCode PixelMainMon::BookPixelDCSMon(void)
     //sc = dcsExpert.regHist(m_hist_FSMstateLB[ii]
     //    = TProfile_LW::create(Form("FSM State_S%02dvsLB",ii + 1), "FSM State vs LB; LB;"+label_FSMstate,nbins_LB,min_LB,max_LB));
     sc = dcsExpert.regHist(m_hist_FSMstateLB[ii]
-        = TH2F_LW::create(Form("FSMstate_S%02dvsLB",ii + 1), "FSM State vs LB; LB;"+label_FSMstate,
+        = TH2F_LW::create(Form("FSMstate_S%02dvsLB",ii + 1), "FSM State vs LB; LB;"+label_FSMstate+";Number of Modules",
           nbins_LB,min_LB,max_LB, nbins_FSM, min_FSM, max_FSM));
     yaxis = m_hist_FSMstateLB[ii]->GetYaxis();
     for(int jj = 0; jj < NUMFSM; jj++){
       yaxis->SetBinLabel(jj+1, FSMSTATE[jj]);
     }
     sc = dcsExpert.regHist(m_hist_LB_moduleGroup_FSMstate[ii]
-        = TProfile2D_LW::create(Form("LB_moduleGroup_FSMstate_S%02dvsLB",ii + 1), "LB_moduleGroup_FSMstate; LB;moduleGoup;"+label_FSMstate,
+        = new TH2F(Form("LB_moduleGroup_FSMstate_S%02dvsLB",ii + 1), "LB_moduleGroup_FSMstate; LB;moduleGoup;"+label_FSMstate,
           nbins_LB,min_LB,max_LB,nbins_moduleGroup,min_moduleGroup,max_moduleGroup));
-    //m_hist_LB_moduleGroup_FSMstate[ii]->GetZaxis()->SetRangeUser(0, NUMFSM);
-    //m_hist_LB_moduleGroup_FSMstate[ii]->SetContour(NUMFSM);
-    yaxis = m_hist_LB_moduleGroup_FSMstate[ii]->GetYaxis();
+        //= new TProfile2D(Form("LB_moduleGroup_FSMstate_S%02dvsLB",ii + 1), "LB_moduleGroup_FSMstate; LB;moduleGoup;"+label_FSMstate,
+    m_hist_LB_moduleGroup_FSMstate[ii]->SetMaximum(NUMFSM);
+    m_hist_LB_moduleGroup_FSMstate[ii]->SetMinimum(0);
+    m_hist_LB_moduleGroup_FSMstate[ii]->SetContour(NUMFSM);
+    //yaxis = m_hist_LB_moduleGroup_FSMstate[ii]->GetYaxis();
+    tyaxis = m_hist_LB_moduleGroup_FSMstate[ii]->GetYaxis();
     for(int jj = 0; jj < NUMMODULEGROUP; jj++){
-      yaxis->SetBinLabel(jj+1, moduleGroup[jj]);
+      tyaxis->SetBinLabel(jj+1, moduleGroup[jj]);
+      //yaxis->SetBinLabel(jj+1, moduleGroup[jj]);
     }
     // FSM status
     sc = dcsExpert.regHist(m_hist_FSMstatus2Dscatter[ii]
@@ -327,20 +333,24 @@ StatusCode PixelMainMon::BookPixelDCSMon(void)
     //sc = dcsExpert.regHist(m_hist_FSMstatusLB[ii]
     //    = TProfile_LW::create(Form("FSM Status_S%02dvsLB",ii + 1), "FSM Status vs LB; LB;"+label_FSMstatus,nbins_LB,min_LB,max_LB));
     sc = dcsExpert.regHist(m_hist_FSMstatusLB[ii]
-        = TH2F_LW::create(Form("FSMstatus_S%02dvsLB",ii + 1), "FSM Status vs LB; LB;"+label_FSMstatus,
+        = TH2F_LW::create(Form("FSMstatus_S%02dvsLB",ii + 1), "FSM Status vs LB; LB;"+label_FSMstatus+";Number of Modules",
           nbins_LB,min_LB,max_LB, nbins_FSM, min_FSM, max_FSM));
     yaxis = m_hist_FSMstatusLB[ii]->GetYaxis();
     for(int jj = 0; jj < NUMFSM; jj++){
       yaxis->SetBinLabel(jj+1, FSMSTATUS[jj]);
     }
     sc = dcsExpert.regHist(m_hist_LB_moduleGroup_FSMstatus[ii]
-        = TProfile2D_LW::create(Form("LB_moduleGroup_FSMstatus_S%02dvsLB",ii + 1), "LB_moduleGroup_FSMstatus; LB;moduleGoup;"+label_FSMstatus,
+        = new TH2F(Form("LB_moduleGroup_FSMstatus_S%02dvsLB",ii + 1), "LB_moduleGroup_FSMstatus; LB;moduleGoup;"+label_FSMstatus,
           nbins_LB,min_LB,max_LB,nbins_moduleGroup,min_moduleGroup,max_moduleGroup));
-    //m_hist_LB_moduleGroup_FSMstatus[ii]->GetZaxis()->SetRangeUser(0, NUMFSM);
-    //m_hist_LB_moduleGroup_FSMstatus[ii]->SetContour(NUMFSM);
-    yaxis = m_hist_LB_moduleGroup_FSMstatus[ii]->GetYaxis();
+        //= new TProfile2D(Form("LB_moduleGroup_FSMstatus_S%02dvsLB",ii + 1), "LB_moduleGroup_FSMstatus; LB;moduleGoup;"+label_FSMstatus,
+    m_hist_LB_moduleGroup_FSMstatus[ii]->SetMaximum(NUMFSM);
+    m_hist_LB_moduleGroup_FSMstatus[ii]->SetMinimum(0);
+    m_hist_LB_moduleGroup_FSMstatus[ii]->SetContour(NUMFSM);
+    //yaxis = m_hist_LB_moduleGroup_FSMstatus[ii]->GetYaxis();
+    tyaxis = m_hist_LB_moduleGroup_FSMstatus[ii]->GetYaxis();
     for(int jj = 0; jj < NUMMODULEGROUP; jj++){
-      yaxis->SetBinLabel(jj+1, moduleGroup[jj]);
+      //yaxis->SetBinLabel(jj+1, moduleGroup[jj]);
+      tyaxis->SetBinLabel(jj+1, moduleGroup[jj]);
     }
   }
   // temperature
@@ -434,31 +444,47 @@ StatusCode PixelMainMon::BookPixelDCSMon(void)
   //    = TProfile2D_LW::create("FSMstate EtaPhi", "FSMstate EtaPhi; Module #eta Index;staveID;"+label_FSMstate,
   //      nbins_module,min_module,max_module,nbins_staveID,min_staveID,max_staveID));
   sc = dcsExpert.regHist(m_hist_FSMstateEtaPhi
-      = TH2F_LW::create("FSMstate_EtaPhi", "FSMstate EtaPhi; Module #eta Index;staveID;"+label_FSMstate,
+      = new TH2F("FSMstate_EtaPhi", "FSMstate EtaPhi; Module #eta Index;staveID;"+label_FSMstate,
         nbins_module,min_module,max_module,nbins_staveID,min_staveID,max_staveID));
-  xaxis = m_hist_FSMstateEtaPhi->GetXaxis();
+  m_hist_FSMstateEtaPhi->SetMaximum(NUMFSM);
+  m_hist_FSMstateEtaPhi->SetMinimum(0);
+  m_hist_FSMstateEtaPhi->SetContour(NUMFSM);
+  //xaxis = m_hist_FSMstateEtaPhi->GetXaxis();
+  txaxis = m_hist_FSMstateEtaPhi->GetXaxis();
   for(int jj = 0; jj < NUMMODULEETA; jj++){
-    xaxis->SetBinLabel(jj+1, moduleEta[jj]);
+    //xaxis->SetBinLabel(jj+1, moduleEta[jj]);
+    txaxis->SetBinLabel(jj+1, moduleEta[jj]);
   }
   sc = dcsExpert.regHist(m_hist_LB_staveID_FSMstate
-      = TProfile2D_LW::create("LB_staveID_FSMstate", "LB_staveID_FSMstate; LB;staveID;"+label_FSMstate,
+      = new TH2F("LB_staveID_FSMstate", "LB_staveID_FSMstate; LB;staveID;"+label_FSMstate,
         nbins_LB,min_LB,max_LB,nbins_staveID,min_staveID,max_staveID));
-  //m_hist_LB_staveID_FSMstate->SetContour(99);
+      //= TProfile2D_LW::create("LB_staveID_FSMstate", "LB_staveID_FSMstate; LB;staveID;"+label_FSMstate,
+  m_hist_LB_staveID_FSMstate->SetMaximum(NUMFSM);
+  m_hist_LB_staveID_FSMstate->SetMinimum(0);
+  m_hist_LB_staveID_FSMstate->SetContour(NUMFSM);
   // FSM status
   //sc = dcsExpert.regHist(m_hist_FSMstatusEtaPhi
   //    = TProfile2D_LW::create("FSMstatus EtaPhi", "FSMstatus EtaPhi; Module #eta Index;staveID;"+label_FSMstatus,
   //      nbins_module,min_module,max_module,nbins_staveID,min_staveID,max_staveID));
   sc = dcsExpert.regHist(m_hist_FSMstatusEtaPhi
-      = TH2F_LW::create("FSMstatus_EtaPhi", "FSMstatus EtaPhi; Module #eta Index;staveID;"+label_FSMstatus,
+      = new TH2F("FSMstatus_EtaPhi", "FSMstatus EtaPhi; Module #eta Index;staveID;"+label_FSMstatus,
         nbins_module,min_module,max_module,nbins_staveID,min_staveID,max_staveID));
-  xaxis = m_hist_FSMstatusEtaPhi->GetXaxis();
+  m_hist_FSMstatusEtaPhi->SetMaximum(NUMFSM);
+  m_hist_FSMstatusEtaPhi->SetMinimum(0);
+  m_hist_FSMstatusEtaPhi->SetContour(NUMFSM);
+  //xaxis = m_hist_FSMstatusEtaPhi->GetXaxis();
+  txaxis = m_hist_FSMstatusEtaPhi->GetXaxis();
   for(int jj = 0; jj < NUMMODULEETA; jj++){
-    xaxis->SetBinLabel(jj+1, moduleEta[jj]);
+    //xaxis->SetBinLabel(jj+1, moduleEta[jj]);
+    txaxis->SetBinLabel(jj+1, moduleEta[jj]);
   }
   sc = dcsExpert.regHist(m_hist_LB_staveID_FSMstatus
-      = TProfile2D_LW::create("LB_staveID_FSMstatus", "LB_staveID_FSMstatus; LB;staveID;"+label_FSMstatus,
+      = new TH2F("LB_staveID_FSMstatus", "LB_staveID_FSMstatus; LB;staveID;"+label_FSMstatus,
         nbins_LB,min_LB,max_LB,nbins_staveID,min_staveID,max_staveID));
-  //m_hist_LB_staveID_FSMstatus->SetContour(99);
+      //= TProfile2D_LW::create("LB_staveID_FSMstatus", "LB_staveID_FSMstatus; LB;staveID;"+label_FSMstatus,
+  m_hist_LB_staveID_FSMstatus->SetMaximum(NUMFSM);
+  m_hist_LB_staveID_FSMstatus->SetMinimum(0);
+  m_hist_LB_staveID_FSMstatus->SetContour(NUMFSM);
   // dT
   sc = dcsExpert.regHist(m_hist_dTEtaPhi
       = TProfile2D_LW::create("dT_EtaPhi", "dT EtaPhi; Module #eta Index;staveID;"+label_dT,
@@ -600,7 +626,7 @@ StatusCode PixelMainMon::FillPixelDCSMon(void)
   // m_atrcollist is initialised in PixelMainMon.cxx, containing DCS folder names (e.g. /PIXEL/DCS/TEMPERATURE)
   for (std::vector<std::string>::const_iterator itr=m_atrcollist.begin();
        itr!=m_atrcollist.end();++itr) {
-    ATH_MSG_INFO("execute(): Reading the data from " << *itr );
+    ATH_MSG_DEBUG("execute(): Reading the data from " << *itr );
     //const CondAttrListCollection* atrlistcol;
     sc = StatusCode::FAILURE;
     if(*itr == "/PIXEL/DCS/TEMPERATURE") {
@@ -956,6 +982,14 @@ StatusCode PixelMainMon::ProcPixelDCSMon(void)
          float tempModule = valueMap.second;
          float tempInlet  = m_moduleDCSDataHolder->m_tempInlet->at(moduleNum)->at(LB);
          float tempOutlet = m_moduleDCSDataHolder->m_tempOutlet->at(moduleNum)->at(LB);
+         // calibration of the NTCs
+         // T_corrected = T_meas - DeltaT
+         // DeltaT = 4x10^{-8} T^4 - 2x10^{-6} T^3 + 5x10^4 T^{-2} - 0.0487xT + 1.1974
+         // https://indico.cern.ch/event/380923/session/4/contribution/21/attachments/758833/1040909/IBL_TF_PixelWeek.pdf
+         //tempInlet = tempInlet - (4e-8 * TMath::Power(tempInlet,4) - 2e-6 * TMath::Power(tempInlet,3)
+         //                         + 5e-4 * TMath::Power(tempInlet,2) - 0.0487 * tempInlet + 1.1974);
+         //tempOutlet = tempOutlet - (4e-8 * TMath::Power(tempOutlet,4) - 2e-6 * TMath::Power(tempOutlet,3)
+         //                         + 5e-4 * TMath::Power(tempOutlet,2) - 0.0487 * tempOutlet + 1.1974);
          float hv_voltage = TMath::Abs( m_moduleDCSDataHolder->m_hv_voltage->at(moduleNum)->at(LB) );
          float lv_voltage = m_moduleDCSDataHolder->m_lv_voltage->at(moduleNum)->at(LB);
          float hv_current = TMath::Abs( m_moduleDCSDataHolder->m_hv_current->at(moduleNum)->at(LB) );
@@ -1017,8 +1051,15 @@ StatusCode PixelMainMon::ProcPixelDCSMon(void)
          }
          m_hist_FSMstate2Dscatter[staveNum - 1]->Fill(module_eta, fsm_state);
          m_hist_FSMstateLB[staveNum - 1]->Fill(LB,fsm_state);
-         m_hist_LB_staveID_FSMstate->Fill(LB, staveNum, fsm_state);
-         m_hist_LB_moduleGroup_FSMstate[staveNum - 1]->Fill(LB, moduleGroup, fsm_state);
+         if(fsm_state > m_hist_LB_staveID_FSMstate->GetBinContent(LB + 1, staveNum) ){
+           m_hist_LB_staveID_FSMstate->SetBinContent(LB + 1, staveNum, fsm_state);
+         }
+         //m_hist_LB_staveID_FSMstate->Fill(LB, staveNum, fsm_state);
+         if(fsm_state > m_hist_LB_moduleGroup_FSMstate[staveNum - 1]->GetBinContent(LB + 1, moduleGroup + 1) ){
+           m_hist_LB_moduleGroup_FSMstate[staveNum - 1]->SetBinContent(LB + 1, moduleGroup + 1, fsm_state);
+           //m_hist_LB_moduleGroup_FSMstate[staveNum - 1]->Fill(LB, moduleGroup, fsm_state);
+         }
+         //m_hist_LB_moduleGroup_FSMstate[staveNum - 1]->Fill(LB, moduleGroup, fsm_state);
          // fill FSM status
          //m_hist_FSMstatusEtaPhi->Fill(module_eta, staveNum, fsm_status);
          if(fsm_status > m_hist_FSMstatusEtaPhi->GetBinContent(module_eta + 11, staveNum) ){ // -10 <= module_eta <= 9,
@@ -1026,7 +1067,14 @@ StatusCode PixelMainMon::ProcPixelDCSMon(void)
          }
          m_hist_FSMstatus2Dscatter[staveNum - 1]->Fill(module_eta, fsm_status);
          m_hist_FSMstatusLB[staveNum - 1]->Fill(LB,fsm_status);
-         m_hist_LB_staveID_FSMstatus->Fill(LB, staveNum, fsm_status);
+         if(fsm_status > m_hist_LB_staveID_FSMstatus->GetBinContent(LB + 1, staveNum) ){
+           m_hist_LB_staveID_FSMstatus->SetBinContent(LB + 1, staveNum, fsm_status);
+         }
+         //m_hist_LB_staveID_FSMstatus->Fill(LB, staveNum, fsm_status);
+         if(fsm_status > m_hist_LB_moduleGroup_FSMstatus[staveNum - 1]->GetBinContent(LB + 1, moduleGroup + 1) ){
+           m_hist_LB_moduleGroup_FSMstatus[staveNum - 1]->SetBinContent(LB + 1, moduleGroup + 1, fsm_status);
+           //m_hist_LB_moduleGroup_FSMstatus[staveNum - 1]->Fill(LB, moduleGroup, fsm_status);
+         }
          m_hist_LB_moduleGroup_FSMstatus[staveNum - 1]->Fill(LB, moduleGroup, fsm_status);
          // fill HV Power consumption
          float hvpc = TMath::Abs(hv_voltage * hv_current);
@@ -1039,19 +1087,21 @@ StatusCode PixelMainMon::ProcPixelDCSMon(void)
          m_hist_LB_staveID_LVPowerConsumption->Fill(LB,staveNum,lvpc);
          m_hist_LB_moduleGroup_LVPowerConsumption[staveNum - 1]->Fill(LB, moduleGroup, lvpc);
          // fill HV+LV Power consumption
-         m_hist_LVHVPowerConsumptionEtaPhi->Fill(module_eta, staveNum, lvpc + hvpc);
-         m_hist_LB_staveID_LVHVPowerConsumption->Fill(LB,staveNum,lvpc + hvpc);
-         m_hist_LB_moduleGroup_LVHVPowerConsumption[staveNum - 1]->Fill(LB, moduleGroup, lvpc + hvpc);
+         m_hist_LVHVPowerConsumptionEtaPhi->Fill(module_eta, staveNum, lvpc + hvpc * 0.001);
+         m_hist_LB_staveID_LVHVPowerConsumption->Fill(LB,staveNum,lvpc + hvpc * 0.001);
+         m_hist_LB_moduleGroup_LVHVPowerConsumption[staveNum - 1]->Fill(LB, moduleGroup, lvpc + hvpc * 0.001);
          // fill effective FLEX temperature
          float tempFlex = dT * 0.6 + tempOutlet;
          m_hist_effFLEXtempEtaPhi->Fill(module_eta, staveNum, tempFlex);
          m_hist_LB_staveID_effFLEXtemp->Fill(LB,staveNum,tempFlex);
          m_hist_LB_moduleGroup_effFLEXtemp[staveNum - 1]->Fill(LB, moduleGroup, tempFlex);
          // fill thermal figure of merit
-         float tfm = dT/(lvpc + hvpc);
-         m_hist_thermalFigureMeritEtaPhi->Fill(module_eta, staveNum, tfm);
-         m_hist_LB_staveID_thermalFigureMerit->Fill(LB,staveNum,tfm);
-         m_hist_LB_moduleGroup_thermalFigureMerit[staveNum - 1]->Fill(LB, moduleGroup, tfm);
+         if (lvpc + hvpc * 0.001 == 0) {
+           float tfm = dT/(lvpc + hvpc * 0.001);
+           m_hist_thermalFigureMeritEtaPhi->Fill(module_eta, staveNum, tfm);
+           m_hist_LB_staveID_thermalFigureMerit->Fill(LB,staveNum,tfm);
+           m_hist_LB_moduleGroup_thermalFigureMerit[staveNum - 1]->Fill(LB, moduleGroup, tfm);
+         }
        }
      } catch (const std::out_of_range& oor) {
        //std::cerr << "Out of Range error: " << oor.what() << " , m_moduleTemperature: chanNum = " << chanNum << '\n';

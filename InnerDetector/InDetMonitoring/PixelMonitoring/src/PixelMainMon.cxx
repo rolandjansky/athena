@@ -155,10 +155,12 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_isNewLumiBlock = false;
    m_newLowStatInterval = false;
    m_doRefresh = false;
+   m_firstBookTime = 0;
    isFirstBook = false;
    m_nRefresh = 0;
 
    //initalize all the histograms to 0 to start
+   m_events_per_lumi = 0;
    m_storegate_errors = 0;
    m_mu_vs_lumi = 0;
    m_hiteff_mod = 0;
@@ -194,6 +196,8 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_occupancy_10min = 0;
    //m_average_occupancy = 0;
    m_average_pixocc = 0;
+   m_average_pixocc2 = 0;
+   m_avgocc_ratioIBLB0_per_lumi = 0;
    m_hitmap_tmp = 0;
    m_FE_chip_hit_summary = 0;
    m_occupancy_time1 = 0;
@@ -243,6 +247,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_tracks_per_lumi = 0;
    m_trackRate_per_lumi = 0;
    m_tracksPerEvt_per_lumi = 0;
+   m_tracksPerEvtPerMu_per_lumi = 0;
    m_track_dedx = 0;
    m_track_mass_dedx = 0;
    m_clustot_vs_pt = 0;
@@ -325,6 +330,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_cluster_groupsize = 0;
    m_cluster_col_width = 0;
    m_cluster_row_width = 0;
+   m_cluster_row_width_IBL = 0;
    m_cluster_LVL1A = 0;
    m_cluster_LVL1A_PIX = 0;
    m_clus_LVL1A_sizenot1 = 0; 
@@ -450,7 +456,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    //m_seu_hamming = 0;
    //m_timeout = 0;
    //m_FEwarning = 0;
-   m_mod_errors_IBL = 0;
+   //m_mod_errors_IBL = 0;
    m_sync_mod_BCID1_per_LB = 0;
    m_sync_mod_BCID1_int_LB = 0;
    m_sync_mod_BCID2_per_LB = 0;
@@ -817,15 +823,16 @@ StatusCode PixelMainMon::initialize()
       std::ifstream moduleMapfile((x + "/wincc2cool.csv").c_str());
       std::ifstream coolingPipeMapfile((x + "/coolingPipeMap.csv").c_str());
       std::ifstream lvMapfile((x + "/lvMap.csv").c_str());
-      if( moduleMapfile.fail() || coolingPipeMapfile.fail() ) {
-        ATH_MSG_ERROR("initialize(): Map File do not exist.");
+      if( moduleMapfile.fail() || coolingPipeMapfile.fail() || lvMapfile.fail() ) {
+        ATH_MSG_WARNING("initialize(): Map File do not exist. m_doDCS has been changed to False.");
+        m_doDCS = false;
       }
       std::string line;
       // make a dictionary to convert module name to channel number
       int channel; std::string moduleName; std::string rest;
       std::string inletName; std::string outletName;
       std::string lvVoltageName; std::string lvCurrentName;
-      //while(getline(moduleMapfile, line)) 
+      //while(getline(moduleMapfile, line))
       while(moduleMapfile >> channel >> moduleName >> rest) {
         // get channel number from wincc2cool.csv
         //int channel; std::string moduleName; std::string rest;
