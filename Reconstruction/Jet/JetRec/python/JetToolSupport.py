@@ -353,7 +353,10 @@ class JetToolManager:
                    ghostArea =0.0, ptmin =0.0, ptminFilter =0.0, rndseed =1,
                    isTrigger =False, useTriggerStore =False,
                    variableRMinRadius =-1.0, variableRMassScale =-1.0,
-                   calibOpt ="", jetPseudojetCopier =""):
+                   calibOpt ="", jetPseudojetCopier ="",
+                   warnIfDuplicate=True,
+                   overwrite=False):
+
     self.msg(2, "Adding finder")
     from JetRec.JetRecConf import JetRecTool
     if type(gettersin) == str:
@@ -380,6 +383,8 @@ class JetToolManager:
     self.ptminFilter = ptminSave
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = self.timer
+    jetrec.WarnIfDuplicate = warnIfDuplicate
+    jetrec.Overwrite = overwrite
     self += jetrec
     if isTrigger:
       self.trigjetrecs += [jetrec]

@@ -68,6 +68,8 @@ from JetMomentTools.JetMomentToolsConf import JetClusterMomentsTool
 from JetMomentTools.JetMomentToolsConf import JetIsolationTool
 from JetMomentTools.JetMomentToolsConf import JetLArHVTool
 from JetMomentTools.JetMomentToolsConf import JetOriginCorrectionTool
+from JetMomentTools.JetMomentToolsConf import JetConstitFourMomTool
+from JetMomentTools.JetMomentToolsConf import JetECPSFractionTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KtDeltaRTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import NSubjettinessTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KTSplittingScaleTool
@@ -613,6 +615,14 @@ jtm += JetOriginCorrectionTool(
   "jetorigincorr",
   VertexContainer = jtm.vertexContainer,
   OriginCorrectedName = "JetOriginConstitScaleMomentum"
+)
+
+jtm += JetECPSFractionTool(
+  "ecpsfrac"  
+)
+
+jtm += JetConstitFourMomTool(
+  "constfourmom"
 )
 
 #--------------------------------------------------------------
