@@ -8,6 +8,9 @@
 #include "Identifier/Identifier.h"
 
 class MsgStream;
+class MuonTrackSummaryCnv_p1;
+class MuonTrackSummaryCnv_p2;
+class TrackSummaryCnv_p2;
 
 
 namespace Muon {
@@ -93,6 +96,10 @@ namespace Trk {
       
 
       private:
+      friend class ::MuonTrackSummaryCnv_p1;
+      friend class ::MuonTrackSummaryCnv_p2;
+      friend class ::TrackSummaryCnv_p2;
+
       Identifier m_chId; //<! chamber identifier
       bool m_isMdt;      //<! is this a MDT chamber
       
@@ -132,6 +139,9 @@ namespace Trk {
     const std::vector<ChamberHitSummary>& chamberHitSummary() const { return m_chamberHitSummary; }
 
   private:
+    friend class ::MuonTrackSummaryCnv_p1;
+    friend class ::MuonTrackSummaryCnv_p2;
+    friend class ::TrackSummaryCnv_p2;
 
     unsigned int m_nscatterers; //<! number of scattering centres on the track
     unsigned int m_npseudoMeasurements; //<! number of pseudomeasurements on the track
