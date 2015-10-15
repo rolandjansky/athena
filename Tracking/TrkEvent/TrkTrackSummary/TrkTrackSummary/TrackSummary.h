@@ -15,6 +15,8 @@ email                : edward.moyse@cern.ch
 #include <bitset>
 
 class MsgStream;
+class TrackSummaryCnv_p1;
+class TrackSummaryCnv_p2;
 
 namespace InDet {
     class InDetTrackSummaryHelperTool;
@@ -264,6 +266,8 @@ public:
    bool update(Trk::SummaryType type, int new_value);
 
 private: // data members
+    friend class ::TrackSummaryCnv_p1;
+    friend class ::TrackSummaryCnv_p2;
 
     /** vector containing the persistent summary information. */
     std::vector<int>  m_information;
