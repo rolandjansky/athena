@@ -11,6 +11,7 @@
 ################################################################################
 from RecExConfig.RecFlags import rec 
 from tauRec.tauRecFlags import jobproperties
+from DiTauRec.DiTauRecFlags import jobproperties
 from JetRec.JetRecFlags import jobproperties
 from AthenaCommon.BeamFlags import jobproperties
 
@@ -61,6 +62,13 @@ if jobproperties.tauRecFlags.doTauRec() and ( rec.readESD() or  ( DetFlags.haveR
                 include("TauDiscriminant/TauDiscri_jobOptions.py" )      
             except Exception:
                 treatException("Could not set up TauDiscriminant. Switched off !")
+
+        # call DiTauRec
+        if jobproperties.DiTauRecFlags.doDiTauRec():
+            try:
+                include("DiTauRec/DiTauRec_config.py")
+            except Exception:
+                treatException("Could not set up DiTauRec. Switched off!")
 
     if _tauFail and jobproperties.tauRecFlags.doTauRec():
         jobproperties.tauRecFlags.doTauRec=False
