@@ -10,7 +10,7 @@
 namespace MuonGM {
 
 
-FPVMAP* FPVMAP::thePointer=0;
+FPVMAP* FPVMAP::s_thePointer=0;
 
 FPVMAP::FPVMAP()
 {
@@ -20,18 +20,18 @@ FPVMAP::FPVMAP()
 
 FPVMAP* FPVMAP::GetPointer()
 {
-    if (!thePointer) thePointer=new FPVMAP;
-    return thePointer;
+    if (!s_thePointer) s_thePointer=new FPVMAP;
+    return s_thePointer;
 }
 
 GeoVPhysVol* FPVMAP::GetDetector(std::string name) 
 {
-    if (Detectors.find(name)!=Detectors.end())
+    if (m_Detectors.find(name)!=m_Detectors.end())
     {
         m_nreused++;
 //         std::cout<<"FPVMAP:: the pointer to "<<name
 //                  <<" is already stored; saving memory "<<m_nreused<<std::endl;
-        return Detectors[name];
+        return m_Detectors[name];
     }
     else return 0;
 }
@@ -39,12 +39,12 @@ GeoVPhysVol* FPVMAP::GetDetector(std::string name)
 void FPVMAP::StoreDetector(GeoVPhysVol* s, std::string name)
 {
 //    std::cout<<"FPVMAP:: store the pointer to "<<name<<std::endl;
-    Detectors[name]=s;
+    m_Detectors[name]=s;
 }
 
 void FPVMAP::PrintAllDetectors()
 {
-    for (DetectorIterator it=Detectors.begin();it!=Detectors.end();it++)
+    for (DetectorIterator it=m_Detectors.begin();it!=m_Detectors.end();it++)
     {
         std::string key=(*it).first;
         std::cout<<"---> A PhysVol corresponds to  "<<key<<std::endl;

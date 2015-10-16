@@ -128,24 +128,24 @@ namespace MuonGM {
         virtual StatusCode ProcessDB() {return StatusCode::SUCCESS;};
         void setGeometryVersion(std::string s);
         std::string getGeometryVersion() const;
-        void setManager(MuonDetectorManager * detmgr) {_mgr = detmgr;};
+        void setManager(MuonDetectorManager * detmgr) {m_mgr = detmgr;};
 
         virtual ~DBReader(){};
 
     protected:
         DBReader(StoreGateSvc* );
         //
-        StatusCode SCdbaccess;
+        StatusCode m_SCdbaccess;
         std::string TGCreadoutName(int ichtyp);
         // tgc readout stuff
-        std::vector<std::string> _tgcReadoutMapping;
-        MuonDetectorManager* _mgr;
+        std::vector<std::string> m_tgcReadoutMapping;
+        MuonDetectorManager* m_mgr;
         
     private:
 
         // data 
 	IMessageSvc*    m_msgSvc;
-        std::string version;
+        std::string m_version;
 
     }; // end of class DBReader 
 

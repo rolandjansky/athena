@@ -30,7 +30,7 @@ Sup::Sup(Component* ss): DetectorElement(ss->name)
   SUP* sup = (SUP*)mysql->GetTechnology(s->name);
   thickness = sup->thickness;
   alThickness = sup->alThickness;
-  component = s;  // questo 'component' serve!
+  m_component = s;  // questo 'component' serve!
 }
 
 

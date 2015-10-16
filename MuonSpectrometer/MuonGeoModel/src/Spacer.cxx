@@ -35,7 +35,7 @@ Spacer::Spacer(Component *ss): DetectorElement(ss->name)
   MYSQL* mysql = MYSQL::GetPointer();
   thickness = mysql->GetTechnology(s->name)->thickness;
   length = s->dy;
-  component = *s;	
+  m_component = *s;	
 }
 
 
@@ -48,8 +48,8 @@ GeoVPhysVol* Spacer::build()
 GeoVPhysVol * Spacer::build(int /*cutoutson*/)
 {
   if (name == "SPA06" || name == "SPA01") {
-    double excent = component.excent;
-    double maxwLength = component.maxwdy;
+    double excent = m_component.excent;
+    double maxwLength = m_component.maxwdy;
          
     const GeoShape* strd = new GeoTrd(thickness/2.,thickness/2.,
                                       width/2., longWidth/2., maxwLength/2.);

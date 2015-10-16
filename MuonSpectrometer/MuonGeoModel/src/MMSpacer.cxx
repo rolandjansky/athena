@@ -30,7 +30,7 @@ namespace MuonGM {
 MMSpacer::MMSpacer(Component* ss): DetectorElement(ss->name)
 {
   MMSpacerComponent* s = (MMSpacerComponent*)ss;
-  component = s;
+  m_component = s;
   width = s->dx1;
   longWidth = s->dx2;
   length = s->dy;

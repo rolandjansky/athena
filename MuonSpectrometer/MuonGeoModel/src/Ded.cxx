@@ -28,7 +28,7 @@ Ded::Ded(Component* ss): DetectorElement(ss->name)
    longWidth = s->dx2;
    thickness = s->GetThickness() - tol;
    length = s->dy - tol;
-   component = s;
+   m_component = s;
 }
 
 
