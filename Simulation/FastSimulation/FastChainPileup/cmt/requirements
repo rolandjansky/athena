@@ -10,9 +10,14 @@ use     GaudiInterface          GaudiInterface-*        External
 use     AtlasROOT               AtlasROOT-*             External
 
 private
+use TestPolicy                  TestPolicy-*
 use     AtlasCLHEP              AtlasCLHEP-*            External
 
 library FastChainPileup MultiPy8Pileup.cxx components/*.cxx
 apply_pattern component_library
-	
+apply_pattern validate_xml
 apply_pattern declare_joboptions files="*.py"
+
+public
+macro FastChainPileup_TestConfiguration "../test/FastChainPileup_TestConfiguration.xml"
+apply_pattern declare_runtime extras="../test/FastChainPileup_TestConfiguration.xml"
