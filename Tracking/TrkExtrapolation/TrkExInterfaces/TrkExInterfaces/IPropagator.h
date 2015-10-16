@@ -19,6 +19,7 @@
 #include "TrkSurfaces/BoundaryCheck.h"
 #include "ITimedExtrapolator.h"
 #include "TrkExUtils/ExtrapolationCache.h"
+#include "TrkExUtils/TargetSurfaces.h"
 
 // STL
 #include <utility>
@@ -37,6 +38,7 @@ namespace Trk {
 
   /** typedef for input surfaces, boundary check */
   typedef std::pair< const Surface*, BoundaryCheck >  DestSurf;
+
 
   /** Interface ID for IPropagators*/  
   static const InterfaceID IID_IPropagator("IPropagator", 1, 0);
@@ -134,7 +136,29 @@ namespace Trk {
 						  const TrackingVolume* tVol,
 						  std::vector<Trk::HitInfo>*& hitVector) const;
          
+       /** Propagation interface:
+         
+         The propagation method called by the TrkExtrapolator. The propagator
+         finds the closest surface. Timing included.
+         */
+       virtual const TrackParameters* propagateT( const TrackParameters& parm,
+						  TargetSurfaces& sfs,
+						  PropDirection dir,
+                          const MagneticFieldProperties& mprop,
+						  ParticleHypothesis particle,
+						  TargetSurfaceVector& solutions,
+						  PathLimit& pathLim, TimeLimit& timeLim,
+						  bool returnCurv ,
+						  std::vector<Trk::HitInfo>*& hitVector) const;
+         
 
+       /** Propagation interface:
+         
+         The propagation method called by the TrkExEngine. All options included.
+         */
+       virtual Trk::ExtrapolationCode propagate( Trk::ExCellCharged& eCell,
+						 Trk::TargetSurfaces& sfs,
+						 Trk::TargetSurfaceVector& solutions) const;         
        /** Propagation interface:
          
          The propagation method with internal material collection. The propagator
@@ -267,6 +291,25 @@ inline const Trk::TrackParameters* Trk::IPropagator::propagateT( const TrackPara
 {                  
   return 0;
 }
+
+inline const Trk::TrackParameters* Trk::IPropagator::propagateT( const TrackParameters& ,
+								 Trk::TargetSurfaces& ,
+								 PropDirection ,
+								 const MagneticFieldProperties& ,
+								 ParticleHypothesis ,
+								 Trk::TargetSurfaceVector& ,
+								 PathLimit& , TimeLimit& ,
+								 bool,std::vector<Trk::HitInfo>*& ) const
+{
+  return 0;
+}
+
+inline Trk::ExtrapolationCode Trk::IPropagator::propagate( Trk::ExCellCharged& ,
+							   Trk::TargetSurfaces&,
+							   Trk::TargetSurfaceVector& ) const
+{
+  return Trk::ExtrapolationCode::FailureConfiguration;
+}         
 
 inline const Trk::TrackParameters* Trk::IPropagator::propagateM( const TrackParameters&,
 								 std::vector<DestSurf>&,
