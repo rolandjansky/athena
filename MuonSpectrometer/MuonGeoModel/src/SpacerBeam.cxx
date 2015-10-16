@@ -28,7 +28,7 @@ namespace MuonGM
 {
 
 SpacerBeam::SpacerBeam(Component *ss): DetectorElement(ss->name),
-  hole_pos1(0), hole_pos2(0), lb_height(0), lb_width(0), cross_excent(0)
+  m_hole_pos1(0), m_hole_pos2(0), m_lb_height(0), m_lb_width(0), m_cross_excent(0)
 {
   StandardComponent* s = (StandardComponent*)ss;
   std::string componentType = (s->name).substr(0,3);
@@ -40,13 +40,13 @@ SpacerBeam::SpacerBeam(Component *ss): DetectorElement(ss->name),
   length = s->dy - tol;
   excent = s->excent;
 
-  cy = s->posy;
+  m_cy = s->posy;
   if (componentType == "CRO" || componentType == "CMI" || componentType == "CHV") {
     CbmComponent* ccbm = (CbmComponent*)s;
-    hole_pos1 = ccbm->hole_pos1 - length/2. - cy - tol/2.;
-    hole_pos2 = ccbm->hole_pos2 - length/2. - cy - tol/2.;
-    lb_height = ccbm->lb_height;
-    lb_width = ccbm->lb_width;
+    m_hole_pos1 = ccbm->hole_pos1 - length/2. - m_cy - tol/2.;
+    m_hole_pos2 = ccbm->hole_pos2 - length/2. - m_cy - tol/2.;
+    m_lb_height = ccbm->lb_height;
+    m_lb_width = ccbm->lb_width;
   }
 
   lowerThickness = 0.;
@@ -76,7 +76,7 @@ SpacerBeam::SpacerBeam(Component *ss): DetectorElement(ss->name),
     lowerThickness = lb->lowerThickness;
     largeness = thickness;
     height = lb->height;
-    cross_excent = 0;  // Place holder
+    m_cross_excent = 0;  // Place holder
   }
 }
 
@@ -115,11 +115,11 @@ SpacerBeam::build(int /*cutoutson*/, bool is_barrel)
       IBeamShape = &(IBeamShape->subtract( (*sideBox) << HepGeom::TranslateY3D(-yshift) ) );
 
       // Cut holes for LB
-      GeoBox* holeBox = new GeoBox(lb_height/2.+1., 
+      GeoBox* holeBox = new GeoBox(m_lb_height/2.+1., 
                                    thickness/2.+1., 
-                                   lb_width/cosexc/2.+thickness*sinexc/cosexc+6.);
-      IBeamShape = &(IBeamShape->subtract( (*holeBox) << HepGeom::TranslateZ3D(hole_pos1/cosexc) ) );
-      IBeamShape = &(IBeamShape->subtract( (*holeBox) << HepGeom::TranslateZ3D(hole_pos2/cosexc) ) );
+                                   m_lb_width/cosexc/2.+thickness*sinexc/cosexc+6.);
+      IBeamShape = &(IBeamShape->subtract( (*holeBox) << HepGeom::TranslateZ3D(m_hole_pos1/cosexc) ) );
+      IBeamShape = &(IBeamShape->subtract( (*holeBox) << HepGeom::TranslateZ3D(m_hole_pos2/cosexc) ) );
       lvol = new GeoLogVol(name, IBeamShape, mat);
       pvol = new GeoPhysVol(lvol);
 

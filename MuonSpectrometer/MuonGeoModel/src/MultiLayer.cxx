@@ -363,7 +363,8 @@ GeoFullPhysVol* MultiLayer::build()
         double tlength = width + j*diff/nrOfSteps;
         double tlen = 0.;
         double previousTlen = -1.;
-	int nTubeToSwitch[5];
+	int nTubeToSwitch[5] = {0};
+        if (cutoutNsteps > 5) std::abort();
 	for (int ii = 0; ii < cutoutNsteps; ii++) {
           if (verbose_multilayer) std::cout << " Building tube vectors for cutout step " << ii << std::endl;
           nTubeToSwitch[ii] = cutoutNtubes[ii] - 1;
@@ -382,6 +383,7 @@ GeoFullPhysVol* MultiLayer::build()
 
           // For each tube within non-cutout step, find which cutout step it is in      
           int weAreInCutStep=0;
+          if (cutoutNsteps > 5) std::abort();
           for (int ic = 0; ic < cutoutNsteps; ic++) {
             if (verbose_multilayer) std::cout << " Loop over cuts ic " << ic
                                               << " FullLength " << cutoutFullLength[ic]

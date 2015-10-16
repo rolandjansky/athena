@@ -37,7 +37,7 @@ public:
    int getGeoVersion() {return m_geo_version;}
 
 private:
-   MdtComponent* component;
+   MdtComponent* m_component;
    int m_geo_version;
    Mdt & operator=(const Mdt &right);
    Mdt(const Mdt&);

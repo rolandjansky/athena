@@ -30,13 +30,13 @@ class SpacerBeam: public DetectorElement
     double excent;       // angle of beams in trapezoidal chambers
 
   private:
-    StandardComponent component;
-    double cy;           // y coordinate (parallel to tube length) of component
-    double hole_pos1;    // Location of 1st LB hole in cross beam
-    double hole_pos2;    // Location of 2nd LB hole in cross beam
-    double lb_height;    // Height of LB hole
-    double lb_width;     // Width of LB hole
-    double cross_excent; // angle of cross beams needed by LB
+    StandardComponent m_component;
+    double m_cy;           // y coordinate (parallel to tube length) of component
+    double m_hole_pos1;    // Location of 1st LB hole in cross beam
+    double m_hole_pos2;    // Location of 2nd LB hole in cross beam
+    double m_lb_height;    // Height of LB hole
+    double m_lb_width;     // Width of LB hole
+    double m_cross_excent; // angle of cross beams needed by LB
 
 };
 

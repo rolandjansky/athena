@@ -550,7 +550,7 @@ namespace MuonGM {
         if(muonSysRec->size()!=0)
 	  {
             // Data retrieved
-            muonsysIndMap _map;
+            muonsysIndMap indmap;
             muonsysIndMap::const_iterator iter;
             const IRDBRecord* currentRecord;
             
@@ -558,15 +558,15 @@ namespace MuonGM {
             for (unsigned int ind=0; ind<muonSysRec->size(); ind++)
 	      {
                 int key = (*muonSysRec)[ind]->getInt("PLANE_ID");
-                _map[key] = ind;
+                indmap[key] = ind;
 	      }
             
             // Create the polycone
-            for(unsigned int ind=0; ind<_map.size(); ind++)
+            for(unsigned int ind=0; ind<indmap.size(); ind++)
 	      {
-                iter = _map.find(ind);
+                iter = indmap.find(ind);
                 
-                if(iter==_map.end())
+                if(iter==indmap.end())
 		  throw std::runtime_error("Error in MuonDetectorFactory, missing plane in MuonSystem");
                 else
 		  {

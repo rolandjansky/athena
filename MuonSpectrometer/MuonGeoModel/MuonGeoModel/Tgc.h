@@ -32,7 +32,7 @@ public:
   void print();
 
 private:
-  TgcComponent* component;
+  TgcComponent* m_component;
 };
 
 } // namespace MuonGM

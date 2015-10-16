@@ -9,10 +9,10 @@ namespace MuonGM {
 
 std::string Technology::GetName()
 {
-	return name;
+	return m_name;
 }
 
-Technology::Technology(std::string s): name(s), thickness(0.)
+Technology::Technology(std::string s): m_name(s), thickness(0.)
 {
 	MYSQL *mysql=MYSQL::GetPointer();
         mysql->StoreTechnology(this);

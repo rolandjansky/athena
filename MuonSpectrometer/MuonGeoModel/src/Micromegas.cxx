@@ -4,7 +4,8 @@
 
 
 #include "MuonGeoModel/Micromegas.h"
-#include "MuonGeoModel/MM_Technology.h"
+#include "MuonAGDDDescription/MM_Technology.h"
+#include "AGDDKernel/AGDDDetectorStore.h"
 #include "MuonGeoModel/Station.h"
 #include "MuonGeoModel/MYSQL.h"
 #include "MuonGeoModel/MicromegasComponent.h"
@@ -30,12 +31,12 @@ namespace MuonGM {
 Micromegas::Micromegas(Component* ss): DetectorElement(ss->name)
 {
   MicromegasComponent* s = (MicromegasComponent*)ss;
-  component = s;
+  m_component = s;
   width = s->dx1;
   longWidth = s->dx2;
   length = s->dy;
   name=s->name;
-  thickness = s->GetThickness();
+//  thickness = s->GetThickness();
   index = s->index;
 }
 
@@ -53,9 +54,9 @@ GeoFullPhysVol*
 Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
 {
 //  std::cout<<"this is Micromegas::build "<<std::endl;
-  MYSQL* mysql = MYSQL::GetPointer();	
+  AGDDDetectorStore* ds = AGDDDetectorStore::GetDetectorStore();	
 //  std::cout<<"fetching technology "<<std::endl;
-  MM_Technology* t = (MM_Technology*) mysql->GetTechnology(name);
+  MM_Technology* t = (MM_Technology*) ds->GetTechnology(name);
   thickness = t->Thickness();
   double gasTck=t->gasThickness;
   double pcbTck=t->pcbThickness;
@@ -80,7 +81,7 @@ Micromegas::build(int minimalgeo, int , std::vector<Cutout*> )
   									
   
   logVolName=name;
-  if (!(component->subType).empty()) logVolName+=("-"+component->subType);
+  if (!(m_component->subType).empty()) logVolName+=("-"+m_component->subType);
   const GeoMaterial* mtrd = matManager->getMaterial("sct::PCB");
   GeoLogVol* ltrd = new GeoLogVol(logVolName, strd, mtrd);
   GeoFullPhysVol* ptrd = new GeoFullPhysVol(ltrd);
