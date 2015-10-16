@@ -1,5 +1,7 @@
-<!-- $Id: selection.xml 635789 2014-12-12 20:08:28Z ssnyder $ -->
+<!-- $Id: selection.xml 700669 2015-10-15 08:31:13Z wlampl $ -->
 <lcgdict>
+
+  <!-- CaloCluster(Container> --> 
 
   <class name="xAOD::CaloCluster_v1" >
     <field name="m_p4" transient="true" />
@@ -63,6 +65,43 @@
   <class name="std::vector<xAOD::CaloClusterBadChannelData_v1>" />
   <class name="std::vector< std::vector<xAOD::CaloClusterBadChannelData_v1> >" />
   
+
+  <!-- CaloTower(Container) -->
+  <class name="xAOD::CaloTower_v1" >
+    <field name="m_isComplete" transient="true" />
+    <field name="v_fourmom" transient="true" />
+    <field name="m_eta" transient="true" />       
+    <field name="m_phi" transient="true" />
+    <field name="m_invcosheta" transient="true" />
+    <field name="m_ieta" transient="true" />
+    <field name="m_iphi" transient="true" />
+  </class>
+  <read sourceClass="xAOD::CaloTower_v1" version="[1-]"
+	targetClass="xAOD::CaloTower_v1" source="" target="m_isComplete" >
+    <![CDATA[
+       m_isComplete=false;
+    ]]>
+  </read>
+
+  <class name="xAOD::CaloTowerContainer_v1"
+	 id="EEA02A0F-98D3-464D-BAF1-1C944A700B8A" />
+
+  <class name="xAOD::CaloTowerAuxContainer_v1"
+	 id="CE74E4D1-D2F4-4CED-8191-EC26D8836575" />
+
+  <class name="xAOD::CaloTowerContainerBase_v1" />
+
+   <!-- Link types potentially pointing at Towers: -->
+  <class name="DataLink<xAOD::CaloTowerContainer_v1>" />
+  <class name="std::vector<DataLink<xAOD::CaloTowerContainer_v1> >" />
+
+  <class name="ElementLink<xAOD::CaloTowerContainer_v1>" />
+  <class name="std::vector<ElementLink<xAOD::CaloTowerContainer_v1> >" />
+  <class name="std::vector<std::vector<ElementLink<xAOD::CaloTowerContainer_v1> > >" />
+
+
+
+
 
   <!-- Additional type(s) needed: -->
   <class name="std::bitset<3>" />
