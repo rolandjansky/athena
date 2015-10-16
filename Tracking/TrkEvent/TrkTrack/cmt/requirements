@@ -4,7 +4,6 @@ author Edward Moyse <Edward.Moyse@cern.ch>
 manager Edward Moyse <Edward.Moyse@cern.ch>
 
 use AtlasPolicy         AtlasPolicy-*
-use  AthLinks                   AthLinks-*                      Control
 use CLIDSvc             CLIDSvc-*            Control
 use DataModel           DataModel-*          Control
 use TrkEventPrimitives  TrkEventPrimitives-* Tracking/TrkEvent
@@ -13,7 +12,6 @@ use TrkNeutralParameters TrkNeutralParameters-*      Tracking/TrkEvent
 use TrkMeasurementBase  TrkMeasurementBase-* Tracking/TrkEvent
 use TrkMaterialOnTrack  TrkMaterialOnTrack-* Tracking/TrkEvent
 use TrkTrackLink        TrkTrackLink-*       Tracking/TrkEvent
-use  SGTools                    SGTools-*                       Control
 
 library TrkTrack *.cxx
 apply_pattern installed_library
