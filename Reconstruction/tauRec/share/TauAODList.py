@@ -67,6 +67,13 @@ TauAODList += [ "xAOD::PFOAuxContainer#TauNeutralParticleFlowObjectsAux." ]
 TauAODList += [ "xAOD::PFOContainer#TauHadronicParticleFlowObjects" ]
 TauAODList += [ "xAOD::PFOAuxContainer#TauHadronicParticleFlowObjectsAux." ]
 
+from DiTauRec.DiTauRecFlags import jobproperties
+if jobproperties.DiTauRecFlags.doDiTauRec():
+    include("DiTauRec/DiTauAODList.py")
+    TauAODList += DiTauAODList
+    pass
+
+
 #-------------------------------------------------------------------------
 # eflowObjects for tau
 #--------------------------------------------------------------------------

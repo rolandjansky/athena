@@ -69,13 +69,15 @@ class TauRecCoreBuilder ( TauRecConfigured ) :
         # TauBuilder
         # create the taus
         try:
+            from tauRec.tauRecFlags import tauFlags
             from tauRecTools.tauRecToolsConf import TauBuilderTool
             self._TauBuilderToolHandle = TauBuilderTool(
                 name = self.name,
                 SeedContainer            = _jet_collection,
                 TauContainer             = _outputKey,
                 TauAuxContainer          = _outputAuxKey,
-                MaxEta = 2.5,
+                #MaxEta = 2.5,
+                MaxEta = tauFlags.tauRecSeedMaxEta(),
                 MinPt = 10.*GeV,
                 doCreateTauContainers = True)
         except Exception:

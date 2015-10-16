@@ -109,3 +109,8 @@ TauESDList += [ "xAOD::PFOAuxContainer#TauHadronicParticleFlowObjectsAux." ]
 #TauESDList += [ "CaloShowerContainer#Tau1P3PCellEM012ClusterContainer_Data" ]
                                      
 
+from DiTauRec.DiTauRecFlags import jobproperties
+if jobproperties.DiTauRecFlags.doDiTauRec():
+    include("DiTauRec/DiTauESDList.py")
+    TauESDList += DiTauESDList
+    pass

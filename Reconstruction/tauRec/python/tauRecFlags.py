@@ -31,7 +31,13 @@ class doTauRec(JobProperty):
     def get_Value(self):
         return self.statusOn and self.StoredValue and jobproperties.tauRecFlags.Enabled()
 
-
+class tauRecSeedMaxEta(JobProperty):
+    """ max allowed abs_eta of jet seed
+    """
+    statusOn=True
+    allowedTypes=['float']
+    StoredValue=2.5
+    
 class doRunTauDiscriminant(JobProperty):
     """ switch for TauDiscriminant running
     """
@@ -120,7 +126,7 @@ class tauRecFlags(JobPropertyContainer):
 jobproperties.add_Container(tauRecFlags)
 
 # I want always the following flags in the Rec container  
-_list_tau=[Enabled,doTauRec,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI]
+_list_tau=[Enabled,doTauRec,tauRecSeedMaxEta,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI]
 for j in _list_tau: 
     jobproperties.tauRecFlags.add_JobProperty(j)
 del _list_tau
@@ -154,6 +160,6 @@ for j in _list_tau:
 del _list_tau
 
 
-
+tauFlags=jobproperties.tauRecFlags
 #=======================================================================
     
