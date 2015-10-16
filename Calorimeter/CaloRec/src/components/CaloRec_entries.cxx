@@ -26,6 +26,8 @@
 #include "CaloRec/CaloCellOverwrite.h"
 #include "CaloRec/CaloCellFastCopyTool.h"
 #include "CaloRec/CaloClusterCellLinksUpdater.h"
+#include "CaloRec/CaloTowerxAODFromCells.h"
+#include "CaloRec/CaloTowerxAODFromClusters.h"
 
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
@@ -46,6 +48,8 @@ DECLARE_ALGORITHM_FACTORY( CaloTopoTowerAlg )
 DECLARE_ALGORITHM_FACTORY( CaloCellOverwrite )
 DECLARE_ALGORITHM_FACTORY( CaloClusterCellLinksUpdater )
 
+DECLARE_ALGORITHM_FACTORY( CaloTowerxAODFromCells )
+DECLARE_ALGORITHM_FACTORY( CaloTowerxAODFromClusters )
 
 DECLARE_TOOL_FACTORY( CaloTopoClusterMaker )
 DECLARE_TOOL_FACTORY( CaloTopoClusterSplitter )
@@ -77,6 +81,8 @@ DECLARE_FACTORY_ENTRIES(CaloRec) {
     DECLARE_ALGORITHM( CaloTopoTowerAlg )
     DECLARE_ALGORITHM( CaloCellOverwrite )
     DECLARE_ALGORITHM ( CaloClusterCellLinksUpdater )
+    DECLARE_ALGORITHM( CaloTowerxAODFromCells )
+    DECLARE_ALGORITHM( CaloTowerxAODFromClusters )
 
     DECLARE_TOOL( CaloTopoClusterMaker );
     DECLARE_TOOL( CaloTopoClusterSplitter );
