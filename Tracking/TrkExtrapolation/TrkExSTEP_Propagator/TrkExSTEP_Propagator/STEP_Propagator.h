@@ -30,6 +30,7 @@
 #include "TrkExUtils/MaterialInteraction.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkExUtils/ExtrapolationCache.h"
+#include "TrkExUtils/ExtrapolationCell.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -148,6 +149,11 @@ namespace Trk {
     StatusCode finalize();
 
 
+    /** Main propagation method for TrkExEngine. All options included */
+    Trk::ExtrapolationCode propagate( Trk::ExCellCharged& eCell ,
+				      TargetSurfaces& targetSurfaces,
+				      TargetSurfaceVector& solutions) const;
+
     /** Main propagation method for ParametersBase. Use StraightLinePropagator for neutrals */
 /*
     const Trk::ParametersBase*
@@ -206,6 +212,19 @@ namespace Trk {
 		   Trk::TimeLimit&                    time,
 		   bool                               returnCurv,
 		   const Trk::TrackingVolume*         tVol,
+		   std::vector<Trk::HitInfo>*& hitVector) const;
+       
+    /** Propagate parameters and covariance with search of closest surface */
+    const Trk::TrackParameters*    
+      propagateT  (const Trk::TrackParameters&        trackParameters,
+		   Trk::TargetSurfaces&               targetSurfaces,
+		   Trk::PropDirection                 propagationDirection,
+		   const MagneticFieldProperties&     magneticFieldProperties,
+		   ParticleHypothesis                 particle,
+		   Trk::TargetSurfaceVector&           solutions,
+		   Trk::PathLimit&                    path,
+		   Trk::TimeLimit&                    time,
+		   bool                               returnCurv,
 		   std::vector<Trk::HitInfo>*& hitVector) const;
        
     /** Propagate parameters and covariance with search of closest surface and material collection */
@@ -291,6 +310,14 @@ namespace Trk {
     enum SurfaceType { LINE, PLANE, CYLINDER, CONE};
 
     /////////////////////////////////////////////////////////////////////////////////
+    // Main function for propagation
+    /////////////////////////////////////////////////////////////////////////////////
+    Trk::ExtrapolationCode propagateRungeKutta( Trk::ExCellCharged& exCell,
+						Trk::TargetSurfaces& targetSurfaces,
+						Trk::TargetSurfaceVector& solutions,
+						double& path) const;   
+
+    /////////////////////////////////////////////////////////////////////////////////
     // Main functions for propagation
     /////////////////////////////////////////////////////////////////////////////////
     const Trk::TrackParameters*
@@ -319,6 +346,21 @@ namespace Trk {
                                       double&                  path, 
 				      bool                     returnCurv=false) const;
 
+    /////////////////////////////////////////////////////////////////////////////////
+    // Main function for propagation
+    // with search of closest surface (ST) 
+    /////////////////////////////////////////////////////////////////////////////////
+    const Trk::TrackParameters*
+      propagateRungeKutta (           bool 	               errorPropagation,
+   		           const Trk::TrackParameters&         trackParameters,
+			    Trk::TargetSurfaces&               targetSurfaces,
+ 			         Trk::PropDirection            propagationDirection,
+                           const      MagneticFieldProperties& magneticFieldProperties,
+			              ParticleHypothesis       particle,
+			   Trk::TargetSurfaceVector&           solutions,
+                                      double&                  path, 
+				      bool                     returnCurv=false) const;
+
 
 
     /////////////////////////////////////////////////////////////////////////////////
@@ -342,6 +384,19 @@ namespace Trk {
   		   std::vector<unsigned int>&  solutions,
   				   double&     path,
 				   double      sumPath) const;
+
+    ////////////////////////////////////////////////////////////////////////////////
+    // Method for propagation with search of closest surface (ST)
+    ////////////////////////////////////////////////////////////////////////////////
+    Trk::ExtrapolationCode
+      propagateWithJacobian (	   bool          errorPropagation,
+			  Trk::TargetSurfaces&   sfs,
+  				   double*       P,
+                           Trk::PropDirection    propDir,
+		    Trk::TargetSurfaceVector&    solutions,
+  				   double&       path,
+				   double        sumPath,
+				   Trk::ExCellCharged* exCell=0) const;
 
     /////////////////////////////////////////////////////////////////////////////////
     // Trajectory model
@@ -391,8 +446,7 @@ namespace Trk {
     void
       covarianceContribution( const Trk::TrackParameters*  trackParameters,
                                     double                 path,
-				    double                 finalMomentum,
-                                    const Amg::Transform3D&  surfaceRotation,
+			      const Trk::TrackParameters*  targetParms,
                                     AmgSymMatrix(5)* measurementCovariance) const;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -411,12 +465,21 @@ namespace Trk {
     void dumpMaterialEffects( const Trk::CurvilinearParameters*  trackParameters,
 			      double                 path) const;
 
+    void handleMaterialEffects( Trk::ExCellCharged&  exCell,
+			      double                 path) const;
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
     // update material effects   // to follow change of material
     ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     void updateMaterialEffects( double p, double sinTh, double path) const;
 
+    /////////////////////////////////////////////////////////////////////////////////
+    // Resolve binned material
+    /////////////////////////////////////////////////////////////////////////////////
+    void stepInBinnedMaterial(Amg::Vector3D pos, Amg::Vector3D dir, double, double, 
+			      double step, const Trk::IdentifiedMaterial*& binIDMat,
+			      float& distanceToNextBin) const;
 
     /////////////////////////////////////////////////////////////////////////////////
     // Create straight line in case q/p = 0

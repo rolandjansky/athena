@@ -23,8 +23,8 @@
 //#include "TrkEventPrimitives/Vector.h"
 #include "TrkExUtils/IntersectionSolution.h"
 #include "TrkExUtils/RungeKuttaUtils.h"
-#include "TrkEventPrimitives/CurvilinearUVT.h"
-#include "TrkEventPrimitives/JacobianCurvilinearToLocal.h"
+//#include "TrkEventPrimitives/CurvilinearUVT.h"
+//#include "TrkEventPrimitives/JacobianCurvilinearToLocal.h"
 #include "TrkExUtils/TransportJacobian.h"
 #include "TrkExInterfaces/ITimedMatEffUpdator.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
@@ -176,6 +176,65 @@ StatusCode Trk::STEP_Propagator::finalize()
 {
   msg(MSG::INFO) << name() <<" finalize() successful" << endreq;
   return StatusCode::SUCCESS;
+}
+
+/** Main propagation method for TrkExEngine. All options included */
+Trk::ExtrapolationCode Trk::STEP_Propagator::propagate( Trk::ExCellCharged& eCell ,
+						    Trk::TargetSurfaces& targetSurfaces,
+						    Trk::TargetSurfaceVector& solutions) const
+{
+  clearCache(); 
+  // cache particle mass
+  m_particleMass = s_particleMasses.mass[eCell.pHypothesis]; //Get particle mass from ParticleHypothesis
+
+  // cache input timing - for secondary track emission
+  m_timeIn = eCell.time;
+
+  //Check for tracking volume (materialproperties)
+  m_trackingVolume = targetSurfaces.currentDense();
+  m_material = m_trackingVolume;
+  m_matPropOK = m_trackingVolume ? true : false;
+
+  // information collected internally by ExCell
+  m_identifiedParameters = 0;
+  m_matstates = 0;
+  m_extrapolationCache = 0;
+  m_hitVector = 0;
+
+  m_matupd_lastmom = eCell.leadParameters->momentum().mag();
+  m_matupd_lastpath = 0.;
+  m_matdump_lastpath = 0.;
+
+  // convert time/path limits into trajectory limit (in mm) TODO: keep dInX0 limit ( because of changing material in Calo )
+  double dMat = eCell.pathLimit-eCell.pathLength;
+  double path = dMat>0 && m_matPropOK && m_material->x0()>0. ?  dMat * m_material->x0() : -1.;
+
+  // TODO implement a proper time limit
+  //double dTim = timeLim.tMax - timeLim.time; 
+  //double beta = m_matupd_lastmom/sqrt(pow2(m_matupd_lastmom)+pow2(m_particleMass));
+  //double timMax = dTim>0 ?  dTim*beta*Gaudi::Units::c_light : -1.;  
+  //if ( timMax>0. && timMax < path ) path = timMax;
+
+  bool usePathLimit = (path > 0.);    
+
+  // resolve path limit input
+  if (path>0.) {
+    m_propagateWithPathLimit = usePathLimit? 1 : 0;
+    m_pathLimit = path;
+    path = 0.;
+  } else {
+    m_propagateWithPathLimit = 0;
+    m_pathLimit = -1.;
+    path = 0.; 
+  } 
+
+  // TODO: update ExCell info 
+  // update material path
+  //if (m_matPropOK && m_material->x0()>0.) pathLim.updateMat( path/m_material->x0(),m_material->averageZ(),0.);   
+  // return value
+  //timeLim.time +=m_timeOfFlight;
+  
+  return propagateRungeKutta(eCell,targetSurfaces,solutions,path);   
 }
 
 /** Main propagation method NeutralParameters. Use StraightLinePropagator for neutrals*/
@@ -361,6 +420,82 @@ const Trk::TrackParameters*
   return nextPar;   
 }
 
+/////////////////////////////////////////////////////////////////////////////////
+// Main function for track parameters and covariance matrix propagation
+// with search of closest surface and time info (ST) 
+/////////////////////////////////////////////////////////////////////////////////
+
+const Trk::TrackParameters*  Trk::STEP_Propagator::propagateT  (const Trk::TrackParameters&        trackParameters,
+		   Trk::TargetSurfaces&  targetSurfaces,
+		   Trk::PropDirection                 propagationDirection,
+		   const MagneticFieldProperties&     magneticFieldProperties,
+		   ParticleHypothesis                 particle,
+		   Trk::TargetSurfaceVector&          solutions,
+		   Trk::PathLimit&                    pathLim,
+		   Trk::TimeLimit&                    timeLim,
+		   bool                               returnCurv,
+		   std::vector<Trk::HitInfo>*& hitVector) const
+{
+  clearCache(); 
+  // cache particle mass
+  m_particleMass = s_particleMasses.mass[particle]; //Get particle mass from ParticleHypothesis
+
+  // cache input timing - for secondary track emission
+  m_timeIn = timeLim.time;
+
+  //Check for tracking volume (materialproperties)
+  m_trackingVolume = targetSurfaces.currentDense();
+  m_material = m_trackingVolume;
+  m_matPropOK = m_trackingVolume ? true : false;
+
+  // no identified intersections needed/ no material dump
+  m_identifiedParameters = 0;
+  m_matstates = 0;
+  m_extrapolationCache = 0;
+  m_hitVector = hitVector;
+
+  m_matupd_lastmom = trackParameters.momentum().mag();
+  m_matupd_lastpath = 0.;
+  m_matdump_lastpath = 0.;
+
+  // convert time/path limits into trajectory limit (in mm)
+  double dMat = pathLim.x0Max-pathLim.x0Collected;
+  double path = dMat>0 && m_matPropOK && m_material->x0()>0. ?  dMat * m_material->x0() : -1.;
+
+  double dTim = timeLim.tMax - timeLim.time; 
+  double beta = 1.;
+  if (dTim>0.) {
+    double mom = trackParameters.momentum().mag(); 
+    beta = mom/sqrt(mom*mom+m_particleMass*m_particleMass);
+  }
+  double timMax = dTim>0 ?  dTim*beta*Gaudi::Units::c_light : -1.;
+  
+  if ( timMax>0. && timMax < path ) path = timMax;
+  bool usePathLimit = (path > 0.);    
+
+  // resolve path limit input
+  if (path>0.) {
+    m_propagateWithPathLimit = usePathLimit? 1 : 0;
+    m_pathLimit = path;
+    path = 0.;
+  } else {
+    m_propagateWithPathLimit = 0;
+    m_pathLimit = -1.;
+    path = 0.; 
+  } 
+
+  const Trk::TrackParameters* nextPar =  propagateRungeKutta( true, trackParameters, targetSurfaces, 
+							      propagationDirection, magneticFieldProperties,
+							      particle, solutions, path,returnCurv);  
+
+  // update material path
+  if (m_matPropOK && m_material->x0()>0.) pathLim.updateMat( path/m_material->x0(),m_material->averageZ(),0.);   
+
+  // return value
+  timeLim.time +=m_timeOfFlight;
+  
+  return nextPar;   
+}
 
 /////////////////////////////////////////////////////////////////////////////////
 // Main function for track parameters and covariance matrix propagation
@@ -884,8 +1019,37 @@ const Trk::TrackParameters*
     return 0;
   }
 
-  // Common transformation for all surfaces (angles and momentum)
-  double localp[5]; rungeKuttaUtils.transformGlobalToLocal(&targetSurface,errorPropagation,P,localp,Jacobian);
+  double localp[5];
+  // output in curvilinear parameters 
+  if (returnCurv || ty==Trk::Surface::Cone)  {
+
+    rungeKuttaUtils.transformGlobalToLocal(P,localp);
+    Amg::Vector3D gp(P[0],P[1],P[2]);
+   
+    if ( boundaryCheck && !targetSurface.isOnSurface(gp) ) {
+      if (trackParameters != &inputTrackParameters) delete trackParameters;
+      return 0;    
+    }
+
+    if ( !errorPropagation || !trackParameters->covariance() ) {
+      if (trackParameters != &inputTrackParameters) delete trackParameters;
+      return new Trk::CurvilinearParameters(gp, localp[2], localp[3], localp[4]);
+    }
+
+    double useless[2];
+    rungeKuttaUtils.transformGlobalToCurvilinear( true, P, useless, Jacobian);
+    AmgSymMatrix(5)* measurementCovariance = rungeKuttaUtils.newCovarianceMatrix(
+      Jacobian, *trackParameters->covariance());
+
+    if (m_matPropOK && (m_multipleScattering || m_straggling) && fabs(path)>0. ) 
+      covarianceContribution( trackParameters, path, fabs( 1./P[6]), measurementCovariance);
+
+    if (trackParameters != &inputTrackParameters) delete trackParameters;
+    return new Trk::CurvilinearParameters(gp,localp[2],localp[3],localp[4],measurementCovariance); 
+  }
+
+  // Common transformation for all surfaces 
+  rungeKuttaUtils.transformGlobalToLocal(&targetSurface,errorPropagation,P,localp,Jacobian);
   
   if (boundaryCheck) {
     Amg::Vector2D localPosition( localp[0], localp[1]);
@@ -895,15 +1059,11 @@ const Trk::TrackParameters*
     }
   }
 
-  // ATH_MSG_DEBUG(" hit surface with momentum " <<  fabs( 1./trackParameters->parameters()[Trk::qOverP]) );
+  const Trk::TrackParameters* onTargetSurf = targetSurface.createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],0); 
 
   if ( !errorPropagation || !trackParameters->covariance() ) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
-    if (returnCurv || ty==Trk::Surface::Cone)  {
-      Amg::Vector3D gp(P[0],P[1],P[2]);
-      return new Trk::CurvilinearParameters(gp, localp[2], localp[3], localp[4]);
-    }
-    return targetSurface.createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],0); 
+    return onTargetSurf; 
   }
 
   //Errormatrix is included. Use Jacobian to calculate new covariance
@@ -911,19 +1071,14 @@ const Trk::TrackParameters*
     Jacobian, *trackParameters->covariance());
 
   //Calculate multiple scattering and straggling covariance contribution.
-  if (m_matPropOK && (m_multipleScattering || m_straggling) && fabs(path)>0. ) {
-    // ST covariance matrix in curvilinear representation
-    covarianceContribution( trackParameters, path, fabs( 1./P[6]), measurementCovariance);
-  }
+  if (m_matPropOK && (m_multipleScattering || m_straggling) && fabs(path)>0. ) 
+      covarianceContribution( trackParameters, path, onTargetSurf, measurementCovariance);
+  delete onTargetSurf;                   // the covariance matrix can be just added instead of recreating ?
 
   //Create new error matrix
   //Trk::ErrorMatrix* errorMatrix = new Trk::ErrorMatrix( measurementCovariance);
 
   if (trackParameters != &inputTrackParameters) delete trackParameters;
-  if (returnCurv || ty==Trk::Surface::Cone)  {
-    Amg::Vector3D gp(P[0],P[1],P[2]);
-    return new Trk::CurvilinearParameters(gp,localp[2],localp[3],localp[4],measurementCovariance);
-  }
   return targetSurface.createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],measurementCovariance); 
 }
 
@@ -1074,7 +1229,10 @@ const Trk::TrackParameters*
     while ( iSol != solutions.end() ) {  
       if ( targetSurfaces[*iSol].first->isOnSurface(gp,targetSurfaces[*iSol].second ,0.001,0.001) ) {
 	if (!solution) {
-	  rungeKuttaUtils.transformGlobalToLocal(targetSurfaces[*iSol].first,errorPropagation,P,localp,Jacobian);
+          if (returnCurv || targetSurfaces[*iSol].first->type()==Trk::Surface::Cone) {
+	    rungeKuttaUtils.transformGlobalToLocal(P,localp);      // theta/phi/1/p
+	    rungeKuttaUtils.transformGlobalToCurvilinear(errorPropagation,P,localp,Jacobian); 
+          } else rungeKuttaUtils.transformGlobalToLocal(targetSurfaces[*iSol].first,errorPropagation,P,localp,Jacobian);
 	  solution = true;
         }
         valid_solutions.push_back( *iSol );
@@ -1096,38 +1254,432 @@ const Trk::TrackParameters*
     smear(localp[2],localp[3],trackParameters,radDist);
   }
 
+  const Trk::TrackParameters* onTargetSurf = (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone) ? 
+    0 : targetSurfaces[solutions[0]].first->createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],0);
+
   if (!errorPropagation) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
     if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone)  {
       Amg::Vector3D gp(P[0],P[1],P[2]);
       return new Trk::CurvilinearParameters(gp, localp[2], localp[3], localp[4]);
     }
-    return targetSurfaces[solutions[0]].first->createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],0); 
+    return onTargetSurf;
   }
 
-  // Errormatrix is included. Use Jacobian to calculate new covariance
-  // use curvilinear representation
-  double useless[2];
-  rungeKuttaUtils.transformGlobalToCurvilinear( true, P, useless, Jacobian);
+  //Errormatrix is included. Use Jacobian to calculate new covariance
   AmgSymMatrix(5)* measurementCovariance = rungeKuttaUtils.newCovarianceMatrix(
-		       Jacobian, *trackParameters->covariance());
+    Jacobian, *trackParameters->covariance());
+
 
   //Calculate multiple scattering and straggling covariance contribution.
   if (m_matPropOK && (m_multipleScattering || m_straggling) && fabs(totalPath)>0.) {
-    covarianceContribution( trackParameters, totalPath, fabs( 1./P[6]), measurementCovariance);
+    if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone)  
+      covarianceContribution( trackParameters, totalPath, fabs( 1./P[6]), measurementCovariance);
+    else {
+      covarianceContribution( trackParameters, totalPath, onTargetSurf, measurementCovariance);
+    }
   }
 
   if (trackParameters != &inputTrackParameters) delete trackParameters;
   if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone)  {
-    //AmgSymMatrix(5)* errorMatrix = new Trk::ErrorMatrix( measurementCovariance);
     Amg::Vector3D gp(P[0],P[1],P[2]);
     return new Trk::CurvilinearParameters(gp, localp[2], localp[3], localp[4], measurementCovariance);
   }
 
-  return targetSurfaces[solutions[0]].first->createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],measurementCovariance); 
-
+  delete onTargetSurf;          // the covariance matrix can be just added instead of recreating ?
+  return targetSurfaces[solutions[0]].first->createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],
+								   measurementCovariance); 
+  
 }
 
+
+/////////////////////////////////////////////////////////////////////////////////
+// Main function for track propagation with or without jacobian
+// with search of closest surface
+/////////////////////////////////////////////////////////////////////////////////
+
+const Trk::TrackParameters*
+  Trk::STEP_Propagator::propagateRungeKutta (           bool 	                 errorPropagation,
+					     const Trk::TrackParameters&         inputTrackParameters,
+					        Trk::TargetSurfaces&             targetSurfaces,
+						   Trk::PropDirection            propagationDirection,
+					     const Trk::MagneticFieldProperties& mft,
+                                                        ParticleHypothesis       particle,
+					      Trk::TargetSurfaceVector&          solutions,
+							double&                  totalPath,
+							bool                     returnCurv) const
+{
+  //Store for later use
+  m_particle = particle; 
+  m_charge   = inputTrackParameters.charge();
+  m_inputThetaVariance = 0.;
+
+  const Trk::TrackParameters* trackParameters = 0;
+
+  // Bfield mode
+  mft.magneticFieldMode()==2 ? m_solenoid     = true : m_solenoid     = false;  
+
+  //Check inputvalues
+  if (m_tolerance <= 0.) return 0;
+  if (m_momentumCutOff < 0.) return 0;
+
+  //Set momentum to 1e10 (straight line) and charge to + if q/p is zero
+  if (inputTrackParameters.parameters()[Trk::qOverP] == 0) {
+    trackParameters = createStraightLine( &inputTrackParameters);
+    if (!trackParameters) {
+        return 0;
+    }
+  }
+  else {
+    trackParameters = &inputTrackParameters;
+  }
+
+  if (fabs( 1./trackParameters->parameters()[Trk::qOverP]) <= m_momentumCutOff) {
+    if (trackParameters != &inputTrackParameters) delete trackParameters;
+    return 0;
+  }
+
+  //Check for empty volumes. If x != x then x is not a number.
+  if (m_matPropOK && ((m_material->zOverAtimesRho() == 0.) || (m_material->x0() == 0.) ||
+    (m_material->zOverAtimesRho() != m_material->zOverAtimesRho()))) {
+    m_matPropOK = false;
+  }
+
+  if (errorPropagation && !trackParameters->covariance() ) {
+    errorPropagation = false;
+  }
+
+  if (m_matPropOK && errorPropagation && m_straggling) m_stragglingVariance = 0.;
+  m_combinedCovariance.setZero();
+  m_covariance.setZero();
+
+  if (errorPropagation || m_matstates)  {
+    // this needs debugging
+    m_inputThetaVariance = trackParameters->covariance() ? (*trackParameters->covariance())(3,3) : 0.;
+    m_combinedEloss.set(0.,0.,0.,0.,0.,0.);
+    m_combinedThickness=0.;
+  }
+
+/*
+  if (errorPropagation && m_includeBgradients) { //m_magneticFieldTool is only used to fetch the B-field gradients needed by the error propagation
+    m_magneticFieldTool = dynamic_cast<const Trk::IMagneticFieldTool*>(magneticFieldProperties.magneticFieldTool());
+  }
+*/
+
+  Trk::RungeKuttaUtils rungeKuttaUtils;
+  //double P[45]; // Track parameters and jacobian; use curvilinear representation
+  if (!rungeKuttaUtils.transformLocalToGlobal( false, *trackParameters, P)) {
+    if (trackParameters != &inputTrackParameters) delete trackParameters;
+    return 0;
+  } else if (errorPropagation) {
+    const AmgVector(5) &Vp = trackParameters->parameters();
+    double Tp[5] = {Vp[0], Vp[1], Vp[2], Vp[3], Vp[4]};
+    rungeKuttaUtils.transformCurvilinearToGlobal(Tp,P);
+  }
+
+  double path = 0.;
+
+  // activate brem photon emission if required
+  m_brem = ( m_simulation && particle==Trk::electron && m_simMatUpdator && m_randomEngine ) ? true : false;
+
+  // loop while valid solutions
+  Trk::ExtrapolationCode eStep=Trk::ExtrapolationCode::InProgress;
+  totalPath = 0.; m_timeOfFlight = 0.;
+  // Common transformation for all surfaces (angles and momentum)
+  double localp[5];
+  double Jacobian[21];
+  while ( eStep.inProgress() ) { 
+    // propagation to next surface
+    eStep = propagateWithJacobian( errorPropagation, targetSurfaces, P, propagationDirection, solutions, path, totalPath);
+    if (eStep==Trk::ExtrapolationCode::FailureNavigation || eStep==Trk::ExtrapolationCode::FailureLoop) {
+      if (trackParameters != &inputTrackParameters) delete trackParameters;
+      return 0;
+    }
+    if (propagationDirection * path <= 0.) {
+      if (trackParameters != &inputTrackParameters) delete trackParameters;
+      return 0;
+    }
+    totalPath += path;  m_timeOfFlight += m_timeStep;
+    if (m_propagateWithPathLimit>1 || (solutions.size() && m_binMat) || eStep==Trk::ExtrapolationCode::FailureUpdateKill ) {   
+      // make sure that for sliding surfaces the result does not get distorted
+      // return curvilinear parameters
+      const Trk::CurvilinearParameters* cPar = 0;
+      rungeKuttaUtils.transformGlobalToLocal(P, localp);
+      if (!errorPropagation) { 
+          cPar =  new Trk::CurvilinearParameters(Amg::Vector3D(P[0],P[1],P[2]),localp[2],localp[3],localp[4]); 
+      }	else {
+	double useless[2];
+	rungeKuttaUtils.transformGlobalToCurvilinear( true, P, useless, Jacobian);
+	AmgSymMatrix(5)* measurementCovariance = rungeKuttaUtils.newCovarianceMatrix(Jacobian,
+										     *trackParameters->covariance());
+	//Calculate multiple scattering and straggling covariance contribution.
+	if (m_matPropOK && (m_multipleScattering || m_straggling) && fabs(totalPath)>0.) {
+	  covarianceContribution( trackParameters, totalPath, fabs( 1./P[6]), measurementCovariance);
+	}
+	if (trackParameters != &inputTrackParameters) delete trackParameters;
+	cPar = new Trk::CurvilinearParameters(Amg::Vector3D(P[0],P[1],P[2]),localp[2],localp[3],localp[4],
+						      measurementCovariance);
+      }
+      // material collection : first iteration, bin material averaged
+      // collect material
+      if ( m_binMat && (m_matstates || (errorPropagation && m_extrapolationCache)) && fabs(totalPath-m_matdump_lastpath)>1.) {
+        dumpMaterialEffects( cPar, totalPath);
+      }
+      // if (cPar) std::cout <<"return curvilinear:"<< cPar->momentum().mag()<< std::endl;
+      return cPar;
+    }
+    if (m_propagateWithPathLimit>0) m_pathLimit -= path;
+    // boundary check already done 
+    // take into account that there may be many identical surfaces with different boundaries
+    Amg::Vector3D gp(P[0],P[1],P[2]);  
+    bool solution = false;
+ 
+    if (solutions.size()) {
+      std::vector<Trk::TargetSurface>::iterator iSol= solutions.begin();
+      if (returnCurv || (*iSol).surf->type()==Trk::Surface::Cone) {
+	rungeKuttaUtils.transformGlobalToLocal(P,localp);      // theta/phi/1/p
+	rungeKuttaUtils.transformGlobalToCurvilinear(errorPropagation,P,localp,Jacobian); 
+      } else rungeKuttaUtils.transformGlobalToLocal((*iSol).surf,errorPropagation,P,localp,Jacobian);
+      solution = true; 
+    } 
+    if (solution) break;
+  }
+
+  if (!solutions.size()) {
+    if (trackParameters != &inputTrackParameters) delete trackParameters;
+    return 0;
+  }
+
+  // simulation mode : smear momentum
+  if (m_simulation && m_matPropOK && m_randomEngine ) {
+    double radDist = totalPath/m_material->x0();
+    smear(localp[2],localp[3],trackParameters,radDist);
+  }
+
+  const Trk::TrackParameters* onTargetSurf = (returnCurv || solutions[0].surf->type()==Trk::Surface::Cone) ? 
+    0 : solutions[0].surf->createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],0);
+
+  if (!errorPropagation) {
+    if (trackParameters != &inputTrackParameters) delete trackParameters;
+    if (returnCurv || solutions[0].surf->type()==Trk::Surface::Cone)  {
+      Amg::Vector3D gp(P[0],P[1],P[2]);
+      return new Trk::CurvilinearParameters(gp, localp[2], localp[3], localp[4]);
+    }
+    return onTargetSurf;
+  }
+
+  //Errormatrix is included. Use Jacobian to calculate new covariance
+  AmgSymMatrix(5)* measurementCovariance = rungeKuttaUtils.newCovarianceMatrix(
+    Jacobian, *trackParameters->covariance());
+
+
+  //Calculate multiple scattering and straggling covariance contribution.
+  if (m_matPropOK && (m_multipleScattering || m_straggling) && fabs(totalPath)>0.) {
+    if (returnCurv || solutions[0].surf->type()==Trk::Surface::Cone)  
+      covarianceContribution( trackParameters, totalPath, fabs( 1./P[6]), measurementCovariance);
+    else {
+      covarianceContribution( trackParameters, totalPath, onTargetSurf, measurementCovariance);
+    }
+  }
+
+  if (trackParameters != &inputTrackParameters) delete trackParameters;
+  if (returnCurv || solutions[0].surf->type()==Trk::Surface::Cone)  {
+    Amg::Vector3D gp(P[0],P[1],P[2]);
+    return new Trk::CurvilinearParameters(gp, localp[2], localp[3], localp[4], measurementCovariance);
+  }
+
+  delete onTargetSurf;          // the covariance matrix can be just added instead of recreating ?
+  return solutions[0].surf->createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],
+								   measurementCovariance); 
+  
+}
+
+/////////////////////////////////////////////////////////////////////////////////
+// Runge Kutta main program for propagation with or without Jacobian
+/////////////////////////////////////////////////////////////////////////////////
+
+Trk::ExtrapolationCode Trk::STEP_Propagator::propagateRungeKutta( Trk::ExCellCharged& exCell,
+					    Trk::TargetSurfaces& targetSurfaces,
+					    Trk::TargetSurfaceVector& solutions,
+					    double& totalPath) const
+{
+  //Store for later use
+  m_particle = exCell.pHypothesis; 
+  m_charge   = exCell.leadParameters->charge();
+  m_inputThetaVariance = 0.;
+
+  const Trk::TrackParameters* trackParameters = exCell.leadParameters;
+
+  // Bfield mode
+  exCell.mFieldMode.magneticFieldMode()==2 ? m_solenoid     = true : m_solenoid     = false;  
+
+  //Check inputvalues
+  if (m_tolerance <= 0.) return Trk::ExtrapolationCode::FailureConfiguration;
+  if (m_momentumCutOff < 0.) return Trk::ExtrapolationCode::FailureConfiguration;
+
+  //Set momentum to 1e10 (straight line) and charge to + if q/p is zero
+  // TODO : propagation without B field with material update :: use the templated neutral transport
+  if (exCell.leadParameters->parameters()[Trk::qOverP] == 0) {
+    trackParameters = createStraightLine( exCell.leadParameters);
+    if (!trackParameters) {
+      return Trk::ExtrapolationCode::FailureConfiguration;
+    }
+  }
+
+  if (fabs( 1./trackParameters->parameters()[Trk::qOverP]) <= m_momentumCutOff) {
+    if (trackParameters != exCell.leadParameters) delete trackParameters;
+    return Trk::ExtrapolationCode::FailureUpdateKill;
+  }
+
+  //Check for empty volumes. If x != x then x is not a number.
+  if (m_matPropOK && ((m_material->zOverAtimesRho() == 0.) || (m_material->x0() == 0.) ||
+    (m_material->zOverAtimesRho() != m_material->zOverAtimesRho()))) {
+    m_matPropOK = false;
+  }
+
+  bool errorPropagation = trackParameters->covariance() ? true : false;
+
+  if (m_matPropOK && errorPropagation && m_straggling) m_stragglingVariance = 0.;
+  m_combinedCovariance.setZero();
+  m_covariance.setZero();
+
+  m_inputThetaVariance = trackParameters->covariance() ? (*trackParameters->covariance())(3,3) : 0.;
+  m_combinedEloss.set(0.,0.,0.,0.,0.,0.);
+  m_combinedThickness=0.;
+
+  Trk::RungeKuttaUtils rungeKuttaUtils;
+  //double P[45]; // Track parameters and jacobian; use curvilinear representation
+  if (!rungeKuttaUtils.transformLocalToGlobal( false, *trackParameters, P)) {
+    if (trackParameters != exCell.leadParameters ) delete trackParameters;
+    return Trk::ExtrapolationCode::FailureNavigation;
+  } else if (errorPropagation) {
+    const AmgVector(5) &Vp = trackParameters->parameters();
+    double Tp[5] = {Vp[0], Vp[1], Vp[2], Vp[3], Vp[4]};
+    rungeKuttaUtils.transformCurvilinearToGlobal(Tp,P);
+  }
+
+  double path = 0.;
+
+  // activate brem photon emission if required
+  m_brem = ( m_simulation && m_particle==Trk::electron && m_simMatUpdator && m_randomEngine ) ? true : false;
+
+  // loop while valid solutions
+  Trk::ExtrapolationCode eStep = Trk::ExtrapolationCode::InProgress;
+  totalPath = 0.; m_timeOfFlight = 0.;
+  // Common transformation for all surfaces (angles and momentum)
+  double localp[5];
+  double Jacobian[21];
+  while ( eStep.inProgress() ) { 
+    // propagation to next surface
+    eStep = propagateWithJacobian( errorPropagation, targetSurfaces, P, exCell.propDirection, solutions, path, totalPath, &exCell);
+
+    if (eStep==Trk::ExtrapolationCode::FailureNavigation || eStep==Trk::ExtrapolationCode::FailureLoop) {
+      if (trackParameters != exCell.leadParameters) delete trackParameters;
+      return eStep;
+    }
+    if (exCell.propDirection * path <= 0. && fabs(1./P[6])>m_momentumCutOff) {
+      if (trackParameters != exCell.leadParameters) delete trackParameters;
+      return Trk::ExtrapolationCode::FailureNavigation;
+    }
+    totalPath += path;  m_timeOfFlight += m_timeStep;
+    if (m_propagateWithPathLimit>1 || (solutions.size() && m_binMat) || eStep==Trk::ExtrapolationCode::FailureUpdateKill ) {   
+      // make sure that for sliding surfaces the result does not get distorted
+      // return curvilinear parameters
+      const Trk::CurvilinearParameters* cPar = 0;
+      rungeKuttaUtils.transformGlobalToLocal(P, localp);
+      if (!errorPropagation) { 
+          cPar =  new Trk::CurvilinearParameters(Amg::Vector3D(P[0],P[1],P[2]),localp[2],localp[3],localp[4]); 
+      }	else {
+	double useless[2];
+	rungeKuttaUtils.transformGlobalToCurvilinear( true, P, useless, Jacobian);
+	AmgSymMatrix(5)* measurementCovariance = rungeKuttaUtils.newCovarianceMatrix(Jacobian,
+										     *trackParameters->covariance());
+	//Calculate multiple scattering and straggling covariance contribution.
+	if (m_matPropOK && (m_multipleScattering || m_straggling) && fabs(totalPath)>0.) {
+	  covarianceContribution( trackParameters, totalPath, fabs( 1./P[6]), measurementCovariance);
+	}
+	if (trackParameters != exCell.leadParameters) delete trackParameters;
+	cPar = new Trk::CurvilinearParameters(Amg::Vector3D(P[0],P[1],P[2]),localp[2],localp[3],localp[4],
+						      measurementCovariance);
+      }
+      // if (cPar) std::cout <<"return curvilinear:"<< cPar->momentum().mag()<< std::endl;
+      exCell.leadParameters = cPar;     // TODO resolve memory management
+      // material collection : first iteration, bin material averaged
+      // collect material
+      if ( m_binMat && (m_matstates || (errorPropagation && m_extrapolationCache)) && fabs(totalPath-m_matdump_lastpath)>1.) {
+        handleMaterialEffects( exCell, totalPath);
+      }
+      //std::cout <<"RK returns curvilinear inProgress"<< std::endl;
+      return Trk::ExtrapolationCode::InProgress;
+    }
+    if (m_propagateWithPathLimit>0) m_pathLimit -= path;
+    // boundary check already done 
+    // take into account that there may be many identical surfaces with different boundaries
+    Amg::Vector3D gp(P[0],P[1],P[2]);  
+    bool solution = false;
+ 
+    if (solutions.size()) {
+      std::vector<Trk::TargetSurface>::iterator iSol= solutions.begin();
+      if (exCell.navigationCurvilinear || (*iSol).surf->type()==Trk::Surface::Cone) {
+	rungeKuttaUtils.transformGlobalToLocal(P,localp);      // theta/phi/1/p
+	rungeKuttaUtils.transformGlobalToCurvilinear(errorPropagation,P,localp,Jacobian); 
+      } else rungeKuttaUtils.transformGlobalToLocal((*iSol).surf,errorPropagation,P,localp,Jacobian);
+      solution = true; 
+    } 
+    if (solution) break;
+  }
+
+  //std::cout <<"RK:non-curvilinear? "<<solutions.size()<< std::endl;
+
+  if (!solutions.size()) {
+    if (trackParameters != exCell.leadParameters) delete trackParameters;
+    return Trk::ExtrapolationCode::FailureNavigation;
+  }
+
+  // simulation mode : smear momentum
+  if (m_simulation && m_matPropOK && m_randomEngine ) {
+    double radDist = totalPath/m_material->x0();
+    smear(localp[2],localp[3],trackParameters,radDist);
+  }
+
+  const Trk::TrackParameters* onTargetSurf = (exCell.navigationCurvilinear || solutions[0].surf->type()==Trk::Surface::Cone) ? 
+    0 : solutions[0].surf->createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],0);
+
+  if (!errorPropagation) {
+    if (trackParameters != exCell.leadParameters) delete trackParameters;
+    if (exCell.navigationCurvilinear || solutions[0].surf->type()==Trk::Surface::Cone)  {
+      Amg::Vector3D gp(P[0],P[1],P[2]);
+      exCell.leadParameters = new Trk::CurvilinearParameters(gp, localp[2], localp[3], localp[4]);
+    } else exCell.leadParameters = onTargetSurf;
+    return Trk::ExtrapolationCode::InProgress;
+  }
+
+  //Errormatrix is included. Use Jacobian to calculate new covariance
+  AmgSymMatrix(5)* measurementCovariance = rungeKuttaUtils.newCovarianceMatrix(
+    Jacobian, *trackParameters->covariance());
+
+
+  //Calculate multiple scattering and straggling covariance contribution.
+  if (m_matPropOK && (m_multipleScattering || m_straggling) && fabs(totalPath)>0.) {
+    if (exCell.navigationCurvilinear || solutions[0].surf->type()==Trk::Surface::Cone)  
+      covarianceContribution( trackParameters, totalPath, fabs( 1./P[6]), measurementCovariance);
+    else {
+      covarianceContribution( trackParameters, totalPath, onTargetSurf, measurementCovariance);
+    }
+  }
+
+  if (trackParameters != exCell.leadParameters) delete trackParameters;
+  if (exCell.navigationCurvilinear || solutions[0].surf->type()==Trk::Surface::Cone)  {
+    Amg::Vector3D gp(P[0],P[1],P[2]);
+    exCell.leadParameters = new Trk::CurvilinearParameters(gp, localp[2], localp[3], localp[4], measurementCovariance);
+    return Trk::ExtrapolationCode::InProgress;     // !! memleak   
+  }
+
+  delete onTargetSurf;          // the covariance matrix can be just added instead of recreating ?
+  exCell.leadParameters = solutions[0].surf->createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],
+								   measurementCovariance); 
+  return Trk::ExtrapolationCode::InProgress;  // !! memleak
+}   
 
 /////////////////////////////////////////////////////////////////////////////////
 // Runge Kutta main program for propagation with or without Jacobian
@@ -1187,7 +1739,6 @@ bool
     }
     if (m_matstates || errorPropagation) m_combinedEloss.update(m_delIoni*distanceStepped,m_sigmaIoni*fabs(distanceStepped),
 					    m_delRad *distanceStepped,m_sigmaRad *fabs(distanceStepped),m_MPV);
-    if (m_material && m_material->x0()!=0.) m_combinedThickness += distanceStepped/m_material->x0(); 
 
     //Calculate new distance to target
     previousDistance = fabs( distanceToTarget);
@@ -1207,6 +1758,7 @@ bool
 
     if (steps++ > m_maxSteps) return false; //Too many steps, something is wrong
   }
+  if (m_material && m_material->x0()!=0.) m_combinedThickness += fabs(path)/m_material->x0(); 
 
   //Use Taylor expansions to step the remaining distance (typically microns).
   path = path + distanceToTarget;
@@ -1343,13 +1895,6 @@ bool
       std::pair<size_t,float> dist2next = lbu->distanceToNext(position,propDir*direction0);
       if (dist2next.first < lbu->bins() && fabs(dist2next.second)>1. && fabs(dist2next.second)< fabs(h) )  h = dist2next.second*propDir; 
       if (binIDMat) m_material = binIDMat->first;
-      //std::cout <<"propagator finds binned material at position:eta,R:"<< position.eta()<<","<<position.perp()
-      // <<", layer bin:"<< m_currentLayerBin
-      //	      <<", next layer bin:"<< dist2next.first<<", at distance "<< dist2next.second<< std::endl;
-      //if (m_material) std::cout <<m_material->x0()<<","<<m_material->averageZ()<< std::endl;
-      // const Trk::BinUtility* lbu =  m_binMat->layerBinUtility(position);
-      // for (unsigned int i=0; i<lbu->bins(); i++) std::cout <<"map layer bu:"<< i<<","<<lbu->binPosition(i,-1.)
-      // <<","<<lbu->binPosition(i,+1.)<< std::endl;
     }
   }
 
@@ -1399,7 +1944,7 @@ bool
 					      m_delRad *distanceStepped,m_sigmaRad *fabs(distanceStepped),m_MPV);
       
       if (m_material && m_material->x0()!=0.) {
-	m_combinedThickness += distanceStepped/m_material->x0(); 
+	m_combinedThickness += propDir*distanceStepped/m_material->x0(); 
       }
       
       return false;
@@ -1423,7 +1968,7 @@ bool
     if (m_matstates||errorPropagation) m_combinedEloss.update(m_delIoni*distanceStepped,m_sigmaIoni*fabs(distanceStepped),
 					    m_delRad *distanceStepped,m_sigmaRad *fabs(distanceStepped),m_MPV);
     if (m_material && m_material->x0()!=0.) {
-      m_combinedThickness += distanceStepped/m_material->x0(); 
+      m_combinedThickness += propDir*distanceStepped/m_material->x0(); 
     }
 
     if (absPath > maxPath) return false;
@@ -1442,125 +1987,7 @@ bool
 
     //Adapt step size to the material binning : change of bin layer triggers dump of material effects
     float distanceToNextBin = h;          // default    
-    if (m_binMat) {
-      const Trk::BinUtility* lbu =  m_binMat->layerBinUtility(position);
-      if (lbu) {
-	size_t layerBin = m_binMat->layerBin(position);
-        const Trk::IdentifiedMaterial* iMat = m_binMat->material(position); 
-	std::pair<size_t,float> dist2next = lbu->distanceToNext(position,propDir*direction);
-	Trk::RungeKuttaUtils rungeKuttaUtils;
-        distanceToNextBin = dist2next.second;
-	//std::cout <<"step in binned material:"<< dist2next.first<<","<<dist2next.second<< std::endl;
-        if (layerBin != m_currentLayerBin ) {       // step into new bin
-          // check the overshoot
-	  std::pair<size_t,float> dist2previous = lbu->distanceToNext(position,-propDir*direction);
-          float stepOver = dist2previous.second;
-	  //std::cout <<" STEP overshoots bin boundary by:"<< stepOver<<" :w.r.t. bin:" << dist2previous.first<< std::endl;
-	  double localp[5];
-	  rungeKuttaUtils.transformGlobalToLocal(P, localp);
-	  const Trk::CurvilinearParameters* cPar =  new Trk::CurvilinearParameters(Amg::Vector3D(P[0],P[1],P[2]),localp[2],localp[3],localp[4]); 
-          // such a detailed material dump no longer needed ?
-          // if (m_matstates) dumpMaterialEffects( cPar, sumPath+path-stepOver );
-          //if (m_identifiedParameters || m_hitVector) {
-	  //   std::cout <<"dump of identified parameters? step over:"<< m_currentLayerBin<<","<<layerBin<< ":"
-	  //  <<position.perp()<<","<<position.z()<<std::endl;
-	  //  if (binIDMat) std::cout <<"layer identification current:"<<binIDMat->second <<std::endl;
-	  //  if (iMat) std::cout <<"layer identification next:"<<iMat->second <<std::endl;
-	  //}
-          if (m_identifiedParameters) {
-           if (binIDMat && binIDMat->second>0 && !iMat ) {  // exit from active layer
-	      m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),-binIDMat->second));
-            } else if (binIDMat && binIDMat->second>0 && (iMat->second==0 || iMat->second==binIDMat->second) ) {  // exit from active layer
-	      m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),-binIDMat->second));
-            } else if (iMat && iMat->second>0) {       // entry active layer
-	      m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),iMat->second));
-	    }
-          } 
-          if (m_hitVector) {
-            double hitTiming = m_timeIn+m_timeOfFlight+m_timeStep;
-            if (binIDMat && binIDMat->second>0 && !iMat ) {  // exit from active layer
-	      m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming,-binIDMat->second,0.));
-            } else if (binIDMat && binIDMat->second>0 && (iMat->second==0 || iMat->second==binIDMat->second) ) {  // exit from active layer
-	      m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming,-binIDMat->second,0.));
-            } else if (iMat && iMat->second>0) {       // entry active layer
-	      m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming, iMat->second,0.));
-	    }
-          } 
-	  delete cPar;
- 
-          m_currentLayerBin = layerBin;
-          binIDMat = iMat;
-	  if (binIDMat) {                // change of material triggers update of the cache 
-            // @TODO Coverity complains about a possible NULL pointer dereferencing here 
-            //  because the code above does not explicitly forbid m_material to be NULL and m_material is used
-            //  unchecked inside updateMaterialEffects.
-            //  Can m_material be NULL at this point ?
-            if (m_material) {
-            updateMaterialEffects(mom, sin(direction.theta()), sumPath+path-stepOver);
-            }
-	    m_material = binIDMat->first;                
-	  }
-          // recalculate distance to next bin
-          if (distanceToNextBin<h) {
-	    Amg::Vector3D probe = position + (distanceToNextBin+h)*propDir*direction;
-	    std::pair<size_t,float> d2n = lbu->distanceToNext(probe,propDir*direction);
-	    distanceToNextBin += d2n.second+h;
-	  }
-	} else if ( dist2next.first < lbu->bins() && fabs(distanceToNextBin) < 0.01 && h>0.01 ) {     // tolerance 10 microns ?
-	  double localp[5];
-	  rungeKuttaUtils.transformGlobalToLocal(P, localp);
-	  const Trk::CurvilinearParameters* cPar =  new Trk::CurvilinearParameters(Amg::Vector3D(P[0],P[1],P[2]),localp[2],localp[3],localp[4]); 
-          // such a detailed material dump no longer needed ?
-	  // if (m_matstates) dumpMaterialEffects( cPar, sumPath+path );
-
-	  const Trk::IdentifiedMaterial* nextMat = binIDMat;
-	  // need to know what comes next
-	  Amg::Vector3D probe = position + (distanceToNextBin+0.01)*propDir*direction.normalized();
-	  nextMat = m_binMat->material(probe); 
-
-          //if (m_identifiedParameters || m_hitVector) {
-	  //  std::cout <<"dump of identified parameters? step before:"<<distanceToNextBin<<": current:"<< 
-	  //  m_currentLayerBin<<","<<dist2next.first<< ":"<<position.perp()<<","<<position.z()<<std::endl;
-	  //  if (binIDMat) std::cout <<"layer identification current:"<<binIDMat->second <<std::endl;
-	  //  if (nextMat) std::cout <<"layer identification next:"<<nextMat->second <<std::endl;
-	  //}
-	  if (m_identifiedParameters ) {
-            if (binIDMat && binIDMat->second>0 && !nextMat ) {  // exit from active layer
-	      m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),-binIDMat->second));
-            } else if (binIDMat && binIDMat->second>0 && (nextMat->second==0 || nextMat->second==binIDMat->second) ) {  // exit from active layer
-	      m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),-binIDMat->second));
-            } else if (nextMat && nextMat->second>0) {       // entry active layer
-	      m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),nextMat->second));
-	    }
-	  }
-          if (m_hitVector) {
-            double hitTiming = m_timeIn+m_timeOfFlight+m_timeStep;
-            if (binIDMat && binIDMat->second>0 && !nextMat ) {  // exit from active layer
-	      m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming, -binIDMat->second,0.));
-            } else if (binIDMat && binIDMat->second>0 && (nextMat->second==0 || nextMat->second==binIDMat->second) ) {  // exit from active layer
-	      m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming, -binIDMat->second,0.));
-            } else if (nextMat && nextMat->second>0) {       // entry active layer
-	      m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming, nextMat->second,0.));
-	    }
-	  }
-          delete cPar;
-
-          m_currentLayerBin = dist2next.first;
-	  if (binIDMat!=nextMat) {               // change of material triggers update of the cache 
-	    binIDMat = nextMat;
-            if (binIDMat) {
-              assert( m_material);
-              updateMaterialEffects(mom, sin(direction.theta()), sumPath+path);
-              m_material = binIDMat->first;            
-            }
-	  }
-          // recalculate distance to next bin
-	  std::pair<size_t,float> d2n = lbu->distanceToNext(probe,propDir*direction.normalized());
-	  distanceToNextBin += d2n.second+0.01;
-	}
-        // TODO: trigger the update of material properties and recalculation of distance to the target sliding surface
-      }
-    }
+    if (m_binMat) stepInBinnedMaterial(position,propDir*direction,mom,sumPath+path,h,binIDMat,distanceToNextBin);
     
     //Calculate new distance to targets
     bool flipDirection = false;
@@ -1786,6 +2213,327 @@ bool
 }
 
 /////////////////////////////////////////////////////////////////////////////////
+// Runge Kutta main program for propagation with or without Jacobian
+// with search of closest surface (ST)
+/////////////////////////////////////////////////////////////////////////////////
+
+Trk::ExtrapolationCode
+Trk::STEP_Propagator::propagateWithJacobian (     
+					       bool          errorPropagation,
+					     Trk::TargetSurfaces&  sfs,
+  						     double*       P,
+                                              Trk::PropDirection   propDir,
+				       Trk::TargetSurfaceVector&   solutions,
+  						     double&       path,
+					       double        sumPath,
+					       Trk::ExCellCharged* exCell) const
+{
+  double       maxPath = m_maxPath;  			// Max path allowed
+  double*      pos     = &P[0];  			// Start coordinates
+  double*      dir       = &P[3];  			// Start directions
+  double       dDir[3]   = { 0., 0., 0.};		// Start directions derivs. Zero in case of no RK steps
+  //int          targetPassed = 0;      			// how many times have we passed the target?
+  //double       previousDistance = 0.;
+  double       distanceStepped = 0.;
+  float        BG1[12] = {0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0., 0.}; // Bx, By, Bz, dBx/dx, dBx/dy, dBx/dz,
+                                                        // dBy/dx, dBy/dy, dBy/dz, dBz/dx, dBz/dy, dBz/dz at first point
+  bool         firstStep = true;                        // Poll BG1, else recycle BG4
+  int          steps = 0;
+  path    = 0.;  				// path of the trajectory
+  m_timeStep = 0.;                              // time separation corresponding to the trajectory
+  double mom   = 0.;                            // need momentum and beta for timing
+  double beta  = 1.;                            // need momentum and beta for timing
+
+  // factor to stabilize iteration for soft tracks
+  //double helpSoft = 1.;
+
+  // limit number of recovery attempts
+  //int restartLimit =10;
+
+  Amg::Vector3D position(P[0],P[1],P[2]); 
+  Amg::Vector3D direction0(P[3],P[4],P[5]); 
+
+  // binned material ?
+  m_binMat = 0;
+  if (m_trackingVolume) {
+    const Trk::AlignableTrackingVolume* aliTV = dynamic_cast<const Trk::AlignableTrackingVolume*> (m_trackingVolume);
+    if (aliTV) m_binMat = aliTV->binnedMaterial();
+  }
+ 
+
+// closest distance estimate
+// maintain count of oscilations and previous distance for each surface;
+// skip initial trivial solutions (input parameters at surface) - should be treated before call to the propagator !
+  double tol = 0.001; 
+  solutions.clear();
+  // targetSurfaces keeps info about current closest surface,step estimate and number of solution along path
+  if (!sfs.checkDistance(position,propDir*direction0,100.)) return Trk::ExtrapolationCode::FailureNavigation;
+
+  double distanceToTarget = sfs.distanceToNext(); 
+  int nextSf = sfs.nextSf();
+  int nextSfCand = nextSf;
+  unsigned int numSf = sfs.numSf(); 
+
+  // TODO : synchronize maxPath with TargetSurfaces
+  if (distanceToTarget == maxPath || numSf == 0 ) return Trk::ExtrapolationCode::FailureNavigation;   
+
+  //Set initial step length to 100mm or the distance to the target surface.
+  double absPath=0.;
+  double h = distanceToTarget > 100. ? 100.*propDir : propDir*distanceToTarget;
+
+  const Trk::IdentifiedMaterial* binIDMat = 0;
+  //Adapt step size to the material binning : change of bin layer triggers dump of material effects
+  if (m_binMat) {
+    const Trk::BinUtility* lbu =  m_binMat->layerBinUtility(position);
+    if (lbu) {
+      m_currentLayerBin = m_binMat->layerBin(position);
+      binIDMat        = m_binMat->material(position);
+      std::pair<size_t,float> dist2next = lbu->distanceToNext(position,propDir*direction0);
+      if (dist2next.first < lbu->bins() && fabs(dist2next.second)>1. &&
+	  fabs(dist2next.second)< fabs(h) )  h = dist2next.second*propDir; 
+      if (binIDMat) m_material = binIDMat->first;
+    }
+  }
+
+  // Step to within distanceTolerance, then do the rest as a Taylor expansion.
+  // Keep distanceTolerance within [1 nanometer, 10 microns].
+  // This means that no final Taylor expansions beyond 10 microns and no
+  // Runge-Kutta steps less than 1 nanometer are allowed.
+  double distanceTolerance = std::min( std::max( fabs( distanceToTarget) * m_tolerance, 1e-6), 1e-2);
+
+  // bremstrahlung : sample if activated
+  if (m_brem) {
+    mom = fabs(1./P[6]); 
+    sampleBrem(mom);
+  }
+
+  int flipCounter=0;
+
+  Amg::Vector3D direction(P[3],P[4],P[5]); 
+
+  while ( numSf > 0 && ( fabs( distanceToTarget) > distanceTolerance || fabs(path+distanceStepped)<tol) ) { 
+    // Step until within tolerance
+    // Do the step. Stop the propagation if the energy goes below m_momentumCutOff
+    if (!rungeKuttaStep( errorPropagation, h, P, dDir, BG1, firstStep, distanceStepped)) {
+      // emit brem photon before stopped ?
+      if (m_brem) {
+	if ( m_momentumCutOff < m_bremEmitThreshold && m_simMatUpdator ) {
+	  position = Amg::Vector3D(P[0],P[1],P[2]); 
+	  direction =Amg::Vector3D(P[3],P[4],P[5]); 
+	  m_simMatUpdator->recordBremPhoton(m_timeIn+m_timeOfFlight+m_timeStep, 
+					    m_momentumCutOff, m_bremMom, position, direction, m_particle);
+          // the recoil can be skipped here 
+	  for (int i=0; i<3; i++) P[3+i] = direction[i];
+          // end recoil ( momentum not adjusted here ! continuous energy loss maintained for the moment)
+	}
+      }
+      // collect material and update timing
+      path = path + distanceStepped;
+      // timing
+      mom = fabs(1./P[6]); beta = mom/sqrt(mom*mom+m_particleMass*m_particleMass);
+      m_timeStep += distanceStepped/beta/CLHEP::c_light;
+
+      if(fabs(distanceStepped)>0.001) m_sigmaIoni = m_sigmaIoni - m_kazL*log(fabs(distanceStepped));
+      // update straggling covariance 
+      if (errorPropagation && m_straggling) {
+	// 15% of the Radition moves the MOP value thus only 85% is accounted for by the Mean-MOP shift
+	double sigTot2 = m_sigmaIoni*m_sigmaIoni + m_sigmaRad*m_sigmaRad;
+	// /(beta*beta*p*p*p*p) transforms Var(E) to Var(q/p)
+	double bp2 = beta*mom*mom;
+	m_stragglingVariance += sigTot2/(bp2*bp2)*distanceStepped*fabs(distanceStepped);  // keep trace of sign
+      }
+      if (m_matstates||errorPropagation) m_combinedEloss.update(m_delIoni*distanceStepped,
+								m_sigmaIoni*fabs(distanceStepped),
+								m_delRad *distanceStepped,
+								m_sigmaRad *fabs(distanceStepped),m_MPV);
+      
+      if (m_material && m_material->x0()!=0.) {
+	m_combinedThickness += fabs(distanceStepped)/m_material->x0();       
+        if (exCell) exCell->addMaterial( fabs(distanceStepped), m_material );
+      }
+      return Trk::ExtrapolationCode::FailureUpdateKill;
+    }
+    //std::cout <<"RK step:h,d,path,absPath:"<<h<<","<<distanceStepped<<","<<path<<","<<absPath<< std::endl;
+    path = path + distanceStepped;
+    absPath += fabs(distanceStepped);
+    
+    // timing
+    mom = fabs(1./P[6]); beta = mom/sqrt(mom*mom+m_particleMass*m_particleMass);
+    m_timeStep += distanceStepped/beta/Gaudi::Units::c_light;
+    
+    if(fabs(distanceStepped)>0.001) m_sigmaIoni = m_sigmaIoni - m_kazL*log(fabs(distanceStepped));
+    // update straggling covariance 
+    if (errorPropagation && m_straggling) {
+      // 15% of the Radition moves the MOP value thus only 85% is accounted for by the Mean-MOP shift
+      double sigTot2 = m_sigmaIoni*m_sigmaIoni + m_sigmaRad*m_sigmaRad;
+      // /(beta*beta*p*p*p*p) transforms Var(E) to Var(q/p)
+      double bp2 = beta*mom*mom;
+      m_stragglingVariance += sigTot2/(bp2*bp2)*distanceStepped*fabs(distanceStepped);  // keep trace of sign
+    }
+    if (m_matstates||errorPropagation) m_combinedEloss.update(m_delIoni*distanceStepped,
+							      m_sigmaIoni*fabs(distanceStepped),
+							      m_delRad *distanceStepped,
+							      m_sigmaRad *fabs(distanceStepped),m_MPV);
+    if (m_material && m_material->x0()!=0.) {
+      m_combinedThickness += fabs(distanceStepped)/m_material->x0(); 
+      if (exCell) exCell->addMaterial( fabs(distanceStepped), m_material );
+    }
+
+    if (absPath > maxPath) return Trk::ExtrapolationCode::FailureLoop;   // loop or navigation break?
+    
+    // path limit implemented
+    if (m_propagateWithPathLimit>0 && m_pathLimit<= path) { 
+      m_propagateWithPathLimit++; 
+      return Trk::ExtrapolationCode::SuccessPathLimit;
+    }  
+    
+    //bool restart = false; 
+    // in case of problems, make shorter steps
+    //if ( propDir*path < -tol || absPath-fabs(path)>10.)
+    //  std::cout << "problems in propagation: propDir*path : absPath-fabs(path):"<<
+    //	propDir*path<<":"<<absPath-fabs(path) << std::endl;
+    //  helpSoft = fabs(path)/absPath > 0.5 ? fabs(path)/absPath : 0.5;    // old solution
+
+    Amg::Vector3D pos_new(P[0],P[1],P[2]); 
+    Amg::Vector3D dir_new(P[3],P[4],P[5]); 
+
+    //std::cout <<"distance stepped,abs.distance:"<< distanceStepped << ","<< (position-pos_new).mag()<<std::endl;
+    position = pos_new;
+    direction = dir_new;
+
+    //Adapt step size to the material binning : change of bin layer triggers dump of material effects
+    float distanceToNextBin = h;          // default    
+    if (m_binMat) stepInBinnedMaterial(position,propDir*direction,mom,sumPath+path,h,binIDMat,distanceToNextBin);
+
+    if (m_brem) {
+      if ( mom < m_bremEmitThreshold && m_simMatUpdator) {
+        // ST : strictly speaking, the emission point should be shifted backwards a bit (mom-m_bremEmitThreshold)
+        // this seems to be a minor point
+        m_simMatUpdator->recordBremPhoton(m_timeIn+m_timeOfFlight+m_timeStep, 
+					  mom, m_bremMom, position, direction, m_particle);
+        m_bremEmitThreshold = 0.;
+      }
+      if ( mom < m_bremSampleThreshold ) sampleBrem(m_bremSampleThreshold);
+    }
+
+    if (!sfs.checkDistance(position,propDir*direction,h*propDir)) return Trk::ExtrapolationCode::FailureNavigation;
+    
+    distanceToTarget = propDir*sfs.distanceToNext(); 
+
+    if (sfs.debugMode()) ATH_MSG_INFO("STEP debug mode: next:distance:"<< sfs.nextSf()<<","<<distanceToTarget<<",flip:"
+				      <<sfs.flipDirection()<<",solutions ahead:"<<sfs.numSf()
+				      <<":path,absPath:"<<path<<","<<absPath);
+
+    bool flipDirection = sfs.flipDirection();
+
+    nextSfCand = sfs.nextSf(); 
+
+    numSf = sfs.numSf(); 
+
+    // flip direction
+    //if (flipCounter>0 && !flipDirection && h*propDir<0) std::cout <<"number of flips even, restart?" << std::endl;
+    if (flipCounter>0 && !flipDirection && h*propDir<0) {
+      flipDirection=true;
+    }
+ 
+    flipCounter = flipDirection ? flipCounter+1 : 0;
+    //if (flipCounter>2) std::cout <<"oscilating:number of flips, next, distance to next:"<<flipCounter<<":"<<nextSf<<","<<nextSfCand<<":"<<distanceToTarget<< std::endl;
+
+    if (flipDirection) {
+      // distanceToTarget = (*(vsBeg+nextSf)).second.first;  //TODO : check if retrieval needed
+      h = -h;
+    } else if (nextSfCand!=nextSf) {
+      nextSf = nextSfCand;
+      // if (m_currentDist[nextSf].first<3) helpSoft = 1.;
+    }
+
+    //don't step beyond surfaces - adjust step
+    if (fabs( h) > fabs( distanceToTarget)) h = propDir*distanceToTarget;  // TODO check sign
+
+    //don't step beyond bin boundary - adjust step
+    if (m_binMat && fabs( h) > fabs(distanceToNextBin)+0.001 ) {
+      if ( distanceToNextBin>0 ) {     // TODO : investigate source of negative distance in BinningData  
+        //std::cout <<"adjusting step because of bin boundary:"<< h<<"->"<< distanceToNextBin*propDir<< std::endl;
+        h = distanceToNextBin*propDir;
+      }
+    }
+
+    if (sfs.debugMode()) std::cout <<" next RK step length :(h):"<< h << std::endl;
+
+    //if ( helpSoft<1.) h*=helpSoft;
+
+    // don't step much beyond path limit 
+    if (m_propagateWithPathLimit>0 && fabs(h+path) > m_pathLimit )  h = m_pathLimit - path + propDir*tol;  
+
+    //std::cout <<"current closest estimate: distanceToTarget: step size :"<< nextSf<<":"<< distanceToTarget <<":"<<h<< std::endl;
+
+    //Abort if maxPath is reached 
+    if (fabs( path) > maxPath) return Trk::ExtrapolationCode::FailureLoop;   // loop or navigation break ?
+
+    if (steps++ > m_maxSteps) {
+      ATH_MSG_INFO("STEP:too many propagation steps:"<< steps <<">"<<m_maxSteps<<" aborting propagation");
+      return Trk::ExtrapolationCode::FailureNavigation; //Too many steps, something is wrong
+    }
+
+    // final approach and boundary check
+    if ( fabs( distanceToTarget) <= distanceTolerance && fabs(path+distanceStepped)>tol ) {
+
+      //std::cout <<"final approach:distance2target,path,distanceStepped:"<<distanceToTarget<<":"<<path<<":"<<distanceStepped<< std::endl;
+ 
+      //Use Taylor expansions to step the remaining distance (typically microns).
+      path = path + distanceToTarget*propDir;
+      
+      // timing
+      mom = fabs(1./P[6]); beta = mom/sqrt(mom*mom+m_particleMass*m_particleMass);
+      m_timeStep += propDir*distanceToTarget/beta/Gaudi::Units::c_light;
+      
+      //pos = pos + h*dir + 1/2*h*h*dDir. Second order Taylor expansion.
+      pos[0] = pos[0] + propDir*distanceToTarget*(dir[0] + 0.5*propDir*distanceToTarget*dDir[0]);
+      pos[1] = pos[1] + propDir*distanceToTarget*(dir[1] + 0.5*propDir*distanceToTarget*dDir[1]);
+      pos[2] = pos[2] + propDir*distanceToTarget*(dir[2] + 0.5*propDir*distanceToTarget*dDir[2]);
+      
+      //dir = dir + h*dDir. First order Taylor expansion (Euler).
+      dir[0] = dir[0] + propDir*distanceToTarget*dDir[0];
+      dir[1] = dir[1] + propDir*distanceToTarget*dDir[1];
+      dir[2] = dir[2] + propDir*distanceToTarget*dDir[2];
+    
+      //Normalize dir
+      double norm  = 1./sqrt(dir[0]*dir[0] + dir[1]*dir[1] + dir[2]*dir[2]);
+      dir[0] = norm*dir[0];
+      dir[1] = norm*dir[1];
+      dir[2] = norm*dir[2];
+      P[42]  = dDir[0];
+      P[43]  = dDir[1];
+      P[44]  = dDir[2];
+
+      // collect all surfaces with distance below tolerance
+      Amg::Vector3D gp(P[0],P[1],P[2]); 
+      sfs.fillSolutions(nextSf,gp,solutions);
+
+      // no valid intersection : update distance estimate and continue
+      if (!solutions.size()) {
+	// verify distance 
+	Amg::Vector3D posc(P[0],P[1],P[2]); 
+	Amg::Vector3D dirc(P[3],P[4],P[5]); 
+	if (!sfs.checkDistance(posc,propDir*dirc,h*propDir)) return Trk::ExtrapolationCode::FailureNavigation;
+        distanceToTarget = propDir*sfs.distanceToNext();
+	//std::cout <<"no solutions: update nextSf:"<<nextSf<<"->"<<sfs.nextSf()<<std::endl; 
+	nextSf = sfs.nextSf(); 
+	numSf = sfs.numSf(); 
+	//don't step beyond surfaces - adjust step
+        h = distanceToTarget > 100. ? 100.*propDir : propDir*distanceToTarget;
+        //std::cout <<"no solutions:current closest estimate: distanceToTarget: step size :"<< nextSf<<":"<< distanceToTarget <<":"<<h<< std::endl;
+	//std::cout <<"no solutions:numSf:"<< numSf<< std::endl;
+      }
+    }
+  }
+
+  if (sfs.debugMode()) ATH_MSG_INFO("STEP in DEBUG mode: stepping out of loop:path,number of solutions:"<< path<<","<<solutions.size()); 
+
+  return Trk::ExtrapolationCode::InProgress;
+}
+
+/////////////////////////////////////////////////////////////////////////////////
 // Runge Kutta trajectory model (units->mm,MeV,kGauss)
 //
 // Runge Kutta method is adaptive Runge-Kutta-Nystrom.
@@ -1849,7 +2597,10 @@ bool
     //POINT 2
     if (m_energyLoss && m_matPropOK) {
       momentum = initialMomentum + (h/2.)*dP1;
-      if (momentum <= m_momentumCutOff) return false; //Abort propagation
+      if (momentum <= m_momentumCutOff)  {
+        P[6]= momentum > 0 ? charge/momentum : charge/m_momentumCutOff;
+	return false; //Abort propagation
+      }
       double E = sqrt( momentum*momentum + particleMass*particleMass);
       dP2 = g*E/momentum;
       lambda2 = charge/momentum;
@@ -1868,7 +2619,10 @@ bool
     //POINT 3. Same position and B-field as point 2.
     if (m_energyLoss && m_matPropOK) {
       momentum = initialMomentum + (h/2.)*dP2;
-      if (momentum <= m_momentumCutOff) return false; //Abort propagation
+      if (momentum <= m_momentumCutOff) {
+        P[6]= momentum > 0 ? charge/momentum : charge/m_momentumCutOff;
+	return false; //Abort propagation
+      }
       double E = sqrt( momentum*momentum + particleMass*particleMass);
       dP3 = g*E/momentum;
       lambda3 = charge/momentum;
@@ -1885,7 +2639,10 @@ bool
     //POINT 4
     if (m_energyLoss && m_matPropOK) {
       momentum = initialMomentum + h*dP3;
-      if (momentum <= m_momentumCutOff) return false; //Abort propagation
+      if (momentum <= m_momentumCutOff) {
+        P[6]= momentum > 0 ? charge/momentum : charge/m_momentumCutOff;
+	return false; //Abort propagation
+      }
       double E = sqrt( momentum*momentum + particleMass*particleMass);
       dP4 = g*E/momentum;
       lambda4 = charge/momentum;
@@ -1936,7 +2693,10 @@ bool
     //Update inverse momentum if energyloss is switched on
     if (m_energyLoss && m_matPropOK) {
       momentum = initialMomentum + (distanceStepped/6.)*(dP1 + 2.*dP2 + 2.*dP3 + dP4);
-      if (momentum <= m_momentumCutOff) return false; //Abort propagation
+      if (momentum <= m_momentumCutOff) {
+        P[6]= momentum > 0 ? charge/momentum : charge/m_momentumCutOff;
+	return false; //Abort propagation
+      }
       P[6] = charge/momentum;
     }
 
@@ -2229,44 +2989,45 @@ double Trk::STEP_Propagator::dgdlambda( double l) const
 /////////////////////////////////////////////////////////////////////////////////
 
 void Trk::STEP_Propagator::covarianceContribution( const Trk::TrackParameters*  trackParameters,
-                                                         double                 path,
-							 double                 finalMomentum,
-                                                         const Amg::Transform3D&  surfaceRotation,
-							 AmgSymMatrix(5)*       measurementCovariance) const
+                                                   double                       path,
+						   const Trk::TrackParameters*  targetParms,
+						   AmgSymMatrix(5)*       measurementCovariance) const
 {
   if (m_material->zOverAtimesRho()==0) return; 
   if (m_material->x0()==0 || m_material->averageZ()==0) return; 
 
   // kinematics
-  double mom = trackParameters->parameters().mag();
-  double particleMass = s_particleMasses.mass[m_particle]; //Get particle mass from ParticleHypothesis
-  double totalMomentumLoss = finalMomentum - mom;
+  //double mom = trackParameters->parameters().mag();
+  double finalMomentum = targetParms->parameters().mag();
+  //double particleMass = s_particleMasses.mass[m_particle]; //Get particle mass from ParticleHypothesis
+  //double totalMomentumLoss = finalMomentum - mom;
 
   // first update to make sure all material counted
   updateMaterialEffects(finalMomentum, sin(trackParameters->momentum().theta()), path );
 
   //Set up curvilinear system in the direction of the initial momentum
-  Trk::CurvilinearUVT curvilinearUVT( trackParameters->momentum().normalized());
+  //Trk::CurvilinearUVT curvilinearUVT( trackParameters->momentum().normalized());
 
-  //Set up local system at the target surface
-  Amg::Vector3D localX( surfaceRotation(0,0), surfaceRotation(1,0), surfaceRotation(2,0) );
-  Amg::Vector3D localY( surfaceRotation(0,1), surfaceRotation(1,1), surfaceRotation(2,1) );
-  Amg::Vector3D localZ( surfaceRotation(0,2), surfaceRotation(1,2), surfaceRotation(2,2) );
-
-  //Calculate jacobian for transformation from curvilinear to local system at the target surface
-  Trk::JacobianCurvilinearToLocal jacobianCurvToLocal( curvilinearUVT, localX, localY, localZ);
+  Trk::RungeKuttaUtils rungeKuttaUtils;
+  double Jac[21];
+  rungeKuttaUtils.jacobianTransformCurvilinearToLocal(*targetParms,Jac);
 
   //Calculate tranformation contributions when going from the curvilinear to the local system at the target surface
-  double E = sqrt( finalMomentum*finalMomentum + particleMass*particleMass);
-  double dLambdads = -trackParameters->charge()*(totalMomentumLoss/fabs(path))*E/std::pow(finalMomentum, 3);
-
-  jacobianCurvToLocal(4,1) = -(curvilinearUVT.curvU().dot(localZ))/(curvilinearUVT.curvT().dot(localZ))*dLambdads;
-  jacobianCurvToLocal(4,2) = -(curvilinearUVT.curvV().dot(localZ))/(curvilinearUVT.curvT().dot(localZ))*dLambdads;
+  //takes into accout change of path/eloss for tilted target plane
+  //commented till recalculated for all surface types
+  // double E = sqrt( finalMomentum*finalMomentum + particleMass*particleMass);
+  // double dLambdads = -trackParameters->charge()*(totalMomentumLoss/fabs(path))*E/std::pow(finalMomentum, 3);
+  // jacobianCurvToLocal(4,0) = -(curvilinearUVT.curvU().dot(localZ))/(curvilinearUVT.curvT().dot(localZ))*dLambdads;
+  // jacobianCurvToLocal(4,1) = -(curvilinearUVT.curvV().dot(localZ))/(curvilinearUVT.curvT().dot(localZ))*dLambdads;
 
   //Transform multiple scattering and straggling covariance from curvilinear to local system
-  AmgSymMatrix(5) localMSCovariance = (m_combinedCovariance+m_covariance).similarity( jacobianCurvToLocal);
+  AmgSymMatrix(5)* localMSCov = rungeKuttaUtils.newCovarianceMatrix(
+      Jac, m_combinedCovariance+m_covariance );
+
   //Add measurement errors and multiple scattering + straggling covariance
-  *measurementCovariance += localMSCovariance;
+  *measurementCovariance += *localMSCov;
+
+  delete localMSCov; 
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -2328,6 +3089,51 @@ void Trk::STEP_Propagator::dumpMaterialEffects( const Trk::CurvilinearParameters
   m_combinedThickness = 0.;
   m_combinedEloss.set(0.,0.,0.,0.,0.,0.);
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Multiple scattering and straggling contribution to the covariance matrix in curvilinear representation
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void Trk::STEP_Propagator::handleMaterialEffects(Trk::ExCellCharged& exCell, 
+						double                 path ) const
+{
+
+  // kinematics
+  double mom = exCell.leadParameters->parameters().mag();
+  double step = fabs(path-m_matdump_lastpath);
+
+  // first update to make sure all material counted
+  updateMaterialEffects( mom, sin(exCell.leadParameters->momentum().theta()), path );
+
+  if(m_extrapolationCache) {
+     m_extrapolationCache->updateX0(m_combinedThickness);
+     m_extrapolationCache->updateEloss(m_combinedEloss.meanIoni(),m_combinedEloss.sigmaIoni(),
+				       m_combinedEloss.meanRad(),m_combinedEloss.sigmaRad());
+  }
+  // output : TODO update ExtrapolationStep with EnergyLoss and ScatteringAngles
+  if(exCell.checkConfigurationMode(Trk::ExtrapolationMode::CollectMaterial)) {
+    /*
+    Trk::EnergyLoss* eloss = !m_detailedEloss ? new Trk::EnergyLoss(m_combinedEloss.deltaE(),
+								 m_combinedEloss.sigmaDeltaE() ) :
+      new Trk::EnergyLoss(m_combinedEloss.deltaE(), m_combinedEloss.sigmaDeltaE(),
+                          m_combinedEloss.sigmaDeltaE(),m_combinedEloss.sigmaDeltaE(),
+                          m_combinedEloss.meanIoni(), m_combinedEloss.sigmaIoni(),
+                          m_combinedEloss.meanRad(), m_combinedEloss.sigmaRad(), step ) ;
+
+    Trk::ScatteringAngles* sa = new Trk::ScatteringAngles(0.,0.,sqrt(m_covariance(2,2)), sqrt(m_covariance(3,3)));    
+    */
+    //Trk::CurvilinearParameters* cvlTP = parms->clone();
+    //Trk::MaterialEffectsOnTrack* mefot = new Trk::MaterialEffectsOnTrack(m_combinedThickness,sa,eloss,cvlTP->associatedSurface()); 
+    //m_matstates->push_back(new TrackStateOnSurface(0,cvlTP,0,mefot));
+  }
+
+  m_matdump_lastpath = path; 
+
+  // clean-up
+  m_combinedCovariance += m_covariance;
+  m_covariance.setZero();
+  m_combinedThickness = 0.;
+  m_combinedEloss.set(0.,0.,0.,0.,0.,0.);
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Multiple scattering and straggling contribution to the covariance matrix in global coordinates
@@ -2377,7 +3183,7 @@ void Trk::STEP_Propagator::updateMaterialEffects( double mom, double sinTheta,do
 
   bool useCache = m_extrapolationCache? true : false;
   if(useCache)  {
-    double dX0 =  m_combinedThickness - pathAbs/matX0;
+    double dX0 =  fabs(m_combinedThickness) - pathAbs/matX0;
     if(dX0<0) dX0 = 0.;
     if(m_extrapolationCache->x0tot()>0) cumulatedX0 = m_extrapolationCache->x0tot() + dX0;
     //   ATH_MSG_DEBUG (" cumulatedX0 " << cumulatedX0 << " cache X0 " << m_extrapolationCache->x0tot() << " m_combinedThickness " 
@@ -2602,4 +3408,128 @@ void Trk::STEP_Propagator::clearCache() const
   m_delRad=0.;
   m_sigmaIoni=0.;
   m_sigmaRad=0.;
+}
+
+void Trk::STEP_Propagator::stepInBinnedMaterial(Amg::Vector3D position,Amg::Vector3D direction, double mom, double path, double h,
+						const Trk::IdentifiedMaterial*& binIDMat, float& distanceToNextBin) const
+{
+  const Trk::BinUtility* lbu =  m_binMat->layerBinUtility(position);
+  if (lbu) {
+    size_t layerBin = m_binMat->layerBin(position);
+    const Trk::IdentifiedMaterial* iMat = m_binMat->material(position); 
+    std::pair<size_t,float> dist2next = lbu->distanceToNext(position,direction);      // oriented direction on input
+    Trk::RungeKuttaUtils rungeKuttaUtils;
+    distanceToNextBin = dist2next.second;
+    //std::cout <<"step in binned material:"<< dist2next.first<<","<<dist2next.second<< std::endl;
+    if (layerBin != m_currentLayerBin ) {       // step into new bin
+      // check the overshoot
+      std::pair<size_t,float> dist2previous = lbu->distanceToNext(position,-direction);
+      float stepOver = dist2previous.second;
+      //std::cout <<" STEP overshoots bin boundary by:"<< stepOver<<" :w.r.t. bin:" << dist2previous.first<< std::endl;
+      double localp[5];
+      rungeKuttaUtils.transformGlobalToLocal(P, localp);
+      const Trk::CurvilinearParameters* cPar =  new Trk::CurvilinearParameters(Amg::Vector3D(P[0],P[1],P[2]),localp[2],localp[3],localp[4]); 
+      // such a detailed material dump no longer needed ?
+      // if (m_matstates) dumpMaterialEffects( cPar, sumPath+path-stepOver );
+      //if (m_identifiedParameters || m_hitVector) {
+      //   std::cout <<"dump of identified parameters? step over:"<< m_currentLayerBin<<","<<layerBin<< ":"
+      //  <<position.perp()<<","<<position.z()<<std::endl;
+      //  if (binIDMat) std::cout <<"layer identification current:"<<binIDMat->second <<std::endl;
+      //  if (iMat) std::cout <<"layer identification next:"<<iMat->second <<std::endl;
+      //}
+      if (m_identifiedParameters) {
+	if (binIDMat && binIDMat->second>0 && !iMat ) {  // exit from active layer
+	  m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),-binIDMat->second));
+	} else if (binIDMat && binIDMat->second>0 && (iMat->second==0 || iMat->second==binIDMat->second) ) {  // exit from active layer
+	  m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),-binIDMat->second));
+	} else if (iMat && iMat->second>0) {       // entry active layer
+	  m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),iMat->second));
+	}
+      } 
+      if (m_hitVector) {
+	double hitTiming = m_timeIn+m_timeOfFlight+m_timeStep;
+	if (binIDMat && binIDMat->second>0 && !iMat ) {  // exit from active layer
+	  m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming,-binIDMat->second,0.));
+	} else if (binIDMat && binIDMat->second>0 && (iMat->second==0 || iMat->second==binIDMat->second) ) {  // exit from active layer
+	  m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming,-binIDMat->second,0.));
+	} else if (iMat && iMat->second>0) {       // entry active layer
+	  m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming, iMat->second,0.));
+	}
+      } 
+      delete cPar;
+      
+      m_currentLayerBin = layerBin;
+      binIDMat = iMat;
+      if (binIDMat) {                // change of material triggers update of the cache 
+	// @TODO Coverity complains about a possible NULL pointer dereferencing here 
+	//  because the code above does not explicitly forbid m_material to be NULL and m_material is used
+	//  unchecked inside updateMaterialEffects.
+	//  Can m_material be NULL at this point ?
+	if (m_material) {
+	  updateMaterialEffects(mom, sin(direction.theta()), path-stepOver);
+	}
+	m_material = binIDMat->first;                
+      }
+      // recalculate distance to next bin
+      if (distanceToNextBin<h) {
+	Amg::Vector3D probe = position + (distanceToNextBin+h)*direction;
+	std::pair<size_t,float> d2n = lbu->distanceToNext(probe,direction);
+	distanceToNextBin += d2n.second+h;
+      }
+    } else if ( dist2next.first < lbu->bins() && fabs(distanceToNextBin) < 0.01 && h>0.01 ) {     // tolerance 10 microns ?
+      double localp[5];
+      rungeKuttaUtils.transformGlobalToLocal(P, localp);
+      const Trk::CurvilinearParameters* cPar =  new Trk::CurvilinearParameters(Amg::Vector3D(P[0],P[1],P[2]),localp[2],localp[3],localp[4]); 
+      // such a detailed material dump no longer needed ?
+      // if (m_matstates) dumpMaterialEffects( cPar, sumPath+path );
+      
+      const Trk::IdentifiedMaterial* nextMat = binIDMat;
+      // need to know what comes next
+      Amg::Vector3D probe = position + (distanceToNextBin+0.01)*direction.normalized();
+      nextMat = m_binMat->material(probe); 
+      
+      //if (m_identifiedParameters || m_hitVector) {
+      //  std::cout <<"dump of identified parameters? step before:"<<distanceToNextBin<<": current:"<< 
+      //  m_currentLayerBin<<","<<dist2next.first<< ":"<<position.perp()<<","<<position.z()<<std::endl;
+      //  if (binIDMat) std::cout <<"layer identification current:"<<binIDMat->second <<std::endl;
+      //  if (nextMat) std::cout <<"layer identification next:"<<nextMat->second <<std::endl;
+      //}
+      if (m_identifiedParameters ) {
+	if (binIDMat && binIDMat->second>0 && !nextMat ) {  // exit from active layer
+	  m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),-binIDMat->second));
+	} else if (binIDMat && binIDMat->second>0 && (nextMat->second==0 || nextMat->second==binIDMat->second) ) {  // exit from active layer
+	  m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),-binIDMat->second));
+	} else if (nextMat && nextMat->second>0) {       // entry active layer
+	  m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),nextMat->second));
+	}
+      }
+      if (m_hitVector) {
+	double hitTiming = m_timeIn+m_timeOfFlight+m_timeStep;
+	if (binIDMat && binIDMat->second>0 && !nextMat ) {  // exit from active layer
+	  m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming, -binIDMat->second,0.));
+	} else if (binIDMat && binIDMat->second>0 && (nextMat->second==0 || nextMat->second==binIDMat->second) ) {  // exit from active layer
+	  m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming, -binIDMat->second,0.));
+	} else if (nextMat && nextMat->second>0) {       // entry active layer
+	  m_hitVector->push_back(Trk::HitInfo(cPar->clone(), hitTiming, nextMat->second,0.));
+	}
+      }
+      delete cPar;
+      
+      m_currentLayerBin = dist2next.first;
+      if (binIDMat!=nextMat) {               // change of material triggers update of the cache 
+	binIDMat = nextMat;
+	if (binIDMat) {
+	  assert( m_material);
+	  updateMaterialEffects(mom, sin(direction.theta()), path);
+	  m_material = binIDMat->first;            
+	}
+      }
+      // recalculate distance to next bin
+      std::pair<size_t,float> d2n = lbu->distanceToNext(probe,direction.normalized());
+      distanceToNextBin += d2n.second+0.01;
+    }
+    // TODO: trigger the update of material properties and recalculation of distance to the target sliding surface
+  }
+
+  return;
 }
