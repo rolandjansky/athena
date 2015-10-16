@@ -15,6 +15,11 @@
 #include "TrkParameters/TrackParameters.h"
 
 class MsgStream;
+class TrackCnv_p1;
+class TrackCnv_p2;
+class TrackCnv_p3;
+class TrackCnv_p4;
+class TrackCnv_p12;
 
 namespace Trk
 {
@@ -165,6 +170,11 @@ namespace Trk
        static unsigned int numberOfInstantiations() ;				            
 
       protected:
+       friend class ::TrackCnv_p1;
+       friend class ::TrackCnv_p2;
+       friend class ::TrackCnv_p3;
+       friend class ::TrackCnv_p4;
+       friend class ::TrackCnv_p12;
     
        typedef DataVector<const TrackStateOnSurface>::const_iterator TSoS_iterator;
        typedef DataVector<const TrackParameters>::const_iterator     TP_iterator;  
