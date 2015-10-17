@@ -5,7 +5,7 @@
 // Andrei Gaponenko <agaponenko@lbl.gov>, 2008
 // Ketevi A. Assamagan, October 2009
 
-#include "OverlayCommonAlgs/CopyMcEventCollection.h"
+#include "CopyMcEventCollection.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "TrackRecord/TrackRecordCollection.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"
