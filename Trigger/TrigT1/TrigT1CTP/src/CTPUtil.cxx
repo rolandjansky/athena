@@ -60,7 +60,7 @@ namespace LVL1CTP {
 
   }
 
-  int CTPUtil::getMult( unsigned int word, int startbit, int endbit ) {
+  int CTPUtil::getMult( uint64_t word, unsigned int startbit, unsigned int endbit ) {
 
     return static_cast<int>( ( word >> startbit ) & static_cast<unsigned int>( pow( 2, endbit - startbit + 1 ) - 1 ) );
 
