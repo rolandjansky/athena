@@ -49,7 +49,7 @@ namespace LVL1CTP {
     static int getTMMult( unsigned int word, int threshold );     //!< get missing Et multiplicty in legacy mode
 
     //! extract multiplicities using new trigger configuration interface
-    static int getMult( unsigned int word, int startbit, int endbit );
+    static int getMult( uint64_t word, unsigned int startbit, unsigned int endbit );
 
     // Some additional helper functions:
     static unsigned int alignBits( int value, int startbit, int endbit );            //!< align bits
