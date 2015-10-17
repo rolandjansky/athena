@@ -342,8 +342,8 @@ LVL1CTP::CTPSimulation::bookHists() {
 
       string runnr = "0";
 
-      const DataHandle< ::EventInfo> evt;
-      const DataHandle< ::EventInfo> evtEnd;
+      const DataHandle<::EventInfo> evt;
+      const DataHandle<::EventInfo> evtEnd;
       StatusCode sc = evtStore()->retrieve( evt, evtEnd );
       if( sc.isSuccess() ) {
          runnr = boost::lexical_cast<string, unsigned int>(evt->event_ID()->run_number());
@@ -1513,7 +1513,9 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
                            << " double word 0x" << setw(16) << setfill('0') << hex << topoCable1 << dec << setfill(' ') 
                            );
 
-            multiplicity = CTPUtil::getMultTopo( topoCable1, thr->cableStart(), thr->cableEnd(), thr->clock() );
+            unsigned int counter = 2*thr->cableStart() + thr->clock();
+
+            multiplicity = CTPUtil::getMult( topoCable1, counter, counter );
          }
 
       }   
@@ -1531,9 +1533,12 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
                            << " double word 0x" << setw(16) << setfill('0') << hex << topoCable2 << dec << setfill(' ') 
                            );
 
-            multiplicity = CTPUtil::getMultTopo( topoCable2, thr->cableStart(), thr->cableEnd(), thr->clock() );
+            unsigned int counter = 2*thr->cableStart() + thr->clock();
+
+            multiplicity = CTPUtil::getMult( topoCable2, counter, counter );
 
          }
+
       }    
 
       else if ( thr->cableName() == "ALFA" ) {
@@ -1546,10 +1551,9 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
             alfaCable <<= 32;
             alfaCable += m_topoCTP->cableWord0( 0 );
 
-//             unsigned int counter = 2*thr->cableStart() + thr->clock();
-//             multiplicity = CTPUtil::getMult( alfaCable, counter, counter );
+            unsigned int counter = 2*thr->cableStart() + thr->clock();
 
-            multiplicity = CTPUtil::getMultTopo( alfaCable, thr->cableStart(), thr->cableEnd(), thr->clock() );
+            multiplicity = CTPUtil::getMult( alfaCable, counter, counter );
          }
 
       }    
