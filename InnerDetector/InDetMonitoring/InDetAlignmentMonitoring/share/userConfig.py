@@ -14,15 +14,18 @@ if (userPDF): oFext="pdf"
 
 ### NEW METHODIn
 
-
-#SetNextInputFile("/afs/cern.ch/work/m/martis/public/athena/20.1.5.8/data15_13TeV/runTest/Iter0_combined_newH/collisions/TotalMonitoring.root", "GenericTracks.py collisions", kFullCircle, kGray+3,"InDetTrackParticles_LoosePrimary","run_271595")
-SetNextInputFile("/afs/cern.ch/work/m/martis/public/athena/20.1.5.12/data15_13TeV/runTest/Iter0/collisions/TotalMonitoring.root", "IDTracks", kFullCircle, kGreen+1,"InDetTrackParticles_LoosePrimary","run_271595")
-#SetNextInputFile("/afs/cern.ch/work/m/martis/public/athena/20.1.5.12/data15_13TeV/runTest/Iter0/cosmics/TotalMonitoring.root", "IDCosmics", kFullCircle, kGray+3,"InDetTrackParticles_LoosePrimary","run_271595")
-#SetNextInputFile("/afs/cern.ch/work/m/martis/public/athena/20.1.5.12/data15_13TeV/runTest/Iter0/cosmics/TotalMonitoring.root", "Upper segment", kFullCircle, kAzure+1,"AlignTracks_UpperSplit_all","run_271595")
-#SetNextInputFile("/afs/cern.ch/work/m/martis/public/athena/20.1.5.12/data15_13TeV/runTest/Iter0/cosmics/TotalMonitoring.root", "Lower segment", kOpenCircle, kRed+1,"AlignTracks_LowerSplit_all","run_271595")
+SetNextInputFile("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runLB/Iter0_281411_0010/collisions/TotalMonitoring.root", "281411_0010", kFullCircle, kRed+2,"Tracks_alignSelection","run_281411")
+SetNextInputFile("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runLB/Iter0_281411_0011/collisions/TotalMonitoring.root", "281411_0011", kOpenSquare, kAzure+1,"Tracks_alignSelection","run_281411")
+SetNextInputFile("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runLB/Iter0_281411_0012/collisions/TotalMonitoring.root", "281411_0012", kFullCircle, kYellow+1,"Tracks_alignSelection","run_281411")
+SetNextInputFile("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runLB/Iter0_281411_0013/collisions/TotalMonitoring.root", "281411_0013", kOpenSquare, kViolet+1,"Tracks_alignSelection","run_281411")
+SetNextInputFile("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runLB/Iter0_281411_0014/collisions/TotalMonitoring.root", "281411_0014", kFullCircle, kOrange+1,"Tracks_alignSelection","run_281411")
+SetNextInputFile("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runLB/Iter0_281411_0015/collisions/TotalMonitoring.root", "281411_0015", kOpenSquare, kGreen+1,"Tracks_alignSelection","run_281411")
+SetNextInputFile("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runLB/Iter0_281411_0016/collisions/TotalMonitoring.root", "281411_0016", kFullCircle, kGray+3,"Tracks_alignSelection","run_281411")
+SetNextInputFile("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runLB/Iter0_281411_0017/collisions/TotalMonitoring.root", "281411_0017", kOpenSquare, kRed+1,"Tracks_alignSelection","run_281411")
+#SetNextInputFile("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runLB/Iter0_281411_0018/collisions/TotalMonitoring.root", "281411_0018", kFullCircle, kAzure,"Tracks_alignSelection","run_281411")
 
 ####
-canvasText   = ["Run 271595", "","",""] #specifies additional canvas text
+canvasText   = ["Align Tracks", "","",""] #specifies additional canvas text
     
 normaliseHistos = True # set to true if you want to normalise to same area
 unitArea = False # set to true if you want to draw residual histos to unit area
@@ -35,11 +38,17 @@ residualsDir = [
     "/IDAlignMon/AlignTracks_all/Residuals/",
     "/IDAlignMon/AlignTracks_all/Residuals/",
     "/IDAlignMon/AlignTracks_all/Residuals/",
+    "/IDAlignMon/AlignTracks_all/Residuals/",
+    "/IDAlignMon/AlignTracks_all/Residuals/",
+    "/IDAlignMon/AlignTracks_all/Residuals/",
     "/IDAlignMon/AlignTracks_all/Residuals/"
     ] 
 
 # TRT residuals
 trtResidualsDir = [
+    "/IDAlignMon/AlignTracks_all/Residuals/",
+    "/IDAlignMon/AlignTracks_all/Residuals/",
+    "/IDAlignMon/AlignTracks_all/Residuals/",
     "/IDAlignMon/AlignTracks_all/Residuals/",
     "/IDAlignMon/AlignTracks_all/Residuals/",
     "/IDAlignMon/AlignTracks_all/Residuals/",
@@ -56,10 +65,17 @@ genericTracksDir = [
     "/IDAlignMon/AlignTracks_all/GenericTracks/",
     "/IDAlignMon/AlignTracks_all/GenericTracks/",
     "/IDAlignMon/AlignTracks_all/GenericTracks/",
+    "/IDAlignMon/AlignTracks_all/GenericTracks/",
+    "/IDAlignMon/AlignTracks_all/GenericTracks/",
+    "/IDAlignMon/AlignTracks_all/GenericTracks/",
     ] 
 
 # Hit efficiency 
 hitEffDir = [
+    "/IDAlignMon/AlignTracks_all/HitEfficiencies/",
+    "/IDAlignMon/AlignTracks_all/HitEfficiencies/",
+    "/IDAlignMon/AlignTracks_all/HitEfficiencies/",
+    "/IDAlignMon/AlignTracks_all/HitEfficiencies/",
     "/IDAlignMon/AlignTracks_all/HitEfficiencies/",
     "/IDAlignMon/AlignTracks_all/HitEfficiencies/",
     "/IDAlignMon/AlignTracks_all/HitEfficiencies/",
@@ -76,6 +92,9 @@ siTRTDir = [
 
 #following array determines ROOT file directory from which cosmic SplitTracks plots are taken
 splitTracksDir = [
+    "/IDAlignMon/AlignTracks_NoTriggerSelection/TrackSegments/",
+    "/IDAlignMon/AlignTracks_NoTriggerSelection/TrackSegments/",
+    "/IDAlignMon/AlignTracks_NoTriggerSelection/TrackSegments/",
     "/IDAlignMon/AlignTracks_NoTriggerSelection/TrackSegments/",
     "/IDAlignMon/AlignTracks_NoTriggerSelection/TrackSegments/",
     "/IDAlignMon/AlignTracks_NoTriggerSelection/TrackSegments/",

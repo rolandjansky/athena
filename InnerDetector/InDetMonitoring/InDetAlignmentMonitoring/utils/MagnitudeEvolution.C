@@ -62,6 +62,7 @@ void ME_getMonitoringFileList()
   // define input files. Lamentably this is hard coded
   // me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_278727/collisions/TotalMonitoring.root");
   
+  /*
   me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_278748/collisions/TotalMonitoring.root");
   me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_278880/collisions/TotalMonitoring.root");
   me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_278912/collisions/TotalMonitoring.root");
@@ -95,9 +96,13 @@ void ME_getMonitoringFileList()
   me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_280862/collisions/TotalMonitoring.root");
  
   me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_280950/collisions/TotalMonitoring.root");
-  me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_280977/collisions/TotalMonitoring.root");
-  me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_281074/collisions/TotalMonitoring.root");
-
+  */
+  //me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_280977/collisions/TotalMonitoring.root"); me_runNumber.push_back(280977);
+  /*
+    me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_281074/collisions/TotalMonitoring.root");
+  */
+  //me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_281411/collisions/TotalMonitoring.root"); me_runNumber.push_back(281411);
+  me_monitoringFileList.push_back("/afs/cern.ch/user/a/atlidali/w0/calibLoop/Tier0/data15_13TeV/calibration_IDTracks/00281411/data15_13TeV.00281411.calibration_IDTracks.idalignmerge.ROOT_MON.Iter3.c0/data15_13TeV.00281411.calibration_IDTracks.idalignmerge.ROOT_MON.Iter3.c0._0001.1"); me_runNumber.push_back(281411);
   //
   //me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_280319_Part11/collisions/TotalMonitoring.root");
   //me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_280319_Part12/collisions/TotalMonitoring.root");
@@ -106,11 +111,12 @@ void ME_getMonitoringFileList()
   //me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_280319_Part15/collisions/TotalMonitoring.root");
   //me_monitoringFileList.push_back("/afs/cern.ch/work/m/martis/public/athena/20.1.6.4/runTest/Iter0_280319_Part06/collisions/TotalMonitoring.root");
 
-  // now, for all files, extract run number... this method will depend on the way the file name is given
-  
+  /*
+  // now, for all files, extract run number... this method will depend on the way the file name is given  
   for (int thisfile=0; thisfile < (int) me_monitoringFileList.size(); thisfile++) {
     me_runNumber.push_back(ME_extractRunNumber(thisfile));
   }
+  */
 
   std::cout << " ** monitoring file list contains " << me_monitoringFileList.size() << " files " << std::endl;
   return;
@@ -204,7 +210,11 @@ void ME_processFile(int fileid)
   // retrieve the IBL 3D residuals histo: residuals (z) vs module phi (y) and module eta (x)
   TString h_path = "run_"; 
   h_path += me_runNumber.at(fileid); // add run number
-  h_path.Append("/IDAlignMon/InDetTrackParticles_AlignSel/Residuals/pix_b0_xresvsmodetaphi_3d");
+  //h_path.Append("/IDAlignMon/InDetTrackParticles_AlignSel/Residuals/pix_b0_xresvsmodetaphi_3d");
+  //h_path.Append("/IDAlignMon/AlignTracks_all/Residuals/pix_b0_xresvsmodetaphi_3d");
+  h_path.Append("/IDAlignMon/");
+  h_path += me_trackCollection;
+  h_path.Append("/Residuals/pix_b0_xresvsmodetaphi_3d");
   if (debug) std::cout << " ** going to fetch TH3 histo: " << h_path.Data() << std::endl;
   TH3F* h_xresiduals3d = (TH3F*) me_currentMonitoringFile->Get(h_path.Data());
   
@@ -995,7 +1005,10 @@ void ME_writeOutputTextFile()
 	me_outputTextFile.open (fname+".txt");
 	for (int i=1; i <= me_h_bowingMagnitudePerStaveAndLB->GetNbinsX(); i++) {
 	  me_outputTextFile << me_h_bowingMagnitudePerStaveAndLB->GetXaxis()->GetBinCenter(i) << ",";
-
+	  // write the entire IBL as stave 0
+	  me_outputTextFile << " IBL " 
+			    << "," << me_h_bowingMagnitudePerLB[0].at(0)->GetBinContent(i)
+			    << "," << me_h_bowingMagnitudePerLB[0].at(0)->GetBinError(i) << " Staves ";
 	  for (int j=1; j <= me_h_bowingMagnitudePerStaveAndLB->GetNbinsY(); j++) {
 	    me_outputTextFile << me_h_bowingMagnitudePerStaveAndLB->GetYaxis()->GetBinCenter(j) << ","
 			      << me_h_bowingMagnitudePerStaveAndLB->GetBinContent(i,j) << ","
@@ -1222,7 +1235,8 @@ void ME_prepareMagVsLBhisto (TH3F* histo, int fileid, int staveid)
   hmagvslb->SetXTitle("Luminosity block");
   hmagvslb->SetYTitle("Bowing magnitude [  #mum]");
   hmagvslb->SetMarkerStyle(kOpenCircle);
-  hmagvslb->SetMaximum(  5.);
+  hmagvslb->SetMaximum( me_bowingRangeInPlots);
+  //hmagvslb->SetMaximum(  5.);
   hmagvslb->SetMinimum(-me_bowingRangeInPlots);
   hmagvslb->SetStats(kFALSE);
   if (staveid == 0) {
@@ -1253,15 +1267,14 @@ TH3F*  ME_get3DHistoResidualsVsEtaAndLB (int fileid, int stave)
     h_path.Clear();
     h_path = "run_"; 
     h_path += me_runNumber.at(fileid); // add run number
-    h_path.Append("/IDAlignMon/");
-    
+    h_path.Append("/IDAlignMon/");    
+    h_path += me_trackCollection;
+
     if (stave == 0) {
-      h_path.Append("InDetTrackParticles_AlignSel");
-      h_path.Append("/Residuals/pix_b0_resXvsetaLumiBlock");
+          h_path.Append("/Residuals/pix_b0_resXvsetaLumiBlock");
     }
     else {
-      h_path.Append("InDetTrackParticles_AlignSel");
-      h_path.Append("/Residuals/pix_b0_resXvsetaLumiBlock_stave");
+          h_path.Append("/Residuals/pix_b0_resXvsetaLumiBlock_stave");
       h_path += (stave-1); // the stave number is shifted by 1
     }
     if (debug) std::cout << " ** ME_getHistoResidualsVsEtaAndLB ** analysing file id: " << fileid 

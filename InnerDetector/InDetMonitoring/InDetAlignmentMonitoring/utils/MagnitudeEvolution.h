@@ -41,15 +41,17 @@
 
 const bool FULLOUTPUT= false;
 const bool USEPLANARONLY = true;
-bool LUMIBLOCKANALYSIS = false;
-const int REBINFACTOR = 20; // LumiBlock rebinning factor for the residuals vs LumiBlock histograms
+bool LUMIBLOCKANALYSIS = true;
+const int REBINFACTOR = 100; // LumiBlock rebinning factor for the residuals vs LumiBlock histograms
 const bool WRITETEXTOUTPUT = true;
+//const TString me_trackCollection("AlignTracks_all");
+const TString me_trackCollection("InDetTrackParticles_AlignSel");
 
 const double z_fix = 366.5; // Stave fixing screw position [mm]
 float xmax = 0.3;
 float xmin = -xmax;
 
-const double me_bowingRangeInPlots = 25.; //in microns
+const double me_bowingRangeInPlots = 10.; //in microns
 
 const float me_systUncertaintyBowing = 0.255; // systematic uncertainty on the bowing measurements (in microns)
 

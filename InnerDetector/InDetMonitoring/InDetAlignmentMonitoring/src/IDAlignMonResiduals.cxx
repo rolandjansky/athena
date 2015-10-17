@@ -300,7 +300,7 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 	m_LBGranularity         = 1;
 	m_LBRangeMin            = 0;
 	m_LBRangeMax            = 1200;
-	m_nBinsLB               = m_LBRangeMax;
+	m_nBinsLB               = 24;
 	
 	 
 	
@@ -347,6 +347,7 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 	declareProperty("RangeOfPullHistos"         , m_RangeOfPullHistos);
 	declareProperty("PtRange"                   , m_PtRange);
 	declareProperty("NBinsPtRange"              , m_nBinsPtRange);
+	declareProperty("NBinsLB"                   , m_nBinsLB);
 	declareProperty("FinerBinningFactor"        , m_FinerBinningFactor);
 	declareProperty("NSplitMap"                 , m_mapSplit);
 	declareProperty("applyHistWeight"           , m_applyHistWeight = false);
@@ -914,57 +915,70 @@ StatusCode IDAlignMonResiduals::bookHistograms()
     //Lumi wise histo
 
     //All modules 
-    m_pix_b0_resXvsetaLumiBlock = new TH3F("pix_b0_resXvsetaLumiBlock","TH3 of X unbiased residuals vs IBL eta module per Lumi Block; LumiBlock;Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+    m_pix_b0_resXvsetaLumiBlock = new TProfile2D("pix_b0_resXvsetaLumiBlock","2D profile of X unbiased residuals vs IBL eta module per Lumi Block; LumiBlock;Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,m_minPIXResXFillRange,m_maxPIXResXFillRange);
     RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock);
     
     //Only planars
     
-    m_pix_b0_resXvsetaLumiBlock_planars = new TH3F("pix_b0_resXvsetaLumiBlock_planars","TH3 of X unbiased residuals vs IBL eta module per Lumi Block;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,12,-6.5,5.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+    m_pix_b0_resXvsetaLumiBlock_planars = new TProfile2D("pix_b0_resXvsetaLumiBlock_planars","2D profile of X unbiased residuals vs IBL eta module per Lumi Block;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,12,-6.5,5.5,m_minPIXResXFillRange,m_maxPIXResXFillRange);
     RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_planars);
     
     //Per Stave
+    if (m_extendedPlots)
+      {
 
-    m_pix_b0_resXvsetaLumiBlock_stave0 = new TH3F("pix_b0_resXvsetaLumiBlock_stave0","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 0;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
-    RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave0);
+	//All modules 
+	m_pix_b0_resXvsetaLumiBlock_3d = new TH3F("pix_b0_resXvsetaLumiBlock_3d","TH3 of X unbiased residuals vs IBL eta module per Lumi Block; LumiBlock;Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+	RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock);
+	
+    //Only planars
+    
+	m_pix_b0_resXvsetaLumiBlock_planars_3d = new TH3F("pix_b0_resXvsetaLumiBlock_planars_3d","TH3 of X unbiased residuals vs IBL eta module per Lumi Block;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,12,-6.5,5.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+	RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_planars);
+	
+	m_pix_b0_resXvsetaLumiBlock_stave0 = new TH3F("pix_b0_resXvsetaLumiBlock_stave0","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 0;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+	RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave0);
   
-    m_pix_b0_resXvsetaLumiBlock_stave1 = new TH3F("pix_b0_resXvsetaLumiBlock_stave1","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 1;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
-    RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave1);
+	m_pix_b0_resXvsetaLumiBlock_stave1 = new TH3F("pix_b0_resXvsetaLumiBlock_stave1","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 1;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+	RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave1);
   
-    m_pix_b0_resXvsetaLumiBlock_stave2 = new TH3F("pix_b0_resXvsetaLumiBlock_stave2","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 2;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
-    RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave2);
+	m_pix_b0_resXvsetaLumiBlock_stave2 = new TH3F("pix_b0_resXvsetaLumiBlock_stave2","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 2;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+	RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave2);
   
-    m_pix_b0_resXvsetaLumiBlock_stave3 = new TH3F("pix_b0_resXvsetaLumiBlock_stave3","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 3;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
-    RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave3);
+	m_pix_b0_resXvsetaLumiBlock_stave3 = new TH3F("pix_b0_resXvsetaLumiBlock_stave3","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 3;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+	RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave3);
 
-    m_pix_b0_resXvsetaLumiBlock_stave4 = new TH3F("pix_b0_resXvsetaLumiBlock_stave4","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 4;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
-    RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave4);
+	m_pix_b0_resXvsetaLumiBlock_stave4 = new TH3F("pix_b0_resXvsetaLumiBlock_stave4","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 4;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+	RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave4);
+	
+	m_pix_b0_resXvsetaLumiBlock_stave5 = new TH3F("pix_b0_resXvsetaLumiBlock_stave5","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 5;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+	RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave5);
+	
+	m_pix_b0_resXvsetaLumiBlock_stave6 = new TH3F("pix_b0_resXvsetaLumiBlock_stave6","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 6;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+	RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave6);
+	
+	m_pix_b0_resXvsetaLumiBlock_stave7 = new TH3F("pix_b0_resXvsetaLumiBlock_stave7","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 7;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+	RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave7);
+    
+	m_pix_b0_resXvsetaLumiBlock_stave8 = new TH3F("pix_b0_resXvsetaLumiBlock_stave8","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 8;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+	RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave8);
+	
+	m_pix_b0_resXvsetaLumiBlock_stave9 = new TH3F("pix_b0_resXvsetaLumiBlock_stave9","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 9;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+	RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave9);
+	
+	m_pix_b0_resXvsetaLumiBlock_stave10 = new TH3F("pix_b0_resXvsetaLumiBlock_stave10","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 10;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+	RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave10);
   
-    m_pix_b0_resXvsetaLumiBlock_stave5 = new TH3F("pix_b0_resXvsetaLumiBlock_stave5","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 5;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
-    RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave5);
+	m_pix_b0_resXvsetaLumiBlock_stave11 = new TH3F("pix_b0_resXvsetaLumiBlock_stave11","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 11;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+	RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave11);
+    
+	m_pix_b0_resXvsetaLumiBlock_stave12 = new TH3F("pix_b0_resXvsetaLumiBlock_stave12","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 12;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+	RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave12);
   
-    m_pix_b0_resXvsetaLumiBlock_stave6 = new TH3F("pix_b0_resXvsetaLumiBlock_stave6","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 6;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
-    RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave6);
-  
-    m_pix_b0_resXvsetaLumiBlock_stave7 = new TH3F("pix_b0_resXvsetaLumiBlock_stave7","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 7;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
-    RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave7);
-  
-    m_pix_b0_resXvsetaLumiBlock_stave8 = new TH3F("pix_b0_resXvsetaLumiBlock_stave8","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 8;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
-    RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave8);
-  
-    m_pix_b0_resXvsetaLumiBlock_stave9 = new TH3F("pix_b0_resXvsetaLumiBlock_stave9","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 9;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
-    RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave9);
-  
-    m_pix_b0_resXvsetaLumiBlock_stave10 = new TH3F("pix_b0_resXvsetaLumiBlock_stave10","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 10;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
-    RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave10);
-  
-    m_pix_b0_resXvsetaLumiBlock_stave11 = new TH3F("pix_b0_resXvsetaLumiBlock_stave11","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 11;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
-    RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave11);
-  
-    m_pix_b0_resXvsetaLumiBlock_stave12 = new TH3F("pix_b0_resXvsetaLumiBlock_stave12","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 12;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
-    RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave12);
-  
-    m_pix_b0_resXvsetaLumiBlock_stave13 = new TH3F("pix_b0_resXvsetaLumiBlock_stave13","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 13;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
-    RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave13);
+	m_pix_b0_resXvsetaLumiBlock_stave13 = new TH3F("pix_b0_resXvsetaLumiBlock_stave13","TH3 of X unbiased residuals vs IBL eta module per Lumi Block for stave 13;LumiBlock; Module Eta",m_nBinsLB,m_LBRangeMin,m_LBRangeMax,20,-10.5,9.5,50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange);
+	RegisterHisto(al_mon,m_pix_b0_resXvsetaLumiBlock_stave13);
+
+      }
     //mag + base as function of lb
     
     m_mag_vs_LB = new TH1D("mag_vs_LB","IBL 2pi averaged bowing magnitude vs LumiBlock;LumiBlock;Magnitude [mm]",m_nBinsLB, m_LBRangeMin,m_LBRangeMax);
@@ -1658,20 +1672,23 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    if (modEta<=6 && modEta>=-6)
 	      m_pix_b0_resXvsetaLumiBlock_planars->Fill(float(lumiblock),modEta,residualX,hweight);
 	    
-	    if (modPhi==0) m_pix_b0_resXvsetaLumiBlock_stave0->Fill(float(lumiblock),modEta,residualX,hweight);
-	    if (modPhi==1) m_pix_b0_resXvsetaLumiBlock_stave1->Fill(float(lumiblock),modEta,residualX,hweight);
-	    if (modPhi==2) m_pix_b0_resXvsetaLumiBlock_stave2->Fill(float(lumiblock),modEta,residualX,hweight);
-	    if (modPhi==3) m_pix_b0_resXvsetaLumiBlock_stave3->Fill(float(lumiblock),modEta,residualX,hweight);
-	    if (modPhi==4) m_pix_b0_resXvsetaLumiBlock_stave4->Fill(float(lumiblock),modEta,residualX,hweight);
-	    if (modPhi==5) m_pix_b0_resXvsetaLumiBlock_stave5->Fill(float(lumiblock),modEta,residualX,hweight);
-	    if (modPhi==6) m_pix_b0_resXvsetaLumiBlock_stave6->Fill(float(lumiblock),modEta,residualX,hweight);
-	    if (modPhi==7) m_pix_b0_resXvsetaLumiBlock_stave7->Fill(float(lumiblock),modEta,residualX,hweight);
-	    if (modPhi==8) m_pix_b0_resXvsetaLumiBlock_stave8->Fill(float(lumiblock),modEta,residualX,hweight);
-	    if (modPhi==9) m_pix_b0_resXvsetaLumiBlock_stave9->Fill(float(lumiblock),modEta,residualX,hweight);
-	    if (modPhi==10) m_pix_b0_resXvsetaLumiBlock_stave10->Fill(float(lumiblock),modEta,residualX,hweight);
-	    if (modPhi==11) m_pix_b0_resXvsetaLumiBlock_stave11->Fill(float(lumiblock),modEta,residualX,hweight);
-	    if (modPhi==12) m_pix_b0_resXvsetaLumiBlock_stave12->Fill(float(lumiblock),modEta,residualX,hweight);
-	    if (modPhi==13) m_pix_b0_resXvsetaLumiBlock_stave13->Fill(float(lumiblock),modEta,residualX,hweight);
+	    if (m_extendedPlots)
+	      {
+		if (modPhi==0) m_pix_b0_resXvsetaLumiBlock_stave0->Fill(float(lumiblock),modEta,residualX,hweight);
+		if (modPhi==1) m_pix_b0_resXvsetaLumiBlock_stave1->Fill(float(lumiblock),modEta,residualX,hweight);
+		if (modPhi==2) m_pix_b0_resXvsetaLumiBlock_stave2->Fill(float(lumiblock),modEta,residualX,hweight);
+		if (modPhi==3) m_pix_b0_resXvsetaLumiBlock_stave3->Fill(float(lumiblock),modEta,residualX,hweight);
+		if (modPhi==4) m_pix_b0_resXvsetaLumiBlock_stave4->Fill(float(lumiblock),modEta,residualX,hweight);
+		if (modPhi==5) m_pix_b0_resXvsetaLumiBlock_stave5->Fill(float(lumiblock),modEta,residualX,hweight);
+		if (modPhi==6) m_pix_b0_resXvsetaLumiBlock_stave6->Fill(float(lumiblock),modEta,residualX,hweight);
+		if (modPhi==7) m_pix_b0_resXvsetaLumiBlock_stave7->Fill(float(lumiblock),modEta,residualX,hweight);
+		if (modPhi==8) m_pix_b0_resXvsetaLumiBlock_stave8->Fill(float(lumiblock),modEta,residualX,hweight);
+		if (modPhi==9) m_pix_b0_resXvsetaLumiBlock_stave9->Fill(float(lumiblock),modEta,residualX,hweight);
+		if (modPhi==10) m_pix_b0_resXvsetaLumiBlock_stave10->Fill(float(lumiblock),modEta,residualX,hweight);
+		if (modPhi==11) m_pix_b0_resXvsetaLumiBlock_stave11->Fill(float(lumiblock),modEta,residualX,hweight);
+		if (modPhi==12) m_pix_b0_resXvsetaLumiBlock_stave12->Fill(float(lumiblock),modEta,residualX,hweight);
+		if (modPhi==13) m_pix_b0_resXvsetaLumiBlock_stave13->Fill(float(lumiblock),modEta,residualX,hweight);
+	      }
 	  }
 
 	  if (foundXOverlap) {

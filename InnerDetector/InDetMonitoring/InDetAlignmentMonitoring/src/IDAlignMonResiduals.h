@@ -433,22 +433,25 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   
   int lumiblock;
 
-  TH3*   m_pix_b0_resXvsetaLumiBlock;
-  TH3*   m_pix_b0_resXvsetaLumiBlock_planars;
-  TH3*   m_pix_b0_resXvsetaLumiBlock_stave0;
-  TH3*   m_pix_b0_resXvsetaLumiBlock_stave1;
-  TH3*   m_pix_b0_resXvsetaLumiBlock_stave2;
-  TH3*   m_pix_b0_resXvsetaLumiBlock_stave3;
-  TH3*   m_pix_b0_resXvsetaLumiBlock_stave4;
-  TH3*   m_pix_b0_resXvsetaLumiBlock_stave5;
-  TH3*   m_pix_b0_resXvsetaLumiBlock_stave6;
-  TH3*   m_pix_b0_resXvsetaLumiBlock_stave7;
-  TH3*   m_pix_b0_resXvsetaLumiBlock_stave8;
-  TH3*   m_pix_b0_resXvsetaLumiBlock_stave9;
-  TH3*   m_pix_b0_resXvsetaLumiBlock_stave10;
-  TH3*   m_pix_b0_resXvsetaLumiBlock_stave11;
-  TH3*   m_pix_b0_resXvsetaLumiBlock_stave12;
-  TH3*   m_pix_b0_resXvsetaLumiBlock_stave13;
+  TProfile2D*   m_pix_b0_resXvsetaLumiBlock;
+  TProfile2D*   m_pix_b0_resXvsetaLumiBlock_planars;
+
+  TH3F*   m_pix_b0_resXvsetaLumiBlock_3d;
+  TH3F*   m_pix_b0_resXvsetaLumiBlock_planars_3d;
+  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave0;
+  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave1;
+  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave2;
+  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave3;
+  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave4;
+  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave5;
+  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave6;
+  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave7;
+  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave8;
+  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave9;
+  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave10;
+  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave11;
+  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave12;
+  TH3F*   m_pix_b0_resXvsetaLumiBlock_stave13;
 
   //IBL fit magnitude and baseline as a function of LumiBlock
   

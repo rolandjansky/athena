@@ -438,6 +438,75 @@ def DrawPlots(inputTuple, outputName, plotTitle, yAxisTitle, xAxisTitle, legendL
         marker6 = legendTuple[0]
         marker6.Draw("same")
 
+    # drawing seventh histogram and its legend
+    if (len(inputTuple)) > 18:
+        hist = inputTuple[18+1]
+        if histoTitle.find('pT')!=-1 and ZmumuVal:
+            hist.GetXaxis().SetRangeUser(pTmin,pTmax)
+        if "mean_" in hist.GetName():
+            hist.Draw("histosame")
+        else:
+            hist.Draw("same,e")
+            #hist.Draw("same,e")
+        tf1 = inputTuple[15+0]
+        if(tf1.GetName()!="noFitWithStats"): tf1.Draw("same")
+
+        legendUpperY = legendUpperY - legendYOffset
+        legendTitle = inputTuple[18+2]
+        m_l.DrawLatex(legendLeftX,legendUpperY,legendTitle)
+        legendTuple = defineLegendTextMarker(units, hist, tf1,legendLeftX,legendUpperY,showMean,meanWidthOnSeparateLine,legendMarkerYPosMod[3],legendMarkerSize)
+        m_l2.DrawLatex(legendLeftX,legendUpperY-legendYLineSpacing,legendTuple[1])
+        if meanWidthOnSeparateLine==True:
+            m_width.DrawLatex(legendLeftX,legendUpperY-(2*legendYLineSpacing),legendTuple[2])
+        marker7 = legendTuple[0]
+        marker7.Draw("same")
+
+    # drawing eigth histogram and its legend
+    if (len(inputTuple)) > 21:
+        hist = inputTuple[21+1]
+        if histoTitle.find('pT')!=-1 and ZmumuVal:
+            hist.GetXaxis().SetRangeUser(pTmin,pTmax)
+        if "mean_" in hist.GetName():
+            hist.Draw("histosame")
+        else:
+            hist.Draw("same,e")
+            #hist.Draw("same,e")
+        tf1 = inputTuple[18+0]
+        if(tf1.GetName()!="noFitWithStats"): tf1.Draw("same")
+
+        legendUpperY = legendUpperY - legendYOffset
+        legendTitle = inputTuple[21+2]
+        m_l.DrawLatex(legendLeftX,legendUpperY,legendTitle)
+        legendTuple = defineLegendTextMarker(units, hist, tf1,legendLeftX,legendUpperY,showMean,meanWidthOnSeparateLine,legendMarkerYPosMod[3],legendMarkerSize)
+        m_l2.DrawLatex(legendLeftX,legendUpperY-legendYLineSpacing,legendTuple[1])
+        if meanWidthOnSeparateLine==True:
+            m_width.DrawLatex(legendLeftX,legendUpperY-(2*legendYLineSpacing),legendTuple[2])
+        marker8 = legendTuple[0]
+        marker8.Draw("same")
+
+    # drawing nineth histogram and its legend
+    if (len(inputTuple)) > 24:
+        hist = inputTuple[24+1]
+        if histoTitle.find('pT')!=-1 and ZmumuVal:
+            hist.GetXaxis().SetRangeUser(pTmin,pTmax)
+        if "mean_" in hist.GetName():
+            hist.Draw("histosame")
+        else:
+            hist.Draw("same,e")
+            #hist.Draw("same,e")
+        tf1 = inputTuple[21+0]
+        if(tf1.GetName()!="noFitWithStats"): tf1.Draw("same")
+
+        legendUpperY = legendUpperY - legendYOffset
+        legendTitle = inputTuple[24+2]
+        m_l.DrawLatex(legendLeftX,legendUpperY,legendTitle)
+        legendTuple = defineLegendTextMarker(units, hist, tf1,legendLeftX,legendUpperY,showMean,meanWidthOnSeparateLine,legendMarkerYPosMod[3],legendMarkerSize)
+        m_l2.DrawLatex(legendLeftX,legendUpperY-legendYLineSpacing,legendTuple[1])
+        if meanWidthOnSeparateLine==True:
+            m_width.DrawLatex(legendLeftX,legendUpperY-(2*legendYLineSpacing),legendTuple[2])
+        marker9 = legendTuple[0]
+        marker9.Draw("same")
+
     if (debug): print " <DrawPlots> going to save file ... "
 
     if makeOutput:
@@ -455,7 +524,7 @@ def DrawEvolutionPlot(inputTuple, outputName, plotTitle, yAxisTitle, legendLeftX
     if (debug): print " \n <DrawEvolutionPlots> nPoints = ",nPoints
 
     # capture the histograms    
-    histoGram = [TH1,TH1,TH1,TH1,TH1,TH1,TH1]
+    histoGram = [TH1,TH1,TH1,TH1,TH1,TH1,TH1,TH1,TH1]
     theLegend = []
     for i in range(0,nPoints):
         j = 1 + i*3
@@ -536,6 +605,7 @@ def DrawPlots2D(inputTuple, outputDir,outputName, xAxisTitle, yAxisTitle, legend
             can.SaveAs(outputDir+"File_"+str(i)+"_"+outputName)
 
     return
+###########################
 def MakePlots(histogramDir,legendTitles,markerColors,markerStyles,histogramName, fitType, rootFiles, nFiles, normaliseHistos=False, unitArea=False):
 
     debug = False
@@ -544,8 +614,8 @@ def MakePlots(histogramDir,legendTitles,markerColors,markerStyles,histogramName,
     maxval = 0.0
     max_hist = 0
     
-    histoGram = [TH1,TH1,TH1,TH1,TH1,TH1]
-    Tuples = [tuple,tuple,tuple,tuple,tuple,tuple]
+    histoGram = [TH1,TH1,TH1,TH1,TH1,TH1,TH1,TH1,TH1]
+    Tuples = [tuple,tuple,tuple,tuple,tuple,tuple,tuple,tuple,tuple]
 
     #first have to get all the histograms because they may be used to normalise each other etc 
     for i in range(nFiles):
@@ -634,6 +704,57 @@ def MakePlots(histogramDir,legendTitles,markerColors,markerStyles,histogramName,
             totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5]
         elif max_hist==5:
             totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4]
+    if nFiles==7:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+        elif max_hist==3:
+            totalTuple = Tuples[3] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6]
+        elif max_hist==4:
+            totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6]
+        elif max_hist==5:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[6]
+        elif max_hist==6:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5]
+    if nFiles==8:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==3:
+            totalTuple = Tuples[3] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==4:
+            totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==5:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[6] + Tuples[7]
+        elif max_hist==6:
+            totalTuple = Tuples[6] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[7]
+        elif max_hist==7:
+            totalTuple = Tuples[7] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+    if nFiles==9:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==3:
+            totalTuple = Tuples[3] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==4:
+            totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==5:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==6:
+            totalTuple = Tuples[6] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[7] + Tuples[8]
+        elif max_hist==7:
+            totalTuple = Tuples[7] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[8]
+        elif max_hist==7:
+            totalTuple = Tuples[8] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
 
 
 
@@ -656,10 +777,10 @@ def MakeProfPlots(histogramDir,legendTitles,markerColors,markerStyles,histogramN
     maxval = 0.0
     max_hist = 0
     
-    histoGram = [TH2,TH2,TH2,TH2,TH2, TH2]
-    returnHistogram = [TH1, TH1, TH1, TH1, TH1, TH1]
-    myProfile = [TProfile,TProfile,TProfile,TProfile,TProfile, TProfile]
-    Tuples = [tuple,tuple,tuple,tuple,tuple,tuple]
+    histoGram = [TH2,TH2,TH2, TH2,TH2,TH2, TH2,TH2,TH2]
+    returnHistogram = [TH1, TH1, TH1, TH1, TH1, TH1, TH1, TH1, TH1]
+    myProfile = [TProfile,TProfile,TProfile,TProfile,TProfile,TProfile,TProfile,TProfile,TProfile]
+    Tuples = [tuple,tuple,tuple,tuple,tuple,tuple,tuple,tuple,tuple]
 
     #first have to get all the histograms because they may be used to normalise each other etc 
     for i in range(nFiles):
@@ -756,7 +877,57 @@ def MakeProfPlots(histogramDir,legendTitles,markerColors,markerStyles,histogramN
             totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5]
         elif max_hist==5:
             totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4]
-
+    if nFiles==7:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+        elif max_hist==3:
+            totalTuple = Tuples[3] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6]
+        elif max_hist==4:
+            totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6]
+        elif max_hist==5:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[6]
+        elif max_hist==6:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5]
+    if nFiles==8:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==3:
+            totalTuple = Tuples[3] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==4:
+            totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7]
+        elif max_hist==5:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[6] + Tuples[7]
+        elif max_hist==6:
+            totalTuple = Tuples[6] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[7]
+        elif max_hist==7:
+            totalTuple = Tuples[7] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6]
+    if nFiles==9:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==3:
+            totalTuple = Tuples[3] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==4:
+            totalTuple = Tuples[4] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[5] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==5:
+            totalTuple = Tuples[5] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[6] + Tuples[7] + Tuples[8]
+        elif max_hist==6:
+            totalTuple = Tuples[6] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[7] + Tuples[8]
+        elif max_hist==7:
+            totalTuple = Tuples[7] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[8]
+        elif max_hist==7:
+            totalTuple = Tuples[8] + Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3] + Tuples[4] + Tuples[5] + Tuples[6] + Tuples[7]
 
 
 
