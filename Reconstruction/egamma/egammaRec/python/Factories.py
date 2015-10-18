@@ -114,11 +114,15 @@ class Factory:
           (fcn.__name__, params['name'])
         raise
     
-    # Call FcnWrapper or ToolFactory parameters
+    # Call FcnWrapper or ToolFactory parameters 
+    # (or if they are inside a list, for ToolHandleArray)
+    classes = (FcnWrapper, ToolFactory)
     for paramName, value in params.items():
-      if isinstance(value, (FcnWrapper, ToolFactory)):
+      if isinstance(value, classes) or \
+        (isinstance(value, list) and any(isinstance(v, classes) for v in value) ):
         try:
-          params[paramName] = value()
+          params[paramName] = value() if not isinstance(value, list) else \
+            [v() if isinstance(v, classes) else v for v in value]
         except:
           print '\nERROR setting property %s :: %s\n' % (params['name'], paramName)
           raise

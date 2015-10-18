@@ -50,8 +50,10 @@ egammaTruthAssociationAlg::egammaTruthAssociationAlg(const std::string& name,
     "Match forward electrons?");
   declareProperty("MatchClusters", m_matchClusters = false,
     "Match clusters?");    
-  declareProperty("MinPtEgammaTruth", m_minPt = 1e3, 
+  declareProperty("MinPtEgammaTruth", m_minPt = 10, 
     "Minimum Pt to enter egamma truth particle container");
+  declareProperty("MinPtEgammaTruthFSR", m_minPtFSR = 1e3, 
+    "Minimum Pt for FSR to enter egamma truth particle container");  
   declareProperty("SimBarcodeOffset", m_barcodeOffset = 200e3,
     "Barcode offset for G4 particles");
       
@@ -87,7 +89,7 @@ StatusCode egammaTruthAssociationAlg::execute()
   {
     // Create truth egamma container
     m_egammaTruthContainer = new xAOD::TruthParticleContainer();
-    CHECK( evtStore()->record( m_egammaTruthContainer, m_egammaTruthParticleContainerName ) );
+    CHECK( evtStore()->overwrite( m_egammaTruthContainer, m_egammaTruthParticleContainerName ) );
     xAOD::TruthParticleAuxContainer* egammaTruthAuxContainer = new xAOD::TruthParticleAuxContainer();
     CHECK( evtStore()->record( egammaTruthAuxContainer, m_egammaTruthParticleContainerName + "Aux." ) );
     m_egammaTruthContainer->setStore( egammaTruthAuxContainer );
@@ -166,7 +168,8 @@ bool egammaTruthAssociationAlg::isPromptEgammaParticle(const xAOD::TruthParticle
   
   // FSR photon
   if (type.first == MCTruthPartClassifier::NonIsoPhoton && 
-      type.second == MCTruthPartClassifier::FSRPhot) return true;
+      type.second == MCTruthPartClassifier::FSRPhot &&
+      truth->pt() > m_minPtFSR) return true;
   
   // Electron from photon conversion
 //   if(type.first==BkgElectron&&type.second==PhotonConv)
