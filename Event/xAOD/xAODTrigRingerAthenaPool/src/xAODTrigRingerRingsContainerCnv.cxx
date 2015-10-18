@@ -9,6 +9,7 @@
 
 // Local include(s):
 #include "xAODTrigRingerRingsContainerCnv.h"
+#include "xAODTrigRingerRingsContainerCnv_v1.h"
 
 namespace {
 
@@ -53,11 +54,23 @@ xAOD::TrigRingerRingsContainer* xAODTrigRingerRingsContainerCnv::createTransient
 
    // The known ID(s) for this container:
    static pool::Guid v1_guid( "AEF63C18-1B19-4861-A909-FCAF11CFBFCE" );
+   static pool::Guid v2_guid( "96FADA09-FADA-4437-AC96-B02CAA5DE776" );
+
 
    // Check if we're reading the most up to date type:
-   if( compareClassGuid( v1_guid ) ) {
-      xAOD::TrigRingerRingsContainer* c =
-         poolReadObject< xAOD::TrigRingerRingsContainer >();
+   if( compareClassGuid( v2_guid ) ) {
+      xAOD::TrigRingerRingsContainer* c = poolReadObject< xAOD::TrigRingerRingsContainer >();
+      setStoreLink( c, m_key );
+      return c;
+   }
+
+   if( compareClassGuid( v1_guid) ){
+     
+      static xAODTrigRingerRingsContainerCnv_v1 converter;
+      // Read in the v1 version:
+      std::unique_ptr< xAOD::TrigRingerRingsContainer_v1 > old( poolReadObject< xAOD::TrigRingerRingsContainer_v1 >() );
+      // Return the converted object:
+      xAOD::TrigRingerRingsContainer* c = converter.createTransient( old.get(), msg() );
       setStoreLink( c, m_key );
       return c;
    }
@@ -67,3 +80,11 @@ xAOD::TrigRingerRingsContainer* xAODTrigRingerRingsContainerCnv::createTransient
                              "xAOD::TrigRingerRingsContainer found" );
    return 0;
 }
+
+
+
+
+
+
+
+

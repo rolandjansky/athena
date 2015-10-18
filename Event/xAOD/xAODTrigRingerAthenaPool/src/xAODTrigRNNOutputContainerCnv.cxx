@@ -9,6 +9,7 @@
 
 // Local include(s):
 #include "xAODTrigRNNOutputContainerCnv.h"
+#include "xAODTrigRNNOutputContainerCnv_v1.h"
 
 namespace {
 
@@ -53,15 +54,28 @@ xAOD::TrigRNNOutputContainer* xAODTrigRNNOutputContainerCnv::createTransient() {
 
    // The known ID(s) for this container:
    static pool::Guid v1_guid( "E96CE49C-6A88-47A0-8DA0-F1D42E0813C8" );
+   static pool::Guid v2_guid( "6410C90B-57BE-48A9-9A96-A203E4EF90F1" );
 
    // Check if we're reading the most up to date type:
-   if( compareClassGuid( v1_guid ) ) {
+   if( compareClassGuid( v2_guid ) ) {
       xAOD::TrigRNNOutputContainer* c = poolReadObject< xAOD::TrigRNNOutputContainer >();
       setStoreLink( c, m_key );
       return c;
    }
 
-   // If we didn't recognise the ID, let's complain:
+   if( compareClassGuid( v1_guid ) ) {
+       // The v1 converter:
+       static xAODTrigRNNOutputContainerCnv_v1 converter;
+ 
+       // Read in the v1 object:
+       std::unique_ptr< xAOD::TrigRNNOutputContainer_v1 > old( poolReadObject< xAOD::TrigRNNOutputContainer_v1 >() );
+ 
+       // Return the converted object:
+       xAOD::TrigRNNOutputContainer *c = converter.createTransient( old.get(), msg() );   
+       setStoreLink( c, m_key );
+       return c;
+    }  // If we didn't recognise the ID, let's complain:
+
    throw std::runtime_error( "Unsupported version of "
                              "xAOD::TrigRNNOutputContainer found" );
    return 0;
