@@ -23,6 +23,7 @@ typedef double TDD_real_t;
 
 
 class MsgStream;
+class RotatedTrapezoidBoundsCnv_p1;
 
 namespace Trk {
 
@@ -74,7 +75,7 @@ namespace Trk {
       RotatedTrapezoidBounds& operator=(const RotatedTrapezoidBounds& sbo); 
       
       /**Equality operator*/
-      bool operator==(const SurfaceBounds& trabo) const;
+      virtual bool operator==(const SurfaceBounds& trabo) const override;
     
       /**This method returns the minimal halflength in X (first coordinate of local surface frame)*/ 
       double halflengthX() const;
@@ -138,11 +139,13 @@ namespace Trk {
       virtual std::ostream& dump(std::ostream& sl) const override;
       
    private:
+      friend class ::RotatedTrapezoidBoundsCnv_p1;
+
       /** isBelow() method for checking whether a point lies above or under a straight line */
       bool isBelow(double locX, double fabsLocY, double tol1, double tol2) const;
 
       /** Helper function for angle parameter initialization */
-      void initCache();
+      virtual void initCache() override;
 
       /** The internal storage of the bounds can be float/double*/
       std::vector<TDD_real_t>           m_boundValues;       

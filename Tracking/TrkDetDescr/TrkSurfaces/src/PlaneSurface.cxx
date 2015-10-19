@@ -81,6 +81,12 @@ Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans) :
   m_bounds()
 {}
 
+// construct planar surface without bounds
+Trk::PlaneSurface::PlaneSurface(std::unique_ptr<Amg::Transform3D> htrans) :
+  Trk::Surface(std::move(htrans)),
+  m_bounds()
+{}
+
 // construct rectangle module
 Trk::PlaneSurface::PlaneSurface(Amg::Transform3D* htrans, double halephi, double haleta) :
   Trk::Surface(htrans),

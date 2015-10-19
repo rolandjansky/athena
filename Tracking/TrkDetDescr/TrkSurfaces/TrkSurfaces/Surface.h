@@ -21,6 +21,7 @@
 #include "TrkParametersBase/ParametersBase.h"
 #include "TrkParametersBase/Charged.h"
 #include "TrkParametersBase/Neutral.h"
+#include "TrkParametersBase/SurfaceUniquePtrT.h"
 // Amg
 #include "EventPrimitives/EventPrimitives.h" 
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -29,6 +30,7 @@
 
 
 class MsgStream;
+class SurfaceCnv_p1;
 
 namespace Trk {
 
@@ -97,9 +99,11 @@ namespace Trk {
       /**Copy constructor with shift */                            
       Surface(const Surface& sf, const Amg::Transform3D& transf);
       
-      /**Constructor with HepGeom::Transform3D,
-       passing ownership */
+      /**Constructor with HepGeom::Transform3D, passing ownership */
       Surface(Amg::Transform3D* htrans);
+
+      /**Constructor with HepGeom::Transform3D, by unique_ptr */
+      Surface(std::unique_ptr<Amg::Transform3D> htrans);
       
       /**Constructor from TrkDetElement*/
       Surface(const TrkDetElementBase& detelement);
@@ -126,6 +130,10 @@ namespace Trk {
       
       /** Returns the Surface type to avoid dynamic casts */
       virtual SurfaceType type() const = 0;
+
+      /** Return the cached transformation directly.  Don't try to make
+          a new transform if it's not here. */
+      const Amg::Transform3D* cachedTransform() const;
       
       /** Returns HepGeom::Transform3D by reference */
       virtual const Amg::Transform3D& transform() const;
@@ -299,6 +307,7 @@ namespace Trk {
       void associateLayer(const Layer&) const;
             
   protected:
+      friend class ::SurfaceCnv_p1;
             
       /** Private members are in principle implemented as mutable pointers to objects for easy checks
         if they are already declared or not */           
@@ -337,6 +346,11 @@ namespace Trk {
 
   inline bool Surface::operator!=(const Surface& sf) const { return !((*this)==sf); }
   
+  inline const Amg::Transform3D* Surface::cachedTransform() const
+  {
+    return m_transform;
+  }
+
   inline const Amg::Transform3D& Surface::transform() const
   {
     if (m_transform) return (*m_transform);
@@ -436,8 +450,8 @@ namespace Trk {
                                                      const Amg::Vector3D& glomom) const
   {
     Amg::Vector2D* lPosition = new Amg::Vector2D(0.,0.);
-    globalToLocal(glopos, glomom, *lPosition);
-    return lPosition; 
+    if (globalToLocal(glopos, glomom, *lPosition)) return lPosition;
+    delete lPosition; return nullptr;
   }
 
   // take local position and return global direction
@@ -487,7 +501,10 @@ namespace Trk {
 /**Overload of << operator for both, MsgStream and std::ostream for debug output*/ 
 MsgStream& operator << ( MsgStream& sl, const Surface& sf);
 std::ostream& operator << ( std::ostream& sl, const Surface& sf); 
-                       
+
+typedef SurfaceUniquePtrT<Trk::Surface> SurfaceUniquePtr;
+typedef SurfaceUniquePtrT<const Trk::Surface> ConstSurfaceUniquePtr;
+
 } // end of namespace Trk
 
 #endif // TRKSURFACES_SURFACE_H

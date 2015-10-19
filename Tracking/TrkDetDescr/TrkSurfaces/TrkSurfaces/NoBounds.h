@@ -35,7 +35,7 @@ namespace Trk {
        ~NoBounds(){}
        
        /**Equality operator */
-       bool operator==(const SurfaceBounds& sbo) const;
+       virtual bool operator==(const SurfaceBounds& sbo) const override;
        
        /** Return SurfaceBounds for persistency */
        virtual SurfaceBounds::BoundsType type() const override { return SurfaceBounds::Other; }

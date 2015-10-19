@@ -70,8 +70,11 @@ namespace Trk {
       /**Assignment operator*/
       EllipseBounds& operator=(const EllipseBounds& discbo);
       
+      /**Move assignment operator*/
+      EllipseBounds& operator=(EllipseBounds&& discbo);
+      
       /**Equality operator*/
-      bool operator==(const SurfaceBounds& sbo) const;
+      virtual bool operator==(const SurfaceBounds& sbo) const override;
       
       /**Virtual constructor*/
       virtual EllipseBounds* clone() const override;
@@ -106,7 +109,7 @@ namespace Trk {
       double rMaxY() const;
       
       /**This method returns the maximum expansion on the plane (=max(rMaxX,rMaxY))*/
-      virtual double r() const;
+      virtual double r() const override;
       
       /**This method returns the average phi*/
       double averagePhi() const;

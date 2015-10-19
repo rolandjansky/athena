@@ -53,10 +53,14 @@ namespace Trk {
       /**Constructor form HepTransform, radius halfphi, and halflenght*/
       ConeSurface(Amg::Transform3D* htrans, double alpha, double locZmin, double locZmax, double halfPhi=M_PI);
       
-      /**Constructor form HepTransform and CylinderBounds 
+      /**Constructor from HepTransform and CylinderBounds 
         - ownership of the bounds is passed 
         */
       ConeSurface(Amg::Transform3D* htrans, ConeBounds* cbounds);
+
+      /**Constructor from HepTransform by unique_ptr.
+         - bounds is not set. */
+      ConeSurface(std::unique_ptr<Amg::Transform3D> htrans);
       
       /**Copy constructor */
       ConeSurface(const ConeSurface& csf);
@@ -71,7 +75,7 @@ namespace Trk {
       ConeSurface& operator=(const ConeSurface& csf);
       
       /**Equality operator*/
-      bool operator==(const Surface& sf) const;
+      virtual bool operator==(const Surface& sf) const override;
       
       /**Implicit Constructor*/
       virtual ConeSurface* clone() const override;
@@ -147,7 +151,7 @@ namespace Trk {
       
       /**Return method for surface normal information
          at a given local point, overwrites the normal() from base class.*/
-      virtual const Amg::Vector3D* normal(const Amg::Vector2D& locpo) const;
+      virtual const Amg::Vector3D* normal(const Amg::Vector2D& locpo) const override;
       
       /**Return method for the rotational symmetry axis - the z-Axis of the HepTransform */
       virtual const Amg::Vector3D& rotSymmetryAxis() const;
@@ -161,7 +165,7 @@ namespace Trk {
       virtual bool insideBoundsCheck(const Amg::Vector2D& locpos, const BoundaryCheck& bchk) const override;
 	  
       /** Specialized for ConeSurface : LocalParameters to Vector2D */
-      const Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const;
+      virtual const Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const override;
       
       /** Specialized for ConeSurface : LocalToGlobal method without dynamic memory allocation */
       virtual void localToGlobal(const Amg::Vector2D& locp, const Amg::Vector3D& mom, Amg::Vector3D& glob) const override;
@@ -234,7 +238,7 @@ namespace Trk {
     Amg::Vector3D localNormal(cos(phi) * bounds().cosAlpha(),
 				sin(phi) * bounds().cosAlpha(),
 				sgn*bounds().sinAlpha());
-    return new Amg::Vector3D(transform()*localNormal);
+    return new Amg::Vector3D(transform().rotation()*localNormal);
   }  
 
   inline const ConeBounds& ConeSurface::bounds() const

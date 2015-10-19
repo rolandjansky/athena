@@ -67,7 +67,8 @@ namespace Trk {
         RotatedTrapezoid = 7,
         Trapezoid        = 8,
         Triangle         = 9,
-        Other            = 10 
+	DiscTrapezoidal  = 10,
+        Other            = 11 
         
       };
         

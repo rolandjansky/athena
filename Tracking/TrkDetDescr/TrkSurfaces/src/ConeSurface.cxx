@@ -68,6 +68,15 @@ Trk::ConeSurface::ConeSurface(Amg::Transform3D* htrans, Trk::ConeBounds* cbounds
   assert(cbounds);
 }
 
+// constructor from transform, bounds not set.
+Trk::ConeSurface::ConeSurface(std::unique_ptr<Amg::Transform3D> htrans):
+  Trk::Surface(std::move(htrans)),
+  m_bounds(nullptr),
+  m_referencePoint(0),
+  m_rotSymmetryAxis(0)
+{
+}
+
 // destructor (will call destructor from base class which deletes objects)
 Trk::ConeSurface::~ConeSurface()
 {

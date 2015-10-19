@@ -16,6 +16,7 @@
 #include <math.h>
 
 class MsgStream;
+class DiamondBoundsCnv_p1;
 
 #ifdef TRKDETDESCR_USEFLOATPRECISON 
 typedef float TDD_real_t; 
@@ -64,7 +65,7 @@ namespace Trk {
       DiamondBounds& operator=(const DiamondBounds& sbo); 
       
       /**Equality operator*/
-      bool operator==(const SurfaceBounds& diabo) const;
+      virtual bool operator==(const SurfaceBounds& diabo) const override;
     
       /** Return the bounds type */
       virtual BoundsType type() const override { return SurfaceBounds::Diamond; }
@@ -100,14 +101,14 @@ namespace Trk {
       - As loc1/loc2 are correlated the single check doesn't make sense : 
          -> check is done on enclosing Rectangle !
       */
-      virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1=0.) const;
+      virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1=0.) const override;
       
       /** This method checks inside bounds in loc2 
       - loc1/loc2 correspond to the natural coordinates of the surface
       - As loc1/loc2 are correlated the single check doesn't make sense : 
          -> check is done on enclosing Rectangle !
       */
-      virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2=0.) const;
+      virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2=0.) const override;
 
       /** Minimal distance to boundary ( > 0 if outside and <=0 if inside) */
       virtual double minDistance(const Amg::Vector2D& pos) const override;
@@ -119,11 +120,13 @@ namespace Trk {
       virtual std::ostream& dump(std::ostream& sl) const override;
       
    private:
+      friend class ::DiamondBoundsCnv_p1;
+
       /** inside() method for a full symmetric diamond */
       bool insideFull(const Amg::Vector2D& locpo, double tol1=0., double tol2=0.) const;
 
       /** initialize the alpha1/2 cache - needed also for object persistency */
-      void initCache();
+      virtual void initCache() override;
 
       /** Internal parameters stored in the geometry */
       std::vector<TDD_real_t>                   m_boundValues;

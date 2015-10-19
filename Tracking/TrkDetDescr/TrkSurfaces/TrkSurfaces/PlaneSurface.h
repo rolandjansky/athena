@@ -21,6 +21,7 @@
 
 class MsgStream;
 class Identifier;
+template< class SURFACE, class BOUNDS_CNV > class BoundSurfaceCnv_p1;
 
 namespace Trk {
 
@@ -75,6 +76,9 @@ namespace Trk {
       /** Constructor for planar Surface without Bounds */
       PlaneSurface(Amg::Transform3D* htrans);
       
+      /** Constructor for planar Surface from unique_ptr without Bounds */
+      PlaneSurface(std::unique_ptr<Amg::Transform3D> htrans);
+      
       /** Constructor for Rectangular Planes*/      
       PlaneSurface(Amg::Transform3D* htrans, double halephi, double haleta);
       
@@ -109,7 +113,7 @@ namespace Trk {
       PlaneSurface& operator=(const PlaneSurface& psf);
       
       /**Equality operator*/
-      bool operator==(const Surface& sf) const;
+      virtual bool operator==(const Surface& sf) const override;
       
       /**Virtual constructor*/
       virtual PlaneSurface* clone() const override;
@@ -224,6 +228,8 @@ namespace Trk {
       virtual std::string name() const  override { return "Trk::PlaneSurface"; }
       
     protected: //!< data members
+      template< class SURFACE, class BOUNDS_CNV > friend class ::BoundSurfaceCnv_p1;
+
       mutable SharedObject<const SurfaceBounds>  m_bounds;      //!< bounds (shared)        
       static NoBounds                            s_boundless;   //!< NoBounds as return object when no bounds are declared
 

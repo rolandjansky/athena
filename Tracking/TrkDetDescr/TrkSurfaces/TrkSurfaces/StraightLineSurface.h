@@ -21,6 +21,7 @@
 
 class Identifier;
 class MsgStream;
+template< class SURFACE, class BOUNDS_CNV > class BoundSurfaceCnv_p1;
 
 namespace Trk {
 
@@ -47,6 +48,9 @@ namespace Trk {
       /**Constructor from HepTransform (boundless surface)*/
       StraightLineSurface(Amg::Transform3D* htrans);
       
+      /**Constructor from HepTransform by unique_ptr (boundless surface)*/
+      StraightLineSurface(std::unique_ptr<Amg::Transform3D> htrans);
+      
       /**Constructor from HepTransform and bounds*/
       StraightLineSurface(Amg::Transform3D* htrans, double radius, double halez);
       
@@ -66,7 +70,7 @@ namespace Trk {
       StraightLineSurface& operator=(const StraightLineSurface& slsf );
       
       /**Equality operator*/
-      bool operator==(const Surface& sf) const;
+      virtual bool operator==(const Surface& sf) const override;
       
       /**Implicit constructor*/
       virtual StraightLineSurface* clone() const override;
@@ -214,6 +218,8 @@ namespace Trk {
       virtual std::string name() const override { return "Trk::StraightLineSurface"; };
       
     protected: //!< data members
+      template< class SURFACE, class BOUNDS_CNV > friend class ::BoundSurfaceCnv_p1;
+
       mutable Amg::Vector3D*                      m_lineDirection;  //!< cache of the line direction (speeds up)
       SharedObject<const CylinderBounds>          m_bounds;         //!< bounds (shared)
       static NoBounds                             s_boundless;      //!< NoBounds as return object when no bounds are declared
