@@ -178,7 +178,7 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
   eff_sector_etaIndex_nTrighit[chIndex]->Fill(sectorIndex, etaIndex, Chamberexpectedtrighits[chIndex]);
   
   bool isBarrel = (chIndex<Muon::MuonStationIndex::BEE)? true: false; // BEE -> endcap
-  //bool isSectorLarge = ( (isBarrel && chIndex%2==1) || (!isBarrel && chIndex%2==0 && chIndex!=Muon::MuonStationIndex::BEE) )? true : false; ////BEE only in small sectors
+  bool isSectorLarge = ( (isBarrel && chIndex%2==1) || (!isBarrel && chIndex%2==0 && chIndex!=Muon::MuonStationIndex::BEE) )? true : false; ////BEE only in small sectors
 
   // if (isBarrel) {
   //   if (chIndex==Muon::MuonStationIndex::BIL || chIndex==Muon::MuonStationIndex::BIS) 
@@ -209,8 +209,11 @@ void MuonSegmentPlots::fill(const xAOD::MuonSegment& muSeg)
   if ( (muSeg.px()==0) || (muSeg.py()==0) || (muSeg.pz()==0) ) return; 
 
   Amg::Vector3D globalPos(muSeg.x(),muSeg.y(),muSeg.z());
-  // float r = globalPos.perp();
-  // float z = globalPos.z();
+  float r = globalPos.perp();
+  float z = globalPos.z();
+  //fill the rz plots
+  if (isSectorLarge) {rzpos_sectorLarge->Fill(z,r, chambernorm);}
+  else {rzpos_sectorSmall->Fill(z,r, chambernorm);}
 
   Amg::Vector3D globalDir(muSeg.px(),muSeg.py(),muSeg.pz());
   float eta = globalDir.eta();
