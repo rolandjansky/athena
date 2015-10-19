@@ -97,7 +97,7 @@ StatusCode DerivationFramework::EGammaTracksThinning::doThinning() const {
       if ( (*eleItr)->pt() > m_minEtEg ) 
         {
           
-          ATH_MSG_INFO(  "Electron at eta = " << (*eleItr)->eta() << " phi = " << (*eleItr)->phi() );          
+          ATH_MSG_DEBUG(  "Electron at eta = " << (*eleItr)->eta() << " phi = " << (*eleItr)->phi() );          
           
           // get the list of tracks associated to this object
 
@@ -120,7 +120,7 @@ StatusCode DerivationFramework::EGammaTracksThinning::doThinning() const {
       if ( (*phoItr)->pt() > m_minEtEg ) 
         {
           
-          ATH_MSG_INFO(  "Photon at eta = " << (*phoItr)->eta() << " phi = " << (*phoItr)->phi() );          
+          ATH_MSG_DEBUG(  "Photon at eta = " << (*phoItr)->eta() << " phi = " << (*phoItr)->phi() );          
           
           // get the list of tracks associated to this object
 
@@ -138,7 +138,7 @@ StatusCode DerivationFramework::EGammaTracksThinning::doThinning() const {
 
   ATH_CHECK( thinTracks( trackCollection, m_goodTrackIDs ) );
   
-  ATH_MSG_INFO( "Track thinning : tracks = " << trackCollection->size() 
+  ATH_MSG_DEBUG( "Track thinning : tracks = " << trackCollection->size() 
                 << " accepted = " << m_goodTrackIDs.size() ); 
   
   return StatusCode::SUCCESS;
@@ -176,11 +176,11 @@ std::set<int> DerivationFramework::EGammaTracksThinning::findGoodTracks(const Tr
       double deltaPhi = P4Helpers::deltaPhi(trkphi, candHepLorentz.Phi() );
       double deltaR = sqrt(deltaEta*deltaEta+deltaPhi*deltaPhi);
     
-      ATH_MSG_INFO( "Thin Tracks: eta = " << trketa << "  phi = " << trkphi << " deltaR = " << deltaR );       	 
+      ATH_MSG_DEBUG( "Thin Tracks: eta = " << trketa << "  phi = " << trkphi << " deltaR = " << deltaR );       	 
       if ( deltaR < maxDeltaR )
         {
           goodTracks.insert( i );
-          ATH_MSG_INFO( "  Track in the cone, adding: " << " eta=" << trketa << " phi="    << trkphi );
+          ATH_MSG_DEBUG( "  Track in the cone, adding: " << " eta=" << trketa << " phi="    << trkphi );
         } 
      
       ++i; // Increment the counter
@@ -200,7 +200,7 @@ StatusCode DerivationFramework::EGammaTracksThinning::thinTracks( const TrackCol
                                                             std::set<int> m_goodTrackIDs ) const
 {
   
-  ATH_MSG_INFO( "==> thinTracks " << name() << "..." );
+  ATH_MSG_DEBUG( "==> thinTracks " << name() << "..." );
   
   // Declare the simple StatusCode
   StatusCode sc(StatusCode::SUCCESS);
@@ -232,7 +232,7 @@ StatusCode DerivationFramework::EGammaTracksThinning::thinTracks( const TrackCol
     } // End loop over Tracks
 
   // Write out a statistics message
-  ATH_MSG_INFO( " EGammaTracksThinning statistics: tracks processed " << nTotal 
+  ATH_MSG_DEBUG( " EGammaTracksThinning statistics: tracks processed " << nTotal 
                 << " kept = " << nKeep
                 << " rejected " << nReject );
   

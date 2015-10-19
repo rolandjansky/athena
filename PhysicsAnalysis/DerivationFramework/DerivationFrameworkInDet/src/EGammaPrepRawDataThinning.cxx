@@ -128,7 +128,7 @@ StatusCode DerivationFramework::EGammaPrepRawDataThinning::doThinning() const {
           VertexPos.setY(vertex->position().y());
           VertexPos.setZ(vertex->position().z());
           
-          ATH_MSG_INFO( "Primary Vetex found = " << vertex->position().x() 
+          ATH_MSG_DEBUG( "Primary Vetex found = " << vertex->position().x() 
                         << " " << vertex->position().y() 
                         << " " << vertex->position().z() ) ;
           
@@ -178,7 +178,7 @@ StatusCode DerivationFramework::EGammaPrepRawDataThinning::doThinning() const {
       if ( (*eleItr)->pt() > m_minEtEg ) 
         {
           
-          ATH_MSG_INFO(  "Electron at eta = " << (*eleItr)->eta() << " phi = " << (*eleItr)->phi() );          
+          ATH_MSG_DEBUG(  "Electron at eta = " << (*eleItr)->eta() << " phi = " << (*eleItr)->phi() );          
           
           // get the list of pixels clusters collections associated to this object
          
@@ -222,7 +222,7 @@ StatusCode DerivationFramework::EGammaPrepRawDataThinning::doThinning() const {
       if ( (*phoItr)->pt() > m_minEtEg ) 
         {
           
-          ATH_MSG_INFO(  "Photon at eta = " << (*phoItr)->eta() << " phi = " << (*phoItr)->phi() );          
+          ATH_MSG_DEBUG(  "Photon at eta = " << (*phoItr)->eta() << " phi = " << (*phoItr)->phi() );          
                       
           // get the list of pixels clusters collections associated to this object
           
@@ -307,7 +307,7 @@ std::vector<IdentifierHash> DerivationFramework::EGammaPrepRawDataThinning::find
 
   double roiPhi = candHepLorentz.Phi();
 
-  ATH_MSG_INFO (  "ROI range = " << candHepLorentz.Eta() << " " <<  roiEtaMin << " " << roiEtaMax << " " <<
+  ATH_MSG_DEBUG (  "ROI range = " << candHepLorentz.Eta() << " " <<  roiEtaMin << " " << roiEtaMax << " " <<
                   roiPhi << " " <<  roiPhiMin << " " <<  roiPhiMax << " " << 
                   primaryVertex.z() << " " <<  roiZMin << " " << roiZMax   ) ;
   
@@ -405,11 +405,11 @@ StatusCode DerivationFramework::EGammaPrepRawDataThinning::thinPixelsClusters( c
   
   // Write out a statistics message
   
-  ATH_MSG_INFO( " ======= PixelClusterThinning statistics: ====================================== ");
-  ATH_MSG_INFO( " *      Pixels collections     = " << nTotal  << "    Number of pixel clusters      = " << nClustersTotal );
-  ATH_MSG_INFO( " *      Pixel collections kept = " << nKeep   <<  "   Number of pixel clusters kept = " << nClustersKeep );
-  ATH_MSG_INFO( " *      Pixel collections reje = " << nReject <<  "   Number of pixel clusters reje = " << nClustersReject );
-  ATH_MSG_INFO( " ======================================== ====================================== ");
+  ATH_MSG_DEBUG( " ======= PixelClusterThinning statistics: ====================================== ");
+  ATH_MSG_DEBUG( " *      Pixels collections     = " << nTotal  << "    Number of pixel clusters      = " << nClustersTotal );
+  ATH_MSG_DEBUG( " *      Pixel collections kept = " << nKeep   <<  "   Number of pixel clusters kept = " << nClustersKeep );
+  ATH_MSG_DEBUG( " *      Pixel collections reje = " << nReject <<  "   Number of pixel clusters reje = " << nClustersReject );
+  ATH_MSG_DEBUG( " ======================================== ====================================== ");
     
   // Perform the actual thinning
   ATH_CHECK( m_thinningSvc->filter(*pixelCont, mask, IThinningSvc::Operator::Or) );
@@ -484,11 +484,11 @@ StatusCode DerivationFramework::EGammaPrepRawDataThinning::thinSCTClusters( cons
 
   // Write out a statistics message
 
-  ATH_MSG_INFO( " ======= SCTClusterThinning statistics: ====================================== ");
-  ATH_MSG_INFO( " *      SCT collections      = " << nTotal  << "    Number of SCT clusters      = " << nClustersTotal );
-  ATH_MSG_INFO( " *      SCT collections kept = " << nKeep   <<  "   Number of SCT clusters kept = " << nClustersKeep );
-  ATH_MSG_INFO( " *      SCT collections reje = " << nReject <<  "   Number of SCT clusters reje = " << nClustersReject );
-  ATH_MSG_INFO( " ======================================== ====================================== ");
+  ATH_MSG_DEBUG( " ======= SCTClusterThinning statistics: ====================================== ");
+  ATH_MSG_DEBUG( " *      SCT collections      = " << nTotal  << "    Number of SCT clusters      = " << nClustersTotal );
+  ATH_MSG_DEBUG( " *      SCT collections kept = " << nKeep   <<  "   Number of SCT clusters kept = " << nClustersKeep );
+  ATH_MSG_DEBUG( " *      SCT collections reje = " << nReject <<  "   Number of SCT clusters reje = " << nClustersReject );
+  ATH_MSG_DEBUG( " ======================================== ====================================== ");
       
   // Perform the actual thinning
 
@@ -562,11 +562,11 @@ StatusCode DerivationFramework::EGammaPrepRawDataThinning::thinTRTDriftCircles( 
   
     // Write out a statistics message
 
-  ATH_MSG_INFO( " ======= TRTClusterThinning statistics: ====================================== ");
-  ATH_MSG_INFO( " *      TRT collections      = " << nTotal  << "    Number of TRT clusters      = " << nClustersTotal );
-  ATH_MSG_INFO( " *      TRT collections kept = " << nKeep   <<  "   Number of TRT clusters kept = " << nClustersKeep );
-  ATH_MSG_INFO( " *      TRT collections reje = " << nReject <<  "   Number of TRT clusters reje = " << nClustersReject );
-  ATH_MSG_INFO( " ======================================== ====================================== ");
+  ATH_MSG_DEBUG( " ======= TRTClusterThinning statistics: ====================================== ");
+  ATH_MSG_DEBUG( " *      TRT collections      = " << nTotal  << "    Number of TRT clusters      = " << nClustersTotal );
+  ATH_MSG_DEBUG( " *      TRT collections kept = " << nKeep   <<  "   Number of TRT clusters kept = " << nClustersKeep );
+  ATH_MSG_DEBUG( " *      TRT collections reje = " << nReject <<  "   Number of TRT clusters reje = " << nClustersReject );
+  ATH_MSG_DEBUG( " ======================================== ====================================== ");
   
   // Perform the actual thinning
   ATH_CHECK( m_thinningSvc->filter(*trtCont, mask, IThinningSvc::Operator::Or) );
