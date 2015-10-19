@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LUTStrategy.h 650693 2015-03-01 16:53:48Z masato $
+// $Id: LUTStrategy.h 701446 2015-10-19 15:19:09Z wengler $
 #ifndef TRIGT1MUCTPI_LUTSTRATEGY_H
 #define TRIGT1MUCTPI_LUTSTRATEGY_H
 
@@ -37,8 +37,8 @@ namespace LVL1MUCTPI {
     *
     * @authos Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 650693 $
-    * $Date: 2015-03-01 17:53:48 +0100 (Sun, 01 Mar 2015) $
+    * $Revision: 701446 $
+    * $Date: 2015-10-19 17:19:09 +0200 (Mon, 19 Oct 2015) $
     */
    class LUTStrategy : public OverlapStrategy {
 
@@ -47,6 +47,7 @@ namespace LVL1MUCTPI {
       LUTStrategy( const MultiplicityLogic* logic );
       /// Copy constructor
       LUTStrategy( const LUTStrategy& strategy );
+      LUTStrategy  & operator = ( const LUTStrategy  & ) = delete;
 
       /// Function initializing the strategy object
       StatusCode initialize( const std::string& lutXMLFile, bool flagMode,

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MsgLogger.cxx 472835 2011-12-06 21:05:16Z stelzer $
+// $Id: MsgLogger.cxx 700318 2015-10-13 14:13:15Z wengler $
 
 // STL include(s):
 #include <iomanip>
@@ -14,12 +14,12 @@
 
 //***********************************************************************
 //
-//       Version : $Revision: 472835 $
+//       Version : $Revision: 700318 $
 //
 //   Description : Implementation of the MsgLogger class
 //
 //        Author : $Author: krasznaa $
-//          Date : $Date: 2011-12-06 22:05:16 +0100 (Tue, 06 Dec 2011) $
+//          Date : $Date: 2015-10-13 16:13:15 +0200 (Tue, 13 Oct 2015) $
 //
 //***********************************************************************
 
@@ -45,11 +45,12 @@ namespace LVL1MUCTPI {
 
    MsgLogger& MsgLogger::operator= ( const MsgLogger& parent ) {
 
-      m_source = parent.m_source;
-      m_msgWriter = MsgWriter::instance();
-      m_activeType = parent.m_activeType;
-
-      return *this;
+     if (this != &parent){
+       m_source = parent.m_source;
+       m_msgWriter = MsgWriter::instance();
+       m_activeType = parent.m_activeType;
+     }
+     return *this;
    }
 
    MsgLogger& MsgLogger::endmsg( MsgLogger& logger ) {

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Lvl1Mibak.h 678659 2015-06-26 14:54:31Z wengler $
+// $Id: Lvl1Mibak.h 701446 2015-10-19 15:19:09Z wengler $
 #ifndef TRIGT1MUCTPI_LVL1MIBAK_H
 #define TRIGT1MUCTPI_LVL1MIBAK_H
 
@@ -65,8 +65,8 @@ namespace LVL1MUCTPI {
     * @author Thorsten Wengler
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 678659 $
-    * $Date: 2015-06-26 16:54:31 +0200 (Fri, 26 Jun 2015) $
+    * $Revision: 701446 $
+    * $Date: 2015-10-19 17:19:09 +0200 (Mon, 19 Oct 2015) $
     */
    class Lvl1Mibak {
 
@@ -82,6 +82,11 @@ namespace LVL1MUCTPI {
        * @see StrategyName.h
        */
       Lvl1Mibak( EventReader* reader );
+
+      // disable copy/assignment operator as not used/implemented
+      Lvl1Mibak( const Lvl1Mibak & ) = delete;
+      Lvl1Mibak & operator = ( const Lvl1Mibak & ) = delete;
+
       ~Lvl1Mibak();
 
       /// set Configuration
