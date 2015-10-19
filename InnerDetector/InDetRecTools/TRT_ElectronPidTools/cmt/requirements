@@ -11,7 +11,6 @@ public
 
 public 
 use AtlasPolicy          AtlasPolicy-*
-use  AtlasROOT               AtlasROOT-*                     External
 use AthenaBaseComps      AthenaBaseComps-*         Control
 use TrkEventPrimitives   TrkEventPrimitives-*      Tracking/TrkEvent
 use TrkToolInterfaces    TrkToolInterfaces-*       Tracking/TrkTools
@@ -19,6 +18,7 @@ use GaudiInterface       GaudiInterface-*          External
 use TrkTrack             TrkTrack-*                Tracking/TrkEvent
 use TRT_ConditionsServices TRT_ConditionsServices-* InnerDetector/InDetConditions
 use InDetPrepRawData     InDetPrepRawData-*        InnerDetector/InDetRecEvent
+use TRT_DriftFunctionTool TRT_DriftFunctionTool-* InnerDetector/InDetRecTools
 
 use AthenaPoolUtilities  AthenaPoolUtilities-*     Database/AthenaPOOL
 

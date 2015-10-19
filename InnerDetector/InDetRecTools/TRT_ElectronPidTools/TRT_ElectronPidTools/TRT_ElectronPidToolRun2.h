@@ -110,6 +110,7 @@ namespace InDet
     std::vector<float> electronProbability_old(const Trk::Track& track);
 
     double probHT( const double pTrk, const Trk::ParticleHypothesis hypothesis, const int HitPart, const int Layer, const int Strawlayer);
+    double probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy );
 
   // get the ToT from the bitpattern and correct for local variations
     double GetToT(unsigned int bitpattern, double HitZ, double HitR, int BEC, int Layer, int Strawlayer) const;
@@ -155,6 +156,7 @@ namespace InDet
     Trk::ParticleMasses        m_particlemasses;      // Particle masses. (initalized in default constructor)
     unsigned int               m_minTRThits;          // Minimum number of TRT hits to give PID.
     bool                       m_bremFitterEnabled;   // jobOption whether or not brem Chi2 fitter is enabled.
+    bool                       m_OccupancyUsedInPID;   // DEPRECATED!!!
 
     //Some constants about the Bitpattern:
     static const unsigned int LTbits=0x3FDFEFF;

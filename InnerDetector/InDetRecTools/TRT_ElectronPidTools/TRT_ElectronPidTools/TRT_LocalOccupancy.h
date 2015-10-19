@@ -18,12 +18,14 @@
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
 
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
+#include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 
 #include <vector>
 
 class AtlasDetectorID;
 class ITRT_StrawStatusSummarySvc ;
 class TRT_ID;
+class ITRT_DriftFunctionTool;
 
 namespace Trk{
 	class Track;
@@ -89,7 +91,7 @@ namespace InDet
       bool isMiddleBXOn(unsigned int word);
       bool passValidityGate(unsigned int word, float t0);
 
-  void  countHitsNearTrack(int track_hit_array[6][32]);
+      void  countHitsNearTrack(int** track_hit_array/*[6][32]*/);
       //   void  countHitsNearTrack(std::vector<IdentifierHash>* hash_vec);
   //   void  countHitsNearTrack(IdentifierHash hash);
 
@@ -113,15 +115,19 @@ namespace InDet
    /** To prevent the creation of the maps more than 1 time per event, keep the event number */
    int m_eventnumber;
 
-   /** To keep track of sectors that have been calculated online */
-   bool m_sector_counted[6][32];
-
    /** External tools:  */
    const TRT_ID *m_TRTHelper;
+   std::string                               m_trt_rdo_location   ;
    ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawStatusSummarySvc;
-   std::string                    m_trt_rdo_location   ;
+   ToolHandle< ITRT_DriftFunctionTool > m_driftFunctionTool; //!< DriftFunctionTool
 
    bool m_isTrigger;
+   bool m_T0Shift; // choice to use T0shift or not
+   float m_lowGate;
+   float m_highGate;
+   // use a wider validity gate if you're not using T0 shift:
+   float m_lowWideGate; 
+   float m_highWideGate;
 
    }; 
 }
