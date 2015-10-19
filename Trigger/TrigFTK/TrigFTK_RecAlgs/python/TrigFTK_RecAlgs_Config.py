@@ -75,8 +75,6 @@ class TrigFTK_VxPrimary_EF(TrigFTK_VxPrimary):
     __slots__ = []
     def __init__(self, name, type):
         TrigFTK_VxPrimary.__init__(self, name)
-        from TrigFTK_RecExample.TrigFTKLoadTools import theFTK_DataProviderSvc
-        self.FTK_DataProvider = theFTK_DataProviderSvc
         #monitoring
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
         vxtime = TrigTimeHistToolConfig("VxTime")
