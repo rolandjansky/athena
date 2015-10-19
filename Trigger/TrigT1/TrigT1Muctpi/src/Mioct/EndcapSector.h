@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EndcapSector.h 364083 2011-05-06 09:09:55Z krasznaa $
+// $Id: EndcapSector.h 701446 2015-10-19 15:19:09Z wengler $
 #ifndef TRIGT1MUCTPI_ENDCAPSECTOR_H
 #define TRIGT1MUCTPI_ENDCAPSECTOR_H
 
@@ -31,8 +31,8 @@ namespace LVL1MUCTPI {
     * @author Thorsten Wengler
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 364083 $
-    * $Date: 2011-05-06 11:09:55 +0200 (Fri, 06 May 2011) $
+    * $Revision: 701446 $
+    * $Date: 2015-10-19 17:19:09 +0200 (Mon, 19 Oct 2015) $
     */
    class EndcapSector : public Sector {
 
@@ -46,6 +46,7 @@ namespace LVL1MUCTPI {
       EndcapSector( Hemisphere hemisphere, unsigned int sectorNumber,
                     EventReader* reader );
       EndcapSector( const EndcapSector& sector );
+      EndcapSector & operator = ( const EndcapSector & ) = delete;
       ~EndcapSector();
       /**
        * Implementation of the corresponding abstract method in the

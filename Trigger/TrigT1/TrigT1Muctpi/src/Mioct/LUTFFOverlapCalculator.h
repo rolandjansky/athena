@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LUTFFOverlapCalculator.h 650693 2015-03-01 16:53:48Z masato $
+// $Id: LUTFFOverlapCalculator.h 701446 2015-10-19 15:19:09Z wengler $
 #ifndef TRIGT1MUCTPI_LUTFFOVERLAPCALCULATOR_H
 #define TRIGT1MUCTPI_LUTFFOVERLAPCALCULATOR_H
 
@@ -26,8 +26,8 @@ namespace LVL1MUCTPI {
     *
     * @author Attila Krasznahorkay Jr.
     *
-    * $Revision: 650693 $
-    * $Date: 2015-03-01 17:53:48 +0100 (Sun, 01 Mar 2015) $
+    * $Revision: 701446 $
+    * $Date: 2015-10-19 17:19:09 +0200 (Mon, 19 Oct 2015) $
     */
    class LUTFFOverlapCalculator : public LUTOverlapCalculatorBase {
 
@@ -36,6 +36,7 @@ namespace LVL1MUCTPI {
       LUTFFOverlapCalculator();
       /// Copy constructor
       LUTFFOverlapCalculator( const LUTFFOverlapCalculator& calc );
+      LUTFFOverlapCalculator  & operator = ( const LUTFFOverlapCalculator  & ) = delete;
 
       /// Function initializing the calculator object
      virtual StatusCode initialize( const xercesc::DOMNode* ffnode, bool dumpLut,const std::string& runPeriod );

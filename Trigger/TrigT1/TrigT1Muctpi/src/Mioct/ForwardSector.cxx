@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ForwardSector.cxx 364083 2011-05-06 09:09:55Z krasznaa $
+// $Id: ForwardSector.cxx 700318 2015-10-13 14:13:15Z wengler $
 
 // STL include(s):
 #include <iomanip>
@@ -47,10 +47,11 @@ namespace LVL1MUCTPI {
 
       // check if any of the reservered bits is set. This should not
       // be the case. If so, give a warning but set the bitfield anyway.
-      if( ( ForwardReservedMask & bitfield ) != 0 ) {
-         m_logger << WARNING << "illegal bitfield : " << std::hex << bitfield
-                  << " (hex) --> Bitfield set anyway" << MsgLogger::endmsg;
-      }
+      // these fields are not respected by input simultion - skip
+      // if( ( ForwardReservedMask & bitfield ) != 0 ) {
+      //   m_logger << WARNING << "illegal bitfield : " << std::hex << bitfield
+      //            << " (hex) --> Bitfield set anyway" << MsgLogger::endmsg;
+      //}
 
       m_bitField = bitfield;
       return;
@@ -58,12 +59,12 @@ namespace LVL1MUCTPI {
 
    unsigned int ForwardSector::getROI1() const {
 
-      return getValue( EndcapROI1Mask );
+      return getValue( ForwardROI1Mask );
    }
 
    unsigned int ForwardSector::getROI2() const {
 
-      return getValue( EndcapROI2Mask );
+      return getValue( ForwardROI2Mask );
    }
 
    void ForwardSector::print( std::string& result ) const {
@@ -83,7 +84,7 @@ namespace LVL1MUCTPI {
       ROI2Of = this->getValue( ROI2OverflowMask );
 
       std::ostringstream outStream;
-      outStream << " \n\n  FORWARD SECTOR DATA $Revision: 364083 $" << std::endl;
+      outStream << " \n\n  FORWARD SECTOR DATA $Revision: 700318 $" << std::endl;
       outStream << "==============================================" << std::endl;
       outStream << myId << std::endl;
       outStream << "BCID :            " << BCID  << std::endl;

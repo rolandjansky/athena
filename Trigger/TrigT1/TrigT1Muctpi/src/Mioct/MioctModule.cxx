@@ -2,10 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MioctModule.cxx 485324 2012-02-27 17:02:38Z krasznaa $
+// $Id: MioctModule.cxx 678659 2015-06-26 14:54:31Z wengler $
 
 // STL include(s):
 #include <sstream>
+#include <iostream>
+#include<string>
 
 // Local include(s):
 #include "MioctModule.h"
@@ -14,12 +16,12 @@
 
 //***********************************************************************
 //
-//       Version : $Revision: 485324 $
+//       Version : $Revision: 678659 $
 //
 //   Description :
 //
 //        Author : $Author: krasznaa $
-//          Date : $Date: 2012-02-27 18:02:38 +0100 (Mon, 27 Feb 2012) $
+//          Date : $Date: 2015-06-26 16:54:31 +0200 (Fri, 26 Jun 2015) $
 //
 //
 //
@@ -52,6 +54,113 @@ namespace LVL1MUCTPI {
       return m_lvl1OverlapLogic->calculateMultiplicity( m_mioctSectors, m_ID ) ;
    }
 
+   LVL1::MuCTPIL1Topo MioctModule::getL1TopoCandidates(MioctL1TopoConverter & l1TopoConv) const{
+     LVL1::MuCTPIL1Topo result;
+     std::vector<LVL1::MuCTPIL1TopoCandidate> candList;
+     
+     // Add the unsupressed barrel candidates in the same order as in the hardware - 
+     // this is important as the last ones added are taken after sorting if 
+     // there are more than two candidates per Mioct
+     // BA31, BA32, BA01, BA02, EC47, EC00, EC01, EC02, EC03, EC04, FW00, FW01, FW02
+     // equivalent to Barrel1-4, Endcap1-6, Forward1-3
+
+     if(  ! m_mioctSectors.Barrel1.getCand1Supressed() &&  m_mioctSectors.Barrel1.getPtCand1() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Barrel1, true ));
+
+     if(  ! m_mioctSectors.Barrel1.getCand2Supressed() &&  m_mioctSectors.Barrel1.getPtCand2() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Barrel1, false ));
+
+     if(  ! m_mioctSectors.Barrel2.getCand1Supressed() &&  m_mioctSectors.Barrel2.getPtCand1() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Barrel2, true ));
+
+     if(  ! m_mioctSectors.Barrel2.getCand2Supressed() &&  m_mioctSectors.Barrel2.getPtCand2() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Barrel2, false ));
+
+     if(  ! m_mioctSectors.Barrel3.getCand1Supressed() &&  m_mioctSectors.Barrel3.getPtCand1() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Barrel3, true ));
+
+     if(  ! m_mioctSectors.Barrel3.getCand2Supressed() &&  m_mioctSectors.Barrel3.getPtCand2() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Barrel3, false ));
+
+     if(  ! m_mioctSectors.Barrel4.getCand1Supressed() &&  m_mioctSectors.Barrel4.getPtCand1() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Barrel4, true ));
+
+     if(  ! m_mioctSectors.Barrel4.getCand2Supressed() &&  m_mioctSectors.Barrel4.getPtCand2() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Barrel4, false ));
+
+ 
+     if(  ! m_mioctSectors.Endcap1.getCand1Supressed() &&  m_mioctSectors.Endcap1.getPtCand1() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Endcap1, true ));
+
+     if(  ! m_mioctSectors.Endcap1.getCand2Supressed() &&  m_mioctSectors.Endcap1.getPtCand2() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Endcap1, false ));
+
+     if(  ! m_mioctSectors.Endcap2.getCand1Supressed() &&  m_mioctSectors.Endcap2.getPtCand1() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Endcap2, true ));
+
+     if(  ! m_mioctSectors.Endcap2.getCand2Supressed() &&  m_mioctSectors.Endcap2.getPtCand2() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Endcap2, false ));
+
+     if(  ! m_mioctSectors.Endcap3.getCand1Supressed() &&  m_mioctSectors.Endcap3.getPtCand1() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Endcap3, true ));
+
+     if(  ! m_mioctSectors.Endcap3.getCand2Supressed() &&  m_mioctSectors.Endcap3.getPtCand2() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Endcap3, false ));
+
+     if(  ! m_mioctSectors.Endcap4.getCand1Supressed() &&  m_mioctSectors.Endcap4.getPtCand1() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Endcap4, true ));
+
+     if(  ! m_mioctSectors.Endcap4.getCand2Supressed() &&  m_mioctSectors.Endcap4.getPtCand2() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Endcap4, false ));
+
+     if(  ! m_mioctSectors.Endcap5.getCand1Supressed() &&  m_mioctSectors.Endcap5.getPtCand1() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Endcap5, true ));
+
+     if(  ! m_mioctSectors.Endcap5.getCand2Supressed() &&  m_mioctSectors.Endcap5.getPtCand2() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Endcap5, false ));
+
+     if(  ! m_mioctSectors.Endcap6.getCand1Supressed() &&  m_mioctSectors.Endcap6.getPtCand1() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Endcap6, true ));
+
+     if(  ! m_mioctSectors.Endcap6.getCand2Supressed() &&  m_mioctSectors.Endcap6.getPtCand2() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Endcap6, false ));
+
+     if(  ! m_mioctSectors.Forward1.getCand1Supressed() && m_mioctSectors.Forward1.getPtCand1() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Forward1, true ));
+
+     if(  ! m_mioctSectors.Forward1.getCand2Supressed() && m_mioctSectors.Forward1.getPtCand2() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Forward1, false ));
+
+     if(  ! m_mioctSectors.Forward2.getCand1Supressed() && m_mioctSectors.Forward2.getPtCand1() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Forward2, true ));
+
+     if(  ! m_mioctSectors.Forward2.getCand2Supressed() && m_mioctSectors.Forward2.getPtCand2() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Forward2, false ));
+
+     if(  ! m_mioctSectors.Forward3.getCand1Supressed() && m_mioctSectors.Forward3.getPtCand1() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Forward3, true ));
+
+     if(  ! m_mioctSectors.Forward3.getCand2Supressed() && m_mioctSectors.Forward3.getPtCand2() !=7 ) 
+       candList.push_back(l1TopoConv.convertToL1Topo(m_ID, m_mioctSectors.Forward3, false ));
+
+
+     // stable_sort on pt threshold ID (1-6) keeping the input order 
+     std::stable_sort(candList.begin(), candList.end(), 
+      		      [](const LVL1::MuCTPIL1TopoCandidate & cand1,  const LVL1::MuCTPIL1TopoCandidate & cand2)
+      		      {
+      			return cand1.getptThresholdID() < cand2.getptThresholdID();
+      		      });
+
+
+     // limit to 2 candidates per MIOCT as in the hardware
+     if (candList.size() > 2) candList.erase(candList.begin(), candList.end()-2);
+     
+
+     result.setCandidates(candList);
+     return result;
+   
+   }
+  
    // implementation of method to get the data of this MIOCT as an
    // object MioctData, which allows easy access to the data in
    // MIBAK format

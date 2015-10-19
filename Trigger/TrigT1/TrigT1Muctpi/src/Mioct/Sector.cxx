@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Sector.cxx 362102 2011-04-28 13:17:28Z krasznaa $
+// $Id: Sector.cxx 700318 2015-10-13 14:13:15Z wengler $
 
 // STL include(s):
 #include <sstream>
@@ -16,7 +16,7 @@ namespace LVL1MUCTPI {
 
    Sector::Sector( const Hemisphere theHemisphere, const unsigned int theSectorNumber,
                    EventReader* reader )
-      : m_registered( false ), m_rapidityRegion( theHemisphere ),
+      : m_bitField(0), m_registered( false ), m_rapidityRegion( theHemisphere ),
         m_sectorNumber( theSectorNumber ), m_reader( reader ),
         m_cand1Supressed( false ), m_cand2Supressed( false ) {
 
@@ -72,6 +72,40 @@ namespace LVL1MUCTPI {
       return result;
 
    }
+  std::string Sector::getIDString() const {
+    std::string result = "";
+    //offset for differnt counting scheme in MuCTPI geometry file for L1Topo
+    unsigned int offset =0;
+
+    if (this->getDetectorString() == "Barrel") {
+      result = "B";
+      if (this->getRapidityString() == "+") {
+	offset = 32;
+      }
+    } else if (this->getDetectorString() == "Endcap") {
+      if (this->getRapidityString() == "+") {
+	result = "EA";
+      }else if (this->getRapidityString() == "-") {
+	result = "EC";
+      }
+    } else if (this->getDetectorString() == "Forward") {
+      if (this->getRapidityString() == "+") {
+	result = "FA";
+      }else if (this->getRapidityString() == "-") {
+	result = "FC";
+      }
+    }
+    std::string secNumString = "";
+    if (m_sectorNumber+offset < 10) {
+      secNumString = "0" + std::to_string(m_sectorNumber + offset);
+    } else {
+      secNumString = std::to_string(m_sectorNumber + offset);
+    }
+
+    result = result + secNumString ;
+
+    return result;
+  }
 
    void Sector::printID( std::string& IDString ) const {
 
