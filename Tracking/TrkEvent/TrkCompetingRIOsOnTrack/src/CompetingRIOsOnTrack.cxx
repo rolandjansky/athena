@@ -56,6 +56,20 @@ Trk::CompetingRIOsOnTrack& Trk::CompetingRIOsOnTrack::operator=(const Trk::Compe
     return (*this);
 }
 
+Trk::CompetingRIOsOnTrack& Trk::CompetingRIOsOnTrack::operator=(Trk::CompetingRIOsOnTrack&& compROT) {
+    if (this!=&compROT) {
+      Trk::MeasurementBase::operator=(std::move(compROT));
+
+      delete m_assignProb;
+      m_assignProb = compROT.m_assignProb;
+      compROT.m_assignProb = nullptr;
+
+      m_indexMaxAssignProb = compROT.m_indexMaxAssignProb;
+      m_maxProbCalculated  = compROT.m_maxProbCalculated;
+    }
+    return (*this);
+}
+
 Trk::CompetingRIOsOnTrack::~CompetingRIOsOnTrack() {
     delete m_assignProb;
 }
