@@ -27,6 +27,8 @@ IDTR1TrackToVertexWrapper= DerivationFramework__TrackToVertexWrapper(name = "IDT
                                                                       ContainerName = "InDetTrackParticles")
 ToolSvc += IDTR1TrackToVertexWrapper 
 print IDTR1TrackToVertexWrapper
+if 'DerivationFrameworkIsMonteCarlo' not in dir() :
+  DerivationFrameworkIsMonteCarlo=( globalflags.DataSource()=='geant4' )
 
 # Add decoration with truth parameters if running on simulation
 if DerivationFrameworkIsMonteCarlo:

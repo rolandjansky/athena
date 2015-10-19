@@ -29,6 +29,7 @@
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 
+#include "TrkToolInterfaces/IUpdator.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkEventPrimitives/ResidualPull.h"
@@ -41,8 +42,8 @@
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
-#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"	
-#include "xAODTracking/VertexContainer.h"		
+#include "TRT_ToT_Tools/ITRT_ToT_dEdx.h"  
+#include "xAODTracking/VertexContainer.h"   
 #include "TrkTrack/Track.h"
 
 #include "TrkExInterfaces/IExtrapolator.h"
@@ -57,11 +58,12 @@ namespace DerivationFramework {
       const std::string& n,
       const IInterface* p) : 
     AthAlgTool(t,n,p),
+    m_updator("Trk::KalmanUpdator"),
     m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
-    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
     m_trtcaldbSvc("TRT_CalDbSvc",n),
-    m_TRTdEdxTool("InDet::TRT_ToT_Tools/TRT_ToT_dEdx")
+    m_TRTdEdxTool("InDet::TRT_ToT_Tools/TRT_ToT_dEdx"),
+    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     // --- Steering and configuration flags
@@ -92,11 +94,12 @@ namespace DerivationFramework {
     declareProperty("PriVtxContainerName",    m_PriVtxContainerName = "PrimaryVertices");
 
     // -- Tools 
+    declareProperty("Updator",                m_updator);    
     declareProperty("ResidualPullCalculator", m_residualPullCalculator);
     declareProperty("HoleSearch",             m_holeSearchTool);
-    declareProperty("TrackExtrapolator",      m_extrapolator);
     declareProperty("TRT_CalDbSvc",           m_trtcaldbSvc);
     declareProperty("TRT_ToT_dEdx",           m_TRTdEdxTool);
+    declareProperty("TrackExtrapolator",      m_extrapolator);
   }
 
   StatusCode TrackStateOnSurfaceDecorator::initialize()
@@ -140,6 +143,7 @@ namespace DerivationFramework {
     }
 
     if( m_addPulls ){
+      CHECK(m_updator.retrieve());
       CHECK(m_residualPullCalculator.retrieve());
     }
     
@@ -148,7 +152,7 @@ namespace DerivationFramework {
     }
 
     if ( m_storeTRT && !m_TRTdEdxTool.empty() ) {
-    	CHECK( m_TRTdEdxTool.retrieve() );
+      CHECK( m_TRTdEdxTool.retrieve() );
     }
 
     CHECK(m_extrapolator.retrieve());
@@ -231,7 +235,7 @@ namespace DerivationFramework {
       // Get clusters and the mapping between xAOD::PRD and Trk::PRD
       // Store the MSOS's in a conatiner based on the type of the detector 
       if(m_storePixel){
-	ATH_MSG_DEBUG("Creating Pixel track state container");
+        ATH_MSG_DEBUG("Creating Pixel track state container");
         CHECK( evtStore()->retrieve( pixelClusterOffsets, m_pixelMapName ) );
         CHECK( evtStore()->retrieve( pixelClusters, m_pixelClustersName ) );
       
@@ -242,7 +246,7 @@ namespace DerivationFramework {
         msosPixel->setStore( aux );
       }
       if(m_storeSCT){
-	ATH_MSG_DEBUG("Creating SCT track state container");
+        ATH_MSG_DEBUG("Creating SCT track state container");
         CHECK( evtStore()->retrieve( sctClusterOffsets, m_sctMapName ) );
         CHECK( evtStore()->retrieve( sctClusters, m_sctClustersName ) );
 
@@ -253,7 +257,7 @@ namespace DerivationFramework {
         msosSCT->setStore( aux );
       }
       if(m_storeTRT){
-	ATH_MSG_DEBUG("Creating TRT track state container");
+        ATH_MSG_DEBUG("Creating TRT track state container");
         CHECK( evtStore()->retrieve( trtClusterOffsets, m_trtMapName ) );    
         CHECK( evtStore()->retrieve( trtDCs, m_trtDCName ) );
 
@@ -288,8 +292,8 @@ namespace DerivationFramework {
 
     // Set up the decorators
     SG::AuxElement::Decorator< float > decoratorTRTdEdx("ToT_dEdx");
-    SG::AuxElement::Decorator< float > decoratorTRTusedHits("ToT_usedHits");		
-		
+    SG::AuxElement::Decorator< float > decoratorTRTusedHits("ToT_usedHits");    
+    
     // -- Run over each track and decorate it
     for (const auto& track : *tracks) {
       //-- Start with things that do not need a Trk::Track object
@@ -306,10 +310,11 @@ namespace DerivationFramework {
 
       //  This is the vector in which we will store the element links to the MSOS's
       std::vector< ElementLink< xAOD::TrackStateValidationContainer > > msosLink;
-
+      
       //Calculate and decorate track particle with TRT dEdx value    
       if (m_storeTRT) {
-        decoratorTRTdEdx (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, true, true ) ;
+//      decoratorTRTdEdx (*track)     = m_TRTdEdxTool->dEdx( trkTrack, !m_isSimulation, true, true, true, numberOfPrimaryVertices);
+        decoratorTRTdEdx (*track)     = m_TRTdEdxTool->dEdx( trkTrack, true, true, true);
         decoratorTRTusedHits (*track) = m_TRTdEdxTool->usedHits( trkTrack, true, true);
       };
 
@@ -441,7 +446,7 @@ namespace DerivationFramework {
         const Trk::TrackParameters* tp = trackState->trackParameters();       
 
         // Track extrapolation
-        const Trk::TrackParameters* extrap = m_extrapolator->extrapolate(*trkTrack,trackState->surface());
+        std::unique_ptr<const Trk::TrackParameters> extrap( m_extrapolator->extrapolate(*trkTrack,trackState->surface()) );
 //        const Trk::TrackParameters* extrap = m_extrapolator->extrapolate(*trkTrack,trackState->surface(),Trk::PropDirection::anyDirection,false);
 //        const Trk::TrackParameters* extrap = m_extrapolator->extrapolate(*trkTrack,trackState->surface(),Trk::PropDirection::anyDirection,true,Trk::ParticleHypothesis::pion,Trk::MaterialUpdateMode::removeNoise);
 //        const Trk::TrackParameters* extrap = m_extrapolator->extrapolate(*trkTrack,trackState->surface(),Trk::PropDirection::anyDirection,true,Trk::ParticleHypothesis::nonInteractingMuon,Trk::MaterialUpdateMode::addNoise);
@@ -455,14 +460,14 @@ namespace DerivationFramework {
         if (tp) { 
           msos->setLocalPosition( tp->parameters()[0], tp->parameters()[1] ); 
 
-          if (extrap) {
+          if (extrap.get()) {
             ATH_MSG_DEBUG("    Original position " << tp->parameters()[0] << " " << tp->parameters()[1]);
             ATH_MSG_DEBUG("Extrapolated position " << extrap->parameters()[0] << " " << extrap->parameters()[1]);
           }
 
         }
         else {
-          if (extrap) {
+          if (extrap.get()) {
             msos->setLocalPosition( extrap->parameters()[0], extrap->parameters()[1] ); 
           }
           else { 
@@ -484,7 +489,7 @@ namespace DerivationFramework {
             float trknormcomp = mytrack.dot(mynormal);  
 
             ATH_MSG_DEBUG("     Original incident angle " << trketacomp << " " << trkphicomp << " " << trknormcomp);
-            if (extrap) {
+            if (extrap.get()) {
               Amg::Vector3D metrack = extrap->momentum();
               float trketacompX = metrack.dot(myetaax);
               float trkphicompX = metrack.dot(myphiax);
@@ -494,7 +499,7 @@ namespace DerivationFramework {
             msos->setLocalAngles( atan2(trketacomp,trknormcomp), atan2(trkphicomp,trknormcomp) );
           }
           else {
-            if (extrap) {
+            if (extrap.get()) {
               Amg::Vector3D metrack = extrap->momentum();
               float trketacompX = metrack.dot(myetaax);
               float trkphicompX = metrack.dot(myphiax);
@@ -562,7 +567,7 @@ namespace DerivationFramework {
               msos->auxdata<float>("driftTime") = rtr->drifttime(fabs(tp->parameters()[0]));
             }
             else {
-              if (extrap) {
+              if (extrap.get()) {
                 msos->auxdata<float>("driftTime") = rtr->drifttime(fabs(extrap->parameters()[0]));
               }
             }
@@ -575,12 +580,15 @@ namespace DerivationFramework {
           const Trk::ResidualPull *unbiased = 0;
           if (tp) { 
             biased   = m_residualPullCalculator->residualPull(measurement, tp, Trk::ResidualPull::Biased);
-            unbiased = m_residualPullCalculator->residualPull(measurement, tp, Trk::ResidualPull::Unbiased);
+
+            std::unique_ptr<const Trk::TrackParameters> unbiasedTp( m_updator->removeFromState(*tp, measurement->localParameters(), measurement->localCovariance()) );   
+            if(unbiasedTp.get())
+              unbiased = m_residualPullCalculator->residualPull(measurement, unbiasedTp.get(), Trk::ResidualPull::Unbiased);
           }
           else {
-            if (extrap) {
-              biased   = m_residualPullCalculator->residualPull(measurement, extrap, Trk::ResidualPull::Biased);
-              unbiased = m_residualPullCalculator->residualPull(measurement, extrap, Trk::ResidualPull::Unbiased);
+            if (extrap.get()) {
+              biased   = m_residualPullCalculator->residualPull(measurement, extrap.get(), Trk::ResidualPull::Biased);
+              unbiased = m_residualPullCalculator->residualPull(measurement, extrap.get(), Trk::ResidualPull::Unbiased);
             }
           }
 

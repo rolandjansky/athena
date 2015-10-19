@@ -18,7 +18,13 @@ idDxAOD_doPix=True
 idDxAOD_doSct=True
 idDxAOD_doTrt=False
 
-IsMonteCarlo=(globalflags.DataSource == 'geant4')
+# IsMonteCarlo=(globalflags.DataSource == 'geant4')
+
+if 'DerivationFrameworkIsMonteCarlo' not in dir() :
+  DerivationFrameworkIsMonteCarlo=( globalflags.DataSource=='geant4' )
+
+IsMonteCarlo=DerivationFrameworkIsMonteCarlo
+
 
 #====================================================================
 # CP GROUP TOOLS
