@@ -56,6 +56,13 @@ Trk::Surface::Surface(Amg::Transform3D* tform) :
 #endif
 }
 
+Trk::Surface::Surface(std::unique_ptr<Amg::Transform3D> tform) :
+  Surface (tform.release())
+{
+  // No EDM monitor here since we delegate to the previous constructor.
+}
+
+
 Trk::Surface::Surface(const Trk::TrkDetElementBase& detelement) :
   m_transform(0),
   m_center(0),

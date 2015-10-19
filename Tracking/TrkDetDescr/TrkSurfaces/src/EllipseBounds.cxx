@@ -65,6 +65,13 @@ Trk::EllipseBounds& Trk::EllipseBounds::operator=(const EllipseBounds& discbo)
   return *this;
 }
 
+Trk::EllipseBounds& Trk::EllipseBounds::operator=(EllipseBounds&& discbo)
+{
+  if (this!=&discbo)
+    m_boundValues = std::move(discbo.m_boundValues);
+  return *this;
+}
+
 bool Trk::EllipseBounds::operator==(const Trk::SurfaceBounds& sbo) const
 {
   // check the type first not to compare apples with oranges
@@ -87,8 +94,9 @@ double Trk::EllipseBounds::minDistance(const Amg::Vector2D& pos ) const
       return m_boundValues[EllipseBounds::bv_rMinY];
   }
 
-  double sn   = pos[1]/r                         ;
-  double cs   = pos[0]/r                         ;
+  const double inv_r = 1. / r;
+  double sn   = pos[1]*inv_r                     ;
+  double cs   = pos[0]*inv_r                     ;
   double sf   = 0.                               ;
   double dF   = 0.                               ;
 

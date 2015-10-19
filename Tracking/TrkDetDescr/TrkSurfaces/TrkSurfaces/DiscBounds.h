@@ -14,6 +14,7 @@
 #include "TrkEventPrimitives/ParamDefs.h"
 // 
 #include <math.h>
+#include <cmath>
 //Eigen
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -69,7 +70,7 @@ namespace Trk {
      DiscBounds& operator=(const DiscBounds& discbo);
      
      /**Equality operator*/
-     bool operator==(const SurfaceBounds& sbo) const;
+     virtual bool operator==(const SurfaceBounds& sbo) const override;
      
      /**Virtual constructor*/
      virtual DiscBounds* clone() const override;
@@ -148,10 +149,10 @@ namespace Trk {
 	// we are not using the KDOP approach here but rather a highly optimized one
 	class EllipseCollisionTest {
 	private:
-	  int maxIterations;
+	  int m_maxIterations;
 	  bool iterate(double x, double y, double c0x, double c0y, double c2x, double c2y, double rr) const {
-	    std::vector<double> innerPolygonCoef(maxIterations+1);
-	    std::vector<double> outerPolygonCoef(maxIterations+1);
+	    std::vector<double> innerPolygonCoef(m_maxIterations+1);
+	    std::vector<double> outerPolygonCoef(m_maxIterations+1);
 		/*
 		   t2______t4
                --_     	\                 
@@ -164,7 +165,7 @@ namespace Trk {
                      	      | /
                            t0
 		*/
-		for (int t = 1; t <= maxIterations; t++) {
+		for (int t = 1; t <= m_maxIterations; t++) {
 		  int numNodes = 4 << t;
 		  innerPolygonCoef[t] = 0.5/cos(4*acos(0.0)/numNodes);
 		  double c1x = (c0x + c2x)*innerPolygonCoef[t];
@@ -205,7 +206,7 @@ namespace Trk {
 		  double t3y = c3y - c1y;
 		  if (ty*t3x - tx*t3y <= 0 || rr*(t3x*t3x + t3y*t3y) > (ty*t3x - tx*t3y)*(ty*t3x - tx*t3y)) {
 			if (tx*t3x + ty*t3y > 0) {
-			  if (abs(tx*t3x + ty*t3y) <= t3x*t3x + t3y*t3y || (x-c3x)*(c0x-c3x) + (y-c3y)*(c0y-c3y) >= 0) {
+			  if (std::abs(tx*t3x + ty*t3y) <= t3x*t3x + t3y*t3y || (x-c3x)*(c0x-c3x) + (y-c3y)*(c0y-c3y) >= 0) {
 				c2x = c1x;
 				c2y = c1y;
 				continue;	// circle center is inside t0---t1---t3
@@ -236,7 +237,7 @@ namespace Trk {
 		}
 	  }
 	  EllipseCollisionTest(int maxIterations) {
-		this->maxIterations = maxIterations;
+		this->m_maxIterations = maxIterations;
 	  }
 	};
 	

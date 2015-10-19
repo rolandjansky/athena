@@ -73,7 +73,7 @@ namespace Trk {
       ConeBounds& operator=(const ConeBounds& cylbo);
       
       /**Equality operator*/
-      bool operator==(const SurfaceBounds& sbo) const;
+      virtual bool operator==(const SurfaceBounds& sbo) const override;
        
       /**Virtual constructor */
       virtual ConeBounds* clone() const override;
@@ -131,9 +131,9 @@ namespace Trk {
       double halfPhiSector() const;
       
       /** Output Method for MsgStream*/
-      virtual MsgStream& dump(MsgStream& sl) const;
+      virtual MsgStream& dump(MsgStream& sl) const override;
       /** Output Method for std::ostream */
-      virtual std::ostream& dump(std::ostream& sl) const;
+      virtual std::ostream& dump(std::ostream& sl) const override;
 
    private:
       /** internal storage of the geometry parameters */
@@ -143,7 +143,7 @@ namespace Trk {
       TDD_real_t                             m_cosAlpha;
       
       /** Helper function for angle parameter initialization */
-      void initCache();
+      virtual void initCache() override;
       
       /** Helpers for inside() functions */
       inline double minPhi() const {return m_boundValues[ConeBounds::bv_averagePhi]-m_boundValues[ConeBounds::bv_halfPhiSector];}

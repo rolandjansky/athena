@@ -66,6 +66,15 @@ Trk::CylinderBounds& Trk::CylinderBounds::operator=(const Trk::CylinderBounds& c
   return *this;
 }
 
+Trk::CylinderBounds& Trk::CylinderBounds::operator=(Trk::CylinderBounds&& cylbo)
+{
+  if (this!=&cylbo) {
+    m_boundValues = std::move(cylbo.m_boundValues);
+    m_checkPhi = cylbo.m_checkPhi;
+  }
+  return *this;
+}
+
 bool Trk::CylinderBounds::operator==(const SurfaceBounds& sbo) const
 {
   // check the type first not to compare apples with oranges

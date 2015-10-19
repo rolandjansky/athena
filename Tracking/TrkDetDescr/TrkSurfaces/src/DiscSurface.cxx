@@ -9,6 +9,7 @@
 // Trk
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkSurfaces/DiscBounds.h"
+#include "TrkSurfaces/DiscTrapezoidalBounds.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 
 
@@ -58,10 +59,30 @@ Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax
   m_referencePoint(0)
 {}
 
+Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, double minhalfx, double maxhalfx, double maxR, double minR, double avephi, double stereo):
+  Trk::Surface(htrans),
+  m_bounds(new Trk::DiscTrapezoidalBounds(minhalfx, maxhalfx, maxR, minR, avephi, stereo)),
+  m_referencePoint(0)
+{}
+
 // construct a disc with given bounds
 Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, Trk::DiscBounds* dbounds) :
   Trk::Surface(htrans),
   m_bounds(dbounds),
+  m_referencePoint(0)
+{}
+
+// construct a disc with given bounds
+Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, Trk::DiscTrapezoidalBounds* dbounds) :
+  Trk::Surface(htrans),
+  m_bounds(dbounds),
+  m_referencePoint(0)
+{}
+
+// construct a disc from a transform, bounds is not set.
+Trk::DiscSurface::DiscSurface(std::unique_ptr<Amg::Transform3D> htrans) :
+  Trk::Surface(std::move(htrans)),
+  m_bounds(nullptr),
   m_referencePoint(0)
 {}
 
@@ -80,10 +101,10 @@ Trk::DiscSurface::~DiscSurface()
 Trk::DiscSurface& Trk::DiscSurface::operator=(const DiscSurface& dsf)
 {
   if (this!=&dsf){
-   Trk::Surface::operator=(dsf);
-   m_bounds =  dsf.m_bounds;
-   delete m_referencePoint;
-   m_referencePoint = 0;
+    Trk::Surface::operator=(dsf);
+    m_bounds =  dsf.m_bounds;
+    delete m_referencePoint;
+    m_referencePoint = 0;
   }
   return *this;
 }
@@ -101,48 +122,81 @@ bool Trk::DiscSurface::operator==(const Trk::Surface& sf) const
 }
 
 const Amg::Vector3D& Trk::DiscSurface::globalReferencePoint() const
-{ if (!m_referencePoint){
-      const Trk::DiscBounds* dbo = dynamic_cast<const Trk::DiscBounds*>(&(bounds()));
+{ 
+  if (!m_referencePoint){
+    const Trk::DiscBounds* dbo = dynamic_cast<const Trk::DiscBounds*>(&(bounds()));
+    if (dbo) {
       double rMedium = bounds().r();
       double phi     = dbo ? dbo->averagePhi() : 0.;
       Amg::Vector3D gp(rMedium*cos(phi), rMedium*sin(phi), 0.);
       m_referencePoint = new Amg::Vector3D(transform()*gp);
-   }
+    } else {
+      const Trk::DiscTrapezoidalBounds* dtbo = dynamic_cast<const Trk::DiscTrapezoidalBounds*>(&(bounds()));
+      double rMedium = dtbo ? bounds().r() : dtbo->rCenter() ;
+      double phi     = dtbo ? dtbo->averagePhi() : 0.;
+      Amg::Vector3D gp(rMedium*cos(phi), rMedium*sin(phi), 0.);
+      m_referencePoint = new Amg::Vector3D(transform()*gp);
+    }
+  }
   return (*m_referencePoint);
 }
 
 
 void Trk::DiscSurface::localToGlobal(const Amg::Vector2D& locpos, const Amg::Vector3D&, Amg::Vector3D& glopos) const
-{
-    // create the position in the local 3d frame
-	Amg::Vector3D loc3Dframe(locpos[Trk::locR]*cos(locpos[Trk::locPhi]),
-						     locpos[Trk::locR]*sin(locpos[Trk::locPhi]),
-						     0.);
-    // transport it to the globalframe
-    glopos = transform()*loc3Dframe;
+{ 
+  // create the position in the local 3d frame
+  Amg::Vector3D loc3Dframe(locpos[Trk::locR]*cos(locpos[Trk::locPhi]),
+			   locpos[Trk::locR]*sin(locpos[Trk::locPhi]),
+			   0.);
+  // transport it to the globalframe
+  glopos = transform()*loc3Dframe;
 }
 
 /** local<->global transformation in case of polar local coordinates */
 bool Trk::DiscSurface::globalToLocal(const Amg::Vector3D& glopos, const Amg::Vector3D&, Amg::Vector2D& locpos) const
 {
-	Amg::Vector3D loc3Dframe(Trk::Surface::transform().inverse()*glopos);
-    locpos = Amg::Vector2D(loc3Dframe.perp(), loc3Dframe.phi() );
-    return ( ( fabs(loc3Dframe.z()) > s_onSurfaceTolerance ) ? false : true );
+  Amg::Vector3D loc3Dframe = (transform().inverse())*glopos;
+  locpos = Amg::Vector2D(loc3Dframe.perp(), loc3Dframe.phi() );
+  return ( ( fabs(loc3Dframe.z()) > s_onSurfaceTolerance ) ? false : true );
 }
+
+const Amg::Vector2D* Trk::DiscSurface::localPolarToLocalCartesian(const Amg::Vector2D& locpol) const
+{
+  const Trk::DiscTrapezoidalBounds* dtbo = dynamic_cast<const Trk::DiscTrapezoidalBounds*>(&(bounds()));
+  if (dtbo) {
+    double rMedium = dtbo->rCenter();
+    double phi     = dtbo->averagePhi();
+
+    Amg::Vector2D polarCenter(rMedium, phi);
+    const Amg::Vector2D* cartCenter = localPolarToCartesian(polarCenter);
+    const Amg::Vector2D* cartPos = localPolarToCartesian(locpol);
+    Amg::Vector2D Pos = *cartPos - *cartCenter;
+
+    delete cartCenter; delete cartPos;
+    
+    Amg::Vector2D locPos(Pos[Trk::locX]*sin(phi) - Pos[Trk::locY]*cos(phi),
+			 Pos[Trk::locY]*sin(phi) + Pos[Trk::locX]*cos(phi)); 
+    
+    return (new Amg::Vector2D(locPos[Trk::locX], locPos[Trk::locY])); 
+  }
+  
+  return(new Amg::Vector2D(locpol[Trk::locR]*cos(locpol[Trk::locPhi]),locpol[Trk::locR]*sin(locpol[Trk::locPhi]))); 
+}
+
 
 /** local<->global transformation in case of polar local coordinates */
 const Amg::Vector3D* Trk::DiscSurface::localCartesianToGlobal(const Amg::Vector2D& locpos) const 
 {
-	Amg::Vector3D loc3Dframe(locpos[Trk::locX], locpos[Trk::locY], 0.);
-    return new Amg::Vector3D(transform()*loc3Dframe);
+  Amg::Vector3D loc3Dframe(locpos[Trk::locX], locpos[Trk::locY], 0.);
+  return new Amg::Vector3D(transform()*loc3Dframe);
 }
 
 /** local<->global transformation in case of polar local coordinates */
 const Amg::Vector2D* Trk::DiscSurface::globalToLocalCartesian(const Amg::Vector3D& glopos, double tol) const
 {
-	Amg::Vector3D loc3Dframe = (transform().inverse())*glopos;
-    if ( fabs(loc3Dframe.z()) > s_onSurfaceTolerance+tol ) return 0;
-    return new Amg::Vector2D(loc3Dframe.x(), loc3Dframe.y());
+  Amg::Vector3D loc3Dframe = (transform().inverse())*glopos;
+  if ( fabs(loc3Dframe.z()) > s_onSurfaceTolerance+tol ) return 0;
+  return new Amg::Vector2D(loc3Dframe.x(), loc3Dframe.y());
 }
 
 bool Trk::DiscSurface::isOnSurface(const Amg::Vector3D& glopo,
@@ -150,23 +204,23 @@ bool Trk::DiscSurface::isOnSurface(const Amg::Vector3D& glopo,
                                     double tol1,
                                     double tol2) const
 {
-    Amg::Vector3D loc3Dframe = (transform().inverse())*glopo;
-    if ( fabs(loc3Dframe.z()) > (s_onSurfaceTolerance+tol1) ) return false;
-    return (bchk ? bounds().inside(Amg::Vector2D(loc3Dframe.perp(),loc3Dframe.phi()),tol1,tol2) : true);
+  Amg::Vector3D loc3Dframe = (transform().inverse())*glopo;
+  if ( fabs(loc3Dframe.z()) > (s_onSurfaceTolerance+tol1) ) return false;
+  return (bchk ? bounds().inside(Amg::Vector2D(loc3Dframe.perp(),loc3Dframe.phi()),tol1,tol2) : true);
 }
 
 /** distance to surface */
 Trk::DistanceSolution Trk::DiscSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos,const Amg::Vector3D& dir) const
 {
   double tol = 0.001;
-
+  
   const Amg::Vector3D&  C = center();
   const Amg::Vector3D& N = normal();
-
+  
   double S = C.dot(N);
   double b = S < 0. ? -1 : 1 ;
   double d = (pos-C).dot(N);      // distance to surface
-
+  
   double A = b* dir.dot(N);
   if(A==0.) {   // direction parallel to surface
     if ( fabs(d)<tol ) {
@@ -175,7 +229,7 @@ Trk::DistanceSolution Trk::DiscSurface::straightLineDistanceEstimate(const Amg::
       return Trk::DistanceSolution(0,d,true,0.);
     }
   }
-
+  
   double D = b*(S-(pos.dot(N)))/A;
   return Trk::DistanceSolution(1,d,true,D);
 }

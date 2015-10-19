@@ -70,10 +70,10 @@ namespace Trk {
       TriangleBounds& operator=(const TriangleBounds& recbo);
       
       /**Equality operator*/
-      bool operator==(const SurfaceBounds& sbo) const;
+      virtual bool operator==(const SurfaceBounds& sbo) const override;
       
       /**Virtual constructor*/
-      virtual TriangleBounds* clone() const;
+      virtual TriangleBounds* clone() const override;
       
       /** Return the type of the bounds for persistency */
       virtual BoundsType type() const override { return SurfaceBounds::Triangle; }

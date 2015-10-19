@@ -16,6 +16,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 class MsgStream;
+class TrapezoidBoundsCnv_p1;
 
 #ifdef TRKDETDESCR_USEFLOATPRECISON 
 typedef float TDD_real_t;
@@ -74,7 +75,7 @@ namespace Trk {
       TrapezoidBounds& operator=(const TrapezoidBounds& sbo); 
       
       /**Equality operator*/
-      bool operator==(const SurfaceBounds& trabo) const;
+      virtual bool operator==(const SurfaceBounds& trabo) const override;
     
       /**This method returns the minimal halflength in phi (first coordinate of local surface frame)*/ 
       double minHalflengthPhi() const;
@@ -154,6 +155,8 @@ namespace Trk {
       virtual std::ostream& dump(std::ostream& sl) const override;
       
    private:
+      friend class ::TrapezoidBoundsCnv_p1;
+
       /** inside() method for a full symmetric trapezoid */
       bool insideFull(const Amg::Vector2D& locpo, double tol1=0., double tol2=0.) const;
       

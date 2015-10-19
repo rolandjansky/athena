@@ -21,6 +21,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 class MsgStream;
+template< class SURFACE, class BOUNDS_CNV > class BoundSurfaceCnv_p1;
 
 namespace Trk {
     
@@ -59,6 +60,10 @@ namespace Trk {
       /**Constructor from EigenTransform and CylinderBounds
         - ownership of the bounds is passed */
       CylinderSurface(Amg::Transform3D* htrans, CylinderBounds* cbounds);
+
+      /**Constructor from EigenTransform from unique_ptr.
+         - bounds is not set */
+      CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans);
       
       /** Constructor from radius and halflenght - speed optimized for concentric volumes */      
       CylinderSurface(double radius, double hlength);      
@@ -112,7 +117,7 @@ namespace Trk {
                                                                                       double phi,
                                                                                       double theta,
                                                                                       double qop,
-                                                                                      AmgSymMatrix(5)* cov = 0) const
+                                                                                      AmgSymMatrix(5)* cov = 0) const override
         { return new ParametersT<5, Neutral, CylinderSurface>(l1, l2, phi, theta, qop, *this, cov); }
       
       /** Use the Surface as a ParametersBase constructor, from global parameters - neutral */
@@ -174,7 +179,7 @@ namespace Trk {
 	  virtual bool insideBoundsCheck(const Amg::Vector2D& locpos, const BoundaryCheck& bchk) const override; 
       
       /** Specialized for CylinderSurface : LocalParameters to Vector2D */
-      virtual const Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const;
+      virtual const Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const override;
 
       /** Specialized for CylinderSurface : LocalToGlobal method without dynamic memory allocation */
       virtual void localToGlobal(const Amg::Vector2D& locp, const Amg::Vector3D& mom, Amg::Vector3D& glob) const override;
@@ -223,6 +228,8 @@ namespace Trk {
 
 
     protected: //!< data members
+      template< class SURFACE, class BOUNDS_CNV > friend class ::BoundSurfaceCnv_p1;
+
       mutable SharedObject<const CylinderBounds>  m_bounds;               //!< bounds (shared)
       mutable Amg::Vector3D*                      m_referencePoint;       //!< The global reference point (== a point on the surface)
       mutable Amg::Vector3D*                      m_rotSymmetryAxis;      //!< The rotational symmetry axis
@@ -238,12 +245,12 @@ namespace Trk {
   {
      double phi = lp[Trk::locRPhi]/(bounds().r());
      Amg::Vector3D localNormal(cos(phi), sin(phi), 0.);
-     return new Amg::Vector3D(transform()*localNormal);
+     return new Amg::Vector3D(transform().rotation()*localNormal);
   }  
 
   inline double CylinderSurface::pathCorrection(const Amg::Vector3D& pos, const Amg::Vector3D& mom) const
   {
-    // the gobal normal vector is pos-center.unit() - at the z of the position @TODO make safe for tilt
+    // the global normal vector is pos-center.unit() - at the z of the position @TODO make safe for tilt
     Amg::Vector3D pcT(pos.x()-center().x(),pos.y()-center().y(),0.) ;
     Amg::Vector3D normalT(pcT.unit()); // transverse normal
     double cosAlpha = normalT.dot(mom.unit());

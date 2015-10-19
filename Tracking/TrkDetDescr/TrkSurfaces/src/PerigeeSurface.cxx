@@ -40,6 +40,13 @@ Trk::PerigeeSurface::PerigeeSurface(Amg::Transform3D* tTransform):
 }
 
 
+Trk::PerigeeSurface::PerigeeSurface(std::unique_ptr<Amg::Transform3D> tTransform):
+  Surface(std::move(tTransform)),
+  m_lineDirection(0)    
+{
+}
+
+
 Trk::PerigeeSurface::PerigeeSurface(const PerigeeSurface& pesf):
     Surface(),
     m_lineDirection(0)    

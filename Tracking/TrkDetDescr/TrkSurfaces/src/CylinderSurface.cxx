@@ -9,6 +9,7 @@
 // Trk
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/RealQuadraticEquation.h"
+#include "CxxUtils/unused.h"
 //Gaudi
 #include "GaudiKernel/MsgStream.h"
 //STD
@@ -64,6 +65,15 @@ Trk::CylinderSurface::CylinderSurface(Amg::Transform3D* htrans, Trk::CylinderBou
   m_rotSymmetryAxis(0)
 {
   assert(cbounds);
+}
+
+// constructor from transform by unique_ptr
+Trk::CylinderSurface::CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans):
+  Trk::Surface(std::move(htrans)),
+  m_bounds(nullptr),
+  m_referencePoint(0),
+  m_rotSymmetryAxis(0)
+{
 }
 
 // constructor by radius and halflength
@@ -316,7 +326,12 @@ Trk::DistanceSolution Trk::CylinderSurface::straightLineDistanceEstimate(const A
   }
 
   // minimal distance to cylinder axis
-  double rmin = C - B*B/A < 0. ? 0. :  sqrt(C - B*B/A);
+  // The UNUSED declaration is to suppress redundant division checking here.
+  // Even a tiny change in rmin (~1e-13) can cause huge changes in the
+  // reconstructed output, so don't change how it's evaluated.
+  const double UNUSED(rmin_tmp) = B*B/A;
+  const double rmin2 = C - rmin_tmp;
+  const double rmin = rmin2 < 0 ? 0 : sqrt(rmin2);
 
   if ( rmin > radius ) {          // no intersection
     double first = B/A;
@@ -326,8 +341,12 @@ Trk::DistanceSolution Trk::CylinderSurface::straightLineDistanceEstimate(const A
       double first = B/A;
       return Trk::DistanceSolution(2, currDist,true,first,first);
     } else {
-      double first  = B/A - sqrt((radius-rmin)*(radius+rmin)/A);
-      double second = B/A + sqrt((radius-rmin)*(radius+rmin)/A);
+      // The UNUSED declaration here suppresses redundant division checking.
+      // We don't want to rewrite how this is evaluated due to instabilities.
+      const double UNUSED(b_a) = B/A;
+      const double x = sqrt((radius-rmin)*(radius+rmin)/A);
+      double first  = b_a - x;
+      double second = b_a + x;
       if ( first >= 0. ) {
         return Trk::DistanceSolution(2,currDist,true,first,second);
       } else if ( second <= 0. ) {
@@ -390,8 +409,9 @@ Trk::DistanceSolution Trk::CylinderSurface::straightLineDistanceEstimate
 
   if (at!=0.) {
 
-    double A = -(ax*x+ay*y)   /at;
-    double B = A*A+(R-r)*(R-r)/at;
+    const double inv_at = 1. / at;
+    double A = -(ax*x+ay*y)   *inv_at;
+    double B = A*A+(R-r)*(R-r)*inv_at;
 
     if (B>=0.) {
 

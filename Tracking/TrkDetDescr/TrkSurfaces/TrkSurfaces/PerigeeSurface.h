@@ -47,6 +47,9 @@ namespace Trk {
       /**Constructor with a Transform - needed for tilt */
       PerigeeSurface(Amg::Transform3D* tTransform);
       
+      /**Constructor with a Transform by unique_ptr - needed for tilt */
+      PerigeeSurface(std::unique_ptr<Amg::Transform3D> tTransform);
+      
       /**Copy constructor*/
       PerigeeSurface(const PerigeeSurface& pesf); 
       
@@ -63,7 +66,7 @@ namespace Trk {
       PerigeeSurface& operator=(const PerigeeSurface& slsf );
       
       /**Equality operator*/
-      bool operator==(const Surface& sf) const;
+      virtual bool operator==(const Surface& sf) const override;
       
       /** Use the Surface as a ParametersBase constructor, from local parameters - charged */
       virtual const ParametersT<5, Charged, PerigeeSurface>* createTrackParameters(double l1,

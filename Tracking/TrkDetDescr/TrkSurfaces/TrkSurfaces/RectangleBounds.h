@@ -62,10 +62,10 @@ namespace Trk {
       RectangleBounds& operator=(const RectangleBounds& recbo);
       
       /**Equality operator*/
-      bool operator==(const SurfaceBounds& sbo) const;
+      virtual bool operator==(const SurfaceBounds& sbo) const override;
       
       /**Virtual constructor*/
-      virtual RectangleBounds* clone() const;
+      virtual RectangleBounds* clone() const override;
     
       /** Return the type of the bounds for persistency */
       virtual BoundsType type() const override { return SurfaceBounds::Rectangle; }
@@ -103,10 +103,10 @@ namespace Trk {
       virtual double r() const override;
     
       /** Output Method for MsgStream*/
-      virtual MsgStream& dump(MsgStream& sl) const;
+      virtual MsgStream& dump(MsgStream& sl) const override;
       
       /** Output Method for std::ostream */
-      virtual std::ostream& dump(std::ostream& sl) const;
+      virtual std::ostream& dump(std::ostream& sl) const override;
   
     private:
       /** The internal version of the bounds can be float/double*/

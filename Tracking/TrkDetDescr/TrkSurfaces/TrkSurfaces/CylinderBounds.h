@@ -74,8 +74,11 @@ namespace Trk {
       /**Assignment operator*/
       CylinderBounds& operator=(const CylinderBounds& cylbo);
       
+      /**Move assignment operator*/
+      CylinderBounds& operator=(CylinderBounds&& cylbo);
+      
       /**Equality operator*/
-      bool operator==(const SurfaceBounds& sbo) const;
+      virtual bool operator==(const SurfaceBounds& sbo) const override;
          
       /**Virtual constructor */
       virtual CylinderBounds* clone() const override;

@@ -21,10 +21,12 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 
 class MsgStream;
+template< class SURFACE, class BOUNDS_CNV > class BoundSurfaceCnv_p1;
 
 namespace Trk {
 
   class DiscBounds;
+  class DiscTrapezoidalBounds;
   class TrkDetElementBase;  
   class LocalParameters;
   
@@ -49,10 +51,22 @@ namespace Trk {
       
       /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max}, \phi_{hsec} \f$ */
       DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax, double hphisec);
+
+      /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max}, hx_{min}, hx_{max} \f$ 
+      	 In this case you have DiscTrapezoidalBounds*/
+      DiscSurface(Amg::Transform3D* htrans, double minhalfx, double maxhalfx, double maxR, double minR, double avephi, double stereo = 0.);
       
       /**Constructor for Discs from HepGeom::Transform3D and DiscBounds 
-       - ownership of bounds is passed */
+	 - ownership of bounds is passed */
       DiscSurface(Amg::Transform3D* htrans, DiscBounds* dbounds);
+      
+      /**Constructor for Discs from HepGeom::Transform3D and DiscTrapezoidalBounds 
+	 - ownership of bounds is passed */
+      DiscSurface(Amg::Transform3D* htrans, DiscTrapezoidalBounds* dtbounds);
+
+      /**Constructor for Discs from HepGeom::Transform3D by unique_ptr
+       - bounds is not set */
+      DiscSurface(std::unique_ptr<Amg::Transform3D> htrans);
       
       /**Constructor for DiscSegment from DetectorElement*/
       DiscSurface(const TrkDetElementBase& dmnt);        
@@ -70,7 +84,7 @@ namespace Trk {
       DiscSurface& operator=(const DiscSurface&dsf);	
       
       /**Equality operator*/
-      bool operator==(const Surface& sf) const;
+      virtual bool operator==(const Surface& sf) const override;
       
       /** Virtual constructor*/
       virtual DiscSurface* clone() const override;
@@ -146,7 +160,7 @@ namespace Trk {
       virtual bool isOnSurface(const Amg::Vector3D& glopo, BoundaryCheck bchk=true, double tol1=0., double tol2=0.) const  override;
     
       /** Specialized for DiscSurface : LocalParameters to Vector2D */
-      const Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const;
+      virtual const Amg::Vector2D localParametersToPosition(const LocalParameters& locpars) const override;
                                                
       /** Specialized for DiscSurface: LocalToGlobal method without dynamic memory allocation */
       virtual void localToGlobal(const Amg::Vector2D& locp, const Amg::Vector3D& mom, Amg::Vector3D& glob) const  override;
@@ -154,11 +168,14 @@ namespace Trk {
       /** Specialized for DiscSurface: GlobalToLocal method without dynamic memory allocation - boolean checks if on surface */
       virtual bool globalToLocal(const Amg::Vector3D& glob, const Amg::Vector3D& mom, Amg::Vector2D& loc) const  override;
 
-      /**  Special method for DiscSurface : local<->local transformations polat <-> cartesian */
-      const Amg::Vector2D* localPolarToCartesian(const Amg::Vector2D& locpol) const;
+      /**  Special method for DiscSurface : local<->local transformations polar <-> cartesian */
+      const Amg::Vector2D* localPolarToCartesian(const Amg::Vector2D& locpol) const;      
 
-      /**  Special method for Disc surface : local<->local transformations polat <-> cartesian */
+      /**  Special method for Disc surface : local<->local transformations polar <-> cartesian */
       const Amg::Vector2D* localCartesianToPolar(const Amg::Vector2D& loccart) const;      
+      
+      /**  Special method for DiscSurface : local<->local transformations polar <-> cartesian */
+      const Amg::Vector2D* localPolarToLocalCartesian(const Amg::Vector2D& locpol) const;
       
       /** Special method for DiscSurface :  local<->global transformation when provided cartesian coordinates */
       const Amg::Vector3D* localCartesianToGlobal(const Amg::Vector2D& locpos) const;
@@ -199,6 +216,7 @@ namespace Trk {
       virtual std::string name() const override { return "Trk::DiscSurface"; }
 
     protected: //!< data members
+      template< class SURFACE, class BOUNDS_CNV > friend class ::BoundSurfaceCnv_p1;
     
       mutable SharedObject<const SurfaceBounds>  m_bounds;                  //!< bounds (shared)
       mutable Amg::Vector3D*                     m_referencePoint;          //!< reference Point on the Surface
@@ -240,7 +258,7 @@ namespace Trk {
 
   inline const Amg::Vector2D* DiscSurface::localPolarToCartesian(const Amg::Vector2D& locpol) const
   { return(new Amg::Vector2D(locpol[locR]*cos(locpol[locPhi]),locpol[locR]*sin(locpol[locPhi]))); }
-
+  
   inline const Amg::Vector2D* DiscSurface::localCartesianToPolar(const Amg::Vector2D& loccart) const
   {
     return(new Amg::Vector2D(sqrt(loccart[locX]*loccart[locX]+loccart[locY]*loccart[locY]),

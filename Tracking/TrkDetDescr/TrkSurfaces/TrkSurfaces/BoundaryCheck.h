@@ -48,9 +48,9 @@ namespace Trk {
     
     class BoundaryCheck {
 	  // saves us a lot of function calls in the EllipseToPoly method
-	  static constexpr double cos22 = 0.923879532511286756128183189396788286822416625863642486115097;
-	  static constexpr double cos45 = 0.707106781186547524400844362104849039284835937688474036588339;
-	  static constexpr double cos67 = 0.382683432365089771728459984030398866761344562485627041433800;
+	  static constexpr double s_cos22 = 0.923879532511286756128183189396788286822416625863642486115097;
+	  static constexpr double s_cos45 = 0.707106781186547524400844362104849039284835937688474036588339;
+	  static constexpr double s_cos67 = 0.382683432365089771728459984030398866761344562485627041433800;
       public:
         enum BoundaryCheckType {
             absolute  = 0,  //!< absolute check including tolerances
@@ -230,17 +230,17 @@ namespace Trk {
 			}
 		}
 		else{
-			t << w*cos22,h*cos67;
+			t << w*s_cos22,h*s_cos67;
 			v[4] = t;
 			v[5] = t1*t;
 			v[6] = t2*t;
 			v[7] = t3*t;
-			t << w*cos45,h*cos45;
+			t << w*s_cos45,h*s_cos45;
 			v[8] = t;
 			v[9] = t1*t;
 			v[10] = t2*t;
 			v[11] = t3*t;
-			t << w*cos67,h*cos22;
+			t << w*s_cos67,h*s_cos22;
 			v[12] = t;
 			v[13] = t1*t;
 			v[14] = t2*t;
