@@ -22,81 +22,11 @@
                         <!-- Heavy Ion Collisions Reconstruction job -->
                         <chainElement>
                             
-                            <jobTransform userJobId="Run00193321_express_HICollisions">
-                                <doc>RecoTrf with heavy ions data (express stream)</doc>
-                                <jobTransformJobName>Run00193321_express_HICollisions</jobTransformJobName>
-                                <jobTransformCmd>
-                                    tct_recotrf.py --HI --jobnum=0 --AMI=q314 --nfiles=1 --maxEvents=25 --trigStream=express --runnum=00193321 --preInclude=RecJobTransforms/HeavyIonDataRecConfig.py --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00193321/express_express --lumiblock=192 --dropDESDs
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>480</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>Run00193321_express_HICollisions.summary.txt</argvalue>
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                                
-                            </jobTransform>
-                            
-                        </chainElement>
-                        
-                        <!-- Heavy Ion Collisions Reconstruction job -->
-                        <chainElement>
-                            
-                            <jobTransform userJobId="Run00193321_MinBias_HICollisions">
-                                <doc>RecoTrf with heavy ions data (MinBias)</doc>
-                                <jobTransformJobName>Run00193321_MinBias_HICollisions</jobTransformJobName>
-                                <jobTransformCmd>
-                                    tct_recotrf.py --HI --jobnum=0 --AMI=q314 --nfiles=1 --maxEvents=100 --trigStream=MinBias --runnum=00193321 --preInclude=RecJobTransforms/HeavyIonDataRecConfig.py --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00193321/physics_MinBias --lumiblock=192 --dropDESDs
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>480</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>Run00193321_MinBias_HICollisions.summary.txt</argvalue>
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                                
-                            </jobTransform>
-                            
-                        </chainElement>
-                        
-                        <!-- Heavy Ion Collisions Reconstruction job -->
-                        <chainElement>
-                            
                             <jobTransform userJobId="Run00193321_highpt_HICollisions">
-                                <doc>RecoTrf with heavy ions data, HardProbes stream (Run193321 LB192)</doc>
+                                <doc>RecoTrf on 2011 PbPb HardProbes stream (Run193321 LB192)</doc>
                                 <jobTransformJobName>Run00193321_highpt_HICollisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --HI --jobnum=0 --AMI=q314 --nfiles=1 --maxEvents=25 --trigStream=HardProbes --runnum=00193321 --preInclude=RecJobTransforms/HeavyIonDataRecConfig.py --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00193321/physics_HardProbes --lumiblock=192 --dropHIST
+                                    tct_recotrf.py --HI --jobnum=0 --AMI=q314 --nfiles=1 --maxEvents=25 --trigStream=HardProbes --runnum=00193321 --preInclude=RecJobTransforms/HeavyIonDataRecConfig.py --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00193321/physics_HardProbes --lumiblock=192
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -124,6 +54,77 @@
                             
                         </chainElement>
                         
+                        <!-- Heavy Ion Collisions Reconstruction job -->
+                        <chainElement>
+                            
+                            <jobTransform userJobId="Run00193321_highpt_HICollisions_noHIST">
+                                <doc>RecoTrf noHIST on 2011 PbPb HardProbes stream (Run193321 LB192)</doc>
+                                <jobTransformJobName>Run00193321_highpt_HICollisions_noHIST</jobTransformJobName>
+                                <jobTransformCmd>
+                                    tct_recotrf.py --HI --jobnum=0 --AMI=q314 --nfiles=1 --maxEvents=25 --trigStream=HardProbes --runnum=00193321 --preInclude=RecJobTransforms/HeavyIonDataRecConfig.py --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00193321/physics_HardProbes --lumiblock=192 --dropHIST
+                                </jobTransformCmd>
+                                <group>TCTTransform</group>
+                                <queue>medium</queue>
+                                <batchWallTime>480</batchWallTime>
+                                <castorSvcClass>t0atlas</castorSvcClass>
+                                
+                                <test>
+                                    <modulename>RttLibraryTools</modulename>
+                                    <testname>FileGrepper</testname>
+                                    <arg>
+                                        <argname>inputFile</argname>
+                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                    </arg>
+                                    <arg>
+                                        <argname>outputFile</argname>
+                                        <argvalue>Run00193321_highpt_HICollisions_noHIST.summary.txt</argvalue>
+                                    </arg>
+                                    <arg>
+                                        <argname>searchList</argname>
+                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                                    </arg>
+                                </test>
+                                
+                            </jobTransform>
+                            
+                        </chainElement>
+                        
+                        <!-- Heavy Ion Reconstruction on pp minbias collisions job -->
+                        <chainElement>
+                            
+                            <jobTransform userJobId="Run00267359_MinBias_Collisions_HIReco">
+                                <doc>HI RecoTrf on 2015 pp data, MinBias stream (Run267359 LB293)</doc>
+                                <jobTransformJobName>Run00267359_MinBias_Collisions_HIReco</jobTransformJobName>
+                                <jobTransformCmd>
+                                    tct_recotrf.py --HI --jobnum=0 --AMI=q315 --nfiles=1 --maxEvents=25 --trigStream=HardProbes --runnum=00267359 --preInclude=RecJobTransforms/HeavyIonDataRecConfig.py --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00267359/physics_MinBias --lumiblock=293
+                                </jobTransformCmd>
+                                <group>TCTTransform</group>
+                                <queue>medium</queue>
+                                <batchWallTime>480</batchWallTime>
+                                <castorSvcClass>t0atlas</castorSvcClass>
+                                
+                                <test>
+                                    <modulename>RttLibraryTools</modulename>
+                                    <testname>FileGrepper</testname>
+                                    <arg>
+                                        <argname>inputFile</argname>
+                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                    </arg>
+                                    <arg>
+                                        <argname>outputFile</argname>
+                                        <argvalue>Run00267359_MinBias_Collisions_HIReco.summary.txt</argvalue>
+                                    </arg>
+                                    <arg>
+                                        <argname>searchList</argname>
+                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                                    </arg>
+                                </test>
+                                
+                            </jobTransform>
+                            
+                        </chainElement>
+                        
+
                         <!-- CaloCosmic Reconstruction job with field-OFF data! -->
                         <chainElement>
                             

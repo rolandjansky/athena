@@ -307,6 +307,7 @@ def generateRecoTrfCmd(config):
         drawlist = []
         #ntuplist = ['NTUP_HI','NTUP_TRKVALID']
         ntuplist = []
+        config.outputAODFile = "myAOD_%s_%d.pool.root" % (config.trigStream_,config.jobnum_)
         config.outputTAGFile = "myTAG_%s_%d.root" % (config.trigStream_,config.jobnum_)
     elif config.doHIP_:
         desdlist = []
@@ -315,8 +316,8 @@ def generateRecoTrfCmd(config):
         ntuplist = []
         config.outputTAGFile = "myTAG_%s_%d.root" % (config.trigStream_,config.jobnum_)
     else:
-        config.outputTAGFile = "myTAG_%s_%d.root" % (config.trigStream_,config.jobnum_)
         config.outputAODFile = "myAOD_%s_%d.AOD.pool.root" % (config.trigStream_,config.jobnum_)
+        config.outputTAGFile = "myTAG_%s_%d.root" % (config.trigStream_,config.jobnum_)
     #if config.beamType == 'cosmics':
     #    desdlist = ['DESD_PIXELCOMM','DESD_IDCOMM','DESD_CALOCOMM','DESD_MUONCOMM','DESD_TILECOMM']
     #    pass
