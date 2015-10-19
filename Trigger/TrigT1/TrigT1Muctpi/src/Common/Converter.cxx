@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Converter.cxx 472835 2011-12-06 21:05:16Z stelzer $
+// $Id: Converter.cxx 700318 2015-10-13 14:13:15Z wengler $
 
 // STL include(s):
 #include <map>
@@ -406,10 +406,12 @@ namespace LVL1MUCTPI {
    Converter::HelperSector&
    Converter::HelperSector::operator= ( const Converter::HelperSector& right ) {
 
-      this->m_word   = right.m_word;
-      this->m_sector = right.m_sector;
+     if (this != &right) {
 
-      return ( *this );
+       this->m_word   = right.m_word;
+       this->m_sector = right.m_sector;
+     }
+     return ( *this );
    }
 
    Converter::HelperSector::MuonSubSystem Converter::HelperSector::subSystem() const {

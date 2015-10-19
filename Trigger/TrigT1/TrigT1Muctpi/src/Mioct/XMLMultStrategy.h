@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: XMLMultStrategy.h 362102 2011-04-28 13:17:28Z krasznaa $
+// $Id: XMLMultStrategy.h 701446 2015-10-19 15:19:09Z wengler $
 #ifndef TRIGT1MUCTPI_MIOCT_XMLMULTSTRATEGY_H
 #define TRIGT1MUCTPI_MIOCT_XMLMULTSTRATEGY_H
 
@@ -32,6 +32,7 @@ namespace LVL1MUCTPI {
       XMLMultStrategy();
       XMLMultStrategy( const std::string& xmlMultFile );
       XMLMultStrategy( const XMLMultStrategy& strategy );
+      XMLMultStrategy  & operator = ( const XMLMultStrategy  & ) = delete;
       /// Destructor
       ~XMLMultStrategy();
 

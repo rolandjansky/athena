@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LUTMultiplicityCalculator.h 650693 2015-03-01 16:53:48Z masato $
+// $Id: LUTMultiplicityCalculator.h 701446 2015-10-19 15:19:09Z wengler $
 #ifndef TRIGT1MUCTPI_LUTMULTIPLICITYCALCULATOR_H
 #define TRIGT1MUCTPI_LUTMULTIPLICITYCALCULATOR_H
 
@@ -43,8 +43,8 @@ namespace LVL1MUCTPI {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 650693 $
-    * $Date: 2015-03-01 17:53:48 +0100 (Sun, 01 Mar 2015) $
+    * $Revision: 701446 $
+    * $Date: 2015-10-19 17:19:09 +0200 (Mon, 19 Oct 2015) $
     */
    class LUTMultiplicityCalculator {
 
@@ -53,6 +53,7 @@ namespace LVL1MUCTPI {
       LUTMultiplicityCalculator( const MultiplicityLogic* logic );
       /// Copy constructor
       LUTMultiplicityCalculator( const LUTMultiplicityCalculator& calculator );
+      LUTMultiplicityCalculator  & operator = ( const LUTMultiplicityCalculator  & ) = delete;
 
       /// Function initializing the object from an XML file
       StatusCode initialize( const xercesc::DOMNode* node, bool flagMode,

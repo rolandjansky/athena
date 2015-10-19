@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MioctSectorSet.h 439303 2011-05-25 15:20:17Z krasznaa $
+// $Id: MioctSectorSet.h 701446 2015-10-19 15:19:09Z wengler $
 #ifndef TRIGT1MUCTPI_MIOCTSECTORSET_H
 #define TRIGT1MUCTPI_MIOCTSECTORSET_H
 
@@ -26,7 +26,7 @@ namespace LVL1MUCTPI {
    /**
     ************************************************************************
     *
-    *    $Date: 2011-05-25 17:20:17 +0200 (Wed, 25 May 2011) $
+    *    $Date: 2015-10-19 17:19:09 +0200 (Mon, 19 Oct 2015) $
     *
     *    @short Helper class creating and containing the Sectors of one MIOCT module.
     *
@@ -40,7 +40,7 @@ namespace LVL1MUCTPI {
     *      @see EndcapSector
     *      @see ForwardSector
     *   @author $Author: krasznaa $
-    *  @version $Revision: 439303 $
+    *  @version $Revision: 701446 $
     *
     *
     ************************************************************************
@@ -56,6 +56,7 @@ namespace LVL1MUCTPI {
        */
       MioctSectorSet( const MioctID& id, EventReader* reader );
       MioctSectorSet( const MioctSectorSet& set );
+      MioctSectorSet  & operator = ( const MioctSectorSet  & ) = delete;
       /**
        * The four Barrel Sectors of the MIOCT module.
        */

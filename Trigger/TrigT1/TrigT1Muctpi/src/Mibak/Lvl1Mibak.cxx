@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Lvl1Mibak.cxx 678659 2015-06-26 14:54:31Z wengler $
+// $Id: Lvl1Mibak.cxx 700318 2015-10-13 14:13:15Z wengler $
 
 // STL include(s):
 #include <cassert>
@@ -71,6 +71,10 @@ namespace LVL1MUCTPI {
          REPORT_FATAL_MSG( "The reason is : " << reader->getInfoString() );
          assert( 0 );
       }
+
+      //initialise the zero suppression flag to true, which is the more common - will be set from the configuration
+      m_doZeroSuppression = true;
+
    }
 
    Lvl1Mibak::~Lvl1Mibak() {
