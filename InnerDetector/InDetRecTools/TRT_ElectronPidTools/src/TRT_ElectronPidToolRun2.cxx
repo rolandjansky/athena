@@ -61,6 +61,7 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
   m_trtId(0),
   m_minTRThits(5),
   m_bremFitterEnabled(false),
+  m_OccupancyUsedInPID(false),
   ToTcalc(*(new ToTcalculator(*this))),
   HTcalc(*(new HTcalculator(*this))),
   m_TRTdEdxTool("TRT_ToT_dEdx"),
@@ -73,7 +74,7 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t, co
   //declareProperty("PropertyName", m_propertyName);
   declareProperty("MinimumTRThitsForIDpid", m_minTRThits);
   declareProperty("BremfitterEnabled", m_bremFitterEnabled);
-  // declareProperty("OccupancyUsedInPID", m_OccupancyUsedInPID);    // Troels (17th of June 2015): Removed as no longer an option!
+  declareProperty("OccupancyUsedInPID", m_OccupancyUsedInPID);    // DEPRECATED!!!! 
   declareProperty("TRT_ToT_dEdx_Tool", m_TRTdEdxTool);
   declareProperty("TRT_LocalOccupancyTool", m_LocalOccTool);
   declareProperty("isData", m_DATA = true);
@@ -135,16 +136,7 @@ StatusCode InDet::TRT_ElectronPidToolRun2::initialize()
   else
     ATH_MSG_DEBUG("Retrieved tool " << m_TRTdEdxTool);
 
-  /*
-  ATH_MSG_INFO("OccupancyUsedInPID set to " << m_OccupancyUsedInPID);
-  if (m_OccupancyUsedInPID) {
-    if ( m_LocalOccTool.retrieve().isFailure() ){
-       ATH_MSG_WARNING("Failed retrieve Local Occ tool " << m_LocalOccTool << " the tool will not be called!!!" );
-       m_OccupancyUsedInPID=false;
-    }
-    else ATH_MSG_INFO("Retrieved tool " << m_LocalOccTool);
-    }
-  */  
+  ATH_MSG_WARNING("DEPRECATED flag OccupancyUsedInPID set to " << m_OccupancyUsedInPID);
 
   if ( m_LocalOccTool.retrieve().isFailure() ){
     ATH_MSG_WARNING("Failed retrieve Local Occ tool " << m_LocalOccTool << " the tool will not be called!!!" );
@@ -719,11 +711,17 @@ double InDet::TRT_ElectronPidToolRun2::probHT( const double /*pTrk*/, const Trk:
     ATH_MSG_ERROR("TRT geometry fail. Returning default value.");
     return 0.5;
   }
-
   //return HTcalc.getProbHT(pTrk, hypothesis, HitPart, Layer, StrawLayer);
   // FIXME
   return 1.0;//HTcalc.getProbHT(pTrk, hypothesis, HitPart, Layer, StrawLayer);
 }
+
+
+double InDet::TRT_ElectronPidToolRun2::probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ){
+   return HTcalc.getProbHT( pTrk, hypothesis, TrtPart, GasType, StrawLayer, ZR, rTrkWire, Occupancy );
+}
+
+
 
 /**************************************************************************** \
 |*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
