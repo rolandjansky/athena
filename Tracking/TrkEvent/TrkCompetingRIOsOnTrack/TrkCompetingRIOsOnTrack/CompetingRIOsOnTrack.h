@@ -22,6 +22,7 @@
 #include <cassert>
 
 class MsgStream;
+class CompetingRIOsOnTrackCnv_p1;
 
 namespace Trk {
 
@@ -71,6 +72,7 @@ public:
     CompetingRIOsOnTrack(const CompetingRIOsOnTrack& compROT);
     //! Assignment operator
     CompetingRIOsOnTrack& operator=(const CompetingRIOsOnTrack& compROT);
+    CompetingRIOsOnTrack& operator=( CompetingRIOsOnTrack&& compROT);
     //! Constructor with parameters 
     CompetingRIOsOnTrack( std::vector<AssignmentProb>* assgnProb);
 
@@ -104,6 +106,7 @@ public:
     virtual void setLocalParametersAndErrorMatrix();
 
 protected:
+    friend class ::CompetingRIOsOnTrackCnv_p1;
 
     //! index of hightest assignment probability
     mutable unsigned int           m_indexMaxAssignProb;
