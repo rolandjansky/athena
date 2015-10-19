@@ -16,8 +16,10 @@ private
 
 use AtlasCLHEP            AtlasCLHEP-*            External
 use AtlasDetDescr         AtlasDetDescr-*         DetectorDescription
+use GeoPrimitives         GeoPrimitives-*         DetectorDescription
 use AtlasHepMC            AtlasHepMC-*            External
 use AtlasROOT             AtlasROOT-*             External
+use BarcodeInterfaces     BarcodeInterfaces-*     Simulation/Barcode
 use FadsActions           FadsActions-*           Simulation/G4Sim/FADS
 use FadsGeometry          FadsGeometry-*          Simulation/G4Sim/FADS
 use FadsPhysics           FadsPhysics-*           Simulation/G4Sim/FADS
