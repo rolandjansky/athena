@@ -45,7 +45,7 @@ class MuonSegmentPlots:public PlotBase {
 
       TH1* etaIndex;
       TH1* sector;
-      TH2* sector_perStation;
+      //TH2* sector_perStation;
             
       TH2* xypos_barrel;
       TH2* xypos_endcap;
@@ -68,15 +68,24 @@ class MuonSegmentPlots:public PlotBase {
 
       //TH2* chamberIndex_dtheta;
       std::vector<TH2*> sector_etaIndex;
+      std::vector<TH2*> sector_etaIndex_nPrechit;
+      std::vector<TH2*> sector_etaIndex_nTrighit;
+      std::vector<TH2*> eff_sector_etaIndex_nPrechit;
+      std::vector<TH2*> eff_sector_etaIndex_nTrighit;
 
       const float myPi = 3.14159;
-      const char *StationName[8] = {"BI", "BM", "BO", "BE", "EI", "EM", "EO", "EE"};//For filling in monitoring plots
+      //const char *StationName[9] = {"BI", "BM", "BO", "BE", "EI", "EM", "EO", "EE", "CS"};//For filling in monitoring plots
       const float Chamberarea[17] = {0.465313, 0.589744, 0.393503, 0.516815, 0.404094, 
                                     0.588759, 0.0700091, 0.204258, 0.50283, 0.577781, 
                                     0.902194, 0.484968, 0.746214, 0.111742, 0.192025, 
                                     0.380506, 0.380506};//eta * phi for each chamber
       const float Chamberexpectedhits[17] = {8.0, 8.0, 6.0, 6.0, 6.0, 6.0, 4.0,
                                     8.0, 8.0, 6.0, 6.0, 6.0, 6.0, 6.0, 6.0, 4.0, 4.0};//number of expected hits for each chamber
+      // BIS, BIL, BMS, BML, BOS, BOL, BEE, EIS, EIL, EMS, EML, EOS, EOL, EES, EEL, CSS, CSL
+      // 5 and 3 are sacled down from 6 and 4 based on Z MC; could be wrong
+      const float Chamberexpectedtrighits[17] = {1.0, 1.0, 5.0, 5.0, 3.0, 3.0, 1.0,
+                                    2.0, 2.0, 7.0, 7.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0};//number of expected hits for each chamber
+
 
 };
 }
