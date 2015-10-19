@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuctpiSim.h 650693 2015-03-01 16:53:48Z masato $
+// $Id: MuctpiSim.h 701446 2015-10-19 15:19:09Z wengler $
 #ifndef TRIGT1MUCTPI_MUCTPISIM_H
 #define TRIGT1MUCTPI_MUCTPISIM_H
 
@@ -24,6 +24,7 @@
 #include "../Mioct/StrategyName.h"
 #include "../Mioct/MioctID.h"
 #include "../Mictp/MictpModule.h"
+#include "../Common/MioctL1TopoConverter.h"
 
 namespace LVL1MUONIF {
   class Lvl1MuCTPIInput;
@@ -37,7 +38,7 @@ namespace LVL1MUCTPI {
 
    /*********************************************************************
     *
-    *    $Date: 2015-03-01 17:53:48 +0100 (Sun, 01 Mar 2015) $
+    *    $Date: 2015-10-19 17:19:09 +0200 (Mon, 19 Oct 2015) $
     *
     *    @short Top level class of the MUCTPI simulation
     *
@@ -56,7 +57,7 @@ namespace LVL1MUCTPI {
     *      @see MibakStreamEvent
     *      @see MirodModule
     *   @author $Author: ssnyder $
-    *  @version $Revision: 650693 $
+    *  @version $Revision: 701446 $
     *
     *******************************************************************
     */
@@ -70,6 +71,11 @@ namespace LVL1MUCTPI {
        */
       MuctpiSim();
 
+      // disable copy/assignment operator as not used/implemented
+      MuctpiSim( const MuctpiSim & ) = delete;
+      MuctpiSim & operator = ( const MuctpiSim & ) = delete;
+     
+
       /// sets Configuration
       void setConfiguration( const Configuration& conf );
 
@@ -78,7 +84,7 @@ namespace LVL1MUCTPI {
        * It needs to be called before any of the output data is accessed,
        * which otherwise will be empty or still hold the last event.
        */
-      void processData( const LVL1MUONIF::Lvl1MuCTPIInput* currentInput );
+     void processData( const LVL1MUONIF::Lvl1MuCTPIInput* currentInput, int bcidOffset = 0 );
       /**
        * method to access the data send to the CTP.
        */
@@ -94,6 +100,17 @@ namespace LVL1MUCTPI {
        */
       const std::list<unsigned int>& getDAQData()
       { return this->getMirodModule()->getDaqOutput(); }
+      /**
+       * setup the Muon to L1Topo converter
+       */
+      void setupL1TopoConverter(const std::string & inputfile){
+	m_L1TopoConv.setupParser(inputfile);
+      }
+      /**
+       * access the output for the L1Topo
+       */
+      LVL1::MuCTPIL1Topo getL1TopoData()
+      { return m_mibak->getL1TopoCandidates(m_L1TopoConv); }
 
       /// Is there at least one barrel candidate in the event?
       bool hasBarrelCandidate() const;
@@ -173,6 +190,7 @@ namespace LVL1MUCTPI {
       SectorLogicSource*           m_theSource;
       Lvl1Mibak*                   m_mibak;
       LVL1MUONIF::Lvl1MuCTPIInput* m_muctpiInput;
+      MioctL1TopoConverter         m_L1TopoConv;
 
    }; // class MuctpiSim
 

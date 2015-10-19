@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuctpiBitMasks.h 362102 2011-04-28 13:17:28Z krasznaa $
+// $Id: MuctpiBitMasks.h 700318 2015-10-13 14:13:15Z wengler $
 #ifndef TRIGT1MUCTPI_MUCTPISECTORBITMASKS_H
 #define TRIGT1MUCTPI_MUCTPISECTORBITMASKS_H
 
@@ -28,17 +28,17 @@ namespace LVL1MUCTPI {
     BarrelROI2Mask           = 0x00007c00, 
     BarrelBarrelOverlap2Mask = 0x00020000, 
     BarrelEndcapOverlap2Mask = 0x00040000,
-    BarrelReservedMask       = 0x00000000,
+    BarrelReservedMask       = 0xC00180C0,
     // Endcap specific masks
     EndcapROI1Mask           = 0x000001fe,
     EndcapBarrelOverlap1Mask = 0x00000200,
     EndcapROI2Mask           = 0x0003fc00,
     EndcapBarrelOverlap2Mask = 0x00040000,
-    EndcapReservedMask       = 0x00000000,
+    EndcapReservedMask       = 0x06000000,
     // Forward specific masks
     ForwardROI1Mask          = 0x0000007e,
     ForwardROI2Mask          = 0x0000fc00,
-    ForwardReservedMask      = 0x00000000,
+    ForwardReservedMask      = 0x06070380,
     // MIOCT ---------------------------------------------------------
     // Data flow marker on the MIBAK
     MioctStartMask           = 0x0000000e,

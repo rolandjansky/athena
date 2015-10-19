@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: XMLMultCalculator.h 362102 2011-04-28 13:17:28Z krasznaa $
+// $Id: XMLMultCalculator.h 701446 2015-10-19 15:19:09Z wengler $
 #ifndef TRIGT1MUCTPI_MIOCT_XMLMULTCALCULATOR_H
 #define TRIGT1MUCTPI_MIOCT_XMLMULTCALCULATOR_H
 
@@ -32,6 +32,7 @@ namespace LVL1MUCTPI {
    public:
       XMLMultCalculator( const xercesc::DOMNode* node = 0 );
       XMLMultCalculator( const XMLMultCalculator& parent );
+      XMLMultCalculator  & operator = ( const XMLMultCalculator  & ) = delete;
       ~XMLMultCalculator();
 
       void initialize( const xercesc::DOMNode* node );

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MirodLvl2Processor.cxx 624535 2014-10-28 10:02:49Z stelzer $
+// $Id: MirodLvl2Processor.cxx 700318 2015-10-13 14:13:15Z wengler $
 
 // STL include(s):
 #include <cassert>
@@ -21,11 +21,11 @@
 #include "../Common/SectorConstants.h"
 
 /*******************************************************************
- * $Date: 2014-10-28 11:02:49 +0100 (Tue, 28 Oct 2014) $
+ * $Date: 2015-10-13 16:13:15 +0200 (Tue, 13 Oct 2015) $
  *
  * Implementation of class MirodLvl2Processor
  * @author   Author: Thorsten Wengler
- * @version $Revision: 624535 $
+ * @version $Revision: 700318 $
  ******************************************************************/
 
 namespace LVL1MUCTPI {
@@ -33,7 +33,8 @@ namespace LVL1MUCTPI {
    // default constructor of class MirodLvl2Processor
    MirodLvl2Processor::MirodLvl2Processor()
       : m_logger( "MirodLvl2Processor" ),
-        m_ptSorterBuckets( MAX_NUMBER_OF_THRESHOLDS ) {
+        m_ptSorterBuckets( MAX_NUMBER_OF_THRESHOLDS ), 
+	m_maxCandPerPtvalue(0),  m_maxCandSendToRoib(0), m_candBcidOffset(0)  {
 
       REPORT_VERBOSE_MSG( "constructor called" );
    }

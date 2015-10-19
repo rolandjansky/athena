@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Sector.h 439423 2011-05-25 21:22:40Z krasznaa $
+// $Id: Sector.h 678659 2015-06-26 14:54:31Z wengler $
 #ifndef TRIGT1MUCTPI_SECTOR_H
 #define TRIGT1MUCTPI_SECTOR_H
 
@@ -24,7 +24,7 @@ namespace LVL1MUCTPI {
 
    /************************************************************************
     *
-    *    $Date: 2011-05-25 23:22:40 +0200 (Wed, 25 May 2011) $ 
+    *    $Date: 2015-06-26 16:54:31 +0200 (Fri, 26 Jun 2015) $ 
     *
     *    @short Base class for a Sector of the Muon Trigger chambers.
     *
@@ -43,7 +43,7 @@ namespace LVL1MUCTPI {
     *      @see SectorConstants.h
     *      @see Detector.h
     *   @author $Author: krasznaa $
-    *  @version $Revision: 439423 $
+    *  @version $Revision: 678659 $
     *
     **//////////////////////////////////////////////////////////////////////
    class Sector {
@@ -122,6 +122,10 @@ namespace LVL1MUCTPI {
        * @return string which contains the identification of the Sector.
        */
       void printID( std::string& IDString ) const;
+     /**
+      * get the ID of the sector as a string of type B30, FA12 ...
+      */
+      std::string getIDString() const;
       virtual void print( std::string& TextDescription ) const = 0;
       virtual std::string getDetectorString() const = 0;
       std::string getRapidityString() const;

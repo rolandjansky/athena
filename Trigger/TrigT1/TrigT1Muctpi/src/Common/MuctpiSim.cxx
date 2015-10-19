@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuctpiSim.cxx 650693 2015-03-01 16:53:48Z masato $
+// $Id: MuctpiSim.cxx 681356 2015-07-08 12:17:52Z wengler $
 
 // STL include(s):
 #include <cassert>
@@ -26,11 +26,11 @@
 #include "MuctpiBitMasks.h"
 
 /*******************************************************************
- * $Date: 2015-03-01 17:53:48 +0100 (Sun, 01 Mar 2015) $
+ * $Date: 2015-07-08 14:17:52 +0200 (Wed, 08 Jul 2015) $
  *
  * Implementation of class MuctpiSim
  * @author  $Author: krasznaa $
- * @version $Revision: 650693 $
+ * @version $Revision: 681356 $
  ******************************************************************/
 
 namespace LVL1MUCTPI {
@@ -68,7 +68,7 @@ namespace LVL1MUCTPI {
    }
 
    // process method of class MuctpiSim
-   void MuctpiSim::processData( const LVL1MUONIF::Lvl1MuCTPIInput* currentInput ) {
+  void MuctpiSim::processData( const LVL1MUONIF::Lvl1MuCTPIInput* currentInput, int bcidOffset ) {
 
       // Print the input to the simulation:
       REPORT_VERBOSE_MSG( "Start processing event with input from sector logics:\n" );
@@ -83,6 +83,7 @@ namespace LVL1MUCTPI {
          assert( 0 );
       }
       sl_Reader->getSource().setSectorLogicSource( currentInput );
+      sl_Reader->getSource().setBcidOffset( bcidOffset );
 
       // read the event currently held in the input object
       m_theReader->putNextEvent();
