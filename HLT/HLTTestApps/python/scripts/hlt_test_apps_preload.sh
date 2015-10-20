@@ -1,8 +1,7 @@
 #!/bin/sh
 
 
-#export USETCMALLOC=true
-export USETCMALLOC=false
+export USETCMALLOC=true
 export LEAKCHECK=false
 export TCMALLOC_LIB="libtcmalloc_minimal.so"
 
