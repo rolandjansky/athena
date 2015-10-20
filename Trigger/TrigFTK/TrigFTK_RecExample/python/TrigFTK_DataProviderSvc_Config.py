@@ -2,10 +2,11 @@
 
 from FTK_DataProviderSvc.FTK_DataProviderSvcConf import FTK_DataProviderSvc, FTK_UncertaintyTool
 
+from AthenaCommon.Constants import *   # for "INFO"
 
 class TrigFTK_DataProviderSvc(FTK_DataProviderSvc) :
 
-    def __init__(self, name = "TrigFTK_DataProviderSvc"):
+    def __init__(self, name = "TrigFTK_DataProviderSvc",OutputLevel=INFO):
         print "In FTK_DataProviderSvc_Config.py"  
         FTK_DataProviderSvc.__init__(self, name) 
         # Track Fitter
