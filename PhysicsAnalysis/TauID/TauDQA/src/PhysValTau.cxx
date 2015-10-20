@@ -42,6 +42,8 @@ PhysValTau::PhysValTau( const std::string& type,
     declareProperty( "TauContainerName", m_TauJetContainerName = "TauRecContainer" ); 
     declareProperty( "TruthParticleContainerName", m_TruthParticleContainerName = "TruthParticle" ); 
     declareProperty( "TauDetailsContainerName", m_TauDetailsContainerName = "TauRecDetailsContainer" ); 
+    declareProperty("isMC",                         m_isMC);
+
     // std::cout << "Match tool Core Var Truth Cuts Et " << matchtool.getvisETCut() << " eta " << matchtool.getvisEtaCut() << std::endl;
 }
 
@@ -111,20 +113,22 @@ StatusCode PhysValTau::fillHistograms()
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     // Retrieve truth container:     
+   // if (m_isMC){
     const xAOD::TruthParticleContainer* truth = evtStore()->retrieve< const xAOD::TruthParticleContainer >( m_TruthParticleContainerName );
     if (!truth) { 
 	ATH_MSG_ERROR ("Couldn't retrieve tau container with key: " << m_TruthParticleContainerName); 
-	return StatusCode::FAILURE; 
+//	return StatusCode::FAILURE; 
     }   
-    ATH_MSG_DEBUG( "Number of truth: " << truth->size() );      
+  //  ATH_MSG_DEBUG( "Number of truth: " << truth->size() );      
 
     //////////////////////////////////////////////////////////////////////////////////////////////////
     // Retrieve true hadronic tau container from truth container
     // getHaderonicTruth finds true taus (ID == 15) with correct status and no leptonic decay.
     const xAOD::TruthParticleContainer* trueTauContainer = 0;
+    if (m_isMC){
     trueTauContainer = truthHandler.getHadronicTruth(truth);
     ATH_MSG_DEBUG( "Number of true had taus: " << trueTauContainer->size() );      
-
+    }
 
 
     //////////////////////////////////////////
@@ -135,18 +139,23 @@ StatusCode PhysValTau::fillHistograms()
 	if (m_detailLevel < 10) continue;
 	if (tau->pt()/GeV < 20) continue;
 	m_oTauValidationPlots->m_oRecoTauAllProngsPlots.fill(*tau); // Substructure/PFO histograms filled      
-	m_oTauValidationPlots->m_oBDTinputPlots.fill(*tau);         // BDT Histograms      
 	m_oTauValidationPlots->m_oNewCorePlots.fill(*tau);          // NewCore histograms filled      
 
 	m_oTauValidationPlots->m_oRecoGeneralTauAllProngsPlots.fill(*tau);             //Reco Tau General Plots
-	if(tau->nTracks()==1) m_oTauValidationPlots->m_oRecoHad1ProngPlots.fill(*tau); //Reco Tau 1P plots
+	if(tau->nTracks()==1){
+		m_oTauValidationPlots->m_oRecoHad1ProngPlots.fill(*tau); //Reco Tau 1P plots
+
+	}
 	if(tau->nTracks()==3) m_oTauValidationPlots->m_oRecoHad3ProngPlots.fill(*tau); //Reco Tau 3P plots
     }
     m_matched_itr.clear();
     //////////////////////////////////////////
     // Plotting TruthMatched Variables
     // Loop through reco tau jet container
-    if(trueTauContainer != 0){
+
+   // m_isMC=False;
+
+    if(trueTauContainer != 0 && m_isMC==true){
     xAOD::TruthParticleContainer::const_iterator truth_itr = trueTauContainer->begin();
     xAOD::TruthParticleContainer::const_iterator truth_end = trueTauContainer->end();
     //    std::cout<<"new true tau container"<<std::endl;
@@ -161,16 +170,21 @@ StatusCode PhysValTau::fillHistograms()
 
 	if(matched) {
 	    m_oTauValidationPlots->m_oGeneralTauAllProngsPlots.fill(*matchedRecTau);
+		m_oTauValidationPlots->m_oNewCoreMatchedPlots.fill(*matchedRecTau);          // NewCore histograms filled
+		m_oTauValidationPlots->m_oMatchedTauAllProngsPlots.fill(*matchedRecTau); // Substructure/PFO histograms filled
+
+
 	    if(matchedRecTau->nTracks() == 1){
 		m_oTauValidationPlots->m_oHad1ProngPlots.fill(*matchedRecTau);
-		m_oTauValidationPlots->m_oHad1ProngEVetoPlots.fill(*matchedRecTau);
+
 	    }
 	    if(matchedRecTau->nTracks() == 3){
 		m_oTauValidationPlots->m_oHad3ProngPlots.fill(*matchedRecTau);
+
 	    }
 	}
     }
-    }
+    
     //    std::cout<<"Number of matched: "<<m_matched_itr.size()<<std::endl;
     if(taus != 0){
     xAOD::TauJetContainer::const_iterator tau_itr = taus->begin();
@@ -199,54 +213,23 @@ StatusCode PhysValTau::fillHistograms()
 	}
 	if(eleMatch){
 	    m_oTauValidationPlots->m_oElMatchedParamPlots.fill(*recTau);
-	    m_oTauValidationPlots->m_oElMatchedEVetoPlots.fill(*recTau);		
+	
 	}else{
 	    m_oTauValidationPlots->m_oFakeGeneralTauAllProngsPlots.fill(*recTau);
-	    if(recTau->nTracks()==1) m_oTauValidationPlots->m_oFakeHad1ProngPlots.fill(*recTau);
+		m_oTauValidationPlots->m_oFakeTauAllProngsPlots.fill(*recTau); // Substructure/PFO histograms filled
+		m_oTauValidationPlots->m_oNewCoreFakePlots.fill(*recTau);          // NewCore histograms filled
+
+	    if(recTau->nTracks()==1)
+	    	{m_oTauValidationPlots->m_oFakeHad1ProngPlots.fill(*recTau);
+	    //	 m_oTauValidationPlots->m_oFakeHad1ProngEVetoPlots.fill(*recTau);
+	    	}
 	    if(recTau->nTracks()==3) m_oTauValidationPlots->m_oFakeHad3ProngPlots.fill(*recTau);	   
+
 	}
 
     }
     }
-	/////////////////////////////////////////////////////////////////////////////////////////////////
-    /*	
-
-
-	// Matching to muons     (Improvements needed)
-	for (auto mc_candidate : *truth) {
-	    
-	    if(abs(mc_candidate->pdgId())==13 && mc_candidate->pt()>10000.)
-		{
-		    float dr = sqrt( (mc_candidate->eta()-tau->eta())*(mc_candidate->eta()-tau->eta()) + (mc_candidate->phi()-tau->phi())*(mc_candidate->phi()-tau->phi()));
-		    if( dr < smallestR_mu ) {
-			smallestR_mu = dr; 
-		    }
-		}
-	}
-	ATH_MSG_VERBOSE( "Investigating tau #" << i );
-	ATH_MSG_VERBOSE( "  taus: pt = " << tau->pt()
-			 << ", eta = " << tau->eta()
-			 << ", phi = " << tau->phi()
-			 << ", e = " << tau->e()
-			 << "minR = " << smallestR_tau
-			 ); 
-		ATH_MSG_VERBOSE( 
-			"  best had tau: pt = " << closestHadTau.Pt()
-			<< ", eta = " << closestHadTau.Eta()
-			<< ", phi = " << closestHadTau.Phi()
-			<< ", e = " << closestHadTau.E()
-			<< ", minR =" << smallestR_tau
-			 ); 
-	
-
-	//	       << ", mass trk sys "<<tau->massTrkSys() );
-	
-	
-	 
-	
-	++i;
-    }
-    */
+}	/////////////////////////////////////////////////////////////////////////////////////////////////
     
     return StatusCode::SUCCESS;
 }
