@@ -21,6 +21,11 @@
 #include <iostream>
 
 class MsgStream;
+class PrepRawDataCnv_p1;
+
+namespace Muon {
+  class RpcPrepDataContainerCnv_p1;
+}
 
 namespace Trk{
 
@@ -38,7 +43,9 @@ namespace Trk{
     /** public because of DataPool*/
         PrepRawData();
         PrepRawData(const PrepRawData &);
+        PrepRawData(PrepRawData &&);
         PrepRawData &operator=(const PrepRawData &);
+        PrepRawData &operator=(PrepRawData &&);
 
 
     /** Full Constructor (with references)
@@ -52,6 +59,13 @@ namespace Trk{
             const Amg::Vector2D& locpos,
             const std::vector<Identifier>& rdoList,
             const Amg::MatrixX* locerr
+            );
+
+        PrepRawData(
+            const Identifier& clusId,
+            const Amg::Vector2D& locpos,
+            std::vector<Identifier>&& rdoList,
+            std::unique_ptr<const Amg::MatrixX> locerr
             );
 
     /** Constructor - same as above, but no need to pass a vector of Identifiers (i.e. for DriftCircles)
@@ -99,6 +113,9 @@ namespace Trk{
         static unsigned int numberOfInstantiations() ;
 
     private:	
+        friend class ::PrepRawDataCnv_p1;
+        friend class Muon::RpcPrepDataContainerCnv_p1;
+
     /**PrepRawData ID, not const because of DataPool*/
         Identifier m_clusId; 
     /**see derived classes for definition of meaning of LocalPosition*/

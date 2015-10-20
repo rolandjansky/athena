@@ -34,6 +34,24 @@ namespace Trk{
 #endif
     }
 
+    PrepRawData::PrepRawData( 
+        const Identifier &clusId, 
+        const Amg::Vector2D& locpos,
+        std::vector<Identifier>&& rdoList, 
+        std::unique_ptr<const Amg::MatrixX> locerr
+        ) 
+        :
+        m_clusId(clusId),
+        m_localPos(locpos),
+        m_rdoList(std::move(rdoList)),
+        m_localCovariance(locerr.release()),
+        m_indexAndHash()
+    {
+#ifndef NDEBUG
+        s_numberOfInstantiations++; // new PrepRawData, so increment total count
+#endif
+    }
+
 // Constructor with parameters:
     PrepRawData::PrepRawData( 
         const Identifier &clusId, 
@@ -91,13 +109,43 @@ namespace Trk{
 #endif
     }
 
+// move constructor:
+    PrepRawData::PrepRawData(
+        PrepRawData && RIO
+        ):
+        m_clusId(RIO.m_clusId), 
+        m_localPos( RIO.m_localPos ),
+        m_rdoList(std::move(RIO.m_rdoList)),  
+        m_localCovariance( RIO.m_localCovariance ),
+        m_indexAndHash(RIO.m_indexAndHash)
+    {
+      RIO.m_localCovariance = nullptr;
+#ifndef NDEBUG
+        s_numberOfInstantiations++; // new PrepRawData, so increment total count
+#endif
+    }
+
 // assignment operator
     PrepRawData& PrepRawData::operator=(const PrepRawData& RIO){
         if (&RIO !=this) {
             m_clusId = RIO.m_clusId;
             m_rdoList = RIO.m_rdoList;
             m_localPos = RIO.m_localPos;
+            delete m_localCovariance;
             m_localCovariance = RIO.m_localCovariance ? new Amg::MatrixX(*RIO.m_localCovariance) : 0;
+            m_indexAndHash = RIO.m_indexAndHash;
+        }
+        return *this;
+    }
+
+    PrepRawData& PrepRawData::operator=(PrepRawData&& RIO){
+        if (&RIO !=this) {
+            m_clusId = std::move(RIO.m_clusId);
+            m_rdoList = std::move(RIO.m_rdoList);
+            m_localPos = std::move(RIO.m_localPos);
+            delete m_localCovariance;
+            m_localCovariance = RIO.m_localCovariance;
+            RIO.m_localCovariance = nullptr;
             m_indexAndHash = RIO.m_indexAndHash;
         }
         return *this;
