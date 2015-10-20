@@ -29,3 +29,31 @@ macro COMMON_PACKAGES "${SITEROOT}/sw/packages" \
       EXTSITE         "${SITEROOT}/packages" \
       STANDALONE      "${SITEROOT}/packages"
 
+#
+# In case <package> exports external s/w,
+# check mandatory distribution kit related macros,
+# <package>_export_paths and <package>_native_version,
+# expected by PackDist distribution kit building tool
+#
+
+#
+# Errors can be turned into warnings by specifying
+# macro <package>_pedantic_level value of WARNING or warning
+# or
+# unsetting PEDANTIC environment variable
+#
+pattern -global pack_dist_check \
+    private ; \
+    macro need_pack_dist_check    "" \
+          Unix "`test -z '$(<package>_export_paths)'&&echo no_pack_dist_check||echo do_pack_dist_check`" ; \
+    apply_tag $(need_pack_dist_check) ; \
+    action pack_dist_check    "" \
+           do_pack_dist_check "$(ATLASEXTERNALAREAROOT)/share/pack_dist_check.sh -package=<package> -files='$(<package>_export_paths)' -version=$(<package>_native_version) -level=$(<package>_pedantic_level)" ; \
+    macro_append all_dependencies   "" \
+           do_pack_dist_check " pack_dist_check" ; \
+    end_private
+
+#  document pack_dist_checker <package>_pack_dist_checker
+
+#make_fragment pack_dist_checker_header
+#make_fragment pack_dist_checker -header=pack_dist_checker_header

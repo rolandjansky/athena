@@ -1,0 +1,39 @@
+# File: AtlasExternalArea/cmt/fragments/pack_dist_checker_header
+# Author: Grigori Rybkine <Grigori.Rybkine@cern.ch>
+
+#
+# In case <package> exports external s/w,
+# check mandatory distribution kit related macros,
+# <package>_export_paths and <package>_native_version,
+# expected by PackDist distribution kit building tool
+#
+
+LS = ls -H -d -p -m
+
+ifneq ($($(package)_export_paths),)
+${CONSTITUENT} ::
+	$(echo) checking $(package)_export_paths paths
+ifdef PEDANTIC
+	$(silent) $(LS) $($(package)_export_paths) $(if $(silent), >/dev/null)
+else
+	-$(silent) $(LS) $($(package)_export_paths) $(if $(silent), >/dev/null)
+endif
+ifeq ($($(package)_native_version),)
+ifdef PEDANTIC
+	$(error $(package)_native_version unspecified)
+else
+	$(warning $(package)_native_version unspecified)
+endif
+endif
+
+else
+${CONSTITUENT} :: ;
+endif
+
+install :: ${CONSTITUENT}install ;
+${CONSTITUENT}install :: ;
+
+${CONSTITUENT}clean :: ${CONSTITUENT}uninstall ;
+
+uninstall :: ${CONSTITUENT}uninstall ;
+${CONSTITUENT}uninstall :: ;
