@@ -24,8 +24,12 @@ def getRunLumiInfoFragment(jobnumber,task,maxEvents):
     else:
         hiMaxEvents=int((maxEvents-1)/2)
         loMaxEvents=int((maxEvents+1)/2)
-    hi_mu_frag=getFragment(jobnumber,sorted(task,key=lambda job: job['mu'],reverse=True),hiMaxEvents)
-    lo_mu_frag=getFragment(jobnumber,sorted(task,key=lambda job: job['mu']),loMaxEvents)
+    hi_mu_frag=[]
+    lo_mu_frag=[]
+    if hiMaxEvents > 0:
+        hi_mu_frag=getFragment(jobnumber,sorted(task,key=lambda job: job['mu'],reverse=True),hiMaxEvents)
+    if loMaxEvents > 0:
+        lo_mu_frag=getFragment(jobnumber,sorted(task,key=lambda job: job['mu']),loMaxEvents)        
     return sorted(sum([hi_mu_frag,lo_mu_frag],[]),key=lambda job: job['run'])
 
 def getFragment(jobnumber,task,maxEvents):
