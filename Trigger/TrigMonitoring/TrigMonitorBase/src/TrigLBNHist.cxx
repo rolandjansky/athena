@@ -378,10 +378,10 @@ bool TrigLBNHist<HTYPE>::addNewHist(unsigned lbn, bool force) {
 
   TH1::AddDirectory(false);
   HTYPE* newHist = new HTYPE(*this);
-  newHist->SetName(m_name.c_str());
   if ( newHist == 0 ) 
     return false;
-   
+
+  newHist->SetName(m_name.c_str());
   newHist->Reset();
   newHist->SetTitle(m_title.c_str());
 
