@@ -287,7 +287,7 @@ uint8_t getSum( const TrackParticle& trk, xAOD::SummaryType sumType )
 {
   uint8_t sumVal=0;
   if (!trk.summaryValue(sumVal, sumType)) {
-    Error( "summaryValue()", "Could not get summary type %i", sumType );
+    Error( "getSum()", "Could not get summary type %i", sumType );
   }
   return sumVal;
 }

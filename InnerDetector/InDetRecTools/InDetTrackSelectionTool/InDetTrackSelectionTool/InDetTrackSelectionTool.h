@@ -107,7 +107,7 @@ namespace InDet {
     constexpr static Int_t LOCAL_MAX_INT = std::numeric_limits<Int_t>::max();
 
     Double_t m_minPt = -1.; //!< Minimum p_T of tracks
-    Double_t m_maxAbsEta = -1.; //!< Maximum magnitude of pseudorapidity
+    Double_t m_maxAbsEta = LOCAL_MAX_DOUBLE; //!< Maximum magnitude of pseudorapidity
     Double_t m_maxZ0SinTheta = LOCAL_MAX_DOUBLE; //!< Maximum |z0*sin(theta)| of tracks
     Double_t m_maxZ0 = LOCAL_MAX_DOUBLE; //!< Maximum |z0| of tracks
     Double_t m_maxD0 = LOCAL_MAX_DOUBLE; //!< Maximum |d0| of tracks
@@ -135,7 +135,8 @@ namespace InDet {
     Bool_t m_useEtaDependentMaxChiSq = false; //!< Flag whether we use the eta-dependent chi^2/dof cut
     Double_t m_minP = -1.; //!< Minimum p = p_T/cos(theta)
     Int_t m_minNSiHitsPhysical = -1; //!< Minimum number of physical (pixel + SCT) hits (no dead sensors)
-    Int_t m_minNPixelHitsPhysical = -1; //!< Minimum number of physical hits (no dead sensors)
+    Int_t m_minNPixelHitsPhysical = -1; //!< Minimum number of physical pixel hits (no dead sensors)
+    Int_t m_minNSctHitsPhysical = -1; //!< Minimum number of physical SCT hits (no dead sensors)
     Int_t m_minNSctHits = -1; //!< Minimum number of SCT hits (plus dead sensors)
     Int_t m_maxNSctSharedHits = LOCAL_MAX_INT; //!< Maximum number of SCT sensors shared with another track
     Int_t m_maxNSctHoles = LOCAL_MAX_INT; //!< Maximum number of holes in SCT
