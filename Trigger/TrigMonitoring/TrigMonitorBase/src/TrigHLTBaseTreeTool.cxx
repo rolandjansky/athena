@@ -13,6 +13,7 @@ TrigHLTBaseTreeTool::TrigHLTBaseTreeTool(const std::string & type,
 					 const std::string & name,
 					 const IInterface* parent)
     : TrigMonitorToolBase(type, name, parent),
+      m_pass{0,0},
       m_path("/EXPERT/NTUPLES/"),
       m_algo(0),
       m_tree(0),

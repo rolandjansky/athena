@@ -65,6 +65,11 @@ StatusCode TrigGenericMonitoringTool::bookHists() {
     return StatusCode::FAILURE;
   }
   const INamedInterface* parentAlg = dynamic_cast<const INamedInterface*>(parent());
+  if (parentAlg==0) {
+    m_log << MSG::ERROR << "Cannot retrieve INamedInterface of parent algorithm" << endreq;
+    return StatusCode::FAILURE;
+  }
+  
   m_parentName =  parentAlg->name();
 
   
@@ -91,9 +96,15 @@ StatusCode TrigGenericMonitoringTool::bookHists() {
 void TrigGenericMonitoringTool::setOpts(TH1* histo, const std::string& opt) {
   // try to apply an option
   if ( opt.find("kCanRebin") != std::string::npos ) {
+#if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0)
+     histo->SetCanExtend(TH1::kAllAxes);
+  }else {
+     histo->SetCanExtend(TH1::kNoAxis);  
+#else
     histo->SetBit(TH1::kCanRebin);
   } else {
     histo->ResetBit(TH1::kCanRebin);
+#endif    
   }
   // try to apply option to make Sumw2 in histogram
   if ( opt.find("Sumw2") != std::string::npos ) {
@@ -491,6 +502,7 @@ const TrigGenericMonitoringTool::HistogramDef TrigGenericMonitoringTool::parseJo
       m_log << MSG::WARNING << histPar.name[0] << warning << "double expected for ymax of TProfile" << endreq;
       return histPar;
     }
+    histPar.ybins = 0; // not used
     histPar.ycut = true;
   }
 
@@ -501,7 +513,7 @@ const TrigGenericMonitoringTool::HistogramDef TrigGenericMonitoringTool::parseJo
     for ( tokenizer_t::iterator l = labels.begin(); l != labels.end(); ++l ) {
       histPar.labels.push_back(*l);
     }
-    histProperty.erase(itr); 
+    itr = histProperty.erase(itr);
   }
   
   // opt
