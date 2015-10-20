@@ -26,6 +26,15 @@ Trk::PseudoMeasurementOnTrack::PseudoMeasurementOnTrack(const LocalParameters& l
     m_associatedSurface = assocSurf.isFree() ? assocSurf.clone() : &assocSurf;
 }
 
+Trk::PseudoMeasurementOnTrack::PseudoMeasurementOnTrack(const LocalParameters& locpars,
+                                                        const Amg::MatrixX& locerr,
+                                                        Trk::ConstSurfaceUniquePtr  assocSurf) :
+  Trk::MeasurementBase(locpars,locerr),
+  m_associatedSurface (assocSurf.release()),
+  m_globalPosition(0)
+{
+}
+
 // Destructor:
 Trk::PseudoMeasurementOnTrack::~PseudoMeasurementOnTrack()
 {
@@ -52,7 +61,8 @@ Trk::PseudoMeasurementOnTrack::PseudoMeasurementOnTrack( const Trk::PseudoMeasur
 Trk::PseudoMeasurementOnTrack& Trk::PseudoMeasurementOnTrack::operator=(const PseudoMeasurementOnTrack& pmot)
 {
   if ( &pmot != this) {
-    delete m_associatedSurface;
+    if (m_associatedSurface && m_associatedSurface->isFree())
+      delete m_associatedSurface;
     delete m_globalPosition;
     m_globalPosition = 0;
     Trk::MeasurementBase::operator=(pmot);

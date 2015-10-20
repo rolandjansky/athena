@@ -7,6 +7,7 @@ use TrkMeasurementBase   TrkMeasurementBase-*     Tracking/TrkEvent
 #use TrkEventPrimitives   TrkEventPrimitives-*     Tracking/TrkEvent
 use GeoPrimitives           GeoPrimitives-*      DetectorDescription
 use EventPrimitives         EventPrimitives-*    Event
+use TrkSurfaces          TrkSurfaces-*            Tracking/TrkDetDescr
 
 apply_pattern installed_library
 library TrkPseudoMeasurementOnTrack *.cxx
@@ -14,7 +15,6 @@ library TrkPseudoMeasurementOnTrack *.cxx
 private
 use AtlasReflex          AtlasReflex-*            External -no_auto_imports
 use GaudiInterface       GaudiInterface-*         External
-use TrkSurfaces          TrkSurfaces-*            Tracking/TrkDetDescr
 
 
 # Pattern to build the dict lib. User should create a single header

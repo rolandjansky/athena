@@ -13,6 +13,7 @@
 //#include "TrkEventPrimitives/GlobalPosition.h"
 #include "EventPrimitives/EventPrimitives.h"  
 #include "GeoPrimitives/GeoPrimitives.h" 
+#include "TrkSurfaces/Surface.h"
 #include <ostream>
 
 class MsgStream;
@@ -52,6 +53,10 @@ namespace Trk{
       PseudoMeasurementOnTrack( const LocalParameters& locpars,
                                 const Amg::MatrixX&     locerr,
                                 const Surface&         assocSurf);
+
+      PseudoMeasurementOnTrack( const LocalParameters& locpars,
+                                const Amg::MatrixX&     locerr,
+                                ConstSurfaceUniquePtr   assocSurf);
 
       //! Destructor 
       virtual ~PseudoMeasurementOnTrack();
