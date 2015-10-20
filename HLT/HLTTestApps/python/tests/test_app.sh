@@ -37,9 +37,7 @@ function runtest() {
 runtest $DEBUG $DATAFILE -n5 TrigExMTHelloWorld/MTHelloWorldOptions.py
                          
 # This test tries to run with --tcmalloc
-# TODO reactivate once tcmalloc is available again (with TCMALLOCDIR env var
-# automatically defined after an asetup)
-#runtest $DEBUG $DATAFILE --tcmalloc TrigExMTHelloWorld/MTHelloWorldOptions.py
+runtest $DEBUG $DATAFILE --tcmalloc TrigExMTHelloWorld/MTHelloWorldOptions.py
 
 # This test tries to run with --leak-check-execute
 runtest $DEBUG $DATAFILE --leak-check-execute \
@@ -48,10 +46,8 @@ runtest $DEBUG $DATAFILE --leak-check-execute \
 # This test tries to run with --tcmalloc and --leak-check-execute
 # simultaneously, which mustn't be possible. A warning should be printed 
 # informing the user that libc malloc is chosen instead
-# TODO reactivate once tcmalloc is available again (with TCMALLOCDIR env var
-# automatically defined after an asetup)
-#runtest $DEBUG $DATAFILE --tcmalloc --leak-check-execute\
-#                         TrigExMTHelloWorld/MTHelloWorldOptions.py
+runtest $DEBUG $DATAFILE --tcmalloc --leak-check-execute\
+                         TrigExMTHelloWorld/MTHelloWorldOptions.py
 
 # try to apply the print_event_header plugin; force accept all events
 runtest $DEBUG $DATAFILE --postcommand 'HltEventLoopMgr.ForceHltAccept=True'\
@@ -75,15 +71,3 @@ runtest $DEBUG $DATAFILE --postcommand 'HltEventLoopMgr.ForceHltAccept=True'\
                          TrigExMTHelloWorld/MTHelloWorldOptions.py
                          
 runtest $DEBUG $DATAFILE -n5 -M -W TrigExMTHelloWorld/MTHelloWorldOptions.py
-                         
-# try to configure from the TriggerDB with COOL provided DB connection params
-# TODO use a run number indexed in cool to a workable config (only possible 
-# when such a run exists)
-#runtest $DEBUG $DATAFILE --use-database 
-
-# try to configure from the TriggerDB with user provided DB connection params
-#runtest $DEBUG $DATAFILE --use-database --db-type Coral \
-#                         --db-server TRIGGERDBREPR --db-smkey 542 \
-#                         --db-hltpskey 345 --db-extra #'{"lvl1key":"82","user":'\
-#'"ignoreme","password":"ignoreme","schema":"ignoreme","retrialPeriod":"25",'\
-#'"maxRetrials":"5","some_unrecognized_param":"gnfdliadfbg"}'

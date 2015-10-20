@@ -325,14 +325,14 @@ common['tcmalloc'] = \
    'arg': False,
    'default': None, 
    'group': 'Run mode', 
-   'description': 'Use tcmalloc instead of stdcmalloc. '
+   'description': 'Use tcmalloc instead of stdcmalloc [DEFAULT].'
    'This option is incompatible with --leak-check, --leak-check-execute and --delete-check. '}
 common['stdcmalloc'] = \
   {'short': '', 
    'arg': False, 
    'default': None, 
    'group': 'Run mode', 
-   'description': 'Use stdcmalloc intead of tcmalloc. [DEFAULT]'}
+   'description': 'Use stdcmalloc intead of tcmalloc.'}
 common['no-ers-signal-handlers'] = \
   {'short': '', 
    'arg': False,
