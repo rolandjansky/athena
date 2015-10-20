@@ -97,6 +97,8 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name,
 		  "Minimum physical silicon hits (i.e. dead sensors do not count)");
   declareProperty("minNPixelHitsPhysical", m_minNPixelHitsPhysical,
 		  "Minimum physical pixel hits");
+  declareProperty("minNSctHitsPhysical", m_minNSctHitsPhysical,
+		  "Minimum physical SCT hits");
   declareProperty("minNSctHits", m_minNSctHits, "Minimum SCT hits");
   declareProperty("maxNSctSharedHits", m_maxNSctSharedHits, "Maximum SCT hits shared with other track");
   declareProperty("maxNSctHoles", m_maxNSctHoles, "Maximum SCT holes");
@@ -161,12 +163,13 @@ InDet::InDetTrackSelectionTool::~InDetTrackSelectionTool() = default;
 StatusCode InDet::InDetTrackSelectionTool::initialize() {
   // Make sure we haven't already been initialized - this would be a sign of improper usage.
   if (m_isInitialized) {
-    ATH_MSG_ERROR( "Tool has already been initialized. This is illegitimate. This call to initialize() will do nothing." );
+    ATH_MSG_ERROR( "Tool has already been initialized. This is illegitimate." );
+    ATH_MSG_ERROR( "This call to initialize() will do nothing." );
     return StatusCode::SUCCESS;
   }
 
   // Greet the user:
-  ATH_MSG_INFO( "Initialising Track Selection Tool..." );
+  ATH_MSG_INFO( "Initializing Track Selection Tool..." );
   ATH_CHECK( asg::AsgTool::initialize() );
 
   // if the CutLevel string is set to something recognizable,
@@ -180,7 +183,8 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
 	ATH_MSG_ERROR( "\t" << opt.first );
       }
     } else {
-      ATH_MSG_INFO( "Cut level set to \"" << it_mapCutLevel->first << "\". This will not overwrite other cuts that have been set.");
+      ATH_MSG_INFO( "Cut level set to \"" << it_mapCutLevel->first << "\"." );
+      ATH_MSG_INFO( "This will not overwrite other cuts that have been set.");
       setCutLevelPrivate( it_mapCutLevel->second, false );
     }
   }
@@ -294,8 +298,8 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     m_trackCuts["InnermostLayersHits"].push_back(std::move(minInnerHits));
   }
   if (m_useMinBiasInnermostLayersCut > 0 ) { // less than zero indicates this cut is manually turned off
-    ATH_MSG_INFO( "An innermost layer hit is required if expected, otherwise" );
-    ATH_MSG_INFO( "a next-to-innermost layer hit is required if it is expected." );
+    ATH_MSG_INFO( "  An innermost layer hit is required if expected, otherwise" );
+    ATH_MSG_INFO( "    a next-to-innermost layer hit is required if it is expected." );
     auto minInnerHits = make_unique< FuncSummaryValueCut<4> >
       (this, std::array<xAOD::SummaryType,4>(  
 	{xAOD::numberOfInnermostPixelLayerHits, xAOD::numberOfNextToInnermostPixelLayerHits,
@@ -342,6 +346,13 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     m_trackCuts["SctHits"].push_back
       (make_unique<MinSummaryValueCut>
        (this, m_minNSctHits, std::vector<xAOD::SummaryType>({xAOD::numberOfSCTHits, xAOD::numberOfSCTDeadSensors}) ));
+  }
+  if (m_minNSctHitsPhysical > 0) {
+    ATH_MSG_INFO( "  Minimum physical SCT hits (i.e. dead sensors do not count): "
+  		  << m_minNSctHitsPhysical );
+    auto minSctPhysHits = make_unique<MinSummaryValueCut> (this, m_minNSctHitsPhysical );
+    minSctPhysHits->addSummaryType(xAOD::numberOfSCTHits);
+    m_trackCuts["SctHits"].push_back(std::move(minSctPhysHits));
   }
   if (maxIntIsSet(m_maxNSctHoles)) {
     ATH_MSG_INFO( "  Maximum SCT holes: " << m_maxNSctHoles );
@@ -393,7 +404,9 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     m_trackCuts["SiHits"].push_back(std::move(maxSiSharedHits));
   }
   if (m_maxOneSharedModule) {
-    ATH_MSG_INFO( "  No more than one shared module: i.e. max 1 shared pixel hit or two shared SCT hits, and not both." );
+    ATH_MSG_INFO( "  No more than one shared module:" );
+    ATH_MSG_INFO( "    i.e. max 1 shared pixel hit or" );
+    ATH_MSG_INFO( "    2 shared SCT hits, and not both." );
     auto oneSharedModule = make_unique< FuncSummaryValueCut<2> >
       (this, std::array<xAOD::SummaryType, 2>({xAOD::numberOfPixelSharedHits, xAOD::numberOfSCTSharedHits}) );
     oneSharedModule->setFunction( [=] (const std::array<uint8_t, 2> vals) {return vals[0] + vals[1]/2 <= 1;} );
@@ -545,7 +558,8 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
       auto notAllXeOrEProb = make_unique< OrCut<2> >(this);
       auto notAllXe = make_unique< FuncSummaryValueCut<3> >
 	(this, std::array<xAOD::SummaryType,3>{xAOD::numberOfTRTHits, xAOD::numberOfTRTOutliers, xAOD::numberOfTRTXenonHits});
-      notAllXe->setFunction( [=] (const std::array<uint8_t, 3>& vals) {return vals[0] + vals[1] > vals[2];} );
+      notAllXe->setFunction( [=] (const std::array<uint8_t, 3>& vals)
+			     {return vals[0] + vals[1] > vals[2];} );
       notAllXeOrEProb->setCut(0, std::move(notAllXe));
       notAllXeOrEProb->Cut(1) = make_unique<MinEProbHTCut>(this, m_minEProbabilityHT);
       m_trackCuts["eProbHT"].push_back(std::move(notAllXeOrEProb));
@@ -565,7 +579,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
       ATH_MSG_ERROR( "Failed to add cut family " << cutFamilyName << " because the TAccept object is full." );
       return StatusCode::FAILURE;
     }
-    ATH_MSG_INFO("Adding cut family " << cutFamilyName);
+    ATH_MSG_VERBOSE("Adding cut family " << cutFamilyName);
   }
 
   m_isInitialized = true;
@@ -852,6 +866,7 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
       m_maxNPixelSharedHits = LOCAL_MAX_INT;
       m_maxNPixelHoles = LOCAL_MAX_INT;
       m_minNSctHits = -1;
+      m_minNSctHitsPhysical = -1;
       m_maxNSctHoles = LOCAL_MAX_INT;
       m_maxNSctSharedHits = LOCAL_MAX_INT;
       m_maxNSctDoubleHoles = LOCAL_MAX_INT;
