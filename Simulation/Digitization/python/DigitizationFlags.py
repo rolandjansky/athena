@@ -40,6 +40,16 @@ class rndmSeedList(JobProperty):
     allowedTypes=['list']
     StoredValue=  []
 
+    def checkForExistingSeed(self, name):
+        """Ensure that each stream is only initialized once"""
+        found = False
+        seedlist = self.get_Value()
+        for iseed in seedlist:
+            found = iseed.startswith(name+" ")
+            if found:
+                break
+        return found
+
     def addSeed( self, name, seed1, seed2 ):
         """Add seeds to internal seedlist. Seeds will be incremented by offset values
         """
@@ -50,12 +60,7 @@ class rndmSeedList(JobProperty):
         logDigitizationFlags.info("Adding Digitization random number seed '" + newseed + "'")
 
         #ensure each stream only initialized once
-        found = False
-        for iseed in seedlist:
-            found = iseed.startswith(name+" ")
-            if found:
-                break
-
+        found = self.checkForExistingSeed(name)
         if found:
             logDigitizationFlags.error ("Initialization values for random number stream " + name + " already exist!")
         else:
@@ -699,6 +704,15 @@ class SignalPatternForSteppingCache(JobProperty):
         else:
             JobProperty.print_JobProperty(self, mode)
 #
+class TRTRangeCut(JobProperty):
+    """ TRT Range cut used in simulation in mm
+    """
+    statusOn=True
+    allowedTypes=['float']
+    allowedValues = [0.05,30.0]
+    StoredValue=0.05
+
+#
 # Defines the container for the digitization flags
 class Digitization(JobPropertyContainer):
     """ The global Digitization flag/job property container.
@@ -769,7 +783,7 @@ list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,\
                     bunchSpacing,initialBunchCrossing,finalBunchCrossing,doXingByXingPileUp,\
                     simRunNumber,dataRunNumber,BeamIntensityPattern,FixedT0BunchCrossing,cavernIgnoresBeamInt,\
                     RunAndLumiOverrideList,SignalPatternForSteppingCache,
-                    experimentalDigi,specialConfiguration,digiSteeringConf]
+                    experimentalDigi,specialConfiguration,digiSteeringConf,TRTRangeCut]
 
 for i in list_jobproperties:
     jobproperties.Digitization.add_JobProperty(i)
