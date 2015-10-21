@@ -282,8 +282,8 @@ inline StatusCode IUserDataSvc::retrieve(const IAthenaBarCode &abc, const std::s
 
 inline const InterfaceID&
 IUserDataSvc::interfaceID() {
-  static const InterfaceID _IID("IUserDataSvc", 1, 0);
-  return _IID;
+  static const InterfaceID IID("IUserDataSvc", 1, 0);
+  return IID;
 }
 
 #endif // IUSERDATASVC_H

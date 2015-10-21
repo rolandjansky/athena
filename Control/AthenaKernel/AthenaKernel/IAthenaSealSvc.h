@@ -14,7 +14,6 @@
 #ifndef ATHENAKERNEL_IATHENASEALSVC_H
 # define ATHENAKERNEL_IATHENASEALSVC_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "GaudiKernel/IInterface.h"
 
@@ -45,14 +44,12 @@ public:
 
     /// Retrieve interface ID
     static const InterfaceID& interfaceID() { 
-      static const InterfaceID _iid("IAthenaSealSvc", 1 , 0); 
-      return _iid;
+      static const InterfaceID iid("IAthenaSealSvc", 1 , 0); 
+      return iid;
     }
 };
 
 
 
-//<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 
 #endif // ATHENAKERNEL_IATHENASEALSVC_H

@@ -47,6 +47,7 @@ namespace {
   typedef std::vector<std::string> Strings_t;
   const std::string RootMap = ".rootmap";
   const std::string DsoMap  = ".dsomap";
+  const std::string Components = ".components";
   const std::string PluginNs= "__pf__";
 
 #ifdef _WIN32
@@ -60,6 +61,15 @@ namespace {
 
   bool is_rootcint_dict(const std::string& libname)
   {
+    if (libname == "liblistDict.so") return true;
+    if (libname == "libmapDict.so") return true;
+    if (libname == "libmap2Dict.so") return true;
+    if (libname == "libmultimapDict.so") return true;
+    if (libname == "libsetDict.so") return true;
+    if (libname == "libvectorDict.so") return true;
+    if (libname == "libCore.so") return true;
+    if (libname == "libMathCore.so") return true;
+
     static const std::string dll = ".dll";
     if (libname == dll) {
       return false;
@@ -294,7 +304,7 @@ DsoDb::load_type(const std::string& type_name)
 void 
 DsoDb::build_repository()
 {
-  // std::cerr << "::build_repository...\n";
+ // std::cerr << "::build_repository...\n";
 
   typedef boost::tokenizer<boost::char_separator<char> > Tokenizer_t;
   typedef std::vector<fs::path> Paths_t;
@@ -328,9 +338,15 @@ DsoDb::build_repository()
          ipath != ipath_end;
          ++ipath) {
       const fs::path& dsomap = *ipath;
-      if (dsomap.extension() != RootMap || !fs::exists(dsomap)) {
+
+      if (!fs::exists(dsomap)) continue;
+
+      bool is_components = false;
+      if (dsomap.extension() == Components)
+        is_components = true;
+      else if (dsomap.extension() != RootMap)
         continue;
-      }
+
       //std::cerr << "=== [" << dso << "] ===\n";
 #if BOOST_FILESYSTEM_VERSION == 3 
       dsofiles.insert(dsomap.c_str());
@@ -340,44 +356,89 @@ DsoDb::build_repository()
       std::ifstream f(dsomap.native_file_string().c_str());
 #endif
       int line_nbr = -1;
+      std::string lastlib;
       while (f) {
         line_nbr += 1;
         std::string line;
         std::getline(f, line);
         boost::algorithm::trim(line);
-        if (line.empty() || line[0] == '#') {
-          continue;
-        }
-        Strings_t ll;
-        boost::algorithm::split(ll, line, 
-                                boost::is_any_of(" "),
-                                boost::token_compress_on);
-        if (ll.size() < 2) {
-          std::cerr << "DsoDb:: **error** could not parse " 
-                    << dsomap << ":" << line_nbr
-                    << "\n"
-                    << "DsoDb:: (some) reflex-dicts may fail to be autoloaded"
-                    << "\n";
-          continue;
-        }
-        std::string libname = ll[1];
-        if (::is_rootcint_dict(libname)) {
-          continue;
-        }
-        std::string dso_key = ll[0];
-        libname = ::getlibname(libname);
-        const std::string fullpath_libname = to_string(dsomap.parent_path() / fs::path(libname));
-        boost::algorithm::replace_all(dso_key, "Library.", "");
-        boost::algorithm::replace_all(dso_key, ":", "");
-        boost::algorithm::replace_all(dso_key, "@", ":");
-        boost::algorithm::replace_all(dso_key, "-", " ");
 
-        
-        // std::cerr << " [" << line << "] -> [" << dso_key << "] [" << libname
-        //           << "]\n";
+        std::string libname;
+        std::string dso_key;
+        if ( line.empty() )
+          continue;
+
+        else if (line.substr (0, 8) == "Library.") {
+          Strings_t ll;
+          boost::algorithm::split(ll, line, 
+                                  boost::is_any_of(" "),
+                                  boost::token_compress_on);
+          if (ll.size() < 2) {
+            std::cerr << "DsoDb:: **error** could not parse " 
+                      << dsomap << ":" << line_nbr
+                      << "\n"
+                      << "DsoDb:: (some) reflex-dicts may fail to be autoloaded"
+                      << "\n";
+            continue;
+          }
+          libname = ll[1];
+          if (::is_rootcint_dict(libname)) {
+            continue;
+          }
+          dso_key = ll[0];
+          libname = ::getlibname(libname);
+          boost::algorithm::replace_all(dso_key, "Library.", "");
+          boost::algorithm::replace_all(dso_key, ":", "");
+          boost::algorithm::replace_all(dso_key, "@", ":");
+          boost::algorithm::replace_all(dso_key, "-", " ");
+        }
+
+        else if (line[0] == '[') {
+          libname = line.substr (1, line.size()-2);
+          boost::algorithm::trim (libname);
+          if (::is_rootcint_dict(libname)) {
+            lastlib.clear();
+            continue;
+          }
+          if (!libname.empty())
+            lastlib = ::getlibname (libname);
+          continue;
+        }
+
+        else if (line.substr(0, 8) == "# --End ") {
+           lastlib.clear();
+           continue;
+        }
+
+        else if (line.substr(0, 6) == "class ") {
+          libname = lastlib;
+          line.erase (0, 6);
+          dso_key = line;
+        }
+
+        else if (is_components && line.substr(0, 3) == "lib") {
+          std::string::size_type pos = line.find (':');
+          if (pos == std::string::npos) continue;
+          libname = line.substr(0, pos);
+          line.erase (0, pos+1);
+          dso_key = line;
+
+          if (dso_key.substr(0, 6) == "_PERS_" ||
+              dso_key.substr(0, 7) == "_TRANS_")
+            continue;
+
+          if (libname.find ("AthenaPoolPoolCnv") != std::string::npos)
+            continue;
+        }
+
+        if (libname.empty() || dso_key.empty()) continue;
+
+        const std::string fullpath_libname = to_string(dsomap.parent_path() / fs::path(libname));
+
+        // std::cerr << " [" << line << "] -> [" << dso_key << "] [" << libname << "]\n";
 
         DsoMap_t *db = NULL;
-        if (boost::algorithm::starts_with(dso_key, PluginNs)) {
+        if (boost::algorithm::starts_with(dso_key, PluginNs) || is_components) {
           db = &m_pf;
         } else {
           db = &m_db;

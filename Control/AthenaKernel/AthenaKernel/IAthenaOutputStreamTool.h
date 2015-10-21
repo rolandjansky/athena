@@ -14,7 +14,6 @@
  * $Id: IAthenaOutputStreamTool.h,v 1.4 2007-06-23 01:12:06 calaf Exp $
  */
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 // Gaudi
 #include "GaudiKernel/IAlgTool.h"
@@ -22,7 +21,6 @@
 #include <string>
 #include <vector>
 
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 class DataObject;
 namespace SG {
@@ -120,12 +118,11 @@ public:
     static const InterfaceID& interfaceID();
 };
 
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 inline
 const InterfaceID& 
 IAthenaOutputStreamTool::interfaceID() {
-  static const InterfaceID _IID("IAthenaOutputStreamTool", 1, 0);
-  return _IID;
+  static const InterfaceID IID("IAthenaOutputStreamTool", 1, 0);
+  return IID;
 }
 
 #endif // ATHENAKERNEL_IATHENAOUTPUTSTREAMTOOL_H

@@ -7,18 +7,16 @@
 #ifndef ATHENAKERNEL_ICLASSIDSVC_H
 # define ATHENAKERNEL_ICLASSIDSVC_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
 #include <string>
 
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ClassID.h"
 #include "GaudiKernel/StatusCode.h"
 
-//<<<<<< FORWARD DECLARATIONS                                           >>>>>>
 namespace Athena {
   class PackageInfo;
 }
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
+
 /** @class IClassIDSvc
  * @brief  interface to the CLID database
  * @author Paolo Calafiura <pcalafiura@lbl.gov> - ATLAS Collaboration
@@ -57,12 +55,11 @@ public:
   virtual ~IClassIDSvc();
 };
 
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 inline
 const InterfaceID& 
 IClassIDSvc::interfaceID() {
-  static const InterfaceID _IID("IClassIDSvc", 1, 0);
-  return _IID;
+  static const InterfaceID IID("IClassIDSvc", 1, 0);
+  return IID;
 }
 
 #endif // ATHENAKERNEL_ICLASSIDSVC_H

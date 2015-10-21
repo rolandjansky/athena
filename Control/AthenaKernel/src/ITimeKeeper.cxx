@@ -5,6 +5,6 @@
 #include "AthenaKernel/ITimeKeeper.h"
 const InterfaceID& 
 ITimeKeeper::interfaceID() {
-  static const InterfaceID _IID("ITimeKeeper", 1, 0);
-  return _IID;
+  static const InterfaceID IID("ITimeKeeper", 1, 0);
+  return IID;
 }

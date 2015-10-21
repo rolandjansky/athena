@@ -19,13 +19,11 @@
  *
  */
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "GaudiKernel/IAlgTool.h"
 
 #include <map>
 
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
 
 
 /**
@@ -52,10 +50,10 @@ public:
    static const InterfaceID& interfaceID();
 };
 
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
+
 inline const InterfaceID& IRegistrationStreamTool::interfaceID() {
-  static const InterfaceID _IID("IRegistrationStreamTool", 1, 0);
-  return _IID;
+  static const InterfaceID IID("IRegistrationStreamTool", 1, 0);
+  return IID;
 }
 
 #endif // ATHENAKERNEL_IREGISTRATIONSTREAMTOOL_H

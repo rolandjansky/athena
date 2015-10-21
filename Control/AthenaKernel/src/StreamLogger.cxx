@@ -45,9 +45,9 @@ StreamLogger::StreamLogger(std::ostream& ost): m_isMine(0) , p_ost(0),
                                                m_level (MSG::INFO)
 {
   p_ost = &ost;
-  if (ost == std::cerr) {
+  if (&ost == &std::cerr) {
     m_name = "STDERR";
-  } else if ( ost == std::cout) {
+  } else if ( &ost == &std::cout) {
     m_name = "STDOUT";
   } else {
     m_name = "unknown ostream";

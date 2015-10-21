@@ -7,10 +7,10 @@
 #ifndef ATHENAKERNEL_IHIVESTOREMGR_H
 # define ATHENAKERNEL_IHIVESTOREMGR_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
+
 #include "GaudiKernel/INamedInterface.h"
 
-//<<<<<< FORWARD DECLARATIONS                                           >>>>>
+
 namespace SG {
   class DataProxy;
 }
@@ -51,12 +51,12 @@ public:
   /// Gaudi boilerplate
   static const InterfaceID& interfaceID();
 };
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
+
 inline
 const InterfaceID& 
 IHiveStoreMgr::interfaceID() {
-  static const InterfaceID _IID("IHiveStoreMgr", 1, 0);
-  return _IID;
+  static const InterfaceID IID("IHiveStoreMgr", 1, 0);
+  return IID;
 }
 #endif // ATHENAKERNEL_IHIVESTOREMGR_H
 
