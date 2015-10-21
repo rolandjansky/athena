@@ -73,7 +73,8 @@ private:
   FTKRegionMap *m_rmap; //  pointer to the RMAP object
   int m_ntowers;
   int m_nplanes;
-  
+
+ 
   bool m_SaveRawHits; //  flag to allow to store FTKRawHit collections, pmap non applied
   bool m_SaveHits; //  flag to allow to store FTKHit collections, pmap applied
   bool m_SavePerPlane; //  flag to allow to store per-plane TTree
@@ -112,6 +113,13 @@ private:
   TTree *m_evtinfo; /** TTree with general event information */
   int m_run_number; /** event's run number */
   int m_event_number; /** event number */
+  float m_averageInteractionsPerCrossing;
+  float m_actualInteractionsPerCrossing;
+  int m_LB;
+  int m_BCID;
+  int m_extendedLevel1ID;
+  int m_level1TriggerType;
+  std::vector<unsigned int> m_level1TriggerInfo;
 
   TTree *m_trackstree;
   std::vector<FTKTruthTrack> m_truth_tracks;
@@ -139,6 +147,7 @@ private:
   std::string m_ftkSctTruthName; /** name of FTK SCT ID Truth collection */
   std::string m_mcTruthName;  /** Truth collection name */
 
+  std::vector<int> m_L1ID_to_save; // vector of L1ID to save, if empty save all
 
 };
 
