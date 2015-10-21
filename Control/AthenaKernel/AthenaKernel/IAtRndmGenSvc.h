@@ -13,16 +13,14 @@
 #ifndef ATHENAKERNEL_IATRNDMGENSVC_H
 # define ATHENAKERNEL_IATRNDMGENSVC_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
 #include "GaudiKernel/IService.h"
 #include <string>
 #include "stdint.h"
 
-//<<<<<< FORWARD DECLARATIONS                                           >>>>>>
 namespace CLHEP {
    class HepRandomEngine;
 }
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
+
 class IAtRndmGenSvc : virtual public IService {
 public:
   /// Interface to the CLHEP engine
@@ -57,8 +55,8 @@ public:
 inline
 const InterfaceID& 
 IAtRndmGenSvc::interfaceID() {
-  static const InterfaceID _IID("IAtRndmGenSvc", 1, 0);
-  return _IID;
+  static const InterfaceID IID("IAtRndmGenSvc", 1, 0);
+  return IID;
 }
 
 #endif // ATHENAKERNEL_IATRNDMGENSVC_H

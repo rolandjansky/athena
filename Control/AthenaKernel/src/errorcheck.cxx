@@ -58,9 +58,9 @@ std::string clean_allocator (std::string f)
 }
 
 
-std::string munge_string_name (const std::string& s_in)
+std::string munge_string_name (const std::string& str_in)
 {
-  std::string s = s_in;
+  std::string s = str_in;
 
   std::string::size_type ipos = 0;
   while ((ipos = s.find ("std::basic_string<", ipos)) != std::string::npos) {
@@ -88,9 +88,9 @@ std::string munge_string_name (const std::string& s_in)
 }
 
 
-std::string munge_punct (const std::string& s_in)
+std::string munge_punct (const std::string& str_in)
 {
-  std::string s = s_in;
+  std::string s = str_in;
   for (size_t i = 0; i < s.size()-1; i++) {
     if (s[i] == ' ' && (s[i+1] == '*' || s[i+1] == '&'))
       s.erase (i, 1);
@@ -110,10 +110,10 @@ std::string do_replace (std::string s,
 }
 
 
-std::string munge_names (const std::string& s_in)
+std::string munge_names (const std::string& str_in)
 {
   std::string s =
-    do_replace (s_in, "SG::DataProxyStorageData::pointer", "void*");
+    do_replace (str_in, "SG::DataProxyStorageData::pointer", "void*");
   s = do_replace (s, "DPSD::pointer", "void*");
   s = do_replace (s, "SG::auxid_t", "unsigned long");
   s = do_replace (s, "auxid_t", "unsigned long");

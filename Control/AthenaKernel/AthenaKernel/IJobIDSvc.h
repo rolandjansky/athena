@@ -7,18 +7,16 @@
 #ifndef ATHENAKERNEL_IJOBIDSVC_H
 #define ATHENAKERNEL_IJOBIDSVC_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/StatusCode.h"
 
 #include <string>
 #include "uuid/uuid.h"
 
-//<<<<<< FORWARD DECLARATIONS                                           >>>>>>
 namespace Athena {
 class PackageInfo;
 }
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
+
 /** @class IJobIDSvc
  * @brief  interface to JobIDSvc
  * @author Yushu Yao <yyao@lbl.gov> - ATLAS Collaboration
@@ -41,11 +39,11 @@ public:
 	static const InterfaceID& interfaceID();
 };
 
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
+
 inline
 const InterfaceID& IJobIDSvc::interfaceID() {
-	static const InterfaceID _IID("IJobIDSvc", 1, 0);
-	return _IID;
+	static const InterfaceID IID("IJobIDSvc", 1, 0);
+	return IID;
 }
 
 #endif // ATHENAKERNEL_IJOBIDSVC_H

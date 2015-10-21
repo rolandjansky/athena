@@ -22,8 +22,8 @@ public:
   /// returns the time offset of the current trigger
   virtual double time() = 0;
   static const InterfaceID& interfaceID() {
-    static const InterfaceID _IID( "ITriggerTime", 1, 0 );
-    return _IID;
+    static const InterfaceID IID( "ITriggerTime", 1, 0 );
+    return IID;
   }
 };
 #endif

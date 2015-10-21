@@ -87,12 +87,12 @@ public:
 			    const bool resetCache=false) = 0;
 };
 
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
+
 inline
 const InterfaceID& 
 IIOVDbSvc::interfaceID() {
-    static const InterfaceID m_IID("IOVDbSvc", 1, 0);
-    return m_IID;
+    static const InterfaceID IID("IOVDbSvc", 1, 0);
+    return IID;
 }
 
 #endif

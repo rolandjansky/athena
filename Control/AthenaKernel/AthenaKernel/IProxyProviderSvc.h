@@ -13,7 +13,6 @@
 #ifndef ATHENAKERNEL_IPROXYPROVIDERSVC_H
 # define ATHENAKERNEL_IPROXYPROVIDERSVC_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
 #include <string>
 #include <list>
 #include "AthenaKernel/StoreID.h"
@@ -21,7 +20,6 @@
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ClassID.h"
 
-//<<<<<< FORWARD DECLARATIONS                                             >>>>>>
 class IAddressProvider;
 class IProxyRegistry; //this is the store
 
@@ -32,7 +30,6 @@ namespace SG {
 
 class IOpaqueAddress;
 
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
 class IProxyProviderSvc : virtual public IService {
 public:
   /// add proxies to the store before Begin Event:
@@ -58,12 +55,11 @@ public:
   virtual ~IProxyProviderSvc() {}
 };
 
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
 inline
 const InterfaceID&
 IProxyProviderSvc::interfaceID() {
-  static InterfaceID _ID("IProxyProviderSvc", 0 , 0);
-  return _ID;
+  static InterfaceID ID("IProxyProviderSvc", 0 , 0);
+  return ID;
 }
 
 #endif // ATHENAKERNEL_IPROXYPROVIDERSVC_H

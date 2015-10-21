@@ -42,8 +42,8 @@ public:
 inline
 const InterfaceID& 
 IAthenaSummarySvc::interfaceID() {
-    static const InterfaceID m_IID("IAthenaSummarySvc", 1, 0);
-    return m_IID;
+    static const InterfaceID IID("IAthenaSummarySvc", 1, 0);
+    return IID;
 }
 
 #endif

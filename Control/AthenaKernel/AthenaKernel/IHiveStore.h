@@ -7,10 +7,9 @@
 #ifndef ATHENAKERNEL_IHIVESTORE_H
 # define ATHENAKERNEL_IHIVESTORE_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
+
 #include "GaudiKernel/INamedInterface.h"
 
-//<<<<<< FORWARD DECLARATIONS                                           >>>>>
 
 class IProxyDictWithPool;
 
@@ -18,7 +17,7 @@ class IProxyDictWithPool;
  * @brief the interface that provides access to the current hive store
  *
  * @author Paolo Calafiura - ATLAS
- *  $Id: IHiveStore.h 547194 2013-05-08 23:04:59Z leggett $
+ *  $Id: IHiveStore.h 702201 2015-10-21 21:01:04Z ssnyder $
  */
 
 class IHiveStore : virtual public INamedInterface {
@@ -31,12 +30,12 @@ public:
   /// Gaudi boilerplate
   static const InterfaceID& interfaceID();
 };
-//<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>
+
 inline
 const InterfaceID& 
 IHiveStore::interfaceID() {
-  static const InterfaceID _IID("IHiveStore", 1, 0);
-  return _IID;
+  static const InterfaceID IID("IHiveStore", 1, 0);
+  return IID;
 }
 #endif // ATHENAKERNEL_IHIVESTORE_H
 

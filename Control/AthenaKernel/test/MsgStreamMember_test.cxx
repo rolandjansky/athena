@@ -96,8 +96,8 @@ int main() {
 
   longlong t2(System::currentTime(System::microSec));
 
-  std::cout << "Wall clock time to create a MsgStreamMember (microsec)" << (t1-t0) / 1000. <<std::endl;
-  std::cout << "Wall clock time to print bla using MsgStreamMember (microsec)" << (t2-t1)/10. <<std::endl;
+  std::cout << "Wall clock time to create a MsgStreamMember (microsec)" << (t1-t0) * 1e-3 <<std::endl;
+  std::cout << "Wall clock time to print bla using MsgStreamMember (microsec)" << (t2-t1) * 0.1 <<std::endl;
   
 
   pMS->addRef();

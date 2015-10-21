@@ -38,8 +38,8 @@ public:
 };
 
 inline const InterfaceID& IAthenaSelectorTool::interfaceID() {
-   static const InterfaceID _IID("IAthenaSelectorTool", 1, 0);
-   return _IID;
+   static const InterfaceID IID("IAthenaSelectorTool", 1, 0);
+   return IID;
 }
 
 #endif
