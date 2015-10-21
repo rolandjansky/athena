@@ -29,7 +29,7 @@ MDTSensitiveDetectorCosmics::MDTSensitiveDetectorCosmics(const std::string& name
 }
 
 // Implemenation of member functions
-void MDTSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*) 
+void MDTSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*)
 {
   if (!m_MDTHitColl.isValid()) m_MDTHitColl = CxxUtils::make_unique<MDTSimHitCollection>();
   m_driftRadius = DEFAULT_TUBE_RADIUS;
@@ -38,15 +38,15 @@ void MDTSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*)
 }
 
 G4bool MDTSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) {
-  
-  G4Track* currentTrack = aStep->GetTrack(); 
-    
+
+  G4Track* currentTrack = aStep->GetTrack();
+
   // MDTs sensitive to charged particle only
   if (currentTrack->GetDefinition()->GetPDGCharge() == 0.0) {
     if (currentTrack->GetDefinition()!=G4Geantino::GeantinoDefinition()) return true;
     else if (currentTrack->GetDefinition()==G4ChargedGeantino::ChargedGeantinoDefinition()) return true;
   }
-   
+
   G4VPhysicalVolume*  physVolPostStep = aStep->GetPostStepPoint()->GetPhysicalVolume();
   if (0 == physVolPostStep)  return true;
 
@@ -55,7 +55,7 @@ G4bool MDTSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
   double     driftRadius;
   Amg::Vector3D localPosition;
   localPosition.setZero();
-  	    
+
   // get top transformation
   const G4AffineTransform trans = currentTrack->GetTouchable()->GetHistory()->GetTopTransform();
 
@@ -69,31 +69,31 @@ G4bool MDTSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
 
   G4int trackid = aStep->GetTrack()->GetTrackID();
   currVertex = Amg::Hep3VectorToEigen( aStep->GetTrack()->GetVertexPosition() );
-    
+
   // for cosmics: only primary muon tracks - track momentum when first entering the spectrometer (one muon per event)
   if ((currVertex != vertex) && (trackid == 1)) {
-    // after calculationg the momentum magnidude, normalize it 
+    // after calculationg the momentum magnidude, normalize it
     mom = Amg::Hep3VectorToEigen( currentTrack->GetMomentum() );
     momMag = mom.mag();
     mom.normalize();
     // the direction of the primary mu is used to calculate the t0, the position ot the t0, globH, is ONE for a track
     Amg::Vector3D globVrtxFix = Amg::Hep3VectorToEigen( globVrtx );
-    double AlphaGlobal = -1*(globVrtxFix[0]*mom[0] + globVrtxFix[1]*mom[1] + globVrtxFix[2]*mom[2])/(mom[0]*mom[0] + mom[1]*mom[1] + mom[2]*mom[2]);   
-    globH = globVrtxFix + AlphaGlobal*mom;     
-//     G4cout << "COSMICS MAIN TRACK IN THE MDT!" << G4endl; 
-  }  
+    double AlphaGlobal = -1*(globVrtxFix[0]*mom[0] + globVrtxFix[1]*mom[1] + globVrtxFix[2]*mom[2])/(mom[0]*mom[0] + mom[1]*mom[1] + mom[2]*mom[2]);
+    globH = globVrtxFix + AlphaGlobal*mom;
+//     G4cout << "COSMICS MAIN TRACK IN THE MDT!" << G4endl;
+  }
   double globalDist = sqrt((globH[0] - globVrtx[0])*(globH[0] - globVrtx[0]) +
-  			   (globH[1] - globVrtx[1])*(globH[1] - globVrtx[1]) +
-  			   (globH[2] - globVrtx[2])*(globH[2] - globVrtx[2]));
+                           (globH[1] - globVrtx[1])*(globH[1] - globVrtx[1]) +
+                           (globH[2] - globVrtx[2])*(globH[2] - globVrtx[2]));
   double tof = globalDist / lightspeed;
-  
+
   // transform pre and post step positions to local positions
   Amg::Vector3D localVertex1( Amg::Hep3VectorToEigen( trans.TransformPoint(aStep->GetPreStepPoint()->GetPosition()) ) );
   Amg::Vector3D localVertex2( Amg::Hep3VectorToEigen( trans.TransformPoint(aStep->GetPostStepPoint()->GetPosition()) ) );
-  
+
   // calculate local direction from begin- and end-point of the step
   Amg::Vector3D localDirection( (localVertex2 - localVertex1) );  // normalized
-  localDirection.z() = 0.;       // look in xy-plane 
+  localDirection.z() = 0.;       // look in xy-plane
 
   // See if particle passed wire by projecting begin- and end-point on the step direction
   if( (localVertex2.dot(localDirection)) * (localVertex1.dot(localDirection)) < 0 ) { // particle passed wire
@@ -105,7 +105,7 @@ G4bool MDTSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
     double Ydir = localDirection[1];
 
     double Alpha = -1*(Xpos*Xdir + Ypos*Ydir)/(Xdir*Xdir + Ydir*Ydir);   // localPosition*localDirection
-    
+
     localPosition = localVertex1 + Alpha*(localVertex2-localVertex1);
     driftRadius = localPosition.perp();
     globalTime = aStep->GetPreStepPoint()->GetGlobalTime();  // take pre step time
@@ -118,11 +118,11 @@ G4bool MDTSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
     if( dist1 < dist2 ){  // first is closer
       driftRadius = dist1;
       localPosition = localVertex1;
-      globalTime = aStep->GetPreStepPoint()->GetGlobalTime();   
+      globalTime = aStep->GetPreStepPoint()->GetGlobalTime();
     }else{                // second is closer
       driftRadius = dist2;
       localPosition = localVertex2;
-      globalTime = aStep->GetPostStepPoint()->GetGlobalTime();   
+      globalTime = aStep->GetPostStepPoint()->GetGlobalTime();
     }
   }
   vertex = Amg::Hep3VectorToEigen( aStep->GetTrack()->GetVertexPosition() );
@@ -135,11 +135,11 @@ G4bool MDTSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
     // before founding the good one (small approximation)
     m_localPosition = localPosition;
   }
-  
+
   // check if particle left tube or stopped in tube
   G4String  namePreStepMat  = aStep->GetPreStepPoint()->GetMaterial()->GetName();
   G4String  namePostStepMat = aStep->GetPostStepPoint()->GetMaterial()->GetName();
-  G4String  nameSD          = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetSensitiveDetector()->GetName();	  
+  G4String  nameSD          = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetSensitiveDetector()->GetName();
 
   // see if we were in the sensitive volume and left it, or the particle was killed
   if( ((nameSD) && (namePreStepMat != namePostStepMat)) || (currentTrack->GetTrackStatus() ==  fStopAndKill)){
@@ -149,11 +149,11 @@ G4bool MDTSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
     int MDTid = GetIdentifier(touchHist);
 
     // construct new mdt hit
-    m_MDTHitColl->Emplace(MDTid, m_globalTime, m_driftRadius, m_localPosition, trackid, 
-				    aStep->GetStepLength(),
-				    aStep->GetTotalEnergyDeposit(), 
-				    currentTrack->GetDefinition()->GetPDGEncoding(), 
-				    aStep->GetPreStepPoint()->GetKineticEnergy());
+    m_MDTHitColl->Emplace(MDTid, m_globalTime, m_driftRadius, m_localPosition, trackid,
+                          aStep->GetStepLength(),
+                          aStep->GetTotalEnergyDeposit(),
+                          currentTrack->GetDefinition()->GetPDGEncoding(),
+                          aStep->GetPreStepPoint()->GetKineticEnergy());
 
     m_driftRadius = DEFAULT_TUBE_RADIUS; // reset start value of driftRadius
   }
@@ -169,7 +169,7 @@ int MDTSensitiveDetectorCosmics::GetIdentifier(G4TouchableHistory* touchHist)
   int         multilayer=0;
   int         tubeLayer=0;
   int         tube=0;
-  
+
   bool isAssembly = false;
   // scan geometry tree to identify the tube
   for (int i = touchHist->GetHistoryDepth(); i>=0; i--) {
@@ -179,7 +179,7 @@ int MDTSensitiveDetectorCosmics::GetIdentifier(G4TouchableHistory* touchHist)
     std::string::size_type loc2;
     std::string volName = touchHist->GetVolume(i)->GetName();
 
-    // check if this station is an assembly 
+    // check if this station is an assembly
     if ((npos = volName.find("av_")) != std::string::npos &&
         (npos = volName.find("impr_")) != std::string::npos)  isAssembly = true;
 
@@ -188,13 +188,13 @@ int MDTSensitiveDetectorCosmics::GetIdentifier(G4TouchableHistory* touchHist)
 
       volName       = volName.substr(0,npos-2);
       int volCopyNo = touchHist->GetVolume(i)->GetCopyNo();
-      volCopyNo=volCopyNo%1000; 
+      volCopyNo=volCopyNo%1000;
       stationName   = volName;
       stationEta    = volCopyNo/100;
       stationPhi    = abs(volCopyNo%100);
 
     } else if ((npos = volName.find("MDT")) != std::string::npos && isAssembly) {
-        
+
       // vol name for Assembly components are
       // av_WWW_impr_XXX_Muon::BMSxMDTxx_pv_ZZZ_NAME
       //                                               where WWW is ass. istance nr.
@@ -210,7 +210,7 @@ int MDTSensitiveDetectorCosmics::GetIdentifier(G4TouchableHistory* touchHist)
       //                geoIdentifierTag of the assembly = (sideC*10000 +
       //                             mirsign*1000 + abs(zi)*100 + fi+1)*100000;
       //                             mirsign*1000 + abs(zi)*100 + fi+1)*100000;
-      // 
+      //
       if ((loc1 = volName.find("Muon::")) != std::string::npos) {
         stationName = volName.substr(loc1+6,3);
       }
@@ -223,7 +223,7 @@ int MDTSensitiveDetectorCosmics::GetIdentifier(G4TouchableHistory* touchHist)
       if (sideC == 1) zi = -zi;
       stationEta = zi;
       stationPhi = fi;
-        
+
       int gmID = 0;
       if ((loc1 = volName.find("[")) != std::string::npos) {
         if ((loc2 = volName.find("]", loc1+1)) != std::string::npos) {
@@ -247,6 +247,6 @@ int MDTSensitiveDetectorCosmics::GetIdentifier(G4TouchableHistory* touchHist)
       tube      = touchHist->GetVolume(i)->GetCopyNo()%100;
     }
   }
-  //construct the hit identifier	    
+  //construct the hit identifier
   return m_muonHelper->BuildMdtHitId(stationName, stationPhi, stationEta, multilayer,tubeLayer, tube);
 }
