@@ -5,6 +5,7 @@ private
 use NavFourMom		NavFourMom-*		Event
 use Navigation		Navigation-*		Control
 use CaloEvent           CaloEvent-*             Calorimeter
+use CaloRec           	CaloRec-*		Calorimeter
 use CaloUtils      	CaloUtils-*		Calorimeter
 use CxxUtils       	CxxUtils-*		Control
 use xAODJet             xAODJet-*		Event/xAOD

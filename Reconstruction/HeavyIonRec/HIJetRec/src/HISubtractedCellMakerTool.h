@@ -7,6 +7,8 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
+#include "HIJetRec/IHIUEModulatorTool.h"
+#include "AsgTools/ToolHandle.h"
 
 #include <string>
 #include <vector>
@@ -24,9 +26,11 @@ public:
 
 private:
   std::string m_event_shape_key;
-  std::vector<unsigned int> m_flow_harmonics;
+  ToolHandle<IHIUEModulatorTool> m_modulator_tool;
+
 
 
 };
 
 #endif
+

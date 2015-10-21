@@ -1,7 +1,7 @@
 from HIJetRec.HIJetRecFlags import HIJetFlags
 from HIGlobal.HIGlobalFlags import jobproperties
 from JetRec.JetRecFlags import jetFlags
-jetFlags.debug=2
+jetFlags.debug=3
 jetFlags.timeJetRecTool=2
 jetFlags.timeJetToolRunner=2
 jetFlags.useCells.set_Value(True);
@@ -32,11 +32,6 @@ from  HIJetRec.HIJetRecTools import jtm
 ###
 ##truth jets
 if jetFlags.useTruth(): 
-    if not used_JetRec :
-        from JetRec.JetFlavorAlgs import scheduleCopyTruthParticles
-        scheduleCopyTruthParticles(topSequence)
-
-
     for R in HIJetFlags.AntiKtRValues() : 
         tname="AntiKt%dTruthJets" % int(10*R)
         if tname in jtm.tools : continue
@@ -59,26 +54,35 @@ if jetFlags.useTracks():
 
 #initial unsubtracted jets
 for R in HIJetFlags.AntiKtRValues() :  AddHIJetFinder(R)
-
 seeds0=jtm.addJetCopier("AntiKt2HIJets_%s0" % HIJetFlags.SeedSuffix(),"AntiKt2HIJets_Unsubtracted",[jtm.discrim],shallow=False)
-iter0=AddIteration(suffix="iter0",seed_container=seeds0.OutputContainer,shape_name=EventShapeKey)
+iter0=AddIteration(seed_container=seeds0.OutputContainer,shape_name=EventShapeKey,suffix="iter0")
+modulator0=iter0.Modulator
+subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,modulator=modulator0)
 
-subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey)
-seeds1=jtm.addJetCopier("AntiKt2HIJets_%s1" % HIJetFlags.SeedSuffix(),"AntiKt2HIJets_Unsubtracted",[subtr1,jtm.jetfil20],shallow=False) #add calib tool
+#seeds1=jtm.addJetCopier("AntiKt2HIJets_%s1" % HIJetFlags.SeedSuffix(),"AntiKt2HIJets_Unsubtracted",[subtr1,jtm.HICalibTool,jtm.jetfil20],shallow=False) #add calib tool
+seeds1=jtm.addJetCopier("AntiKt2HIJets_%s1" % HIJetFlags.SeedSuffix(),"AntiKt2HIJets_Unsubtracted",[subtr1,jtm.HICalibTool,jtm.jetfil20],shallow=False) #add calib tool
 
 # if jetFlags.useTracks() :
 #     seeds1a=jtm.addJetCopier("AntiKt2HIJets_seeds1","AntiKt2HIJets_Unsubtracted",[subtr1,jtm.jetfil20],shallow=False) #add calib tool
 #     seeds1= copy operation (seeds1a.OutputContainer,HIJetFlags.TrackJetContainerName())
 
 
-iter1=AddIteration(suffix="iter1",seed_container=seeds1.OutputContainer,shape_name=EventShapeKey)
+iter1=AddIteration(seed_container=seeds1.OutputContainer,shape_name=EventShapeKey,suffix="iter1")
 HIJetFlags.IteratedEventShapeKey=iter1.OutputEventShapeKey
-subtr2=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey())
+modulator1=iter1.Modulator
+jtm.modulator=modulator1
+subtr2=MakeSubtractionTool(HIJetFlags.IteratedEventShapeKey(),modulator=modulator1)
 
-ApplySubtractionToClusters(event_shape_key=HIJetFlags.IteratedEventShapeKey(), cluster_key=ClusterKey)
-subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,moment_name="subtr1",momentOnly=True)
+ApplySubtractionToClusters(event_shape_key=HIJetFlags.IteratedEventShapeKey(), cluster_key=ClusterKey, modulator=modulator1,CalculateMoments=True)
+subtr1=MakeSubtractionTool(iter0.OutputEventShapeKey,moment_name="NoIteration",momentOnly=True,modulator=modulator0)
+
+
 #put subtraction tool at the FRONT of the jet modifiers list
 hi_tools=[subtr1,subtr2]
+hi_tools+=GetFlowMomentTools(iter1.OutputEventShapeKey,iter1.ModulationEventShapeKey)
+#hi_tools+=BuildFlowMomentTools(iter0.OutputEventShapeKey)
+#need jet's constituent state to match subtracted state of clusters (AltCalib).
+#hi_tools += jtm.jetorigincorr
 hi_tools += jtm.modifiersMap['HI']
 jtm.modifiersMap['HI']=hi_tools
 

@@ -65,3 +65,12 @@ pdr.flag_domain('egamma')
 if rec.doEgamma() : protectedInclude( "egammaRec/egammaRec_jobOptions.py" )
 from AODFix.AODFix import AODFix_postEgammaRec
 AODFix_postEgammaRec()
+
+#now fix isolation
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+iso=getattr(topSequence,"IsolationBuilder")
+topSequence.remove(iso)
+iso.EgIsoTypes=iso.MuIsoTypes
+iso.CellCollectionName='SubtractedCells'
+topSequence+=iso

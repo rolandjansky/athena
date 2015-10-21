@@ -7,12 +7,13 @@
 
 #include "AsgTools/AsgTool.h"
 #include <string>
-#include <vector>
-#include <set>
 #include "JetInterface/IJetExecuteTool.h"
-#include "HIJetRec/IHISubtractorTool.h"
 #include "AsgTools/ToolHandle.h"
 #include "xAODHIEvent/HIEventShapeContainer.h"
+
+
+#include "HIJetRec/IHISubtractorTool.h"
+#include "HIJetRec/IHIUEModulatorTool.h"
 
 
 class HIEventShapeJetIteration : virtual public IJetExecuteTool,
@@ -28,6 +29,7 @@ public:
 
 private:
   ToolHandle<IHISubtractorTool> m_subtractor_tool;
+  ToolHandle<IHIUEModulatorTool> m_modulator_tool;
 
   /// \brief Name of input HIEventShapeContainer
   std::string m_input_event_shape_key;
@@ -49,6 +51,10 @@ private:
 
   mutable bool m_isInit;
 
+  bool m_do_remodulation;
+  unsigned int m_modulation_scheme;
+  std::string m_modulation_key;
+  
 };
 
 #endif
