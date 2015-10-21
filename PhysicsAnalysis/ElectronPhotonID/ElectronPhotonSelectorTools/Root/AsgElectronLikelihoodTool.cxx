@@ -86,8 +86,12 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(std::string myname) :
   declareProperty("CutSi",m_rootTool->CutSi,"Cut on precision hits");
   // turn off f3 at high Et
   declareProperty("doRemoveF3AtHighEt",m_rootTool->doRemoveF3AtHighEt,"Turn off f3 at high Et");
+  // turn off TRTPID at high Et
+  declareProperty("doRemoveTRTPIDAtHighEt",m_rootTool->doRemoveTRTPIDAtHighEt,"Turn off TRTPID at high Et");
   // use smooth interpolation between LH bins
   declareProperty("doSmoothBinInterpolation",m_rootTool->doSmoothBinInterpolation,"use smooth interpolation between LH bins");
+  // use binning for high ET LH
+  declareProperty("useHighETLHBinning",m_rootTool->useHighETLHBinning,"Use binning for high ET LH");
   // do pileup-dependent transform on discriminant value
   declareProperty("doPileupTransform",m_rootTool->doPileupTransform,"Do pileup-dependent transform on discriminant value");
   // reference disc for very hard cut; used by pileup transform
@@ -189,10 +193,14 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     m_rootTool->CutDeltaPhiRes = AsgConfigHelper::HelperDouble("CutDeltaPhiRes", env);
     // turn off f3 at high Et
     m_rootTool->doRemoveF3AtHighEt = env.GetValue("doRemoveF3AtHighEt", false);
+    // turn off TRTPID at high Et
+    m_rootTool->doRemoveTRTPIDAtHighEt = env.GetValue("doRemoveTRTPIDAtHighEt", false);
     // do smooth interpolation between bins
     m_rootTool->doSmoothBinInterpolation = env.GetValue("doSmoothBinInterpolation", false);
     m_operatingPoint = env.GetValue("OperatingPoint", 0);
     m_caloOnly = env.GetValue("caloOnly", false);
+
+    m_rootTool->useHighETLHBinning = env.GetValue("useHighETLHBinning", false);
 
     m_rootTool->doPileupTransform = env.GetValue("doPileupTransform", false);
     m_rootTool->DiscHardCutForPileupTransform = AsgConfigHelper::HelperDouble("DiscHardCutForPileupTransform",env);
