@@ -478,7 +478,7 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
   }
 
   //  TileRawChannel *rawCh = new TileRawChannel(adcId,amp_ch,t_ch,chisq_ch);
-  static DataPool<TileRawChannel> tileRchPool(m_dataPoollSize);
+  DataPool<TileRawChannel> tileRchPool(m_dataPoollSize);
   TileRawChannel *rawCh = tileRchPool.nextElementPtr();
   rawCh->m_adc_hwid = adcId;
   rawCh->m_amplitude.resize(7);

@@ -198,6 +198,8 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     std::vector<CaloAffectedRegionInfo> m_affectedRegionInfo_global;
     std::vector<CaloAffectedRegionInfo> m_affectedRegionInfo_current_run;
 
+    int m_useDemoCabling;
+    
     void correctCell(TileCell* pCell, int correction, int pmt, int gain, float ener, float time,
         unsigned char iqual, unsigned char qbit, int ch_type); //!< Compute calibrated energy, time, etc. for TileCell and adjust it.
 

@@ -170,6 +170,8 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   declareProperty("TimeMaxForAmpCorrection", m_timeMaxThresh = 25.0);
 
   declareProperty("SkipGain", m_skipGain = -1); // never skip any gain by default
+
+  declareProperty("UseDemoCabling", m_useDemoCabling = 0); // if set to 2015 - assume TB 2015 cabling
 }
 
 /**
