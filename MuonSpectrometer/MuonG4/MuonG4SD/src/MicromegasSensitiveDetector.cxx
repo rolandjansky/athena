@@ -35,7 +35,7 @@ G4bool MicromegasSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory
   G4Track* currentTrack = aStep->GetTrack();
   int charge=currentTrack->GetDefinition()->GetPDGCharge();
   bool geantinoHit = (currentTrack->GetDefinition()==G4Geantino::GeantinoDefinition()) ||
-		     (currentTrack->GetDefinition()==G4ChargedGeantino::ChargedGeantinoDefinition());
+                     (currentTrack->GetDefinition()==G4ChargedGeantino::ChargedGeantinoDefinition());
 
   if (!charge && (!geantinoHit)) return false;
   //  G4cout << "\t\t MicromegasSD: Hit in a sensitive layer!!!!! " << G4endl;

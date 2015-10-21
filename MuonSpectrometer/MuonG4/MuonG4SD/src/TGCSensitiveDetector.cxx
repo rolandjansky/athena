@@ -23,23 +23,23 @@ TGCSensitiveDetector::TGCSensitiveDetector(const std::string& name, const std::s
 }
 
 // Implemenation of member functions
-void TGCSensitiveDetector::Initialize(G4HCofThisEvent*) 
+void TGCSensitiveDetector::Initialize(G4HCofThisEvent*)
 {
   if (!myTGCHitColl.isValid()) myTGCHitColl = CxxUtils::make_unique<TGCSimHitCollection>();
 }
 
 G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
-    
+
   G4Track* track = aStep->GetTrack();
-    
+
   if (track->GetDefinition()->GetPDGCharge() == 0.0) {
     if (track->GetDefinition()!=G4Geantino::GeantinoDefinition()) return true;
     else if (track->GetDefinition()==G4ChargedGeantino::ChargedGeantinoDefinition()) return true;
   }
-  G4TouchableHistory*     touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();	
+  G4TouchableHistory*     touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
   G4ThreeVector           position  = aStep->GetPreStepPoint()->GetPosition();
   const G4AffineTransform trans     = track->GetTouchable()->GetHistory()->GetTopTransform();
-    
+
   // helps computing 'gasGap' FIXME
   //    std::string technology = "";
 
@@ -52,15 +52,15 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
       std::string volName = touchHist->GetVolume(i)->GetName();
       if ((volName.find("Q02")) != std::string::npos) m_layout=Q02;
     }
-    G4cout << "TGCSensitiveDetector: Layout set to: " << m_layout << G4cout;
+    G4cout << "TGCSensitiveDetector: Layout set to: " << m_layout << G4endl;
   }
-    
+
   // fields for the TGC identifier construction
   std::string stationName;
   int stationEta(0);
   int stationPhi(0);
   int gasGap = 0;
-    
+
   // TGC hit information
   double globalTime        = aStep->GetPreStepPoint()->GetGlobalTime();
   Amg::Vector3D localPosition = Amg::Hep3VectorToEigen( trans.TransformPoint(position) );
@@ -71,18 +71,18 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
   int zside(0);
   bool isAssembly = false;
   for (int i=touchHist->GetHistoryDepth();i>=0;i--) {
-	
+
     std::string::size_type npos;
     std::string::size_type nposStat;
     std::string volName = touchHist->GetVolume(i)->GetName();
 
-    // check if this station is an assembly 
+    // check if this station is an assembly
     if ((npos = volName.find("av_")) != std::string::npos &&
         (npos = volName.find("impr_")) != std::string::npos)  isAssembly = true;
-        
-    // stationName and stationPhi	
+
+    // stationName and stationPhi
     if ((npos = volName.find("station")) != std::string::npos && (!isAssembly)) {
-	    
+
       stationName   = volName.substr(0,npos-2);
       int volCopyNo = touchHist->GetVolume(i)->GetCopyNo();
       if (volCopyNo > 0) {
@@ -90,7 +90,7 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
       } else {
         zside = -1;
       }
-      if (stationName.substr(2,1) == "F") { 
+      if (stationName.substr(2,1) == "F") {
 
         stationPhi    = (abs(volCopyNo%100)-1)*3;
         if (abs(volCopyNo/100) > 3) {
@@ -104,7 +104,7 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
           if (stationPhi <= 0) {
             stationPhi = 24 - stationPhi;
           }
-	    }
+        }
 
       } else if (stationName.substr(2,1) == "E") {
         if (stationName.substr(1,1) == "4") {
@@ -159,7 +159,7 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
       if ((loc1 = volName.find("Muon::")) != std::string::npos) {
         stationName = volName.substr(loc1+6,3); //type only
       }
-              
+
       int volCopyNo = touchHist->GetVolume(i)->GetCopyNo();
       int copyNrBase = int(volCopyNo/100000);
       int sideC  = int(copyNrBase/10000);
@@ -170,27 +170,27 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
       } else {
         zside = 1;
       }
-      if (stationName.substr(2,1) == "F") { 
-  
+      if (stationName.substr(2,1) == "F") {
+
         stationPhi    = (abs(copyNrBase%100)-1)*3;
         if (abs(copyNrBase/100) > 3) {
           stationPhi += abs(copyNrBase/100)-3;
         } else {
           stationPhi += abs(copyNrBase/100);
         }
-  
+
         if (m_layout == Q02) {
           stationPhi -= 1;
           if (stationPhi <= 0) {
             stationPhi = 24 - stationPhi;
           }
         }
-  
+
       } else if (stationName.substr(2,1) == "E") {
         if (stationName.substr(1,1) == "4") {
-  
+
           stationPhi = (abs(copyNrBase%100)-1)*3+abs(copyNrBase/100);
-  
+
           if (m_layout == Q02) { // layout Q02
             if (abs(copyNrBase%100) < 4) {
               stationPhi = stationPhi - 1;
@@ -204,9 +204,9 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
             }
           }
         } else {
-  
+
           stationPhi = (abs(copyNrBase%100)-1)*6+abs(copyNrBase/100);
-  
+
           if (m_layout == Q02) {
             stationPhi -= 2;
             if (stationPhi <= 0) {
@@ -215,8 +215,8 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
           }
         }
       }
-  
-      // now get the geoIdentifierTag of the rpc components 
+
+      // now get the geoIdentifierTag of the rpc components
       int gmID = 0;
       if ((loc1 = volName.find("[")) != std::string::npos) {
         if ((loc2 = volName.find("]", loc1+1)) != std::string::npos) {
@@ -227,7 +227,7 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
       // stationEta, stationPhi
       stationEta = zside*int(gmID%100);
       if (gmID > 999) stationPhi = gmID/1000;
-          
+
     // stationEta
     } else if ((npos = volName.find("tgccomponent")) != std::string::npos && (!isAssembly)) {
       int volCopyNo = abs(touchHist->GetVolume(i)->GetCopyNo());
@@ -251,36 +251,36 @@ G4bool TGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
           gasGap = (volCopyNo-3)/4+1;
       }
     } else if ((npos = volName.find("TGCGas")) != std::string::npos) {
-      
+
       std::string currentTech = volName.substr(0,4);
       int volCopyNo = touchHist->GetVolume(i)->GetCopyNo();
-  
+
       if (volCopyNo != 0)
         gasGap = volCopyNo;
-    }		
+    }
 
   }
 
-  //construct the hit identifier	    
+  //construct the hit identifier
   HitID TGCid = muonHelper->BuildTgcHitId(stationName,
-						stationPhi, 
-						stationEta,
-						gasGap);
+                                          stationPhi,
+                                          stationEta,
+                                          gasGap);
   //muonHelper->Print(TGCid);
-	
+
   // construct new tgc hit
   TrackHelper trHelp(aStep->GetTrack());
   int barcode = trHelp.GetBarcode();
-    
+
   myTGCHitColl->Emplace(TGCid,
-				      globalTime,
-				      localPosition,
-				      localDireCos,
-				      barcode,
-				      aStep->GetTotalEnergyDeposit(),
-				      aStep->GetStepLength(), 
-				      track->GetDefinition()->GetPDGEncoding(), 
-				      aStep->GetPreStepPoint()->GetKineticEnergy());
+                        globalTime,
+                        localPosition,
+                        localDireCos,
+                        barcode,
+                        aStep->GetTotalEnergyDeposit(),
+                        aStep->GetStepLength(),
+                        track->GetDefinition()->GetPDGEncoding(),
+                        aStep->GetPreStepPoint()->GetKineticEnergy());
   return true;
 }
 

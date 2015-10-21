@@ -11,7 +11,7 @@
 #include "G4ChargedGeantino.hh"
 
 #include "CxxUtils/make_unique.h" // For make unique
-#include "SimHelpers/DetectorGeometryHelper.h"
+//#include "SimHelpers/DetectorGeometryHelper.h"
 #include "MCTruth/TrackHelper.h"
 #include <sstream>
 
@@ -26,20 +26,20 @@ RPCSensitiveDetector::RPCSensitiveDetector(const std::string& name, const std::s
   muonHelper = RpcHitIdHelper::GetHelper();
 }
 
-void RPCSensitiveDetector::Initialize(G4HCofThisEvent*) 
+void RPCSensitiveDetector::Initialize(G4HCofThisEvent*)
 {
   if (!myRPCHitColl.isValid()) myRPCHitColl = CxxUtils::make_unique<RPCSimHitCollection>();
   //FIXME probably only need to call this bit at start of the event
   //loop rather than the start of each G4Event.
   if (verboseLevel>5) G4cout << "Initializing SD"  << G4endl;
-  DetectorGeometryHelper DGHelp;
+/*  DetectorGeometryHelper DGHelp;
   if(  DGHelp.GeometryType("Muon") == GeoModel ){
     m_isGeoModel = true;
     if (verboseLevel>5) G4cout << "Muon Geometry is from GeoModel" << G4endl;
   } else {
     m_isGeoModel = false;
     if (verboseLevel>5) G4cout << "Muon Geometry is from pure G4" << G4endl;
-  }
+  } */
 }
 
 G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
@@ -52,8 +52,8 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
       return true;
     }
   }
-    
-  G4TouchableHistory*     touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();	
+
+  G4TouchableHistory*     touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
   G4ThreeVector           position  = aStep->GetPreStepPoint()->GetPosition();
   G4ThreeVector           postPosition  = aStep->GetPostStepPoint()->GetPosition();
   const G4AffineTransform trans     = track->GetTouchable()->GetHistory()->GetTopTransform(); // from global to local
@@ -88,13 +88,13 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
   bool isAssembly = false;
   // scan geometry tree to identify the hit channel
   for (int i=touchHist->GetHistoryDepth();i>=0;i--) {
-  
+
     std::string::size_type npos;
     std::string volName = touchHist->GetVolume(i)->GetName();
     std::string num=volName.substr(3,2);
     if(num[0]==' ') num[0]=0;
 
-    // check if this station is an assembly 
+    // check if this station is an assembly
     if ((npos = volName.find("av_")) != std::string::npos &&
         (npos = volName.find("impr_")) != std::string::npos)  isAssembly = true;
 
@@ -102,7 +102,7 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
     if ((npos = volName.find("station")) != std::string::npos  && (!isAssembly)) {
 
       stationName = volName.substr(0,npos-1);
-  
+
       int volCopyNo = touchHist->GetVolume(i)->GetCopyNo();
 
       if(abs(volCopyNo/1000)==1){
@@ -110,9 +110,9 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
         volCopyNo=volCopyNo%1000;
       }
 
-      stationEta = volCopyNo/100;			
+      stationEta = volCopyNo/100;
       stationPhi = abs(volCopyNo%100);
-  
+
       if(stationEta<0&&!zNeg_original) station_rotated=1;
 
     // stationName, stationEta, stationPhi
@@ -139,7 +139,7 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
       if ((loc1 = volName.find("Muon::")) != std::string::npos) {
         stationName = volName.substr(loc1+6,4); //type and subtype
       }
-	    
+
       int volCopyNo = touchHist->GetVolume(i)->GetCopyNo();
       int copyNrBase = int(volCopyNo/100000);
       int sideC  = int(copyNrBase/10000);
@@ -153,10 +153,10 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
 
       if(stationEta<0&&!zNeg_original) station_rotated=1;
 
-      // doubletZ   = 1; 
+      // doubletZ   = 1;
       tech=volName.substr(npos,5);
 
-      // now get the geoIdentifierTag of the rpc components 
+      // now get the geoIdentifierTag of the rpc components
       int gmID = 0;
       if ((loc1 = volName.find("[")) != std::string::npos) {
         if ((loc2 = volName.find("]", loc1+1)) != std::string::npos) {
@@ -169,12 +169,12 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
 
       if (kk < 0) rpcIsRotated=1;
 
-      doubletR =(abs(kk)%1000)/100;	  
+      doubletR =(abs(kk)%1000)/100;
       mydbZ    = abs(int(kk%10));
       mydbPMod = abs(int(kk/1000));
     // doubleR, doubletZ
     } else if ((npos = volName.find("rpccomponent")) != std::string::npos && (!isAssembly)) {
- 
+
       std::string::size_type loc1,loc2;
       tech=volName.substr(npos-5,5);
       int gmID = 0;
@@ -186,27 +186,27 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
       }
       mydbZ    = abs(int(gmID%10));
       mydbPMod = abs(int(gmID/1000));
-          
+
       int kk=touchHist->GetVolume(i)->GetCopyNo();
 
       if (kk < 0) rpcIsRotated=1;
 
       doubletR=(abs(kk)%1000)/100;
- 
+
     } else if ((npos = volName.find("layer")) != std::string::npos) {
 
       int copyNo = touchHist->GetVolume(i)->GetCopyNo();
 
-      if (copyNo == 1) { 
+      if (copyNo == 1) {
         rpcIsRotated ? gasGap = 2 : gasGap = 1;
       } else if (copyNo ==2) {
         rpcIsRotated ? gasGap = 1 : gasGap = 2;
-      } 
-    } else if((npos = volName.find("gas volume")) != std::string::npos) { 
+      }
+    } else if((npos = volName.find("gas volume")) != std::string::npos) {
 
       int copyNo = touchHist->GetVolume(i)->GetCopyNo();
       if (copyNo == 0) {
-        doubletPhi = 1; 
+        doubletPhi = 1;
       } else if (copyNo == 10) {
         doubletPhi = 2;
       }
@@ -227,10 +227,10 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
         else mydbP=1;
       } else if (ngap_in_s == 1 && nstrippanel_in_s == 1) {
         mydbP = mydbPMod;
-      }          
-	}
+      }
+    }
   }
-    
+
   ////////////////////////////////////////////////
   // correct wrong IDs due to station rotation. only doubletZ and doubletPhi are affected at this point
   ////////////////////////////////////////////////
@@ -243,59 +243,59 @@ G4bool RPCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
     //      G4cout << "Rcd PC - swap dbPhi because ch is MIRRORED "<<doubletPhi << G4endl;
 
     // strip numbering: if the station is rotated both eta and phi directions get inversed.
-    // commented out for geomodel! 
+    // commented out for geomodel!
 
     if(!m_isGeoModel){
       localPosition.z() = -localPosition.z();
-      localPosition.y() = -localPosition.y();     
+      localPosition.y() = -localPosition.y();
       localPostPosition.z() = -localPostPosition.z();
-      localPostPosition.y() = -localPostPosition.y();     
+      localPostPosition.y() = -localPostPosition.y();
     }
   }
 
   // further correction on the eta direction due to rpc component rotation
   // commented for geomodel!
   if(!rpcIsRotated&&!m_isGeoModel) {
-    localPosition.z() = -localPosition.z(); 
-    localPostPosition.z() = -localPostPosition.z(); 
+    localPosition.z() = -localPosition.z();
+    localPostPosition.z() = -localPostPosition.z();
   }
   /////////////////////////////////////
 
   // now we have the position in the gas gap, with correct axis orientation, and the offlineIDs *of the strip panel*
   // nstrip is supposed to be calculated by RPC_Digitizer.
-    
+
   // construct two (one in eta and one in phi) new RPC hits and store them in hit collection
-    
+
   //construct the hit identifiers
   if (verboseLevel>5) {
-     G4cout << "hit in station "<<stationName<< " on technology "<<tech << G4endl;	
-     G4cout << "constructing ids (stName, stEta, stPhi, dr, dZ, dPhi)= "<<stationName<< " "<< stationEta<<" " << stationPhi<< " "<<doubletR<< " "<< mydbZ<< " "<<mydbP << G4endl;
+    G4cout << "hit in station "<<stationName<< " on technology "<<tech << G4endl;
+    G4cout << "constructing ids (stName, stEta, stPhi, dr, dZ, dPhi)= "<<stationName<< " "<< stationEta<<" " << stationPhi<< " "<<doubletR<< " "<< mydbZ<< " "<<mydbP << G4endl;
   }
-    
-  HitID RPCid_eta = muonHelper->BuildRpcHitId(stationName, stationPhi, stationEta, 
+
+  HitID RPCid_eta = muonHelper->BuildRpcHitId(stationName, stationPhi, stationEta,
                                               mydbZ, doubletR, gasGap, mydbP,0);
-    
-  HitID RPCid_phi = muonHelper->BuildRpcHitId(stationName, stationPhi, stationEta, 
+
+  HitID RPCid_phi = muonHelper->BuildRpcHitId(stationName, stationPhi, stationEta,
                                               mydbZ, doubletR, gasGap, mydbP,1);
 
   // retrieve track barcode
   TrackHelper trHelp(aStep->GetTrack());
-    
+
   int barcode = trHelp.GetBarcode();
-     
+
   //construct new rpc hit
   myRPCHitColl->Emplace(RPCid_eta, globalTime,
-					 localPosition, barcode, localPostPosition, 
-					 aStep->GetTotalEnergyDeposit(), 
-					 aStep->GetStepLength(), 
-					 track->GetDefinition()->GetPDGEncoding(), 
-					 aStep->GetPreStepPoint()->GetKineticEnergy());
+                        localPosition, barcode, localPostPosition,
+                        aStep->GetTotalEnergyDeposit(),
+                        aStep->GetStepLength(),
+                        track->GetDefinition()->GetPDGEncoding(),
+                        aStep->GetPreStepPoint()->GetKineticEnergy());
   myRPCHitColl->Emplace(RPCid_phi, globalTime,
-					 localPosition, barcode, localPostPosition, 
-					 aStep->GetTotalEnergyDeposit(), 
-					 aStep->GetStepLength(), 
-					 track->GetDefinition()->GetPDGEncoding(), 
-					 aStep->GetPreStepPoint()->GetKineticEnergy());
+                        localPosition, barcode, localPostPosition,
+                        aStep->GetTotalEnergyDeposit(),
+                        aStep->GetStepLength(),
+                        track->GetDefinition()->GetPDGEncoding(),
+                        aStep->GetPreStepPoint()->GetKineticEnergy());
 
   return true;
 }

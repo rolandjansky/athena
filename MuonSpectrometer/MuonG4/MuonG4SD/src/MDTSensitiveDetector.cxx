@@ -26,7 +26,7 @@ MDTSensitiveDetector::MDTSensitiveDetector(const std::string& name, const std::s
 }
 
 // Implemenation of memebr functions
-void MDTSensitiveDetector::Initialize(G4HCofThisEvent*) 
+void MDTSensitiveDetector::Initialize(G4HCofThisEvent*)
 {
   if (!m_MDTHitColl.isValid()) m_MDTHitColl = CxxUtils::make_unique<MDTSimHitCollection>();
   m_driftRadius = DEFAULT_TUBE_RADIUS;
@@ -34,7 +34,7 @@ void MDTSensitiveDetector::Initialize(G4HCofThisEvent*)
 
 G4bool MDTSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) {
   G4Track* currentTrack = aStep->GetTrack();
- 
+
   // MDTs sensitive to charged particle only
   if (currentTrack->GetDefinition()->GetPDGCharge() == 0.0) {
     if (currentTrack->GetDefinition()!=G4Geantino::GeantinoDefinition()) return true;
@@ -49,7 +49,7 @@ G4bool MDTSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
   double     driftRadius;
   Amg::Vector3D localPosition;
   localPosition.setZero();
-  	    
+
   // get top transformation
   const G4AffineTransform trans = currentTrack->GetTouchable()->GetHistory()->GetTopTransform();
 
@@ -57,10 +57,10 @@ G4bool MDTSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
 
   Amg::Vector3D localVertex1( Amg::Hep3VectorToEigen( trans.TransformPoint(aStep->GetPreStepPoint()->GetPosition()) ) );
   Amg::Vector3D localVertex2( Amg::Hep3VectorToEigen( trans.TransformPoint(aStep->GetPostStepPoint()->GetPosition()) ) );
-  
+
   // calculate local direction from begin- and end-point of the step
   Amg::Vector3D localDirection( (localVertex2 - localVertex1) );  // normalized
-  localDirection.z() = 0.;       // look in xy-plane 
+  localDirection.z() = 0.;       // look in xy-plane
 
   // See if particle passed wire by projecting begin- and end-point on the step direction
   if( (localVertex2.dot(localDirection)) * (localVertex1.dot(localDirection)) < 0 ) { // particle passed wire
@@ -72,7 +72,7 @@ G4bool MDTSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
     double Ydir = localDirection[1];
 
     double Alpha = -1*(Xpos*Xdir + Ypos*Ydir)/(Xdir*Xdir + Ydir*Ydir);   // localPosition*localDirection
-    
+
     localPosition = localVertex1 + Alpha*(localVertex2-localVertex1);
     driftRadius = localPosition.perp();
     globalTime = aStep->GetPreStepPoint()->GetGlobalTime();  // take pre step time
@@ -85,11 +85,11 @@ G4bool MDTSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
     if( dist1 < dist2 ){  // first is closer
       driftRadius = dist1;
       localPosition = localVertex1;
-      globalTime = aStep->GetPreStepPoint()->GetGlobalTime();   
+      globalTime = aStep->GetPreStepPoint()->GetGlobalTime();
     }else{                // second is closer
       driftRadius = dist2;
       localPosition = localVertex2;
-      globalTime = aStep->GetPostStepPoint()->GetGlobalTime();   
+      globalTime = aStep->GetPostStepPoint()->GetGlobalTime();
     }
   }
 
@@ -98,11 +98,11 @@ G4bool MDTSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
     m_globalTime  = globalTime;
     m_localPosition = localPosition;
   }
- 
+
   // check if particle left tube or stopped in tube
   G4String  namePreStepMat  = aStep->GetPreStepPoint()->GetMaterial()->GetName();
   G4String  namePostStepMat = aStep->GetPostStepPoint()->GetMaterial()->GetName();
-  G4String  nameSD          = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetSensitiveDetector()->GetName();	  
+  G4String  nameSD          = aStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetSensitiveDetector()->GetName();
   // G4int     trackid         = aStep->GetTrack()->GetTrackID();
   // see if we were in the sensitive volume and left it, or the particle was killed
   if( ((nameSD) && (namePreStepMat != namePostStepMat)) || (currentTrack->GetTrackStatus() ==  fStopAndKill)){
@@ -116,10 +116,10 @@ G4bool MDTSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
 
     // construct new mdt hit
     m_MDTHitColl->Emplace(MDTid, m_globalTime, m_driftRadius, m_localPosition, barcode,
-				    aStep->GetStepLength(),
-				    aStep->GetTotalEnergyDeposit(),
-				    currentTrack->GetDefinition()->GetPDGEncoding(), 
-				    aStep->GetPreStepPoint()->GetKineticEnergy());
+                          aStep->GetStepLength(),
+                          aStep->GetTotalEnergyDeposit(),
+                          currentTrack->GetDefinition()->GetPDGEncoding(),
+                          aStep->GetPreStepPoint()->GetKineticEnergy());
 
     m_driftRadius = DEFAULT_TUBE_RADIUS; // reset start value of driftRadius
   }
@@ -135,7 +135,7 @@ int MDTSensitiveDetector::GetIdentifier(G4TouchableHistory* touchHist)
   int         multilayer=0;
   int         tubeLayer=0;
   int         tube=0;
-  
+
   bool isAssembly = false;
   // scan geometry tree to identify the tube
   for (int i = touchHist->GetHistoryDepth(); i>=0; i--) {
@@ -145,23 +145,23 @@ int MDTSensitiveDetector::GetIdentifier(G4TouchableHistory* touchHist)
     std::string::size_type loc2;
     std::string volName = touchHist->GetVolume(i)->GetName();
 
-    // check if this station is an assembly 
+    // check if this station is an assembly
     if ((npos = volName.find("av_")) != std::string::npos &&
         (npos = volName.find("impr_")) != std::string::npos)  isAssembly = true;
-    
+
     // station: name, eta and phi (-> chamber!)
     if ((npos = volName.find("station")) != std::string::npos && (!isAssembly)) {
 
       volName       = volName.substr(0,npos-2);
       int volCopyNo = touchHist->GetVolume(i)->GetCopyNo();
-      volCopyNo=volCopyNo%1000; 
+      volCopyNo=volCopyNo%1000;
       stationName   = volName;
       stationEta    = volCopyNo/100;
       stationPhi    = abs(volCopyNo%100);
 
     }
     else if ((npos = volName.find("component")) != std::string::npos  && (!isAssembly)) {     // multilayer
-        
+
       int gmID = 0;
       if ((loc1 = volName.find("[")) != std::string::npos) {
         if ((loc2 = volName.find("]", loc1+1)) != std::string::npos) {
@@ -188,7 +188,7 @@ int MDTSensitiveDetector::GetIdentifier(G4TouchableHistory* touchHist)
       //                geoIdentifierTag of the assembly = (sideC*10000 +
       //                             mirsign*1000 + abs(zi)*100 + fi+1)*100000;
       //                             mirsign*1000 + abs(zi)*100 + fi+1)*100000;
-      // 
+      //
       if ((loc1 = volName.find("Muon::")) != std::string::npos) {
         stationName = volName.substr(loc1+6,3);
       }
@@ -201,7 +201,7 @@ int MDTSensitiveDetector::GetIdentifier(G4TouchableHistory* touchHist)
       if (sideC == 1) zi = -zi;
       stationEta = zi;
       stationPhi = fi;
-        
+
       int gmID = 0;
       if ((loc1 = volName.find("[")) != std::string::npos) {
         if ((loc2 = volName.find("]", loc1+1)) != std::string::npos) {
@@ -215,6 +215,6 @@ int MDTSensitiveDetector::GetIdentifier(G4TouchableHistory* touchHist)
       tube      = touchHist->GetVolume(i)->GetCopyNo()%100;
     }
   }
-  //construct the hit identifier	    
+  //construct the hit identifier
   return m_muonHelper->BuildMdtHitId(stationName, stationPhi, stationEta, multilayer,tubeLayer, tube);
 }

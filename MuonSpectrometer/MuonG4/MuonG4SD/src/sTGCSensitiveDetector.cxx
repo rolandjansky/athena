@@ -25,18 +25,18 @@ sTGCSensitiveDetector::sTGCSensitiveDetector(const std::string& name, const std:
 }
 
 // Implemenation of memebr functions
-void sTGCSensitiveDetector::Initialize(G4HCofThisEvent*) 
+void sTGCSensitiveDetector::Initialize(G4HCofThisEvent*)
 {
   if (!m_GenericMuonHitCollection.isValid()) m_GenericMuonHitCollection = CxxUtils::make_unique<GenericMuonSimHitCollection>();
 }
 
-G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) 
+G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/)
 {
   G4Track* currentTrack = aStep->GetTrack();
   int charge=currentTrack->GetDefinition()->GetPDGCharge();
 
   bool geantinoHit = (currentTrack->GetDefinition()==G4Geantino::GeantinoDefinition()) ||
-		     (currentTrack->GetDefinition()==G4ChargedGeantino::ChargedGeantinoDefinition());
+                     (currentTrack->GetDefinition()==G4ChargedGeantino::ChargedGeantinoDefinition());
 
   if (!charge && (!geantinoHit)) return false;
   //  G4cout << "\t\t sTGCSD: Hit in a sensitive layer!!!!! " << G4endl;
@@ -47,10 +47,10 @@ G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*RO
 
   Amg::Vector3D position = Amg::Hep3VectorToEigen(postStep->GetPosition());
   Amg::Vector3D local_position = Amg::Hep3VectorToEigen( trans.TransformPoint( postStep->GetPosition() ) );
-  
+
   Amg::Vector3D preposition = Amg::Hep3VectorToEigen( preStep->GetPosition() );
   Amg::Vector3D local_preposition = Amg::Hep3VectorToEigen( trans.TransformPoint( preStep->GetPosition() ) );
-  
+
   int pdgCode=currentTrack->GetDefinition()->GetPDGEncoding();
 
   float globalTime=postStep->GetGlobalTime();
@@ -60,11 +60,11 @@ G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*RO
   Amg::Vector3D direction= Amg::Hep3VectorToEigen( postStep->GetMomentumDirection() );
   float depositEnergy=post_Step->GetTotalEnergyDeposit();
   float StepLength=post_Step->GetStepLength();
-  
+
   if (depositEnergy<0.0001 && (!geantinoHit)) return false;
-  
+
   G4TouchableHistory* touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
-   
+
   // int iDepth=touchHist->GetHistoryDepth();
   //  G4cout << "\t\t\t\t Touchable history dump "<<G4endl;
   int nLayer=touchHist->GetVolume(0)->GetCopyNo();
@@ -80,33 +80,33 @@ G4bool sTGCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*RO
   // identifiers have eta naming 0-2, eta encoded in subtype is 1-3
   iRing--;
   // double phiDiff=2*M_PI;
-  
+
   G4ThreeVector posH=postStep->GetPosition(); //posH is equivalent to position - eigen not used to avoid additional dependence on EventPrimitives
   if (subType[1]=='L') posH.rotateZ(M_PI/8.);
   double phiHit=posH.phi();
   if(phiHit<=0) phiHit+=2.*M_PI;
   int iPhi=1+int(phiHit/(M_PI/4.));
   iPhi*=2;
-  if (subType[1]=='L') iPhi-=1;                                                                      
+  if (subType[1]=='L') iPhi-=1;
 
   int iSide=1;
   if (position.z()<0) iSide=-1;
-  
+
   int mLayer=0;
   if (subType[1]=='S')
   {
-  	if (subType[3]=='C') mLayer=1;
-	else if (subType[3]=='P') mLayer=2;
+    if (subType[3]=='C') mLayer=1;
+    else if (subType[3]=='P') mLayer=2;
   }
   else if (subType[1]=='L')
   {
-  	if (subType[3]=='P') mLayer=1;
-	else if (subType[3]=='C') mLayer=2;
+    if (subType[3]=='P') mLayer=1;
+    else if (subType[3]=='C') mLayer=2;
   }
-  
+
   if (mLayer != 1 && mLayer !=2) G4cout << " something is wrong - multilayer index is " << mLayer << G4endl;
-  
-  int sTgcId = m_muonHelper->BuildsTgcHitId(subType, iPhi, iRing, mLayer,nLayer, iSide); 
+
+  int sTgcId = m_muonHelper->BuildsTgcHitId(subType, iPhi, iRing, mLayer,nLayer, iSide);
   TrackHelper trHelp(aStep->GetTrack());
   int barcode = trHelp.GetBarcode();
 
