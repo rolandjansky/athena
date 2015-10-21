@@ -23,7 +23,9 @@ Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
   asg::AsgMessaging(std::string(name)),
   doCutConversion(false),
   doRemoveF3AtHighEt(false),
+  doRemoveTRTPIDAtHighEt(false),
   doSmoothBinInterpolation(false),
+  useHighETLHBinning(false),
   doPileupTransform(false),
   DiscMaxForPileupTransform(2.0),
   PileupMaxForPileupTransform(50),
@@ -215,7 +217,9 @@ int Root::TElectronLikelihoodTool::initialize()
 		    << "\n - (bool)CutSi (yes/no)                         : " << (CutSi.size() ? "yes" : "no")
 		    << "\n - (bool)doCutConversion (yes/no)               : " << (doCutConversion ? "yes" : "no")
 		    << "\n - (bool)doRemoveF3AtHighEt (yes/no)            : " << (doRemoveF3AtHighEt ? "yes" : "no")
+		    << "\n - (bool)doRemoveTRTPIDAtHighEt (yes/no)        : " << (doRemoveTRTPIDAtHighEt ? "yes" : "no")
 		    << "\n - (bool)doSmoothBinInterpolation (yes/no)      : " << (doSmoothBinInterpolation ? "yes" : "no")
+		    << "\n - (bool)useHighETLHBinning (yes/no)            : " << (useHighETLHBinning ? "yes" : "no")
 		    << "\n - (bool)doPileupTransform (yes/no)             : " << (doPileupTransform ? "yes" : "no")
 		    << "\n - (bool)CutLikelihood (yes/no)                 : " << (CutLikelihood.size() ? "yes" : "no")
 		    << "\n - (bool)CutLikelihoodPileupCorrection (yes/no) : " << (CutLikelihoodPileupCorrection.size() ? "yes" : "no")
@@ -267,8 +271,16 @@ int Root::TElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned i
             return 1;
 	  }
 
-          // New: if the 0th et bin (4-7 GeV) histogram does not exist in the root file,
-          // then just use the 7-10 GeV bin histogram. This should preserve backward compatibility
+          // For backwards compatibility:
+          // If we are not using the high ET LH binning, we only need to load PDFs 
+          // up to a certain ET value (40 GeV)
+          if(!useHighETLHBinning && et > fnEtBinsHistOrig-1){
+            continue;
+          }
+
+          // If the 0th et bin (4-7 GeV) histogram does not exist in the root file,
+          // then just use the 7-10 GeV bin histogram. 
+          // This should preserve backward compatibility
           if (et == 0 && !((TDirectory*)m_pdfFile->Get(pdfdir))->GetListOfKeys()->Contains(pdf)) {
             //std::cout << "Info: using 7 GeV bin in place of 4 GeV bin." << std::endl;
             getBinName( binname, et_tmp+1, eta_tmp, ip, m_ipBinning );
@@ -391,6 +403,11 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   double cutDiscriminant;
   unsigned int ibin_combined = etbin*10+etabin; // Must change if number of eta bins changes!. Also starts from 7-10 GeV bin.
 
+  // To protect against a binning mismatch, which should never happen
+  if(ibin_combined > CutLikelihood.size()){
+    ATH_MSG_ERROR("Somehow the desired bin is outside of the range specified by the conf file! This should never happen!");
+  }
+        
   if (doSmoothBinInterpolation){
     cutDiscriminant = InterpolateCuts(CutLikelihood,CutLikelihood4GeV,vars_struct.eT,vars_struct.eta);
     if (!doPileupTransform)
@@ -576,6 +593,10 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
     if (doRemoveF3AtHighEt && (et > 100*GeV) && (varstr.find("el_f3") != std::string::npos)){
         continue;
     }
+    // Don't use TRTPID for high et (>100 GeV)
+    if (doRemoveTRTPIDAtHighEt && (et > 100*GeV) && (varstr.find("el_TRT_PID") != std::string::npos)){
+        continue;
+    }
     for (unsigned int s_or_b=0; s_or_b<2;s_or_b++) {
       
       std::string sig_bkg = (s_or_b==0) ? "sig" : "bkg" ;
@@ -660,7 +681,6 @@ double Root::TElectronLikelihoodTool::TransformLikelihoodOutput(double ps,double
       if (et > 7000. || !DiscHardCutForPileupTransform4GeV.size()){
         unsigned int etfinebin = getLikelihoodEtDiscBin(et);
         unsigned int ibin_combined = etfinebin*10+etabin;
-        
         disc_hard_cut_ref       = DiscHardCutForPileupTransform[ibin_combined];
         disc_hard_cut_ref_slope = DiscHardCutSlopeForPileupTransform[ibin_combined];
         disc_loose_ref          = DiscLooseForPileupTransform[ibin_combined];
@@ -734,33 +754,63 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtaBin(double eta) cons
 //---------------------------------------------------------------------------------------
 // Gets the histogram Et bin given the et (MeV) -- corrresponds to fnEtBinsHist
 unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtHistBin(double eT) const {
-  const unsigned int nEtBins = 7; // 11
   const double GeV = 1000;
-  //const double eTBins[nEtBins] = {5*GeV,10*GeV,15*GeV,20*GeV,30*GeV,40*GeV,50*GeV,60*GeV,70*GeV,80*GeV};
-  const double eTBins[nEtBins] = {7*GeV,10*GeV,15*GeV,20*GeV,30*GeV,40*GeV,50*GeV};  
 
-  for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
-    if(eT < eTBins[eTBin])
-      return eTBin;
+  if(useHighETLHBinning){
+    const unsigned int nEtBins = fnEtBinsHist;
+    const double eTBins[nEtBins] = {7*GeV,10*GeV,15*GeV,20*GeV,30*GeV,40*GeV,100*GeV,6000*GeV};
+
+    for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
+      if(eT < eTBins[eTBin])
+        return eTBin;
+    }
+    
+    return nEtBins-1; // Return the last bin if > the last bin.
   }
-  
-  return 6; // 10 // Return the last bin if > the last bin.
+  else{
+    const unsigned int nEtBins = fnEtBinsHistOrig;
+    const double eTBins[nEtBins] = {7*GeV,10*GeV,15*GeV,20*GeV,30*GeV,40*GeV,50*GeV};
+
+    for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
+      if(eT < eTBins[eTBin])
+        return eTBin;
+    }
+    
+    return nEtBins-1; // Return the last bin if > the last bin.
+  }
 }
 
 //---------------------------------------------------------------------------------------
 // Gets the Et bin [0-10] given the et (MeV)
 unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtDiscBin(double eT) const{
-  const unsigned int nEtBins = 9; // 11
   const double GeV = 1000;
-  //const double eTBins[nEtBins] = {5*GeV,10*GeV,15*GeV,20*GeV,30*GeV,40*GeV,50*GeV,60*GeV,70*GeV,80*GeV};
-  const double eTBins[nEtBins] = {10*GeV,15*GeV,20*GeV,25*GeV,30*GeV,35*GeV,40*GeV,45*GeV,50*GeV};  
 
-  for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
-    if(eT < eTBins[eTBin])
-      return eTBin;
+  if(useHighETLHBinning){
+    const unsigned int nEtBins = fnDiscEtBins;
+    const double eTBins[nEtBins] = {10*GeV,15*GeV,20*GeV,25*GeV,30*GeV,35*GeV,40*GeV,45*GeV
+                                   ,100*GeV,150*GeV,200*GeV,250*GeV,300*GeV,350*GeV,400*GeV
+                                   ,450*GeV,500*GeV,600*GeV,700*GeV,800*GeV,900*GeV,1000*GeV
+                                   ,1200*GeV,1400*GeV,1600*GeV,1800*GeV,2000*GeV,2200*GeV
+                                   ,2400*GeV,2600*GeV,2800*GeV,3000*GeV,6000*GeV};
+
+    for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
+      if(eT < eTBins[eTBin])
+        return eTBin;
+    }
+    
+    return nEtBins-1; // Return the last bin if > the last bin.
   }
-  
-  return 8; // Return the last bin if > the last bin.
+  else{
+    const unsigned int nEtBins = fnDiscEtBinsOrig;
+    const double eTBins[nEtBins] = {10*GeV,15*GeV,20*GeV,25*GeV,30*GeV,35*GeV,40*GeV,45*GeV,50*GeV};
+
+    for(unsigned int eTBin = 0; eTBin < nEtBins; ++eTBin){
+      if(eT < eTBins[eTBin])
+        return eTBin;
+    }
+    
+    return nEtBins-1; // Return the last bin if > the last bin.
+  }
 }
 
 
@@ -769,8 +819,7 @@ unsigned int Root::TElectronLikelihoodTool::getLikelihoodEtDiscBin(double eT) co
 // Gets the bin name. Given the HISTOGRAM binning (fnEtBinsHist)
 void Root::TElectronLikelihoodTool::getBinName(char* buffer, int etbin,int etabin, int ipbin, std::string iptype) const{
   double eta_bounds[9] = {0.0,0.6,0.8,1.15,1.37,1.52,1.81,2.01,2.37};
-  //int et_bounds[11] = {7,10,15,20,30,40,50,60,70,80,500};
-  int et_bounds[7] = {4,7,10,15,20,30,40};
+  int et_bounds[fnEtBinsHist] = {4,7,10,15,20,30,40,100};
   if (!iptype.empty())
     sprintf(buffer, "%s%det%02deta%0.2f", iptype.c_str(), int(fIpBounds[ipbin]), et_bounds[etbin], eta_bounds[etabin]);
   else 
@@ -794,6 +843,8 @@ unsigned int Root::TElectronLikelihoodTool::GetLikelihoodBitmask(std::string var
 }
 
 //----------------------------------------------------------------------------------------
+// Note that this will only perform the cut interpolation up to ~45 GeV, so 
+// no smoothing is done above this for the high ET LH binning yet
 double Root::TElectronLikelihoodTool::InterpolateCuts(const std::vector<double>& cuts,const std::vector<double>& cuts_4gev,double et,double eta) const{
   int etbin = getLikelihoodEtDiscBin(et);
   int etabin = getLikelihoodEtaBin(eta);
@@ -822,8 +873,10 @@ double Root::TElectronLikelihoodTool::InterpolateCuts(const std::vector<double>&
 }
 
 //----------------------------------------------------------------------------------------
+// Note that this will only perform the PDF interpolation up to ~45 GeV, so 
+// no smoothing is done above this for the high ET LH binning yet
 double Root::TElectronLikelihoodTool::InterpolatePdfs(unsigned int s_or_b,unsigned int ipbin,double et,double eta,int bin,unsigned int var) const{
-  // histograms exist for the follwoing bins: 4, 7, 10, 15, 20, 30, 40.
+  // histograms exist for the following bins: 4, 7, 10, 15, 20, 30, 40.
   // Interpolation between histograms must follow fairly closely the interpolation
   // scheme between cuts - so be careful!
   int etbin = getLikelihoodEtHistBin(et); // hist binning
@@ -859,8 +912,10 @@ double Root::TElectronLikelihoodTool::InterpolatePdfs(unsigned int s_or_b,unsign
   return prob-(prob-prob_before)*(bin_center-et)/(bin_width);
 }
 
+//----------------------------------------------------------------------------------------
+
 // These are the variables availalble in the likelihood.
-const char* Root::TElectronLikelihoodTool::fVariables[14] = {"el_d0significance"
+const char* Root::TElectronLikelihoodTool::fVariables[fnVariables] = {"el_d0significance"
 							     ,"el_eratio"
 							     ,"el_deltaeta1"
 							     ,"el_f1"
@@ -993,7 +1048,7 @@ const double Root::TElectronLikelihoodTool::Disc_VeryTight_b[90] = {  0.00000,  
 Root::TElectronLikelihoodTool::SafeTH1::SafeTH1(TH1F* roothist){
 
   int nbins = roothist->GetNbinsX();
-  m_binContent.resize(nbins); // Note that the PDF over/underflows are unused and thus unrepresented here!
+  m_binContent.resize(nbins,0); // Note that the PDF over/underflows are unused and thus unrepresented here!
 
   for(int i = 0; i < nbins; ++i){
     m_binContent[i] = roothist->GetBinContent(i+1);
@@ -1012,17 +1067,24 @@ Root::TElectronLikelihoodTool::SafeTH1::~SafeTH1(){
 }
 
 int Root::TElectronLikelihoodTool::SafeTH1::GetNbinsX(){
-  return m_binContent.size();
+  int n = m_binContent.size();
+  return n;
 }
 
 int Root::TElectronLikelihoodTool::SafeTH1::FindBin(double value){
-  for(int i = 0; i < GetNbinsX() - 1; ++i){
-    if(value < GetBinLowEdge(i+1)){
-      return i;
-    }
+
+  if(value < m_firstBinLowEdge){
+    return 0; // first bin of m_binContent
+  }
+  if(value > m_lastBinLowEdge){
+    return GetNbinsX() - 1; // last bin of m_binContent
   }
 
-  return GetNbinsX() - 1;
+  // note double rather than float due to incorrect rounding in O(1/10000) cases if float is used
+  double bin_double = (value - m_firstBinLowEdge) / m_binWidth; 
+  int bin = static_cast<int>(bin_double);
+
+  return bin;
 }
 
 double Root::TElectronLikelihoodTool::SafeTH1::GetBinContent(int bin){

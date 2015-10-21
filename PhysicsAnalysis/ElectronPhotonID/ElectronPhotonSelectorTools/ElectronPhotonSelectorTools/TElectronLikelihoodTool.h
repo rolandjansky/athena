@@ -240,88 +240,100 @@ namespace Root {
       OperatingPoint = op_point; 
       // Tight cut requirements
       if (OperatingPoint == LikeEnum::VeryTight){
-	m_variableBitMask = LikelihoodTightBitmask();
-	CutBL.assign(TightCutBL,TightCutBL+sizeof(TightCutBL)/sizeof(int));
-	CutPi.assign(TightCutPi,TightCutPi+sizeof(TightCutPi)/sizeof(int));
-	CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
-	doCutConversion = true;
-	doRemoveF3AtHighEt = false;
-	doPileupTransform = false;
-	CutLikelihood.assign(Disc_VeryTight,Disc_VeryTight+sizeof(Disc_VeryTight)/sizeof(double));
-	CutLikelihoodPileupCorrection.assign(Disc_VeryTight_b,Disc_VeryTight_b+sizeof(Disc_VeryTight_b)/sizeof(double));
+        m_variableBitMask = LikelihoodTightBitmask();
+        CutBL.assign(TightCutBL,TightCutBL+sizeof(TightCutBL)/sizeof(int));
+        CutPi.assign(TightCutPi,TightCutPi+sizeof(TightCutPi)/sizeof(int));
+        CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
+        doCutConversion = true;
+        doRemoveF3AtHighEt = false;
+        doRemoveTRTPIDAtHighEt = false;
+        doPileupTransform = false;
+        useHighETLHBinning = false;
+        CutLikelihood.assign(Disc_VeryTight,Disc_VeryTight+sizeof(Disc_VeryTight)/sizeof(double));
+        CutLikelihoodPileupCorrection.assign(Disc_VeryTight_b,Disc_VeryTight_b+sizeof(Disc_VeryTight_b)/sizeof(double));
         CutLikelihood4GeV.clear();
         CutLikelihoodPileupCorrection4GeV.clear();
       }
       else if (OperatingPoint == LikeEnum::Tight){
-	m_variableBitMask = LikelihoodTightBitmask();
-	CutBL.assign(TightCutBL,TightCutBL+sizeof(TightCutBL)/sizeof(int));
-	CutPi.assign(TightCutPi,TightCutPi+sizeof(TightCutPi)/sizeof(int));
-	CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
-	doCutConversion = true;
-	doRemoveF3AtHighEt = false;
-	doPileupTransform = false;
-	CutLikelihood.assign(Disc_Tight,Disc_Tight+sizeof(Disc_Tight)/sizeof(double));
-	CutLikelihoodPileupCorrection.assign(Disc_Tight_b,Disc_Tight_b+sizeof(Disc_Tight_b)/sizeof(double));
+        m_variableBitMask = LikelihoodTightBitmask();
+        CutBL.assign(TightCutBL,TightCutBL+sizeof(TightCutBL)/sizeof(int));
+        CutPi.assign(TightCutPi,TightCutPi+sizeof(TightCutPi)/sizeof(int));
+        CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
+        doCutConversion = true;
+        doRemoveF3AtHighEt = false;
+        doRemoveTRTPIDAtHighEt = false;
+        doPileupTransform = false;
+        useHighETLHBinning = false;
+        CutLikelihood.assign(Disc_Tight,Disc_Tight+sizeof(Disc_Tight)/sizeof(double));
+        CutLikelihoodPileupCorrection.assign(Disc_Tight_b,Disc_Tight_b+sizeof(Disc_Tight_b)/sizeof(double));
         CutLikelihood4GeV.clear();
         CutLikelihoodPileupCorrection4GeV.clear();
       }	
       // Medium cut requirements
       else if (OperatingPoint == LikeEnum::Medium){
-	m_variableBitMask = LikelihoodMediumBitmask();
-	CutBL.assign(TightCutBL,TightCutBL+sizeof(TightCutBL)/sizeof(int));
-	CutPi.assign(TightCutPi,TightCutPi+sizeof(TightCutPi)/sizeof(int));
-	CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
-	doCutConversion = false;
-	doRemoveF3AtHighEt = false;
-	doPileupTransform = false;
-	CutLikelihood.assign(Disc_Medium,Disc_Medium+sizeof(Disc_Medium)/sizeof(double));
-	CutLikelihoodPileupCorrection.assign(Disc_Medium_b,Disc_Medium_b+sizeof(Disc_Medium_b)/sizeof(double));
+        m_variableBitMask = LikelihoodMediumBitmask();
+        CutBL.assign(TightCutBL,TightCutBL+sizeof(TightCutBL)/sizeof(int));
+        CutPi.assign(TightCutPi,TightCutPi+sizeof(TightCutPi)/sizeof(int));
+        CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
+        doCutConversion = false;
+        doRemoveF3AtHighEt = false;
+        doRemoveTRTPIDAtHighEt = false;
+        doPileupTransform = false;
+        useHighETLHBinning = false;
+        CutLikelihood.assign(Disc_Medium,Disc_Medium+sizeof(Disc_Medium)/sizeof(double));
+        CutLikelihoodPileupCorrection.assign(Disc_Medium_b,Disc_Medium_b+sizeof(Disc_Medium_b)/sizeof(double));
         CutLikelihood4GeV.clear();
         CutLikelihoodPileupCorrection4GeV.clear();
       }
       // Loose / Loose Relaxed / Very Loose
       else if (OperatingPoint == LikeEnum::Loose){
-	m_variableBitMask = LikelihoodLooseBitmask();
-	CutBL.assign(TightCutBL,TightCutBL+sizeof(TightCutBL)/sizeof(int));
-	CutPi.assign(TightCutPi,TightCutPi+sizeof(TightCutPi)/sizeof(int));
-	CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
-	doCutConversion = false;
-	doRemoveF3AtHighEt = false;
-	doPileupTransform = false;
-	CutLikelihood.assign(Disc_Loose,Disc_Loose+sizeof(Disc_Loose)/sizeof(double));
-	CutLikelihoodPileupCorrection.clear();
+        m_variableBitMask = LikelihoodLooseBitmask();
+        CutBL.assign(TightCutBL,TightCutBL+sizeof(TightCutBL)/sizeof(int));
+        CutPi.assign(TightCutPi,TightCutPi+sizeof(TightCutPi)/sizeof(int));
+        CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
+        doCutConversion = false;
+        doRemoveF3AtHighEt = false;
+        doRemoveTRTPIDAtHighEt = false;
+        doPileupTransform = false;
+        useHighETLHBinning = false;
+        CutLikelihood.assign(Disc_Loose,Disc_Loose+sizeof(Disc_Loose)/sizeof(double));
+        CutLikelihoodPileupCorrection.clear();
         CutLikelihood4GeV.clear();
         CutLikelihoodPileupCorrection4GeV.clear();
       }
       else if (OperatingPoint == LikeEnum::LooseRelaxed){
-	m_variableBitMask = LikelihoodLooseBitmask();
-	CutBL.assign(TightCutBL,TightCutBL+sizeof(TightCutBL)/sizeof(int));
-	CutPi.assign(TightCutPi,TightCutPi+sizeof(TightCutPi)/sizeof(int));
-	CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
-	doCutConversion = false;
-	doRemoveF3AtHighEt = false;
-	doPileupTransform = false;
-	CutLikelihood.assign(Disc_LooseRelaxed,Disc_LooseRelaxed+sizeof(Disc_LooseRelaxed)/sizeof(double));
-	CutLikelihoodPileupCorrection.clear();
+        m_variableBitMask = LikelihoodLooseBitmask();
+        CutBL.assign(TightCutBL,TightCutBL+sizeof(TightCutBL)/sizeof(int));
+        CutPi.assign(TightCutPi,TightCutPi+sizeof(TightCutPi)/sizeof(int));
+        CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
+        doCutConversion = false;
+        doRemoveF3AtHighEt = false;
+        doRemoveTRTPIDAtHighEt = false;
+        doPileupTransform = false;
+        useHighETLHBinning = false;
+        CutLikelihood.assign(Disc_LooseRelaxed,Disc_LooseRelaxed+sizeof(Disc_LooseRelaxed)/sizeof(double));
+        CutLikelihoodPileupCorrection.clear();
         CutLikelihood4GeV.clear();
         CutLikelihoodPileupCorrection4GeV.clear();
       }
       else if (OperatingPoint == LikeEnum::VeryLoose){
-	m_variableBitMask = LikelihoodLooseBitmask();
-	CutBL.clear();
-	CutPi.assign(VeryLooseCutPi,VeryLooseCutPi+sizeof(VeryLooseCutPi)/sizeof(int));
-	CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
-	doCutConversion = false;
-	doRemoveF3AtHighEt = false;
-	doPileupTransform = false;
-	CutLikelihood.assign(Disc_VeryLoose,Disc_VeryLoose+sizeof(Disc_VeryLoose)/sizeof(double));
-	CutLikelihoodPileupCorrection.clear();
+        m_variableBitMask = LikelihoodLooseBitmask();
+        CutBL.clear();
+        CutPi.assign(VeryLooseCutPi,VeryLooseCutPi+sizeof(VeryLooseCutPi)/sizeof(int));
+        CutSi.assign(TightCutSi,TightCutSi+sizeof(TightCutSi)/sizeof(int));
+        doCutConversion = false;
+        doRemoveF3AtHighEt = false;
+        doRemoveTRTPIDAtHighEt = false;
+        doPileupTransform = false;
+        useHighETLHBinning = false;
+        CutLikelihood.assign(Disc_VeryLoose,Disc_VeryLoose+sizeof(Disc_VeryLoose)/sizeof(double));
+        CutLikelihoodPileupCorrection.clear();
         CutLikelihood4GeV.clear();
         CutLikelihoodPileupCorrection4GeV.clear();
       }
       // Custom operating point (user-defined stuff)
       else if (OperatingPoint == LikeEnum::CustomOperatingPoint) {
-	m_variableBitMask = GetLikelihoodBitmask(VariableNames);
+        m_variableBitMask = GetLikelihoodBitmask(VariableNames);
       }
     }
 
@@ -388,8 +400,12 @@ namespace Root {
     bool doCutConversion;
     /** @brief do remove f3 variable from likelihood at high Et (>100 GeV)*/
     bool doRemoveF3AtHighEt;
+    /** @brief do remove TRTPID variable from likelihood at high Et (>100 GeV)*/
+    bool doRemoveTRTPIDAtHighEt;
     /** @brief do smooth interpolation between bins */
     bool doSmoothBinInterpolation;
+    /** @brief use binning for high ET LH*/
+    bool useHighETLHBinning;
     /** @brief do pileup-dependent transform on discriminant value*/
     bool doPileupTransform;
     /** @brief cut on likelihood output*/
@@ -424,8 +440,6 @@ namespace Root {
     std::string PdfFileName;
 
 
-
-
     // Private methods
   private:
     /// Apply a transform to zoom into the LH output peaks. Optionally do pileup correction too
@@ -453,13 +467,11 @@ namespace Root {
     /// Pointer to the opened TFile that holds the PDFs
     TFile*              m_pdfFile;
 
-
     /// The prefix string for the result
     std::string m_resultPrefix;
 
     /// The string for the result
     std::string m_resultName;
-
 
     /// The position of the kinematic cut bit in the TAccept return object
     int m_cutPosition_kinematic;
@@ -491,17 +503,15 @@ namespace Root {
     /// The position of the likelihood value bit in the TResult return object
     int m_resultPosition_LH;
 
-
-
-    //static const unsigned int  fnIpBins =2;
     static const double fIpBounds[IP_BINS+1];
-    static const unsigned int  fnEtBinsHist     = 7; // number of hists stored, including 4GeV bin
-    static const unsigned int  fnDiscEtBins     = 9; // number of discs stored, excluding 4GeV bin
+    static const unsigned int  fnEtBinsHist     = 8;  // number of hists stored for nominal LH (useHighETLHBinning), including 4GeV bin
+    static const unsigned int  fnDiscEtBins     = 33; // number of discs stored for nominal LH (useHighETLHBinning), excluding 4GeV bin
+    static const unsigned int  fnEtBinsHistOrig = 7;  // number of hists stored for original LH, including 4GeV bin (for backwards compatibility)
+    static const unsigned int  fnDiscEtBinsOrig = 9;  // number of discs stored for original LH, excluding 4GeV bin (for backwards compatibility)
     static const unsigned int  fnEtaBins        = 10;
-    static const unsigned int  fnVariables      = 14; // 19
-    TElectronLikelihoodTool::SafeTH1*      fPDFbins     [2][IP_BINS][7][10][14]; // [sig(0)/bkg(1)][ip][et][eta][variable]
-    static const char*  fVariables                      [14]; // 
-    //static const double cutDiscriminant [1][6][10];     // [ip][et][eta]
+    static const unsigned int  fnVariables      = 14;
+    TElectronLikelihoodTool::SafeTH1*      fPDFbins     [2][IP_BINS][fnEtBinsHist][fnEtaBins][fnVariables]; // [sig(0)/bkg(1)][ip][et][eta][variable]
+    static const char*  fVariables                      [fnVariables]; 
 
     static const double Disc_VeryLoose[90];
     static const double Disc_LooseRelaxed[90];
