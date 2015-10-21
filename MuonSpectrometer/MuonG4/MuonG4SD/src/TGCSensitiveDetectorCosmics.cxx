@@ -16,14 +16,14 @@ TGCSensitiveDetectorCosmics::TGCSensitiveDetectorCosmics(const std::string& name
   : G4VSensitiveDetector( name )
   , momMag(0)
   , m_globalTime(0)
-  , myTGCHitColl( hitCollectionName ) 
+  , myTGCHitColl( hitCollectionName )
   , m_layout(Unknown)
 {
   muonHelper = TgcHitIdHelper::GetHelper();
 }
 
 // Implemenation of member functions
-void TGCSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*) 
+void TGCSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*)
 {
   if (!myTGCHitColl.isValid()) myTGCHitColl = CxxUtils::make_unique<TGCSimHitCollection>();
   mom = Amg::Vector3D(0.,0.,0.);
@@ -31,14 +31,14 @@ void TGCSensitiveDetectorCosmics::Initialize(G4HCofThisEvent*)
 }
 
 G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory*) {
-    
+
   G4Track* track = aStep->GetTrack();
-    
+
   if (track->GetDefinition()->GetPDGCharge() == 0.0) {
     if (track->GetDefinition()!=G4Geantino::GeantinoDefinition()) return true;
     else if (track->GetDefinition()==G4ChargedGeantino::ChargedGeantinoDefinition()) return true;
   }
-  G4TouchableHistory*     touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();	
+  G4TouchableHistory*     touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
   G4ThreeVector           position  = aStep->GetPreStepPoint()->GetPosition();
   const G4AffineTransform trans     = track->GetTouchable()->GetHistory()->GetTopTransform();
 
@@ -55,13 +55,13 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
       if ((volName.find("Q02")) != std::string::npos) m_layout=Q02;
     }
   }
-    
+
   // fields for the TGC identifier construction
   std::string stationName;
   int stationEta(0);
   int stationPhi(0);
   int gasGap = 0;
-  
+
   // TGC hit information
   double globalTime        = aStep->GetPreStepPoint()->GetGlobalTime();
   Amg::Vector3D localPosition = Amg::Hep3VectorToEigen(trans.TransformPoint(position));
@@ -78,19 +78,19 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
 
   G4int trackid = aStep->GetTrack()->GetTrackID();
   currVertex = Amg::Hep3VectorToEigen(aStep->GetTrack()->GetVertexPosition());
-  
+
   // for cosmics: only primary muon tracks - track momentum when first entering the spectrometer (one muon per event)
   if ((currVertex != vertex) && (trackid == 1)) {
-    // after calculationg the momentum magnidude, normalize it 
+    // after calculationg the momentum magnidude, normalize it
     mom = Amg::Hep3VectorToEigen(track->GetMomentum());
     momMag = mom.mag();
     mom.normalize();
     // the direction of the primary mu is used to calculate the t0, the position ot the t0, globH, is ONE for a track
     Amg::Vector3D globVrtxFix = Amg::Hep3VectorToEigen( globVrtx );
-    double AlphaGlobal = -1*(globVrtxFix[0]*mom[0] + globVrtxFix[1]*mom[1] + globVrtxFix[2]*mom[2])/(mom[0]*mom[0] + mom[1]*mom[1] + mom[2]*mom[2]);   
-    globH = globVrtxFix + AlphaGlobal*mom;     
-    G4cout << "COSMICS MAIN TRACK IN THE MDT!" << G4endl; 
-  }  
+    double AlphaGlobal = -1*(globVrtxFix[0]*mom[0] + globVrtxFix[1]*mom[1] + globVrtxFix[2]*mom[2])/(mom[0]*mom[0] + mom[1]*mom[1] + mom[2]*mom[2]);
+    globH = globVrtxFix + AlphaGlobal*mom;
+    G4cout << "COSMICS MAIN TRACK IN THE MDT!" << G4endl;
+  }
   double globalDist = sqrt((globH[0] - globVrtx[0])*(globH[0] - globVrtx[0]) +
                            (globH[1] - globVrtx[1])*(globH[1] - globVrtx[1]) +
                            (globH[2] - globVrtx[2])*(globH[2] - globVrtx[2]));
@@ -103,9 +103,9 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
     std::string::size_type npos;
     std::string volName = touchHist->GetVolume(i)->GetName();
 
-    // stationName and stationPhi	
+    // stationName and stationPhi
     if ((npos = volName.find("station")) != std::string::npos) {
- 
+
       stationName   = volName.substr(0,npos-2);
       int volCopyNo = touchHist->GetVolume(i)->GetCopyNo();
       if (volCopyNo > 0) {
@@ -113,7 +113,7 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
       } else {
         zside = -1;
       }
-      if (stationName.substr(2,1) == "F") { 
+      if (stationName.substr(2,1) == "F") {
 
         stationPhi    = (abs(volCopyNo%100)-1)*3;
         if (abs(volCopyNo/100) > 3) {
@@ -160,8 +160,8 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
         }
       }
 
-	// stationEta
-	} else if ((npos = volName.find("tgccomponent")) != std::string::npos) {
+    // stationEta
+    } else if ((npos = volName.find("tgccomponent")) != std::string::npos) {
       int volCopyNo = abs(touchHist->GetVolume(i)->GetCopyNo());
       stationEta = zside*volCopyNo%100;
       if (volCopyNo > 1000) { // stationPhi overridden by the number assigned by MuonGeoModel
@@ -184,35 +184,35 @@ G4bool TGCSensitiveDetectorCosmics::ProcessHits(G4Step* aStep,G4TouchableHistory
           gasGap = (volCopyNo-3)/4+1;
       }
     } else if ((npos = volName.find("TGCGas")) != std::string::npos) {
-	    
+
       std::string currentTech = volName.substr(0,4);
       int volCopyNo = touchHist->GetVolume(i)->GetCopyNo();
 
       if (volCopyNo != 0)
         gasGap = volCopyNo;
-    }		
+    }
   }
 
-  //construct the hit identifier	    
+  //construct the hit identifier
   HitID TGCid = muonHelper->BuildTgcHitId(stationName,
-						stationPhi, 
-						stationEta,
-						gasGap);
+                                          stationPhi,
+                                          stationEta,
+                                          gasGap);
   //muonHelper->Print(TGCid);
   vertex = Amg::Hep3VectorToEigen(aStep->GetTrack()->GetVertexPosition());
   // if the track vertex is far from (0,0,0), takes the tof, otherwise take the "usual" g4 globalTime
   ((((vertex.mag()) < 100) || ((fabs(globalTime - tOrigin)) < 0.1) ) ? (m_globalTime  = globalTime) : (m_globalTime = tof));
   // if m_globalTime  != globalTime and m_globalTime != tof in the output, this is due to multiple hits
   // before founding the good one (small approximation)
-	
+
   // construct new mdt hit
   myTGCHitColl->Emplace(TGCid,
-				       m_globalTime,
-				       localPosition,
-				       localDireCos,
-				       trackid,
-				       aStep->GetTotalEnergyDeposit(),
-				       aStep->GetStepLength());
+                        m_globalTime,
+                        localPosition,
+                        localDireCos,
+                        trackid,
+                        aStep->GetTotalEnergyDeposit(),
+                        aStep->GetStepLength());
   return true;
 }
 

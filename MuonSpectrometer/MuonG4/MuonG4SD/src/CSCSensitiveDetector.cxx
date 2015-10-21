@@ -15,7 +15,8 @@
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
 // construction/destruction
-CSCSensitiveDetector::CSCSensitiveDetector(const std::string& name, const std::string& hitCollectionName)
+CSCSensitiveDetector::CSCSensitiveDetector(const std::string& name,
+                                           const std::string& hitCollectionName)
   : G4VSensitiveDetector( name )
   , myCSCHitColl( hitCollectionName )
 {
@@ -23,38 +24,39 @@ CSCSensitiveDetector::CSCSensitiveDetector(const std::string& name, const std::s
 }
 
 // Implemenation of memebr functions
-void CSCSensitiveDetector::Initialize(G4HCofThisEvent*) 
+void CSCSensitiveDetector::Initialize(G4HCofThisEvent*)
 {
   if (!myCSCHitColl.isValid()) myCSCHitColl = CxxUtils::make_unique<CSCSimHitCollection>();
 }
 
 G4bool CSCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROHist*/) {
-    
+
   G4Track* currentTrack = aStep->GetTrack();
-  
+
   /** CSCs sensitive to charged particle only; plus energy threshold */
-  if (currentTrack->GetDefinition()->GetPDGCharge() == 0.0) {
-    if (currentTrack->GetDefinition()!=G4Geantino::GeantinoDefinition()) return true;
-    else if (currentTrack->GetDefinition()==G4ChargedGeantino::ChargedGeantinoDefinition()) return true;
+  auto trackDef = currentTrack->GetDefinition();
+  if (trackDef->GetPDGCharge() == 0.0) {
+    if (trackDef != G4Geantino::GeantinoDefinition()) return true;
+    else if (trackDef == G4ChargedGeantino::ChargedGeantinoDefinition()) return true;
   }
-  				                  
+
   G4TouchableHistory* touchHist = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
   G4ThreeVector startPos=aStep->GetPreStepPoint()->GetPosition();
   G4ThreeVector endPos=aStep->GetPostStepPoint()->GetPosition();
   double kinEnergy = aStep->GetPreStepPoint()->GetKineticEnergy();
 
   /** attributes of the CSC identifier construction */
-  
+
   std::string stationName="";
   int stationEta=0;
   int stationPhi=0;
   int multiLayer=0;
   int wireLayer=0;
-  
+
   /** hit information to be recorded */
-  
+
   Amg::Vector3D HitStart = Amg::Vector3D(-1000,-1000,-1000);
-  Amg::Vector3D HitEnd   = Amg::Vector3D(-1000,-1000,-1000);	
+  Amg::Vector3D HitEnd   = Amg::Vector3D(-1000,-1000,-1000);
   double globalTime   = -1;
   double energyDeposit= -1;
   G4int lundcode      = -1;
@@ -63,29 +65,29 @@ G4bool CSCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
   /** scan geometry tree to identify the gas layer */
 
   bool isAssembly = false;
-  for (int i = touchHist->GetHistoryDepth(); i>=0; i--) {
-  	std::string::size_type npos;
-	std::string volName = touchHist->GetVolume(i)->GetName();
+  for (int i = touchHist->GetHistoryDepth(); i>=0; --i) {
+    std::string::size_type npos;
+    std::string volName = touchHist->GetVolume(i)->GetName();
 
-//         G4cout << "Csc SD: swimming through the tree: level "<<i-touchHist->GetHistoryDepth() << G4endl;
-//         G4cout << "Csc SD: name "<<volName << G4endl;
-        
-	/** station: name, eta and phi (-> chamber!) */
+    //G4cout << "Csc SD: swimming through the tree: level "<<i-touchHist->GetHistoryDepth() << G4endl;
+    //G4cout << "Csc SD: name "<<volName << G4endl;
+
+    /** station: name, eta and phi (-> chamber!) */
     if ((npos = volName.find("av_")) != std::string::npos &&
         (npos = volName.find("impr_")) != std::string::npos)  isAssembly = true;
 
     if ((npos = volName.find("station")) != std::string::npos && (!isAssembly)) {
-            
+
       /** station name, station eta and station phi */
       volName       = volName.substr(0,npos-2);
       int volCopyNo = touchHist->GetVolume(i)->GetCopyNo();
       stationName   = volName;
-//            stationEta    = volCopyNo/100;
-//  bug fix for 14.2.0 to cope with non-mirrored chambers as proposed by
-// S.Spagnolo
+      //stationEta    = volCopyNo/100;
+      // bug fix for 14.2.0 to cope with non-mirrored chambers as proposed by
+      // S.Spagnolo
       stationEta    = (volCopyNo%1000)/100;
       stationPhi    = abs(volCopyNo%100);
-            
+
     } else if ((npos = volName.find("CSC")) != std::string::npos && isAssembly ) {
       // vol name for Assembly components are
       // av_WWW_impr_XXX_Muon::BMSxMDTxx_pv_ZZZ_NAME
@@ -97,12 +99,12 @@ G4bool CSCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
       //               NAME is the comp. tag (geoIdentifierTag)
       //               for CSCs it is cl[1] or cl[2]
       // copy numbers for Ass.components are =
-      //                CopyNoBase(= geoIdentifierTag of the assembly) + geoIdentifierTag of the component
-      //                geoIdentifierTag of the component = Job
-      //                geoIdentifierTag of the assembly = (sideC*10000 +
+      //               CopyNoBase(= geoIdentifierTag of the assembly) + geoIdentifierTag of the component
+      //               geoIdentifierTag of the component = Job
+      //               geoIdentifierTag of the assembly = (sideC*10000 +
       //                             mirsign*1000 + abs(zi)*100 + fi+1)*100000;
       //                             mirsign*1000 + abs(zi)*100 + fi+1)*100000;
-      
+
       /** station name */
       std::string::size_type loc1,loc2;
       if ((loc1 = volName.find("Muon::")) != std::string::npos) {
@@ -120,34 +122,34 @@ G4bool CSCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
       stationEta    = zi;
       stationPhi    = fi;
 
-      // now get the geoIdentifierTag of the rpc components 
+      // now get the geoIdentifierTag of the rpc components
       int gmID = 0;
       if ((loc1 = volName.find("[")) != std::string::npos) {
         if ((loc2 = volName.find("]", loc1+1)) != std::string::npos) {
           std::istringstream istrvar(volName.substr(loc1+1,loc2-loc1-1));
           istrvar>>gmID;
         }
-      }	    
+      }
       /** chamber layer */
       multiLayer = gmID;
     } else if ((npos = volName.find("component")) != std::string::npos && (!isAssembly)) {
-            
+
       /** chamber layer */
       multiLayer = touchHist->GetVolume(i)->GetCopyNo();
       if(multiLayer==3) multiLayer=2; //multilayer index
     } else if ((npos = volName.find("CscArCO2")) != std::string::npos) {
-	
-	  /** the wire layer number */
-	  wireLayer=touchHist->GetVolume(i)->GetCopyNo();
-	  wireLayer+=1;
-	  if(wireLayer==4) wireLayer=1;
-	  else if(wireLayer==3) wireLayer=2;
-	  else if(wireLayer==2) wireLayer=3;
-	  else if(wireLayer==1) wireLayer=4;
-      //	  G4cout << "CSC:::::: wireLayer  "<<wireLayer << G4endl;
 
-	  /** get the particle ID */	 
-	  G4String particle=aStep->GetTrack()->GetDefinition()->GetParticleName();
+      /** the wire layer number */
+      wireLayer=touchHist->GetVolume(i)->GetCopyNo();
+      wireLayer+=1;
+      if(wireLayer==4) wireLayer=1;
+      else if(wireLayer==3) wireLayer=2;
+      else if(wireLayer==2) wireLayer=3;
+      else if(wireLayer==1) wireLayer=4;
+      // G4cout << "CSC:::::: wireLayer  "<<wireLayer << G4endl;
+
+      /** get the particle ID */
+      G4String particle=aStep->GetTrack()->GetDefinition()->GetParticleName();
       // http://www.slac.stanford.edu/BFROOT/www/Computing/Environment/NewUser/htmlbug/node51.html #GEANT code
       if (particle=="gamma") lundcode=1;
       else if (particle=="e+")     lundcode=2;
@@ -165,11 +167,12 @@ G4bool CSCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
       else if (particle=="anti_sigma-") lundcode=27;
       else if (particle=="anti_sigma+") lundcode=29;
       else if (particle=="deuteron") lundcode=45;
-      //	  else if (particle=="geantino") lundcode=999;
-      //	  else lundcode=999;
+      //else if (particle=="geantino") lundcode=999;
+      //else lundcode=999;
 
-      if (lundcode < 0) 
-        G4cout << "WP CSCSensitiveDetector.cxx have exceptional particlue out of selection::  "<< particle<< G4endl;
+      if (lundcode < 0)
+        G4cout << "WP CSCSensitiveDetector.cxx have exceptional particlue out of selection::  "
+               << particle<< G4endl;
 
       /** the track id */
       // trackid=aStep->GetTrack()->GetTrackID();
@@ -185,8 +188,8 @@ G4bool CSCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
 
       /** local position of HitStart and HitEnd */
       HitStart = Amg::Hep3VectorToEigen( transform.TransformPoint(startPos) );
-          
-      /** get the end of the step as return by G4 - could be at the beginning of 
+
+      /** get the end of the step as return by G4 - could be at the beginning of
           the next volume */
       HitEnd = Amg::Hep3VectorToEigen( transform.TransformPoint(endPos) );
 
@@ -197,12 +200,12 @@ G4bool CSCSensitiveDetector::ProcessHits(G4Step* aStep,G4TouchableHistory* /*ROH
   int barcode = trHelp.GetBarcode();
 
   /** construct the hit identifier */
-  HitID CSCid = muonHelper->BuildCscHitId(stationName, stationPhi, 
-	      stationEta, multiLayer, wireLayer);
-	
+  HitID CSCid = muonHelper->BuildCscHitId(stationName, stationPhi,
+                                          stationEta, multiLayer, wireLayer);
+
   /** insert hit in collection */
-  myCSCHitColl->Emplace( CSCid, globalTime, energyDeposit,
-                         HitStart, HitEnd, lundcode, barcode, kinEnergy);
+  myCSCHitColl->Emplace(CSCid, globalTime, energyDeposit,
+                        HitStart, HitEnd, lundcode, barcode, kinEnergy);
 
   return true;
 }
