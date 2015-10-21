@@ -18,20 +18,13 @@ HISubtractedCellMakerTool::HISubtractedCellMakerTool(const std::string& type, co
 {
   declareInterface<ICaloCellMakerTool>(this);
   declareProperty("EventShapeKey",m_event_shape_key);
-  declareProperty("FlowHarmonics",m_flow_harmonics=std::vector<unsigned int>());
+  declareProperty("Modulator",m_modulator_tool);
 }
 
 //**********************************************************************
 
 StatusCode HISubtractedCellMakerTool::initialize()
 {
-  int nh=HI::setHarmonics(m_flow_harmonics);
-  if(nh >= 0)
-  {
-    ATH_MSG_ERROR("Invalid harmonic " << m_flow_harmonics[nh] );
-    return StatusCode::FAILURE;
-  }
-  std::sort(m_flow_harmonics.begin(),m_flow_harmonics.end());
   return StatusCode::SUCCESS;
 }
 
@@ -52,39 +45,31 @@ StatusCode HISubtractedCellMakerTool::process(CaloCellContainer* theCells)
     return StatusCode::SUCCESS;
   }
 
-  const xAOD::HIEventShape* es_temp=shape->front();
-  unsigned int nh_max=es_temp->Et_cos().size();
-
-  if(m_flow_harmonics.size()!=0)
-  {
-    if(m_flow_harmonics.back() >= nh_max)
-    {
-      ATH_MSG_ERROR("HIEventShapeContainer " << m_event_shape_key << " only has up to v" << nh_max << ". Requested UE modulation w/ v" << m_flow_harmonics.back()+1);
-      return StatusCode::FAILURE;
-    }
-  }
+  CHECK(m_modulator_tool->retrieveShape());
 
   for(auto pCell : *theCells)
   {
     unsigned int sample = (CaloSampling::CaloSample) pCell->caloDDE()->getSampling();
     double eta=pCell->eta();
-    //double phi=pCell->phi();
+    double phi=pCell->phi();
 
     unsigned int bin=index->getIndex(eta,sample);
     if( bin >= shape->size() )
     {
       if( std::abs(eta) - HICaloRange::getRange().getRangeMax(sample) )
       {
-	double fp_round=(eta > 0.) ? -1e-3 : 1e-3;
+	double fp_round=(eta > 0.) ? -5e-3 : 5e-3;
 	bin=index->getIndex(eta+fp_round,sample);
       }
     }
+
+    if( bin >= shape->size() )       std::cout << "CATCH " << eta << "\t" << phi << "\t" << sample << "\t" << index <<std::endl;
 
     const xAOD::HIEventShape* s=shape->at(bin);    
     float nCells=s->nCells();
     float rho=0;
     if(nCells!=0.) rho=s->rho()/nCells;
-    //float ue=rho*HICaloCellHelper::GetAreaEtaPhi(pCell)*HI::GetModulation(s,m_flow_harmonics,phi)*std::cosh(eta);
+    rho*=m_modulator_tool->getModulation(phi);
     float ue=rho*HICaloCellHelper::GetAreaEtaPhi(pCell)*std::cosh(eta);
     pCell->setEnergy(pCell->energy()-ue);
   }

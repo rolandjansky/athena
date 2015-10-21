@@ -31,6 +31,20 @@ class ExclusionRadius(JobProperty):
     allowedTypes = ['float']
     StoredValue  = 0.4
 
+class ApplyOriginCorrection(JobProperty):
+    """ Option to apply origin correction
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
+class ApplyEtaJESCalibration(JobProperty):
+    """ Option to apply MC-derived calibration 
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
 class DCutMaxOverMean(JobProperty):
     """ Cut for first step in seed finding: max/mean of constituent ET's must be > that this.
     """
@@ -52,6 +66,14 @@ class AntiKtRValues(JobProperty):
     statusOn     = True
     allowedTypes = ['list']
     StoredValue  = [0.2,0.3,0.4]
+
+class HarmonicsForSubtraction(JobProperty):
+    """ List of flow harmonics applied to jet subtraction
+    """
+    statusOn     = True
+    allowedTypes = ['list']
+    #StoredValue  = [2,3,4]
+    StoredValue  = [2]
 
 class HIClusterKey(JobProperty):
     """ Key of CaloClusterContainer containing HI clusters
@@ -144,9 +166,12 @@ list_jobproperties = [UnsubtractedSuffix,
                       SeedSuffix,
                       ClusterDRAssociation,
                       ExclusionRadius,
+                      ApplyOriginCorrection,
+                      ApplyEtaJESCalibration,
                       DCutMaxOverMean,
                       DCutMax,
                       AntiKtRValues,
+                      HarmonicsForSubtraction,
                       HIClusterKey,
                       IteratedEventShapeKey,
                       TruthJetPtMin,

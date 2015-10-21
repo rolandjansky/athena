@@ -7,15 +7,17 @@
 #include "xAODHIEvent/HIEventShapeContainer.h"
 #include "HIEventUtils/HIEventShapeMap.h"
 
+
 //**********************************************************************
 
 HIJetConstituentSubtractionTool::HIJetConstituentSubtractionTool(const std::string& n)
-   :  JetModifierBase(n)
+  :  JetModifierBase(n)
 {
   declareProperty("EventShapeKey",m_event_shape_key);
-  declareProperty("MomentName",m_moment_name="subtracted");
+  declareProperty("MomentName",m_moment_name="JetSubtractedScaleMomentum");
   declareProperty("SetMomentOnly",m_moment_only=true);
   declareProperty("Subtractor",m_subtractor_tool);
+  declareProperty("Modulator",m_modulator_tool);
 }
 
 
@@ -44,23 +46,25 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
     ATH_MSG_ERROR("No HIEventShapeIndex w/ name " << EventShapeKey());
     return StatusCode::FAILURE;
   }
-  
+
+  CHECK(m_modulator_tool->retrieveShape());
+
+  //check to see if unsubtracted moment has been stored
   for ( xAOD::JetContainer::iterator ijet=jets.begin(); ijet!=jets.end(); ++ijet)
   {
 
     xAOD::IParticle::FourMom_t p4((*ijet)->p4());
     xAOD::IParticle::FourMom_t p4_cl;
     xAOD::IParticle::FourMom_t p4_subtr;
-
+    
     const xAOD::JetConstituentVector constituents = (*ijet)->getConstituents();
     for (xAOD::JetConstituentVector::iterator itr = constituents.begin(); itr != constituents.end(); ++itr) 
     {
-      if(shape)	m_subtractor_tool->Subtract(p4_cl,itr->rawConstituent(),shape,es_index); //modifies p4_cl to be constituent 4-vector AFTER subtraction
+      if(shape)	m_subtractor_tool->Subtract(p4_cl,itr->rawConstituent(),shape,es_index,m_modulator_tool); //modifies p4_cl to be constituent 4-vector AFTER subtraction
       p4_subtr+=p4_cl;
-
+      
     }
     
-
     ATH_MSG(DEBUG) << std::setw(12) << "Subtracting" 
 		   << std::setw(12) << "Before:"
 		   << std::setw(7) << std::setprecision(3) << p4.E()*1e-3
@@ -75,17 +79,26 @@ int HIJetConstituentSubtractionTool::modify(xAOD::JetContainer& jets) const
 		   << std::setw(7) << std::setprecision(3) << p4_subtr.Phi()
 		   << std::setw(7) << std::setprecision(3) << p4_subtr.M()*1e-3
 		   << endreq;
-    
+
+
+
     xAOD::JetFourMom_t jet4vec;
     jet4vec.SetCoordinates(p4_subtr.Pt(),p4_subtr.Eta(),p4_subtr.Phi(),p4_subtr.M());
-    if(MomentOnly()) (*ijet)->setJetP4(MomentName(),jet4vec);
-    else
+    (*ijet)->setJetP4(MomentName(),jet4vec);
+
+    if(!MomentOnly()) 
     {
-      xAOD::JetFourMom_t unsubtr4vec;
-      (*ijet)->setJetP4(MomentName(), (*ijet)->jetP4());
+      (*ijet)->setJetP4("JetUnsubtractedScaleMomentum", (*ijet)->jetP4());
+      //hack for now to allow use of pp calib tool skipping pileup subtraction
+      //can be skipped in future if custom HI calibration configuration file exists
+      (*ijet)->setJetP4("JetPileupScaleMomentum", jet4vec );
+      (*ijet)->setJetP4(xAOD::JetEMScaleMomentum, jet4vec);
+
       (*ijet)->setJetP4(jet4vec);
+      (*ijet)->setConstituentsSignalState(xAOD::UncalibratedJetConstituent);
     }
   }
+
   return 1;
 }
 

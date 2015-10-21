@@ -7,21 +7,42 @@
 #include "xAODHIEvent/HIEventShapeAuxContainer.h"
 #include "HIEventUtils/HIEventShapeMap.h"
 #include "HIEventUtils/HIEventShapeIndex.h"
+#include "HIEventUtils/HIEventShapeSummaryUtils.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODCore/ShallowCopy.h"
+#include "xAODCaloEvent/CaloCluster.h"
+
+
+namespace
+{
+  struct SelectByList{
+
+    SelectByList() : used_set(nullptr) {};
+    std::set<unsigned int>* used_set;
+    bool operator()(const xAOD::HIEventShape* in_slice)
+    {
+      unsigned int eb=HI::TowerBins::findBinEta(0.5*(in_slice->etaMin()+in_slice->etaMax()));
+      return (used_set->find(eb)==used_set->end());
+    }
+
+  };
+} //annonymous namespace
+
 
 HIEventShapeJetIteration::HIEventShapeJetIteration(std::string name) : AsgTool(name),
 								       m_isInit(false)
 {
-  ATH_MSG_INFO("HIEventShapeJetIteration constructor declaring properties");
   declareProperty("InputEventShapeKey",m_input_event_shape_key="HIEventShape");
-  declareProperty("OutputEventShapeKey",m_output_event_shape_key="HIEventShape_mod");
+  declareProperty("OutputEventShapeKey",m_output_event_shape_key="HIEventShape_iter");
   declareProperty("SeedContainerKey",m_seed_key,"Names of seed collections");
   declareProperty("ExclusionRadius",m_exclude_DR=0.4,"Exclude all calo regions w/in this DR to jet");
   declareProperty("ExcludeConstituents",m_exclude_constituents=false,"Only exclude constituents of jets");
   declareProperty("AssociationKey",m_association_key,"Name of jet attribute containing jet-cluster association");
   declareProperty("Subtractor",m_subtractor_tool);
-  ATH_MSG_INFO("HIEventShapeJetIteration constructor done");
+  declareProperty("Modulator",m_modulator_tool);
+  declareProperty("RemodulateUE",m_do_remodulation=false,"Correct UE for incomplete cancellation of flow harmonics when iterating");
+  declareProperty("ModulationScheme",m_modulation_scheme=0,"Scheme to build separate ES object for flow modulation");
+  declareProperty("ModulationEventShapeKey",m_modulation_key="HIEventShape_itr_mod");
 
 }
 
@@ -31,7 +52,6 @@ int HIEventShapeJetIteration::execute() const
   const xAOD::HIEventShapeContainer* input_shape=0;
   CHECK(evtStore()->retrieve(input_shape,m_input_event_shape_key));
   
-  ATH_MSG_INFO("In execute");
   const xAOD::JetContainer* theJets=0;
   CHECK(evtStore()->retrieve(theJets,m_seed_key));
 
@@ -55,6 +75,8 @@ int HIEventShapeJetIteration::execute() const
 
   std::set<unsigned int> used_indices;
   std::set<unsigned int> used_eta_bins;
+
+
   for(xAOD::JetContainer::const_iterator jItr=theJets->begin(); jItr!=theJets->end(); jItr++)
   {
     const xAOD::Jet* theJet=(*jItr);
@@ -77,13 +99,13 @@ int HIEventShapeJetIteration::execute() const
     }
     
     //Now loop over associated objects
-    ATH_MSG(INFO) << "Jet " 
-		  << std::setw(10) << jet4mom.Pt()*1e-3
-		  << std::setw(10) << jet4mom.Eta()
-		  << std::setw(10) << jet4mom.Phi()
-		  << std::setw(10) << jet4mom.E()*1e-3
-		  << std::setw(25) << " has " << assoc_clusters.size() << " assoc. clusters"
-		  << endreq;
+    ATH_MSG(DEBUG) << "Jet " 
+		   << std::setw(10) << jet4mom.Pt()*1e-3
+		   << std::setw(10) << jet4mom.Eta()
+		   << std::setw(10) << jet4mom.Phi()
+		   << std::setw(10) << jet4mom.E()*1e-3
+		   << std::setw(25) << " has " << assoc_clusters.size() << " assoc. clusters"
+		   << endreq;
     for(auto pItr = assoc_clusters.begin(); pItr!=assoc_clusters.end(); pItr++)
     {
       if( jet4mom.DeltaR( (*pItr)->p4() ) > m_exclude_DR ) continue;
@@ -92,35 +114,108 @@ int HIEventShapeJetIteration::execute() const
     }
   }//end jet loop
 
+  // for(unsigned int i=0; i<output_shape->size();i++)
+  // {
+  //   std::cout << std::setw(10) << std::setprecision(3) <<  (*output_shape)[i]->etaMin()
+  // 	      << std::setw(10) << std::setprecision(3) <<  (*output_shape)[i]->etaMax()
+  // 	      << std::setw(10) << std::setprecision(3) <<  (*output_shape)[i]->layer()
+  // 	      << std::setw(12) << std::setprecision(3) <<  (*output_shape)[i]->et()
+  // 	      << std::setw(12) << std::setprecision(3) <<  (*input_shape)[i]->et()
+  // 	      << std::setw(20) << std::setprecision(3) <<  (*output_shape)[i]->rho()
+  // 	      << std::setw(20) << std::setprecision(3) <<  (*input_shape)[i]->rho()
+  // 	      << std::setw(12) << std::setprecision(3) <<  (*output_shape)[i]->area()
+  // 	      << std::setw(12) << std::setprecision(3) <<  (*input_shape)[i]->area()
+  // 	      << std::setw(12) << std::setprecision(3) <<  (*output_shape)[i]->nCells()
+  // 	      << std::setw(12) << std::setprecision(3) <<  (*input_shape)[i]->nCells()
+  // 	      << std::endl;
+  // }
+  //compute ES for modulation
+  if(m_modulation_scheme==0) return 0;
+
+  xAOD::HIEventShapeContainer* modShape=new xAOD::HIEventShapeContainer;
+  xAOD::HIEventShapeAuxContainer *modShapeAux = new xAOD::HIEventShapeAuxContainer;
+  modShape->setStore( modShapeAux );
+  CHECK(evtStore()->record(modShape,m_modulation_key));
+  CHECK(evtStore()->record(modShapeAux,m_modulation_key+std::string("Aux.")));
+  xAOD::HIEventShape* ms=new xAOD::HIEventShape();
+  modShape->push_back(ms);
+
+  if(m_modulation_scheme==1 || m_modulation_scheme==2)
+  {
+    SelectByList selector;
+    selector.used_set=&used_eta_bins;
+    HI::fillSummary(output_shape,ms,selector);
+  }
+
+  if(m_modulation_scheme > 1)
+  {
+    const xAOD::HIEventShapeContainer* summary_container=0;
+    CHECK(evtStore()->retrieve(summary_container,"CaloSums"));
+
+    const xAOD::HIEventShape* s_fcal=0;
+    for(unsigned int i=0; i<summary_container->size(); i++)
+    {
+      const xAOD::HIEventShape* sh=(*summary_container)[i];
+      std::string summary;
+      if(sh->isAvailable<std::string>("Summary")) summary=sh->auxdata<std::string>("Summary");
+      if(summary.compare("FCal")==0) 
+      {
+	s_fcal=sh;
+	break;
+      }
+    }
+    if (!s_fcal) std::abort();
+    if(m_modulation_scheme==3) (*ms)=(*s_fcal);
+    else
+    {
+      float et_fcal=s_fcal->et();
+      float et_fcal_recip=0;
+      if(et_fcal > 0.) et_fcal_recip=1.0/et_fcal;
+      for(unsigned int ih=0; ih < ms->etCos().size(); ih++)
+      {
+	float qx=ms->etCos().at(ih);
+	float qy=ms->etSin().at(ih);
+	
+	float qx_fcal=s_fcal->etCos().at(ih);
+	float qy_fcal=s_fcal->etSin().at(ih);
+	
+	ms->etCos()[ih]=(qx*qx_fcal+qy*qy_fcal)*et_fcal_recip;
+	ms->etSin()[ih]=(qy*qx_fcal-qx*qy_fcal)*et_fcal_recip;
+      } //end loop on harmonics
+    } //end scheme==2
+  } // end modulation > 1 case
+
+
+  if(m_do_remodulation)
+  {
+    if(m_modulator_tool->setEventShapeForModulation(ms).isFailure())
+    {
+      ATH_MSG_ERROR("Cannot set shape for modulation using key");
+      return 1;
+    }
+    //now correct averages in each slice for effect of modulation
+    std::vector<float> mod_factors(HI::TowerBins::numEtaBins(),0);
+    for(std::set<unsigned int>::const_iterator sItr=used_indices.begin(); sItr!=used_indices.end(); sItr++)
+    {
+      unsigned int phi_bin=(*sItr) % HI::TowerBins::numEtaBins();
+      unsigned int eta_bin=(*sItr) / HI::TowerBins::numPhiBins();
+      mod_factors[eta_bin] += m_modulator_tool->getModulation(HI::TowerBins::getBinCenterPhi(phi_bin));
+    }
+
+    float deta_dphi=HI::TowerBins::getBinArea();
+    //now loop on shape and correct;
+    for(unsigned int i=0; i<output_shape->size(); i++)
+    {
+      xAOD::HIEventShape* s=output_shape->at(i);
+      float eta0=0.5*(s->etaMin()+s->etaMax());
+      unsigned int eb=HI::TowerBins::findBinEta(eta0);
+      float area=s->area();
+      float cf=area/(area-deta_dphi*mod_factors[eb]);
+      //check on value of cf;
+      s->setEt(s->et()*cf);
+      s->setRho(s->rho()*cf);
+    }
+  }
   return 0;
 }
-
-
-
-
-  //if configured, define layer-depedent ET-weighted, eta-independent v2 and necessary event plane angles
-  //loop again on bins and manually set flow part?
-  
-
-  // xAOD::HIEventShapeContainer* output_flow_shape=new xAOD::HIEventShapeContainer;
-  // xAOD::HIEventShapeAuxContainer *output_flow_shape_aux = new xAOD::HIEventShapeAuxContainer;
-  // output_flow_shape->setStore( output_flow_shape_aux );
-  // CHECK(evtStore()->record(output_flow_shape,m_output_event_flow_shape_key));
-  // CHECK(evtStore()->record(output_flow_shape_aux,m_output_event_flow_shape_key + std::string("Aux.")));
-  
-  // //FIX remove hard coded value
-  // int N_CALO_LAYERS = 24;
-  // output_flow_shape->reserve(N_CALO_LAYERS);
-  // for(unsigned int i=0; i<input_shape->size(); i++)
-  // {
-  //   const xAOD::HIEventShape* slice=(*input_shape)[slices];
-  //   unsigned int eb=HICaloCellHelper::FindBinEta(0.5*(slice->eta_min()+slice->eta_max()));
-  //   if(used_eta_bins.find(eb)!=used_eta_bins.end()) continue;
-  //   //
-  //   unsigned int layer=slice->layer();
-  //   xAOD::HIEventShape* flow_slice=(*output_flow_shape)[layer];
-  //   //do averaging
-
-  // }
-
 

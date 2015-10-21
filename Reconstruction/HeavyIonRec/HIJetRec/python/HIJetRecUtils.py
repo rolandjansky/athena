@@ -57,7 +57,7 @@ def AddHIJetFinder(R=0.4) :
     #Name parsing for JetPtAssociationTool in JetToolSupport.buildModifiers will break
     #when building PtAssociations, build and add them manually
     myMods=jtm.modifiersMap["HI_Unsubtr"]
-    myMods += AddPtAssociationTools(R)
+    #myMods += AddPtAssociationTools(R)
     finder=jtm.addJetFinder(cname, "AntiKt", R, "HI",myMods,
                             consumers=None, ivtxin=None,
                             ghostArea=0.0, ptmin = 0., ptminFilter= 5000)
@@ -82,14 +82,40 @@ def AddPtAssociationTools(R, doTracks=True) :
     return tlist
 
 
+def MakeModulatorTool(mod_key, **kwargs) :
+    harmonics=[]
+    if 'harmonics' in kwargs.keys() : harmonics=kwargs['harmonics']
+    else : harmonics=HIJetFlags.HarmonicsForSubtraction()
 
-def MakeSubtractionTool(shapeKey, moment_name='Unsubtracted', momentOnly=False) :
+    tname="Modulator_%s" % BuildHarmonicName(mod_key,harmonics=harmonics)
+    if 'suffix' in kwargs.keys() : tname+='_%s' % kwargs['suffix']
+
+    if(len(harmonics)==0) : return GetNullModulator()
+    if hasattr(jtm,tname) : return getattr(jtm,tname)
+
+    from HIJetRec.HIJetRecConf import HIUEModulatorTool
+    mod=HIUEModulatorTool(tname)
+    mod.EventShapeKey=mod_key
+    for n in [2,3,4] :
+        val=(n in harmonics)
+        attr_name='DoV%d' % n
+        setattr(mod,attr_name,val)
+
+    jtm.add(mod)
+    return mod
+
+def MakeSubtractionTool(shapeKey, moment_name='', momentOnly=False, **kwargs) : 
     from HIJetRec.HIJetRecConf import HIJetConstituentSubtractionTool
-    suffix="%s_%s" % (shapeKey,moment_name)
-    if momentOnly : suffix+="_moment";
-    subtr=HIJetConstituentSubtractionTool("HIConstituentSubtractor"+suffix)
+    suffix=shapeKey
+    if momentOnly : suffix+='_'+moment_name;
+
+    if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
+    else : mod_tool=GetNullModulator()
+
+    subtr=HIJetConstituentSubtractionTool("HICS_"+suffix)
     subtr.EventShapeKey=shapeKey
-    subtr.MomentName=moment_name
+    subtr.Modulator=mod_tool
+    subtr.MomentName='JetSubtractedScale%sMomentum' % moment_name
     subtr.SetMomentOnly=momentOnly
     if not hasattr(jtm,"HIJetSubtractor") : 
         from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
@@ -100,29 +126,92 @@ def MakeSubtractionTool(shapeKey, moment_name='Unsubtracted', momentOnly=False) 
     jtm.add(subtr)
     return subtr
 
-def ApplySubtractionToClusters(event_shape_key="", cluster_key="") :
-    if event_shape_key == "":
+def ApplySubtractionToClusters(**kwargs) :
+    if 'event_shape_key' in kwargs.keys() : event_shape_key=kwargs['event_shape_key']
+    else :
         from HIGlobal.HIGlobalFlags import jobproperties
         event_shape_key=jobproperties.HIGlobalFlags.EventShapeKey()
 
-    if cluster_key == "" :
+    if 'cluster_key' in kwargs.keys() : cluster_key=kwargs['cluster_key']
+    else :
         from HIJetRec.HIJetRecFlags import HIJetFlags
         cluster_key=HIJetFlags.HIClusterKey()
+
+    if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
+    else : mod_tool=GetNullModulator()
 
     if not hasattr(jtm,"HIJetSubtractor") : 
         from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
         cell_subtr=HIJetCellSubtractorTool("HIJetSubtractor")
         jtm.add(cell_subtr)
 
+
     from HIJetRec.HIJetRecConf import HIClusterSubtraction
     theAlg=HIClusterSubtraction()
     theAlg.ClusterKey=cluster_key
     theAlg.EventShapeKey=event_shape_key
     theAlg.Subtractor=jtm.HIJetSubtractor
+    theAlg.Modulator=mod_tool
+
+    do_cluster_moments=False
+    if 'CalculateMoments' in kwargs.keys() : do_cluster_moments=kwargs['CalculateMoments']
+    if do_cluster_moments :
+        from CaloRec.CaloRecConf import CaloClusterMomentsMaker
+        from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
+        theCaloNoiseTool = CaloNoiseToolDefault()
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += theCaloNoiseTool
+
+        from LArRecUtils.LArHVScaleRetrieverDefault import LArHVScaleRetrieverDefault
+        HIClusterMoments = CaloClusterMomentsMaker ("HIClusterMoments")
+        #HIClusterMoments.MaxAxisAngle = 20*deg
+        HIClusterMoments.CaloNoiseTool = theCaloNoiseTool
+        HIClusterMoments.UsePileUpNoise = False
+        HIClusterMoments.MinBadLArQuality = 4000
+        HIClusterMoments.LArHVScaleRetriever=LArHVScaleRetrieverDefault()
+        HIClusterMoments.MomentsNames = ["CENTER_MAG",
+                                         "LONGITUDINAL",
+                                         "FIRST_ENG_DENS", 
+                                         "SECOND_ENG_DENS", 
+                                         "ENG_FRAC_EM", 
+                                         "ENG_FRAC_MAX", 
+                                         "ENG_FRAC_CORE", 
+                                         "ENG_BAD_CELLS",
+                                         "N_BAD_CELLS",
+                                         "N_BAD_CELLS_CORR",
+                                         "BAD_CELLS_CORR_E",
+                                         "BADLARQ_FRAC",
+                                         "ENG_POS",
+                                         "ENG_BAD_HV_CELLS",
+                                         "N_BAD_HV_CELLS",
+                                         "SIGNIFICANCE",
+                                         "CELL_SIGNIFICANCE",
+                                         "CELL_SIG_SAMPLING",
+                                         "AVG_LAR_Q",
+                                         "AVG_TILE_Q"]
+
+        
+        theAlg.ClusterCorrectionTools=[HIClusterMoments]
+
     jtm.add(theAlg)
     jtm.jetrecs += [theAlg]
 
-def AddIteration(suffix,seed_container,shape_name) : 
+def AddIteration(seed_container,shape_name, **kwargs) :
+
+    out_shape_name=shape_name
+    if 'suffix' in kwargs.keys() : out_shape_name+='_%s' % kwargs['suffix']
+    mod_shape_key=out_shape_name+'_Modulate'
+    remodulate=True
+    if 'remodulate' in kwargs.keys() :
+        if not kwargs['remodulate'] : 
+            mod_tool=GetNullModulator()
+            remodulate=False
+
+    if remodulate :
+        if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
+        else : 
+            mod_shape_name=BuildHarmonicName(out_shape_name,**kwargs)
+            mod_tool=MakeModulatorTool(mod_shape_key,**kwargs)
 
     if not hasattr(jtm,"HIJetSubtractor") : 
         from HIJetRec.HIJetRecConf import HIJetCellSubtractorTool
@@ -131,13 +220,19 @@ def AddIteration(suffix,seed_container,shape_name) :
  
     assoc_name=jtm.HIJetDRAssociation.AssociationName
     from HIJetRec.HIJetRecConf import HIEventShapeJetIteration
-    iter_tool=HIEventShapeJetIteration(suffix)
+    iter_tool=HIEventShapeJetIteration('HIJetIteration_%s' % out_shape_name )
     
     iter_tool.InputEventShapeKey=shape_name
-    iter_tool.OutputEventShapeKey=shape_name+"_"+suffix
+    iter_tool.OutputEventShapeKey=out_shape_name
     iter_tool.AssociationKey=assoc_name
     iter_tool.SeedContainerKey=seed_container
     iter_tool.Subtractor=jtm.HIJetSubtractor
+    iter_tool.ModulationScheme=1;
+    #iter_tool.RemodulateUE=remodulate
+    iter_tool.RemodulateUE=False
+    iter_tool.Modulator=mod_tool
+    iter_tool.ModulationEventShapeKey=mod_shape_key
+    #iter_tool.OutputLevel=1
     jtm.add(iter_tool)
     jtm.jetrecs += [iter_tool]
     return iter_tool
@@ -145,6 +240,7 @@ def AddIteration(suffix,seed_container,shape_name) :
 def JetAlgFromTools(rtools, suffix="HI",persistify=True) :
     #insert exe tools at front of list, e.g. tracksel and tvassoc for HI etc.
     HIJet_exe_tools=[]
+    if jetFlags.useTruth(): HIJet_exe_tools += HITruthParticleCopy()
     #if jetFlags.useCells():  HIJet_exe_tools += [jtm.missingcells]
     if HIJetFlags.UseHITracks() : HIJet_exe_tools += [jtm.tracksel_HI,jtm.gtracksel_HI,jtm.tvassoc_HI]
     rtools=HIJet_exe_tools+rtools
@@ -174,3 +270,45 @@ def JetAlgFromTools(rtools, suffix="HI",persistify=True) :
                 AddToOutputList(t.OutputContainer)
     return theAlg
 
+def HITruthParticleCopy() :
+    from JetRec.JetFlavorAlgs import scheduleCopyTruthParticles
+    rtools = scheduleCopyTruthParticles()
+    #following fixes oversight in schduleCopyTruthParticles
+    for ptype in jetFlags.truthFlavorTags():
+        toolname = "CopyTruthTag" + ptype
+        if toolname in jtm.tools and toolname not in rtools: rtools += [jtm.tools[toolname]]
+    rtools += [ jtm.truthpartcopy ]#, jtm.truthpartcopywz ]
+    return rtools
+
+
+def BuildHarmonicName(shape_key, **kwargs) :
+    tname=shape_key
+    if 'harmonics' in kwargs.keys() : 
+        for n in kwargs['harmonics'] : tname += '_V%d' % n
+    return tname
+
+def GetNullModulator() :
+    tname='NullUEModulator'
+    if hasattr(jtm,tname) : return getattr(jtm,tname)
+    from HIJetRec.HIJetRecConf import HIUEModulatorTool
+    mod=HIUEModulatorTool(tname)
+    mod.EventShapeKey='NULL'
+    for n in [2,3,4] : setattr(mod,'DoV%d' % n,False)
+    jtm.add(mod)
+    return mod
+        
+
+
+def GetFlowMomentTools(key,mod_key) :
+    mtools=[]
+    for n in [2,3,4]:
+        mod_tool=MakeModulatorTool(mod_key,harmonics=[n])
+        subtr_tool=MakeSubtractionTool(key,moment_name='V%dOnly' % n,momentOnly=True,modulator=mod_tool)
+        mtools+=[subtr_tool]
+
+    null_mod_tool=GetNullModulator()
+    mtools+=[MakeSubtractionTool(key,moment_name='NoVn',momentOnly=True,modulator=null_mod_tool)]
+    return mtools
+
+        
+    

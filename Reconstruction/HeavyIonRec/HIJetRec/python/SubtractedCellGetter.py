@@ -32,6 +32,8 @@ class SubtractedCellGetter ( Configured )  :
         cellSubtrTool=HISubtractedCellMakerTool()
         from HIJetRec.HIJetRecFlags import HIJetFlags
         cellSubtrTool.EventShapeKey=HIJetFlags.IteratedEventShapeKey()
+        from HIJetRec.HIJetRecTools import jtm
+        cellSubtrTool.Modulator=jtm.modulator
         ToolSvc += cellSubtrTool
         
         from CaloRec.CaloRecConf import CaloCellContainerFinalizerTool

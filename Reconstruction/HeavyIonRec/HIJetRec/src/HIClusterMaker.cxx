@@ -71,7 +71,8 @@ StatusCode HIClusterMaker::execute()
     float phi_cl=0;
     float time_cl=0;
     float R_cl=0;
-
+    float R_cl_avg=0;
+    float ncell=0;
     // std::vector<float> E_sampling(NUMSAMPLES,0);
     // std::vector<float> eta_sampling(NUMSAMPLES,0);
     // std::vector<float> phi_sampling(NUMSAMPLES,0);
@@ -106,7 +107,11 @@ StatusCode HIClusterMaker::execute()
       phi_cl+=cell_E_w*(*cellItr)->phi();
 
       time_cl+=cell_E_w*(*cellItr)->time();
-      R_cl+=cell_E_w*(*cellItr)->caloDDE()->r();
+
+      double cell_radius=(*cellItr)->caloDDE()->r();
+      R_cl+=cell_E_w*cell_radius;
+      R_cl_avg+=cell_radius;
+      ncell++;
 
       // unsigned int isample=0;
       // E_sampling[isample]+=cell_E_w;
@@ -114,10 +119,13 @@ StatusCode HIClusterMaker::execute()
       // phi_sampling[isample]+=cell_E_w*(*cellItr)->phi();
 
     }//end cell loop
+    if(R_cl < 0) R_cl*=-1;
     if(E_cl < m_E_min_moment)
     {
       eta_cl=(*towerItr)->eta();
       phi_cl=(*towerItr)->phi();
+      if(ncell > 0. ) R_cl=R_cl_avg/ncell;
+      time_cl=0;
       //set time to zero?
     }
     else

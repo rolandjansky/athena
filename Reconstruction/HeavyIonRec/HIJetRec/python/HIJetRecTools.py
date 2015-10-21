@@ -12,6 +12,8 @@ from JetRecTools.JetRecToolsConf import TrackPseudoJetGetter
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
+from JetMomentTools.JetMomentToolsConf import JetCaloQualityTool 
+from JetMomentTools.JetMomentToolsConf import JetCaloCellQualityTool 
 
 #select the tracks
 if HIJetFlags.UseHITracks() :
@@ -110,7 +112,7 @@ if jetFlags.useTracks():
     else: HIgetters_ghost_track += [jtm.gtrackget]
 
 if jetFlags.useTruth(): 
-    HIgetters_common += [jtm.gtruthget]
+    #HIgetters_common += [jtm.gtruthget]
     flavorgetters=[]
     for ptype in jetFlags.truthFlavorTags():
         flavorgetters += [getattr(jtm, "gtruthget_" + ptype)]
@@ -164,18 +166,44 @@ jtm.add(cell_subtr)
 jtm.modifiersMap['HI_Unsubtr']=[assoc,max_over_mean,jetfil5] 
 
 hi_trk_modifiers=[assoc,max_over_mean,jtm.width]
-hi_modifiers=[jtm.width,jtm.jetens,jtm.larhvcorr]
+hi_modifiers = []
+
+#only get moments from clusters if they are calculated by subtraction
+#jtm += JetCaloQualityTool("caloqual_cluster_hi", TimingCuts = [5, 10],Calculations = ["FracSamplingMax"])
+
+# quality_tool= JetCaloCellQualityTool("caloqual_cell_hi",
+#                                      LArQualityCut = 4000,
+#                                      TileQualityCut = 254,
+#                                      TimingCuts = [5, 10],
+#                                      Calculations = ["LArQuality", "NegativeE", "Timing", "HECQuality", 
+#                                                      "Centroid", "AverageLArQF"] )
+# quality_tool.OutputLevel=1
+# jtm+=quality_tool
+
+
+if HIJetFlags.ApplyOriginCorrection() : hi_modifiers +=  [jtm.jetorigincorr]
+if HIJetFlags.ApplyEtaJESCalibration() :
+    from JetCalibTools.JetCalibToolsConf import JetCalibrationTool
+    calib_tool=JetCalibrationTool('HICalibTool',JetCollection='AntiKt4TopoEM',ConfigFile='JES_Full2012dataset_Preliminary_Jan13.config',CalibSequence='AbsoluteEtaJES')
+    jtm.add(calib_tool)
+    hi_modifiers += [jtm.HICalibTool]
+hi_modifiers += [jtm.jetfil20,jtm.jetsorter]
+hi_modifiers+=[jtm.width,jtm.jetens]#,jtm.larhvcorr]
+
 if jetFlags.useCaloQualityTool():
     hi_modifiers += [jtm.caloqual_cluster]
-if jetFlags.useTracks():
+if jetFlags.useTracks(): 
     hi_modifiers += [jtm.jvf, jtm.jvt, jtm.trkmoms]
 if jetFlags.useTruth():
     hi_modifiers += [jtm.truthpartondr,jtm.partontruthlabel]
     hi_trk_modifiers += [jtm.truthpartondr,jtm.partontruthlabel]
 
-hi_modifiers += [jtm.jetfil20]
+
+
 jtm.modifiersMap['HI']=hi_modifiers
 jtm.modifiersMap['HITrack']=hi_trk_modifiers
 
 assoc_name=assoc.AssociationName
 HIJetFinderDefaults=dict(ghostArea=0.0, ptminFilter= 5000)
+
+if not jetFlags.Enabled() : jtm.modifiersMap["truth"]=[]
