@@ -69,15 +69,30 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   m_identifierHashList(0x0),
 //  m_pix_rodIdlist({0x130011, 0x111510, 0x111508, 0x112414, 0x130015, 0x111716, 0x112416}),  //old ROD list for consistency.  to be removed soon.
 //  m_sct_rodIdlist({0x220005, 0x210005, 0x220007}),
-  m_pix_rodIdlist({0x140160, 0x130007, 0x112508, 0x111816, 0x111816, 0x140170, 0x130015,0x112414}),
-  m_sct_rodIdlist({0x21010d, 0x21010c, 0x21010e,0x21010f}),
+
+  //run II configuration for towers 44 & 45 (DF Crate 3 slot 9)
+  //m_pix_rodIdlist({0x140160, 0x130007, 0x112508, 0x111816, 0x140170, 0x130015,0x112414}),
+  //m_sct_rodIdlist({0x21010d, 0x21010c, 0x21010e,0x21010f}),
+
+  //run 1 configuration for towers 44 & 45 (DF Crate 3 slot 9)
+  //m_pix_rodIdlist({0x130007, 0x111510, 0x111816, 0x111508,0x112414}),
+  //m_sct_rodIdlist({0x21010a, 0x210000}),
+
+  //AUX test vector configuration for tower 44 & 45 (DF Crate 3 slot 9)
+  //m_pix_rodIdlist({0x130007, 0x112510, 0x111816, 0x112508,0x112414}),
+  //m_sct_rodIdlist({0x21010a, 0x210000}),
+
+  m_pix_rodIdlist({0x130007, 0x111510, 0x111816, 0x111508,0x112414,0x1400a3,0x130010,0x130011,0x112508,0x112510}),
+  m_sct_rodIdlist({0x21010a, 0x210000, 0x210109}),
+  m_WriteClustersToESD(false),
   m_FTKPxlClu_CollName("FTK_Pixel_Clusters"), 
   m_FTKPxlCluContainer(0x0),
   m_FTKSCTClu_CollName("FTK_SCT_Cluster"),
   m_FTKSCTCluContainer(0x0),
   m_ftkPixelTruthName("PRD_MultiTruthPixel_FTK"),
   m_ftkSctTruthName("PRD_MultiTruthSCT_FTK"),
-  m_mcTruthName("TruthEvent")
+  m_mcTruthName("TruthEvent"),
+  m_L1ID_to_save(std::vector<int>())
 {
   
   declareProperty("TrigFTKClusterConverterTool", m_clusterConverterTool);
@@ -116,6 +131,7 @@ FTKRegionalWrapper::FTKRegionalWrapper (const std::string& name, ISvcLocator* pS
   declareProperty("EmulateDF",m_EmulateDF);
   declareProperty("pixRodIds", m_pix_rodIdlist);
   declareProperty("sctRodIds", m_sct_rodIdlist);
+  declareProperty("L1IDToSave", m_L1ID_to_save);
 }
 
 FTKRegionalWrapper::~FTKRegionalWrapper ()
@@ -203,7 +219,16 @@ StatusCode FTKRegionalWrapper::initialize()
   m_evtinfo = new TTree("evtinfo","Events info");
   m_evtinfo->Branch("RunNumber",&m_run_number,"RunNumber/I");
   m_evtinfo->Branch("EventNumber",&m_event_number,"EventNumber/I");
-  
+
+  m_evtinfo->Branch("LB",&m_LB,"LB/I");
+  m_evtinfo->Branch("BCID",&m_BCID,"BCID/I");
+  m_evtinfo->Branch("ExtendedLevel1ID",&m_extendedLevel1ID,"ExtendedLevel1ID/I");
+  m_evtinfo->Branch("Level1TriggerType",&m_level1TriggerType,"Level1TriggerType/I");
+  m_evtinfo->Branch("Level1TriggerInfo",&m_level1TriggerInfo);
+  m_evtinfo->Branch("AverageInteractionsPerCrossing",&m_averageInteractionsPerCrossing,"AverageInteractionsPerCrossing/F");
+  m_evtinfo->Branch("ActualInteractionsPerCrossing",&m_actualInteractionsPerCrossing,"ActualInteractionsPerCrossing/F");  
+
+
   // create and populate the TTree
   m_hittree = new TTree("ftkhits","Raw hits for the FTK simulation");
   m_hittree_perplane = new TTree("ftkhits_perplane","Raw hits for the FTK simulation");
@@ -235,7 +260,7 @@ StatusCode FTKRegionalWrapper::initialize()
       m_hittree->Branch(Form("Hits%d.",ireg),&m_logical_hits[ireg], 32000, 1);
 
       if (m_SavePerPlane) {
-        m_logical_hits_per_plane[ireg] = new vector<FTKHit>[m_ntowers];
+        m_logical_hits_per_plane[ireg] = new vector<FTKHit>[m_nplanes];
         for (int iplane=0;iplane!=m_nplanes;++iplane) { // planes loop
           m_hittree_perplane->Branch(Form("Hits_t%d_p%d.",ireg,iplane), &m_logical_hits_per_plane[ireg][iplane],32000, 1);
         }
@@ -345,15 +370,51 @@ StatusCode FTKRegionalWrapper::initialize()
   //Dump to the log output the RODs used in the emulation
   if(m_EmulateDF){
 
-    for (auto it = m_pix_rodIdlist.begin(); it < m_pix_rodIdlist.end(); it++)
+    ATH_MSG_DEBUG("Printing full map via  m_pix_cabling_svc->get_idMap_offrob(); ");
+    std::map< Identifier, uint32_t> offmap = m_pix_cabling_svc->get_idMap_offrob();
+    for (auto mit = offmap.begin(); mit != offmap.end(); mit++){
+      //uint id = mit->first;
+      ATH_MSG_DEBUG("Pixel offline map hashID to RobId "<<MSG::dec<<mit->first<<" "<<MSG::hex<<mit->second<<MSG::dec);
+    }
+    ATH_MSG_DEBUG("Printing full SCT map  via m_sct_cabling_svc->getAllRods()");
+    std::vector<uint32_t>  sctVector;
+    m_sct_cabling_svc->getAllRods(sctVector);
+    ATH_MSG_DEBUG("Printing full SCT map  via m_sct_cabling_svc->getAllRods() "<<sctVector.size()<<" rods ");
+    
+    for(auto mit = sctVector.begin(); mit != sctVector.end(); mit++){
+	// Retrive hashlist
+	m_sct_cabling_svc->getHashesForRod(m_identifierHashList,*mit );	
+	ATH_MSG_DEBUG("Retrieved  "<<m_identifierHashList.size()<<" hashes ");
+
+	for (auto mhit = m_identifierHashList.begin(); mhit != m_identifierHashList.end(); mhit++)
+	  ATH_MSG_DEBUG("SCT  offline map hashID to RobId "<<MSG::dec<<*mhit<<" "<<MSG::hex<<(*mit)<<MSG::dec);
+      }
+
+    for (auto it = m_pix_rodIdlist.begin(); it < m_pix_rodIdlist.end(); it++){
       ATH_MSG_DEBUG("Going to test against the following Pix RODIDs "<< MSG::hex
 		    << (*it) <<MSG::dec);
     
+	std::vector<IdentifierHash> offlineIdHashList;
+	m_pix_cabling_svc->getOfflineList(offlineIdHashList, m_pix_cabling_svc->getRobId(*it));
+	ATH_MSG_DEBUG("Trying m_pix_cabling_svc->getOfflineList(offlineIdHashList, m_pix_cabling_svc->getRobId("<<MSG::hex<<*it<<MSG::dec<<"));");
+	for (auto oit = offlineIdHashList.begin(); oit != offlineIdHashList.end(); oit++){
+
+	    Identifier id = m_pixelId->wafer_id( *oit );
+	    int barrel_ec      = m_pixelId->barrel_ec(id);
+	    int layer_disk     = m_pixelId->layer_disk(id);
+	    int phi_module     = m_pixelId->phi_module(id);
+	    int eta_module     = m_pixelId->eta_module(id);
+
+	    ATH_MSG_DEBUG("hashId "<<*oit<<"for rodID "<<MSG::hex<<*it<<MSG::dec
+			  << "corresponds to b/ec lay_disk phi eta "<<barrel_ec
+			  << " "<<layer_disk<<" "<<phi_module<<" "<<eta_module);
+	}
+    }
     for (auto it = m_sct_rodIdlist.begin(); it < m_sct_rodIdlist.end(); it++)
       ATH_MSG_DEBUG("Going to test against the following SCT RODIDs "<< MSG::hex
 		    << (*it) <<MSG::dec);
-    
-  }
+	
+	}
 
 
   return StatusCode::SUCCESS;
@@ -383,10 +444,23 @@ StatusCode FTKRegionalWrapper::execute()
   // get the event information
   m_run_number = datainput->runNumber(); // event's run number
   m_event_number = datainput->eventNumber(); // event number
+  m_LB = datainput->LB();
+  m_BCID = datainput->BCID();
+  m_averageInteractionsPerCrossing = datainput->averageInteractionsPerCrossing();
+  m_actualInteractionsPerCrossing = datainput->actualInteractionsPerCrossing();
+  m_level1TriggerType = datainput->level1TriggerType();
+  m_level1TriggerInfo = datainput->level1TriggerInfo();
+
+  if (std::find(m_L1ID_to_save.begin(), m_L1ID_to_save.end(), m_level1TriggerType) == m_L1ID_to_save.end() 
+      && m_L1ID_to_save.size() != 0)
+    return StatusCode::SUCCESS;
+
   m_evtinfo->Fill();
 
   // retrieve the original list of hits, the list is copied because the clustering will change it
   vector<FTKRawHit> fulllist;
+
+  bool dumpedSCT = false;
 
   //if DF emulation is requested then first check if hits are in DF Rods before doing clustering or writing to file
   if(m_EmulateDF){
@@ -399,9 +473,6 @@ StatusCode FTKRegionalWrapper::execute()
 
     for (;ihit!=ihitE;++ihit) { // hit loop
       const FTKRawHit &currawhit = *ihit;
-
-
-      ATH_MSG_DEBUG("Testing if hit is in the DF boards");
     
       //first get the hit's Module identifier hash
       uint32_t modHash = currawhit.getIdentifierHash();
@@ -415,6 +486,12 @@ StatusCode FTKRegionalWrapper::execute()
 	//then get the corresponding RobId
 	uint32_t robid = m_sct_cabling_svc->getRobIdFromHash(modHash);
 	
+	if (dumpedSCT == false){
+	  ATH_MSG_VERBOSE("Dumping SCT Rod List ");
+	for (auto its = m_sct_rodIdlist.begin(); its <  m_sct_rodIdlist.end(); ++its)
+	  ATH_MSG_VERBOSE(MSG::hex <<*its<<MSG::dec<< " is in the SCT Rod list");
+	dumpedSCT = true;
+	}
 	//then try to find in rob list
 	auto it = find(m_sct_rodIdlist.begin(), m_sct_rodIdlist.end(), robid);
 	
