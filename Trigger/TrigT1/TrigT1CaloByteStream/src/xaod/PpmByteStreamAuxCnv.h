@@ -26,6 +26,8 @@ template <typename> class CnvFactory;
 extern long ByteStream_StorageType;
 
 
+#include "ZdcByteStream/ZdcByteStreamReadV1V2Tool.h"
+
 namespace LVL1BS {
 class PpmByteStreamReadV1V2Tool;
 
@@ -66,6 +68,7 @@ private:
 
   /// Do the main job - retrieve xAOD TriggerTowers from robs
   ToolHandle<PpmByteStreamReadV1V2Tool> m_readTool;
+  ToolHandle<ZdcByteStreamReadV1V2Tool> m_zdcTool;
 };
 
 
