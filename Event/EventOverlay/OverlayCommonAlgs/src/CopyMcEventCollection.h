@@ -8,21 +8,18 @@
 //
 // Andrei Gaponenko <agaponenko@lbl.gov>, 2008
 
-#ifndef COPYMCEVENTCOLLECTION_H
-#define COPYMCEVENTCOLLECTION_H
+#ifndef OVERLAYCOMMONALGS_COPYMCEVENTCOLLECTION_H
+#define OVERLAYCOMMONALGS_COPYMCEVENTCOLLECTION_H
 
 #include <string>
-
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "OverlayAlgBase/OverlayAlgBase.h"
 
 class CopyMcEventCollection : public OverlayAlgBase  {
 public:
-  
+
   CopyMcEventCollection(const std::string &name,ISvcLocator *pSvcLocator);
-  
+
   virtual StatusCode overlayInitialize();
   virtual StatusCode overlayExecute();
   virtual StatusCode overlayFinalize();
@@ -34,4 +31,4 @@ protected:
 
 };
 
-#endif/*COPYMCEVENTCOLLECTION_H*/
+#endif/*OVERLAYCOMMONALGS_COPYMCEVENTCOLLECTION_H*/

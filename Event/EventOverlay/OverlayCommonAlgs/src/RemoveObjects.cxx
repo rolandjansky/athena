@@ -4,7 +4,7 @@
 
 // Ketevi A. Assamagan, October 2009
 
-#include "OverlayCommonAlgs/RemoveObjects.h"
+#include "RemoveObjects.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileRawChannelContainer.h"
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"

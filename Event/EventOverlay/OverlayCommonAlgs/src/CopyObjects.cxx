@@ -3,7 +3,7 @@
 */
 
 
-#include "OverlayCommonAlgs/CopyObjects.h"
+#include "CopyObjects.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "TrackRecord/TrackRecordCollection.h"
 #include "CaloSimEvent/CaloCalibrationHitContainer.h"

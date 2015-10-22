@@ -1,0 +1,59 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#include "StoreGate/DataHandle.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include <typeinfo>
+
+template<class TypeToBeCopied, class Datum>
+void SaveInDetObjects::copyInDetIDCobject(StoreGateSvc* from, StoreGateSvc *to)
+{
+  typedef typename TypeToBeCopied::base_value_type Collection;
+  const std::string templateClassName = typeid(TypeToBeCopied).name();
+  typedef std::vector<std::string> KeyList;
+  KeyList keys = from->keys<TypeToBeCopied>();
+  if(keys.empty())
+    {
+      ATH_MSG_WARNING("copyInDetIDCobject<"<<templateClassName<<">(): no keys found");
+      return;
+    }
+
+  for (KeyList::const_iterator k=keys.begin(), endOfKeys=keys.end(); k!=endOfKeys; ++k)
+    {
+      TypeToBeCopied * newObject(nullptr);
+      const TypeToBeCopied * oldObject(nullptr);
+      if ( from->retrieve(oldObject, *k).isFailure() )
+        {
+          ATH_MSG_WARNING("copyInDetIDCobject<"<<templateClassName<<">(): problem retrieving container with " <<"key="<<*k);
+          continue;
+        }
+
+      newObject = new TypeToBeCopied ( oldObject->size() );
+      for (typename TypeToBeCopied::const_iterator iFirst = oldObject->begin(), iLast = oldObject->end(); iFirst != iLast; ++iFirst )
+        {
+          Collection * element = new Collection ( (*iFirst)->identifyHash()  );
+          element->setIdentifier( (*iFirst)->identify() );
+          for ( typename TypeToBeCopied::base_value_type::const_iterator firstData = (*iFirst)->begin(), lastData = (*iFirst)->end(); firstData != lastData; ++firstData)
+            {
+              const Datum* const oldData = dynamic_cast<const Datum*>(*firstData);
+              if(nullptr==oldData)
+                {
+                  ATH_MSG_WARNING ("copyInDetIDCobject<"<<templateClassName<<">(): dynamic_cast failed while trying to copy object ");
+                  continue;
+                }
+              Datum * newData = new Datum ( *oldData );
+              element->push_back ( newData );
+            }
+          if ( newObject->addCollection ( element, (*iFirst)->identifyHash() ).isFailure() )
+            {
+              ATH_MSG_WARNING("copyInDetIDCobject<"<<templateClassName<<">(): problem adding collection with hash "<<"hash="<<(*iFirst)->identifyHash());
+            }
+        }
+      if (!to->record(newObject, *k).isSuccess())
+        {
+          ATH_MSG_WARNING("copyInDetIDCobject<"<<templateClassName<<">(): problem recording new container with "<<"key="<<*k);
+        }
+    }
+  return;
+}

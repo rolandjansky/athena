@@ -2,25 +2,24 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Overlay_G4HitMerger_H
-#define Overlay_G4HitMerger_H
+#ifndef OVERLAYCOMMONALGS_G4HitMerger_H
+#define OVERLAYCOMMONALGS_G4HitMerger_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Property.h"
-#include <vector>
-#include <iostream>
 #include "GeneratorObjects/McEventCollection.h"
 
-class StoreGateSvc;
-class PileUpMergeSvc;
+#include <vector>
+#include <iostream>
 
-using namespace std;
+class PileUpMergeSvc;
 
 class G4HitMerger : public AthAlgorithm
 {
  public:
-  G4HitMerger(const string& name, ISvcLocator* pSvcLocator);
+  G4HitMerger(const std::string& name, ISvcLocator* pSvcLocator);
   ~G4HitMerger();
   virtual StatusCode initialize();
   virtual StatusCode execute();
@@ -28,16 +27,14 @@ class G4HitMerger : public AthAlgorithm
 
  private:
 
-  ServiceHandle<StoreGateSvc> m_storeGateSvc; 
-  StoreGateSvc* detStore;
-  PileUpMergeSvc *p_mergeSvc;
-  
+  ServiceHandle<PileUpMergeSvc> m_mergeSvc;
+
   std::vector <std::string> m_HitContainer; // hit container name list
 
   std::string m_Detectors;
 
   friend std::ostream& operator<<(std::ostream& o, const McEventCollection& m);
- 
+
 };
 
-#endif
+#endif //OVERLAYCOMMONALGS_G4HitMerger_H
