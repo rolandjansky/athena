@@ -98,7 +98,8 @@ StatusCode LArHVToolMC::getHV(const Identifier& id,
           else  ietahv=ieta/4;
          }
          else ietahv=6;
-         double ngaps = 2.*(iphi2-iphi1);
+         const double ngaps = 2.*(iphi2-iphi1);
+         const double inv_ngaps = 1. / ngaps;
       
          for (int iphihv=iphi1;iphihv<iphi2;iphihv++) {
            for (int iside=0;iside<2;iside++) {
@@ -107,13 +108,13 @@ StatusCode LArHVToolMC::getHV(const Identifier& id,
              for (unsigned int i=0;i<v.size();i++) {
                 if (std::fabs(hv-v[i].hv) < 0.1) {
                    found=true; 
-                   v[i].weight += 1./ngaps;
+                   v[i].weight += inv_ngaps;
                  }
              }
              if (!found) {
                HV_t hh;
                hh.hv = hv;
-               hh.weight = 1./ngaps;
+               hh.weight = inv_ngaps;
                v.push_back(hh);
              }     // not already in the list
            }      // loop over gap size
@@ -264,7 +265,12 @@ void LArHVToolMC::InitHV()
     std::string filename = "hv.txt";
 
     FILE * fp = fopen(filename.c_str(),"r");
-       char line[81];
+    if (!fp) {
+      std::cerr << "LArBarrelCalculator::InitHV() ERROR Can't open file " 
+                << filename << "\n";
+      return;
+    }
+    char line[81];
     while (fgets(line,80,fp)) {
         int nZSide,nEtaReg,nGapSide,nFirstElec,nLastElec;
         float hvVal;

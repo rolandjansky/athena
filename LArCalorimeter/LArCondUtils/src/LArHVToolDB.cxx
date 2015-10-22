@@ -93,7 +93,7 @@ StatusCode LArHVToolDB::LoadCalibration(IOVSVC_CALLBACK_ARGS_K( keys)) {
      }
   }
   if (DCSfolderIndices.size()) {
-    ATH_MSG_INFO("Received a callback for " << DCSfolderIndices.size() << " HV folders.");
+    ATH_MSG_DEBUG("Received a callback for " << DCSfolderIndices.size() << " HV folders.");
     if (fillUpdatedHVChannelsVec(DCSfolderIndices).isFailure()) {
       msg(MSG::ERROR) << "Call to fillUpdatedHVChannelsVec failed." << endreq;
       return StatusCode::FAILURE;
