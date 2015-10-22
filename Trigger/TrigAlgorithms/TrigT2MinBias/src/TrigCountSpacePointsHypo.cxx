@@ -59,6 +59,19 @@ TrigCountSpacePointsHypo::TrigCountSpacePointsHypo(const std::string& name,
   declareMonitoredVariable("PIX_SPCountSel", m_totSelNumPixSP );
   declareMonitoredVariable("SCT_SPCountSel", m_totSelNumSctSP );
 
+  // Detector mask flags
+  declareProperty("sct_barrel_a_side",       m_sct_barrel_a_side = true);
+  declareProperty("sct_barrel_c_side",       m_sct_barrel_c_side = true);
+  declareProperty("sct_endcap_a_side",       m_sct_endcap_a_side = true);
+  declareProperty("sct_endcap_c_side",       m_sct_endcap_c_side = true);
+  declareProperty("pixel_barrel",            m_pixel_barrel = true);
+  declareProperty("pixel_b_layer",           m_pixel_b_layer = true);
+  declareProperty("pixel_disk",              m_pixel_disk = true);
+  declareProperty("maxNumPixClusEC",         m_maxNumPixClusEC = -1.);
+  declareProperty("maxNumSctSpEC",           m_maxNumSctSpEC = -1.);
+
+
+  m_formFeaturesTimer = 0;
 }
 
 //-----------------------------------------------------------------------------
