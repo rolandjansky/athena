@@ -50,13 +50,13 @@ StatusCode LArFEBTempTool::initialize()
 
 FEBTemp LArFEBTempTool::getFebTemp( const HWIdentifier& id ) 
 {
-   FEBTemp m_temp;
-   m_temp.clear();
+   FEBTemp temp;
+   temp.clear();
 
    if(!m_isinit) {
      if ( detStore()->retrieve(m_atrlistcol,m_foldername).isFailure() ) {
        ATH_MSG_ERROR ( "Unable to retrieve AttrListCollection "<<m_foldername);
-       return m_temp;
+       return temp;
      }
      ATH_MSG_DEBUG ( "Successfully retrieved AttrListCollection" );
      m_isinit = true;
@@ -72,11 +72,11 @@ FEBTemp LArFEBTempTool::getFebTemp( const HWIdentifier& id )
              if(! ((*citr).second)["temp1"].isNull()) temp1 = (((*citr).second)["temp1"]).data<float>();
 	     float temp2 =-1;
              if(! ((*citr).second)["temp2"].isNull()) temp2 = (((*citr).second)["temp2"]).data<float>();
-	     m_temp.push_back(std::make_pair(temp1,temp2));
+	     temp.push_back(std::make_pair(temp1,temp2));
 	  }
      }
 
-   return m_temp;
+   return temp;
 }
 
 
