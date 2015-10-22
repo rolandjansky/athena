@@ -6,6 +6,14 @@ monManJetTag = AthenaMonManager(name="JetTagMonManager",
                                 DataType            = DQMonFlags.monManDataType())
 topSequence += monManJetTag
 
+from JetTagTools.JetTagToolsConf import Analysis__TrackSelector
+trackSelectorTool = Analysis__TrackSelector (
+    name           = "Analysis::TrackSelector"
+    )
+ToolSvc += trackSelectorTool
+#trackSelectorTool.OutputLevel = VERBOSE
+trackSelectorTool.nHitBLayer = 0
+
 from JetTagMonitoring.JetTagMonitoringConf import JetTagMonitoring
 jetTagMonTool = JetTagMonitoring (
     name           = "jetTagMonTool",
