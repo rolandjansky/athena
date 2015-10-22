@@ -71,15 +71,15 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   //@name Histograms related members
   //@{
   // Pointers to hit error histograms
-  TH1F * FirstHit;
-  TH1F * FirstHit_ECp;
-  TH1F * FirstHit_ECm;
-  TH1F * SecondHit;
-  TH1F * SecondHit_ECp;
-  TH1F * SecondHit_ECm;
+  TH1F * m_firstHit;
+  TH1F * m_firstHit_ECp;
+  TH1F * m_firstHit_ECm;
+  TH1F * m_secondHit;
+  TH1F * m_secondHit_ECp;
+  TH1F * m_secondHit_ECm;
   //@}
   
-  enum ErrorTypes {ABCD, RAW,TIMEOUT, LVL1ID,BCID, PREAMBLE, FORMATTER, MASKEDLINKS, RODCLOCK, TRUNCATEDROD, ROBFRAG, BSPARSE, SUMMARY, N_ERRTYPES};
+  enum ErrorTypes {ABCD, RAW,TIMEOUT, LVL1ID,BCID, PREAMBLE, FORMATTER, MASKEDLINKS, RODCLOCK, TRUNCATEDROD, ROBFRAG, BSPARSE, MISSINGLINK, SUMMARY, N_ERRTYPES};
   
   ///rate of errors
   TProfile2D* m_allErrs[N_ERRTYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
@@ -96,41 +96,44 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TProfile2D* m_rateErrorsPerLumi[NREGIONS_INC_GENERAL];
 
   TH1I *m_nErrors;
+  TH1I *m_nLinksWithErrors;
   int *nErrors_buf;
+  int *nLinksWithErrors_buf;
   int nErrors_pos;
 
   TH1I *m_MaskedLinks;
 
   //Count number of events
-  int numberOfEventsLumi;
-  int numberOfEvents;
+  int m_numberOfEventsLumi;
+  int m_numberOfEvents;
 
   bool m_initialize;
   //max number of errors in lbs                                                                          
-  unsigned int previous_lb;
-  int maskedlink_errs_max[4];
-  int robfragment_errs_max[4];
-  int abcd_errs_max[4];
-  int raw_errs_max[4];
-  int timeout_errs_max[4];
-  int lvl1id_errs_max[4];
-  int bcid_errs_max[4];
-  int preamble_errs_max[4];
-  int formatter_errs_max[4];
-  int rodclock_errs_max[4];
-  int truncrod_errs_max[4];
-  int bsparse_errs_max[4];
-  int tot_err_max[4];
-  int tot_mod_err_max[4];
+  unsigned int m_previous_lb;
+  int m_maskedLinkErrsMax[4];
+  int m_robFragmentErrsMax[4];
+  int m_abcdErrsMax[4];
+  int m_rawErrsMax[4];
+  int m_timeoutErrsMax[4];
+  int m_lvl1idErrsMax[4];
+  int m_bcidErrsMax[4];
+  int m_preambleErrsMax[4];
+  int m_formatterErrsMax[4];
+  int m_rodClockErrsMax[4];
+  int m_truncRodErrsMax[4];
+  int m_bsParseErrsMax[4];
+  int m_misslinkErrsMax[4];
+  int m_totErrsMax[4];
+  int m_totModErrsMax[4];
   // Book noise map histograms
   StatusCode bookConfMaps();
   StatusCode bookPositiveEndCapConfMaps();
   StatusCode bookNegativeEndCapConfMaps();
 
-  int nLink0[4088];
-  int nLink1[4088];
+  int m_nLink0[4088];
+  int m_nLink1[4088];
 
-  bool goodModules[4088];
+  bool m_goodModules[4088];
   VecProf2_t m_pnoiseoccupancymapHistoVectorECC;
   VecProf2_t m_pnoiseoccupancymapHistoVectorECCSide0;
   VecProf2_t m_pnoiseoccupancymapHistoVectorECCSide1;
@@ -141,8 +144,8 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   VecProf2_t m_pnoiseoccupancymapHistoVectorECASide0;
   VecProf2_t m_pnoiseoccupancymapHistoVectorECASide1;
 
-  bool noSidesHit;
-  bool oneSideHit;
+  bool m_noSidesHit;
+  bool m_oneSideHit;
   int nZero[4088];
   int nOne[4088];
   int nOneSide0[4088];
@@ -165,11 +168,6 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   StatusCode bookErrHistosHelper(MonGroup & mg, TString name, TString title, TProfile2D* &tprof, const int layer, const bool barrel=true);
 
   std::vector<TH2F *> m_p2DmapHistoVectorAll[NREGIONS_INC_GENERAL];
-  /**
-  std::vector<TH2F *> m_p2DmapHistoVector;
-  std::vector<TH2F *> m_p2DmapHistoVectorECp;
-  std::vector<TH2F *> m_p2DmapHistoVectorECm;
-  **/
 
   /// "Magic numbers" for an SCT module
   //unsigned int m_nplanes; //to be determined from SCT Helper
@@ -240,6 +238,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TProfile * m_RODClockVsLB[4];
   TProfile * m_TruncRODVsLB[4];
   TProfile * m_BSParseVsLB[4];
+  TProfile * m_MissingLinkHeaderVsLB[4];
 
   TH1F * m_MaxMaskedLinksVsLB[4];
   TH1F * m_MaxROBFragmentVsLB[4];
@@ -253,6 +252,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TH1F * m_MaxRODClockVsLB[4];
   TH1F * m_MaxTruncRODVsLB[4];
   TH1F * m_MaxBSParseVsLB[4];
+  TH1F * m_MaxMissingLinkHeaderVsLB[4];
 
   TProfile * m_NumberOfErrorsVsLB[4];
   TProfile * m_ModulesWithErrorsVsLB[4];

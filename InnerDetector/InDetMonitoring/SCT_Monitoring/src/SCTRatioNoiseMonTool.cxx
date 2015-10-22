@@ -185,7 +185,7 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string & type,
                        m_N11ECA_vsLB{},
                        //
                        m_NOb(nullptr),
-  m_NObSide(nullptr),
+                       m_NObSide(nullptr),
                        m_NO(nullptr),
                        m_NOSide(nullptr),
                        m_NOb_layer{},
@@ -196,6 +196,8 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string & type,
                        m_NOECA_disk_vsLB{},
                        m_NOEC(nullptr),
                        m_NOECSide(nullptr),
+                       m_NOECASide(nullptr),
+                       m_NOECCSide(nullptr),
                        m_NOEC_Outer(nullptr),
                        m_NOEC_ShortMiddle(nullptr),
                        m_NOEC_Inner(nullptr),
@@ -216,7 +218,14 @@ SCTRatioNoiseMonTool::SCTRatioNoiseMonTool(const string & type,
                        m_checkBadModules(true),
                        m_ignore_RDO_cut_online(true)
 {
-  declareProperty("histoPathBase", m_stream = "/stat");
+ /** sroe 3 Sept 2015:
+  histoPathBase is declared as a property in the base class, assigned to m_path
+  with default as empty string.
+	Declaring it here as well gives rise to compilation warning
+	WARNING duplicated property name 'histoPathBase', see https://its.cern.ch/jira/browse/GAUDI-1023
+
+  declareProperty("histoPathBase", m_stream = "/stat"); **/
+  m_stream="/stat";
   declareProperty("conditionsService", m_pSummarySvc);
   declareProperty("checkBadModules", m_checkBadModules);
   declareProperty("CheckRate",m_checkrate=1000);
