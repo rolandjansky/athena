@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONEVENTTPCNV_MUONEVENTTPCNVDICT_H
-#define MUONEVENTTPCNV_MUONEVENTTPCNVDICT_H
+#ifndef MUONEVENTTPCNV_OLD_MUONEVENTTPCNVDICT_H
+#define MUONEVENTTPCNV_OLD_MUONEVENTTPCNVDICT_H
 
 //-----------------------------------------------------------------------------
 //
@@ -54,4 +54,4 @@ struct OLD_MuonEventTPCnvDict
     std::vector<Muon::MuonPRD_Collection_p1>        m_v15;
 };
 
-#endif // MUONEVENTTPCNV_MUONEVENTTPCNVDICT_H
+#endif // MUONEVENTTPCNV_OLD_MUONEVENTTPCNVDICT_H
