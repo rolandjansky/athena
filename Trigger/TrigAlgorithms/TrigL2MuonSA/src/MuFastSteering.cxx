@@ -61,13 +61,10 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("MuonCalBufferSize", m_calBufferSize=1024*1024);
   declareProperty("MuonCalDataScouting",m_calDataScouting=false);
 
-  declareProperty("ESD_EXT_size",m_esd_ext_size=100);
-  declareProperty("ESD_ROB_size",m_esd_rob_size=10);
-  declareProperty("ESD_CSM_size",m_esd_csm_size=30);
-  declareProperty("ESD_LV1_size",m_esd_lv1_size=20);
   declareProperty("ESD_RPC_size",m_esd_rpc_size=100);
   declareProperty("ESD_TGC_size",m_esd_tgc_size=50);
   declareProperty("ESD_MDT_size",m_esd_mdt_size=100);
+  declareProperty("ESD_CSC_size",m_esd_csc_size=50);
 
   declareProperty("R_WIDTH_RPC_FAILED",m_rWidth_RPC_Failed=400);
   declareProperty("R_WIDTH_TGC_FAILED",m_rWidth_TGC_Failed=200);
@@ -653,7 +650,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
                                     const TrigL2MuonSA::MuonRoad&            muonRoad,
                                     const TrigL2MuonSA::MdtRegion&           mdtRegion,
                                     const TrigL2MuonSA::RpcHits&             rpcHits,
-                                    const TrigL2MuonSA::TgcHits&             /*tgcHits*/,
+                                    const TrigL2MuonSA::TgcHits&             tgcHits,
                                     const TrigL2MuonSA::RpcFitResult&        rpcFitResult,
                                     const TrigL2MuonSA::TgcFitResult&        tgcFitResult,
                                     const TrigL2MuonSA::MdtHits&             mdtHits,
@@ -764,10 +761,6 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
     muonSA->setBarrelRadius(pattern.barrelRadius);
     muonSA->setBarrelSagitta(pattern.barrelSagitta);    
     
-    muonSA->setSlopeInner(pattern.superPoints[inner].Alin);
-    muonSA->setInterceptInner(pattern.superPoints[inner].Z);
-    muonSA->setDeltaR(pattern.deltaR);
-
     // store eta and phi used as argument to pT LUT
     muonSA->setEtaMap(pattern.etaMap);
     muonSA->setPhiMap(pattern.phiMap);
@@ -825,37 +818,43 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
     muonSA->setRoiPhi( roi->phi() );
 
     /// Set size of storages to be reserved
-    muonSA->setExtensionCapacity( m_esd_ext_size );
-    muonSA->setRobCapacity( m_esd_rob_size );
-    muonSA->setCsmCapacity( m_esd_csm_size );
-    muonSA->setLvl1EmuCapacity( m_esd_lv1_size );
     muonSA->setRpcHitsCapacity( m_esd_rpc_size );
     muonSA->setTgcHitsCapacity( m_esd_tgc_size );
     muonSA->setMdtHitsCapacity( m_esd_mdt_size );
+    muonSA->setCscHitsCapacity( m_esd_csc_size );
 
     // MDT hits
     for (unsigned int i_hit=0; i_hit<mdtHits.size(); i_hit++) {
       if ( mdtHits[i_hit].isOutlier==0 || mdtHits[i_hit].isOutlier==1 ) {
-        muonSA->setMdtHit(mdtHits[i_hit].OnlineId, (uint32_t)mdtHits[i_hit].isOutlier, mdtHits[i_hit].Chamber,
-                          mdtHits[i_hit].R, mdtHits[i_hit].Z, mdtHits[i_hit].Residual, 
+        muonSA->setMdtHit(mdtHits[i_hit].OnlineId, mdtHits[i_hit].isOutlier, mdtHits[i_hit].Chamber,
+                          mdtHits[i_hit].R, mdtHits[i_hit].Z, mdtHits[i_hit].cPhi0, mdtHits[i_hit].Residual, 
                           mdtHits[i_hit].DriftTime, mdtHits[i_hit].DriftSpace, mdtHits[i_hit].DriftSigma);  
       }
     }
 
-    // CSC hits
     for(unsigned int i_hit=0; i_hit<cscHits.size(); i_hit++) {
       if ( cscHits[i_hit].MeasuresPhi==0 ){
         if ( cscHits[i_hit].isOutlier==0 || cscHits[i_hit].isOutlier==1 ) {
-          // store CSC hits into the MDT region for the moment.
-          muonSA->setMdtHit(cscHits[i_hit].StripId, (uint32_t)cscHits[i_hit].isOutlier, cscHits[i_hit].Chamber,
-                            cscHits[i_hit].r, cscHits[i_hit].z, cscHits[i_hit].Residual,
-                            cscHits[i_hit].time, 0., 0.);
+          muonSA->setCscHit(cscHits[i_hit].isOutlier, cscHits[i_hit].Chamber, cscHits[i_hit].StationName,
+                            cscHits[i_hit].StationEta, cscHits[i_hit].StationPhi,
+                            cscHits[i_hit].ChamberLayer, cscHits[i_hit].WireLayer, cscHits[i_hit].MeasuresPhi, cscHits[i_hit].Strip,
+                            cscHits[i_hit].eta, cscHits[i_hit].phi, cscHits[i_hit].r, cscHits[i_hit].z,
+                            cscHits[i_hit].charge, cscHits[i_hit].time, cscHits[i_hit].Residual);
           msg() << MSG::DEBUG << "CSC Hits stored in xAOD: "
-                << "ID=" << cscHits[i_hit].StripId << ","
                 << "OL=" << cscHits[i_hit].isOutlier << ","
                 << "Ch=" << cscHits[i_hit].Chamber << ","
+                << "StationName=" << cscHits[i_hit].StationName << ","
+                << "StationEta=" << cscHits[i_hit].StationEta << ","
+                << "StationPhi=" << cscHits[i_hit].StationPhi << ","
+                << "ChamberLayer=" << cscHits[i_hit].ChamberLayer << ","
+                << "WireLayer=" << cscHits[i_hit].WireLayer << ","
+                << "MeasuresPhi=" << cscHits[i_hit].MeasuresPhi << ","
+                << "Strip=" << cscHits[i_hit].Strip << ","
+                << "eta="  << cscHits[i_hit].eta << ","
+                << "phi="  << cscHits[i_hit].phi << ","
                 << "r="  << cscHits[i_hit].r << ","
                 << "z="  << cscHits[i_hit].z << ","
+                << "charge=" << cscHits[i_hit].charge << ","
                 << "Rs=" << cscHits[i_hit].Residual << ","
                 << "t="  << cscHits[i_hit].time << endreq;
         }
@@ -864,22 +863,39 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
 
     // RPC hits
     for(unsigned int i_hit=0; i_hit<rpcHits.size(); i_hit++) {
-      muonSA->setPadHit(rpcHits[i_hit].layer, rpcHits[i_hit].gasGap, 
+      muonSA->setRpcHit(rpcHits[i_hit].layer, rpcHits[i_hit].measuresPhi, 
                         rpcHits[i_hit].x, rpcHits[i_hit].y, rpcHits[i_hit].z,
-                        rpcHits[i_hit].doubletR, rpcHits[i_hit].measuresPhi);
+                        rpcHits[i_hit].time, rpcHits[i_hit].distToEtaReadout, rpcHits[i_hit].distToPhiReadout,
+                        rpcHits[i_hit].stationName);
       msg() << MSG::DEBUG << "RPC hits stored in xAOD: "
             << "stationName=" << rpcHits[i_hit].stationName << ","
             << "layer=" << rpcHits[i_hit].layer << ","
-            << "gasGap=" << rpcHits[i_hit].gasGap << ","
+            << "measuresPhi=" << rpcHits[i_hit].measuresPhi << ","
             << "x=" << rpcHits[i_hit].x << ","
             << "y=" << rpcHits[i_hit].y << ","
             << "y=" << rpcHits[i_hit].z << ","
-            << "r=" << rpcHits[i_hit].doubletR << ","
-            << "p=" << rpcHits[i_hit].measuresPhi << ","
             << endreq;
     }
 
-    // Road information
+    // TGC hits
+    for(unsigned int i_hit=0; i_hit<tgcHits.size(); i_hit++) {
+      muonSA->setTgcHit(tgcHits[i_hit].eta, tgcHits[i_hit].phi, tgcHits[i_hit].r, tgcHits[i_hit].z,
+                        tgcHits[i_hit].width, tgcHits[i_hit].sta, tgcHits[i_hit].isStrip,
+                        tgcHits[i_hit].bcTag, tgcHits[i_hit].inRoad);
+      msg() << MSG::DEBUG << "TGC hits stored in xAOD: "
+            << "eta=" << tgcHits[i_hit].eta << ","
+            << "phi=" << tgcHits[i_hit].phi << ","
+            << "r=" << tgcHits[i_hit].r << ","
+            << "z=" << tgcHits[i_hit].z << ","
+            << "width=" << tgcHits[i_hit].width << ","
+            << "stationNum=" << tgcHits[i_hit].sta << ","
+            << "isStrip=" << tgcHits[i_hit].isStrip << ","
+            << "bcTag=" << tgcHits[i_hit].bcTag << ","
+            << "inRoad=" << tgcHits[i_hit].inRoad << ","
+            << endreq;
+    }
+
+    // Muon road
     for (int i_station=0; i_station<8; i_station++) {
       for (int i_sector=0; i_sector<2; i_sector++) {
         muonSA->setRoad(i_station, i_sector, muonRoad.aw[i_station][i_sector], muonRoad.bw[i_station][i_sector]);
@@ -909,11 +925,11 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
 			   tgcFitResult.tgcMidPhiChi2, tgcFitResult.tgcMidPhiNin);
       }
     } else {
-      // RPC fit results (at R=1)
+      // RPC fit results
       if (rpcFitResult.isSuccess ) {
-        muonSA->setRpc1(cos(rpcFitResult.phi_middle), sin(rpcFitResult.phi_middle), rpcFitResult.ZoverR_middle);
-        muonSA->setRpc2(cos(rpcFitResult.phi_middle), sin(rpcFitResult.phi_middle), rpcFitResult.ZoverR_middle);
-        muonSA->setRpc3(cos(rpcFitResult.phi_outer), sin(rpcFitResult.phi_outer), rpcFitResult.ZoverR_outer);
+	muonSA->setRpcFitInn(rpcFitResult.phi_inner, rpcFitResult.slope_inner, rpcFitResult.offset_inner);
+	muonSA->setRpcFitInn(rpcFitResult.phi_middle, rpcFitResult.slope_middle, rpcFitResult.offset_middle);
+	muonSA->setRpcFitInn(rpcFitResult.phi_outer, rpcFitResult.slope_outer, rpcFitResult.offset_outer);
       }
     }
 
@@ -959,22 +975,6 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
       // Middle
       if ( fabs(pattern.superPoints[middle].R) > ZERO_LIMIT && fabs(pattern.superPoints[middle].Z) > ZERO_LIMIT ) { // if R and Z exist 
         float phi = 0;
-        /*
-        if ( rpcFitResult.isSuccess && ( fabs(rpcFitResult.rpc1[2]) > ZERO_LIMIT || fabs(rpcFitResult.rpc2[2]) > ZERO_LIMIT ) ) { // if phi exists
-          float phi1 = atan2(rpcFitResult.rpc1[1],rpcFitResult.rpc1[0]);
-          float phi2 = atan2(rpcFitResult.rpc2[1],rpcFitResult.rpc2[0]);
-          if ( rpcFitResult.rpc1[2]==0. || rpcFitResult.rpc2[2]==0. ) {
-            if ( fabs(rpcFitResult.rpc1[2]) > ZERO_LIMIT ) phi = phi1;
-            if ( fabs(rpcFitResult.rpc2[2]) > ZERO_LIMIT ) phi = phi2;
-          } else if ( phi1*phi2 < 0 && fabsf(phi1)>CLHEP::pi/2. ) {
-            double tmp1 = (phi1>0)? phi1 - CLHEP::pi : phi1 + CLHEP::pi;
-            double tmp2 = (phi2>0)? phi2 - CLHEP::pi : phi2 + CLHEP::pi;
-            double tmp  = (tmp1+tmp2)/2.;
-            phi = (tmp>0.)? tmp - CLHEP::pi : tmp + CLHEP::pi;
-          } else {
-            phi = (phi1+phi2)/2.;
-          }
-        */
         if (rpcFitResult.isSuccess) {
           phi = rpcFitResult.phi;
         } else {
@@ -985,17 +985,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
         muonSA->setTrackPosition( pattern.superPoints[middle].R, pattern.superPoints[middle].Z, eta, phi );
       }
 
-      // Outer
-      if ( fabs(pattern.superPoints[outer].R) > ZERO_LIMIT && fabs(pattern.superPoints[outer].Z) > ZERO_LIMIT ) { // if R and Z exist   
-        /*
-        if ( rpcFitResult.isSuccess && rpcFitResult.rpc3[2] != 0. ) { // if phi exists
-          float phi = atan2(rpcFitResult.rpc3[1],rpcFitResult.rpc3[0]);
-          float theta = atan(pattern.superPoints[outer].R/fabsf(pattern.superPoints[outer].Z));
-          float eta = (tan(theta/2.)!=0.)? -log(tan(theta/2.))*pattern.superPoints[outer].Z/fabsf(pattern.superPoints[outer].Z): 0.;
-          muonSA->setTrackPosition( pattern.superPoints[outer].R, pattern.superPoints[outer].Z, eta, phi );
-        }
-        */
-      } 
+      // Not stored outer position for the moment as the phi is not available
 
     }
   

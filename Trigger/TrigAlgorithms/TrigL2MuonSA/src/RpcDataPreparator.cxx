@@ -182,9 +182,9 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
   unsigned short int PADId;
   unsigned int padIdHash;
   if ( !m_rpcCablingSvc->give_PAD_address( side, sector, roiNumber, logic_sector, PADId, padIdHash) ) {
-    msg() << MSG::ERROR << "Roi Number: " << roiNumber << "not compatible with side, sector: " << side 
+    msg() << MSG::WARNING << "Roi Number: " << roiNumber << " not compatible with side, sector: " << side 
 	  <<  " " << sector << endreq;
-    return StatusCode::FAILURE;
+    //    return StatusCode::FAILURE;
   }
   else {
     msg() << MSG::DEBUG << "Roi Number: " << roiNumber << " side, sector: " << side 
@@ -304,11 +304,17 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        const double hity=globalpos.y();
        const double hitz=globalpos.z();
        
+       const double hittime = prd->time();
+       const MuonGM::RpcReadoutElement* detEl = prd->detectorElement();
+       const double distToPhiReadout = detEl->distanceToPhiReadout(globalpos);
+       const double distToEtaReadout = detEl->distanceToEtaReadout(globalpos);
+
        msg() << MSG::DEBUG << "Selected Rpc Collection: "
              << " station name:" << stationName
              << " global positions x/y/z=" << hitx << "/" << hity << "/" << hitz
              << " doubletR: " << doubletR << " doubletZ: " << doubletZ << " doubletPhi " << doubletPhi
-             << " gasGap " << gasGap << " layer " << layer
+             << " gasGap " << gasGap << " layer " << layer << " time " << hittime
+	     << " distToEtaReadout " << distToEtaReadout << " distToPhiReadout " << distToPhiReadout
              << endreq;
        
        TrigL2MuonSA::RpcHitData lutDigit;
@@ -316,6 +322,9 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        lutDigit.x           = hitx;
        lutDigit.y           = hity;
        lutDigit.z           = hitz;
+       lutDigit.time        = hittime;
+       lutDigit.distToEtaReadout = distToEtaReadout;
+       lutDigit.distToPhiReadout = distToPhiReadout;
        lutDigit.gasGap      = gasGap;
        lutDigit.doubletR    = doubletR;
        lutDigit.doubletPhi  = doubletPhi;

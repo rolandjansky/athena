@@ -369,7 +369,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
     
     sc = createRpcFragment(roi, rpcFragment);
     if ( sc != StatusCode::SUCCESS ) {
-      msg() << MSG::ERROR << "Could not create the Rpc fragment of the calibration stream" << endreq;
+      msg() << MSG::WARNING << "Could not create the Rpc fragment of the calibration stream" << endreq;
     } 
     else {
       msg() << MSG::DEBUG << "Adding the RPC fragment to the calibration stream" << endreq;
@@ -647,12 +647,12 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
     
     }
     else {
-      msg() << MSG::ERROR << "Can't initialize the RpcPad" << endreq;
+      msg() << MSG::WARNING << "Can't initialize the RpcPad" << endreq;
       return StatusCode::FAILURE;
     }
   }
   else {
-    msg() << MSG::ERROR << "Can't get the pad address from the rpc cabling service" << endreq;
+    msg() << MSG::WARNING << "Can't get the pad address from the rpc cabling service" << endreq;
     return StatusCode::FAILURE;
   }
 
