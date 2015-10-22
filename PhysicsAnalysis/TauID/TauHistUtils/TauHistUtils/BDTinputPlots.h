@@ -5,8 +5,8 @@
 #ifndef TAUHISTUTILS_BDTINPUTPLOTS_H
 #define TAUHISTUTILS_BDTINPUTPLOTS_H
 
-#include "TrkValHistUtils/PlotBase.h"
-#include "TrkValHistUtils/ParamPlots.h"
+#include "TauHistUtils/PlotBase.h"
+#include "TauHistUtils/ParamPlots.h"
 #include "xAODTau/TauDefs.h" 
 #include "xAODTau/TauJet.h"
 #include "xAODPFlow/versions/PFO_v1.h"
@@ -16,7 +16,7 @@ namespace Tau{
 class BDTinputPlots: public PlotBase {
   public:
     BDTinputPlots(PlotBase *pParent, std::string sDir, std::string sTauJetContainerName);
-
+    virtual ~BDTinputPlots();
     void fill(const xAOD::TauJet& tau);
     // BDT output
 
