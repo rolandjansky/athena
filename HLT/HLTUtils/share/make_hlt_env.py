@@ -72,7 +72,8 @@ class Config:
                'PYTHONPATH',
                'DATAPATH',
                'MANPATH',
-               'JOBOPTSEARCHPATH'
+               'JOBOPTSEARCHPATH',
+               'ROOT_INCLUDE_PATH',
                ]
 
    # Possible description for OKS variables
@@ -202,7 +203,7 @@ def writeHltEnv(hltenv, filename, prefix):
                          Name = k,
                          Value = hltenv[k],
                          Description = Config.doc.get(k,''))
-      
+
       hltvars.Contains += [var]
 
    for var,inc in Config.addVars.iteritems():
