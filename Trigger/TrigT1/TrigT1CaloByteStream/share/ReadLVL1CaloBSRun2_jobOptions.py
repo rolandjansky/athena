@@ -17,6 +17,10 @@ from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__PpmByteStreamR
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__RodHeaderByteStreamTool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__L1CaloErrorByteStreamTool
 
+# Needed for Zdc converters
+from AtlasGeoModel import SetGeometryVersion
+from AtlasGeoModel import GeoModelInit
+
 ToolSvc = Service("ToolSvc")
 ToolSvc += LVL1BS__CpByteStreamV2Tool("CpByteStreamV2Tool")
 ToolSvc += LVL1BS__CpmRoiByteStreamV2Tool("CpmRoiByteStreamV2Tool")
