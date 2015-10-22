@@ -1781,7 +1781,7 @@
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
-                                <batchWallTime>30</batchWallTime>
+                                <batchWallTime>420</batchWallTime>
                                 <test>
                                     <modulename>RttLibraryTools</modulename>
                                     <testname>FileGrepper</testname>
