@@ -87,9 +87,7 @@ private:
     void fillGoodJetHistos(const xAOD::Jet *jet);
     void fillSuspectJetHistos(const xAOD::Jet *jet);
     void fillBadJetHistos(const xAOD::Jet *jet);
-    void fillDetailedHistograms(const xAOD::Jet *jet);
-    //void fillElectronHistograms(const xAOD::Jet *jet);
-    //void fillMuonHistograms(const xAOD::Jet *jet);
+    void fillDetailedHistograms(const xAOD::Jet *jet, Jet_t quality);
     void fillTrackInJetHistograms(const xAOD::Jet *jet);
     void fillBadTrackBits(const std::bitset<17> failedCuts, double eta, double phi);
     //void fillBadZone(int zone, double w);
@@ -134,41 +132,56 @@ private:
     /** @brief Use Analysis::TrigDecisionTool. */
     bool m_use_trigdectool;
 
-
     /** @brief To monitor number of tracks used to evaluate IP2D weight. */
     TH1F_LW* m_tag_ip2d_n = nullptr;
+    TH1F_LW* m_tag_ip2d_n_sj = nullptr;
     /** @brief To monitor jet likelihood value if coming from b decay for IP2D tagger. */
     TH1F_LW* m_tag_ip2d_b = nullptr;
+    TH1F_LW* m_tag_ip2d_b_sj = nullptr;
     /** @brief To monitor jet likelihood value if coming from u decay for IP2D tagger. */
     TH1F_LW* m_tag_ip2d_u = nullptr;
+    TH1F_LW* m_tag_ip2d_u_sj = nullptr;
     /** @brief To monitor jet likelihood value if coming from c decay for IP2D tagger. */
     TH1F_LW* m_tag_ip2d_c = nullptr;
+    TH1F_LW* m_tag_ip2d_c_sj = nullptr;
      /** @brief To monitor jet log likelihood ratio for IP2D tagger. */
     TH1F_LW* m_tag_ip2d_llr = nullptr;   
+    TH1F_LW* m_tag_ip2d_llr_sj = nullptr;   
     /** @brief To monitor number of tracks used to evaluate IP3D weight. */   
     TH1F_LW* m_tag_ip3d_n = nullptr;
+    TH1F_LW* m_tag_ip3d_n_sj = nullptr;
     /** @brief To monitor jet likelihood value if coming from b decay for IP3D tagger. */
     TH1F_LW* m_tag_ip3d_b = nullptr;
+    TH1F_LW* m_tag_ip3d_b_sj = nullptr;
     /** @brief To monitor jet likelihood value if coming from u decay for IP3D tagger. */
     TH1F_LW* m_tag_ip3d_u = nullptr;
+    TH1F_LW* m_tag_ip3d_u_sj = nullptr;
     /** @brief To monitor jet likelihood value if coming from c decay for IP3D tagger. */
     TH1F_LW* m_tag_ip3d_c = nullptr;   
+    TH1F_LW* m_tag_ip3d_c_sj = nullptr;   
      /** @brief To monitor jet log likelihood ratio for IP3D tagger. */
     TH1F_LW* m_tag_ip3d_llr = nullptr;     
+    TH1F_LW* m_tag_ip3d_llr_sj = nullptr;     
     /** @brief To monitor jet 3D significance of SV0 tagger. */
     TH1F_LW* m_tag_sv0_sig3d = nullptr;
     /** @brief To monitor jet likelihood value if coming from b decay for SV1 tagger. */
     TH1F_LW* m_tag_sv1_b = nullptr;
+    TH1F_LW* m_tag_sv1_b_sj = nullptr;
     /** @brief To monitor jet likelihood value if coming from u decay for SV1 tagger. */
     TH1F_LW* m_tag_sv1_u = nullptr;
+    TH1F_LW* m_tag_sv1_u_sj = nullptr;
      /** @brief To monitor jet likelihood value if coming from c decay for SV1 tagger. */
     TH1F_LW* m_tag_sv1_c = nullptr;    
+    TH1F_LW* m_tag_sv1_c_sj = nullptr;    
       /** @brief To monitor jet log likelihood ratio for SV1 tagger. */
     TH1F_LW* m_tag_sv1_llr = nullptr;    
+    TH1F_LW* m_tag_sv1_llr_sj = nullptr;    
     /** @brief To monitor log likelihood ratio for JetFitter. */
     TH1F_LW* m_tag_jetfitter_llr = nullptr;    
+    TH1F_LW* m_tag_jetfitter_llr_sj = nullptr;    
     /** @brief To monitor log likelihood ratio for combined tagger JetFitterCOMBNN. */
     TH1F_LW* m_tag_jfcnn_llr = nullptr;
+    TH1F_LW* m_tag_jfcnn_llr_sj = nullptr;
     
     /** @brief To monitor likelihood weight based on combined tagger (IP3D+SV1). */
     TH1F_LW* m_tag_sv1ip3d_w = nullptr;

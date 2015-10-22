@@ -209,27 +209,47 @@ StatusCode JetTagMonitoring::bookHistograms() {
     m_monGr_shift = new MonGroup( this, "JetTagging", run );
     m_monGr_LowStat = new MonGroup( this, "JetTagging", lowStat );
 
-    registerHist(*m_monGr_shift, m_tag_ip2d_n    = TH1F_LW::create("tag_IP2D_n","IP2D # of tracks",20,0.,20.));
-    registerHist(*m_monGr_shift, m_tag_ip2d_b    = TH1F_LW::create("tag_IP2D_b","IP2D Pb",100,0.,1.));
-    registerHist(*m_monGr_shift, m_tag_ip2d_u    = TH1F_LW::create("tag_IP2D_u","IP2D Pu",100,0.,1.));
-    registerHist(*m_monGr_shift, m_tag_ip2d_c    = TH1F_LW::create("tag_IP2D_c","IP2D Pc",100,0.,1.));
-    registerHist(*m_monGr_shift, m_tag_ip2d_llr  = TH1F_LW::create("tag_IP2D_llr","IP2D llr",160,-40.,40.));
+    registerHist(*m_monGr_shift, m_tag_ip2d_n    = TH1F_LW::create("tag_IP2D_n","IP2D # of tracks (Quality Jets)",20,0.,20.));
+    registerHist(*m_monGr_shift, m_tag_ip2d_b    = TH1F_LW::create("tag_IP2D_b","IP2D Pb (Quality Jets)",100,0.,1.));
+    registerHist(*m_monGr_shift, m_tag_ip2d_u    = TH1F_LW::create("tag_IP2D_u","IP2D Pu (Quality Jets)",100,0.,1.));
+    registerHist(*m_monGr_shift, m_tag_ip2d_c    = TH1F_LW::create("tag_IP2D_c","IP2D Pc (Quality Jets)",100,0.,1.));
+    registerHist(*m_monGr_shift, m_tag_ip2d_llr  = TH1F_LW::create("tag_IP2D_llr","IP2D llr (Quality Jets)",160,-40.,40.));
+
+    registerHist(*m_monGr_shift, m_tag_ip2d_n_sj    = TH1F_LW::create("tag_IP2D_n_sj","IP2D # of tracks (Suspect Jets)",20,0.,20.));
+    registerHist(*m_monGr_shift, m_tag_ip2d_b_sj    = TH1F_LW::create("tag_IP2D_b_sj","IP2D Pb (Suspect Jets)",100,0.,1.));
+    registerHist(*m_monGr_shift, m_tag_ip2d_u_sj    = TH1F_LW::create("tag_IP2D_u_sj","IP2D Pu (Suspect Jets)",100,0.,1.));
+    registerHist(*m_monGr_shift, m_tag_ip2d_c_sj    = TH1F_LW::create("tag_IP2D_c_sj","IP2D Pc (Suspect Jets)",100,0.,1.));
+    registerHist(*m_monGr_shift, m_tag_ip2d_llr_sj  = TH1F_LW::create("tag_IP2D_llr_sj","IP2D llr (Suspect Jets)",160,-40.,40.));
     
-    registerHist(*m_monGr_shift, m_tag_ip3d_n    = TH1F_LW::create("tag_IP3D_n","IP3D # of tracks",20,0.,20.));
-    registerHist(*m_monGr_shift, m_tag_ip3d_b    = TH1F_LW::create("tag_IP3D_b","IP3D Pb",100,0.,1.));
-    registerHist(*m_monGr_shift, m_tag_ip3d_u    = TH1F_LW::create("tag_IP3D_u","IP3D Pu",100,0.,1.));
-    registerHist(*m_monGr_shift, m_tag_ip3d_c    = TH1F_LW::create("tag_IP3D_c","IP3D Pc",100,0.,1.)); 
-    registerHist(*m_monGr_shift, m_tag_ip3d_llr  = TH1F_LW::create("tag_IP3D_llr","IP3D llr",160,-40.,40.));  
+    registerHist(*m_monGr_shift, m_tag_ip3d_n    = TH1F_LW::create("tag_IP3D_n","IP3D # of tracks (Quality Jets)",20,0.,20.));
+    registerHist(*m_monGr_shift, m_tag_ip3d_b    = TH1F_LW::create("tag_IP3D_b","IP3D Pb (Quality Jets)",100,0.,1.));
+    registerHist(*m_monGr_shift, m_tag_ip3d_u    = TH1F_LW::create("tag_IP3D_u","IP3D Pu (Quality Jets)",100,0.,1.));
+    registerHist(*m_monGr_shift, m_tag_ip3d_c    = TH1F_LW::create("tag_IP3D_c","IP3D Pc (Quality Jets)",100,0.,1.)); 
+    registerHist(*m_monGr_shift, m_tag_ip3d_llr  = TH1F_LW::create("tag_IP3D_llr","IP3D llr (Quality Jets)",160,-40.,40.));  
+
+    registerHist(*m_monGr_shift, m_tag_ip3d_n_sj    = TH1F_LW::create("tag_IP3D_n_sj","IP3D # of tracks (Suspect Jets)",20,0.,20.));
+    registerHist(*m_monGr_shift, m_tag_ip3d_b_sj    = TH1F_LW::create("tag_IP3D_b_sj","IP3D Pb (Suspect Jets)",100,0.,1.));
+    registerHist(*m_monGr_shift, m_tag_ip3d_u_sj    = TH1F_LW::create("tag_IP3D_u_sj","IP3D Pu (Suspect Jets)",100,0.,1.));
+    registerHist(*m_monGr_shift, m_tag_ip3d_c_sj    = TH1F_LW::create("tag_IP3D_c_sj","IP3D Pc (Suspect Jets)",100,0.,1.)); 
+    registerHist(*m_monGr_shift, m_tag_ip3d_llr_sj  = TH1F_LW::create("tag_IP3D_llr_sj","IP3D llr (Suspect Jets)",160,-40.,40.));  
     
     registerHist(*m_monGr_shift, m_tag_sv0_sig3d  = TH1F_LW::create("tag_SV0_sig3d","SV0 sig3d",100, 0.,100.));     
      
-    registerHist(*m_monGr_shift, m_tag_sv1_b    = TH1F_LW::create("tag_SV1_b","SV1 Pb",100,0.,1.));
-    registerHist(*m_monGr_shift, m_tag_sv1_u    = TH1F_LW::create("tag_SV1_u","SV1 Pu",100,0.,1.));
-    registerHist(*m_monGr_shift, m_tag_sv1_c    = TH1F_LW::create("tag_SV1_c","SV1 Pc",100,0.,1.));
-    registerHist(*m_monGr_shift, m_tag_sv1_llr  = TH1F_LW::create("tag_SV1_llr","SV1 llr",160,-40.,40.));
+    registerHist(*m_monGr_shift, m_tag_sv1_b    = TH1F_LW::create("tag_SV1_b","SV1 Pb (Quality Jets)",100,0.,1.));
+    registerHist(*m_monGr_shift, m_tag_sv1_u    = TH1F_LW::create("tag_SV1_u","SV1 Pu (Quality Jets)",100,0.,1.));
+    registerHist(*m_monGr_shift, m_tag_sv1_c    = TH1F_LW::create("tag_SV1_c","SV1 Pc (Quality Jets)",100,0.,1.));
+    registerHist(*m_monGr_shift, m_tag_sv1_llr  = TH1F_LW::create("tag_SV1_llr","SV1 llr (Quality Jets)",160,-40.,40.));
+
+    registerHist(*m_monGr_shift, m_tag_sv1_b_sj    = TH1F_LW::create("tag_SV1_b_sj","SV1 Pb (Suspect Jets)",100,0.,1.));
+    registerHist(*m_monGr_shift, m_tag_sv1_u_sj    = TH1F_LW::create("tag_SV1_u_sj","SV1 Pu (Suspect Jets)",100,0.,1.));
+    registerHist(*m_monGr_shift, m_tag_sv1_c_sj    = TH1F_LW::create("tag_SV1_c_sj","SV1 Pc (Suspect Jets)",100,0.,1.));
+    registerHist(*m_monGr_shift, m_tag_sv1_llr_sj  = TH1F_LW::create("tag_SV1_llr_sj","SV1 llr (Suspect Jets)",160,-40.,40.));
     
-    registerHist(*m_monGr_shift, m_tag_jetfitter_llr = TH1F_LW::create("tag_JetFitter_llr","JetFitter llr",160,-40.,40.));
-    registerHist(*m_monGr_shift, m_tag_jfcnn_llr   = TH1F_LW::create("tag_JFCNN_llr","Combined weight JetFitterCOMBNN",160,-40.,40.));
+    registerHist(*m_monGr_shift, m_tag_jetfitter_llr = TH1F_LW::create("tag_JetFitter_llr","JetFitter llr (Quality Jets)",160,-40.,40.));
+    registerHist(*m_monGr_shift, m_tag_jfcnn_llr   = TH1F_LW::create("tag_JFCNN_llr","Combined weight JetFitterCOMBNN (Quality Jets)",160,-40.,40.));
+
+    registerHist(*m_monGr_shift, m_tag_jetfitter_llr_sj = TH1F_LW::create("tag_JetFitter_llr_sj","JetFitter llr (Suspect Jets)",160,-40.,40.));
+    registerHist(*m_monGr_shift, m_tag_jfcnn_llr_sj   = TH1F_LW::create("tag_JFCNN_llr_sj","Combined weight JetFitterCOMBNN (Suspect Jets)",160,-40.,40.));
     
     registerHist(*m_monGr_shift, m_tag_sv1ip3d_w = TH1F_LW::create("tag_SV1IP3D_w","Combined weight SV1IP3D (quality jet)",100,-10.,10.));
     registerHist(*m_monGr_shift, m_tag_mv2c20_w  = TH1F_LW::create("tag_MV2c20_w","Combined weight MV2c20 (quality jet)",100,-1.,1.));    
@@ -729,7 +749,7 @@ StatusCode JetTagMonitoring::procHistograms() {
 
     /* Finalize the histograms */
     if ( m_histogramsCreated && (endOfRun || AthenaMonManager::environment() == AthenaMonManager::online) ) {
-
+      
       m_track_selector_eff->getROOTHist()->Divide(m_track_selector_all->getROOTHist(),m_tracks_all_2D->getROOTHist());
     }
     ATH_MSG_DEBUG("Exiting from procHistograms()");
@@ -821,13 +841,7 @@ void JetTagMonitoring::fillJetHistograms() {
            fillBadJetHistos(*jetItr);
 
         //* MORE PLOTS! *//
-        fillDetailedHistograms(*jetItr);
-
-        //* get information about Electron Constituents *//
-        //fillElectronHistograms(*jetItr);
-
-        //* get information about Muon Constituents *//
-        //fillMuonHistograms(*jetItr);
+        fillDetailedHistograms(*jetItr, quality);
 
     }
 
@@ -877,7 +891,7 @@ void JetTagMonitoring::fillTrackInJetHistograms(const xAOD::Jet *jet) {
     return;
 }
 
-void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet) {
+void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet, Jet_t quality) {
 
     ATH_MSG_DEBUG("in fillDetailedHistograms()");
 
@@ -892,12 +906,21 @@ void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet) {
     double pc          = btag->IP3D_pc();                               // c likelihood
     double llr         = btag->IP3D_loglikelihoodratio();               // log likelihood ratio 
         
-    m_tag_ip3d_n->Fill((float)ntrk); 
-    m_tag_ip3d_b->Fill(pb);
-    m_tag_ip3d_u->Fill(pu);
-    m_tag_ip3d_c->Fill(pc);
-    m_tag_ip3d_llr->Fill(llr);    
-    
+    if ( quality == goodJet ) {
+      m_tag_ip3d_n->Fill((float)ntrk); 
+      m_tag_ip3d_b->Fill(pb);
+      m_tag_ip3d_u->Fill(pu);
+      m_tag_ip3d_c->Fill(pc);
+      m_tag_ip3d_llr->Fill(llr);    
+    }
+    else if ( quality == suspectJet ) {
+      m_tag_ip3d_n_sj->Fill((float)ntrk); 
+      m_tag_ip3d_b_sj->Fill(pb);
+      m_tag_ip3d_u_sj->Fill(pu);
+      m_tag_ip3d_c_sj->Fill(pc);
+      m_tag_ip3d_llr_sj->Fill(llr);    
+    }
+
     ATH_MSG_VERBOSE("InfoBase for IP3D: #tracks = " << ntrk << ", Pb = " << pb 
     << ", Pu = " << pu<< ", Pc = " << pc << ", llr = " << llr);
 
@@ -907,11 +930,20 @@ void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet) {
     pc          = btag->IP2D_pc();        // c likelihood
     llr         = btag->IP2D_loglikelihoodratio(); // log likelihood ratio 
     
-    m_tag_ip2d_n->Fill((float)ntrk); 
-    m_tag_ip2d_b->Fill(pb);
-    m_tag_ip2d_u->Fill(pu);
-    m_tag_ip2d_c->Fill(pc);
-    m_tag_ip2d_llr->Fill(llr);  
+    if ( quality == goodJet ) {
+      m_tag_ip2d_n->Fill((float)ntrk); 
+      m_tag_ip2d_b->Fill(pb);
+      m_tag_ip2d_u->Fill(pu);
+      m_tag_ip2d_c->Fill(pc);
+      m_tag_ip2d_llr->Fill(llr);  
+    }
+    else if ( quality == suspectJet ) {
+      m_tag_ip2d_n_sj->Fill((float)ntrk); 
+      m_tag_ip2d_b_sj->Fill(pb);
+      m_tag_ip2d_u_sj->Fill(pu);
+      m_tag_ip2d_c_sj->Fill(pc);
+      m_tag_ip2d_llr_sj->Fill(llr);  
+    }
      
     ATH_MSG_VERBOSE("InfoBase for IP2D: #tracks = " << ntrk << ", Pb = " << pb 
     << ", Pu = " << pu<< ", Pc = " << pc << ", llr = " << llr);
@@ -923,19 +955,37 @@ void JetTagMonitoring::fillDetailedHistograms(const xAOD::Jet *jet) {
     pc          = btag->SV1_pc();        // c likelihood
     llr         = btag->SV1_loglikelihoodratio();// log likelihood ratio 
     
-    m_tag_sv1_b->Fill(pb);
-    m_tag_sv1_u->Fill(pu);
-    m_tag_sv1_c->Fill(pc);
-    m_tag_sv1_llr->Fill(llr);
-    
+    if ( quality == goodJet ) {
+      m_tag_sv1_b->Fill(pb);
+      m_tag_sv1_u->Fill(pu);
+      m_tag_sv1_c->Fill(pc);
+      m_tag_sv1_llr->Fill(llr);
+    }
+    else if ( quality == suspectJet ) {
+      m_tag_sv1_b_sj->Fill(pb);
+      m_tag_sv1_u_sj->Fill(pu);
+      m_tag_sv1_c_sj->Fill(pc);
+      m_tag_sv1_llr_sj->Fill(llr);
+    }
+
     ATH_MSG_VERBOSE("InfoBase for SV1: Pb = " << pb << ", Pu = " << pu<< ", Pc = " << pc<< ", llr = " << llr);
     
-    llr         = btag->JetFitter_loglikelihoodratio(); // log likelihood ratio 
-    m_tag_jetfitter_llr->Fill(llr);
+    llr = btag->JetFitter_loglikelihoodratio(); // log likelihood ratio 
+    if ( quality == goodJet ) {
+      m_tag_jetfitter_llr->Fill(llr);
+    }
+    else if ( quality == suspectJet ) {
+      m_tag_jetfitter_llr_sj->Fill(llr);
+    }
  
-    llr         = btag->JetFitterCombNN_loglikelihoodratio(); // log likelihood ratio 
-    m_tag_jfcnn_llr->Fill(llr);
-    
+    llr = btag->JetFitterCombNN_loglikelihoodratio(); // log likelihood ratio 
+    if ( quality == goodJet ) {
+      m_tag_jfcnn_llr->Fill(llr);
+    }
+    else if ( quality == suspectJet ) {
+      m_tag_jfcnn_llr_sj->Fill(llr);
+    }  
+  
     return;
 }
 
