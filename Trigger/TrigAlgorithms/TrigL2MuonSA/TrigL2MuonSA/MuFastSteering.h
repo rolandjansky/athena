@@ -165,13 +165,10 @@ class MuFastSteering : public HLT::FexAlgo,
   BooleanProperty  m_doCalStream;
   BooleanProperty  m_calDataScouting;
   
-  IntegerProperty m_esd_ext_size;
-  IntegerProperty m_esd_rob_size;
-  IntegerProperty m_esd_csm_size;
-  IntegerProperty m_esd_lv1_size;
   IntegerProperty m_esd_rpc_size;
   IntegerProperty m_esd_tgc_size;
   IntegerProperty m_esd_mdt_size;      
+  IntegerProperty m_esd_csc_size;      
   
   DoubleProperty m_rWidth_RPC_Failed;
   DoubleProperty m_rWidth_TGC_Failed;

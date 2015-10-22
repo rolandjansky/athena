@@ -281,7 +281,7 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const TrigRoiDescriptor*
 double TrigL2MuonSA::CscDataPreparator::calc_residual(double aw,double bw,double x,double y)
 {
   const double ZERO_LIMIT = 1e-4;
-  if( fabs(aw) < ZERO_LIMIT ) return x-bw;
+  if( fabs(aw) < ZERO_LIMIT ) return y-bw;
   double ia  = 1/aw;
   double iaq = ia*ia;
   double dz  = x - (y-bw)*ia;

@@ -17,6 +17,9 @@ namespace TrigL2MuonSA {
       x(0),
       y(0),
       z(0),
+      time(0),
+      distToEtaReadout(0),
+      distToPhiReadout(0),
       gasGap(0),
       doubletR(0),
       doubletPhi(0),
@@ -31,6 +34,9 @@ namespace TrigL2MuonSA {
       double x;
       double y;
       double z;
+      double time;
+      double distToEtaReadout;
+      double distToPhiReadout;
       int gasGap;
       int doubletR;
       int doubletPhi;
