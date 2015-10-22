@@ -68,6 +68,7 @@ namespace InDet {
 
 }
 
+class IFTK_VertexFinderTool;
 
 
 class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public IIncidentListener,
@@ -89,7 +90,7 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
  virtual xAOD::TrackParticleContainer* getTrackParticles(const bool withRefit);
  virtual xAOD::TrackParticleContainer* getTrackParticlesInRoi(const IRoiDescriptor&, const bool withRefit);
  
- virtual VxContainer* getVxContainer(const bool withRefit);
+ virtual VxContainer* getVxContainer(const ftk::FTK_TrackType trackType);
  virtual xAOD::VertexContainer* getVertexContainer(const bool withRefit);
 
 
@@ -120,6 +121,9 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
 
  private:
 
+ float dphi(const float phi1, const float phi2) const;
+
+
   std::string m_RDO_key;
   StoreGateSvc* m_storeGate;
   ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
@@ -136,6 +140,7 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool;
   ToolHandle< Trk::ITrackParticleCreatorTool > m_particleCreatorTool;
   ToolHandle< InDet::IVertexFinder > m_VertexFinderTool;
+  ToolHandle< IFTK_VertexFinderTool > m_RawVertexFinderTool;
 
   double m_trainingBeamspotX;
   double m_trainingBeamspotY;
@@ -157,8 +162,10 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   xAOD::TrackParticleAuxContainer* m_refit_tpAuxCont;
 
   // VxVertex cache 
+  VxContainer* m_raw_vx;
   VxContainer* m_conv_vx;
   VxContainer* m_refit_vx;
+  bool m_got_raw_vx;
   bool m_got_conv_vx;
   bool m_got_refit_vx;
 
@@ -167,6 +174,7 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
   xAOD::VertexAuxContainer* m_conv_vertexAux;
   xAOD::VertexContainer* m_refit_vertex;
   xAOD::VertexAuxContainer* m_refit_vertexAux;
+  bool m_got_raw_vertex;
   bool m_got_conv_vertex;
   bool m_got_refit_vertex;
 
@@ -203,11 +211,11 @@ class FTK_DataProviderSvc : public virtual IFTK_DataProviderSvc, virtual public 
 
   double m_pTscaleFactor;
 
-  bool m_fixBadTracks;
   bool m_rejectBadTracks;
   float m_dPhiCut;
   float m_dEtaCut;
-
+  bool m_useViewContainers;
+  
 };
 
 inline bool compareFTK_Clusters (InDet::SiClusterOnTrack* cl1, InDet::SiClusterOnTrack* cl2) {
