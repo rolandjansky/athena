@@ -120,6 +120,37 @@ TrigCountSpacePoints::TrigCountSpacePoints(const std::string& name, ISvcLocator*
   declareMonitoredStdContainer("sctECA_sp_occ_phi",           m_sctECA_sp_occ_phi );
   declareMonitoredStdContainer("sctECC_sp_occ_disk",          m_sctECC_sp_occ_disk );
   declareMonitoredStdContainer("sctECC_sp_occ_phi",           m_sctECC_sp_occ_phi );
+
+
+  // initialization of non-static class members to clean up Coverity
+  declareProperty( "pixel_barrel",   m_pixel_barrel = true );
+  declareProperty( "pixel_b_layer",  m_pixel_b_layer = true );
+  declareProperty( "pixel_disk",     m_pixel_disk = true );
+  declareProperty( "nPixSP",         nPixSP = 0. );
+  declareProperty( "pixClSize",      m_pixClSize = 0. );
+  declareProperty( "nPixCL_1",       nPixCL_1 = 0. );
+  declareProperty( "nPixCL_2",       nPixCL_2 = 0. );
+  declareProperty( "nPixCLmin3",     nPixCLmin3 = 0. );
+  declareProperty( "pixclToT",       m_pixclToT = 0. );
+  declareProperty( "totNumPixCL_1",  m_totNumPixCL_1 = 0. );
+  declareProperty( "totNumPixCL_2",  m_totNumPixCL_2 = 0. );
+  declareProperty( "totNumPixCLmin3",m_totNumPixCLmin3 = 0. );
+  declareProperty( "pixListSize",    pixListSize = 0 );
+  declareProperty( "sctListSize",    sctListSize = 0 );
+  declareProperty( "SPpixBarr",      m_SPpixBarr = 0 );
+  declareProperty( "SPpixECA",       m_SPpixECA = 0 );
+  declareProperty( "SPpixECC",       m_SPpixECC = 0 );
+  declareProperty( "nSctSP",         m_nSctSP = 0 );
+  declareProperty( "SPsctBarr",      m_SPsctBarr = 0 );
+  declareProperty( "SPsctECA",       m_SPsctECA = 0 );
+  declareProperty( "SPsctECC",       m_SPsctECC = 0 );
+
+  m_pixSPCTimer = 0;
+  m_sctSPCTimer = 0;
+  m_pixGetCollTimer = 0;
+  m_sctGetCollTimer = 0;
+  m_attachFTimer = 0;
+
 }
 
 //---------------------------------------------------------------------------------
@@ -427,7 +458,8 @@ HLT::ErrorCode TrigCountSpacePoints::hltExecute(std::vector<std::vector<HLT::Tri
 	for( ; spIt != spItEnd; ++spIt ){
 	  
 	  const Trk::SpacePoint* pSP = (*spIt);
-	  pixClust = dynamic_cast<const InDet::PixelCluster*> ( pSP->clusterList().first );
+	  //pixClust = dynamic_cast<const InDet::PixelCluster*> ( pSP->clusterList().first );
+	  pixClust = static_cast<const InDet::PixelCluster*> ( pSP->clusterList().first );
 	  m_pixClSize = (pixClust->rdoList()).size();
 	  m_pixclToT = pixClust->totalToT();
 	  

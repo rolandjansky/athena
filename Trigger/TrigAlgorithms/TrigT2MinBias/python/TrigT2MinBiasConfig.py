@@ -814,6 +814,21 @@ L2MbSpMhNoPixHypo_tight_eff.SctSpEndcapA_max = -1. # Disable
 hypos["L2MbSpMhNoPixHypo_tight_eff"] = L2MbSpMhNoPixHypo_tight_eff
 
 
+class L2MbSpUPC(MbSpHypo):
+    def __init__(self, name, minTh, maxTh):        
+        super(L2MbSpUPC, self).__init__(name)
+        self.VetoLargeSP = True
+        self.TriggerTypeAND = False
+        self.TotalPixelClus = maxTh+0.1 # this is negated selection due to the VetoLargeSP and we want inclusive 8 - 24 selection
+        self.TotalPixelClusMin = minTh-0.1 
+        self.TotalSctSp=-1
+
+
+hypos["L2MbSpUPC_nominal"] = L2MbSpUPC("L2MbSpUPC_nominal", 8, 24)
+hypos["L2MbSpUPC_loose"]   = L2MbSpUPC("L2MbSpUPC_loose", 6, 28)
+
+
+
 # .... setup for HI High Multiplicity chains (SCT SP=2000)
 class L2MbSpMhNoPixHypo_hip(MbSpHypo):
     def __init__(self, name, threshold):
