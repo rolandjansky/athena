@@ -79,7 +79,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TH1F * m_secondHit_ECm;
   //@}
   
-  enum ErrorTypes {ABCD, RAW,TIMEOUT, LVL1ID,BCID, PREAMBLE, FORMATTER, MASKEDLINKS, RODCLOCK, TRUNCATEDROD, ROBFRAG, BSPARSE, SUMMARY, N_ERRTYPES};
+  enum ErrorTypes {ABCD, RAW,TIMEOUT, LVL1ID,BCID, PREAMBLE, FORMATTER, MASKEDLINKS, RODCLOCK, TRUNCATEDROD, ROBFRAG, BSPARSE, MISSINGLINK, SUMMARY, N_ERRTYPES};
   
   ///rate of errors
   TProfile2D* m_allErrs[N_ERRTYPES][NREGIONS_INC_GENERAL][SCT_Monitoring::N_ENDCAPSx2];
@@ -96,7 +96,9 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TProfile2D* m_rateErrorsPerLumi[NREGIONS_INC_GENERAL];
 
   TH1I *m_nErrors;
+  TH1I *m_nLinksWithErrors;
   int *nErrors_buf;
+  int *nLinksWithErrors_buf;
   int nErrors_pos;
 
   TH1I *m_MaskedLinks;
@@ -120,6 +122,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   int m_rodClockErrsMax[4];
   int m_truncRodErrsMax[4];
   int m_bsParseErrsMax[4];
+  int m_misslinkErrsMax[4];
   int m_totErrsMax[4];
   int m_totModErrsMax[4];
   // Book noise map histograms
@@ -235,6 +238,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TProfile * m_RODClockVsLB[4];
   TProfile * m_TruncRODVsLB[4];
   TProfile * m_BSParseVsLB[4];
+  TProfile * m_MissingLinkHeaderVsLB[4];
 
   TH1F * m_MaxMaskedLinksVsLB[4];
   TH1F * m_MaxROBFragmentVsLB[4];
@@ -248,6 +252,7 @@ class SCTErrMonTool : public ManagedMonitorToolBase
   TH1F * m_MaxRODClockVsLB[4];
   TH1F * m_MaxTruncRODVsLB[4];
   TH1F * m_MaxBSParseVsLB[4];
+  TH1F * m_MaxMissingLinkHeaderVsLB[4];
 
   TProfile * m_NumberOfErrorsVsLB[4];
   TProfile * m_ModulesWithErrorsVsLB[4];

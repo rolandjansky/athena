@@ -126,6 +126,7 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string& type,const string& name, const 
   m_TrackSum(nullptr),
   m_badChips(nullptr),
   m_fieldServiceHandle("AtlasFieldSvc",name),
+  m_bunchCrossingTool("Trig::BunchCrossingTool/BunchCrossingTool"),
   m_DetectorMode(1), //Barrel = 1, endcap =2, both =3
   m_RunningMode(2),
   m_minPixelHits(-1),    
@@ -221,6 +222,7 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string& type,const string& name, const 
   declareProperty("useIDGlobal", m_useIDGlobal);
   declareProperty("ConfigConditions", m_configConditions);
   declareProperty("MagFieldSvc"        , m_fieldServiceHandle);
+  declareProperty("BunchCrossingTool"        , m_bunchCrossingTool);
 
   m_countEvent=0;
 
@@ -328,6 +330,9 @@ StatusCode SCTHitEffMonTool::initialize(){
   CHECK (m_rotcreator.retrieve());
   INFO ("Retrieved tool " << m_rotcreator);
   CHECK(m_fieldServiceHandle.retrieve());
+  CHECK (m_bunchCrossingTool.retrieve());
+  INFO ("Retrieved BunchCrossing tool " << m_bunchCrossingTool);
+
 
   detStore()->retrieve( m_pSCTHelper, "SCT_ID");
   detStore()->retrieve( m_pManager, "SCT");
@@ -854,6 +859,8 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
   if (not pEvent) return ERROR ("Could not find event pointer"), StatusCode::FAILURE;
   eventID = pEvent->event_ID();
   unsigned BCID = eventID->bunch_crossing_id();
+  int BCIDpos = m_bunchCrossingTool->distanceFromFront(BCID);
+  bool InTrain = m_bunchCrossingTool->isInTrain(BCID);
 
   typedef SCT_RDORawData SCTRawDataType;
 
@@ -1268,7 +1275,7 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
       m_Eff_summaryHisto[isub]    ->Fill(dedicated_layerPlusHalfSide, m_eff); // adjustment for dedicated_title()
       m_Eff_hashCodeHisto->Fill(Double_t(sideHash), m_eff);//15.12.2014
       m_Eff_LumiBlockHisto[isub]->Fill(eventID->lumi_block(), m_eff);//20.01.2015
-      if(BCID == 1) m_Eff_summaryHistoFirstBCID[isub]    ->Fill(dedicated_layerPlusHalfSide, m_eff); // adjustment for dedicated_title()
+      if(BCIDpos == 0 && InTrain) m_Eff_summaryHistoFirstBCID[isub]    ->Fill(dedicated_layerPlusHalfSide, m_eff); // adjustment for dedicated_title()
 
       if (m_detailed) {
         m_SelectionHisto[isub]->Fill(9.); // Past bad chip
@@ -1309,7 +1316,7 @@ StatusCode SCTHitEffMonTool::fillHistograms(){
         if (fabs(trackHitResidual)<65) m_layerResidualHistos[isub][layerSideIndex]->Fill(m_sctId->eta_module(surfaceID), m_sctId->phi_module(surfaceID), trackHitResidual);
       }
       m_Eff_Total->Fill(Double_t(isub), m_eff);
-      if (BCID == 1) m_Eff_TotalBCID->Fill(Double_t(isub), m_eff);
+      if (BCIDpos == 0 && InTrain) m_Eff_TotalBCID->Fill(Double_t(isub), m_eff);
       useDetector[isub] = true;
       const int ieta(m_sctId->eta_module(surfaceID));
       const int iphi(m_sctId->phi_module(surfaceID));

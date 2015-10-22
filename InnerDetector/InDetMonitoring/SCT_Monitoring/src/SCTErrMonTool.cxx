@@ -155,7 +155,9 @@ SCTErrMonTool::SCTErrMonTool(const std::string & type,const std::string & name,c
   	m_numErrorsPerLumi{},
   	m_rateErrorsPerLumi{},
   	m_nErrors{},
+  	m_nLinksWithErrors{},
   	nErrors_buf{},
+  	nLinksWithErrors_buf{},
   	nErrors_pos{},
   	m_MaskedLinks{},
   	m_numberOfEventsLumi{},
@@ -174,6 +176,7 @@ SCTErrMonTool::SCTErrMonTool(const std::string & type,const std::string & name,c
   	m_rodClockErrsMax{},
   	m_truncRodErrsMax{},
   	m_bsParseErrsMax{},
+  m_misslinkErrsMax{},
   	m_totErrsMax{},
   	m_totModErrsMax{},
     m_nLink0{},
@@ -237,26 +240,28 @@ SCTErrMonTool::SCTErrMonTool(const std::string & type,const std::string & name,c
     m_RODClockVsLB{},
     m_TruncRODVsLB{},
     m_BSParseVsLB{},
+    m_MissingLinkHeaderVsLB{},
     m_MaxMaskedLinksVsLB{},
-		m_MaxROBFragmentVsLB{},
-		m_MaxABCDVsLB{},
-		m_MaxRawErrsVsLB{},
-		m_MaxTimeOutVsLB{},
-		m_MaxLVL1IDVsLB{},
-		m_MaxBCIDVsLB{},
-		m_MaxPreambleVsLB{},
-		m_MaxFormatterVsLB{},
-		m_MaxRODClockVsLB{},
-		m_MaxTruncRODVsLB{},
-		m_MaxBSParseVsLB{},
-		m_NumberOfErrorsVsLB{},
-		m_ModulesWithErrorsVsLB{},
-		m_MaxNumberOfErrorsVsLB{},
-		m_MaxModulesWithErrorsVsLB{},
-		m_ConfEffOnline{},
-		m_ConfNoiseOnline{},
-		m_ConfNoiseOnlineRecent{},
-		m_DetailedConfiguration{},
+    m_MaxROBFragmentVsLB{},
+    m_MaxABCDVsLB{},
+    m_MaxRawErrsVsLB{},
+    m_MaxTimeOutVsLB{},
+    m_MaxLVL1IDVsLB{},
+    m_MaxBCIDVsLB{},
+    m_MaxPreambleVsLB{},
+    m_MaxFormatterVsLB{},
+    m_MaxRODClockVsLB{},
+    m_MaxTruncRODVsLB{},
+    m_MaxBSParseVsLB{},
+    m_MaxMissingLinkHeaderVsLB{},
+    m_NumberOfErrorsVsLB{},
+    m_ModulesWithErrorsVsLB{},
+    m_MaxNumberOfErrorsVsLB{},
+    m_MaxModulesWithErrorsVsLB{},
+    m_ConfEffOnline{},
+    m_ConfNoiseOnline{},
+    m_ConfNoiseOnlineRecent{},
+    m_DetailedConfiguration{},
     m_thistSvc("THistSvc",name),
     m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name),
     m_checkBadModules(true),
@@ -301,6 +306,7 @@ SCTErrMonTool::SCTErrMonTool(const std::string & type,const std::string & name,c
 //====================================================================================================
 SCTErrMonTool::~SCTErrMonTool(){
   free(nErrors_buf);
+  free(nLinksWithErrors_buf);
 }
 
 //====================================================================================================
@@ -681,7 +687,7 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
   int rodclock_errs[4]={0,0,0,0};
   int truncrod_errs[4]={0,0,0,0};
   int bsparse_errs[4]={0,0,0,0};
-
+  int misslink_errs[4]={0,0,0,0};
   int tot_err[4]={0,0,0,0};
   int tot_mod_err[4]={0,0,0,0};
 
@@ -699,6 +705,7 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
       m_rodClockErrsMax[reg]=0;
       m_truncRodErrsMax[reg]=0;
       m_bsParseErrsMax[reg]=0;
+      m_misslinkErrsMax[reg]=0;
       m_totErrsMax[reg]=0;
       m_totModErrsMax[reg]=0;
     }
@@ -717,7 +724,7 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
   numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::RODClockError), rodclock_errs[3],rodclock_errs[0],rodclock_errs[1],rodclock_errs[2]);
   numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::TruncatedROD), truncrod_errs[3],truncrod_errs[0],truncrod_errs[1],truncrod_errs[2]);
   numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::ByteStreamParseError), bsparse_errs[3],bsparse_errs[0],bsparse_errs[1],bsparse_errs[2]);
-  
+  numByteStreamErrors(m_byteStreamErrSvc->getErrorSet(SCT_ByteStreamErrors::MissingLinkHeaderError), misslink_errs[3], misslink_errs[0], misslink_errs[1], misslink_errs[2]);
   for (int reg=0; reg<4;++reg) {
     m_MaskedLinksVsLB[reg]->Fill(current_lb,double (maskedlink_errs[reg]));
     m_ROBFragmentVsLB[reg]->Fill(current_lb,double (robfragment_errs[reg]));
@@ -731,8 +738,8 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
     m_RODClockVsLB[reg]->Fill(current_lb,double (rodclock_errs[reg]));
     m_TruncRODVsLB[reg]->Fill(current_lb,double (truncrod_errs[reg]));
     m_BSParseVsLB[reg]->Fill(current_lb,double (bsparse_errs[reg]));
+    m_MissingLinkHeaderVsLB[reg]->Fill(current_lb,double (misslink_errs[reg]));
     
-
     if(m_maskedLinkErrsMax[reg]<maskedlink_errs[reg]){
       m_maskedLinkErrsMax[reg]=maskedlink_errs[reg];
       m_MaxMaskedLinksVsLB[reg]->SetBinContent((int)current_lb,maskedlink_errs[reg]);
@@ -781,6 +788,10 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
       m_bsParseErrsMax[reg]=bsparse_errs[reg];
       m_MaxBSParseVsLB[reg]->SetBinContent((int)current_lb,m_bsParseErrsMax[reg]);
     }
+    if(m_misslinkErrsMax[reg]<misslink_errs[reg]){
+      m_misslinkErrsMax[reg]=misslink_errs[reg];
+      m_MaxMissingLinkHeaderVsLB[reg]->SetBinContent((int)current_lb,m_misslinkErrsMax[reg]);
+    }
   }
 
   m_MaskedLinks->Reset();
@@ -800,7 +811,8 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
   const int errorsToGet[N_ERRTYPES]={SCT_ByteStreamErrors::ABCDError, SCT_ByteStreamErrors::RawError, SCT_ByteStreamErrors::TimeOutError,
     SCT_ByteStreamErrors::LVL1IDError, SCT_ByteStreamErrors::BCIDError, SCT_ByteStreamErrors::FormatterError,
     SCT_ByteStreamErrors::PreambleError, SCT_ByteStreamErrors::MaskedLink,SCT_ByteStreamErrors::RODClockError,
-    SCT_ByteStreamErrors::TruncatedROD,SCT_ByteStreamErrors::ROBFragmentError,SCT_ByteStreamErrors::ByteStreamParseError 
+				     SCT_ByteStreamErrors::TruncatedROD,SCT_ByteStreamErrors::ROBFragmentError,SCT_ByteStreamErrors::ByteStreamParseError,
+				     SCT_ByteStreamErrors::MissingLinkHeaderError
   };
   for (int errType(0);errType!=SUMMARY;++errType){
     const bool mask=(errorsToGet[errType]==SCT_ByteStreamErrors::MaskedLink);
@@ -877,20 +889,29 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
   }
 
   //  if(m_environment==AthenaMonManager::online){
-    // Time Dependent SP plots only online
+  // Time Dependent SP plots only online
   nErrors_buf[nErrors_pos] = total_errors;
+  nLinksWithErrors_buf[nErrors_pos] = tot_mod_err[3];
   nErrors_pos++;
   if (nErrors_pos == m_evtsbins) nErrors_pos = 0;
   if (m_numberOfEvents % m_checkrate == 0) {
     m_nErrors->Reset(); Int_t latest_nErrors_pos = nErrors_pos;
+    m_nLinksWithErrors->Reset();
     for (Int_t i=1; i < m_evtsbins; i++) {
       if (latest_nErrors_pos == m_evtsbins) latest_nErrors_pos = 0;
       if (m_numberOfEvents < m_evtsbins){
-	if (i < nErrors_pos) m_nErrors->SetBinContent(i,nErrors_buf[i]);
-	else m_nErrors->SetBinContent(i,0);
+	if (i < nErrors_pos) {
+	  m_nErrors->SetBinContent(i,nErrors_buf[i]);
+	  m_nLinksWithErrors->SetBinContent(i,nLinksWithErrors_buf[i]);
+	}else {
+	  m_nErrors->SetBinContent(i,0);
+	  m_nLinksWithErrors->SetBinContent(i,0);
+	}
       } else {
 	m_nErrors->SetBinContent(i,nErrors_buf[latest_nErrors_pos]);
+	m_nLinksWithErrors->SetBinContent(i,nLinksWithErrors_buf[latest_nErrors_pos]);
 	m_nErrors->GetXaxis()->Set(m_evtsbins,m_numberOfEvents-m_evtsbins,m_numberOfEvents);
+	m_nLinksWithErrors->GetXaxis()->Set(m_evtsbins,m_numberOfEvents-m_evtsbins,m_numberOfEvents);
       }
       latest_nErrors_pos++; 
       if (latest_nErrors_pos == m_evtsbins) latest_nErrors_pos = 0;
@@ -957,8 +978,8 @@ StatusCode SCTErrMonTool::bookErrHistosHelper(MonGroup & mg, TString name, TStri
 //====================================================================================================
 //StatusCode SCTErrMonTool::bookErrHistos(bool newRun, bool newLumiBlock){
 StatusCode SCTErrMonTool::bookErrHistos(){
-  const std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse","summary"};
-  std::string m_errorsNamesMG[] = {"SCT/SCTB/errors","SCT/SCTB/errors","SCT/SCTB/errors","SCT/SCTB/errors/LVL1ID","SCT/SCTB/errors/BCID","SCT/SCTB/errors/Preamble","SCT/SCTB/errors/Formatter","SCT/SCTB/errors/MaskedLink","SCT/SCTB/errors/RODClock","SCT/SCTB/errors/TruncROD","SCT/SCTB/errors/ROBFrag","SCT/SCTB/errors","SCT/SCTB/errors"};
+  const std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse","MissingLink","summary"};
+  std::string m_errorsNamesMG[] = {"SCT/SCTB/errors","SCT/SCTB/errors","SCT/SCTB/errors","SCT/SCTB/errors/LVL1ID","SCT/SCTB/errors/BCID","SCT/SCTB/errors/Preamble","SCT/SCTB/errors/Formatter","SCT/SCTB/errors/MaskedLink","SCT/SCTB/errors/RODClock","SCT/SCTB/errors/TruncROD","SCT/SCTB/errors/ROBFrag","SCT/SCTB/errors","SCT/SCTB/errors","SCT/SCTB/errors"};
   if(m_doPerLumiErrors) {
     MonGroup lumiErr(this,"SCT/SCTB/errors",lumiBlock,ATTRIB_UNMANAGED );
     if(ManagedMonitorToolBase::newLumiBlock) {
@@ -1007,11 +1028,16 @@ StatusCode SCTErrMonTool::bookErrHistos(){
       m_nErrors = new TH1I("sct_errors_vs_en","Number of Errors vs Event Number",m_evtsbins,1,m_evtsbins+1);
       m_nErrors->GetXaxis()->SetTitle("Event Number"); 
       m_nErrors->GetYaxis()->SetTitle("Num of Errors"); 
+      m_nLinksWithErrors = new TH1I("sct_links_with_errors_vs_en","Number of Links with Errors vs Event Number",m_evtsbins,1,m_evtsbins+1);
+      m_nLinksWithErrors->GetXaxis()->SetTitle("Event Number"); 
+      m_nLinksWithErrors->GetYaxis()->SetTitle("Num of Links with Errors"); 
       size_t nErrors_buf_size;
       nErrors_buf_size = m_evtsbins * sizeof (int);
       nErrors_buf = (int *) malloc (nErrors_buf_size);
+      nLinksWithErrors_buf = (int *) malloc (nErrors_buf_size);
       nErrors_pos = 0;
       if(Errors.regHist(m_nErrors).isFailure())    msg(MSG::WARNING) << "Couldn't book nErrors vs event number hist" << endreq;
+      if(Errors.regHist(m_nLinksWithErrors).isFailure())    msg(MSG::WARNING) << "Couldn't book nLinksWithErrors vs event number hist" << endreq;
       //Book percentage error histograms      
       m_firstHit = new TH1F("FirstHit","Percentage of FirstHit errors", nbins,0.,100.);
       m_firstHit->GetXaxis()->SetTitle("Percentage of FirstHit errors"); 
@@ -1042,8 +1068,8 @@ StatusCode SCTErrMonTool::bookErrHistos(){
 // Book 1D and 2D Histograms of errors for positive endcap
 //====================================================================================================
 StatusCode SCTErrMonTool::bookPositiveEndCapErrHistos(){
-  std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse", "summary"};
-  std::string m_errorsNamesMG[] = {"SCT/SCTEA/errors","SCT/SCTEA/errors","SCT/SCTEA/errors","SCT/SCTEA/errors/LVL1ID","SCT/SCTEA/errors/BCID","SCT/SCTEA/errors/Preamble","SCT/SCTEA/errors/Formatter","SCT/SCTEA/errors/MaskedLink","SCT/SCTEA/errors/RODClock","SCT/SCTEA/errors/TruncROD","SCT/SCTEA/errors/ROBFrag","SCT/SCTEA/errors","SCT/SCTEA/errors"};//07.01.2015
+  std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse","MissingLink", "summary"};
+  std::string m_errorsNamesMG[] = {"SCT/SCTEA/errors","SCT/SCTEA/errors","SCT/SCTEA/errors","SCT/SCTEA/errors/LVL1ID","SCT/SCTEA/errors/BCID","SCT/SCTEA/errors/Preamble","SCT/SCTEA/errors/Formatter","SCT/SCTEA/errors/MaskedLink","SCT/SCTEA/errors/RODClock","SCT/SCTEA/errors/TruncROD","SCT/SCTEA/errors/ROBFrag","SCT/SCTEA/errors","SCT/SCTEA/errors","SCT/SCTEA/errors"};//07.01.2015
   if(m_doPerLumiErrors) {
     MonGroup lumiErr(this,"SCT/SCTEA/errors",lumiBlock,ATTRIB_UNMANAGED );
     if(ManagedMonitorToolBase::newLumiBlock) {
@@ -1113,8 +1139,8 @@ StatusCode SCTErrMonTool::bookPositiveEndCapErrHistos(){
 //====================================================================================================
 //StatusCode SCTErrMonTool::bookNegativeEndCapErrHistos(bool isNewRun, bool isNewLumiBlock){
 StatusCode SCTErrMonTool::bookNegativeEndCapErrHistos(){
-  std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse", "summary"};
-  std::string m_errorsNamesMG[] = {"SCT/SCTEC/errors","SCT/SCTEC/errors","SCT/SCTEC/errors","SCT/SCTEC/errors/LVL1ID","SCT/SCTEC/errors/BCID","SCT/SCTEC/errors/Preamble","SCT/SCTEC/errors/Formatter","SCT/SCTEC/errors/MaskedLink","SCT/SCTEC/errors/RODClock","SCT/SCTEC/errors/TruncROD","SCT/SCTEC/errors/ROBFrag","SCT/SCTEC/errors","SCT/SCTEC/errors"};//07.01.2015
+  std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse","MissingLink", "summary"};
+  std::string m_errorsNamesMG[] = {"SCT/SCTEC/errors","SCT/SCTEC/errors","SCT/SCTEC/errors","SCT/SCTEC/errors/LVL1ID","SCT/SCTEC/errors/BCID","SCT/SCTEC/errors/Preamble","SCT/SCTEC/errors/Formatter","SCT/SCTEC/errors/MaskedLink","SCT/SCTEC/errors/RODClock","SCT/SCTEC/errors/TruncROD","SCT/SCTEC/errors/ROBFrag","SCT/SCTEC/errors","SCT/SCTEC/errors","SCT/SCTEC/errors"};//07.01.2015
   if(m_doPerLumiErrors) {
     MonGroup lumiErr(this,"SCT/SCTEC/errors",lumiBlock,ATTRIB_UNMANAGED );
     if(ManagedMonitorToolBase::newLumiBlock) {
@@ -1265,6 +1291,7 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
         TString rodclocktitle[4]={"SCTRODClockerrsVsLbsBarrel","SCTRODClockerrsVsLbsEndcapA","SCTRODClockerrsVsLbsEndcapC","SCTRODClockerrsVsLbs"};
         TString truncrodtitle[4]={"SCTTruncatedRODVsLbsBarrel","SCTTruncatedRODVsLbsEndcapA","SCTTruncatedRODVsLbsEndcapC","SCTTruncatedRODVsLbs"};
 	TString bsparsetitle[4]={"SCTBSParseerrsVsLbsBarrel","SCTBSParseerrsVsLbsEndcapA","SCTBSParseerrsVsLbsEndcapC","SCTBSParseerrsVsLbs"};
+	TString misslinktitle[4]={"SCTMissingLinkVsLbsBarrel","SCTMissingLinkVsLbsEndcapA","SCTMissingLinkVsLbsEndcapC","SCTMissingLinkVsLbs"};
 
         TString maximummaskedlinktitle[4]={"SCTMaskedLinkmaxVsLbsBarrel","SCTMaskedLinkmaxVsLbsEndcapA","SCTMaskedLinkmaxVsLbsEndcapC","SCTMaskedLinkmaxVsLbs"};
         TString maximumrobfragtitle[4]={"SCTROBFragmentmaxVsLbsBarrel","SCTROBFragmentmaxVsLbsEndcapA","SCTROBFragmentmaxVsLbsEndcapC","SCTROBFragmentmaxVsLbs"};
@@ -1278,6 +1305,7 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
         TString maximumrodclocktitle[4]={"SCTRODClockerrsmaxVsLbsBarrel","SCTRODClockerrsmaxVsLbsEndcapA","SCTRODClockerrsmaxVsLbsEndcapC","SCTRODClockerrsmaxVsLbs"};
         TString maximumtruncrodtitle[4]={"SCTTruncatedRODmaxVsLbsBarrel","SCTTruncatedRODmaxVsLbsEndcapA","SCTTruncatedRODmaxVsLbsEndcapC","SCTTruncatedRODmaxVsLbs"};
 	TString maximumbsparsetitle[4]={"SCTBSParseerrsmaxVsLbsBarrel","SCTBSParseerrsmaxVsLbsEndcapA","SCTBSParseerrsmaxVsLbsEndcapC","SCTBSParseerrsmaxVsLbs"};
+	TString maximummissinglinktitle[4]={"SCTMissingLinkmaxVsLbsBarrel","SCTMissingLinkmaxVsLbsEndcapA","SCTMissingLinkmaxVsLbsEndcapC","SCTMissingLinkmaxVsLbs"};
 
         TString numerrors[4]={"SCTNumberOfErrorsBarrel","SCTNumberOfErrorsEndcapA","SCTNumberOfErrorsEndcapC","SCTNumberOfErrors"};
         TString moderrors[4]={"SCTModulesWithErrorsBarrel","SCTModulesWithErrorsEndcapA","SCTModulesWithErrorsEndcapC","SCTModulesWithErrors"};
@@ -1331,6 +1359,9 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
           m_BSParseVsLB[reg] = new TProfile(bsparsetitle[reg],"Ave. BS Parse errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_BSParseVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_BSParseVsLB[reg]->GetYaxis()->SetTitle("Num of BS parse errors");
+          m_MissingLinkHeaderVsLB[reg] = new TProfile(misslinktitle[reg],"Ave. Missing Link Header errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_BSParseVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
+          m_BSParseVsLB[reg]->GetYaxis()->SetTitle("Num of Missing Link Header errors");
 
           m_MaxMaskedLinksVsLB[reg] = new TH1F(maximummaskedlinktitle[reg],"Max num of masked link errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaxMaskedLinksVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
@@ -1369,6 +1400,9 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
           m_MaxBSParseVsLB[reg] = new TH1F(maximumbsparsetitle[reg],"Max num of BS Parse errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_MaxBSParseVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
           m_MaxBSParseVsLB[reg]->GetYaxis()->SetTitle("Num of BS parse errors");
+          m_MaxMissingLinkHeaderVsLB[reg] = new TH1F(maximummissinglinktitle[reg],"Max num of Missing Link Header errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
+          m_MaxMissingLinkHeaderVsLB[reg]->GetXaxis()->SetTitle("LumiBlock");
+          m_MaxMissingLinkHeaderVsLB[reg]->GetYaxis()->SetTitle("Num of Missing Link Header errors");
 
           m_NumberOfErrorsVsLB[reg] = new TProfile(numerrors[reg],"Ave. errors per event in "+ region[reg],n_lumiBins,0.5,n_lumiBins+0.5);
           m_NumberOfErrorsVsLB[reg]->GetXaxis()->SetTitle("LumiBlock"); 
@@ -1456,6 +1490,10 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
       if ( ConfMaps.regHist(m_BSParseVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
       if ( ConfHistECA.regHist(m_BSParseVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
       if ( ConfHistECC.regHist(m_BSParseVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
+      if ( ConfHist.regHist(m_MissingLinkHeaderVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
+      if ( ConfMaps.regHist(m_MissingLinkHeaderVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
+      if ( ConfHistECA.regHist(m_MissingLinkHeaderVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
+      if ( ConfHistECC.regHist(m_MissingLinkHeaderVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
 
       if ( ConfHist.regHist(m_MaxMaskedLinksVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
       if ( ConfMaps.regHist(m_MaxMaskedLinksVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMaskedLinkConf" << endreq;
@@ -1505,6 +1543,10 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
       if ( ConfMaps.regHist(m_MaxBSParseVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
       if ( ConfHistECA.regHist(m_MaxBSParseVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
       if ( ConfHistECC.regHist(m_MaxBSParseVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTBSParseConf" << endreq;
+      if ( ConfHist.regHist(m_MaxMissingLinkHeaderVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
+      if ( ConfMaps.regHist(m_MaxMissingLinkHeaderVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
+      if ( ConfHistECA.regHist(m_MaxMissingLinkHeaderVsLB[1]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHeaderConf" << endreq;
+      if ( ConfHistECC.regHist(m_MaxMissingLinkHeaderVsLB[2]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTMissingLinkHEaderConf" << endreq;
 
       if ( ConfHist.regHist(m_NumberOfErrorsVsLB[3]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
       if ( ConfMaps.regHist(m_NumberOfErrorsVsLB[0]).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:SCTNumberOfErrors" << endreq;
