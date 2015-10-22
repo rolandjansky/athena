@@ -30,6 +30,8 @@
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
 
+#include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
+
 //SCT
 #include "SCT_ConditionsServices/ISCT_FlaggedConditionSvc.h"
 #include "SCT_Monitoring/SCT_MonitoringNumbers.h"
@@ -128,6 +130,7 @@ private:
 
   std::map < Identifier, unsigned int > * m_badChips;
   ServiceHandle<MagField::IMagFieldSvc>  m_fieldServiceHandle;
+  ToolHandle<Trig::IBunchCrossingTool> m_bunchCrossingTool;
 
 
   Int_t m_DetectorMode;
