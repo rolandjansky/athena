@@ -102,7 +102,7 @@ HLT::ErrorCode TrigMuonEFCombinerHypo::hltExecute(const HLT::TriggerElement* out
 	unsigned int j=0;
 	for(auto muon : *muonContainer) {
 
-	  msg() << MSG::DEBUG << "Looking at muon " << j << endreq;
+	  msg() << MSG::DEBUG << "Looking at muon " << j++ << endreq;
 	  const xAOD::Muon::MuonType muontype = muon->muonType();
 	  if(muontype == xAOD::Muon::MuonType::Combined || muontype == xAOD::Muon::MuonType::SegmentTagged ) { // combined or segment tagged muon
 
@@ -123,13 +123,15 @@ HLT::ErrorCode TrigMuonEFCombinerHypo::hltExecute(const HLT::TriggerElement* out
 	    for (std::vector<float>::size_type k=0; k<m_bins; ++k) {
 	      if (absEta > m_ptBins[k] && absEta <= m_ptBins[k+1]) threshold = m_ptThresholds[k];
 	    }
+	    bool hypo_ok = false;
 	    if (fabs(muon->pt())/CLHEP::GeV > (threshold/CLHEP::GeV)){
 	      result = true;
+	      hypo_ok = true;
 	    }
 	    if(debug) msg() << MSG::DEBUG << " REGTEST muon pt is " << muon->pt()/CLHEP::GeV << " CLHEP::GeV "
 			//<< " with Charge " << muon->Charge()
 			    << " and threshold cut is " << threshold/CLHEP::GeV << " CLHEP::GeV"
-			    << " so hypothesis is " << (result?"true":"false") << endreq;
+			    << " so hypothesis is " << (hypo_ok?"true":"false") << endreq;
 	  }//combined or segment tagged muon
 	}//loop on muons		     		
        
