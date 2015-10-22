@@ -37,6 +37,9 @@ namespace Muon {
     /** get the associated barcode for the identifier, return -1 if the channel was not hit by a muon */
     virtual int getBarcode( const Identifier& id ) = 0;
 
+    /** get the associated pdgId for a given barcode */
+    virtual int getPdgId( int barcode ) = 0;
+
     /** add identifier */
     virtual void add( const Identifier& id, int level ) = 0;
 
