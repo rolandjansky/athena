@@ -8,7 +8,7 @@
 #include <string>
 #include <map>
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "TrigDecisionTool/TrigDecisionTool.h"
+#include "TrigConfInterfaces/ITrigConfigSvc.h"
 
 class BSFilter : public AthAlgorithm
 {
@@ -35,7 +35,6 @@ class BSFilter : public AthAlgorithm
   FILE *efile;
   std::string m_EventIdFile;
 
-  //ToolHandle<Trig::TrigDecisionTool> m_trigDec;
   ServiceHandle< TrigConf::ITrigConfigSvc > m_trigConf;
 };
 #endif //OVERLAYCOMMONALGS_BSFILTER_H

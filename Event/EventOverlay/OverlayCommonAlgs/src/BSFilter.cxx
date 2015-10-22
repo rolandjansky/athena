@@ -10,6 +10,7 @@
 #include "BSFilter.h"
 #include "TrigSteeringEvent/Chain.h"
 #include "TrigSteeringEvent/HLTResult.h"
+#include "TrigConfHLTData/HLTChainList.h"
 #include "TrigT1Result/CTP_RDO.h"
 #include "TrigT1Result/CTP_Decoder.h"
 #include "EventInfo/EventInfo.h"
