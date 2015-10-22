@@ -646,14 +646,14 @@ class TrigMuonEFCombinerDiMuonMassPtImpactsHypoOnlineMonitoring(TrigGenericMonit
 
         self.Histograms  = [ defineHistogram('nMuons', type='TH1F', title="number of Muons; nr of muons",
                                              xbins=10, xmin=0, xmax=10) ]
-        self.Histograms += [ defineHistogram('invMassWide',   type='TH1F', title="invariant mass of di-muon pairs; inv mass [GeV]",
-                                             xbins=100, xmin=5., xmax=55.0) ]
-        self.Histograms += [ defineHistogram('dimuonPt', type='TH1F', title="pT of di-muons; di-muon pT [GeV]",
-                                             xbins=100, xmin=0., xmax=10.0) ]
         self.Histograms += [ defineHistogram('muonDeltaZ', type='TH1F', title="delta(z0) of muons; muons delta(z0)",
-                                             xbins=100, xmin=-10., xmax=10.) ]
+                                             xbins=100, xmin=0., xmax=50.) ]
         self.Histograms += [ defineHistogram('muonDeltaPhi', type='TH1F', title="delta(phi) of muons; muons delta(phi)",
-                                             xbins=140, xmin=-7., xmax=7.) ]
+                                             xbins=100, xmin=0., xmax=4.) ]
+        self.Histograms += [ defineHistogram('dimuonPt', type='TH1F', title="pT of di-muons; di-muon pT [GeV]",
+                                             xbins=200, xmin=0., xmax=20.0) ]
+        self.Histograms += [ defineHistogram('invMassWide',   type='TH1F', title="invariant mass of di-muon pairs; inv mass [GeV]",
+                                             xbins=200, xmin=0., xmax=100.0) ]
         pass
 #^^^^^ pvn
 class TrigMuonEFCombinerDiMuonMassHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
