@@ -656,24 +656,6 @@ class TrigMuonEFCombinerDiMuonMassPtImpactsHypoOnlineMonitoring(TrigGenericMonit
                                              xbins=200, xmin=0., xmax=100.0) ]
         pass
 #^^^^^ pvn
-
-#vvvvv masato
-class TrigMuonIDTrackMultiHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
-    def __init__ (self, name="TrigMuonIDTrackMultiHypoOnlineMonitoring"):
-        super(TrigMuonIDTrackMultiHypoOnlineMonitoring, self).__init__(name)
-        self.defineTarget("Validation")
-
-        self.Histograms  = [ defineHistogram('nTracks', type='TH1F', title="number of tracks; nr of tracks",
-                                             xbins=20, xmin=0, xmax=20) ]
-        self.Histograms  = [ defineHistogram('TrkPt', type='TH1F', title="track pt; track pt [GeV]",
-                                             xbins=50, xmin=0, xmax=50) ]
-        self.Histograms  = [ defineHistogram('MuRoiDr', type='TH1F', title="roi delta-R; RoI delta-R",
-                                             xbins=50, xmin=0, xmax=5) ]
-        # self.Histograms += [ defineHistogram('invMass', type='TH1F', title="invariant mass of tracks; inv mass [GeV]",
-        #                                      xbins=100, xmin=0., xmax=50.) ]
-        pass
-#^^^^^ masato
-
 class TrigMuonEFCombinerDiMuonMassHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigMuonEFCombinerDiMuonMassHypoValidationMonitoring"):
         super(TrigMuonEFCombinerDiMuonMassHypoValidationMonitoring, self).__init__(name)

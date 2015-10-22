@@ -16,7 +16,6 @@ class ISvcLocator;
 TrigMuonEFCombinerMultiHypo::TrigMuonEFCombinerMultiHypo(const std::string & name, ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator){
   declareProperty("AcceptAll", m_acceptAll=true);
-  declareProperty("RejectCBmuons", m_rejectCBmuons=false);
   std::vector<float> def_bins;
   def_bins.push_back(0.);
   def_bins.push_back(9.9);
@@ -144,13 +143,11 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltExecute(const HLT::TriggerElement
 
   // init result vector, muon counter
   std::vector<unsigned int> hypo_results;
-  std::vector<unsigned int> ismucomb;
   unsigned int mu_count=0;
 
 
   // loop on the muons within the RoI
   for (unsigned int j=0; j<muonContainer->size(); j++ ) {
-    unsigned int ismuoncomb=0;
 
     msg() << MSG::DEBUG << "Looking at xAOD::Muon " << j << endreq;
     const xAOD::Muon* muon = muonContainer->at(j);
@@ -208,14 +205,11 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltExecute(const HLT::TriggerElement
 				<< ", mask=" << tmp
 				<< ", mu_count=" << mu_count 
 				<< endreq;
-		ismuoncomb=1;
-
 	      }
 	    }
 	  } // end loop over eta bins for all multiplicities
 	       
 	  hypo_results.push_back( tmp ); // store result
-	  ismucomb.push_back(ismuoncomb);
 	  if(debug) msg() << MSG::DEBUG << " REGTEST muon pt is " << tr->pt()/CLHEP::GeV << " GeV "
 			  << " with Charge " << tr->charge()
 			  << " and threshold cut is " << threshold/CLHEP::GeV << " GeV"
@@ -271,10 +265,7 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltExecute(const HLT::TriggerElement
       } 
     }
     // check every partial hypo is satisfied at least once.
-    for (unsigned int i=0;i<m_Nmult && pass;i++){
-      if (tmp_hypo[i]==0) pass = false;
-      if(m_rejectCBmuons && ismucomb[i]==1) pass=false;
-    }
+    for (unsigned int i=0;i<m_Nmult && pass;i++) if (tmp_hypo[i]==0) pass = false;
 
     if (pass) {
       // assumption is that partial hypo's are ranked and inclusive.
