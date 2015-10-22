@@ -11,7 +11,9 @@ namespace Tau{
 	m_sTauJetContainerName(sTauJetContainerName){	
 	}
 	
-  
+	RecoTauPlots::~RecoTauPlots()
+	{
+	}
   void RecoTauPlots::initializePlots(){
     
     //  m_oParamPlots.initialize();
@@ -45,7 +47,7 @@ namespace Tau{
 	m_cellBased_neuPFO_Eta      = Book1D("cellBased_PFO_n_Eta",m_sTauJetContainerName + " Neutral PFO eta; eta; # PFO",128,-3.2,3.2);
 	m_cellBased_neuPFO_Phi      = Book1D("cellBased_PFO_n_Phi",m_sTauJetContainerName + " Neutral PFO phi; phi; # PFO",128,-3.2,3.2);
 	m_cellBased_neuPFO_E      = Book1D("cellBased_PFO_n_E",m_sTauJetContainerName + " Neutral PFO E; E; # PFO",200,0.,200000.);
-	m_cellBased_neuPFO_bdtPi0Score = Book1D("cellBased_PFO_n_bdtPi0Score",m_sTauJetContainerName + " Neutral PFO BDT Pi0 Score; Score; # PFO",60,-.6,.6);
+	m_cellBased_neuPFO_bdtPi0Score = Book1D("cellBased_PFO_n_bdtPi0Score",m_sTauJetContainerName + " Neutral PFO BDT Pi0 Score; Score; # PFO",60,-1.0,1.0);
 
 
     /*+++++++++++++++++++++++++++++++++++++++++++++++++
@@ -221,7 +223,7 @@ namespace Tau{
     m_pantau_eflowRecInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged->Fill(panTauFloat);
 
  
-  m_oParamPlots.fill(thisTau);
+    m_oParamPlots.fill(thisTau);
   }
 
 }

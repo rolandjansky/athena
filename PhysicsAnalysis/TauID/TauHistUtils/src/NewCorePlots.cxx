@@ -10,7 +10,9 @@ namespace Tau{
 	m_sTauJetContainerName(sTauJetContainerName){	
 	}
 	
-
+	NewCorePlots::~NewCorePlots()
+	 {
+	 }
 void NewCorePlots::initializePlots(){
 
   //  m_oParamPlots.initialize();
@@ -42,6 +44,9 @@ void NewCorePlots::initializePlots(){
     m_ChPiEMEOverCaloEME               = Book1D("ChPiEMEOverCaloEME",m_sTauJetContainerName + "Tau ChPiEMEOverCaloEME; ChPiEMEOverCaloEME; # of Taus", 30, -15, 15);
     m_EMPOverTrkSysP                   = Book1D("EMPOverTrkSysP",m_sTauJetContainerName + "Tau EMPOverTrkSysP; EMPOverTrkSysP; # of Taus", 81, -1, 80);
 
+    m_innerTrkAvgDist                   = Book1D("innerTrkAvgDist",m_sTauJetContainerName + "Tau innerTrkAvgDist; innerTrkAvgDist; # of Taus",10,-0.2,.8);
+    m_ptRatioEflowApprox                 = Book1D("ptRatioEflowApprox",m_sTauJetContainerName + "Tau ptRatioEflowApprox; ptRatioEflowApprox; # of Taus", 10, 0, 10);
+    m_mEflowApprox						= Book1D("mEflowApprox",m_sTauJetContainerName + "Tau mEflowApprox; mEflowApprox; #Taus",30,0,300);
 }
 
 void NewCorePlots::fill(const xAOD::TauJet& tau) {
@@ -139,7 +144,17 @@ void NewCorePlots::fill(const xAOD::TauJet& tau) {
   test=tau.detail(xAOD::TauJetParameters::trFlightPathSig, avariable);
   if (test) m_tauSflight->Fill(avariable,1.);
 
-  
+  test=tau.detail(xAOD::TauJetParameters::innerTrkAvgDist, avariable);
+  if (test) m_innerTrkAvgDist->Fill(avariable,1.);
+
+  test=tau.detail(xAOD::TauJetParameters::ptRatioEflowApprox, avariable);
+  if (test) m_ptRatioEflowApprox->Fill(avariable,1.);
+
+  test=tau.detail(xAOD::TauJetParameters::mEflowApprox, avariable);
+  if (test) m_mEflowApprox->Fill(avariable,1.);
+
+
+
 }
 
 }
