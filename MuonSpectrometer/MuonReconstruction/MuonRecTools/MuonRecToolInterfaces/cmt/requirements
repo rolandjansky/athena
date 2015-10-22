@@ -30,6 +30,8 @@ use MuonSimData		 		MuonSimData-*		   	MuonSpectrometer
 use TrackRecord         		TrackRecord-*			Simulation/G4Sim
 use TrkCompetingRIOsOnTrackTool TrkCompetingRIOsOnTrackTool-* Tracking/TrkTools
 
+use MuonCombinedEvent   MuonCombinedEvent-*     Reconstruction/MuonIdentification
+
 # Declare this package as a metalibrary for cmake in order to allow clients to access libraries
 # and headerfiles from packages this depends on. Transparent to CMT
 apply_pattern cmake_add_command command=metalibrary
