@@ -308,8 +308,8 @@ StatusCode HLTBjetMonTool::book(){
 	hist("PVx_tr","HLT/BjetMon/Shifter")->Fill((*(onlinepv_histo))[0]->x());
 	hist("PVy_tr","HLT/BjetMon/Shifter")->Fill((*(onlinepv_histo))[0]->y());
 	hist("PVz_tr","HLT/BjetMon/Shifter")->Fill((*(onlinepv_histo))[0]->z());
-	hist("diffzPV0offPVon","HLT/BjetMon/Shifter")->Fill((*(onlinepv_histo))[0]->z()-offlinepvz);
-	ATH_MSG_DEBUG("         Online PV - histo   -   z[0]: " << (*(onlinepv_histo))[0]->z());
+	hist("diffzPV0offPVon","HLT/BjetMon/Shifter")->Fill((*(onlinepv_histo))[0]->z()-offlinepvz);  
+	ATH_MSG_DEBUG("         Online PV - histo   -   z[0]: " << (*(onlinepv_histo))[0]->z());  
       }  // if
     } // onlinepvs_histo.size
 
@@ -355,14 +355,17 @@ StatusCode HLTBjetMonTool::book(){
       int nTrack = onlinetrack->size();
       hist("nTrack","HLT/BjetMon/Shifter")->Fill(nTrack);
       for(const auto* trk : *onlinetrack) {
-	ATH_MSG_DEBUG("     pT: " << (trk->pt())*1.e-3 << " Eta: " << trk->eta() << " Phi: " << trk->phi() << " d0: " << trk->d0() << " z0 - zPVoffl: " << trk->z0()-offlinepvz );
+	//	ATH_MSG_DEBUG("     pT: " << (trk->pt())*1.e-3 << " Eta: " << trk->eta() << " Phi: " << trk->phi() << " d0: " << trk->d0() << " z0 - zPVoffl: " << trk->z0()-offlinepvz ); // EN
+	ATH_MSG_DEBUG("     pT: " << (trk->pt())*1.e-3 << " Eta: " << trk->eta() << " Phi: " << trk->phi() << " d0: " << trk->d0() << " z0 - zPVoffl: " << trk->z0()+trk->vz()-offlinepvz ); // John A
 	hist("d0","HLT/BjetMon/Shifter")->Fill(trk->d0());
 	hist("z0","HLT/BjetMon/Shifter")->Fill(trk->z0());
 	hist("ed0","HLT/BjetMon/Shifter")->Fill(Amg::error(trk->definingParametersCovMatrix(), 0));
 	hist("ez0","HLT/BjetMon/Shifter")->Fill(Amg::error(trk->definingParametersCovMatrix(), 1));
-	hist("diffz0PV0","HLT/BjetMon/Shifter")->Fill(trk->z0()-offlinepvz);
+	//	hist("diffz0PV0","HLT/BjetMon/Shifter")->Fill(trk->z0()-offlinepvz); // EN
+	hist("diffz0PV0","HLT/BjetMon/Shifter")->Fill(trk->z0()+trk->vz()-offlinepvz); // John A
 	float errz0 = Amg::error(trk->definingParametersCovMatrix(), 1);
-	if (errz0 >0.) hist("sigz0PV","HLT/BjetMon/Shifter")->Fill( (trk->z0()-offlinepvz)/errz0 );
+	//	if (errz0 >0.) hist("sigz0PV","HLT/BjetMon/Shifter")->Fill( (trk->z0()-offlinepvz)/errz0 ); // EN
+	if (errz0 >0.) hist("sigz0PV","HLT/BjetMon/Shifter")->Fill( (trk->z0()+trk->vz()-offlinepvz)/errz0 ); // John A
 	hist("trkPt","HLT/BjetMon/Shifter")->Fill( (trk->pt())*1.e-3 );
 	hist2("trkEtaPhi","HLT/BjetMon/Shifter")->Fill(trk->eta(),trk->phi());
       } // for online track particles
