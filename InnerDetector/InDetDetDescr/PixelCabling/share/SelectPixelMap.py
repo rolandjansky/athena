@@ -18,7 +18,7 @@ if not ('conddb' in dir()):
     IOVDbSvc = Service("IOVDbSvc")
     from IOVDbSvc.CondDB import conddb
 
-if conddb.dbdata == "CONDBR2" and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
+if ( conddb.dbdata == "CONDBR2" or ( conddb.dbmc == "OFLP200" and geoFlags.isIBL() == True ) ) and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
     conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg")
 
 
@@ -49,7 +49,8 @@ else:
     
             # Hybrid IBL plus DBM
             elif (geoFlags.IBLLayout() == "3D"):
-                ServiceMgr.PixelCablingSvc.MappingFile = "Pixels_Atlas_IdMapping_inclIBL3D_DBM.dat"
+                #ServiceMgr.PixelCablingSvc.MappingFile = "Pixels_Atlas_IdMapping_inclIBL3D_DBM.dat"
+                ServiceMgr.PixelCablingSvc.MappingFile = "Pixels_Atlas_IdMapping_Run2.dat"
             
             elif (geoFlags.IBLLayout() == "UNDEFINED"):
                 logging.getLogger("PixelCablingSvc").warning("Got GeometryFlags.isIBL = True, but IBLLayout is UNDEFINED")
