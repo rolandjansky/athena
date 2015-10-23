@@ -160,7 +160,7 @@ class LArPileUpTool : virtual public ILArPileUpTool, public PileUpToolBase
   double m_LowGainThresh[3];       // energy thresholds for the low gain
   double m_HighGainThresh[3];      // energy thresholds for the high gain
   double m_EnergyThresh;           // Zero suppression energy threshold
-  double m_AdcPerGeV;              // adc = UnCalibretedEnergy*Gain/m_AdcPerGeV + Pedestal
+  //double m_AdcPerGeV;              // adc = UnCalibretedEnergy*Gain/m_AdcPerGeV + Pedestal
   int    m_NSamples;               // number of samples in Digit
   unsigned int m_firstSample;      // first sample to use for pulse shape for in time energy deposit
   bool   m_usePhase;               // use tbin phase to get shape (default = false for Atlas)

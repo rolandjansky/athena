@@ -28,7 +28,7 @@
 
 
 LArHitEMap::LArHitEMap(void):
-  m_storeGateSvc(0),
+  //m_storeGateSvc(0),
   m_larem_id(0),
   m_larhec_id(0),
   m_larfcal_id(0),

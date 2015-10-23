@@ -8,9 +8,15 @@ def isOverlay():
     if hasattr(ServiceMgr,'PileUpMergeSvc') :
         if hasattr(ServiceMgr.PileUpMergeSvc, 'ReturnTimedData') :
             if (not ServiceMgr.PileUpMergeSvc.ReturnTimedData) :
-                from OverlayCommonAlgs.OverlayFlags import OverlayFlags
-                if OverlayFlags.doLAr():
-                    return True
+                from AthenaCommon.DetFlags import DetFlags
+                checkOverlay = getattr(DetFlags, 'overlay', None)
+                if checkOverlay is not None:
+                    if DetFlags.overlay.LAr_on():
+                        return True
+                else: #fallback for older releases
+                    from OverlayCommonAlgs.OverlayFlags import OverlayFlags
+                    if OverlayFlags.doLAr():
+                        return True
     return False
 
 def useLArFloat():
