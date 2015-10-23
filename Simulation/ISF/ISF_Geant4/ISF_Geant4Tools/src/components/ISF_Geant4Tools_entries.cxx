@@ -1,6 +1,7 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 #include "../TransportTool.h"
-#include "../TrackProcessorUserAction.h"
+#include "../TrackProcessorUserActionPassBack.h"
+#include "../TrackProcessorUserActionFullG4.h"
 #include "../SDActivateUserAction.h"
 #include "../MCTruthUserAction.h"
 #include "../PhysicsValidationUserAction.h"
@@ -11,7 +12,8 @@
 //arranged alphabetically, as this now determines the order in which
 //genConf is run.
 DECLARE_NAMESPACE_TOOL_FACTORY( iGeant4 , G4TransportTool            )
-DECLARE_NAMESPACE_TOOL_FACTORY( iGeant4 , TrackProcessorUserAction )
+DECLARE_NAMESPACE_TOOL_FACTORY( iGeant4 , TrackProcessorUserActionPassBack )
+DECLARE_NAMESPACE_TOOL_FACTORY( iGeant4 , TrackProcessorUserActionFullG4   )
 DECLARE_NAMESPACE_TOOL_FACTORY( iGeant4 , SDActivateUserAction )
 DECLARE_NAMESPACE_TOOL_FACTORY( iGeant4 , MCTruthUserAction        )
 DECLARE_NAMESPACE_TOOL_FACTORY( iGeant4 , PhysicsValidationUserAction        )
@@ -19,7 +21,8 @@ DECLARE_NAMESPACE_TOOL_FACTORY( iGeant4 , G4RunManagerHelper )
 
 DECLARE_FACTORY_ENTRIES( ISF_Geant4Tools ) {
   DECLARE_NAMESPACE_TOOL ( iGeant4 , G4TransportTool            )
-  DECLARE_NAMESPACE_TOOL ( iGeant4 , TrackProcessorUserAction )
+  DECLARE_NAMESPACE_TOOL ( iGeant4 , TrackProcessorUserActionPassBack )
+  DECLARE_NAMESPACE_TOOL ( iGeant4 , TrackProcessorUserActionFullG4   )
   DECLARE_NAMESPACE_TOOL ( iGeant4 , SDActivateUserAction )
   DECLARE_NAMESPACE_TOOL ( iGeant4 , MCTruthUserAction        )
   DECLARE_NAMESPACE_TOOL ( iGeant4 , PhysicsValidationUserAction        )
