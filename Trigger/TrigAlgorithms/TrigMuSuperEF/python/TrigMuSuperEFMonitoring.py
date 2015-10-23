@@ -10,22 +10,42 @@ class TrigMuSuperEFMonitoring(TrigGenericMonitoringToolConfig):
         # overall histograms for full algorithm
         self.Histograms += [ defineHistogram('EF_trks_n', type='TH1F', title="Number of tracks; MuEF Number of Tracks",
                                              xbins=51, xmin=-0.5, xmax=50.5) ]
-        self.Histograms += [ defineHistogram('EF_trks_type', type='TH1F', title="author;1=TrigMuonEF 2=TrigMuGirl 3=TrigMuGirlTag",
-                                             xbins=3, xmin=0.5, xmax=3.5) ]
-        self.Histograms += [ defineHistogram('EF_trks_charge', type='TH1F', title="charge;Muon charge",
-                                             xbins=3, xmin=-1.5, xmax=1.5) ]
-        self.Histograms += [ defineHistogram('EF_trks_chi2', type='TH1F', title="chi2; MuEF Track chi2",
-                                             xbins=100, xmin=0, xmax=30) ]
-        self.Histograms += [ defineHistogram('EF_trks_chi2Prob', type='TH1F', title="chi2Prob; MuEF Track chi2 probability",
-                                             xbins=50, xmin=0, xmax=1) ]
-        self.Histograms += [ defineHistogram('EF_trks_match_chi2', type='TH1F', title="match_chi2; MuEF Track matching chi2",
-                                             xbins=100, xmin=0, xmax=50) ]
         self.Histograms += [ defineHistogram('EF_trks_pt', type='TH1F', title="pt ; MuEF Track pt [GeV]",
                                              xbins=100, xmin=0, xmax=200) ]
         self.Histograms += [ defineHistogram('EF_trks_phi', type='TH1F', title="phi ; MuEF Track Phi",
                                              xbins=100, xmin=-5, xmax=5) ]
         self.Histograms += [ defineHistogram('EF_trks_eta', type='TH1F', title="eta ; MuEF Track Eta",
                                              xbins=100, xmin=-5.5, xmax=5.5) ]
+        self.Histograms += [ defineHistogram('EF_IDtrks_n', type='TH1F', title="Number of ID tracks ; n MuEF ID tracks",
+                                             xbins=51, xmin=-0.5, xmax=50.5) ]
+        self.Histograms += [ defineHistogram('EF_IDtrks_phi', type='TH1F', title="ID track phi; MuEF ID track phi",
+                                             xbins=100, xmin=-5, xmax=5) ]
+        self.Histograms += [ defineHistogram('EF_IDtrks_eta', type='TH1F', title="ID track eta ; MuEF ID track eta",
+                                             xbins=100, xmin=-5.5, xmax=5.5) ]
+        self.Histograms += [ defineHistogram('EF_IDtrks_pT', type='TH1F', title="ID track pT; MuEF ID track pT",
+                                             xbins=100, xmin=0.0, xmax=200.0) ]
+        self.Histograms += [ defineHistogram('EF_IDtrks_pT,EF_IDtrks_phi', type='TH2F', title="ID track phi; MuEF ID track pT; MuEF ID track phi",
+                                             xbins=100, xmin=0.0, xmax=200.0, ybins=100, ymin=-5, ymax=5) ]
+        self.Histograms += [ defineHistogram('EF_IDtrks_pT,EF_IDtrks_eta', type='TH2F', title="ID track eta; MuEF ID track pT; MuEF ID track eta",
+                                             xbins=100, xmin=0.0, xmax=200.0, ybins=100, ymin=-5.5, ymax=5.5) ]
+
+
+class TrigMuSuperEFValidationMonitoring(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigMuSuperEFValidationMonitoring"):
+        super(TrigMuSuperEFValidationMonitoring, self).__init__(name)
+        self.defineTarget( ["Validation"] )
+
+        # overall histograms for full algorithm
+        self.Histograms += [ defineHistogram('EF_trks_type', type='TH1F', title="author;1=TrigMuonEF 2=TrigMuGirl 3=TrigMuGirlTag",
+                                             xbins=3, xmin=0.5, xmax=3.5) ]
+        self.Histograms += [ defineHistogram('EF_trks_chi2', type='TH1F', title="chi2; MuEF Track chi2",
+                                             xbins=100, xmin=0, xmax=30) ]
+        self.Histograms += [ defineHistogram('EF_trks_chi2Prob', type='TH1F', title="chi2Prob; MuEF Track chi2 probability",
+                                             xbins=50, xmin=0, xmax=1) ]
+        self.Histograms += [ defineHistogram('EF_trks_match_chi2', type='TH1F', title="match_chi2; MuEF Track matching chi2",
+                                             xbins=100, xmin=0, xmax=50) ]
+        self.Histograms += [ defineHistogram('EF_trks_charge', type='TH1F', title="charge;Muon charge",
+                                             xbins=3, xmin=-1.5, xmax=1.5) ]
         self.Histograms += [ defineHistogram('EF_trks_d0', type='TH1F', title="d0 ; MuEF Track d0",
                                              xbins=100, xmin=-10, xmax=10) ]
         self.Histograms += [ defineHistogram('EF_trks_z0', type='TH1F', title="z0 ; MuEF Track z0 [mm]",
@@ -52,16 +72,4 @@ class TrigMuSuperEFMonitoring(TrigGenericMonitoringToolConfig):
                                              xbins=21, xmin=-0.5, xmax=20.5) ]
         self.Histograms += [ defineHistogram('EF_trks_nIdTrtHit', type='TH1F', title="Number of IdTrtHit on track ; MuEF Trt hits",
                                              xbins=51, xmin=-0.5, xmax=50.5) ]
-        self.Histograms += [ defineHistogram('EF_IDtrks_n', type='TH1F', title="Number of ID tracks ; n MuEF ID tracks",
-                                             xbins=51, xmin=-0.5, xmax=50.5) ]
-        self.Histograms += [ defineHistogram('EF_IDtrks_phi', type='TH1F', title="ID track phi; MuEF ID track phi",
-                                             xbins=100, xmin=-5, xmax=5) ]
-        self.Histograms += [ defineHistogram('EF_IDtrks_eta', type='TH1F', title="ID track eta ; MuEF ID track eta",
-                                             xbins=100, xmin=-5.5, xmax=5.5) ]
-        self.Histograms += [ defineHistogram('EF_IDtrks_pT', type='TH1F', title="ID track pT; MuEF ID track pT",
-                                             xbins=100, xmin=0.0, xmax=200.0) ]
-        self.Histograms += [ defineHistogram('EF_IDtrks_pT,EF_IDtrks_phi', type='TH2F', title="ID track phi; MuEF ID track pT; MuEF ID track phi",
-                                             xbins=100, xmin=0.0, xmax=200.0, ybins=100, ymin=-5, ymax=5) ]
-        self.Histograms += [ defineHistogram('EF_IDtrks_pT,EF_IDtrks_eta', type='TH2F', title="ID track eta; MuEF ID track pT; MuEF ID track eta",
-                                             xbins=100, xmin=0.0, xmax=200.0, ybins=100, ymin=-5.5, ymax=5.5) ]
         

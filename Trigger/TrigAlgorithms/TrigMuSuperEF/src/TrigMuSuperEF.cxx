@@ -105,8 +105,11 @@ TrigMuSuperEF::TrigMuSuperEF(const std::string& name, ISvcLocator* pSvcLocator) 
   m_TrackToTrackParticleConvTool("TrackToTrackParticleConvTool",this),
   m_muonCreatorTool("MuonCreatorTool"),
   m_stauCreatorTool(""),
-  m_doMuonFeature(false)
+  m_doMuonFeature(false),
+  m_useL2Info(false),
+  m_doCache(true)
 {
+  m_hashlist.reserve(4);
 
   declareProperty("doInsideOut",    m_doInsideOut,    "Run TrigMuGirl or not (starts from ID, then goes to MS)");
   declareProperty("doOutsideIn",    m_doOutsideIn,    "Run TrigMuonEF or not (starts from MS, then goes to ID)");
@@ -141,12 +144,13 @@ TrigMuSuperEF::TrigMuSuperEF(const std::string& name, ISvcLocator* pSvcLocator) 
 
   declareProperty("IdTrackParticles",           m_idTrackParticlesName);
 
+  declareProperty("DoCache", m_doCache);
   declareProperty("ExtrapolatedTrackParticleContName", m_saTrackParticleContName);
   declareProperty("MSonlyTrackParticleContName", m_msTrackParticleContName);
   declareProperty("CBTrackParticleContName", m_cbTrackParticleContName);
   declareProperty("CTTrackParticleContName", m_ctTrackParticleContName);
   declareProperty("MuonContName", m_muonContName);
-
+  declareProperty("UseL2Info", m_useL2Info);
   declareMonitoredStdContainer ("EF_trks_n",               m_monVars.numberOfTracks, IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer ("EF_trks_type",            m_monVars.type,           IMonitoredAlgo::AutoClear);
   declareMonitoredStdContainer ("EF_trks_charge",          m_monVars.charge,         IMonitoredAlgo::AutoClear);
@@ -402,6 +406,27 @@ TrigMuSuperEF::hltInitialize()
   return HLT::OK;
 }
 
+//* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+
+HLT::ErrorCode TrigMuSuperEF::hltEndEvent()
+{
+    
+  // delete the SegmentCache objects we created with new
+    for (map<std::vector<std::vector<IdentifierHash> >, InternalCache*>::iterator itmap=m_CacheMap.begin(); itmap!=m_CacheMap.end(); ++itmap) {
+      if(itmap->second) delete itmap->second;
+    }
+    for (map<std::vector<std::vector<IdentifierHash> >, InternalCache*>::iterator itmap=m_CacheMapTMEFonly.begin(); itmap!=m_CacheMapTMEFonly.end(); ++itmap) {
+      if(itmap->second) delete itmap->second;
+    }
+    ATH_MSG_VERBOSE("clearing SFCacheSCmap");
+    m_CacheMap.clear();
+    m_CacheMapTMEFonly.clear();
+    m_hashlist.clear(); 
+    clearCacheVector( m_tracksCache );
+
+    return HLT::OK;    
+}
+
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
 HLT::ErrorCode
@@ -445,7 +470,6 @@ TrigMuSuperEF::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElemen
 
   HLT::ErrorCode ec = HLT::OK;
   if( m_combinerOnly) {
-    //@todo need to implement mode to run only the combiner
     ec = runCombinerOnly(inputTE, TEout,muonContainerOwn);
   } else if (m_caloTagOnly) {
     // run calotag mode
@@ -494,8 +518,6 @@ TrigMuSuperEF::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElemen
     fillCTMonitoringVars( *m_ctTrackParticleContainer );
   }
 
-  // clear any collections that we created and were not taken by someone else
-  clearCacheVector( m_tracksCache );
 
   // no muon found is OK
   if (hltStatus == HLT::MISSING_FEATURE) hltStatus = HLT::OK;
@@ -548,21 +570,62 @@ TrigMuSuperEF::hltFinalize()
 
 HLT::ErrorCode TrigMuSuperEF::runCombinerOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout,std::unique_ptr<xAOD::MuonContainer> &muonContainerOwn) {
     // get xAOD ID tracks
-    ElementLinkVector<xAOD::TrackParticleContainer> elv_xaodidtrks;
-    HLT::ErrorCode hltStatus = getIDTrackParticleLinks(inputTE, elv_xaodidtrks);
-    if(hltStatus != HLT::OK && hltStatus!=HLT::MISSING_FEATURE) {
-      ATH_MSG_ERROR("Problem getting ID tracks");
-      return hltStatus;
-    }  
-           // build InDetCandidates
-    InDetCandidateCollection inDetCandidates;
-    for(unsigned int itrack=0; itrack<elv_xaodidtrks.size(); ++itrack) {
-      // Use ElementLink so the xAOD::TrackParticle has a link back to the Trk::Track
-      inDetCandidates.push_back( new MuonCombined::InDetCandidate( elv_xaodidtrks.at(itrack) ) );
-    }//loop on ID Trk::Tracks
+  HLT::ErrorCode hltStatus;
+  ElementLinkVector<xAOD::TrackParticleContainer> elv_xaodidtrks;
+  ElementLinkVector<xAOD::TrackParticleContainer> elv_xaodidtrksL2;
+  const xAOD::TrackParticleContainer l2idtrks;
+  const xAOD::L2CombinedMuonContainer *l2combcont;
+  hltStatus = getIDTrackParticleLinks(inputTE, elv_xaodidtrks);
+  if(hltStatus != HLT::OK && hltStatus!=HLT::MISSING_FEATURE) {
+    ATH_MSG_ERROR("Problem getting ID tracks");
+    return hltStatus;
+  }  
 
+  hltStatus = getIDTrackParticleLinksL2(inputTE, elv_xaodidtrksL2);
+  if(hltStatus != HLT::OK && hltStatus!=HLT::MISSING_FEATURE) {
+    ATH_MSG_ERROR("Problem getting ID tracks");
+    return hltStatus;
+  }  
+  InDetCandidateCollection inDetCandidates;
+  inDetCandidates.reserve(elv_xaodidtrks.size());
+  if(m_useL2Info){
+    hltStatus=getFeature(inputTE,l2combcont);
+    uint l2combsize = 0;
+    if(l2combcont) l2combsize=l2combcont->size();
+    if(l2combsize>0){   
+      for(uint l2=0; l2<l2combsize; l2++){
+    	for(unsigned int itrack=0; itrack<elv_xaodidtrksL2.size(); ++itrack) {
+    	  if(*(elv_xaodidtrksL2.at(itrack))==l2combcont->at(l2)->idTrack()){
+    	    // build InDetCandidates
+    	    // Use ElementLink so the xAOD::TrackParticle has a link back to the Trk::Track
+    	    inDetCandidates.push_back( new MuonCombined::InDetCandidate( elv_xaodidtrksL2.at(itrack) ) );
+    	  }//loop on ID Trk::Tracks
+	    
+    	}
+      }
+    //Fill ID track monitoring variables
+    fillIDMonitoringVars(elv_xaodidtrksL2);
+    }
+    else{
+      for(unsigned int itrack=0; itrack<elv_xaodidtrks.size(); ++itrack) {
+    	// build InDetCandidates
+    	// Use ElementLink so the xAOD::TrackParticle has a link back to the Trk::Track
+    	inDetCandidates.push_back( new MuonCombined::InDetCandidate( elv_xaodidtrks.at(itrack) ) );
+      }//loop on ID Trk::Tracks
+
+    }
     //Fill ID track monitoring variables
     fillIDMonitoringVars(elv_xaodidtrks);
+  }
+  else{
+   for(unsigned int itrack=0; itrack<elv_xaodidtrks.size(); ++itrack) {
+	// build InDetCandidates
+	// Use ElementLink so the xAOD::TrackParticle has a link back to the Trk::Track
+	inDetCandidates.push_back( new MuonCombined::InDetCandidate( elv_xaodidtrks.at(itrack) ) );
+      }//loop on ID Trk::Tracks
+    //Fill ID track monitoring variables
+    fillIDMonitoringVars(elv_xaodidtrks);
+  }
 
     // get muons from the last step
     const xAOD::MuonContainer* lastMuons=0;
@@ -572,38 +635,122 @@ HLT::ErrorCode TrigMuSuperEF::runCombinerOnly(const HLT::TriggerElement* inputTE
       return hltStatus;
     }
 
+
     // build muon candidates from the xAOD muons
-    MuonCandidateCollection muonCandidates;
+    MuonCandidateCollection *muonCandidates = new MuonCandidateCollection();
+    xAOD::TrackParticleContainer* combTrackParticleCont = new xAOD::TrackParticleContainer();
+    xAOD::TrackParticleAuxContainer combTrackParticleAuxCont;
+    combTrackParticleCont->setStore( &combTrackParticleAuxCont );
+
+    // can remove the extrapolated track containers once the MuonCandidate no longer takes ownership of the track
+      TrackCollection* extrapolatedTracks = new TrackCollection();
+      xAOD::TrackParticleContainer* saTrackParticleCont = new xAOD::TrackParticleContainer();
+      xAOD::TrackParticleAuxContainer saTrackParticleAuxCont;
+      saTrackParticleCont->setStore( &saTrackParticleAuxCont );
+
     for(auto muon : *lastMuons) {
       const ElementLink<xAOD::TrackParticleContainer>& saTrackLink = muon->extrapolatedMuonSpectrometerTrackParticleLink();
       if(saTrackLink.isValid() && muon->muonSpectrometerTrackParticleLink()) {
 	const ElementLink<xAOD::TrackParticleContainer> msTrackLink = muon->muonSpectrometerTrackParticleLink();
 	// for now have to deep copy the extrapolated track (MuonCandidate takes ownership)
 	// Upgraded MuonCandidate in future should allow MuonCandidate( msTrackLink, saTrackLink ) without the copy
-	if(msTrackLink.isValid()) muonCandidates.push_back( new MuonCombined::MuonCandidate( msTrackLink, new Trk::Track(*((*saTrackLink)->track())) ) );
+	if(msTrackLink.isValid()) muonCandidates->push_back( new MuonCombined::MuonCandidate( msTrackLink, new Trk::Track(*((*saTrackLink)->track())) ) );
 	else ATH_MSG_WARNING("xAOD::Muon has msTrackLink, but it is not valid");
       }//valid Element Links
     }//loop on muons
 
-    hltStatus = buildCombinedTracks( &muonCandidates, inDetCandidates, m_TMEF_monVars.CB,m_TMEF_CBTimers);
 
-    ATH_MSG_DEBUG( "Call buildMuons, n(inDetCandidates) =  " << inDetCandidates.size());
+    map<std::vector<std::vector<IdentifierHash> >, InternalCache*>::iterator itmap = m_CacheMap.end();
+    const IRoiDescriptor* muonRoI = getRoiDescriptor(inputTE,TEout);
+    m_hashlist.clear();
+    m_hashlist = m_TrigMuonEF_saTrackTool->getHashList(muonRoI);
 
-    // make output containers
-    xAOD::TrackParticleContainer* combTrackParticleCont = new xAOD::TrackParticleContainer();
-    xAOD::TrackParticleAuxContainer combTrackParticleAuxCont;
-    combTrackParticleCont->setStore( &combTrackParticleAuxCont );
-    // can remove the extrapolated track containers once the MuonCandidate no longer takes ownership of the track
-    TrackCollection* extrapolatedTracks = new TrackCollection();
-    xAOD::TrackParticleContainer* saTrackParticleCont = new xAOD::TrackParticleContainer();
-    xAOD::TrackParticleAuxContainer saTrackParticleAuxCont;
-    saTrackParticleCont->setStore( &saTrackParticleAuxCont );
+    if(m_doCache){
+      itmap = m_CacheMap.find(m_hashlist);
+      if (itmap!=m_CacheMap.end()) {
+	InternalCache *cache = itmap->second;
 
-    hltStatus = buildMuons( &muonCandidates, &inDetCandidates, combTrackParticleCont, extrapolatedTracks, saTrackParticleCont);
-    if(hltStatus!=HLT::OK) {
-      ATH_MSG_ERROR("Problem building muons");
-      return hltStatus;
+
+      	ATH_MSG_VERBOSE("Repeated ROI");
+      	muonCandidates = cache->MuonCandidates();
+
+      	xAOD::TrackParticleContainer::iterator trk_itr = cache->CombinedTracks().first->begin();
+      	xAOD::TrackParticleContainer::iterator trk_end = cache->CombinedTracks().first->end();
+
+	//Get combined track particles from cache
+      	combTrackParticleCont->setStore(&combTrackParticleAuxCont);	  
+	combTrackParticleCont->reserve(cache->CombinedTracks().first->size());
+      	for(; trk_itr !=trk_end; ++trk_itr){
+      	  xAOD::TrackParticle *trk1 = new xAOD::TrackParticle();
+	  trk1->makePrivateStore(**trk_itr);
+      	  combTrackParticleCont->push_back(trk1);
+      	}
+
+      	//Get SA track particles from cache
+      	trk_itr = cache->SATracks().first->begin();
+      	trk_end = cache->SATracks().first->end();
+	saTrackParticleCont->reserve(cache->SATracks().first->size());
+      	for(; trk_itr !=trk_end; ++trk_itr){
+      	  xAOD::TrackParticle *trk1 = new xAOD::TrackParticle();
+	  trk1->makePrivateStore(**trk_itr);
+      	  saTrackParticleCont->push_back(trk1);
+      	}
+
+      	//Get extrapolated tracks from cache
+	extrapolatedTracks->reserve(cache->ExtrapolatedTracks()->size());
+      	for(auto trk : *(cache->ExtrapolatedTracks())){
+      	  extrapolatedTracks->push_back(new Trk::Track(*trk));
+      	}
+
+      	//Get combined track collection from cache
+      	m_combTrkTrackColl = new TrackCollection();
+	m_combTrkTrackColl->reserve(cache->CombinedTrackColl()->size());
+      	addElement( m_tracksCache, m_combTrkTrackColl);
+      	for(auto trk : *(cache->CombinedTrackColl())) m_combTrkTrackColl->push_back(new Trk::Track(*trk));
+      	//Get muon container from cache
+      	xAOD::MuonContainer::iterator mu_itr = cache->MuonContainer().first->begin();
+      	xAOD::MuonContainer::iterator mu_end = cache->MuonContainer().first->end();
+	m_muonContainer->reserve(cache->MuonContainer().first->size());
+      	for(; mu_itr!=mu_end; ++mu_itr){
+      	  xAOD::Muon *mu2 = new xAOD::Muon();
+      	  mu2->makePrivateStore(**mu_itr);
+      	  m_muonContainer->push_back(mu2);
+      	}
+      }
+      else{//if cache not in map or we don't have all the containers
+      	//build the muons
+      	hltStatus = buildCombinedTracks( muonCandidates, inDetCandidates, m_TMEF_monVars.CB,m_TMEF_CBTimers);
+      	ATH_MSG_DEBUG( "Call buildMuons, n(inDetCandidates) =  " << inDetCandidates.size());
+      	hltStatus = buildMuons( muonCandidates, &inDetCandidates, combTrackParticleCont, extrapolatedTracks, saTrackParticleCont);
+      	if(hltStatus!=HLT::OK) {
+      	  ATH_MSG_ERROR("Problem building muons");
+      	  return hltStatus;
+      	}
+      	//Set all the containers in the cache
+      	if(muonCandidates && combTrackParticleCont && extrapolatedTracks && saTrackParticleCont && m_combTrkTrackColl){
+      	  InternalCache *cacheStore = new InternalCache();
+      	  cacheStore->SetMuonCandidates(muonCandidates);
+	  cacheStore->SetCombinedTracks(combTrackParticleCont);
+	  cacheStore->SetExtrapolatedTracks(extrapolatedTracks);
+      	  cacheStore->SetSATracks(saTrackParticleCont);
+      	  cacheStore->SetCombinedTrackColl(m_combTrkTrackColl);
+      	  cacheStore->SetMuonContainer(m_muonContainer);
+      	  //put the cache in the map
+      	  m_CacheMap[m_hashlist] = cacheStore;
+      	}
+      }//if cache not in map r containers are missing
     }
+    else{//if not in do cache
+      //build muons
+      hltStatus = buildCombinedTracks( muonCandidates, inDetCandidates, m_TMEF_monVars.CB,m_TMEF_CBTimers);
+      ATH_MSG_DEBUG( "Call buildMuons, n(inDetCandidates) =  " << inDetCandidates.size());
+      hltStatus = buildMuons( muonCandidates, &inDetCandidates, combTrackParticleCont, extrapolatedTracks, saTrackParticleCont);
+      if(hltStatus!=HLT::OK) {
+	ATH_MSG_ERROR("Problem building muons");
+	return hltStatus;
+      }
+    }
+
 
     // attach output
     if(attachOutput( TEout, combTrackParticleCont, extrapolatedTracks, saTrackParticleCont, std::move(muonContainerOwn))!=HLT::OK) {
@@ -700,7 +847,7 @@ HLT::ErrorCode TrigMuSuperEF::runCaloTagOnly(const HLT::TriggerElement* inputTE,
 
     //if (idTrackParticleCont->size() == 0) {
     if (m_ctTrackParticleContainer->size() == 0) {
-        ATH_MSG_INFO("No muons found");
+        ATH_MSG_DEBUG("No muons found");
     }
 
     // attach output
@@ -826,8 +973,14 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
 {
 
   HLT::ErrorCode hltStatus = HLT::OK;
- 
   const IRoiDescriptor* muonRoI = getRoiDescriptor(inputTE,TEout);
+
+  m_hashlist.clear();
+  m_hashlist = m_TrigMuonEF_saTrackTool->getHashList(muonRoI);
+  map<std::vector<std::vector<IdentifierHash> >, InternalCache*>::iterator itmap;
+  if(!m_doInsideOut) itmap = m_CacheMapTMEFonly.end();
+  else itmap = m_CacheMap.end();
+
 
   if ( not muonRoI ) {
     std::string teInLabel;
@@ -838,11 +991,19 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
     return HLT::MISSING_FEATURE;
   }
 
+
+
   // pre-define objects that are needed in muon building
-  xAOD::TrackParticleContainer* combTrackParticleCont = 0;
+  xAOD::TrackParticleContainer* combTrackParticleCont = new xAOD::TrackParticleContainer();
   xAOD::TrackParticleAuxContainer combTrackParticleAuxCont;
   InDetCandidateCollection inDetCandidates;
+  TrackCollection* extrapolatedTracks = new TrackCollection();
   MuonCandidateCollection* muonCandidates= new MuonCandidateCollection();
+  xAOD::TrackParticleContainer* saTrackParticleCont = new xAOD::TrackParticleContainer();
+  xAOD::TrackParticleAuxContainer saTrackParticleAuxCont;
+  saTrackParticleCont->setStore( &saTrackParticleAuxCont );
+  combTrackParticleCont->setStore( &combTrackParticleAuxCont );
+
 
   if(m_standaloneOnly) {
     // Standalone only
@@ -856,89 +1017,304 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
     return hltStatus;
   } else {     // some kind of combined reco
     // get xAOD ID tracks
-    ElementLinkVector<xAOD::TrackParticleContainer> elv_xaodidtrks;  
-    hltStatus = getIDTrackParticleLinks(inputTE, elv_xaodidtrks);
-    if(hltStatus != HLT::OK && hltStatus!=HLT::MISSING_FEATURE) {
-      ATH_MSG_ERROR("Problem getting ID tracks");
-      return hltStatus;
-    }  
-    // build InDetCandidates
-    for(unsigned int itrack=0; itrack<elv_xaodidtrks.size(); ++itrack) {
-      // Use ElementLink so the xAOD::TrackParticle has a link back to the Trk::Track
-      inDetCandidates.push_back( new MuonCombined::InDetCandidate( elv_xaodidtrks.at(itrack) ) );
-    }//loop on ID Trk::Tracks
+  ElementLinkVector<xAOD::TrackParticleContainer> elv_xaodidtrks;
+  ElementLinkVector<xAOD::TrackParticleContainer> elv_xaodidtrksL2;
+  const xAOD::TrackParticleContainer l2idtrks;
+  const xAOD::L2CombinedMuonContainer *l2combcont;
+  hltStatus = getIDTrackParticleLinks(inputTE, elv_xaodidtrks);
+  if(hltStatus != HLT::OK && hltStatus!=HLT::MISSING_FEATURE) {
+    ATH_MSG_ERROR("Problem getting ID tracks");
+    return hltStatus;
+  }  
 
+  hltStatus = getIDTrackParticleLinksL2(inputTE, elv_xaodidtrksL2);
+  if(hltStatus != HLT::OK && hltStatus!=HLT::MISSING_FEATURE) {
+    ATH_MSG_ERROR("Problem getting ID tracks");
+    return hltStatus;
+  }  
+
+  if(m_useL2Info){
+    hltStatus=getFeature(inputTE,l2combcont);
+    uint l2combsize = 0;
+    if(l2combcont) l2combsize=l2combcont->size();
+    if(l2combsize>0){   
+      //      inDetCandidates.reserve(l2combsize);
+      for(uint l2=0; l2<l2combsize; l2++){
+    	for(unsigned int itrack=0; itrack<elv_xaodidtrksL2.size(); ++itrack) {
+    	  if(*(elv_xaodidtrksL2.at(itrack))==l2combcont->at(l2)->idTrack()){
+    	    // build InDetCandidates
+    	    // Use ElementLink so the xAOD::TrackParticle has a link back to the Trk::Track
+    	    inDetCandidates.push_back( new MuonCombined::InDetCandidate( elv_xaodidtrksL2.at(itrack) ) );
+    	  }//loop on ID Trk::Tracks
+	    
+    	}
+      }
+    //Fill ID track monitoring variables
+    fillIDMonitoringVars(elv_xaodidtrksL2);
+    }
+    else{
+      //      inDetCandidates.reserve(elv_xaodidtrks.size());
+      for(unsigned int itrack=0; itrack<elv_xaodidtrks.size(); ++itrack) {
+    	// build InDetCandidates
+    	// Use ElementLink so the xAOD::TrackParticle has a link back to the Trk::Track
+    	inDetCandidates.push_back( new MuonCombined::InDetCandidate( elv_xaodidtrks.at(itrack) ) );
+      }//loop on ID Trk::Tracks
+
+    }
     //Fill ID track monitoring variables
     fillIDMonitoringVars(elv_xaodidtrks);
-
-    // prepare combined track particle container
-    combTrackParticleCont = new xAOD::TrackParticleContainer();
-    combTrackParticleCont->setStore( &combTrackParticleAuxCont );
-
-    if(m_doOutsideIn && (!m_insideOutFirst || !m_doInsideOut) ) { // run TrigMuonEF
-
-      ++m_counter_TrigMuonEF.total;
-      // TrigMuonEF MS+CB
-      hltStatus = runMSCBReconstruction( muonRoI, TEout, *muonCandidates, inDetCandidates,  muonContainerOwn );
-
-      if(hltStatus==HLT::OK) ++m_counter_TrigMuonEF.pass;
-      else if(hltStatus!=HLT::MISSING_FEATURE) { // missing feature indicates no muon - which we don't report as an error
-	ATH_MSG_ERROR("Problem running runMSCBReconstruction");
-	return hltStatus;
-      }
-
-      if(m_doInsideOut) { // now run MuGirl
-	if(m_forceBoth || hltStatus==HLT::MISSING_FEATURE) { 
-	  ATH_MSG_DEBUG( "Executing extend()" );
-	  ++m_counter_TrigMuGirl.total;
-	  m_muGirlTool->extend(inDetCandidates);
-	  ++m_counter_TrigMuGirl.pass;//@todo fix this counter
-	}// need to run MuGirl
-      }// doInsideOut
-
-    }//TrigMuonEF first
-    if(m_doInsideOut && (m_insideOutFirst || !m_doOutsideIn)) {
-      ATH_MSG_DEBUG( "Executing extend()" );
-      ++m_counter_TrigMuGirl.total;
-      m_muGirlTool->extend(inDetCandidates);
-      ++m_counter_TrigMuGirl.pass;//@todo fix this counter      
-
-      if(m_doOutsideIn) {
-	bool foundMuon=false;      // @todo: need to check if MuGirl tagged a muon - always assume it didn't for now
-	if(m_forceBoth || !foundMuon) {
-	  // now run TrigMuonEF MS+CB
-	  ++m_counter_TrigMuonEF.total;
-	  hltStatus = runMSCBReconstruction( muonRoI, TEout, *muonCandidates, inDetCandidates,  muonContainerOwn );
-	  
-	  if(hltStatus==HLT::OK) ++m_counter_TrigMuonEF.total;
-	  else if(hltStatus!=HLT::MISSING_FEATURE) { // missing feature indicates no muon - which we don't report as an error
-	    ATH_MSG_ERROR("Problem building combined tracks");
-	    return hltStatus;
-	  }
-	}// need to run TrigMuonEF
-      }//doOutsideIn
-    }// MuGirl first
-
-  }//combined running
-
-  /////////////////////////// Build all output containers
-  // includes xAOD muons, track particles and filling the SA TrackCollection
-  TrackCollection* extrapolatedTracks = new TrackCollection();
-  xAOD::TrackParticleContainer* saTrackParticleCont = new xAOD::TrackParticleContainer;
-  xAOD::TrackParticleAuxContainer saTrackParticleAuxCont;
-  saTrackParticleCont->setStore( &saTrackParticleAuxCont );
-  
-  ATH_MSG_DEBUG( "Call buildMuons, n(inDetCandidates) =  " << inDetCandidates.size());
-  hltStatus = buildMuons( muonCandidates, &inDetCandidates, combTrackParticleCont, extrapolatedTracks, saTrackParticleCont);
-  if(hltStatus!=HLT::OK) {
-    ATH_MSG_ERROR("Problem building muons");
-    return hltStatus;
+  }
+  else{
+    //    inDetCandidates.reserve(elv_xaodidtrks.size());
+   for(unsigned int itrack=0; itrack<elv_xaodidtrks.size(); ++itrack) {
+	// build InDetCandidates
+	// Use ElementLink so the xAOD::TrackParticle has a link back to the Trk::Track
+	inDetCandidates.push_back( new MuonCombined::InDetCandidate( elv_xaodidtrks.at(itrack) ) );
+      }//loop on ID Trk::Tracks
+    //Fill ID track monitoring variables
+    fillIDMonitoringVars(elv_xaodidtrks);
   }
 
-  ATH_MSG_DEBUG("saTrackParticleCont size after buildMuons = " << saTrackParticleCont->size());
 
-  // clean up muon candidates
-  if(muonCandidates) delete muonCandidates;
+    if(m_doCache){
+      if(!m_doInsideOut) itmap = m_CacheMapTMEFonly.find(m_hashlist);
+      else  itmap = m_CacheMap.find(m_hashlist);
+
+      if ((m_doInsideOut ? itmap!=m_CacheMap.end() : itmap!=m_CacheMapTMEFonly.end())) {
+        InternalCache *cache = itmap->second;
+
+      	ATH_MSG_VERBOSE("Repeated ROI");
+	
+      	//get objects from cache
+      	muonCandidates = cache->MuonCandidates();
+
+      	xAOD::TrackParticleContainer::iterator trk_itr = cache->CombinedTracks().first->begin();
+      	xAOD::TrackParticleContainer::iterator trk_end = cache->CombinedTracks().first->end();
+	combTrackParticleCont->reserve(cache->CombinedTracks().first->size());
+      	for(; trk_itr !=trk_end; ++trk_itr){
+      	  xAOD::TrackParticle *trk1 = new xAOD::TrackParticle();
+	  trk1->makePrivateStore(**trk_itr);
+      	  combTrackParticleCont->push_back(trk1);
+      	}
+	
+
+      	trk_itr = cache->SATracks().first->begin();
+      	trk_end = cache->SATracks().first->end();
+	saTrackParticleCont->reserve(cache->SATracks().first->size());
+      	for(; trk_itr !=trk_end; ++trk_itr){
+      	  xAOD::TrackParticle *trk1 = new xAOD::TrackParticle();
+	  trk1->makePrivateStore(**trk_itr);
+      	  saTrackParticleCont->push_back(trk1);
+      	}
+
+	extrapolatedTracks->reserve(cache->ExtrapolatedTracks()->size());
+      	for(auto trk : *(cache->ExtrapolatedTracks())){
+      	  extrapolatedTracks->push_back(new Trk::Track(*trk));
+      	}  
+
+
+	m_combTrkTrackColl->reserve(cache->CombinedTrackColl()->size());
+      	m_combTrkTrackColl = new TrackCollection();
+      	addElement( m_tracksCache, m_combTrkTrackColl);
+      	for(auto trk : *(cache->CombinedTrackColl())) m_combTrkTrackColl->push_back(new Trk::Track(*trk));
+	
+      	xAOD::MuonContainer::iterator mu_itr = cache->MuonContainer().first->begin();
+      	xAOD::MuonContainer::iterator mu_end = cache->MuonContainer().first->end();
+	m_muonContainer->reserve(cache->MuonContainer().first->size());
+      	for(; mu_itr!=mu_end; ++mu_itr){
+      	  xAOD::Muon *mu2 = new xAOD::Muon();
+	  mu2->makePrivateStore(**mu_itr);
+      	  m_muonContainer->push_back(mu2);
+      	}
+      }
+      else{//if no cache or missing objects from cache
+      	if(m_doOutsideIn && (!m_insideOutFirst || !m_doInsideOut) ) { // run TrigMuonEF
+
+      	  ++m_counter_TrigMuonEF.total;
+      	  // TrigMuonEF MS+CB
+      	  hltStatus = runMSCBReconstruction( muonRoI, TEout, *muonCandidates, inDetCandidates,  muonContainerOwn );
+      	  if((hltStatus==HLT::MISSING_FEATURE || muonCandidates->size()==0) && m_useL2Info){
+      	    //if combination with L2 ID trk fails, use EF trks instead
+      	    ATH_MSG_DEBUG("refitting combined track with ef id tracks");
+      	    // elv_xaodidtrks.clear();
+      	    // hltStatus = getIDTrackParticleLinks(inputTE, elv_xaodidtrks);
+      	    // if(hltStatus != HLT::OK && hltStatus!=HLT::MISSING_FEATURE) {
+      	    //   ATH_MSG_ERROR("Problem getting ID tracks");
+      	    //   return hltStatus;
+      	    // }  
+	    //	    inDetCandidates.clear();
+	    //	    inDetCandidates.reserve(elv_xaodidtrks.size());
+      	    for(unsigned int itrack=0; itrack<elv_xaodidtrks.size(); ++itrack) {
+      	      // Use ElementLink so the xAOD::TrackParticle has a link back to the Trk::Track
+      	      inDetCandidates.push_back( new MuonCombined::InDetCandidate( elv_xaodidtrks.at(itrack) ) );
+      	    }//loop on ID Trk::Tracks
+      	    hltStatus = runMSCBReconstruction( muonRoI, TEout, *muonCandidates, inDetCandidates,  muonContainerOwn );
+      	  }
+      	  if(hltStatus==HLT::OK) ++m_counter_TrigMuonEF.pass;
+      	  else if(hltStatus!=HLT::MISSING_FEATURE) { // missing feature indicates no muon - which we don't report as an error
+      	    ATH_MSG_ERROR("Problem running runMSCBReconstruction");
+      	    return hltStatus;
+      	  }
+
+      	  if(m_doInsideOut) { // now run MuGirl
+      	    if(m_forceBoth || hltStatus==HLT::MISSING_FEATURE) { 
+      	      // elv_xaodidtrks.clear();
+      	      // hltStatus = getIDTrackParticleLinks(inputTE, elv_xaodidtrks);
+      	      // if(hltStatus != HLT::OK && hltStatus!=HLT::MISSING_FEATURE) {
+      	      // 	ATH_MSG_ERROR("Problem getting ID tracks");
+      	      // 	return hltStatus;
+      	      // } 
+	      //	      inDetCandidates.clear();
+	      //	      inDetCandidates.reserve(elv_xaodidtrks.size());
+      	      for(unsigned int itrack=0; itrack<elv_xaodidtrks.size(); ++itrack) {
+      	      	// Use ElementLink so the xAOD::TrackParticle has a link back to the Trk::Track
+      	      	inDetCandidates.push_back( new MuonCombined::InDetCandidate( elv_xaodidtrks.at(itrack) ) );
+      	      }//loop on ID Trk::Tracks
+      	      ATH_MSG_DEBUG( "Executing extend()" );
+      	      ++m_counter_TrigMuGirl.total;
+      	      m_muGirlTool->extend(inDetCandidates);
+      	      ++m_counter_TrigMuGirl.pass;//@todo fix this counter
+      	    }// need to run MuGirl
+      	  }// doInsideOut
+
+      	}//TrigMuonEF first
+      	if(m_doInsideOut && (m_insideOutFirst || !m_doOutsideIn)) {
+      	  ATH_MSG_DEBUG( "Executing extend()" );
+      	  ++m_counter_TrigMuGirl.total;
+      	  m_muGirlTool->extend(inDetCandidates);
+      	  ++m_counter_TrigMuGirl.pass;//@todo fix this counter      
+
+      	  if(m_doOutsideIn) {
+      	    bool foundMuon=false;      // @todo: need to check if MuGirl tagged a muon - always assume it didn't for now
+      	    if(m_forceBoth || !foundMuon) {
+      	      // now run TrigMuonEF MS+CB
+      	      ++m_counter_TrigMuonEF.total;
+      	      hltStatus = runMSCBReconstruction( muonRoI, TEout, *muonCandidates, inDetCandidates,  muonContainerOwn );
+	      
+      	      if(hltStatus==HLT::OK) ++m_counter_TrigMuonEF.total;
+      	      else if(hltStatus!=HLT::MISSING_FEATURE) { // missing feature indicates no muon - which we don't report as an error
+      		ATH_MSG_ERROR("Problem building combined tracks");
+      		return hltStatus;
+      	      }
+      	    }// need to run TrigMuonEF
+      	  }//doOutsideIn
+      	}// MuGirl first
+
+      	ATH_MSG_DEBUG( "Call buildMuons, n(inDetCandidates) =  " << inDetCandidates.size());
+      	hltStatus = buildMuons( muonCandidates, &inDetCandidates, combTrackParticleCont, extrapolatedTracks, saTrackParticleCont);
+      	if(hltStatus!=HLT::OK) {
+      	  ATH_MSG_ERROR("Problem building muons");
+      	  return hltStatus;
+      	}
+
+      	//set cache objects
+      	if(muonCandidates && combTrackParticleCont && extrapolatedTracks && saTrackParticleCont && m_combTrkTrackColl){ 
+      	  InternalCache *cacheStore = new InternalCache();
+	  
+      	  cacheStore->SetMuonCandidates(muonCandidates);
+	
+      	  cacheStore->SetCombinedTracks(combTrackParticleCont);
+
+      	  cacheStore->SetExtrapolatedTracks(extrapolatedTracks);
+	
+      	  cacheStore->SetSATracks(saTrackParticleCont);
+
+      	  cacheStore->SetCombinedTrackColl(m_combTrkTrackColl);
+
+      	  cacheStore->SetMuonContainer(m_muonContainer);
+
+      	  //put cache in map (separate map for outside in only running)
+      	  if(!m_doInsideOut) m_CacheMapTMEFonly[m_hashlist] = cacheStore;
+      	  else m_CacheMap[m_hashlist] = cacheStore;
+      	}
+        if(muonCandidates) delete muonCandidates;
+      }//else no cache or objects not in cache
+    }//docache
+    else{//not in do cache
+      
+      if(m_doOutsideIn && (!m_insideOutFirst || !m_doInsideOut) ) { // run TrigMuonEF
+
+	++m_counter_TrigMuonEF.total;
+	// TrigMuonEF MS+CB
+	hltStatus = runMSCBReconstruction( muonRoI, TEout, *muonCandidates, inDetCandidates,  muonContainerOwn );
+	if((hltStatus==HLT::MISSING_FEATURE || muonCandidates->size()==0) && m_useL2Info){
+	  //if combination with L2 ID trk fails, use EF trks instead
+	  ATH_MSG_DEBUG("refitting combined track with ef id tracks");
+	  // elv_xaodidtrks.clear();
+	  // hltStatus = getIDTrackParticleLinks(inputTE, elv_xaodidtrks);
+	  // if(hltStatus != HLT::OK && hltStatus!=HLT::MISSING_FEATURE) {
+	  //   ATH_MSG_ERROR("Problem getting ID tracks");
+	  //   return hltStatus;
+	  // } 
+	  //	  inDetCandidates.clear();
+	  //	  inDetCandidates.reserve(elv_xaodidtrks.size());
+	  for(unsigned int itrack=0; itrack<elv_xaodidtrks.size(); ++itrack) {
+	    // Use ElementLink so the xAOD::TrackParticle has a link back to the Trk::Track
+	    inDetCandidates.push_back( new MuonCombined::InDetCandidate( elv_xaodidtrks.at(itrack) ) );
+	  }//loop on ID Trk::Tracks
+	  hltStatus = runMSCBReconstruction( muonRoI, TEout, *muonCandidates, inDetCandidates,  muonContainerOwn );
+	}
+	if(hltStatus==HLT::OK) ++m_counter_TrigMuonEF.pass;
+	else if(hltStatus!=HLT::MISSING_FEATURE) { // missing feature indicates no muon - which we don't report as an error
+	  ATH_MSG_ERROR("Problem running runMSCBReconstruction");
+	  return hltStatus;
+	}
+	
+	if(m_doInsideOut) { // now run MuGirl
+	  if(m_forceBoth || hltStatus==HLT::MISSING_FEATURE) { 
+	    // elv_xaodidtrks.clear();
+	    // hltStatus = getIDTrackParticleLinks(inputTE, elv_xaodidtrks);
+	    // if(hltStatus != HLT::OK && hltStatus!=HLT::MISSING_FEATURE) {
+	    //   ATH_MSG_ERROR("Problem getting ID tracks");
+	    //   return hltStatus;
+	    // } 
+	    //	    inDetCandidates.clear();
+	    //	    inDetCandidates.reserve(elv_xaodidtrks.size());
+	    for(unsigned int itrack=0; itrack<elv_xaodidtrks.size(); ++itrack) {
+	      // Use ElementLink so the xAOD::TrackParticle has a link back to the Trk::Track
+	      inDetCandidates.push_back( new MuonCombined::InDetCandidate( elv_xaodidtrks.at(itrack) ) );
+	    }//loop on ID Trk::Tracks
+	    ATH_MSG_DEBUG( "Executing extend()" );
+	    ++m_counter_TrigMuGirl.total;
+	    m_muGirlTool->extend(inDetCandidates);
+	    ++m_counter_TrigMuGirl.pass;//@todo fix this counter
+	  }// need to run MuGirl
+	}// doInsideOut
+
+      }//TrigMuonEF first
+      if(m_doInsideOut && (m_insideOutFirst || !m_doOutsideIn)) {
+	ATH_MSG_DEBUG( "Executing extend()" );
+	++m_counter_TrigMuGirl.total;
+	m_muGirlTool->extend(inDetCandidates);
+	++m_counter_TrigMuGirl.pass;//@todo fix this counter      
+
+	if(m_doOutsideIn) {
+	  bool foundMuon=false;      // @todo: need to check if MuGirl tagged a muon - always assume it didn't for now
+	  if(m_forceBoth || !foundMuon) {
+	    // now run TrigMuonEF MS+CB
+	    ++m_counter_TrigMuonEF.total;
+	    hltStatus = runMSCBReconstruction( muonRoI, TEout, *muonCandidates, inDetCandidates,  muonContainerOwn );
+	    
+	    if(hltStatus==HLT::OK) ++m_counter_TrigMuonEF.total;
+	    else if(hltStatus!=HLT::MISSING_FEATURE) { // missing feature indicates no muon - which we don't report as an error
+	      ATH_MSG_ERROR("Problem building combined tracks");
+	      return hltStatus;
+	    }
+	  }// need to run TrigMuonEF
+	}//doOutsideIn
+      }// MuGirl first
+      ATH_MSG_DEBUG( "Call buildMuons, n(inDetCandidates) =  " << inDetCandidates.size());
+      hltStatus = buildMuons( muonCandidates, &inDetCandidates, combTrackParticleCont, extrapolatedTracks, saTrackParticleCont);
+      if(hltStatus!=HLT::OK) {
+	ATH_MSG_ERROR("Problem building muons");
+	return hltStatus;
+      }
+      if(muonCandidates) delete muonCandidates;
+    }//not doCache
+  }//combined running
+  
+
+  ATH_MSG_DEBUG("saTrackParticleCont size after buildMuons = " << saTrackParticleCont->size());
 
   // attach output
   if(attachOutput( TEout, combTrackParticleCont, extrapolatedTracks, saTrackParticleCont, std::move(muonContainerOwn) )!=HLT::OK) {
@@ -995,8 +1371,8 @@ HLT::ErrorCode TrigMuSuperEF::buildCombinedTracks(const MuonCandidateCollection*
 
   // call the combiner
   ATH_MSG_DEBUG("Call  m_muonCombinedTool->combine, n(muon cand)=" << muonCandidates->size() << " n(ID cand)=" << inDetCandidates.size());
+
   m_muonCombinedTool->combine( *muonCandidates,  inDetCandidates ) ;
-    
 
   if(trackFinderTime) trackFinderTime->stop();
   if(dataOutputTime) dataOutputTime->start();
@@ -1033,7 +1409,9 @@ HLT::ErrorCode TrigMuSuperEF::attachOutput(HLT::TriggerElement* TEout,
   }//valid extrapolated tracks
 
   // attach extrapolated track particles
-  if(extrapolatedTrackParticles) attachTrackParticleContainer( TEout, extrapolatedTrackParticles, m_saTrackParticleContName );
+  if(extrapolatedTrackParticles){
+    attachTrackParticleContainer( TEout, extrapolatedTrackParticles, m_saTrackParticleContName );
+  }
 
   // attach info for combined tracks
   if(combinedTrackParticles) {
@@ -1079,7 +1457,7 @@ HLT::ErrorCode TrigMuSuperEF::attachOutput(HLT::TriggerElement* TEout,
 	for(auto trklink : elv_xaodtrks) {
 	  if(!trklink.isValid()) continue;
 	  ATH_MSG_VERBOSE("Try next EleLink, pt = " << (*trklink)->pt());
-	  if( *trklink == tp ) {
+	  if( (*trklink)->pt() == tp->pt() ) {
 	    ATH_MSG_DEBUG("Found matching element link for this track particle, re-assign to xAOD::Muon, pt = " << (*trklink)->pt());
 	    muon->setTrackParticleLink( reassignEle.second, trklink);
 	    foundmatch=true;
@@ -1568,6 +1946,16 @@ HLT::ErrorCode TrigMuSuperEF::getIDTrackParticleLinks(const HLT::TriggerElement*
   } 
   return hltStatus;
 }
+
+HLT::ErrorCode TrigMuSuperEF::getIDTrackParticleLinksL2(const HLT::TriggerElement* te, ElementLinkVector<xAOD::TrackParticleContainer>& elv_xaodidtrks) {
+  // get element links to the ID tracks
+  HLT::ErrorCode hltStatus = getFeaturesLinks<xAOD::TrackParticleContainer,xAOD::TrackParticleContainer>(te, elv_xaodidtrks, "InDetTrigTrackingxAODCnv_Muon_FTF");
+  // if( hltStatus != HLT::OK ) {
+  //   ATH_MSG_WARNING("Failed to get ElementLinkVector<xAOD::TrackParticleContainer>, InDetTrigTrackingxAODCnv_Muon_FTF aborting this ROI");
+  // } 
+  return hltStatus;
+}
+
 
 void TrigMuSuperEF::setCombinedTimers(HLT::Algo* fexAlgo, std::vector<TrigTimer*>& timers){
   ATH_MSG_INFO("Setting TMEF Combined Timers");
