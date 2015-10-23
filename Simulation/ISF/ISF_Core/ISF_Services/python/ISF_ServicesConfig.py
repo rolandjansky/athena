@@ -67,7 +67,7 @@ def getNoG4SimHitService(name="ISF_NoG4SimHitService", **kwargs):
 
 def getPileupSimHitService(name="ISF_PileupSimHitService", **kwargs):
     kwargs.setdefault('SeparateInDetPileupHits'    , True )
-    return getnoG4SimHitService(name, **kwargs)
+    return getNoG4SimHitService(name, **kwargs)
 
 def getISFEnvelopeDefSvc(name="ISF_ISFEnvelopeDefSvc", **kwargs):
     # ATLAS common envlope definitions
