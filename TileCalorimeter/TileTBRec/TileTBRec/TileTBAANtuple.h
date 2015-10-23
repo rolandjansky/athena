@@ -141,6 +141,12 @@ class TileTBAANtuple: public AthAlgorithm {
     void COINCBOARD_clearBranch(void);
     void LASEROBJ_clearBranch(void);
 
+    void clear_int(std::vector<int*> & vec, int nchan=48);
+    void clear_uint32(std::vector<uint32_t*> & vec, int nchan=48);
+    void clear_short(std::vector<short*> & vec, int nchan=48);
+    void clear_float(std::vector<float*> & vec, int nchan=48);
+    void clear_intint(std::vector<int**> & vec, int nchan=48);
+    
     inline int digiChannel2PMT(int fragType, int chan) {
       return (abs(m_cabling->channel2hole(fragType, chan)) - 1);
     }
@@ -458,6 +464,7 @@ class TileTBAANtuple: public AthAlgorithm {
     bool m_commitNtuple;
     bool m_bsInput;
     int m_finalUnit;  //!< calibrate everything to this level
+    int m_TBperiod;
 
     // NTuple parameters
     std::string m_ntupleID;
