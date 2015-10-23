@@ -12,15 +12,15 @@ include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
 # EventStorage Input
 ByteStreamInputSvc =  svcMgr.ByteStreamInputSvc
 
-ByteStreamInputSvc.FullFileName = \
-["/castor/cern.ch/grid/atlas/DAQ/2009/00115405/physics_ZDCStream/" + \
-"data09_cos.00115405.physics_ZDCStream.daq.RAW._lb0000._SFO-1._0064.data"]
+ByteStreamInputSvc.FullFileName = ["root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data11_hi.00193403.physics_HardProbes.merge.RAW._lb0012._SFO-9._0001.1"]
+#["/castor/cern.ch/grid/atlas/DAQ/2009/00115405/physics_ZDCStream/" + \
+#"data09_cos.00115405.physics_ZDCStream.daq.RAW._lb0000._SFO-1._0064.data"]
 
 #include( "ByteStreamCnvSvcBase/BSAddProvSvc_RDO_jobOptions.py" )
 
 from AthenaCommon.GlobalFlags import GlobalFlags
-GlobalFlags.InputFormat.set_bytestream()
-
+#GlobalFlags.InputFormat.set_bytestream()
+GlobalFlags.InputFormat = "bytestream"
 
 #from AthenaCommon.JobProperties import jobproperties
 #jobproperties.Global.DetDescrVersion="ATLAS-CSC-01-02-00"
@@ -43,10 +43,12 @@ ByteStreamCnvSvc.InitCnvs += [  "ZdcDigitsCollection"]
 theApp.ExtSvc += [ "ByteStreamCnvSvc"]
 
 from ZdcByteStream.ZdcByteStreamConf import ZdcByteStreamTool
+from ZdcByteStream.ZdcByteStreamConf import ZdcByteStreamTester
+include ("ZdcByteStream/ZdcByteStreamRawDataCnv.py")
 
-ToolSvc=Service("ToolSvc")
-ToolSvc += ZdcByteStreamTool("ZdcByteStreamTool")
-theApp.Dlls += ["ZdcByteStream"]
+#ToolSvc=Service("ToolSvc")
+#ToolSvc += ZdcByteStreamTool("ZdcByteStreamTool")
+#theApp.Dlls += ["ZdcByteStream"]
 #--------------------------------------------------------------
 # Set output level threshold (2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 #--------------------------------------------------------------
@@ -66,6 +68,12 @@ theApp.EvtMax = -1
 
 AthenaEventLoopMgr = Service ("AthenaEventLoopMgr")
 AthenaEventLoopMgr.OutputLevel=2
+
+from ZdcRec.ZdcRawChannelGetter import ZdcRawChannelGetter
+ZdcRawChannelGetter()
+
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
 
 theApp.TopAlg+=["ZdcByteStreamTester"]
 ZdcByteStreamTester=Algorithm("ZdcByteStreamTester")
