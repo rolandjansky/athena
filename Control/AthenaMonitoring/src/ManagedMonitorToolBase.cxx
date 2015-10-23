@@ -707,7 +707,7 @@ initialize()
             m_vTrigGroupNames.clear();
          }
 	 if (!m_trigTranslator.empty()) {
-	   updateTriggersForGroups(m_vTrigChainNames);
+	   updateTriggersForGroups(m_vTrigGroupNames);
 	 }
       }
       else {
