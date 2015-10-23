@@ -21,7 +21,7 @@ namespace ISF {
 
   // history methods
   //
-  inline const ParticleHistory&      ISFParticle::history()     const { return m_history;           }
+  inline const ParticleHistory&      ISFParticle::history()     const { return m_history;                    }
   inline AtlasDetDescr::AtlasRegion  ISFParticle::originGeoID() const { return m_history.front().first;      }
   inline SimSvcID                    ISFParticle::originSimID() const { return m_history.front().second;     }
   inline AtlasDetDescr::AtlasRegion  ISFParticle::prevGeoID()   const { return (m_history.end()-1)->first;   }
@@ -42,16 +42,6 @@ namespace ISF {
   inline ITruthBinding* ISFParticle::truthBinding() const      { return m_truth; }
   inline void  ISFParticle::setTruthBinding(ITruthBinding *truth) { m_truth = truth; }
 
-  // selector methods
-  //
-  inline bool ISFParticle::allowsSelectorUpdates(   AtlasDetDescr::AtlasRegion geoID) const {
-    return m_allowSelectorUpdates[geoID];
-  }
-
-  inline void ISFParticle::disallowSelectorUpdates( AtlasDetDescr::AtlasRegion geoID) {
-    m_allowSelectorUpdates[geoID] = false;
-  }
-
   // particle order methods
   //
   inline int  ISFParticle::getOrder() const { return m_order; }
@@ -70,12 +60,10 @@ namespace ISF {
   }
 
   inline Barcode::ParticleBarcode ISFParticle::getExtraBC() const {
-    if ( m_userInfo!=0 ) { return m_userInfo->getExtraBC(); }
-    return 0;
+    return m_extraBarcode;
   }
-  inline void ISFParticle::setExtraBC( const Barcode::ParticleBarcode& bc ) const {
-    if (!m_userInfo) m_userInfo=new ParticleUserInformation();    
-    m_userInfo->setExtraBC( bc );  // m_userInfo is mutable
+  inline void ISFParticle::setExtraBC( const Barcode::ParticleBarcode& bc ) {
+    m_extraBarcode = bc;
   }
 
   // printout methods
@@ -83,14 +71,14 @@ namespace ISF {
       { out << "ISFP pdg=" << m_pdgCode << " p=" << m_momentum.mag()
             << " xyz=(" << m_position.x() << "," <<  m_position.y() << "," <<  m_position.z() << ")"
             << " r=" << m_position.perp() << " eta=" << m_position.eta() << " phi=" << m_position.phi()
-            << " order=" << m_order;
+            << " barcode=" << m_barcode << " order=" << m_order;
         return out;}
 
   inline std::ostream& ISFParticle::dump( std::ostream& out ) const
       { out << "ISFP pdg=" << m_pdgCode << " p=" << m_momentum.mag()
             << " xyz=(" << m_position.x() << "," <<  m_position.y() << "," <<  m_position.z() << ")"
             << " r=" << m_position.perp() << " eta=" << m_position.eta() << " phi=" << m_position.phi()
-            << " order=" << m_order;
+            << " barcode=" << m_barcode << " order=" << m_order;
         return out;}
 
 } // end ISF namespace

@@ -11,8 +11,7 @@
 
 /** constructor */
 ISF::ParticleUserInformation::ParticleUserInformation() 
-  : m_extrabc(0)
-  , m_process(0)
+  : m_process(0)
   , m_generation(0)
   , m_matInfo(0)
 {
