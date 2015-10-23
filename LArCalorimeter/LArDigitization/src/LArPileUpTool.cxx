@@ -1875,7 +1875,12 @@ StatusCode LArPileUpTool::MakeDigit(const Identifier & cellId,
         if (sumOfc>0) adc0 =  (*polynom_adc2mev)[0] * SF /sumOfc;
      }
   
-     for(i=0 ; i<m_NSamples ; i++)
+     int nmax=m_NSamples;
+     if ((int)(rndm_digit_samples.size()) < m_NSamples) {
+         ATH_MSG_WARNING("Less digit Samples than requested in digitization for cell " << ch_id.get_compact() << " Digit has " << rndm_digit_samples.size() << " samples.  Digitization request " << m_NSamples); 
+         nmax=rndm_digit_samples.size();
+     }
+     for(i=0 ; i<nmax ; i++)
      {
        rAdc = (rndm_digit_samples[i] - Pedestal ) * adc2energy + adc0; 
        rndm_energy_samples[i] = rAdc ;
@@ -2104,8 +2109,10 @@ StatusCode LArPileUpTool::ConvertHits2Samples(const Identifier & cellId, CaloGai
 #endif
 
    // fix the shift +1 if HEC  and nSamples 4 and firstSample 0
+   // in case of overlay this should NOT  be done as the pulse shape read from the database is already shifted
    int ihecshift=0;
-   if(m_larem_id->is_lar_hec(cellId) && m_NSamples == 4 && m_firstSample == 0) ihecshift=1;
+   if(!m_RndmEvtOverlay && m_larem_id->is_lar_hec(cellId) && m_NSamples == 4 && m_firstSample == 0) ihecshift=1;
+
    
    if (!m_usePhase) {
 
