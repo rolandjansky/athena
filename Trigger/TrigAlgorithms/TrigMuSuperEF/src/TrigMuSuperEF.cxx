@@ -100,7 +100,8 @@ TrigMuSuperEF::TrigMuSuperEF(const std::string& name, ISvcLocator* pSvcLocator) 
   m_verbose(false),
   m_muonCombinedTool("MuonCombined::MuonCombinedTool/MuonCombinedTool"),
   m_muGirlTool("MuonCombined::MuGirlTagTool/MuGirlTagTool"),
-  m_caloTagTool("TrigMuSuperEF_MuonCaloTagTool"),
+  //  m_caloTagTool("TrigMuSuperEF_MuonCaloTagTool"),
+  m_caloTagTool(""), //replace when configdb file is updated
   m_TrackToTrackParticleConvTool("TrackToTrackParticleConvTool",this),
   m_muonCreatorTool("MuonCreatorTool"),
   m_stauCreatorTool(""),
@@ -319,20 +320,20 @@ TrigMuSuperEF::hltInitialize()
   // for now always loading TrigMuonEF tools, or get errors when running MuGirl only (9-1-15)
   //if ( m_doOutsideIn ) {
     // TrigMuonEF algtools
-  if(!m_combinerOnly) {
-    StatusCode sc = m_TrigMuonEF_saTrackTool.retrieve();
-    if (sc.isSuccess()){
-	    ATH_MSG_INFO( "Retrieved " << m_TrigMuonEF_saTrackTool );
-    }else{
-	    ATH_MSG_FATAL( "Could not get " << m_TrigMuonEF_saTrackTool );
-	    return HLT::BAD_JOB_SETUP;
+    if(!m_combinerOnly) {
+      StatusCode sc = m_TrigMuonEF_saTrackTool.retrieve();
+      if (sc.isSuccess()){
+	ATH_MSG_INFO( "Retrieved " << m_TrigMuonEF_saTrackTool );
+      }else{
+	ATH_MSG_FATAL( "Could not get " << m_TrigMuonEF_saTrackTool );
+	return HLT::BAD_JOB_SETUP;
+      }
+
+      if (doTiming()) m_TrigMuonEF_saTrackTool->setExtrapolatedTimers(this, m_TMEF_SATimers);
+      m_TrigMuonEF_saTrackTool->declareExtrapolatedMonitoringVariables(this, m_TMEF_monVars);
     }
 
-    if (doTiming()) m_TrigMuonEF_saTrackTool->setExtrapolatedTimers(this, m_TMEF_SATimers);
-    m_TrigMuonEF_saTrackTool->declareExtrapolatedMonitoringVariables(this, m_TMEF_monVars);
-  }
-
-    if ( !m_standaloneOnly) {
+    if ( !m_standaloneOnly && !m_caloTagOnly ) {
       // Retrieve combiner tool
       if (m_muonCombinedTool.retrieve().isSuccess()){
 	msg() << MSG::INFO << "Retrieved " << m_muonCombinedTool << endreq;
@@ -380,16 +381,16 @@ TrigMuSuperEF::hltInitialize()
     }
   }
 
-  if ( m_caloTagOnly ) {
-    //Retreive CaloTagTool
-    StatusCode sc = m_caloTagTool.retrieve();
-    if(sc.isSuccess()){
-      ATH_MSG_INFO( "Retrieved " << m_caloTagTool );
-    }else{
-      ATH_MSG_FATAL("Could not retrieve " << m_caloTagTool);
-      return HLT::BAD_JOB_SETUP;
-    }
-  }
+  //if ( m_caloTagOnly ) {
+  //  //Retreive CaloTagTool
+  //  StatusCode sc = m_caloTagTool.retrieve();
+  //  if(sc.isSuccess()){
+  //    ATH_MSG_INFO( "Retrieved " << m_caloTagTool );
+  //  }else{
+  //    ATH_MSG_FATAL("Could not get " << m_caloTagTool);
+  //    return HLT::BAD_JOB_SETUP;
+  //  }
+  //}
 
   if (!m_caloTagOnly) {
     ATH_MSG_INFO("Output MS-only track particle container = " << m_msTrackParticleContName);
@@ -514,7 +515,6 @@ TrigMuSuperEF::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElemen
     fillCBMonitoringVars( );
 
   } else {
-    ATH_MSG_DEBUG("Filling monitoring vars with container size: " << m_ctTrackParticleContainer->size() );
     fillCTMonitoringVars( *m_ctTrackParticleContainer );
   }
 
@@ -673,7 +673,6 @@ HLT::ErrorCode TrigMuSuperEF::runCombinerOnly(const HLT::TriggerElement* inputTE
 
       	ATH_MSG_VERBOSE("Repeated ROI");
       	muonCandidates = cache->MuonCandidates();
-	ATH_MSG_VERBOSE("got muon candidates with size: "<<muonCandidates->size());
 
       	xAOD::TrackParticleContainer::iterator trk_itr = cache->CombinedTracks().first->begin();
       	xAOD::TrackParticleContainer::iterator trk_end = cache->CombinedTracks().first->end();
@@ -764,28 +763,22 @@ HLT::ErrorCode TrigMuSuperEF::runCombinerOnly(const HLT::TriggerElement* inputTE
 
 HLT::ErrorCode TrigMuSuperEF::runCaloTagOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout) {
     ATH_MSG_DEBUG("Running CaloTag only mode");
-
-    if (m_debug) {
-      const auto roi = getRoiDescriptor(inputTE, TEout);
-      ATH_MSG_DEBUG("Roi eta: " <<roi->etaMinus() << "-" << roi->eta() << "-" << roi->etaPlus()); 
-      ATH_MSG_DEBUG("Roi phi: " <<roi->phiMinus() << "-" << roi->phi() << "-" << roi->phiPlus()); 
-    }
     
     // get xAOD ID tracks
     ElementLinkVector<xAOD::TrackParticleContainer> elv_xaodidtrks;
     HLT::ErrorCode hltStatus = getIDTrackParticleLinks(inputTE, elv_xaodidtrks);
     if(hltStatus != HLT::OK && hltStatus!=HLT::MISSING_FEATURE) {
-      ATH_MSG_ERROR("Problem retrieving ID tracks");
+      ATH_MSG_ERROR("Problem getting ID tracks");
       return hltStatus;
     } 
-    ATH_MSG_DEBUG("ID Track particles size = " << elv_xaodidtrks.size());
-    
+
     // build InDetCandidates
     InDetCandidateCollection inDetCandidates;
     for(unsigned int itrack=0; itrack<elv_xaodidtrks.size(); ++itrack) {
       // Use ElementLink so the xAOD::TrackParticle has a link back to the Trk::Track
       inDetCandidates.push_back( new MuonCombined::InDetCandidate( elv_xaodidtrks.at(itrack) ) );
     }//loop on ID xAOD::TrackParticles
+    
     ATH_MSG_DEBUG( "Inner detector muon candidates, n(inDetCandidates) =  " << inDetCandidates.size());
 
     //Fill ID track monitoring variables
@@ -793,13 +786,13 @@ HLT::ErrorCode TrigMuSuperEF::runCaloTagOnly(const HLT::TriggerElement* inputTE,
 
     //Retrieve CaloCellContainer
     const CaloCellContainer* caloCellContainer = nullptr;
-    if( (getFeature(inputTE, caloCellContainer, "") != HLT::OK) || !caloCellContainer ) {
+    if( getFeature(TEout, caloCellContainer, "") != HLT::OK || !caloCellContainer ) {
         ATH_MSG_ERROR("Failed to retrieve CaloCellContainer");
         return HLT::MISSING_FEATURE;
     }
     //Retrieve CaloClusterContainer
     const xAOD::CaloClusterContainer* caloClusterContainer = nullptr;
-    if( (getFeature(inputTE, caloClusterContainer, "") != HLT::OK) || !caloClusterContainer ) {
+    if( getFeature(TEout, caloClusterContainer, "") != HLT::OK || !caloClusterContainer ) {
         ATH_MSG_ERROR("Failed to retrieve CaloClusterContainer");
         return HLT::MISSING_FEATURE;
     }
@@ -809,6 +802,11 @@ HLT::ErrorCode TrigMuSuperEF::runCaloTagOnly(const HLT::TriggerElement* inputTE,
 
     ATH_MSG_DEBUG("Finished CaloTag");
 
+    //Create output container
+    //xAOD::TrackParticleContainer* idTrackParticleCont = new xAOD::TrackParticleContainer();
+    //xAOD::TrackParticleAuxContainer idTrackParticleAuxCont;
+    //idTrackParticleCont->setStore( &idTrackParticleAuxCont );
+    //
     m_ctTrackParticleContainer = new xAOD::TrackParticleContainer();
     xAOD::TrackParticleAuxContainer* tpAuxCont = new xAOD::TrackParticleAuxContainer();
     m_ctTrackParticleContainer->setStore( tpAuxCont );
@@ -818,7 +816,7 @@ HLT::ErrorCode TrigMuSuperEF::runCaloTagOnly(const HLT::TriggerElement* inputTE,
         const MuonCombined::CaloTag* calotag = dynamic_cast<const MuonCombined::CaloTag*>(idCandidate->lastCombinedDataTag());
         
         if (calotag == nullptr) {
-            ATH_MSG_DEBUG("CaloTag was not attached to InDetCandidate");
+            ATH_MSG_WARNING("CaloTag was not attached to InDetCandidate");
             continue;
         }
 
@@ -836,6 +834,7 @@ HLT::ErrorCode TrigMuSuperEF::runCaloTagOnly(const HLT::TriggerElement* inputTE,
             tp->auxdata<unsigned short>("CaloTag") = calotag->caloMuonIdTag();
             tp->auxdata<double>("CaloTagLH") = calotag->caloLRLikelihood();
 
+
             ATH_MSG_DEBUG("TPCont: " << m_ctTrackParticleContainer);
             //idTrackParticleCont->push_back( tp );
             //
@@ -846,17 +845,19 @@ HLT::ErrorCode TrigMuSuperEF::runCaloTagOnly(const HLT::TriggerElement* inputTE,
         }
     } // loop over InDetCandidates
 
+    //if (idTrackParticleCont->size() == 0) {
     if (m_ctTrackParticleContainer->size() == 0) {
         ATH_MSG_DEBUG("No muons found");
     }
 
     // attach output
     ATH_MSG_DEBUG("Attaching TrackParticles Container: " << m_ctTrackParticleContName);
+    //if (attachFeature(TEout, idTrackParticleCont, m_ctTrackParticleContName) != HLT::OK) {
     if (attachFeature(TEout, m_ctTrackParticleContainer, m_ctTrackParticleContName) != HLT::OK) {
         ATH_MSG_WARNING("Problem attaching output");
         return HLT::MISSING_FEATURE;
     }
-    
+
     return hltStatus;
 } //runCaloTagOnly
 
@@ -1086,7 +1087,6 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
 	
       	//get objects from cache
       	muonCandidates = cache->MuonCandidates();
-	ATH_MSG_VERBOSE("got muon candidates with size: "<<muonCandidates->size());
 
       	xAOD::TrackParticleContainer::iterator trk_itr = cache->CombinedTracks().first->begin();
       	xAOD::TrackParticleContainer::iterator trk_end = cache->CombinedTracks().first->end();
@@ -1181,7 +1181,6 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
       	if(m_doInsideOut && (m_insideOutFirst || !m_doOutsideIn)) {
       	  ATH_MSG_DEBUG( "Executing extend()" );
       	  ++m_counter_TrigMuGirl.total;
-	  hltStatus = m_TrigMuonEF_saTrackTool->getSegments(muonRoI, m_TMEF_monVars, m_TMEF_SATimers);
       	  m_muGirlTool->extend(inDetCandidates);
       	  ++m_counter_TrigMuGirl.pass;//@todo fix this counter      
 
@@ -1286,7 +1285,6 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
       if(m_doInsideOut && (m_insideOutFirst || !m_doOutsideIn)) {
 	ATH_MSG_DEBUG( "Executing extend()" );
 	++m_counter_TrigMuGirl.total;
-	hltStatus = m_TrigMuonEF_saTrackTool->getSegments(muonRoI, m_TMEF_monVars, m_TMEF_SATimers);
 	m_muGirlTool->extend(inDetCandidates);
 	++m_counter_TrigMuGirl.pass;//@todo fix this counter      
 

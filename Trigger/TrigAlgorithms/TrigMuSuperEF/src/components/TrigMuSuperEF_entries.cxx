@@ -8,5 +8,6 @@ DECLARE_FACTORY_ENTRIES(TrigMuSuperEF) {
 
   DECLARE_ALGORITHM( TrigMuSuperEF )
 
+
 }
 
