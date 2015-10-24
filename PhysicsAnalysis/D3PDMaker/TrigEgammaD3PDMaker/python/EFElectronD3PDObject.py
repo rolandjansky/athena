@@ -171,8 +171,8 @@ ElectronTPAssoc.defineBlock (
     D3PDMakerCoreComps.AuxDataFillerTool,
     Vars = ['eProbabilityComb',
             'eProbabilityHT',
-            'eProbabilityToT',
-            'eProbabilityBrem'])
+            'eProbabilityToT < float:0',
+            'eProbabilityBrem < float:0'])
 
 ElectronVertAssoc = SimpleAssociation \
                     (ElectronTPAssoc,
