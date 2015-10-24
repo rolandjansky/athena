@@ -7,6 +7,9 @@
 
 #include "GaudiKernel/IService.h"
 
+#include <vector>
+#include <string>
+
 /** @class IDetectorGeometrySvc IDetectorGeometrySvc.h "G4AtlasInterfaces/IDetectorGeometrySvc.h"
  *  
  *  Abstract interface to service for Geant4 detector geometry classes
@@ -28,9 +31,9 @@ class IDetectorGeometrySvc : virtual public IService {
   
   virtual G4VUserDetectorConstruction* GetDetectorConstruction() = 0;
   
-  virtual void SetCurrentDetectorName(std::string) = 0;
-  
-  virtual const std::string GetCurrentDetectorName() const = 0;
+  virtual void ActivateParallelWorlds() = 0;
+
+  virtual std::vector<std::string>& GetParallelWorldNames() = 0;
 
 };
 
