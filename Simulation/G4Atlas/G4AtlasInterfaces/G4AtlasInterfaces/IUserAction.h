@@ -6,6 +6,10 @@
 #define G4ATLASINTERFACES_IUSERACTION_H
 
 #include "GaudiKernel/IAlgTool.h"
+
+// need explicit include because of G4ClassificationOfNewTrack
+#include "G4UserStackingAction.hh"
+
 //#include "G4AtlasInterfaces/UserActionRole.h"
 
 /** @class IUserAction IUserAction.h "G4AtlasInterfaces/IUserAction.h"
@@ -21,11 +25,14 @@ class G4Run;
 class G4Event;
 class G4Step;
 class G4Track;
-
+class G4EventManager;
+class G4TrackingManager;
+class G4StackManager;
+class G4SteppingManager;
 
 namespace G4AtlasUA{
 
-  enum Role{BeginOfRun, BeginOfEvent, PreTracking, Step, PostTracking, EndOfEvent,EndOfRun};  
+  enum Role{BeginOfRun=0, BeginOfEvent, PreTracking, Step, Classification, NewStage, PrepareNewEvent, PostTracking, EndOfEvent, EndOfRun};  
 
 }
 
@@ -57,8 +64,13 @@ class IUserAction : virtual public IAlgTool {
   /** interface for PostUserTrackingAction */
   virtual void PostTracking (const G4Track*) = 0 ;
   
+  /** interface for the stacking action */
+  virtual G4ClassificationOfNewTrack ClassifyNewTrack(const G4Track* aTrack) = 0;
+  virtual void NewStage() = 0;
+  virtual void PrepareNewEvent() = 0;
+  
   /** to ask an action what are its roles */
-  virtual std::vector<G4AtlasUA::Role> Roles() = 0;
+  //virtual std::vector<G4AtlasUA::Role> Roles() = 0;
   
   //  /** to ask an action what is its global priority */
   //virtual G4AtlasUA::Priority Priority() = 0;
@@ -71,7 +83,14 @@ class IUserAction : virtual public IAlgTool {
   //virtual void SetPriority( G4AtlasUA::Priority, G4AtlasUA::Role) = 0;
   
   //** to add a role for the action */
-  virtual void AddRole(G4AtlasUA::Role) = 0;
-  
+  virtual void AddRole(G4AtlasUA::Role, unsigned int) = 0;
+  virtual void printRoles() = 0;
+
+  //** ask a stepping action if it is associated to a specific region */
+  virtual std::vector<std::string> GetRegions() = 0;
+
+  //** cache a copy of the main G4 managers
+  virtual void setManagers(G4EventManager*, G4TrackingManager*, G4StackManager*, G4SteppingManager*) = 0;
+
 };
 #endif
