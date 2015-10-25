@@ -37,13 +37,11 @@
 #include "TColor.h"
 #include "TPaletteAxis.h"
 #include "TList.h"
-#include "TTree.h"
 
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <cmath>
-
 
 
 /*---------------------------------------------------------*/
@@ -59,7 +57,6 @@ TileDigitsMonTool::TileDigitsMonTool(const std::string & type, const std::string
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
-  declareInterface<ITileStuckBitsProbsTool>(this);
 
   declareProperty("bookAllDrawers", m_bookAll = false);
   declareProperty("book2D", m_book2D = false);
@@ -844,12 +841,11 @@ StatusCode TileDigitsMonTool::finalHists()
     } //loop over drawer
   } //loop over ros
 
-
   return StatusCode::SUCCESS;
 }
 
 /*---------------------------------------------------------*/
-const uint8_t * TileDigitsMonTool::stuckBitProb (int ros, int module, int channel, int gain) const
+const signed char * TileDigitsMonTool::stuckBitProb (int ros, int module, int channel, int gain)
 /*---------------------------------------------------------*/
 {
   return m_stuck_probs[ros][module][channel][gain];
@@ -1343,7 +1339,7 @@ int TileDigitsMonTool::stuckBits_Amp(TH1S * hist, int /*adc*/) {
 }
 
 /* version 2. */
-int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, int /*adc*/, TH2C *outhist, int ch, uint8_t *stuck_probs) {
+int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, int /*adc*/, TH2C *outhist, int ch, signed char *stuck_probs) {
 
   if (hist->GetEntries() < 1000)  return 0; /* too few events (1000 / N_samples) in histogram, ignore */
 
@@ -1437,7 +1433,7 @@ int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, int /*adc*/, TH2C *outhist, i
 	  sb_prob[sb_map[b]] = 100.;
       }
       if (stuck_probs != NULL)
-	stuck_probs[b] = ba0[b] == 0 ? 100u : 200u;
+	stuck_probs[b] = ba0[b] == 0 ? -100 : 100;
       continue;
     }
     double bs1 = std::fabs(bs[b]) - sqrt(std::fabs(bs[b]));
@@ -1447,21 +1443,13 @@ int TileDigitsMonTool::stuckBits_Amp2(TH1S * hist, int /*adc*/, TH2C *outhist, i
       if (sb_prob[sb_map[b]] < 100. * bs1 / bc[b]) sb_prob[sb_map[b]] = 100. * bs1 / bc[b];
     }
     if (stuck_probs != NULL)
-    {
-      stuck_probs[b] = (uint8_t) (100. * bs1 / bc[b]);
-      if (bs[b] > 0)
-      {
-	stuck_probs[b] += 100u;
-	if (stuck_probs[b] == 100u)
-	  stuck_probs[b] = 0u;
-      }
-    }
+      stuck_probs[b] = (bs[b] < 0 ? -100. : 100.) * bs1 / bc[b];
   }
   if ((first_non0 >= 512 && first_non0 < 1023) || (last_non0 == 511 && hist->GetBinContent(last_non0) > 3)) {
     is_stack = 1;
     sb_prob[3] = 100.;
     if (stuck_probs != NULL)
-      stuck_probs[9] = first_non0 >= 512 ? 200u : 100u;
+      stuck_probs[9] = first_non0 >= 512 ? 100 : -100;
   }
   if (outhist != NULL) {
     outhist->Fill((double) ch, 0., sb_prob[0]);
@@ -1773,10 +1761,4 @@ void TileDigitsMonTool::statTestHistos(int ros, int drawer, int gain)
   delete ref;
   delete ref1;
 
-}
-
-
-void TileDigitsMonTool::saveStuckBitsProbabilities(TTree* tree) {
-
-  tree->Branch("StuckBitsProb", m_stuck_probs, "StuckBitsProb[5][64][48][2][10]/b");
 }

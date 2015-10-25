@@ -20,10 +20,7 @@
 // to use JVT
 #include "AsgTools/ToolHandle.h"
 //#include "JetMomentTools/JetVertexTaggerTool.h"
-#define JVT
-#ifdef JVT
 #include "JetInterface/IJetUpdateJvt.h"
-#endif
 // Jet cleaning
 #include "JetInterface/IJetSelector.h"
 //#include "JetSelectorTools/JetCleaningTool.h"
@@ -125,11 +122,9 @@ class TileJetMonTool: public TileFatherMonTool {
   bool m_do_event_cleaning, m_do_jet_cleaning;
   float m_jet_tracking_eta_limit;
   float m_jet_jvt_threshold;
-  bool m_first_event;
   // JVT
-#ifdef JVT
+  //  JetVertexTaggerTool* pjvtag;
   ToolHandle<IJetUpdateJvt> m_jvt;
-#endif
   // event/jet cleaning
   ToolHandle<IJetSelector> m_cleaningTool;
   //  JetCleaningTool* m_cleaningTool;
