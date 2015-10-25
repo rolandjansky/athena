@@ -17,11 +17,19 @@
 #include "xAODJet/Jet.h"
 
 #include "TileMonitoring/TileFatherMonTool.h"
+// to use JVT
+#include "AsgTools/ToolHandle.h"
+//#include "JetMomentTools/JetVertexTaggerTool.h"
+#include "JetInterface/IJetUpdateJvt.h"
+// Jet cleaning
+#include "JetInterface/IJetSelector.h"
+//#include "JetSelectorTools/JetCleaningTool.h"
 
 class ITileBadChanTool;
 
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TProfile2D.h"
 
 // Define flags & constants not defined anywhere else
 #define FLAG_OF2 0x2   // OF2 has been applied
@@ -51,6 +59,7 @@ class TileJetMonTool: public TileFatherMonTool {
     unsigned int find_index(const int gain, const float energy);
     bool isGoodChannel(int part, int mod, int pmt, uint32_t bad, unsigned int qbit, Identifier id);
     bool isGoodJet(const xAOD::Jet& jet);
+    bool isGoodEvent();
 
     /* copy & paste from JetD3PDMaker/src/JetCaloUtilsFillerTool.h. It is defined
      as private, so we cannot directly include that file
@@ -71,11 +80,12 @@ class TileJetMonTool: public TileFatherMonTool {
     std::string m_THistSvcStreamName;
     float m_energyChanMin;
     float m_energyChanMax;
+  //    float m_averageMinEvt;
     bool m_do_1dim_histos;
     bool m_do_2dim_histos;
     bool m_do_enediff_histos;
     float m_enediff_threshold;
-
+  
     std::string m_partname[NPART];
     std::set<Identifier> used_cells;  // cells already used in the given event
 
@@ -93,6 +103,9 @@ class TileJetMonTool: public TileFatherMonTool {
     // channels 0, 1, 12, 13 are not included in the sum
     std::vector<TH1F*> m_TileEBTime_NoScint;
 
+  // this variable holds the summary DQ histograms, per partition
+  std::vector<TProfile2D*> m_TilePartTimeDQ;
+  
   // vector for enediff histograms
   std::vector<TH1F*> m_TileEneDiff_LG[NPART];
   std::vector<TH1F*> m_TileEneDiff_HG[NPART];
@@ -105,6 +118,16 @@ class TileJetMonTool: public TileFatherMonTool {
 
   std::vector<float> cell_ene_hg_up;
   std::vector<float> cell_ene_lg_up;
+
+  bool m_do_event_cleaning, m_do_jet_cleaning;
+  float m_jet_tracking_eta_limit;
+  float m_jet_jvt_threshold;
+  // JVT
+  //  JetVertexTaggerTool* pjvtag;
+  ToolHandle<IJetUpdateJvt> m_jvt;
+  // event/jet cleaning
+  ToolHandle<IJetSelector> m_cleaningTool;
+  //  JetCleaningTool* m_cleaningTool;
 };
 
 #endif

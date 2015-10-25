@@ -36,8 +36,14 @@ use TileRecUtils         TileRecUtils-*        TileCalorimeter
 
 # added by Tomas Davidek to accommodate TileJetMonTool
 use JetUtils             JetUtils-*            Reconstruction/Jet
-
+use JetMomentTools 	 JetMomentTools-*      Reconstruction/Jet
 end_private
+public
+use JetInterface 	 JetInterface-*	       Reconstruction/Jet
+# use JetSelectorTools	 JetSelectorTools-*    PhysicsAnalysis/JetMissingEtID
+use AsgTools		 AsgTools-* 	       Control/AthToolSupport
+end_public
+
 
 # Specify the required ROOT components for cmake (transparent to CMT)
 apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Graf Gpad Hist Spectrum)"
