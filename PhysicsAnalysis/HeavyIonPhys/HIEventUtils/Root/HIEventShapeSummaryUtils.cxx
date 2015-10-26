@@ -10,42 +10,42 @@ namespace HI
   void AddEventShape::operator()(xAOD::HIEventShape* slice, const xAOD::HIEventShape* in_slice) const
   {
     //update members
-    slice->setNcells(slice->nCells()+weight*in_slice->nCells());
-    slice->setEt(slice->Et()+weight*in_slice->Et());
+    slice->setNCells(slice->nCells()+weight*in_slice->nCells());
+    slice->setEt(slice->et()+weight*in_slice->et());
     slice->setArea(slice->area() + weight*in_slice->area());
     slice->setRho(slice->rho() + weight*in_slice->rho());
 
-    unsigned int nord=slice->Et_cos().size();
-    if(nord!=slice->Et_sin().size()) throw std::domain_error("Input HIEventShape has unequal n-harmonics for Q_x and Q_y");
+    unsigned int nord=slice->etCos().size();
+    if(nord!=slice->etSin().size()) throw std::domain_error("Input HIEventShape has unequal n-harmonics for Q_x and Q_y");
 
     //if output shape is empty, copy directly from input
     if(nord==0)
     {
-      slice->Et_cos().assign(in_slice->Et_cos().begin(),in_slice->Et_cos().end());
-      slice->Et_sin().assign(in_slice->Et_sin().begin(),in_slice->Et_sin().end());
+      slice->etCos().assign(in_slice->etCos().begin(),in_slice->etCos().end());
+      slice->etSin().assign(in_slice->etSin().begin(),in_slice->etSin().end());
       return;
     }
 
-    unsigned int in_nord=in_slice->Et_cos().size();
+    unsigned int in_nord=in_slice->etCos().size();
     //can only do addition for harmonics in input slice, print warning?
     if(in_nord < nord) nord=in_nord;
     else if(in_nord > nord && match_num_harmonics)
     {
       //print a warning?
-      auto itr=in_slice->Et_cos().begin();
+      auto itr=in_slice->etCos().begin();
       std::advance(itr,nord);
-      slice->Et_cos().insert(slice->Et_cos().end(),itr,in_slice->Et_cos().end());
-      itr=in_slice->Et_sin().begin();
+      slice->etCos().insert(slice->etCos().end(),itr,in_slice->etCos().end());
+      itr=in_slice->etSin().begin();
       std::advance(itr,nord);
-      slice->Et_sin().insert(slice->Et_sin().end(),itr,in_slice->Et_sin().end());
+      slice->etSin().insert(slice->etSin().end(),itr,in_slice->etSin().end());
     }
     //only need to sum to nord, if prev condition was met i>nord set explicitly by insert
     for(unsigned int i=0; i<nord; i++)
     {
-      float tmp_cos = slice->Et_cos().at(i);
-      slice->Et_cos()[i] = tmp_cos + weight*in_slice->Et_cos().at(i);
-      float tmp_sin = slice->Et_sin().at(i);
-      slice->Et_sin()[i] = tmp_sin + weight*in_slice->Et_sin().at(i);
+      float tmp_cos = slice->etCos().at(i);
+      slice->etCos()[i] = tmp_cos + weight*in_slice->etCos().at(i);
+      float tmp_sin = slice->etSin().at(i);
+      slice->etSin()[i] = tmp_sin + weight*in_slice->etSin().at(i);
     }
   }
 
@@ -83,7 +83,7 @@ namespace HI
     for(const auto itr : harmonics)
     {
       CxxUtils::sincos sc (itr*phi);
-      mod+=2.*sc.apply(es->Et_cos().at(itr),es->Et_sin().at(itr));
+      mod+=2.*sc.apply(es->etCos().at(itr),es->etSin().at(itr));
     }
     return mod;
   }
