@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4mplAtlasIonisationModel.cxx 526171 2012-11-15 18:33:35Z zmarshal $
+// $Id: G4mplAtlasIonisationModel.cxx 684372 2015-07-20 15:34:53Z jchapman $
 // GEANT4 tag $Name: not supported by cvs2svn $
 //
 // -------------------------------------------------------------------
@@ -33,7 +33,7 @@
 //
 // File name:     G4mplAtlasIonisationModel
 //
-// Author:        Vladimir Ivanchenko 
+// Author:        Vladimir Ivanchenko
 //
 // Creation date: 06.09.2005
 //
@@ -47,19 +47,22 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-#include "Monopole/G4mplAtlasIonisationModel.hh"
+// class header
+#include "G4mplAtlasIonisationModel.hh"
+// Geant4 headers
 #include "Randomize.hh"
 #include "G4LossTableManager.hh"
 #include "G4ParticleChangeForLoss.hh"
-
+// CLHEP headers
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 using namespace std;
 
-G4mplAtlasIonisationModel::G4mplAtlasIonisationModel(G4double mCharge, 
-					   const G4String& nam)
+G4mplAtlasIonisationModel::G4mplAtlasIonisationModel(G4double mCharge,
+                                           const G4String& nam)
   : G4VEmModel(nam),G4VEmFluctuationModel(nam),
   monopole(0),
   fParticleChange(0),
@@ -91,7 +94,7 @@ G4mplAtlasIonisationModel::~G4mplAtlasIonisationModel()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 void G4mplAtlasIonisationModel::Initialise(const G4ParticleDefinition* p,
-				      const G4DataVector&)
+                                      const G4DataVector&)
 {
 
   std::cout <<"!!! G4mplAtlasIonisationModel::Initialise"<<std::endl;
@@ -99,18 +102,18 @@ void G4mplAtlasIonisationModel::Initialise(const G4ParticleDefinition* p,
   monopole = p;
   mass     = monopole->GetPDGMass();
 
-  if(pParticleChange) 
+  if(pParticleChange)
     fParticleChange = reinterpret_cast<G4ParticleChangeForLoss*>(pParticleChange);
-  else 
+  else
     fParticleChange = new G4ParticleChangeForLoss();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 G4double G4mplAtlasIonisationModel::ComputeDEDXPerVolume(const G4Material* material,
-						    const G4ParticleDefinition*,
-						    G4double kineticEnergy,
-						    G4double)
+                                                    const G4ParticleDefinition*,
+                                                    G4double kineticEnergy,
+                                                    G4double)
 {
   G4double tau   = kineticEnergy/mass;
   G4double gam   = tau + 1.0;
@@ -142,7 +145,7 @@ G4double G4mplAtlasIonisationModel::ComputeDEDXPerVolume(const G4Material* mater
 
     G4double  k = 0.406;
     if(nmpl > 1) k = 0.346;
-    const G4double B[7] = { 0.0, 0.248, 0.672, 1.022,  1.243, 1.464,  1.685}; 
+    const G4double B[7] = { 0.0, 0.248, 0.672, 1.022,  1.243, 1.464,  1.685};
 
     dedx += k - B[nmpl];
 
@@ -173,11 +176,11 @@ G4double G4mplAtlasIonisationModel::ComputeDEDXPerVolume(const G4Material* mater
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 G4double G4mplAtlasIonisationModel::SampleFluctuations(
-				       const G4Material* material,
-				       const G4DynamicParticle* dp,
-				       G4double& tmax,
-				       G4double& length,
-				       G4double& meanLoss)
+                                       const G4Material* material,
+                                       const G4DynamicParticle* dp,
+                                       G4double& tmax,
+                                       G4double& length,
+                                       G4double& meanLoss)
 {
   G4double siga = Dispersion(material,dp,tmax,length);
   G4double loss = meanLoss;
@@ -195,7 +198,7 @@ G4double G4mplAtlasIonisationModel::SampleFluctuations(
       loss = G4RandGauss::shoot(meanLoss,siga);
     } while (0.0 > loss || loss > twomeanLoss);
   }
-  //G4cout << "G4mplAtlasIonisationModel::SampleFluctuations:  loss= " << loss 
+  //G4cout << "G4mplAtlasIonisationModel::SampleFluctuations:  loss= " << loss
   //<< "  siga= " << siga << G4endl;
   return loss;
 }

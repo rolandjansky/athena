@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 //
 // ********************************************************************
 // * DISCLAIMER                                                       *
@@ -44,7 +40,7 @@
 //#include "G4ElectroMagneticField.hh"
 #include "G4MagneticField.hh"
 
-class G4mplEqMagElectricField : 
+class G4mplEqMagElectricField :
   //public G4EquationOfMotion
   public G4Mag_EqRhs
 {
@@ -53,22 +49,22 @@ class G4mplEqMagElectricField :
   G4mplEqMagElectricField(G4MagneticField *emField );
       // : G4EquationOfMotion( emField ) {;}
 
-    ~G4mplEqMagElectricField() {;} 
+    ~G4mplEqMagElectricField() {;}
 
 //     void  SetChargeMomentumMass(G4double particleCharge, // in e+ units
 //                                 G4double MomentumXc,
   void  SetChargeMomentumMass(G4double particleElCharge, // in e+ units
-			      G4double particleMagCharge,
-			      G4double mass);
+                              G4double particleMagCharge,
+                              G4double mass);
 
     void EvaluateRhsGivenB(const G4double y[],
                            const G4double Field[],
                                  G4double dydx[] ) const;
-      // Given the value of the electromagnetic field, this function 
+      // Given the value of the electromagnetic field, this function
       // calculates the value of the derivative dydx.
 
 private:
-  
+
   //  G4double        fElectroMagCof ;
   G4double        fMassCof;
   G4double  fElCharge;

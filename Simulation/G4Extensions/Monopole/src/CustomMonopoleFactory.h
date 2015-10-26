@@ -2,18 +2,20 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef CustomMonopoleFactory_h
-#define CustomMonopoleFactory_h 1
+#ifndef MONOPOLE_CustomMonopoleFactory_h
+#define MONOPOLE_CustomMonopoleFactory_h 1
 
+// package headers
 #include "CustomMonopole.h"
+// STL headers
 #include <set>
 
 
 // ######################################################################
-// ###                          Monopole                           ###
+// ###                          Monopole                              ###
 // ######################################################################
 
-class CustomMonopoleFactory 
+class CustomMonopoleFactory
 {
  private:
   static bool loaded;
@@ -24,9 +26,9 @@ class CustomMonopoleFactory
    static void loadCustomMonopoles();
    //   static bool isCustomMonopole(G4ParticleDefinition *particle);
    static bool isCustomMonopole(CustomMonopole *particle);
-            
+
 
 };
 
 
-#endif
+#endif // MONOPOLE_CustomMonopoleFactory_h
