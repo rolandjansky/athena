@@ -23,10 +23,6 @@ elif [ "$type" == "HLT_physicsV5" ]; then
   stump="Physics_pp_v5"
 elif [ "$type" == "HLT_physicsV5_rerunLvL1" ]; then
   stump="Physics_pp_v5"
-elif [ "$type" == "HLT_physicsV6" ]; then
-  stump="Physics_pp_v6"
-elif [ "$type" == "HLT_physicsV6_rerunLvL1" ]; then
-  stump="Physics_pp_v6"
 else 
   stump=""
 fi
@@ -115,10 +111,10 @@ exit 0
 
 # Run rule book
 lumi=1000
-costxml=TriggerCosts_Physics_pp_v6.xml
+costxml=TriggerCosts_Physics_pp_v5.xml
 get_files -xmls -symlink $costxml
 
-cmdps="running: processRules.py --rulebook=Physics_pp_v6_rules --log=rulebook.log --force-rates-metadata --use_lowest_rule --target_lumi=$lumi --target_filled=1318 --target_empty=350 --target_unp_iso=60 --target_unp_noniso=60 --lvl1-xml=$l1menu --hlt-xml=$hltmenu1 --rates-xml=$costxml"
+cmdps="running: processRules.py --rulebook=Physics_pp_v5_rules --log=rulebook.log --force-rates-metadata --use_lowest_rule --target_lumi=$lumi --target_filled=1318 --target_empty=350 --target_unp_iso=60 --target_unp_noniso=60 --lvl1-xml=$l1menu --hlt-xml=$hltmenu1 --rates-xml=$costxml"
 echo $cmd
 eval $cmd 
 
