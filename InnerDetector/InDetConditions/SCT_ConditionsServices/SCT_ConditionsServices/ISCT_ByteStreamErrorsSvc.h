@@ -43,6 +43,7 @@ namespace SCT_ByteStreamErrors {
     RODClockError,
     TruncatedROD,
     ROBFragmentError,
+    MissingLinkHeaderError,
     NUM_ERROR_TYPES  // always have this one last, so we can use it as a loop index
   };
 }
