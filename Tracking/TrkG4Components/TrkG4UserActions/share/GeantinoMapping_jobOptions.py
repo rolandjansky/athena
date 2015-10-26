@@ -5,7 +5,7 @@
 #		of the ATLAS detector and the GeantinoMapping.
 #		It can be run using athena.py
 #
-__version__="$Revision: 674389 $"
+__version__="$Revision: 674388 $"
 #==============================================================
 
 

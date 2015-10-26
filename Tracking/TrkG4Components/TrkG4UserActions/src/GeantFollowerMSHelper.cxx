@@ -386,6 +386,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
     if(!trkParameters) {
       delete eloss;
       delete extrapolationCache;
+      delete g4Parameters;
       return;
     } 
     m_trk_status[m_g4_steps] = trkParameters ? 1 : 0;
