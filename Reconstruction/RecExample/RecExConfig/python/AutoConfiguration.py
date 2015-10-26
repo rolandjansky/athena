@@ -38,10 +38,11 @@ KnownCollisionsProjects=["data08","data08_coll900","data09","data09_coll900","da
                          "data14_comm","data15_comm","data15_900GeV","data15_1beam","data15_13TeV"
                          ]
 
-KnownHeavyIonProjects=["data10_hi","data11_hi"]
+KnownHeavyIonProjects=["data10_hi","data11_hi","data15_hi"]
 
 KnownHeavyIonProtonProjects=["data12_hip","data13_hip"]
 
+KnownTestProjects=["data_test"]
 
 KnownProjects=[]
 AddValidItemToList(KnownCosmicsProjects,KnownProjects)
@@ -49,6 +50,7 @@ AddValidItemToList(Known1BeamProjects,KnownProjects)
 AddValidItemToList(KnownCollisionsProjects,KnownProjects)
 AddValidItemToList(KnownHeavyIonProjects,KnownProjects)
 AddValidItemToList(KnownHeavyIonProtonProjects,KnownProjects)
+AddValidItemToList(KnownTestProjects,KnownProjects)
 
 fullSolenoidCurrent=7730.0
 fullToroidCurrent=20500.0
@@ -109,7 +111,7 @@ def GetFieldFromInputFile():
             solenoidCurrent=inputFileSummary['metadata']['/EXT/DCS/MAGNETS/SENSORDATA']['CentralSol_Current']['value']
             toroidCurrent=inputFileSummary['metadata']['/EXT/DCS/MAGNETS/SENSORDATA']['Toroids_Current']['value']
         except:
-            logAutoConfiguration.warning("Unable to find solenoid & toroid currents in /EXT/DCS/MAGNETS/SENSORDATA")
+            logAutoConfiguration.warning("Unable to find solenoid and toroid currents in /EXT/DCS/MAGNETS/SENSORDATA")
 
         # consistency check of GEO and b field values in case of simulated data
         if inputFileSummary['evt_type'][0]=='IS_SIMULATION':
@@ -244,12 +246,14 @@ def ConfigureGeo():
 
     from RecExConfig.InputFilePeeker import inputFileSummary
     if inputFileSummary['file_type']=='bs':
-        geo='ATLAS-GEO-20-00-01'
+        geo="ATLAS-R2-2015-03-01-00" #geo='ATLAS-GEO-20-00-01'
         project=GetProjectName()
+        if "data12" in project:
+            geo="ATLAS-R1-2012-03-00-00"
         if "data11" in project:
-            geo='ATLAS-GEO-18-01-01'
+            geo="ATLAS-R1-2011-02-00-00"  #'ATLAS-GEO-18-01-01'
         if "data10" in project or "data09" in project or "data08" in project:
-            geo='ATLAS-GEO-16-00-01'
+            geo="ATLAS-R1-2010-02-00-00" #geo='ATLAS-GEO-16-00-01'
         if inputFileSummary['evt_type'][0]=='IS_SIMULATION':
             try: geo = inputFileSummary['geometry']
             except: logAutoConfiguration.warning("Input simulated bs file does not contain bs_metadata with geometry. Probably an old file.")
@@ -334,6 +338,7 @@ def ConfigureBeamType():
     if BeamType==None:
         project=GetProjectName()
         if ItemInList(project,KnownCosmicsProjects): BeamType='cosmics'
+        elif ItemInList(project,KnownTestProjects): BeamType='cosmics'
         elif ItemInList(project,Known1BeamProjects): BeamType='singlebeam'
         elif ItemInList(project,KnownCollisionsProjects): BeamType='collisions'
         elif ItemInList(project,KnownHeavyIonProjects): BeamType='collisions'
