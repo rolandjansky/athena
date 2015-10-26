@@ -27,6 +27,7 @@ namespace TCS {
 namespace LVL1 {
 
    class RecMuonRoiSvc;
+   class MuCTPIL1TopoCandidate;
 
    class MuonInputProvider : public extends2<AthAlgTool, IInputTOBConverter, IIncidentListener> {
    public:
@@ -44,6 +45,7 @@ namespace LVL1 {
    private:
 
       TCS::MuonTOB createMuonTOB(uint32_t roiword) const;
+      TCS::MuonTOB createMuonTOB(const MuCTPIL1TopoCandidate & roi) const;
 
       StringProperty m_roibLocation;
 
@@ -61,6 +63,8 @@ namespace LVL1 {
       TH1I * m_hPt {nullptr};
       TH2I * m_hEtaPhi {nullptr};
 
+     int m_MuonEncoding; //!< Use 0 for full granularity; 1 for MuCTPiToTopo muon granularity
+     StringProperty m_MuCTPItoL1TopoLocation;
    };
 }
 

@@ -59,7 +59,7 @@ EnergyInputProvider::handle(const Incident& incident) {
    replace( histPath.begin(), histPath.end(), '.', '/'); 
 
 
-   m_hPt = new TH1I( "MET", "Missing ET TOB", 40, 0, 2000);
+   m_hPt = new TH1I( "MET", "Missing ET TOB", 200, 0, 2000);
    m_hPt->SetXTitle("p_{T}");
 
    m_hPhi = new TH1I( "METPhi", "MET TOB Phi", 32, -3.2, 3.2);
