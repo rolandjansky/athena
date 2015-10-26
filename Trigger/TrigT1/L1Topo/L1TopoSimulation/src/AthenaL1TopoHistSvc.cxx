@@ -29,8 +29,9 @@ public:
       TRG_MSG_DEBUG("Registration of " << h->GetName() );
       if(m_histSvc) {
          string fullName( m_baseDir + h->GetName() );
-         //          auto colPos = fullName.find_last_of('/');
-         //          string histName = fullName.substr(colPos+1);
+         auto colPos = fullName.find_last_of('/');
+         string histName = fullName.substr(colPos+1);
+         h->SetName(histName.c_str());
          if( ! m_histSvc->regHist(fullName, h).isSuccess() ) {
             TRG_MSG_WARNING("Could not register histogram " << fullName << " with " << m_histSvc->name() );
          }         

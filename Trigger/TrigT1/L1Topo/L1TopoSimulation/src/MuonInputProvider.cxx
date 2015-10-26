@@ -16,6 +16,8 @@
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 #include "TrigT1Interfaces/MuCTPIToRoIBSLink.h"
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
+#include "TrigT1Interfaces/MuCTPIL1Topo.h"
+#include "TrigT1Interfaces/MuCTPIL1TopoCandidate.h"
 
 #include "TrigT1Result/MuCTPIRoI.h"
 #include "TrigT1Result/RoIBResult.h"
@@ -37,7 +39,9 @@ MuonInputProvider::MuonInputProvider( const std::string& type, const std::string
    m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
    m_recRPCRoiSvc( LVL1::ID_RecRpcRoiSvc, name ),
    m_recTGCRoiSvc( LVL1::ID_RecTgcRoiSvc, name ),
-   m_muonROILocation( LVL1MUCTPI::DEFAULT_MuonRoIBLocation )
+   m_muonROILocation( LVL1MUCTPI::DEFAULT_MuonRoIBLocation ),
+   m_MuonEncoding(0),
+   m_MuCTPItoL1TopoLocation ("/Run/L1MuCTPItoL1TopoLocation")
 {
    declareInterface<LVL1::IInputTOBConverter>( this );
    declareProperty( "ROIBResultLocation", m_roibLocation, "Storegate key for the reading the ROIBResult" );
@@ -46,6 +50,8 @@ MuonInputProvider::MuonInputProvider( const std::string& type, const std::string
    declareProperty( "RecTgcRoiSvc", m_recTGCRoiSvc, "TGC Rec Roi Service");
    declareProperty( "MuonROILocation", m_muonROILocation, "Storegate key for the Muon ROIs" );
 
+   declareProperty( "MuonEncoding", m_MuonEncoding = 0, "0=full granularity Mu ROIs, 1=MuCTPiToTopo granularity");
+   declareProperty( "locationMuCTPItoL1Topo", m_MuCTPItoL1TopoLocation = "/Run/L1MuCTPItoL1TopoLocation", "Storegate key for MuCTPItoL1Topo ");
 }
 
 MuonInputProvider::~MuonInputProvider()
@@ -113,8 +119,38 @@ MuonInputProvider::createMuonTOB(uint32_t roiword) const {
    return muon;
 }
 
+TCS::MuonTOB
+MuonInputProvider::createMuonTOB(const MuCTPIL1TopoCandidate & roi) const {
+
+
+   ATH_MSG_DEBUG("Muon ROI (MuCTPiToTopo): thr ID = " << roi.getptThresholdID() << " eta = " << roi.geteta() << " phi = " << roi.getphi() << ", w   = " << MSG::hex << std::setw( 8 ) << roi.getRoiID() << MSG::dec);
+
+
+   // Here it is unclear. The L1 topo hardware works with phi in [0,2pi]. The MuCTPi give muons in [0,2pi].
+   // However, L1 topo simulation works with [-pi, pi] and otherwise it crashes. Thus we have to put check here
+   float phi = roi.getphi();
+   if(phi<-M_PI) phi+=2.0*M_PI;
+   if(phi> M_PI) phi-=2.0*M_PI;
+
+   TCS::MuonTOB muon( roi.getptValue(), 0, int(10*roi.geteta()), int(10*phi), roi.getRoiID() );
+
+   //OI this does not work cout << " Trying getphi "<<roi.getphi()<<" \n";
+   // phi has to be in [-pi,pi] range, although hardware works with [0,2pi]
+   //TCS::MuonTOB muon( roi.getptValue(), 0, int(10*roi.geteta()), int(10*roi.getphi()), 0 );
+
+   muon.setEtaDouble( roi.geteta() );
+   muon.setPhiDouble( phi );
+
+   m_hPt->Fill(muon.Et());
+   m_hEtaPhi->Fill(muon.eta(),muon.phi());
+
+   return muon;
+}
+
 StatusCode
 MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
+
+  if( m_MuonEncoding == 0 ) {
 
    ATH_MSG_DEBUG("Filling the muon input from MuCTPIToRoIBSLink produced by L1Muctpi.cxx.");
 
@@ -139,8 +175,10 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
       for( const ROIB::MuCTPIRoI & muonRoI : rois ) {
 
-         inputEvent.addMuon( MuonInputProvider::createMuonTOB( muonRoI.roIWord() ) );
-
+         if( !( muonRoI.roIWord() & LVL1::CandidateVetoMask  )  )
+           inputEvent.addMuon( MuonInputProvider::createMuonTOB( muonRoI.roIWord() ) );
+         else
+           ATH_MSG_DEBUG(" Ignore Vetoed L1 Mu RoI " <<  muonRoI.roIWord() );
       }
 
    } else if( muctpi_slink ) {
@@ -159,14 +197,26 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
          if ( icnt > ( muctpi_slink->getMuCTPIToRoIBWords().size() - ROIB::Trailer::wordsPerTrailer ) )
             continue;
 
-         inputEvent.addMuon( MuonInputProvider::createMuonTOB( roiword ) );
+         if( !( roiword & LVL1::CandidateVetoMask  )  )
+           inputEvent.addMuon( MuonInputProvider::createMuonTOB( roiword ) );
+         else
+            ATH_MSG_DEBUG(" Ignore Vetoed L1 Mu RoI " << roiword );
 
       }
 
    }
+   } else {  // This option for trying   MuCTPiToTopo
+     ATH_MSG_DEBUG("Use MuCTPiToTopo granularity Muon ROIs.");
 
-
-
+     LVL1::MuCTPIL1Topo* l1topo  {nullptr};
+     CHECK( evtStore()->retrieve( l1topo, m_MuCTPItoL1TopoLocation ) );
+     std::vector<MuCTPIL1TopoCandidate> candList = l1topo->getCandidates();
+     for(  std::vector<MuCTPIL1TopoCandidate>::const_iterator iMuCand = candList.begin(); iMuCand != candList.end(); iMuCand++)
+       {
+         //MuonInputProvider::createMuonTOB( *iMuCand );
+         inputEvent.addMuon( MuonInputProvider::createMuonTOB( *iMuCand ) );
+       }
+   }
 
 
    return StatusCode::SUCCESS;
