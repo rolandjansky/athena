@@ -9,12 +9,15 @@
 #define MVA_CALIB_TOOL_H_
 
 #include <string>
+#include <set>
 
 #include "AsgTools/AsgTool.h"
 #include "egammaMVACalib/IegammaMVATool.h"
 #include "xAODTracking/TrackParticleFwd.h"
 
 class egammaMVACalib;
+class egammaMVATreeElectron;
+class egammaMVATreePhoton;
 
 class egammaMVATool : virtual public IegammaMVATool,
 		      public asg::AsgTool
@@ -48,22 +51,25 @@ public:
   float getEnergy(xAOD::CaloCluster* cluster, const std::string&);
 
 private:
+	std::set<std::string> guess_variables(std::string filename);
   bool getClusterVariables(const xAOD::CaloCluster*);
   bool getConversionVariables(const xAOD::Vertex*);
-  
+
   //@brief Return the Pt at the first measurement point or at the perigee if not available
   float getPtAtFirstMeasurement(const xAOD::TrackParticle*) const;
-  
+
 private:
 
   egammaMVACalib *m_mvaElectron; /// MVA tool for electron
   egammaMVACalib *m_mvaPhoton; /// MVA tool for photon
-  
+	egammaMVATreeElectron* m_MVATreeElectron;  //!
+	egammaMVATreePhoton* m_MVATreePhoton;    //!
+
   // here will go variables and stuff
   std::string m_folder; /// string with folder for weight files
-  
-  double m_mvaCalibratedEnergy; /// Output energy
-  
+
+	bool m_new_version;
+
   ////////////////////////////////////////////////////////////
   // fields for internal tree
   double m_rawcl_Es0;

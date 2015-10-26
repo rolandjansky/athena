@@ -186,9 +186,6 @@ class egammaMVACalib : public asg::AsgMessaging
     /** Print the values of the previous evaluation for debugging **/
     void printValueInput();
 
-    /** Set or unset debug mode **/
-    void setDebug(bool debug) { m_debug = debug; }
-
     /** Return a tree with the MVA response for each event
      * If the input tree uses vector branches, the MVA response is stored as a vector,
      * except if flatten is false
@@ -409,7 +406,6 @@ class egammaMVACalib : public asg::AsgMessaging
     bool m_useNewBDTs; //! use egamma::BDT or TMVA::Reader
     TString fMethodName; //! BDTG
     egammaMVACalib::CalibrationType m_calibrationType; //! correct Eaccordion, Ecluster...
-    bool m_debug; //! Debug mode, lots of printouts
     // Variables that define the key and the initial energy (for getMVAEnergy)
     TString m_etaVar, m_energyVar, m_particleTypeVar;
     bool m_ignoreSpectators;
@@ -484,10 +480,12 @@ class egammaMVACalib : public asg::AsgMessaging
     float m_el_rawcl_Es1;
     float m_el_rawcl_Es2;
     float m_el_rawcl_Es3;
+    float m_el_cl_E_TileGap3;
     float m_el_cl_eta;
     float m_el_cl_E;
     float m_el_cl_etaCalo;
     float m_el_cl_phiCalo;
+    float m_el_cl_phi;
     float m_el_rawcl_calibHitsShowerDepth;
 
 

@@ -234,6 +234,13 @@ class TestEgammaMVACalib(unittest.TestCase):
         self.assertTrue(tool)
 
 
+def is_file_readable(path):
+    f = ROOT.TFile.Open(path)
+    return bool(f)
+
+
+@unittest.skipIf(not is_file_readable('root://eosatlas.cern.ch//eos/atlas/user/t/turra/user.blenzi.4956574.EXT0._000001.AOD.pool.root'),
+                 "input file not available")
 class TestEgammaMVATool(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -243,8 +250,7 @@ class TestEgammaMVATool(unittest.TestCase):
         filename = 'root://eosatlas.cern.ch//eos/atlas/user/t/turra/user.blenzi.4956574.EXT0._000001.AOD.pool.root'
         if (not ROOT.xAOD.Init().isSuccess()):
             print "Failed xAOD.Init()"
-        if not f:
-            print "ERROR: problem opening eos file"
+
         treeName = "CollectionTree"
 
         f = ROOT.TFile.Open(filename)
@@ -267,6 +273,7 @@ class TestEgammaMVATool(unittest.TestCase):
         print "tested %d electrons" % i
         self.assertGreater(i, 10, msg="too few electrons")
 
+
     def atestPhotons(self):
         N = 200
         for i, ph in enumerate(xAOD_photon_generator(self.tree)):
@@ -282,11 +289,13 @@ class TestEgammaMVATool(unittest.TestCase):
         self.assertGreater(i, 10, msg="too few photons")
 
 
+@unittest.skipIf(not is_file_readable('root://eosatlas.cern.ch//eos/atlas/user/t/turra/user.blenzi.4956574.EXT0._000001.AOD.pool.root'),
+                 "input file not available")
 class TestEgammaMVATrigger(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         filename = 'root://eosatlas.cern.ch//eos/atlas/user/t/turra/user.blenzi.4956574.EXT0._000001.AOD.pool.root'
-        if (not ROOT.xAOD.Init().isSuccess()):
+        if not ROOT.xAOD.Init().isSuccess():
             print "Failed xAOD.Init()"
         treeName = "CollectionTree"
 
@@ -295,23 +304,25 @@ class TestEgammaMVATrigger(unittest.TestCase):
             print "ERROR: problem opening eos file"
         cls.tree = ROOT.xAOD.MakeTransientTree(f, treeName)
 
-        cls.xAOD_tool = ROOT.egammaMVATool("egammaMVATool")
-        cls.xAOD_tool.setProperty("folder", "egammaMVACalib/v1")
-        cls.xAOD_tool.initialize()
-
     def testElectron(self):
+        """ use the HLT interface to apply electron offline calibration """
+        xAOD_tool = ROOT.egammaMVATool("egammaMVATool")
+        xAOD_tool.setProperty("folder", "egammaMVACalib/v1")
+        xAOD_tool.initialize()
         for i, el in enumerate(xAOD_electron_generator(self.tree)):
-            self.assertAlmostEqual(self.xAOD_tool.getEnergy(el.caloCluster(), "Electron"),
-                                   self.xAOD_tool.getEnergy(el.caloCluster(), el))
+            self.assertAlmostEqual(xAOD_tool.getEnergy(el.caloCluster(), "Electron"),
+                                   xAOD_tool.getEnergy(el.caloCluster(), el))
         self.assertGreater(i, 100, msg="not enough electrons")
 
     def testPhoton(self):
+        """ test HLT interface to apply photon trigger calibration positive """
+        xAOD_tool = ROOT.egammaMVATool("egammaMVATool")
+        xAOD_tool.setProperty("folder", "egammaMVACalib/online/v3")
+        xAOD_tool.initialize()
+
         for i, ph in enumerate(xAOD_photon_generator(self.tree)):
-            trigger_energy = self.xAOD_tool.getEnergy(ph.caloCluster(), "Photon")
-            if not ph.vertex():
-                self.assertAlmostEqual(trigger_energy,
-                                       self.xAOD_tool.getEnergy(ph.caloCluster(), ph))
-        self.assertGreater(i, 100, msg="not enough photons")
+            trigger_energy = xAOD_tool.getEnergy(ph.caloCluster(), "Photon")
+            self.assertGreater(trigger_energy, 0., msg="energy is negative item=%d, eta=%f, e=%f" % (i, ph.eta(), ph.e()))
 
 if __name__ == '__main__':
     ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C")
