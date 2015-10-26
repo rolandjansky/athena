@@ -512,6 +512,7 @@ def getFatrasExEngine(name="ISF_FatrasExEngine", **kwargs):
     kwargs.setdefault("ExtrapolationEngines"    , [ getPublicTool('ISF_FatrasStaticExEngine') ] )
     kwargs.setdefault("TrackingGeometrySvc"     , AtlasTrackingGeometrySvc)
     kwargs.setdefault("PropagationEngine"       , getPublicTool('ISF_FatrasStaticPropagator'))
+    kwargs.setdefault("NavigationEngine", getPublicTool('ISF_FatrasStaticNavigationEngine'))
     # configure output formatting 
     kwargs.setdefault("OutputPrefix"     , '[ME] - ')
     kwargs.setdefault("OutputPostfix"    , ' - ')
@@ -674,7 +675,10 @@ def getFatrasNewExtrapolationSimServiceID(name="ISF_FatrasNewExtrapolationSimSvc
     kwargs.setdefault("Identifier"        , "Fatras")
     kwargs.setdefault("IDSimulationTool"  , getPublicTool('ISF_FatrasSimEngine'))
     kwargs.setdefault("SimulationTool"    , getPublicTool('ISF_FatrasSimTool'))
-    kwargs.setdefault("UseSimulationTool" , True)
+    if TrkDetFlags.ISF_FatrasCustomGeometry() :
+        kwargs.setdefault("UseSimulationTool" , False)
+    else:
+        kwargs.setdefault("UseSimulationTool" , True)
 
     # set the output level
     kwargs.setdefault("OutputLevel"       , ISF_FatrasFlags.OutputLevelGeneral())
