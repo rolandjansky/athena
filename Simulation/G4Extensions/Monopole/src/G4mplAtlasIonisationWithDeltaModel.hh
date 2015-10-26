@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 //
 // ********************************************************************
 // * License and Disclaimer                                           *
@@ -37,7 +33,7 @@
 //
 // File name:     G4mplAtlasIonisationWithDeltaModel
 //
-// Author:        Vladimir Ivanchenko 
+// Author:        Vladimir Ivanchenko
 //
 // Creation date: 06.09.2005
 //
@@ -71,28 +67,28 @@ public:
   virtual void Initialise(const G4ParticleDefinition*, const G4DataVector&);
 
   virtual G4double ComputeDEDXPerVolume(const G4Material*,
-					const G4ParticleDefinition*,
-					G4double kineticEnergy,
-					G4double cutEnergy);
+                                        const G4ParticleDefinition*,
+                                        G4double kineticEnergy,
+                                        G4double cutEnergy);
 
   virtual G4double ComputeCrossSectionPerElectron(
-                                 const G4ParticleDefinition*,
-                                 G4double kineticEnergy,
-                                 G4double cutEnergy,
-                                 G4double maxEnergy);
+                                                  const G4ParticleDefinition*,
+                                                  G4double kineticEnergy,
+                                                  G4double cutEnergy,
+                                                  G4double maxEnergy);
 
   virtual G4double ComputeCrossSectionPerAtom(
-                                 const G4ParticleDefinition*,
-                                 G4double kineticEnergy,
-                                 G4double Z, G4double A,
-                                 G4double cutEnergy,
-                                 G4double maxEnergy);
+                                              const G4ParticleDefinition*,
+                                              G4double kineticEnergy,
+                                              G4double Z, G4double A,
+                                              G4double cutEnergy,
+                                              G4double maxEnergy);
 
   virtual void SampleSecondaries(std::vector<G4DynamicParticle*>*,
-				 const G4MaterialCutsCouple*,
-				 const G4DynamicParticle*,
-				 G4double tmin,
-				 G4double maxEnergy);
+                                 const G4MaterialCutsCouple*,
+                                 const G4DynamicParticle*,
+                                 G4double tmin,
+                                 G4double maxEnergy);
 
 
   virtual G4double SampleFluctuations(const G4Material*,

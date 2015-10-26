@@ -1,7 +1,3 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 //
 // ********************************************************************
 // * License and Disclaimer                                           *
@@ -37,7 +33,7 @@
 //
 // File name:     G4mplAtlasIonisationModel
 //
-// Author:        Vladimir Ivanchenko 
+// Author:        Vladimir Ivanchenko
 //
 // Creation date: 06.09.2005
 //
@@ -72,13 +68,13 @@ public:
   virtual void Initialise(const G4ParticleDefinition*, const G4DataVector&);
 
   virtual G4double ComputeDEDXPerVolume(const G4Material*,
-					const G4ParticleDefinition*,
-					G4double kineticEnergy,
-					G4double cutEnergy);
+                                        const G4ParticleDefinition*,
+                                        G4double kineticEnergy,
+                                        G4double cutEnergy);
 
   virtual void SampleSecondaries(     std::vector<G4DynamicParticle*>* ,
-                                const G4MaterialCutsCouple*,
-                                const G4DynamicParticle*,
+                                      const G4MaterialCutsCouple*,
+                                      const G4DynamicParticle*,
                                       G4double tmin,
                                       G4double maxEnergy);
 
@@ -120,23 +116,23 @@ private:
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-inline void G4mplAtlasIonisationModel::SampleSecondaries( 
-                                   std::vector<G4DynamicParticle*>* ,
-                             const G4MaterialCutsCouple*,
-                             const G4DynamicParticle*,
-                                   G4double,
-                                   G4double)
+inline void G4mplAtlasIonisationModel::SampleSecondaries(
+                                                         std::vector<G4DynamicParticle*>* ,
+                                                         const G4MaterialCutsCouple*,
+                                                         const G4DynamicParticle*,
+                                                         G4double,
+                                                         G4double)
 {;}
 
 inline G4double G4mplAtlasIonisationModel::Dispersion(
-                          const G4Material* material,
-                          const G4DynamicParticle* dp,
-                                G4double& tmax,
-                                G4double& length)
+                                                      const G4Material* material,
+                                                      const G4DynamicParticle* dp,
+                                                      G4double& tmax,
+                                                      G4double& length)
 {
   G4double siga = 0.0;
   G4double tau   = dp->GetKineticEnergy()/mass;
-  if(tau > 0.0) { 
+  if(tau > 0.0) {
     G4double electronDensity = material->GetElectronDensity();
     G4double gam   = tau + 1.0;
     G4double invbeta2 = (gam*gam)/(tau * (tau+2.0));

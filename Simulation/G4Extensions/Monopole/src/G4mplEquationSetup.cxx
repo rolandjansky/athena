@@ -26,7 +26,7 @@
 /// \file Derived from example exoticphysics G4MonopolFieldSetup.cc
 /// \brief Implementation of the G4mplEquationSetup class
 //
-// $Id: G4mplEquationSetup.cxx 567943 2013-10-30 15:54:37Z jchapman $
+// $Id: G4mplEquationSetup.cxx 684372 2015-07-20 15:34:53Z jchapman $
 //
 //
 // G4mplEquationSetup is responsible for switching between two different
@@ -40,9 +40,11 @@
 //            Adapted from G4MonopoleFieldSetup by B. Bozsogi
 // =======================================================================
 
-#include "Monopole/G4mplEquationSetup.hh"
-#include "Monopole/G4mplEqMagElectricField.hh"
-
+// class header
+#include "G4mplEquationSetup.hh"
+// package headers
+#include "G4mplEqMagElectricField.hh"
+// Geant4 headers
 #include "G4MagneticField.hh"
 #include "G4UniformMagField.hh"
 #include "G4FieldManager.hh"
@@ -50,19 +52,14 @@
 #include "G4Mag_UsualEqRhs.hh"
 #include "G4MagIntegratorStepper.hh"
 #include "G4ChordFinder.hh"
-
-// Used for non-magnetic particles
-#include "G4NystromRK4.hh"
-
-// Used for monopoles
-#include "G4ClassicalRK4.hh"
+#include "G4NystromRK4.hh" // Used for non-magnetic particles
+#include "G4ClassicalRK4.hh" // Used for monopoles
 // NOTE:
 // Only Steppers which can integrate over any number of variables can be used
 //  to integrate the equation of motion of a monopole.
 // The following cannot be used:
 //    Helix...  - these integrate over 6 variables only; also assume helix as 'base'
 //    AtlasRK4, NystromRK4 - these have the equation of motion embedded inside
-
 #include "G4SystemOfUnits.hh"
 
 G4mplEquationSetup* G4mplEquationSetup::fG4mplEquationSetup=0;
@@ -87,13 +84,13 @@ G4mplEquationSetup::G4mplEquationSetup():
 
 G4mplEquationSetup* G4mplEquationSetup::GetInstance()
 {
-   if ( fG4mplEquationSetup == 0 )
-   {
-     static G4mplEquationSetup theInstance;
-     fG4mplEquationSetup = &theInstance;
-   }
+  if ( fG4mplEquationSetup == 0 )
+    {
+      static G4mplEquationSetup theInstance;
+      fG4mplEquationSetup = &theInstance;
+    }
 
-   return fG4mplEquationSetup;
+  return fG4mplEquationSetup;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -131,50 +128,50 @@ G4mplEquationSetup::InitialiseForField(G4FieldManager* fieldManager )
   fMonopoleStepper = new G4ClassicalRK4( fMonopoleEquation, 8 ); // for time information..
 
   if ( !fMonopoleStepper )
-  {
-     G4cout << " G4mplEquationSetup: Warning - found no stepper.  Created G4Nystrom stepper - for ordinary particles. " << G4endl;
-     delete fStepper;
-     fStepper = new G4NystromRK4( fEquation );
-     fCreatedOrdinaryStepper = true;
-     SwitchStepperAndChordFinder( 0, fieldManager ); // Set for 'ordinary' matter
-  }
+    {
+      G4cout << " G4mplEquationSetup: Warning - found no stepper.  Created G4Nystrom stepper - for ordinary particles. " << G4endl;
+      delete fStepper;
+      fStepper = new G4NystromRK4( fEquation );
+      fCreatedOrdinaryStepper = true;
+      SwitchStepperAndChordFinder( 0, fieldManager ); // Set for 'ordinary' matter
+    }
   else
-  {
-    if( fVerbose ) G4cout << "G4mplEquationSetup: fMonopoleStepper has " << fMonopoleStepper->GetNumberOfVariables() << " variables." << G4endl;
-  }
+    {
+      if( fVerbose ) G4cout << "G4mplEquationSetup: fMonopoleStepper has " << fMonopoleStepper->GetNumberOfVariables() << " variables." << G4endl;
+    }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 void G4mplEquationSetup::SwitchStepperAndChordFinder(G4bool useMonopoleEq,
-                                                  G4FieldManager* fieldManager)
+                                                     G4FieldManager* fieldManager)
 {
-   // For this to work, InitialiseForField must have been called
-   //   - for *this* field manager (not another) before this call
-   //   - potentially after a change of 'field' object in this field manager (tbc)
+  // For this to work, InitialiseForField must have been called
+  //   - for *this* field manager (not another) before this call
+  //   - potentially after a change of 'field' object in this field manager (tbc)
 
   const G4MagneticField* magField = dynamic_cast<const G4MagneticField*>(fieldManager->GetDetectorField());
   G4MagneticField* magFieldNC= const_cast<G4MagneticField*>(magField);
 
   if ( magField )
-  {
-    // WJT: Avoid segmentation violation in G4FieldManager destructor
-    //if (fChordFinder) delete fChordFinder;
-    fChordFinder= 0;
-
-    if (useMonopoleEq)
     {
-      fChordFinder = new G4ChordFinder( magFieldNC, fMinStep, fMonopoleStepper );
-      if( fVerbose )  G4cout << " G4mplEquationSetup: Configured for Monopole " << G4endl;
-    }
-    else
-    {
-      fChordFinder = new G4ChordFinder( magFieldNC, fMinStep, fStepper );
-      if ( fVerbose )  G4cout << " G4mplEquationSetup: Configured for electric charge only. " << G4endl;
-    }
+      // WJT: Avoid segmentation violation in G4FieldManager destructor
+      //if (fChordFinder) delete fChordFinder;
+      fChordFinder= 0;
 
-    fieldManager->SetChordFinder( fChordFinder );
-  }
+      if (useMonopoleEq)
+        {
+          fChordFinder = new G4ChordFinder( magFieldNC, fMinStep, fMonopoleStepper );
+          if( fVerbose )  G4cout << " G4mplEquationSetup: Configured for Monopole " << G4endl;
+        }
+      else
+        {
+          fChordFinder = new G4ChordFinder( magFieldNC, fMinStep, fStepper );
+          if ( fVerbose )  G4cout << " G4mplEquationSetup: Configured for electric charge only. " << G4endl;
+        }
+
+      fieldManager->SetChordFinder( fChordFinder );
+    }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

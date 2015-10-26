@@ -23,7 +23,7 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-// $Id: G4mplAtlasIonisation.cxx 526171 2012-11-15 18:33:35Z zmarshal $
+// $Id: G4mplAtlasIonisation.cxx 684372 2015-07-20 15:34:53Z jchapman $
 // GEANT4 tag $Name: not supported by cvs2svn $
 //
 // -------------------------------------------------------------------
@@ -45,20 +45,19 @@
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-#include "Monopole/G4mplAtlasIonisation.hh"
-#include "G4Electron.hh"
-//#include "Monopole/G4mplIonisationModel.hh"
-//#include "Monopole/G4mplAtlasIonisationModel.hh"
-#include "Monopole/G4mplAtlasIonisationWithDeltaModel.hh"
-//#include "Monopole/G4mplAtlasIonisationModel.hh"
+// class header
+#include "G4mplAtlasIonisation.hh"
+// package headers
+#include "G4mplAtlasIonisationWithDeltaModel.hh"
+// Geant4 headers
 #include "G4BohrFluctuations.hh"
+#include "G4Electron.hh"
+#include "G4EmProcessSubType.hh"
+// CLHEP headers
+#include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 
-#include "G4EmProcessSubType.hh"
-
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-
-using namespace std;
 
 G4mplAtlasIonisation::G4mplAtlasIonisation(G4double mCharge, const G4String& name)
   : G4VEnergyLossProcess(name),
@@ -66,7 +65,7 @@ G4mplAtlasIonisation::G4mplAtlasIonisation(G4double mCharge, const G4String& nam
     isInitialised(false)
 {
 
-  std::cout <<"!!! G4mplAtlasIonisation constructor"<<std::endl;
+  G4cout <<"!!! G4mplAtlasIonisation constructor"<<G4endl;
 
   SetProcessSubType(  fIonisation );
 
@@ -84,21 +83,21 @@ G4mplAtlasIonisation::G4mplAtlasIonisation(G4double mCharge, const G4String& nam
 
 G4mplAtlasIonisation::~G4mplAtlasIonisation()
 {
-  std::cout <<"!!! G4mplAtlasIonisation destructor"<<std::endl;
+  G4cout <<"!!! G4mplAtlasIonisation destructor"<<G4endl;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 void G4mplAtlasIonisation::InitialiseEnergyLossProcess(const G4ParticleDefinition*,
-						  const G4ParticleDefinition*)
+                                                       const G4ParticleDefinition*)
 {
   if(isInitialised) return;
 
-  std::cout <<"!!! G4mplAtlasIonisation::InitialiseEnergyLossProcess"<<std::endl;
+  G4cout <<"!!! G4mplAtlasIonisation::InitialiseEnergyLossProcess"<<G4endl;
 
   SetBaseParticle(0);
   SetSecondaryParticle(G4Electron::Electron());
-  
+
   //  G4mplIonisationModel* ion  = new G4mplIonisationModel(magneticCharge);
   //  G4mplIonisationModel* ion  = new G4mplIonisationModel(magneticCharge,"PAI");
   //  G4mplAtlasIonisationModel* ion  = new G4mplAtlasIonisationModel(magneticCharge,"PAI");
@@ -108,12 +107,12 @@ void G4mplAtlasIonisation::InitialiseEnergyLossProcess(const G4ParticleDefinitio
   //  ion->SetHighEnergyLimit(100.*TeV);
   ion->SetHighEnergyLimit(7.*CLHEP::TeV);
   AddEmModel(0,ion,ion);
-  
+
   SetStepFunction(0.2, 1*CLHEP::mm);
-  
+
   isInitialised = true;
-  
-  std::cout <<"!!! G4mplAtlasIonisation::InitialiseEnergyLossProcess done"<<std::endl;
+
+  G4cout <<"!!! G4mplAtlasIonisation::InitialiseEnergyLossProcess done"<<G4endl;
 
 }
 
