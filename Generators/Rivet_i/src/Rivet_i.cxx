@@ -48,6 +48,7 @@ Rivet_i::Rivet_i(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("McEventKey", m_genEventKey="GEN_EVENT");
   declareProperty("Analyses", m_analysisNames);
   declareProperty("CrossSection", m_crossSection=-1.0);
+  declareProperty("WeightName", m_weightName="");
   declareProperty("Stream", m_stream="/Rivet");
   declareProperty("RunName", m_runname="");
   declareProperty("HistoFile", m_file="Rivet.yoda");
@@ -187,6 +188,11 @@ StatusCode Rivet_i::execute() {
   // ATH_MSG_ALWAYS("CHK1 BEAM ENERGY = " << checkedEvent->beam_particles().first->momentum().e());
   // ATH_MSG_ALWAYS("CHK1 UNITS == MEV = " << std::boolalpha << (checkedEvent->momentum_unit() == HepMC::Units::MEV));
 
+  if(!checkedEvent) {
+    ATH_MSG_ERROR("Check on HepMC event failed!");
+    return StatusCode::FAILURE;
+  }
+
   // Initialize Rivet (on the first event only)
   if (!m_init) {
     m_analysisHandler->init(*checkedEvent);
@@ -196,8 +202,7 @@ StatusCode Rivet_i::execute() {
   // Analyse the event
   m_analysisHandler->analyze(*checkedEvent);
 
-  // Delete the modified event copy
-  if (checkedEvent != event) delete checkedEvent;
+  delete checkedEvent;
 
   return StatusCode::SUCCESS;
 }
@@ -220,18 +225,35 @@ StatusCode Rivet_i::finalize() {
       const string basename = ao->path().substr(ao->path().rfind("/")+1); // There should always be >= 1 slash
 
       // Convert YODA histos to heap-allocated ROOT objects and register
+      /// @todo Counter
       if (ao->type() == "Histo1D") {
         TH1* h = (TH1*) YODA::toTH1D(*boost::dynamic_pointer_cast<YODA::Histo1D>(ao)).Clone(basename.c_str());
         CHECK(m_histSvc->regHist(m_stream + path, h));
         ATH_MSG_INFO("TH1D " + path + " created from YODA::Histo1D");
+      } else if (ao->type() == "Histo2D") {
+        TH2* h = (TH2*) YODA::toTH2D(*boost::dynamic_pointer_cast<YODA::Histo2D>(ao)).Clone(basename.c_str());
+        CHECK(m_histSvc->regHist(m_stream + path, h));
+        ATH_MSG_INFO("TH2 " + path + " created from YODA::Histo2D");
+      // } else if (ao->type() == "Profile2D") {
+      //   TProfile2D* h = (TProfile2D*) YODA::toTProfile2D(*boost::dynamic_pointer_cast<YODA::Profile2D>(ao)).Clone(basename.c_str());
+      //   CHECK(m_histSvc->regHist(m_stream + path, h));
+      //   ATH_MSG_INFO("TProfile2D " + path + " created from YODA::Profile2D");
       } else if (ao->type() == "Profile1D") {
         TH1* h = (TH1*) YODA::toTProfile(*boost::dynamic_pointer_cast<YODA::Profile1D>(ao)).Clone(basename.c_str());
         CHECK(m_histSvc->regHist(m_stream + path, h));
         ATH_MSG_INFO("TProfile " + path + " created from YODA::Profile1D");
+      // } else if (ao->type() == "Scatter1D") {
+      //   TGraph* g = (TGraph*) YODA::toTGraph(*boost::dynamic_pointer_cast<YODA::Scatter1D>(ao)).Clone(basename.c_str());
+      //   CHECK(m_histSvc->regGraph(m_stream + path, g));
+      //   ATH_MSG_INFO("TGraph " + path + " created from YODA::Scatter2D");
       } else if (ao->type() == "Scatter2D") {
         TGraph* g = (TGraph*) YODA::toTGraph(*boost::dynamic_pointer_cast<YODA::Scatter2D>(ao)).Clone(basename.c_str());
         CHECK(m_histSvc->regGraph(m_stream + path, g));
         ATH_MSG_INFO("TGraph " + path + " created from YODA::Scatter2D");
+      // } else if (ao->type() == "Scatter3D") {
+      //   TGraph* g = (TGraph*) YODA::toTGraph(*boost::dynamic_pointer_cast<YODA::Scatter3D>(ao)).Clone(basename.c_str());
+      //   CHECK(m_histSvc->regGraph(m_stream + path, g));
+      //   ATH_MSG_INFO("TGraph " + path + " created from YODA::Scatter2D");
       } else {
         ATH_MSG_WARNING("Couldn't convert YODA histo " + path + " to ROOT: unsupported data type " + ao->type());
       }
@@ -255,6 +277,20 @@ bool cmpGenParticleByEDesc(const HepMC::GenParticle* a, const HepMC::GenParticle
 
 const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   std::vector<HepMC::GenParticle*> beams;
+  HepMC::GenEvent* modEvent = new HepMC::GenEvent(*event);
+
+  if(m_weightName != ""){
+    if(event->weights().has_key(m_weightName)){
+      double weight = event->weights()[m_weightName];
+      modEvent->weights().clear();
+      modEvent->weights()[m_weightName] = weight;
+    }else{
+      ATH_MSG_ERROR("Weight named " + m_weightName + " could not be found in the HepMC event!");
+      delete modEvent;
+      return (HepMC::GenEvent*)0;
+    }
+  }
+
   if (!event->valid_beam_particles()) {
     for (HepMC::GenEvent::particle_const_iterator p = event->particles_begin(); p != event->particles_end(); ++p) {
       if (!(*p)->production_vertex() && (*p)->pdg_id() != 0) {
@@ -283,9 +319,8 @@ const HepMC::GenEvent* Rivet_i::checkEvent(const HepMC::GenEvent* event) {
   #endif
 
   if (scalefactor == 1.0 && event->valid_beam_particles()) {
-    return event;
+    return modEvent;
   } else {
-    HepMC::GenEvent* modEvent = new HepMC::GenEvent(*event);
     if (scalefactor != 1.0) {
       // ATH_MSG_ALWAYS("RESCALING * " << scalefactor);
       for (HepMC::GenEvent::particle_iterator p = modEvent->particles_begin(); p != modEvent->particles_end(); ++p) {
