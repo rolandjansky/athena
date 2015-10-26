@@ -49,6 +49,7 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   m_rodClockErrors(0),
   m_truncatedRod(0),
   m_robFragErrors(0),
+  m_missingLinkHeaderErrors(0),
   m_rxRedundancy(0),
   //
   m_numTimeOutErrors(0),
@@ -64,6 +65,7 @@ SCT_ByteStreamErrorsSvc::SCT_ByteStreamErrorsSvc( const std::string& name, ISvcL
   m_numRodClockErrors(0),
   m_numTruncatedRod(0),
   m_numRobFragErrors(0),
+  m_numMissingLinkHeaderErrors(0),
   m_isRODSimulatedData(false),
   m_numRODsHVon(0),
   m_numRODsTotal(0),
@@ -101,6 +103,7 @@ SCT_ByteStreamErrorsSvc::initialize(){
   m_rodClockErrors = new std::set<IdentifierHash>;
   m_truncatedRod = new std::set<IdentifierHash>;
   m_robFragErrors = new std::set<IdentifierHash>;
+  m_missingLinkHeaderErrors = new std::set<IdentifierHash>;
 
   m_rxRedundancy = new std::set<IdentifierHash>;
 
@@ -174,6 +177,7 @@ SCT_ByteStreamErrorsSvc::finalize(){
   delete m_rodClockErrors;
   delete m_truncatedRod;
   delete m_robFragErrors;
+  delete m_missingLinkHeaderErrors;
   delete m_rxRedundancy;
 
   return sc;
@@ -358,6 +362,11 @@ SCT_ByteStreamErrorsSvc::isGood(const IdentifierHash & elementIdHash) {
 		      m_robFragErrors->end(),
 		      elementIdHash) == m_robFragErrors->end());
   if (!result) return result;
+
+  result = (std::find(m_missingLinkHeaderErrors->begin(),
+		      m_missingLinkHeaderErrors->end(),
+		      elementIdHash) == m_missingLinkHeaderErrors->end());
+  if (!result) return result;
   
   return result;
 }
@@ -394,6 +403,7 @@ SCT_ByteStreamErrorsSvc::resetSets() {
   m_rodClockErrors->clear();
   m_truncatedRod->clear();
   m_robFragErrors->clear();
+  m_missingLinkHeaderErrors->clear();
   return;
 }
 
@@ -444,6 +454,8 @@ SCT_ByteStreamErrorsSvc::getErrorSet(int errType) {
     return m_truncatedRod;
   case SCT_ByteStreamErrors::ROBFragmentError:
     return m_robFragErrors;
+  case SCT_ByteStreamErrors::MissingLinkHeaderError:
+    return m_missingLinkHeaderErrors;
   }
   return 0;
 }
@@ -586,6 +598,9 @@ SCT_ByteStreamErrorsSvc::addError(IdentifierHash& id, int errorType) {
   case SCT_ByteStreamErrors::ROBFragmentError:
     m_robFragErrors->insert(id);
     break;
+  case SCT_ByteStreamErrors::MissingLinkHeaderError:
+    m_missingLinkHeaderErrors->insert(id);
+    break;
   }    
 }
 
@@ -647,6 +662,9 @@ SCT_ByteStreamErrorsSvc::addErrorCount(int errorType) {
   case SCT_ByteStreamErrors::ROBFragmentError:
     m_numRobFragErrors++;
     break;
+  case SCT_ByteStreamErrors::MissingLinkHeaderError:
+    m_numMissingLinkHeaderErrors++;
+    break;
   }    
 }
 
@@ -684,6 +702,7 @@ SCT_ByteStreamErrorsSvc::resetCounts() {
   m_numRodClockErrors=0;
   m_numTruncatedRod=0;
   m_numRobFragErrors=0;
+  m_numMissingLinkHeaderErrors=0;
 }
 
 int 
@@ -715,6 +734,8 @@ SCT_ByteStreamErrorsSvc::getNumberOfErrors(int errorType) {
       return m_numTruncatedRod;
     case SCT_ByteStreamErrors::ROBFragmentError:
       return m_numRobFragErrors;
+    case SCT_ByteStreamErrors::MissingLinkHeaderError:
+      return m_numMissingLinkHeaderErrors;
     }
   return 0;
 }
