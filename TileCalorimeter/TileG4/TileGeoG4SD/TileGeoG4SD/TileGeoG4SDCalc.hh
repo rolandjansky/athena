@@ -114,9 +114,6 @@ private:
   /** @brief granularity in time for hits */
   double m_deltaT;
 
-  /** @brief max allowed time for hits */
-  double m_timeCut;
-
   /** @brief function to calculate Birks correction */
   G4double BirkLaw(const G4Step* aStep) const;
 

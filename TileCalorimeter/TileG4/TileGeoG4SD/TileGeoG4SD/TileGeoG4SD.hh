@@ -43,6 +43,10 @@ public:
 
     TileGeoG4SDCalc* GetCalculator() { return m_calc; }
 
+    // Don't leave copy constructors or assignment operators around
+    TileGeoG4SD(const TileGeoG4SD&) = delete;
+    TileGeoG4SD& operator=(const TileGeoG4SD&) = delete;
+
 private:
 
     TileGeoG4SDCalc*          m_calc;
