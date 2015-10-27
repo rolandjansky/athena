@@ -46,6 +46,7 @@ public:
   void deleteConnectionPPToSL();
 
   static const std::string& getFilename(int type); 
+  static const std::vector<std::string > splitCW(const std::string& input, char delimiter); 
 
 private:
   TGCRPhiCoincidenceMap* mapRphi[NumberOfSide][NumberOfOctant];

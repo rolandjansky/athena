@@ -30,6 +30,7 @@
 class TgcRdo;
 class TgcRawData;
 class ITGCcablingSvc;
+class TgcDigitContainer; 
 
 namespace TrigConf {
   class ILVL1ConfigSvc;
@@ -59,6 +60,7 @@ class TGCSLSelectorOut;
 class TGCElectronicsSystem;
 class TGCTimingManager;
 class TGCDatabaseManager;
+class TGCEvent; 
 
 class LVL1TGCTrigger : public AthAlgorithm
 {
@@ -75,6 +77,12 @@ class LVL1TGCTrigger : public AthAlgorithm
   StatusCode finalize() ;
 
  private:
+  // Process one bunch 
+  StatusCode processOneBunch(const DataHandle<TgcDigitContainer>&  , 
+                             LVL1MUONIF::Lvl1MuCTPIInput* ); 
+  void doMaskOperation(const DataHandle<TgcDigitContainer>& ,std::map<Identifier, int>& );
+  void fillTGCEvent(std::map<Identifier, int>& ,  TGCEvent&); 
+
   // Fill TMDB event data
   StatusCode fillTMDB();
 
@@ -84,13 +92,16 @@ class LVL1TGCTrigger : public AthAlgorithm
   // record bare-RDO for HighPT coincidences (on OutputTgcRDO=True):
   void recordRdoHPT(TGCSector *);
 
+  // record bare-RDO for Inner coincidences (on OutputTgcRDO=True):
+  void recordRdoInner(TGCSector *);
+  
   // record bare-RDO for R-phi coincidences (on m_OutputTgcRDO=True):
   void recordRdoSL(TGCSector *, unsigned int );
 
   std::map<std::pair<int, int>, TgcRdo*>  m_tgcrdo;
   
-  // Strip masking
-  StatusCode doMaskOperation();
+  // Retrieve Masked channel list 
+  StatusCode getMaskedChannel();
   std::map<Identifier, int> m_MaskedChannel;   
 
   // pointers to various external services
@@ -104,7 +115,7 @@ class LVL1TGCTrigger : public AthAlgorithm
   void addRawData(TgcRawData *);
   int getLPTTypeInRawData(int type);
   void FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData* sldata,
-			   TGCSLSelectorOut *selectorOut, 
+			   const TGCSLSelectorOut *selectorOut, 
 			   unsigned int subsystem);
   
   // Properties
@@ -121,11 +132,12 @@ class LVL1TGCTrigger : public AthAlgorithm
   // Location of TileMuonReceiverContainer
   StringProperty m_keyTileMu ;
   
-  StringProperty m_MaskFileName ;   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
-  StringProperty m_MaskFileName12 ;   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
-  ShortProperty m_CurrentBunchTag;  //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
-  BooleanProperty m_OutputTgcRDO;   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink
-  
+  StringProperty    m_MaskFileName ;   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink 
+  StringProperty    m_MaskFileName12 ;   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink 
+  ShortProperty     m_CurrentBunchTag;  //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink 
+  BooleanProperty   m_ProcessAllBunches; 
+  BooleanProperty   m_OutputTgcRDO;   //!< property, see @link LVL1TGCTrigger::LVL1TGCTrigger @endlink  
+
   // expert usage
   BooleanProperty   m_STRICTWD;
   BooleanProperty   m_STRICTWT;
@@ -139,6 +151,8 @@ class LVL1TGCTrigger : public AthAlgorithm
   BooleanProperty   m_INNERVETO; // flag for using VETO by Inner Station for SL
   BooleanProperty   m_FULLCW;   // flag for using differne CW for each octant
   BooleanProperty   m_TILEMU;   // flag for using TileMu
+
+  uint16_t          m_bctagInProcess;
 
   TGCDatabaseManager *db;
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;

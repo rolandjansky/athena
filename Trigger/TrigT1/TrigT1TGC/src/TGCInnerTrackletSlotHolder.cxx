@@ -74,4 +74,40 @@ namespace LVL1TGCTrigger {
     }
   }
 
+  int TGCInnerTrackletSlotHolder::getInnerTrackletBits(const TGCInnerTrackletSlot* innerTrackletSlots[]) const {
+
+    int inner_eifi = 0;
+
+    const int n_slots    = NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR;
+    const int n_regions  = TGCInnerTrackletSlot::NUMBER_OF_REGIONS;
+    const int n_readouts = TGCInnerTrackletSlot::NUMBER_OF_READOUTS;
+    const int n_bits  = TGCInnerTrackletSlot::NUMBER_OF_TRIGGER_BITS;
+
+    for (int ii = 0; ii < n_slots; ii++) {
+      if (ii > 2) continue; // 3 slots per sector at online
+
+      for (int jj = 0; jj < n_regions; jj++) {
+        bool pass_readouts = true;
+
+        for (int kk = 0; kk < n_readouts; kk++) {
+          bool pass_bits = false;
+
+          for (int ll = 0; ll < n_bits; ll++) {
+            pass_bits |= innerTrackletSlots[ii]->getTriggerBit(jj, kk, ll);
+          }
+
+          pass_readouts &= pass_bits;
+        }
+
+        if (!pass_readouts) continue;
+
+        int tmp_bit = 1 << (ii*2);
+        if (jj == TGCInnerTrackletSlot::FI) tmp_bit = tmp_bit << 1;
+
+        inner_eifi |= tmp_bit;
+      }
+    }
+
+    return inner_eifi;
+  }
 } //end of namespace bracket

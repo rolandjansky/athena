@@ -25,6 +25,9 @@ namespace LVL1TGCTrigger {
     void getInnerTrackletSlots(const int sideId, const int octId, const int moduleId, 
 			       const TGCInnerTrackletSlot* innerTrackletSlots[]) const;
     
+    /** returns SL readout trigger bits FI2|EI2|FI1|EI1|FI0|EI0 **/
+    int getInnerTrackletBits(const TGCInnerTrackletSlot* innerTrackletSlots[]) const;
+    
     enum {
       NUMBER_OF_SIDES = 2, // Side A and Side C
       NUMBER_OF_SLOTS = 24, // Slot01 - Slot24
