@@ -23,7 +23,7 @@ namespace LVL1TGCTrigger {
  extern bool        g_DEBUGLEVEL;
  extern bool        g_FULL_CW;
 
-  
+
 bool TGCRPhiCoincidenceMap::test(int octantId, int moduleId, int subsector, 
 				 int type, int pt, 
 				 int dr, int dphi) const
@@ -84,7 +84,7 @@ bool TGCRPhiCoincidenceMap::checkVersion()
 	  << " Default set is chosen !!" << endreq;
     }
     // default set 
-    m_verName = "setM";
+    m_verName = "v000f";
     dbname = "RPhiCoincidenceMap."+m_verName+"._12.db";
     fullName = PathResolver::find_file( dbname.c_str(), "DATAPATH" );
     isFound =( fullName.length() > 0 );
@@ -113,11 +113,15 @@ bool TGCRPhiCoincidenceMap::checkVersion()
   file.close();
 
   // use full CW (i.e. different maps for each octant and side)
-  m_fullCW =  (m_verName == "setK") && g_FULL_CW;
+  m_fullCW = g_FULL_CW &&
+             (m_verName == "setK" ||
+              m_verName == "v0014" ||
+              m_verName == "v0016" ||
+              m_verName == "v0017");
 
   ///////////  
   log << MSG::INFO 
-      << " TGC CW version of " << m_verName << " is selected " << endreq;
+      << " TGC Big Wheel CW version of " << m_verName << " is selected " << endreq;
   for(int i=0; i<N_PT_THRESH; i++) {
     log << MSG::INFO 
 	<< "TGC Pt_Thr: " << std::setw(2) << i+1
