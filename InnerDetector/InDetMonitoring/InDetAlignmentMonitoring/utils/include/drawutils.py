@@ -34,7 +34,12 @@ def rootSetup():
 def  AutoColors(NFiles):
     Colors = {}
     doDebug = False
-        
+
+    #import settings.py
+    #import imp
+    #s_utils = imp.load_source('init', 'include/settings.py')
+    #print " xxxyyyzzz ", s_utils.TestUseBarrel
+    
     if NFiles > 2:
         ColorStep = 50./(NFiles-1)
     Color_i = 0;
@@ -50,7 +55,29 @@ def  AutoColors(NFiles):
         Colors[0] = 632+1 #kRed+1
         Colors[1] = 920+2 #kGray+2
         Colors[2] = 860+1 #kAzure+1
-    
+
+    elif NFiles is 4:
+        if (True):
+            Colors[0] = 616 # IBL
+            Colors[1] = 1   # Pixel 
+            Colors[2] = 632 # SCT
+            Colors[3] = 416 # TRT
+        else:
+            Colors[0] = 629 # SCT
+            Colors[1] = 801   
+            Colors[2] = 398 # TRT
+            Colors[3] = 813 
+            
+    elif NFiles is 8:
+        Colors[0] = 616 #kMagenta+2     #IBL
+        Colors[1] = 1 #kBlack           #Pixel
+        Colors[2] = 632 #kRed           #SCT
+        Colors[3] = 629 #kRed+2
+        Colors[4] = 801 #kOrange+7
+        Colors[5] = 416 #          #TRT
+        Colors[6] = 398 
+        Colors[7] = 813 
+
     elif NFiles > 3:
         for i in range(0,NFiles):
             Color_i = int(51+i*ColorStep)
@@ -58,7 +85,8 @@ def  AutoColors(NFiles):
                 Color_i = 100
             #print " File ", i,  " --> color ",Color_i
             Colors[i] = Color_i
-
+        Colors[1] = 1    
+            
     if (doDebug):        
         for i in range(NFiles):
             print " color ",i,"=", Colors[i]
@@ -69,7 +97,7 @@ def drawAllCorr(detector):
     from ROOT import TCanvas
     from ROOT import TH1F
     from ROOT import gPad
-    debug = True
+    debug = False
 
     if (debug): print " -- drawAllCorr -- starting for detector = ",detector
     showErrors = True
@@ -79,7 +107,7 @@ def drawAllCorr(detector):
     yrange = [0,0,0,0,0,0]
     if (debug): print " -- drawAllCorr -- finding out histogram ranges... "
     for i in range(6):
-        if (debug): print "  -- drawAllCorr --  range for dof:",i
+        if (debug): print "  -- drawAllCorr -- extracting range for dof:",i
         for det in detector:
             for bin in range(detector[det].nModules()):
                 #print " ** drawutils ** drawAllCorr ** det:",det,"  nModules = ",detector[det].nModules()
@@ -119,38 +147,56 @@ def drawAllCorr(detector):
             AllCorrections[det][name].SetStats(False)
             if det==0:
                 AllCorrections[det][name].GetYaxis().SetRangeUser(-yrange[i],yrange[i])
-                AllCorrections[det][name].DrawCopy()
+                AllCorrections[det][name].DrawCopy()                        
             else:
                 AllCorrections[det][name].DrawCopy('same')
+
             gPad.SetGridx()
             gPad.SetGridy() 
             gPad.Update()
     return Alldetector
 
 #############################################################
-def drawCorrEvolution(detector, labelList, drawErrors=False):
+def drawCorrEvolution(detector, labelList, drawErrors=False, drawLine=True, whichdof=-1):
     from ROOT import TCanvas
     from ROOT import TH1F
     from ROOT import gPad
     from ROOT import TLegend
 
-    doDebug = False
+    doDebug = True
     showErrors = True
+    drawAllDofs = True
+    nUsedDofs = 6
+    if (whichdof != -1):
+        drawAllDofs = False 
+        if (whichdof > 5): nUsedDofs = 7 # 7/oct/2015 with the BowX we may have up to 7 dofs. Unless stated draw the ordinary 6.
+
+    lowerDof = 0;
+    upperDof = 5;
+
+    if (not drawAllDofs):
+        lowerDof = whichdof
+        upperDof = whichdof
+    
+    # a canvas for all dofs
     ThisCanvas = TCanvas("AlignmentCorrectionsEvol","Evolution of alignment corrections (All)")
-    ThisCanvas.Divide(3,2)
+    if (drawAllDofs): ThisCanvas.Divide(3,2)
+
+    
     hCorrectionsEvol = {}
     hCorrectionsEvolStruct={}
-    yrange = [0.001,0.001,0.001,0.001,0.001,0.001] # minimum is 0.001 (mm or mrad)
+    yrange = [0.002,0.002,0.002,0.01,0.01,0.01, 0.002] # minimum is 0.001 (mm or mrad)
     # here detector = num of iterations
     numOfIterations = len(detector)
     if (doDebug): print " numOfIterations=", numOfIterations
     numOfAlignableStruct = detector[0].nModules()
     if (doDebug): print " numOfAlignableStructe=", numOfAlignableStruct
     EvolColor = AutoColors(numOfAlignableStruct)    
-    nUsedDofs = 6
+   
 
     # find out range
-    for i in range(nUsedDofs):
+    #for i in range(lowerDof, upperDof):
+    for i in range (nUsedDofs):
         for iter in range(numOfIterations):
             for bin in range(detector[iter].nModules()):
                 thisValue = abs(detector[iter].GetModule(bin).GetDoF(i)[1])+ detector[iter].GetModule(bin).GetDoFError(i)[1]
@@ -159,6 +205,12 @@ def drawCorrEvolution(detector, labelList, drawErrors=False):
         yrange[i] *= 1.025
         if (doDebug): print " dof=",i," --> range: ",yrange[i]
 
+    # maximum range
+    maxTransRange = 0.1
+    if (yrange[0]> maxTransRange): yrange[0] = maxTransRange       
+    if (yrange[1]> maxTransRange): yrange[1] = maxTransRange       
+    if (yrange[2]> maxTransRange): yrange[2] = maxTransRange       
+            
     # Tx and Ty should have the same range
     if (yrange[0] > yrange[1]): 
         yrange[1] = yrange[0]
@@ -173,23 +225,34 @@ def drawCorrEvolution(detector, labelList, drawErrors=False):
     else:
         yrange[3] = yrange[4]   
     # Rz range should be as minimum as Rx and Ry
-    if (yrange[5] < yrange[3]): yrange[5] = yrange[3]    
+    #if (yrange[5] < yrange[3]): yrange[5] = yrange[3]    
 
     # prepare the legend
     myLegend = TLegend(0.65,0.65,0.92,0.92)
     
     # loop dof by dof (Tx, Ty...) and fill a polyline with teh corrections for each iteration
-    for dof in range(nUsedDofs):
-        ThisCanvas.cd(dof+1)
+    if (doDebug): 
+        print " ** drawCorrEvolution ** lowerDof=", lowerDof, "  upperDof = ", upperDof
+    #for dof in range(nUsedDofs):
+    for dof in range(lowerDof, upperDof+1):
+        if (doDebug): 
+            print " ** drawCorrEvolution ** going to draw dof=", dof
+        ThisCanvas.cd()
+        if (drawAllDofs): 
+            ThisCanvas.cd(dof+1)
+            
         name = detector[0].GetModule(0).GetDoF(dof)[0]
         hname = 'Dof_%s_corrections_Evol' % (name)
         htitle = 'Corrections evolution for %s' % (name)
         if (doDebug): 
-            print " dof=", dof, " hname  = ", hname
-            print "         htitle = ", htitle
+            print " ** drawCorrEvolution ** dof=", dof, " hname  = ", hname
+            print "                     htitle = ", htitle
         # this histogram is the main frame
         hCorrectionsEvol[dof] = TH1F(hname, htitle, numOfIterations-1, -0.5, numOfIterations*1.-1.5)
         # set the x axis labels
+        if (numOfIterations > 12):
+            hCorrectionsEvol[dof].GetXaxis().SetLabelSize(0.03)
+            hCorrectionsEvol[dof].GetXaxis().SetBit(18)
         for iter in range(numOfIterations-1): # -1 do not include the total sum in the plot
             hCorrectionsEvol[dof].GetXaxis().SetBinLabel(iter+1,'Iter_%d' % (iter))
             if (len(labelList)>iter): # use label given by user
@@ -204,14 +267,15 @@ def drawCorrEvolution(detector, labelList, drawErrors=False):
         hCorrectionsEvol[dof].DrawCopy()
         gPad.SetGridx()
         gPad.SetGridy()
-        
+
     #once the frame is plotted, loop on every structure and fill a histogram and draw it
-        print "  .. dealing with", name, "corrections .." 	
+        print "  .. dealing with", name, "corrections .. with range for this dof: (",dof,")   range: +-",yrange[dof]
+        print " ** ==> numOfAlignableStruct = ",numOfAlignableStruct
         for struct in range(numOfAlignableStruct):
             if (doDebug): print " >> loopin on struct:", struct
             hCorrectionsEvolStruct[dof]={}
             hname = 'Dof_%s_corrections_Evol_struct_%d' % (name, struct)
-            htitle = 'Corrections evolution for %s (struct %d)' % (name, struct)
+            htitle = 'Corrections evolution for structure %s (struct %d)' % (name, struct)
             hCorrectionsEvolStruct[dof][struct] = TH1F(hname, htitle, numOfIterations, -0.5, numOfIterations*1.-0.5)
             hCorrectionsEvolStruct[dof][struct].SetLineColor(EvolColor[struct])
             hCorrectionsEvolStruct[dof][struct].SetStats(False)
@@ -220,9 +284,9 @@ def drawCorrEvolution(detector, labelList, drawErrors=False):
             for iter in range(numOfIterations-1): # -1 to account for the overall integration
                 value = detector[iter].GetModule(struct).GetDoF(dof)[1]
                 accumvalue = accumvalue+value
-                if (doDebug): print " dof:",dof, "  struct:",struct,"  iter:",iter,"  delta=",value
+                # if (doDebug): print " dof:",dof, "  struct:",struct,"  iter:",iter,"  delta=",value
                 hCorrectionsEvolStruct[dof][struct].SetBinContent(iter+1, value)
-                if (doDebug): print "hCorrectionsEvolStruct[",dof,"][",struct,"].SetBinContent(",iter+1,",", value,")" 
+                # if (doDebug): print "hCorrectionsEvolStruct[",dof,"][",struct,"].SetBinContent(",iter+1,",", value,")" 
                 if (drawErrors): hCorrectionsEvolStruct[dof][struct].SetBinError(iter+1, detector[iter].GetModule(struct).GetDoFError(dof)[1])
                 # now draw the corrections for this structure
             if (doDebug): print "Accumulated", hname, ":", accumvalue
@@ -233,7 +297,31 @@ def drawCorrEvolution(detector, labelList, drawErrors=False):
             if (dof == 3): detector[numOfIterations-1].GetModule(struct).setRx(accumvalue)
             if (dof == 4): detector[numOfIterations-1].GetModule(struct).setRy(accumvalue)
             if (dof == 5): detector[numOfIterations-1].GetModule(struct).setRz(accumvalue)
-            hCorrectionsEvolStruct[dof][struct].DrawCopy('same l')
+            if (dof == 6): detector[numOfIterations-1].GetModule(struct).setBx(accumvalue)
+            if (drawErrors): 
+                hCorrectionsEvolStruct[dof][struct].SetFillColor(EvolColor[struct])
+                hCorrectionsEvolStruct[dof][struct].SetFillStyle(3354)
+                # hCorrectionsEvolStruct[dof][struct].DrawCopy('same e3')
+                # --> original hCorrectionsEvolStruct[dof][struct].DrawCopy('same e3')
+                hCorrectionsEvolStruct[dof][struct].SetMarkerStyle(20)
+                hCorrectionsEvolStruct[dof][struct].SetMarkerSize(0.5)
+                hCorrectionsEvolStruct[dof][struct].SetMarkerColor(EvolColor[struct])
+                hCorrectionsEvolStruct[dof][struct].DrawCopy('same p e3 x0')
+                for iter in range(numOfIterations-1):
+                    hCorrectionsEvolStruct[dof][struct].SetBinError(iter+1, 0)
+                hCorrectionsEvolStruct[dof][struct].SetFillStyle(0)
+                hCorrectionsEvolStruct[dof][struct].DrawCopy('same l')
+
+            else:
+                myOption = "same"
+                if (drawLine): 
+                    myOption += " l"
+                else:
+                    myOption += " p"
+                    hCorrectionsEvolStruct[dof][struct].SetMarkerStyle(20)
+                    hCorrectionsEvolStruct[dof][struct].SetMarkerColor(EvolColor[struct])
+                        
+                hCorrectionsEvolStruct[dof][struct].DrawCopy(myOption)
             gPad.Update()
             if (dof == nUsedDofs-1 and False): 
                 myLegend.AddEntry(hCorrectionsEvolStruct[dof][struct],detector[0].GetModule(struct).GetName(), "l")

@@ -421,6 +421,7 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   float m_minSiliconEffWindow;
   float m_maxSiliconEffWindow;
   std::string m_triggerChainName;
+  bool m_doHoleSearch;
   std::string m_Pixel_Manager;
   std::string m_SCT_Manager;
   std::string m_TRT_Manager;
