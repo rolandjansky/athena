@@ -92,6 +92,9 @@ class LVL1TGCTrigger : public AthAlgorithm
   // record bare-RDO for HighPT coincidences (on OutputTgcRDO=True):
   void recordRdoHPT(TGCSector *);
 
+  // record bare-RDO for Inner coincidences (on OutputTgcRDO=True):
+  void recordRdoInner(TGCSector *);
+  
   // record bare-RDO for R-phi coincidences (on m_OutputTgcRDO=True):
   void recordRdoSL(TGCSector *, unsigned int );
 

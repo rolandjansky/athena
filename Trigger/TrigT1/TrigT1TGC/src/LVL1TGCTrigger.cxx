@@ -88,13 +88,13 @@ namespace LVL1TGCTrigger {
     declareProperty("MuCTPIInput_TGC",     m_keyMuCTPIInput_TGC="/Event/L1MuctpiStoreTGC");
     declareProperty("InputData_perEvent",  m_keyTgcDigit="TGC_DIGITS");
     declareProperty("TileMuRcv_Input",     m_keyTileMu="TileMuRcvCnt");
-    declareProperty("ProcessAllBunhes",    m_ProcessAllBunches=false);
+    declareProperty("ProcessAllBunhes",    m_ProcessAllBunches=true);
     declareProperty("CurrentBunchTag",     m_CurrentBunchTag=TgcDigit::BC_CURRENT);
     declareProperty("OutputTgcRDO",        m_OutputTgcRDO=true);
     declareProperty("MaskFileName",        m_MaskFileName="");
     declareProperty("MaskFileName12",      m_MaskFileName12="");
     declareProperty("LVL1ConfigSvc",       m_configSvc, "LVL1 Config Service");
-    declareProperty("VersionCW",           m_VerCW="01_04_000f"); // TILE_EIFI_BW
+    declareProperty("VersionCW",           m_VerCW="00_06_0016"); // TILE_EIFI_BW
     declareProperty("STRICTWD",            m_STRICTWD            =false);
     declareProperty("STRICTWT",            m_STRICTWT            =false);
     declareProperty("STRICTSD",            m_STRICTSD            =false);
@@ -103,7 +103,7 @@ namespace LVL1TGCTrigger {
     declareProperty("SHPTORED",            m_SHPTORED            =true);
     declareProperty("USEINNER",            m_USEINNER            =true);
     declareProperty("INNERVETO",           m_INNERVETO           =true);
-    declareProperty("FULLCW",              m_FULLCW              =false);
+    declareProperty("FULLCW",              m_FULLCW              =true);
     declareProperty("TILEMU",              m_TILEMU              =false);
   }
 
@@ -304,7 +304,6 @@ namespace LVL1TGCTrigger {
       return sc;
     }
 
-    // tomoe
     LVL1MUONIF::Lvl1MuCTPIInput* muctpiinput = new LVL1MUONIF::Lvl1MuCTPIInput;
     // process one by one   
     for (int bc=TgcDigit::BC_PREVIOUS; bc<=TgcDigit::BC_NEXT; bc++){ 
@@ -402,6 +401,10 @@ StatusCode LVL1TGCTrigger::processOneBunch(const DataHandle<TgcDigitContainer>& 
           TimingManager->startSectorLogic(sector); 
           sector->clearNumberOfHit(); 
         }
+
+        // Fill inner (EIFI/Tile) words    
+        if (m_OutputTgcRDO.value() && g_USE_INNER) recordRdoInner(sector);
+
         // Fill Lvl1MuCTPInput 
         size_t tgcsystem=0,subsystem=0; 
         if(i==0) subsystem = LVL1MUONIF::Lvl1MuCTPIInput::idSideA(); 
@@ -933,9 +936,94 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 
       }
     }
-    // end oop of board and type
+    // end loop of board and type
   }
-  
+
+
+
+////////////////////////////////////////////////////////  
+  void LVL1TGCTrigger::recordRdoInner(TGCSector * sector)
+  {
+    bool isAside  = sector->getSideId()==0;
+    bool isEndcap = (sector->getRegionType()==Endcap);
+    if (!isEndcap) return;
+
+    //  sector Id = 0..47, phi = 1..48
+    int module = sector->getModuleId();
+    int octant = sector->getOctantId();
+    int sectorId = ((module/3)*2+module%3) + octant*6;
+    int phi = (sectorId+46)%48+1;
+
+    // get readout ID
+    int subDetectorId=0, rodId=0, sswId=0, sbLoc=0;
+
+    bool status = m_cabling->getReadoutIDfromSLID(phi, isAside, isEndcap,
+                             subDetectorId, rodId, sswId, sbLoc);
+    if (!status) {
+      m_log << MSG::WARNING 
+            << "TGCcablignSvc::ReadoutIDfromSLID fails in recordRdoInner()" 
+            << endreq;
+      return;
+    }
+
+    uint16_t bcTag = m_CurrentBunchTag, l1Id = 0, bcId = 0;
+
+    // EIFI
+    const int n_slots = TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR; 
+
+    const TGCInnerTrackletSlot* innerTrackletSlots[n_slots] = {0, 0, 0, 0};
+    m_innerTrackletSlotHolder.getInnerTrackletSlots(sector->getSideId(), 
+        octant, module, innerTrackletSlots); 
+
+    int inner_eifi =  
+      m_innerTrackletSlotHolder.getInnerTrackletBits(innerTrackletSlots);
+
+
+    if (inner_eifi > 0) {
+      TgcRawData * rawdata_eifi = new TgcRawData(bcTag,
+        static_cast<uint16_t>(subDetectorId), 
+        static_cast<uint16_t>(rodId), 
+        l1Id, 
+        bcId,
+        0, 
+        0,
+        static_cast<uint16_t>(sbLoc | 4), 
+        0, 
+        0,
+        0, 
+        0,
+        0, 
+        0,
+        static_cast<uint16_t>(inner_eifi));
+      addRawData(rawdata_eifi);
+    }
+
+
+    // Tile
+    TGCTMDB* tmdb = system->getTMDB();
+    int inner_tile = tmdb->getInnerTileBits(sector->getSideId(), sectorId);
+    
+    if (inner_tile > 0) {    
+      TgcRawData * rawdata_tile = new TgcRawData(bcTag,
+        static_cast<uint16_t>(subDetectorId), 
+        static_cast<uint16_t>(rodId), 
+        l1Id, 
+        bcId,
+        1, 
+        0,
+        static_cast<uint16_t>(sbLoc | 4),
+        0, 
+        0,
+        0, 
+        0,
+        0,   
+        0,
+        static_cast<uint16_t>(inner_tile));
+      addRawData(rawdata_tile);
+    }
+
+
+  }
 
 ///////////////////////////////////////////////////////
   void LVL1TGCTrigger::recordRdoSL(TGCSector * sector, unsigned int subsystem) 
@@ -1228,12 +1316,25 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
   {
     std::pair<int, int> subDetectorRod(rawdata->subDetectorId(), rawdata->rodId());
     std::map<std::pair<int, int>, TgcRdo*>::iterator itRdo = m_tgcrdo.find(subDetectorRod);
+
     if (itRdo==m_tgcrdo.end()) {
-      m_log << MSG::WARNING << "Inconsistent RodId with hits " 
-	    << " for subDetectorId=" << rawdata->subDetectorId()
-	    << " for rodId=" << rawdata->rodId()
-	    << "  Type=" << static_cast<int>(rawdata->type()) 
-	    << endreq;
+      
+      bool isHipt  = rawdata->type()==TgcRawData::TYPE_HIPT;
+      bool isInner = (rawdata->sector() & 4) != 0;
+
+      if (isHipt && isInner) {
+        m_log << MSG::DEBUG << "Inner coincidence words without BW hits" 
+	      << " for subDetectorId=" << rawdata->subDetectorId()
+	      << " for rodId=" << rawdata->rodId()
+	      << endreq;
+
+      } else {
+        m_log << MSG::WARNING << "Inconsistent RodId with hits " 
+	      << " for subDetectorId=" << rawdata->subDetectorId()
+	      << " for rodId=" << rawdata->rodId()
+	      << "  Type=" << static_cast<int>(rawdata->type()) 
+	      << endreq;
+      }
     } else {
       TgcRdo * thisRdo = itRdo->second;
       thisRdo->push_back(rawdata);
@@ -1276,53 +1377,51 @@ StatusCode LVL1TGCTrigger::getCabling()
     return StatusCode::FAILURE; 
   }
 
-    // determine version of CW 
-    // !! NOTE : CW version is determined by jobOption of VersionCW
-    // !!        independent from TrigConfigSvc
-    // default set is 0x010400f
-    //   00_00_0000 -> TILE_EIFI_BW
-    //   see https://twiki.cern.ch/twiki/bin/view/Atlas/TgcSectorLogicLUT
+  // determine version of CW 
+  // !! NOTE : CW version is determined by jobOption of VersionCW
+  // !!        independent from TrigConfigSvc
+  // default set is 0x0006016
+  //   00_00_0000 -> TILE_EIFI_BW
+  //   see https://twiki.cern.ch/twiki/bin/view/Atlas/TgcSectorLogicLUT
 
-    const std::string v0104000f="01_04_000f";
-    const std::string setM="setM";
-    const std::string setL="setL";
-    const std::string setK="setK";
-    const std::string setJ="setJ";
-    const std::string setG="setG";
-    const std::string setF="setF";
-    const std::string setD="setD";
-    std::string ver=m_VerCW.value();
-    if ( (ver!=v0104000f) && (ver!=setM) 
-         &&  (ver!= setL) && (ver!= setK) &&  (ver!= setJ) 
-         &&  (ver!= setG) && (ver!= setF) &&  (ver!= setD) ){ 
-      // default CW is v0104000f
-      ver= v0104000f;
-    }
-
-    m_log << MSG::INFO 
-           << " TGC CW version of " << ver << " is selected " << endreq;
+  // Since m_VerCW is set as default value above,
+  // Here don't overwrite by any version if proper version number is provided.
+  const std::string v00060016 = "00_06_0016";  // default
+  const std::string setM="setM";
+  const std::string setL="setL";
+  const std::string setK="setK";
+  const std::string setD="setD";
+  std::string ver=m_VerCW.value();
+  if((ver.size() != 10) &&
+     (ver!=setM) && (ver!= setL) && (ver!= setK) && (ver!= setD)) { 
+    // default CW is v00060016
+    ver= v00060016;
     m_VerCW = ver;
+  }
 
-    // check Inner /TileMu   
-    std::vector<std::string> vers = TGCDatabaseManager::splitCW(ver, '_');
-    if (g_USE_INNER) {
-      g_USE_INNER = (ver==setM) || (ver==setL)|| (ver==setK) ;
-      if (vers.size() == 3) g_USE_INNER = (vers[1] != "00");
-    } 
-    if (g_TILE_MU) {
-      g_TILE_MU = (ver==setM);
-      if (vers.size() == 3) g_TILE_MU = (vers[0] != "00");
-    } 
+  m_log << MSG::INFO 
+        << " TGC CW version of " << ver << " is selected " << endreq;
+
+  // check Inner /TileMu   
+  std::vector<std::string> vers = TGCDatabaseManager::splitCW(ver, '_');
+  if (g_USE_INNER) {
+    g_USE_INNER = (ver==setM) || (ver==setL)|| (ver==setK) ;
+    if (vers.size() == 3) g_USE_INNER = (vers[1] != "00");
+  } 
+  if (g_TILE_MU) {
+    g_TILE_MU = (ver==setM);
+    if (vers.size() == 3) g_TILE_MU = (vers[0] != "00");
+  } 
     
-    // create DataBase and TGCElectronicsSystem
-    db = new TGCDatabaseManager(m_VerCW);
-    system = new TGCElectronicsSystem(db);
+  // create DataBase and TGCElectronicsSystem
+  db = new TGCDatabaseManager(m_VerCW);
+  system = new TGCElectronicsSystem(db);
     
-    TimingManager = new TGCTimingManager;
-    TimingManager->setBunchCounter(0);
-    nEventInSector = 0;
+  TimingManager = new TGCTimingManager;
+  TimingManager->setBunchCounter(0);
+  nEventInSector = 0;
     
-    return sc;
+  return sc;
 }
 
 StatusCode LVL1TGCTrigger::fillTMDB()

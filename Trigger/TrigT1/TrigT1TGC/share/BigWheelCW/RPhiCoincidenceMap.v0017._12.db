@@ -6,13 +6,15 @@
 //
 //                  Date      Who      Explanation of Changes
 //               --------- ---------  -----------------------
-// Verson   0.01 31-Jul-09 H.Kurashige   Creation for 1E31 
+// Verson   0.01 20-October-2015 J.Maeda   Creation for RUN2
+//  v0016 is full CW for 2015 25ns. with T7 patch
+//   new CW taking into account corss-talk effects in MC
 //-------------------------------------------------------
 //
 # 0     0
-# 1     4
-# 2     6
-# 3    10
+# 1     0
+# 2     4
+# 3     6
 # 4    11
 # 5    15
 # 6    20

@@ -23,7 +23,7 @@ namespace LVL1TGCTrigger {
  extern bool        g_DEBUGLEVEL;
  extern bool        g_FULL_CW;
 
-  
+
 bool TGCRPhiCoincidenceMap::test(int octantId, int moduleId, int subsector, 
 				 int type, int pt, 
 				 int dr, int dphi) const
@@ -113,7 +113,11 @@ bool TGCRPhiCoincidenceMap::checkVersion()
   file.close();
 
   // use full CW (i.e. different maps for each octant and side)
-  m_fullCW =  (m_verName == "setK") && g_FULL_CW;
+  m_fullCW = g_FULL_CW &&
+             (m_verName == "setK" ||
+              m_verName == "v0014" ||
+              m_verName == "v0016" ||
+              m_verName == "v0017");
 
   ///////////  
   log << MSG::INFO 
