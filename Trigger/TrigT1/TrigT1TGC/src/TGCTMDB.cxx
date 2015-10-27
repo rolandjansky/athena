@@ -118,6 +118,27 @@ void  TGCTMDB::eraseOutput()
   }
 }
 
+/////////////////////////////////////////////////////////////
+int  TGCTMDB::getInnerTileBits(int side, int sector) const
+///////////////////////////////////////////////////////////////
+{
+  int inner_tile = 0;  
+
+  for (int ii = 0; ii < 4; ii++) {
+    int hit56 = getOutput(side, sector, ii)->GetHit56();
+    int hit6  = getOutput(side, sector, ii)->GetHit6();
+
+    int tmp_56 = (hit56 == 1 || hit56 == 2) ? 1 : 0; 
+    int tmp_6  = (hit6  == 1 || hit6  == 2) ? 1 : 0; 
+    
+    int tmp_all = (tmp_6 << 1) | (tmp_56);
+    
+    inner_tile |= (tmp_all << (ii*2));
+  }
+
+  return inner_tile;
+}
+
 /////////////////////////////
 void TGCTMDB::Print() const
 /////////////////////////////

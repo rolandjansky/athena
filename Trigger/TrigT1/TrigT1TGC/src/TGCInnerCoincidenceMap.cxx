@@ -84,7 +84,7 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap()
   MsgStream log(msgSvc, "TGCInnerCoincidenceMap::TGCInnerCoincidenceMap");
 
   // use full CW (i.e. different maps for each octant and side)
-  m_fullCW =  (m_verName == "setK") && g_FULL_CW;
+  m_fullCW = g_FULL_CW && (m_verName == "setK");
 
   // read Inner Coincidence Map 
   if (this->readMap()) {
