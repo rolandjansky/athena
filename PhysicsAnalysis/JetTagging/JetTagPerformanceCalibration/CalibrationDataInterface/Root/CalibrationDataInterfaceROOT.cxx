@@ -35,7 +35,7 @@
 		   addition "Light" (the "N/A" is internally converted to "Light")
        OP:         tagger working point. This should correspond to a documented weight cut for the
                    tagger under consideration, but converted to a string, and with any period (".")
-		   replaced with an underscore for technical reasons. Alternatively, "Continuous" may
+		   replaced with an underscore for technical reasons. Alternatively, "continuous" may
 		   be used if a "continuous tagging" calibration object exists for the tagger under
 		   consideration. (Note that the use of this method for "continuous tagging" is not
 		   in general to be recommended, as it does not not allow for scale factor rescaling,
@@ -451,8 +451,7 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
     }
 
     cout << " List of uncertainties to exclude:";
-    if (m_excludeFromCovMatrix.size() == 0) cout << " (none)";
-    cout << endl;
+    if (m_excludeFromCovMatrix.size() == 0) cout << " (none)"; cout << endl;
     for (unsigned int i = 0; i < m_excludeFromCovMatrix.size(); ++i) {
       cout << "\t"<< m_excludeFromCovMatrix[i] << endl;
     }
@@ -504,10 +503,8 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const strin
   // maximum tag weight to accept
   m_maxTagWeight = env.GetValue("MaxTagWeight", 10.0);
 
-  // MC/MC (hadronisation) scale factors: making this user-steerable is intended to be *temporary* only
+  // MC/MC scale factors: making this user-steerable is intended to be *temporary* only
   m_useMCMCSF = (bool) env.GetValue("useMCMCSF", 1);
-  // MC/MC (topology) scale factors: making this user-steerable is intended to be *temporary* only
-  m_useTopologyRescaling = (bool) env.GetValue("useTopologySF", 0);
 
   cout << "======= end of CalibrationDataInterfaceROOT instantiation ========" << endl;
 }
@@ -521,9 +518,9 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const std::
 								     const std::map<std::string, std::vector<std::string> >& EffNames,
 								     const std::vector<std::string>& excludeFromEV,
 								     const std::map<std::string, EVReductionStrategy> EVReductions,
-								     bool useEV, bool useMCMCSF, bool useTopologyRescaling) :
+								     bool useEV, bool useMCMCSF) :
   m_filenameSF(fileSF), m_filenameEff(""),
-  m_runEigenVectorMethod(useEV), m_EVReductions(EVReductions), m_useMCMCSF(useMCMCSF), m_useTopologyRescaling(useTopologyRescaling),
+  m_runEigenVectorMethod(useEV), m_EVReductions(EVReductions), m_useMCMCSF(useMCMCSF),
   m_maxAbsEta(2.5), m_absEtaStrategy(GiveUp),
   m_otherStrategy(Flag), m_maxTagWeight(10.0)
 {
@@ -589,8 +586,7 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const std::
     m_excludeFromCovMatrix = excludeFromEV;
 
     cout << " List of uncertainties to exclude:";
-    if (m_excludeFromCovMatrix.size() == 0) cout << " (none)";
-    cout << endl;
+    if (m_excludeFromCovMatrix.size() == 0) cout << " (none)"; cout << endl;
     for (unsigned int i = 0; i < m_excludeFromCovMatrix.size(); ++i) {
       cout << "\t"<< m_excludeFromCovMatrix[i] << endl;
     }
@@ -599,7 +595,7 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const std::
 }
 
 //________________________________________________________________________________
-Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT()
+Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT() 
 { 
   // Default constructor for PROOF purposes
 
@@ -612,7 +608,7 @@ Analysis::CalibrationDataInterfaceROOT::CalibrationDataInterfaceROOT(const Analy
   Analysis::CalibrationDataInterfaceBase(other), m_aliases(other.m_aliases), m_objects(), m_objectIndices(),
   m_filenameSF(other.m_filenameSF), m_filenameEff(other.m_filenameEff),
   m_eigenVariationsMap(), m_runEigenVectorMethod(other.m_runEigenVectorMethod),
-  m_excludeFromCovMatrix(other.m_excludeFromCovMatrix), m_useMCMCSF(other.m_useMCMCSF), m_useTopologyRescaling(other.m_useTopologyRescaling),
+  m_excludeFromCovMatrix(other.m_excludeFromCovMatrix), m_useMCMCSF(other.m_useMCMCSF),
   m_refMap(), m_hadronisationReference(),
   m_maxAbsEta(other.m_maxAbsEta), m_absEtaStrategy(other.m_absEtaStrategy), m_otherStrategy(other.m_otherStrategy),
   m_etaCounters(other.m_etaCounters), m_mainCounters(other.m_mainCounters), m_extrapolatedCounters(other.m_extrapolatedCounters),
@@ -1251,12 +1247,11 @@ Analysis::CalibrationDataInterfaceROOT::getInefficiencyScaleFactor(const Calibra
   double val = 0.; // Analysis::dummyValue;
   double err = 0.; // Analysis::dummyValue;
   if (1. - eff > CalibZERO) {
-    // Protect against negative scale factors
-    val = std::max((1. - eff*sf), CalibZERO) / (1. - eff);
+    val = (1. - eff*sf) / (1. - eff);
     // Treat the scale factor variation cases separately since the contents of the CalibResult are different
-    // ('sf' and 'sferr' above contain the upward and downward variations, respectively).
+    // ('sf' and 'sferr' above contain the upward and downward variations, respectively)
     if (unc == SFEigen || unc == SFNamed) {
-      double valDown = std::max((1. - eff*sferr), CalibZERO) / (1. - eff);
+      double valDown = (1. - eff*sferr) / (1. - eff);
       result.first  = val;
       result.second = valDown;
       return sfStatus;
@@ -1267,7 +1262,7 @@ Analysis::CalibrationDataInterfaceROOT::getInefficiencyScaleFactor(const Calibra
     // cout << "btag Calib Ineff err=" << err << endl;
   }
 
-  result.first  = std::max(CalibZERO, val);
+  result.first  = std::max(0., val);
   result.second = err;
   // "Select" the status code for the actual calibration (it is subject to more constraints)
   return sfStatus;
@@ -1472,7 +1467,7 @@ Analysis::CalibrationDataInterfaceROOT::getWeightScaleFactor (const CalibrationD
   //    numVariation:  variation index (in case of eigenvector or named variations)
   //    mapIndex:      index to the MC efficiency map to be used for scale factor rescaling
 
-  static const string cont("Continuous");
+  static const string cont("continuous");
 
   unsigned int indexSF, indexEff;
   if (! (retrieveCalibrationIndex (label, cont, variables.jetAuthor, false, indexEff, mapIndex) &&
@@ -1638,21 +1633,15 @@ Analysis::CalibrationDataInterfaceROOT::getWeightScaleFactor (const CalibrationD
     double variationUp = valueUp - value;
     double variationDown = valueDown - value;
     // First step: from the calibration sample to its reference sample
-    if (m_useTopologyRescaling) value = 1.0 + (value - 1.0) * (fracMCref / fracSFref);
+    value = 1.0 + (value - 1.0) * (fracMCref / fracSFref);
     // Second step: from the calibration reference sample to the MC object's reference sample
-    if (m_useMCMCSF) value *= (fracSFref / fracEffref);
+    value *= (fracSFref / fracEffref);
     // Third step: from the MC object's reference sample to the MC sample itself
-    if (m_useTopologyRescaling) value = 1.0 + (value - 1.0) * (fracEffref / fracMCnew);
-    // Since all transformations of the scale factor itself are linear, the transformation of the variations is simpler.
-    if (m_useTopologyRescaling) {
-      double f = (fracMCref / fracMCnew);
-      variationUp   *= f;
-      variationDown *= f;
-    } else if (m_useMCMCSF) {
-      double f = (fracSFref / fracEffref);
-      variationUp   *= f;
-      variationDown *= f;
-    }
+    value = 1.0 + (value - 1.0) * (fracEffref / fracMCnew);
+    // Since all transformations of the scale factor itself are linear, the transformation of the variations
+    // can be done all in one step
+    variationUp   *= (fracMCref / fracMCnew);
+    variationDown *= (fracMCref / fracMCnew);
     valueUp   = value + variationUp;
     valueDown = value + variationDown;
     if (valueUp < 0) {
@@ -1695,22 +1684,17 @@ Analysis::CalibrationDataInterfaceROOT::getWeightScaleFactor (const CalibrationD
 
   // Now carry out the rescaling. Again protect against unphysical or suspiciously large scale factors
   // First step: from the calibration sample to its reference sample
-  if (m_useTopologyRescaling) value = 1.0 + (value - 1.0) * (fracMCref / fracSFref);
+  value = 1.0 + (value - 1.0) * (fracMCref / fracSFref);
   // Second step: from the calibration reference sample to the MC object's reference sample
-  if (m_useMCMCSF) value *= (fracSFref / fracEffref);
+  value *= (fracSFref / fracEffref);
   // Third step: from the MC object's reference sample to the MC sample itself
-  if (m_useTopologyRescaling) value = 1.0 + (value - 1.0) * (fracEffref / fracMCnew);
+  value = 1.0 + (value - 1.0) * (fracEffref / fracMCnew);
   if (value < 0) {
     value = 0; const_cast<CalibrationDataInterfaceROOT*>(this)->increaseCounter(indexSF, TagWeight);
   } else if (value > m_maxTagWeight) {
     value = m_maxTagWeight; const_cast<CalibrationDataInterfaceROOT*>(this)->increaseCounter(indexSF, TagWeight);
   }
-  // Since all transformations of the scale factor itself are linear, the transformation of the uncertainty is simpler.
-  if (m_useTopologyRescaling) {
-    uncertainty *= (fracMCref / fracMCnew);
-  } else if (m_useMCMCSF) {
-    uncertainty *= (fracSFref / fracEffref);
-  }
+  uncertainty *= (fracMCref / fracMCnew);
 
   result.first  = std::max(0., value);
   result.second = uncertainty;
@@ -1851,7 +1835,6 @@ Analysis::CalibrationDataInterfaceROOT::checkWeightScaleFactors(unsigned int ind
     cout << "CalibrationDataInterfaceROOT::checkWeightScaleFactors: cross-checking scale factors for objects "
 	 << nameFromIndex(indexSF) << " and " << nameFromIndex(indexEff) << "\n"
 	 << std::setfill('-') << std::setw(100) << "-" << endl;
-    cout << std::setfill(' ');
     CalibrationDataVariables x;
     std::vector<double>& vPt = mergedBoundaries[CalibrationDataContainer::kPt],
       vEta = mergedBoundaries[CalibrationDataContainer::kEta],
@@ -2385,8 +2368,7 @@ Analysis::CalibrationDataInterfaceROOT::retrieveContainer(const string& dir, con
       TMap* mapSF = 0; m_fileSF->GetObject(hadronisationRefs.c_str(), mapSF);
       TMap* mapEff = 0; if (m_fileEff != m_fileSF) m_fileEff->GetObject(hadronisationRefs.c_str(), mapEff);
       m_refMap[dir] = new HadronisationReferenceHelper(mapSF, mapEff);
-      delete mapSF;
-      delete mapEff;
+      if (mapSF) delete mapSF; if (mapEff) delete mapEff;
     } else {
       string SFCalibName = getContainername(getBasename(dir), true);
       if (m_objectIndices.find(SFCalibName) == m_objectIndices.end()) retrieveContainer(dir, SFCalibName, true);

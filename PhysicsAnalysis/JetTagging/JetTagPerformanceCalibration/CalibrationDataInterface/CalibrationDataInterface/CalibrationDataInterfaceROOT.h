@@ -61,7 +61,7 @@ namespace Analysis
       DB representation (all residing under a common root folder):
          .../<jet author>/<tagger>/<operating point>/<flavour>/<object name>
       where <operating point> can be a weight cut (represented as a string, with the period replaced
-      with an underscore) or the string "Continuous" (for continuous calibration purposes).
+      with an underscore) or the string "continuous" (for continuous calibration purposes).
 
       @author  Frank Filthaut <F.Filthaut@science.ru.nl>
   */  
@@ -98,7 +98,7 @@ namespace Analysis
 				   const std::map<std::string, std::vector<std::string> >& EffNames,
 				   const std::vector<std::string>& excludeFromEV,
 				   const std::map<std::string, Analysis::EVReductionStrategy> EVReductions,
-				   bool useEV = true, bool useMCMCSF = true, bool useTopologyRescaling = false);
+				   bool useEV = true, bool useMCMCSF = true);
 
       /** default constructor for PROOF object retrieval */
       CalibrationDataInterfaceROOT();
@@ -413,12 +413,9 @@ namespace Analysis
 
       // MC/MC scale factors functionality
 
-      /** specify whether or not to use MC/MC (hadronisation) scale factors
-          (the fact that this is steerable is intended to be temporary only) */
+      /** specify whether or not to use MC/MC scale factors (this can be configured only in the .env file
+          and in fact its being steerable is intended to be temporary only) */
       bool m_useMCMCSF;
-      /** specify whether or not to use MC/MC (topology) scale factors
-	  (also this steering option may be removed) */
-      bool m_useTopologyRescaling;
 
       /** the following maps (one for each directory) specify the name of the container
 	  serving as the 'hadronisation' reference for each object */

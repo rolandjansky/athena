@@ -39,8 +39,7 @@ namespace Analysis
       @author  Frank Filthaut <F.Filthaut@science.ru.nl>
   */  
 
-  class CalibrationDataVariables {
-  public:
+  struct CalibrationDataVariables {
     std::string jetAuthor;
     double jetPt;                    // in MeV
     double jetEta;

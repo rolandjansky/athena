@@ -112,7 +112,7 @@ Analysis::CalibrationDataInterfaceBase::getContainername (const std::string& fla
   // of tagging operating point, jet flavour, and a possible extra extension. The calibration
   // container name (stored internally) is also attached.
 
-  if (!SF && mapIndex >= m_calibrationEffNames[flavour].size()) {
+  if (!SF && mapIndex > m_calibrationEffNames[flavour].size()+1) {
     std::cerr << "getContainername: given mapIndex=" << mapIndex << " incompatible with array size "
 	      << m_calibrationEffNames[flavour].size() << "; resetting to 0" << std::endl;
     mapIndex = 0;

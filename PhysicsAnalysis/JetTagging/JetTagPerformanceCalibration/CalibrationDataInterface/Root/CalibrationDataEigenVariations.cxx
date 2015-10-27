@@ -207,7 +207,6 @@ CalibrationDataEigenVariations::~CalibrationDataEigenVariations()
     delete it->first;
     delete it->second;
   }
-  std::cout << "eigenvariations destructor: removing " << m_eigen.size() << " eigenvariations" << std::endl;
   for (vector<pair<TH1*, TH1*> >::iterator it = m_eigen.begin();
        it != m_eigen.end(); ++it) {
     delete it->first;
@@ -833,8 +832,6 @@ CalibrationDataEigenVariations::mergeVariations(const IndexSuperSet &set)
     size_t lowest_index = *set_it->lower_bound(0);
     TH1 *total_var_up = static_cast<TH1*>(m_eigen[lowest_index].first->Clone()),
       *total_var_down = static_cast<TH1*>(m_eigen[lowest_index].second->Clone());
-    total_var_up->SetDirectory(0);
-    total_var_down->SetDirectory(0);
 
     total_var_up->Reset();
     total_var_down->Reset();
@@ -869,8 +866,6 @@ CalibrationDataEigenVariations::mergeVariations(const IndexSuperSet &set)
         total_var_up->SetBinContent(u, sum_up);
         total_var_down->SetBinContent(u, sum_down);
       }
-      delete partial_var_up;
-      delete partial_var_down;
     }
 
     // final part of complex summing
