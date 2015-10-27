@@ -89,60 +89,12 @@ SCTX3 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_b3_re
 DrawPlots(SCTX3, outputDir+"/"+"SCTX3."+oFext, "SCT Barrel L3", "Hits on tracks / 8 #mum",
           "Local x residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
 
-#
-# Residual mean and width distributions as a function of layer, ring, stave in barrel 
-#
 
-PixelXEta = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_xresvsmodeta","noFit",rootFiles,nFiles,False)
-DrawPlots(PixelXEta, outputDir+"/"+"PixelXvsModEta."+oFext, "Pixel Barrel", "residual mean [mm]",
-          "Module Eta", 0.18, 0.88, "#mum",
-          canvasText,makeOutput,0.59, 0.87,False) #False
-'''
-PixelXEtaW = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_xresvsmodeta_width","noFit",rootFiles,nFiles,False)
-DrawPlots(PixelXEtaW, outputDir+"/"+"PixelXvsModEtaWidth."+oFext, "Pixel Barrel", "residual width [mm]",
-          "Module Eta", 0.18, 0.88, "#mum",
-          canvasText,makeOutput,0.59, 0.87,False)
 
-PixelXPhi = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_xresvsmodphi","noFit",rootFiles,nFiles,False)
-DrawPlots(PixelXPhi, outputDir+"/"+"PixelXvsModPhi."+oFext, "Pixel Barrel", "residual mean [mm]",
-          "Module Phi", 0.18, 0.88, "#mum",
-          canvasText,makeOutput,0.59, 0.87,False)
 
-PixelXPhiW = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_xresvsmodphi_width","noFit",rootFiles,nFiles,False)
-DrawPlots(PixelXPhiW, outputDir+"/"+"PixelXvsModPhiWidth."+oFext, "Pixel Barrel", "residual width [mm]",
-          "Module Phi", 0.18, 0.88, "#mum",
-          canvasText,makeOutput,0.59, 0.87,False)
-'''
-SiBarrelResXMean = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"si_barrel_resX_mean","noFit",rootFiles,nFiles,False)
-DrawPlots(SiBarrelResXMean, outputDir+"/"+"SiBarrelResXMean."+oFext, "Pixel/SCT Barrel", "residual mean [mm]",
-          "", 0.18, 0.88, "#mum",
-          canvasText,makeOutput,0.59, 0.87,False)
 
-SiBarrelResXWidth = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"si_barrel_resX_rms","noFit",rootFiles,nFiles,False)
-DrawPlots(SiBarrelResXWidth, outputDir+"/"+"SiBarrelResXWidth."+oFext, "Pixel/SCT Barrel", "residual width [mm]",
-          "", 0.18, 0.88, "#mum",
-          canvasText,makeOutput,0.59, 0.87,False)
 
-# Priscilla's add
-SCTXPhi_eca = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_eca_xresvsmodphi","noFit",rootFiles,nFiles,False)
-DrawPlots(SCTXPhi_eca, outputDir+"/"+"SCTXvsModPhi_eca."+oFext, "SCT Endcap A", "residual mean [mm]",
-          "Module Phi", 0.18, 0.88, "#mum",
-          canvasText,makeOutput,0.59, 0.87,False)
 
-# SCTXPhiW_eca = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_eca_xresvsmodphi_width","noFit",rootFiles,nFiles,False)
-# DrawPlots(SCTXPhiW_eca, outputDir+"/"+"SCTXvsModPhiWidth_eca."+oFext, "SCT Endcap A", "residual width [mm]",
-#           "Module Phi", 0.18, 0.88, "#mum",
-#           canvasText,makeOutput,0.59, 0.87,False)
-
-SCTXPhi_ecc = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_ecc_xresvsmodphi","noFit",rootFiles,nFiles,False)
-DrawPlots(SCTXPhi_ecc, outputDir+"/"+"SCTXvsModPhi_ecc."+oFext, "SCT Endcap C", "residual mean [mm]",
-          "Module Phi", 0.18, 0.88, "#mum",
-          canvasText,makeOutput,0.59, 0.87,False)
-
-# SCTXPhiW_ecc = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_ecc_xresvsmodphi_width","noFit",rootFiles,nFiles,False)
-# DrawPlots(SCTXPhiW_ecc, outputDir+"/"+"SCTXvsModPhiWidth_ecc."+oFext, "SCT Endcap C", "residual width [mm]",
-#           "Module Phi", 0.18, 0.88, "#mum",
-#           canvasText,makeOutput,0.59, 0.87,False)
 
 
 ## Basic Endcap Residual distributions
@@ -222,6 +174,142 @@ DrawPlots(TRTB1R, outputDir+"/"+"TRTB1R."+oFext, "TRT Barrel layer 1", "residual
 TRTB2R = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_b_aveRes_l2","noFit",rootFiles,nFiles,False)
 DrawPlots(TRTB2R, outputDir+"/"+"TRTB2R."+oFext, "TRT Barrel layer 2", "residual [#mum]", "sector", 
           0.18, 0.88, "#mum", canvasText, makeOutput, 0.59, 0.87, False)
+
+
+#Modified eta/phi plots
+
+
+#PIXMODETA =  MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_"
+
+#
+# Residual mean and width distributions as a function of layer, ring, stave in barrel 
+#
+PixelRes = MakePlots(residualsDir, legendTitles, markerColors,markerStyles,"pix_b_xresvsmodeta","noFit",rootFiles,nFiles,False)
+DrawPlots(PixelRes, outputDir+"/"+"PixelXvsModEta."+oFext, "Pixel Barrel", "local x residual mean [mm]",
+          "Module Eta", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False) #False
+
+PixelRes = MakePlots(residualsDir, legendTitles, markerColors,markerStyles,"pix_b_yresvsmodeta","noFit",rootFiles,nFiles,False)
+DrawPlots(PixelRes, outputDir+"/"+"PixelYvsModEta."+oFext, "Pixel Barrel", "local y residual mean [mm]",
+          "Module Eta", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False) #False
+
+PixelRes = MakePlots(residualsDir, legendTitles, markerColors,markerStyles,"pix_b_xresvsmodphi","noFit",rootFiles,nFiles,False)
+DrawPlots(PixelRes, outputDir+"/"+"PixelXvsModPhi."+oFext, "Pixel Barrel", "local x residual mean [mm]",
+          "Module Phi", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False) #False
+
+PixelRes = MakePlots(residualsDir, legendTitles, markerColors,markerStyles,"pix_b_yresvsmodphi","noFit",rootFiles,nFiles,False)
+DrawPlots(PixelRes, outputDir+"/"+"PixelYvsModPhi."+oFext, "Pixel Barrel", "local y residual mean [mm]",
+          "Module Phi", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False) #False
+
+PixelXPhi = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_eca_xresvsmodphi","noFit",rootFiles,nFiles,False)
+DrawPlots(PixelXPhi, outputDir+"/"+"PixelECAXvsModPhi."+oFext, "Pixel Endcap A", "residual mean [mm]",
+          "Module Phi", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False)
+PixelXPhi = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_ecc_xresvsmodphi","noFit",rootFiles,nFiles,False)
+DrawPlots(PixelXPhi, outputDir+"/"+"PixelECCXvsModPhi."+oFext, "Pixel Endcap C", "residual mean [mm]",
+          "Module Phi", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False)
+
+PixelXPhi = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_eca_yresvsmodphi","noFit",rootFiles,nFiles,False)
+DrawPlots(PixelXPhi, outputDir+"/"+"PixelECAYvsModPhi."+oFext, "Pixel Endcap A", "residual mean [mm]",
+          "Module Phi", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False)
+PixelXPhi = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_ecc_yresvsmodphi","noFit",rootFiles,nFiles,False)
+DrawPlots(PixelXPhi, outputDir+"/"+"PixelECCYvsModPhi."+oFext, "Pixel Endcap C", "residual mean [mm]",
+          "Module Phi", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False)
+
+SCTRes = MakePlots(residualsDir, legendTitles, markerColors,markerStyles,"sct_b_xresvsmodeta","noFit",rootFiles,nFiles,False)
+DrawPlots(SCTRes, outputDir+"/"+"SCTXvsModEta."+oFext, "SCT Barrel", "local x residual mean [mm]",
+          "Module Eta", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False) #False
+
+SCTRes = MakePlots(residualsDir, legendTitles, markerColors,markerStyles,"sct_b_xresvsmodphi","noFit",rootFiles,nFiles,False)
+DrawPlots(SCTRes, outputDir+"/"+"SCTXvsModPhi."+oFext, "SCT Barrel", "local x residual mean [mm]",
+          "Module Phi", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False) #False
+
+
+SCTXPhi_eca = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_eca_xresvsmodphi","noFit",rootFiles,nFiles,False)
+DrawPlots(SCTXPhi_eca, outputDir+"/"+"SCTECAXvsModPhi_eca."+oFext, "SCT Endcap A", "local x residual mean [mm]",
+          "Module Phi", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False)
+
+SCTXPhi_ecc = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_ecc_xresvsmodphi","noFit",rootFiles,nFiles,False)
+DrawPlots(SCTXPhi_ecc, outputDir+"/"+"SCTECCXvsModPhi_ecc."+oFext, "SCT Endcap C", "local x residual mean [mm]",
+          "Module Phi", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False)
+
+          
+
+PixelXEtaW = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_xresvsmodeta_width","noFit",rootFiles,nFiles,False)
+DrawPlots(PixelXEtaW, outputDir+"/"+"PixelXvsModEtaWidth."+oFext, "Pixel Barrel", "residual width [mm]",
+          "Module Eta", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False)
+
+PixelXEtaW = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_yresvsmodeta_width","noFit",rootFiles,nFiles,False)
+DrawPlots(PixelXEtaW, outputDir+"/"+"PixelYvsModEtaWidth."+oFext, "Pixel Barrel", "residual width [mm]",
+          "Module Eta", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False)
+
+
+PixelXPhiW = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_xresvsmodphi_width","noFit",rootFiles,nFiles,False)
+DrawPlots(PixelXPhiW, outputDir+"/"+"PixelXvsModPhiWidth."+oFext, "Pixel Barrel", "residual width [mm]",
+          "Module Phi", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False)
+
+PixelXPhiW = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_yresvsmodphi_width","noFit",rootFiles,nFiles,False)
+DrawPlots(PixelXPhiW, outputDir+"/"+"PixelYvsModPhiWidth."+oFext, "Pixel Barrel", "residual width [mm]",
+          "Module Phi", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False)
+
+
+#PixelXPhiW = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_eca_xresvsmodphi_width","noFit",rootFiles,nFiles,False)
+#DrawPlots(PixelXPhiW, outputDir+"/"+"PixelECAXvsModPhiWidth."+oFext, "Pixel Endcap A", "residual width [mm]",
+#          "Module Phi", 0.18, 0.88, "#mum",
+#          canvasText,makeOutput,0.59, 0.87,False)
+
+#PixelXPhiW = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_eca_yresvsmodphi_width","noFit",rootFiles,nFiles,False)
+#DrawPlots(PixelXPhiW, outputDir+"/"+"PixelECAYvsModPhiWidth."+oFext, "Pixel Endcap A", "residual width [mm]",
+#          "Module Phi", 0.18, 0.88, "#mum",
+#          canvasText,makeOutput,0.59, 0.87,False)
+
+#PixelXPhiW = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_ecc_xresvsmodphi_width","noFit",rootFiles,nFiles,False)
+#DrawPlots(PixelXPhiW, outputDir+"/"+"PixelECCXvsModPhiWidth."+oFext, "Pixel Endcap C", "residual width [mm]",
+#          "Module Phi", 0.18, 0.88, "#mum",
+#          canvasText,makeOutput,0.59, 0.87,False)
+
+#PixelXPhiW = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_ecc_yresvsmodphi_width","noFit",rootFiles,nFiles,False)
+#DrawPlots(PixelXPhiW, outputDir+"/"+"PixelECCYvsModPhiWidth."+oFext, "Pixel Endcap C", "residual width [mm]",
+#          "Module Phi", 0.18, 0.88, "#mum",
+#          canvasText,makeOutput,0.59, 0.87,False)
+
+
+#SCTXPhiW_eca = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_eca_xresvsmodphi_width","noFit",rootFiles,nFiles,False)
+#DrawPlots(SCTXPhiW_eca, outputDir+"/"+"SCTECAXvsModPhiWidth_eca."+oFext, "SCT Endcap A", "local x residual width [mm]","Module Phi", 0.18, 0.88, "#mum",
+#          canvasText,makeOutput,0.59, 0.87,False)
+
+
+#SCTXPhiW_ecc = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"sct_ecc_xresvsmodphi_width","noFit",rootFiles,nFiles,False)
+#DrawPlots(SCTXPhiW_ecc, outputDir+"/"+"SCTECCXvsModPhiWidth_ecc."+oFext, "SCT Endcap C", "residual width [mm]",
+#          "Module Phi", 0.18, 0.88, "#mum",
+#          canvasText,makeOutput,0.59, 0.87,False)
+
+SiBarrelResXMean = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"si_barrel_resX_mean","noFit",rootFiles,nFiles,False)
+DrawPlots(SiBarrelResXMean, outputDir+"/"+"SiBarrelResXMean."+oFext, "Pixel/SCT Barrel", "residual mean [mm]",
+          "", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False)
+
+SiBarrelResXWidth = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"si_barrel_resX_rms","noFit",rootFiles,nFiles,False)
+DrawPlots(SiBarrelResXWidth, outputDir+"/"+"SiBarrelResXWidth."+oFext, "Pixel/SCT Barrel", "residual width [mm]",
+          "", 0.18, 0.88, "#mum",
+          canvasText,makeOutput,0.59, 0.87,False)
+
+
+
 #
 # -- Extended plots
 #
@@ -253,6 +341,10 @@ if (userExtended or True):
     DrawPlots(PIXIBL_Planar_yRES, outputDir+"/"+"PIXIBL_Planar_yRES."+oFext, "IBL Planar sensors", "Hits on track", "Local y residual [mm]",0.18, 0.88, "#mum",
               canvasText,makeOutput,0.59, 0.87)
     
+
+
+
+
 
 if (userExtended):
     PIXX0vsINCANG = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_residualx_inciphi","noFit",rootFiles,nFiles,True)

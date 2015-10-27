@@ -219,12 +219,14 @@ IDAlignMonEfficiencies::IDAlignMonEfficiencies( const std::string & type, const 
   m_minSiliconEffWindow = 0.8;
   m_maxSiliconEffWindow = 1.05;
   m_triggerChainName = "NoTriggerSelection";
+  m_doHoleSearch = true;
 
   InitializeHistograms();
   
   declareProperty("tracksName"             , m_tracksName);
   declareProperty("CheckRate"              , m_checkrate=1000);
   declareProperty("HoleSearch"             , m_holeSearchTool);
+  declareProperty("doHoleSearch"           , m_doHoleSearch);
   declareProperty("trackSelection"         , m_trackSelection);
   declareProperty("minSiliconEffWindow"    , m_minSiliconEffWindow);
   declareProperty("maxSiliconEffWindow"    , m_maxSiliconEffWindow);
@@ -1271,7 +1273,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
     } // TSOS on track 
     
     const Trk::TrackSummary* summary = m_trackSumTool->createSummary(**trksItr);
-    if( !summary->get(Trk::numberOfPixelHits) && !summary->get(Trk::numberOfSCTHits) && (summary->get(Trk::numberOfPixelHoles)==0) && (summary->get(Trk::numberOfSCTHoles)==0)){
+    if( !summary->get(Trk::numberOfPixelHits) && !summary->get(Trk::numberOfSCTHits) && (summary->get(Trk::numberOfPixelHoles)==0) && (summary->get(Trk::numberOfSCTHoles)==0) && (m_doHoleSearch)){
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Pixel or SCT hits skip hole search" << endreq;
       continue;
     }
@@ -1343,17 +1345,17 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    bool knownType = false;
 	    if ((*HTSOSItr)->type(Trk::TrackStateOnSurface::Measurement)) {
 	      knownType = true;
-	      std::cout << " Type: Measurement ";
+	      //std::cout << " Type: Measurement ";
 	    }
 	    if ((*HTSOSItr)->type(Trk::TrackStateOnSurface::Outlier)) {
 	      knownType = true;
-	      std::cout << " Type: Outlier ";
+	      //std::cout << " Type: Outlier ";
 	    }
 	    if ((*HTSOSItr)->type(Trk::TrackStateOnSurface::Hole)) {
 	      knownType = true;
-	      std::cout << " Type: Hole ";
+	      //std::cout << " Type: Hole ";
 	    }
-	    if (!knownType)  std::cout << " Type: -- UNKNOWN -- ";
+	    if (!knownType)  std::cout << "IDAlignment Monitoring HitEfficiencies Type: -- UNKNOWN -- ";
 	    std::cout << std::endl; 
   
 	    m_hits_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
@@ -2211,7 +2213,10 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
     //const Trk::MeasuredTrackParameters* measuredTrackParameter = dynamic_cast<const Trk::MeasuredTrackParameters*>(trackParameter);
 
     const Trk::TrackParameters* TrackParameters = (*tsos2)->trackParameters();
+    if (!TrackParameters)
+      continue;
     const AmgSymMatrix(5)* covariance = TrackParameters->covariance();
+    
     
     if(covariance==NULL) {
       
